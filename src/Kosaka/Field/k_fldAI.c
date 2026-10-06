@@ -33,487 +33,461 @@ extern u8 D_005F1B4C[];
 
 extern s32 *func_00155280(void);
 
-/* diagnosed Bank0017d3c0 refusal: GUARDED_SCORE 1115 (reloc-masked differing words); fnalign retail 1308 instrs/object 1013 instrs (-295, -22.5%, outside +-3% gate); 739 edits (+5 reloc-only), 140 replaces/11 deletes/8 inserts. Archive claimed object 4052B/window 5248B (1013/1312 instrs) nd2803; byte counts match within 4 instrs (retail 1308 vs claimed 1312), score metric differs (lverify nd vs guarded). Frame retail 0x130 vs object 0xe0 (-80B). Largest delete retail[1128:1149] 21 instrs with 2 jal + 0x4C/0x58/0x5C stores (distance>2800 else path); three jal deletes at 267/1245/1274 (lhu 0x728 + jal for 0016fd00/0016ffd0); two 5-instr mtc1/cvt deletes at 1019/1027 for (f32)(count+1). Shorter, so excluded longer-side causes (unsigned casts, dsll32/dsra32 narrowing, field copies, defensive C); candidates are dropped else work, omitted/recomputed calls (differing-range jal retail 30 vs object 5), and missing aggregate spills. Repaired to compile (5 data + 24 func decls in file idiom, omitted 0014bd90 arg, s32/u8* load types, no logic change); numbers are for the repaired body. */
-/* 2026-09-19 head-start install attempt (LaneMisc7 archive, 400 lines): as-archived does not compile (stale D_007EF9B0/D_007EFA04/iGpffff830c/iGpffff82fc/D_00756510, int->u8* at 003e0f80/003e9700/0047a2f0/00479940). Fixed count-neutrally (extern u8* 003e0f80(void), extern u8* 003e9700(s32), extern u8 D_007EF9B0[], extern f32 iGpffff830c/iGpffff82fc, extern u8 D_00756510[], D_007EFA04+0x220->D_007EFA00+0x224 and +0x164->+0x168, (u8*) casts on s32 first-args for 0047a2f0/00479940) to a compiling candidate at retail 1308/object 1044 (-264, -20.2%, outside gate; 1002 edits +4 reloc-only). No 2-3 substantial blocks: largest inserts 9 (at 366,412,1175) and 6 (1081), largest deletes 4 (501:505) and 1s; shortfall spread across replaces (e.g. 149:168 19-vs-16). Do not bank short body; function stays ASM. Fallback per Main is func_0047b0c0 three declarations (0044ea90 + 11 lines, jtbl[0], void*). */
-/* measured 0017d3c0 (owner, reinstalling Fn0012's body in the guarded form): object 1292
-   against retail 1308 (-1.2%, band 1269-1347, inside).  The body was first installed bare -
-   untagged marker, no `#else INCLUDE_ASM` arm - which compiled it for real and cost the whole
-   translation unit its link eligibility: linked TU count went 172 -> 171, a regression neither
-   the image SHA1 nor verify.py can see because an ineligible unit silently falls back to
-   retail bytes.  `#pragma opt_common_subs off` is scoped to this function and closed after it. */
+/* Defined follower reconstruction: actual task/model/resource pointers,
+ * complete XYZ values and separate idle, steering and recovery paths.
+ * Native b210/O2: 5152/5248 bytes and 89 aligned edits; still guarded.
+ * Ten guarded siblings and the entire default owner are preserved.
+ * See docs/probe_archive/Field_AI_follower_0017d3c0_20261005.md.
+ */
 // FUN_0017D3C0 NONMATCHING
 #ifdef NON_MATCHING
-#pragma opt_common_subs off
-s32 func_0017d3c0(u8 *arg0)
+s32 func_0017d3c0(u8 *task)
 {
-    extern u8 D_005F1B18[];
+    struct RwFrame;
+    struct RwMatrix;
     extern u8 D_007EF9B0[];
+    extern u32 iGpffff9f58;
+    extern f32 iGpffff84e0;
     extern f32 iGpffff830c;
     extern f32 iGpffff82fc;
     extern u8 D_00756510[];
-    extern u8 *func_003e0f80(void);
-    extern u8 *func_003e9700(s32 arg0);
-    extern f32 RwV3dNormalize();
-    extern f32 func_0014c3d0();
-    extern f32 func_00175db0();
-    extern f32 func_0044b920();
-    extern s32 func_0014bbe0();
-    extern s32 func_0014bd90();
-    extern s32 func_001687d0();
-    extern s32 func_001687e0();
-    extern void func_00168750();
-    extern void func_001687f0();
-    extern void func_00168ae0();
-    extern void func_00168cb0();
-    extern void func_00168de0(u8 *task, const void *axis, f32 angle);
-    extern s32 func_0016ffd0();
-    extern s32 func_0017e980();
+    extern void *func_003e0f80(void);
+    extern struct RwMatrix *func_003e9700(struct RwFrame *);
+    extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
+    extern f32 func_0014c3d0(const struct RwMatrix *, const RwV3d *, f32, f32, f32);
+    extern f32 func_00175db0(void);
+    extern f32 func_0044b920(f32);
+    extern s32 func_0014bbe0(s32, s32, s32, s32, s32);
+    extern s32 func_0014bd90(u8 *);
+    extern s32 func_001687d0(u8 *);
+    extern s32 func_001687e0(u8 *);
+    extern void func_00168750(u8 *, s32);
+    extern void func_001687f0(u8 *, u8 *);
+    extern void func_00168ae0(u8 *, u8 *);
+    extern void func_00168cb0(u8 *, f32);
+    extern void func_00168de0(u8 *, const void *, f32);
+    extern s32 func_0016fd00(s32);
+    extern s32 func_0016ffd0(s32);
+    extern s32 func_0017e980(u8 *);
     extern u32 RpRandom(void);
-    extern void memset();
-    extern void func_00452080();
-    extern void func_0046d730();
-    extern s32 func_00479c30();
-    extern void mdlSetColor();
-    extern void func_0047a850();
-    extern void func_0047a870();
+    extern void *memset(void *, int, size_t);
+    extern s32 func_00452080(KwlnTask *);
+    extern void func_0046d730(const void *, s32);
+    extern s16 func_00479c30(s32, s32);
+    extern void mdlSetColor(void *, const void *);
+    extern void func_0047a850(void *);
+    extern void func_0047a870(void *);
 
     u8 *work;
     u8 *entry;
-    u8 *obj;
-    u8 *other;
-    s32 i;
-    s32 j;
-    s32 mode;
-    s32 type;
-    s32 subtype;
+    u8 *matrix;
+    s32 index;
+    s32 historyIndex;
+    s32 tileX;
+    s32 tileZ;
     s32 active;
-    s32 active_other;
-    s32 value;
-    s32 count;
-    s32 sample_count;
+    s32 activeOther;
+    s32 action;
+    s32 currentAnimation;
+    s32 desiredAnimation;
     f32 distance;
-    f32 angle;
-    f32 effect;
+    f32 speed;
+    f32 turn;
     f32 limit;
     f32 ratio;
     f32 dot;
-    f32 turn;
-    FldAIVec3 position;
-    FldAIVec3 target;
-    FldAIVec3 delta;
-    FldAIVec3 direction;
-    FldAIVec3 offset;
-    FldAIVec3 sample;
-    FldAIVec3 keepA;
-    FldAIVec3 keepB;
-    f32 keepF0;
-    f32 keepF1;
-    f32 keepF2;
-    f32 keepF3;
-    s32 keepS0;
-    s32 keepS1;
-    s32 keepS2;
+    f32 turnAmount;
+    RwV3d selfForward;
+    RwV3d selfRight;
+    RwV3d separation;
+    RwV3d leaderDelta;
+    RwV3d offset;
+    RwV3d leaderRight;
+    RwV3d focusPosition;
+    RwV3d cameraDelta;
+    RwV3d cameraPosition;
+    RwV3d historyDelta;
+    RwV3d historyPoint;
+    RwV3d selfPosition;
 
-    work = *(u8 **)(arg0 + 0x38);
-    angle = 0.0f;
-    effect = 0.0f;
-    if (*(s32 *)(work + 4) == 1) {
+    work = *(u8 **)(task + 0x38);
+    speed = 0.0f;
+    turn = 0.0f;
+    if (*(s32 *)(work + 4) == 1)
         return 0;
-    }
     active = 0;
-    obj = *(u8 **)(work + 0x10);
-    if ((*(s32 *)(obj + 0x48) != 0) && (*(s32 *)(obj + 0x54) != 0)) {
+    entry = *(u8 **)(work + 0x10);
+    if (*(s32 *)(entry + 0x48) != 0 && *(void **)(entry + 0x54) != NULL)
         active = 1;
-    }
-    if (active == 0) {
+    if (active == 0)
         return 0;
-    }
-    active_other = 0;
-    obj = *(u8 **)(work + 0x14);
-    if ((*(s32 *)(obj + 0x48) != 0) && (*(s32 *)(obj + 0x54) != 0)) {
-        active_other = 1;
-    }
-    if (active_other == 0) {
+    activeOther = 0;
+    entry = *(u8 **)(work + 0x14);
+    if (*(s32 *)(entry + 0x48) != 0 && *(void **)(entry + 0x54) != NULL)
+        activeOther = 1;
+    if (activeOther == 0)
         return 0;
-    }
+
     switch (*(s32 *)work) {
-    case 0:
-        *(u8 **)(work + 0x50) = func_003e0f80();
-        for (i = 0; i < 4; i++) {
-            entry = D_007EF9B0 + i * 0x750;
-            if ((*(s32 *)(entry + 0x48) != 0) &&
-                (*(s32 *)(entry + 0x54) != 0) &&
-                (*(u8 **)(work + 0x10) == entry)) {
+    case 0: {
+        s32 discoveryIndex;
+        s32 discoveryAvailable;
+        u8 *discoveryEntry;
+        *(void **)(work + 0x50) = func_003e0f80();
+        for (discoveryIndex = 0; discoveryIndex < 4; discoveryIndex++) {
+            discoveryEntry = D_007EF9B0 + discoveryIndex * 0x750;
+            discoveryAvailable = 0;
+            if (*(s32 *)(discoveryEntry + 0x48) != 0 && *(void **)(discoveryEntry + 0x54) != NULL)
+                discoveryAvailable = 1;
+            if (discoveryAvailable != 0 && *(u8 **)(work + 0x10) == discoveryEntry)
                 break;
-            }
         }
-        if (i >= 4) {
+        if (discoveryIndex >= 4)
             func_0046d730(D_005F1B18, 0x97);
-        }
-        *(s32 *)(work + 0x20) = i;
+        *(s32 *)(work + 0x20) = discoveryIndex;
         *(f32 *)(work + 0x24) = 2800.0f;
         *(f32 *)(work + 0x28) = 360.0f;
         *(s32 *)(work + 0x58) = 0;
         *(s32 *)(work + 0x5C) = 0;
         *(s32 *)(work + 0x4C) = -1;
-        *(s32 *)work = *(s32 *)work + 1;
+        *(s32 *)work += 1;
         break;
+
+    }
     case 1:
-        type = func_001687d0(*(u8 **)((u8 *)D_007EFA00 + 0x224));
-        subtype = func_001687e0(*(u8 **)((u8 *)D_007EFA00 + 0x224));
-        value = *(s32 *)(func_00457120() + 4);
-        func_001687f0((u8 *)&position,
-                      *(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220);
-        target = position;
-        target.y += 180.0f;
-        obj = func_003e9700(value);
-        position.x = *(f32 *)(obj + 0x30);
-        position.y = *(f32 *)(obj + 0x34);
-        position.z = *(f32 *)(obj + 0x38);
-        delta.x = target.x - position.x;
-        delta.y = target.y - position.y;
-        delta.z = target.z - position.z;
-        distance = RwV3dLength(&delta.x);
-        if ((*(s32 *)(work + 0x6C) != 0) && (func_0014bd90() == 1)) {
-            func_0047a870(*(s32 *)(*(u8 **)(work + 0x10) + 0x54) + 0x164);
-            func_00452080(*(s32 *)(work + 0x6C));
-            *(s32 *)(work + 0x6C) = 0;
+        tileX = func_001687d0(*(u8 **)(D_007EFA00[1] + 0x220));
+        tileZ = func_001687e0(*(u8 **)(D_007EFA00[1] + 0x220));
+        {
+            struct RwFrame *frame = *(struct RwFrame **)(func_00457120() + 4);
+            func_001687f0((u8 *)&selfPosition,
+                *(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220));
+            focusPosition = selfPosition;
+            focusPosition.y += 180.0f;
+            matrix = (u8 *)func_003e9700(frame);
+            cameraPosition = *(RwV3d *)(matrix + 0x30);
         }
-        if (distance <= *(f32 *)(work + 0x64) + 110.0f) {
-            if (*(s32 *)(work + 0x6C) != 0) {
-                func_0047a870(*(s32 *)(*(u8 **)(work + 0x10) + 0x54) + 0x164);
-                func_00452080(*(s32 *)(work + 0x6C));
-                *(s32 *)(work + 0x6C) = 0;
+        cameraDelta.x = focusPosition.x - cameraPosition.x;
+        cameraDelta.y = focusPosition.y - cameraPosition.y;
+        cameraDelta.z = focusPosition.z - cameraPosition.z;
+        distance = RwV3dLength(&cameraDelta.x);
+        if (*(u8 **)(work + 0x6C) != NULL && func_0014bd90(*(u8 **)(work + 0x6C)) == 1) {
+            func_0047a870(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
+            func_00452080(*(KwlnTask **)(work + 0x6C));
+            *(u8 **)(work + 0x6C) = NULL;
+        }
+        if (distance <= 110.0f + *(f32 *)(work + 0x64)) {
+            if (*(u8 **)(work + 0x6C) != NULL) {
+                func_0047a870(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
+                func_00452080(*(KwlnTask **)(work + 0x6C));
+                *(u8 **)(work + 0x6C) = NULL;
             }
-            mdlSetColor(*(s32 *)(*(u8 **)(work + 0x10) + 0x54) + 0x164,
-                          (void *)0x00763048);
+            mdlSetColor(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164), &iGpffff9f58);
             *(s32 *)(work + 0x68) = 1;
         }
-        if ((*(s32 *)(work + 0x68) == 1) &&
-            (distance > *(f32 *)(work + 0x64) + 110.0f)) {
-            func_0047a850(*(s32 *)(*(u8 **)(work + 0x10) + 0x54) + 0x164);
-            *(s32 *)(work + 0x6C) = func_0014bbe0(
-                (s32)arg0, *(s32 *)(*(u8 **)(work + 0x10) + 0x54) + 0x164,
-                0, 0xFF, 10);
+        if (*(s32 *)(work + 0x68) == 1 && !(distance <= 110.0f + *(f32 *)(work + 0x64))) {
+            func_0047a850(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
+            *(s32 *)(work + 0x6C) = func_0014bbe0((s32)task,
+                *(s32 *)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164), 0, 255, 10);
             *(s32 *)(work + 0x68) = 0;
         }
-        if (func_00175db0() > 0.0f) {
-            *(s32 *)(work + 0x0C) = 1;
-        }
-        if (*(s32 *)(work + 0x0C) == 0) {
-            s32 current;
-            s32 desired;
-            current = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
-            desired = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
-            if (current != desired) {
-                func_00479940((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50)),
-                               0, (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728)), 0, 1);
+        if (!(func_00175db0() <= 0.0f))
+            *(s32 *)(work + 0xC) = 1;
+        if (*(s32 *)(work + 0xC) == 0) {
+            currentAnimation = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
+            desiredAnimation = func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+            if (currentAnimation != desiredAnimation) {
+                desiredAnimation = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                func_00479940(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 0, 1);
             }
-        } else {
-            s32 tbl_s;
-            s32 tbl_t;
-            type = func_001687d0(*(u8 **)((u8 *)D_007EFA00 + 0x224));
-            subtype = func_001687e0(*(u8 **)((u8 *)D_007EFA00 + 0x224));
-            tbl_s = subtype << 8;
-            tbl_t = type << 4;
-            if ((((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 2) ||
-                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 9) ||
-                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xA) ||
-                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xB) ||
-                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xC) ||
-                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xD) ||
-                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xE)) {
+            break;
+        }
+        {
+            s32 rowOffset = tileZ * 0x100;
+            s32 columnOffset = tileX * 0x10;
+            if (*(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 2 ||
+                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 9 ||
+                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 10 ||
+                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 11 ||
+                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 12 ||
+                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 13 ||
+                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 14) {
                 *(s32 *)(work + 0x58) = 0;
                 *(s32 *)(work + 0x5C) = 0;
                 *(s32 *)(work + 0x4C) = -1;
-                func_00168750(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220, 1);
+                func_00168750(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), 1);
                 *(s32 *)(work + 0x18) = 1;
-                if (*(s32 *)(work + 0x1C) != 1) {
-                    if ((RpRandom() & 1) == 0) {
-                        *(s32 *)(work + 0x48) = -1;
-                    } else if (*(s32 *)(*(u8 **)(work + 0x14) + 0x1B0) == 0) {
-                        *(s32 *)(work + 0x48) = 1;
-                    } else {
-                        value = func_0017e980(arg0);
-                        if (value < 1) {
-                            if (value < 0) {
-                                *(s32 *)(work + 0x48) = 1;
-                            } else {
-                                *(s32 *)(work + 0x48) = 0;
-                            }
-                        } else {
-                            *(s32 *)(work + 0x48) = -1;
-                        }
-                    }
+                if (*(s32 *)(work + 0x1C) != *(s32 *)(work + 0x18)) {
+                    u32 random = RpRandom() & 1;
+                    u8 *otherTask = *(u8 **)(*(u8 **)(work + 0x14) + 0x1B0);
+                    if (otherTask != NULL) {
+                        if (random != 0) {
+                            action = func_0017e980(otherTask);
+                            if (action > 0) *(s32 *)(work + 0x48) = -1;
+                            else if (action < 0) *(s32 *)(work + 0x48) = 1;
+                            else *(s32 *)(work + 0x48) = 0;
+                        } else *(s32 *)(work + 0x48) = 0;
+                    } else if (random != 0) *(s32 *)(work + 0x48) = 1;
+                    else *(s32 *)(work + 0x48) = -1;
                     *(s32 *)(work + 0x1C) = *(s32 *)(work + 0x18);
                 }
             } else {
                 *(s32 *)(work + 0x18) = 0;
-                if (*(s32 *)(work + 0x1C) != 0) {
-                    if ((RpRandom() & 1) == 0) {
-                        *(s32 *)(work + 0x48) = 0;
-                    } else if (*(s32 *)(*(u8 **)(work + 0x14) + 0x1B0) == 0) {
-                        *(s32 *)(work + 0x48) = 1;
-                    } else {
-                        value = func_0017e980(arg0);
-                        if (value < 1) {
-                            if (value < 0) {
-                                *(s32 *)(work + 0x48) = 1;
-                            } else {
-                                *(s32 *)(work + 0x48) = 0;
-                            }
-                        } else {
-                            *(s32 *)(work + 0x48) = -1;
-                        }
-                    }
+                if (*(s32 *)(work + 0x1C) != *(s32 *)(work + 0x18)) {
+                    u32 random = RpRandom() & 1;
+                    u8 *otherTask = *(u8 **)(*(u8 **)(work + 0x14) + 0x1B0);
+                    if (otherTask != NULL) {
+                        if (random != 0) {
+                            action = func_0017e980(otherTask);
+                            if (action > 0) *(s32 *)(work + 0x48) = -1;
+                            else if (action < 0) *(s32 *)(work + 0x48) = 1;
+                            else *(s32 *)(work + 0x48) = 0;
+                        } else *(s32 *)(work + 0x48) = 0;
+                    } else if (random != 0) *(s32 *)(work + 0x48) = 1;
+                    else *(s32 *)(work + 0x48) = -1;
                     *(s32 *)(work + 0x1C) = *(s32 *)(work + 0x18);
                 }
             }
         }
         *(s32 *)(work + 0x18) = 0;
-        obj = mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50)));
-        position.x = *(f32 *)(obj + 0x20);
-        position.y = *(f32 *)(obj + 0x24);
-        position.z = *(f32 *)(obj + 0x28);
-        obj = mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50)));
-        direction.x = *(f32 *)(obj + 0);
-        direction.y = *(f32 *)(obj + 4);
-        direction.z = *(f32 *)(obj + 8);
-        RwV3dNormalize(&position.x, &position.x);
-        RwV3dNormalize(&direction.x, &direction.x);
-        memset(work + 0x30, 0, 0xC);
-        memset(work + 0x3C, 0, 0xC);
+        matrix = mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50));
+        selfForward = *(RwV3d *)(matrix + 0x20);
+        matrix = mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50));
+        selfRight = *(RwV3d *)matrix;
+        RwV3dNormalize(&selfForward, &selfForward);
+        RwV3dNormalize(&selfRight, &selfRight);
+        memset(work + 0x30, 0, 12);
+        memset(work + 0x3C, 0, 12);
         *(s32 *)(work + 0x2C) = 0;
-        keepS0 = type;
-        keepS1 = subtype;
-        keepS2 = active;
-        for (i = 0; i < 4; i++) {
-            entry = D_007EF9B0 + i * 0x750;
-            if ((*(s32 *)(entry + 0x48) != 0) &&
-                (*(s32 *)(entry + 0x54) != 0) &&
-                (*(u8 **)(work + 0x10) != entry)) {
-                u8 *self_object;
-                u8 *other_object;
-                FldAIVec3 difference;
-                f32 candidate;
-                self_object = mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50)));
-                other_object = mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50)));
-                candidate = func_0014c3d0(
-                    self_object, other_object + 0x30, *(f32 *)(work + 0x28),
-                    *(f32 *)(work + 0x24), 0.0f);
-                if ((candidate >= 0.0f) && (candidate <= 80.0f)) {
-                    difference.x = *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50))) + 0x30) -
-                                   *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x30);
-                    difference.y = *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50))) + 0x34) -
-                                   *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x34);
-                    difference.z = *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50))) + 0x38) -
-                                   *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x38);
-                    RwV3dNormalize(&difference.x, &difference.x);
-                    turn = 800.0f / candidate;
-                    dot = difference.x * direction.x +
-                          difference.y * direction.y +
-                          difference.z * direction.z;
-                    if (dot >= 0.0f) {
-                        turn = turn * -1.0f;
-                    }
-                    angle += turn;
-                    if (*(u8 **)(work + 0x14) == entry) {
-                        *(f32 *)(work + 0x30) += *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50))) + 0x30);
-                        *(f32 *)(work + 0x34) += *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50))) + 0x34);
-                        *(f32 *)(work + 0x38) += *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50))) + 0x38);
-                        *(f32 *)(work + 0x3C) += *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50))) + 0x20);
-                        *(f32 *)(work + 0x40) += *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50))) + 0x24);
-                        *(f32 *)(work + 0x44) += *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(entry + 0x50))) + 0x28);
-                        *(s32 *)(work + 0x2C) += 1;
-                    }
+        for (index = 0; index < 4; index++) {
+            entry = D_007EF9B0 + index * 0x750;
+            active = 0;
+            if (*(s32 *)(entry + 0x48) != 0 && *(void **)(entry + 0x54) != NULL)
+                active = 1;
+            if (active != 0 && *(u8 **)(work + 0x10) != entry) {
+                u8 **otherModel = (u8 **)(entry + 0x50);
+                u8 *selfMatrix = mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50));
+                u8 *otherMatrix = mdlGetMatrix(*otherModel);
+                f32 candidate = func_0014c3d0((const struct RwMatrix *)selfMatrix,
+                    (const RwV3d *)(otherMatrix + 0x30), *(f32 *)(work + 0x28), *(f32 *)(work + 0x24), 0.0f);
+                if (!(candidate < 0.0f) && candidate <= 80.0f) {
+                    u8 **nearbyModel = (u8 **)(D_007EF9B0 + index * 0x750 + 0x50);
+                    f32 coordinate;
+                    coordinate = *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x30);
+                    separation.x = *(f32 *)(mdlGetMatrix(*nearbyModel) + 0x30) - coordinate;
+                    coordinate = *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x34);
+                    separation.y = *(f32 *)(mdlGetMatrix(*nearbyModel) + 0x34) - coordinate;
+                    coordinate = *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x38);
+                    separation.z = *(f32 *)(mdlGetMatrix(*nearbyModel) + 0x38) - coordinate;
+                    RwV3dNormalize(&separation, &separation);
+                    turnAmount = 800.0f / candidate;
+                    speed = iGpffff84e0;
+                    dot = separation.x * selfRight.x + separation.y * selfRight.y + separation.z * selfRight.z;
+                    if (!(dot < 0.0f)) turnAmount *= -1.0f;
+                    turn += turnAmount;
+                }
+                if (*(u8 **)(work + 0x14) == entry && !(candidate < 0.0f)) {
+                    u8 **leaderModel = (u8 **)(D_007EF9B0 + index * 0x750 + 0x50);
+                    *(f32 *)(work + 0x30) += *(f32 *)(mdlGetMatrix(*leaderModel) + 0x30);
+                    *(f32 *)(work + 0x34) += *(f32 *)(mdlGetMatrix(*leaderModel) + 0x34);
+                    *(f32 *)(work + 0x38) += *(f32 *)(mdlGetMatrix(*leaderModel) + 0x38);
+                    *(f32 *)(work + 0x3C) += *(f32 *)(mdlGetMatrix(*leaderModel) + 0x20);
+                    *(f32 *)(work + 0x40) += *(f32 *)(mdlGetMatrix(*leaderModel) + 0x24);
+                    *(f32 *)(work + 0x44) += *(f32 *)(mdlGetMatrix(*leaderModel) + 0x28);
+                    *(s32 *)(work + 0x2C) += 1;
                 }
             }
         }
-        if (keepS0 == 0x12345678) {
-            angle += (f32)keepS0 + (f32)keepS1;
+        {
+            f32 coordinate;
+            coordinate = *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x14) + 0x50)) + 0x30);
+            leaderDelta.x = coordinate - *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x30);
+            coordinate = *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x14) + 0x50)) + 0x34);
+            leaderDelta.y = coordinate - *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x34);
+            coordinate = *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x14) + 0x50)) + 0x38);
+            leaderDelta.z = coordinate - *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x38);
         }
-        if (keepS1 == 0x12345678) {
-            effect += (f32)keepS0 - (f32)keepS1;
-        }
-        if (keepS2 == 0x12345678) {
-            angle += (f32)keepS2;
-        }
-        delta.x = *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x14) + 0x50))) + 0x30) -
-                  *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x30);
-        delta.y = *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x14) + 0x50))) + 0x34) -
-                  *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x34);
-        delta.z = *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x14) + 0x50))) + 0x38) -
-                  *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x38);
-        distance = RwV3dNormalize(&delta.x, &delta.x);
-        limit = func_00175db0() > 0.0f ? 400.0f : 150.0f;
-        if (distance > limit) {
+        distance = RwV3dNormalize(&leaderDelta, &leaderDelta);
+        if (func_00175db0() <= 0.0f)
+            goto idleDistance;
+        limit = 400.0f;
+        goto distanceChosen;
+idleDistance:
+        limit = 150.0f;
+distanceChosen:
+        if (!(distance <= limit)) {
             ratio = distance / limit;
-            if (ratio > 1.0f) {
-                ratio = 1.0f;
-            }
-            effect += iGpffff830c * ratio;
+            if (!(ratio <= 1.0f)) ratio = 1.0f;
+            speed += iGpffff830c * ratio;
         }
-        keepA = direction;
-        keepB = position;
-        keepF0 = angle;
-        keepF1 = effect;
-        keepF2 = distance;
-        keepF3 = limit;
-        count = *(s32 *)(work + 0x2C);
-        if (count > 0) {
-            memset(&offset.x, 0, 0xC);
+        if (*(s32 *)(work + 0x2C) > 0) {
+            memset(&offset, 0, sizeof(offset));
             if (*(s32 *)(work + 0x18) == 0) {
-                obj = mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x14) + 0x50)));
-                sample.x = *(f32 *)(obj + 0);
-                sample.y = *(f32 *)(obj + 4);
-                sample.z = *(f32 *)(obj + 8);
-                RwV3dNormalize(&sample.x, &sample.x);
-                mode = *(s32 *)(work + 0x20);
-                if ((mode == 1) || (mode == 2) || (mode == 3)) {
+                matrix = mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x14) + 0x50));
+                leaderRight = *(RwV3d *)matrix;
+                RwV3dNormalize(&leaderRight, &leaderRight);
+                switch (*(s32 *)(work + 0x20)) {
+                case 1:
                     if (*(s32 *)(work + 0x48) < 0) {
-                        sample.x = -sample.x;
-                    }
-                    if (*(s32 *)(work + 0x48) < 0) {
-                        sample.y = -sample.y;
-                    }
-                    if (*(s32 *)(work + 0x48) < 0) {
-                        sample.z = -sample.z;
+                        leaderRight.x = -leaderRight.x;
+                        leaderRight.y = -leaderRight.y;
+                        leaderRight.z = -leaderRight.z;
                     }
                     if (*(s32 *)(work + 0x48) != 0) {
-                        offset.x = sample.x * 100.0f;
+                        offset.x = 100.0f * leaderRight.x;
+                        offset.y = 100.0f * leaderRight.y;
+                        offset.z = 100.0f * leaderRight.z;
+                    }
+                    break;
+                case 2:
+                    if (*(s32 *)(work + 0x48) < 0) {
+                        leaderRight.x = -leaderRight.x;
+                        leaderRight.y = -leaderRight.y;
+                        leaderRight.z = -leaderRight.z;
                     }
                     if (*(s32 *)(work + 0x48) != 0) {
-                        offset.y = sample.y * 100.0f;
+                        offset.x = 100.0f * leaderRight.x;
+                        offset.y = 100.0f * leaderRight.y;
+                        offset.z = 100.0f * leaderRight.z;
+                    }
+                    break;
+                case 3:
+                    if (*(s32 *)(work + 0x48) < 0) {
+                        leaderRight.x = -leaderRight.x;
+                        leaderRight.y = -leaderRight.y;
+                        leaderRight.z = -leaderRight.z;
                     }
                     if (*(s32 *)(work + 0x48) != 0) {
-                        offset.z = sample.z * 100.0f;
+                        offset.x = 100.0f * leaderRight.x;
+                        offset.y = 100.0f * leaderRight.y;
+                        offset.z = 100.0f * leaderRight.z;
                     }
-                } else {
+                    break;
+                default:
                     func_0046d730(D_005F1B18, 0x19F);
+                    break;
                 }
             } else {
-                obj = mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x14) + 0x50)));
-                sample.x = *(f32 *)(obj + 0);
-                sample.y = *(f32 *)(obj + 4);
-                sample.z = *(f32 *)(obj + 8);
-                RwV3dNormalize(&sample.x, &sample.x);
-                mode = *(s32 *)(work + 0x20);
-                if ((mode == 1) || (mode == 2) || (mode == 3)) {
+                matrix = mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x14) + 0x50));
+                leaderRight = *(RwV3d *)matrix;
+                RwV3dNormalize(&leaderRight, &leaderRight);
+                switch (*(s32 *)(work + 0x20)) {
+                case 1:
                     if (*(s32 *)(work + 0x48) < 0) {
-                        sample.x = -sample.x;
-                    }
-                    if (*(s32 *)(work + 0x48) < 0) {
-                        sample.y = -sample.y;
-                    }
-                    if (*(s32 *)(work + 0x48) < 0) {
-                        sample.z = -sample.z;
+                        leaderRight.x = -leaderRight.x;
+                        leaderRight.y = -leaderRight.y;
+                        leaderRight.z = -leaderRight.z;
                     }
                     if (*(s32 *)(work + 0x48) != 0) {
-                        offset.x = sample.x * 50.0f;
+                        offset.x = 50.0f * leaderRight.x;
+                        offset.y = 50.0f * leaderRight.y;
+                        offset.z = 50.0f * leaderRight.z;
+                    }
+                    break;
+                case 2:
+                    if (*(s32 *)(work + 0x48) < 0) {
+                        leaderRight.x = -leaderRight.x;
+                        leaderRight.y = -leaderRight.y;
+                        leaderRight.z = -leaderRight.z;
                     }
                     if (*(s32 *)(work + 0x48) != 0) {
-                        offset.y = sample.y * 50.0f;
+                        offset.x = 50.0f * leaderRight.x;
+                        offset.y = 50.0f * leaderRight.y;
+                        offset.z = 50.0f * leaderRight.z;
+                    }
+                    break;
+                case 3:
+                    if (*(s32 *)(work + 0x48) < 0) {
+                        leaderRight.x = -leaderRight.x;
+                        leaderRight.y = -leaderRight.y;
+                        leaderRight.z = -leaderRight.z;
                     }
                     if (*(s32 *)(work + 0x48) != 0) {
-                        offset.z = sample.z * 50.0f;
+                        offset.x = 50.0f * leaderRight.x;
+                        offset.y = 50.0f * leaderRight.y;
+                        offset.z = 50.0f * leaderRight.z;
                     }
-                } else {
+                    break;
+                default:
                     func_0046d730(D_005F1B18, 0x1B6);
+                    break;
                 }
             }
-            offset.x += *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x30);
-            offset.y += *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x34);
-            offset.z += *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x38);
+            offset.x += *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x30);
+            offset.y += *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x34);
+            offset.z += *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x38);
             *(f32 *)(work + 0x30) += offset.x;
             *(f32 *)(work + 0x34) += offset.y;
             *(f32 *)(work + 0x38) += offset.z;
-            *(f32 *)(work + 0x30) /= (f32)(count + 1);
-            *(f32 *)(work + 0x34) /= (f32)(count + 1);
-            *(f32 *)(work + 0x38) /= (f32)(count + 1);
-            delta.x = *(f32 *)(work + 0x30) - *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x30);
-            delta.y = *(f32 *)(work + 0x34) - *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x34);
-            delta.z = *(f32 *)(work + 0x38) - *(f32 *)(mdlGetMatrix((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50))) + 0x38);
-            RwV3dNormalize(&delta.x, &delta.x);
-            dot = delta.x * direction.x + delta.y * direction.y + delta.z * direction.z;
+            *(f32 *)(work + 0x30) /= (f32)(*(s32 *)(work + 0x2C) + 1);
+            *(f32 *)(work + 0x34) /= (f32)(*(s32 *)(work + 0x2C) + 1);
+            *(f32 *)(work + 0x38) /= (f32)(*(s32 *)(work + 0x2C) + 1);
+            separation.x = *(f32 *)(work + 0x30) - *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x30);
+            separation.y = *(f32 *)(work + 0x34) - *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x34);
+            separation.z = *(f32 *)(work + 0x38) - *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x38);
+            RwV3dNormalize(&separation, &separation);
+            dot = selfForward.x * separation.x + selfForward.y * separation.y + selfForward.z * separation.z;
             if (dot < 1.0f) {
-                ratio = (func_0044b920(dot) * 20.0f) / iGpffff82fc;
-                if (1.0f - dot < ratio / 180.0f) {
-                    ratio = (1.0f - dot) * 180.0f;
-                }
-                turn = delta.x * sample.x + delta.y * sample.y + delta.z * sample.z;
-                if (turn < 0.0f) {
-                    ratio = ratio * -1.0f;
-                }
-                angle += ratio;
-            }
-            if (*(s32 *)(work + 0x48) == 0x12345678) {
-                angle += keepA.x + keepB.x + keepF0 + keepF1 + keepF2 + keepF3;
+                turnAmount = 20.0f * func_0044b920(dot) / iGpffff82fc;
+                if (1.0f - dot < turnAmount / 180.0f) turnAmount = 180.0f * (1.0f - dot);
+                ratio = separation.x * selfRight.x + separation.y * selfRight.y + separation.z * selfRight.z;
+                if (ratio < 0.0f) turnAmount *= -1.0f;
+                turn += turnAmount;
             }
         }
-        if ((distance <= 2800.0f) || (*(s32 *)(work + 8) != 0)) {
-            if ((angle != 0.0f) && (effect != 0.0f)) {
-                func_00168de0(
-                    *(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220,
-                    D_00756510, angle);
+        if (distance <= 2800.0f)
+            goto moveFollower;
+        if (*(s32 *)(work + 8) != 0)
+            goto moveFollower;
+            matrix = mdlGetMatrix(*(u8 **)(D_007EFA00[1] + 0x164));
+            func_00168ae0(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), matrix + 0x30);
+            *(s32 *)(work + 0x4C) = -1;
+            *(s32 *)(work + 0x58) = 0;
+            *(s32 *)(work + 0x5C) = 0;
+        goto movementComplete;
+moveFollower:
+        {
+            active = 0;
+            historyIndex = *(s32 *)(*(u8 **)(work + 0x10) + 0x710) - 1;
+            if (turn != 0.0f && speed != 0.0f)
+                func_00168de0(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), D_00756510, turn);
+            if (speed != 0.0f)
+                func_00168cb0(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), speed);
+            if (historyIndex < 0) historyIndex = 63;
+            entry = *(u8 **)(work + 0x10);
+            if (*(u8 *)(entry + historyIndex + 0x1D0) != 0) {
+                func_001687f0((u8 *)&historyPoint, *(u8 **)(*(u8 **)(entry + 0x54) + 0x220));
+                historyDelta = historyPoint;
+                entry = *(u8 **)(work + 0x10);
+                historyPoint.x = *(f32 *)(entry + historyIndex * 8 + 0x210);
+                historyPoint.z = *(f32 *)(entry + historyIndex * 8 + 0x214);
+                historyDelta.x = historyPoint.x - historyDelta.x;
+                historyDelta.y = historyPoint.y - historyDelta.y;
+                historyDelta.z = historyPoint.z - historyDelta.z;
+                if (RwV3dLength(&historyDelta.x) < speed) active = 1;
             }
-            if (effect != 0.0f) {
-                func_00168cb0(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220,
-                              effect);
-            }
-            j = *(s32 *)(*(u8 **)(work + 0x10) + 0x710) - 1;
-            if (j < 0) {
-                j = 0x3F;
-            }
-            obj = *(u8 **)(work + 0x10);
-            if (*(u8 *)(obj + j + 0x1D0) != 0) {
-                func_001687f0((u8 *)&position,
-                              *(u8 **)(*(u8 **)(obj + 0x54) + 0x220));
-                target.x = *(f32 *)(obj + j * 8 + 0x210);
-                target.z = *(f32 *)(obj + j * 8 + 0x214);
-                target.y = position.y;
-                delta.x = target.x - position.x;
-                delta.y = target.y - position.y;
-                delta.z = target.z - position.z;
-                if (RwV3dLength(&delta.x) < effect) {
-                    active = 1;
-                } else {
-                    active = 0;
-                }
-            } else {
-                active = 0;
-            }
-            if ((effect == 0.0f) || (active != 0)) {
-                if (*(s32 *)(work + 0x60) < 0x1E) {
-                    *(s32 *)(work + 0x60) += 1;
-                } else {
-                    value = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
-                    mode = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
-                    if (value != mode) {
-                        func_00479940((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50)),
-                                       0, (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728)), 0x10, 1);
+            if (speed == 0.0f || active == 1) {
+                if (*(s32 *)(work + 0x60) < 30) *(s32 *)(work + 0x60) += 1;
+                else {
+                    currentAnimation = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
+                    desiredAnimation = func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                    if (currentAnimation != desiredAnimation) {
+                        desiredAnimation = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                        func_00479940(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 16, 1);
                     }
                     *(s32 *)(work + 0x60) = 0;
                 }
             } else {
-                value = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
-                mode = (s16)func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
-                if (value != mode) {
-                    func_00479940((u8 *)(*(s32 *)(*(u8 **)(work + 0x10) + 0x50)),
-                                   0, (s16)func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728)), 8, 1);
+                currentAnimation = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
+                desiredAnimation = func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                if (currentAnimation != desiredAnimation) {
+                    desiredAnimation = (s16)func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                    func_00479940(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 8, 1);
                     *(s32 *)(work + 0x60) = 0;
                 }
             }
-        } else {
-            obj = mdlGetMatrix((u8 *)(*(s32 *)((u8 *)D_007EFA00 + 0x168)));
-            func_00168ae0(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220,
-                          obj + 0x30);
-            *(s32 *)(work + 0x4C) = -1;
-            *(s32 *)(work + 0x58) = 0;
-            *(s32 *)(work + 0x5C) = 0;
         }
-        if (*(s32 *)(work + 8) == 0) {
-            *(s32 *)(work + 8) = 1;
-        }
+movementComplete:
+        if (*(s32 *)(work + 8) == 0) *(s32 *)(work + 8) = 1;
         break;
     case 2:
     default:
@@ -521,7 +495,7 @@ s32 func_0017d3c0(u8 *arg0)
     }
     return 0;
 }
-#pragma opt_common_subs on
+
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017d3c0);
 #endif

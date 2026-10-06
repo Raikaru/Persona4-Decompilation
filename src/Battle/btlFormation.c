@@ -126,7 +126,7 @@ u32 func_002027b0(void);
 
 
 // FUN_001D1EB0
-void func_001d1eb0(u32 param_1, u32 param_2, float param_3, u16 param_4)
+BtlPacket *func_001d1eb0(u32 param_1, u32 param_2, float param_3, u16 param_4)
 {
     u32 *work;
     u32 packet;
@@ -138,6 +138,7 @@ void func_001d1eb0(u32 param_1, u32 param_2, float param_3, u16 param_4)
     work[1] = param_2;
     *(float *)(work + 2) = param_3;
     *(u16 *)(work + 3) = param_4;
+    return (BtlPacket *)packet;
 }
 
 

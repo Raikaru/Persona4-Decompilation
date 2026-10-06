@@ -3010,12 +3010,11 @@ void func_001a59a0(s64 *arg0) {
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *func_00197cc0();
     extern u8 *btlUnitCreateRotateTowardUnitPacket();
-    extern s32 func_001a0290();
     extern s32 func_001a03b0();
     extern s32 btlActionSetState();
     extern u8 *btlCameraCreateSetStatePacket();
     extern u8 *func_001bccc0();
-    extern u8 *func_001d1eb0();
+    extern BtlPacket *func_001d1eb0(u32 source, u32 target, f32 distance, u16 mode);
     extern u8 *func_001d3530();
     extern u8 *func_001d6240();
     extern s32 func_001eb440();
@@ -3043,12 +3042,12 @@ void func_001a59a0(s64 *arg0) {
     extern f32 fGpffff8128;
     extern f32 fGpffff8358;
 
-    s32 sp32A;
     s16 sp32E;
     s16 sp32C;
-    s16 sp328;
-    u16 sp31A;
-    s16 sp318;
+    /* 001a0290 writes both signed halfword effect indices. */
+    s16 effectIndices[2];
+    /* The constructor copies ten bytes; mode 3 uses the first four. */
+    struct { u16 mode, unitId; u8 reserved[6]; } cutin;
     RwV3d targetPosition;
     LargeBattleHitResult result;
     u8 *sp2DC;
@@ -3227,7 +3226,7 @@ void func_001a59a0(s64 *arg0) {
     sp22C = 0;
     sp230 = 0;
     func_00194590(func_00202010(temp_19, (*(u16 *)((u8 *)(arg0) + (0x6E)))), 3);
-    func_001a0290(arg0, (*(u16 *)((u8 *)(arg0) + (0x6E))), &sp328);
+    func_001a0290((u8 *)arg0, (*(u16 *)((u8 *)(arg0) + (0x6E))), (u8 *)effectIndices);
     if ((*(u16 *)((u8 *)(arg0) + (0x6A))) == 1) {
         temp_2_2 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)(arg0) + (0x30))), (*(u8 **)((u8 *)((*(u8 **)((u8 *)(arg0) + (0x38)))) + (0x30))), 0));
         (*(s64 *)((u8 *)(temp_2_2) + (0x60))) = temp_17;
@@ -3534,11 +3533,11 @@ loop_242:
         }
         if ((sp22C == 1) && (spC0 == 0) && ((*(u8 *)((u8 *)(temp_19) + (0xA2))) == 0) && ((*(u16 *)((u8 *)(arg0) + (0x6A))) == 1) && (sp258 == 0)) {
             if (sp210 != 0) {
-                var_f12 = (f32)(s32)(fGpffff8358);
+                var_f12 = fGpffff8358;
             } else {
                 var_f12 = 400.0f;
             }
-            temp_2_25 = (u8 *)(func_001d1eb0(temp_19, (*(u8 **)((u8 *)(temp_18) + (0x30))), 3, var_f12));
+            temp_2_25 = (u8 *)(func_001d1eb0((u32)temp_19, (u32)(*(u8 **)((u8 *)(temp_18) + (0x30))), var_f12, 3));
             (*(s8 *)((u8 *)(temp_2_25) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_25) + (8))) = temp_16;
             (*(s64 *)((u8 *)(temp_2_25) + (0x60))) = temp_17;
@@ -3648,13 +3647,13 @@ loop_196:
                             func_00194590(temp_2_35, 1);
                         }
                     }
-                    temp_2_36 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (sp328 * 4))) + (0xD04))), temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), 1, 0));
+                    temp_2_36 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[0] * 4))) + (0xD04))), temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), 1, 0));
                     (*(s8 *)((u8 *)(temp_2_36) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_36) + (8))) = temp_16;
                     (*(s16 *)((u8 *)(temp_2_36) + (0x48))) = var_21;
                     func_00194590(temp_2_36, 2);
-                    if (sp32A >= 0) {
-                        temp_2_37 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (sp32A * 4))) + (0xD04))), temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), 1, 0));
+                    if (effectIndices[1] >= 0) {
+                        temp_2_37 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[1] * 4))) + (0xD04))), temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), 1, 0));
                         (*(s8 *)((u8 *)(temp_2_37) + (0))) = 5;
                         (*(s64 *)((u8 *)(temp_2_37) + (8))) = temp_16;
                         (*(s16 *)((u8 *)(temp_2_37) + (0x48))) = var_21;
@@ -3903,9 +3902,9 @@ block_224:
     }
     temp_3_7 = (u8 *)((*(u8 **)((u8 *)(arg0) + (0x8C))));
     if (temp_3_7 != NULL) {
-        sp318 = 3;
-        sp31A = (u16)((*(u16 *)((u8 *)((*(u8 **)((u8 *)(temp_3_7) + (0x30)))) + (0xA4))));
-        func_00194590(func_001fa720(&sp318), 1);
+        cutin.mode = 3;
+        cutin.unitId = (u16)((*(u16 *)((u8 *)((*(u8 **)((u8 *)(temp_3_7) + (0x30)))) + (0xA4))));
+        func_00194590(func_001fa720(&cutin), 1);
     }
     if (func_001f68e0(arg0) != 0) {
         btlActionSetState(arg0, 0x1BU);
@@ -3996,7 +3995,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_0019b550();
     extern s32 func_0019bbe0();
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
-    extern s32 actionLookAtUnit();
     extern s32 btlUnitCreateLookAtDeactivatePacket();
     extern s32 func_001a03b0();
     extern s32 btlActionSetState();
@@ -4071,14 +4069,14 @@ void func_001a7720(u8 *arg0) {
 
     s32 sp5AC;
     s32 sp5A8;
-    s32 sp5A0;
-    s32 sp59C;
-    s32 sp598;
-    u16 sp58A;
-    s16 sp588;
+    /* 0022d540 returns the three formation effect handles together. */
+    s32 effectHandles[3];
+    /* Both cut-in constructors copy ten bytes; modes 3/4 use four. */
+    struct { u16 mode, unitId; u8 reserved[6]; } cutin;
     RwV3d targetPosition;
     LargeBattleHitResult result;
-    s32 sp4F0;
+    /* Retail reserves 0x60 bytes for the formatted formation name. */
+    char formation[96];
     s32 *sp4E0;
     u8 *sp4D0;
     u8 *sp4CC;
@@ -4554,11 +4552,11 @@ void func_001a7720(u8 *arg0) {
             }
             sp280 = sp450;
             sp1A0 = (s32)((s32)(((s32) (func_0023d8e0(0, (u16) sp280) << 0x30) >> 0x30)) == (s32)(0x10));
-            if ((s32)(func_0022d540((u8 *)arg0, (u8 *)&sp598)) == (s32)(0)) {
+            if ((s32)(func_0022d540((u8 *)arg0, (u8 *)effectHandles)) == (s32)(0)) {
                 temp_3_3 = (u8 *)(iGpffffb3ac);
-                sp598 = (s64)((s64)((*( s64 * )((u8 *)(temp_3_3) + (0xD30)))));
-                sp59C = (s64)((s64)((*( s64 * )((u8 *)(temp_3_3) + (0xD34)))));
-                sp5A0 = (s64)((s64)((*( s64 * )((u8 *)(temp_3_3) + (0xD38)))));
+                effectHandles[0] = (*(s32 *)((u8 *)temp_3_3 + 0xD30));
+                effectHandles[1] = (*(s32 *)((u8 *)temp_3_3 + 0xD34));
+                effectHandles[2] = (*(s32 *)((u8 *)temp_3_3 + 0xD38));
             }
             if (((s32)(func_001f11e0(sp450)) == (s32)(0)) && ((s32)(func_001f0b90((u8 *)arg0)) == (s32)(0))) {
                 temp_4_4 = (s32)((s32)(func_001eb440((s32)(arg0) + 0x38) & 0xFFFF));
@@ -4625,9 +4623,9 @@ void func_001a7720(u8 *arg0) {
             func_00194590(var_19_2, 0);
             sp490 = (s64)((s64)(s64)((*( s64 * )((u8 *)(var_19_2) + (0x58)))));
             if (var_21 != 0) {
-                sp588 = 4;
-                sp58A = (u16)((u16)((*( u16 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA4)))));
-                temp_2_14 = (u8 *)(func_001fa110((u8 *)&sp588));
+                cutin.mode = 4;
+                cutin.unitId = (u16)((u16)((*( u16 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA4)))));
+                temp_2_14 = (u8 *)(func_001fa110((u8 *)&cutin));
                 (*( s8 * )((u8 *)(temp_2_14) + (0))) = 4;
                 *(s64 *)(temp_2_14 + 8) = var_17_3;
                 (*( s64 * )((u8 *)(temp_2_14) + (0x60))) = temp_16;
@@ -4695,7 +4693,7 @@ void func_001a7720(u8 *arg0) {
             (*( s16 * )((u8 *)(temp_2_23) + (0x48))) = 0xC;
             (*( s64 * )((u8 *)(temp_2_23) + (0x60))) = temp_16;
             func_00194590(temp_2_23, 1);
-            temp_2_24 = (u8 *)(func_001d65d0(sp598, (*(s32 *)(arg0 + 0x30)), 0, (*(s64 *)(temp_2_23 + 0x58)), 0x100));
+            temp_2_24 = (u8 *)(func_001d65d0(effectHandles[0], (*(s32 *)(arg0 + 0x30)), 0, (*(s64 *)(temp_2_23 + 0x58)), 0x100));
             (*( s64 * )((u8 *)(temp_2_24) + (0x60))) = temp_16;
             func_00194590(temp_2_24, 2);
             temp_2_25 = (u8 *)(func_001f7c20(0xA, 2, 3));
@@ -4732,7 +4730,7 @@ void func_001a7720(u8 *arg0) {
                 func_00194590(temp_2_29, 0);
             }
             temp_19 = (s32)(func_001991c0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0xFU, 1.0f));
-            temp_2_30 = (u8 *)(func_001d65d0(sp59C, (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
+            temp_2_30 = (u8 *)(func_001d65d0(effectHandles[1], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
             (*( s8 * )((u8 *)(temp_2_30) + (0))) = 4;
             (*( s64 * )((u8 *)(temp_2_30) + (8))) = var_18;
             (*( s16 * )((u8 *)(temp_2_30) + (0x48))) = (s16) temp_19;
@@ -4744,7 +4742,7 @@ void func_001a7720(u8 *arg0) {
             (*( s16 * )((u8 *)(temp_2_31) + (0x48))) = (s16) (((s32) (temp_19 << 0x30) >> 0x30) + 2);
             (*( s64 * )((u8 *)(temp_2_31) + (0x60))) = temp_16;
             func_00194590(temp_2_31, 1);
-            temp_2_32 = (u8 *)(func_001d65d0(sp5A0, (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
+            temp_2_32 = (u8 *)(func_001d65d0(effectHandles[2], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
             (*( s8 * )((u8 *)(temp_2_32) + (0))) = 4;
             (*( s64 * )((u8 *)(temp_2_32) + (8))) = var_18;
             (*( s64 * )((u8 *)(temp_2_32) + (0x60))) = temp_16;
@@ -5087,7 +5085,7 @@ void func_001a7720(u8 *arg0) {
         temp_3_12 = (u8 *)(iGpffffb3ac);
         (*( u16 * )((u8 *)(temp_3_12) + (0x18))) = (u16)((u16) ((*( u16 * )((u8 *)(temp_3_12) + (0x18))) | 0xF));
     }
-    func_001d69f0((u16) sp270, (char *)&sp4F0);
+    func_001d69f0((u16) sp270, formation);
     if (var_21 != 0) {
         temp_2_75 = (u8 *)(func_00194b60());
         (*( s8 * )((u8 *)(temp_2_75) + (0))) = 4;
@@ -5095,7 +5093,7 @@ void func_001a7720(u8 *arg0) {
         (*( s16 * )((u8 *)(temp_2_75) + (0x48))) = var_17;
         func_00194590(temp_2_75, 1);
         if (sp340 == 0) {
-            var_22 = (u8 *)(func_001d5eb0(sp4A0, (const char *)&sp4F0, 1));
+            var_22 = (u8 *)(func_001d5eb0(sp4A0, formation, 1));
         } else {
             var_22 = (u8 *)(func_00194b60());
         }
@@ -5115,7 +5113,7 @@ void func_001a7720(u8 *arg0) {
         func_00194590(sp4CC, 1);
     } else {
         if (sp340 == 0) {
-            var_22 = (u8 *)(func_001d5eb0(sp4A0, (const char *)&sp4F0, 0));
+            var_22 = (u8 *)(func_001d5eb0(sp4A0, formation, 0));
         } else {
             var_22 = (u8 *)(func_00194b60());
         }
@@ -5976,9 +5974,9 @@ block_481:
         func_001d3e00(sp4A0);
     }
     if ((s32)(s32)sp1D0 != 0) {
-        sp588 = 3;
-        sp58A = (u16)((u16)((*( u16 * )((u8 *)((*( u8 ** )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x8C)))) + (0x30)))) + (0xA4)))));
-        func_00194590(func_001fa720((u8 *)&sp588), 1);
+        cutin.mode = 3;
+        cutin.unitId = (u16)((u16)((*( u16 * )((u8 *)((*( u8 ** )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x8C)))) + (0x30)))) + (0xA4)))));
+        func_00194590(func_001fa720((u8 *)&cutin), 1);
     }
     if ((s32)(func_001f68e0((u8 *)arg0)) != (s32)(0)) {
         btlActionSetState((u8 *)arg0, 0x1BU);

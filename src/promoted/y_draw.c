@@ -641,31 +641,24 @@ void func_002b6ea0(void) {
     func_0048a000();
 }
 
-/* measured: three attempts (e-pointer local + full-deref re-derivations +
-   declaration reorders), best nd 350. Structure fully decompiled: outer s16
-   loop 0..0x30B, per-index clear at 0x30C06, flag-bit dispatch (0x4000 ->
-   func_002b6260 object, 0x2000 -> func_002b6180 object, else the 0x72/0xA4/
-   0xB0 spawn check), the 14-arg func_0025ecd0 call, and the count update.
-   Residual walls: (1) retail re-derives the iGpffffb574 base into a fresh
-   saved register after every call and keeps $s1 across the func_0043f810
-   call, mwcc keeps the loop-head e pointer live in $s2 across calls (nd
-   unchanged with full derefs - mwcc CSEs them); (2) the bit-scan loop
-   (found=0 exit-edge sink + constant-1 CSE) appears FOUR times - the same
-   wall as func_002b7cd0's measured nd 133 in isolation; (3) the func_0025ecd0
-   14-arg materialization order. Loop-register + bit-scan + arg-order floor. */
-/* measured: note re-confirmed 2026-08-03 - fndiff of the INCLUDE_ASM state
-   reads nd 0 by construction (the object IS the retail asm), which is why the
-   assignment list showed [nd 0]. The last C-body measurement is nd 350 (above);
-   do not treat this function as matched until a C body exists. */
-/* measured 002b6ec0 (banked honest body: s16 i loop 0..0x30B with per-index clear, bit0-guarded 43f810+89a0/0xF0 + 7cd0 prologue, 0x4000/6260 + 0x2000/6180 arms with 460990/460AC0 + A4/B0<=gp-gated spawn vs 7cd0-shaped bit-scan, u8-0x72-gated third spawn with flag 1, s8-nested final clear, count/i tail; true floats-first 0025ecd0 via function-local extern): measure_guarded 356 words obj 1296B/window 1536B; fnalign --candidate 219 edits (+14 reloc-only), retail 380 vs object 324 instrs; opclass addu -21 lw -14 dsll32/dsra32 -5 sll -5 shortfalls. Dropping the hoisted gtable local re-measured identical 356 (mwcc CSEs re-derivations, as the old note predicted). Wall is retail's per-region base re-derivation vs saved-locals plus bit-scan x4 and 14-arg call order. Production stays ASM. */
-/* measured 2026-09-19: per-region e re-derivation plus opt_common_subs off recovers the lw/addu hole. */
-/* fnalign retail 380 vs object 375 (-1.3%, inside +-3%); deletes gone (3x4 filled), opclass addu +9 lw -10 (overshoot) vs old addu -21 lw -14. */
+/* The guarded update follows the retail call boundaries: reacquire the work
+   table after animation, allocation and queue insertion, then retain the draw
+   entry across the pure color packer. Only entries active on loop entry are
+   appended, including entries deactivated during their update. The scale
+   gates use the retail <= rejection tests in all three draw arms.
+
+   The 0025ecd0 provider confirms the existing six float/eight integer channels.
+   Its declaration is shared with the other callers in this owner.
+   Measured 2026-10-05: complete-owner C target 1512 bytes / 1536-byte window,
+   368 differing resolved words; all 57 siblings preserve their exact code and
+   references. The existing common-subexpression setting remains scoped here.
+   Strict guard, typed-layout evidence and behavioral replay:
+   docs/probe_archive/YDraw_update_002b6ec0_20261005/. */
 #pragma push
 #pragma opt_common_subs off
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002b6ec0(u8 *arg0) {
-    extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
     u8 *table;
     s32 off;
     s16 i;
@@ -674,6 +667,7 @@ s32 func_002b6ec0(u8 *arg0) {
     s16 found;
     s32 flags;
     s32 color;
+    s32 animation;
     u8 *w;
     table = *(u8 **)(arg0 + 0x38);
     i = 0;
@@ -685,24 +679,26 @@ s32 func_002b6ec0(u8 *arg0) {
         off = (s32)i << 8;
         e = *(u8 **)(iGpffffb574 + 0x38) + off;
         if (((*(s16 *)(e + 0x14)) & 1) == 1) {
+            /* Animation may replace the work table used for the copy. */
+            animation = func_002b89a0(e + 0x14);
             e = *(u8 **)(iGpffffb574 + 0x38) + off;
-            memcpy(e + 0x14, func_002b89a0(e + 0x14), 0xF0);
+            memcpy(e + 0x14, animation, 0xF0);
             e = *(u8 **)(iGpffffb574 + 0x38) + off;
             func_002b7cd0(arg0, i, *(s16 *)(e + 8));
             e = *(u8 **)(iGpffffb574 + 0x38) + off;
             fl = *(s16 *)(e + 0x14);
             if ((s16)((fl & 0x4000) >> 0xE) == 1) {
-                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 w = func_00460990();
                 *(void (**)(void))(w + 8) = func_002b6260;
                 *(s32 *)(w + 0x10) = 0;
+                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 func_00460ac0(D_00793E80 + *(s32 *)(e + 0xC) * 0x30, w);
+                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 if (*(f32 *)(e + 0xA4) <= fGpffff8504 || *(f32 *)(e + 0xB0) <= fGpffff8504) {
                     goto bs0;
                 } else {
                     e = *(u8 **)(iGpffffb574 + 0x38) + off;
                     color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
-                    e = *(u8 **)(iGpffffb574 + 0x38) + off;
                     func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 0, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
                     goto tail;
                 }
@@ -717,17 +713,17 @@ bs0out:
                 if (found == 0) { *(s16 *)(e + 0x14) &= ~1; }
                 goto tail;
             } else if ((s16)((fl & 0x2000) >> 0xD) == 1) {
-                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 w = func_00460990();
                 *(void (**)(void))(w + 8) = func_002b6180;
                 *(s32 *)(w + 0x10) = 0;
+                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 func_00460ac0(D_00793E80 + *(s32 *)(e + 0xC) * 0x30, w);
+                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 if (*(f32 *)(e + 0xA4) <= fGpffff8504 || *(f32 *)(e + 0xB0) <= fGpffff8504) {
                     goto bs1;
                 } else {
                     e = *(u8 **)(iGpffffb574 + 0x38) + off;
                     color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
-                    e = *(u8 **)(iGpffffb574 + 0x38) + off;
                     func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 0, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
                     goto tail;
                 }
@@ -741,8 +737,7 @@ bs1:
 bs1out:
                 if (found == 0) { *(s16 *)(e + 0x14) &= ~1; }
                 goto tail;
-            e = *(u8 **)(iGpffffb574 + 0x38) + off;
-            } else if (e[0x72] > 0 && *(f32 *)(e + 0xA4) > fGpffff8504 && *(f32 *)(e + 0xB0) > fGpffff8504) {
+            } else if (e[0x72] != 0 && !(*(f32 *)(e + 0xA4) <= fGpffff8504) && !(*(f32 *)(e + 0xB0) <= fGpffff8504)) {
                 color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
                 func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 1, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
                 goto tail;
@@ -757,11 +752,12 @@ bs1out:
                     }
                 }
             }
-        }
 tail:
-        count = *(s16 *)(table + 0x30C04);
-        *(s16 *)(table + count * 2 + 0x30C06) = i;
-        *(s16 *)(table + 0x30C04) = count + 1;
+            /* Only entries active on loop entry belong in this list. */
+            count = *(s16 *)(table + 0x30C04);
+            *(s16 *)(table + count * 2 + 0x30C06) = i;
+            (*(s16 *)(table + 0x30C04))++;
+        }
         i++;
     }
     return 0;

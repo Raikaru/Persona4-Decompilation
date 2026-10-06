@@ -6,6 +6,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "message_frame_internal.h"
 
 typedef struct RwV3d {
     f32 x, y, z;
@@ -152,10 +153,6 @@ extern f32 D_005F21A4[];
 extern s32 func_0018a200(u8 *task);
 extern s32 func_0015a560(void);
 extern f32 sinf(f32 arg0);
-extern void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5, s32 arg6, s32 arg7,
-                          s16 arg8, void *arg9, f32 farg0, f32 farg1,
-                          f32 farg2, f32 farg3);
 
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern s32 func_00275680(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id,
@@ -1835,11 +1832,8 @@ s32 func_00189940(u8 *arg0)
         *(f32 *)(temp_16 + 0x228) = ((f32)371 + 0.0f) + 30.0f * *(f32 *)(temp_16 + 0x22C);
         /* fallthrough */
     case 2:
-        func_00366380((s32)*(f32 *)(temp_16 + 0x224), (s32)*(f32 *)(temp_16 + 0x228),
-                      301, 26, 0xFAFF20, 255, 1, 150, 13, D_00794C60,
-                      (f32)59000, -5.0f, 1.0f, 1.0f);
-        func_00366380(25, 401, 301, 26, 0x191919, 255, 1, 150, 13, D_00794C60,
-                      (f32)59000, 0.0f, 1.0f, *(f32 *)(temp_16 + 0x22C));
+        func_00366380((s32)*(f32 *)(temp_16 + 0x224), (s32)*(f32 *)(temp_16 + 0x228), (f32)59000, 301, 26, 0xFAFF20, 255, 1, 150, 13, D_00794C60, -5.0f, 1.0f, 1.0f);
+        func_00366380(25, 401, (f32)59000, 301, 26, 0x191919, 255, 1, 150, 13, D_00794C60, 0.0f, 1.0f, *(f32 *)(temp_16 + 0x22C));
         if (!(*(f32 *)(temp_16 + 0x22C) < 1.0f)) {
             if (*(s32 *)((((!(u32)*(s32 *)(temp_16 + 8)) << 2) + (u32)temp_16 + 0x10)) != 0) {
                 temp_f0 = sinf((D_00761184 * (f32)*(s32 *)(temp_16 + 0xC)) / 10.0f);

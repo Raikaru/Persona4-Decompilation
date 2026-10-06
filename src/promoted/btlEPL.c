@@ -574,9 +574,9 @@ typedef struct BtlEplUnitRgbaParam
     u8 select[4];         // 0x0C, read by func_001fc300
 } BtlEplUnitRgbaParam;
 
-/* Only fade-in/out initialize scale. Evaluate its complement inside those
- * cases, never on the constant-color/plateau path. The guard remains while
- * the compiler coefficient and color registers differ from retail. */
+/* Only fade-in/out initialize scale; evaluate its complement in those cases.
+ * Measured vector blends: 2172/2176B, 90 fully resolved differing words from
+ * the f0/f1/f2 register rotation. The NON_MATCHING guard remains. */
 // FUN_001FD790 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_dead_assignments off
@@ -638,23 +638,23 @@ void func_001fd790(u8 *arg0)
                     const f32 inv = 1.0f - scale;
                     V4 color;
                     V4 start;
-                    f32 a0, a1, a2, a3;
-                    f32 b0, b1, b2, b3;
+                    V4 from;
+                    V4 to;
 
                     btlEplRgbaToV4(&color, &rgba.c);
                     btlEplRgbaToV4(&start, &node->startRgba);
-                    a0 = start.v[0] * inv;
-                    a1 = start.v[1] * inv;
-                    a2 = start.v[2] * inv;
-                    a3 = start.v[3] * inv;
-                    b0 = color.v[0] * scale;
-                    b1 = color.v[1] * scale;
-                    b2 = color.v[2] * scale;
-                    b3 = color.v[3];
-                    color.v[0] = a0 + b0;
-                    color.v[1] = a1 + b1;
-                    color.v[2] = a2 + b2;
-                    color.v[3] = a3 + b3 * scale;
+                    from.v[0] = start.v[0] * inv;
+                    from.v[1] = start.v[1] * inv;
+                    from.v[2] = start.v[2] * inv;
+                    from.v[3] = start.v[3] * inv;
+                    to.v[0] = color.v[0] * scale;
+                    to.v[1] = color.v[1] * scale;
+                    to.v[2] = color.v[2] * scale;
+                    to.v[3] = color.v[3] * scale;
+                    color.v[0] = from.v[0] + to.v[0];
+                    color.v[1] = from.v[1] + to.v[1];
+                    color.v[2] = from.v[2] + to.v[2];
+                    color.v[3] = from.v[3] + to.v[3];
                     node->rgba.r = (s32)(0.5f + 255.0f * color.v[0]);
                     node->rgba.g = (s32)(0.5f + 255.0f * color.v[1]);
                     node->rgba.b = (s32)(0.5f + 255.0f * color.v[2]);
@@ -669,23 +669,23 @@ void func_001fd790(u8 *arg0)
                     const f32 inv = 1.0f - scale;
                     V4 color;
                     V4 start;
-                    f32 a0, a1, a2, a3;
-                    f32 b0, b1, b2, b3;
+                    V4 from;
+                    V4 to;
 
                     btlEplRgbaToV4(&color, &D_007641F8);
                     btlEplRgbaToV4(&start, &node->startRgba);
-                    a0 = color.v[0] * inv;
-                    a1 = color.v[1] * inv;
-                    a2 = color.v[2] * inv;
-                    a3 = color.v[3] * inv;
-                    b0 = start.v[0] * scale;
-                    b1 = start.v[1] * scale;
-                    b2 = start.v[2] * scale;
-                    b3 = start.v[3];
-                    color.v[0] = a0 + b0;
-                    color.v[1] = a1 + b1;
-                    color.v[2] = a2 + b2;
-                    color.v[3] = a3 + b3 * scale;
+                    from.v[0] = color.v[0] * inv;
+                    from.v[1] = color.v[1] * inv;
+                    from.v[2] = color.v[2] * inv;
+                    from.v[3] = color.v[3] * inv;
+                    to.v[0] = start.v[0] * scale;
+                    to.v[1] = start.v[1] * scale;
+                    to.v[2] = start.v[2] * scale;
+                    to.v[3] = start.v[3] * scale;
+                    color.v[0] = from.v[0] + to.v[0];
+                    color.v[1] = from.v[1] + to.v[1];
+                    color.v[2] = from.v[2] + to.v[2];
+                    color.v[3] = from.v[3] + to.v[3];
                     node->rgba.r = (s32)(0.5f + 255.0f * color.v[0]);
                     node->rgba.g = (s32)(0.5f + 255.0f * color.v[1]);
                     node->rgba.b = (s32)(0.5f + 255.0f * color.v[2]);

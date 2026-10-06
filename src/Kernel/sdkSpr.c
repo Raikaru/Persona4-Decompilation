@@ -113,6 +113,8 @@ typedef u8 SdkSpriteRecord[0x80];
 
 /* Same unsigned extent, optional signed override, and Q12 scale as the
  * public width/height queries above. Each call reads the current payload. */
+/* Both extents use the retail 32-bit wrapping subtraction. Convert each
+ * signed bound before subtracting so an overflowing difference is defined. */
 static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
 {
     u32 value;
@@ -123,8 +125,8 @@ static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
 
     offset = *(u32 *)(sample + 4) * 0x80;
     output = *(u8 **)(*(u8 **)sample + 0x204);
-    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x5C) -
-            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x54);
+    value = (u32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x5C) -
+            (u32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x54);
     overrideBase = output + 0x74;
     if (*(s16 *)(overrideBase + offset) != 0) {
         value = *(s16 *)(overrideBase + offset);
@@ -152,8 +154,8 @@ static inline f32 sdkSpriteBottom(u8 *sample, s32 includeBorder)
 
     offset = *(u32 *)(sample + 4) * 0x80;
     output = *(u8 **)(*(u8 **)sample + 0x204);
-    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x60) -
-            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x58);
+    value = (u32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x60) -
+            (u32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x58);
     overrideBase = output + 0x76;
     if (*(s16 *)(overrideBase + offset) != 0) {
         value = *(s16 *)(overrideBase + offset);

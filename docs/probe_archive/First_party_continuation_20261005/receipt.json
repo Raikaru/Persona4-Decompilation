@@ -1,0 +1,1579 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-05",
+  "upstream": "1ce92c4949e3501076f2a0d7db836d48ea826e48",
+  "branch": "work/finish-first-party-20261005",
+  "matching_complete": false,
+  "new_exact_C_in_this_continuation": 1,
+  "first_party": {
+    "MATCH": 6767,
+    "ASM": 94
+  },
+  "all_functions": {
+    "MATCH": 9587,
+    "ASM": 3515
+  },
+  "source_sha256": {
+    "src/Battle/btlFormation.c": "5d9b1de7ef8df8721388f1177f6da5805cfe1a1e425a9e76baa0590a48610d00",
+    "src/Event/Fcl/y_fclCombine.c": "fe2590041f4d866d16554b7304618818e4a98e8ec93c191820b5c3111137f262",
+    "src/Kernel/sdkSpr.c": "f39f05eed1906f13c87e5558a962a530218be3a3f2df38b842fb28ac0d1173bd",
+    "src/Kosaka/Field/k_fldAI.c": "b5ccbe3bc9426c297caa4918c266589f24e90f177f700b26930a284d3ef12a7e",
+    "src/promoted/btlEPL.c": "8f90e0ff43a8a274aecaef5607ca2202a2f30e5fe8aede71cbfc61d3ca187195",
+    "src/promoted/code1_0018.c": "efaa76202fdbf09982862b123dd05c14f3b638ade8aab6392dbdf0e2fc6bc9e6",
+    "src/promoted/code1_001a.c": "ae1e1480a0cde795dafda7cec64300fd7b3481253f4d76e78f6414859476b01d",
+    "src/promoted/code1_001e.c": "2d154235750f2ed78cf25f380ec47a22fde329a8db770c1b83ed3a51a56d6c7a",
+    "src/promoted/code1_0027.c": "777fbf1b2510edbb1ecdeea550f6c61229fde70a266c33eb14853e99deec58fd",
+    "src/promoted/code1_0036.c": "c5aa46f2696777b2765089e15fec332653af590a897c8bf43f31ac467c9b8394",
+    "src/promoted/code1_0048.c": "ce73aa37eb26c87a304c84539b8d3a82f62247bda294c5457b2ca1519c5888bc",
+    "src/promoted/effPolygonFlash.c": "c283e95382bde05d67022c40c6e0e9d143d9cd20e808601dd052bd360e645c4a",
+    "src/promoted/itfMsgProcedure_Window.c": "4ac20829f43d412a50751c43bdf7ac53f1d3808df43e3408c276fc9bd5fb0f0b",
+    "src/promoted/y_draw.c": "0fc3abde54d5d6b482357b9631f60424191ceab2e2e5a0f4272403e28dbf29f3",
+    "include/btl_formation_internal.h": "fa368383dc5abd1b3062bb9ce276fb2b92d160e5f893b6b48478be3ab3a1d6fe",
+    "include/message_frame_internal.h": "2e2632927abbc1997206a62bae49b72532689e39a801b6670d374c17ac3b307d",
+    "tests/test_large_battle_storage_contracts.py": "58b8297dc440d123c591695718aa4d9bb1f41c0e9e889bafa2ea0d2926d6e486",
+    "tests/test_message_choice_contract.py": "63e92bdc6d497a7edc2748ce80cc30aa74ad23042474dd8cc41754d4c068f214",
+    "tests/message_choice_fixture.c.in": "21f178676364e69f2f5af0caf42edad23537dc2f21982827ac6542ee927759c3"
+  },
+  "changed_owners": [
+    "src/Battle/btlFormation.c",
+    "src/Event/Fcl/y_fclCombine.c",
+    "src/Kernel/sdkSpr.c",
+    "src/Kosaka/Field/k_fldAI.c",
+    "src/promoted/btlEPL.c",
+    "src/promoted/code1_0018.c",
+    "src/promoted/code1_001a.c",
+    "src/promoted/code1_001e.c",
+    "src/promoted/code1_0027.c",
+    "src/promoted/code1_0036.c",
+    "src/promoted/code1_0048.c",
+    "src/promoted/effPolygonFlash.c",
+    "src/promoted/itfMsgProcedure_Window.c",
+    "src/promoted/y_draw.c"
+  ],
+  "remaining_first_party": [
+    {
+      "address": "001b87e0",
+      "name": "func_001b87e0",
+      "file": "src/Battle/btlMain.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001b11c0",
+      "name": "func_001b11c0",
+      "file": "src/Battle/btlOrder_grouped.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00375f00",
+      "name": "func_00375f00",
+      "file": "src/Battle/btlShuffleDraw.c",
+      "guarded_c": true
+    },
+    {
+      "address": "003768e0",
+      "name": "func_003768e0",
+      "file": "src/Battle/btlShuffleDraw.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00363610",
+      "name": "func_00363610",
+      "file": "src/Camp/cmpPartyPanel.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00320b80",
+      "name": "func_00320b80",
+      "file": "src/Event/Fcl/y_fclCombineDraw.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00323d00",
+      "name": "func_00323d00",
+      "file": "src/Event/Fcl/y_fclCombineDraw.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00324680",
+      "name": "func_00324680",
+      "file": "src/Event/Fcl/y_fclCombineDraw.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004b6030",
+      "name": "func_004b6030",
+      "file": "src/Graphics/Effect/eff_afpack.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004b8350",
+      "name": "func_004b8350",
+      "file": "src/Graphics/Effect/eff_after.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004b8f40",
+      "name": "func_004b8f40",
+      "file": "src/Graphics/Effect/eff_after.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004afe20",
+      "name": "func_004afe20",
+      "file": "src/Graphics/Effect/effDistortParticle.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004b36b0",
+      "name": "func_004b36b0",
+      "file": "src/Graphics/Effect/effLineNova.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004b4430",
+      "name": "func_004b4430",
+      "file": "src/Graphics/Effect/effLineNova.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004aed70",
+      "name": "func_004aed70",
+      "file": "src/Graphics/Effect/effObjectParticle.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004956b0",
+      "name": "func_004956b0",
+      "file": "src/Graphics/Effect/effPolygonThunder.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004968a0",
+      "name": "func_004968a0",
+      "file": "src/Graphics/Effect/effPolygonThunder.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00497ce0",
+      "name": "func_00497ce0",
+      "file": "src/Graphics/Effect/effPolygonThunder.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004a2310",
+      "name": "func_004a2310",
+      "file": "src/Graphics/Effect/effPolygonWind.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004a3640",
+      "name": "func_004a3640",
+      "file": "src/Graphics/Effect/effPolygonWind.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004a4a10",
+      "name": "func_004a4a10",
+      "file": "src/Graphics/Effect/effPolygonWind.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00471370",
+      "name": "func_00471370",
+      "file": "src/Graphics/Model/mdlManager.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00475cd0",
+      "name": "func_00475cd0",
+      "file": "src/Graphics/Model/mdlManager.c",
+      "guarded_c": false
+    },
+    {
+      "address": "0047b0c0",
+      "name": "func_0047b0c0",
+      "file": "src/Graphics/Model/mdlManager.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0045f790",
+      "name": "func_0045f790",
+      "file": "src/Graphics/primitive.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00480f20",
+      "name": "func_00480f20",
+      "file": "src/Graphics/primitive.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004647c0",
+      "name": "func_004647c0",
+      "file": "src/Kernel/h_memcard_grouped.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0046b380",
+      "name": "func_0046b380",
+      "file": "src/Kernel/sdkSpr.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0017d3c0",
+      "name": "func_0017d3c0",
+      "file": "src/Kosaka/Field/k_fldAI.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0017f490",
+      "name": "func_0017f490",
+      "file": "src/Kosaka/Field/k_fldAI.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0015f000",
+      "name": "func_0015f000",
+      "file": "src/Kosaka/Field/k_fldFBN.c",
+      "guarded_c": false
+    },
+    {
+      "address": "0014f310",
+      "name": "func_0014f310",
+      "file": "src/Kosaka/Field/k_fldResource.c",
+      "guarded_c": true
+    },
+    {
+      "address": "003694d0",
+      "name": "func_003694d0",
+      "file": "src/Main/Social/pscModel.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001fd790",
+      "name": "func_001fd790",
+      "file": "src/promoted/btlEPL.c",
+      "guarded_c": true
+    },
+    {
+      "address": "002239a0",
+      "name": "func_002239a0",
+      "file": "src/promoted/btlResultFriendPsLvUp.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0036ee60",
+      "name": "func_0036ee60",
+      "file": "src/promoted/btlShuffle.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0036f880",
+      "name": "func_0036f880",
+      "file": "src/promoted/btlShuffle.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0024be40",
+      "name": "func_0024be40",
+      "file": "src/promoted/cmmScript.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00100008",
+      "name": "func_00100008",
+      "file": "src/promoted/code1_0010.c",
+      "guarded_c": false
+    },
+    {
+      "address": "001265a0",
+      "name": "func_001265a0",
+      "file": "src/promoted/code1_0012.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001400f0",
+      "name": "func_001400f0",
+      "file": "src/promoted/code1_0014.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00148280",
+      "name": "func_00148280",
+      "file": "src/promoted/code1_0014.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00160880",
+      "name": "func_00160880",
+      "file": "src/promoted/code1_0016.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0016bdd0",
+      "name": "func_0016bdd0",
+      "file": "src/promoted/code1_0016.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00183b80",
+      "name": "func_00183b80",
+      "file": "src/promoted/code1_0018.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0018a200",
+      "name": "func_0018a200",
+      "file": "src/promoted/code1_0018.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0019c0d0",
+      "name": "func_0019c0d0",
+      "file": "src/promoted/code1_0019.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001a59a0",
+      "name": "func_001a59a0",
+      "file": "src/promoted/code1_001a.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001a7720",
+      "name": "func_001a7720",
+      "file": "src/promoted/code1_001a.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001b05d0",
+      "name": "func_001b05d0",
+      "file": "src/promoted/code1_001b.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001d53e0",
+      "name": "func_001d53e0",
+      "file": "src/promoted/code1_001d.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001d8010",
+      "name": "func_001d8010",
+      "file": "src/promoted/code1_001d.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001e9950",
+      "name": "func_001e9950",
+      "file": "src/promoted/code1_001e.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001ed700",
+      "name": "func_001ed700",
+      "file": "src/promoted/code1_001e.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001ee610",
+      "name": "func_001ee610",
+      "file": "src/promoted/code1_001e.c",
+      "guarded_c": true
+    },
+    {
+      "address": "001f14f0",
+      "name": "func_001f14f0",
+      "file": "src/promoted/code1_001f.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00222210",
+      "name": "func_00222210",
+      "file": "src/promoted/code1_0022.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00225ec0",
+      "name": "func_00225ec0",
+      "file": "src/promoted/code1_0022.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0022a730",
+      "name": "func_0022a730",
+      "file": "src/promoted/code1_0022.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00260600",
+      "name": "func_00260600",
+      "file": "src/promoted/code1_0026.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00263cb0",
+      "name": "func_00263cb0",
+      "file": "src/promoted/code1_0026.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00267b20",
+      "name": "func_00267b20",
+      "file": "src/promoted/code1_0026.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0028c580",
+      "name": "func_0028c580",
+      "file": "src/promoted/code1_0028.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0029fbb0",
+      "name": "func_0029fbb0",
+      "file": "src/promoted/code1_0029.c",
+      "guarded_c": true
+    },
+    {
+      "address": "002ba080",
+      "name": "func_002ba080",
+      "file": "src/promoted/code1_002b.c",
+      "guarded_c": true
+    },
+    {
+      "address": "003599c0",
+      "name": "func_003599c0",
+      "file": "src/promoted/code1_0035.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00468ff0",
+      "name": "func_00468ff0",
+      "file": "src/promoted/code1_0046.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00485630",
+      "name": "func_00485630",
+      "file": "src/promoted/code1_0048.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00485870",
+      "name": "func_00485870",
+      "file": "src/promoted/code1_0048.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0048b340",
+      "name": "func_0048b340",
+      "file": "src/promoted/code1_0048.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0048cdf0",
+      "name": "func_0048cdf0",
+      "file": "src/promoted/code1_0048.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0048d8c0",
+      "name": "func_0048d8c0",
+      "file": "src/promoted/code1_0048.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0048e2f0",
+      "name": "func_0048e2f0",
+      "file": "src/promoted/code1_0048.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0048ec50",
+      "name": "func_0048ec50",
+      "file": "src/promoted/code1_0048.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0048f5f0",
+      "name": "func_0048f5f0",
+      "file": "src/promoted/code1_0048.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004903c0",
+      "name": "func_004903c0",
+      "file": "src/promoted/code1_0049.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00490c40",
+      "name": "func_00490c40",
+      "file": "src/promoted/code1_0049.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004916f0",
+      "name": "func_004916f0",
+      "file": "src/promoted/code1_0049.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004941f0",
+      "name": "func_004941f0",
+      "file": "src/promoted/code1_0049.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004a5fc0",
+      "name": "func_004a5fc0",
+      "file": "src/promoted/code1_004a.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004a7830",
+      "name": "func_004a7830",
+      "file": "src/promoted/code1_004a.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004b1ad0",
+      "name": "func_004b1ad0",
+      "file": "src/promoted/code1_004b.c",
+      "guarded_c": true
+    },
+    {
+      "address": "004a0c00",
+      "name": "func_004a0c00",
+      "file": "src/promoted/effPolygonFlash.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0027d970",
+      "name": "func_0027d970",
+      "file": "src/promoted/itfMsgProcedure_Window.c",
+      "guarded_c": true
+    },
+    {
+      "address": "0027f6f0",
+      "name": "func_0027f6f0",
+      "file": "src/promoted/itfMsgProcedure_Window.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00282250",
+      "name": "func_00282250",
+      "file": "src/promoted/itfMsgProcedure_Window.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00283490",
+      "name": "func_00283490",
+      "file": "src/promoted/itfMsgProcedure_Window.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00174e10",
+      "name": "func_00174e10",
+      "file": "src/promoted/k_fldEvent.c",
+      "guarded_c": true
+    },
+    {
+      "address": "00162e10",
+      "name": "func_00162e10",
+      "file": "src/promoted/k_fldUnit.c",
+      "guarded_c": true
+    },
+    {
+      "address": "002b6ec0",
+      "name": "func_002b6ec0",
+      "file": "src/promoted/y_draw.c",
+      "guarded_c": true
+    },
+    {
+      "address": "002ac750",
+      "name": "func_002ac750",
+      "file": "src/promoted/y_smap.c",
+      "guarded_c": true
+    },
+    {
+      "address": "002add90",
+      "name": "func_002add90",
+      "file": "src/promoted/y_smap.c",
+      "guarded_c": true
+    },
+    {
+      "address": "002ae630",
+      "name": "func_002ae630",
+      "file": "src/promoted/y_smap.c",
+      "guarded_c": true
+    },
+    {
+      "address": "002e5ae0",
+      "name": "func_002e5ae0",
+      "file": "src/Yajima/y_list.c",
+      "guarded_c": true
+    }
+  ],
+  "verification": {
+    "runs": {
+      "publication-verify": {
+        "exit_code": 0,
+        "seconds": 6310.656,
+        "head": "1ce92c4949e3501076f2a0d7db836d48ea826e48",
+        "input_count": 1919,
+        "changed_inputs_during_run": [
+          "config/symbol_data_addrs.txt",
+          "include/btl_formation_internal.h",
+          "include/message_frame_internal.h",
+          "src/Battle/btlFormation.c",
+          "src/Event/Fcl/y_fclCombine.c",
+          "src/Kernel/sdkSpr.c",
+          "src/promoted/btlEPL.c",
+          "src/promoted/code1_0018.c",
+          "src/promoted/code1_001a.c",
+          "src/promoted/code1_0027.c",
+          "src/promoted/code1_0036.c",
+          "src/promoted/effPolygonFlash.c",
+          "src/promoted/itfMsgProcedure_Window.c",
+          "src/promoted/y_draw.c",
+          "tests/message_choice_fixture.c.in",
+          "tests/test_large_battle_storage_contracts.py",
+          "tests/test_message_choice_contract.py"
+        ],
+        "log_sha256": "55d21fed2ea25573361f20502fd1fafd7cabcd98c6c86746dc2466ec82da3d3e",
+        "report_sha256": "6d1ff18036679dfc3b34262b4e820021f2459e0bae67192bae192dacd2152d0a",
+        "receipt_sha256": "2dbd3073ad8a8153b49e8f559708422217bbbd228a25574bca6ab371f1369e23",
+        "current_drift": {
+          "config/symbol_data_addrs.txt": {
+            "before": "7204654f7369d3bd5945cc8466221706a4da9e2f87d5fcaffeaf530ae51c05c4",
+            "after": "b5a8c5c13234a4673a4a90f6827fc876b2ba37de1e1460fc6ebcf151e262f84c"
+          },
+          "include/btl_formation_internal.h": {
+            "before": "e79a285a0d28d30b356fc6f215f081e59f7effac64c03a0d91e1266c82c4f15e",
+            "after": "fa368383dc5abd1b3062bb9ce276fb2b92d160e5f893b6b48478be3ab3a1d6fe"
+          },
+          "src/Battle/btlFormation.c": {
+            "before": "48900429101ede46b116608e4b8ddddfd970712af32d016c726aa8b66f452e56",
+            "after": "5d9b1de7ef8df8721388f1177f6da5805cfe1a1e425a9e76baa0590a48610d00"
+          },
+          "src/Event/Fcl/y_fclCombine.c": {
+            "before": "c546ae4c83ffda41b39a481ea0469b2a60da416befae3b178ba6811ced515970",
+            "after": "fe2590041f4d866d16554b7304618818e4a98e8ec93c191820b5c3111137f262"
+          },
+          "src/Kernel/sdkSpr.c": {
+            "before": "6990c0b8a3d840bc2f93cec9cff23c2e52e86dab1520a3dd543ca27d36a6aa91",
+            "after": "f39f05eed1906f13c87e5558a962a530218be3a3f2df38b842fb28ac0d1173bd"
+          },
+          "src/promoted/btlEPL.c": {
+            "before": "0d27043436dbdf449177b1df0adea4ab20ec4b547068ef3b491819b90196b93a",
+            "after": "8f90e0ff43a8a274aecaef5607ca2202a2f30e5fe8aede71cbfc61d3ca187195"
+          },
+          "src/promoted/code1_0018.c": {
+            "before": "83489c0664b8eeb15a5b46605295d1ac54108d468ba0cf3623a41a10c46e4eaf",
+            "after": "efaa76202fdbf09982862b123dd05c14f3b638ade8aab6392dbdf0e2fc6bc9e6"
+          },
+          "src/promoted/code1_001a.c": {
+            "before": "99b52240491b79181446c521a8a93d2b6e2c7ac3bd36a4750b6efc834d75e20d",
+            "after": "ae1e1480a0cde795dafda7cec64300fd7b3481253f4d76e78f6414859476b01d"
+          },
+          "src/promoted/code1_0027.c": {
+            "before": "68d4d1b46821ced66cba6fcfd719c24f8c2fa8d3ae7323cc9e7f621b0455c683",
+            "after": "777fbf1b2510edbb1ecdeea550f6c61229fde70a266c33eb14853e99deec58fd"
+          },
+          "src/promoted/code1_0036.c": {
+            "before": "1c8b1cda86bb40d4bd4c74eedf5c74aced76f172100a344557be59055664cb69",
+            "after": "c5aa46f2696777b2765089e15fec332653af590a897c8bf43f31ac467c9b8394"
+          },
+          "src/promoted/code1_0048.c": {
+            "before": "012a0b0f4b69b5e2a5eff2156f10efc0b27e87c7219d675f006c0ba5d308148b",
+            "after": "ce73aa37eb26c87a304c84539b8d3a82f62247bda294c5457b2ca1519c5888bc"
+          },
+          "src/promoted/effPolygonFlash.c": {
+            "before": "aab7dff0682b7658da404866095a44cd3b68ceb854fd82179bdaa8d02f5f1172",
+            "after": "c283e95382bde05d67022c40c6e0e9d143d9cd20e808601dd052bd360e645c4a"
+          },
+          "src/promoted/itfMsgProcedure_Window.c": {
+            "before": "591fc1b3a6ee644880d77c60cadf2b2f1736659b35b3d444ab9cabc035838e99",
+            "after": "4ac20829f43d412a50751c43bdf7ac53f1d3808df43e3408c276fc9bd5fb0f0b"
+          },
+          "src/promoted/y_draw.c": {
+            "before": "e2906fc401b542f76ac12ffa48712a94f82072a198323d971ce166b355b0d330",
+            "after": "0fc3abde54d5d6b482357b9631f60424191ceab2e2e5a0f4272403e28dbf29f3"
+          },
+          "tests/test_large_battle_storage_contracts.py": {
+            "before": "394af79a01bfb4b96ceda6a68d3838e1754b4017a00c4d67dea3556823e46766",
+            "after": "58b8297dc440d123c591695718aa4d9bb1f41c0e9e889bafa2ea0d2926d6e486"
+          }
+        }
+      },
+      "cos20999-final-first-party": {
+        "exit_code": 0,
+        "seconds": 180.141,
+        "head": "1ce92c4949e3501076f2a0d7db836d48ea826e48",
+        "input_count": 1922,
+        "changed_inputs_during_run": [],
+        "log_sha256": "b4e15bc6fe044763992e7d43ad8c8490824ba31bdff0ee2d7e35b947754bb874",
+        "report_sha256": "41c94c23b44f555d4b6174e896c7de0d4111353e9ea828fbd6ef52566a7046dd",
+        "receipt_sha256": "9d67664eea9e03649c8e4dc7800bc84071052aa9ca482bc5341686497d6b0c1a",
+        "current_drift": {
+          "src/promoted/code1_0048.c": {
+            "before": "012a0b0f4b69b5e2a5eff2156f10efc0b27e87c7219d675f006c0ba5d308148b",
+            "after": "ce73aa37eb26c87a304c84539b8d3a82f62247bda294c5457b2ca1519c5888bc"
+          }
+        }
+      },
+      "cos20999-final-build": {
+        "exit_code": 0,
+        "seconds": 1730.672,
+        "head": "1ce92c4949e3501076f2a0d7db836d48ea826e48",
+        "input_count": 1922,
+        "changed_inputs_during_run": [],
+        "log_sha256": "6afb212a4940fd8d7bae8c8faa0c300611f28153643adb363d91e792ca5ae729",
+        "report_sha256": "66ba6dc2998317ca1753a814782634f128bfaef504fcbdb7743646dbf08b0620",
+        "receipt_sha256": "c6877137f9416a9d669f98cee43687a39e4d261aaf155e40e4ae4ad1d32d27d1",
+        "current_drift": {
+          "src/promoted/code1_0048.c": {
+            "before": "012a0b0f4b69b5e2a5eff2156f10efc0b27e87c7219d675f006c0ba5d308148b",
+            "after": "ce73aa37eb26c87a304c84539b8d3a82f62247bda294c5457b2ca1519c5888bc"
+          }
+        }
+      },
+      "cos20999-final-lint": {
+        "exit_code": 0,
+        "seconds": 20.578,
+        "head": "1ce92c4949e3501076f2a0d7db836d48ea826e48",
+        "input_count": 1922,
+        "changed_inputs_during_run": [],
+        "log_sha256": "2f81b34cf3471a6064f7916782caccac8039ad7662fce2da6697a318a04ce7ae",
+        "report_sha256": null,
+        "receipt_sha256": "fa5004c544203b34a7681ff88ee19cad3da7d9bb526e72e54233e1630f7b31e2",
+        "current_drift": {
+          "src/promoted/code1_0048.c": {
+            "before": "012a0b0f4b69b5e2a5eff2156f10efc0b27e87c7219d675f006c0ba5d308148b",
+            "after": "ce73aa37eb26c87a304c84539b8d3a82f62247bda294c5457b2ca1519c5888bc"
+          }
+        }
+      },
+      "cos20999-motion-lint": {
+        "exit_code": 0,
+        "seconds": 15.047,
+        "head": "1ce92c4949e3501076f2a0d7db836d48ea826e48",
+        "input_count": 1922,
+        "changed_inputs_during_run": [],
+        "log_sha256": "a697edcc73d8485b41bcbde99e3890785657a0e5c7df66c8a8d80a89763fba4d",
+        "report_sha256": null,
+        "receipt_sha256": "ed96d4922fbf519d10b537ce7f0032bbb8a55f55d4c47015a171ac610a6b9a69",
+        "current_drift": {}
+      }
+    },
+    "combined_report_sha256": "79068dd9ebe39234260f39090d798691dce540263db93ba409405d8664ec8841",
+    "provenance": {
+      "kind": "complete-owner replacement in authenticated full verification",
+      "full_report_sha256": "6d1ff18036679dfc3b34262b4e820021f2459e0bae67192bae192dacd2152d0a",
+      "fresh_first_party_report_sha256": "41c94c23b44f555d4b6174e896c7de0d4111353e9ea828fbd6ef52566a7046dd",
+      "latest_motion_owner_receipt_sha256": "80b948cf8e405b8c67908ad63b0010df77ea3adf53072a60f739ae7e53ecda21",
+      "latest_motion_owner_rows": 73,
+      "latest_motion_owner_sha256": "ce73aa37eb26c87a304c84539b8d3a82f62247bda294c5457b2ca1519c5888bc",
+      "refreshed_owners": [
+        "src/Battle/battle.c",
+        "src/Battle/btlAICommand.c",
+        "src/Battle/btlAction.c",
+        "src/Battle/btlBED.c",
+        "src/Battle/btlBoss.c",
+        "src/Battle/btlCamera.c",
+        "src/Battle/btlCamera_grouped.c",
+        "src/Battle/btlCutin.c",
+        "src/Battle/btlEffect.c",
+        "src/Battle/btlFade.c",
+        "src/Battle/btlFormation.c",
+        "src/Battle/btlMain.c",
+        "src/Battle/btlOrder_grouped.c",
+        "src/Battle/btlPacket.c",
+        "src/Battle/btlPanel.c",
+        "src/Battle/btlPanelAnalyze.c",
+        "src/Battle/btlPanelCursor.c",
+        "src/Battle/btlResultHeroLvUp.c",
+        "src/Battle/btlResultSimple.c",
+        "src/Battle/btlShuffleCalc.c",
+        "src/Battle/btlShuffleDraw.c",
+        "src/Battle/btlShuffleEff.c",
+        "src/Battle/btlShuffleSeq.c",
+        "src/Battle/btlShuffleSeqShuffle4.c",
+        "src/Battle/btlShuffleSeqShuffle5.c",
+        "src/Battle/btlSound.c",
+        "src/Battle/btlTarget.c",
+        "src/Battle/btlUnit.c",
+        "src/Battle/btlUnit_functions.c",
+        "src/Battle/btlVoice.c",
+        "src/Camp/cmpConfig.c",
+        "src/Camp/cmpEquip.c",
+        "src/Camp/cmpMain.c",
+        "src/Camp/cmpPartyPanel.c",
+        "src/Camp/cmpPersona.c",
+        "src/Camp/cmpSkill.c",
+        "src/Camp/cmpSystem.c",
+        "src/Event/Fcl/fclCombineMisc.c",
+        "src/Event/Fcl/fclMisc.c",
+        "src/Event/Fcl/fcl_misc_grouped.c",
+        "src/Event/Fcl/shdSprite.c",
+        "src/Event/Fcl/y_fclCombine.c",
+        "src/Event/Fcl/y_fclCombineDraw.c",
+        "src/Event/Fcl/y_fclCombineEvent.c",
+        "src/Event/Fcl/y_fclItemShopDraw.c",
+        "src/Event/Fcl/y_fclModel.c",
+        "src/Event/Fcl/y_fclShop.c",
+        "src/Event/Fcl/y_fclShopDraw.c",
+        "src/Event/Fcl/y_fclTalk.c",
+        "src/Event/evtEffect.c",
+        "src/Event/evtLoadSave.c",
+        "src/Event/evtMain.c",
+        "src/Event/evtMessage.c",
+        "src/Event/evtModel.c",
+        "src/Event/evtPMFileReader.c",
+        "src/Event/evtPolygonMovie.c",
+        "src/Event/mt_evtCustomEvent.c",
+        "src/Event/mt_evtCustomEvent_grouped.c",
+        "src/Event/mt_evtLoadSave.c",
+        "src/Event/mt_evtMain.c",
+        "src/Event/mt_evtMenu.c",
+        "src/Event/mt_evtMessage_grouped.c",
+        "src/Event/mt_misc.c",
+        "src/Graphics/Effect/effBattleOnly.c",
+        "src/Graphics/Effect/effBlurFilter.c",
+        "src/Graphics/Effect/effCrossfade.c",
+        "src/Graphics/Effect/effDistortParticle.c",
+        "src/Graphics/Effect/effHelper.c",
+        "src/Graphics/Effect/effLineNova.c",
+        "src/Graphics/Effect/effMisc.c",
+        "src/Graphics/Effect/effObjectParticle.c",
+        "src/Graphics/Effect/effPolygonThunder.c",
+        "src/Graphics/Effect/effPolygonWind.c",
+        "src/Graphics/Effect/effTLP.c",
+        "src/Graphics/Effect/eff_afpack.c",
+        "src/Graphics/Effect/eff_after.c",
+        "src/Graphics/Model/effModel.c",
+        "src/Graphics/Model/mdlApp.c",
+        "src/Graphics/Model/mdlEffect.c",
+        "src/Graphics/Model/mdlFile.c",
+        "src/Graphics/Model/mdlManager.c",
+        "src/Graphics/Model/mdlMatAnim.c",
+        "src/Graphics/Model/mdlSE.c",
+        "src/Graphics/primitive.c",
+        "src/Kernel/Kwln/kwln.c",
+        "src/Kernel/h_malloc.c",
+        "src/Kernel/h_memcard.c",
+        "src/Kernel/h_memcard_grouped.c",
+        "src/Kernel/kwlnTask.c",
+        "src/Kernel/mc.c",
+        "src/Kernel/sdkCdvd.c",
+        "src/Kernel/sdkChkmem.c",
+        "src/Kernel/sdkLbox.c",
+        "src/Kernel/sdkSpr.c",
+        "src/Kernel/sdkTask.c",
+        "src/Kernel/sdkUttmx.c",
+        "src/Kosaka/Field/k_event.c",
+        "src/Kosaka/Field/k_field.c",
+        "src/Kosaka/Field/k_fieldRuntime.c",
+        "src/Kosaka/Field/k_fldAI.c",
+        "src/Kosaka/Field/k_fldFBN.c",
+        "src/Kosaka/Field/k_fldFilter.c",
+        "src/Kosaka/Field/k_fldFoodCourt.c",
+        "src/Kosaka/Field/k_fldFrame.c",
+        "src/Kosaka/Field/k_fldResource.c",
+        "src/Kosaka/Field/k_fldrc.c",
+        "src/Kosaka/Field/k_sceneDraw.c",
+        "src/Kosaka/Field/k_shadow.c",
+        "src/Kosaka/Field/sequenceList.c",
+        "src/Kosaka/k_clump/k_clump.c",
+        "src/Kosaka/k_clump/k_clumpInstance.c",
+        "src/Kosaka/k_command.c",
+        "src/Kosaka/k_command/k_command.c",
+        "src/Kosaka/k_draw.c",
+        "src/Kosaka/k_encount.c",
+        "src/Kosaka/k_footstep_grouped.c",
+        "src/Kosaka/k_misc.c",
+        "src/Kosaka/k_spipe.c",
+        "src/Kosaka/k_test.c",
+        "src/Kosaka/k_testMenu.c",
+        "src/Kosaka/k_view.c",
+        "src/Kosaka/k_viewer.c",
+        "src/Kosaka/k_vpad.c",
+        "src/Main/Battle/Data/datCalc.c",
+        "src/Main/Battle/Data/datPersona.c",
+        "src/Main/Battle/Panel/sfl_data.c",
+        "src/Main/OpEd/ed_res.c",
+        "src/Main/OpEd/ed_scroll.c",
+        "src/Main/OpEd/ed_sr.c",
+        "src/Main/Social/gc_model.c",
+        "src/Main/Social/pscModel.c",
+        "src/Main/Social/pscRes.c",
+        "src/Main/g_data.c",
+        "src/Main/g_data_2.c",
+        "src/Main/gameSequence.c",
+        "src/Main/init.c",
+        "src/Main/logoDraw.c",
+        "src/Main/mainDraw.c",
+        "src/Main/sequence.c",
+        "src/Main/titleVisual.c",
+        "src/Scene/mt_scene.c",
+        "src/Scene/mt_sceneFunc.c",
+        "src/Scene/resrcManager.c",
+        "src/Script/scrCommonCommand.c",
+        "src/Script/scrComuCommand.c",
+        "src/Script/scrScriptProcess.c",
+        "src/Script/scrTraceCode.c",
+        "src/Yajima/y_list.c",
+        "src/Yajima/y_misc.c",
+        "src/Yajima/y_runtime_grouped.c",
+        "src/Yajima/y_symbol.c",
+        "src/Yajima/y_timeLimit.c",
+        "src/admini/admini.c",
+        "src/bp_support_mid/bp_support_mid_grouped.c",
+        "src/btlFormation/btlFormation_grouped.c",
+        "src/btlTarget/btlTarget.c",
+        "src/cldDayChange.c",
+        "src/cldDungeonIn.c",
+        "src/cldScheduler.c",
+        "src/cmmCommunity.c",
+        "src/cmmMisc.c",
+        "src/cmmRankUp.c",
+        "src/comuData.c",
+        "src/comuTimerSequence.c",
+        "src/cutinDraw.c",
+        "src/datCalc/datCalc.c",
+        "src/datCalc/datCalc_grouped.c",
+        "src/datCalendar.c",
+        "src/datScript/datScript.c",
+        "src/datScript/datScript_grouped.c",
+        "src/evtMisc.c",
+        "src/evtScript.c",
+        "src/fade.c",
+        "src/fmGslCont.c",
+        "src/frFont.c",
+        "src/frFontEx.c",
+        "src/frFontRaster.c",
+        "src/frFont_grouped.c",
+        "src/g_data/g_data.c",
+        "src/h_cdvd/h_cdvd.c",
+        "src/h_dbprt.c",
+        "src/h_fade.c",
+        "src/h_maestro.c",
+        "src/h_pad.c",
+        "src/h_sfdply.c",
+        "src/h_snd.c",
+        "src/itfMesManager.c",
+        "src/itfMsgProcedure.c",
+        "src/mdlFile/mdlFile.c",
+        "src/mdlManager_grouped.c",
+        "src/mt_scene/mt_scene.c",
+        "src/mt_sceneIcon.c",
+        "src/nEntry.c",
+        "src/nmCmdList.c",
+        "src/nmlist.c",
+        "src/op_fade/op_fade_grouped.c",
+        "src/promoted/btlEPL.c",
+        "src/promoted/btlResultFriendPsLvUp.c",
+        "src/promoted/btlShuffle.c",
+        "src/promoted/btlShuffleCard.c",
+        "src/promoted/btlShuffleResult.c",
+        "src/promoted/calendar.c",
+        "src/promoted/cmmScript.c",
+        "src/promoted/code1_0010.c",
+        "src/promoted/code1_0011.c",
+        "src/promoted/code1_0012.c",
+        "src/promoted/code1_0013.c",
+        "src/promoted/code1_0014.c",
+        "src/promoted/code1_0015.c",
+        "src/promoted/code1_0016.c",
+        "src/promoted/code1_0017.c",
+        "src/promoted/code1_0018.c",
+        "src/promoted/code1_0019.c",
+        "src/promoted/code1_001a.c",
+        "src/promoted/code1_001b.c",
+        "src/promoted/code1_001c.c",
+        "src/promoted/code1_001d.c",
+        "src/promoted/code1_001e.c",
+        "src/promoted/code1_001f.c",
+        "src/promoted/code1_0020.c",
+        "src/promoted/code1_0021.c",
+        "src/promoted/code1_0022.c",
+        "src/promoted/code1_0023.c",
+        "src/promoted/code1_0024.c",
+        "src/promoted/code1_0025.c",
+        "src/promoted/code1_0026.c",
+        "src/promoted/code1_0027.c",
+        "src/promoted/code1_0028.c",
+        "src/promoted/code1_0029.c",
+        "src/promoted/code1_002a.c",
+        "src/promoted/code1_002b.c",
+        "src/promoted/code1_002e.c",
+        "src/promoted/code1_0031.c",
+        "src/promoted/code1_0033.c",
+        "src/promoted/code1_0034.c",
+        "src/promoted/code1_0035.c",
+        "src/promoted/code1_0036.c",
+        "src/promoted/code1_0037.c",
+        "src/promoted/code1_0038.c",
+        "src/promoted/code1_0044.c",
+        "src/promoted/code1_0045.c",
+        "src/promoted/code1_0046.c",
+        "src/promoted/code1_0047.c",
+        "src/promoted/code1_0048.c",
+        "src/promoted/code1_0049.c",
+        "src/promoted/code1_004a.c",
+        "src/promoted/code1_004b.c",
+        "src/promoted/code1_0052.c",
+        "src/promoted/datUnit.c",
+        "src/promoted/effGeometry.c",
+        "src/promoted/effParticle.c",
+        "src/promoted/effPolygonFlash.c",
+        "src/promoted/effPolygonRing.c",
+        "src/promoted/effPolygonTrack.c",
+        "src/promoted/evtEvent.c",
+        "src/promoted/fclBankManager.c",
+        "src/promoted/itfMsgProcedure_Window.c",
+        "src/promoted/k_fldData.c",
+        "src/promoted/k_fldEnvironment.c",
+        "src/promoted/k_fldEvent.c",
+        "src/promoted/k_fldHBN.c",
+        "src/promoted/k_fldLmap.c",
+        "src/promoted/k_fldMipmap.c",
+        "src/promoted/k_fldNpcTable.c",
+        "src/promoted/k_fldUnit.c",
+        "src/promoted/k_readtex.c",
+        "src/promoted/k_sequence.c",
+        "src/promoted/k_texStrip.c",
+        "src/promoted/nLine.c",
+        "src/promoted/nullsub.c",
+        "src/promoted/sdkFiler.c",
+        "src/promoted/sdkListState.c",
+        "src/promoted/sdkWrap.c",
+        "src/promoted/shdPersona.c",
+        "src/promoted/tnEffect.c",
+        "src/promoted/y_CmbCardEff.c",
+        "src/promoted/y_draw.c",
+        "src/promoted/y_fclCmbBall.c",
+        "src/promoted/y_smap.c",
+        "src/runtime_callback.c",
+        "src/sdkClump.c",
+        "src/sdkDbprt.c",
+        "src/sdkOt.c",
+        "src/sdkPak2.c",
+        "src/sdkPrimitive.c",
+        "src/sdkSnd.c",
+        "src/sdkSndcom.c",
+        "src/sfl_res/sfl_res.c",
+        "src/shdEffect.c",
+        "src/shdMisc.c",
+        "src/shdScript.c",
+        "src/shdSkill.c",
+        "src/shdWindow.c"
+      ],
+      "refreshed_rows": 7020,
+      "unchanged_retained_owners": 569,
+      "unchanged_retained_rows": 6082,
+      "changed_header_consumers": {
+        "include/message_frame_internal.h": [
+          "src/promoted/code1_0018.c",
+          "src/promoted/code1_0027.c",
+          "src/promoted/code1_0036.c",
+          "src/promoted/itfMsgProcedure_Window.c"
+        ],
+        "include/btl_formation_internal.h": [
+          "src/Battle/btlFormation.c",
+          "src/promoted/code1_001a.c",
+          "src/promoted/code1_001b.c"
+        ]
+      },
+      "symbol_evidence_comments_only": true,
+      "symbol_bridge_sha256": "82a102a56cf683cd528a5b0402777f01e9eb46164c2dd40f8641a0ca25239cd5",
+      "full_run_drift": {
+        "config/symbol_data_addrs.txt": {
+          "before": "7204654f7369d3bd5945cc8466221706a4da9e2f87d5fcaffeaf530ae51c05c4",
+          "after": "b5a8c5c13234a4673a4a90f6827fc876b2ba37de1e1460fc6ebcf151e262f84c"
+        },
+        "include/btl_formation_internal.h": {
+          "before": "e79a285a0d28d30b356fc6f215f081e59f7effac64c03a0d91e1266c82c4f15e",
+          "after": "fa368383dc5abd1b3062bb9ce276fb2b92d160e5f893b6b48478be3ab3a1d6fe"
+        },
+        "src/Battle/btlFormation.c": {
+          "before": "48900429101ede46b116608e4b8ddddfd970712af32d016c726aa8b66f452e56",
+          "after": "5d9b1de7ef8df8721388f1177f6da5805cfe1a1e425a9e76baa0590a48610d00"
+        },
+        "src/Event/Fcl/y_fclCombine.c": {
+          "before": "c546ae4c83ffda41b39a481ea0469b2a60da416befae3b178ba6811ced515970",
+          "after": "fe2590041f4d866d16554b7304618818e4a98e8ec93c191820b5c3111137f262"
+        },
+        "src/Kernel/sdkSpr.c": {
+          "before": "6990c0b8a3d840bc2f93cec9cff23c2e52e86dab1520a3dd543ca27d36a6aa91",
+          "after": "f39f05eed1906f13c87e5558a962a530218be3a3f2df38b842fb28ac0d1173bd"
+        },
+        "src/promoted/btlEPL.c": {
+          "before": "0d27043436dbdf449177b1df0adea4ab20ec4b547068ef3b491819b90196b93a",
+          "after": "8f90e0ff43a8a274aecaef5607ca2202a2f30e5fe8aede71cbfc61d3ca187195"
+        },
+        "src/promoted/code1_0018.c": {
+          "before": "83489c0664b8eeb15a5b46605295d1ac54108d468ba0cf3623a41a10c46e4eaf",
+          "after": "efaa76202fdbf09982862b123dd05c14f3b638ade8aab6392dbdf0e2fc6bc9e6"
+        },
+        "src/promoted/code1_001a.c": {
+          "before": "99b52240491b79181446c521a8a93d2b6e2c7ac3bd36a4750b6efc834d75e20d",
+          "after": "ae1e1480a0cde795dafda7cec64300fd7b3481253f4d76e78f6414859476b01d"
+        },
+        "src/promoted/code1_0027.c": {
+          "before": "68d4d1b46821ced66cba6fcfd719c24f8c2fa8d3ae7323cc9e7f621b0455c683",
+          "after": "777fbf1b2510edbb1ecdeea550f6c61229fde70a266c33eb14853e99deec58fd"
+        },
+        "src/promoted/code1_0036.c": {
+          "before": "1c8b1cda86bb40d4bd4c74eedf5c74aced76f172100a344557be59055664cb69",
+          "after": "c5aa46f2696777b2765089e15fec332653af590a897c8bf43f31ac467c9b8394"
+        },
+        "src/promoted/code1_0048.c": {
+          "before": "012a0b0f4b69b5e2a5eff2156f10efc0b27e87c7219d675f006c0ba5d308148b",
+          "after": "ce73aa37eb26c87a304c84539b8d3a82f62247bda294c5457b2ca1519c5888bc"
+        },
+        "src/promoted/effPolygonFlash.c": {
+          "before": "aab7dff0682b7658da404866095a44cd3b68ceb854fd82179bdaa8d02f5f1172",
+          "after": "c283e95382bde05d67022c40c6e0e9d143d9cd20e808601dd052bd360e645c4a"
+        },
+        "src/promoted/itfMsgProcedure_Window.c": {
+          "before": "591fc1b3a6ee644880d77c60cadf2b2f1736659b35b3d444ab9cabc035838e99",
+          "after": "4ac20829f43d412a50751c43bdf7ac53f1d3808df43e3408c276fc9bd5fb0f0b"
+        },
+        "src/promoted/y_draw.c": {
+          "before": "e2906fc401b542f76ac12ffa48712a94f82072a198323d971ce166b355b0d330",
+          "after": "0fc3abde54d5d6b482357b9631f60424191ceab2e2e5a0f4272403e28dbf29f3"
+        },
+        "tests/test_large_battle_storage_contracts.py": {
+          "before": "394af79a01bfb4b96ceda6a68d3838e1754b4017a00c4d67dea3556823e46766",
+          "after": "58b8297dc440d123c591695718aa4d9bb1f41c0e9e889bafa2ea0d2926d6e486"
+        }
+      }
+    },
+    "summary": {
+      "MATCH": 9587,
+      "ASM": 3515
+    },
+    "summary_first_party": {
+      "MATCH": 6767,
+      "ASM": 94
+    },
+    "motion_relink": {
+      "kind": "authenticated incremental native-owner compile and complete GNU relink",
+      "exit_code": 0,
+      "seconds": 96.703,
+      "input_count": 1922,
+      "changed_inputs_during_run": [],
+      "baseline_receipt_sha256": "c6877137f9416a9d669f98cee43687a39e4d261aaf155e40e4ae4ad1d32d27d1",
+      "report_sha256": "66ba6dc2998317ca1753a814782634f128bfaef504fcbdb7743646dbf08b0620",
+      "link_log_sha256": "882f3367ff0c70a7b6173a8131896f265666b00acbe3a391da6eac3ec27a8a6b",
+      "current_owner_sha256": "ce73aa37eb26c87a304c84539b8d3a82f62247bda294c5457b2ca1519c5888bc",
+      "current_native_object_sha256": "314e89621d366535f6e59963e305221ceeda913c5e4f8279bd27e2e748361fd9",
+      "current_link_object_sha256": "8caa30cb09784216ae92cb0ae123f730da25b72ff40ba0b6527e16d907ae15b6",
+      "current_linked_elf_sha256": "4b6a5f6161b229c9d62d559ce9a233bf4d74d857f16c738153a27ce3d0e2df93",
+      "unchanged_object_count": 1221,
+      "real_symbol_definitions_checked": 8100,
+      "retail_image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+      "retail_elf_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c"
+    },
+    "linked_build_summary": {
+      "build_succeeded": true,
+      "function_total": 13102,
+      "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+      "linked_function_count": 8586,
+      "linked_tu_count": 658,
+      "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+      "schema_version": 1
+    }
+  },
+  "choice_controller": {
+    "retained_path": "build/resume-cos20999/choice/00282250/installed-depth-third/receipt.json",
+    "sha256": "7aad88d54e96e513adfc9072ae651035f173a24e2ec7bd4be633a6528b2fcd24",
+    "bytes": 1765,
+    "summary": {
+      "production_sha256": "4ac20829f43d412a50751c43bdf7ac53f1d3808df43e3408c276fc9bd5fb0f0b",
+      "header_sha256": "2e2632927abbc1997206a62bae49b72532689e39a801b6670d374c17ac3b307d",
+      "target": {
+        "size": 3944,
+        "window": 3952,
+        "zero_only_retail_suffix": true,
+        "resolved_differing_words": 86,
+        "difference_offsets": [
+          952,
+          956,
+          1104,
+          1108,
+          1112,
+          1116,
+          1120,
+          1124,
+          1128,
+          1132,
+          1136,
+          1140,
+          1144,
+          1148,
+          1152,
+          1156,
+          1160,
+          1164,
+          1168,
+          1172,
+          1176,
+          1180,
+          1184,
+          1188,
+          1192,
+          1196,
+          1200,
+          1272,
+          1284,
+          1364,
+          1440,
+          1464,
+          1672,
+          1676,
+          1680,
+          1684,
+          1688,
+          1768,
+          1772,
+          1776,
+          1780,
+          1784,
+          1788,
+          1792,
+          2656,
+          2660,
+          2664,
+          2668,
+          2672,
+          2676,
+          2680,
+          2684,
+          2688,
+          2696,
+          2700,
+          2704,
+          2708,
+          2712,
+          2716,
+          2720,
+          2732,
+          2736,
+          2920,
+          2924,
+          2928,
+          2932,
+          2936,
+          2940,
+          2944,
+          2948,
+          2952,
+          2956,
+          2960,
+          2964,
+          3476,
+          3480,
+          3484,
+          3488,
+          3492,
+          3496,
+          3500,
+          3504,
+          3508,
+          3512,
+          3528,
+          3532
+        ],
+        "sha256": "97c8558cd87c898ae3420b0b3d436e2f14f97108e839f948adb724960e12abdd"
+      },
+      "functions": 21,
+      "code_relocations": 1272,
+      "data_relocations": 64,
+      "storage_bytes": 260,
+      "proof_sha256": "ab0bd550f9b2510f4aa07cecf2b40914c76ef800fccd47c03b3af3699d57cbf6",
+      "promoted": false
+    }
+  },
+  "battle_controllers": {
+    "retained_path": "build/resume-cos20999/action/final-receipt.json",
+    "sha256": "b7dde9c227a116b013518ecc10423509aea64a7f6b8d4e403bc0b5cae5f18fa1",
+    "bytes": 2718,
+    "summary": {
+      "owner_sha256": "ae1e1480a0cde795dafda7cec64300fd7b3481253f4d76e78f6414859476b01d",
+      "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+      "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+      "flags": [
+        "-O2",
+        "-Iinclude"
+      ],
+      "native": {
+        "none": {
+          "metrics": {
+            "func_001a59a0": {
+              "bytes": 7536,
+              "window": 7536,
+              "frame": 816,
+              "normalized_differing_bytes": 0,
+              "fully_resolved_differing_words": 0,
+              "relocations": 143,
+              "exact": true
+            },
+            "func_001a7720": {
+              "bytes": 17536,
+              "window": 17536,
+              "frame": 1456,
+              "normalized_differing_bytes": 0,
+              "fully_resolved_differing_words": 0,
+              "relocations": 397,
+              "exact": true
+            }
+          },
+          "all_references_resolved": true,
+          "all_storage_exact": true,
+          "code_references": 1781,
+          "data_references": 36,
+          "object_sha256": "2e2d052d8d48ad9837197eb55791a08e8f414ff1e71c15f2d10fc4ad56f72e5a"
+        },
+        "both": {
+          "metrics": {
+            "func_001a59a0": {
+              "bytes": 7852,
+              "window": 7536,
+              "frame": 1152,
+              "normalized_differing_bytes": 5982,
+              "fully_resolved_differing_words": 1875,
+              "relocations": 168,
+              "exact": false
+            },
+            "func_001a7720": {
+              "bytes": 17444,
+              "window": 17536,
+              "frame": 1792,
+              "normalized_differing_bytes": 12749,
+              "fully_resolved_differing_words": 4187,
+              "relocations": 442,
+              "exact": false
+            }
+          },
+          "all_references_resolved": true,
+          "all_storage_exact": true,
+          "code_references": 1851,
+          "data_references": 36,
+          "object_sha256": "f9275a9021b4a0e071e5b556555ef7796f02a3cf5f8b238b40ce26e7bca572a5"
+        }
+      },
+      "full_controllers_match": false,
+      "fallbacks_remain": true,
+      "initial_focused_tests": {
+        "run": 23,
+        "failures": 0,
+        "errors": 11,
+        "skipped": 0,
+        "success": false
+      },
+      "focused_tests_retry": {
+        "run": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "success": true,
+        "pattern": "test_large_battle_*.py",
+        "utf8_mode": true,
+        "fixture_sha256": "58b8297dc440d123c591695718aa4d9bb1f41c0e9e889bafa2ea0d2926d6e486"
+      },
+      "focused_tests": {
+        "run": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "success": true,
+        "pattern": "test_large_battle_*.py",
+        "utf8_mode": true,
+        "fixture_sha256": "58b8297dc440d123c591695718aa4d9bb1f41c0e9e889bafa2ea0d2926d6e486"
+      }
+    }
+  },
+  "draw_queue": {
+    "retained_path": "build/resume-cos20999/ydraw/HANDOFF.json",
+    "sha256": "44fcdb7ecc4a18ebcd3db9be568cc92bd675d94b32088208a33341d35d3db169",
+    "bytes": 2088,
+    "summary": {
+      "result": "Faithful guarded correction installed; no C promotion",
+      "source": "src/promoted/y_draw.c",
+      "source_sha256": "0fc3abde54d5d6b482357b9631f60424191ceab2e2e5a0f4272403e28dbf29f3",
+      "native_counts": {
+        "MATCH": 57,
+        "ASM": 1
+      },
+      "target": {
+        "bytes": 1512,
+        "window": 1536,
+        "masked_words": 356,
+        "resolved_words": 368,
+        "alignment_edits": 225,
+        "status": "NONMATCHING"
+      },
+      "default_functions_preserved": 58,
+      "exposed_siblings_preserved": 57,
+      "default_code_references_resolved": 312,
+      "exposed_code_references_resolved": 331,
+      "allocated_storage": {},
+      "behavior_cases": 92,
+      "behavior_passed": 92,
+      "retail_instructions_covered": 381,
+      "typed_behavior_cases": 92,
+      "typed_behavior_passed": 92,
+      "archive": "docs/probe_archive/YDraw_update_002b6ec0_20261005",
+      "receipt": "docs/probe_archive/YDraw_update_002b6ec0_20261005/receipt.json",
+      "replay": "docs/probe_archive/YDraw_update_002b6ec0_20261005/replay.py",
+      "native_proof": "build/resume-cos20999/ydraw/installed-verify/default/native.json",
+      "default_resolved": "build/resume-cos20999/ydraw/installed-verify/default/resolved-proof.json",
+      "exposed_resolved": "build/resume-cos20999/ydraw/installed-verify/exposed/resolved-proof.json",
+      "behavioral_proof": "build/resume-cos20999/ydraw/minimal_repair/behavior-retail-threshold.json",
+      "portable_replay": "build/resume-cos20999/ydraw/portable-replay/receipt.json",
+      "checks": {
+        "decomp_lint": {
+          "exit_code": 0,
+          "errors": 0,
+          "warnings": 8,
+          "advisories": {
+            "H003": 5,
+            "H011": 3
+          },
+          "scope": "Existing pragma/declaration warnings; target ABI unchanged"
+        },
+        "git_diff_check": {
+          "exit_code": 0
+        }
+      },
+      "blockers": [
+        "Target remains nonmatching:1512 bytes in1536 window;368 resolved differing words",
+        "Three unchanged declarations outside target produce H011 lint warnings"
+      ],
+      "exclusions": [
+        "Prime-added message_frame_internal.h is outside actual y_draw include closure"
+      ]
+    }
+  },
+  "flash_particle": {
+    "retained_path": "build/resume-cos20999/flash/handoff.json",
+    "sha256": "feb884fc865482f4f10d173fa7a7745efacbd5fcd06dae2c53c4d595d797e315",
+    "bytes": 2452,
+    "summary": {
+      "result": "Guarded typed particle recovery; no new exact C",
+      "owner": "src/promoted/effPolygonFlash.c",
+      "source_sha256": "c283e95382bde05d67022c40c6e0e9d143d9cd20e808601dd052bd360e645c4a",
+      "frozen": true,
+      "new_C_matches": 0,
+      "default_status": {
+        "MATCH": 48,
+        "ASM": 1
+      },
+      "guarded_status": {
+        "MATCH": 48,
+        "NONMATCHING": 1
+      },
+      "target": {
+        "bytes": 2204,
+        "window": 2208,
+        "differing_words": 16,
+        "differing_offsets": [
+          1324,
+          1328,
+          1336,
+          1344,
+          1364,
+          1372,
+          1380,
+          1424,
+          1432,
+          1440,
+          1448,
+          1460,
+          1468,
+          1476,
+          1484,
+          1500
+        ],
+        "zero_suffix": 4,
+        "relocation_count": 42
+      },
+      "source_change": "Only local 32-byte particle type/accesses and comment inside 004a0c00 guard",
+      "validation": {
+        "actual_owner_verifier": "48 MATCH / 1 ASM",
+        "guarded_functions_preserved": 49,
+        "references_default_guarded": [
+          639,
+          641
+        ],
+        "allocated_data": 0,
+        "native_birth_cases_per_optimization": 640,
+        "native_lifecycle_cases_per_optimization": 72,
+        "mutations_rejected_per_optimization": 4,
+        "lint_errors": 0,
+        "existing_lint_warnings": 22
+      },
+      "archive": "docs/probe_archive/FlashInclinedParticle_20261005",
+      "archive_files": {
+        "before_body.c": {
+          "sha256": "8c0be88782936dc853e0a3a9a0f9efce55d25b0e32d69597a0fb5fde5f406185",
+          "bytes": 9751
+        },
+        "native_birth.py": {
+          "sha256": "f442faa7800cdf0de0e9a6b990220bfaf3ffcf81181ca9128c9488d963eb013b",
+          "bytes": 8126
+        },
+        "native_lifecycle.py": {
+          "sha256": "87fbac4ec395ef719b86cee9cb5471d9fbdc201397cca95a701612154a80bec6",
+          "bytes": 8988
+        },
+        "README.md": {
+          "sha256": "c58563a6d596c1c51fea1a1d22fd15ba3baf70170995c5ac3a29b8d4a2a7877e",
+          "bytes": 7646
+        },
+        "receipt.json": {
+          "sha256": "0e304e261134f5382f31ac88215abe1532480e2dcf749c75da6ab2a94750a848",
+          "bytes": 49730
+        },
+        "replay.py": {
+          "sha256": "1ab1ab36503fd77edf518bb73363c347b6c2e457ab8dc89eddd1ef07c2f17bea",
+          "bytes": 11557
+        }
+      },
+      "archive_total_bytes": 95798,
+      "scene_closure": "build/resume-cos20999/scene/resume2/handoff.json",
+      "blocker": "Flash v0/v1 direction-address/scalar-transfer register assignment still differs in sixteen words; all eight new hypotheses are closed."
+    }
+  },
+  "focused_python_tests": {
+    "total": 44,
+    "passed": 44,
+    "patterns": {
+      "test_large_battle_*.py": 23,
+      "test_message_choice_contract.py": 4,
+      "test_message_window_selection_contract.py": 10,
+      "test_immediate_rectangle_contract.py": 5,
+      "test_window_controller_contract.py": 2
+    },
+    "command_template": "python -X utf8 -m unittest discover -s tests -p <pattern> -v",
+    "scope": "44 focused tests on the final source; separate from the earlier 1146-test full-suite run.",
+    "message_rectangle_tests": {
+      "run": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 53.796,
+      "retained_log": "build/resume-cos20999/checkpoint/focused-current-tests.log",
+      "log_sha256": "ee74f485d99523972e282625b14def3bc6e1308d80e974e75521051eff6324cb"
+    }
+  },
+  "limitations": [
+    "94 first-party functions still use assembly; none is counted as recovered C.",
+    "Host and instruction-interpreter cases cover their stated contracts, not complete PS2 gameplay.",
+    "The combined full-verifier report replaces complete owners from the earlier run; it is not a second full vendor compile."
+  ]
+}

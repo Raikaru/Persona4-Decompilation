@@ -4305,7 +4305,7 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
 // FUN_002F9D90
 void func_002f9d90(u8 *arg0) {
     extern void func_002e55c0(s8, s32, s8);
-    extern void func_00324680(u8 *, s32, s32);
+    extern void func_00324680(u8 *, s32, s8);
     extern void func_0011d140(u8 *, s32); /* retail loads the colour into $a1 */
     extern s16 func_002b2d50(s16, s16, s16, s16, s16);
     extern f32 D_00640E70[];
