@@ -1,0 +1,1067 @@
+{
+  "owner": "src/Event/Fcl/y_fclCombineDraw.c",
+  "target": "func_00323d00",
+  "before_source_sha256": "22db84657e1abd12eb7627fd9cb57f1404f3eec70f876ea962b1acdea7e89f76",
+  "reviewed_source_sha256": "4d8cd996354fd3b7e342b4489048f000ea4edf139c5d2272cdd89cf506bda4b9",
+  "installed_source_sha256": "eee7b4bfd3e06ad8e4733a6989f353090648e124f7ee2ceb69fbf226402fdc68",
+  "reviewed_to_installed": "Indent the introduced block and document its measured residual; no C token change.",
+  "source_statements_preserved": true,
+  "first_writes": {
+    "res": {
+      "declaration_offset": 1372,
+      "first_write_offset": 2200,
+      "first_write_statement": "res = (s16)(k + 0x2BB);",
+      "address_never_taken": true
+    },
+    "shown": {
+      "declaration_offset": 1389,
+      "first_write_offset": 1726,
+      "first_write_statement": "shown = (s8)arg2 * 0xFF;",
+      "address_never_taken": true
+    },
+    "hidden": {
+      "declaration_offset": 1408,
+      "first_write_offset": 1686,
+      "first_write_statement": "hidden = (1 - (s8)arg2) * 0xFF;",
+      "address_never_taken": true
+    }
+  },
+  "fallback_retained": true,
+  "new_C_matches": 0,
+  "before_proof_sha256": "d35e76654e9ffbcbc657acbc3a74c2d39ddc0c786082acff28bee92150a0bb75",
+  "status": "Installed guarded scope improvement; no C promotion",
+  "inputs": {
+    "src/Event/Fcl/y_fclCombineDraw.c": "eee7b4bfd3e06ad8e4733a6989f353090648e124f7ee2ceb69fbf226402fdc68",
+    "include/fcl_row_mode.h": "94b9daf1c86c816fad7b0934f2edeaa94e3df08cc16dc59e71badc6ccb072a73",
+    "include/fcl_row_draw.h": "d7cf91cf829c06dd873bae9819c02cd68d0e4fbdbe7a148a8f5a20fd67492284",
+    "include/fcl_color.h": "e2714424eab279564c3dbf361c834693fec6324d1d94040873086d7d7ba2b085",
+    "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+    "include/fcl_draw_types.h": "74e28b6c0d04a9437a81b92da411259a187becb85f3d0a00a9bafe01a3a4a782",
+    "include/fcl_scale_transition.h": "8a7d415d26dd0f76c3de90767ea4769414d8b9628ffd1352da46b6de818d3461",
+    "include/fcl_animation_internal.h": "5fed441c4897ad9952792df8059240771416d910f4e726e64f8dcac7df0b4264",
+    "include/include_asm.h": "8c2cde497ecdcafdb07af8d62c1e0eb1a30eeb14d1c4567128e5f2714e5cd963",
+    "include/fcl_draw_task.h": "ef16b57fb2cfc3d5d09fadf5c3b4846c46ee16fbe02af78ef34204bddd8af619",
+    "include/fcl_bounds_packet.h": "4fb41f365a2f6ee235996dbcf61017a304b1b48d0a55f21ad937fd32a72e2235",
+    "include/sdk_task_registration.h": "7dbebce4a3eeb57f807e5f06a5cc1d6b16b89b644e4105bd2685000dd22075d1",
+    "include/sdk_snd_internal.h": "0fd7ff35985036b616d070081d931f1707b3be5b15cb5c4469d79d74092f07d6",
+    "include/fcl_combine_internal.h": "ed739b7da39632c7be9f743abbd658af77b216b8080ac276d20bd63d1434ec47",
+    "include/fcl_combine_row_internal.h": "fbb4225742a566be31ee827f401717d57bffedd7baaec75ceb4c547675363cfa",
+    "tools/verify.py": "9e3be8be1b1fc6a99791d886cd98c14cb40b019297e5c39c81092b8ce216031e",
+    "tools/build.py": "8996a8b409998156bf6dd91d8dc7f44a75ec0e443285091c5204d77f262291aa",
+    "tools/probe_variants.py": "a0e5c8b1767ff084c8fe13be8d3104e198cc056e02854ba88f19786ced674d8f",
+    "tools/asm.py": "75670b3a6ddfa7761a0734b5a4d4b2692f365eaf04f8f8a5a2d6d8802ac5ab70",
+    "tools/slus21782_functions.json": "43d17bf206f4c878e34ed335aa8a715e09b94a6060321f32c22e04ad72284b5a",
+    "config/target.json": "cb4fffeb0f711f8d97efb9d08776659e9a32b013043f3b59a9ea5bc582c5a85d",
+    "config/symbols_recovered.txt": "e294d7e3dbcff77ffb7a8adf9d63a0d8dfd92566bd641d6f95f4543be4899444",
+    "config/symbol_addrs.txt": "8159861efe6bd3eca9860a55aeefd8c646ecfa33360434d720b6f3d08238893a",
+    "config/symbol_data_addrs.txt": "b5a8c5c13234a4673a4a90f6827fc876b2ba37de1e1460fc6ebcf151e262f84c",
+    "config/compiler_units.txt": "4921b5b184b0c44ad3c034c5455b5383e11446d24b8743129cd4792147d8caf4",
+    "config/version_flags.txt": "56b4ec06c82714b0dbf0acb5a6e0ddaae3ce8380ed0a5b44890f58620656e30d",
+    "config/speed_units.txt": "946abdc8d3a618b0d7f43e46c3f4c8acac6b164826cc2d5df9dc7de8fca2db73",
+    "docs/probe_archive/List_item_contract_20261005_replay.py": "cbe4fc63c053712579aeadd1d937eb96a0b1b8dd826bce532dc52bc79b32c6d3",
+    "docs/probe_archive/Field_guard_cleanup_0016bdd0_20261005/replay.py": "871ffd69996f4224c9d0c19071718707f4d11b4c9ff66d9b43bc268a329be288",
+    "docs/probe_archive/YDraw_update_002b6ec0_20261005/proof_core.py": "f9b7a8103cd20d55aa4ab519be9dde1c2e7326aa1fccd2b7e2bbb35bfa1dc6ee"
+  },
+  "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+  "compile_flags": [
+    "-O2",
+    "-Iinclude"
+  ],
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "default_summary": {
+    "MATCH": 67,
+    "ASM": 3
+  },
+  "default_object_sha256": "ed1142d10d28d40d920c75d1727957fe0df171e1835f32d91dc8944574c2fa0e",
+  "default_function_count": 70,
+  "default_code_relocations": 3524,
+  "default_storage_relocations": 34,
+  "guarded_before_object_sha256": "e3c482d5941e11916e8fd9ea284cc60d51eef948a9823c5c0e451671e25ace38",
+  "guarded_object_sha256": "e3c482d5941e11916e8fd9ea284cc60d51eef948a9823c5c0e451671e25ace38",
+  "unchanged_guarded_siblings": [
+    {
+      "name": "func_00314320",
+      "code_sha256": "705816a0929860e84d869aaf466e8e58c5dc60fd5114bbf4adc8ec4d87809a35",
+      "canonical_relocations_sha256": "fdbaafbd6802f23ae07d917d27aa1e375e2c2da5785f2b514ac621b7cce2095d"
+    },
+    {
+      "name": "func_00314400",
+      "code_sha256": "2fa5f0b7fff64be9378a129298c9ec87d35ef9d7885a40888efd6d631c52cebc",
+      "canonical_relocations_sha256": "88b54ec3ea37dfb139976540edaa87d7413dac6157d951969dbdd25e1bf4f659"
+    },
+    {
+      "name": "func_00314450",
+      "code_sha256": "e0928b2c7e8042656c1e2912701e11c521254fafbaeddd906378859316486f26",
+      "canonical_relocations_sha256": "ba1e888e19a1b7947a7f333fc9efd8779d8549edd32aa58ecfa2e912fdc00e9f"
+    },
+    {
+      "name": "func_003144d0",
+      "code_sha256": "46634c42507a0888e72c85b86314d81c6eab1ea20f2ced525fde08db719064ad",
+      "canonical_relocations_sha256": "5095b103628940733a5868d7cf4393190a0f98577c329ec5a76fa04ce5fe82d2"
+    },
+    {
+      "name": "func_00314560",
+      "code_sha256": "33a3e8c9ca955d2c7858d0694ecfacf40f19f51deb31ff00578d938ec0ea2172",
+      "canonical_relocations_sha256": "2279d9c6acd024ba325c8d22108590e2b13ecb21cf25ec5775f95e05b583bba2"
+    },
+    {
+      "name": "func_003145e0",
+      "code_sha256": "47c14668cf1ac618fbbadafd99572d89a1de6d6c7d2010ae5c58bdea1318edb3",
+      "canonical_relocations_sha256": "550f776689f85b64b095dd43fa4817863a4e2c8a70f38fab7f033beeb8970a95"
+    },
+    {
+      "name": "func_00314660",
+      "code_sha256": "19d27121b7f951707e572d6863e6963295b47f8768c3f824fff846c8d7707d05",
+      "canonical_relocations_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "func_00314670",
+      "code_sha256": "2139185cb99b2239e8d4356ca3a64c8f29ee8d2ca434d9a0dd2a5e1eab8677fe",
+      "canonical_relocations_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "func_00314680",
+      "code_sha256": "b974ae2286959d0c6b81987192cbe0e15c12bdcc4b27506feaa4e9b318629a8e",
+      "canonical_relocations_sha256": "e8bc3abd7fa9b507f1c6a7d7147f032d24a0915e80f663c58303f996a6454673"
+    },
+    {
+      "name": "func_003146c0",
+      "code_sha256": "a15b7ded148c316665781a83f4fa327dd4abc09c232c35b45897895981103cc8",
+      "canonical_relocations_sha256": "1204e7b23a9be79fbc2141886691494e3563700fb0992f2d2357b966757b107e"
+    },
+    {
+      "name": "func_003146f0",
+      "code_sha256": "921f40832a1f7ea8c58ca6aba59d19f1d05a9fa95979f6b22726233da6365beb",
+      "canonical_relocations_sha256": "3e35cd92576c471616028c335c6a3d028645f6a4edd5a654c7370a7d91ebb53a"
+    },
+    {
+      "name": "func_00314740",
+      "code_sha256": "29a9fcfef49a3367aa906626bdc1de1a412454a2d0d1fa6d9482e8039662a138",
+      "canonical_relocations_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "func_00314750",
+      "code_sha256": "d9b8f04abb7e6ede9dcf6aba7bd783ce922ad99514697cb4404ba9ae5e09650e",
+      "canonical_relocations_sha256": "3cbb741f40c9e971716f1b714f671c1941217fdf034d9e3b6ab9416d975167d9"
+    },
+    {
+      "name": "func_003147d0",
+      "code_sha256": "7738b84be21c5c23c3578cc8bdca55f9a3e2d8ae96ff40f477d0de3b12dc8087",
+      "canonical_relocations_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "func_003147e0",
+      "code_sha256": "96f7f39f5532702cb89318ad9f37b11e5daa9c44ebac126e0715a4b1c4e39a91",
+      "canonical_relocations_sha256": "e311c44d798c9c682266953da8bbd9c1dc21331914cdda59a8759e69686c7b37"
+    },
+    {
+      "name": "func_00314ef0",
+      "code_sha256": "54cfec58d4052ee826ecf31c66d6655b7ee745a18764ab80c684fbb010180e80",
+      "canonical_relocations_sha256": "a343e2aca3a9bb27c0c61f18a294ef2762b9d8f3c8e5bd0d5799771f7f447d0f"
+    },
+    {
+      "name": "func_00315310",
+      "code_sha256": "eff801c29090b3dae7af0d380a4ea5aed6fc72d9bbd1a3fc92a8b7639f2b61c9",
+      "canonical_relocations_sha256": "29c814241e60322e50edf2a71de612badd3947642d1ade58a3de98c6c9efa56c"
+    },
+    {
+      "name": "func_00315600",
+      "code_sha256": "39e7ee4ed3a3b82d7a7585bf7e0f95feed20846ed49e1f9eb9ec7de1ff0c7804",
+      "canonical_relocations_sha256": "63fd1878f4c12df2120230504e7c4606ef207405171ff226f81d878a65dd49ff"
+    },
+    {
+      "name": "func_00316470",
+      "code_sha256": "e49c7aba76e6446a94cc46f6ff4ef8783f6878fd658abc8aef49073a8ce29924",
+      "canonical_relocations_sha256": "5e61ad162a33d3f724c6f1b4c7a6fc6192eec4ea596e6597d146c934c7fe2dea"
+    },
+    {
+      "name": "func_00316e80",
+      "code_sha256": "c7d454fc52763dbf8cca4c629524bed58a5942b874d8669941d3795c38db2d20",
+      "canonical_relocations_sha256": "f785cdccda7899d9970c3a683dade6fd60a9ddf36b6072e39b33ed6446132a6c"
+    },
+    {
+      "name": "func_00317240",
+      "code_sha256": "d6d719d5a38ebc91d3de08d3ca77869909e16c1d074832a726929459874da182",
+      "canonical_relocations_sha256": "5e0e1997cf59691fbea506762f2a62b2c6789b072eeaee2a6d984af7e93a70b9"
+    },
+    {
+      "name": "func_00317320",
+      "code_sha256": "c9769259f75b8918cca9288251ccae494b452034dd9ed4dd47101f60872662e5",
+      "canonical_relocations_sha256": "0baad10c825f37ae9ce6b5f1ac22c6dd2a69f5b361acefea2208c0d6dcb366a6"
+    },
+    {
+      "name": "func_00317410",
+      "code_sha256": "5c287ecd1f83cdf389c14121dd02e9e1ccd916eb8aac4fbc62ee11ad17b5ef94",
+      "canonical_relocations_sha256": "87805797bf7fc2f40abd8e53d455abd61ad27cd00229196c747011eab162a340"
+    },
+    {
+      "name": "func_00317900",
+      "code_sha256": "b909e0a15eb0b2f56feff0e29124db3c47be9e1563eafa776789ac284cfac4e1",
+      "canonical_relocations_sha256": "cb24e772fcc83b8ff8007f1bf9f4913aea58d90ea46c1bd5fb4ffd94cc2f8666"
+    },
+    {
+      "name": "func_00318840",
+      "code_sha256": "27d8a854edc4d48a2376bc39f39a33ba7dec8d1ffdf3bfbb771e0362dbbe319a",
+      "canonical_relocations_sha256": "9ca4f6f04a3424150f9c8e8f43643e00fc02aa8f646e8304887ff6ef868ff513"
+    },
+    {
+      "name": "func_00318f30",
+      "code_sha256": "11e640a60a51892522cfe83c51090e04ef3fedc93791d46d566c397a57dec9a7",
+      "canonical_relocations_sha256": "4a78893f32dcd0560eb37272459da11699f42beecd030367d5ffaa88f641b7c8"
+    },
+    {
+      "name": "func_003190d0",
+      "code_sha256": "8af611b156f680e17c248590ea3ffcf0ae77448819dbf99ab523c8da752ec4d3",
+      "canonical_relocations_sha256": "d3721b52d626f48eb8c15ed675d60e1293103ae1756abfb5bf391ada35000a19"
+    },
+    {
+      "name": "func_003191c0",
+      "code_sha256": "40be7445610c2afd1e03583bcbefe7763b5111dc6447d15483874af4e984f7bd",
+      "canonical_relocations_sha256": "8a1b520cc9b38da312b2fb89d90a1706b63b1850247f488f09f35a255523d0de"
+    },
+    {
+      "name": "func_0031ac10",
+      "code_sha256": "dceaf81566deba5107f6623e70af989ced6be42601fae80bcc2754c0c6fd5d61",
+      "canonical_relocations_sha256": "89bbb44a9b5af60053998cd99a5783e59b2e28678cd22d1af2e0acaec5a5f945"
+    },
+    {
+      "name": "func_0031c2b0",
+      "code_sha256": "4a900520dfccf0f3bdf5b27a79bfb95b2fd452b23c5e8cf96d9832e5e5edf8ff",
+      "canonical_relocations_sha256": "509a91ede696854c80aceb857bb108251f49f0e4e55e4a05de9d9ba2adbdb57f"
+    },
+    {
+      "name": "func_0031cce0",
+      "code_sha256": "7b9bd9b13135c53911469a00cd8b96b6dcf032e9026321ef93682ba1cfbd2bbb",
+      "canonical_relocations_sha256": "a90df095166dca923d7e3b5eced88b478e6a2d917281991fa6ebbce3f5546871"
+    },
+    {
+      "name": "func_0031d630",
+      "code_sha256": "1c2388b877172d95a35d489b968bbcf53c34f52b55e142f80bf3da56021070bd",
+      "canonical_relocations_sha256": "196aada3cd3d8cf3f3c4197af48ff121e4579198b2b60dda6836892fd89d2a40"
+    },
+    {
+      "name": "func_0031ddf0",
+      "code_sha256": "acbde7295fa5d20076bf195bfd5c22101b0a76a25245a5bb4f4df6488c9378a8",
+      "canonical_relocations_sha256": "796e9bf930354c1b40034997c1e76a8aa86c9e7c79ec7269c47b0c3f4319625f"
+    },
+    {
+      "name": "func_0031e320",
+      "code_sha256": "9d216ca819839cac5879320e709a6cf648506246feceb807b13861c476ce7c5d",
+      "canonical_relocations_sha256": "dee4d00ebf10e9e583eb60feeac1097b2978068ddaeadad18725d49fd42da757"
+    },
+    {
+      "name": "func_0031e5b0",
+      "code_sha256": "cd7ffa3865dc432cdd671cc6ac2c9929031f233f31af01c3cc5f09b685b5d05d",
+      "canonical_relocations_sha256": "ec069fc79814a667fc83742db1eee8184b84877779220513d36d968c40344e58"
+    },
+    {
+      "name": "func_0031fa20",
+      "code_sha256": "c1e741b3154e7d52b6059f0492c9b984e091fe4437ed8d06bbc922a3f6f0d675",
+      "canonical_relocations_sha256": "ccc8e393f56fd0f6654d171430053d91654d37ec2502484e88fa39b372509364"
+    },
+    {
+      "name": "func_003205f0",
+      "code_sha256": "64bdd78b491568503eae7c77dbfa48be6ee28038a43e07dea87218c6a8d000d1",
+      "canonical_relocations_sha256": "b099551f0396f5522d5108e8d363095672c41ed395c82f0015cb486a32dabfa3"
+    },
+    {
+      "name": "func_00320970",
+      "code_sha256": "7559b6c062c65a778573bdf35b1e36a74fb2c7374ecfaca89b40570ceceda99c",
+      "canonical_relocations_sha256": "05b8f5522b17b4d8c2692206a9f77e359b12c6137ed19b9bdfb01e1c5c18542b"
+    },
+    {
+      "name": "func_00320b80",
+      "code_sha256": "b1f052850485d4568310b2fa607327732a6d47b6fd7cc482d4082d41af63ab98",
+      "canonical_relocations_sha256": "dc4c27cc13baf504504dc495a487c92f4e5487236630a61f01775ea630a838ae"
+    },
+    {
+      "name": "func_003212e0",
+      "code_sha256": "89d65de6fb31d14152a46b53955945a1082fba179ed4443b0e3f80dd8a509c71",
+      "canonical_relocations_sha256": "30ac8f429526d990abde1adfa5d9c173bd96e6ed6dc79cd724eb0d3204c13c94"
+    },
+    {
+      "name": "func_003218a0",
+      "code_sha256": "8cbc566d6b0556118143dd1296eca6fde89fcf932a850a5b727a2f12499cec1b",
+      "canonical_relocations_sha256": "4f083308bf67320c561189a5baff913ccb13b3e930a745bfba129d58d1af5ec2"
+    },
+    {
+      "name": "func_00321e60",
+      "code_sha256": "418c366879d0df13a8e89abad65b2ab7fce13855025bf4a9cc8f25614531d72a",
+      "canonical_relocations_sha256": "47b211ae23cedc7a147222b1cf99947fb492f4aea5da9b9af2e5c0f25813d700"
+    },
+    {
+      "name": "func_003233d0",
+      "code_sha256": "9339598f12c8d7c410ab51b4eacb8ed938796d02e288c2b8cbdc79910ec78b1f",
+      "canonical_relocations_sha256": "2fc8e682c897e9229451211e49603e245213477c90f0daed4674d91dba4d6e71"
+    },
+    {
+      "name": "func_00324410",
+      "code_sha256": "de308f4dbf86d3ba869d245b9db7812af77bd0f900276249683d06ab320c087a",
+      "canonical_relocations_sha256": "a0f757d8d2563e2236111d12ce5f3de31b6527a6886c967b63f633cd69125ca1"
+    },
+    {
+      "name": "func_00324680",
+      "code_sha256": "d03603c3bb882b37c977cdab94fe2e73fce29f3633df042aef510cabe3a0876e",
+      "canonical_relocations_sha256": "0f26fac79ae3bf391f64c5aa434aa6e84785b6d8d0a566c6e5c610f39a14aa42"
+    },
+    {
+      "name": "func_00324f80",
+      "code_sha256": "6809e1ced32a253b5501401f7eb29cb2bf3832519126c5c66ea424eb2632ae3b",
+      "canonical_relocations_sha256": "3adbbb133e5f5dbb9d0288fa5830c3e4c40f17998558fcb4295aa78c0f9f6f00"
+    },
+    {
+      "name": "func_00325450",
+      "code_sha256": "8ea0eefd0230df39e27c97d26a70cb335d626cd53f057d914fcc790990b78929",
+      "canonical_relocations_sha256": "ac0281c1a1fc8ba62b3d93bcec00faf2cd21b1d6d523cac01f60c61b93c855d2"
+    },
+    {
+      "name": "func_00329310",
+      "code_sha256": "a4f83a68fb1682f66e5ef1dc706dc1a6e656135c98cf875c19f08ba1167d24d1",
+      "canonical_relocations_sha256": "ccb1237af7a27195b05ab0ccfbd33284055591adaeb3229252d50ef3eb874f42"
+    },
+    {
+      "name": "func_003297f0",
+      "code_sha256": "1adffe8945bcc9388e955ce8af015ec41644ce6bc53218b64a1d526a80bcd56a",
+      "canonical_relocations_sha256": "d924ca531500855c01c6db62555cce2926fe0a2aa76554f4ddc782c96dc0ae69"
+    },
+    {
+      "name": "func_00329e40",
+      "code_sha256": "884b259d75d43a51a5ea449204f18b9023a09a7c727f8834586ef3c829cd5971",
+      "canonical_relocations_sha256": "550d7fad6467e89b4e93d9287fed6ab7b90a53664124121b64afd1f062928597"
+    },
+    {
+      "name": "func_0032a960",
+      "code_sha256": "c466c0be8400c5d0448aa6ef006567552dc0c3c9d84de496117436b5e8b7d060",
+      "canonical_relocations_sha256": "34d188bdaa10506aea62d0bb6aa1e52c55bc925ec680cf52c70cbc2f3e7be19d"
+    },
+    {
+      "name": "func_0032b000",
+      "code_sha256": "ede5aeb96dcd8b2dfd1b94e7c2ea95119b9b6d9b1c208777a8b6cadba4e1ca89",
+      "canonical_relocations_sha256": "498f25a418dea651a2260a681f31aea5c1c84ae61701d4f94653cbf086fbf96c"
+    },
+    {
+      "name": "func_0032b770",
+      "code_sha256": "0deab602f2011d6140aeb81c2a56faeaa65f98db3fabfc2545b27f294b47de9b",
+      "canonical_relocations_sha256": "f9d635104b03aa60cdb7dc9516caef5668de2dfcf0de465e16171bf84524fd9b"
+    },
+    {
+      "name": "func_0032b9d0",
+      "code_sha256": "56a43b1d7c8d278b4c71771916867310cd898cdf62d5ff97c6d9fca870432ac7",
+      "canonical_relocations_sha256": "facebd0a01e9f1029dbd755d75844a20e6257d119de565725273b7c2ff0c59bd"
+    },
+    {
+      "name": "func_0032c0c0",
+      "code_sha256": "c860a1a362e2054269e0751ea005452136886701828f60f7b83ae2657f0260bc",
+      "canonical_relocations_sha256": "4825c2df185ee6b63b7fbc5ad7291507e44227d39b21bd0d527e5a6353787b37"
+    },
+    {
+      "name": "func_0032c480",
+      "code_sha256": "3c3ad64ae625a940dda9293da96e05d44d8c0be95e56db4d03771039dcab486a",
+      "canonical_relocations_sha256": "f11e075c2a0b01abc800c29fab93c85204afb2d395f00097f548acc440374b8a"
+    },
+    {
+      "name": "func_0032c660",
+      "code_sha256": "65678ca138cf3f6c040258b4a0e73192729971ac49248d78c253aacc05f78be7",
+      "canonical_relocations_sha256": "66219bcdb4961faa0e4249d7cce8eea72c6ff6329473f2c995a1bb21f7860284"
+    },
+    {
+      "name": "func_0032e570",
+      "code_sha256": "5f2be9ebfeb025ef97d4438703e651d507984e0d6c3ede678cb50286bed0792b",
+      "canonical_relocations_sha256": "5ec88b07d59368d8f3986f2e7d2612e491f2835c4c5e7eb5cd8ca206323314f9"
+    },
+    {
+      "name": "func_0032f060",
+      "code_sha256": "a456a7412c592d9c8eea9ecc65ed11d7127493fb94c42d6d03fe6641da9d827c",
+      "canonical_relocations_sha256": "cdffffdd14e300e1c9f0005f14282ef76ae1970721b7f5484a7b258a477c8f75"
+    },
+    {
+      "name": "func_0032f4d0",
+      "code_sha256": "2e44ed42b155cc6ce4571dc0b2e5df575d709e4be25a7c1fc1259b05401dfecf",
+      "canonical_relocations_sha256": "79306ad46ec98d8ee5d63367209a253c1782fbc49fd322a695e53bffa1cc6165"
+    },
+    {
+      "name": "func_0032fa30",
+      "code_sha256": "702316fe65012e5672cb87be3d4cbd1b0110d41d0b68b0853b5552c1d7b4abb6",
+      "canonical_relocations_sha256": "87c4ccdd08d81c7715a1c5ecddb23d28fa898ac7c77b8882e716e70216068381"
+    },
+    {
+      "name": "func_0032fb60",
+      "code_sha256": "6f0c8983fca3794bf2c50672d231fb4d303387ef74f5c62619b4140a24b5f1fe",
+      "canonical_relocations_sha256": "00620e0d52dff39bdc2491d21820bb90c77373ab4495e6e2ed89679c30333419"
+    },
+    {
+      "name": "func_0032fbc0",
+      "code_sha256": "c7a5bc3024b8e065cb613831441aa290bc0704f8be729b97f9099e4561cb53cb",
+      "canonical_relocations_sha256": "4c4e281a79430a8ef60a7c7142184cf9f411bed54ee657cdc9fb10ff2b6b549e"
+    },
+    {
+      "name": "func_00330060",
+      "code_sha256": "9e955bcf73d6a3cd9b923a2fdeb2e760112f43c679e5a8afa54830c6d1155011",
+      "canonical_relocations_sha256": "d51dbd6d2584e57a4b189e1c6ca96f5cb12e684745f5d33f8b908ade6b0c02bb"
+    },
+    {
+      "name": "func_003307b0",
+      "code_sha256": "0c30b738f4429cf50a9c77933c08f4ac437459bd05cf7a490eb3d81532a99c1a",
+      "canonical_relocations_sha256": "7dbd5ffc467ebf91dcd2eadbe5220e18578937769d00cb7c50be2cc76bbc70f6"
+    },
+    {
+      "name": "func_00330e50",
+      "code_sha256": "e5be3628897c5a91179f4034a6841ca12385553d729b0564ad267f992f289bac",
+      "canonical_relocations_sha256": "a9ab0d5a0754ec02daa31e27a6c5f676eab133ff584cf28dee37759241a4a4b3"
+    },
+    {
+      "name": "func_00330f20",
+      "code_sha256": "f0f635dd4f6675c0e6780053b5194b468df2f0b9861d5e16b0a8df358962915f",
+      "canonical_relocations_sha256": "9792041d0763cafddd41ec28bb2a05be4f78d0f2e1e73e37263beabe2e990ed0"
+    },
+    {
+      "name": "func_003312e0",
+      "code_sha256": "bd8b151602b05443c26bc2e3a39d9fe184f88c7b5a6b487b3ca9e18c7266b3ad",
+      "canonical_relocations_sha256": "cf628ebd475471866f6951d04ea5c8d7076e73022733fb7a7f4a447a1381523f"
+    },
+    {
+      "name": "func_00331390",
+      "code_sha256": "8f97bf182c87a5a4d96cc13a96167393ec9d499df299d3a370b790b4110556a5",
+      "canonical_relocations_sha256": "717a3fe2af1de411bb90a9b960b11bbc8e088802e487a3538f3091b59a65b505"
+    }
+  ],
+  "guarded_storage": {
+    ".rodata#0": {
+      "bytes": 36,
+      "alignment": 16,
+      "sha256": "a36cf52a282b3d9974440cf22e86be2f4b1f5ef61ba28fcc7c5d6b438042fea9"
+    },
+    ".rodata#1": {
+      "bytes": 24,
+      "alignment": 16,
+      "sha256": "84d6b37ed7f55e9666131d62e8477e513a7da1afe7db598bf88691389db0b080"
+    },
+    ".rodata#2": {
+      "bytes": 24,
+      "alignment": 16,
+      "sha256": "b0bfdfe6df9ec21288a397b9f9133325edd926eee9fabafdcb1d5cce374b7cf4"
+    },
+    ".rodata#3": {
+      "bytes": 24,
+      "alignment": 16,
+      "sha256": "99e399c37cab56adf09fc7c502f12ecde367bbe546e4ad89d6b33f80d618ad2d"
+    },
+    ".rodata#4": {
+      "bytes": 28,
+      "alignment": 16,
+      "sha256": "b946ae23ffe6d4728fd532c56e042be87f9a3fe8855d1a95fb7453cc9182a241"
+    }
+  },
+  "guarded_data_relocations_sha256": "177708b1875e151bc16b37a88d5f79ad14c9cd36da47680addf2b442725880d2",
+  "target_code_sha256": "ff9db5f50a4a721905e294bd84dc8b014a4c6d231f3058b09719260eb7ac6719",
+  "target_bytes": 1800,
+  "address": "00323d00",
+  "retail_window_bytes": 1808,
+  "target_relocation_count": 57,
+  "resolved_target_sha256": "3ce921ae100bc0f0cf4f7173f95b3a69fa32c9a11a2146e722d6e0e49be0afce",
+  "resolved_differing_words": 29,
+  "resolved_difference_offsets": [
+    724,
+    732,
+    736,
+    740,
+    896,
+    900,
+    960,
+    964,
+    1020,
+    1068,
+    1112,
+    1116,
+    1120,
+    1156,
+    1160,
+    1228,
+    1276,
+    1320,
+    1324,
+    1328,
+    1364,
+    1368,
+    1428,
+    1476,
+    1520,
+    1524,
+    1528,
+    1724,
+    1728
+  ],
+  "retail_zero_tail_bytes": 8,
+  "target_relocations": [
+    {
+      "offset": 68,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 104,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_0031e5b0",
+      "symbol_address": "0x0031e5b0",
+      "resolved_instruction": "0c0c796c",
+      "retail_instruction": "0c0c796c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 140,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 176,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_0031e5b0",
+      "symbol_address": "0x0031e5b0",
+      "resolved_instruction": "0c0c796c",
+      "retail_instruction": "0c0c796c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 224,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 240,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002e48a0",
+      "symbol_address": "0x002e48a0",
+      "resolved_instruction": "0c0b9228",
+      "retail_instruction": "0c0b9228",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 260,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002e48a0",
+      "symbol_address": "0x002e48a0",
+      "resolved_instruction": "0c0b9228",
+      "retail_instruction": "0c0b9228",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 276,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002e4870",
+      "symbol_address": "0x002e4870",
+      "resolved_instruction": "0c0b921c",
+      "retail_instruction": "0c0b921c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 328,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_003191c0",
+      "symbol_address": "0x003191c0",
+      "resolved_instruction": "0c0c6470",
+      "retail_instruction": "0c0c6470",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 360,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002e4870",
+      "symbol_address": "0x002e4870",
+      "resolved_instruction": "0c0b921c",
+      "retail_instruction": "0c0b921c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 416,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 432,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002e48a0",
+      "symbol_address": "0x002e48a0",
+      "resolved_instruction": "0c0b9228",
+      "retail_instruction": "0c0b9228",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 452,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002e48a0",
+      "symbol_address": "0x002e48a0",
+      "resolved_instruction": "0c0b9228",
+      "retail_instruction": "0c0b9228",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 520,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_0031ac10",
+      "symbol_address": "0x0031ac10",
+      "resolved_instruction": "0c0c6b04",
+      "retail_instruction": "0c0c6b04",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 552,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002e4870",
+      "symbol_address": "0x002e4870",
+      "resolved_instruction": "0c0b921c",
+      "retail_instruction": "0c0b921c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 576,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_006440F8",
+      "symbol_address": "0x006440f8",
+      "resolved_instruction": "3c020064",
+      "retail_instruction": "3c020064",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 580,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_006440F8",
+      "symbol_address": "0x006440f8",
+      "resolved_instruction": "244240f8",
+      "retail_instruction": "244240f8",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 596,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 624,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6c30",
+      "symbol_address": "0x002b6c30",
+      "resolved_instruction": "0c0adb0c",
+      "retail_instruction": "0c0adb0c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 652,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2a60",
+      "symbol_address": "0x002b2a60",
+      "resolved_instruction": "0c0aca98",
+      "retail_instruction": "0c0aca98",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 664,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6150",
+      "symbol_address": "0x002b6150",
+      "resolved_instruction": "0c0ad854",
+      "retail_instruction": "0c0ad854",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 760,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6a70",
+      "symbol_address": "0x002b6a70",
+      "resolved_instruction": "0c0ada9c",
+      "retail_instruction": "0c0ada9c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 768,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_006440F0",
+      "symbol_address": "0x006440f0",
+      "resolved_instruction": "3c020064",
+      "retail_instruction": "3c020064",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 772,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_006440F0",
+      "symbol_address": "0x006440f0",
+      "resolved_instruction": "244240f0",
+      "retail_instruction": "244240f0",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 788,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 816,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6c30",
+      "symbol_address": "0x002b6c30",
+      "resolved_instruction": "0c0adb0c",
+      "retail_instruction": "0c0adb0c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 844,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2a60",
+      "symbol_address": "0x002b2a60",
+      "resolved_instruction": "0c0aca98",
+      "retail_instruction": "0c0aca98",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 856,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6150",
+      "symbol_address": "0x002b6150",
+      "resolved_instruction": "0c0ad854",
+      "retail_instruction": "0c0ad854",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 920,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6a70",
+      "symbol_address": "0x002b6a70",
+      "resolved_instruction": "0c0ada9c",
+      "retail_instruction": "0c0ada9c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 940,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00644290",
+      "symbol_address": "0x00644290",
+      "resolved_instruction": "3c030064",
+      "retail_instruction": "3c030064",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 944,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00644290",
+      "symbol_address": "0x00644290",
+      "resolved_instruction": "24634290",
+      "retail_instruction": "24634290",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1004,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1032,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6c30",
+      "symbol_address": "0x002b6c30",
+      "resolved_instruction": "0c0adb0c",
+      "retail_instruction": "0c0adb0c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1060,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2a60",
+      "symbol_address": "0x002b2a60",
+      "resolved_instruction": "0c0aca98",
+      "retail_instruction": "0c0aca98",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1072,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6150",
+      "symbol_address": "0x002b6150",
+      "resolved_instruction": "0c0ad854",
+      "retail_instruction": "0c0ad854",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1136,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6a70",
+      "symbol_address": "0x002b6a70",
+      "resolved_instruction": "0c0ada9c",
+      "retail_instruction": "0c0ada9c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1144,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00644298",
+      "symbol_address": "0x00644298",
+      "resolved_instruction": "3c050064",
+      "retail_instruction": "3c050064",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1148,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00644298",
+      "symbol_address": "0x00644298",
+      "resolved_instruction": "24a54298",
+      "retail_instruction": "24a54298",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1212,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1240,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6c30",
+      "symbol_address": "0x002b6c30",
+      "resolved_instruction": "0c0adb0c",
+      "retail_instruction": "0c0adb0c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1268,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2a60",
+      "symbol_address": "0x002b2a60",
+      "resolved_instruction": "0c0aca98",
+      "retail_instruction": "0c0aca98",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1280,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6150",
+      "symbol_address": "0x002b6150",
+      "resolved_instruction": "0c0ad854",
+      "retail_instruction": "0c0ad854",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1344,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6a70",
+      "symbol_address": "0x002b6a70",
+      "resolved_instruction": "0c0ada9c",
+      "retail_instruction": "0c0ada9c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1352,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00644350",
+      "symbol_address": "0x00644350",
+      "resolved_instruction": "3c030064",
+      "retail_instruction": "3c030064",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1356,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00644350",
+      "symbol_address": "0x00644350",
+      "resolved_instruction": "24634350",
+      "retail_instruction": "24634350",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1412,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1440,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6c30",
+      "symbol_address": "0x002b6c30",
+      "resolved_instruction": "0c0adb0c",
+      "retail_instruction": "0c0adb0c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1468,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2a60",
+      "symbol_address": "0x002b2a60",
+      "resolved_instruction": "0c0aca98",
+      "retail_instruction": "0c0aca98",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1480,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6150",
+      "symbol_address": "0x002b6150",
+      "resolved_instruction": "0c0ad854",
+      "retail_instruction": "0c0ad854",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1544,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6a70",
+      "symbol_address": "0x002b6a70",
+      "resolved_instruction": "0c0ada9c",
+      "retail_instruction": "0c0ada9c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1584,
+      "r_type": 5,
+      "type": "R_MIPS_HI16",
+      "symbol": "D_00644350",
+      "symbol_address": "0x00644350",
+      "resolved_instruction": "3c030064",
+      "retail_instruction": "3c030064",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1588,
+      "r_type": 6,
+      "type": "R_MIPS_LO16",
+      "symbol": "D_00644350",
+      "symbol_address": "0x00644350",
+      "resolved_instruction": "24634350",
+      "retail_instruction": "24634350",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1616,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2970",
+      "symbol_address": "0x002b2970",
+      "resolved_instruction": "0c0aca5c",
+      "retail_instruction": "0c0aca5c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1644,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6c30",
+      "symbol_address": "0x002b6c30",
+      "resolved_instruction": "0c0adb0c",
+      "retail_instruction": "0c0adb0c",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1672,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b2a60",
+      "symbol_address": "0x002b2a60",
+      "resolved_instruction": "0c0aca98",
+      "retail_instruction": "0c0aca98",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1684,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6150",
+      "symbol_address": "0x002b6150",
+      "resolved_instruction": "0c0ad854",
+      "retail_instruction": "0c0ad854",
+      "target_bits_equal": true
+    },
+    {
+      "offset": 1748,
+      "r_type": 4,
+      "type": "R_MIPS_26",
+      "symbol": "func_002b6a70",
+      "symbol_address": "0x002b6a70",
+      "resolved_instruction": "0c0ada9c",
+      "retail_instruction": "0c0ada9c",
+      "target_bits_equal": true
+    }
+  ]
+}
