@@ -1,0 +1,698 @@
+{
+  "scope": "Revision2 guarded digit storage proposal; no source installation or new C match",
+  "completed_validation_session": 16321,
+  "commands_exit_zero": [
+    "revision2 source/archive preparation",
+    "portable four-context replay",
+    "proposed-source lint"
+  ],
+  "source_before_sha256": "02ac0a21e7df42736bbffe7559084393ab603bf8e89f180bfb9c47019c80568c",
+  "source_proposed_sha256": "8fa8c7b7e7769e250325c31a7ac620ba5110ea4b28a7016f9a080308ae683906",
+  "source_unchanged": true,
+  "source_installed": false,
+  "portable_replay": {
+    "path": "build/ui-digit-packed-replay-64f12684c5ef",
+    "functions_checked": 300,
+    "production_functions_exact": 75,
+    "production_references_resolved": 388,
+    "target_active_siblings_exact": 74,
+    "allocated_data_sections_exact": 1,
+    "normal_verifier": {
+      "MATCH": 74,
+      "ASM": 1
+    },
+    "target": {
+      "mode": "guarded-after",
+      "name": "func_002ba080",
+      "size": 1348,
+      "window": 1360,
+      "resolved_words": 192,
+      "resolved_offsets": [
+        0,
+        76,
+        80,
+        84,
+        280,
+        348,
+        352,
+        384,
+        388,
+        424,
+        520,
+        524,
+        528,
+        532,
+        536,
+        540,
+        544,
+        548,
+        552,
+        556,
+        560,
+        564,
+        568,
+        572,
+        576,
+        580,
+        584,
+        588,
+        592,
+        596,
+        600,
+        604,
+        608,
+        612,
+        616,
+        620,
+        624,
+        628,
+        632,
+        640,
+        648,
+        652,
+        656,
+        660,
+        664,
+        668,
+        672,
+        676,
+        680,
+        684,
+        688,
+        692,
+        696,
+        700,
+        704,
+        708,
+        712,
+        720,
+        724,
+        728,
+        732,
+        740,
+        744,
+        748,
+        752,
+        756,
+        760,
+        764,
+        768,
+        772,
+        776,
+        780,
+        784,
+        788,
+        792,
+        796,
+        800,
+        804,
+        808,
+        812,
+        816,
+        820,
+        824,
+        828,
+        832,
+        836,
+        840,
+        844,
+        848,
+        852,
+        856,
+        860,
+        864,
+        868,
+        872,
+        876,
+        880,
+        884,
+        888,
+        892,
+        896,
+        900,
+        904,
+        908,
+        912,
+        916,
+        920,
+        924,
+        928,
+        932,
+        936,
+        940,
+        944,
+        948,
+        952,
+        956,
+        960,
+        964,
+        968,
+        972,
+        976,
+        980,
+        984,
+        988,
+        992,
+        996,
+        1000,
+        1004,
+        1008,
+        1012,
+        1016,
+        1020,
+        1024,
+        1028,
+        1032,
+        1036,
+        1040,
+        1044,
+        1048,
+        1052,
+        1056,
+        1060,
+        1064,
+        1068,
+        1072,
+        1076,
+        1080,
+        1084,
+        1088,
+        1092,
+        1096,
+        1100,
+        1104,
+        1108,
+        1112,
+        1116,
+        1120,
+        1124,
+        1128,
+        1132,
+        1136,
+        1140,
+        1144,
+        1148,
+        1152,
+        1156,
+        1160,
+        1164,
+        1168,
+        1172,
+        1176,
+        1180,
+        1184,
+        1188,
+        1192,
+        1196,
+        1200,
+        1204,
+        1208,
+        1212,
+        1216,
+        1220,
+        1224,
+        1228,
+        1232,
+        1236,
+        1240,
+        1244,
+        1248,
+        1252,
+        1256,
+        1336
+      ],
+      "resolved_sha256": "a67def4caea2df9b2a940fe0879f4024c5bb9a18a1609f26abba52db0891a1d1",
+      "references": [
+        {
+          "offset": 108,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b29e0",
+          "symbol_address": "0x002b29e0",
+          "resolved_instruction": "0c0aca78",
+          "retail_instruction": "0c0aca78",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 152,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b2970",
+          "symbol_address": "0x002b2970",
+          "resolved_instruction": "0c0aca5c",
+          "retail_instruction": "0c0aca5c",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 300,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0063F1F0",
+          "symbol_address": "0x0063f1f0",
+          "resolved_instruction": "3c020064",
+          "retail_instruction": "3c020064",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 304,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0063F1F0",
+          "symbol_address": "0x0063f1f0",
+          "resolved_instruction": "2442f1f0",
+          "retail_instruction": "2442f1f0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 584,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b83e0",
+          "symbol_address": "0x002b83e0",
+          "resolved_instruction": "0c0ae0f8",
+          "retail_instruction": "00000000",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 712,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b83e0",
+          "symbol_address": "0x002b83e0",
+          "resolved_instruction": "0c0ae0f8",
+          "retail_instruction": "17c0006a",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 760,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0063F1F0",
+          "symbol_address": "0x0063f1f0",
+          "resolved_instruction": "3c020064",
+          "retail_instruction": "00432821",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 764,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0063F1F0",
+          "symbol_address": "0x0063f1f0",
+          "resolved_instruction": "2442f1f0",
+          "retail_instruction": "c4a3000c",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 860,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b2970",
+          "symbol_address": "0x002b2970",
+          "resolved_instruction": "0c0aca5c",
+          "retail_instruction": "c7a10118",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 1052,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b2970",
+          "symbol_address": "0x002b2970",
+          "resolved_instruction": "0c0aca5c",
+          "retail_instruction": "46000b01",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 1120,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b83e0",
+          "symbol_address": "0x002b83e0",
+          "resolved_instruction": "0c0ae0f8",
+          "retail_instruction": "0260582d",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 1216,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b2970",
+          "symbol_address": "0x002b2970",
+          "resolved_instruction": "0c0aca5c",
+          "retail_instruction": "c60d002c",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 1284,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b83e0",
+          "symbol_address": "0x002b83e0",
+          "resolved_instruction": "0c0ae0f8",
+          "retail_instruction": "0c0ae0f8",
+          "target_bits_equal": true
+        }
+      ],
+      "call_sequence_equal": true,
+      "zero_only_tail": true
+    }
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 26,
+    "summary_by_code": {
+      "H003": 3,
+      "H011": 23
+    },
+    "all_warning_statements_present_before_patch": true,
+    "review": "23 H011 declarations and 3 H003 optimization settings are unchanged existing statements; the proposed storage adds no public declarations or optimization directives.",
+    "findings": [
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 20,
+        "message": "func_002baa90 declared void(ptr) but defined void(s32) at src/nmCmdList.c:28",
+        "text": "extern void func_002baa90(s32 *arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 26,
+        "message": "func_002bcc60 declared void(ptr) but defined u64(ptr) at src/Event/Fcl/fclMisc.c:69",
+        "text": "extern void func_002bcc60(u8 *arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 34,
+        "message": "func_0045a9a0 declared void(s32, s32) but defined s32(s16) at src/sdkSnd.c:861",
+        "text": "extern void func_0045a9a0(s32 arg0, s32 arg1);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 52,
+        "message": "func_002bb0e0 declared s32() but defined u32() at src/nmCmdList.c:137",
+        "text": "extern s32 func_002bb0e0(void);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 53,
+        "message": "func_002791f0 declared void(s32, s32, s32, s32, s32, s32) but defined s32(f32, f32, f32, s32, s32, s32, s32, s32, s32) at src/itfMesManager.c:1530",
+        "text": "extern void func_002791f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 63,
+        "message": "func_00276e10 declared s32(?) but defined s8(s32) at src/itfMesManager.c:377",
+        "text": "extern s32 func_00276e10();"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 64,
+        "message": "func_00276fb0 declared s32(s32) but defined s16(s32) at src/itfMesManager.c:430",
+        "text": "extern s32 func_00276fb0(s32 arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 71,
+        "message": "func_002e2170 declared ptr(ptr, s32, s32) but defined ptr(ptr, ptr, s32) at src/nmlist.c:183",
+        "text": "extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 73,
+        "message": "func_001060b0 declared s64() but defined s16() at src/g_data/g_data.c:961",
+        "text": "extern s64 func_001060b0(void);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 74,
+        "message": "func_00110d60 declared s32(s16) but defined s32(s32) at src/promoted/code1_0011.c:469",
+        "text": "extern s32 func_00110d60(s16 arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 75,
+        "message": "func_0046aea0 declared s32(ptr) but defined ptr(ptr) at src/Kernel/sdkSpr.c:292",
+        "text": "extern s32 func_0046aea0(void *arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 76,
+        "message": "func_0046a750 declared s32(s32) but defined u32(ptr) at src/h_maestro.c:33",
+        "text": "extern s32 func_0046a750(s32 arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 78,
+        "message": "func_002e2240 declared void(ptr, ptr, ptr) but defined ptr(ptr, ptr, ptr) at src/comuData.c:25",
+        "text": "extern void func_002e2240(void *arg0, void *arg1, void *arg2);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 85,
+        "message": "func_002e78a0 declared s32() but defined u8() at src/promoted/code1_002e.c:581",
+        "text": "extern s32 func_002e78a0(void);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 91,
+        "message": "func_00122520 declared void(s32, s32) but defined s32(s32, s32) at src/fade.c:50",
+        "text": "extern void func_00122520(s32 arg0, s32 arg1);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 94,
+        "message": "func_002cb6a0 declared s32(s32) but defined s32(ptr) at src/Event/Fcl/y_fclShopDraw.c:2959",
+        "text": "extern s32 func_002cb6a0(s32 arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 95,
+        "message": "func_002caa00 declared void(s32, s32) but defined void(ptr, s8) at src/Event/Fcl/y_fclShopDraw.c:2706",
+        "text": "extern void func_002caa00(s32 arg0, s32 arg1);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 97,
+        "message": "func_0045a3e0 declared void(s32, s32) but defined s32(s16) at src/sdkSnd.c:728",
+        "text": "extern void func_0045a3e0(s32 arg0, s32 arg1);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 98,
+        "message": "func_00452380 declared s32(ptr) but defined ptr(ptr) at src/Kernel/sdkTask.c:888",
+        "text": "extern s32 func_00452380(void *arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 99,
+        "message": "func_00457120 declared ptr() but defined s32() at src/promoted/code1_0045.c:1447",
+        "text": "extern u8 *func_00457120(void);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 109,
+        "message": "func_002b1260 declared f32(s32, f32) but defined f32(ptr, f32) at src/promoted/y_smap.c:2008",
+        "text": "extern f32 func_002b1260(s32 arg0, f32 fparg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 110,
+        "message": "func_002b1320 declared f32(s32, f32) but defined f32(ptr, f32) at src/promoted/y_smap.c:2033",
+        "text": "extern f32 func_002b1320(s32 arg0, f32 fparg0);"
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 979,
+        "message": "nonbaseline pragma `opt_loop_invariants off`; review justification",
+        "text": "#pragma opt_loop_invariants off"
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 988,
+        "message": "nonbaseline pragma `opt_common_subs off`; review justification",
+        "text": "#pragma opt_common_subs off"
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 1238,
+        "message": "nonbaseline pragma `opt_common_subs off`; review justification",
+        "text": "#pragma opt_common_subs off"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+        "line": 1300,
+        "message": "func_002774d0 declared s32(s32) but defined s32(ptr) at src/itfMesManager.c:604",
+        "text": "extern s32 func_002774d0(s32 arg0);"
+      }
+    ]
+  },
+  "earlier_revision": {
+    "path": "build/finish-20261006/ui-worker4-resume/archive-review1",
+    "result": "Replay passed; lint M003 flagged type guard beneath previous untagged marker. Revision2 moves the guard before all retail markers; source was never installed."
+  },
+  "evidence": [
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/README.md",
+      "sha256": "d7dac8b3a9bb7cca6e31ae6af62fd2555565d1d530c38674d1ea928b50c5b010",
+      "bytes": 2209
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/body.c",
+      "sha256": "70836420edb7ebb3274548a89c0164d999b75ff300aa41700cc8ee56a5418234",
+      "bytes": 5755
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/owner.patch",
+      "sha256": "0f10fdf11bad727d2032d950e0645da680d666d6e9baa66b2fc1ce7380e75ce4",
+      "bytes": 2777
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/receipt.json",
+      "sha256": "42607562281063cce6d1a38503b9615f776bf7845bb21ea914331fee7ca61c26",
+      "bytes": 10376
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/replay.py",
+      "sha256": "3ad97507d45d193f9a241425450d843be616ece3bcd3fb066272fcfebf903cc9",
+      "bytes": 9254
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/native_references.py",
+      "sha256": "b617529e6c4276e7a39720fbdb3c977215d338c25ac7c6fde61510da0db4743f",
+      "bytes": 9812
+    },
+    {
+      "path": "build/finish-20261006/ui-worker4-resume/digit-proposed-v2-lint.json",
+      "sha256": "aaa3c8188d02d97b20e33091ab7eedfe8aefd42b38dd86e11410aa42ac0b50d3",
+      "bytes": 10559
+    },
+    {
+      "path": "build/finish-20261006/ui-worker4-resume/digit-proposed-owner-v2.c",
+      "sha256": "8fa8c7b7e7769e250325c31a7ac620ba5110ea4b28a7016f9a080308ae683906",
+      "bytes": 67274
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/proof.json",
+      "sha256": "c24985c186738e845fb0f5e28e8c473b53bf4ddd4adaf8717cfdb5df5feacce5",
+      "bytes": 606635
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/normal-verifier.json",
+      "sha256": "1c9ffba3ffdb0987538797bb02383ee96709ad0a0532c9762b816b1667af688e",
+      "bytes": 91111
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/production-before/owner.c",
+      "sha256": "02ac0a21e7df42736bbffe7559084393ab603bf8e89f180bfb9c47019c80568c",
+      "bytes": 66197
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/production-before/owner.o",
+      "sha256": "4190fe1a7e666a206b85e2d4c559fc5bd19d7242863f39de29016de9ed6e6c3f",
+      "bytes": 45520
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/production-before/compiler.log",
+      "sha256": "73c3611b7767c1e7908c6ad58578bef3d1f42c5da8adfcf6f238433b7db6d25e",
+      "bytes": 1084
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/production-after/owner.c",
+      "sha256": "8fa8c7b7e7769e250325c31a7ac620ba5110ea4b28a7016f9a080308ae683906",
+      "bytes": 67274
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/production-after/owner.o",
+      "sha256": "4190fe1a7e666a206b85e2d4c559fc5bd19d7242863f39de29016de9ed6e6c3f",
+      "bytes": 45520
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/production-after/compiler.log",
+      "sha256": "8060ab41a5db14f11f94c15f5d8759859dec05a918efa6e8d7f9d3463ebf8301",
+      "bytes": 1084
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/guarded-before/owner.c",
+      "sha256": "8a9703ba020f68d3ba87b7efd5534b620c44e97e07354af0ef6e2bb4279b435c",
+      "bytes": 66218
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/guarded-before/owner.o",
+      "sha256": "86b3c33f7418fc08182b10e75fc92ba7052b6d1630a9b36956b35038e9a33acd",
+      "bytes": 47040
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/guarded-before/compiler.log",
+      "sha256": "36071d9083ce14ddc70f3b70d0ed18d231ae9a104cf02a7c01012c02d1ca3782",
+      "bytes": 536
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/guarded-after/owner.c",
+      "sha256": "cfc537cda68563f848374116cf50d1aa02737cb9e9ce84a73a3df6cc463b8328",
+      "bytes": 67295
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/guarded-after/owner.o",
+      "sha256": "71ef6cdb925500ef5db0dc2eaf3855d22968a0395cba88ee0edba378154f6807",
+      "bytes": 47008
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/guarded-after/compiler.log",
+      "sha256": "723d2c9f54700a89b2b403464c834e6cd5e089ab42445173a3dafef34155dd2e",
+      "bytes": 536
+    }
+  ],
+  "new_C_matches": 0
+}
