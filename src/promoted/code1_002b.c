@@ -123,6 +123,27 @@ extern s8 D_007488C0[];
 
 
 
+/* Retail digit RGBA occupies the four bytes at draw+0x75.
+   MWCC requires packed after the typedef name. These guarded
+   storage views preserve the native FclDrawColor call interface.
+   See docs/probe_archive/Fcl_digit_packed_storage_ui_20261006. */
+#ifdef NON_MATCHING
+typedef union {
+    FclDrawColor channels;
+    u32 word;
+} FclDigitColorStorage;
+typedef struct {
+    u32 word;
+} FclDigitStoredWord __attribute__((packed));
+typedef struct {
+    u8 prefix;
+    FclDigitStoredWord storage;
+} FclDigitStoredWordAlignment;
+typedef char FclDigitStoredWordSize[(sizeof(FclDigitStoredWord) == 4) ? 1 : -1];
+typedef char FclDigitStoredWordByteAligned[(sizeof(FclDigitStoredWordAlignment) == 5) ? 1 : -1];
+typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : -1];
+#endif
+
 // FUN_002B2940
 u8 *func_002b2940(u8 *arg0)
 {
@@ -997,7 +1018,7 @@ void func_002ba080(u8 *arg0, s16 arg1, s16 arg2, FclVec2 arg3, FclDrawColor arg4
     if ((value == -1) || fclDigitIsZero(&value)) { ones = 10; tens = 10; }
     else { ones = (s8)(value % 10); tens = (s8)(value / 10); }
     pair_index = (s16)((s16)arg1 * 2);
-    next_index = (s16)(pair_index + 1);
+    next_index = (s16)((s16)arg1 * 2 + 1);
     flag = arg_sp0;
     if (flag == 0) {
         u8 *digit; u8 *slot; s32 offset;
@@ -1036,7 +1057,11 @@ void func_002ba080(u8 *arg0, s16 arg1, s16 arg2, FclVec2 arg3, FclDrawColor arg4
         slot = *(u8 **)(object + 0x38) + offset;
         if ((*(s16 *)(slot + 0x104) & 1) == 1) {
             u8 *a0 = slot + 0x104;
-            func_002b83e0(a0, *(FclVec2 *)(a0 + 0x28), *(FclDrawColor *)(a0 + 0x75), *(FclDrawColor *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+            {
+                FclDigitColorStorage endpoint;
+                endpoint.word = ((const FclDigitStoredWord *)(a0 + 0x75))->word;
+                func_002b83e0(a0, *(FclVec2 *)(a0 + 0x28), endpoint.channels, endpoint.channels, *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+            }
         }
     }
     if (flag == 0) {
@@ -1082,7 +1107,11 @@ void func_002ba080(u8 *arg0, s16 arg1, s16 arg2, FclVec2 arg3, FclDrawColor arg4
         if ((*(s16 *)(slot + 0x104) & 1) == 1) {
             u8 *a0 = slot + 0x104;
             tmpC = func_002b2970(pos1.x - 18.0f, *(f32 *)(a0 + 0x2C));
-            func_002b83e0(a0, tmpC, *(FclDrawColor *)(a0 + 0x75), *(FclDrawColor *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+            {
+                FclDigitColorStorage endpoint;
+                endpoint.word = ((const FclDigitStoredWord *)(a0 + 0x75))->word;
+                func_002b83e0(a0, tmpC, endpoint.channels, endpoint.channels, *(u8 *)(a0 + 0x5E), 0, (f32)src.dimensions.height, fparg0, arg5, arg6, arg_sp0, 0);
+            }
         }
     }
 }

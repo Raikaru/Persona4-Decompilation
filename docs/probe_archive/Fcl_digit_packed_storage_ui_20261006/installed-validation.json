@@ -1,0 +1,1259 @@
+{
+  "scope": "Installed guarded digit storage repair; not a C promotion",
+  "source": "src/promoted/code1_002b.c",
+  "source_installed": true,
+  "source_sha256": "8fa8c7b7e7769e250325c31a7ac620ba5110ea4b28a7016f9a080308ae683906",
+  "source_before_sha256": "02ac0a21e7df42736bbffe7559084393ab603bf8e89f180bfb9c47019c80568c",
+  "completed_installed_validation_session": 64130,
+  "normal_verifier": {
+    "summary": {
+      "MATCH": 74,
+      "ASM": 1
+    },
+    "results": [
+      {
+        "addr": "002b2940",
+        "name": "func_002b2940",
+        "status": "MATCH",
+        "object_size": 12,
+        "window": 16,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2950",
+        "name": "func_002b2950",
+        "status": "MATCH",
+        "object_size": 12,
+        "window": 16,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2960",
+        "name": "func_002b2960",
+        "status": "MATCH",
+        "object_size": 12,
+        "window": 16,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2970",
+        "name": "func_002b2970",
+        "status": "MATCH",
+        "object_size": 40,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b29a0",
+        "name": "func_002b29a0",
+        "status": "MATCH",
+        "object_size": 52,
+        "window": 64,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b29e0",
+        "name": "func_002b29e0",
+        "status": "MATCH",
+        "object_size": 80,
+        "window": 80,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2a30",
+        "name": "func_002b2a30",
+        "status": "MATCH",
+        "object_size": 48,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2a60",
+        "name": "func_002b2a60",
+        "status": "MATCH",
+        "object_size": 64,
+        "window": 64,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2aa0",
+        "name": "func_002b2aa0",
+        "status": "MATCH",
+        "object_size": 304,
+        "window": 304,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2bd0",
+        "name": "func_002b2bd0",
+        "status": "MATCH",
+        "object_size": 224,
+        "window": 224,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2cb0",
+        "name": "func_002b2cb0",
+        "status": "MATCH",
+        "object_size": 80,
+        "window": 80,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2d00",
+        "name": "func_002b2d00",
+        "status": "MATCH",
+        "object_size": 80,
+        "window": 80,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2d50",
+        "name": "func_002b2d50",
+        "status": "MATCH",
+        "object_size": 280,
+        "window": 288,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2e70",
+        "name": "func_002b2e70",
+        "status": "MATCH",
+        "object_size": 276,
+        "window": 288,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b2f90",
+        "name": "func_002b2f90",
+        "status": "MATCH",
+        "object_size": 180,
+        "window": 192,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b3050",
+        "name": "func_002b3050",
+        "status": "MATCH",
+        "object_size": 184,
+        "window": 192,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b3110",
+        "name": "func_002b3110",
+        "status": "MATCH",
+        "object_size": 36,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b3140",
+        "name": "func_002b3140",
+        "status": "MATCH",
+        "object_size": 36,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b3170",
+        "name": "func_002b3170",
+        "status": "MATCH",
+        "object_size": 44,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b31a0",
+        "name": "func_002b31a0",
+        "status": "MATCH",
+        "object_size": 136,
+        "window": 144,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b3230",
+        "name": "func_002b3230",
+        "status": "MATCH",
+        "object_size": 104,
+        "window": 112,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b32a0",
+        "name": "func_002b32a0",
+        "status": "MATCH",
+        "object_size": 48,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b32d0",
+        "name": "func_002b32d0",
+        "status": "MATCH",
+        "object_size": 588,
+        "window": 592,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b3520",
+        "name": "func_002b3520",
+        "status": "MATCH",
+        "object_size": 504,
+        "window": 512,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b3720",
+        "name": "func_002b3720",
+        "status": "MATCH",
+        "object_size": 576,
+        "window": 576,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b3960",
+        "name": "func_002b3960",
+        "status": "MATCH",
+        "object_size": 44,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b5100",
+        "name": "func_002b5100",
+        "status": "MATCH",
+        "object_size": 24,
+        "window": 32,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b5120",
+        "name": "func_002b5120",
+        "status": "MATCH",
+        "object_size": 372,
+        "window": 384,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b52a0",
+        "name": "func_002b52a0",
+        "status": "MATCH",
+        "object_size": 2488,
+        "window": 2496,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002b5c60",
+        "name": "func_002b5c60",
+        "status": "MATCH",
+        "object_size": 44,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002ba080",
+        "name": "func_002ba080",
+        "status": "ASM",
+        "object_size": 1360,
+        "window": 1360,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002ba5d0",
+        "name": "func_002ba5d0",
+        "status": "MATCH",
+        "object_size": 920,
+        "window": 928,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002ba970",
+        "name": "func_002ba970",
+        "status": "MATCH",
+        "object_size": 168,
+        "window": 176,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002baa20",
+        "name": "func_002baa20",
+        "status": "MATCH",
+        "object_size": 48,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002baa50",
+        "name": "func_002baa50",
+        "status": "MATCH",
+        "object_size": 56,
+        "window": 64,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bab80",
+        "name": "func_002bab80",
+        "status": "MATCH",
+        "object_size": 300,
+        "window": 304,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bacb0",
+        "name": "func_002bacb0",
+        "status": "MATCH",
+        "object_size": 84,
+        "window": 96,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bad10",
+        "name": "func_002bad10",
+        "status": "MATCH",
+        "object_size": 172,
+        "window": 176,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002badc0",
+        "name": "func_002badc0",
+        "status": "MATCH",
+        "object_size": 184,
+        "window": 192,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bae80",
+        "name": "func_002bae80",
+        "status": "MATCH",
+        "object_size": 184,
+        "window": 192,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002baf40",
+        "name": "func_002baf40",
+        "status": "MATCH",
+        "object_size": 124,
+        "window": 128,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bafc0",
+        "name": "func_002bafc0",
+        "status": "MATCH",
+        "object_size": 132,
+        "window": 144,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bb180",
+        "name": "func_002bb180",
+        "status": "MATCH",
+        "object_size": 60,
+        "window": 64,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bb420",
+        "name": "func_002bb420",
+        "status": "MATCH",
+        "object_size": 192,
+        "window": 192,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bb4e0",
+        "name": "func_002bb4e0",
+        "status": "MATCH",
+        "object_size": 112,
+        "window": 112,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bb550",
+        "name": "func_002bb550",
+        "status": "MATCH",
+        "object_size": 164,
+        "window": 176,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bb680",
+        "name": "func_002bb680",
+        "status": "MATCH",
+        "object_size": 124,
+        "window": 128,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bb7c0",
+        "name": "func_002bb7c0",
+        "status": "MATCH",
+        "object_size": 540,
+        "window": 544,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bb9e0",
+        "name": "func_002bb9e0",
+        "status": "MATCH",
+        "object_size": 732,
+        "window": 736,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bbcc0",
+        "name": "func_002bbcc0",
+        "status": "MATCH",
+        "object_size": 36,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bbcf0",
+        "name": "func_002bbcf0",
+        "status": "MATCH",
+        "object_size": 36,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bbd80",
+        "name": "func_002bbd80",
+        "status": "MATCH",
+        "object_size": 72,
+        "window": 80,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bc0b0",
+        "name": "func_002bc0b0",
+        "status": "MATCH",
+        "object_size": 48,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bc0e0",
+        "name": "func_002bc0e0",
+        "status": "MATCH",
+        "object_size": 972,
+        "window": 976,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bc4b0",
+        "name": "func_002bc4b0",
+        "status": "MATCH",
+        "object_size": 740,
+        "window": 752,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bc7a0",
+        "name": "func_002bc7a0",
+        "status": "MATCH",
+        "object_size": 80,
+        "window": 80,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bc7f0",
+        "name": "func_002bc7f0",
+        "status": "MATCH",
+        "object_size": 108,
+        "window": 112,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bc860",
+        "name": "func_002bc860",
+        "status": "MATCH",
+        "object_size": 48,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bc890",
+        "name": "func_002bc890",
+        "status": "MATCH",
+        "object_size": 328,
+        "window": 336,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bc9e0",
+        "name": "func_002bc9e0",
+        "status": "MATCH",
+        "object_size": 476,
+        "window": 480,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bcbc0",
+        "name": "func_002bcbc0",
+        "status": "MATCH",
+        "object_size": 148,
+        "window": 160,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bd280",
+        "name": "func_002bd280",
+        "status": "MATCH",
+        "object_size": 184,
+        "window": 192,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bd3e0",
+        "name": "func_002bd3e0",
+        "status": "MATCH",
+        "object_size": 36,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bd410",
+        "name": "func_002bd410",
+        "status": "MATCH",
+        "object_size": 48,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bd7b0",
+        "name": "func_002bd7b0",
+        "status": "MATCH",
+        "object_size": 136,
+        "window": 144,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bd840",
+        "name": "func_002bd840",
+        "status": "MATCH",
+        "object_size": 152,
+        "window": 160,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bd8e0",
+        "name": "func_002bd8e0",
+        "status": "MATCH",
+        "object_size": 552,
+        "window": 560,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bdb10",
+        "name": "func_002bdb10",
+        "status": "MATCH",
+        "object_size": 64,
+        "window": 64,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002bdff0",
+        "name": "func_002bdff0",
+        "status": "MATCH",
+        "object_size": 260,
+        "window": 272,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002be100",
+        "name": "func_002be100",
+        "status": "MATCH",
+        "object_size": 84,
+        "window": 96,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002be160",
+        "name": "func_002be160",
+        "status": "MATCH",
+        "object_size": 76,
+        "window": 80,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002be1b0",
+        "name": "func_002be1b0",
+        "status": "MATCH",
+        "object_size": 44,
+        "window": 48,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002be1e0",
+        "name": "func_002be1e0",
+        "status": "MATCH",
+        "object_size": 480,
+        "window": 480,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002be3c0",
+        "name": "func_002be3c0",
+        "status": "MATCH",
+        "object_size": 216,
+        "window": 224,
+        "normalized_diff": 0
+      },
+      {
+        "addr": "002be4a0",
+        "name": "func_002be4a0",
+        "status": "MATCH",
+        "object_size": 144,
+        "window": 144,
+        "normalized_diff": 0
+      }
+    ]
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 26,
+    "summary_by_code": {
+      "H003": 3,
+      "H011": 23
+    },
+    "all_warning_statements_preexisting": true,
+    "findings": [
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 20,
+        "message": "func_002baa90 declared void(ptr) but defined void(s32) at src/nmCmdList.c:28",
+        "text": "extern void func_002baa90(s32 *arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 26,
+        "message": "func_002bcc60 declared void(ptr) but defined u64(ptr) at src/Event/Fcl/fclMisc.c:69",
+        "text": "extern void func_002bcc60(u8 *arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 34,
+        "message": "func_0045a9a0 declared void(s32, s32) but defined s32(s16) at src/sdkSnd.c:861",
+        "text": "extern void func_0045a9a0(s32 arg0, s32 arg1);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 52,
+        "message": "func_002bb0e0 declared s32() but defined u32() at src/nmCmdList.c:137",
+        "text": "extern s32 func_002bb0e0(void);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 53,
+        "message": "func_002791f0 declared void(s32, s32, s32, s32, s32, s32) but defined s32(f32, f32, f32, s32, s32, s32, s32, s32, s32) at src/itfMesManager.c:1530",
+        "text": "extern void func_002791f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 63,
+        "message": "func_00276e10 declared s32(?) but defined s8(s32) at src/itfMesManager.c:377",
+        "text": "extern s32 func_00276e10();"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 64,
+        "message": "func_00276fb0 declared s32(s32) but defined s16(s32) at src/itfMesManager.c:430",
+        "text": "extern s32 func_00276fb0(s32 arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 71,
+        "message": "func_002e2170 declared ptr(ptr, s32, s32) but defined ptr(ptr, ptr, s32) at src/nmlist.c:183",
+        "text": "extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 73,
+        "message": "func_001060b0 declared s64() but defined s16() at src/g_data/g_data.c:961",
+        "text": "extern s64 func_001060b0(void);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 74,
+        "message": "func_00110d60 declared s32(s16) but defined s32(s32) at src/promoted/code1_0011.c:469",
+        "text": "extern s32 func_00110d60(s16 arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 75,
+        "message": "func_0046aea0 declared s32(ptr) but defined ptr(ptr) at src/Kernel/sdkSpr.c:292",
+        "text": "extern s32 func_0046aea0(void *arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 76,
+        "message": "func_0046a750 declared s32(s32) but defined u32(ptr) at src/h_maestro.c:33",
+        "text": "extern s32 func_0046a750(s32 arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 78,
+        "message": "func_002e2240 declared void(ptr, ptr, ptr) but defined ptr(ptr, ptr, ptr) at src/comuData.c:25",
+        "text": "extern void func_002e2240(void *arg0, void *arg1, void *arg2);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 85,
+        "message": "func_002e78a0 declared s32() but defined u8() at src/promoted/code1_002e.c:581",
+        "text": "extern s32 func_002e78a0(void);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 91,
+        "message": "func_00122520 declared void(s32, s32) but defined s32(s32, s32) at src/fade.c:50",
+        "text": "extern void func_00122520(s32 arg0, s32 arg1);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 94,
+        "message": "func_002cb6a0 declared s32(s32) but defined s32(ptr) at src/Event/Fcl/y_fclShopDraw.c:2959",
+        "text": "extern s32 func_002cb6a0(s32 arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 95,
+        "message": "func_002caa00 declared void(s32, s32) but defined void(ptr, s8) at src/Event/Fcl/y_fclShopDraw.c:2706",
+        "text": "extern void func_002caa00(s32 arg0, s32 arg1);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 97,
+        "message": "func_0045a3e0 declared void(s32, s32) but defined s32(s16) at src/sdkSnd.c:728",
+        "text": "extern void func_0045a3e0(s32 arg0, s32 arg1);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 98,
+        "message": "func_00452380 declared s32(ptr) but defined ptr(ptr) at src/Kernel/sdkTask.c:888",
+        "text": "extern s32 func_00452380(void *arg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 99,
+        "message": "func_00457120 declared ptr() but defined s32() at src/promoted/code1_0045.c:1447",
+        "text": "extern u8 *func_00457120(void);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 109,
+        "message": "func_002b1260 declared f32(s32, f32) but defined f32(ptr, f32) at src/promoted/y_smap.c:2008",
+        "text": "extern f32 func_002b1260(s32 arg0, f32 fparg0);"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 110,
+        "message": "func_002b1320 declared f32(s32, f32) but defined f32(ptr, f32) at src/promoted/y_smap.c:2033",
+        "text": "extern f32 func_002b1320(s32 arg0, f32 fparg0);"
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 979,
+        "message": "nonbaseline pragma `opt_loop_invariants off`; review justification",
+        "text": "#pragma opt_loop_invariants off"
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 988,
+        "message": "nonbaseline pragma `opt_common_subs off`; review justification",
+        "text": "#pragma opt_common_subs off"
+      },
+      {
+        "code": "H003",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 1238,
+        "message": "nonbaseline pragma `opt_common_subs off`; review justification",
+        "text": "#pragma opt_common_subs off"
+      },
+      {
+        "code": "H011",
+        "severity": "warn",
+        "file": "src/promoted/code1_002b.c",
+        "line": 1300,
+        "message": "func_002774d0 declared s32(s32) but defined s32(ptr) at src/itfMesManager.c:604",
+        "text": "extern s32 func_002774d0(s32 arg0);"
+      }
+    ]
+  },
+  "portable_replay": {
+    "path": "build/ui-digit-packed-replay-64f12684c5ef",
+    "functions_checked": 300,
+    "production_functions_exact": 75,
+    "production_references_resolved": 388,
+    "target_active_siblings_exact": 74,
+    "allocated_data_sections_exact": 1,
+    "normal_verifier": {
+      "MATCH": 74,
+      "ASM": 1
+    },
+    "target": {
+      "mode": "guarded-after",
+      "name": "func_002ba080",
+      "size": 1348,
+      "window": 1360,
+      "resolved_words": 192,
+      "resolved_offsets": [
+        0,
+        76,
+        80,
+        84,
+        280,
+        348,
+        352,
+        384,
+        388,
+        424,
+        520,
+        524,
+        528,
+        532,
+        536,
+        540,
+        544,
+        548,
+        552,
+        556,
+        560,
+        564,
+        568,
+        572,
+        576,
+        580,
+        584,
+        588,
+        592,
+        596,
+        600,
+        604,
+        608,
+        612,
+        616,
+        620,
+        624,
+        628,
+        632,
+        640,
+        648,
+        652,
+        656,
+        660,
+        664,
+        668,
+        672,
+        676,
+        680,
+        684,
+        688,
+        692,
+        696,
+        700,
+        704,
+        708,
+        712,
+        720,
+        724,
+        728,
+        732,
+        740,
+        744,
+        748,
+        752,
+        756,
+        760,
+        764,
+        768,
+        772,
+        776,
+        780,
+        784,
+        788,
+        792,
+        796,
+        800,
+        804,
+        808,
+        812,
+        816,
+        820,
+        824,
+        828,
+        832,
+        836,
+        840,
+        844,
+        848,
+        852,
+        856,
+        860,
+        864,
+        868,
+        872,
+        876,
+        880,
+        884,
+        888,
+        892,
+        896,
+        900,
+        904,
+        908,
+        912,
+        916,
+        920,
+        924,
+        928,
+        932,
+        936,
+        940,
+        944,
+        948,
+        952,
+        956,
+        960,
+        964,
+        968,
+        972,
+        976,
+        980,
+        984,
+        988,
+        992,
+        996,
+        1000,
+        1004,
+        1008,
+        1012,
+        1016,
+        1020,
+        1024,
+        1028,
+        1032,
+        1036,
+        1040,
+        1044,
+        1048,
+        1052,
+        1056,
+        1060,
+        1064,
+        1068,
+        1072,
+        1076,
+        1080,
+        1084,
+        1088,
+        1092,
+        1096,
+        1100,
+        1104,
+        1108,
+        1112,
+        1116,
+        1120,
+        1124,
+        1128,
+        1132,
+        1136,
+        1140,
+        1144,
+        1148,
+        1152,
+        1156,
+        1160,
+        1164,
+        1168,
+        1172,
+        1176,
+        1180,
+        1184,
+        1188,
+        1192,
+        1196,
+        1200,
+        1204,
+        1208,
+        1212,
+        1216,
+        1220,
+        1224,
+        1228,
+        1232,
+        1236,
+        1240,
+        1244,
+        1248,
+        1252,
+        1256,
+        1336
+      ],
+      "resolved_sha256": "a67def4caea2df9b2a940fe0879f4024c5bb9a18a1609f26abba52db0891a1d1",
+      "references": [
+        {
+          "offset": 108,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b29e0",
+          "symbol_address": "0x002b29e0",
+          "resolved_instruction": "0c0aca78",
+          "retail_instruction": "0c0aca78",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 152,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b2970",
+          "symbol_address": "0x002b2970",
+          "resolved_instruction": "0c0aca5c",
+          "retail_instruction": "0c0aca5c",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 300,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0063F1F0",
+          "symbol_address": "0x0063f1f0",
+          "resolved_instruction": "3c020064",
+          "retail_instruction": "3c020064",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 304,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0063F1F0",
+          "symbol_address": "0x0063f1f0",
+          "resolved_instruction": "2442f1f0",
+          "retail_instruction": "2442f1f0",
+          "target_bits_equal": true
+        },
+        {
+          "offset": 584,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b83e0",
+          "symbol_address": "0x002b83e0",
+          "resolved_instruction": "0c0ae0f8",
+          "retail_instruction": "00000000",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 712,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b83e0",
+          "symbol_address": "0x002b83e0",
+          "resolved_instruction": "0c0ae0f8",
+          "retail_instruction": "17c0006a",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 760,
+          "r_type": 5,
+          "type": "R_MIPS_HI16",
+          "symbol": "D_0063F1F0",
+          "symbol_address": "0x0063f1f0",
+          "resolved_instruction": "3c020064",
+          "retail_instruction": "00432821",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 764,
+          "r_type": 6,
+          "type": "R_MIPS_LO16",
+          "symbol": "D_0063F1F0",
+          "symbol_address": "0x0063f1f0",
+          "resolved_instruction": "2442f1f0",
+          "retail_instruction": "c4a3000c",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 860,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b2970",
+          "symbol_address": "0x002b2970",
+          "resolved_instruction": "0c0aca5c",
+          "retail_instruction": "c7a10118",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 1052,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b2970",
+          "symbol_address": "0x002b2970",
+          "resolved_instruction": "0c0aca5c",
+          "retail_instruction": "46000b01",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 1120,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b83e0",
+          "symbol_address": "0x002b83e0",
+          "resolved_instruction": "0c0ae0f8",
+          "retail_instruction": "0260582d",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 1216,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b2970",
+          "symbol_address": "0x002b2970",
+          "resolved_instruction": "0c0aca5c",
+          "retail_instruction": "c60d002c",
+          "target_bits_equal": false
+        },
+        {
+          "offset": 1284,
+          "r_type": 4,
+          "type": "R_MIPS_26",
+          "symbol": "func_002b83e0",
+          "symbol_address": "0x002b83e0",
+          "resolved_instruction": "0c0ae0f8",
+          "retail_instruction": "0c0ae0f8",
+          "target_bits_equal": true
+        }
+      ],
+      "call_sequence_equal": true,
+      "zero_only_tail": true
+    },
+    "installed_source_byte_identical": true,
+    "input_and_artifact_hashes_rechecked": true,
+    "reuse": "Completed session16321 full-owner/data/reference proof; no repeat compilation."
+  },
+  "diff_check_exit_code": 0,
+  "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+  "profile": [
+    "-O2",
+    "-Iinclude"
+  ],
+  "new_C_matches": 0,
+  "target_remains_ASM": true,
+  "remaining": "192 resolved words, 1348/1360 bytes, twelve zero-tail bytes, frame0x140 versus retail0x130.",
+  "canonical_shared_header_changed": false,
+  "batch_level_link_validation": "Prime-owned after this install; this receipt does not claim a new whole-image build.",
+  "evidence": [
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/README.md",
+      "sha256": "d7dac8b3a9bb7cca6e31ae6af62fd2555565d1d530c38674d1ea928b50c5b010",
+      "bytes": 2209
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/body.c",
+      "sha256": "70836420edb7ebb3274548a89c0164d999b75ff300aa41700cc8ee56a5418234",
+      "bytes": 5755
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/owner.patch",
+      "sha256": "0f10fdf11bad727d2032d950e0645da680d666d6e9baa66b2fc1ce7380e75ce4",
+      "bytes": 2777
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/receipt.json",
+      "sha256": "42607562281063cce6d1a38503b9615f776bf7845bb21ea914331fee7ca61c26",
+      "bytes": 10376
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/replay.py",
+      "sha256": "3ad97507d45d193f9a241425450d843be616ece3bcd3fb066272fcfebf903cc9",
+      "bytes": 9254
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/native_references.py",
+      "sha256": "b617529e6c4276e7a39720fbdb3c977215d338c25ac7c6fde61510da0db4743f",
+      "bytes": 9812
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/validation.json",
+      "sha256": "e581369575481f51ef2c86cc95a550b9ef96bb6ab3e4a979aa3f1614af368a81",
+      "bytes": 21711
+    },
+    {
+      "path": "docs/probe_archive/Fcl_digit_packed_storage_ui_20261006/.gitattributes",
+      "sha256": "b3e29d3f78221057f828391176937719dae4934a9136fade14be836a80f4e0ea",
+      "bytes": 92
+    },
+    {
+      "path": "build/finish-20261006/ui-worker4-resume/digit192-installed-verify.json",
+      "sha256": "30c838a68dec52b47fe8b35ea4655eaa3a6edc0932a4830553e8e827153c556b",
+      "bytes": 79759
+    },
+    {
+      "path": "build/finish-20261006/ui-worker4-resume/digit192-installed-lint.json",
+      "sha256": "1bafdf21e8e13295f9896bc3483d477be353dc0ddbdc050cbe970a706442213b",
+      "bytes": 9519
+    },
+    {
+      "path": "build/finish-20261006/ui-worker4-resume/digit192-install.json",
+      "sha256": "f34249de3e92de360b8cb2c6961c2085d704840ec47b2b5ab3d70f543aa89bbe",
+      "bytes": 819
+    },
+    {
+      "path": "build/ui-digit-packed-replay-64f12684c5ef/proof.json",
+      "sha256": "c24985c186738e845fb0f5e28e8c473b53bf4ddd4adaf8717cfdb5df5feacce5",
+      "bytes": 606635
+    }
+  ]
+}
