@@ -1,0 +1,25 @@
+--- a/src/promoted/code1_0046.c
++++ b/src/promoted/code1_0046.c
+@@ -7,7 +7,21 @@
+ #include "h_cdvd_internal.h"
+ #include "Kosaka/k_clump_internal.h"
+ #ifdef NON_MATCHING
+-#include "mwsfd.h"
++typedef struct {
++	s32 mode;               /* 0x00 file type (1: Sofdec, 2: MPEG video only, 3: video-only Sofdec; 2: no additional-info stream) */
++	s32 max_bps;            /* 0x04 maximum bit rate */
++	s32 max_width;          /* 0x08 */
++	s32 max_height;         /* 0x0C */
++	s32 max_skip;           /* 0x10 frames mwPlyGetCurFrm may skip to catch up (= decoded frame pool size) */
++	s32 nsec;               /* 0x14 seconds of input buffering */
++	void *work;                /* 0x18 user work for the component buffers (NULL: malloc/free callbacks) */
++	s32 wksize;             /* 0x1C */
++	s32 compo;              /* 0x20 requested component layout (0 / 0x101: additional-info sj used) */
++	s32 buffmt;             /* 0x24 MwsfdBufFmt */
++	s32 x28;
++	s32 x2c;
++} MWSFD_CRPRM;
++typedef char MovieParametersSize[sizeof(MWSFD_CRPRM) == 0x30 ? 1 : -1];
+ struct RwSList;
+ #endif
+ 

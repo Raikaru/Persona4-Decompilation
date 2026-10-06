@@ -1,0 +1,22 @@
+{
+  "physical_field": "u32 address word at work+0x1e0; full work layout remains0x220",
+  "source_field_uses": [
+    "work->decoderWork = (void *)((u32)(jtbl_008873E8[0](parameters->wksize + 0x40, 0x40000)));",
+    "func_00440b68(D_00713030, (u32)work->decoderWork);",
+    "temp_3_2 = (u32)work->decoderWork;",
+    "tblEC[0]((void *)(u32)work->decoderWork);",
+    "work->decoderWork = 0U;",
+    "temp_4_6 = (u32)work->decoderWork;",
+    "work->decoderWork = 0U;",
+    "temp_4_10 = (u32)work->decoderWork;",
+    "work->decoderWork = 0U;",
+    "temp_4_14 = (u32)work->decoderWork;",
+    "work->decoderWork = 0U;"
+  ],
+  "producer": "the actual engine allocation result, converted once to its 32-bit numeric address word",
+  "consumers": "unsigned %08x address log; null tests and zeroing; copy to decoder parameters/payload and free callbacks with explicit pointer conversion",
+  "other_consumer": "0046a020 cleanup reads the same word directly into a0 and invokes engine free",
+  "destructor_native_sha256": "36c239529275ef5c633f87a756eb9c2007697937ce86de55350b5204394f7f77",
+  "scope": "inferred internal storage type from native consumers; no provider signature, shared header, struct size, field offset or runtime argument bits changed",
+  "pointer_representation": "native compiler enforces sizeof(void*)==sizeof(u32); pointer values are round-tripped explicitly, never accessed through incompatible scalar lvalues"
+}

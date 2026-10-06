@@ -511,6 +511,7 @@ iGpffff9f08 = 0x00762ff8; // type:data evidence: retail func_00161510 addiu $4,$
 iGpffffb2b0 = 0x007643a0; // type:data evidence: retail code1_0016 GP -0x4d50; gp base 0x007690F0
 iGpffff9f00 = 0x00762ff0; // type:data evidence: retail code1_0016 GP -0x6100; gp base 0x007690F0
 fGpffff80e8 = 0x007611d8; // type:data evidence: retail btlCamera func_001c73e0 lwc1 gp -0x7f18; gp base 0x007690F0
+iGpffff9f58 = 0x00763048; // type:data evidence: retail k_fldAI func_0017d3c0 addiu a1,gp,-0x60a8 at 0x0017d70c passes the four-byte RGBA ff ff ff 00 to mdlSetColor; gp base 0x007690F0
 iGpffff9f60 = 0x00763050; // type:data evidence: retail code1_0018 func_001838d0 GP -0x60a0; gp base 0x007690F0
 iGpffffb470 = 0x00764560; // type:data evidence: retail code1_0021 func_0021be60 lw gp -0x4b90 (0x00764560); gp base 0x007690F0
 iGpffff853c = 0x0076162c; // type:data evidence: retail code1_0015 GP -0x7ac4; gp base 0x007690F0

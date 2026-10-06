@@ -1,0 +1,311 @@
+{
+  "status": "EXACT_REVIEWED_PROPOSAL_NOT_INSTALLED_BY_WORKER",
+  "owner": "src/Kosaka/Field/k_fldAI.c",
+  "function": "func_0017d3c0",
+  "baseline_commit": "3a28c449",
+  "baseline_source_sha256": "b5ccbe3bc9426c297caa4918c266589f24e90f177f700b26930a284d3ef12a7e",
+  "proposal_source_sha256": "25654cc1806a17308c27adcd48290da43fee0a9f55aa378b9d8308f11fc4ee3d",
+  "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+  "compile_flags": [
+    "-O2",
+    "-Iinclude"
+  ],
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "target_bytes": 5236,
+  "window_bytes": 5248,
+  "zero_tail_bytes": 12,
+  "target_relocations": 118,
+  "ordered_direct_calls": 92,
+  "target_resolved_sha256": "74758bddaa402f0531dba16f572a351aa1e40bd80063dc0fcf35f9eb208b0f64",
+  "strict_default_summary": {
+    "function_count": 11,
+    "code_relocation_count": 469,
+    "owned_data_count": 0,
+    "owned_data_bytes": 0,
+    "data_relocation_count": 0
+  },
+  "source_inputs": {
+    "include/include_asm.h": "8c2cde497ecdcafdb07af8d62c1e0eb1a30eeb14d1c4567128e5f2714e5cd963",
+    "include/Kosaka/k_fldFrame_internal.h": "abb80f1bd8558d74369b3aa1df899cdc56f0df0eeb497cfd319969c8331be0c2",
+    "include/model_motion_internal.h": "1d708315df40d5aaa4fe9c13f826206bc4d6477d1aa127a2211b87379f923a85",
+    "include/sdk_task_registration.h": "7dbebce4a3eeb57f807e5f06a5cc1d6b16b89b644e4105bd2685000dd22075d1",
+    "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+    "src/Kosaka/Field/k_fldAI.c": "b5ccbe3bc9426c297caa4918c266589f24e90f177f700b26930a284d3ef12a7e"
+  },
+  "project_inputs": {
+    "asm/nonmatchings/code1_0016/func_001687f0.s": "d0bc2465d6a9512dde3d84109cc224028e82ccc21a1615d5bc04179a621f51f2",
+    "asm/nonmatchings/code1_003e/func_003e4180.s": "d88039e29df483816780650931fb77f96fa1dd252114ad3c61a11fd34939b6f2",
+    "asm/nonmatchings/k_fldAI/func_0017d3c0.s": "f582ff919198a5d7cf55e76db695dcbadda6932878c4326933e64f4e9dc28c9a",
+    "docs/probe_archive/Field_AI_follower_0017d3c0_20261005_proof.py": "f39752aebb8e092a9ffefc1d0d0dc42afe1f3578c0fde45563e1373169cdbfd2",
+    "docs/probe_archive/Field_axis_contract_20261005_proof.py": "c7563c6a55eaa9541ce19ed95b998fd49fdeef597d646f2f1ae1d2cfa63170ac",
+    "include/Kosaka/k_fldFrame_internal.h": "abb80f1bd8558d74369b3aa1df899cdc56f0df0eeb497cfd319969c8331be0c2",
+    "include/Kosaka/k_model_internal.h": "fe80dedc3f20f773fc633177e02bec73352bc3be6008aae80a20e3029058b425",
+    "include/field_event_internal.h": "ad4cbd5e9faff30dcd5ef971f55cdf5abee0af095dbb6c04f8c823a9ad3c29f7",
+    "include/include_asm.h": "8c2cde497ecdcafdb07af8d62c1e0eb1a30eeb14d1c4567128e5f2714e5cd963",
+    "include/model_callbacks_internal.h": "37cf280be6693e4d31e347f9191e024d5f3c04004b229f41f34059bcd5ae1af2",
+    "include/model_matrix_internal.h": "7ffdfa7b87367cf21add9b7b19069e0e20110aa85b4574674150eaa5decca9f7",
+    "include/model_motion_internal.h": "1d708315df40d5aaa4fe9c13f826206bc4d6477d1aa127a2211b87379f923a85",
+    "include/rw/plcore/batypes.h": "81a3915c67bd229ac1d44c7e400994fd862467d8a072bc6702a628a094635083",
+    "include/rw/plcore/bavector.h": "d8ca08b7de1743689d6a79e99c76fbd2fb500d4bef6774983afd78e29130917e",
+    "include/sdk_task_registration.h": "7dbebce4a3eeb57f807e5f06a5cc1d6b16b89b644e4105bd2685000dd22075d1",
+    "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+    "src/mdlManager_grouped.c": "9ed5468041bc1155ddc9cf26c1167aca42c613ca06166f91df091e45f97d6221",
+    "src/promoted/code1_0016.c": "07f0d2a747e0f123adcf58ce1125b89cb50bb69a8a40c80a1752b9b529191edc",
+    "src/promoted/code1_003e.c": "3e30cf14cd588653198e53783910180521a5b78e082ea5a7d9abb9c7cdfd2900",
+    "src/promoted/y_smap.c": "35d8ab93d63052c1ced899e77da31979df7f5de660b20a01b6a5f5574203c2f6",
+    "tools/build.py": "8996a8b409998156bf6dd91d8dc7f44a75ec0e443285091c5204d77f262291aa",
+    "tools/probe_variants.py": "a0e5c8b1767ff084c8fe13be8d3104e198cc056e02854ba88f19786ced674d8f",
+    "tools/verify.py": "9e3be8be1b1fc6a99791d886cd98c14cb40b019297e5c39c81092b8ce216031e"
+  },
+  "source_and_native_contract_audit": {
+    "status": "ORIGINAL_EXACT_PROPOSAL_NATIVE_CONTRACTS_CONFIRMED",
+    "original_proposal": "build/finish-20261006/field-worker8/follower-exact-proof-v1/proposal.c",
+    "original_proposal_sha256": "25654cc1806a17308c27adcd48290da43fee0a9f55aa378b9d8308f11fc4ee3d",
+    "original_sealed_artifacts_authenticated": 22,
+    "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+    "bindings": [
+      {
+        "owner": "src/mdlManager_grouped.c",
+        "function": "mdlGetMatrix",
+        "address": "0047a2f0",
+        "source_sha256": "9ed5468041bc1155ddc9cf26c1167aca42c613ca06166f91df091e45f97d6221",
+        "inputs": {
+          "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+          "src/mdlManager_grouped.c": "9ed5468041bc1155ddc9cf26c1167aca42c613ca06166f91df091e45f97d6221"
+        },
+        "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+        "flags": [
+          "-O2",
+          "-Iinclude"
+        ],
+        "retail_window_sha256": "f27e3810873a5b3516a1314c289ff9434c875e155ee424b4a388b479b4d73675",
+        "modes": {
+          "default": {
+            "object_sha256": "1cc4f08e3668ae73cfa13aeed842e50d49bc8da7d792ccf0ee7c2466d5d86ad6",
+            "raw_code_sha256": "5c72f27ea211c647cd8f88ef558f9da582446867bf5ecf832b0073a362237c89",
+            "proof": {
+              "function": "mdlGetMatrix",
+              "address": "0047a2f0",
+              "code_bytes": 12,
+              "window": 16,
+              "resolved_relocations": 0,
+              "resolved_sha256": "5c72f27ea211c647cd8f88ef558f9da582446867bf5ecf832b0073a362237c89",
+              "fully_resolved_differing_words": 0,
+              "zero_retail_tail": true,
+              "relocations": []
+            }
+          }
+        }
+      },
+      {
+        "owner": "src/promoted/code1_003e.c",
+        "function": "RwV3dLength",
+        "address": "003e4180",
+        "source_sha256": "3e30cf14cd588653198e53783910180521a5b78e082ea5a7d9abb9c7cdfd2900",
+        "inputs": {
+          "include/include_asm.h": "8c2cde497ecdcafdb07af8d62c1e0eb1a30eeb14d1c4567128e5f2714e5cd963",
+          "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+          "src/promoted/code1_003e.c": "3e30cf14cd588653198e53783910180521a5b78e082ea5a7d9abb9c7cdfd2900"
+        },
+        "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+        "flags": [
+          "-O2,p",
+          "-Iinclude"
+        ],
+        "retail_window_sha256": "d487f0a3550bed970968a4adcb6fbf9678ee5a79d5dc975667cd9ed6330442af",
+        "modes": {
+          "default": {
+            "object_sha256": "e59c139b77693eb61c728a0bd036fd999c20343ac4c8c3d5c87ca116195bed3c",
+            "raw_code_sha256": "74b508eec2ab364f7525e03652365a72bc20b721ef423d9bfe9c70dd885e17f1",
+            "proof": {
+              "function": "RwV3dLength",
+              "address": "003e4180",
+              "code_bytes": 44,
+              "window": 48,
+              "resolved_relocations": 0,
+              "resolved_sha256": "74b508eec2ab364f7525e03652365a72bc20b721ef423d9bfe9c70dd885e17f1",
+              "fully_resolved_differing_words": 0,
+              "zero_retail_tail": true,
+              "relocations": []
+            }
+          },
+          "guarded": {
+            "object_sha256": "e59c139b77693eb61c728a0bd036fd999c20343ac4c8c3d5c87ca116195bed3c",
+            "raw_code_sha256": "74b508eec2ab364f7525e03652365a72bc20b721ef423d9bfe9c70dd885e17f1",
+            "proof": {
+              "function": "RwV3dLength",
+              "address": "003e4180",
+              "code_bytes": 44,
+              "window": 48,
+              "resolved_relocations": 0,
+              "resolved_sha256": "74b508eec2ab364f7525e03652365a72bc20b721ef423d9bfe9c70dd885e17f1",
+              "fully_resolved_differing_words": 0,
+              "zero_retail_tail": true,
+              "relocations": []
+            }
+          }
+        }
+      },
+      {
+        "owner": "src/promoted/code1_0016.c",
+        "function": "func_001687f0",
+        "address": "001687f0",
+        "source_sha256": "07f0d2a747e0f123adcf58ce1125b89cb50bb69a8a40c80a1752b9b529191edc",
+        "inputs": {
+          "include/field_event_internal.h": "ad4cbd5e9faff30dcd5ef971f55cdf5abee0af095dbb6c04f8c823a9ad3c29f7",
+          "include/include_asm.h": "8c2cde497ecdcafdb07af8d62c1e0eb1a30eeb14d1c4567128e5f2714e5cd963",
+          "include/Kosaka/k_fldFrame_internal.h": "abb80f1bd8558d74369b3aa1df899cdc56f0df0eeb497cfd319969c8331be0c2",
+          "include/Kosaka/k_model_internal.h": "fe80dedc3f20f773fc633177e02bec73352bc3be6008aae80a20e3029058b425",
+          "include/model_callbacks_internal.h": "37cf280be6693e4d31e347f9191e024d5f3c04004b229f41f34059bcd5ae1af2",
+          "include/model_matrix_internal.h": "7ffdfa7b87367cf21add9b7b19069e0e20110aa85b4574674150eaa5decca9f7",
+          "include/sdk_task_registration.h": "7dbebce4a3eeb57f807e5f06a5cc1d6b16b89b644e4105bd2685000dd22075d1",
+          "include/type.h": "d98ec5482a2782c2a9ca41f93d590ab2007b9817936d5208746d6e8794906db3",
+          "src/promoted/code1_0016.c": "07f0d2a747e0f123adcf58ce1125b89cb50bb69a8a40c80a1752b9b529191edc"
+        },
+        "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+        "flags": [
+          "-O2",
+          "-Iinclude"
+        ],
+        "retail_window_sha256": "139c69b75a9283eaa9cc8d0c8a2965056681e26cdc85bdeaeacc4a758cf2f760",
+        "modes": {
+          "default": {
+            "object_sha256": "df7b1906b4cdda76d8b5e3d6df2a300fb9140f197975230ce3fd3c151be638c5",
+            "raw_code_sha256": "764037985377892852431b38a235bea6547c1a540fa7f0d3e1cb2756ef6a9ea8",
+            "proof": {
+              "function": "func_001687f0",
+              "address": "001687f0",
+              "code_bytes": 152,
+              "window": 160,
+              "resolved_relocations": 1,
+              "resolved_sha256": "cfe91904b73f952e96f43af0f29e7cc20328e4b9d5f3b16aa24ed02f37bd3a9f",
+              "fully_resolved_differing_words": 0,
+              "zero_retail_tail": true,
+              "relocations": [
+                {
+                  "offset": 76,
+                  "r_type": 4,
+                  "type": "R_MIPS_26",
+                  "symbol": "mdlGetMatrix",
+                  "symbol_address": 4694768,
+                  "addend": 0,
+                  "resolved_word": "0c11e8bc"
+                }
+              ]
+            }
+          },
+          "guarded": {
+            "object_sha256": "aa0a9e6786b7a86bf734cdd683716fea04611fb70e943cc26e286884ae2479c6",
+            "raw_code_sha256": "764037985377892852431b38a235bea6547c1a540fa7f0d3e1cb2756ef6a9ea8",
+            "proof": {
+              "function": "func_001687f0",
+              "address": "001687f0",
+              "code_bytes": 152,
+              "window": 160,
+              "resolved_relocations": 1,
+              "resolved_sha256": "cfe91904b73f952e96f43af0f29e7cc20328e4b9d5f3b16aa24ed02f37bd3a9f",
+              "fully_resolved_differing_words": 0,
+              "zero_retail_tail": true,
+              "relocations": [
+                {
+                  "offset": 76,
+                  "r_type": 4,
+                  "type": "R_MIPS_26",
+                  "symbol": "mdlGetMatrix",
+                  "symbol_address": 4694768,
+                  "addend": 0,
+                  "resolved_word": "0c11e8bc"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "review_inputs": {
+      "include/rw/plcore/batypes.h": "81a3915c67bd229ac1d44c7e400994fd862467d8a072bc6702a628a094635083",
+      "include/rw/plcore/bavector.h": "d8ca08b7de1743689d6a79e99c76fbd2fb500d4bef6774983afd78e29130917e",
+      "include/Kosaka/k_fldFrame_internal.h": "abb80f1bd8558d74369b3aa1df899cdc56f0df0eeb497cfd319969c8331be0c2",
+      "asm/nonmatchings/code1_0016/func_001687f0.s": "d0bc2465d6a9512dde3d84109cc224028e82ccc21a1615d5bc04179a621f51f2",
+      "asm/nonmatchings/code1_003e/func_003e4180.s": "d88039e29df483816780650931fb77f96fa1dd252114ad3c61a11fd34939b6f2",
+      "asm/nonmatchings/k_fldAI/func_0017d3c0.s": "f582ff919198a5d7cf55e76db695dcbadda6932878c4326933e64f4e9dc28c9a"
+    },
+    "native_source_filename": "k_fldAI.c",
+    "length_contract": {
+      "sdk": "RwReal RwV3dLength(const RwV3d *)",
+      "active_provider": "f32 RwV3dLength(f32 *)",
+      "original_owner": "extern f32 RwV3dLength(f32 *)",
+      "native_parameter": "one XYZ address in a0; 4/0/8-byte float reads; no writes",
+      "native_result": "float length in f0",
+      "follower_complete_objects": [
+        "cameraDelta",
+        "historyDelta"
+      ],
+      "exact_sibling_complete_object": "func_0017ea10::d",
+      "sdk_const_and_pointee_difference_is_not_abi_class_difference": true
+    },
+    "model_contract": {
+      "active_provider": "void *mdlGetMatrix(void *)",
+      "original_owner": "u8 *mdlGetMatrix(u8 *)",
+      "native": "one pointer in a0; same storage address returned in v0",
+      "byte_view_preserves_pointer_abi": true
+    },
+    "position_output": {
+      "signature": "void func_001687f0(u8 *output, u8 *motion_task)",
+      "automatic_xyz_clear": "00168804..0016882c: 12 consecutive bytes starting at sp+0x20",
+      "optional_model_xyz": "00168844..00168858: copy +0x30,+0x34,+0x38 into local XYZ",
+      "unconditional_output": "0016885c..00168870: store all XYZ components through output",
+      "null_model_result": "all-zero XYZ",
+      "valid_motion_task_required": true,
+      "union_size": 12,
+      "union_natural_alignment": 4,
+      "follower_native_slots": {
+        "selfPosition": "sp+0x70",
+        "historyPoint": "sp+0x80"
+      },
+      "history_y": "retained from initialized position snapshot when X and Z are replaced by history sample"
+    },
+    "production_unchanged": true
+  },
+  "native_capture_summary": {
+    "default": {
+      "source_sha256": "25654cc1806a17308c27adcd48290da43fee0a9f55aa378b9d8308f11fc4ee3d",
+      "whole_direct_and_debugger_object_identical": true,
+      "all_generated_c_functions_and_relocations_identical_to_full_owner": true,
+      "generated_c_function_count": 10,
+      "assembly_fallbacks_proved_in_complete_owner": [
+        "func_0017f490"
+      ],
+      "object_sha256": "0ffeab4aa4e63e4c8fc86f065a016803f6453a6522dc1550412230876ae9da30",
+      "snapshot_count": 45
+    },
+    "guarded": {
+      "source_sha256": "25654cc1806a17308c27adcd48290da43fee0a9f55aa378b9d8308f11fc4ee3d",
+      "whole_direct_and_debugger_object_identical": true,
+      "all_generated_c_functions_and_relocations_identical_to_full_owner": true,
+      "generated_c_function_count": 11,
+      "assembly_fallbacks_proved_in_complete_owner": [],
+      "object_sha256": "6d9f1bf4ac32599e1f3c758b8611618cf0c257d7aa2dcb17a7737bfd9a526866",
+      "snapshot_count": 50
+    }
+  },
+  "native_final_register_pair": {
+    "slot_virtual": 286,
+    "slot_color": 20,
+    "matrix_virtual": 289,
+    "matrix_color": 17,
+    "native_replay_matches_observed": true,
+    "source_change": "Use the real model results directly as geometric-query arguments."
+  },
+  "lint_errors": 0,
+  "new_lint_warning": "H003 opt_loop_invariants on; restores the measured native discovery preheader",
+  "retained_lint_warning": "H011 func_00457120 pointer/integer spelling from baseline",
+  "original_proof_receipt_sha256": "c1f4dac665004b7bd27c5872217af57f70e62d545479e900f0085217d817ed34",
+  "original_sealed_review_sha256": "8991619e6207d2d05f575eefc69c275f8bc5dc7dac71c2878ea10f29c3191ae0",
+  "archive_payload_sha256": {
+    "README.md": "fe53cab5f6d31ee446456de99470afd9a76cce46db454985084e70349f3999bf",
+    "proposal.patch": "e87be982ee84438b159849e7fe2f850b415fc0e958dfe5fd61bbafa8e2433763",
+    "replay.py": "fad067d09f3b452ce56c037a6e9da7d0238c74ebeb2a1ac8cb7c9a2018b36c5e"
+  },
+  "contains_binaries": false
+}

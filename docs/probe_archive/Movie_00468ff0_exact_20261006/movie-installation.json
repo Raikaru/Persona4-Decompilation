@@ -1,0 +1,28 @@
+{
+  "source_installed": true,
+  "paired_artifacts_authenticated": 43,
+  "proposal_receipt_sha256": "107e4023f46d586d35bee6dbdc01812c72bb9d61fb2bf108e6020a237033e059",
+  "before_sha256": {
+    "src/promoted/code1_0046.c": "b37701a85922d65fc1813f7f7df033cd8586142dc0a3acfdccd7deb695be9f32",
+    "src/promoted/code1_0041.c": "724dceb859fa0672dbe318ee5ff584b3aab262f8155bf8ba253a21ed89c39b27"
+  },
+  "after_sha256": {
+    "src/promoted/code1_0046.c": "733e755e97d40ea1db6c57bd783ea54e7014971a58845b0039bafbd22a7bff32",
+    "src/promoted/code1_0041.c": "1366b21b1b8e4279a222788ed7a07689e9337650d46f1a696b74546594994297"
+  },
+  "native_contracts_checked": true,
+  "frame_initialized_bytes": 144,
+  "follower_color_binding_witness": {
+    "instruction": "0017d70c",
+    "instruction_word": "27859f58",
+    "gp": "007690f0",
+    "signed_displacement": -24744,
+    "color_address": "00763048",
+    "color_bytes": "ffffff00",
+    "consumer": "mdlSetColor at 0047a220"
+  },
+  "committed_verify_sha256": "9e3be8be1b1fc6a99791d886cd98c14cb40b019297e5c39c81092b8ce216031e",
+  "committed_shim_sha256": "fbed7466c3dbf4ce31a1e4443176ae1ed6a550789869241d546ce254d6153812",
+  "actual_path_verification": "pending",
+  "integrated_build": "pending"
+}

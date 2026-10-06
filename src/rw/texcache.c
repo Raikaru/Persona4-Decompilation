@@ -17,6 +17,7 @@
 typedef struct RwObjectOwnerLink RwObjectOwnerLink;
 typedef struct RwObject RwObject;
 typedef struct RwFrame RwFrame;
+typedef struct RwRaster RwRaster;
 typedef struct RwMatrixTag RwMatrix;
 typedef enum RwOpCombineType {
     rwCOMBINEREPLACE = 0,
@@ -327,13 +328,13 @@ s32 func_00410360(void)
     return D_0070C35C[0];
 }
 // FUN_00410370
-s32 RpSkyTexGetTex0(s32 arg0, s32 *arg1, s32 *arg2)
+RwRaster *RpSkyTexGetTex0(RwRaster *arg0, u32 *arg1, u32 *arg2)
 {
     u8 *temp_4;
 
-    temp_4 = (u8 *)(arg0 + iGpffffb938);
-    *arg2 = *(s32 *)(temp_4 + 8);
-    *arg1 = *(s32 *)(temp_4 + 0xc);
+    temp_4 = (u8 *)arg0 + iGpffffb938;
+    *arg2 = *(u32 *)(temp_4 + 8);
+    *arg1 = *(u32 *)(temp_4 + 0xc);
     return arg0;
 }
 // FUN_00410390

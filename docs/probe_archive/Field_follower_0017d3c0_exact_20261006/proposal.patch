@@ -1,0 +1,233 @@
+--- a/src/Kosaka/Field/k_fldAI.c
++++ b/src/Kosaka/Field/k_fldAI.c
+@@ -33,14 +33,29 @@
+ 
+ extern s32 *func_00155280(void);
+ 
+-/* Defined follower reconstruction: actual task/model/resource pointers,
+- * complete XYZ values and separate idle, steering and recovery paths.
+- * Native b210/O2: 5152/5248 bytes and 89 aligned edits; still guarded.
+- * Ten guarded siblings and the entire default owner are preserved.
+- * See docs/probe_archive/Field_AI_follower_0017d3c0_20261005.md.
++/* Field follower update. Readiness is a byte predicate; model-slot and
++ * history addresses keep their storage boundaries. Position providers write
++ * complete XYZ objects, and each model query keeps its native pointer ABI.
+  */
+-// FUN_0017D3C0 NONMATCHING
+-#ifdef NON_MATCHING
++#pragma push
++#pragma opt_loop_invariants on
++#pragma opt_rebuildconditionals off
++typedef union FldFollowerPositionOutput {
++    RwV3d value;
++    u8 bytes[sizeof(RwV3d)];
++} FldFollowerPositionOutput;
++
++static inline u8 *fldFollowerStorageOffset(u32 offset, u8 *entry)
++{
++    return (u8 *)(offset + (uintptr_t)entry);
++}
++
++static inline u8 **fldFollowerModelSlot(u8 *entry)
++{
++    return (u8 **)(entry + 0x50);
++}
++
++// FUN_0017D3C0
+ s32 func_0017d3c0(u8 *task)
+ {
+     struct RwFrame;
+@@ -82,11 +97,10 @@
+     u8 *entry;
+     u8 *matrix;
+     s32 index;
+-    s32 historyIndex;
++    s32 active;
+     s32 tileX;
+     s32 tileZ;
+-    s32 active;
+-    s32 activeOther;
++    s32 historyIndex;
+     s32 action;
+     s32 currentAnimation;
+     s32 desiredAnimation;
+@@ -107,39 +121,65 @@
+     RwV3d cameraDelta;
+     RwV3d cameraPosition;
+     RwV3d historyDelta;
+-    RwV3d historyPoint;
+-    RwV3d selfPosition;
++    FldFollowerPositionOutput historyPoint;
++    FldFollowerPositionOutput selfPosition;
+ 
+     work = *(u8 **)(task + 0x38);
+     speed = 0.0f;
+     turn = 0.0f;
+     if (*(s32 *)(work + 4) == 1)
+         return 0;
+-    active = 0;
+-    entry = *(u8 **)(work + 0x10);
+-    if (*(s32 *)(entry + 0x48) != 0 && *(void **)(entry + 0x54) != NULL)
+-        active = 1;
+-    if (active == 0)
++    {
++        s32 firstUsed;
++        s32 secondUsed;
++        u8 firstReady;
++        u8 secondReady;
++        firstUsed = 0;
++        entry = *(u8 **)(work + 0x10);
++        if (*(s32 *)(entry + 0x48) == 0)
++            goto firstAvailabilityDone;
++        if (*(void **)(entry + 0x54) == NULL)
++            goto firstAvailabilityDone;
++        firstUsed = 1;
++firstAvailabilityDone:
++        firstReady = firstUsed != 0;
++        if (firstReady == 0)
++            goto unavailable;
++        secondUsed = 0;
++        entry = *(u8 **)(work + 0x14);
++        if (*(s32 *)(entry + 0x48) == 0)
++            goto secondAvailabilityDone;
++        if (*(void **)(entry + 0x54) == NULL)
++            goto secondAvailabilityDone;
++        secondUsed = 1;
++secondAvailabilityDone:
++        secondReady = secondUsed != 0;
++        if (secondReady != 0)
++            goto available;
++unavailable:
+         return 0;
+-    activeOther = 0;
+-    entry = *(u8 **)(work + 0x14);
+-    if (*(s32 *)(entry + 0x48) != 0 && *(void **)(entry + 0x54) != NULL)
+-        activeOther = 1;
+-    if (activeOther == 0)
+-        return 0;
++available:
++        ;
++    }
+ 
+     switch (*(s32 *)work) {
+     case 0: {
+         s32 discoveryIndex;
+         s32 discoveryAvailable;
++        u8 discoveryReady;
+         u8 *discoveryEntry;
+         *(void **)(work + 0x50) = func_003e0f80();
+         for (discoveryIndex = 0; discoveryIndex < 4; discoveryIndex++) {
++            discoveryAvailable = 0;
+             discoveryEntry = D_007EF9B0 + discoveryIndex * 0x750;
+-            discoveryAvailable = 0;
+-            if (*(s32 *)(discoveryEntry + 0x48) != 0 && *(void **)(discoveryEntry + 0x54) != NULL)
+-                discoveryAvailable = 1;
+-            if (discoveryAvailable != 0 && *(u8 **)(work + 0x10) == discoveryEntry)
++            if (*(s32 *)(discoveryEntry + 0x48) == 0)
++                goto discoveryAvailabilityDone;
++            if (*(void **)(discoveryEntry + 0x54) == NULL)
++                goto discoveryAvailabilityDone;
++            discoveryAvailable = 1;
++discoveryAvailabilityDone:
++            discoveryReady = discoveryAvailable != 0;
++            if (discoveryReady && *(u8 **)(work + 0x10) == discoveryEntry)
+                 break;
+         }
+         if (discoveryIndex >= 4)
+@@ -159,9 +199,9 @@
+         tileZ = func_001687e0(*(u8 **)(D_007EFA00[1] + 0x220));
+         {
+             struct RwFrame *frame = *(struct RwFrame **)(func_00457120() + 4);
+-            func_001687f0((u8 *)&selfPosition,
++            func_001687f0(selfPosition.bytes,
+                 *(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220));
+-            focusPosition = selfPosition;
++            focusPosition = *(RwV3d *)selfPosition.bytes;
+             focusPosition.y += 180.0f;
+             matrix = (u8 *)func_003e9700(frame);
+             cameraPosition = *(RwV3d *)(matrix + 0x30);
+@@ -259,18 +299,25 @@
+         memset(work + 0x3C, 0, 12);
+         *(s32 *)(work + 0x2C) = 0;
+         for (index = 0; index < 4; index++) {
++            s32 neighborActive;
++            u8 neighborReady;
++            neighborActive = 0;
+             entry = D_007EF9B0 + index * 0x750;
+-            active = 0;
+-            if (*(s32 *)(entry + 0x48) != 0 && *(void **)(entry + 0x54) != NULL)
+-                active = 1;
+-            if (active != 0 && *(u8 **)(work + 0x10) != entry) {
+-                u8 **otherModel = (u8 **)(entry + 0x50);
+-                u8 *selfMatrix = mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50));
+-                u8 *otherMatrix = mdlGetMatrix(*otherModel);
+-                f32 candidate = func_0014c3d0((const struct RwMatrix *)selfMatrix,
+-                    (const RwV3d *)(otherMatrix + 0x30), *(f32 *)(work + 0x28), *(f32 *)(work + 0x24), 0.0f);
++            if (*(s32 *)(entry + 0x48) == 0)
++                goto neighborAvailabilityDone;
++            if (*(void **)(entry + 0x54) == NULL)
++                goto neighborAvailabilityDone;
++            neighborActive = 1;
++neighborAvailabilityDone:
++            neighborReady = neighborActive != 0;
++            if (neighborReady && *(u8 **)(work + 0x10) != entry) {
++                u8 **otherModel = fldFollowerModelSlot(entry);
++                f32 candidate = func_0014c3d0(
++                    (const struct RwMatrix *)mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)),
++                    (const RwV3d *)(mdlGetMatrix(*otherModel) + 0x30),
++                    *(f32 *)(work + 0x28), *(f32 *)(work + 0x24), 0.0f);
+                 if (!(candidate < 0.0f) && candidate <= 80.0f) {
+-                    u8 **nearbyModel = (u8 **)(D_007EF9B0 + index * 0x750 + 0x50);
++                    u8 **nearbyModel = (u8 **)(D_007EF9B0 + (u32)index * 0x750u + 0x50);
+                     f32 coordinate;
+                     coordinate = *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x30);
+                     separation.x = *(f32 *)(mdlGetMatrix(*nearbyModel) + 0x30) - coordinate;
+@@ -286,7 +333,7 @@
+                     turn += turnAmount;
+                 }
+                 if (*(u8 **)(work + 0x14) == entry && !(candidate < 0.0f)) {
+-                    u8 **leaderModel = (u8 **)(D_007EF9B0 + index * 0x750 + 0x50);
++                    u8 **leaderModel = (u8 **)(D_007EF9B0 + (u32)index * 0x750u + 0x50);
+                     *(f32 *)(work + 0x30) += *(f32 *)(mdlGetMatrix(*leaderModel) + 0x30);
+                     *(f32 *)(work + 0x34) += *(f32 *)(mdlGetMatrix(*leaderModel) + 0x34);
+                     *(f32 *)(work + 0x38) += *(f32 *)(mdlGetMatrix(*leaderModel) + 0x38);
+@@ -454,15 +501,17 @@
+                 func_00168cb0(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), speed);
+             if (historyIndex < 0) historyIndex = 63;
+             entry = *(u8 **)(work + 0x10);
+-            if (*(u8 *)(entry + historyIndex + 0x1D0) != 0) {
+-                func_001687f0((u8 *)&historyPoint, *(u8 **)(*(u8 **)(entry + 0x54) + 0x220));
+-                historyDelta = historyPoint;
+-                entry = *(u8 **)(work + 0x10);
+-                historyPoint.x = *(f32 *)(entry + historyIndex * 8 + 0x210);
+-                historyPoint.z = *(f32 *)(entry + historyIndex * 8 + 0x214);
+-                historyDelta.x = historyPoint.x - historyDelta.x;
+-                historyDelta.y = historyPoint.y - historyDelta.y;
+-                historyDelta.z = historyPoint.z - historyDelta.z;
++            if (*(fldFollowerStorageOffset(historyIndex, entry) + 0x1D0) != 0) {
++                func_001687f0(historyPoint.bytes, *(u8 **)(*(u8 **)(entry + 0x54) + 0x220));
++                historyDelta = *(RwV3d *)historyPoint.bytes;
++                {
++                    u8 *historySample = fldFollowerStorageOffset(historyIndex * 8, *(u8 **)(work + 0x10));
++                    historyPoint.value.x = *(f32 *)(historySample + 0x210);
++                    historyPoint.value.z = *(f32 *)(historySample + 0x214);
++                }
++                historyDelta.x = historyPoint.value.x - historyDelta.x;
++                historyDelta.y = historyPoint.value.y - historyDelta.y;
++                historyDelta.z = historyPoint.value.z - historyDelta.z;
+                 if (RwV3dLength(&historyDelta.x) < speed) active = 1;
+             }
+             if (speed == 0.0f || active == 1) {
+@@ -496,10 +545,8 @@
+     return 0;
+ }
+ 
+-#else
+-INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017d3c0);
+-#endif
+-
++
++#pragma pop
+ // FUN_0017E840
+ void func_0017e840(u8 *arg0) {
+     s32 h = *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x50);

@@ -1,0 +1,3 @@
+# Preserve exact native evidence bytes.
+* -text whitespace=cr-at-eol
+*.patch whitespace=cr-at-eol,-blank-at-eol

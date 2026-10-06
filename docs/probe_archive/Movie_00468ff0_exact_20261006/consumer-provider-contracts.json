@@ -1,0 +1,12 @@
+{
+  "native_provider_sha256": {
+    "asm/nonmatchings/code1_0043/func_0043f810.s": "b5fe50702ba9350135ade86f09d8d363bdcb08a9dd2231a635a8a5db362bf2ca",
+    "asm/nonmatchings/code1_0044/func_00440b68.s": "e2024d0640746f10b82ae8c346090a6aec781a83233a3eaa0241c90c3bbd6b60",
+    "include/rw/std/string.h": "37e358f698b3114cccc8917ce01ddd842251fda3bae631f2335c03e6305a6fb1",
+    "include/rw/std/stddef.h": "dc7233b3b40341a6671a0c9fe6ac4a6d543bf6c5f28d81e73e0d80533b3fe06b",
+    "include/h_cdvd_internal.h": "b152351db05eb42a80dea02f7afdf6cd6a7d93cd2900a3c81620ab7931eae642"
+  },
+  "memcpy": "actual pointer destination/source, unsigned 32-bit byte count, returns original destination in v0; caller ignores result",
+  "formatter": "native variadic wrapper preserves formatter's return; canonical s32(const char*,...) header already included",
+  "scope": "target-local source correction only; no provider/global/header or calling-register change"
+}

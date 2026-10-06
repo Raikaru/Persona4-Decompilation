@@ -1,0 +1,31 @@
+{
+  "owner": "build/finish88-20261006/movie/candidates/actual-sdk-byte-to-real-alpha/owner.c",
+  "function": "func_00468ff0",
+  "source_sha256": "1d3c08e2c24f184ed030c26cf3029264c385c1282cae6beef16278181436148b",
+  "compiler_sha256": "286548490e2e902cfef21dcf39cd5af23766731585d90dea747f8781eadcafd7",
+  "gdb_sha256": "f1b668a9cca5c832ae8374c1815cfc8fcb452d05268797f0c022d74000ecd486",
+  "debugger_commit": "3bca7ed2146f85d4e3be478b3d166fce77724499",
+  "profile_sha256": "6aa960284c93906d0476f0e6f37be0fd3cf9fe6985ea831d006914ab1bf0eb98",
+  "compiler_flags": [
+    "-O2",
+    "-Iinclude"
+  ],
+  "direct_exit_code": 0,
+  "gdb_exit_code": 0,
+  "direct_object_sha256": "a58c9f6ab4e43e86733d733be0cc7259f7ae230c66ffda33d45eadfee3633026",
+  "captured_object_sha256": "a58c9f6ab4e43e86733d733be0cc7259f7ae230c66ffda33d45eadfee3633026",
+  "whole_object_identical": true,
+  "source_drift": [],
+  "capture_scope": "All generated functions of the unchanged complete owner; requested function is the analysis target",
+  "capture_status_counts": {
+    "complete": 243
+  },
+  "capture_errors": [],
+  "artifacts": {
+    "codegen_entry": 58,
+    "before_register_allocation": 58,
+    "after_colorgraph_assignment": 69,
+    "after_register_allocation": 58
+  },
+  "seconds": 15.407
+}

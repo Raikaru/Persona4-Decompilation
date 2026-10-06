@@ -669,8 +669,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004194a0);
 /* measured: schedule-on probe for the conditional helper wrapper. */
 #pragma schedule on
 // FUN_00419520
-s32 func_00419520(u32 *arg0, s32 arg1)
+s32 func_00419520(u32 *arg0, s32 arg1, s32 timeout)
 {
+    /* sceDmaSync's SDK timeout argument is part of the call contract.
+     * This retail implementation uses a fixed poll limit and ignores it. */
     if (arg1 == 1) {
         return ((u32)*arg0 >> 8) & 1;
     }

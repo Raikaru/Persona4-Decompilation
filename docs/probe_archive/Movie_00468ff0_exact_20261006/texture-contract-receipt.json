@@ -1,0 +1,107 @@
+{
+  "owners": {
+    "src/promoted/code1_0046.c": {
+      "before_sha256": "733e755e97d40ea1db6c57bd783ea54e7014971a58845b0039bafbd22a7bff32",
+      "after_sha256": "1fa0dea1ccec222734ea07bff06f53c4f37cf87721ace33b221f1cb1f0744161",
+      "profiles": {
+        "default": {
+          "function_count": 58,
+          "all_functions_and_references_identical": true,
+          "whole_object_identical": true,
+          "whole_object_sha256": "743df2c553582fdfc0e00b30aadfe0e7a75ff4374170f20ffcd503bc03d9d650",
+          "code_reference_count": 919,
+          "data_reference_count": 68,
+          "before_proof": "build\\continue-20261006\\texture-contract-proof-v1\\code1_0046\\default-before\\resolved-contract-proof.json",
+          "before_proof_sha256": "bc833ceec98406f227de6ded57a1869197685d14479ab2e572681fd908e396f7",
+          "after_proof": "build\\continue-20261006\\texture-contract-v1\\code1_0046\\default\\resolved-contract-proof.json",
+          "after_proof_sha256": "f25484ada8b3c532347ad75441f46b04f8f4c7c3c52f42d49ffbb136846e45a3"
+        },
+        "guarded": {
+          "function_count": 58,
+          "all_functions_and_references_identical": true,
+          "whole_object_identical": true,
+          "whole_object_sha256": "743df2c553582fdfc0e00b30aadfe0e7a75ff4374170f20ffcd503bc03d9d650",
+          "code_reference_count": 919,
+          "data_reference_count": 68,
+          "before_proof": "build\\continue-20261006\\texture-contract-proof-v1\\code1_0046\\guarded-before\\resolved-contract-proof.json",
+          "before_proof_sha256": "b84d66a58fd51cee7a9fab689282f6991cb228c1384ecad17867fee9e9369a50",
+          "after_proof": "build\\continue-20261006\\texture-contract-v1\\code1_0046\\guarded\\resolved-contract-proof.json",
+          "after_proof_sha256": "4d6288acf03f37edc9b332ce15916e0a8d8777e2ef53a83390354fbcc183e82d"
+        }
+      }
+    },
+    "src/Kernel/h_malloc.c": {
+      "before_sha256": "d295e00ada0951438b90bfa8e2968976136a182c96d286b01e6e1eb060608fb8",
+      "after_sha256": "4092ee2912c45047d6d34c7c33f98a4989ba395b641c86be536da549e24c564c",
+      "profiles": {
+        "default": {
+          "function_count": 10,
+          "all_functions_and_references_identical": true,
+          "whole_object_identical": true,
+          "whole_object_sha256": "18071ef97bf2220c6042f886d5a05bc549d462a0c583813a7bca79b8b5e06974",
+          "code_reference_count": 24,
+          "data_reference_count": 0,
+          "before_proof": "build\\continue-20261006\\texture-contract-proof-v1\\h_malloc\\default-before\\resolved-proof.json",
+          "before_proof_sha256": "771a54b3bd86c22045d47aa72eb430c2ac9d23e43813a477c9a5a3dbef5a1446",
+          "after_proof": "build\\continue-20261006\\texture-contract-v2\\h_malloc\\default\\resolved-proof.json",
+          "after_proof_sha256": "2cff4e04bfa60d537b5e0e653fd53aa5260db925530e6abe04ca628281e5ed38"
+        },
+        "guarded": {
+          "function_count": 10,
+          "all_functions_and_references_identical": true,
+          "whole_object_identical": true,
+          "whole_object_sha256": "18071ef97bf2220c6042f886d5a05bc549d462a0c583813a7bca79b8b5e06974",
+          "code_reference_count": 24,
+          "data_reference_count": 0,
+          "before_proof": "build\\continue-20261006\\texture-contract-proof-v1\\h_malloc\\guarded-before\\resolved-proof.json",
+          "before_proof_sha256": "f5aec2a06441f7ee15c9f3a7a98c3a07669342bd129b91b824941ff04872b9ac",
+          "after_proof": "build\\continue-20261006\\texture-contract-v2\\h_malloc\\guarded\\resolved-proof.json",
+          "after_proof_sha256": "d2c5c9791c168498dc13ebe3357ac72640e81227c79eb5027a20d4b1c93192bd"
+        }
+      }
+    },
+    "src/rw/texcache.c": {
+      "before_sha256": "7ff4c6d68af136c5f768333490b5e7e1a549a0bd79c37968e07a6edd6efd673a",
+      "after_sha256": "df37cdacb5d915c9d79d769253467eb0a4a198679545aaa57fba1b1dabfc33a1",
+      "profiles": {
+        "default": {
+          "function_count": 18,
+          "all_functions_and_references_identical": true,
+          "whole_object_identical": true,
+          "whole_object_sha256": "e022f4baab50d73b4b905ad23b3bdaa7050f719d658205be2caa9b3427cdffc5",
+          "code_reference_count": 470,
+          "data_reference_count": 0,
+          "before_proof": "build\\continue-20261006\\texture-contract-proof-v1\\texcache\\default-before\\resolved-proof.json",
+          "before_proof_sha256": "24c34f86e72d4b2a68739084eaf1442011175354e38573d224f6d71e26b3aa57",
+          "after_proof": "build\\continue-20261006\\texture-contract-v1\\texcache\\default\\resolved-proof.json",
+          "after_proof_sha256": "dee65bfb0e9bb4e47322ad66c3f4bf1dd37616c0ffc148c1005222c3b242c690"
+        },
+        "guarded": {
+          "function_count": 18,
+          "all_functions_and_references_identical": true,
+          "whole_object_identical": true,
+          "whole_object_sha256": "e022f4baab50d73b4b905ad23b3bdaa7050f719d658205be2caa9b3427cdffc5",
+          "code_reference_count": 470,
+          "data_reference_count": 0,
+          "before_proof": "build\\continue-20261006\\texture-contract-proof-v1\\texcache\\guarded-before\\resolved-proof.json",
+          "before_proof_sha256": "f31f017f769301de822905e5e6cabed353c608b80b2f8552eee6fe17ece8c7c9",
+          "after_proof": "build\\continue-20261006\\texture-contract-v1\\texcache\\guarded\\resolved-proof.json",
+          "after_proof_sha256": "58c4864403000fcdc3eb0f3668db0dc6295326d0ddf48843185374c36ef710e1"
+        }
+      }
+    }
+  },
+  "source_installed": false,
+  "contract": {
+    "sdk_header": "include/rw/sky2/rwcore.h",
+    "sdk_declaration_line": 5619,
+    "sdk_header_sha256": "a65c6d4c54676cf1314e9d77ea0ef5c02454047e020e0271d067df9a277f3b3f",
+    "first_argument": "RwRaster pointer, passed from movie work+0xd0 through upload helper to TEX0 accessor",
+    "outputs": "two complete u32 objects; native accessor writes four bytes through each output pointer",
+    "native_low_halfword": "The lsb output is a four-byte-aligned union; the provider writes its u32 value and the native consumer reads half[0] on the bound little-endian target.",
+    "native_witness_sha256": "eda621d193c06baab4d9dad096b615f5c50bf2a140d04bfa549797c3f90cc501",
+    "uninitialized_reads_added": false,
+    "padding_added": false,
+    "register_or_output_steering_added": false
+  }
+}
