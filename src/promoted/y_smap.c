@@ -70,8 +70,8 @@ extern s32 func_002b25d0(u8 *arg0);
 extern void func_002b2800(u8 *arg0);
 extern void func_002ac600(u8 *arg0);
 extern void func_001687f0(u8 *arg0, u8 *arg1);
-extern s32 func_001687d0(void *arg0);
-extern s32 func_001687e0(void *arg0);
+extern s32 func_001687d0(u8 *arg0);
+extern s32 func_001687e0(u8 *arg0);
 
 typedef struct YVec3f { f32 x, y, z; } YVec3f;
 typedef FclVec2 YVec2f;
@@ -98,8 +98,8 @@ extern s64 iGpffffa840;  /* gp-relative, -0x57C0 */
 extern s64 iGpffffa848;  /* gp-relative, -0x57B8 */
 extern f32 iGpffff84f8;
 extern f32 iGpffff84f4;  /* gp-relative, -0x7B0C */
-/* func_002add90 callees (re-derived v2, probe nd 354) */
-extern u8 *D_007EFA04;
+/* Map update and symbol-task providers. */
+extern u8 *D_007EFA04[];
 extern u8 D_007E8C00[];
 extern u8 D_00794C30[];
 extern u8 D_00794E10[];
@@ -107,11 +107,11 @@ extern u8 *func_00460990(void);
 extern void func_002b2290(u8 *);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s32 func_002b6850(u8 *);
-extern void func_002b67a0(u8 *, s32, s32);
-extern s32 func_002b4a10(u8 *, s8);
-extern void func_002ac750(s32, s32);
+extern void func_002b67a0(u8 *, u32, s8);
+extern s32 func_002b4a10(s32, s32);
+extern void func_002ac750(u8, u8);
 extern void func_002b31a0(u8 *, u8 *, u8 *);
-extern s32 func_00452490(u8 *);
+extern s32 func_00452490(void *);
 extern void func_002b10a0(u8 *, YVec2f);
 extern void func_002b10e0(u8 *, s8);
 extern void func_002b2240(u8 *);
@@ -233,7 +233,7 @@ s32 func_002ac740(void) {
    Both retail stores add the two byte offsets before their halfword load. */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
-void func_002ac750(s32 arg0, s32 arg1) {
+void func_002ac750(u8 arg0, u8 arg1) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern s64 func_002adcf0(u8);
     s32 sp180;
@@ -846,162 +846,145 @@ static inline u32 smapUnitPresent(const u8 *unit)
     return present != 0;
 }
 
-// FUN_002ADD90 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_002add90(u8 *arg0) {
-    YVec2f screenPosition;
-    YVec3f v;
-    YVec3f sourcePosition;
-    YVec3f relativeX;
-    YVec3f relativeZ;
-    u8 *p;
-    u8 *tmp;
-    u8 *tmp2;
-    u8 *q;
-    s32 t16;
-    u8 t18;
-    s32 t19;
-    u8 t20;
-    s32 t22;
-    s32 t23;
-    s32 t182;
-    s32 t192;
-    s32 t222;
-    s32 var16;
-    s32 var18;
-    s32 var19;
-    s16 tt;
-    s16 tt2;
-    p = *(u8 **)(arg0 + 0x38);
-    func_001687f0((u8 *)&sourcePosition, *(u8 **)(D_007EFA04 + 0x220));
-    v = sourcePosition;
-    tmp = (u8 *)func_00460990();
-    *(void (**)(s32, u8 *))((u8 *)tmp + 8) = (void (*)(s32, u8 *))func_002add10;
-    *(u8 **)((u8 *)tmp + 0x10) = p;
-    func_00460ac0(D_00794C30, tmp);
-    tmp2 = (u8 *)func_00460990();
-    *(void (**)(u8 *, u8 *))((u8 *)tmp2 + 8) = (void (*)(u8 *, u8 *))func_002add60;
-    *(u8 **)((u8 *)tmp2 + 0x10) = p;
-    func_00460ac0(D_00794E10, tmp2);
-    switch (*(s8 *)(p + 4)) {
+/* Map cells occupy 0x10 bytes in rows of 0x100 bytes. Read from the
+ * complete map allocation so a neighboring cell can cross a logical row.
+ * Signed neighbor offsets preserve integer promotion before +/- 1; ordinary
+ * byte coordinates use unsigned offsets. Both stay in the same byte domain.
+ */
+#define SMAP_FIELD(row, column, offset) \
+    (*((u8 *)func_00155280() + (row) * 0x100 + (column) * 0x10 + (offset)))
+
+// FUN_002ADD90
+s32 func_002add90(u8 *arg0)
+{
+    YVec2f scale;
+    YVec3f pos;
+    YVec3f positionSnapshot;
+    YVec3f horizontalOffset;
+    YVec3f verticalOffset;
+    u8 *work;
+    u8 *task;
+    s32 tileY;
+    s32 tileX;
+    u8 y;
+    s32 unitIndex;
+    u8 x;
+
+    work = *(u8 **)(arg0 + 0x38);
+    func_001687f0((u8 *)&positionSnapshot, *(u8 **)(D_007EFA04[0] + 0x220));
+    /* The provider always writes all three floats, including the no-model path. */
+    pos = *(YVec3f *)(u8 *)&positionSnapshot;
+    task = func_00460990();
+    *(void **)(task + 8) = func_002add10;
+    *(u8 **)(task + 0x10) = work;
+    func_00460ac0(D_00794C30, task);
+    task = func_00460990();
+    *(void **)(task + 8) = func_002add60;
+    *(u8 **)(task + 0x10) = work;
+    func_00460ac0(D_00794E10, task);
+    switch ((s8)work[4]) {
     case 0:
         func_002b2290(arg0);
-        *(s8 *)(p + 4) = (s8)(*(s8 *)(p + 4) + 1);
+        (*(s8 *)(work + 4))++;
         break;
     case 2:
-        *(s16 *)(p + 0x766) = func_002b2cb0((s32)*(s16 *)(p + 0x766), 1, 5, 0, 1);
-        if ((s8)func_002b6850(*(u8 **)(p + 0x748)) == 0) {
-            func_002b67a0(*(u8 **)(p + 0x748), 0, 1);
+        *(s16 *)(work + 0x766) = func_002b2cb0(*(s16 *)(work + 0x766), 1, 5, 0, 1);
+        if ((s8)func_002b6850(*(u8 **)(work + 0x748)) == 0) {
+            func_002b67a0(*(u8 **)(work + 0x748), 0, 1);
         }
-        if ((s8)func_002b6850(*(u8 **)(p + 0x74C)) == 0) {
-            func_002b67a0(*(u8 **)(p + 0x74C), 0, 1);
+        if ((s8)func_002b6850(*(u8 **)(work + 0x74C)) == 0) {
+            func_002b67a0(*(u8 **)(work + 0x74C), 0, 1);
         }
-        /* fallthrough */
+        /* fall through */
     case 5:
-        *(s16 *)(p + 0x764) = func_002b2cb0((s32)*(s16 *)(p + 0x764), 1, 0xA, 0, 1);
-        /* fallthrough */
+        *(s16 *)(work + 0x764) = func_002b2cb0(*(s16 *)(work + 0x764), 1, 10, 0, 1);
+        /* fall through */
     case 1:
-        *(s8 *)(p + 0xB8) = 0;
-        var16 = 0;
-        while (var16 < 0xF) {
-            if (smapUnitPresent(D_007E8C00 + var16 * 0x750) == 1) {
-                if (*(s32 *)((u8 *)p + var16 * 4 + 0xD8) == 0) {
-                    *(s32 *)((u8 *)p + var16 * 4 + 0xD8) = func_002b4a10(arg0, (s8)var16);
-                }
+        work[0xB8] = 0;
+        for (unitIndex = 0; unitIndex < 15; unitIndex++) {
+            s32 live = 0;
+            u8 *unit = D_007E8C00 + unitIndex * 0x750;
+
+            if ((*(s32 *)(unit + 0x48) != 0) && (*(s32 *)(unit + 0x54) != 0)) {
+                live = 1;
             }
-            var16 += 1;
-        }
-        t18 = func_002B11C0(v) & 0xFF;
-        t20 = func_002B1210(v) & 0xFF;
-        func_002ac750(t18, t20);
-        t16 = (t20 & 0xFF) << 8;
-        t19 = t18 & 0xFF;
-        t23 = t19 * 0x10;
-        if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x64) == 1) {
-            if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x5E) & 8) {
-                if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x5F) & 8) {
-                    if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x5F) & 0x80) {
-                        func_002ac750((t19 + 1) & 0xFF, t20);
-                    }
-                } else {
-                    func_002ac750((t19 + 1) & 0xFF, t20);
+            if ((u8)(live != 0) == 1) {
+                u8 **slot = (u8 **)(work + unitIndex * 4 + 0xD8);
+
+                if (*slot == NULL) {
+                    *slot = (u8 *)func_002b4a10((s32)arg0, (s8)unitIndex);
                 }
             }
         }
-        if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x44) == 1) {
-            t22 = (t18 & 0xFF) * 0x10;
-            if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t22 + 0x5E) & 2) {
-                if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t22 + 0x5F) & 2) {
-                    if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t22 + 0x5F) & 0x20) {
-                        func_002ac750((t19 - 1) & 0xFF, t20);
-                    }
-                } else {
-                    func_002ac750((t19 - 1) & 0xFF, t20);
+        x = func_002B11C0(pos);
+        y = func_002B1210(pos);
+        func_002ac750(x, y);
+        if (SMAP_FIELD((u32)y, (s32)x, 0x64) == 1 && (SMAP_FIELD((u32)y, (u32)x, 0x5E) & 8)) {
+            if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 8) {
+                if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 0x80) {
+                    func_002ac750((u8)(x + 1), y);
                 }
+            } else {
+                func_002ac750((u8)(x + 1), y);
             }
         }
-        t182 = t20 & 0xFF;
-        t222 = t182 << 8;
-        t192 = (t18 & 0xFF) * 0x10;
-        if (*(u8 *)((u8 *)(u32)func_00155280() + t222 + t192 - 0xAC) == 1) {
-            if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5E) & 1) {
-                if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5F) & 1) {
-                    if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5F) & 0x10) {
-                        func_002ac750(t18, (t182 - 1) & 0xFF);
-                    }
-                } else {
-                    func_002ac750(t18, (t182 - 1) & 0xFF);
+        if (SMAP_FIELD((u32)y, (s32)x, 0x44) == 1 && (SMAP_FIELD((u32)y, (u32)x, 0x5E) & 2)) {
+            if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 2) {
+                if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 0x20) {
+                    func_002ac750((u8)(x - 1), y);
                 }
+            } else {
+                func_002ac750((u8)(x - 1), y);
             }
         }
-        if (*(u8 *)((u8 *)(u32)func_00155280() + t222 + t192 + 0x154) == 1) {
-            if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5E) & 4) {
-                if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5F) & 4) {
-                    if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5F) & 0x40) {
-                        func_002ac750(t18, (t182 + 1) & 0xFF);
-                    }
-                } else {
-                    func_002ac750(t18, (t182 + 1) & 0xFF);
+        if (SMAP_FIELD((s32)y, (u32)x, -0xAC) == 1 && (SMAP_FIELD((u32)y, (u32)x, 0x5E) & 1)) {
+            if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 1) {
+                if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 0x10) {
+                    func_002ac750(x, (u8)(y - 1));
                 }
+            } else {
+                func_002ac750(x, (u8)(y - 1));
             }
         }
-        func_002b31a0((u8 *)&relativeX, p + 8, (u8 *)&v);
-        screenPosition.x = (f32)(s32)(relativeX.x / iGpffff84f8);
-        func_002b31a0((u8 *)&relativeZ, p + 8, (u8 *)&v);
-        screenPosition.y = (f32)(s32)(relativeZ.z / iGpffff84f8);
-        var18 = 0;
-        while (var18 < 0xD) {
-            var19 = 0;
-            while (var19 < 0xD) {
-                tt = (s16)(var18 + (func_001687d0(*(u8 **)(D_007EFA04 + 0x220)) - 6));
-                tt2 = (s16)(var19 + (func_001687e0(*(u8 **)(D_007EFA04 + 0x220)) - 6));
-                if ((s32)tt > 0) {
-                    if ((s32)tt2 > 0 && (s32)tt < 0x10 && (s32)tt2 < 0x18) {
-                        q = (u8 *)p + ((s32)tt2 << 6) + ((s32)tt * 4);
-                        if (func_00452490(*(u8 **)(q + 0x148)) == 1) {
-                            if ((((1 << (s32)tt) & 0xFFFF & ((u16 *)D_00764658)[(s32)tt2]) >> (s32)tt) == 1) {
-                                func_002b10e0(*(u8 **)(q + 0x148), 1);
-                            }
-                            {
-                                YVec2f vv;
-                                vv = screenPosition;
-                                func_002b10a0(*(u8 **)(q + 0x148), vv);
-                            }
+        if (SMAP_FIELD((s32)y, (u32)x, 0x154) == 1 && (SMAP_FIELD((u32)y, (u32)x, 0x5E) & 4)) {
+            if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 4) {
+                if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 0x40) {
+                    func_002ac750(x, (u8)(y + 1));
+                }
+            } else {
+                func_002ac750(x, (u8)(y + 1));
+            }
+        }
+        func_002b31a0((u8 *)&horizontalOffset, work + 8, (u8 *)&pos);
+        scale.x = (s32)(horizontalOffset.x / 66.666664f);
+        func_002b31a0((u8 *)&verticalOffset, work + 8, (u8 *)&pos);
+        scale.y = (s32)(verticalOffset.z / 66.666664f);
+        for (tileX = 0; tileX < 13; tileX++) {
+            for (tileY = 0; tileY < 13; tileY++) {
+                s16 tx = tileX + (func_001687d0(*(u8 **)(D_007EFA04[0] + 0x220)) - 6);
+                s16 ty = tileY + (func_001687e0(*(u8 **)(D_007EFA04[0] + 0x220)) - 6);
+
+                if ((tx > 0) && (ty > 0) && (tx < 16) && (ty < 24)) {
+                    u8 **tile = (u8 **)(work + ty * 64 + tx * 4 + 0x148);
+
+                    if (func_00452490(*tile) == 1) {
+                        u16 mask = (1 << tx) & 0xFFFF;
+                        if (((mask & ((u16 *)D_00764658)[ty]) >> tx) == 1) {
+                            func_002b10e0(*tile, 1);
                         }
+                        func_002b10a0(*tile, scale);
                     }
                 }
-                var19++;
             }
-            var18++;
         }
         func_002b2240(arg0);
         break;
     case 3:
-        *(s16 *)(p + 0x766) = func_002b2cb0((s32)*(s16 *)(p + 0x766), 1, 5, 0, 1);
-        /* fallthrough */
+        *(s16 *)(work + 0x766) = func_002b2cb0(*(s16 *)(work + 0x766), 1, 5, 0, 1);
+        /* fall through */
     case 6:
-        *(s16 *)(p + 0x764) = func_002b2cb0((s32)*(s16 *)(p + 0x764), 1, 5, 0, 1);
-        /* fallthrough */
+        *(s16 *)(work + 0x764) = func_002b2cb0(*(s16 *)(work + 0x764), 1, 5, 0, 1);
+        /* fall through */
     case 4:
         func_002b2240(arg0);
         break;
@@ -1010,9 +993,8 @@ s32 func_002add90(u8 *arg0) {
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002add90);
-#endif
+
+#undef SMAP_FIELD
 // FUN_002AE520
 void func_002ae520(u8 *arg0) {
     u8 *p;
@@ -1090,8 +1072,8 @@ u8 *func_002ae630(u8 *arg0) {
     res = (u8 *)(s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0063EFD8), 0xF, 0, 0, func_002add90, func_002ae520, (u8 *)(blk));
     *(u8 **)blk = blk;
     *(blk + 4) = 0;
-    t1 = func_001687d0(*(u8 **)(D_007EFA04 + 0x220)) & 0xFF;
-    t2 = func_001687e0(*(u8 **)(D_007EFA04 + 0x220)) & 0xFF;
+    t1 = func_001687d0(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
+    t2 = func_001687e0(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
     func_002B1100(&v0, (u32)t1, (u32)t2);
     *(YVec3f *)(blk + 8) = v0;
     D_00764660 = (u8)func_002B11C0(*(RwV3d *)(blk + 8));
@@ -1213,7 +1195,7 @@ u8 *func_002ae630(u8 *arg0) {
             ok = 1;
         }
         if (ok == 1) {
-            *(s32 *)(blk + k * 4 + 0xD8) = func_002b4a10(res, (s8)k);
+            *(s32 *)(blk + k * 4 + 0xD8) = func_002b4a10((s32)res, (s8)k);
         }
     }
     tmp = func_0046d200(D_00764644, 0x12);

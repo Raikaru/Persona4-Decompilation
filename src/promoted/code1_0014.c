@@ -164,7 +164,7 @@ extern u8 *func_00457190(void);
 extern void func_003cbe80(void *arg0, void *arg1);
 extern u8 *func_00149ca0(void);
 extern u8 D_007E8020[];
-extern u8 *mdlGetMatrix(s32 arg0);
+extern void *mdlGetMatrix(void *model);
 extern f32 RwV3dLength(f32 *arg0);
 extern u8 *func_003e9700(s32 arg0);
 extern s32 func_0014c240(void *arg0, void *arg1, f32 fparg0, f32 fparg1);
@@ -212,7 +212,7 @@ extern s32 D_00762EA0;
 extern s32 func_004b1130(s32 arg0);
 extern void func_004b1170(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
-extern void func_004b1250(s32 arg0, u8 *arg1);
+extern void func_004b1250(void *object, f32 *position);
 extern s32 func_001684a0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
 extern void func_004b13d0(s32 arg0, f32 arg1);
 
@@ -2120,7 +2120,7 @@ s32 func_00145540(u16 arg0, u16 arg1, void *arg2) {
     }
     *(void **)(temp_2 + 0x164) = arg2;
     func_0047a180((RwMatrix *)arg2, (const RwV3d *)sp50, 0);
-    RwMatrixUpdate(mdlGetMatrix(*(s32 *)(temp_2 + 0x164)));
+    RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)(temp_2 + 0x164)));
     temp_2_2 = func_001684a0(0, temp_16 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x220) = temp_2_2;
     *(void **)(temp_2 + 0x224) = func_0017b510((u8 *)temp_2_2, shadowId, arg1);
@@ -2204,7 +2204,7 @@ s32 func_00145780(u16 arg0, u16 arg1, s32 arg2) {
 }
 // FUN_001459B0
 s32 func_001459b0(u16 arg0, s32 arg1, s8 arg2) {
-    s32 sp[3];
+    f32 sp[3];
     s32 temp_16;
     s32 temp_4;
     u8 *temp_2;
@@ -2225,10 +2225,10 @@ s32 func_001459b0(u16 arg0, s32 arg1, s8 arg2) {
     }
     *(s32 *)(temp_2 + 0x144) = func_004b1130(arg1);
     *(s8 *)(temp_2 + 0x140) = arg2;
-    sp[0] = 0x42C80000;
-    sp[1] = 0;
-    sp[2] = 0;
-    func_004b1250(*(s32 *)(temp_2 + 0x144), (u8 *)sp);
+    sp[0] = 100.0f;
+    sp[1] = 0.0f;
+    sp[2] = 0.0f;
+    func_004b1250(*(void **)(temp_2 + 0x144), sp);
     func_004b13d0(*(s32 *)(temp_2 + 0x144), 1.5f);
     return temp_16;
 }
@@ -3225,14 +3225,14 @@ s32 func_00148000(const void *left, const void *right) {
     frame.v40[2] = temp_f0;
     temp_17 = *arg0;
     temp_16 = *arg1;
-    frame.v60[0] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_17 + 0x164)) + 0x30) - frame.v40[0];
+    frame.v60[0] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_17 + 0x164)) + 0x30) - frame.v40[0];
     temp_f21 = frame.v40[1];
-    frame.v60[1] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_17 + 0x164)) + 0x34) - temp_f21;
+    frame.v60[1] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_17 + 0x164)) + 0x34) - temp_f21;
     temp_f20 = frame.v40[2];
-    frame.v60[2] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_17 + 0x164)) + 0x38) - temp_f20;
-    frame.v50[0] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x164)) + 0x30) - frame.v40[0];
-    frame.v50[1] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x164)) + 0x34) - temp_f21;
-    frame.v50[2] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x164)) + 0x38) - temp_f20;
+    frame.v60[2] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_17 + 0x164)) + 0x38) - temp_f20;
+    frame.v50[0] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_16 + 0x164)) + 0x30) - frame.v40[0];
+    frame.v50[1] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_16 + 0x164)) + 0x34) - temp_f21;
+    frame.v50[2] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_16 + 0x164)) + 0x38) - temp_f20;
     temp_f20 = RwV3dLength(frame.v60);
     return (s32)(temp_f20 - RwV3dLength(frame.v50));
 }
@@ -3271,14 +3271,14 @@ s32 func_00148140(const void *left, const void *right) {
     frame.v40[2] = temp_f0;
     temp_17 = *arg0;
     temp_16 = *arg1;
-    frame.v60[0] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_17 + 0x164)) + 0x30) - frame.v40[0];
+    frame.v60[0] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_17 + 0x164)) + 0x30) - frame.v40[0];
     temp_f21 = frame.v40[1];
-    frame.v60[1] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_17 + 0x164)) + 0x34) - temp_f21;
+    frame.v60[1] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_17 + 0x164)) + 0x34) - temp_f21;
     temp_f20 = frame.v40[2];
-    frame.v60[2] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_17 + 0x164)) + 0x38) - temp_f20;
-    frame.v50[0] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x164)) + 0x30) - frame.v40[0];
-    frame.v50[1] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x164)) + 0x34) - temp_f21;
-    frame.v50[2] = *(f32 *)(mdlGetMatrix(*(s32 *)(temp_16 + 0x164)) + 0x38) - temp_f20;
+    frame.v60[2] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_17 + 0x164)) + 0x38) - temp_f20;
+    frame.v50[0] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_16 + 0x164)) + 0x30) - frame.v40[0];
+    frame.v50[1] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_16 + 0x164)) + 0x34) - temp_f21;
+    frame.v50[2] = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(temp_16 + 0x164)) + 0x38) - temp_f20;
     temp_f20 = RwV3dLength(frame.v60);
     return (s32)(temp_f20 - RwV3dLength(frame.v50));
 }
@@ -3298,8 +3298,8 @@ s32 func_00148280(u8 *unusedTask) {
     extern void func_004b1210(void *arg0, void *arg1);
     extern s32 func_00462df0(s32 arg0);
     extern s32 func_00462e80(s32 arg0);
-    extern void func_00479100(void *arg0, void *arg1);
-    extern u8 *mdlGetColor(s32 arg0);
+    extern void func_00479100(void *queue, u8 *model);
+    extern void *mdlGetColor(void *model);
     extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
     extern void func_004b11d0(void *arg0, void *arg1);
     extern void qsort(void *base, size_t count, size_t size,
@@ -3404,14 +3404,14 @@ s32 func_00148280(u8 *unusedTask) {
         t = *(s32 *)(l10 + 0x28);
         if (t & 2) {
             if (t & 0x02000000) {
-                func_00479100(D_007942D0, *(void **)(l10 + 0x144));
+                func_00479100(D_007942D0, *(u8 **)(l10 + 0x144));
             } else if (t & 0x01000000) {
-                func_00479100(D_007947E0, *(void **)(l10 + 0x144));
+                func_00479100(D_007947E0, *(u8 **)(l10 + 0x144));
             } else if (func_00462e80(*(s32 *)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
                 if (flag != 0) {
-                    func_00479100(D_00793F10, *(void **)(l10 + 0x144));
+                    func_00479100(D_00793F10, *(u8 **)(l10 + 0x144));
                 } else {
-                    func_00479100(D_00794300, *(void **)(l10 + 0x144));
+                    func_00479100(D_00794300, *(u8 **)(l10 + 0x144));
                 }
                 ex = *(u8 **)(l10 + 0x16C);
                 if (ex != NULL && (*(s32 *)(l10 + 0x28) & 0x20000000)) {
@@ -3419,16 +3419,16 @@ s32 func_00148280(u8 *unusedTask) {
                 }
             } else if (func_00462df0(*(s32 *)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
                 if (flag != 0) {
-                    func_00479100(D_00793F40, *(void **)(l10 + 0x144));
+                    func_00479100(D_00793F40, *(u8 **)(l10 + 0x144));
                 } else {
-                    func_00479100(D_00794360, *(void **)(l10 + 0x144));
+                    func_00479100(D_00794360, *(u8 **)(l10 + 0x144));
                 }
                 ex = *(u8 **)(l10 + 0x16C);
                 if (ex != NULL && (*(s32 *)(l10 + 0x28) & 0x20000000)) {
                     func_00479100(D_00794360, ex);
                 }
             } else {
-                func_00479100(D_00793EE0, *(void **)(l10 + 0x144));
+                func_00479100(D_00793EE0, *(u8 **)(l10 + 0x144));
                 ex = *(u8 **)(l10 + 0x16C);
                 if (ex != NULL && (*(s32 *)(l10 + 0x28) & 0x20000000)) {
                     func_00479100(D_00793EE0, ex);
@@ -3498,9 +3498,9 @@ s32 func_00148280(u8 *unusedTask) {
                 *(u8 **)(tmp + 0x10) = *pp;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
                 if (func_0014a160() == 1 && (*(u16 *)*pp & 0x3FF) >= 100) {
-                    func_00479100(D_007943F0, *(void **)(*pp + 0x164));
+                    func_00479100(D_007943F0, *(u8 **)(*pp + 0x164));
                 } else {
-                    func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(void **)(*pp + 0x164));
+                    func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(*pp + 0x164));
                 }
                 if (*(u8 **)(*pp + 0x228) != NULL && (*(s32 *)(*pp + 0x28) & 0x20000000)) {
                     func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(*pp + 0x228));
@@ -3509,10 +3509,10 @@ s32 func_00148280(u8 *unusedTask) {
                     u8 *attachmentOwner = *pp;
                     if (*(s32 *)(attachmentOwner + j * 4 + 0x140) != 0) {
                         if (func_0047a6d0(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
-                            pos = *(RwV3d *)(mdlGetMatrix(*(s32 *)(*pp + 0x164)) + 0x30);
+                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(*pp + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
-                        func_004b1250(*(s32 *)(*pp + j * 4 + 0x140), (u8 *)&pos);
+                        func_004b1250(*(void **)(*pp + j * 4 + 0x140), (f32 *)&pos);
                         func_004b11d0(D_005DC824, *(void **)(*pp + j * 4 + 0x140));
                     }
                 }
@@ -3534,7 +3534,7 @@ s32 func_00148280(u8 *unusedTask) {
                 *(void **)(tmp + 8) = (void *)func_00147bb0;
                 *(u8 **)(tmp + 0x10) = obj;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), tmp);
-                func_00479100((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), *(void **)(obj + 0x164));
+                func_00479100((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), *(u8 **)(obj + 0x164));
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)func_00147ae0;
                 *(u8 **)(tmp + 0x10) = D_007D2090;
@@ -3552,7 +3552,7 @@ s32 func_00148280(u8 *unusedTask) {
     memset(arrB, 0, 0x100);
     n2 = 0;
     while (l3 != NULL) {
-        if (*(u8 *)(mdlGetColor(*(s32 *)(l3 + 0x164)) + 3) < 0xFF) {
+        if (*(u8 *)((u8 *)mdlGetColor(*(void **)(l3 + 0x164)) + 3) < 0xFF) {
             arrB[n2] = l3;
             n2 += 1;
             l3 = *(u8 **)(l3 + 0x138);
@@ -3562,17 +3562,17 @@ s32 func_00148280(u8 *unusedTask) {
             if ((flags & 0x10000000) && (flags & 2) && !(flags & 0x80000000)) {
                 s32 j;
 
-                func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(void **)(l3 + 0x164));
+                func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l3 + 0x164));
                 if (*(u8 **)(l3 + 0x22C) != NULL && (*(s32 *)(l3 + 0x28) & 0x20000000)) {
                     func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l3 + 0x22C));
                 }
                 for (j = 0; j < 2; j++) {
                     if (*(s32 *)(l3 + j * 4 + 0x140) != 0) {
                         if (func_0047a6d0(*(void **)(l3 + 0x164), 2, &pos) == 0) {
-                            pos = *(RwV3d *)(mdlGetMatrix(*(s32 *)(l3 + 0x164)) + 0x30);
+                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(l3 + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
-                        func_004b1250(*(s32 *)(l3 + j * 4 + 0x140), (u8 *)&pos);
+                        func_004b1250(*(void **)(l3 + j * 4 + 0x140), (f32 *)&pos);
                         func_004b11d0(D_005DC824, *(void **)(l3 + j * 4 + 0x140));
                     }
                 }
@@ -3584,7 +3584,7 @@ s32 func_00148280(u8 *unusedTask) {
         u8 *obj = func_001452b0(3);
 
         while (obj != NULL) {
-            if (*(u8 *)(mdlGetColor(*(s32 *)(obj + 0x164)) + 3) < 0xFF) {
+            if (*(u8 *)((u8 *)mdlGetColor(*(void **)(obj + 0x164)) + 3) < 0xFF) {
                 obj = *(u8 **)(obj + 0x138);
             } else {
                 s32 flags = *(s32 *)(obj + 0x28);
@@ -3597,17 +3597,17 @@ s32 func_00148280(u8 *unusedTask) {
                     if (*(s32 *)(obj + 0x28) & 0x80000000) {
                         s32 j;
 
-                        func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(void **)(obj + 0x164));
+                        func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(obj + 0x164));
                         if (*(u8 **)(obj + 0x22C) != NULL && (*(s32 *)(obj + 0x28) & 0x20000000)) {
                             func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(obj + 0x22C));
                         }
                         for (j = 0; j < 2; j++) {
                             if (*(s32 *)(obj + j * 4 + 0x140) != 0) {
                                 if (func_0047a6d0(*(void **)(obj + 0x164), 2, &pos) == 0) {
-                                    pos = *(RwV3d *)(mdlGetMatrix(*(s32 *)(obj + 0x164)) + 0x30);
+                                    pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(obj + 0x164)) + 0x30);
                                     pos.y += 175.0f;
                                 }
-                                func_004b1250(*(s32 *)(obj + j * 4 + 0x140), (u8 *)&pos);
+                                func_004b1250(*(void **)(obj + j * 4 + 0x140), (f32 *)&pos);
                                 func_004b11d0(D_005DC824, *(void **)(obj + j * 4 + 0x140));
                             }
                         }
@@ -3631,13 +3631,13 @@ s32 func_00148280(u8 *unusedTask) {
                 *(void **)(tmp + 8) = (void *)func_00147f30;
                 *(u8 **)(tmp + 0x10) = l2;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
-                func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(void **)(l2 + 0x158));
+                func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l2 + 0x158));
             } else {
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)func_00147f30;
                 *(u8 **)(tmp + 0x10) = l2;
                 func_00460ac0(D_007945A0, tmp);
-                func_00479100(D_007945A0, *(void **)(l2 + 0x158));
+                func_00479100(D_007945A0, *(u8 **)(l2 + 0x158));
             }
         }
         l2 = *(u8 **)(l2 + 0x138);
@@ -3657,7 +3657,7 @@ s32 func_00148280(u8 *unusedTask) {
                 *(void **)(tmp + 8) = (void *)func_00147f30;
                 *(u8 **)(tmp + 0x10) = obj;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), tmp);
-                func_00479100((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), *(void **)(obj + 0x158));
+                func_00479100((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), *(u8 **)(obj + 0x158));
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)func_00147ae0;
                 *(u8 **)(tmp + 0x10) = D_007D1F30;
@@ -3683,15 +3683,15 @@ s32 func_00148280(u8 *unusedTask) {
             s32 flags = *(s32 *)(arrB[k] + 0x28);
 
             if ((flags & 0x10000000) && (flags & 2) && !(flags & 0x80000000)) {
-                func_00479100(D_007945D0, *(void **)(arrB[k] + 0x164));
+                func_00479100(D_007945D0, *(u8 **)(arrB[k] + 0x164));
                 for (j = 0; j < 2; j++) {
                     u8 *attachmentOwner = arrB[k];
                     if (*(s32 *)(attachmentOwner + j * 4 + 0x140) != 0) {
                         if (func_0047a6d0(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
-                            pos = *(RwV3d *)(mdlGetMatrix(*(s32 *)(arrB[k] + 0x164)) + 0x30);
+                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(arrB[k] + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
-                        func_004b1250(*(s32 *)(arrB[k] + j * 4 + 0x140), (u8 *)&pos);
+                        func_004b1250(*(void **)(arrB[k] + j * 4 + 0x140), (f32 *)&pos);
                     }
                 }
             }
@@ -3709,15 +3709,15 @@ s32 func_00148280(u8 *unusedTask) {
                 *(void **)(tmp + 8) = (void *)func_00147e60;
                 *(u8 **)(tmp + 0x10) = arrB[k];
                 func_00460ac0(D_007945D0, tmp);
-                func_00479100(D_007945D0, *(void **)(arrB[k] + 0x164));
+                func_00479100(D_007945D0, *(u8 **)(arrB[k] + 0x164));
                 for (j = 0; j < 2; j++) {
                     u8 *attachmentOwner = arrB[k];
                     if (*(s32 *)(attachmentOwner + j * 4 + 0x140) != 0) {
                         if (func_0047a6d0(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
-                            pos = *(RwV3d *)(mdlGetMatrix(*(s32 *)(arrB[k] + 0x164)) + 0x30);
+                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(arrB[k] + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
-                        func_004b1250(*(s32 *)(arrB[k] + j * 4 + 0x140), (u8 *)&pos);
+                        func_004b1250(*(void **)(arrB[k] + j * 4 + 0x140), (f32 *)&pos);
                     }
                 }
             }
@@ -4400,23 +4400,23 @@ u8 *func_0014c540(u8 *arg0, f32 fparg0, f32 fparg1) {
 loop_body_0014c540:
     saved_entry = (u8 **)(D_007E8020 + (i * 4));
     if (*saved_entry != 0) {
-        if (K_FldEvent_IsPosWithinFov(mdlGetMatrix(*(s32 *)(arg + 0x50)),
-                          mdlGetMatrix(*(s32 *)(*saved_entry + 0x50)) + 0x30,
+        if (K_FldEvent_IsPosWithinFov((u8 *)mdlGetMatrix(*(void **)(arg + 0x50)),
+                          (u8 *)mdlGetMatrix(*(void **)(*saved_entry + 0x50)) + 0x30,
                           fparg1) != 0) {
             entry = D_007E8020_abs + (u32)i;
-            temp_f23 = *(f32 *)(mdlGetMatrix(*(s32 *)(*entry + 0x50)) + 0x30);
+            temp_f23 = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(*entry + 0x50)) + 0x30);
             stack.diffB0[0] = temp_f23 -
-                              *(f32 *)(mdlGetMatrix(*(s32 *)(arg + 0x50)) + 0x30);
-            temp_f23_2 = *(f32 *)(mdlGetMatrix(*(s32 *)(*entry + 0x50)) + 0x34);
+                              *(f32 *)((u8 *)mdlGetMatrix(*(void **)(arg + 0x50)) + 0x30);
+            temp_f23_2 = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(*entry + 0x50)) + 0x34);
             stack.diffB0[1] = temp_f23_2 -
-                              *(f32 *)(mdlGetMatrix(*(s32 *)(arg + 0x50)) + 0x34);
-            temp_f23_3 = *(f32 *)(mdlGetMatrix(*(s32 *)(*entry + 0x50)) + 0x38);
+                              *(f32 *)((u8 *)mdlGetMatrix(*(void **)(arg + 0x50)) + 0x34);
+            temp_f23_3 = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(*entry + 0x50)) + 0x38);
             stack.diffB0[2] = temp_f23_3 -
-                              *(f32 *)(mdlGetMatrix(*(s32 *)(arg + 0x50)) + 0x38);
-            temp_2 = mdlGetMatrix(*(s32 *)(arg + 0x50));
+                              *(f32 *)((u8 *)mdlGetMatrix(*(void **)(arg + 0x50)) + 0x38);
+            temp_2 = (u8 *)mdlGetMatrix(*(void **)(arg + 0x50));
             vec_x = *(RwV3d *)(temp_2 + 0x30);
             stack.v80 = vec_x;
-            temp_2_2 = mdlGetMatrix(*(s32 *)(*entry + 0x50));
+            temp_2_2 = (u8 *)mdlGetMatrix(*(void **)(*entry + 0x50));
             vec_y = *(RwV3d *)(temp_2_2 + 0x30);
             stack.v8c = vec_y;
             stack.v80.y += 100.0f;
@@ -4488,7 +4488,7 @@ s32 *func_0014c850(u8 *arg0, f32 fparg0, f32 fparg1) {
     goto loop_test_0014c850;
 loop_body_0014c850:
     if (*(s32 *)temp_18 != 0) {
-        if (func_0014c240(mdlGetMatrix(*(s32 *)(arg0 + 0x50)),
+        if (func_0014c240((u8 *)mdlGetMatrix(*(void **)(arg0 + 0x50)),
                           temp_18 + 0x150, fparg1, fparg0) != 0) {
             return *(s32 **)temp_19;
         }
@@ -4591,8 +4591,8 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
 
                 clear = 1;
                 for (obj = func_001452b0(3); obj != NULL; obj = *(u8 **)(obj + 0x138)) {
-                    cellX = (s32)((600.0f + *(f32 *)(mdlGetMatrix(*(s32 *)(obj + 0x164)) + 0x30)) / 1200.0f);
-                    cellY = (s32)((600.0f + *(f32 *)(mdlGetMatrix(*(s32 *)(obj + 0x164)) + 0x38)) / 1200.0f);
+                    cellX = (s32)((600.0f + *(f32 *)((u8 *)mdlGetMatrix(*(void **)(obj + 0x164)) + 0x30)) / 1200.0f);
+                    cellY = (s32)((600.0f + *(f32 *)((u8 *)mdlGetMatrix(*(void **)(obj + 0x164)) + 0x38)) / 1200.0f);
                     if (FLD_GRID_HITS(cellX, cellY, x, y)) {
                         fldGridMark(x, y);
                         clear = 0;
@@ -4718,10 +4718,10 @@ s32 func_0014cfd0(u8 *arg0)
     goto loop_test_0014cfd0;
 loop_body_0014cfd0:
     temp_16_2 = (s32)((600.0f +
-                       *(f32 *)(mdlGetMatrix(*(s32 *)(var_19 + 0x164)) + 0x30)) /
+                       *(f32 *)((u8 *)mdlGetMatrix(*(void **)(var_19 + 0x164)) + 0x30)) /
                       1200.0f);
     temp_3 = (s32)((600.0f +
-                    *(f32 *)(mdlGetMatrix(*(s32 *)(var_19 + 0x164)) + 0x38)) /
+                    *(f32 *)((u8 *)mdlGetMatrix(*(void **)(var_19 + 0x164)) + 0x38)) /
                    1200.0f);
     if (((temp_16_2 == var_18) && (temp_3 == var_17)) ||
         ((temp_16_2 == (var_18 + 1)) && (temp_3 == var_17)) ||
@@ -5208,14 +5208,14 @@ loop_done_4:
         temp_19 = p4_e740_add(temp_20, temp_16) + 0x24;
         temp_2 = func_004b11b0(*(s32 *)(temp_16 + 0x14));
         *(s32 *)temp_19 = temp_2;
-        func_004b1250(temp_2, (u8 *)arg1);
+        func_004b1250((void *)temp_2, arg1);
         *(s32 *)(p4_e740_add(temp_20, temp_16) + 0x44) = 0;
         temp_3 = 1;
         *(s16 *)(p4_e740_add(var_17 * 2, temp_16) + 0x64) = temp_3;
         *(s32 *)(temp_16 + 0x20) = *(s32 *)(temp_16 + 0x20) + 1;
     } else {
         func_004b1170(*(s32 *)(temp_16 + 0x14));
-        func_004b1250(*(s32 *)(temp_16 + 0x14), (u8 *)arg1);
+        func_004b1250(*(void **)(temp_16 + 0x14), arg1);
         *(s32 *)(temp_16 + 0x18) = 0;
         temp_4 = 1;
         *(s32 *)(temp_16 + 0x10) = temp_4;
