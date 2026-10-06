@@ -27,8 +27,8 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void func_00492dd0();
-extern void func_00492e10();
+extern u_long128 func_00492dd0(s32 emitter, u32 *position);
+extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
 extern void func_003c02e0(u8 *arg0);
 extern void func_003c4220(s32 arg0);
 extern void func_003e9390(s32 arg0);
@@ -2128,14 +2128,14 @@ void func_00489e80(u8 *arg0)
     func_00487fb0(arg0, 1.0f);
 }
 // FUN_00489EE0
-void func_00489ee0(u8 *arg0)
+void func_00489ee0(u8 *instance, u32 *position)
 {
-    func_00492dd0(*(u8 **)(arg0 + 0x4C));
+    func_00492dd0(*(s32 *)(instance + 0x4C), position);
 }
 // FUN_00489F10
-void func_00489f10(u8 *arg0)
+void func_00489f10(u8 *instance, u32 *rotation)
 {
-    func_00492e10(*(u8 **)(arg0 + 0x4C));
+    func_00492e10(*(s32 *)(instance + 0x4C), rotation);
 }
 /* Measured with b210 -O2: keeping the trace/diagonal stages and the scaled
    root as distinct lifetimes reproduces the scalar calculation. Propagation

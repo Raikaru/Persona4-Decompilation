@@ -23,8 +23,8 @@ extern void func_004a5fc0(u8 *arg0);
 extern u8 *func_004a6c00(u8 *arg0);
 extern u8 *func_004a5630(u16 arg0, u8 *arg1);
 extern u8 D_0071413C[];
-extern void func_00492dd0();
-extern void func_00492e10();
+extern u_long128 func_00492dd0(s32 emitter, u32 *position);
+extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
 extern void func_00492e30(u16 *emitter, f32 scale);
 extern s32 func_004814d0(u16 arg0);
 extern void func_004ad030();
@@ -2448,12 +2448,14 @@ void func_004af580(u8 *arg0) {
     }
 }
 // FUN_004AF5E0
-void func_004af5e0(u8 *arg0) {
-    func_00492dd0(*(u8 **)(arg0 + 0x58));
+void func_004af5e0(u8 *instance, u32 *position)
+{
+    func_00492dd0(*(s32 *)(instance + 0x58), position);
 }
 // FUN_004AF610
-void func_004af610(u8 *arg0) {
-    func_00492e10(*(u8 **)(arg0 + 0x58));
+void func_004af610(u8 *instance, u32 *rotation)
+{
+    func_00492e10(*(s32 *)(instance + 0x58), rotation);
 }
 // FUN_004AF640
 void func_004af640(u8 *arg0, s32 arg1) {
