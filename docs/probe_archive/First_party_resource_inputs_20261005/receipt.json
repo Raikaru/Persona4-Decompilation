@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "inspected_revision": "ddd29f917b856e58625876a46d0c7d125297e54d",
+  "status": "Resource inputs required to establish reachable-path contracts; no matching credit",
+  "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+  "source_sha256": {
+    "src/Kosaka/Field/k_fldFBN.c": "c1c4edd3692cb0b671bc04c1009e216121357914c2101f4ef5516f8d89eef9fa",
+    "src/Kosaka/Field/k_fldResource.c": "5537e14927bca5e6efac08c073871bbccfebd0853d65dfece5dfd08dc7b8ea27",
+    "src/promoted/k_fldEnvironment.c": "60beca6ce8e3629ebb9724e8201134c44239ab441c2732b7cc433fdd566072f6",
+    "src/Kernel/mc.c": "47a7cdffd4490eb2de2154470fec2fe28cecf7609ac88c908260289584d6bb67",
+    "src/Kernel/h_memcard_grouped.c": "76abe277fbd500b6b92f7de6ac243df088ea6f56528a93385f925e121b42e357",
+    "src/Kernel/sdkCdvd.c": "7d2342daf1ecb747635972636f896e7c5617eb58eebf86bbe02b5b289a0e27bd",
+    "src/Graphics/Model/mdlManager.c": "2e110bfb44268f928c6309df6078e7ffddb3e6810e1112e1118a7e9a15e5b5aa",
+    "include/model_matrix_internal.h": "7ffdfa7b87367cf21add9b7b19069e0e20110aa85b4574674150eaa5decca9f7"
+  },
+  "retail_strings": [
+    {
+      "address": "0063ed38",
+      "text": "camp/icon.bin"
+    },
+    {
+      "address": "00712880",
+      "text": "camp/icon.ico"
+    },
+    {
+      "address": "005f1090",
+      "text": "field/data/f%03d_%03d_%03d.FBN"
+    },
+    {
+      "address": "005f10b0",
+      "text": "field/pack/f%03d_%03d_%03d.FBN"
+    },
+    {
+      "address": "005efef0",
+      "text": "field/pack/f%03d_%03d.CMR"
+    }
+  ],
+  "instruction_witnesses": [
+    {
+      "address": "0015f224",
+      "bytes_le": "c400acc7",
+      "meaning": "First identified read of yaw at sp+0xc4"
+    },
+    {
+      "address": "0015f344",
+      "bytes_le": "c400a0e7",
+      "meaning": "First identified direct store of yaw at sp+0xc4"
+    },
+    {
+      "address": "00456048",
+      "bytes_le": "000022ae",
+      "meaning": "Successful archive lookup writes size output"
+    },
+    {
+      "address": "00456074",
+      "bytes_le": "2d100000",
+      "meaning": "Failed archive lookup return path"
+    }
+  ],
+  "required_resources": [
+    "camp/icon.bin (including camp/icon.ico member)",
+    "field/data/f%03d_%03d_%03d.FBN",
+    "field/pack/f%03d_%03d_%03d.FBN",
+    "field/pack/f%03d_%03d.CMR"
+  ],
+  "filename_search": {
+    "tool": "rg --files --hidden --no-ignore --iglob PATTERN (one --iglob per pattern)",
+    "case_insensitive": true,
+    "approved_roots": [
+      "persona4-decompilation",
+      "megami-tensei-decomp-codeberg-wo"
+    ],
+    "globs": [
+      "*.iso",
+      "*.cvm",
+      "*.fbn",
+      "*.FBN",
+      "*.cmr",
+      "*.CMR",
+      "*.env",
+      "*.ENV",
+      "icon.bin",
+      "icon.ico",
+      "*.chd",
+      "*.cso",
+      "*.mdf"
+    ],
+    "persona4_matches": [],
+    "other_root_matches": [
+      "_deferred_cleanup/2026-04-29_deeper_workspace_clutter/tools/tmp/Runtime_4_4_extract/PlayStation Programmer Tool - Runtime Library Version 4.4 (Japan) (Track 1).iso",
+      "_deferred_cleanup/2026-04-29_deeper_workspace_clutter/tools/tmp/DTL_S3040/DTL_S3040/DTLS_03040_mode1.iso",
+      "_deferred_cleanup/2026-04-29_deeper_workspace_clutter/tools/tmp/DTL_S3040/DTL_S3040/DTLS_03040.iso"
+    ],
+    "limitation": "Filename search does not inspect arbitrary compressed archives or unapproved external drives."
+  },
+  "sdk_disc_metadata": [
+    {
+      "path": "_deferred_cleanup/2026-04-29_deeper_workspace_clutter/tools/tmp/Runtime_4_4_extract/PlayStation Programmer Tool - Runtime Library Version 4.4 (Japan) (Track 1).iso",
+      "size": 276060160,
+      "sector_stride": 2048,
+      "data_prefix": 0,
+      "volume_id": "",
+      "volume_descriptor_sha256": "3cc1bcbef136c36545cd566fdca8c19b11e8572c22b232704ed03369cdc351ba",
+      "root_records": [
+        {
+          "name": "1ST_READ",
+          "directory": true,
+          "bytes": 2048
+        },
+        {
+          "name": "COFF",
+          "directory": true,
+          "bytes": 2048
+        },
+        {
+          "name": "DECI",
+          "directory": true,
+          "bytes": 2048
+        },
+        {
+          "name": "PA",
+          "directory": true,
+          "bytes": 2048
+        },
+        {
+          "name": "PSSN",
+          "directory": true,
+          "bytes": 2048
+        },
+        {
+          "name": "PSSN44.LZH;1",
+          "directory": false,
+          "bytes": 15578102
+        },
+        {
+          "name": "PSX",
+          "directory": true,
+          "bytes": 2048
+        },
+        {
+          "name": "PSX44.LZH;1",
+          "directory": false,
+          "bytes": 19461350
+        },
+        {
+          "name": "PSXART",
+          "directory": true,
+          "bytes": 2048
+        },
+        {
+          "name": "XDATA",
+          "directory": true,
+          "bytes": 2048
+        }
+      ],
+      "root_directory_sha256": "94f2cf5b7fac803700eb2b4ce8e5a97d5005f2c841b60b00febc1f742bdd9ffe"
+    },
+    {
+      "path": "_deferred_cleanup/2026-04-29_deeper_workspace_clutter/tools/tmp/DTL_S3040/DTL_S3040/DTLS_03040_mode1.iso",
+      "size": 10014720,
+      "sector_stride": 2048,
+      "data_prefix": 0,
+      "volume_id": "DTLS_03040",
+      "volume_descriptor_sha256": "fb9c47c1b0c4ca2af7ed6ee7a70c1637340fe0537b59a1c564afe2f02daa97e0",
+      "root_records": [
+        {
+          "name": "GNU",
+          "directory": true,
+          "bytes": 2048
+        },
+        {
+          "name": "PSX",
+          "directory": true,
+          "bytes": 2048
+        }
+      ],
+      "root_directory_sha256": "4063187d4741b52ee6ae0526ec8374360bdd5b77452e94fac88f1c7bcf60383f"
+    },
+    {
+      "path": "_deferred_cleanup/2026-04-29_deeper_workspace_clutter/tools/tmp/DTL_S3040/DTL_S3040/DTLS_03040.iso",
+      "size": 10014720,
+      "recognized_iso9660_volume": false
+    }
+  ],
+  "limitations": [
+    "No actual Persona 4 resource payload was validated.",
+    "Nonzero reachable FBN counts would leave the first yaw producer unresolved.",
+    "Supplying resources does not itself solve instruction/register-allocation residuals.",
+    "The third SDK-labelled image was not recognized by the bounded ISO9660 parser."
+  ]
+}
