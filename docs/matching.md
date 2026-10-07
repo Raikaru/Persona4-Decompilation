@@ -551,7 +551,6 @@ below are the codegen consequences.
     keep `weights`, because the frontend folds the two assignments.
 
   The numbers come from source like this:
-  source like this:
   - the parameter copies get `r32` up, then declared locals in declaration
     order, with block-scoped locals after function-scope ones. Frontend
     temporaries, such as the result of `x &= m` on a wider `x`, come next.
