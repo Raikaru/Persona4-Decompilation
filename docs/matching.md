@@ -536,10 +536,15 @@ below are the codegen consequences.
   - the score (`0x0055e5c0`) is 2 × block weight for each use plus 1 × block
     weight for each definition.
 
-  A Python model of this builder, using captured degrees and scores,
+  `tools/regalloc_whatif.py` models this builder from captured degrees and
+  scores. Point `MWCCPS2_DEBUGGER` at the debugger checkout first. The model
   reproduces the captured stacks of `001b11c0`, `001d53e0`, `0024be40`,
-  `0036f880` and `002239a0` exactly. It can answer "which renumbering gives
-  retail's registers" without compiling anything:
+  `0036f880`, `002239a0`, `00323d00`, `002e5ae0`, `004a7830` (FPR) and
+  `00148280` exactly. `--at`/`--search` answer "which renumbering gives
+  retail's registers" without compiling anything. In most floors checked so
+  far, the answer is a value that retail kept as a surviving local and b210
+  folds into a temporary (source notes on `00323d00`, `004a7830` and
+  `00148280` give the exact placements):
   - `001d53e0`: only exchanging the numbers of `frame` (now a load
     temporary, v57) and `i` (v35) reproduces retail's `$s3`/`$s5`. Retail's
     `frame` therefore numbered below `i`, which needs `frame` to be a surviving
