@@ -1475,503 +1475,429 @@ void func_00497c50(u8 *arg0)
 }
 
 
-/* measured: GUARDED_SCORE 564 via tools/measure_guarded.py
-   src/Graphics/Effect/effPolygonThunder.c func_00497ce0 (fnalign retail
-   604/object 621 instrs, true window 2416B/604, +17/+2.8% inside 3% gate;
-   probe 564 via tools/probe_variants.py --candidate v2=/var/tmp/cold497ce0/v2.c).
-   M2C 357 lines + romwright --types (6 vector args from VF live-ins, retail
-   GPR single u8* wins) + --raw 595 lines (cross/normalize + Q/dot bridges);
-   de-noised to file idiom (plain (f32)(u32) per micro_codegen 14, mfc1+qmtc2
-   for D_00713CE0 scales, D_00713D10 bridges, VU lqc2/vopmula/vrsqrt in genuine
-   COP2 asm, FPU MAC plain C). Count v1 621/604 (570w) -> v2 621/604 (564w,
-   +mfc1 for D_00713CE0 scales) -> v4 619-620/604 (576-569w, Q/qmfc2 direct,
-   worse). Float colouring v5/v6 tie 564 -- two fails, stopping rule above 60
-   met. Remaining: saved-reg perm, FPR colour, scheduling. */
+/* Static-bolt sibling of func_004956b0, rewritten from retail asm: 201 edits,
+   603 of 604 instructions. Floor per the GPR quad-copy decision: the two
+   row-loop vector copies (previousTangent = tangent, position = nextPosition)
+   go through $2, and every value live across them avoids $v0 - nextRow takes
+   $v1 and the stack addresses $a0-$t1. With an asm `lq $2`/`sq $2` copy the
+   residual drops to 114, leaving only saved-register colouring (index $s4,
+   rows $s1, instance $s2, vertices $s3) and the `-1` hoist order. The wave
+   update needs `opt_propagation off` so `rise` is computed where written. */
 // FUN_00497CE0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 void func_00497ce0(u8 *arg0)
 {
-    extern void func_0048a1f0(u8 *arg0);
+    extern void func_0048a1f0(f32 *arg0);
     extern void func_004bceb0(void);
-    extern u32 effMiscRand(u32 arg0);
-    extern f32 effMiscRandFloat(u32 arg0);
     extern f32 sinf(f32 arg0);
-    extern void func_004bd380(u8 *axis, f32 angle);
-    extern void RpGeometryLock(u8 *a, s32 b);
-    extern void func_003c22f0(u8 *a);
+    extern void func_004bd380(f32 angle, f32 *axis);
+    extern void RpGeometryLock(u8 *geometry, s32 lockMode);
+    extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff8084;
     extern f32 fGpffff80d0;
-    extern f32 fGpffff80d4;
     extern f32 fGpffff80d8;
-    extern u_long128 D_00713CE0;
-    extern u_long128 D_00713D00;
+    extern f32 iGpffff80d4;
+    extern EffectVuVector D_00713CE0;
+    extern EffectVuVector D_00713D00;
     extern f32 D_00713D10[];
     extern f32 D_00713D14[];
     extern f32 D_00713D18[];
-    u8 *ctrl;
+    EffectVuVector innerExtent;
+    EffectVuVector outerExtent;
+    EffectVuVector outerFlip;
+    EffectVuVector direction;
+    EffectVuVector side;
+    EffectVuVector tangent;
+    EffectVuVector previousTangent;
+    EffectVuVector position;
+    EffectVuVector nextPosition;
+    EffectVuVector up;
+    EffectVuVector step;
+    f32 spacing;
+    f32 phase;
+    f32 cycle;
+    f32 sample;
+    f32 wave;
+    f32 amplitude;
+    f32 period;
+    f32 twoPi;
+    f32 four;
+    f32 waveRange;
+    f32 two;
+    f32 current;
+    f32 one;
+    f32 half;
+    f32 swing;
+    f32 zero;
+    f32 previous;
+    u8 *config;
     u8 *list;
-    u32 cnt34;
-    s32 n;
-    s32 outerCount;
-    s32 divisor;
-    f32 f3C;
-    f32 f31q;
-    f32 f44;
-    f32 gp8084;
-    f32 gp80d0;
-    f32 gp80d4;
-    f32 gp80d8s;
-    f32 c20;
-    f32 c40;
-    f32 stkEC;
-    f32 stkE8;
-    f32 stkE0;
-    f32 stkE4;
-    f32 spillDC;
-    f32 sp100[4];
-    f32 sp110[4];
-    f32 sp120[4];
-    f32 sp130[4];
-    f32 sp140[4];
-    f32 sp150[4];
-    f32 sp160[4];
-    f32 sp170[4];
-    f32 sp180[4];
-    f32 sp190[4];
-    f32 spF0[4];
-    u32 qbits;
-    s32 i;
-    s32 j;
-    ctrl = *(u8 **)(arg0 + 0x34);
-    list = *(u8 **)(*(u8 **)(arg0 + 0x30));
-    cnt34 = *(u32 *)(ctrl + 0x34);
-    n = *(s32 *)(arg0 + 0x28);
-    if ((cnt34 < (u32)n) && (cnt34 != 0)) {
+    s32 index;
+    u8 *bolt;
+    s32 count;
+    s32 respawnRange;
+    u8 *instance;
+    s32 row;
+    s32 rows;
+    u8 *vertices;
+    u32 state;
+
+    list = *(u8 **)(arg0 + 0x30);
+    config = *(u8 **)(arg0 + 0x34);
+    bolt = *(u8 **)list;
+    if ((*(u32 *)(config + 0x34) < *(u32 *)(arg0 + 0x28)) && (*(u32 *)(config + 0x34) != 0)) {
         return;
     }
-    outerCount = *(s32 *)(ctrl + 0x38);
-    divisor = *(s32 *)(ctrl + 0x40);
-    func_0048a1f0((u8 *)sp100);
-    __asm__ volatile(
-        "lqc2 $vf10, 0(%0)\n"
-        "vmove.xyzw $vf12, $vf10\n"
-        : : "r"(&D_00713CE0) : "$vf10", "$vf12", "memory");
+    count = *(s32 *)(config + 0x38);
+    respawnRange = *(s32 *)(config + 0x40);
+    func_0048a1f0(up.lane);
+    effectVuLoad10(&D_00713CE0);
+    __asm__ volatile("vmove.xyzw $vf12, $vf10" : : : "$vf12");
     {
-        f32 s = *(f32 *)(ctrl + 0x7C);
-        __asm__ volatile(
-            "mfc1 $2, %0\n"
-            "nop\n"
-            "qmtc2.ni $2, $vf2\n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-            "sqc2 $vf10, 0(%1)\n"
-            : : "f"(s), "r"(sp190) : "$2", "$vf10", "$vf2", "memory");
+        f32 inner = *(f32 *)(config + 0x7C);
+
+        effectVuScale10(inner);
+        effectVuStore10(&innerExtent);
+        __asm__ volatile("vmove.xyzw $vf10, $vf12" : : : "$vf10");
+        effectVuScale10(inner + *(f32 *)(config + 0x80));
     }
-    __asm__ volatile("vmove.xyzw $vf10, $vf12\n" : : : "$vf10", "$vf12", "memory");
-    {
-        f32 s = *(f32 *)(ctrl + 0x7C) + *(f32 *)(ctrl + 0x80);
-        __asm__ volatile(
-            "mfc1 $2, %0\n"
-            "nop\n"
-            "qmtc2.ni $2, $vf2\n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-            "sqc2 $vf10, 0(%1)\n"
-            : : "f"(s), "r"(sp180) : "$2", "$vf10", "$vf2", "memory");
-    }
-    __asm__ volatile(
-        "vsub.xyz $vf10, $vf0, $vf10\n"
-        "sqc2 $vf10, 0(%0)\n"
-        : : "r"(sp170) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(arg0) : "$vf10", "memory");
+    effectVuStore10(&outerExtent);
+    __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10");
+    effectVuStore10(&outerFlip);
+    effectVuLoad10((EffectVuVector *)(arg0 + 0x10));
     func_004bceb0();
+    effectVuLoad10(&D_00713D00);
     __asm__ volatile(
-        "lqc2 $vf10, 0(%0)\n"
         "vmulax.xyzw $ACC, $vf28, $vf10x\n"
         "vmadday.xyzw $ACC, $vf29, $vf10y\n"
-        "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
-        : : "r"(&D_00713D00) : "$vf10", "memory");
+        "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10");
+    effectVuScale10(*(f32 *)(config + 0x84));
     {
-        u32 b = *(u32 *)(ctrl + 0x84);
+        f32 length;
+
+        /* Retail moves the vsqrt result through $2 (cfc2/mtc1 bridge). */
         __asm__ volatile(
-            "qmtc2.ni %0, $vf2\n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
             "vmove.xyzw $vf11, $vf0\n"
             "vmul.xyz $vf2, $vf10, $vf10\n"
             "vaddy.x $vf2, $vf2, $vf2y\n"
             "vaddz.x $vf2, $vf2, $vf2z\n"
             "vsqrt $Q, $vf2x\n"
             "vwaitq\n"
-            "cfc2 %0, $vi22\n"
-            : "+r"(b) : : "$vf2", "$vf10", "$vf11", "memory");
-        qbits = b;
-    }
-    {
-        f32 q = *(f32 *)&qbits;
-        __asm__ volatile(
+            "cfc2.ni $2, $vi22\n"
+            "mtc1 $2, %0\n"
             "vmul.xyz $vf2, $vf10, $vf10\n"
             "vmulax.w $ACC, $vf0, $vf2x\n"
             "vmadday.w $ACC, $vf0, $vf2y\n"
             "vmaddz.w $vf2, $vf0, $vf2z\n"
             "vrsqrt $Q, $vf0w, $vf2w\n"
             "vwaitq\n"
-            "vmulq.xyz $vf10, $vf10, $Q\n"
-            "sqc2 $vf10, 0(%0)\n"
-            : : "r"(sp160) : "$vf2", "$vf10", "memory");
-        f3C = (f32)*(u32 *)(ctrl + 0x3C);
-        f31q = (2.0f * q) / f3C;
+            "vmulq.xyz $vf10, $vf10, $Q\n" : "=f"(length) : : "$2", "$vf2", "$vf10", "$vf11");
+        effectVuStore10(&direction);
+        spacing = (f32)*(u32 *)(config + 0x3C);
+        two = 2.0f;
+        spacing = (two * length) / spacing;
     }
-    f44 = *(f32 *)(ctrl + 0x44);
-    gp8084 = fGpffff8084;
-    gp80d0 = fGpffff80d0;
-    gp80d4 = fGpffff80d4;
-    c20 = 2.0f;
-    c40 = 4.0f;
-    stkE0 = 0.0f;
-    stkEC = 1.0f;
-    stkE8 = 0.5f;
-    stkE4 = fGpffff80d8;
-    i = 0;
-    {
-        f32 f27loc = f44;
-        f32 f30loc;
-        f32 f29loc;
-        f32 f28loc;
-        f32 f20loc;
-        s32 neg1 = -1;
-        (void)neg1;
-        while (i < outerCount) {
-            if (*(s32 *)(list + 4) == -1) {
-                *(s32 *)(list + 8) = -1;
-            } else {
-                s32 timer = *(s32 *)(list + 8);
-                if ((u32)(timer & 0xFF000000) >= 0x40000001U) {
-                    u8 *e0;
-                    s32 segs;
-                    u8 *vtx;
-                    *(s32 *)(list + 8) = timer + 0xC0000000;
-                    e0 = *(u8 **)list;
-                    segs = (*(s16 *)(e0 + 8) / 5) >> 1;
-                    RpGeometryLock(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18), 2);
-                    vtx = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18) + 0x5C) + 0x14);
-                    __asm__ volatile(
-                        "lqc2 $vf10, 0(%0)\n"
-                        "lqc2 $vf11, 0(%1)\n"
-                        "vopmula.xyz $ACC, $vf10, $vf11\n"
-                        "vopmsub.xyz $vf10, $vf11, $vf10\n"
-                        "vmul.xyz $vf2, $vf10, $vf10\n"
-                        "vmulax.w $ACC, $vf0, $vf2x\n"
-                        "vmadday.w $ACC, $vf0, $vf2y\n"
-                        "vmaddz.w $vf2, $vf0, $vf2z\n"
-                        "vrsqrt $Q, $vf0w, $vf2w\n"
-                        "vwaitq\n"
-                        "vmulq.xyz $vf10, $vf10, $Q\n"
-                        "sqc2 $vf10, 0(%2)\n"
-                        : : "r"(sp100), "r"(sp160), "r"(sp150) : "$vf10", "$vf11", "$vf2", "memory");
-                    f30loc = gp80d0 * effMiscRandFloat(0);
-                    f29loc = f30loc - gp80d0;
-                    f28loc = f27loc * sinf(f30loc);
-                    {
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)\n"
-                            "qmtc2.ni %1, $vf2\n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                            "sqc2 $vf10, 0(%2)\n"
-                            : : "r"(sp150), "r"(*(u32 *)&f28loc), "r"(sp120) : "$vf10", "$vf2", "memory");
-                    }
-                    f20loc = f27loc * sinf(f30loc);
-                    {
-                        f32 d = f20loc - f28loc;
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)\n"
-                            "qmtc2.ni %1, $vf2\n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                            "vmove.xyzw $vf12, $vf10\n"
-                            : : "r"(sp160), "r"(*(u32 *)&f31q), "r"(sp150) : "$vf10", "$vf12", "$vf2", "memory");
-                        __asm__ volatile(
-                            "lqc2 $vf10, 0(%0)\n"
-                            "qmtc2.ni %1, $vf2\n"
-                            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                            "vadd.xyzw $vf10, $vf10, $vf12\n"
-                            "vmove.xyzw $vf12, $vf10\n"
-                            : : "r"(sp150), "r"(*(u32 *)&d), "r"(sp150) : "$vf10", "$vf12", "$vf2", "memory");
-                        __asm__ volatile(
-                            "lqc2 $vf11, 0(%0)\n"
-                            "vadd.xyzw $vf11, $vf11, $vf10\n"
-                            "sqc2 $vf11, 0(%1)\n"
-                            "vmove.xyzw $vf10, $vf12\n"
-                            "vmul.xyz $vf2, $vf10, $vf10\n"
-                            "vmulax.w $ACC, $vf0, $vf2x\n"
-                            "vmadday.w $ACC, $vf0, $vf2y\n"
-                            "vmaddz.w $vf2, $vf0, $vf2z\n"
-                            "vrsqrt $Q, $vf0w, $vf2w\n"
-                            "vwaitq\n"
-                            "vmulq.xyz $vf10, $vf10, $Q\n"
-                            "sqc2 $vf10, 0(%2)\n"
-                            : : "r"(sp120), "r"(sp110), "r"(sp140) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
-                    }
-                    {
-                        f32 step = c40 * (gp8084 / (f32)segs);
-                        f28loc = step;
-                        for (j = 0; j < segs; j++) {
-                            u8 *base = vtx + j * 0x78;
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "lqc2 $vf11, 0(%1)\n"
-                                "vopmula.xyz $ACC, $vf10, $vf11\n"
-                                "vopmsub.xyz $vf10, $vf11, $vf10\n"
-                                "vmul.xyz $vf2, $vf10, $vf10\n"
-                                "vmulax.w $ACC, $vf0, $vf2x\n"
-                                "vmadday.w $ACC, $vf0, $vf2y\n"
-                                "vmaddz.w $vf2, $vf0, $vf2z\n"
-                                "vrsqrt $Q, $vf0w, $vf2w\n"
-                                "vwaitq\n"
-                                "vmulq.xyz $vf10, $vf10, $Q\n"
-                                "sqc2 $vf10, 0(%0)\n"
-                                : : "r"(sp140), "r"(sp100) : "$vf10", "$vf11", "$vf2", "memory");
-                            D_00713D10[0] = sp120[0];
-                            D_00713D14[0] = sp120[1];
-                            D_00713D18[0] = sp120[2];
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "sqc2 $vf10, 0(%1)\n"
-                                : : "r"(sp120), "r"(&D_00713D10) : "$vf10", "memory");
-                            *(f32 *)(base + 0x18) = D_00713D10[0];
-                            *(f32 *)(base + 0x1C) = D_00713D14[0];
-                            *(f32 *)(base + 0x20) = D_00713D18[0];
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "lqc2 $vf11, 0(%1)\n"
-                                "vmul.xyzw $vf10, $vf10, $vf11\n"
-                                "vmove.xyzw $vf12, $vf10\n"
-                                "lqc2 $vf10, 0(%2)\n"
-                                "vmove.xyzw $vf11, $vf10\n"
-                                "vadd.xyzw $vf10, $vf10, $vf12\n"
-                                "sqc2 $vf10, 0(%3)\n"
-                                : : "r"(sp140), "r"(sp190), "r"(sp120), "r"(&D_00713D10) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
-                            *(f32 *)(base + 0x0C) = D_00713D10[0];
-                            *(f32 *)(base + 0x10) = D_00713D14[0];
-                            *(f32 *)(base + 0x14) = D_00713D18[0];
-                            __asm__ volatile(
-                                "vmove.xyzw $vf10, $vf12\n"
-                                "vsub.xyzw $vf11, $vf11, $vf10\n"
-                                "sqc2 $vf11, 0(%0)\n"
-                                : : "r"(&D_00713D10) : "$vf10", "$vf11", "$vf12", "memory");
-                            *(f32 *)(base + 0x24) = D_00713D10[0];
-                            *(f32 *)(base + 0x28) = D_00713D14[0];
-                            *(f32 *)(base + 0x2C) = D_00713D18[0];
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "lqc2 $vf11, 0(%1)\n"
-                                "vmul.xyzw $vf10, $vf10, $vf11\n"
-                                "vmove.xyzw $vf12, $vf10\n"
-                                "lqc2 $vf10, 0(%2)\n"
-                                "vmove.xyzw $vf11, $vf10\n"
-                                "vadd.xyzw $vf10, $vf10, $vf12\n"
-                                "sqc2 $vf10, 0(%3)\n"
-                                : : "r"(sp140), "r"(sp180), "r"(sp120), "r"(&D_00713D10) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
-                            *(f32 *)(base + 0x00) = D_00713D10[0];
-                            *(f32 *)(base + 0x04) = D_00713D14[0];
-                            *(f32 *)(base + 0x08) = D_00713D18[0];
-                            __asm__ volatile(
-                                "vmove.xyzw $vf10, $vf12\n"
-                                "vsub.xyzw $vf11, $vf11, $vf10\n"
-                                "sqc2 $vf11, 0(%0)\n"
-                                : : "r"(&D_00713D10) : "$vf10", "$vf11", "$vf12", "memory");
-                            *(f32 *)(base + 0x30) = D_00713D10[0];
-                            *(f32 *)(base + 0x34) = D_00713D14[0];
-                            *(f32 *)(base + 0x38) = D_00713D18[0];
-                            {
-                                u32 a = *(u32 *)(sp140);
-                                u32 b2 = *(u32 *)(sp110);
-                                (void)a; (void)b2;
-                            }
-                            __asm__ volatile(
-                                "lq $2, 0(%0)\n"
-                                "sq $2, 0(%1)\n"
-                                : : "r"(sp140), "r"(sp130) : "$2", "memory");
-                            __asm__ volatile(
-                                "lq $2, 0(%0)\n"
-                                "sq $2, 0(%1)\n"
-                                : : "r"(sp110), "r"(sp120) : "$2", "memory");
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "sqc2 $vf10, 0(%1)\n"
-                                : : "r"(sp120), "r"(&D_00713D10) : "$vf10", "memory");
-                            *(f32 *)(base + 0x54) = D_00713D10[0];
-                            *(f32 *)(base + 0x58) = D_00713D14[0];
-                            *(f32 *)(base + 0x5C) = D_00713D18[0];
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "lqc2 $vf11, 0(%1)\n"
-                                "vmul.xyzw $vf10, $vf10, $vf11\n"
-                                "vmove.xyzw $vf12, $vf10\n"
-                                "lqc2 $vf10, 0(%2)\n"
-                                "vmove.xyzw $vf11, $vf10\n"
-                                "vadd.xyzw $vf10, $vf10, $vf12\n"
-                                "sqc2 $vf10, 0(%3)\n"
-                                : : "r"(sp140), "r"(sp100), "r"(sp120), "r"(&D_00713D10) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
-                            *(f32 *)(base + 0x48) = D_00713D10[0];
-                            *(f32 *)(base + 0x4C) = D_00713D14[0];
-                            *(f32 *)(base + 0x50) = D_00713D18[0];
-                            __asm__ volatile(
-                                "vmove.xyzw $vf10, $vf12\n"
-                                "vsub.xyzw $vf11, $vf11, $vf10\n"
-                                "sqc2 $vf11, 0(%0)\n"
-                                : : "r"(&D_00713D10) : "$vf10", "$vf11", "$vf12", "memory");
-                            *(f32 *)(base + 0x60) = D_00713D10[0];
-                            *(f32 *)(base + 0x64) = D_00713D14[0];
-                            *(f32 *)(base + 0x68) = D_00713D18[0];
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "lqc2 $vf11, 0(%1)\n"
-                                "vmul.xyzw $vf10, $vf10, $vf11\n"
-                                "vmove.xyzw $vf12, $vf10\n"
-                                "lqc2 $vf10, 0(%2)\n"
-                                "vmove.xyzw $vf11, $vf10\n"
-                                "vadd.xyzw $vf10, $vf10, $vf12\n"
-                                "sqc2 $vf10, 0(%3)\n"
-                                : : "r"(sp140), "r"(sp100), "r"(sp120), "r"(&D_00713D10) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
-                            *(f32 *)(base + 0x3C) = D_00713D10[0];
-                            *(f32 *)(base + 0x40) = D_00713D14[0];
-                            *(f32 *)(base + 0x44) = D_00713D18[0];
-                            __asm__ volatile(
-                                "vmove.xyzw $vf10, $vf12\n"
-                                "vsub.xyzw $vf11, $vf11, $vf10\n"
-                                "sqc2 $vf11, 0(%0)\n"
-                                : : "r"(&D_00713D10) : "$vf10", "$vf11", "$vf12", "memory");
-                            *(f32 *)(base + 0x6C) = D_00713D10[0];
-                            *(f32 *)(base + 0x70) = D_00713D14[0];
-                            *(f32 *)(base + 0x74) = D_00713D18[0];
-                            f30loc = f30loc + f28loc;
-                            f29loc = f29loc + f28loc;
-                            if (!(f29loc <= gp8084)) {
-                                f32 r;
-                                f29loc = f29loc - gp8084;
-                                r = effMiscRandFloat(0);
-                                f27loc = f44 * (stkEC - gp80d4 * r);
-                                (void)stkE0; (void)stkE4; (void)stkE8;
-                            }
-                            spillDC = f20loc;
-                            f20loc = f27loc * sinf(f30loc);
-                            {
-                                f32 d2 = f20loc - f28loc;
-                                __asm__ volatile(
-                                    "lqc2 $vf10, 0(%0)\n"
-                                    "qmtc2.ni %1, $vf2\n"
-                                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                                    "vmove.xyzw $vf12, $vf10\n"
-                                    : : "r"(sp160), "r"(*(u32 *)&f31q) : "$vf10", "$vf12", "$vf2", "memory");
-                                __asm__ volatile(
-                                    "lqc2 $vf10, 0(%0)\n"
-                                    "qmtc2.ni %1, $vf2\n"
-                                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                                    "vadd.xyzw $vf10, $vf10, $vf12\n"
-                                    "sqc2 $vf10, 0(%2)\n"
-                                    : : "r"(sp150), "r"(*(u32 *)&d2), "r"(spF0) : "$vf10", "$vf12", "$vf2", "memory");
-                            }
-                            {
-                                f32 r2 = effMiscRandFloat(0);
-                                f32 ang = stkE4 * (c20 * (r2 - stkE8));
-                                func_004bd380((u8 *)sp100, ang);
-                            }
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
-                                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
-                                "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
-                                "vmove.xyzw $vf12, $vf10\n"
-                                : : "r"(spF0) : "$vf10", "$vf12", "memory");
-                            __asm__ volatile(
-                                "lqc2 $vf11, 0(%0)\n"
-                                "vadd.xyzw $vf11, $vf11, $vf10\n"
-                                "sqc2 $vf11, 0(%1)\n"
-                                "vmove.xyzw $vf10, $vf12\n"
-                                "vmul.xyz $vf2, $vf10, $vf10\n"
-                                "vmulax.w $ACC, $vf0, $vf2x\n"
-                                "vmadday.w $ACC, $vf0, $vf2y\n"
-                                "vmaddz.w $vf2, $vf0, $vf2z\n"
-                                "vrsqrt $Q, $vf0w, $vf2w\n"
-                                "vwaitq\n"
-                                "vmulq.xyz $vf10, $vf10, $Q\n"
-                                "sqc2 $vf10, 0(%2)\n"
-                                : : "r"(sp120), "r"(sp110), "r"(sp140) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "lqc2 $vf11, 0(%1)\n"
-                                "vsub.xyzw $vf10, $vf10, $vf11\n"
-                                "vmul.xyz $vf2, $vf10, $vf10\n"
-                                "vmulax.w $ACC, $vf0, $vf2x\n"
-                                "vmadday.w $ACC, $vf0, $vf2y\n"
-                                "vmaddz.w $vf2, $vf0, $vf2z\n"
-                                "vrsqrt $Q, $vf0w, $vf2w\n"
-                                "vwaitq\n"
-                                "vmulq.xyz $vf10, $vf10, $Q\n"
-                                "lqc2 $vf11, 0(%2)\n"
-                                "vmul.xyz $vf2, $vf10, $vf11\n"
-                                "vaddy.x $vf2, $vf2, $vf2y\n"
-                                "vaddz.x $vf2, $vf2, $vf2z\n"
-                                "qmfc2.ni $2, $vf2\n"
-                                : : "r"(sp110), "r"(sp120), "r"(sp130) : "$vf2", "$vf10", "$vf11", "$2", "memory");
-                            {
-                                u32 dbits;
-                                __asm__ volatile("qmfc2.ni %0, $vf2" : "=r"(dbits) : : "memory");
-                                {
-                                    f32 dot = *(f32 *)&dbits;
-                                    u8 *sel;
-                                    if (!(dot < stkE0)) {
-                                        sel = vtx + j * 0x78 + 0x3C - 0x3C;
-                                        __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(sp170) : "$vf12", "memory");
-                                    } else {
-                                        sel = vtx + j * 0x78 + 0x3C - 0x0C;
-                                        __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(sp180) : "$vf12", "memory");
-                                    }
-                                    __asm__ volatile(
-                                        "lqc2 $vf10, 0(%0)\n"
-                                        "lqc2 $vf11, 0(%1)\n"
-                                        "vopmula.xyz $ACC, $vf10, $vf11\n"
-                                        "vopmsub.xyz $vf10, $vf11, $vf10\n"
-                                        "vmul.xyz $vf2, $vf10, $vf10\n"
-                                        "vmulax.w $ACC, $vf0, $vf2x\n"
-                                        "vmadday.w $ACC, $vf0, $vf2y\n"
-                                        "vmaddz.w $vf2, $vf0, $vf2z\n"
-                                        "vrsqrt $Q, $vf0w, $vf2w\n"
-                                        "vwaitq\n"
-                                        "vmulq.xyz $vf10, $vf10, $Q\n"
-                                        "vmove.xyzw $vf11, $vf12\n"
-                                        "vmul.xyzw $vf10, $vf10, $vf11\n"
-                                        : : "r"(sp140), "r"(sp100) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
-                                    D_00713D10[0] = *(f32 *)(sel + 0);
-                                    D_00713D14[0] = *(f32 *)(sel + 4);
-                                    D_00713D18[0] = *(f32 *)(sel + 8);
-                                    __asm__ volatile(
-                                        "lqc2 $vf11, 0(%0)\n"
-                                        "vadd.xyzw $vf10, $vf10, $vf11\n"
-                                        "sqc2 $vf10, 0(%1)\n"
-                                        : : "r"(&D_00713D10), "r"(sp120) : "$vf10", "$vf11", "memory");
-                                }
-                            }
-                        }
-                    }
-                    func_003c22f0(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18));
-                    if ((*(u16 *)e0 & 4) != 0) {
-                        *(u16 *)(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18) + 0xC) |= 1;
-                    }
-                    *(s32 *)(list + 4) += 1;
-                } else {
-                    *(s32 *)(list + 4) = -1;
-                    if (divisor > 0) {
-                        u32 rnd = effMiscRand(0);
-                        *(s32 *)(list + 4) -= (s32)(rnd % (u32)divisor);
-                    }
-                    goto outer_next;
-                }
-            }
-            *(s32 *)(list + 4) += 1;
-outer_next:
-            i++;
-            list += 0xC;
+    amplitude = *(f32 *)(config + 0x44);
+    wave = amplitude;
+    index = 0;
+    period = fGpffff80d0;
+    zero = 0.0f;
+    twoPi = fGpffff8084;
+    four = 4.0f;
+    waveRange = iGpffff80d4;
+    one = 1.0f;
+    half = 0.5f;
+    swing = fGpffff80d8;
+    for (; index < count; index++, bolt += 0xC) {
+        if (*(s32 *)(bolt + 4) == -1) {
+            *(u32 *)(bolt + 8) = 0xFFFFFFFF;
+            goto advance;
         }
+        state = *(u32 *)(bolt + 8);
+        if ((state & 0xFF000000) > 0x40000000U) {
+            *(u32 *)(bolt + 8) = state + 0xC0000000;
+        } else {
+            *(s32 *)(bolt + 4) = -1;
+            if (respawnRange > 0) {
+                *(s32 *)(bolt + 4) = *(s32 *)(bolt + 4) - effMiscRand(0) % respawnRange;
+            }
+            continue;
+        }
+        instance = *(u8 **)bolt;
+        rows = (*(s16 *)(instance + 8) / 5) >> 1;
+        RpGeometryLock(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18), 2);
+        vertices = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18) + 0x5C) + 0x14);
+        effectVuLoad10(&up);
+        effectVuLoad11(&direction);
+        __asm__ volatile(
+            "vopmula.xyz $ACC, $vf10, $vf11\n"
+            "vopmsub.xyz $vf10, $vf11, $vf10\n"
+            "vmul.xyz $vf2, $vf10, $vf10\n"
+            "vmulax.w $ACC, $vf0, $vf2x\n"
+            "vmadday.w $ACC, $vf0, $vf2y\n"
+            "vmaddz.w $vf2, $vf0, $vf2z\n"
+            "vrsqrt $Q, $vf0w, $vf2w\n"
+            "vwaitq\n"
+            "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10");
+        effectVuStore10(&side);
+        phase = period * effMiscRandFloat(0);
+        cycle = phase - period;
+        sample = wave * sinf(phase);
+        effectVuLoad10(&side);
+        effectVuScale10(sample);
+        effectVuStore10(&position);
+        current = wave * sinf(phase);
+        {
+            f32 rise = current - sample;
+
+            effectVuLoad10(&direction);
+            effectVuScale10(spacing);
+            __asm__ volatile("vmove.xyzw $vf12, $vf10" : : : "$vf12");
+            effectVuLoad10(&side);
+            effectVuScale10(rise);
+        }
+        __asm__ volatile(
+            "vadd.xyzw $vf10, $vf10, $vf12\n"
+            "vmove.xyzw $vf12, $vf10\n" : : : "$vf10", "$vf12");
+        effectVuLoad11(&position);
+        __asm__ volatile("vadd.xyzw $vf11, $vf11, $vf10" : : : "$vf11");
+        effectVuStore11(&nextPosition);
+        __asm__ volatile(
+            "vmove.xyzw $vf10, $vf12\n"
+            "vmul.xyz $vf2, $vf10, $vf10\n"
+            "vmulax.w $ACC, $vf0, $vf2x\n"
+            "vmadday.w $ACC, $vf0, $vf2y\n"
+            "vmaddz.w $vf2, $vf0, $vf2z\n"
+            "vrsqrt $Q, $vf0w, $vf2w\n"
+            "vwaitq\n"
+            "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10");
+        effectVuStore10(&tangent);
+        sample = four * (twoPi / (f32)rows);
+        for (row = 0; row < rows; row++) {
+            u8 *nextRow;
+
+            effectVuLoad10(&tangent);
+            effectVuLoad11(&up);
+            __asm__ volatile(
+                "vopmula.xyz $ACC, $vf10, $vf11\n"
+                "vopmsub.xyz $vf10, $vf11, $vf10\n"
+                "vmul.xyz $vf2, $vf10, $vf10\n"
+                "vmulax.w $ACC, $vf0, $vf2x\n"
+                "vmadday.w $ACC, $vf0, $vf2y\n"
+                "vmaddz.w $vf2, $vf0, $vf2z\n"
+                "vrsqrt $Q, $vf0w, $vf2w\n"
+                "vwaitq\n"
+                "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10");
+            effectVuStore10(&tangent);
+            __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
+            effectVuLoad10(&position);
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x18) = D_00713D10[0];
+            *(f32 *)(vertices + 0x1C) = D_00713D14[0];
+            *(f32 *)(vertices + 0x20) = D_00713D18[0];
+            __asm__ volatile("vmove.xyzw $vf10, $vf11" : : : "$vf10");
+            effectVuLoad11(&innerExtent);
+            __asm__ volatile(
+                "vmul.xyzw $vf10, $vf10, $vf11\n"
+                "vmove.xyzw $vf12, $vf10\n" : : : "$vf10", "$vf12");
+            effectVuLoad10(&position);
+            __asm__ volatile(
+                "vmove.xyzw $vf11, $vf10\n"
+                "vadd.xyzw $vf10, $vf10, $vf12\n" : : : "$vf10", "$vf11");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0xC) = D_00713D10[0];
+            *(f32 *)(vertices + 0x10) = D_00713D14[0];
+            *(f32 *)(vertices + 0x14) = D_00713D18[0];
+            __asm__ volatile(
+                "vmove.xyzw $vf10, $vf12\n"
+                "vsub.xyzw $vf11, $vf11, $vf10\n" : : : "$vf10", "$vf11");
+            __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x24) = D_00713D10[0];
+            *(f32 *)(vertices + 0x28) = D_00713D14[0];
+            *(f32 *)(vertices + 0x2C) = D_00713D18[0];
+            effectVuLoad10(&tangent);
+            effectVuLoad11(&outerExtent);
+            __asm__ volatile(
+                "vmul.xyzw $vf10, $vf10, $vf11\n"
+                "vmove.xyzw $vf12, $vf10\n" : : : "$vf10", "$vf12");
+            effectVuLoad10(&position);
+            __asm__ volatile(
+                "vmove.xyzw $vf11, $vf10\n"
+                "vadd.xyzw $vf10, $vf10, $vf12\n" : : : "$vf10", "$vf11");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x0) = D_00713D10[0];
+            *(f32 *)(vertices + 0x4) = D_00713D14[0];
+            *(f32 *)(vertices + 0x8) = D_00713D18[0];
+            __asm__ volatile(
+                "vmove.xyzw $vf10, $vf12\n"
+                "vsub.xyzw $vf11, $vf11, $vf10\n" : : : "$vf10", "$vf11");
+            __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x30) = D_00713D10[0];
+            *(f32 *)(vertices + 0x34) = D_00713D14[0];
+            *(f32 *)(vertices + 0x38) = D_00713D18[0];
+            nextRow = vertices + 0x3C;
+            {
+                u_long128 *dst = (u_long128 *)&previousTangent;
+                u_long128 *src = (u_long128 *)&tangent;
+
+                *dst = *src;
+            }
+            {
+                u_long128 *dst = (u_long128 *)&position;
+                u_long128 *src = (u_long128 *)&nextPosition;
+
+                *dst = *src;
+            }
+            effectVuLoad10(&position);
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x54) = D_00713D10[0];
+            *(f32 *)(vertices + 0x58) = D_00713D14[0];
+            *(f32 *)(vertices + 0x5C) = D_00713D18[0];
+            effectVuLoad10(&tangent);
+            effectVuLoad11(&innerExtent);
+            __asm__ volatile(
+                "vmul.xyzw $vf10, $vf10, $vf11\n"
+                "vmove.xyzw $vf12, $vf10\n" : : : "$vf10", "$vf12");
+            effectVuLoad10(&position);
+            __asm__ volatile(
+                "vmove.xyzw $vf11, $vf10\n"
+                "vadd.xyzw $vf10, $vf10, $vf12\n" : : : "$vf10", "$vf11");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x48) = D_00713D10[0];
+            *(f32 *)(vertices + 0x4C) = D_00713D14[0];
+            *(f32 *)(vertices + 0x50) = D_00713D18[0];
+            __asm__ volatile(
+                "vmove.xyzw $vf10, $vf12\n"
+                "vsub.xyzw $vf11, $vf11, $vf10\n" : : : "$vf10", "$vf11");
+            __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x60) = D_00713D10[0];
+            *(f32 *)(vertices + 0x64) = D_00713D14[0];
+            *(f32 *)(vertices + 0x68) = D_00713D18[0];
+            effectVuLoad10(&tangent);
+            effectVuLoad11(&outerExtent);
+            __asm__ volatile(
+                "vmul.xyzw $vf10, $vf10, $vf11\n"
+                "vmove.xyzw $vf12, $vf10\n" : : : "$vf10", "$vf12");
+            effectVuLoad10(&position);
+            __asm__ volatile(
+                "vmove.xyzw $vf11, $vf10\n"
+                "vadd.xyzw $vf10, $vf10, $vf12\n" : : : "$vf10", "$vf11");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x3C) = D_00713D10[0];
+            *(f32 *)(vertices + 0x40) = D_00713D14[0];
+            *(f32 *)(vertices + 0x44) = D_00713D18[0];
+            __asm__ volatile(
+                "vmove.xyzw $vf10, $vf12\n"
+                "vsub.xyzw $vf11, $vf11, $vf10\n" : : : "$vf10", "$vf11");
+            __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x6C) = D_00713D10[0];
+            *(f32 *)(vertices + 0x70) = D_00713D14[0];
+            *(f32 *)(vertices + 0x74) = D_00713D18[0];
+            vertices = nextRow + 0x3C;
+            phase += sample;
+            cycle += sample;
+            if (!(cycle <= twoPi)) {
+                cycle -= twoPi;
+                wave = amplitude * (one - waveRange * effMiscRandFloat(0));
+            }
+            previous = current;
+            current = wave * sinf(phase);
+            {
+                f32 rise = current - previous;
+
+                effectVuLoad10(&direction);
+                effectVuScale10(spacing);
+                __asm__ volatile("vmove.xyzw $vf12, $vf10" : : : "$vf12");
+                effectVuLoad10(&side);
+                effectVuScale10(rise);
+            }
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf12" : : : "$vf10");
+            effectVuStore10(&step);
+            func_004bd380(swing * (two * (effMiscRandFloat(0) - half)), up.lane);
+            effectVuLoad10(&step);
+            __asm__ volatile(
+                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
+                "vmove.xyzw $vf12, $vf10\n" : : : "$vf10", "$vf12");
+            effectVuLoad11(&position);
+            __asm__ volatile("vadd.xyzw $vf11, $vf11, $vf10" : : : "$vf11");
+            effectVuStore11(&nextPosition);
+            __asm__ volatile(
+                "vmove.xyzw $vf10, $vf12\n"
+                "vmul.xyz $vf2, $vf10, $vf10\n"
+                "vmulax.w $ACC, $vf0, $vf2x\n"
+                "vmadday.w $ACC, $vf0, $vf2y\n"
+                "vmaddz.w $vf2, $vf0, $vf2z\n"
+                "vrsqrt $Q, $vf0w, $vf2w\n"
+                "vwaitq\n"
+                "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10");
+            effectVuStore10(&tangent);
+            {
+                f32 dot;
+                u8 *anchor;
+
+                effectVuLoad10(&nextPosition);
+                effectVuLoad11(&position);
+                __asm__ volatile(
+                    "vsub.xyzw $vf10, $vf10, $vf11\n"
+                    "vmul.xyz $vf2, $vf10, $vf10\n"
+                    "vmulax.w $ACC, $vf0, $vf2x\n"
+                    "vmadday.w $ACC, $vf0, $vf2y\n"
+                    "vmaddz.w $vf2, $vf0, $vf2z\n"
+                    "vrsqrt $Q, $vf0w, $vf2w\n"
+                    "vwaitq\n"
+                    "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10");
+                effectVuLoad11(&previousTangent);
+                /* Retail moves the dot product through $2 (qmfc2/mtc1 bridge). */
+                __asm__ volatile(
+                    "vmul.xyz $vf2, $vf10, $vf11\n"
+                    "vaddy.x $vf2, $vf2, $vf2y\n"
+                    "vaddz.x $vf2, $vf2, $vf2z\n"
+                    "qmfc2.ni $2, $vf2\n"
+                    "mtc1 $2, %0\n" : "=f"(dot) : : "$2", "$vf2");
+                if (dot < zero) {
+                    anchor = vertices - 0xC;
+                    __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&outerExtent), "m"(outerExtent) : "$vf12");
+                } else {
+                    anchor = vertices - 0x3C;
+                    __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&outerFlip), "m"(outerFlip) : "$vf12");
+                }
+                effectVuLoad10(&tangent);
+                effectVuLoad11(&up);
+                __asm__ volatile(
+                    "vopmula.xyz $ACC, $vf10, $vf11\n"
+                    "vopmsub.xyz $vf10, $vf11, $vf10\n"
+                    "vmul.xyz $vf2, $vf10, $vf10\n"
+                    "vmulax.w $ACC, $vf0, $vf2x\n"
+                    "vmadday.w $ACC, $vf0, $vf2y\n"
+                    "vmaddz.w $vf2, $vf0, $vf2z\n"
+                    "vrsqrt $Q, $vf0w, $vf2w\n"
+                    "vwaitq\n"
+                    "vmulq.xyz $vf10, $vf10, $Q\n"
+                    "vmove.xyzw $vf11, $vf12\n"
+                    "vmul.xyzw $vf10, $vf10, $vf11\n" : : : "$vf2", "$vf10", "$vf11");
+                D_00713D10[0] = *(f32 *)(anchor + 0x0);
+                D_00713D14[0] = *(f32 *)(anchor + 0x4);
+                D_00713D18[0] = *(f32 *)(anchor + 0x8);
+                effectVuLoad11((EffectVuVector *)D_00713D10);
+                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                effectVuStore10(&position);
+            }
+        }
+        vertices = *(u8 **)(*(u8 **)(instance + 0x10) + 0x18);
+        func_003c22f0(vertices);
+        if ((*(u16 *)instance & 4) != 0) {
+            *(u16 *)(vertices + 0xC) |= 1;
+        }
+advance:
+        *(s32 *)(bolt + 4) = *(s32 *)(bolt + 4) + 1;
     }
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_00497ce0);
 #endif
