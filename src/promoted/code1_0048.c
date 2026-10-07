@@ -4797,17 +4797,19 @@ loop_0048f560_check:
     *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
 }
-/* Guarded native proof, 2026-09-29: 3408/3440 bytes;
- * 658 differing relocation-masked words. The 76-byte work record separates
- * control points, offsets, and scalar state; its length union preserves
- * hardware-Q bits without numeric conversion. Ordinary C cubic polynomials
- * generate native COP1 MACs. Genuine literal/global lifetimes recover the
- * retail 0x1e0 frame; input/control lanes are not given guessed initial values.
- * Instruction differences remain; production retains ASM. */
-// FUN_0048F5F0 NONMATCHING
-#ifdef NON_MATCHING
+/* Bezier emitter update. The 76-byte work record separates control points,
+ * offsets and scalar state; its length union keeps the hardware-Q bits.
+ * Matched by applying the func_0048ec50 family shape: stack objects
+ * declared in retail address order, the preroll-elapsed float first among
+ * the FPR locals, one `angle` local for the orbit angle, the six blends and
+ * the progress fraction, (s32)/(f32) preroll in prerollScale/scale locals,
+ * blend vectors loaded before the qmtc2 bridge, each speed-integral's linear
+ * term formed before the half-weighted square, and the else-branch elapsed
+ * declared before the clamped distance. */
 #pragma push
+#pragma opt_propagation off
 #pragma opt_loop_invariants on
+// FUN_0048F5F0
 void func_0048f5f0(u8 *arg0)
 {
     typedef struct BezierParticleWork {
@@ -4834,23 +4836,24 @@ void func_0048f5f0(u8 *arg0)
     extern f32 fGpffff8084;
     extern f32 fGpffff8090;
     extern u8 D_00713D00[];
+    f32 bez[4] __attribute__((aligned(16)));
+    u8 tmp1C0[16] __attribute__((aligned(16)));
     u_long128 b220buf;
     f32 stack1A0[4] __attribute__((aligned(16)));
     f32 vecA[4] __attribute__((aligned(16)));
-    f32 vecB[4] __attribute__((aligned(16)));
-    f32 bez[4] __attribute__((aligned(16)));
-    u8 tmp1C0[16] __attribute__((aligned(16)));
-    u8 tmp170[16] __attribute__((aligned(16)));
     u8 tmp180[16] __attribute__((aligned(16)));
+    f32 tmp170[4] __attribute__((aligned(16)));
     f32 vecB2[4] __attribute__((aligned(16)));
-    f32 quad110[4] __attribute__((aligned(16)));
-    f32 coeff120[4] __attribute__((aligned(16)));
-    f32 quad130[4] __attribute__((aligned(16)));
+    f32 vecB[4] __attribute__((aligned(16)));
     f32 coeff140[4] __attribute__((aligned(16)));
-    f32 save29;
+    f32 quad130[4] __attribute__((aligned(16)));
+    f32 coeff120[4] __attribute__((aligned(16)));
+    f32 quad110[4] __attribute__((aligned(16)));
+    f32 ftmp1;
     f32 save30;
-    f32 stackDC;
-    f32 half, two, orbitScale, hundred, one, zero, spinScale, negone, thousand, three;
+    f32 save29;
+    f32 angle;
+    f32 half, two, orbitScale, hundred, stackDC, one, zero, spinScale, negone, thousand, three;
     f32 vB;
     f32 ccB;
     f32 cc2B;
@@ -4870,8 +4873,7 @@ void func_0048f5f0(u8 *arg0)
     f32 p252B;
     f32 p256B;
     f32 p260B;
-    f32 out13B;
-    f32 out12B;
+    f32 nf;
     f32 f1B;
     f32 f12B;
     u32 count;
@@ -4884,10 +4886,10 @@ void func_0048f5f0(u8 *arg0)
     u8 mode9C;
     s32 v15;
     s32 v14;
+    u8 initialPreroll;
     u32 idx;
     s32 tmp;
     s32 tmp2;
-    f32 ftmp1;
     f32 ftmp2;
     f32 ftmp3;
     s32 node10;
@@ -4896,6 +4898,7 @@ void func_0048f5f0(u8 *arg0)
     s32 nmult;
     u8 *clear;
     s32 ci;
+    u32 particleIndex;
     f32 a;
     f32 b;
     f32 c;
@@ -4923,27 +4926,27 @@ void func_0048f5f0(u8 *arg0)
         goto post_init;
     }
     if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
-        v14 = 1;
-        if (*(f32 *)(config + 40) <= 0.0f) {
-            v15 = *(s32 *)(parent + 4);
+        initialPreroll = 1;
+        v14 = initialPreroll;
+        if (!(*(f32 *)(config + 40) <= 0.0f)) {
+            f32 prerollScale = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            ftmp2 = (f32)*(u32 *)(parent + 4);
+            v15 = (s32)(ftmp2 * prerollScale);
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            tmp = *(s32 *)(parent + 4);
-            ftmp2 = (f32)(u32)tmp;
-            v15 = (s32)(ftmp2 * ftmp1);
+            v15 = *(s32 *)(parent + 4);
         }
         goto post_init;
     } else {
         v14 = 0;
-        if (*(f32 *)(config + 40) <= 0.0f) {
+        if (!(*(f32 *)(config + 40) <= 0.0f)) {
+            f32 scale = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            tmp = *(s32 *)(config + 36);
+            ftmp2 = (f32)(u32)tmp;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * scale;
+        } else {
             tmp = *(s32 *)(config + 36);
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
-        } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            tmp = *(s32 *)(config + 36);
-            ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
         }
         ftmp1 = *(f32 *)(parent + 20);
         ftmp1 = fabsf(ftmp1);
@@ -4969,17 +4972,18 @@ main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
     }
-    if (saved20 == 0) {
-        tmp = -1;
-    } else {
+    if (saved20 != 0) {
         tmp = -2;
+    } else {
+        tmp = -1;
     }
     *(s32 *)(nodes + 16) = tmp;
     c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
     c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+        particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
+        clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -5004,14 +5008,12 @@ skip_clear:
     }
     b = effMiscRandFloat(0);
     c = two * (b - half);
-    {
-        f32 arg8084 = orbitScale * c;
-        a = *(f32 *)(config + 284) * cosf(arg8084);
-        out->offset[0] = a;
-        out->offset[1] = -*(f32 *)(config + 288);
-        a = *(f32 *)(config + 284) * sinf(arg8084);
-        out->offset[2] = a;
-    }
+    angle = orbitScale * c;
+    a = *(f32 *)(config + 284) * cosf(angle);
+    out->offset[0] = a;
+    out->offset[1] = -*(f32 *)(config + 288);
+    a = *(f32 *)(config + 284) * sinf(angle);
+    out->offset[2] = a;
     vecA[0] = *(f32 *)(config + 264) + out->offset[0];
     vecA[1] = *(f32 *)(config + 268) + out->offset[1];
     vecA[2] = *(f32 *)(config + 272) + out->offset[2];
@@ -5038,7 +5040,10 @@ skip_clear:
     __asm__ volatile("vmul.xyz $vf2, $vf10, $vf10 \n vaddy.x $vf2, $vf2, $vf2y \n vaddz.x $vf2, $vf2, $vf2z \n" : : : "$vf2", "$vf10", "memory");
     __asm__ volatile("vsqrt $Q, $vf2x" : : : "$Q", "$vf2", "memory");
     __asm__ volatile("vwaitq" : : : "memory");
-    __asm__ volatile("cfc2.ni %0, $vi22" : "=r"(tmp2) : : "memory");
+    {
+        f32 length;
+        __asm__ volatile("cfc2.ni %0, $vi22\nmtc1 %0, %1" : "=r"(tmp2), "=f"(length) : : "memory");
+    }
     out->length.bits = tmp2;
     __asm__ volatile("vmul.xyz $vf2, $vf10, $vf10 \n vmulax.w $ACC, $vf0, $vf2x \n vmadday.w $ACC, $vf0, $vf2y \n vmaddz.w $vf2, $vf0, $vf2z \n vrsqrt $Q, $vf0w, $vf2w \n vwaitq \n vmulq.xyz $vf10, $vf10, $Q \n" : : : "$vf2", "$vf10", "ACC", "Q", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp1C0) : "r"(tmp1C0) : "$vf10", "memory");
@@ -5049,67 +5054,66 @@ skip_clear:
     __asm__ volatile("vopmula.xyz $ACC, $vf10, $vf11 \n vopmsub.xyz $vf10, $vf11, $vf10 \n" : : : "$vf10", "$vf11", "ACC", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp180) : "r"(tmp180) : "$vf10", "memory");
     {
-        s16 hE0 = *(s16 *)(config + 224);
-        f32 fE0 = (f32)hE0;
+        f32 fE0;
         b = effMiscRandFloat(0);
         c = two * (b - half);
-        fE0 = fE0 * c;
+        fE0 = (f32)*(s16 *)(config + 224) * c;
         ftmp1 = half * fE0;
         func_004bd380(tmp1C0, stackDC * ftmp1);
     }
     {
-        ftmp1 = *(f32 *)(config + 208);
+        angle = *(f32 *)(config + 208);
         b = effMiscRandFloat(0);
         {
-            f32 blend208 = (one - ftmp1) + ftmp1 * b;
+            f32 blend208 = (one - angle) + angle * b;
             f32 scale204 = *(f32 *)(config + 204) * blend208;
-            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(scale204) : "$vf2", "memory");
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vecB), "m"(*(u_long128 *)vecB) : "$vf10", "memory");
             __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(tmp180), "m"(*(u_long128 *)tmp180) : "$vf12", "memory");
             __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11", "$vf12", "memory");
+            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(scale204) : "$vf2", "memory");
             __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x" : : : "$vf11", "$vf2", "memory");
             __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf11x \n vmadday.xyzw $ACC, $vf29, $vf11y \n vmaddz.xyzw $vf11, $vf30, $vf11z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
-            out->control0[0] = ((f32 *)tmp170)[0];
-            out->control0[1] = ((f32 *)tmp170)[1];
-            out->control0[2] = ((f32 *)tmp170)[2];
+            out->control0[0] = tmp170[0];
+            out->control0[1] = tmp170[1];
+            out->control0[2] = tmp170[2];
         }
     }
     {
-        ftmp1 = *(f32 *)(config + 220);
+        angle = *(f32 *)(config + 220);
         b = effMiscRandFloat(0);
         {
-            f32 blend220 = (one - ftmp1) + ftmp1 * b;
+            f32 blend220 = (one - angle) + angle * b;
             f32 scale216 = *(f32 *)(config + 216) * blend220;
-            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(scale216) : "$vf2", "memory");
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vecB2), "m"(*(u_long128 *)vecB2) : "$vf10", "memory");
             __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11", "$vf12", "memory");
+            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(scale216) : "$vf2", "memory");
             __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x" : : : "$vf11", "$vf2", "memory");
             __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf11x \n vmadday.xyzw $ACC, $vf29, $vf11y \n vmaddz.xyzw $vf11, $vf30, $vf11z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
-            out->control1[0] = ((f32 *)tmp170)[0];
-            out->control1[1] = ((f32 *)tmp170)[1];
-            out->control1[2] = ((f32 *)tmp170)[2];
+            out->control1[0] = tmp170[0];
+            out->control1[1] = tmp170[1];
+            out->control1[2] = tmp170[2];
         }
     }
-    ftmp1 = *(f32 *)(config + 244);
+    angle = *(f32 *)(config + 244);
     b = effMiscRandFloat(0);
-    out->travelSpeed = *(f32 *)(config + 240) * ((one - ftmp1) + ftmp1 * b);
-    ftmp1 = *(f32 *)(config + 232);
+    out->travelSpeed = *(f32 *)(config + 240) * ((one - angle) + angle * b);
+    angle = *(f32 *)(config + 232);
     b = effMiscRandFloat(0);
-    out->rotationSpeed = *(f32 *)(config + 228) * ((one - ftmp1) + ftmp1 * b);
+    out->rotationSpeed = *(f32 *)(config + 228) * ((one - angle) + angle * b);
     out->progress = zero;
-    *(u_long128 *)nodes = *(u_long128 *)stack1A0;
-    ftmp1 = *(f32 *)(config + 108);
+    {
+        u_long128 *origin = (u_long128 *)stack1A0;
+        *(u_long128 *)nodes = *origin;
+    }
+    angle = *(f32 *)(config + 108);
     b = effMiscRandFloat(0);
-    out->opacity = (one - ftmp1) + ftmp1 * b;
-    if (mode9C == 2) {
-        out->spin = zero;
-        out->scale = one;
-    } else {
-        ftmp1 = *(f32 *)(config + 152);
+    out->opacity = (one - angle) + angle * b;
+    if (mode9C != 2) {
+        angle = *(f32 *)(config + 152);
         b = effMiscRandFloat(0);
-        out->scale = (one - ftmp1) + ftmp1 * b;
+        out->scale = (one - angle) + angle * b;
         if (mode9C == 1) {
             b = effMiscRandFloat(0);
             out->spin = spinScale * b;
@@ -5119,37 +5123,42 @@ skip_clear:
         } else {
             out->spin = zero;
         }
+    } else {
+        out->spin = zero;
+        out->scale = one;
     }
     *(s32 *)(nodes + 16) = 0;
-    b220buf = *(u_long128 *)nodes;
+    {
+        u_long128 *snapshot = &b220buf;
+        *snapshot = *(u_long128 *)nodes;
+    }
     if (v14 != 0) {
         tmp = (u32)effMiscRand(0) % (u32)limitB8;
         ftmp1 = (f32)(u32)tmp;
-        out13B = out->travelSpeed;
-        out12B = out->rotationSpeed;
-        ftmp2 = half * (save30 * ftmp1 * ftmp1) + out13B * ftmp1;
-        ftmp3 = half * (save29 * ftmp1 * ftmp1) + out12B * ftmp1;
-        if (ftmp2 < zero) {
-            ftmp2 = zero;
+        d = out->travelSpeed * ftmp1;
+        d = d + half * (ftmp1 * (save30 * ftmp1));
+        if (d < zero) {
+            d = zero;
         }
+        ftmp3 = out->rotationSpeed * ftmp1;
+        ftmp3 = ftmp3 + half * (ftmp1 * (save29 * ftmp1));
         if (ftmp3 < zero) {
             ftmp3 = zero;
         }
-        d = ftmp2;
         c = ftmp3;
-        ftmp2 = d / thousand;
-        if (ftmp2 > one) {
-            ftmp2 = one;
+        angle = d / thousand;
+        if (!(angle <= one)) {
+            angle = one;
         }
-        if (out->progress > ftmp2) {
-            ftmp2 = out->progress;
+        if (out->progress > angle) {
+            angle = out->progress;
         } else {
-            out->progress = ftmp2;
+            out->progress = angle;
         }
         bez[0] = vecA[0];
         bez[1] = vecA[1];
         bez[2] = vecA[2];
-        vB = ftmp2;
+        vB = angle;
         ccB = one - vB;
         cc2B = ccB * ccB;
         c3B = ccB * cc2B;
@@ -5163,30 +5172,30 @@ skip_clear:
         coeff140[2] = b2B;
         v3B = vB * vvB;
         coeff140[3] = v3B;
-        o0B = out->control0[0];
         o3B = out->control1[0];
         p252B = *(f32 *)(config + 252);
+        o0B = out->control0[0];
         quad130[0] = bez[0] * coeff140[3] +
             (p252B * coeff140[0] + o0B * coeff140[1] +
              o3B * coeff140[2]);
-        o1B = out->control0[1];
         o4B = out->control1[1];
         p256B = *(f32 *)(config + 256);
+        o1B = out->control0[1];
         quad130[1] = bez[1] * coeff140[3] +
             (p256B * coeff140[0] + o1B * coeff140[1] +
              o4B * coeff140[2]);
-        o2B = out->control0[2];
         o5B = out->control1[2];
         p260B = *(f32 *)(config + 260);
+        o2B = out->control0[2];
         quad130[2] = bez[2] * coeff140[3] +
             (p260B * coeff140[0] + o2B * coeff140[1] +
              o5B * coeff140[2]);
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(quad130), "m"(*(u_long128 *)quad130) : "$vf10", "memory");
-        if (ftmp3 != zero) {
+        if (zero != ftmp3) {
             __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
             func_004bd380(tmp1C0, ftmp3);
             __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp1C0), "m"(*(u_long128 *)tmp1C0) : "$vf11", "memory");
-            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(out->length.value * ftmp2) : "$vf2", "memory");
+            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(out->length.value * angle) : "$vf2", "memory");
             __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x \n" : : : "$vf11", "$vf2", "memory");
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp170), "m"(*(u_long128 *)tmp170) : "$vf10", "memory");
             __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11 \n vmulax.xyzw $ACC, $vf28, $vf10x \n vmadday.xyzw $ACC, $vf29, $vf10y \n vmaddz.xyzw $vf10, $vf30, $vf10z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
@@ -5201,7 +5210,8 @@ skip_clear:
     if (v14 != 0) {
         nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
         if (nmult != 0) {
-            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
+            clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
             memcpy(clear, nodes, 32);
             *(s32 *)(clear + 16) = -1;
         }
@@ -5210,32 +5220,37 @@ skip_clear:
     v15 -= 1;
     goto next_iter2;
 else_branch:
-    b220buf = *(u_long128 *)nodes;
     {
-        f32 nf = (f32)node10;
-        f1B = half * (save30 * nf * nf) + out->travelSpeed * nf;
-        f12B = half * (save29 * nf * nf) + out->rotationSpeed * nf;
+        u_long128 *snapshot = &b220buf;
+        *snapshot = *(u_long128 *)nodes;
+    }
+    {
+        nf = (f32)node10;
+        f1B = out->travelSpeed * nf;
+        f1B = f1B + half * (nf * (save30 * nf));
         if (f1B < zero) {
             f1B = zero;
         }
+        f12B = out->rotationSpeed * nf;
+        f12B = f12B + half * (nf * (save29 * nf));
         if (f12B < zero) {
             f12B = zero;
         }
-        c = f1B / thousand;
-        if (c > one) {
-            c = one;
+        angle = f1B / thousand;
+        if (!(angle <= one)) {
+            angle = one;
         }
         ftmp2 = out->progress;
-        if (ftmp2 > c) {
-            c = ftmp2;
+        if (ftmp2 > angle) {
+            angle = ftmp2;
         } else {
-            out->progress = c;
+            out->progress = angle;
         }
     }
     bez[0] = *(f32 *)(config + 264) + out->offset[0];
     bez[1] = *(f32 *)(config + 268) + out->offset[1];
     bez[2] = *(f32 *)(config + 272) + out->offset[2];
-    vB = c;
+    vB = angle;
     ccB = one - vB;
     cc2B = ccB * ccB;
     c3B = ccB * cc2B;
@@ -5249,36 +5264,37 @@ else_branch:
     coeff120[2] = b2B;
     v3B = vB * vvB;
     coeff120[3] = v3B;
-    o0B = out->control0[0];
     o3B = out->control1[0];
     p252B = *(f32 *)(config + 252);
+    o0B = out->control0[0];
     quad110[0] = bez[0] * coeff120[3] +
         (p252B * coeff120[0] + o0B * coeff120[1] +
          o3B * coeff120[2]);
-    o1B = out->control0[1];
     o4B = out->control1[1];
     p256B = *(f32 *)(config + 256);
+    o1B = out->control0[1];
     quad110[1] = bez[1] * coeff120[3] +
         (p256B * coeff120[0] + o1B * coeff120[1] +
          o4B * coeff120[2]);
-    o2B = out->control0[2];
     o5B = out->control1[2];
     p260B = *(f32 *)(config + 260);
+    o2B = out->control0[2];
     quad110[2] = bez[2] * coeff120[3] +
         (p260B * coeff120[0] + o2B * coeff120[1] +
          o5B * coeff120[2]);
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(quad110), "m"(*(u_long128 *)quad110) : "$vf10", "memory");
-    if (f12B != zero) {
+    if (zero != f12B) {
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
         vecA[0] = out->control2[0];
         vecA[1] = out->control2[1];
         vecA[2] = out->control2[2];
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(stack1A0), "m"(*(u_long128 *)stack1A0) : "$vf10", "memory");
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vecA), "m"(*(u_long128 *)vecA) : "$vf11", "memory");
-        __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11 \n vmul.xyz $vf2, $vf10, $vf10 \n vmulax.w $ACC, $vf0, $vf2x \n vmadday.w $ACC, $vf0, $vf2y \n vmaddz.w $vf2, $vf0, $vf2z \n vrsqrt $Q, $vf0w, $vf2w \n vwaitq \n vmulq.xyz $vf10, $vf10, $Q \n sqc2 $vf10, 0(%0) \n" : : "r"(tmp1C0) : "$vf2", "$vf10", "$vf11", "ACC", "Q", "memory");
+        __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11 \n vmul.xyz $vf2, $vf10, $vf10 \n vmulax.w $ACC, $vf0, $vf2x \n vmadday.w $ACC, $vf0, $vf2y \n vmaddz.w $vf2, $vf0, $vf2z \n vrsqrt $Q, $vf0w, $vf2w \n vwaitq \n vmulq.xyz $vf10, $vf10, $Q \n" : : : "$vf2", "$vf10", "$vf11", "ACC", "Q", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(tmp1C0) : "memory");
         func_004bd380(tmp1C0, f12B);
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp1C0), "m"(*(u_long128 *)tmp1C0) : "$vf11", "memory");
-        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(out->length.value * c) : "$vf2", "memory");
+        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(out->length.value * angle) : "$vf2", "memory");
         __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x \n" : : : "$vf11", "$vf2", "memory");
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp170), "m"(*(u_long128 *)tmp170) : "$vf10", "memory");
         __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11 \n vmulax.xyzw $ACC, $vf28, $vf10x \n vmadday.xyzw $ACC, $vf29, $vf10y \n vmaddz.xyzw $vf10, $vf30, $vf10z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
@@ -5300,8 +5316,4 @@ main_check:
         goto main_body;
     }
 }
-
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048f5f0);
-#endif
