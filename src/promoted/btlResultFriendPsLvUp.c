@@ -75,11 +75,18 @@ static inline u32 friendResultAddress(u32 offset, u32 base)
     return offset + base;
 }
 
-/* 2026-10-06 compiler capture: the residual is one $s2/$s3 swap between the
-   task work pointer r (call-result temporary v54) and base (local v36). The
-   (u32)base argument of friendResultAddress is a copy use, so base survives
-   as a local. Retail colours base first, which the replayed order reproduces.
-   Dropping the cast makes base a temporary but keeps the swap (63 edits). */
+/* 2026-10-06: 57 -> 2 edits. r and base are declared after the loop counter.
+   The first two stores through r in the opening state form the address as
+   (u32)r + offset. That repeated conversion is copied from r inside the
+   switch, which keeps r a local at its declared number (docs/matching.md,
+   "Keep a load local alive"). The (u32)base argument of friendResultAddress
+   keeps base alive the same way, giving retail's $s3/$s2 for r/base.
+   Remaining: retail loads the window pointer (lw $a0, 0x44(r)) before the
+   id's lhu in the func_0011b480 call. A u16 second parameter reproduces that
+   order exactly, but the matched callee and four other callers need s32
+   (0011c180, 0011c2c0, 0013d8b0 and 00380ea0 break). An unprototyped
+   declaration, an s32 or u16 staging local, and (s32)/& 0xFFFF spellings
+   keep the order. */
 // FUN_002239A0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002239a0(u8 *sdkTaskBytes)
@@ -88,12 +95,12 @@ s32 func_002239a0(u8 *sdkTaskBytes)
     /* The menu consumes eleven IDs. The position provider reads two floats.
      * Both complete objects occupy their original retail stack locations. */
     u8 *q;
-    u8 *r;
-    u8 *base;
     u8 *e;
     u32 st;
     s32 v;
     s32 k;
+    u8 *r;
+    u8 *base;
     s32 index;
     u16 id;
     u32 sid;
@@ -108,9 +115,9 @@ s32 func_002239a0(u8 *sdkTaskBytes)
     st = *(u32 *)(r + 4);
     switch (st) {
     case 0:
-        *(s32 *)(r + 56) = 0;
+        *(s32 *)((u32)r + 56) = 0;
         v = (s32)func_00452380((s8 *)D_005E4810);
-        *(s32 *)(r + 68) = v;
+        *(s32 *)((u32)r + 68) = v;
         if (v == 0) {
             v = (s32)func_00117780(0, 15, 4, 5, 0);
             *(s32 *)(r + 68) = v;
