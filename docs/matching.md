@@ -2760,6 +2760,29 @@ constant, so the copy is the cheaper lever. Doubles are real software
 doubles on b210 (`-99.0 + 108.0 * j` grows the object by 60B) - not a way
 to dodge fusion.
 
+For a vector scaled into three products that retail computes *before* the
+three adds (`mul.s $f3/$f2/$f1` then `add.s` ×3), load each component into
+a named local and scale it in place, one axis at a time. This matched
+`func_00225ec0` (2026-10-07):
+```c
+px = delta.x;
+px *= scale;
+py = delta.y;
+py *= scale;
+pz = delta.z;
+pz *= scale;
+g.x = g.x + px; g.y = g.y + py; g.z = g.z + pz;
+```
+Products as `px = delta.x * scale` fuse the first axis into `adda/madd`.
+All three loads first, then the three `*=`, ties at 19 edits. `delta.x *= scale` in place keeps three
+extra stores.
+
+Retail loading a variable before the constant in `k * var` (`lwc1` then
+`lui/mtc1`, product `mul.s fd, fk, fvar`): write the product where it is
+used, twice if retail reuses it, e.g.
+`if (p.y < 1.25f * top) p.y = 1.25f * top;`. A named result local loads the
+constant first, and `s = top; s *= 1.25f` swaps the operands.
+
 ## Where `volatile` is actually required
 
 Ordinary-memory `volatile` as compiler steering is rejected; `volatile` is
