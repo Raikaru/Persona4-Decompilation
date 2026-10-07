@@ -628,18 +628,16 @@ void func_004b41c0(u8 *arg0) {
     }
 }
 
-
-/* measured: retail contains COP2/VU0 vector work; H009 permits the required
-   inline asm. No byte-exact candidate was retained in this wave. */
-/* measured: v2 clears the assignment census (opclass 77 -> 14 rows, all named rows 0): obj 1988B vs window 2000B (-12B), probe_variants 467 differing words reloc-masked, fnalign 497 vs 500 instrs (-0.6%, inside 3% gate). Was obj 2076B/519 vs 500 (+3.8% over gate) with add.s +35, lh -15, cvt -10, lui +10, mtc1 -9, andi +9, bltz +8, swc1 -8, sub.s +8, dsll32 +7, dsra32 +6, div -5. Now add.s 0, lh 0, cvt 0, lui 0, mtc1 0, andi 0, bltz 0, sub.s 0, dsll32 0, dsra32 0, div 0, swc1 +1, nop -2, lw -1. */
-/* measured: fixes per thread hints: (1) x/y vs x*(1/y): replaced invented rlen=1/len2*spF0p + h0/640-0.5f + spE0a/v0 + dx/len2/nx/cx chain (35 extra add.s, 8 extra sub.s, 5 missing div.s) with retail lerp (t=prog/cnt div once) + f3/f2 (/640,/448) + loop f5/f4 (/10) + per-iter u16/65535 (3 divs) + tail (2 divs); (2) unsigned idiom (handoff 7g): removed 8 invented (f32)(u32)&0xFFFF/&0xFF (8 extra bltz, 9 extra andi, 10 missing cvt) and added correct (f32)(u32)prog/cnt + 3x loop u16 (5 bltz, now 5/5); (3) lh -15 via tools/solve_signedness.py (retail 17 lh vs obj 2 -> now 17/17, all offsets 0x80-0x90 present; solver mismatch 19 -> 0 for narrow ops). Solver: python3 -E -s tools/solve_signedness.py src/Graphics/Effect/effLineNova.c func_004b4430 reports retail lb 0/lbu 10/lh 17/lhu 5 vs obj 8/17/5 after fix (lbu -2 residual is stack-offset spill, not signedness). */
 /* Six-byte particles place six XYZ vertices between the projected endpoints.
- * The rotation axis is twelve bytes, with both source parts loaded first. */
-// FUN_004B4430 NONMATCHING
-#ifdef NON_MATCHING
+ * The rotation axis is twelve bytes, with both source parts loaded first.
+ * As in func_004b36b0: (s32) conversions on the last two sampler arguments,
+ * novaUnpackColor10 for the $v0 colour transfers, and the vertex pointer
+ * declared after the loop counter. The Y camera offset forms its depth factor
+ * before the 224 difference, unlike the X call through novaCameraOffset. */
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
+// FUN_004B4430
 void func_004b4430(u8 *unused, u8 *effect)
 {
 
@@ -659,9 +657,9 @@ void func_004b4430(u8 *unused, u8 *effect)
     u8 *instance, *state, *config, *owner;
     u8 *cameraDimensions;
     u8 *particle;
-    f32 *vertices;
     f32 normalization;
     u32 count, index;
+    f32 *vertices;
 
     extern u8 *RwMatrixMultiply(u8 *, u8 *, u8 *);
     extern u8 *func_003e0870(u8 *, const u8 *, f32, s32);
@@ -692,14 +690,14 @@ void func_004b4430(u8 *unused, u8 *effect)
 
     progress = *(u32 *)(instance + 0x14);
 
-    sampleResult = (u32)func_0048abd0(config, config + 0x24, *(s32 *)(instance + 0x14), *(s32 *)(config + 0x34));
+    sampleResult = (u32)func_0048abd0(config, config + 0x24, (s32)*(u32 *)(instance + 0x14), (s32)*(u32 *)(config + 0x34));
     effectColor = *(u32 *)(instance + 0x10);
     colorInput = &effectColor;
     normalization = fGpffff8044;
-    effectVuUnpackColor10(colorInput, normalization);
+    novaUnpackColor10(colorInput, normalization);
     __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
     sampled = sampleResult;
-    effectVuUnpackColor10(&sampled, normalization);
+    novaUnpackColor10(&sampled, normalization);
     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
     {
         u32 transfer;
@@ -826,14 +824,15 @@ vertices[17] = *(f32 *)D_00713D18;
     matrix = func_003e9700(*(u8 **)(func_00457120() + 4));
     func_003e0870(rotation, (const u8 *)&axis, (f32)*(s16 *)(config + 0x90), 0);
     *(f32 *)(rotation + 0x30) += novaCameraOffset(centerX, (const f32 *)cameraDimensions, depth, screenX, 320.0f);
-    *(f32 *)(rotation + 0x34) += novaCameraOffset(centerY, (const f32 *)(cameraDimensions + 4), depth, screenY, 224.0f);
+    {
+        f32 factor = 2.0f * *(const f32 *)(cameraDimensions + 4);
+        factor = factor * depth;
+        *(f32 *)(rotation + 0x34) += (224.0f - centerY) * factor / screenY;
+    }
     RwMatrixMultiply(transform, rotation, matrix);
     func_003e9cb0(*(u8 **)(owner + 0xc), transform, 0);
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b4430);
-#endif
 
 
 
