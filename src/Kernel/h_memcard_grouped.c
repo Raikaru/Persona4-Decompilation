@@ -85,11 +85,12 @@ extern char D_008E4554[];
 extern char D_008E4594[];
 /* Memory-card operation states retain retail's poll/response dispatch.
  * The write API consumes unsigned 32-bit byte offsets and lengths.
- * Retail does not check whether the loaded icon archive contains icon.ico.
- * Keep the defined missing-resource path guarded until that contract is resolved.
+ * Retail does not check whether the loaded icon archive contains icon.ico:
+ * after func_00455f70 it passes the returned pointer and reads `out` from
+ * 0x10($sp) at 0x0046514C even when the lookup did not write it. This body
+ * keeps that uninitialised read, as retail does.
  * See docs/probe_archive/Memcard_004647c0_recovery_20260929.md. */
-// FUN_004647C0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_004647C0
 s32 func_004647c0(void)
 {
     s32 cardMode;
@@ -400,15 +401,6 @@ s32 func_004647c0(void)
         case 1:
             sprintf(D_008E4A20, D_00712840, D_00764BB8);
             data = (void *)func_00455f70((s32)D_00712880, &out);
-            /* The lookup writes out only when it finds a matching resource. */
-            if (data == NULL)
-            {
-                return -3;
-            }
-            if (out <= 0)
-            {
-                return -3;
-            }
             func_00432288(D_00764BA4, D_008E4A20, data, 0, out);
             break;
         case 2:
@@ -471,9 +463,6 @@ s32 func_004647c0(void)
 done:
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/h_memcard_grouped", func_004647c0);
-#endif
 
 // FUN_004653F0
 void func_004653f0(void)
