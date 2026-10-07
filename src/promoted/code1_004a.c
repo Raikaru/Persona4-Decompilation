@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
+#include "effect_vu0_internal.h"
 
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
@@ -594,324 +595,257 @@ void func_004a5f90(u8 *arg0)
 void func_004a5fa0(u8 *arg0) {
     (*(s32 *)(arg0 + 0x2C))++;
 }
-/* measured: first reconstruction 2026-09-18, not banked (outside 3% gate). */
-/* best v2 (no UV stores): 666 words, object 414 vs retail 755 (-45%, -341). */
-/* v5 (with 8 UV stores + inv divs): 878 words, object 923 vs retail 756 (+22%, +167). */
-/* retail frame 0x120; v2 frame 0x100 (32B short), v5 frame 0x180 (96B over). */
-/* excluded: jal counts equal (14 == 14), no switch (if/else + 3-way D0/CC/839d0 branch), */
-/* no per-lane collapse (straight-line VU + matrix), identical early-out shape. */
-/* VU islands are the func_004adb50 sibling idiom (D_00761134 scale, 0x437F pack, */
-/* 0x110 store, 0xFE/0xFF byte fixup); pragma probes tie (loopinv 666, unroll 666, */
-/* commonsubs 664); decl reorder (count/objs/total) ties at 666. */
-/* gap lives in UV/stack allocation: adding UV swings -341 to +167, i.e. ~64 instrs */
-/* per UV line here vs ~13 in retail; u16->float lhu/bltz dance micro-priced at 16 each */
-/* and matches retail shape, but the float live set grows ($f26/$f27 extra saves). */
-/* live set before re-adding UV in retail store order (2,3,0,1,6,7,4,5). Candidates */
-/* archived at /var/tmp/cold4a5fc0/v2.c (666) and v5.c (878). */
-/* 7v (signedness, worth 81 of the 87 surplus): `(u32)float` costs b210 a */
-/* `bltz`/`srl`/`or` dance of about sixteen instructions where `(s32)float` */
-/* is a plain `mtc1`/`cvt`; narrowing sp80/sp84 (D0/CC casts) from `u32` to */
-/* `s32` took sched 843 -> 762 (+87 -> +6). On a body this size get `(s32)` */
-/* versus `(u32)` right on every float conversion before sweeping pragmas. */
-/* 2026-09-19 run table (Main request): sched 762/756 (+6), 729w probe / 744w floor, 1112e. */
-/* O3 alone measured 764/756 (+8), 699w, 1113e (-30w, +2 counts, +1e) but REVERTED per */
-/* Main: nonbaseline optimisation level for the whole function needs more than a */
-/* word-only move with edits tied; it makes every future measurement non-comparable. */
-/* Restored sched. Singles banked 729: O3 699, O4 705, prop 784, dead 802. */
-/* Union overlay ties 729w/1112e/762 (frame 0x180 vs 0x120 stays). */
-/* Largest asymmetric pair (no relocation signature): delete retail 218:468 (250: */
-/* andi/sh/lui/mtc1/c.ole/bc1t/cvt/mfc1/andi/b/sub/cvt/mfc1/lui/or/andi/sh + */
-/* lwc1/mul.s/c.ole UV clamp chain, see fnalign) vs insert object 533:615 (82) and */
-/* 312:390 (78: c.ole/bc1tl/sub/cvt/mfc1/b/andi/lui/or/sh/lwc1/mul.s chain). Retail */
-/* keeps 250 clamped u16 stores; object keeps 82+78 predicated conversions instead. */
-/* No single relocated block closes it; recorded so nobody re-runs the search. */
-/* Signedness per 7v kept (s32 sp80/sp84); do not re-flip. Floor stands; stays ASM. */
-/* gate: func_004a5fc0 is OUTSIDE the +-3% band at 851 against retail 756 (+12.6%).  The body previously read
-   762/756, 1112 edits only because `#pragma schedule on` was filling delay slots that retail leaves
-   empty.  Retail's first-party build is entirely unscheduled: across 212 byte-exact MATCH
-   first-party functions there are 2909 branches and **zero** filled delay slots, and this
-   function's own retail window has 75 branches with 75 empty slots and none filled.  The
-   pragma therefore never reproduced retail codegen - it deleted nops to shrink the count, and
-   it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
-   has to be written out of the body.  Any differing-word score measured with the pragma in
-   place is not comparable to one measured inside the gate (handoff 7y, 7au). */
-/* measured 004a5fc0 (owner, 2026-09-20): **+12.6% OUTSIDE -> +1.3% INSIDE** the band
-   (851 -> 766 against retail 756) and fnalign **821 -> 777 edits**.
-   This is an over-long floor, the rarer case, so the lever is code the body emits that
-   retail does not.  The object had `andi +28` and `cvt.w.s +6` over retail: writing a
-   float-to-integer store as `spNN = (u16)(expr)` into a `u16` local makes b210 mask the
-   result with `andi 0xFFFF` at every site, while retail just lets `sh` truncate.
-   Casting to `(u32)` instead of `(u16)` drops the eight redundant masks.  Measured, all
-   on top of the scale hoist below:
-     `(u16)` cast, as m2c wrote it   821 edits, 851 instrs (+12.6% OUTSIDE)
-     no cast at all                  814 edits, 848 instrs (still outside)
-     `(s32)` cast                    832 edits, 716 instrs (-5.3%, outside the other way)
-     `(u32)` cast                    **777 edits, 766 instrs (+1.3% INSIDE)**
-   Note `(s32)` overshoots by removing 135 instructions - the signed conversion is a
-   different idiom, not just a different mask - so the three casts are three distinct
-   codegen shapes and the right one has to be measured, not reasoned from C semantics.
-   Hoisting `16.0f * blkC0[12]` and `[13]` out of the eight stores is worth 7 of the 44
-   (821 -> 814); here hoisting HELPS, which is the opposite of func_00375f00 and
-   func_0046b380 where retail recomputes.  Always measure the direction.
-   Swept across the other floors assigning three or more `(u16)(...)` casts: neutral
-   everywhere (func_0037da60 574, func_00381a70 298, func_0038bab0 196, func_001a4800 19,
-   all unchanged).  The lever only bites where the cast wraps a FLOAT-to-integer
-   conversion; an integer-to-u16 cast costs nothing to begin with, so there is no mask to
-   remove.  Check what is inside the parentheses before trying it. */
-// FUN_004A5FC0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma push
+/* Billboard sprite update. The particle colour is the base colour times the
+ * animated tint, packed by the COP2 block. Its store to the packed slot is
+ * part of that asm; b210 forwards any compiler-side store, and retail reloads
+ * the slot. The UV corner/rect/size block is one frame-info struct, as the
+ * retail frame layout shows. func_00483490 is declared with an int second
+ * parameter because retail loads the halfword before setting up $a0.
+ * func_00483660 takes four arguments here: retail sets $a1, $a2 and $f12,
+ * which its one-parameter definition forwards untouched to func_00483700. */
+typedef struct EffSpriteFrame {
+    f32 rect[4];
+    u32 size[2];
+    u16 corner[8];
+} EffSpriteFrame;
+
+typedef struct EffSpriteRGBA {
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} EffSpriteRGBA;
+
+// FUN_004A5FC0
 void func_004a5fc0(u8 *arg0)
 {
     extern void func_00483660(void *arg0, void *arg1, void *arg2, f32 arg3);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
-    extern void func_00482730(int arg0, u32 arg1);
-    extern void func_00482700(int arg0, f32 *arg1);
-    extern void func_00482ad0(void *arg0, s32 arg1, f32 *arg2);
-    extern void func_004839d0(void *arg0, u32 *arg1);
-    extern void func_00483490(void *arg0, u16 arg1);
+    extern void func_00482730(s32 arg0, u32 arg1);
+    extern void func_00482700(s32 arg0, f32 *arg1);
+    extern void func_00482ad0(void *arg0, u32 arg1, f32 *arg2);
+    extern void func_004839d0(s32 arg0, u32 *arg1);
+    extern void func_00483490(void *arg0, s32 arg1);
     extern void RpGeometryLock(void *arg0, s32 arg1);
     extern void func_003c22f0(void *arg0);
     extern void func_003c42b0(void *arg0, s32 arg1);
-    extern f32 cosf(f32 arg0);
-    extern f32 sinf(f32 arg0);
+    extern f32 func_0044b610(f32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
     extern f32 D_00761134;
-    s32 sp11C;
-    s32 sp118;
-    s32 sp114;
-    s32 sp110;
-    u32 blk100[2];
-    f32 blkC0[16];
-    f32 blkA0[8];
-    f32 sp7C;
-    f32 sp78;
-    f32 sp74;
-    f32 sp70;
-    s32 sp84;
-    s32 sp80;
-    f32 sx;
-    f32 sy;
-    u16 sp96;
-    u16 sp94;
-    u16 sp92;
-    u16 sp90;
-    u16 sp8E;
-    u16 sp8C;
-    u16 sp8A;
-    u16 sp88;
-    s32 total;
+    EffSpriteRGBA color;
+    u32 baseWord;
+    u32 tintWord;
+    u32 packed;
+    u32 frame[4];
+    f32 animation[16];
+    f32 texture[8];
+    EffSpriteFrame info;
+    f32 scale;
+    f32 right;
+    f32 bottom;
+    f32 left;
+    f32 top;
+    f32 spin;
     s32 count;
-    u8 *objs;
-    s32 color;
-    s32 tmp24;
-    f32 scale20;
-    f32 scale21;
-    f32 c;
-    f32 s;
-    f32 a;
-    f32 b;
-    f32 e0;
-    f32 e1;
-    f32 f1;
-    f32 f2;
-    f32 t1;
-    f32 t2;
-    u8 *geom;
-    f32 *mat;
+    s32 total;
+    u8 *sprite;
+    f32 *vertex;
     f32 *uv;
+
     total = *(s32 *)(arg0 + 0xBC);
     count = *(s32 *)(arg0 + 0x2C);
-    objs = *(u8 **)(arg0 + 0xC8);
-    if (count != 0) {
-        if ((count >= total) || (total <= 0)) {
-            goto main_body;
-        }
+    sprite = *(u8 **)(arg0 + 0xC8);
+    if (count == 0) {
+        return;
+    }
+    if (!(count < total) && total > 0) {
         if (*(u8 *)(arg0 + 0x74) != 0) {
             *(s32 *)(arg0 + 0x2C) = 0;
             count = 0;
-            goto main_body;
-        }
-        return;
-main_body:
-        func_00483660(objs, arg0, arg0 + 0x10, *(f32 *)(arg0 + 0x20));
-        color = func_0048abd0(arg0 + 0x30, arg0 + 0x54, count, total);
-        tmp24 = *(s32 *)(arg0 + 0x24);
-        sp118 = tmp24;
-        scale20 = D_00761134;
-        __asm__ volatile(
-            "lw $2, 0(%0)          \n"
-            "pextlb $2, $0, $2     \n"
-            "pextlh $2, $0, $2     \n"
-            "qmtc2.ni $2, $vf10   \n"
-            "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, %1           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "vmove.xyzw $vf11, $vf10 \n"
-            :
-            : "r"(&sp118), "f"(scale20)
-            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp114 = color;
-        __asm__ volatile(
-            "lw $2, 0(%0)          \n"
-            "pextlb $2, $0, $2     \n"
-            "pextlh $2, $0, $2     \n"
-            "qmtc2.ni $2, $vf10   \n"
-            "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, %1           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-            "lui $2, 0x437F        \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "vftoi0.xyzw $vf10, $vf10 \n"
-            "qmfc2.ni $2, $vf10    \n"
-            "ppach $2, $0, $2      \n"
-            "ppacb $2, $0, $2      \n"
-            "sw $2, 0x110($sp)     \n"
-            :
-            : "r"(&sp114), "f"(scale20)
-            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp11C = sp110;
-        if (*(u8 *)((u8 *)&sp11C + 3) != 0xFF) {
-            geom = *(u8 **)(objs + 0x14);
-            *(u8 *)(geom + 4) = *(u8 *)&sp11C;
-            *(u8 *)(geom + 5) = *((u8 *)&sp11C + 1);
-            *(u8 *)(geom + 6) = *((u8 *)&sp11C + 2);
-            *(u8 *)(geom + 7) = *((u8 *)&sp11C + 3);
         } else {
-            *((u8 *)&sp11C + 3) = 0xFE;
-            geom = *(u8 **)(objs + 0x14);
-            *(u8 *)(geom + 4) = *(u8 *)&sp11C;
-            *(u8 *)(geom + 5) = *((u8 *)&sp11C + 1);
-            *(u8 *)(geom + 6) = *((u8 *)&sp11C + 2);
-            *(u8 *)(geom + 7) = 0xFE;
-            *((u8 *)&sp11C + 3) = 0xFF;
+            return;
         }
-        scale20 = func_0048aff0(arg0 + 0x64, count, total) * *(f32 *)(arg0 + 0xC0);
-        scale21 = func_0048aff0(arg0 + 0x90, count, total);
-        if (*(s32 *)(arg0 + 0xD0) != 0) {
-            func_00482730(*(s32 *)(arg0 + 0xD0), count);
-            func_00482700(*(s32 *)(arg0 + 0xD0), blkC0);
-            sx = 16.0f * blkC0[12];
-            sy = 16.0f * blkC0[13];
-            sp88 = (u32)(blkC0[6] * sx);
-            sp8A = (u32)(blkC0[7] * sy);
-            sp8C = (u32)(blkC0[8] * sx);
-            sp8E = (u32)(blkC0[7] * sy);
-            sp90 = (u32)(blkC0[8] * sx);
-            sp92 = (u32)(blkC0[9] * sy);
-            sp94 = (u32)(blkC0[6] * sx);
-            sp96 = (u32)(blkC0[8] * sx);
-            sp70 = blkC0[0];
-            sp74 = blkC0[1];
-            sp78 = blkC0[2] / 16.0f;
-            sp7C = blkC0[3] / 16.0f;
-            sp80 = (s32)blkC0[12];
-            sp84 = (s32)blkC0[13];
-            scale21 += blkC0[4];
-            func_003c42b0(*(u8 **)(objs + 0x14), *(s32 *)&blkC0[5]);
-        } else if (*(s32 *)(arg0 + 0xCC) != 0) {
-            func_00482ad0(*(void **)(arg0 + 0xCC), count, blkA0);
-            sp88 = 0;
-            sp8A = 0;
-            sp8C = (u16)(16.0f * blkA0[2]);
-            sp8E = 0;
-            sp90 = (u16)(16.0f * blkA0[2]);
-            sp92 = (u16)(16.0f * blkA0[3]);
-            sp94 = 0;
-            sp96 = (u16)(16.0f * blkA0[3]);
-            sp70 = 0.0f;
-            sp74 = 0.0f;
-            sp78 = (f32)((s32)((f32)(u16)(16.0f * blkA0[2]) * blkA0[0]) >> 5) / 16.0f;
-            sp7C = (f32)((s32)((f32)(u16)(16.0f * blkA0[3]) * blkA0[1]) >> 5) / 16.0f;
-            sp80 = (s32)blkA0[2];
-            sp84 = (s32)blkA0[3];
-            func_003c42b0(*(u8 **)(objs + 0x14), *(s32 *)&blkA0[4]);
-        } else {
-            func_004839d0(objs, blk100);
-            sp88 = 0;
-            sp8A = 0;
-            sp8C = (u16)(blk100[0] * 16);
-            sp8E = 0;
-            sp90 = (u16)(blk100[0] * 16);
-            sp92 = (u16)(blk100[1] * 16);
-            sp94 = 0;
-            sp96 = (u16)(blk100[1] * 16);
-            sp70 = 0.0f;
-            sp74 = 0.0f;
-            sp78 = ((f32)(blk100[0] * 16) / 32.0f) / 16.0f;
-            sp7C = ((f32)(blk100[1] * 16) / 32.0f) / 16.0f;
-            sp80 = blk100[0];
-            sp84 = blk100[1];
-        }
-        RpGeometryLock(*(u8 **)(*(u8 **)(objs + 0x10) + 0x18), 0xFF2);
-        {
-            u8 *tmp = *(u8 **)(*(u8 **)(objs + 0x10) + 0x18);
-            mat = *(f32 **)(*(u8 **)(tmp + 0x5C) + 0x14);
-            uv = *(f32 **)(tmp + 0x34);
-        }
-        a = sp70 * scale20;
-        b = sp74 * scale20;
-        e0 = sp78 * scale20;
-        e1 = sp7C * scale20;
-        c = cosf(scale21);
-        s = sinf(scale21);
-        f1 = a + e0;
-        f2 = b + e1;
-        t1 = f2 * s;
-        t2 = f1 * c;
-        mat[0] = t2 - t1;
-        mat[1] = 0.0f;
-        mat[2] = f1 * s + f2 * c;
-        f1 = a - e0;
-        t2 = f1 * c;
-        mat[3] = t2 - t1;
-        mat[4] = 0.0f;
-        t1 = f1 * s;
-        mat[5] = t1 + f2 * c;
-        f2 = b - e1;
-        t1 = f2 * s;
-        mat[9] = t2 - t1;
-        mat[10] = 0.0f;
-        mat[11] = f1 * s + f2 * c;
-        mat[6] = t2 - t1;
-        mat[7] = 0.0f;
-        mat[8] = t2 + t1;
-        {
-            f32 inv1 = 1.0f / (f32)(sp80 * 16);
-            f32 inv2 = 1.0f / (f32)(sp84 * 16);
-            uv[2] = (f32)sp88 * inv1;
-            uv[3] = (f32)sp8A * inv2;
-            uv[0] = (f32)sp8C * inv1;
-            uv[1] = (f32)sp8E * inv2;
-            uv[6] = (f32)sp94 * inv1;
-            uv[7] = (f32)sp96 * inv2;
-            uv[4] = (f32)sp90 * inv1;
-            uv[5] = (f32)sp92 * inv2;
-        }
-        objs = *(u8 **)(arg0 + 0xC8);
-        geom = *(u8 **)(*(u8 **)(objs + 0x10) + 0x18);
-        func_003c22f0(geom);
-        if ((*(u16 *)objs & 4) != 0) {
-            *(u16 *)(geom + 0xC) |= 1;
-        }
-        if (*(u8 *)(arg0 + 0xC4) != 0) {
-            *(u16 *)objs |= 1;
-        } else {
-            *(u16 *)objs &= 0xFFFE;
-        }
-        func_00483490(objs, *(u16 *)(arg0 + 0x58));
     }
+    func_00483660(sprite, arg0, arg0 + 0x10, *(f32 *)(arg0 + 0x20));
+    {
+        s32 tint = func_0048abd0(arg0 + 0x30, arg0 + 0x54, count, total);
+        f32 unit;
+
+        baseWord = *(u32 *)(arg0 + 0x24);
+        {
+            const u32 *word = &baseWord;
+
+            unit = D_00761134;
+            effectVuUnpackColor10V0(word, unit);
+        }
+        __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
+        tintWord = tint;
+        effectVuUnpackColor10V0(&tintWord, unit);
+    }
+    __asm__ volatile(
+        "vmul.xyzw $vf10, $vf10, $vf11\n"
+        "lui $2, 0x437F\n"
+        "qmtc2.ni $2, $vf2\n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+        "vftoi0.xyzw $vf10, $vf10\n"
+        "qmfc2.ni $2, $vf10\n"
+        "ppach $2, $0, $2\n"
+        "ppacb $2, $0, $2\n"
+        "sw $2, 0x110($sp)\n" : "=m"(packed) : : "$2", "$vf2", "$vf10");
+    *(u32 *)&color = packed;
+    if (color.alpha != 0xFF) {
+        *(EffSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
+    } else {
+        color.alpha = 0xFE;
+        *(EffSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
+        color.alpha = 0xFF;
+    }
+    scale = func_0048aff0(arg0 + 0x64, count, total);
+    scale = scale * *(f32 *)(arg0 + 0xC0);
+    spin = func_0048aff0(arg0 + 0x90, count, total);
+    if (*(s32 *)(arg0 + 0xD0) != 0) {
+        f32 cellW;
+        f32 cellH;
+        f32 y0;
+        f32 x0;
+        f32 x1;
+
+        func_00482730(*(s32 *)(arg0 + 0xD0), count);
+        func_00482700(*(s32 *)(arg0 + 0xD0), animation);
+        cellW = 16.0f * animation[12];
+        cellH = 16.0f * animation[13];
+        x0 = animation[6] * cellW;
+        info.corner[0] = (u16)x0;
+        y0 = animation[7] * cellH;
+        info.corner[1] = (u16)y0;
+        x1 = animation[8] * cellW;
+        info.corner[2] = (u16)x1;
+        info.corner[3] = (u16)y0;
+        info.corner[4] = (u16)x1;
+        x1 = animation[9] * cellH;
+        info.corner[5] = (u16)x1;
+        info.corner[6] = (u16)x0;
+        info.corner[7] = (u16)x1;
+        info.rect[0] = animation[0];
+        info.rect[1] = animation[1];
+        info.rect[2] = animation[2] / 16.0f;
+        info.rect[3] = animation[3] / 16.0f;
+        info.size[0] = (u32)animation[12];
+        info.size[1] = (u32)animation[13];
+        spin += animation[4];
+        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&animation[5]);
+    } else if (*(void **)(arg0 + 0xCC) != NULL) {
+        s32 w;
+        s32 h;
+
+        func_00482ad0(*(void **)(arg0 + 0xCC), count, texture);
+        w = (s32)(16.0f * texture[2]);
+        h = (s32)(16.0f * texture[3]);
+        info.corner[0] = 0;
+        info.corner[1] = 0;
+        info.corner[2] = w;
+        info.corner[3] = 0;
+        info.corner[4] = w;
+        info.corner[5] = h;
+        info.corner[6] = 0;
+        info.corner[7] = h;
+        w = (s32)((f32)w * texture[0]);
+        h = (s32)((f32)h * texture[1]);
+        info.rect[0] = 0.0f;
+        info.rect[1] = 0.0f;
+        info.rect[2] = (f32)(w >> 5) / 16.0f;
+        info.rect[3] = (f32)(h >> 5) / 16.0f;
+        info.size[0] = (u32)texture[2];
+        info.size[1] = (u32)texture[3];
+        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&texture[4]);
+    } else {
+        s32 w;
+        s32 h;
+
+        func_004839d0((s32)sprite, frame);
+        w = frame[0] << 4;
+        h = frame[1] << 4;
+        info.corner[0] = 0;
+        info.corner[1] = 0;
+        info.corner[2] = w;
+        info.corner[3] = 0;
+        info.corner[4] = w;
+        info.corner[5] = h;
+        info.corner[6] = 0;
+        info.corner[7] = h;
+        info.rect[0] = 0.0f;
+        info.rect[1] = 0.0f;
+        info.rect[2] = ((f32)w / 32.0f) / 16.0f;
+        info.rect[3] = ((f32)h / 32.0f) / 16.0f;
+        info.size[0] = frame[0];
+        info.size[1] = frame[1];
+    }
+    RpGeometryLock(*(void **)(*(u8 **)(sprite + 0x10) + 0x18), 0xFF2);
+    {
+        u8 *geometry = *(u8 **)(*(u8 **)(sprite + 0x10) + 0x18);
+
+        vertex = *(f32 **)(*(u8 **)(geometry + 0x5C) + 0x14);
+        uv = *(f32 **)(geometry + 0x34);
+    }
+    left = info.rect[0] * scale;
+    top = info.rect[1] * scale;
+    right = info.rect[2] * scale;
+    bottom = info.rect[3] * scale;
+    {
+        f32 c = func_0044b610(spin);
+        f32 s = func_0044b7b0(spin);
+        f32 x1 = left + right;
+        f32 y1 = top + bottom;
+        f32 x2;
+        f32 y2;
+        f32 x3;
+
+        vertex[0] = x1 * c - y1 * s;
+        vertex[1] = 0.0f;
+        vertex[2] = y1 * c + x1 * s;
+        x2 = left - right;
+        vertex[3] = x2 * c - y1 * s;
+        vertex[4] = 0.0f;
+        vertex[5] = x2 * s + y1 * c;
+        y2 = top - bottom;
+        vertex[9] = x2 * c - y2 * s;
+        vertex[10] = 0.0f;
+        vertex[11] = x2 * s + y2 * c;
+        vertex[6] = x1 * c - y2 * s;
+        vertex[7] = 0.0f;
+        x3 = left + right;
+        vertex[8] = y2 * c + x3 * s;
+    }
+    {
+        f32 invW = 1.0f / (f32)(info.size[0] << 4);
+        f32 invH = 1.0f / (f32)(info.size[1] << 4);
+
+        uv[2] = (f32)info.corner[0] * invW;
+        uv[3] = (f32)info.corner[1] * invH;
+        uv[0] = (f32)info.corner[2] * invW;
+        uv[1] = (f32)info.corner[3] * invH;
+        uv[6] = (f32)info.corner[6] * invW;
+        uv[7] = (f32)info.corner[7] * invH;
+        uv[4] = (f32)info.corner[4] * invW;
+        uv[5] = (f32)info.corner[5] * invH;
+    }
+    {
+        u8 *owner = *(u8 **)(arg0 + 0xC8);
+        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+
+        func_003c22f0(geometry);
+        if ((*(u16 *)owner & 4) != 0) {
+            *(u16 *)(geometry + 0xC) |= 1;
+        }
+    }
+    if (*(u8 *)(arg0 + 0xC4) != 0) {
+        *(u16 *)sprite |= 1;
+    } else {
+        *(u16 *)sprite &= 0xFFFE;
+    }
+    func_00483490(sprite, *(u16 *)(arg0 + 0x58));
 }
-#pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5fc0);
-#endif
 // FUN_004A6B90
 void func_004a6b90(u8 *arg0) {
     (*(s32 *)(arg0 + 0x2C))++;
