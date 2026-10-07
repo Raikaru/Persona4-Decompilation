@@ -1081,7 +1081,14 @@ void func_004a77b0(void) {
    all cheap pragmas (sweep again 2026-09-28, best stays 7). */
 /* measured 2026-09-28: 532/544B, seven FPU-register words remain.
  * All sixteen relocations resolve, including the 0.6f pair and the 0.01f
- * literal at 0x007611E0. The output scale at 0x007641FC is mutable. */
+ * literal at 0x007611E0. The output scale at 0x007641FC is mutable.
+ * 2026-10-06 colouring model, replaying the captured FPR stack: retail's
+ * x=$f1/zero=$f2/abs=$f3 follows exactly when the abs value is numbered
+ * below the hoisted zero (r57), i.e. when `temp_f3` survives as its declared
+ * FPR local. That also explains the else-branch `mul.s $f3`, the same local.
+ * Here peephole folds both of its definitions into temporaries because
+ * neither is live out of its block. Peephole skips only blocks flagged
+ * 0x180 (the asm blocks), and `register` changes nothing. */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a7830(void)
