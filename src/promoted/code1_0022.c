@@ -1786,23 +1786,20 @@ void func_00225e50(u8 *arg0)
     }
 }
 
-/* measured 2026-09-28: 334 -> 148 differing words (fnalign edits 62 -> about 20), same object size as retail.
- * What moved it: the flag at the top is an inlined early-return helper (a NULL action returns 1, then a
- * `switch` with no default per unit kind returns 0 for its two battle ids, and one shared `return 1` follows),
- * which reproduces retail's beq/beq/b chains and its single shared `var16 = 1`; and `battle == 10` is a
- * one-case `switch` (retail branches beq/nop/b around it).  `delta.y` reads the two zeroed fields instead of
- * folding `0.0f - 0.0f`, and the `(0.0f + x) +` prefixes were never needed (the compiler emits the adda/madd
- * zero itself; dropping them measures the same 148).
- * Remaining residual, all float scheduling: (a) retail scales `delta` by `scale` into three unfused products
- * (mul.s f3/f2/f1) before the three plain add.s, where every spelling tried fuses them into adda/madd
- * (direct, `+=`, temps, struct or array temps, inline helpers taking pointers, `register`); a dead-store
- * `delta.x *= scale` does emit products-first but keeps three extra swc1; function-wide `opt_propagation off`
- * gives the right products (121) but breaks the 25.0f clamps, which need default propagation. (b) `1.25f * top`
- * loads the constant before `top` (retail loads `top` first; only propagation-off named locals reproduce that).
- * `point.y` is read before it is written (retail reads sp+0x134 uninitialised), so this body is a reference
- * for the control flow, not something to promote. */
-// FUN_00225EC0 NONMATCHING
-#ifdef NON_MATCHING
+/* The flag at the top is an inlined early-return helper (a NULL action
+ * returns 1, then a `switch` with no default per unit kind returns 0 for its
+ * two battle ids, and one shared `return 1` follows), which reproduces
+ * retail's beq/beq/b chains and its single shared `var16 = 1`; and
+ * `battle == 10` is a one-case `switch`. `delta.y` reads the two zeroed
+ * fields instead of folding `0.0f - 0.0f`.
+ * Retail scales `delta` into three unfused products before three plain
+ * add.s: each product is loaded into a named local and scaled in place
+ * (`px = delta.x; px *= scale;`), which keeps the multiply out of the adds.
+ * The two cutscene arms share one `return` after the if/else, so the first
+ * arm branches to the second arm's exit as in retail. The ground clamp writes
+ * `1.25f * top` twice; the repeated product is evaluated once with `top`
+ * loaded first. `point.y` is read before it is written (retail reads the
+ * uninitialised slot at sp+0x134), kept as in retail. */
 static inline s32 func_00225ec0_flag(u8 *action)
 {
     u16 battle;
@@ -1827,7 +1824,7 @@ static inline s32 func_00225ec0_flag(u8 *action)
     }
     return 1;
 }
-
+// FUN_00225EC0
 void func_00225ec0(u8 *camera)
 {
     extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
@@ -1859,6 +1856,9 @@ void func_00225ec0(u8 *camera)
     f32 radius;
     f32 height;
     f32 scale;
+    f32 px;
+    f32 py;
+    f32 pz;
     f32 len;
     u32 frames;
 
@@ -1890,9 +1890,15 @@ void func_00225ec0(u8 *camera)
         delta.z = unitCenter.z - groupCenter.z;
         len = RwV3dNormalize(&delta, &delta);
         scale = fGpffff80fc * len;
-        groupCenter.x = groupCenter.x + delta.x * scale;
-        groupCenter.y = groupCenter.y + delta.y * scale;
-        groupCenter.z = groupCenter.z + delta.z * scale;
+        px = delta.x;
+        px *= scale;
+        py = delta.y;
+        py *= scale;
+        pz = delta.z;
+        pz *= scale;
+        groupCenter.x = groupCenter.x + px;
+        groupCenter.y = groupCenter.y + py;
+        groupCenter.z = groupCenter.z + pz;
         point.x = unitCenter.x;
         height = *(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C);
         point.y = point.y + fGpffff8100 * height;
@@ -1923,7 +1929,6 @@ void func_00225ec0(u8 *camera)
                 func_001bac20((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec718.first, (f32 *)&rec718.second, 1);
                 func_001bbef0(iGpffffb3ac + 0x24, scale);
                 func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
-                return;
             } else {
                 record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x618;
                 func_001bd780(&rec618.firstRotation, record + 4, record + 0x10, D_0060A0E0);
@@ -1935,15 +1940,14 @@ void func_00225ec0(u8 *camera)
                 func_001bac20((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec618.first, (f32 *)&rec618.second, 1);
                 func_001bbef0(iGpffffb3ac + 0x24, scale);
                 func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
-                return;
             }
+            return;
         }
         func_00196040(2, 1, &unitCenter, &top, NULL, 1);
         btlUnitGetSphereWorldCenter(unit, (f32 *)&groupCenter);
         poses.second = poses.first;
-        scale = 1.25f * top;
-        if (poses.second.y < scale) {
-            poses.second.y = scale;
+        if (poses.second.y < 1.25f * top) {
+            poses.second.y = 1.25f * top;
         }
         func_001bd780(&poses.secondRotation, &poses.second, &groupCenter, D_0060A0E0);
     }
@@ -1978,9 +1982,6 @@ void func_00225ec0(u8 *camera)
     }
     func_001bbef0(camera, scale);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00225ec0);
-#endif
 // FUN_002266B0
 /* measured: opt_scalarize off retains the real horizontal vector stores.
  * Staged radius scaling and the scoped two-halfword skill table give
