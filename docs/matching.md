@@ -528,19 +528,29 @@ below are the codegen consequences.
   simplifiable. They are coloured first, in an order set by the simplify
   stack builder (`0x004c1de0`). The builder works like this:
   - it repeatedly pushes every node whose degree is below K, scanning in
-    ascending virtual number;
+    ascending virtual number. K is the ordinary colours plus the fallback
+    saved registers: 16 + 9 = 25 for GPRs;
   - when no node qualifies, it pushes the node with the lowest spill score
     divided by current degree;
   - on an exact tie, the higher virtual number wins;
   - the score (`0x0055e5c0`) is 2 × block weight for each use plus 1 × block
     weight for each definition.
 
-  On `001d53e0` the saved locals `i` and `frame` both score 4. The tie goes
-  to `frame`, so it is coloured after `w` (`$s5`); retail picked `i`, which
-  puts `frame` in `$s3`. Retail's code is identical, so both values must
-  score the same in retail too. What differs is the interference degree or
-  the virtual structure, not use counts. An extra real use of `frame` flips
-  the colours only because it changes the score. The numbers come from
+  A Python model of this builder, using captured degrees and scores,
+  reproduces the captured stacks of `001b11c0`, `001d53e0`, `0024be40`,
+  `0036f880` and `002239a0` exactly. It can answer "which renumbering gives
+  retail's registers" without compiling anything:
+  - `001d53e0`: only exchanging the numbers of `frame` (now a load
+    temporary, v57) and `i` (v35) reproduces retail's `$s3`/`$s5`. Retail's
+    `frame` therefore numbered below `i`, which needs `frame` to be a surviving
+    local declared before `i`.
+  - `0024be40`: only giving `weights` the slot of `choiceIndex` (v37), with
+    the second counter numbered high, reproduces retail's `$s2`/`$s0`. A
+    shared counter under `opt_lifetimes` makes the second counter high. A
+    two-step `weights = profile->weather; weights += category;` does not
+    keep `weights`, because the frontend folds the two assignments.
+
+  The numbers come from source like this:
   source like this:
   - the parameter copies get `r32` up, then declared locals in declaration
     order, with block-scoped locals after function-scope ones. Frontend
