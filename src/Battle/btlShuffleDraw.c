@@ -975,79 +975,12 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
 }
 
 
-/* measured: typed O1 floor 156B/160B/2wd (fresh probe_archive D375 + fnalign 2: move $v1/$a0,$s2 vs addu $v1/$a0,$s1,$s0 at +0x48/+0x70). Retail CSEs base in $s2 with 3 saves ($16 idx,$17 arg0,$18 base); O1 recomputes, O2 folds to 1 saved. */
-/* measured: ruled out this session -- O2 plain u8*base (36wd), O2 register base (36wd), O2 opt_common_subs off base (36wd), O2 differ struct-p vs arg0+idx (36wd), O2 register differ (36wd), O2 s64 idx (32wd); archive 16 combos (same-order 36wd/1-saved, differ 20wd/3-saved recompute) plus u8*base 36wd and p-reuse 24/36wd per owner note; O1-bracket re-probe on the typed body: loop-inv 2, propag-off 2, cse-off 2, sched-on 33 (baseline 2). No volatile/asm; honest 2wd floor kept. */
-/* measured: pair sweep 2026-09-17 `python3 -E -s tools/pragma_sweep.py src/Battle/btlShuffleDraw.c func_00375f00 --pairs` banked 2; all 8 singles and all 28 pairs 2 (neutral, no win). Two-def pins on this body per assignment all flat: p-reuse 36, p two-def 36, C90 idx pin 2 tie, split-decl pin 2 tie, C90 base pin 36. fnalign retail/object 39/39 (move $v1/$a0,$s2 vs addu $v1/$a0,$s1,$s0 at retail[18:19]+[28:29]). Honest 2wd floor stands. */
-/* 2026-09-18 micro-experiment (tools/micro_codegen.py, optimization_level 1):
-   the two words are a copy-versus-rematerialise choice that no spelling tried
-   reaches.  Retail keeps `arg0 + idx` in $s2 and copies it into the store's
-   base (`daddu $v1, $s2, zero`), which is one instruction more than the
-   minimal form; b210 either recomputes `addu $v1, $s1, $s0` (this body, 2
-   words) or drops the separate base entirely and addresses off $s0 (every
-   spelling that names the pointer: 36 words).  Level 1 has no CSE, so the
-   recompute is expected; what retail does implies a source-level temporary
-   that stays distinct from the pointer.  Measured and rejected in the micro:
-   `q = p` before each store, a single `q = p` hoisted, storing through `p`
-   directly, an s32 intermediate, and s64/u64 intermediates (those add
-   dsll32/dsrl32 pairs).  optimization_level 0/2/3/4 are 40/36/36/36. */
-/* 2026-09-18 lead pass, 14 measured variants, floor confirmed at 2 words.
-   The only two differing instructions are offsets 18 and 28: retail has
-   `move $v1, $s2` / `move $a0, $s2`, reusing the base pointer it computed at
-   offset 11 (`addu $s2, $s1, $s0`), where this body recomputes
-   `addu $v1, $s1, $s0`.  Everything else, including the 0x40 frame and the
-   s0/s1/s2 assignment, is identical.
-   The reuse and the frame are mutually exclusive here.  Writing `p->` at the
-   two store sites does produce the copy, but it also makes `arg0` and `idx`
-   dead, so the frame collapses to 0x20 and the score goes to 36; so does a
-   `q = p` pointer copy, a `u8 *` copy, and separate `q1`/`q2` copies.  Turning
-   CSE on has the same effect from the other direction: `opt_common_subs on`,
-   `opt_common_subs on` + `opt_propagation off`, optimization_level 2 and 3,
-   and level 2 + `opt_dead_assignments off` are all 36.  `opt_propagation on`
-   and `opt_dead_assignments off` at level 1 tie at 2.
-   Retail therefore keeps `arg0` and `idx` live across both calls *and* reuses
-   the sum, which b210 will not do from any source shape tried.  Do not spend
-   another session reordering this body; the open question is what third use
-   of `arg0`/`idx` retail's source had. */
-/* 2026-09-18: re-probed against handoff 7o, floor stands at 2.  The two
-   residual words are retail keeping `arg0 + idx` in the callee-saved $s2 and
-   spelling both uses `move`, where this body keeps `arg0` and `idx` in $s1
-   and $s0 and re-adds them.  Every way of naming the sum once is far worse,
-   because it also removes the separate `idx` live range: `p` used for the two
-   stores as well 36, a second pointer `q` for the stores 36, a `u8 *base` for
-   the stores 36, one pointer and no `idx` at all 36, `arg0 +=` in place 36,
-   `register` on the pointer 36.  The mirror - calls through the recomputed
-   expression, stores through `p` - is 18.  Converting the two declarations to
-   uninitialised form with statement assignments (the 7o lever) ties at 2. */
-/* measured 2026-09-19: object 39 instrs against retail 39, exact, 2 differing
-   words - the closest first-party floor in the tree.  Both differences are
-   the same thing: retail keeps `arg0 + idx` in the saved register `$s2` and
-   emits `move $v1, $s2` and `move $a0, $s2`, where b210 recomputes
-   `addu $v1, $s1, $s0` at each site.
-   Eight spellings measured with `python3 tools/probe_variants.py`: the mixed
-   form below (2 words) and `register` on the pointer (2) tie for best; using
-   the `p` pointer uniformly is 36, inverting which uses re-cast and which use
-   `p` is 18, all-re-cast is 29, a `u8 *base` intermediate is 36, and dropping
-   the optimization-level pragmas is 36.  The re-cast at the two store sites
-   is therefore deliberate and load-bearing, not an accident of the draft.
-   What remains is b210's refusal to keep the base live across the two calls
-   in a callee-saved register.  Do not re-run the spelling search. */
-/* measured 00375f00 (owner, 2026-09-19): 39/39 exact, **2 edits** - the closest first-party
-   floor in the tree.  Both are the same difference: retail keeps `arg0 + idx` live in $s2 and
-   spells the two later uses `move $v1, $s2` / `move $a0, $s2`, while b210 rematerialises
-   `addu $v1, $s1, $s0`.  Eight spellings were measured against the 2 and every one is worse:
-     stores through `p` 32/22; calls through the cast and stores through `p` 38/13;
-     a `ShuffleRecord *` held across all four uses 38/10; a `ShuffleContext *q = p` copy 32/22;
-     a `u8 *raw = arg0 + idx` reused by the stores 35/21; a raw `base` with literal 0x1d6ac /
-     0x1d6a4 / 0x1d70c / 0x1d6a8 offsets 32/22; and two flat `ShuffleRecord *` forms 27/28.
-   The recomputed cast is load-bearing: it is what holds the object at retail's 39.  Sharing
-   the pointer lets b210 fold the address arithmetic and costs instructions, so the last two
-   edits are a rematerialise-versus-copy choice inside the register allocator.
-   `#pragma optimization_level 1` here is a measured pair per 7aw, not inflation: with it the
-   object is 39 instrs / 2 edits, without it 32 instrs / 22 edits - count and edits both
-   improve, which is the whole test. */
-// FUN_00375F00 NONMATCHING
-#ifdef NON_MATCHING
-#pragma optimization_level 1
+/* Reset one shuffle record: reinitialise its motion and rotation objects and
+   set their states to 5 and 3. Each state store forms the record address
+   again from the byte offset, as integer arithmetic. Those address
+   expressions differ from the pointer's in the frontend, so it keeps
+   `arg0`/`idx` live in $s1/$s0. b210's post-colouring CSE then turns each
+   recomputed `addu` into a copy of the pointer in $s2, as in retail. */
 typedef struct ShuffleMotion { u8 data[0x60]; } ShuffleMotion;
 typedef struct ShuffleRotation { u8 data[0x6c]; } ShuffleRotation;
 typedef struct ShuffleRecord {
@@ -1058,18 +991,15 @@ typedef struct ShuffleRecord {
     u8 trackD8[8]; u8 trackE0[8];
 } ShuffleRecord;
 typedef struct ShuffleContext { u8 preceding[0x1d6a0]; ShuffleRecord records[]; } ShuffleContext;
+// FUN_00375F00
 void func_00375f00(u8 *arg0, s32 arg1) {
     s32 idx = arg1 * sizeof(ShuffleRecord);
     ShuffleContext *p = (ShuffleContext *)(arg0 + idx);
     func_00370410((u8 *)&p->records[0].motion);
-    ((ShuffleContext *)(arg0 + idx))->records[0].motionState = 5;
+    ((ShuffleContext *)((u32)arg0 + idx))->records[0].motionState = 5;
     func_00370a80((u8 *)&p->records[0].rotation);
-    ((ShuffleContext *)(arg0 + idx))->records[0].rotationState = 3;
+    ((ShuffleContext *)(arg0 + (u32)idx))->records[0].rotationState = 3;
 }
-#pragma optimization_level 2
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375f00);
-#endif
 
 // FUN_00375FA0
 void func_00375fa0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
