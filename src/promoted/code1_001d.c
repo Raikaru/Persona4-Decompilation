@@ -1268,28 +1268,11 @@ case8_failure:
         break;
     }
 }
-/* measured 2026-09-26 (campaign g1 round 4): fresh rewrite, 8 words (obj 1444B + zero padding,
-   window 1456B). The only residual is a saved-register swap: retail keeps the loop index in $s5
-   and w->frame in $s3, and this body has them the other way round. Declaration-order sweeps,
-   a masked s32 index, block-scoped index/frame and the permuter (1617 compiles) all stay at 8.
-   Levers: struct copies for the 0x20/0x34/0x40 blocks, switch statements for the type/mode tests
-   (cases written 0,1,0xD,6,7 emit retail's 7,6,0xD,1,0 chain), inline scale helpers, s32 count,
-   and the 0.0125f/0.8f literals for fGpffff8354/fGpffff838c. See
-   docs/probe_archive/Attach_001d53e0_20260926_body.c.
-   2026-09-28 (lane4, still 8 words): the swap is a partition, not an order. Retail keeps
-   {unit,entry,handles,frame,w} in $s0-$s4 and {i,color,created,count} in $s5-$fp; this body puts i in the
-   low group and frame in the high one. Group membership follows how the value is used, not declaration
-   order: moving i or frame anywhere in the declarations never changes it, but one extra use of frame
-   (compare, store or call argument) swaps the groups. A call argument `func(frame)` lands frame at retail's $s3
-   in declaration order and i at $s5, a compare or store puts frame at $s0 instead; none of these
-   spellings exists in retail, so they are diagnostics only. Also no effect: pointer or s32 i,
-   (u16)-cast index, inline compare helpers, pointer parameter, opt_loop_invariants/opt_propagation
-   pragmas (pragma sweep leaves 8).
-   2026-09-28: effect resources and live handles are pointers, as required by
-   func_00485c80 and the effect setters. Correcting their contracts keeps the
-   1444-byte candidate and the same eight register differences. */
-// FUN_001D53E0 NONMATCHING
-#ifdef NON_MATCHING
+/* Retail keeps {unit,entry,handles,frame,w} in $s0-$s4 and the loop index in
+   $s5. The loop compares against `now = (u32)frame`: that converted copy is a
+   copy use, so `frame` survives as its declared local (numbered after `w`)
+   instead of folding into its load temporary, and colours to $s3. A plain
+   `now = frame` folds both and keeps the old $s3/$s5 swap. */
 typedef struct BtlAttachV3
 {
     f32 x;
@@ -1368,6 +1351,7 @@ static inline f32 btlAttachFieldScale(u8 *unit)
     return s;
 }
 
+// FUN_001D53E0
 void func_001d53e0(s32 arg0)
 {
     extern void func_001fc2c0(u32 a0, u32 a1);
@@ -1377,10 +1361,11 @@ void func_001d53e0(s32 arg0)
     extern BtlAttachPositionCallback *D_00609500[];
     s32 count;
     BtlAttachWork *w;
+    u32 frame;
+    u32 now;
     u16 i;
     u32 color;
     s32 created;
-    u32 frame;
     u8 **handles;
     BtlAttachEntry *entry;
     u8 *unit;
@@ -1416,11 +1401,12 @@ void func_001d53e0(s32 arg0)
         w->size = *(f32 *)(unit + 0x2C);
     }
     func_001fc2c0((u32)w->unit, (u32)w->target);
+    now = (u32)frame;
     handles = w->handles;
     count = w->count;
     entry = (BtlAttachEntry *)(w->table + 0x14);
     for (i = 0; i < count; i++, entry++, handles++) {
-        if (!(entry->start < frame)) {
+        if (!(entry->start < now)) {
             continue;
         }
         if (entry->state == 0xFE) {
@@ -1497,9 +1483,6 @@ void func_001d53e0(s32 arg0)
     }
     w->frame++;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d53e0);
-#endif
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
 #pragma optimization_level 1
 // FUN_001D5990
