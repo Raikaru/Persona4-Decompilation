@@ -1991,6 +1991,14 @@ definition and every caller together.
   declaration put the loads first instead. Closed `func_00178870`
   (code1_0017.c, nd4 -> 0); measured in isolation across 22 spellings.
   Policy caveat: see the note at the top of this list.
+  Measured 2026-10-06 with `tools/b210_micro.py`: a `u16`/`s16` load passed
+  to an `s32` parameter carries a `zext`/`sext` conversion and is evaluated
+  before an earlier pointer-load argument. The same load passed to a `u16`
+  parameter, or an `s32` load passed to `s32`, keeps left-to-right order.
+  `& 0xFFFF`, `(u32)`/`(s32)` casts, a bitfield, a `u16` or `s32` staging
+  local, and an unprototyped declaration all keep the conversion first.
+  `func_002239a0` is two words from a match on exactly this, against a
+  matched `s32` callee.
 - **Entry parks are emitted in PARAMETER order.** Retail `move $s6,$a0 /
   mov.s $f21,$f12 / mov.s $f20,$f13 / move $v1,$a1 / move $s4,$a2` is not a
   scheduling floor: the floats sit between the GPR parks because the source
