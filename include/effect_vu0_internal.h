@@ -27,6 +27,24 @@ static inline void effectVuUnpackColor10(const u32 *word, f32 scale)
         : : "r"(scale) : "$vf2", "$vf10");
 }
 
+/* The same unpack with the transfer named $2. Retail writes some unpacks
+ * this way: $v0 is free just before the unpack, used inside it, and avoided
+ * by values live across it (an earlier call result moves to $v1). */
+static inline void effectVuUnpackColor10V0(const u32 *word, f32 scale)
+{
+    __asm__ volatile(
+        "lw $2, 0(%0)\n"
+        "pextlb $2, $zero, $2\n"
+        "pextlh $2, $zero, $2\n"
+        "qmtc2.ni $2, $vf10\n"
+        "vitof0.xyzw $vf10, $vf10\n"
+        : : "r"(word), "m"(*word) : "$2", "$vf10");
+    __asm__ volatile(
+        "qmtc2.ni %0, $vf2\n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+        : : "r"(scale) : "$vf2", "$vf10");
+}
+
 static inline void effectVuLoad10(const EffectVuVector *value)
 {
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(value), "m"(*value) : "$vf10");
