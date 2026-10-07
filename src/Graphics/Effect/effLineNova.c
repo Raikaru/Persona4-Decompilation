@@ -164,14 +164,35 @@ static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 
     factor = factor * depth;
     return difference * factor / screen;
 }
+/* effectVuUnpackColor10 with the transfer in $v0, as retail's
+ * func_004b36b0 writes it: the caller keeps the earlier call result out of
+ * $v0 across the unpack. */
+static inline void novaUnpackColor10(const u32 *word, f32 scale)
+{
+    __asm__ volatile(
+        "lw $2, 0(%0)\n"
+        "pextlb $2, $zero, $2\n"
+        "pextlh $2, $zero, $2\n"
+        "qmtc2.ni $2, $vf10\n"
+        "vitof0.xyzw $vf10, $vf10\n"
+        : : "r"(word), "m"(*word) : "$2", "$vf10");
+    __asm__ volatile(
+        "qmtc2.ni %0, $vf2\n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+        : : "r"(scale) : "$vf2", "$vf10");
+}
 
 /* Eight-byte particles follow the four camera corners; the VU computes the
- * edge length, normalized cross product and six real XYZ vertices. */
-// FUN_004B36B0 NONMATCHING
-#ifdef NON_MATCHING
+ * edge length, normalized cross product and six real XYZ vertices. Both
+ * VU0 bridges that retail writes through $v0 (the colour unpack and the
+ * edge-length cfc2/mtc1) name $2: the retail call result moves to $v1 before
+ * the first unpack, and no loop invariant takes $v0. The call's last two
+ * arguments are (s32) conversions so they load before the first two; the
+ * screen products use novaMultiply for retail's operand order. */
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
+// FUN_004B36B0
 void func_004b36b0(u8 *unused, u8 *effect)
 {
 
@@ -191,9 +212,9 @@ void func_004b36b0(u8 *unused, u8 *effect)
     u8 *instance, *state, *config, *owner;
     u8 *cameraDimensions;
     u8 *particle;
-    f32 *vertices;
     f32 normalization;
     u32 count, index;
+    f32 *vertices;
 
     extern u8 *func_003e42a0(u8 *, u8 *, u8 *);
     EffectVuVector projected;
@@ -208,14 +229,14 @@ void func_004b36b0(u8 *unused, u8 *effect)
     config = *(u8 **)(instance + 0x24);
     owner = *(u8 **)(state + 4);
 
-    sampleResult = (u32)func_0048abd0(config, config + 0x24, *(s32 *)(instance + 0x14), *(s32 *)(config + 0x34));
+    sampleResult = (u32)func_0048abd0(config, config + 0x24, (s32)*(u32 *)(instance + 0x14), (s32)*(u32 *)(config + 0x34));
     effectColor = *(u32 *)(instance + 0x10);
     colorInput = &effectColor;
     normalization = fGpffff8044;
-    effectVuUnpackColor10(colorInput, normalization);
+    novaUnpackColor10(colorInput, normalization);
     __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
     sampled = sampleResult;
-    effectVuUnpackColor10(&sampled, normalization);
+    novaUnpackColor10(&sampled, normalization);
     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
     {
         u32 transfer;
@@ -249,8 +270,9 @@ void func_004b36b0(u8 *unused, u8 *effect)
     yScale = *(f32 *)(cameraDimensions + 4);
     yExtent = yScale * farClip;
     minusX = -xExtent;
+    corners[0].lane[0] = minusX;
     minusY = -yExtent;
-    corners[0].lane[0] = minusX; corners[0].lane[1] = minusY; corners[0].lane[2] = farClip;
+    corners[0].lane[1] = minusY; corners[0].lane[2] = farClip;
     corners[1].lane[0] = xExtent; corners[1].lane[1] = minusY; corners[1].lane[2] = farClip;
     corners[2].lane[0] = xExtent; corners[2].lane[1] = yExtent; corners[2].lane[2] = farClip;
     corners[3].lane[0] = minusX; corners[3].lane[1] = yExtent; corners[3].lane[2] = farClip;
@@ -259,7 +281,10 @@ void func_004b36b0(u8 *unused, u8 *effect)
     switch (mode) {
     case 0: {
         f32 depth, x, y;
-        func_003e42a0((u8 *)&interpolated, instance, func_00457120() + 0x20);
+        {
+            u8 *view = func_00457120() + 0x20;
+            func_003e42a0((u8 *)&interpolated, instance, view);
+        }
         depth = interpolated.lane[2];
         x = *(f32 *)cameraDimensions * depth;
         y = *(f32 *)(cameraDimensions + 4) * depth;
@@ -269,13 +294,18 @@ void func_004b36b0(u8 *unused, u8 *effect)
     } break;
     case 1: {
         f32 x, y;
-        farClip = 300.0f * farClip;
+        f32 half, two;
+        farClip = novaMultiply(300.0f, farClip);
         xScale = xScale * farClip;
         yScale = yScale * farClip;
-        x = ((f32)*(s16 *)(config + 0x7e) / 640.0f) - 0.5f;
-        projected.lane[0] = (2.0f * -xScale) * x;
-        y = ((f32)*(s16 *)(config + 0x80) / 448.0f) - 0.5f;
-        projected.lane[1] = (2.0f * -yScale) * y;
+        half = 0.5f;
+        two = 2.0f;
+        x = (f32)*(s16 *)(config + 0x7e);
+        x = (x / 640.0f) - half;
+        projected.lane[0] = novaMultiply(two * -xScale, x);
+        y = (f32)*(s16 *)(config + 0x80);
+        y = (y / 448.0f) - half;
+        projected.lane[1] = novaMultiply(two * -yScale, y);
         projected.lane[2] = farClip;
     } break;
     }
@@ -292,7 +322,6 @@ void func_004b36b0(u8 *unused, u8 *effect)
     divisor = (f32)65535;
     for (; index < count; index++, particle += 8, vertices += 18) {
         f32 length, factor;
-        u32 transfer;
         effectVuLoad10(&corners[index & 3]);
         effectVuLoad11(&corners[(index + 1) & 3]);
 __asm__ volatile(
@@ -305,9 +334,9 @@ __asm__ volatile(
             "vaddz.x $vf2, $vf2, $vf2z\n"
             ".word 0x4a0203bd\n"
             "vwaitq\n"
-            "cfc2.ni %0, $vi22\n"
-            "mtc1 %0, %1\n"
-            : "=&r"(transfer), "=f"(length) : : "$vf2", "Q");
+            "cfc2.ni $2, $vi22\n"
+            "mtc1 $2, %0\n"
+            : "=f"(length) : : "$2", "$vf2", "Q");
         factor = length * ((f32)(u32)*(u16 *)particle / divisor);
 __asm__ volatile(
     "vmul.xyz $vf2, $vf10, $vf10\n"
@@ -331,9 +360,8 @@ __asm__ volatile(
     : : : "$vf2", "$vf10", "$vf11", "$vf12", "ACC", "Q");
 
         {
-            u32 transfer;
-            __asm__ volatile("lw %0, %1\nnop\nqmtc2.ni %0, $vf2\nvmulx.xyzw $vf10, $vf10, $vf2x\n"
-                : "=&r"(transfer) : "m"(*(u32 *)(particle + 4)) : "$vf2", "$vf10");
+            __asm__ volatile("nop\nqmtc2.ni %0, $vf2\nvmulx.xyzw $vf10, $vf10, $vf2x\n"
+                : : "r"(*(u32 *)(particle + 4)) : "$vf2", "$vf10");
         }
 __asm__ volatile(
     "vadd.xyzw $vf10, $vf10, $vf11\n"
@@ -423,9 +451,6 @@ vertices[8] = *(f32 *)D_00713D18;
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b36b0);
-#endif
 
 
 // FUN_004B3D90
