@@ -616,6 +616,19 @@ below are the codegen consequences.
   variable: `IRO_CopyAndConstantPropagation` folds `alias = local` copies,
   and loop passes create `@N` temporaries. Use it before guessing whether a
   local survives the frontend.
+
+  **Lever: let post-colouring CSE make the copy (`func_00375f00`, MATCH
+  2026-10-06).** CodeGen_Generator runs `removecommonsubexpressions` again
+  after register colouring (`0x004bbcf0(1)`, gated by `opt_common_subs`).
+  A retail `move $v1, $s2` where the expression `arg0 + idx` already sits in
+  `$s2`, while `arg0` and `idx` themselves stay saved in `$s1`/`$s0`, is
+  this pass's signature. Pre-allocation the code still recomputed
+  `addu $v1, $s1, $s0`, so both operands were live at colouring. Reproduce
+  it at normal `-O2` by writing the later address expressions so the
+  frontend does not merge them with the earlier one, or with each other:
+  `(u32)arg0 + idx` and `arg0 + (u32)idx`. Retail's two moves then come out
+  exactly. Before this, earlier sessions had recorded `00375f00` as an
+  `optimization_level 1` floor.
 - **Cache after the first assert / cache the base pointer.** Functions that
   reuse a global load it once into a saved register. Mirror with an assert on
   the global first, then `work = g; ...use work...`. Setters that reload the
