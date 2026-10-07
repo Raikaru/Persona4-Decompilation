@@ -554,6 +554,18 @@ below are the codegen consequences.
     shared counter under `opt_lifetimes` makes the second counter high. A
     two-step `weights = profile->weather; weights += category;` does not
     keep `weights`, because the frontend folds the two assignments.
+  - Many floating-point locals at once (`004a4a10`, `004a2310`, `004a3640`,
+    MATCH 2026-10-07): use `tools/regalloc_order_search.py FAIL OK --nodes
+    ... --anchor N --target V:C,... --spills ...`. A function that spills
+    colours each class twice, so pass both captures. The tool permutes the
+    listed locals' scan positions after the anchor. It keeps an order only
+    if the failed capture still spills exactly retail's set, then scores
+    the colours in the successful capture. The orders it found were
+    declaration orders retail's colours follow. For example, in `004a3640`
+    every non-spilled float is declared before the spilled ones, in the
+    order `t, vStep, gravity, angle, height, sampleScale, c, swell, centre,
+    one, half, end`. The spilled locals' declaration order also sets their
+    stack slots: the first declared gets the highest address.
 
   The numbers come from source like this:
   - the parameter copies get `r32` up, then declared locals in declaration
