@@ -649,6 +649,28 @@ below are the codegen consequences.
   `(u32)arg0 + idx` and `arg0 + (u32)idx`. Retail's two moves then come out
   exactly. Before this, earlier sessions had recorded `00375f00` as an
   `optimization_level 1` floor.
+
+  **Lever: keep a load local alive with a repeated conversion
+  (`func_00323d00`, MATCH 2026-10-06; 29 edits → 0).** A local that b210
+  folds into its load temporary survives when the frontend copies it into a
+  CSE temporary. That happens when the same conversion of the local appears
+  more than once (`(s32)x`, `(u32)x`, also an identity conversion), with the
+  first occurrence in a later block than the local's assignment. The copy
+  `@cse = x` is a copy use, so `propagatecopyinstructions` keeps `x`. The CSE
+  temporary then folds into `x`. Nothing remains in the object except the
+  local's low declared number, which is what colouring needed.
+  - `func_00323d00`: `hidden`/`shown` declared before `res` and passed as
+    `(s32)shown, (s32)hidden` at all six calls gives retail's `$s4/$s3/$s1`.
+    Either change alone stays at 22–29. `(u8)` conversions emit `andi` and
+    do not create the copy.
+  - Measured in isolation (`tools/b210_micro.py`): the copy is not made when
+    the first conversion sits in the assignment's own block, when the two
+    occurrences are in different loops separated by calls, or under
+    `opt_common_subs off`. Matched code that already relies on it:
+    `func_00314450` (`u32 t` read as `(u32)t + K` after an inlined zero
+    loop).
+  Use it when `tools/regalloc_whatif.py` says a value must keep its declared
+  number.
 - **Cache after the first assert / cache the base pointer.** Functions that
   reuse a global load it once into a saved register. Mirror with an assert on
   the global first, then `work = g; ...use work...`. Setters that reload the
@@ -738,7 +760,8 @@ below are the codegen consequences.
   `opt_propagation off`. Declaration order then has no effect, and the value
   ranks by emission order among temporaries. Parameter-derived locals under
   `opt_propagation off` (`x = a & 0xffff`) are unaffected; that clause holds
-  as written.
+  as written. To keep a compare-only load local in the list, use the
+  repeated-conversion lever above ("Keep a load local alive").
 
   **How to use it.** Read retail's prologue and list which value sits in each
   `$s` register. Then order your declarations so that the value in the

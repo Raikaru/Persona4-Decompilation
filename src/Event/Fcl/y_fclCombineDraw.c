@@ -3319,23 +3319,13 @@ void func_003233d0(u8 *arg0) {
 }
 
 /* The mode is a signed byte across the title and row calls. Positions and
-   colors are native aggregates; the nonzero row/alpha allocation residual
-   remains guarded rather than being labelled a compiler floor. Resource and
-   alpha values belong to the late draw block: native C has 29 resolved
-   differing words. See docs/probe_archive/Fcl_late_scope_00323d00_20261005/.
-   2026-10-06 colouring model (tools/regalloc_whatif.py on the capture,
-   which reproduces the captured stack): retail's $s4/$s3/$s1 for
-   hidden/shown/res follow when
-   hidden and shown are numbered below res. That holds if they survive as
-   locals declared in that order, or if res is numbered between their
-   temporaries and the third loop's `sext k`. Here backend
-   propagatecopyinstructions folds both into codegen temporaries r128/r130,
-   because their only uses are zext call arguments. Measured and still 29 or
-   worse: every declaration order, s16/u16/u32/s64/int/register types,
-   two-step `*=` definitions, inline call arguments, and scoped
-   opt_propagation off or opt_lifetimes on. */
-// FUN_00323D00 NONMATCHING
-#ifdef NON_MATCHING
+   colors are native aggregates. `hidden` and `shown` are declared before
+   `res` and passed through `(s32)` conversions at every call. The repeated
+   conversion becomes one frontend temporary copied from each local inside
+   the later draw blocks. That copy use keeps both locals out of b210's
+   copy propagation, so they keep their low declared numbers and retail's
+   $s4/$s3 (see docs/matching.md, "Keep a load local alive"). */
+// FUN_00323D00
 void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
     FclByte4 cFC;
     FclByte4 cF8;
@@ -3374,9 +3364,9 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
         func_0031ac10(arg0, spC8.position, 0, (s8)k, *(u16 *)(func_002e48a0(0, k) + 2), *(u8 *)(func_002e48a0(0, k) + 4), (s16)(k * arg1), arg2, 1, 0xCC);
     }
     {
-        s16 res;
-        s32 shown;
         s32 hidden;
+        s32 shown;
+        s16 res;
         p = (FclVec2 *)D_006440F8;
         spC0.position = func_002b2970(p->x, p->y);
         func_002b6c30(0x71, spC0.position, 138.0f, 0x41);
@@ -3384,13 +3374,13 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
         *(FclDrawColor *)(func_002b6150(0x71) + 0x85) = cFC;
         hidden = (1 - (s8)arg2) * 0xFF;
         shown = (s8)arg2 * 0xFF;
-        func_002b6a70(0x71, shown, hidden, 0, 0, 0);
+        func_002b6a70(0x71, (s32)shown, (s32)hidden, 0, 0, 0);
         p = (FclVec2 *)D_006440F0;
         spB8.position = func_002b2970(p->x, p->y);
         func_002b6c30(0x70, spB8.position, 139.0f, 0x41);
         cF8 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
         *(FclDrawColor *)(func_002b6150(0x70) + 0x85) = cF8;
-        func_002b6a70(0x70, shown, hidden, 0, 0, 0);
+        func_002b6a70(0x70, (s32)shown, (s32)hidden, 0, 0, 0);
         for (k = 0; k < 2; k++) {
             p = (FclVec2 *)D_00644290;
             res = (s16)(k + 0x2BB);
@@ -3398,33 +3388,30 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
             func_002b6c30(res, spB0.position, 140.0f, 0x41);
             cF4 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
             *(FclDrawColor *)(func_002b6150(res) + 0x85) = cF4;
-            func_002b6a70(res, shown, hidden, 0, 0, 0);
+            func_002b6a70(res, (s32)shown, (s32)hidden, 0, 0, 0);
             p = (FclVec2 *)D_00644298;
             res = (s16)(k + 0x2BD);
             spA8.position = func_002b2970(p->x + (f32)(k * 330), p->y);
             func_002b6c30(res, spA8.position, 141.0f, 0x41);
             cF0 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
             *(FclDrawColor *)(func_002b6150(res) + 0x85) = cF0;
-            func_002b6a70(res, shown, hidden, 0, 0, 0);
+            func_002b6a70(res, (s32)shown, (s32)hidden, 0, 0, 0);
             p = (FclVec2 *)D_00644350;
             res = (s16)(k + 0x2BF);
             spA0.position = func_002b2970(p->x + (f32)(k * 14), p->y);
             func_002b6c30(res, spA0.position, 142.0f, 0x41);
             cEC = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
             *(FclDrawColor *)(func_002b6150(res) + 0x85) = cEC;
-            func_002b6a70(res, shown, hidden, 0, 0, 0);
+            func_002b6a70(res, (s32)shown, (s32)hidden, 0, 0, 0);
         }
         p = (FclVec2 *)D_00644350;
         sp98.position = func_002b2970(28.0f + p->x, p->y);
         func_002b6c30(0xBC, sp98.position, 142.0f, 0x41);
         cE8 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
         *(FclDrawColor *)(func_002b6150(0xBC) + 0x85) = cE8;
-        func_002b6a70(0xBC, shown, hidden, 0, 0, 0);
+        func_002b6a70(0xBC, (s32)shown, (s32)hidden, 0, 0, 0);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00323d00);
-#endif
 
 /* 00324410 body archived at build/WBFclCombineDraw_00324410_body.c.txt.
    Best complete candidate measured nd 118, object 616/624 after changing only
