@@ -616,6 +616,29 @@ below are the codegen consequences.
   the alias disappears before codegen and the lever does nothing
   (`001b11c0`).
 
+  **Lever: a second name for the value under default propagation
+  (`func_0024be40`, `func_001b05d0`, `func_001d53e0`, MATCH 2026-10-07).**
+  Without `opt_propagation off`, an alias can still keep its source alive.
+  The alias is a copy use, so `propagatecopyinstructions` keeps the source
+  as its declared local (its low number), and the alias then coalesces into
+  it. Use it when `regalloc_whatif.py --search` reports that a value now
+  numbered as a codegen temporary must sit among the declared locals. Then
+  move the declaration to the position the search names.
+  - `0024be40`: the selection loop walks the weather row through
+    `cursor = (s8 *)weights`, with `cumulativeWeight` declared before
+    `choiceIndex`.
+  - `001b05d0`: the second scan reads through `table = base`, with `found`
+    declared first. Both pointers are `u8 *`; the owner's measured
+    `opt_common_subs off` is in scope.
+  - `001d53e0`: the frame compare runs against `now = (u32)frame`, with
+    `frame` declared after `w`. There, `now = frame` without the cast still
+    folds both.
+
+  Try both spellings. The lever applies only where the source has a natural
+  second name for the value. It did not move the `&arrB[k]` CSE temporary in
+  `00148280`, because frontend `IRO_CommonSubs` creates that temporary before
+  the copy exists.
+
   **Lever: reuse a variable and split its lifetimes (`func_001b11c0`, MATCH
   2026-10-06).** Five sessions recorded this function as a `$t1`/`$t3`
   allocator wall. Retail colours the sort loop's index and cursor before the
@@ -635,7 +658,11 @@ below are the codegen consequences.
   byte-identical. The dump shows which frontend pass removes or creates a
   variable: `IRO_CopyAndConstantPropagation` folds `alias = local` copies,
   and loop passes create `@N` temporaries. Use it before guessing whether a
-  local survives the frontend.
+  local survives the frontend. `tools/b210_irdump.py OWNER ADDR CANDIDATE
+  OUT.log` sets both gates and compiles the owner with the candidate
+  spliced in. On `004941f0` it showed `IRO_CommonSubs` creating `@1070 = 1`:
+  the loop's `1.0f - fraction` shares the entry block's `1.0f / count`
+  constant. Retail materialises `1.0f` again in the loop preheader instead.
 
   **Lever: let post-colouring CSE make the copy (`func_00375f00`, MATCH
   2026-10-06).** CodeGen_Generator runs `removecommonsubexpressions` again
