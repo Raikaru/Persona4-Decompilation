@@ -1053,3 +1053,6 @@ D_0076313C = 0x0076313c; // type:data evidence: func_00190c10 +188 addiu; three-
 D_00763140 = 0x00763140; // type:data evidence: func_00190c10 +248 addiu; five-byte NUL-terminated retail string
 D_00763148 = 0x00763148; // type:data evidence: func_00190c10 +924 addiu; five-byte NUL-terminated retail string
 D_00764498 = 0x00764498; // type:data evidence: func_00190c10 +956 sw and +1020/+1112/+1220/+2396 lw; aligned four-byte descriptor slot
+
+// Memory-card save header, anchored by the matching owner's native GP relocation.
+D_007640F8 = 0x007640f8; // type:data evidence: func_004647c0 addiu $5,$28,-0x4FF8 at 0x004651B0; zero-addend native R_MIPS_GPREL16; GP 0x007690F0
