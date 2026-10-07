@@ -25,10 +25,10 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 7 continuation: 6,805 MATCH / 56 ASM
+## October 7 continuation: 6,807 MATCH / 54 ASM
 
-A fresh all-owner verify (`build/after12.json`) reports 6,805 first-party
-MATCH and 56 ASM. Against the previous report, only the newly matched rows
+A fresh all-owner verify (`build/after13.json`) reports 6,807 first-party
+MATCH and 54 ASM. Against the previous report, only the newly matched rows
 changed. The full link keeps all 604 C objects and 54 Sony SDK objects, and
 both retail hashes pass.
 
@@ -50,6 +50,13 @@ Matches this continuation:
   `regalloc_whatif.py` model:
   - the failure snapshot had to keep retail's spill set;
   - the success snapshot had to give retail's colours.
+- effPolygonThunder `004956b0` and `004968a0` were rewritten the same way.
+  `004956b0` reads 2π through a second name, `iGpffff8084`, so it is reloaded
+  where retail reloads it. The fix that linked these two was to register
+  `fGpffff80ec` and `fGpffff80e0` in both `config/symbol_data_addrs.txt` and
+  `config/symbols_recovered.txt`. Before that, the owner verified MATCH but
+  fell out of the link at 603 TUs. `build.py` reads linker definitions from
+  `symbols_recovered.txt`.
 
 `tools/b210_irdump.py` dumps b210's frontend IR for a candidate. Use it to
 see which `IRO_*` pass creates or removes a temporary before guessing a
@@ -60,6 +67,8 @@ Open floors recorded in their owner notes:
   copy.
 - `004941f0` shares the `1.0f` constant through `IRO_CommonSubs`.
 - `004a7830` needs the `fabsf` local live out of its block.
+- `00497ce0` copies two vectors through `$2` inside its row loop, so it joins
+  the GPR quad-copy floors. The guarded body is the 201-edit rewrite.
 
 ## October 6 continuation: 6,773 MATCH / 88 ASM
 
