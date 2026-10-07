@@ -164,23 +164,6 @@ static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 
     factor = factor * depth;
     return difference * factor / screen;
 }
-/* effectVuUnpackColor10 with the transfer in $v0, as retail's
- * func_004b36b0 writes it: the caller keeps the earlier call result out of
- * $v0 across the unpack. */
-static inline void novaUnpackColor10(const u32 *word, f32 scale)
-{
-    __asm__ volatile(
-        "lw $2, 0(%0)\n"
-        "pextlb $2, $zero, $2\n"
-        "pextlh $2, $zero, $2\n"
-        "qmtc2.ni $2, $vf10\n"
-        "vitof0.xyzw $vf10, $vf10\n"
-        : : "r"(word), "m"(*word) : "$2", "$vf10");
-    __asm__ volatile(
-        "qmtc2.ni %0, $vf2\n"
-        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-        : : "r"(scale) : "$vf2", "$vf10");
-}
 
 /* Eight-byte particles follow the four camera corners; the VU computes the
  * edge length, normalized cross product and six real XYZ vertices. Both
@@ -233,10 +216,10 @@ void func_004b36b0(u8 *unused, u8 *effect)
     effectColor = *(u32 *)(instance + 0x10);
     colorInput = &effectColor;
     normalization = fGpffff8044;
-    novaUnpackColor10(colorInput, normalization);
+    effectVuUnpackColor10V0(colorInput, normalization);
     __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
     sampled = sampleResult;
-    novaUnpackColor10(&sampled, normalization);
+    effectVuUnpackColor10V0(&sampled, normalization);
     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
     {
         u32 transfer;
@@ -631,7 +614,7 @@ void func_004b41c0(u8 *arg0) {
 /* Six-byte particles place six XYZ vertices between the projected endpoints.
  * The rotation axis is twelve bytes, with both source parts loaded first.
  * As in func_004b36b0: (s32) conversions on the last two sampler arguments,
- * novaUnpackColor10 for the $v0 colour transfers, and the vertex pointer
+ * effectVuUnpackColor10V0 for the $v0 colour transfers, and the vertex pointer
  * declared after the loop counter. The Y camera offset forms its depth factor
  * before the 224 difference, unlike the X call through novaCameraOffset. */
 #pragma push
@@ -694,10 +677,10 @@ void func_004b4430(u8 *unused, u8 *effect)
     effectColor = *(u32 *)(instance + 0x10);
     colorInput = &effectColor;
     normalization = fGpffff8044;
-    novaUnpackColor10(colorInput, normalization);
+    effectVuUnpackColor10V0(colorInput, normalization);
     __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
     sampled = sampleResult;
-    novaUnpackColor10(&sampled, normalization);
+    effectVuUnpackColor10V0(&sampled, normalization);
     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
     {
         u32 transfer;

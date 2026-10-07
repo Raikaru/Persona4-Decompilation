@@ -1593,11 +1593,17 @@ void func_004940d0(u8 *arg0, u16 arg1, Code1_0049Color *arg2)
 #pragma opt_common_subs on
 /* measured: closing opt_propagation after func_004940d0 probe. */
 #pragma opt_propagation on
-/* Whole-owner recovery, 2026-10-05: 1168/1168 bytes, 78 differing instruction words.
- * Counts are unsigned after the signed-short loads. Complete vector and packed-color
- * objects preserve the VU transfers; the loop pragma retains the vector addresses.
- * Remaining differences are register allocation, one load pair, and the loop entry.
- * See docs/probe_archive/ModelTrack_004941f0_worker9_20261005.md. */
+/* Whole-owner recovery, 2026-10-05; 2026-10-07: 1168/1168 bytes, 4 differing
+ * instruction words (was 78). Counts are unsigned after the signed-short loads.
+ * Complete vector and packed-color objects preserve the VU transfers; the loop
+ * pragma retains the vector addresses. The colour unpacks use
+ * effectVuUnpackColor10V0, which fixed the $v0/$a-register shift.
+ * Remaining: retail materializes 1.0f again in the loop preheader after a
+ * single zero-trip guard. Here the front end turns the loop's 1.0f into an
+ * entry-block local that shares fractionStep's constant. Without the
+ * `segmentCount != 0` test the guard is single but the constant is still
+ * shared (6 words); a local `one`, a for loop, an inline-argument constant
+ * and CSE/propagation pragmas do not separate it. */
 // FUN_004941F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1647,16 +1653,16 @@ void func_004941f0(u8 *track, u32 *colors)
     fraction = 0.0f;
     firstWord = colors[0];
     scale = fGpffff8044;
-    effectVuUnpackColor10(&firstWord, scale);
+    effectVuUnpackColor10V0(&firstWord, scale);
     effectVuStore10(&first);
     secondWord = colors[1];
-    effectVuUnpackColor10(&secondWord, scale);
+    effectVuUnpackColor10V0(&secondWord, scale);
     effectVuStore10(&second);
     thirdWord = colors[2];
-    effectVuUnpackColor10(&thirdWord, scale);
+    effectVuUnpackColor10V0(&thirdWord, scale);
     effectVuStore10(&third);
     fourthWord = colors[3];
-    effectVuUnpackColor10(&fourthWord, scale);
+    effectVuUnpackColor10V0(&fourthWord, scale);
     effectVuStore10(&fourth);
     index = 0;
     if (segmentCount != 0) {
