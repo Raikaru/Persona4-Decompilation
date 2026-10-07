@@ -25,10 +25,10 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 7 continuation: 6,801 MATCH / 60 ASM
+## October 7 continuation: 6,805 MATCH / 56 ASM
 
-A fresh all-owner verify (`build/after11.json`) reports 6,801 first-party
-MATCH and 60 ASM. Against the previous report, only the newly matched rows
+A fresh all-owner verify (`build/after12.json`) reports 6,805 first-party
+MATCH and 56 ASM. Against the previous report, only the newly matched rows
 changed. The full link keeps all 604 C objects and 54 Sony SDK objects, and
 both retail hashes pass.
 
@@ -38,8 +38,18 @@ Matches this continuation:
   matched sibling, ranked by opcode similarity.
 - Register-allocation residuals: `0024be40`, `001b05d0`, `001d53e0` and
   `00148280`. They were closed by the "second name for the value" lever in
-  [matching.md](matching.md), with `00148280` also using
-  shared, lifetime-split loop counters.
+  [matching.md](matching.md). `00148280` also needed shared, lifetime-split
+  loop counters.
+- `004647c0`: the guarded body only lacked retail's unchecked icon lookup.
+  Retail reads `out` uninitialised; the owner note records the address. Its
+  new `D_007640F8` reference needed a `config/symbol_data_addrs.txt` entry to
+  stay linkable. Run the full link after any match that adds extern symbols.
+- The effPolygonWind strip family, `004a4a10`, `004a2310` and `004a3640`,
+  was rewritten from retail asm with VU0 asm for the vector pipeline. FPR
+  colouring was solved by searching declaration orders with the
+  `regalloc_whatif.py` model:
+  - the failure snapshot had to keep retail's spill set;
+  - the success snapshot had to give retail's colours.
 
 `tools/b210_irdump.py` dumps b210's frontend IR for a candidate. Use it to
 see which `IRO_*` pass creates or removes a temporary before guessing a
