@@ -573,9 +573,24 @@ below are the codegen consequences.
       every FPR copy, using only definitions earlier in the same block. A
       copy whose destination is still live out of the block survives.
 
-    Locals with several reaching definitions, such as loop counters and
-    flags, keep their low declared numbers. Everything else takes the
-    temporary's high number, so declaration order cannot move it.
+    Locals with several reaching definitions *from different sources*,
+    such as loop counters and flags, keep their low declared numbers.
+    Everything else takes the temporary's high number, so declaration order
+    cannot move it. Measured with `tools/b210_micro.py` (2026-10-06):
+    - a copy use into a physical register keeps the local, e.g. passing it
+      as a call argument. A copy into another local does not: `now = frame`
+      folds both;
+    - two definitions with the same source still fold. A second
+      `base = gp` is CSE'd by the frontend into one frontend temporary,
+      numbered just after the declared locals, and both copies of `base`
+      then fold into it;
+    - an `if`/`else` pair of definitions becomes a frontend select temporary,
+      not a surviving local;
+    - a dead initialiser (`u32 frame = 0;` then `frame = w->frame;`), a
+      static inline helper taking the value, and `register` all fold;
+    - the only pcode flags that block the fold (0x80/0x100 on the copy) occur
+      on inline-asm instructions. Peephole likewise skips only asm blocks
+      (block flags 0x180).
 
   So a swap between a temporary and a surviving local is not reachable
   through declaration order. The value that retail colours later has to be
