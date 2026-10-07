@@ -1056,3 +1056,7 @@ D_00764498 = 0x00764498; // type:data evidence: func_00190c10 +956 sw and +1020/
 
 // Memory-card save header, anchored by the matching owner's native GP relocation.
 D_007640F8 = 0x007640f8; // type:data evidence: func_004647c0 addiu $5,$28,-0x4FF8 at 0x004651B0; zero-addend native R_MIPS_GPREL16; GP 0x007690F0
+
+// Thunder wave-amplitude bases, anchored by the matching owners' GP loads.
+fGpffff80ec = 0x007611dc; // type:data evidence: func_004956b0 lwc1 $f0,-0x7F14($28) at 0x00495890; GP 0x007690F0
+fGpffff80e0 = 0x007611d0; // type:data evidence: func_004968a0 lwc1 $f0,-0x7F20($28) at 0x00496AAC; GP 0x007690F0
