@@ -4,6 +4,7 @@
 #include "effect_instance_internal.h"
 #include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
+#include "effect_vu0_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern s32 func_00457120(void);
@@ -543,276 +544,285 @@ void func_004b1ab0(u8 *arg0)
    it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
    has to be written out of the body.  Any differing-word score measured with the pragma in
    place is not comparable to one measured inside the gate (handoff 7y, 7au). */
-/* measured: 2026-09-20 second-branch signedness fix (spA0 u16s (u16)->(s16), stk78/7c (u32)->(s32)): obj 3192B/window 3184B (798/796 +0.3% INSIDE, was 909/796 +14.2%), 705wd (was 845). Micro: (u16)(float*16) store 24w with clamp vs (s16) 9w without (retail has no clamp there); (f32)(u32)>>5 unsigned 47w vs (s32) signed 24w (retail uses sra+cvt.s.w). No bare doubles (all floats suffixed). Stays ASM. */
-// FUN_004B1AD0 NONMATCHING
-#ifdef NON_MATCHING
+/* Screen-space sprite update, the func_004a5fc0 sibling. It shares the COP2
+ * colour pack (the asm writes the packed frame slot, retail reloads it) and
+ * the frame-info struct, then projects the four corners through the camera's
+ * depth range onto the 640x448 screen. */
+typedef struct EffScreenSpriteFrame {
+    f32 rect[4];
+    u32 size[2];
+    u16 corner[8];
+} EffScreenSpriteFrame;
+
+typedef struct EffScreenSpriteRGBA {
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} EffScreenSpriteRGBA;
+
 #pragma push
+#pragma opt_loop_invariants on
+// FUN_004B1AD0
 void func_004b1ad0(u8 *arg0)
 {
-    extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
-    extern f32 func_0048aff0(u8 *a, s32 b, s32 c);
-    extern void func_00482730(int a, u32 b);
-    extern void func_00482700(int a, float *b);
-    extern void func_00482ad0(u8 *a, s32 b, u8 *c);
-    extern void func_004839d0(int a, u32 *b);
-    extern u8 *RpGeometryLock(u8 *a, s32 b);
-    extern void func_003c22f0(u8 *a);
-    extern void func_003e9cb0(void *a, void *b, s32 c);
-    extern void func_00460ac0(void *a, void *b);
-    extern s32 func_004814d0(u16 a);
-    extern s32 func_00457120(void);
-    extern f32 cosf(f32 a);
-    extern f32 sinf(f32 a);
-    extern f32 fGpffff8044;
+    extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+    extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
+    extern void func_00482730(s32 arg0, u32 arg1);
+    extern void func_00482700(s32 arg0, f32 *arg1);
+    extern void func_00482ad0(void *arg0, u32 arg1, f32 *arg2);
+    extern void func_004839d0(s32 arg0, u32 *arg1);
+    extern void RpGeometryLock(void *arg0, s32 arg1);
+    extern void func_003c22f0(void *arg0);
+    extern void func_003c42b0(void *arg0, s32 arg1);
+    extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
+    extern void func_00460ac0(void *arg0, void *arg1);
+    extern s32 func_004814d0(u16 arg0);
+    extern f32 func_0044b610(f32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 D_00761134;
     extern f32 fGpffff8084;
-    s32 tmp_98;
-    s32 tmp_08;
-    u8 *tmp_a4;
-    s32 tmp_abd0;
-    u32 packed0;
-    u32 packed1;
-    u8 *dst_ptr;
+    EffScreenSpriteRGBA color;
+    u32 baseWord;
+    u32 tintWord;
+    u32 packed;
+    u32 frame[4];
+    f32 animation[16];
+    f32 texture[8];
+    EffScreenSpriteFrame info;
     f32 scale;
-    f32 div100;
-    f32 off_y;
-    s32 tmp_ac;
-    s32 tmp_a8;
-    f32 stk70;
-    f32 stk74;
-    f32 stk78;
-    f32 stk7c;
-    s32 stk80;
-    u32 stk84;
-    u16 stk88;
-    u16 stk8a;
-    u16 stk8c;
-    u16 stk8e;
-    u16 stk90;
-    u16 stk92;
-    u16 stk94;
-    u16 stk96;
-    f32 buf_c0[7];
-    f32 f_d8;
-    f32 f_dc;
-    f32 f_e0;
-    f32 f_e4;
-    f32 f_f0;
-    f32 f_f4;
-    u32 loc100;
-    u32 loc104;
-    f32 *out_mat;
-    f32 *out_uv;
-    f32 t70;
-    f32 t74;
-    f32 t78;
-    f32 t7c;
-    f32 c_ang;
-    f32 s_ang;
-    f32 f1;
-    f32 f2;
-    s32 i;
-    u8 *tmp2_a4;
-    u8 *ctx18;
-    u8 *cam;
-    f32 cam80;
-    f32 cam84;
-    f32 persp;
-    f32 px;
-    f32 py;
-    f32 inv_w;
-    f32 inv_h;
-    tmp_98 = *(s32 *)(arg0 + 0x98);
-    tmp_08 = *(s32 *)(arg0 + 0x08);
-    tmp_a4 = *(u8 **)(arg0 + 0xA4);
-    if ((tmp_08 != 0) && (tmp_08 < tmp_98)) {
-        tmp_abd0 = func_0048abd0(arg0 + 0x0C, arg0 + 0x30, tmp_08, tmp_98);
-        packed0 = *(u32 *)arg0;
-        scale = fGpffff8044;
+    f32 right;
+    f32 bottom;
+    f32 left;
+    f32 top;
+    f32 spin;
+    s32 count;
+    s32 total;
+    u8 *sprite;
+    f32 *vertex;
+    f32 *uv;
+
+    total = *(s32 *)(arg0 + 0x98);
+    count = *(s32 *)(arg0 + 0x8);
+    sprite = *(u8 **)(arg0 + 0xA4);
+    if (count == 0) {
+        return;
+    }
+    if (count >= total) {
+        return;
+    }
+    {
+        s32 tint = func_0048abd0(arg0 + 0xC, arg0 + 0x30, count, total);
+        f32 unit;
+
+        baseWord = *(u32 *)arg0;
         {
-            u32 c1slot = (u32)tmp_abd0;
-            u32 *p0 = &packed0;
-            u32 *p1 = &c1slot;
-            __asm__ volatile(
-                "lw $2, 0(%1)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2.ni $2, $vf10    \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %2           \n"
-                "nop                   \n"
-                "qmtc2.ni $2, $vf2     \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "vmove.xyzw $vf11, $vf10 \n"
-                :
-                : "r"(p0), "r"(p0), "f"(scale)
-                : "$2", "$vf2", "$vf10", "$vf11", "memory");
-            __asm__ volatile(
-                "lw $2, 0(%1)          \n"
-                "pextlb $2, $0, $2     \n"
-                "pextlh $2, $0, $2     \n"
-                "qmtc2.ni $2, $vf10    \n"
-                "vitof0.xyzw $vf10, $vf10 \n"
-                "mfc1 $2, %2           \n"
-                "nop                   \n"
-                "qmtc2.ni $2, $vf2     \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                "lui $2, 0x437F        \n"
-                "qmtc2.ni $2, $vf2     \n"
-                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                "vftoi0.xyzw $vf10, $vf10 \n"
-                "qmfc2.ni $2, $vf10    \n"
-                "ppach $2, $0, $2      \n"
-                "ppacb $2, $0, $2      \n"
-                "move %0, $2           \n"
-                : "=r"(packed1)
-                : "r"(p1), "f"(scale)
-                : "$2", "$vf2", "$vf10", "$vf11", "memory");
+            const u32 *word = &baseWord;
+
+            unit = D_00761134;
+            effectVuUnpackColor10V0(word, unit);
         }
-        packed0 = packed1;
-        if (((packed1 >> 24) & 0xFF) != 0xFF) {
-            dst_ptr = *(u8 **)(tmp_a4 + 0x14);
-            *(u32 *)(dst_ptr + 4) = packed1;
-        } else {
-            dst_ptr = *(u8 **)(tmp_a4 + 0x14);
-            *(u32 *)(dst_ptr + 4) = (packed1 & 0x00FFFFFF) | 0xFE000000;
-            packed1 = (packed1 & 0x00FFFFFF) | 0xFF000000;
-            packed0 = packed1;
+        __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
+        tintWord = tint;
+        effectVuUnpackColor10V0(&tintWord, unit);
+    }
+    __asm__ volatile(
+        "vmul.xyzw $vf10, $vf10, $vf11\n"
+        "lui $2, 0x437F\n"
+        "qmtc2.ni $2, $vf2\n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+        "vftoi0.xyzw $vf10, $vf10\n"
+        "qmfc2.ni $2, $vf10\n"
+        "ppach $2, $0, $2\n"
+        "ppacb $2, $0, $2\n"
+        "sw $2, 0x110($sp)\n" : "=m"(packed) : : "$2", "$vf2", "$vf10");
+    *(u32 *)&color = packed;
+    if (color.alpha != 0xFF) {
+        *(EffScreenSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
+    } else {
+        color.alpha = 0xFE;
+        *(EffScreenSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
+        color.alpha = 0xFF;
+    }
+    scale = func_0048aff0(arg0 + 0x40, count, total) / 100.0f;
+    spin = func_0048aff0(arg0 + 0x6C, count, total);
+    spin += fGpffff8084;
+    if (*(s32 *)(arg0 + 0xAC) != 0) {
+        f32 cellW;
+        f32 cellH;
+        f32 y0;
+        f32 x0;
+        f32 x1;
+
+        func_00482730(*(s32 *)(arg0 + 0xAC), count);
+        func_00482700(*(s32 *)(arg0 + 0xAC), animation);
+        cellW = 16.0f * animation[12];
+        cellH = 16.0f * animation[13];
+        x0 = animation[6] * cellW;
+        info.corner[2] = (u16)x0;
+        y0 = animation[7] * cellH;
+        info.corner[3] = (u16)y0;
+        x1 = animation[8] * cellW;
+        info.corner[0] = (u16)x1;
+        info.corner[1] = (u16)y0;
+        info.corner[6] = (u16)x1;
+        x1 = animation[9] * cellH;
+        info.corner[7] = (u16)x1;
+        info.corner[4] = (u16)x0;
+        info.corner[5] = (u16)x1;
+        info.rect[0] = animation[0];
+        info.rect[1] = animation[1];
+        info.rect[2] = animation[2];
+        info.rect[3] = animation[3];
+        info.size[0] = (u32)animation[12];
+        info.size[1] = (u32)animation[13];
+        spin += animation[4];
+        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&animation[5]);
+    } else if (*(void **)(arg0 + 0xA8) != NULL) {
+        s32 w;
+        s32 h;
+
+        func_00482ad0(*(void **)(arg0 + 0xA8), count, texture);
+        w = (s32)(16.0f * texture[2]);
+        h = (s32)(16.0f * texture[3]);
+        info.corner[2] = 0;
+        info.corner[3] = 0;
+        info.corner[0] = w;
+        info.corner[1] = 0;
+        info.corner[6] = w;
+        info.corner[7] = h;
+        info.corner[4] = 0;
+        info.corner[5] = h;
+        w = (s32)((f32)w * texture[0]);
+        h = (s32)((f32)h * texture[1]);
+        info.rect[0] = 0.0f;
+        info.rect[1] = 0.0f;
+        info.rect[2] = (f32)(w >> 5);
+        info.rect[3] = (f32)(h >> 5);
+        info.size[0] = (u32)texture[2];
+        info.size[1] = (u32)texture[3];
+        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&texture[4]);
+    } else {
+        s32 w;
+        s32 h;
+
+        func_004839d0((s32)sprite, frame);
+        w = frame[0] << 4;
+        h = frame[1] << 4;
+        info.corner[2] = 0;
+        info.corner[3] = 0;
+        info.corner[0] = w;
+        info.corner[1] = 0;
+        info.corner[6] = w;
+        info.corner[7] = h;
+        info.corner[4] = 0;
+        info.corner[5] = h;
+        info.rect[0] = 0.0f;
+        info.rect[1] = 0.0f;
+        info.rect[2] = (f32)w;
+        info.rect[3] = (f32)h;
+        info.size[0] = frame[0];
+        info.size[1] = frame[1];
+    }
+    RpGeometryLock(*(void **)(*(u8 **)(sprite + 0x10) + 0x18), 0xFF2);
+    {
+        u8 *geometry = *(u8 **)(*(u8 **)(sprite + 0x10) + 0x18);
+
+        vertex = *(f32 **)(*(u8 **)(geometry + 0x5C) + 0x14);
+        uv = *(f32 **)(geometry + 0x34);
+    }
+    left = info.rect[0] * scale;
+    top = info.rect[1] * scale;
+    right = info.rect[2] * scale;
+    bottom = info.rect[3] * scale;
+    {
+        f32 c = func_0044b610(spin);
+        f32 s = func_0044b7b0(spin);
+        f32 x1 = left + right;
+        f32 y1 = top + bottom;
+        f32 x2;
+        f32 y2;
+        f32 x3;
+
+        vertex[0] = x1 * c - y1 * s;
+        vertex[1] = y1 * c + x1 * s;
+        x2 = left - right;
+        vertex[3] = x2 * c - y1 * s;
+        vertex[4] = x2 * s + y1 * c;
+        y2 = top - bottom;
+        vertex[9] = x2 * c - y2 * s;
+        vertex[10] = x2 * s + y2 * c;
+        vertex[6] = x1 * c - y2 * s;
+        x3 = left + right;
+        vertex[7] = y2 * c + x3 * s;
+    }
+    {
+        f32 invW = 1.0f / (f32)(info.size[0] << 4);
+        f32 invH = 1.0f / (f32)(info.size[1] << 4);
+
+        uv[2] = (f32)info.corner[0] * invW;
+        uv[3] = (f32)info.corner[1] * invH;
+        uv[0] = (f32)info.corner[2] * invW;
+        uv[1] = (f32)info.corner[3] * invH;
+        uv[6] = (f32)info.corner[6] * invW;
+        uv[7] = (f32)info.corner[7] * invH;
+        uv[4] = (f32)info.corner[4] * invW;
+        uv[5] = (f32)info.corner[5] * invH;
+    }
+    {
+f32 *camera;
+        f32 nearZ;
+        f32 farZ;
+        f32 offsetX;
+        f32 depth;
+        f32 halfW;
+        f32 halfH;
+        f32 z;
+        f32 offsetY;
+        u32 i;
+
+        camera = (f32 *)((u8 *)func_00457120() + 0x68);
+        nearZ = *(f32 *)((u8 *)func_00457120() + 0x80);
+        farZ = *(f32 *)((u8 *)func_00457120() + 0x84);
+        offsetX = (f32)*(s32 *)(arg0 + 0x9C);
+        offsetY = (f32)*(s32 *)(arg0 + 0xA0);
+        depth = ((f32)(-65535) * nearZ * farZ) / ((f32)(-65535) * farZ - -31.0f * (farZ - nearZ));
+        halfW = 2.0f * (camera[0] * depth);
+        halfH = 2.0f * (camera[1] * depth);
+        i = 0;
+        z = 1.0f + depth;
+
+        for (; i < 4; i++) {
+            vertex[0] = halfW * (0.5f + -(vertex[0] + offsetX) / 640.0f);
+            vertex[1] = halfH * (0.5f + -(vertex[1] + offsetY) / 448.0f);
+            vertex[2] = z;
+            vertex += 3;
         }
-        div100 = func_0048aff0(arg0 + 0x40, tmp_08, tmp_98) / 100.0f;
-        off_y = func_0048aff0(arg0 + 0x6C, tmp_08, tmp_98) + fGpffff8084;
-        tmp_ac = *(s32 *)(arg0 + 0xAC);
-        if (tmp_ac != 0) {
-            func_00482730(tmp_ac, tmp_08);
-            func_00482700(*(s32 *)(arg0 + 0xAC), buf_c0);
-            f_f0 = buf_c0[4];
-            f_f4 = buf_c0[5];
-            f_d8 = buf_c0[3];
-            f_dc = buf_c0[4];
-            f_e0 = buf_c0[5];
-            f_e4 = buf_c0[6];
-            stk8c = (u16)(f_d8 * (16.0f * f_f0));
-            stk8e = (u16)(f_dc * (16.0f * f_f4));
-            stk88 = (u16)(f_e0 * (16.0f * f_f0));
-            stk8a = (u16)(f_dc * (16.0f * f_f4));
-            stk94 = (u16)(f_e0 * (16.0f * f_f0));
-            stk96 = (u16)(f_e4 * (16.0f * f_f4));
-            stk90 = (u16)(f_d8 * (16.0f * f_f0));
-            stk92 = (u16)(f_e4 * (16.0f * f_f0));
-            stk70 = buf_c0[0];
-            stk74 = buf_c0[1];
-            stk78 = buf_c0[2];
-            stk7c = buf_c0[3];
-            stk80 = (s32)f_f0;
-            stk84 = (u32)f_f4;
-            off_y = off_y + buf_c0[2];
-            func_003c42b0(*(s32 *)(tmp_a4 + 0x14), *(s32 *)(&buf_c0[5]));
-        } else {
-            tmp_a8 = *(s32 *)(arg0 + 0xA8);
-            if (tmp_a8 != 0) {
-                f32 spA0[4];
-                func_00482ad0((u8 *)tmp_a8, tmp_08, (u8 *)spA0);
-                stk8c = 0;
-                stk8e = 0;
-                stk88 = (s16)(spA0[1] * 16.0f);
-                stk8a = 0;
-                stk94 = (s16)(spA0[1] * 16.0f);
-                stk96 = (s16)(spA0[2] * 16.0f);
-                stk90 = 0;
-                stk92 = (s16)(spA0[2] * 16.0f);
-                stk70 = 0.0f;
-                stk74 = 0.0f;
-                stk78 = (f32)(s32)((s32)((f32)stk88 * spA0[0]) >> 5);
-                stk7c = (f32)(s32)((s32)((f32)stk96 * spA0[3]) >> 5);
-                stk80 = (s32)spA0[1];
-                stk84 = (u32)spA0[2];
-                func_003c42b0(*(s32 *)(tmp_a4 + 0x14), *(s32 *)(&spA0[3]));
-            } else {
-                u32 out0;
-                u32 out1;
-                func_004839d0((s32)tmp_a4, &out0);
-                stk8c = 0;
-                stk8e = 0;
-                stk88 = (u16)(out0 * 0x10);
-                stk8a = 0;
-                stk94 = (u16)(out0 * 0x10);
-                stk96 = (u16)(out1 * 0x10);
-                stk90 = 0;
-                stk92 = (u16)(out1 * 0x10);
-                stk70 = 0.0f;
-                stk74 = 0.0f;
-                stk78 = (f32)(out0 * 0x10);
-                stk7c = (f32)(out1 * 0x10);
-                stk80 = out0;
-                stk84 = out1;
-            }
+    }
+    {
+        u8 *owner = *(u8 **)(arg0 + 0xA4);
+        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+
+        func_003c22f0(geometry);
+        if ((*(u16 *)owner & 4) != 0) {
+            *(u16 *)(geometry + 0xC) |= 1;
         }
-        RpGeometryLock(*(u8 **)(*(u8 **)(tmp_a4 + 0x10) + 0x18), 0xFF2);
-        ctx18 = *(u8 **)(*(u8 **)(tmp_a4 + 0x10) + 0x18);
-        out_mat = *(f32 **)(*(u8 **)(ctx18 + 0x5C) + 0x14);
-        out_uv = *(f32 **)(ctx18 + 0x34);
-        t70 = stk70 * div100;
-        t74 = stk74 * div100;
-        t78 = stk78 * div100;
-        t7c = stk7c * div100;
-        c_ang = cosf(off_y);
-        s_ang = sinf(off_y);
-        out_mat[0] = ((t70 + t78) * c_ang) - ((t74 + t7c) * s_ang);
-        out_mat[1] = ((t70 + t78) * s_ang) + ((t74 + t7c) * c_ang);
-        out_mat[3] = ((t70 - t78) * c_ang) - ((t74 + t7c) * s_ang);
-        out_mat[4] = ((t70 - t78) * s_ang) + ((t74 + t7c) * c_ang);
-        out_mat[9] = ((t70 - t78) * c_ang) - (((t74 - t7c) * s_ang));
-        out_mat[10] = (((t70 - t78) * s_ang)) + ((t74 - t7c) * c_ang);
-        out_mat[6] = ((t70 + t78) * c_ang) - (((t74 - t7c) * s_ang));
-        out_mat[7] = ((t70 + t78) * s_ang) + (((t74 - t7c) * c_ang));
-        inv_w = 1.0f / (f32)(stk80 * 0x10);
-        inv_h = 1.0f / (f32)(stk84 * 0x10);
-        out_uv[2] = (f32)stk88 * inv_w;
-        out_uv[3] = (f32)stk8a * inv_h;
-        out_uv[0] = (f32)stk8c * inv_w;
-        out_uv[1] = (f32)stk8e * inv_h;
-        out_uv[6] = (f32)stk94 * inv_w;
-        out_uv[7] = (f32)stk96 * inv_h;
-        out_uv[4] = (f32)stk90 * inv_w;
-        out_uv[5] = (f32)stk92 * inv_h;
-        cam = ((u8 *)(u32)func_00457120());
-        cam80 = *(f32 *)(cam + 0x80);
-        cam84 = *(f32 *)(cam + 0x84);
-        f1 = (f32)*(s32 *)(arg0 + 0x9C);
-        f2 = (f32)*(s32 *)(arg0 + 0xA0);
-        persp = ((cam80 * -65535.0f) * cam84) / ((cam84 * -65535.0f) - ((cam84 - cam80) * -31.0f));
-        px = 2.0f * (*(f32 *)(cam + 0x68) * persp);
-        py = 2.0f * (*(f32 *)(cam + 0x6C) * persp);
-        f1 = persp + 1.0f;
-        {
-            f32 arg9C = (f32)*(s32 *)(arg0 + 0x9C);
-            f32 argA0 = (f32)*(s32 *)(arg0 + 0xA0);
-        for (i = 0; i < 4; i++) {
-            out_mat[0] = px * (0.5f - ((out_mat[0] + arg9C) / 640.0f));
-            out_mat[1] = py * (0.5f - ((out_mat[1] + argA0) / 448.0f));
-            out_mat[2] = f1;
-            out_mat += 3;
-        }
-        }
-        tmp2_a4 = *(u8 **)(arg0 + 0xA4);
-        ctx18 = *(u8 **)(tmp2_a4 + 0x10);
-        ctx18 = *(u8 **)(ctx18 + 0x18);
-        func_003c22f0(ctx18);
-        if ((*(u16 *)tmp2_a4 & 4) != 0) {
-            *(u16 *)(ctx18 + 0x0C) = *(u16 *)(ctx18 + 0x0C) | 1;
-        }
-        cam = ((u8 *)(u32)func_00457120());
-        func_003e9cb0((void *)(u32)*(u32 *)(tmp_a4 + 0x0C), (void *)(*(u8 **)(cam + 4) + 0x10), 0);
-        *(u16 *)tmp_a4 = *(u16 *)tmp_a4 & 0xFFFE;
-        *(u32 *)(tmp_a4 + 0x18) = 0;
-        *(u32 *)(tmp_a4 + 0x1C) = 0;
-        func_00460ac0((void *)(u32)func_004814d0(*(u16 *)(arg0 + 0x34)), (void *)(tmp_a4 + 0x18));
+    }
+    {
+        u8 *scene = (u8 *)func_00457120();
+
+        func_003e9cb0(*(void **)(sprite + 0xC), (void *)((u32)*(u8 **)(scene + 4) + 0x10), 0);
+    }
+    *(u16 *)sprite &= 0xFFFE;
+    {
+        s32 light = func_004814d0(*(u16 *)(arg0 + 0x34));
+
+        *(u32 *)(sprite + 0x18) = 0;
+        *(u32 *)(sprite + 0x1C) = 0;
+        func_00460ac0((void *)light, sprite + 0x18);
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1ad0);
-#endif
 // FUN_004B2740
 void func_004b2740(u8 *arg0)
 {
