@@ -617,13 +617,14 @@ below are the codegen consequences.
   (`001b11c0`).
 
   **Lever: a second name for the value under default propagation
-  (`func_0024be40`, `func_001b05d0`, `func_001d53e0`, MATCH 2026-10-07).**
-  Without `opt_propagation off`, an alias can still keep its source alive.
-  The alias is a copy use, so `propagatecopyinstructions` keeps the source
-  as its declared local (its low number), and the alias then coalesces into
-  it. Use it when `regalloc_whatif.py --search` reports that a value now
-  numbered as a codegen temporary must sit among the declared locals. Then
-  move the declaration to the position the search names.
+  (`func_0024be40`, `func_001b05d0`, `func_001d53e0`, `func_00148280`,
+  MATCH 2026-10-07).** Without `opt_propagation off`, an alias can still
+  keep its source alive. The alias is a copy use, so
+  `propagatecopyinstructions` keeps the source as its declared local (its
+  low number), and the alias then coalesces into it. Use it when
+  `regalloc_whatif.py --search` reports that a value now numbered as a
+  codegen temporary must sit among the declared locals. Then move the
+  declaration to the position the search names.
   - `0024be40`: the selection loop walks the weather row through
     `cursor = (s8 *)weights`, with `cumulativeWeight` declared before
     `choiceIndex`.
@@ -633,11 +634,17 @@ below are the codegen consequences.
   - `001d53e0`: the frame compare runs against `now = (u32)frame`, with
     `frame` declared after `w`. There, `now = frame` without the cast still
     folds both.
+  - `00148280`: the hoisted `&arrB[k]` is a frontend `IRO_CommonSubs`
+    temporary. It becomes a local only when the source names it: the outer
+    loop reads `flags` and the model through `ent = &arrB[k]`, and the inner
+    loop walks `cur = (u8 *)ent`. Used only through `cur`, `ent` is
+    propagated away in the frontend (`tools/b210_irdump.py` shows it gone
+    after `IRO_CopyAndConstantPropagation`). The same function also needed
+    the next lever: function-scope `k`/`j` shared by both tail loops under
+    `opt_lifetimes on`, declared `k` first.
 
   Try both spellings. The lever applies only where the source has a natural
-  second name for the value. It did not move the `&arrB[k]` CSE temporary in
-  `00148280`, because frontend `IRO_CommonSubs` creates that temporary before
-  the copy exists.
+  second name for the value.
 
   **Lever: reuse a variable and split its lifetimes (`func_001b11c0`, MATCH
   2026-10-06).** Five sessions recorded this function as a `$t1`/`$t3`
