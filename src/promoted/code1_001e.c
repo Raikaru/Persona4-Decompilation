@@ -3464,13 +3464,14 @@ typedef struct RouteNode {
     f32 distances[32];
 } RouteNode;
 
-/* Retail reads the previous point and segment before the first iteration
-   has supplied them (001ee71c/001ee730). Priming the goal gives the C draft
-   defined lifetimes, but produces 1628 bytes for the 1600-byte window. */
-// FUN_001EE610 NONMATCHING
-#ifdef NON_MATCHING
+/* The first pass through the route loop reads `cur`, `last` and `seg[1]`
+   before anything has written them (001ee71c/001ee730); retail uses the
+   stack slots as they are. The C keeps those reads of the uninitialised
+   locals. opt_loop_invariants hoists &pts[n] (retail $s5) and pts[0].z
+   (retail $f20) out of the subdivision loop. */
 #pragma push
 #pragma opt_loop_invariants on
+// FUN_001EE610
 s32 func_001ee610(u8 *route, f32 radius)
 {
     extern f32 func_003e41e0(f32 *out, f32 *in);
@@ -3490,6 +3491,7 @@ s32 func_001ee610(u8 *route, f32 radius)
     s32 n;
     s32 k;
     f32 margin;
+    f32 dot;
     f32 segLen;
     f32 prevLen;
     f32 s;
@@ -3505,31 +3507,29 @@ s32 func_001ee610(u8 *route, f32 radius)
         pts[1] = ((RouteNode *)(base + 0x7DC))->pos;
         n = 2;
     } else {
-        /* The goal supplies the first point; there is no segment yet. */
-        cur = goal->pos;
-        pts[n] = cur;
-        n++;
-        last = pts[n - 1];
-        node = goal->parent;
+        node = goal;
         while (node != NULL) {
-            /* Skip ahead while the previous point reaches the next node. */
-            prev = node;
-            while (node != NULL) {
-                if (func_001ece50(&cur.x, &node->pos.x, margin) != 0) {
-                    break;
-                }
+            if (n > 0) {
+                /* Skip ahead along the parent chain while the last point
+                   still reaches the next node. */
                 prev = node;
-                node = node->parent;
+                while (node != NULL) {
+                    if (func_001ece50(&cur.x, &node->pos.x, margin) != 0) {
+                        break;
+                    }
+                    prev = node;
+                    node = node->parent;
+                }
+                node = prev;
+                cur = prev->pos;
+            } else {
+                cur = node->pos;
             }
-            node = prev;
-            cur = prev->pos;
-            if (n > 1) {
-                seg[0] = seg[1];
-            }
+            seg[0] = seg[1];
             seg[1].x = cur.x - last.x;
             seg[1].z = cur.z - last.z;
-            if (n > 1 &&
-                seg[0].x * seg[1].x + seg[0].z * seg[1].z <= 0.173648f) {
+            dot = seg[0].x * seg[1].x + seg[0].z * seg[1].z;
+            if (n > 1 && dot <= 0.173648f) {
                 /* Sharp corner: round it with two extra points. */
                 segLen = func_003e41e0(&norm[0].x, &seg[1].x);
                 prevLen = func_003e41e0(&norm[1].x, &seg[0].x);
@@ -3625,9 +3625,6 @@ s32 func_001ee610(u8 *route, f32 radius)
     return 1;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ee610);
-#endif
 /* measured: object 172B vs window 176B, normalized_diff 2; the remaining
    residual is the best-node register assignment. Committed at nd 2. */
 // FUN_001EEC60

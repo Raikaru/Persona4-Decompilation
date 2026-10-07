@@ -3215,12 +3215,422 @@ extern void func_0047dd40(u8* a, void* model);
 extern void (*D_00887300_abs[])(s32, s32);
 extern void (*D_00887304[])(s32, void*);
 
-/* Retail reads identity.flags at sp+0xCC (0x004764F0) before its first store
- * at 0x00476500. No preceding initialization or matrix-address escape defines
- * that word. The former byte-exact C reconstruction read an indeterminate
- * local; retain assembly until a defined storage lifetime is established. */
+/* Retail ORs identity.flags at sp+0xCC (0x004764F0) before its first store at
+ * 0x00476500; nothing earlier defines that word. The C keeps the same
+ * read-modify-write of the uninitialised field. */
 // FUN_00475CD0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
+void func_00475cd0(MdlDrawState* owner)
+{
+    s32 current;
+    s32 target;
+    s32 value;
+    u32 flags;
+    u16 j;
+    u16 layer;
+    MdlDrawState* model;
+    RwRGBA color;
+    s32 renderState;
+    RwV3d direction;
+    RwMatrix matrix1;
+    RwMatrix matrix0;
+    RwMatrix identity;
+    RtQuatSlerpCache interpolation;
+    RtQuat result;
+    RtQuat quaternion;
+    MdlRenderDevice* renderStateSet;
+
+    target = owner->targetAlpha;
+    current = owner->alpha;
+    if (current < target) {
+        value = current + owner->alphaStep;
+        if (target < value) {
+            owner->alpha = (u8)target;
+        } else {
+            owner->alpha = (u8)value;
+        }
+    } else if (target < current) {
+        value = current - owner->alphaStep;
+        if (value < target) {
+            owner->alpha = (u8)target;
+        } else {
+            owner->alpha = (u8)value;
+        }
+    } else {
+        owner->alpha = (u8)target;
+    }
+
+    color.red = 0;
+    color.green = 0;
+    color.blue = 0;
+    color.alpha = (u8)(255.0f * ((f32)(owner->alpha
+                         * owner->color.alpha) / (255 * 255)));
+
+    {
+    u8* material;
+    flags = owner->flags;
+    if ((flags & 1) != 0 && (flags & 0x20) == 0) {
+        material = *(u8**)((u8*)func_004571b0() + 4);
+    } else {
+        material = *(u8**)((u8*)func_004571c0() + 4);
+    }
+
+    flags = owner->flags;
+    if ((flags & 2) != 0 && (flags & 0x20) == 0) {
+        if ((flags & 4) == 0) {
+            RtQuatConvertFromMatrix(&quaternion, (const RwMatrix*)(material + 0x10));
+        } else {
+            quaternion.imag.x = 0.707107f;
+            quaternion.imag.y = 0.0f;
+            quaternion.imag.z = 0.0f;
+            quaternion.real = quaternion.imag.x;
+        }
+        {
+            f32 dot;
+            f32 angle;
+            f32 amount;
+            f32 limit;
+            dot = owner->rotation.imag.x * quaternion.imag.x
+                + owner->rotation.imag.y * quaternion.imag.y
+                + owner->rotation.imag.z * quaternion.imag.z;
+            dot += owner->rotation.real * quaternion.real;
+            if (dot < 0.0f) {
+                RtQuatNegateMacro(&result, &quaternion);
+                dot = owner->rotation.real * result.real
+                    + (owner->rotation.imag.x * result.imag.x
+                    + owner->rotation.imag.y * result.imag.y
+                    + owner->rotation.imag.z * result.imag.z);
+            }
+            angle = 2.0f * func_0044b920(dot);
+            limit = owner->minBlend;
+            if (limit < 1.0f) {
+                f32 maximum;
+                maximum = owner->maxAngle;
+                if (!(angle <= maximum)) {
+                    amount = maximum / angle;
+                    if (amount < limit) {
+                        amount = limit;
+                    }
+                } else {
+                    amount = limit;
+                }
+                func_003dcc70((f32*)&owner->rotation, (f32*)&quaternion,
+                              &interpolation);
+                RtQuatSlerpMacro(&result, &owner->rotation, &quaternion,
+                                amount, &interpolation);
+                *&owner->rotation = result;
+            } else {
+                owner->rotation = quaternion;
+            }
+        }
+        RtQuatTransformVectors(&direction, (const RwV3d*)(D_00713138 + 0x10), 1,
+                      &owner->rotation);
+    } else {
+        u8* source = material + 0x10;
+        RtQuatConvertFromMatrix(&owner->rotation, (const RwMatrix*)source);
+        direction = ((RwMatrix*)source)->at;
+    }
+
+    }
+
+    if (color.alpha == 0) {
+        if ((owner->animFlags & 0x10) != 0) {
+            func_00473000(owner->hierarchy,
+                          (u8*)&owner->animFlags);
+        } else if ((owner->flags140 & 0x81E0) != 0) {
+            func_00471370(owner->hierarchy,
+                          (u8*)&owner->animFlags, (u8*)&owner->flags140, 0);
+        } else {
+            func_00397c40(owner->hierarchy);
+        }
+        if ((owner->flagsD8 & 0x80000) != 0) {
+            func_004746b0(owner->state234, (u8*)&owner->animFlags);
+        }
+        {
+        u32 needsReset;
+        u32 hasItem;
+        u32 hasIndex;
+        u8* animation;
+        u8* slot;
+        u8** child;
+        s32* frameID;
+        j = 0;
+        while ((s64)j < 5) {
+            slot = (u8*)owner + j * 0xC;
+            if ((*(u8*)(slot + 0x28C) & 1) != 0 &&
+                *(child = (u8**)(slot + 0x290)) != 0 &&
+                func_0047ae90((u8*)owner, j) != 0) {
+                model = (MdlDrawState*)*child;
+                if ((model->flagsD8 & 2) == 0) {
+                    if (*(frameID = (s32*)(slot + 0x294)) != -1) {
+                        {
+                        void* matrix = mdlGetMatrix(model);
+                        s64 index = *frameID;
+                        func_0047a510(owner, index, matrix);
+                    }
+                    } else {
+                        model->matrix = owner->matrix;
+                    }
+                    needsReset = 0;
+                    hasItem = 0;
+                    hasIndex = 0;
+                    animation = model->animations;
+                    if (animation != 0 &&
+                        *(u16*)(animation + 8) > model->animIndex) {
+                        hasIndex = 1;
+                    }
+                    if (hasIndex != 0 &&
+                        *(void**)((u8*)*(void**)animation
+                                  + model->animIndex * 0x50 + 0x40) != 0) {
+                        hasItem = 1;
+                    }
+                    if (hasItem != 0 &&
+                        *(void**)((u8*)*(void**)animation
+                                  + model->animIndex * 0x50 + 0x40)
+                            != (void*)D_00922BC0_abs) {
+                        needsReset = 1;
+                    }
+                    if (needsReset != 0) {
+                        func_00397c40(model->hierarchy);
+                    }
+                    if ((model->flagsD8 & 0x80000) != 0) {
+                        func_004746b0(model->state234, (u8*)&model->animFlags);
+                    }
+                }
+            }
+            j++;
+        }
+        }
+        return;
+    }
+
+    if (!(direction.y < 0.0f)) {
+        f32 unit;
+        unit = 0.707107f;
+        owner->rotation.imag.x = unit;
+        owner->rotation.imag.y = 0.0f;
+        owner->rotation.imag.z = 0.0f;
+        owner->rotation.real = unit;
+        RtQuatTransformVectors(&direction, (const RwV3d*)(D_00713138 + 0x10), 1,
+                      &owner->rotation);
+    }
+    if (owner->limit !=
+        owner->targetLimit) {
+        owner->limit =
+            owner->limit
+            + owner->limitRate
+              * (owner->targetLimit
+                 - owner->limit);
+    }
+    {
+        f32 limit;
+        limit = owner->limit;
+        if (fabsf(direction.y) < limit) {
+            if (!(direction.y < 0.0f)) {
+                direction.y = limit;
+            } else {
+                direction.y = -limit;
+            }
+        }
+    }
+
+    identity.right.x = identity.up.y = identity.at.z = 1.0f;
+    identity.right.y = identity.right.z = identity.up.x = 0.0f;
+    identity.up.z = identity.at.x = identity.at.y = 0.0f;
+    identity.pos.x = identity.pos.y = identity.pos.z = 0.0f;
+    identity.flags |= 0x20003;
+    identity.up.x = -direction.x / direction.y;
+    identity.up.y = 0.01f;
+    identity.up.z = -direction.z / direction.y;
+
+    {
+    void* frame = *(void**)((u8*)owner->clump + 4);
+    RwMatrixMultiply(&matrix0, &owner->identityMatrix, owner);
+    RwMatrixMultiply(&matrix1, &matrix0, &identity);
+    func_003e9cb0(frame, &matrix1, 0);
+    }
+    if ((owner->flags140 & 0x4000) != 0) {
+        func_00471370(owner->hierarchy,
+                      (u8*)&owner->animFlags, (u8*)&owner->flags140,
+                      &identity);
+    } else {
+        func_00397c40(owner->hierarchy);
+    }
+    renderStateSet = (MdlRenderDevice*)D_00887300_abs;
+    renderStateSet->set(6, 1);
+    renderStateSet->set(8, 0);
+    D_00887304[0](0xE, &renderState);
+    renderStateSet->set(0xE, 0);
+    RpSkyRenderStateSet(2, 0x44);
+    if ((owner->flagsD8 & 0x80000) != 0) {
+        func_004746b0(owner->state234, (u8*)&owner->animFlags);
+    }
+    func_00477260(owner->clump, (u32*)&color,
+                        (u16)(s64)((owner->flags & 8) != 0));
+    {
+    u8* effect;
+    effect = (u8*)owner->e0;
+    if (effect == 0) {
+        RpSkyRenderStateSet(3, 0x7C01B);
+    } else if ((*(s32*)(effect + 0x10) != 0 || *(s32*)(effect + 0x1C) != 0)
+               && ((owner->flags & 0x80) == 0)) {
+        RpSkyRenderStateSet(3, 0x7F06B);
+    } else {
+        RpSkyRenderStateSet(3, 0x7D7FB);
+    }
+    }
+    func_00479910(owner->clump);
+    func_004789c0((Model*)owner);
+    if ((owner->animFlags & 0x10) != 0) {
+        func_00473000(owner->hierarchy,
+                      (u8*)&owner->animFlags);
+    } else if ((owner->flags140 & 0x81E0) != 0) {
+        func_00471370(owner->hierarchy,
+                      (u8*)&owner->animFlags, (u8*)&owner->flags140, 0);
+    } else {
+        func_00397c40(owner->hierarchy);
+    }
+    {
+    u8* effect;
+    effect = owner->effect2CC;
+    if (effect != 0) {
+        func_0047d900((s32*)effect, (f32*)(&owner->scale));
+        func_0047d540((u8**)owner->effect2CC, (u8*)owner);
+    }
+    }
+    {
+    u8* model;
+    u8* effect;
+    layer = 0;
+    while ((s64)layer < 2) {
+        model = *(u8**)((u8*)owner + layer * 0xA4 + 0x124);
+        if (model != 0) {
+            effect = *(u8**)(model + 0x18);
+            if (effect != 0 && *(u16*)(model + 0x30) == 0) {
+                func_0047d900((s32*)effect, (f32*)(model + 8));
+                func_0047d540(*(u8***)(model + 0x18), (u8*)owner);
+            }
+            effect = *(u8**)(model + 0x24);
+            if (effect != 0 && *(u16*)(model + 0x30) == 0) {
+                func_0047dd40(effect, owner);
+            }
+            if (*(u16*)(model + 0x30) > 0) {
+                *(u16*)(model + 0x30) -= 1;
+            }
+        }
+        layer++;
+    }
+    }
+    {
+    struct { u16 index; u8* slot; MdlDrawState* model; } attached;
+    u8** child;
+    s32* frameID;
+    u32 hasItem;
+    u32 hasIndex;
+    u8* animation;
+    u8* effect;
+    attached.index = 0;
+    while ((s64)attached.index < 5) {
+        attached.slot = (u8*)((MdlWpnSlot*)owner + attached.index);
+        if ((*(u8*)(attached.slot + 0x28C) & 1) != 0 &&
+            *(child = (u8**)(attached.slot + 0x290)) != 0 &&
+            func_0047ae90((u8*)owner, attached.index) != 0) {
+            attached.slot = (u8*)owner + attached.index * 0xC;
+            attached.model = (MdlDrawState*)*child;
+            if (*(frameID = (s32*)(attached.slot + 0x294)) != -1) {
+                {
+                        void* matrix = mdlGetMatrix(attached.model);
+                        s64 index = *frameID;
+                        func_0047a510(owner, index, matrix);
+                    }
+            } else {
+                attached.model->matrix = owner->matrix;
+            }
+            if ((attached.model->flagsD8 & 2) == 0 &&
+                owner->color.alpha != 0) {
+                u8* source = attached.model->clump;
+                u8* material = *(u8**)(source + 4);
+                u32 needsReset;
+                RwMatrixMultiply(&matrix0, &attached.model->identityMatrix, attached.model);
+                RwMatrixMultiply(&matrix1, &matrix0, &identity);
+                func_003e9cb0(material, &matrix1, 0);
+                needsReset = 0;
+                hasItem = 0;
+                hasIndex = 0;
+                animation = attached.model->animations;
+                if (animation != 0 &&
+                    *(u16*)(animation + 8) > attached.model->animIndex) {
+                    hasIndex = 1;
+                }
+                if (hasIndex != 0 &&
+                    *(void**)((u8*)*(void**)animation
+                              + attached.model->animIndex * 0x50 + 0x40) != 0) {
+                    hasItem = 1;
+                }
+                if (hasItem != 0 &&
+                    *(void**)((u8*)*(void**)animation
+                              + attached.model->animIndex * 0x50 + 0x40)
+                        != (void*)D_00922BC0_abs) {
+                    needsReset = 1;
+                }
+                if (needsReset != 0) {
+                    func_00397c40(attached.model->hierarchy);
+                }
+                if ((attached.model->flagsD8 & 0x80000) != 0) {
+                    func_004746b0(attached.model->state234, (u8*)&attached.model->animFlags);
+                }
+                func_00477260(source, (u32*)&color,
+                                    (u16)(s64)((attached.model->flags & 8) != 0));
+                effect = (u8*)owner->e0;
+                if (effect == 0) {
+                    RpSkyRenderStateSet(3, 0x7C01B);
+                } else if (*(s32*)(effect + 0x10) != 0 ||
+                           *(s32*)(effect + 0x1C) != 0) {
+                    RpSkyRenderStateSet(3, 0x7F08B);
+                } else {
+                    RpSkyRenderStateSet(3, 0x7D7FB);
+                }
+                func_00479910(source);
+                func_004789c0((Model*)attached.model);
+                if (needsReset != 0) {
+                    func_00397c40(attached.model->hierarchy);
+                }
+                effect = attached.model->effect2CC;
+                if (effect != 0) {
+                    func_0047d900((s32*)effect, (f32*)&attached.model->scale);
+                    func_0047d540((u8**)attached.model->effect2CC, (u8*)attached.model);
+                }
+                {
+                struct { u16 index; u8* table; } layerCursor;
+                layerCursor.index = 0;
+                while ((s64)layerCursor.index < 2) {
+                    layerCursor.table = *(u8**)((u8*)attached.model + layerCursor.index * 0xA4 + 0x124);
+                    if (layerCursor.table != 0) {
+                        source = *(u8**)(layerCursor.table + 0x18);
+                        if (source != 0 && *(u16*)(layerCursor.table + 0x30) == 0) {
+                            func_0047d900((s32*)source, (f32*)(layerCursor.table + 8));
+                            func_0047d540(*(u8***)(layerCursor.table + 0x18), (u8*)attached.model);
+                        }
+                        source = *(u8**)(layerCursor.table + 0x24);
+                        if (source != 0 && *(u16*)(layerCursor.table + 0x30) == 0) {
+                            func_0047dd40(source, attached.model);
+                        }
+                        if (*(u16*)(layerCursor.table + 0x30) > 0) {
+                            *(u16*)(layerCursor.table + 0x30) -= 1;
+                        }
+                    }
+                    layerCursor.index++;
+                }
+                }
+            }
+        }
+        attached.index++;
+    }
+    }
+    renderStateSet = (MdlRenderDevice*)D_00887300_abs;
+    renderStateSet->set(0xE, renderState);
+    RpSkyRenderStateSet(3, 0x717FB);
+    renderStateSet->set(8, 1);
+}
 
 #undef RtQuatNegateMacro
 #undef RtQuatSlerpMacro
