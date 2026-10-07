@@ -3322,7 +3322,18 @@ void func_003233d0(u8 *arg0) {
    colors are native aggregates; the nonzero row/alpha allocation residual
    remains guarded rather than being labelled a compiler floor. Resource and
    alpha values belong to the late draw block: native C has 29 resolved
-   differing words. See docs/probe_archive/Fcl_late_scope_00323d00_20261005/. */
+   differing words. See docs/probe_archive/Fcl_late_scope_00323d00_20261005/.
+   2026-10-06 colouring model (the simplify-stack replay in docs/matching.md,
+   which reproduces the captured stack): retail's $s4/$s3/$s1 for
+   hidden/shown/res follow when
+   hidden and shown are numbered below res. That holds if they survive as
+   locals declared in that order, or if res is numbered between their
+   temporaries and the third loop's `sext k`. Here backend
+   propagatecopyinstructions folds both into codegen temporaries r128/r130,
+   because their only uses are zext call arguments. Measured and still 29 or
+   worse: every declaration order, s16/u16/u32/s64/int/register types,
+   two-step `*=` definitions, inline call arguments, and scoped
+   opt_propagation off or opt_lifetimes on. */
 // FUN_00323D00 NONMATCHING
 #ifdef NON_MATCHING
 void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
