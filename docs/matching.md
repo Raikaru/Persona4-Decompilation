@@ -730,6 +730,16 @@ below are the codegen consequences.
   before the first call takes no slot, and a later value can then reuse the
   register it would have had.
 
+  **Precondition, measured 2026-10-06 with `tools/b210_micro.py`.** In `k1`/`k2`
+  and the `p3` example below, every load local is passed to a call. That copy
+  into an argument register is what keeps the local. If the same loads are
+  only compared after the call (`if (x < y)`, `if (m3 == x)`), the local folds
+  into its load temporary under default propagation *and* under
+  `opt_propagation off`. Declaration order then has no effect, and the value
+  ranks by emission order among temporaries. Parameter-derived locals under
+  `opt_propagation off` (`x = a & 0xffff`) are unaffected; that clause holds
+  as written.
+
   **How to use it.** Read retail's prologue and list which value sits in each
   `$s` register. Then order your declarations so that the value in the
   highest register is declared first, and so on down.
