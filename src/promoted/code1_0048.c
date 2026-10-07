@@ -3784,12 +3784,19 @@ loop_0048d820_check:
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
     *(f32 *)(temp_6 + 0xF0) = *(f32 *)(temp_5 + 0xF0) * fparg0;
 }
-/* Guarded native proof, 2026-09-29: 2476/2480 bytes, 413 differing words.
- * Immutable owner identity restores the owner/config/work/node register order;
- * the real config capture and three live quadword homes follow retail.
- * Preroll rereads current count rather than the cached loop bound.
- * Frame 0x150 still differs from retail 0x160; no unused storage is added.
- * Instruction differences remain; production is ASM. */
+/* Guarded native proof, 2026-10-07: 2476/2480 bytes, 7 differing words
+ * (was 413). Taken from the matched sibling func_0048c4e0: the loop
+ * constants are locals assigned after the preroll in retail's hoist order
+ * (one, orbit, zero, half, two, tilt, angle, -1) and declared in its FPR
+ * order; the u8 preroll flag, reversed rand-scale arm, particle-index clear,
+ * snapshot pointer and mode-2 arm order follow it. `c` carries the first,
+ * fifth and sixth scale (retail $f30) and `a` the second and third ($f31).
+ * The 0x140 vector exists only for its retail w=0 store (sw $0,0x14C).
+ * Residual: retail spills saved20/mode9C and copies config[0] to the
+ * 0x120 quad through $v0 while every later block still avoids $v0. That is
+ * the func_00485630 signature: $v0 is dead before the quad copy and live
+ * after it, which no C copy produces (b210 copies through a virtual;
+ * measured with struct/union/memcpy/inline-return copies). */
 // FUN_0048D8C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -3810,6 +3817,7 @@ void func_0048d8c0(u8 *arg0)
     extern f32 fGpffff8084;
     extern f32 fGpffff8094;
     f32 sp150[4] __attribute__((aligned(16)));
+    f32 sp140[4] __attribute__((aligned(16)));
     f32 sp130[4] __attribute__((aligned(16)));
     u_long128 quad120;
     u_long128 b220buf;
@@ -3824,11 +3832,17 @@ void func_0048d8c0(u8 *arg0)
     u8 mode9C;
     f32 e4val;
     f32 e0val;
+    f32 one;
     f32 orbitScale;
+    f32 zero;
+    f32 half;
+    f32 two;
     f32 tiltScale;
     f32 angleScale;
+    f32 negone;
     s32 v15;
     s32 v14;
+    u8 initialPreroll;
     u32 idx;
     s32 tmp;
     f32 ftmp1;
@@ -3839,6 +3853,7 @@ void func_0048d8c0(u8 *arg0)
     s32 nmult;
     u8 *clear;
     s32 ci;
+    u32 particleIndex;
     f32 a;
     f32 b;
     f32 c;
@@ -3856,6 +3871,8 @@ void func_0048d8c0(u8 *arg0)
     e4val = *(f32 *)(config + 228);
     e0val = *(f32 *)(config + 224);
     sp150[3] = 0.0f;
+    sp130[3] = 0.0f;
+    sp140[3] = 0.0f;
     {
         u_long128 *const capture = &quad120;
         *capture = *(u_long128 *)(config + 0);
@@ -3866,26 +3883,27 @@ void func_0048d8c0(u8 *arg0)
         goto post_init;
     }
     if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
-        v14 = 1;
+        initialPreroll = 1;
+        v14 = initialPreroll;
         if (!(*(f32 *)(config + 40) <= 0.0f)) {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            f32 prerollScale = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
             ftmp2 = (f32)*(u32 *)(parent + 4);
-            v15 = (s32)(ftmp2 * ftmp1);
+            v15 = (s32)(ftmp2 * prerollScale);
         } else {
             v15 = *(s32 *)(parent + 4);
         }
         goto post_init;
     } else {
         v14 = 0;
-        if (*(f32 *)(config + 40) <= 0.0f) {
+        if (!(*(f32 *)(config + 40) <= 0.0f)) {
+            f32 scale = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
+            tmp = *(s32 *)(config + 36);
+            ftmp2 = (f32)(u32)tmp;
+            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * scale;
+        } else {
             tmp = *(s32 *)(config + 36);
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
-        } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            tmp = *(s32 *)(config + 36);
-            ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
         }
         ftmp1 = *(f32 *)(parent + 20);
         ftmp1 = fabsf(ftmp1);
@@ -3895,25 +3913,31 @@ void func_0048d8c0(u8 *arg0)
     }
 post_init:
     idx = 0;
+    one = 1.0f;
     orbitScale = fGpffff8094;
+    zero = 0.0f;
+    half = 0.5f;
+    two = 2.0f;
     tiltScale = fGpffff8084;
     angleScale = fGpffff8080;
+    negone = -1.0f;
     goto main_check;
 main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
     }
-    if (saved20 == 0) {
-        tmp = -1;
-    } else {
+    if (saved20 != 0) {
         tmp = -2;
+    } else {
+        tmp = -1;
     }
     *(s32 *)(nodes + 16) = tmp;
     c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
     c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
     nmult = c0 * c4;
     if (nmult != 0) {
-        clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+        particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
+        clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
         ci = 0;
         goto clear_check;
 clear_body:
@@ -3936,29 +3960,30 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    a = *(f32 *)(config + 204);
+    c = *(f32 *)(config + 204);
     b = effMiscRandFloat(0);
-    c = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
-    out[5] = c;
+    c = *(f32 *)(config + 200) * ((one - c) + c * b);
     a = *(f32 *)(config + 212);
     b = effMiscRandFloat(0);
-    out[6] = (*(f32 *)(config + 208) * ((1.0f - a) + a * b) - c) / (f32)limitB8;
+    ftmp1 = *(f32 *)(config + 208) * ((one - a) + a * b);
+    out[5] = c;
+    out[6] = (ftmp1 - c) / (f32)limitB8;
     a = *(f32 *)(config + 220);
     b = effMiscRandFloat(0);
-    out[7] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
+    out[7] = *(f32 *)(config + 216) * ((one - a) + a * b);
     b = effMiscRandFloat(0);
     out[8] = orbitScale * b;
-    out[9] = 0.0f;
+    out[9] = zero;
     b = effMiscRandFloat(0);
-    out[3] = tiltScale * (2.0f * (b - 0.5f));
+    out[3] = tiltScale * (two * (b - half));
     b = effMiscRandFloat(0);
-    out[4] = tiltScale * (2.0f * (b - 0.5f));
+    out[4] = tiltScale * (two * (b - half));
     func_004bd1a0(out[3]);
     func_004bd3c0(out[4]);
     func_004bd450();
-    sp150[0] = out[5] * cosf(out[8]);
-    sp150[1] = 0.0f;
-    sp150[2] = out[5] * sinf(out[8]);
+    sp150[0] = c * cosf(out[8]);
+    sp150[1] = zero;
+    sp150[2] = c * sinf(out[8]);
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp150), "m"(*(u_long128 *)sp150) : "$vf10", "memory");
     __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
     if ((flags & 1) == 0) {
@@ -3969,36 +3994,40 @@ skip_clear:
         __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
-    a = *(f32 *)(config + 108);
+    c = *(f32 *)(config + 108);
     b = effMiscRandFloat(0);
-    out[10] = (1.0f - a) + a * b;
-    if (mode9C == 2) {
-        out[11] = 0.0f;
-        out[12] = 1.0f;
-    } else {
-        a = *(f32 *)(config + 152);
+    out[10] = (one - c) + c * b;
+    if (mode9C != 2) {
+        c = *(f32 *)(config + 152);
         b = effMiscRandFloat(0);
-        out[12] = (1.0f - a) + a * b;
+        out[12] = (one - c) + c * b;
         if (mode9C == 1) {
             b = effMiscRandFloat(0);
             out[11] = angleScale * b;
             if ((effMiscRand(0) & 1) != 0) {
-                out[12] = out[12] * -1.0f;
+                out[12] = out[12] * negone;
             }
         } else {
-            out[11] = 0.0f;
+            out[11] = zero;
         }
+    } else {
+        out[11] = zero;
+        out[12] = one;
     }
     *(s32 *)(nodes + 16) = 0;
-    b220buf = *(u_long128 *)nodes;
+    {
+        u_long128 *snapshot = &b220buf;
+        *snapshot = *(u_long128 *)nodes;
+    }
     if (v14 != 0) {
         tmp = (u32)effMiscRand(0) % (u32)limitB8;
         ftmp1 = (f32)(u32)tmp;
-        out[9] = out[9] - ftmp1 * e4val * ftmp1 * 0.5f;
-        out[5] = out[6] * ftmp1 + out[5];
-        sp150[0] = out[5] * cosf(out[8]);
-        sp150[1] = 0.0f;
-        sp150[2] = out[5] * sinf(out[8]);
+        out[9] = out[9] - half * (ftmp1 * (e4val * ftmp1));
+        c = out[5] + out[6] * ftmp1;
+        out[5] = c;
+        sp150[0] = c * cosf(out[8]);
+        sp150[1] = zero;
+        sp150[2] = c * sinf(out[8]);
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp150), "m"(*(u_long128 *)sp150) : "$vf10", "memory");
         __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
         if ((flags & 1) == 0) {
@@ -4017,7 +4046,8 @@ skip_clear:
     if (v14 != 0) {
         nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
         if (nmult != 0) {
-            clear = *(u8 **)(parent + 24) + 32 * (*(s32 *)(parent + 4) + (s32)((u32)(nodes - *(u8 **)(parent + 24)) / 32) * nmult);
+            particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
+        clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
             memcpy(clear, nodes, 32);
             *(s32 *)(clear + 16) = -1;
         }
@@ -4026,9 +4056,13 @@ skip_clear:
     v15 -= 1;
     goto next_iter2;
 else_branch:
-    b220buf = *(u_long128 *)nodes;
+    {
+        u_long128 *snapshot = &b220buf;
+        *snapshot = *(u_long128 *)nodes;
+    }
     ftmp1 = (f32)node10;
-    ftmp2 = ftmp1 * (e0val * ftmp1 * 0.5f + out[7]) + out[8];
+    ftmp2 = ftmp1 * (out[7] + half * (e0val * ftmp1));
+    ftmp2 = ftmp2 + out[8];
     out[9] = out[9] - e4val * ftmp1;
     out[5] = out[5] + out[6];
     func_004bd1a0(out[3]);
@@ -4036,7 +4070,7 @@ else_branch:
     func_004bd450();
     c = out[5];
     sp150[0] = c * cosf(ftmp2);
-    sp150[1] = 0.0f;
+    sp150[1] = zero;
     sp150[2] = c * sinf(ftmp2);
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp150), "m"(*(u_long128 *)sp150) : "$vf10", "memory");
     __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
