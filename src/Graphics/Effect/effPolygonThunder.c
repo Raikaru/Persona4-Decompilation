@@ -782,454 +782,396 @@ void func_00496810(u8 *arg0)
 }
 
 
-/* measured: GUARDED_SCORE 666 via tools/measure_guarded.py
-   src/Graphics/Effect/effPolygonThunder.c func_004968a0 (fnalign retail
-   752/object 752 instrs, exact count inside 3% gate;
-   probe 666 via tools/probe_variants.py --candidate v2=/var/tmp/cold4968a0/v2.c).
-   M2C 424 lines + romwright --types (8 vector args from VF live-ins, retail
-   GPR single u8* wins) + --raw 651 lines (cross/normalize + af40/af20[8]);
-   de-noised to file idiom (plain (f32)(u32) per micro_codegen 14, sqrtf for
-   sqrt.s+mula/madd, c10/cNeg1/c075/c025/c05/c20 hoisted, D_00713D10 bridges,
-   VU lqc2/vopmula/vrsqrt in genuine COP2 asm, FPU MAC plain C). Count v1
-   788/752 (690w) -> v2 770/752 candidate (666w, retail-ordered early,
-   single-sc fix, dummy-free) -> installed 752/752 exact. Pragma probes
-   loopinv 679/nounroll 657 tie/nosched 657 tie/nocommon 726 -- no help.
-   Subscript off=i*12 tie 657, colour hdr/ctrl swap 659 worse -- two fails,
-   stopping rule above 60 met. Remaining: saved-reg perm, FPR colour,
-   scheduling. */
-/* measured 004968a0 (owner, 2026-09-19): fnalign **624 -> 622 edits**, count
-   770 -> 768 against retail 752, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
-// FUN_004968A0 NONMATCHING
-#ifdef NON_MATCHING
+/* Orbiting thunder bolt update, the func_004956b0 sibling. A bolt in its
+ * spawn state picks an orbit and places its anchor through the VU0 matrix;
+ * a live bolt advances the orbit, builds its first row across the travel
+ * direction and steps each further row along the rotated travel vector,
+ * whose length comes from VU0 vsqrt. The two 5-column loops use separate
+ * counters. The spilled locals are declared in retail's spill-slot order.
+ * func_004bd380 is declared angle-first, as for func_004956b0. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_004968A0
 void func_004968a0(u8 *arg0)
 {
-    extern void func_0048a1f0(u8 *arg0);
-    extern u32 effMiscRand(u32 arg0);
-    extern f32 effMiscRandFloat(u32 arg0);
-    extern f32 cosf(f32 arg0);
+    extern void func_0048a1f0(f32 *arg0);
     extern f32 sinf(f32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sqrtf(f32 arg0);
     extern f32 func_0044b938(f32 arg0);
     extern f32 func_0044b340(f32 arg0);
-    extern f32 sqrtf(f32 arg0);
     extern void func_004bd1a0(f32 arg0);
     extern void func_004bd3c0(f32 arg0);
     extern void func_004bd450(void);
-    extern void func_004bd380(u8 *axis, f32 angle);
-    extern void RpGeometryLock(u8 *a, s32 b);
-    extern void func_003c22f0(u8 *a);
+    extern void func_004bd380(f32 angle, f32 *axis);
+    extern void RpGeometryLock(u8 *geometry, s32 lockMode);
+    extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff804c;
     extern f32 fGpffff8084;
     extern f32 fGpffff8098;
     extern f32 fGpffff809c;
-    extern f32 fGpffff80d4;
+    extern f32 iGpffff80d4;
     extern f32 fGpffff80d8;
     extern f32 fGpffff80dc;
     extern f32 fGpffff80e0;
     extern f32 D_00713D10[];
     extern f32 D_00713D14[];
     extern f32 D_00713D18[];
-    u8 *hdr;
-    u8 *ctrl;
+    f32 drift[5];
+    f32 widths[5];
+    EffectVuVector delta;
+    EffectVuVector heading;
+    EffectVuVector side;
+    EffectVuVector up;
+    EffectVuVector point;
+    EffectVuVector position;
+    EffectVuVector step;
+    f32 segmentLength;
+    f32 phase;
+    f32 wave;
+    f32 amplitude;
+    f32 previous;
+    f32 angle;
+    f32 jitter;
+    f32 radius;
+    f32 zero;
+    f32 half;
+    f32 two;
+    f32 twoPi;
+    f32 outer;
+    f32 inner;
+    f32 phaseStep;
+    f32 shift;
+    f32 spin;
+    f32 dropScale;
+    f32 drop;
+    f32 stepLength;
+    f32 one;
+    f32 tilt;
+    f32 negone;
+    f32 waveRange;
+    f32 waveBase;
+    f32 dropRange;
+    f32 dropBase;
+    f32 jitterRange;
+    f32 jitterBase;
+    f32 orbit;
+    f32 next;
+    f32 nextAngle;
+    u8 *config;
+    u8 *bolt;
     u8 *list;
-    u32 cnt34;
-    s32 n;
-    s32 outerCount;
-    s32 divisor;
-    f32 f30;
-    f32 f84div;
-    f32 f4c;
-    f32 f10c;
-    f32 f50;
-    f32 fA8;
-    f32 gp804c;
-    f32 gp8084;
-    f32 gp8098;
-    f32 gp809c;
-    f32 gp80d4;
-    f32 gp80d8;
-    f32 gp80dc;
-    f32 gp80e0;
-    f32 hdr4;
-    f32 c10;
-    f32 cNeg1;
-    f32 c075;
-    f32 c025;
-    f32 c05;
-    f32 c20;
-    f32 sp108s;
-    f32 af40[8];
-    f32 af20[8];
-    f32 sp160[4];
-    f32 sp150[4];
-    f32 sp140[4];
-    f32 sp130[4];
-    f32 sp180[4];
-    f32 sp170[4];
-    u8 mode88;
-    s32 i;
+    u32 state;
+    s32 index;
+    s32 count;
+    s32 respawnRange;
+    u8 *instance;
+    s32 row;
+    u8 *vertices;
+    s32 rows;
     s32 j;
     s32 k;
-    f32 tmpF;
-    hdr = *(u8 **)(arg0 + 0x30);
-    ctrl = *(u8 **)(arg0 + 0x34);
-    list = *(u8 **)hdr;
-    cnt34 = *(u32 *)(ctrl + 0x34);
-    n = *(s32 *)(arg0 + 0x28);
-    if ((cnt34 < (u32)n) && (cnt34 != 0)) {
+    u8 mode;
+
+    list = *(u8 **)(arg0 + 0x30);
+    config = *(u8 **)(arg0 + 0x34);
+    bolt = *(u8 **)list;
+    if ((*(u32 *)(config + 0x34) < *(u32 *)(arg0 + 0x28)) && (*(u32 *)(config + 0x34) != 0)) {
         return;
     }
-    outerCount = *(s32 *)(ctrl + 0x38);
-    divisor = *(s32 *)(ctrl + 0x40);
-    f30 = (f32)*(u32 *)(ctrl + 0x3C);
-    f84div = *(f32 *)(ctrl + 0x84) / f30;
-    f4c = (f32)*(u32 *)(ctrl + 0x4C);
-    gp8084 = fGpffff8084;
-    f10c = (gp8084 * f4c) / f30;
-    f50 = *(f32 *)(ctrl + 0x50);
-    fA8 = *(f32 *)(ctrl + 0xA8);
-    mode88 = *(u8 *)(ctrl + 0x88);
-    if (!(f84div > 0.0f)) {
+    count = *(s32 *)(config + 0x38);
+    respawnRange = *(s32 *)(config + 0x40);
+    {
+        f32 segmentScale = (f32)*(u32 *)(config + 0x3C);
+
+        segmentLength = *(f32 *)(config + 0x84) / segmentScale;
+        phaseStep = (fGpffff8084 * (f32)*(u32 *)(config + 0x4C)) / segmentScale;
+    }
+    amplitude = *(f32 *)(config + 0x50);
+    spin = *(f32 *)(config + 0xA8);
+    mode = *(u8 *)(config + 0x88);
+    if (segmentLength <= 0.0f) {
         return;
     }
-    func_0048a1f0((u8 *)sp160);
-    gp804c = fGpffff804c;
-    tmpF = f84div / 10.0f;
-    sp108s = -(gp804c * tmpF);
-    af40[0] = 0.0f;
-    tmpF = *(f32 *)(ctrl + 0x80);
-    af40[1] = tmpF;
-    tmpF = tmpF + *(f32 *)(ctrl + 0x7C);
-    af40[2] = tmpF;
-    tmpF = tmpF + *(f32 *)(ctrl + 0x7C);
-    af40[3] = tmpF;
-    af40[4] = tmpF + *(f32 *)(ctrl + 0x80);
-    c10 = 1.0f;
-    cNeg1 = -1.0f;
-    hdr4 = *(f32 *)(hdr + 4);
-    *(f32 *)(hdr + 4) = hdr4 + *(f32 *)(hdr + 8);
-    i = 0;
-    c05 = 0.5f;
-    c20 = 2.0f;
-    c075 = 0.75f;
-    c025 = 0.25f;
-    gp8098 = fGpffff8098;
-    gp809c = fGpffff809c;
-    gp80d4 = fGpffff80d4;
-    gp80d8 = fGpffff80d8;
-    gp80dc = fGpffff80dc;
-    gp80e0 = fGpffff80e0;
-    while (1) {
-        f32 f22;
-        f32 f23;
-        f32 f27;
-        f32 f28;
-        f32 f29;
-        f32 f30loc;
-        if (i >= outerCount) {
-            return;
-        }
-        if (*(s32 *)(list + 0x14) == -1) {
-            f32 r;
-            f32 a4;
-            a4 = *(f32 *)(ctrl + 0xA4);
-            r = effMiscRandFloat(0);
-            *(f32 *)(list + 0x24) = *(f32 *)(ctrl + 0xA0) * (a4 * r + (c10 - a4));
-            *(f32 *)(list + 0x28) = 0.0f;
-            if (mode88 == 0) {
-                r = effMiscRandFloat(0);
-                *(f32 *)(list + 0x1C) = gp8084 * (c20 * (r - c05));
-                *(f32 *)(list + 0x2C) = 0.0f;
+    func_0048a1f0(up.lane);
+    jitter = fGpffff80d8;
+    dropScale = -(fGpffff804c * (segmentLength / 10.0f));
+    zero = 0.0f;
+    widths[0] = 0.0f;
+    widths[1] = *(f32 *)(config + 0x80);
+    widths[2] = widths[1] + *(f32 *)(config + 0x7C);
+    widths[3] = widths[2] + *(f32 *)(config + 0x7C);
+    widths[4] = widths[3] + widths[1];
+    one = 1.0f;
+    delta.lane[3] = 1.0f;
+    point.lane[3] = 1.0f;
+    radius = *(f32 *)(list + 4);
+    *(f32 *)(list + 4) = radius + *(f32 *)(list + 8);
+    index = 0;
+    half = 0.5f;
+    two = 2.0f;
+    twoPi = fGpffff8084;
+    tilt = fGpffff80dc;
+    negone = -1.0f;
+    waveRange = iGpffff80d4;
+    waveBase = fGpffff80e0;
+    dropRange = fGpffff809c;
+    dropBase = fGpffff8098;
+    jitterRange = 0.75f;
+    jitterBase = 0.25f;
+    for (; index < count; index++, bolt += 0x30) {
+        if (*(s32 *)(bolt + 0x14) == -1) {
+            f32 t = *(f32 *)(config + 0xA4);
+
+            *(f32 *)(bolt + 0x24) = *(f32 *)(config + 0xA0) * ((one - t) + t * effMiscRandFloat(0));
+            *(f32 *)(bolt + 0x28) = zero;
+            if (mode == 0) {
+                *(f32 *)(bolt + 0x1C) = twoPi * (two * (effMiscRandFloat(0) - half));
+                *(f32 *)(bolt + 0x2C) = zero;
             } else {
-                r = effMiscRandFloat(0);
-                *(f32 *)(list + 0x1C) = gp80dc * (c20 * (r - c05));
-                r = effMiscRandFloat(0);
-                *(f32 *)(list + 0x2C) = *(f32 *)(ctrl + 0x9C) * r;
+                *(f32 *)(bolt + 0x1C) = tilt * (two * (effMiscRandFloat(0) - half));
+                *(f32 *)(bolt + 0x2C) = *(f32 *)(config + 0x9C) * effMiscRandFloat(0);
             }
-            r = effMiscRandFloat(0);
-            *(f32 *)(list + 0x20) = gp8084 * (c20 * (r - c05));
-            func_004bd1a0(*(f32 *)(list + 0x1C));
-            func_004bd3c0(*(f32 *)(list + 0x20));
+            *(f32 *)(bolt + 0x20) = twoPi * (two * (effMiscRandFloat(0) - half));
+            func_004bd1a0(*(f32 *)(bolt + 0x1C));
+            func_004bd3c0(*(f32 *)(bolt + 0x20));
             func_004bd450();
-            {
-                f32 ang = *(f32 *)(list + 0x28);
-                f32 cx = hdr4 * cosf(ang);
-                f32 sx = hdr4 * sinf(ang);
-                sp150[0] = cx;
-                sp150[1] = 0.0f;
-                sp150[2] = sx;
-                __asm__ volatile(
-                    "lqc2 $vf10, 0(%0)\n"
-                    "vmulax.xyzw $ACC, $vf28, $vf10x\n"
-                    "vmadday.xyzw $ACC, $vf29, $vf10y\n"
-                    "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
-                    "sqc2 $vf10, 0(%0)\n"
-                    : : "r"(sp150) : "$vf10", "memory");
-                *(f32 *)(list + 0x4) = sp150[0];
-                *(f32 *)(list + 0x8) = sp150[1];
-                *(f32 *)(list + 0xC) = sp150[2];
-            }
-            *(s32 *)(list + 0x18) = -1;
+            angle = *(f32 *)(bolt + 0x28);
+            point.lane[0] = radius * cosf(angle);
+            point.lane[1] = zero;
+            point.lane[2] = radius * sinf(angle);
+            effectVuLoad10(&point);
+            __asm__ volatile(
+                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10");
+            effectVuStore10(&point);
+            *(f32 *)(bolt + 0x4) = point.lane[0];
+            *(f32 *)(bolt + 0x8) = point.lane[1];
+            *(f32 *)(bolt + 0xC) = point.lane[2];
+            *(s32 *)(bolt + 0x18) = -1;
+            goto advance;
+        }
+        state = *(u32 *)(bolt + 0x18);
+        if ((state & 0xFF000000) > 0x40000000U) {
+            *(u32 *)(bolt + 0x18) = state + 0xC0000000;
         } else {
-            s32 timer = *(s32 *)(list + 0x18);
-            if ((u32)(timer & 0xFF000000) >= 0x40000001U) {
-                u8 *e0;
-                s32 segs;
-                u8 *vtx;
-                *(s32 *)(list + 0x18) = timer + 0xC0000000;
-                e0 = *(u8 **)list;
-                segs = *(s16 *)(e0 + 8) / 5;
-                RpGeometryLock(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18), 2);
-                vtx = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18) + 0x5C) + 0x14);
-                {
-                    u32 rnd = effMiscRand(0);
-                    if ((rnd & 1) != 0) {
-                        f50 = f50 * cNeg1;
-                    }
-                }
-                f27 = f50;
-                f29 = gp8084 * effMiscRandFloat(0);
-                {
-                    f32 r = effMiscRandFloat(0);
-                    f28 = f27 * (gp80d4 * r + gp80e0);
-                }
-                {
-                    f32 s1 = f28 * sinf(f29);
-                    f29 = f29 + f10c;
-                    f28 = f28 * sinf(f29);
-                    f22 = s1;
-                    f23 = f28 - s1;
-                    {
-                        f32 len = f23 * f23 + f84div * f84div;
-                        f32 sq = sqrtf(len);
-                        f30loc = func_0044b938(f23 / sq);
-                        f30loc = f30loc + *(f32 *)(list + 0xC);
-                    }
-                    {
-                        f32 r;
-                        f32 sc;
-                        f32 ang2;
-                        r = effMiscRandFloat(0);
-                        sc = sp108s * (gp809c * r + gp8098);
-                        ang2 = ((f32)(*(s32 *)(list + 0x14) + 1) * (fA8 * (f32)(*(s32 *)(list + 0x14) + 1) * c05 + *(f32 *)(list + 0x24))) + *(f32 *)(list + 0x28);
-                        func_004bd1a0(*(f32 *)(list + 0x1C));
-                        func_004bd3c0(*(f32 *)(list + 0x20));
-                        func_004bd450();
-                        {
-                            f32 cx = hdr4 * cosf(ang2);
-                            f32 sx = hdr4 * sinf(ang2);
-                            sp150[0] = cx;
-                            sp150[1] = 0.0f;
-                            sp150[2] = sx;
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
-                                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
-                                "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
-                                "sqc2 $vf10, 0(%0)\n"
-                                : : "r"(sp150) : "$vf10", "memory");
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "vmul.xyz $vf2, $vf10, $vf10\n"
-                                "vmulax.w $ACC, $vf0, $vf2x\n"
-                                "vmadday.w $ACC, $vf0, $vf2y\n"
-                                "vmaddz.w $vf2, $vf0, $vf2z\n"
-                                "vrsqrt $Q, $vf0w, $vf2w\n"
-                                "vwaitq\n"
-                                "vmulq.xyz $vf10, $vf10, $Q\n"
-                                "sqc2 $vf10, 0(%1)\n"
-                                : : "r"(sp150), "r"(sp140) : "$vf2", "$vf10", "memory");
-                        }
-                        {
-                            f32 ax = sp140[0] - *(f32 *)(list + 0x4);
-                            f32 ay = sp140[1] - *(f32 *)(list + 0x8);
-                            f32 az = sp140[2] - *(f32 *)(list + 0xC);
-                            __asm__ volatile(
-                                "lqc2 $vf10, 0(%0)\n"
-                                "vmul.xyz $vf2, $vf10, $vf10\n"
-                                "vmulax.w $ACC, $vf0, $vf2x\n"
-                                "vmadday.w $ACC, $vf0, $vf2y\n"
-                                "vmaddz.w $vf2, $vf0, $vf2z\n"
-                                "vrsqrt $Q, $vf0w, $vf2w\n"
-                                "vwaitq\n"
-                                "vmulq.xyz $vf10, $vf10, $Q\n"
-                                "vmove.xyzw $vf12, $vf10\n"
-                                "lqc2 $vf11, 0(%1)\n"
-                                "sqc2 $vf10, 0(%2)\n"
-                                "vopmula.xyz $ACC, $vf10, $vf11\n"
-                                "vopmsub.xyz $vf10, $vf11, $vf10\n"
-                                "sqc2 $vf10, 0(%2)\n"
-                                : : "r"(sp140), "r"(sp160), "r"(sp130) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
-                            {
-                                f32 bx = sp160[0];
-                                f32 by = sp160[1];
-                                f32 bz = sp160[2];
-                                f32 cx = by * az - bz * ay;
-                                f32 cy = bz * ax - bx * az;
-                                f32 cz = bx * ay - by * ax;
-                                f32 dot = cx * cx + cy * cy + cz * cz;
-                                f32 inv = 1.0f;
-                                if (dot > 0.0f) {
-                                    inv = c10 / dot;
-                                }
-                                sp130[0] = cx * inv;
-                                sp130[1] = cy * inv;
-                                sp130[2] = cz * inv;
-                            }
-                            __asm__ volatile(
-                                "lqc2 $vf11, 0(%0)\n"
-                                "vmove.xyzw $vf10, $vf12\n"
-                                "vopmula.xyz $ACC, $vf10, $vf11\n"
-                                "vopmsub.xyz $vf10, $vf11, $vf10\n"
-                                "vmul.xyz $vf2, $vf10, $vf10\n"
-                                "vmulax.w $ACC, $vf0, $vf2x\n"
-                                "vmadday.w $ACC, $vf0, $vf2y\n"
-                                "vmaddz.w $vf2, $vf0, $vf2z\n"
-                                "vrsqrt $Q, $vf0w, $vf2w\n"
-                                "vwaitq\n"
-                                "vmulq.xyz $vf10, $vf10, $Q\n"
-                                "vmove.xyzw $vf12, $vf10\n"
-                                "vmove.xyzw $vf11, $vf10\n"
-                                : : "r"(sp130) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
-                            {
-                                f32 s = *(f32 *)(ctrl + 0x7C) + *(f32 *)(ctrl + 0x80);
-                                __asm__ volatile(
-                                    "qmtc2.ni %0, $vf2\n"
-                                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                                    "sqc2 $vf10, 0(%1)\n"
-                                    : : "r"(*(u32 *)&s), "r"(&D_00713D10) : "$vf10", "$vf2", "memory");
-                                vtx[0] = D_00713D10[0];
-                                vtx[1] = D_00713D14[0];
-                                vtx[2] = D_00713D18[0];
-                            }
-                            {
-                                f32 s = *(f32 *)(ctrl + 0x7C);
-                                __asm__ volatile(
-                                    "qmtc2.ni %0, $vf2\n"
-                                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                                    "sqc2 $vf10, 0(%1)\n"
-                                    : : "r"(*(u32 *)&s), "r"(&D_00713D10) : "$vf10", "$vf2", "memory");
-                                *(f32 *)(vtx + 0x30) = D_00713D10[0];
-                                *(f32 *)(vtx + 0x34) = D_00713D14[0];
-                                *(f32 *)(vtx + 0x38) = D_00713D18[0];
-                            }
-                            vtx[0x18] = 0.0f;
-                            vtx[0x1C] = 0.0f;
-                            vtx[0x20] = 0.0f;
-                            sp150[1] = sp150[1] + *(f32 *)(list + 0x2C);
-                            j = 0;
-                            do {
-                                u8 *p = vtx + j * 12;
-                                D_00713D10[0] = *(f32 *)(p + 0);
-                                D_00713D14[0] = *(f32 *)(p + 4);
-                                D_00713D18[0] = *(f32 *)(p + 8);
-                                __asm__ volatile(
-                                    "lqc2 $vf10, 0(%0)\n"
-                                    "vadd.xyzw $vf10, $vf10, $vf11\n"
-                                    "sqc2 $vf10, 0(%0)\n"
-                                    : : "r"(&D_00713D10) : "$vf10", "$vf11", "memory");
-                                *(f32 *)(p + 0) = D_00713D10[0];
-                                *(f32 *)(p + 4) = D_00713D14[0];
-                                *(f32 *)(p + 8) = D_00713D18[0];
-                                af20[j] = 0.0f;
-                                j++;
-                            } while (j < 5);
-                            {
-                                u8 *nxt = vtx + 0x3C;
-                                s32 it = 1;
-                                f32 curA = f30loc;
-                                f32 curB = f28;
-                                while (it < segs) {
-                                    f32 rr = effMiscRandFloat(0);
-                                    f32 sc2 = gp80d8 * (rr * c075 + c025);
-                                    u32 rnd2 = effMiscRand(0);
-                                    if ((rnd2 & 1) != 0) {
-                                        gp80d8 = gp80d8 * cNeg1;
-                                    }
-                                    f29 = f29 + f10c;
-                                    if (!(f29 < gp8084)) {
-                                        f29 = f29 - gp8084;
-                                        f27 = f27 * cNeg1;
-                                        r = effMiscRandFloat(0);
-                                        f28 = f27 * (gp80d4 * r + gp80e0);
-                                        r = effMiscRandFloat(0);
-                                        sc = sp108s * (gp809c * r + gp8098);
-                                    }
-                                    {
-                                        f32 nb = f28 * sinf(f29);
-                                        f32 l2 = nb * nb + f84div * f84div;
-                                        f32 sq2 = sqrtf(l2);
-                                        nb = func_0044b938(nb / sq2);
-                                        curA = nb + sc2 + *(f32 *)(list + 0xC);
-                                    }
-                                    func_004bd380((u8 *)sp180, curA);
-                                    __asm__ volatile(
-                                        "lqc2 $vf10, 0(%0)\n"
-                                        "vmulax.xyzw $ACC, $vf28, $vf10x\n"
-                                        "vmadday.xyzw $ACC, $vf29, $vf10y\n"
-                                        "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
-                                        "sqc2 $vf10, 0(%0)\n"
-                                        : : "r"(sp180) : "$vf10", "memory");
-                                    func_004bd380((u8 *)sp170, sc);
-                                    __asm__ volatile(
-                                        "lqc2 $vf10, 0(%0)\n"
-                                        "vmulax.xyzw $ACC, $vf28, $vf10x\n"
-                                        "vmadday.xyzw $ACC, $vf29, $vf10y\n"
-                                        "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
-                                        "sqc2 $vf10, 0(%0)\n"
-                                        : : "r"(sp170) : "$vf10", "memory");
-                                    {
-                                        f32 d = (curA - f30loc) * c05;
-                                        f32 w = func_0044b340(d);
-                                        for (k = 0; k < 5; k++) {
-                                            f32 ww = w * af40[k];
-                                            af20[k] = af20[k] + ww;
-                                            *(f32 *)(nxt + k * 12 + 0) = *(f32 *)(nxt + k * 12 - 0x3C + 0) + ww;
-                                            *(f32 *)(nxt + k * 12 + 4) = *(f32 *)(nxt + k * 12 - 0x3C + 4) + ww;
-                                            *(f32 *)(nxt + k * 12 + 8) = *(f32 *)(nxt + k * 12 - 0x3C + 8) + ww;
-                                            D_00713D10[0] = *(f32 *)(nxt + k * 12 - 0x3C + 0);
-                                            D_00713D14[0] = *(f32 *)(nxt + k * 12 - 0x3C + 4);
-                                            D_00713D18[0] = *(f32 *)(nxt + k * 12 - 0x3C + 8);
-                                            __asm__ volatile(
-                                                "lqc2 $vf10, 0(%0)\n"
-                                                "vadd.xyzw $vf10, $vf10, $vf11\n"
-                                                "sqc2 $vf10, 0(%0)\n"
-                                                : : "r"(&D_00713D10) : "$vf10", "$vf11", "memory");
-                                            *(f32 *)(nxt + k * 12 + 0) = D_00713D10[0];
-                                            *(f32 *)(nxt + k * 12 + 4) = D_00713D14[0];
-                                            *(f32 *)(nxt + k * 12 + 8) = D_00713D18[0];
-                                            af20[k] = ww;
-                                        }
-                                        f30loc = curA;
-                                        curB = f28 * sinf(f29);
-                                    }
-                                    it++;
-                                    nxt += 0x3C;
-                                }
-                            }
-                            func_003c22f0(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18));
-                            if ((*(u16 *)e0 & 4) != 0) {
-                                *(u16 *)(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18) + 0xC) |= 1;
-                            }
-                        }
-                    }
-                }
-                *(s32 *)(list + 0x14) += 1;
-            } else {
-                *(s32 *)(list + 0x14) = -1;
-                if (divisor > 0) {
-                    *(s32 *)(list + 0x14) -= effMiscRand(0) % (u32)divisor;
-                }
+            *(s32 *)(bolt + 0x14) = -1;
+            if (respawnRange > 0) {
+                *(s32 *)(bolt + 0x14) = *(s32 *)(bolt + 0x14) - effMiscRand(0) % respawnRange;
+            }
+            continue;
+        }
+        instance = *(u8 **)bolt;
+        rows = *(s16 *)(instance + 8) / 5;
+        RpGeometryLock(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18), 2);
+        vertices = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18) + 0x5C) + 0x14);
+        if ((effMiscRand(0) & 1) != 0) {
+            amplitude = amplitude * negone;
+        }
+        phase = twoPi * effMiscRandFloat(0);
+        wave = amplitude * (waveBase + waveRange * effMiscRandFloat(0));
+        angle = wave * sinf(phase);
+        phase += phaseStep;
+        previous = wave * sinf(phase);
+        {
+            f32 rise = previous - angle;
+
+            f32 tilted = func_0044b938(rise / sqrtf(rise * rise + segmentLength * segmentLength));
+
+            inner = *(f32 *)(config + 0x7C);
+            outer = inner + *(f32 *)(config + 0x80);
+            angle = tilted;
+        }
+        drop = dropScale * (dropBase + dropRange * effMiscRandFloat(0));
+        {
+            f32 t = (f32)(*(s32 *)(bolt + 0x14) + 1);
+
+            orbit = t * (*(f32 *)(bolt + 0x24) + half * (spin * t));
+            orbit += *(f32 *)(bolt + 0x28);
+        }
+        func_004bd1a0(*(f32 *)(bolt + 0x1C));
+        func_004bd3c0(*(f32 *)(bolt + 0x20));
+        func_004bd450();
+        point.lane[0] = radius * cosf(orbit);
+        point.lane[1] = zero;
+        point.lane[2] = radius * sinf(orbit);
+        effectVuLoad10(&point);
+        __asm__ volatile(
+            "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+            "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+            "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10");
+        effectVuStore10(&point);
+        effectVuStore10(&position);
+        __asm__ volatile(
+            "vmul.xyz $vf2, $vf10, $vf10\n"
+            "vmulax.w $ACC, $vf0, $vf2x\n"
+            "vmadday.w $ACC, $vf0, $vf2y\n"
+            "vmaddz.w $vf2, $vf0, $vf2z\n"
+            "vrsqrt $Q, $vf0w, $vf2w\n"
+            "vwaitq\n"
+            "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10");
+        effectVuStore10(&heading);
+        delta.lane[0] = position.lane[0] - *(f32 *)(bolt + 0x4);
+        delta.lane[1] = position.lane[1] - *(f32 *)(bolt + 0x8);
+        delta.lane[2] = position.lane[2] - *(f32 *)(bolt + 0xC);
+        effectVuLoad10(&delta);
+        __asm__ volatile(
+            "vmul.xyz $vf2, $vf10, $vf10\n"
+            "vmulax.w $ACC, $vf0, $vf2x\n"
+            "vmadday.w $ACC, $vf0, $vf2y\n"
+            "vmaddz.w $vf2, $vf0, $vf2z\n"
+            "vrsqrt $Q, $vf0w, $vf2w\n"
+            "vwaitq\n"
+            "vmulq.xyz $vf10, $vf10, $Q\n"
+            "vmove.xyzw $vf12, $vf10\n" : : : "$vf2", "$vf10", "$vf12");
+        effectVuLoad11(&heading);
+        effectVuStore10(&delta);
+        __asm__ volatile(
+            "vopmula.xyz $ACC, $vf10, $vf11\n"
+            "vopmsub.xyz $vf10, $vf11, $vf10\n" : : : "$vf10");
+        effectVuStore10(&side);
+        effectVuLoad11(&up);
+        __asm__ volatile(
+            "vmove.xyzw $vf10, $vf12\n"
+            "vopmula.xyz $ACC, $vf10, $vf11\n"
+            "vopmsub.xyz $vf10, $vf11, $vf10\n"
+            "vmul.xyz $vf2, $vf10, $vf10\n"
+            "vmulax.w $ACC, $vf0, $vf2x\n"
+            "vmadday.w $ACC, $vf0, $vf2y\n"
+            "vmaddz.w $vf2, $vf0, $vf2z\n"
+            "vrsqrt $Q, $vf0w, $vf2w\n"
+            "vwaitq\n"
+            "vmulq.xyz $vf10, $vf10, $Q\n"
+            "vmove.xyzw $vf12, $vf10\n"
+            "vmove.xyzw $vf11, $vf10\n" : : : "$vf2", "$vf10", "$vf11", "$vf12");
+        effectVuScale10(outer);
+        __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+        *(f32 *)(vertices + 0x0) = D_00713D10[0];
+        *(f32 *)(vertices + 0x4) = D_00713D14[0];
+        *(f32 *)(vertices + 0x8) = D_00713D18[0];
+        __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10");
+        __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+        *(f32 *)(vertices + 0x30) = D_00713D10[0];
+        *(f32 *)(vertices + 0x34) = D_00713D14[0];
+        *(f32 *)(vertices + 0x38) = D_00713D18[0];
+        effectVuScale11(inner);
+        __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+        *(f32 *)(vertices + 0xC) = D_00713D10[0];
+        *(f32 *)(vertices + 0x10) = D_00713D14[0];
+        *(f32 *)(vertices + 0x14) = D_00713D18[0];
+        __asm__ volatile("vsub.xyz $vf11, $vf0, $vf11" : : : "$vf11");
+        __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+        *(f32 *)(vertices + 0x24) = D_00713D10[0];
+        *(f32 *)(vertices + 0x28) = D_00713D14[0];
+        *(f32 *)(vertices + 0x2C) = D_00713D18[0];
+        *(f32 *)(vertices + 0x18) = zero;
+        *(f32 *)(vertices + 0x1C) = zero;
+        *(f32 *)(vertices + 0x20) = zero;
+        point.lane[1] = point.lane[1] + *(f32 *)(bolt + 0x2C);
+        effectVuLoad11(&point);
+        for (j = 0; j < 5; j++) {
+            u8 *vertex = vertices + j * 12;
+            D_00713D10[0] = *(f32 *)(vertex + 0x0);
+            D_00713D14[0] = *(f32 *)(vertex + 0x4);
+            D_00713D18[0] = *(f32 *)(vertex + 0x8);
+            effectVuLoad10((EffectVuVector *)D_00713D10);
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertex + 0x0) = D_00713D10[0];
+            *(f32 *)(vertex + 0x4) = D_00713D14[0];
+            *(f32 *)(vertex + 0x8) = D_00713D18[0];
+            drift[j] = zero;
+        }
+        vertices += 0x3C;
+        *(f32 *)(bolt + 0x4) = position.lane[0];
+        *(f32 *)(bolt + 0x8) = position.lane[1];
+        *(f32 *)(bolt + 0xC) = position.lane[2];
+        for (row = 1; row < rows; row++, vertices += 0x3C) {
+            f32 slope;
+
+            shift = jitter * (jitterBase + jitterRange * effMiscRandFloat(0));
+            if ((effMiscRand(0) & 1) != 0) {
+                jitter = jitter * negone;
+            }
+            phase += phaseStep;
+            if (!(phase < twoPi)) {
+                phase -= twoPi;
+                amplitude = amplitude * negone;
+                wave = amplitude * (waveBase + waveRange * effMiscRandFloat(0));
+                drop = dropScale * (dropBase + dropRange * effMiscRandFloat(0));
+            }
+            next = wave * sinf(phase);
+            {
+                f32 rise = next - previous;
+
+                nextAngle = thunderAdd(func_0044b938(rise / sqrtf(rise * rise + segmentLength * segmentLength)), shift);
+            }
+            func_004bd380(angle, heading.lane);
+            effectVuLoad10(&delta);
+            __asm__ volatile(
+                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10");
+            effectVuStore10(&step);
+            func_004bd380(drop, side.lane);
+            effectVuLoad10(&delta);
+            __asm__ volatile(
+                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10");
+            effectVuStore10(&delta);
+            effectVuLoad10(&position);
+            __asm__ volatile(
+                "vmove.xyzw $vf11, $vf10\n"
+                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10", "$vf11");
+            effectVuStore10(&position);
+            /* Retail moves the vsqrt result through $2 (cfc2/mtc1 bridge). */
+            __asm__ volatile(
+                "vsub.xyzw $vf10, $vf10, $vf11\n"
+                "vmul.xyz $vf2, $vf10, $vf10\n"
+                "vaddy.x $vf2, $vf2, $vf2y\n"
+                "vaddz.x $vf2, $vf2, $vf2z\n"
+                "vsqrt $Q, $vf2x\n"
+                "vwaitq\n"
+                "cfc2.ni $2, $vi22\n"
+                "mtc1 $2, %0\n" : "=f"(stepLength) : : "$2", "$vf2", "$vf10");
+            slope = func_0044b340(half * (nextAngle - angle));
+            previous = next;
+            angle = nextAngle;
+            __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&step), "m"(step) : "$vf12");
+            for (k = 0; k < 5; k++) {
+                u8 *vertex;
+                f32 offset = slope * widths[k];
+
+                drift[k] = drift[k] + offset;
+                __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11");
+                vertex = vertices + k * 12;
+                D_00713D10[0] = *(f32 *)(vertex - 0x3C);
+                D_00713D14[0] = *(f32 *)(vertex - 0x38);
+                D_00713D18[0] = *(f32 *)(vertex - 0x34);
+                effectVuLoad10((EffectVuVector *)D_00713D10);
+                effectVuScale11(stepLength + drift[k]);
+                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+                *(f32 *)(vertex + 0x0) = D_00713D10[0];
+                *(f32 *)(vertex + 0x4) = D_00713D14[0];
+                *(f32 *)(vertex + 0x8) = D_00713D18[0];
+                drift[k] = offset;
             }
         }
-        i++;
-        list += 0x30;
+        vertices = *(u8 **)(*(u8 **)(instance + 0x10) + 0x18);
+        func_003c22f0(vertices);
+        if ((*(u16 *)instance & 4) != 0) {
+            *(u16 *)(vertices + 0xC) |= 1;
+        }
+advance:
+        *(s32 *)(bolt + 0x14) = *(s32 *)(bolt + 0x14) + 1;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_004968a0);
-#endif
+#pragma pop
 
 
 // FUN_00497460
