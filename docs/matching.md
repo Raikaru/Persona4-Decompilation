@@ -677,6 +677,23 @@ below are the codegen consequences.
     loop).
   Use it when `tools/regalloc_whatif.py` says a value must keep its declared
   number.
+
+  **Corpus census (2026-10-06).** All 472 b210 owners were captured as
+  committed. Of the single-definition locals copied from a non-copy
+  temporary, 15,570 fold. Of the ones that survive:
+  - 1,396 are passed as a call argument (a copy into an argument register);
+  - 222 are copied into another virtual: a conversion/CSE temporary, a
+    struct-copy cursor (the `lw/lw/addiu` block-copy loop copies the
+    pointer into a codegen cursor), or an earlier local
+    (`suffix = &tbl[i]` after `tbl[i]` was used directly);
+  - 5 survive because the copy is not *available* at a later use. Measured
+    in isolation: a local assigned only under a condition and used under
+    the same condition later (`if (c) x = w->f; g(); if (c) use(x);`), or
+    assigned inside a loop and used after it, keeps its number.
+
+  The same census found no call in matched code where an argument that
+  needs a `zext`/`sext` conversion was evaluated after an earlier
+  argument's load. The conversion-first order below holds everywhere.
 - **Cache after the first assert / cache the base pointer.** Functions that
   reuse a global load it once into a saved register. Mirror with an assert on
   the global first, then `work = g; ...use work...`. Setters that reload the
