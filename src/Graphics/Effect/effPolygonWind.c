@@ -3,6 +3,7 @@
 /* Original translation unit effPolygonWind.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "effect_instance_internal.h"
+#include "effect_vu0_internal.h"
 
 typedef struct RpGeometry RpGeometry;
 
@@ -1491,311 +1492,248 @@ u8 *func_004a48d0(u8 *arg0)
     return work;
 }
 
-/* measured: retail 552 vs object 548 (-4, -0.7% inside 3% gate), probe 462 words (reloc-masked). Recovery: m2c de-noised to file idiom (u8*+u32/f32/s16, plain (f32)u32 for the three unsigned int->float sites, (f32)(s32)state for the signed angle site per micro_codegen pricing (unsigned 14 vs signed 4), plain (1.0f-x)+x*r FMA chains for the nine spawn interpolations, plain-C inner stores via D_00713D10/14/18 plus scalar div/madd tail; VU lqc2/vmulax/vopmula/vrsqrt pipeline omitted (25 ?? shortfall) and sq/lq 16B slots as u32 sw/lw (frame 0x130 vs 0x140) to hold count. Fix chain: v2 564/616 -> v3 533/579 (plain casts) -> v4 524/576 (drop dummy) -> v5 514/566 (signed st) -> loopinv 504/558 + propoff 506/542 -> combo 462/548 (-52, file idiom pair composes). Ruled out: sched (502, -9% short, outside gate), csuboff/sro/dao/ulo/pee (ties/regress), float decl-order (513 tie). Open walls: saved-reg rotation ($s0-$s8 colouring), FPR colouring (conversion dest $f23 vs $f25 etc.), VU vs FPU (25 ??), sq/lq vs sw/lw (5 words) plus the single paddub for sp110. Callee fix: func_004bd1a0 (u32,f32)->(f32) per effMisc.c. Banked as guarded floor. */
-// FUN_004A4A10 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_loop_invariants on
-#pragma opt_propagation off
+/* Spiral wind strip update. Each live particle samples sampleCount points on a
+ * circle (cosf/sinf), transforms them by the VU0 matrix set up by
+ * func_004bd1a0/3c0/450, and widens the strip along the normalised cross
+ * product; the results pass through D_00713D10 as in effLineNova. The FPU
+ * constants are named locals assigned in retail's preheader order, and the
+ * FPR locals are declared in the order regalloc_whatif.py derived from the
+ * captured colouring (start/end/t, then width..radius). */
+// FUN_004A4A10
 void func_004a4a10(u8 *arg0)
 {
-    u32 sp100;
-    u32 spF0;
-    u32 spE0;
-    s32 sp120;
-    u32 sp110;
-    f32 spDC;
-    f32 spD8;
-    f32 spD4;
-    f32 spD0;
-    f32 sp130;
-    f32 sp134;
-    f32 sp138;
-    f32 temp_scale;
-    f32 temp_y;
-    f32 temp_e;
-    f32 var_f0;
-    f32 var_f25;
-    f32 var_f27;
-    f32 var_f28;
-    s16 hcount;
+    EffectVuVector point;
+    f32 sampleScale;
+    f32 one;
+    f32 half;
+    f32 two;
+    f32 spread;
+    f32 zero;
+    f32 start;
+    f32 end;
+    f32 t;
+    f32 width;
+    f32 vStep;
+    f32 v0;
+    f32 angle;
+    f32 step;
+    f32 radius;
+    f32 accel;
+    f32 vSpan;
+    f32 spin;
+    f32 quarter;
+    u32 index;
+    s32 segmentCount;
+    u8 *instance;
+    u32 lifetime;
+    u8 *particle;
+    u32 sample;
+    u8 *vertices;
+    u8 *texCoords;
+    u8 *config;
+    u32 particleCount;
+    u32 respawn;
+    u32 sampleCount;
+    s32 spawnAll;
+    u32 pending;
+    u32 elapsed;
+    u32 limit;
+    u8 *list;
+    u8 *geometry;
     u32 state;
-    u32 tmp5;
-    u32 outerCount;
-    u32 divisor;
-    u32 var_19;
-    u32 var_30;
-    u8 *ctx2;
-    u8 *base;
-    u8 *pvar20;
-    u8 *ctx;
-    u8 *tmp;
-    u8 *var_18;
-    u8 *var_17;
-    f32 fA4;
 
-    u32 c;
-    u32 v;
-    f32 xC0;
-    f32 r0;
-    f32 yBC;
-    f32 xC8;
-    f32 r1;
-    f32 yC4;
-    f32 r2;
-    f32 r3;
-    f32 r4;
-    f32 xD0;
-    f32 r5;
-    f32 yCC;
-    f32 xB4;
-    f32 r6;
-    f32 yB0;
-    f32 xAC;
-    f32 r7;
-    f32 yA8;
-    f32 x9C;
-    f32 r8;
-    f32 y98;
-    u32 rr;
-    u32 idx;
-    f32 a;
-    f32 b;
-    f32 idf;
-    u8 *dst;
-    f32 st;
-    f32 dc;
-    f32 e18;
-    f32 e1C;
-    f32 ang;
-    f32 s10;
-    f32 scl;
-    f32 e18v;
-    f32 e24;
-    f32 div;
-    f32 c0;
-    f32 s0;
-    f32 nc;
-    f32 ns;
-    f32 d0;
-    f32 d1;
-    f32 d2;
-    f32 fi;
-    base = *(u8 **)(arg0 + 0x40);
-    tmp5 = *(u32 *)(arg0 + 0x34);
-    outerCount = *(u32 *)(base + 0x34);
-    if ((outerCount < tmp5) && (outerCount != 0)) {
+    config = *(u8 **)(arg0 + 0x40);
+    limit = *(u32 *)(config + 0x34);
+    elapsed = *(u32 *)(arg0 + 0x34);
+    if ((limit < elapsed) && (limit != 0)) {
         return;
     }
-    {
-        c = *(u32 *)(base + 0x38);
-        sp100 = c;
-    }
-    divisor = *(u32 *)(base + 0x80);
-    if (divisor == 0) {
+    particleCount = *(u32 *)(config + 0x38);
+    lifetime = *(u32 *)(config + 0x80);
+    if (lifetime == 0) {
         return;
     }
-    if ((*(u8 *)(base + 0xB8) == 0) || (tmp5 != 0)) {
-        sp120 = 0;
-        sp110 = *(u32 *)(base + 0x84);
+    if ((*(u8 *)(config + 0xB8) != 0) && (elapsed == 0)) {
+        spawnAll = 1;
+        pending = particleCount;
     } else {
-        sp120 = 1;
-        sp110 = *(u32 *)(base + 0x38);
+        spawnAll = 0;
+        pending = *(u32 *)(config + 0x84);
     }
-    tmp = *(u8 **)(arg0 + 0x3C);
-    pvar20 = *(u8 **)tmp;
-    ctx = *(u8 **)(tmp + 4);
-    spF0 = (u32)*(u8 *)(base + 0x88);
-    spDC = *(f32 *)(base + 0xD4);
-    {
-        u8 *p10;
-        u8 *p18;
-        p10 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        RpGeometryLock((RpGeometry *)(p10), 0xFF2);
-        p18 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        var_18 = *(u8 **)(*(u8 **)(p18 + 0x5C) + 0x14);
-        var_17 = *(u8 **)(p18 + 0x34);
-        hcount = *(s16 *)(ctx + 8);
-        v = *(u32 *)(base + 0x8C) + 1;
-        spE0 = v;
-        var_f25 = (f32)v;
-        spD8 = *(f32 *)(base + 0x98);
-        fA4 = *(f32 *)(base + 0xA4);
-        var_30 = 0;
-        temp_scale = iGpffff8080;
-        spD4 = iGpffff8084;
-        spD0 = 0.25f;
-        while (var_30 < sp100) {
-            state = *(u32 *)pvar20;
-            if (state == 0xFFFFFFFEU) {
-                goto next_outer;
-            }
-            if (state == 0xFFFFFFFFU) {
-                memset(var_18, 0, (s32)hcount * 12);
-                if (sp110 != 0) {
-                    xC0 = *(f32 *)(base + 0xC0);
-                    r0 = effMiscRandFloat(0);
-                    yBC = *(f32 *)(base + 0xBC);
-                    temp_y = yBC * ((1.0f - xC0) + xC0 * r0);
-                    xC8 = *(f32 *)(base + 0xC8);
-                    r1 = effMiscRandFloat(0);
-                    yC4 = *(f32 *)(base + 0xC4);
-                    var_f0 = (f32)divisor;
-                    *(f32 *)(pvar20 + 0x14) = (yC4 * ((1.0f - xC8) + xC8 * r1) - temp_y) / var_f0;
-                    *(f32 *)(pvar20 + 0x10) = temp_y;
-                    r2 = effMiscRandFloat(0);
-                    *(f32 *)(pvar20 + 0x8) = temp_scale * ((r2 - 0.5f) * 2.0f);
-                    r3 = effMiscRandFloat(0);
-                    *(f32 *)(pvar20 + 0xC) = temp_scale * ((r3 - 0.5f) * 2.0f);
-                    r4 = effMiscRandFloat(0);
-                    *(f32 *)(pvar20 + 0x1C) = spD4 * r4;
-                    xD0 = *(f32 *)(base + 0xD0);
-                    r5 = effMiscRandFloat(0);
-                    yCC = *(f32 *)(base + 0xCC);
-                    *(f32 *)(pvar20 + 0x18) = yCC * ((1.0f - xD0) + xD0 * r5);
-                    xB4 = *(f32 *)(base + 0xB4);
-                    r6 = effMiscRandFloat(0);
-                    yB0 = *(f32 *)(base + 0xB0);
-                    *(f32 *)(pvar20 + 0x20) = yB0 * ((1.0f - xB4) + xB4 * r6);
-                    xAC = *(f32 *)(base + 0xAC);
-                    r7 = effMiscRandFloat(0);
-                    yA8 = *(f32 *)(base + 0xA8);
-                    *(f32 *)(pvar20 + 0x24) = yA8 * ((1.0f - xAC) + xAC * r7);
-                    x9C = *(f32 *)(base + 0x9C);
-                    r8 = effMiscRandFloat(0);
-                    y98 = *(f32 *)(base + 0x98);
-                    *(f32 *)(pvar20 + 0x28) = y98 * ((1.0f - x9C) + x9C * r8);
-                    if (sp120 != 0) {
-                        rr = effMiscRand(0);
-                        idx = rr % divisor;
-                        *(u32 *)pvar20 = idx;
-                        {
-                            a = *(f32 *)(pvar20 + 0x14);
-                            b = *(f32 *)(pvar20 + 0x10);
-                            idf = (f32)(s32)idx;
-                            *(f32 *)(pvar20 + 0x10) = a * idf + b;
-                        }
-                    } else {
-                        *(u32 *)pvar20 = 0;
-                    }
-                    sp110 -= 1;
-                }
-                goto next_outer;
-            }
-            if (state >= divisor) {
-                if (spF0 != 0) {
-                    *(u32 *)pvar20 = 0xFFFFFFFFU;
-                } else {
-                    memset(var_18, 0, (s32)hcount * 12);
-                    *(u32 *)pvar20 = 0xFFFFFFFEU;
-                }
-                {
-                    if (iGpffffbb64.c3 != 0xFF) {
-                        dst = *(u8 **)(*(u8 **)(ctx + 0x54) + (var_30 & 0xFFFF) * 4);
-                        *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
-                    } else {
-                        iGpffffbb64.c3 = 0xFE;
-                        {
-                            dst = *(u8 **)(*(u8 **)(ctx + 0x54) + (var_30 & 0xFFFF) * 4);
-                            *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
-                        }
-                        iGpffffbb64.c3 = 0xFF;
-                    }
-                }
-                goto next_outer;
-            }
-            {
-                st = (f32)(s32)state;
-                dc = spDC;
-                e18 = *(f32 *)(pvar20 + 0x18);
-                e1C = *(f32 *)(pvar20 + 0x1C);
-                ang = st * (e18 + 0.5f * (dc * st)) + e1C;
-                s10 = *(f32 *)(pvar20 + 0x10) + *(f32 *)(pvar20 + 0x14);
-                *(f32 *)(pvar20 + 0x10) = s10;
-                scl = 0.25f * *(f32 *)(pvar20 + 0x20);
-                e18v = *(f32 *)(pvar20 + 0x18);
-                e24 = *(f32 *)(pvar20 + 0x24);
-                if (e18v < 0.0f) {
-                    div = -e24 / var_f25;
-                } else {
-                    div = e24 / var_f25;
-                }
-                var_f27 = div;
-                var_f28 = ang;
-                temp_e = *(f32 *)(pvar20 + 0x28);
-                func_004bd1a0(*(f32 *)(pvar20 + 0x8));
-                func_004bd3c0(*(f32 *)(pvar20 + 0xC));
-                func_004bd450();
-                {
-                    c0 = cosf(ang);
-                    s0 = sinf(ang);
-                    sp130 = c0;
-                    sp134 = 0.0f;
-                    sp138 = s0;
-                    var_19 = 0;
-                    while (var_19 < spE0) {
-                        var_f28 += var_f27;
-                        {
-                            nc = cosf(var_f28);
-                            ns = sinf(var_f28);
-                            sp130 = nc;
-                            sp138 = ns;
-                        }
-                        {
-                            d0 = D_00713D10[0];
-                            d1 = D_00713D14[0];
-                            d2 = D_00713D18[0];
-                            *(f32 *)(var_18 + 0xC) = d0;
-                            *(f32 *)(var_18 + 0x10) = d1;
-                            *(f32 *)(var_18 + 0x14) = d2;
-                            *(f32 *)var_18 = d0;
-                            *(f32 *)(var_18 + 4) = d1;
-                            *(f32 *)(var_18 + 8) = d2;
-                            *(f32 *)(var_18 + 0x18) = d0;
-                            *(f32 *)(var_18 + 0x1C) = d1;
-                            *(f32 *)(var_18 + 0x20) = d2;
-                            *(f32 *)(var_18 + 0x24) = d0;
-                            *(f32 *)(var_18 + 0x28) = d1;
-                            *(f32 *)(var_18 + 0x2C) = d2;
-                        }
-                        var_18 += 0x30;
-                        {
-                            fi = (f32)var_19;
-                            {
-                                v = spD8 * (fi / var_f25) + temp_e;
-                                *(f32 *)(var_17 + 4) = v;
-                                *(f32 *)(var_17 + 0xC) = v;
-                                *(f32 *)(var_17 + 0x14) = v;
-                                *(f32 *)(var_17 + 0x1C) = v;
-                            }
-                        }
-                        var_17 += 0x20;
-                        var_19 += 1;
-                    }
-                }
-                *(f32 *)(pvar20 + 0x28) = *(f32 *)(pvar20 + 0x28) + fA4;
-                *(u32 *)pvar20 = state + 1;
-            }
-next_outer:
-            {
-                var_18 += (s32)hcount * 12;
-                var_17 += (s32)hcount * 8;
-            }
-            var_30 += 1;
-            pvar20 += 0x2C;
+    list = *(u8 **)(arg0 + 0x3C);
+    particle = *(u8 **)list;
+    instance = *(u8 **)(list + 4);
+    respawn = *(u8 *)(config + 0x88);
+    accel = *(f32 *)(config + 0xD4);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(instance + 0x10) + 0x18), 0xFF2);
+    geometry = *(u8 **)(*(u8 **)(instance + 0x10) + 0x18);
+    vertices = *(u8 **)(*(u8 **)(geometry + 0x5C) + 0x14);
+    texCoords = *(u8 **)(geometry + 0x34);
+    segmentCount = *(s16 *)(instance + 8);
+    sampleCount = *(u32 *)(config + 0x8C) + 1;
+    sampleScale = (f32)sampleCount;
+    vSpan = *(f32 *)(config + 0x98);
+    vStep = *(f32 *)(config + 0xA4);
+    index = 0;
+    one = 1.0f;
+    half = 0.5f;
+    two = 2.0f;
+    spread = iGpffff8084;
+    spin = iGpffff8080;
+    quarter = 0.25f;
+    zero = 0.0f;
+    for (; index < particleCount; index++, particle += 0x2C) {
+        state = *(u32 *)particle;
+        if (state == (u32)-2) {
+            goto skip;
         }
-        ctx2 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        func_003c22f0((RpGeometry *)(ctx2));
-        if ((*(u16 *)ctx & 4) != 0) {
-            *(u16 *)(ctx2 + 0xC) = *(u16 *)(ctx2 + 0xC) | 1;
+        if (state == (u32)-1) {
+            memset(vertices, 0, segmentCount * 12);
+            if (pending == 0) {
+                goto skip;
+            }
+            start = *(f32 *)(config + 0xC0);
+            start = *(f32 *)(config + 0xBC) * ((one - start) + start * effMiscRandFloat(0));
+            end = *(f32 *)(config + 0xC8);
+            *(f32 *)(particle + 0x14) = (*(f32 *)(config + 0xC4) * ((one - end) + end * effMiscRandFloat(0)) - start) / (f32)lifetime;
+            *(f32 *)(particle + 0x10) = start;
+            *(f32 *)(particle + 0x8) = spread * (two * (effMiscRandFloat(0) - half));
+            *(f32 *)(particle + 0xC) = spread * (two * (effMiscRandFloat(0) - half));
+            *(f32 *)(particle + 0x1C) = spin * effMiscRandFloat(0);
+            t = *(f32 *)(config + 0xD0);
+            *(f32 *)(particle + 0x18) = *(f32 *)(config + 0xCC) * ((one - t) + t * effMiscRandFloat(0));
+            t = *(f32 *)(config + 0xB4);
+            *(f32 *)(particle + 0x20) = *(f32 *)(config + 0xB0) * ((one - t) + t * effMiscRandFloat(0));
+            t = *(f32 *)(config + 0xAC);
+            *(f32 *)(particle + 0x24) = *(f32 *)(config + 0xA8) * ((one - t) + t * effMiscRandFloat(0));
+            t = *(f32 *)(config + 0x9C);
+            *(f32 *)(particle + 0x28) = *(f32 *)(config + 0x98) * ((one - t) + t * effMiscRandFloat(0));
+            if (spawnAll != 0) {
+                *(u32 *)particle = effMiscRand(0) % lifetime;
+                t = (f32)*(s32 *)particle;
+                *(f32 *)(particle + 0x10) = *(f32 *)(particle + 0x10) + *(f32 *)(particle + 0x14) * t;
+            } else {
+                *(u32 *)particle = 0;
+            }
+            pending--;
+            goto skip;
         }
+        if (state >= lifetime) {
+            if (respawn != 0) {
+                *(u32 *)particle = (u32)-1;
+            } else {
+                memset(vertices, 0, segmentCount * 12);
+                *(u32 *)particle = (u32)-2;
+            }
+            if (iGpffffbb64.c3 != 0xFF) {
+                u8 *color = *(u8 **)(*(u8 **)(instance + 0x54) + (u16)index * 4);
+                *(PolygonWindColor *)(color + 4) = iGpffffbb64;
+            } else {
+                iGpffffbb64.c3 = 0xFE;
+                {
+                    u8 *color = *(u8 **)(*(u8 **)(instance + 0x54) + (u16)index * 4);
+                    *(PolygonWindColor *)(color + 4) = iGpffffbb64;
+                }
+                iGpffffbb64.c3 = 0xFF;
+            }
+            goto skip;
+        }
+        t = (f32)(s32)state;
+        angle = t * (*(f32 *)(particle + 0x18) + half * (accel * t));
+        angle += *(f32 *)(particle + 0x1C);
+        radius = (*(f32 *)(particle + 0x10) += *(f32 *)(particle + 0x14));
+        width = quarter * *(f32 *)(particle + 0x20);
+        if (!(*(f32 *)(particle + 0x18) < zero)) {
+            step = *(f32 *)(particle + 0x24) / sampleScale;
+        } else {
+            step = -*(f32 *)(particle + 0x24) / sampleScale;
+        }
+        v0 = *(f32 *)(particle + 0x28);
+        func_004bd1a0(*(f32 *)(particle + 0x8));
+        func_004bd3c0(*(f32 *)(particle + 0xC));
+        func_004bd450();
+        point.lane[0] = cosf(angle);
+        point.lane[1] = zero;
+        point.lane[2] = sinf(angle);
+        for (sample = 0; sample < sampleCount; sample++) {
+            effectVuLoad10(&point);
+            __asm__ volatile(
+                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10");
+            effectVuScale10(radius);
+            __asm__ volatile("vmove.xyzw $vf12, $vf10" : : : "$vf12");
+            angle += step;
+            point.lane[0] = cosf(angle);
+            point.lane[1] = zero;
+            point.lane[2] = sinf(angle);
+            effectVuLoad10(&point);
+            __asm__ volatile(
+                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10");
+            effectVuScale10(radius);
+            __asm__ volatile(
+                "vmove.xyzw $vf11, $vf12\n"
+                "vsub.xyzw $vf10, $vf10, $vf11\n"
+                "vopmula.xyz $ACC, $vf10, $vf11\n"
+                "vopmsub.xyz $vf10, $vf11, $vf10\n"
+                "vmul.xyz $vf2, $vf10, $vf10\n"
+                "vmulax.w $ACC, $vf0, $vf2x\n"
+                "vmadday.w $ACC, $vf0, $vf2y\n"
+                "vmaddz.w $vf2, $vf0, $vf2z\n"
+                "vrsqrt $Q, $vf0w, $vf2w\n"
+                "vwaitq\n"
+                "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10", "$vf11");
+            effectVuScale10(width);
+            __asm__ volatile(
+                "vmove.xyzw $vf11, $vf10\n"
+                "vmove.xyzw $vf10, $vf12\n"
+                "vadd.xyzw $vf10, $vf10, $vf11\n" : : : "$vf10", "$vf11");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0xC) = D_00713D10[0];
+            *(f32 *)(vertices + 0x10) = D_00713D14[0];
+            *(f32 *)(vertices + 0x14) = D_00713D18[0];
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x0) = D_00713D10[0];
+            *(f32 *)(vertices + 0x4) = D_00713D14[0];
+            *(f32 *)(vertices + 0x8) = D_00713D18[0];
+            __asm__ volatile(
+                "vmove.xyzw $vf10, $vf12\n"
+                "vsub.xyzw $vf10, $vf10, $vf11\n" : : : "$vf10");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x18) = D_00713D10[0];
+            *(f32 *)(vertices + 0x1C) = D_00713D14[0];
+            *(f32 *)(vertices + 0x20) = D_00713D18[0];
+            __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+            *(f32 *)(vertices + 0x24) = D_00713D10[0];
+            *(f32 *)(vertices + 0x28) = D_00713D14[0];
+            *(f32 *)(vertices + 0x2C) = D_00713D18[0];
+            vertices += 0x30;
+            {
+                f32 v = v0 + vSpan * ((f32)sample / sampleScale);
+                *(f32 *)(texCoords + 0x4) = v;
+                *(f32 *)(texCoords + 0xC) = v;
+                *(f32 *)(texCoords + 0x14) = v;
+                *(f32 *)(texCoords + 0x1C) = v;
+            }
+            texCoords += 0x20;
+        }
+        *(f32 *)(particle + 0x28) = *(f32 *)(particle + 0x28) + vStep;
+        *(u32 *)particle = *(u32 *)particle + 1;
+        continue;
+skip:
+        vertices += segmentCount * 12;
+        texCoords += segmentCount * 8;
+    }
+    geometry = *(u8 **)(*(u8 **)(instance + 0x10) + 0x18);
+    func_003c22f0((RpGeometry *)geometry);
+    if ((*(u16 *)instance & 4) != 0) {
+        *(u16 *)(geometry + 0xC) |= 1;
     }
 }
-
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a4a10);
-#endif
 
 // FUN_004A52B0
 void func_004a52b0(u8 *arg0)
