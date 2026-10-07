@@ -2515,15 +2515,25 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
     }
     *(f32 *)(arg0 + 0x1C) = 0.0f;
 }
-/* Guarded native proof, 2026-09-29: 1668/1696 bytes, 373 differing words.
- * Branch-local packed-color outputs recover the retail 0x150 frame.
- * Approved VU helpers own complete C objects and allocated transfer registers.
- * Count is read at its address use; interpolation increments before attributes.
- * Instruction differences remain; production retains ASM. */
+/* Guarded native proof, 2026-09-29; 2026-10-07: 160 differing instruction
+ * words (was 225). Branch-local packed-color outputs recover the retail 0x150
+ * frame; the family pragmas, particle-index clear math, a 24-bit colour
+ * bitfield read before the alpha conversion, src1 declared before clear, one
+ * cursor for the clear loop and the copy source, and the else branch's reuse
+ * of the c4 * 32 stride fix the first loop. Open: retail copies the four
+ * interpolation quads through address registers (the u_long128 *slot form
+ * reproduces that but shifts c4/nmult colouring) and colours the rest. */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
 void func_0048b340(u8 *arg0, u8 *arg1)
 {
+    typedef struct TrailColor {
+        u32 rgb : 24;
+        u32 alpha : 8;
+    } TrailColor;
     extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048a810(f32 t, void *quads);
     extern f32 fGpffff8044;
@@ -2538,8 +2548,8 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     s32 node10;
     u8 *nodesBase;
     f32 one;
-    f32 invN;
     f32 acc;
+    f32 invN;
     f32 scaleTop;
     f32 acc2;
     f32 inv2;
@@ -2548,9 +2558,9 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     f32 baseY;
     f32 diffY;
     f32 packScale;
-    u8 *dst1;
-    u8 *clear;
     u8 *src1;
+    u8 *clear;
+    u8 *dst1;
     u8 *dst2;
     u8 *dst3;
     u32 i;
@@ -2559,8 +2569,11 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     s32 tmp;
     f32 ftmp;
     u32 alpha;
+    u32 lo;
     u8 *second;
     u8 *iter;
+    u32 particleIndex;
+    u32 stride;
 
     config = *(u8 **)(arg0 + 0x20);
     c4 = *(s32 *)(config + 0xC4);
@@ -2570,16 +2583,16 @@ void func_0048b340(u8 *arg0, u8 *arg1)
         return;
     }
     node10 = *(s32 *)(arg1 + 0x10);
-    nodesBase = *(u8 **)(arg0 + 0x18);
-    clear = nodesBase + 32 * (*(u32 *)(arg0 + 4) + ((u32)(arg1 - nodesBase) >> 5) * nmult);
+    particleIndex = ((u32)arg1 - (u32)*(u8 **)(arg0 + 24)) >> 5;
+    clear = *(u8 **)(arg0 + 24) + ((*(u32 *)(arg0 + 4) + particleIndex * nmult) << 5);
     if (node10 == 0) {
         memcpy(clear, arg1, 0x20);
-        dst1 = clear;
+        src1 = clear;
         i = 0;
         goto loop0_check;
 loop0_body:
-        *(s32 *)(dst1 + 0x10) = -1;
-        dst1 += 0x20;
+        *(s32 *)(src1 + 0x10) = -1;
+        src1 += 0x20;
         i += 1;
 loop0_check:
         if (i < nmult) {
@@ -2594,14 +2607,16 @@ loop0_check:
     scaleTop = (f32)(u32)((*(u32 *)(arg1 + 0x14)) >> 24);
     boundC0 = nmult - (u32)c4;
     dst1 = clear + nmult * 32 - 0x20;
-    src1 = dst1 - (u32)(c4 * 32);
+    stride = (u32)(c4 * 32);
+    src1 = dst1 - stride;
     j = 0;
     goto loop1_check;
 loop1_body:
     memcpy(dst1, src1, 0x20);
+    lo = ((TrailColor *)(src1 + 0x14))->rgb;
     ftmp = scaleTop * acc;
     alpha = (u32)ftmp;
-    *(u32 *)(dst1 + 0x14) = (*(u32 *)(src1 + 0x14) & 0xFFFFFF) | (alpha << 24);
+    *(u32 *)(dst1 + 0x14) = lo | (alpha << 24);
     acc = acc + invN;
     dst1 -= 0x20;
     src1 -= 0x20;
@@ -2620,7 +2635,7 @@ loop1_check:
         s32 colTmpB;
         u32 packedTmp;
         u32 colorTransfer;
-        second = clear + (u32)(c4 * 32);
+        second = clear + ((u32)c4 << 5);
         if (*(s32 *)(clear + (u32)(c4 * 64) + 0x10) < 0) {
             return;
         }
@@ -2697,7 +2712,7 @@ loop2_check:
         if (node10 <= 0) {
             return;
         }
-        second = clear + (u32)(c4 * 32);
+        second = clear + stride;
         if (*(s32 *)(second + 0x10) < 0) {
             return;
         }
@@ -2781,6 +2796,8 @@ loop3_check:
         return;
     }
 }
+
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b340);
 #endif
