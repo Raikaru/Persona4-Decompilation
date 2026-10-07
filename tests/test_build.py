@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import subprocess
 import tempfile
 import unittest
@@ -13,6 +14,116 @@ SPEC = importlib.util.spec_from_file_location("p4_build", MODULE_PATH)
 assert SPEC is not None and SPEC.loader is not None
 build = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(build)
+
+
+class LinkFloorIdentityTests(unittest.TestCase):
+    SOURCE = "src/Kernel/h_memcard_grouped.c"
+    ADDRESSES = ["004647a0", "004647b0", "004647c0", "004653f0"]
+
+    def owner(self, source=None):
+        return {"src": REPO / (source or self.SOURCE), "funcs": [
+            {"addr": int(a, 16), "name": f"func_{a}",
+             "stub": False, "nonmatching": False, "asm": False}
+            for a in self.ADDRESSES]}
+
+    def check(self, count, owners=None, required=True):
+        policy = {"linked_tu_count": 604}
+        if required:
+            policy["required_c_functions"] = {self.SOURCE: self.ADDRESSES}
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "link_floor.json"
+            path.write_text(json.dumps(policy))
+            with mock.patch.object(build, "LINK_FLOOR", path):
+                build.check_link_floor(count, owners)
+
+    def test_required_owner_and_all_c_bodies_pass(self):
+        self.check(604, [self.owner()])
+
+    def test_count_below_floor_fails_even_with_required_owner(self):
+        with self.assertRaisesRegex(SystemExit, "603.*below.*604"):
+            self.check(603, [self.owner()])
+
+    def test_unrelated_owner_cannot_replace_required_owner_at_same_count(self):
+        with self.assertRaisesRegex(SystemExit, "required C owner.*lost link eligibility"):
+            self.check(604, [self.owner("src/unrelated.c")])
+
+    def test_extra_owners_above_floor_are_allowed(self):
+        self.check(605, [self.owner(), self.owner("src/unrelated.c")])
+
+    def test_missing_required_function_fails(self):
+        owner = self.owner()
+        owner["funcs"].pop(2)
+        with self.assertRaisesRegex(SystemExit, "004647c0 is missing"):
+            self.check(604, [owner])
+
+    def test_required_address_in_other_owner_does_not_satisfy_requirement(self):
+        owner = self.owner()
+        moved = owner["funcs"].pop(2)
+        other = {"src": REPO / "src/unrelated.c", "funcs": [moved]}
+        with self.assertRaisesRegex(SystemExit, "004647c0 is missing"):
+            self.check(604, [owner, other])
+
+    def test_fallback_nonmatching_or_stub_does_not_count_as_c(self):
+        for flag in ("asm", "nonmatching", "stub"):
+            with self.subTest(flag=flag):
+                owner = self.owner()
+                owner["funcs"][2][flag] = True
+                with self.assertRaisesRegex(SystemExit, "004647c0.*assembly fallback"):
+                    self.check(604, [owner])
+
+    def test_unnamed_marker_does_not_satisfy_required_body(self):
+        owner = self.owner()
+        owner["funcs"][2]["name"] = None
+        with self.assertRaisesRegex(SystemExit, "004647c0 is missing"):
+            self.check(604, [owner])
+
+    def test_string_addresses_from_report_are_normalized(self):
+        owner = self.owner()
+        for marker in owner["funcs"]:
+            marker["addr"] = f'{marker["addr"]:08x}'
+        self.check(604, [owner])
+
+    def test_scanner_distinguishes_c_and_both_assembly_fallback_forms(self):
+        fixtures = {
+            "real C": "// FUN_004647c0\nint func_004647c0(void) { return 0; }\n",
+            "direct fallback": '// FUN_004647c0\nINCLUDE_ASM("asm/nonmatchings/synthetic", func_004647c0);\n',
+            "conditional fallback": '// FUN_004647c0\n#ifdef NON_MATCHING\nint func_004647c0(void) { return 0; }\n#else\nINCLUDE_ASM("asm/nonmatchings/synthetic", func_004647c0);\n#endif\n',
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "synthetic.c"
+            for kind, text in fixtures.items():
+                with self.subTest(kind=kind):
+                    source.write_text(text)
+                    markers = build.V.scan_markers(source)
+                    self.assertEqual(len(markers), 1)
+                    owner = {"src": REPO / "src/synthetic_owner.c", "funcs": markers}
+                    required = {"src/synthetic_owner.c": ["004647c0"]}
+                    if kind == "real C":
+                        build.check_required_c_functions(required, [owner])
+                    else:
+                        with self.assertRaisesRegex(SystemExit, "assembly fallback"):
+                            build.check_required_c_functions(required, [owner])
+
+    def test_old_count_only_policy_remains_supported(self):
+        self.check(604, required=False)
+        with self.assertRaisesRegex(SystemExit, "below the recorded floor"):
+            self.check(603, required=False)
+
+    def test_missing_floor_file_remains_supported(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            with mock.patch.object(build, "LINK_FLOOR", Path(temporary) / "absent"):
+                build.check_link_floor(0)
+
+    def test_required_policy_cannot_silently_skip_missing_object_inventory(self):
+        with self.assertRaisesRegex(SystemExit, "needs eligible C objects"):
+            self.check(604)
+
+    def test_malformed_required_mapping_is_rejected(self):
+        for required in ([], {self.SOURCE: []}, {self.SOURCE: ["not-an-address"]},
+                         {self.SOURCE: "004647c0"}, {"../src/file.c": self.ADDRESSES}):
+            with self.subTest(required=required):
+                with self.assertRaisesRegex(SystemExit, "required_c_functions"):
+                    build.check_required_c_functions(required, [self.owner()])
 
 
 class LinkResponseFileTests(unittest.TestCase):
