@@ -1115,7 +1115,7 @@ def merge_symbol_sections(symbols):
 LINK_FLOOR = REPO / "config" / "link_floor.json"
 
 
-def check_link_floor(count):
+def check_link_floor(count, cobjs=None):
     """Fail when a translation unit silently drops out of the from-source link.
 
     Both image SHA1s keep verifying when a TU loses eligibility, because an
@@ -1139,8 +1139,10 @@ def check_link_floor(count):
     """
     if not LINK_FLOOR.exists():
         return
-    floor = json.loads(LINK_FLOOR.read_text())["linked_tu_count"]
+    policy = json.loads(LINK_FLOOR.read_text())
+    floor = policy["linked_tu_count"]
     if count >= floor:
+        check_required_c_functions(policy.get("required_c_functions", {}), cobjs)
         return
     sys.exit(
         f"build: linked TU count {count} is below the recorded floor {floor}.\n"
@@ -1153,6 +1155,42 @@ def check_link_floor(count):
         f"  If a unit was legitimately removed, lower {LINK_FLOOR.name} "
         "deliberately and say why in the commit."
     )
+
+
+def check_required_c_functions(required, cobjs):
+    """Pin proven C bodies to eligible owners, independently of the TU count.
+
+    Eligible objects can also contain INCLUDE_ASM fallbacks. Those markers must
+    not satisfy a required C body, even when its bytes and owner still link.
+    The optional mapping leaves older count-only floor configurations valid.
+    """
+    if not isinstance(required, dict):
+        sys.exit("build: required_c_functions must map source paths to address lists")
+    if not required:
+        return
+    if cobjs is None:
+        sys.exit("build: required C-function check needs eligible C objects")
+    owners = {obj["src"].relative_to(REPO).as_posix(): obj for obj in cobjs}
+    for source, addresses in required.items():
+        if (not isinstance(source, str) or not source.startswith("src/")
+                or ".." in source.split("/") or not isinstance(addresses, list)
+                or not addresses or any(not isinstance(a, str)
+                    or re.fullmatch(r"[0-9a-fA-F]{8}", a) is None for a in addresses)):
+            sys.exit("build: invalid required_c_functions entry; expected src/path.c "
+                     "and a nonempty list of eight-digit hexadecimal addresses")
+        owner = owners.get(source)
+        if owner is None:
+            sys.exit(f"build: required C owner {source} lost link eligibility; "
+                     "unrelated C objects cannot replace it")
+        markers = {int(m["addr"], 16) if isinstance(m["addr"], str) else m["addr"]: m
+                   for m in owner["funcs"]}
+        for address in addresses:
+            marker = markers.get(int(address, 16))
+            if marker is None or not marker.get("name"):
+                sys.exit(f"build: required C function {address} is missing from {source}")
+            if any(marker.get(flag, False) for flag in ("stub", "nonmatching", "asm")):
+                sys.exit(f"build: required C function {address} in {source} "
+                         "is a stub, NONMATCHING body, or assembly fallback")
 
 
 def _gcc_unit_has_c(path):
@@ -2021,7 +2059,7 @@ def main():
     )
     print(f"eligible C objects: {len(cobjs)}  "
           f"({', '.join(o['src'].name for o in cobjs) if cobjs else 'none'})")
-    check_link_floor(len(cobjs))
+    check_link_floor(len(cobjs), cobjs)
     linked_functions = linked_function_records(cobjs, boundaries)
 
     entries = []
