@@ -433,11 +433,10 @@ void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestor
 
 
 
-// FUN_0045F790 NONMATCHING
-/* Defined identity flags; measured 612/624 bytes, one differing word.
- * Retail first reads the automatic flags word at 0045f89c. Its initial
- * value has no producer. The initialized C candidate remains guarded. */
-#ifdef NON_MATCHING
+/* RwMatrixSetIdentity updates identity.flags in place. Retail reads the
+ * automatic flags word at 0045f89c with no earlier producer; the C reads the
+ * uninitialised field exactly as retail does. */
+// FUN_0045F790
 void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color, u32 saveAndRestoreRenderState)
 {
     u32 i;
@@ -464,7 +463,6 @@ void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color,
         RpSkyRenderStateSet(rpSKYRENDERSTATEATEST_1, (void*)0x71801); // SCE_GS_SET_TEST_1(1, 0, 128, 1, 0, 0, 1, 3)
     }
 
-    identity.flags = 0;
     RwMatrixSetIdentity(&identity);
 
     RwIm3DVertexSetPos(&vertices[0], startPos->x, startPos->y, startPos->z);
@@ -483,9 +481,6 @@ void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color,
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/primitive", func_0045f790);
-#endif
 
 
 
@@ -726,13 +721,12 @@ s32 func_00480f00(void* arg0)
 {
     return *(const s32*)((const u8*)arg0 + 4) * 0x34;
 }
-// FUN_00480F20 NONMATCHING
-/* A reciprocal does not exist for a zero-norm source quaternion.
- * The stream reader does not reject that input. This defined candidate
- * leaves the quaternion untouched on nonpositive norm; retail instead uses
- * inverse components with no producer. The six independent scalar deltas
- * are still evaluated on that path. Measured 420/416 bytes, 82 edits. */
-#ifdef NON_MATCHING
+/* A reciprocal does not exist for a zero-norm source quaternion, and the
+ * stream reader does not reject that input. Retail computes the product with
+ * `inverse` on every path; on nonpositive norm its components have no
+ * producer (no store before the reads at 00480fa0). The C keeps that exact
+ * dataflow: `inverse` is read uninitialised on that path, as in retail. */
+// FUN_00480F20
 void func_00480f20(void *param_1, void *param_2)
 {
     PrimInterpData *out = (PrimInterpData *)param_1;
@@ -759,20 +753,18 @@ void func_00480f20(void *param_1, void *param_2)
         inverse.x = inputX * reciprocal;
         inverse.y = inputY * reciprocal;
         inverse.z = inputZ * reciprocal;
-
-        out->quat.w = inverse.w * saved.w -
-                      (inverse.x * saved.x + inverse.y * saved.y + inverse.z * saved.z);
-        out->quat.x = inverse.y * saved.z - inverse.z * saved.y;
-        out->quat.y = inverse.z * saved.x - inverse.x * saved.z;
-        out->quat.z = inverse.x * saved.y - inverse.y * saved.x;
-        out->quat.x = out->quat.x + saved.x * inverse.w;
-        out->quat.y = out->quat.y + saved.y * inverse.w;
-        out->quat.z = out->quat.z + saved.z * inverse.w;
-        out->quat.x = out->quat.x + inverse.x * saved.w;
-        out->quat.y = out->quat.y + inverse.y * saved.w;
-        out->quat.z = out->quat.z + inverse.z * saved.w;
     }
-
+    out->quat.w = inverse.w * saved.w -
+                  (inverse.x * saved.x + inverse.y * saved.y + inverse.z * saved.z);
+    out->quat.x = inverse.y * saved.z - inverse.z * saved.y;
+    out->quat.y = inverse.z * saved.x - inverse.x * saved.z;
+    out->quat.z = inverse.x * saved.y - inverse.y * saved.x;
+    out->quat.x = out->quat.x + saved.x * inverse.w;
+    out->quat.y = out->quat.y + saved.y * inverse.w;
+    out->quat.z = out->quat.z + saved.z * inverse.w;
+    out->quat.x = out->quat.x + inverse.x * saved.w;
+    out->quat.y = out->quat.y + inverse.y * saved.w;
+    out->quat.z = out->quat.z + inverse.z * saved.w;
     out->values[0] -= in->values[0];
     out->values[1] -= in->values[1];
     out->values[2] -= in->values[2];
@@ -780,9 +772,6 @@ void func_00480f20(void *param_1, void *param_2)
     out->values[4] -= in->values[4];
     out->values[5] -= in->values[5];
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/primitive", func_00480f20);
-#endif
 // FUN_004810C0
 void func_004810c0(void *arg0, void *arg1, void *arg2)
 {

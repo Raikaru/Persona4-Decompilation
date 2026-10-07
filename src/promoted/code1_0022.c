@@ -3748,11 +3748,10 @@ static inline u16 btlUnitRosterIndex(u8 *unit)
     return index;
 }
 
-/* Retail tests an unwritten saved register when no affected entry exists.
-   The defined count guard changes the branch at 0022a80c ($s2 vs $s1),
-   leaving a 1172-byte draft with one differing byte in the 1184-byte window. */
-// FUN_0022A730 NONMATCHING
-#ifdef NON_MATCHING
+/* The scan records the last affected entry; when none exists, retail tests
+   `last` without a store (an unwritten saved register at 0022a80c). The C
+   keeps that exact test of the uninitialised local. */
+// FUN_0022A730
 void func_0022a730(u8 *arg0)
 {
     extern u8 *func_0019a0c0(u8 *arg0, s16 arg1);
@@ -3795,8 +3794,7 @@ void func_0022a730(u8 *arg0)
             count++;
         }
     }
-    /* last exists only after the scan found an affected entry. */
-    if (count == 0) {
+    if (last == NULL) {
         return;
     }
     packet = (u8 *)func_001d3700(2, 0xFFF);
@@ -3868,9 +3866,6 @@ void func_0022a730(u8 *arg0)
         delay += 4;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022a730);
-#endif
 // FUN_0022ABD0
 s32 func_0022abd0(s64 *arg0) {
     u8 *temp_4;

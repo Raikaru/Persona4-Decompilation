@@ -15,7 +15,12 @@ extern void func_00117580(u8 *task, s32 a1);
 extern u16 *func_0010a900(u16 arg0);
 extern u32 datGetFlag(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
-extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
+/* This unit's view of the window helper takes the 16-bit display id as u16.
+   The definition (shdPersona.c) and its other callers use s32; retail
+   compiled each unit separately, and only a u16 parameter here emits the id
+   load after the window-pointer argument, as at 00223b5c. A conversion
+   argument is always evaluated first (docs/matching.md). */
+extern void func_0011b480(u8 *arg0, u16 arg1, u32 arg2, s8 arg3);
 extern u8 *func_00455ea0(u8 *archive, s32 index, s32 *size);
 extern u8 *func_0011f410(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4, s32 *a5);
 extern u32 func_00231d70(u32 max);
@@ -75,20 +80,13 @@ static inline u32 friendResultAddress(u32 offset, u32 base)
     return offset + base;
 }
 
-/* 2026-10-06: 57 -> 2 edits. r and base are declared after the loop counter.
-   The first two stores through r in the opening state form the address as
-   (u32)r + offset. That repeated conversion is copied from r inside the
-   switch, which keeps r a local at its declared number (docs/matching.md,
-   "Keep a load local alive"). The (u32)base argument of friendResultAddress
-   keeps base alive the same way, giving retail's $s3/$s2 for r/base.
-   Remaining: retail loads the window pointer (lw $a0, 0x44(r)) before the
-   id's lhu in the func_0011b480 call. A u16 second parameter reproduces that
-   order exactly, but the matched callee and four other callers need s32
-   (0011c180, 0011c2c0, 0013d8b0 and 00380ea0 break). An unprototyped
-   declaration, an s32 or u16 staging local, and (s32)/& 0xFFFF spellings
-   keep the order. */
-// FUN_002239A0 NONMATCHING
-#ifdef NON_MATCHING
+/* r and base are declared after the loop counter. The first two stores
+   through r in the opening state form the address as (u32)r + offset. That
+   repeated conversion is copied from r inside the switch, which keeps r a
+   local at its declared number (docs/matching.md, "Keep a load local
+   alive"). The (u32)base argument of friendResultAddress keeps base alive
+   the same way, giving retail's $s3/$s2 for r/base. */
+// FUN_002239A0
 s32 func_002239a0(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
@@ -235,6 +233,3 @@ s32 func_002239a0(u8 *sdkTaskBytes)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlResultFriendPsLvUp", func_002239a0);
-#endif

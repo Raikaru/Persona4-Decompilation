@@ -307,9 +307,122 @@ typedef struct FbnMatrix
     s32 m[16];
 } FbnMatrix;
 
-/* Retail passes the yaw at sp+0xC4 (0x0015F224) to the real four-argument
- * rotation wrapper before the first yaw store at 0x0015F344. The initial
- * value has no established lifetime. Retain assembly rather than an
- * uninitialized C local or an invented initial angle. */
+/* Retail passes the yaw at sp+0xC4 (0x0015F224) to the four-argument
+ * rotation wrapper before the first yaw store at 0x0015F344, so the first
+ * iteration passes an uninitialised angle. The C keeps that read of
+ * angles.y exactly as retail does; later iterations see the previous
+ * kind-0 store. */
 // FUN_0015F000
-INCLUDE_ASM("asm/nonmatchings/k_fldFBN", func_0015f000);
+s32 func_0015f000(u8 *arg0, u8 *arg1)
+{
+    s32 n;
+    s32 i;
+    u8 *fbn;
+    u8 *base;
+
+    if (arg0 == NULL) {
+        return 1;
+    }
+    for (n = 0; n < iGpffffb2a8; n++) {
+        if (func_0015d1a0((u8 *)FBN_ENTRY(n), iGpffffb2a0[n].field_10) == 0) {
+            return 0;
+        }
+        if ((FBN_ENTRY(n)->kind == 0) && (func_004782b0((u8 *)iGpffffb2a4[n]) == 0)) {
+            return 0;
+        }
+    }
+    if (func_0014eec0() == 0) {
+        fbn = *(u8 **)(arg0 + 0x110);
+    } else if (arg1 != NULL) {
+        fbn = arg1;
+    } else {
+        return 1;
+    }
+    base = fbn + 0x18;
+    for (i = 0; i < iGpffffb2a8; i++) {
+        u8 mode = 3;
+        SVec3 angles;
+        SVec3 axis = { 0.0f, 1.0f, 0.0f };
+        SVec3 scale;
+        u8 *rec;
+        u16 rid;
+        u8 *res;
+        s32 kind;
+        f32 *size;
+
+        rec = &base[*(u32 *)(fbn + 0xC) * FBN_ENTRY(i)->field_8];
+        if (*(u32 *)(fbn + 4) > 0x10000) {
+            mode = rec[0x60];
+        }
+        rid = func_00145780(*(u16 *)(rec + 8) & 0x3FF, mode, (s32)iGpffffb2a4[i]);
+        func_0014aa80(rid);
+        func_0014b0c0(rid, 1);
+        res = MT_Scene_GetRes(rid);
+        size = (f32 *)(rec + 0xC);
+        func_00168780(*(u8 **)(res + 0x228), *size);
+        func_0017b9a0(*(u8 **)(res + 0x230), 40.0f);
+        scale.z = scale.y = scale.x = *size;
+        *(u32 **)(res + 0x22C) = func_00478750((u8 *)D_00764364);
+        /* Retail passes the yaw slot before this iteration writes it. */
+        func_0047a1a0(*(u32 **)(res + 0x22C), &axis, angles.y, 2);
+        mdlScale(*(u32 **)(res + 0x22C), &scale, 2);
+        if (rec[0xB] & 1) {
+            *(u32 *)(res + 0x28) |= 0x80000000;
+        } else {
+            *(u32 *)(res + 0x28) &= 0x7FFFFFFF;
+        }
+        *(s16 *)(res + 0x220) = rec[0xA];
+        *(s32 *)(res + 0x224) = *(s32 *)(rec + 0x10);
+        res[0x222] = rec[0x61];
+        *(u16 *)(res + 0x298) = *(u16 *)(rec + 0x62);
+        memcpy(res + 0x29C, rec + 0x74, 0xC0);
+        *(f32 *)(res + 0x35C) = *(f32 *)(rec + 0x70);
+        kind = FBN_ENTRY(i)->kind;
+        *(s32 *)(res + 0x234) = kind;
+        if (kind == 0) {
+            u8 *mtx;
+
+            func_00478e70(*(u8 **)(res + 0x22C));
+            mtx = rec + 0x20;
+            *(FbnMatrix *)mdlGetMatrix(iGpffffb2a4[i]) = *(FbnMatrix *)mtx;
+            angles.x = func_0014b660(mtx);
+            angles.y = func_0014b5d0(mtx);
+            angles.z = func_0014b6f0(mtx);
+            func_00146e60(rid, rec + 0x50, (u8 *)&angles);
+            RwMatrixUpdate(mdlGetMatrix(iGpffffb2a4[i]));
+        } else if (kind == 1) {
+            *(s32 *)(res + 0x280) = FBN_ENTRY(i)->field_4;
+            func_0047a180(*(u8 **)(res + 0x22C), rec + 0x50, 2);
+            func_00478e70(*(u8 **)(res + 0x22C));
+            *(u32 *)(res + 0x28) &= ~0x10000000;
+            *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);
+            *(s32 *)(res + 0x294) = func_0018bb20(*(s32 *)(res + 0x228), (s32)res);
+        } else if (kind == 2) {
+            *(s32 *)(res + 0x284) = FBN_ENTRY(i)->field_4;
+            func_0047a180(*(u8 **)(res + 0x22C), rec + 0x50, 2);
+            func_00478e70(*(u8 **)(res + 0x22C));
+            *(u32 *)(res + 0x28) &= ~0x10000000;
+            *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);
+            *(s32 *)(res + 0x294) = func_0018bb20(*(s32 *)(res + 0x228), (s32)res);
+            *(u32 *)(res + 0x28C) = FBN_ENTRY(i)->field_18;
+            *(s32 *)(res + 0x288) = FBN_ENTRY(i)->field_14;
+            func_0044ea90(D_005F1068, 0x26F);
+            *(void **)(res + 0x288) = D_008873F4[0](1, *(u32 *)(res + 0x28C), 0x40000);
+            memcpy(*(void **)(res + 0x288), (void *)FBN_ENTRY(i)->field_14, *(u32 *)(res + 0x28C));
+            func_0015d270((u8 *)FBN_ENTRY(i));
+        }
+    }
+    if (iGpffffb2a4 != NULL) {
+        jtbl_008873EC[0](iGpffffb2a4);
+    }
+    if (iGpffffb2a0 != NULL) {
+        jtbl_008873EC[0](iGpffffb2a0);
+    }
+    iGpffffb2a8 = 0;
+    iGpffffb2a4 = NULL;
+    iGpffffb2a0 = NULL;
+    if (func_0014eec0() == 0) {
+        H_Cdvd_Destroy(arg0);
+    }
+    return 1;
+}
