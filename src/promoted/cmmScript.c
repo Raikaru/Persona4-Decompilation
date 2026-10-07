@@ -1024,13 +1024,11 @@ s32 func_0024bb00(s32 arg0) {
 #pragma optimization_level 2
 /* The month provider advances by 72 bytes: four rows of six signed weather
    weights precede four 12-byte attributes (also read by func_00250940).
-   Measured 2026-09-29 with the actual calendar/provider contracts: 672 bytes,
-   seven differing words (down from eight). Byte-pointer access matches the
-   second loop's address-add operand order; the selected row and second counter
-   still exchange $s0/$s2. Both flag queries stay in their original loops.
-   Receipts: build/weather-match-20260929/retained-proof.json. */
-// FUN_0024BE40 NONMATCHING
-#ifdef NON_MATCHING
+   The selection loop walks a `cursor` copy of the weather row. That copy use
+   keeps `weights` a declared local instead of folding into its address
+   temporary, so it takes retail's $s2; `cumulativeWeight` declared before
+   `choiceIndex` gives the $s1/$s0 pair. */
+// FUN_0024BE40
 s32 func_0024be40(void)
 {
     typedef struct CmmWeatherRow { s8 weight[6]; } CmmWeatherRow;
@@ -1051,12 +1049,13 @@ s32 func_0024be40(void)
     f32 randomValue;
     CmmWeatherRow *weights;
     s32 isHoliday;
-    s32 choiceIndex;
+    s8 *cursor;
     s32 day;
     f32 threshold;
     s32 category;
     CmmMonthProfile *profile;
     s32 cumulativeWeight;
+    s32 choiceIndex;
     f32 totalWeight;
 
     isHoliday = 0;
@@ -1086,10 +1085,11 @@ s32 func_0024be40(void)
         threshold = totalWeight * randomValue;
         result = (u32)threshold;
         cumulativeWeight = 0;
+        cursor = (s8 *)weights;
         choiceIndex = 0;
         while (choiceIndex < 6) {
             if ((choiceIndex != 0) || (datGetFlag(2703) != 0)) {
-                cumulativeWeight += *((s8 *)weights + choiceIndex);
+                cumulativeWeight += cursor[choiceIndex];
                 if ((s32)result < (s32)cumulativeWeight) {
                     result = choiceIndex;
                     break;
@@ -1105,9 +1105,6 @@ s32 func_0024be40(void)
     *(s32 *)(weatherWork + 0x20) = result;
     return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
-#endif
 // FUN_0024C0E0
 s32 func_0024c0e0(u8 *arg0, u8 *arg1)
 {
