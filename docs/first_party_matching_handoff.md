@@ -25,6 +25,32 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 7 continuation: 6,801 MATCH / 60 ASM
+
+A fresh all-owner verify (`build/after11.json`) reports 6,801 first-party
+MATCH and 60 ASM. Against the previous report, only the newly matched rows
+changed. The full link keeps all 604 C objects and 54 Sony SDK objects, and
+both retail hashes pass.
+
+Matches this continuation:
+- Particle and effect families: `004a0c00`, `004b36b0`, `004b4430`,
+  `004903c0`, `004916f0` and `0048f5f0`. They were ported from the nearest
+  matched sibling, ranked by opcode similarity.
+- Register-allocation residuals: `0024be40`, `001b05d0`, `001d53e0` and
+  `00148280`. They were closed by the "second name for the value" lever in
+  [matching.md](matching.md), with `00148280` also using
+  shared, lifetime-split loop counters.
+
+`tools/b210_irdump.py` dumps b210's frontend IR for a candidate. Use it to
+see which `IRO_*` pass creates or removes a temporary before guessing a
+spelling.
+
+Open floors recorded in their owner notes:
+- `00485630`, `00485870` and `0048d8c0` keep `$v0` live through a GPR quad
+  copy.
+- `004941f0` shares the `1.0f` constant through `IRO_CommonSubs`.
+- `004a7830` needs the `fabsf` local live out of its block.
+
 ## October 6 continuation: 6,773 MATCH / 88 ASM
 
 The subsequent checkout reconciliation authenticates all 1,922 recorded source,
