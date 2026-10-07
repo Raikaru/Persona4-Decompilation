@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scene_light_override_internal.h"
 
 s32 func_00452380(void *arg0);
 extern s32 D_0063C368[];
@@ -32,7 +33,7 @@ extern f32 D_00882238[];
 extern f32 D_0088223C[];
 extern f32 D_00882240[];
 extern f32 D_00882244[];
-extern f32 D_00882210[];
+extern SceneLightSlot D_00882210[];
 extern s32 func_00144b80(s32 arg0, s32 arg1);
 extern void func_00144c90(s32 arg0, s32 arg1);
 extern void func_00144e10(s64 arg0);
@@ -105,7 +106,7 @@ extern void func_0014a300(u16 resTypeId, u32 customLight);
 extern void *func_0014b000(void);
 extern void *func_0014b040(void);
 extern void *func_0014b080(void);
-extern void RwMatrixRotate(void *dst, void *src, f32 angle, s32 mode);
+extern SceneLightMatrix *RwMatrixRotate(SceneLightMatrix *matrix, const SceneLightAxis *axis, f32 angle, s32 combine);
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
 extern void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2);
@@ -1155,36 +1156,36 @@ done:
 // FUN_0028C370
 void func_0028c370(void)
 {
-    f32 fVar1;
-    f32 fVar2;
-    s32 iVar3;
-    f32 *pfVar4;
-    f32 *pfVar5;
-    u32 uVar6;
+    f32 secondColor;
+    f32 firstColor;
+    s32 index;
+    SceneLightSlot *entry;
+    SceneLightSlot *slots;
+    f32 unknown38;
 
-    iVar3 = 0;
-    pfVar5 = D_00882210;
-    fVar1 = iGpffff809c;
-    fVar2 = iGpffff8218;
-    uVar6 = 0x40e00000;
-    for (; iVar3 < 3; iVar3 = iVar3 + 1) {
-        pfVar4 = &pfVar5[iVar3 * 0x10];
-        pfVar4[2] = fVar1;
-        pfVar4[3] = fVar1;
-        pfVar4[4] = fVar1;
-        pfVar4[5] = 0.0f;
-        pfVar4[6] = 0.0f;
-        pfVar4[7] = 0.0f;
-        pfVar4[8] = 0.0f;
-        pfVar4[9] = 0.0f;
-        pfVar4[10] = fVar2;
-        pfVar4[11] = fVar2;
-        pfVar4[12] = fVar2;
-        pfVar4[13] = 0.0f;
-        ((u32 *)pfVar4)[14] = uVar6;
-        pfVar4[15] = 0.0f;
-        pfVar4[0] = 0.0f;
-        pfVar4[1] = 0.0f;
+    index = 0;
+    slots = D_00882210;
+    secondColor = iGpffff809c;
+    firstColor = iGpffff8218;
+    unknown38 = 7.0f;
+    for (; index < 3; index = index + 1) {
+        entry = &slots[index];
+        entry->secondColor.x = secondColor;
+        entry->secondColor.y = secondColor;
+        entry->secondColor.z = secondColor;
+        entry->secondColor.w = 0.0f;
+        entry->angles.x = 0.0f;
+        entry->angles.y = 0.0f;
+        entry->angles.z = 0.0f;
+        entry->angles.w = 0.0f;
+        entry->firstColor.x = firstColor;
+        entry->firstColor.y = firstColor;
+        entry->firstColor.z = firstColor;
+        entry->firstColor.w = 0.0f;
+        entry->unknown38 = unknown38;
+        entry->unknown3c = 0.0f;
+        entry->mode = 0;
+        entry->resource = NULL;
     }
 }
 /* measured: restore pragma state after func_0028c370. */
@@ -1260,295 +1261,160 @@ found:
 }
 /* measured: restore propagation for the rest of the unit. */
 #pragma opt_propagation on
-/* measured 0028c580 (owner, 2026-09-19): fnalign **394 -> 392 edits**, count
-   586 -> 584 against retail 592, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
-// FUN_0028C580 NONMATCHING
-#ifdef NON_MATCHING
-void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2) {
-    s32 slot;
-    s32 flag;
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 n;
-    s32 *src;
-    s32 *dst;
-    u8 *p;
-    f32 ang28;
-    f32 ang2c;
-    f32 matA[16];
-    f32 matB[16];
-    f32 matC[16];
-    u8 *buf0;
-    u8 *buf1;
-    u8 *buf2;
-    s32 off;
+/* Retail keeps the three slot searches independent and restores defaults
+ * through a shared return when no slot is selected. The complete matrix
+ * layout and identity helper preserve retail's unwritten flags read and
+ * reserved words; no host-C definedness is asserted for those reads.
+ * Measured whole-owner b210 -O2: all 2372 live bytes match retail, with
+ * 12 additional zero bytes in the retail alignment tail. */
+// FUN_0028C580
+#pragma push
+#pragma opt_loop_invariants on
+void func_0028c580(u8 *workBytes, u8 *resource, u8 *defaults)
+{
+    SceneLightWork *work = (SceneLightWork *)workBytes;
+    SceneLightModel *model = (SceneLightModel *)resource;
+    SceneLightModel *modelDefaults = (SceneLightModel *)defaults;
+    SceneLightResource12 *light = (SceneLightResource12 *)resource;
+    SceneLightResource12 *lightDefaults = (SceneLightResource12 *)defaults;
+    SceneLightMatrix modelMatrix;
+    SceneLightMatrix characterMatrix;
+    SceneLightMatrix lightMatrix;
+    SceneLightVector *first;
+    SceneLightVector *second;
+    SceneLightMatrix *matrix;
+    s32 slot = -1;
+    s32 updateScene = 0;
+    s32 index;
+    s32 defaultIndex;
+    s32 anyIndex;
+    f32 angleX;
+    f32 angleY;
 
-    slot = -1;
-    flag = 0;
-    if (arg1 == NULL) {
+    if (resource == NULL) {
         return;
     }
-    if (((( *(u16 *)arg1 & 0xFFC00) >> 10) == 3)) {
-        func_0014a300(*(u16 *)arg1, 0);
+    switch ((*(u16 *)resource & 0xffc00) >> 10) {
+    case 3:
+        func_0014a300(*(u16 *)resource, 0);
+        break;
     }
-    i = 0;
-    do {
-        p = (u8 *)D_00882210 + i * 0x40;
-        if (*(s32 *)p == 3 && *(u8 **)(p + 4) == arg1) {
-            slot = i;
-            if (((( *(u16 *)arg1 & 0xFFC00) >> 10) == 3)) {
-                func_0014a300(*(u16 *)arg1, 1);
+    for (index = 0; index < 3; index++) {
+        if (D_00882210[index].mode == 3 && D_00882210[index].resource == resource) {
+            slot = index;
+            if ((*(u16 *)resource & 0xffc00) >> 10 == 3) {
+                func_0014a300(*(u16 *)resource, 1);
             }
             break;
         }
-        i++;
-    } while (i < 3);
-    if (slot == -1 && (((( *(u16 *)arg1 & 0xFFC00) >> 10)) != 0xC)) {
-        for (j = 0; j < 3; j++) {
-            if (*(s32 *)((u8 *)D_00882210 + j * 0x40) == 2) {
-                slot = j;
+    }
+    if (slot == -1 && ((*(u16 *)resource & 0xffc00) >> 10) != 12) {
+        for (defaultIndex = 0; defaultIndex < 3; defaultIndex++) {
+            if (D_00882210[defaultIndex].mode == 2) {
+                slot = defaultIndex;
                 break;
             }
         }
     }
     if (slot == -1) {
-        for (k = 0; k < 3; k++) {
-            if (*(s32 *)((u8 *)D_00882210 + k * 0x40) == 1) {
-                slot = k;
+        for (anyIndex = 0; anyIndex < 3; anyIndex++) {
+            if (D_00882210[anyIndex].mode == 1) {
+                slot = anyIndex;
                 break;
             }
         }
     }
     if (slot == -1) {
-        if (arg2 == NULL) {
-            return;
-        }
-        if (((( *(u16 *)arg1 & 0xFFC00) >> 10) == 0xC)) {
-            *(f32 *)(arg1 + 0x140) = *(f32 *)(arg2 + 0x140);
-            *(f32 *)(arg1 + 0x144) = *(f32 *)(arg2 + 0x144);
-            *(f32 *)(arg1 + 0x148) = *(f32 *)(arg2 + 0x148);
-            *(f32 *)(arg1 + 0x14C) = *(f32 *)(arg2 + 0x14C);
-            *(f32 *)(arg1 + 0x150) = *(f32 *)(arg2 + 0x150);
-            *(f32 *)(arg1 + 0x154) = *(f32 *)(arg2 + 0x154);
-            *(f32 *)(arg1 + 0x158) = *(f32 *)(arg2 + 0x158);
-            *(f32 *)(arg1 + 0x15C) = *(f32 *)(arg2 + 0x15C);
-            src = (s32 *)(arg2 + 0x160);
-            dst = (s32 *)(arg1 + 0x160);
-            n = 8;
-            do {
-                dst[0] = src[0];
-                dst[1] = src[1];
-                src += 2;
-                dst += 2;
-                n--;
-            } while (n > 0);
-        } else if (((( *(u16 *)arg1 & 0xFFC00) >> 10) == 1)) {
-            *(f32 *)(arg1 + 0x168) = *(f32 *)(arg2 + 0x168);
-            *(f32 *)(arg1 + 0x16C) = *(f32 *)(arg2 + 0x16C);
-            *(f32 *)(arg1 + 0x170) = *(f32 *)(arg2 + 0x170);
-            *(f32 *)(arg1 + 0x174) = *(f32 *)(arg2 + 0x174);
-            *(f32 *)(arg1 + 0x178) = *(f32 *)(arg2 + 0x178);
-            *(f32 *)(arg1 + 0x17C) = *(f32 *)(arg2 + 0x17C);
-            *(f32 *)(arg1 + 0x180) = *(f32 *)(arg2 + 0x180);
-            *(f32 *)(arg1 + 0x184) = *(f32 *)(arg2 + 0x184);
-            src = (s32 *)(arg2 + 0x190);
-            dst = (s32 *)(arg1 + 0x190);
-            n = 8;
-            do {
-                dst[0] = src[0];
-                dst[1] = src[1];
-                src += 2;
-                dst += 2;
-                n--;
-            } while (n > 0);
-        } else if (((( *(u16 *)arg1 & 0xFFC00) >> 10) == 3)) {
-            *(f32 *)(arg1 + 0x168) = *(f32 *)(arg2 + 0x168);
-            *(f32 *)(arg1 + 0x16C) = *(f32 *)(arg2 + 0x16C);
-            *(f32 *)(arg1 + 0x170) = *(f32 *)(arg2 + 0x170);
-            *(f32 *)(arg1 + 0x174) = *(f32 *)(arg2 + 0x174);
-            *(f32 *)(arg1 + 0x178) = *(f32 *)(arg2 + 0x178);
-            *(f32 *)(arg1 + 0x17C) = *(f32 *)(arg2 + 0x17C);
-            *(f32 *)(arg1 + 0x180) = *(f32 *)(arg2 + 0x180);
-            *(f32 *)(arg1 + 0x184) = *(f32 *)(arg2 + 0x184);
-            src = (s32 *)(arg2 + 0x190);
-            dst = (s32 *)(arg1 + 0x190);
-            n = 8;
-            do {
-                dst[0] = src[0];
-                dst[1] = src[1];
-                src += 2;
-                dst += 2;
-                n--;
-            } while (n > 0);
-            buf0 = func_0014b000();
-            buf1 = func_0014b040();
-            buf2 = func_0014b080();
-            *(f32 *)(buf0 + 0x0) = *(f32 *)(arg0 + 0x6F0);
-            *(f32 *)(buf0 + 0x4) = *(f32 *)(arg0 + 0x6F4);
-            *(f32 *)(buf0 + 0x8) = *(f32 *)(arg0 + 0x6F8);
-            *(f32 *)(buf0 + 0xC) = *(f32 *)(arg0 + 0x6FC);
-            *(f32 *)(buf1 + 0x0) = *(f32 *)(arg0 + 0x700);
-            *(f32 *)(buf1 + 0x4) = *(f32 *)(arg0 + 0x704);
-            *(f32 *)(buf1 + 0x8) = *(f32 *)(arg0 + 0x708);
-            *(f32 *)(buf1 + 0xC) = *(f32 *)(arg0 + 0x70C);
-            src = (s32 *)(arg0 + 0x710);
-            dst = (s32 *)buf2;
-            n = 8;
-            do {
-                dst[0] = src[0];
-                dst[1] = src[1];
-                src += 2;
-                dst += 2;
-                n--;
-            } while (n > 0);
+        if (defaults != NULL) {
+            switch ((*(u16 *)resource & 0xffc00) >> 10) {
+            case 3:
+                model->firstColor = modelDefaults->firstColor;
+                model->secondColor = modelDefaults->secondColor;
+                model->matrix = modelDefaults->matrix;
+                first = func_0014b000();
+                second = func_0014b040();
+                matrix = func_0014b080();
+                *first = work->firstColor;
+                *second = work->secondColor;
+                *matrix = work->matrix;
+                break;
+            case 1:
+                model->firstColor = modelDefaults->firstColor;
+                model->secondColor = modelDefaults->secondColor;
+                model->matrix = modelDefaults->matrix;
+                break;
+            case 12:
+                light->firstColor = lightDefaults->firstColor;
+                light->secondColor = lightDefaults->secondColor;
+                light->matrix = lightDefaults->matrix;
+                break;
+            }
         }
         return;
     }
-    if ((*(s32 *)((u8 *)D_00882210 + slot * 0x40) == 2 || *(s32 *)((u8 *)D_00882210 + slot * 0x40) == 1) && (((( *(u16 *)arg1 & 0xFFC00) >> 10)) == 3)) {
-        flag = 1;
+    if ((D_00882210[slot].mode == 2 || D_00882210[slot].mode == 1) &&
+        ((*(u16 *)resource & 0xffc00) >> 10) == 3) {
+        updateScene = 1;
     }
-    if (((( *(u16 *)arg1 & 0xFFC00) >> 10) == 3)) {
-        off = slot * 0x40;
-        *(f32 *)(arg1 + 0x168) = *(f32 *)((u8 *)D_00882238 + off);
-        *(f32 *)(arg1 + 0x16C) = *(f32 *)((u8 *)D_0088223C + off);
-        *(f32 *)(arg1 + 0x170) = *(f32 *)((u8 *)D_00882240 + off);
-        *(s32 *)(arg1 + 0x174) = 0;
-        *(f32 *)(arg1 + 0x178) = *(f32 *)((u8 *)D_00882218 + off);
-        *(f32 *)(arg1 + 0x17C) = *(f32 *)((u8 *)D_0088221C + off);
-        *(f32 *)(arg1 + 0x180) = *(f32 *)((u8 *)D_00882220 + off);
-        *(s32 *)(arg1 + 0x184) = 0;
-        ang28 = *(f32 *)((u8 *)D_00882228 + off);
-        ang2c = *(f32 *)((u8 *)D_0088222C + off);
-        matA[0] = 1.0f;
-        matA[1] = 0.0f;
-        matA[2] = 0.0f;
-        matA[4] = 0.0f;
-        matA[5] = 1.0f;
-        matA[6] = 0.0f;
-        matA[8] = 0.0f;
-        matA[9] = 0.0f;
-        matA[10] = 1.0f;
-        matA[12] = 0.0f;
-        matA[13] = 0.0f;
-        matA[14] = 0.0f;
-        *(s32 *)&matA[3] |= 0x20003;
-        RwMatrixRotate(matA, D_005EFA20, ang2c, 1);
-        RwMatrixRotate(matA, D_005EFA10, ang28, 1);
-        src = (s32 *)matA;
-        dst = (s32 *)(arg1 + 0x190);
-        n = 8;
-        do {
-            dst[0] = src[0];
-            dst[1] = src[1];
-            src += 2;
-            dst += 2;
-            n--;
-        } while (n > 0);
-        if (flag == 1) {
-            buf0 = func_0014b000();
-            buf1 = func_0014b040();
-            buf2 = func_0014b080();
-            *(f32 *)(buf0 + 0x0) = *(f32 *)(arg1 + 0x168);
-            *(f32 *)(buf0 + 0x4) = *(f32 *)(arg1 + 0x16C);
-            *(f32 *)(buf0 + 0x8) = *(f32 *)(arg1 + 0x170);
-            *(f32 *)(buf0 + 0xC) = *(f32 *)(arg1 + 0x174);
-            *(f32 *)(buf1 + 0x0) = *(f32 *)(arg1 + 0x178);
-            *(f32 *)(buf1 + 0x4) = *(f32 *)(arg1 + 0x17C);
-            *(f32 *)(buf1 + 0x8) = *(f32 *)(arg1 + 0x180);
-            *(f32 *)(buf1 + 0xC) = *(f32 *)(arg1 + 0x184);
-            src = (s32 *)(arg1 + 0x190);
-            dst = (s32 *)buf2;
-            n = 8;
-            do {
-                dst[0] = src[0];
-                dst[1] = src[1];
-                src += 2;
-                dst += 2;
-                n--;
-            } while (n > 0);
+    if (((*(u16 *)resource & 0xffc00) >> 10) == 3) {
+        model->firstColor.x = D_00882210[slot].firstColor.x;
+        model->firstColor.y = D_00882210[slot].firstColor.y;
+        model->firstColor.z = D_00882210[slot].firstColor.z;
+        model->firstColor.w = 0.0f;
+        model->secondColor.x = D_00882210[slot].secondColor.x;
+        model->secondColor.y = D_00882210[slot].secondColor.y;
+        model->secondColor.z = D_00882210[slot].secondColor.z;
+        model->secondColor.w = 0.0f;
+        angleX = D_00882210[slot].angles.x;
+        angleY = D_00882210[slot].angles.y;
+        sceneLightIdentity(&modelMatrix);
+        RwMatrixRotate(&modelMatrix, (const SceneLightAxis *)D_005EFA20, angleY, 1);
+        RwMatrixRotate(&modelMatrix, (const SceneLightAxis *)D_005EFA10, angleX, 1);
+        model->matrix = modelMatrix;
+        if (updateScene == 1) {
+            first = func_0014b000();
+            second = func_0014b040();
+            matrix = func_0014b080();
+            *first = model->firstColor;
+            *second = model->secondColor;
+            *matrix = model->matrix;
         }
-    } else if (((( *(u16 *)arg1 & 0xFFC00) >> 10) == 1)) {
-        off = slot * 0x40;
-        *(f32 *)(arg1 + 0x168) = *(f32 *)((u8 *)D_00882238 + off);
-        *(f32 *)(arg1 + 0x16C) = *(f32 *)((u8 *)D_0088223C + off);
-        *(f32 *)(arg1 + 0x170) = *(f32 *)((u8 *)D_00882240 + off);
-        *(s32 *)(arg1 + 0x174) = 0;
-        *(f32 *)(arg1 + 0x178) = *(f32 *)((u8 *)D_00882218 + off);
-        *(f32 *)(arg1 + 0x17C) = *(f32 *)((u8 *)D_0088221C + off);
-        *(f32 *)(arg1 + 0x180) = *(f32 *)((u8 *)D_00882220 + off);
-        *(s32 *)(arg1 + 0x184) = 0;
-        ang28 = *(f32 *)((u8 *)D_00882228 + off);
-        ang2c = *(f32 *)((u8 *)D_0088222C + off);
-        matB[0] = 1.0f;
-        matB[1] = 0.0f;
-        matB[2] = 0.0f;
-        matB[4] = 0.0f;
-        matB[5] = 1.0f;
-        matB[6] = 0.0f;
-        matB[8] = 0.0f;
-        matB[9] = 0.0f;
-        matB[10] = 1.0f;
-        matB[12] = 0.0f;
-        matB[13] = 0.0f;
-        matB[14] = 0.0f;
-        *(s32 *)&matB[3] |= 0x20003;
-        RwMatrixRotate(matB, D_005EFA20, ang2c, 1);
-        RwMatrixRotate(matB, D_005EFA10, ang28, 1);
-        src = (s32 *)matB;
-        dst = (s32 *)(arg1 + 0x190);
-        n = 8;
-        do {
-            dst[0] = src[0];
-            dst[1] = src[1];
-            src += 2;
-            dst += 2;
-            n--;
-        } while (n > 0);
-    } else if (((( *(u16 *)arg1 & 0xFFC00) >> 10) == 0xC)) {
-        off = slot * 0x40;
-        *(f32 *)(arg1 + 0x140) = *(f32 *)((u8 *)D_00882238 + off);
-        *(f32 *)(arg1 + 0x144) = *(f32 *)((u8 *)D_0088223C + off);
-        *(f32 *)(arg1 + 0x148) = *(f32 *)((u8 *)D_00882240 + off);
-        *(s32 *)(arg1 + 0x14C) = 0;
-        *(f32 *)(arg1 + 0x150) = *(f32 *)((u8 *)D_00882218 + off);
-        *(f32 *)(arg1 + 0x154) = *(f32 *)((u8 *)D_0088221C + off);
-        *(f32 *)(arg1 + 0x158) = *(f32 *)((u8 *)D_00882220 + off);
-        *(s32 *)(arg1 + 0x15C) = 0;
-        ang28 = *(f32 *)((u8 *)D_00882228 + off);
-        ang2c = *(f32 *)((u8 *)D_0088222C + off);
-        matC[0] = 1.0f;
-        matC[1] = 0.0f;
-        matC[2] = 0.0f;
-        matC[4] = 0.0f;
-        matC[5] = 1.0f;
-        matC[6] = 0.0f;
-        matC[8] = 0.0f;
-        matC[9] = 0.0f;
-        matC[10] = 1.0f;
-        matC[12] = 0.0f;
-        matC[13] = 0.0f;
-        matC[14] = 0.0f;
-        *(s32 *)&matC[3] |= 0x20003;
-        RwMatrixRotate(matC, D_005EFA20, ang2c, 1);
-        RwMatrixRotate(matC, D_005EFA10, ang28, 1);
-        src = (s32 *)matC;
-        dst = (s32 *)(arg1 + 0x160);
-        n = 8;
-        do {
-            dst[0] = src[0];
-            dst[1] = src[1];
-            src += 2;
-            dst += 2;
-            n--;
-        } while (n > 0);
+    } else if (((*(u16 *)resource & 0xffc00) >> 10) == 1) {
+        model->firstColor.x = D_00882210[slot].firstColor.x;
+        model->firstColor.y = D_00882210[slot].firstColor.y;
+        model->firstColor.z = D_00882210[slot].firstColor.z;
+        model->firstColor.w = 0.0f;
+        model->secondColor.x = D_00882210[slot].secondColor.x;
+        model->secondColor.y = D_00882210[slot].secondColor.y;
+        model->secondColor.z = D_00882210[slot].secondColor.z;
+        model->secondColor.w = 0.0f;
+        angleX = D_00882210[slot].angles.x;
+        angleY = D_00882210[slot].angles.y;
+        sceneLightIdentity(&characterMatrix);
+        RwMatrixRotate(&characterMatrix, (const SceneLightAxis *)D_005EFA20, angleY, 1);
+        RwMatrixRotate(&characterMatrix, (const SceneLightAxis *)D_005EFA10, angleX, 1);
+        model->matrix = characterMatrix;
+    } else if (((*(u16 *)resource & 0xffc00) >> 10) == 12) {
+        light->firstColor.x = D_00882210[slot].firstColor.x;
+        light->firstColor.y = D_00882210[slot].firstColor.y;
+        light->firstColor.z = D_00882210[slot].firstColor.z;
+        light->firstColor.w = 0.0f;
+        light->secondColor.x = D_00882210[slot].secondColor.x;
+        light->secondColor.y = D_00882210[slot].secondColor.y;
+        light->secondColor.z = D_00882210[slot].secondColor.z;
+        light->secondColor.w = 0.0f;
+        angleX = D_00882210[slot].angles.x;
+        angleY = D_00882210[slot].angles.y;
+        sceneLightIdentity(&lightMatrix);
+        RwMatrixRotate(&lightMatrix, (const SceneLightAxis *)D_005EFA20, angleY, 1);
+        RwMatrixRotate(&lightMatrix, (const SceneLightAxis *)D_005EFA10, angleX, 1);
+        light->matrix = lightMatrix;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c580);
-#endif
+
+#pragma pop
+
+
 
 // FUN_0028CED0
 void func_0028ced0(s32 arg0, s32 arg1, s32 arg2, f32 *arg3,
