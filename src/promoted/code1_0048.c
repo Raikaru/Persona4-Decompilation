@@ -1131,7 +1131,13 @@ u8 *func_00484bb0(u8 *arg0)
  * words differ. The restored quadword uses v1 where retail uses v0.
  * Separate save/restore pointers and opt_propagation off preserve the
  * retail 0x90 frame and address materialization. No computation asm is
- * used to force the remaining register choice. Production retains ASM. */
+ * used to force the remaining register choice. Production retains ASM.
+ * 2026-10-06 capture: b210 gives every non-float function `.end gpr:r2`. So
+ * $v0 is live from the call to func_00486330 to the return, and the
+ * restore temporaries interfere with it and get $v1. Retail's $v0 there
+ * means r2 was dead after that call, yet retail still avoids $v0 at entry and
+ * in the tail. Retyping the callees (void/s32/u_long128, both calls) changes
+ * nothing. An f32 return frees $v0 everywhere and gives 21 edits. */
 // FUN_00485630 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
