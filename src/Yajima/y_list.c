@@ -1260,22 +1260,24 @@ void func_002e5960(s8 arg0) {
     *(s32 *)(p + 8) = 0;
 }
 
-/* measured: 1860B of 1872B, 45 resolved differing words. Signed level,
-   bound and metadata-offset snapshots recover the retail spill lifetimes;
-   separate membership counters preserve the initial and expanded searches.
-   The remaining differences are saved-register assignments. All 35 code
-   references and all four 11-entry jump tables resolve to retail; 36 matched
-   siblings are unchanged. Guard and ASM fallback remain until exact.
-   Proof: docs/probe_archive/YList_range_002e5ae0_20261006/README.md. */
-// FUN_002E5AE0 NONMATCHING
-#ifdef NON_MATCHING
+/* Signed level, bound and metadata-offset snapshots recover the retail spill
+   lifetimes; separate membership counters preserve the initial and expanded
+   searches. slotp is declared after level and read as *(u8 **)(u32)slotp in
+   the first membership search. That repeated conversion keeps slotp a local
+   at its declared number (docs/matching.md, "Keep a load local alive").
+   The expanded scan reuses the first scan's counter i under
+   opt_lifetimes, so its split lifetime is numbered after the per-entry
+   index, as in func_001b11c0. Together they give retail's saved registers. */
+// FUN_002E5AE0
+#pragma push
+#pragma opt_lifetimes on
 extern s32 func_002e6230(u16 arg0, u16 *arg1);
 void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
 {
-    u8 **slotp;
     u8 *p;
     s16 lo;
     s32 level;
+    u8 **slotp;
     s32 hi;
     s16 i;
     s16 initialRow;
@@ -1294,7 +1296,6 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
     s32 lowLimit;
     s32 highLimit2;
     s32 lowLimit2;
-    s16 inner;
     slotp = &D_00882F70[arg0];
     if (*slotp == NULL) {
         return;
@@ -1328,8 +1329,8 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
         if (func_002e6230(id, arg1) != 0) {
             continue;
         }
-        if (*slotp != NULL) {
-            for (initialRow = 0; initialRow < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); initialRow++) {
+        if (*(u8 **)(u32)slotp != NULL) {
+            for (initialRow = 0; initialRow < *(s32 *)(*(u8 **)(*(u8 **)(u32)slotp + 0x38) + 8); initialRow++) {
                 if (signedIndex == *(u16 *)(func_002e48a0(arg0, initialRow) + 2)) {
                     found = 1;
                     goto initialSearchDone;
@@ -1405,11 +1406,11 @@ initialSearchDone:
         lo2 = (s16)func_002b2d00(level, expansion * 5 + 10, 1, 0x63, 1);
         hi2 = (s16)func_002b2cb0(level, expansion + 1, 0x63, 1, 1);
         func_002e5960(arg0);
-        inner = 0;
+        i = 0;
         highLimit2 = (s16)hi2;
         lowLimit2 = (s16)lo2;
-        for (; inner < 0xC0; inner++) {
-            s32 signedIndex = inner;
+        for (; i < 0xC0; i++) {
+            s32 signedIndex = i;
             s32 metadataOffset;
             u8 *metadata;
             u8 kind;
@@ -1420,7 +1421,7 @@ initialSearchDone:
             if (kind < 2 || kind >= 0x16) {
                 continue;
             }
-            id = (u16)inner;
+            id = (u16)i;
             if (func_00311d00(id) == 0) {
                 continue;
             }
@@ -1498,9 +1499,7 @@ expandedSearchDone:
         outer++;
     } while (*(s32 *)(p + 8) <= 5);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5ae0);
-#endif
+#pragma pop
 
 /* True when `id` is one of the 13 entries of `exclude`. func_002e6280 uses it
    inline; func_002e5ae0 calls the out-of-line copy. */
