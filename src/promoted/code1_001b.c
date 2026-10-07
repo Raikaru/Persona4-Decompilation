@@ -446,49 +446,24 @@ void func_001b0590(u8 *arg0)
         }
     }
 }
-/* Retained action transition: 492B/496B, 36 emitted differing words,
-   nine relocations resolved, four zero-tail bytes; native32 16,896 cases.
-   See E1F2_001b05d0_body.c for scan lifetimes, death-bit semantics and
-   pre-existing provider declaration blockers. Keep production ASM. */
-/* Action-transition floor: 492B/496B, 37 differing words; structure, switch
-   dispatch and callee conventions verified against retail. Open: scan-temp
-   rotation (found/base/i) resistant to decl/assignment swaps and gp-idiom
-   respelling. See E1F2_001b05d0_body.c for scan lifetimes. */
-/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_001b.c func_001b05d0 --pairs` banked 36 (already carries #pragma opt_common_subs off); best ties 36 (commons alone plus five commons+second combos); bare without commons is 87-88, so the banked pragma stays load-bearing. All 28 pairs neutral or worse (schedule 106-107, peephole 104-111). opclass `python3 -E -s tools/opclass.py src/promoted/code1_001b.c`: 8 floors scanned, 7 with surplus, func_001b05d0 clean (no dsll32/lbu/lhu/cvt/div/jalr/lui surplus) â€” high 36-word count on small 123/123-instr body is saved-register coloring, not a whole-function width/signedness defect. fnalign retail/object 123/123 per assignment. Floor stands; production stays ASM. */
-// FUN_001B05D0 NONMATCHING
-#ifdef NON_MATCHING
-/* Current action transition floor: 492B/496B, 42 differing bytes in 36
- * emitted words; nine relocations resolved and four zero-tail bytes.
- * The former 37-word fndiff score included that tail, not another instruction.
- * Natural u16 induction and pointer identity retain the same instruction floor.
- * Retail scan allocation: found=v1, base=v0, i=a3; first scaled offset=a2,
- * first entry=a0, second entry=a2. Production remains ASM.
- * IDA: docs/ida_headstart/src/promoted/code1_001b.c:59-121.
- * Uses the owner's existing unsigned offset-first helper and declarations.
- * All 104 existing owner C matches and relocation lists remain intact.
- *
- * Native32 UB-trap smoke: 16,896 deferral, genus, table-precedence, pointer
- * reload and final-flag cases. Real bad-status/death/final-flag operations
- * run behind trace hooks; reset, camera and destruction are instrumented.
- * No resource-destruction or callback-table ABI claim.
- * 0xFFF7FFFF clears other bad-status bits, retaining death bit 0x80000.
- *
- * Before promotion, reconcile pre-existing owner/provider declarations:
- * 002326f0 is u32(int,u32), not void(s32,s32); 002428f0 returns u32, not s32.
- * Canonical-return probes retain this floor. No private prototype workaround.
- */
-
+/* Retail allocates the scan as found=v1, base=v0, i=a3. The second scan walks
+   a `table` copy of `base`; that copy use keeps `base` a declared local
+   instead of folding into its gp load temporary. `found` declared first and
+   `base` second give retail's v1/v0 pair. In the owner, the measured
+   `opt_common_subs off` keeps the scan's offset and table reloads separate. */
 #pragma push
 #pragma opt_common_subs off
+// FUN_001B05D0
 void func_001b05d0(u8 *arg0)
 {
+    u8 *found;
+    u8 *base;
     u8 *p;
     u8 *temp;
-    u8 *base;
-    u8 *found;
     u16 i;
     s32 offset;
     u8 status;
+    u8 *table;
 
     if (*(u16 *)(arg0 + 0x1A) & 1) {
         p = *(u8 **)(arg0 + 0x30);
@@ -515,10 +490,11 @@ void func_001b05d0(u8 *arg0)
                     i++;
                 }
                 if (found == NULL) {
+                    table = base;
                     i = 0;
                     while (i < 3U) {
                         offset = i * 8;
-                        temp = *(u8 **)(base + offset + 0xC94);
+                        temp = *(u8 **)(table + offset + 0xC94);
                         if (temp != NULL &&
                             *(DatUnit **)(temp + 4) == *(DatUnit **)(p + 0xA64)) {
                             found = temp;
@@ -550,9 +526,6 @@ void func_001b05d0(u8 *arg0)
     *(u16 *)(arg0 + 0x1A) |= 2;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b05d0);
-#endif
 // FUN_001B07C0
 void func_001b07c0(void)
 {
