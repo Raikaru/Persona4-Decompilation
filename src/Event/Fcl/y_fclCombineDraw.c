@@ -3323,7 +3323,7 @@ void func_003233d0(u8 *arg0) {
    remains guarded rather than being labelled a compiler floor. Resource and
    alpha values belong to the late draw block: native C has 29 resolved
    differing words. See docs/probe_archive/Fcl_late_scope_00323d00_20261005/.
-   2026-10-06 colouring model (the simplify-stack replay in docs/matching.md,
+   2026-10-06 colouring model (tools/regalloc_whatif.py on the capture,
    which reproduces the captured stack): retail's $s4/$s3/$s1 for
    hidden/shown/res follow when
    hidden and shown are numbered below res. That holds if they survive as
