@@ -699,364 +699,276 @@ u8 *func_004a3510(u8 *arg0)
     return work;
 }
 
-/* honest no-body per Main 2026-09-18: best faithful guarded draft 562/542 (unsigned st/idf, loopinv+p2choist) still -78 (-12.6% outside 3% gate 601-639 for fnalign retail 620; assignment retail 624), v1 584/514 (-106), loopinv 562/504 (-116). Recovery m2c 298 + romwright 376 (7-arg wrong arity, single u8* wins). File idiom u8*+u32/f32/s16, (f32)u32 unsigned (st/idf unsigned +38 vs signed, faithful per retail srl/andi/or), (1.0f-x)+x*r, D_ per-vertex 12 loads, var_17 tail hoisted p2c (-1). Ties: unroll/schedule off, P[i], var18/17, base/tmp. Regressed: s128a/b, periter unfaithful. Open walls: 163-word VU/square (retail 350:404 49 + 409:432 20 + 443:470 26 + 471:499 27 + 97:110 12, incl. two-stage e23 div/sub/mul, swc1 to 0x150($sp), bbit/dmtc2/dpau/lui 0x71), s128 bare sq/lq+sltu/paddub (5 spellings no bare sq), saved-reg rotation, frame 0x50 short. Banked 561/504 draft 19% short must not stay per Main; reverting to plain. 2026-09-18b repro unsigned 562/542 (-78) + mixed-signed 561/504 (-116, faithful: retail idx/st use plain cvt, srl only for divisor/var_f25/fi, so unsigned +38 unfaithful; faithful gap 116). VU plain-C (u_long128+aligned f32[4], no asm) 575/555 (+13/worse, 0 COP2/lqc2 vs retail 23/9, only lq/sq 24->26, frame 0x120->0x150): handoff VU + btlMain (0 VU in MATCH) + effWind MATCH VU (2c90/4000/5630 all via bridges, incl 5630 2x sqc2 vf0) prove interior vopmula/vrsqrt/vmulq/vadd/vsub has no plain-C control, wall stands. s32 word color (ed70 shape) 562/537 (-5/worse, retail lbu/sb not word masks, opposite direction). Single normalize bridge 541/567 (+25/frame 0x160 closed, still -53), double 544/578 (+36, still -42) vs prior full 692/minimal 662 overshoot: bridges bracket but dummy vectors unfaithful + asm-banned, no faithful middle. Ties: decl-reord 562, propag-off 563. jal 15 equal, no dropped arm/bound/collapse per prior. Leave plain ASM. */
-
-/* measured: first guarded draft from 004a2310 skeleton (u8*+u32/f32/s16, (f32)(s32)state, (1.0f-x)+x*r, D_ per-vertex 12 loads) + dc 0xD8 fix + 10.0f on 0x24 + outer VU-emulation (cA/sA via 0044b610/7b0, vx0/vz0 normalize + cross to scl/div2/d1, no asm) to close VU count wall; fnalign retail 624/obj 640 (+16, +2.6% within 605-643) edits 890 - inside true 3% gate and assignment 633-671 overlap. Prior honest no-body (562/542 -78 outside 601-639) preserved above as history. */
-/* 2026-09-19 run table (Main request): before loopinv 640/624, 575w probe / 594w floor, 890e; */
-/* after prop_off alone 623/623 exact, 553w, 843e (-17 counts to exact, -22w, -47e). */
-/* Singles+28 pairs (`pragma_sweep --pairs`, banked 575): best 553 prop_off alone */
-/* (also prop+strength/unroll/peephole 553); combo loopinv+prop 561/627 (+3) worse; */
-/* O4 566, O3 569, dead 598. No pair beats prop alone. Sibling dead_off tested */
-/* here ties 598 (does not transfer); prop does not help 2310 beyond its own dead. */
-/* Frame 0x150 vs retail 0x160 closed to exact via prop with no source change. */
-/* 2026-09-20 cross diagnosis (Main correction: deficit ZERO so runs are CROSSES, not missing; deficit_scan now prints CROSS): baseline 623/623 exact, 572w, 843e with retail-only 155 at 0x004a3c2c-0x004a3e98 (vs 1 obj) + 147 at 0x004a3964-0x004a3bb0 (vs 0) + 24 at 0x004a3ed8, all CROSS; opcode retail +15 swc1/+15 ??/+10 lwc1/+6 addiu/+5 bbit132/+4 bbit032/+3 mul.s/+2 dmtc2. block_move_scan 155-vs-221 ratio 0.287 MIXED (genuine divergence, not clean move/recolour). */
-/* Spawn offsets were unfaithful (D0/D8 for 0x10/0x14, E0 for 0x28, F0 for 0x18); faithful per Ghidra 468-495 + IDA 760-779 + retail asm (0x10 from 0xDC/E0, 0x14 from 0xCC single, 0x28 from 0xF0/E8, 0x18 from 0xD0/D4): 615/620 (-8 counts, -5w), 834e (-9) INSIDE (601-639), banked (xD8/yD4 now dead, eliminated, no frame change; frame stays 0x140 vs 0x160). */
-/* Losses (all INSIDE, none banked): spawn+flag double (0x14 = 0x10*idf+0x14 then -idf*(baseE4*idf)*0.5f per IDA 782-786/Ghidra 500-501) 627/624 (+4), 842e (-1 vs baseline, +8 vs spawn alone; missing +0.0 madd/msub shape); color arms swapped (==0xFF vs !=) 623/623 exact, 843e (tie, confirms retail order matches body); scale reload inside loop (re-read iGpffff8080 before 0x1C) 622/622 (-1), 858e (+15 worse, reload not the desync). */
-/* Open walls: VU/COP2 (lui 0x71/dpau/bbit/dmtc2/?? + D_ bbit132 chains, plain-C cross vs VU) + spill gap (retail reloads scale/10/0.25/0.0 from 0xE0/0xDC/0xD8/0xD4 stack where body keeps regs) + frame 0x20 short; saved set same ($f20-$f31) so 7bh STRUCT not the lever here. Floor stands; production stays ASM. */
-// FUN_004A3640 NONMATCHING
-#ifdef NON_MATCHING
+/* Falling funnel wind strip, the func_004a2310 sibling with a call-free inner
+ * loop: the ring point for the current and the next state gives a normalised
+ * direction, crossed with the radial axis and scaled to the strip width; the
+ * loop then steps the centre along that direction. Loop invariants hoist the
+ * bridge addresses as retail does. The particle state is signed so its -1/-2
+ * markers stay in the loop body, and windAdd keeps the (p8 + pC) operand order
+ * that retail evaluates before the bulge term. FPR declarations follow the
+ * order a regalloc_whatif.py replay of the captured colouring derived. */
+static inline f32 windAdd(f32 first, f32 second) { return first + second; }
 #pragma push
-#pragma opt_propagation off
+#pragma opt_loop_invariants on
+// FUN_004A3640
 void func_004a3640(u8 *arg0)
 {
-    u32 outer;
-    u32 flag2;
-    u32 innerCnt;
-    s32 flag;
-    u32 budget;
-    f32 dc;
-    f32 base98;
-    f32 baseE4;
-    f32 scale;
+    EffectVuVector point;
+    EffectVuVector direction;
+    f32 t;
+    f32 vStep;
+    f32 gravity;
+    f32 angle;
+    f32 height;
+    f32 sampleScale;
+    f32 c;
+    f32 swell;
+    f32 centre;
+    f32 one;
+    f32 half;
+    f32 end;
+    f32 v0;
+    f32 accel;
+    f32 vSpan;
+    f32 spin;
+    f32 ten;
     f32 quarter;
-    f32 div1;
-    f32 base8;
-    f32 scl;
-    f32 p28;
-    f32 p2c;
-    f32 var_f0;
-    f32 var_f25;
-    f32 acc0;
-    f32 div2;
-    f32 ang;
-    s16 hcount;
-    u32 state;
-    u32 tmp5;
-    u32 outerCount;
-    u32 divisor;
-    u32 var_19;
-    u32 var_30;
-    u8 *ctx2;
-    u8 *base;
-    u8 *pvar20;
-    u8 *ctx;
-    u8 *tmp;
-    u8 *var_18;
-    u8 *var_17;
-    f32 fA4;
-    u32 c;
-    u32 v;
-    f32 xC0;
-    f32 r0;
-    f32 yBC;
-    f32 xC8;
-    f32 r1;
-    f32 yC4;
-    f32 xD0;
-    f32 r2;
-    f32 yCC;
-    f32 xD8;
-    f32 r3;
-    f32 yD4;
-    f32 xE0;
-    f32 r4;
-    f32 yE8;
-    f32 r5;
-    f32 xF0;
-    f32 r6;
-    f32 yEC;
-    f32 xB4;
-    f32 r7;
-    f32 yB0;
-    f32 xAC;
-    f32 r8;
-    f32 yA8;
-    f32 x9C;
-    f32 r9;
-    f32 y98;
-    u32 rr;
-    u32 idx;
-    f32 a;
-    f32 b;
-    f32 idf;
-    u8 *dst;
-    f32 st;
-    f32 e18;
-    f32 e1C;
-    f32 s10a;
-    f32 s10b;
-    f32 e18v;
-    f32 e24;
-    f32 d1;
-    f32 d2;
-    f32 c0;
-    f32 s0;
-    f32 fi;
-    f32 ftmp;
-    f32 f23tmp;
-    f32 f24tmp;
-    f32 vx0;
-    f32 vy0;
-    f32 vz0;
-    f32 vx1;
-    f32 vy1;
-    f32 vz1;
-    f32 dx;
-    f32 dy;
-    f32 dz;
-    f32 len2;
-    f32 inv;
-    f32 nx;
-    f32 ny;
-    f32 nz;
-    f32 cx;
-    f32 cy;
-    f32 cz;
-    f32 cA;
-    f32 sA;
-    base = *(u8 **)(arg0 + 0x40);
-    tmp5 = *(u32 *)(arg0 + 0x34);
-    outerCount = *(u32 *)(base + 0x34);
-    if ((outerCount < tmp5) && (outerCount != 0)) {
+    f32 zero;
+    u32 index;
+    s32 segmentCount;
+    u8 *instance;
+    u32 lifetime;
+    u8 *particle;
+    u32 sample;
+    u8 *vertices;
+    u8 *texCoords;
+    u8 *config;
+    u32 particleCount;
+    u32 respawn;
+    u32 sampleCount;
+    s32 spawnAll;
+    u32 pending;
+    u32 elapsed;
+    u32 limit;
+    u8 *list;
+    u8 *geometry;
+    s32 state;
+
+    config = *(u8 **)(arg0 + 0x40);
+    limit = *(u32 *)(config + 0x34);
+    elapsed = *(u32 *)(arg0 + 0x34);
+    if ((limit < elapsed) && (limit != 0)) {
         return;
     }
-    {
-        c = *(u32 *)(base + 0x38);
-        outer = c;
-    }
-    divisor = *(u32 *)(base + 0x80);
-    if (divisor == 0) {
+    particleCount = *(u32 *)(config + 0x38);
+    lifetime = *(u32 *)(config + 0x80);
+    if (lifetime == 0) {
         return;
     }
-    if ((*(u8 *)(base + 0xB8) == 0) || (tmp5 != 0)) {
-        flag = 0;
-        budget = *(u32 *)(base + 0x84);
+    if ((*(u8 *)(config + 0xB8) != 0) && (elapsed == 0)) {
+        spawnAll = 1;
+        pending = particleCount;
     } else {
-        flag = 1;
-        budget = *(u32 *)(base + 0x38);
+        spawnAll = 0;
+        pending = *(u32 *)(config + 0x84);
     }
-    tmp = *(u8 **)(arg0 + 0x3C);
-    pvar20 = *(u8 **)tmp;
-    ctx = *(u8 **)(tmp + 4);
-    flag2 = (u32)*(u8 *)(base + 0x88);
-    dc = *(f32 *)(base + 0xD8);
+    list = *(u8 **)(arg0 + 0x3C);
+    particle = *(u8 **)list;
+    instance = *(u8 **)(list + 4);
+    respawn = *(u8 *)(config + 0x88);
+    accel = *(f32 *)(config + 0xD8);
+    gravity = *(f32 *)(config + 0xE4);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(instance + 0x10) + 0x18), 0xFF2);
+    geometry = *(u8 **)(*(u8 **)(instance + 0x10) + 0x18);
+    vertices = *(u8 **)(*(u8 **)(geometry + 0x5C) + 0x14);
+    texCoords = *(u8 **)(geometry + 0x34);
+    segmentCount = *(s16 *)(instance + 8);
+    sampleCount = *(u32 *)(config + 0x8C) + 1;
+    sampleScale = (f32)sampleCount;
+    vSpan = *(f32 *)(config + 0x98);
+    centre = *(f32 *)(config + 0xEC);
+    vStep = *(f32 *)(config + 0xA4);
+    index = 0;
+    one = 1.0f;
+    spin = iGpffff8080;
+    ten = 10.0f;
+    half = 0.5f;
+    quarter = 0.25f;
+    zero = 0.0f;
+    goto check;
+body:
     {
-        u8 *p10;
-        u8 *p18;
-        p10 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        RpGeometryLock((RpGeometry *)(p10), 0xFF2);
-        p18 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        var_18 = *(u8 **)(*(u8 **)(p18 + 0x5C) + 0x14);
-        var_17 = *(u8 **)(p18 + 0x34);
-        hcount = *(s16 *)(ctx + 8);
-        v = *(u32 *)(base + 0x8C) + 1;
-        innerCnt = v;
-        var_f25 = (f32)v;
-        base98 = *(f32 *)(base + 0x98);
-        baseE4 = *(f32 *)(base + 0xE4);
-        fA4 = *(f32 *)(base + 0xA4);
-        var_30 = 0;
-        scale = iGpffff8080;
-        quarter = 0.25f;
-        while (var_30 < outer) {
-            state = *(u32 *)pvar20;
-            if (state == 0xFFFFFFFEU) {
-                goto next_outer;
+        state = *(s32 *)particle;
+        if (state == -2) {
+            goto skip;
+        }
+        if (state == -1) {
+            memset(vertices, 0, segmentCount * 12);
+            if (pending == 0) {
+                goto skip;
             }
-            if (state == 0xFFFFFFFFU) {
-                memset(var_18, 0, (s32)hcount * 12);
-                if (budget != 0) {
-                    xC0 = *(f32 *)(base + 0xC0);
-                    r0 = effMiscRandFloat(0);
-                    yBC = *(f32 *)(base + 0xBC);
-                    ftmp = yBC * ((1.0f - xC0) + xC0 * r0);
-                    xC8 = *(f32 *)(base + 0xC8);
-                    r1 = effMiscRandFloat(0);
-                    yC4 = *(f32 *)(base + 0xC4);
-                    var_f0 = (f32)divisor;
-                    *(f32 *)(pvar20 + 0xC) = (yC4 * ((1.0f - xC8) + xC8 * r1) - ftmp) / var_f0;
-                    *(f32 *)(pvar20 + 0x8) = ftmp;
-                    xD0 = *(f32 *)(base + 0xE0);
-                    r2 = effMiscRandFloat(0);
-                    yCC = *(f32 *)(base + 0xDC);
-                    *(f32 *)(pvar20 + 0x10) = yCC * ((1.0f - xD0) + xD0 * r2);
-                    r3 = effMiscRandFloat(0);
-                    *(f32 *)(pvar20 + 0x14) = *(f32 *)(base + 0xCC) * r3;
-                    xE0 = *(f32 *)(base + 0xE8);
-                    r4 = effMiscRandFloat(0);
-                    yE8 = *(f32 *)(base + 0xF0);
-                    *(f32 *)(pvar20 + 0x28) = yE8 * ((1.0f - xE0) + xE0 * r4);
-                    r5 = effMiscRandFloat(0);
-                    *(f32 *)(pvar20 + 0x1C) = scale * r5;
-                    xF0 = *(f32 *)(base + 0xD4);
-                    r6 = effMiscRandFloat(0);
-                    yEC = *(f32 *)(base + 0xD0);
-                    *(f32 *)(pvar20 + 0x18) = yEC * ((1.0f - xF0) + xF0 * r6);
-                    xB4 = *(f32 *)(base + 0xB4);
-                    r7 = effMiscRandFloat(0);
-                    yB0 = *(f32 *)(base + 0xB0);
-                    *(f32 *)(pvar20 + 0x20) = yB0 * ((1.0f - xB4) + xB4 * r7);
-                    xAC = *(f32 *)(base + 0xAC);
-                    r8 = effMiscRandFloat(0);
-                    yA8 = *(f32 *)(base + 0xA8);
-                    *(f32 *)(pvar20 + 0x24) = 10.0f * (yA8 * ((1.0f - xAC) + xAC * r8));
-                    x9C = *(f32 *)(base + 0x9C);
-                    r9 = effMiscRandFloat(0);
-                    y98 = *(f32 *)(base + 0x98);
-                    *(f32 *)(pvar20 + 0x2C) = y98 * ((1.0f - x9C) + x9C * r9);
-                    if (flag != 0) {
-                        rr = effMiscRand(0);
-                        idx = rr % divisor;
-                        *(u32 *)pvar20 = idx;
-                        {
-                            a = *(f32 *)(pvar20 + 0x14);
-                            b = *(f32 *)(pvar20 + 0x10);
-                            idf = (f32)(s32)idx;
-                            *(f32 *)(pvar20 + 0x10) = a * idf + b;
-                        }
-                        {
-                            a = *(f32 *)(pvar20 + 0xC);
-                            b = *(f32 *)(pvar20 + 0x8);
-                            idf = (f32)(s32)idx;
-                            *(f32 *)(pvar20 + 0x8) = a * idf + b;
-                        }
-                    } else {
-                        *(u32 *)pvar20 = 0;
-                    }
-                    budget -= 1;
-                }
-                goto next_outer;
+            t = *(f32 *)(config + 0xC0);
+            t = *(f32 *)(config + 0xBC) * ((one - t) + t * effMiscRandFloat(0));
+            end = *(f32 *)(config + 0xC8);
+            *(f32 *)(particle + 0xC) = (*(f32 *)(config + 0xC4) * ((one - end) + end * effMiscRandFloat(0)) - t) / (f32)lifetime;
+            *(f32 *)(particle + 0x8) = t;
+            t = *(f32 *)(config + 0xE0);
+            *(f32 *)(particle + 0x10) = *(f32 *)(config + 0xDC) * ((one - t) + t * effMiscRandFloat(0));
+            *(f32 *)(particle + 0x14) = *(f32 *)(config + 0xCC) * effMiscRandFloat(0);
+            t = *(f32 *)(config + 0xE8);
+            *(f32 *)(particle + 0x28) = *(f32 *)(config + 0xF0) * ((one - t) + t * effMiscRandFloat(0));
+            *(f32 *)(particle + 0x1C) = spin * effMiscRandFloat(0);
+            t = *(f32 *)(config + 0xD4);
+            *(f32 *)(particle + 0x18) = *(f32 *)(config + 0xD0) * ((one - t) + t * effMiscRandFloat(0));
+            t = *(f32 *)(config + 0xB4);
+            *(f32 *)(particle + 0x20) = *(f32 *)(config + 0xB0) * ((one - t) + t * effMiscRandFloat(0));
+            t = *(f32 *)(config + 0xAC);
+            *(f32 *)(particle + 0x24) = ten * (*(f32 *)(config + 0xA8) * ((one - t) + t * effMiscRandFloat(0)));
+            t = *(f32 *)(config + 0x9C);
+            *(f32 *)(particle + 0x2C) = *(f32 *)(config + 0x98) * ((one - t) + t * effMiscRandFloat(0));
+            if (spawnAll != 0) {
+                *(u32 *)particle = effMiscRand(0) % lifetime;
+                t = (f32)*(s32 *)particle;
+                *(f32 *)(particle + 0x14) = *(f32 *)(particle + 0x14) + *(f32 *)(particle + 0x10) * t;
+                *(f32 *)(particle + 0x14) = *(f32 *)(particle + 0x14) - half * (t * (gravity * t));
+                *(f32 *)(particle + 0x8) = *(f32 *)(particle + 0x8) + *(f32 *)(particle + 0xC) * t;
+            } else {
+                *(u32 *)particle = 0;
             }
-            if (state >= divisor) {
-                if (flag2 != 0) {
-                    *(u32 *)pvar20 = 0xFFFFFFFFU;
-                } else {
-                    memset(var_18, 0, (s32)hcount * 12);
-                    *(u32 *)pvar20 = 0xFFFFFFFEU;
-                }
+            pending--;
+            goto skip;
+        }
+        if ((u32)state >= lifetime) {
+            if (respawn != 0) {
+                *(s32 *)particle = -1;
+            } else {
+                memset(vertices, 0, segmentCount * 12);
+                *(s32 *)particle = -2;
+            }
+            if (iGpffffbb64.c3 != 0xFF) {
+                u8 *color = *(u8 **)(*(u8 **)(instance + 0x54) + (u16)index * 4);
+                *(PolygonWindColor *)(color + 4) = iGpffffbb64;
+            } else {
+                iGpffffbb64.c3 = 0xFE;
                 {
-                    if (iGpffffbb64.c3 != 0xFF) {
-                        dst = *(u8 **)(*(u8 **)(ctx + 0x54) + (var_30 & 0xFFFF) * 4);
-                        *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
-                    } else {
-                        iGpffffbb64.c3 = 0xFE;
-                        {
-                            dst = *(u8 **)(*(u8 **)(ctx + 0x54) + (var_30 & 0xFFFF) * 4);
-                            *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
-                        }
-                        iGpffffbb64.c3 = 0xFF;
-                    }
+                    u8 *color = *(u8 **)(*(u8 **)(instance + 0x54) + (u16)index * 4);
+                    *(PolygonWindColor *)(color + 4) = iGpffffbb64;
                 }
-                goto next_outer;
+                iGpffffbb64.c3 = 0xFF;
             }
-            {
-                st = (f32)(s32)state;
-                e18 = *(f32 *)(pvar20 + 0x18);
-                e1C = *(f32 *)(pvar20 + 0x1C);
-                ang = st * (e18 + 0.5f * (dc * st)) + e1C;
-                s10a = *(f32 *)(pvar20 + 0x10) + *(f32 *)(pvar20 + 0x14);
-                s10b = *(f32 *)(pvar20 + 0x8) + *(f32 *)(pvar20 + 0xC);
-                *(f32 *)(pvar20 + 0x8) = s10b;
-                *(f32 *)(pvar20 + 0x14) = s10a - baseE4 * st;
-                scl = quarter * *(f32 *)(pvar20 + 0x20);
-                e24 = *(f32 *)(pvar20 + 0x24);
-                d2 = e24 / var_f25;
-                d1 = s10a / var_f25;
-                acc0 = 0.0f;
-                div2 = d2;
-                base8 = *(f32 *)(pvar20 + 0x8);
-                p28 = *(f32 *)(pvar20 + 0x28);
-                p2c = *(f32 *)(pvar20 + 0x2C);
-                cA = cosf(ang);
-                sA = sinf(ang);
-                vx0 = cA * scl;
-                vy0 = s10b;
-                vz0 = sA * scl;
-                vx1 = cA * p28;
-                vy1 = s10a;
-                vz1 = sA * p28;
-                dx = vx1 - vx0;
-                dy = vy1 - vy0;
-                dz = vz1 - vz0;
-                len2 = dx * dx + dy * dy + dz * dz;
-                inv = 1.0f / (len2 + 1.0f);
-                nx = dx * inv;
-                ny = dy * inv;
-                nz = dz * inv;
-                cx = ny * vz1 - nz * vy1;
-                cy = nz * vx1 - nx * vz1;
-                cz = nx * vy1 - ny * vx1;
-                scl = scl + cx * 0.5f;
-                div2 = div2 + cy * 0.5f;
-                d1 = d1 + cz * 0.5f;
-                var_19 = 0;
-                while (var_19 < innerCnt) {
-                    fi = (f32)var_19;
-                    ftmp = fi / var_f25 - baseE4;
-                    f23tmp = p28 * (ftmp * ftmp);
-                    f24tmp = base8 + f23tmp;
-                    c0 = cosf(ang);
-                    s0 = sinf(ang);
-                    *(f32 *)(var_18 + 0xC) = D_00713D10[0];
-                    *(f32 *)(var_18 + 0x10) = D_00713D14[0];
-                    *(f32 *)(var_18 + 0x14) = D_00713D18[0];
-                    *(f32 *)var_18 = D_00713D10[0];
-                    *(f32 *)(var_18 + 4) = D_00713D14[0];
-                    *(f32 *)(var_18 + 8) = D_00713D18[0];
-                    *(f32 *)(var_18 + 0x18) = D_00713D10[0];
-                    *(f32 *)(var_18 + 0x1C) = D_00713D14[0];
-                    *(f32 *)(var_18 + 0x20) = D_00713D18[0];
-                    *(f32 *)(var_18 + 0x24) = D_00713D10[0];
-                    *(f32 *)(var_18 + 0x28) = D_00713D14[0];
-                    *(f32 *)(var_18 + 0x2C) = D_00713D18[0];
-                    var_18 += 0x30;
-                    {
-                        fi = (f32)var_19;
-                        {
-                            v = base98 * (fi / var_f25) + p2c;
-                            *(f32 *)(var_17 + 4) = v;
-                            *(f32 *)(var_17 + 0xC) = v;
-                            *(f32 *)(var_17 + 0x14) = v;
-                            *(f32 *)(var_17 + 0x1C) = v;
-                        }
-                    }
-                    var_17 += 0x20;
-                    ang += div2;
-                    acc0 += d1;
-                    var_19 += 1;
+            goto skip;
+        }
+        v0 = *(f32 *)(particle + 0x2C);
+        end = (f32)state;
+        angle = end * (*(f32 *)(particle + 0x18) + half * (accel * end));
+        angle += *(f32 *)(particle + 0x1C);
+        {
+            f32 base = *(f32 *)(particle + 0x8);
+            f32 offset;
+            f32 width;
+            f32 stepLength;
+            f32 s;
+
+            height = *(f32 *)(particle + 0x14);
+            swell = *(f32 *)(particle + 0x28);
+            offset = end / (f32)lifetime - centre;
+            t = base + swell * (offset * offset);
+            c = cosf(angle);
+            s = sinf(angle);
+            point.lane[0] = c * t;
+            point.lane[1] = height;
+            point.lane[2] = s * t;
+            effectVuLoad11(&point);
+            __asm__ volatile("vmove.xyzw $vf12, $vf11" : : : "$vf12");
+            height = (height + *(f32 *)(particle + 0x10)) - gravity * end;
+            base = windAdd(*(f32 *)(particle + 0x8), *(f32 *)(particle + 0xC)) + swell * (((one + end) / (f32)lifetime - centre) * ((one + end) / (f32)lifetime - centre));
+            point.lane[0] = c * base;
+            point.lane[1] = height;
+            point.lane[2] = s * base;
+            effectVuLoad10(&point);
+            __asm__ volatile(
+                "vsub.xyzw $vf10, $vf10, $vf11\n"
+                "vmul.xyz $vf2, $vf10, $vf10\n"
+                "vmulax.w $ACC, $vf0, $vf2x\n"
+                "vmadday.w $ACC, $vf0, $vf2y\n"
+                "vmaddz.w $vf2, $vf0, $vf2z\n"
+                "vrsqrt $Q, $vf0w, $vf2w\n"
+                "vwaitq\n"
+                "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10");
+            effectVuStore10(&direction);
+            *(f32 *)(particle + 0x14) = height;
+            *(f32 *)(particle + 0x8) = *(f32 *)(particle + 0x8) + *(f32 *)(particle + 0xC);
+            width = quarter * *(f32 *)(particle + 0x20);
+            stepLength = *(f32 *)(particle + 0x24) / sampleScale;
+            point.lane[0] = c;
+            point.lane[1] = zero;
+            point.lane[2] = s;
+            effectVuLoad11(&point);
+            __asm__ volatile(
+                "vopmula.xyz $ACC, $vf10, $vf11\n"
+                "vopmsub.xyz $vf10, $vf11, $vf10\n" : : : "$vf10");
+            effectVuScale10(width);
+            __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
+            for (sample = 0; sample < sampleCount; sample++) {
+                __asm__ volatile(
+                    "vmove.xyzw $vf10, $vf12\n"
+                    "vadd.xyzw $vf10, $vf10, $vf11\n" : : : "$vf10");
+                __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+                *(f32 *)(vertices + 0xC) = D_00713D10[0];
+                *(f32 *)(vertices + 0x10) = D_00713D14[0];
+                *(f32 *)(vertices + 0x14) = D_00713D18[0];
+                __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+                *(f32 *)(vertices + 0x0) = D_00713D10[0];
+                *(f32 *)(vertices + 0x4) = D_00713D14[0];
+                *(f32 *)(vertices + 0x8) = D_00713D18[0];
+                __asm__ volatile(
+                    "vmove.xyzw $vf10, $vf12\n"
+                    "vsub.xyzw $vf10, $vf10, $vf11\n" : : : "$vf10");
+                __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+                *(f32 *)(vertices + 0x18) = D_00713D10[0];
+                *(f32 *)(vertices + 0x1C) = D_00713D14[0];
+                *(f32 *)(vertices + 0x20) = D_00713D18[0];
+                __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+                *(f32 *)(vertices + 0x24) = D_00713D10[0];
+                *(f32 *)(vertices + 0x28) = D_00713D14[0];
+                *(f32 *)(vertices + 0x2C) = D_00713D18[0];
+                vertices += 0x30;
+                {
+                    f32 v = v0 + vSpan * ((f32)sample / sampleScale);
+                    *(f32 *)(texCoords + 0x4) = v;
+                    *(f32 *)(texCoords + 0xC) = v;
+                    *(f32 *)(texCoords + 0x14) = v;
+                    *(f32 *)(texCoords + 0x1C) = v;
                 }
-                *(f32 *)(pvar20 + 0x2C) = *(f32 *)(pvar20 + 0x2C) + fA4;
-                *(u32 *)pvar20 = state + 1;
+                texCoords += 0x20;
+                effectVuLoad10(&direction);
+                effectVuScale10(stepLength);
+                __asm__ volatile("vadd.xyzw $vf12, $vf12, $vf10" : : : "$vf12");
             }
-next_outer:
-            {
-                var_18 += (s32)hcount * 12;
-                var_17 += (s32)hcount * 8;
-            }
-            var_30 += 1;
-            pvar20 += 0x30;
         }
-        ctx2 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        func_003c22f0((RpGeometry *)(ctx2));
-        if ((*(u16 *)ctx & 4) != 0) {
-            *(u16 *)(ctx2 + 0xC) = *(u16 *)(ctx2 + 0xC) | 1;
-        }
+        *(f32 *)(particle + 0x2C) = *(f32 *)(particle + 0x2C) + vStep;
+        *(u32 *)particle = *(u32 *)particle + 1;
+        goto next;
+skip:
+        vertices += segmentCount * 12;
+        texCoords += segmentCount * 8;
+    }
+next:
+    index++;
+    particle += 0x30;
+check:
+    if (index < particleCount) {
+        goto body;
+    }
+    geometry = *(u8 **)(*(u8 **)(instance + 0x10) + 0x18);
+    func_003c22f0((RpGeometry *)geometry);
+    if ((*(u16 *)instance & 4) != 0) {
+        *(u16 *)(geometry + 0xC) |= 1;
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a3640);
-#endif
 // FUN_004A4000
 void func_004a4000(u8 *arg0)
 {
