@@ -5,7 +5,7 @@
 #include "type.h"
 
 void func_0046d730(void* arg0, s32 arg1);
-void func_0046b0d0(void* ptr);
+void func_0046b0d0(u8 *node);
 void func_0044ea90(void* file, s32 line);
 
 void memset(void* dest, s32 value, s32 size);
@@ -23,10 +23,10 @@ u32 func_00104d50(s16 arg0);
 u16 func_00104e30(s16 arg0);
 u8* func_00457120(void);
 s16 func_00353b50(s16* dst);
-s32 func_0046aea0(void* arg0);
-void sprintf(void* dst, void* src, s64 idx);
-s32 func_0046a750(void* arg0);
-void func_00460ac0(void* param, void* work);
+u8 *func_0046aea0(const char *name);
+s32 sprintf(char *dst, const char *format, ...);
+u32 func_0046a750(s16 *node);
+void func_00460ac0(u8 *list, u8 *node);
 extern u8 D_0064E2A0[];
 extern u8 D_0064E2C0[];
 extern u8 D_00794960[];
@@ -251,298 +251,269 @@ void func_00363540(u8* arg0, u8* arg1) {
 }
 
 
-/* measured: probe 606 words, retail 692 vs object 677 instrs (15 short, 2.2% inside gate;
-   fnalign 437 edits +14 reloc-only; gate hole 5 lump 46, no longer 155/229 split).
-   Stack 0x3B0 matches via reverse decl order
-   tbl,p4,p3,p2,p1,p0,wbuf,b2,b1,b0 giving 80,336,592,848,896,904,912,920,928,936;
-   FPU ADDA/MSUB fusion via 338.0f-63.0f*(f32)((count-1)-i) with (f32)565 and 640.0f.
-   Case3 outer is != with change arms first and equal last to match retail block
-   placement (== with equal first misplaces less+greater as 172/4 and hides
-   155 hole vs 229 lump inside the count). Free pragmas: loopInv kept,
-   unrollOff/schedOff neutral, commonSubsOff worse, propOff neutral. Subscript p
-   vs recomputed neutral. Register swaps neutral. s64 loops worse. Remaining:
-   greater tail p reuse vs recompute (m in $v0 vs $s2), count reload vs save
-   (lh vs dsll32/dsra), lwc1 vs lw, bnez vs beqz. m2c needs jtbl (fails);
-   romwright+IDA/Ghidra used. */
-// FUN_00363610 NONMATCHING
-#ifdef NON_MATCHING
+/* Recovered work layout: 0x10-byte header, four 0x28-byte rows, then the
+ * 0x30-byte ordering-table node. Animation fields are also read by 00362F00.
+ * 00353B50 writes only the compacted live roster. The four-entry comparison
+ * below intentionally retains retail's read of the unwritten stack tail,
+ * as explicitly authorized for retail recovery on 2026-10-07. Do not clear
+ * that tail or limit the removal scan to the compacted roster count.
+ * If all four IDs compare equal after a shrink, changed reaches 4. The
+ * offset-based update below then aliases the real ordering node at +0xB0
+ * inside the 0xE0 allocation; it does not refer to a fifth stored party row.
+ * Whole-owner configured compile: 2772 exact live bytes, 12 zero tail bytes;
+ * the seven case-table entries at 007528E0 and all six siblings are exact. */
 #pragma opt_loop_invariants on
-s32 func_00363610(u8* arg0)
-{
-    u8* obj = *(u8**)(arg0 + 0x38);
-    s16 tbl[4];
-    f32 p4[2];
-    f32 p3[2];
-    f32 p2[2];
-    f32 p1[2];
-    f32 p0[2];
-    s32 wbuf[10];
-    u8 b2[256];
-    u8 b1[256];
-    u8 b0[256];
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 m;
-    s32 n;
-    s32 c;
-    s32 q;
-    s16 id;
-    s32 h;
+typedef struct {
+    Vec2f start;
+    Vec2f end;
+    Vec2f current;
+    s16 frame;
+    s16 duration;
+} PartyPanelMotion;
+typedef struct {
+    PartyPanelMotion motion;
+    u8 *sprite;
     s32 ready;
-    u8* p;
-    u8* dst;
-    u8* src;
-    s32* d32;
-    s32* s32p;
-    s32* w;
-    s32* w2;
-    u8* e;
-    s32 a;
-    s32 b;
+    s16 id;
+} PartyPanelRow;
+typedef struct {
+    u32 next;
+    u32 tail;
+    void (*callback)(u8 *, u8 *);
+    u32 unknown0c;
+    void *context;
+    u8 unknown14[0x1c];
+} PartyPanelNode;
+typedef struct {
+    u16 flags;
+    s32 state;
+    s16 changed;
+    s16 count;
+    u8 *sprite;
+    PartyPanelRow rows[4];
+    PartyPanelNode node;
+} PartyPanelWork;
+typedef char PartyPanelRowSize[sizeof(PartyPanelRow)==0x28?1:-1];
+typedef char PartyPanelWorkSize[sizeof(PartyPanelWork)==0xe0?1:-1];
 
-    *(s32*)(obj + 0xB0) = 0;
-    *(s32*)(obj + 0xB4) = 0;
-    func_00460ac0(D_00794960, obj + 0xB0);
-    switch (*(s32*)(obj + 0x4)) {
-    case 0:
-        *(s32*)(obj + 0xC) = func_0046aea0(D_0064E2C0);
-        *(s16*)(obj + 0xA) = func_00353b50(tbl);
-        for (i = 0; i < *(s16*)(obj + 0xA); i++) {
-            p4[0] = (f32)565;
-            p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - i);
-            id = tbl[i];
-            func_00362fd0(obj + i * 0x28 + 0x10, p4, p4, 0);
-            *(s16*)(obj + i * 0x28 + 0x34) = id;
-            *(s32*)(obj + i * 0x28 + 0x30) = 0;
+/* Repeated row placement shares the signed roster-count contract. */
+static inline void panelPosition(Vec2f *position, f32 x, s16 count, s32 index)
+{
+    position->x = x;
+    position->y = 338.0f - 63.0f * (f32)((count - 1) - index);
+}
+
+// FUN_00363610
+s32 func_00363610(u8 *task)
+{
+    PartyPanelWork *work = *(PartyPanelWork **)(task + 0x38);
+    s16 roster[4];
+    Vec2f position;
+    Vec2f startPosition;
+    Vec2f removedPosition;
+    Vec2f shiftedPosition;
+    Vec2f replacedPosition;
+    PartyPanelRow removed;
+    char initialName[256];
+    char addedName[256];
+    char replacedName[256];
+    s32 ready, count;
+    s16 id;
+    PartyPanelRow *row;
+
+    work->node.next = 0;
+    work->node.tail = 0;
+    func_00460ac0(D_00794960, (u8 *)&work->node);
+    switch (work->state) {
+    case 0: {
+        s32 i;
+        work->sprite = func_0046aea0((const char *)D_0064E2C0);
+        work->count = func_00353b50(roster);
+        for (i = 0; i < work->count; i++) {
+            panelPosition(&position, (f32)565, work->count, i);
+            id = roster[i];
+            func_00362fd0((u8 *)&work->rows[i].motion, &position.x, &position.x, 0);
+            work->rows[i].id = id;
+            work->rows[i].ready = 0;
             if (id != 0) {
-                sprintf(b2, D_0064E2A0, (s64)id);
-                h = func_0046aea0(b2);
-                *(s32*)(obj + i * 0x28 + 0x2C) = h;
-                if (h == 0) {
+                sprintf(initialName, (const char *)D_0064E2A0, id);
+                work->rows[i].sprite = func_0046aea0(initialName);
+                if (work->rows[i].sprite == NULL) {
                     func_0046d730(D_0064E290, 0x166);
                 }
             }
         }
-        *(u16*)(obj + 0x0) |= 1;
-        *(s32*)(obj + 0x4) = 1;
+        work->flags |= 1;
+        work->state = 1;
         break;
+    }
     case 1:
-        if (func_0046a750(*(void**)(obj + 0xC)) == 0) {
-            return 0;
+        if (func_0046a750((s16 *)work->sprite) == 0) {
+            break;
         }
-        *(s32*)(obj + 0x4) = 2;
+        work->state = 2;
         /* fallthrough */
-    case 2:
+    case 2: {
+        s32 i = 0;
         ready = 0;
-        for (i = 0; i < *(s16*)(obj + 0xA); i++) {
-            if (func_0046a750(*(void**)(obj + i * 0x28 + 0x2C)) != 0) {
-                *(s32*)(obj + i * 0x28 + 0x30) = 1;
+        for (; i < work->count; i++) {
+            if (func_0046a750((s16 *)work->rows[i].sprite) != 0) {
+                work->rows[i].ready = 1;
                 ready++;
             }
         }
-        if (ready == *(s16*)(obj + 0xA)) {
-            *(s32*)(obj + 0x4) = 3;
-            for (j = 0; j < *(s16*)(obj + 0xA); j++) {
-                p3[0] = (f32)565;
-                p3[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - j);
-                func_00362fd0(obj + j * 0x28 + 0x10, NULL, p3, 8);
+        if (ready == work->count) {
+            work->state = 3;
+            for (i = 0; i < work->count; i++) {
+                panelPosition(&startPosition, (f32)565, work->count, i);
+                func_00362fd0((u8 *)&work->rows[i].motion, NULL, &startPosition.x, 8);
             }
         }
         break;
-    case 3:
-        if ((*(u16*)(obj + 0x0) & 2) != 0) {
-            *(s32*)(obj + 0x4) = 6;
+    }
+    case 3: {
+        s32 i;
+        if (work->flags & 2) {
+            work->state = 6;
             break;
         }
-        for (i = 0; i < *(s16*)(obj + 0xA); i++) {
-            if (*(s16*)(obj + i * 0x28 + 0x28) < *(s16*)(obj + i * 0x28 + 0x2A)) {
+        for (i = 0; i < work->count; i++) {
+            if (work->rows[i].motion.frame < work->rows[i].motion.duration) {
                 return 0;
             }
         }
-        c = func_00353b50(tbl);
-        if (*(s16*)(obj + 0xA) != c) {
-            if (c < *(s16*)(obj + 0xA)) {
-                for (n = 0; n < 4 && *(s16*)(obj + n * 0x28 + 0x34) == tbl[n]; n++) {
+        count = func_00353b50(roster);
+        if (work->count != count) {
+            if (count < work->count) {
+                s32 changed;
+                for (changed = 0; changed < 4; changed++) {
+                    if (work->rows[changed].id != roster[changed]) {
+                        break;
+                    }
                 }
-                p = obj + n * 0x28;
-                p4[0] = 640.0f;
-                p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - n);
-                *(f32*)(p + 0x10) = *(f32*)(p + 0x20);
-                *(f32*)(p + 0x14) = *(f32*)(p + 0x24);
-                *(f32*)(p + 0x18) = p4[0];
-                *(f32*)(p + 0x1C) = p4[1];
-                *(f32*)(p + 0x20) = *(f32*)(p + 0x10);
-                *(f32*)(p + 0x24) = *(f32*)(p + 0x14);
-                *(s16*)(p + 0x28) = 0;
-                *(s16*)(p + 0x2A) = 8;
-                *(s16*)(obj + 0x8) = (s16)n;
-                *(s32*)(obj + 0x4) = 4;
+                panelPosition(&position, 640.0f, work->count, changed);
+                row = (PartyPanelRow *)(panelSlot(changed * sizeof(PartyPanelRow), (u8 *)work) + 0x10);
+                row->motion.start = row->motion.current;
+                row->motion.end = position;
+                row->motion.current = row->motion.start;
+                row->motion.frame = 0;
+                row->motion.duration = 8;
+                work->changed = changed;
+                work->state = 4;
             } else {
-                for (m = 0; m < 4 && *(s16*)(obj + m * 0x28 + 0x34) == tbl[m]; m++) {
+                s32 changed;
+                s32 j;
+                for (changed = 0; changed < 4; changed++) {
+                    if (work->rows[changed].id != roster[changed]) {
+                        break;
+                    }
                 }
-                k = *(s16*)(obj + 0xA);
-                while (m < k) {
-                    dst = obj + k * 0x28 + 0x10;
-                    src = obj + k * 0x28 - 0x18;
-                    d32 = (s32*)dst;
-                    s32p = (s32*)src;
-                    q = 5;
-                    do {
-                        s32 a = s32p[0];
-                        s32 b = s32p[1];
-                        s32p += 2;
-                        q--;
-                        d32[0] = a;
-                        d32[1] = b;
-                        d32 += 2;
-                    } while (q > 0);
-                    k--;
+                for (j = work->count; changed < j; j--) {
+                    work->rows[j] = work->rows[j - 1];
                 }
-                *(s16*)(obj + 0xA) += 1;
-                p4[0] = 640.0f;
-                p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - m);
-                id = tbl[m];
-                func_00362fd0(obj + m * 0x28 + 0x10, p4, p4, 0);
-                *(s16*)(obj + m * 0x28 + 0x34) = id;
-                *(s32*)(obj + m * 0x28 + 0x30) = 0;
+                work->count++;
+                panelPosition(&position, 640.0f, work->count, changed);
+                id = roster[changed];
+                func_00362fd0((u8 *)&work->rows[changed].motion, &position.x, &position.x, 0);
+                work->rows[changed].id = id;
+                work->rows[changed].ready = 0;
                 if (id != 0) {
-                    sprintf(b1, D_0064E2A0, (s64)id);
-                    h = func_0046aea0(b1);
-                    *(s32*)(obj + m * 0x28 + 0x2C) = h;
-                    if (h == 0) {
+                    sprintf(addedName, (const char *)D_0064E2A0, id);
+                    work->rows[changed].sprite = func_0046aea0(addedName);
+                    if (work->rows[changed].sprite == NULL) {
                         func_0046d730(D_0064E290, 0x166);
                     }
                 }
-                *(s32*)(obj + 0x4) = 2;
+                work->state = 2;
             }
         } else {
-            for (m = 0; m < c && *(s16*)(obj + m * 0x28 + 0x34) == tbl[m]; m++) {
+            s32 changed;
+            for (changed = 0; changed < count; changed++) {
+                if (work->rows[changed].id != roster[changed]) {
+                    break;
+                }
             }
-            if (m < c) {
-                p = obj + m * 0x28;
-                p4[0] = 640.0f;
-                p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - m);
-                *(f32*)(p + 0x10) = *(f32*)(p + 0x20);
-                *(f32*)(p + 0x14) = *(f32*)(p + 0x24);
-                *(f32*)(p + 0x18) = p4[0];
-                *(f32*)(p + 0x1C) = p4[1];
-                *(f32*)(p + 0x20) = *(f32*)(p + 0x10);
-                *(f32*)(p + 0x24) = *(f32*)(p + 0x14);
-                *(s16*)(p + 0x28) = 0;
-                *(s16*)(p + 0x2A) = 8;
-                *(s16*)(obj + 0x8) = (s16)m;
-                *(s32*)(obj + 0x4) = 5;
+            if (changed < count) {
+                panelPosition(&position, 640.0f, work->count, changed);
+                row = (PartyPanelRow *)(panelSlot(changed * sizeof(PartyPanelRow), (u8 *)work) + 0x10);
+                row->motion.start = row->motion.current;
+                row->motion.end = position;
+                row->motion.current = row->motion.start;
+                row->motion.frame = 0;
+                row->motion.duration = 8;
+                work->changed = changed;
+                work->state = 5;
             }
         }
         break;
+    }
     case 4: {
-        e = obj + *(s16*)(obj + 0x8) * 0x28;
-        if (*(s16*)(e + 0x2A) <= *(s16*)(e + 0x28)) {
-            d32 = (s32*)(e + 0x10);
-            w = wbuf;
-            q = 5;
-            do {
-                a = d32[0];
-                b = d32[1];
-                d32 += 2;
-                q--;
-                w[0] = a;
-                w[1] = b;
-                w += 2;
-            } while (q > 0);
-            *(s16*)(obj + 0xA) -= 1;
-            for (k = *(s16*)(obj + 0x8); k < *(s16*)(obj + 0xA); k++) {
-                dst = obj + k * 0x28 + 0x10;
-                src = obj + k * 0x28 + 0x38;
-                d32 = (s32*)dst;
-                s32p = (s32*)src;
-                q = 5;
-                do {
-                    s32 a = s32p[0];
-                    s32 b = s32p[1];
-                    s32p += 2;
-                    q--;
-                    d32[0] = a;
-                    d32[1] = b;
-                    d32 += 2;
-                } while (q > 0);
+        s32 j;
+        row = &work->rows[work->changed];
+        if (!(row->motion.frame < row->motion.duration)) {
+            removed = *row;
+            work->count--;
+            for (j = work->changed; j < work->count; j++) {
+                work->rows[j] = work->rows[j + 1];
             }
-            dst = obj + k * 0x28 + 0x10;
-            w2 = wbuf;
-            d32 = (s32*)dst;
-            q = 5;
-            do {
-                a = w2[0];
-                b = w2[1];
-                w2 += 2;
-                q--;
-                d32[0] = a;
-                d32[1] = b;
-                d32 += 2;
-            } while (q > 0);
-            *(s16*)(obj + k * 0x28 + 0x34) = 0;
-            *(s32*)(obj + k * 0x28 + 0x30) = 0;
-            if (*(s32*)(obj + k * 0x28 + 0x2C) != 0) {
-                func_0046b0d0(*(void**)(obj + k * 0x28 + 0x2C));
-                *(s32*)(obj + k * 0x28 + 0x2C) = 0;
+            work->rows[j] = removed;
+            work->rows[j].id = 0;
+            work->rows[j].ready = 0;
+            if (work->rows[j].sprite != NULL) {
+                func_0046b0d0(work->rows[j].sprite);
+                work->rows[j].sprite = NULL;
             }
-            p2[0] = *(f32*)(obj + k * 0x28 + 0x20);
-            p2[1] = *(f32*)(obj + k * 0x28 + 0x24);
-            func_00362fd0(obj + k * 0x28 + 0x10, p2, p2, 0);
-            for (i = 0; i < *(s16*)(obj + 0xA); i++) {
-                p1[0] = (f32)565;
-                p1[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - i);
-                func_00362fd0(obj + i * 0x28 + 0x10, NULL, p1, 8);
+            removedPosition = work->rows[j].motion.current;
+            func_00362fd0((u8 *)&work->rows[j].motion, &removedPosition.x, &removedPosition.x, 0);
+            {
+                s32 i;
+                for (i = 0; i < work->count; i++) {
+                    panelPosition(&shiftedPosition, (f32)565, work->count, i);
+                    func_00362fd0((u8 *)&work->rows[i].motion, NULL, &shiftedPosition.x, 8);
+                }
             }
-            *(s32*)(obj + 0x4) = 3;
+            work->state = 3;
         }
         break;
     }
     case 5: {
-        e = obj + *(s16*)(obj + 0x8) * 0x28;
-        if (*(s16*)(e + 0x2A) <= *(s16*)(e + 0x28)) {
-            (void)func_00353b50(tbl);
-            p = obj + *(s16*)(obj + 0x8) * 0x28;
-            *(s16*)(p + 0x34) = 0;
-            *(s32*)(p + 0x30) = 0;
-            if (*(s32*)(p + 0x2C) != 0) {
-                func_0046b0d0(*(void**)(p + 0x2C));
-                *(s32*)(p + 0x2C) = 0;
+        s32 changed;
+        row = &work->rows[work->changed];
+        if (!(row->motion.frame < row->motion.duration)) {
+            func_00353b50(roster);
+            row = &work->rows[work->changed];
+            row->id = 0;
+            row->ready = 0;
+            if (row->sprite != NULL) {
+                func_0046b0d0(row->sprite);
+                row->sprite = NULL;
             }
-            p0[0] = *(f32*)(p + 0x20);
-            p0[1] = *(f32*)(p + 0x24);
-            func_00362fd0(p + 0x10, p0, p0, 0);
-            n = *(s16*)(obj + 0x8);
-            p4[0] = 640.0f;
-            p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - n);
-            id = tbl[n];
-            func_00362fd0(obj + n * 0x28 + 0x10, p4, p4, 0);
-            *(s16*)(obj + n * 0x28 + 0x34) = id;
-            *(s32*)(obj + n * 0x28 + 0x30) = 0;
+            replacedPosition = row->motion.current;
+            func_00362fd0((u8 *)&row->motion, &replacedPosition.x, &replacedPosition.x, 0);
+            changed = work->changed;
+            panelPosition(&position, 640.0f, work->count, changed);
+            id = roster[changed];
+            row = &work->rows[changed];
+            func_00362fd0((u8 *)&row->motion, &position.x, &position.x, 0);
+            row->id = id;
+            row->ready = 0;
             if (id != 0) {
-                sprintf(b0, D_0064E2A0, (s64)id);
-                h = func_0046aea0(b0);
-                *(s32*)(obj + n * 0x28 + 0x2C) = h;
-                if (h == 0) {
+                sprintf(replacedName, (const char *)D_0064E2A0, id);
+                row->sprite = func_0046aea0(replacedName);
+                if (row->sprite == NULL) {
                     func_0046d730(D_0064E290, 0x166);
                 }
             }
-            *(s32*)(obj + 0x4) = 2;
+            work->state = 2;
         }
         break;
     }
     case 6:
         return -1;
-    default:
-        break;
     }
     return 0;
 }
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/cmpPartyPanel", func_00363610);
-#endif
 
 
 // FUN_003640F0
