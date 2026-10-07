@@ -3493,9 +3493,14 @@ void func_00324410(u8 *arg0, s16 arg1, s8 arg2) {
 
 
 /* Keep the heap recoloring chain and the twelve right-hand rows explicit.
-   The actual signed-byte mode contract is shared by all called providers. */
-// FUN_00324680 NONMATCHING
-#ifdef NON_MATCHING
+   The actual signed-byte mode contract is shared by all called providers.
+   The second label loop reuses the row counter `i` under opt_lifetimes, so
+   its split lifetime is numbered after its sign-extended copy, and `on`/`off`
+   are passed as (s32) conversions so they stay locals (docs/matching.md,
+   "Keep a load local alive"); together they give retail's $s1/$s2/$s3. */
+#pragma push
+#pragma opt_lifetimes on
+// FUN_00324680
 void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
     extern f32 D_006443D8[];
     FclByte4 c11C;
@@ -3509,7 +3514,6 @@ void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
     FclByte4 cFC;
     FclByte4 cF8;
     s16 a;
-    s16 k;
     s16 i;
     s32 m;
     s32 count;
@@ -3556,31 +3560,31 @@ void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
     {
         s32 off = (1 - (s8)arg2) * 0xFF;
         s32 on = (s8)arg2 * 0xFF;
-        func_002b6a70(0x71, on, off, 0, 0, 0);
+        func_002b6a70(0x71, (s32)on, (s32)off, 0, 0, 0);
         v = (FclVec2 *)D_006440F0;
         func_002b6c30(0x70, func_002b2970(v->x, v->y), 139.0f, 0x41);
         c10C = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
         *(FclByte4 *)(func_002b6150(0x70) + 0x85) = c10C;
-        func_002b6a70(0x70, on, off, 0, 0, 0);
-        for (k = 0; k < 2; k++) {
+        func_002b6a70(0x70, (s32)on, (s32)off, 0, 0, 0);
+        for (i = 0; i < 2; i++) {
             v = (FclVec2 *)D_00644290;
-            a = k + 0x2BB;
-            func_002b6c30(a, func_002b2970(v->x + (f32)(k * 0x139), v->y), 140.0f, 0x41);
+            a = i + 0x2BB;
+            func_002b6c30(a, func_002b2970(v->x + (f32)(i * 0x139), v->y), 140.0f, 0x41);
             c108 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
             *(FclByte4 *)(func_002b6150(a) + 0x85) = c108;
-            func_002b6a70(a, on, off, 0, 0, 0);
+            func_002b6a70(a, (s32)on, (s32)off, 0, 0, 0);
             v = (FclVec2 *)D_00644298;
-            a = k + 0x2BD;
-            func_002b6c30(a, func_002b2970(v->x + (f32)(k * 0x14A), v->y), 141.0f, 0x41);
+            a = i + 0x2BD;
+            func_002b6c30(a, func_002b2970(v->x + (f32)(i * 0x14A), v->y), 141.0f, 0x41);
             c104 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
             *(FclByte4 *)(func_002b6150(a) + 0x85) = c104;
-            func_002b6a70(a, on, off, 0, 0, 0);
+            func_002b6a70(a, (s32)on, (s32)off, 0, 0, 0);
             v = (FclVec2 *)D_00644350;
-            a = k + 0x2BF;
-            func_002b6c30(a, func_002b2970(v->x + (f32)(k * 0xE), v->y), 142.0f, 0x41);
+            a = i + 0x2BF;
+            func_002b6c30(a, func_002b2970(v->x + (f32)(i * 0xE), v->y), 142.0f, 0x41);
             c100 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
             *(FclByte4 *)(func_002b6150(a) + 0x85) = c100;
-            func_002b6a70(a, on, off, 0, 0, 0);
+            func_002b6a70(a, (s32)on, (s32)off, 0, 0, 0);
         }
     }
     {
@@ -3596,10 +3600,7 @@ void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
     cF8 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
     *(FclByte4 *)(func_002b6150(0xCD) + 0x85) = cF8;
 }
-
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324680);
-#endif
+#pragma pop
 
 // FUN_00324F80
 void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
