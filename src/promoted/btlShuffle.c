@@ -601,7 +601,14 @@ extern u8 *iGpffffb3d4;
  * pointer is read before scaling its index; the draw loop has a separate
  * counter and consumes an A entry before its lookup. The draw-count/cursor
  * spill and remaining register differences stay guarded. See
- * docs/probe_archive/BtlShuffle_worker8_20261005.md. */
+ * docs/probe_archive/BtlShuffle_worker8_20261005.md.
+ * 2026-10-07 capture: the first colouring attempt runs out of saved
+ * registers. Retail spills the u16 C cursor `cIdx` (sh/lhu at sp+0xE0);
+ * here `nDraw` (v52) spills. Replaying the captured stack, raising nDraw's
+ * spill score from 4 to 5 (one more weighted use or definition) makes cIdx
+ * the spilled value, while changing cIdx's own score or numbering does not.
+ * Measured and unchanged at 71: cIdx staging (`listC[cIdx]; cIdx++`, an s32
+ * index local, (s32) compare) and five spellings of the nDraw minimum. */
 // FUN_0036EE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
