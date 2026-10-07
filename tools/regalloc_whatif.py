@@ -146,7 +146,7 @@ def main() -> None:
     print("model reproduces captured stack:", reproduced)
     if args.search:
         moves = [int(x) for x in args.search.split(",")]
-        anchors = [int(x) for x in args.anchors.split(",")]
+        anchors = [a for a in (int(x) for x in args.anchors.split(",")) if a in model.index]
         target = dict(pairs(args.target, ":", int))
         for combo in itertools.product(anchors, repeat=len(moves)):
             got = model.run(ats=[(m, a + 0.5) for m, a in zip(moves, combo)])
