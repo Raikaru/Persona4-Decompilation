@@ -142,12 +142,10 @@ committed:
 ```
 python docs/probe_archive/battle_camera_sequence_exact_20261005/validate_production.py <private-output-dir>
 python tools/verify.py src/Battle/btlMain.c src/Battle/btlFormation.c src/promoted/code1_001a.c src/promoted/code1_001b.c src/promoted/code1_001e.c
-python -m unittest discover -s tests -p test_battle_camera_sequence_contract.py
-python -m unittest discover -s tests -p test_packet_prerequisite_contracts.py
-python -m unittest discover -s tests -p test_battle_color_packet_contract.py
 ```
 
-Native tests require the repository's 32-bit compiler/runner support. Scoped lint
+The native contract tests used during this recovery were removed on
+2026-10-06; the verifier and full link are the current gates. Scoped lint
 has zero errors and 110 inherited owner warnings; none is in the changed target.
 Licensed compiler/ELF inputs, objects, executables and full instruction listings
 remain private.
