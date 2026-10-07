@@ -663,14 +663,14 @@ below are the codegen consequences.
     `(s32)shown, (s32)hidden` at all six calls gives retail's `$s4/$s3/$s1`.
     Either change alone stays at 22–29. `(u8)` conversions emit `andi` and
     do not create the copy.
-  - Measured in isolation (`tools/b210_micro.py`): the copy is not made when
-    the first conversion sits in the assignment's own block, when the two
   - `func_002e5ae0` (MATCH, 49 → 0): `slotp` declared after `level` and read
     as `*(u8 **)(u32)slotp` twice in the first membership search. The
     expanded scan also reuses the first scan's counter under
     `opt_lifetimes` (the `func_001b11c0` lever). The conversion alone gives 13.
   - `func_002239a0` (57 → 2): `r`/`base` declared after the loop counter,
     with the first two opening-state stores written `(u32)r + offset`.
+  - Measured in isolation (`tools/b210_micro.py`): the copy is not made when
+    the first conversion sits in the assignment's own block, when the two
     occurrences are in different loops separated by calls, or under
     `opt_common_subs off`. Matched code that already relies on it:
     `func_00314450` (`u32 t` read as `(u32)t + K` after an inlined zero
