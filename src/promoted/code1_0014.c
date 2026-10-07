@@ -3287,7 +3287,14 @@ s32 func_00148140(const void *left, const void *right) {
 /* Recovered render passes preserve callback-time resource reloads and
    complete position-vector copies. The guarded body remains 5016/5024
    bytes with a 21-word sort-loop allocation residual. See
-   docs/probe_archive/RenderQueue_00148280_worker1_20261005.md. */
+   docs/probe_archive/RenderQueue_00148280_worker1_20261005.md.
+   2026-10-06 colouring model (replaying the captured stack): both tail
+   k-loops reach retail's registers only when `j` is numbered after `k` and
+   the hoisted `&arrB[k]` address is numbered either below `k` (a surviving
+   local) or after every codegen temporary (a late backend temporary).
+   Declaring `k` before `j` alone gives 32. An `u8 **slot` local is folded
+   (32). Integer or byte-pointer spellings of some or all `arrB[k]` reads
+   give 32 to 48. */
 // FUN_00148280 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00148280(u8 *unusedTask) {
