@@ -3285,26 +3285,24 @@ s32 func_00148140(const void *left, const void *right) {
 /* measured: closes opt_propagation off for func_00148140. */
 #pragma opt_propagation on
 /* Recovered render passes preserve callback-time resource reloads and
-   complete position-vector copies. The guarded body remains 5016/5024
-   bytes with a 21-word sort-loop allocation residual. See
-   docs/probe_archive/RenderQueue_00148280_worker1_20261005.md.
-   2026-10-06 colouring model (replaying the captured stack): both tail
-   k-loops reach retail's registers only when `j` is numbered after `k` and
-   the hoisted `&arrB[k]` address is numbered either below `k` (a surviving
-   local) or after every codegen temporary (a late backend temporary).
-   Declaring `k` before `j` alone gives 32. An `u8 **slot` local is folded
-   (32). Integer or byte-pointer spellings of some or all `arrB[k]` reads
-   give 32 to 48. */
-// FUN_00148280 NONMATCHING
-#ifdef NON_MATCHING
+   complete position-vector copies. The two tail k-loops share
+   function-scope `k`/`j` (declared k first) under `opt_lifetimes on`, so
+   IRO_SplitLifetimes numbers each loop's counters after the hoisted
+   `&arrB[k]` temporaries. The first tail loop walks its attachments through
+   `cur = (u8 *)ent`; that copy keeps `ent = &arrB[k]` a declared local, which
+   is retail's $s4. See docs/probe_archive/RenderQueue_00148280_worker1_20261005.md. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
+// FUN_00148280
 s32 func_00148280(u8 *unusedTask) {
     /* Retail returns zero at 001495E8, 00148318. */
     extern void func_00152930(u8 *arg0, u8 *arg1);
     extern void func_00152bb0(u8 *arg0, u8 *arg1);
     extern void func_00152cd0(u8 *arg0, u8 *arg1);
     extern void func_004b1210(void *arg0, void *arg1);
-    extern s32 func_00462df0(s32 arg0);
-    extern s32 func_00462e80(s32 arg0);
+    extern s32 func_00462df0(u8 *arg0);
+    extern u32 func_00462e80(const u32 *state);
     extern void func_00479100(void *queue, u8 *model);
     extern void *mdlGetColor(void *model);
     extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
@@ -3336,6 +3334,7 @@ s32 func_00148280(u8 *unusedTask) {
     extern u8 D_007D22A0[];
     extern u8 D_007D2350[];
     extern u8 D_007D2400[];
+    u8 **ent;
     u8 *arrA[64];
     u8 *arrB[64];
     RwV3d pos;
@@ -3354,6 +3353,9 @@ s32 func_00148280(u8 *unusedTask) {
     u8 *ex;
     s32 t;
     s32 i;
+    s32 k;
+    s32 j;
+    u8 *cur;
 
     l12 = func_001452b0(0xC);
     l10 = func_001452b0(0xA);
@@ -3414,7 +3416,7 @@ s32 func_00148280(u8 *unusedTask) {
                 func_00479100(D_007942D0, *(u8 **)(l10 + 0x144));
             } else if (t & 0x01000000) {
                 func_00479100(D_007947E0, *(u8 **)(l10 + 0x144));
-            } else if (func_00462e80(*(s32 *)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
+            } else if (func_00462e80(*(const u32 **)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
                 if (flag != 0) {
                     func_00479100(D_00793F10, *(u8 **)(l10 + 0x144));
                 } else {
@@ -3424,7 +3426,7 @@ s32 func_00148280(u8 *unusedTask) {
                 if (ex != NULL && (*(s32 *)(l10 + 0x28) & 0x20000000)) {
                     func_00479100(D_00794300, ex);
                 }
-            } else if (func_00462df0(*(s32 *)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
+            } else if (func_00462df0(*(u8 **)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
                 if (flag != 0) {
                     func_00479100(D_00793F40, *(u8 **)(l10 + 0x144));
                 } else {
@@ -3683,31 +3685,27 @@ s32 func_00148280(u8 *unusedTask) {
         func_00460ac0(D_007945D0, tmp);
     }
     {
-        s32 j;
-        s32 k;
-
         for (k = n2 - 1; k >= 0; k--) {
-            s32 flags = *(s32 *)(arrB[k] + 0x28);
+            s32 flags;
 
+            ent = &arrB[k];
+            flags = *(s32 *)(*ent + 0x28);
             if ((flags & 0x10000000) && (flags & 2) && !(flags & 0x80000000)) {
-                func_00479100(D_007945D0, *(u8 **)(arrB[k] + 0x164));
+                func_00479100(D_007945D0, *(u8 **)(*ent + 0x164));
+                cur = (u8 *)ent;
                 for (j = 0; j < 2; j++) {
-                    u8 *attachmentOwner = arrB[k];
+                    u8 *attachmentOwner = *(u8 **)cur;
                     if (*(s32 *)(attachmentOwner + j * 4 + 0x140) != 0) {
                         if (func_0047a6d0(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
-                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(arrB[k] + 0x164)) + 0x30);
+                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(*(u8 **)cur + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
-                        func_004b1250(*(void **)(arrB[k] + j * 4 + 0x140), (f32 *)&pos);
+                        func_004b1250(*(void **)(*(u8 **)cur + j * 4 + 0x140), (f32 *)&pos);
                     }
                 }
             }
         }
-    }
-    {
-        s32 j;
-        s32 k;
-
+    }    {
         for (k = n2 - 1; k >= 0; k--) {
             s32 flags = *(s32 *)(arrB[k] + 0x28);
 
@@ -3744,9 +3742,7 @@ s32 func_00148280(u8 *unusedTask) {
     func_00460ac0(D_007945A0, tmp);
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00148280);
-#endif
+#pragma pop
 /* The incoming parent is forwarded to the task allocator, which attaches
    the new task when it is non-null. The constructor remains 96/96 bytes. */
 // FUN_00149620
