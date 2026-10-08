@@ -2593,11 +2593,15 @@ s32 func_002833b0(s32 arg0)
    2026-10-07: 485 differing words (was 594). Retail inlines func_002833b0 as
    msgCalendarResource, copies the 24-byte argument block by value, switches on
    kind 4/5/6 in that source order, and builds the appearance delays from a
-   {3,3,3,3,3,3} initializer. The instruction count now matches. Open: saved-
-   register colouring across the case bodies, and case 5's colour slots
-   (retail 0x12C/0x134). */
+   {3,3,3,3,3,3} initializer. The instruction count now matches. With
+   opt_lifetimes on (2026-10-08) fnalign drops from 485 to 82 edits. Open:
+   saved-register colouring of three load temporaries (r116/r146/r173 in the
+   capture; no declaration order reaches more than 31 of 36 targets), and
+   case 5's colour slots (retail 0x12C/0x134). */
 // FUN_00283490 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 static inline u8 *msgCalendarResource(s32 index)
 {
     MsgProcWindowWork *work = &D_00882098;
@@ -2905,6 +2909,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
         break;
     }
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00283490);
 #endif

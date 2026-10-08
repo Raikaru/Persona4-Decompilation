@@ -3464,9 +3464,12 @@ loop_0048cd60_check:
  * Keeping the angle global live across the loop recovers the retail
  * 0x180 frame and nine saved FPRs. Both preroll and live transforms are
  * conditional on the clear flag; Y translation is applied only once.
- * Instruction differences remain; production retains ASM. */
+ * Instruction differences remain; production retains ASM.
+   2026-10-08: opt_lifetimes on lowers fnalign from 204 to 189 edits. */
 // FUN_0048CDF0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 #pragma push
 #pragma opt_loop_invariants on
 void func_0048cdf0(u8 *arg0)
@@ -3756,6 +3759,7 @@ main_check:
         goto main_body;
     }
 }
+#pragma pop
 #pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048cdf0);

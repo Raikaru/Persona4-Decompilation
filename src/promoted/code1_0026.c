@@ -202,9 +202,12 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * a
    unsaved $a2 prologue come out (fnalign 326 -> 243 with the y-size
    conversions written inline). Open: in case 0 the loop-invariant pass still
    hoists the (s16)(int) conversion and spills it, while retail converts its
-   precomputed float inside the loop. */
+   precomputed float inside the loop.
+   2026-10-08: opt_lifetimes on lowers fnalign from 243 to 206 edits. */
 // FUN_00260600 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 #pragma opt_loop_invariants on
 void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6)
 {
@@ -349,6 +352,7 @@ void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, 
     }
 }
 #pragma opt_loop_invariants off
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260600);
 #endif
@@ -1359,9 +1363,12 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
    $s1); both fade rectangles are {x,y,w,h} structs copied into the 16-byte
    argument; the fade alphas are converted to int when computed; and the case-3
    sine argument is fGpffff84a4 * ((f32)n / 5.0f). Open: saved-register
-   colouring. */
+   colouring.
+   2026-10-08: opt_lifetimes on lowers fnalign from 102 to 85 edits. */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 void func_00263cb0(s32 arg0, u8 *arg1)
 {
     typedef signed __int128 s128;
@@ -1658,6 +1665,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
         break;
     }
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263cb0);
 #endif

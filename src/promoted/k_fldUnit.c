@@ -261,9 +261,13 @@ s32 func_00162c30(void)
    order for retail's frame, the reused loop value in the D_005F1350 scan, and
    the chained spA0 assignment. Open: retail recomputes D_007EF9B0 + i * 0x750
    in every block. IRO_CommonSubs merges every spelling of that product, and
-   opt_common_subs off costs more elsewhere (315). */
+   opt_common_subs off costs more elsewhere (315).
+   2026-10-08: opt_dead_assignments off and opt_lifetimes on lowers fnalign from 180 to 173 edits. */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_dead_assignments off
+#pragma opt_lifetimes on
 void func_00162e10(void)
 {
     typedef struct {
@@ -509,6 +513,7 @@ void func_00162e10(void)
     }
     func_003e0f40(mtx);
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00162e10);
 #endif
