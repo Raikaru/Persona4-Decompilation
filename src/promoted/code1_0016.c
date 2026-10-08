@@ -363,9 +363,12 @@ void func_001607e0(void)
    which that sweep could not see.  Across the 40 floors with the most constant-bound
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
-   them all. */
+   them all.
+   2026-10-08: opt_lifetimes on lowers fnalign from 506 to 502 edits. */
 // FUN_00160880 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 void func_00160880(void)
 {
     s32 cur;
@@ -603,6 +606,7 @@ void func_00160880(void)
         i++;
     } while (i < 7);
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00160880);
 #endif
