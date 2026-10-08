@@ -25,14 +25,30 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 9 continuation: 6,818 MATCH / 43 ASM
+## October 9 continuation: 6,819 MATCH / 42 ASM
 
-`build/after20.json` reports 6,818 first-party MATCH and 43 ASM. Against
-`after18.json`, only `004aed70` (`after19.json`) and `00282250` changed.
-After each of them the full link kept 604 C and 54 SDK objects, and both
-retail hashes passed. `00282250` needed `iGpffff81d8 = 0x007612c8` in
-`config/symbols_recovered.txt`.
+`build/after21.json` reports 6,819 first-party MATCH and 42 ASM. Against
+`after18.json`, only `004aed70` (`after19.json`), `00282250` (`after20.json`)
+and `0027d970` changed. After each of them the full link kept 604 C and 54
+SDK objects, and both retail hashes passed. These symbols were added to
+`config/symbols_recovered.txt`:
+- `iGpffff81d8 = 0x007612c8` (for `00282250`);
+- `iGpffff81e8 = 0x007612d8` and `iGpffff81ec = 0x007612dc` (for
+  `0027d970`).
 
+- `0027d970`: 510 → 0 by checking the guarded body against retail, not only
+  its edit count. The body had wrong data:
+  - case 8's cursor coordinates (100/425 instead of 57/338);
+  - the label x positions in cases 12 and 13 (472/580 instead of 23/407);
+  - the cleared entry fields (0x10/0x14 instead of 0x8/0xC).
+
+  It also differed from retail in structure:
+  - case 8 must precede case 7;
+  - the point tables are struct copies, not hand-written copy loops;
+  - the free-entry search and the readiness test are inline helpers;
+  - call results tested at once are assigned inside the `if` condition.
+- `003599c0` (guarded) 598 → 498 and `0027f6f0` 331 → 301: rewrites without
+  m2c temporaries, plus multi-definition locals.
 - `00282250`: values retail computes early are locals with a second
   definition, because b210 propagates single-definition locals into their use
   (see [matching.md](matching.md)). Case 11's declaration order gives
