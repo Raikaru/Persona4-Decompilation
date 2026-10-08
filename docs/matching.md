@@ -768,6 +768,25 @@ below are the codegen consequences.
   When retail computes a value early, into a register, and ours computes it
   inside the argument list or at its use, look for a single-definition local.
 
+  **Audit an old guarded body against the retail asm before tuning it
+  (`func_0027d970`, MATCH 2026-10-09; 510 → 0 edits).** The guarded body had
+  been climbed on pragmas and colouring, but it still contained wrong data:
+  case 8's cursor coordinates (100/425 instead of 57/338), the label x
+  positions in two cases (472/580 instead of 23/407), and stores to the wrong
+  entry fields. Compare every `lui` immediate in retail with the candidate's
+  constants: a constant that appears on only one side is a bug, not a colouring
+  floor. The source shapes that closed it:
+  - a hand-written 8-byte copy loop (`lo`/`hi`/`count`) is a struct
+    assignment of the whole table;
+  - a search loop that `goto`s out, and retail's materialised `1`/`0` flag
+    tested with `beqz`, come from small `static inline` helpers
+    (`msgWinFreeEntry`, `msgWinReady`);
+  - when retail tests a call result in `$v0` before copying it to a saved
+    register, the assignment is inside the `if` condition
+    (`if ((t = f()) != 0)`);
+  - `x = conv + product` with the conversion as the first `add.s` operand
+    needs the product in a separately named local.
+
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written
   inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot
