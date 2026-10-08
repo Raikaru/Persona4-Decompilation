@@ -199,9 +199,10 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * a
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 /* 2026-10-07: with func_0025f430's colour parameter declared u32, each call
    converts arg2, and retail's per-case $fp/$s7 colour copies and the
-   unsaved $a2 prologue come out (fnalign 326 -> 261). Open: the loop-
-   invariant pass hoists the (s16)(int) conversion of halfFiveThird and spills
-   it, while retail converts it inside each loop. */
+   unsaved $a2 prologue come out (fnalign 326 -> 243 with the y-size
+   conversions written inline). Open: in case 0 the loop-invariant pass still
+   hoists the (s16)(int) conversion and spills it, while retail converts its
+   precomputed float inside the loop. */
 // FUN_00260600 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -286,7 +287,7 @@ void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, 
             fx = (cosS + entry0 + 47.0f) * fparg1 + (float)biasA;
             fy = (sinS + entry1 + 52.0f) * fparg2 + (float)biasB;
             sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
-            sy = (s16)(int)halfFiveThird;
+            sy = (s16)(int)(0.5f * (5.0f * fparg2));
             fmid = entry2 - 180.0f;
             fhalf = 0.5f * fparg1 * entry3;
             func_0025f430(fx, fy, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fmid, fhalf, halfThird);
@@ -311,7 +312,7 @@ void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, 
             fx = (cosS + entry0 + 57.0f) * fparg1 + (float)biasA;
             fy = (sinS + entry1 + 48.0f) * fparg2 + (float)biasB;
             sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
-            sy = (s16)(int)gpFiveThird;
+            sy = (s16)(int)(fGpffff811c * fparg2 * 5.0f);
             fmid = entry2 - 180.0f;
             fhalf = 0.5f * fparg1 * entry3;
             func_0025f430(fx, fy, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fmid, fhalf, gpThird);
@@ -337,7 +338,7 @@ void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, 
             fx = (cosS + entry0 + 57.0f) * fparg1 + (float)biasA;
             fy = (sinS + entry1 + 48.0f) * fparg2 + (float)biasB;
             sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
-            sy = (s16)(int)gpFiveThird;
+            sy = (s16)(int)(fGpffff811c * fparg2 * 5.0f);
             fmid = entry2 - 180.0f;
             fhalf = 0.5f * fparg1 * entry3;
             func_0025f430(fx, fy, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fmid, fhalf, gpThird);
