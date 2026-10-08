@@ -63,19 +63,22 @@ extern void func_003c2a80(void* a);
 extern void func_004bccf0(void* a, void* b);
 extern void func_003c22f0(void* a);
 
-/* Guarded rewrite from retail asm, 2026-10-07: 55 differing words (was 552).
+/* Guarded rewrite from retail asm, 2026-10-07: 27 differing words (was 552).
  * Loop bodies are retail-shaped switches on the kind and on the u16 flags;
  * the cTmp2 store indexes with (u32)i1, which stops the i1*4 CSE retail
- * does not do. Open: GPR colouring. Retail keeps the cursor (the parameter)
- * in $s0 and gives the third loop i2/i2*4/slot $s4/$s3/$s2; the regalloc
- * model reaches that only with the parameter numbered after the counters,
- * which source cannot do. Also open: the memcpy size load is scheduled
- * before the other two arguments. */
+ * does not do. The parameter is `void *`: `p = arg0` is then a conversion,
+ * so the cursor stays a late declared local and the header copy survives
+ * (retail's move/move/addiu prologue). The second and third loops share
+ * `i1` under opt_lifetimes on; the split copy gives i2 retail's $s4.
+ * Open: in the size/offset loop retail colours `base` as if numbered after
+ * the loop's temporaries ($v0; the regalloc model needs it past r250), and
+ * the memcpy size load is scheduled before the other two arguments. */
 // FUN_004B6030 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_loop_invariants on
-u8 *func_004b6030(u8 *arg0)
+#pragma opt_lifetimes on
+u8 *func_004b6030(void *arg0)
 {
     extern void memcpy(void *dst, void *src, u32 size);
     u8 *aTmp[16];
@@ -83,69 +86,70 @@ u8 *func_004b6030(u8 *arg0)
     u8 *cTmp2[16];
     u8 *bTmp1[16];
     u8 *bTmp2[16];
-    u8 *header;
     u8 *node;
-    s32 i0;
-    s32 i1;
-    s32 i2;
     s32 i3;
+    s32 i0;
     s32 i4;
-    s32 i5;
-    s32 i6;
-    s32 i7;
-    s32 size;
+    s32 i1;
     u8 *base;
+    u8 *header;
+    s32 i6;
+    s32 i5;
+    s32 size;
+    s32 i7;
+    u8 *p;
 
-    header = arg0;
-    arg0 += 0x10;
+    p = arg0;
+    header = p;
+    p += 0x10;
     for (i0 = 0; i0 < *(u16 *)(header + 0xA); i0++) {
-        aTmp[i0] = arg0;
-        arg0 += 0x38;
+        aTmp[i0] = p;
+        p += 0x38;
     }
     for (i1 = 0; i1 < *(u16 *)(header + 0xC); i1++) {
         u8 *cur;
 
-        cTmp1[i1] = arg0;
-        arg0 += 8;
+        cTmp1[i1] = p;
+        p += 8;
         cur = cTmp1[i1];
         switch (*(u16 *)(cur + 4)) {
         case 0:
-            arg0 += 4;
+            p += 4;
             break;
         default:
             func_0046d730(D_007146B0, 0x1AE);
             break;
         }
-        cTmp2[(u32)i1] = arg0;
+        cTmp2[(u32)i1] = p;
         switch (*(u16 *)(cur + 6)) {
         case 0:
-            arg0 += 0x10;
+            p += 0x10;
             break;
         default:
             func_0046d730(D_007146B0, 0x1BA);
             break;
         }
     }
-    for (i2 = 0; i2 < *(u16 *)(header + 8); i2++) {
-        bTmp1[i2] = arg0;
+    for (i1 = 0; i1 < *(u16 *)(header + 8); i1++) {
+        bTmp1[i1] = p;
         switch (*(s32 *)header) {
         case 0x64:
-            arg0 += 0x18;
+            p += 0x18;
             break;
         case 0x65:
-            arg0 += 0x20;
+            p += 0x20;
             break;
         default:
             func_0046d730(D_007146B0, 0x1C8);
             break;
         }
-        bTmp2[i2] = arg0;
+        bTmp2[i1] = p;
         switch (*(s32 *)header) {
         case 0x64:
-            arg0 += *(s32 *)(bTmp1[i2] + 0x14);
+            p += *(s32 *)(bTmp1[i1] + 0x14);
             break;
         case 0x65:
-            arg0 += *(s32 *)(bTmp1[i2] + 0x1C);
+            p += *(s32 *)(bTmp1[i1] + 0x1C);
             break;
         }
     }
