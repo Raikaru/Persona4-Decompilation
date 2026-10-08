@@ -325,9 +325,16 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 /* Recovered camp drawing uses complete position/color/vertex objects and
    the retail sprite, palette and opacity lifetimes. The native guarded
    body remains nonmatching; see the full owner proof and residuals in
-   docs/probe_archive/CampDisplay_001400f0_worker13_resume_20261005.md. */
+   docs/probe_archive/CampDisplay_001400f0_worker13_resume_20261005.md.
+   2026-10-07: `opt_loop_invariants on` hoists the radar fill loop's table
+   address and constants as retail does (85 -> 77 edits). It also hoists the
+   `(u8)radarOpacity` conversion out of the edge loop (IRO_MoveInvariant-
+   Expressions), which retail converts in the loop and again for
+   func_001427c0. */
 // FUN_001400F0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
     Float2_0014 xy;
@@ -671,6 +678,8 @@ void func_001400f0(u8 *work)
         func_0034f9d0(position.xy, 0.0f, alpha, *(s16 *)(work + 0x38), *(s32 *)(work + 0x1874));
     }
 }
+
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001400f0);
 #endif
