@@ -25,17 +25,29 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 9 continuation: 6,819 MATCH / 42 ASM
+## October 9 continuation: 6,820 MATCH / 41 ASM
 
-`build/after21.json` reports 6,819 first-party MATCH and 42 ASM. Against
-`after18.json`, only `004aed70` (`after19.json`), `00282250` (`after20.json`)
-and `0027d970` changed. After each of them the full link kept 604 C and 54
-SDK objects, and both retail hashes passed. These symbols were added to
+`build/after22.json` reports 6,820 first-party MATCH and 41 ASM. Against
+`after18.json`, only these changed: `004aed70` (`after19.json`), `00282250`
+(`after20.json`), `0027d970` (`after21.json`) and `00260600`. After each
+match the full link kept 604 C and 54 SDK objects, and both retail hashes
+passed. These symbols were added to
 `config/symbols_recovered.txt`:
 - `iGpffff81d8 = 0x007612c8` (for `00282250`);
 - `iGpffff81e8 = 0x007612d8` and `iGpffff81ec = 0x007612dc` (for
   `0027d970`).
 
+- `00260600`: 206 → 0. The changes:
+  - the 0xC0-byte point tables are struct copies into two `[12][4]` tables;
+  - each loop sets `i = 0` before its scale products;
+  - the per-iteration y size is `(s16)halfFiveThird`; an `(s16)(int)`
+    conversion gets hoisted out of the loop;
+  - the closing call's positions are computed before its `D_007612C4`
+    products;
+  - a declaration climb settled the FPR colours.
+- Guarded improvements:
+  - `00183b80` 879 → 826: switch dispatch, `fabsf` clamps;
+  - `00471370` 856 → 841: retail's angle-limit tests.
 - `0027d970`: 510 → 0 by checking the guarded body against retail, not only
   its edit count. The body had wrong data:
   - case 8's cursor coordinates (100/425 instead of 57/338);
