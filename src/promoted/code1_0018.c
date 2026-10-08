@@ -1976,6 +1976,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
 }
 /* measured 0018a200 (owner, romwright R1 + doubles-to-float + float-read fix): fndiff obj 6452B vs window 6352B (+100B); fnalign retail 1588 vs object 1613 (+25, +1.6%, band 1540-1636, inside); edits 1113; GUARDED_SCORE 1404. Frame retail -0x1C0 vs object -0xC0 (-256B). `#pragma opt_common_subs off` scoped to this function and closed after it (CSE off, +73 over v4a base 1540 vs 1587). Residual is 3 fptodp helpers, cvt/mtc1 vs direct loads, and saved-reg colour. Same file idioms as 00183b80 noted (u8* ctx at +0x38 for next step; current uint* preserves count).
    2026-10-08: opt_lifetimes on lowers fnalign from 1063 to 1007 edits. */
+/* 2026-10-09: corrected two Ghidra artefacts against retail: the five puVar1[6]/[7] stores are float stores (retail swc1, no float-to-unsigned conversion), and func_0014bff0/func_0014c4c0 take their 120.0f/500.0f first argument in $f12. fnalign 1007 -> 969; the frame is still 0xF0 smaller than retail's 0x1C0, so retail has stack locals this body lacks. */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1992,8 +1993,8 @@ extern float fGpffff8420; /* 0xffff8420 */
 
 extern long FUN_00106330(int);
 extern int FUN_001452b0(unsigned long long);
-extern long FUN_0014bff0(unsigned int, unsigned long long, int);
-extern long FUN_0014c4c0(unsigned int, int, int);
+extern long FUN_0014bff0(float, unsigned long long, int);
+extern long FUN_0014c4c0(float, int, int);
 extern int FUN_00155280(void);
 extern int FUN_002467b0(unsigned int);
 extern int FUN_003b7060(void);
@@ -2175,7 +2176,7 @@ s32 func_0018a200(u8 *param_1)
         (DAT_007ef9f8 != 0 && DAT_007efa04 != 0)))) {
       temp_v8 = FUN_0047a2f0(DAT_007efa00);
       temp_v4 = FUN_0047a2f0(temp_v4);
-      temp_v9 = FUN_0014bff0(0x42f00000,temp_v8,temp_v4 + 0x30);
+      temp_v9 = FUN_0014bff0(120.0f,temp_v8,temp_v4 + 0x30);
       if (temp_v9 == 1) {
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v13 = *(float *)(temp_v4 + 0x30);
@@ -2413,8 +2414,8 @@ s32 func_0018a200(u8 *param_1)
       temp_v13 = FUN_003e4180(&fStack_b0);
       temp_v13 = (1.0f / (float)(int)(*(unsigned short *)(puVar1[3] + 0x298) - 1)) *
                (*(float *)(puVar1[3] + 0x35c) / temp_v13);
-      puVar1[7] = (unsigned int)temp_v13;
-      puVar1[6] = (unsigned int)(((float*)puVar1)[6] + temp_v13);
+      ((float*)puVar1)[7] = temp_v13;
+      ((float*)puVar1)[6] = (((float*)puVar1)[6] + temp_v13);
       func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
       FUN_003bb5b0(puVar1[6],*(unsigned int *)(puVar1[3] + 0x360),10,&fStack_d0,0);
       temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
@@ -2471,7 +2472,7 @@ s32 func_0018a200(u8 *param_1)
     if (DAT_007ef9f8 != 0 && DAT_007efa04 != 0) {
       temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
       temp_v7 = FUN_0047a2f0(DAT_007efa00);
-      temp_v9 = FUN_0014c4c0(0x43fa0000,temp_v4 + 0x30,temp_v7 + 0x30);
+      temp_v9 = FUN_0014c4c0(500.0f,temp_v4 + 0x30,temp_v7 + 0x30);
       if (temp_v9 == 1) {
         pvVar11 = (void *)FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v4 = FUN_0047a2f0(DAT_007efa00);
@@ -2540,10 +2541,10 @@ s32 func_0018a200(u8 *param_1)
             FUN_003e0870(temp_v13,puVar1[5],0x756510,2);
             FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
             FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&fStack_120);
-            puVar1[6] = (unsigned int)(((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6] + 0.0f);
+            ((float*)puVar1)[6] = (((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6] + 0.0f);
             if (0.0f < ((float*)puVar1)[8]) {
               if (1.0f < ((float*)puVar1)[6]) {
-                puVar1[6] = (unsigned int)(1.0f - ((float*)puVar1)[7]);
+                ((float*)puVar1)[6] = (1.0f - ((float*)puVar1)[7]);
                 puVar1[8] = 0xbf800000;
                 puVar1[9] = 0x5a;
                 temp_v4 = FUN_003b7060();
@@ -2606,7 +2607,7 @@ s32 func_0018a200(u8 *param_1)
         if ((*(short *)(puVar1[3] + 0x220) != 4) || (((float*)puVar1)[6] < 1.0f)) {
           FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
           FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&fStack_f0);
-          puVar1[6] = (unsigned int)(((float*)puVar1)[6] + ((float*)puVar1)[7]);
+          ((float*)puVar1)[6] = (((float*)puVar1)[6] + ((float*)puVar1)[7]);
         }
         if (*(short *)(puVar1[3] + 0x220) == 4) {
           if (1.0f < ((float*)puVar1)[6]) {
