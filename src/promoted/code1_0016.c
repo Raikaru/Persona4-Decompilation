@@ -365,6 +365,7 @@ void func_001607e0(void)
    was ever the right one, so each loop is measured separately rather than converting
    them all.
    2026-10-08: opt_lifetimes on lowers fnalign from 506 to 502 edits. */
+/* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 502 to 401 edits. */
 // FUN_00160880 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -379,7 +380,6 @@ void func_00160880(void)
     s32 curOff;
     s32 prevOff;
     s32 i;
-    s32 j;
     s32 k;
     u8 *base;
     u8 *p;
@@ -389,7 +389,6 @@ void func_00160880(void)
     s32 w3;
     s32 r0;
     s32 g0;
-    s32 b0;
     s32 r1;
     s32 g1;
     s32 b1;
@@ -397,9 +396,8 @@ void func_00160880(void)
     s32 g2;
     s32 b2;
     s32 r3;
-    s32 g3;
-    s32 b3;
     s32 a0;
+    s32 b3;
     s32 a1;
     s32 a2;
     s32 a3;
@@ -408,6 +406,8 @@ void func_00160880(void)
     s32 sb0;
     s32 sr1;
     s32 sg1;
+    s32 j;
+    s32 g3;
     s32 sb1;
     s32 sr2;
     s32 sg2;
@@ -418,6 +418,7 @@ void func_00160880(void)
     s32 sa0;
     s32 sa1;
     s32 sa2;
+    s32 b0;
     s32 sa3;
     s32 bright;
     s32 alpha;

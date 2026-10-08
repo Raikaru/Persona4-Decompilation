@@ -3796,9 +3796,51 @@ void func_0019c010(u8 *arg0)
    `cvt` + spills vs `jal`), and matching retail's counted spill/order/`madd` needs +70-110
    (outside). Leave the banked compact floor; the spilled 1,2,3,0 structure is the documented
    outside-band fix (header v5). No code change. */
+/* 2026-10-09: guarded body rewritten from the retail asm, 1021 -> 222 fnalign
+   edits. The quaternion goes into an RwMatrix-shaped local (flags 3, zero pos);
+   the colour is copied from entry+0x30 and modulated three times by an inline
+   helper in retail's g, b, a, r order with u32 conversions; the alpha-step,
+   0xE8 render-mode and palette tails follow retail's block order. Retail
+   reloads the 1/255 global for every factor, which only opt_common_subs off
+   reproduces here, but it also shares the 2.0/1.0/0.0 and 255/0.5 constants
+   and reuses the `2` argument, which needs CSE on. No pragma, alias spelling
+   or helper shape tried so far does both. On the `i == 2 && alpha < 0xFE`
+   path retail compares 0xE8 against $s0 left from an earlier entry
+   (0x0019CDE0); `mode` is likewise read uninitialised there. */
 // FUN_0019C0D0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
 #pragma opt_common_subs off
+#pragma opt_propagation off
+typedef struct { u8 r, g, b, a; } Col4_0019;
+typedef struct {
+    f32 right[3];
+    s32 flags;
+    f32 up[3];
+    s32 pad1;
+    f32 at[3];
+    s32 pad2;
+    f32 pos[3];
+    s32 pad3;
+} Mtx_0019;
+
+static inline void colMul_0019(Col4_0019 *dst, const u8 *src)
+{
+    f32 scale;
+    f32 bias;
+    f32 g = (fGpffff81f4 * (f32)(u32)dst->g) * (fGpffff81f4 * (f32)(u32)src[1]);
+    f32 b = (fGpffff81f4 * (f32)(u32)dst->b) * (fGpffff81f4 * (f32)(u32)src[2]);
+    f32 a = (fGpffff81f4 * (f32)(u32)dst->a) * (fGpffff81f4 * (f32)(u32)src[3]);
+    f32 r = (fGpffff81f4 * (f32)(u32)dst->r) * (fGpffff81f4 * (f32)(u32)src[0]);
+
+    scale = 255.0f;
+    bias = 0.5f;
+    dst->r = (s32)(scale * r + bias);
+    dst->g = (s32)(scale * g + bias);
+    dst->b = (s32)(scale * b + bias);
+    dst->a = (s32)(scale * a + bias);
+}
+
 void func_0019c0d0(void)
 {
     extern u32 func_00196610(u8 *arg0);
@@ -3814,16 +3856,13 @@ void func_0019c0d0(void)
     extern s32 func_001d72e0(s32 arg0);
     extern s16 func_001d7130(s32 arg0);
     extern void func_001d7400(s32 arg0, u8 *arg1);
-    extern void func_001d7100(u8 *arg0, s16 arg1);
-    extern void func_001d72c0(void *arg0, u32 arg1);
+    extern void func_001d7100(u8 *arg0, s32 arg1);
+    extern void func_001d72c0(void *arg0, Col4_0019 arg1);
     extern void func_001d7140(u8 *arg0);
-    extern f32 fGpffff81f4;
-    s32 i;
+    u32 i;
     u8 *entry;
-    f32 inv;
-    inv = fGpffff81f4;
-    i = 0;
-    while ((u32)i < 4U) {
+
+    for (i = 0; i < 4; i++) {
         entry = *(u8 **)(D_0076449C + (i * 8) + 0x17C);
         while (entry != NULL) {
             func_00196610(entry);
@@ -3834,194 +3873,173 @@ void func_0019c0d0(void)
                 break;
             case 2:
                 if ((*(s32 *)(entry + 0x98) & 2) != 0) {
-                    if (*(u16 *)(entry + 0x9FE) != 0) {
-                        func_0014b150(*(u16 *)(entry + 0x9FE), (u32)(*(u8 *)(entry + 0xAC) == 1));
+                    u16 id;
+
+                    if ((id = *(u16 *)(entry + 0x9FE)) != 0) {
+                        func_0014b150(id, *(u8 *)(entry + 0xAC) == 1);
                     }
                 }
                 break;
             }
             if ((*(s32 *)(entry + 0x98) & 2) != 0) {
+                s32 v;
+                s32 n;
+
                 func_001b70c0(entry);
-                {
-                    s32 v = *(u16 *)entry;
-                    if (((v & 3) == 0) || ((v & 4) != 0)) {
-                        s32 t = *(u8 *)(entry + 0x37);
-                        if (t != 0xFF) {
-                            if (t < 0xDF) {
-                                *(u8 *)(entry + 0x37) = (u8)(t + 0x20);
-                            } else {
-                                *(u8 *)(entry + 0x37) = 0xFF;
-                            }
-                            *(s32 *)(entry + 0x98) |= 4;
-                        }
+                v = *(u16 *)entry;
+                if ((v & 3) != 0 && (v & 4) == 0) {
+                    u8 base;
+                    s32 t;
+
+                    if ((v & 8) != 0) {
+                        base = 0x58;
                     } else {
-                        s32 base;
-                        if ((v & 8) == 0) {
-                            base = 0;
+                        base = 0;
+                    }
+                    t = *(u8 *)(entry + 0x37);
+                    if (base + 0x20 < t) {
+                        *(u8 *)(entry + 0x37) = t - 0x20;
+                    } else {
+                        *(u8 *)(entry + 0x37) = base;
+                    }
+                    *(s32 *)(entry + 0x98) |= 4;
+                } else {
+                    s32 t = *(u8 *)(entry + 0x37);
+
+                    if (t < 0xFF) {
+                        if (t < 0xDF) {
+                            *(u8 *)(entry + 0x37) = t + 0x20;
                         } else {
-                            base = 0x58;
-                        }
-                        if ((u8)(base + 0x20) < *(u8 *)(entry + 0x37)) {
-                            *(u8 *)(entry + 0x37) = (u8)(*(u8 *)(entry + 0x37) - 0x20);
-                        } else {
-                            *(u8 *)(entry + 0x37) = base;
+                            *(u8 *)(entry + 0x37) = 0xFF;
                         }
                         *(s32 *)(entry + 0x98) |= 4;
                     }
                 }
-                if (*(u16 *)(entry + 0x4C) > 0) {
-                    f32 ft;
-                    f32 fdiv;
-                    f32 f1;
-                    s32 b48;
-                    s32 b49;
-                    s32 b4a;
-                    ft = (f32)*(u16 *)(entry + 0x4C);
-                    fdiv = ft / 8.0f;
-                    b48 = *(u8 *)(entry + 0x48);
-                    f1 = fdiv * (f32)(s32)((s32)*(u8 *)(entry + 0x44) - (s32)b48);
-                    *(u8 *)(entry + 0x40) = (u8)((u32)b48 + (u32)f1);
-                    b49 = *(u8 *)(entry + 0x49);
-                    f1 = fdiv * (f32)(s32)((s32)*(u8 *)(entry + 0x45) - (s32)b49);
-                    *(u8 *)(entry + 0x41) = (u8)((u32)b49 + (u32)f1);
-                    b4a = *(u8 *)(entry + 0x4A);
-                    f1 = fdiv * (f32)(s32)((s32)*(u8 *)(entry + 0x46) - (s32)b4a);
-                    *(u8 *)(entry + 0x42) = (u8)((u32)b4a + (u32)f1);
+                n = *(u16 *)(entry + 0x4C);
+                if (n > 0) {
+                    f32 fdiv = (f32)(u32)n / 8.0f;
+                    u32 b;
+
+                    b = *(u8 *)(entry + 0x48);
+                    *(u8 *)(entry + 0x40) = b + (u32)(fdiv * (f32)(s32)(*(u8 *)(entry + 0x44) - b));
+                    b = *(u8 *)(entry + 0x49);
+                    *(u8 *)(entry + 0x41) = b + (u32)(fdiv * (f32)(s32)(*(u8 *)(entry + 0x45) - b));
+                    b = *(u8 *)(entry + 0x4A);
+                    *(u8 *)(entry + 0x42) = b + (u32)(fdiv * (f32)(s32)(*(u8 *)(entry + 0x46) - b));
                     *(s32 *)(entry + 0x98) |= 4;
-                    *(u16 *)(entry + 0x4C) = (u16)(*(u16 *)(entry + 0x4C) - 1);
+                    *(u16 *)(entry + 0x4C) = *(u16 *)(entry + 0x4C) - 1;
                 }
                 if ((*(s32 *)(entry + 0x98) & 4) != 0) {
-                    f32 f14 = *(f32 *)(entry + 0x1C);
-                    f32 f15 = *(f32 *)(entry + 0x20);
-                    f32 f12 = *(f32 *)(entry + 0x24);
-                    f32 f13 = *(f32 *)(entry + 0x28);
-                    f32 xx = f14 * f14;
-                    f32 yy = f15 * f15;
-                    f32 zz = f12 * f12;
-                    f32 yz = f15 * f12;
-                    f32 zx = f12 * f14;
-                    f32 xy = f14 * f15;
-                    f32 wx = f13 * f14;
-                    f32 wy = f13 * f15;
-                    f32 wz = f13 * f12;
-                    f32 m[9];
-                    s32 z[3];
-                    s32 poly;
-                    f32 sp[3];
-                    u8 col[4];
-                    m[0] = 1.0f - (yy + zz) * 2.0f;
-                    m[1] = (xy + wz) * 2.0f;
-                    m[2] = (zx - wy) * 2.0f;
-                    m[3] = (xy - wz) * 2.0f;
-                    m[4] = 1.0f - (xx + zz) * 2.0f;
-                    m[5] = (yz + wx) * 2.0f;
-                    m[6] = (zx + wy) * 2.0f;
-                    m[7] = (yz - wx) * 2.0f;
-                    m[8] = 1.0f - (xx + yy) * 2.0f;
-                    z[0] = 0;
-                    z[1] = 0;
-                    z[2] = 0;
-                    poly = 3;
-                    func_0047a1c0(*(u8 **)(entry + 0xA00), m, 0);
-                    sp[0] = sp[1] = sp[2] = *(f32 *)(entry + 0x2C);
-                    mdlScale(*(u8 **)(entry + 0xA00), sp, 2);
-                    sp[0] = *(f32 *)(entry + 4) + *(f32 *)(entry + 0x10);
-                    sp[1] = *(f32 *)(entry + 8) + *(f32 *)(entry + 0x14);
-                    sp[2] = *(f32 *)(entry + 0xC) + *(f32 *)(entry + 0x18);
-                    func_0047a180(*(u8 **)(entry + 0xA00), sp, 2);
-                    {
-                        f32 a0 = (f32)*(u8 *)(entry + 0x30);
-                        f32 a1 = (f32)*(u8 *)(entry + 0x31);
-                        f32 a2 = (f32)*(u8 *)(entry + 0x32);
-                        f32 a3 = (f32)*(u8 *)(entry + 0x33);
-                        f32 b0 = (f32)*(u8 *)(entry + 0x34);
-                        f32 b1 = (f32)*(u8 *)(entry + 0x35);
-                        f32 b2 = (f32)*(u8 *)(entry + 0x36);
-                        f32 b3 = (f32)*(u8 *)(entry + 0x37);
-                        f32 c0 = (f32)*(u8 *)(entry + 0x3C);
-                        f32 c1 = (f32)*(u8 *)(entry + 0x3D);
-                        f32 c2 = (f32)*(u8 *)(entry + 0x3E);
-                        f32 c3 = (f32)*(u8 *)(entry + 0x3F);
-                        f32 d0 = (f32)*(u8 *)(entry + 0x40);
-                        f32 d1 = (f32)*(u8 *)(entry + 0x41);
-                        f32 d2 = (f32)*(u8 *)(entry + 0x42);
-                        f32 d3 = (f32)*(u8 *)(entry + 0x43);
-                        s64 t0 = ((s32)(inv * a0 * inv * b0 * 255.0f + 0.5f)) & 0xFF;
-                        s64 t1 = ((s32)(inv * a1 * inv * b1 * 255.0f + 0.5f)) & 0xFF;
-                        s64 t2 = ((s32)(inv * a2 * inv * b2 * 255.0f + 0.5f)) & 0xFF;
-                        s64 t3 = ((s32)(inv * a3 * inv * b3 * 255.0f + 0.5f)) & 0xFF;
-                        s64 u0 = ((s32)(inv * (f32)t0 * inv * c0 * 255.0f + 0.5f)) & 0xFF;
-                        s64 u1 = ((s32)(inv * (f32)t1 * inv * c1 * 255.0f + 0.5f)) & 0xFF;
-                        s64 u2 = ((s32)(inv * (f32)t2 * inv * c2 * 255.0f + 0.5f)) & 0xFF;
-                        s64 u3 = ((s32)(inv * (f32)t3 * inv * c3 * 255.0f + 0.5f)) & 0xFF;
-                        col[0] = (u8)(s32)(inv * (f32)u0 * inv * d0 * 255.0f + 0.5f);
-                        col[1] = (u8)(s32)(inv * (f32)u1 * inv * d1 * 255.0f + 0.5f);
-                        col[2] = (u8)(s32)(inv * (f32)u2 * inv * d2 * 255.0f + 0.5f);
-                        col[3] = (u8)(s32)(inv * (f32)u3 * inv * d3 * 255.0f + 0.5f);
-                    }
-                    if (col[3] < 0xFE) {
-                        if (i != 2) {
-                            *(s32 *)(*(u8 **)(entry + 0xA00) + 0xE8) = 0x737FB;
-                            func_0019d7a0(entry, 2);
-                            func_0019d7a0(entry, 5);
-                        }
-                    } else {
-                        col[3] = 0xFF;
-                        *(s32 *)(*(u8 **)(entry + 0xA00) + 0xE8) = 0x737FB;
+                    Mtx_0019 m;
+                    f32 vec[3];
+                    Col4_0019 col;
+                    s32 mode;
+                    u8 *obj;
+                    f32 x = *(f32 *)(entry + 0x1C);
+                    f32 y = *(f32 *)(entry + 0x20);
+                    f32 z = *(f32 *)(entry + 0x24);
+                    f32 w = *(f32 *)(entry + 0x28);
+                    f32 xx = x * x;
+                    f32 yy = y * y;
+                    f32 zz = z * z;
+                    f32 yz = y * z;
+                    f32 zx = z * x;
+                    f32 xy = x * y;
+                    f32 wx = w * x;
+                    f32 wy = w * y;
+                    f32 wz = w * z;
+                    f32 two = 2.0f;
+                    f32 one = 1.0f;
+
+                    m.right[0] = one - two * (yy + zz);
+                    m.right[1] = two * (xy + wz);
+                    m.right[2] = two * (zx - wy);
+                    m.up[0] = two * (xy - wz);
+                    m.up[1] = one - two * (xx + zz);
+                    m.up[2] = two * (yz + wx);
+                    m.at[0] = two * (zx + wy);
+                    m.at[1] = two * (yz - wx);
+                    m.at[2] = one - two * (xx + yy);
+                    m.pos[0] = 0.0f;
+                    m.pos[1] = 0.0f;
+                    m.pos[2] = 0.0f;
+                    m.flags = 3;
+                    func_0047a1c0(*(u8 **)(entry + 0xA00), &m, 0);
+                    vec[0] = vec[1] = vec[2] = *(f32 *)(entry + 0x2C);
+                    mdlScale(*(u8 **)(entry + 0xA00), vec, 2);
+                    vec[0] = *(f32 *)(entry + 4) + *(f32 *)(entry + 0x10);
+                    vec[1] = *(f32 *)(entry + 8) + *(f32 *)(entry + 0x14);
+                    vec[2] = *(f32 *)(entry + 0xC) + *(f32 *)(entry + 0x18);
+                    func_0047a180(*(u8 **)(entry + 0xA00), vec, 2);
+                    col = *(Col4_0019 *)(entry + 0x30);
+                    colMul_0019(&col, entry + 0x34);
+                    colMul_0019(&col, entry + 0x3C);
+                    colMul_0019(&col, entry + 0x40);
+                    if (col.a >= 0xFE) {
+                        col.a = 0xFF;
+                        mode = 0x737FB;
                         func_0019d990(entry, 2);
                         func_0019d990(entry, 5);
+                    } else if (i != 2) {
+                        mode = 0x737FB;
+                        func_0019d7a0(entry, 2);
+                        func_0019d7a0(entry, 5);
                     }
                     {
-                        u8 *obj = *(u8 **)(entry + 0xA00);
-                        if (*(s32 *)(obj + 0xE8) != 0x737FB) {
+                        s32 *e8 = (s32 *)(*(u8 **)(entry + 0xA00) + 0xE8);
+
+                        if (*e8 != mode) {
                             u32 j;
-                            *(s32 *)(obj + 0xE8) = 0x737FB;
-                            for (j = 0; j < 5U; j++) {
-                                u8 *objR = *(u8 **)(entry + 0xA00);
-                                u8 *sub = *(u8 **)(objR + (j * 0xC) + 0x290);
-                                if (sub != NULL) {
-                                    *(s32 *)(sub + 0xE8) = 0x737FB;
-                                }
+
+                            *e8 = mode;
+                        for (j = 0; j < 5; j++) {
+                            u8 *sub = ((u8 **)(*(u8 **)(entry + 0xA00) + 0x290))[j * 3];
+
+                            if (sub != NULL) {
+                                *(s32 *)(sub + 0xE8) = mode;
                             }
                         }
+                        }
                     }
-                    *(u8 *)(entry + 0x4E) = col[0];
-                    *(u8 *)(entry + 0x4F) = col[1];
-                    *(u8 *)(entry + 0x50) = col[2];
-                    *(u8 *)(entry + 0x51) = col[3];
-                    mdlSetColor(*(u8 **)(entry + 0xA00), (s32 *)col);
+                    {
+                        Col4_0019 *cp = &col;
+
+                        *(Col4_0019 *)(entry + 0x4E) = *cp;
+                        mdlSetColor(*(u8 **)(entry + 0xA00), (s32 *)cp);
+                    }
                     func_001ee490(entry);
                     *(s32 *)(entry + 0x98) &= ~4;
                 }
-                if ((*(s32 *)(*(u8 **)(entry + 0xA00) + 0xD8) & 4) != 0) {
-                    func_00478e70(*(u8 **)(entry + 0xA00));
+                {
+                    u8 *obj2 = *(u8 **)(entry + 0xA00);
+
+                    if ((*(s32 *)(obj2 + 0xD8) & 4) != 0) {
+                        func_00478e70(obj2);
+                    }
                 }
-                if ((*(s32 *)(entry + 0xA04) != 0) && (func_0019d130(entry) != 0)) {
+                if (*(s32 *)(entry + 0xA04) != 0 && func_0019d130(entry) != 0) {
                     u8 *p = *(u8 **)(entry + 0xA64);
+
                     if (p != NULL) {
-                        s64 v41 = *(s32 *)(p + 0xC) & 0xFFFFF;
-                        s64 chk = (s16)func_001d72e0((s32)v41);
-                        s16 cur = func_001d7130(*(s32 *)(entry + 0xA04));
-                        if (chk != (s64)cur) {
-                            func_001d7400((s32)v41, entry + 0x48);
-                            *(u8 *)(entry + 0x44) = *(u8 *)(entry + 0x40);
-                            *(u8 *)(entry + 0x45) = *(u8 *)(entry + 0x41);
-                            *(u8 *)(entry + 0x46) = *(u8 *)(entry + 0x42);
-                            *(u8 *)(entry + 0x47) = *(u8 *)(entry + 0x43);
+                        u32 v41 = *(u32 *)(p + 0xC) & 0xFFFFF;
+                        s32 chk = (s16)func_001d72e0(v41);
+
+                        if (chk != (s16)func_001d7130(*(s32 *)(entry + 0xA04))) {
+                            func_001d7400(v41, entry + 0x48);
+                            *(Col4_0019 *)(entry + 0x44) = *(Col4_0019 *)(entry + 0x40);
                             *(u16 *)(entry + 0x4C) = 8;
-                            func_001d7100(*(u8 **)(entry + 0xA04), (s16)chk);
+                            func_001d7100(*(u8 **)(entry + 0xA04), chk);
                         }
                     }
-                    func_001d72c0(*(u8 **)(entry + 0xA04), *(u32 *)(entry + 0x4E));
+                    func_001d72c0(*(u8 **)(entry + 0xA04), *(Col4_0019 *)(entry + 0x4E));
                     func_001d7140(*(u8 **)(entry + 0xA04));
                 }
             }
             entry = *(u8 **)(entry + 0xA68);
         }
-        i += 1;
     }
 }
-#pragma opt_common_subs on
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019c0d0);
 #endif
