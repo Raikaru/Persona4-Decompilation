@@ -1,0 +1,36 @@
+{
+  "actual_reference_errors": 0,
+  "baseline_commit": "ff2f5f96ab71399cea76af2eb715823d306b8d7d",
+  "baseline_source_sha256": "d7909be7893e154690fea87184b05be5a873034d47d5404336684e28d07cd3b5",
+  "candidate_object_sha256": "95fb96ebab91d2744c4f30b49af8cd7f74db46eda7a2ee93dbaee18d34c50942",
+  "code_references": 945,
+  "data_references": 7,
+  "direct_calls": 77,
+  "exact_unchanged_siblings": 124,
+  "frame": "0x550",
+  "guarded_c_only_identical": true,
+  "guarded_c_only_object_sha256": "502db198001b4beb2a10c978bc29d723fee8b306193383284e78a1ad4f4ae830",
+  "guarded_source_sha256": "3bd4334a0b5737aace71c0a4a62c0a54851b2692193d9fe7e125e086ef92fed2",
+  "indirect_calls": 1,
+  "metrics": {
+    "candidate_bytes": 7084,
+    "equal_words": 1080,
+    "positional_byte_differences": 5643,
+    "positional_word_differences": 1668,
+    "retail_bytes": 7104,
+    "sequence_matcher_block_edits": 867,
+    "unit_word_levenshtein": 812
+  },
+  "production_splice": {
+    "object_sha256": "37944047be9ed63cef8e3e437cce12523c90b6edb42037365d442556fe2f2f40",
+    "status": "identical"
+  },
+  "raw_sha256": "aad9f95aea51b13269788e473d1b5247fd9ecd734630ddf969724cb2fa3fc2c3",
+  "rejected_reference_negative_controls": 7,
+  "repeated_identical": true,
+  "resolved_sha256": "e9fd14f1219b20d24b64b24c8eb80bbb20386485bc0c6f1cfa6fd5cb5aba6666",
+  "retail_frame": "0x550",
+  "status": "PASS; target remains NONMATCHING",
+  "target_only_source_sha256": "e10ec1b9291fc9e2f9774eb38086e8278b8b11a3eea4aec4509af3e673437616",
+  "unchanged_owned_data_sections": 11
+}
