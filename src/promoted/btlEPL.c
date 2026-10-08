@@ -576,7 +576,12 @@ typedef struct BtlEplUnitRgbaParam
 
 /* Only fade-in/out initialize scale; evaluate its complement in those cases.
  * Measured vector blends: 2172/2176B, 90 fully resolved differing words from
- * the f0/f1/f2 register rotation. The NON_MATCHING guard remains. */
+ * the f0/f1/f2 register rotation. The NON_MATCHING guard remains.
+ * 2026-10-08 capture: the rotation is one value. The loop-invariant pass
+ * hoists `1.0f - scale` into a temporary (v67) that takes $f0, where retail has
+ * $f2. The regalloc model gives retail's FPR colours whenever that value is
+ * numbered between case 1's `from` lanes and case 2's (v36..v50). A declared
+ * `inv` local folds into the hoisted temporary wherever it is declared. */
 // FUN_001FD790 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_dead_assignments off
