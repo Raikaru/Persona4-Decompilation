@@ -65,7 +65,12 @@ extern void func_003c22f0(void* a);
 
 /* The allocation result lands in `base` first and is copied to `node`:
  * retail adds 0x24 to the $v0 result directly and keeps the cursor out of
- * the saved register that holds the node. */
+ * the saved register that holds the node. measured: opt_loop_invariants
+ * and opt_lifetimes on are both required (verify MISMATCH, nd 116,
+ * without them). */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
 // FUN_004B6030
 u8 *func_004b6030(void *arg0)
 {
@@ -329,6 +334,7 @@ u8 *func_004b6030(void *arg0)
     }
     return node;
 }
+#pragma pop
 // FUN_004B6900
 u8* func_004b6900(u8* arg0)
 {
