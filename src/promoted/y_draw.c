@@ -657,7 +657,8 @@ void func_002b6ea0(void) {
 #pragma push
 #pragma opt_common_subs off
 /* 2026-10-08: opt_lifetimes on lowers fnalign from 231 to 217 edits.
-   2026-10-08: rewritten from retail asm (164 edits). The bit search is an s16 inline helper. Each block uses the retail index form: off = (s32)i << 8 saved at loop entry, a mult-form index for the queue argument and the A4 gate, and a third spelling (0x100U) for the draw call. The table base is held in locals where retail saves it, the draw arm falls through, and opt_common_subs is re-enabled inside, overriding the outer off. */
+   2026-10-08: rewritten from retail asm (164 edits). The bit search is an s16 inline helper. Each block uses the retail index form: off = (s32)i << 8 saved at loop entry, a mult-form index for the queue argument and the A4 gate, and a third spelling (0x100U) for the draw call. The table base is held in locals where retail saves it, the draw arm falls through, and opt_common_subs is re-enabled inside, overriding the outer off.
+   The queue count is cleared before i is initialised (163). Open: CSE reuses the loop test's (s16)i extension in the body; retail recomputes it at each use. */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
 static inline s16 yDrawAnyBit(s32 flags)
@@ -692,8 +693,8 @@ s32 func_002b6ec0(u8 *arg0) {
     s16 fl;
 
     table = *(u8 **)(arg0 + 0x38);
-    i = 0;
     *(s16 *)(table + 0x30C04) = 0;
+    i = 0;
     while (i < 0x30C) {
         *(s16 *)(table + (s32)i * 2 + 0x30C06) = 0;
         off = (s32)i << 8;
