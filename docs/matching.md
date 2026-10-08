@@ -746,15 +746,27 @@ below are the codegen consequences.
   too), are aggregate stores to the frontend, so the reload survives, and each
   copy is still a single `lwc1`/`swc1` pair in retail order.
 
-  **Lever: a load local survives only with a second definition
-  (`func_00263cb0`, guarded 75 → 48 edits).** At several calls
-  `x = *(s32 *)(p + 4); f(..., g(...), ..., x);` retail loads `x` into a saved
-  register before the `g` call at some sites and inside the argument list at
-  others. In b210 a local with a single definition is propagated into its use,
-  so the load moves after `g`. A local with another definition elsewhere in the
-  function is kept. Retail's two kept sites came out once they shared one
+  **Lever: a local survives only with a second definition (`func_00263cb0`,
+  guarded 75 → 48 edits; `func_00282250`, MATCH 2026-10-09).** At several
+  calls `x = *(s32 *)(p + 4); f(..., g(...), ..., x);` retail loads `x` into a
+  saved register before the `g` call at some sites and inside the argument list
+  at others. b210's `IRO_ExpressionPropagation` substitutes a local that has a
+  single definition in the function into its use, so the load moves after `g`.
+  A local with another definition anywhere in the function is kept where it is
+  written. Retail's two kept sites came out once they shared one
   multi-definition local (`temp_16`/`temp_16_2`). Its propagated sites came out
   once a local shared by two sites was split into two single-definition locals.
+  The same rule applies to computed values. `func_00282250` went from 69 to 0
+  edits as follows:
+  - Case 11's `backgroundY` and case 12's `baseline` became function-scope
+    locals that are also assigned in case 12/13.
+  - Case 13's next-row offset reuses `i2`.
+  - Its scaled height reuses the block's row local.
+  - The fade alpha is written as `alpha = d; alpha = 255.0f * (1.0f - alpha);`.
+  - The declaration order of case 11's block was permuted for `$s1`/`$s3`.
+
+  When retail computes a value early, into a register, and ours computes it
+  inside the argument list or at its use, look for a single-definition local.
 
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written

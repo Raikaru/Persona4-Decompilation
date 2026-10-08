@@ -25,12 +25,23 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 9 continuation: 6,817 MATCH / 44 ASM
+## October 9 continuation: 6,818 MATCH / 43 ASM
 
-`build/after19.json` reports 6,817 first-party MATCH and 44 ASM; against
-`after18.json` only `004aed70` changed. After it the full link kept 604 C
-and 54 SDK objects, and both retail hashes passed.
+`build/after20.json` reports 6,818 first-party MATCH and 43 ASM. Against
+`after18.json`, only `004aed70` (`after19.json`) and `00282250` changed.
+After each of them the full link kept 604 C and 54 SDK objects, and both
+retail hashes passed. `00282250` needed `iGpffff81d8 = 0x007612c8` in
+`config/symbols_recovered.txt`.
 
+- `00282250`: values retail computes early are locals with a second
+  definition, because b210 propagates single-definition locals into their use
+  (see [matching.md](matching.md)). Case 11's declaration order gives
+  `$s1`/`$s3`.
+- `0019c0d0` (guarded) 1021 → 222: rewritten from retail asm, with an
+  RwMatrix-shaped local and an inline colour helper. Retail reloads the 1/255
+  global per factor (needs `opt_common_subs off`) but shares constants (needs
+  it on); the note lists what was tried.
+- Declaration hill climbs: `00160880` 502 → 401 and `001ed700` 636 → 457.
 - `004aed70`: the VU result is copied into `pos` as three one-element array
   copies, so b210 keeps the particle-life reload (see
   [matching.md](matching.md)). `func_00492df0`/`func_00492db0`/`func_003bfe90`
