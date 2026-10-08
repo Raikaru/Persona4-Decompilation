@@ -5903,7 +5903,9 @@ void func_0047b060(void* param_1)
    selected clone wrappers, and the schema argument for both deferred UV reads.
    The typed candidate retains retail's 0xd0 frame but does not match yet.
    Native measurements and the complete relocation/data proof are recorded in
-   docs/probe_archive/Model_loader_contracts_20261005_worker15.md. */
+   docs/probe_archive/Model_loader_contracts_20261005_worker15.md.
+   2026-10-08: the chunk dispatch is a switch whose case bodies follow in source order; b210 compares the cases in reverse (385 edits).
+   The base-animation store is the out-of-line else arm (378 edits). */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047b0c0(u8 *model)
@@ -6005,33 +6007,9 @@ s32 func_0047b0c0(u8 *model)
         if (chunk.type == 0) {
             break;
         }
-        if (chunk.type == 0xf0f00009) goto load_base_animation;
-        if (chunk.type == 0xf0f00008) goto load_metadata;
-        if (chunk.type == 0xf0f00007) goto load_metadata;
-        if (chunk.type == 0xf0f000d0) goto load_animation_group;
-        if (chunk.type == 0xf0f000e1) goto load_secondary_effect;
-        if (chunk.type == 0xf0f000e0) goto load_primary_effect;
-        if (chunk.type == 0xf0f000f0) goto load_capacity;
-        if (chunk.type == 0xf0f00006) goto load_matrix_table;
-        if (chunk.type == 0xf0f00070) goto load_properties;
-        if (chunk.type == 0xf0f00082) goto load_material;
-        if (chunk.type == 0xf0f00083) goto load_material;
-        if (chunk.type == 0xf0f00081) goto load_material;
-        if (chunk.type == 0xf0f00080) goto load_material;
-        if (chunk.type == 0xf0f00003) goto load_clone_slot;
-        if (chunk.type == 0xf0f00002) goto load_next_layer;
-        if (chunk.type == 0xf0f00004) goto load_next_slot;
-        if (chunk.type == 0xf0f00005) goto load_matrix;
-        if (chunk.type == 0xf0f00001) goto load_animation_sentinel;
-        if (chunk.type == 0x1e) continue;
-        if (chunk.type == 0x10) goto load_clump;
-        if (chunk.type == 0x2b) goto load_uv_dictionary;
-        if (chunk.type == 0x1b) goto load_animation;
-        if (chunk.type == 0x23) goto load_platform_textures;
-        if (chunk.type == 0x16) goto load_texture_dictionary;
-        goto skip_chunk;
+        switch (chunk.type) {
 
-load_texture_dictionary:
+        case 0x16:
         if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
             struct RwTexDictionary *dictionary = func_003e6a90(state->stream);
             func_003ef260(dictionary, func_00463100, &state->textureList);
@@ -6044,7 +6022,7 @@ load_texture_dictionary:
         }
         continue;
 
-load_platform_textures:
+        case 0x23:
         {
             struct RwTexDictionary *dictionary = func_003dc370(state->stream);
             func_003ef260(dictionary, func_00463100, &state->textureList);
@@ -6052,7 +6030,7 @@ load_platform_textures:
         }
         continue;
 
-load_animation:
+        case 0x1b:
         {
             void *animation;
             if (LOAD_LAYER()->resource == 0) {
@@ -6060,15 +6038,15 @@ load_animation:
                 LOAD_LAYER()->resource = table;
             }
             animation = func_003d53c0(state->stream);
-            if (state->baseAnimation != 0 && LOAD_LAYER()->resource->unknown == 0) {
-                LOAD_LAYER()->resource->unknown = (u32)animation;
-            } else {
+            if (state->baseAnimation == 0 || LOAD_LAYER()->resource->unknown != 0) {
                 LOAD_LAYER()->resource->entries[state->slot].animation = animation;
+            } else {
+                LOAD_LAYER()->resource->unknown = (u32)animation;
             }
         }
         continue;
 
-load_uv_dictionary:
+        case 0x2b:
         if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
             void *dictionary;
             if (LOAD_UVS() == 0) {
@@ -6112,7 +6090,7 @@ load_uv_dictionary:
         }
         continue;
 
-load_clump:
+        case 0x10:
         if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
             if (*(void **)(model + 0xdc) == 0) {
                 void *clump = func_003c0f20(state->stream);
@@ -6127,7 +6105,9 @@ load_clump:
         }
         continue;
 
-load_animation_sentinel:
+        case 0x1e:
+            continue;
+        case 0xf0f00001:
         if (LOAD_LAYER()->resource == 0) {
             MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
             LOAD_LAYER()->resource = table;
@@ -6136,7 +6116,7 @@ load_animation_sentinel:
         func_003e2ce0(state->stream, chunk.length);
         continue;
 
-load_matrix:
+        case 0xf0f00005:
         if (LOAD_LAYER()->resource == 0) {
             MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
             LOAD_LAYER()->resource = table;
@@ -6144,18 +6124,18 @@ load_matrix:
         func_003e2910(state->stream, &LOAD_LAYER()->resource->entries[state->slot].matrix, chunk.length);
         continue;
 
-load_next_slot:
+        case 0xf0f00004:
         state->slot++;
         func_003e2ce0(state->stream, chunk.length);
         continue;
 
-load_next_layer:
+        case 0xf0f00002:
         state->layer++;
         state->slot = 0;
         func_003e2ce0(state->stream, chunk.length);
         continue;
 
-load_clone_slot:
+        case 0xf0f00003:
         if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
             MdlDispatchAnimTable *animations;
             MdlCloneAttachmentTable *attachments;
@@ -6207,7 +6187,10 @@ load_clone_slot:
         }
         continue;
 
-load_material:
+        case 0xf0f00080:
+        case 0xf0f00081:
+        case 0xf0f00083:
+        case 0xf0f00082:
         if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
             if (LOAD_MATERIALS() == 0) {
                 u16 count = capacity;
@@ -6241,7 +6224,7 @@ load_material:
         }
         continue;
 
-load_properties:
+        case 0xf0f00070:
         {
             void *properties;
             func_0044ea90(D_00713138, 0x18c5);
@@ -6252,7 +6235,7 @@ load_properties:
         }
         continue;
 
-load_matrix_table:
+        case 0xf0f00006:
         {
             void *stream = state->stream;
             MdlMatrixEntry *entries;
@@ -6277,12 +6260,12 @@ load_matrix_table:
         }
         continue;
 
-load_capacity:
+        case 0xf0f000f0:
         func_003e2910(state->stream, &capacity, chunk.length);
         state->capacities[state->layer] = capacity;
         continue;
 
-load_primary_effect:
+        case 0xf0f000e0:
         {
             u8 *payload;
             u32 **head;
@@ -6316,7 +6299,7 @@ load_primary_effect:
         }
         continue;
 
-load_secondary_effect:
+        case 0xf0f000e1:
         {
             u8 *payload = state->memory + *(u32 *)((u8 *)state->stream + 0xc);
             if (LOAD_LAYER()->attachments == 0) {
@@ -6331,7 +6314,7 @@ load_secondary_effect:
         }
         continue;
 
-load_animation_group:
+        case 0xf0f000d0:
         {
             u8 *group;
             s32 slot;
@@ -6353,7 +6336,8 @@ load_animation_group:
         }
         continue;
 
-load_metadata:
+        case 0xf0f00007:
+        case 0xf0f00008:
         func_003e2910(state->stream, &metadata, chunk.length);
         if (LOAD_LAYER()->resource->entries[state->slot].startFrame == 0) {
             s32 *values;
@@ -6369,13 +6353,14 @@ load_metadata:
         }
         continue;
 
-load_base_animation:
+        case 0xf0f00009:
         state->baseAnimation = 1;
         func_003e2ce0(state->stream, chunk.length);
         continue;
 
-skip_chunk:
+        default:
         func_003e2ce0(state->stream, chunk.length);
+        }
     }
 #undef LOAD_MEMORY
 #undef LOAD_UVS
