@@ -25,6 +25,25 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation, part 2: 6,825 MATCH / 36 ASM (owner verify)
+
+Five functions the earlier notes called "pure-GPR lq/sq floors" matched once
+their quadword copies were written through `$2` (user-approved; see the `$2`
+lever in [matching.md](matching.md)). Each copy carries a
+`lint: allow H009` waiver with the retail address.
+- `00485630`, `00485870`: the saved-rotation restore (3 → 0 each).
+- `0048d8c0`: the config snapshot (7 → 0).
+- `0048cdf0`: 189 → 0, ported from `0048d8c0`. Beyond the sibling's idioms,
+  the saved FPRs needed `a`, then the config floats, then `c`, then the
+  constants declared in that order.
+- `00497ce0`: 201 → 0: the two row-loop vector carries through `$2`, a
+  permutation of the saved-register locals, and the `-1` hoist named
+  `invalid`.
+
+Full link `build/link24.log` (after the first three) kept 604 C and 54 SDK
+objects with both hashes OK. `00490c40` improved 57 → 45 with the same copies;
+its residual is the `dot`/`swayBase` spill choice.
+
 ## October 9 continuation: 6,820 MATCH / 41 ASM
 
 `build/after22.json` reports 6,820 first-party MATCH and 41 ASM. Against
