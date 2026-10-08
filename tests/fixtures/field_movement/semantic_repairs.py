@@ -2,24 +2,29 @@
 """Safe tests of extracted source fragments; never executes the indeterminate target."""
 import re
 
+from field_movement_source import code_view, movement_definition
+
 
 def fixture_from_source(source):
-    s=source;s=s[s.index('s32 func_00174e10(u8 *arg0)\n{'):];s=s[:s.index('\n#else')]
-    types=s[s.index('    typedef struct {'):s.index('    extern u16 D_008C024C')]
+    raw = movement_definition(source)
+    s = code_view(raw)
+    types=raw[s.index('    typedef struct {'):s.index('    extern u16 D_008C024C')]
     start=s.index('                s32 quotient =');end=s.index('                *(u8 **)(h + 0x138)',start)
-    rounding=s[start:end]
+    rounding=raw[start:end]
     assert 'func_00105340(s16)' in s and 'u32 func_00105340' in s
     assert s.count('func_003e0670(&')==2 and 'func_003e0670(&cameraMatrix, &cameraMatrix)' in s
     assert 'func_0044b950(cameraMatrix.right.z, cameraMatrix.right.x)' in s
     assert 'func_0044b950(modelMatrix.right.z, modelMatrix.right.x)' in s
     assert 's32 mat[15]' not in s and 'f32 sp120' not in s
-    clear1=s[s.index('    {\n        u8 *p = (u8 *)&move;'):s.index('    {\n        u8 *p = (u8 *)&camera;')]
-    clear2=s[s.index('    {\n        u8 *p = (u8 *)&camera;'):s.index('    f20 = 0.0f;')]
-    copy1=re.search(r'        cameraMatrix = .*?;',s).group().replace('*(u8 **)(func_00457120() + 4)', 'cameraFrame')
-    copy2=re.search(r'        modelMatrix = .*?;',s).group()
+    clear1=raw[s.index('    {\n        u8 *p = (u8 *)&move;'):s.index('    {\n        u8 *p = (u8 *)&camera;')]
+    clear2=raw[s.index('    {\n        u8 *p = (u8 *)&camera;'):s.index('    f20 = 0.0f;')]
+    copy1_match=re.search(r'        cameraMatrix = .*?;',s)
+    copy1=raw[copy1_match.start():copy1_match.end()].replace('*(u8 **)(func_00457120() + 4)', 'cameraFrame')
+    copy2_match=re.search(r'        modelMatrix = .*?;',s)
+    copy2=raw[copy2_match.start():copy2_match.end()]
     assert copy2 == '        modelMatrix = *(MovementMatrix *)((u8 *)mdlGetClumpFrame(*(void **)(*(s32 *)(h + 0x18) + 0x164)) + 0x10);'
     copy2=copy2.replace('(u8 *)mdlGetClumpFrame(*(void **)(*(s32 *)(h + 0x18) + 0x164))', 'modelFrame')
-    identity=s[s.index('        mat.right.x ='):s.index('        RwMatrixRotate(&mat')]
+    identity=raw[s.index('        mat.right.x ='):s.index('        RwMatrixRotate(&mat')]
     head='''#include <stdint.h>
     #include <stddef.h>
     #include <stdio.h>

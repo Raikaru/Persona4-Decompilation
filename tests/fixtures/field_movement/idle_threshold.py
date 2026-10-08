@@ -1,8 +1,10 @@
 import re
 
+from field_movement_source import code_view, movement_definition
+
 
 def fixture_from_source(source):
-    s=source;a=s.index('s32 func_00174e10(u8 *arg0)\n{');b=s.index('\n#else',a);s=s[a:b]
+    s = code_view(movement_definition(source))
     condition=re.search(r'else if \((c148 > 360)\)',s).group(1)
     fixture='''#include <stdint.h>
     #include <limits.h>
