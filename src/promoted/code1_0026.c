@@ -1364,7 +1364,8 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
    argument; the fade alphas are converted to int when computed; and the case-3
    sine argument is fGpffff84a4 * ((f32)n / 5.0f). Open: saved-register
    colouring.
-   2026-10-08: opt_lifetimes on lowers fnalign from 102 to 85 edits. */
+   2026-10-08: opt_lifetimes on lowers fnalign from 102 to 85 edits.
+   2026-10-08: a declaration-order hill climb (swap/move moves scored by fnalign) lowers it to 75. */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1391,7 +1392,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     f32 temp_f0;
     f32 temp_f0_2;
     f32 temp_f13;
-    f32 temp_f13_2;
+    s32 var_21;
     f32 temp_f20;
     f32 temp_f21;
     u8 *var_3_2;
@@ -1412,7 +1413,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     s32 temp_18;
     s32 temp_18_2;
     s32 temp_18_3;
-    s32 temp_18_4;
+    f32 temp_f13_2;
     s32 temp_18_5;
     s32 temp_18_6;
     s32 temp_19;
@@ -1427,7 +1428,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     s32 temp_3_4;
     s32 var_17;
     s32 var_18;
-    s32 var_21;
+    s32 temp_18_4;
     s32 var_2;
     s32 var_2_2;
     s32 var_2_3;
