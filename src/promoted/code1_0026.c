@@ -1352,6 +1352,14 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
    floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
    and 7 edits) and 13 got worse, so it is measured per function like every other
    spelling. */
+/* 2026-10-07 guarded update: 102 fnalign edits (was 232); the instruction
+   count now matches retail. Changes: the case-5 and case-7 fallback tails are
+   separate copies (retail does not share them, and their final call passes
+   1); the render-state table is read through a u32 local (retail keeps it in
+   $s1); both fade rectangles are {x,y,w,h} structs copied into the 16-byte
+   argument; the fade alphas are converted to int when computed; and the case-3
+   sine argument is fGpffff84a4 * ((f32)n / 5.0f). Open: saved-register
+   colouring. */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00263cb0(s32 arg0, u8 *arg1)
@@ -1366,16 +1374,11 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     f32 spE8;
     f32 spE4;
     f32 spE0;
-    s128 spD0 __attribute__((aligned(16)));
-s32 spCC;
-s32 spC8;
-s32 spC4;
-s32 spC0;
-    s128 spB0 __attribute__((aligned(16)));
-s32 spAC;
-s32 spA8;
-s32 spA4;
-s32 spA0;
+    typedef struct { s32 x, y, w, h; } FadeRect;
+    s128 spD0;
+    FadeRect rectC __attribute__((aligned(16)));
+    s128 spB0;
+    FadeRect rectA __attribute__((aligned(16)));
     f32 *var_3;
     f32 *var_3_3;
     f32 temp_f0;
@@ -1408,6 +1411,7 @@ s32 spA0;
     s32 temp_19;
     s32 temp_19_2;
     s32 temp_21;
+    s32 fadeAlpha;
     s32 temp_22;
     s32 temp_2_2;
     s32 temp_2_3;
@@ -1431,7 +1435,7 @@ s32 spA0;
         temp_17 = *(s32 *)(temp_2 + 0x18);
         temp_2_2 = *(s32 *)(temp_2 + 0x20);
         if (temp_2_2 < 5) {
-            temp_f20 = sinf((fGpffff84a4 * (f32)temp_2_2) / 5.0f);
+            temp_f20 = sinf(fGpffff84a4 * ((f32)temp_2_2 / 5.0f));
             temp_f0 = (f32)func_0025f2c0(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
             temp_f13 = 1.0f - temp_f20;
             temp_f13_2 = 88.0f + temp_f0 * temp_f13;
@@ -1468,16 +1472,17 @@ s32 spA0;
         temp_18_2 = *(s32 *)(temp_2 + 0x18);
         temp_3_3 = *(s32 *)(temp_2 + 0x20);
         if (temp_3_3 < 0xA) {
-            temp_f0 = 255.0f * (1.0f - (f32)temp_3_3 / 10.0f);
+            temp_f0 = (f32)temp_3_3 / 10.0f;
+            temp_21 = (s32)(255.0f * (1.0f - temp_f0));
             func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             var_21 = 0;
             while (var_21 < 7) {
                 temp_20 = temp_18_2 - 1 + var_21;
                 if ((temp_20 >= 0) && (var_21 != 1)) {
                     temp_19 = var_21 * 0x5E;
-                    func_00262de0(temp_19 + 0xF, 0xF5, 0.0f, (s32)temp_f0 & 0xFF, (s32)temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
+                    func_00262de0(temp_19 + 0xF, 0xF5, 0.0f, temp_21, (s32)temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
                     temp_22 = *(s32 *)(temp_2 + 4);
-                    func_00261560(temp_19, 0x127, 0.0f, (s32)temp_f0 & 0xFF, func_00110c50((s32)temp_20, temp_18_2) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_22, 0);
+                    func_00261560(temp_19, 0x127, 0.0f, temp_21, func_00110c50((s32)temp_20, temp_18_2) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_22, 0);
                 }
                 var_21 += 1;
             }
@@ -1496,7 +1501,7 @@ s32 spA0;
                 } while (var_2 != 0);
             }
             spEC = spE8;
-            var_3_2 = (u8 *)&spC0;
+            var_3_2 = (u8 *)&rectC;
             var_2_2 = 0x10;
             if (var_3_2 != NULL) {
                 do {
@@ -1505,18 +1510,22 @@ s32 spA0;
                     var_2_2 -= 1;
                 } while (var_2_2 != 0);
             }
-            spC0 = 0;
-            spC4 = 0;
-            spC8 = 0x280;
-            spCC = 0x1E0;
-            spD0 = *(s128 *)&spC0;
-            (*D_00887300)((RwRenderState)(0xE), (void *)(0));
-            (*D_00887300)((RwRenderState)(0xC), (void *)(1));
-            (*D_00887300)((RwRenderState)(7), (void *)(2));
-            (*D_00887300)((RwRenderState)(9), (void *)(1));
-            (*D_00887300)((RwRenderState)(0x14), (void *)(1));
-            (*D_00887300)((RwRenderState)(6), (void *)(0));
-            (*D_00887300)((RwRenderState)(8), (void *)(1));
+            rectC.x = 0;
+            rectC.y = 0;
+            rectC.w = 0x280;
+            rectC.h = 0x1E0;
+            spD0 = *(s128 *)&rectC;
+            {
+                u32 table = (u32)D_00887300;
+
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0xE), (void *)(0));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0xC), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(7), (void *)(2));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(9), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0x14), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(6), (void *)(0));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(8), (void *)(1));
+            }
             RpSkyRenderStateSet(3, (void *)(0x31003));
             RpSkyRenderStateSet(2, (void *)(0x44));
             func_00489f80();
@@ -1528,7 +1537,7 @@ s32 spA0;
         } else if (temp_3_3 < 0x1E) {
             temp_f20 = (f32)(temp_3_3 - 0x19) / 5.0f;
             temp_f0_2 = 1.0f - temp_f20;
-            temp_f13_2 = 255.0f * temp_f0_2;
+            fadeAlpha = (s32)(255.0f * temp_f0_2);
             temp_f0 = (f32)func_0025f2c0(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
             temp_f13 = 88.0f + temp_f0 * temp_f20;
             func_0025f430(temp_f13, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f0_2, 1.0f);
@@ -1542,7 +1551,7 @@ s32 spA0;
                 } while (var_2_3 != 0);
             }
             spE4 = spE0;
-            var_3_4 = (u8 *)&spA0;
+            var_3_4 = (u8 *)&rectA;
             var_2_4 = 0x10;
             if (var_3_4 != NULL) {
                 do {
@@ -1551,26 +1560,30 @@ s32 spA0;
                     var_2_4 -= 1;
                 } while (var_2_4 != 0);
             }
-            spA0 = 0;
-            spA4 = 0;
-            spA8 = 0x280;
-            spAC = 0x1E0;
-            spB0 = *(s128 *)&spA0;
-            (*D_00887300)((RwRenderState)(0xE), (void *)(0));
-            (*D_00887300)((RwRenderState)(0xC), (void *)(1));
-            (*D_00887300)((RwRenderState)(7), (void *)(2));
-            (*D_00887300)((RwRenderState)(9), (void *)(1));
-            (*D_00887300)((RwRenderState)(0x14), (void *)(1));
-            (*D_00887300)((RwRenderState)(6), (void *)(0));
-            (*D_00887300)((RwRenderState)(8), (void *)(1));
+            rectA.x = 0;
+            rectA.y = 0;
+            rectA.w = 0x280;
+            rectA.h = 0x1E0;
+            spB0 = *(s128 *)&rectA;
+            {
+                u32 table = (u32)D_00887300;
+
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0xE), (void *)(0));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0xC), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(7), (void *)(2));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(9), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0x14), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(6), (void *)(0));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(8), (void *)(1));
+            }
             RpSkyRenderStateSet(3, (void *)(0x31003));
             RpSkyRenderStateSet(2, (void *)(0x44));
             func_00489f80();
             func_0045d6e0(&spE4, &spB0, 10.0f, 0);
             func_0048a000();
-            func_00262de0(0x6D, 0xF5, 0.0f, (s32)temp_f13_2 & 0xFF, temp_18_2, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+            func_00262de0(0x6D, 0xF5, 0.0f, fadeAlpha, temp_18_2, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
             temp_16_3 = *(s32 *)(temp_2 + 4);
-            func_00261560(0x5E, 0x127, 0.0f, (s32)temp_f13_2 & 0xFF, func_00110c50(temp_18_2, temp_18_2) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_3, 0);
+            func_00261560(0x5E, 0x127, 0.0f, fadeAlpha, func_00110c50(temp_18_2, temp_18_2) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_3, 0);
         }
         break;
     case 5:
@@ -1585,7 +1598,10 @@ s32 spA0;
             func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             func_00263730(var_18, 0, 0.0f, 0xFF, temp_17_3, 0, temp_2);
         } else {
-            goto else48;
+            temp_17_10 = *(s32 *)(temp_2 + 0x18);
+            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
+            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            func_00263730(temp_18_3, 0, 0.0f, 0xFF, temp_17_10, 1, temp_2);
         }
         break;
     case 7:
@@ -1628,7 +1644,10 @@ s32 spA0;
                 }
             }
         } else {
-            goto else48;
+            temp_17_10 = *(s32 *)(temp_2 + 0x18);
+            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
+            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            func_00263730(temp_18_3, 0, 0.0f, 0xFF, temp_17_10, 1, temp_2);
         }
         break;
     case 0:
@@ -1636,12 +1655,6 @@ s32 spA0;
     case 2:
         break;
     default:
-        break;
-    else48:
-        temp_17_10 = *(s32 *)(temp_2 + 0x18);
-        temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-        func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-        func_00263730(temp_18_3, 0, 0.0f, 0xFF, temp_17_10, 1, temp_2);
         break;
     }
 }
