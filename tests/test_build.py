@@ -126,6 +126,37 @@ class LinkFloorIdentityTests(unittest.TestCase):
                     build.check_required_c_functions(required, [self.owner()])
 
 
+class FieldLinkFloorTests(unittest.TestCase):
+    def test_committed_policy_requires_field_c_despite_unrelated_gains(self):
+        policy = json.loads(build.LINK_FLOOR.read_text())
+        source = 'src/promoted/k_fldEvent.c'
+        self.assertIn('00174e10', policy['required_c_functions'][source])
+        # Satisfy all committed requirements first. Then an unrelated addition
+        # raises the total above the floor without excusing loss of Field C.
+        owners = [{'src': REPO / path, 'funcs': [
+            {'addr': int(address, 16), 'name': 'func_' + address}
+            for address in addresses]}
+            for path, addresses in policy['required_c_functions'].items()]
+        owners.append({'src': REPO / 'src/unrelated_gain.c', 'funcs': [
+            {'addr': 0x123456, 'name': 'func_00123456'}]})
+        field = next(owner for owner in owners if owner['src'] == REPO / source)
+        build.check_link_floor(policy['linked_tu_count'] + 1, owners)
+        with self.assertRaisesRegex(SystemExit, 'required C owner.*k_fldEvent.*lost link eligibility'):
+            build.check_link_floor(policy['linked_tu_count'] + 1,
+                                   [owner for owner in owners if owner is not field])
+        markers = field['funcs']
+        field['funcs'] = []
+        with self.assertRaisesRegex(SystemExit, '00174e10 is missing'):
+            build.check_link_floor(policy['linked_tu_count'] + 1, owners)
+        field['funcs'] = markers
+        for flag in ('asm', 'nonmatching', 'stub'):
+            with self.subTest(flag=flag):
+                markers[0][flag] = True
+                with self.assertRaisesRegex(SystemExit, '00174e10.*assembly fallback'):
+                    build.check_link_floor(policy['linked_tu_count'] + 1, owners)
+                del markers[0][flag]
+
+
 class LinkResponseFileTests(unittest.TestCase):
     def test_link_uses_response_file_for_object_list(self) -> None:
         """Objects go through an @response file, sorted and de-duplicated.

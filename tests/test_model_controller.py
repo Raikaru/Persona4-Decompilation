@@ -7,23 +7,51 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 OWNER = ROOT / "src/Graphics/Model/mdlManager.c"
 FIXTURES = ROOT / "tests/fixtures/model_controller"
+sys.path.insert(0, str(ROOT / 'tools'))
+import probe_variants
+
+
+def controller_region(source):
+    start, end = probe_variants.region_for(source, 'FUN_00471370', 'func_00471370')
+    return source[start:end]
 
 
 class ModelControllerSourceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         source = OWNER.read_text()
-        cls.body = source.split("// FUN_00471370 NONMATCHING", 1)[1].split("#pragma pop", 1)[0]
+        cls.body = controller_region(source)
 
     def test_production_fallback_retained(self):
         self.assertTrue(self.body.lstrip().startswith("#ifdef NON_MATCHING"))
         self.assertIn('#else\nINCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);\n#endif', self.body)
+
+    def test_internal_pragma_pop_does_not_truncate_fallback(self):
+        source = """#pragma push
+// FUN_00471370 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+s32 func_00471370(void) { return 1; }
+#pragma pop
+#else
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
+#endif
+#pragma pop
+void following(void) {}
+"""
+        region = controller_region(source)
+        self.assertTrue(region.startswith('#ifdef NON_MATCHING'))
+        self.assertIn('#pragma pop\n#else\nINCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);\n#endif', region)
+        self.assertTrue(region.rstrip().endswith('#endif'))
+        self.assertNotIn('following', region)
 
     def test_mode_snapshots_precede_node_loop(self):
         loop = self.body.index("for (iStack_420 = 0;")

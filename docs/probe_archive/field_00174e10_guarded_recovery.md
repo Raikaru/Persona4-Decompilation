@@ -1,10 +1,13 @@
-# Field movement: guarded semantic recovery
+# Field movement: historical guarded semantic recovery
 
-`src/promoted/k_fldEvent.c:func_00174e10` remains **NONMATCHING** with its
+`src/promoted/k_fldEvent.c:func_00174e10` was **NONMATCHING** with its
 production `INCLUDE_ASM` fallback. This is a semantic repair, not a C promotion
 or a gameplay-equivalence claim. Measurements below were reproduced on
 2026-10-08 against main `1e0ce8a012b3ca8762d19bf14119bf52aa280a5d`.
-The adjacent JSON is a machine-readable receipt.
+The adjacent JSON is an unchanged historical machine-readable receipt.
+The target was subsequently promoted by `d5183160902dff3559c09048ee98b8e6b4cac2c6`.
+All source hashes, residuals, guard and object-identity statements below refer
+only to the guarded integration, not the current promoted source.
 
 ## Source and scope
 
@@ -42,7 +45,7 @@ boundaries. No stopped owner was reopened or inspected for this integration.
 No new compiler pragma is added; the separate neutral dead-code experiment
 is excluded.
 
-## Current-tree bounded evidence
+## Historical guarded-tree bounded evidence
 
 - Target-only C enabled in the complete owner: 3976 bytes against 3992 live
   retail bytes, within a 4000-byte configured window; frame `0x130`
@@ -72,11 +75,33 @@ the normal assembly-generation workflow. Do not commit those private inputs,
 objects, executable fixtures, compiler diagnostics, or machine-specific paths.
 
 ```sh
-python -m unittest discover -s tests -p test_field_movement.py -v
+# Historical replay: use a separate checkout with the frozen guarded owner.
+git worktree add --detach ../field-guarded-replay 75f49b54d11d16c713a9fabbdd11469f26a680ae
+cd ../field-guarded-replay
+# Configure authorized tools and generate fallbacks in this checkout first.
 python tools/replay_field00174e10.py
-# Explicitly compare a later main commit without changing the accepted source:
-python tools/replay_field00174e10.py --baseline <current-main-commit>
+# --baseline changes only the comparison baseline, never the candidate source.
 ```
+
+On current main, run the source-bound witnesses and current byte verification:
+
+```sh
+python -m unittest discover -s tests -p 'test_field_movement*.py' -v
+python tools/verify.py src/promoted/k_fldEvent.c
+make verify
+make build-progress
+```
+
+The bounded witnesses accept both guarded and promoted definition boundaries;
+the current-owner regression assertion requires the promoted C lifecycle,
+and the existing required-C link policy pins this target to its eligible owner.
+Fragment discovery ignores comments and literals; unsupported line splices and
+in-body preprocessing directives fail closed rather than selecting an arm.
+Comment-shadow and runtime rounding mutations are rejected.
+They do not pin the whole owner to a historical hash. Their extracted operations
+and mutation controls remain bound to the actual source. The historical replay
+fails explicitly on a changed owner, including a promoted one, before compiling.
+It does not issue the old NONMATCHING receipt for current source.
 
 The replay uses `P4_MWCC`, `P4_RETAIL_ELF`, and `P4_AS`, honors the owner's
 configured flags, and enables only this target, never global `NON_MATCHING`.
