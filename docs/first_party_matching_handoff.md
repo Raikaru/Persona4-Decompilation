@@ -46,6 +46,22 @@ and both retail hashes passed.
   slots, and `opt_dead_assignments off` places the argument loads.
 - A pragma sweep lowered 22 guarded bodies; see the owner notes and
   [matching.md](matching.md).
+- `build/after18.json` confirms 6,816 / 45. Against `after17.json` only
+  `00174e10` and `002ba080` changed. The full link after `002ba080` kept
+  604 C and 54 SDK objects, and both hashes passed.
+- Further guarded improvements (fnalign edits):
+  - `0036ee60` 71 → 45 and `00263cb0` 85 → 75, both by hill-climbing the
+    declaration order. Each round scores eight swap/move variants with
+    fnalign; `build/declclimb.py` in this worktree does it.
+  - `0027f6f0` 590 → 331: `&&` booleans, s32 frame counters, and argument
+    expressions inlined so retail's call-site evaluation order comes out.
+  - `003768e0` 464 → 270 and `001400f0` 77 → 63.
+- Remaining blockers:
+  - `0036ee60`: the regalloc model needs `nDraw`'s spill score raised by one.
+  - `001fd790`: a loop-hoisted `1.0f - scale` temporary has to be numbered
+    among case 1's locals.
+  - `001400f0`: both radar calls need u8 alpha parameters, but the matched
+    callees in the same file take `s32`.
 
 ## October 7 continuation: 6,813 MATCH / 48 ASM
 
