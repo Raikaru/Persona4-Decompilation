@@ -461,84 +461,51 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
 
 
 
-/* measured 00471370 (owner): the romwright body is NOT banked.  It measures object 2561
-   against retail 1776 - **+44.2%**, where the gate allows 53 instructions - and a body 44%
-   too long is not a floor, it is a different function.  Its word and edit scores (2496 and
-   3645) are meaningless against a body of that length (handoff 7y), and leaving it installed
-   would corrupt every later measurement on this file.  Archived at
-   docs/probe_archive/romwright_func_00471370_R1.c with its diagnosis: float accumulator mul/add where
-   retail uses mula/madd (7r), the lhu+bltz sign-test floor shared with func_00473b20 and
-   func_00479100, saved-register rotation, and an if-else chain where retail has a jump
-   table.  Rebuild from retail's dispatch shape, not from the decompiler's. */
-/* measured 00471370 R2 (B6_floatbits, shared-context guarded): object 1971/retail 1776
-   (+195, +11.0%). Retail 7104B/1776, frame -0x550, 77 jal +1 jalr (callback 0x004717FC),
-   no jump table (if-chain, NOT table), band 1723-1829 (53 allowed). Batches over R1 2561:
-   B1 strip trailing +0.0 (30 occ, Horner + lerp) 2561->2225 (-336);
-   B2 merge split lerp *(param+8/10/c)=C*D then =A*B+*(param)+0.0 into single A*B+C*D
-   2225->2215 (-10); B3 float proto (0044b920/50 u32->float, DAT_00922bb0/b4 s32->float,
-   drop (float) casts) 2215->2132 (-83); B5 u64 fix (003d5790 u64->ptr, 003e9240 long->int,
-   lq-emulation (float)u64 casts -> direct float copies) 2132->2118 (-14);
-   B6 float bits (*(u32*)&afStack_b0[3]|=, (float)puVar3[c/e/12]->((float*)puVar3)[])
-   2118->1971 (-147). Total -590, remaining +195. Zero widen (u8/u16->u32) ties 2132;
-   quat-share temps ties 1971; pragma off 2079 (+108); schedule on 1668 (-303, -6.1% short)
-   banned (fills delays retail leaves empty, hides surplus like 00475cd0 handoff 7y).
-   Concrete sites: 0x42180-0x421FC mul f4,f1,f11 + mul f3,f4,f4 sharing f3 across six
-   adda/madd (Horner, fixed by B1); mula 0x42264/0x4251C (lerp A*B+C*D, fixed by B1+B2);
-   madda pairs 0x42574-0x42580 + 0x426DC-0x426E8 (2.0/sum-of-4-squares, already single).
-   ~44 shared-product sites. lhu+bltz 0x472BF0 untouched (7az floor, struct u32 fix). */
-/* gate: func_00471370 is INSIDE the +-3% band at 1776 against retail 1776 (exact count,
-   band 1723-1829).  From the 1971 body: unsuffixed double constants were emitting ~155
-   fptodp/dpsub/dptofp/lito emulation calls (object had 233 jal vs retail's 78); `f`
-   suffixes on all 86 float constants -420 to 1551 with 79 calls.  The MAC-fusion theory
-   was inverted for this body: at equal precision our fused mula+madd undershoots retail,
-   whose 79 adda/mula/madd/madda lines are mostly SPLIT shapes (mul+store, reload+adda+
-   madd).  Length came back via retail-observed splits: push/pop opt_common_subs off +
-   opt_propagation off around the function +130 (1676, wrapper placement; in-body pragmas
-   are inert); column-major lerp splits (mul+store, reload+combine, 4th row fused) +11/+15;
-   negate-triple store-then-negate +2; afStack_350[4] array (sign-flip quads were scalar-
-   addressed so MWCC dropped 3 of 4 dead stores; array forces the 16B callee window) +12;
-   afStack_30[3] array (same scalar-escape loss on fStack_2c/28 scalings/reciprocals) +60.
-   Rotation calls use the native matrix/axis/float-angle/combine-op contract;
-   the angle occupies $f12 without the old unprototyped float-to-double promotion.
-   lhu+bltz 0x472BF0 remains untouched (7az floor).
-   Measured at gate: GUARDED_SCORE 1636, fnalign edits 2073, frame -0x400 vs retail -0x550.
-   Word/edit scores are comparable from here (equal length).  Production guarded, fallback
-   INCLUDE_ASM retained. */
+/* Research-only controller reconstruction. Real matrix/quaternion/cache storage,
+ * halfword controller views and direct callback ABI follow the retail window.
+ * The former opt-off settings inflated a scalar-fragment draft; this candidate
+ * uses the owner configuration. Quaternion interpolation and conversion phases
+ * follow the retail arithmetic trees and the checked-in RenderWare macros.
+ * Reviewed checkpoint: 7084/7104 live bytes, frame 0x550, 812 resolved-word
+ * edits (unit-cost Levenshtein). Still NONMATCHING; see
+ * docs/probe_archive/model_00471370_guarded_recovery.md.
+ */
 #pragma push
-#pragma opt_common_subs off
-#pragma opt_propagation off
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 
 {
+    struct RtQuat;
+    struct RtQuatSlerpCache;
+    struct RwObjectOwnerLink;
     extern void *func_003d5790(int, int);
-    extern int func_003e9240(void *);
-    extern unsigned int func_003e9700(int);
+    extern u8 func_003e9240(struct RwObjectOwnerLink *);
+    extern u8 * func_003e9700(u8 *);
     extern float func_0044b920(float);
     extern float func_0044b950(float, float);
     extern int func_003d5e40(unsigned char *, float);
     extern int func_003d5e90(unsigned char *, unsigned char *, unsigned char *, float);
     extern float func_004bd4a0(unsigned char *, unsigned char *);
-    extern s32 func_003954b0();
+    extern void func_003954b0(void *matrix, void *keyFrame);
     extern s32 func_00397c40(void* hierarchy);
-    extern s32 func_003d5840();
-    extern s32 RtQuatConvertFromMatrix();
-    extern s32 func_003dc740();
-    extern s32 RtQuatTransformVectors();
-    extern s32 func_003dcc70();
-    extern s32 RwMatrixMultiply();
-    extern s32 func_003e0960();
-    extern s32 RwMatrixScale();
-    extern s32 RwV3dNormalize();
-    extern s32 func_003e42a0();
-    extern s32 func_003e4320();
-    extern s32 func_003e9680();
-    extern s32 func_003ed960();
-/* irregular: 19 native warning(s); review required */
-    extern s32 DAT_0088739c;
-    extern float DAT_00922bb0;
-    extern float DAT_00922bb4;
+    extern void func_003d5840(RtAnimInterpolator *, RtAnimAnimation *);
+    extern s32 RtQuatConvertFromMatrix(struct RtQuat *, const RwMatrix *);
+    extern struct RtQuat *func_003dc740(struct RtQuat *, const RwV3d *, f32, s32);
+    extern RwV3d * RtQuatTransformVectors(RwV3d *, const RwV3d *, s32, const struct RtQuat *);
+    extern void func_003dcc70(struct RtQuat *, struct RtQuat *, struct RtQuatSlerpCache *);
+    extern RwMatrix * RwMatrixMultiply(RwMatrix *, const RwMatrix *, const RwMatrix *);
+    extern RwMatrix * func_003e0960(RwMatrix *, const RwMatrix *);
+    extern RwMatrix * RwMatrixScale(RwMatrix *, const RwV3d *, RwOpCombineType);
+    extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
+    extern RwV3d * func_003e42a0(RwV3d *, const RwV3d *, const RwMatrix *);
+    extern RwV3d * func_003e4320(RwV3d *, const RwV3d *, const RwMatrix *);
+    extern u8 * func_003e9680(u8 *);
+    extern void func_003ed960(u8 *object);
+/* Local declarations above follow the actual pointer/float call contracts. */
+    extern s32 DAT_0088739c[];
+    extern float DAT_00922bb0[];
+    extern float DAT_00922bb4[];
     extern float fGpffff8040;
     extern float fGpffff8048;
     extern float fGpffff804c;
@@ -553,11 +520,11 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     extern float fGpffff8070;
     extern float fGpffff8074;
   unsigned short temp_v0;
-  code *pcVar2;
+  void (*pcVar2)(void *matrix, void *keyFrame);
   unsigned int *puVar3;
   int *piVar4;
-  unsigned char temp_v1;
-  unsigned char temp_v2;
+  s32 hasParentMatrix;
+  s32 resetAnimation;
   unsigned int temp_v3;
   float *pfVar8;
   int temp_v4;
@@ -580,748 +547,679 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   float temp_v15;
   float temp_v16;
   unsigned int temp_v17;
-  float temp_v18;
-  float temp_v19;
   float temp_v20;
   float temp_v21;
+  /* Retail sp+0x100 is conditionally assigned at 004719dc/00471d7c/
+   * 00471f0c and read at 00472280. Preserve that original lifetime. */
   int iStack_450;
   unsigned int uStack_430;
   int iStack_420;
   unsigned char temp_v22 [64];
-  int uStack_3c0;
-  unsigned int uStack_3bc;
-  unsigned int uStack_3b8;
-  unsigned int uStack_3b4;
-  float fStack_3b0;
-  float fStack_3ac;
-  float fStack_3a8;
-  float fStack_3a4;
-  float fStack_3a0;
-  float fStack_39c;
-  float fStack_398;
-  float fStack_394;
-  float fStack_390;
-  float fStack_38c;
-  float fStack_388;
-  float fStack_384;
-  float fStack_380;
-  float fStack_37c;
-  float fStack_378;
-  float fStack_374;
-  float fStack_370;
-  float fStack_36c;
-  float fStack_368;
-  float fStack_364;
-  float fStack_360;
-  int iStack_35c;
-  float afStack_350[4];
-  float fStack_340;
-  float fStack_33c;
-  float fStack_338;
-  float fStack_334;
-  float fStack_330;
-  float fStack_32c;
-  float fStack_328;
-  unsigned int uStack_324;
-  float fStack_320;
-  float fStack_31c;
-  float fStack_318;
-  float fStack_310;
-  float fStack_30c;
-  float fStack_308;
-  float fStack_300;
-  float fStack_2fc;
-  float fStack_2f8;
   unsigned char temp_v23 [64];
   unsigned char temp_v24 [64];
-  unsigned char temp_v25 [16];
-  unsigned char temp_v26 [48];
-  float fStack_230;
-  float fStack_22c;
-  float fStack_228;
-  unsigned int uStack_224;
-  float fStack_220;
-  float fStack_21c;
-  float fStack_218;
-  float fStack_210;
-  float fStack_20c;
-  float fStack_208;
-  unsigned int uStack_200;
-  unsigned int uStack_1fc;
-  unsigned int uStack_1f8;
-  float afStack_1f0 [16];
-  float afStack_1b0 [17];
+  RwMatrix ancestorMatrix;
+  RwMatrix scaleMatrix;
   unsigned int temp_v27 [31];
-  float afStack_f0 [3];
-  unsigned int uStack_e4;
-  unsigned int uStack_e0;
-  unsigned int uStack_dc;
-  unsigned int uStack_d8;
-  unsigned int uStack_d0;
-  unsigned int uStack_cc;
-  unsigned int uStack_c8;
-  unsigned int uStack_c0;
-  unsigned int uStack_bc;
-  unsigned int uStack_b8;
-  float afStack_b0 [8];
-  unsigned int uStack_90;
-  unsigned int uStack_8c;
-  unsigned int uStack_88;
-  unsigned int uStack_80;
-  unsigned int uStack_7c;
-  unsigned int uStack_78;
-  int uStack_70;
-  unsigned int uStack_6c;
-  unsigned int uStack_68;
-  float fStack_60;
-  float fStack_5c;
-  float fStack_50;
-  float fStack_4c;
-  float fStack_48;
-  float fStack_40;
-  float fStack_3c;
-  float fStack_38;
-  float afStack_30[3];
-  float fStack_20;
-  float fStack_1c;
-  float fStack_18;
-  int uStack_10;
-  unsigned int uStack_c;
-  unsigned int uStack_8;
+  RwV3d workingVector;
   
-  temp_v1 = 0;
+  typedef union { f32 value[4]; u32 bits[4]; } ControllerQuat;
+  ControllerQuat fallbackRotation;
+  ControllerQuat startRotation;
+  ControllerQuat blendedRotation;
+  ControllerQuat rotationSnapshot;
+  ControllerQuat rotation;
+  ControllerQuat afStack_350;
+  typedef struct { f32 from[4]; f32 to[4]; f32 omega; s32 nearlyZero; } ControllerSlerpCache;
+  ControllerSlerpCache interpolation;
+  RwMatrix localMatrix;
+  RwMatrix frameMatrix;
+  RwMatrix identityMatrix;
+  RwMatrix baseMatrix;
+  u32 forwardAxis[3];
+  f32 direction[3];
+  f32 eye[3];
+  f32 look[3];
+  RwV3d position;
+  u32 axis[3];
+  RwMatrix axisMatrix;
+
+  typedef char ControllerPointerSize[(sizeof(void *) == 4) ? 1 : -1];
+  typedef char ControllerMatrixSize[(sizeof(RwMatrix) == 64) ? 1 : -1];
+  typedef char ControllerMatrixFlags[(offsetof(RwMatrix, flags) == 12) ? 1 : -1];
+  typedef char ControllerMatrixUp[(offsetof(RwMatrix, up) == 16) ? 1 : -1];
+  typedef char ControllerMatrixAt[(offsetof(RwMatrix, at) == 32) ? 1 : -1];
+  typedef char ControllerMatrixPosition[(offsetof(RwMatrix, pos) == 48) ? 1 : -1];
+  typedef char ControllerQuaternionSize[(sizeof(ControllerQuat) == 16) ? 1 : -1];
+  typedef char ControllerCacheSize[(sizeof(ControllerSlerpCache) == 40) ? 1 : -1];
+  typedef char ControllerCacheTo[(offsetof(ControllerSlerpCache, to) == 16) ? 1 : -1];
+  typedef char ControllerCacheOmega[(offsetof(ControllerSlerpCache, omega) == 32) ? 1 : -1];
+  typedef char ControllerCacheFlag[(offsetof(ControllerSlerpCache, nearlyZero) == 36) ? 1 : -1];
+  typedef char ControllerPositionSize[(sizeof(position) == 12) ? 1 : -1];
+  typedef char ControllerWorkingVectorSize[(sizeof(workingVector) == 12) ? 1 : -1];
+  typedef char ControllerWorkingVectorX[(offsetof(RwV3d, x) == 0) ? 1 : -1];
+  typedef char ControllerWorkingVectorY[(offsetof(RwV3d, y) == 4) ? 1 : -1];
+  typedef char ControllerWorkingVectorZ[(offsetof(RwV3d, z) == 8) ? 1 : -1];
+  typedef char ControllerDirectionSize[(sizeof(direction) == 12) ? 1 : -1];
+  typedef char ControllerAxisSize[(sizeof(axis) == 12) ? 1 : -1];
+
+  u16 *modelState = (u16 *)param_2;
+  u16 *controller = (u16 *)param_3;
+
+  hasParentMatrix = 0;
   temp_v3 = 0;
-  temp_v2 = 0;
+  resetAnimation = 0;
   puVar12 = (unsigned int *)param_1;
   temp_v10 = *puVar12;
-  if (((temp_v10 & 1) == 0) || (puVar12[7] == 0xffffffff)) {
-    if ((temp_v10 & 0x4000) == 0) {
-      temp_v1 = 1;
-      temp_v3 = puVar12[5];
-      pfVar21 = afStack_b0;
-    }
-    else {
-      uStack_c8 = 0x3f800000;
-      uStack_dc = 0x3f800000;
-      afStack_f0[0] = 1.0f;
-      uStack_e0 = 0;
-      afStack_f0[2] = 0.0f;
-      afStack_f0[1] = 0.0f;
-      uStack_cc = 0;
-      uStack_d0 = 0;
-      uStack_d8 = 0;
-      uStack_b8 = 0;
-      uStack_bc = 0;
-      uStack_c0 = 0;
-      uStack_e4 = uStack_e4 | 0x20003;
-      pfVar21 = afStack_f0;
-      if ((temp_v10 & 0x2000) != 0) {
-        temp_v1 = 1;
-        temp_v3 = puVar12[5];
-      }
-    }
-  }
-  else {
+  if (((temp_v10 & 1) != 0) && (puVar12[7] != 0xffffffff)) {
     pfVar21 = (float *)(*(int *)(puVar12[6] + 8) + puVar12[7] * 0x40);
     if (((temp_v10 & 0x2000) != 0) && ((temp_v10 & 0x4000) != 0)) {
-      temp_v1 = 1;
+      hasParentMatrix = 1;
       temp_v3 = *(unsigned int *)(puVar12[6] + 0x14);
     }
+  } else {
+    if ((temp_v10 & 0x4000) != 0) {
+      (*(u32 *)&identityMatrix.at.z) = 0x3f800000;
+      (*(u32 *)&identityMatrix.up.y) = 0x3f800000;
+      ((f32 *)&identityMatrix)[0] = 1.0f;
+      (*(u32 *)&identityMatrix.up.x) = 0;
+      ((f32 *)&identityMatrix)[2] = 0.0f;
+      ((f32 *)&identityMatrix)[1] = 0.0f;
+      (*(u32 *)&identityMatrix.at.y) = 0;
+      (*(u32 *)&identityMatrix.at.x) = 0;
+      (*(u32 *)&identityMatrix.up.z) = 0;
+      (*(u32 *)&identityMatrix.pos.z) = 0;
+      (*(u32 *)&identityMatrix.pos.y) = 0;
+      (*(u32 *)&identityMatrix.pos.x) = 0;
+      /* Retail 00471460 reads this flag word before any defining store. */
+      identityMatrix.flags = identityMatrix.flags | 0x20003;
+      pfVar21 = ((f32 *)&identityMatrix);
+      if ((temp_v10 & 0x2000) != 0) {
+        hasParentMatrix = 1;
+        temp_v3 = puVar12[5];
+      }
+    } else {
+      hasParentMatrix = 1;
+      temp_v3 = puVar12[5];
+      pfVar21 = ((f32 *)&baseMatrix);
+    }
   }
-  if (temp_v1) {
+  if (hasParentMatrix) {
     if ((temp_v3 == 0) || (temp_v9 = *(int *)(temp_v3 + 4), temp_v9 == 0)) {
-      uStack_88 = 0x3f800000;
-      afStack_b0[5] = 1.0f;
-      afStack_b0[0] = 1.0f;
-      afStack_b0[4] = 0.0f;
-      afStack_b0[2] = 0.0f;
-      afStack_b0[1] = 0.0f;
-      uStack_8c = 0;
-      uStack_90 = 0;
-      afStack_b0[6] = 0.0f;
-      uStack_78 = 0;
-      uStack_7c = 0;
-      uStack_80 = 0;
-      *(u32 *)&afStack_b0[3] |= 0x20003;
+      (*(u32 *)&baseMatrix.at.z) = 0x3f800000;
+      ((f32 *)&baseMatrix)[5] = 1.0f;
+      ((f32 *)&baseMatrix)[0] = 1.0f;
+      ((f32 *)&baseMatrix)[4] = 0.0f;
+      ((f32 *)&baseMatrix)[2] = 0.0f;
+      ((f32 *)&baseMatrix)[1] = 0.0f;
+      (*(u32 *)&baseMatrix.at.y) = 0;
+      (*(u32 *)&baseMatrix.at.x) = 0;
+      ((f32 *)&baseMatrix)[6] = 0.0f;
+      (*(u32 *)&baseMatrix.pos.z) = 0;
+      (*(u32 *)&baseMatrix.pos.y) = 0;
+      (*(u32 *)&baseMatrix.pos.x) = 0;
+      /* Retail 004715d0 likewise preserves the unwritten flag bits. */
+      baseMatrix.flags |= 0x20003;
     }
     else {
-      temp_v4 = func_003e9240((void *)temp_v9);
+      temp_v4 = func_003e9240((struct RwObjectOwnerLink *)((void *)temp_v9));
       if (temp_v4 == 0) {
-        pfVar8 = (float *)func_003e9700(temp_v9);
-        pfVar16 = afStack_b0;
-        temp_v9 = 8;
-        do {
-          temp_v21 = *pfVar8;
-          temp_v20 = pfVar8[1];
-          pfVar8 = pfVar8 + 2;
-          temp_v9 = temp_v9 - 1;
-          *pfVar16 = temp_v21;
-          pfVar16[1] = temp_v20;
-          pfVar16 = pfVar16 + 2;
-        } while (0 < temp_v9);
+        baseMatrix = *(const RwMatrix *)func_003e9700((u8 *)temp_v9);
       }
       else {
-        pfVar16 = (float *)(temp_v9 + 0x10);
-        pfVar8 = afStack_b0;
-        temp_v11 = 8;
-        do {
-          temp_v21 = *pfVar16;
-          temp_v20 = pfVar16[1];
-          pfVar16 = pfVar16 + 2;
-          temp_v11 = temp_v11 - 1;
-          *pfVar8 = temp_v21;
-          pfVar8[1] = temp_v20;
-          pfVar8 = pfVar8 + 2;
-        } while (0 < temp_v11);
+        baseMatrix = *(const RwMatrix *)(temp_v9 + 0x10);
         for (temp_v9 = *(int *)(temp_v9 + 4); temp_v9 != 0; temp_v9 = *(int *)(temp_v9 + 4)) {
-          pfVar16 = afStack_b0;
-          pfVar8 = afStack_1f0;
-          temp_v11 = 4;
-          do {
-            pfVar8[0] = pfVar16[0];
-            pfVar8[1] = pfVar16[1];
-            pfVar8[2] = pfVar16[2];
-            pfVar8[3] = pfVar16[3];
-            pfVar16 = pfVar16 + 4;
-            temp_v11 = temp_v11 - 1;
-            pfVar8 = pfVar8 + 4;
-          } while (0 < temp_v11);
-          RwMatrixMultiply(afStack_b0,afStack_1f0,temp_v9 + 0x10);
+          ancestorMatrix = baseMatrix;
+          RwMatrixMultiply((RwMatrix *)(((f32 *)&baseMatrix)),(const RwMatrix *)(((f32 *)&ancestorMatrix)),(const RwMatrix *)(temp_v9 + 0x10));
         }
       }
     }
   }
   temp_v3 = temp_v10 & 0x2000;
   if ((temp_v3 != 0) && ((*(unsigned char *)(*(int *)(puVar12[5] + 0xa0) + 3) & 3) == 0)) {
-    *(int *)(*(int *)(puVar12[5] + 0xa0) + 8) = DAT_0088739c;
-    *(int **)(*(int *)(puVar12[5] + 0xa0) + 0xc) = &DAT_0088739c;
-    *(int *)(DAT_0088739c + 4) = *(int *)(puVar12[5] + 0xa0) + 8;
+    *(int *)(*(int *)(puVar12[5] + 0xa0) + 8) = DAT_0088739c[0];
+    *(int **)(*(int *)(puVar12[5] + 0xa0) + 0xc) = &DAT_0088739c[0];
+    *(int *)(DAT_0088739c[0] + 4) = *(int *)(puVar12[5] + 0xa0) + 8;
     temp_v9 = *(int *)(puVar12[5] + 0xa0);
-    DAT_0088739c = temp_v9 + 8;
+    DAT_0088739c[0] = temp_v9 + 8;
     *(unsigned char *)(temp_v9 + 3) = *(unsigned char *)(temp_v9 + 3) | 2;
   }
   temp_v6 = puVar12[8];
-  pcVar2 = *(code **)(temp_v6 + 0x3c);
+  pcVar2 = *(void (**)(void *, void *))(temp_v6 + 0x3c);
   temp_v9 = *(int *)(temp_v6 + 0x24);
   puVar22 = temp_v27;
   uStack_430 = puVar12[4];
   pfVar8 = (float *)puVar12[2];
   temp_v11 = temp_v6 + 0x4c;
-  puVar3 = *(unsigned int **)((short)param_2[2] * 0x50 + **(int **)(param_2 + 0x1a) + 0x48);
-  if ((puVar3 == (unsigned int *)0x0) || (*(float *)(param_2 + 4) != 0.0f)) {
+  puVar3 = *(unsigned int **)((short)modelState[2] * 0x50 + **(int **)(modelState + 0x1a) + 0x48);
+  if ((puVar3 == (unsigned int *)0x0) || (*(float *)(modelState + 4) != 0.0f)) {
+    /* Per-hierarchy modes are snapped before callbacks and reused for all
+     * nodes, as at retail 004716d0-004716dc. The full entry flags need not
+     * remain live throughout the node traversal. */
+    s32 updateFrameMatrices = temp_v10 & 0x1000;
+    s32 concatenateParentMatrix = temp_v10 & 0x4000;
     for (iStack_420 = 0; iStack_420 < (int)puVar12[1]; iStack_420 = iStack_420 + 1) {
-      if (*pcVar2 == func_003954b0) {
-        temp_v14 = *(float *)(temp_v11 + 8);
-        temp_v15 = *(float *)(temp_v11 + 0xc);
-        temp_v21 = *(float *)(temp_v11 + 0x10);
-        temp_v20 = *(float *)(temp_v11 + 0x14);
-        fStack_230 = 1.0f - (temp_v15 * temp_v15 + temp_v21 * temp_v21) * 2.0f;
-        fStack_22c = (temp_v14 * temp_v15 + temp_v20 * temp_v21) * 2.0f;
-        fStack_228 = (temp_v21 * temp_v14 - temp_v20 * temp_v15) * 2.0f;
-        fStack_220 = (temp_v14 * temp_v15 - temp_v20 * temp_v21) * 2.0f;
-        fStack_21c = 1.0f - (temp_v14 * temp_v14 + temp_v21 * temp_v21) * 2.0f;
-        fStack_218 = (temp_v15 * temp_v21 + temp_v20 * temp_v14) * 2.0f;
-        fStack_210 = (temp_v21 * temp_v14 + temp_v20 * temp_v15) * 2.0f;
-        fStack_20c = (temp_v15 * temp_v21 - temp_v20 * temp_v14) * 2.0f;
-        fStack_208 = 1.0f - (temp_v14 * temp_v14 + temp_v15 * temp_v15) * 2.0f;
-        uStack_224 = 3;
-        uStack_200 = *(unsigned int *)(temp_v11 + 0x18);
-        uStack_1fc = *(unsigned int *)(temp_v11 + 0x1c);
-        uStack_1f8 = *(unsigned int *)(temp_v11 + 0x20);
+      if (pcVar2 == func_003954b0) {
+        /* RtQuatUnitConvertToMatrixMacro: independent square/cross/wimag
+         * products precede matrix construction, as in retail 0047170c-0047172c. */
+        const f32 x = *(f32 *)(temp_v11 + 8);
+        const f32 y = *(f32 *)(temp_v11 + 0xc);
+        const f32 z = *(f32 *)(temp_v11 + 0x10);
+        const f32 w = *(f32 *)(temp_v11 + 0x14);
+        RwV3d square;
+        RwV3d cross;
+        RwV3d wimag;
+        square.x = x * x;
+        square.y = y * y;
+        square.z = z * z;
+        cross.x = y * z;
+        cross.y = z * x;
+        cross.z = x * y;
+        wimag.x = w * x;
+        wimag.y = w * y;
+        wimag.z = w * z;
+        frameMatrix.right.x = 1.0f - 2.0f * (square.y + square.z);
+        frameMatrix.right.y = 2.0f * (cross.z + wimag.z);
+        frameMatrix.right.z = 2.0f * (cross.y - wimag.y);
+        frameMatrix.up.x = 2.0f * (cross.z - wimag.z);
+        frameMatrix.up.y = 1.0f - 2.0f * (square.x + square.z);
+        frameMatrix.up.z = 2.0f * (cross.x + wimag.x);
+        frameMatrix.at.x = 2.0f * (cross.y + wimag.y);
+        frameMatrix.at.y = 2.0f * (cross.x - wimag.x);
+        frameMatrix.at.z = 1.0f - 2.0f * (square.x + square.y);
+        frameMatrix.pos.x = 0.0f;
+        frameMatrix.pos.y = 0.0f;
+        frameMatrix.pos.z = 0.0f;
+        frameMatrix.flags = 3;
+        frameMatrix.pos.x = *(f32 *)(temp_v11 + 0x18);
+        frameMatrix.pos.y = *(f32 *)(temp_v11 + 0x1c);
+        frameMatrix.pos.z = *(f32 *)(temp_v11 + 0x20);
       }
       else {
-        (*pcVar2)(&fStack_230,temp_v11);
+        (*pcVar2)(&frameMatrix.right.x,(void *)temp_v11);
       }
       if (*(int *)(puVar12[4] + iStack_420 * 0x10) == 0x1389) {
-        if ((param_4 == 0) && ((*param_3 & 0x400) == 0)) {
-          *param_3 = *param_3 | 0x600;
+        s32 angleLimited;
+        if ((param_4 == 0) && ((*controller & 0x400) == 0)) {
+          *controller = *controller | 0x600;
         }
-        temp_v1 = 0;
-        afStack_30[0] = 1.0f / *(float *)(param_3 + 0x18);
-        afStack_30[1] = 1.0f / *(float *)(param_3 + 0x1a);
-        afStack_30[2] = 1.0f / *(float *)(param_3 + 0x1c);
-        if ((*param_2 & 0x10) != 0) {
-          afStack_30[0] = afStack_30[0] * (1.0f / DAT_00922bb0);
-          temp_v21 = (1.0f / DAT_00922bb0) * DAT_00922bb4;
-          afStack_30[1] = afStack_30[1] * temp_v21;
-          afStack_30[2] = afStack_30[2] * temp_v21;
+        angleLimited = 0;
+        workingVector.x = 1.0f / *(float *)(controller + 0x18);
+        workingVector.y = 1.0f / *(float *)(controller + 0x1a);
+        workingVector.z = 1.0f / *(float *)(controller + 0x1c);
+        if ((*modelState & 0x10) != 0) {
+          workingVector.x = workingVector.x * (1.0f / DAT_00922bb0[0]);
+          temp_v21 = (1.0f / DAT_00922bb0[0]) * DAT_00922bb4[0];
+          workingVector.y = workingVector.y * temp_v21;
+          workingVector.z = workingVector.z * temp_v21;
         }
-        pfVar17 = afStack_1b0;
-        temp_v7 = 8;
-        pfVar16 = pfVar21;
-        do {
-          temp_v21 = *pfVar16;
-          temp_v20 = pfVar16[1];
-          pfVar16 = pfVar16 + 2;
-          temp_v7 = temp_v7 - 1;
-          *pfVar17 = temp_v21;
-          pfVar17[1] = temp_v20;
-          pfVar17 = pfVar17 + 2;
-        } while (0 < temp_v7);
-        RwMatrixScale(afStack_1b0,afStack_30,1);
-        RwMatrixMultiply(&fStack_330,&fStack_230,afStack_1b0);
-        fStack_20 = fStack_300;
-        fStack_1c = fStack_2fc;
-        fStack_18 = fStack_2f8;
+        scaleMatrix = *(const RwMatrix *)pfVar21;
+        RwMatrixScale((RwMatrix *)(((f32 *)&scaleMatrix)),(const RwV3d *)(&workingVector),(RwOpCombineType)(1));
+        RwMatrixMultiply((RwMatrix *)(&localMatrix.right.x),(const RwMatrix *)(&frameMatrix.right.x),(const RwMatrix *)(((f32 *)&scaleMatrix)));
+        position = localMatrix.pos;
         if (param_4 == 0) {
-          RwMatrixScale(&fStack_330,afStack_30,1);
-          uStack_10 = 0;
-          uStack_c = 0x3f800000;
-          uStack_8 = 0;
-          RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&uStack_10, 180.0f, rwCOMBINEREPLACE);
-          uStack_10 = 0;
-          uStack_c = 0;
-          uStack_8 = 0x3f800000;
-          RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&uStack_10, -90.0f, rwCOMBINEPOSTCONCAT);
-          RwMatrixMultiply(temp_v25,temp_v24,afStack_b0);
-          temp_v0 = *param_3;
+          RwMatrixScale((RwMatrix *)(&localMatrix.right.x),(const RwV3d *)(&workingVector),(RwOpCombineType)(1));
+          axis[0] = 0;
+          axis[1] = 0x3f800000;
+          axis[2] = 0;
+          RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&axis[0], 180.0f, rwCOMBINEREPLACE);
+          axis[0] = 0;
+          axis[1] = 0;
+          axis[2] = 0x3f800000;
+          RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&axis[0], -90.0f, rwCOMBINEPOSTCONCAT);
+          RwMatrixMultiply((RwMatrix *)(((u8 *)&axisMatrix)),(const RwMatrix *)(temp_v24),(const RwMatrix *)(((f32 *)&baseMatrix)));
+          temp_v0 = *controller;
           if ((temp_v0 & 0x100) == 0) {
             if ((temp_v0 & 0x60) == 0) {
               if ((temp_v0 & 0x80) == 0) {
-                RtQuatConvertFromMatrix(&fStack_340,&fStack_330);
+                RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(&localMatrix.right.x));
               }
               else {
                 iStack_450 = 0;
-                uStack_10 = 0x3f800000;
-                uStack_c = 0;
-                uStack_8 = 0;
-                func_003e4320(&uStack_10,&uStack_10,afStack_b0);
-                RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&uStack_10, *(float *)(param_3 + 0x1e), rwCOMBINEREPLACE);
-                uStack_10 = 0;
-                uStack_c = 0x3f800000;
-                uStack_8 = 0;
-                func_003e4320(&uStack_10,&uStack_10,afStack_b0);
-                RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&uStack_10, *(float *)(param_3 + 0x20), rwCOMBINEPOSTCONCAT);
-                RwMatrixMultiply(pfVar8,temp_v25,temp_v24);
-                RtQuatConvertFromMatrix(&fStack_340,pfVar8);
+                axis[0] = 0x3f800000;
+                axis[1] = 0;
+                axis[2] = 0;
+                func_003e4320((RwV3d *)(&axis[0]),(const RwV3d *)(&axis[0]),(const RwMatrix *)(((f32 *)&baseMatrix)));
+                RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&axis[0], *(float *)(controller + 0x1e), rwCOMBINEREPLACE);
+                axis[0] = 0;
+                axis[1] = 0x3f800000;
+                axis[2] = 0;
+                func_003e4320((RwV3d *)(&axis[0]),(const RwV3d *)(&axis[0]),(const RwMatrix *)(((f32 *)&baseMatrix)));
+                RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&axis[0], *(float *)(controller + 0x20), rwCOMBINEPOSTCONCAT);
+                RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(((u8 *)&axisMatrix)),(const RwMatrix *)(temp_v24));
+                RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(pfVar8));
               }
             }
             else {
               iStack_450 = 1;
               if ((temp_v0 & 0x40) == 0) {
-                afStack_30[0] = *(float *)(param_3 + 0x1e);
-                afStack_30[1] = *(float *)(param_3 + 0x20);
-                afStack_30[2] = *(float *)(param_3 + 0x22);
-                afStack_30[0] = -afStack_30[0];
-                afStack_30[1] = -afStack_30[1];
-                afStack_30[2] = -afStack_30[2];
+                workingVector.x = *(float *)(controller + 0x1e);
+                workingVector.y = *(float *)(controller + 0x20);
+                workingVector.z = *(float *)(controller + 0x22);
+                workingVector.x = -workingVector.x;
+                workingVector.y = -workingVector.y;
+                workingVector.z = -workingVector.z;
               }
               else {
-                afStack_30[0] = fStack_20 - *(float *)(param_3 + 0x1e);
-                afStack_30[1] = fStack_1c - *(float *)(param_3 + 0x20);
-                afStack_30[2] = fStack_18 - *(float *)(param_3 + 0x22);
+                workingVector.x = position.x - *(float *)(controller + 0x1e);
+                workingVector.y = position.y - *(float *)(controller + 0x20);
+                workingVector.z = position.z - *(float *)(controller + 0x22);
               }
-              RwV3dNormalize(afStack_30,afStack_30);
-              func_003e0960(temp_v23,afStack_b0);
-              func_003e4320(afStack_30,afStack_30,temp_v23);
-              RwV3dNormalize(afStack_30,afStack_30);
-              fStack_50 = 0.0f;
-              fStack_4c = 0.0f;
-              fStack_48 = -100.0f;
-              func_003e42a0(&fStack_50,&fStack_50,afStack_1b0);
-              fStack_40 = fStack_20 - fStack_50;
-              fStack_3c = fStack_1c - fStack_4c;
-              fStack_38 = fStack_18 - fStack_48;
-              func_003e4320(&fStack_40,&fStack_40,temp_v23);
-              RwV3dNormalize(&fStack_40,&fStack_40);
-              temp_v21 = func_0044b920(fStack_3c);
+              RwV3dNormalize((RwV3d *)(&workingVector),(const RwV3d *)(&workingVector));
+              func_003e0960((RwMatrix *)(temp_v23),(const RwMatrix *)(((f32 *)&baseMatrix)));
+              func_003e4320((RwV3d *)(&workingVector),(const RwV3d *)(&workingVector),(const RwMatrix *)(temp_v23));
+              RwV3dNormalize((RwV3d *)(&workingVector),(const RwV3d *)(&workingVector));
+              eye[0] = 0.0f;
+              eye[1] = 0.0f;
+              eye[2] = -100.0f;
+              func_003e42a0((RwV3d *)(&eye[0]),(const RwV3d *)(&eye[0]),(const RwMatrix *)(((f32 *)&scaleMatrix)));
+              look[0] = position.x - eye[0];
+              look[1] = position.y - eye[1];
+              look[2] = position.z - eye[2];
+              func_003e4320((RwV3d *)(&look[0]),(const RwV3d *)(&look[0]),(const RwMatrix *)(temp_v23));
+              RwV3dNormalize((RwV3d *)(&look[0]),(const RwV3d *)(&look[0]));
+              temp_v21 = func_0044b920(look[1]);
               temp_v15 = fGpffff8048 * temp_v21 - 90.0f;
-              temp_v21 = func_0044b950(fStack_40,fStack_38);
+              temp_v21 = func_0044b950(look[0],look[2]);
               temp_v14 = fGpffff8048 * temp_v21 + 180.0f;
-              temp_v21 = func_0044b920(afStack_30[1]);
+              temp_v21 = func_0044b920(workingVector.y);
               temp_v20 = fGpffff8048 * temp_v21 - 90.0f;
-              temp_v21 = func_0044b950(afStack_30[0],afStack_30[2]);
-              temp_v21 = fGpffff8048 * temp_v21;
+              temp_v21 = func_0044b950(workingVector.x,workingVector.z);
+              /* Complete desired yaw before the independent pitch rotation phase. */
+              temp_v21 = fGpffff8048 * temp_v21 + 180.0f;
               for (temp_v20 = temp_v20 - temp_v15; temp_v20 < 0.0f; temp_v20 = temp_v20 + 360.0f) {
               }
-              for (; 360.0f < temp_v20; temp_v20 = temp_v20 - 360.0f) {
+              /* Retail repeats while <=360 is false, including unordered input. */
+              for (; !(temp_v20 <= 360.0f); temp_v20 = temp_v20 - 360.0f) {
               }
-              temp_v16 = *(float *)(param_3 + 4);
+              temp_v16 = *(float *)(controller + 4);
               if ((temp_v16 < temp_v20) && (temp_v20 < 360.0f - temp_v16)) {
                 if (180.0f <= temp_v20) {
                   temp_v16 = 360.0f - temp_v16;
                 }
-                temp_v1 = 1;
+                angleLimited = 1;
                 temp_v20 = temp_v16;
               }
-              RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)temp_v26, -(temp_v20 + temp_v15), rwCOMBINEREPLACE);
-              for (temp_v21 = (temp_v21 + 180.0f) - temp_v14; temp_v21 < 0.0f; temp_v21 = temp_v21 + 360.0f) {
+              RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)((u8 *)&axisMatrix.up), -(temp_v20 + temp_v15), rwCOMBINEREPLACE);
+              for (temp_v21 = temp_v21 - temp_v14; temp_v21 < 0.0f; temp_v21 = temp_v21 + 360.0f) {
               }
-              for (; 360.0f < temp_v21; temp_v21 = temp_v21 - 360.0f) {
+              /* Retail repeats while <=360 is false, including unordered input. */
+              for (; !(temp_v21 <= 360.0f); temp_v21 = temp_v21 - 360.0f) {
               }
-              temp_v20 = *(float *)(param_3 + 6);
+              temp_v20 = *(float *)(controller + 6);
               if ((temp_v20 < temp_v21) && (temp_v21 < 360.0f - temp_v20)) {
                 if (180.0f <= temp_v21) {
                   temp_v20 = 360.0f - temp_v20;
                 }
-                temp_v1 = 1;
+                angleLimited = 1;
                 temp_v21 = temp_v20;
               }
-              RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)temp_v25, temp_v21 + temp_v14, rwCOMBINEPOSTCONCAT);
-              RwMatrixMultiply(pfVar8,temp_v25,temp_v24);
-              RtQuatConvertFromMatrix(&fStack_340,pfVar8);
+              RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)((u8 *)&axisMatrix), temp_v21 + temp_v14, rwCOMBINEPOSTCONCAT);
+              RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(((u8 *)&axisMatrix)),(const RwMatrix *)(temp_v24));
+              RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(pfVar8));
             }
-            if (((*param_3 & 0x1000) == 0) || (!temp_v1)) {
-              *param_3 = *param_3 & 0xf7ff;
+            if (((*controller & 0x1000) == 0) || (!angleLimited)) {
+              *controller = *controller & 0xf7ff;
             }
             else {
-              if ((*param_3 & 0x800) == 0) {
-                *(float *)(param_3 + 0x10) = fStack_340;
-                *(float *)(param_3 + 0x14) = fStack_33c;
-                *(float *)(param_3 + 0x18) = fStack_338;
-                *(float *)(param_3 + 0x1c) = fStack_334;
+              if ((*controller & 0x800) == 0) {
+                *(float *)(controller + 0x10) = rotation.value[0];
+                *(float *)(controller + 0x12) = rotation.value[1];
+                *(float *)(controller + 0x14) = rotation.value[2];
+                *(float *)(controller + 0x16) = rotation.value[3];
               }
-              *param_3 = *param_3 | 0x800;
+              *controller = *controller | 0x800;
             }
-            if ((*param_3 & 0x800) != 0) {
-              fStack_340 = *(float *)(param_3 + 0x10);
-              fStack_33c = *(float *)(param_3 + 0x14);
-              fStack_338 = *(float *)(param_3 + 0x18);
-              fStack_334 = *(float *)(param_3 + 0x1c);
+            if ((*controller & 0x800) != 0) {
+              rotation.value[0] = *(float *)(controller + 0x10);
+              rotation.value[1] = *(float *)(controller + 0x12);
+              rotation.value[2] = *(float *)(controller + 0x14);
+              rotation.value[3] = *(float *)(controller + 0x16);
             }
-            if (((*param_3 & 0x8000) != 0) &&
-               ((*(float *)(param_3 + 0x24) != 0.0f || (*(float *)(param_3 + 0x26) != 0.0f)))) {
-              fStack_390 = fStack_340;
-              fStack_38c = fStack_33c;
-              fStack_388 = fStack_338;
-              fStack_384 = fStack_334;
+            if (((*controller & 0x8000) != 0) &&
+               ((*(float *)(controller + 0x24) != 0.0f || (*(float *)(controller + 0x26) != 0.0f)))) {
+              rotationSnapshot = rotation;
               iStack_450 = 0;
-              uStack_10 = 0;
-              uStack_c = 0x3f800000;
-              uStack_8 = 0;
-              RtQuatTransformVectors(&uStack_10,&uStack_10,1,&fStack_390);
-              func_003dc740(*(unsigned int *)(param_3 + 0x24),&fStack_340,&uStack_10,2);
-              uStack_10 = 0x3f800000;
-              uStack_c = 0;
-              uStack_8 = 0;
-              RtQuatTransformVectors(&uStack_10,&uStack_10,1,&fStack_390);
-              func_003dc740(*(unsigned int *)(param_3 + 0x26),&fStack_340,&uStack_10,2);
+              axis[0] = 0;
+              axis[1] = 0x3f800000;
+              axis[2] = 0;
+              RtQuatTransformVectors((RwV3d *)(&axis[0]),(const RwV3d *)(&axis[0]),(s32)(1),(const struct RtQuat *)(&rotationSnapshot.value[0]));
+              func_003dc740((struct RtQuat *)&rotation.value[0],(const RwV3d *)&axis[0],*(float *)(controller + 0x24),2);
+              axis[0] = 0x3f800000;
+              axis[1] = 0;
+              axis[2] = 0;
+              RtQuatTransformVectors((RwV3d *)(&axis[0]),(const RwV3d *)(&axis[0]),(s32)(1),(const struct RtQuat *)(&rotationSnapshot.value[0]));
+              func_003dc740((struct RtQuat *)&rotation.value[0],(const RwV3d *)&axis[0],*(float *)(controller + 0x26),2);
             }
           }
           else {
-            RtQuatConvertFromMatrix(&fStack_340,&fStack_330);
+            RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(&localMatrix.right.x));
           }
-          if ((*param_3 & 0x200) == 0) {
-            if ((puVar3 == (unsigned int *)0x0) && ((*param_3 & 0x100) != 0)) {
-              temp_v21 = func_004bd4a0((unsigned char *)(param_3 + 8),(unsigned char *)&fStack_340);
+          if ((*controller & 0x200) != 0) {
+            RtQuatConvertFromMatrix((struct RtQuat *)(controller + 8),(const RwMatrix *)(&localMatrix.right.x));
+            *controller = *controller & 0xfdff;
+            resetAnimation = 1;
+            if ((*controller & 0x100) != 0) {
+              *controller = *controller & 0x7e1f;
+              *controller = *controller & 0xfbff;
+              *controller = *controller & 0xf7ff;
+            }
+          } else {
+            if ((puVar3 == (unsigned int *)0x0) && ((*controller & 0x100) != 0)) {
+              temp_v21 = func_004bd4a0((unsigned char *)(controller + 8),(unsigned char *)&rotation.value[0]);
               if (temp_v21 < 0.0f) {
-                afStack_350[3] = -fStack_334;
-                afStack_350[0] = -fStack_340;
-                afStack_350[1] = -fStack_33c;
-                afStack_350[2] = -fStack_338;
-                temp_v21 = func_004bd4a0((unsigned char *)(param_3 + 8),(unsigned char *)afStack_350);
+                afStack_350.value[3] = -rotation.value[3];
+                afStack_350.value[0] = -rotation.value[0];
+                afStack_350.value[1] = -rotation.value[1];
+                afStack_350.value[2] = -rotation.value[2];
+                temp_v21 = func_004bd4a0((unsigned char *)(controller + 8),(unsigned char *)afStack_350.value);
               }
               temp_v21 = func_0044b920(temp_v21);
               if (temp_v21 * 2.0f < fGpffff804c) {
-                *param_3 = *param_3 & 0x7e1f;
-                *param_3 = *param_3 & 0xfbff;
+                *controller = *controller & 0x7e1f;
+                *controller = *controller & 0xfbff;
               }
-              *param_3 = *param_3 & 0xf7ff;
+              *controller = *controller & 0xf7ff;
             }
-            fStack_3b0 = *(float *)(param_3 + 8);
-            fStack_3ac = *(float *)(param_3 + 10);
-            fStack_3a8 = *(float *)(param_3 + 0xc);
-            fStack_3a4 = *(float *)(param_3 + 0xe);
-            func_003dcc70(&fStack_3b0,&fStack_340,&fStack_380);
-            temp_v21 = *(float *)(param_3 + 2);
-            if (temp_v21 <= 0.0f) {
-              fStack_3a0 = fStack_3b0;
-              fStack_39c = fStack_3ac;
-              fStack_398 = fStack_3a8;
-              fStack_394 = fStack_3a4;
-            }
-            else if (1.0f <= temp_v21) {
-              fStack_3a0 = fStack_340;
-              fStack_39c = fStack_33c;
-              fStack_398 = fStack_338;
-              fStack_394 = fStack_334;
-            }
-            else {
-              temp_v20 = 1.0f - temp_v21;
-              if (iStack_35c == 0) {
-                temp_v20 = temp_v20 * fStack_360;
-                temp_v14 = temp_v20 * temp_v20;
-                temp_v20 = temp_v14 * temp_v20 *
-                         (temp_v14 * (temp_v14 * (temp_v14 * (temp_v14 * (fGpffff8050 * temp_v14 +
-                                                                 fGpffff8054) +
-                                                       fGpffff8058) + fGpffff805c) +
-                                   fGpffff8060) + fGpffff8064) + temp_v20;
-                temp_v21 = temp_v21 * fStack_360;
-                temp_v14 = temp_v21 * temp_v21;
-                temp_v21 = temp_v14 * temp_v21 *
-                         (temp_v14 * (temp_v14 * (temp_v14 * (temp_v14 * (fGpffff8050 * temp_v14 +
-                                                                 fGpffff8054) +
-                                                       fGpffff8058) + fGpffff805c) +
-                                   fGpffff8060) + fGpffff8064) + temp_v21;
+            /* Snapshot the complete starting controller quaternion. */
+            startRotation = *(const ControllerQuat *)(controller + 8);
+            func_003dcc70((struct RtQuat *)(&startRotation.value[0]),(struct RtQuat *)(&rotation.value[0]),(struct RtQuatSlerpCache *)(&interpolation.from[0]));
+            {
+              f32 interpolationTime = *(float *)(controller + 2);
+              if (interpolationTime <= 0.0f) {
+                blendedRotation = startRotation;
               }
-              fStack_3a0 = fStack_380 * temp_v20;
-              fStack_39c = fStack_37c * temp_v20;
-              fStack_398 = fStack_378 * temp_v20;
-              fStack_3a0 = fStack_3a0 + fStack_370 * temp_v21;
-              fStack_39c = fStack_39c + fStack_36c * temp_v21;
-              fStack_398 = fStack_398 + fStack_368 * temp_v21;
-              fStack_394 = fStack_374 * temp_v20 + fStack_364 * temp_v21;
+              else if (1.0f <= interpolationTime) {
+                blendedRotation = rotation;
+              }
+              else {
+                f32 fromWeight = 1.0f - interpolationTime;
+                f32 toWeight = interpolationTime;
+                if (interpolation.nearlyZero == 0) {
+                  fromWeight = fromWeight * interpolation.omega;
+                  {
+                    const f32 z = fromWeight * fromWeight;
+                    f32 polynomial = fGpffff8050 * z + fGpffff8054;
+                    polynomial = z * polynomial + fGpffff8058;
+                    polynomial = z * polynomial + fGpffff805c;
+                    polynomial = z * polynomial + fGpffff8060;
+                    polynomial = z * polynomial + fGpffff8064;
+                    fromWeight = z * fromWeight * polynomial + fromWeight;
+                  }
+                  toWeight = toWeight * interpolation.omega;
+                  {
+                    const f32 z = toWeight * toWeight;
+                    f32 polynomial = fGpffff8050 * z + fGpffff8054;
+                    polynomial = z * polynomial + fGpffff8058;
+                    polynomial = z * polynomial + fGpffff805c;
+                    polynomial = z * polynomial + fGpffff8060;
+                    polynomial = z * polynomial + fGpffff8064;
+                    toWeight = z * toWeight * polynomial + toWeight;
+                  }
+                }
+                blendedRotation.value[0] = interpolation.from[0] * fromWeight;
+                blendedRotation.value[1] = interpolation.from[1] * fromWeight;
+                blendedRotation.value[2] = interpolation.from[2] * fromWeight;
+                blendedRotation.value[0] = blendedRotation.value[0] + interpolation.to[0] * toWeight;
+                blendedRotation.value[1] = blendedRotation.value[1] + interpolation.to[1] * toWeight;
+                blendedRotation.value[2] = blendedRotation.value[2] + interpolation.to[2] * toWeight;
+                blendedRotation.value[3] = interpolation.from[3] * fromWeight + interpolation.to[3] * toWeight;
+              }
             }
-            if (((*param_3 & 0x2000) == 0) || (iStack_450 == 0)) {
-              *(float *)(param_3 + 8) = fStack_3a0;
-              *(float *)(param_3 + 10) = fStack_39c;
-              *(float *)(param_3 + 0xc) = fStack_398;
-              *(float *)(param_3 + 0xe) = fStack_394;
-            }
-            else {
-              RtQuatConvertFromMatrix(&uStack_3c0,&fStack_330);
-              temp_v21 = func_004bd4a0((unsigned char *)&uStack_3c0,(unsigned char *)&fStack_3a0);
+            if (((*controller & 0x2000) != 0) && (iStack_450 != 0)) {
+              RtQuatConvertFromMatrix((struct RtQuat *)(&fallbackRotation.bits[0]),(const RwMatrix *)(&localMatrix.right.x));
+              temp_v21 = func_004bd4a0((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)&blendedRotation.value[0]);
               if (temp_v21 < 0.0f) {
-                afStack_350[3] = -fStack_394;
-                afStack_350[0] = -fStack_3a0;
-                afStack_350[1] = -fStack_39c;
-                afStack_350[2] = -fStack_398;
-                temp_v21 = func_004bd4a0((unsigned char *)&uStack_3c0,(unsigned char *)afStack_350);
+                afStack_350.value[3] = -blendedRotation.value[3];
+                afStack_350.value[0] = -blendedRotation.value[0];
+                afStack_350.value[1] = -blendedRotation.value[1];
+                afStack_350.value[2] = -blendedRotation.value[2];
+                temp_v21 = func_004bd4a0((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)afStack_350.value);
               }
               temp_v21 = func_0044b920(temp_v21);
-              if (temp_v21 * 2.0f <= fGpffff8068 * *(float *)(param_3 + 6)) {
-                *(float *)(param_3 + 8) = fStack_3a0;
-                *(float *)(param_3 + 10) = fStack_39c;
-                *(float *)(param_3 + 0xc) = fStack_398;
-                *(float *)(param_3 + 0xe) = fStack_394;
+              if (temp_v21 * 2.0f <= fGpffff8068 * *(float *)(controller + 6)) {
+                *(float *)(controller + 8) = blendedRotation.value[0];
+                *(float *)(controller + 10) = blendedRotation.value[1];
+                *(float *)(controller + 0xc) = blendedRotation.value[2];
+                *(float *)(controller + 0xe) = blendedRotation.value[3];
               }
               else {
                 temp_v21 = 1.0f - fGpffff806c / (temp_v21 * 2.0f);
-                func_003dcc70(&fStack_3a0,&uStack_3c0,&fStack_380);
+                func_003dcc70((struct RtQuat *)(&blendedRotation.value[0]),(struct RtQuat *)(&fallbackRotation.bits[0]),(struct RtQuatSlerpCache *)(&interpolation.from[0]));
                 if (temp_v21 <= 0.0f) {
-                  *(float *)(param_3 + 8) = fStack_3a0;
-                  *(float *)(param_3 + 10) = fStack_39c;
-                  *(float *)(param_3 + 0xc) = fStack_398;
-                  *(float *)(param_3 + 0xe) = fStack_394;
+                  *(float *)(controller + 8) = blendedRotation.value[0];
+                  *(float *)(controller + 10) = blendedRotation.value[1];
+                  *(float *)(controller + 0xc) = blendedRotation.value[2];
+                  *(float *)(controller + 0xe) = blendedRotation.value[3];
                 }
                 else if (1.0f <= temp_v21) {
-                  *(unsigned int *)(param_3 + 8) = uStack_3c0;
-                  *(unsigned int *)(param_3 + 10) = uStack_3bc;
-                  *(unsigned int *)(param_3 + 0xc) = uStack_3b8;
-                  *(unsigned int *)(param_3 + 0xe) = uStack_3b4;
+                  *(unsigned int *)(controller + 8) = fallbackRotation.bits[0];
+                  *(unsigned int *)(controller + 10) = fallbackRotation.bits[1];
+                  *(unsigned int *)(controller + 0xc) = fallbackRotation.bits[2];
+                  *(unsigned int *)(controller + 0xe) = fallbackRotation.bits[3];
                 }
                 else {
-                  temp_v20 = 1.0f - temp_v21;
-                  if (iStack_35c == 0) {
-                    temp_v20 = temp_v20 * fStack_360;
-                    temp_v14 = temp_v20 * temp_v20;
-                    temp_v20 = temp_v14 * temp_v20 *
-                             (temp_v14 * (temp_v14 * (temp_v14 * (temp_v14 * (fGpffff8070 * temp_v14 +
-                                                                     fGpffff8054) +
-                                                           fGpffff8058) + fGpffff805c) +
-                                       fGpffff8060) + fGpffff8064) + temp_v20;
-                    temp_v21 = temp_v21 * fStack_360;
-                    temp_v14 = temp_v21 * temp_v21;
-                    temp_v21 = temp_v14 * temp_v21 *
-                             (temp_v14 * (temp_v14 * (temp_v14 * (temp_v14 * (fGpffff8070 * temp_v14 +
-                                                                     fGpffff8054) +
-                                                           fGpffff8058) + fGpffff805c) +
-                                       fGpffff8060) + fGpffff8064) + temp_v21;
+                  f32 fromWeight = 1.0f - temp_v21;
+                  f32 toWeight = temp_v21;
+                  if (interpolation.nearlyZero == 0) {
+                    fromWeight = fromWeight * interpolation.omega;
+                    {
+                      const f32 z = fromWeight * fromWeight;
+                      f32 polynomial = fGpffff8070 * z + fGpffff8054;
+                      polynomial = z * polynomial + fGpffff8058;
+                      polynomial = z * polynomial + fGpffff805c;
+                      polynomial = z * polynomial + fGpffff8060;
+                      polynomial = z * polynomial + fGpffff8064;
+                      fromWeight = z * fromWeight * polynomial + fromWeight;
+                    }
+                    toWeight = toWeight * interpolation.omega;
+                    {
+                      const f32 z = toWeight * toWeight;
+                      f32 polynomial = fGpffff8070 * z + fGpffff8054;
+                      polynomial = z * polynomial + fGpffff8058;
+                      polynomial = z * polynomial + fGpffff805c;
+                      polynomial = z * polynomial + fGpffff8060;
+                      polynomial = z * polynomial + fGpffff8064;
+                      toWeight = z * toWeight * polynomial + toWeight;
+                    }
                   }
-                  *(float *)(param_3 + 8) = fStack_380 * temp_v20;
-                  *(float *)(param_3 + 10) = fStack_37c * temp_v20;
-                  *(float *)(param_3 + 0xc) = fStack_378 * temp_v20;
-                  *(float *)(param_3 + 8) = *(float *)(param_3 + 8) + fStack_370 * temp_v21;
-                  *(float *)(param_3 + 10) = *(float *)(param_3 + 10) + fStack_36c * temp_v21;
-                  *(float *)(param_3 + 0xc) = *(float *)(param_3 + 0xc) + fStack_368 * temp_v21;
-                  *(float *)(param_3 + 0xe) = fStack_374 * temp_v20 + fStack_364 * temp_v21;
-                  /* gate 1370-52blend: third instance of the 1060/1124 blend shape. */
-                  /* dest param_3+0x10, retail 0x4724B4-0x472524 blend arm only. */
-                  /* mul-factor temp_v20 (= retail f0, Horner#3 output), mac-factor */
-                  /* temp_v21 (= retail f20). Slot names from matched instance one */
-                  /* by construction (0x1e0 spill is fStack_370). */
-                  /* measured 1776+28=1804 (blend arm only). UNPAIRED: our compiler */
-                  /* holds param_3 in $s3, retail in $s2, so composition stays flat */
-                  /* (missing 114/extra 8) for that reason, not because the block */
-                  /* is wrong; it pairs when the base-register blocker clears. */
-                  *(float *)(param_3 + 0x10) = fStack_380 * temp_v20;
-                  *(float *)(param_3 + 0x14) = fStack_37c * temp_v20;
-                  *(float *)(param_3 + 0x18) = fStack_378 * temp_v20;
-                  *(float *)(param_3 + 0x10) = *(float *)(param_3 + 0x10) + fStack_370 * temp_v21;
-                  *(float *)(param_3 + 0x14) = *(float *)(param_3 + 0x14) + fStack_36c * temp_v21;
-                  *(float *)(param_3 + 0x18) = *(float *)(param_3 + 0x18) + fStack_368 * temp_v21;
-                  *(float *)(param_3 + 0x1c) = fStack_374 * temp_v20 + fStack_364 * temp_v21;
+                  *(float *)(controller + 8) = interpolation.from[0] * fromWeight;
+                  *(float *)(controller + 10) = interpolation.from[1] * fromWeight;
+                  *(float *)(controller + 0xc) = interpolation.from[2] * fromWeight;
+                  *(float *)(controller + 8) = *(float *)(controller + 8) + interpolation.to[0] * toWeight;
+                  *(float *)(controller + 10) = *(float *)(controller + 10) + interpolation.to[1] * toWeight;
+                  *(float *)(controller + 0xc) = *(float *)(controller + 0xc) + interpolation.to[2] * toWeight;
+                  *(float *)(controller + 0xe) = interpolation.from[3] * fromWeight + interpolation.to[3] * toWeight;
                 }
               }
-            }
-          }
-          else {
-            RtQuatConvertFromMatrix(param_3 + 8,&fStack_330);
-            *param_3 = *param_3 & 0xfdff;
-            temp_v2 = 1;
-            if ((*param_3 & 0x100) != 0) {
-              *param_3 = *param_3 & 0x7e1f;
-              *param_3 = *param_3 & 0xfbff;
-              *param_3 = *param_3 & 0xf7ff;
+            } else {
+              *(float *)(controller + 8) = blendedRotation.value[0];
+              *(float *)(controller + 10) = blendedRotation.value[1];
+              *(float *)(controller + 0xc) = blendedRotation.value[2];
+              *(float *)(controller + 0xe) = blendedRotation.value[3];
             }
           }
         }
         if (puVar3 == (unsigned int *)0x0) {
           if (param_4 == 0) {
-            temp_v16 = *(float *)(param_3 + 10);
-            temp_v19 = *(float *)(param_3 + 8);
-            temp_v18 = *(float *)(param_3 + 0xc);
-            temp_v14 = *(float *)(param_3 + 0xe);
-            temp_v20 = 2.0f / (temp_v14 * temp_v14 + temp_v18 * temp_v18 + temp_v19 * temp_v19 + temp_v16 * temp_v16);
-            temp_v15 = temp_v19 * temp_v20;
-            temp_v21 = temp_v16 * temp_v20;
-            temp_v20 = temp_v18 * temp_v20;
-            *pfVar8 = 1.0f - (temp_v16 * temp_v21 + temp_v18 * temp_v20);
-            pfVar8[1] = temp_v19 * temp_v21 + temp_v20 * temp_v14;
-            pfVar8[2] = temp_v18 * temp_v15 - temp_v21 * temp_v14;
-            pfVar8[4] = temp_v19 * temp_v21 - temp_v20 * temp_v14;
-            pfVar8[5] = 1.0f - (temp_v18 * temp_v20 + temp_v19 * temp_v15);
-            pfVar8[6] = temp_v16 * temp_v20 + temp_v15 * temp_v14;
-            pfVar8[8] = temp_v18 * temp_v15 + temp_v21 * temp_v14;
-            pfVar8[9] = temp_v16 * temp_v20 - temp_v15 * temp_v14;
-            pfVar8[10] = 1.0f - (temp_v19 * temp_v15 + temp_v16 * temp_v21);
-            pfVar8[0xc] = 0.0f;
-            pfVar8[0xd] = 0.0f;
-            pfVar8[0xe] = 0.0f;
-            pfVar8[3] = 4.2039e-45f;
-            afStack_30[0] = *(float *)(param_3 + 0x18);
-            afStack_30[1] = *(float *)(param_3 + 0x1a);
-            afStack_30[2] = *(float *)(param_3 + 0x1c);
-            if ((*param_2 & 0x10) != 0) {
-              afStack_30[0] = afStack_30[0] * DAT_00922bb0;
-              afStack_30[1] = afStack_30[1] * DAT_00922bb0 * DAT_00922bb4;
-              afStack_30[2] = afStack_30[2] * DAT_00922bb0 * DAT_00922bb4;
+            {
+              const ControllerQuat *controllerRotation = (const ControllerQuat *)(controller + 8);
+              RwV3d scaled;
+              RwV3d realScaled;
+              RwV3d square;
+              RwV3d cross;
+              f32 scale = 2.0f / (controllerRotation->value[3] * controllerRotation->value[3] +
+                  ((controllerRotation->value[0] * controllerRotation->value[0] +
+                    controllerRotation->value[1] * controllerRotation->value[1]) +
+                    controllerRotation->value[2] * controllerRotation->value[2]));
+              scaled.x = controllerRotation->value[0] * scale;
+              scaled.y = controllerRotation->value[1] * scale;
+              scaled.z = controllerRotation->value[2] * scale;
+              realScaled.x = scaled.x * controllerRotation->value[3];
+              realScaled.y = scaled.y * controllerRotation->value[3];
+              realScaled.z = scaled.z * controllerRotation->value[3];
+              square.x = controllerRotation->value[0] * scaled.x;
+              square.y = controllerRotation->value[1] * scaled.y;
+              square.z = controllerRotation->value[2] * scaled.z;
+              cross.x = controllerRotation->value[1] * scaled.z;
+              cross.y = controllerRotation->value[2] * scaled.x;
+              cross.z = controllerRotation->value[0] * scaled.y;
+              ((RwMatrix *)pfVar8)->right.x = 1.0f - (square.y + square.z);
+              ((RwMatrix *)pfVar8)->right.y = cross.z + realScaled.z;
+              ((RwMatrix *)pfVar8)->right.z = cross.y - realScaled.y;
+              ((RwMatrix *)pfVar8)->up.x = cross.z - realScaled.z;
+              ((RwMatrix *)pfVar8)->up.y = 1.0f - (square.z + square.x);
+              ((RwMatrix *)pfVar8)->up.z = cross.x + realScaled.x;
+              ((RwMatrix *)pfVar8)->at.x = cross.y + realScaled.y;
+              ((RwMatrix *)pfVar8)->at.y = cross.x - realScaled.x;
+              ((RwMatrix *)pfVar8)->at.z = 1.0f - (square.x + square.y);
+              ((RwMatrix *)pfVar8)->pos.x = 0.0f;
+              ((RwMatrix *)pfVar8)->pos.y = 0.0f;
+              ((RwMatrix *)pfVar8)->pos.z = 0.0f;
+              ((RwMatrix *)pfVar8)->flags = 3;
             }
-            RwMatrixScale(pfVar8,afStack_30,1);
-            pfVar8[0xc] = fStack_20;
-            pfVar8[0xd] = fStack_1c;
-            pfVar8[0xe] = fStack_18;
+            /* Retail snapshots all controller-scale components before use:
+             * 00472638-0047264c and 004727a0-004727b4. */
+            workingVector = *(const RwV3d *)(controller + 0x18);
+            if ((*modelState & 0x10) != 0) {
+              /* Retail combines model scale and aspect before scaling Y/Z. */
+              f32 modelScale = DAT_00922bb0[0];
+              workingVector.x = workingVector.x * modelScale;
+              modelScale = modelScale * DAT_00922bb4[0];
+              workingVector.y = workingVector.y * modelScale;
+              workingVector.z = workingVector.z * modelScale;
+            }
+            RwMatrixScale((RwMatrix *)(pfVar8),(const RwV3d *)(&workingVector),(RwOpCombineType)(1));
+            pfVar8[0xc] = position.x;
+            pfVar8[0xd] = position.y;
+            pfVar8[0xe] = position.z;
           }
           else {
-            temp_v16 = *(float *)(param_3 + 10);
-            temp_v19 = *(float *)(param_3 + 8);
-            temp_v18 = *(float *)(param_3 + 0xc);
-            temp_v14 = *(float *)(param_3 + 0xe);
-            temp_v20 = 2.0f / (temp_v14 * temp_v14 + temp_v18 * temp_v18 + temp_v19 * temp_v19 + temp_v16 * temp_v16);
-            temp_v15 = temp_v19 * temp_v20;
-            temp_v21 = temp_v16 * temp_v20;
-            temp_v20 = temp_v18 * temp_v20;
-            fStack_330 = 1.0f - (temp_v16 * temp_v21 + temp_v18 * temp_v20);
-            fStack_32c = temp_v19 * temp_v21 + temp_v20 * temp_v14;
-            fStack_328 = temp_v18 * temp_v15 - temp_v21 * temp_v14;
-            fStack_320 = temp_v19 * temp_v21 - temp_v20 * temp_v14;
-            fStack_31c = 1.0f - (temp_v18 * temp_v20 + temp_v19 * temp_v15);
-            fStack_318 = temp_v16 * temp_v20 + temp_v15 * temp_v14;
-            fStack_310 = temp_v18 * temp_v15 + temp_v21 * temp_v14;
-            fStack_30c = temp_v16 * temp_v20 - temp_v15 * temp_v14;
-            fStack_308 = 1.0f - (temp_v19 * temp_v15 + temp_v16 * temp_v21);
-            fStack_300 = 0.0f;
-            fStack_2fc = 0.0f;
-            fStack_2f8 = 0.0f;
-            uStack_324 = 3;
-            afStack_30[0] = *(float *)(param_3 + 0x18);
-            afStack_30[1] = *(float *)(param_3 + 0x1a);
-            afStack_30[2] = *(float *)(param_3 + 0x1c);
-            if ((*param_2 & 0x10) != 0) {
-              afStack_30[0] = afStack_30[0] * DAT_00922bb0;
-              afStack_30[1] = afStack_30[1] * DAT_00922bb0 * DAT_00922bb4;
-              afStack_30[2] = afStack_30[2] * DAT_00922bb0 * DAT_00922bb4;
+            {
+              const ControllerQuat *controllerRotation = (const ControllerQuat *)(controller + 8);
+              RwV3d scaled;
+              RwV3d realScaled;
+              RwV3d square;
+              RwV3d cross;
+              f32 scale = 2.0f / (controllerRotation->value[3] * controllerRotation->value[3] +
+                  ((controllerRotation->value[0] * controllerRotation->value[0] +
+                    controllerRotation->value[1] * controllerRotation->value[1]) +
+                    controllerRotation->value[2] * controllerRotation->value[2]));
+              scaled.x = controllerRotation->value[0] * scale;
+              scaled.y = controllerRotation->value[1] * scale;
+              scaled.z = controllerRotation->value[2] * scale;
+              realScaled.x = scaled.x * controllerRotation->value[3];
+              realScaled.y = scaled.y * controllerRotation->value[3];
+              realScaled.z = scaled.z * controllerRotation->value[3];
+              square.x = controllerRotation->value[0] * scaled.x;
+              square.y = controllerRotation->value[1] * scaled.y;
+              square.z = controllerRotation->value[2] * scaled.z;
+              cross.x = controllerRotation->value[1] * scaled.z;
+              cross.y = controllerRotation->value[2] * scaled.x;
+              cross.z = controllerRotation->value[0] * scaled.y;
+              (&localMatrix)->right.x = 1.0f - (square.y + square.z);
+              (&localMatrix)->right.y = cross.z + realScaled.z;
+              (&localMatrix)->right.z = cross.y - realScaled.y;
+              (&localMatrix)->up.x = cross.z - realScaled.z;
+              (&localMatrix)->up.y = 1.0f - (square.z + square.x);
+              (&localMatrix)->up.z = cross.x + realScaled.x;
+              (&localMatrix)->at.x = cross.y + realScaled.y;
+              (&localMatrix)->at.y = cross.x - realScaled.x;
+              (&localMatrix)->at.z = 1.0f - (square.x + square.y);
+              (&localMatrix)->pos.x = 0.0f;
+              (&localMatrix)->pos.y = 0.0f;
+              (&localMatrix)->pos.z = 0.0f;
+              (&localMatrix)->flags = 3;
             }
-            RwMatrixScale(&fStack_330,afStack_30,1);
-            fStack_300 = fStack_20;
-            fStack_2fc = fStack_1c;
-            fStack_2f8 = fStack_18;
-            RwMatrixMultiply(pfVar8,&fStack_330,param_4);
+            /* Retail snapshots all controller-scale components before use:
+             * 00472638-0047264c and 004727a0-004727b4. */
+            workingVector = *(const RwV3d *)(controller + 0x18);
+            if ((*modelState & 0x10) != 0) {
+              /* Retail combines model scale and aspect before scaling Y/Z. */
+              f32 modelScale = DAT_00922bb0[0];
+              workingVector.x = workingVector.x * modelScale;
+              modelScale = modelScale * DAT_00922bb4[0];
+              workingVector.y = workingVector.y * modelScale;
+              workingVector.z = workingVector.z * modelScale;
+            }
+            RwMatrixScale((RwMatrix *)(&localMatrix.right.x),(const RwV3d *)(&workingVector),(RwOpCombineType)(1));
+            localMatrix.pos.x = position.x;
+            localMatrix.pos.y = position.y;
+            localMatrix.pos.z = position.z;
+            RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(&localMatrix.right.x),(const RwMatrix *)(param_4));
           }
           if (((*(int *)(uStack_430 + 0xc) != 0) &&
               (temp_v7 = *(int *)(*(int *)(uStack_430 + 0xc) + 4), temp_v7 != 0)) &&
              ((*(unsigned char *)(*(int *)(temp_v7 + 0xa0) + 3) & 1) != 0)) {
-            func_003ed960();
+            func_003ed960(*(u8 **)(temp_v7 + 0xa0));
           }
         }
         else {
-          RwMatrixMultiply(pfVar8,&fStack_230,pfVar21);
+          RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(&frameMatrix.right.x),(const RwMatrix *)(pfVar21));
         }
       }
       else {
-        RwMatrixMultiply(pfVar8,&fStack_230,pfVar21);
+        RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(&frameMatrix.right.x),(const RwMatrix *)(pfVar21));
       }
       temp_v7 = *(int *)(uStack_430 + 0xc);
       if (temp_v7 != 0) {
-        if ((temp_v10 & 0x1000) != 0) {
-          pfVar17 = &fStack_230;
-          pfVar16 = (float *)(temp_v7 + 0x10);
-          temp_v8 = 8;
-          do {
-            temp_v21 = *pfVar17;
-            temp_v20 = pfVar17[1];
-            pfVar17 = pfVar17 + 2;
-            temp_v8 = temp_v8 - 1;
-            *pfVar16 = temp_v21;
-            pfVar16[1] = temp_v20;
-            pfVar16 = pfVar16 + 2;
-          } while (0 < temp_v8);
+        if (updateFrameMatrices != 0) {
+          *(RwMatrix *)(temp_v7 + 0x10) = frameMatrix;
           if (temp_v3 == 0) {
-            func_003e9680(temp_v7);
+            func_003e9680((u8 *)(temp_v7));
           }
         }
         if (temp_v3 != 0) {
-          if ((temp_v10 & 0x4000) == 0) {
-            pfVar17 = (float *)(temp_v7 + 0x50);
-            temp_v8 = 8;
-            pfVar16 = pfVar8;
-            do {
-              temp_v21 = *pfVar16;
-              temp_v20 = pfVar16[1];
-              pfVar16 = pfVar16 + 2;
-              temp_v8 = temp_v8 - 1;
-              *pfVar17 = temp_v21;
-              pfVar17[1] = temp_v20;
-              pfVar17 = pfVar17 + 2;
-            } while (0 < temp_v8);
+          if (concatenateParentMatrix == 0) {
+            *(RwMatrix *)(temp_v7 + 0x50) = *(const RwMatrix *)pfVar8;
           }
           else {
-            RwMatrixMultiply(temp_v7 + 0x50,pfVar8,afStack_b0);
+            RwMatrixMultiply((RwMatrix *)(temp_v7 + 0x50),(const RwMatrix *)(pfVar8),(const RwMatrix *)(((f32 *)&baseMatrix)));
           }
           *(unsigned char *)(temp_v7 + 3) = (*(unsigned char *)(temp_v7 + 3) & 0xfb) | 8;
         }
       }
-      temp_v6 = *(unsigned int *)(uStack_430 + 8) & 3;
-      pfVar16 = pfVar21;
-      if (temp_v6 != 3) {
-        pfVar16 = pfVar8;
-        if (temp_v6 == 2) {
-          *puVar22 = (unsigned int)pfVar21;
-          puVar22 = puVar22 + 1;
-        }
-        else if (temp_v6 == 1) {
-          puVar22 = puVar22 + -1;
-          pfVar16 = (float *)*puVar22;
-        }
-        else if (temp_v6 != 0) {
-          pfVar16 = pfVar21;
-        }
+      /* HAnim node parent-stack control: POP=1, PUSH=2. Both bits leave
+       * the parent unchanged; retail dispatch 0047298c-004729f0. */
+      switch (*(unsigned int *)(uStack_430 + 8) & 3) {
+      case 0:
+        pfVar21 = pfVar8;
+        break;
+      case 1:
+        puVar22--;
+        pfVar21 = (float *)*puVar22;
+        break;
+      case 2:
+        *puVar22++ = (unsigned int)pfVar21;
+        pfVar21 = pfVar8;
+        break;
+      case 3:
+        break;
       }
-      pfVar21 = pfVar16;
       temp_v11 = temp_v11 + temp_v9;
       pfVar8 = pfVar8 + 0x10;
       uStack_430 = uStack_430 + 0x10;
     }
-    if ((puVar3 != (unsigned int *)0x0) && ((*param_3 & 0x81e0) != 0)) {
+    if ((puVar3 != (unsigned int *)0x0) && ((*controller & 0x81e0) != 0)) {
       if (*(short *)((int)puVar3 + 0x42) == 0) {
         for (temp_v10 = 0; temp_v10 < 4; temp_v10 = temp_v10 + 1) {
           temp_v5 = (unsigned int)func_003d5790((int)puVar12[1], (int)*(unsigned int *)(puVar12[8] + 0x20));
           (puVar3 + temp_v10)[4] = (int)temp_v5;
-          func_003d5840((void *)temp_v5, (void *)puVar3[temp_v10]);
+          func_003d5840((RtAnimInterpolator *)((void *)temp_v5),(RtAnimAnimation *)( (void *)puVar3[temp_v10]));
         }
         *(unsigned short *)((int)puVar3 + 0x42) = 1;
       }
-      if (temp_v2) {
+      if (resetAnimation) {
         puVar3[0xc] = 0x3f800000;
         puVar3[0x12] = 0;
       }
-      if ((1.0f <= ((float *)puVar3)[0xe]) ||
-         (pbVar19 = *(unsigned char **)(param_2 + 0x14), pbVar19 == (unsigned char *)0x0)) {
+      /* Preserve retail's less-than test and unordered fallback selection. */
+      if ((!(((float *)puVar3)[0xe] < 1.0f)) ||
+         (pbVar19 = *(unsigned char **)(modelState + 0x14), pbVar19 == (unsigned char *)0x0)) {
         pbVar19 = (unsigned char *)puVar12[8];
         temp_v21 = *(float *)(pbVar19 + 4);
       }
       else {
-        piVar4 = *(int **)(**(int **)(param_2 + 0x1a) + 0x4c + (short)param_2[2] * 0x50);
+        piVar4 = *(int **)(**(int **)(modelState + 0x1a) + 0x4c + (short)modelState[2] * 0x50);
         if (piVar4 == (int *)0x0) {
           temp_v21 = 0.0f;
         }
@@ -1329,72 +1227,70 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           temp_v21 = fGpffff8040 * (float)*piVar4;
         }
       }
-      uStack_70 = 0;
-      uStack_6c = 0;
-      uStack_68 = 0x3f800000;
-      if ((*param_3 & 0x100) == 0) {
-        RtQuatTransformVectors(&fStack_60,&uStack_70,1,param_3 + 8);
-        temp_v17 = *(unsigned int *)(param_3 + 10);
-        temp_v12 = *(unsigned int *)(param_3 + 0xc);
-        temp_v13 = *(unsigned int *)(param_3 + 0xe);
-        puVar3[8] = *(unsigned int *)(param_3 + 8);
-        puVar3[9] = temp_v17;
-        puVar3[10] = temp_v12;
-        puVar3[0xb] = temp_v13;
+      forwardAxis[0] = 0;
+      forwardAxis[1] = 0;
+      forwardAxis[2] = 0x3f800000;
+      if ((*controller & 0x100) == 0) {
+        RtQuatTransformVectors((RwV3d *)(&direction[0]),(const RwV3d *)(&forwardAxis[0]),(s32)(1),(const struct RtQuat *)(controller + 8));
+        /* Complete orientation snapshot, retail 00472b78-00472b94. */
+        *(ControllerQuat *)(puVar3 + 8) = *(const ControllerQuat *)(controller + 8);
       }
       else {
-        RtQuatTransformVectors(&fStack_60,&uStack_70,1,puVar3 + 8);
+        RtQuatTransformVectors((RwV3d *)(&direction[0]),(const RwV3d *)(&forwardAxis[0]),(s32)(1),(const struct RtQuat *)(puVar3 + 8));
       }
-      func_003e0960(temp_v22,afStack_b0);
-      func_003e4320(&fStack_60,&fStack_60,temp_v22);
-      RwV3dNormalize(&fStack_60,&fStack_60);
-      temp_v20 = (float)*(unsigned short *)((int)puVar3 + 0x3e) / *(float *)(param_3 + 6);
-      if (0.0f <= fStack_60) {
-        func_003d5840(puVar3[5],puVar3[1]);
+      func_003e0960((RwMatrix *)(temp_v22),(const RwMatrix *)(((f32 *)&baseMatrix)));
+      func_003e4320((RwV3d *)(&direction[0]),(const RwV3d *)(&direction[0]),(const RwMatrix *)(temp_v22));
+      RwV3dNormalize((RwV3d *)(&direction[0]),(const RwV3d *)(&direction[0]));
+      temp_v20 = (float)*(unsigned short *)((int)puVar3 + 0x3e) / *(float *)(controller + 6);
+      if (!(direction[0] < 0.0f)) {
+        func_003d5840((RtAnimInterpolator *)(puVar3[5]),(RtAnimAnimation *)(puVar3[1]));
         func_003d5e40((unsigned char *)puVar3[5],temp_v21);
-        func_003d5e90((unsigned char *)puVar3[6],pbVar19,(unsigned char *)puVar3[5],fStack_60 / temp_v20);
+        func_003d5e90((unsigned char *)puVar3[6],pbVar19,(unsigned char *)puVar3[5],direction[0] / temp_v20);
         temp_v9 = 2;
       }
       else {
-        func_003d5840(puVar3[6],puVar3[2]);
+        func_003d5840((RtAnimInterpolator *)(puVar3[6]),(RtAnimAnimation *)(puVar3[2]));
         func_003d5e40((unsigned char *)puVar3[6],temp_v21);
-        func_003d5e90((unsigned char *)puVar3[5],pbVar19,(unsigned char *)puVar3[6],-fStack_60 / temp_v20);
+        func_003d5e90((unsigned char *)puVar3[5],pbVar19,(unsigned char *)puVar3[6],-direction[0] / temp_v20);
         temp_v9 = 1;
       }
-      if (0.0f <= fStack_5c) {
-        func_003d5840(puVar3[7],puVar3[3]);
+      if (!(direction[1] < 0.0f)) {
+        func_003d5840((RtAnimInterpolator *)(puVar3[7]),(RtAnimAnimation *)(puVar3[3]));
         func_003d5e40((unsigned char *)puVar3[7],temp_v21);
-        func_003d5e90((unsigned char *)puVar3[4],(unsigned char *)puVar3[temp_v9 + 4],(unsigned char *)puVar3[7],fStack_5c);
+        func_003d5e90((unsigned char *)puVar3[4],(unsigned char *)puVar3[temp_v9 + 4],(unsigned char *)puVar3[7],direction[1]);
         puVar3[0x11] = 0;
       }
       else {
-        func_003d5840(puVar3[4],*puVar3);
+        func_003d5840((RtAnimInterpolator *)(puVar3[4]),(RtAnimAnimation *)(*puVar3));
         func_003d5e40((unsigned char *)puVar3[4],temp_v21);
-        func_003d5e90((unsigned char *)puVar3[7],(unsigned char *)puVar3[temp_v9 + 4],(unsigned char *)puVar3[4],-fStack_5c);
+        func_003d5e90((unsigned char *)puVar3[7],(unsigned char *)puVar3[temp_v9 + 4],(unsigned char *)puVar3[4],-direction[1]);
         puVar3[0x11] = 3;
       }
-      if ((1.0f <= ((float *)puVar3)[0xe]) || (*(unsigned char **)(param_2 + 0x12) == (unsigned char *)0x0)) {
-        if ((*(u16 *)param_3 & 0x100) == 0) {
-          ((float *)puVar3)[0xc] = ((float *)puVar3)[0xc] * (1.0f - *(float *)(param_3 + 4));
+      /* Preserve retail's less-than test and unordered fallback selection. */
+      if ((!(((float *)puVar3)[0xe] < 1.0f)) || (*(unsigned char **)(modelState + 0x12) == (unsigned char *)0x0)) {
+        if ((*(u16 *)controller & 0x100) == 0) {
+          ((float *)puVar3)[0xc] = ((float *)puVar3)[0xc] * (1.0f - *(float *)(controller + 4));
           puVar3[0x12] = 0x3f800000;
           func_003d5e90((unsigned char *)puVar12[8],(unsigned char *)puVar12[8],(unsigned char *)puVar3[puVar3[0x11] + 4],
                         1.0f - ((float *)puVar3)[0xc]);
         }
         else {
-          ((float *)puVar3)[0x12] = ((float *)puVar3)[0x12] * (1.0f - *(float *)(param_3 + 4));
+          ((float *)puVar3)[0x12] = ((float *)puVar3)[0x12] * (1.0f - *(float *)(controller + 4));
           func_003d5e90((unsigned char *)puVar12[8],(unsigned char *)puVar12[8],(unsigned char *)puVar3[puVar3[0x11] + 4],
                         ((float *)puVar3)[0x12]);
           if (((float *)puVar3)[0x12] < fGpffff8074) {
-            *(u16 *)param_3 = *(u16 *)param_3 & 0x7e1f;
-            *(u16 *)param_3 = *(u16 *)param_3 & 0xfbff;
+            *(u16 *)controller = *(u16 *)controller & 0x7e1f;
+            *(u16 *)controller = *(u16 *)controller & 0xfbff;
           }
-          *(u16 *)param_3 = *(u16 *)param_3 & 0xf7ff;
+          *(u16 *)controller = *(u16 *)controller & 0xf7ff;
         }
       }
       else {
-        func_003d5e90((unsigned char *)puVar12[8],*(unsigned char **)(param_2 + 0x12),(unsigned char *)puVar3[puVar3[0x11] + 4]
+        func_003d5e90((unsigned char *)puVar12[8],*(unsigned char **)(modelState + 0x12),(unsigned char *)puVar3[puVar3[0x11] + 4]
                       ,((float *)puVar3)[0xe]);
-        ((float *)puVar3)[0xe] = ((float *)puVar3)[0xe] + 1.0f / (float)puVar3[0xd];
+        /* func_004740c0 stores blend duration as f32 at control+0x34;
+         * retail 00472dd0-00472de0 loads it directly without integer conversion. */
+        ((float *)puVar3)[0xe] = ((float *)puVar3)[0xe] + 1.0f / ((float *)puVar3)[0xd];
         puVar3[0xc] = 0;
       }
       func_00397c40(param_1);
@@ -1406,9 +1302,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
 #endif
 #pragma pop
-/* gate: object 1776 against retail 1776 - INSIDE the +-3% band (1723-1829).  Scores at
-   gate: GUARDED_SCORE 1636, fnalign edits 2073, both comparable (equal length).
-   Production guarded, fallback INCLUDE_ASM retained. */
+/* The controller remains a research-only NONMATCHING candidate. */
 
 extern s32 func_00397c40(void* hierarchy);
 extern s32 func_00471370(u8 *a, u8 *b, u8 *c, void *d);
