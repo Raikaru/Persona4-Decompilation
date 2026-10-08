@@ -339,23 +339,60 @@ exit:
     temp_4 = temp_3;
     return temp_4;
 }
-/* gate: object 685 against retail 705, -2.8% - INSIDE
-   the +-3% band (lower bound 684). Previous draft was 670/-5.0% outside;
-   count fixed via site1 inline + pointer colors + one base/workBase swap,
-   all truthful same-value shapes (see measured note). */
-// FUN_00222210 NONMATCHING
-/* measured: 2026-09-20 -- 668 differing words via `python3 tools/measure_guarded.py src/promoted/code1_0022.c func_00222210` (retail 705 instrs/object 685 instrs, fnalign 277 edits +3 reloc-only via `python3 tools/fnalign.py src/promoted/code1_0022.c func_00222210 --candidate /tmp/installed.c`). Frame 0x120 matches retail (addiu identical at index0); residual is 4 missing y-conversions (cvt.w.s/mfc1/sub.s/nop per site, retail recomputes workBase.y-y0/base.y-y0 where object CSEs to $s6/$s1) plus lwc1/sd/ld/addiu spill, $s0-$s2/$s5 coloring, f20-f24 rotation and per-use 16-bit masks. Levers that carried the count: pointer-form colors (p=&colors[i*4] per 7a, +2), site1 inline workDelta.x+workBase.x / delta.x+base.x for call args and diffs per IDA v76/v75 and Ghidra (first gold/tail calls use memory inline, +8), one loop y-diff via base.y where base==workBase in gold loop (same gold value, defeats one y-CSE, +5). Kept truthful: (f32)(u32)u16 lowerings, int-form constants, float immediates, s16 tail casts, exact callee prototypes. Walls: remaining straight-line identical y-diffs CSE'd (retail recomputes), B0/C0 coords vs object offsets. 2026-09-28: the two frame-counter bumps are `if (++*(u16 *)(work + 0x48) >= 0x28)`, which reproduces retail's sh-before-andi in one register (two fnalign hunks gone, 652 words unchanged). Production stays ASM. */
-#ifdef NON_MATCHING
+typedef struct LogoVec2 {
+    f32 x;
+    f32 y;
+} LogoVec2;
+typedef struct LogoColor {
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} LogoColor;
+
+extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+
+static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2 pos)
+{
+    s32 res = *(s32 *)(work + 0x50);
+    f32 x;
+    f32 y;
+    f32 qx;
+
+    x = ofs.x + pos.x;
+    y = ofs.y + pos.y;
+    func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, x, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - x), (s16)(pos.y - y));
+    x = ofs.x + pos.x;
+    y = ofs.y + pos.y;
+    qx = (207.0f + x) - 6.0f;
+    func_0034f4a0(res, 0xB2, qx, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - qx), (s16)(pos.y - y));
+    x = ofs.x + pos.x;
+    y = ofs.y + pos.y;
+    qx = (300.0f + x) - 6.0f;
+    func_0034f4a0(res, 0xB3, qx, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - qx), (s16)(pos.y - y));
+    x = ofs.x + pos.x;
+    y = ofs.y + pos.y;
+    qx = (314.0f + x) - 6.0f;
+    func_0034f4a0(res, 0xB3, qx, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - qx), (s16)(pos.y - y));
+}
+
+/* Logo title draw. Each call re-derives the sprite position from its
+ * by-value origin and offset, so the y offset is recomputed per call as in
+ * retail. The coloured-quad loops and the title loop share one counter;
+ * opt_lifetimes splits it so the title counter colours after the helper's
+ * resource. opt_loop_invariants hoists the colour constants and the invariant
+ * parameter copies out of the loops, as retail does. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
+// FUN_00222210
 void func_00222210(u8 *work, u32 alpha)
 {
-    typedef struct { f32 x, y; } Vec2f_2210;
-    typedef union { u8 b[4]; f32 f; u32 w; } ColorWord_2210;
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void func_00364c50(void);
     extern void func_00364c70(void);
     extern void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4);
-    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern f32 fGpffff8384;
     extern f32 fGpffff8388;
     f32 var_f24;
@@ -364,22 +401,11 @@ void func_00222210(u8 *work, u32 alpha)
     f32 var_f23;
     f32 var_f20;
     f32 coords[6];
-    u8 colors[12];
-    Vec2f_2210 base;
-    Vec2f_2210 delta;
-    Vec2f_2210 workBase;
-    Vec2f_2210 workDelta;
-    ColorWord_2210 colOrig;
-    ColorWord_2210 colLoop;
-    u8 gLoop;
-    u8 bLoop;
-    u8 aLoop;
-    s32 resLoop;
-    s32 loop;
+    LogoVec2 pos;
+    LogoVec2 base;
+    LogoColor colors[3];
+    LogoColor color;
     s32 i;
-    f32 x0;
-    f32 y0;
-    f32 qx;
 
     if ((*(u16 *)work & 8) == 0) {
         var_f24 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
@@ -397,100 +423,74 @@ void func_00222210(u8 *work, u32 alpha)
         var_f22 = 0.0f;
         var_f21 = 0.0f;
         var_f23 = 0.0f;
-        {
-            if (++*(u16 *)(work + 0x48) >= 0x28) {
-                *(u16 *)(work + 0x48) = 0;
-            }
-            var_f20 = func_00373cb0((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
+        if (++*(u16 *)(work + 0x48) >= 0x28) {
+            *(u16 *)(work + 0x48) = 0;
         }
+        var_f20 = func_00373cb0((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
     }
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x44);
-    base.x = (f32)0x109 + (f32)0x177 * var_f22;
-    base.y = 0.0f;
-    coords[0] = base.x;
-    coords[1] = 0.0f;
-    coords[2] = (f32)0x177 + base.x;
-    coords[3] = 0.0f;
-    coords[4] = (f32)0x177 + base.x;
-    coords[5] = (f32)0x119;
+
+    pos.x = (f32)0x109 + (f32)0x177 * var_f22;
+    pos.y = 0.0f;
+    coords[0] = pos.x;
+    coords[1] = pos.y;
+    coords[2] = (f32)0x177 + pos.x;
+    coords[3] = pos.y;
+    coords[4] = (f32)0x177 + pos.x;
+    coords[5] = (f32)0x119 + pos.y;
     for (i = 0; i < 3; i++) {
-        u8 *p = &colors[i * 4];
-        p[0] = 0xFF;
-        p[1] = 0xFF;
-        p[2] = 0xFF;
-        p[3] = (u8)alpha;
+        colors[i].r = 0xFF;
+        colors[i].g = 0xFF;
+        colors[i].b = 0xFF;
+        colors[i].a = alpha;
     }
     func_00364c50();
-    func_0045dfd0(colors, (u8 *)coords, 0.0f, 3, 5, 0);
+    func_0045dfd0((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
     func_00364c70();
-    base.x = 348.0f + 292.0f * var_f24;
-    base.y = 0.0f;
-    coords[0] = base.x;
-    coords[1] = 0.0f;
-    coords[2] = 292.0f + base.x;
-    coords[3] = 0.0f;
-    coords[4] = 292.0f + base.x;
-    coords[5] = 220.0f;
+
+    pos.x = 348.0f + 292.0f * var_f24;
+    pos.y = 0.0f;
+    coords[0] = pos.x;
+    coords[1] = pos.y;
+    coords[2] = 292.0f + pos.x;
+    coords[3] = pos.y;
+    coords[4] = 292.0f + pos.x;
+    coords[5] = 220.0f + pos.y;
     for (i = 0; i < 3; i++) {
-        u8 *p = &colors[i * 4];
-        p[0] = 0xED;
-        p[1] = 0x36;
-        p[2] = 0x11;
-        p[3] = (u8)alpha;
+        colors[i].r = 0xED;
+        colors[i].g = 0x36;
+        colors[i].b = 0x11;
+        colors[i].a = alpha;
     }
     func_00364c50();
-    func_0045dfd0(colors, (u8 *)coords, 0.0f, 3, 5, 0);
+    func_0045dfd0((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
     func_00364c70();
-    base.x = (fGpffff8384 * var_f21 + 220.0f) - 9.0f;
-    base.y = fGpffff8388 * var_f21 + -94.0f;
-    delta.x = -(394.0f * var_f20);
-    delta.y = 0.0f;
-    colOrig.b[0] = 0xFF;
-    colOrig.b[1] = 0xD4;
-    colOrig.b[2] = 0x00;
-    colOrig.b[3] = (u8)alpha;
-    workBase = base;
-    colLoop.f = colOrig.f;
-    gLoop = colLoop.b[1];
-    bLoop = colLoop.b[2];
-    aLoop = colLoop.b[3];
-    resLoop = *(s32 *)(work + 0x50);
-    for (loop = 0; loop < 3; loop++) {
-        workDelta = delta;
-        x0 = workDelta.x + workBase.x;
-        y0 = workDelta.y + workBase.y;
-        func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, workDelta.x + workBase.x, workDelta.y + workBase.y, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - (workDelta.x + workBase.x)), (s16)(s32)(workBase.y - (workDelta.y + workBase.y)));
-        qx = (x0 + 207.0f) - 6.0f;
-        func_0034f4a0(resLoop, 0xB2, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(workBase.y - y0));
-        qx = (x0 + 300.0f) - 6.0f;
-        func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(base.y - y0));
-        qx = (x0 + 314.0f) - 6.0f;
-        func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(workBase.y - y0));
-        delta.x = delta.x + 394.0f;
+
+    base.x = (220.0f + fGpffff8384 * var_f21) - 9.0f;
+    base.y = -94.0f + fGpffff8388 * var_f21;
+    pos.x = -(394.0f * var_f20);
+    pos.y = 0.0f;
+    color.r = 0xFF;
+    color.g = 0xD4;
+    color.b = 0;
+    color.a = alpha;
+    for (i = 0; i < 3; i++) {
+        logoDrawTitle(work, pos, color, base);
+        pos.x = pos.x + 394.0f;
     }
-    base.x = 1.0f + (fGpffff8384 * var_f23 + (f32)0x185);
-    base.y = (fGpffff8388 * var_f23 + -5.0f) - 1.0f;
-    delta.x = 0.0f;
-    delta.y = 0.0f;
-    colOrig.b[0] = 0xFF;
-    colOrig.b[1] = 0xFF;
-    colOrig.b[2] = 0xFF;
-    colOrig.b[3] = (u8)alpha;
-    colLoop.f = colOrig.f;
-    x0 = delta.x + base.x;
-    y0 = delta.y + base.y;
-    func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, delta.x + base.x, delta.y + base.y, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - (delta.x + base.x)), (s16)(s32)(base.y - (delta.y + base.y)));
-    qx = (x0 + 207.0f) - 6.0f;
-    func_0034f4a0(resLoop, 0xB2, qx, y0, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - qx), (s16)(s32)(base.y - y0));
-    qx = (x0 + 300.0f) - 6.0f;
-    func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - qx), (s16)(s32)(base.y - y0));
-    qx = (x0 + 314.0f) - 6.0f;
-    func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - qx), (s16)(s32)(base.y - y0));
+
+    base.x = 1.0f + ((f32)0x185 + fGpffff8384 * var_f23);
+    base.y = (-5.0f + fGpffff8388 * var_f23) - 1.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    color.r = 0xFF;
+    color.g = 0xFF;
+    color.b = 0xFF;
+    color.a = alpha;
+    logoDrawTitle(work, pos, color, base);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00222210);
-#endif
+#pragma pop
 /* 896/896 bytes and all 17 relocations resolve exactly.
  * Keep the opaque byte branch-local, snapshot coordinates before opacity
  * conversion, and pack the color before preparing the overlay dimensions. */
