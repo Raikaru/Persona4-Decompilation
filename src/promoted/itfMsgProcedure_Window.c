@@ -2595,6 +2595,7 @@ s32 func_002833b0(s32 arg0)
    saved-register colouring of three load temporaries (r116/r146/r173 in the
    capture; no declaration order reaches more than 31 of 36 targets), and
    case 5's colour slots (retail 0x12C/0x134). */
+/* 2026-10-09: 82 -> 75 edits with depthColor as one function-scope local shared by cases 4 and 5 (retail's frame slots); the rest is saved-register colouring that declaration and block-order climbs do not move. */
 // FUN_00283490 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2675,6 +2676,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
     s32 phase;
     s32 frame;
     s32 i;
+    CalendarColor depthColor;
     s32 (**table)(s32, void *);
     s32 lineRgb;
     u8 *handle;
@@ -2684,7 +2686,6 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
     task = args.task;
     switch (args.kind) {
     case 4: {
-        CalendarColor depthColor;
         CalendarColor color;
 
         handle = msgCalendarResource(0);
@@ -2829,7 +2830,6 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
         break;
     }
     case 5: {
-        CalendarColor depthColor;
         CalendarColor color;
 
         handle = msgCalendarResource(0);
