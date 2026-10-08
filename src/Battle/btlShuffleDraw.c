@@ -1260,7 +1260,8 @@ void func_00376880(u8 **arg0) {
  * Matrix flags are explicitly initialized; retail's SDK identity
  * macro reads an unwritten flag word. ASM remains the production
  * implementation. See docs/probe_archive/Shuffle_trail_003768e0_20261006.
-   2026-10-08: opt_lifetimes on lowers fnalign from 464 to 280 edits. */
+   2026-10-08: opt_lifetimes on lowers fnalign from 464 to 280 edits.
+   Also (2026-10-08): the identity flags are ORed into the uninitialised local (retail lw 0xBC/or) and the render-state table is read through a u32 local kept in $s3, 270 edits. */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1333,12 +1334,18 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, u8 *rgba, f32 length)
     identity.right.y = identity.right.z = identity.up.x = 0.0f;
     identity.up.z = identity.at.x = identity.at.y = 0.0f;
     identity.pos.x = identity.pos.y = identity.pos.z = 0.0f;
-    identity.flags = 0x20003;
+    /* Retail ORs the identity flags into the uninitialised local (SDK
+     * RwMatrixSetIdentity macro); the read is retail behaviour. */
+    identity.flags |= 0x20003;
     RpSkyRenderStateSet(2, (void *)0x48);
     RpSkyRenderStateSet(3, (void *)0x71801);
-    D_00887300[0](rwRENDERSTATECULLMODE, (void *)1);
-    D_00887300[0](rwRENDERSTATEZTESTENABLE, (void *)1);
-    D_00887300[0](rwRENDERSTATEZWRITEENABLE, NULL);
+    {
+        u32 renderStateBase = (u32)D_00887300;
+
+        (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATECULLMODE, (void *)1);
+        (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATEZTESTENABLE, (void *)1);
+        (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATEZWRITEENABLE, NULL);
+    }
     motion = work + cardIndex * 0xE8 + 0x1D6A0;
     card = work + cardIndex * 0xFB0;
     if (*(s32 *)(motion + 4) == 6) {
