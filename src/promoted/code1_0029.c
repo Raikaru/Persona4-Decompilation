@@ -2730,17 +2730,20 @@ void func_0029f790(u8 *arg0)
                       alpha, 1);
     }
 }
-/* measured: func_0029fbb0 (retail 461 instrs; fnalign 12 edits, down from 139). The local 6x24-byte
+/* measured: func_0029fbb0 (retail 461 instrs; fnalign 6 edits, down from 139). The local 6x24-byte
    slide table is a struct array so retail's stack addressing (arg1*24 + sp, field offsets as
    displacements) falls out; `base` is read before the table copy (retail spills it, so arg0 is
    not kept), `code29AddOff(off4, base)` keeps the flag address from being CSE'd with p22/p16,
    the u8 colour/alpha locals and the u32 float->int shift reproduce retail's conversions.
-   Retail's unfolded `addiu tmp,base,K; lw x,0(tmp)` table reads come from an address used
-   twice before backend CSE removes the second load: passing `tbl[arg1].f1` again to the
-   next call unfolds the 0x104 read (2026-10-07). Doing the same for the other five fields
-   (y2/x2 written with the fields, the 0x8F8F8F call taking .f0) unfolds all six but permutes
-   ix/iy/t17/t18/the arg1*24 index across $s0/$s1/$s2/$s5 (30 edits); the regalloc
-   order search finds no declaration order for that body. */
+   Retail's unfolded `addiu tmp,base,K; lw x,0(tmp)` table reads come from the frontend
+   CommonSubs pass: a field address written twice becomes an address temporary. Reading
+   .f1, .f0, .f3 and .f2 a second time in the next expression or call reproduces those four
+   (2026-10-07). Remaining: the .f5/.f4 reads into t18/t17. Their second use also turns the
+   loaded value into a CommonSubs temporary, which copy propagation substitutes for t18/t17,
+   so they leave the declared-local numbering and ix/iy/t17/t18/the arg1*24 index permute
+   across $s0/$s1/$s2/$s5 (30 edits). The regalloc model reaches retail's colours only with
+   t18, temp22, t17 and temp30 numbered as declared locals (order var23, temp_19, t18,
+   temp_18, temp22, color, t17, ix, iy, temp30); casts and opt_propagation off do not keep them. */
 // FUN_0029FBB0 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct SlideEnt {
@@ -2844,11 +2847,11 @@ do_copy:
         temp22 = tbl[arg1].f0;
         t18 = tbl[arg1].f5;
         f3v = tbl[arg1].f3;
-        y2 = (iy + f3v) - t18;
+        y2 = (iy + tbl[arg1].f3) - t18;
         t17 = tbl[arg1].f4;
         f2v = tbl[arg1].f2;
-        x2 = (ix + f2v) - t17;
-        func_0025e9e0((f32)x2, (f32)y2, 0.0f, 0x8F8F8F, 0xFF, temp22, iGpffffb540, 1);
+        x2 = (ix + tbl[arg1].f2) - t17;
+        func_0025e9e0((f32)x2, (f32)y2, 0.0f, 0x8F8F8F, 0xFF, tbl[arg1].f0, iGpffffb540, 1);
         func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x99, var23, temp30, iGpffffb540, 1);
         func_0025e9e0((f32)x2, (f32)y2, 0.0f, 0xCCFFFF, var23, temp22, iGpffffb540, 1);
         {
