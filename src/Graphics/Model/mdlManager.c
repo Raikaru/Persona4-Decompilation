@@ -471,8 +471,11 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * docs/probe_archive/model_00471370_guarded_recovery.md.
  */
 #pragma push
+/* 2026-10-08: opt_loop_invariants on lowers fnalign from 879 to 856 edits. */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
 s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 
 {
@@ -1298,6 +1301,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   }
   return 1;
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
 #endif

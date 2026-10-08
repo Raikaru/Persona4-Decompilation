@@ -2421,16 +2421,17 @@ void func_00126090(s32 arg0, u8 *arg1)
  * ACC placeholders remain outside this bounded sprite-alpha repair. */
 /* measured 2026-09-29: canonical TitleRect payload reads compile the guarded
  * body to 17072/17616 bytes, nd 3941. Earlier scores above are historical;
- * this body remains assembly-backed. */
+ * this body remains assembly-backed.
+   2026-10-08: opt_lifetimes on lowers fnalign from 3558 to 3424 edits. */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 #include "btl_shuffle_draw_internal.h"
-#ifndef M2C_GUARD
 #define M2C_GUARD
 typedef s32 M2C_UNK;
 #define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
 #define M2C_BITWISE(type, expr) ((type)(expr))
-#endif
 /* The draw queue supplies node+0x1C, then the task stored at node+0x10.
  * Only the task reaches the word-returning work accessor; the first payload
  * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
@@ -3961,6 +3962,7 @@ loop_351:
                       1, 0, 0, NULL, fadeTexture, fadeUv.pairs);
     }
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001265a0);
 #endif

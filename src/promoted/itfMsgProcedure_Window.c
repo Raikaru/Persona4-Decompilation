@@ -510,9 +510,13 @@ void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f
    which that sweep could not see.  Across the 40 floors with the most constant-bound
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
-   them all. */
+   them all.
+   2026-10-08: opt_loop_invariants on with opt_lifetimes on lowers fnalign from 873 to 510 edits. */
 // FUN_0027D970 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
 s32 func_0027d970(s32 arg0, u32 arg1)
 {
     extern MsgProcWindowF2 D_0063C080[];
@@ -1131,6 +1135,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     }
     return ret;
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d970);
 #endif
@@ -1333,9 +1338,12 @@ static inline s32 msgWinSelectionResource(void)
  * Reusing the inlined resource/first-free helpers preserves retail's joins.
  * Whole-owner b210: 8556/8624 bytes, 590 aligned edits, 668 masked words.
  * This supersedes the historical scores above; the assembly fallback remains.
- * See docs/probe_archive/Message_selection_0027f6f0_20261002.md. */
+ * See docs/probe_archive/Message_selection_0027f6f0_20261002.md.
+   2026-10-08: opt_lifetimes on lowers fnalign from 590 to 410 edits. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 #pragma push
 #pragma opt_loop_invariants on
 s32 func_0027f6f0(s32 arg0, u32 arg1)
@@ -2030,6 +2038,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     }
     return ret;
 }
+#pragma pop
 #pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027f6f0);

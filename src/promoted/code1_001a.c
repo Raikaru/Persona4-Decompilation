@@ -3002,9 +3002,12 @@ void func_001a5990(void)
    docs/probe_archive/Large_Battle_animation_contracts_20261003.md. */
 /* 2026-10-03 storage repair: preserve action/packet UIDs as doublewords
    and select true 0x20-byte hit records. The old narrowing measurements above
-   are historical, not type evidence. See Large_Battle_storage_20261003.md. */
+   are historical, not type evidence. See Large_Battle_storage_20261003.md.
+   2026-10-08: opt_loop_invariants on lowers fnalign from 837 to 752 edits. */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
 void func_001a59a0(s64 *arg0) {
     extern s32 func_00194590();
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
@@ -3916,6 +3919,7 @@ block_224:
     }
     btlActionSetState(arg0, 0x20U);
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a59a0);
 #endif

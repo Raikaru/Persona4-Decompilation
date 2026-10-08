@@ -230,9 +230,12 @@ s32 func_002ac740(void) {
 /* measured: 2026-09-19 switch-order + default-place (this session): jtbl_007487E0 6 entries share pairwise (0,1->0x2ad2d4 9/10; 2,3->0x2ad4f0 11/12; 4,5->0x2ada3c 13/14) so case9:case10: stacked is correct, no real fallthrough; 9/10->default fallthrough is artefact (different targets, both return via epilogue) so break + default-at-end. Switch1/3 irregular 2,0/3,1 -> ascending 0,2/1,3. fnalign retail 1380: base 916+5 obj1356 -> default-end 915+5 obj1354 (-1) -> sw1-asc 879+5 (-37) -> sw1+sw3-asc 843+5 (-73) -> +default-end 842+5 obj1354 (-74 total). Pointer-walk trial on loop_102 D-table (p_102++) 844+5 (+2 vs 842, reject; retail also index*2). Raw-save prologue trial neutral 842. Frame still 0x140 vs 0x190, saved-reg rotation + u16 families remain. verify 28MATCH/8ASM, lint 0e/1w (pre-existing H003), fnalign object compiles. TU C-linked unverified (prod stays ASM), image hashes unverified. */
 /* Row displacements are byte offsets. Cast the visibility-table base to
    u8 * before adding them; adding to s16 * doubles each row displacement.
-   Both retail stores add the two byte offsets before their halfword load. */
+   Both retail stores add the two byte offsets before their halfword load.
+   2026-10-08: opt_loop_invariants on lowers fnalign from 828 to 679 edits. */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
 void func_002ac750(u8 arg0, u8 arg1) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern s64 func_002adcf0(u8);
@@ -800,6 +803,7 @@ loop_130:
         }
     }
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002ac750);
 #endif
