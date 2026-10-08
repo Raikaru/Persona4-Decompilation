@@ -1341,6 +1341,7 @@ static inline s32 msgWinSelectionResource(void)
  * See docs/probe_archive/Message_selection_0027f6f0_20261002.md.
    2026-10-08: opt_lifetimes on lowers fnalign from 590 to 410 edits.
    Also (2026-10-08): `tmp = a && b` written as the && test, s32 frame counters, and argument expressions inlined in call order (retail computes them at the call) bring it to 331. */
+/* 2026-10-09: 331 -> 301 edits. Applying the single-definition rule: case 4's 300 - 300*f result reuses prodA (a multi-definition local) so it is computed in statement order. prodA's case-3 value and the 100/x quotient are written in two steps so retail's constant materialisation order comes out. The colour unions are copied whole. Open: retail also stores backgroundColor/selectionColor at 0x2f8/0x2f4 before copying them to color, and those stores are eliminated here. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1392,7 +1393,6 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     float prodA;
     float prodB;
     float chainA;
-    float chainB;
     float chainC;
     float chainD;
     float divA;
@@ -1458,10 +1458,10 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             subA = 1.0f - f;
             cvtA = (float)(s20 + 0x7B);
             chainA = cvtA - (16.0f * subA);
-            chainB = 300.0f - (300.0f * f);
+            prodA = 300.0f - (300.0f * f);
             chainC = iGpffff803c + (iGpffff811c * f);
             chainD = iGpffff803c - (iGpffff8118 * f);
-            func_0025ecd0(chainB, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
+            func_0025ecd0(prodA, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
         } else if (D_00882024[0] < 0x10) {
             f = sinf((iGpffff8094 * (float)(D_00882024[0] - 10)) / 5.0f);
             chainA = (float)s20 * (1.0f - f) + 123.0f;
@@ -1484,7 +1484,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                     func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
                     break;
                 case 3:
-                    prodA = (1.0f - f) * 100.0f;
+                    prodA = 1.0f - f;
+                    prodA = 100.0f * prodA;
                     func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f - prodA, 143.0f, 0.0f);
                     func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f - prodA, 143.0f, 0.0f);
                     break;
@@ -1888,8 +1889,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         break;
     case 12:
         if (func_0027bec0((s32)arg0) != 0) {
-            backgroundColor.transport = iGpffffa780.transport;
-            color.transport = backgroundColor.transport;
+            backgroundColor = iGpffffa780;
+            color = backgroundColor;
             background = D_0063C130;
             rectangle = background;
             func_0045da40(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
@@ -1898,12 +1899,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             if ((s16)tmp2 == 5) {
                 j = tmp * 0xF0 + 0x550;
             } else {
-                f = 100.0f / (float)(s16)tmp2;
+                f = 100.0f;
+                f = f / (float)(s16)tmp2;
                 tmp2 = (s32)f;
                 j = (tmp2 >> 1) * 8 + 0x550 + tmp2 * 8 * tmp;
             }
-            selectionColor.transport = iGpffffa784.transport;
-            color.transport = selectionColor.transport;
+            selectionColor = iGpffffa784;
+            color = selectionColor;
             selection = D_0063C140;
             selection.signedWords.word[0] = 0x38;
             selection.signedWords.word[1] = j >> 3;
