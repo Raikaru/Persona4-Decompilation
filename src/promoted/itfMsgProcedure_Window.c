@@ -490,34 +490,32 @@ void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f
   func_0045eb20(&work.colors[0], &work.points[0], f0, 10, 4, 1, t0, t1, f1, f2, f3, t2);
 }
 
-/* measured 0027d970 (owner, m2c+ida+ghidra adapted floor): 1782 against retail's 1787
-   (-0.3%, band 1735-1841 PASS), 999 edits, 1672 differing words, hole 23/lump 5.
-   Frame 0x590 against retail 0x590; ra 0x70 both; saves s0-s5/f20-f21 exact, no missing/extra.
-   Calls 85 matching retail 85 (278110x1, 2781e0x3, 43f9c8x3, 2e0fb0x1, 2e0f90x2, 27bec0x8,
-   44b610x1, 45eb20x5, 45e8e0x3, 2e0dd0x1, 278fd0x2, 272a10x2, 2728c0x3, 272b00x4, 272ba0x4,
-   278fb0x2, 272b50x1, 27b6e0x1, 27b750x3, 278ff0x4, 44b7b0x4, 279010x4, 277070x3, 25ec90x6,
-   27a490x1, 27a4b0x1, 25ecd0x4, 26e350x1, 272730x1); nop retail 297 (16.6%) vs object 302 (17.0%).
-   Trajectory 1566->1588->1652->1669->1782: +16 from explicit 1.0f/1.0f on all eight 0045 calls,
-   remainder copy/fill liveness in three 16-elem blocks (w5/w6/w7) with array-typed D_00882000/04/06/08
-   (scalar GPREL16 cost one lui per site) and in-bounds F2 y indices (1,3,5,7,9 / 1,3,5,7,9,11,13,15).
-   Residual is COP1 adda/madd/msub chains (7 sites) + scheduling wall; production stays ASM. */
-/* measured 0027d970 (owner, 2026-09-19): fnalign **872 -> 868 edits**, count
-   1782 -> 1780 against retail 1787, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all.
-   2026-10-08: opt_loop_invariants on with opt_lifetimes on lowers fnalign from 873 to 510 edits. */
-/* 2026-10-09: 510 -> 189 edits, checked against the retail asm. Corrections: case 0 tests and clears the D_00882000 array itself; case 8 is placed before case 7 and uses retail's 57.0f/338.0f; cases 12 and 13 draw their labels at 23.0f/407.0f; the free-entry search is an inline helper and clears field8/fieldC/field4; the case 6/7 loops and the case 11-13 offsets match retail's s16 levels, int round trips, unfused products and loop-hoisted conversions; the case-16 counter is s32. Open: retail materialises the msgWinReady flag in cases 16/17, and some temporaries are coloured differently. */
-// FUN_0027D970 NONMATCHING
-#ifdef NON_MATCHING
+/* Message-window choice phases (cases 0-18). Checked against retail:
+ * - case 0 tests and clears the D_00882000 array itself;
+ * - case 8 precedes case 7 and the selection cursor sits at 57/338;
+ * - point tables are copied as whole structs (retail's 8-byte copy loop);
+ * - the free-entry search and readiness test are inline helpers, so retail's
+ *   materialised flag and goto-style search come out;
+ * - call results tested right away are assigned inside the condition, so
+ *   retail tests $v0;
+ * - s16 levels, int round trips and unfused products follow retail; the
+ *   label sum adds the conversion to a separately named product.
+ * opt_loop_invariants on and opt_lifetimes on are measured: without them
+ * the body is 463+ edits. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
+typedef struct { u32 w[20]; } MsgProcWindowCopy10;
+typedef struct { u32 w[32]; } MsgProcWindowCopy16;
+
+static inline s32 msgWinReady(void)
+{
+    if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 static inline MsgProcWindowEntry *msgWinFreeEntry(void)
 {
     s32 j;
@@ -532,6 +530,7 @@ static inline MsgProcWindowEntry *msgWinFreeEntry(void)
     return (MsgProcWindowEntry *)0;
 }
 
+// FUN_0027D970
 s32 func_0027d970(s32 arg0, u32 arg1)
 {
     extern MsgProcWindowF2 D_0063C080[];
@@ -556,13 +555,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     Work16 w5;
     Work16 w6;
     Work16 w7;
-    MsgProcWindowU32Pair *src;
-    MsgProcWindowU32Pair *dst;
     MsgProcWindowF2 *p;
     MsgProcWindowRGBA *c;
-    s32 count;
-    u32 lo;
-    u32 hi;
     u32 i;
     s32 ret;
     s32 tmp;
@@ -607,18 +601,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
             }
             if (D_00882004[0] < 11) {
                 f = cosf(iGpffff8094 * (float)D_00882004[0] / 10.0f);
-                src = (MsgProcWindowU32Pair *)D_0063C030;
-                dst = (MsgProcWindowU32Pair *)w0.points;
-                count = 10;
-                do {
-                    lo = src->a;
-                    hi = src->b;
-                    src++;
-                    count--;
-                    dst->a = lo;
-                    dst->b = hi;
-                    dst++;
-                } while (count > 0);
+                *(MsgProcWindowCopy10 *)w0.points = *(MsgProcWindowCopy10 *)D_0063C030;
                 w0.points[1].y = 83.0f;
                 w0.points[3].y = 85.0f;
                 w0.points[5].y = 87.0f;
@@ -637,18 +620,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 func_0045eb20(&w0.colors[0], &w0.points[0], 0.0f, 10, 4, 1, 2000, 0, f * 5.0f, 1.0f, 1.0f, D_00796490);
             } else if (D_00882004[0] >= 11) {
                 f = 1.0f - (float)(D_00882004[0] - 11) / 3.0f;
-                src = (MsgProcWindowU32Pair *)D_0063C030;
-                dst = (MsgProcWindowU32Pair *)w1.points;
-                count = 10;
-                do {
-                    lo = src->a;
-                    hi = src->b;
-                    src++;
-                    count--;
-                    dst->a = lo;
-                    dst->b = hi;
-                    dst++;
-                } while (count > 0);
+                *(MsgProcWindowCopy10 *)w1.points = *(MsgProcWindowCopy10 *)D_0063C030;
                 w1.points[1].y = 83.0f;
                 w1.points[3].y = 85.0f;
                 w1.points[5].y = 87.0f;
@@ -665,18 +637,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     c->a = 0xFF;
                 }
                 func_0045eb20(&w1.colors[0], &w1.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8 * (1.0f - f), 1.0f, 1.0f, D_00796430);
-                src = (MsgProcWindowU32Pair *)D_0063C030;
-                dst = (MsgProcWindowU32Pair *)w2.points;
-                count = 10;
-                do {
-                    lo = src->a;
-                    hi = src->b;
-                    src++;
-                    count--;
-                    dst->a = lo;
-                    dst->b = hi;
-                    dst++;
-                } while (count > 0);
+                *(MsgProcWindowCopy10 *)w2.points = *(MsgProcWindowCopy10 *)D_0063C030;
                 w2.points[1].y = 83.0f;
                 w2.points[3].y = 85.0f;
                 w2.points[5].y = 87.0f;
@@ -703,18 +664,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         break;
     case 5:
         if (func_0027bec0((s32)arg0) != 0) {
-            src = (MsgProcWindowU32Pair *)D_0063C030;
-            dst = (MsgProcWindowU32Pair *)w3.points;
-            count = 10;
-            do {
-                lo = src->a;
-                hi = src->b;
-                src++;
-                count--;
-                dst->a = lo;
-                dst->b = hi;
-                dst++;
-            } while (count > 0);
+            *(MsgProcWindowCopy10 *)w3.points = *(MsgProcWindowCopy10 *)D_0063C030;
             w3.points[1].y = 83.0f;
             w3.points[3].y = 85.0f;
             w3.points[5].y = 87.0f;
@@ -731,18 +681,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 c->a = 0xFF;
             }
             func_0045eb20(&w3.colors[0], &w3.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8, 1.0f, 1.0f, D_00796430);
-            src = (MsgProcWindowU32Pair *)D_0063C030;
-            dst = (MsgProcWindowU32Pair *)w4.points;
-            count = 10;
-            do {
-                lo = src->a;
-                hi = src->b;
-                src++;
-                count--;
-                dst->a = lo;
-                dst->b = hi;
-                dst++;
-            } while (count > 0);
+            *(MsgProcWindowCopy10 *)w4.points = *(MsgProcWindowCopy10 *)D_0063C030;
             w4.points[1].y = 83.0f;
             w4.points[3].y = 85.0f;
             w4.points[5].y = 87.0f;
@@ -780,15 +719,13 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     case 8: {
         void *t0;
         void *t1;
-        t0 = (void *)func_00278fd0((void *)arg0);
-        if (t0 != (void *)0) {
+        if ((t0 = (void *)func_00278fd0((void *)arg0)) != (void *)0) {
             func_00272a10(t0, 44.0f, 306.0f);
             func_002728c0(t0, 0);
             func_00272b00(t0, 0);
             func_00272ba0(t0, 0x1B1B1BFF);
         }
-        t1 = (void *)func_00278fb0((void *)arg0);
-        if (t1 != (void *)0) {
+        if ((t1 = (void *)func_00278fb0((void *)arg0)) != (void *)0) {
             func_00272a10(t1, 57.0f, 338.0f);
             func_002728c0(t1, 0);
             func_00272b50(t1, 0, 0);
@@ -821,8 +758,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     }
     case 10: {
         void *t;
-        t = (void *)func_00278ff0((void *)arg0);
-        if (t != (void *)0) {
+        if ((t = (void *)func_00278ff0((void *)arg0)) != (void *)0) {
             func_002728c0(t, 0);
             func_00272b00(t, 0);
         }
@@ -840,18 +776,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
             f = sinf(iGpffff8094 * (float)D_00882006[0] / 6.0f);
             lvl2 = func_00279010((s32)arg0);
             v = (5 - lvl2) * 0x1E + 0x87;
-            src = (MsgProcWindowU32Pair *)D_0063C080;
-            dst = (MsgProcWindowU32Pair *)w5.points;
-            count = 16;
-            do {
-                lo = src->a;
-                hi = src->b;
-                src++;
-                count--;
-                dst->a = lo;
-                dst->b = hi;
-                dst++;
-            } while (count > 0);
+            *(MsgProcWindowCopy16 *)w5.points = *(MsgProcWindowCopy16 *)D_0063C080;
             ftmp = (float)(5 - lvl2) * 30.0f;
             f1 = 254.0f * (((259.0f - ftmp) / 259.0f) * f);
             w5.points[1].y = f1;
@@ -877,8 +802,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 D_00882000[0] &= ~8;
                 D_00882006[0] = 0;
                 func_00278fd0((void *)arg0);
-                tmp = func_00278fb0((void *)arg0);
-                if (tmp != 0) {
+                if ((tmp = func_00278fb0((void *)arg0)) != 0) {
                     func_00272ba0((void *)tmp, -128);
                     func_00272730((void *)tmp, 0);
                 }
@@ -900,18 +824,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 a = func_00277070((s32)arg0);
                 b = (s16)func_00279010((s32)arg0);
                 v0 = (5 - b) * 0x1E + 0x87;
-                src = (MsgProcWindowU32Pair *)D_0063C080;
-                dst = (MsgProcWindowU32Pair *)w6.points;
-                count = 16;
-                do {
-                    lo = src->a;
-                    hi = src->b;
-                    src++;
-                    count--;
-                    dst->a = lo;
-                    dst->b = hi;
-                    dst++;
-                } while (count > 0);
+                *(MsgProcWindowCopy16 *)w6.points = *(MsgProcWindowCopy16 *)D_0063C080;
                 ftmp = 30.0f * (float)(5 - b);
                 f1 = 254.0f * ((259.0f - ftmp) / 259.0f);
                 w6.points[1].y = f1;
@@ -937,8 +850,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 v1 = (float)v1 + 30.0f * (float)a;
                 func_0025ec90(23.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
                 func_0025ec90(407.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
-                tmp = func_00278ff0((void *)arg0);
-                if (tmp != 0) {
+                if ((tmp = func_00278ff0((void *)arg0)) != 0) {
                     func_00272b00((void *)tmp, 0);
                     func_00272ba0((void *)tmp, -1);
                     func_0027a490((void *)tmp, a, b, 0);
@@ -953,8 +865,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         s32 a2;
         s32 b2;
         void *t;
-        t = (void *)func_00278ff0((void *)arg0);
-        if (t != (void *)0) {
+        if ((t = (void *)func_00278ff0((void *)arg0)) != (void *)0) {
             func_00277070((s32)arg0);
             func_00279010((s32)arg0);
             func_00272b00(t, 0);
@@ -998,18 +909,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     if (f2 <= iGpffff81ec) {
                         f2 = iGpffff81ec;
                     }
-                    src = (MsgProcWindowU32Pair *)D_0063C080;
-                    dst = (MsgProcWindowU32Pair *)w7.points;
-                    count = 16;
-                    do {
-                        lo = src->a;
-                        hi = src->b;
-                        src++;
-                        count--;
-                        dst->a = lo;
-                        dst->b = hi;
-                        dst++;
-                    } while (count > 0);
+                    v1 = (5 - b2) * 0x1E + 0x87;
+                    *(MsgProcWindowCopy16 *)w7.points = *(MsgProcWindowCopy16 *)D_0063C080;
                     f1 = 254.0f * f2;
                     w7.points[1].y = f1;
                     w7.points[3].y = f1 + 2.0f;
@@ -1022,7 +923,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     for (i = 0; i < 16; i++) {
                         p = &w7.points[i];
                         p->x += 20.0f;
-                        p->y += (float)(s32)((float)((5 - b2) * 0x1E + 0x87) + f3);
+                        p->y += (float)(s32)((float)v1 + f3);
                         c = &w7.colors[i];
                         c->r = 0x1B;
                         c->g = 0x18;
@@ -1042,13 +943,12 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                         f1 = 1.0f;
                     }
                     f2 = 1.0f - f1;
-                    f3 = f1 * 16.0f;
-                    f3 = (float)v0 + f3;
+                    ftmp = f1 * 16.0f;
+                    f3 = (float)v0 + ftmp;
                     func_0025ecd0(23.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
                     func_0025ecd0(407.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
                 }
-                tmp = func_00278ff0((void *)arg0);
-                if (tmp != 0 && D_00882006[0] >= need32 - 5) {
+                if ((tmp = func_00278ff0((void *)arg0)) != 0 && D_00882006[0] >= need32 - 5) {
                     f1 = (float)(D_00882006[0] - (need32 - 5)) / 5.0f;
                     func_00272b00((void *)tmp, 0);
                     func_00272ba0((void *)tmp, ((int)(255.0f * (1.0f - f1)) & 0xFF) | 0x1B1B1B00);
@@ -1092,7 +992,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     }
     case 17:
         if (func_0027bec0((s32)arg0) != 0) {
-            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
+            if (msgWinReady() != 0) {
                 func_0025ecd0(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, D_00796490);
                 func_0025ec90(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
             }
@@ -1102,21 +1002,14 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         if (func_0026e350() == 1) {
             ret = 1;
         } else if (func_0027bec0((s32)arg0) != 0) {
-            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
-                MsgProcWindowEntry *e3;
-                s32 m;
-                e3 = (void *)0;
-                for (m = 0; m < 8; m++) {
-                    if ((D_008820B0[m].field0 & 1) == 0) {
-                        e3 = &D_008820B0[m];
-                        break;
-                    }
-                }
-                if (e3 != (void *)0) {
+            if (msgWinReady() != 0) {
+                MsgProcWindowEntry *e3 = msgWinFreeEntry();
+
+                if (e3 != (MsgProcWindowEntry *)0) {
                     memset(e3, 0, 0x18);
                     e3->field0 |= 1;
-                    e3->field10 = 0;
-                    e3->field14 = 0;
+                    e3->field8 = 0;
+                    e3->fieldC = 0;
                     e3->field4 = 6;
                 }
                 ret = 1;
@@ -1129,9 +1022,6 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     return ret;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d970);
-#endif
 
 // FUN_0027F560
 s32 func_0027f560(u8 *unusedTask)
@@ -2199,14 +2089,6 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
     return ret;
 }
 #pragma pop
-
-static inline s32 msgWinReady(void)
-{
-    if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
-        return 1;
-    }
-    return 0;
-}
 
 /* Choice-window phases share the existing readiness predicate.
  * b210 propagates a local with a single definition into its use, so retail's
