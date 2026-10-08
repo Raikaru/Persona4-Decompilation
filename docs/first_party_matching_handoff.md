@@ -25,7 +25,7 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 9 continuation, part 2: 6,825 MATCH / 36 ASM (owner verify)
+## October 9 continuation, part 2: 6,826 MATCH / 35 ASM
 
 Five functions the earlier notes called "pure-GPR lq/sq floors" matched once
 their quadword copies were written through `$2` (user-approved; see the `$2`
@@ -39,10 +39,18 @@ lever in [matching.md](matching.md)). Each copy carries a
 - `00497ce0`: 201 → 0: the two row-loop vector carries through `$2`, a
   permutation of the saved-register locals, and the `-1` hoist named
   `invalid`.
+- `004b6030`: 23 → 0: the allocation result goes into `base` first and is
+  copied to `node`, so retail adds 0x24 to `$v0` directly. Its
+  `opt_loop_invariants`/`opt_lifetimes` pragmas are required: fnalign scored
+  the body without them as 0, but verify reported MISMATCH (nd 116). Always
+  re-verify after removing a pragma.
 
-Full link `build/link24.log` (after the first three) kept 604 C and 54 SDK
-objects with both hashes OK. `00490c40` improved 57 → 45 with the same copies;
-its residual is the `dot`/`swayBase` spill choice.
+`build/after23.json` reports 6,826 first-party MATCH and 35 ASM, and against
+`after22.json` only these six rows changed. Full links `link24`, `link25` and
+`link26` each kept 604 C and 54 SDK objects with both hashes OK.
+`00490c40` improved 57 → 45 with the same copies; its residual is the
+`dot`/`swayBase` spill choice. `0036ee60` has the same kind of residual:
+b210 spills `nDraw` (score 4) where retail spills `aIdx` (score 5 in ours).
 
 ## October 9 continuation: 6,820 MATCH / 41 ASM
 
