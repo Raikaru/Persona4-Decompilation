@@ -25,13 +25,13 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 7 continuation: 6,810 MATCH / 51 ASM
+## October 7 continuation: 6,812 MATCH / 49 ASM
 
-A fresh all-owner verify (`build/after14.json`) reports 6,810 first-party
-MATCH and 51 ASM. Against `after13.json`, only the newly matched rows changed:
-`00363610` (from a parallel session), `004a5fc0` and `004b1ad0`. The previous
-full link kept all 604 C objects and 54 Sony SDK objects with both retail
-hashes passing. The two new owners pass `build/elig_debug.py`.
+The latest all-owner verify (`build/after15.json`) reports 6,811 first-party
+MATCH and 50 ASM. Against `after14.json`, only `0029fbb0` changed. The full
+link after that match kept all 604 C objects and 54 Sony SDK objects, with
+both retail hashes passing. `004941f0` matched afterwards; its owner verifies
+and passes `build/elig_debug.py`, which gives 6,812 / 49.
 
 Matches this continuation:
 - Particle and effect families: `004a0c00`, `004b36b0`, `004b4430`,
@@ -77,6 +77,11 @@ Matches this continuation:
   Two of the fields are `u32`, which makes `t17 = tbl[arg1].f4` a conversion,
   so copy propagation keeps `t17`/`t18` as declared locals. The full link
   after it kept 604 C and 54 SDK objects, and both hashes passed.
+- `004941f0`: `opt_pulloutconstants off` stops the frontend from sharing the
+  entry block's `1.0f` with the loop, so the preheader rematerialises it.
+  Dropping the redundant `segmentCount != 0` guard leaves the single
+  zero-trip test. Reading the first colour word through a `const u32 *`
+  local schedules the scale load where retail has it.
 
 `tools/b210_irdump.py` dumps b210's frontend IR for a candidate. Use it to
 see which `IRO_*` pass creates or removes a temporary before guessing a
@@ -85,7 +90,6 @@ spelling.
 Open floors recorded in their owner notes:
 - `00485630`, `00485870` and `0048d8c0` keep `$v0` live through a GPR quad
   copy.
-- `004941f0` shares the `1.0f` constant through `IRO_CommonSubs`.
 - `004a7830` needs the `fabsf` local live out of its block.
 - `00497ce0` copies two vectors through `$2` inside its row loop, so it joins
   the GPR quad-copy floors. The guarded body is the 201-edit rewrite.
