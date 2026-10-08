@@ -2552,9 +2552,12 @@ void func_003599a0(u8 *arg0)
    (164:256) against ret 96 (207:303) col[3]/rc/o2 block; obj 79+42 (383:462, 337:379) against
    ret 125 (411:536) 0x11ec block; obj 21 (632:653) against ret 60 (656:716) 0x122c block.
    Probes: f3 via b1 1173/854/223/212 unchanged; f0v load late 1175/852/223/212 (adds lq, worse).
-   No mass apply; body left unchanged, in band near finished. */
+   No mass apply; body left unchanged, in band near finished.
+   2026-10-08: opt_propagation off lowers fnalign from 672 to 598 edits. */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
 void func_003599c0(s32 arg0, u8 *arg1)
 {
     typedef signed __int128 s128;
@@ -2759,6 +2762,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     func_0034f320(*(u8 **)(arg1 + mode * 4 + 0x121C), 15.0f + f3b, 2.0f + f2b, 0.0f,
                   0xFF, 0xFF, 0xFF, alpha2, (u16)f4b, (u16)f1c, 0, 0.0f, 0);
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003599c0);
 #endif

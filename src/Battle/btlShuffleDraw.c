@@ -1259,9 +1259,12 @@ void func_00376880(u8 **arg0) {
  * strips, native alpha conversions and finite 4/4/2 render passes.
  * Matrix flags are explicitly initialized; retail's SDK identity
  * macro reads an unwritten flag word. ASM remains the production
- * implementation. See docs/probe_archive/Shuffle_trail_003768e0_20261006. */
+ * implementation. See docs/probe_archive/Shuffle_trail_003768e0_20261006.
+   2026-10-08: opt_lifetimes on lowers fnalign from 464 to 280 edits. */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 /* Scratch recovery of the three trail styles. The 0x24-byte vertex and
  * position/color setters follow include/rw/sky2/rwcore.h. Matrix flags are
  * defined explicitly: retail's load/OR of an unwritten stack flag word is
@@ -1574,8 +1577,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, u8 *rgba, f32 length)
 #pragma pop
 #undef TRAIL_COLOR
 #undef TRAIL_POSITION
-
-
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
 #endif

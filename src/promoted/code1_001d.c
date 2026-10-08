@@ -2262,6 +2262,7 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
     arg0 = (u8 *)(u32)iGpffffb3b8;
     return (arg0 + (arg2 & 0xFFFF) * 0x28)[8];
 }
+/* 2026-10-08: opt_loop_invariants on with opt_lifetimes on lowers fnalign from 709 to 511 edits. */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
  * Structure: early count<2 return, D_008C027A 0x2000/8000/1000/4000 -> mode 5/4/2/3 with D_008C0276 hasFlag, 1d8df0==1 remap (5/1->3, 4/0->2), switch in object order 4/5,0/1,2/3 sharing bodies via jtbl_00747110, u16 entry idx/chain (Entry[12] at sp+0x90 -> sp+0x120 exactly), three bubble sorts (score/score/chain, descending), chain filter over *(D_0076449C+0x17C) via +0xA68, 1ec3d0 transform for 0/1, shared tail storing *(arg1+0x3A) with +0x3C|1.
@@ -2270,6 +2271,9 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * Blockers for MATCH: 0/1 dot uses mula.s/madd.s accumulator (plain C gives mul/add, 2-word MAC floor per compiler-floors), mode sets need daddiu (6 words, s64 tried, still addiu), frame retail -0x180 vs candidate -0x1a0 (+32, extra s7/f22/f23 saves from 8 live ints vs 7), integer/FPR coloring (arg1 s0/mode s1/arg0 s2/hasFlag s3/n s4/i s5/unit s6) and stack offsets (entries 0x90, fixed 0x120-0x17C) remain.
  * Guarded floor, production stays INCLUDE_ASM; verify.py src/promoted/code1_001d.c still 91 MATCH/3 ASM, no regression. */
 #ifdef SKIP_ASM
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
 void func_001d8010(u8 *arg0, u8 *arg1) {
     extern void btlUnitGetSphereWorldCenter(u8 *a0, f32 *a1);
     extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
@@ -2619,6 +2623,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
 #undef OUTXZ
 #undef DELTA
 #undef DIR
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8010);
 #endif

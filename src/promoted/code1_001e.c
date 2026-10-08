@@ -3068,9 +3068,14 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
    to `do { } while` after the first conversion was already banked.
    The lever is iterative, which the first sweep hid: it converts the single best loop
    per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
+   improved 14 more floors, `func_001ed700` by 89 edits on its own.
+   2026-10-08: opt_loop_invariants on, opt_lifetimes on and opt_dead_assignments off lowers fnalign from 782 to 636 edits. */
 // FUN_001ED700 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
+#pragma opt_dead_assignments off
 void func_001ed700(f32 radius)
 {
     extern f32 func_003e41e0(f32 *out, f32 *in);
@@ -3300,6 +3305,7 @@ void func_001ed700(f32 radius)
     func_001ed3a0(iGpffffb3ac + 0x7DC, radius);
     func_001ed3a0(iGpffffb3ac + 0x90C, radius);
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ed700);
 #endif
