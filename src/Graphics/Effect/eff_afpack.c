@@ -63,22 +63,10 @@ extern void func_003c2a80(void* a);
 extern void func_004bccf0(void* a, void* b);
 extern void func_003c22f0(void* a);
 
-/* Guarded rewrite from retail asm, 2026-10-07: 23 differing words (was 552).
- * Loop bodies are retail-shaped switches on the kind and on the u16 flags;
- * the cTmp2 store indexes with (u32)i1, which stops the i1*4 CSE retail
- * does not do. The parameter is `void *`: `p = arg0` is then a conversion,
- * so the cursor stays a late declared local and the header copy survives
- * (retail's move/move/addiu prologue). The second and third loops share
- * `i1` under opt_lifetimes on; the split copy gives i2 retail's $s4.
- * Open: in the size/offset loop retail colours `base` as if numbered after
- * the loop's temporaries ($v0; the regalloc model needs it past r250). The
- * memcpy size is read as u32: an s32 read made a conversion temporary that
- * was evaluated before the other arguments. */
-// FUN_004B6030 NONMATCHING
-#ifdef NON_MATCHING
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_lifetimes on
+/* The allocation result lands in `base` first and is copied to `node`:
+ * retail adds 0x24 to the $v0 result directly and keeps the cursor out of
+ * the saved register that holds the node. */
+// FUN_004B6030
 u8 *func_004b6030(void *arg0)
 {
     extern void memcpy(void *dst, void *src, u32 size);
@@ -172,8 +160,9 @@ u8 *func_004b6030(void *arg0)
     }
     size += *(u16 *)(header + 8) * 8;
     func_0044ea90(D_007146B0, 0x1E4);
-    node = (u8 *)(*jtbl_008873E8)(size, 0x40000);
-    base = node + 0x24;
+    base = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    node = base;
+    base = base + 0x24;
     *(u8 **)(node + 0xC) = base;
     base += *(u16 *)(header + 8) * 0x18;
     *(u8 **)(node + 0x10) = base;
@@ -340,10 +329,6 @@ u8 *func_004b6030(void *arg0)
     }
     return node;
 }
-#pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6030);
-#endif
 // FUN_004B6900
 u8* func_004b6900(u8* arg0)
 {
