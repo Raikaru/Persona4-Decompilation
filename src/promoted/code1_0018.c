@@ -754,8 +754,11 @@ void func_001839e0(u8 *arg0, u8 *arg1)
                                       *(s32 *)(*(u8 **)(arg1 + 0x410)));
 }
  
+/* 2026-10-08: opt_lifetimes on lowers fnalign from 1427 to 879 edits. */
 // FUN_00183B80 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 #pragma opt_loop_invariants on
 s32 func_00183b80(u8 *arg0)
 {
@@ -1021,6 +1024,7 @@ s32 func_00183b80(u8 *arg0)
 }
 
 #pragma opt_loop_invariants off
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00183b80);
 #endif
@@ -1972,9 +1976,12 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
     }
     return arg0;
 }
-/* measured 0018a200 (owner, romwright R1 + doubles-to-float + float-read fix): fndiff obj 6452B vs window 6352B (+100B); fnalign retail 1588 vs object 1613 (+25, +1.6%, band 1540-1636, inside); edits 1113; GUARDED_SCORE 1404. Frame retail -0x1C0 vs object -0xC0 (-256B). `#pragma opt_common_subs off` scoped to this function and closed after it (CSE off, +73 over v4a base 1540 vs 1587). Residual is 3 fptodp helpers, cvt/mtc1 vs direct loads, and saved-reg colour. Same file idioms as 00183b80 noted (u8* ctx at +0x38 for next step; current uint* preserves count). */
+/* measured 0018a200 (owner, romwright R1 + doubles-to-float + float-read fix): fndiff obj 6452B vs window 6352B (+100B); fnalign retail 1588 vs object 1613 (+25, +1.6%, band 1540-1636, inside); edits 1113; GUARDED_SCORE 1404. Frame retail -0x1C0 vs object -0xC0 (-256B). `#pragma opt_common_subs off` scoped to this function and closed after it (CSE off, +73 over v4a base 1540 vs 1587). Residual is 3 fptodp helpers, cvt/mtc1 vs direct loads, and saved-reg colour. Same file idioms as 00183b80 noted (u8* ctx at +0x38 for next step; current uint* preserves count).
+   2026-10-08: opt_lifetimes on lowers fnalign from 1063 to 1007 edits. */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 #pragma opt_common_subs off
 extern float DAT_00756520; /* 0x756520 */
 extern float DAT_00756524; /* 0x756524 */
@@ -2662,6 +2669,7 @@ s32 func_0018a200(u8 *param_1)
   return 0;
 }
 #pragma opt_common_subs on
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018a200);
 #endif

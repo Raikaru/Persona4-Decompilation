@@ -827,9 +827,13 @@ void func_004b8f10(void *arg0) {
    Remaining: 13 hoisted quadword address spills (frame 0x220 vs 0x1A0; retail
    recomputes the ==1/==2-nest addresses per fetch and hoists only the ==0 outer
    address to slot 192 plus $s7) and GPR colouring/member order. Do NOT repeat the
-   nine banned accumulator spellings (all neutral/worse) or switch spelling (+5). */
+   nine banned accumulator spellings (all neutral/worse) or switch spelling (+5).
+   2026-10-08: opt_dead_assignments off with opt_lifetimes on lowers fnalign from 1756 to 1368 edits. */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_dead_assignments off
+#pragma opt_lifetimes on
 #pragma opt_propagation on
 #pragma opt_loop_invariants on
 void func_004b8f40(u8 *work, void **pp)
@@ -1493,6 +1497,7 @@ void func_004b8f40(u8 *work, void **pp)
 
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8f40);
 #endif

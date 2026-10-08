@@ -934,9 +934,12 @@ tail:
    Retail 003e40b0 reads/writes three floats and returns f32 in f0. The guarded
    reconstruction now supplies 21 complete XYZ objects at its 25 calls and
    consumes all ten lengths as floats. This contract repair is not a match;
-   see docs/probe_archive/Field_AI_normalization_0017f490_20261003.md. */
+   see docs/probe_archive/Field_AI_normalization_0017f490_20261003.md.
+   2026-10-08: opt_lifetimes on lowers fnalign from 2257 to 1795 edits. */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 #pragma opt_common_subs off
 extern int FUN_003b7060();
 extern int FUN_0047a220();
@@ -2041,6 +2044,7 @@ int func_0017f490(unsigned char *param_1)
   return 0;
 }
 #pragma opt_common_subs on
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017f490);
 #endif

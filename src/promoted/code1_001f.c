@@ -916,9 +916,12 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
    exactly neutral, and func_001b2380 is WORSE (1392 -> 1418) while losing 91 instructions.
    The first run of that sweep also reported eleven 'compile failed' floors, which was my
    regex suffixing inside exponent literals - `2.1474836e9f` became `2.1474836fe9f`.  The
-   pattern now excludes `e`/`E`, and those floors have no bare literal at all. */
+   pattern now excludes `e`/`E`, and those floors have no bare literal at all.
+   2026-10-08: opt_lifetimes on lowers fnalign from 1587 to 1218 edits. */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 void func_001f14f0(u8 *arg0)
 
 {
@@ -1610,6 +1613,7 @@ LAB_001f27e8:
   }
   return;
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f14f0);
 #endif
