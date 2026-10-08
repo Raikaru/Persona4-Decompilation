@@ -1525,7 +1525,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
         } else {
             c29C = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
         }
-        func_002ba080(*(u8 **)(t + 0x2BC), (s8)(u32)arg2, arg4, arg1, c29C, 3, (s16)arg5, 0x59, 46.0f, arg6);
+        func_002ba080(*(u8 **)(t + 0x2BC), (s8)(u32)arg2, arg4, arg1, c29C, 3, (s16)arg5, 46.0f, 0x59, arg6);
         return;
     }
     if ((s8)arg6 == 1) {
@@ -1656,7 +1656,7 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
         persona = delay;
         digitRow = (s8)(rowIndex + 0xC);
         func_002ba080(work->digitTask, digitRow, (s16)level, func_002b2970(position.x - 16.0f, rowY),
-                      func_002b2a60(0xCC, 0xFF, 0xFF, 0x80), 3, persona, 0x59, 46.0f, mode);
+                      func_002b2a60(0xCC, 0xFF, 0xFF, 0x80), 3, persona, 46.0f, 0x59, mode);
         if (rowAvailability == 2) {
             sprite = (s16)(rowIndex + 0x270);
             func_002b7750(sprite, 0x193);
