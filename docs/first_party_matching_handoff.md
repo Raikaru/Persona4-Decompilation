@@ -89,10 +89,17 @@ Open floors recorded in their owner notes:
 - `0048b340`, 65 edits: `$s7`/`$fp` swap and the else-branch temporaries.
 - `00320b80`, 21 edits: the frame homes, and `IRO_CommonSubs` reusing the loop
   condition's `(s16)` extension.
-- `0029fbb0`: direct field expressions (`tbl.ent[arg1].fN`) reproduce
-  retail's unfolded `addiu; lw 0` table reads (`build/v/fbb0/sbc.c`). The
-  remaining 30 edits are saved-register colouring of `ix`, `iy`, `t17` and
-  `t18`.
+- `0029fbb0`, 6 edits: a field address that appears twice becomes an
+  `IRO_CommonSubs` address temporary, which reproduces retail's unfolded
+  `addiu; lw 0` table reads. Reading `.f1`, `.f0`, `.f3` and `.f2` again in
+  the next expression or call closes four. For `.f5`/`.f4`, the second read
+  also makes the loaded value a CSE temporary. Copy propagation then
+  substitutes it for `t18`/`t17`. The regalloc model needs those two as
+  declared locals.
+- `00490c40`, 57 edits, and `004b6030`, 55 edits: rewritten from retail asm.
+  `00490c40` needs a different FPR spill set; no declaration order gives
+  it. In `004b6030`, retail colours the cursor parameter as if it were
+  numbered after the loop counters.
 
 ## October 6 continuation: 6,773 MATCH / 88 ASM
 
