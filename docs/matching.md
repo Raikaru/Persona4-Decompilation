@@ -735,6 +735,27 @@ below are the codegen consequences.
   took the guarded body from 77 to 34 edits before any other change. A sweep
   of the remaining guarded bodies found no other gain from it alone.
 
+  **Lever: copy through one-element arrays to keep a reload
+  (`func_004aed70`, MATCH 2026-10-09; 8 edits → 0).** Retail copied the VU
+  result `D_00713D10/14/18` into `pos[3]` as three `lwc1`/`swc1` pairs and then
+  *reloaded* the particle life word for `func_004ae2f0`. Plain element
+  assignments let b210's CSE fold that reload into the loop test's load. A
+  whole `*(f32 (*)[3])` block copy keeps the reload but groups the three loads
+  before the three stores. Three one-element aggregate copies,
+  `*(f32 (*)[1])&pos[0] = *(f32 (*)[1])D_00713D10;` (a one-field struct works
+  too), are aggregate stores to the frontend, so the reload survives, and each
+  copy is still a single `lwc1`/`swc1` pair in retail order.
+
+  **Lever: a load local survives only with a second definition
+  (`func_00263cb0`, guarded 75 → 48 edits).** At several calls
+  `x = *(s32 *)(p + 4); f(..., g(...), ..., x);` retail loads `x` into a saved
+  register before the `g` call at some sites and inside the argument list at
+  others. In b210 a local with a single definition is propagated into its use,
+  so the load moves after `g`. A local with another definition elsewhere in the
+  function is kept. Retail's two kept sites came out once they shared one
+  multi-definition local (`temp_16`/`temp_16_2`). Its propagated sites came out
+  once a local shared by two sites was split into two single-definition locals.
+
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written
   inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot
