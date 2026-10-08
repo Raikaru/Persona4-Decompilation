@@ -755,6 +755,7 @@ void func_001839e0(u8 *arg0, u8 *arg1)
 }
  
 /* 2026-10-08: opt_lifetimes on lowers fnalign from 1427 to 879 edits. */
+/* 2026-10-09: 879 -> 826 edits: the state dispatch is a switch (retail tests 1 then 0 and shares one return), the edge clamps use fabsf, and the grid offsets multiply i * half with the converted product first. */
 // FUN_00183B80 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -762,6 +763,7 @@ void func_001839e0(u8 *arg0, u8 *arg1)
 #pragma opt_loop_invariants on
 s32 func_00183b80(u8 *arg0)
 {
+    extern f32 fabsf(f32 x);
     /* Retail returns zero at 001850F0, 00183BD4. */
     extern s32 func_00457120(void);
     extern u32 RpRandom(void);
@@ -804,7 +806,9 @@ s32 func_00183b80(u8 *arg0)
     if (*(s32 *)(ctx + 4) != 0) {
         return 0;
     }
-    if (*(s32 *)ctx == 0) {
+    switch (*(s32 *)ctx) {
+    case 0:
+    {
         *(f32 *)(ctx + 0x428) = *(f32 *)(ctx + 0x424) * (f32)*(s16 *)(ctx + 0x43A) / (f32)*(s16 *)(ctx + 0x438);
         *(f32 *)(ctx + 0x450) = -*(f32 *)(ctx + 0x424) / 2.0f;
         *(f32 *)(ctx + 0x454) = -*(f32 *)(ctx + 0x428) / 2.0f;
@@ -829,32 +833,32 @@ s32 func_00183b80(u8 *arg0)
             for (i = 0; i < 2; i++) {
                 q = base + (i << 8);
                 half = *(s16 *)(ctx + 0x438) / 2;
-                prod = half * i;
-                *(f32 *)(q + 0x10) = (f32)*(s16 *)(ctx + 0x434) + (f32)prod;
+                prod = i * half;
+                *(f32 *)(q + 0x10) = (f32)prod + (f32)*(s16 *)(ctx + 0x434);
                 half = *(s16 *)(ctx + 0x43A) / 2;
-                prod = half * j;
-                *(f32 *)(q + 0x14) = (f32)*(s16 *)(ctx + 0x436) + (f32)prod;
+                prod = j * half;
+                *(f32 *)(q + 0x14) = (f32)prod + (f32)*(s16 *)(ctx + 0x436);
                 *(f32 *)(q + 0x18) = f21;
                 half = *(s16 *)(ctx + 0x438) / 2;
-                prod = half * i;
-                *(f32 *)(q + 0x50) = (f32)*(s16 *)(ctx + 0x438) / 2.0f + ((f32)*(s16 *)(ctx + 0x434) + (f32)prod);
+                prod = i * half;
+                *(f32 *)(q + 0x50) = (f32)*(s16 *)(ctx + 0x438) / 2.0f + ((f32)prod + (f32)*(s16 *)(ctx + 0x434));
                 half = *(s16 *)(ctx + 0x43A) / 2;
-                prod = half * j;
-                *(f32 *)(q + 0x54) = (f32)*(s16 *)(ctx + 0x436) + (f32)prod;
+                prod = j * half;
+                *(f32 *)(q + 0x54) = (f32)prod + (f32)*(s16 *)(ctx + 0x436);
                 *(f32 *)(q + 0x58) = f21;
                 half = *(s16 *)(ctx + 0x438) / 2;
-                prod = half * i;
-                *(f32 *)(q + 0x90) = (f32)*(s16 *)(ctx + 0x434) + (f32)prod;
+                prod = i * half;
+                *(f32 *)(q + 0x90) = (f32)prod + (f32)*(s16 *)(ctx + 0x434);
                 half = *(s16 *)(ctx + 0x43A) / 2;
-                prod = half * j;
-                *(f32 *)(q + 0x94) = (f32)*(s16 *)(ctx + 0x43A) / 2.0f + ((f32)*(s16 *)(ctx + 0x436) + (f32)prod);
+                prod = j * half;
+                *(f32 *)(q + 0x94) = (f32)*(s16 *)(ctx + 0x43A) / 2.0f + ((f32)prod + (f32)*(s16 *)(ctx + 0x436));
                 *(f32 *)(q + 0x98) = f21;
                 half = *(s16 *)(ctx + 0x438) / 2;
-                prod = half * i;
-                *(f32 *)(q + 0xD0) = (f32)*(s16 *)(ctx + 0x438) / 2.0f + ((f32)*(s16 *)(ctx + 0x434) + (f32)prod);
+                prod = i * half;
+                *(f32 *)(q + 0xD0) = (f32)*(s16 *)(ctx + 0x438) / 2.0f + ((f32)prod + (f32)*(s16 *)(ctx + 0x434));
                 half = *(s16 *)(ctx + 0x43A) / 2;
-                prod = half * j;
-                *(f32 *)(q + 0xD4) = (f32)*(s16 *)(ctx + 0x43A) / 2.0f + ((f32)*(s16 *)(ctx + 0x436) + (f32)prod);
+                prod = j * half;
+                *(f32 *)(q + 0xD4) = (f32)*(s16 *)(ctx + 0x43A) / 2.0f + ((f32)prod + (f32)*(s16 *)(ctx + 0x436));
                 *(f32 *)(q + 0xD8) = f21;
                 *(f32 *)(q + 0x28) = f20;
                 *(f32 *)(q + 0x68) = f20;
@@ -962,11 +966,10 @@ s32 func_00183b80(u8 *arg0)
         *(f32 *)(ctx + 0x42C) = (*(f32 *)(ctx + 0x458) - *(f32 *)(ctx + 0x450)) / 2.0f;
         *(f32 *)(ctx + 0x430) = (*(f32 *)(ctx + 0x45C) - *(f32 *)(ctx + 0x454)) / 2.0f;
         *(s32 *)ctx = *(s32 *)ctx + 1;
-        return 0;
+        break;
     }
-    if (*(s32 *)ctx != 1) {
-        return 0;
-    }
+    case 1:
+    {
     pkt = func_00460990();
     *(void (**)(u8 *, u8 *))(pkt + 8) = func_001839e0;
     *(u8 **)(pkt + 0x10) = ctx;
@@ -1000,25 +1003,20 @@ s32 func_00183b80(u8 *arg0)
     *(f32 *)(ctx + 0x45C) = *(f32 *)(ctx + 0x45C) + *(f32 *)(ctx + 0x418);
     {
         f32 tmp0;
-        f32 tmp1;
+
         tmp0 = -*(f32 *)(ctx + 0x424) / 2.0f;
-        tmp1 = *(f32 *)(ctx + 0x450) - tmp0;
-        if (tmp1 < 0.0f) {
-            tmp1 = -tmp1;
-        }
-        if (!(tmp1 < 1.0f)) {
+        if (!(fabsf(*(f32 *)(ctx + 0x450) - tmp0) < 1.0f)) {
             *(f32 *)(ctx + 0x450) = tmp0;
             *(f32 *)(ctx + 0x458) = *(f32 *)(ctx + 0x424) / 2.0f;
         }
         tmp0 = -*(f32 *)(ctx + 0x428) / 2.0f;
-        tmp1 = *(f32 *)(ctx + 0x454) - tmp0;
-        if (tmp1 < 0.0f) {
-            tmp1 = -tmp1;
-        }
-        if (!(tmp1 < 1.0f)) {
+        if (!(fabsf(*(f32 *)(ctx + 0x454) - tmp0) < 1.0f)) {
             *(f32 *)(ctx + 0x454) = tmp0;
             *(f32 *)(ctx + 0x45C) = *(f32 *)(ctx + 0x428) / 2.0f;
         }
+    }
+        break;
+    }
     }
     return 0;
 }
