@@ -25,6 +25,34 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation: 6,817 MATCH / 44 ASM
+
+`build/after19.json` reports 6,817 first-party MATCH and 44 ASM; against
+`after18.json` only `004aed70` changed. After it the full link kept 604 C
+and 54 SDK objects, and both retail hashes passed.
+
+- `004aed70`: the VU result is copied into `pos` as three one-element array
+  copies, so b210 keeps the particle-life reload (see
+  [matching.md](matching.md)). `func_00492df0`/`func_00492db0`/`func_003bfe90`
+  are now declared with their defined types, and `tnEffect.c` declares the
+  function `void`.
+- `00263cb0` (guarded) 75 → 48: the load locals at its `func_00261560` calls
+  follow retail's keep/propagate split by number of definitions, plus
+  `temp_3_2 > 1` and the fade alpha stored in `temp_21`. The rest is
+  saved-register colouring.
+- Measured without a gain:
+  - `00490c40` (56 with an explicit `&D_00922D70` pointer): retail spills
+    `swayBase`, but ours spills the dot product. The regalloc model needs the
+    dot temporary numbered before `swayBase` or its spill score raised. Moving
+    declarations, splitting copies and putting the load in the loop did not
+    change it, and `burst` needs `daddiu` without `andi`.
+  - `0048b340` (54): `IRO_CommonSubs` shares the else branch's `1.0f` with
+    `one`; retail rematerialises it.
+  - `001400f0`: the radar loop hoists `(u8)radarOpacity` out of the loop,
+    while retail converts it in the loop body.
+  - `00320b80`: no pragma or loop shape stops the CSE of the loop test's
+    `(s16)` extension.
+
 ## October 8 continuation: 6,816 MATCH / 45 ASM
 
 `build/after17.json` reports 6,814 first-party MATCH and 47 ASM; against
