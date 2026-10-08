@@ -1475,19 +1475,15 @@ void func_00497c50(u8 *arg0)
 }
 
 
-/* Static-bolt sibling of func_004956b0, rewritten from retail asm: 201 edits,
-   603 of 604 instructions. Floor per the GPR quad-copy decision: the two
-   row-loop vector copies (previousTangent = tangent, position = nextPosition)
-   go through $2, and every value live across them avoids $v0 - nextRow takes
-   $v1 and the stack addresses $a0-$t1. With an asm `lq $2`/`sq $2` copy the
-   residual drops to 114, leaving only saved-register colouring (index $s4,
-   rows $s1, instance $s2, vertices $s3) and the `-1` hoist order. The wave
-   update needs `opt_propagation off` so `rise` is computed where written. */
-// FUN_00497CE0 NONMATCHING
-#ifdef NON_MATCHING
+/* The row loop's two vector carries (tangent -> previousTangent,
+ * nextPosition -> position) are lq/sq copies through $2, as in
+ * func_00485630; the $2 clobber is what moves every pointer live across
+ * them up one register in retail. `invalid` is assigned first in the
+ * preheader because retail hoists the -1 before the float constants. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
+// FUN_00497CE0
 void func_00497ce0(u8 *arg0)
 {
     extern void func_0048a1f0(f32 *arg0);
@@ -1535,15 +1531,16 @@ void func_00497ce0(u8 *arg0)
     f32 previous;
     u8 *config;
     u8 *list;
-    s32 index;
     u8 *bolt;
     s32 count;
     s32 respawnRange;
-    u8 *instance;
     s32 row;
+    s32 index;
+    u8 *instance;
     s32 rows;
     u8 *vertices;
     u32 state;
+    u32 invalid;
 
     list = *(u8 **)(arg0 + 0x30);
     config = *(u8 **)(arg0 + 0x34);
@@ -1603,6 +1600,7 @@ void func_00497ce0(u8 *arg0)
     amplitude = *(f32 *)(config + 0x44);
     wave = amplitude;
     index = 0;
+    invalid = 0xFFFFFFFF;
     period = fGpffff80d0;
     zero = 0.0f;
     twoPi = fGpffff8084;
@@ -1613,7 +1611,7 @@ void func_00497ce0(u8 *arg0)
     swing = fGpffff80d8;
     for (; index < count; index++, bolt += 0xC) {
         if (*(s32 *)(bolt + 4) == -1) {
-            *(u32 *)(bolt + 8) = 0xFFFFFFFF;
+            *(u32 *)(bolt + 8) = invalid;
             goto advance;
         }
         state = *(u32 *)(bolt + 8);
@@ -1743,13 +1741,15 @@ void func_00497ce0(u8 *arg0)
                 u_long128 *dst = (u_long128 *)&previousTangent;
                 u_long128 *src = (u_long128 *)&tangent;
 
-                *dst = *src;
+                /* lint: allow H009 -- retail copies this quad through $2 at 0x0049825C; b210 keeps $v0 live (user-approved 2026-10-09) */
+                __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(src) : "$2", "memory");
             }
             {
                 u_long128 *dst = (u_long128 *)&position;
                 u_long128 *src = (u_long128 *)&nextPosition;
 
-                *dst = *src;
+                /* lint: allow H009 -- retail copies this quad through $2 at 0x00498268; b210 keeps $v0 live (user-approved 2026-10-09) */
+                __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(src) : "$2", "memory");
             }
             effectVuLoad10(&position);
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
@@ -1898,9 +1898,6 @@ advance:
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_00497ce0);
-#endif
 
 
 // FUN_00498650
