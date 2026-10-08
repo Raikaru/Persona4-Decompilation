@@ -332,6 +332,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
    Expressions), which retail converts in the loop and again for
    func_001427c0.
    2026-10-08: the second radar call converts 255.0f * opacity in place (63 edits). Retail converts both radar alphas to u8 inside each arm and passes them without another andi, which the model gives only with u8 opacity parameters (15 edits); the matched callees func_001427c0 and func_00142bf0 take s32 in this translation unit. */
+/* 2026-10-09: 63 -> 56 edits from a block-declaration order climb. */
 // FUN_001400F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -602,9 +603,9 @@ void func_001400f0(u8 *work)
         }
         {
             f32 screenDepth = D_008872F8[0];
+            f32 fillY;
             f32 fadedAlpha;
             f32 fillX;
-            f32 fillY;
             position.xy.x = originX;
             position.xy.y = originY;
             alpha = (u8)((f32)(u32)work[0x6BA] * opacity);
