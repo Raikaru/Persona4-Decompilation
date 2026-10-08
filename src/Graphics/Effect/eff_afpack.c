@@ -63,248 +63,279 @@ extern void func_003c2a80(void* a);
 extern void func_004bccf0(void* a, void* b);
 extern void func_003c22f0(void* a);
 
-/* measured: floor for func_004b6030 (obj 2112B vs window 2256B, probe_variants 534 differing words reloc-masked, normalized_diff 1650).
-   Frame 0x1B0 matches retail; prologue (addiu/sd/sq x6) matches for the first 32B, then saved-reg rotation diverges.
-   Logic confirmed against retail asm (asm/nonmatchings/eff_afpack/func_004b6030.s via `grep -rl func_004b6030 asm/`),
-   IDA sub_4B6030, Ghidra FUN_004b6030, and M2C P4_UNIT_004B6030 (327 draft lines, noise 6): 5 stack temp arrays
-   (aTmp/cTmp1/cTmp2/bTmp1/bTmp2, 16 entries each = 0x40 gaps at sp+0x170/0x130/0xF0/0xB0/0x70), 3-phase bump walk
-   from arg0+0x10 (0x38 / 8+4+0x10 / 0x20+extra vs 0x18+extra), size = 0x24+n8*0x18+nA*0x34+nC*0x18+n8*4+extras+n8*8,
-   node layout +0xC(n8*0x18)/+0x10(nA*0x34)/+0x14(nC*0x18)/+0x1C(n8*4)/+0x18(n8*8) + header (+0/+4/+6/+8),
-   A-copy 13 f32 with 0x24/0x20 shuffle, C-copy id+(id&1?D_00764CA8:0)+16B, final 0x18 records with A/C index
-   searches and kind-split fields (0x10: u16 vs 0 / 0x14: f32 vs 0x41200000) plus trailing 8B and func_0043f810.
-   Sibling conventions read first: eff_afpack.c func_004b6900 (u8*+offsets, s16 counts, jtbl_008873E8 alloc,
-   D_007146B0 asserts 0x1AE/0x1BA/0x1C8/0x1E4/0x22E) and eff_after.c EffAfterVec/f32 patterns.
-   Residual is compiler floor per docs/matching.md: rotated saved regs (arg0/bump/counter in $s2/$s1/$v1 vs
-   retail $s1/$s0/$a0 for the no-call first loop), scheduling of kind reloads vs single lw+2x beq, and FPU
-   choice/byte-copy planning (lbu/sb x16 vs word). Exhausted separate-counter scoping (v6), f32 A-copy (v4),
-   byte-wise C-copy with (k>>1)*8+(k&1)*4 addressing (v4), and if/else-if duplication (v3); v1 532 -> v2 521
-   -> v3 520/2068B -> v4/v5/v6 534/2112B. Shortfall 144B (6.4%) is the merged identical kind branches
-   (id/dst+8/dst+0xC/trailing emit once where retail keeps two lhu) and compact search-loop codegen.
-   No pooled float constants to bank (noise 6 needs no lit pool: 10.0f is lui $4,0x4120 immediate 0x41200000,
-   stored via sw, value 10.0f confirmed; single gp load lw -0x4448($28) is D_00764CA8 = 0x00764CA8
-   = gp 0x007690F0-0x4448, already extern s32, initial 0 in orig/SLUS_217.82; D_007146B0 bytes are
-   "eff_afpack.c" in SLUS_217.82). Banked per batch contract: production stays INCLUDE_ASM fallback;
-   body preserved here as NON_MATCHING seed. Unit confirmed via `grep -rl func_004b6030 asm/`
-   -> asm/nonmatchings/eff_afpack/func_004b6030.s. */
-/* measured 004b6030: `opt_common_subs off` inside the guard is worth 6 words (534 -> 528); retail rematerialises what b210 hoists. */
+/* Guarded rewrite from retail asm, 2026-10-07: 55 differing words (was 552).
+ * Loop bodies are retail-shaped switches on the kind and on the u16 flags;
+ * the cTmp2 store indexes with (u32)i1, which stops the i1*4 CSE retail
+ * does not do. Open: GPR colouring. Retail keeps the cursor (the parameter)
+ * in $s0 and gives the third loop i2/i2*4/slot $s4/$s3/$s2; the regalloc
+ * model reaches that only with the parameter numbered after the counters,
+ * which source cannot do. Also open: the memcpy size load is scheduled
+ * before the other two arguments. */
 // FUN_004B6030 NONMATCHING
 #ifdef NON_MATCHING
-#pragma opt_common_subs off
-u8* func_004b6030(u8* arg0)
+#pragma push
+#pragma opt_loop_invariants on
+u8 *func_004b6030(u8 *arg0)
 {
-    extern void memcpy(void* dst, void* src, u32 size);
-    u8* aTmp[16];
-    u8* cTmp1[16];
-    u8* cTmp2[16];
-    u8* bTmp1[16];
-    u8* bTmp2[16];
-    u8* p;
-    p = arg0 + 0x10;
-    {
-        s32 i0;
-        for (i0 = 0; i0 < (s32)*(u16*)(arg0 + 0xA); i0++) {
-            aTmp[i0] = p;
-            p += 0x38;
+    extern void memcpy(void *dst, void *src, u32 size);
+    u8 *aTmp[16];
+    u8 *cTmp1[16];
+    u8 *cTmp2[16];
+    u8 *bTmp1[16];
+    u8 *bTmp2[16];
+    u8 *header;
+    u8 *node;
+    s32 i0;
+    s32 i1;
+    s32 i2;
+    s32 i3;
+    s32 i4;
+    s32 i5;
+    s32 i6;
+    s32 i7;
+    s32 size;
+    u8 *base;
+
+    header = arg0;
+    arg0 += 0x10;
+    for (i0 = 0; i0 < *(u16 *)(header + 0xA); i0++) {
+        aTmp[i0] = arg0;
+        arg0 += 0x38;
+    }
+    for (i1 = 0; i1 < *(u16 *)(header + 0xC); i1++) {
+        u8 *cur;
+
+        cTmp1[i1] = arg0;
+        arg0 += 8;
+        cur = cTmp1[i1];
+        switch (*(u16 *)(cur + 4)) {
+        case 0:
+            arg0 += 4;
+            break;
+        default:
+            func_0046d730(D_007146B0, 0x1AE);
+            break;
+        }
+        cTmp2[(u32)i1] = arg0;
+        switch (*(u16 *)(cur + 6)) {
+        case 0:
+            arg0 += 0x10;
+            break;
+        default:
+            func_0046d730(D_007146B0, 0x1BA);
+            break;
         }
     }
-    {
-        s32 i1;
-        for (i1 = 0; i1 < (s32)*(u16*)(arg0 + 0xC); i1++) {
-            u8* cur;
-            cTmp1[i1] = p;
-            p += 8;
-            cur = cTmp1[i1];
-            if (*(u16*)(cur + 4) != 0) {
-                func_0046d730(D_007146B0, 0x1AE);
-            } else {
-                p += 4;
-            }
-            cTmp2[i1] = p;
-            if (*(u16*)(cur + 6) != 0) {
-                func_0046d730(D_007146B0, 0x1BA);
-            } else {
-                p += 0x10;
-            }
+    for (i2 = 0; i2 < *(u16 *)(header + 8); i2++) {
+        bTmp1[i2] = arg0;
+        switch (*(s32 *)header) {
+        case 0x64:
+            arg0 += 0x18;
+            break;
+        case 0x65:
+            arg0 += 0x20;
+            break;
+        default:
+            func_0046d730(D_007146B0, 0x1C8);
+            break;
+        }
+        bTmp2[i2] = arg0;
+        switch (*(s32 *)header) {
+        case 0x64:
+            arg0 += *(s32 *)(bTmp1[i2] + 0x14);
+            break;
+        case 0x65:
+            arg0 += *(s32 *)(bTmp1[i2] + 0x1C);
+            break;
         }
     }
-    {
-        s32 i2;
-        for (i2 = 0; i2 < (s32)*(u16*)(arg0 + 8); i2++) {
-            bTmp1[i2] = p;
-            if (*(s32*)arg0 == 0x65) {
-                p += 0x20;
-            } else if (*(s32*)arg0 == 0x64) {
-                p += 0x18;
-            } else {
-                func_0046d730(D_007146B0, 0x1C8);
-            }
-            bTmp2[i2] = p;
-            if (*(s32*)arg0 == 0x65) {
-                p += *(s32*)(bTmp1[i2] + 0x1C);
-            } else if (*(s32*)arg0 == 0x64) {
-                p += *(s32*)(bTmp1[i2] + 0x14);
-            }
+    size = 0;
+    size = size + 0x24;
+    size = size + *(u16 *)(header + 8) * 0x18;
+    size = size + *(u16 *)(header + 0xA) * 0x34;
+    size = size + *(u16 *)(header + 0xC) * 0x18;
+    size = size + *(u16 *)(header + 8) * 4;
+    for (i3 = 0; i3 < *(u16 *)(header + 8); i3++) {
+        switch (*(s32 *)header) {
+        case 0x64:
+            size += *(s32 *)(bTmp1[i3] + 0x14);
+            break;
+        case 0x65:
+            size += *(s32 *)(bTmp1[i3] + 0x1C);
+            break;
         }
     }
-    {
-        s32 size;
-        u8* node;
-        u8* base;
-        size = 0x24 + (s32)*(u16*)(arg0 + 8) * 0x18 + (s32)*(u16*)(arg0 + 0xA) * 0x34 + (s32)*(u16*)(arg0 + 0xC) * 0x18 + (s32)*(u16*)(arg0 + 8) * 4;
-        {
-            s32 i3;
-            for (i3 = 0; i3 < (s32)*(u16*)(arg0 + 8); i3++) {
-                if (*(s32*)arg0 == 0x65) {
-                    size += *(s32*)(bTmp1[i3] + 0x1C);
-                } else if (*(s32*)arg0 == 0x64) {
-                    size += *(s32*)(bTmp1[i3] + 0x14);
-                }
-            }
+    size += *(u16 *)(header + 8) * 8;
+    func_0044ea90(D_007146B0, 0x1E4);
+    node = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    base = node + 0x24;
+    *(u8 **)(node + 0xC) = base;
+    base += *(u16 *)(header + 8) * 0x18;
+    *(u8 **)(node + 0x10) = base;
+    base += *(u16 *)(header + 0xA) * 0x34;
+    *(u8 **)(node + 0x14) = base;
+    base += *(u16 *)(header + 0xC) * 0x18;
+    *(u8 **)(node + 0x1C) = base;
+    base += *(u16 *)(header + 8) * 4;
+    for (i4 = 0; i4 < *(u16 *)(header + 8); i4++) {
+        (*(u8 ***)(node + 0x1C))[i4] = base;
+        switch (*(s32 *)header) {
+        case 0x64:
+            base += *(s32 *)(bTmp1[i4] + 0x14);
+            break;
+        case 0x65:
+            base += *(s32 *)(bTmp1[i4] + 0x1C);
+            break;
         }
-        size += (s32)*(u16*)(arg0 + 8) * 8;
-        func_0044ea90(D_007146B0, 0x1E4);
-        node = (u8*)(*jtbl_008873E8)(size, 0x40000);
-        base = node + 0x24;
-        *(u8**)(node + 0xC) = base;
-        base += (s32)*(u16*)(arg0 + 8) * 0x18;
-        *(u8**)(node + 0x10) = base;
-        base += (s32)*(u16*)(arg0 + 0xA) * 0x34;
-        *(u8**)(node + 0x14) = base;
-        base += (s32)*(u16*)(arg0 + 0xC) * 0x18;
-        *(u8**)(node + 0x1C) = base;
-        base += (s32)*(u16*)(arg0 + 8) * 4;
-        {
-            s32 i4;
-            for (i4 = 0; i4 < (s32)*(u16*)(arg0 + 8); i4++) {
-                *(u8**)(*(u8**)(node + 0x1C) + i4 * 4) = base;
-                if (*(s32*)arg0 == 0x65) {
-                    base += *(s32*)(bTmp1[i4] + 0x1C);
-                } else if (*(s32*)arg0 == 0x64) {
-                    base += *(s32*)(bTmp1[i4] + 0x14);
-                }
-            }
-        }
-        *(u8**)(node + 0x18) = base;
-        *(s32*)(node + 0) = *(s32*)(arg0 + 4);
-        *(u16*)(node + 4) = *(u16*)(arg0 + 8);
-        *(u16*)(node + 6) = *(u16*)(arg0 + 0xA);
-        *(u16*)(node + 8) = *(u16*)(arg0 + 0xC);
-        {
-            s32 i5;
-            for (i5 = 0; i5 < (s32)*(u16*)(arg0 + 0xA); i5++) {
-                u8* dst = *(u8**)(node + 0x10) + i5 * 0x34;
-                u8* src = aTmp[i5];
-                *(f32*)(dst + 0) = *(f32*)(src + 4);
-                *(f32*)(dst + 4) = *(f32*)(src + 8);
-                *(f32*)(dst + 8) = *(f32*)(src + 0xC);
-                *(f32*)(dst + 0xC) = *(f32*)(src + 0x10);
-                *(f32*)(dst + 0x10) = *(f32*)(src + 0x14);
-                *(f32*)(dst + 0x14) = *(f32*)(src + 0x18);
-                *(f32*)(dst + 0x18) = *(f32*)(src + 0x1C);
-                *(f32*)(dst + 0x1C) = *(f32*)(src + 0x20);
-                *(f32*)(dst + 0x24) = *(f32*)(src + 0x24);
-                *(f32*)(dst + 0x20) = *(f32*)(src + 0x28);
-                *(f32*)(dst + 0x28) = *(f32*)(src + 0x2C);
-                *(f32*)(dst + 0x2C) = *(f32*)(src + 0x30);
-                *(f32*)(dst + 0x30) = *(f32*)(src + 0x34);
-            }
-        }
-        {
-            s32 i6;
-            for (i6 = 0; i6 < (s32)*(u16*)(arg0 + 0xC); i6++) {
-                u8* dst = *(u8**)(node + 0x14) + i6 * 0x18;
-                u8* src = cTmp1[i6];
-                u16 id = *(u16*)(src + 2);
-                s32 k;
-                *(s32*)dst = (s32)id;
-                if ((id & 1) != 0) {
-                    *(s32*)(dst + 4) = D_00764CA8;
-                } else {
-                    *(s32*)(dst + 4) = 0;
-                }
-                if (*(u16*)(src + 6) != 0) {
-                    func_0046d730(D_007146B0, 0x22E);
-                } else {
-                    u8* s2 = cTmp2[i6];
-                    for (k = 0; k < 4; k++) {
-                        u8* d = dst + 8 + (k >> 1) * 8 + (k & 1) * 4;
-                        u8* s = s2 + k * 4;
-                        *(u8*)(d + 0) = *(u8*)(s + 0);
-                        *(u8*)(d + 1) = *(u8*)(s + 1);
-                        *(u8*)(d + 2) = *(u8*)(s + 2);
-                        *(u8*)(d + 3) = *(u8*)(s + 3);
-                    }
-                }
-            }
-        }
-        {
-            s32 i7;
-            for (i7 = 0; i7 < (s32)*(u16*)(arg0 + 8); i7++) {
-                u8* dst = *(u8**)(node + 0xC) + i7 * 0x18;
-                u8* src = bTmp1[i7];
-                u16 id;
-                s32 ai;
-                s32 ci;
-                if (*(s32*)arg0 == 0x65) {
-                    id = *(u16*)(src + 2);
-                } else if (*(s32*)arg0 == 0x64) {
-                    id = *(u16*)(src + 2);
-                }
-                ai = 0;
-                while (ai < (s32)*(u16*)(arg0 + 0xA) && id != *(u16*)aTmp[ai]) {
-                    ai++;
-                }
-                *(u8**)(dst + 0) = *(u8**)(node + 0x10) + ai * 0x34;
-                if (*(s32*)arg0 == 0x65) {
-                    id = *(u16*)(src + 4);
-                } else if (*(s32*)arg0 == 0x64) {
-                    id = *(u16*)(src + 4);
-                }
-                ci = 0;
-                while (ci < (s32)*(u16*)(arg0 + 0xC) && id != *(u16*)cTmp1[ci]) {
-                    ci++;
-                }
-                *(u8**)(dst + 4) = *(u8**)(node + 0x14) + ci * 0x18;
-                if (*(s32*)arg0 == 0x65) {
-                    *(s32*)(dst + 8) = (s32)*(u16*)(src + 0x10);
-                } else if (*(s32*)arg0 == 0x64) {
-                    *(s32*)(dst + 8) = (s32)*(u16*)(src + 0x10);
-                }
-                if (*(s32*)arg0 == 0x65) {
-                    *(s32*)(dst + 0xC) = (s32)*(u16*)(src + 0x12);
-                } else if (*(s32*)arg0 == 0x64) {
-                    *(s32*)(dst + 0xC) = (s32)*(u16*)(src + 0x12);
-                }
-                if (*(s32*)arg0 == 0x65) {
-                    *(s32*)(dst + 0x10) = (s32)*(u16*)(src + 0x14);
-                } else if (*(s32*)arg0 == 0x64) {
-                    *(s32*)(dst + 0x10) = 0;
-                }
-                if (*(s32*)arg0 == 0x65) {
-                    *(f32*)(dst + 0x14) = *(f32*)(src + 0x18);
-                } else if (*(s32*)arg0 == 0x64) {
-                    *(s32*)(dst + 0x14) = 0x41200000;
-                }
-                if (*(s32*)arg0 == 0x65) {
-                    *(s32*)(*(u8**)(node + 0x18) + i7 * 8) = *(s32*)(src + 8);
-                    *(s32*)(*(u8**)(node + 0x18) + i7 * 8 + 4) = *(s32*)(src + 0xC);
-                } else if (*(s32*)arg0 == 0x64) {
-                    *(s32*)(*(u8**)(node + 0x18) + i7 * 8) = *(s32*)(src + 8);
-                    *(s32*)(*(u8**)(node + 0x18) + i7 * 8 + 4) = *(s32*)(src + 0xC);
-                }
-                if (*(s32*)arg0 == 0x65) {
-                    memcpy(*(u8**)(*(u8**)(node + 0x1C) + i7 * 4), bTmp2[i7], *(s32*)(src + 0x1C));
-                } else if (*(s32*)arg0 == 0x64) {
-                    memcpy(*(u8**)(*(u8**)(node + 0x1C) + i7 * 4), bTmp2[i7], *(s32*)(src + 0x14));
-                }
-            }
-        }
-        return node;
     }
+    *(u8 **)(node + 0x18) = base;
+    *(s32 *)(node + 0) = *(s32 *)(header + 4);
+    *(u16 *)(node + 4) = *(u16 *)(header + 8);
+    *(u16 *)(node + 6) = *(u16 *)(header + 0xA);
+    *(u16 *)(node + 8) = *(u16 *)(header + 0xC);
+    for (i5 = 0; i5 < *(u16 *)(header + 0xA); i5++) {
+        f32 *dst = (f32 *)(*(u8 **)(node + 0x10) + i5 * 0x34);
+        f32 *src = (f32 *)aTmp[i5];
+
+        dst[0] = src[1];
+        dst[1] = src[2];
+        dst[2] = src[3];
+        dst[3] = src[4];
+        dst[4] = src[5];
+        dst[5] = src[6];
+        dst[6] = src[7];
+        dst[7] = src[8];
+        dst[9] = src[9];
+        dst[8] = src[10];
+        dst[10] = src[11];
+        dst[11] = src[12];
+        dst[12] = src[13];
+    }
+    for (i6 = 0; i6 < *(u16 *)(header + 0xC); i6++) {
+        u8 *dst = *(u8 **)(node + 0x14) + i6 * 0x18;
+        u8 *src = cTmp1[i6];
+        u8 *colors = cTmp2[i6];
+        u16 id = *(u16 *)(src + 2);
+
+        *(s32 *)dst = id;
+        if ((id & 1) != 0) {
+            *(s32 *)(dst + 4) = D_00764CA8;
+        } else {
+            *(s32 *)(dst + 4) = 0;
+        }
+        switch (*(u16 *)(src + 6)) {
+        case 0: {
+            s32 k;
+
+            for (k = 0; k < 4; k++) {
+                u8 *s = colors + k * 4;
+                u8 *d = dst + (k >> 1) * 8 + (k & 1) * 4;
+
+                d[8] = s[0];
+                d[9] = s[1];
+                d[10] = s[2];
+                d[11] = s[3];
+            }
+            break;
+        }
+        default:
+            func_0046d730(D_007146B0, 0x22E);
+            break;
+        }
+    }
+    for (i7 = 0; i7 < *(u16 *)(header + 8); i7++) {
+        u8 *dst = *(u8 **)(node + 0xC) + i7 * 0x18;
+        u8 *src = bTmp1[i7];
+        u32 id;
+        s32 j;
+        s32 n;
+
+        switch (*(s32 *)header) {
+        case 0x64:
+            id = *(u16 *)(src + 2);
+            break;
+        case 0x65:
+            id = *(u16 *)(src + 2);
+            break;
+        }
+        j = 0;
+        n = *(u16 *)(header + 0xA);
+        for (; j < n; j++) {
+            if (id == *(u16 *)aTmp[j]) {
+                break;
+            }
+        }
+        *(u8 **)dst = *(u8 **)(node + 0x10) + j * 0x34;
+        switch (*(s32 *)header) {
+        case 0x64:
+            id = *(u16 *)(src + 4);
+            break;
+        case 0x65:
+            id = *(u16 *)(src + 4);
+            break;
+        }
+        j = 0;
+        n = *(u16 *)(header + 0xC);
+        for (; j < n; j++) {
+            if (id == *(u16 *)cTmp1[j]) {
+                break;
+            }
+        }
+        *(u8 **)(dst + 4) = *(u8 **)(node + 0x14) + j * 0x18;
+        switch (*(s32 *)header) {
+        case 0x64:
+            *(s32 *)(dst + 8) = *(u16 *)(src + 0x10);
+            break;
+        case 0x65:
+            *(s32 *)(dst + 8) = *(u16 *)(src + 0x10);
+            break;
+        }
+        switch (*(s32 *)header) {
+        case 0x64:
+            *(s32 *)(dst + 0xC) = *(u16 *)(src + 0x12);
+            break;
+        case 0x65:
+            *(s32 *)(dst + 0xC) = *(u16 *)(src + 0x12);
+            break;
+        }
+        switch (*(s32 *)header) {
+        case 0x64:
+            *(s32 *)(dst + 0x10) = 0;
+            break;
+        case 0x65:
+            *(s32 *)(dst + 0x10) = *(u16 *)(src + 0x14);
+            break;
+        }
+        switch (*(s32 *)header) {
+        case 0x64:
+            *(f32 *)(dst + 0x14) = 10.0f;
+            break;
+        case 0x65:
+            *(f32 *)(dst + 0x14) = *(f32 *)(src + 0x18);
+            break;
+        }
+        switch (*(s32 *)header) {
+        case 0x64:
+            *(s32 *)(*(u8 **)(node + 0x18) + i7 * 8) = *(s32 *)(src + 8);
+            *(s32 *)(*(u8 **)(node + 0x18) + i7 * 8 + 4) = *(s32 *)(src + 0xC);
+            break;
+        case 0x65:
+            *(s32 *)(*(u8 **)(node + 0x18) + i7 * 8) = *(s32 *)(src + 8);
+            *(s32 *)(*(u8 **)(node + 0x18) + i7 * 8 + 4) = *(s32 *)(src + 0xC);
+            break;
+        }
+        switch (*(s32 *)header) {
+        case 0x64:
+            memcpy((*(u8 ***)(node + 0x1C))[i7], bTmp2[i7], *(s32 *)(src + 0x14));
+            break;
+        case 0x65:
+            memcpy((*(u8 ***)(node + 0x1C))[i7], bTmp2[i7], *(s32 *)(src + 0x1C));
+            break;
+        }
+    }
+    return node;
 }
-
-
-#pragma opt_common_subs on
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6030);
 #endif
