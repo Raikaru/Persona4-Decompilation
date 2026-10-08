@@ -992,19 +992,20 @@ static inline s32 fclDigitIsZero(const s16 *value)
 }
 #pragma pop
 /* Row and value are signed halfwords; retail discards incoming row high bits.
-   Guarded rewrite from retail asm on the matched func_002ba5d0 pattern,
-   2026-10-07: 77 differing words (the previous body no longer compiled).
-   Retail passes both colours as words: the parameter's home is reloaded with
-   lw and the stored digit colour with lwl/lwr, with no struct-argument
-   temporaries. The block-scope declaration therefore takes u32 colours.
-   Open: the first digit's offset temporary takes $a3 in retail; the regalloc
-   model needs it numbered after the glyph-address temporary. Retail also
-   copies depth before layer in the prologue. */
-// FUN_002BA080 NONMATCHING
-#ifdef NON_MATCHING
+   Rewritten on the matched func_002ba5d0 pattern. Retail passes both colours
+   as words (the parameter home reloaded with lw, the stored digit colour with
+   lwl/lwr), so the block-scope callee declaration takes u32 colours; the two
+   copies are spelled differently so only post-colouring CSE shares them.
+   The redraw positions are named locals, which puts their frame slots above
+   secondPosition as in retail. Depth precedes layer, as in func_002ba5d0:
+   retail copies $f12 before $t3 in the prologue, and both callers still
+   match. opt_dead_assignments off reproduces retail's late argument loads. */
+#pragma push
+#pragma opt_dead_assignments off
+// FUN_002BA080
 void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
-                   FclDrawColor color, s32 duration, s32 delay, s32 layer,
-                   f32 depth, s8 mode)
+                   FclDrawColor color, s32 duration, s32 delay, f32 depth,
+                   s32 layer, s8 mode)
 {
     typedef struct {
         u32 word;
@@ -1014,7 +1015,7 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
                               s8 reverse);
     FclBoundsPacket bounds;
     FclBoundsBytes firstBounds, secondBounds;
-    FclVec2 origin, shifted, secondPosition;
+    FclVec2 origin, shifted, redrawn, retrace, secondPosition;
     FclDrawColor firstColor;
     FclDrawColor secondColor;
     s16 value;
@@ -1067,7 +1068,7 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
         ((FclBoundsPacket *)(slot + 0x204))->representation = firstBounds;
         *(s16 *)(slot + 0x100) = layer;
         slot = *(u8 **)(task + 0x38) + offset + 0x104;
-        func_002b83e0(slot, origin, *(u32 *)&color, ((u32 *)&color)[0], 0,
+        func_002b83e0(slot, origin, *(u32 *)&color, *(u32 *)((u32)&color), 0,
                       ((u8 *)&color)[3], (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
     } else {
         u8 *draw = *(u8 **)(task + 0x38) + (s32)firstIndex * 0x220 + 0x104;
@@ -1075,7 +1076,7 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
         if ((*(s16 *)draw & 1) == 1) {
             func_002b83e0(draw, *(FclVec2 *)(draw + 0x28),
                           ((const DigitStoredWord *)(draw + 0x75))->word,
-                          ((const DigitStoredWord *)(draw + 0x75))[0].word,
+                          ((const DigitStoredWord *)((u32)draw + 0x75))->word,
                           *(u8 *)(draw + 0x5E), 0, (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
         }
     }
@@ -1095,7 +1096,11 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
             *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
             *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
             *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
-            shifted = func_002b2970(origin.x - 18.0f, origin.y);
+            {
+                f32 shiftX = origin.x - 18.0f;
+
+                shifted = func_002b2970(shiftX, origin.y);
+            }
             {
                 f32 pointX, pointY;
                 pointX = shifted.x;
@@ -1120,7 +1125,8 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
             {
                 u8 *draw = *(u8 **)(task + 0x38) + offset + 0x104;
 
-                func_002b83e0(draw, func_002b2970(origin.x - 18.0f, origin.y), *(u32 *)&color, ((u32 *)&color)[0], 0,
+                redrawn = func_002b2970(origin.x - 18.0f, origin.y);
+                func_002b83e0(draw, redrawn, *(u32 *)&color, *(u32 *)((u32)&color), 0,
                               ((u8 *)&color)[3], (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
             }
         }
@@ -1128,16 +1134,15 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
         u8 *draw = *(u8 **)(task + 0x38) + (s32)secondIndex * 0x220 + 0x104;
 
         if ((*(s16 *)draw & 1) == 1) {
-            func_002b83e0(draw, func_002b2970(origin.x - 18.0f, *(f32 *)(draw + 0x2C)),
+            retrace = func_002b2970(origin.x - 18.0f, *(f32 *)(draw + 0x2C));
+            func_002b83e0(draw, retrace,
                           ((const DigitStoredWord *)(draw + 0x75))->word,
-                          ((const DigitStoredWord *)(draw + 0x75))[0].word, *(u8 *)(draw + 0x5E), 0,
+                          ((const DigitStoredWord *)((u32)draw + 0x75))->word, *(u8 *)(draw + 0x5E), 0,
                           (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
-#endif
+#pragma pop
 /* Keep the two positions, colors, and character-representation bounds
    snapshots separate across writes to the draw slots. The depth precedes
    the layer in the recovered signature. See the worker3 digit-pair archive. */
