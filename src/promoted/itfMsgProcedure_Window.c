@@ -2213,21 +2213,18 @@ static inline s32 msgWinReady(void)
     return 0;
 }
 
-/* Choice-window phases share the existing readiness predicate. The guarded
- * reconstruction restores the allocation assertion, signed count reloads,
- * fade operand order and retail clamp branches. Remaining native differences
- * are recorded in the October 5 continuation proof; retain the ASM fallback.
- * 2026-10-08 (69 edits): retail computes case 11's background Y straight into
- * $a1 right after the sinf call, before the slide X conversion. The candidate
- * computes it inside the argument list. The IR dump shows
- * IRO_ExpressionPropagation folding `backgroundY` into the call. Splitting the
- * statements, u32 arithmetic, a named slideX and 15 further opt_* pragmas did
- * not keep it. */
-// FUN_00282250 NONMATCHING
-#ifdef NON_MATCHING
+/* Choice-window phases share the existing readiness predicate.
+ * b210 propagates a local with a single definition into its use, so retail's
+ * early-computed values are locals with a second definition: case 11's
+ * background Y and case 12's baseline share function-scope locals with case
+ * 12/13, case 13's next-row offset reuses i2, and its scaled height reuses the
+ * block's row local. The case-11 declaration order gives retail's $s1/$s3. */
+// FUN_00282250
 s32 func_00282250(u8 *arg0, s32 arg1)
 {
     s32 ret;
+    s32 baseline;
+    s32 backgroundY;
     func_00278110((s32)arg0);
     ret = 0;
     switch (arg1) {
@@ -2311,14 +2308,13 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         break;
     }
     case 11: {
+        s32 v79010;
+        s32 v77070;
         void *pv;
         void *pv2;
-        s32 v77070;
-        s32 v79010;
         s32 v738d0;
         s32 cnt32;
         float f;
-        s32 backgroundY;
         if (func_0027bec0((s32)arg0) != 0) {
             v77070 = func_00277070((s32)arg0);
             v79010 = (s16)func_00279010((s32)arg0);
@@ -2359,8 +2355,6 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         s32 v79010;
         s32 i1;
         s32 i2;
-        s32 backgroundY;
-        s32 baseline;
         if (func_0027bec0((s32)arg0) != 0) {
             tmp = msgWinReady();
             if (tmp != 0) {
@@ -2396,7 +2390,6 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         s32 i2;
         s32 i3;
         s32 i5;
-        s32 baseline;
         s32 total;
         s32 need;
         if ((closingSelection = (void *)func_00278ff0(arg0)) != NULL) {
@@ -2433,25 +2426,23 @@ s32 func_00282250(u8 *arg0, s32 arg1)
                     float displacement;
                     float nextRow;
                     s32 extent;
-                    s32 nextBottom;
-                    float scaledHeight;
-                    float backgroundY;
+                    float rowY;
                     f = sinf((f * (float)D_00882066[0]) / (float)need);
                     scale = 1.0f - f * f;
                     displacement = f * (float)(v77070 * 0x1E);
-                    nextBottom = (v77070 + 1) * 0x1E;
+                    i2 = (v77070 + 1) * 0x1E;
                     extent = (v79010 * 0x10 - i3) * 2 + 0x3B;
-                    scaledHeight = scale * (float)extent;
-                    nextRow = (float)nextBottom;
-                    if (scaledHeight < nextRow - displacement) {
+                    rowY = scale * (float)extent;
+                    nextRow = (float)i2;
+                    if (rowY < nextRow - displacement) {
                         scale = ((nextRow + 0.0f) - f * nextRow) / 229.0f;
                     }
                     if (scale <= iGpffff81d8) {
                         scale = iGpffff81d8;
                     }
-                    backgroundY = (float)((4 - i3) * 0x1E + 0xCE);
-                    backgroundY += displacement;
-                    func_00366380(-5, (s32)backgroundY, 0.0f, 0x1C0, (s32)(scale * (float)extent), 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
+                    rowY = (float)((4 - i3) * 0x1E + 0xCE);
+                    rowY += displacement;
+                    func_00366380(-5, (s32)rowY, 0.0f, 0x1C0, (s32)(scale * (float)extent), 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
                 }
                 baseline = (4 - i3) * 0x1E + 0xD5;
                 i5 = (s32)((float)v77070 * 30.0f + (float)baseline + 0.0f);
@@ -2481,8 +2472,8 @@ s32 func_00282250(u8 *arg0, s32 arg1)
                     fadeStart = need - 5;
                     if (!(frame < fadeStart)) {
                         float alpha;
-                        alpha = 255.0f;
-                        alpha *= 1.0f - (float)(frame - fadeStart) / 5.0f;
+                        alpha = (float)(frame - fadeStart) / 5.0f;
+                        alpha = 255.0f * (1.0f - alpha);
                         func_00272ba0(selection, (s32)alpha | 0x1B1B1B00);
                     }
                 }
@@ -2520,9 +2511,6 @@ s32 func_00282250(u8 *arg0, s32 arg1)
     }
     return ret;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00282250);
-#endif
 
 // FUN_002831C0
 s32 func_002831c0(u8 *unusedTask)
