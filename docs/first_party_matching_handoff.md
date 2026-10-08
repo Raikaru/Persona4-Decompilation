@@ -107,10 +107,10 @@ Open floors recorded in their owner notes:
   condition's `(s16)` extension.
 - `00490c40`, 57 edits: rewritten from retail asm. It needs a different FPR
   spill set, and no declaration order gives it.
-- `004b6030`, 27 edits: rewritten from retail asm. A `void *` parameter and
+- `004b6030`, 23 edits: rewritten from retail asm. A `void *` parameter and
   shared, lifetime-split loop counters fixed the prologue and the third loop.
-  Retail colours the offset loop's `base` as if it were numbered after that
-  loop's temporaries.
+  The memcpy sizes are read as `u32`. Retail colours the offset loop's `base`
+  as if it were numbered after that loop's temporaries.
 - `0048b340`, 54 edits: the second quad's `(u32)c4 * 32` stops the stride
   CSE, and the declaration order comes from the regalloc model. Retail
   rematerialises `1.0f` in the else branch, but codegen reuses the entry's
@@ -124,6 +124,17 @@ Open floors recorded in their owner notes:
 - `001400f0`, 77 edits: `opt_loop_invariants on` hoists the fill loop's
   constants as retail does. It also hoists the radar `(u8)` conversion, which
   retail keeps inside the loop.
+- `00263cb0`, 102 edits, and the instruction count now matches retail. The
+  case-5 and case-7 fallback tails are separate copies, the render table is
+  read through a `u32` local, the fade rectangles are structs, and the alphas
+  are converted to int when they are computed.
+- `00260600`, 243 edits: `func_0025f430`'s colour parameter is declared
+  `u32`, which reproduces retail's per-case colour copies. The loop-invariant
+  pass still hoists a float-to-int conversion that retail keeps in each loop.
+- `00162e10`, 180 edits: rewritten from retail asm with struct copies for the
+  vectors and the matrix. Retail recomputes `D_007EF9B0 + i * 0x750` in every
+  block. `IRO_CommonSubs` merges every spelling of that product, and
+  `opt_common_subs off` costs more elsewhere.
 
 ## October 6 continuation: 6,773 MATCH / 88 ASM
 
