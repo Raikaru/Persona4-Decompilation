@@ -72,6 +72,11 @@ Matches this continuation:
     repeated product. A fresh named sum before the second use
     (`x3 = left + right; ... x3 * s`) gives it a different value number and
     breaks the merge.
+- `0029fbb0`: a field address read twice becomes an `IRO_CommonSubs` address
+  temporary, which reproduces retail's unfolded `addiu; lw 0` table reads.
+  Two of the fields are `u32`, which makes `t17 = tbl[arg1].f4` a conversion,
+  so copy propagation keeps `t17`/`t18` as declared locals. The full link
+  after it kept 604 C and 54 SDK objects, and both hashes passed.
 
 `tools/b210_irdump.py` dumps b210's frontend IR for a candidate. Use it to
 see which `IRO_*` pass creates or removes a temporary before guessing a
@@ -89,17 +94,12 @@ Open floors recorded in their owner notes:
 - `0048b340`, 65 edits: `$s7`/`$fp` swap and the else-branch temporaries.
 - `00320b80`, 21 edits: the frame homes, and `IRO_CommonSubs` reusing the loop
   condition's `(s16)` extension.
-- `0029fbb0`, 6 edits: a field address that appears twice becomes an
-  `IRO_CommonSubs` address temporary, which reproduces retail's unfolded
-  `addiu; lw 0` table reads. Reading `.f1`, `.f0`, `.f3` and `.f2` again in
-  the next expression or call closes four. For `.f5`/`.f4`, the second read
-  also makes the loaded value a CSE temporary. Copy propagation then
-  substitutes it for `t18`/`t17`. The regalloc model needs those two as
-  declared locals.
-- `00490c40`, 57 edits, and `004b6030`, 55 edits: rewritten from retail asm.
-  `00490c40` needs a different FPR spill set; no declaration order gives
-  it. In `004b6030`, retail colours the cursor parameter as if it were
-  numbered after the loop counters.
+- `00490c40`, 57 edits: rewritten from retail asm. It needs a different FPR
+  spill set, and no declaration order gives it.
+- `004b6030`, 27 edits: rewritten from retail asm. A `void *` parameter and
+  shared, lifetime-split loop counters fixed the prologue and the third loop.
+  Retail colours the offset loop's `base` as if it were numbered after that
+  loop's temporaries.
 
 ## October 6 continuation: 6,773 MATCH / 88 ASM
 
