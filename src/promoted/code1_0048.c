@@ -2515,12 +2515,16 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
     }
     *(f32 *)(arg0 + 0x1C) = 0.0f;
 }
-/* Guarded rewrite, 2026-10-07: 65 differing words (was 160). The quads copy
+/* Guarded rewrite, 2026-10-07: 54 differing words (was 160). The quads copy
  * through u_long128 pointer locals, the colour packs store the named slot
- * inside the asm, and the loop bounds hoist -1 as retail does. Open: c0 and
- * the c4 * 32 stride swap $s7/$fp. Retail recomputes c4 << 5 for the second
- * quad and rematerialises 1.0f in the else branch, and the else-branch
- * temporaries colour from $a3 down. */
+ * inside the asm, and the loop bounds hoist -1 as retail does. The second
+ * quad's `(u32)c4 * 32` stops the stride CSE (that also fixed the c0/stride
+ * $s7/$fp swap), `c4 << 6` and integer-cast sums give retail's addu operand
+ * order, and the declaration order is the regalloc model's (k, i, src1,
+ * iter, clear, j, dst1, c4). Open: retail rematerialises 1.0f in the else
+ * branch, but b210's codegen reuses the entry's constant temporary there
+ * (already shared at codegen_entry), and the else-branch temporaries then
+ * colour one register lower ($v1/$a0... instead of $a3/$v1...). */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2538,8 +2542,15 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     u_long128 quadF0[4];
     u_long128 tmpE0;
     u_long128 tmpD0;
-    u8 *config;
+    u32 k;
+    u32 i;
+    u8 *src1;
+    u8 *iter;
+    u8 *clear;
+    u32 j;
+    u8 *dst1;
     s32 c4;
+    u8 *config;
     u32 c0;
     u32 boundC0;
     u32 nmult;
@@ -2556,20 +2567,13 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     f32 baseY;
     f32 diffY;
     f32 packScale;
-    u8 *src1;
     u32 stride;
-    u8 *clear;
-    u8 *dst1;
     u8 *dst2;
     u8 *dst3;
-    u32 i;
-    u32 j;
-    u32 k;
     f32 ftmp;
     u32 alpha;
     u32 lo;
     u8 *second;
-    u8 *iter;
     u32 particleIndex;
 
     config = *(u8 **)(arg0 + 0x20);
@@ -2634,7 +2638,7 @@ loop1_check:
         u32 packedTmp;
         u32 colorTransfer;
 
-        last = &clear[(u32)(c4 * 64)];
+        last = (u8 *)((u32)(c4 << 6) + (u32)clear);
         if (*(s32 *)(last + 0x10) < 0) {
             return;
         }
@@ -2643,7 +2647,7 @@ loop1_check:
 
             *dst = *(u_long128 *)last;
             dst = &quadF0[1];
-            second = clear + (u32)(c4 * 32);
+            second = clear + (u32)c4 * 32;
             *dst = *(u_long128 *)second;
             dst = &quadF0[2];
             *dst = *(u_long128 *)clear;
@@ -2717,7 +2721,7 @@ loop1_check:
         if (node10 <= 0) {
             return;
         }
-        last = &clear[stride];
+        last = (u8 *)(stride + (u32)clear);
         if (*(s32 *)(last + 0x10) < 0) {
             return;
         }
