@@ -1834,7 +1834,7 @@ query_complete:
  * Native C remains nonmatching at 8828/9280 bytes; complete aggregates,
  * stack lifetimes and provider types still need recovery.
  * Preservation proof: docs/probe_archive/Field_guard_cleanup_0016bdd0_20261005/. */
-/* 2026-10-09: 1792 -> 1637 edits. Ghidra's `(float)piVar1[n]` reads were int-to-float conversions; retail loads these fields as floats (lwc1, no cvt.s.w), so they are `((float *)piVar1)[n]`. func_003e0870 (RwMatrixRotate) takes (matrix, axis, angle, op), not Ghidra's float-first order. */
+/* 2026-10-09: 1792 -> 1637 edits. Ghidra's `(float)piVar1[n]` reads were int-to-float conversions; retail loads these fields as floats (lwc1, no cvt.s.w), so they are `((float *)piVar1)[n]`. func_003e0870 (RwMatrixRotate) takes (matrix, axis, angle, op), not Ghidra's float-first order; func_003bb5b0 takes its path time as a float in $f12. */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
 extern int FUN_003e0870(int matrix, float *axis, float angle, int op);
@@ -1849,7 +1849,7 @@ extern int FUN_003e40b0();
 extern int FUN_003e03e0();
 extern int FUN_007f1710();
 extern int FUN_007f1720();
-extern int FUN_003bb5b0();
+extern int FUN_003bb5b0(float t, int path, int count, void *out, void *rot);
 extern int FUN_003e9cb0();
 extern int FUN_003e9c10();
 extern int FUN_003e0670();
@@ -2242,7 +2242,7 @@ s32 func_0016bdd0(u8 *param_1)
           else if (((float *)piVar1)[0x2e] <= ((float *)piVar1)[0x30]) {
             piVar1[0x2e] = piVar1[0x30];
           }
-          FUN_003bb5b0(piVar1[0x2e],*(unsigned int *)(*(int *)(CAND_iGpffff9db0 + 0x28) + 0xa20),10,
+          FUN_003bb5b0(((float *)piVar1)[0x2e],*(unsigned int *)(*(int *)(CAND_iGpffff9db0 + 0x28) + 0xa20),10,
                        piVar1 + 0x31,piVar1 + 0x34);
           FUN_003e40b0(piVar1 + 0x34,piVar1 + 0x34);
         }
