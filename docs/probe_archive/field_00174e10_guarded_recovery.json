@@ -1,0 +1,60 @@
+{
+  "actual_reference_errors": 0,
+  "baseline_commit": "1e0ce8a012b3ca8762d19bf14119bf52aa280a5d",
+  "baseline_source_sha256": "cec166eab88499cb0d5f895e7abc9c7c82013817cdd3f19930d96b3fb25e4997",
+  "candidate_object_sha256": "568520b4ed4af5d075c675c9a1e27d9b381192154a4e1b54b59df94df9a266c1",
+  "production_c_only_identical": true,
+  "production_c_only_object_sha256": "2bb212fd6c090089ef4626baaff3b38a43496b35a92ef21b81fb78898a24239e",
+  "production_spliced_identical": true,
+  "production_spliced_object_sha256": "42cff0cae1162d4327b566b4abdae513305ae4f6843c1d0c13ffe9a415bad812",
+  "references": 719,
+  "rejected_reference_controls": [
+    [
+      "sibling",
+      4
+    ],
+    [
+      "sibling",
+      5
+    ],
+    [
+      "sibling",
+      7
+    ],
+    [
+      "target",
+      4
+    ],
+    [
+      "target",
+      5
+    ],
+    [
+      "target",
+      7
+    ]
+  ],
+  "repeated_identical": true,
+  "source_sha256": "0ba2684b49c11e82bb3a8138b2221a8f5cc4b369125225812d67cf5bca91f232",
+  "status": "PASS; remains NONMATCHING",
+  "target": {
+    "calls_equal": true,
+    "exact": false,
+    "frame": 304,
+    "gp_equal": true,
+    "metrics": {
+      "candidate_bytes": 3976,
+      "equal_words": 989,
+      "positional_byte_differences": 1922,
+      "positional_word_differences": 574,
+      "retail_bytes": 3992,
+      "sequence_matcher_block_edits": 10,
+      "unit_word_levenshtein": 10
+    },
+    "raw_sha256": "35909f7ce3f50c61c0291dd64c83eb6d9bca5b5bd83857be1539178daa246ba7",
+    "resolved_sha256": "c2290f176df3544ffb79c2dda296d0094e1019dec797e554cc28b55806bed3b8",
+    "retail_frame": 304
+  },
+  "unchanged_allocated_nontext_sections": 0,
+  "unchanged_siblings": 25
+}
