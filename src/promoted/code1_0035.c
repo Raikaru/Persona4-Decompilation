@@ -2554,13 +2554,33 @@ void func_003599a0(u8 *arg0)
    Probes: f3 via b1 1173/854/223/212 unchanged; f0v load late 1175/852/223/212 (adds lq, worse).
    No mass apply; body left unchanged, in band near finished.
    2026-10-08: opt_propagation off lowers fnalign from 672 to 598 edits. */
+/* 2026-10-09: rewritten without the m2c temporaries, 598 -> 498 edits. Open: retail keeps idx*12 and arg0*48 in saved registers but adds arg1 again at each later use (after the assert call and per panel field), while b210 here keeps the whole sum; opt_common_subs off (744) separates every add, including the ones retail shares within a block. */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
+typedef struct {
+    u8 kind;
+    u8 pad1;
+    u16 name;
+    u16 count;
+    u16 pad6;
+    s32 mode;
+} HudEntry_0035;
+
+typedef struct {
+    f32 x;
+    f32 y;
+    u8 pad8[2];
+    u8 alpha;
+    u8 padB[5];
+    u16 w;
+    u8 pad12[4];
+    u16 h;
+    u8 pad18[0x18];
+} HudPanel_0035;
+
 #pragma push
-#pragma opt_propagation off
 void func_003599c0(s32 arg0, u8 *arg1)
 {
-    typedef signed __int128 s128;
     extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
     extern u8 *func_00246830(s32 arg0);
@@ -2576,84 +2596,50 @@ void func_003599c0(s32 arg0, u8 *arg1)
     extern u8 D_0064B2F8[];
     u8 col[4];
     s32 rc[4];
-    u16 f0v;
-    s128 e0;
-    f32 f30;
-    f32 f29;
-    f32 f28;
-    f32 f27;
-    f32 f26;
-    f32 f25;
-    f32 f24;
-    f32 f23;
-    f32 f22;
-    f32 f21;
-    f32 f20;
-    f32 f5;
-    f32 f1t;
-    f32 f4;
-    f32 f3;
-    f32 f2;
-    f32 b5B0;
-    f32 b5B4;
-    f32 c190;
-    f32 c194;
-    f32 c4C0;
-    f32 c4C4;
-    f32 f3b;
-    f32 f1b;
-    f32 f2b;
-    f32 f4b;
-    f32 f1c;
-    f32 fb;
-    u8 *e;
-    u8 *b1;
-    u8 *b2;
-    u8 *b3;
-    s32 v30;
-    u8 t23;
+    u16 name;
+    u16 count;
+    f32 x0;
+    f32 y0;
+    f32 fade;
+    f32 rowY;
+    f32 x;
+    f32 y;
+    f32 w;
+    f32 h;
+    f32 scale;
+    f32 px;
+    f32 py;
+    u8 kind;
     s32 isSelf;
-    s32 o1;
-    s32 o2;
-    s32 o3;
-    u8 *sprE;
-    u8 *sprL;
-    u8 *spr;
-    u8 *ns;
-    s32 i;
-    s32 cnt;
-    u32 av;
-    s32 color;
-    u8 a3;
-    u8 alpha2;
+    s32 mode;
+    u8 alpha;
     u8 *ptab;
     u8 *ctab;
-    u8 alpha;
-    s32 mode;
+    s32 nameColor;
+    u8 *spr;
+    s32 i;
 
-    f25 = *(f32 *)(arg1 + 4);
-    f24 = *(f32 *)(arg1 + 8);
-    f26 = (f32)arg1[0] / 255.0f;
-    e = arg1 + (*(s16 *)(arg1 + 0x26) + arg0) * 12;
-    t23 = e[0x38];
-    f0v = *(u16 *)(e + 0x3A);
-    e0 = (s128)*(u16 *)(e + 0x3C);
-    if (t23 >= 0x20) {
-        func_0046d730(D_0064CC98, 0x5D5);
+    x0 = *(f32 *)(arg1 + 4);
+    y0 = *(f32 *)(arg1 + 8);
+    fade = (f32)arg1[0] / 255.0f;
+    {
+        s32 idx = *(s16 *)(arg1 + 0x26) + arg0;
+
+        kind = ((HudEntry_0035 *)(arg1 + 0x38))[idx].kind;
+        name = ((HudEntry_0035 *)(arg1 + 0x38))[idx].name;
+        count = ((HudEntry_0035 *)(arg1 + 0x38))[idx].count;
+        if (kind >= 0x20) {
+            func_0046d730(D_0064CC98, 0x5D5);
+        }
+        isSelf = (arg0 == *(s16 *)(arg1 + 0x24));
+        mode = ((HudEntry_0035 *)(arg1 + 0x38))[idx].mode;
     }
-    isSelf = (arg0 == *(s16 *)(arg1 + 0x24));
-    mode = *(s32 *)(e + 0x40);
-    o1 = arg0 * 48;
-    b1 = arg1 + o1;
-    b5B0 = *(f32 *)(b1 + 0x5B0);
-    b5B4 = *(f32 *)(b1 + 0x5B4);
-    f5 = f25 + b5B0;
-    f21 = 64.0f * (f32)arg0;
-    f1t = f21 + (f24 + b5B4);
-    f4 = 81.0f + f1t;
-    a3 = (u8)((f32)b1[0x5BA] * f26);
-    f3 = (f32)*(u16 *)(arg1 + o1 + 0x5C0);
-    f2 = (f32)*(u16 *)(arg1 + o1 + 0x5C6);
+    x = x0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B0);
+    rowY = 64.0f * (f32)arg0;
+    y = 81.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B4)));
+    alpha = (f32)(arg1 + arg0 * 48)[0x5BA] * fade;
+    w = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x5C0);
+    h = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x5C6);
     if (isSelf) {
         col[0] = D_0064B2E8;
         col[1] = D_0064B2E9;
@@ -2662,105 +2648,83 @@ void func_003599c0(s32 arg0, u8 *arg1)
     } else {
         *(f32 *)col = *(f32 *)&D_0064B2E0;
     }
-    col[3] = (u8)((f32)a3 * f26);
-    rc[0] = (s32)f5;
-    rc[1] = (s32)f4;
-    rc[2] = (s32)(640.0f * f3 / 4096.0f);
-    rc[3] = (s32)(59.0f * f2 / 4096.0f);
+    col[3] = (f32)alpha * fade;
+    rc[0] = x;
+    rc[1] = y;
+    rc[2] = 640.0f * w / 4096.0f;
+    rc[3] = 59.0f * h / 4096.0f;
     D_00887300[0](1, 0);
     func_0045d6e0(col, (u8 *)rc, 0.0f, 0);
-    o2 = arg0 * 48;
-    b2 = arg1 + o2;
-    c190 = *(f32 *)(b2 + 0x190);
-    c194 = *(f32 *)(b2 + 0x194);
-    f23 = 5.0f + (f25 + c190);
-    f22 = 78.0f + (f21 + (f24 + c194));
-    alpha = (u8)((f32)b2[0x19A] * f26);
-    f28 = (f32)*(u16 *)(arg1 + o2 + 0x1A0);
-    f27 = (f32)*(u16 *)(arg1 + o2 + 0x1A6);
+    x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x190));
+    y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x194)));
+    alpha = (f32)(arg1 + arg0 * 48)[0x19A] * fade;
+    w = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x1A0);
+    h = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x1A6);
     if (isSelf) {
         ptab = D_0064B2EC;
         ctab = &D_0064B2E8;
-        v30 = 8;
+        nameColor = 8;
     } else {
         ptab = D_0064B2F8;
         ctab = &D_0064B2E0;
-        v30 = 6;
+        nameColor = 6;
     }
     if (mode != 1) {
-        f20 = f27 / 4096.0f;
-        func_0034f320(*(u8 **)(arg1 + 0x11E8), 60.0f + f23, f22 + 16.0f * f20, 0.0f,
-                      ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-        func_0034f320(*(u8 **)(arg1 + (u16)e0 * 4 + 0x11EC), 124.0f + f23, f22 + 14.0f * f20, 0.0f,
-                      ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+        scale = h / 4096.0f;
+        func_0034f320(*(u8 **)(arg1 + 0x11E8), 60.0f + x, y + 16.0f * scale, 0.0f,
+                      ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+        func_0034f320(*(u8 **)(arg1 + count * 4 + 0x11EC), 124.0f + x, y + 14.0f * scale, 0.0f,
+                      ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
     }
-    f30 = 59.0f + f23;
-    f20 = f27 / 4096.0f;
-    f29 = f22 + 32.0f * f20;
-    func_0034f320(*(u8 **)(arg1 + 0x1214), f30, f29, 0.0f,
-                  ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-    func_0034f320(*(u8 **)(arg1 + 0x1218), 88.0f + f30, f29, 0.0f,
-                  ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-    f30 = 105.0f + f23;
-    f29 = f22 + 33.0f * f20;
-    sprE = *(u8 **)(arg1 + t23 * 4 + 0x12A0);
-    fb = func_0046b260(sprE);
-    func_0034f320(sprE, f30 - fb / 2.0f, f29, 0.0f,
-                  ctab[0], ctab[1], ctab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-    f30 = 156.0f + f23;
-    f29 = f22 + 18.0f * f20;
-    func_0034f320(*(u8 **)(arg1 + 0x122C), f30, f29, 0.0f,
-                  ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-    func_0034f320(*(u8 **)(arg1 + 0x1230), 214.0f + f30, f29, 0.0f,
-                  ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+    px = 59.0f + x;
+    scale = h / 4096.0f;
+    py = y + 32.0f * scale;
+    func_0034f320(*(u8 **)(arg1 + 0x1214), px, py, 0.0f,
+                  ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+    func_0034f320(*(u8 **)(arg1 + 0x1218), 88.0f + px, py, 0.0f,
+                  ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+    px = 105.0f + x;
+    py = y + 33.0f * scale;
+    spr = *(u8 **)(arg1 + kind * 4 + 0x12A0);
+    func_0034f320(spr, px - func_0046b260(spr) / 2.0f, py, 0.0f,
+                  ctab[0], ctab[1], ctab[2], alpha, w, h, 0, 0.0f, 0);
+    px = 156.0f + x;
+    py = y + 18.0f * scale;
+    func_0034f320(*(u8 **)(arg1 + 0x122C), px, py, 0.0f,
+                  ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+    func_0034f320(*(u8 **)(arg1 + 0x1230), 214.0f + px, py, 0.0f,
+                  ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
     switch (mode) {
     case 1:
     case 0:
-        f30 = 4.0f + (157.0f + f23);
-        f29 = f22 + 20.0f * f20;
-        sprL = *(u8 **)(arg1 + 0x1234);
-        cnt = (u16)e0;
-        i = 0;
-        while ((i < 10) && (i < cnt)) {
-            func_0034f320(sprL, f30 + (f32)(i * 21), f29, 0.0f,
-                          ctab[0], ctab[1], ctab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-            i++;
+        px = 4.0f + (157.0f + x);
+        py = y + 20.0f * scale;
+        spr = *(u8 **)(arg1 + 0x1234);
+        for (i = 0; i < 10 && i < count; i++) {
+            func_0034f320(spr, px + (f32)(i * 21), py, 0.0f,
+                          ctab[0], ctab[1], ctab[2], alpha, w, h, 0, 0.0f, 0);
         }
         break;
     case 2:
-        spr = isSelf ? *(u8 **)(arg1 + 0x1240) : *(u8 **)(arg1 + 0x1244);
-        func_0034f320(spr, 198.0f + f23, f22 + 14.0f * f20, 0.0f,
-                      0xFF, 0xFF, 0xFF, alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+        func_0034f320(isSelf ? *(u8 **)(arg1 + 0x1240) : *(u8 **)(arg1 + 0x1244), 198.0f + x, y + 14.0f * scale, 0.0f,
+                      0xFF, 0xFF, 0xFF, alpha, w, h, 0, 0.0f, 0);
         break;
     case 3:
-        spr = isSelf ? *(u8 **)(arg1 + 0x1238) : *(u8 **)(arg1 + 0x123C);
-        func_0034f320(spr, 204.0f + f23, f22 + 14.0f * f20, 0.0f,
-                      0xFF, 0xFF, 0xFF, alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-        break;
-    default:
+        func_0034f320(isSelf ? *(u8 **)(arg1 + 0x1238) : *(u8 **)(arg1 + 0x123C), 204.0f + x, y + 14.0f * scale, 0.0f,
+                      0xFF, 0xFF, 0xFF, alpha, w, h, 0, 0.0f, 0);
         break;
     }
-    if (f27 == 4096.0f) {
-        f23 = 157.0f + f23;
-        f20 = f22 + 30.0f * f20;
-        av = ((u32)(alpha & 0xFF) * 0xFF) / 255U;
-        color = -256;
-        color |= (s32)av;
-        ns = func_00246830(f0v);
-        func_00275020(f23, f20, 0.0f, color, v30, 1, ns, 0, -1);
+    if (h == 4096.0f) {
+        func_00275020(157.0f + x, y + 30.0f * scale, 0.0f, -0x100 | (alpha * 0xFF) / 0xFFU, nameColor, 1,
+                      func_00246830(name), 0, -1);
     }
-    o3 = arg0 * 48;
-    b3 = arg1 + o3;
-    c4C0 = *(f32 *)(b3 + 0x4C0);
-    c4C4 = *(f32 *)(b3 + 0x4C4);
-    f3b = 5.0f + (f25 + c4C0);
-    f1b = f21 + (f24 + c4C4);
-    f2b = 78.0f + f1b;
-    alpha2 = (u8)((f32)b3[0x4CA] * f26);
-    f4b = (f32)*(u16 *)(arg1 + o3 + 0x4D0);
-    f1c = (f32)*(u16 *)(arg1 + o3 + 0x4D6);
-    func_0034f320(*(u8 **)(arg1 + mode * 4 + 0x121C), 15.0f + f3b, 2.0f + f2b, 0.0f,
-                  0xFF, 0xFF, 0xFF, alpha2, (u16)f4b, (u16)f1c, 0, 0.0f, 0);
+    x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C0));
+    y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C4)));
+    alpha = (f32)(arg1 + arg0 * 48)[0x4CA] * fade;
+    w = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x4D0);
+    h = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x4D6);
+    func_0034f320(*(u8 **)(arg1 + mode * 4 + 0x121C), 15.0f + x, 2.0f + y, 0.0f,
+                  0xFF, 0xFF, 0xFF, alpha, w, h, 0, 0.0f, 0);
 }
 #pragma pop
 #else
