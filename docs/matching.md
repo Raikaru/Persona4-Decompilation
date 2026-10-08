@@ -787,6 +787,40 @@ below are the codegen consequences.
   - `x = conv + product` with the conversion as the first `add.s` operand
     needs the product in a separately named local.
 
+  **Lever: copy a quadword through `$2` when retail does (`func_00485630`,
+  `func_00485870`, `func_0048d8c0`, `func_0048cdf0`, `func_00497ce0`, MATCH
+  2026-10-09; user-approved).** b210 keeps `$v0` live from every call to the
+  end of an `int` or `void` function (`.end gpr:r2`), so a C quadword copy
+  after a call never uses `$v0`. Micro-tests of plain, struct, union and
+  inline-helper copies, `return;`, a K&R definition and discarded-result
+  calls all gave `$v1`. When retail copies a `u_long128` with `lq $2`/`sq $2`,
+  and avoids `$v0` everywhere else, write that copy as
+  `__asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(src) : "$2", "memory");`
+  with a `/* lint: allow H009 -- ... */` waiver naming the retail address.
+  The `$2` clobber also moves every value live across the copy up one
+  register, which is how it fixed `func_00497ce0`'s pointer temporaries, and
+  frees `$v0` before it for spill stores (`func_0048d8c0`). Memory of Alessa
+  (Silent Hill 2, also MWCC) keeps the same copies as `vec_copy` helpers.
+
+  **Lever: saved-FPR colours follow declaration order (`func_0048cdf0`,
+  58 → 0).** The FPR allocator numbers function-scope locals by declaration
+  and colours the long-lived ones from the highest number down, each taking
+  the lowest free saved register. Retail's preheader constants sit in
+  `$f24..$f20` in hoist order, with the value carried through the loop in
+  `$f25` and one more temporary in `$f28`. That needs `a` declared first, the
+  two config floats next, then `c` (also used for the v14 sample and the
+  else-branch angle), then the constants in hoist order. Use
+  `build/cap.py` and the `after_colorgraph_assignment.json` FPR nodes
+  (`node_id_i16`, `assigned_color_i16`) to read the numbering. An `asm`
+  output (`"=f"(dot)`) gets a fresh virtual at its use, so moving its
+  declaration does nothing (`func_00490c40`).
+
+  **Lever: name a hoisted integer constant to order the preheader
+  (`func_00497ce0`).** With `opt_loop_invariants on`, a literal used in the
+  loop is hoisted after the explicitly assigned constants. Retail
+  materialised `-1` first, so the store uses a local `invalid` assigned
+  before the float constants.
+
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written
   inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot
