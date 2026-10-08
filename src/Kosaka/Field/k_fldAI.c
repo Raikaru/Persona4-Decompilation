@@ -936,11 +936,11 @@ tail:
    consumes all ten lengths as floats. This contract repair is not a match;
    see docs/probe_archive/Field_AI_normalization_0017f490_20261003.md.
    2026-10-08: opt_lifetimes on lowers fnalign from 2257 to 1795 edits. */
+/* 2026-10-09: 1795 -> 1218 edits. Ghidra's expanded float-to-unsigned conversions (the 2.1474836e+09f compare/subtract blocks) are written as plain (unsigned int)/(unsigned char) casts, the alpha byte is converted once from temp_v9 * 255.0f, and opt_common_subs off is removed: retail shares the 180.0f/200.0f/1.0f constants within each block. */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
-#pragma opt_common_subs off
 extern int FUN_003b7060();
 extern int FUN_0047a220();
 /* SDK vector normalization reads and writes complete three-float objects and
@@ -1135,12 +1135,8 @@ int func_0017f490(unsigned char *param_1)
       else {
         temp_v9 = 1.0f - (temp_v10 - temp_v8) / temp_v11;
       }
-      temp_v9 = temp_v9 * 255.0f;
-      if (2.1474836e+09f <= temp_v9) {
-        temp_v9 = temp_v9 - 2.1474836e+09f;
-      }
-      ((unsigned char*)&uStack_4)[3] = (unsigned char)(int)temp_v9;
-      ((float *)piVar1)[0x1f] = (float)((int)temp_v9 & 0xff);
+      ((unsigned char*)&uStack_4)[3] = (unsigned char)(temp_v9 * 255.0f);
+      ((float *)piVar1)[0x1f] = (float)((unsigned char*)&uStack_4)[3];
     }
     else {
       ((unsigned char*)&uStack_4)[3] = 0xff;
@@ -1154,12 +1150,7 @@ int func_0017f490(unsigned char *param_1)
       if (*(void **)(temp_v0 + 8) != (void *)0x0) {
         FUN_004b14f0(*(void **)(temp_v0 + 8),&uStack_4);
         temp_v8 = ((float *)piVar1)[0x1f];
-        if (temp_v8 < 2.1474836e+09f) {
-          ((unsigned char*)&uStack_4)[3] = (unsigned char)(int)temp_v8;
-        }
-        else {
-          ((unsigned char*)&uStack_4)[3] = (unsigned char)(int)(temp_v8 - 2.1474836e+09f);
-        }
+        ((unsigned char*)&uStack_4)[3] = (unsigned char)temp_v8;
         FUN_004b13f0(*(void **)(temp_v0 + 8),&uStack_4);
       }
     }
@@ -1238,12 +1229,7 @@ int func_0017f490(unsigned char *param_1)
           piVar1[0x23] = *(int *)(piVar1[5] + 0x2c);
           *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) | 2;
           temp_v8 = ((float *)piVar1)[0x1f];
-          if (temp_v8 < 2.1474836e+09f) {
-            temp_v7 = (unsigned int)temp_v8;
-          }
-          else {
-            temp_v7 = (int)(temp_v8 - 2.1474836e+09f) | 0x80000000;
-          }
+          temp_v7 = (unsigned int)temp_v8;
           temp_v0 = FUN_0014bbe0((int)param_1,*(int *)(piVar1[3] + 0x50),temp_v7,0,10);
           piVar1[0x22] = temp_v0;
           *piVar1 = 4;
@@ -1416,12 +1402,7 @@ int func_0017f490(unsigned char *param_1)
       }
       else {
         temp_v8 = ((float *)piVar1)[0x1f];
-        if (temp_v8 < 2.1474836e+09f) {
-          temp_v7 = (unsigned int)temp_v8;
-        }
-        else {
-          temp_v7 = (int)(temp_v8 - 2.1474836e+09f) | 0x80000000;
-        }
+        temp_v7 = (unsigned int)temp_v8;
         temp_v0 = FUN_0014bbe0((int)param_1,*(int *)(piVar1[3] + 0x50),0,temp_v7,10);
         piVar1[0x22] = temp_v0;
         *piVar1 = *piVar1 + 1;
@@ -1976,12 +1957,7 @@ int func_0017f490(unsigned char *param_1)
             }
             else if (*(char *)(temp_v0 + 0x1ca) == '\x01') {
               temp_v8 = ((float *)piVar1)[0x1f];
-              if (temp_v8 < 2.1474836e+09f) {
-                temp_v7 = (unsigned int)temp_v8;
-              }
-              else {
-                temp_v7 = (int)(temp_v8 - 2.1474836e+09f) | 0x80000000;
-              }
+              temp_v7 = (unsigned int)temp_v8;
               temp_v0 = FUN_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),temp_v7,0,10);
               piVar1[0x22] = temp_v0;
             }
@@ -2010,12 +1986,7 @@ int func_0017f490(unsigned char *param_1)
         }
         else if (*(char *)(temp_v0 + 0x1ca) == '\x01') {
           temp_v8 = ((float *)piVar1)[0x1f];
-          if (temp_v8 < 2.1474836e+09f) {
-            temp_v7 = (unsigned int)temp_v8;
-          }
-          else {
-            temp_v7 = (int)(temp_v8 - 2.1474836e+09f) | 0x80000000;
-          }
+          temp_v7 = (unsigned int)temp_v8;
           temp_v0 = FUN_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),0,temp_v7,10);
           piVar1[0x22] = temp_v0;
         }
@@ -2043,7 +2014,6 @@ int func_0017f490(unsigned char *param_1)
   }
   return 0;
 }
-#pragma opt_common_subs on
 #pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017f490);
