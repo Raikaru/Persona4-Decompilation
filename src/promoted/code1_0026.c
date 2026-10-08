@@ -1365,7 +1365,15 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
    sine argument is fGpffff84a4 * ((f32)n / 5.0f). Open: saved-register
    colouring.
    2026-10-08: opt_lifetimes on lowers fnalign from 102 to 85 edits.
-   2026-10-08: a declaration-order hill climb (swap/move moves scored by fnalign) lowers it to 75. */
+   2026-10-08: a declaration-order hill climb (swap/move moves scored by fnalign) lowers it to 75.
+   2026-10-09: 48 edits. At two func_00261560 calls retail keeps the
+   (*(s32 *)(temp_2 + 4)) argument as a variable loaded before the func_00110c50 argument
+   call; b210 only keeps a load variable that has another definition (the
+   single-def temp_16_2/temp_16_3/temp_18_6 ones get propagated into the call),
+   so those sites share temp_16_2/temp_16 and the two temp_18_6 sites are split.
+   `temp_3_2 > 1` gives retail's slti $at form, and storing the fade alpha int
+   in temp_21 before the call orders the u8 mask after the 0.0f argument. The
+   rest is saved-register colouring; a further hill climb finds nothing. */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1399,7 +1407,6 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     u8 *var_3_4;
     s32 temp_16;
     s32 temp_16_2;
-    s32 temp_16_3;
     s32 temp_17;
     s32 temp_17_10;
     s32 temp_17_2;
@@ -1416,6 +1423,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     f32 temp_f13_2;
     s32 temp_18_5;
     s32 temp_18_6;
+    s32 temp_18_7;
     s32 temp_19;
     s32 temp_19_2;
     s32 temp_21;
@@ -1452,9 +1460,10 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         }
         temp_3_2 = *(s32 *)(temp_2 + 0x20);
-        if (temp_3_2 >= 2) {
+        if (temp_3_2 > 1) {
             temp_f0 = 255.0f * ((f32)(temp_3_2 - 1) / 9.0f);
-            func_00263730(0, 0, 0.0f, (s32)temp_f0 & 0xFF, temp_17, 0,
+            temp_21 = (s32)temp_f0;
+            func_00263730(0, 0, 0.0f, temp_21 & 0xFF, temp_17, 0,
                           temp_2);
         }
         break;
@@ -1495,8 +1504,8 @@ void func_00263cb0(s32 arg0, u8 *arg1)
                 var_21 += 1;
             }
             func_00262de0(0x6D, 0xF5, 0.0f, 0xFF, temp_18_2, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
-            temp_16 = *(s32 *)(temp_2 + 4);
-            func_00261560(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_18_2, temp_18_2) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
+            temp_16_2 = *(s32 *)(temp_2 + 4);
+            func_00261560(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_18_2, temp_18_2) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
         } else if (temp_3_3 < 0x19) {
             func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             var_3 = &spE8;
@@ -1590,8 +1599,8 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             func_0045d6e0(&spE4, &spB0, 10.0f, 0);
             func_0048a000();
             func_00262de0(0x6D, 0xF5, 0.0f, fadeAlpha, temp_18_2, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
-            temp_16_3 = *(s32 *)(temp_2 + 4);
-            func_00261560(0x5E, 0x127, 0.0f, fadeAlpha, func_00110c50(temp_18_2, temp_18_2) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_3, 0);
+            temp_16 = *(s32 *)(temp_2 + 4);
+            func_00261560(0x5E, 0x127, 0.0f, fadeAlpha, func_00110c50(temp_18_2, temp_18_2) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
         }
         break;
     case 5:
@@ -1647,8 +1656,8 @@ void func_00263cb0(s32 arg0, u8 *arg1)
                 } else {
                     temp_f21 = ((f32)temp_3_2 - 5.0f) / 5.0f;
                     func_00262de0(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
-                    temp_18_6 = *(s32 *)(temp_2 + 4);
-                    func_00261560(0x178, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 4, temp_17_9 + 1) & 0xFFFF, 0, temp_f21, 1.0f, 0, 0x58, temp_18_6, 0);
+                    temp_18_7 = *(s32 *)(temp_2 + 4);
+                    func_00261560(0x178, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 4, temp_17_9 + 1) & 0xFFFF, 0, temp_f21, 1.0f, 0, 0x58, temp_18_7, 0);
                 }
             }
         } else {
