@@ -3070,6 +3070,7 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own.
    2026-10-08: opt_loop_invariants on, opt_lifetimes on and opt_dead_assignments off lowers fnalign from 782 to 636 edits. */
+/* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 636 to 457 edits. */
 // FUN_001ED700 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -3084,18 +3085,19 @@ void func_001ed700(f32 radius)
     extern f32 fGpffff8330;
     struct { s16 x; s16 y; } corners[4];
     f32 bounds[4];
-    f32 curX;
-    f32 curZ;
+    s32 first;
+    s32 j;
     f32 delta[2];
     f32 norm[2];
     f32 bestDir[2];
     f32 wpos[2];
-    u8 *node;
-    u8 *group;
+    f32 curX;
+    f32 curZ;
     u8 *other;
+    u8 *group;
+    u8 *node;
     u8 *best;
     s32 i;
-    s32 j;
     s32 t;
     s16 tx;
     s16 ty;
@@ -3105,7 +3107,6 @@ void func_001ed700(f32 radius)
     f32 bestX;
     f32 bestZ;
     f32 bestH;
-    s32 first;
     f32 f0;
 
     first = 0;
