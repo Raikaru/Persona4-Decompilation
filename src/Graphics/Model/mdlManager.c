@@ -472,6 +472,7 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  */
 #pragma push
 /* 2026-10-08: opt_loop_invariants on lowers fnalign from 879 to 856 edits. */
+/* 2026-10-09: 856 -> 841 edits. The two angle-limit blocks follow retail's !(a <= lim) && a < 360 - lim test and a < 180 ? lim : 360 - lim choice, which reuses the 360 - lim value. */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -835,12 +836,13 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               for (; !(temp_v20 <= 360.0f); temp_v20 = temp_v20 - 360.0f) {
               }
               temp_v16 = *(float *)(controller + 4);
-              if ((temp_v16 < temp_v20) && (temp_v20 < 360.0f - temp_v16)) {
-                if (180.0f <= temp_v20) {
-                  temp_v16 = 360.0f - temp_v16;
+              if (!(temp_v20 <= temp_v16) && temp_v20 < 360.0f - temp_v16) {
+                if (temp_v20 < 180.0f) {
+                  temp_v20 = temp_v16;
+                } else {
+                  temp_v20 = 360.0f - temp_v16;
                 }
                 angleLimited = 1;
-                temp_v20 = temp_v16;
               }
               RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)((u8 *)&axisMatrix.up), -(temp_v20 + temp_v15), rwCOMBINEREPLACE);
               for (temp_v21 = temp_v21 - temp_v14; temp_v21 < 0.0f; temp_v21 = temp_v21 + 360.0f) {
@@ -849,12 +851,13 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               for (; !(temp_v21 <= 360.0f); temp_v21 = temp_v21 - 360.0f) {
               }
               temp_v20 = *(float *)(controller + 6);
-              if ((temp_v20 < temp_v21) && (temp_v21 < 360.0f - temp_v20)) {
-                if (180.0f <= temp_v21) {
-                  temp_v20 = 360.0f - temp_v20;
+              if (!(temp_v21 <= temp_v20) && temp_v21 < 360.0f - temp_v20) {
+                if (temp_v21 < 180.0f) {
+                  temp_v21 = temp_v20;
+                } else {
+                  temp_v21 = 360.0f - temp_v20;
                 }
                 angleLimited = 1;
-                temp_v21 = temp_v20;
               }
               RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)((u8 *)&axisMatrix), temp_v21 + temp_v14, rwCOMBINEPOSTCONCAT);
               RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(((u8 *)&axisMatrix)),(const RwMatrix *)(temp_v24));
