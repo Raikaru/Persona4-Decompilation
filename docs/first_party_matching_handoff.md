@@ -111,6 +111,19 @@ Open floors recorded in their owner notes:
   shared, lifetime-split loop counters fixed the prologue and the third loop.
   Retail colours the offset loop's `base` as if it were numbered after that
   loop's temporaries.
+- `0048b340`, 54 edits: the second quad's `(u32)c4 * 32` stops the stride
+  CSE, and the declaration order comes from the regalloc model. Retail
+  rematerialises `1.0f` in the else branch, but codegen reuses the entry's
+  constant temporary there.
+- `002ba080`, 77 edits: rewritten on the matched `002ba5d0` pattern. Its old
+  guarded body no longer compiled. Retail passes both colours as words, so
+  the block-scope callee declaration takes `u32`.
+- `00283490`, 160 differing words: ported onto the matched calendar sibling
+  `0027bf30`. The instruction count now matches retail; saved-register
+  colouring is open.
+- `001400f0`, 77 edits: `opt_loop_invariants on` hoists the fill loop's
+  constants as retail does. It also hoists the radar `(u8)` conversion, which
+  retail keeps inside the loop.
 
 ## October 6 continuation: 6,773 MATCH / 88 ASM
 
