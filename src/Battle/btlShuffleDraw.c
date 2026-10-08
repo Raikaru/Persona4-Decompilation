@@ -1262,6 +1262,7 @@ void func_00376880(u8 **arg0) {
  * implementation. See docs/probe_archive/Shuffle_trail_003768e0_20261006.
    2026-10-08: opt_lifetimes on lowers fnalign from 464 to 280 edits.
    Also (2026-10-08): the identity flags are ORed into the uninitialised local (retail lw 0xBC/or) and the render-state table is read through a u32 local kept in $s3, 270 edits. */
+/* 2026-10-09: 270 -> 265 edits from a block-declaration order climb. */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1446,10 +1447,10 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, u8 *rgba, f32 length)
                 f32 x;
                 f32 y;
                 f32 z;
-                f32 offsetX;
-                f32 offsetY;
                 u8 alpha;
                 f32 negativeWidth;
+                f32 offsetY;
+                f32 offsetX;
                 f32 negativeHeight;
                 front = first;
                 back = second;
