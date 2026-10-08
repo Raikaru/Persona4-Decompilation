@@ -1549,22 +1549,20 @@ void func_004940d0(u8 *arg0, u16 arg1, Code1_0049Color *arg2)
 #pragma opt_common_subs on
 /* measured: closing opt_propagation after func_004940d0 probe. */
 #pragma opt_propagation on
-/* Whole-owner recovery, 2026-10-05; 2026-10-07: 1168/1168 bytes, 4 differing
- * instruction words (was 78). Counts are unsigned after the signed-short loads.
- * Complete vector and packed-color objects preserve the VU transfers; the loop
- * pragma retains the vector addresses. The colour unpacks use
- * effectVuUnpackColor10V0, which fixed the $v0/$a-register shift.
- * Remaining: retail materializes 1.0f again in the loop preheader after a
- * single zero-trip guard. Here the front end turns the loop's 1.0f into an
- * entry-block local that shares fractionStep's constant. Without the
- * `segmentCount != 0` test the guard is single but the constant is still
- * shared (6 words); a local `one`, a for loop, an inline-argument constant
- * and CSE/propagation pragmas do not separate it. */
-// FUN_004941F0 NONMATCHING
-#ifdef NON_MATCHING
+/* func_004941f0, MATCH 2026-10-07. Counts are unsigned after the signed-short
+   loads; complete vector and packed-colour objects keep the VU transfers, and
+   the colour unpacks use effectVuUnpackColor10V0. `opt_loop_invariants on`
+   hoists the loop's vector addresses and 255.0f as retail does (measured:
+   without it the body differs by 65 words). `opt_pulloutconstants off`
+   stops IRO_CommonSubs from sharing the entry's 1.0f with the loop, so the
+   loop preheader rematerialises it as retail does. The first unpack reads its
+   word through a `const u32 *` local, which schedules the scale load after
+   the address. */
 #pragma push
 #pragma opt_loop_invariants on
+#pragma opt_pulloutconstants off
 /* Interpolate the ribbon colors, then repeat its first row and the cap colors. */
+// FUN_004941F0
 void func_004941f0(u8 *track, u32 *colors)
 {
     extern u8 *RpGeometryLock(u8 *geometry, s32 lockMode);
@@ -1608,8 +1606,12 @@ void func_004941f0(u8 *track, u32 *colors)
     fractionStep = 1.0f / (f32)segmentCount;
     fraction = 0.0f;
     firstWord = colors[0];
-    scale = fGpffff8044;
-    effectVuUnpackColor10V0(&firstWord, scale);
+    {
+        const u32 *word = &firstWord;
+
+        scale = fGpffff8044;
+        effectVuUnpackColor10V0(word, scale);
+    }
     effectVuStore10(&first);
     secondWord = colors[1];
     effectVuUnpackColor10V0(&secondWord, scale);
@@ -1621,57 +1623,55 @@ void func_004941f0(u8 *track, u32 *colors)
     effectVuUnpackColor10V0(&fourthWord, scale);
     effectVuStore10(&fourth);
     index = 0;
-    if (segmentCount != 0) {
-        while (index < segmentCount) {
-            f32 inverse;
-            effectVuLoad11(&first);
-            effectVuLoad10(&third);
-            effectVuScale10(fraction);
-            inverse = 1.0f - fraction;
-            effectVuScale11(inverse);
-            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
-            {
-                /* Binary32 255.0f converts normalized VU color lanes back to bytes. */
-                u32 packed;
-                __asm__ volatile(
-                    "qmtc2.ni %2, $vf2\n"
-                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                    "vftoi0.xyzw $vf10, $vf10\n"
-                    "qmfc2.ni %0, $vf10\n"
-                    "ppach %0, $zero, %0\n"
-                    "ppacb %0, $zero, %0\n"
-                    "sw %0, firstPacked\n"
-                    : "=&r"(packed), "=m"(firstPacked)
-                    : "r"(0x437F0000U)
-                    : "$vf2", "$vf10", "memory");
-            }
-            *(u32 *)(destination + 4) = firstPacked;
-            effectVuLoad11(&second);
-            effectVuLoad10(&fourth);
-            effectVuScale10(fraction);
-            effectVuScale11(inverse);
-            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
-            {
-                /* Binary32 255.0f converts normalized VU color lanes back to bytes. */
-                u32 packed;
-                __asm__ volatile(
-                    "qmtc2.ni %2, $vf2\n"
-                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-                    "vftoi0.xyzw $vf10, $vf10\n"
-                    "qmfc2.ni %0, $vf10\n"
-                    "ppach %0, $zero, %0\n"
-                    "ppacb %0, $zero, %0\n"
-                    "sw %0, secondPacked\n"
-                    : "=&r"(packed), "=m"(secondPacked)
-                    : "r"(0x437F0000U)
-                    : "$vf2", "$vf10", "memory");
-            }
-            *(u32 *)destination = secondPacked;
-            *(Code1_0049Color *)(destination + 8) = *(Code1_0049Color *)destination;
-            fraction += fractionStep;
-            destination += 12;
-            index++;
+    while (index < segmentCount) {
+        f32 inverse;
+        effectVuLoad11(&first);
+        effectVuLoad10(&third);
+        effectVuScale10(fraction);
+        inverse = 1.0f - fraction;
+        effectVuScale11(inverse);
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+        {
+            /* Binary32 255.0f converts normalized VU color lanes back to bytes. */
+            u32 packed;
+            __asm__ volatile(
+                "qmtc2.ni %2, $vf2\n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                "vftoi0.xyzw $vf10, $vf10\n"
+                "qmfc2.ni %0, $vf10\n"
+                "ppach %0, $zero, %0\n"
+                "ppacb %0, $zero, %0\n"
+                "sw %0, firstPacked\n"
+                : "=&r"(packed), "=m"(firstPacked)
+                : "r"(0x437F0000U)
+                : "$vf2", "$vf10", "memory");
         }
+        *(u32 *)(destination + 4) = firstPacked;
+        effectVuLoad11(&second);
+        effectVuLoad10(&fourth);
+        effectVuScale10(fraction);
+        effectVuScale11(inverse);
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+        {
+            /* Binary32 255.0f converts normalized VU color lanes back to bytes. */
+            u32 packed;
+            __asm__ volatile(
+                "qmtc2.ni %2, $vf2\n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                "vftoi0.xyzw $vf10, $vf10\n"
+                "qmfc2.ni %0, $vf10\n"
+                "ppach %0, $zero, %0\n"
+                "ppacb %0, $zero, %0\n"
+                "sw %0, secondPacked\n"
+                : "=&r"(packed), "=m"(secondPacked)
+                : "r"(0x437F0000U)
+                : "$vf2", "$vf10", "memory");
+        }
+        *(u32 *)destination = secondPacked;
+        *(Code1_0049Color *)(destination + 8) = *(Code1_0049Color *)destination;
+        fraction += fractionStep;
+        destination += 12;
+        index++;
     }
     rowIndex = 1;
     rowBytes = vertexCount * 4;
@@ -1709,11 +1709,7 @@ void func_004941f0(u8 *track, u32 *colors)
         *(u16 *)(geometry + 0xC) |= 1;
     }
 }
-
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_004941f0);
-#endif
 // FUN_00494680
 void func_00494680(void *arg0)
 {
