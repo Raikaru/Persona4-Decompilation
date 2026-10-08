@@ -2423,6 +2423,7 @@ void func_00126090(s32 arg0, u8 *arg1)
  * body to 17072/17616 bytes, nd 3941. Earlier scores above are historical;
  * this body remains assembly-backed.
    2026-10-08: opt_lifetimes on lowers fnalign from 3558 to 3424 edits. */
+/* 2026-10-09: 3424 -> 3340 edits: m2c's expanded float-to-unsigned conversions are plain (u32) casts. Open, found by comparing the retail lui constants: the m2c body drops several sinf results and leaves `temp_f20 * temp_f21 +/- temp_f7 * temp_f8` placeholders where retail has adda/madd chains with constants such as 200 - 700 * (1 - (1 + sin) / 2) (0x00126C48). */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2915,11 +2916,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 RpSkyRenderStateSet(2, 0x48);
     /* ACC seed */;
                 temp_f1 = 255.0f * (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                if (!(temp_f1 >= 2.1474836e9f)) {
-                    var_5 = (u32)(s32)temp_f1 & 0xFF;
-                } else {
-                    var_5 = ((u32)(s32)(temp_f1 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-                }
+                var_5 = (u32)temp_f1 & 0xFF;
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, var_5, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             } else {
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
@@ -3292,11 +3289,7 @@ loop_128:
                 RpSkyRenderStateSet(3, 0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_8 = 255.0f * (1.0f - temp_f20_4);
-                if (!(temp_f1_8 >= 2.1474836e9f)) {
-                    var_5_10 = (u32)(s32)temp_f1_8 & 0xFF;
-                } else {
-                    var_5_10 = ((u32)(s32)(temp_f1_8 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-                }
+                var_5_10 = (u32)temp_f1_8 & 0xFF;
                 func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, var_5_10, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             }
             if (temp_16 == 0x55) {
@@ -3305,11 +3298,7 @@ loop_128:
             if (temp_16 >= 0x5B) {
                 if (temp_16 < 0x65) {
                     temp_f2 = (f32)(s32)(255.0f * sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f)))));
-                    if (!(temp_f2 >= 2.1474836e9f)) {
-                        var_5_11 = (u32)(s32)temp_f2 & 0xFF;
-                    } else {
-                        var_5_11 = ((u32)(s32)(temp_f2 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-                    }
+                    var_5_11 = (u32)temp_f2 & 0xFF;
     /* ACC seed */;
                     temp_f14 = 0.0f;
                     func_0025f430((temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), temp_f14, 0xFFFFFFU, var_5_11, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14, 1.0f, 1.0f);
@@ -3320,11 +3309,7 @@ loop_128:
             if ((temp_16 >= 0xBC) && (temp_16 < 0xDF)) {
                 temp_f2_2 = (f32)(s32)(fGpffff8094);
                 temp_f1_9 = 255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))));
-                if (!(temp_f1_9 >= 2.1474836e9f)) {
-                    var_5_12 = (u32)(s32)temp_f1_9 & 0xFF;
-                } else {
-                    var_5_12 = ((u32)(s32)(temp_f1_9 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-                }
+                var_5_12 = (u32)temp_f1_9 & 0xFF;
                 func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_12, 0x10009, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
             }
             if (temp_16 < 0x74) {
@@ -3441,11 +3426,7 @@ loop_128:
                 RpSkyRenderStateSet(3, 0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_10 = 255.0f * (1.0f - temp_f22);
-                if (!(temp_f1_10 >= 2.1474836e9f)) {
-                    var_5_13 = (u32)(s32)temp_f1_10 & 0xFF;
-                } else {
-                    var_5_13 = ((u32)(s32)(temp_f1_10 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-                }
+                var_5_13 = (u32)temp_f1_10 & 0xFF;
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, var_5_13, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             }
             if (temp_16 < 0x56) {
@@ -3562,20 +3543,12 @@ loop_128:
                 temp_f16 = 1.5f * temp_f20_5;
                 temp_f16 = fGpffff8170 + temp_f16;
                 temp_f21_2 = 255.0f * (1.0f - temp_f21_2);
-                if (!(temp_f21_2 >= 2.1474836e9f)) {
-                    var_5_14 = (u32)(s32)temp_f21_2 & 0xFF;
-                } else {
-                    var_5_14 = ((u32)(s32)(temp_f21_2 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-                }
+                var_5_14 = (u32)temp_f21_2 & 0xFF;
                 /* f2 holds this independent product across both alpha-conversion arms. */
                 temp_10 = (s16)(s32)(137.0f * temp_f16);
     /* ACC seed */;
                 func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, var_5_14, 0x1000E, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, temp_10, temp_10, (temp_f20 * temp_f21 + temp_f7 * temp_f8), temp_f16, temp_f16);
-                if (!(temp_f21_2 >= 2.1474836e9f)) {
-                    var_5_15 = (u32)(s32)temp_f21_2 & 0xFF;
-                } else {
-                    var_5_15 = ((u32)(s32)(temp_f21_2 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-                }
+                var_5_15 = (u32)temp_f21_2 & 0xFF;
     /* ACC seed */;
                 temp_f16_2 = (f32)(s32)(fGpffff80bc);
                 func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, var_5_15, 0x1000E, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0x6B, 0xE6, (temp_f20 * temp_f21 + temp_f7 * temp_f8), temp_f16_2, temp_f16_2);
@@ -3615,11 +3588,7 @@ loop_128:
             func_0045d6e0((u8 *)&sp5E8, (f32 *)&sp250, 0.0f, 0);
             func_0048a000();
             sp69C.value = fGpffff9c80;
-            if (!(2.1474836e9f <= 255.0f)) {
-                var_3_26 = (u32)(s32)255.0f & 0xFF;
-            } else {
-                var_3_26 = ((u32)(s32)(255.0f - 2.1474836e9f) | 0x80000000U) & 0xFF;
-            }
+            var_3_26 = (u32)255.0f & 0xFF;
             sp69C.bytes[3] = (u8)var_3_26;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp69C);
             sp500 = D_005E5670;
@@ -3662,11 +3631,7 @@ loop_128:
             temp_f0_5 = sinf((((temp_f2_3 + ((temp_f2_3 * (f32) (temp_16 - 0x19)) / 60.0f)))));
             sp698.value = fGpffff9c84;
             temp_f1_11 = 255.0f * temp_f0_5;
-            if (!(temp_f1_11 >= 2.1474836e9f)) {
-                var_3_29 = (u32)(s32)temp_f1_11 & 0xFF;
-            } else {
-                var_3_29 = ((u32)(s32)(temp_f1_11 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-            }
+            var_3_29 = (u32)temp_f1_11 & 0xFF;
             sp698.bytes[3] = (u8)var_3_29;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp698);
             sp4F0 = D_005E5680;
@@ -3783,11 +3748,7 @@ loop_351:
         func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
         temp_f1_15 = 255.0f * ((f32) var_3_30 / 20.0f);
-        if (!(temp_f1_15 >= 2.1474836e9f)) {
-            var_5_18 = (u32)(s32)temp_f1_15 & 0xFF;
-        } else {
-            var_5_18 = ((u32)(s32)(temp_f1_15 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-        }
+        var_5_18 = (u32)temp_f1_15 & 0xFF;
         func_0025f430(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, var_5_18, 0x10007, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
         break;
@@ -3881,11 +3842,7 @@ loop_351:
             var_2_30 = 5;
         }
         temp_f1_16 = 255.0f * (1.0f - ((f32) var_2_30 / 5.0f));
-        if (!(temp_f1_16 >= 2.1474836e9f)) {
-            var_5_19 = (u32)(s32)temp_f1_16 & 0xFF;
-        } else {
-            var_5_19 = ((u32)(s32)(temp_f1_16 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-        }
+        var_5_19 = (u32)temp_f1_16 & 0xFF;
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_19, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
         var_2_31 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC) - 2);
         if (var_2_31 > 0) {
@@ -3893,11 +3850,7 @@ loop_351:
                 var_2_31 = 5;
             }
             temp_f1_17 = 255.0f * ((f32) var_2_31 / 5.0f);
-            if (!(temp_f1_17 >= 2.1474836e9f)) {
-                var_5_20 = (u32)(s32)temp_f1_17 & 0xFF;
-            } else {
-                var_5_20 = ((u32)(s32)(temp_f1_17 - 2.1474836e9f) | 0x80000000U) & 0xFF;
-            }
+            var_5_20 = (u32)temp_f1_17 & 0xFF;
             temp_f14_2 = 0.0f;
             temp_f16_3 = (f32)(s32)(fGpffff82a0);
             func_0025f430((temp_f20 * temp_f21 + temp_f7 * temp_f8), 81.0f, temp_f14_2, 0xFFFFFFU, var_5_20, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
