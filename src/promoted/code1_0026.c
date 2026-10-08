@@ -197,12 +197,17 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * a
    The lever is iterative, which the first sweep hid: it converts the single best loop
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
+/* 2026-10-07: with func_0025f430's colour parameter declared u32, each call
+   converts arg2, and retail's per-case $fp/$s7 colour copies and the
+   unsaved $a2 prologue come out (fnalign 326 -> 261). Open: the loop-
+   invariant pass hoists the (s16)(int) conversion of halfFiveThird and spills
+   it, while retail converts it inside each loop. */
 // FUN_00260600 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
 void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6)
 {
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 func_0025f430(f32, f32, f32, u32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern f32 cosf(f32);
     extern f32 sinf(f32);
     extern u8 D_00637440[];
