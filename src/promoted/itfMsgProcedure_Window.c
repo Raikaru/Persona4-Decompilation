@@ -2216,7 +2216,13 @@ static inline s32 msgWinReady(void)
 /* Choice-window phases share the existing readiness predicate. The guarded
  * reconstruction restores the allocation assertion, signed count reloads,
  * fade operand order and retail clamp branches. Remaining native differences
- * are recorded in the October 5 continuation proof; retain the ASM fallback. */
+ * are recorded in the October 5 continuation proof; retain the ASM fallback.
+ * 2026-10-08 (69 edits): retail computes case 11's background Y straight into
+ * $a1 right after the sinf call, before the slide X conversion. The candidate
+ * computes it inside the argument list. The IR dump shows
+ * IRO_ExpressionPropagation folding `backgroundY` into the call. Splitting the
+ * statements, u32 arithmetic, a named slideX and 15 further opt_* pragmas did
+ * not keep it. */
 // FUN_00282250 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00282250(u8 *arg0, s32 arg1)
