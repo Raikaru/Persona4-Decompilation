@@ -2730,46 +2730,39 @@ void func_0029f790(u8 *arg0)
                       alpha, 1);
     }
 }
-/* measured: func_0029fbb0 (retail 461 instrs; fnalign 6 edits, down from 139). The local 6x24-byte
-   slide table is a struct array so retail's stack addressing (arg1*24 + sp, field offsets as
-   displacements) falls out; `base` is read before the table copy (retail spills it, so arg0 is
-   not kept), `code29AddOff(off4, base)` keeps the flag address from being CSE'd with p22/p16,
-   the u8 colour/alpha locals and the u32 float->int shift reproduce retail's conversions.
-   Retail's unfolded `addiu tmp,base,K; lw x,0(tmp)` table reads come from the frontend
-   CommonSubs pass: a field address written twice becomes an address temporary. Reading
-   .f1, .f0, .f3 and .f2 a second time in the next expression or call reproduces those four
-   (2026-10-07). Remaining: the .f5/.f4 reads into t18/t17. Their second use also turns the
-   loaded value into a CommonSubs temporary, which copy propagation substitutes for t18/t17,
-   so they leave the declared-local numbering and ix/iy/t17/t18/the arg1*24 index permute
-   across $s0/$s1/$s2/$s5 (30 edits). The regalloc model reaches retail's colours only with
-   t18, temp22, t17 and temp30 numbered as declared locals (order var23, temp_19, t18,
-   temp_18, temp22, color, t17, ix, iy, temp30); casts and opt_propagation off do not keep them. */
-// FUN_0029FBB0 NONMATCHING
-#ifdef NON_MATCHING
+/* func_0029fbb0, MATCH 2026-10-07. The 6x24-byte slide table is a struct
+   array copied in by retail's dword loop. A field address used twice becomes an
+   IRO_CommonSubs address temporary, which gives retail's unfolded
+   `addiu tmp,sp,K; lw x,0(tmp)` reads; each region-3 field is therefore read
+   again in the next expression or call. .f4/.f5 are u32: `t17 = tbl[arg1].f4`
+   is then a conversion, so copy propagation keeps t17/t18 as declared locals,
+   declared in the order the regalloc model needs. */
 typedef struct SlideEnt {
-    s32 f0, f1, f2, f3, f4, f5;
+    s32 f0, f1, f2, f3;
+    u32 f4, f5;
 } SlideEnt;
+// FUN_0029FBB0
 void func_0029fbb0(u8 *arg0, s32 arg1) {
     SlideEnt tbl[6];
     f32 stack[2];
     u8 *base;
-    u8 *temp_18;
-    u8 *temp_19;
     s16 *p22;
     s16 *p16;
-    u8 color;
     u8 var23;
-    s32 temp30;
-    s32 temp22;
+    u8 *temp_19;
     s32 t18;
+    u8 *temp_18;
+    s32 temp22;
+    u8 color;
     s32 t17;
+    s32 ix;
+    s32 iy;
+    s32 temp30;
     s32 f2v;
     s32 f3v;
     s32 y2;
     s32 x2;
     f32 ret;
-    s32 ix;
-    s32 iy;
     s32 off4;
     s32 *srcw;
     s32 *dstw;
@@ -2813,7 +2806,7 @@ do_copy:
             ix = (s32)stack[0];
             iy = (s32)stack[1];
             func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, color, tbl[arg1].f1, iGpffffb540, 1);
-            func_0025e9e0((f32)((ix + tbl[arg1].f2) - tbl[arg1].f4), (f32)((iy + tbl[arg1].f3) - tbl[arg1].f5), 0.0f, 0x8F8F8F, color, tbl[arg1].f0, iGpffffb540, 1);
+            func_0025e9e0((f32)((ix + tbl[arg1].f2) - (s32)tbl[arg1].f4), (f32)((iy + tbl[arg1].f3) - (s32)tbl[arg1].f5), 0.0f, 0x8F8F8F, color, tbl[arg1].f0, iGpffffb540, 1);
             return;
         }
         if (v0 != *p16) {
@@ -2847,10 +2840,10 @@ do_copy:
         temp22 = tbl[arg1].f0;
         t18 = tbl[arg1].f5;
         f3v = tbl[arg1].f3;
-        y2 = (iy + tbl[arg1].f3) - t18;
+        y2 = (iy + tbl[arg1].f3) - tbl[arg1].f5;
         t17 = tbl[arg1].f4;
         f2v = tbl[arg1].f2;
-        x2 = (ix + tbl[arg1].f2) - t17;
+        x2 = (ix + tbl[arg1].f2) - tbl[arg1].f4;
         func_0025e9e0((f32)x2, (f32)y2, 0.0f, 0x8F8F8F, 0xFF, tbl[arg1].f0, iGpffffb540, 1);
         func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x99, var23, temp30, iGpffffb540, 1);
         func_0025e9e0((f32)x2, (f32)y2, 0.0f, 0xCCFFFF, var23, temp22, iGpffffb540, 1);
@@ -2880,6 +2873,3 @@ do_copy:
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_0029fbb0);
-#endif
