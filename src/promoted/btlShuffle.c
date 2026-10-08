@@ -608,7 +608,8 @@ extern u8 *iGpffffb3d4;
  * spill score from 4 to 5 (one more weighted use or definition) makes cIdx
  * the spilled value, while changing cIdx's own score or numbering does not.
  * Measured and unchanged at 71: cIdx staging (`listC[cIdx]; cIdx++`, an s32
- * index local, (s32) compare) and five spellings of the nDraw minimum. */
+ * index local, (s32) compare) and five spellings of the nDraw minimum.
+   2026-10-08: a declaration-order hill climb gives 45 edits; the nDraw/cIdx spill choice remains. */
 // FUN_0036EE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -623,9 +624,9 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     s16 cap;
     s16 lo;
     s16 mlvl;
-    u16 nA;
-    u16 nB;
     s32 i;
+    u16 nB;
+    u16 nA;
     s32 drawIndex;
     u16 nC;
     s32 aCount;
@@ -633,14 +634,14 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     s32 cCount;
     s32 total;
     s32 k;
-    u16 r1;
+    s32 e;
     u16 r2;
     s16 tmp;
     s32 nDraw;
     u16 aIdx;
     u16 bIdx;
     u16 cIdx;
-    s32 e;
+    u16 r1;
     s16 item;
     u32 rate = 0;
 
