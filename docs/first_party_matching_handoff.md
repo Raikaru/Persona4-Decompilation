@@ -25,13 +25,13 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 7 continuation: 6,812 MATCH / 49 ASM
+## October 7 continuation: 6,813 MATCH / 48 ASM
 
 The latest all-owner verify (`build/after15.json`) reports 6,811 first-party
-MATCH and 50 ASM. Against `after14.json`, only `0029fbb0` changed. The full
-link after that match kept all 604 C objects and 54 Sony SDK objects, with
-both retail hashes passing. `004941f0` matched afterwards; its owner verifies
-and passes `build/elig_debug.py`, which gives 6,812 / 49.
+MATCH and 50 ASM. Against `after14.json`, only `0029fbb0` changed.
+`004941f0` and `004afe20` matched afterwards, which gives 6,813 / 48. After
+`004afe20`, the full link kept all 604 C objects and 54 Sony SDK objects, and
+both retail hashes passed.
 
 Matches this continuation:
 - Particle and effect families: `004a0c00`, `004b36b0`, `004b4430`,
@@ -82,6 +82,13 @@ Matches this continuation:
   Dropping the redundant `segmentCount != 0` guard leaves the single
   zero-trip test. Reading the first colour word through a `const u32 *`
   local schedules the scale load where retail has it.
+- effDistortParticle `004afe20` (671 edits before) was rewritten from retail
+  asm in about an hour. It follows its nearest matched sibling, effParticle
+  `00488d70` (opcode similarity 0.53): one 64-byte sky-vertex quad,
+  per-channel `(f32)(u32)` byte conversions, and the same projected-depth
+  formula. Retail returns nothing, so the file prototype became `void`. The
+  last two edits were one gp load hoisted by `IRO_CommonSubs`. Reading the
+  second size check as `((f32 *)&fGpffff80f0)[0]` keeps the two reads apart.
 
 `tools/b210_irdump.py` dumps b210's frontend IR for a candidate. Use it to
 see which `IRO_*` pass creates or removes a temporary before guessing a
