@@ -189,26 +189,20 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * a
         func_0025f430(fparg0, fparg1, fparg2, arg0, arg1, 0, temp_7, *(u8 **)(arg5 + 0x10), 1, *(s16 *)(arg5 + 0), *(s16 *)(arg5 + 2), *(f32 *)(arg5 + 4), *(f32 *)(arg5 + 8), *(f32 *)(arg5 + 0xC));
     }
 }
-/* floor (within 3%): probe_variants 474wd via `python3 tools/probe_variants.py src/promoted/code1_0026.c func_00260600 --candidate V5outer=/var/tmp/cold260600/v5_outer.c`; fnalign retail 533 vs object 525 instrs (722 edits) via `python3 tools/fnalign.py src/promoted/code1_0026.c func_00260600 --candidate /var/tmp/cold260600/v5_outer.c --quiet`; -8 short (1.5% within 3% rule). m2c+romwright agree on 2x0x18 copies + 3x0xC loops; denoised to file idiom with true s32 func_0025f430(s32x8+f32x6) from shdSprite + f32 func_0044b610/7b0 + u8 D_00637440/500 + f32 fGpffff811c/iGpffff81d0/D_007612C4; signature s32x7+f32x3 per 00260e60 caller + retail prologue daddu; per-case 14/16/41/29/12 biases + 18/13 cos/sin + 47/52/57/48 + 22.0/180.0 s16 truncations + 34/36/52/38 epilogues; opt_loop_invariants on -25wd (499->474). Wall remains save-set/colour/scheduling. No volatile/asm. */
-/* measured 00260600: retail checks 2,1,0 descending but handlers 0,1,2 ascending (H0 at R61 14.0f first) vs C 2,1,0 descending handlers descending - one block move to `switch (arg4) {case 0:..;case 1:..;case 2:..;}`: fnalign 525/533,722 -> 527/533,317 (-405, -56%), words 474 -> 478 (GUARDED_SCORE via `python3 tools/measure_guarded.py src/promoted/code1_0026.c func_00260600`); -6 short (1.1% within gate, was -8/1.5%). if/else ascending 0,1,2 gives 525/329/482, switch wins on all three. */
-/* measured 00260600 (owner, 2026-09-19): fnalign **317 -> 315 edits**, count
-   527 -> 525 against retail 533, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-/* 2026-10-07: with func_0025f430's colour parameter declared u32, each call
-   converts arg2, and retail's per-case $fp/$s7 colour copies and the
-   unsaved $a2 prologue come out (fnalign 326 -> 243 with the y-size
-   conversions written inline). Open: in case 0 the loop-invariant pass still
-   hoists the (s16)(int) conversion and spills it, while retail converts its
-   precomputed float inside the loop.
-   2026-10-08: opt_lifetimes on lowers fnalign from 243 to 206 edits. */
-// FUN_00260600 NONMATCHING
-#ifdef NON_MATCHING
+
+/* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are
+ * struct copies; each loop's i = 0 precedes the invariant scale products,
+ * which opt_loop_invariants hoists while the (s16) conversion of the second
+ * product stays in the loop as in retail. The closing call's position
+ * arguments are computed before its D_007612C4 products. func_0025f430's
+ * colour parameter is declared u32 here (H011): retail converts arg2 for each
+ * call and keeps the per-case colour copies in $fp/$s7. */
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
+typedef struct { u32 w[48]; } TrailTable_00260600;
+
+// FUN_00260600
 void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6)
 {
     extern s32 func_0025f430(f32, f32, f32, u32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
@@ -219,143 +213,96 @@ void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, 
     extern f32 fGpffff811c;
     extern f32 iGpffff81d0;
     extern f32 D_007612C4;
-    f32 fstack[96];
-    u8 *src;
-    u8 *dst;
-    s32 n;
-    s32 tmpa;
-    s32 tmpb;
+    f32 tbl0[12][4];
+    f32 tbl1[12][4];
     s32 biasA;
+    f32 cosS;
     s32 biasB;
     f32 halfThird;
     f32 halfFiveThird;
-    f32 gpThird;
-    f32 gpFiveThird;
     u32 i;
-    f32 entry0;
-    f32 entry1;
-    f32 entry2;
     f32 entry3;
     f32 angle;
-    f32 cosv;
-    f32 sinv;
-    f32 cosS;
+    f32 entry2;
     f32 sinS;
     f32 fx;
     f32 fy;
-    f32 fmid;
-    f32 fhalf;
-    s32 sx;
-    s32 sy;
-    src = D_00637440;
-    dst = (u8 *)&fstack[48];
-    n = 0x18;
-    do {
-        tmpa = *(s32 *)src;
-        tmpb = *(s32 *)(src + 4);
-        src += 8;
-        n -= 1;
-        *(s32 *)dst = tmpa;
-        *(s32 *)(dst + 4) = tmpb;
-        dst += 8;
-    } while (n > 0);
-    src = D_00637500;
-    dst = (u8 *)&fstack[0];
-    n = 0x18;
-    do {
-        tmpa = *(s32 *)src;
-        tmpb = *(s32 *)(src + 4);
-        src += 8;
-        n -= 1;
-        *(s32 *)dst = tmpa;
-        *(s32 *)(dst + 4) = tmpb;
-        dst += 8;
-    } while (n > 0);
+    *(TrailTable_00260600 *)tbl0 = *(TrailTable_00260600 *)D_00637440;
+    *(TrailTable_00260600 *)tbl1 = *(TrailTable_00260600 *)D_00637500;
     switch (arg4) {
     case 0:
         biasA = (int)((float)arg0 - 14.0f * fparg1);
         biasB = (int)((float)arg1 - 16.0f * fparg2);
+        i = 0;
         halfThird = 0.5f * fparg2;
         halfFiveThird = 0.5f * (5.0f * fparg2);
-        for (i = 0; i < 0xC; i++) {
-            entry2 = fstack[48 + i * 4 + 2];
+        for (; i < 0xC; i++) {
+            f32 *p = tbl0[i];
+
+            entry2 = p[2];
             angle = iGpffff81d0 * (90.0f - entry2);
-            cosv = cosf(angle);
-            cosS = 18.0f * cosv;
-            sinv = sinf(angle);
-            sinS = 18.0f * (-sinv);
-            entry0 = fstack[48 + i * 4 + 0];
-            entry1 = fstack[48 + i * 4 + 1];
-            entry3 = fstack[48 + i * 4 + 3];
-            fx = (cosS + entry0 + 47.0f) * fparg1 + (float)biasA;
-            fy = (sinS + entry1 + 52.0f) * fparg2 + (float)biasB;
-            sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
-            sy = (s16)(int)(0.5f * (5.0f * fparg2));
-            fmid = entry2 - 180.0f;
-            fhalf = 0.5f * fparg1 * entry3;
-            func_0025f430(fx, fy, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fmid, fhalf, halfThird);
+            cosS = 18.0f * cosf(angle);
+            sinS = 18.0f * -sinf(angle);
+            fx = cosS + (47.0f + p[0]);
+            fy = sinS + (52.0f + p[1]);
+            entry3 = p[3];
+            func_0025f430((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
+                          (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
+                          entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
         }
-        func_0025f430(fparg1 * 34.0f + (float)biasA, fparg2 * 36.0f + (float)biasB, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, fparg1, fparg2);
+        func_0025f430((float)biasA + 34.0f * fparg1, (float)biasB + 36.0f * fparg2, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, fparg1, fparg2);
         break;
     case 1:
         biasA = (int)((float)arg0 - 41.0f * fparg1);
         biasB = (int)((float)arg1 - 29.0f * fparg2);
-        gpThird = fGpffff811c * fparg2;
-        gpFiveThird = fGpffff811c * fparg2 * 5.0f;
-        for (i = 0; i < 0xC; i++) {
-            entry2 = fstack[i * 4 + 2];
+        i = 0;
+        halfThird = fGpffff811c * fparg2;
+        halfFiveThird = fGpffff811c * (5.0f * fparg2);
+        for (; i < 0xC; i++) {
+            f32 *p = tbl1[i];
+
+            entry2 = p[2];
             angle = iGpffff81d0 * (90.0f - entry2);
-            cosv = cosf(angle);
-            cosS = 13.0f * cosv;
-            sinv = sinf(angle);
-            sinS = 13.0f * (-sinv);
-            entry0 = fstack[i * 4 + 0];
-            entry1 = fstack[i * 4 + 1];
-            entry3 = fstack[i * 4 + 3];
-            fx = (cosS + entry0 + 57.0f) * fparg1 + (float)biasA;
-            fy = (sinS + entry1 + 48.0f) * fparg2 + (float)biasB;
-            sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
-            sy = (s16)(int)(fGpffff811c * fparg2 * 5.0f);
-            fmid = entry2 - 180.0f;
-            fhalf = 0.5f * fparg1 * entry3;
-            func_0025f430(fx, fy, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fmid, fhalf, gpThird);
+            cosS = 13.0f * cosf(angle);
+            sinS = 13.0f * -sinf(angle);
+            fx = cosS + (57.0f + p[0]);
+            fy = sinS + (48.0f + p[1]);
+            entry3 = p[3];
+            func_0025f430((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
+                          (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
+                          entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
         }
-        func_0025f430(fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        fx = (float)biasA + 52.0f * fparg1;
+        fy = (float)biasB + 38.0f * fparg2;
+        func_0025f430(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
         break;
     case 2:
         biasA = (int)((float)arg0 - 12.0f * fparg1);
         biasB = (int)((float)arg1 + fparg2);
-        gpThird = fGpffff811c * fparg2;
-        gpFiveThird = fGpffff811c * fparg2 * 5.0f;
         i = 0;
-        do {
-            entry2 = fstack[i * 4 + 2];
+        halfThird = fGpffff811c * fparg2;
+        halfFiveThird = fGpffff811c * (5.0f * fparg2);
+        for (; i < 0xC; i++) {
+            f32 *p = tbl1[i];
+
+            entry2 = p[2];
             angle = iGpffff81d0 * (90.0f - entry2);
-            cosv = cosf(angle);
-            cosS = 13.0f * cosv;
-            sinv = sinf(angle);
-            sinS = 13.0f * (-sinv);
-            entry0 = fstack[i * 4 + 0];
-            entry1 = fstack[i * 4 + 1];
-            entry3 = fstack[i * 4 + 3];
-            fx = (cosS + entry0 + 57.0f) * fparg1 + (float)biasA;
-            fy = (sinS + entry1 + 48.0f) * fparg2 + (float)biasB;
-            sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
-            sy = (s16)(int)(fGpffff811c * fparg2 * 5.0f);
-            fmid = entry2 - 180.0f;
-            fhalf = 0.5f * fparg1 * entry3;
-            func_0025f430(fx, fy, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fmid, fhalf, gpThird);
-            i++;
-        } while (i < 0xC);
-        func_0025f430(fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+            cosS = 13.0f * cosf(angle);
+            sinS = 13.0f * -sinf(angle);
+            fx = cosS + (57.0f + p[0]);
+            fy = sinS + (48.0f + p[1]);
+            entry3 = p[3];
+            func_0025f430((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
+                          (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
+                          entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
+        }
+        fx = (float)biasA + 52.0f * fparg1;
+        fy = (float)biasB + 38.0f * fparg2;
+        func_0025f430(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
         break;
     }
 }
-#pragma opt_loop_invariants off
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260600);
-#endif
 extern f32 D_007612C4;
 typedef struct {
     s32 x, y;
