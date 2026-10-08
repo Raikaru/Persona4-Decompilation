@@ -5906,6 +5906,7 @@ void func_0047b060(void* param_1)
    docs/probe_archive/Model_loader_contracts_20261005_worker15.md.
    2026-10-08: the chunk dispatch is a switch whose case bodies follow in source order; b210 compares the cases in reverse (385 edits).
    The base-animation store is the out-of-line else arm (378 edits). */
+/* 2026-10-09: 378 -> 277 edits from a block-declaration order climb. */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047b0c0(u8 *model)
@@ -6267,8 +6268,8 @@ s32 func_0047b0c0(u8 *model)
 
         case 0xf0f000e0:
         {
-            u8 *payload;
             u32 **head;
+            u8 *payload;
             u32 *node;
             s32 slot;
             func_003e2910(state->stream, &effect, sizeof(effect));
