@@ -656,106 +656,104 @@ void func_002b6ea0(void) {
    docs/probe_archive/YDraw_update_002b6ec0_20261005/. */
 #pragma push
 #pragma opt_common_subs off
-/* 2026-10-08: opt_lifetimes on lowers fnalign from 231 to 217 edits. */
+/* 2026-10-08: opt_lifetimes on lowers fnalign from 231 to 217 edits.
+   2026-10-08: rewritten from retail asm (164 edits). The bit search is an s16 inline helper. Each block uses the retail index form: off = (s32)i << 8 saved at loop entry, a mult-form index for the queue argument and the A4 gate, and a third spelling (0x100U) for the draw call. The table base is held in locals where retail saves it, the draw arm falls through, and opt_common_subs is re-enabled inside, overriding the outer off. */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
+static inline s16 yDrawAnyBit(s32 flags)
+{
+    s16 bit;
+
+    for (bit = 1; bit < 13; bit++) {
+        if (((flags & (u16)(1 << bit)) >> bit) == 1) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+#define YDRAW_BASE (*(u8 **)(iGpffffb574 + 0x38))
+#define YDRAW_ENTRY(i) (YDRAW_BASE + (s32)(i) * 0x100)
+
 #pragma push
-#pragma opt_lifetimes on
+#pragma opt_common_subs on
+#pragma opt_loop_invariants on
 s32 func_002b6ec0(u8 *arg0) {
     u8 *table;
     s32 off;
     s16 i;
     s32 count;
-    s16 bit;
-    s16 found;
-    s32 flags;
     s32 color;
     s32 animation;
     u8 *w;
+    u8 *e;
+    u8 *base;
+    u8 *b2;
+    s16 fl;
+
     table = *(u8 **)(arg0 + 0x38);
     i = 0;
     *(s16 *)(table + 0x30C04) = 0;
     while (i < 0x30C) {
-        s16 fl;
-        u8 *e;
         *(s16 *)(table + (s32)i * 2 + 0x30C06) = 0;
         off = (s32)i << 8;
-        e = *(u8 **)(iGpffffb574 + 0x38) + off;
-        if (((*(s16 *)(e + 0x14)) & 1) == 1) {
-            /* Animation may replace the work table used for the copy. */
+        e = YDRAW_BASE + off;
+        if ((s16)(*(s16 *)(e + 0x14) & 1) == 1) {
             animation = func_002b89a0(e + 0x14);
-            e = *(u8 **)(iGpffffb574 + 0x38) + off;
-            memcpy(e + 0x14, animation, 0xF0);
-            e = *(u8 **)(iGpffffb574 + 0x38) + off;
-            func_002b7cd0(arg0, i, *(s16 *)(e + 8));
-            e = *(u8 **)(iGpffffb574 + 0x38) + off;
+            memcpy(YDRAW_BASE + off + 0x14, animation, 0xF0);
+            func_002b7cd0(arg0, i, *(s16 *)(YDRAW_BASE + off + 8));
+            base = YDRAW_BASE;
+            e = base + off;
             fl = *(s16 *)(e + 0x14);
             if ((s16)((fl & 0x4000) >> 0xE) == 1) {
                 w = func_00460990();
                 *(void (**)(void))(w + 8) = func_002b6260;
                 *(s32 *)(w + 0x10) = 0;
-                e = *(u8 **)(iGpffffb574 + 0x38) + off;
-                func_00460ac0(D_00793E80 + *(s32 *)(e + 0xC) * 0x30, w);
-                e = *(u8 **)(iGpffffb574 + 0x38) + off;
-                if (*(f32 *)(e + 0xA4) <= fGpffff8504 || *(f32 *)(e + 0xB0) <= fGpffff8504) {
-                    goto bs0;
+                func_00460ac0(D_00793E80 + *(s32 *)(YDRAW_ENTRY(i) + 0xC) * 0x30, w);
+                b2 = YDRAW_BASE;
+                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= fGpffff8504) && !(*(f32 *)(b2 + off + 0xB0) <= fGpffff8504)) {
+                    u8 *d = b2 + (s32)i * 0x100U;
+
+                    color = func_002b2a30(0xFF, d[0x89], d[0x8A], d[0x8B]);
+                    func_0025ecd0(*(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18), color, d[0x72], *(s16 *)(d + 8), *(void **)(table + 0), 0, *(s16 *)(d + 0x10), *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4), *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
                 } else {
-                    e = *(u8 **)(iGpffffb574 + 0x38) + off;
-                    color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
-                    func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 0, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
-                    goto tail;
+                    if (yDrawAnyBit(*(s16 *)(b2 + off + 0x14)) == 0) {
+                        *(s16 *)(b2 + off + 0x14) &= ~1;
+                    }
                 }
-bs0:
-                e = *(u8 **)(iGpffffb574 + 0x38) + off;
-                flags = *(s16 *)(e + 0x14);
-                for (bit = 1; bit < 13; bit++) {
-                    if (((flags & (u16)(1 << bit)) >> bit) == 1) { found = 1; goto bs0out; }
-                }
-                found = 0;
-bs0out:
-                if (found == 0) { *(s16 *)(e + 0x14) &= ~1; }
-                goto tail;
             } else if ((s16)((fl & 0x2000) >> 0xD) == 1) {
                 w = func_00460990();
                 *(void (**)(void))(w + 8) = func_002b6180;
                 *(s32 *)(w + 0x10) = 0;
-                e = *(u8 **)(iGpffffb574 + 0x38) + off;
-                func_00460ac0(D_00793E80 + *(s32 *)(e + 0xC) * 0x30, w);
-                e = *(u8 **)(iGpffffb574 + 0x38) + off;
-                if (*(f32 *)(e + 0xA4) <= fGpffff8504 || *(f32 *)(e + 0xB0) <= fGpffff8504) {
-                    goto bs1;
+                func_00460ac0(D_00793E80 + *(s32 *)(YDRAW_ENTRY(i) + 0xC) * 0x30, w);
+                b2 = YDRAW_BASE;
+                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= fGpffff8504) && !(*(f32 *)(b2 + off + 0xB0) <= fGpffff8504)) {
+                    u8 *d = b2 + (s32)i * 0x100U;
+
+                    color = func_002b2a30(0xFF, d[0x89], d[0x8A], d[0x8B]);
+                    func_0025ecd0(*(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18), color, d[0x72], *(s16 *)(d + 8), *(void **)(table + 0), 0, *(s16 *)(d + 0x10), *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4), *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
                 } else {
-                    e = *(u8 **)(iGpffffb574 + 0x38) + off;
-                    color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
-                    func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 0, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
-                    goto tail;
+                    if (yDrawAnyBit(*(s16 *)(b2 + off + 0x14)) == 0) {
+                        *(s16 *)(b2 + off + 0x14) &= ~1;
+                    }
                 }
-bs1:
-                e = *(u8 **)(iGpffffb574 + 0x38) + off;
-                flags = *(s16 *)(e + 0x14);
-                for (bit = 1; bit < 13; bit++) {
-                    if (((flags & (u16)(1 << bit)) >> bit) == 1) { found = 1; goto bs1out; }
-                }
-                found = 0;
-bs1out:
-                if (found == 0) { *(s16 *)(e + 0x14) &= ~1; }
-                goto tail;
             } else if (e[0x72] != 0 && !(*(f32 *)(e + 0xA4) <= fGpffff8504) && !(*(f32 *)(e + 0xB0) <= fGpffff8504)) {
-                color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
-                func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 1, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
-                goto tail;
+                u8 *d = base + (s32)i * 0x100U;
+
+                color = func_002b2a30(0xFF, d[0x89], d[0x8A], d[0x8B]);
+                func_0025ecd0(*(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18), color, d[0x72], *(s16 *)(d + 8), *(void **)(table + 0), 1, *(s16 *)(d + 0x10), *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4), *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
             } else {
-                e = *(u8 **)(iGpffffb574 + 0x38) + off;
-                fl = *(s16 *)(e + 0x14);
+                u8 *d = base + off;
+
+                fl = *(s16 *)(d + 0x14);
                 if (fl == 1) {
-                    if (*(s8 *)(e + 0x77) == 0) {
-                        if (*(s8 *)(e + 0x4B) == 0) {
-                            *(s16 *)(e + 0x14) = fl & ~1;
+                    if (*(s8 *)(d + 0x77) == 0) {
+                        if (*(s8 *)(d + 0x4B) == 0) {
+                            *(s16 *)(d + 0x14) = fl & ~1;
                         }
                     }
                 }
             }
-tail:
             /* Only entries active on loop entry belong in this list. */
             count = *(s16 *)(table + 0x30C04);
             *(s16 *)(table + count * 2 + 0x30C06) = i;
@@ -766,6 +764,8 @@ tail:
     return 0;
 }
 #pragma pop
+#undef YDRAW_ENTRY
+#undef YDRAW_BASE
 #else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6ec0);
 #endif
