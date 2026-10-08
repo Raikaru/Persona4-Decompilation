@@ -1339,7 +1339,8 @@ static inline s32 msgWinSelectionResource(void)
  * Whole-owner b210: 8556/8624 bytes, 590 aligned edits, 668 masked words.
  * This supersedes the historical scores above; the assembly fallback remains.
  * See docs/probe_archive/Message_selection_0027f6f0_20261002.md.
-   2026-10-08: opt_lifetimes on lowers fnalign from 590 to 410 edits. */
+   2026-10-08: opt_lifetimes on lowers fnalign from 590 to 410 edits.
+   Also (2026-10-08): `tmp = a && b` written as the && test, s32 frame counters, and argument expressions inlined in call order (retail computes them at the call) bring it to 331. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1380,7 +1381,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     s32 tmp;
     s32 tmp2;
     s32 v0;
-    s16 cntB;
+    s32 cntB;
     s32 cntB32;
     float f;
     float g;
@@ -1463,8 +1464,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             func_0025ecd0(chainB, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
         } else if (D_00882024[0] < 0x10) {
             f = sinf((iGpffff8094 * (float)(D_00882024[0] - 10)) / 5.0f);
-            prodB = 1.0f - f;
-            chainA = (float)s20 * prodB + 123.0f;
+            chainA = (float)s20 * (1.0f - f) + 123.0f;
             chainC = iGpffff80d4 * f + iGpffff81e4;
             func_0025ecd0(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
         } else if (D_00882024[0] < 0x15) {
@@ -1485,10 +1485,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                     break;
                 case 3:
                     prodA = (1.0f - f) * 100.0f;
-                    chainA = 38.0f - prodA;
-                    chainB = 234.0f - prodA;
-                    func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
-                    func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, chainB, 143.0f, 0.0f);
+                    func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f - prodA, 143.0f, 0.0f);
+                    func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f - prodA, 143.0f, 0.0f);
                     break;
                 }
             }
@@ -1920,10 +1918,10 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         break;
     case 16:
         if (func_0027bec0((s32)arg0) != 0) {
-            if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
-                tmp = 0;
-            } else {
+            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
                 tmp = 1;
+            } else {
+                tmp = 0;
             }
             if (tmp != 0) {
                 switch (D_0088202C[0]) {
@@ -1964,10 +1962,10 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         break;
     case 17:
         if (func_0027bec0((s32)arg0) != 0) {
-            if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
-                tmp = 0;
-            } else {
+            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
                 tmp = 1;
+            } else {
+                tmp = 0;
             }
             if (tmp != 0) {
                 switch (D_0088202C[0]) {
@@ -1991,10 +1989,10 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         break;
     case 18:
         if (func_0027bec0((s32)arg0) != 0) {
-            if (iGpffffb4d8 == 0 || iGpffffb4dc == 0) {
-                tmp = 0;
-            } else {
+            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
                 tmp = 1;
+            } else {
+                tmp = 0;
             }
             if (tmp != 0) {
                 switch (D_0088202C[0]) {
@@ -2019,11 +2017,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 cntB++;
                 cntB32 = (s32)cntB;
                 f = sinf((iGpffff8094 * (float)cntB32) / 10.0f);
-                chainA = (1.0f - f) * 255.0f;
-                tmp = (s32)chainA;
-                chainB = f * 360.0f + 180.0f;
-                chainC = chainB;
-                func_0025ecd0((float)s20, (float)s19, 0.0f, 0xFFFFFF, (u8)tmp, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, chainC, 1.0f, 1.0f, (void *)D_00796490);
+                func_0025ecd0((float)s20, (float)s19, 0.0f, 0xFFFFFF, (u8)((1.0f - f) * 255.0f), 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, (void *)D_00796490);
                 if (cntB32 >= 10) {
                     D_00882020[0] &= ~0x80u;
                     cntB = 0;
