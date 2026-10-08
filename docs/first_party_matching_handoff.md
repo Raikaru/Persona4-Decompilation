@@ -25,12 +25,13 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 7 continuation: 6,807 MATCH / 54 ASM
+## October 7 continuation: 6,810 MATCH / 51 ASM
 
-A fresh all-owner verify (`build/after13.json`) reports 6,807 first-party
-MATCH and 54 ASM. Against the previous report, only the newly matched rows
-changed. The full link keeps all 604 C objects and 54 Sony SDK objects, and
-both retail hashes pass.
+A fresh all-owner verify (`build/after14.json`) reports 6,810 first-party
+MATCH and 51 ASM. Against `after13.json`, only the newly matched rows changed:
+`00363610` (from a parallel session), `004a5fc0` and `004b1ad0`. The previous
+full link kept all 604 C objects and 54 Sony SDK objects with both retail
+hashes passing. The two new owners pass `build/elig_debug.py`.
 
 Matches this continuation:
 - Particle and effect families: `004a0c00`, `004b36b0`, `004b4430`,
@@ -57,6 +58,20 @@ Matches this continuation:
   `config/symbols_recovered.txt`. Before that, the owner verified MATCH but
   fell out of the link at 603 TUs. `build.py` reads linker definitions from
   `symbols_recovered.txt`.
+- The billboard sprite pair `004a5fc0` and `004b1ad0` was rewritten from
+  retail asm. Three levers closed it:
+  - Retail's COP2 colour pack stores the packed word from inside the asm and
+    then reloads it. b210's backend `remove_common_subexpressions` forwards
+    every compiler-side store, so the asm names the local in the store:
+    `"sw $2, packed\n" : "=m"(packed)`. b210 resolves the local's name to its
+    frame slot, and a plain C read keeps the reload. The user approved this on
+    2026-10-07.
+  - The UV rect, size and corner block is one frame-info struct. That
+    reproduces retail's 16-byte frame gaps.
+  - Retail fuses `x1 * s` into two separate `madd.s`, but IR CSE merges the
+    repeated product. A fresh named sum before the second use
+    (`x3 = left + right; ... x3 * s`) gives it a different value number and
+    breaks the merge.
 
 `tools/b210_irdump.py` dumps b210's frontend IR for a candidate. Use it to
 see which `IRO_*` pass creates or removes a temporary before guessing a
@@ -69,6 +84,15 @@ Open floors recorded in their owner notes:
 - `004a7830` needs the `fabsf` local live out of its block.
 - `00497ce0` copies two vectors through `$2` inside its row loop, so it joins
   the GPR quad-copy floors. The guarded body is the 201-edit rewrite.
+- `004aed70`, 12 edits: the second loop's particle-life reload is folded into
+  the loop condition by backend CSE.
+- `0048b340`, 65 edits: `$s7`/`$fp` swap and the else-branch temporaries.
+- `00320b80`, 21 edits: the frame homes, and `IRO_CommonSubs` reusing the loop
+  condition's `(s16)` extension.
+- `0029fbb0`: direct field expressions (`tbl.ent[arg1].fN`) reproduce
+  retail's unfolded `addiu; lw 0` table reads (`build/v/fbb0/sbc.c`). The
+  remaining 30 edits are saved-register colouring of `ix`, `iy`, `t17` and
+  `t18`.
 
 ## October 6 continuation: 6,773 MATCH / 88 ASM
 
