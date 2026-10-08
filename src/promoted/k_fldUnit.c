@@ -263,6 +263,7 @@ s32 func_00162c30(void)
    in every block. IRO_CommonSubs merges every spelling of that product, and
    opt_common_subs off costs more elsewhere (315).
    2026-10-08: opt_dead_assignments off and opt_lifetimes on lowers fnalign from 180 to 173 edits. */
+/* 2026-10-09: 173 -> 159 edits. Retail copies the 64-byte matrix as eight lw/lw/sw/sw rounds, so FieldMatrixCopy is s32 words (word aligned), not bytes. Open: retail recomputes D_007EF9B0 + i * 0x750 at each later use (fresh entry/cur locals) instead of reusing slot, while still sharing other expressions; opt_common_subs off (301), opt_propagation off (380) and struct-array indexing (279) do not reproduce that alone. */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -271,7 +272,7 @@ s32 func_00162c30(void)
 void func_00162e10(void)
 {
     typedef struct {
-        u8 bytes[0x40];
+        s32 words[0x10];
     } FieldMatrixCopy;
     typedef struct {
         f32 x, y, z;
