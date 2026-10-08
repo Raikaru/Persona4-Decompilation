@@ -3,6 +3,9 @@
 #include "effect_instance_internal.h"
 #include "Kosaka/k_clump_internal.h"
 #include "texture_callback_internal.h"
+#include "effect_vu0_internal.h"
+
+typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_00492cd0(void *ptr);
@@ -303,17 +306,6 @@ void func_004aec80(u8 *arg0)
     }
 }
 
-/* Guarded rewrite from retail asm, 2026-10-07: 12 edits, 490/490 instructions.
- * The COP2 colour packs store the named slot inside the asm, and the matrix
- * identity follows RwMatrixSetIdentityMacro. Open: retail reloads the particle
- * life word for the second loop's func_004ae2f0 call. b210's backend CSE
- * (remove_common_subexpressions) folds that load into the loop condition's
- * load; no source form tried so far (struct field, pointer locals,
- * opt_propagation off) keeps it.
-   2026-10-08: copying pos as one f32[3] block (8 edits) makes b210 reload *(p18 + 0x10) for the call as retail does, but emits three loads then three stores where retail interleaves each lwc1/swc1 pair. */
-// FUN_004AED70 NONMATCHING
-#ifdef NON_MATCHING
-#include "effect_vu0_internal.h"
 typedef struct EffObjectRGBA {
     u32 rgba;
 } EffObjectRGBA;
@@ -341,14 +333,19 @@ typedef struct EffObjectMatrix {
             "ppacb %0, $0, %0\n" : "=r"(packed) : : "$vf10");            \
     } while (0)
 
+/* The pos copy is three one-element array copies: b210 treats each as an
+ * aggregate store, which stops its CSE from folding the particle life reload
+ * for func_004ae2f0 into the loop test, while keeping retail's lwc1/swc1
+ * interleave. */
+// FUN_004AED70
 void func_004aed70(u8 *arg0)
 {
-    extern void func_00492df0(void *a, EffectVuVector *b);
-    extern void func_00492db0(void *a, EffectVuVector *b);
+    extern u_long128 func_00492df0(int param_1, u32 *param_2);
+    extern u_long128 func_00492db0(int param_1, u32 *param_2);
     extern void func_004bceb0(void);
     extern void func_004ae2f0(u8 *a, u8 *b, s32 c);
     extern void *func_004ae020(void *object, void *data);
-    extern void func_003bfe90(void *a);
+    extern u8 *func_003bfe90(u8 *arg0);
     extern void RwMatrixMultiply(EffObjectMatrix *dst, EffObjectMatrix *a, EffObjectMatrix *b);
     extern void RwMatrixRotate(EffObjectMatrix *m, f32 *axis, f32 angle, s32 op);
     extern void RwMatrixScale(EffObjectMatrix *m, f32 *scale, s32 op);
@@ -425,7 +422,7 @@ void func_004aed70(u8 *arg0)
     switch (*(u16 *)(self + 0xC)) {
     case 3:
         if ((*(s32 *)(list + 0xC) & 1) == 0) {
-            func_00492df0(list, &snapA);
+            func_00492df0((int)list, (u32 *)&snapA);
             effectVuLoad10(&snapA);
             func_004bceb0();
             __asm__ volatile(
@@ -511,8 +508,8 @@ void func_004aed70(u8 *arg0)
         } else {
             u32 mask;
 
-            func_00492df0(list, &snapA);
-            func_00492db0(*(u8 **)(self + 0x58), &snapB);
+            func_00492df0((int)list, (u32 *)&snapA);
+            func_00492db0(*(int *)(self + 0x58), (u32 *)&snapB);
             effectVuLoad10(&snapA);
             func_004bceb0();
             __asm__ volatile("lqc2 $vf31, 0(%0)" : : "r"(&snapB), "m"(snapB) : "$vf31");
@@ -543,7 +540,9 @@ void func_004aed70(u8 *arg0)
                         "vmaddaz.xyzw $ACC, $vf30, $vf10z\n"
                         "vmaddw.xyzw $vf10, $vf31, $vf0w\n" : : : "$vf10");
                     __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-                    *(f32 (*)[3])pos = *(f32 (*)[3])D_00713D10;
+                    *(f32 (*)[1])&pos[0] = *(f32 (*)[1])D_00713D10;
+                    *(f32 (*)[1])&pos[1] = *(f32 (*)[1])D_00713D14;
+                    *(f32 (*)[1])&pos[2] = *(f32 (*)[1])D_00713D18;
                     colorB = *(u32 *)(p18 + 0x14);
                     effectVuUnpackColor10V0(&colorB, cscale);
                     effectVuLoad11(&colorBase);
@@ -605,6 +604,3 @@ void func_004aed70(u8 *arg0)
     func_004813f0();
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004aed70);
-#endif

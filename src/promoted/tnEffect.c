@@ -38,7 +38,7 @@ s32 func_004ab800(void *arg0);
 void func_00488d70(u8 *arg0);
 s32 func_004b0f70(void *arg0);
 s32 func_004b0fa0(void *arg0);
-s32 func_004aed70(void *arg0);
+void func_004aed70(void *arg0);
 void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 void func_004b1600(void);
 void func_004a7830(void);
