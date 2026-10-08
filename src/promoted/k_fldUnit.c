@@ -255,13 +255,23 @@ s32 func_00162c30(void)
    real switch on i; (s16)/(s8) idiom for func_001060b0/func_00110960 like code1_0016 func_001623f0; (u32) float casts for the lbu branchy (u32->f32);
    three func_00155280 calls for the 0x44/0x45/0x59 grid key. v1 687 -> v2/v3 639 via honest (u32) casts (u8 kind, lbu).
    Residual is scheduling/coloring (daddiu vs addiu, $s1/$s2/$s3 rotation, frame 0xB0 vs retail 0xC0) + entry b vs moves. Production stays ASM. */
+/* 2026-10-07: guarded body rewritten from retail asm under default pragmas
+   (fnalign 458 -> 180). It uses the vector and matrix struct copies (retail
+   groups the three loads before the stores), the spB0/spA0/sp90 declaration
+   order for retail's frame, the reused loop value in the D_005F1350 scan, and
+   the chained spA0 assignment. Open: retail recomputes D_007EF9B0 + i * 0x750
+   in every block. IRO_CommonSubs merges every spelling of that product, and
+   opt_common_subs off costs more elsewhere (315). */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
-#pragma push
-#pragma opt_common_subs off
-#pragma opt_propagation off
 void func_00162e10(void)
 {
+    typedef struct {
+        u8 bytes[0x40];
+    } FieldMatrixCopy;
+    typedef struct {
+        f32 x, y, z;
+    } FieldVec3;
     extern u8 *func_003e0f80(void);
     extern void func_003e0f40(u8 *arg0);
     extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
@@ -269,37 +279,47 @@ void func_00162e10(void)
     extern s32 func_001060c0(void);
     extern s32 func_00110680(s32 arg0, s32 arg1, s32 arg2);
     extern s32 func_00110960(s16 arg0, s32 arg1);
+    extern s32 func_00145540(u16 arg0, u8 arg1, u8 *arg2);
+    extern void func_00479940(u8 *arg0, s32 arg1, s16 arg2, s32 arg3, s32 arg4);
     extern s32 D_005F1350[];
     extern f32 D_007615DC;
-    f32 sp90[3];
-    f32 spA0[3];
     f32 spB0[3];
+    f32 spA0[3];
+    f32 sp90[3];
     u8 *mtx;
     s32 i;
+    u8 kind;
     u8 *slot;
-    u8 *slot2;
-    u16 kind;
-    u16 resId;
-    u8 *res;
-    u8 *node;
+    u8 **res;
+    u8 **cfg;
 
     mtx = func_003e0f80();
     for (i = 0; i < 4; i++) {
         kind = 1;
         slot = D_007EF9B0 + i * 0x750;
-        if ((*(s32 *)(slot + 0x48) != 0) && (*(s32 *)(slot + 0x54) == 0)) {
-            if (func_0015a160() != 0) {
-                if (func_00162510(*(u16 *)iGpffff9db0, *(u16 *)(iGpffff9db0 + 4)) == 0) {
-                    kind = 3;
-                }
-            }
-            slot2 = D_007EF9B0 + i * 0x750;
-            resId = func_00145540(i & 0xFFFF, kind, *(u8 **)(slot2 + 0x50)) & 0xFFFF;
-            res = (u8 *)MT_Scene_GetRes(resId);
-            *(u8 **)(slot2 + 0x54) = res;
-            func_0017b9a0(*(s32 *)(res + 0x224), 60.0f);
-            node = func_001452b0(0xE);
-            if ((node != NULL) || (*(u16 *)(slot + 0x58) != 0xFFFF)) {
+        if (*(s32 *)(slot + 0x48) == 0) {
+            continue;
+        }
+        res = (u8 **)(slot + 0x54);
+        if (*(u8 **)(slot + 0x54) != NULL) {
+            continue;
+        }
+        if (func_0015a160() != 0 && func_00162510(((u16 *)iGpffff9db0)[0], ((u16 *)iGpffff9db0)[2]) == 0) {
+            kind = 3;
+        }
+        {
+            u8 *entry = D_007EF9B0 + i * 0x750;
+            u8 **resource;
+
+            cfg = (u8 **)(entry + 0x50);
+            resource = (u8 **)(entry + 0x54);
+            *resource = (u8 *)MT_Scene_GetRes(func_00145540(i, kind, *(u8 **)(entry + 0x50)));
+            func_0017b9a0(*(s32 *)(*resource + 0x224), 60.0f);
+        }
+        {
+            u8 *node = func_001452b0(0xE);
+
+            if (node != NULL || *(u16 *)(slot + 0x58) != 0xFFFF) {
                 while (node != NULL) {
                     if ((*(u16 *)node & 0x3FF) == *(u16 *)(slot + 0x58)) {
                         break;
@@ -308,288 +328,187 @@ void func_00162e10(void)
                 }
                 *(u8 **)(slot + 0x1AC) = node;
             }
-            if (i == 0) {
-                func_00168780(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220), 60.0f);
-                if (*(u16 *)(*(u8 **)(slot2 + 0x50) + 0xD4) != 1) {
-                    s32 found;
+        }
+        if (i == 0) {
+            func_00168780(*(s32 *)(*res + 0x220), 60.0f);
+            if (*(u16 *)(*cfg + 0xD4) != 1) {
+                s32 found = 0;
+
+                if (func_00110680((s16)func_001060b0(), 3, 0x14) != 1) {
                     s32 k;
                     s32 v;
-                    u8 *e;
-                    s16 t16;
-                    s32 t8;
-                    s32 b;
 
-                    found = 0;
-                    if (func_00110680((s16)func_001060b0(), 3, 0x14) != 1) {
-                        for (k = 0; ; k++) {
-                            e = (u8 *)D_005F1350 + k * 8;
-                            v = *(s32 *)(e + 0);
-                            if (v == -1) {
+                    s32 *e;
+
+                    for (k = 0; (v = *(e = &D_005F1350[k * 2])) != -1; k++) {
+                        if (((s32 *)iGpffff9db0)[0] == v && ((s32 *)iGpffff9db0)[1] == e[1]) {
+                            s16 day = func_001060b0();
+                            s8 odd = func_00110960(day, func_001060c0() & 0xFF);
+
+                            if (odd % 2 != 0) {
+                                found = 1;
                                 break;
                             }
-                            if ((*(s32 *)iGpffff9db0 == v) && (*(s32 *)(iGpffff9db0 + 4) == *(s32 *)(e + 4))) {
-                                t16 = (s16)func_001060b0();
-                                t8 = (s8)func_00110960(t16, func_001060c0() & 0xFF);
-                                b = t8 & 1;
-                                if ((t8 < 0) && (b != 0)) {
-                                    b -= 2;
-                                }
-                                if (b != 0) {
-                                    found = 1;
-                                    break;
-                                }
-                            }
                         }
                     }
-                    if (found == 0) {
-                        {
-                            s32 j;
-                            for (j = 0; j < 5; j++) {
-                                *(u8 *)(*(u8 **)(slot + 0x50) + j * 0xC + 0x28C) &= (u8)~1;
-                            }
-                        }
-                    } else {
-                        {
-                            s32 j;
-                            for (j = 0; j < 5; j++) {
-                                *(u8 *)(*(u8 **)(slot + 0x50) + j * 0xC + 0x28C) |= 1;
-                            }
-                        }
-                    }
-                    func_00479940(*(u8 **)(slot2 + 0x50), 0, (s16)func_0016fd00(*(u16 *)(D_007EF9B0 + i * 0x750 + 0x728)), 0, 1);
                 }
-            } else {
-                func_00168780(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220), 35.0f);
-            }
-            {
-                u8 *s3 = D_007EF9B0 + i * 0x750;
-                *(s32 *)(*(u8 **)(s3 + 0x54) + 0x228) = (s32)func_00478750((u8 *)(iGpffffb274));
-                {
-                    f32 t = func_00168770(*(s32 *)(*(u8 **)(s3 + 0x54) + 0x220));
-                    spA0[0] = t;
-                    spA0[1] = t;
-                    spA0[2] = t;
-                    mdlScale((Model *)(*(u8 **)(*(u8 **)(s3 + 0x54) + 0x228)), (const RwV3d *)(&spA0[0]), 2);
-                    func_00478e70(*(u8 **)(*(u8 **)(s3 + 0x54) + 0x228));
-                }
-            }
-            {
-                u8 *aux = *(u8 **)(D_007EF9B0 + i * 0x750 + 0x1AC);
-                if (aux == NULL) {
-                    u8 b44;
-                    u8 b45;
-                    s32 v;
-                    s32 r;
-                    u8 *p1;
-                    u8 *p2;
+                if (found == 0) {
+                    s32 j;
 
-                    b44 = *(u8 *)((u8 *)func_00155280() + 0x44);
-                    sp90[0] = 1200.0f * (f32)(u32)b44;
-                    sp90[1] = 2.0f;
-                    b45 = *(u8 *)((u8 *)func_00155280() + 0x45);
-                    sp90[2] = 1200.0f * (f32)(u32)b45;
-                    p1 = (u8 *)func_00155280() + ((*(u8 *)((u8 *)func_00155280() + 0x45)) << 8);
-                    p2 = p1 + ((*(u8 *)((u8 *)func_00155280() + 0x44)) << 4);
-                    v = *(u8 *)(p2 + 0x59) + 2;
-                    r = v & 3;
-                    if ((v < 0) && (r != 0)) {
-                        r -= 4;
-                    }
-                    func_00168de0((u8 *)(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220)), D_00756510, 90.0f * (f32)r);
-                    func_00479940(*(u8 **)(slot2 + 0x50), 0, (s16)func_0016fd00(*(u16 *)(D_007EF9B0 + i * 0x750 + 0x728)), 0, 1);
-                    {
-                        u8 *src = (u8 *)mdlGetMatrix(*(void **)(*(u8 **)D_007EFA04 + 0x164));
-                        u8 *dst = mtx;
-                        s32 n = 8;
-                        do {
-                            *(s32 *)dst = *(s32 *)src;
-                            *(s32 *)(dst + 4) = *(s32 *)(src + 4);
-                            src += 8;
-                            n -= 1;
-                            dst += 8;
-                        } while (n > 0);
-                    }
-                    if ((i == 0) && (func_0014a160() != 0)) {
-                        f32 tmp0;
-                        f32 tmp1;
-                        f32 tmp2;
-                        f32 c400;
-                        spB0[0] = *(f32 *)(mtx + 0x20);
-                        spB0[1] = *(f32 *)(mtx + 0x24);
-                        spB0[2] = *(f32 *)(mtx + 0x28);
-                        RwV3dNormalize(&spB0[0], &spB0[0]);
-                        c400 = 400.0f;
-                        tmp0 = spB0[0] * c400;
-                        tmp1 = spB0[1] * c400;
-                        tmp2 = spB0[2] * c400;
-                        spB0[0] = tmp0;
-                        spB0[1] = tmp1;
-                        spB0[2] = tmp2;
-                        sp90[0] += tmp0;
-                        sp90[1] += tmp1;
-                        sp90[2] += tmp2;
+                    for (j = 0; j < 5; j++) {
+                        *(u8 *)(*(u8 **)(slot + 0x50) + j * 0xC + 0x28C) &= ~1;
                     }
                 } else {
-                    func_00168de0((u8 *)(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220)), D_00756510, *(f32 *)(aux + 0x14C));
-                    sp90[0] = *(f32 *)(aux + 0x140);
-                    sp90[1] = *(f32 *)(aux + 0x144);
-                    sp90[2] = *(f32 *)(aux + 0x148);
-                }
-            }
-            {
-                u8 *src = (u8 *)mdlGetMatrix(*(void **)(*(u8 **)D_007EFA04 + 0x164));
-                u8 *dst = mtx;
-                s32 n = 8;
-                do {
-                    *(s32 *)dst = *(s32 *)src;
-                    *(s32 *)(dst + 4) = *(s32 *)(src + 4);
-                    src += 8;
-                    n -= 1;
-                    dst += 8;
-                } while (n > 0);
-            }
-            switch (i) {
-            case 0:
-                func_00168ae0(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220), &sp90[0]);
-                break;
-            case 1:
-                {
-                    f32 t0;
-                    f32 t1;
-                    f32 t2;
-                    f32 c60a;
-                    f32 c60b;
-                    spB0[0] = *(f32 *)(mtx + 0x0);
-                    spB0[1] = *(f32 *)(mtx + 0x4);
-                    spB0[2] = *(f32 *)(mtx + 0x8);
-                    RwV3dNormalize(&spB0[0], &spB0[0]);
-                    c60a = 60.0f;
-                    t0 = spB0[0] * c60a;
-                    t1 = spB0[1] * c60a;
-                    t2 = spB0[2] * c60a;
-                    spB0[0] = t0;
-                    spB0[1] = t1;
-                    spB0[2] = t2;
-                    *(f32 *)(mtx + 0x30) += t0;
-                    *(f32 *)(mtx + 0x34) += t1;
-                    *(f32 *)(mtx + 0x38) += t2;
-                    spB0[0] = *(f32 *)(mtx + 0x20);
-                    spB0[1] = *(f32 *)(mtx + 0x24);
-                    spB0[2] = *(f32 *)(mtx + 0x28);
-                    RwV3dNormalize(&spB0[0], &spB0[0]);
-                    spB0[0] = -spB0[0];
-                    spB0[1] = -spB0[1];
-                    spB0[2] = -spB0[2];
-                    c60b = 60.0f;
-                    t0 = spB0[0] * c60b;
-                    t1 = spB0[1] * c60b;
-                    t2 = spB0[2] * c60b;
-                    spB0[0] = t0;
-                    spB0[1] = t1;
-                    spB0[2] = t2;
-                    *(f32 *)(mtx + 0x30) += t0;
-                    *(f32 *)(mtx + 0x34) += t1;
-                    *(f32 *)(mtx + 0x38) += t2;
-                    func_00168ae0(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220), mtx + 0x30);
-                }
-                break;
-            case 2:
-                {
-                    f32 t0;
-                    f32 t1;
-                    f32 t2;
-                    f32 c60c;
-                    f32 c120;
-                    spB0[0] = *(f32 *)(mtx + 0x0);
-                    spB0[1] = *(f32 *)(mtx + 0x4);
-                    spB0[2] = *(f32 *)(mtx + 0x8);
-                    RwV3dNormalize(&spB0[0], &spB0[0]);
-                    spB0[0] = -spB0[0];
-                    spB0[1] = -spB0[1];
-                    spB0[2] = -spB0[2];
-                    c60c = 60.0f;
-                    t0 = spB0[0] * c60c;
-                    t1 = spB0[1] * c60c;
-                    t2 = spB0[2] * c60c;
-                    spB0[0] = t0;
-                    spB0[1] = t1;
-                    spB0[2] = t2;
-                    *(f32 *)(mtx + 0x30) += t0;
-                    *(f32 *)(mtx + 0x34) += t1;
-                    *(f32 *)(mtx + 0x38) += t2;
-                    spB0[0] = *(f32 *)(mtx + 0x20);
-                    spB0[1] = *(f32 *)(mtx + 0x24);
-                    spB0[2] = *(f32 *)(mtx + 0x28);
-                    RwV3dNormalize(&spB0[0], &spB0[0]);
-                    spB0[0] = -spB0[0];
-                    spB0[1] = -spB0[1];
-                    spB0[2] = -spB0[2];
-                    c120 = 120.0f;
-                    t0 = spB0[0] * c120;
-                    t1 = spB0[1] * c120;
-                    t2 = spB0[2] * c120;
-                    spB0[0] = t0;
-                    spB0[1] = t1;
-                    spB0[2] = t2;
-                    *(f32 *)(mtx + 0x30) += t0;
-                    *(f32 *)(mtx + 0x34) += t1;
-                    *(f32 *)(mtx + 0x38) += t2;
-                    func_00168ae0(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220), mtx + 0x30);
-                }
-                break;
-            case 3:
-                {
-                    f32 t0;
-                    f32 t1;
-                    f32 t2;
-                    f32 c200;
-                    spB0[0] = *(f32 *)(mtx + 0x20);
-                    spB0[1] = *(f32 *)(mtx + 0x24);
-                    spB0[2] = *(f32 *)(mtx + 0x28);
-                    RwV3dNormalize(&spB0[0], &spB0[0]);
-                    spB0[0] = -spB0[0];
-                    spB0[1] = -spB0[1];
-                    spB0[2] = -spB0[2];
-                    c200 = 200.0f;
-                    t0 = spB0[0] * c200;
-                    t1 = spB0[1] * c200;
-                    t2 = spB0[2] * c200;
-                    spB0[0] = t0;
-                    spB0[1] = t1;
-                    spB0[2] = t2;
-                    *(f32 *)(mtx + 0x30) += t0;
-                    *(f32 *)(mtx + 0x34) += t1;
-                    *(f32 *)(mtx + 0x38) += t2;
-                    func_00168ae0(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220), mtx + 0x30);
-                }
-                break;
-            }
-            if (i != 0) {
-                u8 *cur = D_007EF9B0 + i * 0x750;
-                u8 *prev = D_007EF9B0 + (i - 1) * 0x750;
-                *(s32 *)(cur + 0x1B0) = func_0017e890(0, cur, prev);
-            }
-            {
-                u8 *cur = D_007EF9B0 + i * 0x750;
-                RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)(cur + 0x50)));
-                func_0014b0c0(*(u16 *)(*(u8 **)(cur + 0x54)), 1);
-                func_00168730(*(s32 *)(*(u8 **)(cur + 0x54) + 0x220), 0x40000000);
-                {
                     s32 j;
-                    f32 fv = D_007615DC;
-                    for (j = 0; j < 0x40; j++) {
-                        *(f32 *)(cur + j * 8 + 0x210) = fv;
-                        *(f32 *)(cur + j * 8 + 0x214) = fv;
+
+                    for (j = 0; j < 5; j++) {
+                        *(u8 *)(*(u8 **)(slot + 0x50) + j * 0xC + 0x28C) |= 1;
                     }
                 }
-                memset(cur + 0x1D0, 0, 0x40);
-                memset(cur + 0x410, 0, 0x300);
+                func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(D_007EF9B0 + i * 0x750 + 0x728)), 0, 1);
             }
+        } else {
+            func_00168780(*(s32 *)(*res + 0x220), 35.0f);
+        }
+        {
+            u8 *entry = D_007EF9B0 + i * 0x750;
+            u8 **model = (u8 **)(entry + 0x54);
+            f32 scale;
+            u8 *aux;
+
+            *(u32 **)(*model + 0x228) = func_00478750((u8 *)iGpffffb274);
+            scale = func_00168770(*(s32 *)(*model + 0x220));
+            spA0[0] = spA0[1] = spA0[2] = scale;
+            mdlScale(*(Model **)(*model + 0x228), (const RwV3d *)spA0, 2);
+            func_00478e70(*(u8 **)(*model + 0x228));
+            aux = *(u8 **)(entry + 0x1AC);
+            if (aux == NULL) {
+                u8 *grid;
+                s32 r;
+
+                sp90[0] = 1200.0f * (f32)(u32)*((u8 *)func_00155280() + 0x44);
+                sp90[1] = 2.0f;
+                sp90[2] = 1200.0f * (f32)(u32)*((u8 *)func_00155280() + 0x45);
+                entry = D_007EF9B0 + i * 0x750;
+                grid = (u8 *)func_00155280() + (*((u8 *)func_00155280() + 0x45) << 8);
+                func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, 90.0f * (f32)((*(grid + (*((u8 *)func_00155280() + 0x44) << 4) + 0x59) + 2) % 4));
+                func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(entry + 0x728)), 0, 1);
+                *(FieldMatrixCopy *)mtx = *(FieldMatrixCopy *)mdlGetMatrix(*(void **)(*(u8 **)D_007EFA04 + 0x164));
+                if (i == 0 && func_0014a160() != 0) {
+                    *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x20);
+                    RwV3dNormalize(spB0, spB0);
+                    spB0[0] *= 400.0f;
+                    spB0[1] *= 400.0f;
+                    spB0[2] *= 400.0f;
+                    sp90[0] += spB0[0];
+                    sp90[1] += spB0[1];
+                    sp90[2] += spB0[2];
+                }
+            } else {
+                u8 **auxp = (u8 **)(D_007EF9B0 + i * 0x750 + 0x1AC);
+
+                func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, *(f32 *)(aux + 0x14C));
+                *(FieldVec3 *)sp90 = *(FieldVec3 *)(*auxp + 0x140);
+            }
+        }
+        *(FieldMatrixCopy *)mtx = *(FieldMatrixCopy *)mdlGetMatrix(*(void **)(*(u8 **)D_007EFA04 + 0x164));
+        switch (i) {
+        case 0:
+            func_00168ae0(*(s32 *)(*res + 0x220), sp90);
+            break;
+        case 1:
+            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x0);
+            RwV3dNormalize(spB0, spB0);
+            spB0[0] *= 60.0f;
+            spB0[1] *= 60.0f;
+            spB0[2] *= 60.0f;
+            *(f32 *)(mtx + 0x30) += spB0[0];
+            *(f32 *)(mtx + 0x34) += spB0[1];
+            *(f32 *)(mtx + 0x38) += spB0[2];
+            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x20);
+            RwV3dNormalize(spB0, spB0);
+            spB0[0] = -spB0[0];
+            spB0[1] = -spB0[1];
+            spB0[2] = -spB0[2];
+            spB0[0] *= 60.0f;
+            spB0[1] *= 60.0f;
+            spB0[2] *= 60.0f;
+            *(f32 *)(mtx + 0x30) += spB0[0];
+            *(f32 *)(mtx + 0x34) += spB0[1];
+            *(f32 *)(mtx + 0x38) += spB0[2];
+            func_00168ae0(*(s32 *)(*res + 0x220), mtx + 0x30);
+            break;
+        case 2:
+            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x0);
+            RwV3dNormalize(spB0, spB0);
+            spB0[0] = -spB0[0];
+            spB0[1] = -spB0[1];
+            spB0[2] = -spB0[2];
+            spB0[0] *= 60.0f;
+            spB0[1] *= 60.0f;
+            spB0[2] *= 60.0f;
+            *(f32 *)(mtx + 0x30) += spB0[0];
+            *(f32 *)(mtx + 0x34) += spB0[1];
+            *(f32 *)(mtx + 0x38) += spB0[2];
+            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x20);
+            RwV3dNormalize(spB0, spB0);
+            spB0[0] = -spB0[0];
+            spB0[1] = -spB0[1];
+            spB0[2] = -spB0[2];
+            spB0[0] *= 120.0f;
+            spB0[1] *= 120.0f;
+            spB0[2] *= 120.0f;
+            *(f32 *)(mtx + 0x30) += spB0[0];
+            *(f32 *)(mtx + 0x34) += spB0[1];
+            *(f32 *)(mtx + 0x38) += spB0[2];
+            func_00168ae0(*(s32 *)(*res + 0x220), mtx + 0x30);
+            break;
+        case 3:
+            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x20);
+            RwV3dNormalize(spB0, spB0);
+            spB0[0] = -spB0[0];
+            spB0[1] = -spB0[1];
+            spB0[2] = -spB0[2];
+            spB0[0] *= 200.0f;
+            spB0[1] *= 200.0f;
+            spB0[2] *= 200.0f;
+            *(f32 *)(mtx + 0x30) += spB0[0];
+            *(f32 *)(mtx + 0x34) += spB0[1];
+            *(f32 *)(mtx + 0x38) += spB0[2];
+            func_00168ae0(*(s32 *)(*res + 0x220), mtx + 0x30);
+            break;
+        }
+        if (i != 0) {
+            u8 *cur = D_007EF9B0 + i * 0x750;
+
+            *(s32 *)(cur + 0x1B0) = func_0017e890(0, cur, D_007EF9B0 + (i - 1) * 0x750);
+        }
+        {
+            u8 *cur = D_007EF9B0 + i * 0x750;
+            u8 **curRes;
+            f32 fv;
+            s32 j;
+
+            RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)*cfg));
+            curRes = (u8 **)(cur + 0x54);
+            func_0014b0c0(**(u16 **)(cur + 0x54), 1);
+            func_00168730(*(s32 *)(*curRes + 0x220), 0x40000000);
+            j = 0;
+            fv = D_007615DC;
+            for (; j < 0x40; j++) {
+                *(f32 *)(cur + j * 8 + 0x210) = fv;
+                *(f32 *)(cur + j * 8 + 0x214) = fv;
+            }
+        }
+        {
+            u8 *cur = D_007EF9B0 + i * 0x750;
+
+            memset(cur + 0x1D0, 0, 0x40);
+            memset(cur + 0x410, 0, 0x300);
         }
     }
     func_003e0f40(mtx);
 }
-#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00162e10);
 #endif
