@@ -680,6 +680,15 @@ below are the codegen consequences.
   the same field again in the next expression or call. The second load is
   removed by later CSE, but the unfolded address stays.
 
+  **Lever: `opt_pulloutconstants off` for a rematerialised constant
+  (`func_004941f0`, MATCH 2026-10-07).** Retail loads `1.0f` again in a loop
+  preheader (`lui; mtc1`), but the candidate reuses the entry block's
+  register. The frontend pulls the constant into one temporary shared by
+  both uses. Scoped `#pragma opt_pulloutconstants off` stops that, and the
+  loop-invariant pass then hoists the loop's own copy. This does not work when
+  retail also pulls out other constants in the same function: on `0048b340`
+  it un-hoists `-1` and `255.0f` (54 → 82 edits).
+
   **Lever: reuse a variable and split its lifetimes (`func_001b11c0`, MATCH
   2026-10-06).** Five sessions recorded this function as a `$t1`/`$t3`
   allocator wall. Retail colours the sort loop's index and cursor before the
