@@ -699,6 +699,28 @@ below are the codegen consequences.
   the body is byte-exact. Either half alone stays at 5–13 edits. Adding the
   pragma to seven other floors without the reuse changed nothing, so it is a
   lever only where retail visibly reuses a variable across two loops.
+  `func_00222210` (MATCH 2026-10-07) is a second case. The two coloured-quad
+  loops and the title loop share one counter. Split under `opt_lifetimes on`,
+  the title counter is numbered after the inline helper's resource local,
+  which is what retail's `$s6`/`$s5` colouring needs.
+
+  **Lever: reassign a variable to kill one CSE (`func_00222210`).** Retail
+  recomputed `(s16)(pos.y - y)` before each of four calls, while b210 merged
+  the four into one `IRO_CommonSubs` temporary. Recomputing `x = ofs.x + pos.x;
+  y = ofs.y + pos.y;` before each call fixes it. CSE still merges the
+  additions, so they are emitted once, but each new definition of `y` ends the
+  availability of `pos.y - y`. Per-call copies (`{ f32 py = y; }`) do not work:
+  copy propagation runs before CSE and folds them. Turning off
+  `opt_common_subs` or `opt_propagation` for the whole function cost 400+
+  edits elsewhere.
+
+  **Inline helpers with by-value structs reproduce retail's parameter
+  copies.** In `func_00222210`, retail copies an 8-byte origin, an 8-byte
+  offset and a 4-byte colour into fresh frame slots for each of two
+  call sites. Those slots are the parameter copies of a `static inline` helper
+  that takes the three structs by value. With `opt_loop_invariants on`, the
+  invariant copies leave the loop and the offset copy stays inside it, as in
+  retail. The helper's parameter order sets the copies' frame slots.
 
   **Frontend IR dumps.** b210 contains an IR dumper that writes the whole
   flowgraph after every `IRO_*` pass to `<source>.log`. It is gated by
