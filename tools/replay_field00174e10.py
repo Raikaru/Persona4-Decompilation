@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Bounded whole-owner replay. Requires existing authorized compiler/retail inputs.
+"""Historical guarded-recovery replay, not verification of the promoted target.
+
+Run from guarded integration 75f49b54d11d16c713a9fabbdd11469f26a680ae
+with existing authorized compiler/retail inputs. The frozen hash and residual
+below deliberately describe that historical state. For the current promoted
+owner, use tools/verify.py and the complete production build instead.
 
 No provider source is inspected. Output is a path-free receipt; transient source,
 objects and compiler diagnostics stay in a deleted temporary directory.
@@ -24,6 +29,9 @@ OWNER = 'src/promoted/k_fldEvent.c'
 BASELINE = '1e0ce8a012b3ca8762d19bf14119bf52aa280a5d'
 SOURCE_SHA256 = '0ba2684b49c11e82bb3a8138b2221a8f5cc4b369125225812d67cf5bca91f232'
 TARGET = 'func_00174e10'
+HISTORICAL_USAGE = ('historical guarded replay only: use guarded integration '
+                    '75f49b54d11d16c713a9fabbdd11469f26a680ae; '
+                    'verify promoted source with tools/verify.py and the production build')
 sha = lambda data: hashlib.sha256(data).hexdigest()
 
 
@@ -108,16 +116,16 @@ def analyze(obj, source, retail, windows):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--baseline', default=BASELINE, help='current-main commit to compare')
+    parser.add_argument('--baseline', default=BASELINE, help='historical production baseline to compare (does not select the candidate source)')
     args = parser.parse_args()
     repo = V.REPO
+    current = (repo / OWNER).read_bytes()
+    require(sha(current) == SOURCE_SHA256, HISTORICAL_USAGE)
     for key in ('P4_MWCC', 'P4_RETAIL_ELF', 'P4_AS'):
         require(bool(os.environ.get(key)) and Path(os.environ[key]).is_file(), 'set authorized ' + key)
     cfg = V.load_config()
     require(not any('NON_MATCHING' in f for f in V.unit_compile_flags(repo / OWNER, cfg['compile_flags'])),
             'global NON_MATCHING is forbidden')
-    current = (repo / OWNER).read_bytes()
-    require(sha(current) == SOURCE_SHA256, 'reviewed source binding changed')
     baseline = subprocess.check_output(['git', 'show', args.baseline + ':' + OWNER], cwd=repo, stderr=subprocess.PIPE)
     target_config = V._read_json(V.TARGET)
     windows = V._read_json(V.FUNCTION_WINDOWS)
