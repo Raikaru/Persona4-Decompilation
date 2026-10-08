@@ -372,7 +372,8 @@ loop_00490bb0_check:
  * Also open: retail loads burst = 1 with daddiu but tests it without andi,
  * the origin copy's temporaries, and two mult operand orders. Matching it
  * needs fGpffff8088, fGpffff808c and D_00922D70 in symbols_recovered.txt to
- * stay linkable. */
+ * stay linkable. 
+   2026-10-09: 57 -> 45: the config/D_00922D70/prev quad copies go through $2 as in func_0048d8c0. Residual: retail spills swayBase and keeps the asm `dot` in $f28; b210 spills `dot` (its asm-output virtual, numbered 52, wins the score-2 tie over swayBase's 40 regardless of declaration). */
 // FUN_00490C40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -436,11 +437,11 @@ void func_00490c40(u8 *arg0)
     if ((flags & 1) == 0) {
         u_long128 *dst = &origin;
 
-        *dst = *(u_long128 *)config;
+        __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(config) : "$2", "memory");
     } else {
         u_long128 *dst = &origin;
 
-        *dst = D_00922D70;
+        __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(&D_00922D70) : "$2", "memory");
     }
     limit = *(s32 *)(config + 0xB8);
     respawn = *(s32 *)(config + 0x20);
@@ -603,7 +604,7 @@ void func_00490c40(u8 *arg0)
         {
             u_long128 *dst = &prev;
 
-            *dst = *(u_long128 *)node;
+            __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(node) : "$2", "memory");
         }
         reach = *(f32 *)(extra + 0xC);
         if (*(s32 *)(node + 0x10) < divD8) {
