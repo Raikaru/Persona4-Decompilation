@@ -1688,15 +1688,17 @@ void func_00174c20(void)
     temp_3_2[0x5F] = temp_3_2[0x5F] | temp_18_2;
     func_0015ab20(func_0015a160(), var_17, var_16);
 }
-/* Field movement repair, 2026-10-07: full vectors and 64-byte matrices,
- * correct matrix heading members, degree rounding, and evidenced callee ABI.
- * Whole-owner guard compile: 3976 bytes / 3992 live retail bytes (4000-byte
- * window), 10 fully resolved Levenshtein word edits, retail 0x130-byte frame.
- * Calls and GP destinations agree; production remains ASM. Repository-wide
- * declaration closure is withheld at the explicitly stopped owner boundaries.
- * The legacy copied-matrix offsets, scalar clears and short matrix were wrong. */
-// FUN_00174E10 NONMATCHING
-#ifdef NON_MATCHING
+/* Field movement controller. Retail keeps the unused heading comparison of
+ * the 45-degree step branch (`c.lt.s` with no branch after it): the dead
+ * `angle += 360.0f` survives the frontend under opt_dead_assignments off and
+ * only the backend drops it. func_00175f70 is declared with its float
+ * parameter before the matrix pointer: the EE ABI assigns the same registers,
+ * and retail materialises $a0, $f12, $a1 in that order. Retail tests bit 0x20
+ * of func_00105340's $v0 (andi at 00175C30), so the local declaration returns u32
+ * although the g_data.c definition is void. */
+#pragma push
+#pragma opt_dead_assignments off
+// FUN_00174E10
 s32 func_00174e10(u8 *arg0)
 {
     typedef struct {
@@ -1739,7 +1741,7 @@ s32 func_00174e10(u8 *arg0)
     f32 fabsf(f32);
     s32 func_001761d0(u8 *);
     MovementMatrix *RwMatrixRotate(MovementMatrix *, const FldEventVec3 *, f32, s32);
-    s32 func_00175f70(const u8 *, const MovementMatrix *, f32, f32);
+    s32 func_00175f70(const u8 *, f32, const MovementMatrix *, f32);
     void func_00168cb0(u8 *, f32);
     u32 func_00105340(s16);
     s32 func_001623f0(void);
@@ -1849,7 +1851,13 @@ s32 func_00174e10(u8 *arg0)
             if (datGetFlag(0x3E) == 1) {
                 f21 *= -1.0f;
             }
-            func_0014b590(func_0014b5d0(func_003e9700(*(void **)(func_00457120() + 4))));
+            {
+                f32 angle = func_0014b590(func_0014b5d0(func_003e9700(*(void **)(func_00457120() + 4))));
+
+                if (angle < 0.0f) {
+                    angle += 360.0f;
+                }
+            }
             add = f21 + func_0014b5d0(func_003e9700(*(void **)(func_00457120() + 4)));
             *(u8 **)(h + 0x138) = func_0016f3b0(arg0, 5, (s32)add);
         }
@@ -1863,7 +1871,9 @@ s32 func_00174e10(u8 *arg0)
         }
     } else if (!(camera.x <= 48.0f)) {
         if (func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 0 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 6 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 7) {
-            f32 scale = DAT_00761640 * iGpffffb288;
+            f32 scale = DAT_00761640;
+
+            scale *= iGpffffb288;
             f20 = scale * (camera.x / 128.0f);
             if (datGetFlag(0x3E) == 1) {
                 f20 *= -1.0f;
@@ -1935,8 +1945,7 @@ bigmove:
         RwMatrixRotate(&mat, &D_00756510, f21, 1);
         RwMatrixRotate(&mat, &D_00756510, f23, 1);
         {
-            s32 r = func_00175f70(*(u8 **)(h + 0x13C), &mat, f20, f21 + f23);
-            ret16 = r;
+            ret16 = func_00175f70(*(u8 **)(h + 0x13C), f20, &mat, f21 + f23);
             if (func_001761d0(*(u8 **)(h + 0x13C)) == 0) {
                 func_00168890(*(u8 **)(*(s32 *)(h + 0x18) + 0x220), (u8 *)&mat);
                 {
@@ -1948,7 +1957,9 @@ bigmove:
                     if (cl < 125.0f) {
                         f22 = 6.0f;
                     } else {
-                        f22 = 128.0f * iGpffffb290 * sinf((fGpffff84a4 * cl) / 128.0f);
+                        f32 t = fGpffff84a4 * cl;
+
+                        f22 = 128.0f * iGpffffb290 * sinf(t / 128.0f);
                     }
                 }
                 func_00168cb0(*(u8 **)(*(s32 *)(h + 0x18) + 0x220), f22);
@@ -2035,9 +2046,8 @@ smallmove:
 moving:
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00174e10);
-#endif
+
+#pragma pop
 // FUN_00175DB0
 f32 func_00175db0(void)
 {
