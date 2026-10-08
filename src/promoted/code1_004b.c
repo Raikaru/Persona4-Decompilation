@@ -611,7 +611,7 @@ void func_004b1ad0(u8 *arg0)
         "qmfc2.ni $2, $vf10\n"
         "ppach $2, $0, $2\n"
         "ppacb $2, $0, $2\n"
-        "sw $2, 0x110($sp)\n" : "=m"(packed) : : "$2", "$vf2", "$vf10");
+        "sw $2, packed\n" : "=m"(packed) : : "$2", "$vf2", "$vf10");
     *(u32 *)&color = packed;
     if (color.alpha != 0xFF) {
         *(EffScreenSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
