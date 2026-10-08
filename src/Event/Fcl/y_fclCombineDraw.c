@@ -2605,8 +2605,12 @@ void func_00320970(u8 *arg0, s8 arg1) {
     func_002b77d0(0x1B2, sp30, 0x1B2, sp50, 58.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
 }
 
-/* Preserve the saved task and word-mode objects across the nested draws.
-   Native reconstruction remains guarded while its homes differ from retail. */
+/* Guarded, 2026-10-07: 21 edits. The s16 row and column counters reproduce
+ * retail's unextended func_002e48a0 arguments, and the saved mode sits in a
+ * 16-aligned slot as in retail. Open: arg0's home lands at 0xDC (retail 0xE4)
+ * with the mode at 0xE0 (retail 0xD0). b210's IRO_CommonSubs also reuses the
+ * loop condition's (s16) extension for the body-top copy; retail extends
+ * again at the top of each body. */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
 static inline u8 *fclSavedCombineTask(const void *storage)
@@ -2639,11 +2643,11 @@ void func_00320b80(u8 *arg0, s8 arg1) {
     FclVec2 spF8;
     FclVec2 spF0;
     FclVec2 spE8;
-    s32 spD0;
     u8 *spC0;
     u8 *t;
-    s32 i;
+    s16 i;
     s32 rowCount;
+    s32 spD0 __attribute__((aligned(16)));
     t = *(u8 **)(arg0 + 0x38);
     *(s16 *)(t + 0x11E) = 0;
     *(s8 *)(t + 0x128) = -1;
@@ -2654,13 +2658,13 @@ void func_00320b80(u8 *arg0, s8 arg1) {
     sp120 = func_002b2970(16.0f, 104.0f);
     func_0031e5b0(fclSavedCombineTask(&arg0), sp120, 0, 0, 0, 0, 0);
     i = 0;
-    while ((s16)i < (u16)func_0010b5b0()) {
-        s32 n = (s16)i;
+    while (i < (u16)func_0010b5b0()) {
+        s32 n = i;
         s32 m;
         sp118 = func_002b2970(16.0f, 128.0f);
         func_003191c0(arg0, sp118, (s8)i,
-                      *(u16 *)(func_002e48a0(0, (s16)i) + 2),
-                      *(u8 *)(func_002e48a0(0, (s16)i) + 4),
+                      *(u16 *)(func_002e48a0(0, i) + 2),
+                      *(u8 *)(func_002e48a0(0, i) + 4),
                       (s16)(n * 2), 0, (rowCount = *(s8 *)(func_002e4870(0) + 8)));
         {
             s16 m2 = n + 0x25E;
@@ -2690,11 +2694,11 @@ void func_00320b80(u8 *arg0, s8 arg1) {
             func_002b83e0(e, spF8, c148, c144, 0xFF, 0xFF, 32.0f, 159.0f, 2, n, 0, 0);
         }
         if (fclSavedCombineMode(&spD0) == 0) {
-            s32 j = 0;
+            s16 j = 0;
             s32 y = m + 0x7F;
             u8 *q = t + n * 4;
             spC0 = t + n * 12;
-            while ((s16)j < (u16)func_0010b5b0()) {
+            while (j < (u16)func_0010b5b0()) {
                 u8 *e2 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
                 spF0 = func_002b2970((f32)((s16)j * 23 + 0x149), (f32)y);
                 c140 = func_002b2a60(0, 0, 0x99, 0xA5);
@@ -2708,14 +2712,14 @@ void func_00320b80(u8 *arg0, s8 arg1) {
                     func_002b82d0(func_0034ae50(*(u8 **)(q + 0x154), (s8)j), 0, 0xA5, 0, 0xA, delay);
                 }
                 *(s8 *)(spC0 + (s16)j + 0x18C) = 0;
-                j = (s16)(j + 1);
+                j++;
             }
         } else {
-            s32 j = 0;
+            s16 j = 0;
             s32 y = m + 0x7F;
             u8 *q = t + n * 4;
             u8 *row = t + n * 12;
-            while ((s16)j < (u16)func_0010b5b0()) {
+            while (j < (u16)func_0010b5b0()) {
                 u8 *e2 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
                 spE8 = func_002b2970((f32)((s16)j * 23 + 0x149), (f32)y);
                 c134 = func_002b2a60(0, 0, 0x99, 0xA5);
@@ -2728,10 +2732,10 @@ void func_00320b80(u8 *arg0, s8 arg1) {
                     func_002b82d0(func_0034ae50(*(u8 **)(q + 0x154), (s8)j), 0, 0xA5, 0, 0xA, 0);
                 }
                 *(s8 *)(row + (s16)j + 0x18C) = 0;
-                j = (s16)(j + 1);
+                j++;
             }
         }
-        i = (s16)(i + 1);
+        i++;
     }
 }
 #else
