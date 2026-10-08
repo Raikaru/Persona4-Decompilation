@@ -722,6 +722,45 @@ below are the codegen consequences.
   invariant copies leave the loop and the offset copy stays inside it, as in
   retail. The helper's parameter order sets the copies' frame slots.
 
+  **Lever: `opt_dead_assignments off` for a compare with no branch
+  (`func_00174e10`, MATCH 2026-10-08).** Retail had `c.lt.s` followed by a
+  `nop` and no `bc1t`/`bc1f`: an `if (angle < 0.0f) angle += 360.0f;` whose
+  result is never read. Under the default the frontend deletes the dead
+  assignment and then the whole `if`, so no compare is emitted. With
+  `#pragma opt_dead_assignments off` the assignment reaches the backend, which
+  drops it together with the branch to the next instruction and leaves only
+  the compare. Five other spellings (an empty `if`, `(void)` compares, a
+  self-assigning ternary) were all removed. The pragma also moves argument
+  loads later, next to their call: on `func_002ba080` (MATCH 2026-10-08) it
+  took the guarded body from 77 to 34 edits before any other change. A sweep
+  of the remaining guarded bodies found no other gain from it alone.
+
+  **Lever: name a struct-returning call's result to fix its frame slot
+  (`func_002ba080`).** b210 gives the hidden return slot of a call written
+  inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot
+  between the declared locals. Retail had both such slots *above*
+  `secondPosition`. Assigning each result to a named function-scope local
+  declared before `secondPosition`, then passing that local, gives retail's
+  layout with unchanged code. Block-scoped or reordered declarations of
+  `secondPosition` alone did not move it.
+
+  **Callee prologue copy order is the parameter order.** Retail
+  `func_002ba080` copies `$f12` (depth) before `$t3` (layer). Integer and
+  float parameters take separate EE registers, so moving `f32 depth` ahead
+  of `s32 layer` keeps every register and only reorders the parameter copies.
+  Both callers in `y_fclCombineDraw.c` still match with the swapped
+  arguments. The matched sibling `func_002ba5d0` already had depth before
+  layer. The same idea fixed `func_00174e10`'s call: declaring
+  `func_00175f70` as `(const u8 *, f32, const MovementMatrix *, f32)` gives
+  retail's `$a0`, `$f12`, `$a1` materialisation order.
+
+  **Pragma sweep, 2026-10-08.** On 48 guarded bodies each of
+  `opt_lifetimes on`, `opt_dead_assignments off`, `opt_loop_invariants on`,
+  `opt_propagation off` and their pairs was measured. `opt_lifetimes on`
+  helped most often, which fits m2c bodies that split one source variable
+  into many: `00283490` went from 485 to 82 edits, `0027f6f0` from 590 to
+  410 and `003768e0` from 464 to 280. Each owner note records its pragma.
+
   **Frontend IR dumps.** b210 contains an IR dumper that writes the whole
   flowgraph after every `IRO_*` pass to `<source>.log`. It is gated by
   `0x00637374` (open the log; cleared at `0x004d1272`, opened by the call

@@ -25,6 +25,28 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 8 continuation: 6,816 MATCH / 45 ASM
+
+`build/after17.json` reports 6,814 first-party MATCH and 47 ASM; against
+`after16.json` only `00222210` changed. `00174e10` and `002ba080` matched
+afterwards. After `00174e10` the full link kept 604 C and 54 SDK objects,
+and both retail hashes passed.
+
+- `00222210`: a `static inline` title helper takes the origin, offset and
+  colour by value, which gives retail's parameter-copy frame slots. It
+  recomputes `x`/`y` before each sprite call, so `pos.y - y` is not shared.
+  One counter serves all three loops under `opt_lifetimes on`.
+  `fGpffff8384`/`fGpffff8388` were added to
+  `config/symbols_recovered.txt` for the link.
+- `00174e10`: `opt_dead_assignments off` keeps retail's branchless heading
+  compare. `func_00175f70` is declared with its float before the matrix
+  pointer, and `func_00105340` returns `u32` locally (retail tests `$v0`).
+- `002ba080`: depth now precedes layer in the signature, the header and
+  both callers. The two redraw positions are named locals for retail's frame
+  slots, and `opt_dead_assignments off` places the argument loads.
+- A pragma sweep lowered 22 guarded bodies; see the owner notes and
+  [matching.md](matching.md).
+
 ## October 7 continuation: 6,813 MATCH / 48 ASM
 
 The latest all-owner verify (`build/after15.json`) reports 6,811 first-party
