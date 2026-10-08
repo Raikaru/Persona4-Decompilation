@@ -656,8 +656,11 @@ void func_002b6ea0(void) {
    docs/probe_archive/YDraw_update_002b6ec0_20261005/. */
 #pragma push
 #pragma opt_common_subs off
+/* 2026-10-08: opt_lifetimes on lowers fnalign from 231 to 217 edits. */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_lifetimes on
 s32 func_002b6ec0(u8 *arg0) {
     u8 *table;
     s32 off;
@@ -762,6 +765,7 @@ tail:
     }
     return 0;
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6ec0);
 #endif
