@@ -2515,14 +2515,12 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
     }
     *(f32 *)(arg0 + 0x1C) = 0.0f;
 }
-/* Guarded native proof, 2026-09-29; 2026-10-07: 160 differing instruction
- * words (was 225). Branch-local packed-color outputs recover the retail 0x150
- * frame; the family pragmas, particle-index clear math, a 24-bit colour
- * bitfield read before the alpha conversion, src1 declared before clear, one
- * cursor for the clear loop and the copy source, and the else branch's reuse
- * of the c4 * 32 stride fix the first loop. Open: retail copies the four
- * interpolation quads through address registers (the u_long128 *slot form
- * reproduces that but shifts c4/nmult colouring) and colours the rest. */
+/* Guarded rewrite, 2026-10-07: 65 differing words (was 160). The quads copy
+ * through u_long128 pointer locals, the colour packs store the named slot
+ * inside the asm, and the loop bounds hoist -1 as retail does. Open: c0 and
+ * the c4 * 32 stride swap $s7/$fp. Retail recomputes c4 << 5 for the second
+ * quad and rematerialises 1.0f in the else branch, and the else-branch
+ * temporaries colour from $a3 down. */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2535,8 +2533,8 @@ void func_0048b340(u8 *arg0, u8 *arg1)
         u32 alpha : 8;
     } TrailColor;
     extern void memcpy(void *dst, void *src, u32 size);
-    extern void func_0048a810(f32 t, void *quads);
-    extern f32 fGpffff8044;
+    extern void func_0048a810(void *quads, f32 t);
+    extern f32 D_00761134;
     u_long128 quadF0[4];
     u_long128 tmpE0;
     u_long128 tmpD0;
@@ -2551,14 +2549,15 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     f32 acc;
     f32 invN;
     f32 scaleTop;
-    f32 acc2;
     f32 inv2;
+    f32 acc2;
     f32 baseX;
     f32 diffX;
     f32 baseY;
     f32 diffY;
     f32 packScale;
     u8 *src1;
+    u32 stride;
     u8 *clear;
     u8 *dst1;
     u8 *dst2;
@@ -2566,14 +2565,12 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     u32 i;
     u32 j;
     u32 k;
-    s32 tmp;
     f32 ftmp;
     u32 alpha;
     u32 lo;
     u8 *second;
     u8 *iter;
     u32 particleIndex;
-    u32 stride;
 
     config = *(u8 **)(arg0 + 0x20);
     c4 = *(s32 *)(config + 0xC4);
@@ -2631,18 +2628,28 @@ loop1_check:
         return;
     }
     if ((node10 >= 2) && (c0 >= 3)) {
-        s32 colTmpA;
-        s32 colTmpB;
+        u8 *last;
+        u32 colTmpA;
+        u32 colTmpB;
         u32 packedTmp;
         u32 colorTransfer;
-        second = clear + ((u32)c4 << 5);
-        if (*(s32 *)(clear + (u32)(c4 * 64) + 0x10) < 0) {
+
+        last = &clear[(u32)(c4 * 64)];
+        if (*(s32 *)(last + 0x10) < 0) {
             return;
         }
-        quadF0[0] = *(u_long128 *)(clear + (u32)(c4 * 64));
-        quadF0[1] = *(u_long128 *)second;
-        quadF0[2] = *(u_long128 *)clear;
-        quadF0[3] = *(u_long128 *)clear;
+        {
+            u_long128 *dst = &quadF0[0];
+
+            *dst = *(u_long128 *)last;
+            dst = &quadF0[1];
+            second = clear + (u32)(c4 * 32);
+            *dst = *(u_long128 *)second;
+            dst = &quadF0[2];
+            *dst = *(u_long128 *)clear;
+            dst = &quadF0[3];
+            *dst = *(u_long128 *)clear;
+        }
         iter = second - 0x20;
         acc2 = 0.0f;
         inv2 = one / (f32)(u32)((u32)c4 + 1);
@@ -2650,150 +2657,126 @@ loop1_check:
         diffX = *(f32 *)(clear + 0x18) - baseX;
         baseY = *(f32 *)(second + 0x1C);
         diffY = *(f32 *)(clear + 0x1C) - baseY;
-        colTmpA = *(s32 *)(clear + 0x14);
-        colTmpB = *(s32 *)(second + 0x14);
-        packScale = 255.0f;
+        colTmpA = *(u32 *)(clear + 0x14);
         {
-            f32 sc = fGpffff8044;
-            effectVuUnpackColor10((u32 *)&colTmpA, sc);
-            __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf10", "$vf11");
-            effectVuUnpackColor10((u32 *)&colTmpB, sc);
+            const u32 *word = &colTmpA;
+            f32 sc;
+
+            sc = D_00761134;
+            effectVuUnpackColor10V0(word, sc);
+            __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
+            colTmpB = *(u32 *)(second + 0x14);
+            effectVuUnpackColor10V0(&colTmpB, sc);
+        }
+        effectVuStore10((EffectVuVector *)&tmpE0);
+        __asm__ volatile(
+            "vsub.xyzw $vf11, $vf11, $vf10\n"
+            "vaddw.xyz $vf10, $vf0, $vf0w\n"
+            "vmulx.w $vf10, $vf0, $vf0x\n" : : : "$vf10", "$vf11");
+        effectVuScale10(inv2);
+        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+        effectVuStore10((EffectVuVector *)&tmpD0);
+        for (k = 0; k < (u32)c4 - 1; iter -= 0x20, k++) {
+            acc2 = acc2 + inv2;
+            func_0048a810(quadF0, acc2);
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)iter) : "r"(iter) : "memory");
+            *(f32 *)(iter + 0x18) = baseX + diffX * acc2;
+            *(f32 *)(iter + 0x1C) = baseY + diffY * acc2;
+            effectVuLoad10((EffectVuVector *)&tmpE0);
+            effectVuLoad11((EffectVuVector *)&tmpD0);
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
             effectVuStore10((EffectVuVector *)&tmpE0);
             __asm__ volatile(
-                "vsub.xyzw $vf11, $vf11, $vf10\n"
-                "vaddw.xyz $vf10, $vf0, $vf0w\n"
-                "vmulx.w $vf10, $vf0, $vf0x\n"
-                : : : "$vf10", "$vf11");
-            effectVuScale10(inv2);
-            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11");
-            effectVuStore10((EffectVuVector *)&tmpD0);
-        }
-        k = 0;
-        goto loop2_check;
-loop2_body:
-        acc2 = acc2 + inv2;
-        func_0048a810(acc2, quadF0);
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(iter) : "$vf10", "memory");
-        *(f32 *)(iter + 0x18) = baseX + diffX * acc2;
-        *(f32 *)(iter + 0x1C) = baseY + diffY * acc2;
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&tmpE0) : "$vf10", "memory");
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&tmpD0) : "$vf11", "memory");
-        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&tmpE0) : "$vf10", "memory");
-        {
-            __asm__ volatile(
-                "mfc1 %0, %2\n"
-                "nop\n"
-                "qmtc2.ni %0, $vf2\n"
+                "qmtc2.ni %2, $vf2\n"
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vftoi0.xyzw $vf10, $vf10\n"
                 "qmfc2.ni %0, $vf10\n"
-                "ppach %0, $zero, %0\n"
-                "ppacb %0, $zero, %0\n"
+                "ppach %0, $0, %0\n"
+                "ppacb %0, $0, %0\n"
                 "sw %0, packedTmp\n"
                 : "=r"(colorTransfer), "=m"(packedTmp)
-                : "f"(packScale)
-                : "$vf2", "$vf10", "memory");
+                : "r"(255.0f)
+                : "$vf2", "$vf10");
+            *(u32 *)(iter + 0x14) = packedTmp;
+            *(s32 *)(iter + 0x10) = node10;
         }
-        *(u32 *)(iter + 0x14) = packedTmp;
-        *(s32 *)(iter + 0x10) = node10;
-        iter -= 0x20;
-        k += 1;
-loop2_check:
-        if (k < (u32)(c4 - 1)) {
-            goto loop2_body;
-        }
-        return;
     } else {
-        s32 colTmpA;
-        s32 colTmpB;
+        u8 *last;
+        u32 colTmpA;
+        u32 colTmpB;
         u32 packedTmp;
         u32 colorTransfer;
+        u32 n;
+        f32 inv3;
+        f32 acc3;
+        f32 bx;
+        f32 dx;
+        f32 by;
+        f32 dy;
+
         if (node10 <= 0) {
             return;
         }
-        second = clear + stride;
-        if (*(s32 *)(second + 0x10) < 0) {
+        last = &clear[stride];
+        if (*(s32 *)(last + 0x10) < 0) {
             return;
         }
-        iter = second - 0x20;
-        acc2 = 0.0f;
-        inv2 = one / (f32)(u32)((u32)c4 + 1);
-        baseX = *(f32 *)(second + 0x18);
+        iter = last - 0x20;
+        acc3 = 0.0f;
+        inv3 = 1.0f / (f32)(u32)((u32)c4 + 1);
+        bx = *(f32 *)(last + 0x18);
+        dx = *(f32 *)(clear + 0x18) - bx;
+        by = *(f32 *)(last + 0x1C);
+        dy = *(f32 *)(clear + 0x1C) - by;
+        colTmpA = *(u32 *)(clear + 0x14);
         {
-            f32 bx = *(f32 *)(clear + 0x18);
-            diffX = bx - baseX;
+            const u32 *word = &colTmpA;
+            f32 sc;
+
+            sc = D_00761134;
+            effectVuUnpackColor10V0(word, sc);
+            __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
+            colTmpB = *(u32 *)(last + 0x14);
+            effectVuUnpackColor10V0(&colTmpB, sc);
         }
-        baseY = *(f32 *)(second + 0x1C);
-        {
-            f32 by = *(f32 *)(clear + 0x1C);
-            diffY = by - baseY;
-        }
-        colTmpA = *(s32 *)(clear + 0x14);
-        colTmpB = *(s32 *)(second + 0x14);
-        packScale = 255.0f;
-        {
-            f32 sc = fGpffff8044;
-            effectVuUnpackColor10((u32 *)&colTmpA, sc);
-            __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf10", "$vf11");
-            effectVuUnpackColor10((u32 *)&colTmpB, sc);
-            effectVuStore10((EffectVuVector *)&tmpE0);
-            __asm__ volatile(
-                "vsub.xyzw $vf11, $vf11, $vf10\n"
-                "vaddw.xyz $vf10, $vf0, $vf0w\n"
-                "vmulx.w $vf10, $vf0, $vf0x\n"
-                : : : "$vf10", "$vf11");
-            effectVuScale10(inv2);
-            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11");
-            effectVuStore10((EffectVuVector *)&tmpD0);
-        }
-        tmp = c4 - 1;
-        k = 0;
-        goto loop3_check;
-loop3_body:
-        acc2 = acc2 + inv2;
-        {
-            f32 t = acc2;
-            effectVuLoad10((EffectVuVector *)second);
+        effectVuStore10((EffectVuVector *)&tmpE0);
+        __asm__ volatile(
+            "vsub.xyzw $vf11, $vf11, $vf10\n"
+            "vaddw.xyz $vf10, $vf0, $vf0w\n"
+            "vmulx.w $vf10, $vf0, $vf0x\n" : : : "$vf10", "$vf11");
+        effectVuScale10(inv3);
+        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+        effectVuStore10((EffectVuVector *)&tmpD0);
+        for (n = 0; n < (u32)c4 - 1; iter -= 0x20, n++) {
+            acc3 = acc3 + inv3;
+            effectVuLoad10((EffectVuVector *)last);
             effectVuLoad11((EffectVuVector *)clear);
             __asm__ volatile(
                 "qmtc2.ni %0, $vf2\n"
                 "vsubx.w $vf3, $vf0, $vf2x\n"
                 "vmulax.xyzw $ACC, $vf11, $vf2x\n"
-                "vmaddw.xyzw $vf10, $vf10, $vf3w\n"
-                : : "r"(t) : "$vf2", "$vf3", "$vf10", "$vf11", "ACC");
-            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(iter) : "$vf10", "memory");
-        }
-        *(f32 *)(iter + 0x18) = baseX + diffX * acc2;
-        *(f32 *)(iter + 0x1C) = baseY + diffY * acc2;
-        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&tmpE0) : "$vf10", "memory");
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&tmpD0) : "$vf11", "memory");
-        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&tmpE0) : "$vf10", "memory");
-        {
+                "vmaddw.xyzw $vf10, $vf10, $vf3w\n" : : "r"(acc3) : "$vf2", "$vf3", "$vf10");
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)iter) : "r"(iter) : "memory");
+            *(f32 *)(iter + 0x18) = bx + dx * acc3;
+            *(f32 *)(iter + 0x1C) = by + dy * acc3;
+            effectVuLoad10((EffectVuVector *)&tmpE0);
+            effectVuLoad11((EffectVuVector *)&tmpD0);
+            __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+            effectVuStore10((EffectVuVector *)&tmpE0);
             __asm__ volatile(
-                "mfc1 %0, %2\n"
-                "nop\n"
-                "qmtc2.ni %0, $vf2\n"
+                "qmtc2.ni %2, $vf2\n"
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vftoi0.xyzw $vf10, $vf10\n"
                 "qmfc2.ni %0, $vf10\n"
-                "ppach %0, $zero, %0\n"
-                "ppacb %0, $zero, %0\n"
+                "ppach %0, $0, %0\n"
+                "ppacb %0, $0, %0\n"
                 "sw %0, packedTmp\n"
                 : "=r"(colorTransfer), "=m"(packedTmp)
-                : "f"(packScale)
-                : "$vf2", "$vf10", "memory");
+                : "r"(255.0f)
+                : "$vf2", "$vf10");
+            *(u32 *)(iter + 0x14) = packedTmp;
+            *(s32 *)(iter + 0x10) = node10;
         }
-        *(u32 *)(iter + 0x14) = packedTmp;
-        *(s32 *)(iter + 0x10) = node10;
-        iter -= 0x20;
-        k += 1;
-loop3_check:
-        if (k < (u32)tmp) {
-            goto loop3_body;
-        }
-        return;
     }
 }
 
