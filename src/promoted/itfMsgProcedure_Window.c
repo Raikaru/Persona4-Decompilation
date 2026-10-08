@@ -512,11 +512,26 @@ void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f
    was ever the right one, so each loop is measured separately rather than converting
    them all.
    2026-10-08: opt_loop_invariants on with opt_lifetimes on lowers fnalign from 873 to 510 edits. */
+/* 2026-10-09: 510 -> 189 edits, checked against the retail asm. Corrections: case 0 tests and clears the D_00882000 array itself; case 8 is placed before case 7 and uses retail's 57.0f/338.0f; cases 12 and 13 draw their labels at 23.0f/407.0f; the free-entry search is an inline helper and clears field8/fieldC/field4; the case 6/7 loops and the case 11-13 offsets match retail's s16 levels, int round trips, unfused products and loop-hoisted conversions; the case-16 counter is s32. Open: retail materialises the msgWinReady flag in cases 16/17, and some temporaries are coloured differently. */
 // FUN_0027D970 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
+static inline MsgProcWindowEntry *msgWinFreeEntry(void)
+{
+    s32 j;
+
+    for (j = 0; j < 8; j++) {
+        MsgProcWindowEntry *e = &D_008820B0[j];
+
+        if ((e->field0 & 1) == 0) {
+            return e;
+        }
+    }
+    return (MsgProcWindowEntry *)0;
+}
+
 s32 func_0027d970(s32 arg0, u32 arg1)
 {
     extern MsgProcWindowF2 D_0063C080[];
@@ -566,17 +581,17 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     s32 sret;
     s16 s16tmp;
 
-    ret = 0;
     sret = func_00278110((s32)arg0);
+    ret = 0;
     switch (arg1) {
     case 0:
         func_002781e0((void *)arg0, 0x100000);
         func_002781e0((void *)arg0, 0x400000);
         func_002781e0((void *)arg0, 0x800000);
-        if ((void *)D_00882000[0] == (void *)0) {
+        if ((void *)D_00882000 == (void *)0) {
             func_0046d730(D_0063BFC0, 0x18F);
         }
-        memset((void *)D_00882000[0], 0, 0x18);
+        memset((void *)D_00882000, 0, 0x18);
         break;
     case 4:
         if (func_002e0fb0() != 0) {
@@ -639,12 +654,10 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 w1.points[5].y = 87.0f;
                 w1.points[7].y = 88.0f;
                 w1.points[9].y = 88.0f;
-                ftmp = (float)(int)(35.0f + 2.0f * f);
-                f1 = (float)(int)(296.0f + 42.0f * f);
                 for (i = 0; i < 10; i++) {
                     p = &w1.points[i];
-                    p->x += ftmp;
-                    p->y += f1;
+                    p->x += (float)(int)(35.0f + 2.0f * f);
+                    p->y += (float)(int)(296.0f + 42.0f * f);
                     c = &w1.colors[i];
                     c->r = 0xFF;
                     c->g = 0xA1;
@@ -751,54 +764,19 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         break;
     case 6: {
         MsgProcWindowEntry *e;
-        s32 j;
         if (func_0027bec0((s32)arg0) != 0) {
-            e = (MsgProcWindowEntry *)0;
-            for (j = 0; j < 8; j++) {
-                e = &D_008820B0[j];
-                if ((e->field0 & 1) == 0) {
-                    break;
-                }
-                e = (MsgProcWindowEntry *)0;
-                if (j == 7) {
-                    break;
-                }
-            }
-            if (j < 8) {
-                e = &D_008820B0[j];
-                if ((e->field0 & 1) == 0) {
-                    memset(e, 0, 0x18);
-                    e->field0 |= 1;
-                    e->field10 = 0;
-                    e->field14 = 0;
-                    e->field4 = 0;
-                }
+            e = msgWinFreeEntry();
+            if (e != (MsgProcWindowEntry *)0) {
+                memset(e, 0, 0x18);
+                e->field0 |= 1;
+                e->field8 = 0;
+                e->fieldC = 0;
+                e->field4 = 0;
             }
         }
         ret = 1;
         break;
     }
-    case 7:
-        func_002e0dd0();
-        if ((sret & 0x200) != 0) {
-            MsgProcWindowEntry *e2;
-            s32 k;
-            e2 = (MsgProcWindowEntry *)0;
-            for (k = 0; k < 8; k++) {
-                if ((D_008820B0[k].field0 & 1) == 0) {
-                    e2 = &D_008820B0[k];
-                    break;
-                }
-            }
-            if (e2 != (void *)0) {
-                memset(e2, 0, 0x18);
-                e2->field0 |= 1;
-                e2->field10 = 0;
-                e2->field14 = 0;
-                e2->field4 = 0;
-            }
-        }
-        break;
     case 8: {
         void *t0;
         void *t1;
@@ -811,13 +789,27 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         }
         t1 = (void *)func_00278fb0((void *)arg0);
         if (t1 != (void *)0) {
-            func_00272a10(t1, 100.0f, 425.0f);
+            func_00272a10(t1, 57.0f, 338.0f);
             func_002728c0(t1, 0);
             func_00272b50(t1, 0, 0);
         }
         ret = 1;
         break;
     }
+    case 7:
+        func_002e0dd0();
+        if ((sret & 0x200) != 0) {
+            MsgProcWindowEntry *e2 = msgWinFreeEntry();
+
+            if (e2 != (MsgProcWindowEntry *)0) {
+                memset(e2, 0, 0x18);
+                e2->field0 |= 1;
+                e2->field8 = 0;
+                e2->fieldC = 0;
+                e2->field4 = 0;
+            }
+        }
+        break;
     case 9: {
         s32 lvl;
         lvl = func_0027b6e0((void *)arg0, 0);
@@ -837,7 +829,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         break;
     }
     case 11: {
-        s32 lvl2;
+        s16 lvl2;
         s32 v;
         if (func_0027bec0((s32)arg0) != 0) {
             if ((D_00882000[0] & 8) == 0) {
@@ -860,7 +852,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 dst->b = hi;
                 dst++;
             } while (count > 0);
-            f1 = 254.0f * (((259.0f - (float)(5 - lvl2) * 30.0f) / 259.0f) * f);
+            ftmp = (float)(5 - lvl2) * 30.0f;
+            f1 = 254.0f * (((259.0f - ftmp) / 259.0f) * f);
             w5.points[1].y = f1;
             w5.points[3].y = f1 + 2.0f;
             w5.points[5].y = f1 + 4.0f;
@@ -869,11 +862,10 @@ s32 func_0027d970(s32 arg0, u32 arg1)
             w5.points[11].y = f1 + 4.0f;
             w5.points[13].y = f1 + 2.0f;
             w5.points[15].y = f1;
-            ftmp = (float)v + (1.0f - f) * 128.0f;
             for (i = 0; i < 16; i++) {
                 p = &w5.points[i];
                 p->x += 20.0f;
-                p->y += ftmp;
+                p->y += (float)(int)((float)v + (1.0f - f) * 128.0f);
                 c = &w5.colors[i];
                 c->r = 0x1B;
                 c->g = 0x18;
@@ -906,7 +898,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
             }
             if (tmp != 0) {
                 a = func_00277070((s32)arg0);
-                b = func_00279010((s32)arg0);
+                b = (s16)func_00279010((s32)arg0);
                 v0 = (5 - b) * 0x1E + 0x87;
                 src = (MsgProcWindowU32Pair *)D_0063C080;
                 dst = (MsgProcWindowU32Pair *)w6.points;
@@ -920,7 +912,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     dst->b = hi;
                     dst++;
                 } while (count > 0);
-                f1 = 254.0f * ((259.0f - 30.0f * (float)(5 - b)) / 259.0f);
+                ftmp = 30.0f * (float)(5 - b);
+                f1 = 254.0f * ((259.0f - ftmp) / 259.0f);
                 w6.points[1].y = f1;
                 w6.points[3].y = f1 + 2.0f;
                 w6.points[5].y = f1 + 4.0f;
@@ -929,8 +922,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 w6.points[11].y = f1 + 4.0f;
                 w6.points[13].y = f1 + 2.0f;
                 w6.points[15].y = f1;
-                i = 0;
-                do {
+                for (i = 0; i < 16; i++) {
                     p = &w6.points[i];
                     p->x += 20.0f;
                     p->y += (float)v0;
@@ -939,12 +931,12 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     c->g = 0x18;
                     c->b = 0x11;
                     c->a = 0xD8;
-                    i++;
-                } while (i < 16);
+                }
                 func_0045e8e0(&w6.colors[0], &w6.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
-                f2 = (float)a * 30.0f + (float)(v0 + 3) + 0.0f;
-                func_0025ec90(472.0f, f2, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
-                func_0025ec90(580.0f, f2, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
+                v1 = (5 - b) * 0x1E + 0x8A;
+                v1 = (float)v1 + 30.0f * (float)a;
+                func_0025ec90(23.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
+                func_0025ec90(407.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
                 tmp = func_00278ff0((void *)arg0);
                 if (tmp != 0) {
                     func_00272b00((void *)tmp, 0);
@@ -981,30 +973,29 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 }
                 D_00882006[0]++;
                 a2 = func_00277070((s32)arg0);
-                b2 = func_00279010((s32)arg0);
+                b2 = (s16)func_00279010((s32)arg0);
                 v0 = (b2 - (a2 + 1)) * 0x1E + 0x6D;
                 v1 = a2 * 0x1E;
                 if (v1 < v0) {
-                    f = 14.0f * sinf(iGpffff8094 * (float)v0 / 229.0f);
+                    f = iGpffff8094;
+                    need32 = (s32)(14.0f * sinf(f * (float)v0 / 229.0f));
                 } else {
-                    f = 14.0f * sinf(iGpffff8094 * (float)a2 * 30.0f / 229.0f);
+                    f = iGpffff8094;
+                    need32 = (s32)(14.0f * sinf(f * (30.0f * (float)a2) / 229.0f));
                 }
-                need32 = (s32)f;
                 if (need32 < 5) {
                     need32 = 5;
                 }
                 if (D_00882006[0] <= need32) {
-                    g = sinf(iGpffff8094 * (float)D_00882006[0] / (float)need32);
+                    g = sinf(f * (float)D_00882006[0] / (float)need32);
                     f1 = (float)((b2 * 16 - b2) * 2 + 0x6D);
                     f2 = (f1 / 259.0f) * (1.0f - g * g);
                     f3 = g * (float)(a2 * 0x1E);
-                    ftmp = (float)((a2 + 1) * 0x1E);
-                    if (f2 * f1 < ftmp - f3) {
+                    if (f2 * f1 < (float)((a2 + 1) * 0x1E) - f3) {
+                        ftmp = (float)((a2 + 1) * 0x1E);
                         f2 = (ftmp - g * ftmp) / 259.0f;
                     }
-                    if (iGpffff81ec < f2) {
-                        f2 = f2;
-                    } else {
+                    if (f2 <= iGpffff81ec) {
                         f2 = iGpffff81ec;
                     }
                     src = (MsgProcWindowU32Pair *)D_0063C080;
@@ -1031,7 +1022,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     for (i = 0; i < 16; i++) {
                         p = &w7.points[i];
                         p->x += 20.0f;
-                        p->y += (float)((5 - b2) * 0x1E + 0x87) + f3;
+                        p->y += (float)(s32)((float)((5 - b2) * 0x1E + 0x87) + f3);
                         c = &w7.colors[i];
                         c->r = 0x1B;
                         c->g = 0x18;
@@ -1040,19 +1031,21 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     }
                     func_0045e8e0(&w7.colors[0], &w7.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
                 }
-                v0 = (s32)((float)a2 * 30.0f + (float)((5 - b2) * 0x1E + 0x8A) + 0.0f);
+                v0 = (5 - b2) * 0x1E + 0x8A;
+                v0 = (float)v0 + 30.0f * (float)a2;
                 if (D_00882006[0] < need32 - 5) {
-                    func_0025ec90(472.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
-                    func_0025ec90(580.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
+                    func_0025ec90(23.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
+                    func_0025ec90(407.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
                 } else {
                     f1 = (float)(D_00882006[0] - (need32 - 5)) / 5.0f;
                     if (f1 > 1.0f) {
                         f1 = 1.0f;
                     }
                     f2 = 1.0f - f1;
-                    f3 = (float)v0 + f1 * 16.0f;
-                    func_0025ecd0(472.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
-                    func_0025ecd0(580.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
+                    f3 = f1 * 16.0f;
+                    f3 = (float)v0 + f3;
+                    func_0025ecd0(23.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
+                    func_0025ecd0(407.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
                 }
                 tmp = func_00278ff0((void *)arg0);
                 if (tmp != 0 && D_00882006[0] >= need32 - 5) {
@@ -1070,7 +1063,7 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         break;
     }
     case 16: {
-        s16 cur;
+        s32 cur;
         if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
                 tmp = 1;
