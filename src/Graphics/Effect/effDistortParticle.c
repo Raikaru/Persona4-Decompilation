@@ -21,7 +21,7 @@ extern s32 func_00481300(u16 param);
 extern void func_00492df0(void *arg0, void *arg1);
 extern void func_00492db0(void *arg0, void *arg1);
 extern s32 effMiscRand(s32 arg0);
-extern s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7);
+extern void func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7);
 extern void func_004bceb0(void);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern f32 effMiscRandFloat(u32 arg0);
@@ -236,248 +236,275 @@ void func_004afc80(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg1 + 0x18) = (1.0f - temp_f20_3) + temp_f20_3 * effMiscRandFloat(0);
 }
 
-/* measured GUARDED_SCORE 725: retail 792 vs object 796 (+4, +0.5% inside 3% gate), probe 725 words, fnalign 884 edits (+2 reloc-only). Priced casts via micro_codegen (u8->f32 14 vs s32 mask 4, u32 14 vs s32 3, srl+andi long 17 vs sra short 6); kept per-channel unsigned (lbu+bltz) to match retail long. Free pragmas tie (loopinv/unrolloff/schedoff 746, comsuboff 824 worse); subscript byte-offset wins 746->725 (-21), direct ties; colours tie (both 725). Branch order alpha-first 746 wins vs unpack-first 755. Frame -0x1E0 vs -0x1D0 (+16) with extra f25, UV single-base vs 8 separate lui, FPR $f24 vs $f21 and saved-reg perm. Verify 0 MISMATCH (11 MATCH/1 ASM), lint 0 errors. Banked as guarded floor. Remeasure 2026-09-19: sink t0/t1 into arms worsens 886->930 (+44, 796->813) so retail hoists; keep hoisted. Duplicate ang at uses (recompute *(arg2+0x1C)+8084 for s0/c0b) kills $f25, 886->884 (-2); per-arm packed_copy=packed (early check uses packed, reload after cam/in mode0) kills $s7, 884->666 (-218, frame 0x1E0->0x1D0 match, no spare GPR/FPR). New: retail 792 vs object 798 (+6), words 744, fnalign 666 edits. */
-// FUN_004AFE20 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7)
+/* func_004afe20, MATCH 2026-10-07. Rewritten from retail asm on the matched
+   effParticle sibling's pattern (func_00488d70): one 64-byte sky vertex quad,
+   per-channel unsigned colour conversions, and the projected-depth formula.
+   The colour unpack asm names $2 and the COP2 pack stores the packed word to
+   its frame slot (both user-approved VU0 forms). Retail returns nothing, so
+   the prototype is void. (u32) address casts stop the CSE of arg2 + 0x14/0x1C;
+   the render tables are read through u32 locals, which keeps them in $s1/$s0.
+   The mode-1 alpha byte is stored through a byte pointer so arg0's sizes are
+   reloaded. The second size check indexes fGpffff80f0 as an array: IRO_CommonSubs
+   would otherwise hoist the shared read above the first size load. */
+typedef struct DistortVertex {
+    f32 x, y, z;
+    f32 camZ;
+    f32 u, v;
+    f32 recipZ;
+    f32 pad1;
+    f32 r, g, b, a;
+    f32 nx, ny, nz;
+    f32 pad2;
+} DistortVertex;
+typedef struct DistortColorBytes {
+    u8 red, green, blue, alpha;
+} DistortColorBytes;
+typedef union DistortColor {
+    u32 word;
+    DistortColorBytes bytes;
+} DistortColor;
+typedef struct DistortVec3 {
+    f32 x, y, z;
+} DistortVec3;
+// FUN_004AFE20
+void func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7)
 {
     extern void func_003f6690(s32 param, void *out);
     extern void RpSkyRenderStateSet(s32 param, s32 value);
     extern f32 cosf(f32 param);
     extern f32 sinf(f32 param);
-    extern u8 *func_00457120(void);
-    extern void func_003e42a0(void *a, void *b, void *c);
+    extern s32 func_00457120(void);
+    extern void func_003e42a0(DistortVec3 *out, DistortVec3 *in, void *matrix);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
     extern void func_0048a0e0(void);
-    extern s32 (*D_00887310[])(s32, void *, s32);
-    extern f32 D_008872F8;
-    extern f32 D_008872FC;
+    extern s32 (*D_00887310[])(s32, DistortVertex *, s32);
+    extern f32 D_008872F8[];
+    extern f32 D_008872FC[];
     extern f32 fGpffff8084;
     extern f32 fGpffff80f0;
+    extern f32 fGpffff81f4;
     extern f32 D_00714570[];
-    s32 cw_stack;
-    s32 packed;
-    s32 packed_copy;
+    extern f32 D_00714574[];
+    extern f32 D_00714578[];
+    extern f32 D_0071457C[];
+    extern f32 D_00714580[];
+    extern f32 D_00714584[];
+    extern f32 D_00714588[];
+    extern f32 D_0071458C[];
+    DistortColor packed;
     s32 st2;
     s32 st3;
+    s32 cw;
+    u32 pk;
+    DistortVec3 tmpPos __attribute__((aligned(16)));
+    DistortVec3 tmpOut __attribute__((aligned(16)));
+    DistortVertex qb[4];
+    f32 base;
     f32 t0;
     f32 t1;
-    f32 f22;
-    f32 f23;
-    f32 base;
-    f32 c0;
-    f32 c1;
-    f32 v0;
-    f32 v1;
-    s32 mode;
-    u8 *cam;
-    f32 in_x[3];
-    f32 out_x[3];
+    f32 sizeX;
+    f32 sizeY;
+    u32 mode;
+    f32 bufferNear;
+    f32 bufferFar;
+    f32 cameraFar;
+    f32 cameraNear;
+    f32 recip;
     f32 depth;
-    f32 inv;
-    f32 s0;
-    f32 c0b;
+    f32 c;
+    f32 s;
     f32 f8;
     f32 f7;
     f32 f6;
     f32 f5;
-    f32 verts[64];
-    s32 is_out;
-    s32 uv_off;
-    cw_stack = *(s32 *)((u8 *)arg2 + 0x14);
+    s32 bad;
+
+    cw = *(s32 *)((u8 *)arg2 + 0x14);
     {
-        s32 scale = iGpffff81f4;
+        const s32 *word = &cw;
+        f32 scale;
+
+        scale = fGpffff81f4;
         __asm__ volatile(
-            "lw $2, 0(%0)          \n"
-            "pextlb $2, $0, $2     \n"
-            "pextlh $2, $0, $2     \n"
-            "qmtc2.ni $2, $vf10    \n"
-            "vitof0.xyzw $vf10, $vf10 \n"
-            "nop                   \n"
-            "qmtc2.ni %1, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "lqc2 $vf11, 0(%2)     \n"
-            "vmul.xyzw $vf10, $vf10, $vf11 \n"
-            "lui $2, 0x437F        \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "vftoi0.xyzw $vf10, $vf10 \n"
-            "qmfc2.ni $2, $vf10    \n"
-            "ppach $2, $0, $2      \n"
-            "ppacb $2, $0, $2      \n"
-            "sw $2, 0(%3)          \n"
-            :
-            : "r"(&cw_stack), "r"(scale), "r"(arg4), "r"(&packed)
-            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+            "lw $2, 0(%0)\n"
+            "pextlb $2, $0, $2\n"
+            "pextlh $2, $0, $2\n"
+            "qmtc2.ni $2, $vf10\n"
+            "vitof0.xyzw $vf10, $vf10\n"
+            "qmtc2.ni %1, $vf2\n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+            "lqc2 $vf11, 0(%2)\n"
+            "vmul.xyzw $vf10, $vf10, $vf11\n"
+            : : "r"(word), "r"(scale), "r"(arg4), "m"(cw) : "$2", "$vf2", "$vf10", "$vf11");
     }
-    if (((u8 *)&packed)[3] == 0) {
-        return 0;
+    {
+        u32 work;
+
+        __asm__ volatile(
+            "qmtc2.ni %2, $vf2\n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+            "vftoi0.xyzw $vf10, $vf10\n"
+            "qmfc2.ni %0, $vf10\n"
+            "ppach %0, $0, %0\n"
+            "ppacb %0, $0, %0\n"
+            "sw %0, pk\n"
+            : "=&r"(work), "=m"(pk) : "r"(0x437F0000U) : "$vf2", "$vf10");
+    }
+    packed.word = pk;
+    if (packed.bytes.alpha == 0) {
+        return;
     }
     func_003f6690(2, &st2);
     func_003f6690(3, &st3);
     base = *(f32 *)((u8 *)arg2 + 0x18);
-    c0 = *(f32 *)(arg1 + 0x0);
-    v0 = *(f32 *)(arg1 + 0x8);
-    t0 = base + v0 * cosf(c0);
-    c1 = *(f32 *)(arg1 + 0xC);
-    v1 = *(f32 *)(arg1 + 0x14);
-    t1 = base + v1 * cosf(c1);
+    t0 = base + *(f32 *)(arg1 + 0x8) * cosf(*(f32 *)(arg1 + 0x0));
+    t1 = base + *(f32 *)(arg1 + 0x14) * cosf(*(f32 *)(arg1 + 0xC));
     mode = arg6 & 0xFF;
-    if (mode == 1) {
-        u32 denom;
-        u32 abyte;
-        f32 alpha;
-        if (*(f32 *)(arg0 + 0x28) < fGpffff80f0) {
-            return 0;
+    switch (mode) {
+    case 0:
+        sizeX = (((f32 *)arg5)[0] * t0) / 32.0f;
+        sizeY = (((f32 *)arg5)[1] * t1) / 32.0f;
+        qb[0].r = (f32)(u32)packed.bytes.red;
+        qb[0].g = (f32)(u32)packed.bytes.green;
+        qb[0].b = (f32)(u32)packed.bytes.blue;
+        qb[0].a = (f32)(u32)packed.bytes.alpha;
+        qb[1].r = (f32)(u32)packed.bytes.red;
+        qb[1].g = (f32)(u32)packed.bytes.green;
+        qb[1].b = (f32)(u32)packed.bytes.blue;
+        qb[1].a = (f32)(u32)packed.bytes.alpha;
+        qb[2].r = (f32)(u32)packed.bytes.red;
+        qb[2].g = (f32)(u32)packed.bytes.green;
+        qb[2].b = (f32)(u32)packed.bytes.blue;
+        qb[2].a = (f32)(u32)packed.bytes.alpha;
+        qb[3].r = (f32)(u32)packed.bytes.red;
+        qb[3].g = (f32)(u32)packed.bytes.green;
+        qb[3].b = (f32)(u32)packed.bytes.blue;
+        qb[3].a = (f32)(u32)packed.bytes.alpha;
+        break;
+    case 1: {
+        f32 scale;
+
+        if (*(f32 *)(arg0 + 0x28) < fGpffff80f0 || *(f32 *)(arg0 + 0x2C) < ((f32 *)&fGpffff80f0)[0]) {
+            return;
         }
-        if (*(f32 *)(arg0 + 0x2C) < fGpffff80f0) {
-            return 0;
-        }
-        cam = func_00457120();
-        denom = *(u32 *)(*(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x20) + 0x50);
-        abyte = (u32)*(s32 *)((u8 *)arg2 + 0x14) >> 24;
-        packed_copy = packed;
-        alpha = (255.0f * (f32)abyte) / (f32)denom;
-        if (alpha >= 2147483648.0f) {
-            ((u8 *)&packed_copy)[3] = (u8)(s32)(alpha - 2147483648.0f);
-        } else {
-            ((u8 *)&packed_copy)[3] = (u8)(s32)alpha;
-        }
-        f23 = *(f32 *)(arg1 + 0x18) * (*(f32 *)(arg0 + 0x28) * ((((f32 *)arg5)[0] * t0) / 32.0f));
-        f22 = *(f32 *)(arg1 + 0x18) * (*(f32 *)(arg0 + 0x2C) * ((((f32 *)arg5)[1] * t1) / 32.0f));
-        verts[0*16+8] = 255.0f;
-        verts[0*16+9] = 255.0f;
-        verts[0*16+10] = 255.0f;
-        verts[0*16+11] = (f32)((u8 *)&packed_copy)[3];
-        verts[1*16+8] = 255.0f;
-        verts[1*16+9] = 255.0f;
-        verts[1*16+10] = 255.0f;
-        verts[1*16+11] = (f32)((u8 *)&packed_copy)[3];
-        verts[2*16+8] = 255.0f;
-        verts[2*16+9] = 255.0f;
-        verts[2*16+10] = 255.0f;
-        verts[2*16+11] = (f32)((u8 *)&packed_copy)[3];
-        verts[3*16+8] = 255.0f;
-        verts[3*16+9] = 255.0f;
-        verts[3*16+10] = 255.0f;
-        verts[3*16+11] = (f32)((u8 *)&packed_copy)[3];
-    } else if (mode == 0) {
-        packed_copy = packed;
-        f23 = (((f32 *)arg5)[0] * t0) / 32.0f;
-        f22 = (((f32 *)arg5)[1] * t1) / 32.0f;
-        verts[0*16+8] = (f32)((u8 *)&packed_copy)[0];
-        verts[0*16+9] = (f32)((u8 *)&packed_copy)[1];
-        verts[0*16+10] = (f32)((u8 *)&packed_copy)[2];
-        verts[0*16+11] = (f32)((u8 *)&packed_copy)[3];
-        verts[1*16+8] = (f32)((u8 *)&packed_copy)[0];
-        verts[1*16+9] = (f32)((u8 *)&packed_copy)[1];
-        verts[1*16+10] = (f32)((u8 *)&packed_copy)[2];
-        verts[1*16+11] = (f32)((u8 *)&packed_copy)[3];
-        verts[2*16+8] = (f32)((u8 *)&packed_copy)[0];
-        verts[2*16+9] = (f32)((u8 *)&packed_copy)[1];
-        verts[2*16+10] = (f32)((u8 *)&packed_copy)[2];
-        verts[2*16+11] = (f32)((u8 *)&packed_copy)[3];
-        verts[3*16+8] = (f32)((u8 *)&packed_copy)[0];
-        verts[3*16+9] = (f32)((u8 *)&packed_copy)[1];
-        verts[3*16+10] = (f32)((u8 *)&packed_copy)[2];
-        verts[3*16+11] = (f32)((u8 *)&packed_copy)[3];
+        ((u8 *)&packed)[3] = (u8)((255.0f * (f32)(*(u32 *)((u32)arg2 + 0x14) >> 24)) /
+                                  (f32)*(u32 *)(*(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x20) + 0x50));
+        scale = *(f32 *)(arg1 + 0x18);
+        sizeX = scale * (*(f32 *)(arg0 + 0x28) * ((((f32 *)arg5)[0] * t0) / 32.0f));
+        sizeY = scale * (*(f32 *)(arg0 + 0x2C) * ((((f32 *)arg5)[1] * t1) / 32.0f));
+        qb[0].r = 255.0f;
+        qb[0].g = 255.0f;
+        qb[0].b = 255.0f;
+        qb[0].a = (f32)(u32)packed.bytes.alpha;
+        qb[1].r = 255.0f;
+        qb[1].g = 255.0f;
+        qb[1].b = 255.0f;
+        qb[1].a = (f32)(u32)packed.bytes.alpha;
+        qb[2].r = 255.0f;
+        qb[2].g = 255.0f;
+        qb[2].b = 255.0f;
+        qb[2].a = (f32)(u32)packed.bytes.alpha;
+        qb[3].r = 255.0f;
+        qb[3].g = 255.0f;
+        qb[3].b = 255.0f;
+        qb[3].a = (f32)(u32)packed.bytes.alpha;
+        break;
     }
-    in_x[0] = *(f32 *)((u8 *)arg3 + 0x0);
-    in_x[1] = *(f32 *)((u8 *)arg3 + 0x4);
-    in_x[2] = *(f32 *)((u8 *)arg3 + 0x8);
-    cam = func_00457120();
-    func_003e42a0(out_x, in_x, cam + 0x20);
+    }
+    tmpPos.x = ((f32 *)arg3)[0];
+    tmpPos.y = ((f32 *)arg3)[1];
+    tmpPos.z = ((f32 *)arg3)[2];
+    func_003e42a0(&tmpOut, &tmpPos, (u8 *)func_00457120() + 0x20);
     {
-        f32 nx = out_x[1] / out_x[2];
-        f32 ny = out_x[0] / out_x[2];
-        if (ny < -2.0f || ny > 2.0f || nx < -2.0f || nx > 2.0f) {
-            is_out = 1;
+        f32 ry = tmpOut.y / tmpOut.z;
+        f32 rx = tmpOut.x / tmpOut.z;
+
+        if (rx < -2.0f || !(rx <= 2.0f) || ry < -2.0f || !(ry <= 2.0f)) {
+            bad = 1;
         } else {
-            is_out = 0;
-        }
-        if (is_out != 0) {
-            return 0;
+            bad = 0;
         }
     }
-    {
-        u8 *c2;
-        f32 zf;
-        f32 wf;
-        depth = D_008872FC;
-        wf = D_008872F8;
-        c2 = func_00457120();
-        zf = *(f32 *)(c2 + 0x84);
-        c2 = func_00457120();
-        depth = (*(f32 *)(c2 + 0x80) / out_x[2]) * (out_x[2] - zf) * ((wf - depth) / (*(f32 *)(c2 + 0x80) - zf)) + depth;
-        if (depth < 0.0f) {
-            depth = 0.0f;
-        }
-        inv = 1.0f / depth;
-        s0 = cosf(*(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084);
-        c0b = sinf(*(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084);
-        f8 = f23 * s0;
-        f7 = f22 * s0;
-        f6 = f23 * c0b;
-        f5 = f22 * c0b;
-        verts[0*16+4] = 0.0f;
-        verts[0*16+5] = 0.0f;
-        verts[1*16+4] = 1.0f;
-        verts[1*16+5] = 0.0f;
-        verts[2*16+4] = 0.0f;
-        verts[2*16+5] = 1.0f;
-        verts[3*16+4] = 1.0f;
-        verts[3*16+5] = 1.0f;
-        verts[0*16+0] = 640.0f * ((out_x[0] + (-f8 + f5)) / out_x[2]);
-        verts[0*16+1] = 448.0f * ((out_x[1] - (-f6 - f7)) / out_x[2]);
-        verts[0*16+2] = depth;
-        verts[0*16+6] = inv;
-        verts[1*16+0] = 640.0f * ((out_x[0] + (f8 + f5)) / out_x[2]);
-        verts[1*16+1] = 448.0f * ((out_x[1] - (f6 - f7)) / out_x[2]);
-        verts[1*16+2] = depth;
-        verts[1*16+6] = inv;
-        verts[2*16+0] = 640.0f * ((out_x[0] + (-f8 - f5)) / out_x[2]);
-        verts[2*16+1] = 448.0f * ((out_x[1] - (-f6 + f7)) / out_x[2]);
-        verts[2*16+2] = depth;
-        verts[2*16+6] = inv;
-        verts[3*16+0] = 640.0f * ((out_x[0] + (f8 - f5)) / out_x[2]);
-        verts[3*16+1] = 448.0f * ((out_x[1] - (f6 + f7)) / out_x[2]);
-        verts[3*16+2] = depth;
-        verts[3*16+6] = inv;
-        if (mode == 1) {
-            RpSkyRenderStateSet(2, 0x42);
-            D_00887310[0](4, verts, 4);
-        } else if (mode == 0) {
-            u8 *tbl;
-            tbl = (u8 *)func_00481300(0x15);
-            D_00887300[0](1, *(u32 *)tbl);
-            func_00489f80();
-            RpSkyRenderStateSet(2, 0x44);
-            RpSkyRenderStateSet(3, 0x31001);
-            D_00887310[0](4, verts, 4);
-            func_0048a000();
-            D_00887300[0](1, *(u32 *)(arg0 + 0x60));
-            RpSkyRenderStateSet(2, st2 | 0x10);
-            uv_off = (arg7 & 0xFF) << 5;
-            verts[0*16+4] = *(f32 *)((u8 *)D_00714570 + uv_off + 0);
-            verts[0*16+5] = *(f32 *)((u8 *)D_00714570 + uv_off + 4);
-            verts[1*16+4] = *(f32 *)((u8 *)D_00714570 + uv_off + 8);
-            verts[1*16+5] = *(f32 *)((u8 *)D_00714570 + uv_off + 12);
-            verts[2*16+4] = *(f32 *)((u8 *)D_00714570 + uv_off + 16);
-            verts[2*16+5] = *(f32 *)((u8 *)D_00714570 + uv_off + 20);
-            verts[3*16+4] = *(f32 *)((u8 *)D_00714570 + uv_off + 24);
-            verts[3*16+5] = *(f32 *)((u8 *)D_00714570 + uv_off + 28);
-            D_00887310[0](4, verts, 4);
-            func_0048a0e0();
-        }
-        RpSkyRenderStateSet(2, st2);
-        RpSkyRenderStateSet(3, st3);
-        return 0;
+    if (bad != 0) {
+        return;
     }
+    bufferNear = D_008872FC[0];
+    bufferFar = D_008872F8[0];
+    cameraFar = *(f32 *)((u8 *)func_00457120() + 0x84);
+    cameraNear = *(f32 *)((u8 *)func_00457120() + 0x80);
+    depth = (cameraNear / tmpOut.z) * ((tmpOut.z - cameraFar) * ((bufferFar - bufferNear) / (cameraNear - cameraFar))) + (bufferNear + 0.0f);
+    if (depth < 0.0f) {
+        depth = 0.0f;
+    }
+    recip = 1.0f / depth;
+    c = cosf(fGpffff8084 + *(f32 *)((u8 *)arg2 + 0x1C));
+    s = sinf(fGpffff8084 + *(f32 *)((u32)arg2 + 0x1C));
+    f8 = sizeX * c;
+    f7 = sizeY * c;
+    f6 = sizeX * s;
+    f5 = sizeY * s;
+    qb[0].u = 0.0f;
+    qb[0].v = 0.0f;
+    qb[1].u = 1.0f;
+    qb[1].v = 0.0f;
+    qb[2].u = 0.0f;
+    qb[2].v = 1.0f;
+    qb[3].u = 1.0f;
+    qb[3].v = 1.0f;
+    qb[0].x = 640.0f * ((tmpOut.x + (-f8 + f5)) / tmpOut.z);
+    qb[0].y = 448.0f * ((tmpOut.y - (-f6 - f7)) / tmpOut.z);
+    qb[0].z = depth;
+    qb[0].recipZ = recip;
+    qb[1].x = 640.0f * ((tmpOut.x + (f8 + f5)) / tmpOut.z);
+    qb[1].y = 448.0f * ((tmpOut.y - (f6 - f7)) / tmpOut.z);
+    qb[1].z = depth;
+    qb[1].recipZ = recip;
+    qb[2].x = 640.0f * ((tmpOut.x + (-f8 - f5)) / tmpOut.z);
+    qb[2].y = 448.0f * ((tmpOut.y - (-f6 + f7)) / tmpOut.z);
+    qb[2].z = depth;
+    qb[2].recipZ = recip;
+    qb[3].x = 640.0f * ((tmpOut.x + (f8 - f5)) / tmpOut.z);
+    qb[3].y = 448.0f * ((tmpOut.y - (f6 + f7)) / tmpOut.z);
+    qb[3].z = depth;
+    qb[3].recipZ = recip;
+    switch (mode) {
+    case 0: {
+        u32 uv;
+        u32 *texture = (u32 *)func_00481300(0x15);
+        u32 setStateTable = (u32)D_00887300;
+        u32 primitiveTable;
+
+        ((void (**)(u32, u32))setStateTable)[0](1, *texture);
+        func_00489f80();
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x31001);
+        primitiveTable = (u32)D_00887310;
+        ((s32 (**)(s32, DistortVertex *, s32))primitiveTable)[0](4, qb, 4);
+        func_0048a000();
+        ((void (**)(u32, u32))setStateTable)[0](1, **(u32 **)(arg0 + 0x60));
+        RpSkyRenderStateSet(2, st2 | 0x10);
+        uv = (arg7 & 0xFF) << 5;
+        qb[0].u = *(f32 *)((u8 *)D_00714570 + uv);
+        qb[0].v = *(f32 *)((u8 *)D_00714574 + uv);
+        qb[1].u = *(f32 *)((u8 *)D_00714578 + uv);
+        qb[1].v = *(f32 *)((u8 *)D_0071457C + uv);
+        qb[2].u = *(f32 *)((u8 *)D_00714580 + uv);
+        qb[2].v = *(f32 *)((u8 *)D_00714584 + uv);
+        qb[3].u = *(f32 *)((u8 *)D_00714588 + uv);
+        qb[3].v = *(f32 *)((u8 *)D_0071458C + uv);
+        ((s32 (**)(s32, DistortVertex *, s32))primitiveTable)[0](4, qb, 4);
+        func_0048a0e0();
+        break;
+    }
+    case 1:
+        RpSkyRenderStateSet(2, 0x42);
+        D_00887310[0](4, qb, 4);
+        break;
+    }
+    RpSkyRenderStateSet(2, st2);
+    RpSkyRenderStateSet(3, st3);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004afe20);
-#endif
 
 // FUN_004B0A80
 void func_004b0a80(u8 *arg0) {
