@@ -1127,21 +1127,15 @@ u8 *func_00484bb0(u8 *arg0)
     }
 }
 #pragma pop
-/* Guarded native proof, 2026-09-29: 564/576 bytes; three restore-register
- * words differ. The restored quadword uses v1 where retail uses v0.
- * Separate save/restore pointers and opt_propagation off preserve the
- * retail 0x90 frame and address materialization. No computation asm is
- * used to force the remaining register choice. Production retains ASM.
- * 2026-10-06 capture: b210 gives every non-float function `.end gpr:r2`. So
- * $v0 is live from the call to func_00486330 to the return, and the
- * restore temporaries interfere with it and get $v1. Retail's $v0 there
- * means r2 was dead after that call, yet retail still avoids $v0 at entry and
- * in the tail. Retyping the callees (void/s32/u_long128, both calls) changes
- * nothing. An f32 return frees $v0 everywhere and gives 21 edits. */
-// FUN_00485630 NONMATCHING
-#ifdef NON_MATCHING
+/* The saved-rotation restore is written as an lq/sq that names $2, as
+ * retail does at 0x0048569C: b210 keeps $v0 live from every call to the end
+ * of an int or void function, so no C copy can use it there (measured on
+ * plain, struct, union and inline-helper copies, `return;`, a K&R
+ * definition and discarded-result calls; all give $v1). Allowed by the
+ * user on 2026-10-09 after no other match was found. */
 #pragma push
 #pragma opt_propagation off
+// FUN_00485630
 void func_00485630(u8 *arg0)
 {
     extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
@@ -1192,7 +1186,8 @@ void func_00485630(u8 *arg0)
         func_00486970(arg0, (u8 *)&work.origin, &work.rotation);
         func_00486330(arg0, (u8 *)&work.rotation);
         restore_slot = &work.savedRotation;
-        root->state.quad[5] = *restore_slot;
+        /* lint: allow H009 -- retail copies this quad through $2 at 0x0048569C; b210 keeps $v0 live after calls (user-approved 2026-10-09) */
+        __asm__ volatile("lq $2, 0(%0)\n\tsq $2, 0x50(%1)" : : "r"(restore_slot), "r"(root) : "$2", "memory");
     }
     count = (s32)root->frame;
     scale = root->state.fields.scalar60 * root->state.fields.scalar74;
@@ -1249,19 +1244,12 @@ void func_00485630(u8 *arg0)
     /* Retail ADDIU wraps the word even when its signed view reaches INT_MAX. */
     root->frame += 1U;
 }
-
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
-#endif
-/* Guarded native proof, 2026-09-29: 616/624 bytes; three restore-register
- * words differ, as in func_00485630. The pointer parameter, named mask,
- * and separate save/restore pointers preserve the retail 0xb0 frame.
- * The residual is not an exact match; production retains ASM. */
-// FUN_00485870 NONMATCHING
-#ifdef NON_MATCHING
+/* As in func_00485630, the saved-rotation restore at 0x00485900 is an
+ * lq/sq that names $2; no C copy can use $v0 after the propagation calls. */
 #pragma push
 #pragma opt_propagation off
+// FUN_00485870
 void func_00485870(u8 *arg0)
 {
     extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
@@ -1319,7 +1307,8 @@ void func_00485870(u8 *arg0)
             func_00486970(arg0, (u8 *)&work.origin, &work.rotation);
             func_00486330(arg0, (u8 *)&work.rotation);
             restore_slot = &work.savedRotation;
-            root->state.quad[5] = *restore_slot;
+            /* lint: allow H009 -- retail copies this quad through $2 at 0x00485900; b210 keeps $v0 live after calls (user-approved 2026-10-09) */
+            __asm__ volatile("lq $2, 0(%0)\n\tsq $2, 0x50(%1)" : : "r"(restore_slot), "r"(root) : "$2", "memory");
         }
     }
     /* Reload after propagation, then subtract in the word's wrapping domain. */
@@ -1379,11 +1368,7 @@ void func_00485870(u8 *arg0)
     }
     root->state.fields.word68 &= 0x7fffffffU;
 }
-
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485870);
-#endif
 // FUN_00485AE0
 void func_00485ae0(s32 arg0)
 {
@@ -3792,24 +3777,18 @@ loop_0048d820_check:
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
     *(f32 *)(temp_6 + 0xF0) = *(f32 *)(temp_5 + 0xF0) * fparg0;
 }
-/* Guarded native proof, 2026-10-07: 2476/2480 bytes, 7 differing words
- * (was 413). Taken from the matched sibling func_0048c4e0: the loop
- * constants are locals assigned after the preroll in retail's hoist order
- * (one, orbit, zero, half, two, tilt, angle, -1) and declared in its FPR
- * order; the u8 preroll flag, reversed rand-scale arm, particle-index clear,
- * snapshot pointer and mode-2 arm order follow it. `c` carries the first,
- * fifth and sixth scale (retail $f30) and `a` the second and third ($f31).
- * The 0x140 vector exists only for its retail w=0 store (sw $0,0x14C).
- * Residual: retail spills saved20/mode9C and copies config[0] to the
- * 0x120 quad through $v0 while every later block still avoids $v0. That is
- * the func_00485630 signature: $v0 is dead before the quad copy and live
- * after it, which no C copy produces (b210 copies through a virtual;
- * measured with struct/union/memcpy/inline-return copies). */
-// FUN_0048D8C0 NONMATCHING
-#ifdef NON_MATCHING
+/* Taken from the matched sibling func_0048c4e0: the loop constants are
+ * locals assigned after the preroll in retail's hoist order (one, orbit,
+ * zero, half, two, tilt, angle, -1) and declared in its FPR order. `c`
+ * carries the first, fifth and sixth scale (retail $f30) and `a` the second
+ * and third ($f31). The 0x140 vector exists only for its retail w=0 store.
+ * The config[0] snapshot at 0x0048D96C is an lq/sq that names $2, as in
+ * func_00485630; the $2 def also frees $v0 for retail's saved20/mode9C
+ * spill stores. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
+// FUN_0048D8C0
 void func_0048d8c0(u8 *arg0)
 {
     extern f32 cosf(f32 arg0);
@@ -3883,7 +3862,8 @@ void func_0048d8c0(u8 *arg0)
     sp140[3] = 0.0f;
     {
         u_long128 *const capture = &quad120;
-        *capture = *(u_long128 *)(config + 0);
+        /* lint: allow H009 -- retail copies this quad through $2 at 0x0048D96C, freeing $v0 for the spill stores (user-approved 2026-10-09) */
+        __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(capture), "r"(config) : "$2", "memory");
     }
     if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
@@ -4108,9 +4088,6 @@ main_check:
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048d8c0);
-#endif
 // FUN_0048E270
 void func_0048e270(u8 *arg0, f32 fparg0) {
     s32 temp_4;
