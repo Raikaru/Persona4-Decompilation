@@ -303,291 +303,307 @@ void func_004aec80(u8 *arg0)
     }
 }
 
-/* measured clean_v4: retail 492 vs object 493 (+1, +0.2% inside 3% gate), probe 455 words, fnalign 678 edits. Fix chain: v1 scalar 815/782 -> v3 signed colour (s32 word+mask unpack, s32 pack with shifts) 553/523 -> v4 single VU bridge per loop after call (unpack+modulate+pack, lui 0x437F first loop, mfc1 full second) 493/455. Parent stays signed s32+mask (20 instrs vs VU 9) to hold size. Banked as guarded floor. Remeasure 2026-09-19: hoist 0.5f in small branch (f32 half=0.5f before loop, use half in f computation) 678->675 (-3, words 479 same, 493/492 same); still missing $f26 (retail 0x230 vs object 0x200, retail saves $f26) so retail holds one more float (likely 0.5f/full/gscale/inv held vs recomputed) - opposite case from sinking floors, needs hoist not sink. */
-/* 2026-09-19 assignment (cscale hoist): hoist fGpffff81f4 out of both loops into */
-/* cscaleH set once with inv (matching retail lwc1 $f25 at entry, mfc1 per iter). */
-/* floor_distance 675->487 edits (-188), words 479->461 (-18), object 493->491/ */
-/* retail 492->491 exact (inside gate); still missing $f26 (0x200 vs 0x230) so inv */
-/* vs half/full/gscale pressure remains - next hoist is half after snapshots. */
-/* Commands: floor_distance src/Graphics/Effect/effObjectParticle.c, regsave_scan */
-/* src/Graphics/Effect/effObjectParticle.c func_004aed70. */
-/* measured 004aed70 (owner, 2026-09-19): fnalign **486 -> 485 edits**, count
-   491 -> 489 against retail 491, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits - no guard before the first iteration, one compare
-   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
+/* Guarded rewrite from retail asm, 2026-10-07: 12 edits, 490/490 instructions.
+ * The COP2 colour packs store the named slot inside the asm, and the matrix
+ * identity follows RwMatrixSetIdentityMacro. Open: retail reloads the particle
+ * life word for the second loop's func_004ae2f0 call. b210's backend CSE
+ * (remove_common_subexpressions) folds that load into the loop condition's
+ * load; no source form tried so far (struct field, pointer locals,
+ * opt_propagation off) keeps it. */
 // FUN_004AED70 NONMATCHING
 #ifdef NON_MATCHING
+typedef struct EffObjectRGBA {
+    u32 rgba;
+} EffObjectRGBA;
+
+typedef struct EffObjectMatrix {
+    f32 right[3];
+    u32 flags;
+    f32 up[3];
+    u32 pad1;
+    f32 at[3];
+    u32 pad2;
+    f32 pos[3];
+    u32 pad3;
+} __attribute__((aligned(16))) EffObjectMatrix;
+
+#define EFF_OBJECT_PACK_COLOR10(packed, scale)                          \
+    do {                                                                 \
+        __asm__ volatile(                                                \
+            "qmtc2.ni %0, $vf2\n"                                         \
+            "vmulx.xyzw $vf10, $vf10, $vf2x\n" : : "r"(scale) : "$vf2", "$vf10"); \
+        __asm__ volatile(                                                \
+            "vftoi0.xyzw $vf10, $vf10\n"                                  \
+            "qmfc2.ni %0, $vf10\n"                                        \
+            "ppach %0, $0, %0\n"                                          \
+            "ppacb %0, $0, %0\n" : "=r"(packed) : : "$vf10");            \
+    } while (0)
+
 void func_004aed70(u8 *arg0)
 {
-    extern void func_00492df0(void *a, void *b);
-    extern void func_00492db0(void *a, void *b);
+    extern void func_00492df0(void *a, EffectVuVector *b);
+    extern void func_00492db0(void *a, EffectVuVector *b);
     extern void func_004bceb0(void);
     extern void func_004ae2f0(u8 *a, u8 *b, s32 c);
-    extern u32 *func_004ae020(u32 *a, u8 *b);
-    extern void func_003bff30(void *a, void *b, void *c);
+    extern void *func_004ae020(void *object, void *data);
     extern void func_003bfe90(void *a);
-    extern void RwMatrixRotate(void *a, void *b, s32 c, f32 d);
-    extern void *RwMatrixMultiply(void *a, void *b, void *c);
-    extern void RwMatrixScale(void *a, void *b, s32 c);
-    extern void RwMatrixTranslate(void *a, void *b, s32 c);
-    extern void func_003e9cb0(void *a, void *b, s32 c);
+    extern void RwMatrixMultiply(EffObjectMatrix *dst, EffObjectMatrix *a, EffObjectMatrix *b);
+    extern void RwMatrixRotate(EffObjectMatrix *m, f32 *axis, f32 angle, s32 op);
+    extern void RwMatrixScale(EffObjectMatrix *m, f32 *scale, s32 op);
+    extern void RwMatrixTranslate(EffObjectMatrix *m, f32 *pos, s32 op);
+    extern void func_003e9cb0(void *a, EffObjectMatrix *b, s32 c);
     extern void func_004813f0(void);
     extern f32 fGpffff81f4;
     extern f32 fGpffff8048;
-    extern u8 D_00713D20[];
-    extern u8 D_00713D24[];
-    extern u8 D_00713D28[];
-    typedef unsigned int u_long128 __attribute__((mode(TI)));
-    f32 parent[4] __attribute__((aligned(16)));
-    u8 snapA[16];
-    u8 snapB[16];
-    f32 snap[16];
-    f32 base[12];
-    f32 matA[16];
-    f32 matB[16];
-    f32 axis[4];
-    f32 scale[3];
+    extern f32 D_00713D20[];
+    extern f32 D_00713D24[];
+    extern f32 D_00713D28[];
+    extern f32 D_00713D10[];
+    extern f32 D_00713D14[];
+    extern f32 D_00713D18[];
+    extern EffectVuVector D_00713CE0;
+    EffObjectRGBA packedArg;
+    u32 colorWord;
+    u32 colorA;
+    u32 colorB;
+    EffObjectRGBA packedA;
+    EffObjectRGBA packedB;
+    f32 vec[3];
     f32 pos[3];
-    u8 *tmp4;
-    s32 cnt;
+    f32 axisA[3];
+    f32 axisB[3];
+    EffectVuVector colorBase;
+    EffectVuVector snapB;
+    EffectVuVector snapA;
+    EffectVuVector snap[4];
+    EffObjectMatrix matB;
+    EffObjectMatrix base;
+    EffObjectMatrix matA;
+    f32 inv;
+    f32 cscale;
+    f32 full;
+    f32 half;
+    f32 zero;
+    f32 one;
+    f32 gscale;
+    s32 i;
+    u8 *self;
+    u8 *list;
+    s32 count;
     u8 *p18;
     u8 *p17;
-    u8 *tmp16;
-    f32 inv;
-    f32 cscaleH;
-    s32 k;
+    u8 *clump;
+
+    self = arg0;
+    colorWord = *(u32 *)(self + 4);
     {
-        s32 w = *(s32 *)(arg0 + 4);
-        parent[0] = fGpffff81f4 * (f32)(w & 0xFF);
-        parent[1] = fGpffff81f4 * (f32)((w >> 8) & 0xFF);
-        parent[2] = fGpffff81f4 * (f32)((w >> 16) & 0xFF);
-        parent[3] = fGpffff81f4 * (f32)((w >> 24) & 0xFF);
+        const u32 *word = &colorWord;
+
+        cscale = fGpffff81f4;
+        effectVuUnpackColor10V0(word, cscale);
     }
-    tmp4 = *(u8 **)(arg0 + 0x58);
-    cnt = *(s32 *)(tmp4 + 8);
-    if (cnt == 0 || *(s32 *)(tmp4 + 0x10) == 0) {
-        return;
-    }
-    p18 = *(u8 **)(tmp4 + 0x18);
-    p17 = *(u8 **)(arg0 + 0x5C);
-    tmp16 = *(u8 **)(arg0 + 0x54);
+    effectVuStore10(&colorBase);
+    list = *(u8 **)(self + 0x58);
+    count = *(s32 *)(list + 8);
+    if (count != 0 && *(s32 *)(list + 0x10) != 0) {
+    p18 = *(u8 **)(list + 0x18);
+    p17 = *(u8 **)(self + 0x5C);
+    clump = *(u8 **)(self + 0x54);
     {
-        f32 v = *(f32 *)(arg0 + 8);
-        if (v == 0.0f) {
-            inv = 1.0f;
+        f32 v = *(f32 *)(self + 8);
+
+        if (v != 0.0f) {
+            one = 1.0f;
+            inv = one / v;
         } else {
-            inv = 1.0f / v;
+            one = 1.0f;
+            inv = one;
         }
     }
-    cscaleH = fGpffff81f4;
-    if (*(u16 *)(arg0 + 0x0C) != 3) {
-        func_0046d730(D_00714520, 0x2A2);
-    } else if ((*(s32 *)(tmp4 + 0x0C) & 1) == 0) {
-        s32 i;
-        f32 half = 0.5f;
-        func_00492df0(tmp4, snapA);
-        func_004bceb0();
-        i = 0;
-        do {
-            base[i] = snap[i];
-            i++;
-        } while (i < 12);
-        k = 0;
-        while (k < cnt) {
-            if (*(s32 *)(p18 + 0x10) >= 0) {
-                s32 cw = *(s32 *)(p18 + 0x14);
-                u32 packed;
-                f32 f;
-                if (*(s8 *)(p17 + 0x14) >= 0) {
-                    func_004ae2f0(arg0, p17, *(s32 *)(p18 + 0x10));
-                }
-                __asm__ volatile(
-                    "lw $2, 0(%0)          \n"
-                    "pextlb $2, $0, $2     \n"
-                    "pextlh $2, $0, $2     \n"
-                    "qmtc2.ni $2, $vf10    \n"
-                    "vitof0.xyzw $vf10, $vf10 \n"
-                    "mfc1 $2, %1           \n"
-                    "nop                   \n"
-                    "qmtc2.ni $2, $vf2     \n"
-                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                    "lqc2 $vf11, 0(%2)     \n"
-                    "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                    "lui $2, 0x437F        \n"
-                    "qmtc2.ni $2, $vf2     \n"
-                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                    "vftoi0.xyzw $vf10, $vf10 \n"
-                    "qmfc2.ni $2, $vf10    \n"
-                    "ppach $2, $0, $2      \n"
-                    "ppacb $2, $0, $2      \n"
-                    "sw $2, 0(%3)          \n"
-                    :
-                    : "r"(&cw), "f"(cscaleH), "r"(parent), "r"(&packed)
-                    : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                func_003bff30(tmp16, func_004ae020, &packed);
-                {
-                    f32 idf = (f32)*(s32 *)(p18 + 0x10);
-                    f = *(f32 *)(p17 + 0x10) * idf + half * (idf * (*(f32 *)(arg0 + 0x2C) * idf));
-                }
-                if (f < 0.0f) {
-                    matA[0] = 1.0f;
-                    matA[1] = 0.0f;
-                    matA[2] = 0.0f;
-                    matA[3] = 0.0f;
-                    matA[4] = 0.0f;
-                    matA[5] = 1.0f;
-                    matA[6] = 0.0f;
-                    matA[7] = 0.0f;
-                    matA[8] = 0.0f;
-                    matA[9] = 0.0f;
-                    matA[10] = 1.0f;
-                    matA[11] = 0.0f;
-                    matA[12] = 0.0f;
-                    matA[13] = 0.0f;
-                    matA[14] = 0.0f;
-                    matA[15] = 0.0f;
-                    *(s32 *)&matA[3] |= 0x20003;
-                } else {
-                    axis[0] = *(f32 *)(p17 + 0);
-                    axis[1] = *(f32 *)(p17 + 4);
-                    axis[2] = *(f32 *)(p17 + 8);
-                    RwMatrixRotate(matA, axis, 0, fGpffff8048 * (f + *(f32 *)(p17 + 0x0C)));
-                }
-                RwMatrixMultiply(matB, matA, base);
-                if (*(u16 *)(arg0 + 0x30) == 0) {
-                    f32 s = *(f32 *)(p18 + 0x18);
-                    scale[0] = *(f32 *)D_00713D20 * s;
-                    scale[1] = *(f32 *)D_00713D24 * s;
-                    scale[2] = *(f32 *)D_00713D28 * s;
-                } else {
-                    f32 s = *(f32 *)(p18 + 0x18) * inv;
-                    scale[0] = *(f32 *)D_00713D20 * s;
-                    scale[1] = *(f32 *)D_00713D24 * s;
-                    scale[2] = *(f32 *)D_00713D28 * s;
-                }
-                RwMatrixScale(matB, scale, 2);
-                pos[0] = *(f32 *)(p18 + 0);
-                pos[1] = *(f32 *)(p18 + 4);
-                pos[2] = *(f32 *)(p18 + 8);
-                RwMatrixTranslate(matB, pos, 2);
-                func_003e9cb0(*(void **)(tmp16 + 4), matB, 0);
-                func_003bfe90(tmp16);
-            }
-            k++;
-            p18 += 0x20;
-            p17 += 0x18;
-        }
-    } else {
-        f32 half = 0.5f;
-        f32 zero = 0.0f;
-        f32 full = 255.0f;
-        s32 mask = 0x20003;
-        f32 gscale = fGpffff8048;
-        s32 i;
-        func_00492df0(tmp4, snapA);
-        func_00492db0(*(u8 **)(arg0 + 0x58), snapB);
-        func_004bceb0();
-        for (i = 0; i < 12; i++) {
-            base[i] = snap[i];
-        }
-        k = 0;
-        while (k < cnt) {
-            if (*(s32 *)(p18 + 0x10) >= 0) {
-                s32 cw = *(s32 *)(p18 + 0x14);
-                u32 packed;
-                f32 f;
-                {
-                    f32 px = *(f32 *)(p18 + 0);
-                    f32 py = *(f32 *)(p18 + 4);
-                    f32 pz = *(f32 *)(p18 + 8);
-                    f32 pw = *(f32 *)(p18 + 0x0C);
-                    f32 rx = base[0] * px + base[4] * py + base[8] * pz + base[12] * pw;
-                    f32 ry = base[1] * px + base[5] * py + base[9] * pz + base[13] * pw;
-                    f32 rz = base[2] * px + base[6] * py + base[10] * pz + base[14] * pw;
-                    pos[0] = rx;
-                    pos[1] = ry;
-                    pos[2] = rz;
-                }
-                {
+    switch (*(u16 *)(self + 0xC)) {
+    case 3:
+        if ((*(s32 *)(list + 0xC) & 1) == 0) {
+            func_00492df0(list, &snapA);
+            effectVuLoad10(&snapA);
+            func_004bceb0();
+            __asm__ volatile(
+                "sqc2 $vf28, 0x0(%1)\n"
+                "sqc2 $vf29, 0x10(%1)\n"
+                "sqc2 $vf30, 0x20(%1)\n"
+                "sqc2 $vf31, 0x30(%1)\n" : "=m"(snap) : "r"(snap) : "memory");
+            base.right[0] = snap[0].lane[0];
+            base.right[1] = snap[0].lane[1];
+            base.right[2] = snap[0].lane[2];
+            base.up[0] = snap[1].lane[0];
+            base.up[1] = snap[1].lane[1];
+            base.up[2] = snap[1].lane[2];
+            base.at[0] = snap[2].lane[0];
+            base.at[1] = snap[2].lane[1];
+            base.at[2] = snap[2].lane[2];
+            base.pos[0] = snap[3].lane[0];
+            base.pos[1] = snap[3].lane[1];
+            base.pos[2] = snap[3].lane[2];
+            for (i = 0; i < count; i++, p18 += 0x20, p17 += 0x18) {
+                s32 life = *(s32 *)(p18 + 0x10);
+
+                if (life >= 0) {
+                    f32 f;
+
+                    colorA = *(u32 *)(p18 + 0x14);
+                    effectVuUnpackColor10V0(&colorA, cscale);
+                    effectVuLoad11(&colorBase);
+                    __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
                     if (*(s8 *)(p17 + 0x14) >= 0) {
-                        func_004ae2f0(arg0, p17, *(s32 *)(p18 + 0x10));
+                        func_004ae2f0(self, p17, life);
                     }
                     __asm__ volatile(
-                        "lw $2, 0(%0)          \n"
-                        "pextlb $2, $0, $2     \n"
-                        "pextlh $2, $0, $2     \n"
-                        "qmtc2.ni $2, $vf10    \n"
-                        "vitof0.xyzw $vf10, $vf10 \n"
-                        "mfc1 $2, %1           \n"
-                        "nop                   \n"
-                        "qmtc2.ni $2, $vf2     \n"
-                        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                        "lqc2 $vf11, 0(%2)     \n"
-                        "vmul.xyzw $vf10, $vf10, $vf11 \n"
-                        "mfc1 $2, %3           \n"
-                        "nop                   \n"
-                        "qmtc2.ni $2, $vf2     \n"
-                        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-                        "vftoi0.xyzw $vf10, $vf10 \n"
-                        "qmfc2.ni $2, $vf10    \n"
-                        "ppach $2, $0, $2      \n"
-                        "ppacb $2, $0, $2      \n"
-                        "sw $2, 0(%4)          \n"
-                        :
-                        : "r"(&cw), "f"(cscaleH), "r"(parent), "f"(full), "r"(&packed)
-                        : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                        "lui $2, 0x437F\n"
+                        "qmtc2.ni $2, $vf2\n"
+                        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                        "vftoi0.xyzw $vf10, $vf10\n"
+                        "qmfc2.ni $2, $vf10\n"
+                        "ppach $2, $0, $2\n"
+                        "ppacb $2, $0, $2\n"
+                        "sw $2, packedA\n" : "=m"(packedA) : : "$2", "$vf2", "$vf10");
+                    *(u32 *)&packedArg = *(u32 *)&packedA;
+                    func_003bff30(clump, (KClumpCallback)func_004ae020, &packedArg);
+                    {
+                        f32 age = (f32)*(s32 *)(p18 + 0x10);
+
+                        f = *(f32 *)(p17 + 0x10) * age;
+                        f = f + 0.5f * (age * (*(f32 *)(self + 0x2C) * age));
+                    }
+                    if (f < 0.0f) {
+                        matA.right[0] = matA.up[1] = matA.at[2] = 1.0f;
+                        matA.right[1] = matA.right[2] = matA.up[0] = 0.0f;
+                        matA.up[2] = matA.at[0] = matA.at[1] = 0.0f;
+                        matA.pos[0] = matA.pos[1] = matA.pos[2] = 0.0f;
+                        matA.flags = matA.flags | 0x20003;
+                    } else {
+                        axisA[0] = *(f32 *)(p17 + 0);
+                        axisA[1] = *(f32 *)(p17 + 4);
+                        axisA[2] = *(f32 *)(p17 + 8);
+                        RwMatrixRotate(&matA, axisA, fGpffff8048 * (f + *(f32 *)(p17 + 0xC)), 0);
+                    }
+                    RwMatrixMultiply(&matB, &matA, &base);
+                    if (*(u16 *)(self + 0x30) == 0) {
+                        vec[0] = D_00713D20[0] * *(f32 *)(p18 + 0x18);
+                        vec[1] = D_00713D24[0] * *(f32 *)(p18 + 0x18);
+                        vec[2] = D_00713D28[0] * *(f32 *)(p18 + 0x18);
+                    } else {
+                        f32 s = *(f32 *)(p18 + 0x18) * inv;
+
+                        vec[0] = D_00713D20[0] * s;
+                        vec[1] = D_00713D24[0] * s;
+                        vec[2] = D_00713D28[0] * s;
+                    }
+                    RwMatrixScale(&matB, vec, 2);
+                    vec[0] = *(f32 *)(p18 + 0);
+                    vec[1] = *(f32 *)(p18 + 4);
+                    vec[2] = *(f32 *)(p18 + 8);
+                    RwMatrixTranslate(&matB, vec, 2);
+                    func_003e9cb0(*(void **)(clump + 4), &matB, 0);
+                    func_003bfe90(clump);
                 }
-                func_003bff30(tmp16, func_004ae020, &packed);
-                {
-                    f32 idf = (f32)*(s32 *)(p18 + 0x10);
-                    f = *(f32 *)(p17 + 0x10) * idf + half * (idf * (*(f32 *)(arg0 + 0x2C) * idf));
-                }
-                if (f < zero) {
-                    matB[0] = 1.0f;
-                    matB[1] = zero;
-                    matB[2] = zero;
-                    matB[3] = zero;
-                    matB[4] = zero;
-                    matB[5] = 1.0f;
-                    matB[6] = zero;
-                    matB[7] = zero;
-                    matB[8] = zero;
-                    matB[9] = zero;
-                    matB[10] = 1.0f;
-                    matB[11] = zero;
-                    matB[12] = zero;
-                    matB[13] = zero;
-                    matB[14] = zero;
-                    matB[15] = zero;
-                    *(s32 *)&matB[3] |= mask;
-                } else {
-                    axis[0] = *(f32 *)(p17 + 0);
-                    axis[1] = *(f32 *)(p17 + 4);
-                    axis[2] = *(f32 *)(p17 + 8);
-                    RwMatrixRotate(matB, axis, 0, gscale * (f + *(f32 *)(p17 + 0x0C)));
-                }
-                if (*(u16 *)(arg0 + 0x30) == 0) {
-                    f32 s = *(f32 *)(p18 + 0x18);
-                    scale[0] = *(f32 *)D_00713D20 * s;
-                    scale[1] = *(f32 *)D_00713D24 * s;
-                    scale[2] = *(f32 *)D_00713D28 * s;
-                } else {
-                    f32 s = *(f32 *)(p18 + 0x18) * inv;
-                    scale[0] = *(f32 *)D_00713D20 * s;
-                    scale[1] = *(f32 *)D_00713D24 * s;
-                    scale[2] = *(f32 *)D_00713D28 * s;
-                }
-                RwMatrixScale(matB, scale, 2);
-                RwMatrixTranslate(matB, pos, 2);
-                func_003e9cb0(*(void **)(tmp16 + 4), matB, 0);
-                func_003bfe90(tmp16);
             }
-            k++;
-            p18 += 0x20;
-            p17 += 0x18;
+        } else {
+            u32 mask;
+
+            func_00492df0(list, &snapA);
+            func_00492db0(*(u8 **)(self + 0x58), &snapB);
+            effectVuLoad10(&snapA);
+            func_004bceb0();
+            __asm__ volatile("lqc2 $vf31, 0(%0)" : : "r"(&snapB), "m"(snapB) : "$vf31");
+            __asm__ volatile(
+                "sqc2 $vf28, 0x0(%1)\n"
+                "sqc2 $vf29, 0x10(%1)\n"
+                "sqc2 $vf30, 0x20(%1)\n"
+                "sqc2 $vf31, 0x30(%1)\n" : "=m"(snap) : "r"(snap) : "memory");
+            i = 0;
+            full = 255.0f;
+            half = 0.5f;
+            zero = 0.0f;
+            mask = 0x20003;
+            gscale = fGpffff8048;
+            for (; i < count; i++, p18 += 0x20, p17 += 0x18) {
+                if (*(s32 *)(p18 + 0x10) >= 0) {
+                    f32 f;
+
+                    __asm__ volatile(
+                        "lqc2 $vf28, 0x0(%0)\n"
+                        "lqc2 $vf29, 0x10(%0)\n"
+                        "lqc2 $vf30, 0x20(%0)\n"
+                        "lqc2 $vf31, 0x30(%0)\n" : : "r"(snap), "m"(snap) : "$vf28", "$vf29", "$vf30", "$vf31");
+                    effectVuLoad10((EffectVuVector *)p18);
+                    __asm__ volatile(
+                        "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                        "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                        "vmaddaz.xyzw $ACC, $vf30, $vf10z\n"
+                        "vmaddw.xyzw $vf10, $vf31, $vf0w\n" : : : "$vf10");
+                    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
+                    pos[0] = D_00713D10[0];
+                    pos[1] = D_00713D14[0];
+                    pos[2] = D_00713D18[0];
+                    colorB = *(u32 *)(p18 + 0x14);
+                    effectVuUnpackColor10V0(&colorB, cscale);
+                    effectVuLoad11(&colorBase);
+                    __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
+                    if (*(s8 *)(p17 + 0x14) >= 0) {
+                        func_004ae2f0(self, p17, *(u32 *)(p18 + 0x10));
+                    }
+                    effectVuScale10(full);
+                    __asm__ volatile(
+                        "vftoi0.xyzw $vf10, $vf10\n"
+                        "qmfc2.ni $2, $vf10\n"
+                        "ppach $2, $0, $2\n"
+                        "ppacb $2, $0, $2\n"
+                        "sw $2, packedB\n" : "=m"(packedB) : : "$2", "$vf10");
+                    *(u32 *)&packedArg = *(u32 *)&packedB;
+                    func_003bff30(clump, (KClumpCallback)func_004ae020, &packedArg);
+                    {
+                        f32 age = (f32)*(s32 *)(p18 + 0x10);
+
+                        f = *(f32 *)(p17 + 0x10) * age;
+                        f = f + half * (age * (*(f32 *)(self + 0x2C) * age));
+                    }
+                    if (f < zero) {
+                        matB.right[0] = matB.up[1] = matB.at[2] = one;
+                        matB.right[1] = matB.right[2] = matB.up[0] = zero;
+                        matB.up[2] = matB.at[0] = matB.at[1] = zero;
+                        matB.pos[0] = matB.pos[1] = matB.pos[2] = zero;
+                        matB.flags = matB.flags | mask;
+                    } else {
+                        axisB[0] = *(f32 *)(p17 + 0);
+                        axisB[1] = *(f32 *)(p17 + 4);
+                        axisB[2] = *(f32 *)(p17 + 8);
+                        RwMatrixRotate(&matB, axisB, gscale * (f + *(f32 *)(p17 + 0xC)), 0);
+                    }
+                    effectVuLoad10(&D_00713CE0);
+                    if (*(u16 *)(self + 0x30) == 0) {
+                        vec[0] = D_00713D20[0] * *(f32 *)(p18 + 0x18);
+                        vec[1] = D_00713D24[0] * *(f32 *)(p18 + 0x18);
+                        vec[2] = D_00713D28[0] * *(f32 *)(p18 + 0x18);
+                    } else {
+                        f32 s = *(f32 *)(p18 + 0x18) * inv;
+
+                        vec[0] = D_00713D20[0] * s;
+                        vec[1] = D_00713D24[0] * s;
+                        vec[2] = D_00713D28[0] * s;
+                    }
+                    RwMatrixScale(&matB, vec, 2);
+                    RwMatrixTranslate(&matB, pos, 2);
+                    func_003e9cb0(*(void **)(clump + 4), &matB, 0);
+                    func_003bfe90(clump);
+                }
+            }
         }
+        break;
+    default:
+        func_0046d730(D_00714520, 0x2A2);
+        break;
     }
     func_004813f0();
+    }
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004aed70);
