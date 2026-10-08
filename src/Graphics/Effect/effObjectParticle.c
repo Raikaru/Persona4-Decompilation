@@ -309,9 +309,11 @@ void func_004aec80(u8 *arg0)
  * life word for the second loop's func_004ae2f0 call. b210's backend CSE
  * (remove_common_subexpressions) folds that load into the loop condition's
  * load; no source form tried so far (struct field, pointer locals,
- * opt_propagation off) keeps it. */
+ * opt_propagation off) keeps it.
+   2026-10-08: copying pos as one f32[3] block (8 edits) makes b210 reload *(p18 + 0x10) for the call as retail does, but emits three loads then three stores where retail interleaves each lwc1/swc1 pair. */
 // FUN_004AED70 NONMATCHING
 #ifdef NON_MATCHING
+#include "effect_vu0_internal.h"
 typedef struct EffObjectRGBA {
     u32 rgba;
 } EffObjectRGBA;
@@ -541,15 +543,13 @@ void func_004aed70(u8 *arg0)
                         "vmaddaz.xyzw $ACC, $vf30, $vf10z\n"
                         "vmaddw.xyzw $vf10, $vf31, $vf0w\n" : : : "$vf10");
                     __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-                    pos[0] = D_00713D10[0];
-                    pos[1] = D_00713D14[0];
-                    pos[2] = D_00713D18[0];
+                    *(f32 (*)[3])pos = *(f32 (*)[3])D_00713D10;
                     colorB = *(u32 *)(p18 + 0x14);
                     effectVuUnpackColor10V0(&colorB, cscale);
                     effectVuLoad11(&colorBase);
                     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
                     if (*(s8 *)(p17 + 0x14) >= 0) {
-                        func_004ae2f0(self, p17, *(u32 *)(p18 + 0x10));
+                        func_004ae2f0(self, p17, *(s32 *)(p18 + 0x10));
                     }
                     effectVuScale10(full);
                     __asm__ volatile(
