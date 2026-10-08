@@ -2730,17 +2730,17 @@ void func_0029f790(u8 *arg0)
                       alpha, 1);
     }
 }
-/* measured: func_0029fbb0 (retail 464 instrs; fnalign 14 edits, down from 139). The local 6x24-byte
+/* measured: func_0029fbb0 (retail 461 instrs; fnalign 12 edits, down from 139). The local 6x24-byte
    slide table is a struct array so retail's stack addressing (arg1*24 + sp, field offsets as
    displacements) falls out; `base` is read before the table copy (retail spills it, so arg0 is
    not kept), `code29AddOff(off4, base)` keeps the flag address from being CSE'd with p22/p16,
-   the u8 colour/alpha locals and the u32 float->int shift reproduce retail's conversions, and
-   the (x, y) draw offsets are computed inside the call arguments. Only residual: the six
-   region-3 table reads (temp30/temp22/t18/f3v/t17/f2v) are `addiu tmp,base,K; lw x,0(tmp)`
-   in retail but fold to `lw x,K(base)` here; folded forms of every spelling tried
-   (direct member, &member pointer locals, u8 and s32 casts, inline offset-first helpers,
-   opt_propagation/peephole/common_subs pragmas) either fold or CSE the entry pointer into
-   a saved register instead. Keep ASM. */
+   the u8 colour/alpha locals and the u32 float->int shift reproduce retail's conversions.
+   Retail's unfolded `addiu tmp,base,K; lw x,0(tmp)` table reads come from an address used
+   twice before backend CSE removes the second load: passing `tbl[arg1].f1` again to the
+   next call unfolds the 0x104 read (2026-10-07). Doing the same for the other five fields
+   (y2/x2 written with the fields, the 0x8F8F8F call taking .f0) unfolds all six but permutes
+   ix/iy/t17/t18/the arg1*24 index across $s0/$s1/$s2/$s5 (30 edits); the regalloc
+   order search finds no declaration order for that body. */
 // FUN_0029FBB0 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct SlideEnt {
@@ -2840,7 +2840,7 @@ do_copy:
         ix = (s32)stack[0];
         iy = (s32)stack[1];
         temp30 = tbl[arg1].f1;
-        func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, 0xFF, temp30, iGpffffb540, 1);
+        func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, 0xFF, tbl[arg1].f1, iGpffffb540, 1);
         temp22 = tbl[arg1].f0;
         t18 = tbl[arg1].f5;
         f3v = tbl[arg1].f3;
