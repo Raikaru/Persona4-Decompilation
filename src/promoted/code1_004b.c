@@ -520,30 +520,6 @@ void func_004b1ab0(u8 *arg0)
 {
     *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 8) + 1;
 }
-/* Widths are mixed here on purpose, not a tuning knob: stk80 is `s32` and */
-/* stk84 stays `u32` (D0/CC casts). Both-`s32` overshoots to 768, just below */
-/* the lower band edge, while the single-`s32`/single-`u32` mix lands at 802 */
-/* (retail 796). Retail's widths really are mixed; do not "fix" the odd one. */
-/* 2026-09-19 run table (Main request): sched 802/796 (+6), 763w probe / 782w floor, 1044e. */
-/* O3 alone measured 799/796 (+3), 760w, 1038e (-3/-3/-6) but REVERTED per Main: */
-/* nonbaseline level for the whole function needs more than a six-edit scheduling */
-/* move; restored sched to keep the tree comparable. Singles banked 763: O3/O4 760. */
-/* Largest asymmetric pair (no relocation signature): delete retail 372:509 (137: */
-/* nop/cvt/sra/mtc1/cvt/swc1/lui/c.ole/bc1t/cvt/mfc1/b/sub/cvt/mfc1/lui/or/sw + */
-/* c.ole UV clamp + lw/jal/b chain, see fnalign) vs insert object 611:647 (36) and */
-/* 93:123 (30: srl/andi/or/mtc1/cvt + sw/lw VU pack chain). Retail keeps 137 clamped */
-/* stores + call; object keeps 36+30 pack/conversion instead. No inverted-arm pair */
-/* like 00137890 (384->106) or else-move like 003c1bd0 here; recorded so nobody re-runs. */
-/* Mixed widths kept (s32 stk80 / u32 stk84); do not re-flip. Floor stands; stays ASM. */
-/* gate: func_004b1ad0 is OUTSIDE the +-3% band at 909 against retail 796 (+14.2%).  The body previously read
-   802/796, 1044 edits only because `#pragma schedule on` was filling delay slots that retail leaves
-   empty.  Retail's first-party build is entirely unscheduled: across 212 byte-exact MATCH
-   first-party functions there are 2909 branches and **zero** filled delay slots, and this
-   function's own retail window has 76 branches with 76 empty slots and none filled.  The
-   pragma therefore never reproduced retail codegen - it deleted nops to shrink the count, and
-   it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
-   has to be written out of the body.  Any differing-word score measured with the pragma in
-   place is not comparable to one measured inside the gate (handoff 7y, 7au). */
 /* Screen-space sprite update, the func_004a5fc0 sibling. It shares the COP2
  * colour pack (the asm writes the packed frame slot, retail reloads it) and
  * the frame-info struct, then projects the four corners through the camera's
