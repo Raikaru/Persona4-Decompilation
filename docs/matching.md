@@ -658,6 +658,28 @@ below are the codegen consequences.
   Try both spellings. The lever applies only where the source has a natural
   second name for the value.
 
+  **Lever: make the defining copy a conversion (`func_0029fbb0`, MATCH
+  2026-10-07).** When the IR dump (`tools/b210_irdump.py`) shows a local
+  disappearing in the second `IRO_CopyAndConstantPropagation`, the local's
+  definition is a plain copy of a CSE temporary or a parameter. A type change
+  makes that definition a conversion, and the local then survives with its
+  declared number:
+  - `0029fbb0`: `t17 = tbl[arg1].f4` became a copy of an `IRO_CommonSubs`
+    load temporary once the field was read twice. With `.f4`/`.f5` declared
+    `u32` (the locals stay `s32`), `t17`/`t18` survive and take the order the
+    regalloc model asked for. Float conversions of those fields elsewhere need
+    an explicit `(s32)`.
+  - `004b6030` (guarded): with the parameter typed `void *`, `p = arg0`
+    keeps the cursor as a late declared local. Retail's
+    `move $s0,$a0; move $s1,$s0; addiu $s0,$s0,0x10` prologue then comes out.
+    With `u8 *` the copy folds and the header takes the parameter.
+
+  **Lever: a field address written twice becomes an address temporary
+  (`func_0029fbb0`).** Retail's `addiu $v0,$v1,K; lw $x,0($v0)` instead of
+  `lw $x,K($v1)` is an `IRO_CommonSubs` address temporary. The source read
+  the same field again in the next expression or call. The second load is
+  removed by later CSE, but the unfolded address stays.
+
   **Lever: reuse a variable and split its lifetimes (`func_001b11c0`, MATCH
   2026-10-06).** Five sessions recorded this function as a `$t1`/`$t3`
   allocator wall. Retail colours the sort loop's index and cursor before the
