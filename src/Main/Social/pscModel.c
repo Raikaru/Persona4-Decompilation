@@ -113,6 +113,7 @@ extern void func_0036b470(void *work, void *vertices);
    RpSkyRenderStateSet(2, 0x58) call.
    2026-10-09: 138 -> 135: declaration climb.
  * 2026-10-09: 135 -> 49: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 2026-10-09: 49 -> 37: body taken from the parallel cos/finish-first-party-20261009 worktree.
  */
 // FUN_003694D0 NONMATCHING
 #ifdef NON_MATCHING
@@ -123,11 +124,11 @@ void func_003694d0(PscModel *model)
     void *mtx;
     PscModel *m0;
     PscModel *m2;
-    PscLight *e0work;
-    PscModel *m3;
-    void (**tbl)(u32 state, u32 value);
     void (**fn)(u32 state, u32 value);
     void (**fn2)(u32 state, u32 value);
+    void (**tbl)(u32 state, u32 value);
+    PscLight *e0work;
+    PscModel *m3;
     u32 alpha;
     f32 alphaf;
     f32 f;
@@ -324,7 +325,7 @@ void func_003694d0(PscModel *model)
             switch (model->mode) {
             case 1:
                 RpSkyRenderStateSet(2, 0x6A);
-                (*tbl)(1, func_0036d130(1));
+                (*fn)(1, func_0036d130(1));
                 func_00410420(m0->u.m01.b1, 4, mtx, 3);
                 func_00410520(3, D_0064E470, 6);
                 func_004104d0();
@@ -353,15 +354,15 @@ void func_003694d0(PscModel *model)
         func_004104d0();
         break;
     }
-    fn = (void (**)(u32, u32))(u32)D_00887300;
-    (*fn)(1, func_0036be00());
+    fn2 = (void (**)(u32, u32))(u32)D_00887300;
+    (*fn2)(1, func_0036be00());
     RpSkyRenderStateSet(2, 0x44);
-    (*fn)(6, 0);
-    (*fn)(8, 1);
+    (*fn2)(6, 0);
+    (*fn2)(8, 1);
     func_00410420(e0work, 4, mtx, 3);
     func_00410520(3, D_0064E470, 6);
     func_004104d0();
-    fn = (void (**)(u32, u32))(u32)D_00887300;
+    fn2 = (void (**)(u32, u32))(u32)D_00887300;
     if (model->flags & 8) {
         if (~*(u32 *)model->unkDC & 1) {
             fn2 = fn;

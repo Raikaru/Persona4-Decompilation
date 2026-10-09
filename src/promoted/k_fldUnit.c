@@ -267,17 +267,18 @@ s32 func_00162c30(void)
  * 2026-10-09: 159 -> 156: the unit-table address goes through a static inline
  * accessor; retail recomputes it (`mult` by 0x750) at most of its uses instead of
  * reusing `slot`.
+ * 2026-10-09: 156 -> 139: body taken from the parallel cos/finish-first-party-20261009 worktree.
  */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
-static inline u8 *fieldUnitEntry(s32 index)
-{
-    return D_007EF9B0 + index * 0x750;
-}
-
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_lifetimes on
+static inline u8 *fieldUnitSlotAt(const s32 *index)
+{
+    return D_007EF9B0 + (*index * 0x750);
+}
+
 void func_00162e10(void)
 {
     typedef struct {
@@ -310,7 +311,7 @@ void func_00162e10(void)
     mtx = func_003e0f80();
     for (i = 0; i < 4; i++) {
         kind = 1;
-        slot = fieldUnitEntry(i);
+        slot = D_007EF9B0 + i * 0x750;
         if (*(s32 *)(slot + 0x48) == 0) {
             continue;
         }
@@ -322,7 +323,7 @@ void func_00162e10(void)
             kind = 3;
         }
         {
-            u8 *entry = fieldUnitEntry(i);
+            u8 *entry = D_007EF9B0 + i * 0x750;
             u8 **resource;
 
             cfg = (u8 **)(entry + 0x50);
@@ -379,13 +380,13 @@ void func_00162e10(void)
                         *(u8 *)(*(u8 **)(slot + 0x50) + j * 0xC + 0x28C) |= 1;
                     }
                 }
-                func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(fieldUnitEntry(i) + 0x728)), 0, 1);
+                func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(fieldUnitSlotAt(&i) + 0x728)), 0, 1);
             }
         } else {
             func_00168780(*(s32 *)(*res + 0x220), 35.0f);
         }
         {
-            u8 *entry = fieldUnitEntry(i);
+            u8 *entry = D_007EF9B0 + i * 0x750;
             u8 **model = (u8 **)(entry + 0x54);
             f32 scale;
             u8 *aux;
@@ -403,7 +404,7 @@ void func_00162e10(void)
                 sp90[0] = 1200.0f * (f32)(u32)*((u8 *)func_00155280() + 0x44);
                 sp90[1] = 2.0f;
                 sp90[2] = 1200.0f * (f32)(u32)*((u8 *)func_00155280() + 0x45);
-                entry = fieldUnitEntry(i);
+                entry = fieldUnitSlotAt(&i);
                 grid = (u8 *)func_00155280() + (*((u8 *)func_00155280() + 0x45) << 8);
                 func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, 90.0f * (f32)((*(grid + (*((u8 *)func_00155280() + 0x44) << 4) + 0x59) + 2) % 4));
                 func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(entry + 0x728)), 0, 1);
@@ -419,7 +420,7 @@ void func_00162e10(void)
                     sp90[2] += spB0[2];
                 }
             } else {
-                u8 **auxp = (u8 **)(fieldUnitEntry(i) + 0x1AC);
+                u8 **auxp = (u8 **)(D_007EF9B0 + i * 0x750 + 0x1AC);
 
                 func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, *(f32 *)(aux + 0x14C));
                 *(FieldVec3 *)sp90 = *(FieldVec3 *)(*auxp + 0x140);
@@ -493,12 +494,12 @@ void func_00162e10(void)
             break;
         }
         if (i != 0) {
-            u8 *cur = fieldUnitEntry(i);
+            u8 *cur = fieldUnitSlotAt(&i);
 
             *(s32 *)(cur + 0x1B0) = func_0017e890(0, cur, D_007EF9B0 + (i - 1) * 0x750);
         }
         {
-            u8 *cur = fieldUnitEntry(i);
+            u8 *cur = fieldUnitSlotAt(&i);
             u8 **curRes;
             f32 fv;
             s32 j;
@@ -515,7 +516,7 @@ void func_00162e10(void)
             }
         }
         {
-            u8 *cur = fieldUnitEntry(i);
+            u8 *cur = fieldUnitSlotAt(&i);
 
             memset(cur + 0x1D0, 0, 0x40);
             memset(cur + 0x410, 0, 0x300);
