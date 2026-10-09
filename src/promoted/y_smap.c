@@ -238,7 +238,10 @@ s32 func_002ac740(void) {
    the use.
    2026-10-09: 445 -> 439: three disjoint m2c temporaries share
    sp180/sp160/sp140.
-   2026-10-09: 439 -> 431: one more fold. */
+   2026-10-09: 439 -> 431: one more fold.
+ * 2026-10-09: 431 -> 358: the m2c label loops are while loops; loop tests that
+ * re-read a value assign it inside the test.
+ */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -475,9 +478,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     sp160 = arg1 & 0xFF;
                     sp150 = arg0 & 0xFF;
                     temp_23 = temp_17 + temp_16;
-loop_36:
-                    temp_5 = ((s16)(var_18));
-                    if (temp_5 < 2) {
+                    while ((temp_5 = ((s16)(var_18))) < 2) {
                         temp_2 = ((s8)(func_002b2d00(sp160, temp_5, 1, 0x18, 1)));
                         sp140 = (s32) temp_2;
                         var_22 = 0;
@@ -498,7 +499,6 @@ loop_34:
                             }
                         }
                         var_18 = ((s16)((var_18 + 1)));
-                        goto loop_36;
                     }
                     temp_4_9 = (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x59)));
                     switch (temp_4_9) {             /* switch 1; irregular */
@@ -506,25 +506,20 @@ loop_34:
                     case 2:                         /* switch 1 */
                         var_17 = 0;
                         temp_16_2 = ((s8)(var_21));
-loop_46:
-                        temp_18_3 = ((s16)(var_17));
-                        if (temp_18_3 < 2) {
+                        while ((temp_18_3 = ((s16)(var_17))) < 2) {
                             temp_21_2 = (*( u8 * )((u8*)((((arg0 & 0xFF) * 0x10) + func_00155280() + ((temp_16_2 + temp_18_3) << 8))) + (0x58)));
                             if (temp_21_2 == (*( u8 * )((u8*)((temp_23 + func_00155280())) + (0x58)))) {
                                 temp_5_3 = (u16 *)((temp_16_2 * 2) + (u8 *)D_00764658 + (temp_18_3 * 2));
                                 *temp_5_3 |= (1 << sp150) & 0xFFFF & 0xFFFF;
                             }
                             var_17 = ((s16)((var_17 + 1)));
-                            goto loop_46;
                         }
                         return;
                     case 1:                         /* switch 1 */
                     case 3:                         /* switch 1 */
                         var_16 = 0;
                         temp_3_4 = arg1 & 0xFF;
-loop_52:
-                        temp_4_10 = ((s16)(var_16));
-                        if (temp_4_10 < 2) {
+                        while ((temp_4_10 = ((s16)(var_16))) < 2) {
                             temp_17_2 = ((s8)(var_30)) + temp_4_10;
                             temp_20_2 = (*( u8 * )((u8*)(((temp_3_4 << 8) + func_00155280() + (temp_17_2 * 0x10))) + (0x58)));
                             if (temp_20_2 == (*( u8 * )((u8*)((temp_23 + func_00155280())) + (0x58)))) {
@@ -532,7 +527,6 @@ loop_52:
                                 *temp_4_11 |= (1 << temp_17_2) & 0xFFFF;
                             }
                             var_16 = ((s16)((var_16 + 1)));
-                            goto loop_52;
                         }
                         return;
                     }
@@ -623,23 +617,18 @@ loop_52:
                 temp_16_3 = ((s8)(func_002b2d00((arg0 & 0xFF), 1, 0, 0, 1)));
                 var_21_2 = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
                 sp140 = 0;
-loop_79:
-                if (((s16)(sp140)) < 3) {
+                while (((s16)(sp140)) < 3) {
                     var_17_2 = 0;
                     sp180 = ((s8)(var_21_2));
-loop_77:
-                    sp160 = ((s16)(var_17_2));
-                    if (sp160 < 3) {
+                    while ((sp160 = ((s16)(var_17_2))) < 3) {
                         temp_23_4 = func_002b2cb0((((s8)(temp_16_3))), sp160, 0x10, 0, 1) * 0x10;
                         if (((s8)(func_002adcf0((*( u8 * )((u8*)(((sp180 << 8) + func_00155280() + temp_23_4)) + (0x55)))))) == 2) {
                             *((u16 *)((u8 *)D_00764658 + (sp180 * 2))) |= (1 << func_002b2cb0((((s8)(temp_16_3))), sp160, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_17_2 = ((s16)((var_17_2 + 1)));
-                        goto loop_77;
                     }
                     var_21_2 = ((s8)(func_002b2cb0(sp180, 1, 0x18, 0, 1)));
                     sp140 = ((s16)((sp140 + 1)));
-                    goto loop_79;
                 }
                 return;
             }
@@ -661,9 +650,7 @@ loop_77:
                 sp180 = temp_18;
                 sp170 = arg0 & 0xFF;
                 temp_18_7 = temp_17 + temp_16;
-loop_92:
-                temp_5_11 = ((s16)(var_22_2));
-                if (temp_5_11 < 3) {
+                while ((temp_5_11 = ((s16)(var_22_2))) < 3) {
                     temp_2_6 = ((s8)(func_002b2d00(sp180, temp_5_11, 1, 0x18, 1)));
                     spE0 = (s32) temp_2_6;
                     var_23 = 0;
@@ -684,7 +671,6 @@ loop_90:
                         }
                     }
                     var_22_2 = ((s16)((var_22_2 + 1)));
-                    goto loop_92;
                 }
                 temp_4_33 = (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x59)));
                 switch (temp_4_33) {                /* switch 3; irregular */
@@ -692,32 +678,26 @@ loop_90:
                 case 2:                             /* switch 3 */
                     var_17_3 = 0;
                     temp_16_5 = ((s8)(var_21));
-loop_102:
-                    temp_19_5 = ((s16)(var_17_3));
-                    if (temp_19_5 < 3) {
+                    while ((temp_19_5 = ((s16)(var_17_3))) < 3) {
                         temp_22_5 = (*( u8 * )((u8*)((((arg0 & 0xFF) * 0x10) + func_00155280() + ((temp_16_5 + temp_19_5) << 8))) + (0x58)));
                         if (temp_22_5 == (*( u8 * )((u8*)((temp_18_7 + func_00155280())) + (0x58)))) {
                             temp_5_13 = (u16 *)((temp_16_5 * 2) + (u8 *)D_00764658 + (temp_19_5 * 2));
                             *temp_5_13 |= (1 << sp170) & 0xFFFF & 0xFFFF;
                         }
                         var_17_3 = ((s16)((var_17_3 + 1)));
-                        goto loop_102;
                     }
                     return;
                 case 1:                             /* switch 3 */
                 case 3:                             /* switch 3 */
                     var_16_2 = 0;
                     temp_3_9 = arg1 & 0xFF;
-loop_108:
-                    temp_4_34 = ((s16)(var_16_2));
-                    if (temp_4_34 < 3) {
+                    while ((temp_4_34 = ((s16)(var_16_2))) < 3) {
                         temp_21_6 = (*( u8 * )((u8*)(((temp_3_9 << 8) + func_00155280() + ((((s8)(var_30)) + temp_4_34) * 0x10))) + (0x58)));
                         if (temp_21_6 == (*( u8 * )((u8*)((temp_18_7 + func_00155280())) + (0x58)))) {
                             temp_4_35 = (u16 *)((u8 *)D_00764658 + (temp_3_9 * 2));
                             *temp_4_35 |= (1 << (((s8)(var_30)) + temp_4_34)) & 0xFFFF;
                         }
                         var_16_2 = ((s16)((var_16_2 + 1)));
-                        goto loop_108;
                     }
                     return;
                 }
@@ -727,23 +707,18 @@ loop_108:
                 temp_16_6 = ((s8)(func_002b2d00((arg0 & 0xFF), 1, 0, 0, 1)));
                 var_4 = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
                 var_17_4 = 0;
-loop_118:
-                if (((s16)(var_17_4)) < 3) {
+                while (((s16)(var_17_4)) < 3) {
                     var_16_3 = 0;
                     temp_19_6 = ((s8)(var_4));
-loop_116:
-                    temp_18_8 = ((s16)(var_16_3));
-                    if (temp_18_8 < 3) {
+                    while ((temp_18_8 = ((s16)(var_16_3))) < 3) {
                         temp_23_5 = func_002b2cb0((((s8)(temp_16_6))), temp_18_8, 0x10, 0, 1) * 0x10;
                         if (((s8)(func_002adcf0((*( u8 * )((u8*)(((temp_19_6 << 8) + func_00155280() + temp_23_5)) + (0x55)))))) == 2) {
                             *((u16 *)((u8 *)D_00764658 + (temp_19_6 * 2))) |= (1 << func_002b2cb0((((s8)(temp_16_6))), temp_18_8, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_16_3 = ((s16)((var_16_3 + 1)));
-                        goto loop_116;
                     }
                     var_4 = ((s8)(func_002b2cb0(temp_19_6, 1, 0x18, 0, 1)));
                     var_17_4 = ((s16)((var_17_4 + 1)));
-                    goto loop_118;
                 }
                 return;
             }
@@ -767,23 +742,18 @@ loop_116:
                 temp_16_7 = ((s8)(func_002b2d00((arg0 & 0xFF), 1, 0, 0, 1)));
                 var_4_2 = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
                 var_17_5 = 0;
-loop_132:
-                if (((s16)(var_17_5)) < 3) {
+                while (((s16)(var_17_5)) < 3) {
                     var_16_4 = 0;
                     temp_19_7 = ((s8)(var_4_2));
-loop_130:
-                    temp_18_9 = ((s16)(var_16_4));
-                    if (temp_18_9 < 3) {
+                    while ((temp_18_9 = ((s16)(var_16_4))) < 3) {
                         temp_23_6 = func_002b2cb0((((s8)(temp_16_7))), temp_18_9, 0x10, 0, 1) * 0x10;
                         if (((s8)(func_002adcf0((*( u8 * )((u8*)(((temp_19_7 << 8) + func_00155280() + temp_23_6)) + (0x55)))))) == 2) {
                             *((u16 *)((u8 *)D_00764658 + (temp_19_7 * 2))) |= (1 << func_002b2cb0((((s8)(temp_16_7))), temp_18_9, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_16_4 = ((s16)((var_16_4 + 1)));
-                        goto loop_130;
                     }
                     var_4_2 = ((s8)(func_002b2cb0(temp_19_7, 1, 0x18, 0, 1)));
                     var_17_5 = ((s16)((var_17_5 + 1)));
-                    goto loop_132;
                 }
             }
             break;
