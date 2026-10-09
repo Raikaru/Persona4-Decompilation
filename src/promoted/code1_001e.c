@@ -1472,7 +1472,10 @@ loop_test:
 }
 /* Rank usable skills by the best single target or the accumulated target score.
    The producer's 0x40-byte target record includes selected@0x3A and flags@0x3C.
-   Element kinds are signed 16-bit values; blocked status skips the skill. */
+   Element kinds are signed 16-bit values; blocked status skips the skill.
+   2026-10-09: 98 -> 95: `table[outer - 1]`, `outer++` and an unsigned `outer <
+   outerCount` test. Residual: retail spills the u16 `outer` (sh/lhu 0x140),
+   skillStore (0x110) and the extended kind (0x120); b210 keeps outer in $fp. */
 // FUN_001E9950 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001e9950(void) {
@@ -1537,7 +1540,7 @@ outer_body:
     if (outer == 0) {
         skill = (u16)(func_0023dfe0(*(u8 **)(unit + 0xA64)) & 0xFFFF);
     } else {
-        skill = *(u16 *)((u8 *)table + (u32)outer * 2 - 2);
+        skill = table[outer - 1];
         if (skill == 0) {
             goto outer_next;
         }
@@ -1635,9 +1638,9 @@ scored:
     }
     goto outer_next;
 outer_next:
-    outer = (u16)(outer + 1);
+    outer++;
 outer_test:
-    if ((s32)outer < (s32)outerCount) {
+    if (outer < outerCount) {
         goto outer_body;
     }
     if (bestSkill != -1) {
