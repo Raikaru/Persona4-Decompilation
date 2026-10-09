@@ -1475,7 +1475,9 @@ loop_test:
    Element kinds are signed 16-bit values; blocked status skips the skill.
    2026-10-09: 98 -> 95: `table[outer - 1]`, `outer++` and an unsigned `outer <
    outerCount` test. Residual: retail spills the u16 `outer` (sh/lhu 0x140),
-   skillStore (0x110) and the extended kind (0x120); b210 keeps outer in $fp. */
+   skillStore (0x110) and the extended kind (0x120); b210 keeps outer in $fp.
+ * 2026-10-09: 95 -> 92: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ */
 // FUN_001E9950 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001e9950(void) {
@@ -1501,7 +1503,7 @@ s32 func_001e9950(void) {
     s32 mode;
     s32 outerLimit;
     u16 outer;
-    s32 outerCount;
+    u16 outerCount;
     u16 skill;
     s32 skillStore;
     s16 kind;
@@ -1570,6 +1572,7 @@ outer_body:
             goto outer_next;
         }
     }
+    paramB = (s16)kind;
     targetKind = func_001d7f10(work, (u8 *)&tgt, skill, 0);
     innerBest = 0;
     if (targetKind == 0) {
@@ -1596,7 +1599,6 @@ outer_body:
         }
     } else {
         curScore = 0.0f;
-        paramB = (s16)kind;
         for (idxB = 0; (idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = (idxB + 1) & 0xFFFF) {
             entryB = tgt.entries[(idxB & 0xFFFF)];
             if (func_001db360(entryB, paramB, 1) == 0) {
