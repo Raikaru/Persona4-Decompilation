@@ -175,7 +175,7 @@ static inline f32 sdkSpriteBottom(u8 *sample, s32 includeBorder)
 
 /* Keep byte-color arithmetic separate from unsigned-to-float conversion. */
 static inline void sdkSpriteVertexSetColor(SdkSpriteVertex *vertex,
-                                           u32 red, u32 green, u32 blue, u32 alpha)
+                                           u8 red, u8 green, u8 blue, u8 alpha)
 {
     vertex->u.els.color.red = (f32)red;
     vertex->u.els.color.green = (f32)green;
@@ -485,7 +485,9 @@ f32 func_0046b2f0(u8 *param_1)
    uv[] and source[].z slots retail does (documented inline). The raster guards
    around the uv flips and the vertex uv copies and the planar-Z writes are
    gone. fnalign measures this region only with the file's NON_MATCHING support
-   block (lines 32-198) prepended to the candidate. */
+   block (lines 32-198) prepended to the candidate.
+   2026-10-09: 208 -> 202: sdkSpriteVertexSetColor takes u8 channels (the
+   RwRGBA bytes), so no andi is re-applied before each unsigned conversion. */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: configured native whole-owner C is 7840 bytes versus a 7808-byte
