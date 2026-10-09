@@ -947,6 +947,8 @@ tail:
  * scalars b210 dropped the y/z stores the callee reads through the pointer (30
  * retail instructions were missing); the edit count rises but the program is now
  * retail's.
+ * 1171: the Ghidra CONCAT44 artifact compiled as an implicit call; removed (its
+ * target local is never read).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1270,7 +1272,6 @@ int func_0017f490(unsigned char *param_1)
           fStack_228 = (CAND_fGpffff8308 + (float)((unsigned int)temp_v1 % 0x50) / 100.0f) *
                        (((float *)piVar1)[temp_v0 * 6 + 8] - ((float *)piVar1)[temp_v0 * 6 + 0xb]) +
                        ((float *)piVar1)[temp_v0 * 6 + 0xb] + 0.0f;
-          uStack_220 = CONCAT44(iStack_22c,fStack_230);
           ((float *)piVar1)[0x14] = fStack_230;
           piVar1[0x15] = iStack_22c;
           ((float *)piVar1)[0x16] = fStack_228;
