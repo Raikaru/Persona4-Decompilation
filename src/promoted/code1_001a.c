@@ -3003,7 +3003,9 @@ void func_001a5990(void)
 /* 2026-10-03 storage repair: preserve action/packet UIDs as doublewords
    and select true 0x20-byte hit records. The old narrowing measurements above
    are historical, not type evidence. See Large_Battle_storage_20261003.md.
-   2026-10-08: opt_loop_invariants on lowers fnalign from 837 to 752 edits. */
+   2026-10-08: opt_loop_invariants on lowers fnalign from 837 to 752 edits.
+ * 2026-10-09: 752 -> 709: the m2c label loops are while loops.
+ */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -3242,12 +3244,10 @@ void func_001a59a0(s64 *arg0) {
     }
     var_6 = 0;
     temp_5 = (u16)((*(u16 *)((u8 *)(arg0) + (0x6A))));
-loop_21:
-    if ((var_6 & 0xFFFF) < (s32) temp_5) {
+    while ((var_6 & 0xFFFF) < (s32) temp_5) {
         temp_4 = (u8 *)((*(u8 **)((u8 *)(((u8 *)arg0 + ((var_6 & 0xFFFF) * 4))) + (0x38))));
         var_10 = 0;
-loop_13:
-        if ((var_10 & 0xFFFF) < (s32) (*(u8 *)((u8 *)(temp_4) + (0xD9)))) {
+        while ((var_10 & 0xFFFF) < (s32) (*(u8 *)((u8 *)(temp_4) + (0xD9)))) {
             temp_8 = (u8 *)(temp_4 + ((var_10 & 0xFFFF) << 5));
             if ((*(s32 *)((u8 *)(temp_8) + (0xF8))) & 0x100000) {
                 var_22 = 1;
@@ -3256,7 +3256,6 @@ loop_13:
                 sp25C = 1;
             }
             var_10 = (var_10 + 1) & 0xFFFF;
-            goto loop_13;
         }
         if ((*(s32 *)((u8 *)(temp_4) + (0xE0))) != 0) {
             sp258 = 1;
@@ -3269,7 +3268,6 @@ loop_13:
             sp250 = 1;
         }
         var_6 = (var_6 + 1) & 0xFFFF;
-        goto loop_21;
     }
     if (sp25C != 0) {
         var_30 = 0xC;
@@ -3466,9 +3464,8 @@ block_87:
     temp_2_17 = (s16)var_18;
     sp180 = (s32) temp_2_17;
     sp170 = temp_2_17 + 0xC;
-loop_242:
     spC0 = (s32) sp1E0;
-    if ((s32) sp1E0 < (s32) (*(u16 *)((u8 *)(arg0) + (0x6A)))) {
+    while ((s32) sp1E0 < (s32) (*(u16 *)((u8 *)(arg0) + (0x6A)))) {
         temp_18 = (s64 *)((*(s64 **)((u8 *)(((u8 *)arg0 + (sp1E0 * 4))) + (0x38))));
         sp160 = (s32) ((s64) ((s64) (*(u8 *)((u8 *)(temp_18) + (0xD9))) << 0x30) >> 0x30);
         if (sp1C0 != 0) {
@@ -3552,14 +3549,12 @@ loop_242:
         sp140 = (s32) temp_2_26;
         sp130 = temp_2_26 - 1;
         sp120 = (s32) ((s64) ((s64) sp160 << 0x30) >> 0x30);
-loop_235:
         spD0 = (s32) sp1D0;
-        if ((s32) sp1D0 < sp120) {
+        while ((s32) sp1D0 < sp120) {
             sp260 = 0;
             hit = &((LargeBattleHitResult *)((u8 *)temp_18 + 0xF0))[sp1D0];
-loop_196:
             sp200 = (s32) sp260;
-            if ((s32) sp260 < sp140) {
+            while ((s32) sp260 < sp140) {
                 temp_2_27 = hit->motion;
                 sp2A0 = (s32) temp_2_27;
                 if ((temp_2_27 != 0x13) && (temp_2_27 != 9)) {
@@ -3744,7 +3739,7 @@ loop_196:
                     }
                 }
                 sp260 += 1;
-                goto loop_196;
+                sp200 = (s32) sp260;
             }
             temp_2_48 = hit;
             sp1F0 = temp_2_48;
@@ -3851,7 +3846,7 @@ block_224:
                 }
             }
             sp1D0 += 1;
-            goto loop_235;
+            spD0 = (s32) sp1D0;
         }
         temp_2_59 = (u8 *)(func_001f3950(temp_18));
         (*(s8 *)((u8 *)(temp_2_59) + (0))) = 5;
@@ -3881,7 +3876,7 @@ block_224:
             }
         }
         sp1E0 += 1;
-        goto loop_242;
+        spC0 = (s32) sp1E0;
     }
     temp_2_62 = (u8 *)(func_001f3950(arg0));
     (*(s8 *)((u8 *)(temp_2_62) + (0))) = 5;
@@ -3977,7 +3972,9 @@ void func_001a7710(void)
    Other reconstruction defects remain; keep this controller ASM-backed. */
 /* 2026-10-03: audited packet dependencies at +8/+0x18/+0x28 and owner UID
    at +0x60 use retail ld/sd throughout; preserve their full 64-bit values.
-   Four saved dependency locals and the 001d65d0 UID formal are wide too. */
+   Four saved dependency locals and the 001d65d0 UID formal are wide too.
+ * 2026-10-09: 1489 -> 1486: the m2c label loops are while loops.
+ */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
 void func_001a7720(u8 *arg0) {
@@ -5400,9 +5397,8 @@ do {
             sp150 = (s32) sp3A0;
             sp140 = sp3A0 - 1;
             sp130 = sp420 + 0x2B;
-    loop_385:
             spC0 = (s32) sp3B0;
-            if ((s32) sp3B0 < sp150) {
+            while ((s32) sp3B0 < sp150) {
                 var_f20_2 = 1.0f;
                 temp_2_95 = sp3B0 << 5;
                 sp120 = temp_2_95;
@@ -5661,7 +5657,7 @@ do {
                 }
                 sp390 += 7;
                 sp3B0 += 1;
-                goto loop_385;
+                spC0 = (s32) sp3B0;
             }
             if (sp410 < (s32) sp390) {
                 sp410 = sp390;
