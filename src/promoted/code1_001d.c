@@ -2292,6 +2292,8 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * 2026-10-09: 185 -> 179: the chain depth walk is a for loop over the node list that
  * breaks at the unit.
  * 2026-10-09: 179 -> 172: declaration order of the function-scope scalars.
+ * 2026-10-09: 172 -> 123: case 4/5 keeps the camera in its own block local `cam`
+ * rather than reusing arg0.
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2370,8 +2372,10 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     switch (mode & 0xFFFF) {
     case 4:
     case 5: {
-        arg0 = func_00457120() + 0x20;
-        func_003e42a0(PROJ, (f32 *)D_00881430, arg0);
+        u8 *cam;
+
+        cam = func_00457120() + 0x20;
+        func_003e42a0(PROJ, (f32 *)D_00881430, cam);
         if (PROJ[2] != 0.0f) {
             stk[20] = 640.0f * (PROJ[0] / PROJ[2]);
             stk[21] = 448.0f * (PROJ[1] / PROJ[2]);
@@ -2386,7 +2390,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             u8 *ud = *(u8 **)(unit + 0x30);
             f32 len;
             btlUnitGetSphereWorldCenter(ud, POS);
-            func_003e42a0(PROJ, POS, arg0);
+            func_003e42a0(PROJ, POS, cam);
             if (PROJ[2] != 0.0f) {
                 stk[22] = 640.0f * (PROJ[0] / PROJ[2]);
                 stk[23] = 448.0f * (PROJ[1] / PROJ[2]);
