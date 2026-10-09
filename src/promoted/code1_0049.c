@@ -373,7 +373,14 @@ loop_00490bb0_check:
  * the origin copy's temporaries, and two mult operand orders. Matching it
  * needs fGpffff8088, fGpffff808c and D_00922D70 in symbols_recovered.txt to
  * stay linkable. 
-   2026-10-09: 57 -> 45: the config/D_00922D70/prev quad copies go through $2 as in func_0048d8c0. Residual: retail spills swayBase and keeps the asm `dot` in $f28; b210 spills `dot` (its asm-output virtual, numbered 52, wins the score-2 tie over swayBase's 40 regardless of declaration). */
+   2026-10-09: 57 -> 45: the config/D_00922D70/prev quad copies go through $2 as in func_0048d8c0. Residual: retail spills swayBase and keeps the asm `dot` in $f28; b210 spills `dot` (its asm-output virtual, numbered 52, wins the score-2 tie over swayBase's 40 regardless of declaration).
+ * 2026-10-09: 45 -> 28: swayBase is declared last (its number then ranks it
+ * for the spill as retail does), followed by a declaration climb.
+ * 2026-10-09: 28 -> 26: the trail index `(node - base) >> 5` is a named u32
+ * multiplied by nmult (retail's mult operand order).
+ * 2026-10-09: 26 -> 25: `burst = 1` goes through a u8 `on` local; with
+ * opt_propagation off this is the only spelling that gives retail's `daddiu
+ * $s6, $zero, 1` (matching.md, "Where daddiu comes from"). */
 // FUN_00490C40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -404,26 +411,26 @@ void func_00490c40(u8 *arg0)
     u8 *self;
     s32 limit;
     s32 respawn;
-    s32 divD8;
+    f32 dist;
     u8 mode;
-    f32 growth;
+    f32 half;
     s32 spawn;
     s64 burst;
     u32 i;
     s32 state;
-    f32 half;
+    s32 divD8;
     f32 two;
     f32 one;
     f32 zero;
+    f32 speed;
     f32 spin;
     f32 negone;
     f32 swayRange;
-    f32 swayBase;
+    f32 growth;
     f32 t;
-    f32 speed;
     f32 travel;
+    f32 swayBase;
     f32 reach;
-    f32 dist;
 
     self = arg0;
     count = *(u32 *)(self + 4);
@@ -453,7 +460,12 @@ void func_00490c40(u8 *arg0)
         burst = 0;
         spawn = 0;
     } else if (*(s32 *)(self + 0x10) == 0 && *(u8 *)(config + 0xBD) != 0) {
-        burst = 1;
+        {
+            u8 on;
+
+            on = 1;
+            burst = on;
+        }
         if (!(*(f32 *)(config + 0x28) <= 0.0f)) {
             spawn = (s32)((f32)*(u32 *)(self + 4) * ((fGpffff807c - *(f32 *)(config + 0x28)) * effMiscRandFloat(0)));
         } else {
@@ -492,7 +504,8 @@ void func_00490c40(u8 *arg0)
             cfg = *(u8 **)(self + 0x20);
             nmult = *(s32 *)(cfg + 0xC0) * *(s32 *)(cfg + 0xC4);
             if (nmult != 0) {
-                u8 *trail = *(u8 **)(self + 0x18) + ((*(u32 *)(self + 4) + nmult * ((u32)(node - *(u8 **)(self + 0x18)) >> 5)) << 5);
+                u32 index = (u32)(node - *(u8 **)(self + 0x18)) >> 5;
+                u8 *trail = *(u8 **)(self + 0x18) + ((*(u32 *)(self + 4) + index * nmult) << 5);
                 s32 k;
 
                 for (k = 0; k < nmult; trail += 0x20, k++) {
@@ -591,7 +604,8 @@ void func_00490c40(u8 *arg0)
                 s32 nmult = *(s32 *)(cfg + 0xC0) * *(s32 *)(cfg + 0xC4);
 
                 if (nmult != 0) {
-                    u8 *trail = *(u8 **)(self + 0x18) + ((*(u32 *)(self + 4) + nmult * ((u32)(node - *(u8 **)(self + 0x18)) >> 5)) << 5);
+                    u32 index = (u32)(node - *(u8 **)(self + 0x18)) >> 5;
+                u8 *trail = *(u8 **)(self + 0x18) + ((*(u32 *)(self + 4) + index * nmult) << 5);
 
                     memcpy(trail, node, 0x20);
                     *(s32 *)(trail + 0x10) = -1;
