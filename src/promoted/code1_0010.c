@@ -221,7 +221,15 @@ extern u8 iGpffff85d0;
  * function prologue cannot run against the cleared SP, and a split hardware
  * wrapper must preserve this entry ABI as well as the entire owner object.
  * Retain the extracted entry until that boundary has an exact validated
- * replacement; moving the sequence into an asm C body is not a C recovery.
+ * replacement.
+ *
+ * 2026-10-09 (user-approved route: an `asm void` body with real mnemonics,
+ * like func_00100220 below): blocked by the compiler. MWCC's asm-function
+ * syntax has no %hi/%lo operator (`%hi(x)`, `x@h`, `x@ha`, `hi(x)` and
+ * bare-symbol `lui` all fail to parse), and `la` always emits lui/addiu
+ * pairs, while retail at 00100198 issues five `lui`s before their five
+ * `addiu`s. The routine is Sony's crt0.s, so the faithful source is an
+ * assembler file, which the build does not support for first-party units.
  */
 // FUN_00100008
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100008);
