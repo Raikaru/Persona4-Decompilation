@@ -41,6 +41,15 @@ apart from line numbers, and `elig_debug` shows no unowned relocations.
 Tools: `tools/varchoice.py` (whole-use-set and per-web moves into dead
 locals), `tools/sdiff.py` (structural diff with registers and relocations
 masked) and `tools/fnside.py` (side-by-side listing).
+Greedy variable-choice runs with the corrected liveness checks:
+`00283490` 67 → 56 (first tile loop's row offset in `i`, second branch's
+today in `tile`); `0048b340` 54 → 24 (the else branch's last-node pointer in
+`dst1`). Nothing found on `001400f0`, `002b6ec0`, `00162e10`, `003694d0`,
+`0027f6f0`, `001fd790` or `001e9950`. `003768e0` 182 → 179 needed `right`
+in `opacity`; that was not installed (meaningless name, small gain).
+`0048b340`'s remaining structural rows are `last` in `$a3` against our
+`$s3` and the `1.0f` that retail rematerialises for `inv3`. We reuse the `one`
+in `$f20`; six spellings of the literal made no difference.
 
 Other work (no further match): `func_0014f310` (the O1 field loader) went 513 → 65 aligned
 edits. Its structural diff (`tools/sdiff.py`, registers and relocations
