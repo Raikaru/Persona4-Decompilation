@@ -618,7 +618,9 @@ extern u8 *iGpffffb3d4;
  * 2026-10-09: 36 -> 32: the C-list pick copies cIdx into `index` before the
  * increment, as the A-list pick does.
  * 2026-10-09: 32 -> 25: `cIdx = index + 1` lowers cIdx's reference count, so
- * b210 now spills cIdx (sh/lhu 0xE0) as retail does instead of nDraw. */
+ * b210 now spills cIdx (sh/lhu 0xE0) as retail does instead of nDraw.
+ * 2026-10-09: 25 -> 1: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ */
 // FUN_0036EE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -636,16 +638,15 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     s32 i;
     u16 nB;
     u16 nA;
-    s32 drawIndex;
+    s32 nDraw;
     u16 nC;
     s32 bCount;
     s32 cCount;
     s32 total;
-    s32 k;
     s32 e;
     u16 r2;
     s16 tmp;
-    s32 nDraw;
+    s32 drawIndex;
     u16 aIdx;
     u16 bIdx;
     u16 cIdx;
@@ -711,6 +712,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
         return 0;
     }
     if (cCount > 1) {
+        s32 k;
         for (k = 0; k < cCount; k++) {
             r1 = func_00231d70(cCount);
             r2 = func_00231d70(cCount);
@@ -722,6 +724,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
         }
     }
     if (bCount > 1) {
+        s32 k;
         for (k = 0; k < bCount; k++) {
             r1 = func_00231d70(nB);
             r2 = func_00231d70(nB);
@@ -733,6 +736,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
         }
     }
     if (nA > 1) {
+        s32 k;
         for (k = 0; k < nA; k++) {
             r1 = func_00231d70(nA);
             r2 = func_00231d70(nA);

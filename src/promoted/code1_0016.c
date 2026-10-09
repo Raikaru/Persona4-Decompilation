@@ -368,6 +368,7 @@ void func_001607e0(void)
 /* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 502 to 401 edits.
  * 2026-10-09: 401 -> 387: the colour buffers are cleared through a guarded
  * count-down byte loop (inline helper), as retail does.
+ * 2026-10-09: 387 -> 383: body taken from the parallel cos/finish-first-party-20261009 worktree.
  */
 // FUN_00160880 NONMATCHING
 #ifdef NON_MATCHING
@@ -458,12 +459,12 @@ void func_00160880(void)
     }
     b = D_007643B0;
     inv = 1.0f - b;
+    i = 0;
     curOff = cur * 0x124;
     prevOff = D_007643AC * 0x124;
     base = iGpffffb2b0;
     bright = D_007643A4;
     alpha = iGpffff9ef8;
-    i = 0;
     do {
         s32 curRow = curOff + i * 0x24;
         s32 prevRow = prevOff + i * 0x24;
@@ -474,21 +475,21 @@ void func_00160880(void)
             r0 = w0 & 0xFF;
             g0 = (w0 >> 8) & 0xFF;
             b0 = (w0 >> 16) & 0xFF;
+            a0 = ((w0 >> 24) & 0xFF) + bright;
             w1 = *(s32 *)(p + 8);
             r1 = w1 & 0xFF;
             g1 = (w1 >> 8) & 0xFF;
             b1 = (w1 >> 16) & 0xFF;
+            a1 = ((w1 >> 24) & 0xFF) + bright;
             w2 = *(s32 *)(p + 0x2C);
             r2 = w2 & 0xFF;
             g2 = (w2 >> 8) & 0xFF;
             b2 = (w2 >> 16) & 0xFF;
+            a2 = ((w2 >> 24) & 0xFF) + bright;
             w3 = *(s32 *)(p + 0x28);
             r3 = w3 & 0xFF;
             g3 = (w3 >> 8) & 0xFF;
             b3 = (w3 >> 16) & 0xFF;
-            a0 = ((w0 >> 24) & 0xFF) + bright;
-            a1 = ((w1 >> 24) & 0xFF) + bright;
-            a2 = ((w2 >> 24) & 0xFF) + bright;
             a3 = ((w3 >> 24) & 0xFF) + bright;
             if (a0 < 0) { a0 = 0; }
             if (a0 >= 256) { a0 = 255; }

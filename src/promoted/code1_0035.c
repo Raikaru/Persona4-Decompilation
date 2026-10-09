@@ -2559,6 +2559,8 @@ void func_003599a0(u8 *arg0)
    alpha reuses `kind` (same types, disjoint lifetimes).
  * 2026-10-09: 491 -> 490: the palette bytes are absolute (non-small-data) objects in
  * retail (`lui`/`lbu %lo(D_0064B2E9)`), so they are declared as arrays.
+ * 2026-10-09: 490 -> 451: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 450: palette bytes declared as absolute arrays (retail lui/lbu %lo).
  */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2603,16 +2605,16 @@ void func_003599c0(s32 arg0, u8 *arg1)
     s32 rc[4];
     u16 name;
     u16 count;
-    f32 x0;
+    f32 px;
     f32 y0;
-    f32 fade;
+    f32 w;
     f32 rowY;
     f32 x;
     f32 y;
-    f32 w;
+    f32 fade;
     f32 h;
     f32 scale;
-    f32 px;
+    f32 x0;
     f32 py;
     u8 kind;
     s32 isSelf;

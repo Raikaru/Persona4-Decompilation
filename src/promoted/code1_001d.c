@@ -2301,6 +2301,7 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * 2026-10-09: the next-neighbour pick indexes `entries[((i & 0xFFFF) + 1) & 0xFFFF]`,
  * reusing the compare's sum as retail does (structurally exact there; 101 -> 105
  * edits on register colouring).
+ * 2026-10-09: 105 -> 87: body taken from the parallel cos/finish-first-party-20261009 worktree.
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2419,13 +2420,14 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             i = (i + 1) & 0xFFFF;
         }
         {
-            s32 swapped;
+            u8 swapped;
             s32 nn = n & 0xFFFF;
+            s32 limit = nn - 1;
             do {
                 s32 j;
                 swapped = 0;
                 j = 0;
-                while ((j & 0xFFFF) < nn - 1) {
+                while ((j & 0xFFFF) < limit) {
                     u16 jj = j;
                     if (entries[jj].score < entries[(j & 0xFFFF) + 1].score) {
                         u8 *tp = entries[jj].unit;
@@ -2505,13 +2507,14 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             i = (i + 1) & 0xFFFF;
         }
         {
-            s32 swapped;
+            u8 swapped;
             s32 nn = n & 0xFFFF;
+            s32 limit = nn - 1;
             do {
                 s32 j;
                 swapped = 0;
                 j = 0;
-                while ((j & 0xFFFF) < nn - 1) {
+                while ((j & 0xFFFF) < limit) {
                     u16 jj = j;
                     if (entries[jj].score < entries[(j & 0xFFFF) + 1].score) {
                         u8 *tp = entries[jj].unit;
@@ -2585,12 +2588,13 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         }
         if ((n & 0xFFFF) >= 2) {
             s32 swapped;
-            s32 nn = n & 0xFFFF;
+            u16 nn = n & 0xFFFF;
+            s32 limit = nn - 1;
             do {
                 s32 j;
                 swapped = 0;
                 j = 0;
-                while ((j & 0xFFFF) < nn - 1) {
+                while ((j & 0xFFFF) < limit) {
                     u16 jj = j;
                     if (entries[jj].chain < entries[(j & 0xFFFF) + 1].chain) {
                         u8 *tp = entries[jj].unit;
