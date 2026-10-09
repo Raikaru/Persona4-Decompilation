@@ -52,6 +52,16 @@ lever in [matching.md](matching.md)). Each copy carries a
 `dot`/`swayBase` spill choice. `0036ee60` has the same kind of residual:
 b210 spills `nDraw` (score 4) where retail spills `aIdx` (score 5 in ours).
 
+Open question for `00162e10`, `0019c0d0` and `003599c0`: retail recomputes a
+unit address (or reloads the 1/255 global) after every label, yet shares
+values inside a block. The b210 per-pass IR dump shows `IRO_CommonSubs` folding
+`00162e10`'s 11 `D_007EF9B0 + i * 0x750` computations to 3. Micro-tests fold the
+same expression across `if`s and calls; only an address-taken index stops it.
+In the compiler, `IrOptimizer_driver` (0x004d13a0) gates CommonSubs
+(0x005a5060) only on the `opt_common_subs` flag (0x006365cf); there is no
+function-size gate. `opt_common_subs off` gives the per-label recomputations
+but also drops the in-block sharing (00162e10: 780 instructions vs retail 735).
+
 ## October 9 continuation: 6,820 MATCH / 41 ASM
 
 `build/after22.json` reports 6,820 first-party MATCH and 41 ASM. Against
