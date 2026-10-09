@@ -263,9 +263,18 @@ s32 func_00162c30(void)
    in every block. IRO_CommonSubs merges every spelling of that product, and
    opt_common_subs off costs more elsewhere (315).
    2026-10-08: opt_dead_assignments off and opt_lifetimes on lowers fnalign from 180 to 173 edits. */
-/* 2026-10-09: 173 -> 159 edits. Retail copies the 64-byte matrix as eight lw/lw/sw/sw rounds, so FieldMatrixCopy is s32 words (word aligned), not bytes. Open: retail recomputes D_007EF9B0 + i * 0x750 at each later use (fresh entry/cur locals) instead of reusing slot, while still sharing other expressions; opt_common_subs off (301), opt_propagation off (380) and struct-array indexing (279) do not reproduce that alone. */
+/* 2026-10-09: 173 -> 159 edits. Retail copies the 64-byte matrix as eight lw/lw/sw/sw rounds, so FieldMatrixCopy is s32 words (word aligned), not bytes. Open: retail recomputes D_007EF9B0 + i * 0x750 at each later use (fresh entry/cur locals) instead of reusing slot, while still sharing other expressions; opt_common_subs off (301), opt_propagation off (380) and struct-array indexing (279) do not reproduce that alone.
+ * 2026-10-09: 159 -> 156: the unit-table address goes through a static inline
+ * accessor; retail recomputes it (`mult` by 0x750) at most of its uses instead of
+ * reusing `slot`.
+ */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
+static inline u8 *fieldUnitEntry(s32 index)
+{
+    return D_007EF9B0 + index * 0x750;
+}
+
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_lifetimes on
@@ -301,7 +310,7 @@ void func_00162e10(void)
     mtx = func_003e0f80();
     for (i = 0; i < 4; i++) {
         kind = 1;
-        slot = D_007EF9B0 + i * 0x750;
+        slot = fieldUnitEntry(i);
         if (*(s32 *)(slot + 0x48) == 0) {
             continue;
         }
@@ -313,7 +322,7 @@ void func_00162e10(void)
             kind = 3;
         }
         {
-            u8 *entry = D_007EF9B0 + i * 0x750;
+            u8 *entry = fieldUnitEntry(i);
             u8 **resource;
 
             cfg = (u8 **)(entry + 0x50);
@@ -370,13 +379,13 @@ void func_00162e10(void)
                         *(u8 *)(*(u8 **)(slot + 0x50) + j * 0xC + 0x28C) |= 1;
                     }
                 }
-                func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(D_007EF9B0 + i * 0x750 + 0x728)), 0, 1);
+                func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(fieldUnitEntry(i) + 0x728)), 0, 1);
             }
         } else {
             func_00168780(*(s32 *)(*res + 0x220), 35.0f);
         }
         {
-            u8 *entry = D_007EF9B0 + i * 0x750;
+            u8 *entry = fieldUnitEntry(i);
             u8 **model = (u8 **)(entry + 0x54);
             f32 scale;
             u8 *aux;
@@ -394,7 +403,7 @@ void func_00162e10(void)
                 sp90[0] = 1200.0f * (f32)(u32)*((u8 *)func_00155280() + 0x44);
                 sp90[1] = 2.0f;
                 sp90[2] = 1200.0f * (f32)(u32)*((u8 *)func_00155280() + 0x45);
-                entry = D_007EF9B0 + i * 0x750;
+                entry = fieldUnitEntry(i);
                 grid = (u8 *)func_00155280() + (*((u8 *)func_00155280() + 0x45) << 8);
                 func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, 90.0f * (f32)((*(grid + (*((u8 *)func_00155280() + 0x44) << 4) + 0x59) + 2) % 4));
                 func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(entry + 0x728)), 0, 1);
@@ -410,7 +419,7 @@ void func_00162e10(void)
                     sp90[2] += spB0[2];
                 }
             } else {
-                u8 **auxp = (u8 **)(D_007EF9B0 + i * 0x750 + 0x1AC);
+                u8 **auxp = (u8 **)(fieldUnitEntry(i) + 0x1AC);
 
                 func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, *(f32 *)(aux + 0x14C));
                 *(FieldVec3 *)sp90 = *(FieldVec3 *)(*auxp + 0x140);
@@ -484,12 +493,12 @@ void func_00162e10(void)
             break;
         }
         if (i != 0) {
-            u8 *cur = D_007EF9B0 + i * 0x750;
+            u8 *cur = fieldUnitEntry(i);
 
             *(s32 *)(cur + 0x1B0) = func_0017e890(0, cur, D_007EF9B0 + (i - 1) * 0x750);
         }
         {
-            u8 *cur = D_007EF9B0 + i * 0x750;
+            u8 *cur = fieldUnitEntry(i);
             u8 **curRes;
             f32 fv;
             s32 j;
@@ -506,7 +515,7 @@ void func_00162e10(void)
             }
         }
         {
-            u8 *cur = D_007EF9B0 + i * 0x750;
+            u8 *cur = fieldUnitEntry(i);
 
             memset(cur + 0x1D0, 0, 0x40);
             memset(cur + 0x410, 0, 0x300);
