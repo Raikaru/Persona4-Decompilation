@@ -2298,6 +2298,9 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * search test (`(i & 0xFFFF) + 1 == nn`, `((i & 0xFFFF) - 1) & 0xFFFF`).
  * 2026-10-09: 113 -> 105: the depth walk declares `node` before `depth`.
  * 2026-10-09: 105 -> 101: the facing dot product is written x term first.
+ * 2026-10-09: the next-neighbour pick indexes `entries[((i & 0xFFFF) + 1) & 0xFFFF]`,
+ * reusing the compare's sum as retail does (structurally exact there; 101 -> 105
+ * edits on register colouring).
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2450,7 +2453,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                     if ((i & 0xFFFF) + 1 == nn) {
                         selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
-                        selected = entries[(i + 1) & 0xFFFF].idx;
+                        selected = entries[((i & 0xFFFF) + 1) & 0xFFFF].idx;
                     }
                 } else {
                     if ((i & 0xFFFF) == 0) {
@@ -2536,7 +2539,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                     if ((i & 0xFFFF) + 1 == nn) {
                         selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
-                        selected = entries[(i + 1) & 0xFFFF].idx;
+                        selected = entries[((i & 0xFFFF) + 1) & 0xFFFF].idx;
                     }
                 } else {
                     if ((i & 0xFFFF) == 0) {
@@ -2620,7 +2623,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 if ((i & 0xFFFF) + 1 == nn) {
                     selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
                 } else {
-                    selected = entries[(i + 1) & 0xFFFF].idx;
+                    selected = entries[((i & 0xFFFF) + 1) & 0xFFFF].idx;
                 }
             } else {
                 if ((i & 0xFFFF) == 0) {
