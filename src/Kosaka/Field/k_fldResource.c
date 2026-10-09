@@ -337,6 +337,9 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * after the base load.
  * 2026-10-09: 94 -> 90: func_00146440 takes the camera entry arrays as pointers.
  * 2026-10-09: 90 -> 86: func_0015e960's last parameter is s16.
+ * 2026-10-09: 86 -> 84: the loaded HBN entry is its own local `hbnEntry`.
+ * 2026-10-09: 84 -> 83: the first file check assigns `var_2 = 1` in its NULL branch.
+ * 2026-10-09: 83 -> 70: temp_18 is declared before temp_19.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -423,7 +426,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 *temp_16_10;
     u8 *temp_16_11;
     u8 *temp_17_3;
-    u8 *temp_18;
+    s32 temp_19;
     u8 *temp_2;
     u8 *temp_2_10;
     u8 *temp_2_11;
@@ -492,8 +495,9 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 *b_tbl;
     u8 *var_17_7;
     u8 *var_18_4;
-    s32 temp_19;
+    u8 *temp_18;
     u32 *frameCount;
+    u8 *hbnEntry;
     s32 var_19;
     s32 var_19_2;
     s32 temp_18_2;
@@ -572,10 +576,9 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     default: goto block_259;
     }
 loadFieldResource:
-            var_2 = 1;
             temp_4 = (u8 *)(iGpffffb200);
             if (temp_4 == NULL) {
-
+                var_2 = 1;
             } else if (H_Cdvd_IsFileLoaded((s32)(temp_4)) != 0) {
                 var_2 = 1;
             } else {
@@ -750,8 +753,8 @@ readHbnResources:
                 if (func_0015f9b0((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864)),&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
                     return 0;
                 }
-                if ((temp_2_4 = (u8 *)hbnData) != NULL) {
-                    func_0015fb00(temp_2_4, 1);
+                if ((hbnEntry = (u8 *)hbnData) != NULL) {
+                    func_0015fb00(hbnEntry, 1);
                     jtbl_008873EC[0](hbnData);
                     *( s32 * )(((u8 *)func_00155280()) + 0x1864) = 0;
                 }
