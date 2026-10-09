@@ -2509,7 +2509,11 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
  * iter, clear, j, dst1, c4). Open: retail rematerialises 1.0f in the else
  * branch, but b210's codegen reuses the entry's constant temporary there
  * (already shared at codegen_entry), and the else-branch temporaries then
- * colour one register lower ($v1/$a0... instead of $a3/$v1...). */
+ * colour one register lower ($v1/$a0... instead of $a3/$v1...).
+ * 2026-10-09: 54 -> 24: the else branch's last-node pointer lives in `dst1`
+ * (dead after the first copy loop) instead of a block-scoped local. Under
+ * opt_lifetimes on, a web is numbered with its variable.
+ */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2690,7 +2694,6 @@ loop1_check:
             *(s32 *)(iter + 0x10) = node10;
         }
     } else {
-        u8 *last;
         u32 colTmpA;
         u32 colTmpB;
         u32 packedTmp;
@@ -2706,16 +2709,16 @@ loop1_check:
         if (node10 <= 0) {
             return;
         }
-        last = (u8 *)(stride + (u32)clear);
-        if (*(s32 *)(last + 0x10) < 0) {
+        dst1 = (u8 *)(stride + (u32)clear);
+        if (*(s32 *)(dst1 + 0x10) < 0) {
             return;
         }
-        iter = last - 0x20;
+        iter = dst1 - 0x20;
         acc3 = 0.0f;
         inv3 = 1.0f / (f32)(u32)((u32)c4 + 1);
-        bx = *(f32 *)(last + 0x18);
+        bx = *(f32 *)(dst1 + 0x18);
         dx = *(f32 *)(clear + 0x18) - bx;
-        by = *(f32 *)(last + 0x1C);
+        by = *(f32 *)(dst1 + 0x1C);
         dy = *(f32 *)(clear + 0x1C) - by;
         colTmpA = *(u32 *)(clear + 0x14);
         {
@@ -2725,7 +2728,7 @@ loop1_check:
             sc = D_00761134;
             effectVuUnpackColor10V0(word, sc);
             __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
-            colTmpB = *(u32 *)(last + 0x14);
+            colTmpB = *(u32 *)(dst1 + 0x14);
             effectVuUnpackColor10V0(&colTmpB, sc);
         }
         effectVuStore10((EffectVuVector *)&tmpE0);
@@ -2738,7 +2741,7 @@ loop1_check:
         effectVuStore10((EffectVuVector *)&tmpD0);
         for (n = 0; n < (u32)c4 - 1; iter -= 0x20, n++) {
             acc3 = acc3 + inv3;
-            effectVuLoad10((EffectVuVector *)last);
+            effectVuLoad10((EffectVuVector *)dst1);
             effectVuLoad11((EffectVuVector *)clear);
             __asm__ volatile(
                 "qmtc2.ni %0, $vf2\n"
