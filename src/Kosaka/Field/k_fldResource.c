@@ -302,6 +302,9 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * no sign extension) and clear the inner counter before forming the row base.
  * 2026-10-09: 339 -> 260: locals declared in descending order of the retail
  * saved register that holds them (b210 colours later declarations first here).
+ * 2026-10-09: 260 -> 219: the two table-copy loops take the D_007E8060 /
+ * D_005F05B8 / D_005F0590 addresses into locals before the loop (retail hoists
+ * all three) and test the table entry inline.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -489,6 +492,12 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     s32 var_16_7;
     s32 var_16_8;
     s32 var_16_9;
+    u8 *a_dst;
+    u8 *a_idx;
+    u8 *a_tbl;
+    u8 *b_dst;
+    u8 *b_idx;
+    u8 *b_tbl;
     s32 var_9;
     s32 var_9_2;
     s32 temp_7;
@@ -730,12 +739,13 @@ block_123:
             if (func_0014a200() == 1) {
                 var_9 = 0;
                 temp_8 = (u8 *)(iGpffff9db0);
-                temp_4_6 = (u8)(*( u8 * )(((s32)D_005F05B8 + *( s32 * )(temp_8 + 0)) + -0x28));
-                while (var_9 < (s32) *((u8 *)(D_005F0590 + (temp_4_6 * 0xC)))) {
+                a_dst = (u8 *)D_007E8060;
+                a_idx = (u8 *)D_005F05B8;
+                a_tbl = (u8 *)D_005F0590;
+                while (var_9 < (s32) *( u8 * )((a_tbl + (*( u8 * )((a_idx + *( s32 * )(temp_8 + 0)) + -0x28) * 0xC)) + 0)) {
                     temp_7 = var_9 * 4;
-                    *(s32 *)((u8 *)D_007E8060 + temp_7) = *( s32 * )((temp_8 + temp_7) + 0x28);
+                    *(s32 *)(a_dst + temp_7) = *( s32 * )((temp_8 + temp_7) + 0x28);
                     var_9 += 1;
-                    temp_4_6 = (u8)(*( u8 * )(((s32)D_005F05B8 + *( s32 * )(temp_8 + 0)) + -0x28));
                 }
                 if (func_0015ac60(func_0015a160()) == 0) {
                     func_001582f0(*( s32 * )(iGpffff9db0 + 0) - 0x28, *( s32 * )(((u8 *)func_00155280()) + 0x4C), 1);
@@ -746,12 +756,13 @@ block_123:
             } else if (func_0014a270() != 0) {
                 var_9_2 = 0;
                 temp_8_2 = (u8 *)(iGpffff9db0);
-                temp_4_7 = (u8)(*( u8 * )(((s32)D_005F05B8 + *( s32 * )(temp_8_2 + 0)) + -0x3C));
-                while (var_9_2 < (s32) *( u8 * )(((s32)D_005F0590 + (temp_4_7 * 0xC)) + 1)) {
+                b_dst = (u8 *)D_007E8060;
+                b_idx = (u8 *)D_005F05B8;
+                b_tbl = (u8 *)D_005F0590;
+                while (var_9_2 < (s32) *( u8 * )((b_tbl + (*( u8 * )((b_idx + *( s32 * )(temp_8_2 + 0)) + -0x3C) * 0xC)) + 1)) {
                     temp_7_2 = var_9_2 * 4;
-                    *(s32 *)((u8 *)D_007E8060 + temp_7_2) = *( s32 * )((temp_8_2 + temp_7_2) + 0x28);
+                    *(s32 *)(b_dst + temp_7_2) = *( s32 * )((temp_8_2 + temp_7_2) + 0x28);
                     var_9_2 += 1;
-                    temp_4_7 = (u8)(*( u8 * )(((s32)D_005F05B8 + *( s32 * )(temp_8_2 + 0)) + -0x3C));
                 }
                 if (func_0015ac60(func_0015a160()) == 0) {
                     func_0015a7c0(func_0015a160());
