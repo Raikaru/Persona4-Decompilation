@@ -941,6 +941,12 @@ tail:
  * scored with tools/multiscore.py).
  * 1155: the 0x1CA mode byte is unsigned (retail lbu).
  * 1152: the visibility flag is an int (retail sltu test, no andi).
+ * 1148: the distance vector is one float[3] local; the separate scalars let b210
+ * drop the y/z stores that the length call reads through the pointer.
+ * 1173: the two FUN_0014e740 position vectors are float[3] locals. With separate
+ * scalars b210 dropped the y/z stores the callee reads through the pointer (30
+ * retail instructions were missing); the edit count rises but the program is now
+ * retail's.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1006,6 +1012,9 @@ int func_0017f490(unsigned char *param_1)
 
 {
 /* irregular: 10 native warning(s); review required */
+  float distVec[3];
+  float vec70[3];
+  float vec80[3];
   int *piVar1;
   float *pfVar2;
   int temp_v0;
@@ -1069,12 +1078,6 @@ int func_0017f490(unsigned char *param_1)
   float fStack_a8;
   FldAIVec3 state6Direction;
   FldAIVec3 state6Delta;
-  float fStack_80;
-  float fStack_7c;
-  unsigned int uStack_78;
-  float fStack_70;
-  float fStack_6c;
-  unsigned int uStack_68;
   float fStack_60;
   unsigned int uStack_5c;
   float fStack_58;
@@ -1084,9 +1087,6 @@ int func_0017f490(unsigned char *param_1)
   float fStack_20;
   unsigned int uStack_1c;
   float fStack_18;
-  float fStack_10;
-  float fStack_c;
-  float fStack_8;
   int uStack_4;
   
   piVar1 = *(int **)(param_1 + 0x38);
@@ -1119,12 +1119,12 @@ int func_0017f490(unsigned char *param_1)
     }
     temp_v11 = ((float *)piVar1)[0x21] - temp_v8;
     temp_v1 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-    fStack_10 = *(float *)(temp_v1 + 0x30) - *(float *)(temp_v0 + 0x30);
+    distVec[0] = *(float *)(temp_v1 + 0x30) - *(float *)(temp_v0 + 0x30);
     temp_v1 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-    fStack_c = *(float *)(temp_v1 + 0x34) - *(float *)(temp_v0 + 0x34);
+    distVec[1] = *(float *)(temp_v1 + 0x34) - *(float *)(temp_v0 + 0x34);
     temp_v1 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-    fStack_8 = *(float *)(temp_v1 + 0x38) - *(float *)(temp_v0 + 0x38);
-    temp_v10 = FUN_003e4180(&fStack_10);
+    distVec[2] = *(float *)(temp_v1 + 0x38) - *(float *)(temp_v0 + 0x38);
+    temp_v10 = FUN_003e4180(&distVec[0]);
     if (((float *)piVar1)[0x21] <= temp_v10) {
       ((unsigned char*)&uStack_4)[3] = 0;
       piVar1[0x1f] = 0;
@@ -1355,13 +1355,13 @@ int func_0017f490(unsigned char *param_1)
       temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]);
       if (temp_v0 == 1) {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-        fStack_70 = *(float *)(temp_v0 + 0x30);
-        uStack_68 = *(unsigned int *)(temp_v0 + 0x38);
-        fStack_6c = *(float *)(temp_v0 + 0x34) +
+        vec70[0] = *(float *)(temp_v0 + 0x30);
+        (*(unsigned int *)&vec70[2]) = *(unsigned int *)(temp_v0 + 0x38);
+        vec70[1] = *(float *)(temp_v0 + 0x34) +
                     *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
                               (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + 0x5f1cc0);
         pbVar7 = (unsigned char *)FUN_0015c1e0(1);
-        FUN_0014e740(pbVar7,&fStack_70);
+        FUN_0014e740(pbVar7,&vec70[0]);
         FUN_0045af60(1,0xb,3,5);
         piVar1[0x23] = *(int *)(piVar1[5] + 0x30);
         *piVar1 = 6;
@@ -1374,13 +1374,13 @@ int func_0017f490(unsigned char *param_1)
         temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]);
         if (temp_v0 == 1) {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_80 = *(float *)(temp_v0 + 0x30);
-          uStack_78 = *(unsigned int *)(temp_v0 + 0x38);
-          fStack_7c = *(float *)(temp_v0 + 0x34) +
+          vec80[0] = *(float *)(temp_v0 + 0x30);
+          (*(unsigned int *)&vec80[2]) = *(unsigned int *)(temp_v0 + 0x38);
+          vec80[1] = *(float *)(temp_v0 + 0x34) +
                       *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
                                 (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + 0x5f1cc0);
           pbVar7 = (unsigned char *)FUN_0015c1e0(1);
-          FUN_0014e740(pbVar7,&fStack_80);
+          FUN_0014e740(pbVar7,&vec80[0]);
           FUN_0045af60(1,0xb,3,5);
           piVar1[0x23] = *(int *)(piVar1[5] + 0x30);
           *piVar1 = 6;
