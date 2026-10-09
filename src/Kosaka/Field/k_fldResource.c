@@ -312,6 +312,15 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 209 -> 205: the pending flags count failures (`pending += 1`).
  * 2026-10-09: 205 -> 194: hbnData, fieldOfView, cameraKind, cameraValue60,
  * cameraValue64 declared in that order give retail's frame slots.
+ * 2026-10-09: 194 -> 193: one shared `return 0` at the end (the switch default and
+ * the state transitions jump there); the dispatch is a switch; waitEnvironment
+ * falls into readCamera after an if/else whose else returns.
+ * 2026-10-09: 193 -> 165: the environment reload is `if (flags & 4) state = 0x28;
+ * else { state = 999; break; }` followed by the loadEnvironment and
+ * waitReloadedEnvironment cases at the same level.
+ * 2026-10-09: 165 -> 163: the memcpy source is `(u8 *)entry + 4`.
+ * 2026-10-09: 163 -> 155: the per-resource loops read iGpffff9db0 before
+ * forming the index (`e = w; off = i * 4; e = *(u8 **)(e + off + 0x28)`).
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -521,27 +530,29 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     s32 var_2_4;
 
     temp_3 = (s32)(*( s32 * )(iGpffff9db0 + 0x94));
-    if (temp_3 == 999) goto completed;
-    if (temp_3 == 41) goto waitReloadedEnvironment;
-    if (temp_3 == 40) goto loadEnvironment;
-    if (temp_3 == 32) goto waitReloadedParts;
-    if (temp_3 == 31) goto readReloadedParts;
-    if (temp_3 == 30) goto reloadParts;
-    if (temp_3 == 13) goto waitParts;
-    if (temp_3 == 12) goto readParts;
-    if (temp_3 == 11) goto loadParts;
-    if (temp_3 == 10) goto readCamera;
-    if (temp_3 == 9) goto waitEnvironment;
-    if (temp_3 == 8) goto readHbnResources;
-    if (temp_3 == 7) goto readGrid;
-    if (temp_3 == 6) goto prepareGrid;
-    if (temp_3 == 5) goto waitNpcTables;
-    if (temp_3 == 4) goto loadNpcTables;
-    if (temp_3 == 3) goto waitResourceInitialization;
-    if (temp_3 == 2) goto initializeResources;
-    if (temp_3 == 1) goto waitFieldResource;
-    if (temp_3 == 0) goto loadFieldResource;
-    return 0;
+    switch (temp_3) {
+    case 0: goto loadFieldResource;
+    case 1: goto waitFieldResource;
+    case 2: goto initializeResources;
+    case 3: goto waitResourceInitialization;
+    case 4: goto loadNpcTables;
+    case 5: goto waitNpcTables;
+    case 6: goto prepareGrid;
+    case 7: goto readGrid;
+    case 8: goto readHbnResources;
+    case 9: goto waitEnvironment;
+    case 10: goto readCamera;
+    case 11: goto loadParts;
+    case 12: goto readParts;
+    case 13: goto waitParts;
+    case 30: goto reloadParts;
+    case 31: goto readReloadedParts;
+    case 32: goto waitReloadedParts;
+    case 40: goto loadEnvironment;
+    case 41: goto waitReloadedEnvironment;
+    case 999: goto completed;
+    default: goto block_259;
+    }
 loadFieldResource:
             var_2 = 1;
             temp_4 = (u8 *)(iGpffffb200);
@@ -666,7 +677,7 @@ readGrid:
             }
             if (func_0014a270() != 0) {
                 temp_16_3 = (s32)(*( s32 * )(*( u8 ** )(((u8 *)func_00155280()) + 0x1864) + 0x110));
-                memcpy(((u8 *)func_00155280()) + 0x54,(const void *)(temp_16_3 + 4), 0x1800);
+                memcpy(((u8 *)func_00155280()) + 0x54,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
                 func_0015c730((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864)));
                 for (var_18 = 0; var_18 < 0x18; var_18++) {
                     var_19 = 0;
@@ -704,8 +715,9 @@ readHbnResources:
                 hbnData = NULL;
                 var_16_4 = 0;
                 while (var_16_4 < *( s32 * )(iGpffff9db0 + 0x24)) {
+                    temp_2_4 = (u8 *)iGpffff9db0;
                     temp_17_4 = var_16_4 * 4;
-                    temp_2_4 = (u8 *)(*( u8 ** )((iGpffff9db0 + temp_17_4) + 0x28));
+                    temp_2_4 = (u8 *)(*( u8 ** )((temp_2_4 + temp_17_4) + 0x28));
                     if (func_0015f9b0((u8 *)(*( s32 * )(temp_2_4 + 0xA3C)),(u16 **)(temp_2_4 + 0xA40), *( u16 * )(temp_2_4 + 4), *( u16 * )(temp_2_4 + 6)) == 0) {
                         return 0;
                     }
@@ -729,8 +741,9 @@ readHbnResources:
             }
             var_16_6 = 0;
             while (var_16_6 < *( s32 * )(iGpffff9db0 + 0x24)) {
+                temp_2_10 = (u8 *)iGpffff9db0;
                 temp_17_5 = var_16_6 * 4;
-                temp_2_10 = (u8 *)(*( u8 ** )((iGpffff9db0 + temp_17_5) + 0x28));
+                temp_2_10 = (u8 *)(*( u8 ** )((temp_2_10 + temp_17_5) + 0x28));
                 if (func_0015f9b0((u8 *)(*( s32 * )(temp_2_10 + 0xA3C)),(u16 **)(temp_2_10 + 0xA40), *( u16 * )(temp_2_10 + 4), *( u16 * )(temp_2_10 + 6)) == 0) {
                     return 0;
                 }
@@ -859,17 +872,18 @@ waitEnvironment:
                 temp_3_17 = (u8 *)(iGpffff9db0);
                 if (*( s32 * )(temp_3_17 + 0xDC) != 0) {
                     *( s32 * )(temp_3_17 + 0x94) = 0xA;
-readCamera:
-                    if (func_00154be0((u8 *)(*( s32 * )(iGpffff9db0 + 0xDC)), (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, &fieldOfView, &cameraKind, (u8 *)&cameraPosition, &cameraValue60, &cameraValue64, (s32 *)cameraEntries, (s32 *)cameraEntryPositions) != 0) {
-                        func_00146440(0, cameraKind, fieldOfView, (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, (u8 *)&cameraPosition, cameraValue60, cameraValue64, (s32)cameraEntries, (s32)cameraEntryPositions);
-                        *( s32 * )(iGpffff9db0 + 0x94) = 0xB;
-                        goto block_259;
-                    }
-                    return 0;
+                } else {
+                    *( s32 * )(temp_3_17 + 0x94) = 0xB;
+                    goto block_259;
                 }
-                *( s32 * )(temp_3_17 + 0x94) = 0xB;
-block_259:
+            } else {
                 return 0;
+            }
+readCamera:
+            if (func_00154be0((u8 *)(*( s32 * )(iGpffff9db0 + 0xDC)), (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, &fieldOfView, &cameraKind, (u8 *)&cameraPosition, &cameraValue60, &cameraValue64, (s32 *)cameraEntries, (s32 *)cameraEntryPositions) != 0) {
+                func_00146440(0, cameraKind, fieldOfView, (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, (u8 *)&cameraPosition, cameraValue60, cameraValue64, (s32)cameraEntries, (s32)cameraEntryPositions);
+                *( s32 * )(iGpffff9db0 + 0x94) = 0xB;
+                goto block_259;
             }
             return 0;
 loadParts:
@@ -915,8 +929,9 @@ waitParts:
         var_17_6 = 0;
         var_18_3 = 0;
         while (var_18_3 < *( s32 * )((temp_3_21 = (u8 *)(iGpffff9db0)) + 0x24)) {
+            temp_2_15 = (u8 *)iGpffff9db0;
             temp_16_9 = var_18_3 * 4;
-            temp_2_15 = (u8 *)(*( u8 ** )((iGpffff9db0 + temp_16_9) + 0x28));
+            temp_2_15 = (u8 *)(*( u8 ** )((temp_2_15 + temp_16_9) + 0x28));
             if (func_0015f000((u8 *)(*( s32 * )(temp_2_15 + 0xA48)),(u8 *)(*( s32 * )(temp_2_15 + 0xA4C))) == 0) {
                 var_17_6 += 1;
             } else {
@@ -1000,8 +1015,9 @@ waitReloadedParts:
             } else {
                 var_18_5 = 0;
                 while (var_18_5 < *( s32 * )(iGpffff9db0 + 0x24)) {
+                    temp_2_21 = (u8 *)iGpffff9db0;
                     temp_16_12 = var_18_5 * 4;
-                    temp_2_21 = (u8 *)(*( u8 ** )((iGpffff9db0 + temp_16_12) + 0x28));
+                    temp_2_21 = (u8 *)(*( u8 ** )((temp_2_21 + temp_16_12) + 0x28));
                     if (func_0015f000((u8 *)(*( s32 * )(temp_2_21 + 0xA48)),(u8 *)(*( s32 * )(temp_2_21 + 0xA4C))) == 0) {
                         var_17_9 += 1;
                     } else {
@@ -1016,30 +1032,31 @@ waitReloadedParts:
             temp_3_25 = (u8 *)(iGpffff9db0);
             if (*( s32 * )(temp_3_25 + 0xC) & 4) {
                 *( s32 * )(temp_3_25 + 0x94) = 0x28;
-loadEnvironment:
-                temp_4_12 = (u8 *)(iGpffffb200);
-                if (temp_4_12 == NULL) {
-                    var_2_4 = 1;
-                } else if (H_Cdvd_IsFileLoaded((s32)(temp_4_12)) != 0) {
-                    var_2_4 = 1;
-                } else {
-                    var_2_4 = 0;
-                }
-                if (var_2_4 != 0) {
-                    *( s32 * )(iGpffff9db0 + 0xDC) = func_00153c00(*( s16 * )(iGpffff9db0 + 0x12));
-                    *( s32 * )(iGpffff9db0 + 0x94) = 0x29;
-waitReloadedEnvironment:
-                    temp_2_22 = (u8 *)(iGpffff9db0);
-                    if (func_00153d60((u8 *)(*( s32 * )(temp_2_22 + 0xDC)), *( s16 * )(temp_2_22 + 0x12)) != 0) {
-                        *( s32 * )(iGpffff9db0 + 0x94) = 0x3E7;
-                        goto block_259;
-                    }
-                    return 0;
-                }
+            } else {
+                *( s32 * )(temp_3_25 + 0x94) = 0x3E7;
                 goto block_259;
             }
-            *( s32 * )(temp_3_25 + 0x94) = 0x3E7;
-            goto block_259;
+loadEnvironment:
+            temp_4_12 = (u8 *)(iGpffffb200);
+            if (temp_4_12 == NULL) {
+                var_2_4 = 1;
+            } else if (H_Cdvd_IsFileLoaded((s32)(temp_4_12)) != 0) {
+                var_2_4 = 1;
+            } else {
+                var_2_4 = 0;
+            }
+            if (var_2_4 == 0) {
+                goto block_259;
+            }
+            *( s32 * )(iGpffff9db0 + 0xDC) = func_00153c00(*( s16 * )(iGpffff9db0 + 0x12));
+            *( s32 * )(iGpffff9db0 + 0x94) = 0x29;
+waitReloadedEnvironment:
+            temp_2_22 = (u8 *)(iGpffff9db0);
+            if (func_00153d60((u8 *)(*( s32 * )(temp_2_22 + 0xDC)), *( s16 * )(temp_2_22 + 0x12)) != 0) {
+                *( s32 * )(iGpffff9db0 + 0x94) = 0x3E7;
+                goto block_259;
+            }
+            return 0;
         }
         goto block_259;
 completed:
@@ -1049,6 +1066,8 @@ completed:
             iGpffffb200 = 0;
         }
         return 1;
+block_259:
+    return 0;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014f310);
