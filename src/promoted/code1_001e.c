@@ -3072,7 +3072,8 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
    2026-10-08: opt_loop_invariants on, opt_lifetimes on and opt_dead_assignments off lowers fnalign from 782 to 636 edits. */
 /* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 636 to 457 edits. 
    2026-10-09: 457 -> 217: the corner adjustment is a switch on i (retail tests 3, 2, 1, 0 and skips the default), the first corner seeds are stored from [3] down to [0], the per-group and per-corner positions are FieldPair struct copies into stack pairs with the z kept in curZ/wposZ, bestDir copies are 8-byte (ld/sd), and the stack pairs are declared cur, norm, delta, bestDir, wpos. 
-   2026-10-09: 217 -> 119: the best-entry block halves bestDir in place (x kept in dx, z re-read), the distance delta is converted into delta[] before subtracting bestX/bestZ, the outer distance loop is a for with best tested positively, the corner and outer flag loops use a corner pointer with `!(x <= 0)` tests, the outer search uses an entry pointer, then a declaration climb. Residual: curZ/wposZ are register copies of the stack pair where retail reloads them, and saved-register numbering. */
+   2026-10-09: 217 -> 119: the best-entry block halves bestDir in place (x kept in dx, z re-read), the distance delta is converted into delta[] before subtracting bestX/bestZ, the outer distance loop is a for with best tested positively, the corner and outer flag loops use a corner pointer with `!(x <= 0)` tests, the outer search uses an entry pointer, then a declaration climb. Residual: curZ/wposZ are register copies of the stack pair where retail reloads them, and saved-register numbering. 
+   2026-10-09: 119 -> 103: the bounding-corner loop walks the list with `group` (retail reuses the later loop's pointer; a separate `node` local colours differently). */
 // FUN_001ED700 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -3099,7 +3100,6 @@ void func_001ed700(f32 radius)
     f32 wposZ;
     s32 j;
     u8 *group;
-    u8 *node;
     u8 *best;
     s32 i;
     s32 t;
@@ -3114,48 +3114,48 @@ void func_001ed700(f32 radius)
     s32 first;
 
     first = 0;
-    for (node = *(u8 **)(iGpffffb3ac + 0x318); node != NULL; node = *(u8 **)(node + 0x4CC)) {
+    for (group = *(u8 **)(iGpffffb3ac + 0x318); group != NULL; group = *(u8 **)(group + 0x4CC)) {
         if (first == 0) {
             s16 v;
 
-            v = *(s16 *)(node + 0);
+            v = *(s16 *)(group + 0);
             corners[3].x = v;
             corners[2].x = v;
             corners[1].x = v;
             corners[0].x = v;
-            v = *(s16 *)(node + 2);
+            v = *(s16 *)(group + 2);
             corners[3].y = v;
             corners[2].y = v;
             corners[1].y = v;
             corners[0].y = v;
-            f0 = *(f32 *)(node + 4);
+            f0 = *(f32 *)(group + 4);
             bounds[3] = f0;
             bounds[2] = f0;
             bounds[1] = f0;
             bounds[0] = f0;
             first = 1;
         } else {
-            tx = *(s16 *)(node + 0);
-            ty = *(s16 *)(node + 2);
+            tx = *(s16 *)(group + 0);
+            ty = *(s16 *)(group + 2);
             if ((corners[0].x >= tx) && (corners[0].y >= ty)) {
                 corners[0].x = tx;
                 corners[0].y = ty;
-                bounds[0] = *(f32 *)(node + 4);
+                bounds[0] = *(f32 *)(group + 4);
             }
             if ((tx >= corners[1].x) && (corners[1].y >= ty)) {
                 corners[1].x = tx;
                 corners[1].y = ty;
-                bounds[1] = *(f32 *)(node + 4);
+                bounds[1] = *(f32 *)(group + 4);
             }
             if ((tx >= corners[2].x) && (ty >= corners[2].y)) {
                 corners[2].x = tx;
                 corners[2].y = ty;
-                bounds[2] = *(f32 *)(node + 4);
+                bounds[2] = *(f32 *)(group + 4);
             }
             if ((corners[3].x >= tx) && (ty >= corners[3].y)) {
                 corners[3].x = tx;
                 corners[3].y = ty;
-                bounds[3] = *(f32 *)(node + 4);
+                bounds[3] = *(f32 *)(group + 4);
             }
         }
     }
