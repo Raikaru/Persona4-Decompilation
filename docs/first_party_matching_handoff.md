@@ -25,15 +25,21 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 9 continuation, part 3: guarded bodies (still 35 ASM)
+## October 9 continuation, part 3: 6,827 MATCH / 34 ASM
 
-No new matches. Guarded bodies improved and were committed with notes:
+`func_001ed700` matched (636 → 0; levers listed in
+[matching.md](matching.md) under "Levers from `func_001ed700`"). The pointer
+`fGpffff8330 = 0x00761420` was added to `config/symbols_recovered.txt`.
+`build/after24.json` reports 6,827 first-party MATCH and 34 ASM, and against
+`after23.json` only that row changed. Full link `link27` kept 604 C and 54 SDK
+objects with both hashes OK.
 
-- `001ed700` 217 → 103: best-entry block rewritten from retail, positive
-  `best != NULL` arms, corner pointer with `!(x <= 0)` tests, the bounding
-  loop walks the list with `group`, and a declaration climb. Residual: retail
-  reloads `curZ` from the stack pair inside the search loop (ours keeps it
-  in `$f21`/`$f25`), and the bounding loop's `$v0`/`$a2` colouring.
+Guarded bodies improved and committed with notes:
+
+- `00263cb0` 48 → 5 (see below; the second day loop's counter is
+  `temp_17_3` and its date `temp_3`). The residual is the `* 0x5E` product
+  against the font word (`$s3`/`$s5`).
+- `0036ee60` 45 → 36 (`nA` read directly, `hi < mlvl`).
 - `00263cb0` 48 → 16 and `00283490` 75 → 67: locals with disjoint live
   ranges share one variable (new lever in [matching.md](matching.md)), and
   both day loops pass `var_21 * 0x5E` straight to the calls (a named product
