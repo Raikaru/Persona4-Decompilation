@@ -108,7 +108,9 @@ extern void func_0036b470(void *work, void *vertices);
    the copies survive as retail's `daddu $18, $17` (a copy whose source is
    still live is not coalesced). Later sections reassign `fn` and the DC
    section uses `fn2 = fn`. Residual: retail rematerialises D_00887300 into $18
-   for each later section. */
+   for each later section.
+   2026-10-09: 139 -> 138: the unk4C section assigns `fn` after the
+   RpSkyRenderStateSet(2, 0x58) call. */
 // FUN_003694D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003694d0(PscModel *model)
@@ -326,8 +328,8 @@ void func_003694d0(PscModel *model)
                 func_004104d0();
                 break;
             }
+            RpSkyRenderStateSet(2, 0x58);
             fn = (void (**)(u32, u32))(u32)D_00887300;
-        RpSkyRenderStateSet(2, 0x58);
             (*fn)(4, 3);
             (*fn)(1, func_0036d130(6));
             func_00410420(model->unk4C, 4, mtx, 3);
