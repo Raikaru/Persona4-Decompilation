@@ -476,6 +476,8 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * 2026-10-09: 841 -> 739: frame layout. Later declarations sit lower in the frame;
  * the small-vector group is declared axis, position, workingVector, look, eye,
  * direction, forwardAxis (mapped with tools/frameslots.py).
+ * 2026-10-09: 739 -> 672: aggregate declaration order (greedy, scored with
+ * tools/multiscore.py) moves the matrices and quaternions toward retail's frame slots.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -574,13 +576,13 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   ControllerQuat startRotation;
   ControllerQuat blendedRotation;
   ControllerQuat rotationSnapshot;
-  ControllerQuat rotation;
-  ControllerQuat afStack_350;
   typedef struct { f32 from[4]; f32 to[4]; f32 omega; s32 nearlyZero; } ControllerSlerpCache;
-  ControllerSlerpCache interpolation;
-  RwMatrix localMatrix;
   RwMatrix frameMatrix;
   RwMatrix identityMatrix;
+  RwMatrix localMatrix;
+  ControllerQuat rotation;
+  ControllerQuat afStack_350;
+  ControllerSlerpCache interpolation;
   RwMatrix baseMatrix;
   u32 axis[3];
   RwV3d position;
