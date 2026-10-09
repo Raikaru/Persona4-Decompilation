@@ -25,6 +25,35 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation, part 6: 6,830 MATCH / 31 ASM
+
+`func_001fd790` matched; the body was ported from the parallel
+`cos/finish-first-party-20261009` worktree (`upstream-first-party-20261009`).
+`build/after27.json` reports 6,830 first-party MATCH and 31 ASM. The full
+link (`build/link31.log`) kept 604 C and 54 SDK objects, with both hashes OK.
+`elig_debug` shows no unowned relocations. The lint delta is two H003
+warnings for its measured `opt_loop_invariants` toggle.
+
+Guarded bodies were taken from that worktree wherever they scored lower:
+`0036ee60` 25 → 1, `0048b340` 24 → 9, `003694d0` 135 → 49, `001d8010`
+105 → 87, `0018a200` 901 → 868, `00183b80` 787 → 770, `003599c0` 490 → 450
+(plus the absolute palette arrays), `001e9950` 95 → 92, `00160880`
+387 → 383. `0016bdd0` keeps this branch's body (1629 against 1635). After
+that, `0047b0c0` went 226 → 122 with the clone-source locals (`src`/`dst`
+read once, material and UV tables through locals, `dst = state->slot` for
+the copy) and u16 counters for the clone-slot fill and blend-control loops.
+
+Open residuals:
+- `0036ee60` (1): retail's `addiu $v0,$v0,1` increments the reloaded `cIdx`,
+  and the copy in `$v1` is the index. b210 spills `cIdx` (u16 `sh`/`lhu`).
+  Every `++`/`+=` spelling changes the spill set (52+). Every
+  `= x + 1` spelling increments the copy.
+- `0048b340` (9): `regalloc_whatif` on a capture with a block-local else
+  pointer (`r60`) gives retail's `$a3` only when that node scans after about
+  `r100`, that is, as a codegen temporary. A declared local (block or
+  function scope) or the inline expression (recomputed inside the loop)
+  does not reproduce it.
+
 ## October 9 continuation, part 5: second-decompiler rebuilds
 
 Count unchanged: 6,829 MATCH / 32 ASM. Each guarded body is whatever the
