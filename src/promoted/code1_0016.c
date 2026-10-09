@@ -1858,6 +1858,10 @@ query_complete:
  * the old body was not retail's program (2113 vs 2320 instructions; now 2375).
  * 1705: the Ghidra `SQRT` intrinsic compiled as an implicit int call; it is sqrtf
  * (b210 inlines sqrt.s, as retail).
+ * 2621: 22 float fields were stored through `piVar1[n] = (int)expr`, a Ghidra
+ * mistyping that converted to int (cvt.w.s) where retail stores the float. The
+ * structural diff falls 1139 -> 1068 and the size 2358 -> 2294 (retail 2319);
+ * the edit count rises with the new register pressure.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2195,10 +2199,10 @@ s32 func_0016bdd0(u8 *param_1)
         if (((float *)piVar1)[8] < temp_v9) {
           temp_v12 = ((temp_v9 - ((float *)piVar1)[8]) / ((float *)piVar1)[temp_v4 + 0xe]) * temp_v10;
           if (0.0f < temp_v13) {
-            piVar1[0x2e] = (int)(((float *)piVar1)[0x2e] + temp_v12);
+            ((float *)piVar1)[0x2e] = (((float *)piVar1)[0x2e] + temp_v12);
           }
           else if (temp_v13 < -0.0f) {
-            piVar1[0x2e] = (int)(((float *)piVar1)[0x2e] - temp_v12);
+            ((float *)piVar1)[0x2e] = (((float *)piVar1)[0x2e] - temp_v12);
           }
           if (((float *)piVar1)[0x2f] <= ((float *)piVar1)[0x2e]) {
             piVar1[0x2e] = piVar1[0x2f];
@@ -2458,7 +2462,7 @@ LAB_0016c5dc:
           }
           temp_v8 = FUN_00155280();
           FUN_0016e8e0(*(unsigned char **)(temp_v8 + 4),temp_v14);
-          piVar1[0xab] = (int)(((float *)piVar1)[0xab] - temp_v14);
+          ((float *)piVar1)[0xab] = (((float *)piVar1)[0xab] - temp_v14);
           if (temp_v14 == 0.0f) {
             piVar1[0xab] = 0;
           }
@@ -2493,10 +2497,10 @@ LAB_0016c5dc:
           temp_v10 = ((float *)piVar1)[0xae] * stk190[2] +
                    ((float *)piVar1)[0xac] * stk190[0] + ((float *)piVar1)[0xad] * stk190[1];
           if (temp_v10 < CAND_fGpffff84e4) {
-            piVar1[0xab] = (int)-temp_v9;
+            ((float *)piVar1)[0xab] = -temp_v9;
           }
           else if (CAND_fGpffff84e8 < temp_v10) {
-            piVar1[0xab] = (int)temp_v9;
+            ((float *)piVar1)[0xab] = temp_v9;
           }
         }
         piVar1[0xac] = 0;
@@ -2505,9 +2509,9 @@ LAB_0016c5dc:
         FUN_003e0e20(piVar1[0xb0],temp_v5,2);
         temp_v8 = FUN_0016b080((void *)(piVar1[0xb0] + 0x30),55.0f,&stk160[0],&stk170[0]);
         if (temp_v8 == 1) {
-          piVar1[0xac] = (int)stk160[0];
-          piVar1[0xad] = (int)stk160[1];
-          piVar1[0xae] = (int)stk160[2];
+          ((float *)piVar1)[0xac] = stk160[0];
+          ((float *)piVar1)[0xad] = stk160[1];
+          ((float *)piVar1)[0xae] = stk160[2];
           stk1B0[0] = stk160[1] * DAT_00756518 - stk160[2] * DAT_00756514;
           stk1B0[1] = stk160[2] * DAT_00756510 - stk160[0] * DAT_00756518;
           stk1B0[2] = stk160[0] * DAT_00756514 - stk160[1] * DAT_00756510;
@@ -2592,7 +2596,7 @@ LAB_0016c5dc:
             (*(unsigned int *)&stk150[2]) = *(unsigned int *)(temp_v8 + 0x38);
             pbVar9 = (unsigned char *)FUN_00457120();
             FUN_00457630(pbVar9,(unsigned char *)((int *)&stk150[0]),(unsigned char *)FUN_007f1710,(float *)0x0);
-            piVar1[0xa5] = (int)temp_v12;
+            ((float *)piVar1)[0xa5] = temp_v12;
           }
           else if ((((float *)piVar1)[0xab] == 0.0f) && ((piVar1[1] & 2U) == 0)) {
             temp_v9 = FUN_00175db0();
@@ -2607,9 +2611,9 @@ LAB_0016c5dc:
               temp_v10 = temp_v12 - ((float *)piVar1)[0xa5];
             }
             temp_v9 = ((float *)piVar1)[0xa5];
-            piVar1[0xa5] = (int)(temp_v9 + temp_v10);
+            ((float *)piVar1)[0xa5] = (temp_v9 + temp_v10);
             if (temp_v12 <= temp_v9 + temp_v10) {
-              piVar1[0xa5] = (int)temp_v12;
+              ((float *)piVar1)[0xa5] = temp_v12;
             }
             if (((float *)piVar1)[0xa5] < ((float *)piVar1)[0xa3]) {
               puVar15 = (unsigned int *)(temp_v4 + 0x10);
@@ -2641,14 +2645,14 @@ LAB_0016c5dc:
               FUN_003e0e20(piVar1[0xb0],temp_v5,2);
               temp_v8 = FUN_0016b080((void *)(piVar1[0xb0] + 0x30),55.0f,&stk160[0],&stk170[0]);
               if (temp_v8 == 0) {
-                piVar1[0xac] = (int)stk160[0];
-                piVar1[0xad] = (int)stk160[1];
-                piVar1[0xae] = (int)stk160[2];
+                ((float *)piVar1)[0xac] = stk160[0];
+                ((float *)piVar1)[0xad] = stk160[1];
+                ((float *)piVar1)[0xae] = stk160[2];
                 pbVar9 = (unsigned char *)FUN_00457120();
                 FUN_00457630(pbVar9,(unsigned char *)((int *)&stk150[0]),(unsigned char *)FUN_007f1710,(float *)0x0);
               }
               else {
-                piVar1[0xa5] = (int)(((float *)piVar1)[0xa5] - temp_v10);
+                ((float *)piVar1)[0xa5] = (((float *)piVar1)[0xa5] - temp_v10);
               }
             }
             else {
@@ -2669,7 +2673,7 @@ LAB_0016c5dc:
           if (((float *)piVar1)[0xa3] <= ((float *)piVar1)[0xa5] + temp_v10) {
             temp_v10 = ((float *)piVar1)[0xa3] - ((float *)piVar1)[0xa5];
           }
-          piVar1[0xa5] = (int)(((float *)piVar1)[0xa5] + temp_v10);
+          ((float *)piVar1)[0xa5] = (((float *)piVar1)[0xa5] + temp_v10);
           if (((float *)piVar1)[0xa3] <= ((float *)piVar1)[0xa5]) {
             piVar1[0xa5] = piVar1[0xa3];
           }
@@ -2694,10 +2698,10 @@ LAB_0016c5dc:
             FUN_00457630(pbVar9,(unsigned char *)((int *)&stk150[0]),(unsigned char *)FUN_007f1710,(float *)0x0);
           }
           else {
-            piVar1[0xa5] = (int)(((float *)piVar1)[0xa5] - temp_v10);
-            piVar1[0xac] = (int)stk160[0];
-            piVar1[0xad] = (int)stk160[1];
-            piVar1[0xae] = (int)stk160[2];
+            ((float *)piVar1)[0xa5] = (((float *)piVar1)[0xa5] - temp_v10);
+            ((float *)piVar1)[0xac] = stk160[0];
+            ((float *)piVar1)[0xad] = stk160[1];
+            ((float *)piVar1)[0xae] = stk160[2];
           }
         }
         FUN_001687f0((unsigned char *)&stkF0[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
@@ -2864,7 +2868,7 @@ LAB_0016c5dc:
           if (temp_v10 == 0.0f) {
             temp_v10 = 20.0f;
           }
-          piVar1[0xa5] = (int)(((float *)piVar1)[0xa5] + temp_v10);
+          ((float *)piVar1)[0xa5] = (((float *)piVar1)[0xa5] + temp_v10);
           if (((float *)piVar1)[0xa3] < ((float *)piVar1)[0xa5]) {
             piVar1[0xa5] = piVar1[0xa3];
           }
@@ -2888,7 +2892,7 @@ LAB_0016c5dc:
         if (temp_v10 >= ((float *)piVar1)[0xa5]) goto LAB_0016e0c0;
         pbVar9 = (unsigned char *)FUN_00457120();
         FUN_00457630(pbVar9,(unsigned char *)((int *)&stk240[0]),(unsigned char *)FUN_007f1720,(float *)0x0);
-        piVar1[0xa5] = (int)temp_v10;
+        ((float *)piVar1)[0xa5] = temp_v10;
         goto LAB_0016e0c0;
       default:
 LAB_0016e0c0:
