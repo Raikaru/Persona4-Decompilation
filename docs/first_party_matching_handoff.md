@@ -46,6 +46,15 @@ retail reads the uninitialised uv[] (sp+0xA0..0xBC) and source[].z slots,
 documented inline. Open: SDK_SPRITE_RECORD's load order (retail loads the
 0x204 output pointer before the index); an inline helper is worse (231/453).
 
+`004a7830` model result: retail's colours come only from the virtual order
+abs (r60) < zero (r57) < load (r58). That order needs the `fabsf` result to
+stay in a declared variable (a low number) while the load stays a temporary.
+Copy propagation removes the variable. `opt_propagation off` keeps it but
+also stops the 0.5f rematerialisation (44 edits).
+`002ac750` 679 → 431: the pure single-use m2c temporaries are folded back,
+using an inline search limited to expressions of locals, casts and constants
+(no loads), and disjoint locals are merged.
+
 Guarded bodies improved and committed with notes:
 
 - `00263cb0` 48 → 5: disjoint locals share one variable (lever in
