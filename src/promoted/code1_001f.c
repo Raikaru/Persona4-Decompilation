@@ -926,6 +926,10 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * 721: the party-block running total reuses the dead `flags` local.
  * 707: second-pass result remap is a switch (0x200 first); `special` is u16.
  * 705: `n80 = !(mask2 & 0x80000)` (retail sltu/xori).
+ * 700: local `func_0010f3d0(u16, u16)` prototype (H011: the callee in g_data.c masks
+ * both arguments with 0xFFFF, the u16-parameter idiom).
+ * 694: local `func_001fb170(u16)` prototype (H011: the callee masks its argument
+ * with 0xFFFF).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -937,13 +941,14 @@ void func_001f14f0(u8 *arg0)
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     extern s32 func_0023e6f0(u8 *, u8 *, s32, s32);
     extern void func_001f9cd0(void);
-    extern s32 func_001fb170(s32);
+    extern s32 func_001fb170(u16);
     extern s32 func_001fb1f0(u8 *, s32);
     extern s32 func_001fb360(u8 *, s32);
     extern s32 func_00242990(u8 *, s32);
     extern s32 func_002411a0(u8 *, u8 *, s32, s32, s32);
     extern s32 func_0023d8e0(u8 *, u16);
     extern u8 *func_001efd50();
+    extern void func_0010f3d0(u16, u16);
     extern u8 *func_001eff50();
     extern u8 *iGpffffb3cc;
     extern f32 fGpffff812c;
