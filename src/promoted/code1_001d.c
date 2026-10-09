@@ -2274,6 +2274,13 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * the two loads and then masks once).
  * 2026-10-09: 450 -> 367: the current-unit search is a `for` loop that breaks on a
  * match, and the wrap-around pick is `entries[nn - 1]` with no mask.
+ * 2026-10-09: 367 -> 363: in the 0/1 case the anchor centre is fetched before
+ * func_001d8df0, whose result goes straight into func_00196040.
+ * 2026-10-09: 363 -> 358: the sort loops compare through an `Entry *e` for the
+ * lower slot, and the inner counter is u16.
+ * 2026-10-09: 358 -> 346: the sort index is `u16 jj = j` and the upper slot is
+ * indexed `entries[(j & 0xFFFF) + 1]`. Retail keeps the two address forms
+ * separate, as here.
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2397,8 +2404,8 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 swapped = 0;
                 j = 0;
                 while ((j & 0xFFFF) < nn - 1) {
-                    s32 jj = j & 0xFFFF;
-                    if (entries[jj].score < entries[jj + 1].score) {
+                    u16 jj = j;
+                    if (entries[jj].score < entries[(j & 0xFFFF) + 1].score) {
                         u8 *tp = entries[jj].unit;
                         u16 ti = entries[jj].idx;
                         f32 ts = entries[jj].score;
@@ -2439,10 +2446,8 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     }
     case 0:
     case 1: {
-        s32 tmp;
-        tmp = func_001d8df0(arg1) & 0xFFFF;
         btlUnitGetSphereWorldCenter(*(u8 **)(arg0 + 0x30), POS);
-        func_00196040(tmp, 0, (RwV3d *)CENTER, 0, 0, 1);
+        func_00196040(func_001d8df0(arg1) & 0xFFFF, 0, (RwV3d *)CENTER, 0, 0, 1);
         BASEXZ[0] = POS[0];
         BASEXZ[1] = POS[2];
         CENTERXZ[0] = CENTER[0];
@@ -2485,8 +2490,8 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 swapped = 0;
                 j = 0;
                 while ((j & 0xFFFF) < nn - 1) {
-                    s32 jj = j & 0xFFFF;
-                    if (entries[jj].score < entries[jj + 1].score) {
+                    u16 jj = j;
+                    if (entries[jj].score < entries[(j & 0xFFFF) + 1].score) {
                         u8 *tp = entries[jj].unit;
                         u16 ti = entries[jj].idx;
                         f32 ts = entries[jj].score;
@@ -2559,8 +2564,8 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 swapped = 0;
                 j = 0;
                 while ((j & 0xFFFF) < nn - 1) {
-                    s32 jj = j & 0xFFFF;
-                    if (entries[jj].chain < entries[jj + 1].chain) {
+                    u16 jj = j;
+                    if (entries[jj].chain < entries[(j & 0xFFFF) + 1].chain) {
                         u8 *tp = entries[jj].unit;
                         u16 ti = entries[jj].idx;
                         u16 tc = entries[jj].chain;
