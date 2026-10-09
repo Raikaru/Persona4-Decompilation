@@ -922,6 +922,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * m2c (tools/m2c_with_jtbl.py) drafts. The old Ghidra-derived body lost the
  * entry-shift increment and the unit-loop counter initialisation.
  * 725: s32 `res`/`sub` masked with 0xFFFF; case 4 listed before case 3.
+ * 724: `flags |= 1` for the first state test too (retail ori).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -967,7 +968,7 @@ void func_001f14f0(u8 *arg0)
     id = *(u16 *)(arg0 + 0x6E);
     *(u16 *)(arg0 + 0x72) = id;
     if (*(u16 *)(arg0 + 0x6C) == 3) {
-        flags = 1;
+        flags |= 1;
     }
     off = id * 0x28;
     isTen = *(u8 *)(iGpffffb3b8 + off + 0x11) == 0x10;
