@@ -481,6 +481,11 @@ f32 func_0046b2f0(u8 *param_1)
     }
     return (f32)value;
 }
+/* 2026-10-09: 830 -> 208: the raster-less paths read the same uninitialised
+   uv[] and source[].z slots retail does (documented inline). The raster guards
+   around the uv flips and the vertex uv copies and the planar-Z writes are
+   gone. fnalign measures this region only with the file's NON_MATCHING support
+   block (lines 32-198) prepended to the candidate. */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: configured native whole-owner C is 7840 bytes versus a 7808-byte
@@ -556,25 +561,24 @@ void func_0046b380(u8 *sample, s32 setStates)
             RpSkyRenderStateSet(3, (void *)0x71801);
         }
     }
-    /* A null raster selects an untextured draw. Its UV storage is not
-     * initialized by retail and must not be read as C floating values. */
-    if (raster != NULL) {
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 2) != 0) {
-            verticalLeft = uv[0];
-            uv[0] = uv[2];
-            uv[2] = verticalLeft;
-            verticalRight = uv[1];
-            uv[1] = uv[3];
-            uv[3] = verticalRight;
-        }
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 1) != 0) {
-            horizontalTop = uv[0];
-            uv[0] = uv[1];
-            uv[1] = horizontalTop;
-            horizontalBottom = uv[2];
-            uv[2] = uv[3];
-            uv[3] = horizontalBottom;
-        }
+    /* A null raster selects an untextured draw. Retail still flips and
+     * copies the uv[] stack slots (sp+0x140..0x15C) without initialising them;
+     * the values are only consumed by the textured path. */
+    if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 2) != 0) {
+        verticalLeft = uv[0];
+        uv[0] = uv[2];
+        uv[2] = verticalLeft;
+        verticalRight = uv[1];
+        uv[1] = uv[3];
+        uv[3] = verticalRight;
+    }
+    if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 1) != 0) {
+        horizontalTop = uv[0];
+        uv[0] = uv[1];
+        uv[1] = horizontalTop;
+        horizontalBottom = uv[2];
+        uv[2] = uv[3];
+        uv[3] = horizontalBottom;
     }
 
     source[0].x = (f32)-*(s16 *)(sample + 0x1C);
@@ -585,13 +589,9 @@ void func_0046b380(u8 *sample, s32 setStates)
     source[1].y = source[0].y;
     source[2].x = source[0].x;
     source[2].y = source[3].y;
-    /* The input is a 2D plane rotated around the proven unit-Z axis.
-     * Retail omits these writes. Explicit planar Z keeps the C input defined
-     * and contributes to this guarded draft's measured nonmatch. */
-    source[0].z = 0.0f;
-    source[1].z = 0.0f;
-    source[2].z = 0.0f;
-    source[3].z = 0.0f;
+    /* The input is a 2D plane rotated around the unit-Z axis. As in retail,
+     * source[].z (sp+0xF8, 0x104, 0x110, 0x11C) is never written before the
+     * transform reads it; only x and y of the result are used. */
     angle = *(f32 *)(sample + 0x18);
     if (angle != 0.0f) {
         f32 x, x2, polynomial, quadraticProduct, correction;
@@ -663,10 +663,8 @@ void func_0046b380(u8 *sample, s32 setStates)
 
             vertex->u.els.screen.z = D_008872F8[0] - *(f32 *)(sample + 0x24);
             vertex->u.els.reciprocalZ = reciprocalZ;
-            if (raster != NULL) {
-                vertex->u.els.u = uv[vertexIndex].x;
-                vertex->u.els.v = uv[vertexIndex].y;
-            }
+            vertex->u.els.u = uv[vertexIndex].x;
+            vertex->u.els.v = uv[vertexIndex].y;
             if (vertexIndex == 2) {
                 u32 packed = *(u32 *)(SDK_SPRITE_RECORD(sample) + 0x70);
                 color.red = (packed & 0xFF000000) >> 24;
@@ -738,12 +736,10 @@ void func_0046b380(u8 *sample, s32 setStates)
         points[3].y = (f32)-*(s16 *)(sample + 0x1E);
         func_0046a7f0(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
-        if (raster != NULL) {
-            vertices[0].u.els.u = uv[0].x; vertices[0].u.els.v = uv[0].y;
-            vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
-            vertices[2].u.els.u = uv[0].x; vertices[2].u.els.v = uv[0].y;
-            vertices[3].u.els.u = uv[1].x; vertices[3].u.els.v = uv[1].y;
-        }
+        vertices[0].u.els.u = uv[0].x; vertices[0].u.els.v = uv[0].y;
+        vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
+        vertices[2].u.els.u = uv[0].x; vertices[2].u.els.v = uv[0].y;
+        vertices[3].u.els.u = uv[1].x; vertices[3].u.els.v = uv[1].y;
         if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
@@ -762,12 +758,10 @@ void func_0046b380(u8 *sample, s32 setStates)
         points[3].y = sdkSpriteBottom(sample, 1);
         func_0046a7f0(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
-        if (raster != NULL) {
-            vertices[0].u.els.u = uv[2].x; vertices[0].u.els.v = uv[2].y;
-            vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
-            vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
-            vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        }
+        vertices[0].u.els.u = uv[2].x; vertices[0].u.els.v = uv[2].y;
+        vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
+        vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
+        vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
         if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
@@ -786,12 +780,10 @@ void func_0046b380(u8 *sample, s32 setStates)
         points[3].y = sdkSpriteBottom(sample, 0);
         func_0046a7f0(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
-        if (raster != NULL) {
-            vertices[0].u.els.u = uv[0].x; vertices[0].u.els.v = uv[0].y;
-            vertices[1].u.els.u = uv[0].x; vertices[1].u.els.v = uv[0].y;
-            vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
-            vertices[3].u.els.u = uv[2].x; vertices[3].u.els.v = uv[2].y;
-        }
+        vertices[0].u.els.u = uv[0].x; vertices[0].u.els.v = uv[0].y;
+        vertices[1].u.els.u = uv[0].x; vertices[1].u.els.v = uv[0].y;
+        vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
+        vertices[3].u.els.u = uv[2].x; vertices[3].u.els.v = uv[2].y;
         if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
@@ -810,12 +802,10 @@ void func_0046b380(u8 *sample, s32 setStates)
         points[3].y = sdkSpriteBottom(sample, 0);
         func_0046a7f0(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
-        if (raster != NULL) {
-            vertices[0].u.els.u = uv[1].x; vertices[0].u.els.v = uv[1].y;
-            vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
-            vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
-            vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        }
+        vertices[0].u.els.u = uv[1].x; vertices[0].u.els.v = uv[1].y;
+        vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
+        vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
+        vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
         if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
@@ -838,12 +828,10 @@ void func_0046b380(u8 *sample, s32 setStates)
         vertices[2].u.els.screen.y = points[2].y + (f32)*(s16 *)(sample + 0x16);
         vertices[3].u.els.screen.x = points[3].x;
         vertices[3].u.els.screen.y = points[3].y + (f32)*(s16 *)(sample + 0x16);
-        if (raster != NULL) {
-            vertices[0].u.els.u = uv[2].x; vertices[0].u.els.v = uv[2].y;
-            vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
-            vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
-            vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        }
+        vertices[0].u.els.u = uv[2].x; vertices[0].u.els.v = uv[2].y;
+        vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
+        vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
+        vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
         if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
@@ -859,12 +847,10 @@ void func_0046b380(u8 *sample, s32 setStates)
         vertices[2].u.els.screen.y = points[3].y;
         vertices[3].u.els.screen.x = (f32)((s32)points[3].x + *(s16 *)(sample + 0x14));
         vertices[3].u.els.screen.y = points[3].y;
-        if (raster != NULL) {
-            vertices[0].u.els.u = uv[1].x; vertices[0].u.els.v = uv[1].y;
-            vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
-            vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
-            vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        }
+        vertices[0].u.els.u = uv[1].x; vertices[0].u.els.v = uv[1].y;
+        vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
+        vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
+        vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
         if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
