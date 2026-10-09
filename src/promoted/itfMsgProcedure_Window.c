@@ -1232,6 +1232,7 @@ static inline s32 msgWinSelectionResource(void)
  * 2026-10-09: 270 -> 155: the per-corner loops address one element through `pt` /
  * `cl` pointers (retail folds the whole stack offset into one addiu).
  * 2026-10-09: 155 -> 135: declaration climb.
+ * 2026-10-09: 135 -> 133: case 8 tests the window pointers inside the assignment.
  */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1726,14 +1727,12 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         ret = 1;
         break;
     case 8:
-        pv = (void *)func_00278fd0((void *)arg0);
-        if (pv != (void *)0) {
+        if ((pv = (void *)func_00278fd0((void *)arg0)) != (void *)0) {
             func_00272a10(pv, 400.0f, 145.0f);
             func_002728c0(pv, 0);
             func_00272b00(pv, 0);
         }
-        pv2 = (void *)func_00278fb0((void *)arg0);
-        if (pv2 != (void *)0) {
+        if ((pv2 = (void *)func_00278fb0((void *)arg0)) != (void *)0) {
             func_00272a10(pv2, 57.0f, 169.0f);
             func_002728c0(pv2, 0);
             func_00272b50(pv2, 0, 0);
