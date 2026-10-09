@@ -1231,6 +1231,7 @@ static inline s32 msgWinSelectionResource(void)
    numbering.
  * 2026-10-09: 270 -> 155: the per-corner loops address one element through `pt` /
  * `cl` pointers (retail folds the whole stack offset into one addiu).
+ * 2026-10-09: 155 -> 135: declaration climb.
  */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1263,9 +1264,9 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     PrimitiveRectangleWords background;
     PrimitiveRectangleWords selection;
     s32 ret;
-    s32 handle;
-    s32 s19;
     s32 s20;
+    s32 s19;
+    s32 handle;
     s32 i;
     u32 k;
     s32 j;
