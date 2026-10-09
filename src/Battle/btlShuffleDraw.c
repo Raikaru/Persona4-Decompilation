@@ -1267,7 +1267,10 @@ void func_00376880(u8 **arg0) {
    the parameters as a0, a1, f12, a3, which is declaration order). The extern
    and the one call in this file were updated to match; EABI passes the same
    registers, and the caller still matches. Residual: one extra callee-saved
-   FPR (f26) and the trail-position add order. */
+   FPR (f26) and the trail-position add order.
+   2026-10-09: 264 -> 182: in both trail loops the sums are formed as px/py/pz
+   straight from `sample->x` etc., then the minus side mx/my/mz is formed
+   before back[0] is stored, as retail orders them. */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1492,14 +1495,24 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         f32 dx = D_0060A0E0.x * magnitude;
                         f32 dy = D_0060A0E0.y * magnitude;
                         f32 dz = D_0060A0E0.z * magnitude;
+                        f32 px;
+                        f32 py;
+                        f32 pz;
+                        f32 mx;
+                        f32 my;
+                        f32 mz;
+
                         sample = &samples[point];
-                        x = sample->x;
-                        y = sample->y;
-                        z = sample->z;
-                        TRAIL_POSITION(&front[0], dx + x + offsetX, dy + y + offsetY, dz + z);
-                        TRAIL_POSITION(&front[1], offsetX + x, offsetY + y, z);
-                        TRAIL_POSITION(&back[0], offsetX + x, offsetY + y, z);
-                        TRAIL_POSITION(&back[1], x - dx + offsetX, y - dy + offsetY, z - dz);
+                        px = dx + sample->x;
+                        py = dy + sample->y;
+                        pz = dz + sample->z;
+                        TRAIL_POSITION(&front[0], px + offsetX, py + offsetY, pz);
+                        TRAIL_POSITION(&front[1], offsetX + sample->x, offsetY + sample->y, sample->z);
+                        mx = sample->x - dx;
+                        my = sample->y - dy;
+                        mz = sample->z - dz;
+                        TRAIL_POSITION(&back[0], offsetX + sample->x, offsetY + sample->y, sample->z);
+                        TRAIL_POSITION(&back[1], mx + offsetX, my + offsetY, mz);
                         taper += iGpffff8404;
                         front += 2;
                         back += 2;
@@ -1563,14 +1576,24 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         f32 dx = D_0060A0E0.x * magnitude;
                         f32 dy = D_0060A0E0.y * magnitude;
                         f32 dz = D_0060A0E0.z * magnitude;
+                        f32 px;
+                        f32 py;
+                        f32 pz;
+                        f32 mx;
+                        f32 my;
+                        f32 mz;
+
                         sample = &samples[point];
-                        x = sample->x;
-                        y = sample->y;
-                        z = sample->z;
-                        TRAIL_POSITION(&front[0], dx + x + offsetX, dy + y + offsetY, dz + z);
-                        TRAIL_POSITION(&front[1], offsetX + x, offsetY + y, z);
-                        TRAIL_POSITION(&back[0], offsetX + x, offsetY + y, z);
-                        TRAIL_POSITION(&back[1], x - dx + offsetX, y - dy + offsetY, z - dz);
+                        px = dx + sample->x;
+                        py = dy + sample->y;
+                        pz = dz + sample->z;
+                        TRAIL_POSITION(&front[0], px + offsetX, py + offsetY, pz);
+                        TRAIL_POSITION(&front[1], offsetX + sample->x, offsetY + sample->y, sample->z);
+                        mx = sample->x - dx;
+                        my = sample->y - dy;
+                        mz = sample->z - dz;
+                        TRAIL_POSITION(&back[0], offsetX + sample->x, offsetY + sample->y, sample->z);
+                        TRAIL_POSITION(&back[1], mx + offsetX, my + offsetY, mz);
                         taper += iGpffff8404;
                         front += 2;
                         back += 2;
