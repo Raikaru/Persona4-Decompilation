@@ -2554,7 +2554,9 @@ void func_003599a0(u8 *arg0)
    Probes: f3 via b1 1173/854/223/212 unchanged; f0v load late 1175/852/223/212 (adds lq, worse).
    No mass apply; body left unchanged, in band near finished.
    2026-10-08: opt_propagation off lowers fnalign from 672 to 598 edits. */
-/* 2026-10-09: rewritten without the m2c temporaries, 598 -> 498 edits. Open: retail keeps idx*12 and arg0*48 in saved registers but adds arg1 again at each later use (after the assert call and per panel field), while b210 here keeps the whole sum; opt_common_subs off (744) separates every add, including the ones retail shares within a block. */
+/* 2026-10-09: rewritten without the m2c temporaries, 598 -> 498 edits. Open: retail keeps idx*12 and arg0*48 in saved registers but adds arg1 again at each later use (after the assert call and per panel field), while b210 here keeps the whole sum; opt_common_subs off (744) separates every add, including the ones retail shares within a block.
+   2026-10-09: 498 -> 491: the digit-sprite pointer reuses `ptab` and the last
+   alpha reuses `kind` (same types, disjoint lifetimes). */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct {
@@ -2699,9 +2701,9 @@ void func_003599c0(s32 arg0, u8 *arg1)
     case 0:
         px = 4.0f + (157.0f + x);
         py = y + 20.0f * scale;
-        spr = *(u8 **)(arg1 + 0x1234);
+        ptab = *(u8 **)(arg1 + 0x1234);
         for (i = 0; i < 10 && i < count; i++) {
-            func_0034f320(spr, px + (f32)(i * 21), py, 0.0f,
+            func_0034f320(ptab, px + (f32)(i * 21), py, 0.0f,
                           ctab[0], ctab[1], ctab[2], alpha, w, h, 0, 0.0f, 0);
         }
         break;
@@ -2720,11 +2722,11 @@ void func_003599c0(s32 arg0, u8 *arg1)
     }
     x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C0));
     y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C4)));
-    alpha = (f32)(arg1 + arg0 * 48)[0x4CA] * fade;
+    kind = (f32)(arg1 + arg0 * 48)[0x4CA] * fade;
     w = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x4D0);
     h = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x4D6);
     func_0034f320(*(u8 **)(arg1 + mode * 4 + 0x121C), 15.0f + x, 2.0f + y, 0.0f,
-                  0xFF, 0xFF, 0xFF, alpha, w, h, 0, 0.0f, 0);
+                  0xFF, 0xFF, 0xFF, kind, w, h, 0, 0.0f, 0);
 }
 #pragma pop
 #else
