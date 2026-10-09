@@ -831,6 +831,20 @@ below are the codegen consequences.
   mode constant) a whole-function `opt_propagation off` costs far more than it
   gains (511 → 754 edits), so that body needs restructuring first.
 
+  **Lever: share one local between disjoint live ranges (`func_00263cb0`
+  48 → 18, `func_001ed700` 119 → 103, `func_00283490` 75 → 67).** m2c and
+  Ghidra give every value its own local, but the original reused a few
+  variables across cases and loops, and b210 numbers (and so colours) one
+  local once. Merging two same-typed locals whose live ranges do not overlap
+  moves whole groups of saved-register swaps at once (`func_001ed700`'s
+  bounding loop walks the list with the later loop's `group` pointer). Search
+  it mechanically, rename b → a in the body and score, but only accept merges
+  where the earlier variable is dead before the later one's first use and
+  that first use is a plain assignment (count loop headers as uses for the
+  whole loop). An unchecked merge can score better and still change
+  behaviour, as `fabsf(temp_f1)` overwriting the signed value in
+  `func_004a7830` did (7 → 3 but wrong).
+
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written
   inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot
