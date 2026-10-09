@@ -924,6 +924,8 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * 725: s32 `res`/`sub` masked with 0xFFFF; case 4 listed before case 3.
  * 724: `flags |= 1` for the first state test too (retail ori).
  * 721: the party-block running total reuses the dead `flags` local.
+ * 707: second-pass result remap is a switch (0x200 first); `special` is u16.
+ * 705: `n80 = !(mask2 & 0x80000)` (retail sltu/xori).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1064,7 +1066,7 @@ void func_001f14f0(u8 *arg0)
         s32 mask;
         s32 mask2;
         u8 *ent;
-        s32 special;
+        u16 special;
         s32 resw;
         s32 bonus;
         u8 j;
@@ -1088,10 +1090,14 @@ void func_001f14f0(u8 *arg0)
             actor = arg0;
             target = ctx;
             res = func_0023e6f0(ctx, ctx, id, flags2) & 0xFFFF;
-            if (res == 4 || res == 2) {
-                res = 1;
-            } else if (res == 0x200) {
+            switch (res) {
+            case 0x200:
                 res = 0x100;
+                break;
+            case 4:
+            case 2:
+                res = 1;
+                break;
             }
             *(s32 *)(unit + 0xE4) = 1;
         } else {
@@ -1148,7 +1154,7 @@ void func_001f14f0(u8 *arg0)
         *(u16 *)(unit + 0xDE) = sub;
         j = 0;
         m80 = mask & 0x80000;
-        n80 = (mask2 & 0x80000) == 0;
+        n80 = !(mask2 & 0x80000);
         while (j < cntA) {
             u16 *flagp = (u16 *)(unit + (j << 5) + 0x10E);
             u16 *pa;
