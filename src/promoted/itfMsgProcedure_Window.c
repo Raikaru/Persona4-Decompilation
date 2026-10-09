@@ -2506,7 +2506,12 @@ s32 func_002833b0(s32 arg0)
    capture; no declaration order reaches more than 31 of 36 targets), and
    case 5's colour slots (retail 0x12C/0x134). */
 /* 2026-10-09: 82 -> 75 edits with depthColor as one function-scope local shared by cases 4 and 5 (retail's frame slots); the rest is saved-register colouring that declaration and block-order climbs do not move. 
-   2026-10-09: 75 -> 67: the case-4 alpha and the later cases' rotation share one f32 local, as retail's register reuse shows. */
+   2026-10-09: 75 -> 67: the case-4 alpha and the later cases' rotation share one f32 local, as retail's register reuse shows.
+ * 2026-10-09: 67 -> 56: two values move into locals that are dead at that point:
+ * the first tile loop's row offset goes into `i` and the second branch's
+ * today into `tile`. Under opt_lifetimes on, a web is numbered with its
+ * variable, so this reorders the colouring scan.
+ */
 // FUN_00283490 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2644,8 +2649,8 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
         RpSkyRenderStateSet(2, (void *)0x48);
         for (tile = 0; tile < 24; tile++) {
             x = (tile % 6) * 126;
-            y = (tile / 6) * 126;
-            func_0025ea20(x, y, 10.0f, 0xFFFFFF, alpha, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+            i = (tile / 6) * 126;
+            func_0025ea20(x, i, 10.0f, 0xFFFFFF, alpha, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
             phase = (phase + 1) % 4;
         }
         angle = iGpffff8094 * (f32)frame;
@@ -2780,9 +2785,9 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
         func_0025e9e0(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
         func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
         font = msgCalendarResource(1);
-        today = (s16)func_001060b0();
+        tile = (s16)func_001060b0();
         for (i = 0; i < 6; i++) {
-            date = today + i + 1;
+            date = tile + i + 1;
             week = func_00110580(date);
             if (week == 0 || func_00110d30(date) != 0) {
                 rgb = 0xFFE92C;
@@ -2803,8 +2808,8 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
             }
             px = i * 0x53;
             func_00366380(px + 0x5C, 0x71, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
-            func_00262de0(px + 0x6B, 0x71, 0.0f, 0xFF, today + i + 1, 1, 1.0f, 1.0f, 0, 0, (s32)font, 0);
-            func_00261560(px + 0x5D, 0xA3, 0.0f, 0xFF, func_00110c50(today + i + 1, today) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0, (s32)font, mode);
+            func_00262de0(px + 0x6B, 0x71, 0.0f, 0xFF, tile + i + 1, 1, 1.0f, 1.0f, 0, 0, (s32)font, 0);
+            func_00261560(px + 0x5D, 0xA3, 0.0f, 0xFF, func_00110c50(tile + i + 1, tile) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0, (s32)font, mode);
         }
         break;
     }
