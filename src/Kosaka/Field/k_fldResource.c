@@ -295,6 +295,13 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 450 -> 378: the nested grid searches are for loops that
  * leave by goto once the cell is found, and the two HBN read loops are while
  * loops whose exit code follows the loop.
+ * 2026-10-09: 378 -> 361: the loops re-read iGpffff9db0 inside the loop test
+ * (`while (i < *(s32 *)((w = (u8 *)(iGpffff9db0)) + 0x24))`) and the code after
+ * the loop uses that pointer, as retail does.
+ * 2026-10-09: 361 -> 339: the grid searches store (u8) counters (retail andi,
+ * no sign extension) and clear the inner counter before forming the row base.
+ * 2026-10-09: 339 -> 260: locals declared in descending order of the retail
+ * saved register that holds them (b210 colours later declarations first here).
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -365,74 +372,17 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 D_007D24E0[];
     extern s32 D_007D24E8[];
     extern u8 D_005EFCB0[];
-    u16 *hbnData;
-    f32 fieldOfView;
-    s32 cameraKind;
     f32 cameraValue60;
     f32 cameraValue64;
+    f32 fieldOfView;
+    s32 cameraKind;
+    u16 *hbnData;
     SVec3 angles;
     Vec3 cameraPosition;
     FldResourceCameraTransform cameraMatrix;
     FldResourceCameraTransform secondaryCameraMatrix;
     s8 cameraEntries[0x20];
     Vec3 cameraEntryPositions[0x20];
-    s32 temp_16_12;
-    s32 temp_16_2;
-    s32 temp_16_3;
-    s32 temp_16_4;
-    s32 temp_16_5;
-    s32 temp_16_6;
-    s32 temp_16_7;
-    s32 temp_16_8;
-    s32 temp_16_9;
-    s32 temp_17;
-    s32 temp_17_2;
-    s32 temp_17_4;
-    s32 temp_17_5;
-    s32 temp_17_6;
-    s32 temp_17_7;
-    s32 temp_18_2;
-    s32 temp_18_3;
-    s32 temp_19;
-    s32 temp_3;
-    s32 temp_3_10;
-    s32 temp_4_5;
-    s32 temp_7;
-    s32 temp_7_2;
-    s32 var_16;
-    s32 var_16_10;
-    s32 var_16_11;
-    s32 var_16_2;
-    s32 var_16_3;
-    s32 var_16_4;
-    s32 var_16_5;
-    s32 var_16_6;
-    s32 var_16_7;
-    s32 var_16_8;
-    s32 var_16_9;
-    s32 var_17;
-    s32 var_17_2;
-    s32 var_17_5;
-    s32 var_17_6;
-    s32 var_17_8;
-    s32 var_17_9;
-    s32 var_18;
-    s32 var_18_2;
-    s32 var_18_3;
-    s32 var_18_5;
-    s32 var_19;
-    s32 var_19_2;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_2_4;
-    s32 var_9;
-    s32 var_9_2;
-    u16 temp_3_14;
-    u32 var_17_3;
-    u32 var_17_4;
-    u8 temp_4_6;
-    u8 temp_4_7;
     u8 *temp_16;
     u8 *temp_16_10;
     u8 *temp_16_11;
@@ -496,6 +446,63 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 *temp_8_2;
     u8 *var_17_7;
     u8 *var_18_4;
+    s32 temp_19;
+    s32 var_19;
+    s32 var_19_2;
+    s32 temp_18_2;
+    s32 temp_18_3;
+    s32 var_18;
+    s32 var_18_2;
+    s32 var_18_3;
+    s32 var_18_5;
+    s32 temp_17;
+    s32 temp_17_2;
+    s32 temp_17_4;
+    s32 temp_17_5;
+    s32 temp_17_6;
+    s32 temp_17_7;
+    s32 var_17;
+    s32 var_17_2;
+    s32 var_17_5;
+    s32 var_17_6;
+    s32 var_17_8;
+    s32 var_17_9;
+    u32 var_17_3;
+    u32 var_17_4;
+    s32 temp_16_12;
+    s32 temp_16_2;
+    s32 temp_16_3;
+    s32 temp_16_4;
+    s32 temp_16_5;
+    s32 temp_16_6;
+    s32 temp_16_7;
+    s32 temp_16_8;
+    s32 temp_16_9;
+    s32 var_16;
+    s32 var_16_10;
+    s32 var_16_11;
+    s32 var_16_2;
+    s32 var_16_3;
+    s32 var_16_4;
+    s32 var_16_5;
+    s32 var_16_6;
+    s32 var_16_7;
+    s32 var_16_8;
+    s32 var_16_9;
+    s32 var_9;
+    s32 var_9_2;
+    s32 temp_7;
+    s32 temp_7_2;
+    s32 temp_4_5;
+    u8 temp_4_6;
+    u8 temp_4_7;
+    s32 temp_3;
+    s32 temp_3_10;
+    u16 temp_3_14;
+    s32 var_2;
+    s32 var_2_2;
+    s32 var_2_3;
+    s32 var_2_4;
 
     temp_3 = (s32)(*( s32 * )(iGpffff9db0 + 0x94));
     if (temp_3 == 999) goto completed;
@@ -575,23 +582,19 @@ initializeResources:
                 *( s32 * )(temp_3_7 + 4) = (s32) *( s16 * )(*( u8 ** )(temp_3_7 + 0x28) + 6);
             }
             var_16 = 0;
-            temp_3_8 = (u8 *)(iGpffff9db0);
-            while (var_16 < *( s32 * )(temp_3_8 + 0x24)) {
+            while (var_16 < *( s32 * )((temp_3_8 = (u8 *)(iGpffff9db0)) + 0x24)) {
                 func_00151710(*( u8 ** )((temp_3_8 + (var_16 * 4)) + 0x28));
                 var_16 += 1;
-                temp_3_8 = (u8 *)(iGpffff9db0);
             }
             *( s32 * )(temp_3_8 + 0x94) = 3;
 waitResourceInitialization:
             var_17 = 0;
             var_16_2 = 0;
-            temp_3_9 = (u8 *)(iGpffff9db0);
-            while (var_16_2 < *( s32 * )(temp_3_9 + 0x24)) {
+            while (var_16_2 < *( s32 * )((temp_3_9 = (u8 *)(iGpffff9db0)) + 0x24)) {
                 if (func_00151c80(*( u8 ** )((temp_3_9 + (var_16_2 * 4)) + 0x28)) == 0) {
                     var_17 += 1;
                 }
                 var_16_2 += 1;
-                temp_3_9 = (u8 *)(iGpffff9db0);
             }
             if (var_17 != 0) {
                 return 0;
@@ -637,39 +640,39 @@ readGrid:
                 return 0;
             }
             var_17_2 = 0;
-            temp_3_11 = (u8 *)(iGpffff9db0);
-            while (var_17_2 < *( s32 * )(temp_3_11 + 0x24)) {
+            while (var_17_2 < *( s32 * )((temp_3_11 = (u8 *)(iGpffff9db0)) + 0x24)) {
                 temp_16_2 = var_17_2 * 4;
                 if (*( s32 * )(*( u8 ** )((temp_3_11 + temp_16_2) + 0x28) + 0xA40) == 0) {
                     temp_2_2 = (u8 *)(*( u8 ** )((iGpffff9db0 + temp_16_2) + 0x28));
                     *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_16_2) + 0x28) + 0xA3C) = (s32)func_0015f8e0(*( u16 * )(temp_2_2 + 4), *( u16 * )(temp_2_2 + 6));
                 }
                 var_17_2 += 1;
-                temp_3_11 = (u8 *)(iGpffff9db0);
             }
             if (func_0014a270() != 0) {
                 temp_16_3 = (s32)(*( s32 * )(*( u8 ** )(((u8 *)func_00155280()) + 0x1864) + 0x110));
                 memcpy(((u8 *)func_00155280()) + 0x54,(const void *)(temp_16_3 + 4), 0x1800);
                 func_0015c730((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864)));
                 for (var_18 = 0; var_18 < 0x18; var_18++) {
+                    var_19 = 0;
                     temp_17 = var_18 << 8;
-                    for (var_19 = 0; var_19 < 0x10; var_19++) {
+                    for (; var_19 < 0x10; var_19++) {
                         temp_16_4 = var_19 * 0x10;
                         if ((*( u8 * )((temp_17 + ((u8 *)func_00155280()) + temp_16_4) + 0x54) == 1) && (*( u8 * )((temp_17 + ((u8 *)func_00155280()) + temp_16_4) + 0x58) == 6)) {
-                            *( s8 * )(((u8 *)func_00155280()) + 0x44) = (s8) (var_19 & 0xFF);
-                            *( s8 * )(((u8 *)func_00155280()) + 0x45) = (s8) (var_18 & 0xFF);
+                            *( u8 * )(((u8 *)func_00155280()) + 0x44) = (u8)var_19;
+                            *( u8 * )(((u8 *)func_00155280()) + 0x45) = (u8)var_18;
                             goto found_loop_88;
                         }
                     }
                 }
 found_loop_88:
                 for (var_19_2 = 0; var_19_2 < 0x18; var_19_2++) {
+                    var_18_2 = 0;
                     temp_17_2 = var_19_2 << 8;
-                    for (var_18_2 = 0; var_18_2 < 0x10; var_18_2++) {
+                    for (; var_18_2 < 0x10; var_18_2++) {
                         temp_16_5 = var_18_2 * 0x10;
                         if ((*( u8 * )((temp_17_2 + ((u8 *)func_00155280()) + temp_16_5) + 0x54) == 1) && ((*( u8 * )((temp_17_2 + ((u8 *)func_00155280()) + temp_16_5) + 0x58) == 0xA) || (*( u8 * )((temp_17_2 + ((u8 *)func_00155280()) + temp_16_5) + 0x58) == 0xC) || (*( u8 * )((temp_17_2 + ((u8 *)func_00155280()) + temp_16_5) + 0x58) == 0xE))) {
-                            *( s8 * )(((u8 *)func_00155280()) + 0x46) = (s8) (var_18_2 & 0xFF);
-                            *( s8 * )(((u8 *)func_00155280()) + 0x47) = (s8) (var_19_2 & 0xFF);
+                            *( u8 * )(((u8 *)func_00155280()) + 0x46) = (u8)var_18_2;
+                            *( u8 * )(((u8 *)func_00155280()) + 0x47) = (u8)var_19_2;
                             goto found_loop_99;
                         }
                     }
@@ -694,11 +697,9 @@ readHbnResources:
                     var_16_4 += 1;
                 }
                 var_16_5 = 0;
-                temp_17_3 = (u8 *)(iGpffff9db0);
-                while (var_16_5 < *( s32 * )(temp_17_3 + 0x24)) {
+                while (var_16_5 < *( s32 * )((temp_17_3 = (u8 *)(iGpffff9db0)) + 0x24)) {
                     func_0015fb00((u8 *)(*( s8 ** )(*( u8 ** )((temp_17_3 + (var_16_5 * 4)) + 0x28) + 0xA40)), 0);
                     var_16_5 += 1;
-                    temp_17_3 = (u8 *)(iGpffff9db0);
                 }
                 if (func_0015f9b0((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864)),&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
                     return 0;
@@ -721,11 +722,9 @@ readHbnResources:
                 var_16_6 += 1;
             }
             var_16_7 = 0;
-            temp_3_12 = (u8 *)(iGpffff9db0);
-            while (var_16_7 < *( s32 * )(temp_3_12 + 0x24)) {
+            while (var_16_7 < *( s32 * )((temp_3_12 = (u8 *)(iGpffff9db0)) + 0x24)) {
                 func_0015fb00((u8 *)(*( s8 ** )(*( u8 ** )((temp_3_12 + (var_16_7 * 4)) + 0x28) + 0xA40)), 0);
                 var_16_7 += 1;
-                temp_3_12 = (u8 *)(iGpffff9db0);
             }
 block_123:
             if (func_0014a200() == 1) {
@@ -897,8 +896,7 @@ readParts:
 waitParts:
         var_17_6 = 0;
         var_18_3 = 0;
-        temp_3_21 = (u8 *)(iGpffff9db0);
-        while (var_18_3 < *( s32 * )(temp_3_21 + 0x24)) {
+        while (var_18_3 < *( s32 * )((temp_3_21 = (u8 *)(iGpffff9db0)) + 0x24)) {
             temp_16_9 = var_18_3 * 4;
             temp_2_15 = (u8 *)(*( u8 ** )((iGpffff9db0 + temp_16_9) + 0x28));
             if (func_0015f000((u8 *)(*( s32 * )(temp_2_15 + 0xA48)),(u8 *)(*( s32 * )(temp_2_15 + 0xA4C))) == 0) {
@@ -907,7 +905,6 @@ waitParts:
                 *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_16_9) + 0x28) + 0xA48) = 0;
             }
             var_18_3 += 1;
-            temp_3_21 = (u8 *)(iGpffff9db0);
         }
         if (var_17_6 != 0) {
             return 0;
