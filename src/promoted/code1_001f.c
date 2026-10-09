@@ -923,6 +923,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * entry-shift increment and the unit-loop counter initialisation.
  * 725: s32 `res`/`sub` masked with 0xFFFF; case 4 listed before case 3.
  * 724: `flags |= 1` for the first state test too (retail ori).
+ * 721: the party-block running total reuses the dead `flags` local.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1367,7 +1368,6 @@ void func_001f14f0(u8 *arg0)
             u8 *first = *(u8 **)(arg0 + 0x38);
             u8 *sctx = *(u8 **)(*(u8 **)(sum + 0x30) + 0xA64);
             s32 flagHit;
-            s32 total;
             u8 cnt;
             u8 q;
 
@@ -1386,14 +1386,14 @@ void func_001f14f0(u8 *arg0)
             *(u16 *)(first + 0xEC) = 0;
             *(s16 *)(first + 0xEE) = -1;
             flagHit = 0;
-            total = 0;
+            flags = 0;
             cnt = first[0xD9];
             for (q = 0; q < cnt; q++) {
                 u8 *s = first + (q << 5);
                 s32 v = *(s32 *)(s + 0xF0);
 
-                total += v;
-                if (func_002428f0(sctx, total) != 0 ||
+                flags += v;
+                if (func_002428f0(sctx, flags) != 0 ||
                     ((*(u32 *)(s + 0xF8) & 0x80000) && !(*(u32 *)(s + 0xFC) & 0x80000))) {
                     flagHit = 1;
                 }
