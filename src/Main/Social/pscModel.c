@@ -111,7 +111,9 @@ extern void func_0036b470(void *work, void *vertices);
    for each later section.
    2026-10-09: 139 -> 138: the unk4C section assigns `fn` after the
    RpSkyRenderStateSet(2, 0x58) call.
-   2026-10-09: 138 -> 135: declaration climb. */
+   2026-10-09: 138 -> 135: declaration climb.
+ * 2026-10-09: 135 -> 49: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ */
 // FUN_003694D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003694d0(PscModel *model)
@@ -119,11 +121,10 @@ void func_003694d0(PscModel *model)
     typedef struct { u8 r, g, b, a; } PscColorCopy;
     u8 tmp[4];
     void *mtx;
-    PscModel *m1;
     PscModel *m0;
+    PscModel *m2;
     PscLight *e0work;
     PscModel *m3;
-    PscModel *m2;
     void (**tbl)(u32 state, u32 value);
     void (**fn)(u32 state, u32 value);
     void (**fn2)(u32 state, u32 value);
@@ -136,7 +137,7 @@ void func_003694d0(PscModel *model)
     }
     switch (model->mode) {
     case 1:
-        m1 = model;
+        m0 = model;
         e0work = model->e0;
         break;
     case 0:
@@ -192,17 +193,17 @@ void func_003694d0(PscModel *model)
             }
             break;
         case 1:
-            func_0036ae00(m1->u.m01.b1, model->color);
-            func_0036ae00(m1->u.m01.b0, model->color);
+            func_0036ae00(m0->u.m01.b1, model->color);
+            func_0036ae00(m0->u.m01.b0, model->color);
             *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
             tmp[0] = 0;
             tmp[1] = 0;
             tmp[2] = 0;
             alpha = tmp[3];
             alphaf = (f32)alpha;
-            f = m1->u.m01.b3[0].dir.y * (alphaf * m1->u.m01.b3[0].dir.x);
+            f = m0->u.m01.b3[0].dir.y * (alphaf * m0->u.m01.b3[0].dir.x);
             tmp[3] = (u8)f;
-            func_0036ae00(m1->u.m01.b2, tmp);
+            func_0036ae00(m0->u.m01.b2, tmp);
             break;
         case 2:
             func_0036ae00(m2->u.w170, model->color);
@@ -240,7 +241,7 @@ void func_003694d0(PscModel *model)
         RpSkyRenderStateSet(3, 0x317F3);
         (*fn)(1, func_0036bee0(model->u.m01.unk170, model->u.m01.unk174));
         RpSkyRenderStateSet(2, 0x44);
-        func_00410420(m1->u.m01.b0, 4, mtx, 3);
+        func_00410420(m0->u.m01.b0, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
@@ -324,7 +325,7 @@ void func_003694d0(PscModel *model)
             case 1:
                 RpSkyRenderStateSet(2, 0x6A);
                 (*tbl)(1, func_0036d130(1));
-                func_00410420(m1->u.m01.b1, 4, mtx, 3);
+                func_00410420(m0->u.m01.b1, 4, mtx, 3);
                 func_00410520(3, D_0064E470, 6);
                 func_004104d0();
                 break;
@@ -347,7 +348,7 @@ void func_003694d0(PscModel *model)
         RpSkyRenderStateSet(3, 0x717FB);
         RpSkyRenderStateSet(2, 0x44);
         (*fn)(1, func_0036d1b0(1));
-        func_00410420(m1->u.m01.b2, 4, mtx, 3);
+        func_00410420(m0->u.m01.b2, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;

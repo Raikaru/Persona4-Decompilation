@@ -758,7 +758,9 @@ void func_001839e0(u8 *arg0, u8 *arg1)
 /* 2026-10-09: 879 -> 826 edits: the state dispatch is a switch (retail tests 1 then 0 and shares one return), the edge clamps use fabsf, and the grid offsets multiply i * half with the converted product first.
    2026-10-09: 826 -> 787: the row/cell base pointers and (f32)(j + 1) are
    written inline at their uses (pure expressions; no operand changes in
-   between). */
+   between).
+ * 2026-10-09: 787 -> 770: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ */
 // FUN_00183B80 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -786,13 +788,10 @@ s32 func_00183b80(u8 *arg0)
     f32 f21;
     f32 f20;
     f32 fj;
-    f32 fj1;
     f32 fhi;
     f32 flo;
     f32 fdiff;
     f32 fhalf;
-    s32 i;
-    s32 j;
     s32 k;
     s32 m;
     s32 half;
@@ -829,37 +828,38 @@ s32 func_00183b80(u8 *arg0)
                 *(f32 *)(ctx + 0x418) = *(f32 *)(ctx + 0x418) * -1.0f;
             }
         }
-        for (j = 0; j < 2; j++) {
-            base = ctx + (j << 9);
-            fj = (f32)j;
-            for (i = 0; i < 2; i++) {
-                q = base + (i << 8);
+        for (m = 0; m < 2; m++) {
+            k = 0;
+            base = ctx + (m << 9);
+            fj = (f32)m;
+            for (; k < 2; k++) {
+                q = base + (k << 8);
                 half = *(s16 *)(ctx + 0x438) / 2;
-                prod = i * half;
+                prod = k * half;
                 *(f32 *)(q + 0x10) = (f32)prod + (f32)*(s16 *)(ctx + 0x434);
                 half = *(s16 *)(ctx + 0x43A) / 2;
-                prod = j * half;
+                prod = m * half;
                 *(f32 *)(q + 0x14) = (f32)prod + (f32)*(s16 *)(ctx + 0x436);
                 *(f32 *)(q + 0x18) = f21;
                 half = *(s16 *)(ctx + 0x438) / 2;
-                prod = i * half;
+                prod = k * half;
                 *(f32 *)(q + 0x50) = (f32)*(s16 *)(ctx + 0x438) / 2.0f + ((f32)prod + (f32)*(s16 *)(ctx + 0x434));
                 half = *(s16 *)(ctx + 0x43A) / 2;
-                prod = j * half;
+                prod = m * half;
                 *(f32 *)(q + 0x54) = (f32)prod + (f32)*(s16 *)(ctx + 0x436);
                 *(f32 *)(q + 0x58) = f21;
                 half = *(s16 *)(ctx + 0x438) / 2;
-                prod = i * half;
+                prod = k * half;
                 *(f32 *)(q + 0x90) = (f32)prod + (f32)*(s16 *)(ctx + 0x434);
                 half = *(s16 *)(ctx + 0x43A) / 2;
-                prod = j * half;
+                prod = m * half;
                 *(f32 *)(q + 0x94) = (f32)*(s16 *)(ctx + 0x43A) / 2.0f + ((f32)prod + (f32)*(s16 *)(ctx + 0x436));
                 *(f32 *)(q + 0x98) = f21;
                 half = *(s16 *)(ctx + 0x438) / 2;
-                prod = i * half;
+                prod = k * half;
                 *(f32 *)(q + 0xD0) = (f32)*(s16 *)(ctx + 0x438) / 2.0f + ((f32)prod + (f32)*(s16 *)(ctx + 0x434));
                 half = *(s16 *)(ctx + 0x43A) / 2;
-                prod = j * half;
+                prod = m * half;
                 *(f32 *)(q + 0xD4) = (f32)*(s16 *)(ctx + 0x43A) / 2.0f + ((f32)prod + (f32)*(s16 *)(ctx + 0x436));
                 *(f32 *)(q + 0xD8) = f21;
                 *(f32 *)(q + 0x28) = f20;
@@ -918,22 +918,22 @@ s32 func_00183b80(u8 *arg0)
                 flo = (f32)(u32)*(u8 *)(ctx + 0x440);
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv0 = (s32)((f32)(u32)*(u8 *)(ctx + 0x440) + ((f32)(j + 1)) * fhalf);
+                iv0 = (s32)((f32)(u32)*(u8 *)(ctx + 0x440) + ((f32)(m + 1)) * fhalf);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
                 flo = (f32)(u32)*(u8 *)(ctx + 0x441);
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv1 = (s32)((f32)(u32)*(u8 *)(ctx + 0x441) + ((f32)(j + 1)) * fhalf);
+                iv1 = (s32)((f32)(u32)*(u8 *)(ctx + 0x441) + ((f32)(m + 1)) * fhalf);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
                 flo = (f32)(u32)*(u8 *)(ctx + 0x442);
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv2 = (s32)((f32)(u32)*(u8 *)(ctx + 0x442) + ((f32)(j + 1)) * fhalf);
+                iv2 = (s32)((f32)(u32)*(u8 *)(ctx + 0x442) + ((f32)(m + 1)) * fhalf);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
                 flo = (f32)(u32)*(u8 *)(ctx + 0x443);
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv3 = (s32)((f32)(u32)*(u8 *)(ctx + 0x443) + ((f32)(j + 1)) * fhalf);
+                iv3 = (s32)((f32)(u32)*(u8 *)(ctx + 0x443) + ((f32)(m + 1)) * fhalf);
                 *(f32 *)(q + 0xB0) = (f32)iv0;
                 *(f32 *)(q + 0xB4) = (f32)iv1;
                 *(f32 *)(q + 0xB8) = (f32)iv2;
@@ -942,22 +942,22 @@ s32 func_00183b80(u8 *arg0)
                 flo = (f32)(u32)*(u8 *)(ctx + 0x440);
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv0 = (s32)((f32)(u32)*(u8 *)(ctx + 0x440) + ((f32)(j + 1)) * fhalf);
+                iv0 = (s32)((f32)(u32)*(u8 *)(ctx + 0x440) + ((f32)(m + 1)) * fhalf);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
                 flo = (f32)(u32)*(u8 *)(ctx + 0x441);
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv1 = (s32)((f32)(u32)*(u8 *)(ctx + 0x441) + ((f32)(j + 1)) * fhalf);
+                iv1 = (s32)((f32)(u32)*(u8 *)(ctx + 0x441) + ((f32)(m + 1)) * fhalf);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
                 flo = (f32)(u32)*(u8 *)(ctx + 0x442);
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv2 = (s32)((f32)(u32)*(u8 *)(ctx + 0x442) + ((f32)(j + 1)) * fhalf);
+                iv2 = (s32)((f32)(u32)*(u8 *)(ctx + 0x442) + ((f32)(m + 1)) * fhalf);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
                 flo = (f32)(u32)*(u8 *)(ctx + 0x443);
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv3 = (s32)((f32)(u32)*(u8 *)(ctx + 0x443) + ((f32)(j + 1)) * fhalf);
+                iv3 = (s32)((f32)(u32)*(u8 *)(ctx + 0x443) + ((f32)(m + 1)) * fhalf);
                 *(f32 *)(q + 0xF0) = (f32)iv0;
                 *(f32 *)(q + 0xF4) = (f32)iv1;
                 *(f32 *)(q + 0xF8) = (f32)iv2;
@@ -1980,6 +1980,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * 2026-10-09: 969 -> 901: the scalarised Ghidra stack floats are grouped back into
  * `float vecN[3]` locals declared in retail stack order (later declarations sit
  * lower). Retail still has four more 16-byte slots (frame 0x1C0 vs 0x180).
+ * 2026-10-09: 901 -> 868: body taken from the parallel cos/finish-first-party-20261009 worktree.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2071,6 +2072,7 @@ s32 func_0018a200(u8 *param_1)
   unsigned char temp_v1;
   unsigned short temp_v2;
   short temp_v3;
+  unsigned int resourceId;
   int temp_v4;
   unsigned int temp_v5;
   unsigned int *puVar8;
@@ -2078,7 +2080,7 @@ s32 func_0018a200(u8 *param_1)
   int temp_v7;
   void *pvVar11;
   float *pfVar12;
-  unsigned long long temp_v8;
+  unsigned int temp_v8;
   long temp_v9;
   long long temp_v10;
   unsigned int *puVar16;
@@ -2129,12 +2131,12 @@ s32 func_0018a200(u8 *param_1)
       }
     }
     temp_v4 = *(int *)(puVar1[3] + 0x164);
-    temp_v3 = *(short *)(temp_v4 + 0xd4);
-    if ((((((temp_v3 != 5) || (*(short *)(temp_v4 + 0xd6) != 0x45ed)) &&
-          ((temp_v3 != 5 || (*(short *)(temp_v4 + 0xd6) != 0x461f)))) &&
-         ((temp_v3 != 5 || (*(short *)(temp_v4 + 0xd6) != 0x4651)))) &&
-        ((temp_v3 != 5 || (*(short *)(temp_v4 + 0xd6) != 0x46b5)))) &&
-       (((temp_v3 != 5 || (*(short *)(temp_v4 + 0xd6) != 0x46e7)) &&
+    resourceId = *(unsigned short *)(temp_v4 + 0xd4);
+    if ((((((resourceId != 5) || (*(unsigned short *)(temp_v4 + 0xd6) != 0x45ed)) &&
+          ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x461f)))) &&
+         ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x4651)))) &&
+        ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46b5)))) &&
+       (((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46e7)) &&
         (DAT_007ef9f8 != 0 && DAT_007efa04 != 0)))) {
       temp_v8 = FUN_0047a2f0(DAT_007efa00);
       temp_v4 = FUN_0047a2f0(temp_v4);
@@ -2174,7 +2176,7 @@ s32 func_0018a200(u8 *param_1)
           FUN_003e40b0(&vec20[0],&vec20[0]);
           FUN_003e40b0(&vec30[0],&vec30[0]);
           if ((vec20[2] * vec30[2] + vec20[0] * vec30[0] + vec20[1] * vec30[1] <= 0.0f) &&
-             (*(short *)(puVar1[3] + 0x220) != 0)) {
+             (*(unsigned short *)(puVar1[3] + 0x220) != 0)) {
             temp_v1 = 0;
           }
           temp_v4 = FUN_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
@@ -2357,8 +2359,8 @@ s32 func_0018a200(u8 *param_1)
       *(unsigned short *)(puVar1[3] + 0x220) = 0;
     }
     temp_v5 = puVar1[3];
-    if (*(short *)(temp_v5 + 0x220) != 0) {
-      if (*(short *)(temp_v5 + 0x220) == 2) {
+    if (*(unsigned short *)(temp_v5 + 0x220) != 0) {
+      if (*(unsigned short *)(temp_v5 + 0x220) == 2) {
         temp_v6 = FUN_003bbbe0(*(unsigned short *)(temp_v5 + 0x298),2,temp_v5 + 0x29c);
         *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
       }
@@ -2464,7 +2466,7 @@ s32 func_0018a200(u8 *param_1)
         puVar1[0xb] = 0xffffffff;
       }
       temp_v5 = puVar1[3];
-      temp_v3 = *(short *)(temp_v5 + 0x220);
+      temp_v3 = *(unsigned short *)(temp_v5 + 0x220);
       if (temp_v3 == 3) {
         temp_v11 = puVar1[10];
         if ((int)temp_v11 < 1) {
@@ -2566,12 +2568,12 @@ s32 func_0018a200(u8 *param_1)
         *(unsigned int *)(puVar1[5] + 0x30) = 0;
         *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
         FUN_003e0870(temp_v13,puVar1[5],0x756510,2);
-        if ((*(short *)(puVar1[3] + 0x220) != 4) || (((float*)puVar1)[6] < 1.0f)) {
+        if ((*(unsigned short *)(puVar1[3] + 0x220) != 4) || (((float*)puVar1)[6] < 1.0f)) {
           FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
           FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
           ((float*)puVar1)[6] = (((float*)puVar1)[6] + ((float*)puVar1)[7]);
         }
-        if (*(short *)(puVar1[3] + 0x220) == 4) {
+        if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
           if (1.0f < ((float*)puVar1)[6]) {
             puVar1[6] = 0x3f800000;
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);

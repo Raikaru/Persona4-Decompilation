@@ -2513,6 +2513,7 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
  * 2026-10-09: 54 -> 24: the else branch's last-node pointer lives in `dst1`
  * (dead after the first copy loop) instead of a block-scoped local. Under
  * opt_lifetimes on, a web is numbered with its variable.
+ * 2026-10-09: 24 -> 9: body taken from the parallel cos/finish-first-party-20261009 worktree.
  */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
@@ -2700,6 +2701,7 @@ loop1_check:
         u32 colorTransfer;
         u32 n;
         f32 inv3;
+        const f32 one3 = 1.0f;
         f32 acc3;
         f32 bx;
         f32 dx;
@@ -2715,7 +2717,7 @@ loop1_check:
         }
         iter = dst1 - 0x20;
         acc3 = 0.0f;
-        inv3 = 1.0f / (f32)(u32)((u32)c4 + 1);
+        inv3 = one3 / (f32)(u32)((u32)c4 + 1);
         bx = *(f32 *)(dst1 + 0x18);
         dx = *(f32 *)(clear + 0x18) - bx;
         by = *(f32 *)(dst1 + 0x1C);
