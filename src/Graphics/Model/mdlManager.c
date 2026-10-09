@@ -5925,7 +5925,11 @@ void func_0047b060(void* param_1)
    2026-10-09: 230 -> 226: the 0xF0F00001 store writes
    `LOAD_LAYER()->resource->entries[state->slot].animation` directly (the
    D_00922BC0 address is materialised first), and one source-entry read uses
-   addOff. */
+   addOff.
+ * 2026-10-09: 226 -> 196: the clone-source case reads `src`/`dst` once for the
+ * animation entry copy, and the material and UV tables through locals.
+ * 161: the material/UV copy reads `state->slot` once into `dst`.
+ */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047b0c0(u8 *model)
@@ -6167,24 +6171,41 @@ s32 func_0047b0c0(u8 *model)
             MdlDispatchAnimTable *animations;
             MdlCloneAttachmentTable *attachments;
             func_003e2910(state->stream, &sourceIndex, chunk.length);
-            animations = LOAD_LAYER()->resource;
-            animations->entries[state->slot].matrix = (*(MdlDispatchAnimEntry *)addOff((u32)sourceIndex * sizeof(MdlDispatchAnimEntry), (u32)animations->entries)).matrix;
-            if (animations->entries[sourceIndex].animation != 0) {
-                animations->entries[state->slot].animation = animations->entries[sourceIndex].animation;
+            {
+                u16 src = sourceIndex;
+                u16 dst = state->slot;
+
+                animations = LOAD_LAYER()->resource;
+                animations->entries[dst].matrix = animations->entries[src].matrix;
+                if (animations->entries[src].animation != 0) {
+                    animations->entries[dst].animation = animations->entries[src].animation;
+                }
+                animations->entries[dst].unknown44 |= 1;
             }
-            animations->entries[state->slot].unknown44 |= 1;
-            if (LOAD_MATERIALS() != 0 && sourceIndex < LOAD_MATERIALS()->count) {
-                void *value = LOAD_MATERIALS()->entries[sourceIndex].value;
-                if (value != 0) {
-                    LOAD_MATERIALS()->entries[state->slot].value = value;
-                    *(u8 *)&LOAD_MATERIALS()->entries[state->slot].flags |= 1;
+            {
+                MdlLoaderMaterialTable *materials = LOAD_MATERIALS();
+
+                if (materials != 0 && sourceIndex < materials->count) {
+                    void *value = materials->entries[sourceIndex].value;
+                    if (value != 0) {
+                        u16 dst = state->slot;
+
+                        materials->entries[dst].value = value;
+                        *(u8 *)&materials->entries[dst].flags |= 1;
+                    }
                 }
             }
-            if (LOAD_UVS() != 0 && sourceIndex < LOAD_UVS()->count) {
-                void *value = LOAD_UVS()->entries[sourceIndex].value;
-                if (value != 0) {
-                    LOAD_UVS()->entries[state->slot].value = value;
-                    *(u8 *)&LOAD_UVS()->entries[state->slot].flags |= 1;
+            {
+                MdlLoaderUvTable *uvs = LOAD_UVS();
+
+                if (uvs != 0 && sourceIndex < uvs->count) {
+                    void *value = uvs->entries[sourceIndex].value;
+                    if (value != 0) {
+                        u16 dst = state->slot;
+
+                        uvs->entries[dst].value = value;
+                        *(u8 *)&uvs->entries[dst].flags |= 1;
+                    }
                 }
             }
             attachments = LOAD_LAYER()->attachments;
