@@ -1321,7 +1321,11 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
    `temp_3_2 > 1` gives retail's slti $at form, and storing the fade alpha int
    in temp_21 before the call orders the u8 mask after the 0.0f argument. The
    rest is saved-register colouring; a further hill climb finds nothing. 
-   2026-10-09: 48 -> 18: locals with disjoint live ranges share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2, temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's register reuse across cases shows. */
+   2026-10-09: 48 -> 18: locals with disjoint live ranges share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2, temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's register reuse across cases shows.
+   2026-10-09: 18 -> 16, case 8 now exact: both day loops pass `var_21 * 0x5E`
+   straight to the two calls instead of naming it, which gives retail's $s3/$s4
+   order there. Residual: the second loop's counter/date/temp_17 colouring
+   ($s3/$s1/$s4 vs retail $s1/$s4/$s5). */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1370,7 +1374,6 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     s32 temp_18_5;
     s32 temp_18_6;
     s32 temp_18_7;
-    s32 temp_19;
     s32 temp_21;
     s32 temp_2_2;
     s32 temp_2_3;
@@ -1439,10 +1442,9 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             while (var_21 < 7) {
                 temp_20 = temp_3 - 1 + var_21;
                 if ((temp_20 >= 0) && (var_21 != 1)) {
-                    temp_19 = var_21 * 0x5E;
-                    func_00262de0(temp_19 + 0xF, 0xF5, 0.0f, temp_21, (s32)temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
+                    func_00262de0(var_21 * 0x5E + 0xF, 0xF5, 0.0f, temp_21, (s32)temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
                     temp_17 = *(s32 *)(temp_2 + 4);
-                    func_00261560(temp_19, 0x127, 0.0f, temp_21, func_00110c50((s32)temp_20, temp_3) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+                    func_00261560(var_21 * 0x5E, 0x127, 0.0f, temp_21, func_00110c50((s32)temp_20, temp_3) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
                 }
                 var_21 += 1;
             }
@@ -1580,10 +1582,9 @@ void func_00263cb0(s32 arg0, u8 *arg1)
                 while (var_21 < 7) {
                     if ((var_21 != 1) && (var_21 != 4)) {
                         temp_17_3 = temp_17_9 + var_21;
-                        temp_19 = var_21 * 0x5E;
-                        func_00262de0(temp_19 + 0xF, 0xF5, 0.0f, 0xFF, temp_17_3, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
+                        func_00262de0(var_21 * 0x5E + 0xF, 0xF5, 0.0f, 0xFF, temp_17_3, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
                         temp_17 = *(s32 *)(temp_2 + 4);
-                        func_00261560(temp_19, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_3, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+                        func_00261560(var_21 * 0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_3, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
                     }
                     var_21 += 1;
                 }
