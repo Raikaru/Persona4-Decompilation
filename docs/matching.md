@@ -862,6 +862,17 @@ below are the codegen consequences.
     differently. Retail's register order came from the bounding loop reusing
     `group` and the last search reusing `other`.
 
+  **Lever: a register copy survives only while its source is still live
+  (`func_003694d0` 192 → 139).** When retail shows `daddu $18, $17, $0` at the
+  top of each switch case and then calls through `$18`, write the copy
+  (`fn = tbl;`) and keep using `tbl` *after* the switch, where retail still
+  calls through `$17`. If the source dies at the copy, b210 coalesces the two
+  and the `daddu` disappears. Neither `opt_propagation off` nor passing the
+  value as an inline-function parameter keeps the copy.
+  Related spellings from the same function: retail's `not; andi 1; beqz` is
+  `if (~*(u32 *)p & 1)`, and a `beqz` to the body followed by `b` past it is a
+  one-case `switch (x) { case 0: ... }`.
+
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written
   inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot
