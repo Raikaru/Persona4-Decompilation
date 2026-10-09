@@ -2266,6 +2266,10 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * 2026-10-09: 511 -> 495: `mode` is u16 (retail daddiu + andi 0xFFFF), the
  * non-sky remap is a switch with cases 0/4 (mode 2) before 1/5 (mode 3), and
  * the count test is `<= 1` (slti $at).
+ * 2026-10-09: 495 -> 457: `entries` is declared after `stk` (retail puts the
+ * Entry table below the float scratch), and the scratch views are plain
+ * `&stk[n]` (with the `(f32 *)` cast, b210 hoists their addresses into saved
+ * registers).
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2295,22 +2299,22 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         u16 chain;
         f32 score;
     } Entry;
-    Entry entries[12];
     f32 stk[24];
+    Entry entries[12];
     u16 mode;
     s32 hasFlag;
     s32 i;
     s32 n;
     u16 selected;
-#define PROJ ((f32 *)&stk[4])
-#define POS ((f32 *)&stk[12])
-#define CENTER ((f32 *)&stk[8])
-#define BASEXZ ((f32 *)&stk[0])
-#define CENTERXZ ((f32 *)&stk[2])
-#define CURXZ ((f32 *)&stk[22])
-#define OUTXZ ((f32 *)&stk[20])
-#define DELTA ((f32 *)&stk[18])
-#define DIR ((f32 *)&stk[16])
+#define PROJ (&stk[4])
+#define POS (&stk[12])
+#define CENTER (&stk[8])
+#define BASEXZ (&stk[0])
+#define CENTERXZ (&stk[2])
+#define CURXZ (&stk[22])
+#define OUTXZ (&stk[20])
+#define DELTA (&stk[18])
+#define DIR (&stk[16])
     if (*(u16 *)(arg1 + 0x38) <= 1) {
         return;
     }
