@@ -51,6 +51,30 @@ in `opacity`; that was not installed (meaningless name, small gain).
 `$s3` and the `1.0f` that retail rematerialises for `inv3`. We reuse the `one`
 in `$f20`; six spellings of the literal made no difference.
 
+`func_001d8010` (target selection; `#ifdef SKIP_ASM` guard) went 511 → 105
+edits. The structural diff fell from 227 to 37 instructions, and the frame is
+now retail's 0x180. Levers, in order:
+- `mode` is u16 (retail `daddiu` plus `andi 0xFFFF`).
+- The no-sky remap is a switch with cases 0/4 before 1/5.
+- `<= 1` count test; `entries` declared after `stk`.
+- Scratch views are plain `&stk[n]`. The `(f32 *)` cast made b210 hoist
+  their addresses into saved registers.
+- Ternary hasFlag picks.
+- The current-unit searches are `for` loops that `break` on the match and
+  index `entries[(u16)i]`. The wrap pick is an unmasked `entries[nn - 1]`.
+- Gathered idx stores `(u16)i` with no mask. This freed `$s7`, which is how
+  the frame dropped to 0x180.
+- Gather loops index with `(u16)i`; the depth walk is a for/break loop with
+  `node` declared before `depth`.
+- Case 4/5 keeps the camera in a block local `cam` instead of reusing `arg0`.
+- The neighbour picks reuse the search's masked index.
+- The dot product is written x term first.
+Open: the bubble sorts. Retail materialises `&entries[test j]` with
+`addiu 0x90` and loads the upper slot at +0x14 (we fold this to 0xA4); it
+also hoists `nn - 1` before the `1`. Pointer temps get copy-propagated, and
+R1–R7 spellings and loop forms gave no improvement.
+
+
 Other work (no further match): `func_0014f310` (the O1 field loader) went 513 → 65 aligned
 edits. Its structural diff (`tools/sdiff.py`, registers and relocations
 masked) is down to 2 instructions; the rest is register choice. What moved it:
