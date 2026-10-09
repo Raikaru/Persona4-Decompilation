@@ -28,7 +28,7 @@ alignment, and the C preserves the observed behavior and ABI.
 ## October 9 continuation, part 3: 6,827 MATCH / 34 ASM
 
 `func_001ed700` matched (636 → 0; levers listed in
-[matching.md](matching.md) under "Levers from `func_001ed700`"). The pointer
+[matching.md](matching.md) under "Levers from `func_001ed700`"). The symbol
 `fGpffff8330 = 0x00761420` was added to `config/symbols_recovered.txt`.
 `build/after24.json` reports 6,827 first-party MATCH and 34 ASM, and against
 `after23.json` only that row changed. Full link `link27` kept 604 C and 54 SDK
@@ -36,20 +36,27 @@ objects with both hashes OK.
 
 Guarded bodies improved and committed with notes:
 
-- `00263cb0` 48 → 5 (see below; the second day loop's counter is
-  `temp_17_3` and its date `temp_3`). The residual is the `* 0x5E` product
-  against the font word (`$s3`/`$s5`).
-- `0036ee60` 45 → 36 (`nA` read directly, `hi < mlvl`).
-- `00263cb0` 48 → 16 and `00283490` 75 → 67: locals with disjoint live
-  ranges share one variable (new lever in [matching.md](matching.md)), and
-  both day loops pass `var_21 * 0x5E` straight to the calls (a named product
-  colours `$s3`/`$s4` the wrong way; case 8 is now exact). The remaining 11
-  blocks are the second day loop: the model wants the counter numbered
-  before the product, the date and `temp_17`. Fresh counters at every
-  declaration slot, block-scoped locals, `for` loops and renames of
-  `temp_17`/the date did not change the numbering.
-- `0036ee60` 45 → 38: the A-list count is read from the u16 `nA` directly.
-  The spill choice (retail spills the u16 index at 0xE0) is unchanged.
+- `00263cb0` 48 → 5: disjoint locals share one variable (lever in
+  [matching.md](matching.md)), both day loops pass `var_21 * 0x5E` straight
+  to the calls, and in the second day loop the counter is `temp_17_3` and the
+  date `temp_3`. Residual: the `* 0x5E` product against the font word
+  (`$s3`/`$s5`). The model wants the font web numbered before the product's
+  CSE temp. 300 random counter/date/font identities all stay at 5. A
+  single-web font variable is propagated into the argument (27).
+- `0036ee60` 45 → 36 (`nA` read directly, `hi < mlvl`). Spill scores in the
+  capture are reference counts. `nDraw` has 4 references and `aIdx` (a u16 with
+  zext at every use) has 5, so b210 spills `nDraw` where retail spills `aIdx`.
+  Reordering the init statements and respelling the min test change nothing.
+- `001e9950` 98 → 95: the same family. Retail spills the u16 `outer`
+  (sh/lhu 0x140); b210 keeps it in `$fp`.
+- `0047b0c0` 271 → 226: the attachment branch tests `== 0 && == 0` first,
+  the slot loop counter is u16, and per-slot resource writes go through
+  `layerResource = LOAD_LAYER()->resource;` (index before `entries` load).
+- `0027f6f0` 295 → 270 and `003599c0` 498 → 491: case-local values reuse
+  other locals (mechanical web-rename search; each rename checked by hand.
+  A checker that ignored conditional definitions produced an invalid
+  `cntB` rename, now rejected).
+- `00283490` 75 → 67: shared float local.
 - `004a7830` (7): the `0.0f` for `temp_f1 <= 0.0f` is the zero b210 creates
   for the `adda.s` of the `0.5f * a + 0.5f * b` madd (codegen_entry), which
   the backend CSE then reuses in the compare block. The model needs the load
