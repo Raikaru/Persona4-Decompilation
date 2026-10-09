@@ -821,6 +821,16 @@ below are the codegen consequences.
   materialised `-1` first, so the store uses a local `invalid` assigned
   before the float constants.
 
+  **Where `daddiu $sN, $zero, k` comes from (micro-tested).** A constant
+  assigned straight to a local is `addiu` under every type tried (u16, s16,
+  s32, s64, u64, cast constants). `daddiu` appears only with
+  `opt_propagation off` and a copy through another local
+  (`u8 c; c = 5; m = c;`), because the surviving `dmove` of a constant
+  register is folded into `daddiu`. That is why `func_0048d8c0`'s
+  `initialPreroll` copy works. In `func_001d8010` (retail `daddiu` for every
+  mode constant) a whole-function `opt_propagation off` costs far more than it
+  gains (511 → 754 edits), so that body needs restructuring first.
+
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written
   inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot
