@@ -1856,6 +1856,8 @@ query_complete:
  * 1724: the 30 address-taken Ghidra stack vectors are float arrays. As split scalars
  * b210 dropped the y/z (and w) stores their callees read through the pointer, so
  * the old body was not retail's program (2113 vs 2320 instructions; now 2375).
+ * 1705: the Ghidra `SQRT` intrinsic compiled as an implicit int call; it is sqrtf
+ * (b210 inlines sqrt.s, as retail).
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1942,6 +1944,7 @@ extern void FUN_0047a870(unsigned char *);
 s32 func_0016bdd0(u8 *param_1)
 
 {
+  extern f32 sqrtf(f32 arg0);
   float stk290[3];
   float stk280[3];
   float stk270[3];
@@ -2100,7 +2103,7 @@ s32 func_0016bdd0(u8 *param_1)
         stk40[0] = fStack_20 - fStack_30;
         temp_v12 = fStack_1c - fStack_2c;
         stk40[2] = fStack_18 - fStack_28;
-        temp_v10 = SQRT(stk40[0] * stk40[0] + stk40[2] * stk40[2]);
+        temp_v10 = sqrtf(stk40[0] * stk40[0] + stk40[2] * stk40[2]);
         temp_v2 = ((float *)piVar1)[8] < temp_v10;
         if (temp_v2) {
           temp_v10 = temp_v10 - ((float *)piVar1)[8];
@@ -2323,7 +2326,7 @@ LAB_0016c5dc:
         stkF0[2] = stkF0[2] + ((float *)piVar1)[7];
         stk110[0] = stkF0[0] - fStack_100;
         stk110[2] = stkF0[2] - fStack_f8;
-        temp_v9 = SQRT(stk110[0] * stk110[0] + stk110[2] * stk110[2]);
+        temp_v9 = sqrtf(stk110[0] * stk110[0] + stk110[2] * stk110[2]);
         if (((float *)piVar1)[8] < temp_v9) {
           temp_v9 = temp_v9 - ((float *)piVar1)[8];
           stk110[1] = 0.0f;
@@ -2753,7 +2756,7 @@ LAB_0016c5dc:
         stk220[0] = fStack_1f0 - fStack_200;
         temp_v12 = fStack_1ec - fStack_1fc;
         stk220[2] = fStack_1e8 - fStack_1f8;
-        temp_v10 = SQRT(stk220[0] * stk220[0] + stk220[2] * stk220[2]);
+        temp_v10 = sqrtf(stk220[0] * stk220[0] + stk220[2] * stk220[2]);
         if (((float *)piVar1)[8] < temp_v10) {
           temp_v10 = temp_v10 - ((float *)piVar1)[8];
           stk220[1] = 0.0f;
