@@ -2288,6 +2288,7 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * by `(i & 0xFFFF) == nn`.
  * 2026-10-09: 226 -> 199: the search body indexes `entries[(u16)i]`; with the
  * loop-test spelling, b210 reuses the test's mask instead of re-masking.
+ * 2026-10-09: 199 -> 185: the gather loops index the unit list with `(u16)i`.
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2378,7 +2379,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         n = 0;
         i = 0;
         while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
-            u8 *unit = *(u8 **)(arg1 + ((i & 0xFFFF) * 4));
+            u8 *unit = *(u8 **)(arg1 + ((u16)i * 4));
             u8 *ud = *(u8 **)(unit + 0x30);
             f32 len;
             btlUnitGetSphereWorldCenter(ud, POS);
@@ -2467,7 +2468,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         n = 0;
         i = 0;
         while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
-            u8 *unit = *(u8 **)(arg1 + ((i & 0xFFFF) * 4));
+            u8 *unit = *(u8 **)(arg1 + ((u16)i * 4));
             u8 *ud = *(u8 **)(unit + 0x30);
             f32 dist;
             f32 dot;
@@ -2542,7 +2543,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         n = 0;
         i = 0;
         while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
-            u8 *unit = *(u8 **)(arg1 + ((i & 0xFFFF) * 4));
+            u8 *unit = *(u8 **)(arg1 + ((u16)i * 4));
             if ((*(u16 *)(unit + 0x1A) & 1) != 0) {
                 u8 *ud = *(u8 **)(unit + 0x30);
                 if (*(u8 *)(ud + 0xA2) == 0) {
