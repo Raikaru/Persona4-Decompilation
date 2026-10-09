@@ -3071,7 +3071,8 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
    improved 14 more floors, `func_001ed700` by 89 edits on its own.
    2026-10-08: opt_loop_invariants on, opt_lifetimes on and opt_dead_assignments off lowers fnalign from 782 to 636 edits. */
 /* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 636 to 457 edits. 
-   2026-10-09: 457 -> 217: the corner adjustment is a switch on i (retail tests 3, 2, 1, 0 and skips the default), the first corner seeds are stored from [3] down to [0], the per-group and per-corner positions are FieldPair struct copies into stack pairs with the z kept in curZ/wposZ, bestDir copies are 8-byte (ld/sd), and the stack pairs are declared cur, norm, delta, bestDir, wpos. */
+   2026-10-09: 457 -> 217: the corner adjustment is a switch on i (retail tests 3, 2, 1, 0 and skips the default), the first corner seeds are stored from [3] down to [0], the per-group and per-corner positions are FieldPair struct copies into stack pairs with the z kept in curZ/wposZ, bestDir copies are 8-byte (ld/sd), and the stack pairs are declared cur, norm, delta, bestDir, wpos. 
+   2026-10-09: 217 -> 119: the best-entry block halves bestDir in place (x kept in dx, z re-read), the distance delta is converted into delta[] before subtracting bestX/bestZ, the outer distance loop is a for with best tested positively, the corner and outer flag loops use a corner pointer with `!(x <= 0)` tests, the outer search uses an entry pointer, then a declaration climb. Residual: curZ/wposZ are register copies of the stack pair where retail reloads them, and saved-register numbering. */
 // FUN_001ED700 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -3087,16 +3088,16 @@ void func_001ed700(f32 radius)
     typedef struct { f32 x, z; } FieldPair;
     struct { s16 x; s16 y; } corners[4];
     f32 bounds[4];
-    s32 first;
-    s32 j;
+    f32 f0;
+    u8 *other;
     f32 cur[2];
     f32 norm[2];
     f32 delta[2];
     f32 bestDir[2];
     f32 wpos[2];
-    f32 curZ;
+    f32 bestH;
     f32 wposZ;
-    u8 *other;
+    s32 j;
     u8 *group;
     u8 *node;
     u8 *best;
@@ -3109,8 +3110,8 @@ void func_001ed700(f32 radius)
     f32 bestDist;
     f32 bestX;
     f32 bestZ;
-    f32 bestH;
-    f32 f0;
+    f32 curZ;
+    s32 first;
 
     first = 0;
     for (node = *(u8 **)(iGpffffb3ac + 0x318); node != NULL; node = *(u8 **)(node + 0x4CC)) {
@@ -3238,79 +3239,78 @@ void func_001ed700(f32 radius)
             if (best != NULL) {
                 f32 half;
                 f32 dx;
-                f32 dz;
                 half = 0.5f * bestDist;
                 dx = bestDir[0] * half;
                 bestDir[0] = dx;
-                dz = bestDir[1] * half;
-                bestDir[1] = dz;
+                bestDir[1] = bestDir[1] * half;
                 *(f32 *)(group + i * 0x130 + 0x10) = cur[0] + dx;
-                *(f32 *)(group + i * 0x130 + 0x14) = curZ + dz;
+                *(f32 *)(group + i * 0x130 + 0x14) = curZ + bestDir[1];
                 *(u8 **)(group + i * 0x130 + 0x18) = best;
                 *(f32 *)(group + i * 0x130 + 0x1C) = bestDist;
-                dx = (f32)(*(s16 *)(group + 0) * 25 - 1750);
-                dz = (f32)(*(s16 *)(group + 2) * 25 - 1750);
-                delta[0] = dx - bestX;
-                delta[1] = dz - bestZ;
-                *(f32 *)(group + i * 0x130 + 0x20) = RwV2dLength(delta) - (*(f32 *)(group + 4) + bestH);
-            } else {
+                delta[0] = (f32)(*(s16 *)(group + 0) * 25 - 1750);
+                delta[1] = (f32)(*(s16 *)(group + 2) * 25 - 1750);
+                delta[0] = delta[0] - bestX;
+                delta[1] = delta[1] - bestZ;
+                *(f32 *)(group + i * 0x130 + 0x20) = RwV2dLength(delta) - (*(f32 *)(group + 4) + bestH);            } else {
                 *(f32 *)(group + i * 0x130 + 0x1C) = -1.0f;
             }
         }
     }
     for (i = 0; i < 4; i++) {
-        *(FieldPair *)wpos = *(FieldPair *)(iGpffffb3ac + i * 0x130 + 0x31C);
-        wposZ = wpos[1];
         best = NULL;
         bestDist = 7000.0f;
+        *(FieldPair *)wpos = *(FieldPair *)(iGpffffb3ac + i * 0x130 + 0x31C);
+        wposZ = wpos[1];
         for (group = *(u8 **)(iGpffffb3ac + 0x318); group != NULL; group = *(u8 **)(group + 0x4CC)) {
-            j = 0;
-            do {
-                delta[0] = *(f32 *)(group + j * 0x130 + 8) - wpos[0];
-                delta[1] = *(f32 *)(group + j * 0x130 + 12) - wposZ;
+            for (j = 0; j < 4; j++) {
+                u8 *entry = group + j * 0x130;
+
+                delta[0] = *(f32 *)(entry + 8) - wpos[0];
+                delta[1] = *(f32 *)(entry + 12) - wposZ;
                 dist = RwV2dLength(delta);
                 if (dist < bestDist) {
                     func_003e41e0(bestDir, delta);
-                    best = group + j * 0x130 + 8;
+                    best = entry + 8;
                     bestDist = dist;
                 }
-                j++;
-            } while (j < 4);
+            }
         }
-        if (best == NULL) {
-            *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = -1.0f;
-        } else {
-            if (*(u8 **)(best + 0x10) == iGpffffb3ac + i * 0x130 + 0x31C) {
-                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = -1.0f;
-            } else {
+        if (best != NULL) {
+            if (*(u8 **)(best + 0x10) != iGpffffb3ac + i * 0x130 + 0x31C) {
                 f32 half;
                 half = 0.5f * bestDist;
                 bestDir[0] = bestDir[0] * half;
                 bestDir[1] = bestDir[1] * half;
                 *(f32 *)(iGpffffb3ac + i * 0x130 + 0x324) = wpos[0] + bestDir[0];
-                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x328) = wpos[1] + bestDir[1];
+                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x328) = wposZ + bestDir[1];
                 *(u8 **)(iGpffffb3ac + i * 0x130 + 0x32C) = best;
                 *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = bestDist;
                 *(f32 *)(iGpffffb3ac + i * 0x130 + 0x334) = 500.0f;
+            } else {
+                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = -1.0f;
             }
+        } else {
+            *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = -1.0f;
         }
     }
     for (group = *(u8 **)(iGpffffb3ac + 0x318); group != NULL; group = *(u8 **)(group + 0x4CC)) {
-        i = 0;
-        do {
-            if ((*(f32 *)(group + i * 0x130 + 0x1C) <= 0.0f) || (*(f32 *)(group + i * 0x130 + 0x20) < radius)) {
-                *(s32 *)(group + i * 0x130 + 0x38) = 0;
+        for (i = 0; i < 4; i++) {
+            u8 *corner = group + i * 0x130 + 8;
+
+            if (!(*(f32 *)(corner + 0x14) <= 0.0f) && !(*(f32 *)(corner + 0x18) < radius)) {
+                func_001ed3a0(corner, radius);
             } else {
-                func_001ed3a0(group + i * 0x130 + 8, radius);
+                *(s32 *)(corner + 0x30) = 0;
             }
-            i++;
-        } while (i < 4);
+        }
     }
     for (i = 0; i < 4; i++) {
-        if (0.0f < *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330)) {
-            func_001ed3a0(iGpffffb3ac + i * 0x130 + 0x31C, radius);
+        u8 *corner = iGpffffb3ac + i * 0x130 + 0x31C;
+
+        if (!(*(f32 *)(corner + 0x14) <= 0.0f)) {
+            func_001ed3a0(corner, radius);
         } else {
-            *(s32 *)(iGpffffb3ac + i * 0x130 + 0x34C) = 0;
+            *(s32 *)(corner + 0x30) = 0;
         }
     }
     func_001ed3a0(iGpffffb3ac + 0x7DC, radius);
