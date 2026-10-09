@@ -3070,31 +3070,20 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own.
    2026-10-08: opt_loop_invariants on, opt_lifetimes on and opt_dead_assignments off lowers fnalign from 782 to 636 edits. */
-/* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 636 to 457 edits. 
-   2026-10-09: 457 -> 217: the corner adjustment is a switch on i (retail tests 3, 2, 1, 0 and skips the default), the first corner seeds are stored from [3] down to [0], the per-group and per-corner positions are FieldPair struct copies into stack pairs with the z kept in curZ/wposZ, bestDir copies are 8-byte (ld/sd), and the stack pairs are declared cur, norm, delta, bestDir, wpos. 
-   2026-10-09: 217 -> 119: the best-entry block halves bestDir in place (x kept in dx, z re-read), the distance delta is converted into delta[] before subtracting bestX/bestZ, the outer distance loop is a for with best tested positively, the corner and outer flag loops use a corner pointer with `!(x <= 0)` tests, the outer search uses an entry pointer, then a declaration climb. Residual: curZ/wposZ are register copies of the stack pair where retail reloads them, and saved-register numbering. 
-   2026-10-09: 119 -> 103: the bounding-corner loop walks the list with `group` (retail reuses the later loop's pointer; a separate `node` local colours differently).
-   2026-10-09: 103 -> 80: the outer `other`/`group` list pointer is read before
-   `curZ = cur[1]` and `wposZ = wpos[1]`, which makes b210 reload z from the
-   stack pair as retail does (written before the read, it forwards the copied
-   register instead).
-   2026-10-09: 80 -> 31: the bounding-box tests with the local on the left are
-   spelled `corners[n].x <= tx` (not `tx >= corners[n].x`), which branches
-   through $at as retail does (matching.md, "slt $at vs slt $v0").
-   2026-10-09: 31 -> 24: the search loop walks `entry = other + j * 0x130` and
-   passes `(float *)(entry += 8)` to func_001ed060, so the advanced pointer
-   stays in $s7 as in retail.
-   2026-10-09: 24 -> 5: the last search loop walks the list with `other` (as
-   the bounding loop reuses `group`), which gives retail's $s2/$s3/$s4
-   colouring. Residual: retail loads iGpffffb3ac into $v1 before the j * 0x130
-   / i * 0x130 arithmetic at 0x001EDC8C and 0x001EDEA4; ours loads it into $v0
-   after. */
-// FUN_001ED700 NONMATCHING
-#ifdef NON_MATCHING
+/* Field-group corner layout: bounding corners over the group list, then each
+ * group corner and each world corner is linked to its nearest neighbour.
+ * Matching notes: the bounding loop reuses `group` and the last search reuses
+ * `other`; the z of each stack pair is read after the list head
+ * (`curZ = cur[1]` / `wposZ = wpos[1]`) so b210 reloads it; tests with the
+ * local on the left are spelled `corners[n].x <= tx` (branch through $at);
+ * `(float *)(entry += 8)` keeps the advanced pointer in $s7; and a
+ * block-scoped `base = iGpffffb3ac` orders the global load before the
+ * index arithmetic. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 #pragma opt_dead_assignments off
+// FUN_001ED700
 void func_001ed700(f32 radius)
 {
     extern f32 func_003e41e0(f32 *out, f32 *in);
@@ -3242,8 +3231,10 @@ void func_001ed700(f32 radius)
                 }
             }
             for (j = 0; j < 4; j++) {
-                delta[0] = *(f32 *)(iGpffffb3ac + j * 0x130 + 0x31C) - cur[0];
-                delta[1] = *(f32 *)(iGpffffb3ac + j * 0x130 + 0x320) - curZ;
+                u8 *base = iGpffffb3ac;
+
+                delta[0] = *(f32 *)(base + j * 0x130 + 0x31C) - cur[0];
+                delta[1] = *(f32 *)(base + j * 0x130 + 0x320) - curZ;
                 dist = func_003e41e0(norm, delta);
                 if ((!(norm[0] * D_0060A120[i * 2 + 0] + norm[1] * D_0060A120[i * 2 + 1] <= fGpffff8330) && (dist < bestDist)) && (func_001ed060((float *)(group + i * 0x130 + 8), (float *)(iGpffffb3ac + j * 0x130 + 0x31C)) == 0)) {
                     *(s64 *)bestDir = *(s64 *)norm;
@@ -3277,8 +3268,12 @@ void func_001ed700(f32 radius)
     for (i = 0; i < 4; i++) {
         best = NULL;
         bestDist = 7000.0f;
-        *(FieldPair *)wpos = *(FieldPair *)(iGpffffb3ac + i * 0x130 + 0x31C);
-        other = *(u8 **)(iGpffffb3ac + 0x318);
+        {
+            u8 *base = iGpffffb3ac;
+
+            *(FieldPair *)wpos = *(FieldPair *)(base + i * 0x130 + 0x31C);
+            other = *(u8 **)(base + 0x318);
+        }
         wposZ = wpos[1];
         for (; other != NULL; other = *(u8 **)(other + 0x4CC)) {
             for (j = 0; j < 4; j++) {
@@ -3336,9 +3331,6 @@ void func_001ed700(f32 radius)
     func_001ed3a0(iGpffffb3ac + 0x90C, radius);
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ed700);
-#endif
 // FUN_001EE1C0
 void func_001ee1c0(void) {
     f32 temp_f0;
