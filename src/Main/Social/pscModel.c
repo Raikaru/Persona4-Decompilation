@@ -102,7 +102,13 @@ extern void func_0036b470(void *work, void *vertices);
    2026-10-08: 350 -> 195 edits. The colour snapshots are 4-byte struct copies, the alphas convert straight to u8 ((u8)f), and the case-0 fades read the alpha inline after 255.0f * dir. Open: retail keeps a second table register per case (move $s2,$s1) and reloads D_00887300 into $s2 in later blocks.
    2026-10-09: 195 -> 192: the DC test is `~*(u32 *)unkDC & 1` (retail
    not/andi/beqz) and the unk48 test is a one-case `switch` (retail beqz-to-
-   body plus jump). */
+   body plus jump).
+   2026-10-09: 192 -> 139: the render-state table is copied into `fn` at the
+   top of each mode case while `tbl` stays live for the later mode-1 call, so
+   the copies survive as retail's `daddu $18, $17` (a copy whose source is
+   still live is not coalesced). Later sections reassign `fn` and the DC
+   section uses `fn2 = fn`. Residual: retail rematerialises D_00887300 into $18
+   for each later section. */
 // FUN_003694D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003694d0(PscModel *model)
@@ -116,6 +122,8 @@ void func_003694d0(PscModel *model)
     PscModel *m2;
     PscModel *m3;
     void (**tbl)(u32 state, u32 value);
+    void (**fn)(u32 state, u32 value);
+    void (**fn2)(u32 state, u32 value);
     u32 alpha;
     f32 alphaf;
     f32 f;
@@ -224,9 +232,10 @@ void func_003694d0(PscModel *model)
     (*tbl)(6, 0);
     switch (model->mode) {
     case 1:
-        (*tbl)(8, 1);
+        fn = tbl;
+        (*fn)(8, 1);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*tbl)(1, func_0036bee0(model->u.m01.unk170, model->u.m01.unk174));
+        (*fn)(1, func_0036bee0(model->u.m01.unk170, model->u.m01.unk174));
         RpSkyRenderStateSet(2, 0x44);
         func_00410420(m1->u.m01.b0, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
@@ -234,75 +243,77 @@ void func_003694d0(PscModel *model)
         break;
     case 0:
         m0 = model;
-        (*tbl)(8, 1);
+        fn = tbl;
+        (*fn)(8, 1);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*tbl)(3, 1);
-        (*tbl)(4, 1);
-        (*tbl)(1, func_0036d130(0));
+        (*fn)(3, 1);
+        (*fn)(4, 1);
+        (*fn)(1, func_0036d130(0));
         RpSkyRenderStateSet(2, 0x44);
         func_00410420(m0->u.m01.b0, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*tbl)(1, func_0036d130(4));
+        (*fn)(1, func_0036d130(4));
         func_00410420(m0->u.m01.b4, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*tbl)(1, func_0036d130(3));
+        (*fn)(1, func_0036d130(3));
         func_00410420(m0->u.m01.b3, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*tbl)(1, func_0036d130(2));
+        (*fn)(1, func_0036d130(2));
         func_00410420(m0->u.m01.b2, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x44);
-        (*tbl)(1, func_0036bff0((*(u16 *)&model->u.m01.unk174)));
+        (*fn)(1, func_0036bff0((*(u16 *)&model->u.m01.unk174)));
         func_00410420(m0->u.m01.b5, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*tbl)(1, func_0036bff0((*(u16 *)&model->u.m01.unk174)));
+        (*fn)(1, func_0036bff0((*(u16 *)&model->u.m01.unk174)));
         func_00410420(m0->u.m01.b6, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x44);
-        (*tbl)(1, func_0036d130(1));
+        (*fn)(1, func_0036d130(1));
         func_00410420(m0->u.m01.b1, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         if (model->flags & 2) {
         RpSkyRenderStateSet(2, 0x48);
-        (*tbl)(3, 3);
-        (*tbl)(4, 3);
-        (*tbl)(1, func_0036d130(5));
+        (*fn)(3, 3);
+        (*fn)(4, 3);
+        (*fn)(1, func_0036d130(5));
         func_00410420(m0->u.m01.b7, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         }
         break;
     case 2:
-        (*tbl)(8, 1);
+        fn = tbl;
+        (*fn)(8, 1);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*tbl)(1, func_0036be70());
+        (*fn)(1, func_0036be70());
         func_00410420(model->u.w170, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
     case 3:
-        (*tbl)(8, 1);
+        fn = tbl;
+        (*fn)(8, 1);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*tbl)(1, func_0036c0d0());
+        (*fn)(1, func_0036c0d0());
         func_00410420(model->u.w170, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
     }
-    tbl = (void (**)(u32, u32))(u32)D_00887300;
     if ((model->flags & 1) != 0) {
         switch (model->unk48) {
         case 0:
@@ -315,49 +326,51 @@ void func_003694d0(PscModel *model)
                 func_004104d0();
                 break;
             }
-            RpSkyRenderStateSet(2, 0x58);
-            (*tbl)(4, 3);
-            (*tbl)(1, func_0036d130(6));
+            fn = (void (**)(u32, u32))(u32)D_00887300;
+        RpSkyRenderStateSet(2, 0x58);
+            (*fn)(4, 3);
+            (*fn)(1, func_0036d130(6));
             func_00410420(model->unk4C, 4, mtx, 3);
             func_00410520(3, D_0064E470, 6);
             func_004104d0();
-            (*tbl)(4, 1);
+            (*fn)(4, 1);
             break;
         }
     }
     switch (model->mode) {
     case 1:
-        (*tbl)(6, 0);
-        (*tbl)(8, 1);
+        (*fn)(6, 0);
+        (*fn)(8, 1);
         RpSkyRenderStateSet(3, 0x717FB);
         RpSkyRenderStateSet(2, 0x44);
-        (*tbl)(1, func_0036d1b0(1));
+        (*fn)(1, func_0036d1b0(1));
         func_00410420(m1->u.m01.b2, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
     }
-    tbl = (void (**)(u32, u32))(u32)D_00887300;
-    (*tbl)(1, func_0036be00());
+    fn = (void (**)(u32, u32))(u32)D_00887300;
+    (*fn)(1, func_0036be00());
     RpSkyRenderStateSet(2, 0x44);
-    (*tbl)(6, 0);
-    (*tbl)(8, 1);
+    (*fn)(6, 0);
+    (*fn)(8, 1);
     func_00410420(e0work, 4, mtx, 3);
     func_00410520(3, D_0064E470, 6);
     func_004104d0();
-    tbl = (void (**)(u32, u32))(u32)D_00887300;
+    fn = (void (**)(u32, u32))(u32)D_00887300;
     if (model->flags & 8) {
         if (~*(u32 *)model->unkDC & 1) {
-            (*tbl)(6, 0);
-            (*tbl)(8, 1);
+            fn2 = fn;
+            (*fn2)(6, 0);
+            (*fn2)(8, 1);
             RpSkyRenderStateSet(2, 0x6A);
             switch (model->mode) {
             case 0:
-                (*tbl)(1, func_0036d130(1));
+                (*fn2)(1, func_0036d130(1));
                 func_00410420(model->u.m01.b1, 4, mtx, 3);
                 break;
             case 1:
-                (*tbl)(1, func_0036d1b0(0));
+                (*fn2)(1, func_0036d1b0(0));
                 func_00410420(model->u.m01.b1, 4, mtx, 3);
                 break;
             case 2:
