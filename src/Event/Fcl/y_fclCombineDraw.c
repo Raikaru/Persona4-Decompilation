@@ -2610,7 +2610,11 @@ void func_00320970(u8 *arg0, s8 arg1) {
  * 16-aligned slot as in retail. Open: arg0's home lands at 0xDC (retail 0xE4)
  * with the mode at 0xE0 (retail 0xD0). b210's IRO_CommonSubs also reuses the
  * loop condition's (s16) extension for the body-top copy; retail extends
- * again at the top of each body. */
+ * again at the top of each body.
+ * 2026-10-09: 21 -> 13: the inner loops copy the counter into a function-scope
+ * s32 `col` before the element call, which keeps retail's per-iteration sign
+ * extension (block-scope or initialised copies are propagated into the loop
+ * test's extension). */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
 static inline u8 *fclSavedCombineTask(const void *storage)
@@ -2646,6 +2650,7 @@ void func_00320b80(u8 *arg0, s8 arg1) {
     u8 *spC0;
     u8 *t;
     s16 i;
+    s32 col;
     s32 rowCount;
     s32 spD0 __attribute__((aligned(16)));
     t = *(u8 **)(arg0 + 0x38);
@@ -2699,8 +2704,11 @@ void func_00320b80(u8 *arg0, s8 arg1) {
             u8 *q = t + n * 4;
             spC0 = t + n * 12;
             while (j < (u16)func_0010b5b0()) {
-                u8 *e2 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
-                spF0 = func_002b2970((f32)((s16)j * 23 + 0x149), (f32)y);
+                u8 *e2;
+
+                col = j;
+                e2 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
+                spF0 = func_002b2970((f32)(col * 23 + 0x149), (f32)y);
                 c140 = func_002b2a60(0, 0, 0x99, 0xA5);
                 func_002b8200(e2, spF0, c140, 1.0f, 0.0f, 159.0f);
                 {
@@ -2711,7 +2719,7 @@ void func_00320b80(u8 *arg0, s8 arg1) {
                     func_002b8370(e3, c13C, c138, 0, 0xA, delay);
                     func_002b82d0(func_0034ae50(*(u8 **)(q + 0x154), (s8)j), 0, 0xA5, 0, 0xA, delay);
                 }
-                *(s8 *)(spC0 + (s16)j + 0x18C) = 0;
+                *(s8 *)(spC0 + col + 0x18C) = 0;
                 j++;
             }
         } else {
@@ -2720,8 +2728,11 @@ void func_00320b80(u8 *arg0, s8 arg1) {
             u8 *q = t + n * 4;
             u8 *row = t + n * 12;
             while (j < (u16)func_0010b5b0()) {
-                u8 *e2 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
-                spE8 = func_002b2970((f32)((s16)j * 23 + 0x149), (f32)y);
+                u8 *e2;
+
+                col = j;
+                e2 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
+                spE8 = func_002b2970((f32)(col * 23 + 0x149), (f32)y);
                 c134 = func_002b2a60(0, 0, 0x99, 0xA5);
                 func_002b8200(e2, spE8, c134, 1.0f, 0.0f, 159.0f);
                 {
@@ -2731,7 +2742,7 @@ void func_00320b80(u8 *arg0, s8 arg1) {
                     func_002b8370(e3, c130, c12C, 0, 0xA, (s16)j + (s16)i);
                     func_002b82d0(func_0034ae50(*(u8 **)(q + 0x154), (s8)j), 0, 0xA5, 0, 0xA, 0);
                 }
-                *(s8 *)(row + (s16)j + 0x18C) = 0;
+                *(s8 *)(row + col + 0x18C) = 0;
                 j++;
             }
         }
