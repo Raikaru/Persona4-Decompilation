@@ -5929,6 +5929,7 @@ void func_0047b060(void* param_1)
  * 2026-10-09: 226 -> 196: the clone-source case reads `src`/`dst` once for the
  * animation entry copy, and the material and UV tables through locals.
  * 161: the material/UV copy reads `state->slot` once into `dst`.
+ * 155: u16 clone-slot fill counter.
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6224,11 +6225,11 @@ s32 func_0047b0c0(u8 *model)
         } else {
             func_003e2910(state->stream, &sourceIndex, chunk.length);
             if (state->cloneSlots[state->layer] == 0) {
-                s32 slot;
+                u16 slot;
                 func_0044ea90(D_00713138, 0x1896);
                 state->cloneSlots[state->layer] = ((void *(*)(int, int))DAT_008873e8[0])((u32)capacity * 2, 0x40000);
-                for (slot = 0; (slot & 0xffff) < capacity; slot = (slot + 1) & 0xffff) {
-                    state->cloneSlots[state->layer][slot & 0xffff] = 0xffff;
+                for (slot = 0; slot < capacity; slot++) {
+                    state->cloneSlots[state->layer][slot] = 0xffff;
                 }
             }
             state->cloneSlots[state->layer][state->slot] = sourceIndex;
