@@ -1303,37 +1303,20 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
    floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
    and 7 edits) and 13 got worse, so it is measured per function like every other
    spelling. */
-/* 2026-10-07 guarded update: 102 fnalign edits (was 232); the instruction
-   count now matches retail. Changes: the case-5 and case-7 fallback tails are
-   separate copies (retail does not share them, and their final call passes
-   1); the render-state table is read through a u32 local (retail keeps it in
-   $s1); both fade rectangles are {x,y,w,h} structs copied into the 16-byte
-   argument; the fade alphas are converted to int when computed; and the case-3
-   sine argument is fGpffff84a4 * ((f32)n / 5.0f). Open: saved-register
-   colouring.
-   2026-10-08: opt_lifetimes on lowers fnalign from 102 to 85 edits.
-   2026-10-08: a declaration-order hill climb (swap/move moves scored by fnalign) lowers it to 75.
-   2026-10-09: 48 edits. At two func_00261560 calls retail keeps the
-   (*(s32 *)(temp_2 + 4)) argument as a variable loaded before the func_00110c50 argument
-   call; b210 only keeps a load variable that has another definition (the
-   single-def temp_16_2/temp_16_3/temp_18_6 ones get propagated into the call),
-   so those sites share temp_16_2/temp_16 and the two temp_18_6 sites are split.
-   `temp_3_2 > 1` gives retail's slti $at form, and storing the fade alpha int
-   in temp_21 before the call orders the u8 mask after the 0.0f argument. The
-   rest is saved-register colouring; a further hill climb finds nothing. 
-   2026-10-09: 48 -> 18: locals with disjoint live ranges share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2, temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's register reuse across cases shows.
-   2026-10-09: 18 -> 16, case 8 now exact: both day loops pass `var_21 * 0x5E`
-   straight to the two calls instead of naming it, which gives retail's $s3/$s4
-   order there. Residual: the second loop's counter/date/temp_17 colouring
-   ($s3/$s1/$s4 vs retail $s1/$s4/$s5).
-   2026-10-09: 16 -> 5: in the second day loop the counter is `temp_17_3` and
-   the date is `temp_3` (retail's register numbering follows which variable
-   each value lives in). Residual: the `* 0x5E` product and the font word swap
-   $s3/$s5. */
-// FUN_00263CB0 NONMATCHING
-#ifdef NON_MATCHING
+/* The switch arms are in retail's jump-table order. Locals whose live ranges
+ * are disjoint share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2,
+ * temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's
+ * register reuse across the cases shows. In case 7's day loop the date is
+ * `temp_20` and the `* 0x5E` column is `var_2`, both dead outside that loop:
+ * retail's register numbering follows which variable each value lives in, and
+ * these give the $s3/$s4/$s5 order of the product, date and font word. The
+ * render-state table goes through a u32 local, both fade rectangles are
+ * {x,y,w,h} structs copied into the 16-byte argument, the case-5 and case-7
+ * fallback tails are separate copies, and `temp_3_2 > 1` gives the slti $at
+ * form. opt_lifetimes on is measured (102 -> 85 edits without the other levers). */
 #pragma push
 #pragma opt_lifetimes on
+// FUN_00263CB0
 void func_00263cb0(s32 arg0, u8 *arg1)
 {
     typedef signed __int128 s128;
@@ -1585,10 +1568,11 @@ void func_00263cb0(s32 arg0, u8 *arg1)
                 temp_17_3 = 0;
                 while (temp_17_3 < 7) {
                     if ((temp_17_3 != 1) && (temp_17_3 != 4)) {
-                        temp_3 = temp_17_9 + temp_17_3;
-                        func_00262de0(temp_17_3 * 0x5E + 0xF, 0xF5, 0.0f, 0xFF, temp_3, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
+                        temp_20 = temp_17_9 + temp_17_3;
+                        var_2 = temp_17_3 * 0x5E;
+                        func_00262de0(var_2 + 0xF, 0xF5, 0.0f, 0xFF, temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
                         temp_17 = *(s32 *)(temp_2 + 4);
-                        func_00261560(temp_17_3 * 0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_3, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+                        func_00261560(var_2, 0x127, 0.0f, 0xFF, func_00110c50(temp_20, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
                     }
                     temp_17_3 += 1;
                 }
@@ -1624,9 +1608,6 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263cb0);
-#endif
 // FUN_00264CB0
 void func_00264cb0(s32 arg0, s32 arg1)
 {
