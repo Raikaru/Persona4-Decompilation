@@ -343,6 +343,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 70 -> 65: the reload list walker is declared before its next pointer.
  * 2026-10-09: 65 -> 64: the resource pair offset is formed as `idx * 4` then
  * `+= base` (retail adds the base second).
+ * 2026-10-09: 64 -> 53: body taken from the parallel cos/finish-first-party-20261009 worktree.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -592,9 +593,9 @@ loadFieldResource:
             }
             temp_4_2 = (u8 *)(iGpffffb204);
             if (temp_4_2 == NULL) {
-                var_2_2 = 1;
+                var_2_2 = (s32)(var_2 != 0);
             } else if (H_Cdvd_IsFileLoaded((s32)(temp_4_2)) != 0) {
-                var_2_2 = 1;
+                var_2_2 = var_2;
             } else {
                 var_2_2 = 0;
             }
