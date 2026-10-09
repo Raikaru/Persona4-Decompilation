@@ -57,6 +57,17 @@ Guarded bodies improved and committed with notes:
   A checker that ignored conditional definitions produced an invalid
   `cntB` rename, now rejected).
 - `00283490` 75 → 67: shared float local.
+- `003694d0` 195 → 139: one-case `switch` for the unk48 test, `~*p & 1` for
+  the DC test, and the render-state table copied into `fn` per mode case
+  while `tbl` stays live (surviving-copy lever in matching.md). Residual:
+  retail rematerialises D_00887300 into `$18` for each later section, and
+  the `m0 = model` copy.
+- `003768e0` 265 → 182: `length` is declared before `rgba` (retail copies
+  parameters a0, a1, f12, a3). The extern and the call in btlShuffleDraw.c
+  were updated; that caller still matches and link28 is byte-identical. Both
+  trail loops form px/py/pz from `sample->x` directly and the minus side
+  before back[0]. Residual: one extra callee-saved FPR (`length` in f26 vs
+  f23); no single virtual swap fixes the model.
 - `004a7830` (7): the `0.0f` for `temp_f1 <= 0.0f` is the zero b210 creates
   for the `adda.s` of the `0.5f * a + 0.5f * b` madd (codegen_entry), which
   the backend CSE then reuses in the compare block. The model needs the load
