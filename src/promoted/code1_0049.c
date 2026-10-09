@@ -365,27 +365,23 @@ loop_00490bb0_check:
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
     *(f32 *)(temp_6 + 0xE8) = *(f32 *)(temp_5 + 0xE8) * fparg0;
 }
-/* Guarded rewrite from retail asm, 2026-10-07: 57 differing words (was 419).
- * Open: FPR colouring. Retail spills the sway base (0xDC) and keeps growth in
- * $f20. No declaration order reaches that spill set
- * (regalloc_order_search: infeasible), so retail's live set differs somewhere.
- * Also open: retail loads burst = 1 with daddiu but tests it without andi,
- * the origin copy's temporaries, and two mult operand orders. Matching it
- * needs fGpffff8088, fGpffff808c and D_00922D70 in symbols_recovered.txt to
- * stay linkable. 
-   2026-10-09: 57 -> 45: the config/D_00922D70/prev quad copies go through $2 as in func_0048d8c0. Residual: retail spills swayBase and keeps the asm `dot` in $f28; b210 spills `dot` (its asm-output virtual, numbered 52, wins the score-2 tie over swayBase's 40 regardless of declaration).
- * 2026-10-09: 45 -> 28: swayBase is declared last (its number then ranks it
- * for the spill as retail does), followed by a declaration climb.
- * 2026-10-09: 28 -> 26: the trail index `(node - base) >> 5` is a named u32
- * multiplied by nmult (retail's mult operand order).
- * 2026-10-09: 26 -> 25: `burst = 1` goes through a u8 `on` local; with
- * opt_propagation off this is the only spelling that gives retail's `daddiu
- * $s6, $zero, 1` (matching.md, "Where daddiu comes from"). */
-// FUN_00490C40 NONMATCHING
-#ifdef NON_MATCHING
+/* Particle emitter update: spawn/respawn bookkeeping, then per-particle
+ * motion with VU0 direction, sway and bounce.
+ * Matching notes: the config/D_00922D70/prev quad copies go through $2
+ * (user-approved, as in func_0048d8c0); swayBase is declared last and also
+ * holds the accumulated spawn value earlier (`acc` in the m2c output), which
+ * with opt_lifetimes on gives it a late web number so b210 spills it rather
+ * than the asm `dot`, as retail does; the trail index `(node - base) >> 5` is
+ * a named u32 multiplied by nmult; and `burst = 1` goes through a u8 local
+ * (with opt_propagation off the only spelling that gives `daddiu`). The
+ * pragmas are measured: opt_lifetimes off leaves 25 edits (dot is spilled),
+ * opt_loop_invariants is what hoists the constant block retail loads before
+ * the particle loop, and opt_propagation off keeps the u8 copy. */
 #pragma push
 #pragma opt_loop_invariants on
+#pragma opt_lifetimes on
 #pragma opt_propagation off
+// FUN_00490C40
 void func_00490c40(u8 *arg0)
 {
     extern f32 effMiscRandFloat(s32 arg0);
@@ -444,10 +440,12 @@ void func_00490c40(u8 *arg0)
     if ((flags & 1) == 0) {
         u_long128 *dst = &origin;
 
+        /* lint: allow H009 -- retail copies this quad through $2 at 0x00490CDC; b210 keeps $v0 live (user-approved 2026-10-09) */
         __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(config) : "$2", "memory");
     } else {
         u_long128 *dst = &origin;
 
+        /* lint: allow H009 -- retail copies this quad through $2 at 0x00490CF8; b210 keeps $v0 live (user-approved 2026-10-09) */
         __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(&D_00922D70) : "$2", "memory");
     }
     limit = *(s32 *)(config + 0xB8);
@@ -472,7 +470,6 @@ void func_00490c40(u8 *arg0)
             spawn = *(u32 *)(self + 4);
         }
     } else {
-        f32 acc;
 
         burst = 0;
         if (!(*(f32 *)(config + 0x28) <= 0.0f)) {
@@ -482,9 +479,9 @@ void func_00490c40(u8 *arg0)
         } else {
             *(f32 *)(self + 0x14) = *(f32 *)(self + 0x14) + (f32)*(u32 *)(config + 0x24);
         }
-        acc = *(f32 *)(self + 0x14);
-        spawn = (s32)fabsf(acc);
-        *(f32 *)(self + 0x14) = acc - (f32)spawn;
+        swayBase = *(f32 *)(self + 0x14);
+        spawn = (s32)fabsf(swayBase);
+        *(f32 *)(self + 0x14) = swayBase - (f32)spawn;
     }
     i = 0;
     half = 0.5f;
@@ -618,6 +615,7 @@ void func_00490c40(u8 *arg0)
         {
             u_long128 *dst = &prev;
 
+            /* lint: allow H009 -- retail copies this quad through $2 at 0x004913DC; b210 keeps $v0 live (user-approved 2026-10-09) */
             __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(node) : "$2", "memory");
         }
         reach = *(f32 *)(extra + 0xC);
@@ -693,9 +691,6 @@ void func_00490c40(u8 *arg0)
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00490c40);
-#endif
 // FUN_00491660
 void func_00491660(u8 *arg0, f32 fparg0) {
     s32 temp_4;
