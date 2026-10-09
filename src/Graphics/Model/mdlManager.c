@@ -5909,7 +5909,8 @@ void func_0047b060(void* param_1)
    docs/probe_archive/Model_loader_contracts_20261005_worker15.md.
    2026-10-08: the chunk dispatch is a switch whose case bodies follow in source order; b210 compares the cases in reverse (385 edits).
    The base-animation store is the out-of-line else arm (378 edits). */
-/* 2026-10-09: 378 -> 277 edits from a block-declaration order climb. */
+/* 2026-10-09: 378 -> 277 edits from a block-declaration order climb. 
+   2026-10-09: 277 -> 271: capacity init loop stores the address-taken capacity, and case 0x1b/0xf0f00001 write through a shared layerResource local (retail computes the slot index before loading the entries base). */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047b0c0(u8 *model)
@@ -5970,6 +5971,7 @@ s32 func_0047b0c0(u8 *model)
     u16 sourceIndex;
     u16 matrixCount;
     MdlLoaderState *state;
+    MdlDispatchAnimTable *layerResource;
     s32 index;
     extern void *func_003df3c0(void *stream, struct RwChunkHeaderInfo *header);
     extern u32 func_003e2910(void *stream, void *buffer, u32 length);
@@ -6004,8 +6006,12 @@ s32 func_0047b0c0(u8 *model)
 
     state = *(MdlLoaderState **)(model + 0x30c);
     capacity = 32;
-    for (index = 0; (index & 0xffff) < 2; index = (index + 1) & 0xffff) {
-        state->capacities[index & 0xffff] = 32;
+    {
+        u16 c;
+
+        for (c = 0; c < 2; c++) {
+            state->capacities[c] = capacity;
+        }
     }
     while (func_003df3c0(state->stream, &chunk) != 0) {
         if (chunk.type == 0) {
@@ -6043,7 +6049,8 @@ s32 func_0047b0c0(u8 *model)
             }
             animation = func_003d53c0(state->stream);
             if (state->baseAnimation == 0 || LOAD_LAYER()->resource->unknown != 0) {
-                LOAD_LAYER()->resource->entries[state->slot].animation = animation;
+                layerResource = LOAD_LAYER()->resource;
+                layerResource->entries[state->slot].animation = animation;
             } else {
                 LOAD_LAYER()->resource->unknown = (u32)animation;
             }
@@ -6116,7 +6123,8 @@ s32 func_0047b0c0(u8 *model)
             MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
             LOAD_LAYER()->resource = table;
         }
-        LOAD_LAYER()->resource->entries[state->slot].animation = D_00922BC0_abs;
+        layerResource = LOAD_LAYER()->resource;
+        layerResource->entries[state->slot].animation = D_00922BC0_abs;
         func_003e2ce0(state->stream, chunk.length);
         continue;
 
