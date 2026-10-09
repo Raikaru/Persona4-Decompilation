@@ -25,14 +25,19 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 9 continuation, part 3: 6,827 MATCH / 34 ASM
+## October 9 continuation, part 3: 6,828 MATCH / 33 ASM
 
 `func_001ed700` matched (636 → 0; levers listed in
 [matching.md](matching.md) under "Levers from `func_001ed700`"). The symbol
 `fGpffff8330 = 0x00761420` was added to `config/symbols_recovered.txt`.
-`build/after24.json` reports 6,827 first-party MATCH and 34 ASM, and against
-`after23.json` only that row changed. Full link `link27` kept 604 C and 54 SDK
-objects with both hashes OK.
+`func_00490c40` matched next (45 → 0, "choose which equal-score value b210
+spills" in matching.md). Its symbols `fGpffff8088 = 0x00761178` and
+`fGpffff808c = 0x0076117c` were added, and its three `$2` quad copies carry
+H009 waivers.
+`build/after25.json` reports 6,828 first-party MATCH and 33 ASM. Against
+`after23.json` only those two rows changed (`after24.json` held the first).
+Full links `link27`, `link28` and `link29` kept 604 C and 54 SDK objects
+with both hashes OK.
 
 Guarded bodies improved and committed with notes:
 
