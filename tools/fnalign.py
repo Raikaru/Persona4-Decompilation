@@ -152,7 +152,7 @@ def _object_for(source: Path, function: str, candidate: Path | None,
             body = probe._normalise_candidate(candidate.read_text(), newline)
             patched = probe.splice_region(text, start, end, body, newline)
             with probe.scratch_source(source) as scratch:
-                scratch.write_text(patched)
+                scratch.write_bytes(patched.encode("utf-8", errors="surrogateescape"))
                 compiled, log = probe._compile_in_context(scratch, source, cfg, output)
                 if not compiled:
                     _die(log.strip() or "compiler did not produce an object")
