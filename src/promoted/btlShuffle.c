@@ -609,7 +609,10 @@ extern u8 *iGpffffb3d4;
  * the spilled value, while changing cIdx's own score or numbering does not.
  * Measured and unchanged at 71: cIdx staging (`listC[cIdx]; cIdx++`, an s32
  * index local, (s32) compare) and five spellings of the nDraw minimum.
-   2026-10-08: a declaration-order hill climb gives 45 edits; the nDraw/cIdx spill choice remains. */
+   2026-10-08: a declaration-order hill climb gives 45 edits; the nDraw/cIdx spill choice remains.
+ * 2026-10-09: 45 -> 38: the A-list count is read straight from the u16 `nA`
+ * (no s32 `aCount` copy). The residual is still the spill choice: retail
+ * spills the u16 index at 0xE0, b210 spills nDraw at 0xEC. */
 // FUN_0036EE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -629,7 +632,6 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     u16 nA;
     s32 drawIndex;
     u16 nC;
-    s32 aCount;
     s32 bCount;
     s32 cCount;
     s32 total;
@@ -698,8 +700,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     }
     bCount = nB;
     cCount = nC;
-    aCount = nA;
-    total = aCount + (cCount + bCount);
+    total = nA + (cCount + bCount);
     if (total == 0) {
         return 0;
     }
@@ -725,8 +726,8 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
             }
         }
     }
-    if (aCount > 1) {
-        for (k = 0; k < aCount; k++) {
+    if (nA > 1) {
+        for (k = 0; k < nA; k++) {
             r1 = func_00231d70(nA);
             r2 = func_00231d70(nA);
             if (r1 != r2) {
@@ -752,7 +753,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
             item = listB[bIdx++];
         } else if (cIdx < cCount) {
             item = listC[cIdx++];
-        } else if (aIdx < aCount) {
+        } else if (aIdx < nA) {
             s32 index = aIdx;
             aIdx++;
             item = listA[index];
