@@ -325,6 +325,8 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * one local.
  * 2026-10-09: 153 -> 132: the frame lists re-read their header inside the loop
  * test as well, and the frame kind is an int-typed lhu result.
+ * 2026-10-09: 132 -> 116: the table-copy locals are declared counter, base,
+ * offset, destination, index table, count table.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -465,8 +467,18 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 *temp_4_4;
     u8 *temp_4_8;
     u8 *temp_4_9;
+    s32 var_9;
     u8 *temp_8;
+    s32 temp_7;
+    u8 *a_dst;
+    u8 *a_idx;
+    u8 *a_tbl;
+    s32 var_9_2;
     u8 *temp_8_2;
+    s32 temp_7_2;
+    u8 *b_dst;
+    u8 *b_idx;
+    u8 *b_tbl;
     u8 *var_17_7;
     u8 *var_18_4;
     s32 temp_19;
@@ -512,16 +524,6 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     s32 var_16_7;
     s32 var_16_8;
     s32 var_16_9;
-    u8 *a_dst;
-    u8 *a_idx;
-    u8 *a_tbl;
-    u8 *b_dst;
-    u8 *b_idx;
-    u8 *b_tbl;
-    s32 var_9;
-    s32 var_9_2;
-    s32 temp_7;
-    s32 temp_7_2;
     s32 temp_4_5;
     u8 temp_4_6;
     u8 temp_4_7;
