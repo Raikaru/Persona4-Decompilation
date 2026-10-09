@@ -321,6 +321,10 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 165 -> 163: the memcpy source is `(u8 *)entry + 4`.
  * 2026-10-09: 163 -> 155: the per-resource loops read iGpffff9db0 before
  * forming the index (`e = w; off = i * 4; e = *(u8 **)(e + off + 0x28)`).
+ * 2026-10-09: 155 -> 153: the loaded hbnData pointer is tested and passed from
+ * one local.
+ * 2026-10-09: 153 -> 132: the frame lists re-read their header inside the loop
+ * test as well, and the frame kind is an int-typed lhu result.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -523,7 +527,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 temp_4_7;
     s32 temp_3;
     s32 temp_3_10;
-    u16 temp_3_14;
+    s32 temp_3_14;
     s32 var_2;
     s32 var_2_2;
     s32 var_2_3;
@@ -732,8 +736,8 @@ readHbnResources:
                 if (func_0015f9b0((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864)),&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
                     return 0;
                 }
-                if (hbnData != NULL) {
-                    func_0015fb00((u8 *)(hbnData), 1);
+                if ((temp_2_4 = (u8 *)hbnData) != NULL) {
+                    func_0015fb00(temp_2_4, 1);
                     jtbl_008873EC[0](hbnData);
                     *( s32 * )(((u8 *)func_00155280()) + 0x1864) = 0;
                 }
@@ -792,11 +796,10 @@ block_123:
             } else {
                 func_00145c80(0, *( u8 ** )(iGpffff9db0 + 0x28));
                 var_17_3 = 0;
-                temp_3_13 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
-                while (var_17_3 < (u32) *( u32 * )(temp_3_13 + 0x11C)) {
+                while (var_17_3 < (u32) *( u32 * )((temp_3_13 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28))) + 0x11C)) {
                     temp_16_7 = var_17_3 * 0x18;
                     temp_18 = (u8 *)(func_003e9700(*( RwFrame ** )((temp_3_13 + temp_16_7) + 0x128)));
-                    temp_3_14 = (u16)(*( u16 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x120));
+                    temp_3_14 = (*( u16 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x120));
                     if ((temp_3_14 == 0) || (temp_3_14 == 2)) {
                         temp_2_5 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28) + (var_17_3 * 0x18));
                         temp_19 = (s32)(func_00145ac0(*( u16 * )(temp_2_5 + 0x124), *( s32 * )(temp_2_5 + 0x12C)) & 0xFFFF);
@@ -821,11 +824,9 @@ block_123:
                         *( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C) = 0;
                     }
                     var_17_3 += 1;
-                    temp_3_13 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
                 }
                 var_17_4 = 0;
-                temp_4_9 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
-                while (var_17_4 < (u32) *( u32 * )(temp_4_9 + 0x11C)) {
+                while (var_17_4 < (u32) *( u32 * )((temp_4_9 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28))) + 0x11C)) {
                     temp_16_8 = var_17_4 * 0x18;
                     func_003e9700(*( RwFrame ** )((temp_4_9 + temp_16_8) + 0x128));
                     temp_4_10 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
@@ -840,7 +841,6 @@ block_123:
                         *( s32 * )(temp_2_8 + 0x28) = (s32) (*( s32 * )(temp_2_8 + 0x28) | 2);
                     }
                     var_17_4 += 1;
-                    temp_4_9 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
                 }
                 *( u32 * )(temp_4_9 + 0x11C) = 0U;
                 func_00149ea0();
