@@ -68,6 +68,15 @@ Guarded bodies improved and committed with notes:
   trail loops form px/py/pz from `sample->x` directly and the minus side
   before back[0]. Residual: one extra callee-saved FPR (`length` in f26 vs
   f23); no single virtual swap fixes the model.
+- `001400f0` (51): `tools/fnalign.py --candidate` failed on this file until
+  now. It wrote the spliced scratch file with `write_text`, which doubled the
+  CRLF line endings and broke the continued `#define` at line 4536. It now
+  writes bytes, as probe_variants does. The residual is the radar loop:
+  retail converts `255.0f * opacity` (kept in `$f20`) to u8 inside the loop,
+  with an `andi` on each conversion path, and converts again after it. With
+  `opt_loop_invariants on` (needed by the later loops), b210 hoists the
+  conversion whatever the spelling or loop form (for/while/goto). Changing the
+  callees' alpha parameters to u8 makes func_001427c0/func_00142bf0 mismatch.
 - `004a7830` (7): the `0.0f` for `temp_f1 <= 0.0f` is the zero b210 creates
   for the `adda.s` of the `0.5f * a + 0.5f * b` madd (codegen_entry), which
   the backend CSE then reuses in the compare block. The model needs the load
