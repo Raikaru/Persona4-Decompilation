@@ -3073,7 +3073,11 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
 /* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 636 to 457 edits. 
    2026-10-09: 457 -> 217: the corner adjustment is a switch on i (retail tests 3, 2, 1, 0 and skips the default), the first corner seeds are stored from [3] down to [0], the per-group and per-corner positions are FieldPair struct copies into stack pairs with the z kept in curZ/wposZ, bestDir copies are 8-byte (ld/sd), and the stack pairs are declared cur, norm, delta, bestDir, wpos. 
    2026-10-09: 217 -> 119: the best-entry block halves bestDir in place (x kept in dx, z re-read), the distance delta is converted into delta[] before subtracting bestX/bestZ, the outer distance loop is a for with best tested positively, the corner and outer flag loops use a corner pointer with `!(x <= 0)` tests, the outer search uses an entry pointer, then a declaration climb. Residual: curZ/wposZ are register copies of the stack pair where retail reloads them, and saved-register numbering. 
-   2026-10-09: 119 -> 103: the bounding-corner loop walks the list with `group` (retail reuses the later loop's pointer; a separate `node` local colours differently). */
+   2026-10-09: 119 -> 103: the bounding-corner loop walks the list with `group` (retail reuses the later loop's pointer; a separate `node` local colours differently).
+   2026-10-09: 103 -> 80: the outer `other`/`group` list pointer is read before
+   `curZ = cur[1]` and `wposZ = wpos[1]`, which makes b210 reload z from the
+   stack pair as retail does (written before the read, it forwards the copied
+   register instead). */
 // FUN_001ED700 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -3203,8 +3207,9 @@ void func_001ed700(f32 radius)
             best = NULL;
             bestDist = 7000.0f;
             *(FieldPair *)cur = *(FieldPair *)(group + i * 0x130 + 8);
+            other = *(u8 **)(iGpffffb3ac + 0x318);
             curZ = cur[1];
-            for (other = *(u8 **)(iGpffffb3ac + 0x318); other != NULL; other = *(u8 **)(other + 0x4CC)) {
+            for (; other != NULL; other = *(u8 **)(other + 0x4CC)) {
                 if (group != other) {
                     for (j = 0; j < 4; j++) {
                         delta[0] = *(f32 *)(other + j * 0x130 + 8) - cur[0];
@@ -3260,8 +3265,9 @@ void func_001ed700(f32 radius)
         best = NULL;
         bestDist = 7000.0f;
         *(FieldPair *)wpos = *(FieldPair *)(iGpffffb3ac + i * 0x130 + 0x31C);
+        group = *(u8 **)(iGpffffb3ac + 0x318);
         wposZ = wpos[1];
-        for (group = *(u8 **)(iGpffffb3ac + 0x318); group != NULL; group = *(u8 **)(group + 0x4CC)) {
+        for (; group != NULL; group = *(u8 **)(group + 0x4CC)) {
             for (j = 0; j < 4; j++) {
                 u8 *entry = group + j * 0x130;
 
