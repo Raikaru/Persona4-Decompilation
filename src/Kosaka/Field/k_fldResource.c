@@ -305,6 +305,13 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 260 -> 219: the two table-copy loops take the D_007E8060 /
  * D_005F05B8 / D_005F0590 addresses into locals before the loop (retail hoists
  * all three) and test the table entry inline.
+ * 2026-10-09: 219 -> 215: the per-resource pointer lists are indexed as arrays
+ * (`((u8 **)(w + 0x28))[*(s32 *)(w + 0x24)]`).
+ * 2026-10-09: 215 -> 209: grid cells are `(u8 *)(row + (s32)func_00155280()) + col`
+ * (retail adds the row base to the call result first).
+ * 2026-10-09: 209 -> 205: the pending flags count failures (`pending += 1`).
+ * 2026-10-09: 205 -> 194: hbnData, fieldOfView, cameraKind, cameraValue60,
+ * cameraValue64 declared in that order give retail's frame slots.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -375,11 +382,11 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 D_007D24E0[];
     extern s32 D_007D24E8[];
     extern u8 D_005EFCB0[];
-    f32 cameraValue60;
-    f32 cameraValue64;
+    u16 *hbnData;
     f32 fieldOfView;
     s32 cameraKind;
-    u16 *hbnData;
+    f32 cameraValue60;
+    f32 cameraValue64;
     SVec3 angles;
     Vec3 cameraPosition;
     FldResourceCameraTransform cameraMatrix;
@@ -563,19 +570,19 @@ loadFieldResource:
             *( s32 * )(temp_3_2 + 0x98) = (s32) (*( s32 * )(temp_3_2 + 0x98) - 1);
             temp_16 = (u8 *)(iGpffff9db0);
             temp_2 = (u8 *)((*( s32 * )(temp_16 + 0x98) * 4) + temp_16);
-            *( s32 * )(((*( s32 * )(temp_16 + 0x24) * 4) + temp_16) + 0x28) = (s32)func_00150890(*( s16 * )(temp_2 + 0x9C), *( s16 * )(temp_2 + 0x9E));
+            (((s32 *)(temp_16 + 0x28))[*( s32 * )(temp_16 + 0x24)]) = (s32)func_00150890(*( s16 * )(temp_2 + 0x9C), *( s16 * )(temp_2 + 0x9E));
             *( s32 * )(iGpffff9db0 + 0x94) = 1;
 waitFieldResource:
             temp_3_3 = (u8 *)(iGpffff9db0);
-            if (func_00150c80(*( u8 ** )(((*( s32 * )(temp_3_3 + 0x24) * 4) + temp_3_3) + 0x28)) == 0) {
+            if (func_00150c80((((u8 **)(temp_3_3 + 0x28))[*( s32 * )(temp_3_3 + 0x24)])) == 0) {
                 return 0;
             }
             temp_3_4 = (u8 *)(iGpffff9db0);
-            func_00150ce0((u8 *)(*( s8 ** )(((*( s32 * )(temp_3_4 + 0x24) * 4) + temp_3_4) + 0x28)));
+            func_00150ce0((u8 *)((((s8 **)(temp_3_4 + 0x28))[*( s32 * )(temp_3_4 + 0x24)])));
             *( s32 * )(iGpffff9db0 + 0x94) = 2;
 initializeResources:
             temp_3_5 = (u8 *)(iGpffff9db0);
-            if (func_001510c0(*( u8 ** )(((*( s32 * )(temp_3_5 + 0x24) * 4) + temp_3_5) + 0x28)) == 0) {
+            if (func_001510c0((((u8 **)(temp_3_5 + 0x28))[*( s32 * )(temp_3_5 + 0x24)])) == 0) {
                 return 0;
             }
             temp_3_6 = (u8 *)(iGpffff9db0);
@@ -643,7 +650,7 @@ prepareGrid:
 readGrid:
             var_16_3 = 0;
             if (func_0015c6f0((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864))) == 0) {
-                var_16_3 = 1;
+                var_16_3 += 1;
             }
             if (var_16_3 != 0) {
                 return 0;
@@ -666,7 +673,7 @@ readGrid:
                     temp_17 = var_18 << 8;
                     for (; var_19 < 0x10; var_19++) {
                         temp_16_4 = var_19 * 0x10;
-                        if ((*( u8 * )((temp_17 + ((u8 *)func_00155280()) + temp_16_4) + 0x54) == 1) && (*( u8 * )((temp_17 + ((u8 *)func_00155280()) + temp_16_4) + 0x58) == 6)) {
+                        if ((*( u8 * )(((u8 *)(temp_17 + (s32)func_00155280()) + temp_16_4) + 0x54) == 1) && (*( u8 * )(((u8 *)(temp_17 + (s32)func_00155280()) + temp_16_4) + 0x58) == 6)) {
                             *( u8 * )(((u8 *)func_00155280()) + 0x44) = (u8)var_19;
                             *( u8 * )(((u8 *)func_00155280()) + 0x45) = (u8)var_18;
                             goto found_loop_88;
@@ -679,7 +686,7 @@ found_loop_88:
                     temp_17_2 = var_19_2 << 8;
                     for (; var_18_2 < 0x10; var_18_2++) {
                         temp_16_5 = var_18_2 * 0x10;
-                        if ((*( u8 * )((temp_17_2 + ((u8 *)func_00155280()) + temp_16_5) + 0x54) == 1) && ((*( u8 * )((temp_17_2 + ((u8 *)func_00155280()) + temp_16_5) + 0x58) == 0xA) || (*( u8 * )((temp_17_2 + ((u8 *)func_00155280()) + temp_16_5) + 0x58) == 0xC) || (*( u8 * )((temp_17_2 + ((u8 *)func_00155280()) + temp_16_5) + 0x58) == 0xE))) {
+                        if ((*( u8 * )(((u8 *)(temp_17_2 + (s32)func_00155280()) + temp_16_5) + 0x54) == 1) && ((*( u8 * )(((u8 *)(temp_17_2 + (s32)func_00155280()) + temp_16_5) + 0x58) == 0xA) || (*( u8 * )(((u8 *)(temp_17_2 + (s32)func_00155280()) + temp_16_5) + 0x58) == 0xC) || (*( u8 * )(((u8 *)(temp_17_2 + (s32)func_00155280()) + temp_16_5) + 0x58) == 0xE))) {
                             *( u8 * )(((u8 *)func_00155280()) + 0x46) = (u8)var_18_2;
                             *( u8 * )(((u8 *)func_00155280()) + 0x47) = (u8)var_19_2;
                             goto found_loop_99;
@@ -887,7 +894,7 @@ readParts:
             temp_3_19 = (u8 *)(iGpffff9db0);
             temp_2_13 = (u8 *)(*( u8 ** )(temp_3_19 + 0x28));
             if (func_0015e960((u8 *)(*( s32 * )(temp_2_13 + 0xA48)), (u8 **)(temp_2_13 + 0xA4C), *( u16 * )(temp_3_19 + 0), *( u16 * )(temp_3_19 + 4), *( s16 * )(temp_3_19 + 0x10)) == 0) {
-                var_16_9 = 1;
+                var_16_9 += 1;
             }
         } else {
             var_17_5 = 0;
@@ -964,7 +971,7 @@ readReloadedParts:
                 temp_3_23 = (u8 *)(iGpffff9db0);
                 temp_2_18 = (u8 *)(*( u8 ** )(temp_3_23 + 0x28));
                 if (func_0015e960((u8 *)(*( s32 * )(temp_2_18 + 0xA48)), (u8 **)(temp_2_18 + 0xA4C), *( u16 * )(temp_3_23 + 0), *( u16 * )(temp_3_23 + 4), *( s16 * )(temp_3_23 + 0x10)) == 0) {
-                    var_16_11 = 1;
+                    var_16_11 += 1;
                 }
             } else {
                 var_17_8 = 0;
@@ -986,7 +993,7 @@ waitReloadedParts:
             if (func_0014a270() == 1) {
                 temp_2_20 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
                 if (func_0015f000((u8 *)(*( s32 * )(temp_2_20 + 0xA48)),(u8 *)(*( s32 * )(temp_2_20 + 0xA4C))) == 0) {
-                    var_17_9 = 1;
+                    var_17_9 += 1;
                 } else {
                     *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = 0;
                 }
