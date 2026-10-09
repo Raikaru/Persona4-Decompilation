@@ -25,6 +25,44 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation, part 4: still 6,828 MATCH / 33 ASM
+
+No new match. `func_0014f310` (the O1 field loader) went 513 → 65 aligned
+edits. Its structural diff (`build/v/sdiff.py`, registers and relocations
+masked) is down to 2 instructions; the rest is register choice. What moved it:
+
+- m2c `loop_N: if (c) { ...; goto loop_N; }` → `while`. Header re-reads go
+  inside the test (`while (i < *(s32 *)((w = (u8 *)iGp) + 0x24))`) so the
+  code after the loop uses that pointer, as retail does.
+- The nested grid searches are `for` loops that leave by `goto` once the
+  cell is found, and they store `(u8)` counters.
+- At O1 the declaration order picks the saved registers. Locals declared in
+  descending order of the retail register that m2c named them after
+  (`temp_19` = `$s3`, …) gave 339 → 260.
+- One shared `return 0` at the end of the function. The dispatch is a switch
+  whose default jumps there, as do `state = X; break;` transitions.
+  waitEnvironment and the environment reload are `if/else` with the
+  `break` in the else, falling into the next case label.
+- The table-copy loops hoist `D_007E8060` / `D_005F05B8` / `D_005F0590` into
+  locals declared counter, base, offset, dst, idx, tbl.
+- Call before constant store, `enable` passed twice (retail `move $a1,$a0`),
+  `u32 *frameCount` kept from the loop test, `(u8 *)entry + 4` for memcpy,
+  s16 last parameter for `func_0015e960`, pointer arrays for
+  `func_00146440`, s32 id for `func_00146e60` (H011: the header says u16,
+  retail passes the masked id without re-masking).
+
+Open in `0014f310`:
+- State 0 retail has no `li $v0,1` on the NULL path; it relies on `$v0 == 1`
+  left over from the dispatch compare. An if-chain dispatch, an
+  uninitialised flag and goto shapes all still emit it, or are worse.
+- Four register swaps: idx*4/base `addu` order; the table loop's tbl/byte
+  (`$v1`/`$a0`); w/frames in the two part-load branches. A 200-iteration
+  declaration climb from 65 found nothing.
+
+The same loop conversion took `002ac750` 431 → 358, `001a59a0` 752 → 709 and
+`001a7720` 1489 → 1486. Converting `002ac750`'s found-and-break searches
+made it worse (389), so those keep their labels.
+
 ## October 9 continuation, part 3: 6,828 MATCH / 33 ASM
 
 `func_001ed700` matched (636 → 0; levers listed in
