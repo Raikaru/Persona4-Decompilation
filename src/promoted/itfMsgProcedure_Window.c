@@ -1228,7 +1228,10 @@ static inline s32 msgWinSelectionResource(void)
    2026-10-09: 295 -> 270: four case-local values reuse other locals of the
    same type (selection handle in s20, the column count in tmp2, the case-12
    rectangle in background, the rotation in g), matching retail's register
-   numbering. */
+   numbering.
+ * 2026-10-09: 270 -> 155: the per-corner loops address one element through `pt` /
+ * `cl` pointers (retail folds the whole stack offset into one addiu).
+ */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1293,6 +1296,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     s32 *tw;
     MsgProcWindowEntry *e;
     MsgProcWindowBlock blocks[12];
+    MsgProcWindowF2 *pt;
+    MsgProcWindowRGBA *cl;
 
     func_00278110((s32)arg0);
     ret = 0;
@@ -1394,12 +1399,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             blocks[11].pts[3].x = 250.0f;
             blocks[11].pts[3].y = 5.0f;
             for (k = 0; k < 4; k++) {
-                blocks[11].pts[k].x += -70.0f;
-                blocks[11].pts[k].y += 156.0f;
-                blocks[11].cols[k].r = 0x93;
-                blocks[11].cols[k].g = 0x8D;
-                blocks[11].cols[k].b = 0x17;
-                blocks[11].cols[k].a = 0xFF;
+                pt = &blocks[11].pts[k];
+                pt->x += -70.0f;
+                pt->y += 156.0f;
+                cl = &blocks[11].cols[k];
+                cl->r = 0x93;
+                cl->g = 0x8D;
+                cl->b = 0x17;
+                cl->a = 0xFF;
             }
             func_0045eb20(&blocks[11].cols[0], &blocks[11].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[10].pts[0];
@@ -1416,12 +1423,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             blocks[10].pts[3].x = 250.0f;
             blocks[10].pts[3].y = 3.0f;
             for (k = 0; k < 4; k++) {
-                blocks[10].pts[k].x += -70.0f;
-                blocks[10].pts[k].y += 155.0f;
-                blocks[10].cols[k].r = 0xCB;
-                blocks[10].cols[k].g = 0xF2;
-                blocks[10].cols[k].b = 0x00;
-                blocks[10].cols[k].a = 0xFF;
+                pt = &blocks[10].pts[k];
+                pt->x += -70.0f;
+                pt->y += 155.0f;
+                cl = &blocks[10].cols[k];
+                cl->r = 0xCB;
+                cl->g = 0xF2;
+                cl->b = 0x00;
+                cl->a = 0xFF;
             }
             func_0045eb20(&blocks[10].cols[0], &blocks[10].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[9].pts[0];
@@ -1438,12 +1447,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             blocks[9].pts[3].x = 250.0f;
             blocks[9].pts[3].y = 4.0f;
             for (k = 0; k < 4; k++) {
-                blocks[9].pts[k].x += -70.0f;
-                blocks[9].pts[k].y += 161.0f;
-                blocks[9].cols[k].r = 0xF1;
-                blocks[9].cols[k].g = 0x24;
-                blocks[9].cols[k].b = 0x00;
-                blocks[9].cols[k].a = 0xFF;
+                pt = &blocks[9].pts[k];
+                pt->x += -70.0f;
+                pt->y += 161.0f;
+                cl = &blocks[9].cols[k];
+                cl->r = 0xF1;
+                cl->g = 0x24;
+                cl->b = 0x00;
+                cl->a = 0xFF;
             }
             func_0045eb20(&blocks[9].cols[0], &blocks[9].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[8].pts[0];
@@ -1460,12 +1471,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             blocks[8].pts[3].x = 250.0f;
             blocks[8].pts[3].y = 7.0f;
             for (k = 0; k < 4; k++) {
-                blocks[8].pts[k].x += -70.0f;
-                blocks[8].pts[k].y += 171.0f;
-                blocks[8].cols[k].r = 0xFF;
-                blocks[8].cols[k].g = 0xE9;
-                blocks[8].cols[k].b = 0x2C;
-                blocks[8].cols[k].a = 0xFF;
+                pt = &blocks[8].pts[k];
+                pt->x += -70.0f;
+                pt->y += 171.0f;
+                cl = &blocks[8].cols[k];
+                cl->r = 0xFF;
+                cl->g = 0xE9;
+                cl->b = 0x2C;
+                cl->a = 0xFF;
             }
             func_0045eb20(&blocks[8].cols[0], &blocks[8].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[7].pts[0];
@@ -1482,12 +1495,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             blocks[7].pts[3].x = 250.0f;
             blocks[7].pts[3].y = 4.0f;
             for (k = 0; k < 4; k++) {
-                blocks[7].pts[k].x += -70.0f;
-                blocks[7].pts[k].y += 168.0f;
-                blocks[7].cols[k].r = 0xFF;
-                blocks[7].cols[k].g = 0xFF;
-                blocks[7].cols[k].b = 0xFF;
-                blocks[7].cols[k].a = 0xFF;
+                pt = &blocks[7].pts[k];
+                pt->x += -70.0f;
+                pt->y += 168.0f;
+                cl = &blocks[7].cols[k];
+                cl->r = 0xFF;
+                cl->g = 0xFF;
+                cl->b = 0xFF;
+                cl->a = 0xFF;
             }
             func_0045eb20(&blocks[7].cols[0], &blocks[7].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[6].pts[0];
@@ -1504,12 +1519,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             blocks[6].pts[3].x = 250.0f;
             blocks[6].pts[3].y = 5.0f;
             for (k = 0; k < 4; k++) {
-                blocks[6].pts[k].x += -70.0f;
-                blocks[6].pts[k].y += 164.0f;
-                blocks[6].cols[k].r = 0xFF;
-                blocks[6].cols[k].g = 0xAE;
-                blocks[6].cols[k].b = 0x20;
-                blocks[6].cols[k].a = 0xFF;
+                pt = &blocks[6].pts[k];
+                pt->x += -70.0f;
+                pt->y += 164.0f;
+                cl = &blocks[6].cols[k];
+                cl->r = 0xFF;
+                cl->g = 0xAE;
+                cl->b = 0x20;
+                cl->a = 0xFF;
             }
             func_0045eb20(&blocks[6].cols[0], &blocks[6].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, f, 1.0f, (void *)D_00796490);
         }
@@ -1572,12 +1589,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         blocks[5].pts[3].x = 250.0f;
         blocks[5].pts[3].y = 5.0f;
         for (k = 0; k < 4; k++) {
-            blocks[5].pts[k].x += -70.0f;
-            blocks[5].pts[k].y += 156.0f;
-            blocks[5].cols[k].r = 0x93;
-            blocks[5].cols[k].g = 0x8D;
-            blocks[5].cols[k].b = 0x17;
-            blocks[5].cols[k].a = 0xFF;
+            pt = &blocks[5].pts[k];
+            pt->x += -70.0f;
+            pt->y += 156.0f;
+            cl = &blocks[5].cols[k];
+            cl->r = 0x93;
+            cl->g = 0x8D;
+            cl->b = 0x17;
+            cl->a = 0xFF;
         }
         func_0045eb20(&blocks[5].cols[0], &blocks[5].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[4].pts[0];
@@ -1594,12 +1613,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         blocks[4].pts[3].x = 250.0f;
         blocks[4].pts[3].y = 3.0f;
         for (k = 0; k < 4; k++) {
-            blocks[4].pts[k].x += -70.0f;
-            blocks[4].pts[k].y += 155.0f;
-            blocks[4].cols[k].r = 0xCB;
-            blocks[4].cols[k].g = 0xF2;
-            blocks[4].cols[k].b = 0x00;
-            blocks[4].cols[k].a = 0xFF;
+            pt = &blocks[4].pts[k];
+            pt->x += -70.0f;
+            pt->y += 155.0f;
+            cl = &blocks[4].cols[k];
+            cl->r = 0xCB;
+            cl->g = 0xF2;
+            cl->b = 0x00;
+            cl->a = 0xFF;
         }
         func_0045eb20(&blocks[4].cols[0], &blocks[4].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[3].pts[0];
@@ -1616,12 +1637,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         blocks[3].pts[3].x = 250.0f;
         blocks[3].pts[3].y = 4.0f;
         for (k = 0; k < 4; k++) {
-            blocks[3].pts[k].x += -70.0f;
-            blocks[3].pts[k].y += 161.0f;
-            blocks[3].cols[k].r = 0xF1;
-            blocks[3].cols[k].g = 0x24;
-            blocks[3].cols[k].b = 0x00;
-            blocks[3].cols[k].a = 0xFF;
+            pt = &blocks[3].pts[k];
+            pt->x += -70.0f;
+            pt->y += 161.0f;
+            cl = &blocks[3].cols[k];
+            cl->r = 0xF1;
+            cl->g = 0x24;
+            cl->b = 0x00;
+            cl->a = 0xFF;
         }
         func_0045eb20(&blocks[3].cols[0], &blocks[3].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[2].pts[0];
@@ -1638,12 +1661,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         blocks[2].pts[3].x = 250.0f;
         blocks[2].pts[3].y = 7.0f;
         for (k = 0; k < 4; k++) {
-            blocks[2].pts[k].x += -70.0f;
-            blocks[2].pts[k].y += 171.0f;
-            blocks[2].cols[k].r = 0xFF;
-            blocks[2].cols[k].g = 0xE9;
-            blocks[2].cols[k].b = 0x2C;
-            blocks[2].cols[k].a = 0xFF;
+            pt = &blocks[2].pts[k];
+            pt->x += -70.0f;
+            pt->y += 171.0f;
+            cl = &blocks[2].cols[k];
+            cl->r = 0xFF;
+            cl->g = 0xE9;
+            cl->b = 0x2C;
+            cl->a = 0xFF;
         }
         func_0045eb20(&blocks[2].cols[0], &blocks[2].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[1].pts[0];
@@ -1660,12 +1685,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         blocks[1].pts[3].x = 250.0f;
         blocks[1].pts[3].y = 4.0f;
         for (k = 0; k < 4; k++) {
-            blocks[1].pts[k].x += -70.0f;
-            blocks[1].pts[k].y += 168.0f;
-            blocks[1].cols[k].r = 0xFF;
-            blocks[1].cols[k].g = 0xFF;
-            blocks[1].cols[k].b = 0xFF;
-            blocks[1].cols[k].a = 0xFF;
+            pt = &blocks[1].pts[k];
+            pt->x += -70.0f;
+            pt->y += 168.0f;
+            cl = &blocks[1].cols[k];
+            cl->r = 0xFF;
+            cl->g = 0xFF;
+            cl->b = 0xFF;
+            cl->a = 0xFF;
         }
         func_0045eb20(&blocks[1].cols[0], &blocks[1].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[0].pts[0];
@@ -1682,12 +1709,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         blocks[0].pts[3].x = 250.0f;
         blocks[0].pts[3].y = 5.0f;
         for (k = 0; k < 4; k++) {
-            blocks[0].pts[k].x += -70.0f;
-            blocks[0].pts[k].y += 164.0f;
-            blocks[0].cols[k].r = 0xFF;
-            blocks[0].cols[k].g = 0xAE;
-            blocks[0].cols[k].b = 0x20;
-            blocks[0].cols[k].a = 0xFF;
+            pt = &blocks[0].pts[k];
+            pt->x += -70.0f;
+            pt->y += 164.0f;
+            cl = &blocks[0].cols[k];
+            cl->r = 0xFF;
+            cl->g = 0xAE;
+            cl->b = 0x20;
+            cl->a = 0xFF;
         }
         func_0045eb20(&blocks[0].cols[0], &blocks[0].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         break;
