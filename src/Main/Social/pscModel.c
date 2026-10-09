@@ -110,7 +110,8 @@ extern void func_0036b470(void *work, void *vertices);
    section uses `fn2 = fn`. Residual: retail rematerialises D_00887300 into $18
    for each later section.
    2026-10-09: 139 -> 138: the unk4C section assigns `fn` after the
-   RpSkyRenderStateSet(2, 0x58) call. */
+   RpSkyRenderStateSet(2, 0x58) call.
+   2026-10-09: 138 -> 135: declaration climb. */
 // FUN_003694D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003694d0(PscModel *model)
@@ -118,11 +119,11 @@ void func_003694d0(PscModel *model)
     typedef struct { u8 r, g, b, a; } PscColorCopy;
     u8 tmp[4];
     void *mtx;
-    PscLight *e0work;
-    PscModel *m0;
     PscModel *m1;
-    PscModel *m2;
+    PscModel *m0;
+    PscLight *e0work;
     PscModel *m3;
+    PscModel *m2;
     void (**tbl)(u32 state, u32 value);
     void (**fn)(u32 state, u32 value);
     void (**fn2)(u32 state, u32 value);
