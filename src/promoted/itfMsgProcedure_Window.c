@@ -2472,7 +2472,8 @@ s32 func_002833b0(s32 arg0)
    saved-register colouring of three load temporaries (r116/r146/r173 in the
    capture; no declaration order reaches more than 31 of 36 targets), and
    case 5's colour slots (retail 0x12C/0x134). */
-/* 2026-10-09: 82 -> 75 edits with depthColor as one function-scope local shared by cases 4 and 5 (retail's frame slots); the rest is saved-register colouring that declaration and block-order climbs do not move. */
+/* 2026-10-09: 82 -> 75 edits with depthColor as one function-scope local shared by cases 4 and 5 (retail's frame slots); the rest is saved-register colouring that declaration and block-order climbs do not move. 
+   2026-10-09: 75 -> 67: the case-4 alpha and the later cases' rotation share one f32 local, as retail's register reuse shows. */
 // FUN_00283490 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2537,7 +2538,6 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
     f32 alpha;
     f32 x;
     f32 y;
-    f32 rot;
     f32 fade;
     f32 t;
     f32 angle;
@@ -2634,9 +2634,9 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
             if (handle == NULL) {
                 func_0046d730(D_007482F0, 0x59);
             }
-            rot = 1.0f - fade;
-            func_0025ea20(165.0f, 254.0f + 95.0f * rot - 10.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, fade);
-            func_00366380(0xB0, 281 + 64.0f * rot - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, iGpffff803c + iGpffff811c * fade);
+            alpha = 1.0f - fade;
+            func_0025ea20(165.0f, 254.0f + 95.0f * alpha - 10.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, fade);
+            func_00366380(0xB0, 281 + 64.0f * alpha - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, iGpffff803c + iGpffff811c * fade);
         } else {
             if (handle == NULL) {
                 func_0046d730(D_007482F0, 0x59);
@@ -2681,13 +2681,13 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
                 }
                 func_0025ea20(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
-            rot = 1.0f - fade;
-            t = 64.0f * rot;
+            alpha = 1.0f - fade;
+            t = 64.0f * alpha;
             py = 113.0f + t;
             px = i * 0x53;
             func_00366380(px + 0x5C, py, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, fade);
             func_00262de0(px + 0x6B, py, 0.0f, 0xFF, today + i + 1, 1, 1.0f, fade, 0, 0, (s32)font, 0);
-            py = 163.0f - 5.0f * rot;
+            py = 163.0f - 5.0f * alpha;
             func_00261560(px + 0x5D, py, 0.0f, 0xFF, func_00110c50(today + i + 1, today) & 0xFFFF, 1, 1.0f, fade * fade, 0, 0, (s32)font, mode);
         }
         }
@@ -2724,7 +2724,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
             func_0045d6e0((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
         }
         frame = args.count;
-        rot = (f32)frame / 120.0f;
+        alpha = (f32)frame / 120.0f;
         phase = frame % 4;
         table = (s32 (**)(s32, void *))(u32)D_00887300;
         table[0](6, (void *)1);
@@ -2740,7 +2740,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
         if (handle == NULL) {
             func_0046d730(D_007482F0, 0x59);
         }
-        func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 0xFF, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * rot, 1.0f, 1.0f);
+        func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 0xFF, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * alpha, 1.0f, 1.0f);
         if (handle == NULL) {
             func_0046d730(D_007482F0, 0x59);
         }
