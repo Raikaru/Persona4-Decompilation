@@ -939,6 +939,7 @@ tail:
 /* 2026-10-09: 1795 -> 1218 edits. Ghidra's expanded float-to-unsigned conversions (the 2.1474836e+09f compare/subtract blocks) are written as plain (unsigned int)/(unsigned char) casts, the alpha byte is converted once from temp_v9 * 255.0f, and opt_common_subs off is removed: retail shares the 180.0f/200.0f/1.0f constants within each block.
  * 2026-10-09: 1218 -> 1160: aggregate declaration order (greedy move/swap climb
  * scored with tools/multiscore.py).
+ * 1155: the 0x1CA mode byte is unsigned (retail lbu).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1109,7 +1110,7 @@ int func_0017f490(unsigned char *param_1)
     ((unsigned char*)&uStack_4)[3] = puVar4[3];
     temp_v8 = ((float *)piVar1)[0x20];
     temp_v10 = ((float *)piVar1)[0x21] - temp_v8;
-    if (*(char *)(piVar1[3] + 0x1ca) == '\0') {
+    if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\0') {
       temp_v8 = CAND_fGpffff80f0 * temp_v10 + temp_v8 + 0.0f;
     }
     else {
@@ -1128,7 +1129,7 @@ int func_0017f490(unsigned char *param_1)
       piVar1[0x1f] = 0;
     }
     else if (temp_v8 <= temp_v10) {
-      if (*(char *)(piVar1[3] + 0x1ca) == '\0') {
+      if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\0') {
         temp_v9 = 0.0f;
         temp_v8 = 1.0f - CAND_fGpffff825c * ((temp_v10 - temp_v8) / temp_v11);
         if (0.0f <= temp_v8) {
@@ -1145,7 +1146,7 @@ int func_0017f490(unsigned char *param_1)
       ((unsigned char*)&uStack_4)[3] = 0xff;
       piVar1[0x1f] = 0x437f0000;
     }
-    if (*(char *)(piVar1[3] + 0x1ca) == '\x01') {
+    if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\x01') {
       FUN_0047a220(*(unsigned int *)(piVar1[3] + 0x50),&uStack_4);
     }
     for (temp_v0 = **(int **)(*(int *)(piVar1[3] + 0x50) + 0x2cc); temp_v0 != 0;
@@ -1948,7 +1949,7 @@ int func_0017f490(unsigned char *param_1)
           }
           if (!temp_v5) {
             *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) | 2;
-            if (*(char *)(piVar1[3] + 0x1ca) == '\x01') {
+            if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\x01') {
               temp_v0 = *(int *)(piVar1[3] + 0x50);
               *(unsigned int *)(temp_v0 + 0xd8) = *(unsigned int *)(temp_v0 + 0xd8) & 0xffffff7f;
             }
@@ -1999,7 +2000,7 @@ int func_0017f490(unsigned char *param_1)
     case 0xd:
       temp_v0 = FUN_0014bd90((unsigned char *)piVar1[0x22]);
       if (temp_v0 != 0) {
-        if (*(char *)(piVar1[3] + 0x1ca) == '\x01') {
+        if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\x01') {
           temp_v0 = *(int *)(piVar1[3] + 0x50);
           *(unsigned int *)(temp_v0 + 0xd8) = *(unsigned int *)(temp_v0 + 0xd8) | 0x80;
         }
