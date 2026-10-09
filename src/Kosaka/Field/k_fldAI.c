@@ -936,7 +936,10 @@ tail:
    consumes all ten lengths as floats. This contract repair is not a match;
    see docs/probe_archive/Field_AI_normalization_0017f490_20261003.md.
    2026-10-08: opt_lifetimes on lowers fnalign from 2257 to 1795 edits. */
-/* 2026-10-09: 1795 -> 1218 edits. Ghidra's expanded float-to-unsigned conversions (the 2.1474836e+09f compare/subtract blocks) are written as plain (unsigned int)/(unsigned char) casts, the alpha byte is converted once from temp_v9 * 255.0f, and opt_common_subs off is removed: retail shares the 180.0f/200.0f/1.0f constants within each block. */
+/* 2026-10-09: 1795 -> 1218 edits. Ghidra's expanded float-to-unsigned conversions (the 2.1474836e+09f compare/subtract blocks) are written as plain (unsigned int)/(unsigned char) casts, the alpha byte is converted once from temp_v9 * 255.0f, and opt_common_subs off is removed: retail shares the 180.0f/200.0f/1.0f constants within each block.
+ * 2026-10-09: 1218 -> 1160: aggregate declaration order (greedy move/swap climb
+ * scored with tools/multiscore.py).
+ */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1028,13 +1031,14 @@ int func_0017f490(unsigned char *param_1)
   float fStack_210;
   float fStack_20c;
   float fStack_208;
-  FldAIVec3 state11Delta;
+  FldAIVec3 state7Forward;
+  FldAIVec3 state8Delta;
   FldAIVec3 state11Right;
   FldAIVec3 state11Forward;
   float fStack_1d0;
   unsigned int uStack_1cc;
   float fStack_1c8;
-  FldAIVec3 state10Delta;
+  FldAIVec3 state8Right;
   FldAIVec3 state10Right;
   FldAIVec3 state10Forward;
   float fStack_190;
@@ -1050,15 +1054,14 @@ int func_0017f490(unsigned char *param_1)
   float fStack_130;
   float fStack_12c;
   float fStack_128;
-  FldAIVec3 state8Delta;
-  FldAIVec3 state8Right;
+  FldAIVec3 state10Delta;
   FldAIVec3 state8Forward;
   float fStack_f0;
   float fStack_ec;
   float fStack_e8;
   FldAIVec3 state7Delta;
   FldAIVec3 state7Right;
-  FldAIVec3 state7Forward;
+  FldAIVec3 state11Delta;
   float fStack_b0;
   float fStack_ac;
   float fStack_a8;
