@@ -828,7 +828,11 @@ void func_004b8f10(void *arg0) {
    recomputes the ==1/==2-nest addresses per fetch and hoists only the ==0 outer
    address to slot 192 plus $s7) and GPR colouring/member order. Do NOT repeat the
    nine banned accumulator spellings (all neutral/worse) or switch spelling (+5).
-   2026-10-08: opt_dead_assignments off with opt_lifetimes on lowers fnalign from 1756 to 1368 edits. */
+   2026-10-08: opt_dead_assignments off with opt_lifetimes on lowers fnalign from 1756 to 1368 edits.
+ * 2026-10-09: 1368 -> 1297: the Ghidra stack scalars that share one 16-byte slot are
+ * one f32 array local (retail keeps that slot in memory).
+ * (cleanup: address-of casts simplified)
+ */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -865,9 +869,8 @@ void func_004b8f40(u8 *work, void **pp)
   f32 temp_v11;
   s32 iStack_d0;
   f32 fStack_20;
-  u32 uStack_8;
+    f32 stk10[4];
   struct { f32 fStack_c0; f32 fStack_bc; f32 fStack_b8; f32 fStack_b4; f32 fStack_b0; f32 fStack_ac; f32 fStack_a8; f32 fStack_a4; f32 fStack_a0; f32 fStack_9c; f32 fStack_98; f32 fStack_94; f32 fStack_60; f32 fStack_58; f32 fStack_54; f32 fStack_50; f32 fStack_48; f32 fStack_44; f32 fStack_40; f32 fStack_30; f32 fStack_28; f32 fStack_24; f32 fStack_18; f32 fStack_14; f32 fStack_10; f32 prevX; f32 prevY; f32 firstX; f32 firstY; } S;
-  f32 fStack_4;
   
   RpGeometryLock(*pp,0x1a);
   if (((*(u32 *)effAfterOffsetPtr(4, work) & 1) != 0) || ((~*(u32 *)effAfterOffsetPtr(4, work) & 2) != 0)) {
@@ -884,12 +887,12 @@ void func_004b8f40(u8 *work, void **pp)
           func_0046d730(D_007146E0,0x3d1);
         }
         if (temp_v5 == 0) {
-          fStack_4 = 0.0f / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
+          stk10[3] = 0.0f / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
         }
         else {
-          fStack_4 = ((f32)temp_v5 - 0.5f) / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
+          stk10[3] = ((f32)temp_v5 - 0.5f) / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
         }
-        func_004bc540(work,0,pbVar12,fStack_4);
+        func_004bc540(work,0,pbVar12,stk10[3]);
         pbVar12 = effAfterOffsetPtr(8, pbVar12);
       }
       func_004bc540(work,0,pbVar12,1.0f);
@@ -898,8 +901,8 @@ void func_004b8f40(u8 *work, void **pp)
         if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1 < 1) {
           func_0046d730(D_007146E0,0x3dc);
         }
-        fStack_4 = (f32)temp_v5 / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
-        func_004bc540(work,1,pbVar12,fStack_4);
+        stk10[3] = (f32)temp_v5 / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
+        func_004bc540(work,1,pbVar12,stk10[3]);
         pbVar12 = effAfterOffsetPtr(8, pbVar12);
       }
     }
@@ -1062,25 +1065,25 @@ void func_004b8f40(u8 *work, void **pp)
           }
           if (temp_v1 == 0) {
             if (temp_v4 == 0) {
-              func_004b7460(work,0.0f / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),&uStack_8,
-                            &fStack_4);
+              func_004b7460(work,0.0f / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),(u32 *)&stk10[2],
+                            &stk10[3]);
             }
             else {
               func_004b7460(work,((f32)temp_v4 - 0.5f) /
-                                    (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),&uStack_8,&fStack_4
+                                    (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),(u32 *)&stk10[2],&stk10[3]
                            );
             }
           }
           else {
             func_004b7460(work,(f32)temp_v4 / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),
-                          &uStack_8,&fStack_4);
+                          (u32 *)&stk10[2],&stk10[3]);
           }
-          if (uStack_8 != temp_v6) {
-            temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - uStack_8;
+          if ((*(u32 *)&stk10[2]) != temp_v6) {
+            temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (*(u32 *)&stk10[2]);
             if (temp_v3 < 0) {
               temp_v3 = temp_v3 + *(s32 *)effAfterOffsetPtr(8, work);
             }
-            temp_v2 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (uStack_8 + 1);
+            temp_v2 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - ((*(u32 *)&stk10[2]) + 1);
             if (temp_v2 < 0) {
               temp_v2 = temp_v2 + *(s32 *)effAfterOffsetPtr(8, work);
             }
@@ -1101,24 +1104,24 @@ void func_004b8f40(u8 *work, void **pp)
             S.fStack_9c = *pfVar3;
             S.fStack_98 = pfVar3[1];
             S.fStack_94 = pfVar3[2];
-            temp_v6 = uStack_8;
+            temp_v6 = (*(u32 *)&stk10[2]);
           }
-          temp_v7 = 1.0f - fStack_4;
+          temp_v7 = 1.0f - stk10[3];
           if (pfVar17 <= pfVar16) {
             func_0046d730(D_007146E0,0x49d);
           }
-          *pfVar16 = S.fStack_9c * fStack_4 * fStack_4 * fStack_4 +
-                     S.fStack_a8 * fStack_4 * temp_v7 * 3.0f * fStack_4 +
+          *pfVar16 = S.fStack_9c * stk10[3] * stk10[3] * stk10[3] +
+                     S.fStack_a8 * stk10[3] * temp_v7 * 3.0f * stk10[3] +
                      S.fStack_c0 * temp_v7 * temp_v7 * temp_v7 +
-                     S.fStack_b4 * temp_v7 * temp_v7 * 3.0f * fStack_4;
-          pfVar16[1] = S.fStack_98 * fStack_4 * fStack_4 * fStack_4 +
-                       S.fStack_a4 * fStack_4 * temp_v7 * 3.0f * fStack_4 +
+                     S.fStack_b4 * temp_v7 * temp_v7 * 3.0f * stk10[3];
+          pfVar16[1] = S.fStack_98 * stk10[3] * stk10[3] * stk10[3] +
+                       S.fStack_a4 * stk10[3] * temp_v7 * 3.0f * stk10[3] +
                        S.fStack_bc * temp_v7 * temp_v7 * temp_v7 +
-                       S.fStack_b0 * temp_v7 * temp_v7 * 3.0f * fStack_4;
-          pfVar16[2] = S.fStack_94 * fStack_4 * fStack_4 * fStack_4 +
-                       S.fStack_a0 * fStack_4 * temp_v7 * 3.0f * fStack_4 +
+                       S.fStack_b0 * temp_v7 * temp_v7 * 3.0f * stk10[3];
+          pfVar16[2] = S.fStack_94 * stk10[3] * stk10[3] * stk10[3] +
+                       S.fStack_a0 * stk10[3] * temp_v7 * 3.0f * stk10[3] +
                        S.fStack_b8 * temp_v7 * temp_v7 * temp_v7 +
-                       S.fStack_ac * temp_v7 * temp_v7 * 3.0f * fStack_4;
+                       S.fStack_ac * temp_v7 * temp_v7 * 3.0f * stk10[3];
           pfVar16 = pfVar16 + 6;
         }
         temp_v4 = *(s32 *)effAfterOffsetPtr(0xc, work) - *(s32 *)effAfterOffsetPtr(8, work);
@@ -1135,10 +1138,10 @@ void func_004b8f40(u8 *work, void **pp)
         pfVar16[1] = temp_v7;
         pfVar16[2] = temp_v9;
         if (*(s32 *)effAfterOffsetPtr(8, work) < *(s32 *)effAfterOffsetPtr(8, *(u8 **)work)) {
-          uStack_8 = 0;
+          (*(u32 *)&stk10[2]) = 0;
         }
         else {
-          uStack_8 = *(u32 *)effAfterOffsetPtr(0xc, work);
+          (*(u32 *)&stk10[2]) = *(u32 *)effAfterOffsetPtr(0xc, work);
         }
           temp_v1++;
       } while (temp_v1 < 2);
@@ -1213,13 +1216,13 @@ void func_004b8f40(u8 *work, void **pp)
         temp_v6 = 0xffffffff;
         temp_v11 = 0.5f / temp_v7;
         for (temp_v4 = 0; temp_v4 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v4 = temp_v4 + 1) {
-          func_004b7460(work,temp_v11,&uStack_8,&fStack_4);
-          if (uStack_8 != temp_v6) {
-            temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - uStack_8;
+          func_004b7460(work,temp_v11,(u32 *)&stk10[2],&stk10[3]);
+          if ((*(u32 *)&stk10[2]) != temp_v6) {
+            temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (*(u32 *)&stk10[2]);
             if (temp_v3 < 0) {
               temp_v3 = temp_v3 + *(s32 *)effAfterOffsetPtr(8, work);
             }
-            temp_v2 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (uStack_8 + 1);
+            temp_v2 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - ((*(u32 *)&stk10[2]) + 1);
             if (temp_v2 < 0) {
               temp_v2 = temp_v2 + *(s32 *)effAfterOffsetPtr(8, work);
             }
@@ -1240,21 +1243,21 @@ void func_004b8f40(u8 *work, void **pp)
             S.fStack_9c = *pfVar17;
             S.fStack_98 = pfVar17[1];
             S.fStack_94 = pfVar17[2];
-            temp_v6 = uStack_8;
+            temp_v6 = (*(u32 *)&stk10[2]);
           }
-          temp_v8 = 1.0f - fStack_4;
-          *unaff_s3_lo = S.fStack_9c * fStack_4 * fStack_4 * fStack_4 +
-                         S.fStack_a8 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
+          temp_v8 = 1.0f - stk10[3];
+          *unaff_s3_lo = S.fStack_9c * stk10[3] * stk10[3] * stk10[3] +
+                         S.fStack_a8 * stk10[3] * temp_v8 * 3.0f * stk10[3] +
                          S.fStack_c0 * temp_v8 * temp_v8 * temp_v8 +
-                         S.fStack_b4 * temp_v8 * temp_v8 * 3.0f * fStack_4;
+                         S.fStack_b4 * temp_v8 * temp_v8 * 3.0f * stk10[3];
           unaff_s3_lo[1] =
-               S.fStack_98 * fStack_4 * fStack_4 * fStack_4 +
-               S.fStack_a4 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-               S.fStack_bc * temp_v8 * temp_v8 * temp_v8 + S.fStack_b0 * temp_v8 * temp_v8 * 3.0f * fStack_4;
+               S.fStack_98 * stk10[3] * stk10[3] * stk10[3] +
+               S.fStack_a4 * stk10[3] * temp_v8 * 3.0f * stk10[3] +
+               S.fStack_bc * temp_v8 * temp_v8 * temp_v8 + S.fStack_b0 * temp_v8 * temp_v8 * 3.0f * stk10[3];
           unaff_s3_lo[2] =
-               S.fStack_94 * fStack_4 * fStack_4 * fStack_4 +
-               S.fStack_a0 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-               S.fStack_b8 * temp_v8 * temp_v8 * temp_v8 + S.fStack_ac * temp_v8 * temp_v8 * 3.0f * fStack_4;
+               S.fStack_94 * stk10[3] * stk10[3] * stk10[3] +
+               S.fStack_a0 * stk10[3] * temp_v8 * 3.0f * stk10[3] +
+               S.fStack_b8 * temp_v8 * temp_v8 * temp_v8 + S.fStack_ac * temp_v8 * temp_v8 * 3.0f * stk10[3];
           temp_v11 = temp_v11 + temp_v9;
           unaff_s3_lo = unaff_s3_lo + 9;
         }
@@ -1299,13 +1302,13 @@ void func_004b8f40(u8 *work, void **pp)
       pfVar3 = pfVar17;
       while (1) {
         if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) <= temp_v1) break;
-        func_004b7460(work,temp_v7,&uStack_8,&fStack_4);
-        if (uStack_8 != temp_v6) {
-          temp_v4 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - uStack_8;
+        func_004b7460(work,temp_v7,(u32 *)&stk10[2],&stk10[3]);
+        if ((*(u32 *)&stk10[2]) != temp_v6) {
+          temp_v4 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (*(u32 *)&stk10[2]);
           if (temp_v4 < 0) {
             temp_v4 = temp_v4 + *(s32 *)effAfterOffsetPtr(8, work);
           }
-          temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (uStack_8 + 1);
+          temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - ((*(u32 *)&stk10[2]) + 1);
           if (temp_v3 < 0) {
             temp_v3 = temp_v3 + *(s32 *)effAfterOffsetPtr(8, work);
           }
@@ -1326,20 +1329,20 @@ void func_004b8f40(u8 *work, void **pp)
           S.fStack_9c = *pfVar5;
           S.fStack_98 = pfVar5[1];
           S.fStack_94 = pfVar5[2];
-          temp_v6 = uStack_8;
+          temp_v6 = (*(u32 *)&stk10[2]);
         }
-        temp_v8 = 1.0f - fStack_4;
-        S.fStack_28 = S.fStack_9c * fStack_4 * fStack_4 * fStack_4 +
-                    S.fStack_a8 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
+        temp_v8 = 1.0f - stk10[3];
+        S.fStack_28 = S.fStack_9c * stk10[3] * stk10[3] * stk10[3] +
+                    S.fStack_a8 * stk10[3] * temp_v8 * 3.0f * stk10[3] +
                     S.fStack_c0 * temp_v8 * temp_v8 * temp_v8 +
-                    S.fStack_b4 * temp_v8 * temp_v8 * 3.0f * fStack_4;
-        temp_v10 = S.fStack_98 * fStack_4 * fStack_4 * fStack_4 +
-                 S.fStack_a4 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-                 S.fStack_bc * temp_v8 * temp_v8 * temp_v8 + S.fStack_b0 * temp_v8 * temp_v8 * 3.0f * fStack_4
+                    S.fStack_b4 * temp_v8 * temp_v8 * 3.0f * stk10[3];
+        temp_v10 = S.fStack_98 * stk10[3] * stk10[3] * stk10[3] +
+                 S.fStack_a4 * stk10[3] * temp_v8 * 3.0f * stk10[3] +
+                 S.fStack_bc * temp_v8 * temp_v8 * temp_v8 + S.fStack_b0 * temp_v8 * temp_v8 * 3.0f * stk10[3]
         ;
-        temp_v8 = S.fStack_94 * fStack_4 * fStack_4 * fStack_4 +
-                 S.fStack_a0 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-                 S.fStack_b8 * temp_v8 * temp_v8 * temp_v8 + S.fStack_ac * temp_v8 * temp_v8 * 3.0f * fStack_4
+        temp_v8 = S.fStack_94 * stk10[3] * stk10[3] * stk10[3] +
+                 S.fStack_a0 * stk10[3] * temp_v8 * 3.0f * stk10[3] +
+                 S.fStack_b8 * temp_v8 * temp_v8 * temp_v8 + S.fStack_ac * temp_v8 * temp_v8 * 3.0f * stk10[3]
         ;
         if (temp_v1 == 0) {
           S.firstX = S.fStack_28; S.firstY = temp_v10;
