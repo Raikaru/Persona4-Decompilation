@@ -472,7 +472,11 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  */
 #pragma push
 /* 2026-10-08: opt_loop_invariants on lowers fnalign from 879 to 856 edits. */
-/* 2026-10-09: 856 -> 841 edits. The two angle-limit blocks follow retail's !(a <= lim) && a < 360 - lim test and a < 180 ? lim : 360 - lim choice, which reuses the 360 - lim value. */
+/* 2026-10-09: 856 -> 841 edits. The two angle-limit blocks follow retail's !(a <= lim) && a < 360 - lim test and a < 180 ? lim : 360 - lim choice, which reuses the 360 - lim value.
+ * 2026-10-09: 841 -> 739: frame layout. Later declarations sit lower in the frame;
+ * the small-vector group is declared axis, position, workingVector, look, eye,
+ * direction, forwardAxis (mapped with tools/frameslots.py).
+ */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -564,7 +568,6 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   RwMatrix ancestorMatrix;
   RwMatrix scaleMatrix;
   unsigned int temp_v27 [31];
-  RwV3d workingVector;
   
   typedef union { f32 value[4]; u32 bits[4]; } ControllerQuat;
   ControllerQuat fallbackRotation;
@@ -579,12 +582,13 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   RwMatrix frameMatrix;
   RwMatrix identityMatrix;
   RwMatrix baseMatrix;
-  u32 forwardAxis[3];
-  f32 direction[3];
-  f32 eye[3];
-  f32 look[3];
-  RwV3d position;
   u32 axis[3];
+  RwV3d position;
+  RwV3d workingVector;
+  f32 look[3];
+  f32 eye[3];
+  f32 direction[3];
+  u32 forwardAxis[3];
   RwMatrix axisMatrix;
 
   typedef char ControllerPointerSize[(sizeof(void *) == 4) ? 1 : -1];
