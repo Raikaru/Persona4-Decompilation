@@ -95,7 +95,7 @@ extern void memcpy(s32 arg0, s32 arg1, s32 arg2);
 extern void func_0036d230(u8 *data);
 extern u32 func_0046a750(s16 *sprite);
 extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
-extern void func_003768e0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fparg0);
+extern void func_003768e0(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, u8 *arg3);
 extern f32 func_00375a70(u8 *arg0, s32 arg1);
 extern f32 iGpffff8170;
 extern void func_003766f0(f32 **arg0, void (*arg1)(u8 **), u8 **arg2, u8 *arg3);
@@ -762,7 +762,7 @@ mode_done:
     if (!(effectScale <= 0.0f)) {
         for (effectIndex = 0; effectIndex < cardCount; effectIndex++) {
             if (*(u16 *)(work + effectIndex * 0xE8 + 0x1D6A0) & 2) {
-                func_003768e0(work, effectIndex, 2, effectColor, effectScale * func_00375a70(work, effectIndex));
+                func_003768e0(work, effectIndex, 2, effectScale * func_00375a70(work, effectIndex), effectColor);
             }
         }
     }
@@ -1262,7 +1262,12 @@ void func_00376880(u8 **arg0) {
  * implementation. See docs/probe_archive/Shuffle_trail_003768e0_20261006.
    2026-10-08: opt_lifetimes on lowers fnalign from 464 to 280 edits.
    Also (2026-10-08): the identity flags are ORed into the uninitialised local (retail lw 0xBC/or) and the render-state table is read through a u32 local kept in $s3, 270 edits. */
-/* 2026-10-09: 270 -> 265 edits from a block-declaration order climb. */
+/* 2026-10-09: 270 -> 265 edits from a block-declaration order climb.
+   2026-10-09: 265 -> 264: `length` is declared before `rgba` (retail copies
+   the parameters as a0, a1, f12, a3, which is declaration order). The extern
+   and the one call in this file were updated to match; EABI passes the same
+   registers, and the caller still matches. Residual: one extra callee-saved
+   FPR (f26) and the trail-position add order. */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1313,7 +1318,7 @@ extern f32 iGpffff8308;
 
 #pragma push
 #pragma opt_loop_invariants on
-void func_003768e0(u8 *work, s32 cardIndex, s32 mode, u8 *rgba, f32 length)
+void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
 {
     TrailVertex first[42];
     TrailVertex second[42];
