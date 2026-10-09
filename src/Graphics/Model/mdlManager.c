@@ -5930,6 +5930,7 @@ void func_0047b060(void* param_1)
  * animation entry copy, and the material and UV tables through locals.
  * 161: the material/UV copy reads `state->slot` once into `dst`.
  * 155: u16 clone-slot fill counter.
+ * 122: u16 counter for the blend-control animation loop.
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6365,7 +6366,7 @@ s32 func_0047b0c0(u8 *model)
         case 0xf0f000d0:
         {
             u8 *group;
-            s32 slot;
+            u16 slot;
             func_0044ea90(D_00713138, 0xfa);
             group = ((void *(*)(int, int))DAT_008873e8[0])(0x4c, 0x40000);
             memset(group, 0, 0x4c);
@@ -6376,12 +6377,12 @@ s32 func_0047b0c0(u8 *model)
             layerResource = LOAD_LAYER()->resource;
             func_003e2910(state->stream, layerResource->entries[state->slot].blendControl + 0x3c,
                 chunk.length);
-            for (slot = 0; (slot & 0xffff) < 4; slot = (slot + 1) & 0xffff) {
+            for (slot = 0; slot < 4; slot++) {
                 func_003df3c0(state->stream, &chunk);
                 {
                     void *animation = func_003d53c0(state->stream);
                     layerResource = LOAD_LAYER()->resource;
-                    ((void **)layerResource->entries[state->slot].blendControl)[slot & 0xffff] = animation;
+                    ((void **)layerResource->entries[state->slot].blendControl)[slot] = animation;
                 }
             }
         }
