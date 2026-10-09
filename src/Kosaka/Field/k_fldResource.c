@@ -340,6 +340,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 86 -> 84: the loaded HBN entry is its own local `hbnEntry`.
  * 2026-10-09: 84 -> 83: the first file check assigns `var_2 = 1` in its NULL branch.
  * 2026-10-09: 83 -> 70: temp_18 is declared before temp_19.
+ * 2026-10-09: 70 -> 65: the reload list walker is declared before its next pointer.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -423,7 +424,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     s8 cameraEntries[0x20];
     Vec3 cameraEntryPositions[0x20];
     u8 *temp_16;
-    u8 *temp_16_10;
+    u8 *var_18_4;
     u8 *temp_16_11;
     u8 *temp_17_3;
     s32 temp_19;
@@ -494,7 +495,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 *b_idx;
     u8 *b_tbl;
     u8 *var_17_7;
-    u8 *var_18_4;
+    u8 *temp_16_10;
     u8 *temp_18;
     u32 *frameCount;
     u8 *hbnEntry;
