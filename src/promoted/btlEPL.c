@@ -574,16 +574,13 @@ typedef struct BtlEplUnitRgbaParam
     u8 select[4];         // 0x0C, read by func_001fc300
 } BtlEplUnitRgbaParam;
 
-/* Only fade-in/out initialize scale; evaluate its complement in those cases.
- * Measured vector blends: 2172/2176B, 90 fully resolved differing words from
- * the f0/f1/f2 register rotation. The NON_MATCHING guard remains.
- * 2026-10-08 capture: the rotation is one value. The loop-invariant pass
- * hoists `1.0f - scale` into a temporary (v67) that takes $f0, where retail has
- * $f2. The regalloc model gives retail's FPR colours whenever that value is
- * numbered between case 1's `from` lanes and case 2's (v36..v50). A declared
- * `inv` local folds into the hoisted temporary wherever it is declared. */
-// FUN_001FD790 NONMATCHING
-#ifdef NON_MATCHING
+/* Fade-in/out alone initialize and consume the scale complement.
+ * The fade-out arm converts two complete normalized RGBA values and computes
+ * all four blended outputs before storing any byte. These real value
+ * lifetimes reproduce retail's FPR allocation and native operation order.
+ * Measured b210: 2172/2176 bytes, four retail-zero tail bytes,
+ * 22 resolved target relocations and all 26 sibling functions unchanged. */
+// FUN_001FD790
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
 void func_001fd790(u8 *arg0)
@@ -672,29 +669,36 @@ void func_001fd790(u8 *arg0)
                 }
                 {
                     const f32 inv = 1.0f - scale;
-                    V4 color;
-                    V4 start;
-                    V4 from;
-                    V4 to;
+                    f32 c0, c1, c2, c3;
+                    f32 s0, s1, s2, s3;
+                    f32 a0, a1, a2, a3;
+                    f32 b0, b1, b2, b3;
+                    V4 out;
 
-                    btlEplRgbaToV4(&color, &D_007641F8);
-                    btlEplRgbaToV4(&start, &node->startRgba);
-                    from.v[0] = color.v[0] * inv;
-                    from.v[1] = color.v[1] * inv;
-                    from.v[2] = color.v[2] * inv;
-                    from.v[3] = color.v[3] * inv;
-                    to.v[0] = start.v[0] * scale;
-                    to.v[1] = start.v[1] * scale;
-                    to.v[2] = start.v[2] * scale;
-                    to.v[3] = start.v[3] * scale;
-                    color.v[0] = from.v[0] + to.v[0];
-                    color.v[1] = from.v[1] + to.v[1];
-                    color.v[2] = from.v[2] + to.v[2];
-                    color.v[3] = from.v[3] + to.v[3];
-                    node->rgba.r = (s32)(0.5f + 255.0f * color.v[0]);
-                    node->rgba.g = (s32)(0.5f + 255.0f * color.v[1]);
-                    node->rgba.b = (s32)(0.5f + 255.0f * color.v[2]);
-                    node->rgba.a = (s32)(0.5f + 255.0f * color.v[3]);
+                    c0 = (1.0f / 255.0f) * (f32)(u32)D_007641F8.r;
+                    c1 = (1.0f / 255.0f) * (f32)(u32)D_007641F8.g;
+                    c2 = (1.0f / 255.0f) * (f32)(u32)D_007641F8.b;
+                    c3 = (1.0f / 255.0f) * (f32)(u32)D_007641F8.a;
+                    s0 = (1.0f / 255.0f) * (f32)(u32)node->startRgba.r;
+                    s1 = (1.0f / 255.0f) * (f32)(u32)node->startRgba.g;
+                    s2 = (1.0f / 255.0f) * (f32)(u32)node->startRgba.b;
+                    s3 = (1.0f / 255.0f) * (f32)(u32)node->startRgba.a;
+                    a0 = c0 * inv;
+                    a1 = c1 * inv;
+                    a2 = c2 * inv;
+                    a3 = c3 * inv;
+                    b0 = s0 * scale;
+                    b1 = s1 * scale;
+                    b2 = s2 * scale;
+                    b3 = s3 * scale;
+                    out.v[0] = a0 + b0;
+                    out.v[1] = a1 + b1;
+                    out.v[2] = a2 + b2;
+                    out.v[3] = a3 + b3;
+                    node->rgba.r = (s32)(0.5f + 255.0f * out.v[0]);
+                    node->rgba.g = (s32)(0.5f + 255.0f * out.v[1]);
+                    node->rgba.b = (s32)(0.5f + 255.0f * out.v[2]);
+                    node->rgba.a = (s32)(0.5f + 255.0f * out.v[3]);
                 }
                 break;
             }
@@ -703,9 +707,6 @@ void func_001fd790(u8 *arg0)
 }
 #pragma opt_dead_assignments on
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001fd790);
-#endif
 
 // FUN_001FE010
 void func_001fe010(void) {
