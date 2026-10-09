@@ -54,6 +54,13 @@ also stops the 0.5f rematerialisation (44 edits).
 `002ac750` 679 → 431: the pure single-use m2c temporaries are folded back,
 using an inline search limited to expressions of locals, casts and constants
 (no loads), and disjoint locals are merged.
+`001fd790` model result: all 49 differing FPR virtuals are fixed by one
+change, numbering the hoisted `1.0f - scale` temp (r67) after case 1's
+color lanes (r35..r38) but before case 2's (r51..r54). LICM hoists it as a
+fresh temp, numbered after every variable. So retail must have had fewer
+scalarized vector variables after case 1's colour, for example case 2
+without V4 locals. Moving the V4s to function scope makes it worse (175);
+per-case `inv` variables, single-case `inv` and declaration moves stay at 92.
 
 Guarded bodies improved and committed with notes:
 
