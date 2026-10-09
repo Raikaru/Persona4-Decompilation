@@ -25,6 +25,25 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation, part 3: guarded bodies (still 35 ASM)
+
+No new matches. Guarded bodies improved and were committed with notes:
+
+- `001ed700` 217 → 103: best-entry block rewritten from retail, positive
+  `best != NULL` arms, corner pointer with `!(x <= 0)` tests, the bounding
+  loop walks the list with `group`, and a declaration climb. Residual: retail
+  reloads `curZ` from the stack pair inside the search loop (ours keeps it
+  in `$f21`/`$f25`), and the bounding loop's `$v0`/`$a2` colouring.
+- `00263cb0` 48 → 18 and `00283490` 75 → 67: locals with disjoint live
+  ranges share one variable (new lever in [matching.md](matching.md)). The
+  remaining 14 `00263cb0` blocks are two `$s3`/`$s4` and `$s1`/`$s4` swaps
+  (virtuals 52/67 and 75/82 in the regalloc model); declaration swaps and a
+  80-iteration climb did not move them.
+- A validated merge search found nothing on `00162e10`, `0019c0d0`,
+  `003599c0`, `003768e0`, `00183b80`, `001e9950`, `002b6ec0`, `0036ee60`,
+  `0048b340`, `00320b80`, `001fd790` or `00490c40`. The one-step `00160880`
+  (`j` → `sa3`, 401 → 396) and `0027f6f0` merges were not checked or installed.
+
 ## October 9 continuation, part 2: 6,826 MATCH / 35 ASM
 
 Five functions the earlier notes called "pure-GPR lq/sq floors" matched once
