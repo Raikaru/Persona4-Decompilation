@@ -38,13 +38,12 @@ the pair came from a joint search over 784 combinations, 64 per batch.
 `after25` only the `00263cb0` row changed. The full link (`build/link30.log`)
 kept 604 C and 54 SDK objects, with both hashes OK. The lint delta is empty
 apart from line numbers, and `elig_debug` shows no unowned relocations.
-Tools: `build/v/varchoice.py` (whole-use-set and per-web moves into dead
-locals), `build/v/sdiff.py` (structural diff with registers and relocations
-masked) and `build/v/side.py` (side-by-side listing).
+Tools: `tools/varchoice.py` (whole-use-set and per-web moves into dead
+locals), `tools/sdiff.py` (structural diff with registers and relocations
+masked) and `tools/fnside.py` (side-by-side listing).
 
-Other work, no match yet.
-No new match. `func_0014f310` (the O1 field loader) went 513 → 65 aligned
-edits. Its structural diff (`build/v/sdiff.py`, registers and relocations
+Other work (no further match): `func_0014f310` (the O1 field loader) went 513 → 65 aligned
+edits. Its structural diff (`tools/sdiff.py`, registers and relocations
 masked) is down to 2 instructions; the rest is register choice. What moved it:
 
 - m2c `loop_N: if (c) { ...; goto loop_N; }` → `while`. Header re-reads go
