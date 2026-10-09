@@ -341,6 +341,8 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 84 -> 83: the first file check assigns `var_2 = 1` in its NULL branch.
  * 2026-10-09: 83 -> 70: temp_18 is declared before temp_19.
  * 2026-10-09: 70 -> 65: the reload list walker is declared before its next pointer.
+ * 2026-10-09: 65 -> 64: the resource pair offset is formed as `idx * 4` then
+ * `+= base` (retail adds the base second).
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -602,7 +604,8 @@ loadFieldResource:
             temp_3_2 = (u8 *)(iGpffff9db0);
             *( s32 * )(temp_3_2 + 0x98) = (s32) (*( s32 * )(temp_3_2 + 0x98) - 1);
             temp_16 = (u8 *)(iGpffff9db0);
-            temp_2 = (u8 *)((*( s32 * )(temp_16 + 0x98) * 4) + temp_16);
+            temp_2 = (u8 *)(*( s32 * )(temp_16 + 0x98) * 4);
+            temp_2 += (s32)temp_16;
             (((s32 *)(temp_16 + 0x28))[*( s32 * )(temp_16 + 0x24)]) = (s32)func_00150890(*( s16 * )(temp_2 + 0x9C), *( s16 * )(temp_2 + 0x9E));
             *( s32 * )(iGpffff9db0 + 0x94) = 1;
 waitFieldResource:
