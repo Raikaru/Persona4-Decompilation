@@ -25,6 +25,43 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation, part 5: second-decompiler rebuilds
+
+Count unchanged: 6,829 MATCH / 32 ASM. Each guarded body is whatever the
+last author installed: m2c output plus edits (`temp_*`, `var_*`, `spXXX`),
+Ghidra output (`fStack_*`, `puVarN`, `FUN_`) or hand-written C. Compare it
+with the other decompilers before tuning it:
+- `docs/ida_headstart/` (Hex-Rays) and `docs/ghidra_headstart/` cover every
+  remaining function.
+- `tools/m2c_with_jtbl.py OWNER ADDR OUT.c [--valid-syntax]` runs the pinned
+  m2c (`tools/setup_m2c.py`) with the function's jump tables read from
+  `image.bin`. `tools/m2c_decompile.py` stops at the first `jr` without one.
+  Its output still needs retyping (struct fields, `saved_reg_*`, 128-bit
+  temporaries) before it compiles.
+
+`func_001f14f0` went 1218 → 721 by rebuilding the body from the IDA control
+flow and the fresh m2c statement order. The Ghidra body had dropped the
+entry-shift loop's increment and the unit loop's counter initialisation, so
+it was not the retail program. Further levers: `res`/`sub` as `s32` masked
+with `0xFFFF`, case 4 before case 3, `flags |= 1` at both state tests, and the
+party block's running total in the dead `flags`. Retail keeps about 27 locals
+in natural-size stack homes (`sw`/`sh`/`sb`) and the rest in registers or
+`sq` spills. Hoisting every local to function scope in retail's slot order
+did not reproduce that split (724, frame 0x2f0).
+
+Frame-layout work (`tools/frameslots.py OWNER ADDR CAND` maps each candidate
+`$sp` offset to retail's): `00471370` 841 → 672 (vector group, then an
+aggregate declaration climb); `0018a200` 969 → 901 and `004b8f40`
+1368 → 1297 (Ghidra's scalar stack floats regrouped into arrays per 16-byte
+slot). `002b6ec0` 163 → 161 (entry base loaded before the offset).
+
+`004a7830` (7) is a colouring residual. `regalloc_whatif.py --at 60=33.5`
+gives retail's colours: the `abs.s` result must keep the number of its local
+(`temp_f3`, r34), so it has to survive copy propagation. Every spelling tried
+(direct `fabsf(*p)`, separate locals for the other `temp_f3` webs, inline
+helpers, branch forms, all 120 float declaration orders) still propagates it
+to the codegen temporary r60.
+
 ## October 9 continuation, part 4: 6,829 MATCH / 32 ASM
 
 `func_00263cb0` matched (5 → 0). Retail's last swap (the `* 0x5E` column
