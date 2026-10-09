@@ -5910,7 +5910,16 @@ void func_0047b060(void* param_1)
    2026-10-08: the chunk dispatch is a switch whose case bodies follow in source order; b210 compares the cases in reverse (385 edits).
    The base-animation store is the out-of-line else arm (378 edits). */
 /* 2026-10-09: 378 -> 277 edits from a block-declaration order climb. 
-   2026-10-09: 277 -> 271: capacity init loop stores the address-taken capacity, and case 0x1b/0xf0f00001 write through a shared layerResource local (retail computes the slot index before loading the entries base). */
+   2026-10-09: 277 -> 271: capacity init loop stores the address-taken capacity, and case 0x1b/0xf0f00001 write through a shared layerResource local (retail computes the slot index before loading the entries base).
+   2026-10-09: 271 -> 230: the attachment branch tests `model + 0xdc == 0 &&
+   clumpStream == 0` first (retail lays the 0x2CC wrapper path first), the
+   effect-slot loop counter is u16, and the per-slot resource writes go through
+   `layerResource = LOAD_LAYER()->resource;` so the index is computed before
+   `entries` is loaded.
+   2026-10-09: 230 -> 226: the 0xF0F00001 store writes
+   `LOAD_LAYER()->resource->entries[state->slot].animation` directly (the
+   D_00922BC0 address is materialised first), and one source-entry read uses
+   addOff. */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047b0c0(u8 *model)
@@ -6123,8 +6132,7 @@ s32 func_0047b0c0(u8 *model)
             MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
             LOAD_LAYER()->resource = table;
         }
-        layerResource = LOAD_LAYER()->resource;
-        layerResource->entries[state->slot].animation = D_00922BC0_abs;
+        LOAD_LAYER()->resource->entries[state->slot].animation = D_00922BC0_abs;
         func_003e2ce0(state->stream, chunk.length);
         continue;
 
@@ -6133,7 +6141,8 @@ s32 func_0047b0c0(u8 *model)
             MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
             LOAD_LAYER()->resource = table;
         }
-        func_003e2910(state->stream, &LOAD_LAYER()->resource->entries[state->slot].matrix, chunk.length);
+        layerResource = LOAD_LAYER()->resource;
+        func_003e2910(state->stream, &layerResource->entries[state->slot].matrix, chunk.length);
         continue;
 
         case 0xf0f00004:
@@ -6153,7 +6162,7 @@ s32 func_0047b0c0(u8 *model)
             MdlCloneAttachmentTable *attachments;
             func_003e2910(state->stream, &sourceIndex, chunk.length);
             animations = LOAD_LAYER()->resource;
-            animations->entries[state->slot].matrix = animations->entries[sourceIndex].matrix;
+            animations->entries[state->slot].matrix = (*(MdlDispatchAnimEntry *)addOff((u32)sourceIndex * sizeof(MdlDispatchAnimEntry), (u32)animations->entries)).matrix;
             if (animations->entries[sourceIndex].animation != 0) {
                 animations->entries[state->slot].animation = animations->entries[sourceIndex].animation;
             }
@@ -6282,11 +6291,16 @@ s32 func_0047b0c0(u8 *model)
             u32 **head;
             u8 *payload;
             u32 *node;
-            s32 slot;
+            u16 slot;
             func_003e2910(state->stream, &effect, sizeof(effect));
             func_003e2ce0(state->stream, effect.skip);
             payload = state->memory + *(u32 *)((u8 *)state->stream + 0xc);
-            if (*(void **)(model + 0xdc) != 0 || state->clumpStream != 0) {
+            if (*(void **)(model + 0xdc) == 0 && state->clumpStream == 0) {
+                if (*(void **)(model + 0x2cc) == 0) {
+                    *(u32 *)(model + 0x2cc) = func_0047d1a0();
+                }
+                head = *(u32 ***)(model + 0x2cc);
+            } else {
                 if (LOAD_LAYER()->attachments == 0) {
                     MdlCloneAttachmentTable *table = mdl_clone_attachment_storage(capacity);
                     LOAD_LAYER()->attachments = table;
@@ -6296,15 +6310,9 @@ s32 func_0047b0c0(u8 *model)
                     LOAD_LAYER()->attachments->primary[state->slot] = wrapper;
                 }
                 head = LOAD_LAYER()->attachments->primary[state->slot];
-            } else {
-                if (*(void **)(model + 0x2cc) == 0) {
-                    *(u32 *)(model + 0x2cc) = func_0047d1a0();
-                }
-                head = *(u32 ***)(model + 0x2cc);
             }
             node = func_0047d320(head, (s32)payload, effect.length, effect.first, effect.flags);
-            for (slot = (effect.first + 1) & 0xffff; (slot & 0xffff) < effect.last + 1;
-                 slot = (slot + 1) & 0xffff) {
+            for (slot = effect.first + 1; slot < effect.last + 1; slot++) {
                 func_0047d460((u32 *)head, node, slot);
             }
             func_003e2ce0(state->stream, effect.length);
@@ -6335,14 +6343,17 @@ s32 func_0047b0c0(u8 *model)
             memset(group, 0, 0x4c);
             *(f32 *)(group + 0x30) = 1.0f;
             *(f32 *)(group + 0x38) = 1.0f;
-            LOAD_LAYER()->resource->entries[state->slot].blendControl = group;
-            func_003e2910(state->stream, LOAD_LAYER()->resource->entries[state->slot].blendControl + 0x3c,
+            layerResource = LOAD_LAYER()->resource;
+            layerResource->entries[state->slot].blendControl = group;
+            layerResource = LOAD_LAYER()->resource;
+            func_003e2910(state->stream, layerResource->entries[state->slot].blendControl + 0x3c,
                 chunk.length);
             for (slot = 0; (slot & 0xffff) < 4; slot = (slot + 1) & 0xffff) {
                 func_003df3c0(state->stream, &chunk);
                 {
                     void *animation = func_003d53c0(state->stream);
-                    ((void **)LOAD_LAYER()->resource->entries[state->slot].blendControl)[slot & 0xffff] = animation;
+                    layerResource = LOAD_LAYER()->resource;
+                    ((void **)layerResource->entries[state->slot].blendControl)[slot & 0xffff] = animation;
                 }
             }
         }
@@ -6351,12 +6362,14 @@ s32 func_0047b0c0(u8 *model)
         case 0xf0f00007:
         case 0xf0f00008:
         func_003e2910(state->stream, &metadata, chunk.length);
-        if (LOAD_LAYER()->resource->entries[state->slot].startFrame == 0) {
+        layerResource = LOAD_LAYER()->resource;
+        if (layerResource->entries[state->slot].startFrame == 0) {
             s32 *values;
             func_0044ea90(D_00713138, 0x125);
             values = ((void *(*)(int, int))DAT_008873e8[0])(8, 0x40000);
             memset(values, 0, 8);
-            LOAD_LAYER()->resource->entries[state->slot].startFrame = values;
+            layerResource = LOAD_LAYER()->resource;
+            layerResource->entries[state->slot].startFrame = values;
         }
         if (chunk.type == 0xf0f00007) {
             LOAD_LAYER()->resource->entries[state->slot].startFrame[0] = metadata;
