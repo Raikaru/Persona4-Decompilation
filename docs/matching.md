@@ -845,6 +845,23 @@ below are the codegen consequences.
   behaviour, as `fabsf(temp_f1)` overwriting the signed value in
   `func_004a7830` did (7 → 3 but wrong).
 
+  **Levers from `func_001ed700` (636 → 0).**
+  - *Stack-pair reload.* Retail copied a position into a stack pair and then
+    reloaded the z (`lwc1 $f21, 0xDC($sp)`) after reading the list head.
+    With `curZ = cur[1]` written right after the copy, b210 forwards the copied
+    register instead. Reading the list head first (`other = head; curZ = cur[1];`)
+    gives the reload.
+  - *Advanced pointer as an argument.* `entry += 8; f(..., entry)` is
+    propagated into `entry + 8` at each use. `f(..., (float *)(entry += 8))`
+    keeps retail's `addiu $s7, $s7, 8` and the register copy.
+  - *Global load before index arithmetic.* `*(f32 *)(iGp + j * 0x130 + 0x31C)`
+    loads the global after the `j * 0x130` chain. A block-scoped
+    `u8 *base = iGp;` at the top of the loop body puts the `lw` first, as retail
+    does. A loop-scoped pointer `iGp + j * 0x130` is worse.
+  - *Reuse list pointers across loops.* Separate `node`/`group` walkers colour
+    differently. Retail's register order came from the bounding loop reusing
+    `group` and the last search reusing `other`.
+
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written
   inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot

@@ -612,7 +612,9 @@ extern u8 *iGpffffb3d4;
    2026-10-08: a declaration-order hill climb gives 45 edits; the nDraw/cIdx spill choice remains.
  * 2026-10-09: 45 -> 38: the A-list count is read straight from the u16 `nA`
  * (no s32 `aCount` copy). The residual is still the spill choice: retail
- * spills the u16 index at 0xE0, b210 spills nDraw at 0xEC. */
+ * spills the u16 index at 0xE0, b210 spills nDraw at 0xEC.
+ * 2026-10-09: 38 -> 36: `hi < mlvl` (operand order picks the compare
+ * register). */
 // FUN_0036EE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -683,7 +685,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
             continue;
         }
         if (mlvl <= lvl) {
-            if (mlvl > hi) {
+            if (hi < mlvl) {
                 continue;
             }
             if (mlvl < lo) {
