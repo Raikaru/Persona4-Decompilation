@@ -2289,6 +2289,9 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * 2026-10-09: 226 -> 199: the search body indexes `entries[(u16)i]`; with the
  * loop-test spelling, b210 reuses the test's mask instead of re-masking.
  * 2026-10-09: 199 -> 185: the gather loops index the unit list with `(u16)i`.
+ * 2026-10-09: 185 -> 179: the chain depth walk is a for loop over the node list that
+ * breaks at the unit.
+ * 2026-10-09: 179 -> 172: declaration order of the function-scope scalars.
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2321,9 +2324,9 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     f32 stk[24];
     Entry entries[12];
     u16 mode;
-    s32 hasFlag;
     s32 i;
     s32 n;
+    s32 hasFlag;
     u16 selected;
 #define PROJ (&stk[4])
 #define POS (&stk[12])
@@ -2549,9 +2552,11 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 if (*(u8 *)(ud + 0xA2) == 0) {
                     u16 depth = 0;
                     u8 *node = *(u8 **)(D_0076449C + 0x17C);
-                    while (node != 0 && node != ud) {
-                        depth = (depth + 1) & 0xFFFF;
-                        node = *(u8 **)(node + 0xA68);
+                    for (; node != 0; node = *(u8 **)(node + 0xA68)) {
+                        if (node == ud) {
+                            break;
+                        }
+                        depth++;
                     }
                     entries[n & 0xFFFF].unit = unit;
                     entries[n & 0xFFFF].idx = (u16)i;
