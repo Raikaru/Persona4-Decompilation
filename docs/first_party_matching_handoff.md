@@ -69,6 +69,13 @@ the body its own temp instead of reusing the loop test's. The outer loop's
 `n = i` still reuses the test temp (`@2635` in the IR dump): its increment
 sits in a separate flow node from the body, unlike the inner loops'. Also open:
 the arg0/spD0 frame slots (0xE4/0xD0 in retail vs 0xDC/0xE0).
+`0036ee60` 36 → 25: the C-list pick is `s32 index = cIdx; cIdx = index + 1;
+item = listC[index];`. That lowers cIdx's reference count, and b210 then
+spills cIdx (sh/lhu 0xE0) as retail does instead of nDraw. The spill set now
+matches. Residual: saved-register permutation (arg1 copy in $fp instead of
+$s6, nDraw in $fp instead of $s5, k/drawIndex). An 80-iteration declaration
+climb and permcol on the obvious targets did not find a numbering.
+`00183b80` 826 → 787 by folding the pure base-pointer expressions.
 
 Guarded bodies improved and committed with notes:
 
