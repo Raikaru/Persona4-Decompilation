@@ -897,6 +897,17 @@ below are the codegen consequences.
   dead there). Score the singles, pair the ones that change the output, and
   check the winner's liveness by hand.
 
+  **Score candidates in bulk with `tools/multiscore.py`.** `fnalign.py` and
+  `build/batch.py` compile the whole owner once per candidate, and
+  `probe_variants` serialises compiles of the same owner, so 8 workers buy
+  almost nothing. `multiscore.py OWNER ADDR CAND... | @LIST` puts up to 64
+  renamed copies (`func_x__vK`) into one translation unit and aligns each
+  symbol exactly as fnalign does; the scores are identical to fnalign's.
+  Candidates whose surrounding helpers and pragmas differ are grouped
+  separately, and a chunk that fails to compile is bisected down to the bad
+  candidates. Measured: 32 copies of `func_00471370` (mdlManager.c) took
+  8.3 s, against 2.6 s for a single fnalign run.
+
   **Lever: at `optimization_level 1`, declaration order picks the saved
   registers.** In `func_0014f310` (O1) the locals declared in descending order
   of the retail register that m2c named them after (`temp_19` = `$s3`, …)
