@@ -885,6 +885,24 @@ below are the codegen consequences.
   either change alone did nothing. `regalloc_whatif.py --swap A,B` on the FPR
   snapshot predicts the effect before you edit.
 
+  **Lever: choose which dead variable holds a value (`func_00263cb0`,
+  matched).** When a saved-register swap survives renames, declaration climbs
+  and spill-score changes, change *which existing local* a loop's values
+  live in. Under `opt_lifetimes on` each web is numbered with its variable, so
+  a different variable reorders the colouring scan. `func_00263cb0` closed
+  only when two moves were applied together: case 7's day-loop sum went into
+  `temp_20` and its `* 0x5E` column into `var_2`, both dead outside that loop.
+  Each move alone scored the same or worse. `tools/varchoice.py` generates
+  the moves (whole use sets and single webs into same-typed locals that are
+  dead there). Score the singles, pair the ones that change the output, and
+  check the winner's liveness by hand.
+
+  **Lever: at `optimization_level 1`, declaration order picks the saved
+  registers.** In `func_0014f310` (O1) the locals declared in descending order
+  of the retail register that m2c named them after (`temp_19` = `$s3`, …)
+  went 339 → 260 edits. Swapping single declaration pairs then fixed
+  individual register swaps.
+
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written
   inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot
