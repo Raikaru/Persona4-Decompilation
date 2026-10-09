@@ -873,6 +873,18 @@ below are the codegen consequences.
   `if (~*(u32 *)p & 1)`, and a `beqz` to the body followed by `b` past it is a
   one-case `switch (x) { case 0: ... }`.
 
+  **Lever: choose which equal-score value b210 spills (`func_00490c40`,
+  matched).** Spill scores in a capture are reference counts. With degrees
+  equal, an exact score/degree tie goes to the virtual scanned *later*, and
+  that one is spilled. Declared locals get low numbers in declaration order,
+  but under `opt_lifetimes on` a variable with more than one web is
+  renumbered after the compiler temporaries. In `func_00490c40` the asm
+  output `dot` (r52) beat `swayBase` (r40) for the spill. Retail spilled
+  `swayBase`, and that came out once `swayBase` also held the early spawn
+  accumulator (`acc` in the m2c output) *and* `opt_lifetimes on` was added:
+  either change alone did nothing. `regalloc_whatif.py --swap A,B` on the FPR
+  snapshot predicts the effect before you edit.
+
   **Lever: name a struct-returning call's result to fix its frame slot
   (`func_002ba080`).** b210 gives the hidden return slot of a call written
   inside an argument list (`f(draw, func_002b2970(x, y), ...)`) a stack slot
