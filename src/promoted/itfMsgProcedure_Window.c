@@ -1224,7 +1224,11 @@ static inline s32 msgWinSelectionResource(void)
  * See docs/probe_archive/Message_selection_0027f6f0_20261002.md.
    2026-10-08: opt_lifetimes on lowers fnalign from 590 to 410 edits.
    Also (2026-10-08): `tmp = a && b` written as the && test, s32 frame counters, and argument expressions inlined in call order (retail computes them at the call) bring it to 331. */
-/* 2026-10-09: 331 -> 301 edits. Applying the single-definition rule: case 4's 300 - 300*f result reuses prodA (a multi-definition local) so it is computed in statement order. prodA's case-3 value and the 100/x quotient are written in two steps so retail's constant materialisation order comes out. The colour unions are copied whole. Open: retail also stores backgroundColor/selectionColor at 0x2f8/0x2f4 before copying them to color, and those stores are eliminated here. */
+/* 2026-10-09: 331 -> 301 edits. Applying the single-definition rule: case 4's 300 - 300*f result reuses prodA (a multi-definition local) so it is computed in statement order. prodA's case-3 value and the 100/x quotient are written in two steps so retail's constant materialisation order comes out. The colour unions are copied whole. Open: retail also stores backgroundColor/selectionColor at 0x2f8/0x2f4 before copying them to color, and those stores are eliminated here.
+   2026-10-09: 295 -> 270: four case-local values reuse other locals of the
+   same type (selection handle in s20, the column count in tmp2, the case-12
+   rectangle in background, the rotation in g), matching retail's register
+   numbering. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1517,8 +1521,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         break;
     case 5:
         if (D_0088202A[0] != 0) {
-            handle = msgWinSelectionResource();
-            if (handle == 0) {
+            s20 = msgWinSelectionResource();
+            if (s20 == 0) {
                 break;
             }
         }
@@ -1541,14 +1545,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         } else {
             switch (D_0088202A[0]) {
             case 1:
-                func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)s20, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
                 break;
             case 2:
-                func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)s20, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
                 break;
             case 3:
-                func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
-                func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f, 143.0f, 0.0f);
+                func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)s20, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)s20, 1, (void *)D_00796490, 234.0f, 143.0f, 0.0f);
                 break;
             }
         }
@@ -1705,10 +1709,10 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             func_00272b50(pv2, 0, 0);
             func_00272730(pv2, 0xFF);
             func_002727a0(pv2, 0xFF);
-            tmp = func_00273970(pv2);
-            if (tmp < 3) {
+            tmp2 = func_00273970(pv2);
+            if (tmp2 < 3) {
                 D_0088202C[0] = 0;
-            } else if (tmp < 4) {
+            } else if (tmp2 < 4) {
                 D_0088202C[0] = 1;
             } else {
                 D_0088202C[0] = 2;
@@ -1792,8 +1796,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             selection = D_0063C140;
             selection.signedWords.word[0] = 0x38;
             selection.signedWords.word[1] = j >> 3;
-            rectangle = selection;
-            func_0045da40(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
+            background = selection;
+            func_0045da40(&color, &background, 0.0f, 1, (void *)D_00796490);
         }
         ret = 1;
         break;
@@ -1833,8 +1837,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 f = sinf((iGpffff8094 * (float)cntB32) / 5.0f);
                 prodA = (float)s20;
                 prodB = (float)s19;
-                chainA = f * 180.0f;
-                func_0025ecd0(prodA, prodB, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, chainA, 1.0f, 1.0f, (void *)D_00796490);
+                g = f * 180.0f;
+                func_0025ecd0(prodA, prodB, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, g, 1.0f, 1.0f, (void *)D_00796490);
                 func_0025ec90((float)s20, (float)s19, 0.0f, 0xFAFF20, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
                 if (cntB32 >= 5) {
                     D_00882020[0] &= ~0x20u;
