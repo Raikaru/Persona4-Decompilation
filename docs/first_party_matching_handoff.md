@@ -63,6 +63,18 @@ The same loop conversion took `002ac750` 431 → 358, `001a59a0` 752 → 709 and
 `001a7720` 1489 → 1486. Converting `002ac750`'s found-and-break searches
 made it worse (389), so those keep their labels.
 
+`0027f6f0` 270 → 133. Retail folds the whole stack offset of
+`blocks[N].pts[k]` into one `addiu` and then uses offsets 0 and 4. The source
+therefore has an element pointer (`pt = &blocks[N].pts[k]; pt->x += …`), and
+the same for `cl` and the colours. The remaining structural rows are two dead
+colour copies retail keeps (`backgroundColor` 0x2F8, `selectionColor`
+0x2F4). Arrays, a grouping struct, a u8 struct and `opt_dead_assignments off`
+were all worse. The rest is a saved-register permutation; arg1 and `ret`
+are swapped against retail. A declaration climb gave 155 → 135, and no single
+pairwise declaration swap helped after that.
+`00160880` 401 → 387: the colour buffers are cleared by a guarded
+count-down byte loop (inline helper, like `fclZero8`), not a `for`.
+
 ## October 9 continuation, part 3: 6,828 MATCH / 33 ASM
 
 `func_001ed700` matched (636 → 0; levers listed in
