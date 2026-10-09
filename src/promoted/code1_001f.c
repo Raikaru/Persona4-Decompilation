@@ -930,6 +930,8 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * both arguments with 0xFFFF, the u16-parameter idiom).
  * 694: local `func_001fb170(u16)` prototype (H011: the callee masks its argument
  * with 0xFFFF).
+ * 691: `func_0023e6f0(u8 *, u8 *, u16, s32)` (the K&R definition in datCalc.c
+ * declares u16 arg2).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -939,7 +941,7 @@ void func_001f14f0(u8 *arg0)
 
 {
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
-    extern s32 func_0023e6f0(u8 *, u8 *, s32, s32);
+    extern s32 func_0023e6f0(u8 *, u8 *, u16, s32);
     extern void func_001f9cd0(void);
     extern s32 func_001fb170(u16);
     extern s32 func_001fb1f0(u8 *, s32);
