@@ -34,11 +34,26 @@ No new matches. Guarded bodies improved and were committed with notes:
   loop walks the list with `group`, and a declaration climb. Residual: retail
   reloads `curZ` from the stack pair inside the search loop (ours keeps it
   in `$f21`/`$f25`), and the bounding loop's `$v0`/`$a2` colouring.
-- `00263cb0` 48 → 18 and `00283490` 75 → 67: locals with disjoint live
-  ranges share one variable (new lever in [matching.md](matching.md)). The
-  remaining 14 `00263cb0` blocks are two `$s3`/`$s4` and `$s1`/`$s4` swaps
-  (virtuals 52/67 and 75/82 in the regalloc model); declaration swaps and a
-  80-iteration climb did not move them.
+- `00263cb0` 48 → 16 and `00283490` 75 → 67: locals with disjoint live
+  ranges share one variable (new lever in [matching.md](matching.md)), and
+  both day loops pass `var_21 * 0x5E` straight to the calls (a named product
+  colours `$s3`/`$s4` the wrong way; case 8 is now exact). The remaining 11
+  blocks are the second day loop: the model wants the counter numbered
+  before the product, the date and `temp_17`. Fresh counters at every
+  declaration slot, block-scoped locals, `for` loops and renames of
+  `temp_17`/the date did not change the numbering.
+- `0036ee60` 45 → 38: the A-list count is read from the u16 `nA` directly.
+  The spill choice (retail spills the u16 index at 0xE0) is unchanged.
+- `004a7830` (7): the `0.0f` for `temp_f1 <= 0.0f` is the zero b210 creates
+  for the `adda.s` of the `0.5f * a + 0.5f * b` madd (codegen_entry), which
+  the backend CSE then reuses in the compare block. The model needs the load
+  and the `abs.s` result numbered before that zero. Declaration permutations,
+  expression shapes, `register`, pragmas and variable splits all stay at 7.
+- `0048b340` (54): the IR pass `IRO_CommonSubs` (tick 3) puts the entry's
+  `1.0f` in a compiler temp (`@1806` in the dump) and the else branch's
+  `inv3 = 1.0f / ...` reads it, while retail rematerialises 1.0f there.
+  Literal spellings, an inline reciprocal helper and moving `one` do not stop
+  it. `opt_common_subs off` does (112 edits, everything else moves).
 - A validated merge search found nothing on `00162e10`, `0019c0d0`,
   `003599c0`, `003768e0`, `00183b80`, `001e9950`, `002b6ec0`, `0036ee60`,
   `0048b340`, `00320b80`, `001fd790` or `00490c40`. The one-step `00160880`
