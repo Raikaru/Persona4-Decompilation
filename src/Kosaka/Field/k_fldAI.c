@@ -940,6 +940,7 @@ tail:
  * 2026-10-09: 1218 -> 1160: aggregate declaration order (greedy move/swap climb
  * scored with tools/multiscore.py).
  * 1155: the 0x1CA mode byte is unsigned (retail lbu).
+ * 1152: the visibility flag is an int (retail sltu test, no andi).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1017,7 +1018,7 @@ int func_0017f490(unsigned char *param_1)
   unsigned int temp_v2;
   int temp_v3;
   unsigned char temp_v4;
-  unsigned char temp_v5;
+  int temp_v5;
   int temp_v6;
   unsigned int temp_v7;
   float temp_v8;
