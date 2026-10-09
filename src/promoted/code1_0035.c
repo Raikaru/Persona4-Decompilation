@@ -2556,7 +2556,10 @@ void func_003599a0(u8 *arg0)
    2026-10-08: opt_propagation off lowers fnalign from 672 to 598 edits. */
 /* 2026-10-09: rewritten without the m2c temporaries, 598 -> 498 edits. Open: retail keeps idx*12 and arg0*48 in saved registers but adds arg1 again at each later use (after the assert call and per panel field), while b210 here keeps the whole sum; opt_common_subs off (744) separates every add, including the ones retail shares within a block.
    2026-10-09: 498 -> 491: the digit-sprite pointer reuses `ptab` and the last
-   alpha reuses `kind` (same types, disjoint lifetimes). */
+   alpha reuses `kind` (same types, disjoint lifetimes).
+ * 2026-10-09: 491 -> 490: the palette bytes are absolute (non-small-data) objects in
+ * retail (`lui`/`lbu %lo(D_0064B2E9)`), so they are declared as arrays.
+ */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct {
@@ -2589,11 +2592,11 @@ void func_003599c0(s32 arg0, u8 *arg1)
     extern s32 func_00275020(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
     extern f32 func_0046b260(u8 *arg0);
     extern s32 (*D_00887300[])(s32, s32);
-    extern u8 D_0064B2E0;
-    extern u8 D_0064B2E8;
-    extern u8 D_0064B2E9;
-    extern u8 D_0064B2EA;
-    extern u8 D_0064B2EB;
+    extern u8 D_0064B2E0[];
+    extern u8 D_0064B2E8[];
+    extern u8 D_0064B2E9[];
+    extern u8 D_0064B2EA[];
+    extern u8 D_0064B2EB[];
     extern u8 D_0064B2EC[];
     extern u8 D_0064B2F8[];
     u8 col[4];
@@ -2643,12 +2646,12 @@ void func_003599c0(s32 arg0, u8 *arg1)
     w = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x5C0);
     h = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x5C6);
     if (isSelf) {
-        col[0] = D_0064B2E8;
-        col[1] = D_0064B2E9;
-        col[2] = D_0064B2EA;
-        col[3] = D_0064B2EB;
+        col[0] = D_0064B2E8[0];
+        col[1] = D_0064B2E9[0];
+        col[2] = D_0064B2EA[0];
+        col[3] = D_0064B2EB[0];
     } else {
-        *(f32 *)col = *(f32 *)&D_0064B2E0;
+        *(f32 *)col = *(f32 *)D_0064B2E0;
     }
     col[3] = (f32)alpha * fade;
     rc[0] = x;
@@ -2664,11 +2667,11 @@ void func_003599c0(s32 arg0, u8 *arg1)
     h = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x1A6);
     if (isSelf) {
         ptab = D_0064B2EC;
-        ctab = &D_0064B2E8;
+        ctab = D_0064B2E8;
         nameColor = 8;
     } else {
         ptab = D_0064B2F8;
-        ctab = &D_0064B2E0;
+        ctab = D_0064B2E0;
         nameColor = 6;
     }
     if (mode != 1) {
