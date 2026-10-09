@@ -25,8 +25,24 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 9 continuation, part 4: still 6,828 MATCH / 33 ASM
+## October 9 continuation, part 4: 6,829 MATCH / 32 ASM
 
+`func_00263cb0` matched (5 → 0). Retail's last swap (the `* 0x5E` column
+against the font word, `$s3`/`$s5`) closed only by changing which existing
+dead variables hold the case-7 loop values: the sum `temp_17_9 + temp_17_3`
+goes into `temp_20` and the column into `var_2`. Both variables are dead
+outside that loop. With `opt_lifetimes on`, b210 numbers webs by variable, so
+the variable choice reorders the scan. Single moves did nothing (5 or worse);
+the pair came from a joint search over 784 combinations, 64 per batch.
+`build/after26.json` reports 6,829 first-party MATCH and 32 ASM. Against
+`after25` only the `00263cb0` row changed. The full link (`build/link30.log`)
+kept 604 C and 54 SDK objects, with both hashes OK. The lint delta is empty
+apart from line numbers, and `elig_debug` shows no unowned relocations.
+Tools: `build/v/varchoice.py` (whole-use-set and per-web moves into dead
+locals), `build/v/sdiff.py` (structural diff with registers and relocations
+masked) and `build/v/side.py` (side-by-side listing).
+
+Other work, no match yet.
 No new match. `func_0014f310` (the O1 field loader) went 513 → 65 aligned
 edits. Its structural diff (`build/v/sdiff.py`, registers and relocations
 masked) is down to 2 instructions; the rest is register choice. What moved it:
