@@ -327,6 +327,16 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * test as well, and the frame kind is an int-typed lhu result.
  * 2026-10-09: 132 -> 116: the table-copy locals are declared counter, base,
  * offset, destination, index table, count table.
+ * 2026-10-09: 116 -> 99: MT_Scene_GetRes is called before the constant store, the
+ * flag call passes one `enable` local twice (retail copies $a0 to $a1), and the
+ * frame-list loop keeps a `u32 *frameCount` from its test for the final clear.
+ * 2026-10-09: func_00146e60 is declared here with an s32 id: retail passes the
+ * masked id without the u16 re-mask that the header prototype would force
+ * (H011, retail 0x0014FE90 area).
+ * 2026-10-09: 99 -> 94: the frame record is the list base plus `i * 0x18`, added
+ * after the base load.
+ * 2026-10-09: 94 -> 90: func_00146440 takes the camera entry arrays as pointers.
+ * 2026-10-09: 90 -> 86: func_0015e960's last parameter is s16.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -363,7 +373,8 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 func_00153d60(u8 *arg0, s32 arg1);
     extern s32 func_00154b10(void);
     extern s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4, u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8);
-    extern s32 func_00146440(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s32 indices, s32 positions);
+    extern void func_00146e60(s32 id, u8 *position, u8 *angles);
+    extern s32 func_00146440(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
     extern u8 *func_001452b0(s32 arg0);
     extern u8 *MT_Scene_GetRes(s32 arg0);
     extern void func_00146630(u16 arg0);
@@ -374,7 +385,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3);
     extern void func_0015fb00(u8 *arg0, s32 arg1);
     extern u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2);
-    extern s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s16 arg4);
     extern s32 func_0015f000(u8 *arg0, u8 *arg1);
     extern s32 func_0015c6f0(u8 *arg0);
     extern void func_0015c730(u8 *arg0);
@@ -482,6 +493,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 *var_17_7;
     u8 *var_18_4;
     s32 temp_19;
+    u32 *frameCount;
     s32 var_19;
     s32 var_19_2;
     s32 temp_18_2;
@@ -803,7 +815,8 @@ block_123:
                     temp_18 = (u8 *)(func_003e9700(*( RwFrame ** )((temp_3_13 + temp_16_7) + 0x128)));
                     temp_3_14 = (*( u16 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x120));
                     if ((temp_3_14 == 0) || (temp_3_14 == 2)) {
-                        temp_2_5 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28) + (var_17_3 * 0x18));
+                        temp_2_5 = *( u8 ** )(iGpffff9db0 + 0x28);
+                        temp_2_5 += var_17_3 * 0x18;
                         temp_19 = (s32)(func_00145ac0(*( u16 * )(temp_2_5 + 0x124), *( s32 * )(temp_2_5 + 0x12C)) & 0xFFFF);
                         if (temp_19 == 0) {
                             func_0046d730((const char *)D_005EFC80, 0x297);
@@ -821,14 +834,15 @@ block_123:
                             }
                         }
                         if (*( u16 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x122) & 2) {
-                            *( s32 * )(MT_Scene_GetRes(temp_19) + 0x150) = 1;
+                            temp_2_6 = (u8 *)(MT_Scene_GetRes(temp_19));
+                            *( s32 * )(temp_2_6 + 0x150) = 1;
                         }
                         *( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C) = 0;
                     }
                     var_17_3 += 1;
                 }
                 var_17_4 = 0;
-                while (var_17_4 < (u32) *( u32 * )((temp_4_9 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28))) + 0x11C)) {
+                while (var_17_4 < *(frameCount = (u32 *)((temp_4_9 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28))) + 0x11C))) {
                     temp_16_8 = var_17_4 * 0x18;
                     func_003e9700(*( RwFrame ** )((temp_4_9 + temp_16_8) + 0x128));
                     temp_4_10 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
@@ -844,9 +858,13 @@ block_123:
                     }
                     var_17_4 += 1;
                 }
-                *( u32 * )(temp_4_9 + 0x11C) = 0U;
+                *frameCount = 0U;
                 func_00149ea0();
-                func_0014a000(1, 1);
+                {
+                    s32 enable = 1;
+
+                    func_0014a000(enable, enable);
+                }
             }
             *( s32 * )(iGpffff9db0 + 0xDC) = func_00153c00(*( s16 * )(iGpffff9db0 + 0x12));
             if (*( s32 * )(iGpffff9db0 + 0) >= 0xC8) {
@@ -883,7 +901,7 @@ waitEnvironment:
             }
 readCamera:
             if (func_00154be0((u8 *)(*( s32 * )(iGpffff9db0 + 0xDC)), (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, &fieldOfView, &cameraKind, (u8 *)&cameraPosition, &cameraValue60, &cameraValue64, (s32 *)cameraEntries, (s32 *)cameraEntryPositions) != 0) {
-                func_00146440(0, cameraKind, fieldOfView, (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, (u8 *)&cameraPosition, cameraValue60, cameraValue64, (s32)cameraEntries, (s32)cameraEntryPositions);
+                func_00146440(0, cameraKind, fieldOfView, (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, (u8 *)&cameraPosition, cameraValue60, cameraValue64, cameraEntries, cameraEntryPositions);
                 *( s32 * )(iGpffff9db0 + 0x94) = 0xB;
                 goto block_259;
             }
