@@ -2270,6 +2270,10 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * Entry table below the float scratch), and the scratch views are plain
  * `&stk[n]` (with the `(f32 *)` cast, b210 hoists their addresses into saved
  * registers).
+ * 2026-10-09: 457 -> 450: the hasFlag selections are ternaries (retail joins
+ * the two loads and then masks once).
+ * 2026-10-09: 450 -> 367: the current-unit search is a `for` loop that breaks on a
+ * match, and the wrap-around pick is `entries[nn - 1]` with no mask.
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2411,27 +2415,20 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             } while (swapped != 0);
             {
                 u8 *curPtr = func_001d8bc0(arg1);
-                i = 0;
-                while ((i & 0xFFFF) < nn && entries[i & 0xFFFF].unit != curPtr) {
-                    i = (i + 1) & 0xFFFF;
+                for (i = 0; (i & 0xFFFF) < nn; i = (i + 1) & 0xFFFF) {
+                    if (entries[i & 0xFFFF].unit == curPtr) {
+                        break;
+                    }
                 }
                 if ((mode & 0xFFFF) == 5) {
                     if ((i + 1) == nn) {
-                        if (hasFlag != 0) {
-                            selected = entries[0].idx;
-                        } else {
-                            selected = *(u16 *)(arg1 + 0x3A);
-                        }
+                        selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
                         selected = entries[(i + 1) & 0xFFFF].idx;
                     }
                 } else {
                     if ((i & 0xFFFF) == 0) {
-                        if (hasFlag != 0) {
-                            selected = entries[(nn - 1) & 0xFFFF].idx;
-                        } else {
-                            selected = *(u16 *)(arg1 + 0x3A);
-                        }
+                        selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
                         selected = entries[(i - 1) & 0xFFFF].idx;
                     }
@@ -2506,27 +2503,20 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             } while (swapped != 0);
             {
                 u8 *curPtr = func_001d8bc0(arg1);
-                i = 0;
-                while ((i & 0xFFFF) < nn && entries[i & 0xFFFF].unit != curPtr) {
-                    i = (i + 1) & 0xFFFF;
+                for (i = 0; (i & 0xFFFF) < nn; i = (i + 1) & 0xFFFF) {
+                    if (entries[i & 0xFFFF].unit == curPtr) {
+                        break;
+                    }
                 }
                 if ((mode & 0xFFFF) == 1) {
                     if ((i + 1) == nn) {
-                        if (hasFlag != 0) {
-                            selected = entries[0].idx;
-                        } else {
-                            selected = *(u16 *)(arg1 + 0x3A);
-                        }
+                        selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
                         selected = entries[(i + 1) & 0xFFFF].idx;
                     }
                 } else {
                     if ((i & 0xFFFF) == 0) {
-                        if (hasFlag != 0) {
-                            selected = entries[(nn - 1) & 0xFFFF].idx;
-                        } else {
-                            selected = *(u16 *)(arg1 + 0x3A);
-                        }
+                        selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
                         selected = entries[(i - 1) & 0xFFFF].idx;
                     }
@@ -2598,21 +2588,13 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             }
             if ((mode & 0xFFFF) == 2) {
                 if ((i + 1) == nn) {
-                    if (hasFlag != 0) {
-                        selected = entries[0].idx;
-                    } else {
-                        selected = *(u16 *)(arg1 + 0x3A);
-                    }
+                    selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
                 } else {
                     selected = entries[(i + 1) & 0xFFFF].idx;
                 }
             } else {
                 if ((i & 0xFFFF) == 0) {
-                    if (hasFlag != 0) {
-                        selected = entries[(nn - 1) & 0xFFFF].idx;
-                    } else {
-                        selected = *(u16 *)(arg1 + 0x3A);
-                    }
+                    selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(arg1 + 0x3A);
                 } else {
                     selected = entries[(i - 1) & 0xFFFF].idx;
                 }
