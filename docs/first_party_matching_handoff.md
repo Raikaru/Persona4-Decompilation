@@ -61,6 +61,13 @@ fresh temp, numbered after every variable. So retail must have had fewer
 scalarized vector variables after case 1's colour, for example case 2
 without V4 locals. Moving the V4s to function scope makes it worse (175);
 per-case `inv` variables, single-case `inv` and declaration moves stay at 92.
+`00320b80` (21): the GPR model has no differing virtuals. The residual is
+(a) retail re-sign-extends the s16 loop counters at the top of each loop
+body, where ours reuses the loop test's extension (`peephole off` keeps more
+extensions but not that one, 51); and (b) the arg0/spD0 frame slots (0xE4/0xD0
+in retail vs 0xDC/0xE0). Cast/loop spellings, an explicit `s32 col = j`, and
+opt_common_subs/propagation/lifetimes/strength_reduction probes do not move
+(a).
 
 Guarded bodies improved and committed with notes:
 
