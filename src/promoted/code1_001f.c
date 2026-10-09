@@ -921,6 +921,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * 2026-10-09: 1218 -> 734: body rewritten from the IDA (docs/ida_headstart) and fresh
  * m2c (tools/m2c_with_jtbl.py) drafts. The old Ghidra-derived body lost the
  * entry-shift increment and the unit-loop counter initialisation.
+ * 725: s32 `res`/`sub` masked with 0xFFFF; case 4 listed before case 3.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -995,8 +996,8 @@ void func_001f14f0(u8 *arg0)
             *(s32 *)(arg0 + 0xE8) = 1;
             *(u16 *)(arg0 + 0xEC) = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0 ? 0x38 : 0x39;
             break;
-        case 3:
         case 4:
+        case 3:
             *(s32 *)(arg0 + 0xE8) = 1;
             *(u16 *)(arg0 + 0xEC) = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0 ? 0x3A : 0x3B;
             break;
@@ -1051,8 +1052,8 @@ void func_001f14f0(u8 *arg0)
         s32 sumB = 0;
         s32 counter = 0;
         s32 hit = 0;
-        u16 res;
-        u16 sub;
+        s32 res;
+        s32 sub;
         u8 cntA;
         u8 cntB;
         s32 e4;
@@ -1080,11 +1081,11 @@ void func_001f14f0(u8 *arg0)
         *(s32 *)(unit + 0xE8) = 0;
         *(u16 *)(unit + 0xEC) = 0;
         *(s16 *)(unit + 0xEE) = -1;
-        res = func_0023e6f0(ctx, uctx, id, flags);
+        res = func_0023e6f0(ctx, uctx, id, flags) & 0xFFFF;
         if (res == 0x200) {
             actor = arg0;
             target = ctx;
-            res = func_0023e6f0(ctx, ctx, id, flags2);
+            res = func_0023e6f0(ctx, ctx, id, flags2) & 0xFFFF;
             if (res == 4 || res == 2) {
                 res = 1;
             } else if (res == 0x200) {
@@ -1097,7 +1098,7 @@ void func_001f14f0(u8 *arg0)
         if (*(s32 *)(unit + 0xE4) != 0) {
             sub = 1;
         } else {
-            sub = func_002411a0(ctx, target, id, res, flags);
+            sub = func_002411a0(ctx, target, id, res, flags) & 0xFFFF;
         }
         if (func_0023df70(id) != 0) {
             cntA = 1;
