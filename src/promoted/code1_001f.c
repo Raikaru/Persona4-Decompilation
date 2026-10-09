@@ -932,6 +932,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * with 0xFFFF).
  * 691: `func_0023e6f0(u8 *, u8 *, u16, s32)` (the K&R definition in datCalc.c
  * declares u16 arg2).
+ * 689: case 2 before case 4 in the remap.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1101,8 +1102,8 @@ void func_001f14f0(u8 *arg0)
             case 0x200:
                 res = 0x100;
                 break;
-            case 4:
             case 2:
+            case 4:
                 res = 1;
                 break;
             }
