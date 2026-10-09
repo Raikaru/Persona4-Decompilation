@@ -1270,7 +1270,10 @@ void func_00376880(u8 **arg0) {
    FPR (f26) and the trail-position add order.
    2026-10-09: 264 -> 182: in both trail loops the sums are formed as px/py/pz
    straight from `sample->x` etc., then the minus side mx/my/mz is formed
-   before back[0] is stored, as retail orders them. */
+   before back[0] is stored, as retail orders them.
+ * 2026-10-09: 182 -> 168: the per-point pointer steps are in the for header after
+ * `point++` (retail increments the counter first).
+ */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1375,7 +1378,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 taper = 1.0f;
                 time = 0.0f;
                 length /= 21.0f;
-                for (point = 0; point < 21; point++) {
+                for (point = 0; point < 21; point++, front += 2, back += 2) {
                     func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
                     time -= length;
                     TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], (u8)(opacity * taper));
@@ -1383,8 +1386,6 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                     TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
                     TRAIL_COLOR(&back[1], rgba[0], rgba[1], rgba[2], (u8)(opacity * taper));
                     taper += iGpffff8404;
-                    front += 2;
-                    back += 2;
                 }
                 halfWidth = 0.5f * func_0036de70(card);
                 halfHeight = 0.5f * func_0036deb0(card);
@@ -1393,47 +1394,39 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                     back = second;
                     switch (side) {
                     case 0:
-                        for (point = 0; point < 21; point++) {
+                        for (point = 0; point < 21; point++, front += 2, back += 2) {
                             sample = &samples[point];
                             TRAIL_POSITION(&front[0], halfWidth + sample->x, sample->y - halfHeight, sample->z);
                             TRAIL_POSITION(&front[1], halfWidth + sample->x, sample->y, sample->z);
                             TRAIL_POSITION(&back[0], halfWidth + sample->x, sample->y, sample->z);
                             TRAIL_POSITION(&back[1], halfWidth + sample->x, halfHeight + sample->y, sample->z);
-                            front += 2;
-                            back += 2;
                         }
                         break;
                     case 1:
-                        for (point = 0; point < 21; point++) {
+                        for (point = 0; point < 21; point++, front += 2, back += 2) {
                             sample = &samples[point];
                             TRAIL_POSITION(&front[0], sample->x - halfWidth, sample->y - halfHeight, sample->z);
                             TRAIL_POSITION(&front[1], sample->x - halfWidth, sample->y, sample->z);
                             TRAIL_POSITION(&back[0], sample->x - halfWidth, sample->y, sample->z);
                             TRAIL_POSITION(&back[1], sample->x - halfWidth, halfHeight + sample->y, sample->z);
-                            front += 2;
-                            back += 2;
                         }
                         break;
                     case 2:
-                        for (point = 0; point < 21; point++) {
+                        for (point = 0; point < 21; point++, front += 2, back += 2) {
                             sample = &samples[point];
                             TRAIL_POSITION(&front[0], halfWidth + sample->x, halfHeight + sample->y, sample->z);
                             TRAIL_POSITION(&front[1], sample->x, halfHeight + sample->y, sample->z);
                             TRAIL_POSITION(&back[0], sample->x, halfHeight + sample->y, sample->z);
                             TRAIL_POSITION(&back[1], sample->x - halfWidth, halfHeight + sample->y, sample->z);
-                            front += 2;
-                            back += 2;
                         }
                         break;
                     case 3:
-                        for (point = 0; point < 21; point++) {
+                        for (point = 0; point < 21; point++, front += 2, back += 2) {
                             sample = &samples[point];
                             TRAIL_POSITION(&front[0], halfWidth + sample->x, sample->y - halfHeight, sample->z);
                             TRAIL_POSITION(&front[1], sample->x, sample->y - halfHeight, sample->z);
                             TRAIL_POSITION(&back[0], sample->x, sample->y - halfHeight, sample->z);
                             TRAIL_POSITION(&back[1], sample->x - halfWidth, sample->y - halfHeight, sample->z);
-                            front += 2;
-                            back += 2;
                         }
                         break;
                     }
@@ -1465,15 +1458,13 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 alpha = (u8)opacity;
                 time = 0.0f;
                 length /= 21.0f;
-                for (point = 0; point < 21; point++) {
+                for (point = 0; point < 21; point++, front += 2, back += 2) {
                     func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
                     time -= length;
                     TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], 0);
                     TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], alpha);
                     TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], alpha);
                     TRAIL_COLOR(&back[1], rgba[0], rgba[1], rgba[2], 0);
-                    front += 2;
-                    back += 2;
                 }
                 halfWidth = 0.5f * func_0036de70(card);
                 halfHeight = 0.5f * func_0036deb0(card);
@@ -1490,7 +1481,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                     front = first;
                     back = second;
                     taper = 1.0f;
-                    for (point = 0; point < 21; point++) {
+                    for (point = 0; point < 21; point++, front += 2, back += 2) {
                         f32 magnitude = 3.0f * taper;
                         f32 dx = D_0060A0E0.x * magnitude;
                         f32 dy = D_0060A0E0.y * magnitude;
@@ -1514,8 +1505,6 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         TRAIL_POSITION(&back[0], offsetX + sample->x, offsetY + sample->y, sample->z);
                         TRAIL_POSITION(&back[1], mx + offsetX, my + offsetY, mz);
                         taper += iGpffff8404;
-                        front += 2;
-                        back += 2;
                     }
                     func_00410420((struct RxObjSpace3DVertex *)first, 42, &identity, 2);
                     func_004106a0(4);
@@ -1547,15 +1536,13 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 alpha = (u8)opacity;
                 time = 0.0f;
                 length /= 21.0f;
-                for (point = 0; point < 21; point++) {
+                for (point = 0; point < 21; point++, front += 2, back += 2) {
                     func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
                     time -= length;
                     TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], 0);
                     TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], alpha);
                     TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], alpha);
                     TRAIL_COLOR(&back[1], rgba[0], rgba[1], rgba[2], 0);
-                    front += 2;
-                    back += 2;
                 }
                 halfWidth = 0.5f * func_0036de70(card);
                 halfHeight = 0.5f * func_0036deb0(card);
@@ -1571,7 +1558,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                     front = first;
                     back = second;
                     taper = 1.0f;
-                    for (point = 0; point < 21; point++) {
+                    for (point = 0; point < 21; point++, front += 2, back += 2) {
                         f32 magnitude = iGpffff8408 * taper;
                         f32 dx = D_0060A0E0.x * magnitude;
                         f32 dy = D_0060A0E0.y * magnitude;
@@ -1595,8 +1582,6 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         TRAIL_POSITION(&back[0], offsetX + sample->x, offsetY + sample->y, sample->z);
                         TRAIL_POSITION(&back[1], mx + offsetX, my + offsetY, mz);
                         taper += iGpffff8404;
-                        front += 2;
-                        back += 2;
                     }
                     func_00410420((struct RxObjSpace3DVertex *)first, 42, &identity, 2);
                     func_004106a0(4);
