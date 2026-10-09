@@ -1325,7 +1325,11 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
    2026-10-09: 18 -> 16, case 8 now exact: both day loops pass `var_21 * 0x5E`
    straight to the two calls instead of naming it, which gives retail's $s3/$s4
    order there. Residual: the second loop's counter/date/temp_17 colouring
-   ($s3/$s1/$s4 vs retail $s1/$s4/$s5). */
+   ($s3/$s1/$s4 vs retail $s1/$s4/$s5).
+   2026-10-09: 16 -> 5: in the second day loop the counter is `temp_17_3` and
+   the date is `temp_3` (retail's register numbering follows which variable
+   each value lives in). Residual: the `* 0x5E` product and the font word swap
+   $s3/$s5. */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1578,15 +1582,15 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             } else {
                 temp_17_9 = *(s32 *)(temp_2 + 0xC);
                 func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-                var_21 = 0;
-                while (var_21 < 7) {
-                    if ((var_21 != 1) && (var_21 != 4)) {
-                        temp_17_3 = temp_17_9 + var_21;
-                        func_00262de0(var_21 * 0x5E + 0xF, 0xF5, 0.0f, 0xFF, temp_17_3, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
+                temp_17_3 = 0;
+                while (temp_17_3 < 7) {
+                    if ((temp_17_3 != 1) && (temp_17_3 != 4)) {
+                        temp_3 = temp_17_9 + temp_17_3;
+                        func_00262de0(temp_17_3 * 0x5E + 0xF, 0xF5, 0.0f, 0xFF, temp_3, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
                         temp_17 = *(s32 *)(temp_2 + 4);
-                        func_00261560(var_21 * 0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_3, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+                        func_00261560(temp_17_3 * 0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_3, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
                     }
-                    var_21 += 1;
+                    temp_17_3 += 1;
                 }
                 func_00262de0(0x6D, 0xF5, 0.0f, 0xFF, temp_17_9 + 1, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
                 temp_16 = *(s32 *)(temp_2 + 4);
