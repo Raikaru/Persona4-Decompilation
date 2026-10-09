@@ -365,9 +365,25 @@ void func_001607e0(void)
    was ever the right one, so each loop is measured separately rather than converting
    them all.
    2026-10-08: opt_lifetimes on lowers fnalign from 506 to 502 edits. */
-/* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 502 to 401 edits. */
+/* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 502 to 401 edits.
+ * 2026-10-09: 401 -> 387: the colour buffers are cleared through a guarded
+ * count-down byte loop (inline helper), as retail does.
+ */
 // FUN_00160880 NONMATCHING
 #ifdef NON_MATCHING
+static inline void zeroBytes16_00160880(u8 *p)
+{
+    s32 n = 16;
+
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+            n--;
+        } while (n != 0);
+    }
+}
+
 #pragma push
 #pragma opt_lifetimes on
 void func_00160880(void)
@@ -543,7 +559,7 @@ void func_00160880(void)
                 a3 = a3 * alpha / 255;
             }
             if (*(s32 *)(base + curOff) == 3) {
-                for (k = 0; k < 16; k++) { colsA[k] = 0; }
+                zeroBytes16_00160880(colsA);
                 colsA[0] = (u8)r0;
                 colsA[1] = (u8)g0;
                 colsA[2] = (u8)b0;
@@ -569,7 +585,7 @@ void func_00160880(void)
                 }
                 res = func_00461390(D_007943C0, 4, vtx, 4);
             } else {
-                for (k = 0; k < 16; k++) { colsB[k] = 0; }
+                zeroBytes16_00160880(colsB);
                 colsB[0] = (u8)r0;
                 colsB[1] = (u8)g0;
                 colsB[2] = (u8)b0;
