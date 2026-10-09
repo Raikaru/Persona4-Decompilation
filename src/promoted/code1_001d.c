@@ -2262,7 +2262,11 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
     arg0 = (u8 *)(u32)iGpffffb3b8;
     return (arg0 + (arg2 & 0xFFFF) * 0x28)[8];
 }
-/* 2026-10-08: opt_loop_invariants on with opt_lifetimes on lowers fnalign from 709 to 511 edits. */
+/* 2026-10-08: opt_loop_invariants on with opt_lifetimes on lowers fnalign from 709 to 511 edits.
+ * 2026-10-09: 511 -> 495: `mode` is u16 (retail daddiu + andi 0xFFFF), the
+ * non-sky remap is a switch with cases 0/4 (mode 2) before 1/5 (mode 3), and
+ * the count test is `<= 1` (slti $at).
+ */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
  * Structure: early count<2 return, D_008C027A 0x2000/8000/1000/4000 -> mode 5/4/2/3 with D_008C0276 hasFlag, 1d8df0==1 remap (5/1->3, 4/0->2), switch in object order 4/5,0/1,2/3 sharing bodies via jtbl_00747110, u16 entry idx/chain (Entry[12] at sp+0x90 -> sp+0x120 exactly), three bubble sorts (score/score/chain, descending), chain filter over *(D_0076449C+0x17C) via +0xA68, 1ec3d0 transform for 0/1, shared tail storing *(arg1+0x3A) with +0x3C|1.
@@ -2293,7 +2297,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     } Entry;
     Entry entries[12];
     f32 stk[24];
-    s32 mode;
+    u16 mode;
     s32 hasFlag;
     s32 i;
     s32 n;
@@ -2307,7 +2311,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
 #define OUTXZ ((f32 *)&stk[20])
 #define DELTA ((f32 *)&stk[18])
 #define DIR ((f32 *)&stk[16])
-    if (*(u16 *)(arg1 + 0x38) < 2) {
+    if (*(u16 *)(arg1 + 0x38) <= 1) {
         return;
     }
     if (D_008C027A[0] & 0x2000) {
@@ -2326,11 +2330,15 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         return;
     }
     if ((func_001d8df0(arg1) & 0xFFFF) == 1) {
-        s32 m = mode & 0xFFFF;
-        if (m == 5 || m == 1) {
-            mode = 3;
-        } else if (m == 4 || m == 0) {
+        switch (mode) {
+        case 0:
+        case 4:
             mode = 2;
+            break;
+        case 1:
+        case 5:
+            mode = 3;
+            break;
         }
     }
     switch (mode & 0xFFFF) {
