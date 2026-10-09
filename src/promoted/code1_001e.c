@@ -3019,57 +3019,6 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
     *(u8 **)(p4_slot_001eb320((u16)count * 4, node) + 0x30) = 0;
     return count;
 }
-/* measured: object 2744B vs window 2752B (object 686 vs retail 687 instrs),
- * probe 632 words; frame 0xF0 vs retail 0x100; saves f20-f27 (8) vs retail
- * f20-f26 (7). Retail recomputes group+i*0x130 inline; prior cached-pointer
- * body was 642. Remaining classes: branch polarity (beq/bne, bc1t/bc1f,
- * c.ole/c.olt), ld/sd 64-bit copies (3 vs 1), scheduling (lwc1 +3, addiu +2,
- * lui -3, move -2, sll -2). Banked at 0.15% under the 3% gate; production
- * stays ASM. Prior exclusions: per-lane 25 mul.s/add.s each side, equal jal
- * 11 == 11, matching case counts, romwright recovered 72B frame identical to
- * own layout. New exclusions: pointer caching 642 -> 686 via inline
- * group+i*0x130 (partial 679 +19, full +44; v11 addu +14/sll +9/lw +7 vs
- * full addu -3/sll -2/lw 0); quantize retail[105:112] 7 vs object 1 excluded
- * as inlined helper (hoisted-locals c_hoist.c still 686/1-vs-7,
- * opt_loop_invariants on 679, func_001ee250 is >12/1750 round-nearest vs
- * here ceil !=0/500/25); romwright if-else 3,2,1,0 already adopted over m2c
- * switch 0,1,2,3 (CONCAT44/u64 ld/sd kept separate: c_s64.c 682; separate
- * s16 +9 v1 660 vs v2 651 but dsll 41 vs 21, lh/sh 8/0 vs 24/16; struct
- * gives dsll 22 vs 21, lh/sh match); residual 1 instr + 0x10 frame + 1 float
- * reg is polarity/ld-sd/scheduling only. Candidate
- * /var/tmp/cold1ed700b/c_struct_full.c. Do not re-litigate without new
- * evidence.
- */
-/* measured 001ed700 (owner, 2026-09-19): 687/688 with 887 fnalign edits, and
-   `block_move_scan` calls the largest pair IN-PLACE at ratio 0.827 - retail[334:460]
-   (126 instructions at 0x001EDC38) against object[323:451] (128).  Same code, different
-   registers, diverging where it stands, so there is no block to move.
-   Reading the two side by side: retail carries the record pointer in $s4 and the loop
-   counter in $s3; the object uses $s3 and $s0.  The float colouring shifts with it -
-   retail's `lwc1 $f25, 4($s4)` is the object's `lwc1 $f21, 4($s3)` - and the object saves
-   a spare $f27 for a frame of 0xF0 against retail's 0x100.  One float local too many is
-   held across the loop; the candidates are bestX, bestZ, bestH and dist, one of which
-   retail recomputes at its use.
-   Do not re-test declaration order: on func_001b11c0, the same class of transposition,
-   four declaration orders measured 12, 12, 5 and 12 against a baseline of 5, so MWCC is
-   not colouring by declaration. */
-/* measured 001ed700 (owner, 2026-09-19): fnalign **887 -> 871 edits**, count
-   686 -> 684 against retail 687, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-/* measured 001ed700 (owner, 2026-09-19): fnalign **871 -> 782 edits**, count
-   684 -> 682 against retail 687, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own.
-   2026-10-08: opt_loop_invariants on, opt_lifetimes on and opt_dead_assignments off lowers fnalign from 782 to 636 edits. */
 /* Field-group corner layout: bounding corners over the group list, then each
  * group corner and each world corner is linked to its nearest neighbour.
  * Matching notes: the bounding loop reuses `group` and the last search reuses
@@ -3078,7 +3027,9 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
  * local on the left are spelled `corners[n].x <= tx` (branch through $at);
  * `(float *)(entry += 8)` keeps the advanced pointer in $s7; and a
  * block-scoped `base = iGpffffb3ac` orders the global load before the
- * index arithmetic. */
+ * index arithmetic. The pragmas are measured: without opt_loop_invariants
+ * the D_0060A120 row address and the 7000.0f bound are not hoisted (432
+ * edits), and without opt_lifetimes the loop locals share registers (205). */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
