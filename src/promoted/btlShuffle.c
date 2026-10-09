@@ -614,7 +614,11 @@ extern u8 *iGpffffb3d4;
  * (no s32 `aCount` copy). The residual is still the spill choice: retail
  * spills the u16 index at 0xE0, b210 spills nDraw at 0xEC.
  * 2026-10-09: 38 -> 36: `hi < mlvl` (operand order picks the compare
- * register). */
+ * register).
+ * 2026-10-09: 36 -> 32: the C-list pick copies cIdx into `index` before the
+ * increment, as the A-list pick does.
+ * 2026-10-09: 32 -> 25: `cIdx = index + 1` lowers cIdx's reference count, so
+ * b210 now spills cIdx (sh/lhu 0xE0) as retail does instead of nDraw. */
 // FUN_0036EE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -754,7 +758,9 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
         if (func_00231d70(100) < rate && bIdx < bCount) {
             item = listB[bIdx++];
         } else if (cIdx < cCount) {
-            item = listC[cIdx++];
+            s32 index = cIdx;
+            cIdx = index + 1;
+            item = listC[index];
         } else if (aIdx < nA) {
             s32 index = aIdx;
             aIdx++;
