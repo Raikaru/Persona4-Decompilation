@@ -2294,6 +2294,9 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * 2026-10-09: 179 -> 172: declaration order of the function-scope scalars.
  * 2026-10-09: 172 -> 123: case 4/5 keeps the camera in its own block local `cam`
  * rather than reusing arg0.
+ * 2026-10-09: 123 -> 113: the neighbour picks use the masked index from the
+ * search test (`(i & 0xFFFF) + 1 == nn`, `((i & 0xFFFF) - 1) & 0xFFFF`).
+ * 2026-10-09: 113 -> 105: the depth walk declares `node` before `depth`.
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2443,7 +2446,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                     }
                 }
                 if ((mode & 0xFFFF) == 5) {
-                    if ((i + 1) == nn) {
+                    if ((i & 0xFFFF) + 1 == nn) {
                         selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
                         selected = entries[(i + 1) & 0xFFFF].idx;
@@ -2452,7 +2455,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                     if ((i & 0xFFFF) == 0) {
                         selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
-                        selected = entries[(i - 1) & 0xFFFF].idx;
+                        selected = entries[((i & 0xFFFF) - 1) & 0xFFFF].idx;
                     }
                 }
             }
@@ -2529,7 +2532,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                     }
                 }
                 if ((mode & 0xFFFF) == 1) {
-                    if ((i + 1) == nn) {
+                    if ((i & 0xFFFF) + 1 == nn) {
                         selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
                         selected = entries[(i + 1) & 0xFFFF].idx;
@@ -2538,7 +2541,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                     if ((i & 0xFFFF) == 0) {
                         selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(arg1 + 0x3A);
                     } else {
-                        selected = entries[(i - 1) & 0xFFFF].idx;
+                        selected = entries[((i & 0xFFFF) - 1) & 0xFFFF].idx;
                     }
                 }
             }
@@ -2554,8 +2557,11 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             if ((*(u16 *)(unit + 0x1A) & 1) != 0) {
                 u8 *ud = *(u8 **)(unit + 0x30);
                 if (*(u8 *)(ud + 0xA2) == 0) {
-                    u16 depth = 0;
-                    u8 *node = *(u8 **)(D_0076449C + 0x17C);
+                    u8 *node;
+                    u16 depth;
+
+                    depth = 0;
+                    node = *(u8 **)(D_0076449C + 0x17C);
                     for (; node != 0; node = *(u8 **)(node + 0xA68)) {
                         if (node == ud) {
                             break;
@@ -2610,7 +2616,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 return;
             }
             if ((mode & 0xFFFF) == 2) {
-                if ((i + 1) == nn) {
+                if ((i & 0xFFFF) + 1 == nn) {
                     selected = (hasFlag != 0) ? entries[0].idx : *(u16 *)(arg1 + 0x3A);
                 } else {
                     selected = entries[(i + 1) & 0xFFFF].idx;
@@ -2619,7 +2625,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 if ((i & 0xFFFF) == 0) {
                     selected = (hasFlag != 0) ? entries[nn - 1].idx : *(u16 *)(arg1 + 0x3A);
                 } else {
-                    selected = entries[(i - 1) & 0xFFFF].idx;
+                    selected = entries[((i & 0xFFFF) - 1) & 0xFFFF].idx;
                 }
             }
         }
