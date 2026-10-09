@@ -3077,7 +3077,18 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
    2026-10-09: 103 -> 80: the outer `other`/`group` list pointer is read before
    `curZ = cur[1]` and `wposZ = wpos[1]`, which makes b210 reload z from the
    stack pair as retail does (written before the read, it forwards the copied
-   register instead). */
+   register instead).
+   2026-10-09: 80 -> 31: the bounding-box tests with the local on the left are
+   spelled `corners[n].x <= tx` (not `tx >= corners[n].x`), which branches
+   through $at as retail does (matching.md, "slt $at vs slt $v0").
+   2026-10-09: 31 -> 24: the search loop walks `entry = other + j * 0x130` and
+   passes `(float *)(entry += 8)` to func_001ed060, so the advanced pointer
+   stays in $s7 as in retail.
+   2026-10-09: 24 -> 5: the last search loop walks the list with `other` (as
+   the bounding loop reuses `group`), which gives retail's $s2/$s3/$s4
+   colouring. Residual: retail loads iGpffffb3ac into $v1 before the j * 0x130
+   / i * 0x130 arithmetic at 0x001EDC8C and 0x001EDEA4; ours loads it into $v0
+   after. */
 // FUN_001ED700 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -3146,17 +3157,17 @@ void func_001ed700(f32 radius)
                 corners[0].y = ty;
                 bounds[0] = *(f32 *)(group + 4);
             }
-            if ((tx >= corners[1].x) && (corners[1].y >= ty)) {
+            if ((corners[1].x <= tx) && (corners[1].y >= ty)) {
                 corners[1].x = tx;
                 corners[1].y = ty;
                 bounds[1] = *(f32 *)(group + 4);
             }
-            if ((tx >= corners[2].x) && (ty >= corners[2].y)) {
+            if ((corners[2].x <= tx) && (corners[2].y <= ty)) {
                 corners[2].x = tx;
                 corners[2].y = ty;
                 bounds[2] = *(f32 *)(group + 4);
             }
-            if ((corners[3].x >= tx) && (ty >= corners[3].y)) {
+            if ((corners[3].x >= tx) && (corners[3].y <= ty)) {
                 corners[3].x = tx;
                 corners[3].y = ty;
                 bounds[3] = *(f32 *)(group + 4);
@@ -3212,13 +3223,15 @@ void func_001ed700(f32 radius)
             for (; other != NULL; other = *(u8 **)(other + 0x4CC)) {
                 if (group != other) {
                     for (j = 0; j < 4; j++) {
-                        delta[0] = *(f32 *)(other + j * 0x130 + 8) - cur[0];
-                        delta[1] = *(f32 *)(other + j * 0x130 + 12) - curZ;
+                        u8 *entry = other + j * 0x130;
+
+                        delta[0] = *(f32 *)(entry + 8) - cur[0];
+                        delta[1] = *(f32 *)(entry + 12) - curZ;
                         dist = func_003e41e0(norm, delta);
                         if (!(norm[0] * D_0060A120[i * 2 + 0] + norm[1] * D_0060A120[i * 2 + 1] <= fGpffff8330) && (dist < bestDist)) {
-                            if (func_001ed060((float *)(group + i * 0x130 + 8), (float *)(other + j * 0x130 + 8)) == 0) {
+                            if (func_001ed060((float *)(group + i * 0x130 + 8), (float *)(entry += 8)) == 0) {
                                 *(s64 *)bestDir = *(s64 *)norm;
-                                best = other + j * 0x130 + 8;
+                                best = entry;
                                 bestDist = dist;
                                 bestX = (f32)(*(s16 *)(other + 0) * 25 - 1750);
                                 bestZ = (f32)(*(s16 *)(other + 2) * 25 - 1750);
@@ -3265,11 +3278,11 @@ void func_001ed700(f32 radius)
         best = NULL;
         bestDist = 7000.0f;
         *(FieldPair *)wpos = *(FieldPair *)(iGpffffb3ac + i * 0x130 + 0x31C);
-        group = *(u8 **)(iGpffffb3ac + 0x318);
+        other = *(u8 **)(iGpffffb3ac + 0x318);
         wposZ = wpos[1];
-        for (; group != NULL; group = *(u8 **)(group + 0x4CC)) {
+        for (; other != NULL; other = *(u8 **)(other + 0x4CC)) {
             for (j = 0; j < 4; j++) {
-                u8 *entry = group + j * 0x130;
+                u8 *entry = other + j * 0x130;
 
                 delta[0] = *(f32 *)(entry + 8) - wpos[0];
                 delta[1] = *(f32 *)(entry + 12) - wposZ;
