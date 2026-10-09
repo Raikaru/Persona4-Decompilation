@@ -2281,6 +2281,9 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * 2026-10-09: 358 -> 346: the sort index is `u16 jj = j` and the upper slot is
  * indexed `entries[(j & 0xFFFF) + 1]`. Retail keeps the two address forms
  * separate, as here.
+ * 2026-10-09: 346 -> 235: the gathered idx stores `(u16)i` with no mask, so b210
+ * does not keep the masked counter live across the body. That frees $s7 and
+ * the frame drops to retail's 0x180.
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2392,7 +2395,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 entries[n & 0xFFFF].score = -len;
             }
             entries[n & 0xFFFF].unit = unit;
-            entries[n & 0xFFFF].idx = (u16)(i & 0xFFFF);
+            entries[n & 0xFFFF].idx = (u16)i;
             n = (n + 1) & 0xFFFF;
             i = (i + 1) & 0xFFFF;
         }
@@ -2478,7 +2481,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 entries[n & 0xFFFF].score = -dist;
             }
             entries[n & 0xFFFF].unit = unit;
-            entries[n & 0xFFFF].idx = (u16)(i & 0xFFFF);
+            entries[n & 0xFFFF].idx = (u16)i;
             n = (n + 1) & 0xFFFF;
             i = (i + 1) & 0xFFFF;
         }
@@ -2546,7 +2549,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                         node = *(u8 **)(node + 0xA68);
                     }
                     entries[n & 0xFFFF].unit = unit;
-                    entries[n & 0xFFFF].idx = (u16)(i & 0xFFFF);
+                    entries[n & 0xFFFF].idx = (u16)i;
                     entries[n & 0xFFFF].chain = depth;
                     n = (n + 1) & 0xFFFF;
                 }
