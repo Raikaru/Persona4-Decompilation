@@ -31,6 +31,11 @@ def _loops(text, spans):
         head = text[text.rfind("\n", 0, a) + 1:a]
         if re.search(r"\b(for|while)\b", head) or head.strip() == "do":
             out.append((a, b))
+    # goto loops: a label with a later `goto label;` spans a loop body
+    for lab in re.finditer(r"(?m)^\s*([A-Za-z_]\w*):\s*$", text):
+        for g in re.finditer(rf"\bgoto\s+{re.escape(lab.group(1))}\s*;", text):
+            if g.start() > lab.start():
+                out.append((lab.start(), g.end()))
     return out
 
 
@@ -68,6 +73,8 @@ def candidates(text, func_start=0):
             if any(l[0] <= p <= l[1] for l in encl_loops for p in rw):
                 continue
             after = [p for p in rw if p > blk[1]]
+            if after and re.match(r"(\s*\})*\s*else\b", text[blk[1] + 1:blk[1] + 200]):
+                continue
             if after:
                 p = min(after)
                 tail = text[p + len(w):p + len(w) + 4]
@@ -110,6 +117,10 @@ def web_candidates(text, func_start=0):
             blk = min(enc, key=lambda s: s[1] - s[0])
             nxt = re.compile(rf"(?m)^\s+{re.escape(v)} = ").search(text, d.end(), blk[1])
             end = nxt.start() if nxt else blk[1]
+            # Leaving a block through `} else` skips the sibling arm, so a textual
+            # def in that arm does not end either variable's live range.
+            if not nxt and re.match(r"(\s*\})+\s*else\b", text[blk[1]:blk[1] + 200]):
+                continue
             if not _next_is_def(text, v, end):
                 continue
             encl_loops = [l for l in loops if l[0] <= start and end <= l[1]]
