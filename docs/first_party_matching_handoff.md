@@ -39,6 +39,13 @@ H009 waivers.
 Full links `link27`, `link28` and `link29` kept 604 C and 54 SDK objects
 with both hashes OK.
 
+`0046b380` is now measurable: prepend `src/Kernel/sdkSpr.c` lines 32-198
+(its `#ifdef NON_MATCHING` support block) to the candidate. It went
+830 → 208 by dropping the defensive raster guards and planar-Z writes;
+retail reads the uninitialised uv[] (sp+0xA0..0xBC) and source[].z slots,
+documented inline. Open: SDK_SPRITE_RECORD's load order (retail loads the
+0x204 output pointer before the index); an inline helper is worse (231/453).
+
 Guarded bodies improved and committed with notes:
 
 - `00263cb0` 48 → 5: disjoint locals share one variable (lever in
