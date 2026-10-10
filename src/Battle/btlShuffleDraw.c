@@ -1274,6 +1274,8 @@ void func_00376880(u8 **arg0) {
  * 2026-10-09: 182 -> 168: the per-point pointer steps are in the for header after
  * `point++` (retail increments the counter first).
  * 165: h_right moved to function scope (keeps retail's colouring).
+ * 164: hoist sweep.
+ * 149: hoist sweep.
  */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1339,6 +1341,8 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
     s32 kind;
     f32 opacity;
     f32 right;
+    f32 height;
+    f32 left;
 
     kind = (s8)mode;
     if (kind >= 3) {
@@ -1529,8 +1533,6 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 f32 offsetX;
                 f32 offsetY;
                 u8 alpha;
-                f32 left;
-                f32 height;
                 func_003e9700(*(struct RwFrame **)((u8 *)func_00457120() + 4));
                 front = first;
                 back = second;
