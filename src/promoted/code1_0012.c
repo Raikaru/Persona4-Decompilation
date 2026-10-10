@@ -2531,6 +2531,8 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * (fade clamps written `> N`, retail's slti $at form; fadeT holds the timer fraction)
  * 162: range tests written `> N - 1` where retail uses the slti $at form.
  * 160: comparison constants in retail's form.
+ * 145: conversion lever (var_19:(0, 2)).
+ * 138: conversion lever (temp_10_2:(0, 2)).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3058,11 +3060,11 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp6A4);
                     titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, NULL);
                     sinf(((((fGpffff8094 * (f32) (temp_16 - 0x3D)) / 80.0f))));
-                    for (var_19 = 1; var_19 < 8; var_19++) {
+                    for (var_19 = 1; (s32)var_19 < 8; var_19++) {
                         if ((u32) var_19 >= 0x13U) {
                             func_0046d730(D_005E5548, 0xD1);
                         }
-                        temp_21 = (u8 *)&((TitleRecordBlock *)D_005E5230)[var_19];
+                        temp_21 = (u8 *)&((TitleRecordBlock *)D_005E5230)[(s32)var_19];
                         var_17 = (s32)((temp_16 - 0x3D) - M2C_FIELD(temp_21, s32 *, 0x20));
                         if (var_17 > 0) {
                             var_2_5 = var_17 - 0x32;
@@ -3794,13 +3796,13 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         if (taskView->f28 != (taskView->f20 << 0x10)) {
     /* ACC seed */;
             temp_10_2 = (taskView->f20 << 0x10) - taskView->f28;
-            temp_f0_10 = (f32)temp_10_2 + 0.5f * (f32)((taskView->f20 - taskView->f24) << 0x10);
+            temp_f0_10 = (f32)(s32)temp_10_2 + 0.5f * (f32)((taskView->f20 - taskView->f24) << 0x10);
             temp_10_2 = (s32)temp_f0_10;
             if (func_0043c6a0(temp_10_2) < 0xB) {
                 taskView->f28 = (s32) (taskView->f20 << 0x10);
                 taskView->f08 = (s32) ~(taskView->f08 ^ -5);
             } else {
-                taskView->f28 = (s32) (taskView->f28 + (s32)((f32)temp_10_2 * 0.5f));
+                taskView->f28 = (s32) (taskView->f28 + (s32)((f32)(s32)temp_10_2 * 0.5f));
             }
         }
         temp_5 = (s32)(taskView->f24);
