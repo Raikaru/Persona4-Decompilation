@@ -1373,7 +1373,7 @@ void func_004bc520(u8 *arg0, f32 *arg1)
    is folded into the address expression and emitted after the loads. */
 // FUN_004BC540
 #pragma opt_propagation off
-void func_004bc540(u8 *arg0, s32 arg1, u8 *arg2, f32 fparg0)
+void func_004bc540(u8 *arg0, s32 arg1, f32 fparg0, u8 *arg2)
 {
     u8 *temp_5;
     struct {
