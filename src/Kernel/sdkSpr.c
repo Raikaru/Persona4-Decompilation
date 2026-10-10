@@ -120,6 +120,11 @@ typedef u8 SdkSpriteRecord[0x80];
  * public width/height queries above. Each call reads the current payload. */
 /* Both extents use the retail 32-bit wrapping subtraction. Convert each
  * signed bound before subtracting so an overflowing difference is defined. */
+static inline f32 sdkSpriteBorder(u8 *output, u32 offset, s32 field)
+{
+    return (f32)*(s32 *)(output + offset + field);
+}
+
 static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
 {
     u32 value;
@@ -141,7 +146,7 @@ static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
     }
     extent = (f32)value;
     if (includeBorder != 0) {
-        f32 border = (f32)*(s32 *)(output + offset + 0x40);
+        f32 border = sdkSpriteBorder(output, offset, 0x40);
         extent -= (f32)*(s16 *)(sample + 0x1C);
         return border + extent;
     }
@@ -170,7 +175,7 @@ static inline f32 sdkSpriteBottom(u8 *sample, s32 includeBorder)
     }
     extent = (f32)value;
     if (includeBorder != 0) {
-        f32 border = (f32)*(s32 *)(output + offset + 0x38);
+        f32 border = sdkSpriteBorder(output, offset, 0x38);
         extent -= (f32)*(s16 *)(sample + 0x1E);
         return border + extent;
     }
