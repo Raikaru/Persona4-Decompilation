@@ -2455,6 +2455,11 @@ void func_00126090(s32 arg0, u8 *arg1)
  * func_0043c6a0 and the half step. Saved FPRs are now retail's f20-f24.
  * 2949: the sinf results are floats; m2c's (f32)(s32) round trips are gone.
  * (fGpffff8094 is loaded directly, as retail)
+ * 2942: the 0xFF alpha converts a float at run time (retail cvt with the
+ * 0x4F000000 check), so it goes through temp_f1_11.
+ * 2595: retail keeps 0xFFFFFF in $s2: `white` is set at the top of each first
+ * fade branch and reused by the eight later case-4/5 draw calls (the 0x1000E
+ * calls use the literal). Prologue and frame now match retail.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2862,6 +2867,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 var_8_2;
     s32 var_8_3;
     s32 temp_10;
+    u32 white;
     s32 temp_10_2;
     u32 var_3_26;
     u32 var_3_29;
@@ -2936,20 +2942,23 @@ void func_001265a0(void *unusedDrawData, void *task) {
         M2C_FIELD(temp_20, s32 *, 0xC) = temp_16;
         if (temp_16 >= 0x1A) {
             if (temp_16 < 0x74) {
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                white = 0xFFFFFF;
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
                 RpSkyRenderStateSet(3, 0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x4C, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             } else if (temp_16 < 0xA1) {
                 temp_f20_2 = sinf((fGpffff8094 * (f32) (temp_16 - 0x73)) / 45.0f);
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                white = 0xFFFFFF;
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
                 RpSkyRenderStateSet(3, 0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1 = 255.0f * (fGpffff822c + fGpffff8228 * (1.0f - temp_f20_2));
                 var_5 = (u32)temp_f1 & 0xFF;
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, var_5, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             } else {
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                white = 0xFFFFFF;
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
                 RpSkyRenderStateSet(3, 0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
@@ -3319,7 +3328,7 @@ loop_128:
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_8 = 255.0f * (1.0f - temp_f20_4);
                 var_5_10 = (u32)temp_f1_8 & 0xFF;
-                func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, var_5_10, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(-1.0f, -1.0f, 10.0f, white, var_5_10, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             }
             if (temp_16 == 0x55) {
                 func_0045ad50(2, func_00455f70(&D_005E56D0, &sp6B8), sp6B8);
@@ -3330,16 +3339,16 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                     var_5_11 = (u32)(255.0f * temp_f2) & 0xFF;
     /* ACC seed */;
                     temp_f14 = 0.0f;
-                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, var_5_11, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14, 1.0f, 1.0f);
+                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, white, var_5_11, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14, 1.0f, 1.0f);
                 } else {
-                    func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                    func_0025f3f0(195.0f, 72.0f, 0.0f, white, 0xFF, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
                 }
             }
             if ((temp_16 >= 0xBC) && (temp_16 < 0xDF)) {
                 temp_f2_2 = fGpffff8094;
                 temp_f1_9 = 255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))));
                 var_5_12 = (u32)temp_f1_9 & 0xFF;
-                func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_12, 0x10009, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                func_0025f3f0(195.0f, 72.0f, 0.0f, white, var_5_12, 0x10009, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
             }
             if (temp_16 < 0x74) {
                 var_3_12 = sp66C.bytes;
@@ -3374,9 +3383,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp370 = sp350.bits;
                 func_0045d6e0((u8 *)&sp618, (f32 *)&sp370, 0.0f, 0);
                 func_0048a000();
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, white, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
             } else {
-                func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                func_0025f3f0(268.0f, (f32) 0x169, 0.0f, white, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
             }
             if (temp_16 < 0x56) {
                 var_3_14 = sp664.bytes;
@@ -3415,7 +3424,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 D_00887300[0](6, 1);
                 RpSkyRenderStateSet(3, 0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, white, 0xFF, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             } else if (temp_16 < 0x92) {
                 var_3_16 = sp65C.bytes;
                 var_2_13 = 4;
@@ -3456,7 +3465,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_10 = 255.0f * (1.0f - temp_f22);
                 var_5_13 = (u32)temp_f1_10 & 0xFF;
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, var_5_13, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, white, var_5_13, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             }
             if (temp_16 < 0x56) {
                 var_3_18 = sp654.bytes;
@@ -3616,7 +3625,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             func_0045d6e0((u8 *)&sp5E8, (f32 *)&sp250, 0.0f, 0);
             func_0048a000();
             sp69C.value = fGpffff9c80;
-            var_3_26 = (u32)255.0f & 0xFF;
+            temp_f1_11 = 255.0f;
+            var_3_26 = (u32)temp_f1_11 & 0xFF;
             sp69C.bytes[3] = (u8)var_3_26;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp69C);
             sp500 = *(TitleRect *)&D_005E5670;
