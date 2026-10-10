@@ -5972,9 +5972,13 @@ void func_0047b060(void* param_1)
  * fnalign 38 -> 34: s16 clone slots (retail -1), cloneSlots/capacities layer reads as base-first byte offsets.
  * fnalign 34 -> 28: layerResource entry reads at the slot as base-first byte offsets.
  * fnalign 28 -> 26: effect.length passed as (s32) - retail loads it before the head/payload moves.
+ * fnalign 26 -> 20: opt_loop_invariants on (retail hoists the -1 fill and other loop constants); D_0070B610 passed as a pointer everywhere so its address is not hoisted.
+ * fnalign 20 -> 14: capacity init loop stores the literal 32 (retail reuses the hoisted constant).
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
 static inline void **mdlLoaderValueAt(void *table, u32 index)
 {
     return (void **)(*(u8 **)table + index * 8);
@@ -6065,10 +6069,10 @@ s32 func_0047b0c0(u8 *model)
     extern struct RwTexDictionary *func_003dc370(void *stream);
     extern struct RwTexDictionary *func_003e6a90(void *stream);
     extern s32 func_003ef1b0(void *dictionary);
-    extern u32 func_003d60e0(u32 schema, u32 dictionary);
+    extern u32 func_003d60e0(void *schema, void *dictionary);
     extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
         s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
-        s32 resultKind, s32 memoryKind);
+        const void *resultKind, s32 memoryKind);
     extern u32 func_0047d1a0(void);
     extern u32 *func_0047d320(u32 **head, s32 data, u32 length, u16 index, u32 flags);
     extern u32 *func_0047d460(u32 *head, u32 *node, u16 index);
@@ -6093,7 +6097,7 @@ s32 func_0047b0c0(u8 *model)
 
         for (c = 0; c < 2; c++) {
             u16 *destination = &state->capacities[c];
-            *destination = capacity;
+            *destination = 32;
         }
     }
     while (func_003df3c0(state->stream, &chunk) != 0) {
@@ -6158,7 +6162,7 @@ s32 func_0047b0c0(u8 *model)
             dictionary = func_003d6350(D_0070B610, state->stream);
             if (*(void **)(model + 0xdc) == 0) {
                 LOAD_UVS()->base = dictionary;
-                func_003d60e0((u32)D_0070B610, (u32)dictionary);
+                func_003d60e0(D_0070B610, dictionary);
             } else {
                 LOAD_UVS()->entries[state->slot].value = dictionary;
             }
@@ -6166,7 +6170,7 @@ s32 func_0047b0c0(u8 *model)
             if (state->clumpStream == 0 && state->clumpRequest == 0) {
                 LOAD_MEMORY();
                 state->uvRequest = func_004667d0(7, 0, 0, 0,
-                    (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, (s32)D_0070B610, 0);
+                    (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, D_0070B610, 0);
             } else {
                 if (state->uvRequests == 0) {
                     func_0044ea90(D_00713138, 0x1834);
@@ -6176,7 +6180,7 @@ s32 func_0047b0c0(u8 *model)
                 LOAD_MEMORY();
                 {
                     u8 *request = func_004667d0(7, 0, 0, 0,
-                        (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, (s32)D_0070B610, 0);
+                        (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, D_0070B610, 0);
                     state->uvRequests[state->slot] = request;
                 }
             }
@@ -6488,6 +6492,8 @@ s32 func_0047b0c0(u8 *model)
 #undef LOAD_LAYER
     return 1;
 }
+
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b0c0);
 #endif
