@@ -480,6 +480,11 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * tools/multiscore.py) moves the matrices and quaternions toward retail's frame slots.
  * 555: swap sweep.
  * 542: swap sweep.
+ * fnalign 542 -> 445: aggregates declared in retail slot order (baseMatrix 0x4a0 ... temp_v22 0x150); spilled scalars iStack_420, uStack_430, hasParentMatrix, resetAnimation, iStack_450 in retail spill order.
+ * fnalign 445 -> 404: owner-link path first, identity fallback in the else (retail block order).
+ * fnalign 404 -> 399: early return for a ready non-null controller with zero weight; hierarchy pointer loaded before the index; temp_v3 int; mode masks tested in the loop (hoisted after the counter init, as retail).
+ * fnalign 399 -> 373: angle-limit snapshot block in retail branch order with whole-quaternion copies.
+ * fnalign 373 -> 338: controller quaternion writes are whole-quaternion copies.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -531,13 +536,13 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     extern float fGpffff806c;
     extern float fGpffff8070;
     extern float fGpffff8074;
+  typedef union { f32 value[4]; u32 bits[4]; } ControllerQuat;
+  typedef struct { f32 from[4]; f32 to[4]; f32 omega; s32 nearlyZero; } ControllerSlerpCache;
   unsigned short temp_v0;
   void (*pcVar2)(void *matrix, void *keyFrame);
   unsigned int *puVar3;
   int *piVar4;
-  s32 hasParentMatrix;
-  s32 resetAnimation;
-  unsigned int temp_v3;
+  int temp_v3;
   float *pfVar8;
   int temp_v4;
   unsigned int temp_v5;
@@ -563,29 +568,30 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   float temp_v21;
   /* Retail sp+0x100 is conditionally assigned at 004719dc/00471d7c/
    * 00471f0c and read at 00472280. Preserve that original lifetime. */
-  int iStack_450;
-  unsigned int uStack_430;
   int iStack_420;
-  unsigned char temp_v22 [64];
-  unsigned char temp_v23 [64];
-  unsigned char temp_v24 [64];
-  RwMatrix ancestorMatrix;
-  RwMatrix scaleMatrix;
-  unsigned int temp_v27 [31];
-  
-  typedef union { f32 value[4]; u32 bits[4]; } ControllerQuat;
-  ControllerQuat fallbackRotation;
-  ControllerQuat startRotation;
-  ControllerQuat blendedRotation;
-  ControllerQuat rotationSnapshot;
-  typedef struct { f32 from[4]; f32 to[4]; f32 omega; s32 nearlyZero; } ControllerSlerpCache;
-  RwMatrix frameMatrix;
+  unsigned int uStack_430;
+  s32 hasParentMatrix;
+  s32 resetAnimation;
+  int iStack_450;
+  RwMatrix baseMatrix;
   RwMatrix identityMatrix;
+  unsigned int temp_v27 [31];
+  RwMatrix scaleMatrix;
+  RwMatrix ancestorMatrix;
+  RwMatrix frameMatrix;
+  RwMatrix axisMatrix;
+  unsigned char temp_v24 [64];
+  unsigned char temp_v23 [64];
   RwMatrix localMatrix;
   ControllerQuat rotation;
   ControllerQuat afStack_350;
   ControllerSlerpCache interpolation;
-  RwMatrix baseMatrix;
+  ControllerQuat rotationSnapshot;
+  ControllerQuat blendedRotation;
+  ControllerQuat startRotation;
+  ControllerQuat fallbackRotation;
+  unsigned char temp_v22 [64];
+  
   u32 axis[3];
   RwV3d position;
   RwV3d workingVector;
@@ -593,7 +599,6 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   f32 eye[3];
   f32 direction[3];
   u32 forwardAxis[3];
-  RwMatrix axisMatrix;
 
   typedef char ControllerPointerSize[(sizeof(void *) == 4) ? 1 : -1];
   typedef char ControllerMatrixSize[(sizeof(RwMatrix) == 64) ? 1 : -1];
@@ -656,7 +661,20 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     }
   }
   if (hasParentMatrix) {
-    if ((temp_v3 == 0) || (temp_v9 = *(int *)(temp_v3 + 4), temp_v9 == 0)) {
+    if ((temp_v3 != 0) && (temp_v9 = *(int *)(temp_v3 + 4), temp_v9 != 0)) {
+      temp_v4 = func_003e9240((struct RwObjectOwnerLink *)((void *)temp_v9));
+      if (temp_v4 == 0) {
+        baseMatrix = *(const RwMatrix *)func_003e9700((u8 *)temp_v9);
+      }
+      else {
+        baseMatrix = *(const RwMatrix *)(temp_v9 + 0x10);
+        for (temp_v9 = *(int *)(temp_v9 + 4); temp_v9 != 0; temp_v9 = *(int *)(temp_v9 + 4)) {
+          ancestorMatrix = baseMatrix;
+          RwMatrixMultiply((RwMatrix *)(((f32 *)&baseMatrix)),(const RwMatrix *)(((f32 *)&ancestorMatrix)),(const RwMatrix *)(temp_v9 + 0x10));
+        }
+      }
+    }
+    else {
       (*(u32 *)&baseMatrix.at.z) = 0x3f800000;
       ((f32 *)&baseMatrix)[5] = 1.0f;
       ((f32 *)&baseMatrix)[0] = 1.0f;
@@ -671,19 +689,6 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       (*(u32 *)&baseMatrix.pos.x) = 0;
       /* Retail 004715d0 likewise preserves the unwritten flag bits. */
       baseMatrix.flags |= 0x20003;
-    }
-    else {
-      temp_v4 = func_003e9240((struct RwObjectOwnerLink *)((void *)temp_v9));
-      if (temp_v4 == 0) {
-        baseMatrix = *(const RwMatrix *)func_003e9700((u8 *)temp_v9);
-      }
-      else {
-        baseMatrix = *(const RwMatrix *)(temp_v9 + 0x10);
-        for (temp_v9 = *(int *)(temp_v9 + 4); temp_v9 != 0; temp_v9 = *(int *)(temp_v9 + 4)) {
-          ancestorMatrix = baseMatrix;
-          RwMatrixMultiply((RwMatrix *)(((f32 *)&baseMatrix)),(const RwMatrix *)(((f32 *)&ancestorMatrix)),(const RwMatrix *)(temp_v9 + 0x10));
-        }
-      }
     }
   }
   temp_v3 = temp_v10 & 0x2000;
@@ -702,13 +707,14 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   uStack_430 = puVar12[4];
   pfVar8 = (float *)puVar12[2];
   temp_v11 = temp_v6 + 0x4c;
-  puVar3 = *(unsigned int **)((short)modelState[2] * 0x50 + **(int **)(modelState + 0x1a) + 0x48);
-  if ((puVar3 == (unsigned int *)0x0) || (*(float *)(modelState + 4) != 0.0f)) {
+  puVar3 = *(unsigned int **)(**(int **)(modelState + 0x1a) + (short)modelState[2] * 0x50 + 0x48);
+  if ((puVar3 != (unsigned int *)0x0) && (*(float *)(modelState + 4) == 0.0f)) {
+    return 1;
+  }
+  {
     /* Per-hierarchy modes are snapped before callbacks and reused for all
      * nodes, as at retail 004716d0-004716dc. The full entry flags need not
      * remain live throughout the node traversal. */
-    s32 updateFrameMatrices = temp_v10 & 0x1000;
-    s32 concatenateParentMatrix = temp_v10 & 0x4000;
     for (iStack_420 = 0; iStack_420 < (int)puVar12[1]; iStack_420 = iStack_420 + 1) {
       if (pcVar2 == func_003954b0) {
         /* RtQuatUnitConvertToMatrixMacro: independent square/cross/wimag
@@ -868,23 +874,17 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                 RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(&localMatrix.right.x));
               }
             }
-            if (((*controller & 0x1000) == 0) || (!angleLimited)) {
-              *controller = *controller & 0xf7ff;
-            }
-            else {
+            if (((*controller & 0x1000) != 0) && angleLimited) {
               if ((*controller & 0x800) == 0) {
-                *(float *)(controller + 0x10) = rotation.value[0];
-                *(float *)(controller + 0x12) = rotation.value[1];
-                *(float *)(controller + 0x14) = rotation.value[2];
-                *(float *)(controller + 0x16) = rotation.value[3];
+                *(ControllerQuat *)(controller + 0x10) = rotation;
               }
               *controller = *controller | 0x800;
             }
+            else {
+              *controller = *controller & 0xf7ff;
+            }
             if ((*controller & 0x800) != 0) {
-              rotation.value[0] = *(float *)(controller + 0x10);
-              rotation.value[1] = *(float *)(controller + 0x12);
-              rotation.value[2] = *(float *)(controller + 0x14);
-              rotation.value[3] = *(float *)(controller + 0x16);
+              rotation = *(ControllerQuat *)(controller + 0x10);
             }
             if (((*controller & 0x8000) != 0) &&
                ((*(float *)(controller + 0x24) != 0.0f || (*(float *)(controller + 0x26) != 0.0f)))) {
@@ -988,25 +988,16 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               }
               temp_v21 = func_0044b920(temp_v21);
               if (temp_v21 * 2.0f <= fGpffff8068 * *(float *)(controller + 6)) {
-                *(float *)(controller + 8) = blendedRotation.value[0];
-                *(float *)(controller + 10) = blendedRotation.value[1];
-                *(float *)(controller + 0xc) = blendedRotation.value[2];
-                *(float *)(controller + 0xe) = blendedRotation.value[3];
+                *(ControllerQuat *)(controller + 8) = blendedRotation;
               }
               else {
                 temp_v21 = 1.0f - fGpffff806c / (temp_v21 * 2.0f);
                 func_003dcc70((struct RtQuat *)(&blendedRotation.value[0]),(struct RtQuat *)(&fallbackRotation.bits[0]),(struct RtQuatSlerpCache *)(&interpolation.from[0]));
                 if (temp_v21 <= 0.0f) {
-                  *(float *)(controller + 8) = blendedRotation.value[0];
-                  *(float *)(controller + 10) = blendedRotation.value[1];
-                  *(float *)(controller + 0xc) = blendedRotation.value[2];
-                  *(float *)(controller + 0xe) = blendedRotation.value[3];
+                  *(ControllerQuat *)(controller + 8) = blendedRotation;
                 }
                 else if (1.0f <= temp_v21) {
-                  *(unsigned int *)(controller + 8) = fallbackRotation.bits[0];
-                  *(unsigned int *)(controller + 10) = fallbackRotation.bits[1];
-                  *(unsigned int *)(controller + 0xc) = fallbackRotation.bits[2];
-                  *(unsigned int *)(controller + 0xe) = fallbackRotation.bits[3];
+                  *(ControllerQuat *)(controller + 8) = fallbackRotation;
                 }
                 else {
                   f32 fromWeight = 1.0f - temp_v21;
@@ -1043,10 +1034,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                 }
               }
             } else {
-              *(float *)(controller + 8) = blendedRotation.value[0];
-              *(float *)(controller + 10) = blendedRotation.value[1];
-              *(float *)(controller + 0xc) = blendedRotation.value[2];
-              *(float *)(controller + 0xe) = blendedRotation.value[3];
+              *(ControllerQuat *)(controller + 8) = blendedRotation;
             }
           }
         }
@@ -1173,14 +1161,14 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       }
       temp_v7 = *(int *)(uStack_430 + 0xc);
       if (temp_v7 != 0) {
-        if (updateFrameMatrices != 0) {
+        if ((temp_v10 & 0x1000) != 0) {
           *(RwMatrix *)(temp_v7 + 0x10) = frameMatrix;
           if (temp_v3 == 0) {
             func_003e9680((u8 *)(temp_v7));
           }
         }
         if (temp_v3 != 0) {
-          if (concatenateParentMatrix != 0) {
+          if ((temp_v10 & 0x4000) != 0) {
             RwMatrixMultiply((RwMatrix *)(temp_v7 + 0x50),(const RwMatrix *)(pfVar8),(const RwMatrix *)(((f32 *)&baseMatrix)));
           } else {
             *(RwMatrix *)(temp_v7 + 0x50) = *(const RwMatrix *)pfVar8;
