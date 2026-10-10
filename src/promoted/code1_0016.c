@@ -1885,6 +1885,8 @@ query_complete:
  * position), replacing Ghidra's swapped scalar copy.
  * 1543: the two field-scaled push vectors negate first, then scale by +0x294 (IDA order).
  * 1516: more vector copies written as struct copies.
+ * 1518: the axis table entries are the absolute objects D_00756500..D_00756520
+ * (retail %hi/%lo relocations), not small-data scalars or raw addresses.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1905,9 +1907,9 @@ extern int FUN_003e9cb0();
 extern int FUN_003e9c10();
 extern int FUN_003e0670();
 extern int FUN_003e0c90();
-extern float DAT_00756510; /* 0x756510 */
-extern float DAT_00756514; /* 0x756514 */
-extern float DAT_00756518; /* 0x756518 */
+extern float D_00756510[]; /* 0x756510 */
+extern float D_00756514[]; /* 0x756514 */
+extern float D_00756518[]; /* 0x756518 */
 extern unsigned short DAT_008c024c; /* 0x8c024c */
 extern unsigned char DAT_008c025e; /* 0x8c025e */
 extern float CAND_fGpffff8218; /* 0xffff8218 */
@@ -1968,6 +1970,9 @@ extern void FUN_0047a870(unsigned char *);
 
 /* WARNING: Removing unreachable block (ram,0x0016c900) */
 
+extern float D_00756500[];
+extern float D_00756510[];
+extern float D_00756520[];
 s32 func_0016bdd0(u8 *param_1)
 
 {
@@ -2279,9 +2284,9 @@ s32 func_0016bdd0(u8 *param_1)
           *(unsigned int *)(piVar1[0xb0] + 0x34) = 0;
           *(unsigned int *)(piVar1[0xb0] + 0x30) = 0;
           *(unsigned int *)(piVar1[0xb0] + 0xc) = *(unsigned int *)(piVar1[0xb0] + 0xc) | 0x20003;
-          FUN_003e0870(piVar1[0xb0],(float *)0x756500,(temp_v12 - temp_v11) * temp_v10 + temp_v11 + 0.0f,2);
-          FUN_003e0870(piVar1[0xb0],(float *)0x756510,temp_v13,2);
-          FUN_003e0870(piVar1[0xb0],(float *)0x756520,(temp_v9 - temp_v14) * temp_v10 + temp_v14 + 0.0f,2);
+          FUN_003e0870(piVar1[0xb0],(float *)D_00756500,(temp_v12 - temp_v11) * temp_v10 + temp_v11 + 0.0f,2);
+          FUN_003e0870(piVar1[0xb0],(float *)D_00756510,temp_v13,2);
+          FUN_003e0870(piVar1[0xb0],(float *)D_00756520,(temp_v9 - temp_v14) * temp_v10 + temp_v14 + 0.0f,2);
           FUN_003e9cb0(temp_v8,piVar1[0xb0],0);
           temp_v4 = piVar1[0x32];
           temp_v7 = piVar1[0x33];
@@ -2463,12 +2468,12 @@ s32 func_0016bdd0(u8 *param_1)
           stk1A0[2] = *(float *)(temp_v8 + 0x28);
           stk1A0[1] = 0.0f;
           FUN_003e40b0(&stk1A0[0],&stk1A0[0]);
-          temp_v9 = DAT_00756518;
-          temp_v10 = DAT_00756514;
-          stk190[0] = stk1A0[1] * DAT_00756518 - stk1A0[2] * DAT_00756514;
-          stk190[1] = stk1A0[2] * DAT_00756510 - stk1A0[0] * DAT_00756518;
-          stk190[2] = stk1A0[0] * DAT_00756514 - stk1A0[1] * DAT_00756510;
-          temp_v14 = DAT_00756510;
+          temp_v9 = D_00756518[0];
+          temp_v10 = D_00756514[0];
+          stk190[0] = stk1A0[1] * D_00756518[0] - stk1A0[2] * D_00756514[0];
+          stk190[1] = stk1A0[2] * D_00756510[0] - stk1A0[0] * D_00756518[0];
+          stk190[2] = stk1A0[0] * D_00756514[0] - stk1A0[1] * D_00756510[0];
+          temp_v14 = D_00756510[0];
           FUN_003e40b0(&stk190[0],&stk190[0]);
           stk180[0] = ((float *)piVar1)[0xad] * temp_v9 - ((float *)piVar1)[0xae] * temp_v10;
           stk180[1] = ((float *)piVar1)[0xae] * temp_v14 - ((float *)piVar1)[0xac] * temp_v9;
@@ -2497,9 +2502,9 @@ s32 func_0016bdd0(u8 *param_1)
         temp_v8 = FUN_0016b080((void *)(piVar1[0xb0] + 0x30),55.0f,&stk160[0],&stk170[0]);
         if (temp_v8 == 1) {
           *(FldCopyVec *)&((float *)piVar1)[0xac] = *(FldCopyVec *)&stk160;
-          stk1B0[0] = stk160[1] * DAT_00756518 - stk160[2] * DAT_00756514;
-          stk1B0[1] = stk160[2] * DAT_00756510 - stk160[0] * DAT_00756518;
-          stk1B0[2] = stk160[0] * DAT_00756514 - stk160[1] * DAT_00756510;
+          stk1B0[0] = stk160[1] * D_00756518[0] - stk160[2] * D_00756514[0];
+          stk1B0[1] = stk160[2] * D_00756510[0] - stk160[0] * D_00756518[0];
+          stk1B0[2] = stk160[0] * D_00756514[0] - stk160[1] * D_00756510[0];
           FUN_003e40b0(&stk1B0[0],&stk1B0[0]);
           temp_v8 = piVar1[0xb0];
           *(FldCopyVec *)stk1C0 = *(FldCopyVec *)(temp_v8 + 0x20);
