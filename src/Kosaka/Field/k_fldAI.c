@@ -949,6 +949,8 @@ tail:
  * retail's.
  * 1171: the Ghidra CONCAT44 artifact compiled as an implicit call; removed (its
  * target local is never read).
+ * 1161: the config's +0x34 delay is an int (read as int elsewhere); Ghidra's float
+ * view made it a float-to-int conversion.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1576,7 +1578,7 @@ int func_0017f490(unsigned char *param_1)
           state7Delta.z = *(float *)(temp_v0 + 0x38) - *(float *)(piVar1[3] + 0x1a4);
           temp_v8 = RwV3dNormalize(&state7Delta,&state7Delta);
           if (*(float *)piVar1[5] <= temp_v8) {
-            piVar1[0x23] = (int)((float *)piVar1[5])[0xd];
+            piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
             func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
             *piVar1 = 0xb;
           }
@@ -1718,7 +1720,7 @@ int func_0017f490(unsigned char *param_1)
           state8Delta.z = *(float *)(temp_v0 + 0x38) - *(float *)(piVar1[3] + 0x1a4);
           temp_v8 = RwV3dNormalize(&state8Delta,&state8Delta);
           if (*(float *)piVar1[5] <= temp_v8) {
-            piVar1[0x23] = (int)((float *)piVar1[5])[0xd];
+            piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
             *piVar1 = 0xb;
             func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
           }
