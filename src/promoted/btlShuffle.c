@@ -597,34 +597,15 @@ extern s32 func_00104c70(s32 arg0);
 extern u8 D_0064E76F[];
 extern u8 *iGpffffb3d4;
 
-/* measured 2026-10-05: 82 differing words, 1456/1456 bytes. The record
- * pointer is read before scaling its index; the draw loop has a separate
- * counter and consumes an A entry before its lookup. The draw-count/cursor
- * spill and remaining register differences stay guarded. See
- * docs/probe_archive/BtlShuffle_worker8_20261005.md.
- * 2026-10-07 capture: the first colouring attempt runs out of saved
- * registers. Retail spills the u16 C cursor `cIdx` (sh/lhu at sp+0xE0);
- * here `nDraw` (v52) spills. Replaying the captured stack, raising nDraw's
- * spill score from 4 to 5 (one more weighted use or definition) makes cIdx
- * the spilled value, while changing cIdx's own score or numbering does not.
- * Measured and unchanged at 71: cIdx staging (`listC[cIdx]; cIdx++`, an s32
- * index local, (s32) compare) and five spellings of the nDraw minimum.
-   2026-10-08: a declaration-order hill climb gives 45 edits; the nDraw/cIdx spill choice remains.
- * 2026-10-09: 45 -> 38: the A-list count is read straight from the u16 `nA`
- * (no s32 `aCount` copy). The residual is still the spill choice: retail
- * spills the u16 index at 0xE0, b210 spills nDraw at 0xEC.
- * 2026-10-09: 38 -> 36: `hi < mlvl` (operand order picks the compare
- * register).
- * 2026-10-09: 36 -> 32: the C-list pick copies cIdx into `index` before the
- * increment, as the A-list pick does.
- * 2026-10-09: 32 -> 25: `cIdx = index + 1` lowers cIdx's reference count, so
- * b210 now spills cIdx (sh/lhu 0xE0) as retail does instead of nDraw.
- * 2026-10-09: 25 -> 1: body taken from the parallel cos/finish-first-party-20261009 worktree.
- */
-// FUN_0036EE60 NONMATCHING
-#ifdef NON_MATCHING
+/* The draw loop spills the u16 C-list cursor `cIdx` (sh/lhu at sp+0xE0).
+ * cIdx and the B-list count tie on spill score / degree, and b210 then
+ * spills the higher-numbered one. `(s32)bCount` in the B shuffle bound makes
+ * the frontend copy bCount into a CSE temporary, so bCount stays a local
+ * with its declared number below cIdx and cIdx is spilled, as in retail.
+ * opt_loop_invariants on is required; without it verify reports MISMATCH. */
 #pragma push
 #pragma opt_loop_invariants on
+// FUN_0036EE60
 s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
 {
     s16 listC[256];
@@ -725,7 +706,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     }
     if (bCount > 1) {
         s32 k;
-        for (k = 0; k < bCount; k++) {
+        for (k = 0; k < (s32)bCount; k++) {
             r1 = func_00231d70(nB);
             r2 = func_00231d70(nB);
             if (r1 != r2) {
@@ -763,7 +744,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
             item = listB[bIdx++];
         } else if (cIdx < cCount) {
             s32 index = cIdx;
-            cIdx = index + 1;
+            cIdx++;
             item = listC[index];
         } else if (aIdx < nA) {
             s32 index = aIdx;
@@ -785,9 +766,6 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     return 1;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ee60);
-#endif
 
 typedef struct {
     f32 a;
