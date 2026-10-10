@@ -1873,6 +1873,7 @@ query_complete:
  * 1727: vector copies are FldCamVec struct copies (retail copies through stack
  * structs; scalar copies let b210 keep them in registers).
  * 1724: vector copies written as struct copies (retail copies through stack structs).
+ * 1688: the three copies into the +0x2B0 vector are struct stores.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2515,9 +2516,7 @@ s32 func_0016bdd0(u8 *param_1)
         FUN_003e0e20(piVar1[0xb0],temp_v5,2);
         temp_v8 = FUN_0016b080((void *)(piVar1[0xb0] + 0x30),55.0f,&stk160[0],&stk170[0]);
         if (temp_v8 == 1) {
-          ((float *)piVar1)[0xac] = stk160[0];
-          ((float *)piVar1)[0xad] = stk160[1];
-          ((float *)piVar1)[0xae] = stk160[2];
+          *(FldCopyVec *)&((float *)piVar1)[0xac] = *(FldCopyVec *)&stk160;
           stk1B0[0] = stk160[1] * DAT_00756518 - stk160[2] * DAT_00756514;
           stk1B0[1] = stk160[2] * DAT_00756510 - stk160[0] * DAT_00756518;
           stk1B0[2] = stk160[0] * DAT_00756514 - stk160[1] * DAT_00756510;
@@ -2647,9 +2646,7 @@ s32 func_0016bdd0(u8 *param_1)
               FUN_003e0e20(piVar1[0xb0],temp_v5,2);
               temp_v8 = FUN_0016b080((void *)(piVar1[0xb0] + 0x30),55.0f,&stk160[0],&stk170[0]);
               if (temp_v8 == 0) {
-                ((float *)piVar1)[0xac] = stk160[0];
-                ((float *)piVar1)[0xad] = stk160[1];
-                ((float *)piVar1)[0xae] = stk160[2];
+                *(FldCopyVec *)&((float *)piVar1)[0xac] = *(FldCopyVec *)&stk160;
                 pbVar9 = (unsigned char *)FUN_00457120();
                 FUN_00457630(pbVar9,(unsigned char *)((int *)&stk150[0]),(unsigned char *)FUN_007f1710,(float *)0x0);
               }
@@ -2699,9 +2696,7 @@ s32 func_0016bdd0(u8 *param_1)
           }
           else {
             ((float *)piVar1)[0xa5] = (((float *)piVar1)[0xa5] - temp_v10);
-            ((float *)piVar1)[0xac] = stk160[0];
-            ((float *)piVar1)[0xad] = stk160[1];
-            ((float *)piVar1)[0xae] = stk160[2];
+            *(FldCopyVec *)&((float *)piVar1)[0xac] = *(FldCopyVec *)&stk160;
           }
         }
         FUN_001687f0((unsigned char *)&stkF0[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
