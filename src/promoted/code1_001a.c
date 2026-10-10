@@ -3005,6 +3005,7 @@ void func_001a5990(void)
    are historical, not type evidence. See Large_Battle_storage_20261003.md.
    2026-10-08: opt_loop_invariants on lowers fnalign from 837 to 752 edits.
  * 2026-10-09: 752 -> 709: the m2c label loops are while loops.
+ * 696: range tests in retail's slti $at form.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3298,7 +3299,7 @@ void func_001a59a0(s64 *arg0) {
     var_18 = (s16)var_23;
     if (var_23 < temp_2_4) {
         timingAdjustment = (s32)(fGpffff8128 * (f32)(temp_2_4 - var_23));
-        if (timingAdjustment >= 0x1A) {
+        if (timingAdjustment > 0x19) {
             timingAdjustment = 25;
         }
         var_18 = (s16)(var_18 + (s16)timingAdjustment);
@@ -3406,7 +3407,7 @@ block_87:
         func_00194590(var_2_2, 0);
     }
     if (sp25C != 0) {
-        if (var_23 >= 7) {
+        if (var_23 > 6) {
             var_22_2 = var_23 - 6;
         } else {
             var_22_2 = 0;
@@ -3423,7 +3424,7 @@ block_87:
         temp_2_12 = (u8 *)(func_001f7c20(0xC, 2, 9));
         (*(s8 *)((u8 *)(temp_2_12) + (0))) = 5;
         (*(s64 *)((u8 *)(temp_2_12) + (8))) = temp_16;
-        if (sp190 >= 9) {
+        if (sp190 > 8) {
             var_2_3 = sp190 - 8;
         } else {
             var_2_3 = 0;
@@ -3475,7 +3476,7 @@ block_87:
         }
         sp150 = (s32) ((s64) ((s64) var_2_4 << 0x30) >> 0x30);
         sp2B0 = (s32) var_23;
-        if (var_23 >= 4) {
+        if (var_23 > 3) {
             var_21 = var_23 - 3;
         } else {
             var_21 = 0;
@@ -3574,7 +3575,7 @@ block_87:
                 if ((sp2A0 != -3) && (sp2A0 != 0x17)) {
                     (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) sp2B0;
                 } else {
-                    if (sp2B0 >= 7) {
+                    if (sp2B0 > 6) {
                         var_3 = sp2B0 - 6;
                     } else {
                         var_3 = 0;
