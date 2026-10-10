@@ -25,6 +25,33 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation, part 7: auditing the Ghidra-derived bodies
+
+Count unchanged: 6,830 MATCH / 31 ASM. The Ghidra-derived guarded bodies
+(`fStack_*`, `piVar1`, `FUN_`) contained code that was not retail's program.
+Check every such body for these:
+- **Split stack vectors whose first element's address is passed.** b210
+  drops the stores to the other scalars. Make them `float[n]` arrays
+  (`0017f490`, `0016bdd0`: 30 vectors).
+- **Undefined Ghidra intrinsics.** These compile as implicit int calls:
+  `SQRT` becomes `sqrtf` (inlined as `sqrt.s`); a `CONCAT44` whose result was
+  never read is deleted.
+- **`piVar[n] = (int)expr` for float fields.** These are float stores:
+  `((float *)piVar)[n] = expr`. Read the other way, `(float)*(int *)p` is a
+  float load. Check field types against other uses: `0017f490`'s
+  `(int)((float *)cfg)[0xd]` is an int field.
+- **`unaff_*` and uninitialised `temp_v*` pointers.** Rebuild that region
+  from the IDA draft's control flow (`0016bdd0` case 3/4).
+- **Three consecutive loads copying a vector.** Write them as a struct copy
+  (`dst = *(Vec3 *)(src + off)`, including the flattened-y form
+  `v = *(Vec3 *)p; v.y = 0`). Retail copies through stack structs; scalar
+  copies stay in registers. Results: `0016bdd0` 2517 → 1724, `0017f490`
+  1161 → 1073 (also the 4-byte colour copy), `0018a200` 868 → 845.
+
+Prototype lever (H011, with callee evidence): a callee that masks its
+argument with 0xFFFF had a u16 parameter (`001f14f0`: `func_0010f3d0`,
+`func_001fb170`, the K&R `func_0023e6f0` arg2). `001f14f0` 721 → 689.
+
 ## October 9 continuation, part 6: 6,830 MATCH / 31 ASM
 
 `func_001fd790` matched; the body was ported from the parallel
