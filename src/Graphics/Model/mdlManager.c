@@ -488,6 +488,11 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * fnalign 338 -> 315: angle wrap loops test x > 360 (direct bc1f, no boolean); func_003e9240 returns RwBool (s32; retail does not mask).
  * workingVector copied from the controller as a whole vector.
  * fnalign 301 -> 291: matrix positions copied from position as whole vectors.
+ * 0x1389 node test written as a switch with a default (retail beq-case / b-default shape).
+ * fnalign 291 -> 277: quaternion dot products in block-local floats (retail keeps them in f0 across the sign test).
+ * hierarchy push/pop stack starts at &temp_v27[1] (retail $fp = sp+0x3e4).
+ * fnalign 276 -> 259: dirty-list insert written as the RenderWare link-list macro (list address formed once).
+ * hierarchy base loaded before the node index.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -696,21 +701,25 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   }
   temp_v3 = temp_v10 & 0x2000;
   if ((temp_v3 != 0) && ((*(unsigned char *)(*(int *)(puVar12[5] + 0xa0) + 3) & 3) == 0)) {
-    *(int *)(*(int *)(puVar12[5] + 0xa0) + 8) = DAT_0088739c[0];
-    *(int **)(*(int *)(puVar12[5] + 0xa0) + 0xc) = &DAT_0088739c[0];
-    *(int *)(DAT_0088739c[0] + 4) = *(int *)(puVar12[5] + 0xa0) + 8;
+    typedef struct ControllerLink { struct ControllerLink *next; struct ControllerLink *prev; } ControllerLink;
+    ControllerLink *list = (ControllerLink *)DAT_0088739c;
+
+    ((ControllerLink *)(*(int *)(puVar12[5] + 0xa0) + 8))->next = list->next;
+    ((ControllerLink *)(*(int *)(puVar12[5] + 0xa0) + 8))->prev = list;
+    list->next->prev = (ControllerLink *)(*(int *)(puVar12[5] + 0xa0) + 8);
     temp_v9 = *(int *)(puVar12[5] + 0xa0);
-    DAT_0088739c[0] = temp_v9 + 8;
+    list->next = (ControllerLink *)(temp_v9 + 8);
     *(unsigned char *)(temp_v9 + 3) = *(unsigned char *)(temp_v9 + 3) | 2;
   }
   temp_v6 = puVar12[8];
   pcVar2 = *(void (**)(void *, void *))(temp_v6 + 0x3c);
   temp_v9 = *(int *)(temp_v6 + 0x24);
-  puVar22 = temp_v27;
+  puVar22 = &temp_v27[1];
   uStack_430 = puVar12[4];
   pfVar8 = (float *)puVar12[2];
   temp_v11 = temp_v6 + 0x4c;
-  puVar3 = *(unsigned int **)(**(int **)(modelState + 0x1a) + (short)modelState[2] * 0x50 + 0x48);
+  temp_v4 = **(int **)(modelState + 0x1a);
+  puVar3 = *(unsigned int **)(temp_v4 + (short)modelState[2] * 0x50 + 0x48);
   if ((puVar3 != (unsigned int *)0x0) && (*(float *)(modelState + 4) == 0.0f)) {
     return 1;
   }
@@ -758,7 +767,8 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       else {
         (*pcVar2)(&frameMatrix.right.x,(void *)temp_v11);
       }
-      if (*(int *)(puVar12[4] + iStack_420 * 0x10) == 0x1389) {
+      switch (*(int *)(puVar12[4] + iStack_420 * 0x10)) {
+      case 0x1389: {
         s32 angleLimited;
         if ((param_4 == 0) && ((*controller & 0x400) == 0)) {
           *controller = *controller | 0x600;
@@ -917,15 +927,19 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             }
           } else {
             if ((puVar3 == (unsigned int *)0x0) && ((*controller & 0x100) != 0)) {
-              temp_v21 = func_004bd4a0((unsigned char *)(controller + 8),(unsigned char *)&rotation.value[0]);
-              if (temp_v21 < 0.0f) {
-                afStack_350.value[3] = -rotation.value[3];
-                afStack_350.value[0] = -rotation.value[0];
-                afStack_350.value[1] = -rotation.value[1];
-                afStack_350.value[2] = -rotation.value[2];
-                temp_v21 = func_004bd4a0((unsigned char *)(controller + 8),(unsigned char *)afStack_350.value);
+              {
+                f32 dot;
+
+                dot = func_004bd4a0((unsigned char *)(controller + 8),(unsigned char *)&rotation.value[0]);
+                if (dot < 0.0f) {
+                  afStack_350.value[3] = -rotation.value[3];
+                  afStack_350.value[0] = -rotation.value[0];
+                  afStack_350.value[1] = -rotation.value[1];
+                  afStack_350.value[2] = -rotation.value[2];
+                  dot = func_004bd4a0((unsigned char *)(controller + 8),(unsigned char *)afStack_350.value);
+                }
+                temp_v21 = func_0044b920(dot);
               }
-              temp_v21 = func_0044b920(temp_v21);
               if (temp_v21 * 2.0f < fGpffff804c) {
                 *controller = *controller & 0x7e1f;
                 *controller = *controller & 0xfbff;
@@ -979,15 +993,19 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             }
             if (((*controller & 0x2000) != 0) && (iStack_450 != 0)) {
               RtQuatConvertFromMatrix((struct RtQuat *)(&fallbackRotation.bits[0]),(const RwMatrix *)(&localMatrix.right.x));
-              temp_v21 = func_004bd4a0((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)&blendedRotation.value[0]);
-              if (temp_v21 < 0.0f) {
-                afStack_350.value[3] = -blendedRotation.value[3];
-                afStack_350.value[0] = -blendedRotation.value[0];
-                afStack_350.value[1] = -blendedRotation.value[1];
-                afStack_350.value[2] = -blendedRotation.value[2];
-                temp_v21 = func_004bd4a0((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)afStack_350.value);
+              {
+                f32 dot;
+
+                dot = func_004bd4a0((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)&blendedRotation.value[0]);
+                if (dot < 0.0f) {
+                  afStack_350.value[3] = -blendedRotation.value[3];
+                  afStack_350.value[0] = -blendedRotation.value[0];
+                  afStack_350.value[1] = -blendedRotation.value[1];
+                  afStack_350.value[2] = -blendedRotation.value[2];
+                  dot = func_004bd4a0((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)afStack_350.value);
+                }
+                temp_v21 = func_0044b920(dot);
               }
-              temp_v21 = func_0044b920(temp_v21);
               if (temp_v21 * 2.0f <= fGpffff8068 * *(float *)(controller + 6)) {
                 *(ControllerQuat *)(controller + 8) = blendedRotation;
               }
@@ -1153,8 +1171,12 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(&frameMatrix.right.x),(const RwMatrix *)(pfVar21));
         }
       }
-      else {
+        break;
+      default:
+      {
         RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(&frameMatrix.right.x),(const RwMatrix *)(pfVar21));
+      }
+        break;
       }
       temp_v7 = *(int *)(uStack_430 + 0xc);
       if (temp_v7 != 0) {
