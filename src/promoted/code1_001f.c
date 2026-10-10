@@ -937,6 +937,8 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * 615: type sweep.
  * 604: type sweep.
  * 603: type sweep.
+ * 577: conversion lever (s:(2, 3)).
+ * 567: conversion lever (kind:(0, 1)).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1058,7 +1060,7 @@ void func_001f14f0(u8 *arg0)
     ui = 0;
     flags2 = flags | 2;
     idw = id;
-    kindU = kind;
+    kindU = (s32)kind;
     for (; ui < *(u16 *)(arg0 + 0x6A); ui++) {
         u8 *unit = *(u8 **)(arg0 + ui * 4 + 0x38);
         u8 *actor = unit;
@@ -1300,7 +1302,7 @@ void func_001f14f0(u8 *arg0)
                 func_001f9cd0();
             }
             res30 = *(u8 **)(unit + 0x30);
-            if (res30[0xA2] == 1 && kind < 8 && !(resw & 6)) {
+            if (res30[0xA2] == 1 && (s32)kind < 8 && !(resw & 6)) {
                 func_0010f3d0(*(u16 *)(res30 + 0xA4), kindU);
             }
         }
@@ -1415,8 +1417,8 @@ void func_001f14f0(u8 *arg0)
                     flagHit = 1;
                 }
                 s = first + (q << 5);
-                func_0043f9c8(s + 0xF0, 0, 0x20);
-                *(s32 *)(s + 0xF0) = v;
+                func_0043f9c8((u8 *)(u32)s + 0xF0, 0, 0x20);
+                *(s32 *)((u8 *)(u32)s + 0xF0) = v;
                 s[0x10C] = 2;
                 *(u16 *)(s + 0x10E) |= 0x200;
                 if (*(u8 *)(iGpffffb3b8 + off + 0x24) == 0xD) {

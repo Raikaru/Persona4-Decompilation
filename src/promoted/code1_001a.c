@@ -3010,6 +3010,8 @@ void func_001a5990(void)
  * 660: swap sweep.
  * 652: type sweep.
  * 651: type sweep.
+ * 646: conversion lever (temp_18:(0, 2)).
+ * 642: conversion lever (var_6:(0, 2)).
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3249,7 +3251,7 @@ void func_001a59a0(s64 *arg0) {
     }
     var_6 = 0;
     temp_5 = (u16)((*(u16 *)((u8 *)(arg0) + (0x6A))));
-    while ((var_6 & 0xFFFF) < (s32) temp_5) {
+    while (((s32)var_6 & 0xFFFF) < (s32) temp_5) {
         temp_4 = (u8 *)((*(u8 **)((u8 *)(((u8 *)arg0 + ((var_6 & 0xFFFF) * 4))) + (0x38))));
         var_10 = 0;
         while ((var_10 & 0xFFFF) < (s32) (*(u8 *)((u8 *)(temp_4) + (0xD9)))) {
@@ -3272,7 +3274,7 @@ void func_001a59a0(s64 *arg0) {
         if ((*(u16 *)((u8 *)(temp_4) + (0xDE))) & 6) {
             sp250 = 1;
         }
-        var_6 = (var_6 + 1) & 0xFFFF;
+        var_6 = ((s32)var_6 + 1) & 0xFFFF;
     }
     if (sp25C != 0) {
         var_30 = 0xC;
@@ -3472,7 +3474,7 @@ block_87:
     spC0 = (s32) sp1E0;
     while ((s32) sp1E0 < (s32) (*(u16 *)((u8 *)(arg0) + (0x6A)))) {
         temp_18 = (s64 *)((*(s64 **)((u8 *)(((u8 *)arg0 + (sp1E0 * 4))) + (0x38))));
-        sp160 = (s32) ((s64) ((s64) (*(u8 *)((u8 *)(temp_18) + (0xD9))) << 0x30) >> 0x30);
+        sp160 = (s32) ((s64) ((s64) (*(u8 *)((u8 *)((s64 *)(u32)temp_18) + (0xD9))) << 0x30) >> 0x30);
         if (sp1C0 != 0) {
             var_2_4 = 1;
         } else {
@@ -3486,7 +3488,7 @@ block_87:
             var_21 = 0;
         }
         if (sp1B0 == 0) {
-            temp_2_18 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)(temp_18) + (0x30))), temp_19, 2));
+            temp_2_18 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)((s64 *)(u32)temp_18) + (0x30))), temp_19, 2));
             (*(s8 *)((u8 *)(temp_2_18) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_18) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_18) + (0x48))) = var_21;
