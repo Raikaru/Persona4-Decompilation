@@ -1062,3 +1062,4 @@ D_007640F8 = 0x007640f8; // type:data evidence: func_004647c0 addiu $5,$28,-0x4F
 fGpffff80ec = 0x007611dc; // type:data evidence: func_004956b0 lwc1 $f0,-0x7F14($28) at 0x00495890; GP 0x007690F0
 fGpffff80e0 = 0x007611d0; // type:data evidence: func_004968a0 lwc1 $f0,-0x7F20($28) at 0x00496AAC; GP 0x007690F0
 iGpffffa78c = 0x0076387c; // type:data evidence: retail itfMsgProcedure_Window func_00283490 lw GPREL -0x5874($28) (depth colour 0x4C000000); gp = 0x007690F0
+fGpffff854c = 0x0076163c; // type:data evidence: retail code1_0014 func_001400f0 lwc1 gp -0x7AB4 at 0x00141418; gp base 0x007690F0

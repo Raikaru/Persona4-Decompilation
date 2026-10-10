@@ -8654,3 +8654,4 @@ sfmpv_work = 0x00934770; // type:data
 sfmpv_para = 0x009388b0; // type:data
 sfmpv_rfb_adr_tbl = 0x009388d8; // type:data
 sfmpv_ta_adr_tbl = 0x009388e0; // type:data
+fGpffff854c = 0x0076163c; // type:data
