@@ -2491,6 +2491,11 @@ void func_00126090(s32 arg0, u8 *arg1)
  * 1441: the fade fractions f88/20 and timer/20 are computed first, as retail.
  * 1434: fadeT holds the case-6/7 fraction; the alpha converts in the call.
  * 1401: the remaining alpha conversions happen inside the draw calls.
+ * 842: the colour channels use the file's titlePaletteChannel helper (as the
+ * matched func_00124f70 does) instead of m2c's expanded ACC sequence.
+ * (blend 1.0f passed directly; the m2c temp_one/temp_cA/temp_cB locals are gone)
+ *
+ * (unused m2c declarations removed)
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2589,7 +2594,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern u8 D_005E56D0[];
     extern void (*D_00887300[])(s32, s32);
     extern s32 func_00126090();
-    extern u8 *saved_reg_gp;
     extern f32 fGpffff9c70;
     extern f32 fGpffff9c74;
     extern f32 fGpffff9c78;
@@ -2750,55 +2754,20 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u8 *var_3_5;
     f32 lerpT;
     f32 fadeT;
-    f32 temp_f0;
     f32 temp_f0_11;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
     f32 temp_f0_5;
-    f32 temp_f0_6;
     f32 temp_f0_7;
-    f32 temp_f0_8;
     f32 temp_f0_9;
     f32 temp_f14;
     f32 temp_f14_2;
     f32 temp_f16;
     f32 temp_f16_2;
     f32 temp_f16_3;
-    f32 temp_f1;
-    f32 temp_cA;
-    f32 temp_cB;
     f32 temp_q1;
-    f32 temp_one_S2A;
-    f32 temp_one_S2B;
-    f32 temp_one_S2C;
-    f32 temp_one_S3A;
-    f32 temp_one_S3B;
-    f32 temp_one_S3C;
-    f32 temp_one_S4A;
-    f32 temp_one_S4B;
-    f32 temp_one_S4C;
-    f32 temp_one_S5A;
-    f32 temp_one_S5B;
-    f32 temp_one_S5C;
     f32 temp_f1_28;
     f32 temp_f13_28;
-    f32 temp_f1_10;
     f32 temp_f1_11;
-    f32 temp_f1_12;
-    f32 temp_f1_13;
-    f32 temp_f1_14;
-    f32 temp_f1_15;
-    f32 temp_f1_16;
     f32 temp_f1_17;
-    f32 temp_f1_2;
-    f32 temp_f1_3;
-    f32 temp_f1_4;
-    f32 temp_f1_5;
-    f32 temp_f1_6;
-    f32 temp_f1_7;
-    f32 temp_f1_8;
-    f32 temp_f1_9;
     f32 temp_f20;
     f32 temp_f20_2;
     f32 temp_f20_3;
@@ -2810,12 +2779,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     f32 temp_f2;
     f32 temp_f2_2;
     f32 temp_f2_3;
-    f32 temp_f7;
-    f32 temp_f7_2;
-    f32 temp_f7_3;
-    f32 temp_f8;
-    f32 temp_f8_2;
-    f32 temp_f8_3;
     u8 *layerClearByte;
     u8 *var_3_11;
     u8 *var_3_13;
@@ -2914,15 +2877,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 var_3_9;
     s32 var_4_17;
     s32 var_4_18;
-    s32 var_5;
-    s32 var_5_10;
     s32 var_5_11;
-    s32 var_5_12;
-    s32 var_5_13;
-    s32 var_5_14;
-    s32 var_5_15;
-    s32 var_5_18;
-    s32 var_5_19;
     s32 var_5_20;
     s32 var_6_12;
     s32 var_6_15;
@@ -3181,23 +3136,11 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                 temp_3_6 = (temp_8 >> 0x10) & 0xFF;
                                 temp_9_2 = (temp_8 >> 0x18) & 0xFF;
                                 temp_2_7 = (temp_8 >> 8) & 0xFF;
-                                temp_cA = (f32)(u32)(0xFF - temp_9_2);
-                                temp_cB = (f32)(u32)temp_9_2;
-    /* ACC seed */;
-                                temp_f1_2 = temp_cB + temp_cA * temp_q1;
-                                var_8 = (u8)temp_f1_2;
+                                var_8 = titlePaletteChannel(temp_9_2, 0xFF, temp_q1);
                                 temp_9_3 = ((u32) var_8 & 0xFF) << 0x18;
-                                temp_cA = (f32)(u32)(0xFF - temp_3_6);
-                                temp_cB = (f32)(u32)temp_3_6;
-    /* ACC seed */;
-                                temp_f1_3 = temp_cB + temp_cA * temp_q1;
-                                var_6_3 = (u8)temp_f1_3;
+                                var_6_3 = titlePaletteChannel(temp_3_6, 0xFF, temp_q1);
                                 temp_9_3 = temp_9_3 | ((var_6_3 & 0xFF) << 0x10);
-                                temp_cA = (f32)(u32)(0xFF - temp_2_7);
-                                temp_cB = (f32)(u32)temp_2_7;
-    /* ACC seed */;
-                                temp_f1_4 = temp_cB + temp_cA * temp_q1;
-                                var_3_6 = (u8)temp_f1_4;
+                                var_3_6 = titlePaletteChannel(temp_2_7, 0xFF, temp_q1);
                                 func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7, s32 *, 0)), M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), (firstBase.words[temp_9] & ~0xFF) | 0xFF, ((var_3_6 & 0xFF) << 8) | temp_9_3 | 0xFF, M2C_FIELD(temp_7, f32 *, 0x18), 0x42, temp_20);
                             }
                         }
@@ -3213,26 +3156,11 @@ void func_001265a0(void *unusedDrawData, void *task) {
                         temp_3_9 = (temp_8_2 >> 0x10) & 0xFF;
                         temp_9_5 = (temp_8_2 >> 0x18) & 0xFF;
                         temp_2_10 = (temp_8_2 >> 8) & 0xFF;
-                        temp_cA = (f32)(u32)(0xFF - temp_9_5);
-                        temp_one_S2A = 1.0f;
-                        temp_cB = (f32)(u32)temp_9_5;
-    /* ACC seed */;
-                        temp_f1_5 = temp_cB + temp_cA * temp_one_S2A;
-                        var_8_2 = (u8)temp_f1_5;
+                        var_8_2 = titlePaletteChannel(temp_9_5, 0xFF, 1.0f);
                         temp_9_6 = ((u32) var_8_2 & 0xFF) << 0x18;
-                        temp_cA = (f32)(u32)(0xFF - temp_3_9);
-                        temp_one_S2B = 1.0f;
-                        temp_cB = (f32)(u32)temp_3_9;
-    /* ACC seed */;
-                        temp_f1_6 = temp_cB + temp_cA * temp_one_S2B;
-                        var_6_6 = (u8)temp_f1_6;
+                        var_6_6 = titlePaletteChannel(temp_3_9, 0xFF, 1.0f);
                         temp_9_6 = temp_9_6 | ((var_6_6 & 0xFF) << 0x10);
-                        temp_cA = (f32)(u32)(0xFF - temp_2_10);
-                        temp_one_S2C = 1.0f;
-                        temp_cB = (f32)(u32)temp_2_10;
-    /* ACC seed */;
-                        temp_f1_7 = temp_cB + temp_cA * temp_one_S2C;
-                        var_3_7 = (u8)temp_f1_7;
+                        var_3_7 = titlePaletteChannel(temp_2_10, 0xFF, 1.0f);
                         func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_2, s32 *, 0)), M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), (secondBase.words[temp_9_4] & ~0xFF) | 0xFF, ((var_3_7 & 0xFF) << 8) | temp_9_6 | 0xFF, M2C_FIELD(temp_7_2, f32 *, 0x18), 0x42, temp_20);
                     }
                 }
@@ -3284,24 +3212,9 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     temp_3_12 = (temp_7_3 >> 0x10) & 0xFF;
                     temp_8_4 = (temp_7_3 >> 0x18) & 0xFF;
                     temp_2_15 = (temp_7_3 >> 8) & 0xFF;
-                    temp_cA = (f32)(u32)(0xFF - temp_8_4);
-                    temp_one_S3A = 1.0f;
-                    temp_cB = (f32)(u32)temp_8_4;
-    /* ACC seed */;
-                    temp_f7 = temp_cB + temp_cA * temp_one_S3A;
-                    var_7 = (u8)temp_f7;
-                    temp_cA = (f32)(u32)(0xFF - temp_3_12);
-                    temp_one_S3B = 1.0f;
-                    temp_cB = (f32)(u32)temp_3_12;
-    /* ACC seed */;
-                    temp_f7_2 = temp_cB + temp_cA * temp_one_S3B;
-                    var_6_9 = (u8)temp_f7_2;
-                    temp_cA = (f32)(u32)(0xFF - temp_2_15);
-                    temp_one_S3C = 1.0f;
-                    temp_cB = (f32)(u32)temp_2_15;
-    /* ACC seed */;
-                    temp_f7_3 = temp_cB + temp_cA * temp_one_S3C;
-                    var_3_8 = (u8)temp_f7_3;
+                    var_7 = titlePaletteChannel(temp_8_4, 0xFF, 1.0f);
+                    var_6_9 = titlePaletteChannel(temp_3_12, 0xFF, 1.0f);
+                    var_3_8 = titlePaletteChannel(temp_2_15, 0xFF, 1.0f);
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
@@ -3318,24 +3231,9 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     temp_3_15 = (temp_7_4 >> 0x10) & 0xFF;
                     temp_8_6 = (temp_7_4 >> 0x18) & 0xFF;
                     temp_2_18 = (temp_7_4 >> 8) & 0xFF;
-                    temp_cA = (f32)(u32)(0xFF - temp_8_6);
-                    temp_one_S4A = 1.0f;
-                    temp_cB = (f32)(u32)temp_8_6;
-    /* ACC seed */;
-                    temp_f8 = temp_cB + temp_cA * temp_one_S4A;
-                    var_7_2 = (u8)temp_f8;
-                    temp_cA = (f32)(u32)(0xFF - temp_3_15);
-                    temp_one_S4B = 1.0f;
-                    temp_cB = (f32)(u32)temp_3_15;
-    /* ACC seed */;
-                    temp_f8_2 = temp_cB + temp_cA * temp_one_S4B;
-                    var_6_12 = (u8)temp_f8_2;
-                    temp_cA = (f32)(u32)(0xFF - temp_2_18);
-                    temp_one_S4C = 1.0f;
-                    temp_cB = (f32)(u32)temp_2_18;
-    /* ACC seed */;
-                    temp_f8_3 = temp_cB + temp_cA * temp_one_S4C;
-                    var_3_9 = (u8)temp_f8_3;
+                    var_7_2 = titlePaletteChannel(temp_8_6, 0xFF, 1.0f);
+                    var_6_12 = titlePaletteChannel(temp_3_15, 0xFF, 1.0f);
+                    var_3_9 = titlePaletteChannel(temp_2_18, 0xFF, 1.0f);
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
@@ -3810,26 +3708,11 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             temp_3_18 = (temp_8_7 >> 0x10) & 0xFF;
             temp_9_8 = (temp_8_7 >> 0x18) & 0xFF;
             temp_2_22 = (temp_8_7 >> 8) & 0xFF;
-            temp_cA = (f32)(u32)(0xFF - temp_9_8);
-            temp_one_S5A = 1.0f;
-            temp_cB = (f32)(u32)temp_9_8;
-    /* ACC seed */;
-            temp_f1_12 = temp_cB + temp_cA * temp_one_S5A;
-            var_8_3 = (u8)temp_f1_12;
+            var_8_3 = titlePaletteChannel(temp_9_8, 0xFF, 1.0f);
             temp_9_9 = ((u32) var_8_3 & 0xFF) << 0x18;
-            temp_cA = (f32)(u32)(0xFF - temp_3_18);
-            temp_one_S5B = 1.0f;
-            temp_cB = (f32)(u32)temp_3_18;
-    /* ACC seed */;
-            temp_f1_13 = temp_cB + temp_cA * temp_one_S5B;
-            var_6_15 = (u8)temp_f1_13;
+            var_6_15 = titlePaletteChannel(temp_3_18, 0xFF, 1.0f);
             temp_9_9 = temp_9_9 | ((var_6_15 & 0xFF) << 0x10);
-            temp_cA = (f32)(u32)(0xFF - temp_2_22);
-            temp_one_S5C = 1.0f;
-            temp_cB = (f32)(u32)temp_2_22;
-    /* ACC seed */;
-            temp_f1_14 = temp_cB + temp_cA * temp_one_S5C;
-            var_3_34 = (u8)temp_f1_14;
+            var_3_34 = titlePaletteChannel(temp_2_22, 0xFF, 1.0f);
             func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_5, s32 *, 0)), M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), (fifthBase.words[temp_9_7] & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | temp_9_9 | 0xFF, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
         }
         func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
