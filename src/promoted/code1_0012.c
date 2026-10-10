@@ -2522,6 +2522,7 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * 269: the fade texture lookup happens inside the draw call, after the alpha.
  * 262: the scroll delta and the rounded step share one int local (retail
  * evaluates the delta first).
+ * 261: no explicit fnTable local; b210's CSE keeps the table address.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2888,7 +2889,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 var_4_17;
     s32 var_4_18;
     s32 temp_10;
-    void (**fnTable)(s32, s32);
     s32 temp_10_2;
     u32 var_3_26;
     u32 var_3_29;
@@ -3240,8 +3240,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 titleCopyValue((u8 *)&sp678, (const u8 *)&sp674);
                 titleRectangle((u8 *)&sp678, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                fnTable = D_00887300;
-                fnTable[0](8, 1);
+                D_00887300[0](8, 1);
                 func_00489f80();
                 var_3_11 = sp61C.bytes;
                 var_2_8 = 4;
@@ -3260,7 +3259,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 func_0045d6e0((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp380), 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
-                fnTable[0](6, 1);
+                D_00887300[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f20_4)), 0, 0, taskView->sprites, 0);
@@ -3330,8 +3329,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleCopyValue((u8 *)&sp668, (const u8 *)&sp664);
                 titleRectangle((u8 *)&sp668, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                fnTable = D_00887300;
-                fnTable[0](8, 1);
+                D_00887300[0](8, 1);
                 func_00489f80();
                 var_3_15 = sp60C.bytes;
                 var_2_12 = 4;
@@ -3350,7 +3348,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp320), 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
-                fnTable[0](6, 1);
+                D_00887300[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x1000A, 0, taskView->sprites, 0);
@@ -3367,8 +3365,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleCopyValue((u8 *)&sp660, (const u8 *)&sp65C);
                 titleRectangle((u8 *)&sp660, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                fnTable = D_00887300;
-                fnTable[0](8, 1);
+                D_00887300[0](8, 1);
                 func_00489f80();
                 var_3_17 = sp604.bytes;
                 var_2_14 = 4;
@@ -3388,7 +3385,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0048a000();
                 temp_f22 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f))));
                 func_002aaac0();
-                fnTable[0](6, 1);
+                D_00887300[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f22)), 0x1000A, 0, taskView->sprites, 0);

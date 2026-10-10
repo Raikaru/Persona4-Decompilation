@@ -25,37 +25,46 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 9 continuation, part 8: `001265a0` from 3069 to 1665
+## October 9 continuation, part 8: `001265a0` from 3069 to 261
 
 Count unchanged: 6,830 MATCH / 31 ASM. The title-screen draw `001265a0` now
 has retail's frame (0x6C0) and saved-register set. Levers, in order of gain:
+- **Copy the matched sibling's shape.** `func_00124f70` in the same file
+  draws the same palette glow. Rewriting the five `func_00124bb0` draws in
+  its exact form (`titleCopySelect` for the selected word,
+  `titlePaletteChannel` per channel inside one packed `a2` expression,
+  block locals `a0/a1/a2`) took 1401 -> 429; using `titlePaletteChannel`
+  alone took 1401 -> 842. Before rebuilding a guarded body from m2c, look
+  for a matched function in the owner that does the same thing.
 - **m2c placeholders.** `temp_f20 * temp_f21 + temp_f7 * temp_f8` stands
   for an `adda`/`madd` m2c could not decode; it read stale temporaries.
-  Rebuild each from the retail block: lerps `A + t * (B - A)` over the
-  `D_005E5230` records, `159 + 36 * s`, `52 + 246 * (1 - r)`, and the scroll
-  step converted to int once. This alone removed the extra saved FPRs.
-- **Retail stores to intermediate locals.** When retail stores a constant
-  to slot X and then copies X to Y, write it through a real local
-  (`TitleRect`, `TitleDrawColor`); assigning both from the constant lets
-  b210 delete the first store and shrinks the frame.
-- **Values retail keeps in saved registers across branches.** `0xFFFFFF`
-  in `$s2` (set at the top of each fade branch, reused by later calls but
-  not by the second call in the same branch), the function-table address
-  in `$s1` per call pair, and 268/361 in `f20`/`f21` are source locals
-  (`white`, `fnTable`, `titlePosX/Y`). This file uses
-  `opt_common_subs off`: with CSE on, b210 also hoists `-1.0f`, `0x50003`
-  and `task + 0x3C`, which retail does not.
-- **`opt_propagation off`** keeps hoisted temporaries (`glowId*`,
-  `glowFrom*`) where retail computes them instead of sinking them into
-  the call.
-- `float -> u8` directly (retail masks in both conversion arms), m2c
-  `goto` loops as `for` loops, progressive colour packing
-  (`rg = r << 24; rg |= g << 16; c = (b << 8) | rg | 0xFF`), and the task
-  pointer declared first.
+  Rebuild each from the retail block (lerps over the `D_005E5230` records,
+  `159 + 36 * s`, the scroll step). One more stale read was the glow blend
+  reading `temp_f20` instead of the 0x32-step sine.
+- **Default CSE and propagation, with struct members for fields.** Retail
+  shares repeated constants inside one call (`mov.s $f13, $f12`), which
+  needs common-subexpression elimination on. With it on, b210 also hoists
+  `M2C_FIELD(task, ..., off)` address arithmetic into saved registers;
+  retail does not, because the fields are struct members
+  (`TitleTaskView *taskView`). `RpSkyRenderStateSet`'s value is `void *`,
+  and a `(void *)0x50003` constant is not shared either. With CSE on, the
+  explicit `white`/`titlePos`/`glowId` locals became unnecessary.
+- **Retail stores to intermediate locals.** When retail stores to slot X and
+  then copies X to Y, write it through a real local or a copy inline that
+  returns the destination (`titleCopyRect`, like `titleCopyValue`); the
+  argument address is then formed before the copy, as retail does.
+- **Caller evidence for callee signatures.** Retail loads `$f12-$f14` with
+  zero before `func_00126090`, so its signature is
+  `(f32, f32, f32, s32, u8 *)` (floats first; the callee ignores them and
+  still matches). `func_0043c6a0` takes an int.
+- Smaller: alpha bytes convert `float -> u8` inside the call, fade fractions
+  are computed before the colour stores, `goto` loops become `for` loops,
+  `> 0x1E` clamps give retail's `slti $at` form, declaration order fixes
+  the loop-counter colouring.
 
-Open: retail seeds every lerp `adda` from the `0.0f` argument register
-`$f13`. b210 materialises a fresh zero per seed here, and no source form
-tried (shared zero local, argument hoists) reproduced it.
+Open: the record pointer in the first glow loop is recomputed in retail but
+shared by CSE here; the function-table address stays in `$s1` across each
+`(8,1)`/`(6,1)` call pair in retail only.
 
 ## October 9 continuation, part 7: auditing the Ghidra-derived bodies
 
