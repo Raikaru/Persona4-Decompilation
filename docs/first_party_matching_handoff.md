@@ -45,16 +45,34 @@ colouring or spill decision with `tools/regalloc_whatif.py`:
 - **Generic sweeps that paid** (bounded, per site, best kept): identity
   conversions on pairs of a local's uses (`001e9950` 85 -> 81, `0047b0c0`
   122 -> 118, `00162e10` 139 -> 136, `002b6ec0` 155 -> 144).
-- **`0014f310`**: the two resource checks are one inline helper returning
+- **`0014f310`**: all four resource checks are one inline helper returning
   1/0 in `$v0` (sdiff --regs 38 -> 32). Retail's first NULL path reuses the
-  switch chain's constant 1 already in `$v0`; not reproduced yet.
+  switch chain's constant 1 already in `$v0`; not reproduced (calling the
+  matched `func_0014ef40`/`func_0014ef80` under `auto_inline` inlines them,
+  but they lower `!= 0` to `sltu`, retail branches).
+- **Link gate:** `build/elig_debug.py` must also print no `unresolved`
+  names. `00283490` first used `iGpffff803c/811c/813c` (unrecovered spellings)
+  and `iGpffffa78c`; the TU silently left the link (603 < 604). Fixed with the
+  recovered `fGpffff` names and a curated `iGpffffa78c` entry.
+- `0047b0c0` (sdiff 29/103 -> 22/88): the clone-slot and matrix loops compare
+  as `int` (retail `slt`), and the animation field is read element-relative,
+  `*(u32 *)((u8 *)&animations->entries[i] + 0x40)` (retail folds +0x40 into
+  the load instead of sharing `entries + 0x40`).
+- `001400f0`: retail keeps the radar alpha's u32 conversion inside loop 1
+  while `opt_loop_invariants on` (needed: loop 2's constants are hoisted in
+  retail) hoists it here, whichever spelling or placement of
+  `255.0f * opacity` is used. Declaring the callee's last parameter `u8`
+  and passing the float gives struct 27 but a signed conversion.
 - Open, measured: `0048b340` (else-branch pointer must be a temporary
   numbered >= 95; the expression form re-hoists a second `addu` inside the
   loop), `004a7830` (abs value must be a local numbered below the 0.0f and
   load temporaries), `00320b80` (retail keeps `n = (s16)i` separate from the
-  loop-test sext; b210 here merges them into one web; stack homes 0xE4/0xD0
-  are spill slots in retail), `0027f6f0` (arg1/ret saved-register order;
-  whatif renumbering and score overrides do not move it).
+  loop-test sext; b210 here merges them into one web; retail's 0xD0 object
+  sits below the arg0 home, i.e. it is allocated after parameter homes, so it
+  is a 16-byte spill slot, not a local), `0027f6f0` (arg1/ret saved-register
+  order; whatif renumbering and score overrides do not move it),
+  `001e9950` (retail spills `outer`, `skillStore`, `paramA` and a sext of
+  `kind` as variables; b210 here spills their temporaries).
 
 ## October 9 continuation, part 10: `0019c0d0` MATCH; literal pools, `$at` compares
 
