@@ -3992,6 +3992,8 @@ void func_001a7710(void)
  * main-unit versus fallback-unit hit-packet paths in opposite branch order.
  * The 001d2d90/001d3000 constructors return BtlPacket pointers.
  * sdiff struct 871 -> 652: opt_common_subs off (retail reloads every field; CSE hoisted and spilled field addresses).
+ * sp450 stored straight from the s16 field, index reloaded from it; 32-bit flag test at iGpffffb3ac+0xC.
+ * sp200/sp1E0 are s32 (retail spills them whole).
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4111,7 +4113,7 @@ void func_001a7720(u8 *arg0) {
     s64 sp480;
     s64 sp470;
     s64 sp468;
-    u16 sp450;
+    s16 sp450;
     s16 sp440;
     s16 sp430;
     s16 sp420;
@@ -4148,9 +4150,9 @@ void func_001a7720(u8 *arg0) {
     s32 sp230;
     s32 sp220;
     s32 sp210;
-    u16 sp200;
+    s32 sp200;
     s32 sp1F0;
-    s16 sp1E0;
+    s32 sp1E0;
     s32 sp1D0;
     s32 sp1C0;
     s32 sp1B0;
@@ -4423,8 +4425,7 @@ void func_001a7720(u8 *arg0) {
     temp_2 = (u8 *)((*( u8 ** )((u8 *)(arg0) + (0x30))));
     temp_23 = (s8)((s8)((*( s8 * )((u8 *)(temp_2) + (0xA2)))));
     sp4D0 = (u8 *)((*( u8 ** )((u8 *)(temp_2) + (0xA0C))));
-    temp_2_2 = (s16)((s16)((*( s16 * )((u8 *)(arg0) + (0x6E)))));
-    sp450 = temp_2_2;
+    sp450 = (s16)((*( s16 * )((u8 *)(arg0) + (0x6E))));
     sp4E0 = (s32 *)((*( s32 ** )((u8 *)(arg0) + (0x38))));
     sp340 = (s32)((s32)((s32)(((*( u16 * )((u8 *)(arg0) + (0x18))) & 0x4000)) != (s32)(0)));
     sp470 = 0;
@@ -4446,6 +4447,7 @@ void func_001a7720(u8 *arg0) {
     sp230 = (s32)((s32)(s32)((s32)((*( s32 ** )((u8 *)(arg0) + (0x88)))) != (s32)(0)));
     sp220 = (s32)((s32)(func_001f2f90(arg0)) == (s32)(0));
     sp350 = 6;
+    temp_2_2 = sp450;
     sp210 = (s32)((s32)(s32)((s32)((*((u8 *)(((s32)iGpffffb3b8) + (temp_2_2 * 0x28))) & 2)) != (s32)(0)));
     temp_2_3 = (s32)((s32)(s32)((s32)(((*( u16 * )((u8 *)(arg0) + (0x1A))) & 0x10)) != (s32)(0)));
     sp200 = temp_2_3;
@@ -4460,7 +4462,7 @@ void func_001a7720(u8 *arg0) {
     temp_16 = (s64)((s64)(s64)((*( s64 * )((u8 *)(arg0) + (0)))));
     func_001a03b0(arg0);
     temp_23_2 = (s8)temp_23;
-    if ((temp_23_2 == 1) && ((*( s64 * )((u8 *)(iGpffffb3ac) + (0xC))) & 0x200000)) {
+    if ((temp_23_2 == 1) && ((*( s32 * )((u8 *)(iGpffffb3ac) + (0xC))) & 0x200000)) {
         sp340 = 0;
     }
     if (sp340 == 0) {
