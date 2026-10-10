@@ -5938,6 +5938,9 @@ void func_0047b060(void* param_1)
  * sdiff 20/81 -> 16/75: start-frame stores through an inline setter (value, table, slot) as retail evaluates them.
  * sdiff 16/75 -> 14/70: the clip store uses the same inline setter shape.
  * sdiff 14/70 -> 10/66: material/uv value reads through an index accessor (index before the entries load, as retail).
+ * sdiff 10/66 -> 8/64: matrix copy through a local entries pointer.
+ * matrix loop test compares (u16)slot, the body keeps its own (slot & 0xffff) as retail.
+ * sdiff 8/64 -> 6/60: secondary attachment test adds the table first (retail order).
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6205,7 +6208,11 @@ s32 func_0047b0c0(u8 *model)
                 u16 dst = state->slot;
 
                 animations = LOAD_LAYER()->resource;
-                animations->entries[dst].matrix = animations->entries[src].matrix;
+                {
+                    MdlDispatchAnimEntry *entries = animations->entries;
+
+                    entries[dst].matrix = entries[src].matrix;
+                }
                 if (*(u32 *)((u8 *)&animations->entries[src] + 0x40) != 0) {
                     *(u32 *)((u8 *)&animations->entries[dst] + 0x40) = *(u32 *)((u8 *)&animations->entries[src] + 0x40);
                 }
@@ -6245,7 +6252,7 @@ s32 func_0047b0c0(u8 *model)
                     void *copy = func_0047d200(attachments->primary[source]);
                     attachments->primary[destination] = copy;
                 }
-                if (attachments->secondary[source] != 0) {
+                if (*(void **)((u32)attachments->secondary + source * 4) != 0) {
                     void *copy = func_0047dc30(attachments->secondary[source]);
                     attachments->secondary[destination] = copy;
                 }
@@ -6327,7 +6334,7 @@ s32 func_0047b0c0(u8 *model)
             table->count = matrixCount;
             table->unknown = 1;
             table->entries = entries;
-            for (slot = 0; (slot & 0xffff) < matrixCount; slot = (slot + 1) & 0xffff) {
+            for (slot = 0; (u16)slot < matrixCount; slot = (slot + 1) & 0xffff) {
                 u32 offset = (slot & 0xffff) * sizeof(MdlMatrixEntry);
                 func_003e2910(stream, (u8 *)table->entries + offset + 0x40, 4);
                 func_003e2910(stream, (u8 *)table->entries + offset + 0x44, 4);
