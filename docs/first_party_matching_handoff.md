@@ -48,6 +48,32 @@ retail spills and reproducing that spill set, then the colours:
   gp floats as literals), `0047b0c0` 6/60 (left: retail keeps the constants
   32 and -1 in registers across the two small fill loops; `opt_loop_invariants
   on` instead hoists `D_00713138` into a new saved register).
+- Measured levers from the next round (all retail-checked, none adds code):
+  - **Break a CSE with a different conversion spelling.** `00160880`: the
+    blend row's `j * 4` was CSE'd with the current row's; `(u32)j * 4`
+    recomputes it as retail does (struct 7 -> 4). Reading the base global as
+    `*(u32 *)&iGpffffb2b0` gives retail's separate reload in that branch.
+  - **`int + pointer` order.** Holding the base as `u32 base` (and adding the
+    row offset to it) makes the offset the first `addu` operand, as retail.
+  - **A pointer passed through an `(s32)` cast is a conversion** and is hoisted
+    ahead of the stack and constant arguments (`docs/matching.md` 3a).
+    Declaring that slot as a pointer restores slot order (`001265a0`
+    `func_002ab380` texture, H011).
+  - **`(s32)(u32)(expr)` makes an operand evaluate first.** `001265a0`:
+    `(s32)(u32)(temp_16 - 0x3D) - field` computes the difference before the
+    field load, as retail.
+  - **Callee slots retail fills with narrowed values.** `001400f0`: retail
+    converts the radar alphas to u8 inside each arm and passes them without
+    another mask, so the two radar callees get block-scope `u8` prototypes
+    (the matched definitions keep `s32`; mwcc accepts a block-scope extern
+    that differs from a later definition). 40/45 -> 2/2.
+  - **Spill by pressure.** `00320b80`: retail spills `mode` (sw 0xD0). Copying
+    it after the first test (`mode = arg1;`) and reusing the dead parameter
+    for the row's s8 index (`arg1 = i;`) gives that spill with no stack-slot
+    helper (fnalign 12).
+  - **Retail-order rewrite.** `00160880` was rewritten from its asm (globals
+    read at use, per-word byte extraction, brightness adds after the four
+    extractions, test-first loops): fnalign 376 -> 20.
 - Colouring residual evidence (captures + `regalloc_whatif.py`), not yet
   closed:
   - `00162e10` (0/6): `found`/`k` swap `$s5`/`$s6`. Their reference counts
