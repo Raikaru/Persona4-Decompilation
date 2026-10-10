@@ -2475,13 +2475,17 @@ void func_00126090(s32 arg0, u8 *arg1)
  * 1775: the task pointer is declared first (retail $s4).
  * 1665: the loop calls pack red|green into temp_9_* right after the green
  * channel, as retail (the final colour ORs blue<<8 onto it).
+ * 1618: common-subexpression elimination and propagation are back to the
+ * defaults (retail shares repeated constants inside one call, `mov.s $f13,$f12`).
+ * The sprite pointer is read through a TitleTaskView member, which b210 does not
+ * hoist as an address, and the blend state is a void * constant, as
+ * RpSkyRenderStateSet's prototype takes.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
-#pragma opt_propagation off
-#pragma opt_common_subs off
+typedef struct { u8 pad[0x3C]; u8 *sprites; } TitleTaskView;
 #include "btl_shuffle_draw_internal.h"
 #define M2C_GUARD
 typedef s32 M2C_UNK;
@@ -2492,6 +2496,7 @@ typedef s32 M2C_UNK;
  * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
 void func_001265a0(void *unusedDrawData, void *task) {
     u32 *temp_20;
+    TitleTaskView *taskView;
     extern u8 D_005E5234[];
     extern u8 D_005E5238[];
     typedef union TitleRectangleWords { s128 bits; s32 words[4]; } TitleRectangleWords;
@@ -2952,6 +2957,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u8 *var_4_9;
 
     temp_20 = (u32 *)func_00452560(task);
+    taskView = (TitleTaskView *)temp_20;
     titleYawAxis = D_005E5628;
     titlePitchAxis = D_005E5638;
     sp6B8 = 0;
@@ -2997,25 +3003,25 @@ void func_001265a0(void *unusedDrawData, void *task) {
         if (temp_16 >= 0x1A) {
             if (temp_16 < 0x74) {
                 white = 0xFFFFFF;
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
-                RpSkyRenderStateSet(3, 0x50003);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, taskView->sprites, 1);
+                RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x4C, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x4C, 0, 0, taskView->sprites, 0);
             } else if (temp_16 < 0xA1) {
                 temp_f20_2 = sinf((fGpffff8094 * (f32) (temp_16 - 0x73)) / 45.0f);
                 white = 0xFFFFFF;
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
-                RpSkyRenderStateSet(3, 0x50003);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, taskView->sprites, 1);
+                RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1 = 255.0f * (fGpffff822c + fGpffff8228 * (1.0f - temp_f20_2));
                 var_5 = (u32)temp_f1 & 0xFF;
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, var_5, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, var_5, 0, 0, taskView->sprites, 0);
             } else {
                 white = 0xFFFFFF;
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
-                RpSkyRenderStateSet(3, 0x50003);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, taskView->sprites, 1);
+                RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, taskView->sprites, 0);
             }
             /* Retail colors at sp+0x684 and sp+0x688 are distinct four-byte objects. */
             layerClearByte = layerColorSource.bytes;
@@ -3389,11 +3395,11 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 func_0048a000();
                 func_002aaac0();
                 fnTable[0](6, 1);
-                RpSkyRenderStateSet(3, 0x50003);
+                RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_8 = 255.0f * (1.0f - temp_f20_4);
                 var_5_10 = (u32)temp_f1_8 & 0xFF;
-                func_0025f3f0(-1.0f, -1.0f, 10.0f, white, var_5_10, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(-1.0f, -1.0f, 10.0f, white, var_5_10, 0, 0, taskView->sprites, 0);
             }
             if (temp_16 == 0x55) {
                 func_0045ad50(2, func_00455f70(&D_005E56D0, &sp6B8), sp6B8);
@@ -3404,16 +3410,16 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                     var_5_11 = (u32)(255.0f * temp_f2) & 0xFF;
     /* ACC seed */;
                     temp_f14 = 0.0f;
-                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, white, var_5_11, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14, 1.0f, 1.0f);
+                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, white, var_5_11, 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
                 } else {
-                    func_0025f3f0(195.0f, 72.0f, 0.0f, white, 0xFF, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                    func_0025f3f0(195.0f, 72.0f, 0.0f, white, 0xFF, 0x10001, 0, taskView->sprites, 1);
                 }
             }
             if ((temp_16 >= 0xBC) && (temp_16 < 0xDF)) {
                 temp_f2_2 = fGpffff8094;
                 temp_f1_9 = 255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))));
                 var_5_12 = (u32)temp_f1_9 & 0xFF;
-                func_0025f3f0(195.0f, 72.0f, 0.0f, white, var_5_12, 0x10009, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                func_0025f3f0(195.0f, 72.0f, 0.0f, white, var_5_12, 0x10009, 0, taskView->sprites, 1);
             }
             if (temp_16 < 0x74) {
                 var_3_12 = sp66C.bytes;
@@ -3450,11 +3456,11 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0048a000();
                 titlePosY = (f32) 0x169;
                 titlePosX = 268.0f;
-                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, 0xFF, 0x10002, 0, taskView->sprites, 1);
             } else {
                 titlePosY = (f32) 0x169;
                 titlePosX = 268.0f;
-                func_0025f3f0(titlePosX, titlePosY, 0.0f, white, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                func_0025f3f0(titlePosX, titlePosY, 0.0f, white, 0xFF, 0x10002, 0, taskView->sprites, 1);
             }
             if (temp_16 < 0x56) {
                 var_3_14 = sp664.bytes;
@@ -3492,9 +3498,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0048a000();
                 func_002aaac0();
                 fnTable[0](6, 1);
-                RpSkyRenderStateSet(3, 0x50003);
+                RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, 0xFF, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, 0xFF, 0x1000A, 0, taskView->sprites, 0);
             } else if (temp_16 < 0x92) {
                 var_3_16 = sp65C.bytes;
                 var_2_13 = 4;
@@ -3532,11 +3538,11 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 temp_f22 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f))));
                 func_002aaac0();
                 fnTable[0](6, 1);
-                RpSkyRenderStateSet(3, 0x50003);
+                RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_10 = 255.0f * (1.0f - temp_f22);
                 var_5_13 = (u32)temp_f1_10 & 0xFF;
-                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, var_5_13, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, var_5_13, 0x1000A, 0, taskView->sprites, 0);
             }
             if (temp_16 < 0x56) {
                 var_3_18 = sp654.bytes;
@@ -3655,11 +3661,11 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 /* f2 holds this independent product across both alpha-conversion arms. */
                 temp_10 = (s16)(s32)(137.0f * temp_f16);
     /* ACC seed */;
-                func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, var_5_14, 0x1000E, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, temp_10, temp_10, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
+                func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, var_5_14, 0x1000E, 0, taskView->sprites, 1, temp_10, temp_10, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
                 var_5_15 = (u32)temp_f21_2 & 0xFF;
     /* ACC seed */;
                 temp_f16_2 = fGpffff80bc;
-                func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, var_5_15, 0x1000E, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
+                func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, var_5_15, 0x1000E, 0, taskView->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
             }
         }
         if (temp_16 < 0x19) {
@@ -3755,10 +3761,10 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         if (var_3_30 >= 0x14) {
             var_3_30 = 0x14;
         }
-        func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
-        RpSkyRenderStateSet(3, 0x50003);
+        func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
+        RpSkyRenderStateSet(3, (void *)0x50003);
         RpSkyRenderStateSet(2, 0x48);
-        func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+        func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, taskView->sprites, 0);
         sp694.value = fGpffff9c88;
         sp6BC = sp694;
         sp4E0 = *(TitleRect *)&D_005E5690;
@@ -3851,11 +3857,11 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             func_00124bb0(glowId0, M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), (fifthBase.words[temp_9_7] & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | temp_9_9 | 0xFF, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
         }
         func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
-        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
         temp_f1_15 = 255.0f * ((f32) var_3_30 / 20.0f);
         var_5_18 = (u32)temp_f1_15 & 0xFF;
-        func_0025f430(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, var_5_18, 0x10007, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+        func_0025f430(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, var_5_18, 0x10007, 0, taskView->sprites, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
         break;
     case 8:
     case 9:
@@ -3943,7 +3949,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_002abb30(titleX + 9.0f * temp_f21_3, titleY - 5.0f * temp_f21_3, 100.0f, 0xFFC705, 0xFF, temp_f21_3, 1, var_16_2, 0);
                 func_002abb30(titleX, titleY, 100.0f, 0xFFF000, 0xFF, temp_f21_3, 1, var_16_2, 0);
                 func_00478e70(var_16_2);
-                func_002ab380(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, M2C_FIELD(temp_20, s32 *, 0x3C), 9, 0);
+                func_002ab380(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, (s32)taskView->sprites, 9, 0);
             }
         }
         var_2_30 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC));
@@ -3952,7 +3958,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         }
         temp_f1_16 = 255.0f * (1.0f - ((f32) var_2_30 / 5.0f));
         var_5_19 = (u32)temp_f1_16 & 0xFF;
-        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_19, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_19, 0x10001, 0, taskView->sprites, 1);
         var_2_31 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC) - 2);
         if (var_2_31 > 0) {
             if (var_2_31 >= 3) {
@@ -3962,7 +3968,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             var_5_20 = (u32)(255.0f * temp_f1_17) & 0xFF;
             temp_f14_2 = 0.0f;
             temp_f16_3 = fGpffff82a0;
-            func_0025f430(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, var_5_20, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
+            func_0025f430(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, var_5_20, 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
         }
         if (M2C_FIELD(temp_20, s32 *, 0x28) != (M2C_FIELD(temp_20, s32 *, 0x20) << 0x10)) {
     /* ACC seed */;
@@ -3986,10 +3992,10 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             temp_28 = (s32)((f32)temp_i28 + temp_f1_28);
         }
         temp_f13_28 = 32.0f * ((f32)temp_28 / 65535.0f) + 327.0f;
-        func_0025f3f0((f32) 0x18B, temp_f13_28, 0.0f, 0xFFFFFFU, 0xFF, 0x10006, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
-        func_0025f3f0(414.0f, 330.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10003, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
-        func_0025f3f0(444.0f, 362.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10004, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
-        func_0025f3f0((f32) 0x193, 394.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10005, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+        func_0025f3f0((f32) 0x18B, temp_f13_28, 0.0f, 0xFFFFFFU, 0xFF, 0x10006, 0, taskView->sprites, 1);
+        func_0025f3f0(414.0f, 330.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10003, 0, taskView->sprites, 1);
+        func_0025f3f0(444.0f, 362.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10004, 0, taskView->sprites, 1);
+        func_0025f3f0((f32) 0x193, 394.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10005, 0, taskView->sprites, 1);
         break;
     case 10:
     case 11:
