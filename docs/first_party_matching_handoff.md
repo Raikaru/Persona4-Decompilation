@@ -25,9 +25,20 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950` MATCH; spill sets
+## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880` MATCH; spill sets
 
-**6,834 MATCH / 26 ASM.** All three closed by reading which *variables*
+**6,835 MATCH / 25 ASM** (`build/after36.json`; link 604 C / 54 SDK, both
+sha1 OK in `build/link40.log`).
+- **`00160880`** closed on top of the retail-order rewrite with an inline
+  accessor `previousStateValue_00160880(const s32 *state)` for the
+  `D_007643AC` read: the read stays after the branch join, before the row
+  offsets. Matching it made the unit reference `D_007643A4` (gp -0x4d4c),
+  which had no symbol: the TU silently dropped to 603 linked objects until
+  `D_007643A4` was added to `config/symbols_recovered.txt` and
+  `config/symbol_data_addrs.txt`. Run `build/elig_debug.py` on every
+  promoted owner and look for `unresolved`.
+
+The first three closed by reading which *variables*
 retail spills and reproducing that spill set, then the colours:
 - **`001e9950`** (92 -> 0): retail's spill slots name the variables
   (`sw` = s32 local, `sh` = u16 local, `sq` = temporary). Retail spills
