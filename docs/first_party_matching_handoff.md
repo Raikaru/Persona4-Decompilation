@@ -25,6 +25,37 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 10 continuation, part 11: `0036ee60`, `00283490` MATCH; spill ties
+
+**6,833 MATCH / 27 ASM.** Both closed with the repeated-conversion lever
+(`docs/matching.md`, "keep a load local alive"), found by reading the
+colouring or spill decision with `tools/regalloc_whatif.py`:
+- **Spill choice is a ratio tie (`0036ee60`).** Retail spills the u16 cursor
+  `cIdx` (sh/lhu at sp+0xE0). With `s32 index = cIdx; cIdx++;` cIdx's spill
+  score/degree exactly ties the B-list count's, and b210 pushes the higher
+  virtual number. `bCount` had folded into its `zext` temporary (v176);
+  `k < (s32)bCount` in the B shuffle keeps it a local numbered below cIdx,
+  so cIdx spills. `--score N=S` and `--at` on the *failing* colour round
+  show which value b210 spills.
+- **`00283490`** (opt_lifetimes on): `(s32)frame` at two later uses and
+  `(u8 *)(u32)handle` at the last two case-4 uses keep both locals out of
+  their load/inline-return temporaries; `frame` declared last; case 5 keeps
+  its date base in `today` and colour in `phase`. A per-case "which local
+  holds this value" rename sweep found the case-5 pair.
+- **Generic sweeps that paid** (bounded, per site, best kept): identity
+  conversions on pairs of a local's uses (`001e9950` 85 -> 81, `0047b0c0`
+  122 -> 118, `00162e10` 139 -> 136, `002b6ec0` 155 -> 144).
+- **`0014f310`**: the two resource checks are one inline helper returning
+  1/0 in `$v0` (sdiff --regs 38 -> 32). Retail's first NULL path reuses the
+  switch chain's constant 1 already in `$v0`; not reproduced yet.
+- Open, measured: `0048b340` (else-branch pointer must be a temporary
+  numbered >= 95; the expression form re-hoists a second `addu` inside the
+  loop), `004a7830` (abs value must be a local numbered below the 0.0f and
+  load temporaries), `00320b80` (retail keeps `n = (s16)i` separate from the
+  loop-test sext; b210 here merges them into one web; stack homes 0xE4/0xD0
+  are spill slots in retail), `0027f6f0` (arg1/ret saved-register order;
+  whatif renumbering and score overrides do not move it).
+
 ## October 9 continuation, part 10: `0019c0d0` MATCH; literal pools, `$at` compares
 
 **6,831 MATCH / 29 ASM** (full verify `build/after30.json` changes only
