@@ -3998,6 +3998,7 @@ void func_001a7710(void)
  * tail state switch (cases 1,3,2 shared; default separate) with the real btlActionSetState(BtlAction *, u16) prototype instead of the old-style local declaration.
  * real parameter types for btlCreateSetFlagsPacket, func_00194c90, func_0019b550, btlUnitCreateLookAtDeactivatePacket (pointers as void *).
  * 0x13/0x10 action selection as a var_2_13 flag test with the 0x13 call first (no goto block_408).
+ * sp200 computed directly from the flag (no temp_2_3 copy); plain comparisons.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4181,7 +4182,6 @@ void func_001a7720(u8 *arg0) {
     f32 var_f1_2;
     f32 var_f20;
     f32 var_f20_2;
-    s32 temp_2_3;
     s32 temp_2_95;
     s16 temp_21_2;
     s32 temp_2_2;
@@ -4452,9 +4452,8 @@ void func_001a7720(u8 *arg0) {
     sp350 = 6;
     temp_2_2 = sp450;
     sp210 = (s32)((s32)(s32)((s32)((*((u8 *)(((s32)iGpffffb3b8) + (temp_2_2 * 0x28))) & 2)) != (s32)(0)));
-    temp_2_3 = (s32)((s32)(s32)((s32)(((*( u16 * )((u8 *)(arg0) + (0x1A))) & 0x10)) != (s32)(0)));
-    sp200 = temp_2_3;
-    if ((s32)(s32)temp_2_3 != 0) {
+    sp200 = (*(u16 *)(arg0 + 0x1A) & 0x10) != 0;
+    if (sp200 != 0) {
         sp200 = (s32)sp210 == 0;
     }
     sp1F0 = (s32)((s32)(s32)((*( u16 * )((u8 *)(arg0) + (0x6C))) == 3));
@@ -4861,7 +4860,7 @@ void func_001a7720(u8 *arg0) {
                 func_00194590(temp_2_43, 1);
             }
         }
-    } else if (((s64)(s64)sp200 == 0) && (temp_23_2 == 1)) {
+    } else if ((sp200 == 0) && (temp_23_2 == 1)) {
         sp30C = 1;
         if ((s32)(func_0022f8b0(arg0, temp_2_2)) != (s32)(0)) {
             sp2D0 = 1;
@@ -4968,7 +4967,7 @@ void func_001a7720(u8 *arg0) {
             *(s64 *)(temp_2_52 + 8) = *(s64 *)(var_19 + 0x58);
             func_00194590(temp_2_52, 1);
         }
-    } else if (((s64)(s64)sp200 == 0) && (temp_23_2 == 0)) {
+    } else if ((sp200 == 0) && (temp_23_2 == 0)) {
         sp2C0 = 1;
         temp_2_53 = (u8 *)(func_001d65d0((*( s32 * )((u8 *)(iGpffffb3ac) + (0xDB8))), (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
         (*( s64 * )((u8 *)(temp_2_53) + (0x60))) = temp_16;
