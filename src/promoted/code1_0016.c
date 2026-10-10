@@ -1883,6 +1883,7 @@ query_complete:
  * 1572: the camera push vector is negated, then scaled (IDA order); the hit test
  * takes a two-vector segment (struct copies of the target and the matrix
  * position), replacing Ghidra's swapped scalar copy.
+ * 1543: the two field-scaled push vectors negate first, then scale by +0x294 (IDA order).
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2618,10 +2619,13 @@ s32 func_0016bdd0(u8 *param_1)
               temp_v8 = piVar1[0xb0];
               *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8 + 0x20);
               FUN_003e40b0(&stk120[0],&stk120[0]);
+              stk120[0] = -stk120[0];
+              stk120[1] = -stk120[1];
+              stk120[2] = -stk120[2];
               temp_v12 = ((float *)piVar1)[0xa5];
-              stk120[0] = -stk120[0] * temp_v12;
-              stk120[1] = -stk120[1] * temp_v12;
-              stk120[2] = -stk120[2] * temp_v12;
+              stk120[0] = stk120[0] * temp_v12;
+              stk120[1] = stk120[1] * temp_v12;
+              stk120[2] = stk120[2] * temp_v12;
               FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
               temp_v8 = piVar1[0xb0];
               (*(int *)&stk150[0]) = *(unsigned int *)(temp_v8 + 0x30);
@@ -2663,10 +2667,13 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v8 = piVar1[0xb0];
           *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8 + 0x20);
           FUN_003e40b0(&stk120[0],&stk120[0]);
+          stk120[0] = -stk120[0];
+          stk120[1] = -stk120[1];
+          stk120[2] = -stk120[2];
           temp_v12 = ((float *)piVar1)[0xa5];
-          stk120[0] = -stk120[0] * temp_v12;
-          stk120[1] = -stk120[1] * temp_v12;
-          stk120[2] = -stk120[2] * temp_v12;
+          stk120[0] = stk120[0] * temp_v12;
+          stk120[1] = stk120[1] * temp_v12;
+          stk120[2] = stk120[2] * temp_v12;
           FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
           temp_v8 = piVar1[0xb0];
           (*(int *)&stk150[0]) = *(unsigned int *)(temp_v8 + 0x30);
