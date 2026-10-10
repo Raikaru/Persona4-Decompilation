@@ -28,7 +28,7 @@ extern char D_007130C8[];
 
 static inline u32 sdkAddOffset(u32 offset, u32 base) { return offset + base; }
 
-#ifdef NON_MATCHING
+/* Sprite-renderer types, shared by the guarded func_0046b380 body. */
 #include "rw/plcore/barenderstate.h"
 
 typedef struct RwV2d {
@@ -196,7 +196,6 @@ static inline void sdkSpritePositionQuad(SdkSpriteVertex vertex[4], const RwV2d 
     vertex[3].u.els.screen.y = point[3].y;
 }
 
-#endif
 
 // FUN_0046AB90
 void func_0046ab90(u8 *arg0)
