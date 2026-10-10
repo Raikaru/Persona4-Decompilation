@@ -2518,6 +2518,7 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * 324: the upper clamp is written `> 0x1E` (retail's slti $at form).
  * 313: model slot 0 is a TitleTaskView member.
  * 298: the remaining alpha bytes convert float -> u8 directly.
+ * 285
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2884,8 +2885,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 var_3_30;
     s32 var_4_17;
     s32 var_4_18;
-    s32 var_5_11;
-    s32 var_5_20;
     s32 temp_10;
     void (**fnTable)(s32, s32);
     s32 temp_10_2;
@@ -3270,10 +3269,9 @@ void func_001265a0(void *unusedDrawData, void *task) {
             if (temp_16 >= 0x5B) {
                 if (temp_16 < 0x65) {
 temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
-                    var_5_11 = (u8)(255.0f * temp_f2);
     /* ACC seed */;
                     temp_f14 = 0.0f;
-                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, var_5_11, 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
+                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, (u8)(255.0f * temp_f2), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
                 } else {
                     func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
                 }
@@ -3776,10 +3774,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 var_2_31 = 5;
             }
             temp_f1_17 = (f32) var_2_31 / 5.0f;
-            var_5_20 = (u8)(255.0f * temp_f1_17);
             temp_f14_2 = 0.0f;
             temp_f16_3 = fGpffff82a0;
-            func_0025f430(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, var_5_20, 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
+            func_0025f430(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, (u8)(255.0f * temp_f1_17), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
         }
         if (taskView->f28 != (taskView->f20 << 0x10)) {
     /* ACC seed */;
