@@ -2466,6 +2466,7 @@ void func_00126090(s32 arg0, u8 *arg1)
  * glowFrom locals ahead of the colour lerps (retail loads them early), the
  * to-record fields by their own symbols, and the colour components convert
  * float -> u8 directly (retail masks in both conversion arms).
+ * 1891: the record id converts after the from-field loads, as retail.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3270,13 +3271,13 @@ loop_128:
                     temp_3_12 = (temp_7_3 >> 0x10) & 0xFF;
                     temp_8_4 = (temp_7_3 >> 0x18) & 0xFF;
                     temp_2_15 = (temp_7_3 >> 8) & 0xFF;
-                    glowId2 = M2C_BITWISE(s32, (f32) D_005E5370[0]);
                     glowFrom0_0 = D_005E5374[0];
                     glowFrom0_1 = D_005E5378[0];
                     glowFrom0_2 = D_005E537C[0];
                     glowFrom0_3 = D_005E5380[0];
                     glowFrom0_4 = D_005E5384[0];
                     glowFrom0_5 = D_005E5388[0];
+                    glowId2 = M2C_BITWISE(s32, (f32) D_005E5370[0]);
                     temp_cA = (f32)(u32)(0xFF - temp_8_4);
                     temp_one_S3A = 1.0f;
                     temp_cB = (f32)(u32)temp_8_4;
@@ -3311,13 +3312,13 @@ loop_128:
                     temp_3_15 = (temp_7_4 >> 0x10) & 0xFF;
                     temp_8_6 = (temp_7_4 >> 0x18) & 0xFF;
                     temp_2_18 = (temp_7_4 >> 8) & 0xFF;
-                    glowId1 = M2C_BITWISE(s32, (f32) D_005E5398[0]);
                     glowFrom1_0 = D_005E539C[0];
                     glowFrom1_1 = D_005E53A0[0];
                     glowFrom1_2 = D_005E53A4[0];
                     glowFrom1_3 = D_005E53A8[0];
                     glowFrom1_4 = D_005E53AC[0];
                     glowFrom1_5 = D_005E53B0[0];
+                    glowId1 = M2C_BITWISE(s32, (f32) D_005E5398[0]);
                     temp_cA = (f32)(u32)(0xFF - temp_8_6);
                     temp_one_S4A = 1.0f;
                     temp_cB = (f32)(u32)temp_8_6;
