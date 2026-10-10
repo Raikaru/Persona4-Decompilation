@@ -270,6 +270,12 @@ s32 func_00162c30(void)
  * 2026-10-09: 156 -> 139: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 137: conversion lever (cur:(0, 2)).
  * 136: conversion lever (grid:(0,)).
+ * sdiff 22/115 -> 14/103: both entry blocks recompute the 0x750 slot address with a converted index (retail mult per block).
+ * sdiff 14/103 -> 13/103: first entry block multiplies (s32)i.
+ * sdiff 13/103 -> 12/96: resource slot address formed after the id call (retail reuses entry's register).
+ * sdiff 12/96 -> 8/91: memset block recomputes the slot with a u16 index (retail mult).
+ * sdiff 8/91 -> 7/90: memset block index (s32)(u32)i.
+ * sdiff 7/90 -> 6/88: mdlGetMatrix takes *cfg (retail loads it once; the extra dereference was wrong).
  */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
@@ -325,13 +331,11 @@ void func_00162e10(void)
             kind = 3;
         }
         {
-            u8 *entry = D_007EF9B0 + i * 0x750;
-            u8 **resource;
+            u8 *entry = D_007EF9B0 + (s32)i * 0x750;
 
             cfg = (u8 **)(entry + 0x50);
-            resource = (u8 **)(entry + 0x54);
-            *resource = (u8 *)MT_Scene_GetRes(func_00145540(i, kind, *(u8 **)(entry + 0x50)));
-            func_0017b9a0(*(s32 *)(*resource + 0x224), 60.0f);
+            *(u8 **)(entry + 0x54) = (u8 *)MT_Scene_GetRes(func_00145540(i, kind, *(u8 **)(entry + 0x50)));
+            func_0017b9a0(*(s32 *)(*(u8 **)(entry + 0x54) + 0x224), 60.0f);
         }
         {
             u8 *node = func_001452b0(0xE);
@@ -388,7 +392,7 @@ void func_00162e10(void)
             func_00168780(*(s32 *)(*res + 0x220), 35.0f);
         }
         {
-            u8 *entry = D_007EF9B0 + i * 0x750;
+            u8 *entry = D_007EF9B0 + (u32)i * 0x750;
             u8 **model = (u8 **)(entry + 0x54);
             f32 scale;
             u8 *aux;
@@ -506,7 +510,7 @@ void func_00162e10(void)
             f32 fv;
             s32 j;
 
-            RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)*cfg));
+            RwMatrixUpdate((u8 *)mdlGetMatrix((void *)*cfg));
             curRes = (u8 **)((u8 *)(u32)cur + 0x54);
             func_0014b0c0(**(u16 **)(cur + 0x54), 1);
             func_00168730(*(s32 *)(*curRes + 0x220), 0x40000000);
@@ -518,7 +522,7 @@ void func_00162e10(void)
             }
         }
         {
-            u8 *cur = fieldUnitSlotAt(&i);
+            u8 *cur = D_007EF9B0 + (s32)(u32)i * 0x750;
 
             memset(cur + 0x1D0, 0, 0x40);
             memset(cur + 0x410, 0, 0x300);
