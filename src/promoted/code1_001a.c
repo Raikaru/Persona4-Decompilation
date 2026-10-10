@@ -3996,6 +3996,7 @@ void func_001a7710(void)
  * sp200/sp1E0 are s32 (retail spills them whole).
  * 0xEC/0xD8 test in retail polarity (arg0 branch first).
  * tail state switch (cases 1,3,2 shared; default separate) with the real btlActionSetState(BtlAction *, u16) prototype instead of the old-style local declaration.
+ * real parameter types for btlCreateSetFlagsPacket, func_00194c90, func_0019b550, btlUnitCreateLookAtDeactivatePacket (pointers as void *).
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4003,10 +4004,10 @@ void func_001a7710(void)
 #pragma opt_common_subs off
 void func_001a7720(u8 *arg0) {
 
-    extern s32 btlCreateSetFlagsPacket();
+    extern s32 btlCreateSetFlagsPacket(u32);
     extern s32 func_00194590();
     extern s32 func_00194b60();
-    extern s32 func_00194c90();
+    extern s32 func_00194c90(void *, void *);
     extern s32 func_00195530();
     extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
@@ -4017,10 +4018,10 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_0019a980();
     extern s32 func_0019aa70();
     extern BtlPacket *func_0019ac40(BtlUnit *unit, u16 value, f32 speed, u16 mode);
-    extern s32 func_0019b550();
+    extern s32 func_0019b550(void *, u16, s16);
     extern s32 func_0019bbe0();
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
-    extern s32 btlUnitCreateLookAtDeactivatePacket();
+    extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
     extern s32 func_001a03b0();
     extern s32 func_001b7060();
     extern s32 func_001b7080();
