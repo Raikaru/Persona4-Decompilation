@@ -2535,6 +2535,9 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * 138: conversion lever (temp_10_2:(0, 2)).
  * 130: gp float constants written as literals.
  * sdiff 24/101 -> 22/99: (s32)(u32) around the row offset puts it before the field load, as retail.
+ * sdiff 22/99 -> 20/98: the f28 word is read after the 0.25 blend term (retail's load order).
+ * sdiff 20/98 -> 18/91: the 137 * size product is formed before the alpha, and 255 * (1 - t) is two steps (retail's constant order).
+ * sdiff 18/91 -> 16/89: func_002ab380's texture slot is declared as a pointer (retail loads it in slot order; the (s32) cast was hoisted as a conversion).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2584,7 +2587,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern void func_002aaac0(void);
-    extern void func_002ab380(f32 x, f32 y, f32 z, s32 color, s32 alpha, s32 mode, s32 texture, s32 kind, void *extra);
+    extern void func_002ab380(f32 x, f32 y, f32 z, s32 color, s32 alpha, s32 mode, void *texture, s32 kind, void *extra);
     extern void func_002abb30(f32 x, f32 y, f32 z, s32 color, s32 alpha, f32 scale, s32 mode, u8 *object, void *extra);
     extern s32 RpSkyRenderStateSet();
     extern s32 func_00401b80(void);
@@ -3513,10 +3516,13 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 /* Keep the first return across the second call; round multiply and add separately. */
                 temp_f16 = 1.5f * temp_f20_5;
                 temp_f16 = fGpffff8170 + temp_f16;
-                temp_f21_2 = 255.0f * (1.0f - temp_f21_2);
-                /* f2 holds this independent product across both alpha-conversion arms. */
-    /* ACC seed */;
-                func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, (s16)(137.0f * temp_f16), (s16)(137.0f * temp_f16), -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
+                {
+                    f32 size = 137.0f * temp_f16;
+
+                    temp_f21_2 = 1.0f - temp_f21_2;
+                    temp_f21_2 = 255.0f * temp_f21_2;
+                    func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, (s16)size, (s16)size, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
+                }
     /* ACC seed */;
                 temp_f16_2 = 1.3f;
                 func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
@@ -3776,7 +3782,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_002abb30(titleX + 9.0f * temp_f21_3, titleY - 5.0f * temp_f21_3, 100.0f, 0xFFC705, 0xFF, temp_f21_3, 1, var_16_2, 0);
                 func_002abb30(titleX, titleY, 100.0f, 0xFFF000, 0xFF, temp_f21_3, 1, var_16_2, 0);
                 func_00478e70(var_16_2);
-                func_002ab380(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, (s32)taskView->sprites, 9, 0);
+                func_002ab380(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, taskView->sprites, 9, 0);
             }
         }
         var_2_30 = (s32)(taskView->timer);
@@ -3809,9 +3815,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         }
         temp_5 = (s32)(taskView->f24);
         temp_4 = (s32)(taskView->f20);
-        temp_28 = (s32)taskView->f28;
         temp_f1_28 = 0.25f * (f32)((temp_4 - temp_5) << 0x10);
         temp_f1_28 = (f32)(temp_4 << 0x10) + temp_f1_28;
+        temp_28 = (s32)taskView->f28;
         temp_f0_11 = temp_f1_28 - (f32)temp_28;
         temp_i28 = (s32)temp_f0_11;
         if (((temp_5 < temp_4) && (temp_i28 < 0)) || ((temp_4 < temp_5) && (temp_i28 > 0))) {
