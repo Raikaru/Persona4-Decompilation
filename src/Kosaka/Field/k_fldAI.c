@@ -951,6 +951,12 @@ tail:
  * target local is never read).
  * 1161: the config's +0x34 delay is an int (read as int elsewhere); Ghidra's float
  * view made it a float-to-int conversion.
+ * 1154: the case-1 position is a struct copy of the model translation (retail
+ * stores the three floats to a stack FldAIVec3).
+ * 1146: the second translation copy is a FldAIVec3 too.
+ * 1133: the two flattened-position copies are FldAIVec3 struct copies with y
+ * zeroed (retail copies all three floats then stores 0 to y).
+ * 1094: five more flattened-position copies are FldAIVec3 struct copies with y = 0.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1043,54 +1049,36 @@ int func_0017f490(unsigned char *param_1)
   float fStack_228;
   unsigned int uStack_220;
   float fStack_218;
-  float fStack_210;
-  float fStack_20c;
-  float fStack_208;
   FldAIVec3 state7Forward;
   FldAIVec3 state8Delta;
   FldAIVec3 state11Right;
   FldAIVec3 state11Forward;
-  float fStack_1d0;
-  unsigned int uStack_1cc;
-  float fStack_1c8;
   FldAIVec3 state8Right;
   FldAIVec3 state10Right;
   FldAIVec3 state10Forward;
-  float fStack_190;
-  float fStack_18c;
-  float fStack_188;
   FldAIVec3 state9Direction;
   FldAIVec3 state9Delta;
   FldAIVec3 state9Right;
   FldAIVec3 state9Forward;
-  float fStack_140;
-  float fStack_13c;
-  float fStack_138;
-  float fStack_130;
-  float fStack_12c;
-  float fStack_128;
   FldAIVec3 state10Delta;
   FldAIVec3 state8Forward;
-  float fStack_f0;
-  float fStack_ec;
-  float fStack_e8;
   FldAIVec3 state7Delta;
   FldAIVec3 state7Right;
   FldAIVec3 state11Delta;
-  float fStack_b0;
-  float fStack_ac;
-  float fStack_a8;
   FldAIVec3 state6Direction;
   FldAIVec3 state6Delta;
-  float fStack_60;
-  unsigned int uStack_5c;
-  float fStack_58;
   FldAIVec3 state2Delta;
+  FldAIVec3 aiPos;
+  FldAIVec3 aiV210;
+  FldAIVec3 aiV190;
+  FldAIVec3 aiV130;
+  FldAIVec3 aiVF0;
+  FldAIVec3 aiVB0;
+  FldAIVec3 aiV1D0;
+  FldAIVec3 aiV60;
+  FldAIVec3 aiPos2;
   FldAIVec3 state2Right;
   FldAIVec3 state2Forward;
-  float fStack_20;
-  unsigned int uStack_1c;
-  float fStack_18;
   int uStack_4;
   
   piVar1 = *(int **)(param_1 + 0x38);
@@ -1201,9 +1189,7 @@ int func_0017f490(unsigned char *param_1)
       temp_v3 = FUN_0017ed40((u8 *)piVar1);
       if (temp_v3 == 0) {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-        fStack_20 = *(float *)(temp_v0 + 0x30);
-        uStack_1c = *(unsigned int *)(temp_v0 + 0x34);
-        fStack_18 = *(float *)(temp_v0 + 0x38);
+        aiPos = *(FldAIVec3 *)(temp_v0 + 0x30);
         if (*(int *)(piVar1[3] + 0x73c) == 0) {
           FUN_0014dcd0((unsigned char *)piVar1[0x26],0);
         }
@@ -1247,10 +1233,10 @@ int func_0017f490(unsigned char *param_1)
           temp_v7 = piVar1[0x12] != 0 ^ 1;
           temp_v4 = 0;
           temp_v5 = temp_v4;
-          if ((((((float *)piVar1)[temp_v7 * 6 + 9] <= fStack_20) &&
-               (fStack_20 <= ((float *)piVar1)[temp_v7 * 6 + 6])) &&
-              (((float *)piVar1)[temp_v7 * 6 + 0xb] <= fStack_18)) &&
-             (temp_v5 = 1, ((float *)piVar1)[temp_v7 * 6 + 8] < fStack_18)) {
+          if ((((((float *)piVar1)[temp_v7 * 6 + 9] <= aiPos.x) &&
+               (aiPos.x <= ((float *)piVar1)[temp_v7 * 6 + 6])) &&
+              (((float *)piVar1)[temp_v7 * 6 + 0xb] <= aiPos.z)) &&
+             (temp_v5 = 1, ((float *)piVar1)[temp_v7 * 6 + 8] < aiPos.z)) {
             temp_v5 = temp_v4;
           }
           if (temp_v5) {
@@ -1311,12 +1297,11 @@ int func_0017f490(unsigned char *param_1)
       state2Right.z = pfVar8[2];
       RwV3dNormalize(&state2Right,&state2Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_60 = *(float *)(temp_v0 + 0x30);
-      fStack_58 = *(float *)(temp_v0 + 0x38);
-      uStack_5c = 0;
-      state2Delta.x = ((float *)piVar1)[0x14] - fStack_60;
+      aiV60 = *(FldAIVec3 *)(temp_v0 + 0x30);
+      aiV60.y = 0.0f;
+      state2Delta.x = ((float *)piVar1)[0x14] - aiV60.x;
       state2Delta.y = ((float *)piVar1)[0x15] - 0.0f;
-      state2Delta.z = ((float *)piVar1)[0x16] - fStack_58;
+      state2Delta.z = ((float *)piVar1)[0x16] - aiV60.z;
       temp_v10 = RwV3dNormalize(&state2Delta,&state2Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v10 <= temp_v8) {
@@ -1460,15 +1445,14 @@ int func_0017f490(unsigned char *param_1)
           ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x28);
           piVar1[0x18] = 0xf;
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_b0 = *(float *)(temp_v0 + 0x30);
-          fStack_a8 = *(float *)(temp_v0 + 0x38);
-          fStack_ac = 0.0f;
+          aiVB0 = *(FldAIVec3 *)(temp_v0 + 0x30);
+          aiVB0.y = 0.0f;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          state6Direction.x = *(float *)(temp_v0 + 0x30) - fStack_b0;
+          state6Direction.x = *(float *)(temp_v0 + 0x30) - aiVB0.x;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          state6Direction.y = *(float *)(temp_v0 + 0x34) - fStack_ac;
+          state6Direction.y = *(float *)(temp_v0 + 0x34) - aiVB0.y;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          state6Direction.z = *(float *)(temp_v0 + 0x38) - fStack_a8;
+          state6Direction.z = *(float *)(temp_v0 + 0x38) - aiVB0.z;
           RwV3dNormalize(&state6Direction,&state6Direction);
           state6Direction.x = state6Direction.x * 200.0f;
           state6Direction.y = state6Direction.y * 200.0f;
@@ -1513,15 +1497,14 @@ int func_0017f490(unsigned char *param_1)
       state7Right.z = pfVar8[2];
       RwV3dNormalize(&state7Right,&state7Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_f0 = *(float *)(temp_v0 + 0x30);
-      fStack_e8 = *(float *)(temp_v0 + 0x38);
-      fStack_ec = 0.0f;
+      aiVF0 = *(FldAIVec3 *)(temp_v0 + 0x30);
+      aiVF0.y = 0.0f;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      state7Delta.x = *(float *)(temp_v0 + 0x30) - fStack_f0;
+      state7Delta.x = *(float *)(temp_v0 + 0x30) - aiVF0.x;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      state7Delta.y = *(float *)(temp_v0 + 0x34) - fStack_ec;
+      state7Delta.y = *(float *)(temp_v0 + 0x34) - aiVF0.y;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      state7Delta.z = *(float *)(temp_v0 + 0x38) - fStack_e8;
+      state7Delta.z = *(float *)(temp_v0 + 0x38) - aiVF0.z;
       temp_v10 = RwV3dNormalize(&state7Delta,&state7Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v10 <= temp_v8) {
@@ -1592,9 +1575,7 @@ int func_0017f490(unsigned char *param_1)
       temp_v8 = FUN_00175db0();
       if (temp_v8 == 0.0f) {
         temp_v0 = FUN_0047a2f0(DAT_007efa00);
-        fStack_140 = *(float *)(temp_v0 + 0x30);
-        fStack_13c = *(float *)(temp_v0 + 0x34);
-        fStack_138 = *(float *)(temp_v0 + 0x38);
+        aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
       }
       else {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
@@ -1611,9 +1592,7 @@ int func_0017f490(unsigned char *param_1)
             temp_v9 * temp_v11 + temp_v10 * temp_v8 + *(float *)(temp_v1 + 0x24) * *(float *)(temp_v0 + 0x24))
         {
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_140 = *(float *)(temp_v0 + 0x30);
-          fStack_13c = *(float *)(temp_v0 + 0x34);
-          fStack_138 = *(float *)(temp_v0 + 0x38);
+          aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
           *piVar1 = 7;
         }
         else {
@@ -1623,15 +1602,14 @@ int func_0017f490(unsigned char *param_1)
             temp_v8 = temp_v8 * -1.0f;
           }
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          fStack_130 = *(float *)(temp_v0 + 0x30);
-          fStack_128 = *(float *)(temp_v0 + 0x38);
-          fStack_12c = 0.0f;
+          aiV130 = *(FldAIVec3 *)(temp_v0 + 0x30);
+          aiV130.y = 0.0f;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          state8Delta.x = *(float *)(temp_v0 + 0x30) - fStack_130;
+          state8Delta.x = *(float *)(temp_v0 + 0x30) - aiV130.x;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          state8Delta.y = *(float *)(temp_v0 + 0x34) - fStack_12c;
+          state8Delta.y = *(float *)(temp_v0 + 0x34) - aiV130.y;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          state8Delta.z = *(float *)(temp_v0 + 0x38) - fStack_128;
+          state8Delta.z = *(float *)(temp_v0 + 0x38) - aiV130.z;
           temp_v10 = RwV3dNormalize(&state8Delta,&state8Delta);
           temp_v10 = temp_v10 / temp_v8;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
@@ -1645,9 +1623,9 @@ int func_0017f490(unsigned char *param_1)
           temp_v8 = FUN_00175db0();
           state8Forward.z = state8Forward.z * temp_v10 * temp_v8;
           temp_v0 = FUN_0047a2f0(DAT_007efa00);
-          fStack_140 = *(float *)(temp_v0 + 0x30) + state8Forward.x;
-          fStack_13c = *(float *)(temp_v0 + 0x34) + state8Forward.y;
-          fStack_138 = *(float *)(temp_v0 + 0x38) + state8Forward.z;
+          aiPos2.x = *(float *)(temp_v0 + 0x30) + state8Forward.x;
+          aiPos2.y = *(float *)(temp_v0 + 0x34) + state8Forward.y;
+          aiPos2.z = *(float *)(temp_v0 + 0x38) + state8Forward.z;
         }
       }
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
@@ -1661,9 +1639,9 @@ int func_0017f490(unsigned char *param_1)
       state8Right.z = pfVar8[2];
       RwV3dNormalize(&state8Right,&state8Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state8Delta.x = fStack_140 - *(float *)(temp_v0 + 0x30);
-      state8Delta.y = fStack_13c - 0.0f;
-      state8Delta.z = fStack_138 - *(float *)(temp_v0 + 0x38);
+      state8Delta.x = aiPos2.x - *(float *)(temp_v0 + 0x30);
+      state8Delta.y = aiPos2.y - 0.0f;
+      state8Delta.z = aiPos2.z - *(float *)(temp_v0 + 0x38);
       temp_v10 = RwV3dNormalize(&state8Delta,&state8Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v10 <= temp_v8) {
@@ -1742,22 +1720,21 @@ int func_0017f490(unsigned char *param_1)
       state9Right.z = pfVar8[2];
       RwV3dNormalize(&state9Right,&state9Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_190 = *(float *)(temp_v0 + 0x30);
-      fStack_188 = *(float *)(temp_v0 + 0x38);
-      fStack_18c = 0.0f;
+      aiV190 = *(FldAIVec3 *)(temp_v0 + 0x30);
+      aiV190.y = 0.0f;
       temp_v11 = (float)FUN_0044b7b0(piVar1[0x1e]);
-      temp_v8 = fStack_18c;
+      temp_v8 = aiV190.y;
       ((float *)piVar1)[0x1e] = (((float *)piVar1)[0x1e] + CAND_fGpffff8218);
-      state9Direction.x = ((float *)piVar1)[0x14] - fStack_190;
-      state9Direction.y = ((float *)piVar1)[0x15] - fStack_18c;
-      state9Direction.z = ((float *)piVar1)[0x16] - fStack_188;
-      temp_v10 = fStack_188;
+      state9Direction.x = ((float *)piVar1)[0x14] - aiV190.x;
+      state9Direction.y = ((float *)piVar1)[0x15] - aiV190.y;
+      state9Direction.z = ((float *)piVar1)[0x16] - aiV190.z;
+      temp_v10 = aiV190.z;
       RwV3dNormalize(&state9Direction,&state9Direction);
       state9Direction.x = state9Direction.x * 200.0f + ((float *)piVar1)[0x14];
       state9Direction.y = state9Direction.y * 200.0f + ((float *)piVar1)[0x15];
       state9Direction.z = state9Direction.z * 200.0f + ((float *)piVar1)[0x16];
       temp_v11 = temp_v11 * 400.0f;
-      state9Delta.x = (state9Right.x * temp_v11 + state9Direction.x) - fStack_190;
+      state9Delta.x = (state9Right.x * temp_v11 + state9Direction.x) - aiV190.x;
       state9Delta.y = (state9Right.y * temp_v11 + state9Direction.y) - temp_v8;
       state9Delta.z = (state9Right.z * temp_v11 + state9Direction.z) - temp_v10;
       temp_v10 = RwV3dNormalize(&state9Delta,&state9Delta);
@@ -1816,12 +1793,11 @@ int func_0017f490(unsigned char *param_1)
       state10Right.z = pfVar8[2];
       RwV3dNormalize(&state10Right,&state10Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_1d0 = *(float *)(temp_v0 + 0x30);
-      fStack_1c8 = *(float *)(temp_v0 + 0x38);
-      uStack_1cc = 0;
-      state10Delta.x = ((float *)piVar1)[0x14] - fStack_1d0;
+      aiV1D0 = *(FldAIVec3 *)(temp_v0 + 0x30);
+      aiV1D0.y = 0.0f;
+      state10Delta.x = ((float *)piVar1)[0x14] - aiV1D0.x;
       state10Delta.y = ((float *)piVar1)[0x15] - 0.0f;
-      state10Delta.z = ((float *)piVar1)[0x16] - fStack_1c8;
+      state10Delta.z = ((float *)piVar1)[0x16] - aiV1D0.z;
       temp_v10 = RwV3dNormalize(&state10Delta,&state10Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v10 <= temp_v8) {
@@ -1880,15 +1856,14 @@ int func_0017f490(unsigned char *param_1)
       state11Right.z = pfVar8[2];
       RwV3dNormalize(&state11Right,&state11Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      fStack_210 = *(float *)(temp_v0 + 0x30);
-      fStack_208 = *(float *)(temp_v0 + 0x38);
-      fStack_20c = 0.0f;
+      aiV210 = *(FldAIVec3 *)(temp_v0 + 0x30);
+      aiV210.y = 0.0f;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      state11Delta.x = *(float *)(temp_v0 + 0x30) - fStack_210;
+      state11Delta.x = *(float *)(temp_v0 + 0x30) - aiV210.x;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      state11Delta.y = *(float *)(temp_v0 + 0x34) - fStack_20c;
+      state11Delta.y = *(float *)(temp_v0 + 0x34) - aiV210.y;
       temp_v0 = FUN_0047a2f0(DAT_007efa00);
-      state11Delta.z = *(float *)(temp_v0 + 0x38) - fStack_208;
+      state11Delta.z = *(float *)(temp_v0 + 0x38) - aiV210.z;
       RwV3dNormalize(&state11Delta,&state11Delta);
       temp_v8 = state11Delta.z * state11Forward.z + state11Delta.x * state11Forward.x + state11Delta.y * state11Forward.y;
       if (temp_v8 < 1.0f) {
