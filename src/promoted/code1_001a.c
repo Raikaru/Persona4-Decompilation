@@ -3997,6 +3997,7 @@ void func_001a7710(void)
  * 0xEC/0xD8 test in retail polarity (arg0 branch first).
  * tail state switch (cases 1,3,2 shared; default separate) with the real btlActionSetState(BtlAction *, u16) prototype instead of the old-style local declaration.
  * real parameter types for btlCreateSetFlagsPacket, func_00194c90, func_0019b550, btlUnitCreateLookAtDeactivatePacket (pointers as void *).
+ * 0x13/0x10 action selection as a var_2_13 flag test with the 0x13 call first (no goto block_408).
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5729,22 +5730,22 @@ block_406:
                         var_2_13 = 0;
                     }
                 }
-                if (var_2_13 != 0) {
-                    goto block_408;
-                }
-                temp_2_125 = (u8 *)(func_001f99c0(arg0, 0x10, (u16) sp3E0, 0, 0));
-                (*( s8 * )((u8 *)(temp_2_125) + (0))) = 5;
-                (*( s64 * )((u8 *)(temp_2_125) + (8))) = temp_18_2;
-                (*( s16 * )((u8 *)(temp_2_125) + (0x48))) = (s16) sp410;
-                func_00194590(temp_2_125, 1);
             } else {
-block_408:
+                var_2_13 = 1;
+            }
+            if (var_2_13 != 0) {
                 temp_2_126 = (u8 *)(func_001f5f70(arg0, 0x13, sp3E0, 0, 0));
                 (*( s8 * )((u8 *)(temp_2_126) + (0))) = 5;
                 (*( s64 * )((u8 *)(temp_2_126) + (8))) = temp_18_2;
                 (*( s16 * )((u8 *)(temp_2_126) + (0x48))) = (s16) sp410;
                 (*( s64 * )((u8 *)(temp_2_126) + (0x60))) = temp_16;
                 func_00194590(temp_2_126, 1);
+                        } else {
+                temp_2_125 = (u8 *)(func_001f99c0(arg0, 0x10, (u16) sp3E0, 0, 0));
+                (*( s8 * )((u8 *)(temp_2_125) + (0))) = 5;
+                (*( s64 * )((u8 *)(temp_2_125) + (8))) = temp_18_2;
+                (*( s16 * )((u8 *)(temp_2_125) + (0x48))) = (s16) sp410;
+                func_00194590(temp_2_125, 1);
             }
         }
     } else if ((sp3D0 > 0) && (temp_3_19 = (*( u8 * )((u8 *)(arg0) + (0xDB))), ((temp_3_19 & 1) != 0)) && !(temp_3_19 & 2) && ((s64)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)(arg0) + (0x30)))) + (0xA2)))) == (s64)(0))) {
