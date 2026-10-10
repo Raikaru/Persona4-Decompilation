@@ -1276,6 +1276,7 @@ void func_00376880(u8 **arg0) {
  * 165: h_right moved to function scope (keeps retail's colouring).
  * 164: hoist sweep.
  * 149: hoist sweep.
+ * fnalign 149 -> 127: the -1/21 taper step is a literal (pool reload per loop, as retail).
  */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1391,7 +1392,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                     TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
                     TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
                     TRAIL_COLOR(&back[1], rgba[0], rgba[1], rgba[2], (u8)(opacity * taper));
-                    taper += iGpffff8404;
+                    taper += -0.04761905f;
                 }
                 halfWidth = 0.5f * func_0036de70(card);
                 halfHeight = 0.5f * func_0036deb0(card);
@@ -1510,7 +1511,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         mz = sample->z - dz;
                         TRAIL_POSITION(&back[0], offsetX + sample->x, offsetY + sample->y, sample->z);
                         TRAIL_POSITION(&back[1], mx + offsetX, my + offsetY, mz);
-                        taper += iGpffff8404;
+                        taper += -0.04761905f;
                     }
                     func_00410420((struct RxObjSpace3DVertex *)first, 42, &identity, 2);
                     func_004106a0(4);
@@ -1584,7 +1585,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         mz = sample->z - dz;
                         TRAIL_POSITION(&back[0], offsetX + sample->x, offsetY + sample->y, sample->z);
                         TRAIL_POSITION(&back[1], mx + offsetX, my + offsetY, mz);
-                        taper += iGpffff8404;
+                        taper += -0.04761905f;
                     }
                     func_00410420((struct RxObjSpace3DVertex *)first, 42, &identity, 2);
                     func_004106a0(4);
