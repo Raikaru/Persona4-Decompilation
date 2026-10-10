@@ -25,6 +25,28 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation, part 10: literal pools, `$at` compares, cast pointers
+
+Count: 6,830 MATCH / 30 ASM (crt0 now vendor). New levers, each measured:
+- **`fGpffffXXXX` may be a literal-pool entry.** `fGpffff81f4` is 1/255
+  (`0x3B808081`). Written as `0.003921569f`, b210 reloads it from the pool
+  per use as retail does, instead of hoisting one load. With the old
+  `opt_common_subs off`/`opt_propagation off` pragmas removed as well,
+  `0019c0d0` went 222 -> 10 (structure exact; one `$s0`/`$s2` swap left
+  between `mode` and `v41`). Read the value with the ELF segments and try
+  the shortest round-tripping literal.
+- **`slti $at` means the source compared with `>`.** b210 emits `slti $at`
+  plus a branch for `x > N`, and `slti $vN` for `x >= N + 1`. Writing range
+  and clamp tests as `> N - 1` matched retail in `001265a0` (199 -> 162),
+  `00160880`, `001f14f0`, `001a59a0`.
+- **An integer cast keeps a table pointer in a saved register.**
+  `fnTable = (void (**)(s32, s32))(u32)D_00887300;` stops b210 from folding
+  the first call's load into `lui`/`lw`; retail's `$s1` reuse follows.
+- **Record arrays as fixed-size elements.** `(u8 *)&((TitleRecordBlock *)
+  D_005E5230)[i]` (0x28-byte elements) for both glow-loop record pointers
+  took `001265a0` 261 -> 217.
+- `001d8010`: the sort's `swapped` flags are `int` (retail has no byte mask).
+
 ## October 9 continuation, part 9: crt0 `_start` is vendor code
 
 `_start` (`0x00100008..0x00100218`, `func_00100008` in `code1_0010.c`) is
