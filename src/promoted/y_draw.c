@@ -662,6 +662,9 @@ void func_002b6ea0(void) {
  * 2026-10-09: 163 -> 161: the loop loads the entry base before forming `off`
  * (`e = YDRAW_BASE; off = i << 8; e += off`).
  * 155: gp pool floats written as literals.
+ * 150: conversion lever (off:(0, 3)).
+ * 147: conversion lever (off:(4, 5)).
+ * 144: conversion lever (off:(7, 8)).
  */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
@@ -703,13 +706,13 @@ s32 func_002b6ec0(u8 *arg0) {
         *(s16 *)(table + (s32)i * 2 + 0x30C06) = 0;
         e = YDRAW_BASE;
         off = (s32)i << 8;
-        e += off;
+        e += (s32)off;
         if ((s16)(*(s16 *)(e + 0x14) & 1) == 1) {
             animation = func_002b89a0(e + 0x14);
             memcpy(YDRAW_BASE + off + 0x14, animation, 0xF0);
             func_002b7cd0(arg0, i, *(s16 *)(YDRAW_BASE + off + 8));
             base = YDRAW_BASE;
-            e = base + off;
+            e = base + (s32)off;
             fl = *(s16 *)(e + 0x14);
             if ((s16)((fl & 0x4000) >> 0xE) == 1) {
                 w = func_00460990();
@@ -717,13 +720,13 @@ s32 func_002b6ec0(u8 *arg0) {
                 *(s32 *)(w + 0x10) = 0;
                 func_00460ac0(D_00793E80 + *(s32 *)(YDRAW_ENTRY(i) + 0xC) * 0x30, w);
                 b2 = YDRAW_BASE;
-                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + off + 0xB0) <= 0.1f)) {
+                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + (s32)off + 0xB0) <= 0.1f)) {
                     u8 *d = b2 + (s32)i * 0x100U;
 
                     color = func_002b2a30(0xFF, d[0x89], d[0x8A], d[0x8B]);
                     func_0025ecd0(*(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18), color, d[0x72], *(s16 *)(d + 8), *(void **)(table + 0), 0, *(s16 *)(d + 0x10), *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4), *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
                 } else {
-                    if (yDrawAnyBit(*(s16 *)(b2 + off + 0x14)) == 0) {
+                    if (yDrawAnyBit(*(s16 *)(b2 + (s32)off + 0x14)) == 0) {
                         *(s16 *)(b2 + off + 0x14) &= ~1;
                     }
                 }
@@ -733,13 +736,13 @@ s32 func_002b6ec0(u8 *arg0) {
                 *(s32 *)(w + 0x10) = 0;
                 func_00460ac0(D_00793E80 + *(s32 *)(YDRAW_ENTRY(i) + 0xC) * 0x30, w);
                 b2 = YDRAW_BASE;
-                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + off + 0xB0) <= 0.1f)) {
+                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + (s32)off + 0xB0) <= 0.1f)) {
                     u8 *d = b2 + (s32)i * 0x100U;
 
                     color = func_002b2a30(0xFF, d[0x89], d[0x8A], d[0x8B]);
                     func_0025ecd0(*(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18), color, d[0x72], *(s16 *)(d + 8), *(void **)(table + 0), 0, *(s16 *)(d + 0x10), *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4), *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
                 } else {
-                    if (yDrawAnyBit(*(s16 *)(b2 + off + 0x14)) == 0) {
+                    if (yDrawAnyBit(*(s16 *)(b2 + (s32)off + 0x14)) == 0) {
                         *(s16 *)(b2 + off + 0x14) &= ~1;
                     }
                 }

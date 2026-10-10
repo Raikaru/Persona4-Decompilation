@@ -1479,6 +1479,8 @@ loop_test:
  * 2026-10-09: 95 -> 92: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 87: local integer types as retail.
  * 85: local integer types as retail.
+ * 82: conversion lever (idxB:(0, 1)).
+ * 81: conversion lever (skill:(0, 2)).
  */
 // FUN_001E9950 NONMATCHING
 #ifdef NON_MATCHING
@@ -1545,7 +1547,7 @@ outer_body:
         skill = (u16)(func_0023dfe0(*(u8 **)(unit + 0xA64)) & 0xFFFF);
     } else {
         skill = table[outer - 1];
-        if (skill == 0) {
+        if ((u32)skill == 0) {
             goto outer_next;
         }
     }
@@ -1553,7 +1555,7 @@ outer_body:
     if (skillStore >= 0x1B8) {
         goto outer_next;
     }
-    kind = (s16)func_0023d8e0(*(u8 **)(unit + 0xA64), skill);
+    kind = (s16)func_0023d8e0(*(u8 **)(unit + 0xA64), (u32)skill);
     if ((func_0023d6e0(kind) & 0x7E) == 0) {
         goto outer_next;
     }
@@ -1601,7 +1603,7 @@ outer_body:
         }
     } else {
         curScore = 0.0f;
-        for (idxB = 0; (idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = (idxB + 1) & 0xFFFF) {
+        for (idxB = 0; ((s32)idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = ((s32)idxB + 1) & 0xFFFF) {
             entryB = tgt.entries[(idxB & 0xFFFF)];
             if (func_001db360(entryB, paramB, 1) == 0) {
                 if ((func_00242800(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), paramB) & 0x1000000) == 0) {
