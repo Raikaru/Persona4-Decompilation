@@ -2443,6 +2443,16 @@ void func_00126090(s32 arg0, u8 *arg1)
  * A + t * (B - A) over D_005E5370 -> D_005E5398 and D_005E5398 -> D_005E53C0,
  * with t the sinf result the old body discarded (retail adda/madd with f20 = t);
  * m2c's placeholder read stale temp_f20/f21/f7/f8.
+ * 2503: the 0x5B..0x64 position call passes 159 + 36*s, 87 - 15*s (retail
+ * adda/madd on the sinf result s); the alpha is 255*s without m2c's int round trip.
+ * 3022: the two 0x1000E glow calls pass -82 + 160*t and -51 + 60*t (retail
+ * adda/madd with f20 = temp_f20_5) and the gp scale without an int round trip.
+ * Saved FPRs drop from f20-f28 to f20-f26 (retail f20-f24); the frame is 0x10
+ * short until the remaining placeholders are rebuilt.
+ * 2954: the last m2c placeholders are rebuilt: the 81.0 call passes
+ * 52 + 246*(1 - r) with alpha 255*r, and the scroll step converts
+ * (x<<16 - pos) + 0.5*((x - y)<<16) to int once (retail cvt.w.s into s0) for
+ * func_0043c6a0 and the half step. Saved FPRs are now retail's f20-f24.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2850,6 +2860,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 var_8_2;
     s32 var_8_3;
     s32 temp_10;
+    s32 temp_10_2;
     u32 var_3_26;
     u32 var_3_29;
     u32 *temp_20;
@@ -3313,11 +3324,11 @@ loop_128:
             }
             if (temp_16 >= 0x5B) {
                 if (temp_16 < 0x65) {
-                    temp_f2 = (f32)(s32)(255.0f * sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f)))));
-                    var_5_11 = (u32)temp_f2 & 0xFF;
+temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
+                    var_5_11 = (u32)(255.0f * temp_f2) & 0xFF;
     /* ACC seed */;
                     temp_f14 = 0.0f;
-                    func_0025f430((temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), temp_f14, 0xFFFFFFU, var_5_11, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14, 1.0f, 1.0f);
+                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, var_5_11, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14, 1.0f, 1.0f);
                 } else {
                     func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
                 }
@@ -3562,11 +3573,11 @@ loop_128:
                 /* f2 holds this independent product across both alpha-conversion arms. */
                 temp_10 = (s16)(s32)(137.0f * temp_f16);
     /* ACC seed */;
-                func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, var_5_14, 0x1000E, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, temp_10, temp_10, (temp_f20 * temp_f21 + temp_f7 * temp_f8), temp_f16, temp_f16);
+                func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, var_5_14, 0x1000E, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, temp_10, temp_10, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
                 var_5_15 = (u32)temp_f21_2 & 0xFF;
     /* ACC seed */;
-                temp_f16_2 = (f32)(s32)(fGpffff80bc);
-                func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, var_5_15, 0x1000E, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0x6B, 0xE6, (temp_f20 * temp_f21 + temp_f7 * temp_f8), temp_f16_2, temp_f16_2);
+                temp_f16_2 = fGpffff80bc;
+                func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, var_5_15, 0x1000E, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
             }
         }
         if (temp_16 < 0x19) {
@@ -3866,20 +3877,22 @@ loop_351:
             if (var_2_31 >= 3) {
                 var_2_31 = 5;
             }
-            temp_f1_17 = 255.0f * ((f32) var_2_31 / 5.0f);
-            var_5_20 = (u32)temp_f1_17 & 0xFF;
+            temp_f1_17 = (f32) var_2_31 / 5.0f;
+            var_5_20 = (u32)(255.0f * temp_f1_17) & 0xFF;
             temp_f14_2 = 0.0f;
-            temp_f16_3 = (f32)(s32)(fGpffff82a0);
-            func_0025f430((temp_f20 * temp_f21 + temp_f7 * temp_f8), 81.0f, temp_f14_2, 0xFFFFFFU, var_5_20, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
+            temp_f16_3 = fGpffff82a0;
+            func_0025f430(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, var_5_20, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
         }
         if (M2C_FIELD(temp_20, s32 *, 0x28) != (M2C_FIELD(temp_20, s32 *, 0x20) << 0x10)) {
     /* ACC seed */;
-            temp_f0_10 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-            if (func_0043c6a0(temp_f0_10) < 0xB) {
+            temp_f0_10 = (f32)((M2C_FIELD(temp_20, s32 *, 0x20) << 0x10) - M2C_FIELD(temp_20, s32 *, 0x28)) +
+                         0.5f * (f32)((M2C_FIELD(temp_20, s32 *, 0x20) - M2C_FIELD(temp_20, s32 *, 0x24)) << 0x10);
+            temp_10_2 = (s32)temp_f0_10;
+            if (func_0043c6a0(temp_10_2) < 0xB) {
                 M2C_FIELD(temp_20, s32 *, 0x28) = (s32) (M2C_FIELD(temp_20, s32 *, 0x20) << 0x10);
                 M2C_FIELD(temp_20, s32 *, 8) = (s32) ~(M2C_FIELD(temp_20, s32 *, 8) ^ -5);
             } else {
-                M2C_FIELD(temp_20, s32 *, 0x28) = (s32) (M2C_FIELD(temp_20, s32 *, 0x28) + M2C_BITWISE(s32, ((f32) temp_f0_10 * 0.5f)));
+                M2C_FIELD(temp_20, s32 *, 0x28) = (s32) (M2C_FIELD(temp_20, s32 *, 0x28) + (s32)((f32)temp_10_2 * 0.5f));
             }
         }
         temp_5 = (s32)(M2C_FIELD(temp_20, s32 *, 0x24));
