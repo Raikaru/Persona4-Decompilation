@@ -2562,6 +2562,7 @@ void func_003599a0(u8 *arg0)
  * 2026-10-09: 490 -> 451: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 450: palette bytes declared as absolute arrays (retail lui/lbu %lo).
  * 429: type sweep.
+ * 384: conversion lever (alpha:(0, 1)).
  */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2655,7 +2656,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     } else {
         *(f32 *)col = *(f32 *)D_0064B2E0;
     }
-    col[3] = (f32)alpha * fade;
+    col[3] = (f32)(u32)alpha * fade;
     rc[0] = x;
     rc[1] = y;
     rc[2] = 640.0f * w / 4096.0f;
@@ -2679,7 +2680,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     if (mode != 1) {
         scale = h / 4096.0f;
         func_0034f320(*(u8 **)(arg1 + 0x11E8), 60.0f + x, y + 16.0f * scale, 0.0f,
-                      ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+                      ptab[0], ptab[1], ptab[2], (u32)alpha, w, h, 0, 0.0f, 0);
         func_0034f320(*(u8 **)(arg1 + count * 4 + 0x11EC), 124.0f + x, y + 14.0f * scale, 0.0f,
                       ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
     }
