@@ -178,6 +178,26 @@ sha1 OK in `build/link40.log`).
   loop-top `(s16)i` for `n` (`$s2`) and a condition temporary (`$s0`); ours
   merges them into `n`. No pragma or `n` spelling keeps them apart, and
   dropping the `arg1 = i` reuse loses `mode`'s stack slot (`0xd0`).
+- **`00183b80`** (fnalign 705 -> 201, structure identical):
+  - `(f32)prod + (f32)field` sums: retail converts the product first but
+    adds field-first. Writing `field + prod` loads the field first; holding
+    the converted product in a float local (`fprod = (f32)(s32)(u32)prod;`
+    then `field + fprod`) gives both orders.
+  - The `0xF0` row pointer as `base + ((s32)k << 8)`: b210 then recomputes
+    the shift instead of CSE-ing it with the earlier `(u32)k * 0x100`.
+  - `m` declared before `k` (`$a2`/`$a1`).
+  - `(f32)m` written at each use instead of a `fj` local (622 -> 201;
+    retail keeps `2.0f` in `$f3` and the converted row in `$f2`).
+  - Left: in each colour group `iv0` (`mfc1`) and the next byte load swap
+    `$v0`/`$v1`. `regalloc_whatif` wants `iv0`'s virtual after the group's
+    last conversion temporaries (`240@274`); declaration order does not
+    move it, and computing `q` earlier changes scheduling (586-842).
+- **`001400f0`** (fnalign 34 -> 4): the block-scope `u8` opacity prototypes
+  for `func_001427c0`/`func_00142bf0` (H011) were what `5da35851` replaced
+  with `s32`; restoring them gives retail's in-loop unsigned conversions.
+  Left: `lw $a0, 0x1834($s4)` for `func_0034f320` is scheduled before the
+  stack argument in retail. Casts on either argument, an inline helper, a
+  local loaded before or after `palette`, and moving `palette` do not move it.
 
 
 The first three closed by reading which *variables*
