@@ -115,6 +115,8 @@ extern void func_0036b470(void *work, void *vertices);
  * 2026-10-09: 135 -> 49: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 2026-10-09: 49 -> 37: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 34: the mode-1 group reloads the table pointer (retail lui at 0x0036A228).
+ * fnalign 34 -> 40 but sdiff struct 11 -> 2: the state table is a plain array address (rematerialised at each fn = ... like retail), the trailing pass goes through fn with the colour id fetched first.
+ * mode-1 draw passes address the model directly (retail uses the model register there).
  */
 // FUN_003694D0 NONMATCHING
 #ifdef NON_MATCHING
@@ -232,7 +234,7 @@ void func_003694d0(PscModel *model)
         func_0036ae00(m0->u.m01.b6, tmp);
         break;
     }
-    tbl = (void (**)(u32, u32))(u32)D_00887300;
+    tbl = (void (**)(u32, u32))D_00887300;
     (*tbl)(9, 2);
     (*tbl)(0x14, 2);
     (*tbl)(6, 0);
@@ -243,7 +245,7 @@ void func_003694d0(PscModel *model)
         RpSkyRenderStateSet(3, 0x317F3);
         (*fn)(1, func_0036bee0(model->u.m01.unk170, model->u.m01.unk174));
         RpSkyRenderStateSet(2, 0x44);
-        func_00410420(m0->u.m01.b0, 4, mtx, 3);
+        func_00410420(model->u.m01.b0, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
@@ -333,7 +335,7 @@ void func_003694d0(PscModel *model)
                 break;
             }
             RpSkyRenderStateSet(2, 0x58);
-            fn = (void (**)(u32, u32))(u32)D_00887300;
+            fn = (void (**)(u32, u32))D_00887300;
             (*fn)(4, 3);
             (*fn)(1, func_0036d130(6));
             func_00410420(model->unk4C, 4, mtx, 3);
@@ -345,26 +347,27 @@ void func_003694d0(PscModel *model)
     }
     switch (model->mode) {
     case 1:
-        fn = (void (**)(u32, u32))(u32)D_00887300;
+        fn = (void (**)(u32, u32))D_00887300;
         (*fn)(6, 0);
         (*fn)(8, 1);
         RpSkyRenderStateSet(3, 0x717FB);
         RpSkyRenderStateSet(2, 0x44);
         (*fn)(1, func_0036d1b0(1));
-        func_00410420(m0->u.m01.b2, 4, mtx, 3);
+        func_00410420(model->u.m01.b2, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
     }
-    fn2 = (void (**)(u32, u32))(u32)D_00887300;
-    (*fn2)(1, func_0036be00());
+    alpha = func_0036be00();
+    fn = (void (**)(u32, u32))D_00887300;
+    (*fn)(1, alpha);
     RpSkyRenderStateSet(2, 0x44);
-    (*fn2)(6, 0);
-    (*fn2)(8, 1);
+    (*fn)(6, 0);
+    (*fn)(8, 1);
     func_00410420(e0work, 4, mtx, 3);
     func_00410520(3, D_0064E470, 6);
     func_004104d0();
-    fn2 = (void (**)(u32, u32))(u32)D_00887300;
+    fn2 = (void (**)(u32, u32))D_00887300;
     if (model->flags & 8) {
         if (~*(u32 *)model->unkDC & 1) {
             fn2 = fn;
