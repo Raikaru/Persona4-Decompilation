@@ -114,6 +114,7 @@ extern void func_0036b470(void *work, void *vertices);
    2026-10-09: 138 -> 135: declaration climb.
  * 2026-10-09: 135 -> 49: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 2026-10-09: 49 -> 37: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 34: the mode-1 group reloads the table pointer (retail lui at 0x0036A228).
  */
 // FUN_003694D0 NONMATCHING
 #ifdef NON_MATCHING
@@ -344,6 +345,7 @@ void func_003694d0(PscModel *model)
     }
     switch (model->mode) {
     case 1:
+        fn = (void (**)(u32, u32))(u32)D_00887300;
         (*fn)(6, 0);
         (*fn)(8, 1);
         RpSkyRenderStateSet(3, 0x717FB);

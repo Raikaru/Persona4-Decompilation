@@ -2561,6 +2561,7 @@ void func_003599a0(u8 *arg0)
  * retail (`lui`/`lbu %lo(D_0064B2E9)`), so they are declared as arrays.
  * 2026-10-09: 490 -> 451: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 450: palette bytes declared as absolute arrays (retail lui/lbu %lo).
+ * 429: type sweep.
  */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2604,7 +2605,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     u8 col[4];
     s32 rc[4];
     u16 name;
-    u16 count;
+    s32 count;
     f32 px;
     f32 y0;
     f32 w;
@@ -2619,13 +2620,12 @@ void func_003599c0(s32 arg0, u8 *arg1)
     u8 kind;
     s32 isSelf;
     s32 mode;
-    u8 alpha;
+    u16 alpha;
     u8 *ptab;
     u8 *ctab;
     s32 nameColor;
     u8 *spr;
-    s32 i;
-
+    u16 i;
     x0 = *(f32 *)(arg1 + 4);
     y0 = *(f32 *)(arg1 + 8);
     fade = (f32)arg1[0] / 255.0f;
