@@ -66,6 +66,30 @@ sha1 OK in `build/link40.log`).
     commutative `addu` orders. A reduced TU (prelude + this function) is
     needed for `build/cap.py`; the full-file capture stops before it.
 
+- **`00471370`** (mdlManager, fnalign 542 -> 69). Levers:
+  - Identify each aggregate's retail slot by moving its declaration to the
+    top and reading `tools/frameslots.py` (object -> retail). 12-byte
+    arrays form a separate top group; large aggregates follow declaration
+    order downwards. Local typedefs must be hoisted first.
+  - Spill-slot order of the named scalars follows declaration order
+    (`iStack_420, uStack_430, hasParentMatrix, resetAnimation, iStack_450`).
+  - Address CSE through mixed views: `*(u16 *)((int)puVar3 + 0x42)` and
+    `((float *)puVar3)[N]` made MWCC hoist field addresses into callee-saved
+    registers; `*(u16 *)((u8 *)puVar3 + 0x42)` and `*(float *)&puVar3[N]`
+    fold the offset as retail does (-90 edits).
+  - `beq` case / `b` default with a large body is a one-case `switch` with
+    a `default`; `addiu $v0,1; b end` before a body is an early return.
+  - RenderWare link-list insert written like `rwLinkListAddLLLink` (typed
+    link struct, list pointer formed once) matched instruction for instruction.
+  - `func_003e9240` returns RwBool (`s32`): retail does not mask the result.
+  - Real bug fixed: the blend weight is `*(float *)(controller + 2)` (retail
+    `lwc1 4($s2)`), not `controller + 4`.
+  - Loops `while (!(x <= 360))` materialise a boolean; `x > 360.0f` gives
+    retail's direct `c.ole/bc1f`.
+  - Remaining: `param_4` homed at 0xc of its slot (retail slot base), the
+    `& 0x2000` flag spilled with `sq` (retail `sw`), v0/v1 and s0/s1 swaps
+    in the parent-matrix prologue, four `madd` operand orders, the
+    interpolator slot pointer and the `0x42` address hoist.
 
 The first three closed by reading which *variables*
 retail spills and reproducing that spill set, then the colours:
