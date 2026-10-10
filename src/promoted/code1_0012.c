@@ -2471,6 +2471,10 @@ void func_00126090(s32 arg0, u8 *arg1)
  * call pair (fnTable) and the 268/361 label position in f20/f21 (titlePosX/Y,
  * set in both branches and reused by the 0x1000A calls).
  * 1848: titlePosY is declared first (retail f21 = y, f20 = x).
+ * 1843: the three record loops are for loops (m2c goto form).
+ * 1775: the task pointer is declared first (retail $s4).
+ * 1665: the loop calls pack red|green into temp_9_* right after the green
+ * channel, as retail (the final colour ORs blue<<8 onto it).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2487,6 +2491,7 @@ typedef s32 M2C_UNK;
  * Only the task reaches the word-returning work accessor; the first payload
  * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
 void func_001265a0(void *unusedDrawData, void *task) {
+    u32 *temp_20;
     extern u8 D_005E5234[];
     extern u8 D_005E5238[];
     typedef union TitleRectangleWords { s128 bits; s32 words[4]; } TitleRectangleWords;
@@ -2921,7 +2926,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 temp_10_2;
     u32 var_3_26;
     u32 var_3_29;
-    u32 *temp_20;
     u32 *temp_2_11;
     u32 *temp_2_12;
     u32 *temp_2_23;
@@ -3091,9 +3095,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp6A4);
                     titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, NULL);
                     sinf(((((fGpffff8094 * (f32) (temp_16 - 0x3D)) / 80.0f))));
-                    var_19 = 1;
-loop_93:
-                    if (var_19 < 8) {
+                    for (var_19 = 1; var_19 < 8; var_19++) {
                         if ((u32) var_19 >= 0x13U) {
                             func_0046d730(D_005E5548, 0xD1);
                         }
@@ -3181,21 +3183,18 @@ loop_93:
     /* ACC seed */;
                                 temp_f1_3 = temp_cB + temp_cA * temp_q1;
                                 var_6_3 = (u8)temp_f1_3;
+                                temp_9_3 = temp_9_3 | ((var_6_3 & 0xFF) << 0x10);
                                 temp_cA = (f32)(u32)(0xFF - temp_2_7);
                                 temp_cB = (f32)(u32)temp_2_7;
     /* ACC seed */;
                                 temp_f1_4 = temp_cB + temp_cA * temp_q1;
                                 var_3_6 = (u8)temp_f1_4;
-                                func_00124bb0(glowId4, M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), (firstBase.words[temp_9] & ~0xFF) | 0xFF, ((var_3_6 & 0xFF) << 8) | (temp_9_3 | ((var_6_3 & 0xFF) << 0x10)) | 0xFF, M2C_FIELD(temp_7, f32 *, 0x18), 0x42, temp_20);
+                                func_00124bb0(glowId4, M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), (firstBase.words[temp_9] & ~0xFF) | 0xFF, ((var_3_6 & 0xFF) << 8) | temp_9_3 | 0xFF, M2C_FIELD(temp_7, f32 *, 0x18), 0x42, temp_20);
                             }
                         }
-                        var_19 += 1;
-                        goto loop_93;
                     }
                 } else {
-                    var_17_2 = 1;
-loop_128:
-                    if (var_17_2 < 8) {
+                    for (var_17_2 = 1; var_17_2 < 8; var_17_2++) {
                         secondPalette = D_005E5530;
                         titlePaletteCopy(&secondHighlight, &secondPalette);
                         temp_7_2 = D_005E5230 + var_17_2 * 0x28;
@@ -3219,15 +3218,14 @@ loop_128:
     /* ACC seed */;
                         temp_f1_6 = temp_cB + temp_cA * temp_one_S2B;
                         var_6_6 = (u8)temp_f1_6;
+                        temp_9_6 = temp_9_6 | ((var_6_6 & 0xFF) << 0x10);
                         temp_cA = (f32)(u32)(0xFF - temp_2_10);
                         temp_one_S2C = 1.0f;
                         temp_cB = (f32)(u32)temp_2_10;
     /* ACC seed */;
                         temp_f1_7 = temp_cB + temp_cA * temp_one_S2C;
                         var_3_7 = (u8)temp_f1_7;
-                        func_00124bb0(glowId3, M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), (secondBase.words[temp_9_4] & ~0xFF) | 0xFF, ((var_3_7 & 0xFF) << 8) | (temp_9_6 | ((var_6_6 & 0xFF) << 0x10)) | 0xFF, M2C_FIELD(temp_7_2, f32 *, 0x18), 0x42, temp_20);
-                        var_17_2 += 1;
-                        goto loop_128;
+                        func_00124bb0(glowId3, M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), (secondBase.words[temp_9_4] & ~0xFF) | 0xFF, ((var_3_7 & 0xFF) << 8) | temp_9_6 | 0xFF, M2C_FIELD(temp_7_2, f32 *, 0x18), 0x42, temp_20);
                     }
                 }
             }
@@ -3819,9 +3817,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         }
         titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp690);
         titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-        var_16 = 1;
-loop_351:
-        if (var_16 < 8) {
+        for (var_16 = 1; var_16 < 8; var_16++) {
             fifthPalette = D_005E5530;
             titlePaletteCopy(&fifthHighlight, &fifthPalette);
             temp_7_5 = D_005E5230 + var_16 * 0x28;
@@ -3845,15 +3841,14 @@ loop_351:
     /* ACC seed */;
             temp_f1_13 = temp_cB + temp_cA * temp_one_S5B;
             var_6_15 = (u8)temp_f1_13;
+            temp_9_9 = temp_9_9 | ((var_6_15 & 0xFF) << 0x10);
             temp_cA = (f32)(u32)(0xFF - temp_2_22);
             temp_one_S5C = 1.0f;
             temp_cB = (f32)(u32)temp_2_22;
     /* ACC seed */;
             temp_f1_14 = temp_cB + temp_cA * temp_one_S5C;
             var_3_34 = (u8)temp_f1_14;
-            func_00124bb0(glowId0, M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), (fifthBase.words[temp_9_7] & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | (temp_9_9 | ((var_6_15 & 0xFF) << 0x10)) | 0xFF, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
-            var_16 += 1;
-            goto loop_351;
+            func_00124bb0(glowId0, M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), (fifthBase.words[temp_9_7] & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | temp_9_9 | 0xFF, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
         }
         func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
