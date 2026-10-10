@@ -74,6 +74,27 @@ retail spills and reproducing that spill set, then the colours:
   - **Retail-order rewrite.** `00160880` was rewritten from its asm (globals
     read at use, per-word byte extraction, brightness adds after the four
     extractions, test-first loops): fnalign 376 -> 20.
+- Helper-boundary / struct probes (measured, after the inline-helper review):
+  - `0046b380` 38/81 -> 14/41: the border read moved into its own inline
+    helper (`sdkSpriteBorder(output, offset, field)`), so it is evaluated
+    before the extent subtraction as in retail. A record-address helper for
+    the packed-colour reads gives retail's table-first `addu` but schedules the
+    index load first and disturbs 230 registers (rejected).
+  - `00162e10`: wrapping the weekday scan in an inline helper that takes and
+    returns `found` fixes `$s5`/`$s6` (3/3), but the extra reference is the
+    second `move $s5,$zero` that b210 sinks into each branch; retail has one
+    move before the call. A helper owning the whole test, or returning the
+    flag, gives the old colours.
+  - `00160880`: an inline helper returning `D_007643AC` is not inlined (b210
+    emits a `jal`).
+  - `0047b0c0`: a capacity-initialising helper (value parameter) is worse
+    (20/70).
+  - `004a7830`: abs/compare helpers are worse (16/21 and up).
+  - `0048b340`: a typed 32-byte trail node for the else branch does not move
+    the pointer's numbering (0/40 block-local, 2/27 expression form).
+  - `003599c0`: retail evaluates each call's float arguments and the sprite
+    load before the w/h u16 conversions; ours hoists the conversions first
+    whatever the spelling (`(u16)`, `(u32)`, `(s32)`, inline scale, u8 alpha).
 - Colouring residual evidence (captures + `regalloc_whatif.py`), not yet
   closed:
   - `00162e10` (0/6): `found`/`k` swap `$s5`/`$s6`. Their reference counts
