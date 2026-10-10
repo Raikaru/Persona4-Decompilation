@@ -499,6 +499,10 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * fnalign 159 -> 122: float control fields through *(float *)&puVar3[N]; final blend test in retail polarity (blend path first).
  * blend weight read from controller + 2 (retail lwc1 4($s2)); the previous controller + 4 read the wrong field.
  * blend step: duration loaded, reciprocal formed, then added.
+ * controller flags cleared through a fresh u16 read in the angle-limit else (retail reloads).
+ * second hierarchy lookup: node offset formed before the base.
+ * owner-chain multiply source as a byte pointer.
+ * parent row offset formed before the matrix array load.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -642,7 +646,8 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   puVar12 = (unsigned int *)param_1;
   temp_v10 = *puVar12;
   if (((temp_v10 & 1) != 0) && (puVar12[7] != 0xffffffff)) {
-    pfVar21 = (float *)(*(int *)(puVar12[6] + 8) + puVar12[7] * 0x40);
+    temp_v4 = puVar12[7] * 0x40;
+    pfVar21 = (float *)(*(int *)(puVar12[6] + 8) + temp_v4);
     if (((temp_v10 & 0x2000) != 0) && ((temp_v10 & 0x4000) != 0)) {
       hasParentMatrix = 1;
       temp_v3 = *(unsigned int *)(puVar12[6] + 0x14);
@@ -684,7 +689,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         baseMatrix = *(const RwMatrix *)(temp_v9 + 0x10);
         for (temp_v9 = *(int *)(temp_v9 + 4); temp_v9 != 0; temp_v9 = *(int *)(temp_v9 + 4)) {
           ancestorMatrix = baseMatrix;
-          RwMatrixMultiply((RwMatrix *)(((f32 *)&baseMatrix)),(const RwMatrix *)(((f32 *)&ancestorMatrix)),(const RwMatrix *)(temp_v9 + 0x10));
+          RwMatrixMultiply((RwMatrix *)(((f32 *)&baseMatrix)),(const RwMatrix *)(((f32 *)&ancestorMatrix)),(const RwMatrix *)((u8 *)temp_v9 + 0x10));
         }
       }
     }
@@ -898,7 +903,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               *controller = *controller | 0x800;
             }
             else {
-              *controller = *controller & 0xf7ff;
+              *(u16 *)controller = *(u16 *)controller & 0xf7ff;
             }
             if ((*controller & 0x800) != 0) {
               rotation = *(ControllerQuat *)(controller + 0x10);
@@ -1245,8 +1250,8 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         temp_v21 = *(float *)(pbVar19 + 4);
       }
       else {
-        temp_v4 = **(int **)(modelState + 0x1a);
-        piVar4 = *(int **)(temp_v4 + 0x4c + (short)modelState[2] * 0x50);
+        temp_v4 = (short)modelState[2] * 0x50;
+        piVar4 = *(int **)(**(int **)(modelState + 0x1a) + 0x4c + temp_v4);
         if (piVar4 == (int *)0x0) {
           temp_v21 = 0.0f;
         }
