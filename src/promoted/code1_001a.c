@@ -3988,6 +3988,7 @@ void func_001a7710(void)
  * 1286: type sweep.
  * 1280: type sweep.
  * 1279: cmp sweep.
+ * 1267: conversion lever (temp_22_3:(1, 2)).
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5035,7 +5036,7 @@ void func_001a7720(u8 *arg0) {
         (*( s8 * )((u8 *)(temp_2_65) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_65) + (8))) = var_18;
         (*( s16 * )((u8 *)(temp_2_65) + (0x48))) = var_17;
-        (*( s16 * )((u8 *)(temp_2_65) + (0x4A))) = (s16)((s16) ((func_00199500((*( u8 ** )((u8 *)(temp_22_3) + (0x30))), 0x1A, 1.0f)) - 1));
+        (*( s16 * )((u8 *)(temp_2_65) + (0x4A))) = (s16)((s16) ((func_00199500((*( u8 ** )((u8 *)((s32 *)(u32)temp_22_3) + (0x30))), 0x1A, 1.0f)) - 1));
         (*( s64 * )((u8 *)(temp_2_65) + (0x60))) = temp_16;
         func_00194590(temp_2_65, 0);
         temp_2_66 = (u8 *)(btlCameraCreateSetStatePacket((u8 *)arg0, 0x1E));
@@ -5044,7 +5045,7 @@ void func_001a7720(u8 *arg0) {
         (*( s16 * )((u8 *)(temp_2_66) + (0x48))) = var_17;
         (*( s64 * )((u8 *)(temp_2_66) + (0x60))) = temp_16;
         func_00194590(temp_2_66, 0);
-        temp_2_67 = (u8 *)(func_001f99c0(temp_22_3, 0xD, 0U, 0, 0));
+        temp_2_67 = (u8 *)(func_001f99c0((s32 *)(u32)temp_22_3, 0xD, 0U, 0, 0));
         (*( s8 * )((u8 *)(temp_2_67) + (0))) = 4;
         (*( s64 * )((u8 *)(temp_2_67) + (8))) = var_18;
         (*( s16 * )((u8 *)(temp_2_67) + (0x48))) = var_17;

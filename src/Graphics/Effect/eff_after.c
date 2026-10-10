@@ -833,6 +833,7 @@ void func_004b8f10(void *arg0) {
  * one f32 array local (retail keeps that slot in memory).
  * (cleanup: address-of casts simplified)
  * 1269: type sweep.
+ * 1262: conversion lever (pbVar2:(1, 3)).
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -934,7 +935,7 @@ void func_004b8f40(u8 *work, void **pp)
       pbVar2 = pbVar12;
       for (temp_v5 = 0; temp_v5 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v5 = temp_v5 + 1) {
         func_004bc540(work,0,effAfterOffsetPtr(0xc, pbVar2),temp_v9);
-        func_004bc540(work,1,effAfterOffsetPtr(0x10, pbVar2),temp_v9);
+        func_004bc540(work,1,effAfterOffsetPtr(0x10, (u8 *)(u32)pbVar2),temp_v9);
         temp_v9 = temp_v9 + 1.0f / temp_v7;
         pbVar2 = effAfterOffsetPtr(0xc, pbVar2);
       }
@@ -965,7 +966,7 @@ void func_004b8f40(u8 *work, void **pp)
       temp_v11 = 0.5f / temp_v9;
       pbVar2 = pbVar12;
       for (temp_v1 = 0; temp_v1 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v1 = temp_v1 + 1) {
-        func_004bc540(work,1,effAfterOffsetPtr(0xc, pbVar2),temp_v11);
+        func_004bc540(work,1,effAfterOffsetPtr(0xc, (u8 *)(u32)pbVar2),temp_v11);
         func_004bc540(work,1,effAfterOffsetPtr(0x10, pbVar2),temp_v11);
         temp_v11 = temp_v11 + temp_v7;
         pbVar2 = effAfterOffsetPtr(0xc, pbVar2);
