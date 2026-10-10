@@ -1233,6 +1233,8 @@ static inline s32 msgWinSelectionResource(void)
  * `cl` pointers (retail folds the whole stack offset into one addiu).
  * 2026-10-09: 155 -> 135: declaration climb.
  * 2026-10-09: 135 -> 133: case 8 tests the window pointers inside the assignment.
+ * 106: the colour locals are copied by an address-taking helper, so retail's
+ * stores of backgroundColor/selectionColor (0x2F8/0x2F4) remain.
  */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1240,6 +1242,12 @@ static inline s32 msgWinSelectionResource(void)
 #pragma opt_lifetimes on
 #pragma push
 #pragma opt_loop_invariants on
+static inline PrimitiveRectangleColor *msgWinCopyColor(u8 *destination, const u8 *source)
+{
+    *(PrimitiveRectangleColor *)destination = *(const PrimitiveRectangleColor *)source;
+    return (PrimitiveRectangleColor *)destination;
+}
+
 s32 func_0027f6f0(s32 arg0, u32 arg1)
 {
     extern u32 D_00882020[];
@@ -1806,7 +1814,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     case 12:
         if (func_0027bec0((s32)arg0) != 0) {
             backgroundColor = iGpffffa780;
-            color = backgroundColor;
+            msgWinCopyColor((u8 *)&color, (const u8 *)&backgroundColor);
             background = D_0063C130;
             rectangle = background;
             func_0045da40(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
@@ -1821,7 +1829,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 j = (tmp2 >> 1) * 8 + 0x550 + tmp2 * 8 * tmp;
             }
             selectionColor = iGpffffa784;
-            color = selectionColor;
+            msgWinCopyColor((u8 *)&color, (const u8 *)&selectionColor);
             selection = D_0063C140;
             selection.signedWords.word[0] = 0x38;
             selection.signedWords.word[1] = j >> 3;
