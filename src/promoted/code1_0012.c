@@ -2523,11 +2523,15 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * 262: the scroll delta and the rounded step share one int local (retail
  * evaluates the delta first).
  * 261: no explicit fnTable local; b210's CSE keeps the table address.
+ * 217: the glow-loop record pointers index a TitleRecordBlock array (as
+ * 0x28-byte records).
+ * 209: each (8,1)/(6,1) call pair goes through a fnTable local (retail $s1).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
+typedef struct { u8 bytes[0x28]; } TitleRecordBlock;
 static inline f32 *titleCopyRect(u8 *destination, const u8 *source)
 {
     *(TitleRect *)destination = *(const TitleRect *)source;
@@ -2788,6 +2792,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u8 *var_3_4;
     u8 *var_3_5;
     f32 lerpT;
+    void (**fnTable)(s32, s32);
     s32 paletteOffset;
     u32 packedColor;
     u32 packedBaseColor;
@@ -3052,7 +3057,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                         if ((u32) var_19 >= 0x13U) {
                             func_0046d730(D_005E5548, 0xD1);
                         }
-                        temp_21 = D_005E5230 + var_19 * 0x28;
+                        temp_21 = (u8 *)&((TitleRecordBlock *)D_005E5230)[var_19];
                         var_17 = (s32)((temp_16 - 0x3D) - M2C_FIELD(temp_21, s32 *, 0x20));
                         if (var_17 > 0) {
                             var_2_5 = var_17 - 0x32;
@@ -3116,7 +3121,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                  * producers remain supplied/unproven expressions. */
                                 firstPalette = D_005E5530;
                                 titlePaletteCopy(&firstHighlight, &firstPalette);
-                                temp_7 = D_005E5230 + var_19 * 0x28;
+                                temp_7 = (u8 *)&((TitleRecordBlock *)D_005E5230)[var_19];
                                 paletteOffset = *(s32 *)(temp_7 + 0x1C) * 4;
                                 packedColor = *(u32 *)((u8 *)firstHighlight.words + paletteOffset);
                                 temp_q1 = (f32)(s32)(255.0f * temp_f20_3) / 255.0f;
@@ -3240,7 +3245,8 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 titleCopyValue((u8 *)&sp678, (const u8 *)&sp674);
                 titleRectangle((u8 *)&sp678, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                D_00887300[0](8, 1);
+                fnTable = D_00887300;
+                fnTable[0](8, 1);
                 func_00489f80();
                 var_3_11 = sp61C.bytes;
                 var_2_8 = 4;
@@ -3259,7 +3265,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 func_0045d6e0((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp380), 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
-                D_00887300[0](6, 1);
+                fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f20_4)), 0, 0, taskView->sprites, 0);
@@ -3329,7 +3335,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleCopyValue((u8 *)&sp668, (const u8 *)&sp664);
                 titleRectangle((u8 *)&sp668, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                D_00887300[0](8, 1);
+                fnTable = D_00887300;
+                fnTable[0](8, 1);
                 func_00489f80();
                 var_3_15 = sp60C.bytes;
                 var_2_12 = 4;
@@ -3348,7 +3355,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp320), 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
-                D_00887300[0](6, 1);
+                fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x1000A, 0, taskView->sprites, 0);
@@ -3365,7 +3372,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleCopyValue((u8 *)&sp660, (const u8 *)&sp65C);
                 titleRectangle((u8 *)&sp660, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                D_00887300[0](8, 1);
+                fnTable = D_00887300;
+                fnTable[0](8, 1);
                 func_00489f80();
                 var_3_17 = sp604.bytes;
                 var_2_14 = 4;
@@ -3385,7 +3393,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0048a000();
                 temp_f22 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f))));
                 func_002aaac0();
-                D_00887300[0](6, 1);
+                fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f22)), 0x1000A, 0, taskView->sprites, 0);
