@@ -2533,6 +2533,7 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * 160: comparison constants in retail's form.
  * 145: conversion lever (var_19:(0, 2)).
  * 138: conversion lever (temp_10_2:(0, 2)).
+ * 130: gp float constants written as literals.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2975,7 +2976,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x4C, 0, 0, taskView->sprites, 0);
             } else if (temp_16 < 0xA1) {
-                temp_f20_2 = sinf((fGpffff8094 * (f32) (temp_16 - 0x73)) / 45.0f);
+                temp_f20_2 = sinf((1.5707964f * (f32) (temp_16 - 0x73)) / 45.0f);
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
@@ -3059,7 +3060,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     }
                     titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp6A4);
                     titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, NULL);
-                    sinf(((((fGpffff8094 * (f32) (temp_16 - 0x3D)) / 80.0f))));
+                    sinf(((((1.5707964f * (f32) (temp_16 - 0x3D)) / 80.0f))));
                     for (var_19 = 1; (s32)var_19 < 8; var_19++) {
                         if ((u32) var_19 >= 0x13U) {
                             func_0046d730(D_005E5548, 0xD1);
@@ -3073,11 +3074,11 @@ void func_001265a0(void *unusedDrawData, void *task) {
                             } else if (var_2_5 > 0x1E) {
                                 var_2_5 = 0x1E;
                             }
-                            temp_f20_3 = sinf(((((fGpffff8094 * (f32) var_2_5) / 30.0f))));
+                            temp_f20_3 = sinf(((((1.5707964f * (f32) var_2_5) / 30.0f))));
                             if (var_17 >= 0x32) {
                                 var_17 = 0x32;
                             }
-                            temp_f21 = sinf(((((fGpffff8094 * (f32) var_17) / 50.0f))));
+                            temp_f21 = sinf(((((1.5707964f * (f32) var_17) / 50.0f))));
                             if (var_17 == 1) {
                                 temp_3_2 = (s32)(M2C_FIELD(temp_21, s32 *, 0));
                                 if (temp_3_2 >= 0xF) {
@@ -3168,7 +3169,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
             if (temp_16 > 0x81) {
                 if (temp_16 < 0xBE) {
                     temp_17 = temp_16 - 0x81;
-                    lerpT = sinf(((((fGpffff8094 * (f32) temp_17) / 60.0f))));
+                    lerpT = sinf(((((1.5707964f * (f32) temp_17) / 60.0f))));
                     if (temp_17 == 1) {
                         if (*(s32 *)D_005E5230 >= 0xF) {
                             var_4_7 = NULL;
@@ -3219,7 +3220,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                         func_00124bb0(a0, (0.0f + D_005E5374[0] + lerpT * (D_005E539C[0] - D_005E5374[0])), 0.0f, (0.0f + D_005E5378[0] + lerpT * (D_005E53A0[0] - D_005E5378[0])), (0.0f + D_005E537C[0] + lerpT * (D_005E53A4[0] - D_005E537C[0])), (0.0f + D_005E5380[0] + lerpT * (D_005E53A8[0] - D_005E5380[0])), (0.0f + D_005E5384[0] + lerpT * (D_005E53AC[0] - D_005E5384[0])), a1, a2, (0.0f + D_005E5388[0] + lerpT * (D_005E53B0[0] - D_005E5388[0])), 0x40, temp_20);
                     }
                 } else if (temp_16 < 0xD2) {
-                    lerpT = sinf(((((fGpffff8094 * (f32) (temp_16 - 0xBD)) / 20.0f))));
+                    lerpT = sinf(((((1.5707964f * (f32) (temp_16 - 0xBD)) / 20.0f))));
                     fourthPalette = D_005E5530;
                     titlePaletteCopy(&fourthHighlight, &fourthPalette);
                     paletteOffset = D_005E53B4[0] * 4;
@@ -3239,7 +3240,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 }
             }
             if (temp_16 < 0x74) {
-                temp_f20_4 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x19)) / 90.0f))));
+                temp_f20_4 = sinf(((((1.5707964f * (f32) (temp_16 - 0x19)) / 90.0f))));
                 var_3_10 = sp674.bytes;
                 var_2_7 = 4;
                 if (var_3_10 != NULL) {
@@ -3282,7 +3283,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
             }
             if (temp_16 > 0x5a) {
                 if (temp_16 < 0x65) {
-temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
+temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
     /* ACC seed */;
                     temp_f14 = 0.0f;
                     func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, (u8)(255.0f * temp_f2), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
@@ -3291,7 +3292,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
             }
             if ((temp_16 > 0xbb) && (temp_16 < 0xDF)) {
-                temp_f2_2 = fGpffff8094;
+                temp_f2_2 = 1.5707964f;
                 func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))))), 0x10009, 0, taskView->sprites, 1);
             }
             if (temp_16 < 0x74) {
@@ -3398,7 +3399,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp2F0 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp2F0), 0.0f, 0);
                 func_0048a000();
-                temp_f22 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f))));
+                temp_f22 = sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 60.0f))));
                 func_002aaac0();
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
@@ -3468,7 +3469,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp290 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp290), 0.0f, 0);
                 func_0048a000();
-                func_00125e80(200.0f - 700.0f * sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
+                func_00125e80(200.0f - 700.0f * sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             }
             if (temp_16 < 0xE2) {
                 var_3_22 = sp644.bytes;
@@ -3501,13 +3502,13 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp260 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp260), 0.0f, 0);
                 func_0048a000();
-                temp_f20_5 = sinf((fGpffff8094 * (f32) temp_16) / 225.0f);
+                temp_f20_5 = sinf((1.5707964f * (f32) temp_16) / 225.0f);
                 if (temp_16 > 0x87) {
                     var_2_21 = temp_16 - 0x87;
                 } else {
                     var_2_21 = 0;
                 }
-                temp_f21_2 = sinf((fGpffff8094 * (f32) var_2_21) / 90.0f);
+                temp_f21_2 = sinf((1.5707964f * (f32) var_2_21) / 90.0f);
                 /* Keep the first return across the second call; round multiply and add separately. */
                 temp_f16 = 1.5f * temp_f20_5;
                 temp_f16 = fGpffff8170 + temp_f16;
@@ -3516,7 +3517,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
     /* ACC seed */;
                 func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, (s16)(137.0f * temp_f16), (s16)(137.0f * temp_f16), -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
     /* ACC seed */;
-                temp_f16_2 = fGpffff80bc;
+                temp_f16_2 = 1.3f;
                 func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
             }
         }
@@ -3589,7 +3590,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             sp200 = D_005E55A0;
             func_0045d6e0((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp200), 0.0f, 0);
             func_0048a000();
-            temp_f2_3 = fGpffff8094;
+            temp_f2_3 = 1.5707964f;
             temp_f0_5 = sinf((((temp_f2_3 + ((temp_f2_3 * (f32) (temp_16 - 0x19)) / 60.0f)))));
             sp698.value = fGpffff9c84;
             temp_f1_11 = 255.0f * temp_f0_5;
@@ -3764,7 +3765,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                     var_2_29 = 5;
                 }
                 {
-                    f32 t = 1.0f - sinf(fGpffff8094 * (f32)var_2_29 / 5.0f);
+                    f32 t = 1.0f - sinf(1.5707964f * (f32)var_2_29 / 5.0f);
 
                     titleX = titleX + 200.0f * t;
                     titleY = titleY + 250.0f * t;
@@ -3790,7 +3791,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             }
             temp_f1_17 = (f32) var_2_31 / 5.0f;
             temp_f14_2 = 0.0f;
-            temp_f16_3 = fGpffff82a0;
+            temp_f16_3 = 0.87f;
             func_0025f430(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, (u8)(255.0f * temp_f1_17), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
         }
         if (taskView->f28 != (taskView->f20 << 0x10)) {
