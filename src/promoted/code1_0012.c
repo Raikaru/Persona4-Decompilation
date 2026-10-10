@@ -2514,6 +2514,8 @@ void func_00126090(s32 arg0, u8 *arg1, f32 x, f32 y, f32 depth)
  * 341: 1 - fraction, then the 42 scale, as separate steps.
  * 342: the glow blend reads the 0x32-step sinf result (temp_f20_3); m2c had
  * left the stale temp_f20 there.
+ * 330: declaration order for the loop counter and second glow sine (register colouring).
+ * 324: the upper clamp is written `> 0x1E` (retail's slti $at form).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2551,6 +2553,7 @@ typedef s32 M2C_UNK;
  * Only the task reaches the word-returning work accessor; the first payload
  * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
 void func_001265a0(void *unusedDrawData, void *task) {
+    f32 temp_f21;
     u32 *temp_20;
     TitleTaskView *taskView;
     extern u8 D_005E5234[];
@@ -2634,6 +2637,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern f32 fGpffff81e0;
     extern f32 fGpffff81dc;
     extern f32 fGpffff8094;
+    s32 var_19;
 
     TitleDrawColor sp6BC;
     s32 sp6B8;
@@ -2802,7 +2806,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     f32 temp_f20_3;
     f32 temp_f20_4;
     f32 temp_f20_5;
-    f32 temp_f21;
     f32 temp_f21_2;
     f32 temp_f22;
     f32 temp_f2;
@@ -2843,7 +2846,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 var_16;
     s32 var_17;
     s32 var_17_2;
-    s32 var_19;
     s32 layerClearCount;
     s32 var_2_10;
     s32 var_2_11;
@@ -3051,7 +3053,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                             var_2_5 = var_17 - 0x32;
                             if (var_2_5 < 0) {
                                 var_2_5 = 0;
-                            } else if (var_2_5 >= 0x1F) {
+                            } else if (var_2_5 > 0x1E) {
                                 var_2_5 = 0x1E;
                             }
                             temp_f20_3 = sinf(((((fGpffff8094 * (f32) var_2_5) / 30.0f))));
