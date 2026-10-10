@@ -2488,6 +2488,9 @@ void func_00126090(s32 arg0, u8 *arg1)
  * 1469: each 0x1000E call converts the float alpha itself.
  * (the from-record fields are read in place; with propagation on the glowFrom
  * locals made no difference)
+ * 1441: the fade fractions f88/20 and timer/20 are computed first, as retail.
+ * 1434: fadeT holds the case-6/7 fraction; the alpha converts in the call.
+ * 1401: the remaining alpha conversions happen inside the draw calls.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2746,6 +2749,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u8 *var_3_4;
     u8 *var_3_5;
     f32 lerpT;
+    f32 fadeT;
     f32 temp_f0;
     f32 temp_f0_11;
     f32 temp_f0_2;
@@ -2988,10 +2992,11 @@ void func_001265a0(void *unusedDrawData, void *task) {
         if (temp_2 >= 0x14) {
             taskView->f88 = 0x14;
         }
+        temp_f20 = (f32) taskView->f88 / 20.0f;
         sp6A8.value = fGpffff9c7c;
         sp6BC = sp6A8;
         sp520.bits = D_005E5650;
-        temp_f20 = 42.0f * (1.0f - ((f32) taskView->f88 / 20.0f));
+        temp_f20 = 42.0f * (1.0f - temp_f20);
         sp520.words[1] = (s32)-temp_f20;
         sp590 = sp520.bits;
         func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
@@ -3015,9 +3020,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                temp_f1 = 255.0f * (fGpffff822c + fGpffff8228 * (1.0f - temp_f20_2));
-                var_5 = (u8)temp_f1;
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, var_5, 0, 0, taskView->sprites, 0);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (fGpffff822c + fGpffff8228 * (1.0f - temp_f20_2))), 0, 0, taskView->sprites, 0);
             } else {
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
@@ -3382,9 +3385,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                temp_f1_8 = 255.0f * (1.0f - temp_f20_4);
-                var_5_10 = (u8)temp_f1_8;
-                func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, var_5_10, 0, 0, taskView->sprites, 0);
+                func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f20_4)), 0, 0, taskView->sprites, 0);
             }
             if (temp_16 == 0x55) {
                 func_0045ad50(2, func_00455f70(&D_005E56D0, &sp6B8), sp6B8);
@@ -3402,9 +3403,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             }
             if ((temp_16 >= 0xBC) && (temp_16 < 0xDF)) {
                 temp_f2_2 = fGpffff8094;
-                temp_f1_9 = 255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))));
-                var_5_12 = (u8)temp_f1_9;
-                func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_12, 0x10009, 0, taskView->sprites, 1);
+                func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))))), 0x10009, 0, taskView->sprites, 1);
             }
             if (temp_16 < 0x74) {
                 var_3_12 = sp66C.bytes;
@@ -3521,9 +3520,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                temp_f1_10 = 255.0f * (1.0f - temp_f22);
-                var_5_13 = (u8)temp_f1_10;
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, var_5_13, 0x1000A, 0, taskView->sprites, 0);
+                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f22)), 0x1000A, 0, taskView->sprites, 0);
             }
             if (temp_16 < 0x56) {
                 var_3_18 = sp654.bytes;
@@ -3740,6 +3737,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         if (var_3_30 >= 0x14) {
             var_3_30 = 0x14;
         }
+        fadeT = (f32) var_3_30 / 20.0f;
         func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
         RpSkyRenderStateSet(3, (void *)0x50003);
         RpSkyRenderStateSet(2, 0x48);
@@ -3836,9 +3834,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         }
         func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
-        temp_f1_15 = 255.0f * ((f32) var_3_30 / 20.0f);
-        var_5_18 = (u8)temp_f1_15;
-        func_0025f430(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, var_5_18, 0x10007, 0, taskView->sprites, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        func_0025f430(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, (u8)(255.0f * fadeT), 0x10007, 0, taskView->sprites, 1, 0, 0, 0.0f, 1.0f, 1.0f);
         func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
         break;
     case 8:
@@ -3934,9 +3930,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         if (var_2_30 >= 6) {
             var_2_30 = 5;
         }
-        temp_f1_16 = 255.0f * (1.0f - ((f32) var_2_30 / 5.0f));
-        var_5_19 = (u8)temp_f1_16;
-        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_19, 0x10001, 0, taskView->sprites, 1);
+        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - ((f32) var_2_30 / 5.0f))), 0x10001, 0, taskView->sprites, 1);
         var_2_31 = (s32)(taskView->timer - 2);
         if (var_2_31 > 0) {
             if (var_2_31 >= 3) {
