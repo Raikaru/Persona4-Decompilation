@@ -856,6 +856,7 @@ void func_004b8f10(void *arg0) {
  * fnalign 259 -> 234: vector copies are EffAfterVec assignments; tail copies addressed from pfVar17 + n*3 with constant offsets.
  * fnalign 234 -> 214: case-2 prologue in retail order (count converted before + 0.5, output cursor set first, prev by struct copy).
  * loop counters advanced before the cursors (retail order).
+ * fnalign 178 -> 160 (struct 0): tail copies read their source inline so the destination address is formed first.
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -1195,10 +1196,8 @@ void func_004b8f40(u8 *work, void **pp)
       if (temp_v1 < 0) {
         temp_v1 = temp_v1 + *(s32 *)((work) + 8);
       }
-      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x10, work)) + temp_v1 * 0xc);
-      *(EffAfterVec *)(pfVar17 + temp_v5 * 3 - 9) = *(EffAfterVec *)pfVar16;
-      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x14, work)) + temp_v1 * 0xc);
-      *(EffAfterVec *)(pfVar17 + temp_v5 * 3 - 6) = *(EffAfterVec *)pfVar16;
+      *(EffAfterVec *)(pfVar17 + temp_v5 * 3 - 9) = *(EffAfterVec *)(*(u8 **)(work + 0x10) + temp_v1 * 0xc);
+      *(EffAfterVec *)(pfVar17 + temp_v5 * 3 - 6) = *(EffAfterVec *)(*(u8 **)(work + 0x14) + temp_v1 * 0xc);
       pfVar17[temp_v5 * 3 - 3] = pfVar17[temp_v5 * 3 - 9] + pfVar17[temp_v5 * 3 - 6];
       pfVar17[temp_v5 * 3 - 2] = pfVar17[temp_v5 * 3 - 8] + pfVar17[temp_v5 * 3 - 5];
       pfVar17[temp_v5 * 3 - 1] = pfVar17[temp_v5 * 3 - 7] + pfVar17[temp_v5 * 3 - 4];
