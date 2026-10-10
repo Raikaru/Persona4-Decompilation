@@ -333,7 +333,10 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
    func_001427c0.
    2026-10-08: the second radar call converts 255.0f * opacity in place (63 edits). Retail converts both radar alphas to u8 inside each arm and passes them without another andi, which the model gives only with u8 opacity parameters (15 edits); the matched callees func_001427c0 and func_00142bf0 take s32 in this translation unit. */
 /* 2026-10-09: 63 -> 56 edits from a block-declaration order climb. 
-   2026-10-09: 56 -> 51 with (u8)(u32) on the radar-edge alpha; retail still converts 255*opacity inside the loop where b210 hoists the conversion. */
+   2026-10-09: 56 -> 51 with (u8)(u32) on the radar-edge alpha; retail still converts 255*opacity inside the loop where b210 hoists the conversion.
+ * sdiff 40/45 -> 4/4: retail passes the radar alphas as already-narrowed u8 (andi in each conversion arm, no re-mask at the call), so the radar callees are declared here with u8 opacity parameters (H011: the matched definitions keep s32, as their own bodies use the full word); radarOpacity is passed directly.
+ * sdiff 4/4 -> 2/2: fillX is read inside the vertex loop (LICM hoists it after the table address, as retail).
+ */
 // FUN_001400F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -376,11 +379,11 @@ extern u32 func_0010d6d0(s16 work);
 extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
 extern void func_001423c0(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
-extern void func_001427c0(Float2_0014 pos, f32 depth, s32 opacity, u8 *state);
-extern void func_00142bf0(s64 work, s64 arg1, s32 arg2, f32 fparg0, s32 arg3);
 
 void func_001400f0(u8 *work)
 {
+    extern void func_001427c0(Float2_0014 pos, f32 depth, u8 opacity, u8 *state);
+    extern void func_00142bf0(s64 work, s64 arg1, s32 arg2, f32 fparg0, u8 arg3);
     f32 opacity;
     f32 originX;
     f32 originY;
@@ -583,7 +586,7 @@ void func_001400f0(u8 *work)
             coordinate = originY + *(f32 *)(e2 + 0x4A4);
             coordinate += r2->y;
             numberPosition.xy.y = coordinate;
-            func_00142bf0(position.bits, numberPosition.bits, i, 0.0f, (u8)(u32)(255.0f * opacity));
+            func_00142bf0(position.bits, numberPosition.bits, i, 0.0f, radarOpacity);
         }
         for (i = 0; i < 5; i++) {
             f32 coordinate;
@@ -613,10 +616,12 @@ void func_001400f0(u8 *work)
             j = 0;
             fillY = position.xy.y;
             fadedAlpha = fGpffff854c * (f32)(u32)alpha;
-            fillX = position.xy.x;
             for (; j < 5; j++) {
                 Float2_0014 *offset = (Float2_0014 *)(D_005EF6A0 + (u32)j * 8);
-                RadarVertexFields *vertex = &vertices[j].u.els;
+                RadarVertexFields *vertex;
+
+                fillX = position.xy.x;
+                vertex = &vertices[j].u.els;
                 vertex->scrVertex.x = fillX + offset->x;
                 vertex->scrVertex.y = fillY + offset->y;
                 vertex->scrVertex.z = screenDepth;
@@ -634,7 +639,7 @@ void func_001400f0(u8 *work)
         RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
         position.xy.x = originX;
         position.xy.y = originY;
-        func_001427c0(position.xy, 0.0f, (u8)radarOpacity, work);
+        func_001427c0(position.xy, 0.0f, radarOpacity, work);
         position.xy.x = (f32)0x13B + (originX + *(f32 *)(work + 0x680));
         position.xy.y = (116.0f + (originY + *(f32 *)(work + 0x684)));
         alpha = (u8)((f32)(u32)work[0x68A] * opacity);
