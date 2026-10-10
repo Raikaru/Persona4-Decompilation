@@ -1983,6 +1983,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * 2026-10-09: 901 -> 868: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 845: vector copies written as struct copies (retail copies through stack structs).
  * (bit copies through int casts written as float copies)
+ * (the callback is func_0018a170 by symbol, as retail's relocation)
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2122,7 +2123,7 @@ s32 func_0018a200(u8 *param_1)
     if (*(int *)(puVar1[3] + 0x234) == 2) {
       iStack_4 = 0;
       temp_v8 = FUN_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
-      FUN_003bff30(temp_v8,0x18a170,&iStack_4);
+      FUN_003bff30(temp_v8,(int)func_0018a170,&iStack_4);
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + puVar1[0x14] * 4 + 0x34) != 0) {
         temp_v1 = iStack_4 != 0;
