@@ -4445,6 +4445,23 @@ typedef struct MdlCloneLayerView {
 
 static inline MdlCloneAttachmentTable* mdl_clone_attachment_storage(u32 count)
 {
+    MdlCloneAttachmentTable* copy;
+    s32 size = sizeof(MdlCloneAttachmentTable);
+    size += count * sizeof(void*);
+    size += count * sizeof(void*);
+    func_0044ea90(D_00713138, 0x1d6);
+    copy = ((void* (*)(int, int))DAT_008873e8[0])(size, 0x40000);
+    memset(copy, 0, size);
+    copy->count.word = (u16)count;
+    copy->primary = (void**)(copy + 1);
+    copy->secondary = copy->primary + (u16)count;
+    return copy;
+}
+
+/* Same allocation with size declared first: the 0xf0f000e1 path in
+   func_0047b0c0 keeps size in $s4 and the table in $s5 this way. */
+static inline MdlCloneAttachmentTable* mdl_clone_attachment_storage_sized(u32 count)
+{
     s32 size = sizeof(MdlCloneAttachmentTable);
     MdlCloneAttachmentTable* copy;
     size += count * sizeof(void*);
@@ -5974,6 +5991,7 @@ void func_0047b060(void* param_1)
  * fnalign 28 -> 26: effect.length passed as (s32) - retail loads it before the head/payload moves.
  * fnalign 26 -> 20: opt_loop_invariants on (retail hoists the -1 fill and other loop constants); D_0070B610 passed as a pointer everywhere so its address is not hoisted.
  * fnalign 20 -> 14: capacity init loop stores the literal 32 (retail reuses the hoisted constant).
+ * fnalign 14 -> 9: the 0xf0f000e1 path uses mdl_clone_attachment_storage_sized (size declared before copy).
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6422,7 +6440,7 @@ s32 func_0047b0c0(u8 *model)
         {
             u8 *payload = state->memory + *(u32 *)((u8 *)state->stream + 0xc);
             if (LOAD_LAYER()->attachments == 0) {
-                MdlCloneAttachmentTable *table = mdl_clone_attachment_storage(capacity);
+                MdlCloneAttachmentTable *table = mdl_clone_attachment_storage_sized(capacity);
                 LOAD_LAYER()->attachments = table;
             }
             {
