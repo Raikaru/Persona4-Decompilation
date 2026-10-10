@@ -2519,6 +2519,9 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * 313: model slot 0 is a TitleTaskView member.
  * 298: the remaining alpha bytes convert float -> u8 directly.
  * 285
+ * 269: the fade texture lookup happens inside the draw call, after the alpha.
+ * 262: the scroll delta and the rounded step share one int local (retail
+ * evaluates the delta first).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2712,7 +2715,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u32 *fadeUvSource;
     u32 *fadeUvDestination;
     s32 fadeAlpha;
-    s32 fadeTexture;
     TitleRectangleWords sp520;
     TitleRectangleWords sp510;
     TitleRect sp500;
@@ -3780,8 +3782,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         }
         if (taskView->f28 != (taskView->f20 << 0x10)) {
     /* ACC seed */;
-            temp_f0_10 = (f32)((taskView->f20 << 0x10) - taskView->f28) +
-                         0.5f * (f32)((taskView->f20 - taskView->f24) << 0x10);
+            temp_10_2 = (taskView->f20 << 0x10) - taskView->f28;
+            temp_f0_10 = (f32)temp_10_2 + 0.5f * (f32)((taskView->f20 - taskView->f24) << 0x10);
             temp_10_2 = (s32)temp_f0_10;
             if (func_0043c6a0(temp_10_2) < 0xB) {
                 taskView->f28 = (s32) (taskView->f20 << 0x10);
@@ -3836,9 +3838,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         temp_3_23 = (s32)(taskView->f2C - 1);
         taskView->f2C = temp_3_23;
         fadeAlpha = (s32)((f32)(temp_3_23 * 0xFF) / (f32)var_4_18);
-        fadeTexture = func_00401b80();
         func_00366c70(0, 0, 0.0f, 0x280, 0x1C0, 0xFFFFFF, fadeAlpha,
-                      1, 0, 0, NULL, fadeTexture, fadeUv.pairs);
+                      1, 0, 0, NULL, func_00401b80(), fadeUv.pairs);
     }
 }
 #pragma pop
