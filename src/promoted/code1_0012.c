@@ -2427,6 +2427,10 @@ void func_00126090(s32 arg0, u8 *arg1)
 /* 2026-10-09: 3340 -> 3069 edits. Restored three dropped MAC expressions from retail: the title glow calls (func_00125e80 at 0xB2/0x99: 200 - 700 * (1 - (1 + sin) / 2); at 0xFF: 200 - 700 * sin), the four func_002abb30 glow layers (x/y from D_005E5234/D_005E5238 advanced by 200/250 * (1 - sin), offsets 49/33, 24/12, 9/5, 0), and the /45 fade alpha 255 * (fGpffff822c + fGpffff8228 * (1 - sin)). func_002abb30/func_002ab380 use their titleVisual.c float-first prototypes. Open: the palette blocks still pass m2c placeholders for func_00124bb0's lerped position (A + t * (B - A) over D_005E5370/D_005E5398/D_005E53C0 records); keep the `temp_one` locals, since b210 folds a literal * 1.0f.
  * 3071: D_005E538C/D_005E53B4 are absolute in retail (lui/lw %lo); declared as
  * arrays so b210 does not place them in small data.
+ * 5454: the 28 rectangle copies go through TitleRect locals (retail stores each
+ * constant to the m2c-named slot, then copies it; the s128 form let b210 delete
+ * the first store). Locals now sit at retail's offsets plus the 0x30 of three
+ * extra saved registers (frame 0x6D0 vs 0x6C0; was 0x510).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2579,16 +2583,16 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 fadeTexture;
     TitleRectangleWords sp520;
     TitleRectangleWords sp510;
-    s128 sp500;
-    s128 sp4F0;
-    s128 sp4E0;
-    s128 sp4D0;
+    TitleRect sp500;
+    TitleRect sp4F0;
+    TitleRect sp4E0;
+    TitleRect sp4D0;
     s128 sp4C0;
-    s128 sp4B0;
-    s128 sp4A0;
+    TitleRect sp4B0;
+    TitleRect sp4A0;
     s128 sp490;
-    s128 sp480;
-    s128 sp470;
+    TitleRect sp480;
+    TitleRect sp470;
     TitlePalette firstHighlight;
     TitlePalette firstBase;
     TitlePalette thirdHighlight;
@@ -2596,35 +2600,35 @@ void func_001265a0(void *unusedDrawData, void *task) {
     TitlePalette fourthHighlight;
     TitlePalette fourthBase;
     s128 sp3A0;
-    s128 sp390;
-    s128 sp380;
+    TitleRect sp390;
+    TitleRect sp380;
     s128 sp370;
-    s128 sp360;
-    s128 sp350;
+    TitleRect sp360;
+    TitleRect sp350;
     s128 sp340;
-    s128 sp330;
-    s128 sp320;
+    TitleRect sp330;
+    TitleRect sp320;
     s128 sp310;
-    s128 sp300;
-    s128 sp2F0;
+    TitleRect sp300;
+    TitleRect sp2F0;
     s128 sp2E0;
-    s128 sp2D0;
-    s128 sp2C0;
+    TitleRect sp2D0;
+    TitleRect sp2C0;
     s128 sp2B0;
-    s128 sp2A0;
-    s128 sp290;
+    TitleRect sp2A0;
+    TitleRect sp290;
     s128 sp280;
-    s128 sp270;
-    s128 sp260;
+    TitleRect sp270;
+    TitleRect sp260;
     s128 sp250;
-    s128 sp240;
-    s128 sp230;
+    TitleRect sp240;
+    TitleRect sp230;
     s128 sp220;
-    s128 sp210;
-    s128 sp200;
+    TitleRect sp210;
+    TitleRect sp200;
     s128 sp1F0;
-    s128 sp1E0;
-    s128 sp1D0;
+    TitleRect sp1E0;
+    TitleRect sp1D0;
     TitlePalette secondHighlight;
     TitlePalette secondBase;
     TitlePalette fifthHighlight;
@@ -2946,11 +2950,11 @@ void func_001265a0(void *unusedDrawData, void *task) {
             {
                 /* Retail passes depth in f12 and saveState in a2 at both calls. */
                 extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
-                sp4B0 = D_005E5590.bits;
-                sp4C0 = D_005E5590.bits;
+                sp4B0 = D_005E5590;
+                sp4C0 = sp4B0.bits;
                 func_0045d6e0((u8 *)&layerColor, (f32 *)&sp4C0, 0.0f, 1);
-                sp4A0 = D_005E55A0.bits;
-                sp4C0 = D_005E55A0.bits;
+                sp4A0 = D_005E55A0;
+                sp4C0 = sp4A0.bits;
                 func_0045d6e0((u8 *)&layerColor, (f32 *)&sp4C0, 0.0f, 1);
             }
             func_00126090(0xFF, temp_20, 0, 0, 0);
@@ -2981,11 +2985,11 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 }
                 sp624.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp628, (const u8 *)&sp624);
-                sp480 = D_005E5590.bits;
-                sp490 = D_005E5590.bits;
+                sp480 = D_005E5590;
+                sp490 = sp480.bits;
                 func_0045d6e0((u8 *)&sp628, (f32 *)&sp490, 0.0f, 0);
-                sp470 = D_005E55A0.bits;
-                sp490 = D_005E55A0.bits;
+                sp470 = D_005E55A0;
+                sp490 = sp470.bits;
                 func_0045d6e0((u8 *)&sp628, (f32 *)&sp490, 0.0f, 0);
                 func_0048a000();
                 temp_2_2 = (s32)(M2C_FIELD(temp_20, s32 *, 0x10) + 1);
@@ -3283,11 +3287,11 @@ loop_128:
                 }
                 sp61C.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp620, (const u8 *)&sp61C);
-                sp390 = D_005E5590.bits;
-                sp3A0 = D_005E5590.bits;
+                sp390 = D_005E5590;
+                sp3A0 = sp390.bits;
                 func_0045d6e0((u8 *)&sp620, (f32 *)&sp3A0, 0.0f, 0);
-                sp380 = D_005E55A0.bits;
-                sp3A0 = D_005E55A0.bits;
+                sp380 = D_005E55A0;
+                sp3A0 = sp380.bits;
                 func_0045d6e0((u8 *)&sp620, (f32 *)&sp3A0, 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
@@ -3344,11 +3348,11 @@ loop_128:
                 }
                 sp614.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp618, (const u8 *)&sp614);
-                sp360 = D_005E5590.bits;
-                sp370 = D_005E5590.bits;
+                sp360 = D_005E5590;
+                sp370 = sp360.bits;
                 func_0045d6e0((u8 *)&sp618, (f32 *)&sp370, 0.0f, 0);
-                sp350 = D_005E55A0.bits;
-                sp370 = D_005E55A0.bits;
+                sp350 = D_005E55A0;
+                sp370 = sp350.bits;
                 func_0045d6e0((u8 *)&sp618, (f32 *)&sp370, 0.0f, 0);
                 func_0048a000();
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
@@ -3381,11 +3385,11 @@ loop_128:
                 }
                 sp60C.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp610, (const u8 *)&sp60C);
-                sp330 = D_005E5590.bits;
-                sp340 = D_005E5590.bits;
+                sp330 = D_005E5590;
+                sp340 = sp330.bits;
                 func_0045d6e0((u8 *)&sp610, (f32 *)&sp340, 0.0f, 0);
-                sp320 = D_005E55A0.bits;
-                sp340 = D_005E55A0.bits;
+                sp320 = D_005E55A0;
+                sp340 = sp320.bits;
                 func_0045d6e0((u8 *)&sp610, (f32 *)&sp340, 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
@@ -3419,11 +3423,11 @@ loop_128:
                 }
                 sp604.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp608, (const u8 *)&sp604);
-                sp300 = D_005E5590.bits;
-                sp310 = D_005E5590.bits;
+                sp300 = D_005E5590;
+                sp310 = sp300.bits;
                 func_0045d6e0((u8 *)&sp608, (f32 *)&sp310, 0.0f, 0);
-                sp2F0 = D_005E55A0.bits;
-                sp310 = D_005E55A0.bits;
+                sp2F0 = D_005E55A0;
+                sp310 = sp2F0.bits;
                 func_0045d6e0((u8 *)&sp608, (f32 *)&sp310, 0.0f, 0);
                 func_0048a000();
                 temp_f22 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f)))));
@@ -3461,11 +3465,11 @@ loop_128:
                 }
                 sp5FC.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp600, (const u8 *)&sp5FC);
-                sp2D0 = D_005E5590.bits;
-                sp2E0 = D_005E5590.bits;
+                sp2D0 = D_005E5590;
+                sp2E0 = sp2D0.bits;
                 func_0045d6e0((u8 *)&sp600, (f32 *)&sp2E0, 0.0f, 0);
-                sp2C0 = D_005E55A0.bits;
-                sp2E0 = D_005E55A0.bits;
+                sp2C0 = D_005E55A0;
+                sp2E0 = sp2C0.bits;
                 func_0045d6e0((u8 *)&sp600, (f32 *)&sp2E0, 0.0f, 0);
                 func_0048a000();
                 func_00125e80(200.0f, 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
@@ -3495,11 +3499,11 @@ loop_128:
                 }
                 sp5F4.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp5F8, (const u8 *)&sp5F4);
-                sp2A0 = D_005E5590.bits;
-                sp2B0 = D_005E5590.bits;
+                sp2A0 = D_005E5590;
+                sp2B0 = sp2A0.bits;
                 func_0045d6e0((u8 *)&sp5F8, (f32 *)&sp2B0, 0.0f, 0);
-                sp290 = D_005E55A0.bits;
-                sp2B0 = D_005E55A0.bits;
+                sp290 = D_005E55A0;
+                sp2B0 = sp290.bits;
                 func_0045d6e0((u8 *)&sp5F8, (f32 *)&sp2B0, 0.0f, 0);
                 func_0048a000();
                 func_00125e80(200.0f - 700.0f * sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
@@ -3530,11 +3534,11 @@ loop_128:
                 }
                 sp5EC.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp5F0, (const u8 *)&sp5EC);
-                sp270 = D_005E5590.bits;
-                sp280 = D_005E5590.bits;
+                sp270 = D_005E5590;
+                sp280 = sp270.bits;
                 func_0045d6e0((u8 *)&sp5F0, (f32 *)&sp280, 0.0f, 0);
-                sp260 = D_005E55A0.bits;
-                sp280 = D_005E55A0.bits;
+                sp260 = D_005E55A0;
+                sp280 = sp260.bits;
                 func_0045d6e0((u8 *)&sp5F0, (f32 *)&sp280, 0.0f, 0);
                 func_0048a000();
                 temp_f20_5 = sinf((fGpffff8094 * (f32) temp_16) / 225.0f);
@@ -3585,19 +3589,19 @@ loop_128:
             }
             sp5E4.bytes[3] = 0xFF;
             titleCopyValue((u8 *)&sp5E8, (const u8 *)&sp5E4);
-            sp240 = D_005E5590.bits;
-            sp250 = D_005E5590.bits;
+            sp240 = D_005E5590;
+            sp250 = sp240.bits;
             func_0045d6e0((u8 *)&sp5E8, (f32 *)&sp250, 0.0f, 0);
-            sp230 = D_005E55A0.bits;
-            sp250 = D_005E55A0.bits;
+            sp230 = D_005E55A0;
+            sp250 = sp230.bits;
             func_0045d6e0((u8 *)&sp5E8, (f32 *)&sp250, 0.0f, 0);
             func_0048a000();
             sp69C.value = fGpffff9c80;
             var_3_26 = (u32)255.0f & 0xFF;
             sp69C.bytes[3] = (u8)var_3_26;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp69C);
-            sp500 = D_005E5670;
-            sp590 = D_005E5670;
+            sp500 = *(TitleRect *)&D_005E5670;
+            sp590 = sp500.bits;
             func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 10.0f, 1);
         } else if (temp_16 < 0x56) {
             var_3_27 = sp634.bytes;
@@ -3625,11 +3629,11 @@ loop_128:
             }
             sp5DC.bytes[3] = 0xFF;
             titleCopyValue((u8 *)&sp5E0, (const u8 *)&sp5DC);
-            sp210 = D_005E5590.bits;
-            sp220 = D_005E5590.bits;
+            sp210 = D_005E5590;
+            sp220 = sp210.bits;
             func_0045d6e0((u8 *)&sp5E0, (f32 *)&sp220, 0.0f, 0);
-            sp200 = D_005E55A0.bits;
-            sp220 = D_005E55A0.bits;
+            sp200 = D_005E55A0;
+            sp220 = sp200.bits;
             func_0045d6e0((u8 *)&sp5E0, (f32 *)&sp220, 0.0f, 0);
             func_0048a000();
             temp_f2_3 = fGpffff8094;
@@ -3639,8 +3643,8 @@ loop_128:
             var_3_29 = (u32)temp_f1_11 & 0xFF;
             sp698.bytes[3] = (u8)var_3_29;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp698);
-            sp4F0 = D_005E5680;
-            sp590 = D_005E5680;
+            sp4F0 = *(TitleRect *)&D_005E5680;
+            sp590 = sp4F0.bits;
             func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 10.0f, 1);
         }
         break;
@@ -3658,11 +3662,11 @@ loop_128:
         temp_f0_6 = fGpffff9c88;
         sp694 = temp_f0_6;
         sp6BC.value = temp_f0_6;
-        sp4E0 = D_005E5690;
-        sp590 = D_005E5690;
+        sp4E0 = *(TitleRect *)&D_005E5690;
+        sp590 = sp4E0.bits;
         func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
-        sp4D0 = D_005E56A0;
-        sp590 = D_005E56A0;
+        sp4D0 = *(TitleRect *)&D_005E56A0;
+        sp590 = sp4D0.bits;
         func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
         func_00126090(0xFF, temp_20, 0, 0, 0);
         var_3_31 = sp62C.bytes;
@@ -3690,11 +3694,11 @@ loop_128:
         }
         sp5D4.bytes[3] = 0xFF;
         titleCopyValue((u8 *)&sp5D8, (const u8 *)&sp5D4);
-        sp1E0 = D_005E5590.bits;
-        sp1F0 = D_005E5590.bits;
+        sp1E0 = D_005E5590;
+        sp1F0 = sp1E0.bits;
         func_0045d6e0((u8 *)&sp5D8, (f32 *)&sp1F0, 0.0f, 0);
-        sp1D0 = D_005E55A0.bits;
-        sp1F0 = D_005E55A0.bits;
+        sp1D0 = D_005E55A0;
+        sp1F0 = sp1D0.bits;
         func_0045d6e0((u8 *)&sp5D8, (f32 *)&sp1F0, 0.0f, 0);
         func_0048a000();
         temp_2_19 = (s32)(M2C_FIELD(temp_20, s32 *, 0x10) + 1);
