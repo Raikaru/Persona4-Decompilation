@@ -957,6 +957,10 @@ tail:
  * 1133: the two flattened-position copies are FldAIVec3 struct copies with y
  * zeroed (retail copies all three floats then stores 0 to y).
  * 1094: five more flattened-position copies are FldAIVec3 struct copies with y = 0.
+ * 1088: the model colour is a 4-byte struct copy (retail loads all four bytes before
+ * storing).
+ * 1073: the zero-alpha branch stores the converted alpha byte (retail converts the
+ * byte to float).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1097,10 +1101,10 @@ int func_0017f490(unsigned char *param_1)
     temp_v0 = FUN_00457120();
     temp_v0 = FUN_003e9700(*(unsigned int *)(temp_v0 + 4));
     puVar4 = (unsigned char *)FUN_0047a250(*(unsigned int *)(piVar1[3] + 0x50));
-    ((unsigned char*)&uStack_4)[0] = *puVar4;
-    ((unsigned char*)&uStack_4)[1] = puVar4[1];
-    ((unsigned char*)&uStack_4)[2] = puVar4[2];
-    ((unsigned char*)&uStack_4)[3] = puVar4[3];
+    {
+        typedef struct { unsigned char c[4]; } FldAIColorBytes;
+        *(FldAIColorBytes *)&uStack_4 = *(FldAIColorBytes *)puVar4;
+    }
     temp_v8 = ((float *)piVar1)[0x20];
     temp_v10 = ((float *)piVar1)[0x21] - temp_v8;
     if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\0') {
@@ -1119,7 +1123,7 @@ int func_0017f490(unsigned char *param_1)
     temp_v10 = FUN_003e4180(&distVec[0]);
     if (((float *)piVar1)[0x21] <= temp_v10) {
       ((unsigned char*)&uStack_4)[3] = 0;
-      piVar1[0x1f] = 0;
+      ((float *)piVar1)[0x1f] = (float)((unsigned char*)&uStack_4)[3];
     }
     else if (temp_v8 <= temp_v10) {
       if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\0') {
