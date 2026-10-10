@@ -107,6 +107,11 @@ typedef u8 SdkSpriteRecord[0x80];
 #define SDK_SPRITE_RECORD(sample) \
     ((u8 *)((u32)*(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord) + \
             (u32)*(u8 **)(*(u8 **)(sample) + 0x204)))
+/* Same record, with the table word read before the index (retail order at
+ * the point/colour reads in func_0046b380). */
+#define SDK_SPRITE_RECORD_TABLE_FIRST(sample) \
+    ((u8 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + \
+            *(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord)))
 
 #define SDK_SPRITE_RASTERS(sample) \
     (*(u8 *(*)[32])(*(u8 **)(sample) + 0x104))
@@ -491,6 +496,7 @@ f32 func_0046b2f0(u8 *param_1)
  * sdiff 70/197 -> 68/195: the two flip tests read the 0x18 word as (records + 0x18) + index, retail's address order.
  * sdiff 68/195 -> 63/182: third 0x3C read in field-first address order.
  * sdiff 63/182 -> 59/173: first two 0x3C reads field-first (retail addiu +0x3c), third via the record.
+ * sdiff 44/102 -> 38/81: three record reads keep the table-first order.
  */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
@@ -652,11 +658,11 @@ void func_0046b380(u8 *sample, s32 setStates)
         for (pointIndex = 0; pointIndex < 4; pointIndex++) {
             points[pointIndex].x = *(f32 *)(sample + 8) +
                 ((f32)*(s16 *)(sample + 0x1C) + source[pointIndex].x) +
-                (f32)*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x44);
+                (f32)*(s32 *)(SDK_SPRITE_RECORD_TABLE_FIRST(sample) + 0x44);
             {
                 f32 subtotal = *(f32 *)(sample + 0xC) +
                     ((f32)*(s16 *)(sample + 0x1E) + source[pointIndex].y);
-                subtotal += (f32)*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x48);
+                subtotal += (f32)*(s32 *)(SDK_SPRITE_RECORD_TABLE_FIRST(sample) + 0x48);
                 points[pointIndex].y = subtotal;
             }
         }
@@ -797,7 +803,7 @@ void func_0046b380(u8 *sample, s32 setStates)
         }
         render[0](4, vertices, 4);
     }
-    if (*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x40) != 0) {
+    if (*(s32 *)(SDK_SPRITE_RECORD_TABLE_FIRST(sample) + 0x40) != 0) {
         points[0].x = sdkSpriteRight(sample, 0);
         points[0].y = (f32)-*(s16 *)(sample + 0x1E);
         points[1].x = sdkSpriteRight(sample, 1);
