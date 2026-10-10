@@ -2505,24 +2505,15 @@ s32 func_002833b0(s32 arg0)
     return 0;
 }
 
-/* Guarded port of the matched calendar sibling func_0027bf30 (code1_0027),
-   2026-10-07: 485 differing words (was 594). Retail inlines func_002833b0 as
-   msgCalendarResource, copies the 24-byte argument block by value, switches on
-   kind 4/5/6 in that source order, and builds the appearance delays from a
-   {3,3,3,3,3,3} initializer. The instruction count now matches. With
-   opt_lifetimes on (2026-10-08) fnalign drops from 485 to 82 edits. Open:
-   saved-register colouring of three load temporaries (r116/r146/r173 in the
-   capture; no declaration order reaches more than 31 of 36 targets), and
-   case 5's colour slots (retail 0x12C/0x134). */
-/* 2026-10-09: 82 -> 75 edits with depthColor as one function-scope local shared by cases 4 and 5 (retail's frame slots); the rest is saved-register colouring that declaration and block-order climbs do not move. 
-   2026-10-09: 75 -> 67: the case-4 alpha and the later cases' rotation share one f32 local, as retail's register reuse shows.
- * 2026-10-09: 67 -> 56: two values move into locals that are dead at that point:
- * the first tile loop's row offset goes into `i` and the second branch's
- * today into `tile`. Under opt_lifetimes on, a web is numbered with its
- * variable, so this reorders the colouring scan.
- */
-// FUN_00283490 NONMATCHING
-#ifdef NON_MATCHING
+/* Colouring notes (verified MATCH): under opt_lifetimes on a web is numbered
+ * with its variable, so which local holds a value reorders the colouring
+ * scan. The first tile loop's row offset lives in `i`, the second branch's
+ * date base in `today`, and its colour in `phase`; case 4 and 5 share
+ * depthColor and one f32 for alpha/rotation. `(s32)frame` and the
+ * `(u8 *)(u32)handle` conversions make b210 copy those locals into CSE
+ * temporaries, so they keep their own numbers instead of folding into the
+ * load/inline-return temporaries (docs/matching.md, repeated-conversion
+ * lever). */
 #pragma push
 #pragma opt_lifetimes on
 static inline u8 *msgCalendarResource(s32 index)
@@ -2541,6 +2532,7 @@ static inline u8 *msgCalendarResource(s32 index)
     return NULL;
 }
 
+// FUN_00283490
 void func_00283490(u8 *unusedTask, u8 *arg1)
 {
     typedef struct {
@@ -2569,7 +2561,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
     extern s32 func_00110d30(s32 arg0);
     extern s32 func_00110c50(s32 arg0, s32 arg1);
     extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
-    extern s64 func_001060b0(void);
+    extern s16 func_001060b0(void);
     extern void func_00262de0(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
     extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
     extern f32 iGpffff803c;
@@ -2598,13 +2590,13 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
     s32 rgb;
     s32 week;
     s32 phase;
-    s32 frame;
     s32 i;
     CalendarColor depthColor;
     s32 (**table)(s32, void *);
     s32 lineRgb;
     u8 *handle;
     s32 task;
+    s32 frame;
 
     args = *(CalendarArgs *)arg1;
     task = args.task;
@@ -2650,7 +2642,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
 
             func_0045d6e0((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
         }
-        phase = frame % 4;
+        phase = (s32)frame % 4;
         table = (s32 (**)(s32, void *))(u32)D_00887300;
         table[0](6, (void *)1);
         table[0](8, (void *)1);
@@ -2673,7 +2665,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
 
             func_0025ea20(-59.0f - slide, -103.0f - slide, 10.0f, 0xFFFFFF, 255.0f * t, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, -90.0f * back, 1.0f, 1.0f);
         }
-        if (frame < 5) {
+        if ((s32)frame < 5) {
             fade = sinf(angle / 5.0f);
             func_00366380(176.0f + 500.0f * (1.0f - fade), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, iGpffff803c);
         } else if (frame < 12) {
@@ -2723,10 +2715,10 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
             fade = 1.0f - fade;
             func_001104d0(date, &month, &day);
             if (day == 1) {
-                if (handle == NULL) {
+                if ((u8 *)(u32)handle == NULL) {
                     func_0046d730(D_007482F0, 0x59);
                 }
-                func_0025ea20(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+                func_0025ea20(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)((u8 *)(u32)handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
             alpha = 1.0f - fade;
             t = 64.0f * alpha;
@@ -2794,18 +2786,18 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
         func_0025e9e0(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
         func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
         font = msgCalendarResource(1);
-        tile = (s16)func_001060b0();
+        today = (s16)func_001060b0();
         for (i = 0; i < 6; i++) {
-            date = tile + i + 1;
+            date = today + i + 1;
             week = func_00110580(date);
             if (week == 0 || func_00110d30(date) != 0) {
-                rgb = 0xFFE92C;
+                phase = 0xFFE92C;
                 mode = 3;
             } else if (week == 6) {
-                rgb = 0xFFE92C;
+                phase = 0xFFE92C;
                 mode = 2;
             } else {
-                rgb = 0xFFE92C;
+                phase = 0xFFE92C;
                 mode = 1;
             }
             func_001104d0(date, &month, &day);
@@ -2813,12 +2805,12 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
                 if (handle == NULL) {
                     func_0046d730(D_007482F0, 0x59);
                 }
-                func_0025e9e0(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 0xFF, month + 4, **(void ***)(handle + 8), 1);
+                func_0025e9e0(i * 0x53 + 0x4B, 69.0f, 0.0f, phase, 0xFF, month + 4, **(void ***)(handle + 8), 1);
             }
             px = i * 0x53;
-            func_00366380(px + 0x5C, 0x71, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
-            func_00262de0(px + 0x6B, 0x71, 0.0f, 0xFF, tile + i + 1, 1, 1.0f, 1.0f, 0, 0, (s32)font, 0);
-            func_00261560(px + 0x5D, 0xA3, 0.0f, 0xFF, func_00110c50(tile + i + 1, tile) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0, (s32)font, mode);
+            func_00366380(px + 0x5C, 0x71, 0.0f, 0x50, 0x7F, phase, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+            func_00262de0(px + 0x6B, 0x71, 0.0f, 0xFF, today + i + 1, 1, 1.0f, 1.0f, 0, 0, (s32)font, 0);
+            func_00261560(px + 0x5D, 0xA3, 0.0f, 0xFF, func_00110c50(today + i + 1, today) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0, (s32)font, mode);
         }
         break;
     }
@@ -2831,9 +2823,6 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00283490);
-#endif
 
 #pragma push
 /* measured: byte-exact (522/522 instructions, 0 differing words).  The three
