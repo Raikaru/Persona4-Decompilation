@@ -2484,6 +2484,10 @@ void func_00126090(s32 arg0, u8 *arg1)
  * ids in registers; the explicit white/titlePos/glowId locals are gone)
  * 1512: all task fields are TitleTaskView members (b210 hoists M2C_FIELD
  * address arithmetic into saved registers; retail does not).
+ * 1496: the alpha arguments convert float -> u8 directly.
+ * 1469: each 0x1000E call converts the float alpha itself.
+ * (the from-record fields are read in place; with propagation on the glowFrom
+ * locals made no difference)
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2742,18 +2746,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u8 *var_3_4;
     u8 *var_3_5;
     f32 lerpT;
-    f32 glowFrom0_0;
-    f32 glowFrom0_1;
-    f32 glowFrom0_2;
-    f32 glowFrom0_3;
-    f32 glowFrom0_4;
-    f32 glowFrom0_5;
-    f32 glowFrom1_0;
-    f32 glowFrom1_1;
-    f32 glowFrom1_2;
-    f32 glowFrom1_3;
-    f32 glowFrom1_4;
-    f32 glowFrom1_5;
     f32 temp_f0;
     f32 temp_f0_11;
     f32 temp_f0_2;
@@ -3024,7 +3016,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1 = 255.0f * (fGpffff822c + fGpffff8228 * (1.0f - temp_f20_2));
-                var_5 = (u32)temp_f1 & 0xFF;
+                var_5 = (u8)temp_f1;
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, var_5, 0, 0, taskView->sprites, 0);
             } else {
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
@@ -3289,12 +3281,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     temp_3_12 = (temp_7_3 >> 0x10) & 0xFF;
                     temp_8_4 = (temp_7_3 >> 0x18) & 0xFF;
                     temp_2_15 = (temp_7_3 >> 8) & 0xFF;
-                    glowFrom0_0 = D_005E5374[0];
-                    glowFrom0_1 = D_005E5378[0];
-                    glowFrom0_2 = D_005E537C[0];
-                    glowFrom0_3 = D_005E5380[0];
-                    glowFrom0_4 = D_005E5384[0];
-                    glowFrom0_5 = D_005E5388[0];
                     temp_cA = (f32)(u32)(0xFF - temp_8_4);
                     temp_one_S3A = 1.0f;
                     temp_cB = (f32)(u32)temp_8_4;
@@ -3318,7 +3304,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
-                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5370[0]), (0.0f + glowFrom0_0 + lerpT * (D_005E539C[0] - glowFrom0_0)), 0.0f, (0.0f + glowFrom0_1 + lerpT * (D_005E53A0[0] - glowFrom0_1)), (0.0f + glowFrom0_2 + lerpT * (D_005E53A4[0] - glowFrom0_2)), (0.0f + glowFrom0_3 + lerpT * (D_005E53A8[0] - glowFrom0_3)), (0.0f + glowFrom0_4 + lerpT * (D_005E53AC[0] - glowFrom0_4)), (thirdBase.words[temp_8_3] & ~0xFF) | 0xFF, ((var_3_8 & 0xFF) << 8) | ((((u32) var_7 & 0xFF) << 0x18) | ((var_6_9 & 0xFF) << 0x10)) | 0xFF, (0.0f + glowFrom0_5 + lerpT * (D_005E53B0[0] - glowFrom0_5)), 0x40, temp_20);
+                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5370[0]), (0.0f + D_005E5374[0] + lerpT * (D_005E539C[0] - D_005E5374[0])), 0.0f, (0.0f + D_005E5378[0] + lerpT * (D_005E53A0[0] - D_005E5378[0])), (0.0f + D_005E537C[0] + lerpT * (D_005E53A4[0] - D_005E537C[0])), (0.0f + D_005E5380[0] + lerpT * (D_005E53A8[0] - D_005E5380[0])), (0.0f + D_005E5384[0] + lerpT * (D_005E53AC[0] - D_005E5384[0])), (thirdBase.words[temp_8_3] & ~0xFF) | 0xFF, ((var_3_8 & 0xFF) << 8) | ((((u32) var_7 & 0xFF) << 0x18) | ((var_6_9 & 0xFF) << 0x10)) | 0xFF, (0.0f + D_005E5388[0] + lerpT * (D_005E53B0[0] - D_005E5388[0])), 0x40, temp_20);
                 } else if (temp_16 < 0xD2) {
                     lerpT = sinf(((((fGpffff8094 * (f32) (temp_16 - 0xBD)) / 20.0f))));
                     fourthPalette = D_005E5530;
@@ -3329,12 +3315,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     temp_3_15 = (temp_7_4 >> 0x10) & 0xFF;
                     temp_8_6 = (temp_7_4 >> 0x18) & 0xFF;
                     temp_2_18 = (temp_7_4 >> 8) & 0xFF;
-                    glowFrom1_0 = D_005E539C[0];
-                    glowFrom1_1 = D_005E53A0[0];
-                    glowFrom1_2 = D_005E53A4[0];
-                    glowFrom1_3 = D_005E53A8[0];
-                    glowFrom1_4 = D_005E53AC[0];
-                    glowFrom1_5 = D_005E53B0[0];
                     temp_cA = (f32)(u32)(0xFF - temp_8_6);
                     temp_one_S4A = 1.0f;
                     temp_cB = (f32)(u32)temp_8_6;
@@ -3358,7 +3338,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
-                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5398[0]), (0.0f + glowFrom1_0 + lerpT * (D_005E53C4[0] - glowFrom1_0)), 0.0f, (0.0f + glowFrom1_1 + lerpT * (D_005E53C8[0] - glowFrom1_1)), (0.0f + glowFrom1_2 + lerpT * (D_005E53CC[0] - glowFrom1_2)), (0.0f + glowFrom1_3 + lerpT * (D_005E53D0[0] - glowFrom1_3)), (0.0f + glowFrom1_4 + lerpT * (D_005E53D4[0] - glowFrom1_4)), (fourthBase.words[temp_8_5] & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | ((((u32) var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, (0.0f + glowFrom1_5 + lerpT * (D_005E53D8[0] - glowFrom1_5)), 0x40, temp_20);
+                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5398[0]), (0.0f + D_005E539C[0] + lerpT * (D_005E53C4[0] - D_005E539C[0])), 0.0f, (0.0f + D_005E53A0[0] + lerpT * (D_005E53C8[0] - D_005E53A0[0])), (0.0f + D_005E53A4[0] + lerpT * (D_005E53CC[0] - D_005E53A4[0])), (0.0f + D_005E53A8[0] + lerpT * (D_005E53D0[0] - D_005E53A8[0])), (0.0f + D_005E53AC[0] + lerpT * (D_005E53D4[0] - D_005E53AC[0])), (fourthBase.words[temp_8_5] & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | ((((u32) var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, (0.0f + D_005E53B0[0] + lerpT * (D_005E53D8[0] - D_005E53B0[0])), 0x40, temp_20);
                 } else {
                     func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
                 }
@@ -3403,7 +3383,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_8 = 255.0f * (1.0f - temp_f20_4);
-                var_5_10 = (u32)temp_f1_8 & 0xFF;
+                var_5_10 = (u8)temp_f1_8;
                 func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, var_5_10, 0, 0, taskView->sprites, 0);
             }
             if (temp_16 == 0x55) {
@@ -3423,7 +3403,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             if ((temp_16 >= 0xBC) && (temp_16 < 0xDF)) {
                 temp_f2_2 = fGpffff8094;
                 temp_f1_9 = 255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))));
-                var_5_12 = (u32)temp_f1_9 & 0xFF;
+                var_5_12 = (u8)temp_f1_9;
                 func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_12, 0x10009, 0, taskView->sprites, 1);
             }
             if (temp_16 < 0x74) {
@@ -3542,7 +3522,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_10 = 255.0f * (1.0f - temp_f22);
-                var_5_13 = (u32)temp_f1_10 & 0xFF;
+                var_5_13 = (u8)temp_f1_10;
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, var_5_13, 0x1000A, 0, taskView->sprites, 0);
             }
             if (temp_16 < 0x56) {
@@ -3658,15 +3638,13 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 temp_f16 = 1.5f * temp_f20_5;
                 temp_f16 = fGpffff8170 + temp_f16;
                 temp_f21_2 = 255.0f * (1.0f - temp_f21_2);
-                var_5_14 = (u32)temp_f21_2 & 0xFF;
                 /* f2 holds this independent product across both alpha-conversion arms. */
                 temp_10 = (s16)(s32)(137.0f * temp_f16);
     /* ACC seed */;
-                func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, var_5_14, 0x1000E, 0, taskView->sprites, 1, temp_10, temp_10, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
-                var_5_15 = (u32)temp_f21_2 & 0xFF;
+                func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, temp_10, temp_10, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
     /* ACC seed */;
                 temp_f16_2 = fGpffff80bc;
-                func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, var_5_15, 0x1000E, 0, taskView->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
+                func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
             }
         }
         if (temp_16 < 0x19) {
@@ -3859,7 +3837,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
         temp_f1_15 = 255.0f * ((f32) var_3_30 / 20.0f);
-        var_5_18 = (u32)temp_f1_15 & 0xFF;
+        var_5_18 = (u8)temp_f1_15;
         func_0025f430(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, var_5_18, 0x10007, 0, taskView->sprites, 1, 0, 0, 0.0f, 1.0f, 1.0f);
         func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
         break;
@@ -3957,7 +3935,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             var_2_30 = 5;
         }
         temp_f1_16 = 255.0f * (1.0f - ((f32) var_2_30 / 5.0f));
-        var_5_19 = (u32)temp_f1_16 & 0xFF;
+        var_5_19 = (u8)temp_f1_16;
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_19, 0x10001, 0, taskView->sprites, 1);
         var_2_31 = (s32)(taskView->timer - 2);
         if (var_2_31 > 0) {
