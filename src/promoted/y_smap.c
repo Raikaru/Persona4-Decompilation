@@ -242,6 +242,7 @@ s32 func_002ac740(void) {
  * 2026-10-09: 431 -> 358: the m2c label loops are while loops; loop tests that
  * re-read a value assign it inside the test.
  * 344: type sweep.
+ * 343: commutative operand order as retail.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -548,7 +549,7 @@ loop_34:
         temp_18_4 = temp_18 << 8;
         temp_21_3 = temp_22_2 * 0x10;
         temp_23_2 = (*( u8 * )((u8*)((func_00155280() + temp_18_4 + temp_21_3)) + (0x58)));
-        if ((temp_23_2 == (*( u8 * )((u8*)((func_00155280() + temp_18_4 + temp_16)) + (0x58)))) && (((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_21_3)) + (0x55))) & 0xF) == 1)) {
+        if ((temp_23_2 == (*( u8 * )((u8*)((func_00155280() + temp_16 + temp_18_4)) + (0x58)))) && (((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_21_3)) + (0x55))) & 0xF) == 1)) {
             temp_5_4 = ((s8)(temp_22_2));
             temp_7 = (1 << temp_5_4) & 0xFFFF;
             temp_6 = (arg1 & 0xFF) * 2;
