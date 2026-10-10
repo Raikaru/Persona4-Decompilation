@@ -967,6 +967,8 @@ tail:
  * 1041: the availability check uses the sibling func_0017d3c0 idiom (goto
  * chain, `ready = used != 0`).
  * 1018: field 0x68 is a float accumulator (Ghidra stored it through an int conversion).
+ * 973: the patrol target is a zero-filled FldAIVec3 picked from the area
+ * record (two random fractions first), copied once, then stored field-wise.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1263,24 +1265,28 @@ availabilityDone:
           temp_v0 = FUN_003b7060();
           temp_v8 = CAND_fGpffff8308 + (float)((unsigned int)temp_v0 % 0x50) / 100.0f;
           temp_v1 = FUN_003b7060();
-          temp_v0 = piVar1[0x12];
-          pfVar6 = (float *)0xc;
-          pfVar8 = &fStack_230;
-          pfVar2 = pfVar8;
-          while (pfVar2 != (float *)0x0) {
-            *(unsigned char *)pfVar8 = 0;
-            pfVar8 = (float *)((int)pfVar8 + 1);
-            pfVar6 = (float *)((int)pfVar6 - 1);
-            pfVar2 = pfVar6;
+          temp_v9 = CAND_fGpffff8308 + (float)((unsigned int)temp_v1 % 0x50) / 100.0f;
+          pfVar2 = (float *)piVar1 + piVar1[0x12] * 6 + 6;
+          {
+            FldAIVec3 pick;
+            FldAIVec3 picked;
+            unsigned char *clearByte = (unsigned char *)&pick;
+            int clearCount = 0xc;
+
+            if (clearByte != NULL) {
+              do {
+                *clearByte = 0;
+                clearByte++;
+                clearCount--;
+              } while (clearCount != 0);
+            }
+            pick.x = temp_v8 * (pfVar2[0] - pfVar2[3]) + pfVar2[3] + 0.0f;
+            pick.z = temp_v9 * (pfVar2[2] - pfVar2[5]) + pfVar2[5] + 0.0f;
+            picked = pick;
+            ((float *)piVar1)[0x14] = picked.x;
+            ((float *)piVar1)[0x15] = picked.y;
+            ((float *)piVar1)[0x16] = picked.z;
           }
-          fStack_230 = temp_v8 * (((float *)piVar1)[temp_v0 * 6 + 6] - ((float *)piVar1)[temp_v0 * 6 + 9]) +
-                       ((float *)piVar1)[temp_v0 * 6 + 9] + 0.0f;
-          fStack_228 = (CAND_fGpffff8308 + (float)((unsigned int)temp_v1 % 0x50) / 100.0f) *
-                       (((float *)piVar1)[temp_v0 * 6 + 8] - ((float *)piVar1)[temp_v0 * 6 + 0xb]) +
-                       ((float *)piVar1)[temp_v0 * 6 + 0xb] + 0.0f;
-          ((float *)piVar1)[0x14] = fStack_230;
-          piVar1[0x15] = iStack_22c;
-          ((float *)piVar1)[0x16] = fStack_228;
           if (piVar1[0x17] < 1) {
             temp_v7 = piVar1[0x19] != 0 ^ 1;
             piVar1[0x19] = temp_v7;
