@@ -48,6 +48,28 @@ retail spills and reproducing that spill set, then the colours:
   gp floats as literals), `0047b0c0` 6/60 (left: retail keeps the constants
   32 and -1 in registers across the two small fill loops; `opt_loop_invariants
   on` instead hoists `D_00713138` into a new saved register).
+- Colouring residual evidence (captures + `regalloc_whatif.py`), not yet
+  closed:
+  - `00162e10` (0/6): `found`/`k` swap `$s5`/`$s6`. Their reference counts
+    (3 and 4) equal retail's instruction references; `--at`/`--search` over
+    both and all 17 common neighbours finds no renumbering. `--score 42=4`
+    (or `k` = 3) flips them. Every source form that adds a `found` reference
+    (`found++`, a loop-test `found == 0`, a second `if (found)`, `else if`)
+    gives the right colours but emits that extra instruction.
+  - `004a7830` (2/9): retail's FPR order needs abs < zero-constant < load. Ours
+    is abs r60 > load r58 > zero r57: all three are temporaries, and the zero
+    is created before the load. The mt_scene sister `func_0026d440` (MATCH)
+    has the same abs/load/zero colours as our build, so porting its shape does
+    not help. Declaration moves, `register`, earlier webs for `temp_f3` and
+    compare spellings leave it unchanged.
+  - `0048b340` (0/9): the else pointer must be numbered 100+ (`--search`). As
+    an expression it is renumbered high but recomputed inside the loop
+    (no CSE across the asm-bearing loop). `#pragma opt_lifetimes on`
+    renumbers it (gets `$t0`) but disturbs 80 other registers.
+  - `0014f310` (2/32): `a_tbl` must be numbered 467-474, i.e. a temporary
+    created in the loop test after the `a_idx` byte load and hoisted by
+    LICM. At `optimization_level 1` the expression stays in the loop, and
+    `opt_loop_invariants on` for the whole function moves 40 other words.
 - `0036ee60` and `00283490` used the repeated-conversion lever
   (`docs/matching.md`, "keep a load local alive"), found by reading the
   colouring or spill decision with `tools/regalloc_whatif.py`:
