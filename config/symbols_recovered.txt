@@ -8009,6 +8009,7 @@ iGpffffb2a8 = 0x00764398; // type:data
 D_0076439C = 0x0076439c; // type:data
 D_007643A0 = 0x007643a0; // type:data
 iGpffffb2b0 = 0x007643a0; // type:data
+D_007643A4 = 0x007643a4; // type:data
 D_007643A8 = 0x007643a8; // type:data
 iGpffffb2b8 = 0x007643a8; // type:data
 D_007643AC = 0x007643ac; // type:data
