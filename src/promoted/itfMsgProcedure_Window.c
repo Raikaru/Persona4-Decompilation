@@ -2564,9 +2564,9 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
     extern s16 func_001060b0(void);
     extern void func_00262de0(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
     extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
-    extern f32 iGpffff803c;
-    extern f32 iGpffff811c;
-    extern f32 iGpffff813c;
+    extern f32 fGpffff803c;
+    extern f32 fGpffff811c;
+    extern f32 fGpffff813c;
     extern f32 iGpffffa78c;
     extern char D_0063BFB0[];
     extern u8 D_007482F0[];
@@ -2667,7 +2667,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
         }
         if ((s32)frame < 5) {
             fade = sinf(angle / 5.0f);
-            func_00366380(176.0f + 500.0f * (1.0f - fade), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, iGpffff803c);
+            func_00366380(176.0f + 500.0f * (1.0f - fade), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c);
         } else if (frame < 12) {
             fade = sinf(iGpffff8094 * (f32)(frame - 5) / 7.0f);
             if (handle == NULL) {
@@ -2675,7 +2675,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
             }
             alpha = 1.0f - fade;
             func_0025ea20(165.0f, 254.0f + 95.0f * alpha - 10.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, fade);
-            func_00366380(0xB0, 281 + 64.0f * alpha - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, iGpffff803c + iGpffff811c * fade);
+            func_00366380(0xB0, 281 + 64.0f * alpha - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c + fGpffff811c * fade);
         } else {
             if (handle == NULL) {
                 func_0046d730(D_007482F0, 0x59);
@@ -2741,7 +2741,7 @@ void func_00283490(u8 *unusedTask, u8 *arg1)
         if (frame < 6) {
             t = 1.0f - (f32)frame / 6.0f;
             fade = 1.0f - t;
-            func_00366380(300.0f * fade, 169.0f - 20.0f * fade, 0.0f, 80.0f + 640.0f * t, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.5f - iGpffff813c * t);
+            func_00366380(300.0f * fade, 169.0f - 20.0f * fade, 0.0f, 80.0f + 640.0f * t, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.5f - fGpffff813c * t);
         }
         break;
     }

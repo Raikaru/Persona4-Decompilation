@@ -7730,6 +7730,7 @@ D_00763848 = 0x00763848; // type:data
 iGpffffa760 = 0x00763850; // type:data
 DAT_00723858 = 0x00763858; // type:data
 D_00723868 = 0x00763868; // type:data
+iGpffffa78c = 0x0076387c; // type:data
 iGpffffa790 = 0x00763880; // type:data
 D_00763888 = 0x00763888; // type:data
 DAT_00713890 = 0x00763890; // type:data
