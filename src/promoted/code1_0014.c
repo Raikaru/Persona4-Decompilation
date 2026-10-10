@@ -337,6 +337,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
  * sdiff 40/45 -> 4/4: retail passes the radar alphas as already-narrowed u8 (andi in each conversion arm, no re-mask at the call), so the radar callees are declared here with u8 opacity parameters (H011: the matched definitions keep s32, as their own bodies use the full word); radarOpacity is passed directly.
  * sdiff 4/4 -> 2/2: fillX is read inside the vertex loop (LICM hoists it after the table address, as retail).
  * radar opacity passed to func_001427c0 as (u32) under the s32 contract.
+ * fnalign 34 -> 4: restore the u8 opacity block prototypes for both radar callees (H011; regressed by 5da35851).
  */
 // FUN_001400F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -383,8 +384,8 @@ extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 ar
 
 void func_001400f0(u8 *work)
 {
-    extern void func_001427c0(Float2_0014 pos, f32 depth, s32 opacity, u8 *state);
-    extern void func_00142bf0(s64 work, s64 arg1, s32 arg2, f32 fparg0, s32 arg3);
+    extern void func_001427c0(Float2_0014 pos, f32 depth, u8 opacity, u8 *state);
+    extern void func_00142bf0(s64 work, s64 arg1, s32 arg2, f32 fparg0, u8 arg3);
     f32 opacity;
     f32 originX;
     f32 originY;
@@ -640,7 +641,7 @@ void func_001400f0(u8 *work)
         RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
         position.xy.x = originX;
         position.xy.y = originY;
-        func_001427c0(position.xy, 0.0f, (u32)radarOpacity, work);
+        func_001427c0(position.xy, 0.0f, radarOpacity, work);
         position.xy.x = (f32)0x13B + (originX + *(f32 *)(work + 0x680));
         position.xy.y = (116.0f + (originY + *(f32 *)(work + 0x684)));
         alpha = (u8)((f32)(u32)work[0x68A] * opacity);
