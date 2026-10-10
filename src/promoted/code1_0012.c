@@ -2325,8 +2325,10 @@ static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *
    rectangles are copied into scratch locals declared ahead of their
    sources, which is what fixes retail's frame slots (0x7C/0x60 above
    0x78/0x74/0x70 and 0x50/0x40). */
+/* The caller loads $f12-$f14 with 0.0f before each call (retail
+   func_001265a0); the three trailing floats are unused here. */
 // FUN_00126090
-void func_00126090(s32 arg0, u8 *arg1)
+void func_00126090(s32 arg0, u8 *arg1, f32 x, f32 y, f32 depth)
 {
     TitleColor fillColor;
     TitleColor black;
@@ -2500,6 +2502,8 @@ void func_00126090(s32 arg0, u8 *arg1)
  * selected word through titleCopySelect, channels via titlePaletteChannel in one
  * packed expression, record id/base/colour as block locals.
  * (unused declarations removed)
+ * 423: func_00126090 takes three trailing floats (retail callers load f12-f14
+ * with zero; the callee ignores them), so the calls pass 0.0f in FPRs.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2597,7 +2601,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern u32 D_005E56B0[8];
     extern u8 D_005E56D0[];
     extern void (*D_00887300[])(s32, s32);
-    extern s32 func_00126090();
     extern f32 fGpffff9c70;
     extern f32 fGpffff9c74;
     extern f32 fGpffff9c78;
@@ -2971,7 +2974,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 sp4C0 = sp4A0.bits;
                 func_0045d6e0((u8 *)&layerColor, (f32 *)&sp4C0, 0.0f, 1);
             }
-            func_00126090(0xFF, temp_20, 0, 0, 0);
+            func_00126090(0xFF, (u8 *)temp_20, 0.0f, 0.0f, 0.0f);
             if (temp_16 >= 0xCD) {
                 /* Retail sp+0x67C is cleared bytewise before its independent value copy. */
                 overlayClearByte = firstOverlaySource.bytes;
@@ -3609,7 +3612,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         sp4D0 = *(TitleRect *)&D_005E56A0;
         sp590 = sp4D0.bits;
         func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
-        func_00126090(0xFF, temp_20, 0, 0, 0);
+        func_00126090(0xFF, (u8 *)temp_20, 0.0f, 0.0f, 0.0f);
         var_3_31 = sp62C.bytes;
         var_2_26 = 4;
         if (var_3_31 != NULL) {
