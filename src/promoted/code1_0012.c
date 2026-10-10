@@ -2325,10 +2325,10 @@ static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *
    rectangles are copied into scratch locals declared ahead of their
    sources, which is what fixes retail's frame slots (0x7C/0x60 above
    0x78/0x74/0x70 and 0x50/0x40). */
-/* The caller loads $f12-$f14 with 0.0f before each call (retail
-   func_001265a0); the three trailing floats are unused here. */
+/* The caller passes 0.0f in $f12-$f14 ahead of the colour and task
+   (retail func_001265a0); the three floats are unused here. */
 // FUN_00126090
-void func_00126090(s32 arg0, u8 *arg1, f32 x, f32 y, f32 depth)
+void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
 {
     TitleColor fillColor;
     TitleColor black;
@@ -2989,7 +2989,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 sp4A0 = D_005E55A0;
                 func_0045d6e0((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4A0), 0.0f, 1);
             }
-            func_00126090(0xFF, (u8 *)temp_20, 0.0f, 0.0f, 0.0f);
+            func_00126090(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
             if (temp_16 >= 0xCD) {
                 /* Retail sp+0x67C is cleared bytewise before its independent value copy. */
                 overlayClearByte = firstOverlaySource.bytes;
@@ -3602,7 +3602,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4E0), 0.0f, 1);
         sp4D0 = *(TitleRect *)&D_005E56A0;
         func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4D0), 0.0f, 1);
-        func_00126090(0xFF, (u8 *)temp_20, 0.0f, 0.0f, 0.0f);
+        func_00126090(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
         var_3_31 = sp62C.bytes;
         var_2_26 = 4;
         if (var_3_31 != NULL) {
