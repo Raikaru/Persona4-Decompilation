@@ -1872,6 +1872,7 @@ query_complete:
  * retail); lo/hi stay unset only on the asserted not-found path, as in retail.
  * 1727: vector copies are FldCamVec struct copies (retail copies through stack
  * structs; scalar copies let b210 keep them in registers).
+ * 1724: vector copies written as struct copies (retail copies through stack structs).
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1958,6 +1959,8 @@ extern void FUN_0047a870(unsigned char *);
 s32 func_0016bdd0(u8 *param_1)
 
 {
+  typedef struct { float x, y, z; } FldCopyVec;
+  FldCopyVec cpv0;
   typedef struct { float x, y, z; } FldCamVec;
   FldCamVec cv0;
   extern f32 sqrtf(f32 arg0);
@@ -2042,9 +2045,6 @@ s32 func_0016bdd0(u8 *param_1)
   float fStack_60;
   float fStack_5c;
   float fStack_58;
-  float fStack_30;
-  float fStack_2c;
-  float fStack_28;
   float fStack_20;
   float fStack_1c;
   float fStack_18;
@@ -2081,9 +2081,7 @@ s32 func_0016bdd0(u8 *param_1)
         fStack_1c = stk260[1];
         fStack_18 = stk260[2];
         pfVar8 = (float *)FUN_0016e8c0(param_1);
-        fStack_30 = *pfVar8;
-        fStack_2c = pfVar8[1];
-        fStack_28 = pfVar8[2];
+        cpv0 = *(FldCopyVec *)(pfVar8);
         if ((piVar1[2] == 0) || (piVar1[2] == 5)) {
           temp_v4 = FUN_00457120();
           if (*(int *)(*(int *)(temp_v4 + 4) + 4) == piVar1[4]) {
@@ -2109,9 +2107,9 @@ s32 func_0016bdd0(u8 *param_1)
         fStack_20 = fStack_20 + ((float *)piVar1)[5];
         fStack_1c = fStack_1c + ((float *)piVar1)[6];
         fStack_18 = fStack_18 + ((float *)piVar1)[7];
-        stk40[0] = fStack_20 - fStack_30;
-        temp_v12 = fStack_1c - fStack_2c;
-        stk40[2] = fStack_18 - fStack_28;
+        stk40[0] = fStack_20 - cpv0.x;
+        temp_v12 = fStack_1c - cpv0.y;
+        stk40[2] = fStack_18 - cpv0.z;
         temp_v10 = sqrtf(stk40[0] * stk40[0] + stk40[2] * stk40[2]);
         temp_v2 = ((float *)piVar1)[8] < temp_v10;
         if (temp_v2) {
