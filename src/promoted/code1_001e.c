@@ -1481,6 +1481,9 @@ loop_test:
  * 85: local integer types as retail.
  * 82: conversion lever (idxB:(0, 1)).
  * 81: conversion lever (skill:(0, 2)).
+ * sdiff 39/68 -> 39/65: outer counter as s32.
+ * outer stays u16: retail spills it with sh/lhu at 0x140.
+ * sdiff 39/68 -> 29/48: kind is s32 (retail re-sign-extends it), paramA/paramB s32 assigned per branch, func_00242800 takes kind, the kind test is !(s16)kind (no CSE with the parameters).
  */
 // FUN_001E9950 NONMATCHING
 #ifdef NON_MATCHING
@@ -1510,9 +1513,9 @@ s32 func_001e9950(void) {
     u16 outerCount;
     u16 skill;
     s32 skillStore;
-    s16 kind;
+    s32 kind;
     s32 paramA;
-    u16 paramB;
+    s32 paramB;
     u16 targetKind;
     s32 innerBest;
     s16 idxA;
@@ -1559,7 +1562,7 @@ outer_body:
     if ((func_0023d6e0(kind) & 0x7E) == 0) {
         goto outer_next;
     }
-    if (kind == 0) {
+    if (!(s16)kind) {
         if (mode == 1) {
             goto outer_next;
         }
@@ -1576,7 +1579,6 @@ outer_body:
             goto outer_next;
         }
     }
-    paramB = (s16)kind;
     targetKind = func_001d7f10(work, (u8 *)&tgt, skill, 0);
     innerBest = 0;
     if (targetKind == 0) {
@@ -1603,10 +1605,11 @@ outer_body:
         }
     } else {
         curScore = 0.0f;
+        paramB = (s16)kind;
         for (idxB = 0; ((s32)idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = ((s32)idxB + 1) & 0xFFFF) {
             entryB = tgt.entries[(idxB & 0xFFFF)];
             if (func_001db360(entryB, paramB, 1) == 0) {
-                if ((func_00242800(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), paramB) & 0x1000000) == 0) {
+                if ((func_00242800(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), kind) & 0x1000000) == 0) {
                     curScore = 0.0f;
                     goto scored;
                 }
