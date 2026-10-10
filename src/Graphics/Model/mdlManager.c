@@ -5971,6 +5971,7 @@ void func_0047b060(void* param_1)
  * Still NONMATCHING; retained native probes: build/first-party-final-20261010/models.
  * fnalign 38 -> 34: s16 clone slots (retail -1), cloneSlots/capacities layer reads as base-first byte offsets.
  * fnalign 34 -> 28: layerResource entry reads at the slot as base-first byte offsets.
+ * fnalign 28 -> 26: effect.length passed as (s32) - retail loads it before the head/payload moves.
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6405,7 +6406,7 @@ s32 func_0047b0c0(u8 *model)
                 }
                 head = LOAD_LAYER()->attachments->primary[state->slot];
             }
-            node = func_0047d320(head, (s32)payload, effect.length, effect.first, effect.flags);
+            node = func_0047d320(head, (s32)payload, (s32)effect.length, effect.first, effect.flags);
             for (slot = effect.first + 1; slot < effect.last + 1; slot++) {
                 func_0047d460((u32 *)head, node, slot);
             }
