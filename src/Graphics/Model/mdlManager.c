@@ -5970,6 +5970,7 @@ void func_0047b060(void* param_1)
  * order and local UV/material table lifetimes account for most of the gain.
  * Still NONMATCHING; retained native probes: build/first-party-final-20261010/models.
  * fnalign 38 -> 34: s16 clone slots (retail -1), cloneSlots/capacities layer reads as base-first byte offsets.
+ * fnalign 34 -> 28: layerResource entry reads at the slot as base-first byte offsets.
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6131,7 +6132,7 @@ s32 func_0047b0c0(u8 *model)
             animation = func_003d53c0(state->stream);
             if (state->baseAnimation == 0 || LOAD_LAYER()->resource->unknown != 0) {
                 layerResource = LOAD_LAYER()->resource;
-                layerResource->entries[state->slot].animation = animation;
+                (*(MdlDispatchAnimEntry *)((u8 *)layerResource->entries + (state->slot) * sizeof(MdlDispatchAnimEntry))).animation = animation;
             } else {
                 LOAD_LAYER()->resource->unknown = (u32)animation;
             }
@@ -6437,16 +6438,16 @@ s32 func_0047b0c0(u8 *model)
             *(f32 *)(group + 0x30) = 1.0f;
             *(f32 *)(group + 0x38) = 1.0f;
             layerResource = LOAD_LAYER()->resource;
-            layerResource->entries[state->slot].blendControl = group;
+            (*(MdlDispatchAnimEntry *)((u8 *)layerResource->entries + (state->slot) * sizeof(MdlDispatchAnimEntry))).blendControl = group;
             layerResource = LOAD_LAYER()->resource;
-            func_003e2910(state->stream, layerResource->entries[state->slot].blendControl + 0x3c,
+            func_003e2910(state->stream, (*(MdlDispatchAnimEntry *)((u8 *)layerResource->entries + (state->slot) * sizeof(MdlDispatchAnimEntry))).blendControl + 0x3c,
                 chunk.length);
             for (slot = 0; slot < 4; slot++) {
                 func_003df3c0(state->stream, &chunk);
                 {
                     void *animation = func_003d53c0(state->stream);
                     layerResource = LOAD_LAYER()->resource;
-                    ((void **)layerResource->entries[state->slot].blendControl)[slot] = animation;
+                    ((void **)(*(MdlDispatchAnimEntry *)((u8 *)layerResource->entries + (state->slot) * sizeof(MdlDispatchAnimEntry))).blendControl)[slot] = animation;
                 }
             }
         }
@@ -6456,13 +6457,13 @@ s32 func_0047b0c0(u8 *model)
         case 0xf0f00008:
         func_003e2910(state->stream, &metadata, chunk.length);
         layerResource = LOAD_LAYER()->resource;
-        if (layerResource->entries[state->slot].startFrame == 0) {
+        if ((*(MdlDispatchAnimEntry *)((u8 *)layerResource->entries + (state->slot) * sizeof(MdlDispatchAnimEntry))).startFrame == 0) {
             s32 *values;
             func_0044ea90(D_00713138, 0x125);
             values = ((void *(*)(int, int))DAT_008873e8[0])(8, 0x40000);
             memset(values, 0, 8);
             layerResource = LOAD_LAYER()->resource;
-            layerResource->entries[state->slot].startFrame = values;
+            (*(MdlDispatchAnimEntry *)((u8 *)layerResource->entries + (state->slot) * sizeof(MdlDispatchAnimEntry))).startFrame = values;
         }
         if (chunk.type == 0xf0f00007) {
             mdlLoaderSetFrame(metadata, LOAD_LAYER()->resource, state->slot, 0);
