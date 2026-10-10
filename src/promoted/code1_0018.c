@@ -765,6 +765,8 @@ void func_001839e0(u8 *arg0, u8 *arg1)
  * struct 1508 -> 2: s32 outer counter (retail slti), the low colour byte loaded once into a u32 local before the high byte, (s32)(u32) weighting so the product converts before the 0x434/0x436 word, and the row pointer recomputed (distinct spellings) before each colour block as retail.
  * fnalign 705 -> 697: converted product held in fprod so the add is field-first after the product conversion (retail add.s order).
  * structure identical (fnalign 697 -> 645): the 0xF0 row pointer uses ((s32)k << 8), which b210 does not CSE with the earlier (u32)k * 0x100.
+ * fnalign 645 -> 622: m declared before k (retail colours m/k as $a2/$a1).
+ * fnalign 622 -> 201: (f32)m written inline instead of a fj local (retail keeps 2.0f in $f3 and the converted row in $f2).
  */
 // FUN_00183B80 NONMATCHING
 #ifdef NON_MATCHING
@@ -793,13 +795,12 @@ s32 func_00183b80(u8 *arg0)
     f32 fprod;
     f32 f21;
     f32 f20;
-    f32 fj;
     f32 fhi;
     f32 flo;
     f32 fdiff;
     f32 fhalf;
-    s32 k;
     s32 m;
+    s32 k;
     s32 half;
     s32 prod;
     s32 iv0;
@@ -839,7 +840,6 @@ s32 func_00183b80(u8 *arg0)
         for (m = 0; m < 2; m++) {
             k = 0;
             base = ctx + (m << 9);
-            fj = (f32)m;
             for (; k < 2; k++) {
                 q = base + (k << 8);
                 half = *(s16 *)(ctx + 0x438) / 2;
@@ -887,25 +887,25 @@ s32 func_00183b80(u8 *arg0)
                 flo = (f32)(u32)lo;
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv0 = (s32)((f32)(u32)lo + fj * fhalf);
+                iv0 = (s32)((f32)(u32)lo + (f32)m * fhalf);
                 lo = *(u8 *)(ctx + 0x441);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
                 flo = (f32)(u32)lo;
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv1 = (s32)((f32)(u32)lo + fj * fhalf);
+                iv1 = (s32)((f32)(u32)lo + (f32)m * fhalf);
                 lo = *(u8 *)(ctx + 0x442);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
                 flo = (f32)(u32)lo;
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv2 = (s32)((f32)(u32)lo + fj * fhalf);
+                iv2 = (s32)((f32)(u32)lo + (f32)m * fhalf);
                 lo = *(u8 *)(ctx + 0x443);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
                 flo = (f32)(u32)lo;
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv3 = (s32)((f32)(u32)lo + fj * fhalf);
+                iv3 = (s32)((f32)(u32)lo + (f32)m * fhalf);
                 q = base + ((u32)k << 8);
                 *(f32 *)(q + 0x30) = (f32)iv0;
                 *(f32 *)(q + 0x34) = (f32)iv1;
@@ -916,25 +916,25 @@ s32 func_00183b80(u8 *arg0)
                 flo = (f32)(u32)lo;
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv0 = (s32)((f32)(u32)lo + fj * fhalf);
+                iv0 = (s32)((f32)(u32)lo + (f32)m * fhalf);
                 lo = *(u8 *)(ctx + 0x441);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
                 flo = (f32)(u32)lo;
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv1 = (s32)((f32)(u32)lo + fj * fhalf);
+                iv1 = (s32)((f32)(u32)lo + (f32)m * fhalf);
                 lo = *(u8 *)(ctx + 0x442);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
                 flo = (f32)(u32)lo;
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv2 = (s32)((f32)(u32)lo + fj * fhalf);
+                iv2 = (s32)((f32)(u32)lo + (f32)m * fhalf);
                 lo = *(u8 *)(ctx + 0x443);
                 fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
                 flo = (f32)(u32)lo;
                 fdiff = fhi - flo;
                 fhalf = fdiff / 2.0f;
-                iv3 = (s32)((f32)(u32)lo + fj * fhalf);
+                iv3 = (s32)((f32)(u32)lo + (f32)m * fhalf);
                 q = base + ((s32)(u32)k << 8);
                 *(f32 *)(q + 0x70) = (f32)iv0;
                 *(f32 *)(q + 0x74) = (f32)iv1;
