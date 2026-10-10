@@ -277,6 +277,8 @@ s32 func_00162c30(void)
  * sdiff 8/91 -> 7/90: memset block index (s32)(u32)i.
  * sdiff 7/90 -> 6/88: mdlGetMatrix takes *cfg (retail loads it once; the extra dereference was wrong).
  * sdiff 6/88 -> 4/86: id narrowed to u16 before the resource slot address is formed (retail order).
+ * struct 0: the weekday test is `if (... == 1) { found = 0; } else { scan }` (retail's bne/b shape).
+ * sdiff 0/6: i declared before mtx. Left: found/k take $s6/$s5 where retail has $s5/$s6 (scores 3/4 equal to retail's reference counts; whatif renumbering of found, k and their 17 common neighbours finds no hit).
  */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
@@ -310,8 +312,8 @@ void func_00162e10(void)
     f32 spB0[3];
     f32 spA0[3];
     f32 sp90[3];
-    u8 *mtx;
     s32 i;
+    u8 *mtx;
     u8 kind;
     u8 *slot;
     u8 **res;
@@ -361,7 +363,9 @@ void func_00162e10(void)
             if (*(u16 *)(*cfg + 0xD4) != 1) {
                 s32 found = 0;
 
-                if (func_00110680((s16)func_001060b0(), 3, 0x14) != 1) {
+                if (func_00110680((s16)func_001060b0(), 3, 0x14) == 1) {
+                    found = 0;
+                } else {
                     s32 k;
                     s32 v;
 
