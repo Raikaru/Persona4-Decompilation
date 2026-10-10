@@ -2437,6 +2437,7 @@ void func_00126090(s32 arg0, u8 *arg1)
  * 2550: the background colour constants also go through TitleDrawColor locals
  * (sp6B4..sp68C) before the copy into sp6BC, as retail stores them; the frame is
  * now retail's 0x6C0.
+ * 2452: sp694 is the same colour intermediate.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2529,7 +2530,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     TitleDrawColor sp6A0;
     TitleDrawColor sp69C;
     TitleDrawColor sp698;
-    f32 sp694;
+    TitleDrawColor sp694;
     TitleDrawColor sp690;
     TitleDrawColor sp68C;
     TitleDrawColor layerColor;
@@ -3662,9 +3663,8 @@ loop_128:
         RpSkyRenderStateSet(3, 0x50003);
         RpSkyRenderStateSet(2, 0x48);
         func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
-        temp_f0_6 = fGpffff9c88;
-        sp694 = temp_f0_6;
-        sp6BC.value = temp_f0_6;
+        sp694.value = fGpffff9c88;
+        sp6BC = sp694;
         sp4E0 = *(TitleRect *)&D_005E5690;
         sp590 = sp4E0.bits;
         func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
