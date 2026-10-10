@@ -3724,96 +3724,12 @@ void func_0019c010(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
-/* measured: restored in-gate 867 (951 retail / 951 object instrs) with 7r-only fix (hoisted xx..wz reused twice -> plain mul/add; ??+18->0, mul-9->0, add-14->-8; single opt_common_subs off). Rejected 853 attempt (951/884, -67, -7.0% outside 922-980 band): stacked opt_propagation off + hoisted one/two/half/f255 vars removed per-use materialisation (lui+31->-1) per 7u mirror. Table-base pass 2026-09-19: lui per immediate retail 17 vs object 48 surplus 31 (2.0f 1->9, 255.0f/0.5f 3->12 each, 0x737FB 2->5; no HI16 tables, all GP); hoisted fGpffff81f4 to inv (24 loads -> 1 base, propagation untouched, accumulator fix kept, no one/two/half/f255 hoist): 867->864 words, 951->930 instrs (in 922-980 band), 1088->1069 edits, lui unchanged 48 vs 17. Banked floor; production stays ASM. */
-/* 2026-09-19 composition audit (handoff 7aa).  The count is 951/951 exact
-   and the structure is still a third wrong: fnalign shows a pure delete of
-   347 instructions at retail[465:812] (0x0019C814-0x0019CD7C) against a pure
-   insert of 163 at object[576:739].
-   What the missing span is: retail's trailing two colour stages, `u = t * c`
-   then `col = u * d`, spilled through SP+0xAC..0xAF as unsigned bytes in
-   channel order 1,2,3,0, with the `bltz`/`srl` unsigned conversion and
-   `adda`/`madd` rounding.  This body invents a compact s32-register version
-   at 0x8C..0x8F in channel order 0,1,2,3.
-   Five rewrites measured, all with `opt_common_subs off` only and the 7r fix
-   kept: a `u[4]` spill for the u-stage 995 instrs/922 words; a single
-   `tmp[4]` with hoisted a/b/c/d 1047/972; an `RwMatrix` frame after the
-   btlUnit honest caller 956/887 with edits flat at 1088 and the frame moving
-   0x90 -> 0xA0 toward retail's 0xB0; that plus a hoisted spill 1052/980; and
-   direct loads with one `tmp[4]` in retail's 1,2,3,0 order (archived as
-   docs/probe_archive/C19C0D0_v5_structure.c) which **closes the 347/163 pair
-   outright** - largest hole falls to 97, inserts to 28 - and takes edits
-   1088 -> 999, but drifts to 1052 instructions, +101 and outside the
-   922-980 band.  Not banked for that reason.
-   Next step is not more colour logic: the remaining 97-instruction hole is
-   the t-stage at the wrong frame slot, `tmp` at 0x9C against retail's 0xAC,
-   frame 0xA0 against 0xB0, base 0x50 against 0x60.  Fix the slot and the
-   drift together. */
-/* measured 0019c0d0 (owner, this session): 930 against retail 951 (inside), 1068 fnalign edits,
-   864 differing words.  The dominant defect is a **relocation, not an expression**: one pure
-   delete of 347 instructions at retail[465:812] against object[772], with 153 and 43 surplus
-   instructions the object emits early at object[568] and object[514].  Retail places that
-   material late; the object places it early.
-   Three hypotheses measured and rejected, so nobody repeats them:
-   (a) moving the `entry + 0x98 & 4` block after the `entry + 0xA00 + 0xD8` test - 1068 -> 1100.
-   (b) `(f32)(u32)*(u8 *)` at all sixteen byte-to-float sites - exactly neutral, 1068 and the
-       same count.  Retail's conversion at R466-R479 really is the 15-instruction unsigned recipe
-       (`lbu 0x3d($s4)`, `bltz`, `srl`, `andi`, `or`, `mtc1`, `cvt.s.w`), but casting a `u8` to
-       `u32` does not reach it - MWCC knows the value is non-negative and folds the guard away.
-   (c) routing those sites through an inline `f32 f(u32)` helper, which does force a genuine u32
-       parameter - 1068 -> 1139, worse.
-   So the unsigned recipe in retail comes from a value that is genuinely 32-bit at its source,
-   not a widened byte: find the field that is really a `u32` before spending more on the casts.
-   Register state: retail saves $s4 the body does not, the body saves a spare $f20, frame 0xA0
-   against retail's 0xB0 - one saved GPR, and holding a float where retail holds a pointer is
-   the usual reason. */
-/* measured 0019c0d0 (owner, 2026-09-19): fnalign edits **1068 -> 1042** by writing the
-   `if (i == c) ... else if` chain as a `switch (i)` with the cases ascending and the
-   trailing `else` as `default`.  Swept with a brace-aware converter over the 26
-   highest-edit first-party floors that carry a chain; seven improved, six got worse and
-   the rest have no convertible chain, so this is measured per function. */
-/* measured 0019c0d0 (owner, 2026-09-20): helper census 8 `__floatdisf` (object-only,
-   `libcall_scan` + `measure_guarded` relocs; retail `asm/nonmatchings/code1_0019/func_0019c0d0.s`
-   carries no helper symbols so the census alone proves nothing). Retail shape at all eight
-   sites is narrow: `sb v0,0xac(sp)` at 0x0019c7cc (t0 store, no `andi`/64-bit/`jal`) and
-   `lbu v0,0xad(sp)` at 0x0019c85c + `bltz`/`srl v1,v0,1`/`andi`/`or`/`mtc1`/`cvt.s.w`
-   at 0x0019c860-0x0019c894 (u1 reload, unsigned-32, no `dsll32`/`dsra32`/`jal`; same recipe
-   at 0x0019c8a4/0x0019c8e8/0x0019c92c/0x0019c9fc and 0x0019cac0-0x0019cd64 for u2/u3/u0 and
-   col), while the object does `dsll32 $a0,$v0,0` + `dsra32` + `jal __floatdisf` at eight
-   sites. The two remaining `s64` (`v41`, `chk`) are legitimate: retail is wide there
-   (`dsll32 s2,v0,0xc` + `dsrl32` at 0x0019cecc for `& 0xFFFFF` as 64-bit, `dsll32 s1,v0,0x10`
-   + `dsra32` at 0x0019cee4 and `dsll32 v0,v0,0x10` + `dsra32` at 0x0019cef8 for `(s16)`
-   sign-extend to 64).
-   Case per amended gate: object SHORTER (941 against retail 951), so any correct removal must
-   move the count away (helpers longer than narrow) - expected, keep inside the +-3% band
-   (922-980; brief's 10 down is the 2% view, lower 931). Baseline 981 edits, 951/941.
-   All eight helper-free, measured from this baseline (`fnalign --candidate`):
-   s32 decls 1029 edits/922 instrs (0 helpers, -19 away, at 3% edge, edits +48 WORSE);
-   s16 1045/938 (+64 WORSE); keep-s64 + `(s32)` cast at use 1057/944 (+76 WORSE);
-   u32 1259/1010, u16 1259/1010, u8-unsigned 1262/1013, hybrid `u8 tmp[4]` 1,2,3,0 1259/1010,
-   V5 structure 999/1052 (all outside and/or edits up WORSE). Reordered s32 1,2,3,0 identical
-   to s32 (compiler normalises order). No narrow spelling stays inside and takes edits down:
-   helpers are reloc-excluded so removing them reveals counted mismatch (signed/unsigned
-   `cvt` + spills vs `jal`), and matching retail's counted spill/order/`madd` needs +70-110
-   (outside). Leave the banked compact floor; the spilled 1,2,3,0 structure is the documented
-   outside-band fix (header v5). No code change. */
-/* 2026-10-09: guarded body rewritten from the retail asm, 1021 -> 222 fnalign
-   edits. The quaternion goes into an RwMatrix-shaped local (flags 3, zero pos);
-   the colour is copied from entry+0x30 and modulated three times by an inline
-   helper in retail's g, b, a, r order with u32 conversions; the alpha-step,
-   0xE8 render-mode and palette tails follow retail's block order. Retail
-   reloads the 1/255 global for every factor, which only opt_common_subs off
-   reproduces here, but it also shares the 2.0/1.0/0.0 and 255/0.5 constants
-   and reuses the `2` argument, which needs CSE on. No pragma, alias spelling
-   or helper shape tried so far does both. On the `i == 2 && alpha < 0xFE`
-   path retail compares 0xE8 against $s0 left from an earlier entry
-   (0x0019CDE0); `mode` is likewise read uninitialised there.
- * 10: default optimisation (the old CSE/propagation-off pragmas are gone); the
- * 1/255 colour scale is the literal 0.003921569f, which b210 reloads from the
- * literal pool per use as retail does (fGpffff81f4 is that pool entry);
- * entry declared before i.
- */
-// FUN_0019C0D0 NONMATCHING
-#ifdef NON_MATCHING
+/* Retail reloads the 1/255 colour scale (0x3B808081, written here as a
+ * literal) for every factor; with default optimisation b210 does the same.
+ * `v41` and `chk` are function-scope locals so they keep retail's saved
+ * registers. On the `i == 2 && alpha < 0xFE` path retail compares 0xE8
+ * against the `mode` left from an earlier entry (0x0019CDE0); the C reads
+ * `mode` uninitialised there in the same way. */
 #pragma push
 typedef struct { u8 r, g, b, a; } Col4_0019;
 typedef struct {
@@ -3844,6 +3760,7 @@ static inline void colMul_0019(Col4_0019 *dst, const u8 *src)
     dst->a = (s32)(scale * a + bias);
 }
 
+// FUN_0019C0D0
 void func_0019c0d0(void)
 {
     extern u32 func_00196610(u8 *arg0);
@@ -3852,18 +3769,22 @@ void func_0019c0d0(void)
     extern void func_001b70c0(u8 *arg0);
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
-    extern void func_0047a180(void *arg0, void *arg1, s32 arg2);
+    extern void *func_0047a180(void *arg0, void *arg1, s32 arg2);
     extern void func_00478e70(void *arg0);
     extern s32 func_001ee490(u8 *arg0);
     extern u32 func_0019d130(u8 *arg0);
     extern s32 func_001d72e0(s32 arg0);
     extern s16 func_001d7130(s32 arg0);
     extern void func_001d7400(s32 arg0, u8 *arg1);
+    /* Retail passes the sign-extended word from (s16)func_001d72e0() in $a1
+     * without narrowing; the s16 definition's prototype adds a re-extension. */
     extern void func_001d7100(u8 *arg0, s32 arg1);
-    extern void func_001d72c0(void *arg0, Col4_0019 arg1);
+    extern void func_001d72c0(void *arg0, u32 arg1);
     extern void func_001d7140(u8 *arg0);
     u8 *entry;
     u32 i;
+    s32 v41;
+    s32 chk;
 
     for (i = 0; i < 4; i++) {
         entry = *(u8 **)(D_0076449C + (i * 8) + 0x17C);
@@ -3996,7 +3917,7 @@ void func_0019c0d0(void)
 
                             *e8 = mode;
                         for (j = 0; j < 5; j++) {
-                            u8 *sub = ((u8 **)(*(u8 **)(entry + 0xA00) + 0x290))[j * 3];
+                            u8 *sub = *(u8 **)((u32)*(u8 **)(entry + 0xA00) + j * 12 + 0x290);
 
                             if (sub != NULL) {
                                 *(s32 *)(sub + 0xE8) = mode;
@@ -4024,8 +3945,8 @@ void func_0019c0d0(void)
                     u8 *p = *(u8 **)(entry + 0xA64);
 
                     if (p != NULL) {
-                        u32 v41 = *(u32 *)(p + 0xC) & 0xFFFFF;
-                        s32 chk = (s16)func_001d72e0(v41);
+                        v41 = *(u32 *)(p + 0xC) & 0xFFFFF;
+                        chk = (s16)func_001d72e0(v41);
 
                         if (chk != (s16)func_001d7130(*(s32 *)(entry + 0xA04))) {
                             func_001d7400(v41, entry + 0x48);
@@ -4034,7 +3955,7 @@ void func_0019c0d0(void)
                             func_001d7100(*(u8 **)(entry + 0xA04), chk);
                         }
                     }
-                    func_001d72c0(*(u8 **)(entry + 0xA04), *(Col4_0019 *)(entry + 0x4E));
+                    func_001d72c0(*(u8 **)(entry + 0xA04), *(u32 *)(entry + 0x4E));
                     func_001d7140(*(u8 **)(entry + 0xA04));
                 }
             }
@@ -4043,9 +3964,6 @@ void func_0019c0d0(void)
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019c0d0);
-#endif
 // FUN_0019CFB0
 void func_0019cfb0(void) {
     u32 i;
