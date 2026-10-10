@@ -1981,6 +1981,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * `float vecN[3]` locals declared in retail stack order (later declarations sit
  * lower). Retail still has four more 16-byte slots (frame 0x1C0 vs 0x180).
  * 2026-10-09: 901 -> 868: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 845: vector copies written as struct copies (retail copies through stack structs).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2065,6 +2066,7 @@ extern int FUN_0047a310();
 s32 func_0018a200(u8 *param_1)
 
 {
+  typedef struct { float x, y, z; } FldCopyVec;
     /* Retail returns zero at 0018BAA8, 0018A234. */
 /* irregular: 10 native warning(s); review required */
   unsigned int *puVar1;
@@ -2158,9 +2160,7 @@ s32 func_0018a200(u8 *param_1)
         if (temp_v13 < 150.0f) {
           temp_v1 = 1;
           temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-          vec20[0] = *(float *)(temp_v4 + 0x20);
-          vec20[1] = *(float *)(temp_v4 + 0x24);
-          vec20[2] = *(float *)(temp_v4 + 0x28);
+          *(FldCopyVec *)vec20 = *(FldCopyVec *)(temp_v4 + 0x20);
           temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           temp_v13 = *(float *)(temp_v4 + 0x30);
           temp_v4 = FUN_0047a2f0(DAT_007efa00);
@@ -2208,9 +2208,7 @@ s32 func_0018a200(u8 *param_1)
     vec50[2] = vec160[2];
     vec50[1] = vec160[1] + 180.0f;
     temp_v4 = FUN_003e9700(temp_v6);
-    vec70[0] = *(float *)(temp_v4 + 0x30);
-    vec70[1] = *(float *)(temp_v4 + 0x34);
-    vec70[2] = *(float *)(temp_v4 + 0x38);
+    *(FldCopyVec *)vec70 = *(FldCopyVec *)(temp_v4 + 0x30);
     vec60[0] = vec50[0] - vec70[0];
     vec60[1] = vec50[1] - vec70[1];
     vec60[2] = vec50[2] - vec70[2];
@@ -2383,9 +2381,7 @@ s32 func_0018a200(u8 *param_1)
       func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
       FUN_003bb5b0(puVar1[6],*(unsigned int *)(puVar1[3] + 0x360),10,&vecD0[0],0);
       temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-      vecC0[0] = *(float *)(temp_v4 + 0x30);
-      vecC0[1] = *(float *)(temp_v4 + 0x34);
-      vecC0[2] = *(float *)(temp_v4 + 0x38);
+      *(FldCopyVec *)vecC0 = *(FldCopyVec *)(temp_v4 + 0x30);
       vecB0[0] = vecD0[0] - vecC0[0];
       vecB0[1] = vecD0[1] - vecC0[1];
       vecB0[2] = vecD0[2] - vecC0[2];
@@ -2588,13 +2584,9 @@ s32 func_0018a200(u8 *param_1)
   case 5:
   case 6:
     temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-    vec140[0] = *(float *)(temp_v4 + 0x20);
-    vec140[1] = *(float *)(temp_v4 + 0x24);
-    vec140[2] = *(float *)(temp_v4 + 0x28);
+    *(FldCopyVec *)vec140 = *(FldCopyVec *)(temp_v4 + 0x20);
     pfVar12 = (float *)FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-    vec150[0] = *pfVar12;
-    vec150[1] = pfVar12[1];
-    vec150[2] = pfVar12[2];
+    *(FldCopyVec *)vec150 = *(FldCopyVec *)(pfVar12);
     FUN_003e40b0(&vec140[0],&vec140[0]);
     FUN_003e40b0(&vec150[0],&vec150[0]);
     FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
