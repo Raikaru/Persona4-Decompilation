@@ -939,6 +939,8 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * 603: type sweep.
  * 577: conversion lever (s:(2, 3)).
  * 567: conversion lever (kind:(0, 1)).
+ * 564: conversion lever (j:(1, 2)).
+ * 563: conversion lever (ui:(0,)).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1061,7 +1063,7 @@ void func_001f14f0(u8 *arg0)
     flags2 = flags | 2;
     idw = id;
     kindU = (s32)kind;
-    for (; ui < *(u16 *)(arg0 + 0x6A); ui++) {
+    for (; (u32)ui < *(u16 *)(arg0 + 0x6A); ui++) {
         u8 *unit = *(u8 **)(arg0 + ui * 4 + 0x38);
         u8 *actor = unit;
         u8 *uctx = *(u8 **)(*(u8 **)(unit + 0x30) + 0xA64);
@@ -1181,9 +1183,9 @@ void func_001f14f0(u8 *arg0)
             u8 *vals;
             s32 nj;
             *flagp = 0;
-            pa = (u16 *)(unit + (j << 5) + 0x108);
+            pa = (u16 *)(unit + ((u32)j << 5) + 0x108);
             *pa = 0;
-            pb = (u16 *)(unit + (j << 5) + 0x10A);
+            pb = (u16 *)(unit + ((u32)j << 5) + 0x10A);
             *pb = 0;
             va = func_00235520(id, ctx, target, 1, res, sub, flags, 1);
             vb = func_00235520(id, ctx, target, 1, res, sub, flags, 2);

@@ -972,6 +972,7 @@ tail:
  * 963: the 0x73C test is `!= 0` first, as retail's branch order.
  * 954: three more if/else arms in retail order.
  * 919: the delay-counter tests take the `> 0` arm first.
+ * 913: conversion lever (piVar1:(0, 3)).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1124,7 +1125,7 @@ availabilityDone:
         typedef struct { unsigned char c[4]; } FldAIColorBytes;
         *(FldAIColorBytes *)&uStack_4 = *(FldAIColorBytes *)puVar4;
     }
-    temp_v8 = ((float *)piVar1)[0x20];
+    temp_v8 = ((float *)(int *)(u32)piVar1)[0x20];
     temp_v10 = ((float *)piVar1)[0x21] - temp_v8;
     if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\0') {
       temp_v8 = CAND_fGpffff80f0 * temp_v10 + temp_v8 + 0.0f;
@@ -1140,7 +1141,7 @@ availabilityDone:
     temp_v1 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
     distVec[2] = *(float *)(temp_v1 + 0x38) - *(float *)(temp_v0 + 0x38);
     temp_v10 = FUN_003e4180(&distVec[0]);
-    if (((float *)piVar1)[0x21] <= temp_v10) {
+    if (((float *)(int *)(u32)piVar1)[0x21] <= temp_v10) {
       ((unsigned char*)&uStack_4)[3] = 0;
       ((float *)piVar1)[0x1f] = (float)((unsigned char*)&uStack_4)[3];
     }
