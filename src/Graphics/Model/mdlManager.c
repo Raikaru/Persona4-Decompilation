@@ -496,6 +496,9 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * bit 2 cleared with ~4 (retail and with -5).
  * fnalign 251 -> 159: controller state half-word accessed through a byte pointer (no hoisted address), interpolator slots addressed before the create call, hierarchy base loaded first.
  * 0x3e half-word through a byte pointer too.
+ * fnalign 159 -> 122: float control fields through *(float *)&puVar3[N]; final blend test in retail polarity (blend path first).
+ * blend weight read from controller + 2 (retail lwc1 4($s2)); the previous controller + 4 read the wrong field.
+ * blend step: duration loaded, reciprocal formed, then added.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -1236,7 +1239,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         puVar3[0x12] = 0;
       }
       /* Preserve retail's less-than test and unordered fallback selection. */
-      if ((!(((float *)puVar3)[0xe] < 1.0f)) ||
+      if ((!(*(float *)&puVar3[0xe] < 1.0f)) ||
          (pbVar19 = *(unsigned char **)(modelState + 0x14), pbVar19 == (unsigned char *)0x0)) {
         pbVar19 = (unsigned char *)puVar12[8];
         temp_v21 = *(float *)(pbVar19 + 4);
@@ -1291,31 +1294,33 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         puVar3[0x11] = 3;
       }
       /* Preserve retail's less-than test and unordered fallback selection. */
-      if ((!(((float *)puVar3)[0xe] < 1.0f)) || (*(unsigned char **)(modelState + 0x12) == (unsigned char *)0x0)) {
+      if ((*(float *)&puVar3[0xe] < 1.0f) && (*(unsigned char **)(modelState + 0x12) != (unsigned char *)0x0)) {
+        func_003d5e90((unsigned char *)puVar12[8],*(unsigned char **)(modelState + 0x12),(unsigned char *)puVar3[puVar3[0x11] + 4]
+                      ,*(float *)&puVar3[0xe]);
+        /* func_004740c0 stores blend duration as f32 at control+0x34;
+         * retail 00472dd0-00472de0 loads it directly without integer conversion. */
+        temp_v20 = *(float *)&puVar3[0xd];
+        temp_v20 = 1.0f / temp_v20;
+        *(float *)&puVar3[0xe] = *(float *)&puVar3[0xe] + temp_v20;
+        puVar3[0xc] = 0;
+      }
+      else {
         if ((*(u16 *)controller & 0x100) == 0) {
-          ((float *)puVar3)[0xc] = ((float *)puVar3)[0xc] * (1.0f - *(float *)(controller + 4));
+          *(float *)&puVar3[0xc] = *(float *)&puVar3[0xc] * (1.0f - *(float *)(controller + 2));
           puVar3[0x12] = 0x3f800000;
           func_003d5e90((unsigned char *)puVar12[8],(unsigned char *)puVar12[8],(unsigned char *)puVar3[puVar3[0x11] + 4],
-                        1.0f - ((float *)puVar3)[0xc]);
+                        1.0f - *(float *)&puVar3[0xc]);
         }
         else {
-          ((float *)puVar3)[0x12] = ((float *)puVar3)[0x12] * (1.0f - *(float *)(controller + 4));
+          *(float *)&puVar3[0x12] = *(float *)&puVar3[0x12] * (1.0f - *(float *)(controller + 2));
           func_003d5e90((unsigned char *)puVar12[8],(unsigned char *)puVar12[8],(unsigned char *)puVar3[puVar3[0x11] + 4],
-                        ((float *)puVar3)[0x12]);
-          if (((float *)puVar3)[0x12] < fGpffff8074) {
+                        *(float *)&puVar3[0x12]);
+          if (*(float *)&puVar3[0x12] < fGpffff8074) {
             *(u16 *)controller = *(u16 *)controller & 0x7e1f;
             *(u16 *)controller = *(u16 *)controller & 0xfbff;
           }
           *(u16 *)controller = *(u16 *)controller & 0xf7ff;
         }
-      }
-      else {
-        func_003d5e90((unsigned char *)puVar12[8],*(unsigned char **)(modelState + 0x12),(unsigned char *)puVar3[puVar3[0x11] + 4]
-                      ,((float *)puVar3)[0xe]);
-        /* func_004740c0 stores blend duration as f32 at control+0x34;
-         * retail 00472dd0-00472de0 loads it directly without integer conversion. */
-        ((float *)puVar3)[0xe] = ((float *)puVar3)[0xe] + 1.0f / ((float *)puVar3)[0xd];
-        puVar3[0xc] = 0;
       }
       func_00397c40(param_1);
     }
