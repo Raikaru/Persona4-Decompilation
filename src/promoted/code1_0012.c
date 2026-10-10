@@ -2530,6 +2530,7 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * in $s1 for both calls instead of folding the first load.
  * (fade clamps written `> N`, retail's slti $at form; fadeT holds the timer fraction)
  * 162: range tests written `> N - 1` where retail uses the slti $at form.
+ * 160: comparison constants in retail's form.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3287,7 +3288,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                     func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
                 }
             }
-            if ((temp_16 >= 0xBC) && (temp_16 < 0xDF)) {
+            if ((temp_16 > 0xbb) && (temp_16 < 0xDF)) {
                 temp_f2_2 = fGpffff8094;
                 func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))))), 0x10009, 0, taskView->sprites, 1);
             }
