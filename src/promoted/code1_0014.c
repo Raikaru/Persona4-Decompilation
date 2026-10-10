@@ -382,8 +382,8 @@ extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 ar
 
 void func_001400f0(u8 *work)
 {
-    extern void func_001427c0(Float2_0014 pos, f32 depth, u8 opacity, u8 *state);
-    extern void func_00142bf0(s64 work, s64 arg1, s32 arg2, f32 fparg0, u8 arg3);
+    extern void func_001427c0(Float2_0014 pos, f32 depth, s32 opacity, u8 *state);
+    extern void func_00142bf0(s64 work, s64 arg1, s32 arg2, f32 fparg0, s32 arg3);
     f32 opacity;
     f32 originX;
     f32 originY;
@@ -639,7 +639,7 @@ void func_001400f0(u8 *work)
         RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
         position.xy.x = originX;
         position.xy.y = originY;
-        func_001427c0(position.xy, 0.0f, radarOpacity, work);
+        func_001427c0(position.xy, 0.0f, (u8)radarOpacity, work);
         position.xy.x = (f32)0x13B + (originX + *(f32 *)(work + 0x680));
         position.xy.y = (116.0f + (originY + *(f32 *)(work + 0x684)));
         alpha = (u8)((f32)(u32)work[0x68A] * opacity);

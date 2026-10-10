@@ -14,7 +14,7 @@ extern u8 D_005F1CF0[];
 extern f32 iGpffffba6c;
 extern void func_0044ea90(const void *file, s32 line);
 
-extern u8 *func_00457120(void);
+extern s32 func_00457120(void);
 extern s32 func_0017d3c0(u8 *arg0);
 extern s32 func_0017f490(u8 *arg0);
 extern u8 *D_007EFA00[];
@@ -198,7 +198,7 @@ discoveryAvailabilityDone:
         tileX = func_001687d0(*(u8 **)(D_007EFA00[1] + 0x220));
         tileZ = func_001687e0(*(u8 **)(D_007EFA00[1] + 0x220));
         {
-            struct RwFrame *frame = *(struct RwFrame **)(func_00457120() + 4);
+            struct RwFrame *frame = *(struct RwFrame **)((u8 *)(u32)func_00457120() + 4);
             func_001687f0(selfPosition.bytes,
                 *(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220));
             focusPosition = *(RwV3d *)selfPosition.bytes;
@@ -572,7 +572,7 @@ s32 func_0017e890(s32 arg0, s32 arg1, s32 arg2)
     *(s32 *)(work + 0x10) = arg1;
     *(s32 *)(work + 0x14) = arg2;
     *(s32 *)(work + 0x1C) = -1;
-    *(f32 *)(work + 0x64) = *(f32 *)(func_00457120() + 0x80);
+    *(f32 *)(work + 0x64) = *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
     return ret;
 }
 
@@ -2055,7 +2055,7 @@ s32 func_00182220(s32 arg0, s32 arg1, s32 arg2)
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x4) = 1;
     *(s32 *)(work + 0x8) = arg2;
-    *(f32 *)(work + 0x80) = *(f32 *)(func_00457120() + 0x80);
+    *(f32 *)(work + 0x80) = *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
     *(f32 *)(work + 0x84) = iGpffffba6c;
     return ret;
 }
