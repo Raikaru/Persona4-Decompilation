@@ -936,6 +936,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * 687: range tests in retail's slti $at form.
  * 615: type sweep.
  * 604: type sweep.
+ * 603: type sweep.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1176,8 +1177,7 @@ void func_001f14f0(u8 *arg0)
             s32 x;
             u8 t;
             u8 *vals;
-            u8 nj;
-
+            s32 nj;
             *flagp = 0;
             pa = (u16 *)(unit + (j << 5) + 0x108);
             *pa = 0;

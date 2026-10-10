@@ -3009,6 +3009,7 @@ void func_001a5990(void)
  * 666: type sweep.
  * 660: swap sweep.
  * 652: type sweep.
+ * 651: type sweep.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3069,7 +3070,7 @@ void func_001a59a0(s64 *arg0) {
     s32 sp280;
     s32 sp270;
     u16 sp260;
-    s32 sp25C;
+    s16 sp25C;
     s32 sp258;
     s32 sp254;
     s32 sp250;
@@ -3980,6 +3981,11 @@ void func_001a7710(void)
  * 2026-10-09: 1489 -> 1486: the m2c label loops are while loops.
  * 2026-10-09: 1486 -> 1358: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 1346: comparison constants in retail's form.
+ * 1320: type sweep.
+ * 1316: cmp sweep.
+ * 1286: type sweep.
+ * 1280: type sweep.
+ * 1279: cmp sweep.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4097,7 +4103,7 @@ void func_001a7720(u8 *arg0) {
     s64 sp480;
     s64 sp470;
     s64 sp468;
-    s16 sp450;
+    u16 sp450;
     s16 sp440;
     s16 sp430;
     s16 sp420;
@@ -4106,14 +4112,14 @@ void func_001a7720(u8 *arg0) {
     s32 sp3F0;
     s32 sp3E0;
     s32 sp3D0;
-    u16 sp3C0;
+    s32 sp3C0;
     u16 sp3B0;
     u16 sp3A0;
     u16 sp390;
     u16 sp380;
     u16 sp370;
     u16 sp360;
-    u16 sp350;
+    s32 sp350;
     s32 sp340;
     s32 sp33C;
     s32 sp320;
@@ -4126,17 +4132,17 @@ void func_001a7720(u8 *arg0) {
     s32 sp2B0;
     u16 sp2A0;
     s32 sp290;
-    s16 sp280;
-    s16 sp270;
+    u16 sp280;
+    s32 sp270;
     s32 sp260;
     s32 sp250;
     s32 *sp240;
     s32 sp230;
     s32 sp220;
     s32 sp210;
-    s32 sp200;
+    u16 sp200;
     s32 sp1F0;
-    s32 sp1E0;
+    s16 sp1E0;
     s32 sp1D0;
     s32 sp1C0;
     s32 sp1B0;
@@ -4153,9 +4159,9 @@ void func_001a7720(u8 *arg0) {
     s8 *hitMotion;
     s32 spF0;
     s16 *hpTransfer;
-    s32 spD0;
+    s16 spD0;
     s32 spC0;
-    s32 var_17_5;
+    u16 var_17_5;
     s32 var_30;
     f32 temp_f2;
     f32 var_f1;
@@ -4165,15 +4171,15 @@ void func_001a7720(u8 *arg0) {
     s32 temp_2_3;
     s32 temp_2_95;
     s16 temp_21_2;
-    s16 temp_2_2;
+    s32 temp_2_2;
     s16 temp_3_16;
     s16 temp_5_4;
-    s16 var_17;
-    s16 var_18_3;
-    s16 var_2_14;
+    s32 var_17;
+    u16 var_18_3;
+    s32 var_2_14;
     s16 var_2_17;
-    s16 var_2_5;
-    s16 var_2_6;
+    s32 var_2_5;
+    s32 var_2_6;
     s32 *temp_2_108;
     s32 temp_21;
     s32 temp_22_2;
@@ -4203,7 +4209,7 @@ void func_001a7720(u8 *arg0) {
     s64 temp_16;
     s64 temp_18_2;
     s32 temp_19;
-    s32 temp_22;
+    s16 temp_22;
     s64 temp_23_2;
     s32 temp_2_26;
     s16 temp_3;
@@ -4919,7 +4925,7 @@ void func_001a7720(u8 *arg0) {
             (*( s8 * )((u8 *)(temp_2_49) + (0))) = 4;
             *(s64 *)(temp_2_49 + 8) = *(s64 *)(var_19 + 0x58);
             if (sp340 == 0) {
-                if (var_17 >= 0xD) {
+                if (var_17 > 0xc) {
                     var_2_6 = var_17 - 0xC;
                 } else {
                     var_2_6 = 0;
@@ -5866,7 +5872,7 @@ block_408:
                 (*( s16 * )((u8 *)(var_19) + (0x48))) = sp440;
             } else {
                 (*( s16 * )((u8 *)(var_19) + (0x48))) = 8;
-                if (sp440 >= 9) {
+                if (sp440 > 8) {
                     var_2_14 = sp440 - 8;
                 } else {
                     var_2_14 = 0;

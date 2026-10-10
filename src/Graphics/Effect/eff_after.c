@@ -832,6 +832,7 @@ void func_004b8f10(void *arg0) {
  * 2026-10-09: 1368 -> 1297: the Ghidra stack scalars that share one 16-byte slot are
  * one f32 array local (retail keeps that slot in memory).
  * (cleanup: address-of casts simplified)
+ * 1269: type sweep.
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -851,7 +852,7 @@ void func_004b8f40(u8 *work, void **pp)
   f32 *pfVar5;
   f32 *pfVar6;
   s32 temp_v1;
-  s32 temp_v2;
+  u32 temp_v2;
   s32 temp_v3;
   u32 *puVar10;
   s32 temp_v4;
