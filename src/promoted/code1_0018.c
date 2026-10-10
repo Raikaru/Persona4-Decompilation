@@ -1984,18 +1984,20 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * 845: vector copies written as struct copies (retail copies through stack structs).
  * (bit copies through int casts written as float copies)
  * (the callback is func_0018a170 by symbol, as retail's relocation)
+ * 826: the globals are retail's absolute D_ objects (%hi/%lo), declared as arrays so
+ * b210 does not place them in small data.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_common_subs off
-extern float DAT_00756520; /* 0x756520 */
-extern float DAT_00756524; /* 0x756524 */
-extern float DAT_00756528; /* 0x756528 */
-extern int DAT_007ef9f8; /* 0x7ef9f8 */
-extern unsigned int DAT_007efa00; /* 0x7efa00 */
-extern int DAT_007efa04; /* 0x7efa04 */
+extern float D_00756520[];
+extern float D_00756524[];
+extern float D_00756528[];
+extern int D_007EF9F8[];
+extern unsigned int D_007EFA00[];
+extern int D_007EFA04[];
 extern float fGpffff8300; /* 0xffff8300 */
 extern float fGpffff8420; /* 0xffff8420 */
 
@@ -2141,22 +2143,22 @@ s32 func_0018a200(u8 *param_1)
          ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x4651)))) &&
         ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46b5)))) &&
        (((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46e7)) &&
-        (DAT_007ef9f8 != 0 && DAT_007efa04 != 0)))) {
-      temp_v8 = FUN_0047a2f0(DAT_007efa00);
+        (D_007EF9F8[0] != 0 && D_007EFA04[0] != 0)))) {
+      temp_v8 = FUN_0047a2f0(D_007EFA00[0]);
       temp_v4 = FUN_0047a2f0(temp_v4);
       temp_v9 = FUN_0014bff0(120.0f,temp_v8,temp_v4 + 0x30);
       if (temp_v9 == 1) {
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v13 = *(float *)(temp_v4 + 0x30);
-        temp_v4 = FUN_0047a2f0(DAT_007efa00);
+        temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
         vec10[0] = temp_v13 - *(float *)(temp_v4 + 0x30);
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v13 = *(float *)(temp_v4 + 0x34);
-        temp_v4 = FUN_0047a2f0(DAT_007efa00);
+        temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
         vec10[1] = temp_v13 - *(float *)(temp_v4 + 0x34);
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v13 = *(float *)(temp_v4 + 0x38);
-        temp_v4 = FUN_0047a2f0(DAT_007efa00);
+        temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
         vec10[2] = temp_v13 - *(float *)(temp_v4 + 0x38);
         temp_v13 = FUN_003e4180(&vec10[0]);
         if (temp_v13 < 150.0f) {
@@ -2165,15 +2167,15 @@ s32 func_0018a200(u8 *param_1)
           *(FldCopyVec *)vec20 = *(FldCopyVec *)(temp_v4 + 0x20);
           temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           temp_v13 = *(float *)(temp_v4 + 0x30);
-          temp_v4 = FUN_0047a2f0(DAT_007efa00);
+          temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
           vec30[0] = *(float *)(temp_v4 + 0x30) - temp_v13;
           temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           temp_v13 = *(float *)(temp_v4 + 0x34);
-          temp_v4 = FUN_0047a2f0(DAT_007efa00);
+          temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
           vec30[1] = *(float *)(temp_v4 + 0x34) - temp_v13;
           temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           temp_v13 = *(float *)(temp_v4 + 0x38);
-          temp_v4 = FUN_0047a2f0(DAT_007efa00);
+          temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
           vec30[2] = *(float *)(temp_v4 + 0x38) - temp_v13;
           FUN_003e40b0(&vec20[0],&vec20[0]);
           FUN_003e40b0(&vec30[0],&vec30[0]);
@@ -2183,7 +2185,7 @@ s32 func_0018a200(u8 *param_1)
           }
           temp_v4 = FUN_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
           if ((temp_v4 == 0) && (temp_v1)) {
-            temp_v4 = FUN_0047a2f0(DAT_007efa00);
+            temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
             vec40[0] = *(float *)(temp_v4 + 0x30);
             vec40[2] = *(float *)(temp_v4 + 0x38);
             vec40[1] = *(float *)(temp_v4 + 0x34) + 140.0f;
@@ -2388,8 +2390,8 @@ s32 func_0018a200(u8 *param_1)
       vecB0[1] = vecD0[1] - vecC0[1];
       vecB0[2] = vecD0[2] - vecC0[2];
       FUN_003e40b0(&vecB0[0],&vecB0[0]);
-      temp_v13 = (float)FUN_0044b920(vecB0[2] * DAT_00756528 +
-                                   vecB0[0] * DAT_00756520 + vecB0[1] * DAT_00756524);
+      temp_v13 = (float)FUN_0044b920(vecB0[2] * D_00756528[0] +
+                                   vecB0[0] * D_00756520[0] + vecB0[1] * D_00756524[0]);
       temp_v13 = fGpffff8300 * temp_v13;
       if (vecB0[0] < 0.0f) {
         temp_v13 = temp_v13 * -1.0f;
@@ -2407,7 +2409,7 @@ s32 func_0018a200(u8 *param_1)
       *(unsigned int *)(puVar1[5] + 0x34) = 0;
       *(unsigned int *)(puVar1[5] + 0x30) = 0;
       *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
-      FUN_003e0870(temp_v13,puVar1[5],0x756510,2);
+      FUN_003e0870(temp_v13,puVar1[5],(int)D_00756510,2);
       FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
     }
     puVar1[0xb] = 0xffffffff;
@@ -2431,13 +2433,13 @@ s32 func_0018a200(u8 *param_1)
     }
     break;
   case 4:
-    if (DAT_007ef9f8 != 0 && DAT_007efa04 != 0) {
+    if (D_007EF9F8[0] != 0 && D_007EFA04[0] != 0) {
       temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-      temp_v7 = FUN_0047a2f0(DAT_007efa00);
+      temp_v7 = FUN_0047a2f0(D_007EFA00[0]);
       temp_v9 = FUN_0014c4c0(500.0f,temp_v4 + 0x30,temp_v7 + 0x30);
       if (temp_v9 == 1) {
         pvVar11 = (void *)FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        temp_v4 = FUN_0047a2f0(DAT_007efa00);
+        temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
         temp_v5 = FUN_0014c240(pvVar11,(void *)(temp_v4 + 0x30),90.0f,250.0f);
         if (temp_v5 != 0) {
           if (puVar1[0xb] != 0xffffffff) {
@@ -2481,8 +2483,8 @@ s32 func_0018a200(u8 *param_1)
             vec130[1] = vec120[1] - vec110[1];
             vec130[2] = vec120[2] - vec110[2];
             FUN_003e40b0(&vec130[0],&vec130[0]);
-            temp_v13 = (float)FUN_0044b920(vec130[2] * DAT_00756528 +
-                                         vec130[0] * DAT_00756520 + vec130[1] * DAT_00756524);
+            temp_v13 = (float)FUN_0044b920(vec130[2] * D_00756528[0] +
+                                         vec130[0] * D_00756520[0] + vec130[1] * D_00756524[0]);
             temp_v13 = fGpffff8300 * temp_v13;
             if (vec130[0] < 0.0f) {
               temp_v13 = temp_v13 * -1.0f;
@@ -2500,7 +2502,7 @@ s32 func_0018a200(u8 *param_1)
             *(unsigned int *)(puVar1[5] + 0x34) = 0;
             *(unsigned int *)(puVar1[5] + 0x30) = 0;
             *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
-            FUN_003e0870(temp_v13,puVar1[5],0x756510,2);
+            FUN_003e0870(temp_v13,puVar1[5],(int)D_00756510,2);
             FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
             FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
             ((float*)puVar1)[6] = (((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6] + 0.0f);
@@ -2546,8 +2548,8 @@ s32 func_0018a200(u8 *param_1)
         vec100[1] = vecF0[1] - vecE0[1];
         vec100[2] = vecF0[2] - vecE0[2];
         FUN_003e40b0(&vec100[0],&vec100[0]);
-        temp_v13 = (float)FUN_0044b920(vec100[2] * DAT_00756528 +
-                                     vec100[0] * DAT_00756520 + vec100[1] * DAT_00756524);
+        temp_v13 = (float)FUN_0044b920(vec100[2] * D_00756528[0] +
+                                     vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0]);
         temp_v13 = fGpffff8300 * temp_v13;
         if (vec100[0] < 0.0f) {
           temp_v13 = temp_v13 * -1.0f;
@@ -2565,7 +2567,7 @@ s32 func_0018a200(u8 *param_1)
         *(unsigned int *)(puVar1[5] + 0x34) = 0;
         *(unsigned int *)(puVar1[5] + 0x30) = 0;
         *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
-        FUN_003e0870(temp_v13,puVar1[5],0x756510,2);
+        FUN_003e0870(temp_v13,puVar1[5],(int)D_00756510,2);
         if ((*(unsigned short *)(puVar1[3] + 0x220) != 4) || (((float*)puVar1)[6] < 1.0f)) {
           FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
           FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);

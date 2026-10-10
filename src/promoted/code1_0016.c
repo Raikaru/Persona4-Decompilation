@@ -1887,6 +1887,7 @@ query_complete:
  * 1516: more vector copies written as struct copies.
  * 1518: the axis table entries are the absolute objects D_00756500..D_00756520
  * (retail %hi/%lo relocations), not small-data scalars or raw addresses.
+ * 1516: the pad state globals are retail's absolute D_008C024C/D_008C025E.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1910,8 +1911,8 @@ extern int FUN_003e0c90();
 extern float D_00756510[]; /* 0x756510 */
 extern float D_00756514[]; /* 0x756514 */
 extern float D_00756518[]; /* 0x756518 */
-extern unsigned short DAT_008c024c; /* 0x8c024c */
-extern unsigned char DAT_008c025e; /* 0x8c025e */
+extern u16 D_008C024C[];
+extern u8 D_008C025E[];
 extern float CAND_fGpffff8218; /* 0xffff8218 */
 extern float CAND_fGpffff84e4; /* 0xffff84e4 */
 extern float CAND_fGpffff84e8; /* 0xffff84e8 */
@@ -2330,7 +2331,7 @@ s32 func_0016bdd0(u8 *param_1)
         fStack_100 = *pfVar8;
         fStack_fc = pfVar8[1];
         fStack_f8 = pfVar8[2];
-        temp_v10 = (float)DAT_008c025e - 128.0f;
+        temp_v10 = (float)D_008C025E[0] - 128.0f;
         temp_v4 = FUN_00457120();
         if (*(int *)(*(int *)(temp_v4 + 4) + 4) == piVar1[4]) {
           temp_v4 = FUN_00457120();
@@ -2435,7 +2436,7 @@ s32 func_0016bdd0(u8 *param_1)
             temp_v12 = temp_v9;
           }
         }
-        if ((((DAT_008c024c & 0xf) != 0) || (temp_v10 < -48.0f)) || (48.0f < temp_v10)) {
+        if ((((D_008C024C[0] & 0xf) != 0) || (temp_v10 < -48.0f)) || (48.0f < temp_v10)) {
           piVar1[0xab] = 0;
         }
         temp_v9 = ((float *)piVar1)[0xab];
@@ -2461,7 +2462,7 @@ s32 func_0016bdd0(u8 *param_1)
         }
         if (((((((float *)piVar1)[0xac] != 0.0f) || (((float *)piVar1)[0xad] != 0.0f)) ||
              (((float *)piVar1)[0xae] != 0.0f)) &&
-            ((((float *)piVar1)[0xa5] < ((float *)piVar1)[0xa3] && ((DAT_008c024c & 0xf) == 0)))) &&
+            ((((float *)piVar1)[0xa5] < ((float *)piVar1)[0xa3] && ((D_008C024C[0] & 0xf) == 0)))) &&
            ((-48.0f <= temp_v10 && ((temp_v10 <= 48.0f && (temp_v10 = FUN_00175db0(), 0.0f < temp_v10)))))) {
           temp_v8 = FUN_003e9700(temp_v4);
           stk1A0[0] = *(float *)(temp_v8 + 0x20);
