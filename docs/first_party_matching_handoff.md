@@ -25,16 +25,23 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 9 continuation, part 10: literal pools, `$at` compares, cast pointers
+## October 9 continuation, part 10: `0019c0d0` MATCH; literal pools, `$at` compares
 
-Count: 6,830 MATCH / 30 ASM (crt0 now vendor). New levers, each measured:
+**6,831 MATCH / 29 ASM** (full verify `build/after30.json` changes only
+`0019c0d0`; full link `build/link32.log` keeps 604 C / 54 SDK and both
+retail hashes). New levers, each measured:
 - **`fGpffffXXXX` may be a literal-pool entry.** `fGpffff81f4` is 1/255
   (`0x3B808081`). Written as `0.003921569f`, b210 reloads it from the pool
   per use as retail does, instead of hoisting one load. With the old
-  `opt_common_subs off`/`opt_propagation off` pragmas removed as well,
-  `0019c0d0` went 222 -> 10 (structure exact; one `$s0`/`$s2` swap left
-  between `mode` and `v41`). Read the value with the ELF segments and try
-  the shortest round-tripping literal.
+  `opt_common_subs off`/`opt_propagation off` pragmas also removed,
+  `0019c0d0` went 222 -> 10. Read the value from the ELF segments and use
+  the shortest literal that round-trips.
+- **Function-scope `s32` keeps a local's low number.** The last `$s0`/`$s2`
+  swap needed `v41` and `chk` declared at function scope (whatif: both
+  scanned before `mode`). As block locals, or as `u32`, `v41` folded into
+  its `& 0xFFFFF` temporary.
+- **`(u32)base + j * 12 + 0x290` fixes `addu` operand order** (retail adds
+  the loaded base first).
 - **`slti $at` means the source compared with `>`.** b210 emits `slti $at`
   plus a branch for `x > N`, and `slti $vN` for `x >= N + 1`. Writing range
   and clamp tests as `> N - 1` matched retail in `001265a0` (199 -> 162),
