@@ -70,13 +70,13 @@ class AttributionTests(unittest.TestCase):
             // FUN_00100000
             INCLUDE_ASM("asm/x", func_00100000);
 
-            // FUN_00100100
-            INCLUDE_ASM("asm/x", func_00100100);
+            // FUN_00200100
+            INCLUDE_ASM("asm/x", func_00200100);
             """
         )
         self.assertIsNotNone(fc.note_for(lines, marker_index(lines, "00100000")))
         self.assertIsNone(
-            fc.note_for(lines, marker_index(lines, "00100100")),
+            fc.note_for(lines, marker_index(lines, "00200100")),
             "a note above a DIFFERENT marker was credited to this function",
         )
 
@@ -89,11 +89,11 @@ class AttributionTests(unittest.TestCase):
             void func_00100000(void) { return; }
             #pragma opt_loop_invariants off
 
-            // FUN_00100100
-            INCLUDE_ASM("asm/x", func_00100100);
+            // FUN_00200100
+            INCLUDE_ASM("asm/x", func_00200100);
             """
         )
-        self.assertIsNone(fc.note_for(lines, marker_index(lines, "00100100")))
+        self.assertIsNone(fc.note_for(lines, marker_index(lines, "00200100")))
 
     def test_no_note_is_untried(self) -> None:
         lines = L(
@@ -138,8 +138,8 @@ class MisplacedNoteTests(unittest.TestCase):
             // FUN_00100000
             INCLUDE_ASM("asm/x", func_00100000);
 
-            // FUN_00100100
-            void func_00100100(void) { return; }
+            // FUN_00200100
+            void func_00200100(void) { return; }
             """
         )
         self.assertEqual(fc.misplaced_notes(lines), [])
@@ -192,20 +192,20 @@ class CensusTests(unittest.TestCase):
                 b"// FUN_00100000\n"
                 b'INCLUDE_ASM("asm/x", func_00100000);\n'
                 b"\n"
-                b"// FUN_00100100\n"
-                b'INCLUDE_ASM("asm/x", func_00100100);\n'
+                b"// FUN_00200100\n"
+                b'INCLUDE_ASM("asm/x", func_00200100);\n'
             )
             with patch.object(fc, "REPO", Path(tmp)):
                 report = {
                     "results": [
                         {"file": rel, "addr": "00100000", "line": 2, "status": "ASM", "window": 48},
-                        {"file": rel, "addr": "00100100", "line": 5, "status": "ASM", "window": 32},
+                        {"file": rel, "addr": "00200100", "line": 5, "status": "ASM", "window": 32},
                     ]
                 }
                 out = fc.census(report)
                 self.assertEqual(out["total"], 2)
                 self.assertEqual([e["addr"] for e in out["floored"]], ["00100000"])
-                self.assertEqual([e["addr"] for e in out["untried"]], ["00100100"])
+                self.assertEqual([e["addr"] for e in out["untried"]], ["00200100"])
                 self.assertEqual(out["untried_by_file"][rel], 1)
 
 

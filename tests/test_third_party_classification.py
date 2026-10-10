@@ -45,21 +45,19 @@ class VendorAddressTests(unittest.TestCase):
     def test_known_vendor_addresses_are_excluded(self) -> None:
         # func_0050b6b8 is the worked example: byte-exact under ee-gcc2.96 and
         # 899 under MWCCPS2 b210. Then one probe per declared range.
-        for addr in (0x0050B6B8, 0x0038F990, 0x00417510, 0x004BD628, 0x0070C850):
+        for addr in (0x0050B6B8, 0x00100008, 0x0038F990, 0x00417510, 0x004BD628, 0x0070C850):
             self.assertTrue(verify.is_vendor_address(addr), hex(addr))
 
     def test_game_addresses_are_not_excluded(self) -> None:
         # Boundaries are half-open, so each range END belongs to game code.
-        # 0x00100008 and 0x00100218 are 8-aligned but are a data table and a
-        # `j` thunk, not GCC functions -- the alignment signal alone is not
-        # sufficient at the very start of code1.
-        for addr in (0x00100008, 0x00100218, 0x0044E830, 0x004BD620,
+        # 0x00100218, right after the crt0 entry, is a game `j` thunk.
+        for addr in (0x00100218, 0x0044E830, 0x004BD620,
                      0x0052D8C0, 0x0070E140):
             self.assertFalse(verify.is_vendor_address(addr), hex(addr))
 
     def test_accepts_the_hex_string_form_used_in_report_rows(self) -> None:
         self.assertTrue(verify.is_vendor_address("0050b6b8"))
-        self.assertFalse(verify.is_vendor_address("00100008"))
+        self.assertFalse(verify.is_vendor_address("00100218"))
 
     def test_missing_or_malformed_addresses_are_not_vendor(self) -> None:
         for value in (None, "", "not-hex"):
