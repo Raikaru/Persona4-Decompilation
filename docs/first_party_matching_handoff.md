@@ -25,11 +25,24 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 10 continuation, part 11: `0036ee60`, `00283490` MATCH; spill ties
+## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950` MATCH; spill sets
 
-**6,833 MATCH / 27 ASM.** Both closed with the repeated-conversion lever
-(`docs/matching.md`, "keep a load local alive"), found by reading the
-colouring or spill decision with `tools/regalloc_whatif.py`:
+**6,834 MATCH / 26 ASM.** All three closed by reading which *variables*
+retail spills and reproducing that spill set, then the colours:
+- **`001e9950`** (92 -> 0): retail's spill slots name the variables
+  (`sw` = s32 local, `sh` = u16 local, `sq` = temporary). Retail spills
+  `skillStore`, `paramA`, `paramB`, `outer` (u16) and `bestCost`. Retail
+  passes `skill` (`$s2`) to every callee without a mask and re-sign-extends
+  `kind`, so both are `s32`; `func_0023d8e0` and `func_001d7f10` get per-file
+  `s32 skill` prototypes (H011, retail evidence). `paramA`/`paramB` are set
+  per branch and the kind test is `!(s16)kind`, so CSE does not merge them.
+  `regalloc_whatif.py --at` on the failing colour round showed `innerBest`
+  must be numbered below `outer`; declaring it there gave retail's spills.
+  `skillStore` after `paramB`/`paramA` fixes the slot order; the table read
+  `*(u16 *)((u8 *)table + outer * 2 - 2)` fixes the `addu` operand order.
+- `0036ee60` and `00283490` used the repeated-conversion lever
+  (`docs/matching.md`, "keep a load local alive"), found by reading the
+  colouring or spill decision with `tools/regalloc_whatif.py`:
 - **Spill choice is a ratio tie (`0036ee60`).** Retail spills the u16 cursor
   `cIdx` (sh/lhu at sp+0xE0). With `s32 index = cIdx; cIdx++;` cIdx's spill
   score/degree exactly ties the B-list count's, and b210 pushes the higher
