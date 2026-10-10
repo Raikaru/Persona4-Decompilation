@@ -2434,6 +2434,9 @@ void func_00126090(s32 arg0, u8 *arg1)
  * 2604: with the rectangle temporaries in place, opt_common_subs off gives retail's
  * saved-register set (s0-s5, f20-f24); CSE was holding repeated loads in extra
  * saved registers.
+ * 2550: the background colour constants also go through TitleDrawColor locals
+ * (sp6B4..sp68C) before the copy into sp6BC, as retail stores them; the frame is
+ * now retail's 0x6C0.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2518,17 +2521,17 @@ void func_001265a0(void *unusedDrawData, void *task) {
 
     TitleDrawColor sp6BC;
     s32 sp6B8;
-    f32 sp6B4;
-    f32 sp6B0;
-    f32 sp6AC;
-    f32 sp6A8;
+    TitleDrawColor sp6B4;
+    TitleDrawColor sp6B0;
+    TitleDrawColor sp6AC;
+    TitleDrawColor sp6A8;
     TitleDrawColor sp6A4;
     TitleDrawColor sp6A0;
     TitleDrawColor sp69C;
     TitleDrawColor sp698;
     f32 sp694;
     TitleDrawColor sp690;
-    f32 sp68C;
+    TitleDrawColor sp68C;
     TitleDrawColor layerColor;
     TitleDrawColor layerColorSource;
     TitleDrawColor firstOverlayColor;
@@ -2876,9 +2879,8 @@ void func_001265a0(void *unusedDrawData, void *task) {
     titleYawAxis = D_005E5628;
     titlePitchAxis = D_005E5638;
     sp6B8 = 0;
-    temp_f0 = fGpffff9c70;
-    sp6B4 = temp_f0;
-    sp6BC.value = temp_f0;
+    sp6B4.value = fGpffff9c70;
+    sp6BC = sp6B4;
     func_0045c870((u8 *)&sp6BC, 1);
     temp_3 = (u32)(M2C_FIELD(temp_20, u32 *, 4));
     switch (temp_3) {
@@ -2887,24 +2889,21 @@ void func_001265a0(void *unusedDrawData, void *task) {
         /* fallthrough */
     case 1:
     case 2:
-        temp_f0_2 = fGpffff9c74;
-        sp6B0 = temp_f0_2;
-        sp6BC.value = temp_f0_2;
+        sp6B0.value = fGpffff9c74;
+        sp6BC = sp6B0;
         func_0045c870((u8 *)&sp6BC, 1);
         break;
     case 3:
-        temp_f0_3 = fGpffff9c78;
-        sp6AC = temp_f0_3;
-        sp6BC.value = temp_f0_3;
+        sp6AC.value = fGpffff9c78;
+        sp6BC = sp6AC;
         func_0045c870((u8 *)&sp6BC, 1);
         temp_2 = (s32)(M2C_FIELD(temp_20, s32 *, 0x88) + 1);
         M2C_FIELD(temp_20, s32 *, 0x88) = temp_2;
         if (temp_2 >= 0x14) {
             M2C_FIELD(temp_20, s32 *, 0x88) = 0x14;
         }
-        temp_f0_4 = fGpffff9c7c;
-        sp6A8 = temp_f0_4;
-        sp6BC.value = temp_f0_4;
+        sp6A8.value = fGpffff9c7c;
+        sp6BC = sp6A8;
         sp520.bits = D_005E5650;
         temp_f20 = 42.0f * (1.0f - ((f32) M2C_FIELD(temp_20, s32 *, 0x88) / 20.0f));
         sp520.words[1] = (s32)-temp_f20;
@@ -3786,9 +3785,8 @@ loop_351:
         if (temp_2_24 < 0x258) {
             M2C_FIELD(temp_20, s32 *, 0xC) = (s32) (temp_2_24 + 1);
         }
-        temp_f0_8 = fGpffff9c8c;
-        sp68C = temp_f0_8;
-        sp6BC.value = temp_f0_8;
+        sp68C.value = fGpffff9c8c;
+        sp6BC = sp68C;
         func_0045c870((u8 *)&sp6BC, 1);
         temp_f0_9 = (f32)*(s32 *)(D_005E5230 + M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);
         if (M2C_BITWISE(s32, temp_f0_9) >= 0xF) {
