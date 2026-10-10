@@ -322,25 +322,14 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 
 
 
-/* Recovered camp drawing uses complete position/color/vertex objects and
-   the retail sprite, palette and opacity lifetimes. The native guarded
-   body remains nonmatching; see the full owner proof and residuals in
-   docs/probe_archive/CampDisplay_001400f0_worker13_resume_20261005.md.
-   2026-10-07: `opt_loop_invariants on` hoists the radar fill loop's table
-   address and constants as retail does (85 -> 77 edits). It also hoists the
-   `(u8)radarOpacity` conversion out of the edge loop (IRO_MoveInvariant-
-   Expressions), which retail converts in the loop and again for
-   func_001427c0.
-   2026-10-08: the second radar call converts 255.0f * opacity in place (63 edits). Retail converts both radar alphas to u8 inside each arm and passes them without another andi, which the model gives only with u8 opacity parameters (15 edits); the matched callees func_001427c0 and func_00142bf0 take s32 in this translation unit. */
-/* 2026-10-09: 63 -> 56 edits from a block-declaration order climb. 
-   2026-10-09: 56 -> 51 with (u8)(u32) on the radar-edge alpha; retail still converts 255*opacity inside the loop where b210 hoists the conversion.
- * sdiff 40/45 -> 4/4: retail passes the radar alphas as already-narrowed u8 (andi in each conversion arm, no re-mask at the call), so the radar callees are declared here with u8 opacity parameters (H011: the matched definitions keep s32, as their own bodies use the full word); radarOpacity is passed directly.
- * sdiff 4/4 -> 2/2: fillX is read inside the vertex loop (LICM hoists it after the table address, as retail).
- * radar opacity passed to func_001427c0 as (u32) under the s32 contract.
- * fnalign 34 -> 4: restore the u8 opacity block prototypes for both radar callees (H011; regressed by 5da35851).
- */
-// FUN_001400F0 NONMATCHING
-#ifdef NON_MATCHING
+/* Camp display: grid, labels, radar and corner sprites.
+ * The radar callees are declared here with u8 opacity parameters (H011):
+ * retail narrows each radar alpha with its unsigned conversion and passes
+ * it without another mask, while the matched definitions in this file keep
+ * s32 because their own bodies use the full word.
+ * `sprite` is one function-scope variable for the 0x1834 label sprite and
+ * the corner sprite; b210 does not propagate it into the func_0034f320
+ * call, so the label pointer is loaded before the stack argument. */
 #pragma push
 #pragma opt_loop_invariants on
 typedef struct { s32 lo, hi; } CampDisplayWords;
@@ -382,10 +371,12 @@ extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, con
 extern void func_001423c0(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
 
+// FUN_001400F0
 void func_001400f0(u8 *work)
 {
     extern void func_001427c0(Float2_0014 pos, f32 depth, u8 opacity, u8 *state);
     extern void func_00142bf0(s64 work, s64 arg1, s32 arg2, f32 fparg0, u8 arg3);
+    void *sprite;
     f32 opacity;
     f32 originX;
     f32 originY;
@@ -646,29 +637,30 @@ void func_001400f0(u8 *work)
         position.xy.y = (116.0f + (originY + *(f32 *)(work + 0x684)));
         alpha = (u8)((f32)(u32)work[0x68A] * opacity);
         palette = (CampDisplayRgba *)D_0064B2E8;
-        func_0034f320(*(u8 **)(work + 0x1834), position.xy.x, position.xy.y, 0.0f,
+        sprite = *(void **)(work + 0x1834);
+        func_0034f320(sprite, position.xy.x, position.xy.y, 0.0f,
                       palette->r, palette->g, palette->b, alpha,
                       *(u16 *)(work + 0x690), 0x1000, 0, 0.0f, 0);
     }
     {
-        void *cornerSprite = *(void **)(work + 0x1870);
+        sprite = *(void **)(work + 0x1870);
         if ((*(s32 *)(work + 0x1C) & 1) != 0) {
             position.xy.x = (19.0f + (originX + *(f32 *)(work + 0x3B0)));
             position.xy.y = (18.0f + (originY + *(f32 *)(work + 0x3B4)));
             alpha = (u8)((f32)(u32)work[0x3BA] * opacity);
-            func_0034f2e0(cornerSprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
+            func_0034f2e0(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
         if ((*(s32 *)(work + 0x1C) & 2) != 0) {
             position.xy.x = (39.0f + (originX + *(f32 *)(work + 0x3E0)));
             position.xy.y = (f32)0x171 + (originY + *(f32 *)(work + 0x3E4));
             alpha = (u8)((f32)(u32)work[0x3EA] * opacity);
-            func_0034f2e0(cornerSprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
+            func_0034f2e0(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
         if ((*(s32 *)(work + 0x1C) & 4) != 0) {
             position.xy.x = (420.0f + (originX + *(f32 *)(work + 0x410)));
             position.xy.y = (18.0f + (originY + *(f32 *)(work + 0x414)));
             alpha = (u8)((f32)(u32)work[0x41A] * opacity);
-            func_0034f2e0(cornerSprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
+            func_0034f2e0(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
         if ((*(s32 *)(work + 0x1C) & 0x100) != 0) {
             position.xy.x = (62.0f + (originX + *(f32 *)(work + 0x440)));
@@ -690,9 +682,6 @@ void func_001400f0(u8 *work)
 }
 
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001400f0);
-#endif
 // FUN_00141CF0
 s32 func_00141cf0(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *temp_3;
