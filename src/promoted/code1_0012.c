@@ -2431,11 +2431,15 @@ void func_00126090(s32 arg0, u8 *arg1)
  * constant to the m2c-named slot, then copies it; the s128 form let b210 delete
  * the first store). Locals now sit at retail's offsets plus the 0x30 of three
  * extra saved registers (frame 0x6D0 vs 0x6C0; was 0x510).
+ * 2604: with the rectangle temporaries in place, opt_common_subs off gives retail's
+ * saved-register set (s0-s5, f20-f24); CSE was holding repeated loads in extra
+ * saved registers.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
+#pragma opt_common_subs off
 #include "btl_shuffle_draw_internal.h"
 #define M2C_GUARD
 typedef s32 M2C_UNK;
