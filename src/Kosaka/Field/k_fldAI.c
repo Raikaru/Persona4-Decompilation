@@ -964,6 +964,9 @@ tail:
  * (bit copies through int casts written as float copies)
  * (D_00794420 and D_005F1CC0 are symbols, as retail's %hi/%lo relocations)
  * 1048: the player handle is D_007EFA00[0] (absolute, as retail).
+ * 1041: the availability check uses the sibling func_0017d3c0 idiom (goto
+ * chain, `ready = used != 0`).
+ * 1018: field 0x68 is a float accumulator (Ghidra stored it through an int conversion).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1096,10 +1099,16 @@ int func_0017f490(unsigned char *param_1)
   }
   temp_v5 = 0;
   temp_v0 = piVar1[3];
-  if ((*(int *)(temp_v0 + 0x48) != 0) && (*(int *)(temp_v0 + 0x54) != 0)) {
-    temp_v5 = 1;
-  }
-  if (temp_v5) {
+  if (*(int *)(temp_v0 + 0x48) == 0)
+    goto availabilityDone;
+  if (*(void **)(temp_v0 + 0x54) == NULL)
+    goto availabilityDone;
+  temp_v5 = 1;
+availabilityDone:
+  temp_v4 = temp_v5 != 0;
+  if (temp_v4 == 0)
+    return 0;
+  {
     if ((*(unsigned int *)(temp_v0 + 0x40) & 1) == 0) {
       return 0;
     }
@@ -1340,11 +1349,11 @@ int func_0017f490(unsigned char *param_1)
       }
       else {
         if (piVar1[0x19] == 0) {
-          piVar1[0x1a] = (int)(((float *)piVar1)[0x1a] -
+          ((float *)piVar1)[0x1a] = (((float *)piVar1)[0x1a] -
                               (*(float *)(piVar1[5] + 0x1c) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
         }
         else {
-          piVar1[0x1a] = (int)(((float *)piVar1)[0x1a] +
+          ((float *)piVar1)[0x1a] = (((float *)piVar1)[0x1a] +
                               (*(float *)(piVar1[5] + 0x1c) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
         }
         piVar1[0x18] = piVar1[0x18] - 1;
@@ -1536,7 +1545,7 @@ int func_0017f490(unsigned char *param_1)
         piVar1[0x1a] = piVar1[0x1b];
       }
       else {
-        piVar1[0x1a] = (int)(((float *)piVar1)[0x1a] +
+        ((float *)piVar1)[0x1a] = (((float *)piVar1)[0x1a] +
                             (*(float *)(piVar1[5] + 0x20) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
         piVar1[0x18] = piVar1[0x18] - 1;
       }
@@ -1673,7 +1682,7 @@ int func_0017f490(unsigned char *param_1)
         piVar1[0x1a] = piVar1[0x1b];
       }
       else {
-        piVar1[0x1a] = (int)(((float *)piVar1)[0x1a] +
+        ((float *)piVar1)[0x1a] = (((float *)piVar1)[0x1a] +
                             (*(float *)(piVar1[5] + 0x20) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
         piVar1[0x18] = piVar1[0x18] - 1;
       }
@@ -1774,7 +1783,7 @@ int func_0017f490(unsigned char *param_1)
         piVar1[0x1a] = piVar1[0x1b];
       }
       else {
-        piVar1[0x1a] = (int)(((float *)piVar1)[0x1a] +
+        ((float *)piVar1)[0x1a] = (((float *)piVar1)[0x1a] +
                             (*(float *)(piVar1[5] + 0x20) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
         piVar1[0x18] = piVar1[0x18] - 1;
       }
@@ -1837,7 +1846,7 @@ int func_0017f490(unsigned char *param_1)
         piVar1[0x1a] = piVar1[0x1b];
       }
       else {
-        piVar1[0x1a] = (int)(((float *)piVar1)[0x1a] +
+        ((float *)piVar1)[0x1a] = (((float *)piVar1)[0x1a] +
                             (*(float *)(piVar1[5] + 0x20) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
         piVar1[0x18] = piVar1[0x18] - 1;
       }
