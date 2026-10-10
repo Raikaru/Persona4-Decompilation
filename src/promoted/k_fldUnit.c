@@ -276,6 +276,7 @@ s32 func_00162c30(void)
  * sdiff 12/96 -> 8/91: memset block recomputes the slot with a u16 index (retail mult).
  * sdiff 8/91 -> 7/90: memset block index (s32)(u32)i.
  * sdiff 7/90 -> 6/88: mdlGetMatrix takes *cfg (retail loads it once; the extra dereference was wrong).
+ * sdiff 6/88 -> 4/86: id narrowed to u16 before the resource slot address is formed (retail order).
  */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
@@ -333,9 +334,14 @@ void func_00162e10(void)
         {
             u8 *entry = D_007EF9B0 + (s32)i * 0x750;
 
+            u8 **resource;
+            u16 id;
+
             cfg = (u8 **)(entry + 0x50);
-            *(u8 **)(entry + 0x54) = (u8 *)MT_Scene_GetRes(func_00145540(i, kind, *(u8 **)(entry + 0x50)));
-            func_0017b9a0(*(s32 *)(*(u8 **)(entry + 0x54) + 0x224), 60.0f);
+            id = func_00145540(i, kind, *(u8 **)(entry + 0x50));
+            resource = (u8 **)(entry + 0x54);
+            *resource = (u8 *)MT_Scene_GetRes(id);
+            func_0017b9a0(*(s32 *)(*resource + 0x224), 60.0f);
         }
         {
             u8 *node = func_001452b0(0xE);
