@@ -962,6 +962,7 @@ tail:
  * 1073: the zero-alpha branch stores the converted alpha byte (retail converts the
  * byte to float).
  * (bit copies through int casts written as float copies)
+ * (D_00794420 and D_005F1CC0 are symbols, as retail's %hi/%lo relocations)
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1023,6 +1024,8 @@ extern void FUN_004b14f0(void *, int *);
 /* WARNING: Removing unreachable block (ram,0x0017f790) */
 /* WARNING: Type propagation algorithm not settling */
 
+extern unsigned char D_00794420[];
+extern unsigned char D_005F1CC0[];
 int func_0017f490(unsigned char *param_1)
 
 {
@@ -1183,7 +1186,7 @@ int func_0017f490(unsigned char *param_1)
       piVar1[0x17] = (int)((unsigned int)temp_v0 % 3) + 1;
       ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
       ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x18);
-      pbVar7 = (unsigned char *)FUN_0014dbb0((int)param_1,0x794420);
+      pbVar7 = (unsigned char *)FUN_0014dbb0((int)param_1,(int)D_00794420);
       piVar1[0x26] = (int)pbVar7;
       FUN_0014dd10(pbVar7,(unsigned char *)(piVar1[3] + 0x19c));
       FUN_0014dce0((unsigned char *)piVar1[0x26],(unsigned char *)DAT_005f1ce0);
@@ -1352,7 +1355,7 @@ int func_0017f490(unsigned char *param_1)
         vec70[2] = *(float *)(temp_v0 + 0x38);
         vec70[1] = *(float *)(temp_v0 + 0x34) +
                     *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
-                              (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + 0x5f1cc0);
+                              (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + (unsigned int)D_005F1CC0);
         pbVar7 = (unsigned char *)FUN_0015c1e0(1);
         FUN_0014e740(pbVar7,&vec70[0]);
         FUN_0045af60(1,0xb,3,5);
@@ -1371,7 +1374,7 @@ int func_0017f490(unsigned char *param_1)
           vec80[2] = *(float *)(temp_v0 + 0x38);
           vec80[1] = *(float *)(temp_v0 + 0x34) +
                       *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
-                                (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + 0x5f1cc0);
+                                (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + (unsigned int)D_005F1CC0);
           pbVar7 = (unsigned char *)FUN_0015c1e0(1);
           FUN_0014e740(pbVar7,&vec80[0]);
           FUN_0045af60(1,0xb,3,5);
