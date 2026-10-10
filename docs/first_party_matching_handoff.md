@@ -37,6 +37,35 @@ sha1 OK in `build/link40.log`).
   `D_007643A4` was added to `config/symbols_recovered.txt` and
   `config/symbol_data_addrs.txt`. Run `build/elig_debug.py` on every
   promoted owner and look for `unresolved`.
+- **`004b8f40`** (eff_after, fnalign 1262 -> 69, structure identical to
+  retail, registers only). Levers, in order of size:
+  - Ghidra's `fStack_N` names are frame offsets (`0x1a0 - N`): map them to
+    vec3 locals (`EffAfterVec ctrl[4]`, `v188`, `cur`, `prev`, `v158`,
+    `v148`, `first`, `last`, the 16-byte bound sphere) declared in retail's
+    slot order (first declared = highest address). Retail keeps `ctrl`,
+    `cur`, `prev` in memory because they are struct-copied
+    (`ctrl[0] = *(EffAfterVec *)p`, `first = cur`, `prev = cur`).
+  - Reads of `*(work + K)` inside loops must not go through the `(u32)`
+    offset helper: the helper makes the address a loop invariant that is
+    hoisted and spilled; plain `*(u8 **)(work + K)` keeps retail's `lw K($s5)`.
+  - The callee is `func_004bc540(work, side, f32 t, u8 *out)`: retail
+    evaluates the float before the colour pointer at every call. Register
+    assignment is identical either way, so only argument order reveals it;
+    `func_004b8350` and the definition still match with the new order.
+  - `#pragma opt_pulloutconstants off` puts `3.0f` after the first partial
+    product, as retail does.
+  - Bezier `P0*s*s*s + 3*P1*t*s*s + 3*P2*t*t*s + P3*t*t*t`; dot products
+    `x, y, z`; `1 - d^3` needs the cube in its own statement (otherwise
+    `msub`); `0.5f + (f32)n` in one expression.
+  - Block-scope locals per switch case, declared in retail colour order
+    (phase A case 0 `i, col`; averaging loop `j, c`; case 2 `den, step, t`;
+    phase C case 0 `out, cache, side, jj`). Scoping integer temporaries in
+    phase C case 1 shifts every callee-saved register: keep those function-wide.
+  - Remaining: FPR numbering in phase C cases 1/2 (`regalloc_whatif` wants
+    the step/start virtuals numbered before phase A's floats), plus several
+    commutative `addu` orders. A reduced TU (prelude + this function) is
+    needed for `build/cap.py`; the full-file capture stops before it.
+
 
 The first three closed by reading which *variables*
 retail spills and reproducing that spill set, then the colours:
