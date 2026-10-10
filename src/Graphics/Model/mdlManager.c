@@ -5969,6 +5969,7 @@ void func_0047b060(void* param_1)
  * (1382/1382 instructions). The existing attachment allocator's declaration
  * order and local UV/material table lifetimes account for most of the gain.
  * Still NONMATCHING; retained native probes: build/first-party-final-20261010/models.
+ * fnalign 38 -> 34: s16 clone slots (retail -1), cloneSlots/capacities layer reads as base-first byte offsets.
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6010,7 +6011,7 @@ s32 func_0047b0c0(u8 *model)
         MdlLoaderMaterial *materials;
         u16 layer, slot;
         u16 capacities[2];
-        u16 *cloneSlots[2];
+        s16 *cloneSlots[2];
         u8 *memory;
         u32 memoryLength;
         u32 *textureList;
@@ -6288,15 +6289,15 @@ s32 func_0047b0c0(u8 *model)
             }
         } else {
             func_003e2910(state->stream, &sourceIndex, chunk.length);
-            if (state->cloneSlots[state->layer] == 0) {
+            if ((*(s16 **)((u8 *)state + state->layer * 4 + 0x24)) == 0) {
                 u16 slot;
                 func_0044ea90(D_00713138, 0x1896);
-                state->cloneSlots[state->layer] = ((void *(*)(int, int))DAT_008873e8[0])((u32)capacity * 2, 0x40000);
+                (*(s16 **)((u8 *)state + state->layer * 4 + 0x24)) = ((void *(*)(int, int))DAT_008873e8[0])((u32)capacity * 2, 0x40000);
                 for (slot = 0; slot < capacity; slot++) {
-                    state->cloneSlots[state->layer][slot] = -1;
+                    (*(s16 **)((u8 *)state + state->layer * 4 + 0x24))[slot] = -1;
                 }
             }
-            state->cloneSlots[state->layer][state->slot] = sourceIndex;
+            (*(s16 **)((u8 *)state + state->layer * 4 + 0x24))[state->slot] = sourceIndex;
         }
         continue;
 
@@ -6375,7 +6376,7 @@ s32 func_0047b0c0(u8 *model)
 
         case 0xf0f000f0:
         func_003e2910(state->stream, &capacity, chunk.length);
-        state->capacities[state->layer] = capacity;
+        (*(u16 *)((u8 *)state + state->layer * 2 + 0x20)) = capacity;
         continue;
 
         case 0xf0f000e0:
