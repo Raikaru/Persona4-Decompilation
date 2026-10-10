@@ -963,6 +963,7 @@ tail:
  * byte to float).
  * (bit copies through int casts written as float copies)
  * (D_00794420 and D_005F1CC0 are symbols, as retail's %hi/%lo relocations)
+ * 1048: the player handle is D_007EFA00[0] (absolute, as retail).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -975,7 +976,7 @@ extern int FUN_0047a220();
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern unsigned char DAT_005f1ce0[];
 extern int FUN_0047a2f0();
-extern unsigned int DAT_007efa00; /* 0x7efa00 */
+extern u8 *D_007EFA00[];
 extern float CAND_fGpffff80f0; /* 0xffff80f0 */
 extern float CAND_fGpffff811c; /* 0xffff811c */
 extern float CAND_fGpffff8218; /* 0xffff8218 */
@@ -1455,21 +1456,21 @@ int func_0017f490(unsigned char *param_1)
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           aiVB0 = *(FldAIVec3 *)(temp_v0 + 0x30);
           aiVB0.y = 0.0f;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state6Direction.x = *(float *)(temp_v0 + 0x30) - aiVB0.x;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state6Direction.y = *(float *)(temp_v0 + 0x34) - aiVB0.y;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state6Direction.z = *(float *)(temp_v0 + 0x38) - aiVB0.z;
           RwV3dNormalize(&state6Direction,&state6Direction);
           state6Direction.x = state6Direction.x * 200.0f;
           state6Direction.y = state6Direction.y * 200.0f;
           state6Direction.z = state6Direction.z * 200.0f;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           ((float *)piVar1)[0x14] = (state6Direction.x + *(float *)(temp_v0 + 0x30));
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           ((float *)piVar1)[0x15] = (state6Direction.y + *(float *)(temp_v0 + 0x34));
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           ((float *)piVar1)[0x16] = (state6Direction.z + *(float *)(temp_v0 + 0x38));
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           state6Delta.x = ((float *)piVar1)[0x14] - *(float *)(temp_v0 + 0x30);
@@ -1483,7 +1484,7 @@ int func_0017f490(unsigned char *param_1)
           ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
           ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x28);
           piVar1[0x18] = 0xf;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           temp_v1 = *(int *)(temp_v0 + 0x34);
           temp_v6 = *(int *)(temp_v0 + 0x38);
           ((float *)piVar1)[0x14] = *(float *)(temp_v0 + 0x30);
@@ -1507,11 +1508,11 @@ int func_0017f490(unsigned char *param_1)
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       aiVF0 = *(FldAIVec3 *)(temp_v0 + 0x30);
       aiVF0.y = 0.0f;
-      temp_v0 = FUN_0047a2f0(DAT_007efa00);
+      temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
       state7Delta.x = *(float *)(temp_v0 + 0x30) - aiVF0.x;
-      temp_v0 = FUN_0047a2f0(DAT_007efa00);
+      temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
       state7Delta.y = *(float *)(temp_v0 + 0x34) - aiVF0.y;
-      temp_v0 = FUN_0047a2f0(DAT_007efa00);
+      temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
       state7Delta.z = *(float *)(temp_v0 + 0x38) - aiVF0.z;
       temp_v10 = RwV3dNormalize(&state7Delta,&state7Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
@@ -1543,7 +1544,7 @@ int func_0017f490(unsigned char *param_1)
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         pvVar9 = (void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50));
-        temp_v1 = FUN_0047a2f0(DAT_007efa00);
+        temp_v1 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         temp_v7 = FUN_0014c240(pvVar9,(void *)(temp_v1 + 0x30),*(float *)(temp_v6 + 8),
                                *(float *)(temp_v6 + 4));
         if (temp_v7 == 1) {
@@ -1582,24 +1583,24 @@ int func_0017f490(unsigned char *param_1)
     case 8:
       temp_v8 = FUN_00175db0();
       if (temp_v8 == 0.0f) {
-        temp_v0 = FUN_0047a2f0(DAT_007efa00);
+        temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
       }
       else {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         temp_v11 = *(float *)(temp_v0 + 0x28);
-        temp_v0 = FUN_0047a2f0(DAT_007efa00);
+        temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         temp_v9 = *(float *)(temp_v0 + 0x28);
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         temp_v8 = *(float *)(temp_v0 + 0x20);
-        temp_v0 = FUN_0047a2f0(DAT_007efa00);
+        temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         temp_v10 = *(float *)(temp_v0 + 0x20);
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-        temp_v1 = FUN_0047a2f0(DAT_007efa00);
+        temp_v1 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         if (CAND_fGpffff8310 <
             temp_v9 * temp_v11 + temp_v10 * temp_v8 + *(float *)(temp_v1 + 0x24) * *(float *)(temp_v0 + 0x24))
         {
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
           *piVar1 = 7;
         }
@@ -1612,15 +1613,15 @@ int func_0017f490(unsigned char *param_1)
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           aiV130 = *(FldAIVec3 *)(temp_v0 + 0x30);
           aiV130.y = 0.0f;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state8Delta.x = *(float *)(temp_v0 + 0x30) - aiV130.x;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state8Delta.y = *(float *)(temp_v0 + 0x34) - aiV130.y;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state8Delta.z = *(float *)(temp_v0 + 0x38) - aiV130.z;
           temp_v10 = RwV3dNormalize(&state8Delta,&state8Delta);
           temp_v10 = temp_v10 / temp_v8;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state8Forward.x = *(float *)(temp_v0 + 0x20);
           state8Forward.y = *(float *)(temp_v0 + 0x24);
           state8Forward.z = *(float *)(temp_v0 + 0x28);
@@ -1630,7 +1631,7 @@ int func_0017f490(unsigned char *param_1)
           state8Forward.y = state8Forward.y * temp_v10 * temp_v8;
           temp_v8 = FUN_00175db0();
           state8Forward.z = state8Forward.z * temp_v10 * temp_v8;
-          temp_v0 = FUN_0047a2f0(DAT_007efa00);
+          temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           aiPos2.x = *(float *)(temp_v0 + 0x30) + state8Forward.x;
           aiPos2.y = *(float *)(temp_v0 + 0x34) + state8Forward.y;
           aiPos2.z = *(float *)(temp_v0 + 0x38) + state8Forward.z;
@@ -1680,7 +1681,7 @@ int func_0017f490(unsigned char *param_1)
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         pvVar9 = (void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50));
-        temp_v1 = FUN_0047a2f0(DAT_007efa00);
+        temp_v1 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         temp_v7 = FUN_0014c240(pvVar9,(void *)(temp_v1 + 0x30),*(float *)(temp_v6 + 8),
                                *(float *)(temp_v6 + 4));
         if (temp_v7 == 1) {
@@ -1781,7 +1782,7 @@ int func_0017f490(unsigned char *param_1)
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         pvVar9 = (void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50));
-        temp_v1 = FUN_0047a2f0(DAT_007efa00);
+        temp_v1 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         temp_v7 = FUN_0014c240(pvVar9,(void *)(temp_v1 + 0x30),*(float *)(temp_v6 + 8),
                                *(float *)(temp_v6 + 4));
         if (temp_v7 == 1) {
@@ -1844,7 +1845,7 @@ int func_0017f490(unsigned char *param_1)
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         pvVar9 = (void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50));
-        temp_v1 = FUN_0047a2f0(DAT_007efa00);
+        temp_v1 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         temp_v7 = FUN_0014c240(pvVar9,(void *)(temp_v1 + 0x30),*(float *)(temp_v6 + 8),
                                *(float *)(temp_v6 + 4));
         if (temp_v7 == 1) {
@@ -1866,11 +1867,11 @@ int func_0017f490(unsigned char *param_1)
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       aiV210 = *(FldAIVec3 *)(temp_v0 + 0x30);
       aiV210.y = 0.0f;
-      temp_v0 = FUN_0047a2f0(DAT_007efa00);
+      temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
       state11Delta.x = *(float *)(temp_v0 + 0x30) - aiV210.x;
-      temp_v0 = FUN_0047a2f0(DAT_007efa00);
+      temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
       state11Delta.y = *(float *)(temp_v0 + 0x34) - aiV210.y;
-      temp_v0 = FUN_0047a2f0(DAT_007efa00);
+      temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
       state11Delta.z = *(float *)(temp_v0 + 0x38) - aiV210.z;
       RwV3dNormalize(&state11Delta,&state11Delta);
       temp_v8 = state11Delta.z * state11Forward.z + state11Delta.x * state11Forward.x + state11Delta.y * state11Forward.y;
@@ -1887,11 +1888,11 @@ int func_0017f490(unsigned char *param_1)
       }
       temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]);
       if (temp_v0 == 1) {
-        temp_v0 = FUN_0047a2f0(DAT_007efa00);
+        temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         state11Delta.x = *(float *)(temp_v0 + 0x30) - *(float *)(piVar1[3] + 0x19c);
-        temp_v0 = FUN_0047a2f0(DAT_007efa00);
+        temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         state11Delta.y = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
-        temp_v0 = FUN_0047a2f0(DAT_007efa00);
+        temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         state11Delta.z = *(float *)(temp_v0 + 0x38) - *(float *)(piVar1[3] + 0x1a4);
         temp_v8 = RwV3dNormalize(&state11Delta,&state11Delta);
         if (temp_v8 < *(float *)piVar1[5]) {
@@ -1909,7 +1910,7 @@ int func_0017f490(unsigned char *param_1)
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         pvVar9 = (void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50));
-        temp_v1 = FUN_0047a2f0(DAT_007efa00);
+        temp_v1 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         temp_v7 = FUN_0014c240(pvVar9,(void *)(temp_v1 + 0x30),*(float *)(temp_v6 + 8),
                                *(float *)(temp_v6 + 4));
         if (temp_v7 == 1) {
