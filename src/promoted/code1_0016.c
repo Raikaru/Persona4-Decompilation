@@ -1889,6 +1889,7 @@ query_complete:
  * 1518: the axis table entries are the absolute objects D_00756500..D_00756520
  * (retail %hi/%lo relocations), not small-data scalars or raw addresses.
  * 1516: the pad state globals are retail's absolute D_008C024C/D_008C025E.
+ * 1515: gp pool floats written as literals.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2551,7 +2552,7 @@ s32 func_0016bdd0(u8 *param_1)
           if (temp_v9 <= 1.0f) {
             temp_v10 = temp_v9;
           }
-          if ((CAND_fGpffff8218 < romwright_fabs_4(stk160[0])) && (CAND_fGpffff8218 < romwright_fabs_4(stk160[2]))) {
+          if ((0.2f < romwright_fabs_4(stk160[0])) && (0.2f < romwright_fabs_4(stk160[2]))) {
             temp_v10 = temp_v10 * 0.5f;
           }
           temp_v12 = temp_v12 * temp_v10;
