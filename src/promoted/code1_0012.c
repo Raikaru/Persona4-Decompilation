@@ -2528,6 +2528,8 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * 209: each (8,1)/(6,1) call pair goes through a fnTable local (retail $s1).
  * 199: the table pointer is formed through an integer cast, so b210 keeps it
  * in $s1 for both calls instead of folding the first load.
+ * (fade clamps written `> N`, retail's slti $at form; fadeT holds the timer fraction)
+ * 162: range tests written `> N - 1` where retail uses the slti $at form.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2963,7 +2965,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     case 5:
         temp_16 = (s32)(taskView->timer + 1);
         taskView->timer = temp_16;
-        if (temp_16 >= 0x1A) {
+        if (temp_16 > 0x19) {
             if (temp_16 < 0x74) {
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
@@ -3041,7 +3043,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 }
                 func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0xB2, (u8 *)temp_20);
             }
-            if (temp_16 >= 0x3E) {
+            if (temp_16 > 0x3d) {
                 if (temp_16 < 0x11A) {
                     var_3_4 = sp6A4.bytes;
                     var_2_4 = 4;
@@ -3160,7 +3162,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     }
                 }
             }
-            if (temp_16 >= 0x82) {
+            if (temp_16 > 0x81) {
                 if (temp_16 < 0xBE) {
                     temp_17 = temp_16 - 0x81;
                     lerpT = sinf(((((fGpffff8094 * (f32) temp_17) / 60.0f))));
@@ -3275,7 +3277,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
             if (temp_16 == 0x55) {
                 func_0045ad50(2, func_00455f70(&D_005E56D0, &sp6B8), sp6B8);
             }
-            if (temp_16 >= 0x5B) {
+            if (temp_16 > 0x5a) {
                 if (temp_16 < 0x65) {
 temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
     /* ACC seed */;
@@ -3497,7 +3499,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp260), 0.0f, 0);
                 func_0048a000();
                 temp_f20_5 = sinf((fGpffff8094 * (f32) temp_16) / 225.0f);
-                if (temp_16 >= 0x88) {
+                if (temp_16 > 0x87) {
                     var_2_21 = temp_16 - 0x87;
                 } else {
                     var_2_21 = 0;
@@ -3755,7 +3757,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             func_0047a1c0(var_16_2, &titleMatrix, 0);
             var_2_29 = (s32)(taskView->timer - 5);
             if (var_2_29 > 0) {
-                if (var_2_29 >= 6) {
+                if (var_2_29 > 5) {
                     var_2_29 = 5;
                 }
                 {
@@ -3773,13 +3775,14 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             }
         }
         var_2_30 = (s32)(taskView->timer);
-        if (var_2_30 >= 6) {
+        if (var_2_30 > 5) {
             var_2_30 = 5;
         }
-        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - ((f32) var_2_30 / 5.0f))), 0x10001, 0, taskView->sprites, 1);
+        fadeT = (f32) var_2_30 / 5.0f;
+        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - fadeT)), 0x10001, 0, taskView->sprites, 1);
         var_2_31 = (s32)(taskView->timer - 2);
         if (var_2_31 > 0) {
-            if (var_2_31 >= 3) {
+            if (var_2_31 > 2) {
                 var_2_31 = 5;
             }
             temp_f1_17 = (f32) var_2_31 / 5.0f;
