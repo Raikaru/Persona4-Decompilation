@@ -107,19 +107,26 @@ typedef u8 SdkSpriteRecord[0x80];
 #define SDK_SPRITE_RECORD(sample) \
     ((u8 *)((u32)*(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord) + \
             (u32)*(u8 **)(*(u8 **)(sample) + 0x204)))
-/* Same record, with the table word read before the index (retail order at
- * the point/colour reads in func_0046b380). */
+/* Same address with the table term first. Selected point/extent sites use
+ * this expression for their measured load/add order; C does not sequence
+ * the two addition operands. */
 #define SDK_SPRITE_RECORD_TABLE_FIRST(sample) \
     ((u8 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + \
             *(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord)))
+/* Same address through sdkAddOffset (index term first): the helper's
+ * parameter boundary gives retail's index-first addu at the packed-colour
+ * reads and the points[2].x extent of func_0046b380. */
+#define SDK_SPRITE_RECORD_VIA_ADD(sample) \
+    ((u8 *)sdkAddOffset((u32)*(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord), \
+                        (u32)*(u8 **)(*(u8 **)(sample) + 0x204)))
 
 #define SDK_SPRITE_RASTERS(sample) \
     (*(u8 *(*)[32])(*(u8 **)(sample) + 0x104))
 
 /* Same unsigned extent, optional signed override, and Q12 scale as the
  * public width/height queries above. Each call reads the current payload. */
-/* Both extents use the retail 32-bit wrapping subtraction. Convert each
- * signed bound before subtracting so an overflowing difference is defined. */
+/* Both extents convert the bounds to u32 before the wrapping subtraction;
+ * the optional signed override is then converted to the same width. */
 static inline f32 sdkSpriteBorder(u8 *output, u32 offset, s32 field)
 {
     return (f32)*(s32 *)(output + offset + field);
@@ -502,14 +509,19 @@ f32 func_0046b2f0(u8 *param_1)
  * sdiff 68/195 -> 63/182: third 0x3C read in field-first address order.
  * sdiff 63/182 -> 59/173: first two 0x3C reads field-first (retail addiu +0x3c), third via the record.
  * sdiff 44/102 -> 38/81: three record reads keep the table-first order.
+ * fnalign 41 -> 25: packed-colour reads and points[2].x extent use
+ * SDK_SPRITE_RECORD_VIA_ADD (index-first addu).
  */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: configured native whole-owner C is 7840 bytes versus a 7808-byte
- * retail window, with 830 fully resolved alignment edits. Scoped loop
- * invariants retain the rotation constants, as in func_0046a7f0. The remaining
- * differences, including defined planar-Z and raster-less UV handling, are
- * recorded in docs/probe_archive/Sprite_render_0046b380_20261005.md. */
+/* Diagnostic C only: the whole-owner compile emits 7796/7808 bytes with
+ * 25 aligned edits: lone commutative addu orders (record reads at the
+ * raster lookup and flip tests, coordinate sums) and the alpha narrowing
+ * at the colour multiply. This draft still reads unwritten UV/Z inputs and is not an
+ * residual. This draft still reads unwritten UV/Z inputs and is not an
+ * eligible C promotion. The defined-input changes in the October 5 archive
+ * are absent here. See docs/probe_archive/Sprite_particle_boundaries_20261010.md
+ * for the current owner proofs and producer/consumer boundaries. */
 #pragma push
 #pragma opt_loop_invariants on
 void func_0046b380(u8 *sample, s32 setStates)
@@ -578,9 +590,11 @@ void func_0046b380(u8 *sample, s32 setStates)
             RpSkyRenderStateSet(3, (void *)0x71801);
         }
     }
-    /* A null raster selects an untextured draw. Retail still flips and
-     * copies the uv[] stack slots (sp+0x140..0x15C) without initialising them;
-     * the values are only consumed by the textured path. */
+    /* With a null initial raster, retail reaches these flips and the later
+     * scalar vertex copies without writing uv[] (sp+0xA0..0xBC). An SDK
+     * packet lane that the renderer may omit does not define these local
+     * float reads. Retain the assembly guard until the input contract is
+     * recovered; this is not a defined C implementation of that path. */
     if ((*(u32 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + 0x18 + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) & 2) != 0) {
         verticalLeft = uv[0];
         uv[0] = uv[2];
@@ -606,9 +620,10 @@ void func_0046b380(u8 *sample, s32 setStates)
     source[1].y = source[0].y;
     source[2].x = source[0].x;
     source[2].y = source[3].y;
-    /* The input is a 2D plane rotated around the unit-Z axis. As in retail,
-     * source[].z (sp+0xF8, 0x104, 0x110, 0x11C) is never written before the
-     * transform reads it; only x and y of the result are used. */
+    /* Retail leaves source[].z (sp+0xF8, 0x104, 0x110, 0x11C) unwritten.
+     * Both VectorMultPoints and the installed vectorASMMultPoints provider
+     * read Z into their XYZ arithmetic. A unit-Z rotation axis and unused
+     * output Z do not establish an initialized input for these calls. */
     angle = *(f32 *)(sample + 0x18);
     if (angle != 0.0f) {
         f32 x, x2, polynomial, quadraticProduct, correction;
@@ -683,19 +698,19 @@ void func_0046b380(u8 *sample, s32 setStates)
             vertex->u.els.u = uv[vertexIndex].x;
             vertex->u.els.v = uv[vertexIndex].y;
             if (vertexIndex == 2) {
-                u32 packed = *(u32 *)(SDK_SPRITE_RECORD(sample) + 0x70);
+                u32 packed = *(u32 *)(SDK_SPRITE_RECORD_VIA_ADD(sample) + 0x70);
                 color.red = (packed & 0xFF000000) >> 24;
                 color.green = (packed & 0xFF0000) >> 16;
                 color.blue = (packed & 0xFF00) >> 8;
                 color.alpha = packed & 0xFF;
             } else if (vertexIndex == 3) {
-                u32 packed = *(u32 *)(SDK_SPRITE_RECORD(sample) + 0x6C);
+                u32 packed = *(u32 *)(SDK_SPRITE_RECORD_VIA_ADD(sample) + 0x6C);
                 color.red = (packed & 0xFF000000) >> 24;
                 color.green = (packed & 0xFF0000) >> 16;
                 color.blue = (packed & 0xFF00) >> 8;
                 color.alpha = packed & 0xFF;
             } else {
-                u32 packed = *(u32 *)(SDK_SPRITE_RECORD(sample) + 0x64 + vertexIndex * 4);
+                u32 packed = *(u32 *)(SDK_SPRITE_RECORD_VIA_ADD(sample) + 0x64 + vertexIndex * 4);
                 color.red = (packed & 0xFF000000) >> 24;
                 color.green = (packed & 0xFF0000) >> 16;
                 color.blue = (packed & 0xFF00) >> 8;
@@ -791,7 +806,7 @@ void func_0046b380(u8 *sample, s32 setStates)
         points[0].y = (f32)-*(s16 *)(sample + 0x1E);
         points[1].x = (f32)-*(s16 *)(sample + 0x1C);
         points[1].y = (f32)-*(s16 *)(sample + 0x1E);
-        points[2].x = (f32)-(*(s16 *)(sample + 0x1C) + *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x3C));
+        points[2].x = (f32)-(*(s16 *)(sample + 0x1C) + *(s32 *)(SDK_SPRITE_RECORD_VIA_ADD(sample) + 0x3C));
         points[2].y = sdkSpriteBottom(sample, 0);
         points[3].x = (f32)-*(s16 *)(sample + 0x1C);
         points[3].y = sdkSpriteBottom(sample, 0);
