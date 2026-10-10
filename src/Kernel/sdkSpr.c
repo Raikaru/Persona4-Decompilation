@@ -136,7 +136,7 @@ static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
     }
     extent = (f32)value;
     if (includeBorder != 0) {
-        f32 border = (f32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x40);
+        f32 border = (f32)*(s32 *)(output + offset + 0x40);
         extent -= (f32)*(s16 *)(sample + 0x1C);
         return border + extent;
     }
@@ -165,7 +165,7 @@ static inline f32 sdkSpriteBottom(u8 *sample, s32 includeBorder)
     }
     extent = (f32)value;
     if (includeBorder != 0) {
-        f32 border = (f32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x38);
+        f32 border = (f32)*(s32 *)(output + offset + 0x38);
         extent -= (f32)*(s16 *)(sample + 0x1E);
         return border + extent;
     }
@@ -486,7 +486,12 @@ f32 func_0046b2f0(u8 *param_1)
    gone. fnalign measures this region only with the file's NON_MATCHING support
    block (lines 32-198) prepended to the candidate.
    2026-10-09: 208 -> 202: sdkSpriteVertexSetColor takes u8 channels (the
-   RwRGBA bytes), so no andi is re-applied before each unsigned conversion. */
+   RwRGBA bytes), so no andi is re-applied before each unsigned conversion.
+ * sdiff 72/200 -> 70/197: raster table base formed before the index (retail addiu +0x104).
+ * sdiff 70/197 -> 68/195: the two flip tests read the 0x18 word as (records + 0x18) + index, retail's address order.
+ * sdiff 68/195 -> 63/182: third 0x3C read in field-first address order.
+ * sdiff 63/182 -> 59/173: first two 0x3C reads field-first (retail addiu +0x3c), third via the record.
+ */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: configured native whole-owner C is 7840 bytes versus a 7808-byte
@@ -532,7 +537,7 @@ void func_0046b380(u8 *sample, s32 setStates)
         initialStates[0](0xE, (void *)0);
     }
     rasterIndex = *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x14);
-    raster = SDK_SPRITE_RASTERS(sample)[rasterIndex];
+    raster = ((u8 **)(u32)(*(u8 **)(sample) + 0x104))[rasterIndex];
     if (raster != NULL) {
         s32 width = *(s32 *)(raster + 0xC);
         s32 height = *(s32 *)(raster + 0x10);
@@ -565,7 +570,7 @@ void func_0046b380(u8 *sample, s32 setStates)
     /* A null raster selects an untextured draw. Retail still flips and
      * copies the uv[] stack slots (sp+0x140..0x15C) without initialising them;
      * the values are only consumed by the textured path. */
-    if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 2) != 0) {
+    if ((*(u32 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + 0x18 + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) & 2) != 0) {
         verticalLeft = uv[0];
         uv[0] = uv[2];
         uv[2] = verticalLeft;
@@ -573,7 +578,7 @@ void func_0046b380(u8 *sample, s32 setStates)
         uv[1] = uv[3];
         uv[3] = verticalRight;
     }
-    if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 1) != 0) {
+    if ((*(u32 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + 0x18 + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) & 1) != 0) {
         horizontalTop = uv[0];
         uv[0] = uv[1];
         uv[1] = horizontalTop;
@@ -770,8 +775,8 @@ void func_0046b380(u8 *sample, s32 setStates)
         }
         render[0](4, vertices, 4);
     }
-    if (*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x3C) != 0) {
-        points[0].x = (f32)-(*(s16 *)(sample + 0x1C) + *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x3C));
+    if (*(s32 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + 0x3C + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) != 0) {
+        points[0].x = (f32)-(*(s16 *)(sample + 0x1C) + *(s32 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + 0x3C + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)));
         points[0].y = (f32)-*(s16 *)(sample + 0x1E);
         points[1].x = (f32)-*(s16 *)(sample + 0x1C);
         points[1].y = (f32)-*(s16 *)(sample + 0x1E);
