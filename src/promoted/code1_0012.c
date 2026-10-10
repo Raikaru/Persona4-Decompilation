@@ -2534,6 +2534,7 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * 145: conversion lever (var_19:(0, 2)).
  * 138: conversion lever (temp_10_2:(0, 2)).
  * 130: gp float constants written as literals.
+ * sdiff 24/101 -> 22/99: (s32)(u32) around the row offset puts it before the field load, as retail.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3066,7 +3067,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                             func_0046d730(D_005E5548, 0xD1);
                         }
                         temp_21 = (u8 *)&((TitleRecordBlock *)D_005E5230)[(s32)var_19];
-                        var_17 = (s32)((temp_16 - 0x3D) - M2C_FIELD(temp_21, s32 *, 0x20));
+                        var_17 = (s32)((s32)(u32)(temp_16 - 0x3D) - M2C_FIELD(temp_21, s32 *, 0x20));
                         if (var_17 > 0) {
                             var_2_5 = var_17 - 0x32;
                             if (var_2_5 < 0) {
