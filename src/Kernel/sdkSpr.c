@@ -517,8 +517,8 @@ f32 func_0046b2f0(u8 *param_1)
 /* Diagnostic C only: the whole-owner compile emits 7796/7808 bytes with
  * 25 aligned edits: lone commutative addu orders (record reads at the
  * raster lookup and flip tests, coordinate sums) and the alpha narrowing
- * at the colour multiply. This draft still reads unwritten UV/Z inputs and is not an
- * residual. This draft still reads unwritten UV/Z inputs and is not an
+ * at the colour multiply. This draft still reads unwritten UV/Z inputs and
+ * is not an
  * eligible C promotion. The defined-input changes in the October 5 archive
  * are absent here. See docs/probe_archive/Sprite_particle_boundaries_20261010.md
  * for the current owner proofs and producer/consumer boundaries. */
