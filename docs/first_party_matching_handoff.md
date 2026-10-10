@@ -25,6 +25,38 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation, part 8: `001265a0` from 3069 to 1665
+
+Count unchanged: 6,830 MATCH / 31 ASM. The title-screen draw `001265a0` now
+has retail's frame (0x6C0) and saved-register set. Levers, in order of gain:
+- **m2c placeholders.** `temp_f20 * temp_f21 + temp_f7 * temp_f8` stands
+  for an `adda`/`madd` m2c could not decode; it read stale temporaries.
+  Rebuild each from the retail block: lerps `A + t * (B - A)` over the
+  `D_005E5230` records, `159 + 36 * s`, `52 + 246 * (1 - r)`, and the scroll
+  step converted to int once. This alone removed the extra saved FPRs.
+- **Retail stores to intermediate locals.** When retail stores a constant
+  to slot X and then copies X to Y, write it through a real local
+  (`TitleRect`, `TitleDrawColor`); assigning both from the constant lets
+  b210 delete the first store and shrinks the frame.
+- **Values retail keeps in saved registers across branches.** `0xFFFFFF`
+  in `$s2` (set at the top of each fade branch, reused by later calls but
+  not by the second call in the same branch), the function-table address
+  in `$s1` per call pair, and 268/361 in `f20`/`f21` are source locals
+  (`white`, `fnTable`, `titlePosX/Y`). This file uses
+  `opt_common_subs off`: with CSE on, b210 also hoists `-1.0f`, `0x50003`
+  and `task + 0x3C`, which retail does not.
+- **`opt_propagation off`** keeps hoisted temporaries (`glowId*`,
+  `glowFrom*`) where retail computes them instead of sinking them into
+  the call.
+- `float -> u8` directly (retail masks in both conversion arms), m2c
+  `goto` loops as `for` loops, progressive colour packing
+  (`rg = r << 24; rg |= g << 16; c = (b << 8) | rg | 0xFF`), and the task
+  pointer declared first.
+
+Open: retail seeds every lerp `adda` from the `0.0f` argument register
+`$f13`. b210 materialises a fresh zero per seed here, and no source form
+tried (shared zero local, argument hoists) reproduced it.
+
 ## October 9 continuation, part 7: auditing the Ghidra-derived bodies
 
 Count unchanged: 6,830 MATCH / 31 ASM. The Ghidra-derived guarded bodies
