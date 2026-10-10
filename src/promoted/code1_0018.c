@@ -1982,6 +1982,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * lower). Retail still has four more 16-byte slots (frame 0x1C0 vs 0x180).
  * 2026-10-09: 901 -> 868: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 845: vector copies written as struct copies (retail copies through stack structs).
+ * (bit copies through int casts written as float copies)
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2182,8 +2183,8 @@ s32 func_0018a200(u8 *param_1)
           temp_v4 = FUN_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
           if ((temp_v4 == 0) && (temp_v1)) {
             temp_v4 = FUN_0047a2f0(DAT_007efa00);
-            (*(int *)&vec40[0]) = *(unsigned int *)(temp_v4 + 0x30);
-            (*(unsigned int *)&vec40[2]) = *(unsigned int *)(temp_v4 + 0x38);
+            vec40[0] = *(float *)(temp_v4 + 0x30);
+            vec40[2] = *(float *)(temp_v4 + 0x38);
             vec40[1] = *(float *)(temp_v4 + 0x34) + 140.0f;
             FUN_0047a8b0(*(void **)(puVar1[3] + 0x164),&(*(int *)&vec40[0]));
             temp_v2 = FUN_0047aa00(*(unsigned char **)(puVar1[3] + 0x164));
@@ -2340,7 +2341,7 @@ s32 func_0018a200(u8 *param_1)
         if (temp_v4 == 0) {
           temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           vecA0[0] = *(float *)(temp_v4 + 0x30);
-          (*(unsigned int *)&vecA0[2]) = *(unsigned int *)(temp_v4 + 0x38);
+          vecA0[2] = *(float *)(temp_v4 + 0x38);
           vecA0[1] = *(float *)(temp_v4 + 0x34) + 175.0f;
         }
         temp_v4 = FUN_00155280();
