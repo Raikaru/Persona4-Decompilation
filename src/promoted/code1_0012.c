@@ -2467,6 +2467,10 @@ void func_00126090(s32 arg0, u8 *arg1)
  * to-record fields by their own symbols, and the colour components convert
  * float -> u8 directly (retail masks in both conversion arms).
  * 1891: the record id converts after the from-field loads, as retail.
+ * 1860: retail keeps the function-table address in $s1 across each (8,1)/(6,1)
+ * call pair (fnTable) and the 268/361 label position in f20/f21 (titlePosX/Y,
+ * set in both branches and reused by the 0x1000A calls).
+ * 1848: titlePosY is declared first (retail f21 = y, f20 = x).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2905,6 +2909,9 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 var_8_2;
     s32 var_8_3;
     s32 temp_10;
+    f32 titlePosY;
+    f32 titlePosX;
+    void (**fnTable)(s32, s32);
     s32 glowId0;
     s32 glowId1;
     s32 glowId2;
@@ -3361,7 +3368,8 @@ loop_128:
                 titleCopyValue((u8 *)&sp678, (const u8 *)&sp674);
                 titleRectangle((u8 *)&sp678, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                D_00887300[0](8, 1);
+                fnTable = D_00887300;
+                fnTable[0](8, 1);
                 func_00489f80();
                 var_3_11 = sp61C.bytes;
                 var_2_8 = 4;
@@ -3382,7 +3390,7 @@ loop_128:
                 func_0045d6e0((u8 *)&sp620, (f32 *)&sp3A0, 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
-                D_00887300[0](6, 1);
+                fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, 0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_8 = 255.0f * (1.0f - temp_f20_4);
@@ -3442,9 +3450,13 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp370 = sp350.bits;
                 func_0045d6e0((u8 *)&sp618, (f32 *)&sp370, 0.0f, 0);
                 func_0048a000();
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, white, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                titlePosY = (f32) 0x169;
+                titlePosX = 268.0f;
+                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
             } else {
-                func_0025f3f0(268.0f, (f32) 0x169, 0.0f, white, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
+                titlePosY = (f32) 0x169;
+                titlePosX = 268.0f;
+                func_0025f3f0(titlePosX, titlePosY, 0.0f, white, 0xFF, 0x10002, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
             }
             if (temp_16 < 0x56) {
                 var_3_14 = sp664.bytes;
@@ -3459,7 +3471,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleCopyValue((u8 *)&sp668, (const u8 *)&sp664);
                 titleRectangle((u8 *)&sp668, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                D_00887300[0](8, 1);
+                fnTable = D_00887300;
+                fnTable[0](8, 1);
                 func_00489f80();
                 var_3_15 = sp60C.bytes;
                 var_2_12 = 4;
@@ -3480,10 +3493,10 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp610, (f32 *)&sp340, 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
-                D_00887300[0](6, 1);
+                fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, 0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, white, 0xFF, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, 0xFF, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             } else if (temp_16 < 0x92) {
                 var_3_16 = sp65C.bytes;
                 var_2_13 = 4;
@@ -3497,7 +3510,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleCopyValue((u8 *)&sp660, (const u8 *)&sp65C);
                 titleRectangle((u8 *)&sp660, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                D_00887300[0](8, 1);
+                fnTable = D_00887300;
+                fnTable[0](8, 1);
                 func_00489f80();
                 var_3_17 = sp604.bytes;
                 var_2_14 = 4;
@@ -3519,12 +3533,12 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0048a000();
                 temp_f22 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f))));
                 func_002aaac0();
-                D_00887300[0](6, 1);
+                fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, 0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_10 = 255.0f * (1.0f - temp_f22);
                 var_5_13 = (u32)temp_f1_10 & 0xFF;
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, white, var_5_13, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
+                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, var_5_13, 0x1000A, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 0);
             }
             if (temp_16 < 0x56) {
                 var_3_18 = sp654.bytes;
