@@ -2516,6 +2516,8 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * left the stale temp_f20 there.
  * 330: declaration order for the loop counter and second glow sine (register colouring).
  * 324: the upper clamp is written `> 0x1E` (retail's slti $at form).
+ * 313: model slot 0 is a TitleTaskView member.
+ * 298: the remaining alpha bytes convert float -> u8 directly.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2540,7 +2542,9 @@ typedef struct {
     s32 f2C;
     u8 pad1[0xc];
     u8 *sprites;
-    u8 pad2[0x44];
+    u8 pad2[0x4];
+    u8 *model0;
+    u8 pad3[0x3c];
     u32 f84;
     s32 f88;
 } TitleTaskView;
@@ -3166,8 +3170,8 @@ void func_001265a0(void *unusedDrawData, void *task) {
                         if (var_4_7 != NULL) {
                             func_00479940(var_4_7, 0, 2, 0, 1);
                         }
-                        if (func_004782b0(M2C_FIELD(temp_20, u8 **, 0x44)) != 0) {
-                            var_4_8 = (u8 *)(M2C_FIELD(temp_20, u8 **, 0x44));
+                        if (func_004782b0(taskView->model0) != 0) {
+                            var_4_8 = (u8 *)(taskView->model0);
                         } else {
                             var_4_8 = NULL;
                         }
@@ -3266,7 +3270,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
             if (temp_16 >= 0x5B) {
                 if (temp_16 < 0x65) {
 temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
-                    var_5_11 = (u32)(255.0f * temp_f2) & 0xFF;
+                    var_5_11 = (u8)(255.0f * temp_f2);
     /* ACC seed */;
                     temp_f14 = 0.0f;
                     func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, var_5_11, 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
@@ -3537,7 +3541,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             func_0048a000();
             sp69C.value = fGpffff9c80;
             temp_f1_11 = 255.0f;
-            var_3_26 = (u32)temp_f1_11 & 0xFF;
+            var_3_26 = (u8)temp_f1_11;
             sp69C.bytes[3] = (u8)var_3_26;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp69C);
             sp500 = *(TitleRect *)&D_005E5670;
@@ -3577,7 +3581,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             temp_f0_5 = sinf((((temp_f2_3 + ((temp_f2_3 * (f32) (temp_16 - 0x19)) / 60.0f)))));
             sp698.value = fGpffff9c84;
             temp_f1_11 = 255.0f * temp_f0_5;
-            var_3_29 = (u32)temp_f1_11 & 0xFF;
+            var_3_29 = (u8)temp_f1_11;
             sp698.bytes[3] = (u8)var_3_29;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp698);
             sp4F0 = *(TitleRect *)&D_005E5680;
@@ -3772,7 +3776,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 var_2_31 = 5;
             }
             temp_f1_17 = (f32) var_2_31 / 5.0f;
-            var_5_20 = (u32)(255.0f * temp_f1_17) & 0xFF;
+            var_5_20 = (u8)(255.0f * temp_f1_17);
             temp_f14_2 = 0.0f;
             temp_f16_3 = fGpffff82a0;
             func_0025f430(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, var_5_20, 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
