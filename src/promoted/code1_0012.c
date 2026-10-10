@@ -2496,6 +2496,10 @@ void func_00126090(s32 arg0, u8 *arg1)
  * (blend 1.0f passed directly; the m2c temp_one/temp_cA/temp_cB locals are gone)
  *
  * (unused m2c declarations removed)
+ * 429: the five palette-glow draws follow the matched func_00124f70 shape:
+ * selected word through titleCopySelect, channels via titlePaletteChannel in one
+ * packed expression, record id/base/colour as block locals.
+ * (unused declarations removed)
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2753,6 +2757,12 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u8 *var_3_4;
     u8 *var_3_5;
     f32 lerpT;
+    s32 paletteOffset;
+    u32 packedColor;
+    u32 packedBaseColor;
+    u32 red;
+    u32 green;
+    u32 blue;
     f32 fadeT;
     f32 temp_f0_11;
     f32 temp_f0_5;
@@ -2794,19 +2804,11 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 temp_16;
     s32 temp_17;
     s32 temp_2;
-    s32 temp_2_10;
-    s32 temp_2_15;
-    s32 temp_2_18;
     s32 temp_2_19;
-    s32 temp_2_22;
     s32 temp_2_24;
     s32 temp_2_26;
     u32 temp_2_27;
     s32 temp_2_2;
-    s32 temp_2_7;
-    s32 temp_3_12;
-    s32 temp_3_15;
-    s32 temp_3_18;
     s32 temp_3_19;
     s32 temp_3_20;
     s32 temp_3_21;
@@ -2814,23 +2816,8 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 temp_3_23;
     s32 temp_3_2;
     s32 temp_3_3;
-    s32 temp_3_6;
-    s32 temp_3_9;
     s32 temp_4;
     s32 temp_5;
-    s32 temp_8_3;
-    s32 temp_8_4;
-    s32 temp_8_5;
-    s32 temp_8_6;
-    s32 temp_9;
-    s32 temp_9_2;
-    u32 temp_9_3;
-    s32 temp_9_4;
-    s32 temp_9_5;
-    u32 temp_9_6;
-    s32 temp_9_7;
-    s32 temp_9_8;
-    u32 temp_9_9;
     s32 temp_f0_10;
     s32 temp_28;
     s32 temp_i28;
@@ -2870,25 +2857,10 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 var_2_8;
     s32 var_2_9;
     s32 var_3_30;
-    s32 var_3_34;
-    s32 var_3_6;
-    s32 var_3_7;
-    s32 var_3_8;
-    s32 var_3_9;
     s32 var_4_17;
     s32 var_4_18;
     s32 var_5_11;
     s32 var_5_20;
-    s32 var_6_12;
-    s32 var_6_15;
-    s32 var_6_3;
-    s32 var_6_6;
-    s32 var_6_9;
-    s32 var_7;
-    s32 var_7_2;
-    s32 var_8;
-    s32 var_8_2;
-    s32 var_8_3;
     s32 temp_10;
     void (**fnTable)(s32, s32);
     s32 temp_10_2;
@@ -2902,11 +2874,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u32 *temp_2_4;
     u32 temp_17_2;
     u32 temp_3;
-    u32 temp_7_3;
-    u32 temp_7_4;
-    u32 temp_8;
-    u32 temp_8_2;
-    u32 temp_8_7;
     u8 *temp_21;
     u8 *temp_7;
     u8 *temp_7_2;
@@ -3129,19 +3096,19 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                 firstPalette = D_005E5530;
                                 titlePaletteCopy(&firstHighlight, &firstPalette);
                                 temp_7 = D_005E5230 + var_19 * 0x28;
-                                temp_9 = (s32)(M2C_FIELD(temp_7, s32 *, 0x1C));
-                                temp_8 = (u32)(firstHighlight.words[temp_9]);
+                                paletteOffset = *(s32 *)(temp_7 + 0x1C) * 4;
+                                packedColor = *(u32 *)((u8 *)firstHighlight.words + paletteOffset);
                                 temp_q1 = (f32)(s32)(255.0f * temp_f20) / 255.0f;
-                                titlePaletteCopy(&firstBase, &firstPalette);
-                                temp_3_6 = (temp_8 >> 0x10) & 0xFF;
-                                temp_9_2 = (temp_8 >> 0x18) & 0xFF;
-                                temp_2_7 = (temp_8 >> 8) & 0xFF;
-                                var_8 = titlePaletteChannel(temp_9_2, 0xFF, temp_q1);
-                                temp_9_3 = ((u32) var_8 & 0xFF) << 0x18;
-                                var_6_3 = titlePaletteChannel(temp_3_6, 0xFF, temp_q1);
-                                temp_9_3 = temp_9_3 | ((var_6_3 & 0xFF) << 0x10);
-                                var_3_6 = titlePaletteChannel(temp_2_7, 0xFF, temp_q1);
-                                func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7, s32 *, 0)), M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), (firstBase.words[temp_9] & ~0xFF) | 0xFF, ((var_3_6 & 0xFF) << 8) | temp_9_3 | 0xFF, M2C_FIELD(temp_7, f32 *, 0x18), 0x42, temp_20);
+                                packedBaseColor = titleCopySelect((u8 *)&firstBase, (const u8 *)&firstPalette, paletteOffset);
+                                green = (packedColor >> 0x10) & 0xFF;
+                                red = (packedColor >> 0x18) & 0xFF;
+                                blue = (packedColor >> 8) & 0xFF;
+                                {
+                                    s32 a0 = (s32)((f32) M2C_FIELD(temp_7, s32 *, 0));
+                                    u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
+                                    u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, temp_q1) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, temp_q1) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, temp_q1) << 8) | 0xFF;
+                                    func_00124bb0(a0, M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), a1, a2, M2C_FIELD(temp_7, f32 *, 0x18), 0x42, temp_20);
+                                }
                             }
                         }
                     }
@@ -3150,18 +3117,18 @@ void func_001265a0(void *unusedDrawData, void *task) {
                         secondPalette = D_005E5530;
                         titlePaletteCopy(&secondHighlight, &secondPalette);
                         temp_7_2 = D_005E5230 + var_17_2 * 0x28;
-                        temp_9_4 = (s32)(M2C_FIELD(temp_7_2, s32 *, 0x1C));
-                        temp_8_2 = (u32)(secondHighlight.words[temp_9_4]);
-                        titlePaletteCopy(&secondBase, &secondPalette);
-                        temp_3_9 = (temp_8_2 >> 0x10) & 0xFF;
-                        temp_9_5 = (temp_8_2 >> 0x18) & 0xFF;
-                        temp_2_10 = (temp_8_2 >> 8) & 0xFF;
-                        var_8_2 = titlePaletteChannel(temp_9_5, 0xFF, 1.0f);
-                        temp_9_6 = ((u32) var_8_2 & 0xFF) << 0x18;
-                        var_6_6 = titlePaletteChannel(temp_3_9, 0xFF, 1.0f);
-                        temp_9_6 = temp_9_6 | ((var_6_6 & 0xFF) << 0x10);
-                        var_3_7 = titlePaletteChannel(temp_2_10, 0xFF, 1.0f);
-                        func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_2, s32 *, 0)), M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), (secondBase.words[temp_9_4] & ~0xFF) | 0xFF, ((var_3_7 & 0xFF) << 8) | temp_9_6 | 0xFF, M2C_FIELD(temp_7_2, f32 *, 0x18), 0x42, temp_20);
+                        paletteOffset = *(s32 *)(temp_7_2 + 0x1C) * 4;
+                        packedColor = *(u32 *)((u8 *)secondHighlight.words + paletteOffset);
+                        packedBaseColor = titleCopySelect((u8 *)&secondBase, (const u8 *)&secondPalette, paletteOffset);
+                        green = (packedColor >> 0x10) & 0xFF;
+                        red = (packedColor >> 0x18) & 0xFF;
+                        blue = (packedColor >> 8) & 0xFF;
+                        {
+                            s32 a0 = (s32)((f32) M2C_FIELD(temp_7_2, s32 *, 0));
+                            u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
+                            u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
+                            func_00124bb0(a0, M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), a1, a2, M2C_FIELD(temp_7_2, f32 *, 0x18), 0x42, temp_20);
+                        }
                     }
                 }
             }
@@ -3206,40 +3173,34 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     }
                     thirdPalette = D_005E5530;
                     titlePaletteCopy(&thirdHighlight, &thirdPalette);
-                    temp_8_3 = D_005E538C[0];
-                    temp_7_3 = (u32)(thirdHighlight.words[temp_8_3]);
-                    titlePaletteCopy(&thirdBase, &thirdPalette);
-                    temp_3_12 = (temp_7_3 >> 0x10) & 0xFF;
-                    temp_8_4 = (temp_7_3 >> 0x18) & 0xFF;
-                    temp_2_15 = (temp_7_3 >> 8) & 0xFF;
-                    var_7 = titlePaletteChannel(temp_8_4, 0xFF, 1.0f);
-                    var_6_9 = titlePaletteChannel(temp_3_12, 0xFF, 1.0f);
-                    var_3_8 = titlePaletteChannel(temp_2_15, 0xFF, 1.0f);
-    /* ACC seed */;
-    /* ACC seed */;
-    /* ACC seed */;
-    /* ACC seed */;
-    /* ACC seed */;
-                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5370[0]), (0.0f + D_005E5374[0] + lerpT * (D_005E539C[0] - D_005E5374[0])), 0.0f, (0.0f + D_005E5378[0] + lerpT * (D_005E53A0[0] - D_005E5378[0])), (0.0f + D_005E537C[0] + lerpT * (D_005E53A4[0] - D_005E537C[0])), (0.0f + D_005E5380[0] + lerpT * (D_005E53A8[0] - D_005E5380[0])), (0.0f + D_005E5384[0] + lerpT * (D_005E53AC[0] - D_005E5384[0])), (thirdBase.words[temp_8_3] & ~0xFF) | 0xFF, ((var_3_8 & 0xFF) << 8) | ((((u32) var_7 & 0xFF) << 0x18) | ((var_6_9 & 0xFF) << 0x10)) | 0xFF, (0.0f + D_005E5388[0] + lerpT * (D_005E53B0[0] - D_005E5388[0])), 0x40, temp_20);
+                    paletteOffset = D_005E538C[0] * 4;
+                    packedColor = *(u32 *)((u8 *)thirdHighlight.words + paletteOffset);
+                    packedBaseColor = titleCopySelect((u8 *)&thirdBase, (const u8 *)&thirdPalette, paletteOffset);
+                    green = (packedColor >> 0x10) & 0xFF;
+                    red = (packedColor >> 0x18) & 0xFF;
+                    blue = (packedColor >> 8) & 0xFF;
+                    {
+                        s32 a0 = (s32)((f32) D_005E5370[0]);
+                        u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
+                        u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
+                        func_00124bb0(a0, (0.0f + D_005E5374[0] + lerpT * (D_005E539C[0] - D_005E5374[0])), 0.0f, (0.0f + D_005E5378[0] + lerpT * (D_005E53A0[0] - D_005E5378[0])), (0.0f + D_005E537C[0] + lerpT * (D_005E53A4[0] - D_005E537C[0])), (0.0f + D_005E5380[0] + lerpT * (D_005E53A8[0] - D_005E5380[0])), (0.0f + D_005E5384[0] + lerpT * (D_005E53AC[0] - D_005E5384[0])), a1, a2, (0.0f + D_005E5388[0] + lerpT * (D_005E53B0[0] - D_005E5388[0])), 0x40, temp_20);
+                    }
                 } else if (temp_16 < 0xD2) {
                     lerpT = sinf(((((fGpffff8094 * (f32) (temp_16 - 0xBD)) / 20.0f))));
                     fourthPalette = D_005E5530;
                     titlePaletteCopy(&fourthHighlight, &fourthPalette);
-                    temp_8_5 = D_005E53B4[0];
-                    temp_7_4 = (u32)(fourthHighlight.words[temp_8_5]);
-                    titlePaletteCopy(&fourthBase, &fourthPalette);
-                    temp_3_15 = (temp_7_4 >> 0x10) & 0xFF;
-                    temp_8_6 = (temp_7_4 >> 0x18) & 0xFF;
-                    temp_2_18 = (temp_7_4 >> 8) & 0xFF;
-                    var_7_2 = titlePaletteChannel(temp_8_6, 0xFF, 1.0f);
-                    var_6_12 = titlePaletteChannel(temp_3_15, 0xFF, 1.0f);
-                    var_3_9 = titlePaletteChannel(temp_2_18, 0xFF, 1.0f);
-    /* ACC seed */;
-    /* ACC seed */;
-    /* ACC seed */;
-    /* ACC seed */;
-    /* ACC seed */;
-                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5398[0]), (0.0f + D_005E539C[0] + lerpT * (D_005E53C4[0] - D_005E539C[0])), 0.0f, (0.0f + D_005E53A0[0] + lerpT * (D_005E53C8[0] - D_005E53A0[0])), (0.0f + D_005E53A4[0] + lerpT * (D_005E53CC[0] - D_005E53A4[0])), (0.0f + D_005E53A8[0] + lerpT * (D_005E53D0[0] - D_005E53A8[0])), (0.0f + D_005E53AC[0] + lerpT * (D_005E53D4[0] - D_005E53AC[0])), (fourthBase.words[temp_8_5] & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | ((((u32) var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, (0.0f + D_005E53B0[0] + lerpT * (D_005E53D8[0] - D_005E53B0[0])), 0x40, temp_20);
+                    paletteOffset = D_005E53B4[0] * 4;
+                    packedColor = *(u32 *)((u8 *)fourthHighlight.words + paletteOffset);
+                    packedBaseColor = titleCopySelect((u8 *)&fourthBase, (const u8 *)&fourthPalette, paletteOffset);
+                    green = (packedColor >> 0x10) & 0xFF;
+                    red = (packedColor >> 0x18) & 0xFF;
+                    blue = (packedColor >> 8) & 0xFF;
+                    {
+                        s32 a0 = (s32)((f32) D_005E5398[0]);
+                        u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
+                        u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
+                        func_00124bb0(a0, (0.0f + D_005E539C[0] + lerpT * (D_005E53C4[0] - D_005E539C[0])), 0.0f, (0.0f + D_005E53A0[0] + lerpT * (D_005E53C8[0] - D_005E53A0[0])), (0.0f + D_005E53A4[0] + lerpT * (D_005E53CC[0] - D_005E53A4[0])), (0.0f + D_005E53A8[0] + lerpT * (D_005E53D0[0] - D_005E53A8[0])), (0.0f + D_005E53AC[0] + lerpT * (D_005E53D4[0] - D_005E53AC[0])), a1, a2, (0.0f + D_005E53B0[0] + lerpT * (D_005E53D8[0] - D_005E53B0[0])), 0x40, temp_20);
+                    }
                 } else {
                     func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
                 }
@@ -3702,18 +3663,18 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             fifthPalette = D_005E5530;
             titlePaletteCopy(&fifthHighlight, &fifthPalette);
             temp_7_5 = D_005E5230 + var_16 * 0x28;
-            temp_9_7 = (s32)(M2C_FIELD(temp_7_5, s32 *, 0x1C));
-            temp_8_7 = (u32)(fifthHighlight.words[temp_9_7]);
-            titlePaletteCopy(&fifthBase, &fifthPalette);
-            temp_3_18 = (temp_8_7 >> 0x10) & 0xFF;
-            temp_9_8 = (temp_8_7 >> 0x18) & 0xFF;
-            temp_2_22 = (temp_8_7 >> 8) & 0xFF;
-            var_8_3 = titlePaletteChannel(temp_9_8, 0xFF, 1.0f);
-            temp_9_9 = ((u32) var_8_3 & 0xFF) << 0x18;
-            var_6_15 = titlePaletteChannel(temp_3_18, 0xFF, 1.0f);
-            temp_9_9 = temp_9_9 | ((var_6_15 & 0xFF) << 0x10);
-            var_3_34 = titlePaletteChannel(temp_2_22, 0xFF, 1.0f);
-            func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_5, s32 *, 0)), M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), (fifthBase.words[temp_9_7] & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | temp_9_9 | 0xFF, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
+            paletteOffset = *(s32 *)(temp_7_5 + 0x1C) * 4;
+            packedColor = *(u32 *)((u8 *)fifthHighlight.words + paletteOffset);
+            packedBaseColor = titleCopySelect((u8 *)&fifthBase, (const u8 *)&fifthPalette, paletteOffset);
+            green = (packedColor >> 0x10) & 0xFF;
+            red = (packedColor >> 0x18) & 0xFF;
+            blue = (packedColor >> 8) & 0xFF;
+            {
+                s32 a0 = (s32)((f32) M2C_FIELD(temp_7_5, s32 *, 0));
+                u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
+                u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
+                func_00124bb0(a0, M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), a1, a2, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
+            }
         }
         func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
