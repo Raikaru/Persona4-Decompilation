@@ -933,6 +933,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * 691: `func_0023e6f0(u8 *, u8 *, u16, s32)` (the K&R definition in datCalc.c
  * declares u16 arg2).
  * 689: case 2 before case 4 in the remap.
+ * 687: range tests in retail's slti $at form.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1478,7 +1479,7 @@ other:
             if (e != NULL) {
                 u16 n = *(u16 *)(arg0 + 0x6A);
 
-                if (n >= 2) {
+                if (n > 1) {
                     *(u8 **)(e + 0x90) = *(u8 **)(arg0 + func_00231d70(n) * 4 + 0x38);
                 } else {
                     *(u8 **)(e + 0x90) = *(u8 **)(arg0 + 0x38);

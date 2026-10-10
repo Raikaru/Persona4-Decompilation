@@ -369,6 +369,7 @@ void func_001607e0(void)
  * 2026-10-09: 401 -> 387: the colour buffers are cleared through a guarded
  * count-down byte loop (inline helper), as retail does.
  * 2026-10-09: 387 -> 383: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 379: range tests in retail's slti $at form.
  */
 // FUN_00160880 NONMATCHING
 #ifdef NON_MATCHING
@@ -492,7 +493,7 @@ void func_00160880(void)
             b3 = (w3 >> 16) & 0xFF;
             a3 = ((w3 >> 24) & 0xFF) + bright;
             if (a0 < 0) { a0 = 0; }
-            if (a0 >= 256) { a0 = 255; }
+            if (a0 > 255) { a0 = 255; }
             if (a1 < 0) { a1 = 0; }
             if (a1 >= 256) { a1 = 255; }
             if (a2 < 0) { a2 = 0; }
@@ -519,7 +520,7 @@ void func_00160880(void)
                 sa1 = ((v1 >> 24) & 0xFF) + bright;
                 sa2 = ((v2 >> 24) & 0xFF) + bright;
                 if (sa0 < 0) { sa0 = 0; }
-                if (sa0 >= 256) { sa0 = 255; }
+                if (sa0 > 255) { sa0 = 255; }
                 if (sa1 < 0) { sa1 = 0; }
                 if (sa1 >= 256) { sa1 = 255; }
                 if (sa2 < 0) { sa2 = 0; }
