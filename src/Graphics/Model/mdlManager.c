@@ -5930,6 +5930,9 @@ void func_0047b060(void* param_1)
  * 155: u16 clone-slot fill counter.
  * 122: u16 counter for the blend-control animation loop.
  * 118: conversion lever (slot:(1, 3)).
+ * sdiff 29/103 -> 28/95: clone-slot fill loop compares as int (retail slt).
+ * sdiff 28/95 -> 27/94: matrix loop compare as int (retail slt).
+ * sdiff 27/94 -> 22/88: animation field read relative to the element (retail folds +0x40 into the load).
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6178,8 +6181,8 @@ s32 func_0047b0c0(u8 *model)
 
                 animations = LOAD_LAYER()->resource;
                 animations->entries[dst].matrix = animations->entries[src].matrix;
-                if (animations->entries[src].animation != 0) {
-                    animations->entries[dst].animation = animations->entries[src].animation;
+                if (*(u32 *)((u8 *)&animations->entries[src] + 0x40) != 0) {
+                    *(u32 *)((u8 *)&animations->entries[dst] + 0x40) = *(u32 *)((u8 *)&animations->entries[src] + 0x40);
                 }
                 animations->entries[dst].unknown44 |= 1;
             }
@@ -6228,8 +6231,8 @@ s32 func_0047b0c0(u8 *model)
                 u16 slot;
                 func_0044ea90(D_00713138, 0x1896);
                 state->cloneSlots[state->layer] = ((void *(*)(int, int))DAT_008873e8[0])((u32)capacity * 2, 0x40000);
-                for (slot = 0; (u32)slot < capacity; slot++) {
-                    state->cloneSlots[state->layer][slot] = 0xffff;
+                for (slot = 0; slot < capacity; slot++) {
+                    state->cloneSlots[state->layer][slot] = -1;
                 }
             }
             state->cloneSlots[state->layer][state->slot] = sourceIndex;
@@ -6299,7 +6302,7 @@ s32 func_0047b0c0(u8 *model)
             table->count = matrixCount;
             table->unknown = 1;
             table->entries = entries;
-            for (slot = 0; ((u32)slot & 0xffff) < matrixCount; slot = (slot + 1) & 0xffff) {
+            for (slot = 0; (slot & 0xffff) < matrixCount; slot = (slot + 1) & 0xffff) {
                 u32 offset = (slot & 0xffff) * sizeof(MdlMatrixEntry);
                 func_003e2910(stream, (u8 *)table->entries + offset + 0x40, 4);
                 func_003e2910(stream, (u8 *)table->entries + offset + 0x44, 4);
