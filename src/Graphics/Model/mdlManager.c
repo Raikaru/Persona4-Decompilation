@@ -5933,9 +5933,16 @@ void func_0047b060(void* param_1)
  * sdiff 29/103 -> 28/95: clone-slot fill loop compares as int (retail slt).
  * sdiff 28/95 -> 27/94: matrix loop compare as int (retail slt).
  * sdiff 27/94 -> 22/88: animation field read relative to the element (retail folds +0x40 into the load).
+ * sdiff 22/88 -> 22/84: startFrame stores through an inline entry accessor (retail loads entries after the index).
+ * sdiff 22/84 -> 20/81: material bound test reads the count first.
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
+static inline MdlDispatchAnimEntry *mdlLoaderAnimEntry(MdlDispatchAnimTable *table, u32 slot)
+{
+    return &table->entries[slot];
+}
+
 s32 func_0047b0c0(u8 *model)
 {
     typedef struct MdlLoaderMaterial {
@@ -6189,7 +6196,7 @@ s32 func_0047b0c0(u8 *model)
             {
                 MdlLoaderMaterialTable *materials = LOAD_MATERIALS();
 
-                if (materials != 0 && sourceIndex < materials->count) {
+                if (materials != 0 && materials->count > sourceIndex) {
                     void *value = materials->entries[sourceIndex].value;
                     if (value != 0) {
                         u16 dst = state->slot;
@@ -6403,9 +6410,9 @@ s32 func_0047b0c0(u8 *model)
             layerResource->entries[state->slot].startFrame = values;
         }
         if (chunk.type == 0xf0f00007) {
-            LOAD_LAYER()->resource->entries[state->slot].startFrame[0] = metadata;
+            mdlLoaderAnimEntry(LOAD_LAYER()->resource, state->slot)->startFrame[0] = metadata;
         } else {
-            LOAD_LAYER()->resource->entries[state->slot].startFrame[1] = metadata;
+            mdlLoaderAnimEntry(LOAD_LAYER()->resource, state->slot)->startFrame[1] = metadata;
         }
         continue;
 
