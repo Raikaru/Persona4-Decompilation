@@ -2526,6 +2526,8 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * 217: the glow-loop record pointers index a TitleRecordBlock array (as
  * 0x28-byte records).
  * 209: each (8,1)/(6,1) call pair goes through a fnTable local (retail $s1).
+ * 199: the table pointer is formed through an integer cast, so b210 keeps it
+ * in $s1 for both calls instead of folding the first load.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3245,7 +3247,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 titleCopyValue((u8 *)&sp678, (const u8 *)&sp674);
                 titleRectangle((u8 *)&sp678, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                fnTable = D_00887300;
+                fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
                 func_00489f80();
                 var_3_11 = sp61C.bytes;
@@ -3335,7 +3337,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleCopyValue((u8 *)&sp668, (const u8 *)&sp664);
                 titleRectangle((u8 *)&sp668, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                fnTable = D_00887300;
+                fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
                 func_00489f80();
                 var_3_15 = sp60C.bytes;
@@ -3372,7 +3374,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleCopyValue((u8 *)&sp660, (const u8 *)&sp65C);
                 titleRectangle((u8 *)&sp660, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
-                fnTable = D_00887300;
+                fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
                 func_00489f80();
                 var_3_17 = sp604.bytes;
