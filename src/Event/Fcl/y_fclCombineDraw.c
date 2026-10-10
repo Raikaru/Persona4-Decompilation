@@ -2605,26 +2605,22 @@ void func_00320970(u8 *arg0, s8 arg1) {
     func_002b77d0(0x1B2, sp30, 0x1B2, sp50, 58.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
 }
 
-/* Guarded, 2026-10-07: 21 edits. The s16 row and column counters reproduce
- * retail's unextended func_002e48a0 arguments, and the saved mode sits in a
- * 16-aligned slot as in retail. Open: arg0's home lands at 0xDC (retail 0xE4)
- * with the mode at 0xE0 (retail 0xD0). b210's IRO_CommonSubs also reuses the
- * loop condition's (s16) extension for the body-top copy; retail extends
- * again at the top of each body.
- * 2026-10-09: 21 -> 13: the inner loops copy the counter into a function-scope
- * s32 `col` before the element call, which keeps retail's per-iteration sign
- * extension (block-scope or initialised copies are propagated into the loop
- * test's extension). */
+/* The s16 row and column counters reproduce retail's unextended
+ * func_002e48a0 arguments. The inner loops copy the counter into a
+ * function-scope s32 `col` before the element call, which keeps retail's
+ * per-iteration sign extension (block-scope or initialised copies are
+ * propagated into the loop test's extension).
+ * fnalign 12: `mode` is an ordinary s32 copied after the first test; with
+ * `arg1 = i` reusing the dead parameter for the row's s8 index, b210 spills
+ * `mode` to 0xD0 as retail does. Open: retail keeps `n` as its own (s16)i
+ * extension at the loop top (IRO_CommonSubs reuses the test's for ours) and
+ * has no separate s8 copy of the row index.
+ */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
 static inline u8 *fclSavedCombineTask(const void *storage)
 {
     return *(u8 * const *)storage;
-}
-
-static inline s32 fclSavedCombineMode(const void *storage)
-{
-    return *(const s32 *)storage;
 }
 
 void func_00320b80(u8 *arg0, s8 arg1) {
@@ -2652,14 +2648,14 @@ void func_00320b80(u8 *arg0, s8 arg1) {
     s16 i;
     s32 col;
     s32 rowCount;
-    s32 spD0 __attribute__((aligned(16)));
+    s32 mode;
     t = *(u8 **)(arg0 + 0x38);
     *(s16 *)(t + 0x11E) = 0;
     *(s8 *)(t + 0x128) = -1;
-    spD0 = arg1;
-    if ((s8)arg1 == 0) {
+    if (arg1 == 0) {
         func_002e4ac0(0, 0);
     }
+    mode = arg1;
     sp120 = func_002b2970(16.0f, 104.0f);
     func_0031e5b0(fclSavedCombineTask(&arg0), sp120, 0, 0, 0, 0, 0);
     i = 0;
@@ -2667,7 +2663,8 @@ void func_00320b80(u8 *arg0, s8 arg1) {
         s32 n = i;
         s32 m;
         sp118 = func_002b2970(16.0f, 128.0f);
-        func_003191c0(arg0, sp118, (s8)i,
+        arg1 = i;
+        func_003191c0(arg0, sp118, arg1,
                       *(u16 *)(func_002e48a0(0, i) + 2),
                       *(u8 *)(func_002e48a0(0, i) + 4),
                       (s16)(n * 2), 0, (rowCount = *(s8 *)(func_002e4870(0) + 8)));
@@ -2698,7 +2695,7 @@ void func_00320b80(u8 *arg0, s8 arg1) {
             c144 = func_002b2a60(0, 0, 0x99, 0xFF);
             func_002b83e0(e, spF8, c148, c144, 0xFF, 0xFF, 32.0f, 159.0f, 2, n, 0, 0);
         }
-        if (fclSavedCombineMode(&spD0) == 0) {
+        if (mode == 0) {
             s16 j = 0;
             s32 y = m + 0x7F;
             u8 *q = t + n * 4;
