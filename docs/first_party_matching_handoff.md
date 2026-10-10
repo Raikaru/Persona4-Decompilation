@@ -40,6 +40,14 @@ retail spills and reproducing that spill set, then the colours:
   must be numbered below `outer`; declaring it there gave retail's spills.
   `skillStore` after `paramB`/`paramA` fixes the slot order; the table read
   `*(u16 *)((u8 *)table + outer * 2 - 2)` fixes the `addu` operand order.
+- Same round, measured (sdiff struct/regs unless noted): `00162e10` 4/86
+  (only retail's `bne +4; nop; b far` around the weekday scan is left; `else`,
+  `do/while(0)`, switch and goto spellings all give `beq far`), `002b6ec0`
+  14/108 (`e[0x72] > 0` is retail's `blez`), `003768e0` fnalign 127 (the
+  -1/21 taper step is a literal), `001265a0` fnalign 130 (pi/2 and the other
+  gp floats as literals), `0047b0c0` 6/60 (left: retail keeps the constants
+  32 and -1 in registers across the two small fill loops; `opt_loop_invariants
+  on` instead hoists `D_00713138` into a new saved register).
 - `0036ee60` and `00283490` used the repeated-conversion lever
   (`docs/matching.md`, "keep a load local alive"), found by reading the
   colouring or spill decision with `tools/regalloc_whatif.py`:
