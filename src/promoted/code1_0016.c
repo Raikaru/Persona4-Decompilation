@@ -1876,6 +1876,13 @@ query_complete:
  * 1688: the three copies into the +0x2B0 vector are struct stores.
  * 1686: the normalize calls take the vector base (&v[0]); Ghidra passed the address
  * of the last element.
+ * 1640: the push-out block (IDA: sub_16B8A0 hit) only normalises and negates the
+ * matrix at-vector scaled by the overlap; the interpolation statements Ghidra
+ * spliced in (pointer arithmetic on key indices) are gone.
+ * 1634: two more matrix-row copies are struct copies.
+ * 1572: the camera push vector is negated, then scaled (IDA order); the hit test
+ * takes a two-vector segment (struct copies of the target and the matrix
+ * position), replacing Ghidra's swapped scalar copy.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1963,6 +1970,7 @@ s32 func_0016bdd0(u8 *param_1)
 
 {
   typedef struct { float x, y, z; } FldCopyVec;
+  FldCopyVec segment[2];
   FldCopyVec cpv0;
   typedef struct { float x, y, z; } FldCamVec;
   FldCamVec cv0;
@@ -2025,11 +2033,6 @@ s32 func_0016bdd0(u8 *param_1)
   float fStack_2c4;
   float fStack_2c0;
   float fStack_2bc;
-  float uStack_2b0[2];
-  float fStack_2a8;
-  unsigned int uStack_2a4;
-  unsigned int uStack_2a0;
-  unsigned int uStack_29c;
   float fStack_200;
   float fStack_1fc;
   float fStack_1f8;
@@ -2383,22 +2386,20 @@ s32 func_0016bdd0(u8 *param_1)
           puVar10 = puVar10 + 2;
         } while (0 < temp_v8);
         temp_v8 = piVar1[0xb0];
-        stk120[0] = *(float *)(temp_v8 + 0x20);
-        stk120[1] = *(float *)(temp_v8 + 0x24);
-        stk120[2] = *(float *)(temp_v8 + 0x28);
+        *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8 + 0x20);
         FUN_003e40b0(&stk120[0],&stk120[0]);
+        stk120[0] = -stk120[0];
+        stk120[1] = -stk120[1];
+        stk120[2] = -stk120[2];
         temp_v9 = ((float *)piVar1)[0xa3] + 55.0f;
-        stk120[0] = -stk120[0] * temp_v9;
-        stk120[1] = -stk120[1] * temp_v9;
-        stk120[2] = -stk120[2] * temp_v9;
+        stk120[0] = stk120[0] * temp_v9;
+        stk120[1] = stk120[1] * temp_v9;
+        stk120[2] = stk120[2] * temp_v9;
         FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
         FUN_003e0e20(piVar1[0xb0],temp_v5,2);
-        uStack_2b0[0]=stkF0[1]; uStack_2b0[1]=stkF0[0];
-        fStack_2a8 = stkF0[2];
+        segment[0] = *(FldCopyVec *)stkF0;
         temp_v8 = piVar1[0xb0];
-        uStack_2a4 = *(unsigned int *)(temp_v8 + 0x30);
-        uStack_2a0 = *(unsigned int *)(temp_v8 + 0x34);
-        uStack_29c = *(unsigned int *)(temp_v8 + 0x38);
+        segment[1] = *(FldCopyVec *)(temp_v8 + 0x30);
         puVar15 = (unsigned int *)(temp_v4 + 0x10);
         puVar10 = (unsigned int *)piVar1[0xb0];
         temp_v8 = 8;
@@ -2411,36 +2412,17 @@ s32 func_0016bdd0(u8 *param_1)
           puVar10[1] = temp_v1;
           puVar10 = puVar10 + 2;
         } while (0 < temp_v8);
-        temp_v6 = FUN_0016b8a0(uStack_2b0,&stk130[0]);
+        temp_v6 = FUN_0016b8a0((float *)segment,&stk130[0]);
         if (temp_v6 == 1) {
-          stk130[0] = stk130[0] - uStack_2b0[0];
-          stk130[1] = stk130[1] - uStack_2b0[1];
-          stk130[2] = stk130[2] - fStack_2a8;
+          stk130[0] = stk130[0] - segment[0].x;
+          stk130[1] = stk130[1] - segment[0].y;
+          stk130[2] = stk130[2] - segment[0].z;
           temp_v9 = FUN_003e4180(&stk130[0]);
           if (0.0f < temp_v9) {
             temp_v8 = piVar1[0xb0];
-            stk120[0] = *(float *)(temp_v8 + 0x20);
-            stk120[1] = *(float *)(temp_v8 + 0x24);
-            stk120[2] = *(float *)(temp_v8 + 0x28);
-            temp_v10 = (float)(temp_v6 - temp_v8);
-            temp_v10 = temp_v9 * temp_v10;
-            temp_v11 = *(float *)((char *)piVar1 + temp_v6 * 12 + 0x108);
-            temp_v12 = *(float *)((char *)piVar1 + temp_v8 * 12 + 0x108);
-            temp_v13 = temp_v12 - temp_v11;
-            temp_v14 = *(float *)((char *)piVar1 + temp_v6 * 12 + 0x10c);
-            temp_v12 = *(float *)((char *)piVar1 + temp_v8 * 12 + 0x10c);
-            temp_v12 = temp_v12 - temp_v14;
-            temp_v14 = *(float *)((char *)piVar1 + temp_v6 * 12 + 0x110);
-            temp_v11 = *(float *)((char *)piVar1 + temp_v8 * 12 + 0x110);
-            temp_v11 = temp_v11 - temp_v14;
-            temp_v14 = (float)(signed char)temp_v6;
-            temp_v10 = (*(float *)((char *)piVar1 + 0xb8) - temp_v9 * temp_v14) / temp_v10;
-            stk120[0] += temp_v11 + temp_v13 * temp_v10;
-            stk120[1] += temp_v14 + temp_v12 * temp_v10;
-            stk120[2] += temp_v11 + temp_v11 * temp_v10;
+            *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8 + 0x20);
             FUN_003e40b0(&stk120[0],&stk120[0]);
-            stk120[0] = -stk120[0];
-            stk120[0] = stk120[0] * temp_v9;
+            stk120[0] = -stk120[0] * temp_v9;
             stk120[1] = -stk120[1] * temp_v9;
             stk120[2] = -stk120[2] * temp_v9;
             FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
