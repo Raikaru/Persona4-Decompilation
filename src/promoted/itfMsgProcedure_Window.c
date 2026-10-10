@@ -1235,6 +1235,7 @@ static inline s32 msgWinSelectionResource(void)
  * 2026-10-09: 135 -> 133: case 8 tests the window pointers inside the assignment.
  * 106: the colour locals are copied by an address-taking helper, so retail's
  * stores of backgroundColor/selectionColor (0x2F8/0x2F4) remain.
+ * 104: gp pool floats written as literals.
  */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1361,8 +1362,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             cvtA = (float)(s20 + 0x7B);
             chainA = cvtA - (16.0f * subA);
             prodA = 300.0f - (300.0f * f);
-            chainC = iGpffff803c + (iGpffff811c * f);
-            chainD = iGpffff803c - (iGpffff8118 * f);
+            chainC = 0.2f + (iGpffff811c * f);
+            chainD = 0.2f - (iGpffff8118 * f);
             func_0025ecd0(prodA, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
         } else if (D_00882024[0] < 0x10) {
             f = sinf((iGpffff8094 * (float)(D_00882024[0] - 10)) / 5.0f);
