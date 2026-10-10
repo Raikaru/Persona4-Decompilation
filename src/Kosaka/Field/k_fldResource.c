@@ -344,10 +344,22 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 65 -> 64: the resource pair offset is formed as `idx * 4` then
  * `+= base` (retail adds the base second).
  * 2026-10-09: 64 -> 53: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * sdiff --regs 38 -> 32: the two load checks are one inline helper returning 1/0 in $v0, as retail; retail still reuses the switch's constant 1 for the first NULL case.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1
+static inline s32 fldResourceReady_0014f310(u8 *file)
+{
+    if (file == NULL) {
+        return 1;
+    }
+    if (H_Cdvd_IsFileLoaded((s32)file) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 s32 func_0014f310(s32 arg0, s32 arg1) {
     /* The matrix layout is the 64-byte RenderWare matrix from bamatrix.h. */
     typedef struct FldResourceCameraTransform {
@@ -580,26 +592,10 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     default: goto block_259;
     }
 loadFieldResource:
-            temp_4 = (u8 *)(iGpffffb200);
-            if (temp_4 == NULL) {
-                var_2 = 1;
-            } else if (H_Cdvd_IsFileLoaded((s32)(temp_4)) != 0) {
-                var_2 = 1;
-            } else {
-                var_2 = 0;
-            }
-            if (var_2 == 0) {
+            if (fldResourceReady_0014f310((u8 *)iGpffffb200) == 0) {
                 return 0;
             }
-            temp_4_2 = (u8 *)(iGpffffb204);
-            if (temp_4_2 == NULL) {
-                var_2_2 = (s32)(var_2 != 0);
-            } else if (H_Cdvd_IsFileLoaded((s32)(temp_4_2)) != 0) {
-                var_2_2 = var_2;
-            } else {
-                var_2_2 = 0;
-            }
-            if (var_2_2 == 0) {
+            if (fldResourceReady_0014f310((u8 *)iGpffffb204) == 0) {
                 return 0;
             }
             temp_3_2 = (u8 *)(iGpffff9db0);
