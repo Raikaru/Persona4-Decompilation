@@ -336,6 +336,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
    2026-10-09: 56 -> 51 with (u8)(u32) on the radar-edge alpha; retail still converts 255*opacity inside the loop where b210 hoists the conversion.
  * sdiff 40/45 -> 4/4: retail passes the radar alphas as already-narrowed u8 (andi in each conversion arm, no re-mask at the call), so the radar callees are declared here with u8 opacity parameters (H011: the matched definitions keep s32, as their own bodies use the full word); radarOpacity is passed directly.
  * sdiff 4/4 -> 2/2: fillX is read inside the vertex loop (LICM hoists it after the table address, as retail).
+ * radar opacity passed to func_001427c0 as (u32) under the s32 contract.
  */
 // FUN_001400F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -639,7 +640,7 @@ void func_001400f0(u8 *work)
         RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
         position.xy.x = originX;
         position.xy.y = originY;
-        func_001427c0(position.xy, 0.0f, (u8)radarOpacity, work);
+        func_001427c0(position.xy, 0.0f, (u32)radarOpacity, work);
         position.xy.x = (f32)0x13B + (originX + *(f32 *)(work + 0x680));
         position.xy.y = (116.0f + (originY + *(f32 *)(work + 0x684)));
         alpha = (u8)((f32)(u32)work[0x68A] * opacity);
