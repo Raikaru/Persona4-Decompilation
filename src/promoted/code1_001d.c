@@ -2305,6 +2305,7 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * 91: the swap flags are int (retail tests them without a byte mask).
  * 84: local integer types as retail.
  * 77: local integer types as retail.
+ * third sort's count copy is s32 (retail subtracts without re-masking).
  */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
@@ -2591,7 +2592,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         }
         if ((n & 0xFFFF) >= 2) {
             s32 swapped;
-            u16 nn = n & 0xFFFF;
+            s32 nn = n & 0xFFFF;
             s32 limit = nn - 1;
             do {
                 s32 j;

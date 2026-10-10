@@ -378,8 +378,6 @@ void func_001607e0(void)
  * current-row base held as an integer (u32) so the row offset is the first addu operand, as retail.
  * blend row reads the base word as u32 (retail reloads it there instead of reusing the current-row base).
  */
-// FUN_00160880 NONMATCHING
-#ifdef NON_MATCHING
 static inline void zeroBytes16_00160880(u8 *p)
 {
     s32 n = 16;
@@ -393,8 +391,17 @@ static inline void zeroBytes16_00160880(u8 *p)
     }
 }
 
+/* Keep the state-word read at the join after updating the previous state. */
+static inline s32 previousStateValue_00160880(const s32 *state)
+{
+    return *state;
+}
+
+/* Matched full 759-instruction retail body.  The state accessor preserves the
+ * read before the row-offset calculations across the branch join. */
 #pragma push
 #pragma opt_lifetimes on
+// FUN_00160880
 void func_00160880(void)
 {
     s32 cur;
@@ -441,7 +448,7 @@ void func_00160880(void)
             D_007643AC = cur;
         }
     }
-    prev = D_007643AC;
+    prev = previousStateValue_00160880(&D_007643AC);
     b = D_007643B0;
     inv = 1.0f - b;
     i = 0;
@@ -643,9 +650,6 @@ void func_00160880(void)
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00160880);
-#endif
 // FUN_001614D0
 s32 func_001614d0(void)
 {
@@ -1918,7 +1922,8 @@ extern int FUN_003e9700();
 extern int FUN_003e99a0();
 extern int FUN_003e0e20();
 extern int FUN_003e9830();
-extern int FUN_003e40b0();
+/* RwV3dNormalize returns its original vector length in f0. */
+extern f32 FUN_003e40b0(void *out, const void *in);
 extern int FUN_003e03e0();
 extern int FUN_007f1710();
 extern int FUN_007f1720();
@@ -2834,7 +2839,7 @@ s32 func_0016bdd0(u8 *param_1)
           stk230[0] = stk230[0] - uStack_2d0[0];
           stk230[1] = stk230[1] - uStack_2d0[1];
           stk230[2] = stk230[2] - fStack_2c8;
-          temp_v9 = (float)FUN_003e40b0(&stk230[0],&stk230[0]);
+          temp_v9 = FUN_003e40b0(&stk230[0],&stk230[0]);
           if (0.0f < temp_v9) {
             stk210[0] = stk230[0];
             stk210[1] = stk230[1];
