@@ -1477,6 +1477,8 @@ loop_test:
    outerCount` test. Residual: retail spills the u16 `outer` (sh/lhu 0x140),
    skillStore (0x110) and the extended kind (0x120); b210 keeps outer in $fp.
  * 2026-10-09: 95 -> 92: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 87: local integer types as retail.
+ * 85: local integer types as retail.
  */
 // FUN_001E9950 NONMATCHING
 #ifdef NON_MATCHING
@@ -1508,10 +1510,10 @@ s32 func_001e9950(void) {
     s32 skillStore;
     s16 kind;
     s32 paramA;
-    s16 paramB;
+    u16 paramB;
     u16 targetKind;
     s32 innerBest;
-    s32 idxA;
+    s16 idxA;
     s32 idxB;
     u8 *entryA;
     u8 *entryB;
