@@ -661,6 +661,7 @@ void func_002b6ea0(void) {
    The queue count is cleared before i is initialised (163). Open: CSE reuses the loop test's (s16)i extension in the body; retail recomputes it at each use.
  * 2026-10-09: 163 -> 161: the loop loads the entry base before forming `off`
  * (`e = YDRAW_BASE; off = i << 8; e += off`).
+ * 155: gp pool floats written as literals.
  */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
@@ -716,7 +717,7 @@ s32 func_002b6ec0(u8 *arg0) {
                 *(s32 *)(w + 0x10) = 0;
                 func_00460ac0(D_00793E80 + *(s32 *)(YDRAW_ENTRY(i) + 0xC) * 0x30, w);
                 b2 = YDRAW_BASE;
-                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= fGpffff8504) && !(*(f32 *)(b2 + off + 0xB0) <= fGpffff8504)) {
+                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + off + 0xB0) <= 0.1f)) {
                     u8 *d = b2 + (s32)i * 0x100U;
 
                     color = func_002b2a30(0xFF, d[0x89], d[0x8A], d[0x8B]);
@@ -732,7 +733,7 @@ s32 func_002b6ec0(u8 *arg0) {
                 *(s32 *)(w + 0x10) = 0;
                 func_00460ac0(D_00793E80 + *(s32 *)(YDRAW_ENTRY(i) + 0xC) * 0x30, w);
                 b2 = YDRAW_BASE;
-                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= fGpffff8504) && !(*(f32 *)(b2 + off + 0xB0) <= fGpffff8504)) {
+                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + off + 0xB0) <= 0.1f)) {
                     u8 *d = b2 + (s32)i * 0x100U;
 
                     color = func_002b2a30(0xFF, d[0x89], d[0x8A], d[0x8B]);
@@ -742,7 +743,7 @@ s32 func_002b6ec0(u8 *arg0) {
                         *(s16 *)(b2 + off + 0x14) &= ~1;
                     }
                 }
-            } else if (e[0x72] != 0 && !(*(f32 *)(e + 0xA4) <= fGpffff8504) && !(*(f32 *)(e + 0xB0) <= fGpffff8504)) {
+            } else if (e[0x72] != 0 && !(*(f32 *)(e + 0xA4) <= 0.1f) && !(*(f32 *)(e + 0xB0) <= 0.1f)) {
                 u8 *d = base + (s32)i * 0x100U;
 
                 color = func_002b2a30(0xFF, d[0x89], d[0x8A], d[0x8B]);
