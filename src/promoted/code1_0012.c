@@ -2511,6 +2511,9 @@ void func_00126090(s32 arg0, u8 *arg1, f32 x, f32 y, f32 depth)
  * separately.
  * 349: each rectangle is copied by a titleCopyValue-style inline that returns
  * the destination, so the argument address is formed before the copy (retail).
+ * 341: 1 - fraction, then the 42 scale, as separate steps.
+ * 342: the glow blend reads the 0x32-step sinf result (temp_f20_3); m2c had
+ * left the stale temp_f20 there.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2934,7 +2937,8 @@ void func_001265a0(void *unusedDrawData, void *task) {
         sp6A8.value = fGpffff9c7c;
         sp6BC = sp6A8;
         sp520.bits = D_005E5650;
-        temp_f20 = 42.0f * (1.0f - temp_f20);
+        temp_f20 = 1.0f - temp_f20;
+        temp_f20 = 42.0f * temp_f20;
         sp520.words[1] = (s32)-temp_f20;
         func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp520), 0.0f, 1);
         sp510.bits = D_005E5660;
@@ -3108,7 +3112,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                 temp_7 = D_005E5230 + var_19 * 0x28;
                                 paletteOffset = *(s32 *)(temp_7 + 0x1C) * 4;
                                 packedColor = *(u32 *)((u8 *)firstHighlight.words + paletteOffset);
-                                temp_q1 = (f32)(s32)(255.0f * temp_f20) / 255.0f;
+                                temp_q1 = (f32)(s32)(255.0f * temp_f20_3) / 255.0f;
                                 packedBaseColor = titleCopySelect((u8 *)&firstBase, (const u8 *)&firstPalette, paletteOffset);
                                 green = (packedColor >> 0x10) & 0xFF;
                                 red = (packedColor >> 0x18) & 0xFF;
