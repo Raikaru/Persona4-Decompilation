@@ -2504,6 +2504,11 @@ void func_00126090(s32 arg0, u8 *arg1, f32 x, f32 y, f32 depth)
  * (unused declarations removed)
  * 423: func_00126090 takes three trailing floats (retail callers load f12-f14
  * with zero; the callee ignores them), so the calls pass 0.0f in FPRs.
+ * 412: the 137 * scale size converts inside the call (retail shares it via CSE).
+ * 410: func_0043c6a0 takes an int (retail passes the converted step in $a0).
+ * 409: the scroll target is (f20 << 16) + 0.25 * ((f20 - f24) << 16) (the old
+ * body dropped the shift on the first term); retail multiplies and adds
+ * separately.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2547,7 +2552,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern void func_002abb30(f32 x, f32 y, f32 z, s32 color, s32 alpha, f32 scale, s32 mode, u8 *object, void *extra);
     extern s32 RpSkyRenderStateSet();
     extern s32 func_00401b80(void);
-    extern s32 func_0043c6a0(f32);
+    extern s32 func_0043c6a0(s32);
     extern f32 sinf(f32);
     extern u32 func_00452560(void *task);
     extern s32 func_00455f70();
@@ -3498,9 +3503,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 temp_f16 = fGpffff8170 + temp_f16;
                 temp_f21_2 = 255.0f * (1.0f - temp_f21_2);
                 /* f2 holds this independent product across both alpha-conversion arms. */
-                temp_10 = (s16)(s32)(137.0f * temp_f16);
     /* ACC seed */;
-                func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, temp_10, temp_10, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
+                func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, (s16)(137.0f * temp_f16), (s16)(137.0f * temp_f16), -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
     /* ACC seed */;
                 temp_f16_2 = fGpffff80bc;
                 func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
@@ -3804,7 +3808,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         temp_5 = (s32)(taskView->f24);
         temp_4 = (s32)(taskView->f20);
         temp_28 = (s32)taskView->f28;
-        temp_f1_28 = (f32)temp_4 + 0.25f * (f32)((temp_4 - temp_5) << 0x10);
+        temp_f1_28 = 0.25f * (f32)((temp_4 - temp_5) << 0x10);
+        temp_f1_28 = (f32)(temp_4 << 0x10) + temp_f1_28;
         temp_f0_11 = temp_f1_28 - (f32)temp_28;
         temp_i28 = (s32)temp_f0_11;
         if (((temp_5 < temp_4) && (temp_i28 < 0)) || ((temp_4 < temp_5) && (temp_i28 > 0))) {
