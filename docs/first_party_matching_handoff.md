@@ -122,6 +122,22 @@ sha1 OK in `build/link40.log`).
   (`addiu tmp, nn, -1`; `limit = nn; limit--` folds the same way) and
   declared `j` gets an entry-time number; reusing `i` as the counter
   changes nothing.
+- **`001a59a0` / `001a7720`** (code1_001a battle actions): our builds
+  hoisted field addresses (`addiu sN, s4, 0x30`, `sq` spills of `s4+0x18`,
+  `s4+0x88`) that retail never forms.
+  - `001a59a0` (`s64 *arg0`): route every access through
+    `u8 *arg0 = (u8 *)arg0_;` instead of `(u8 *)(arg0) + K` (struct 413 -> 395).
+  - `001a7720` (`u8 *arg0`): spelling does not matter (casts, array index,
+    a struct view of field 0x30 all keep the hoist); only
+    `#pragma opt_common_subs off` removes it (struct 871 -> 652). Retail's
+    `sq` slots there are source temporaries live across calls, not CSE.
+    Then `sp450` (s16, stored directly from field 0x6e) and `sp200`/`sp1E0`
+    as s32 (637). Ghidra's `spXXX` names are retail slots but several are
+    merged variables (`sp3C0`, `sp350`, `sp270` are `sh` slots, yet making
+    them halfwords is worse).
+  - Next for `001a7720`: block order around R3180-R3290 (ours runs ~65
+    instructions ahead: the `0xec`/`0xd8` unit tests and the 0x5 packet
+    builders are ordered differently).
 
 
 The first three closed by reading which *variables*
