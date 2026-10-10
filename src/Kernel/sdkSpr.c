@@ -105,8 +105,8 @@ extern f32 fGpffff81c0, fGpffff81c4, fGpffff81c8, fGpffff81cc;
 typedef u8 SdkSpriteRecord[0x80];
 /* Keep the same address-word view used by the attachment transformer. */
 #define SDK_SPRITE_RECORD(sample) \
-    ((u8 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + \
-            *(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord)))
+    ((u8 *)((u32)*(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord) + \
+            (u32)*(u8 **)(*(u8 **)(sample) + 0x204)))
 
 #define SDK_SPRITE_RASTERS(sample) \
     (*(u8 *(*)[32])(*(u8 **)(sample) + 0x104))
