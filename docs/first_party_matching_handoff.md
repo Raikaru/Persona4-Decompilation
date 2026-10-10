@@ -45,6 +45,28 @@ colouring or spill decision with `tools/regalloc_whatif.py`:
 - **Generic sweeps that paid** (bounded, per site, best kept): identity
   conversions on pairs of a local's uses (`001e9950` 85 -> 81, `0047b0c0`
   122 -> 118, `00162e10` 139 -> 136, `002b6ec0` 155 -> 144).
+- **Evaluation-order levers for `table[index]` reads** (measured with
+  `tools/sdiff.py` struct/--regs counts; fnalign barely moves on these):
+  - *Index first:* `(u8 *)((u32)index * size + (u32)table)` makes b210
+    compute the index before loading the table word. `0046b380`'s
+    `SDK_SPRITE_RECORD` macro in that form took fnalign 116 -> 102; three
+    sites keep a table-first copy (`SDK_SPRITE_RECORD_TABLE_FIRST`), 102 -> 81.
+  - *Table, index, then the pointer field:* an inline accessor
+    `mdlLoaderAnimEntry(table, slot)` evaluates its arguments in order and
+    loads `table->entries` last. An inline setter `(value, table, slot)`
+    also puts the stored value first. `0047b0c0` sdiff 22/88 -> 6/60 with
+    these, `materials->count > sourceIndex` (count first), a local
+    `entries` pointer for the matrix copy, `(u16)slot` in a loop test whose
+    body keeps `(slot & 0xffff)`, and `*(void **)((u32)tbl + i * 4)`.
+  - *Field address first:* `*(u32 *)(table + 0x18 + index * size)` gives
+    retail's `addiu base,K; addu; lw 0(...)` where the macro folds K.
+  - *Recompute instead of CSE:* a second `D_007EF9B0 + i * 0x750` written
+    with a different index conversion (`(s32)i`, `(u32)i`, `(s32)(u32)i`)
+    is recomputed, as retail does per block (`00162e10` 22/115 -> 6/88; the
+    old `*(void **)*cfg` double dereference was also wrong, retail loads
+    `*cfg` once).
+  - `sdkSpr.c`'s sprite types were inside the NON_MATCHING guard, so the
+    `0046b380` body could not be probed; they are now unconditional.
 - **`0014f310`**: all four resource checks are one inline helper returning
   1/0 in `$v0` (sdiff --regs 38 -> 32). Retail's first NULL path reuses the
   switch chain's constant 1 already in `$v0`; not reproduced (calling the
