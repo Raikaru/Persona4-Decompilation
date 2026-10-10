@@ -2424,7 +2424,10 @@ void func_00126090(s32 arg0, u8 *arg1)
  * this body remains assembly-backed.
    2026-10-08: opt_lifetimes on lowers fnalign from 3558 to 3424 edits. */
 /* 2026-10-09: 3424 -> 3340 edits: m2c's expanded float-to-unsigned conversions are plain (u32) casts. Open, found by comparing the retail lui constants: the m2c body drops several sinf results and leaves `temp_f20 * temp_f21 +/- temp_f7 * temp_f8` placeholders where retail has adda/madd chains with constants such as 200 - 700 * (1 - (1 + sin) / 2) (0x00126C48). */
-/* 2026-10-09: 3340 -> 3069 edits. Restored three dropped MAC expressions from retail: the title glow calls (func_00125e80 at 0xB2/0x99: 200 - 700 * (1 - (1 + sin) / 2); at 0xFF: 200 - 700 * sin), the four func_002abb30 glow layers (x/y from D_005E5234/D_005E5238 advanced by 200/250 * (1 - sin), offsets 49/33, 24/12, 9/5, 0), and the /45 fade alpha 255 * (fGpffff822c + fGpffff8228 * (1 - sin)). func_002abb30/func_002ab380 use their titleVisual.c float-first prototypes. Open: the palette blocks still pass m2c placeholders for func_00124bb0's lerped position (A + t * (B - A) over D_005E5370/D_005E5398/D_005E53C0 records); keep the `temp_one` locals, since b210 folds a literal * 1.0f. */
+/* 2026-10-09: 3340 -> 3069 edits. Restored three dropped MAC expressions from retail: the title glow calls (func_00125e80 at 0xB2/0x99: 200 - 700 * (1 - (1 + sin) / 2); at 0xFF: 200 - 700 * sin), the four func_002abb30 glow layers (x/y from D_005E5234/D_005E5238 advanced by 200/250 * (1 - sin), offsets 49/33, 24/12, 9/5, 0), and the /45 fade alpha 255 * (fGpffff822c + fGpffff8228 * (1 - sin)). func_002abb30/func_002ab380 use their titleVisual.c float-first prototypes. Open: the palette blocks still pass m2c placeholders for func_00124bb0's lerped position (A + t * (B - A) over D_005E5370/D_005E5398/D_005E53C0 records); keep the `temp_one` locals, since b210 folds a literal * 1.0f.
+ * 3071: D_005E538C/D_005E53B4 are absolute in retail (lui/lw %lo); declared as
+ * arrays so b210 does not place them in small data.
+ */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2469,9 +2472,9 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern u8 D_005E5248[];
     extern u8 D_005E5254[];
     extern s32 D_005E5370;
-    extern s32 D_005E538C;
+    extern s32 D_005E538C[];
     extern s32 D_005E5398;
-    extern s32 D_005E53B4;
+    extern s32 D_005E53B4[];
     extern TitlePalette D_005E5530;
     extern u8 D_005E5548[];
     extern BtlShuffleVec3 D_005E5628;
@@ -3185,7 +3188,7 @@ loop_128:
                     }
                     thirdPalette = D_005E5530;
                     titlePaletteCopy(&thirdHighlight, &thirdPalette);
-                    temp_8_3 = D_005E538C;
+                    temp_8_3 = D_005E538C[0];
                     temp_7_3 = (u32)(thirdHighlight.words[temp_8_3]);
                     titlePaletteCopy(&thirdBase, &thirdPalette);
                     temp_3_12 = (temp_7_3 >> 0x10) & 0xFF;
@@ -3219,7 +3222,7 @@ loop_128:
                     sinf(((((fGpffff8094 * (f32) (temp_16 - 0xBD)) / 20.0f))));
                     fourthPalette = D_005E5530;
                     titlePaletteCopy(&fourthHighlight, &fourthPalette);
-                    temp_8_5 = D_005E53B4;
+                    temp_8_5 = D_005E53B4[0];
                     temp_7_4 = (u32)(fourthHighlight.words[temp_8_5]);
                     titlePaletteCopy(&fourthBase, &fourthPalette);
                     temp_3_15 = (temp_7_4 >> 0x10) & 0xFF;
