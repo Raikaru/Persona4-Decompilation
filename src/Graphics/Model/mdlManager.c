@@ -485,6 +485,9 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * fnalign 404 -> 399: early return for a ready non-null controller with zero weight; hierarchy pointer loaded before the index; temp_v3 int; mode masks tested in the loop (hoisted after the counter init, as retail).
  * fnalign 399 -> 373: angle-limit snapshot block in retail branch order with whole-quaternion copies.
  * fnalign 373 -> 338: controller quaternion writes are whole-quaternion copies.
+ * fnalign 338 -> 315: angle wrap loops test x > 360 (direct bc1f, no boolean); func_003e9240 returns RwBool (s32; retail does not mask).
+ * workingVector copied from the controller as a whole vector.
+ * fnalign 301 -> 291: matrix positions copied from position as whole vectors.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -497,7 +500,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     struct RtQuatSlerpCache;
     struct RwObjectOwnerLink;
     extern void *func_003d5790(int, int);
-    extern u8 func_003e9240(struct RwObjectOwnerLink *);
+    extern s32 func_003e9240(struct RwObjectOwnerLink *); /* RwBool: retail tests the result unmasked */
     extern u8 * func_003e9700(u8 *);
     extern float func_0044b920(float);
     extern float func_0044b950(float, float);
@@ -794,9 +797,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                 workingVector.y = position.y - *(float *)(controller + 0x20);
                 workingVector.z = position.z - *(float *)(controller + 0x22);
               } else {
-                workingVector.x = *(float *)(controller + 0x1e);
-                workingVector.y = *(float *)(controller + 0x20);
-                workingVector.z = *(float *)(controller + 0x22);
+                workingVector = *(const RwV3d *)(controller + 0x1e);
                 workingVector.x = -workingVector.x;
                 workingVector.y = -workingVector.y;
                 workingVector.z = -workingVector.z;
@@ -826,7 +827,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               for (temp_v20 = temp_v20 - temp_v15; temp_v20 < 0.0f; temp_v20 = temp_v20 + 360.0f) {
               }
               /* Retail repeats while <=360 is false, including unordered input. */
-              for (; !(temp_v20 <= 360.0f); temp_v20 = temp_v20 - 360.0f) {
+              for (; temp_v20 > 360.0f; temp_v20 = temp_v20 - 360.0f) {
               }
               temp_v16 = *(float *)(controller + 4);
               if (!(temp_v20 <= temp_v16) && temp_v20 < 360.0f - temp_v16) {
@@ -841,7 +842,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               for (temp_v21 = temp_v21 - temp_v14; temp_v21 < 0.0f; temp_v21 = temp_v21 + 360.0f) {
               }
               /* Retail repeats while <=360 is false, including unordered input. */
-              for (; !(temp_v21 <= 360.0f); temp_v21 = temp_v21 - 360.0f) {
+              for (; temp_v21 > 360.0f; temp_v21 = temp_v21 - 360.0f) {
               }
               temp_v20 = *(float *)(controller + 6);
               if (!(temp_v21 <= temp_v20) && temp_v21 < 360.0f - temp_v20) {
@@ -1088,9 +1089,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               workingVector.z = workingVector.z * modelScale;
             }
             RwMatrixScale((RwMatrix *)(pfVar8),(const RwV3d *)(&workingVector),(RwOpCombineType)(1));
-            pfVar8[0xc] = position.x;
-            pfVar8[0xd] = position.y;
-            pfVar8[0xe] = position.z;
+            *(RwV3d *)&pfVar8[0xc] = position;
           }
           else {
             {
@@ -1141,9 +1140,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               workingVector.z = workingVector.z * modelScale;
             }
             RwMatrixScale((RwMatrix *)(&localMatrix.right.x),(const RwV3d *)(&workingVector),(RwOpCombineType)(1));
-            localMatrix.pos.x = position.x;
-            localMatrix.pos.y = position.y;
-            localMatrix.pos.z = position.z;
+            localMatrix.pos = position;
             RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(&localMatrix.right.x),(const RwMatrix *)(param_4));
           }
           if (((*(int *)(uStack_430 + 0xc) != 0) &&
