@@ -110,6 +110,18 @@ sha1 OK in `build/link40.log`).
   `$s5`/`$s6`. Renumbering, swaps and declaration order are all inert in
   the model; retail's assignment follows the earlier pointers that shared
   those registers (copy preference), which the model does not cover.
+  `regalloc_whatif --score` explains it: `found` (score 3) and `k` (score 4)
+  are high-degree nodes chosen by score/degree; with equal scores the
+  colours flip to retail's. Retail's `found` therefore carries one more
+  reference (or `k` one fewer) at allocation time; no source shape tried
+  so far (initialiser placement, branch assignment) provides it.
+- **`001d8010`** (0 structural, 36 register edits): in all three bubble
+  sorts retail has `limit` in `$v1` and `j` in `$v0`. whatif: `limit` must
+  be scanned before `j` (`limit` moved before r44, or `j` placed right
+  after the `limit` temporary). `limit` is always a propagated temporary
+  (`addiu tmp, nn, -1`; `limit = nn; limit--` folds the same way) and
+  declared `j` gets an entry-time number; reusing `i` as the counter
+  changes nothing.
 
 
 The first three closed by reading which *variables*
