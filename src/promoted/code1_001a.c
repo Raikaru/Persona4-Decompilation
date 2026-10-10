@@ -3006,6 +3006,9 @@ void func_001a5990(void)
    2026-10-08: opt_loop_invariants on lowers fnalign from 837 to 752 edits.
  * 2026-10-09: 752 -> 709: the m2c label loops are while loops.
  * 696: range tests in retail's slti $at form.
+ * 666: type sweep.
+ * 660: swap sweep.
+ * 652: type sweep.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3074,9 +3077,9 @@ void func_001a59a0(s64 *arg0) {
     s32 sp230;
     s32 sp22C;
     s32 sp210;
-    s32 sp200;
+    u32 sp200;
     LargeBattleHitResult *sp1F0;
-    u16 sp1E0;
+    s32 sp1E0;
     u16 sp1D0;
     s32 sp1C0;
     s32 sp1B0;
@@ -3102,11 +3105,11 @@ void func_001a59a0(s64 *arg0) {
     s16 temp_2_53;
     s16 temp_5_6;
     s16 temp_5_7;
-    s16 var_21;
-    s16 var_22_2;
-    s16 var_2_3;
-    s16 var_2_7;
-    s16 var_3;
+    s32 var_21;
+    s32 var_22_2;
+    s32 var_2_3;
+    s32 var_2_7;
+    s32 var_3;
     LargeBattleHitResult *temp_2_48;
     s32 temp_2_5;
     s32 temp_3;
@@ -3115,7 +3118,7 @@ void func_001a59a0(s64 *arg0) {
     s32 var_10;
     s32 var_16;
     s32 var_22;
-    s32 var_2_6;
+    u16 var_2_6;
     s32 var_2_8;
     s32 var_5;
     s32 var_5_2;
@@ -3125,10 +3128,10 @@ void func_001a59a0(s64 *arg0) {
     s64 temp_16;
     s64 temp_17;
     s32 temp_2_17;
-    s32 temp_2_26;
+    u16 temp_2_26;
     s32 temp_2_4;
     s32 temp_3_4;
-    s32 temp_4_4;
+    s16 temp_4_4;
     s32 var_18;
     s32 var_23;
     s32 var_30;
@@ -3572,15 +3575,15 @@ block_87:
                 sp2DC = (u8 *)(temp_2_28);
                 (*(s8 *)((u8 *)(temp_2_28) + (0))) = 5;
                 (*(s64 *)((u8 *)(temp_2_28) + (8))) = temp_16;
-                if ((sp2A0 != -3) && (sp2A0 != 0x17)) {
-                    (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) sp2B0;
-                } else {
+                if (!((sp2A0 != -3) && (sp2A0 != 0x17))) {
                     if (sp2B0 > 6) {
                         var_3 = sp2B0 - 6;
                     } else {
                         var_3 = 0;
                     }
                     (*(s16 *)((u8 *)(sp2DC) + (0x48))) = var_3;
+                } else {
+                    (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) sp2B0;
                 }
                 if ((*(s32 *)((u8 *)(temp_18) + (0xE4))) != 0) {
                     (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) ((*(s16 *)((u8 *)(sp2DC) + (0x48))) + 5);

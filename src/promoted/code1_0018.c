@@ -760,6 +760,8 @@ void func_001839e0(u8 *arg0, u8 *arg1)
    written inline at their uses (pure expressions; no operand changes in
    between).
  * 2026-10-09: 787 -> 770: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 619: type sweep.
+ * 617: hoist sweep.
  */
 // FUN_00183B80 NONMATCHING
 #ifdef NON_MATCHING
@@ -793,13 +795,14 @@ s32 func_00183b80(u8 *arg0)
     f32 fdiff;
     f32 fhalf;
     s32 k;
-    s32 m;
+    u32 m;
     s32 half;
     s32 prod;
     s32 iv0;
     s32 iv1;
     s32 iv2;
     s32 iv3;
+    f32 v1;
 
     ctx = *(u8 **)(arg0 + 0x38);
     tmp = ((u8 *)(uintptr_t)func_00457120());
@@ -979,7 +982,6 @@ s32 func_00183b80(u8 *arg0)
     for (m = 0; m < 2; m++) {
         for (k = 0; k < 2; k++) {
             f32 v0;
-            f32 v1;
             f32 v2;
             f32 v3;
             v0 = *(f32 *)(ctx + 0x42C) * (f32)k + *(f32 *)(ctx + 0x450);
@@ -1986,6 +1988,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * (the callback is func_0018a170 by symbol, as retail's relocation)
  * 826: the globals are retail's absolute D_ objects (%hi/%lo), declared as arrays so
  * b210 does not place them in small data.
+ * 814: swap sweep.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2331,14 +2334,13 @@ s32 func_0018a200(u8 *param_1)
           temp_v3 = (short)temp_v10;
         }
         temp_v9 = FUN_00106330(temp_v3 + 0x43f);
-        if (temp_v9 == 0) {
+        if (temp_v9 != 0) {
+          temp_v11 = 2;
+        } else {
           temp_v9 = FUN_00106330(temp_v3 + 0x45f);
           if (temp_v9 != 0) {
             temp_v11 = 0;
           }
-        }
-        else {
-          temp_v11 = 2;
         }
         temp_v4 = FUN_0047a6d0(*(void **)(puVar1[3] + 0x164),2,&vecA0[0]);
         if (temp_v4 == 0) {
@@ -2362,12 +2364,11 @@ s32 func_0018a200(u8 *param_1)
     }
     temp_v5 = puVar1[3];
     if (*(unsigned short *)(temp_v5 + 0x220) != 0) {
-      if (*(unsigned short *)(temp_v5 + 0x220) == 2) {
-        temp_v6 = FUN_003bbbe0(*(unsigned short *)(temp_v5 + 0x298),2,temp_v5 + 0x29c);
-        *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
-      }
-      else {
+      if (*(unsigned short *)(temp_v5 + 0x220) != 2) {
         temp_v6 = FUN_003bbbe0(*(unsigned short *)(temp_v5 + 0x298),1,temp_v5 + 0x29c);
+        *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
+      } else {
+        temp_v6 = FUN_003bbbe0(*(unsigned short *)(temp_v5 + 0x298),2,temp_v5 + 0x29c);
         *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
       }
       puVar1[6] = 0;
@@ -2469,7 +2470,9 @@ s32 func_0018a200(u8 *param_1)
       temp_v3 = *(unsigned short *)(temp_v5 + 0x220);
       if (temp_v3 == 3) {
         temp_v11 = puVar1[10];
-        if ((int)temp_v11 < 1) {
+        if ((int)temp_v11 >= 1) {
+          puVar1[10] = temp_v11 - 1;
+        } else {
           if ((temp_v11 == 0) && (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
           }
@@ -2529,9 +2532,6 @@ s32 func_0018a200(u8 *param_1)
             func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, 2.0f);
             puVar1[9] = puVar1[9] - 1;
           }
-        }
-        else {
-          puVar1[10] = temp_v11 - 1;
         }
       }
       else if (((temp_v3 == 4) || (temp_v3 == 2)) || (temp_v3 == 1)) {

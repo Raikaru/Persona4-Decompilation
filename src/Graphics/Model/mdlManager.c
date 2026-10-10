@@ -478,6 +478,8 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * direction, forwardAxis (mapped with tools/frameslots.py).
  * 2026-10-09: 739 -> 672: aggregate declaration order (greedy, scored with
  * tools/multiscore.py) moves the matrices and quaternions toward retail's frame slots.
+ * 555: swap sweep.
+ * 542: swap sweep.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -779,40 +781,19 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           RwMatrixMultiply((RwMatrix *)(((u8 *)&axisMatrix)),(const RwMatrix *)(temp_v24),(const RwMatrix *)(((f32 *)&baseMatrix)));
           temp_v0 = *controller;
           if ((temp_v0 & 0x100) == 0) {
-            if ((temp_v0 & 0x60) == 0) {
-              if ((temp_v0 & 0x80) == 0) {
-                RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(&localMatrix.right.x));
-              }
-              else {
-                iStack_450 = 0;
-                axis[0] = 0x3f800000;
-                axis[1] = 0;
-                axis[2] = 0;
-                func_003e4320((RwV3d *)(&axis[0]),(const RwV3d *)(&axis[0]),(const RwMatrix *)(((f32 *)&baseMatrix)));
-                RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&axis[0], *(float *)(controller + 0x1e), rwCOMBINEREPLACE);
-                axis[0] = 0;
-                axis[1] = 0x3f800000;
-                axis[2] = 0;
-                func_003e4320((RwV3d *)(&axis[0]),(const RwV3d *)(&axis[0]),(const RwMatrix *)(((f32 *)&baseMatrix)));
-                RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&axis[0], *(float *)(controller + 0x20), rwCOMBINEPOSTCONCAT);
-                RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(((u8 *)&axisMatrix)),(const RwMatrix *)(temp_v24));
-                RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(pfVar8));
-              }
-            }
-            else {
+            if ((temp_v0 & 0x60) != 0) {
               iStack_450 = 1;
-              if ((temp_v0 & 0x40) == 0) {
+              if ((temp_v0 & 0x40) != 0) {
+                workingVector.x = position.x - *(float *)(controller + 0x1e);
+                workingVector.y = position.y - *(float *)(controller + 0x20);
+                workingVector.z = position.z - *(float *)(controller + 0x22);
+              } else {
                 workingVector.x = *(float *)(controller + 0x1e);
                 workingVector.y = *(float *)(controller + 0x20);
                 workingVector.z = *(float *)(controller + 0x22);
                 workingVector.x = -workingVector.x;
                 workingVector.y = -workingVector.y;
                 workingVector.z = -workingVector.z;
-              }
-              else {
-                workingVector.x = position.x - *(float *)(controller + 0x1e);
-                workingVector.y = position.y - *(float *)(controller + 0x20);
-                workingVector.z = position.z - *(float *)(controller + 0x22);
               }
               RwV3dNormalize((RwV3d *)(&workingVector),(const RwV3d *)(&workingVector));
               func_003e0960((RwMatrix *)(temp_v23),(const RwMatrix *)(((f32 *)&baseMatrix)));
@@ -868,6 +849,24 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)((u8 *)&axisMatrix), temp_v21 + temp_v14, rwCOMBINEPOSTCONCAT);
               RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(((u8 *)&axisMatrix)),(const RwMatrix *)(temp_v24));
               RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(pfVar8));
+            } else {
+              if ((temp_v0 & 0x80) != 0) {
+                iStack_450 = 0;
+                axis[0] = 0x3f800000;
+                axis[1] = 0;
+                axis[2] = 0;
+                func_003e4320((RwV3d *)(&axis[0]),(const RwV3d *)(&axis[0]),(const RwMatrix *)(((f32 *)&baseMatrix)));
+                RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&axis[0], *(float *)(controller + 0x1e), rwCOMBINEREPLACE);
+                axis[0] = 0;
+                axis[1] = 0x3f800000;
+                axis[2] = 0;
+                func_003e4320((RwV3d *)(&axis[0]),(const RwV3d *)(&axis[0]),(const RwMatrix *)(((f32 *)&baseMatrix)));
+                RwMatrixRotate((struct RwMatrixTag*)temp_v24, (const RwV3d*)&axis[0], *(float *)(controller + 0x20), rwCOMBINEPOSTCONCAT);
+                RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(((u8 *)&axisMatrix)),(const RwMatrix *)(temp_v24));
+                RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(pfVar8));
+              } else {
+                RtQuatConvertFromMatrix((struct RtQuat *)(&rotation.value[0]),(const RwMatrix *)(&localMatrix.right.x));
+              }
             }
             if (((*controller & 0x1000) == 0) || (!angleLimited)) {
               *controller = *controller & 0xf7ff;
@@ -1181,11 +1180,10 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           }
         }
         if (temp_v3 != 0) {
-          if (concatenateParentMatrix == 0) {
-            *(RwMatrix *)(temp_v7 + 0x50) = *(const RwMatrix *)pfVar8;
-          }
-          else {
+          if (concatenateParentMatrix != 0) {
             RwMatrixMultiply((RwMatrix *)(temp_v7 + 0x50),(const RwMatrix *)(pfVar8),(const RwMatrix *)(((f32 *)&baseMatrix)));
+          } else {
+            *(RwMatrix *)(temp_v7 + 0x50) = *(const RwMatrix *)pfVar8;
           }
           *(unsigned char *)(temp_v7 + 3) = (*(unsigned char *)(temp_v7 + 3) & 0xfb) | 8;
         }
