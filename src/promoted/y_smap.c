@@ -241,6 +241,7 @@ s32 func_002ac740(void) {
    2026-10-09: 439 -> 431: one more fold.
  * 2026-10-09: 431 -> 358: the m2c label loops are while loops; loop tests that
  * re-read a value assign it inside the test.
+ * 344: type sweep.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -290,19 +291,19 @@ void func_002ac750(u8 arg0, u8 arg1) {
     s32 temp_23_5;
     s32 temp_23_6;
     s32 temp_30;
-    s32 temp_3_4;
+    s16 temp_3_4;
     s32 temp_3_9;
     s32 temp_4_14;
-    s32 temp_4_19;
+    u16 temp_4_19;
     s32 temp_4_29;
     s32 temp_4_36;
     s32 temp_4_40;
-    s32 temp_5_10;
+    s16 temp_5_10;
     s32 temp_5_5;
-    s32 temp_5_6;
+    u16 temp_5_6;
     s32 temp_5_7;
     s32 temp_5_9;
-    s32 temp_6;
+    u16 temp_6;
     s32 temp_6_2;
     s32 temp_6_3;
     s32 temp_6_4;
