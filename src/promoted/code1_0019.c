@@ -3806,12 +3806,15 @@ void func_0019c010(u8 *arg0)
    and reuses the `2` argument, which needs CSE on. No pragma, alias spelling
    or helper shape tried so far does both. On the `i == 2 && alpha < 0xFE`
    path retail compares 0xE8 against $s0 left from an earlier entry
-   (0x0019CDE0); `mode` is likewise read uninitialised there. */
+   (0x0019CDE0); `mode` is likewise read uninitialised there.
+ * 10: default optimisation (the old CSE/propagation-off pragmas are gone); the
+ * 1/255 colour scale is the literal 0.003921569f, which b210 reloads from the
+ * literal pool per use as retail does (fGpffff81f4 is that pool entry);
+ * entry declared before i.
+ */
 // FUN_0019C0D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
-#pragma opt_common_subs off
-#pragma opt_propagation off
 typedef struct { u8 r, g, b, a; } Col4_0019;
 typedef struct {
     f32 right[3];
@@ -3828,10 +3831,10 @@ static inline void colMul_0019(Col4_0019 *dst, const u8 *src)
 {
     f32 scale;
     f32 bias;
-    f32 g = (fGpffff81f4 * (f32)(u32)dst->g) * (fGpffff81f4 * (f32)(u32)src[1]);
-    f32 b = (fGpffff81f4 * (f32)(u32)dst->b) * (fGpffff81f4 * (f32)(u32)src[2]);
-    f32 a = (fGpffff81f4 * (f32)(u32)dst->a) * (fGpffff81f4 * (f32)(u32)src[3]);
-    f32 r = (fGpffff81f4 * (f32)(u32)dst->r) * (fGpffff81f4 * (f32)(u32)src[0]);
+    f32 g = (0.003921569f * (f32)(u32)dst->g) * (0.003921569f * (f32)(u32)src[1]);
+    f32 b = (0.003921569f * (f32)(u32)dst->b) * (0.003921569f * (f32)(u32)src[2]);
+    f32 a = (0.003921569f * (f32)(u32)dst->a) * (0.003921569f * (f32)(u32)src[3]);
+    f32 r = (0.003921569f * (f32)(u32)dst->r) * (0.003921569f * (f32)(u32)src[0]);
 
     scale = 255.0f;
     bias = 0.5f;
@@ -3859,8 +3862,8 @@ void func_0019c0d0(void)
     extern void func_001d7100(u8 *arg0, s32 arg1);
     extern void func_001d72c0(void *arg0, Col4_0019 arg1);
     extern void func_001d7140(u8 *arg0);
-    u32 i;
     u8 *entry;
+    u32 i;
 
     for (i = 0; i < 4; i++) {
         entry = *(u8 **)(D_0076449C + (i * 8) + 0x17C);
