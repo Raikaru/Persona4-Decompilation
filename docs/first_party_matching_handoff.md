@@ -90,6 +90,27 @@ sha1 OK in `build/link40.log`).
     `& 0x2000` flag spilled with `sq` (retail `sw`), v0/v1 and s0/s1 swaps
     in the parent-matrix prologue, four `madd` operand orders, the
     interpolator slot pointer and the `0x42` address hoist.
+- **`003694d0`** (pscModel, sdiff struct 11 -> 2, committed): the state
+  table is a plain array address (`(void (**)(u32,u32))D_00887300`, no `(u32)`
+  cast) so each `fn = D_00887300` rematerialises it; the trailing pass goes
+  through `fn` with `func_0036be00()` fetched first; mode-1 render passes use
+  `model`. Retail's first mode switch gives each case its own variable
+  (mode 1 `$s2`, mode 0 `$s3`, mode 2 `$s1`, mode 3 `$s6`), the render
+  switch addresses `model`, and the `flags & 1` mode-1 case calls through
+  `tbl` (`$s1`) and reads `b1` through the mode-0 variable (an
+  uninitialised read on that path). With those changes (`build/v/003694d0/m1c.c`)
+  every early register matches, but b210 then removes the redundant
+  `fn = tbl`, `m0 = model` and `fn2 = fn` copies that retail keeps; no pragma
+  restores them. Unresolved.
+- **`004a7830`** (7 edits): retail wants the `abs.s` result scanned first
+  (`regalloc_whatif` HIT with only that virtual moved early). `fabsf` is
+  inlined into a temporary and any named copy is propagated away; ternary
+  and `__fabs` spellings are worse. Unresolved.
+- **`00162e10`** (6 edits): `found`/`k` take `$s6`/`$s5` instead of
+  `$s5`/`$s6`. Renumbering, swaps and declaration order are all inert in
+  the model; retail's assignment follows the earlier pointers that shared
+  those registers (copy preference), which the model does not cover.
+
 
 The first three closed by reading which *variables*
 retail spills and reproducing that spill set, then the colours:
