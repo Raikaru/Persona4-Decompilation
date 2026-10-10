@@ -2662,10 +2662,12 @@ void func_00320b80(u8 *arg0, s8 arg1) {
     while (i < (u16)func_0010b5b0()) {
         s32 n = i;
         s32 m;
+        s32 persona;
         sp118 = func_002b2970(16.0f, 128.0f);
         arg1 = i;
+        persona = *(u16 *)(func_002e48a0(0, i) + 2);
         func_003191c0(arg0, sp118, arg1,
-                      *(u16 *)(func_002e48a0(0, i) + 2),
+                      persona,
                       *(u8 *)(func_002e48a0(0, i) + 4),
                       (s16)(n * 2), 0, (rowCount = *(s8 *)(func_002e4870(0) + 8)));
         {

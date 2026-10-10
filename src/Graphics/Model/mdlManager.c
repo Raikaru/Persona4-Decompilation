@@ -4421,8 +4421,8 @@ typedef struct MdlCloneLayerView {
 
 static inline MdlCloneAttachmentTable* mdl_clone_attachment_storage(u32 count)
 {
-    s32 size = sizeof(MdlCloneAttachmentTable);
     MdlCloneAttachmentTable* copy;
+    s32 size = sizeof(MdlCloneAttachmentTable);
     size += count * sizeof(void*);
     size += count * sizeof(void*);
     func_0044ea90(D_00713138, 0x1d6);
@@ -5941,6 +5941,10 @@ void func_0047b060(void* param_1)
  * sdiff 10/66 -> 8/64: matrix copy through a local entries pointer.
  * matrix loop test compares (u16)slot, the body keeps its own (slot & 0xffff) as retail.
  * sdiff 8/64 -> 6/60: secondary attachment test adds the table first (retail order).
+ * 2026-10-10: whole-owner guarded replay improves 72 -> 38 aligned instruction edits
+ * (1382/1382 instructions). The existing attachment allocator's declaration
+ * order and local UV/material table lifetimes account for most of the gain.
+ * Still NONMATCHING; retained native probes: build/first-party-final-20261010/models.
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6061,7 +6065,8 @@ s32 func_0047b0c0(u8 *model)
         u16 c;
 
         for (c = 0; c < 2; c++) {
-            state->capacities[c] = capacity;
+            u16 *destination = &state->capacities[c];
+            *destination = capacity;
         }
     }
     while (func_003df3c0(state->stream, &chunk) != 0) {
@@ -6111,10 +6116,10 @@ s32 func_0047b0c0(u8 *model)
         case 0x2b:
         if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
             void *dictionary;
-            if (LOAD_UVS() == 0) {
+            MdlLoaderUvTable *table = LOAD_UVS();
+            if (table == 0) {
                 u16 count = capacity;
                 s32 size = (u32)count * sizeof(MdlLoaderEntry) + sizeof(MdlLoaderUvTable);
-                MdlLoaderUvTable *table;
                 func_0044ea90(D_00713138, 0x908);
                 table = ((void *(*)(int, int))DAT_008873e8[0])(size, 0x40000);
                 memset(table, 0, size);
@@ -6276,10 +6281,10 @@ s32 func_0047b0c0(u8 *model)
         case 0xf0f00083:
         case 0xf0f00082:
         if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
-            if (LOAD_MATERIALS() == 0) {
+            MdlLoaderMaterialTable *table = LOAD_MATERIALS();
+            if (table == 0) {
                 u16 count = capacity;
                 s32 size = (u32)count * sizeof(MdlLoaderEntry) + sizeof(MdlLoaderMaterialTable);
-                MdlLoaderMaterialTable *table;
                 func_0044ea90(D_00713138, 0x850);
                 table = ((void *(*)(int, int))DAT_008873e8[0])(size, 0x40000);
                 memset(table, 0, size);
