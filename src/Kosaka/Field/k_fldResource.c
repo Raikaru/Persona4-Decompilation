@@ -345,6 +345,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * `+= base` (retail adds the base second).
  * 2026-10-09: 64 -> 53: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * sdiff --regs 38 -> 32: the two load checks are one inline helper returning 1/0 in $v0, as retail; retail still reuses the switch's constant 1 for the first NULL case.
+ * all four resource checks use the inline readiness helper (same output, consistent source).
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -971,15 +972,7 @@ waitParts:
 reloadParts:
         var_18_4 = (u8 *)(func_001452b0(3));
         var_17_7 = (u8 *)(func_001452b0(8));
-        temp_4_11 = (u8 *)(iGpffffb200);
-        if (temp_4_11 == NULL) {
-            var_2_3 = 1;
-        } else if (H_Cdvd_IsFileLoaded((s32)(temp_4_11)) != 0) {
-            var_2_3 = 1;
-        } else {
-            var_2_3 = 0;
-        }
-        if (var_2_3 != 0) {
+        if (fldResourceReady_0014f310((u8 *)iGpffffb200) != 0) {
             while (var_18_4 != NULL) {
                 temp_16_10 = (u8 *)(*( u8 ** )(var_18_4 + 0x138));
                 func_00146630(*( u16 * )(var_18_4 + 0));
@@ -1061,15 +1054,7 @@ waitReloadedParts:
                 goto block_259;
             }
 loadEnvironment:
-            temp_4_12 = (u8 *)(iGpffffb200);
-            if (temp_4_12 == NULL) {
-                var_2_4 = 1;
-            } else if (H_Cdvd_IsFileLoaded((s32)(temp_4_12)) != 0) {
-                var_2_4 = 1;
-            } else {
-                var_2_4 = 0;
-            }
-            if (var_2_4 == 0) {
+            if (fldResourceReady_0014f310((u8 *)iGpffffb200) == 0) {
                 goto block_259;
             }
             *( s32 * )(iGpffff9db0 + 0xDC) = func_00153c00(*( s16 * )(iGpffff9db0 + 0x12));
