@@ -268,6 +268,8 @@ s32 func_00162c30(void)
  * accessor; retail recomputes it (`mult` by 0x750) at most of its uses instead of
  * reusing `slot`.
  * 2026-10-09: 156 -> 139: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 137: conversion lever (cur:(0, 2)).
+ * 136: conversion lever (grid:(0,)).
  */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
@@ -406,7 +408,7 @@ void func_00162e10(void)
                 sp90[2] = 1200.0f * (f32)(u32)*((u8 *)func_00155280() + 0x45);
                 entry = fieldUnitSlotAt(&i);
                 grid = (u8 *)func_00155280() + (*((u8 *)func_00155280() + 0x45) << 8);
-                func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, 90.0f * (f32)((*(grid + (*((u8 *)func_00155280() + 0x44) << 4) + 0x59) + 2) % 4));
+                func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, 90.0f * (f32)((*((u8 *)(u32)grid + (*((u8 *)func_00155280() + 0x44) << 4) + 0x59) + 2) % 4));
                 func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(entry + 0x728)), 0, 1);
                 *(FieldMatrixCopy *)mtx = *(FieldMatrixCopy *)mdlGetMatrix(*(void **)(*(u8 **)D_007EFA04 + 0x164));
                 if (i == 0 && func_0014a160() != 0) {
@@ -496,7 +498,7 @@ void func_00162e10(void)
         if (i != 0) {
             u8 *cur = fieldUnitSlotAt(&i);
 
-            *(s32 *)(cur + 0x1B0) = func_0017e890(0, cur, D_007EF9B0 + (i - 1) * 0x750);
+            *(s32 *)((u8 *)(u32)cur + 0x1B0) = func_0017e890(0, cur, D_007EF9B0 + (i - 1) * 0x750);
         }
         {
             u8 *cur = fieldUnitSlotAt(&i);
@@ -505,7 +507,7 @@ void func_00162e10(void)
             s32 j;
 
             RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)*cfg));
-            curRes = (u8 **)(cur + 0x54);
+            curRes = (u8 **)((u8 *)(u32)cur + 0x54);
             func_0014b0c0(**(u16 **)(cur + 0x54), 1);
             func_00168730(*(s32 *)(*curRes + 0x220), 0x40000000);
             j = 0;

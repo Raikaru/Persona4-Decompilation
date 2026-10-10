@@ -5929,6 +5929,7 @@ void func_0047b060(void* param_1)
  * 161: the material/UV copy reads `state->slot` once into `dst`.
  * 155: u16 clone-slot fill counter.
  * 122: u16 counter for the blend-control animation loop.
+ * 118: conversion lever (slot:(1, 3)).
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -6227,7 +6228,7 @@ s32 func_0047b0c0(u8 *model)
                 u16 slot;
                 func_0044ea90(D_00713138, 0x1896);
                 state->cloneSlots[state->layer] = ((void *(*)(int, int))DAT_008873e8[0])((u32)capacity * 2, 0x40000);
-                for (slot = 0; slot < capacity; slot++) {
+                for (slot = 0; (u32)slot < capacity; slot++) {
                     state->cloneSlots[state->layer][slot] = 0xffff;
                 }
             }
@@ -6298,7 +6299,7 @@ s32 func_0047b0c0(u8 *model)
             table->count = matrixCount;
             table->unknown = 1;
             table->entries = entries;
-            for (slot = 0; (slot & 0xffff) < matrixCount; slot = (slot + 1) & 0xffff) {
+            for (slot = 0; ((u32)slot & 0xffff) < matrixCount; slot = (slot + 1) & 0xffff) {
                 u32 offset = (slot & 0xffff) * sizeof(MdlMatrixEntry);
                 func_003e2910(stream, (u8 *)table->entries + offset + 0x40, 4);
                 func_003e2910(stream, (u8 *)table->entries + offset + 0x44, 4);
