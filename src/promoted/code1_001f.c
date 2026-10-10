@@ -934,6 +934,8 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * declares u16 arg2).
  * 689: case 2 before case 4 in the remap.
  * 687: range tests in retail's slti $at form.
+ * 615: type sweep.
+ * 604: type sweep.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -960,13 +962,13 @@ void func_001f14f0(u8 *arg0)
     s16 lastMsg;
     s32 flags;
     f32 scale;
-    u16 id;
+    s32 id;
     s32 off;
     s32 isTen;
     u8 *ctx;
-    s8 kind;
-    u8 status;
-    s16 critCount;
+    s32 kind;
+    s32 status;
+    s32 critCount;
     s32 totalSelf;
     u16 ui;
     s32 flags2;
@@ -1076,11 +1078,11 @@ void func_001f14f0(u8 *arg0)
         s32 mask2;
         u8 *ent;
         u16 special;
-        s32 resw;
+        u16 resw;
         s32 bonus;
         u8 j;
         s32 m80;
-        s32 n80;
+        u16 n80;
         s16 msg;
 
         *(u16 *)(unit + 0x3F4) = 0x240;
@@ -1363,8 +1365,8 @@ void func_001f14f0(u8 *arg0)
     party = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2);
     if (party == 1 && *(u16 *)(arg0 + 0x6A) == 1 && *(u8 **)(arg0 + 0x38) == *(u8 **)(iGpffffb3ac + 0x170) &&
         *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xE0) == 1) {
-        u16 n = *(u16 *)(arg0 + 0x6A);
-        u16 k;
+        s32 n = *(u16 *)(arg0 + 0x6A);
+        s32 k;
         s32 found;
         u8 *sum;
 
@@ -1449,8 +1451,7 @@ other:
             if (*(s32 *)(u + 0xE0) == 1 && func_00232710(*(u8 **)(*(u8 **)(u + 0x30) + 0xA64), 0x100000) == 0) {
                 cnt++;
             } else {
-                u8 n;
-
+                s8 n;
                 for (n = 0; n < u[0xD9]; n++) {
                     if (*(u8 *)(*(u8 **)(u + 0x30) + 0xA2) == 1 && (*(u32 *)(u + (n << 5) + 0xF8) & 0x100000)) {
                         cnt++;
