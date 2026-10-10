@@ -862,6 +862,7 @@ void func_004b8f10(void *arg0) {
  * phase-A case 2 with block-scope locals (den, step, t declared in retail colour order).
  * 0.5f + (f32)n written as one expression.
  * same form in the phase-C case-2 prologue.
+ * phase-C case 0 with block-scope locals in retail colour order.
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -1100,88 +1101,101 @@ void func_004b8f40(u8 *work, void **pp)
     switch (*(s16 *)((work) + 0x38)) {
     case 0:
     {
-      temp_v5 = *(s32 *)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
-      pfVar17 = (f32 *)(temp_v5 + *(s32 *)(((u8 *)*pp) + 0x14) * 0xc);
-      for (temp_v1 = 0; temp_v1 < 2;) {
-        pfVar16 = (f32 *)(temp_v5 + temp_v1 * 0xc);
-        temp_v6 = 0xffffffff;
-        switch (temp_v1) {
+      f32 *out;
+      u32 cache;
+      s32 side;
+      s32 jj;
+      s32 base;
+      f32 *lim;
+      s32 span;
+      s32 ia;
+      s32 ib;
+      f32 *pa;
+      f32 *pb;
+      f32 s;
+
+      base = *(s32 *)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
+      lim = (f32 *)(base + *(s32 *)(((u8 *)*pp) + 0x14) * 0xc);
+      for (side = 0; side < 2;) {
+        out = (f32 *)(base + side * 0xc);
+        cache = 0xffffffff;
+        switch (side) {
         case 0:
-          iStack_d0 = *(s32 *)((*(u8 **)work) + 0xc);
+          span = *(s32 *)((*(u8 **)work) + 0xc);
           break;
         case 1:
-          iStack_d0 = *(s32 *)((*(u8 **)work) + 0xc) - 1;
+          span = *(s32 *)((*(u8 **)work) + 0xc) - 1;
           break;
         }
-        for (temp_v4 = 0; temp_v4 < iStack_d0;) {
+        for (jj = 0; jj < span;) {
           if (*(s32 *)((*(u8 **)work) + 0xc) - 1 < 1) {
             func_0046d730(D_007146E0,0x480);
           }
-          if (temp_v1 == 0) {
-            if (temp_v4 == 0) {
-              func_004b7460(work,(f32)temp_v4 / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),&section,
+          if (side == 0) {
+            if (jj == 0) {
+              func_004b7460(work,(f32)jj / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),&section,
                             &fraction);
             }
             else {
-              func_004b7460(work,((f32)temp_v4 - 0.5f) /
+              func_004b7460(work,((f32)jj - 0.5f) /
                                     (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),&section,&fraction
                            );
             }
           }
           else {
-            func_004b7460(work,(f32)temp_v4 / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),
+            func_004b7460(work,(f32)jj / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),
                           &section,&fraction);
           }
-          if (section != temp_v6) {
-            temp_v6 = section;
-            temp_v3 = (*(s32 *)((work) + 0xc) - 1) - section;
-            if (temp_v3 < 0) {
-              temp_v3 = temp_v3 + *(s32 *)((work) + 8);
+          if (section != cache) {
+            cache = section;
+            ia = (*(s32 *)((work) + 0xc) - 1) - section;
+            if (ia < 0) {
+              ia = ia + *(s32 *)((work) + 8);
             }
-            temp_v2 = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
-            if (temp_v2 < 0) {
-              temp_v2 = temp_v2 + *(s32 *)((work) + 8);
+            ib = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
+            if (ib < 0) {
+              ib = ib + *(s32 *)((work) + 8);
             }
-            temp_v3 = temp_v3 * 0xc;
-            pfVar5 = (f32 *)(*(s32 *)(((work) + temp_v1 * 4 + 0x10)) + temp_v3);
-            ctrl[0] = *(EffAfterVec *)pfVar5;
-            pfVar3 = (f32 *)(*(s32 *)(((work) + temp_v1 * 8 + 0x18)) + temp_v3);
-            ctrl[1].c[0] = *pfVar5 - *pfVar3;
-            ctrl[1].c[1] = pfVar5[1] - pfVar3[1];
-            ctrl[1].c[2] = pfVar5[2] - pfVar3[2];
-            pfVar5 = (f32 *)(*(s32 *)(((work) + temp_v1 * 8 + 0x1c)) + temp_v3);
-            pfVar3 = (f32 *)(*(s32 *)(((work) + temp_v1 * 4 + 0x10)) + temp_v2 * 0xc);
-            ctrl[2].c[0] = *pfVar3 + *pfVar5;
-            ctrl[2].c[1] = pfVar3[1] + pfVar5[1];
-            ctrl[2].c[2] = pfVar3[2] + pfVar5[2];
-            ctrl[3] = *(EffAfterVec *)pfVar3;
+            ia = ia * 0xc;
+            pa = (f32 *)(*(s32 *)(((work) + side * 4 + 0x10)) + ia);
+            ctrl[0] = *(EffAfterVec *)pa;
+            pb = (f32 *)(*(s32 *)(((work) + side * 8 + 0x18)) + ia);
+            ctrl[1].c[0] = *pa - *pb;
+            ctrl[1].c[1] = pa[1] - pb[1];
+            ctrl[1].c[2] = pa[2] - pb[2];
+            pa = (f32 *)(*(s32 *)(((work) + side * 8 + 0x1c)) + ia);
+            pb = (f32 *)(*(s32 *)(((work) + side * 4 + 0x10)) + ib * 0xc);
+            ctrl[2].c[0] = *pb + *pa;
+            ctrl[2].c[1] = pb[1] + pa[1];
+            ctrl[2].c[2] = pb[2] + pa[2];
+            ctrl[3] = *(EffAfterVec *)pb;
           }
-          temp_v7 = 1.0f - fraction;
-          if (!(pfVar16 < pfVar17)) {
+          s = 1.0f - fraction;
+          if (!(out < lim)) {
             func_0046d730(D_007146E0,0x49d);
           }
-          *pfVar16 = ctrl[0].c[0] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[0] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[0] * fraction * fraction * temp_v7 + ctrl[3].c[0] * fraction * fraction * fraction;
-          pfVar16[1] = ctrl[0].c[1] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[1] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[1] * fraction * fraction * temp_v7 + ctrl[3].c[1] * fraction * fraction * fraction;
-          pfVar16[2] = ctrl[0].c[2] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[2] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[2] * fraction * fraction * temp_v7 + ctrl[3].c[2] * fraction * fraction * fraction;
-          temp_v4++;
-          pfVar16 = pfVar16 + 6;
+          *out = ctrl[0].c[0] * s * s * s + 3.0f * ctrl[1].c[0] * fraction * s * s + 3.0f * ctrl[2].c[0] * fraction * fraction * s + ctrl[3].c[0] * fraction * fraction * fraction;
+          out[1] = ctrl[0].c[1] * s * s * s + 3.0f * ctrl[1].c[1] * fraction * s * s + 3.0f * ctrl[2].c[1] * fraction * fraction * s + ctrl[3].c[1] * fraction * fraction * fraction;
+          out[2] = ctrl[0].c[2] * s * s * s + 3.0f * ctrl[1].c[2] * fraction * s * s + 3.0f * ctrl[2].c[2] * fraction * fraction * s + ctrl[3].c[2] * fraction * fraction * fraction;
+          jj++;
+          out = out + 6;
         }
-        temp_v4 = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
-        if (temp_v4 < 0) {
-          temp_v4 = temp_v4 + *(s32 *)((work) + 8);
+        jj = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
+        if (jj < 0) {
+          jj = jj + *(s32 *)((work) + 8);
         }
-        if (pfVar17 <= pfVar16) {
+        if (lim <= out) {
           func_0046d730(D_007146E0,0x4ae);
         }
-        pfVar3 = (f32 *)(*(s32 *)(((work) + temp_v1 * 4 + 0x10)) + temp_v4 * 0xc);
-        *(EffAfterVec *)pfVar16 = *(EffAfterVec *)pfVar3;
+        pb = (f32 *)(*(s32 *)(((work) + side * 4 + 0x10)) + jj * 0xc);
+        *(EffAfterVec *)out = *(EffAfterVec *)pb;
         if (*(s32 *)((work) + 8) < *(s32 *)((*(u8 **)work) + 8)) {
           section = 0;
         }
         else {
           section = *(u32 *)((work) + 0xc);
         }
-          temp_v1++;
+          side++;
       }
     }
     break;
