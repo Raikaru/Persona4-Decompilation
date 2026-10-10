@@ -2453,6 +2453,8 @@ void func_00126090(s32 arg0, u8 *arg1)
  * 52 + 246*(1 - r) with alpha 255*r, and the scroll step converts
  * (x<<16 - pos) + 0.5*((x - y)<<16) to int once (retail cvt.w.s into s0) for
  * func_0043c6a0 and the half step. Saved FPRs are now retail's f20-f24.
+ * 2949: the sinf results are floats; m2c's (f32)(s32) round trips are gone.
+ * (fGpffff8094 is loaded directly, as retail)
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3045,11 +3047,11 @@ loop_93:
                             } else if (var_2_5 >= 0x1F) {
                                 var_2_5 = 0x1E;
                             }
-                            temp_f20_3 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) var_2_5) / 30.0f)))));
+                            temp_f20_3 = sinf(((((fGpffff8094 * (f32) var_2_5) / 30.0f))));
                             if (var_17 >= 0x32) {
                                 var_17 = 0x32;
                             }
-                            temp_f21 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) var_17) / 50.0f)))));
+                            temp_f21 = sinf(((((fGpffff8094 * (f32) var_17) / 50.0f))));
                             if (var_17 == 1) {
                                 temp_3_2 = (s32)(M2C_FIELD(temp_21, s32 *, 0));
                                 if (temp_3_2 >= 0xF) {
@@ -3278,7 +3280,7 @@ loop_128:
                 }
             }
             if (temp_16 < 0x74) {
-                temp_f20_4 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) (temp_16 - 0x19)) / 90.0f)))));
+                temp_f20_4 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x19)) / 90.0f))));
                 var_3_10 = sp674.bytes;
                 var_2_7 = 4;
                 if (var_3_10 != NULL) {
@@ -3334,7 +3336,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
             }
             if ((temp_16 >= 0xBC) && (temp_16 < 0xDF)) {
-                temp_f2_2 = (f32)(s32)(fGpffff8094);
+                temp_f2_2 = fGpffff8094;
                 temp_f1_9 = 255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))));
                 var_5_12 = (u32)temp_f1_9 & 0xFF;
                 func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_12, 0x10009, 0, (u8 *)(M2C_FIELD(temp_20, s32 *, 0x3C)), 1);
@@ -3447,7 +3449,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp310 = sp2F0.bits;
                 func_0045d6e0((u8 *)&sp608, (f32 *)&sp310, 0.0f, 0);
                 func_0048a000();
-                temp_f22 = (f32)(s32)(sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f)))));
+                temp_f22 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f))));
                 func_002aaac0();
                 D_00887300[0](6, 1);
                 RpSkyRenderStateSet(3, 0x50003);
