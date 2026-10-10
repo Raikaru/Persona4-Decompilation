@@ -1471,26 +1471,20 @@ loop_test:
     return 1;
 }
 /* Rank usable skills by the best single target or the accumulated target score.
-   The producer's 0x40-byte target record includes selected@0x3A and flags@0x3C.
-   Element kinds are signed 16-bit values; blocked status skips the skill.
-   2026-10-09: 98 -> 95: `table[outer - 1]`, `outer++` and an unsigned `outer <
-   outerCount` test. Residual: retail spills the u16 `outer` (sh/lhu 0x140),
-   skillStore (0x110) and the extended kind (0x120); b210 keeps outer in $fp.
- * 2026-10-09: 95 -> 92: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 87: local integer types as retail.
- * 85: local integer types as retail.
- * 82: conversion lever (idxB:(0, 1)).
- * 81: conversion lever (skill:(0, 2)).
- * sdiff 39/68 -> 39/65: outer counter as s32.
- * outer stays u16: retail spills it with sh/lhu at 0x140.
- * sdiff 39/68 -> 29/48: kind is s32 (retail re-sign-extends it), paramA/paramB s32 assigned per branch, func_00242800 takes kind, the kind test is !(s16)kind (no CSE with the parameters).
- */
-// FUN_001E9950 NONMATCHING
-#ifdef NON_MATCHING
+ * The producer's 0x40-byte target record includes selected@0x3A and flags@0x3C.
+ * Register/spill notes (verified MATCH): skill and kind are s32 (retail passes
+ * skill unnarrowed and re-sign-extends kind); func_0023d8e0 and func_001d7f10
+ * are declared here with s32 skill parameters, as retail passes $s2 without a
+ * mask. Retail spills skillStore, paramA, paramB, outer and bestCost; the
+ * declaration order (innerBest before outer, kind before skill, skillStore
+ * after paramA/paramB) reproduces that spill set and slot order. */
+// FUN_001E9950
 s32 func_001e9950(void) {
     extern s32 func_0029cc00(s32 arg0);
     extern void func_0029cf50(s32 arg0);
     extern s32 func_0023d6e0(s16 arg0);
+    extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
+    extern u16 func_001d7f10(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
     extern s32 func_0023df70(s32 arg0);
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
     extern u16 func_0023dd90(u8 *arg0, s32 arg1);
@@ -1509,16 +1503,16 @@ s32 func_001e9950(void) {
     u16 *table;
     s32 mode;
     s32 outerLimit;
-    u16 outer;
-    u16 outerCount;
-    u16 skill;
-    s32 skillStore;
-    s32 kind;
-    s32 paramA;
-    s32 paramB;
-    u16 targetKind;
     s32 innerBest;
-    s16 idxA;
+    u16 outer;
+    s32 outerCount;
+    s32 kind;
+    s32 skill;
+    s32 paramB;
+    s32 paramA;
+    s32 skillStore;
+    u16 targetKind;
+    s32 idxA;
     s32 idxB;
     u8 *entryA;
     u8 *entryB;
@@ -1549,8 +1543,8 @@ outer_body:
     if (outer == 0) {
         skill = (u16)(func_0023dfe0(*(u8 **)(unit + 0xA64)) & 0xFFFF);
     } else {
-        skill = table[outer - 1];
-        if ((u32)skill == 0) {
+        skill = *(u16 *)((u8 *)table + outer * 2 - 2);
+        if (skill == 0) {
             goto outer_next;
         }
     }
@@ -1558,7 +1552,7 @@ outer_body:
     if (skillStore >= 0x1B8) {
         goto outer_next;
     }
-    kind = (s16)func_0023d8e0(*(u8 **)(unit + 0xA64), (u32)skill);
+    kind = (s16)func_0023d8e0(*(u8 **)(unit + 0xA64), skill);
     if ((func_0023d6e0(kind) & 0x7E) == 0) {
         goto outer_next;
     }
@@ -1571,11 +1565,11 @@ outer_body:
             goto outer_next;
         }
     }
-    if (func_0023df70(skill & 0xFFFF) == 0) {
+    if (func_0023df70(skill) == 0) {
         if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x80008) != 0) {
             goto outer_next;
         }
-        if (func_0023ddc0(*(u8 **)(unit + 0xA64), skill & 0xFFFF) != 0) {
+        if (func_0023ddc0(*(u8 **)(unit + 0xA64), skill) != 0) {
             goto outer_next;
         }
     }
@@ -1583,11 +1577,12 @@ outer_body:
     innerBest = 0;
     if (targetKind == 0) {
         curScore = 0.0f;
+        idxA = 0;
         paramA = (s16)kind;
-        for (idxA = 0; (idxA & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxA = (idxA + 1) & 0xFFFF) {
-            entryA = tgt.entries[(idxA & 0xFFFF)];
+        for (; (idxA & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxA = (idxA + 1) & 0xFFFF) {
+            entryA = tgt.entries[(u16)idxA];
             if (func_001db360(entryA, paramA, 1) != 0) {
-                dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+                dmg = func_00235520(skill, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
                 hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
                 maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
                 neg = (s32)(0u - (u32)dmg);
@@ -1605,8 +1600,9 @@ outer_body:
         }
     } else {
         curScore = 0.0f;
+        idxB = 0;
         paramB = (s16)kind;
-        for (idxB = 0; ((s32)idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = ((s32)idxB + 1) & 0xFFFF) {
+        for (; ((s32)idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = ((s32)idxB + 1) & 0xFFFF) {
             entryB = tgt.entries[(idxB & 0xFFFF)];
             if (func_001db360(entryB, paramB, 1) == 0) {
                 if ((func_00242800(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), kind) & 0x1000000) == 0) {
@@ -1614,7 +1610,7 @@ outer_body:
                     goto scored;
                 }
             } else {
-                dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+                dmg = func_00235520(skill, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
                 hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
                 maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
                 neg = (s32)(0u - (u32)dmg);
@@ -1630,8 +1626,8 @@ outer_body:
 scored:
     if (bestScore <= curScore) {
         if (bestScore == curScore) {
-            if ((func_0023dd90(*(u8 **)(unit + 0xA64), skill & 0xFFFF) & 0xFFFF) == 2) {
-                cost = func_0023d9b0(*(u8 **)(unit + 0xA64), skill & 0xFFFF);
+            if ((func_0023dd90(*(u8 **)(unit + 0xA64), skill) & 0xFFFF) == 2) {
+                cost = func_0023d9b0(*(u8 **)(unit + 0xA64), skill);
                 if (cost < bestCost) {
                     bestSkill = skillStore;
                     bestTarget = innerBest;
@@ -1668,9 +1664,6 @@ outer_test:
     func_0029cf50(bestSkill);
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e9950);
-#endif
 // FUN_001E9F20
 s32 func_001e9f20(void) {
     extern s32 func_0029cc00(s32 arg0);
