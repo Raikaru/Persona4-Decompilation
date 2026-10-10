@@ -5937,9 +5937,15 @@ void func_0047b060(void* param_1)
  * sdiff 22/84 -> 20/81: material bound test reads the count first.
  * sdiff 20/81 -> 16/75: start-frame stores through an inline setter (value, table, slot) as retail evaluates them.
  * sdiff 16/75 -> 14/70: the clip store uses the same inline setter shape.
+ * sdiff 14/70 -> 10/66: material/uv value reads through an index accessor (index before the entries load, as retail).
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
+static inline void **mdlLoaderValueAt(void *table, u32 index)
+{
+    return (void **)(*(u8 **)table + index * 8);
+}
+
 static inline MdlDispatchAnimEntry *mdlLoaderAnimEntry(MdlDispatchAnimTable *table, u32 slot)
 {
     return &table->entries[slot];
@@ -6209,7 +6215,7 @@ s32 func_0047b0c0(u8 *model)
                 MdlLoaderMaterialTable *materials = LOAD_MATERIALS();
 
                 if (materials != 0 && materials->count > sourceIndex) {
-                    void *value = materials->entries[sourceIndex].value;
+                    void *value = *mdlLoaderValueAt(materials, sourceIndex);
                     if (value != 0) {
                         u16 dst = state->slot;
 
@@ -6222,7 +6228,7 @@ s32 func_0047b0c0(u8 *model)
                 MdlLoaderUvTable *uvs = LOAD_UVS();
 
                 if (uvs != 0 && sourceIndex < uvs->count) {
-                    void *value = uvs->entries[sourceIndex].value;
+                    void *value = *mdlLoaderValueAt(uvs, sourceIndex);
                     if (value != 0) {
                         u16 dst = state->slot;
 
