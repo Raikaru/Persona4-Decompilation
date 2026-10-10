@@ -375,6 +375,8 @@ void func_001607e0(void)
  * j declared before i (retail i in $s0, j in $s1).
  * all clamps spelled `> 255` (retail tests through $at).
  * blend row offset uses (u32)j * 4 (retail recomputes it; the s32 form is CSE'd with the current row's).
+ * current-row base held as an integer (u32) so the row offset is the first addu operand, as retail.
+ * blend row reads the base word as u32 (retail reloads it there instead of reusing the current-row base).
  */
 // FUN_00160880 NONMATCHING
 #ifdef NON_MATCHING
@@ -455,8 +457,8 @@ void func_00160880(void)
         prevRow = prevOff + i * 0x24;
         vtxRow = D_007E4320 + (i << 11);
         for (; j < 8; j++) {
-            u8 *base = iGpffffb2b0;
-            u8 *p = base + curRow + j * 4;
+            u32 base = (u32)iGpffffb2b0;
+            u8 *p = (u8 *)(curRow + base) + j * 4;
             s32 w;
             s32 bright;
 
@@ -492,7 +494,7 @@ void func_00160880(void)
             if (a2 < 0) { a2 = 0; }
             if (a2 > 255) { a2 = 255; }
             if (D_007643B0 < 1.0f) {
-                u8 *q = iGpffffb2b0 + prevRow + (u32)j * 4;
+                u8 *q = (u8 *)(prevRow + *(u32 *)&iGpffffb2b0) + (u32)j * 4;
                 s32 sr0, sg0, sb0, sa0;
                 s32 sr1, sg1, sb1, sa1;
                 s32 sr2, sg2, sb2, sa2;
@@ -564,7 +566,7 @@ void func_00160880(void)
                 b3 = b3 * iGpffff9ef8 / 255;
                 a3 = a3 * iGpffff9ef8 / 255;
             }
-            if (*(s32 *)(base + curOff) == 3) {
+            if (*(s32 *)(curOff + base) == 3) {
                 u8 *vtx;
 
                 zeroBytes16_00160880(colsA);
