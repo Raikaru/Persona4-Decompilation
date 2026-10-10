@@ -1868,6 +1868,8 @@ query_complete:
  * exclusive; the bracketing key indices replace Ghidra's unaff_s2/unaff_s5; real
  * matrix temporaries replace the uninitialised temp_v15/16 pointers).
  * (cleanup: unused Ghidra declarations removed)
+ * 2517: the key searches run on int counters and record the hit with break (as
+ * retail); lo/hi stay unset only on the asserted not-found path, as in retail.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2224,20 +2226,31 @@ s32 func_0016bdd0(u8 *param_1)
 
           temp_v8 = FUN_00457120();
           temp_v8 = *(int *)(temp_v8 + 4);
-          for (lo = temp_v4; lo > 0 && *(char *)((int)piVar1 + lo + 0xe8) == '\0'; lo--) {
+          temp_v7 = temp_v4;
+          while (0 < temp_v7) {
+            if (*(char *)((int)piVar1 + temp_v7 + 0xe8) != '\0') {
+              lo = temp_v7;
+              break;
+            }
+            temp_v7 = temp_v7 - 1;
           }
-          if (lo <= 0) {
+          if (temp_v7 < 1) {
             FUN_0046d730(DAT_005f1698,0x187);
           }
-          hi = piVar1[0xd] - 2;
-          if (hi >= temp_v4 + 1) {
-            hi = temp_v4 + 1;
+          temp_v7 = piVar1[0xd] - 2;
+          temp_v4 = temp_v4 + 1;
+          if (temp_v7 < temp_v4) {
+            temp_v4 = temp_v7;
           }
           last = piVar1[0xd] - 1;
-          while (hi < last && *(char *)((int)piVar1 + hi + 0xe8) == '\0') {
-            hi = hi + 1;
+          while (temp_v4 < last) {
+            if (*(char *)((int)piVar1 + temp_v4 + 0xe8) != '\0') {
+              hi = temp_v4;
+              break;
+            }
+            temp_v4 = temp_v4 + 1;
           }
-          if (hi >= last) {
+          if (last <= temp_v4) {
             FUN_0046d730(DAT_005f1698,0x193);
           }
           temp_v4 = lo * 2 + (int)lo;
