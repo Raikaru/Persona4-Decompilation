@@ -4445,8 +4445,8 @@ typedef struct MdlCloneLayerView {
 
 static inline MdlCloneAttachmentTable* mdl_clone_attachment_storage(u32 count)
 {
-    MdlCloneAttachmentTable* copy;
     s32 size = sizeof(MdlCloneAttachmentTable);
+    MdlCloneAttachmentTable* copy;
     size += count * sizeof(void*);
     size += count * sizeof(void*);
     func_0044ea90(D_00713138, 0x1d6);
