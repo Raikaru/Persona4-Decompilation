@@ -3976,6 +3976,7 @@ void func_001a7710(void)
    Four saved dependency locals and the 001d65d0 UID formal are wide too.
  * 2026-10-09: 1489 -> 1486: the m2c label loops are while loops.
  * 2026-10-09: 1486 -> 1358: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 1346: comparison constants in retail's form.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5469,7 +5470,7 @@ do {
                             func_00194590(temp_2_100, 2);
                         }
                     }
-                    if (sp250 >= 0x1A) {
+                    if (sp250 > 0x19) {
                         temp_2_101 = (u8 *)(func_0019aa70((*( u8 ** )((u8 *)(var_21_2) + (0x30))), (s16)(sp250 - 0x19)));
                         (*( s8 * )((u8 *)(temp_2_101) + (0))) = 4;
                         *(s64 *)(temp_2_101 + 8) = *(s64 *)(var_19 + 0x58);
