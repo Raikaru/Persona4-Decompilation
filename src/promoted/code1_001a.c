@@ -3994,6 +3994,8 @@ void func_001a7710(void)
  * sdiff struct 871 -> 652: opt_common_subs off (retail reloads every field; CSE hoisted and spilled field addresses).
  * sp450 stored straight from the s16 field, index reloaded from it; 32-bit flag test at iGpffffb3ac+0xC.
  * sp200/sp1E0 are s32 (retail spills them whole).
+ * 0xEC/0xD8 test in retail polarity (arg0 branch first).
+ * tail state switch (cases 1,3,2 shared; default separate) with the real btlActionSetState(BtlAction *, u16) prototype instead of the old-style local declaration.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4020,7 +4022,6 @@ void func_001a7720(u8 *arg0) {
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
     extern s32 btlUnitCreateLookAtDeactivatePacket();
     extern s32 func_001a03b0();
-    extern s32 btlActionSetState();
     extern s32 func_001b7060();
     extern s32 func_001b7080();
     extern s32 func_001b7090();
@@ -5578,7 +5579,18 @@ do {
                     func_00194590(temp_2_112, 1);
                 }
                 if ((s32)(spC0) == (s32)(((*( u8 * )((u8 *)(temp_18) + (0xD9))) - 1))) {
-                    if (!((((*( s16 * )((u8 *)(arg0) + (0xEC))) != 0) && !((*( u8 * )((u8 *)(arg0) + (0xD8))) & 1)))) {
+                    if (((*( s16 * )((u8 *)(arg0) + (0xEC))) != 0) && !((*( u8 * )((u8 *)(arg0) + (0xD8))) & 1)) {
+                        temp_4_14 = (s32)((s32)((*( s32 * )((u8 *)(((s32)(arg0) + sp120)) + (0x104)))));
+                        if (temp_4_14 != 0) {
+                            func_00216da0((*( s32 * )((u8 *)(iGpffffb3ac) + (0xC60))), func_0043c6a0(temp_4_14));
+                        }
+                        temp_2_113 = (u8 *)(func_00202400((*( u8 ** )((u8 *)(arg0) + (0x30))), (*( s16 * )((u8 *)(arg0) + (0xEC)))));
+                        (*( s8 * )((u8 *)(temp_2_113) + (0))) = 5;
+                        *(s64 *)(temp_2_113 + 8) = *(s64 *)(var_19 + 0x58);
+                        (*( u8 * )((u8 *)(temp_2_113) + (0x47))) = (u8)((u8) ((*( u8 * )((u8 *)(temp_2_113) + (0x47))) & 0xDF));
+                        (*( s64 * )((u8 *)(temp_2_113) + (0x60))) = temp_16;
+                        func_00194590(temp_2_113, 3);
+                    } else {
                         if ((*( s16 * )((u8 *)(temp_18) + (0xEC))) != 0) {
                             temp_4_15 = (*( s32 * )((u8 *)(sp110) + (0x104)));
                             if (temp_4_15 != 0) {
@@ -5601,17 +5613,6 @@ do {
                                 func_00194590(temp_2_115, 3);
                             }
                         }
-                    } else {
-                        temp_4_14 = (s32)((s32)((*( s32 * )((u8 *)(((s32)(arg0) + sp120)) + (0x104)))));
-                        if (temp_4_14 != 0) {
-                            func_00216da0((*( s32 * )((u8 *)(iGpffffb3ac) + (0xC60))), func_0043c6a0(temp_4_14));
-                        }
-                        temp_2_113 = (u8 *)(func_00202400((*( u8 ** )((u8 *)(arg0) + (0x30))), (*( s16 * )((u8 *)(arg0) + (0xEC)))));
-                        (*( s8 * )((u8 *)(temp_2_113) + (0))) = 5;
-                        *(s64 *)(temp_2_113 + 8) = *(s64 *)(var_19 + 0x58);
-                        (*( u8 * )((u8 *)(temp_2_113) + (0x47))) = (u8)((u8) ((*( u8 * )((u8 *)(temp_2_113) + (0x47))) & 0xDF));
-                        (*( s64 * )((u8 *)(temp_2_113) + (0x60))) = temp_16;
-                        func_00194590(temp_2_113, 3);
                     }
                 }
                 if ((s32)(*sp240) != (s32)(0)) {
@@ -6004,14 +6005,24 @@ block_481:
         func_00194590(func_001fa720((u8 *)&cutin), 1);
     }
     if ((s32)(func_001f68e0(arg0)) != (s32)(0)) {
-        btlActionSetState(arg0, 0x1BU);
+        btlActionSetState((BtlAction *)arg0, 0x1B);
         return;
     }
-    temp_3_21 = (u16)((u16)((*( u16 * )((u8 *)(arg0) + (0x6C)))));
-    if ((temp_3_21 != 2) && (temp_3_21 != 3) && (temp_3_21 != 1)) {
+    {
+        u16 state;
 
+        switch (*(u16 *)(arg0 + 0x6C)) {
+        case 1:
+        case 3:
+        case 2:
+            state = 0x20;
+            break;
+        default:
+            state = 0x20;
+            break;
+        }
+        btlActionSetState((BtlAction *)arg0, state);
     }
-    btlActionSetState(arg0, 0x20U);
 }
 
 #pragma pop
