@@ -1874,6 +1874,8 @@ query_complete:
  * structs; scalar copies let b210 keep them in registers).
  * 1724: vector copies written as struct copies (retail copies through stack structs).
  * 1688: the three copies into the +0x2B0 vector are struct stores.
+ * 1686: the normalize calls take the vector base (&v[0]); Ghidra passed the address
+ * of the last element.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2116,7 +2118,7 @@ s32 func_0016bdd0(u8 *param_1)
         if (temp_v2) {
           temp_v10 = temp_v10 - ((float *)piVar1)[8];
           stk40[1] = 0.0f;
-          FUN_003e40b0(&stk40[2],&stk40[2]);
+          FUN_003e40b0(&stk40[0],&stk40[0]);
           stk40[0] = stk40[0] * temp_v10;
           stk40[1] = stk40[1] * temp_v10;
           stk40[2] = stk40[2] * temp_v10;
@@ -2170,7 +2172,7 @@ s32 func_0016bdd0(u8 *param_1)
         stk90[2] = temp_v11 - ((float *)piVar1)[0x33];
         fStack_5c = temp_v14;
         fStack_58 = temp_v11;
-        FUN_003e40b0(&stkA0[2],&stk90[2]);
+        FUN_003e40b0(&stkA0[0],&stk90[0]);
         fStack_80 = ((float *)piVar1)[0x34];
         fStack_7c = ((float *)piVar1)[0x35];
         fStack_78 = ((float *)piVar1)[0x36];
@@ -2341,7 +2343,7 @@ s32 func_0016bdd0(u8 *param_1)
         if (((float *)piVar1)[8] < temp_v9) {
           temp_v9 = temp_v9 - ((float *)piVar1)[8];
           stk110[1] = 0.0f;
-          FUN_003e40b0(&stk110[2],&stk110[2]);
+          FUN_003e40b0(&stk110[0],&stk110[0]);
           stk110[0] = stk110[0] * temp_v9;
           stk110[1] = stk110[1] * temp_v9;
           stk110[2] = stk110[2] * temp_v9;
@@ -2384,7 +2386,7 @@ s32 func_0016bdd0(u8 *param_1)
         stk120[0] = *(float *)(temp_v8 + 0x20);
         stk120[1] = *(float *)(temp_v8 + 0x24);
         stk120[2] = *(float *)(temp_v8 + 0x28);
-        FUN_003e40b0(&stk120[2],&stk120[2]);
+        FUN_003e40b0(&stk120[0],&stk120[0]);
         temp_v9 = ((float *)piVar1)[0xa3] + 55.0f;
         stk120[0] = -stk120[0] * temp_v9;
         stk120[1] = -stk120[1] * temp_v9;
@@ -2436,7 +2438,7 @@ s32 func_0016bdd0(u8 *param_1)
             stk120[0] += temp_v11 + temp_v13 * temp_v10;
             stk120[1] += temp_v14 + temp_v12 * temp_v10;
             stk120[2] += temp_v11 + temp_v11 * temp_v10;
-            FUN_003e40b0(&stk120[2],&stk120[2]);
+            FUN_003e40b0(&stk120[0],&stk120[0]);
             stk120[0] = -stk120[0];
             stk120[0] = stk120[0] * temp_v9;
             stk120[1] = -stk120[1] * temp_v9;
@@ -2482,18 +2484,18 @@ s32 func_0016bdd0(u8 *param_1)
           stk1A0[0] = *(float *)(temp_v8 + 0x20);
           stk1A0[2] = *(float *)(temp_v8 + 0x28);
           stk1A0[1] = 0.0f;
-          FUN_003e40b0(&stk1A0[2],&stk1A0[2]);
+          FUN_003e40b0(&stk1A0[0],&stk1A0[0]);
           temp_v9 = DAT_00756518;
           temp_v10 = DAT_00756514;
           stk190[0] = stk1A0[1] * DAT_00756518 - stk1A0[2] * DAT_00756514;
           stk190[1] = stk1A0[2] * DAT_00756510 - stk1A0[0] * DAT_00756518;
           stk190[2] = stk1A0[0] * DAT_00756514 - stk1A0[1] * DAT_00756510;
           temp_v14 = DAT_00756510;
-          FUN_003e40b0(&stk190[2],&stk190[2]);
+          FUN_003e40b0(&stk190[0],&stk190[0]);
           stk180[0] = ((float *)piVar1)[0xad] * temp_v9 - ((float *)piVar1)[0xae] * temp_v10;
           stk180[1] = ((float *)piVar1)[0xae] * temp_v14 - ((float *)piVar1)[0xac] * temp_v9;
           stk180[2] = ((float *)piVar1)[0xac] * temp_v10 - ((float *)piVar1)[0xad] * temp_v14;
-          FUN_003e40b0(&stk180[2],&stk180[2]);
+          FUN_003e40b0(&stk180[0],&stk180[0]);
           if (stk180[2] * stk1A0[2] + stk180[0] * stk1A0[0] + stk180[1] * stk1A0[1] < 0.0f) {
             stk180[0] = -stk180[0];
             stk180[1] = -stk180[1];
@@ -2520,12 +2522,12 @@ s32 func_0016bdd0(u8 *param_1)
           stk1B0[0] = stk160[1] * DAT_00756518 - stk160[2] * DAT_00756514;
           stk1B0[1] = stk160[2] * DAT_00756510 - stk160[0] * DAT_00756518;
           stk1B0[2] = stk160[0] * DAT_00756514 - stk160[1] * DAT_00756510;
-          FUN_003e40b0(&stk1B0[2],&stk1B0[2]);
+          FUN_003e40b0(&stk1B0[0],&stk1B0[0]);
           temp_v8 = piVar1[0xb0];
           (*(int *)&stk1C0[0]) = *(unsigned int *)(temp_v8 + 0x20);
           (*(unsigned int *)&stk1C0[1]) = *(unsigned int *)(temp_v8 + 0x24);
           stk1C0[2] = *(float *)(temp_v8 + 0x28);
-          FUN_003e40b0(&stk1C0[2],&stk1C0[2]);
+          FUN_003e40b0(&stk1C0[0],&stk1C0[0]);
           FUN_001687f0((unsigned char *)&stkF0[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
           stkF0[0] = stkF0[0] + ((float *)piVar1)[5];
           stkF0[1] = stkF0[1] + ((float *)piVar1)[6];
@@ -2588,7 +2590,7 @@ s32 func_0016bdd0(u8 *param_1)
             } while (0 < temp_v8);
             temp_v8 = piVar1[0xb0];
             *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8 + 0x20);
-            FUN_003e40b0(&stk120[2],&stk120[2]);
+            FUN_003e40b0(&stk120[0],&stk120[0]);
             stk120[0] = -stk120[0] * temp_v12;
             stk120[1] = -stk120[1] * temp_v12;
             stk120[2] = -stk120[2] * temp_v12;
@@ -2633,7 +2635,7 @@ s32 func_0016bdd0(u8 *param_1)
               } while (0 < temp_v8);
               temp_v8 = piVar1[0xb0];
               *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8 + 0x20);
-              FUN_003e40b0(&stk120[2],&stk120[2]);
+              FUN_003e40b0(&stk120[0],&stk120[0]);
               temp_v12 = ((float *)piVar1)[0xa5];
               stk120[0] = -stk120[0] * temp_v12;
               stk120[1] = -stk120[1] * temp_v12;
@@ -2678,7 +2680,7 @@ s32 func_0016bdd0(u8 *param_1)
           }
           temp_v8 = piVar1[0xb0];
           *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8 + 0x20);
-          FUN_003e40b0(&stk120[2],&stk120[2]);
+          FUN_003e40b0(&stk120[0],&stk120[0]);
           temp_v12 = ((float *)piVar1)[0xa5];
           stk120[0] = -stk120[0] * temp_v12;
           stk120[1] = -stk120[1] * temp_v12;
@@ -2757,7 +2759,7 @@ s32 func_0016bdd0(u8 *param_1)
         if (((float *)piVar1)[8] < temp_v10) {
           temp_v10 = temp_v10 - ((float *)piVar1)[8];
           stk220[1] = 0.0f;
-          FUN_003e40b0(&stk220[2],&stk220[2]);
+          FUN_003e40b0(&stk220[0],&stk220[0]);
           stk220[0] = stk220[0] * temp_v10;
           stk220[1] = stk220[1] * temp_v10;
           stk220[2] = stk220[2] * temp_v10;
@@ -2802,7 +2804,7 @@ s32 func_0016bdd0(u8 *param_1)
         stk210[2] = *(float *)(temp_v8 + 0x38) - cv0.z;
         temp_v12 = cv0.z;
         cv0.y = temp_v14;
-        FUN_003e40b0(&stk210[2],&stk210[2]);
+        FUN_003e40b0(&stk210[0],&stk210[0]);
         temp_v9 = ((float *)piVar1)[0xa3];
         stk210[0] = stk210[0] * temp_v9;
         stk210[1] = stk210[1] * temp_v9;
@@ -2833,12 +2835,12 @@ s32 func_0016bdd0(u8 *param_1)
           stk230[0] = stk230[0] - uStack_2d0[0];
           stk230[1] = stk230[1] - uStack_2d0[1];
           stk230[2] = stk230[2] - fStack_2c8;
-          temp_v9 = (float)FUN_003e40b0(&stk230[2],&stk230[2]);
+          temp_v9 = (float)FUN_003e40b0(&stk230[0],&stk230[0]);
           if (0.0f < temp_v9) {
             stk210[0] = stk230[0];
             stk210[1] = stk230[1];
             stk210[2] = stk230[2];
-            FUN_003e40b0(&stk210[2],&stk210[2]);
+            FUN_003e40b0(&stk210[0],&stk210[0]);
             stk210[1] = stk210[1] * temp_v9; stk210[0] = stk210[0] * temp_v9;
             stk210[2] = stk210[2] * temp_v9;
             FUN_003e0c90(piVar1[0xb0],&stk210[0],0);
@@ -2870,7 +2872,7 @@ s32 func_0016bdd0(u8 *param_1)
           stk210[0] = *(float *)(temp_v4 + 0x30) - cv0.x;
           stk210[1] = *(float *)(temp_v4 + 0x34) - temp_v14;
           stk210[2] = *(float *)(temp_v4 + 0x38) - temp_v12;
-          FUN_003e40b0(&stk210[2],&stk210[2]);
+          FUN_003e40b0(&stk210[0],&stk210[0]);
           temp_v10 = ((float *)piVar1)[0xa5];
           stk210[1] = stk210[1] * temp_v10; stk210[0] = stk210[0] * temp_v10;
           stk210[2] = stk210[2] * temp_v10;
