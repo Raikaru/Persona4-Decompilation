@@ -370,6 +370,7 @@ void func_001607e0(void)
  * count-down byte loop (inline helper), as retail does.
  * 2026-10-09: 387 -> 383: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * 379: range tests in retail's slti $at form.
+ * 376: conversion lever (j:(0, 1)).
  */
 // FUN_00160880 NONMATCHING
 #ifdef NON_MATCHING
@@ -470,8 +471,8 @@ void func_00160880(void)
         s32 curRow = curOff + i * 0x24;
         s32 prevRow = prevOff + i * 0x24;
         u8 *vtxRow = D_007E4320 + (i << 11);
-        for (j = 0; j < 8; j++) {
-            p = base + curRow + j * 4;
+        for (j = 0; (s32)j < 8; j++) {
+            p = base + curRow + (s32)j * 4;
             w0 = *(s32 *)(p + 4);
             r0 = w0 & 0xFF;
             g0 = (w0 >> 8) & 0xFF;
