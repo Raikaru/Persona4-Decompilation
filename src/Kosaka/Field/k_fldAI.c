@@ -961,6 +961,7 @@ tail:
  * storing).
  * 1073: the zero-alpha branch stores the converted alpha byte (retail converts the
  * byte to float).
+ * (bit copies through int casts written as float copies)
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1348,7 +1349,7 @@ int func_0017f490(unsigned char *param_1)
       if (temp_v0 == 1) {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         vec70[0] = *(float *)(temp_v0 + 0x30);
-        (*(unsigned int *)&vec70[2]) = *(unsigned int *)(temp_v0 + 0x38);
+        vec70[2] = *(float *)(temp_v0 + 0x38);
         vec70[1] = *(float *)(temp_v0 + 0x34) +
                     *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
                               (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + 0x5f1cc0);
@@ -1367,7 +1368,7 @@ int func_0017f490(unsigned char *param_1)
         if (temp_v0 == 1) {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           vec80[0] = *(float *)(temp_v0 + 0x30);
-          (*(unsigned int *)&vec80[2]) = *(unsigned int *)(temp_v0 + 0x38);
+          vec80[2] = *(float *)(temp_v0 + 0x38);
           vec80[1] = *(float *)(temp_v0 + 0x34) +
                       *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
                                 (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + 0x5f1cc0);
