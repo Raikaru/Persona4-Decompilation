@@ -665,6 +665,7 @@ void func_002b6ea0(void) {
  * 150: conversion lever (off:(0, 3)).
  * 147: conversion lever (off:(4, 5)).
  * 144: conversion lever (off:(7, 8)).
+ * sdiff 19/126 -> 17/110: first draw block recomputes the sext of i (retail).
  */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
@@ -721,7 +722,7 @@ s32 func_002b6ec0(u8 *arg0) {
                 func_00460ac0(D_00793E80 + *(s32 *)(YDRAW_ENTRY(i) + 0xC) * 0x30, w);
                 b2 = YDRAW_BASE;
                 if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + (s32)off + 0xB0) <= 0.1f)) {
-                    u8 *d = b2 + (s32)i * 0x100U;
+                    u8 *d = b2 + (s32)(u32)i * 0x100;
 
                     color = func_002b2a30(0xFF, d[0x89], d[0x8A], d[0x8B]);
                     func_0025ecd0(*(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18), color, d[0x72], *(s16 *)(d + 8), *(void **)(table + 0), 0, *(s16 *)(d + 0x10), *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4), *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
