@@ -493,6 +493,9 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * hierarchy push/pop stack starts at &temp_v27[1] (retail $fp = sp+0x3e4).
  * fnalign 276 -> 259: dirty-list insert written as the RenderWare link-list macro (list address formed once).
  * hierarchy base loaded before the node index.
+ * bit 2 cleared with ~4 (retail and with -5).
+ * fnalign 251 -> 159: controller state half-word accessed through a byte pointer (no hoisted address), interpolator slots addressed before the create call, hierarchy base loaded first.
+ * 0x3e half-word through a byte pointer too.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -1192,7 +1195,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           } else {
             *(RwMatrix *)(temp_v7 + 0x50) = *(const RwMatrix *)pfVar8;
           }
-          *(unsigned char *)(temp_v7 + 3) = (*(unsigned char *)(temp_v7 + 3) & 0xfb) | 8;
+          *(unsigned char *)(temp_v7 + 3) = (*(unsigned char *)(temp_v7 + 3) & ~4) | 8;
         }
       }
       /* HAnim node parent-stack control: POP=1, PUSH=2. Both bits leave
@@ -1217,13 +1220,16 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       uStack_430 = uStack_430 + 0x10;
     }
     if ((puVar3 != (unsigned int *)0x0) && ((*controller & 0x81e0) != 0)) {
-      if (*(short *)((int)puVar3 + 0x42) == 0) {
+      if (*(u16 *)((u8 *)puVar3 + 0x42) == 0) {
         for (temp_v10 = 0; temp_v10 < 4; temp_v10 = temp_v10 + 1) {
+          unsigned int *slot = puVar3 + temp_v10;
+          unsigned int *interp = slot + 4;
+
           temp_v5 = (unsigned int)func_003d5790((int)puVar12[1], (int)*(unsigned int *)(puVar12[8] + 0x20));
-          (puVar3 + temp_v10)[4] = (int)temp_v5;
-          func_003d5840((RtAnimInterpolator *)((void *)temp_v5),(RtAnimAnimation *)( (void *)puVar3[temp_v10]));
+          *interp = temp_v5;
+          func_003d5840((RtAnimInterpolator *)((void *)temp_v5),(RtAnimAnimation *)((void *)*slot));
         }
-        *(unsigned short *)((int)puVar3 + 0x42) = 1;
+        *(u16 *)((u8 *)puVar3 + 0x42) = 1;
       }
       if (resetAnimation) {
         puVar3[0xc] = 0x3f800000;
@@ -1236,7 +1242,8 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         temp_v21 = *(float *)(pbVar19 + 4);
       }
       else {
-        piVar4 = *(int **)(**(int **)(modelState + 0x1a) + 0x4c + (short)modelState[2] * 0x50);
+        temp_v4 = **(int **)(modelState + 0x1a);
+        piVar4 = *(int **)(temp_v4 + 0x4c + (short)modelState[2] * 0x50);
         if (piVar4 == (int *)0x0) {
           temp_v21 = 0.0f;
         }
@@ -1258,7 +1265,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       func_003e0960((RwMatrix *)(temp_v22),(const RwMatrix *)(((f32 *)&baseMatrix)));
       func_003e4320((RwV3d *)(&direction[0]),(const RwV3d *)(&direction[0]),(const RwMatrix *)(temp_v22));
       RwV3dNormalize((RwV3d *)(&direction[0]),(const RwV3d *)(&direction[0]));
-      temp_v20 = (float)*(unsigned short *)((int)puVar3 + 0x3e) / *(float *)(controller + 6);
+      temp_v20 = (float)*(u16 *)((u8 *)puVar3 + 0x3e) / *(float *)(controller + 6);
       if (!(direction[0] < 0.0f)) {
         func_003d5840((RtAnimInterpolator *)(puVar3[5]),(RtAnimAnimation *)(puVar3[1]));
         func_003d5e40((unsigned char *)puVar3[5],temp_v21);
