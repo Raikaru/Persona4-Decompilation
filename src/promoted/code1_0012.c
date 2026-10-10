@@ -2438,6 +2438,11 @@ void func_00126090(s32 arg0, u8 *arg1)
  * (sp6B4..sp68C) before the copy into sp6BC, as retail stores them; the frame is
  * now retail's 0x6C0.
  * 2452: sp694 is the same colour intermediate.
+ * 2418: the model-draw floats are block-scoped, declared in retail's colour order.
+ * 2497: the two palette-glow calls pass the lerped record position
+ * A + t * (B - A) over D_005E5370 -> D_005E5398 and D_005E5398 -> D_005E53C0,
+ * with t the sinf result the old body discarded (retail adda/madd with f20 = t);
+ * m2c's placeholder read stale temp_f20/f21/f7/f8.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2455,8 +2460,6 @@ typedef s32 M2C_UNK;
 void func_001265a0(void *unusedDrawData, void *task) {
     extern u8 D_005E5234[];
     extern u8 D_005E5238[];
-    f32 titleX;
-    f32 titleY;
     typedef union TitleRectangleWords { s128 bits; s32 words[4]; } TitleRectangleWords;
     extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
@@ -2483,9 +2486,10 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern u8 D_005E5240[];
     extern u8 D_005E5248[];
     extern u8 D_005E5254[];
-    extern s32 D_005E5370;
+    extern s32 D_005E5370[];
     extern s32 D_005E538C[];
-    extern s32 D_005E5398;
+    extern s32 D_005E5398[];
+    extern s32 D_005E53C0[];
     extern s32 D_005E53B4[];
     extern TitlePalette D_005E5530;
     extern u8 D_005E5548[];
@@ -2660,6 +2664,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u8 *var_3_33;
     u8 *var_3_4;
     u8 *var_3_5;
+    f32 lerpT;
     f32 temp_f0;
     f32 temp_f0_11;
     f32 temp_f0_2;
@@ -2716,10 +2721,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     f32 temp_f20_5;
     f32 temp_f21;
     f32 temp_f21_2;
-    f32 temp_f21_3;
     f32 temp_f22;
-    f32 temp_f23;
-    f32 temp_f24;
     f32 temp_f2;
     f32 temp_f2_2;
     f32 temp_f2_3;
@@ -3158,7 +3160,7 @@ loop_128:
             if (temp_16 >= 0x82) {
                 if (temp_16 < 0xBE) {
                     temp_17 = temp_16 - 0x81;
-                    sinf(((((fGpffff8094 * (f32) temp_17) / 60.0f))));
+                    lerpT = sinf(((((fGpffff8094 * (f32) temp_17) / 60.0f))));
                     if (temp_17 == 1) {
                         if (*(s32 *)D_005E5230 >= 0xF) {
                             var_4_7 = NULL;
@@ -3225,9 +3227,9 @@ loop_128:
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
-                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5370), (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0.0f, (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (thirdBase.words[temp_8_3] & ~0xFF) | 0xFF, ((var_3_8 & 0xFF) << 8) | ((((u32) var_7 & 0xFF) << 0x18) | ((var_6_9 & 0xFF) << 0x10)) | 0xFF, (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0x40, temp_20);
+                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5370[0]), (M2C_FIELD(D_005E5370, f32 *, 4) + lerpT * (M2C_FIELD(D_005E5398, f32 *, 4) - M2C_FIELD(D_005E5370, f32 *, 4))), 0.0f, (M2C_FIELD(D_005E5370, f32 *, 8) + lerpT * (M2C_FIELD(D_005E5398, f32 *, 8) - M2C_FIELD(D_005E5370, f32 *, 8))), (M2C_FIELD(D_005E5370, f32 *, 0xC) + lerpT * (M2C_FIELD(D_005E5398, f32 *, 0xC) - M2C_FIELD(D_005E5370, f32 *, 0xC))), (M2C_FIELD(D_005E5370, f32 *, 0x10) + lerpT * (M2C_FIELD(D_005E5398, f32 *, 0x10) - M2C_FIELD(D_005E5370, f32 *, 0x10))), (M2C_FIELD(D_005E5370, f32 *, 0x14) + lerpT * (M2C_FIELD(D_005E5398, f32 *, 0x14) - M2C_FIELD(D_005E5370, f32 *, 0x14))), (thirdBase.words[temp_8_3] & ~0xFF) | 0xFF, ((var_3_8 & 0xFF) << 8) | ((((u32) var_7 & 0xFF) << 0x18) | ((var_6_9 & 0xFF) << 0x10)) | 0xFF, (M2C_FIELD(D_005E5370, f32 *, 0x18) + lerpT * (M2C_FIELD(D_005E5398, f32 *, 0x18) - M2C_FIELD(D_005E5370, f32 *, 0x18))), 0x40, temp_20);
                 } else if (temp_16 < 0xD2) {
-                    sinf(((((fGpffff8094 * (f32) (temp_16 - 0xBD)) / 20.0f))));
+                    lerpT = sinf(((((fGpffff8094 * (f32) (temp_16 - 0xBD)) / 20.0f))));
                     fourthPalette = D_005E5530;
                     titlePaletteCopy(&fourthHighlight, &fourthPalette);
                     temp_8_5 = D_005E53B4[0];
@@ -3259,7 +3261,7 @@ loop_128:
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
-                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5398), (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0.0f, (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (temp_f20 * temp_f21 + temp_f7 * temp_f8), (fourthBase.words[temp_8_5] & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | ((((u32) var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0x40, temp_20);
+                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5398[0]), (M2C_FIELD(D_005E5398, f32 *, 4) + lerpT * (M2C_FIELD(D_005E53C0, f32 *, 4) - M2C_FIELD(D_005E5398, f32 *, 4))), 0.0f, (M2C_FIELD(D_005E5398, f32 *, 8) + lerpT * (M2C_FIELD(D_005E53C0, f32 *, 8) - M2C_FIELD(D_005E5398, f32 *, 8))), (M2C_FIELD(D_005E5398, f32 *, 0xC) + lerpT * (M2C_FIELD(D_005E53C0, f32 *, 0xC) - M2C_FIELD(D_005E5398, f32 *, 0xC))), (M2C_FIELD(D_005E5398, f32 *, 0x10) + lerpT * (M2C_FIELD(D_005E53C0, f32 *, 0x10) - M2C_FIELD(D_005E5398, f32 *, 0x10))), (M2C_FIELD(D_005E5398, f32 *, 0x14) + lerpT * (M2C_FIELD(D_005E53C0, f32 *, 0x14) - M2C_FIELD(D_005E5398, f32 *, 0x14))), (fourthBase.words[temp_8_5] & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | ((((u32) var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, (M2C_FIELD(D_005E5398, f32 *, 0x18) + lerpT * (M2C_FIELD(D_005E53C0, f32 *, 0x18) - M2C_FIELD(D_005E5398, f32 *, 0x18))), 0x40, temp_20);
                 } else {
                     func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
                 }
@@ -3800,6 +3802,12 @@ loop_351:
             }
         }
         if (var_16_2 != NULL) {
+            f32 titleY;
+            f32 temp_f24;
+            f32 temp_f23;
+            f32 temp_f21_3;
+            f32 titleX;
+
             temp_3_19 = (s32)(M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);
             titleX = *(f32 *)(D_005E5234 + temp_3_19);
             titleY = *(f32 *)(D_005E5238 + temp_3_19);
