@@ -135,9 +135,49 @@ sha1 OK in `build/link40.log`).
     as s32 (637). Ghidra's `spXXX` names are retail slots but several are
     merged variables (`sp3C0`, `sp350`, `sp270` are `sh` slots, yet making
     them halfwords is worse).
-  - Next for `001a7720`: block order around R3180-R3290 (ours runs ~65
-    instructions ahead: the `0xec`/`0xd8` unit tests and the 0x5 packet
-    builders are ordered differently).
+  - Further `001a7720` steps (struct 637 -> 538): Ghidra's
+    `if (!(cond)) {B} else {A}` around the `0xEC`/`0xD8` unit test inverts
+    retail's layout (write `if (cond) {A} else {B}`; the same flip at the
+    three `temp_30_ptr` flag tests is worse, so check per site); the tail
+    `0x6C` test is a `switch` (cases 1, 3, 2 share the state store) calling
+    the real `btlActionSetState(BtlAction *, u16)` prototype, which gives
+    retail's `daddiu`; the 0x13/0x10 `goto block_408` becomes a
+    `var_2_13` flag test with the 0x13 call first; real parameter types for
+    four packet builders. Remaining: frame 0x5d0 vs 0x5b0. Retail spills 24
+    values to `sq` slots, ours 21; locals that retail keeps in registers
+    sit in memory in ours (e.g. `sp200`, with any spelling or declaration
+    position). Merging Ghidra's 140 `temp_2_N` packet pointers into one
+    variable moves the frame (to 0x580) but wrecks the code (831).
+- **`0046b380`** (fnalign 41 -> 25): a third record-address spelling,
+  `SDK_SPRITE_RECORD_VIA_ADD` (through `sdkAddOffset`, index first), at the
+  packed-colour reads and the `points[2].x` extent. The remaining `addu`
+  orientations want the table loaded first *and* an index-first add; no
+  spelling tried (both macros, both helper argument orders, `&table[idx]`,
+  a base-first helper returning `offset + base`) gives that pair, singly or
+  in runs of 2-3 neighbouring sites.
+- **`0047b0c0`** (fnalign 38 -> 9):
+  - `cloneSlots` are `s16 *` (retail `addiu -1`, not `ori 0xffff`).
+  - `state->cloneSlots[state->layer]`, `state->capacities[state->layer]`
+    and the `layerResource` slot entries as base-first byte offsets
+    (`(u8 *)base + idx * size + off`).
+  - `(s32)effect.length` in the `func_0047d320` call: retail loads that
+    argument before the head/payload moves.
+  - `#pragma opt_loop_invariants on` (retail hoists the `-1` fill and the
+    other loop constants) once every `D_0070B610` use is pointer-typed:
+    the `(s32)`/`(u32)` casts made it an integer constant that the pragma
+    hoisted into `$s6`.
+  - The `capacities[c]` init loop stores the literal 32.
+  - The `0xf0f000e1` path calls `mdl_clone_attachment_storage_sized`
+    (`size` declared before `copy`); changing the shared helper instead
+    breaks the `0xf0f000e0` expansion in the same function.
+  - Left: `payload` and the new table swap `$s3`/`$s5`. `regalloc_whatif`
+    wants `payload` numbered after the helper's locals; a function-scope
+    `payload`, `register`, other types and declaration orders do not move it.
+- **`00320b80`** (fnalign 10 -> 8): `n = i; arg1 = i;` as statements at
+  the loop top before the `sp118` call. Left: retail keeps a separate
+  loop-top `(s16)i` for `n` (`$s2`) and a condition temporary (`$s0`); ours
+  merges them into `n`. No pragma or `n` spelling keeps them apart, and
+  dropping the `arg1 = i` reuse loses `mode`'s stack slot (`0xd0`).
 
 
 The first three closed by reading which *variables*
