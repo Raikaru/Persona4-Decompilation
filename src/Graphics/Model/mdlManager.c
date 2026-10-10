@@ -5935,12 +5935,24 @@ void func_0047b060(void* param_1)
  * sdiff 27/94 -> 22/88: animation field read relative to the element (retail folds +0x40 into the load).
  * sdiff 22/88 -> 22/84: startFrame stores through an inline entry accessor (retail loads entries after the index).
  * sdiff 22/84 -> 20/81: material bound test reads the count first.
+ * sdiff 20/81 -> 16/75: start-frame stores through an inline setter (value, table, slot) as retail evaluates them.
+ * sdiff 16/75 -> 14/70: the clip store uses the same inline setter shape.
  */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
 static inline MdlDispatchAnimEntry *mdlLoaderAnimEntry(MdlDispatchAnimTable *table, u32 slot)
 {
     return &table->entries[slot];
+}
+
+static inline void mdlLoaderSetFrame(s32 value, MdlDispatchAnimTable *table, u32 slot, s32 which)
+{
+    mdlLoaderAnimEntry(table, slot)->startFrame[which] = value;
+}
+
+static inline void mdlLoaderSetAnimation(void *value, MdlDispatchAnimTable *table, u32 slot)
+{
+    mdlLoaderAnimEntry(table, slot)->animation = value;
 }
 
 s32 func_0047b0c0(u8 *model)
@@ -6153,7 +6165,7 @@ s32 func_0047b0c0(u8 *model)
             MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
             LOAD_LAYER()->resource = table;
         }
-        LOAD_LAYER()->resource->entries[state->slot].animation = D_00922BC0_abs;
+        mdlLoaderSetAnimation(D_00922BC0_abs, LOAD_LAYER()->resource, state->slot);
         func_003e2ce0(state->stream, chunk.length);
         continue;
 
@@ -6410,9 +6422,9 @@ s32 func_0047b0c0(u8 *model)
             layerResource->entries[state->slot].startFrame = values;
         }
         if (chunk.type == 0xf0f00007) {
-            mdlLoaderAnimEntry(LOAD_LAYER()->resource, state->slot)->startFrame[0] = metadata;
+            mdlLoaderSetFrame(metadata, LOAD_LAYER()->resource, state->slot, 0);
         } else {
-            mdlLoaderAnimEntry(LOAD_LAYER()->resource, state->slot)->startFrame[1] = metadata;
+            mdlLoaderSetFrame(metadata, LOAD_LAYER()->resource, state->slot, 1);
         }
         continue;
 
