@@ -2509,11 +2509,19 @@ void func_00126090(s32 arg0, u8 *arg1, f32 x, f32 y, f32 depth)
  * 409: the scroll target is (f20 << 16) + 0.25 * ((f20 - f24) << 16) (the old
  * body dropped the shift on the first term); retail multiplies and adds
  * separately.
+ * 349: each rectangle is copied by a titleCopyValue-style inline that returns
+ * the destination, so the argument address is formed before the copy (retail).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
+static inline f32 *titleCopyRect(u8 *destination, const u8 *source)
+{
+    *(TitleRect *)destination = *(const TitleRect *)source;
+    return (f32 *)destination;
+}
+
 typedef struct {
     u32 f00;
     u32 state;
@@ -2928,12 +2936,10 @@ void func_001265a0(void *unusedDrawData, void *task) {
         sp520.bits = D_005E5650;
         temp_f20 = 42.0f * (1.0f - temp_f20);
         sp520.words[1] = (s32)-temp_f20;
-        sp590 = sp520.bits;
-        func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
+        func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp520), 0.0f, 1);
         sp510.bits = D_005E5660;
         sp510.words[1] = (s32)(406.0f + temp_f20);
-        sp590 = sp510.bits;
-        func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
+        func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp510), 0.0f, 1);
         break;
     case 4:
     case 5:
@@ -2973,11 +2979,9 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 /* Retail passes depth in f12 and saveState in a2 at both calls. */
                 extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
                 sp4B0 = D_005E5590;
-                sp4C0 = sp4B0.bits;
-                func_0045d6e0((u8 *)&layerColor, (f32 *)&sp4C0, 0.0f, 1);
+                func_0045d6e0((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4B0), 0.0f, 1);
                 sp4A0 = D_005E55A0;
-                sp4C0 = sp4A0.bits;
-                func_0045d6e0((u8 *)&layerColor, (f32 *)&sp4C0, 0.0f, 1);
+                func_0045d6e0((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4A0), 0.0f, 1);
             }
             func_00126090(0xFF, (u8 *)temp_20, 0.0f, 0.0f, 0.0f);
             if (temp_16 >= 0xCD) {
@@ -3008,11 +3012,9 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 sp624.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp628, (const u8 *)&sp624);
                 sp480 = D_005E5590;
-                sp490 = sp480.bits;
-                func_0045d6e0((u8 *)&sp628, (f32 *)&sp490, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp480), 0.0f, 0);
                 sp470 = D_005E55A0;
-                sp490 = sp470.bits;
-                func_0045d6e0((u8 *)&sp628, (f32 *)&sp490, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp470), 0.0f, 0);
                 func_0048a000();
                 temp_2_2 = (s32)(taskView->f10 + 1);
                 taskView->f10 = temp_2_2;
@@ -3242,11 +3244,9 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 sp61C.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp620, (const u8 *)&sp61C);
                 sp390 = D_005E5590;
-                sp3A0 = sp390.bits;
-                func_0045d6e0((u8 *)&sp620, (f32 *)&sp3A0, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp390), 0.0f, 0);
                 sp380 = D_005E55A0;
-                sp3A0 = sp380.bits;
-                func_0045d6e0((u8 *)&sp620, (f32 *)&sp3A0, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp380), 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
                 fnTable[0](6, 1);
@@ -3299,11 +3299,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp614.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp618, (const u8 *)&sp614);
                 sp360 = D_005E5590;
-                sp370 = sp360.bits;
-                func_0045d6e0((u8 *)&sp618, (f32 *)&sp370, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp360), 0.0f, 0);
                 sp350 = D_005E55A0;
-                sp370 = sp350.bits;
-                func_0045d6e0((u8 *)&sp618, (f32 *)&sp370, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp350), 0.0f, 0);
                 func_0048a000();
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
             } else {
@@ -3337,11 +3335,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp60C.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp610, (const u8 *)&sp60C);
                 sp330 = D_005E5590;
-                sp340 = sp330.bits;
-                func_0045d6e0((u8 *)&sp610, (f32 *)&sp340, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp330), 0.0f, 0);
                 sp320 = D_005E55A0;
-                sp340 = sp320.bits;
-                func_0045d6e0((u8 *)&sp610, (f32 *)&sp340, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp320), 0.0f, 0);
                 func_0048a000();
                 func_002aaac0();
                 fnTable[0](6, 1);
@@ -3376,11 +3372,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp604.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp608, (const u8 *)&sp604);
                 sp300 = D_005E5590;
-                sp310 = sp300.bits;
-                func_0045d6e0((u8 *)&sp608, (f32 *)&sp310, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp300), 0.0f, 0);
                 sp2F0 = D_005E55A0;
-                sp310 = sp2F0.bits;
-                func_0045d6e0((u8 *)&sp608, (f32 *)&sp310, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp2F0), 0.0f, 0);
                 func_0048a000();
                 temp_f22 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 60.0f))));
                 func_002aaac0();
@@ -3416,11 +3410,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp5FC.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp600, (const u8 *)&sp5FC);
                 sp2D0 = D_005E5590;
-                sp2E0 = sp2D0.bits;
-                func_0045d6e0((u8 *)&sp600, (f32 *)&sp2E0, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2D0), 0.0f, 0);
                 sp2C0 = D_005E55A0;
-                sp2E0 = sp2C0.bits;
-                func_0045d6e0((u8 *)&sp600, (f32 *)&sp2E0, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2C0), 0.0f, 0);
                 func_0048a000();
                 func_00125e80(200.0f, 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             } else if (temp_16 < 0xCE) {
@@ -3450,11 +3442,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp5F4.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp5F8, (const u8 *)&sp5F4);
                 sp2A0 = D_005E5590;
-                sp2B0 = sp2A0.bits;
-                func_0045d6e0((u8 *)&sp5F8, (f32 *)&sp2B0, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp2A0), 0.0f, 0);
                 sp290 = D_005E55A0;
-                sp2B0 = sp290.bits;
-                func_0045d6e0((u8 *)&sp5F8, (f32 *)&sp2B0, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp290), 0.0f, 0);
                 func_0048a000();
                 func_00125e80(200.0f - 700.0f * sinf(((((fGpffff8094 * (f32) (temp_16 - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             }
@@ -3485,11 +3475,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp5EC.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp5F0, (const u8 *)&sp5EC);
                 sp270 = D_005E5590;
-                sp280 = sp270.bits;
-                func_0045d6e0((u8 *)&sp5F0, (f32 *)&sp280, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp270), 0.0f, 0);
                 sp260 = D_005E55A0;
-                sp280 = sp260.bits;
-                func_0045d6e0((u8 *)&sp5F0, (f32 *)&sp280, 0.0f, 0);
+                func_0045d6e0((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp260), 0.0f, 0);
                 func_0048a000();
                 temp_f20_5 = sinf((fGpffff8094 * (f32) temp_16) / 225.0f);
                 if (temp_16 >= 0x88) {
@@ -3537,11 +3525,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             sp5E4.bytes[3] = 0xFF;
             titleCopyValue((u8 *)&sp5E8, (const u8 *)&sp5E4);
             sp240 = D_005E5590;
-            sp250 = sp240.bits;
-            func_0045d6e0((u8 *)&sp5E8, (f32 *)&sp250, 0.0f, 0);
+            func_0045d6e0((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp240), 0.0f, 0);
             sp230 = D_005E55A0;
-            sp250 = sp230.bits;
-            func_0045d6e0((u8 *)&sp5E8, (f32 *)&sp250, 0.0f, 0);
+            func_0045d6e0((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp230), 0.0f, 0);
             func_0048a000();
             sp69C.value = fGpffff9c80;
             temp_f1_11 = 255.0f;
@@ -3549,8 +3535,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             sp69C.bytes[3] = (u8)var_3_26;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp69C);
             sp500 = *(TitleRect *)&D_005E5670;
-            sp590 = sp500.bits;
-            func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 10.0f, 1);
+            func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp500), 10.0f, 1);
         } else if (temp_16 < 0x56) {
             var_3_27 = sp634.bytes;
             var_2_24 = 4;
@@ -3578,11 +3563,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             sp5DC.bytes[3] = 0xFF;
             titleCopyValue((u8 *)&sp5E0, (const u8 *)&sp5DC);
             sp210 = D_005E5590;
-            sp220 = sp210.bits;
-            func_0045d6e0((u8 *)&sp5E0, (f32 *)&sp220, 0.0f, 0);
+            func_0045d6e0((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp210), 0.0f, 0);
             sp200 = D_005E55A0;
-            sp220 = sp200.bits;
-            func_0045d6e0((u8 *)&sp5E0, (f32 *)&sp220, 0.0f, 0);
+            func_0045d6e0((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp200), 0.0f, 0);
             func_0048a000();
             temp_f2_3 = fGpffff8094;
             temp_f0_5 = sinf((((temp_f2_3 + ((temp_f2_3 * (f32) (temp_16 - 0x19)) / 60.0f)))));
@@ -3592,8 +3575,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             sp698.bytes[3] = (u8)var_3_29;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp698);
             sp4F0 = *(TitleRect *)&D_005E5680;
-            sp590 = sp4F0.bits;
-            func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 10.0f, 1);
+            func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4F0), 10.0f, 1);
         }
         break;
     case 6:
@@ -3611,11 +3593,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         sp694.value = fGpffff9c88;
         sp6BC = sp694;
         sp4E0 = *(TitleRect *)&D_005E5690;
-        sp590 = sp4E0.bits;
-        func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
+        func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4E0), 0.0f, 1);
         sp4D0 = *(TitleRect *)&D_005E56A0;
-        sp590 = sp4D0.bits;
-        func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
+        func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4D0), 0.0f, 1);
         func_00126090(0xFF, (u8 *)temp_20, 0.0f, 0.0f, 0.0f);
         var_3_31 = sp62C.bytes;
         var_2_26 = 4;
@@ -3643,11 +3623,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         sp5D4.bytes[3] = 0xFF;
         titleCopyValue((u8 *)&sp5D8, (const u8 *)&sp5D4);
         sp1E0 = D_005E5590;
-        sp1F0 = sp1E0.bits;
-        func_0045d6e0((u8 *)&sp5D8, (f32 *)&sp1F0, 0.0f, 0);
+        func_0045d6e0((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1E0), 0.0f, 0);
         sp1D0 = D_005E55A0;
-        sp1F0 = sp1D0.bits;
-        func_0045d6e0((u8 *)&sp5D8, (f32 *)&sp1F0, 0.0f, 0);
+        func_0045d6e0((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1D0), 0.0f, 0);
         func_0048a000();
         temp_2_19 = (s32)(taskView->f10 + 1);
         taskView->f10 = temp_2_19;
