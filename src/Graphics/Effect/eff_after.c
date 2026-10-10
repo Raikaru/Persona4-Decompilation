@@ -846,6 +846,9 @@ void func_004b8f10(void *arg0) {
  * phase-C outer loop test-first.
  * fnalign 1040 -> 854: stack locals declared as retail's vec3 blocks (fraction/section on top, then v188..first, last, the bounding sphere and ctrl[4]); control-point ends built by struct copy.
  * fnalign 1040 -> 643: retail vec3 stack locals (fraction/section, v188, cur, prev, v158, v148, first, last, bound sphere, ctrl[4]); control-point ends, cur/prev/first and the bound sphere copied as structs; strip-loop field loads written directly from work (one shared *(work + 0x10)) so they are not hoisted as invariant addresses.
+ * fnalign 643 -> 505: Bezier terms written P0*s*s*s + 3*P1*t*s*s + 3*P2*t*t*s + P3*t*t*t (retail's accumulate order).
+ * fnalign 505 -> 487: phase-C strip side offset as a switch (case 0 then 1); segment cache updated at the top of the recompute block.
+ * camera-target components read as pfVar16[1]/[2].
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -1128,18 +1131,9 @@ void func_004b8f40(u8 *work, void **pp)
           if (!(pfVar16 < pfVar17)) {
             func_0046d730(D_007146E0,0x49d);
           }
-          *pfVar16 = ctrl[3].c[0] * fraction * fraction * fraction +
-                     ctrl[2].c[0] * fraction * temp_v7 * 3.0f * fraction +
-                     ctrl[0].c[0] * temp_v7 * temp_v7 * temp_v7 +
-                     ctrl[1].c[0] * temp_v7 * temp_v7 * 3.0f * fraction;
-          pfVar16[1] = ctrl[3].c[1] * fraction * fraction * fraction +
-                       ctrl[2].c[1] * fraction * temp_v7 * 3.0f * fraction +
-                       ctrl[0].c[1] * temp_v7 * temp_v7 * temp_v7 +
-                       ctrl[1].c[1] * temp_v7 * temp_v7 * 3.0f * fraction;
-          pfVar16[2] = ctrl[3].c[2] * fraction * fraction * fraction +
-                       ctrl[2].c[2] * fraction * temp_v7 * 3.0f * fraction +
-                       ctrl[0].c[2] * temp_v7 * temp_v7 * temp_v7 +
-                       ctrl[1].c[2] * temp_v7 * temp_v7 * 3.0f * fraction;
+          *pfVar16 = ctrl[0].c[0] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[0] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[0] * fraction * fraction * temp_v7 + ctrl[3].c[0] * fraction * fraction * fraction;
+          pfVar16[1] = ctrl[0].c[1] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[1] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[1] * fraction * fraction * temp_v7 + ctrl[3].c[1] * fraction * fraction * fraction;
+          pfVar16[2] = ctrl[0].c[2] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[2] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[2] * fraction * fraction * temp_v7 + ctrl[3].c[2] * fraction * fraction * fraction;
           pfVar16 = pfVar16 + 6;
         }
         temp_v4 = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
@@ -1225,17 +1219,20 @@ void func_004b8f40(u8 *work, void **pp)
       temp_v7 = (f32)*(s32 *)((*(u8 **)work) + 0xc) + 0.5f;
       temp_v9 = 1.0f / temp_v7;
       for (temp_v1 = 0; temp_v1 < 2; temp_v1 = temp_v1 + 1) {
-        if (temp_v1 == 1) {
-          unaff_s3_lo = (f32 *)(temp_v5 + 0x30);
-        }
-        else if (temp_v1 == 0) {
+        switch (temp_v1) {
+        case 0:
           unaff_s3_lo = (f32 *)(temp_v5 + 0x24);
+          break;
+        case 1:
+          unaff_s3_lo = (f32 *)(temp_v5 + 0x30);
+          break;
         }
-        temp_v6 = 0xffffffff;
         temp_v11 = 0.5f / temp_v7;
+        temp_v6 = 0xffffffff;
         for (temp_v4 = 0; temp_v4 < *(s32 *)((*(u8 **)work) + 0xc); temp_v4 = temp_v4 + 1) {
           func_004b7460(work,temp_v11,&section,&fraction);
           if (section != temp_v6) {
+            temp_v6 = section;
             temp_v3 = (*(s32 *)((work) + 0xc) - 1) - section;
             if (temp_v3 < 0) {
               temp_v3 = temp_v3 + *(s32 *)((work) + 8);
@@ -1257,21 +1254,13 @@ void func_004b8f40(u8 *work, void **pp)
             ctrl[2].c[1] = pfVar17[1] + pfVar16[1];
             ctrl[2].c[2] = pfVar17[2] + pfVar16[2];
             ctrl[3] = *(EffAfterVec *)pfVar17;
-            temp_v6 = section;
           }
           temp_v8 = 1.0f - fraction;
-          *unaff_s3_lo = ctrl[3].c[0] * fraction * fraction * fraction +
-                         ctrl[2].c[0] * fraction * temp_v8 * 3.0f * fraction +
-                         ctrl[0].c[0] * temp_v8 * temp_v8 * temp_v8 +
-                         ctrl[1].c[0] * temp_v8 * temp_v8 * 3.0f * fraction;
+          *unaff_s3_lo = ctrl[0].c[0] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[0] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[0] * fraction * fraction * temp_v8 + ctrl[3].c[0] * fraction * fraction * fraction;
           unaff_s3_lo[1] =
-               ctrl[3].c[1] * fraction * fraction * fraction +
-               ctrl[2].c[1] * fraction * temp_v8 * 3.0f * fraction +
-               ctrl[0].c[1] * temp_v8 * temp_v8 * temp_v8 + ctrl[1].c[1] * temp_v8 * temp_v8 * 3.0f * fraction;
+               ctrl[0].c[1] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[1] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[1] * fraction * fraction * temp_v8 + ctrl[3].c[1] * fraction * fraction * fraction;
           unaff_s3_lo[2] =
-               ctrl[3].c[2] * fraction * fraction * fraction +
-               ctrl[2].c[2] * fraction * temp_v8 * 3.0f * fraction +
-               ctrl[0].c[2] * temp_v8 * temp_v8 * temp_v8 + ctrl[1].c[2] * temp_v8 * temp_v8 * 3.0f * fraction;
+               ctrl[0].c[2] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[2] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[2] * fraction * fraction * temp_v8 + ctrl[3].c[2] * fraction * fraction * fraction;
           temp_v11 = temp_v11 + temp_v9;
           unaff_s3_lo = unaff_s3_lo + 9;
         }
@@ -1343,22 +1332,15 @@ void func_004b8f40(u8 *work, void **pp)
           temp_v6 = section;
         }
         temp_v8 = 1.0f - fraction;
-        cur.c[0] = ctrl[3].c[0] * fraction * fraction * fraction +
-                    ctrl[2].c[0] * fraction * temp_v8 * 3.0f * fraction +
-                    ctrl[0].c[0] * temp_v8 * temp_v8 * temp_v8 +
-                    ctrl[1].c[0] * temp_v8 * temp_v8 * 3.0f * fraction;
-        cur.c[1] = ctrl[3].c[1] * fraction * fraction * fraction +
-                 ctrl[2].c[1] * fraction * temp_v8 * 3.0f * fraction +
-                 ctrl[0].c[1] * temp_v8 * temp_v8 * temp_v8 + ctrl[1].c[1] * temp_v8 * temp_v8 * 3.0f * fraction;
-        cur.c[2] = ctrl[3].c[2] * fraction * fraction * fraction +
-                 ctrl[2].c[2] * fraction * temp_v8 * 3.0f * fraction +
-                 ctrl[0].c[2] * temp_v8 * temp_v8 * temp_v8 + ctrl[1].c[2] * temp_v8 * temp_v8 * 3.0f * fraction;
+        cur.c[0] = ctrl[0].c[0] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[0] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[0] * fraction * fraction * temp_v8 + ctrl[3].c[0] * fraction * fraction * fraction;
+        cur.c[1] = ctrl[0].c[1] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[1] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[1] * fraction * fraction * temp_v8 + ctrl[3].c[1] * fraction * fraction * fraction;
+        cur.c[2] = ctrl[0].c[2] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[2] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[2] * fraction * fraction * temp_v8 + ctrl[3].c[2] * fraction * fraction * fraction;
         if (temp_v1 == 0) {
           first = cur;
         }
         v188.c[0] = *pfVar16 - cur.c[0];
-        v188.c[1] = *(f32 *)(((u8 *)temp_v5) + 0x44) - cur.c[1];
-        v188.c[2] = *(f32 *)(((u8 *)temp_v5) + 0x48) - cur.c[2];
+        v188.c[1] = pfVar16[1] - cur.c[1];
+        v188.c[2] = pfVar16[2] - cur.c[2];
         RwV3dNormalize(&v188.c[0],&v188.c[0]);
         v158.c[0] = prev.c[0] - cur.c[0];
         v158.c[1] = prev.c[1] - cur.c[1];
@@ -1397,8 +1379,8 @@ void func_004b8f40(u8 *work, void **pp)
       pfVar5 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x10, work)) + temp_v1 * 0xc);
       cur = *(EffAfterVec *)pfVar5;
       v188.c[0] = *pfVar16 - cur.c[0];
-      v188.c[1] = *(f32 *)(((u8 *)temp_v5) + 0x44) - cur.c[1];
-      v188.c[2] = *(f32 *)(((u8 *)temp_v5) + 0x48) - cur.c[2];
+      v188.c[1] = pfVar16[1] - cur.c[1];
+      v188.c[2] = pfVar16[2] - cur.c[2];
       RwV3dNormalize(&v188.c[0],&v188.c[0]);
       v158.c[0] = prev.c[0] - cur.c[0];
       v158.c[1] = prev.c[1] - cur.c[1];
@@ -1435,8 +1417,8 @@ void func_004b8f40(u8 *work, void **pp)
       pfVar3 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x10, work)) + temp_v1 * 0xc);
       last = *(EffAfterVec *)pfVar3;
       v188.c[0] = *pfVar16 - last.c[0];
-      v188.c[1] = *(f32 *)(((u8 *)temp_v5) + 0x44) - last.c[1];
-      v188.c[2] = *(f32 *)(((u8 *)temp_v5) + 0x48) - last.c[2];
+      v188.c[1] = pfVar16[1] - last.c[1];
+      v188.c[2] = pfVar16[2] - last.c[2];
       RwV3dNormalize(&v188.c[0],&v188.c[0]);
       v158.c[0] = last.c[0] - first.c[0];
       v158.c[1] = last.c[1] - first.c[1];
