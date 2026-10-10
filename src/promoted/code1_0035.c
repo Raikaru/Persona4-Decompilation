@@ -2563,6 +2563,11 @@ void func_003599a0(u8 *arg0)
  * 450: palette bytes declared as absolute arrays (retail lui/lbu %lo).
  * 429: type sweep.
  * 384: conversion lever (alpha:(0, 1)).
+ * fnalign 384 -> 306: the sibling cmpConfig/cmpPersona pragma set (opt_pulloutconstants off, opt_propagation off, opt_lifetimes on), sprite pointers loaded into `spr` before each call, u8 alpha.
+ * fnalign 306 -> 292: entry offset kept as off*12 with the base re-added (u32) for mode, colour bytes read before the stores, and the w/h halfword reads re-add the panel base as retail.
+ * fnalign 292 -> 190: switch arms, name call and the final call in retail statement order (positions first, then the sprite), count masked at use, loop bound computed before the loop.
+ * case 0 written before case 1 (retail's test order); the alpha byte converts without (u32).
+ * func_00246830 takes the name id as u16 (retail passes the spilled halfword unmasked; H011).
  */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2588,11 +2593,14 @@ typedef struct {
 } HudPanel_0035;
 
 #pragma push
+#pragma opt_pulloutconstants off
+#pragma opt_propagation off
+#pragma opt_lifetimes on
 void func_003599c0(s32 arg0, u8 *arg1)
 {
     extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
-    extern u8 *func_00246830(s32 arg0);
+    extern u8 *func_00246830(u16 arg0);
     extern s32 func_00275020(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
     extern f32 func_0046b260(u8 *arg0);
     extern s32 (*D_00887300[])(s32, s32);
@@ -2621,42 +2629,49 @@ void func_003599c0(s32 arg0, u8 *arg1)
     u8 kind;
     s32 isSelf;
     s32 mode;
-    u16 alpha;
+    u8 alpha;
     u8 *ptab;
     u8 *ctab;
     s32 nameColor;
     u8 *spr;
-    u16 i;
+    s32 i;
+    s32 limit;
+    s32 nameAlpha;
     x0 = *(f32 *)(arg1 + 4);
     y0 = *(f32 *)(arg1 + 8);
     fade = (f32)arg1[0] / 255.0f;
     {
-        s32 idx = *(s16 *)(arg1 + 0x26) + arg0;
+        s32 off = (*(s16 *)(arg1 + 0x26) + arg0) * 12;
 
-        kind = ((HudEntry_0035 *)(arg1 + 0x38))[idx].kind;
-        name = ((HudEntry_0035 *)(arg1 + 0x38))[idx].name;
-        count = ((HudEntry_0035 *)(arg1 + 0x38))[idx].count;
+        kind = *(u8 *)(off + arg1 + 0x38);
+        name = *(u16 *)(off + arg1 + 0x3A);
+        count = *(u16 *)(off + arg1 + 0x3C);
         if (kind >= 0x20) {
             func_0046d730(D_0064CC98, 0x5D5);
         }
         isSelf = (arg0 == *(s16 *)(arg1 + 0x24));
-        mode = ((HudEntry_0035 *)(arg1 + 0x38))[idx].mode;
+        mode = *(s32 *)((u32)off + arg1 + 0x40);
     }
     x = x0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B0);
     rowY = 64.0f * (f32)arg0;
     y = 81.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B4)));
     alpha = (f32)(arg1 + arg0 * 48)[0x5BA] * fade;
-    w = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x5C0);
-    h = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x5C6);
+    w = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x5C0);
+    h = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x5C6);
     if (isSelf) {
-        col[0] = D_0064B2E8[0];
-        col[1] = D_0064B2E9[0];
-        col[2] = D_0064B2EA[0];
-        col[3] = D_0064B2EB[0];
+        u8 r = D_0064B2E8[0];
+        u8 g = D_0064B2E9[0];
+        u8 b = D_0064B2EA[0];
+        u8 aa = D_0064B2EB[0];
+
+        col[0] = r;
+        col[1] = g;
+        col[2] = b;
+        col[3] = aa;
     } else {
         *(f32 *)col = *(f32 *)D_0064B2E0;
     }
-    col[3] = (f32)(u32)alpha * fade;
+    col[3] = (f32)alpha * fade;
     rc[0] = x;
     rc[1] = y;
     rc[2] = 640.0f * w / 4096.0f;
@@ -2666,8 +2681,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x190));
     y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x194)));
     alpha = (f32)(arg1 + arg0 * 48)[0x19A] * fade;
-    w = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x1A0);
-    h = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x1A6);
+    w = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x1A0);
+    h = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x1A6);
     if (isSelf) {
         ptab = D_0064B2EC;
         ctab = D_0064B2E8;
@@ -2678,18 +2693,26 @@ void func_003599c0(s32 arg0, u8 *arg1)
         nameColor = 6;
     }
     if (mode != 1) {
+        px = 60.0f + x;
         scale = h / 4096.0f;
-        func_0034f320(*(u8 **)(arg1 + 0x11E8), 60.0f + x, y + 16.0f * scale, 0.0f,
-                      ptab[0], ptab[1], ptab[2], (u32)alpha, w, h, 0, 0.0f, 0);
-        func_0034f320(*(u8 **)(arg1 + count * 4 + 0x11EC), 124.0f + x, y + 14.0f * scale, 0.0f,
+        py = y + 16.0f * scale;
+        spr = *(u8 **)(arg1 + 0x11E8);
+        func_0034f320(spr, px, py, 0.0f,
+                      ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+        px = 124.0f + x;
+        py = y + 14.0f * scale;
+        spr = *(u8 **)(arg1 + (count & 0xFFFF) * 4 + 0x11EC);
+        func_0034f320(spr, px, py, 0.0f,
                       ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
     }
     px = 59.0f + x;
     scale = h / 4096.0f;
     py = y + 32.0f * scale;
-    func_0034f320(*(u8 **)(arg1 + 0x1214), px, py, 0.0f,
+    spr = *(u8 **)(arg1 + 0x1214);
+    func_0034f320(spr, px, py, 0.0f,
                   ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
-    func_0034f320(*(u8 **)(arg1 + 0x1218), 88.0f + px, py, 0.0f,
+    spr = *(u8 **)(arg1 + 0x1218);
+    func_0034f320(spr, 88.0f + px, py, 0.0f,
                   ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
     px = 105.0f + x;
     py = y + 33.0f * scale;
@@ -2698,40 +2721,54 @@ void func_003599c0(s32 arg0, u8 *arg1)
                   ctab[0], ctab[1], ctab[2], alpha, w, h, 0, 0.0f, 0);
     px = 156.0f + x;
     py = y + 18.0f * scale;
-    func_0034f320(*(u8 **)(arg1 + 0x122C), px, py, 0.0f,
+    spr = *(u8 **)(arg1 + 0x122C);
+    func_0034f320(spr, px, py, 0.0f,
                   ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
-    func_0034f320(*(u8 **)(arg1 + 0x1230), 214.0f + px, py, 0.0f,
+    spr = *(u8 **)(arg1 + 0x1230);
+    func_0034f320(spr, 214.0f + px, py, 0.0f,
                   ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
     switch (mode) {
-    case 1:
     case 0:
+    case 1:
         px = 4.0f + (157.0f + x);
         py = y + 20.0f * scale;
         ptab = *(u8 **)(arg1 + 0x1234);
-        for (i = 0; i < 10 && i < count; i++) {
+        i = 0;
+        limit = count & 0xFFFF;
+        for (; i < 10 && i < limit; i++) {
             func_0034f320(ptab, px + (f32)(i * 21), py, 0.0f,
                           ctab[0], ctab[1], ctab[2], alpha, w, h, 0, 0.0f, 0);
         }
         break;
     case 2:
-        func_0034f320(isSelf ? *(u8 **)(arg1 + 0x1240) : *(u8 **)(arg1 + 0x1244), 198.0f + x, y + 14.0f * scale, 0.0f,
+        px = 198.0f + x;
+        py = y + 14.0f * scale;
+        func_0034f320(isSelf ? *(u8 **)(arg1 + 0x1240) : *(u8 **)(arg1 + 0x1244), px, py, 0.0f,
                       0xFF, 0xFF, 0xFF, alpha, w, h, 0, 0.0f, 0);
         break;
     case 3:
-        func_0034f320(isSelf ? *(u8 **)(arg1 + 0x1238) : *(u8 **)(arg1 + 0x123C), 204.0f + x, y + 14.0f * scale, 0.0f,
+        px = 204.0f + x;
+        py = y + 14.0f * scale;
+        func_0034f320(isSelf ? *(u8 **)(arg1 + 0x1238) : *(u8 **)(arg1 + 0x123C), px, py, 0.0f,
                       0xFF, 0xFF, 0xFF, alpha, w, h, 0, 0.0f, 0);
         break;
     }
     if (h == 4096.0f) {
-        func_00275020(157.0f + x, y + 30.0f * scale, 0.0f, -0x100 | (alpha * 0xFF) / 0xFFU, nameColor, 1,
-                      func_00246830(name), 0, -1);
+        x = 157.0f + x;
+        scale = y + 30.0f * scale;
+        nameAlpha = (alpha * 0xFF) / 0xFFU;
+        spr = func_00246830(name);
+        func_00275020(x, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
     x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C0));
     y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C4)));
     kind = (f32)(arg1 + arg0 * 48)[0x4CA] * fade;
-    w = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x4D0);
-    h = (f32)*(u16 *)(arg1 + arg0 * 48 + 0x4D6);
-    func_0034f320(*(u8 **)(arg1 + mode * 4 + 0x121C), 15.0f + x, 2.0f + y, 0.0f,
+    w = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x4D0);
+    h = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x4D6);
+    px = 15.0f + x;
+    py = 2.0f + y;
+    spr = *(u8 **)(arg1 + mode * 4 + 0x121C);
+    func_0034f320(spr, px, py, 0.0f,
                   0xFF, 0xFF, 0xFF, kind, w, h, 0, 0.0f, 0);
 }
 #pragma pop

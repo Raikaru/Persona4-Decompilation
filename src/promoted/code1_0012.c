@@ -3815,7 +3815,8 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         }
         temp_5 = (s32)(taskView->f24);
         temp_4 = (s32)(taskView->f20);
-        temp_f1_28 = 0.25f * (f32)((temp_4 - temp_5) << 0x10);
+        temp_f1_28 = (f32)((temp_4 - temp_5) << 0x10);
+        temp_f1_28 *= 0.25f;
         temp_f1_28 = (f32)(temp_4 << 0x10) + temp_f1_28;
         temp_28 = (s32)taskView->f28;
         temp_f0_11 = temp_f1_28 - (f32)temp_28;
