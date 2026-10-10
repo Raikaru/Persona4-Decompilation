@@ -2480,12 +2480,32 @@ void func_00126090(s32 arg0, u8 *arg1)
  * The sprite pointer is read through a TitleTaskView member, which b210 does not
  * hoist as an address, and the blend state is a void * constant, as
  * RpSkyRenderStateSet's prototype takes.
+ * (with CSE on, b210 itself keeps 0xFFFFFF, the 268/361 position and the record
+ * ids in registers; the explicit white/titlePos/glowId locals are gone)
+ * 1512: all task fields are TitleTaskView members (b210 hoists M2C_FIELD
+ * address arithmetic into saved registers; retail does not).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
-typedef struct { u8 pad[0x3C]; u8 *sprites; } TitleTaskView;
+typedef struct {
+    u32 f00;
+    u32 state;
+    s32 f08;
+    s32 timer;
+    s32 f10;
+    u8 pad0[0xc];
+    s32 f20;
+    s32 f24;
+    s32 f28;
+    s32 f2C;
+    u8 pad1[0xc];
+    u8 *sprites;
+    u8 pad2[0x44];
+    u32 f84;
+    s32 f88;
+} TitleTaskView;
 #include "btl_shuffle_draw_internal.h"
 #define M2C_GUARD
 typedef s32 M2C_UNK;
@@ -2919,15 +2939,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 var_8_2;
     s32 var_8_3;
     s32 temp_10;
-    f32 titlePosY;
-    f32 titlePosX;
     void (**fnTable)(s32, s32);
-    s32 glowId0;
-    s32 glowId1;
-    s32 glowId2;
-    s32 glowId3;
-    s32 glowId4;
-    u32 white;
     s32 temp_10_2;
     u32 var_3_26;
     u32 var_3_29;
@@ -2964,10 +2976,10 @@ void func_001265a0(void *unusedDrawData, void *task) {
     sp6B4.value = fGpffff9c70;
     sp6BC = sp6B4;
     func_0045c870((u8 *)&sp6BC, 1);
-    temp_3 = (u32)(M2C_FIELD(temp_20, u32 *, 4));
+    temp_3 = (u32)(taskView->state);
     switch (temp_3) {
     case 0:
-        M2C_FIELD(temp_20, s32 *, 0x88) = 0;
+        taskView->f88 = 0;
         /* fallthrough */
     case 1:
     case 2:
@@ -2979,15 +2991,15 @@ void func_001265a0(void *unusedDrawData, void *task) {
         sp6AC.value = fGpffff9c78;
         sp6BC = sp6AC;
         func_0045c870((u8 *)&sp6BC, 1);
-        temp_2 = (s32)(M2C_FIELD(temp_20, s32 *, 0x88) + 1);
-        M2C_FIELD(temp_20, s32 *, 0x88) = temp_2;
+        temp_2 = (s32)(taskView->f88 + 1);
+        taskView->f88 = temp_2;
         if (temp_2 >= 0x14) {
-            M2C_FIELD(temp_20, s32 *, 0x88) = 0x14;
+            taskView->f88 = 0x14;
         }
         sp6A8.value = fGpffff9c7c;
         sp6BC = sp6A8;
         sp520.bits = D_005E5650;
-        temp_f20 = 42.0f * (1.0f - ((f32) M2C_FIELD(temp_20, s32 *, 0x88) / 20.0f));
+        temp_f20 = 42.0f * (1.0f - ((f32) taskView->f88 / 20.0f));
         sp520.words[1] = (s32)-temp_f20;
         sp590 = sp520.bits;
         func_0045d6e0((u8 *)&sp6BC, (f32 *)&sp590, 0.0f, 1);
@@ -2998,27 +3010,24 @@ void func_001265a0(void *unusedDrawData, void *task) {
         break;
     case 4:
     case 5:
-        temp_16 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC) + 1);
-        M2C_FIELD(temp_20, s32 *, 0xC) = temp_16;
+        temp_16 = (s32)(taskView->timer + 1);
+        taskView->timer = temp_16;
         if (temp_16 >= 0x1A) {
             if (temp_16 < 0x74) {
-                white = 0xFFFFFF;
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, taskView->sprites, 1);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x4C, 0, 0, taskView->sprites, 0);
             } else if (temp_16 < 0xA1) {
                 temp_f20_2 = sinf((fGpffff8094 * (f32) (temp_16 - 0x73)) / 45.0f);
-                white = 0xFFFFFF;
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, taskView->sprites, 1);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1 = 255.0f * (fGpffff822c + fGpffff8228 * (1.0f - temp_f20_2));
                 var_5 = (u32)temp_f1 & 0xFF;
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, var_5, 0, 0, taskView->sprites, 0);
             } else {
-                white = 0xFFFFFF;
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, white, 0xFF, 0, 0, taskView->sprites, 1);
+                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
                 func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, taskView->sprites, 0);
@@ -3080,12 +3089,12 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 sp490 = sp470.bits;
                 func_0045d6e0((u8 *)&sp628, (f32 *)&sp490, 0.0f, 0);
                 func_0048a000();
-                temp_2_2 = (s32)(M2C_FIELD(temp_20, s32 *, 0x10) + 1);
-                M2C_FIELD(temp_20, s32 *, 0x10) = temp_2_2;
+                temp_2_2 = (s32)(taskView->f10 + 1);
+                taskView->f10 = temp_2_2;
                 if (temp_2_2 >= 0x168) {
-                    M2C_FIELD(temp_20, s32 *, 0x10) = 0;
+                    taskView->f10 = 0;
                 }
-                func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) M2C_FIELD(temp_20, s32 *, 0x10)) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0xB2, (u8 *)temp_20);
+                func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0xB2, (u8 *)temp_20);
             }
             if (temp_16 >= 0x3E) {
                 if (temp_16 < 0x11A) {
@@ -3177,7 +3186,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                 temp_3_6 = (temp_8 >> 0x10) & 0xFF;
                                 temp_9_2 = (temp_8 >> 0x18) & 0xFF;
                                 temp_2_7 = (temp_8 >> 8) & 0xFF;
-                                glowId4 = M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7, s32 *, 0));
                                 temp_cA = (f32)(u32)(0xFF - temp_9_2);
                                 temp_cB = (f32)(u32)temp_9_2;
     /* ACC seed */;
@@ -3195,7 +3203,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     /* ACC seed */;
                                 temp_f1_4 = temp_cB + temp_cA * temp_q1;
                                 var_3_6 = (u8)temp_f1_4;
-                                func_00124bb0(glowId4, M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), (firstBase.words[temp_9] & ~0xFF) | 0xFF, ((var_3_6 & 0xFF) << 8) | temp_9_3 | 0xFF, M2C_FIELD(temp_7, f32 *, 0x18), 0x42, temp_20);
+                                func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7, s32 *, 0)), M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), (firstBase.words[temp_9] & ~0xFF) | 0xFF, ((var_3_6 & 0xFF) << 8) | temp_9_3 | 0xFF, M2C_FIELD(temp_7, f32 *, 0x18), 0x42, temp_20);
                             }
                         }
                     }
@@ -3210,7 +3218,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
                         temp_3_9 = (temp_8_2 >> 0x10) & 0xFF;
                         temp_9_5 = (temp_8_2 >> 0x18) & 0xFF;
                         temp_2_10 = (temp_8_2 >> 8) & 0xFF;
-                        glowId3 = M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_2, s32 *, 0));
                         temp_cA = (f32)(u32)(0xFF - temp_9_5);
                         temp_one_S2A = 1.0f;
                         temp_cB = (f32)(u32)temp_9_5;
@@ -3231,7 +3238,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     /* ACC seed */;
                         temp_f1_7 = temp_cB + temp_cA * temp_one_S2C;
                         var_3_7 = (u8)temp_f1_7;
-                        func_00124bb0(glowId3, M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), (secondBase.words[temp_9_4] & ~0xFF) | 0xFF, ((var_3_7 & 0xFF) << 8) | temp_9_6 | 0xFF, M2C_FIELD(temp_7_2, f32 *, 0x18), 0x42, temp_20);
+                        func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_2, s32 *, 0)), M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), (secondBase.words[temp_9_4] & ~0xFF) | 0xFF, ((var_3_7 & 0xFF) << 8) | temp_9_6 | 0xFF, M2C_FIELD(temp_7_2, f32 *, 0x18), 0x42, temp_20);
                     }
                 }
             }
@@ -3288,7 +3295,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     glowFrom0_3 = D_005E5380[0];
                     glowFrom0_4 = D_005E5384[0];
                     glowFrom0_5 = D_005E5388[0];
-                    glowId2 = M2C_BITWISE(s32, (f32) D_005E5370[0]);
                     temp_cA = (f32)(u32)(0xFF - temp_8_4);
                     temp_one_S3A = 1.0f;
                     temp_cB = (f32)(u32)temp_8_4;
@@ -3312,7 +3318,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
-                    func_00124bb0(glowId2, (0.0f + glowFrom0_0 + lerpT * (D_005E539C[0] - glowFrom0_0)), 0.0f, (0.0f + glowFrom0_1 + lerpT * (D_005E53A0[0] - glowFrom0_1)), (0.0f + glowFrom0_2 + lerpT * (D_005E53A4[0] - glowFrom0_2)), (0.0f + glowFrom0_3 + lerpT * (D_005E53A8[0] - glowFrom0_3)), (0.0f + glowFrom0_4 + lerpT * (D_005E53AC[0] - glowFrom0_4)), (thirdBase.words[temp_8_3] & ~0xFF) | 0xFF, ((var_3_8 & 0xFF) << 8) | ((((u32) var_7 & 0xFF) << 0x18) | ((var_6_9 & 0xFF) << 0x10)) | 0xFF, (0.0f + glowFrom0_5 + lerpT * (D_005E53B0[0] - glowFrom0_5)), 0x40, temp_20);
+                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5370[0]), (0.0f + glowFrom0_0 + lerpT * (D_005E539C[0] - glowFrom0_0)), 0.0f, (0.0f + glowFrom0_1 + lerpT * (D_005E53A0[0] - glowFrom0_1)), (0.0f + glowFrom0_2 + lerpT * (D_005E53A4[0] - glowFrom0_2)), (0.0f + glowFrom0_3 + lerpT * (D_005E53A8[0] - glowFrom0_3)), (0.0f + glowFrom0_4 + lerpT * (D_005E53AC[0] - glowFrom0_4)), (thirdBase.words[temp_8_3] & ~0xFF) | 0xFF, ((var_3_8 & 0xFF) << 8) | ((((u32) var_7 & 0xFF) << 0x18) | ((var_6_9 & 0xFF) << 0x10)) | 0xFF, (0.0f + glowFrom0_5 + lerpT * (D_005E53B0[0] - glowFrom0_5)), 0x40, temp_20);
                 } else if (temp_16 < 0xD2) {
                     lerpT = sinf(((((fGpffff8094 * (f32) (temp_16 - 0xBD)) / 20.0f))));
                     fourthPalette = D_005E5530;
@@ -3329,7 +3335,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     glowFrom1_3 = D_005E53A8[0];
                     glowFrom1_4 = D_005E53AC[0];
                     glowFrom1_5 = D_005E53B0[0];
-                    glowId1 = M2C_BITWISE(s32, (f32) D_005E5398[0]);
                     temp_cA = (f32)(u32)(0xFF - temp_8_6);
                     temp_one_S4A = 1.0f;
                     temp_cB = (f32)(u32)temp_8_6;
@@ -3353,7 +3358,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
-                    func_00124bb0(glowId1, (0.0f + glowFrom1_0 + lerpT * (D_005E53C4[0] - glowFrom1_0)), 0.0f, (0.0f + glowFrom1_1 + lerpT * (D_005E53C8[0] - glowFrom1_1)), (0.0f + glowFrom1_2 + lerpT * (D_005E53CC[0] - glowFrom1_2)), (0.0f + glowFrom1_3 + lerpT * (D_005E53D0[0] - glowFrom1_3)), (0.0f + glowFrom1_4 + lerpT * (D_005E53D4[0] - glowFrom1_4)), (fourthBase.words[temp_8_5] & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | ((((u32) var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, (0.0f + glowFrom1_5 + lerpT * (D_005E53D8[0] - glowFrom1_5)), 0x40, temp_20);
+                    func_00124bb0(M2C_BITWISE(s32, (f32) D_005E5398[0]), (0.0f + glowFrom1_0 + lerpT * (D_005E53C4[0] - glowFrom1_0)), 0.0f, (0.0f + glowFrom1_1 + lerpT * (D_005E53C8[0] - glowFrom1_1)), (0.0f + glowFrom1_2 + lerpT * (D_005E53CC[0] - glowFrom1_2)), (0.0f + glowFrom1_3 + lerpT * (D_005E53D0[0] - glowFrom1_3)), (0.0f + glowFrom1_4 + lerpT * (D_005E53D4[0] - glowFrom1_4)), (fourthBase.words[temp_8_5] & ~0xFF) | 0xFF, ((var_3_9 & 0xFF) << 8) | ((((u32) var_7_2 & 0xFF) << 0x18) | ((var_6_12 & 0xFF) << 0x10)) | 0xFF, (0.0f + glowFrom1_5 + lerpT * (D_005E53D8[0] - glowFrom1_5)), 0x40, temp_20);
                 } else {
                     func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
                 }
@@ -3399,7 +3404,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_8 = 255.0f * (1.0f - temp_f20_4);
                 var_5_10 = (u32)temp_f1_8 & 0xFF;
-                func_0025f3f0(-1.0f, -1.0f, 10.0f, white, var_5_10, 0, 0, taskView->sprites, 0);
+                func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, var_5_10, 0, 0, taskView->sprites, 0);
             }
             if (temp_16 == 0x55) {
                 func_0045ad50(2, func_00455f70(&D_005E56D0, &sp6B8), sp6B8);
@@ -3410,16 +3415,16 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                     var_5_11 = (u32)(255.0f * temp_f2) & 0xFF;
     /* ACC seed */;
                     temp_f14 = 0.0f;
-                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, white, var_5_11, 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
+                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, var_5_11, 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
                 } else {
-                    func_0025f3f0(195.0f, 72.0f, 0.0f, white, 0xFF, 0x10001, 0, taskView->sprites, 1);
+                    func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
                 }
             }
             if ((temp_16 >= 0xBC) && (temp_16 < 0xDF)) {
                 temp_f2_2 = fGpffff8094;
                 temp_f1_9 = 255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))));
                 var_5_12 = (u32)temp_f1_9 & 0xFF;
-                func_0025f3f0(195.0f, 72.0f, 0.0f, white, var_5_12, 0x10009, 0, taskView->sprites, 1);
+                func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_12, 0x10009, 0, taskView->sprites, 1);
             }
             if (temp_16 < 0x74) {
                 var_3_12 = sp66C.bytes;
@@ -3454,13 +3459,9 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp370 = sp350.bits;
                 func_0045d6e0((u8 *)&sp618, (f32 *)&sp370, 0.0f, 0);
                 func_0048a000();
-                titlePosY = (f32) 0x169;
-                titlePosX = 268.0f;
-                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, 0xFF, 0x10002, 0, taskView->sprites, 1);
+                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
             } else {
-                titlePosY = (f32) 0x169;
-                titlePosX = 268.0f;
-                func_0025f3f0(titlePosX, titlePosY, 0.0f, white, 0xFF, 0x10002, 0, taskView->sprites, 1);
+                func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
             }
             if (temp_16 < 0x56) {
                 var_3_14 = sp664.bytes;
@@ -3500,7 +3501,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, 0xFF, 0x1000A, 0, taskView->sprites, 0);
+                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x1000A, 0, taskView->sprites, 0);
             } else if (temp_16 < 0x92) {
                 var_3_16 = sp65C.bytes;
                 var_2_13 = 4;
@@ -3542,7 +3543,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 RpSkyRenderStateSet(2, 0x48);
                 temp_f1_10 = 255.0f * (1.0f - temp_f22);
                 var_5_13 = (u32)temp_f1_10 & 0xFF;
-                func_0025f3f0(titlePosX, titlePosY, 10.0f, white, var_5_13, 0x1000A, 0, taskView->sprites, 0);
+                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, var_5_13, 0x1000A, 0, taskView->sprites, 0);
             }
             if (temp_16 < 0x56) {
                 var_3_18 = sp654.bytes;
@@ -3756,8 +3757,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         break;
     case 6:
     case 7:
-        var_3_30 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC) + 1);
-        M2C_FIELD(temp_20, s32 *, 0xC) = var_3_30;
+        var_3_30 = (s32)(taskView->timer + 1);
+        taskView->timer = var_3_30;
         if (var_3_30 >= 0x14) {
             var_3_30 = 0x14;
         }
@@ -3806,12 +3807,12 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         sp1F0 = sp1D0.bits;
         func_0045d6e0((u8 *)&sp5D8, (f32 *)&sp1F0, 0.0f, 0);
         func_0048a000();
-        temp_2_19 = (s32)(M2C_FIELD(temp_20, s32 *, 0x10) + 1);
-        M2C_FIELD(temp_20, s32 *, 0x10) = temp_2_19;
+        temp_2_19 = (s32)(taskView->f10 + 1);
+        taskView->f10 = temp_2_19;
         if (temp_2_19 >= 0x168) {
-            M2C_FIELD(temp_20, s32 *, 0x10) = 0;
+            taskView->f10 = 0;
         }
-        func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) M2C_FIELD(temp_20, s32 *, 0x10)) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0x99, (u8 *)temp_20);
+        func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0x99, (u8 *)temp_20);
         var_3_33 = sp690.bytes;
         var_2_28 = 4;
         if (var_3_33 != NULL) {
@@ -3833,7 +3834,6 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             temp_3_18 = (temp_8_7 >> 0x10) & 0xFF;
             temp_9_8 = (temp_8_7 >> 0x18) & 0xFF;
             temp_2_22 = (temp_8_7 >> 8) & 0xFF;
-            glowId0 = M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_5, s32 *, 0));
             temp_cA = (f32)(u32)(0xFF - temp_9_8);
             temp_one_S5A = 1.0f;
             temp_cB = (f32)(u32)temp_9_8;
@@ -3854,7 +3854,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
     /* ACC seed */;
             temp_f1_14 = temp_cB + temp_cA * temp_one_S5C;
             var_3_34 = (u8)temp_f1_14;
-            func_00124bb0(glowId0, M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), (fifthBase.words[temp_9_7] & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | temp_9_9 | 0xFF, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
+            func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_5, s32 *, 0)), M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), (fifthBase.words[temp_9_7] & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | temp_9_9 | 0xFF, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
         }
         func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
@@ -3865,8 +3865,8 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         break;
     case 8:
     case 9:
-        if (M2C_FIELD(temp_20, s32 *, 0xC) == 0) {
-            temp_f0_7 = (f32)*(s32 *)(D_005E5230 + M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);
+        if (taskView->timer == 0) {
+            temp_f0_7 = (f32)*(s32 *)(D_005E5230 + taskView->f84 * 0x28);
             if (M2C_BITWISE(s32, temp_f0_7) >= 0xF) {
                 var_4_16 = NULL;
             } else {
@@ -3881,14 +3881,14 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_00479940(var_4_16, 0, 2, 0, 1);
             }
         }
-        temp_2_24 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC));
+        temp_2_24 = (s32)(taskView->timer);
         if (temp_2_24 < 0x258) {
-            M2C_FIELD(temp_20, s32 *, 0xC) = (s32) (temp_2_24 + 1);
+            taskView->timer = (s32) (temp_2_24 + 1);
         }
         sp68C.value = fGpffff9c8c;
         sp6BC = sp68C;
         func_0045c870((u8 *)&sp6BC, 1);
-        temp_f0_9 = (f32)*(s32 *)(D_005E5230 + M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);
+        temp_f0_9 = (f32)*(s32 *)(D_005E5230 + taskView->f84 * 0x28);
         if (M2C_BITWISE(s32, temp_f0_9) >= 0xF) {
             var_16_2 = NULL;
         } else {
@@ -3906,7 +3906,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             f32 temp_f21_3;
             f32 titleX;
 
-            temp_3_19 = (s32)(M2C_FIELD(temp_20, u32 *, 0x84) * 0x28);
+            temp_3_19 = (s32)(taskView->f84 * 0x28);
             titleX = *(f32 *)(D_005E5234 + temp_3_19);
             titleY = *(f32 *)(D_005E5238 + temp_3_19);
             temp_f24 = *(f32 *)(D_005E523C + temp_3_19);
@@ -3919,7 +3919,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             temp_3_21 = temp_3_20 | 0x100000;
             M2C_FIELD(var_16_2, s32 *, 0xD8) = temp_3_21;
             M2C_FIELD(var_16_2, s32 *, 0xD8) = (s32) (temp_3_21 | 0x40000);
-            temp_17_2 = (u32)(M2C_FIELD(temp_20, u32 *, 0x84));
+            temp_17_2 = (u32)(taskView->f84);
             if (temp_17_2 >= 0x13U) {
                 func_0046d730(D_005E5548, 0xEB);
             }
@@ -3933,7 +3933,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             titleTranslation.z = 0.0f;
             RwMatrixTranslate(&titleMatrix, &titleTranslation, 1);
             func_0047a1c0(var_16_2, &titleMatrix, 0);
-            var_2_29 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC) - 5);
+            var_2_29 = (s32)(taskView->timer - 5);
             if (var_2_29 > 0) {
                 if (var_2_29 >= 6) {
                     var_2_29 = 5;
@@ -3952,14 +3952,14 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_002ab380(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, (s32)taskView->sprites, 9, 0);
             }
         }
-        var_2_30 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC));
+        var_2_30 = (s32)(taskView->timer);
         if (var_2_30 >= 6) {
             var_2_30 = 5;
         }
         temp_f1_16 = 255.0f * (1.0f - ((f32) var_2_30 / 5.0f));
         var_5_19 = (u32)temp_f1_16 & 0xFF;
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, var_5_19, 0x10001, 0, taskView->sprites, 1);
-        var_2_31 = (s32)(M2C_FIELD(temp_20, s32 *, 0xC) - 2);
+        var_2_31 = (s32)(taskView->timer - 2);
         if (var_2_31 > 0) {
             if (var_2_31 >= 3) {
                 var_2_31 = 5;
@@ -3970,21 +3970,21 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             temp_f16_3 = fGpffff82a0;
             func_0025f430(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, var_5_20, 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
         }
-        if (M2C_FIELD(temp_20, s32 *, 0x28) != (M2C_FIELD(temp_20, s32 *, 0x20) << 0x10)) {
+        if (taskView->f28 != (taskView->f20 << 0x10)) {
     /* ACC seed */;
-            temp_f0_10 = (f32)((M2C_FIELD(temp_20, s32 *, 0x20) << 0x10) - M2C_FIELD(temp_20, s32 *, 0x28)) +
-                         0.5f * (f32)((M2C_FIELD(temp_20, s32 *, 0x20) - M2C_FIELD(temp_20, s32 *, 0x24)) << 0x10);
+            temp_f0_10 = (f32)((taskView->f20 << 0x10) - taskView->f28) +
+                         0.5f * (f32)((taskView->f20 - taskView->f24) << 0x10);
             temp_10_2 = (s32)temp_f0_10;
             if (func_0043c6a0(temp_10_2) < 0xB) {
-                M2C_FIELD(temp_20, s32 *, 0x28) = (s32) (M2C_FIELD(temp_20, s32 *, 0x20) << 0x10);
-                M2C_FIELD(temp_20, s32 *, 8) = (s32) ~(M2C_FIELD(temp_20, s32 *, 8) ^ -5);
+                taskView->f28 = (s32) (taskView->f20 << 0x10);
+                taskView->f08 = (s32) ~(taskView->f08 ^ -5);
             } else {
-                M2C_FIELD(temp_20, s32 *, 0x28) = (s32) (M2C_FIELD(temp_20, s32 *, 0x28) + (s32)((f32)temp_10_2 * 0.5f));
+                taskView->f28 = (s32) (taskView->f28 + (s32)((f32)temp_10_2 * 0.5f));
             }
         }
-        temp_5 = (s32)(M2C_FIELD(temp_20, s32 *, 0x24));
-        temp_4 = (s32)(M2C_FIELD(temp_20, s32 *, 0x20));
-        temp_28 = (s32)M2C_FIELD(temp_20, s32 *, 0x28);
+        temp_5 = (s32)(taskView->f24);
+        temp_4 = (s32)(taskView->f20);
+        temp_28 = (s32)taskView->f28;
         temp_f1_28 = (f32)temp_4 + 0.25f * (f32)((temp_4 - temp_5) << 0x10);
         temp_f0_11 = temp_f1_28 - (f32)temp_28;
         temp_i28 = (s32)temp_f0_11;
@@ -4006,7 +4006,7 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
         break;
     }
     /* The update callback seeds this countdown with 10 or 13 frames. */
-    if (M2C_FIELD(temp_20, s32 *, 0x2C) > 0) {
+    if (taskView->f2C > 0) {
         /* Four UV pairs, copied as their original words before the texture lookup. */
         fadeUvSource = D_005E56B0;
         fadeUvDestination = fadeUv.words;
@@ -4021,11 +4021,11 @@ temp_f2 = sinf(((((fGpffff8094 * (f32) (temp_16 - 0x5A)) / 10.0f))));
             fadeUvDestination += 2;
         } while (var_4_17 > 0);
         var_4_18 = 0xD;
-        if (M2C_FIELD(temp_20, u32 *, 0) == 0x10) {
+        if (taskView->f00 == 0x10) {
             var_4_18 = 0xA;
         }
-        temp_3_23 = (s32)(M2C_FIELD(temp_20, s32 *, 0x2C) - 1);
-        M2C_FIELD(temp_20, s32 *, 0x2C) = temp_3_23;
+        temp_3_23 = (s32)(taskView->f2C - 1);
+        taskView->f2C = temp_3_23;
         fadeAlpha = (s32)((f32)(temp_3_23 * 0xFF) / (f32)var_4_18);
         fadeTexture = func_00401b80();
         func_00366c70(0, 0, 0.0f, 0x280, 0x1C0, 0xFFFFFF, fadeAlpha,
