@@ -25,6 +25,17 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 9 continuation, part 9: crt0 `_start` is vendor code
+
+`_start` (`0x00100008..0x00100218`, `func_00100008` in `code1_0010.c`) is
+Sony's hand-written `crt0.s` (register clear, BSS clear, SetupThread and
+SetupHeap syscalls, `_InitSys`, `main`, `Exit`). The user approved filing it
+as vendor code, so it is now the fifth span in `verify.VENDOR_CODE_RANGES`
+and leaves the first-party count; it stays `INCLUDE_ASM`. No SDK archive
+member is available to prove it byte for byte, so it is `third_party`, not
+`sony_sdk`. Test fixtures that used synthetic addresses inside that span
+(`0x00100010`, `0x00100020`, `0x00100100`) moved to `0x002000xx`.
+
 ## October 9 continuation, part 8: `001265a0` from 3069 to 261
 
 Count unchanged: 6,830 MATCH / 31 ASM. The title-screen draw `001265a0` now

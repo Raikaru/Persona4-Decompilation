@@ -230,6 +230,8 @@ extern u8 iGpffff85d0;
  * pairs, while retail at 00100198 issues five `lui`s before their five
  * `addiu`s. The routine is Sony's crt0.s, so the faithful source is an
  * assembler file, which the build does not support for first-party units.
+ * 2026-10-09: classified as vendor code (VENDOR_CODE_RANGES in
+ * tools/verify.py), like the other prebuilt SDK spans.
  */
 // FUN_00100008
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100008);

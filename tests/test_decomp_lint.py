@@ -75,9 +75,9 @@ class PragmaAdvisoryTests(unittest.TestCase):
         text = ('// measured: schedule off was needed for the first function.\n'
                 '// FUN_00100000\n'
                 'INCLUDE_ASM("asm/nonmatchings/x", func_00100000);\n'
-                '// FUN_00100010\n'
+                '// FUN_00200010\n'
                 '#pragma schedule off\n'
-                'void func_00100010(void) { }\n')
+                'void func_00200010(void) { }\n')
         self.assertIn("H003", codes(lint_text(text)))
 
 
@@ -647,16 +647,16 @@ class NonMatchingBlockTests(unittest.TestCase):
     """
 
     BODY = (
-        "// FUN_00100010 NONMATCHING\n"
+        "// FUN_00200010 NONMATCHING\n"
         "#ifdef NON_MATCHING\n"
-        "s32 func_00100010(void)\n"
+        "s32 func_00200010(void)\n"
         "{\n"
         "    s32 unused;\n"
         "    unused = compute();\n"
         "    return 0;\n"
         "}\n"
         "#else\n"
-        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
         "#endif\n"
     )
 
@@ -668,16 +668,16 @@ class NonMatchingBlockTests(unittest.TestCase):
     def test_violation_in_the_else_arm_is_still_reported(self) -> None:
         """The #else arm is what actually compiles, so it stays linted."""
         text = self.BODY.replace(
-            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);',
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);',
             "#pragma optimization_level 3\n"
-            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);',
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);',
         )
         self.assertIn("H003", codes(lint_text(text)))
 
     def test_violation_after_the_endif_is_still_reported(self) -> None:
         text = self.BODY + (
-            "\n// FUN_00100020\n"
-            "void func_00100020(void)\n"
+            "\n// FUN_00200020\n"
+            "void func_00200020(void)\n"
             "{\n"
             '    asm ("addu $v0, $a0, $a1");\n'
             "}\n"
@@ -687,9 +687,9 @@ class NonMatchingBlockTests(unittest.TestCase):
     def test_nested_ifdef_inside_the_block_does_not_leak(self) -> None:
         """A nested #if must not end the skip early at its own #endif."""
         text = (
-            "// FUN_00100010 NONMATCHING\n"
+            "// FUN_00200010 NONMATCHING\n"
             "#ifdef NON_MATCHING\n"
-            "s32 func_00100010(void)\n"
+            "s32 func_00200010(void)\n"
             "{\n"
             "#if 1\n"
             "    compute();\n"
@@ -699,10 +699,10 @@ class NonMatchingBlockTests(unittest.TestCase):
             "    return 0;\n"
             "}\n"
             "#else\n"
-            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
             "#endif\n"
-            "\n// FUN_00100020\n"
-            "void func_00100020(void)\n"
+            "\n// FUN_00200020\n"
+            "void func_00200020(void)\n"
             "{\n"
             '    asm ("addu $v0, $a0, $a1");\n'
             "}\n"
@@ -900,14 +900,14 @@ class GuardTagged(unittest.TestCase):
     """
 
     GUARDED = (
-        "// FUN_00100010 NONMATCHING\n"
+        "// FUN_00200010 NONMATCHING\n"
         "#ifdef NON_MATCHING\n"
-        "s32 func_00100010(void)\n"
+        "s32 func_00200010(void)\n"
         "{\n"
         "    return 0;\n"
         "}\n"
         "#else\n"
-        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
         "#endif\n"
     )
 
@@ -915,22 +915,22 @@ class GuardTagged(unittest.TestCase):
         self.assertNotIn("M003", codes(lint_text(self.GUARDED)))
 
     def test_untagged_guard_is_reported(self) -> None:
-        text = self.GUARDED.replace("// FUN_00100010 NONMATCHING",
-                                    "// FUN_00100010")
+        text = self.GUARDED.replace("// FUN_00200010 NONMATCHING",
+                                    "// FUN_00200010")
         self.assertIn("M003", codes(lint_text(text)))
 
     def test_untagged_skip_asm_guard_is_reported(self) -> None:
         """The older `#ifdef SKIP_ASM` spelling hides a body just as well."""
-        text = self.GUARDED.replace("// FUN_00100010 NONMATCHING",
-                                    "// FUN_00100010").replace(
+        text = self.GUARDED.replace("// FUN_00200010 NONMATCHING",
+                                    "// FUN_00200010").replace(
             "#ifdef NON_MATCHING", "#ifdef SKIP_ASM")
         self.assertIn("M003", codes(lint_text(text)))
 
     def test_promoted_function_without_a_guard_is_clean(self) -> None:
         """Dropping the guard at zero words is the goal, not a violation."""
         text = (
-            "// FUN_00100010\n"
-            "s32 func_00100010(void)\n"
+            "// FUN_00200010\n"
+            "s32 func_00200010(void)\n"
             "{\n"
             "    return 0;\n"
             "}\n"
@@ -940,11 +940,11 @@ class GuardTagged(unittest.TestCase):
     def test_tag_belongs_to_the_nearest_marker_above(self) -> None:
         """A tagged neighbour must not excuse the untagged one below it."""
         text = self.GUARDED + (
-            "// FUN_00100020\n"
+            "// FUN_00200020\n"
             "#ifdef NON_MATCHING\n"
-            "void func_00100020(void) {}\n"
+            "void func_00200020(void) {}\n"
             "#else\n"
-            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100020);\n'
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00200020);\n'
             "#endif\n"
         )
         findings = [f for f in lint_text(text) if f.code == "M003"]
@@ -960,11 +960,11 @@ class CommentTerminated(unittest.TestCase):
 
     GUARDED = (
         "/* measured: a note. */\n"
-        "// FUN_00100010 NONMATCHING\n"
+        "// FUN_00200010 NONMATCHING\n"
         "#ifdef NON_MATCHING\n"
-        "s32 func_00100010(void) { return 0; }\n"
+        "s32 func_00200010(void) { return 0; }\n"
         "#else\n"
-        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
         "#endif\n"
     )
 
@@ -991,8 +991,8 @@ class MarkerAdjacency(unittest.TestCase):
     """M004: a note between a marker and its INCLUDE_ASM breaks ownership."""
 
     BARE = (
-        "// FUN_00100010\n"
-        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        "// FUN_00200010\n"
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
     )
 
     def test_marker_followed_by_include_asm_is_clean(self) -> None:
@@ -1002,19 +1002,19 @@ class MarkerAdjacency(unittest.TestCase):
         self.assertNotIn("M004", codes(lint_text("/* note */\n" + self.BARE)))
 
     def test_note_between_marker_and_include_asm_is_reported(self) -> None:
-        text = ("// FUN_00100010\n/* note */\n"
-                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n')
+        text = ("// FUN_00200010\n/* note */\n"
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n')
         self.assertIn("M004", codes(lint_text(text)))
 
     def test_comment_before_a_guarded_body_is_not_reported(self) -> None:
         """A note inside the guard is normal and does not break ownership."""
         text = (
-            "// FUN_00100010 NONMATCHING\n"
+            "// FUN_00200010 NONMATCHING\n"
             "#ifdef NON_MATCHING\n"
             "/* measured: something */\n"
-            "s32 func_00100010(void) { return 0; }\n"
+            "s32 func_00200010(void) { return 0; }\n"
             "#else\n"
-            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
             "#endif\n"
         )
         self.assertNotIn("M004", codes(lint_text(text)))
@@ -1025,12 +1025,12 @@ class GuardedSchedule(unittest.TestCase):
     inside a guard can only be deleting nops to shrink the count."""
 
     GUARDED = (
-        "// FUN_00100010 NONMATCHING\n"
+        "// FUN_00200010 NONMATCHING\n"
         "#ifdef NON_MATCHING\n"
         "{pragma}"
-        "s32 func_00100010(void) {{ return 0; }}\n"
+        "s32 func_00200010(void) {{ return 0; }}\n"
         "#else\n"
-        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
         "#endif\n"
     )
 
@@ -1045,35 +1045,35 @@ class GuardedSchedule(unittest.TestCase):
         """Several third-party units really are built with scheduling on."""
         text = (
             "#pragma schedule on\n"
-            "// FUN_00100010\n"
-            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+            "// FUN_00200010\n"
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
         )
         self.assertNotIn("H010", codes(lint_text(text)))
 
     def test_pragma_in_the_include_asm_arm_is_left_alone(self) -> None:
         """Only the `#ifdef NON_MATCHING` arm compiles the C body."""
         text = (
-            "// FUN_00100010 NONMATCHING\n"
+            "// FUN_00200010 NONMATCHING\n"
             "#ifdef NON_MATCHING\n"
-            "s32 func_00100010(void) { return 0; }\n"
+            "s32 func_00200010(void) { return 0; }\n"
             "#else\n"
             "#pragma schedule on\n"
-            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
             "#endif\n"
         )
         self.assertNotIn("H010", codes(lint_text(text)))
 
     def test_nested_conditional_does_not_end_the_guard_early(self) -> None:
         text = (
-            "// FUN_00100010 NONMATCHING\n"
+            "// FUN_00200010 NONMATCHING\n"
             "#ifdef NON_MATCHING\n"
             "#if 1\n"
             "s32 helper(void) { return 0; }\n"
             "#endif\n"
             "#pragma schedule on\n"
-            "s32 func_00100010(void) { return helper(); }\n"
+            "s32 func_00200010(void) { return helper(); }\n"
             "#else\n"
-            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
             "#endif\n"
         )
         self.assertIn("H010", codes(lint_text(text)))
@@ -1101,31 +1101,31 @@ class TagWithoutBody(unittest.TestCase):
     does not exist, and every floor audit believes it."""
 
     def test_tag_with_no_guard_is_reported(self) -> None:
-        text = ("// FUN_00100010 NONMATCHING\n"
-                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n')
+        text = ("// FUN_00200010 NONMATCHING\n"
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n')
         self.assertIn("M005", codes(lint_text(text)))
 
     def test_tag_with_a_guard_is_clean(self) -> None:
-        text = ("// FUN_00100010 NONMATCHING\n"
+        text = ("// FUN_00200010 NONMATCHING\n"
                 "#ifdef NON_MATCHING\n"
-                "s32 func_00100010(void) { return 0; }\n"
+                "s32 func_00200010(void) { return 0; }\n"
                 "#else\n"
-                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
                 "#endif\n")
         self.assertNotIn("M005", codes(lint_text(text)))
 
     def test_untagged_bare_include_is_clean(self) -> None:
         """A function nobody has attempted is the normal state."""
-        text = ("// FUN_00100010\n"
-                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n')
+        text = ("// FUN_00200010\n"
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n')
         self.assertNotIn("M005", codes(lint_text(text)))
 
     def test_the_older_skip_asm_guard_counts(self) -> None:
-        text = ("// FUN_00100010 NONMATCHING\n"
+        text = ("// FUN_00200010 NONMATCHING\n"
                 "#ifdef SKIP_ASM\n"
-                "s32 func_00100010(void) { return 0; }\n"
+                "s32 func_00200010(void) { return 0; }\n"
                 "#else\n"
-                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
                 "#endif\n")
         self.assertNotIn("M005", codes(lint_text(text)))
 
@@ -1166,13 +1166,13 @@ class DeclarationContractTests(unittest.TestCase):
         self.assertNotIn("H011", self.run_with_defs(text, {"func_00100000": ("s32", ("s32",))}))
 
     def test_guarded_reference_declarations_are_ignored(self) -> None:
-        text = ("// FUN_00100010 NONMATCHING\n"
+        text = ("// FUN_00200010 NONMATCHING\n"
                 "#ifdef NON_MATCHING\n"
-                "void func_00100010(void) {\n"
+                "void func_00200010(void) {\n"
                 "    extern void func_00310a10(u8 *, u16);\n"
                 "}\n"
                 "#else\n"
-                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00200010);\n'
                 "#endif\n")
         self.assertNotIn("H011", self.run_with_defs(text, {"func_00310a10": ("void", ("ptr", "s32"))}))
 

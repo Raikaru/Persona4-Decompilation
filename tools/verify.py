@@ -150,7 +150,14 @@ def is_third_party(rel_file: str) -> bool:
 # byte-exact from the RenderWare 3.7.0.2 source (src/renderware); the first
 # function of the span, 0x0038F990, calls _rwerror/RwErrorSet; and the sky2
 # DMA/VU code of code1_003a.c is driver code with no game counterpart.
+# The fifth span is the hardware entry `_start` (0x00100008..0x00100218), Sony's
+# crt0.s: it zeroes the GPRs, HI/LO, SA and FPRs, clears BSS, issues
+# SetupThread/SetupHeap (syscalls 60/61), calls _InitSys and FlushCache, enables
+# interrupts and enters main. It is hand-written assembler with no C form and
+# no game code; no SDK archive member is available here to prove it byte for
+# byte, so it is filed as unproven vendor code rather than as sony_sdk.
 VENDOR_CODE_RANGES = (
+    (0x00100008, 0x00100218),
     (0x0038F990, 0x00417510),
     (0x00417510, 0x0044E830),
     (0x004BD628, 0x0052D8C0),
