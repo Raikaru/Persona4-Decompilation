@@ -1916,6 +1916,7 @@ query_complete:
  * Native owner probe: 9152 bytes, 2360 aligned differences; this semantic
  * repair remains guarded. See Field_pro_recovery_20261010_worker9.md.
  * fnalign 2360 -> 1540: role swaps of reused temporaries within blocks.
+ * fnalign 1540 -> 1525: early returns for the 0xa2 and flag tests and a two-case switch on *piVar1 (retail tests 1 then 0).
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2086,7 +2087,14 @@ s32 func_0016bdd0(u8 *param_1)
   float fStack_1c;
   float fStack_18;
   piVar1 = *(int **)((int)param_1 + 0x38);
-  if ((piVar1[0xa2] != 0) && ((piVar1[1] & 1U) == 0)) {
+  if (piVar1[0xa2] == 0) {
+    return 0;
+  }
+  if ((piVar1[1] & 1U) != 0) {
+    return 0;
+  }
+  {
+
     if (piVar1[0xb] < 0x80) {
       piVar1[0xb] = piVar1[0xb] + 1;
     }
@@ -2108,7 +2116,9 @@ s32 func_0016bdd0(u8 *param_1)
         puVar15 = puVar15 + 2;
       } while (0 < temp_v4);
     }
-    if ((*piVar1 != 1) && (*piVar1 == 0)) {
+    switch (*piVar1) {
+    case 0:
+    {
       switch(piVar1[2]) {
       case 0:
       case 2:
@@ -2918,6 +2928,10 @@ LAB_0016e0c0:
         }
         break;
       }
+    }
+      break;
+    case 1:
+      break;
     }
   }
   return 0;
