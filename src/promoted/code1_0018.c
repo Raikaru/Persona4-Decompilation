@@ -2019,6 +2019,14 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
 }
 /* measured 0018a200 (owner, romwright R1 + doubles-to-float + float-read fix): fndiff obj 6452B vs window 6352B (+100B); fnalign retail 1588 vs object 1613 (+25, +1.6%, band 1540-1636, inside); edits 1113; GUARDED_SCORE 1404. Frame retail -0x1C0 vs object -0xC0 (-256B). `#pragma opt_common_subs off` scoped to this function and closed after it (CSE off, +73 over v4a base 1540 vs 1587). Residual is 3 fptodp helpers, cvt/mtc1 vs direct loads, and saved-reg colour. Same file idioms as 00183b80 noted (u8* ctx at +0x38 for next step; current uint* preserves count).
    2026-10-08: opt_lifetimes on lowers fnalign from 1063 to 1007 edits. */
+static inline s32 fldBothReady_0018a200(void)
+{
+    extern int D_007EF9F8[];
+    extern int D_007EFA04[];
+
+    return D_007EF9F8[0] != 0 && D_007EFA04[0] != 0;
+}
+
 /* 2026-10-09: corrected two Ghidra artefacts against retail: the five puVar1[6]/[7] stores are float stores (retail swc1, no float-to-unsigned conversion), and func_0014bff0/func_0014c4c0 take their 120.0f/500.0f first argument in $f12. fnalign 1007 -> 969; the frame is still 0xF0 smaller than retail's 0x1C0, so retail has stack locals this body lacks.
  * 2026-10-09: 969 -> 901: the scalarised Ghidra stack floats are grouped back into
  * `float vecN[3]` locals declared in retail stack order (later declarations sit
@@ -2035,6 +2043,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * fnalign 774 -> 761: vector fields read as whole FldCopyVec copies (retail stores all three, then adjusts y).
  * fnalign 761 -> 755: (iStack_4 != 0) ^ 1 computed before the FUN_00155280 call into temp_v2 (retail xori into $s0 first); temp_v1 is s32 and tested == 1.
  * fnalign 755 -> 742: vec50 is a whole-vector copy of vec160 before the +180 y adjustment.
+ * fnalign 742 -> 733: the D_007EF9F8/D_007EFA04 readiness test is the inline fldBothReady_0018a200() (retail materialises the && as a value, sltu each, then one test).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2192,7 +2201,7 @@ s32 func_0018a200(u8 *param_1)
          ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x4651)))) &&
         ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46b5)))) &&
        (((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46e7)) &&
-        (D_007EF9F8[0] != 0 && D_007EFA04[0] != 0)))) {
+        (fldBothReady_0018a200())))) {
       temp_v8 = FUN_0047a2f0(D_007EFA00[0]);
       temp_v4 = FUN_0047a2f0(temp_v4);
       temp_v9 = FUN_0014bff0(120.0f,temp_v8,temp_v4 + 0x30);
@@ -2477,7 +2486,7 @@ s32 func_0018a200(u8 *param_1)
     }
     break;
   case 4:
-    if (D_007EF9F8[0] != 0 && D_007EFA04[0] != 0) {
+    if (fldBothReady_0018a200()) {
       temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
       temp_v7 = FUN_0047a2f0(D_007EFA00[0]);
       temp_v9 = FUN_0014c4c0(500.0f,temp_v4 + 0x30,temp_v7 + 0x30);
