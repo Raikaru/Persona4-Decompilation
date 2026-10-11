@@ -160,6 +160,22 @@ alignment, and the C preserves the observed behavior and ABI.
   `sltiu` into `$v0`). Retail's frame is `0x1c0` against our `0x190` and it
   saves only `$f20`; computing `(iStack_4 != 0) ^ 1` early into a local
   (retail's `$s0`) improves structure but swaps `puVar1`'s colour (1248).
+- **`004b8f40`** (fnalign 69 -> 1): **role swaps of Ghidra's reused
+  temporaries.** Swapping which `temp_vN`/`pfVarN` holds which value inside
+  one block changes their virtual numbers and therefore the colouring,
+  without changing semantics (69 -> 10 over the ring indices, the case-2
+  float temporaries and one `pfVar16`/`pfVar3` pair). A swap inside a block
+  is safe when, for both variables, the first occurrence in the block is a
+  definition, nothing later in the same top-level statement reads them, the
+  first occurrence after that statement is a definition, and no loop
+  encloses the block. Then `out >= lim` for the assertion (retail `sltu`
+  into `$v0`), `u8 *` table bases for six spline reads (base-first `addu`),
+  and the colour-table end pointer through the file's own
+  `effAfterOffsetPtr(offset, base)` (offset-first, as the matched siblings).
+  Left: one `addu` at `pfVar17 + temp_v5 * 3 - 9` (retail index-first).
+  Every spelling of that sum keeps base-first; the helper there flips it but
+  evaluates the end pointer before the ring offset (30); a dedicated
+  single-definition table pointer does not change it.
 - **`0046b380`** (fnalign 41 -> 25): a third record-address spelling,
   `SDK_SPRITE_RECORD_VIA_ADD` (through `sdkAddOffset`, index first), at the
   packed-colour reads and the `points[2].x` extent. The remaining `addu`
