@@ -1920,6 +1920,7 @@ query_complete:
  * fnalign 1525 -> 1418: reused locals split per independent group (separate live ranges as retail).
  * fnalign 1418 -> 1405: further per-group local splits.
  * fnalign 1405 -> 1394: float comparison forms in retail's polarity.
+ * fnalign 1394 -> 1390: comparison forms in retail's polarity.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2287,7 +2288,7 @@ s32 func_0016bdd0(u8 *param_1)
             acc = acc + temp_v11;
           }
         }
-        if (piVar1[0xd] - 1 <= temp_v4) {
+        if (temp_v4 >= piVar1[0xd] - 1) {
           FUN_0046d730(DAT_005f1698,0x15b);
         }
         if (((float *)piVar1)[8] < temp_v14) {
@@ -2340,7 +2341,7 @@ s32 func_0016bdd0(u8 *param_1)
             }
             temp_v4 = temp_v4 + 1;
           }
-          if (last <= temp_v4) {
+          if (temp_v4 >= last) {
             FUN_0046d730(DAT_005f1698,0x193);
           }
           temp_v4 = lo * 2 + (int)lo;
