@@ -1279,6 +1279,7 @@ void func_00376880(u8 **arg0) {
  * fnalign 149 -> 127: the -1/21 taper step is a literal (pool reload per loop, as retail).
  * fnalign 127 -> 108: shared x/y/z for the front and back trail points (single-definition px/mx locals were propagated into the TRAIL_POSITION arguments).
  * trail loops reuse the case-scope x/y/z (no shadowing locals).
+ * fnalign 108 -> 105: per-case step = length / 21.0f locals, case 0's time at function scope and its fadedOpacity after taper (regalloc_whatif: time numbered first, fadedOpacity after taper).
  */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1342,6 +1343,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
     u8 *card;
     u8 *motion;
     s32 kind;
+    f32 time;
     f32 opacity;
     f32 right;
     f32 height;
@@ -1374,11 +1376,11 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
         switch (kind) {
         case 0:
             {
+                f32 step;
                 s32 point;
                 s32 side;
-                f32 fadedOpacity;
                 f32 taper;
-                f32 time;
+                f32 fadedOpacity;
                 f32 halfWidth;
                 f32 halfHeight;
                 front = first;
@@ -1386,10 +1388,10 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 fadedOpacity = iGpffff8400 * opacity;
                 taper = 1.0f;
                 time = 0.0f;
-                length /= 21.0f;
+                step = length / 21.0f;
                 for (point = 0; point < 21; point++, front += 2, back += 2) {
                     func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
-                    time -= length;
+                    time -= step;
                     TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], (u8)(opacity * taper));
                     TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
                     TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
@@ -1448,6 +1450,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
             }
         case 1:
             {
+                f32 step;
                 s32 point;
                 s32 side;
                 f32 taper;
@@ -1466,10 +1469,10 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 back = second;
                 alpha = (u8)opacity;
                 time = 0.0f;
-                length /= 21.0f;
+                step = length / 21.0f;
                 for (point = 0; point < 21; point++, front += 2, back += 2) {
                     func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
-                    time -= length;
+                    time -= step;
                     TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], 0);
                     TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], alpha);
                     TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], alpha);
@@ -1518,6 +1521,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
             break;
         case 2:
             {
+                f32 step;
                 s32 point;
                 s32 side;
                 f32 taper;
@@ -1535,10 +1539,10 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 back = second;
                 alpha = (u8)opacity;
                 time = 0.0f;
-                length /= 21.0f;
+                step = length / 21.0f;
                 for (point = 0; point < 21; point++, front += 2, back += 2) {
                     func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
-                    time -= length;
+                    time -= step;
                     TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], 0);
                     TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], alpha);
                     TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], alpha);
