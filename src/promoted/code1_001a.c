@@ -3021,6 +3021,7 @@ void func_001a5990(void)
  * fnalign 545 -> 527: the tail state switch (cases 1,3,2 and default both set state 0x20) as in the matched-path sibling 001a7720, with the real btlActionSetState(BtlAction *, u16) prototype (retail daddiu per arm, one shared call).
  * fnalign 527 -> 521: btlCloseCamera reads the unit id before the switch, sends every failing path to one shared result = 0 (default arm, goto fail) and tests the 0x8000 flag first (retail polarity).
  * fnalign 521 -> 493: integer-cast +0x30 unit reads at selected sites (b210 does not CSE the address across calls, as retail).
+ * fnalign 493 -> 455: integer-cast field-base reads (no cross-call address CSE).
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3341,7 +3342,7 @@ void func_001a59a0(s64 *arg0_) {
     if ((var_22 == 1) && (sp1C0 == 0) && (temp_5 == 1) && !((*(s32 *)((u8 *)(iGpffffb3ac) + (0x10))) & 0x2000)) {
         sp22C = 1;
     }
-    if (((*(u8 *)((u8 *)(temp_19) + (0xA2))) != 0) || (var_30 == 4) || (var_30 == 0xC)) {
+    if (((*(u8 *)((u8 *)(u32)(temp_19) + (0xA2))) != 0) || (var_30 == 4) || (var_30 == 0xC)) {
         var_23 = func_001991c0(temp_19, var_30 & 0xFFFF, var_f20);
     } else {
         var_23 = func_001999f0(temp_19, var_30 & 0xFFFF, var_f20, 0);
@@ -3527,7 +3528,7 @@ void func_001a59a0(s64 *arg0_) {
             func_00194590(temp_2_24, 0);
             sp230 = 1;
         }
-        if ((*(u8 *)((u8 *)(temp_19) + (0xA2))) == 0) {
+        if ((*(u8 *)((u8 *)(u32)(temp_19) + (0xA2))) == 0) {
             if ((func_001f08c0(temp_19) != 0) && (temp_4_5 = (*(u8 **)((u8 *)(var_22_3) + (0x30))), ((*(u8 *)((u8 *)(temp_4_5) + (0xA2))) == 1))) {
                 sp210 = (s32)(((*(s16 *)((u8 *)((((s32)iGpffffb3cc) + ((*(u16 *)((u8 *)(temp_4_5) + (0xA4))) * 0xE8))) + (0x18))) & 0x40) == 0);
             } else {
@@ -3565,7 +3566,7 @@ void func_001a59a0(s64 *arg0_) {
                 } else if (sp200 != sp130) {
                     sp2A0 = 2;
                 }
-                if (((*(u16 *)((u8 *)(temp_18) + (0xDC))) & 0x404) || (hit->flags & 4)) {
+                if (((*(u16 *)((u8 *)(u32)(temp_18) + (0xDC))) & 0x404) || (hit->flags & 4)) {
                     sp240 = 0;
                 } else {
                     sp240 = 1;
@@ -3584,7 +3585,7 @@ void func_001a59a0(s64 *arg0_) {
                 } else {
                     (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) sp2B0;
                 }
-                if ((*(s32 *)((u8 *)(temp_18) + (0xE4))) != 0) {
+                if ((*(s32 *)((u8 *)(u32)(temp_18) + (0xE4))) != 0) {
                     (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) ((*(s16 *)((u8 *)(sp2DC) + (0x48))) + 5);
                     var_21 += 5;
                 }
@@ -3599,7 +3600,7 @@ void func_001a59a0(s64 *arg0_) {
                     func_00194590(temp_2_29, 1);
                 }
                 if ((*(s32 *)((u8 *)(temp_18) + (0xE4))) != 0) {
-                    temp_2_30 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD28))), temp_19, (*(u8 **)((u8 *)(temp_18) + (0x30))), 1, 0));
+                    temp_2_30 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD28))), temp_19, (*(u8 **)((u8 *)(u32)(temp_18) + (0x30))), 1, 0));
                     (*(s8 *)((u8 *)(temp_2_30) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_30) + (8))) = temp_16;
                     (*(s16 *)((u8 *)(temp_2_30) + (0x48))) = (s16) sp2B0;
@@ -3711,7 +3712,7 @@ void func_001a59a0(s64 *arg0_) {
                         temp_5_3 = (u8 *)((*(u8 **)((u8 *)(var_22_3) + (0x30))));
                         temp_2_43 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD84))), temp_5_3, temp_5_3, 1, 0));
                         (*(s8 *)((u8 *)(temp_2_43) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_43) + (8))) = (s64) (*(s64 *)((u8 *)(sp2D4) + (0x58)));
+                        (*(s64 *)((u8 *)(temp_2_43) + (8))) = (s64) (*(s64 *)((u8 *)(u32)(sp2D4) + (0x58)));
                         (*(s64 *)((u8 *)(temp_2_43) + (0x60))) = temp_17;
                         func_00194590(temp_2_43, 2);
                         temp_5_4 = (u8 *)((*(u8 **)((u8 *)(var_22_3) + (0x30))));
@@ -3731,7 +3732,7 @@ void func_001a59a0(s64 *arg0_) {
                     } else {
                         temp_2_46 = (u8 *)(func_00197cc0((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30))), (s16) (*(u16 *)(arg0 + (0x6E))), 0));
                         (*(s8 *)((u8 *)(temp_2_46) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_46) + (8))) = (s64) (*(s64 *)((u8 *)(sp2D4) + (0x58)));
+                        (*(s64 *)((u8 *)(temp_2_46) + (8))) = (s64) (*(s64 *)((u8 *)(u32)(sp2D4) + (0x58)));
                         (*(s64 *)((u8 *)(temp_2_46) + (0x60))) = temp_17;
                         func_00194590(temp_2_46, 1);
                         temp_2_47 = (u8 *)(func_001bccc0(0x14, 0x32, 0, 5));
@@ -3745,7 +3746,7 @@ void func_001a59a0(s64 *arg0_) {
             }
             temp_2_48 = hit;
             sp1F0 = temp_2_48;
-            temp_2_49 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_22_3), temp_2_48, (*(u16 *)((u8 *)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE)))));
+            temp_2_49 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_22_3), temp_2_48, (*(u16 *)((u8 *)(u32)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE)))));
             (*(s8 *)((u8 *)(temp_2_49) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_49) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_49) + (0x48))) = var_21;
@@ -3828,7 +3829,7 @@ block_222:
                         }
                     }
                 } else if (*addedStatus & 0x100000) {
-                    temp_2_56 = (u8 *)(func_001f5f70(arg0, 0x18, (s32) (*(u16 *)((u8 *)(temp_18) + (0xDE))), 1, 0));
+                    temp_2_56 = (u8 *)(func_001f5f70(arg0, 0x18, (s32) (*(u16 *)((u8 *)(u32)(temp_18) + (0xDE))), 1, 0));
                     (*(s8 *)((u8 *)(temp_2_56) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_56) + (8))) = sp2C0;
                     (*(s64 *)((u8 *)(temp_2_56) + (0x60))) = temp_17;
