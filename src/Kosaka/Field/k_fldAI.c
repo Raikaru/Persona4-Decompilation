@@ -1005,6 +1005,8 @@ tail:
  * combined 405 -> 375: the height table is a float[..][4] indexed [kind][slot].
  * combined 375 -> 345: state 9 steering computes the dot product (y, x, z) before the 5 * (10 * speed) limit, then 1 - dot.
  * combined 345 -> 341: dot products in retail (y, x, z) order.
+ * combined 341 -> 340: pol3 sweep.
+ * combined 340 -> 315: state 10 speed clamp and steering in retail order (dot y,x,z first, 10 * speed, then 1 - dot).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1831,17 +1833,20 @@ else {
       state10Delta.x = ((float *)piVar1)[0x14] - aiV1D0.x;
       state10Delta.y = ((float *)piVar1)[0x15] - aiV1D0.y;
       state10Delta.z = ((float *)piVar1)[0x16] - aiV1D0.z;
-      temp_v9 = RwV3dNormalize(&state10Delta,&state10Delta);
-      temp_v8 = CAND_fGpffff830c * *(float *)&piVar1[0x1a];
-      if (temp_v9 <= temp_v8) {
+      temp_v8 = RwV3dNormalize(&state10Delta,&state10Delta);
+      temp_v9 = CAND_fGpffff830c * *(float *)&piVar1[0x1a];
+      if (!(temp_v8 <= temp_v9)) {
+        temp_v8 = temp_v9;
+      }
+      else {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
         func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
-        temp_v8 = temp_v9;
       }
-      temp_v9 = *(float *)((u8 *)(u32)piVar1 + 0x68) * 10.0f;
-      temp_v11 = 1.0f - (state10Delta.z * state10Forward.z + state10Delta.x * state10Forward.x + state10Delta.y * state10Forward.y);
+      temp_v11 = state10Delta.y * state10Forward.y + state10Delta.x * state10Forward.x + state10Delta.z * state10Forward.z;
+      temp_v9 = 10.0f * *(float *)((u8 *)(u32)piVar1 + 0x68);
+      temp_v11 = 1.0f - temp_v11;
       if (temp_v11 < temp_v9 / 180.0f) {
         temp_v9 = temp_v11 * 180.0f;
       }
