@@ -944,6 +944,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * 2026-10-10: 563 -> 562 aligned edits by restoring 001efd50's actual
  * single-u8* argument call and the 001eff50 integer return contract.
  * fnalign 570 -> 555 (struct 297 -> 281): search loop with an in-body break (n > 1), scale = scale * r, and the second damage factor 1.0f as a local (retail keeps the multiply).
+ * fnalign 555 -> 538: the 0xD/0xC type tests, the 0x24 == 2 test and the cntA/cntB res test are switches (retail beq-per-case then b); the res switch lists cases in reverse and switches on (u16)res (retail andi mask).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1142,9 +1143,17 @@ void func_001f14f0(u8 *arg0)
         if (e4 != 0) {
             cntA = 1;
             cntB = 1;
-        } else if (res == 0x100 || res == 4 || res == 2 || res == 0x400 || res == 0x200) {
-            cntA = 1;
-            cntB = 1;
+        } else {
+            switch ((u16)res) {
+            case 0x200:
+            case 0x400:
+            case 2:
+            case 4:
+            case 0x100:
+                cntA = 1;
+                cntB = 1;
+                break;
+            }
         }
         if (e4 == 0) {
             r1 = func_00241de0(ctx, target, id, res, sub, flags);
@@ -1210,12 +1219,18 @@ void func_001f14f0(u8 *arg0)
             *(s32 *)(unit + (j << 5) + 0xFC) = mask2;
             x = func_002384b0(id, ctx, target, flags);
             t = *(u8 *)(iGpffffb3b8 + off + 0x11);
-            if (t == 0xD || t == 0xC) {
+            switch (t) {
+            case 0xD:
+            case 0xC:
                 *pa = func_0043c6a0(va);
+                break;
             }
             t = *(u8 *)(iGpffffb3b8 + off + 0x14);
-            if (t == 0xD || t == 0xC) {
+            switch (t) {
+            case 0xD:
+            case 0xC:
                 *pb = func_0043c6a0(vb);
+                break;
             }
             *(s32 *)(unit + (j << 5) + 0x100) = bonus;
             *(s32 *)(unit + (j << 5) + 0x104) = x;
@@ -1227,8 +1242,10 @@ void func_001f14f0(u8 *arg0)
             if (actor == arg0) {
                 totalSelf += va;
             }
-            if (*(u8 *)(iGpffffb3b8 + off + 0x24) == 2) {
+            switch (*(u8 *)(iGpffffb3b8 + off + 0x24)) {
+            case 2:
                 *flagp |= 0x20;
+                break;
             }
             if (*(u8 *)(iGpffffb3b8 + off) & 1) {
                 *flagp |= 0x40;
