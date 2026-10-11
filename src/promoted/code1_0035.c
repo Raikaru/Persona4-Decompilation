@@ -2576,6 +2576,7 @@ void func_003599a0(u8 *arg0)
  * fnalign 128 -> 31: the second panel group has its own x2/y2/w2/h2, declared w2, h2, fade, x0, y0, x2, y2, rowY (retail FPR colours follow declaration order; reused locals get late split ranges).
  * fnalign 31 -> 28: the panel alpha byte is converted into scale (a multi-definition float, dead at each site) before * fade, so mul.s takes it first as retail.
  * fnalign 28 -> 26: panel x/y/alpha are read through hudPanelPtr_003599c0(arg0 * 48, arg1), an integer offset-first sum (retail index-first addu).
+ * fnalign 26 -> 16: the third panel group has its own x3/y3/w3/h3 (w3 before h3).
  */
 static inline u8 *hudPanelPtr_003599c0(u32 offset, u8 *base)
 {
@@ -2644,6 +2645,10 @@ void func_003599c0(s32 arg0, u8 *arg1)
     f32 h;
     f32 scale;
     f32 py;
+    f32 w3;
+    f32 h3;
+    f32 x3;
+    f32 y3;
     u8 kind;
     s32 isSelf;
     s32 mode;
@@ -2780,17 +2785,17 @@ void func_003599c0(s32 arg0, u8 *arg1)
         spr = func_00246830(name);
         func_00275020(x2, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
-    x = 5.0f + (x0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x4C0));
-    y = 78.0f + (rowY + (y0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x4C4)));
+    x3 = 5.0f + (x0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x4C0));
+    y3 = 78.0f + (rowY + (y0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x4C4)));
     scale = (f32)hudPanelPtr_003599c0(arg0 * 48, arg1)[0x4CA];
     kind = scale * fade;
-    w = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].w;
-    h = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].h;
-    px = 15.0f + x;
-    py = 2.0f + y;
+    w3 = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].w;
+    h3 = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].h;
+    px = 15.0f + x3;
+    py = 2.0f + y3;
     spr = *(u8 **)(arg1 + mode * 4 + 0x121C);
     func_0034f320(spr, px, py, 0.0f,
-                  0xFF, 0xFF, 0xFF, kind, w, h, 0, 0.0f, 0);
+                  0xFF, 0xFF, 0xFF, kind, w3, h3, 0, 0.0f, 0);
 }
 #pragma pop
 #else
