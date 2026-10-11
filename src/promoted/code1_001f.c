@@ -943,6 +943,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * 563: conversion lever (ui:(0,)).
  * 2026-10-10: 563 -> 562 aligned edits by restoring 001efd50's actual
  * single-u8* argument call and the 001eff50 integer return contract.
+ * fnalign 570 -> 555 (struct 297 -> 281): search loop with an in-body break (n > 1), scale = scale * r, and the second damage factor 1.0f as a local (retail keeps the multiply).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -998,7 +999,7 @@ void func_001f14f0(u8 *arg0)
     if (*(u16 *)(arg0 + 0x6C) == 3 && *(u16 *)(arg0 + 0x70) > 0) {
         flags |= 1;
     }
-    kind = func_0023d8e0(ctx, id);
+    kind = (s8)func_0023d8e0(ctx, id);
     arg0[0xD9] = 0;
     *(u16 *)(arg0 + 0xDC) = 0;
     *(s32 *)(arg0 + 0xE0) = 0;
@@ -1032,10 +1033,13 @@ void func_001f14f0(u8 *arg0)
     {
         u16 n = *(u16 *)(arg0 + 0x6A);
 
-        if (n >= 2) {
+        if (n > 1) {
             u16 i;
 
-            for (i = 0; i < n && *(u8 **)(arg0 + i * 4 + 0x38) != arg0; i++) {
+            for (i = 0; i < n; i++) {
+                if (*(u8 **)(arg0 + i * 4 + 0x38) == arg0) {
+                    break;
+                }
             }
             if (i != n) {
                 for (; i < *(u16 *)(arg0 + 0x6A) - 1; i++) {
@@ -1055,7 +1059,7 @@ void func_001f14f0(u8 *arg0)
         } else if (r < fGpffff80d4) {
             r = fGpffff80d4;
         }
-        scale = 1.0f * r;
+        scale = scale * r;
     }
     *(u16 *)(arg0 + 0x3F4) = 0x240;
     status = 0;
@@ -1194,8 +1198,12 @@ void func_001f14f0(u8 *arg0)
             if ((s32)((f32)va * scale) != 0) {
                 va = (f32)va * scale;
             }
-            if ((s32)((f32)vb * 1.0f) != 0) {
-                vb = (f32)vb * 1.0f;
+            {
+                f32 one = 1.0f;
+
+                if ((s32)((f32)vb * one) != 0) {
+                    vb = (f32)vb * one;
+                }
             }
             pm = (s32 *)(unit + (j << 5) + 0xF8);
             *pm = mask;
@@ -1457,7 +1465,7 @@ other:
             if (*(s32 *)(u + 0xE0) == 1 && func_00232710(*(u8 **)(*(u8 **)(u + 0x30) + 0xA64), 0x100000) == 0) {
                 cnt++;
             } else {
-                s8 n;
+                u8 n;
                 for (n = 0; n < u[0xD9]; n++) {
                     if (*(u8 *)(*(u8 **)(u + 0x30) + 0xA2) == 1 && (*(u32 *)(u + (n << 5) + 0xF8) & 0x100000)) {
                         cnt++;
