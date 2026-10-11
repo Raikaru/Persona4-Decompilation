@@ -2034,6 +2034,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * *puVar1 >= 4 (retail sltiu into $v0, not $at).
  * fnalign 774 -> 761: vector fields read as whole FldCopyVec copies (retail stores all three, then adjusts y).
  * fnalign 761 -> 755: (iStack_4 != 0) ^ 1 computed before the FUN_00155280 call into temp_v2 (retail xori into $s0 first); temp_v1 is s32 and tested == 1.
+ * fnalign 755 -> 742: vec50 is a whole-vector copy of vec160 before the +180 y adjustment.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2255,9 +2256,8 @@ s32 func_0018a200(u8 *param_1)
     temp_v4 = FUN_00457120();
     temp_v6 = *(unsigned int *)(temp_v4 + 4);
     FUN_001687f0((unsigned char *)&vec160[0],*(unsigned char **)(puVar1[3] + 0x228));
-    vec50[0] = vec160[0];
-    vec50[2] = vec160[2];
-    vec50[1] = vec160[1] + 180.0f;
+    *(FldCopyVec *)vec50 = *(FldCopyVec *)vec160;
+    vec50[1] = vec50[1] + 180.0f;
     temp_v4 = FUN_003e9700(temp_v6);
     *(FldCopyVec *)vec70 = *(FldCopyVec *)(temp_v4 + 0x30);
     vec60[0] = vec50[0] - vec70[0];
