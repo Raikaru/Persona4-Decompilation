@@ -25,10 +25,10 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880` MATCH; spill sets
+## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
-**6,835 MATCH / 25 ASM** (`build/after36.json`; link 604 C / 54 SDK, both
-sha1 OK in `build/link40.log`).
+**6,836 MATCH / 24 ASM** (`build/after39.json`; against `after38.json` only
+`001400f0` changed; link 604 C / 54 SDK, both sha1 OK in `build/link43.log`).
 - **`00160880`** closed on top of the retail-order rewrite with an inline
   accessor `previousStateValue_00160880(const s32 *state)` for the
   `D_007643AC` read: the read stays after the branch join, before the row
@@ -192,12 +192,21 @@ sha1 OK in `build/link40.log`).
     `$v0`/`$v1`. `regalloc_whatif` wants `iv0`'s virtual after the group's
     last conversion temporaries (`240@274`); declaration order does not
     move it, and computing `q` earlier changes scheduling (586-842).
-- **`001400f0`** (fnalign 34 -> 4): the block-scope `u8` opacity prototypes
-  for `func_001427c0`/`func_00142bf0` (H011) were what `5da35851` replaced
-  with `s32`; restoring them gives retail's in-loop unsigned conversions.
-  Left: `lw $a0, 0x1834($s4)` for `func_0034f320` is scheduled before the
-  stack argument in retail. Casts on either argument, an inline helper, a
-  local loaded before or after `palette`, and moving `palette` do not move it.
+- **`001400f0` MATCH** (fnalign 34 -> 0):
+  - The block-scope `u8` opacity prototypes for `func_001427c0` and
+    `func_00142bf0` (H011) were what `5da35851` replaced with `s32`;
+    restoring them gives retail's in-loop unsigned conversions (34 -> 4).
+  - The last pair, retail's `lw $a0, 0x1834($s4)` ahead of the stack
+    argument `sd $zero, 0($sp)`: b210 lowers a call's stack arguments
+    first, then register arguments in order, so the load must come from a
+    statement before the call. A single-definition local is propagated
+    back into the call; one function-scope `sprite` variable shared with
+    the corner-sprite block is not (4 -> 0). `#pragma opt_propagation off`
+    reproduces the same order, which is how the cause was confirmed.
+  - Promotion: the marker binds to the first `{` after it, so it moved
+    below the file-scope typedefs to sit on the definition; the newly
+    referenced `fGpffff854c` (`0x0076163C`, `lwc1 gp-0x7AB4` at `0x00141418`)
+    went into `config/symbols_recovered.txt` and `symbol_data_addrs.txt`.
 
 
 The first three closed by reading which *variables*
