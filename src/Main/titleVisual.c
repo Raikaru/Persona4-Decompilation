@@ -140,7 +140,7 @@ void func_002ab0e0(u8 *arg0, u8 *arg1) {
 #pragma opt_propagation on
 
 // FUN_002AB380
-void func_002ab380(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5) {
+void func_002ab380(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, void *arg5) {
     u8 *temp_2;
     u8 *temp_2_2;
 
@@ -151,7 +151,7 @@ void func_002ab380(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     *(f32 *)(temp_2 + 8) = fparg2;
     *(s32 *)(temp_2 + 0xC) = (arg0 << 8) | arg1;
     *(s32 *)(temp_2 + 0x10) = arg4;
-    *(s32 *)(temp_2 + 0x14) = arg3;
+    *(void **)(temp_2 + 0x14) = arg3;
     *(s32 *)(temp_2 + 0x18) = arg2;
     if (arg5 != NULL) {
         temp_2_2 = func_00460990();

@@ -2426,125 +2426,27 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * this body remains assembly-backed.
    2026-10-08: opt_lifetimes on lowers fnalign from 3558 to 3424 edits. */
 /* 2026-10-09: 3424 -> 3340 edits: m2c's expanded float-to-unsigned conversions are plain (u32) casts. Open, found by comparing the retail lui constants: the m2c body drops several sinf results and leaves `temp_f20 * temp_f21 +/- temp_f7 * temp_f8` placeholders where retail has adda/madd chains with constants such as 200 - 700 * (1 - (1 + sin) / 2) (0x00126C48). */
-/* 2026-10-09: 3340 -> 3069 edits. Restored three dropped MAC expressions from retail: the title glow calls (func_00125e80 at 0xB2/0x99: 200 - 700 * (1 - (1 + sin) / 2); at 0xFF: 200 - 700 * sin), the four func_002abb30 glow layers (x/y from D_005E5234/D_005E5238 advanced by 200/250 * (1 - sin), offsets 49/33, 24/12, 9/5, 0), and the /45 fade alpha 255 * (fGpffff822c + fGpffff8228 * (1 - sin)). func_002abb30/func_002ab380 use their titleVisual.c float-first prototypes. Open: the palette blocks still pass m2c placeholders for func_00124bb0's lerped position (A + t * (B - A) over D_005E5370/D_005E5398/D_005E53C0 records); keep the `temp_one` locals, since b210 folds a literal * 1.0f.
- * 3071: D_005E538C/D_005E53B4 are absolute in retail (lui/lw %lo); declared as
- * arrays so b210 does not place them in small data.
- * 5454: the 28 rectangle copies go through TitleRect locals (retail stores each
- * constant to the m2c-named slot, then copies it; the s128 form let b210 delete
- * the first store). Locals now sit at retail's offsets plus the 0x30 of three
- * extra saved registers (frame 0x6D0 vs 0x6C0; was 0x510).
- * 2604: with the rectangle temporaries in place, opt_common_subs off gives retail's
- * saved-register set (s0-s5, f20-f24); CSE was holding repeated loads in extra
- * saved registers.
- * 2550: the background colour constants also go through TitleDrawColor locals
- * (sp6B4..sp68C) before the copy into sp6BC, as retail stores them; the frame is
- * now retail's 0x6C0.
- * 2452: sp694 is the same colour intermediate.
- * 2418: the model-draw floats are block-scoped, declared in retail's colour order.
- * 2497: the two palette-glow calls pass the lerped record position
- * A + t * (B - A) over D_005E5370 -> D_005E5398 and D_005E5398 -> D_005E53C0,
- * with t the sinf result the old body discarded (retail adda/madd with f20 = t);
- * m2c's placeholder read stale temp_f20/f21/f7/f8.
- * 2503: the 0x5B..0x64 position call passes 159 + 36*s, 87 - 15*s (retail
- * adda/madd on the sinf result s); the alpha is 255*s without m2c's int round trip.
- * 3022: the two 0x1000E glow calls pass -82 + 160*t and -51 + 60*t (retail
- * adda/madd with f20 = temp_f20_5) and the gp scale without an int round trip.
- * Saved FPRs drop from f20-f28 to f20-f26 (retail f20-f24); the frame is 0x10
- * short until the remaining placeholders are rebuilt.
- * 2954: the last m2c placeholders are rebuilt: the 81.0 call passes
- * 52 + 246*(1 - r) with alpha 255*r, and the scroll step converts
- * (x<<16 - pos) + 0.5*((x - y)<<16) to int once (retail cvt.w.s into s0) for
- * func_0043c6a0 and the half step. Saved FPRs are now retail's f20-f24.
- * 2949: the sinf results are floats; m2c's (f32)(s32) round trips are gone.
- * (fGpffff8094 is loaded directly, as retail)
- * 2942: the 0xFF alpha converts a float at run time (retail cvt with the
- * 0x4F000000 check), so it goes through temp_f1_11.
- * 2595: retail keeps 0xFFFFFF in $s2: `white` is set at the top of each first
- * fade branch and reused by the eight later case-4/5 draw calls (the 0x1000E
- * calls use the literal). Prologue and frame now match retail.
- * 2098: opt_propagation off (retail keeps the hoisted record-id conversions
- * glowId0..4 ahead of the colour lerps instead of sinking them into the call).
- * 1897: the palette-glow calls read the from-record fields D_005E5374.. into
- * glowFrom locals ahead of the colour lerps (retail loads them early), the
- * to-record fields by their own symbols, and the colour components convert
- * float -> u8 directly (retail masks in both conversion arms).
- * 1891: the record id converts after the from-field loads, as retail.
- * 1860: retail keeps the function-table address in $s1 across each (8,1)/(6,1)
- * call pair (fnTable) and the 268/361 label position in f20/f21 (titlePosX/Y,
- * set in both branches and reused by the 0x1000A calls).
- * 1848: titlePosY is declared first (retail f21 = y, f20 = x).
- * 1843: the three record loops are for loops (m2c goto form).
- * 1775: the task pointer is declared first (retail $s4).
- * 1665: the loop calls pack red|green into temp_9_* right after the green
- * channel, as retail (the final colour ORs blue<<8 onto it).
- * 1618: common-subexpression elimination and propagation are back to the
- * defaults (retail shares repeated constants inside one call, `mov.s $f13,$f12`).
- * The sprite pointer is read through a TitleTaskView member, which b210 does not
- * hoist as an address, and the blend state is a void * constant, as
- * RpSkyRenderStateSet's prototype takes.
- * (with CSE on, b210 itself keeps 0xFFFFFF, the 268/361 position and the record
- * ids in registers; the explicit white/titlePos/glowId locals are gone)
- * 1512: all task fields are TitleTaskView members (b210 hoists M2C_FIELD
- * address arithmetic into saved registers; retail does not).
- * 1496: the alpha arguments convert float -> u8 directly.
- * 1469: each 0x1000E call converts the float alpha itself.
- * (the from-record fields are read in place; with propagation on the glowFrom
- * locals made no difference)
- * 1441: the fade fractions f88/20 and timer/20 are computed first, as retail.
- * 1434: fadeT holds the case-6/7 fraction; the alpha converts in the call.
- * 1401: the remaining alpha conversions happen inside the draw calls.
- * 842: the colour channels use the file's titlePaletteChannel helper (as the
- * matched func_00124f70 does) instead of m2c's expanded ACC sequence.
- * (blend 1.0f passed directly; the m2c temp_one/temp_cA/temp_cB locals are gone)
- *
- * (unused m2c declarations removed)
- * 429: the five palette-glow draws follow the matched func_00124f70 shape:
- * selected word through titleCopySelect, channels via titlePaletteChannel in one
- * packed expression, record id/base/colour as block locals.
- * (unused declarations removed)
- * 423: func_00126090 takes three trailing floats (retail callers load f12-f14
- * with zero; the callee ignores them), so the calls pass 0.0f in FPRs.
- * 412: the 137 * scale size converts inside the call (retail shares it via CSE).
- * 410: func_0043c6a0 takes an int (retail passes the converted step in $a0).
- * 409: the scroll target is (f20 << 16) + 0.25 * ((f20 - f24) << 16) (the old
- * body dropped the shift on the first term); retail multiplies and adds
- * separately.
- * 349: each rectangle is copied by a titleCopyValue-style inline that returns
- * the destination, so the argument address is formed before the copy (retail).
- * 341: 1 - fraction, then the 42 scale, as separate steps.
- * 342: the glow blend reads the 0x32-step sinf result (temp_f20_3); m2c had
- * left the stale temp_f20 there.
- * 330: declaration order for the loop counter and second glow sine (register colouring).
- * 324: the upper clamp is written `> 0x1E` (retail's slti $at form).
- * 313: model slot 0 is a TitleTaskView member.
- * 298: the remaining alpha bytes convert float -> u8 directly.
- * 285
- * 269: the fade texture lookup happens inside the draw call, after the alpha.
- * 262: the scroll delta and the rounded step share one int local (retail
- * evaluates the delta first).
- * 261: no explicit fnTable local; b210's CSE keeps the table address.
- * 217: the glow-loop record pointers index a TitleRecordBlock array (as
- * 0x28-byte records).
- * 209: each (8,1)/(6,1) call pair goes through a fnTable local (retail $s1).
- * 199: the table pointer is formed through an integer cast, so b210 keeps it
- * in $s1 for both calls instead of folding the first load.
- * (fade clamps written `> N`, retail's slti $at form; fadeT holds the timer fraction)
- * 162: range tests written `> N - 1` where retail uses the slti $at form.
- * 160: comparison constants in retail's form.
- * 145: conversion lever (var_19:(0, 2)).
- * 138: conversion lever (temp_10_2:(0, 2)).
- * 130: gp float constants written as literals.
- * sdiff 24/101 -> 22/99: (s32)(u32) around the row offset puts it before the field load, as retail.
- * sdiff 22/99 -> 20/98: the f28 word is read after the 0.25 blend term (retail's load order).
- * sdiff 20/98 -> 18/91: the 137 * size product is formed before the alpha, and 255 * (1 - t) is two steps (retail's constant order).
- * sdiff 18/91 -> 16/89: func_002ab380's texture slot is declared as a pointer (retail loads it in slot order; the (s32) cast was hoisted as a conversion).
- * fnalign 93 -> 61 (structure identical): the packed colour word is a call argument with its byte extraction inline; b210 evaluates these arguments right to left, so retail loads the last float before extracting the bytes.
- * fnalign 61 -> 60: 1 - t held in lerpT so the 42.0f product is constant-first as retail.
- * fnalign 60 -> 59: 1 - t held in temp_f2 so the 255.0f product is constant-first.
- * fnalign 59 -> 55: commutative FP orders via separate variables (1.5f product in temp_f2, 0.5f held in temp_f2, the 0.25f product in temp_f13_28).
+static inline u8 *titleOffsetPtr_001265a0(u32 offset, u8 *base)
+{
+    return (u8 *)((u32)offset + (u32)base);
+}
+
+/* Matching notes for the title-screen draw:
+ * - Rectangle and background-colour constants go through TitleRect /
+ *   TitleDrawColor locals (retail stores each constant, then copies it);
+ *   D_005E538C/D_005E53B4 are absolute arrays (lui/lw %lo).
+ * - Task fields are TitleTaskView members so b210 does not hoist the
+ *   address arithmetic; each (8,1)/(6,1) call pair uses an integer-cast
+ *   fnTable so the table address stays in $s1.
+ * - Palette glows follow func_00124f70 (titleCopySelect,
+ *   titlePaletteChannel); alpha bytes convert float -> u8 inside the calls.
+ * - Commutative FP orders come from reusing multi-definition floats
+ *   (lerpT, temp_f2, temp_f13_28); 1 - t is a separate step.
+ * - Range tests use retail's `> N - 1` / `> N` forms.
+ * - The record-delta counter reuses temp_2 (dead there), so its live range is
+ *   numbered after the hoisted 0xFFFFFF constant: retail's $s1/$s2.
+ * - Record pointers 2-5 go through titleOffsetPtr_001265a0 (offset-first addu).
  */
-// FUN_001265A0 NONMATCHING
-#ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
 typedef struct { u8 bytes[0x28]; } TitleRecordBlock;
@@ -2581,6 +2483,7 @@ typedef s32 M2C_UNK;
 /* The draw queue supplies node+0x1C, then the task stored at node+0x10.
  * Only the task reaches the word-returning work accessor; the first payload
  * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
+// FUN_001265A0
 void func_001265a0(void *unusedDrawData, void *task) {
     f32 temp_f21;
     u32 *temp_20;
@@ -2604,10 +2507,10 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
     extern s32 func_0046d730();
     extern s32 func_004782b0();
-    extern s32 func_00478e70();
+    extern void func_00478e70(u8 *);
     extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);
-    extern s32 func_00489f80();
-    extern s32 func_0048a000();
+    extern void func_00489f80(void);
+    extern void func_0048a000(void);
     extern u8 D_005E5230[];
     extern u8 D_005E523C[];
     extern u8 D_005E5240[];
@@ -2664,7 +2567,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern f32 fGpffff8110;
     extern f32 fGpffff80bc;
     extern f32 fGpffff81e0;
-    extern f32 fGpffff81dc;
+    extern f32 iGpffff81dc;
     extern f32 fGpffff8094;
     s32 var_19;
 
@@ -2854,7 +2757,6 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u8 *var_3_3;
     s32 temp_16;
     s32 temp_17;
-    s32 temp_2;
     s32 temp_2_19;
     s32 temp_2_24;
     s32 temp_2_26;
@@ -2873,7 +2775,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     s32 temp_28;
     s32 temp_i28;
     s32 var_16;
-    s32 var_17;
+    s32 temp_2;
     s32 var_17_2;
     s32 layerClearCount;
     s32 var_2_10;
@@ -3053,7 +2955,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 if (temp_2_2 >= 0x168) {
                     taskView->f10 = 0;
                 }
-                func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0xB2, (u8 *)temp_20);
+                func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0xB2, (u8 *)temp_20);
             }
             if (temp_16 > 0x3d) {
                 if (temp_16 < 0x11A) {
@@ -3074,20 +2976,20 @@ void func_001265a0(void *unusedDrawData, void *task) {
                             func_0046d730(D_005E5548, 0xD1);
                         }
                         temp_21 = (u8 *)&((TitleRecordBlock *)D_005E5230)[(s32)var_19];
-                        var_17 = (s32)((s32)(u32)(temp_16 - 0x3D) - M2C_FIELD(temp_21, s32 *, 0x20));
-                        if (var_17 > 0) {
-                            var_2_5 = var_17 - 0x32;
+                        temp_2 = (s32)((s32)(u32)(temp_16 - 0x3D) - M2C_FIELD(temp_21, s32 *, 0x20));
+                        if (temp_2 > 0) {
+                            var_2_5 = temp_2 - 0x32;
                             if (var_2_5 < 0) {
                                 var_2_5 = 0;
                             } else if (var_2_5 > 0x1E) {
                                 var_2_5 = 0x1E;
                             }
                             temp_f20_3 = sinf(((((1.5707964f * (f32) var_2_5) / 30.0f))));
-                            if (var_17 >= 0x32) {
-                                var_17 = 0x32;
+                            if (temp_2 >= 0x32) {
+                                temp_2 = 0x32;
                             }
-                            temp_f21 = sinf(((((1.5707964f * (f32) var_17) / 50.0f))));
-                            if (var_17 == 1) {
+                            temp_f21 = sinf(((((1.5707964f * (f32) temp_2) / 50.0f))));
+                            if (temp_2 == 1) {
                                 temp_3_2 = (s32)(M2C_FIELD(temp_21, s32 *, 0));
                                 if (temp_3_2 >= 0xF) {
                                     var_4 = NULL;
@@ -3102,7 +3004,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                 if (var_4 != NULL) {
                                     func_00479940(var_4, 0, 1, 0, 1);
                                 }
-                            } else if (var_17 == 0x1E) {
+                            } else if (temp_2 == 0x1E) {
                                 temp_3_3 = (s32)(M2C_FIELD(temp_21, s32 *, 0));
                                 if (temp_3_3 >= 0xF) {
                                     var_4_2 = NULL;
@@ -3182,7 +3084,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                         if (*(s32 *)D_005E5230 >= 0xF) {
                             var_4_7 = NULL;
                         } else {
-                            temp_2_11 = (u32 *)(&temp_20[*(s32 *)D_005E5230]);
+                            temp_2_11 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)temp_20);
                             if (func_004782b0(M2C_FIELD(temp_2_11, u8 **, 0x44)) != 0) {
                                 var_4_7 = (u8 *)(M2C_FIELD(temp_2_11, u8 **, 0x44));
                             } else {
@@ -3202,7 +3104,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                         if (*(s32 *)D_005E5230 >= 0xF) {
                             var_4_9 = NULL;
                         } else {
-                            temp_2_12 = (u32 *)(&temp_20[*(s32 *)D_005E5230]);
+                            temp_2_12 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)temp_20);
                             if (func_004782b0(M2C_FIELD(temp_2_12, u8 **, 0x44)) != 0) {
                                 var_4_9 = (u8 *)(M2C_FIELD(temp_2_12, u8 **, 0x44));
                             } else {
@@ -3658,7 +3560,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         if (temp_2_19 >= 0x168) {
             taskView->f10 = 0;
         }
-        func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((fGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0x99, (u8 *)temp_20);
+        func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0x99, (u8 *)temp_20);
         var_3_33 = sp690.bytes;
         var_2_28 = 4;
         if (var_3_33 != NULL) {
@@ -3699,7 +3601,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             if (M2C_BITWISE(s32, temp_f0_7) >= 0xF) {
                 var_4_16 = NULL;
             } else {
-                temp_2_23 = (u32 *)(&temp_20[M2C_BITWISE(s32, temp_f0_7)]);
+                temp_2_23 = (u32 *)titleOffsetPtr_001265a0((M2C_BITWISE(s32, temp_f0_7)) * 4, (u8 *)temp_20);
                 if (func_004782b0(M2C_FIELD(temp_2_23, u8 **, 0x44)) != 0) {
                     var_4_16 = (u8 *)(M2C_FIELD(temp_2_23, u8 **, 0x44));
                 } else {
@@ -3721,7 +3623,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         if (M2C_BITWISE(s32, temp_f0_9) >= 0xF) {
             var_16_2 = NULL;
         } else {
-            temp_2_25 = (u32 *)(&temp_20[M2C_BITWISE(s32, temp_f0_9)]);
+            temp_2_25 = (u32 *)titleOffsetPtr_001265a0((M2C_BITWISE(s32, temp_f0_9)) * 4, (u8 *)temp_20);
             if (func_004782b0(M2C_FIELD(temp_2_25, u8 **, 0x44)) != 0) {
                 var_16_2 = (u8 *)(M2C_FIELD(temp_2_25, u8 **, 0x44));
             } else {
@@ -3863,9 +3765,6 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001265a0);
-#endif
 typedef struct Code12FrameVector { f32 x, y, z; } Code12FrameVector;
 typedef struct Code12FrameMatrix {
     Code12FrameVector right; u32 flags;
