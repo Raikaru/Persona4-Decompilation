@@ -1000,6 +1000,7 @@ tail:
  * combined 531 -> 504: the random roll is reduced modulo 100 once before the mode tests (retail divu before the branch).
  * combined 504 -> 488: the patrol-box toggle keeps the loaded index, tests the box in retail polarity and compares the flag with 1.
  * combined 488 -> 470: target positions copied whole, then y raised by the height table entry (table base + kind*16 summed first).
+ * combined 470 -> 434: the patrol-area exit tests read a stack copy of the position (retail swc1 to 0x70 and reloads) in retail polarity.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1110,6 +1111,7 @@ int func_0017f490(unsigned char *param_1)
   FldAIVec3 state6Delta;
   FldAIVec3 state2Delta;
   FldAIVec3 aiPos;
+  FldAIVec3 aiHere;
   FldAIVec3 aiV210;
   FldAIVec3 aiV190;
   FldAIVec3 aiV130;
@@ -1939,20 +1941,19 @@ else {
       }
       else {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-        temp_v9 = *(float *)(temp_v0 + 0x30);
-        temp_v8 = *(float *)(temp_v0 + 0x38);
+        aiHere = *(FldAIVec3 *)(temp_v0 + 0x30);
         temp_v5 = 0;
-        if ((((((float *)piVar1)[9] <= temp_v9) && (temp_v9 <= ((float *)piVar1)[6])) &&
-            (((float *)piVar1)[0xb] <= temp_v8)) && (temp_v8 <= ((float *)piVar1)[8])) {
+        if ((!(aiHere.x < ((float *)piVar1)[9]) && (aiHere.x <= ((float *)piVar1)[6])) &&
+            !(aiHere.z < ((float *)piVar1)[0xb]) && (aiHere.z <= ((float *)piVar1)[8])) {
           temp_v5 = 1;
         }
-        if (!temp_v5) {
+        if (temp_v5 == 0) {
           temp_v5 = 0;
-          if (((((float *)piVar1)[0xf] <= temp_v9) && (temp_v9 <= ((float *)piVar1)[0xc])) &&
-             ((((float *)piVar1)[0x11] <= temp_v8 && (temp_v8 <= ((float *)piVar1)[0xe])))) {
+          if ((!(aiHere.x < ((float *)piVar1)[0xf]) && (aiHere.x <= ((float *)piVar1)[0xc])) &&
+             !(aiHere.z < ((float *)piVar1)[0x11]) && (aiHere.z <= ((float *)piVar1)[0xe])) {
             temp_v5 = 1;
           }
-          if (!temp_v5) {
+          if (temp_v5 == 0) {
             *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) | 2;
             if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\x01') {
               temp_v0 = *(int *)(piVar1[3] + 0x50);
