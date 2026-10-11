@@ -978,6 +978,7 @@ tail:
  * Native owner probe: 11376 bytes, 906 aligned differences; still guarded.
  * Evidence: docs/probe_archive/Field_pro_recovery_20261010_worker9.md.
  * fnalign 906 -> 905: role swaps of reused temporaries within blocks.
+ * fnalign 905 -> 876: comparison forms in retail's polarity.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1145,11 +1146,11 @@ availabilityDone:
       ((unsigned char*)&uStack_4)[3] = 0;
       ((float *)piVar1)[0x1f] = (float)((unsigned char*)&uStack_4)[3];
     }
-    else if (temp_v8 <= temp_v10) {
+    else if (temp_v10 >= temp_v8) {
       if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\0') {
         temp_v9 = 0.0f;
         temp_v8 = 1.0f - CAND_fGpffff825c * ((temp_v10 - temp_v8) / temp_v11);
-        if (0.0f <= temp_v8) {
+        if (temp_v8 >= 0.0f) {
           temp_v9 = temp_v8;
         }
       }
@@ -1331,7 +1332,7 @@ availabilityDone:
       state2Delta.z = ((float *)piVar1)[0x16] - aiV60.z;
       temp_v9 = RwV3dNormalize(&state2Delta,&state2Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v9 <= temp_v8) {
+      if (temp_v8 >= temp_v9) {
         *piVar1 = 1;
         temp_v8 = temp_v9;
       }
@@ -1534,7 +1535,7 @@ else {
       state7Delta.z = *(float *)(temp_v0 + 0x38) - aiVF0.z;
       temp_v9 = RwV3dNormalize(&state7Delta,&state7Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v9 <= temp_v8) {
+      if (temp_v8 >= temp_v9) {
         temp_v8 = temp_v9;
       }
       temp_v9 = state7Delta.z * state7Forward.z + state7Delta.x * state7Forward.x + state7Delta.y * state7Forward.y;
@@ -1671,7 +1672,7 @@ else {
       state8Delta.z = aiPos2.z - *(float *)(temp_v0 + 0x38);
       temp_v9 = RwV3dNormalize(&state8Delta,&state8Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v9 <= temp_v8) {
+      if (temp_v8 >= temp_v9) {
         temp_v8 = temp_v9;
       }
       temp_v9 = state8Delta.z * state8Forward.z + state8Delta.x * state8Forward.x + state8Delta.y * state8Forward.y;
@@ -1766,7 +1767,7 @@ else {
       state9Delta.z = (state9Right.z * temp_v11 + state9Direction.z) - temp_v9;
       temp_v9 = RwV3dNormalize(&state9Delta,&state9Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v9 <= temp_v8) {
+      if (temp_v8 >= temp_v9) {
         temp_v8 = temp_v9;
       }
       if (piVar1[0x25] < 1) {
