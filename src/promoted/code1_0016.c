@@ -1948,6 +1948,7 @@ query_complete:
  * combined 683 -> 653: Ghidra's 8x8-byte copy loops are 64-byte struct copies (b210 expands them to retail's counted loop with its own temporaries); unused declarations dropped.
  * combined 653 -> 642: element-wise vector copies written as FldTriVec struct copies (retail loads all three before storing).
  * combined -> 624: float copies of +0x28c into +0x294 and the final position as a FldCopyVec copy.
+ * combined 624 -> 612: the easing step clamp is (limit > FUN_00175db0()) ? FUN_00175db0() : limit (retail c.ole limit, r / bc1t).
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2593,7 +2594,7 @@ s32 func_0016bdd0(u8 *param_1)
             *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v12_s7;
           }
           else if ((0.0f == *(float *)((u8 *)(u32)piVar1 + 0x2ac)) && ((piVar1[1] & 2U) == 0)) {
-            temp_v11 = (FUN_00175db0() < 15.0f) ? FUN_00175db0() : 15.0f;
+            temp_v11 = (15.0f > FUN_00175db0()) ? FUN_00175db0() : 15.0f;
             if (0.0f == temp_v11) {
               temp_v11 = 15.0f;
             }
@@ -2638,7 +2639,7 @@ s32 func_0016bdd0(u8 *param_1)
         }
         else if (((*(float *)((u8 *)(u32)piVar1 + 0x2ac) == 0.0f) && ((piVar1[1] & 2U) == 0)) &&
                 (*(float *)&piVar1[0xa5] < *(float *)((u8 *)(u32)piVar1 + 0x28c))) {
-          temp_v11 = (FUN_00175db0() < 15.0f) ? FUN_00175db0() : 15.0f;
+          temp_v11 = (15.0f > FUN_00175db0()) ? FUN_00175db0() : 15.0f;
           if (0.0f == temp_v11) {
             temp_v11 = 15.0f;
           }
@@ -2804,7 +2805,7 @@ s32 func_0016bdd0(u8 *param_1)
           }
         }
         else if (!(temp_v11 <= *(float *)((u8 *)(u32)piVar1 + 0x294))) {
-          temp_v14 = (FUN_00175db0() < 20.0f) ? FUN_00175db0() : 20.0f;
+          temp_v14 = (20.0f > FUN_00175db0()) ? FUN_00175db0() : 20.0f;
           if (0.0f == temp_v14) {
             temp_v14 = 20.0f;
           }
