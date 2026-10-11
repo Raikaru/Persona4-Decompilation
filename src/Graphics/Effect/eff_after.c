@@ -870,6 +870,7 @@ void func_004b8f10(void *arg0) {
  * fnalign 10 -> 8: the ring-buffer assertion tests out >= lim (retail sltu into $v0).
  * fnalign 8 -> 4: four spline control-point reads use a u8 * table base (base-first addu as retail).
  * fnalign 4 -> 2: the remaining spline table reads with a u8 * base where retail adds base-first.
+ * fnalign 2 -> 1: the colour-table end pointer through effAfterOffsetPtr (offset + base, as the matched siblings).
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -972,7 +973,7 @@ void func_004b8f40(u8 *work, void **pp)
       temp_v1 = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
       func_004bc540(work,0,1.0f,pbVar12 + (temp_v1 - 3) * 4);
       func_004bc540(work,1,1.0f,pbVar12 + (temp_v1 - 2) * 4);
-      pbVar2 = temp_v1 * 4 + pbVar12;
+      pbVar2 = effAfterOffsetPtr(temp_v1 * 4, pbVar12);
       pbVar2[-4] = (u8)((s32)((u32)pbVar2[-0xc] + (u32)pbVar2[-8]) >> 1);
       pbVar2[-3] = (u8)((s32)((u32)pbVar2[-0xb] + (u32)pbVar2[-7]) >> 1);
       pbVar2[-2] = (u8)((s32)((u32)pbVar2[-10] + (u32)pbVar2[-6]) >> 1);
