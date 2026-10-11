@@ -4464,23 +4464,6 @@ static inline MdlCloneAttachmentTable* mdl_clone_attachment_storage(u32 count)
     return copy;
 }
 
-/* Same allocation with size declared first: the 0xf0f000e1 path in
-   func_0047b0c0 keeps size in $s4 and the table in $s5 this way. */
-static inline MdlCloneAttachmentTable* mdl_clone_attachment_storage_sized(u32 count)
-{
-    s32 size = sizeof(MdlCloneAttachmentTable);
-    MdlCloneAttachmentTable* copy;
-    size += count * sizeof(void*);
-    size += count * sizeof(void*);
-    func_0044ea90(D_00713138, 0x1d6);
-    copy = ((void* (*)(int, int))DAT_008873e8[0])(size, 0x40000);
-    memset(copy, 0, size);
-    copy->count.word = (u16)count;
-    copy->primary = (void**)(copy + 1);
-    copy->secondary = copy->primary + (u16)count;
-    return copy;
-}
-
 /* IDA mdlManager.c:2448-2545; 824B instructions plus eight zero-tail bytes.
    Preserve the model-relative layer base, separately sized attachment arrays
    and callback-visible table reloads. Counts originate in unsigned halfwords. */
@@ -5960,47 +5943,10 @@ void func_0047b060(void* param_1)
    docs/probe_archive/Model_loader_contracts_20261005_worker15.md.
    2026-10-08: the chunk dispatch is a switch whose case bodies follow in source order; b210 compares the cases in reverse (385 edits).
    The base-animation store is the out-of-line else arm (378 edits). */
-/* 2026-10-09: 378 -> 277 edits from a block-declaration order climb. 
-   2026-10-09: 277 -> 271: capacity init loop stores the address-taken capacity, and case 0x1b/0xf0f00001 write through a shared layerResource local (retail computes the slot index before loading the entries base).
-   2026-10-09: 271 -> 230: the attachment branch tests `model + 0xdc == 0 &&
-   clumpStream == 0` first (retail lays the 0x2CC wrapper path first), the
-   effect-slot loop counter is u16, and the per-slot resource writes go through
-   `layerResource = LOAD_LAYER()->resource;` so the index is computed before
-   `entries` is loaded.
-   2026-10-09: 230 -> 226: the 0xF0F00001 store writes
-   `LOAD_LAYER()->resource->entries[state->slot].animation` directly (the
-   D_00922BC0 address is materialised first), and one source-entry read uses
-   addOff.
- * 2026-10-09: 226 -> 196: the clone-source case reads `src`/`dst` once for the
- * animation entry copy, and the material and UV tables through locals.
- * 161: the material/UV copy reads `state->slot` once into `dst`.
- * 155: u16 clone-slot fill counter.
- * 122: u16 counter for the blend-control animation loop.
- * 118: conversion lever (slot:(1, 3)).
- * sdiff 29/103 -> 28/95: clone-slot fill loop compares as int (retail slt).
- * sdiff 28/95 -> 27/94: matrix loop compare as int (retail slt).
- * sdiff 27/94 -> 22/88: animation field read relative to the element (retail folds +0x40 into the load).
- * sdiff 22/88 -> 22/84: startFrame stores through an inline entry accessor (retail loads entries after the index).
- * sdiff 22/84 -> 20/81: material bound test reads the count first.
- * sdiff 20/81 -> 16/75: start-frame stores through an inline setter (value, table, slot) as retail evaluates them.
- * sdiff 16/75 -> 14/70: the clip store uses the same inline setter shape.
- * sdiff 14/70 -> 10/66: material/uv value reads through an index accessor (index before the entries load, as retail).
- * sdiff 10/66 -> 8/64: matrix copy through a local entries pointer.
- * matrix loop test compares (u16)slot, the body keeps its own (slot & 0xffff) as retail.
- * sdiff 8/64 -> 6/60: secondary attachment test adds the table first (retail order).
- * 2026-10-10: whole-owner guarded replay improves 72 -> 38 aligned instruction edits
- * (1382/1382 instructions). The existing attachment allocator's declaration
- * order and local UV/material table lifetimes account for most of the gain.
- * Still NONMATCHING; retained native probes: build/first-party-final-20261010/models.
- * fnalign 38 -> 34: s16 clone slots (retail -1), cloneSlots/capacities layer reads as base-first byte offsets.
- * fnalign 34 -> 28: layerResource entry reads at the slot as base-first byte offsets.
- * fnalign 28 -> 26: effect.length passed as (s32) - retail loads it before the head/payload moves.
- * fnalign 26 -> 20: opt_loop_invariants on (retail hoists the -1 fill and other loop constants); D_0070B610 passed as a pointer everywhere so its address is not hoisted.
- * fnalign 20 -> 14: capacity init loop stores the literal 32 (retail reuses the hoisted constant).
- * fnalign 14 -> 9: the 0xf0f000e1 path uses mdl_clone_attachment_storage_sized (size declared before copy).
- */
-// FUN_0047B0C0 NONMATCHING
-#ifdef NON_MATCHING
+/* Model stream loader. Stack locals and block declarations follow retail's
+   frame; the 0xf0f000e1 attachment table is allocated inline with table,
+   size and count declared before payload (retail s5/s4/s2, payload s3).
+   opt_loop_invariants hoists the -1 fill and loop constants as retail does. */
 #pragma push
 #pragma opt_loop_invariants on
 static inline void **mdlLoaderValueAt(void *table, u32 index)
@@ -6023,6 +5969,7 @@ static inline void mdlLoaderSetAnimation(void *value, MdlDispatchAnimTable *tabl
     mdlLoaderAnimEntry(table, slot)->animation = value;
 }
 
+// FUN_0047B0C0
 s32 func_0047b0c0(u8 *model)
 {
     typedef struct MdlLoaderMaterial {
@@ -6093,6 +6040,8 @@ s32 func_0047b0c0(u8 *model)
     extern struct RwTexDictionary *func_003dc370(void *stream);
     extern struct RwTexDictionary *func_003e6a90(void *stream);
     extern s32 func_003ef1b0(void *dictionary);
+    /* H011: pointer parameters keep D_0070B610 an address constant per call;
+       the u32 definition in rtanim.c makes b210 hoist it (measured MISMATCH). */
     extern u32 func_003d60e0(void *schema, void *dictionary);
     extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
         s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
@@ -6444,9 +6393,21 @@ s32 func_0047b0c0(u8 *model)
 
         case 0xf0f000e1:
         {
+            MdlCloneAttachmentTable *table;
+            s32 size;
+            u32 count;
             u8 *payload = state->memory + *(u32 *)((u8 *)state->stream + 0xc);
             if (LOAD_LAYER()->attachments == 0) {
-                MdlCloneAttachmentTable *table = mdl_clone_attachment_storage_sized(capacity);
+                count = capacity;
+                size = sizeof(MdlCloneAttachmentTable);
+                size += count * sizeof(void*);
+                size += count * sizeof(void*);
+                func_0044ea90(D_00713138, 0x1d6);
+                table = ((void* (*)(int, int))DAT_008873e8[0])(size, 0x40000);
+                memset(table, 0, size);
+                table->count.word = (u16)count;
+                table->primary = (void**)(table + 1);
+                table->secondary = table->primary + (u16)count;
                 LOAD_LAYER()->attachments = table;
             }
             {
@@ -6518,9 +6479,7 @@ s32 func_0047b0c0(u8 *model)
 }
 
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b0c0);
-#endif
+
 
 
 extern u8 *func_004669d0(u8 *request, s32 *ready, s32 *handle);
