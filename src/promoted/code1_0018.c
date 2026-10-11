@@ -2046,6 +2046,8 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 742 -> 733: the D_007EF9F8/D_007EFA04 readiness test is the inline fldBothReady_0018a200() (retail materialises the && as a value, sltu each, then one test).
  * fnalign 733 -> 706: early exits inside the state switch are break; (retail beqz/bnez straight to the shared final return 0).
  * fnalign 706 -> 485: the +0x220 state dispatch is a switch (case 0 empty, cases 1/2/4 shared, case 3), as retail's beq 3/4/2/1/beqz chain.
+ * fnalign 485 -> 484: split sweep.
+ * fnalign 484 -> 480: float compares in retail polarity (c.ole/bc1t forms).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2151,6 +2153,8 @@ s32 func_0018a200(u8 *param_1)
   long long temp_v10;
   unsigned int *puVar16;
   unsigned int temp_v11;
+  unsigned int temp_v11_s1;
+  unsigned int temp_v11_s3;
   float temp_v12;
   float temp_v13;
 
@@ -2290,7 +2294,7 @@ s32 func_0018a200(u8 *param_1)
       FUN_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
       puVar1[0x13] = 1;
     }
-    if ((puVar1[0x13] == 1) && (((float*)puVar1)[0x12] + 55.0f < temp_v13)) {
+    if ((puVar1[0x13] == 1) && (!(temp_v13 <= ((float*)puVar1)[0x12] + 55.0f))) {
       FUN_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
       temp_v5 = FUN_0014bbe0((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,10);
       puVar1[4] = temp_v5;
@@ -2390,7 +2394,7 @@ s32 func_0018a200(u8 *param_1)
         }
         temp_v9 = FUN_00106330(temp_v3 + 0x43f);
         if (temp_v9 != 0) {
-          temp_v11 = 2;
+          temp_v11_s1 = 2;
         } else {
           temp_v9 = FUN_00106330(temp_v3 + 0x45f);
           if (temp_v9 != 0) {
@@ -2568,23 +2572,23 @@ s32 func_0018a200(u8 *param_1)
           ((float*)puVar1)[6] = (((float*)puVar1)[6] + ((float*)puVar1)[7]);
         }
         if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
-          if (1.0f < ((float*)puVar1)[6]) {
+          if (!(((float*)puVar1)[6] <= 1.0f)) {
             puVar1[6] = 0x3f800000;
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
           }
         }
-        else if (1.0f < ((float*)puVar1)[6]) {
+        else if (!(((float*)puVar1)[6] <= 1.0f)) {
           puVar1[6] = 0;
         }
       }
         break;
       case 3:
       {
-        temp_v11 = puVar1[10];
-        if ((int)temp_v11 >= 1) {
-          puVar1[10] = temp_v11 - 1;
+        temp_v11_s3 = puVar1[10];
+        if ((int)temp_v11_s3 >= 1) {
+          puVar1[10] = temp_v11_s3 - 1;
         } else {
-          if ((temp_v11 == 0) && (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
+          if ((temp_v11_s3 == 0) && (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
           }
           if ((int)puVar1[9] < 1) {
