@@ -998,6 +998,8 @@ tail:
  * combined 546 -> 542: +0x1ca flag read as unsigned char (retail lbu).
  * combined 542 -> 531: field spelling sweep.
  * combined 531 -> 504: the random roll is reduced modulo 100 once before the mode tests (retail divu before the branch).
+ * combined 504 -> 488: the patrol-box toggle keeps the loaded index, tests the box in retail polarity and compares the flag with 1.
+ * combined 488 -> 470: target positions copied whole, then y raised by the height table entry (table base + kind*16 summed first).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1263,17 +1265,19 @@ availabilityDone:
           *piVar1 = 4;
         }
         else {
-          temp_v7 = piVar1[0x12] != 0 ^ 1;
-          temp_v4 = 0;
-          temp_v5 = temp_v4;
-          if ((((((float *)piVar1)[temp_v7 * 6 + 9] <= aiPos.x) &&
+          {
+          int cur = piVar1[0x12];
+          temp_v7 = cur != 0 ^ 1;
+          temp_v5 = 0;
+          if ((!(aiPos.x < ((float *)piVar1)[temp_v7 * 6 + 9]) &&
                (aiPos.x <= ((float *)piVar1)[temp_v7 * 6 + 6])) &&
-              (((float *)piVar1)[temp_v7 * 6 + 0xb] <= aiPos.z)) &&
-             (temp_v5 = 1, ((float *)piVar1)[temp_v7 * 6 + 8] < aiPos.z)) {
-            temp_v5 = temp_v4;
+              (!(aiPos.z < ((float *)piVar1)[temp_v7 * 6 + 0xb])) &&
+             (aiPos.z <= ((float *)piVar1)[temp_v7 * 6 + 8])) {
+            temp_v5 = 1;
           }
-          if (temp_v5) {
-            piVar1[0x12] = piVar1[0x12] != 0 ^ 1;
+          if (temp_v5 == 1) {
+            piVar1[0x12] = cur != 0 ^ 1;
+          }
           }
           temp_v0 = FUN_003b7060();
           temp_v8 = CAND_fGpffff8308 + (float)((unsigned int)temp_v0 % 0x50) / 100.0f;
@@ -1377,11 +1381,10 @@ else {
       temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]);
       if (temp_v0 == 1) {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-        vec70[0] = *(float *)(temp_v0 + 0x30);
-        vec70[2] = *(float *)(temp_v0 + 0x38);
-        vec70[1] = *(float *)(temp_v0 + 0x34) +
+        *(FldAIVec3 *)vec70 = *(FldAIVec3 *)(temp_v0 + 0x30);
+        vec70[1] = vec70[1] +
                     *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
-                              (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + (unsigned int)D_005F1CC0);
+                              ((unsigned int)D_005F1CC0 + (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10));
         pbVar7 = (unsigned char *)FUN_0015c1e0(1);
         FUN_0014e740(pbVar7,&vec70[0]);
         FUN_0045af60(1,0xb,3,5);
@@ -1396,11 +1399,10 @@ else {
         temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]);
         if (temp_v0 == 1) {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          vec80[0] = *(float *)(temp_v0 + 0x30);
-          vec80[2] = *(float *)(temp_v0 + 0x38);
-          vec80[1] = *(float *)(temp_v0 + 0x34) +
+          *(FldAIVec3 *)vec80 = *(FldAIVec3 *)(temp_v0 + 0x30);
+          vec80[1] = vec80[1] +
                       *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
-                                (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10 + (unsigned int)D_005F1CC0);
+                                ((unsigned int)D_005F1CC0 + (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10));
           pbVar7 = (unsigned char *)FUN_0015c1e0(1);
           FUN_0014e740(pbVar7,&vec80[0]);
           FUN_0045af60(1,0xb,3,5);
