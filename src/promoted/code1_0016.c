@@ -1918,6 +1918,7 @@ query_complete:
  * fnalign 2360 -> 1540: role swaps of reused temporaries within blocks.
  * fnalign 1540 -> 1525: early returns for the 0xa2 and flag tests and a two-case switch on *piVar1 (retail tests 1 then 0).
  * fnalign 1525 -> 1418: reused locals split per independent group (separate live ranges as retail).
+ * fnalign 1418 -> 1405: further per-group local splits.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2074,6 +2075,8 @@ s32 func_0016bdd0(u8 *param_1)
   unsigned int * puVar15_s3;
   unsigned int * puVar15_s5;
   float temp_v9;
+  float temp_v9_s2;
+  float temp_v9_s4;
   float temp_v10;
   float temp_v11;
   float temp_v11_s1;
@@ -2518,7 +2521,7 @@ s32 func_0016bdd0(u8 *param_1)
         }
         temp_v14_s5 = ((float *)piVar1)[0xab];
         if (temp_v14_s5 != 0.0f) {
-          temp_v9 = 3.0f;
+          temp_v9_s2 = 3.0f;
           if (temp_v14_s5 < 0.0f) {
             temp_v9 = -3.0f;
           }
@@ -2551,11 +2554,11 @@ s32 func_0016bdd0(u8 *param_1)
           stk190[0] = stk1A0[1] * D_00756518[0] - stk1A0[2] * D_00756514[0];
           stk190[1] = stk1A0[2] * D_00756510[0] - stk1A0[0] * D_00756518[0];
           stk190[2] = stk1A0[0] * D_00756514[0] - stk1A0[1] * D_00756510[0];
-          temp_v9 = D_00756510[0];
+          temp_v9_s4 = D_00756510[0];
           FUN_003e40b0(&stk190[0],&stk190[0]);
           stk180[0] = ((float *)piVar1)[0xad] * temp_v14_s6 - ((float *)piVar1)[0xae] * temp_v11_s5;
-          stk180[1] = ((float *)piVar1)[0xae] * temp_v9 - ((float *)piVar1)[0xac] * temp_v14_s6;
-          stk180[2] = ((float *)piVar1)[0xac] * temp_v11_s5 - ((float *)piVar1)[0xad] * temp_v9;
+          stk180[1] = ((float *)piVar1)[0xae] * temp_v9_s4 - ((float *)piVar1)[0xac] * temp_v14_s6;
+          stk180[2] = ((float *)piVar1)[0xac] * temp_v11_s5 - ((float *)piVar1)[0xad] * temp_v9_s4;
           FUN_003e40b0(&stk180[0],&stk180[0]);
           if (stk180[2] * stk1A0[2] + stk180[0] * stk1A0[0] + stk180[1] * stk1A0[1] < 0.0f) {
             stk180[0] = -stk180[0];
