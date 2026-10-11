@@ -506,6 +506,7 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * float temporaries declared temp_v20, temp_v15, temp_v14, temp_v16, temp_v21 (retail FPR colours in the angle clamp).
  * fnalign 95 -> 69: aim angles in block-local floats (pitch, yaw, baseYaw, basePitch, limit); unused temporaries removed.
  * fnalign 69 -> 65: z * weight held in a zw local so the polynomial madd.s takes it as the first operand (retail order).
+ * fnalign 65 -> 56: temp_v3 declared after hasParentMatrix (retail $v0/$v1).
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -563,7 +564,6 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   void (*pcVar2)(void *matrix, void *keyFrame);
   unsigned int *puVar3;
   int *piVar4;
-  int temp_v3;
   float *pfVar8;
   int temp_v4;
   unsigned int temp_v5;
@@ -589,6 +589,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   int iStack_420;
   unsigned int uStack_430;
   s32 hasParentMatrix;
+  int temp_v3;
   s32 resetAnimation;
   int iStack_450;
   RwMatrix baseMatrix;
