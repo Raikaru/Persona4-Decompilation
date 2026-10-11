@@ -2049,12 +2049,14 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 485 -> 484: split sweep.
  * fnalign 484 -> 480: float compares in retail polarity (c.ole/bc1t forms).
  * fnalign 480 -> 454: the puVar1[9] countdown is written short arm first (retail blez to the long arm).
+ * fnalign 454 -> 442: the [6]/[8] oscillator update keeps 0.0f and 1.0f in named locals with opt_propagation off (retail reuses $f1 for the zero compare and 1.0 - x).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_common_subs off
+#pragma opt_propagation off
 extern float D_00756520[];
 extern float D_00756524[];
 extern float D_00756528[];
@@ -2628,10 +2630,15 @@ s32 func_0018a200(u8 *param_1)
             func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
             FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
             FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
-            ((float*)puVar1)[6] = (((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6] + 0.0f);
-            if (0.0f < ((float*)puVar1)[8]) {
-              if (1.0f < ((float*)puVar1)[6]) {
-                ((float*)puVar1)[6] = (1.0f - ((float*)puVar1)[7]);
+            {
+            f32 zero = 0.0f;
+            f32 one;
+
+            ((float*)puVar1)[6] = (((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6] + zero);
+            if (!(((float*)puVar1)[8] <= zero)) {
+              one = 1.0f;
+              if (!(((float*)puVar1)[6] <= one)) {
+                ((float*)puVar1)[6] = (one - ((float*)puVar1)[7]);
                 puVar1[8] = 0xbf800000;
                 puVar1[9] = 0x5a;
                 temp_v4 = FUN_003b7060();
@@ -2639,13 +2646,14 @@ s32 func_0018a200(u8 *param_1)
                 func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
               }
             }
-            else if (((float*)puVar1)[6] < 0.0f) {
+            else if (((float*)puVar1)[6] < zero) {
               puVar1[6] = puVar1[7];
               puVar1[8] = 0x3f800000;
               puVar1[9] = 0x5a;
               temp_v4 = FUN_003b7060();
               puVar1[10] = temp_v4 % 0x5a + 0x3c;
               func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+            }
             }
           }
         }
