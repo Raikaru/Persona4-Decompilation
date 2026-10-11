@@ -2540,6 +2540,7 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * sdiff 18/91 -> 16/89: func_002ab380's texture slot is declared as a pointer (retail loads it in slot order; the (s32) cast was hoisted as a conversion).
  * fnalign 93 -> 61 (structure identical): the packed colour word is a call argument with its byte extraction inline; b210 evaluates these arguments right to left, so retail loads the last float before extracting the bytes.
  * fnalign 61 -> 60: 1 - t held in lerpT so the 42.0f product is constant-first as retail.
+ * fnalign 60 -> 59: 1 - t held in temp_f2 so the 255.0f product is constant-first.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3513,8 +3514,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 {
                     f32 size = 137.0f * temp_f16;
 
-                    temp_f21_2 = 1.0f - temp_f21_2;
-                    temp_f21_2 = 255.0f * temp_f21_2;
+                    temp_f2 = 1.0f - temp_f21_2;
+
+                    temp_f21_2 = 255.0f * temp_f2;
                     func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, (s16)size, (s16)size, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
                 }
     /* ACC seed */;
