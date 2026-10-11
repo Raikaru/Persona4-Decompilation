@@ -3016,11 +3016,44 @@ void func_001a5990(void)
  * redundant sign-extension shifts with explicit signed-halfword/byte casts.
  * The local 001d15a0 provider returns s16; measured in battle lane scratch.
  * sdiff struct 413 -> 395: arg0 accessed through a u8 * local; the (u8 *)(s64 *) cast at every use made MWCC CSE and spill field addresses.
+ * sdiff struct 395 -> 393: the two close-camera decisions through one inline helper (btlCloseCamera_001a59a0) instead of m2c's switch/goto copies.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_loop_invariants on
+static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
+{
+    extern u8 *iGpffffb3bc;
+    extern u8 *iGpffffb3cc;
+    u8 *ctx = *(u8 **)(unit + 0xA64);
+    s32 result = 1;
+
+    switch (*(u8 *)(unit + 0xA2)) {
+    case 0:
+        {
+            s32 state = func_0023e1f0(ctx) & 0xFF;
+
+            if (state == 5) {
+                result = 1;
+            } else if (state == 3 && ((*(u16 *)(iGpffffb3bc + 2) & 0x8000) || noPartner == 0)) {
+                result = 1;
+            } else {
+                result = 0;
+            }
+        }
+        break;
+    case 1:
+        if (*(s16 *)((*(u16 *)(ctx + 2) & 0xFFFF) * 0xE8 + (s32)iGpffffb3cc + 0x22) != 1) {
+            result = 0;
+        }
+        break;
+    default:
+        result = 0;
+        break;
+    }
+    return result;
+}
 void func_001a59a0(s64 *arg0_) {
     u8 *arg0 = (u8 *)arg0_;
     extern s32 func_00194590();
@@ -3342,31 +3375,7 @@ void func_001a59a0(s64 *arg0_) {
         if ((*(u16 *)(arg0 + (0x6A))) == 1) {
             if ((*(u8 *)((u8 *)(temp_19) + (0xA2))) == 0) {
                 if (((sp250 == 0) && (var_22 == 0)) || (sp1C0 == 1)) {
-                    temp_2_7 = (u8 *)((*(u8 **)(arg0 + (0x30))));
-                    temp_4_2 = (u8 *)((*(u8 **)((u8 *)(temp_2_7) + (0xA64))));
-                    temp_2_8 = (u8)((*(u8 *)((u8 *)(temp_2_7) + (0xA2))));
-                    var_5 = 1;
-                    switch (temp_2_8) {             /* switch 1; irregular */
-                    case 0:                         /* switch 1 */
-                        temp_3 = (s32)(func_0023e1f0(temp_4_2) & 0xFF);
-                        if (temp_3 == 5) {
-                            var_5 = 1;
-                        } else if ((temp_3 == 3) && (((*(u16 *)((u8 *)(iGpffffb3bc) + (2))) & 0x8000) || (sp250 == 0))) {
-                            var_5 = 1;
-                        } else {
-                        default:                    /* switch 1 */
-block_69:
-                            var_5 = 0;
-                        }
-                        break;
-                    case 1:                         /* switch 1 */
-                        if ((*(s16 *)((u8 *)(((((*(u16 *)((u8 *)(temp_4_2) + (2))) & 0xFFFF) * 0xE8) + ((s32)iGpffffb3cc))) + (0x22))) == 1) {
-
-                        } else {
-                            goto block_69;
-                        }
-                        break;
-                    }
+                    var_5 = btlCloseCamera_001a59a0(*(u8 **)(arg0 + 0x30), sp250);
                     if (var_5 != 0) {
                         var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
                     } else {
@@ -3376,31 +3385,7 @@ block_69:
                     var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x10));
                 }
             } else if ((var_22 == 0) || (sp1C0 == 1)) {
-                temp_2_9 = (u8 *)((*(u8 **)(arg0 + (0x30))));
-                temp_4_3 = (u8 *)((*(u8 **)((u8 *)(temp_2_9) + (0xA64))));
-                temp_2_10 = (u8)((*(u8 *)((u8 *)(temp_2_9) + (0xA2))));
-                var_5_2 = 1;
-                switch (temp_2_10) {                /* switch 2; irregular */
-                case 0:                             /* switch 2 */
-                    temp_3_2 = (s32)(func_0023e1f0(temp_4_3) & 0xFF);
-                    if (temp_3_2 == 5) {
-                        var_5_2 = 1;
-                    } else if ((temp_3_2 == 3) && (((*(u16 *)((u8 *)(iGpffffb3bc) + (2))) & 0x8000) || (sp250 == 0))) {
-                        var_5_2 = 1;
-                    } else {
-                    default:                        /* switch 2 */
-block_87:
-                        var_5_2 = 0;
-                    }
-                    break;
-                case 1:                             /* switch 2 */
-                    if ((*(s16 *)((u8 *)(((((*(u16 *)((u8 *)(temp_4_3) + (2))) & 0xFFFF) * 0xE8) + ((s32)iGpffffb3cc))) + (0x22))) == 1) {
-
-                    } else {
-                        goto block_87;
-                    }
-                    break;
-                }
+                var_5_2 = btlCloseCamera_001a59a0(*(u8 **)(arg0 + 0x30), sp250);
                 if (var_5_2 != 0) {
                     var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
                 } else {
