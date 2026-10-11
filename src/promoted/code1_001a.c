@@ -3019,6 +3019,7 @@ void func_001a5990(void)
  * sdiff struct 395 -> 393: the two close-camera decisions through one inline helper (btlCloseCamera_001a59a0) instead of m2c's switch/goto copies.
  * fnalign 575 -> 545: the 0x13/0x10 selection as a var_2_8 flag test with the 0x13 call first (no goto block_224), as in func_001a7720.
  * fnalign 545 -> 527: the tail state switch (cases 1,3,2 and default both set state 0x20) as in the matched-path sibling 001a7720, with the real btlActionSetState(BtlAction *, u16) prototype (retail daddiu per arm, one shared call).
+ * fnalign 527 -> 521: btlCloseCamera reads the unit id before the switch, sends every failing path to one shared result = 0 (default arm, goto fail) and tests the 0x8000 flag first (retail polarity).
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3029,6 +3030,7 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
     extern u8 *iGpffffb3bc;
     extern u8 *iGpffffb3cc;
     u8 *ctx = *(u8 **)(unit + 0xA64);
+    u16 unitId = *(u16 *)(ctx + 2);
     s32 result = 1;
 
     switch (*(u8 *)(unit + 0xA2)) {
@@ -3038,19 +3040,24 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
 
             if (state == 5) {
                 result = 1;
-            } else if (state == 3 && ((*(u16 *)(iGpffffb3bc + 2) & 0x8000) || noPartner == 0)) {
-                result = 1;
-            } else {
-                result = 0;
+                break;
             }
+            if (state != 3) {
+                goto fail;
+            }
+            if (!(*(u16 *)(iGpffffb3bc + 2) & 0x8000) && noPartner != 0) {
+                goto fail;
+            }
+            result = 1;
         }
         break;
     case 1:
-        if (*(s16 *)((*(u16 *)(ctx + 2) & 0xFFFF) * 0xE8 + (s32)iGpffffb3cc + 0x22) != 1) {
-            result = 0;
+        if (*(s16 *)((unitId & 0xFFFF) * 0xE8 + (s32)iGpffffb3cc + 0x22) != 1) {
+            goto fail;
         }
         break;
     default:
+    fail:
         result = 0;
         break;
     }
