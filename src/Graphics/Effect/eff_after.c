@@ -866,6 +866,7 @@ void func_004b8f10(void *arg0) {
  * fnalign 69 -> 52: the second spline block computes its two ring indices into temp_v2 then temp_v3 (retail colours them $a3/$a2).
  * fnalign 52 -> 42: temp_v7/temp_v8 roles swapped within the case 2 spline block (both are defined before use there and not used afterwards).
  * fnalign 42 -> 22: Ghidra's reused float temporaries take retail's roles per case block (temp_v9/temp_v10/temp_v11 swaps; each is defined before use in its block and redefined before any use after the switch).
+ * fnalign 22 -> 10: pfVar16/pfVar3 roles swapped in one spline block (safe: defined first in the block, unused after it in the statement, redefined first afterwards).
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -1316,13 +1317,13 @@ void func_004b8f40(u8 *work, void **pp)
       temp_v11 = *(f32 *)((*(u8 **)work) + 0x14) / 2.0f;
       temp_v5 = func_00457120();
       temp_v5 = *(s32 *)(((u8 *)temp_v5) + 4);
-      pfVar16 = (f32 *)(temp_v5 + 0x40);
+      pfVar3 = (f32 *)(temp_v5 + 0x40);
       pfVar17 = *(f32 **)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
       temp_v8 = 0.5f + (f32)*(s32 *)((*(u8 **)work) + 0xc);
       temp_v9 = 1.0f / temp_v8;
       temp_v8 = 0.5f / temp_v8;
       temp_v6 = 0xffffffff;
-      pfVar3 = pfVar17 + 9;
+      pfVar16 = pfVar17 + 9;
       temp_v1 = *(s32 *)((work) + 0xc) - 1;
       if (temp_v1 < 0) {
         temp_v1 = temp_v1 + *(s32 *)((work) + 8);
@@ -1362,9 +1363,9 @@ void func_004b8f40(u8 *work, void **pp)
         if (temp_v1 == 0) {
           first = cur;
         }
-        v188.c[0] = *pfVar16 - cur.c[0];
-        v188.c[1] = pfVar16[1] - cur.c[1];
-        v188.c[2] = pfVar16[2] - cur.c[2];
+        v188.c[0] = *pfVar3 - cur.c[0];
+        v188.c[1] = pfVar3[1] - cur.c[1];
+        v188.c[2] = pfVar3[2] - cur.c[2];
         RwV3dNormalize(&v188.c[0],&v188.c[0]);
         v158.c[0] = prev.c[0] - cur.c[0];
         v158.c[1] = prev.c[1] - cur.c[1];
@@ -1383,28 +1384,28 @@ void func_004b8f40(u8 *work, void **pp)
         v148.c[0] = v148.c[0] * temp_v7;
         v148.c[1] = v148.c[1] * temp_v7;
         v148.c[2] = v148.c[2] * temp_v7;
-        pfVar3[0] = cur.c[0] + v148.c[0];
-        pfVar3[1] = cur.c[1] + v148.c[1];
-        pfVar3[2] = cur.c[2] + v148.c[2];
-        pfVar3[3] = cur.c[0] - v148.c[0];
-        pfVar3[4] = cur.c[1] - v148.c[1];
-        pfVar3[5] = cur.c[2] - v148.c[2];
-        pfVar3 += 9;
+        pfVar16[0] = cur.c[0] + v148.c[0];
+        pfVar16[1] = cur.c[1] + v148.c[1];
+        pfVar16[2] = cur.c[2] + v148.c[2];
+        pfVar16[3] = cur.c[0] - v148.c[0];
+        pfVar16[4] = cur.c[1] - v148.c[1];
+        pfVar16[5] = cur.c[2] - v148.c[2];
+        pfVar16 += 9;
         prev = cur;
         temp_v8 = temp_v8 + temp_v9;
         temp_v1++;
       }
       temp_v4 = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
-      pfVar3 = pfVar17 + (temp_v4 - 3) * 3;
+      pfVar16 = pfVar17 + (temp_v4 - 3) * 3;
       temp_v1 = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
       if (temp_v1 < 0) {
         temp_v1 = temp_v1 + *(s32 *)((work) + 8);
       }
       pfVar5 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x10, work)) + temp_v1 * 0xc);
       cur = *(EffAfterVec *)pfVar5;
-      v188.c[0] = *pfVar16 - cur.c[0];
-      v188.c[1] = pfVar16[1] - cur.c[1];
-      v188.c[2] = pfVar16[2] - cur.c[2];
+      v188.c[0] = *pfVar3 - cur.c[0];
+      v188.c[1] = pfVar3[1] - cur.c[1];
+      v188.c[2] = pfVar3[2] - cur.c[2];
       RwV3dNormalize(&v188.c[0],&v188.c[0]);
       v158.c[0] = prev.c[0] - cur.c[0];
       v158.c[1] = prev.c[1] - cur.c[1];
@@ -1423,12 +1424,12 @@ void func_004b8f40(u8 *work, void **pp)
       v148.c[0] = v148.c[0] * temp_v8;
       v148.c[1] = v148.c[1] * temp_v8;
       v148.c[2] = v148.c[2] * temp_v8;
-      *pfVar3 = cur.c[0] + v148.c[0];
-      pfVar3[1] = cur.c[1] + v148.c[1];
-      pfVar3[2] = cur.c[2] + v148.c[2];
-      pfVar3[3] = cur.c[0] - v148.c[0];
-      pfVar3[4] = cur.c[1] - v148.c[1];
-      pfVar3[5] = cur.c[2] - v148.c[2];
+      *pfVar16 = cur.c[0] + v148.c[0];
+      pfVar16[1] = cur.c[1] + v148.c[1];
+      pfVar16[2] = cur.c[2] + v148.c[2];
+      pfVar16[3] = cur.c[0] - v148.c[0];
+      pfVar16[4] = cur.c[1] - v148.c[1];
+      pfVar16[5] = cur.c[2] - v148.c[2];
       pfVar17[temp_v4 * 3 - 3] = pfVar17[temp_v4 * 3 - 9] + pfVar17[temp_v4 * 3 - 6];
       pfVar17[temp_v4 * 3 - 2] = pfVar17[temp_v4 * 3 - 8] + pfVar17[temp_v4 * 3 - 5];
       pfVar17[temp_v4 * 3 - 1] = pfVar17[temp_v4 * 3 - 7] + pfVar17[temp_v4 * 3 - 4];
@@ -1439,11 +1440,11 @@ void func_004b8f40(u8 *work, void **pp)
       if (temp_v1 < 0) {
         temp_v1 = temp_v1 + *(s32 *)((work) + 8);
       }
-      pfVar3 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x10, work)) + temp_v1 * 0xc);
-      last = *(EffAfterVec *)pfVar3;
-      v188.c[0] = *pfVar16 - last.c[0];
-      v188.c[1] = pfVar16[1] - last.c[1];
-      v188.c[2] = pfVar16[2] - last.c[2];
+      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x10, work)) + temp_v1 * 0xc);
+      last = *(EffAfterVec *)pfVar16;
+      v188.c[0] = *pfVar3 - last.c[0];
+      v188.c[1] = pfVar3[1] - last.c[1];
+      v188.c[2] = pfVar3[2] - last.c[2];
       RwV3dNormalize(&v188.c[0],&v188.c[0]);
       v158.c[0] = last.c[0] - first.c[0];
       v158.c[1] = last.c[1] - first.c[1];
