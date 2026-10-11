@@ -507,6 +507,7 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * fnalign 95 -> 69: aim angles in block-local floats (pitch, yaw, baseYaw, basePitch, limit); unused temporaries removed.
  * fnalign 69 -> 65: z * weight held in a zw local so the polynomial madd.s takes it as the first operand (retail order).
  * fnalign 65 -> 56: temp_v3 declared after hasParentMatrix (retail $v0/$v1).
+ * fnalign 56 -> 51: parent matrix base loaded before the index shift (temp_v5 holds puVar12[6], as retail's lw/sll/lw order).
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -647,8 +648,9 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   puVar12 = (unsigned int *)param_1;
   temp_v10 = *puVar12;
   if (((temp_v10 & 1) != 0) && (puVar12[7] != 0xffffffff)) {
+    temp_v5 = puVar12[6];
     temp_v4 = puVar12[7] * 0x40;
-    pfVar21 = (float *)(*(int *)(puVar12[6] + 8) + temp_v4);
+    pfVar21 = (float *)(*(int *)(temp_v5 + 8) + temp_v4);
     if (((temp_v10 & 0x2000) != 0) && ((temp_v10 & 0x4000) != 0)) {
       hasParentMatrix = 1;
       temp_v3 = *(unsigned int *)(puVar12[6] + 0x14);
