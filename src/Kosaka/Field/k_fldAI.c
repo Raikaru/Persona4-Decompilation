@@ -1008,6 +1008,7 @@ tail:
  * combined 341 -> 340: pol3 sweep.
  * combined 340 -> 315: state 10 speed clamp and steering in retail order (dot y,x,z first, 10 * speed, then 1 - dot).
  * combined 315 -> 284: the patrol toggle stores !cur (retail recomputes sltu/xori), and the state 9 target is a whole FldAIVec3 copy.
+ * combined -> 264: y component read through the integer-cast base like x and z.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1593,7 +1594,7 @@ else {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           state7Delta.x = *(float *)((u8 *)(u32)(temp_v0) + 0x30) - *(float *)(piVar1[3] + 0x19c);
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          state7Delta.y = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
+          state7Delta.y = *(float *)((u8 *)(u32)(temp_v0) + 0x34) - *(float *)(piVar1[3] + 0x1a0);
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           state7Delta.z = *(float *)((u8 *)(u32)(temp_v0) + 0x38) - *(float *)(piVar1[3] + 0x1a4);
           temp_v8 = RwV3dNormalize(&state7Delta,&state7Delta);
@@ -1723,7 +1724,7 @@ else {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           state8Delta.x = *(float *)((u8 *)(u32)(temp_v0) + 0x30) - *(float *)(piVar1[3] + 0x19c);
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          state8Delta.y = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
+          state8Delta.y = *(float *)((u8 *)(u32)(temp_v0) + 0x34) - *(float *)(piVar1[3] + 0x1a0);
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           state8Delta.z = *(float *)((u8 *)(u32)(temp_v0) + 0x38) - *(float *)(piVar1[3] + 0x1a4);
           temp_v8 = RwV3dNormalize(&state8Delta,&state8Delta);
@@ -1913,7 +1914,7 @@ else {
         temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         state11Delta.x = *(float *)((u8 *)(u32)(temp_v0) + 0x30) - *(float *)(piVar1[3] + 0x19c);
         temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-        state11Delta.y = *(float *)(temp_v0 + 0x34) - *(float *)(piVar1[3] + 0x1a0);
+        state11Delta.y = *(float *)((u8 *)(u32)(temp_v0) + 0x34) - *(float *)(piVar1[3] + 0x1a0);
         temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         state11Delta.z = *(float *)((u8 *)(u32)(temp_v0) + 0x38) - *(float *)(piVar1[3] + 0x1a4);
         temp_v8 = RwV3dNormalize(&state11Delta,&state11Delta);
