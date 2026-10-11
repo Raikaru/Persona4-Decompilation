@@ -1919,6 +1919,7 @@ query_complete:
  * fnalign 1540 -> 1525: early returns for the 0xa2 and flag tests and a two-case switch on *piVar1 (retail tests 1 then 0).
  * fnalign 1525 -> 1418: reused locals split per independent group (separate live ranges as retail).
  * fnalign 1418 -> 1405: further per-group local splits.
+ * fnalign 1405 -> 1394: float comparison forms in retail's polarity.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2291,7 +2292,7 @@ s32 func_0016bdd0(u8 *param_1)
         }
         if (((float *)piVar1)[8] < temp_v14) {
           temp_v12_s2 = ((temp_v14 - ((float *)piVar1)[8]) / ((float *)piVar1)[temp_v4 + 0xe]) * temp_v11;
-          if (0.0f < temp_v10) {
+          if (temp_v10 > 0.0f) {
             ((float *)piVar1)[0x2e] = (((float *)piVar1)[0x2e] + temp_v12_s2);
           }
           else if (temp_v10 < -0.0f) {
@@ -2526,7 +2527,7 @@ s32 func_0016bdd0(u8 *param_1)
             temp_v9 = -3.0f;
           }
           if (temp_v9 < 0.0f) {
-            if (0.0f < temp_v14_s5 - temp_v9) {
+            if (temp_v14_s5 - temp_v9 > 0.0f) {
               temp_v9 = temp_v9 + (temp_v14_s5 - temp_v9);
             }
           }
@@ -2572,7 +2573,7 @@ s32 func_0016bdd0(u8 *param_1)
           if (temp_v11_s6 < CAND_fGpffff84e4) {
             ((float *)piVar1)[0xab] = -temp_v14_s7;
           }
-          else if (CAND_fGpffff84e8 < temp_v11_s6) {
+          else if (temp_v11_s6 > CAND_fGpffff84e8) {
             ((float *)piVar1)[0xab] = temp_v14_s7;
           }
         }
@@ -2627,7 +2628,7 @@ s32 func_0016bdd0(u8 *param_1)
           }
           temp_v14_s8 = romwright_fabs_4((temp_v14_s8 - temp_v11_s8) / temp_v14_s8);
           temp_v11_s9 = 1.0f;
-          if (temp_v14_s8 <= 1.0f) {
+          if (1.0f >= temp_v14_s8) {
             temp_v11 = temp_v14_s8;
           }
           if ((0.2f < romwright_fabs_4(stk160[0])) && (0.2f < romwright_fabs_4(stk160[2]))) {
@@ -2666,7 +2667,7 @@ s32 func_0016bdd0(u8 *param_1)
           else if ((((float *)piVar1)[0xab] == 0.0f) && ((piVar1[1] & 2U) == 0)) {
             temp_v14_s9 = FUN_00175db0();
             temp_v11_s11 = 15.0f;
-            if (temp_v14_s9 < 15.0f) {
+            if (15.0f > temp_v14_s9) {
               temp_v11 = FUN_00175db0();
             }
             if (temp_v11 == 0.0f) {
@@ -2677,7 +2678,7 @@ s32 func_0016bdd0(u8 *param_1)
             }
             temp_v14 = ((float *)piVar1)[0xa5];
             ((float *)piVar1)[0xa5] = (temp_v14 + temp_v11);
-            if (temp_v12 <= temp_v14 + temp_v11) {
+            if (temp_v14 + temp_v11 >= temp_v12) {
               ((float *)piVar1)[0xa5] = temp_v12;
             }
             if (((float *)piVar1)[0xa5] < ((float *)piVar1)[0xa3]) {
@@ -2726,7 +2727,7 @@ s32 func_0016bdd0(u8 *param_1)
                 (((float *)piVar1)[0xa5] < ((float *)piVar1)[0xa3])) {
           temp_v12_s11 = FUN_00175db0();
           temp_v11_s15 = 15.0f;
-          if (temp_v12_s11 < 15.0f) {
+          if (15.0f > temp_v12_s11) {
             temp_v11 = FUN_00175db0();
           }
           if (temp_v11 == 0.0f) {
@@ -2916,7 +2917,7 @@ s32 func_0016bdd0(u8 *param_1)
           if (((float *)piVar1)[0xa5] >= temp_v11) goto LAB_0016e0c0;
           temp_v14 = FUN_00175db0();
           temp_v11_s25 = 20.0f;
-          if (temp_v14 < 20.0f) {
+          if (20.0f > temp_v14) {
             temp_v11 = FUN_00175db0();
           }
           if (temp_v11 == 0.0f) {
