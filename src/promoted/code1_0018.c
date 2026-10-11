@@ -2022,6 +2022,8 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * 826: the globals are retail's absolute D_ objects (%hi/%lo), declared as arrays so
  * b210 does not place them in small data.
  * 814: swap sweep.
+ * callee prototypes from the real definitions (pointer parameters keep their existing spelling).
+ * *puVar1 >= 4 (retail sltiu into $v0, not $at).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2038,11 +2040,11 @@ extern float fGpffff8300; /* 0xffff8300 */
 extern float fGpffff8420; /* 0xffff8420 */
 
 extern long FUN_00106330(int);
-extern int FUN_001452b0(unsigned long long);
+extern int FUN_001452b0(s32);
 extern long FUN_0014bff0(float, unsigned long long, int);
 extern long FUN_0014c4c0(float, int, int);
 extern int FUN_00155280(void);
-extern int FUN_002467b0(unsigned int);
+extern int FUN_002467b0(s32);
 extern int FUN_003b7060(void);
 /* Supplied declaration required: FUN_003bb3a0. */
 /* Supplied declaration required: FUN_003bb5b0. */
@@ -2053,53 +2055,53 @@ extern unsigned int FUN_003bbbe0(unsigned short, unsigned long long, unsigned in
 extern unsigned int FUN_003e0f80(void);
 /* Supplied declaration required: FUN_003e40b0. */
 extern int FUN_003e9700(unsigned int);
-extern float FUN_0044b920(float);
+extern f32 FUN_0044b920(f32);
 /* Supplied declaration required: FUN_0047a1e0. */
 /* Supplied declaration required: FUN_0047a220. */
 /* Supplied declaration required: FUN_0047a2f0. */
 /* Supplied declaration required: FUN_0047a310. */
-extern int FUN_00102980(void);
-extern float FUN_0014b5d0(void *);
-extern float FUN_0014b660(void *);
-extern float FUN_0014b6f0(void *);
-extern int FUN_0014bbe0(int, int, int, int, int);
-extern int FUN_0014bd90(unsigned char *);
-extern unsigned int FUN_0014c240(void *, void *, float, float);
-extern int FUN_0014e710(unsigned char *);
-extern int FUN_0014e740(unsigned char *, float *);
-extern void FUN_0014e880(unsigned char *, int, short);
-extern void FUN_0014e920(unsigned char *, int, int);
+extern s32 FUN_00102980(void);
+extern f32 FUN_0014b5d0(void *);
+extern f32 FUN_0014b660(void *);
+extern f32 FUN_0014b6f0(void *);
+extern s32 FUN_0014bbe0(s32, s32, s32, s32, s32);
+extern s32 FUN_0014bd90(unsigned char *);
+extern u32 FUN_0014c240(void *, void *, f32, f32);
+extern s32 FUN_0014e710(unsigned char *);
+extern s32 FUN_0014e740(unsigned char *, float *);
+extern void FUN_0014e880(unsigned char *, s32, s16);
+extern void FUN_0014e920(unsigned char *, s32, s32);
 extern void FUN_001687f0(unsigned char *, unsigned char *);
 extern void FUN_00168890(unsigned char *, unsigned char *);
 extern void FUN_00168ae0(unsigned char *, unsigned char *);
 extern void func_00168de0(u8 *task, const void *axis, f32 angle);
-extern void FUN_0018bed0(unsigned char *, int);
-extern int FUN_0018bf50(unsigned char *);
-extern long long FUN_00248d80(long long);
+extern void FUN_0018bed0(unsigned char *, s32);
+extern s32 FUN_0018bf50(unsigned char *);
+extern s64 FUN_00248d80(s64);
 extern float FUN_003e4180(float *);
-extern int FUN_00452080(void *);
-extern int FUN_00457120(void);
+extern s32 FUN_00452080(void *);
+extern s32 FUN_00457120(void);
 extern void FUN_00458f40(void *, void *);
-extern int FUN_004782b0(unsigned char *);
+extern s32 FUN_004782b0(unsigned char *);
 extern void FUN_00478e70(unsigned char *);
-extern short FUN_00479c30(int, int);
-extern int FUN_0047a6d0(void *, int, void *);
+extern s16 FUN_00479c30(s32, s32);
+extern s32 FUN_0047a6d0(void *, s32, void *);
 extern void FUN_0047a850(unsigned char *);
 extern void FUN_0047a870(unsigned char *);
 extern void FUN_0047a8b0(void *, void *);
 extern void FUN_0047a990(unsigned char *);
-extern void FUN_0047a9f0(unsigned char *, short);
-extern unsigned short FUN_0047aa00(unsigned char *);
+extern void FUN_0047a9f0(unsigned char *, u16);
+extern u16 FUN_0047aa00(unsigned char *);
 
 
 extern unsigned char D_00763074[];
 extern int FUN_003bb3a0();
-extern int FUN_003e0870();
+extern void func_003e0870(void *matrix, const void *axis, s32 mode, f32 angle);
 extern int FUN_003e05d0();
 extern int FUN_003bff30();
 extern int FUN_0047a2f0();
 extern int FUN_0047a220();
-extern int FUN_003bb5b0();
+extern void func_003bb5b0(void *curve, s32 mode, f32 time, f32 *dst, void *aux);
 extern int FUN_003e40b0();
 extern int FUN_0047a1e0();
 extern int FUN_0047a310();
@@ -2157,7 +2159,7 @@ s32 func_0018a200(u8 *param_1)
   if (puVar1[2] == 1) {
     return 0;
   }
-  if (3 < *puVar1) {
+  if (*puVar1 >= 4) {
     if (*(int *)(puVar1[3] + 0x234) == 2) {
       iStack_4 = 0;
       temp_v8 = FUN_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
@@ -2417,7 +2419,7 @@ s32 func_0018a200(u8 *param_1)
       ((float*)puVar1)[7] = temp_v13;
       ((float*)puVar1)[6] = (((float*)puVar1)[6] + temp_v13);
       func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
-      FUN_003bb5b0(puVar1[6],*(unsigned int *)(puVar1[3] + 0x360),10,&vecD0[0],0);
+      func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecD0[0], 0);
       temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
       *(FldCopyVec *)vecC0 = *(FldCopyVec *)(temp_v4 + 0x30);
       vecB0[0] = vecD0[0] - vecC0[0];
@@ -2443,7 +2445,7 @@ s32 func_0018a200(u8 *param_1)
       *(unsigned int *)(puVar1[5] + 0x34) = 0;
       *(unsigned int *)(puVar1[5] + 0x30) = 0;
       *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
-      FUN_003e0870(temp_v13,puVar1[5],(int)D_00756510,2);
+      func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
       FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
     }
     puVar1[0xb] = 0xffffffff;
@@ -2510,7 +2512,7 @@ s32 func_0018a200(u8 *param_1)
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
           }
           if ((int)puVar1[9] < 1) {
-            FUN_003bb5b0(puVar1[6],*(unsigned int *)(puVar1[3] + 0x360),10,&vec120[0],0);
+            func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vec120[0], 0);
             temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
             vec110[0] = *(float *)(temp_v4 + 0x30);
             vec110[1] = *(float *)(temp_v4 + 0x34);
@@ -2538,7 +2540,7 @@ s32 func_0018a200(u8 *param_1)
             *(unsigned int *)(puVar1[5] + 0x34) = 0;
             *(unsigned int *)(puVar1[5] + 0x30) = 0;
             *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
-            FUN_003e0870(temp_v13,puVar1[5],(int)D_00756510,2);
+            func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
             FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
             FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
             ((float*)puVar1)[6] = (((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6] + 0.0f);
@@ -2572,7 +2574,7 @@ s32 func_0018a200(u8 *param_1)
            (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
           func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
         }
-        FUN_003bb5b0(puVar1[6],*(unsigned int *)(puVar1[3] + 0x360),10,&vecF0[0],0);
+        func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         vecE0[0] = *(float *)(temp_v4 + 0x30);
         vecE0[1] = *(float *)(temp_v4 + 0x34);
@@ -2600,7 +2602,7 @@ s32 func_0018a200(u8 *param_1)
         *(unsigned int *)(puVar1[5] + 0x34) = 0;
         *(unsigned int *)(puVar1[5] + 0x30) = 0;
         *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
-        FUN_003e0870(temp_v13,puVar1[5],(int)D_00756510,2);
+        func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
         if ((*(unsigned short *)(puVar1[3] + 0x220) != 4) || (((float*)puVar1)[6] < 1.0f)) {
           FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
           FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
