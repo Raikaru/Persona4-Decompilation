@@ -811,69 +811,10 @@ void func_004b8f10(void *arg0) {
    The lever is iterative, which the first sweep hid: it converts the single best loop
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
-/* measured 004b8f40 (2026-09-20): fnalign 2907 -> 1716 edits, words 1848 -> 1807,
-   object 1875 -> 1932 instrs against retail 1929 (exact count). Spill gap IS
-   reachable from source. regsave_scan showed the object saving $f25-$f31 at frame
-   0x220 where retail saves $f20-$f24 at frame 0x1A0. Three composed changes:
-   (a) 26 f32 intermediates (fetch/diff/sum/prev/bezier/norm trios) into one
-   address-taken struct S (12 -> 6 saved FPRs; address-taken scalars and plain
-   arrays do NOT drop saves, the aggregate does); (b) u64 prev/first-point puns
-   (uStack_38/68) as plain struct floats (retail has plain moves, no sll/or);
-   (c) the three temp_v0 ==2/1/0 dispatch chains rewired to check-2,1,0 with bodies
-   laid 0,1,2 via goto (retail checks 2,1,0 with an explicit 0-check but lays out
-   bodies 0,1,2; a plain if/else-if lays 2,1,0). Exact retail saved set $f20-$f24
-   reproduced two ways (fStack_20 scalar, temp_v10 scalar) but both measure worse in
-   words (1812 vs 1807: layout dominates), so the 6-save goto body stands.
-   Remaining: 13 hoisted quadword address spills (frame 0x220 vs 0x1A0; retail
-   recomputes the ==1/==2-nest addresses per fetch and hoists only the ==0 outer
-   address to slot 192 plus $s7) and GPR colouring/member order. Do NOT repeat the
-   nine banned accumulator spellings (all neutral/worse) or switch spelling (+5).
-   2026-10-08: opt_dead_assignments off with opt_lifetimes on lowers fnalign from 1756 to 1368 edits.
- * 2026-10-09: 1368 -> 1297: the Ghidra stack scalars that share one 16-byte slot are
- * one f32 array local (retail keeps that slot in memory).
- * (cleanup: address-of casts simplified)
- * 1269: type sweep.
- * 1262: conversion lever (pbVar2:(1, 3)).
- * fnalign 1262 -> 1252: the three phase dispatches are switches (cases 0, 1, 2 in written order).
- * fnalign 1252 -> 1236: phase-0 colour loops in the sibling func_004b8350 form (count re-read per use, (f32)i at i == 0, i++ / col += 8 at the bottom).
- * fnalign 1236 -> 1200: phase-1 colours in retail order (hoisted 1/denom step, cursor advanced 4/4/4, four-tap average summed inner-first).
- * fnalign 1200 -> 1195: phase-1 cursor uses u32* post-increments (retail's interleaved advance), (f32)n converted before adding 0.5.
- * fnalign 1195 -> 1190: phase-2 colours in retail order.
- * fnalign 1190 -> 1184: the second 1/denom is recomputed ((f32) cast keeps it out of CSE, as retail).
- * fnalign 1184 -> 1074: phase-B clears in retail order (no offset helper, counters advanced before the cursor, limits computed first).
- * fnalign 1074 -> 1058: phase C without the offset helper.
- * fnalign 1058 -> 1041: phase-C span limit as a switch, segment cache updated first, (f32)i at i == 0.
- * phase-C outer loop test-first.
- * fnalign 1040 -> 854: stack locals declared as retail's vec3 blocks (fraction/section on top, then v188..first, last, the bounding sphere and ctrl[4]); control-point ends built by struct copy.
- * fnalign 1040 -> 643: retail vec3 stack locals (fraction/section, v188, cur, prev, v158, v148, first, last, bound sphere, ctrl[4]); control-point ends, cur/prev/first and the bound sphere copied as structs; strip-loop field loads written directly from work (one shared *(work + 0x10)) so they are not hoisted as invariant addresses.
- * fnalign 643 -> 505: Bezier terms written P0*s*s*s + 3*P1*t*s*s + 3*P2*t*t*s + P3*t*t*t (retail's accumulate order).
- * fnalign 505 -> 487: phase-C strip side offset as a switch (case 0 then 1); segment cache updated at the top of the recompute block.
- * camera-target components read as pfVar16[1]/[2].
- * fnalign 484 -> 404: temp_v2 is s32 (retail keeps its wrap test); case-2 segment cache updated at the top of the recompute block.
- * fnalign 404 -> 279: dot products summed y, x, z; cubes computed in their own statement (retail does not fuse 1 - d^3); case-2 strip loop bottom-tested with the output cursor starting at +9 floats and advanced before prev = cur; tail index from n*3 + 6.
- * dot products summed x, y, z.
- * phase-C clear loop in the phase-B form.
- * fnalign 259 -> 234: vector copies are EffAfterVec assignments; tail copies addressed from pfVar17 + n*3 with constant offsets.
- * fnalign 234 -> 214: case-2 prologue in retail order (count converted before + 0.5, output cursor set first, prev by struct copy).
- * loop counters advanced before the cursors (retail order).
- * fnalign 178 -> 160 (struct 0): tail copies read their source inline so the destination address is formed first.
- * phase-A case 0 with block-scope i/col.
- * phase-A case 1 averaging loop with block-scope j/c.
- * phase-A case 2 with block-scope locals (den, step, t declared in retail colour order).
- * 0.5f + (f32)n written as one expression.
- * same form in the phase-C case-2 prologue.
- * phase-C case 0 with block-scope locals in retail colour order.
- * fnalign 69 -> 52: the second spline block computes its two ring indices into temp_v2 then temp_v3 (retail colours them $a3/$a2).
- * fnalign 52 -> 42: temp_v7/temp_v8 roles swapped within the case 2 spline block (both are defined before use there and not used afterwards).
- * fnalign 42 -> 22: Ghidra's reused float temporaries take retail's roles per case block (temp_v9/temp_v10/temp_v11 swaps; each is defined before use in its block and redefined before any use after the switch).
- * fnalign 22 -> 10: pfVar16/pfVar3 roles swapped in one spline block (safe: defined first in the block, unused after it in the statement, redefined first afterwards).
- * fnalign 10 -> 8: the ring-buffer assertion tests out >= lim (retail sltu into $v0).
- * fnalign 8 -> 4: four spline control-point reads use a u8 * table base (base-first addu as retail).
- * fnalign 4 -> 2: the remaining spline table reads with a u8 * base where retail adds base-first.
- * fnalign 2 -> 1: the colour-table end pointer through effAfterOffsetPtr (offset + base, as the matched siblings).
- */
-// FUN_004B8F40 NONMATCHING
-#ifdef NON_MATCHING
+/* Trail mesh rebuild. Retail adds some table offsets index-first: those sites
+   go through effAfterOffsetPtr (offset + base), the rest stay base-first u8 *
+   arithmetic. The midpoint row is formed inside its first copy after the
+   source offset, matching retail's evaluation order. */
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_lifetimes on
@@ -885,6 +826,7 @@ typedef struct {
     f32 radius;
 } EffAfterSphere;
 
+// FUN_004B8F40
 void func_004b8f40(u8 *work, void **pp)
 
 {
@@ -1238,14 +1180,20 @@ void func_004b8f40(u8 *work, void **pp)
       if (temp_v1 < 0) {
         temp_v1 = temp_v1 + *(s32 *)((work) + 8);
       }
-      *(EffAfterVec *)(pfVar17 + temp_v5 * 3 - 9) = *(EffAfterVec *)(*(u8 **)(work + 0x10) + temp_v1 * 0xc);
-      *(EffAfterVec *)(pfVar17 + temp_v5 * 3 - 6) = *(EffAfterVec *)(*(u8 **)(work + 0x14) + temp_v1 * 0xc);
-      pfVar17[temp_v5 * 3 - 3] = pfVar17[temp_v5 * 3 - 9] + pfVar17[temp_v5 * 3 - 6];
-      pfVar17[temp_v5 * 3 - 2] = pfVar17[temp_v5 * 3 - 8] + pfVar17[temp_v5 * 3 - 5];
-      pfVar17[temp_v5 * 3 - 1] = pfVar17[temp_v5 * 3 - 7] + pfVar17[temp_v5 * 3 - 4];
-      pfVar17[temp_v5 * 3 - 3] = pfVar17[temp_v5 * 3 - 3] * 0.5f;
-      pfVar17[temp_v5 * 3 - 2] = pfVar17[temp_v5 * 3 - 2] * 0.5f;
-      pfVar17[temp_v5 * 3 - 1] = pfVar17[temp_v5 * 3 - 1] * 0.5f;
+{
+        f32 *row;
+        u32 srcOff;
+
+        srcOff = temp_v1 * 0xc;
+        *(EffAfterVec *)((row = (f32 *)effAfterOffsetPtr((u32)(temp_v5 * 3) * 4, (u8 *)pfVar17)) - 9) = *(EffAfterVec *)(*(u8 **)(work + 0x10) + srcOff);
+      *(EffAfterVec *)(row - 6) = *(EffAfterVec *)(*(u8 **)(work + 0x14) + srcOff);
+      row[-3] = row[-9] + row[-6];
+      row[-2] = row[-8] + row[-5];
+      row[-1] = row[-7] + row[-4];
+      row[-3] = row[-3] * 0.5f;
+      row[-2] = row[-2] * 0.5f;
+      row[-1] = row[-1] * 0.5f;
+      }
       temp_v5 = *(s32 *)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
       temp_v7 = (f32)*(s32 *)((*(u8 **)work) + 0xc) + 0.5f;
       temp_v10 = 1.0f / temp_v7;
@@ -1509,13 +1457,8 @@ void func_004b8f40(u8 *work, void **pp)
   return;
 }
 
-
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8f40);
-#endif
+
 
 /* Ribbon sample queue shared by the sample writer and the offset builder. */
 typedef struct {
