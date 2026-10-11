@@ -1949,6 +1949,7 @@ query_complete:
  * combined 653 -> 642: element-wise vector copies written as FldTriVec struct copies (retail loads all three before storing).
  * combined -> 624: float copies of +0x28c into +0x294 and the final position as a FldCopyVec copy.
  * combined 624 -> 612: the easing step clamp is (limit > FUN_00175db0()) ? FUN_00175db0() : limit (retail c.ole limit, r / bc1t).
+ * case 4 reads the shifted position from sv60.y/sv60.z (the earlier case 3/4 rewrite left it reading stale temp_v9/temp_v13); combined 612 -> 592.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2357,8 +2358,8 @@ s32 func_0016bdd0(u8 *param_1)
           *(FldTriVec *)&stkC0[0] = *(FldTriVec *)(temp_v4 + 0x40);
           temp_v8 = piVar1[3];
           stkD0[0] = sv60.x - *(float *)(temp_v8 + 0x40);
-          stkD0[1] = temp_v9 - *(float *)(temp_v8 + 0x44);
-          stkD0[2] = temp_v13 - *(float *)(temp_v8 + 0x48);
+          stkD0[1] = sv60.y - *(float *)(temp_v8 + 0x44);
+          stkD0[2] = sv60.z - *(float *)(temp_v8 + 0x48);
           pbVar9 = (unsigned char *)FUN_00457120();
           FUN_00457630(pbVar9,(unsigned char *)((int *)&stkC0[0]),(unsigned char *)&stkD0[0],(float *)0x0);
           *(FldCopyVec *)(temp_v4 + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
