@@ -2539,6 +2539,7 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * sdiff 20/98 -> 18/91: the 137 * size product is formed before the alpha, and 255 * (1 - t) is two steps (retail's constant order).
  * sdiff 18/91 -> 16/89: func_002ab380's texture slot is declared as a pointer (retail loads it in slot order; the (s32) cast was hoisted as a conversion).
  * fnalign 93 -> 61 (structure identical): the packed colour word is a call argument with its byte extraction inline; b210 evaluates these arguments right to left, so retail loads the last float before extracting the bytes.
+ * fnalign 61 -> 60: 1 - t held in lerpT so the 42.0f product is constant-first as retail.
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2962,8 +2963,8 @@ void func_001265a0(void *unusedDrawData, void *task) {
         sp6A8.value = fGpffff9c7c;
         sp6BC = sp6A8;
         sp520.bits = D_005E5650;
-        temp_f20 = 1.0f - temp_f20;
-        temp_f20 = 42.0f * temp_f20;
+        lerpT = 1.0f - temp_f20;
+        temp_f20 = 42.0f * lerpT;
         sp520.words[1] = (s32)-temp_f20;
         func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp520), 0.0f, 1);
         sp510.bits = D_005E5660;
