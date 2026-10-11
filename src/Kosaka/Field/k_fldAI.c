@@ -991,6 +991,9 @@ tail:
  * combined 825 -> 673: element-wise vector copies as FldAIVec3 struct copies where retail loads all three before storing.
  * combined 673 -> 612: per-site field spelling sweep (four spellings).
  * combined -> 596: float field copies written as float (retail lwc1/swc1).
+ * combined -> 592: alpha distance compares in retail polarity.
+ * combined 592 -> 580: the alpha ratio clamp is a ternary (retail keeps 0.0 in the result register and moves only on the else arm).
+ * combined 580 -> 558: speed clamps keep the distance in the result variable and replace it with the limit on the fall-through arm.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1157,16 +1160,13 @@ availabilityDone:
     temp_v1 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
     distVec[2] = *(float *)(temp_v1 + 0x38) - *(float *)(temp_v0 + 0x38);
     temp_v10 = FUN_003e4180(&distVec[0]);
-    if (((float *)(int *)(u32)piVar1)[0x21] <= temp_v10) {
+    if (!(temp_v10 < ((float *)(int *)(u32)piVar1)[0x21])) {
       ((float *)piVar1)[0x1f] = (float)(color.a = 0);
     }
     else if (temp_v10 >= temp_v8) {
       if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\0') {
-        temp_v9 = 0.0f;
         temp_v8 = 1.0f - CAND_fGpffff825c * ((temp_v10 - temp_v8) / temp_v11);
-        if (temp_v8 >= 0.0f) {
-          temp_v9 = temp_v8;
-        }
+        temp_v9 = (temp_v8 < 0.0f) ? 0.0f : temp_v8;
       }
       else {
         temp_v9 = 1.0f - (temp_v10 - temp_v8) / temp_v11;
@@ -1330,11 +1330,13 @@ availabilityDone:
       state2Delta.x = ((float *)piVar1)[0x14] - aiV60.x;
       state2Delta.y = ((float *)piVar1)[0x15] - aiV60.y;
       state2Delta.z = ((float *)piVar1)[0x16] - aiV60.z;
-      temp_v9 = RwV3dNormalize(&state2Delta,&state2Delta);
-      temp_v8 = CAND_fGpffff830c * *(float *)((u8 *)(u32)piVar1 + 0x68);
-      if (temp_v8 >= temp_v9) {
-        *piVar1 = 1;
+      temp_v8 = RwV3dNormalize(&state2Delta,&state2Delta);
+      temp_v9 = CAND_fGpffff830c * *(float *)((u8 *)(u32)piVar1 + 0x68);
+      if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
+      }
+      else {
+        *piVar1 = 1;
       }
       temp_v9 = state2Delta.z * state2Forward.z + state2Delta.x * state2Forward.x + state2Delta.y * state2Forward.y;
       if (temp_v9 < 1.0f) {
@@ -1531,9 +1533,9 @@ else {
       state7Delta.y = *(float *)(temp_v0 + 0x34) - aiVF0.y;
       temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
       state7Delta.z = *(float *)(temp_v0 + 0x38) - aiVF0.z;
-      temp_v9 = RwV3dNormalize(&state7Delta,&state7Delta);
-      temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v8 >= temp_v9) {
+      temp_v8 = RwV3dNormalize(&state7Delta,&state7Delta);
+      temp_v9 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
+      if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
       temp_v9 = state7Delta.z * state7Forward.z + state7Delta.x * state7Forward.x + state7Delta.y * state7Forward.y;
@@ -1664,9 +1666,9 @@ else {
       state8Delta.x = aiPos2.x - aiPos8.x;
       state8Delta.y = aiPos2.y - aiPos8.y;
       state8Delta.z = aiPos2.z - aiPos8.z;
-      temp_v9 = RwV3dNormalize(&state8Delta,&state8Delta);
-      temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v8 >= temp_v9) {
+      temp_v8 = RwV3dNormalize(&state8Delta,&state8Delta);
+      temp_v9 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
+      if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
       temp_v9 = state8Delta.z * state8Forward.z + state8Delta.x * state8Forward.x + state8Delta.y * state8Forward.y;
@@ -1764,9 +1766,9 @@ else {
       state9Delta.x = state9Delta.x - aiV190.x;
       state9Delta.y = state9Delta.y - temp_v8;
       state9Delta.z = state9Delta.z - temp_v9;
-      temp_v9 = RwV3dNormalize(&state9Delta,&state9Delta);
-      temp_v8 = CAND_fGpffff830c * *(float *)((u8 *)(u32)piVar1 + 0x68);
-      if (temp_v8 >= temp_v9) {
+      temp_v8 = RwV3dNormalize(&state9Delta,&state9Delta);
+      temp_v9 = CAND_fGpffff830c * *(float *)((u8 *)(u32)piVar1 + 0x68);
+      if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
       if (piVar1[0x25] < 1) {
