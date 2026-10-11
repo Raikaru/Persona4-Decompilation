@@ -979,6 +979,7 @@ tail:
  * Evidence: docs/probe_archive/Field_pro_recovery_20261010_worker9.md.
  * fnalign 906 -> 905: role swaps of reused temporaries within blocks.
  * fnalign 905 -> 876: comparison forms in retail's polarity.
+ * fnalign 876 -> 873: declaration order per scope (exhaustive).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1275,8 +1276,8 @@ availabilityDone:
           {
             FldAIVec3 pick;
             FldAIVec3 picked;
-            unsigned char *clearByte = (unsigned char *)&pick;
             int clearCount = 0xc;
+            unsigned char *clearByte = (unsigned char *)&pick;
 
             if (clearByte != NULL) {
               do {
