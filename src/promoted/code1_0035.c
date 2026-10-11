@@ -2578,6 +2578,7 @@ void func_003599a0(u8 *arg0)
  * fnalign 28 -> 26: panel x/y/alpha are read through hudOffsetPtr_003599c0(arg0 * 48, arg1), an integer offset-first sum (retail index-first addu).
  * fnalign 26 -> 16: the third panel group has its own x3/y3/w3/h3 (w3 before h3).
  * fnalign 16 -> 13: the sprite-table reads (count, kind, mode) go through the same offset-first helper.
+ * fnalign 13 -> 12: the name position is px = 157.0f + x2 (a multi-definition float, so add.s keeps the constant first).
  */
 static inline u8 *hudOffsetPtr_003599c0(u32 offset, u8 *base)
 {
@@ -2780,11 +2781,11 @@ void func_003599c0(s32 arg0, u8 *arg1)
         break;
     }
     if (h2 == 4096.0f) {
-        x2 = 157.0f + x2;
+        px = 157.0f + x2;
         scale = y2 + 30.0f * scale;
         nameAlpha = (alpha * 0xFF) / 0xFFU;
         spr = func_00246830(name);
-        func_00275020(x2, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
+        func_00275020(px, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
     x3 = 5.0f + (x0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x4C0));
     y3 = 78.0f + (rowY + (y0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x4C4)));
