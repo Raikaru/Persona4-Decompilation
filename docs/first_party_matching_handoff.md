@@ -148,6 +148,18 @@ alignment, and the C preserves the observed behavior and ABI.
     sit in memory in ours (e.g. `sp200`, with any spelling or declaration
     position). Merging Ghidra's 140 `temp_2_N` packet pointers into one
     variable moves the frame (to 0x580) but wrecks the code (831).
+  - Further `001a59a0` steps (fnalign 575 -> 545): the same `goto block_224`
+    0x13/0x10 rewrite as `001a7720`'s `block_408`, and m2c's two
+    switch/goto copies of the close-camera decision as one inline helper
+    (`btlCloseCamera_001a59a0`). Writing the `goto block_222`/`block_406`
+    jumps out as `var = 0;` is worse in both functions.
+- **`0018a200`** (775 -> 774): its 35 resolvable `FUN_` externs now carry
+  the real definitions' parameter and return types (pointer parameters keep
+  their existing spelling, since the raw body passes integers there); no
+  single prototype moves fnalign. `3 < *puVar1` is `*puVar1 >= 4` (retail
+  `sltiu` into `$v0`). Retail's frame is `0x1c0` against our `0x190` and it
+  saves only `$f20`; computing `(iStack_4 != 0) ^ 1` early into a local
+  (retail's `$s0`) improves structure but swaps `puVar1`'s colour (1248).
 - **`0046b380`** (fnalign 41 -> 25): a third record-address spelling,
   `SDK_SPRITE_RECORD_VIA_ADD` (through `sdkAddOffset`, index first), at the
   packed-colour reads and the `points[2].x` extent. The remaining `addu`
