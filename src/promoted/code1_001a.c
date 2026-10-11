@@ -3018,6 +3018,7 @@ void func_001a5990(void)
  * sdiff struct 413 -> 395: arg0 accessed through a u8 * local; the (u8 *)(s64 *) cast at every use made MWCC CSE and spill field addresses.
  * sdiff struct 395 -> 393: the two close-camera decisions through one inline helper (btlCloseCamera_001a59a0) instead of m2c's switch/goto copies.
  * fnalign 575 -> 545: the 0x13/0x10 selection as a var_2_8 flag test with the 0x13 call first (no goto block_224), as in func_001a7720.
+ * fnalign 545 -> 527: the tail state switch (cases 1,3,2 and default both set state 0x20) as in the matched-path sibling 001a7720, with the real btlActionSetState(BtlAction *, u16) prototype (retail daddiu per arm, one shared call).
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3062,7 +3063,6 @@ void func_001a59a0(s64 *arg0_) {
     extern u8 *func_00197cc0();
     extern u8 *btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_001a03b0();
-    extern s32 btlActionSetState();
     extern u8 *btlCameraCreateSetStatePacket();
     extern u8 *func_001bccc0();
     extern BtlPacket *func_001d1eb0(u32 source, u32 target, f32 distance, u16 mode);
@@ -3897,14 +3897,24 @@ block_222:
         func_00194590(func_001fa720(&cutin), 1);
     }
     if (func_001f68e0((s64 *)arg0) != 0) {
-        btlActionSetState((s64 *)arg0, 0x1BU);
+        btlActionSetState((BtlAction *)arg0, 0x1BU);
         return;
     }
-    temp_3_8 = (u16)((*(u16 *)(arg0 + (0x6C))));
-    if ((temp_3_8 != 2) && (temp_3_8 != 3) && (temp_3_8 != 1)) {
+    {
+        u16 state;
 
+        switch (*(u16 *)(arg0 + 0x6C)) {
+        case 1:
+        case 3:
+        case 2:
+            state = 0x20;
+            break;
+        default:
+            state = 0x20;
+            break;
+        }
+        btlActionSetState((BtlAction *)arg0, state);
     }
-    btlActionSetState((s64 *)arg0, 0x20U);
 }
 #pragma pop
 #else
