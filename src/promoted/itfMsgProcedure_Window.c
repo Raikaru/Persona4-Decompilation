@@ -1236,6 +1236,7 @@ static inline s32 msgWinSelectionResource(void)
  * 106: the colour locals are copied by an address-taking helper, so retail's
  * stores of backgroundColor/selectionColor (0x2F8/0x2F4) remain.
  * 104: gp pool floats written as literals.
+ * fnalign 104 -> 103: 1 - f held in prodB so the 100.0f product is constant-first as retail.
  */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1387,8 +1388,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                     func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
                     break;
                 case 3:
-                    prodA = 1.0f - f;
-                    prodA = 100.0f * prodA;
+                    prodB = 1.0f - f;
+                    prodA = 100.0f * prodB;
                     func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f - prodA, 143.0f, 0.0f);
                     func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f - prodA, 143.0f, 0.0f);
                     break;
