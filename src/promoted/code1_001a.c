@@ -4007,6 +4007,7 @@ void func_001a7710(void)
  * sp200 computed directly from the flag (no temp_2_3 copy); plain comparisons.
  * fnalign 966 -> 960: reused locals split per independent group.
  * fnalign 960 -> 959: equality tests written as switches (retail beq-per-case).
+ * fnalign 959 -> 952: if/else arms in retail layout order (negated condition).
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4622,10 +4623,10 @@ void func_001a7720(u8 *arg0) {
                 (*( u16 * )((u8 *)(temp_3_4) + (0x18))) = (u16)((u16) ((*( u16 * )((u8 *)(temp_3_4) + (0x18))) | 6));
             }
             temp_3_5 = (s16)func_00198810(*(u8 **)(arg0 + 0x30));
-            if ((temp_3_5 != 0x11) && (temp_3_5 != 0)) {
-                var_18_2 = 6;
-            } else {
+            if (!((temp_3_5 != 0x11) && (temp_3_5 != 0))) {
                 var_18_2 = 0;
+            } else {
+                var_18_2 = 6;
             }
             if (var_21 != 0) {
                 func_00194590((u8 *)func_001f8330((BtlUnit *)(*( u8 ** )((u8 *)(arg0) + (0x30)))), 0);
@@ -5718,7 +5719,9 @@ do {
     } else if (sp3E0 > 0) {
         if (temp_23_2 == 0) {
             temp_21 = (s32)(func_001ef720(2, 0x80000) & 0xFFFF);
-            if (((s32)((s32) (*( u8 * )((u8 *)(arg0) + (0x28)))) <= (s32)(0)) && ((s32)((*( u16 * )((u8 *)((*( u8 ** )((u8 *)(arg0) + (0x30)))) + (0xA4)))) != (s32)(1)) && ((s32)(func_00231d70(0x64U)) < (s32)(0x32U))) {
+            if (!(((s32)((s32) (*( u8 * )((u8 *)(arg0) + (0x28)))) <= (s32)(0)) && ((s32)((*( u16 * )((u8 *)((*( u8 ** )((u8 *)(arg0) + (0x30)))) + (0xA4)))) != (s32)(1)) && ((s32)(func_00231d70(0x64U)) < (s32)(0x32U)))) {
+                var_2_13 = 1;
+            } else {
                 if ((s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)(arg0) + (0x30)))) + (0xA2)))) != (s32)(0)) {
                     var_2_13 = 0;
                 } else {
@@ -5743,8 +5746,6 @@ block_406:
                         var_2_13 = 0;
                     }
                 }
-            } else {
-                var_2_13 = 1;
             }
             if (var_2_13 != 0) {
                 temp_2_126 = (u8 *)(func_001f5f70(arg0, 0x13, sp3E0, 0, 0));
