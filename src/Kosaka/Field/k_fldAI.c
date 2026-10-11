@@ -982,6 +982,7 @@ tail:
  * fnalign 876 -> 873: declaration order per scope (exhaustive).
  * fnalign 873 -> 847: integer-cast field-base reads at selected sites.
  * fnalign 847 -> 837: early returns inside the final switch written as break to the shared return.
+ * fnalign 837 -> 833: float compares in retail polarity.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1352,7 +1353,7 @@ availabilityDone:
         func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
         temp_v11 = ((float *)piVar1)[0x1c] + temp_v11;
         ((float *)piVar1)[0x1c] = temp_v11;
-        if ((360.0f < temp_v11) || (temp_v11 < -360.0f)) {
+        if ((!(temp_v11 <= 360.0f)) || (temp_v11 < -360.0f)) {
           *piVar1 = 1;
         }
       }
@@ -1849,7 +1850,7 @@ else {
       func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
       temp_v9 = ((float *)piVar1)[0x1c] + temp_v9;
       ((float *)piVar1)[0x1c] = temp_v9;
-      if ((360.0f < temp_v9) || (temp_v9 < -360.0f)) {
+      if ((!(temp_v9 <= 360.0f)) || (temp_v9 < -360.0f)) {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
