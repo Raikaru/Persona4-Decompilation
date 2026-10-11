@@ -149,6 +149,29 @@ before a `y` adjustment, `vec50` made memory-resident that way, and the
 inverted flag `(iStack_4 != 0) ^ 1` computed before the call into the dead
 `temp_v2`.
 
+**Ghidra-body levers that moved `0018a200` 774 -> 277 and `0017f490` 906 -> 799.**
+- An `if (v == 3) {...} else if (v == 4 || v == 2 || v == 1) {...}` chain is a
+  `switch`; retail's `beq` order 3, 4, 2, 1 then `beqz` came from source
+  `case 0: break; case 1: case 2: case 4: ...; case 3: ...` (706 -> 485).
+- Retail's jump-table size tells you about empty cases: `sltiu 9` with
+  `jtbl[8]` equal to the default target means an empty `case 8: break;`.
+  Read the table from `build/SLUS_217.82` via the ELF program headers.
+- Vectors that Ghidra scalarised are often stack objects in retail (frame
+  slots unmapped in `tools/frameslots.py`): write them as whole
+  `FldCopyVec`/`FldAIVec3` copies, and a `y`-zeroed position as
+  `v = *(Vec *)(p + 0x30); v.y = 0.0f;` before subtracting. Converting
+  `vecE0` and `vec110` together gave 424 -> 311; either alone made it worse.
+- Dot products accumulate x, y, z in retail; Ghidra prints z, x, y.
+- Fused vector expressions `(a * k + b) - c` were separate per-component
+  steps in retail, each stored back to the vector.
+- Constants reused across statements (`$f1` = 0.0, `$f2` = 1.0) are named
+  locals, which only survive with `#pragma opt_propagation off`; the final
+  `== 1.0f` after a call is a literal again.
+- If/else arms: retail falls through to the short arm, so write
+  `if (x > 0) { short } else { long }` (480 -> 454).
+- Float compares: `!(b <= a)` gives retail's `c.ole.s`/`bc1t`. Only rewrite
+  whole operands; a rewrite that starts inside `p * q < r` changes meaning.
+
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
 **6,836 MATCH / 24 ASM** (`build/after39.json`; against `after38.json` only
