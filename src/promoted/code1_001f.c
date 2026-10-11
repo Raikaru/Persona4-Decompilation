@@ -953,6 +953,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * fnalign 498 -> 495: func_001f9cd0 is called with (arg0, unit, id) (H011; retail moves $s4/$s3/$s1 into $a0-$a2, m2c sees the same three).
  * fnalign 495 -> 483: the result-copy loop forms s as (u32)first + (q << 5) and recomputes it as first + ((u32)q << 5) (retail masks q and does not reuse the first address).
  * fnalign 483 -> 482: the two exit-branch record addresses use ((u32)q << 5) as well.
+ * combined 484 -> 476: two-label switches list 0xC before 0xD (b210 tests them in reverse), and the record offset is added before the table base.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1242,15 +1243,15 @@ void func_001f14f0(u8 *arg0)
             x = func_002384b0(id, ctx, target, flags);
             t = *(u8 *)(iGpffffb3b8 + off + 0x11);
             switch (t) {
-            case 0xD:
             case 0xC:
+            case 0xD:
                 *pa = func_0043c6a0(va);
                 break;
             }
             t = *(u8 *)(iGpffffb3b8 + off + 0x14);
             switch (t) {
-            case 0xD:
             case 0xC:
+            case 0xD:
                 *pb = func_0043c6a0(vb);
                 break;
             }
