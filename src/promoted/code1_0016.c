@@ -1946,6 +1946,7 @@ query_complete:
  * combined 735 -> 707: per-site field spelling sweep.
  * combined 707 -> 683: field spelling sweep with four spellings.
  * combined 683 -> 653: Ghidra's 8x8-byte copy loops are 64-byte struct copies (b210 expands them to retail's counted loop with its own temporaries); unused declarations dropped.
+ * combined 653 -> 642: element-wise vector copies written as FldTriVec struct copies (retail loads all three before storing).
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2031,6 +2032,7 @@ extern float D_00756520[];
 s32 func_0016bdd0(u8 *param_1)
 
 {
+  typedef struct { float x, y, z; } FldTriVec;
   typedef struct { u32 w[16]; } FldMtx64;
   extern float fabsf(float);
   typedef struct { float x, y, z; } FldCopyVec;
@@ -2350,9 +2352,7 @@ s32 func_0016bdd0(u8 *param_1)
 
           temp_v4 = FUN_00457120();
           temp_v4 = *(int *)(temp_v4 + 4);
-          stkC0[0] = *(float *)(temp_v4 + 0x40);
-          stkC0[1] = *(float *)(temp_v4 + 0x44);
-          stkC0[2] = *(float *)(temp_v4 + 0x48);
+          *(FldTriVec *)&stkC0[0] = *(FldTriVec *)(temp_v4 + 0x40);
           temp_v8 = piVar1[3];
           stkD0[0] = sv60.x - *(float *)(temp_v8 + 0x40);
           stkD0[1] = temp_v9 - *(float *)(temp_v8 + 0x44);
@@ -2367,9 +2367,7 @@ s32 func_0016bdd0(u8 *param_1)
         goto LAB_0016e0c0;
       case 6:
         FUN_001687f0((unsigned char *)&stk280[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
-        stkF0[0] = stk280[0];
-        stkF0[1] = stk280[1];
-        stkF0[2] = stk280[2];
+        *(FldTriVec *)&stkF0[0] = *(FldTriVec *)&stk280[0];
         pfVar8 = (float *)FUN_0016e8c0(param_1);
         sv100 = *(FldCopyVec *)pfVar8;
         temp_v11_s4 = (float)D_008C025E[0] - 128.0f;
