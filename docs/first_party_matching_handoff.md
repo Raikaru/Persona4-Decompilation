@@ -79,6 +79,23 @@ case), `0016bdd0` 1525 -> 1405 and `001a7720` 966 -> 960. A blind dead-local
 reuse sweep moved nothing; that lever needs the `regalloc_whatif` target
 first.
 
+`regalloc_whatif` targets measured this session but not yet reached:
+- `002b6ec0` (56): `table` (r72) and `off` (r78) are propagated temporaries
+  in ours. Retail's colours need both numbered after r184, the later
+  `(s32)i << 8` at pcode 146. Retail's long-lived `table`/`off` are
+  therefore defined in the later code, not at the loop head.
+- `003694d0` (38): `fn` (r36) wants number 34 (between `m0` and `m2`).
+  Declaring it there fixes the table pointer but moves `m0` (47). Merging
+  `m0`/`m2`/`m3` is far worse (218-250).
+- `0027f6f0` (103): `arg1`/`ret` swap (`$s5`/`$s0`); no renumbering or
+  spill score gives it.
+- `0047b0c0` (9): `copy` must be numbered among the first virtuals, which
+  an inline helper local cannot be; hoisting the caller's `table`
+  declaration does nothing.
+- `004a7830` (7): the `abs` result must be numbered before `temp_f20`'s
+  load; declaration order, dedicated locals and `opt_lifetimes` do not
+  move these caller-saved temporaries.
+
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
 **6,836 MATCH / 24 ASM** (`build/after39.json`; against `after38.json` only
