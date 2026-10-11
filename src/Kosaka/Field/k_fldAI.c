@@ -1007,6 +1007,7 @@ tail:
  * combined 345 -> 341: dot products in retail (y, x, z) order.
  * combined 341 -> 340: pol3 sweep.
  * combined 340 -> 315: state 10 speed clamp and steering in retail order (dot y,x,z first, 10 * speed, then 1 - dot).
+ * combined 315 -> 284: the patrol toggle stores !cur (retail recomputes sltu/xori), and the state 9 target is a whole FldAIVec3 copy.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1284,7 +1285,7 @@ availabilityDone:
             temp_v5 = 1;
           }
           if (temp_v5 == 1) {
-            piVar1[0x12] = cur != 0 ^ 1;
+            piVar1[0x12] = !cur;
           }
           }
           temp_v0 = FUN_003b7060();
@@ -1520,11 +1521,7 @@ else {
           ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x28);
           piVar1[0x18] = 0xf;
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-          temp_v1 = *(int *)(temp_v0 + 0x34);
-          temp_v6 = *(int *)(temp_v0 + 0x38);
-          ((float *)piVar1)[0x14] = *(float *)(temp_v0 + 0x30);
-          piVar1[0x15] = temp_v1;
-          piVar1[0x16] = temp_v6;
+          *(FldAIVec3 *)&((float *)piVar1)[0x14] = *(FldAIVec3 *)(temp_v0 + 0x30);
           *piVar1 = 10;
         }
       }
