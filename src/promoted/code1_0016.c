@@ -1921,6 +1921,7 @@ query_complete:
  * fnalign 1418 -> 1405: further per-group local splits.
  * fnalign 1405 -> 1394: float comparison forms in retail's polarity.
  * fnalign 1394 -> 1390: comparison forms in retail's polarity.
+ * fnalign 1390 -> 1388: float compares in retail polarity.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2518,7 +2519,7 @@ s32 func_0016bdd0(u8 *param_1)
             temp_v12 = temp_v14_s4;
           }
         }
-        if ((((D_008C024C[0] & 0xf) != 0) || (temp_v11_s4 < -48.0f)) || (48.0f < temp_v11_s4)) {
+        if ((((D_008C024C[0] & 0xf) != 0) || (temp_v11_s4 < -48.0f)) || (!(temp_v11_s4 <= 48.0f))) {
           piVar1[0xab] = 0;
         }
         temp_v14_s5 = ((float *)piVar1)[0xab];
@@ -2545,7 +2546,7 @@ s32 func_0016bdd0(u8 *param_1)
         if (((((((float *)piVar1)[0xac] != 0.0f) || (((float *)piVar1)[0xad] != 0.0f)) ||
              (((float *)piVar1)[0xae] != 0.0f)) &&
             ((((float *)piVar1)[0xa5] < ((float *)piVar1)[0xa3] && ((D_008C024C[0] & 0xf) == 0)))) &&
-           ((-48.0f <= temp_v11_s4 && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = FUN_00175db0(), 0.0f < temp_v11_s4)))))) {
+           ((-48.0f <= temp_v11_s4 && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = FUN_00175db0(), temp_v11_s4 > 0.0f)))))) {
           temp_v8 = FUN_003e9700(temp_v4);
           stk1A0[0] = *(float *)(temp_v8 + 0x20);
           stk1A0[2] = *(float *)(temp_v8 + 0x28);
