@@ -2053,6 +2053,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 442 -> 428: the facing branch keeps one = 1.0f and diff = one - temp_v13 in locals (retail reuses $f2/$f1; 180.0f * diff constant-first).
  * fnalign 428 -> 424: the facing direction components are loaded once into nx/ny/nz for both dot products (retail reuses $f4-$f6).
  * fnalign 424 -> 311: vecE0 and vec110 are whole FldCopyVec copies, so both live in the frame as retail (frame 0x1c0).
+ * fnalign 311 -> 284: the three direction dot products are written x, y, z (retail accumulates in that order).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2460,8 +2461,7 @@ s32 func_0018a200(u8 *param_1)
       vecB0[1] = vecD0[1] - vecC0[1];
       vecB0[2] = vecD0[2] - vecC0[2];
       FUN_003e40b0(&vecB0[0],&vecB0[0]);
-      temp_v13 = (float)FUN_0044b920(vecB0[2] * D_00756528[0] +
-                                   vecB0[0] * D_00756520[0] + vecB0[1] * D_00756524[0]);
+      temp_v13 = (float)FUN_0044b920(vecB0[0] * D_00756520[0] + vecB0[1] * D_00756524[0] + vecB0[2] * D_00756528[0]);
       temp_v13 = fGpffff8300 * temp_v13;
       if (vecB0[0] < 0.0f) {
         temp_v13 = temp_v13 * -1.0f;
@@ -2555,8 +2555,7 @@ s32 func_0018a200(u8 *param_1)
         vec100[1] = vecF0[1] - vecE0[1];
         vec100[2] = vecF0[2] - vecE0[2];
         FUN_003e40b0(&vec100[0],&vec100[0]);
-        temp_v13 = (float)FUN_0044b920(vec100[2] * D_00756528[0] +
-                                     vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0]);
+        temp_v13 = (float)FUN_0044b920(vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0] + vec100[2] * D_00756528[0]);
         temp_v13 = fGpffff8300 * temp_v13;
         if (vec100[0] < 0.0f) {
           temp_v13 = temp_v13 * -1.0f;
@@ -2612,8 +2611,7 @@ s32 func_0018a200(u8 *param_1)
             vec130[1] = vec120[1] - vec110[1];
             vec130[2] = vec120[2] - vec110[2];
             FUN_003e40b0(&vec130[0],&vec130[0]);
-            temp_v13 = (float)FUN_0044b920(vec130[2] * D_00756528[0] +
-                                         vec130[0] * D_00756520[0] + vec130[1] * D_00756524[0]);
+            temp_v13 = (float)FUN_0044b920(vec130[0] * D_00756520[0] + vec130[1] * D_00756524[0] + vec130[2] * D_00756528[0]);
             temp_v13 = fGpffff8300 * temp_v13;
             if (vec130[0] < 0.0f) {
               temp_v13 = temp_v13 * -1.0f;
