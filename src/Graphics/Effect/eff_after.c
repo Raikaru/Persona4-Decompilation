@@ -867,6 +867,9 @@ void func_004b8f10(void *arg0) {
  * fnalign 52 -> 42: temp_v7/temp_v8 roles swapped within the case 2 spline block (both are defined before use there and not used afterwards).
  * fnalign 42 -> 22: Ghidra's reused float temporaries take retail's roles per case block (temp_v9/temp_v10/temp_v11 swaps; each is defined before use in its block and redefined before any use after the switch).
  * fnalign 22 -> 10: pfVar16/pfVar3 roles swapped in one spline block (safe: defined first in the block, unused after it in the statement, redefined first afterwards).
+ * fnalign 10 -> 8: the ring-buffer assertion tests out >= lim (retail sltu into $v0).
+ * fnalign 8 -> 4: four spline control-point reads use a u8 * table base (base-first addu as retail).
+ * fnalign 4 -> 2: the remaining spline table reads with a u8 * base where retail adds base-first.
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -1161,14 +1164,14 @@ void func_004b8f40(u8 *work, void **pp)
               ib = ib + *(s32 *)((work) + 8);
             }
             ia = ia * 0xc;
-            pa = (f32 *)(*(s32 *)(((work) + side * 4 + 0x10)) + ia);
+            pa = (f32 *)(*(u8 **)(((work) + side * 4 + 0x10)) + ia);
             ctrl[0] = *(EffAfterVec *)pa;
-            pb = (f32 *)(*(s32 *)(((work) + side * 8 + 0x18)) + ia);
+            pb = (f32 *)(*(u8 **)(((work) + side * 8 + 0x18)) + ia);
             ctrl[1].c[0] = *pa - *pb;
             ctrl[1].c[1] = pa[1] - pb[1];
             ctrl[1].c[2] = pa[2] - pb[2];
-            pa = (f32 *)(*(s32 *)(((work) + side * 8 + 0x1c)) + ia);
-            pb = (f32 *)(*(s32 *)(((work) + side * 4 + 0x10)) + ib * 0xc);
+            pa = (f32 *)(*(u8 **)(((work) + side * 8 + 0x1c)) + ia);
+            pb = (f32 *)(*(u8 **)(((work) + side * 4 + 0x10)) + ib * 0xc);
             ctrl[2].c[0] = *pb + *pa;
             ctrl[2].c[1] = pb[1] + pa[1];
             ctrl[2].c[2] = pb[2] + pa[2];
@@ -1188,7 +1191,7 @@ void func_004b8f40(u8 *work, void **pp)
         if (jj < 0) {
           jj = jj + *(s32 *)((work) + 8);
         }
-        if (lim <= out) {
+        if (out >= lim) {
           func_0046d730(D_007146E0,0x4ae);
         }
         pb = (f32 *)(*(s32 *)(((work) + side * 4 + 0x10)) + jj * 0xc);
@@ -1269,14 +1272,14 @@ void func_004b8f40(u8 *work, void **pp)
               temp_v3 = temp_v3 + *(s32 *)((work) + 8);
             }
             temp_v2 = temp_v2 * 0xc;
-            pfVar16 = (f32 *)(*(s32 *)(((work) + temp_v1 * 4 + 0x10)) + temp_v2);
+            pfVar16 = (f32 *)(*(u8 **)(((work) + temp_v1 * 4 + 0x10)) + temp_v2);
             ctrl[0] = *(EffAfterVec *)pfVar16;
-            pfVar17 = (f32 *)(*(s32 *)(((work) + temp_v1 * 8 + 0x18)) + temp_v2);
+            pfVar17 = (f32 *)(*(u8 **)(((work) + temp_v1 * 8 + 0x18)) + temp_v2);
             ctrl[1].c[0] = *pfVar16 - *pfVar17;
             ctrl[1].c[1] = pfVar16[1] - pfVar17[1];
             ctrl[1].c[2] = pfVar16[2] - pfVar17[2];
-            pfVar16 = (f32 *)(*(s32 *)(((work) + temp_v1 * 8 + 0x1c)) + temp_v2);
-            pfVar17 = (f32 *)(*(s32 *)(((work) + temp_v1 * 4 + 0x10)) + temp_v3 * 0xc);
+            pfVar16 = (f32 *)(*(u8 **)(((work) + temp_v1 * 8 + 0x1c)) + temp_v2);
+            pfVar17 = (f32 *)(*(u8 **)(((work) + temp_v1 * 4 + 0x10)) + temp_v3 * 0xc);
             ctrl[2].c[0] = *pfVar17 + *pfVar16;
             ctrl[2].c[1] = pfVar17[1] + pfVar16[1];
             ctrl[2].c[2] = pfVar17[2] + pfVar16[2];
