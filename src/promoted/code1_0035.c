@@ -2567,18 +2567,21 @@ void func_003599a0(u8 *arg0)
  * fnalign 306 -> 292: entry offset kept as off*12 with the base re-added (u32) for mode, colour bytes read before the stores, and the w/h halfword reads re-add the panel base as retail.
  * fnalign 292 -> 190: switch arms, name call and the final call in retail statement order (positions first, then the sprite), count masked at use, loop bound computed before the loop.
  * case 0 written before case 1 (retail's test order); the alpha byte converts without (u32).
- * The name lookup's actual provider is u8 *(u32) and masks the low 16 bits.
- * Keep that word formal here; the retail halfword load does not justify an
- * incompatible u16 declaration. With the real contract the current floor is
- * 188 aligned edits, 1189 C instructions against 1190 retail instructions.
+ * The name lookup's provider is declared u8 *(u32) in its own file but masks the
+ * low 16 bits on entry, so this caller declares it with a u16 parameter (H011);
+ * the retail halfword spill/reload of `name` follows.
  * fnalign 188 -> 168: float declaration order (w after y).
  * fnalign 168 -> 129: kind/name/count read through integer sums (retail off-first addu); func_00246830 takes u16 (H011, the callee masks 0xFFFF), so name spills as a u16; panel w/h read as HudPanel_0035 subscripts (index-first, recomputed per field).
  * fnalign 129 -> 128: mode reads off + (s32)arg1 (retail recomputes the sum off-first instead of reusing kind's).
  * fnalign 128 -> 31: the second panel group has its own x2/y2/w2/h2, declared w2, h2, fade, x0, y0, x2, y2, rowY (retail FPR colours follow declaration order; reused locals get late split ranges).
  * fnalign 31 -> 28: the panel alpha byte is converted into scale (a multi-definition float, dead at each site) before * fade, so mul.s takes it first as retail.
+ * fnalign 28 -> 26: panel x/y/alpha are read through hudPanelPtr_003599c0(arg0 * 48, arg1), an integer offset-first sum (retail index-first addu).
  */
-// FUN_003599C0 NONMATCHING
-#ifdef NON_MATCHING
+static inline u8 *hudPanelPtr_003599c0(u32 offset, u8 *base)
+{
+    return (u8 *)((u32)offset + (u32)base);
+}
+
 typedef struct {
     u8 kind;
     u8 pad1;
@@ -2600,6 +2603,8 @@ typedef struct {
     u8 pad18[0x18];
 } HudPanel_0035;
 
+// FUN_003599C0 NONMATCHING
+#ifdef NON_MATCHING
 #pragma push
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
@@ -2665,10 +2670,10 @@ void func_003599c0(s32 arg0, u8 *arg1)
         isSelf = (arg0 == *(s16 *)(arg1 + 0x24));
         mode = *(s32 *)(off + (s32)arg1 + 0x40);
     }
-    x = x0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B0);
+    x = x0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x5B0);
     rowY = 64.0f * (f32)arg0;
-    y = 81.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B4)));
-    scale = (f32)(arg1 + arg0 * 48)[0x5BA];
+    y = 81.0f + (rowY + (y0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x5B4)));
+    scale = (f32)hudPanelPtr_003599c0(arg0 * 48, arg1)[0x5BA];
     alpha = scale * fade;
     w = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].w;
     h = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].h;
@@ -2692,9 +2697,9 @@ void func_003599c0(s32 arg0, u8 *arg1)
     rc[3] = 59.0f * h / 4096.0f;
     D_00887300[0](1, 0);
     func_0045d6e0(col, (u8 *)rc, 0.0f, 0);
-    x2 = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x190));
-    y2 = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x194)));
-    scale = (f32)(arg1 + arg0 * 48)[0x19A];
+    x2 = 5.0f + (x0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x190));
+    y2 = 78.0f + (rowY + (y0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x194)));
+    scale = (f32)hudPanelPtr_003599c0(arg0 * 48, arg1)[0x19A];
     alpha = scale * fade;
     w2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].w;
     h2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].h;
@@ -2775,9 +2780,9 @@ void func_003599c0(s32 arg0, u8 *arg1)
         spr = func_00246830(name);
         func_00275020(x2, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
-    x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C0));
-    y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C4)));
-    scale = (f32)(arg1 + arg0 * 48)[0x4CA];
+    x = 5.0f + (x0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x4C0));
+    y = 78.0f + (rowY + (y0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x4C4)));
+    scale = (f32)hudPanelPtr_003599c0(arg0 * 48, arg1)[0x4CA];
     kind = scale * fade;
     w = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].w;
     h = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].h;
