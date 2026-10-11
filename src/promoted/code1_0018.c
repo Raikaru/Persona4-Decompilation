@@ -2055,6 +2055,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 424 -> 311: vecE0 and vec110 are whole FldCopyVec copies, so both live in the frame as retail (frame 0x1c0).
  * fnalign 311 -> 284: the three direction dot products are written x, y, z (retail accumulates in that order).
  * fnalign 284 -> 283: the state switch has an empty case 8 (retail's 9-entry jump table jtbl_00746DF0 sends 8 to the shared exit).
+ * fnalign 283 -> 277: the vec20/vec30 dot product accumulates x, y, z as retail.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2256,7 +2257,7 @@ s32 func_0018a200(u8 *param_1)
           vec30[2] = *(float *)(temp_v4 + 0x38) - temp_v13;
           FUN_003e40b0(&vec20[0],&vec20[0]);
           FUN_003e40b0(&vec30[0],&vec30[0]);
-          if ((vec20[2] * vec30[2] + vec20[0] * vec30[0] + vec20[1] * vec30[1] <= 0.0f) &&
+          if ((vec20[0] * vec30[0] + vec20[1] * vec30[1] + vec20[2] * vec30[2] <= 0.0f) &&
              (*(unsigned short *)(puVar1[3] + 0x220) != 0)) {
             temp_v1 = 0;
           }
