@@ -2033,6 +2033,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * callee prototypes from the real definitions (pointer parameters keep their existing spelling).
  * *puVar1 >= 4 (retail sltiu into $v0, not $at).
  * fnalign 774 -> 761: vector fields read as whole FldCopyVec copies (retail stores all three, then adjusts y).
+ * fnalign 761 -> 755: (iStack_4 != 0) ^ 1 computed before the FUN_00155280 call into temp_v2 (retail xori into $s0 first); temp_v1 is s32 and tested == 1.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2122,7 +2123,7 @@ s32 func_0018a200(u8 *param_1)
 /* irregular: 10 native warning(s); review required */
   unsigned int *puVar1;
   unsigned int temp_v0;
-  unsigned char temp_v1;
+  s32 temp_v1;
   unsigned short temp_v2;
   short temp_v3;
   unsigned int resourceId;
@@ -2175,9 +2176,9 @@ s32 func_0018a200(u8 *param_1)
       FUN_003bff30(temp_v8,(int)func_0018a170,&iStack_4);
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + puVar1[0x14] * 4 + 0x34) != 0) {
-        temp_v1 = iStack_4 != 0;
+        temp_v2 = (iStack_4 != 0) ^ 1;
         temp_v4 = FUN_00155280();
-        FUN_0014e920(*(unsigned char **)(temp_v4 + puVar1[0x14] * 4 + 0x34),puVar1[0x15],temp_v1 ^ 1);
+        FUN_0014e920(*(unsigned char **)(temp_v4 + puVar1[0x14] * 4 + 0x34),puVar1[0x15],temp_v2);
       }
       if ((*(unsigned int *)(puVar1[3] + 0x28) & 2) == 0) {
         FUN_0018bed0(param_1,1);
@@ -2231,7 +2232,7 @@ s32 func_0018a200(u8 *param_1)
             temp_v1 = 0;
           }
           temp_v4 = FUN_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
-          if ((temp_v4 == 0) && (temp_v1)) {
+          if ((temp_v4 == 0) && (temp_v1 == 1)) {
             temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
             *(FldCopyVec *)vec40 = *(FldCopyVec *)(temp_v4 + 0x30);
             vec40[1] = vec40[1] + 140.0f;
