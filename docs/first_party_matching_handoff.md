@@ -209,6 +209,33 @@ the structure-only distance first, then by the register-sensitive one.
   `0016bdd0`'s `piVar1` (virtual 33): `regalloc_whatif --search` wants it
   scanned after virtual 162, and only reordering the webs will do that.
 
+**More retail-shape levers (`0017f490` combined distance 673 -> 284).**
+- Clamps such as `speed = min(dist, limit)` are written
+  `d = Normalize(..); lim = k * f; if (!(d <= lim)) d = lim; else { state change }`.
+  Retail keeps the distance in the result register and replaces it on the
+  fall-through arm.
+- A one-sided zero clamp `x = (t < 0.0f) ? 0.0f : t;` is a ternary. The `if`
+  form loads the constant into the result register first.
+- Steering blocks compute the dot product first, in `y, x, z` order, then
+  `10.0f * speed`, then `1.0f - dot`. Ghidra folds these into one expression
+  in `z, x, y` order.
+- A random roll is reduced once (`r = (u32)rand() % 100;`) before the mode
+  tests.
+- 2D float tables are `((float (*)[4])table)[kind][slot]`; the
+  `slot * 4 + kind * 16 + base` sum Ghidra prints gets the operand order wrong.
+- Recomputed boolean toggles are `p[0x12] = !cur;`. Writing `cur != 0 ^ 1`
+  a second time is CSE'd into the earlier value.
+- `0018a200` with `opt_common_subs` on (and `opt_propagation` back on) is
+  structurally much closer: structure distance 166 -> 103, and retail CSEs `&v`
+  for `FUN_003e40b0(&v, &v)` (`move $a1, $a0`). But the saved-register roles
+  (param/`puVar1`) then swap, so the raw distance gets worse (295 -> 402).
+  Revisit once the colouring of those two is understood.
+- `004a7830`'s last 7 edits are an FPR colouring permutation (zero/value/abs
+  = f2/f1/f3 in retail). `regalloc_whatif --search 60` hits only when the
+  `abs.s` temporary is scanned before the `mtc1 $zero` temporary (virtual 57).
+  Source-level renumbering attempts all failed: a dedicated `absval` local is
+  copy-propagated away, and isolating `temp_f3`'s webs changes nothing.
+
 
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
