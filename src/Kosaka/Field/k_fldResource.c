@@ -346,6 +346,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 64 -> 53: body taken from the parallel cos/finish-first-party-20261009 worktree.
  * sdiff --regs 38 -> 32: the two load checks are one inline helper returning 1/0 in $v0, as retail; retail still reuses the switch's constant 1 for the first NULL case.
  * all four resource checks use the inline readiness helper (same output, consistent source).
+ * structure identical (fnalign 64 -> 40): the dispatch is an if-chain in retail's descending order whose compare against 1 uses a local `one`; the first readiness check returns that `one` for a NULL file, so the switch's constant 1 in $v0 is reused as retail does; the last test is a one-case switch with default (retail beqz/b).
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -354,6 +355,17 @@ static inline s32 fldResourceReady_0014f310(u8 *file)
 {
     if (file == NULL) {
         return 1;
+    }
+    if (H_Cdvd_IsFileLoaded((s32)file) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+static inline s32 fldResourceReadyOne_0014f310(u8 *file, s32 one)
+{
+    if (file == NULL) {
+        return one;
     }
     if (H_Cdvd_IsFileLoaded((s32)file) != 0) {
         return 1;
@@ -566,34 +578,36 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     s32 var_2;
     s32 var_2_2;
     s32 var_2_3;
+    s32 one;
     s32 var_2_4;
 
     temp_3 = (s32)(*( s32 * )(iGpffff9db0 + 0x94));
+    if (temp_3 == 999) goto completed;
+    if (temp_3 == 41) goto waitReloadedEnvironment;
+    if (temp_3 == 40) goto loadEnvironment;
+    if (temp_3 == 32) goto waitReloadedParts;
+    if (temp_3 == 31) goto readReloadedParts;
+    if (temp_3 == 30) goto reloadParts;
+    if (temp_3 == 13) goto waitParts;
+    if (temp_3 == 12) goto readParts;
+    if (temp_3 == 11) goto loadParts;
+    if (temp_3 == 10) goto readCamera;
+    if (temp_3 == 9) goto waitEnvironment;
+    if (temp_3 == 8) goto readHbnResources;
+    if (temp_3 == 7) goto readGrid;
+    if (temp_3 == 6) goto prepareGrid;
+    if (temp_3 == 5) goto waitNpcTables;
+    if (temp_3 == 4) goto loadNpcTables;
+    if (temp_3 == 3) goto waitResourceInitialization;
+    if (temp_3 == 2) goto initializeResources;
+    one = 1;
+    if (temp_3 == one) goto waitFieldResource;
     switch (temp_3) {
     case 0: goto loadFieldResource;
-    case 1: goto waitFieldResource;
-    case 2: goto initializeResources;
-    case 3: goto waitResourceInitialization;
-    case 4: goto loadNpcTables;
-    case 5: goto waitNpcTables;
-    case 6: goto prepareGrid;
-    case 7: goto readGrid;
-    case 8: goto readHbnResources;
-    case 9: goto waitEnvironment;
-    case 10: goto readCamera;
-    case 11: goto loadParts;
-    case 12: goto readParts;
-    case 13: goto waitParts;
-    case 30: goto reloadParts;
-    case 31: goto readReloadedParts;
-    case 32: goto waitReloadedParts;
-    case 40: goto loadEnvironment;
-    case 41: goto waitReloadedEnvironment;
-    case 999: goto completed;
     default: goto block_259;
     }
 loadFieldResource:
-            if (fldResourceReady_0014f310((u8 *)iGpffffb200) == 0) {
+            if (fldResourceReadyOne_0014f310((u8 *)iGpffffb200, one) == 0) {
                 return 0;
             }
             if (fldResourceReady_0014f310((u8 *)iGpffffb204) == 0) {
