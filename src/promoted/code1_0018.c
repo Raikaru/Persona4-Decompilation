@@ -2051,6 +2051,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 480 -> 454: the puVar1[9] countdown is written short arm first (retail blez to the long arm).
  * fnalign 454 -> 442: the [6]/[8] oscillator update keeps 0.0f and 1.0f in named locals with opt_propagation off (retail reuses $f1 for the zero compare and 1.0 - x).
  * fnalign 442 -> 428: the facing branch keeps one = 1.0f and diff = one - temp_v13 in locals (retail reuses $f2/$f1; 180.0f * diff constant-first).
+ * fnalign 428 -> 424: the facing direction components are loaded once into nx/ny/nz for both dot products (retail reuses $f4-$f6).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2163,6 +2164,9 @@ s32 func_0018a200(u8 *param_1)
   float temp_v13;
   float one;
   float diff;
+  float nx;
+  float ny;
+  float nz;
 
   int iStack_4;
   float vec10[3];
@@ -2674,8 +2678,10 @@ s32 func_0018a200(u8 *param_1)
     FUN_003e40b0(&vec140[0],&vec140[0]);
     FUN_003e40b0(&vec150[0],&vec150[0]);
     FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
-    temp_v13 = ((float*)puVar1)[0x11] * vec140[2] +
-             ((float*)puVar1)[0xf] * vec140[0] + ((float*)puVar1)[0x10] * vec140[1];
+    nz = ((float*)puVar1)[0x11];
+    nx = ((float*)puVar1)[0xf];
+    ny = ((float*)puVar1)[0x10];
+    temp_v13 = nz * vec140[2] + nx * vec140[0] + ny * vec140[1];
     one = 1.0f;
     if (temp_v13 < one) {
       temp_v12 = 15.0f;
@@ -2684,8 +2690,7 @@ s32 func_0018a200(u8 *param_1)
         temp_v12 = 180.0f * diff;
         temp_v13 = one;
       }
-      if (((float*)puVar1)[0x11] * vec150[2] +
-          ((float*)puVar1)[0xf] * vec150[0] + ((float*)puVar1)[0x10] * vec150[1] < 0.0f) {
+      if (nz * vec150[2] + nx * vec150[0] + ny * vec150[1] < 0.0f) {
         temp_v12 = temp_v12 * -1.0f;
       }
       func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, temp_v12);
