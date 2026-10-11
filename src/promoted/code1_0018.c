@@ -2050,6 +2050,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 484 -> 480: float compares in retail polarity (c.ole/bc1t forms).
  * fnalign 480 -> 454: the puVar1[9] countdown is written short arm first (retail blez to the long arm).
  * fnalign 454 -> 442: the [6]/[8] oscillator update keeps 0.0f and 1.0f in named locals with opt_propagation off (retail reuses $f1 for the zero compare and 1.0 - x).
+ * fnalign 442 -> 428: the facing branch keeps one = 1.0f and diff = one - temp_v13 in locals (retail reuses $f2/$f1; 180.0f * diff constant-first).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2160,6 +2161,8 @@ s32 func_0018a200(u8 *param_1)
   unsigned int temp_v11_s3;
   float temp_v12;
   float temp_v13;
+  float one;
+  float diff;
 
   int iStack_4;
   float vec10[3];
@@ -2673,11 +2676,13 @@ s32 func_0018a200(u8 *param_1)
     FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
     temp_v13 = ((float*)puVar1)[0x11] * vec140[2] +
              ((float*)puVar1)[0xf] * vec140[0] + ((float*)puVar1)[0x10] * vec140[1];
-    if (temp_v13 < 1.0f) {
+    one = 1.0f;
+    if (temp_v13 < one) {
       temp_v12 = 15.0f;
-      if (1.0f - temp_v13 < fGpffff8420) {
-        temp_v12 = (1.0f - temp_v13) * 180.0f;
-        temp_v13 = 1.0f;
+      diff = one - temp_v13;
+      if (diff < fGpffff8420) {
+        temp_v12 = 180.0f * diff;
+        temp_v13 = one;
       }
       if (((float*)puVar1)[0x11] * vec150[2] +
           ((float*)puVar1)[0xf] * vec150[0] + ((float*)puVar1)[0x10] * vec150[1] < 0.0f) {
