@@ -2573,6 +2573,7 @@ void func_003599a0(u8 *arg0)
  * 188 aligned edits, 1189 C instructions against 1190 retail instructions.
  * fnalign 188 -> 168: float declaration order (w after y).
  * fnalign 168 -> 129: kind/name/count read through integer sums (retail off-first addu); func_00246830 takes u16 (H011, the callee masks 0xFFFF), so name spills as a u16; panel w/h read as HudPanel_0035 subscripts (index-first, recomputed per field).
+ * fnalign 129 -> 128: mode reads off + (s32)arg1 (retail recomputes the sum off-first instead of reusing kind's).
  */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2656,7 +2657,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
             func_0046d730(D_0064CC98, 0x5D5);
         }
         isSelf = (arg0 == *(s16 *)(arg1 + 0x24));
-        mode = *(s32 *)((u32)off + arg1 + 0x40);
+        mode = *(s32 *)(off + (s32)arg1 + 0x40);
     }
     x = x0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B0);
     rowY = 64.0f * (f32)arg0;
