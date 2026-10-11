@@ -951,6 +951,8 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * fnalign 513 -> 499: the e4 search is an inline helper returning 1 from the loop and 0 after it (retail li 1/b and move 0), with a u16 counter.
  * fnalign 499 -> 498: func_001fb1f0 is called with flags as a third argument (H011, retail move $a2,$s5).
  * fnalign 498 -> 495: func_001f9cd0 is called with (arg0, unit, id) (H011; retail moves $s4/$s3/$s1 into $a0-$a2, m2c sees the same three).
+ * fnalign 495 -> 483: the result-copy loop forms s as (u32)first + (q << 5) and recomputes it as first + ((u32)q << 5) (retail masks q and does not reuse the first address).
+ * fnalign 483 -> 482: the two exit-branch record addresses use ((u32)q << 5) as well.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1452,7 +1454,7 @@ void func_001f14f0(u8 *arg0)
             flags = 0;
             cnt = first[0xD9];
             for (q = 0; q < cnt; q++) {
-                u8 *s = first + (q << 5);
+                u8 *s = (u8 *)((u32)first + (q << 5));
                 s32 v = *(s32 *)(s + 0xF0);
 
                 flags += v;
@@ -1460,13 +1462,13 @@ void func_001f14f0(u8 *arg0)
                     ((*(u32 *)(s + 0xF8) & 0x80000) && !(*(u32 *)(s + 0xFC) & 0x80000))) {
                     flagHit = 1;
                 }
-                s = first + (q << 5);
+                s = first + ((u32)q << 5);
                 func_0043f9c8((u8 *)(u32)s + 0xF0, 0, 0x20);
                 *(s32 *)((u8 *)(u32)s + 0xF0) = v;
                 s[0x10C] = 2;
                 *(u16 *)(s + 0x10E) |= 0x200;
                 if (*(u8 *)(iGpffffb3b8 + off + 0x24) == 0xD) {
-                    u8 *s3 = first + (q << 5);
+                    u8 *s3 = first + ((u32)q << 5);
 
                     *(u32 *)(s3 + 0xF8) |= 0x80000;
                     *(u32 *)(s3 + 0xFC) &= ~0x80000;
@@ -1474,7 +1476,7 @@ void func_001f14f0(u8 *arg0)
                     return;
                 }
                 if (flagHit != 0) {
-                    *(u32 *)(first + (q << 5) + 0xF8) |= 0x80000;
+                    *(u32 *)(first + ((u32)q << 5) + 0xF8) |= 0x80000;
                     *(u16 *)(*(u8 **)(arg0 + 0x88) + 0x3F4) = 0;
                     *(u16 *)(s + 0x10E) |= 0x10;
                     first[0xD9] = q + 1;
