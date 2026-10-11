@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import json
 from pathlib import Path
 import re
 import sys
@@ -162,6 +163,31 @@ def _object_for(source: Path, function: str, candidate: Path | None,
             _die(f"symbol not present in object: {function}")
 
 
+def levenshtein(retail: list[str], candidate: list[str], relocated: set[int]) -> int:
+    """Minimal insert/delete/replace count between the two instruction streams.
+
+    Linker-owned operands are ignored on both sides: relocated candidate
+    instructions and every retail `lui`/`jal`/gp-relative instruction compare
+    without immediates.
+    """
+    from rapidfuzz.distance import Levenshtein
+
+    def retail_key(text: str) -> str:
+        mnemonic = text.partition(" ")[0]
+        if mnemonic in ("lui", "jal") or "($gp)" in text or "$gp," in text:
+            return strip_immediates(text)
+        return text
+
+    def candidate_key(index: int, text: str) -> str:
+        mnemonic = text.partition(" ")[0]
+        if index in relocated or mnemonic in ("lui", "jal") or "($gp)" in text or "$gp," in text:
+            return strip_immediates(text)
+        return text
+
+    return Levenshtein.distance([retail_key(text) for text in retail],
+                                [candidate_key(i, text) for i, text in enumerate(candidate)])
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("file", help="C source file containing the function")
@@ -169,6 +195,11 @@ def main() -> None:
     parser.add_argument("--addr", help="retail address in hex; defaults to its FUN_ marker")
     parser.add_argument("--candidate", help="body to splice in place of the definition")
     parser.add_argument("--quiet", action="store_true", help="print only the summary")
+    parser.add_argument("--levenshtein", action="store_true",
+                        help="also print the minimal instruction edit distance; the "
+                             "SequenceMatcher count above can jump on small changes "
+                             "in long functions")
+    parser.add_argument("--dump", help="write both decoded instruction streams to this JSON file")
     args = parser.parse_args()
 
     source = Path(args.file).resolve()
@@ -245,6 +276,11 @@ def main() -> None:
                 print(f"   object  {text}")
     print(f"\nedit instructions: {edits}"
           f"{f' (plus {reloc_only} reloc-only)' if reloc_only else ''}")
+    if args.levenshtein:
+        print(f"levenshtein: {levenshtein(retail_text, candidate_text, relocated)}")
+    if args.dump:
+        Path(args.dump).write_text(json.dumps({"retail": retail_text, "object": candidate_text,
+                                               "relocated": sorted(relocated)}))
 
 
 if __name__ == "__main__":
