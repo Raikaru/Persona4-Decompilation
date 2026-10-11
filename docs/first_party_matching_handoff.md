@@ -128,6 +128,27 @@ register order. It does nothing where the function already has
 `switch` (`u16 state`, real `btlActionSetState(BtlAction *, u16)`) and a
 `btlCloseCamera` helper with one shared `fail:` default arm.
 
+**Early exits inside the final switch are `break`, not `return 0`.** When
+the function ends `switch (...) { ... } return 0;`, retail's early exits
+branch straight to the shared `move $v0,$zero` before the epilogue (a
+`beqz $v0` on a just-loaded zero value, or `b`), while each `return 0;` in
+our source emits its own `move $v0,$zero; b epilogue`. Writing the exits
+as `break;` (only where the nearest enclosing breakable construct is that
+switch and nothing follows it but the `return`) gave `0018a200` 733 -> 706
+and `0017f490` 847 -> 837. A `goto` to a label on the final return does not
+help.
+
+**`&&` materialised as a value.** Retail `sltu` on each operand followed by a
+single `beqz` is a boolean computed as a value: an inline
+`static inline s32 f(void) { return a != 0 && b != 0; }` reproduces it
+(`0018a200` 742 -> 733). The helper sits above the marker with its own
+block-scope `extern`s.
+
+`0018a200` also gained 774 -> 742 from whole-vector `FldCopyVec` copies
+before a `y` adjustment, `vec50` made memory-resident that way, and the
+inverted flag `(iStack_4 != 0) ^ 1` computed before the call into the dead
+`temp_v2`.
+
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
 **6,836 MATCH / 24 ASM** (`build/after39.json`; against `after38.json` only
