@@ -3017,6 +3017,7 @@ void func_001a5990(void)
  * The local 001d15a0 provider returns s16; measured in battle lane scratch.
  * sdiff struct 413 -> 395: arg0 accessed through a u8 * local; the (u8 *)(s64 *) cast at every use made MWCC CSE and spill field addresses.
  * sdiff struct 395 -> 393: the two close-camera decisions through one inline helper (btlCloseCamera_001a59a0) instead of m2c's switch/goto copies.
+ * fnalign 575 -> 545: the 0x13/0x10 selection as a var_2_8 flag test with the 0x13 call first (no goto block_224), as in func_001a7720.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3802,20 +3803,20 @@ block_222:
                                     var_2_8 = 0;
                                 }
                             }
-                            if (var_2_8 != 0) {
-                                goto block_224;
-                            }
-                            temp_2_54 = (u8 *)(func_001f99c0(arg0, 0x10, (u16) sp290, 0, 0));
-                            (*(s8 *)((u8 *)(temp_2_54) + (0))) = 4;
-                            (*(s64 *)((u8 *)(temp_2_54) + (8))) = sp2C0;
-                            func_00194590(temp_2_54, 1);
                         } else {
-block_224:
+                            var_2_8 = 1;
+                        }
+                        if (var_2_8 != 0) {
                             temp_2_55 = (u8 *)(func_001f5f70(arg0, 0x13, sp290, 0, 0));
                             (*(s8 *)((u8 *)(temp_2_55) + (0))) = 4;
                             (*(s64 *)((u8 *)(temp_2_55) + (8))) = sp2C0;
                             (*(s64 *)((u8 *)(temp_2_55) + (0x60))) = temp_17;
                             func_00194590(temp_2_55, 1);
+                        } else {
+                            temp_2_54 = (u8 *)(func_001f99c0(arg0, 0x10, (u16) sp290, 0, 0));
+                            (*(s8 *)((u8 *)(temp_2_54) + (0))) = 4;
+                            (*(s64 *)((u8 *)(temp_2_54) + (8))) = sp2C0;
+                            func_00194590(temp_2_54, 1);
                         }
                     }
                 } else if (*addedStatus & 0x100000) {
