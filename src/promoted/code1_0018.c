@@ -2044,6 +2044,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 761 -> 755: (iStack_4 != 0) ^ 1 computed before the FUN_00155280 call into temp_v2 (retail xori into $s0 first); temp_v1 is s32 and tested == 1.
  * fnalign 755 -> 742: vec50 is a whole-vector copy of vec160 before the +180 y adjustment.
  * fnalign 742 -> 733: the D_007EF9F8/D_007EFA04 readiness test is the inline fldBothReady_0018a200() (retail materialises the && as a value, sltu each, then one test).
+ * fnalign 733 -> 706: early exits inside the state switch are break; (retail beqz/bnez straight to the shared final return 0).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2338,30 +2339,30 @@ s32 func_0018a200(u8 *param_1)
     if (temp_v4 == 9) {
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + 0x34) == 0) {
-        return 0;
+        break;
       }
       temp_v4 = FUN_00155280();
       temp_v4 = FUN_0014e710(*(unsigned char **)(temp_v4 + 0x34));
       if (temp_v4 == 0) {
-        return 0;
+        break;
       }
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + 0x38) == 0) {
-        return 0;
+        break;
       }
       temp_v4 = FUN_00155280();
       temp_v4 = FUN_0014e710(*(unsigned char **)(temp_v4 + 0x38));
       if (temp_v4 == 0) {
-        return 0;
+        break;
       }
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + 0x3c) == 0) {
-        return 0;
+        break;
       }
       temp_v4 = FUN_00155280();
       temp_v4 = FUN_0014e710(*(unsigned char **)(temp_v4 + 0x3c));
       if (temp_v4 == 0) {
-        return 0;
+        break;
       }
     }
     temp_v5 = puVar1[3];
@@ -2496,7 +2497,7 @@ s32 func_0018a200(u8 *param_1)
         temp_v5 = FUN_0014c240(pvVar11,(void *)(temp_v4 + 0x30),90.0f,250.0f);
         if (temp_v5 != 0) {
           if (puVar1[0xb] != 0xffffffff) {
-            return 0;
+            break;
           }
           temp_v3 = FUN_00479c30(*(int *)(puVar1[3] + 0x164),0);
           puVar1[0xb] = (int)temp_v3;
@@ -2504,14 +2505,14 @@ s32 func_0018a200(u8 *param_1)
           if (*(int *)(temp_v5 + 0x234) == 1) {
             func_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x280) + 6),4
                           ,1);
-            return 0;
+            break;
           }
           if (*(int *)(temp_v5 + 0x234) != 2) {
-            return 0;
+            break;
           }
           func_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x284) + 0x6c),
                         4,1);
-          return 0;
+          break;
         }
       }
       if (-1 < (int)puVar1[0xb]) {
