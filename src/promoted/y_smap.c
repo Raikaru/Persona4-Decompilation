@@ -243,6 +243,7 @@ s32 func_002ac740(void) {
  * re-read a value assign it inside the test.
  * 344: type sweep.
  * 343: commutative operand order as retail.
+ * fnalign 343 -> 329: both neighbour searches as nested for loops with break (retail tests the counters at the bottom).
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -480,27 +481,21 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     sp160 = arg1 & 0xFF;
                     sp150 = arg0 & 0xFF;
                     temp_23 = temp_17 + temp_16;
-                    while ((temp_5 = ((s16)(var_18))) < 2) {
-                        temp_2 = ((s8)(func_002b2d00(sp160, temp_5, 1, 0x18, 1)));
+                    for (var_18 = 0; (s16)var_18 < 2; var_18 = (s16)(var_18 + 1)) {
+                        temp_2 = ((s8)(func_002b2d00(sp160, (s16)var_18, 1, 0x18, 1)));
                         sp140 = (s32) temp_2;
-                        var_22 = 0;
                         sp130 = temp_2 << 8;
-loop_34:
-                        temp_5_2 = ((s16)(var_22));
-                        if (temp_5_2 < 2) {
-                            temp_2_2 = ((s8)(func_002b2d00(sp150, temp_5_2, 1, 0x10, 1)));
+                        for (var_22 = 0; (s16)var_22 < 2; var_22 = (s16)(var_22 + 1)) {
+                            temp_2_2 = ((s8)(func_002b2d00(sp150, (s16)var_22, 1, 0x10, 1)));
                             sp120 = (s32) temp_2_2;
                             temp_2_3 = temp_2_2 * 0x10;
                             sp110 = temp_2_3;
                             if ((((*( u8 * )((u8*)((sp130 + func_00155280() + temp_2_3)) + (0x55))) & 0xF) == 1) && (temp_2_4 = (*( u8 * )((u8*)((sp130 + func_00155280() + sp110)) + (0x58))), sp100 = (s32) temp_2_4, (temp_2_4 == (*( u8 * )((u8*)((temp_23 + func_00155280())) + (0x58)))))) {
                                 var_30 = ((s8)((s64) sp120));
                                 var_21 = ((s8)((s64) sp140));
-                            } else {
-                                var_22 = ((s16)((var_22 + 1)));
-                                goto loop_34;
+                                break;
                             }
                         }
-                        var_18 = ((s16)((var_18 + 1)));
                     }
                     temp_4_9 = (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x59)));
                     switch (temp_4_9) {             /* switch 1; irregular */
@@ -648,31 +643,24 @@ loop_34:
                     (*( u16 * )((u8*)(temp_4_32) + (4))) = (u16) ((*( u16 * )((u8*)(temp_4_32) + (4))) | ((1 << (arg0 & 0xFF)) & 0xFFFF));
                     return;
                 }
-                var_22_2 = 0;
                 sp180 = temp_18;
                 sp170 = arg0 & 0xFF;
                 temp_18_7 = temp_17 + temp_16;
-                while ((temp_5_11 = ((s16)(var_22_2))) < 3) {
-                    temp_2_6 = ((s8)(func_002b2d00(sp180, temp_5_11, 1, 0x18, 1)));
+                for (var_22_2 = 0; (s16)var_22_2 < 3; var_22_2 = (s16)(var_22_2 + 1)) {
+                    temp_2_6 = ((s8)(func_002b2d00(sp180, (s16)var_22_2, 1, 0x18, 1)));
                     spE0 = (s32) temp_2_6;
-                    var_23 = 0;
                     spD0 = temp_2_6 << 8;
-loop_90:
-                    temp_5_12 = ((s16)(var_23));
-                    if (temp_5_12 < 3) {
-                        temp_2_7 = ((s8)(func_002b2d00(sp170, temp_5_12, 1, 0x10, 1)));
+                    for (var_23 = 0; (s16)var_23 < 3; var_23 = (s16)(var_23 + 1)) {
+                        temp_2_7 = ((s8)(func_002b2d00(sp170, (s16)var_23, 1, 0x10, 1)));
                         spC0 = (s32) temp_2_7;
                         temp_2_8 = temp_2_7 * 0x10;
                         spB0 = temp_2_8;
                         if ((((*( u8 * )((u8*)((spD0 + func_00155280() + temp_2_8)) + (0x55))) & 0xF) == 1) && (temp_2_9 = (*( u8 * )((u8*)((spD0 + func_00155280() + spB0)) + (0x58))), spA0 = (s32) temp_2_9, (temp_2_9 == (*( u8 * )((u8*)((temp_18_7 + func_00155280())) + (0x58)))))) {
                             var_30 = ((s8)((s64) spC0));
                             var_21 = ((s8)((s64) spE0));
-                        } else {
-                            var_23 = ((s16)((var_23 + 1)));
-                            goto loop_90;
+                            break;
                         }
                     }
-                    var_22_2 = ((s16)((var_22_2 + 1)));
                 }
                 temp_4_33 = (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x59)));
                 switch (temp_4_33) {                /* switch 3; irregular */
