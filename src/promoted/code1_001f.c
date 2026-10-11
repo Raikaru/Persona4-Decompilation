@@ -946,6 +946,8 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * fnalign 570 -> 555 (struct 297 -> 281): search loop with an in-body break (n > 1), scale = scale * r, and the second damage factor 1.0f as a local (retail keeps the multiply).
  * fnalign 555 -> 538: the 0xD/0xC type tests, the 0x24 == 2 test and the cntA/cntB res test are switches (retail beq-per-case then b); the res switch lists cases in reverse and switches on (u16)res (retail andi mask).
  * fnalign 538 -> 520: shift loop source index spelled (u16)(i + 1) with base-first addressing; the final store is a subscript (retail index-first).
+ * fnalign 520 -> 516: the search loop reads *((u8 **)arg0 + 0xE + i) (retail re-masks i, base-first addu).
+ * fnalign 516 -> 513: the shift loop stores through *((u8 **)arg0 + 0xE + i). The sd_00 spelling (source *(u8 **)(arg0 + i * 4 + 0x3C)) is instruction-identical to retail here but colours n/i as $a0/$a1 (fnalign 534).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1039,13 +1041,13 @@ void func_001f14f0(u8 *arg0)
             u16 i;
 
             for (i = 0; i < n; i++) {
-                if (*(u8 **)(arg0 + i * 4 + 0x38) == arg0) {
+                if (*((u8 **)arg0 + 0xE + i) == arg0) {
                     break;
                 }
             }
             if (i != n) {
                 for (; i < *(u16 *)(arg0 + 0x6A) - 1; i++) {
-                    *(u8 **)(arg0 + i * 4 + 0x38) = *(u8 **)(arg0 + (u16)(i + 1) * 4 + 0x38);
+                    *((u8 **)arg0 + 0xE + i) = *(u8 **)(arg0 + (u16)(i + 1) * 4 + 0x38);
                 }
                 ((u8 **)(arg0 + 0x38))[i] = arg0;
             }
