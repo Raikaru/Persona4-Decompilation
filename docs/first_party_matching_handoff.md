@@ -196,7 +196,11 @@ alignment, and the C preserves the observed behavior and ABI.
   `found++` (`addiu $s5,$s5,1`, 2 edits), a second `if (found != 0) break;`
   or a split `if (found == 0) … if (found != 0) …` (one extra branch, 3
   edits). Or it is removed before allocation: copies, `register`, scope,
-  initialiser placement, loop forms.
+  initialiser placement, loop forms, other integer types. Snapshot scores:
+  `found` 3, `k` 4; `regalloc_whatif` gives retail's colours for
+  `found` = 4 exactly or `k` <= 3. A redundant `found = 0` is removed
+  before scoring. Dropping the initialiser with `found = 0` in both
+  branches gives retail's colours but stores twice (fnalign 12).
 - **`00471370`** (fnalign 69 -> 51, structure identical): `zw = z * weight`
   as its own local so the slerp polynomial `madd.s` takes it first;
   `temp_v3` declared after `hasParentMatrix` (retail `$v0`/`$v1`); the
