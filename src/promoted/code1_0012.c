@@ -2541,6 +2541,7 @@ void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
  * fnalign 93 -> 61 (structure identical): the packed colour word is a call argument with its byte extraction inline; b210 evaluates these arguments right to left, so retail loads the last float before extracting the bytes.
  * fnalign 61 -> 60: 1 - t held in lerpT so the 42.0f product is constant-first as retail.
  * fnalign 60 -> 59: 1 - t held in temp_f2 so the 255.0f product is constant-first.
+ * fnalign 59 -> 55: commutative FP orders via separate variables (1.5f product in temp_f2, 0.5f held in temp_f2, the 0.25f product in temp_f13_28).
  */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3509,8 +3510,8 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
                 temp_f21_2 = sinf((1.5707964f * (f32) var_2_21) / 90.0f);
                 /* Keep the first return across the second call; round multiply and add separately. */
-                temp_f16 = 1.5f * temp_f20_5;
-                temp_f16 = fGpffff8170 + temp_f16;
+                temp_f2 = 1.5f * temp_f20_5;
+                temp_f16 = fGpffff8170 + temp_f2;
                 {
                     f32 size = 137.0f * temp_f16;
 
@@ -3805,15 +3806,16 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 taskView->f28 = (s32) (taskView->f20 << 0x10);
                 taskView->f08 = (s32) ~(taskView->f08 ^ -5);
             } else {
-                taskView->f28 = (s32) (taskView->f28 + (s32)((f32)(s32)temp_10_2 * 0.5f));
+                temp_f2 = 0.5f;
+                taskView->f28 = (s32) (taskView->f28 + (s32)((f32)(s32)temp_10_2 * temp_f2));
             }
         }
         temp_5 = (s32)(taskView->f24);
         temp_4 = (s32)(taskView->f20);
         temp_i28 = (temp_4 - temp_5) << 0x10;
-        temp_f1_28 = 0.25f;
-        temp_f1_28 *= (f32)temp_i28;
-        temp_f1_28 = (f32)(temp_4 << 0x10) + temp_f1_28;
+        temp_f13_28 = 0.25f;
+        temp_f13_28 *= (f32)temp_i28;
+        temp_f1_28 = (f32)(temp_4 << 0x10) + temp_f13_28;
         temp_28 = (s32)taskView->f28;
         temp_f0_11 = temp_f1_28 - (f32)temp_28;
         temp_i28 = (s32)temp_f0_11;
