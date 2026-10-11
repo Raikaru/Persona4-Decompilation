@@ -1277,6 +1277,7 @@ void func_00376880(u8 **arg0) {
  * 164: hoist sweep.
  * 149: hoist sweep.
  * fnalign 149 -> 127: the -1/21 taper step is a literal (pool reload per loop, as retail).
+ * fnalign 127 -> 108: shared x/y/z for the front and back trail points (single-definition px/mx locals were propagated into the TRAIL_POSITION arguments).
  */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1493,24 +1494,21 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         f32 dx = D_0060A0E0.x * magnitude;
                         f32 dy = D_0060A0E0.y * magnitude;
                         f32 dz = D_0060A0E0.z * magnitude;
-                        f32 px;
-                        f32 py;
-                        f32 pz;
-                        f32 mx;
-                        f32 my;
-                        f32 mz;
+                        f32 x;
+                        f32 y;
+                        f32 z;
 
                         sample = &samples[point];
-                        px = dx + sample->x;
-                        py = dy + sample->y;
-                        pz = dz + sample->z;
-                        TRAIL_POSITION(&front[0], px + offsetX, py + offsetY, pz);
+                        x = dx + sample->x;
+                        y = dy + sample->y;
+                        z = dz + sample->z;
+                        TRAIL_POSITION(&front[0], x + offsetX, y + offsetY, z);
                         TRAIL_POSITION(&front[1], offsetX + sample->x, offsetY + sample->y, sample->z);
-                        mx = sample->x - dx;
-                        my = sample->y - dy;
-                        mz = sample->z - dz;
+                        x = sample->x - dx;
+                        y = sample->y - dy;
+                        z = sample->z - dz;
                         TRAIL_POSITION(&back[0], offsetX + sample->x, offsetY + sample->y, sample->z);
-                        TRAIL_POSITION(&back[1], mx + offsetX, my + offsetY, mz);
+                        TRAIL_POSITION(&back[1], x + offsetX, y + offsetY, z);
                         taper += -0.04761905f;
                     }
                     func_00410420((struct RxObjSpace3DVertex *)first, 42, &identity, 2);
@@ -1567,24 +1565,21 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         f32 dx = D_0060A0E0.x * magnitude;
                         f32 dy = D_0060A0E0.y * magnitude;
                         f32 dz = D_0060A0E0.z * magnitude;
-                        f32 px;
-                        f32 py;
-                        f32 pz;
-                        f32 mx;
-                        f32 my;
-                        f32 mz;
+                        f32 x;
+                        f32 y;
+                        f32 z;
 
                         sample = &samples[point];
-                        px = dx + sample->x;
-                        py = dy + sample->y;
-                        pz = dz + sample->z;
-                        TRAIL_POSITION(&front[0], px + offsetX, py + offsetY, pz);
+                        x = dx + sample->x;
+                        y = dy + sample->y;
+                        z = dz + sample->z;
+                        TRAIL_POSITION(&front[0], x + offsetX, y + offsetY, z);
                         TRAIL_POSITION(&front[1], offsetX + sample->x, offsetY + sample->y, sample->z);
-                        mx = sample->x - dx;
-                        my = sample->y - dy;
-                        mz = sample->z - dz;
+                        x = sample->x - dx;
+                        y = sample->y - dy;
+                        z = sample->z - dz;
                         TRAIL_POSITION(&back[0], offsetX + sample->x, offsetY + sample->y, sample->z);
-                        TRAIL_POSITION(&back[1], mx + offsetX, my + offsetY, mz);
+                        TRAIL_POSITION(&back[1], x + offsetX, y + offsetY, z);
                         taper += -0.04761905f;
                     }
                     func_00410420((struct RxObjSpace3DVertex *)first, 42, &identity, 2);
