@@ -973,6 +973,11 @@ tail:
  * 954: three more if/else arms in retail order.
  * 919: the delay-counter tests take the `> 0` arm first.
  * 913: conversion lever (piVar1:(0, 3)).
+ * 2026-10-10: restore the oscillation call's f32 input/return contract and
+ * remove the dead scalar copy left by the recovered patrol-pick vector.
+ * Native owner probe: 11376 bytes, 906 aligned differences; still guarded.
+ * Evidence: docs/probe_archive/Field_pro_recovery_20261010_worker9.md.
+ * fnalign 906 -> 905: role swaps of reused temporaries within blocks.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1002,7 +1007,7 @@ extern s32 FUN_0017ed40(u8 *);
 /* Supplied declaration required: FUN_003b7060. */
 extern int FUN_003e0f80(void);
 extern int FUN_003e9700(unsigned int);
-extern unsigned int FUN_0044b7b0(int);
+extern f32 func_0044b7b0(f32 angle);
 /* Supplied declaration required: FUN_0047a220. */
 extern unsigned int FUN_0047a250(unsigned int);
 /* Supplied declaration required: FUN_0047a2f0. */
@@ -1062,11 +1067,6 @@ int func_0017f490(unsigned char *param_1)
   float temp_v9;
   float temp_v10;
   float temp_v11;
-  float fStack_230;
-  int iStack_22c;
-  float fStack_228;
-  unsigned int uStack_220;
-  float fStack_218;
   FldAIVec3 state7Forward;
   FldAIVec3 state8Delta;
   FldAIVec3 state11Right;
@@ -1269,7 +1269,7 @@ availabilityDone:
           temp_v0 = FUN_003b7060();
           temp_v8 = CAND_fGpffff8308 + (float)((unsigned int)temp_v0 % 0x50) / 100.0f;
           temp_v1 = FUN_003b7060();
-          temp_v9 = CAND_fGpffff8308 + (float)((unsigned int)temp_v1 % 0x50) / 100.0f;
+          temp_v10 = CAND_fGpffff8308 + (float)((unsigned int)temp_v1 % 0x50) / 100.0f;
           pfVar2 = (float *)piVar1 + piVar1[0x12] * 6 + 6;
           {
             FldAIVec3 pick;
@@ -1285,7 +1285,7 @@ availabilityDone:
               } while (clearCount != 0);
             }
             pick.x = temp_v8 * (pfVar2[0] - pfVar2[3]) + pfVar2[3] + 0.0f;
-            pick.z = temp_v9 * (pfVar2[2] - pfVar2[5]) + pfVar2[5] + 0.0f;
+            pick.z = temp_v10 * (pfVar2[2] - pfVar2[5]) + pfVar2[5] + 0.0f;
             picked = pick;
             ((float *)piVar1)[0x14] = picked.x;
             ((float *)piVar1)[0x15] = picked.y;
@@ -1301,7 +1301,6 @@ availabilityDone:
               ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x18);
             }
             piVar1[0x18] = 0xf;
-            fStack_218 = fStack_228;
             temp_v0 = FUN_003b7060();
             piVar1[0x17] = (int)((unsigned int)temp_v0 % 3) + 1;
           }
@@ -1330,18 +1329,18 @@ availabilityDone:
       state2Delta.x = ((float *)piVar1)[0x14] - aiV60.x;
       state2Delta.y = ((float *)piVar1)[0x15] - 0.0f;
       state2Delta.z = ((float *)piVar1)[0x16] - aiV60.z;
-      temp_v10 = RwV3dNormalize(&state2Delta,&state2Delta);
+      temp_v9 = RwV3dNormalize(&state2Delta,&state2Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v10 <= temp_v8) {
+      if (temp_v9 <= temp_v8) {
         *piVar1 = 1;
-        temp_v8 = temp_v10;
+        temp_v8 = temp_v9;
       }
-      temp_v10 = state2Delta.z * state2Forward.z + state2Delta.x * state2Forward.x + state2Delta.y * state2Forward.y;
-      if (temp_v10 < 1.0f) {
+      temp_v9 = state2Delta.z * state2Forward.z + state2Delta.x * state2Forward.x + state2Delta.y * state2Forward.y;
+      if (temp_v9 < 1.0f) {
         temp_v11 = ((float *)piVar1)[0x1a] * 10.0f;
-        temp_v10 = 1.0f - temp_v10;
-        if (temp_v10 < temp_v11 / 180.0f) {
-          temp_v11 = temp_v10 * 180.0f;
+        temp_v9 = 1.0f - temp_v9;
+        if (temp_v9 < temp_v11 / 180.0f) {
+          temp_v11 = temp_v9 * 180.0f;
         }
         if (state2Delta.z * state2Right.z + state2Delta.x * state2Right.x + state2Delta.y * state2Right.y < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
@@ -1533,17 +1532,17 @@ else {
       state7Delta.y = *(float *)(temp_v0 + 0x34) - aiVF0.y;
       temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
       state7Delta.z = *(float *)(temp_v0 + 0x38) - aiVF0.z;
-      temp_v10 = RwV3dNormalize(&state7Delta,&state7Delta);
+      temp_v9 = RwV3dNormalize(&state7Delta,&state7Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v10 <= temp_v8) {
-        temp_v8 = temp_v10;
+      if (temp_v9 <= temp_v8) {
+        temp_v8 = temp_v9;
       }
-      temp_v10 = state7Delta.z * state7Forward.z + state7Delta.x * state7Forward.x + state7Delta.y * state7Forward.y;
-      if (temp_v10 < 1.0f) {
+      temp_v9 = state7Delta.z * state7Forward.z + state7Delta.x * state7Forward.x + state7Delta.y * state7Forward.y;
+      if (temp_v9 < 1.0f) {
         temp_v11 = ((float *)piVar1)[0x1a] * 10.0f;
-        temp_v10 = 1.0f - temp_v10;
-        if (temp_v10 < temp_v11 / 180.0f) {
-          temp_v11 = temp_v10 * 180.0f;
+        temp_v9 = 1.0f - temp_v9;
+        if (temp_v9 < temp_v11 / 180.0f) {
+          temp_v11 = temp_v9 * 180.0f;
         }
         if (state7Delta.z * state7Right.z + state7Delta.x * state7Right.x + state7Delta.y * state7Right.y < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
@@ -1609,15 +1608,15 @@ else {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         temp_v11 = *(float *)(temp_v0 + 0x28);
         temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-        temp_v9 = *(float *)(temp_v0 + 0x28);
+        temp_v10 = *(float *)(temp_v0 + 0x28);
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         temp_v8 = *(float *)(temp_v0 + 0x20);
         temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-        temp_v10 = *(float *)(temp_v0 + 0x20);
+        temp_v9 = *(float *)(temp_v0 + 0x20);
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         temp_v1 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
         if (CAND_fGpffff8310 <
-            temp_v9 * temp_v11 + temp_v10 * temp_v8 + *(float *)(temp_v1 + 0x24) * *(float *)(temp_v0 + 0x24))
+            temp_v10 * temp_v11 + temp_v9 * temp_v8 + *(float *)(temp_v1 + 0x24) * *(float *)(temp_v0 + 0x24))
         {
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1638,18 +1637,18 @@ else {
           state8Delta.y = *(float *)(temp_v0 + 0x34) - aiV130.y;
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state8Delta.z = *(float *)(temp_v0 + 0x38) - aiV130.z;
-          temp_v10 = RwV3dNormalize(&state8Delta,&state8Delta);
-          temp_v10 = temp_v10 / temp_v8;
+          temp_v9 = RwV3dNormalize(&state8Delta,&state8Delta);
+          temp_v9 = temp_v9 / temp_v8;
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state8Forward.x = *(float *)(temp_v0 + 0x20);
           state8Forward.y = *(float *)(temp_v0 + 0x24);
           state8Forward.z = *(float *)(temp_v0 + 0x28);
           temp_v8 = FUN_00175db0();
-          state8Forward.x = state8Forward.x * temp_v10 * temp_v8;
+          state8Forward.x = state8Forward.x * temp_v9 * temp_v8;
           temp_v8 = FUN_00175db0();
-          state8Forward.y = state8Forward.y * temp_v10 * temp_v8;
+          state8Forward.y = state8Forward.y * temp_v9 * temp_v8;
           temp_v8 = FUN_00175db0();
-          state8Forward.z = state8Forward.z * temp_v10 * temp_v8;
+          state8Forward.z = state8Forward.z * temp_v9 * temp_v8;
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           aiPos2.x = *(float *)(temp_v0 + 0x30) + state8Forward.x;
           aiPos2.y = *(float *)(temp_v0 + 0x34) + state8Forward.y;
@@ -1670,17 +1669,17 @@ else {
       state8Delta.x = aiPos2.x - *(float *)(temp_v0 + 0x30);
       state8Delta.y = aiPos2.y - 0.0f;
       state8Delta.z = aiPos2.z - *(float *)(temp_v0 + 0x38);
-      temp_v10 = RwV3dNormalize(&state8Delta,&state8Delta);
+      temp_v9 = RwV3dNormalize(&state8Delta,&state8Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v10 <= temp_v8) {
-        temp_v8 = temp_v10;
+      if (temp_v9 <= temp_v8) {
+        temp_v8 = temp_v9;
       }
-      temp_v10 = state8Delta.z * state8Forward.z + state8Delta.x * state8Forward.x + state8Delta.y * state8Forward.y;
-      if (temp_v10 < 1.0f) {
+      temp_v9 = state8Delta.z * state8Forward.z + state8Delta.x * state8Forward.x + state8Delta.y * state8Forward.y;
+      if (temp_v9 < 1.0f) {
         temp_v11 = ((float *)piVar1)[0x1a] * 10.0f;
-        temp_v10 = 1.0f - temp_v10;
-        if (temp_v10 < temp_v11 / 180.0f) {
-          temp_v11 = temp_v10 * 180.0f;
+        temp_v9 = 1.0f - temp_v9;
+        if (temp_v9 < temp_v11 / 180.0f) {
+          temp_v11 = temp_v9 * 180.0f;
         }
         if (state8Delta.z * state8Right.z + state8Delta.x * state8Right.x + state8Delta.y * state8Right.y < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
@@ -1750,13 +1749,13 @@ else {
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       aiV190 = *(FldAIVec3 *)(temp_v0 + 0x30);
       aiV190.y = 0.0f;
-      temp_v11 = (float)FUN_0044b7b0(piVar1[0x1e]);
+      temp_v11 = func_0044b7b0(((f32 *)piVar1)[0x1e]);
       temp_v8 = aiV190.y;
       ((float *)piVar1)[0x1e] = (((float *)piVar1)[0x1e] + CAND_fGpffff8218);
       state9Direction.x = ((float *)piVar1)[0x14] - aiV190.x;
       state9Direction.y = ((float *)piVar1)[0x15] - aiV190.y;
       state9Direction.z = ((float *)piVar1)[0x16] - aiV190.z;
-      temp_v10 = aiV190.z;
+      temp_v9 = aiV190.z;
       RwV3dNormalize(&state9Direction,&state9Direction);
       state9Direction.x = state9Direction.x * 200.0f + ((float *)piVar1)[0x14];
       state9Direction.y = state9Direction.y * 200.0f + ((float *)piVar1)[0x15];
@@ -1764,11 +1763,11 @@ else {
       temp_v11 = temp_v11 * 400.0f;
       state9Delta.x = (state9Right.x * temp_v11 + state9Direction.x) - aiV190.x;
       state9Delta.y = (state9Right.y * temp_v11 + state9Direction.y) - temp_v8;
-      state9Delta.z = (state9Right.z * temp_v11 + state9Direction.z) - temp_v10;
-      temp_v10 = RwV3dNormalize(&state9Delta,&state9Delta);
+      state9Delta.z = (state9Right.z * temp_v11 + state9Direction.z) - temp_v9;
+      temp_v9 = RwV3dNormalize(&state9Delta,&state9Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v10 <= temp_v8) {
-        temp_v8 = temp_v10;
+      if (temp_v9 <= temp_v8) {
+        temp_v8 = temp_v9;
       }
       if (piVar1[0x25] < 1) {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
@@ -1780,9 +1779,9 @@ else {
         piVar1[0x25] = piVar1[0x25] - 1;
       }
       temp_v11 = ((float *)piVar1)[0x1a] * 10.0f * 5.0f;
-      temp_v10 = 1.0f - (state9Delta.z * state9Forward.z + state9Delta.x * state9Forward.x + state9Delta.y * state9Forward.y);
-      if (temp_v10 < temp_v11 / 180.0f) {
-        temp_v11 = temp_v10 * 180.0f;
+      temp_v9 = 1.0f - (state9Delta.z * state9Forward.z + state9Delta.x * state9Forward.x + state9Delta.y * state9Forward.y);
+      if (temp_v9 < temp_v11 / 180.0f) {
+        temp_v11 = temp_v9 * 180.0f;
       }
       if (state9Delta.z * state9Right.z + state9Delta.x * state9Right.x + state9Delta.y * state9Right.y < 0.0f) {
         temp_v11 = temp_v11 * -1.0f;
@@ -1826,27 +1825,27 @@ else {
       state10Delta.x = ((float *)piVar1)[0x14] - aiV1D0.x;
       state10Delta.y = ((float *)piVar1)[0x15] - 0.0f;
       state10Delta.z = ((float *)piVar1)[0x16] - aiV1D0.z;
-      temp_v10 = RwV3dNormalize(&state10Delta,&state10Delta);
+      temp_v9 = RwV3dNormalize(&state10Delta,&state10Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
-      if (temp_v10 <= temp_v8) {
+      if (temp_v9 <= temp_v8) {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
         func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
-        temp_v8 = temp_v10;
+        temp_v8 = temp_v9;
       }
-      temp_v10 = ((float *)piVar1)[0x1a] * 10.0f;
+      temp_v9 = ((float *)piVar1)[0x1a] * 10.0f;
       temp_v11 = 1.0f - (state10Delta.z * state10Forward.z + state10Delta.x * state10Forward.x + state10Delta.y * state10Forward.y);
-      if (temp_v11 < temp_v10 / 180.0f) {
-        temp_v10 = temp_v11 * 180.0f;
+      if (temp_v11 < temp_v9 / 180.0f) {
+        temp_v9 = temp_v11 * 180.0f;
       }
       if (state10Delta.z * state10Right.z + state10Delta.x * state10Right.x + state10Delta.y * state10Right.y < 0.0f) {
-        temp_v10 = temp_v10 * -1.0f;
+        temp_v9 = temp_v9 * -1.0f;
       }
-      func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v10);
-      temp_v10 = ((float *)piVar1)[0x1c] + temp_v10;
-      ((float *)piVar1)[0x1c] = temp_v10;
-      if ((360.0f < temp_v10) || (temp_v10 < -360.0f)) {
+      func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
+      temp_v9 = ((float *)piVar1)[0x1c] + temp_v9;
+      ((float *)piVar1)[0x1c] = temp_v9;
+      if ((360.0f < temp_v9) || (temp_v9 < -360.0f)) {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
@@ -1895,15 +1894,15 @@ else {
       RwV3dNormalize(&state11Delta,&state11Delta);
       temp_v8 = state11Delta.z * state11Forward.z + state11Delta.x * state11Forward.x + state11Delta.y * state11Forward.y;
       if (temp_v8 < 1.0f) {
-        temp_v10 = ((float *)piVar1)[0x1a] * 10.0f;
+        temp_v9 = ((float *)piVar1)[0x1a] * 10.0f;
         temp_v8 = 1.0f - temp_v8;
-        if (temp_v8 < temp_v10 / 180.0f) {
-          temp_v10 = temp_v8 * 180.0f;
+        if (temp_v8 < temp_v9 / 180.0f) {
+          temp_v9 = temp_v8 * 180.0f;
         }
         if (state11Delta.z * state11Right.z + state11Delta.x * state11Right.x + state11Delta.y * state11Right.y < 0.0f) {
-          temp_v10 = temp_v10 * -1.0f;
+          temp_v9 = temp_v9 * -1.0f;
         }
-        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v10);
+        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
       }
       temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]);
       if (temp_v0 == 1) {
@@ -1941,16 +1940,16 @@ else {
       }
       else {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-        temp_v10 = *(float *)(temp_v0 + 0x30);
+        temp_v9 = *(float *)(temp_v0 + 0x30);
         temp_v8 = *(float *)(temp_v0 + 0x38);
         temp_v5 = 0;
-        if ((((((float *)piVar1)[9] <= temp_v10) && (temp_v10 <= ((float *)piVar1)[6])) &&
+        if ((((((float *)piVar1)[9] <= temp_v9) && (temp_v9 <= ((float *)piVar1)[6])) &&
             (((float *)piVar1)[0xb] <= temp_v8)) && (temp_v8 <= ((float *)piVar1)[8])) {
           temp_v5 = 1;
         }
         if (!temp_v5) {
           temp_v5 = 0;
-          if (((((float *)piVar1)[0xf] <= temp_v10) && (temp_v10 <= ((float *)piVar1)[0xc])) &&
+          if (((((float *)piVar1)[0xf] <= temp_v9) && (temp_v9 <= ((float *)piVar1)[0xc])) &&
              ((((float *)piVar1)[0x11] <= temp_v8 && (temp_v8 <= ((float *)piVar1)[0xe])))) {
             temp_v5 = 1;
           }
