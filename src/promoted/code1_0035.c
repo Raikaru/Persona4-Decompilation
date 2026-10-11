@@ -2575,10 +2575,11 @@ void func_003599a0(u8 *arg0)
  * fnalign 129 -> 128: mode reads off + (s32)arg1 (retail recomputes the sum off-first instead of reusing kind's).
  * fnalign 128 -> 31: the second panel group has its own x2/y2/w2/h2, declared w2, h2, fade, x0, y0, x2, y2, rowY (retail FPR colours follow declaration order; reused locals get late split ranges).
  * fnalign 31 -> 28: the panel alpha byte is converted into scale (a multi-definition float, dead at each site) before * fade, so mul.s takes it first as retail.
- * fnalign 28 -> 26: panel x/y/alpha are read through hudPanelPtr_003599c0(arg0 * 48, arg1), an integer offset-first sum (retail index-first addu).
+ * fnalign 28 -> 26: panel x/y/alpha are read through hudOffsetPtr_003599c0(arg0 * 48, arg1), an integer offset-first sum (retail index-first addu).
  * fnalign 26 -> 16: the third panel group has its own x3/y3/w3/h3 (w3 before h3).
+ * fnalign 16 -> 13: the sprite-table reads (count, kind, mode) go through the same offset-first helper.
  */
-static inline u8 *hudPanelPtr_003599c0(u32 offset, u8 *base)
+static inline u8 *hudOffsetPtr_003599c0(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -2675,10 +2676,10 @@ void func_003599c0(s32 arg0, u8 *arg1)
         isSelf = (arg0 == *(s16 *)(arg1 + 0x24));
         mode = *(s32 *)(off + (s32)arg1 + 0x40);
     }
-    x = x0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x5B0);
+    x = x0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x5B0);
     rowY = 64.0f * (f32)arg0;
-    y = 81.0f + (rowY + (y0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x5B4)));
-    scale = (f32)hudPanelPtr_003599c0(arg0 * 48, arg1)[0x5BA];
+    y = 81.0f + (rowY + (y0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x5B4)));
+    scale = (f32)hudOffsetPtr_003599c0(arg0 * 48, arg1)[0x5BA];
     alpha = scale * fade;
     w = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].w;
     h = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].h;
@@ -2702,9 +2703,9 @@ void func_003599c0(s32 arg0, u8 *arg1)
     rc[3] = 59.0f * h / 4096.0f;
     D_00887300[0](1, 0);
     func_0045d6e0(col, (u8 *)rc, 0.0f, 0);
-    x2 = 5.0f + (x0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x190));
-    y2 = 78.0f + (rowY + (y0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x194)));
-    scale = (f32)hudPanelPtr_003599c0(arg0 * 48, arg1)[0x19A];
+    x2 = 5.0f + (x0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x190));
+    y2 = 78.0f + (rowY + (y0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x194)));
+    scale = (f32)hudOffsetPtr_003599c0(arg0 * 48, arg1)[0x19A];
     alpha = scale * fade;
     w2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].w;
     h2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].h;
@@ -2726,7 +2727,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
                       ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
         px = 124.0f + x2;
         py = y2 + 14.0f * scale;
-        spr = *(u8 **)(arg1 + (count & 0xFFFF) * 4 + 0x11EC);
+        spr = *(u8 **)(hudOffsetPtr_003599c0((count & 0xFFFF) * 4, arg1) + 0x11EC);
         func_0034f320(spr, px, py, 0.0f,
                       ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     }
@@ -2741,7 +2742,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
                   ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     px = 105.0f + x2;
     py = y2 + 33.0f * scale;
-    spr = *(u8 **)(arg1 + kind * 4 + 0x12A0);
+    spr = *(u8 **)(hudOffsetPtr_003599c0(kind * 4, arg1) + 0x12A0);
     func_0034f320(spr, px - func_0046b260(spr) / 2.0f, py, 0.0f,
                   ctab[0], ctab[1], ctab[2], alpha, w2, h2, 0, 0.0f, 0);
     px = 156.0f + x2;
@@ -2785,15 +2786,15 @@ void func_003599c0(s32 arg0, u8 *arg1)
         spr = func_00246830(name);
         func_00275020(x2, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
-    x3 = 5.0f + (x0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x4C0));
-    y3 = 78.0f + (rowY + (y0 + *(f32 *)(hudPanelPtr_003599c0(arg0 * 48, arg1) + 0x4C4)));
-    scale = (f32)hudPanelPtr_003599c0(arg0 * 48, arg1)[0x4CA];
+    x3 = 5.0f + (x0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x4C0));
+    y3 = 78.0f + (rowY + (y0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x4C4)));
+    scale = (f32)hudOffsetPtr_003599c0(arg0 * 48, arg1)[0x4CA];
     kind = scale * fade;
     w3 = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].w;
     h3 = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].h;
     px = 15.0f + x3;
     py = 2.0f + y3;
-    spr = *(u8 **)(arg1 + mode * 4 + 0x121C);
+    spr = *(u8 **)(hudOffsetPtr_003599c0(mode * 4, arg1) + 0x121C);
     func_0034f320(spr, px, py, 0.0f,
                   0xFF, 0xFF, 0xFF, kind, w3, h3, 0, 0.0f, 0);
 }
