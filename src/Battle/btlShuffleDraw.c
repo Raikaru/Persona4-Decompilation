@@ -1281,6 +1281,7 @@ void func_00376880(u8 **arg0) {
  * trail loops reuse the case-scope x/y/z (no shadowing locals).
  * fnalign 108 -> 105: per-case step = length / 21.0f locals, case 0's time at function scope and its fadedOpacity after taper (regalloc_whatif: time numbered first, fadedOpacity after taper).
  * fnalign 105 -> 29: reused locals split per independent group (separate live ranges as retail).
+ * fnalign 29 -> 21: float declaration order per scope (exhaustive).
  */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1473,9 +1474,9 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 f32 z;
                 u8 alpha;
                 f32 negativeWidth;
-                f32 offsetY;
-                f32 offsetX;
                 f32 negativeHeight;
+                f32 offsetX;
+                f32 offsetY;
                 front_s2 = first;
                 back_s2 = second;
                 alpha = (u8)opacity;
