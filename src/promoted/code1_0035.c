@@ -2574,6 +2574,7 @@ void func_003599a0(u8 *arg0)
  * fnalign 188 -> 168: float declaration order (w after y).
  * fnalign 168 -> 129: kind/name/count read through integer sums (retail off-first addu); func_00246830 takes u16 (H011, the callee masks 0xFFFF), so name spills as a u16; panel w/h read as HudPanel_0035 subscripts (index-first, recomputed per field).
  * fnalign 129 -> 128: mode reads off + (s32)arg1 (retail recomputes the sum off-first instead of reusing kind's).
+ * fnalign 128 -> 31: the second panel group has its own x2/y2/w2/h2, declared w2, h2, fade, x0, y0, x2, y2, rowY (retail FPR colours follow declaration order; reused locals get late split ranges).
  */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2622,16 +2623,20 @@ void func_003599c0(s32 arg0, u8 *arg1)
     s32 rc[4];
     u16 name;
     s32 count;
-    f32 px;
+    f32 w2;
+    f32 h2;
+    f32 fade;
+    f32 x0;
     f32 y0;
+    f32 x2;
+    f32 y2;
     f32 rowY;
+    f32 px;
     f32 x;
     f32 y;
     f32 w;
-    f32 fade;
     f32 h;
     f32 scale;
-    f32 x0;
     f32 py;
     u8 kind;
     s32 isSelf;
@@ -2685,11 +2690,11 @@ void func_003599c0(s32 arg0, u8 *arg1)
     rc[3] = 59.0f * h / 4096.0f;
     D_00887300[0](1, 0);
     func_0045d6e0(col, (u8 *)rc, 0.0f, 0);
-    x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x190));
-    y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x194)));
+    x2 = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x190));
+    y2 = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x194)));
     alpha = (f32)(arg1 + arg0 * 48)[0x19A] * fade;
-    w = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].w;
-    h = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].h;
+    w2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].w;
+    h2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].h;
     if (isSelf) {
         ptab = D_0064B2EC;
         ctab = D_0064B2E8;
@@ -2700,72 +2705,72 @@ void func_003599c0(s32 arg0, u8 *arg1)
         nameColor = 6;
     }
     if (mode != 1) {
-        px = 60.0f + x;
-        scale = h / 4096.0f;
-        py = y + 16.0f * scale;
+        px = 60.0f + x2;
+        scale = h2 / 4096.0f;
+        py = y2 + 16.0f * scale;
         spr = *(u8 **)(arg1 + 0x11E8);
         func_0034f320(spr, px, py, 0.0f,
-                      ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
-        px = 124.0f + x;
-        py = y + 14.0f * scale;
+                      ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
+        px = 124.0f + x2;
+        py = y2 + 14.0f * scale;
         spr = *(u8 **)(arg1 + (count & 0xFFFF) * 4 + 0x11EC);
         func_0034f320(spr, px, py, 0.0f,
-                      ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+                      ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     }
-    px = 59.0f + x;
-    scale = h / 4096.0f;
-    py = y + 32.0f * scale;
+    px = 59.0f + x2;
+    scale = h2 / 4096.0f;
+    py = y2 + 32.0f * scale;
     spr = *(u8 **)(arg1 + 0x1214);
     func_0034f320(spr, px, py, 0.0f,
-                  ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+                  ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     spr = *(u8 **)(arg1 + 0x1218);
     func_0034f320(spr, 88.0f + px, py, 0.0f,
-                  ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
-    px = 105.0f + x;
-    py = y + 33.0f * scale;
+                  ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
+    px = 105.0f + x2;
+    py = y2 + 33.0f * scale;
     spr = *(u8 **)(arg1 + kind * 4 + 0x12A0);
     func_0034f320(spr, px - func_0046b260(spr) / 2.0f, py, 0.0f,
-                  ctab[0], ctab[1], ctab[2], alpha, w, h, 0, 0.0f, 0);
-    px = 156.0f + x;
-    py = y + 18.0f * scale;
+                  ctab[0], ctab[1], ctab[2], alpha, w2, h2, 0, 0.0f, 0);
+    px = 156.0f + x2;
+    py = y2 + 18.0f * scale;
     spr = *(u8 **)(arg1 + 0x122C);
     func_0034f320(spr, px, py, 0.0f,
-                  ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+                  ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     spr = *(u8 **)(arg1 + 0x1230);
     func_0034f320(spr, 214.0f + px, py, 0.0f,
-                  ptab[0], ptab[1], ptab[2], alpha, w, h, 0, 0.0f, 0);
+                  ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     switch (mode) {
     case 0:
     case 1:
-        px = 4.0f + (157.0f + x);
-        py = y + 20.0f * scale;
+        px = 4.0f + (157.0f + x2);
+        py = y2 + 20.0f * scale;
         ptab = *(u8 **)(arg1 + 0x1234);
         i = 0;
         limit = count & 0xFFFF;
         for (; i < 10 && i < limit; i++) {
             func_0034f320(ptab, px + (f32)(i * 21), py, 0.0f,
-                          ctab[0], ctab[1], ctab[2], alpha, w, h, 0, 0.0f, 0);
+                          ctab[0], ctab[1], ctab[2], alpha, w2, h2, 0, 0.0f, 0);
         }
         break;
     case 2:
-        px = 198.0f + x;
-        py = y + 14.0f * scale;
+        px = 198.0f + x2;
+        py = y2 + 14.0f * scale;
         func_0034f320(isSelf ? *(u8 **)(arg1 + 0x1240) : *(u8 **)(arg1 + 0x1244), px, py, 0.0f,
-                      0xFF, 0xFF, 0xFF, alpha, w, h, 0, 0.0f, 0);
+                      0xFF, 0xFF, 0xFF, alpha, w2, h2, 0, 0.0f, 0);
         break;
     case 3:
-        px = 204.0f + x;
-        py = y + 14.0f * scale;
+        px = 204.0f + x2;
+        py = y2 + 14.0f * scale;
         func_0034f320(isSelf ? *(u8 **)(arg1 + 0x1238) : *(u8 **)(arg1 + 0x123C), px, py, 0.0f,
-                      0xFF, 0xFF, 0xFF, alpha, w, h, 0, 0.0f, 0);
+                      0xFF, 0xFF, 0xFF, alpha, w2, h2, 0, 0.0f, 0);
         break;
     }
-    if (h == 4096.0f) {
-        x = 157.0f + x;
-        scale = y + 30.0f * scale;
+    if (h2 == 4096.0f) {
+        x2 = 157.0f + x2;
+        scale = y2 + 30.0f * scale;
         nameAlpha = (alpha * 0xFF) / 0xFFU;
         spr = func_00246830(name);
-        func_00275020(x, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
+        func_00275020(x2, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
     x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C0));
     y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C4)));
