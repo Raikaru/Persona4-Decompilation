@@ -172,6 +172,44 @@ inverted flag `(iStack_4 != 0) ^ 1` computed before the call into the dead
 - Float compares: `!(b <= a)` gives retail's `c.ole.s`/`bc1t`. Only rewrite
   whole operands; a rewrite that starts inside `p * q < r` changes meaning.
 
+**Measure large functions with an edit distance, not `fnalign`'s count.**
+`fnalign` counts `difflib.SequenceMatcher` edits, which is not a minimal
+distance: on a 2,300-instruction function a correct one-line change moved it
+from 1,388 to 3,031 by re-pairing blocks. `tools/fnalign.py --levenshtein`
+now prints the minimal instruction distance, and `--dump FILE` writes both
+decoded streams as JSON. The probes in this part used two views of the dump:
+registers kept but stack offsets and branch displacements blanked, and the
+same with register numbers also blanked (structure only). Rank candidates by
+the structure-only distance first, then by the register-sensitive one.
+
+**Levers that took `0016bdd0` from structure 465 to 119 and `0017f490` from 403 to ~330:**
+- Ghidra's `do { t0 = *src; t1 = src[1]; src += 2; n--; *dst = t0; ... } while (0 < n)`
+  with `n = 8` is b210's own expansion of a 64-byte struct copy. Write
+  `*(FldMtx64 *)dst = *(FldMtx64 *)src;`. The compiler then uses its own late
+  temporaries for the loop, and this removed a whole set of saved registers.
+- Element-wise `a.x = *(float *)(p + o); a.y = ...; a.z = ...` copies,
+  where retail loads all three before storing, are whole struct copies
+  (`FldTriVec`/`FldAIVec3`). A greedy sweep over every such triple gave
+  `0017f490` 825 -> 673 on the combined distance.
+- `f = (float)(color.a = x);` reproduces retail's byte store followed by an
+  `andi`/`daddiu` conversion of the stored value with no reload. A separate
+  `u8 alpha` local gets constant-folded instead. The colour itself is a
+  `struct { u8 r, g, b, a; }` local, not a cast through `&int`.
+- Field addresses CSE into saved registers (`addiu $s5, $s3, 0x294`) when the
+  same field is spelled identically several times around a call. Sweep each
+  site over four spellings: `((float *)p)[i]`, `*(float *)((u8 *)(u32)p + o)`,
+  `*(float *)&p[i]`, `*(float *)((u8 *)p + o)`. Mixing them breaks the CSE;
+  `0016bdd0`'s saved integer registers dropped from `s0`-`s7`+`fp` to retail's `s0`-`s5`.
+- `fabsf` with a block-scope `extern float fabsf(float);` emits `abs.s`; the
+  romwright `x < 0 ? -x : x` helper does not.
+- `t = (FUN() < 15.0f) ? FUN() : 15.0f;` is the retail shape of the
+  two-call clamp; `if` forms load the constant into the result register first.
+- `opt_lifetimes on` splits each variable into webs numbered after all
+  declared variables. That is why a declaration-order change does not move
+  `0016bdd0`'s `piVar1` (virtual 33): `regalloc_whatif --search` wants it
+  scanned after virtual 162, and only reordering the webs will do that.
+
+
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
 **6,836 MATCH / 24 ASM** (`build/after39.json`; against `after38.json` only
