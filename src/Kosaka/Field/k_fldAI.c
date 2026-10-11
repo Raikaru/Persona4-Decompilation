@@ -981,6 +981,7 @@ tail:
  * fnalign 905 -> 876: comparison forms in retail's polarity.
  * fnalign 876 -> 873: declaration order per scope (exhaustive).
  * fnalign 873 -> 847: integer-cast field-base reads at selected sites.
+ * fnalign 847 -> 837: early returns inside the final switch written as break to the shared return.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1415,7 +1416,7 @@ else {
       if ((unsigned char *)piVar1[0x22] != (unsigned char *)0x0) {
         temp_v0 = FUN_0014bd90((unsigned char *)piVar1[0x22]);
         if (temp_v0 == 0) {
-          return 0;
+          break;
         }
         FUN_00452080((void *)piVar1[0x22]);
         piVar1[0x22] = 0;
@@ -1924,7 +1925,7 @@ else {
           piVar1[0x24] = 0x3c;
           *piVar1 = 7;
           func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,1,8,1);
-          return 0;
+          break;
         }
       }
       if ((CAND_iGpffffb258 == 0) && (temp_v0 = piVar1[3], CAND_iGpffffb310 == 0)) {
@@ -1977,7 +1978,7 @@ else {
             ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
             *piVar1 = 0xc;
             func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
-            return 0;
+            break;
           }
         }
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
