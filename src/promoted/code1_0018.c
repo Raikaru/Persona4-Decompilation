@@ -2048,6 +2048,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 706 -> 485: the +0x220 state dispatch is a switch (case 0 empty, cases 1/2/4 shared, case 3), as retail's beq 3/4/2/1/beqz chain.
  * fnalign 485 -> 484: split sweep.
  * fnalign 484 -> 480: float compares in retail polarity (c.ole/bc1t forms).
+ * fnalign 480 -> 454: the puVar1[9] countdown is written short arm first (retail blez to the long arm).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2591,7 +2592,11 @@ s32 func_0018a200(u8 *param_1)
           if ((temp_v11_s3 == 0) && (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
           }
-          if ((int)puVar1[9] < 1) {
+          if ((int)puVar1[9] > 0) {
+            func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, 2.0f);
+            puVar1[9] = puVar1[9] - 1;
+          }
+          else {
             func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vec120[0], 0);
             temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
             vec110[0] = *(float *)(temp_v4 + 0x30);
@@ -2642,10 +2647,6 @@ s32 func_0018a200(u8 *param_1)
               puVar1[10] = temp_v4 % 0x5a + 0x3c;
               func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
             }
-          }
-          else {
-            func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, 2.0f);
-            puVar1[9] = puVar1[9] - 1;
           }
         }
       }
