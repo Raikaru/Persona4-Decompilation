@@ -2575,6 +2575,7 @@ void func_003599a0(u8 *arg0)
  * fnalign 168 -> 129: kind/name/count read through integer sums (retail off-first addu); func_00246830 takes u16 (H011, the callee masks 0xFFFF), so name spills as a u16; panel w/h read as HudPanel_0035 subscripts (index-first, recomputed per field).
  * fnalign 129 -> 128: mode reads off + (s32)arg1 (retail recomputes the sum off-first instead of reusing kind's).
  * fnalign 128 -> 31: the second panel group has its own x2/y2/w2/h2, declared w2, h2, fade, x0, y0, x2, y2, rowY (retail FPR colours follow declaration order; reused locals get late split ranges).
+ * fnalign 31 -> 28: the panel alpha byte is converted into scale (a multi-definition float, dead at each site) before * fade, so mul.s takes it first as retail.
  */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2667,7 +2668,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     x = x0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B0);
     rowY = 64.0f * (f32)arg0;
     y = 81.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B4)));
-    alpha = (f32)(arg1 + arg0 * 48)[0x5BA] * fade;
+    scale = (f32)(arg1 + arg0 * 48)[0x5BA];
+    alpha = scale * fade;
     w = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].w;
     h = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].h;
     if (isSelf) {
@@ -2692,7 +2694,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     func_0045d6e0(col, (u8 *)rc, 0.0f, 0);
     x2 = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x190));
     y2 = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x194)));
-    alpha = (f32)(arg1 + arg0 * 48)[0x19A] * fade;
+    scale = (f32)(arg1 + arg0 * 48)[0x19A];
+    alpha = scale * fade;
     w2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].w;
     h2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].h;
     if (isSelf) {
@@ -2774,7 +2777,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     }
     x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C0));
     y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C4)));
-    kind = (f32)(arg1 + arg0 * 48)[0x4CA] * fade;
+    scale = (f32)(arg1 + arg0 * 48)[0x4CA];
+    kind = scale * fade;
     w = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].w;
     h = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].h;
     px = 15.0f + x;
