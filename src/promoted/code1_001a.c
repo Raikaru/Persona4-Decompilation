@@ -3022,6 +3022,7 @@ void func_001a5990(void)
  * fnalign 527 -> 521: btlCloseCamera reads the unit id before the switch, sends every failing path to one shared result = 0 (default arm, goto fail) and tests the 0x8000 flag first (retail polarity).
  * fnalign 521 -> 493: integer-cast +0x30 unit reads at selected sites (b210 does not CSE the address across calls, as retail).
  * fnalign 493 -> 455: integer-cast field-base reads (no cross-call address CSE).
+ * fnalign 455 -> 453: integer-cast field-base reads (second pass).
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3514,7 +3515,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s64 *)((u8 *)(temp_2_21) + (0x60))) = temp_17;
             (*(s16 *)((u8 *)(temp_2_21) + (0x4A))) = (s16) sp170;
             func_00194590(temp_2_21, 0);
-            temp_2_22 = (u8 *)(func_001d3530((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30))), (*(u8 **)((u8 *)(temp_18) + (0x30))), 2));
+            temp_2_22 = (u8 *)(func_001d3530((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30))), (*(u8 **)((u8 *)(u32)(temp_18) + (0x30))), 2));
             (*(s16 *)((u8 *)(temp_2_22) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_22) + (0x60))) = temp_17;
             func_00194590(temp_2_22, 0);
