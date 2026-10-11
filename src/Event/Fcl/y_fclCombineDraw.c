@@ -2615,6 +2615,7 @@ void func_00320970(u8 *arg0, s8 arg1) {
  * `mode` to 0xD0 as retail does. Open: retail keeps `n` as its own (s16)i
  * extension at the loop top (IRO_CommonSubs reuses the test's for ours) and
  * has no separate s8 copy of the row index.
+ * fnalign 10 -> 8: n and arg1 assigned at the loop top before the sp118 call.
  */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
@@ -2660,11 +2661,12 @@ void func_00320b80(u8 *arg0, s8 arg1) {
     func_0031e5b0(fclSavedCombineTask(&arg0), sp120, 0, 0, 0, 0, 0);
     i = 0;
     while (i < (u16)func_0010b5b0()) {
-        s32 n = i;
+        s32 n;
         s32 m;
         s32 persona;
-        sp118 = func_002b2970(16.0f, 128.0f);
+        n = i;
         arg1 = i;
+        sp118 = func_002b2970(16.0f, 128.0f);
         persona = *(u16 *)(func_002e48a0(0, i) + 2);
         func_003191c0(arg0, sp118, arg1,
                       persona,
