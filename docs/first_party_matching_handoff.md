@@ -176,6 +176,27 @@ alignment, and the C preserves the observed behavior and ABI.
   Every spelling of that sum keeps base-first; the helper there flips it but
   evaluates the end pointer before the ring offset (30); a dedicated
   single-definition table pointer does not change it.
+- **`0014f310`** (fnalign 64 -> 40, structure identical): retail's first
+  readiness check reuses the dispatch chain's constant 1 still in `$v0`
+  (no `li` on the NULL path). Writing the dispatch as an if-chain in retail's
+  descending order, with `one = 1; if (temp_3 == one) goto …;` right
+  before the compare and the first check returning that `one` for a NULL
+  file, reproduces it; the final 0/default test is a one-case `switch` with
+  `default` (retail `beqz`/`b`). Note `721047de` (readiness helper) took
+  fnalign 53 -> 64 while improving `--regs` 38 -> 32; the helper is kept.
+  Left (register-only): the `D_005F0590` table loop, where
+  `regalloc_whatif` wants `a_tbl` numbered after the loop temporaries
+  (`92@467`; inlining the address puts the `la` inside the loop), and the
+  two `func_0015e960` calls (`iGpffff9db0` in `$v1` and its `+0x28` word in
+  `$v0` in retail; role swaps, declaration positions and statement order do
+  not move them).
+- **`00162e10`** (9): `found` needs exactly one more reference before
+  allocation (score 4 against `k`'s 4; `42=4` in `regalloc_whatif` gives
+  retail's colours). Each extra reference tried either survives as code:
+  `found++` (`addiu $s5,$s5,1`, 2 edits), a second `if (found != 0) break;`
+  or a split `if (found == 0) … if (found != 0) …` (one extra branch, 3
+  edits). Or it is removed before allocation: copies, `register`, scope,
+  initialiser placement, loop forms.
 - **`0046b380`** (fnalign 41 -> 25): a third record-address spelling,
   `SDK_SPRITE_RECORD_VIA_ADD` (through `sdkAddOffset`, index first), at the
   packed-colour reads and the `points[2].x` extent. The remaining `addu`
