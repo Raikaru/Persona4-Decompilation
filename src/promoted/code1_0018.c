@@ -2045,6 +2045,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 755 -> 742: vec50 is a whole-vector copy of vec160 before the +180 y adjustment.
  * fnalign 742 -> 733: the D_007EF9F8/D_007EFA04 readiness test is the inline fldBothReady_0018a200() (retail materialises the && as a value, sltu each, then one test).
  * fnalign 733 -> 706: early exits inside the state switch are break; (retail beqz/bnez straight to the shared final return 0).
+ * fnalign 706 -> 485: the +0x220 state dispatch is a switch (case 0 empty, cases 1/2/4 shared, case 3), as retail's beq 3/4/2/1/beqz chain.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2521,7 +2522,64 @@ s32 func_0018a200(u8 *param_1)
       }
       temp_v5 = puVar1[3];
       temp_v3 = *(unsigned short *)(temp_v5 + 0x220);
-      if (temp_v3 == 3) {
+      switch (temp_v3) {
+      case 0:
+        break;
+      case 1:
+      case 2:
+      case 4:
+      {
+        if (((temp_v3 != 4) || (((float*)puVar1)[6] != 1.0f)) &&
+           (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
+          func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+        }
+        func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
+        temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+        vecE0[0] = *(float *)(temp_v4 + 0x30);
+        vecE0[1] = *(float *)(temp_v4 + 0x34);
+        vecE0[2] = *(float *)(temp_v4 + 0x38);
+        vec100[0] = vecF0[0] - vecE0[0];
+        vec100[1] = vecF0[1] - vecE0[1];
+        vec100[2] = vecF0[2] - vecE0[2];
+        FUN_003e40b0(&vec100[0],&vec100[0]);
+        temp_v13 = (float)FUN_0044b920(vec100[2] * D_00756528[0] +
+                                     vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0]);
+        temp_v13 = fGpffff8300 * temp_v13;
+        if (vec100[0] < 0.0f) {
+          temp_v13 = temp_v13 * -1.0f;
+        }
+        *(unsigned int *)(puVar1[5] + 0x28) = 0x3f800000;
+        *(unsigned int *)(puVar1[5] + 0x14) = 0x3f800000;
+        *(unsigned int *)puVar1[5] = 0x3f800000;
+        *(unsigned int *)(puVar1[5] + 0x10) = 0;
+        *(unsigned int *)(puVar1[5] + 8) = 0;
+        *(unsigned int *)(puVar1[5] + 4) = 0;
+        *(unsigned int *)(puVar1[5] + 0x24) = 0;
+        *(unsigned int *)(puVar1[5] + 0x20) = 0;
+        *(unsigned int *)(puVar1[5] + 0x18) = 0;
+        *(unsigned int *)(puVar1[5] + 0x38) = 0;
+        *(unsigned int *)(puVar1[5] + 0x34) = 0;
+        *(unsigned int *)(puVar1[5] + 0x30) = 0;
+        *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
+        func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
+        if ((*(unsigned short *)(puVar1[3] + 0x220) != 4) || (((float*)puVar1)[6] < 1.0f)) {
+          FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
+          FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
+          ((float*)puVar1)[6] = (((float*)puVar1)[6] + ((float*)puVar1)[7]);
+        }
+        if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
+          if (1.0f < ((float*)puVar1)[6]) {
+            puVar1[6] = 0x3f800000;
+            func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+          }
+        }
+        else if (1.0f < ((float*)puVar1)[6]) {
+          puVar1[6] = 0;
+        }
+      }
+        break;
+      case 3:
+      {
         temp_v11 = puVar1[10];
         if ((int)temp_v11 >= 1) {
           puVar1[10] = temp_v11 - 1;
@@ -2587,54 +2645,7 @@ s32 func_0018a200(u8 *param_1)
           }
         }
       }
-      else if (((temp_v3 == 4) || (temp_v3 == 2)) || (temp_v3 == 1)) {
-        if (((temp_v3 != 4) || (((float*)puVar1)[6] != 1.0f)) &&
-           (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
-          func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
-        }
-        func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
-        temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        vecE0[0] = *(float *)(temp_v4 + 0x30);
-        vecE0[1] = *(float *)(temp_v4 + 0x34);
-        vecE0[2] = *(float *)(temp_v4 + 0x38);
-        vec100[0] = vecF0[0] - vecE0[0];
-        vec100[1] = vecF0[1] - vecE0[1];
-        vec100[2] = vecF0[2] - vecE0[2];
-        FUN_003e40b0(&vec100[0],&vec100[0]);
-        temp_v13 = (float)FUN_0044b920(vec100[2] * D_00756528[0] +
-                                     vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0]);
-        temp_v13 = fGpffff8300 * temp_v13;
-        if (vec100[0] < 0.0f) {
-          temp_v13 = temp_v13 * -1.0f;
-        }
-        *(unsigned int *)(puVar1[5] + 0x28) = 0x3f800000;
-        *(unsigned int *)(puVar1[5] + 0x14) = 0x3f800000;
-        *(unsigned int *)puVar1[5] = 0x3f800000;
-        *(unsigned int *)(puVar1[5] + 0x10) = 0;
-        *(unsigned int *)(puVar1[5] + 8) = 0;
-        *(unsigned int *)(puVar1[5] + 4) = 0;
-        *(unsigned int *)(puVar1[5] + 0x24) = 0;
-        *(unsigned int *)(puVar1[5] + 0x20) = 0;
-        *(unsigned int *)(puVar1[5] + 0x18) = 0;
-        *(unsigned int *)(puVar1[5] + 0x38) = 0;
-        *(unsigned int *)(puVar1[5] + 0x34) = 0;
-        *(unsigned int *)(puVar1[5] + 0x30) = 0;
-        *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
-        func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
-        if ((*(unsigned short *)(puVar1[3] + 0x220) != 4) || (((float*)puVar1)[6] < 1.0f)) {
-          FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
-          FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
-          ((float*)puVar1)[6] = (((float*)puVar1)[6] + ((float*)puVar1)[7]);
-        }
-        if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
-          if (1.0f < ((float*)puVar1)[6]) {
-            puVar1[6] = 0x3f800000;
-            func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
-          }
-        }
-        else if (1.0f < ((float*)puVar1)[6]) {
-          puVar1[6] = 0;
-        }
+        break;
       }
     }
     break;
