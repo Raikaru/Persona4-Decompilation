@@ -755,21 +755,17 @@ void func_001839e0(u8 *arg0, u8 *arg1)
 }
  
 /* 2026-10-08: opt_lifetimes on lowers fnalign from 1427 to 879 edits. */
-/* 2026-10-09: 879 -> 826 edits: the state dispatch is a switch (retail tests 1 then 0 and shares one return), the edge clamps use fabsf, and the grid offsets multiply i * half with the converted product first.
-   2026-10-09: 826 -> 787: the row/cell base pointers and (f32)(j + 1) are
-   written inline at their uses (pure expressions; no operand changes in
-   between).
- * 2026-10-09: 787 -> 770: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 619: type sweep.
- * 617: hoist sweep.
- * struct 1508 -> 2: s32 outer counter (retail slti), the low colour byte loaded once into a u32 local before the high byte, (s32)(u32) weighting so the product converts before the 0x434/0x436 word, and the row pointer recomputed (distinct spellings) before each colour block as retail.
- * fnalign 705 -> 697: converted product held in fprod so the add is field-first after the product conversion (retail add.s order).
- * structure identical (fnalign 697 -> 645): the 0xF0 row pointer uses ((s32)k << 8), which b210 does not CSE with the earlier (u32)k * 0x100.
- * fnalign 645 -> 622: m declared before k (retail colours m/k as $a2/$a1).
- * fnalign 622 -> 201: (f32)m written inline instead of a fj local (retail keeps 2.0f in $f3 and the converted row in $f2).
+/* Matching notes: the state dispatch is a switch (retail tests 1 then 0 and
+ * shares one return); the grid offsets convert i * half first ((s32)(u32));
+ * the low colour byte is loaded into a u32 before the high byte; the 0xF0 row
+ * pointer uses ((s32)k << 8) so b210 does not CSE it with (u32)k * 0x100;
+ * m is declared before k; (f32)m is written inline; and each of the four
+ * colour-interpolation blocks has its own fhi/flo/fdiff/fhalf (a reused float
+ * becomes late split ranges that rotate the temporaries).
+ * opt_loop_invariants on is measured: without it b210 keeps the loop
+ * invariants in the body and the object no longer fits retail's window.
  */
-// FUN_00183B80 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00183B80
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
@@ -809,6 +805,22 @@ s32 func_00183b80(u8 *arg0)
     s32 iv3;
     f32 v1;
     u32 lo;
+    f32 fhi_0;
+    f32 flo_0;
+    f32 fdiff_0;
+    f32 fhalf_0;
+    f32 fhi_1;
+    f32 flo_1;
+    f32 fdiff_1;
+    f32 fhalf_1;
+    f32 fhi_2;
+    f32 flo_2;
+    f32 fdiff_2;
+    f32 fhalf_2;
+    f32 fhi_3;
+    f32 flo_3;
+    f32 fdiff_3;
+    f32 fhalf_3;
 
     ctx = *(u8 **)(arg0 + 0x38);
     tmp = ((u8 *)(uintptr_t)func_00457120());
@@ -883,116 +895,116 @@ s32 func_00183b80(u8 *arg0)
                 *(f32 *)(q + 0xA8) = f20;
                 *(f32 *)(q + 0xE8) = f20;
                 lo = *(u8 *)(ctx + 0x440);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x444);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv0 = (s32)((f32)(u32)lo + (f32)m * fhalf);
+                fhi_0 = (f32)(u32)*(u8 *)(ctx + 0x444);
+                flo_0 = (f32)(u32)lo;
+                fdiff_0 = fhi_0 - flo_0;
+                fhalf_0 = fdiff_0 / 2.0f;
+                iv0 = (s32)((f32)(u32)lo + (f32)m * fhalf_0);
                 lo = *(u8 *)(ctx + 0x441);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv1 = (s32)((f32)(u32)lo + (f32)m * fhalf);
+                fhi_0 = (f32)(u32)*(u8 *)(ctx + 0x445);
+                flo_0 = (f32)(u32)lo;
+                fdiff_0 = fhi_0 - flo_0;
+                fhalf_0 = fdiff_0 / 2.0f;
+                iv1 = (s32)((f32)(u32)lo + (f32)m * fhalf_0);
                 lo = *(u8 *)(ctx + 0x442);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv2 = (s32)((f32)(u32)lo + (f32)m * fhalf);
+                fhi_0 = (f32)(u32)*(u8 *)(ctx + 0x446);
+                flo_0 = (f32)(u32)lo;
+                fdiff_0 = fhi_0 - flo_0;
+                fhalf_0 = fdiff_0 / 2.0f;
+                iv2 = (s32)((f32)(u32)lo + (f32)m * fhalf_0);
                 lo = *(u8 *)(ctx + 0x443);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv3 = (s32)((f32)(u32)lo + (f32)m * fhalf);
+                fhi_0 = (f32)(u32)*(u8 *)(ctx + 0x447);
+                flo_0 = (f32)(u32)lo;
+                fdiff_0 = fhi_0 - flo_0;
+                fhalf_0 = fdiff_0 / 2.0f;
+                iv3 = (s32)((f32)(u32)lo + (f32)m * fhalf_0);
                 q = base + ((u32)k << 8);
                 *(f32 *)(q + 0x30) = (f32)iv0;
                 *(f32 *)(q + 0x34) = (f32)iv1;
                 *(f32 *)(q + 0x38) = (f32)iv2;
                 *(f32 *)(q + 0x3C) = (f32)iv3;
                 lo = *(u8 *)(ctx + 0x440);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x444);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv0 = (s32)((f32)(u32)lo + (f32)m * fhalf);
+                fhi_1 = (f32)(u32)*(u8 *)(ctx + 0x444);
+                flo_1 = (f32)(u32)lo;
+                fdiff_1 = fhi_1 - flo_1;
+                fhalf_1 = fdiff_1 / 2.0f;
+                iv0 = (s32)((f32)(u32)lo + (f32)m * fhalf_1);
                 lo = *(u8 *)(ctx + 0x441);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv1 = (s32)((f32)(u32)lo + (f32)m * fhalf);
+                fhi_1 = (f32)(u32)*(u8 *)(ctx + 0x445);
+                flo_1 = (f32)(u32)lo;
+                fdiff_1 = fhi_1 - flo_1;
+                fhalf_1 = fdiff_1 / 2.0f;
+                iv1 = (s32)((f32)(u32)lo + (f32)m * fhalf_1);
                 lo = *(u8 *)(ctx + 0x442);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv2 = (s32)((f32)(u32)lo + (f32)m * fhalf);
+                fhi_1 = (f32)(u32)*(u8 *)(ctx + 0x446);
+                flo_1 = (f32)(u32)lo;
+                fdiff_1 = fhi_1 - flo_1;
+                fhalf_1 = fdiff_1 / 2.0f;
+                iv2 = (s32)((f32)(u32)lo + (f32)m * fhalf_1);
                 lo = *(u8 *)(ctx + 0x443);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv3 = (s32)((f32)(u32)lo + (f32)m * fhalf);
+                fhi_1 = (f32)(u32)*(u8 *)(ctx + 0x447);
+                flo_1 = (f32)(u32)lo;
+                fdiff_1 = fhi_1 - flo_1;
+                fhalf_1 = fdiff_1 / 2.0f;
+                iv3 = (s32)((f32)(u32)lo + (f32)m * fhalf_1);
                 q = base + ((s32)(u32)k << 8);
                 *(f32 *)(q + 0x70) = (f32)iv0;
                 *(f32 *)(q + 0x74) = (f32)iv1;
                 *(f32 *)(q + 0x78) = (f32)iv2;
                 *(f32 *)(q + 0x7C) = (f32)iv3;
                 lo = *(u8 *)(ctx + 0x440);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x444);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv0 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf);
+                fhi_2 = (f32)(u32)*(u8 *)(ctx + 0x444);
+                flo_2 = (f32)(u32)lo;
+                fdiff_2 = fhi_2 - flo_2;
+                fhalf_2 = fdiff_2 / 2.0f;
+                iv0 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf_2);
                 lo = *(u8 *)(ctx + 0x441);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv1 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf);
+                fhi_2 = (f32)(u32)*(u8 *)(ctx + 0x445);
+                flo_2 = (f32)(u32)lo;
+                fdiff_2 = fhi_2 - flo_2;
+                fhalf_2 = fdiff_2 / 2.0f;
+                iv1 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf_2);
                 lo = *(u8 *)(ctx + 0x442);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv2 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf);
+                fhi_2 = (f32)(u32)*(u8 *)(ctx + 0x446);
+                flo_2 = (f32)(u32)lo;
+                fdiff_2 = fhi_2 - flo_2;
+                fhalf_2 = fdiff_2 / 2.0f;
+                iv2 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf_2);
                 lo = *(u8 *)(ctx + 0x443);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv3 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf);
+                fhi_2 = (f32)(u32)*(u8 *)(ctx + 0x447);
+                flo_2 = (f32)(u32)lo;
+                fdiff_2 = fhi_2 - flo_2;
+                fhalf_2 = fdiff_2 / 2.0f;
+                iv3 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf_2);
                 q = base + ((u32)k * 0x100);
                 *(f32 *)(q + 0xB0) = (f32)iv0;
                 *(f32 *)(q + 0xB4) = (f32)iv1;
                 *(f32 *)(q + 0xB8) = (f32)iv2;
                 *(f32 *)(q + 0xBC) = (f32)iv3;
                 lo = *(u8 *)(ctx + 0x440);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x444);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv0 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf);
+                fhi_3 = (f32)(u32)*(u8 *)(ctx + 0x444);
+                flo_3 = (f32)(u32)lo;
+                fdiff_3 = fhi_3 - flo_3;
+                fhalf_3 = fdiff_3 / 2.0f;
+                iv0 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf_3);
                 lo = *(u8 *)(ctx + 0x441);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv1 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf);
+                fhi_3 = (f32)(u32)*(u8 *)(ctx + 0x445);
+                flo_3 = (f32)(u32)lo;
+                fdiff_3 = fhi_3 - flo_3;
+                fhalf_3 = fdiff_3 / 2.0f;
+                iv1 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf_3);
                 lo = *(u8 *)(ctx + 0x442);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv2 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf);
+                fhi_3 = (f32)(u32)*(u8 *)(ctx + 0x446);
+                flo_3 = (f32)(u32)lo;
+                fdiff_3 = fhi_3 - flo_3;
+                fhalf_3 = fdiff_3 / 2.0f;
+                iv2 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf_3);
                 lo = *(u8 *)(ctx + 0x443);
-                fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
-                flo = (f32)(u32)lo;
-                fdiff = fhi - flo;
-                fhalf = fdiff / 2.0f;
-                iv3 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf);
+                fhi_3 = (f32)(u32)*(u8 *)(ctx + 0x447);
+                flo_3 = (f32)(u32)lo;
+                fdiff_3 = fhi_3 - flo_3;
+                fhalf_3 = fdiff_3 / 2.0f;
+                iv3 = (s32)((f32)(u32)lo + ((f32)(m + 1)) * fhalf_3);
                 q = (u8 *)((s32)base + ((s32)k << 8));
                 *(f32 *)(q + 0xF0) = (f32)iv0;
                 *(f32 *)(q + 0xF4) = (f32)iv1;
@@ -1056,11 +1068,7 @@ s32 func_00183b80(u8 *arg0)
     return 0;
 }
 
-#pragma opt_loop_invariants off
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00183b80);
-#endif
 // FUN_00185120
 void func_00185120(u8 *arg0)
 {
