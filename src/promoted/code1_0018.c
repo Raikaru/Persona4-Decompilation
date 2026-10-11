@@ -2032,6 +2032,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
  * 814: swap sweep.
  * callee prototypes from the real definitions (pointer parameters keep their existing spelling).
  * *puVar1 >= 4 (retail sltiu into $v0, not $at).
+ * fnalign 774 -> 761: vector fields read as whole FldCopyVec copies (retail stores all three, then adjusts y).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2232,9 +2233,8 @@ s32 func_0018a200(u8 *param_1)
           temp_v4 = FUN_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
           if ((temp_v4 == 0) && (temp_v1)) {
             temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
-            vec40[0] = *(float *)(temp_v4 + 0x30);
-            vec40[2] = *(float *)(temp_v4 + 0x38);
-            vec40[1] = *(float *)(temp_v4 + 0x34) + 140.0f;
+            *(FldCopyVec *)vec40 = *(FldCopyVec *)(temp_v4 + 0x30);
+            vec40[1] = vec40[1] + 140.0f;
             FUN_0047a8b0(*(void **)(puVar1[3] + 0x164),&(*(int *)&vec40[0]));
             temp_v2 = FUN_0047aa00(*(unsigned char **)(puVar1[3] + 0x164));
             FUN_0047a9f0(*(unsigned char **)(puVar1[3] + 0x164),temp_v2 | 0x1000);
@@ -2388,9 +2388,8 @@ s32 func_0018a200(u8 *param_1)
         temp_v4 = FUN_0047a6d0(*(void **)(puVar1[3] + 0x164),2,&vecA0[0]);
         if (temp_v4 == 0) {
           temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-          vecA0[0] = *(float *)(temp_v4 + 0x30);
-          vecA0[2] = *(float *)(temp_v4 + 0x38);
-          vecA0[1] = *(float *)(temp_v4 + 0x34) + 175.0f;
+          *(FldCopyVec *)vecA0 = *(FldCopyVec *)(temp_v4 + 0x30);
+          vecA0[1] = vecA0[1] + 175.0f;
         }
         temp_v4 = FUN_00155280();
         temp_v5 = FUN_0014e740(*(unsigned char **)(temp_v4 + temp_v11 * 4 + 0x34),&vecA0[0]);
