@@ -2567,7 +2567,11 @@ void func_003599a0(u8 *arg0)
  * fnalign 306 -> 292: entry offset kept as off*12 with the base re-added (u32) for mode, colour bytes read before the stores, and the w/h halfword reads re-add the panel base as retail.
  * fnalign 292 -> 190: switch arms, name call and the final call in retail statement order (positions first, then the sprite), count masked at use, loop bound computed before the loop.
  * case 0 written before case 1 (retail's test order); the alpha byte converts without (u32).
- * func_00246830 takes the name id as u16 (retail passes the spilled halfword unmasked; H011).
+ * The name lookup's actual provider is u8 *(u32) and masks the low 16 bits.
+ * Keep that word formal here; the retail halfword load does not justify an
+ * incompatible u16 declaration. With the real contract the current floor is
+ * 188 aligned edits, 1189 C instructions against 1190 retail instructions.
+ * fnalign 188 -> 168: float declaration order (w after y).
  */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2600,7 +2604,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
 {
     extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
-    extern u8 *func_00246830(u16 arg0);
+    extern u8 *func_00246830(u32 arg0);
     extern s32 func_00275020(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
     extern f32 func_0046b260(u8 *arg0);
     extern s32 (*D_00887300[])(s32, s32);
@@ -2617,10 +2621,10 @@ void func_003599c0(s32 arg0, u8 *arg1)
     s32 count;
     f32 px;
     f32 y0;
-    f32 w;
     f32 rowY;
     f32 x;
     f32 y;
+    f32 w;
     f32 fade;
     f32 h;
     f32 scale;
