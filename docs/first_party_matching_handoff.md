@@ -236,6 +236,34 @@ the structure-only distance first, then by the register-sensitive one.
   Source-level renumbering attempts all failed: a dedicated `absval` local is
   copy-propagated away, and isolating `temp_f3`'s webs changes nothing.
 
+**Un-Ghidra the variables, not just the expressions (`0016bdd0` combined 592 -> 308).**
+Ghidra merges distinct source variables into one `temp_vN`. With
+`opt_lifetimes on`, b210 splits each merged variable into webs that are
+numbered after every declared variable, and that numbering decides the
+colouring order. In `0016bdd0`, `piVar1` stayed `$s3` until
+`regalloc_whatif --search` showed it needed to be scanned after those late
+webs. The fix was to give every role its own variable: per-case copies of
+`temp_v4`/`temp_v8`/`pfVar8`/..., the loop counter, the bound and the matrix
+holder in case 3/4 as separate locals, and `x = *(int *)(FUN_00457120() + 4);`
+instead of Ghidra's two-step `x = FUN(); x = *(int *)(x + 4);`, which made
+two webs. `lo`/`hi` moved from a nested block to the outer declarations.
+With every local a single web numbered before `piVar1`, it became `$s0`
+and the saved FPRs dropped to retail's `f20`-`f24`.
+- Ternary clamps: `(limit > f()) ? f() : limit` gives retail's
+  `c.ole limit, r; bc1t`. `(f() < limit) ? ...` gives `c.olt`/`bc1f`, and
+  `!(...)` forms change the shape.
+- Stack layout: Ghidra's `stkNNN` / `fStack_NNN` names give retail offsets
+  (`frame - NNN`). Declaring the stack objects in descending retail-offset
+  order makes our layout monotonic with retail's. Retail's frame is smaller
+  because block-scoped matrices overlap earlier, sibling-scoped vectors: the
+  case 3 `RwMatrix` at `sp+0x2b0` overlaps `stk90`/`stkA0`, and the case 4
+  one at `0x280` overlaps `stkC0`/`stkD0`. That scoping still has to be
+  reproduced.
+- A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
+  case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
+  reads before writes.
+
+
 
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
