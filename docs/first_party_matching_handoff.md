@@ -263,6 +263,27 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.
 
+**`0047b0c0` MATCH: write the inline helper out and order its locals.**
+The last 9 edits were a saved-register permutation in the `0xf0f000e1`
+path: `payload` and the inline helper's `copy`. `regalloc_whatif --search 82,93`
+wanted the order copy < size < payload, and the residual showed retail
+keeps the helper's `count` parameter in `$s2`, a real variable rather than a
+reload of `capacity`. Expanding `mdl_clone_attachment_storage_sized` in
+place, with `table`, `size` and `count` declared before `payload`, matches.
+Any order with `table` before `size` gives 0 edits.
+
+**Probes that did not close:**
+- `00162e10` (9): `found`/`k` swap `$s5`/`$s6`. The model needs `found`'s
+  spill score at exactly 4. `found++` gives it, but emits `addiu s5,s5,1`.
+  A flag-driven `if (found != 0) break;` fixes the colours but keeps an
+  extra `bnez` that retail threads away. Zero assignments in both arms fix
+  the colours but move the zero stores.
+- `0048b340` (9): the else-branch base (`dst1 = stride + clear`) must be a
+  non-saved temporary numbered after the asm operand temporaries (r63-r91).
+  A block-local `near` becomes a temporary but is numbered too early (40).
+  Spelling it as a repeated expression makes a CSE temporary but perturbs
+  the `c0`/`stride` saved pair (34).
+
 
 
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
