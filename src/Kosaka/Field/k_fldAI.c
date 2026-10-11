@@ -1001,6 +1001,7 @@ tail:
  * combined 504 -> 488: the patrol-box toggle keeps the loaded index, tests the box in retail polarity and compares the flag with 1.
  * combined 488 -> 470: target positions copied whole, then y raised by the height table entry (table base + kind*16 summed first).
  * combined 470 -> 434: the patrol-area exit tests read a stack copy of the position (retail swc1 to 0x70 and reloads) in retail polarity.
+ * combined 434 -> 405: state 8 scales the forward vector by (ratio * FUN_00175db0()) per component and offsets a whole copy of the target position.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1649,16 +1650,14 @@ else {
           temp_v9 = temp_v9 / temp_v8;
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           state8Forward = *(FldAIVec3 *)(temp_v0 + 0x20);
-          temp_v8 = FUN_00175db0();
-          state8Forward.x = state8Forward.x * temp_v9 * temp_v8;
-          temp_v8 = FUN_00175db0();
-          state8Forward.y = state8Forward.y * temp_v9 * temp_v8;
-          temp_v8 = FUN_00175db0();
-          state8Forward.z = state8Forward.z * temp_v9 * temp_v8;
+          state8Forward.x = state8Forward.x * (temp_v9 * FUN_00175db0());
+          state8Forward.y = state8Forward.y * (temp_v9 * FUN_00175db0());
+          state8Forward.z = state8Forward.z * (temp_v9 * FUN_00175db0());
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-          aiPos2.x = *(float *)(temp_v0 + 0x30) + state8Forward.x;
-          aiPos2.y = *(float *)(temp_v0 + 0x34) + state8Forward.y;
-          aiPos2.z = *(float *)(temp_v0 + 0x38) + state8Forward.z;
+          aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
+          aiPos2.x = aiPos2.x + state8Forward.x;
+          aiPos2.y = aiPos2.y + state8Forward.y;
+          aiPos2.z = aiPos2.z + state8Forward.z;
         }
       }
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
