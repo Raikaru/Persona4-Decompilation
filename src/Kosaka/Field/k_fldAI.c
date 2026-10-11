@@ -985,6 +985,7 @@ tail:
  * fnalign 837 -> 833: float compares in retail polarity.
  * fnalign 833 -> 820: state 6 subtracts a copied, y-zeroed position vector (aiPos6) as state 2 does (retail stores the copy and zeroes y in the frame).
  * fnalign 820 -> 815: states 2/10 subtract the copied vector's zeroed y, state 8 gets its own copied position (aiPos8).
+ * fnalign 815 -> 799: state 9 builds its target step by step (scale, add, scale, add, subtract), each stored to the vector, as retail.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1770,13 +1771,22 @@ else {
       state9Direction.z = ((float *)piVar1)[0x16] - aiV190.z;
       temp_v9 = aiV190.z;
       RwV3dNormalize(&state9Direction,&state9Direction);
-      state9Direction.x = state9Direction.x * 200.0f + ((float *)piVar1)[0x14];
-      state9Direction.y = state9Direction.y * 200.0f + ((float *)piVar1)[0x15];
-      state9Direction.z = state9Direction.z * 200.0f + ((float *)piVar1)[0x16];
+      state9Direction.x = state9Direction.x * 200.0f;
+      state9Direction.y = state9Direction.y * 200.0f;
+      state9Direction.z = state9Direction.z * 200.0f;
+      state9Direction.x = state9Direction.x + ((float *)piVar1)[0x14];
+      state9Direction.y = state9Direction.y + ((float *)piVar1)[0x15];
+      state9Direction.z = state9Direction.z + ((float *)piVar1)[0x16];
       temp_v11 = temp_v11 * 400.0f;
-      state9Delta.x = (state9Right.x * temp_v11 + state9Direction.x) - aiV190.x;
-      state9Delta.y = (state9Right.y * temp_v11 + state9Direction.y) - temp_v8;
-      state9Delta.z = (state9Right.z * temp_v11 + state9Direction.z) - temp_v9;
+      state9Delta.x = state9Right.x * temp_v11;
+      state9Delta.y = state9Right.y * temp_v11;
+      state9Delta.z = state9Right.z * temp_v11;
+      state9Delta.x = state9Delta.x + state9Direction.x;
+      state9Delta.y = state9Delta.y + state9Direction.y;
+      state9Delta.z = state9Delta.z + state9Direction.z;
+      state9Delta.x = state9Delta.x - aiV190.x;
+      state9Delta.y = state9Delta.y - temp_v8;
+      state9Delta.z = state9Delta.z - temp_v9;
       temp_v9 = RwV3dNormalize(&state9Delta,&state9Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v8 >= temp_v9) {
