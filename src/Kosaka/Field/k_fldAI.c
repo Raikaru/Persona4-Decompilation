@@ -986,6 +986,9 @@ tail:
  * fnalign 833 -> 820: state 6 subtracts a copied, y-zeroed position vector (aiPos6) as state 2 does (retail stores the copy and zeroes y in the frame).
  * fnalign 820 -> 815: states 2/10 subtract the copied vector's zeroed y, state 8 gets its own copied position (aiPos8).
  * fnalign 815 -> 799: state 9 builds its target step by step (scale, add, scale, add, subtract), each stored to the vector, as retail.
+ * combined 911 -> 861: the colour is a byte struct and each alpha update is (float)(color.a = x) (retail stores the byte and converts the assignment value: andi/daddiu, no reload).
+ * combined 861 -> 825: the four +0x19c position copies are FldAIVec3 struct copies.
+ * combined 825 -> 673: element-wise vector copies as FldAIVec3 struct copies where retail loads all three before storing.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1052,6 +1055,7 @@ extern unsigned char D_005F1CC0[];
 int func_0017f490(unsigned char *param_1)
 
 {
+  typedef struct { unsigned char r, g, b, a; } FldAIColor;
 /* irregular: 10 native warning(s); review required */
   float distVec[3];
   float vec70[3];
@@ -1107,7 +1111,7 @@ int func_0017f490(unsigned char *param_1)
   FldAIVec3 state2Forward;
   FldAIVec3 aiPos6;
   FldAIVec3 aiPos8;
-  int uStack_4;
+  FldAIColor color;
   
   piVar1 = *(int **)(param_1 + 0x38);
   if (piVar1[1] == 1) {
@@ -1133,7 +1137,7 @@ availabilityDone:
     puVar4 = (unsigned char *)FUN_0047a250(*(unsigned int *)(piVar1[3] + 0x50));
     {
         typedef struct { unsigned char c[4]; } FldAIColorBytes;
-        *(FldAIColorBytes *)&uStack_4 = *(FldAIColorBytes *)puVar4;
+        color = *(FldAIColor *)puVar4;
     }
     temp_v8 = ((float *)(int *)(u32)piVar1)[0x20];
     temp_v10 = ((float *)piVar1)[0x21] - temp_v8;
@@ -1152,8 +1156,7 @@ availabilityDone:
     distVec[2] = *(float *)(temp_v1 + 0x38) - *(float *)(temp_v0 + 0x38);
     temp_v10 = FUN_003e4180(&distVec[0]);
     if (((float *)(int *)(u32)piVar1)[0x21] <= temp_v10) {
-      ((unsigned char*)&uStack_4)[3] = 0;
-      ((float *)piVar1)[0x1f] = (float)((unsigned char*)&uStack_4)[3];
+      ((float *)piVar1)[0x1f] = (float)(color.a = 0);
     }
     else if (temp_v10 >= temp_v8) {
       if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\0') {
@@ -1166,23 +1169,21 @@ availabilityDone:
       else {
         temp_v9 = 1.0f - (temp_v10 - temp_v8) / temp_v11;
       }
-      ((unsigned char*)&uStack_4)[3] = (unsigned char)(temp_v9 * 255.0f);
-      ((float *)piVar1)[0x1f] = (float)((unsigned char*)&uStack_4)[3];
+      ((float *)piVar1)[0x1f] = (float)(color.a = (unsigned char)(temp_v9 * 255.0f));
     }
     else {
-      ((unsigned char*)&uStack_4)[3] = 0xff;
-      piVar1[0x1f] = 0x437f0000;
+      *(float *)((u8 *)(u32)piVar1 + 0x7c) = (float)(color.a = 0xff);
     }
     if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\x01') {
-      FUN_0047a220(*(unsigned int *)(piVar1[3] + 0x50),&uStack_4);
+      FUN_0047a220(*(unsigned int *)(piVar1[3] + 0x50),&color);
     }
     for (temp_v0 = **(int **)(*(int *)(piVar1[3] + 0x50) + 0x2cc); temp_v0 != 0;
         temp_v0 = *(int *)(temp_v0 + 0x10)) {
       if (*(void **)(temp_v0 + 8) != (void *)0x0) {
-        FUN_004b14f0(*(void **)(temp_v0 + 8),&uStack_4);
+        FUN_004b14f0(*(void **)(temp_v0 + 8),(int *)&color);
         temp_v8 = ((float *)piVar1)[0x1f];
-        ((unsigned char*)&uStack_4)[3] = (unsigned char)temp_v8;
-        FUN_004b13f0(*(void **)(temp_v0 + 8),&uStack_4);
+        color.a = (unsigned char)temp_v8;
+        FUN_004b13f0(*(void **)(temp_v0 + 8),(int *)&color);
       }
     }
     switch(*piVar1) {
@@ -1193,21 +1194,13 @@ availabilityDone:
       piVar1[5] = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x180 +
                   (unsigned int)*(unsigned short *)(piVar1[3] + 0x1c8) * 0x40;
       temp_v0 = piVar1[3];
-      ((float *)piVar1)[9] = *(float *)(temp_v0 + 0x19c);
-      ((float *)piVar1)[10] = *(float *)(temp_v0 + 0x1a0);
-      ((float *)piVar1)[0xb] = *(float *)(temp_v0 + 0x1a4);
+      *(FldAIVec3 *)&((float *)piVar1)[9] = *(FldAIVec3 *)(temp_v0 + 0x19c);
       temp_v0 = piVar1[3];
-      ((float *)piVar1)[6] = *(float *)(temp_v0 + 0x19c);
-      ((float *)piVar1)[7] = *(float *)(temp_v0 + 0x1a0);
-      ((float *)piVar1)[8] = *(float *)(temp_v0 + 0x1a4);
+      *(FldAIVec3 *)&((float *)piVar1)[6] = *(FldAIVec3 *)(temp_v0 + 0x19c);
       temp_v0 = piVar1[3];
-      ((float *)piVar1)[0xf] = *(float *)(temp_v0 + 0x19c);
-      ((float *)piVar1)[0x10] = *(float *)(temp_v0 + 0x1a0);
-      ((float *)piVar1)[0x11] = *(float *)(temp_v0 + 0x1a4);
+      *(FldAIVec3 *)&((float *)piVar1)[0xf] = *(FldAIVec3 *)(temp_v0 + 0x19c);
       temp_v0 = piVar1[3];
-      ((float *)piVar1)[0xc] = *(float *)(temp_v0 + 0x19c);
-      ((float *)piVar1)[0xd] = *(float *)(temp_v0 + 0x1a0);
-      ((float *)piVar1)[0xe] = *(float *)(temp_v0 + 0x1a4);
+      *(FldAIVec3 *)&((float *)piVar1)[0xc] = *(FldAIVec3 *)(temp_v0 + 0x19c);
       temp_v0 = FUN_003b7060();
       piVar1[0x17] = (int)((unsigned int)temp_v0 % 3) + 1;
       ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
@@ -1324,14 +1317,10 @@ availabilityDone:
       break;
     case 2:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state2Forward.x = *(float *)(temp_v0 + 0x20);
-      state2Forward.y = *(float *)(temp_v0 + 0x24);
-      state2Forward.z = *(float *)(temp_v0 + 0x28);
+      state2Forward = *(FldAIVec3 *)(temp_v0 + 0x20);
       RwV3dNormalize(&state2Forward,&state2Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state2Right.x = *pfVar8;
-      state2Right.y = pfVar8[1];
-      state2Right.z = pfVar8[2];
+      state2Right = *(FldAIVec3 *)pfVar8;
       RwV3dNormalize(&state2Right,&state2Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       aiV60 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1526,14 +1515,10 @@ else {
       break;
     case 7:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state7Forward.x = *(float *)(temp_v0 + 0x20);
-      state7Forward.y = *(float *)(temp_v0 + 0x24);
-      state7Forward.z = *(float *)(temp_v0 + 0x28);
+      state7Forward = *(FldAIVec3 *)(temp_v0 + 0x20);
       RwV3dNormalize(&state7Forward,&state7Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state7Right.x = *pfVar8;
-      state7Right.y = pfVar8[1];
-      state7Right.z = pfVar8[2];
+      state7Right = *(FldAIVec3 *)pfVar8;
       RwV3dNormalize(&state7Right,&state7Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       aiVF0 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1652,9 +1637,7 @@ else {
           temp_v9 = RwV3dNormalize(&state8Delta,&state8Delta);
           temp_v9 = temp_v9 / temp_v8;
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-          state8Forward.x = *(float *)(temp_v0 + 0x20);
-          state8Forward.y = *(float *)(temp_v0 + 0x24);
-          state8Forward.z = *(float *)(temp_v0 + 0x28);
+          state8Forward = *(FldAIVec3 *)(temp_v0 + 0x20);
           temp_v8 = FUN_00175db0();
           state8Forward.x = state8Forward.x * temp_v9 * temp_v8;
           temp_v8 = FUN_00175db0();
@@ -1668,14 +1651,10 @@ else {
         }
       }
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state8Forward.x = *(float *)(temp_v0 + 0x20);
-      state8Forward.y = *(float *)(temp_v0 + 0x24);
-      state8Forward.z = *(float *)(temp_v0 + 0x28);
+      state8Forward = *(FldAIVec3 *)(temp_v0 + 0x20);
       RwV3dNormalize(&state8Forward,&state8Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state8Right.x = *pfVar8;
-      state8Right.y = pfVar8[1];
-      state8Right.z = pfVar8[2];
+      state8Right = *(FldAIVec3 *)pfVar8;
       RwV3dNormalize(&state8Right,&state8Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       aiPos8 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1751,14 +1730,10 @@ else {
       break;
     case 9:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state9Forward.x = *(float *)(temp_v0 + 0x20);
-      state9Forward.y = *(float *)(temp_v0 + 0x24);
-      state9Forward.z = *(float *)(temp_v0 + 0x28);
+      state9Forward = *(FldAIVec3 *)(temp_v0 + 0x20);
       RwV3dNormalize(&state9Forward,&state9Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state9Right.x = *pfVar8;
-      state9Right.y = pfVar8[1];
-      state9Right.z = pfVar8[2];
+      state9Right = *(FldAIVec3 *)pfVar8;
       RwV3dNormalize(&state9Right,&state9Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       aiV190 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1833,14 +1808,10 @@ else {
       break;
     case 10:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state10Forward.x = *(float *)(temp_v0 + 0x20);
-      state10Forward.y = *(float *)(temp_v0 + 0x24);
-      state10Forward.z = *(float *)(temp_v0 + 0x28);
+      state10Forward = *(FldAIVec3 *)(temp_v0 + 0x20);
       RwV3dNormalize(&state10Forward,&state10Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state10Right.x = *pfVar8;
-      state10Right.y = pfVar8[1];
-      state10Right.z = pfVar8[2];
+      state10Right = *(FldAIVec3 *)pfVar8;
       RwV3dNormalize(&state10Right,&state10Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       aiV1D0 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1896,14 +1867,10 @@ else {
       break;
     case 0xb:
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state11Forward.x = *(float *)(temp_v0 + 0x20);
-      state11Forward.y = *(float *)(temp_v0 + 0x24);
-      state11Forward.z = *(float *)(temp_v0 + 0x28);
+      state11Forward = *(FldAIVec3 *)(temp_v0 + 0x20);
       RwV3dNormalize(&state11Forward,&state11Forward);
       pfVar8 = (float *)FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state11Right.x = *pfVar8;
-      state11Right.y = pfVar8[1];
-      state11Right.z = pfVar8[2];
+      state11Right = *(FldAIVec3 *)pfVar8;
       RwV3dNormalize(&state11Right,&state11Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
       aiV210 = *(FldAIVec3 *)(temp_v0 + 0x30);
