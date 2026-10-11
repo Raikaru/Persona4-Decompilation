@@ -2572,6 +2572,7 @@ void func_003599a0(u8 *arg0)
  * incompatible u16 declaration. With the real contract the current floor is
  * 188 aligned edits, 1189 C instructions against 1190 retail instructions.
  * fnalign 188 -> 168: float declaration order (w after y).
+ * fnalign 168 -> 129: kind/name/count read through integer sums (retail off-first addu); func_00246830 takes u16 (H011, the callee masks 0xFFFF), so name spills as a u16; panel w/h read as HudPanel_0035 subscripts (index-first, recomputed per field).
  */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2604,7 +2605,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
 {
     extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
-    extern u8 *func_00246830(u32 arg0);
+    /* H011: the callee masks its argument with 0xFFFF. */
+    extern u8 *func_00246830(u16 arg0);
     extern s32 func_00275020(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
     extern f32 func_0046b260(u8 *arg0);
     extern s32 (*D_00887300[])(s32, s32);
@@ -2647,9 +2649,9 @@ void func_003599c0(s32 arg0, u8 *arg1)
     {
         s32 off = (*(s16 *)(arg1 + 0x26) + arg0) * 12;
 
-        kind = *(u8 *)(off + arg1 + 0x38);
-        name = *(u16 *)(off + arg1 + 0x3A);
-        count = *(u16 *)(off + arg1 + 0x3C);
+        kind = *(u8 *)((u32)off + (u32)arg1 + 0x38);
+        name = *(u16 *)((u32)off + (u32)arg1 + 0x3A);
+        count = *(u16 *)((u32)off + (u32)arg1 + 0x3C);
         if (kind >= 0x20) {
             func_0046d730(D_0064CC98, 0x5D5);
         }
@@ -2660,8 +2662,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     rowY = 64.0f * (f32)arg0;
     y = 81.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x5B4)));
     alpha = (f32)(arg1 + arg0 * 48)[0x5BA] * fade;
-    w = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x5C0);
-    h = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x5C6);
+    w = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].w;
+    h = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].h;
     if (isSelf) {
         u8 r = D_0064B2E8[0];
         u8 g = D_0064B2E9[0];
@@ -2685,8 +2687,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x190));
     y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x194)));
     alpha = (f32)(arg1 + arg0 * 48)[0x19A] * fade;
-    w = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x1A0);
-    h = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x1A6);
+    w = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].w;
+    h = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].h;
     if (isSelf) {
         ptab = D_0064B2EC;
         ctab = D_0064B2E8;
@@ -2767,8 +2769,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     x = 5.0f + (x0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C0));
     y = 78.0f + (rowY + (y0 + *(f32 *)(arg1 + arg0 * 48 + 0x4C4)));
     kind = (f32)(arg1 + arg0 * 48)[0x4CA] * fade;
-    w = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x4D0);
-    h = (f32)*(u16 *)((u32)arg1 + arg0 * 48 + 0x4D6);
+    w = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].w;
+    h = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].h;
     px = 15.0f + x;
     py = 2.0f + y;
     spr = *(u8 **)(arg1 + mode * 4 + 0x121C);
