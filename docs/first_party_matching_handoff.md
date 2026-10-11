@@ -115,6 +115,19 @@ first.
   splits, dead-local reuse, declaration runs) have been run on every remaining
   function; only the gains listed above came out of them.
 
+**Integer-cast field bases.** Retail often re-adds `base + off` at each use,
+while b210 CSEs the field address across calls and spills it (`addiu
+$v0,$sX,off; sq`). Writing the base through an integer cast,
+`((u8 *)(u32)(base) + off)`, stops that CSE at the chosen site. As a
+per-site sweep (keep only strict improvements): `001a59a0` 521 -> 453,
+`0017f490` 873 -> 847, `00471370` 51 -> 27. In `00471370` the cast on
+`temp_7` also gives both 64-byte matrix copies retail's source-first
+register order. It does nothing where the function already has
+`opt_common_subs off` (`001a7720`).
+`001a59a0` also gained 545 -> 521 from the sibling `001a7720` tail
+`switch` (`u16 state`, real `btlActionSetState(BtlAction *, u16)`) and a
+`btlCloseCamera` helper with one shared `fail:` default arm.
+
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
 **6,836 MATCH / 24 ASM** (`build/after39.json`; against `after38.json` only
