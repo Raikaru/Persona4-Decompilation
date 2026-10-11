@@ -95,6 +95,25 @@ first.
 - `004a7830` (7): the `abs` result must be numbered before `temp_f20`'s
   load; declaration order, dedicated locals and `opt_lifetimes` do not
   move these caller-saved temporaries.
+- `0048b340` (9): `dst1` is one web (r40, `$s3`) spanning `loop1` and the
+  else branch; retail's else-branch pointer is a caller-saved temporary
+  (`$a3`). A separate `base` local becomes a temporary but lands in `$v1`
+  (40); the model wants it numbered after every declared variable, and no
+  declaration position or reused pointer gives that.
+- `001d8010` (37): in each bubble sort `limit` is a propagated temporary
+  (r270) and `j` a declared variable (r44); the model wants `limit` early
+  (`270@32`) or `j` after `limit` (`44@270`). A shared function-scope
+  `limit`, `j` declared first, and reusing `i`/`n` for `j` do not change the
+  output.
+- `00320b80` (8): `n` is CSE'd with the loop test's `(s16)i` sign extension
+  (the definition moves to the latch); retail recomputes it at the top.
+  `for` form, `(s32)i` and `s16 n` do not help.
+- `004b8f40` (1): the documented `addu` levers (named index temporary, inline
+  pointer copy `(p = pfVar17)[…]`, offset-first helpers) all keep base-first
+  or reorder the loads (9-33).
+- Mechanical sweeps (equality tests as `switch`, comparison polarity, per-group
+  splits, dead-local reuse, declaration runs) have been run on every remaining
+  function; only the gains listed above came out of them.
 
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
