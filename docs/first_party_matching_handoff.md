@@ -25,6 +25,34 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 11 continuation, part 12: `00183b80` MATCH; split reused locals
+
+**6,837 MATCH / 23 ASM** (`build/after42.json`; against `after41.json` only
+`00183b80` changed; link 604 C / 54 SDK, both sha1 OK in `build/link45.log`).
+
+**Lever: give each repeated code group its own locals.** A local that is
+reassigned in several independent groups (Ghidra/m2c reuse, or one `w`/`h`
+for three HUD panels) is split into one live range per group. The first
+range keeps the declared variable's number; the others are numbered after
+every declared variable, which reorders both saved-register colours and
+caller-saved temporaries. Retail used separate locals:
+
+- `00183b80` 201 -> **0**: each of the four colour-interpolation blocks gets
+  its own `fhi`/`flo`/`fdiff`/`fhalf` (splitting `lo` or `iv0..3` instead
+  does nothing or worse).
+- `003599c0` 128 -> 16: the second and third HUD panel groups get their own
+  `x`/`y`/`w`/`h`, declared in retail's colour ranking.
+- `004a7830`'s three FPR temporaries do not follow declaration order; this
+  lever has not moved them.
+
+Apply it by renaming the variable inside each group (`v` -> `v_N`, declared
+after the original) and measure per variable family. When it works the gain
+is usually large and immediate.
+
+Other measured changes this session are listed per function under part 11
+(`001f14f0`, `003599c0`, `0014f310`, `00471370`, `0016bdd0`, `003768e0`,
+`00162e10`).
+
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
 **6,836 MATCH / 24 ASM** (`build/after39.json`; against `after38.json` only
