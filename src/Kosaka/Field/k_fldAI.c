@@ -1003,6 +1003,8 @@ tail:
  * combined 470 -> 434: the patrol-area exit tests read a stack copy of the position (retail swc1 to 0x70 and reloads) in retail polarity.
  * combined 434 -> 405: state 8 scales the forward vector by (ratio * FUN_00175db0()) per component and offsets a whole copy of the target position.
  * combined 405 -> 375: the height table is a float[..][4] indexed [kind][slot].
+ * combined 375 -> 345: state 9 steering computes the dot product (y, x, z) before the 5 * (10 * speed) limit, then 1 - dot.
+ * combined 345 -> 341: dot products in retail (y, x, z) order.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1785,12 +1787,13 @@ else {
       else {
         piVar1[0x25] = piVar1[0x25] - 1;
       }
-      temp_v11 = *(float *)((u8 *)(u32)piVar1 + 0x68) * 10.0f * 5.0f;
-      temp_v9 = 1.0f - (state9Delta.z * state9Forward.z + state9Delta.x * state9Forward.x + state9Delta.y * state9Forward.y);
+      temp_v9 = state9Delta.y * state9Forward.y + state9Delta.x * state9Forward.x + state9Delta.z * state9Forward.z;
+      temp_v11 = 5.0f * (10.0f * *(float *)((u8 *)(u32)piVar1 + 0x68));
+      temp_v9 = 1.0f - temp_v9;
       if (temp_v9 < temp_v11 / 180.0f) {
         temp_v11 = temp_v9 * 180.0f;
       }
-      if (state9Delta.z * state9Right.z + state9Delta.x * state9Right.x + state9Delta.y * state9Right.y < 0.0f) {
+      if (state9Delta.y * state9Right.y + state9Delta.x * state9Right.x + state9Delta.z * state9Right.z < 0.0f) {
         temp_v11 = temp_v11 * -1.0f;
       }
       func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
