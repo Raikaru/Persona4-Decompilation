@@ -1947,6 +1947,7 @@ query_complete:
  * combined 707 -> 683: field spelling sweep with four spellings.
  * combined 683 -> 653: Ghidra's 8x8-byte copy loops are 64-byte struct copies (b210 expands them to retail's counted loop with its own temporaries); unused declarations dropped.
  * combined 653 -> 642: element-wise vector copies written as FldTriVec struct copies (retail loads all three before storing).
+ * combined -> 624: float copies of +0x28c into +0x294 and the final position as a FldCopyVec copy.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2631,7 +2632,7 @@ s32 func_0016bdd0(u8 *param_1)
               }
             }
             else {
-              piVar1[0xa5] = piVar1[0xa3];
+              *(float *)&piVar1[0xa5] = *(float *)&piVar1[0xa3];
             }
           }
         }
@@ -2832,9 +2833,7 @@ s32 func_0016bdd0(u8 *param_1)
 LAB_0016e0c0:
         FUN_0014d9d0((unsigned char *)piVar1[0xb2],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
         puVar10_s7 = (unsigned int *)FUN_0016e8c0(param_1);
-        (*(int *)&stk250[0]) = *puVar10_s7;
-        (*(unsigned int *)&stk250[1]) = puVar10_s7[1];
-        (*(unsigned int *)&stk250[2]) = puVar10_s7[2];
+        *(FldCopyVec *)stk250 = *(FldCopyVec *)puVar10_s7;
         FUN_0014d9e0((unsigned char *)piVar1[0xb2],(unsigned char *)((int *)&stk250[0]));
         FUN_0014da10((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x20));
         FUN_0014da20((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x24));
