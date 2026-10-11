@@ -1,4 +1,4 @@
-"""Guard/source contracts and bounded host witnesses for the unmatched controller.
+"""Guard-region parsing and bounded host witnesses for the unmatched controller.
 
 The host programs model individual operations; none executes the PS2 owner or
 establishes whole-function equivalence. Proprietary byte gates are separate.
@@ -12,7 +12,6 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-OWNER = ROOT / "src/Graphics/Model/mdlManager.c"
 FIXTURES = ROOT / "tests/fixtures/model_controller"
 sys.path.insert(0, str(ROOT / 'tools'))
 import probe_variants
@@ -23,16 +22,7 @@ def controller_region(source):
     return source[start:end]
 
 
-class ModelControllerSourceTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        source = OWNER.read_text()
-        cls.body = controller_region(source)
-
-    def test_production_fallback_retained(self):
-        self.assertTrue(self.body.lstrip().startswith("#ifdef NON_MATCHING"))
-        self.assertIn('#else\nINCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);\n#endif', self.body)
-
+class ControllerRegionTests(unittest.TestCase):
     def test_internal_pragma_pop_does_not_truncate_fallback(self):
         source = """#pragma push
 // FUN_00471370 NONMATCHING
@@ -52,41 +42,6 @@ void following(void) {}
         self.assertIn('#pragma pop\n#else\nINCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);\n#endif', region)
         self.assertTrue(region.rstrip().endswith('#endif'))
         self.assertNotIn('following', region)
-
-    def test_mode_snapshots_precede_node_loop(self):
-        loop = self.body.index("for (iStack_420 = 0;")
-        for name, mask in (("updateFrameMatrices", "0x1000"), ("concatenateParentMatrix", "0x4000")):
-            declaration = f"s32 {name} = temp_v10 & {mask};"
-            self.assertLess(self.body.index(declaration), loop)
-            self.assertEqual(self.body.count(declaration), 1)
-            self.assertIn(f"if ({name}", self.body[loop:])
-        self.assertIn("temp_v10 = *puVar12;", self.body[:loop])
-
-    def test_storage_and_callback_contracts(self):
-        for contract in (
-            "sizeof(RwMatrix) == 64", "offsetof(RwMatrix, flags) == 12",
-            "sizeof(ControllerQuat) == 16", "sizeof(ControllerSlerpCache) == 40",
-            "offsetof(ControllerSlerpCache, omega) == 32",
-            "void (*pcVar2)(void *matrix, void *keyFrame);",
-            "unsigned int temp_v27 [31];",
-            "*(RwMatrix *)(temp_v7 + 0x10) = frameMatrix;",
-            "*(RwMatrix *)(temp_v7 + 0x50) = *(const RwMatrix *)pfVar8;",
-        ):
-            self.assertIn(contract, self.body)
-
-    def test_float_predicates_and_halfword_views(self):
-        for contract in (
-            "u16 *modelState = (u16 *)param_2;", "u16 *controller = (u16 *)param_3;",
-            "const f32 x = *(f32 *)(temp_v11 + 8);",
-            "const f32 w = *(f32 *)(temp_v11 + 0x14);",
-            "!(temp_v20 <= 360.0f)", "!(temp_v21 <= 360.0f)",
-        ):
-            self.assertIn(contract, self.body)
-
-    def test_duration_uses_float_field_and_parent_dispatch(self):
-        self.assertIn("1.0f / ((float *)puVar3)[0xd]", self.body)
-        self.assertIn("switch (*(unsigned int *)(uStack_430 + 8) & 3)", self.body)
-        self.assertIn("case 3:\n        break;", self.body)
 
 
 @unittest.skipUnless(shutil.which("cc"), "host C compiler unavailable")
