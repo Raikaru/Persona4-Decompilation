@@ -69,6 +69,16 @@ When `regalloc_whatif` reports a hit only at a position after some temporary,
 look for a dead local to reuse. When it reports a position among the
 declared variables, change the declaration order or split a reused local.
 
+**Comparison polarity sweep.** Rewriting each `if (a OP b)` as
+`if (!(a NEG b))` or `if (b SWAP a)` and keeping only strict improvements
+moved the Ghidra-derived bodies: `0017f490` 905 -> 876, `0016bdd0` 1405 ->
+1390 (float compares give retail's `c.ole.s`/`bc1t` against
+`c.olt.s`/`bc1f`). The m2c-derived bodies and the near misses did not move.
+The per-group split sweep moved `003768e0` 105 -> 29 (`front`/`back` per
+case), `0016bdd0` 1525 -> 1405 and `001a7720` 966 -> 960. A blind dead-local
+reuse sweep moved nothing; that lever needs the `regalloc_whatif` target
+first.
+
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
 **6,836 MATCH / 24 ASM** (`build/after39.json`; against `after38.json` only
