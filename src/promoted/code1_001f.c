@@ -948,9 +948,24 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * fnalign 538 -> 520: shift loop source index spelled (u16)(i + 1) with base-first addressing; the final store is a subscript (retail index-first).
  * fnalign 520 -> 516: the search loop reads *((u8 **)arg0 + 0xE + i) (retail re-masks i, base-first addu).
  * fnalign 516 -> 513: the shift loop stores through *((u8 **)arg0 + 0xE + i). The sd_00 spelling (source *(u8 **)(arg0 + i * 4 + 0x3C)) is instruction-identical to retail here but colours n/i as $a0/$a1 (fnalign 534).
+ * fnalign 513 -> 499: the e4 search is an inline helper returning 1 from the loop and 0 after it (retail li 1/b and move 0), with a u16 counter.
+ * fnalign 499 -> 498: func_001fb1f0 is called with flags as a third argument (H011, retail move $a2,$s5).
+ * fnalign 498 -> 495: func_001f9cd0 is called with (arg0, unit, id) (H011; retail moves $s4/$s3/$s1 into $a0-$a2, m2c sees the same three).
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
+static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
+{
+    u16 k;
+
+    for (k = 0; k < n; k++) {
+        if (*(s32 *)(*((u8 **)arg0 + 0xE + k) + 0xE4) != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 #pragma push
 #pragma opt_lifetimes on
 void func_001f14f0(u8 *arg0)
@@ -958,9 +973,11 @@ void func_001f14f0(u8 *arg0)
 {
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     extern s32 func_0023e6f0(u8 *, u8 *, u16, s32);
-    extern void func_001f9cd0(void);
+    /* H011: retail 001f14f0 passes (arg0, unit, id) to this empty callee. */
+    extern void func_001f9cd0(u8 *, u8 *, s32);
     extern s32 func_001fb170(u16);
-    extern s32 func_001fb1f0(u8 *, s32);
+    /* H011: retail 001f14f0 loads $a2 = flags before this call (m2c also sees three arguments). */
+    extern s32 func_001fb1f0(u8 *, s32, s32);
     extern s32 func_001fb360(u8 *, s32);
     extern s32 func_00242990(u8 *, s32);
     extern s32 func_002411a0(u8 *, u8 *, s32, s32, s32);
@@ -1331,7 +1348,7 @@ void func_001f14f0(u8 *arg0)
             u8 *res30;
 
             if (e4 == 1 || (resw & 0x500)) {
-                func_001f9cd0();
+                func_001f9cd0(arg0, unit, id);
             }
             res30 = *(u8 **)(unit + 0x30);
             if (res30[0xA2] == 1 && (s32)kind < 8 && !(resw & 6)) {
@@ -1389,7 +1406,7 @@ void func_001f14f0(u8 *arg0)
         *(u16 *)(arg0 + 0x1A) |= 0x4000;
     }
     {
-        u16 t = func_001fb1f0(arg0, idw);
+        u16 t = func_001fb1f0(arg0, idw, flags);
 
         if (t != 0 && *(s32 *)(arg0 + 0xE8) != 1) {
             *(s16 *)(arg0 + 0xEC) = func_001fb170(t);
@@ -1404,12 +1421,7 @@ void func_001f14f0(u8 *arg0)
         s32 found;
         u8 *sum;
 
-        for (k = 0; k < n; k++) {
-            if (*(s32 *)(*(u8 **)(arg0 + k * 4 + 0x38) + 0xE4) != 0) {
-                break;
-            }
-        }
-        found = k < n;
+        found = btlAnyUnitE4_001f14f0(arg0, n);
         if (found) {
             goto other;
         }
