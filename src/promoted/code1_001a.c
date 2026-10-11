@@ -3986,6 +3986,7 @@ void func_001a7710(void)
  * 0x13/0x10 action selection as a var_2_13 flag test with the 0x13 call first (no goto block_408).
  * sp200 computed directly from the flag (no temp_2_3 copy); plain comparisons.
  * fnalign 966 -> 960: reused locals split per independent group.
+ * fnalign 960 -> 959: equality tests written as switches (retail beq-per-case).
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4945,8 +4946,11 @@ void func_001a7720(u8 *arg0) {
         }
         if (((s32)(s32)sp210 == 0) && ((s32)(s32)sp220 == 0)) {
             var_2_7 = (s32)((s32)(func_0022d200(arg0)));
-            if (var_2_7 == 0) {
+            switch (var_2_7) {
+            case 0:
+
                 var_2_7 = (s32)((s32)((*( s32 * )((u8 *)(iGpffffb3ac) + (0xD40)))));
+                break;
             }
             temp_2_51 = (u8 *)(func_001d65d0(var_2_7, (*(s32 *)(arg0 + 0x30)), var_17 + 6, 0, 0x100));
             (*( s8 * )((u8 *)(temp_2_51) + (0))) = 4;

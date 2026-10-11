@@ -244,6 +244,7 @@ s32 func_002ac740(void) {
  * 344: type sweep.
  * 343: commutative operand order as retail.
  * fnalign 343 -> 329: both neighbour searches as nested for loops with break (retail tests the counters at the bottom).
+ * fnalign 329 -> 327: equality tests written as switches (retail beq-per-case).
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -715,10 +716,13 @@ void func_002ac750(u8 arg0, u8 arg1) {
             break;
         case 13:                                    /* switch 2 */
         case 14:                                    /* switch 2 */
-            if (((s8)(func_002adcf0((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x55)))))) == 1) {
+            switch (((s8)(func_002adcf0((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x55))))))) {
+            case 1:
+
                 temp_4_37 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_4_37 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
                 return;
+                break;
             }
             temp_4_38 = ((s8)(func_002adcf0((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x55))))));
             if (temp_4_38 == 3) {
