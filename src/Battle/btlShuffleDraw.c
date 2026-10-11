@@ -1278,6 +1278,7 @@ void func_00376880(u8 **arg0) {
  * 149: hoist sweep.
  * fnalign 149 -> 127: the -1/21 taper step is a literal (pool reload per loop, as retail).
  * fnalign 127 -> 108: shared x/y/z for the front and back trail points (single-definition px/mx locals were propagated into the TRAIL_POSITION arguments).
+ * trail loops reuse the case-scope x/y/z (no shadowing locals).
  */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1494,9 +1495,6 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         f32 dx = D_0060A0E0.x * magnitude;
                         f32 dy = D_0060A0E0.y * magnitude;
                         f32 dz = D_0060A0E0.z * magnitude;
-                        f32 x;
-                        f32 y;
-                        f32 z;
 
                         sample = &samples[point];
                         x = dx + sample->x;
@@ -1565,9 +1563,6 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                         f32 dx = D_0060A0E0.x * magnitude;
                         f32 dy = D_0060A0E0.y * magnitude;
                         f32 dz = D_0060A0E0.z * magnitude;
-                        f32 x;
-                        f32 y;
-                        f32 z;
 
                         sample = &samples[point];
                         x = dx + sample->x;
