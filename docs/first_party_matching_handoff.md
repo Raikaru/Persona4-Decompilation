@@ -208,6 +208,29 @@ alignment, and the C preserves the observed behavior and ABI.
   argument registers (a destination or source pointer local and an inline
   copy helper do not change it); and `param_4`'s slot (`0x140` against
   `0x14c`).
+- **`001f14f0`** (fnalign 570 -> 495):
+  - Retail's `beq`-per-case then `b` shape is a `switch`: the `0xD`/`0xC`
+    type tests, the `+0x24 == 2` flag and the `cntA`/`cntB` `res` test. The
+    `res` switch lists its cases in reverse source order and switches on
+    `(u16)res` (retail `andi` mask).
+  - Search loop: `for (i = 0; i < n; i++) if (*((u8 **)arg0 + 0xE + i) ==
+    arg0) break;` under `n > 1`. Pointer arithmetic, not a byte offset or
+    subscript, gives retail's fresh mask with a base-first `addu`. The shift
+    loop stores through the same form and reads `(u16)(i + 1) * 4 + 0x38`;
+    the final store is a subscript (index-first). The spelling with source
+    `*(u8 **)(arg0 + i * 4 + 0x3C)` is instruction-identical to retail there
+    but colours `n`/`i` as `$a0`/`$a1` (534).
+  - `scale = scale * r` and the second damage factor's `1.0f` held in a
+    local keep retail's `mul.s`.
+  - The `e4` search is an inline helper returning 1 inside the loop and 0
+    after it (retail `li 1; b` / `move 0`) with a `u16` counter.
+  - H011: retail calls `func_001fb1f0(arg0, idw, flags)` and the empty
+    `func_001f9cd0(arg0, unit, id)` (argument moves just before the `jal`;
+    m2c sees the same arguments).
+  - Left: retail keeps `id` as a `u16` in `$s1`, but `u16 id` spills it to
+    the stack in ours (521); the unit loop recomputes `unit + (j << 5)`
+    per block while ours carries it in stack temporaries, with mixed or
+    uniform `(u32)j` spellings alike.
 - **`0046b380`** (fnalign 41 -> 25): a third record-address spelling,
   `SDK_SPRITE_RECORD_VIA_ADD` (through `sdkAddOffset`, index first), at the
   packed-colour reads and the `points[2].x` extent. The remaining `addu`
