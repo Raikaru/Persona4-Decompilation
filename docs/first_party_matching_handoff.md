@@ -197,6 +197,17 @@ alignment, and the C preserves the observed behavior and ABI.
   or a split `if (found == 0) … if (found != 0) …` (one extra branch, 3
   edits). Or it is removed before allocation: copies, `register`, scope,
   initialiser placement, loop forms.
+- **`00471370`** (fnalign 69 -> 51, structure identical): `zw = z * weight`
+  as its own local so the slerp polynomial `madd.s` takes it first;
+  `temp_v3` declared after `hasParentMatrix` (retail `$v0`/`$v1`); the
+  parent matrix base loaded into `temp_v5` before the index shift. Left:
+  the `flags & 0x2000` cache at `sp+0xf0` is a named 32-bit local in retail
+  (`sw`/`lw`) but a temporary in ours (`sq`/`lq`), whether it reuses
+  `temp_v3` or gets its own local, with or without `opt_lifetimes off`;
+  the two 64-byte matrix copies take source and destination in swapped
+  argument registers (a destination or source pointer local and an inline
+  copy helper do not change it); and `param_4`'s slot (`0x140` against
+  `0x14c`).
 - **`0046b380`** (fnalign 41 -> 25): a third record-address spelling,
   `SDK_SPRITE_RECORD_VIA_ADD` (through `sdkAddOffset`, index first), at the
   packed-colour reads and the `points[2].x` extent. The remaining `addu`
