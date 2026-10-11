@@ -1282,6 +1282,7 @@ void func_00376880(u8 **arg0) {
  * fnalign 108 -> 105: per-case step = length / 21.0f locals, case 0's time at function scope and its fadedOpacity after taper (regalloc_whatif: time numbered first, fadedOpacity after taper).
  * fnalign 105 -> 29: reused locals split per independent group (separate live ranges as retail).
  * fnalign 29 -> 21: float declaration order per scope (exhaustive).
+ * fnalign 21 -> 13: case 0 divides length in place (retail div.s $f23,$f23); cases 1/2 keep their step locals.
  */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1388,7 +1389,6 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
         switch (kind) {
         case 0:
             {
-                f32 step;
                 s32 point;
                 s32 side;
                 f32 taper;
@@ -1400,10 +1400,10 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 fadedOpacity = iGpffff8400 * opacity;
                 taper = 1.0f;
                 time = 0.0f;
-                step = length / 21.0f;
+                length /= 21.0f;
                 for (point = 0; point < 21; point++, front += 2, back += 2) {
                     func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
-                    time -= step;
+                    time -= length;
                     TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], (u8)(opacity * taper));
                     TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
                     TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
