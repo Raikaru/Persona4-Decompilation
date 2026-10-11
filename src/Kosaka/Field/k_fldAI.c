@@ -983,6 +983,8 @@ tail:
  * fnalign 873 -> 847: integer-cast field-base reads at selected sites.
  * fnalign 847 -> 837: early returns inside the final switch written as break to the shared return.
  * fnalign 837 -> 833: float compares in retail polarity.
+ * fnalign 833 -> 820: state 6 subtracts a copied, y-zeroed position vector (aiPos6) as state 2 does (retail stores the copy and zeroes y in the frame).
+ * fnalign 820 -> 815: states 2/10 subtract the copied vector's zeroed y, state 8 gets its own copied position (aiPos8).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1102,6 +1104,8 @@ int func_0017f490(unsigned char *param_1)
   FldAIVec3 aiPos2;
   FldAIVec3 state2Right;
   FldAIVec3 state2Forward;
+  FldAIVec3 aiPos6;
+  FldAIVec3 aiPos8;
   int uStack_4;
   
   piVar1 = *(int **)(param_1 + 0x38);
@@ -1332,7 +1336,7 @@ availabilityDone:
       aiV60 = *(FldAIVec3 *)(temp_v0 + 0x30);
       aiV60.y = 0.0f;
       state2Delta.x = ((float *)piVar1)[0x14] - aiV60.x;
-      state2Delta.y = ((float *)piVar1)[0x15] - 0.0f;
+      state2Delta.y = ((float *)piVar1)[0x15] - aiV60.y;
       state2Delta.z = ((float *)piVar1)[0x16] - aiV60.z;
       temp_v9 = RwV3dNormalize(&state2Delta,&state2Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
@@ -1496,9 +1500,11 @@ else {
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           ((float *)piVar1)[0x16] = (state6Direction.z + *(float *)(temp_v0 + 0x38));
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-          state6Delta.x = ((float *)piVar1)[0x14] - *(float *)(temp_v0 + 0x30);
-          state6Delta.y = ((float *)piVar1)[0x15] - 0.0f;
-          state6Delta.z = ((float *)piVar1)[0x16] - *(float *)(temp_v0 + 0x38);
+          aiPos6 = *(FldAIVec3 *)(temp_v0 + 0x30);
+          aiPos6.y = 0.0f;
+          state6Delta.x = ((float *)piVar1)[0x14] - aiPos6.x;
+          state6Delta.y = ((float *)piVar1)[0x15] - aiPos6.y;
+          state6Delta.z = ((float *)piVar1)[0x16] - aiPos6.z;
           temp_v8 = RwV3dNormalize(&state6Delta,&state6Delta);
           piVar1[0x25] = (int)(temp_v8 / (CAND_fGpffff830c * *(float *)(piVar1[5] + 0x28)));
           *piVar1 = 9;
@@ -1671,9 +1677,11 @@ else {
       state8Right.z = pfVar8[2];
       RwV3dNormalize(&state8Right,&state8Right);
       temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-      state8Delta.x = aiPos2.x - *(float *)(temp_v0 + 0x30);
-      state8Delta.y = aiPos2.y - 0.0f;
-      state8Delta.z = aiPos2.z - *(float *)(temp_v0 + 0x38);
+      aiPos8 = *(FldAIVec3 *)(temp_v0 + 0x30);
+      aiPos8.y = 0.0f;
+      state8Delta.x = aiPos2.x - aiPos8.x;
+      state8Delta.y = aiPos2.y - aiPos8.y;
+      state8Delta.z = aiPos2.z - aiPos8.z;
       temp_v9 = RwV3dNormalize(&state8Delta,&state8Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
       if (temp_v8 >= temp_v9) {
@@ -1828,7 +1836,7 @@ else {
       aiV1D0 = *(FldAIVec3 *)(temp_v0 + 0x30);
       aiV1D0.y = 0.0f;
       state10Delta.x = ((float *)piVar1)[0x14] - aiV1D0.x;
-      state10Delta.y = ((float *)piVar1)[0x15] - 0.0f;
+      state10Delta.y = ((float *)piVar1)[0x15] - aiV1D0.y;
       state10Delta.z = ((float *)piVar1)[0x16] - aiV1D0.z;
       temp_v9 = RwV3dNormalize(&state10Delta,&state10Delta);
       temp_v8 = CAND_fGpffff830c * ((float *)piVar1)[0x1a];
