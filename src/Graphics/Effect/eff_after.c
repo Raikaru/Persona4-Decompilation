@@ -863,6 +863,7 @@ void func_004b8f10(void *arg0) {
  * 0.5f + (f32)n written as one expression.
  * same form in the phase-C case-2 prologue.
  * phase-C case 0 with block-scope locals in retail colour order.
+ * fnalign 69 -> 52: the second spline block computes its two ring indices into temp_v2 then temp_v3 (retail colours them $a3/$a2).
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -1256,23 +1257,23 @@ void func_004b8f40(u8 *work, void **pp)
           func_004b7460(work,temp_v11,&section,&fraction);
           if (section != temp_v6) {
             temp_v6 = section;
-            temp_v3 = (*(s32 *)((work) + 0xc) - 1) - section;
-            if (temp_v3 < 0) {
-              temp_v3 = temp_v3 + *(s32 *)((work) + 8);
-            }
-            temp_v2 = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
+            temp_v2 = (*(s32 *)((work) + 0xc) - 1) - section;
             if (temp_v2 < 0) {
               temp_v2 = temp_v2 + *(s32 *)((work) + 8);
             }
-            temp_v3 = temp_v3 * 0xc;
-            pfVar16 = (f32 *)(*(s32 *)(((work) + temp_v1 * 4 + 0x10)) + temp_v3);
+            temp_v3 = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
+            if (temp_v3 < 0) {
+              temp_v3 = temp_v3 + *(s32 *)((work) + 8);
+            }
+            temp_v2 = temp_v2 * 0xc;
+            pfVar16 = (f32 *)(*(s32 *)(((work) + temp_v1 * 4 + 0x10)) + temp_v2);
             ctrl[0] = *(EffAfterVec *)pfVar16;
-            pfVar17 = (f32 *)(*(s32 *)(((work) + temp_v1 * 8 + 0x18)) + temp_v3);
+            pfVar17 = (f32 *)(*(s32 *)(((work) + temp_v1 * 8 + 0x18)) + temp_v2);
             ctrl[1].c[0] = *pfVar16 - *pfVar17;
             ctrl[1].c[1] = pfVar16[1] - pfVar17[1];
             ctrl[1].c[2] = pfVar16[2] - pfVar17[2];
-            pfVar16 = (f32 *)(*(s32 *)(((work) + temp_v1 * 8 + 0x1c)) + temp_v3);
-            pfVar17 = (f32 *)(*(s32 *)(((work) + temp_v1 * 4 + 0x10)) + temp_v2 * 0xc);
+            pfVar16 = (f32 *)(*(s32 *)(((work) + temp_v1 * 8 + 0x1c)) + temp_v2);
+            pfVar17 = (f32 *)(*(s32 *)(((work) + temp_v1 * 4 + 0x10)) + temp_v3 * 0xc);
             ctrl[2].c[0] = *pfVar17 + *pfVar16;
             ctrl[2].c[1] = pfVar17[1] + pfVar16[1];
             ctrl[2].c[2] = pfVar17[2] + pfVar16[2];
