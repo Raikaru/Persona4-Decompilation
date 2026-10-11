@@ -207,6 +207,34 @@ alignment, and the C preserves the observed behavior and ABI.
     below the file-scope typedefs to sit on the definition; the newly
     referenced `fGpffff854c` (`0x0076163C`, `lwc1 gp-0x7AB4` at `0x00141418`)
     went into `config/symbols_recovered.txt` and `symbol_data_addrs.txt`.
+- **Propagation and argument order** (same cause as the last `001400f0`
+  pair) closed the structural residuals of two more functions:
+  - **`003768e0`** (127 -> 108, structure identical): the trail loops'
+    single-definition `px/py/pz` and `mx/my/mz` were folded into the
+    `TRAIL_POSITION` arguments, interleaving each offset add with its sum.
+    Reusing the case-scope `x, y, z` for both points (as case 2 already
+    does) keeps retail's "three sums, then offsets" order. Left: a
+    function-level FPR permutation starting at the `length` parameter
+    (`$f23` retail, `$f24` ours); function- and block-level declaration
+    orders do not move it.
+  - **`001265a0`** (118 -> 60, structure identical): b210 evaluates this
+    call's arguments right to left, so retail's colour-byte extraction
+    (after the last float argument's load) means the packed colour word
+    was an argument expression, not the precomputed `a2` local. Also
+    `lerpT = 1.0f - t; t = 42.0f * lerpT;` for the constant-first `mul.s`
+    (a new single-use local is propagated and loses the order). Includes
+    another worker's pending `f28` term rewrite (118 -> 93 on its own).
+    Left: `$s1`/`$s2` between `var_17` (`r90`) and the CSE'd `0xFFFFFF`
+    colour (`r174`); `regalloc_whatif` wants the colour numbered first, and
+    neither `var_17`'s declaration position nor an explicit colour local
+    changes it.
+- **`002ac750`** (343 -> 329): both neighbour searches as nested `for`
+  loops with `break` (retail tests the counters at the bottom). Left:
+  retail keeps `sp150..sp180` (the masked coordinates passed to
+  `func_002b2d00`) as memory locals (`sw`/`lw`, frame `0x190` vs `0x150`)
+  and re-masks `arg0`/`arg1` with `andi 0xff` at each use. Declaration
+  position, `s32`/`u32`/K&R parameters and an unprototyped declaration do
+  not reproduce it (the last breaks the in-file caller).
 
 
 The first three closed by reading which *variables*
