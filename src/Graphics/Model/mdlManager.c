@@ -509,6 +509,7 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * fnalign 65 -> 56: temp_v3 declared after hasParentMatrix (retail $v0/$v1).
  * fnalign 56 -> 51: parent matrix base loaded before the index shift (temp_v5 holds puVar12[6], as retail's lw/sll/lw order).
  * fnalign 51 -> 39: integer-cast field-base reads at selected sites.
+ * fnalign 39 -> 27: both 64-byte matrix copies address temp_v7 through a (u32) cast (retail evaluates the source first; b210 does not CSE the field address).
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -1206,7 +1207,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           if ((temp_v10 & 0x4000) != 0) {
             RwMatrixMultiply((RwMatrix *)(temp_v7 + 0x50),(const RwMatrix *)(pfVar8),(const RwMatrix *)(((f32 *)&baseMatrix)));
           } else {
-            *(RwMatrix *)(temp_v7 + 0x50) = *(const RwMatrix *)pfVar8;
+            *(RwMatrix *)((u8 *)(u32)(temp_v7) + 0x50) = *(const RwMatrix *)pfVar8;
           }
           *(unsigned char *)(temp_v7 + 3) = (*(unsigned char *)(temp_v7 + 3) & ~4) | 8;
         }
