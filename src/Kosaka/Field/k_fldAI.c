@@ -997,6 +997,7 @@ tail:
  * combined -> 546: float compare polarity sweep (all single-comparison conditions).
  * combined 546 -> 542: +0x1ca flag read as unsigned char (retail lbu).
  * combined 542 -> 531: field spelling sweep.
+ * combined 531 -> 504: the random roll is reduced modulo 100 once before the mode tests (retail divu before the branch).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1230,14 +1231,14 @@ availabilityDone:
         else {
           FUN_0014dcd0((unsigned char *)piVar1[0x26],0);
         }
-        temp_v0 = FUN_003b7060();
+        temp_v0 = (unsigned int)FUN_003b7060() % 100;
         temp_v3 = 0;
         if (piVar1[2] == 0) {
-          if ((unsigned int)temp_v0 % 100 < 5) {
+          if ((unsigned int)temp_v0 < 5) {
             temp_v3 = 1;
           }
         }
-        else if ((piVar1[2] == 1) && ((unsigned int)temp_v0 % 100 < 0x1e)) {
+        else if ((piVar1[2] == 1) && ((unsigned int)temp_v0 < 0x1e)) {
           temp_v3 = 1;
         }
         if (temp_v3 == 1) {
