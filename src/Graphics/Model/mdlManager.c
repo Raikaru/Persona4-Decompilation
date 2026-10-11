@@ -508,6 +508,7 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * fnalign 69 -> 65: z * weight held in a zw local so the polynomial madd.s takes it as the first operand (retail order).
  * fnalign 65 -> 56: temp_v3 declared after hasParentMatrix (retail $v0/$v1).
  * fnalign 56 -> 51: parent matrix base loaded before the index shift (temp_v5 holds puVar12[6], as retail's lw/sll/lw order).
+ * fnalign 51 -> 39: integer-cast field-base reads at selected sites.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -1196,7 +1197,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       temp_v7 = *(int *)(uStack_430 + 0xc);
       if (temp_v7 != 0) {
         if ((temp_v10 & 0x1000) != 0) {
-          *(RwMatrix *)(temp_v7 + 0x10) = frameMatrix;
+          *(RwMatrix *)((u8 *)(u32)(temp_v7) + 0x10) = frameMatrix;
           if (temp_v3 == 0) {
             func_003e9680((u8 *)(temp_v7));
           }
