@@ -994,6 +994,9 @@ tail:
  * combined -> 592: alpha distance compares in retail polarity.
  * combined 592 -> 580: the alpha ratio clamp is a ternary (retail keeps 0.0 in the result register and moves only on the else arm).
  * combined 580 -> 558: speed clamps keep the distance in the result variable and replace it with the limit on the fall-through arm.
+ * combined -> 546: float compare polarity sweep (all single-comparison conditions).
+ * combined 546 -> 542: +0x1ca flag read as unsigned char (retail lbu).
+ * combined 542 -> 531: field spelling sweep.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1557,7 +1560,7 @@ else {
         piVar1[0x18] = piVar1[0x18] - 1;
       }
 else {
-        ((float *)piVar1)[0x1a] = ((float *)piVar1)[0x1b];
+        *(float *)((u8 *)(u32)piVar1 + 0x68) = ((float *)piVar1)[0x1b];
       }
       if ((CAND_iGpffffb258 == 0) && (temp_v0 = piVar1[3], CAND_iGpffffb310 == 0)) {
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
@@ -1588,7 +1591,7 @@ else {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           state7Delta.z = *(float *)((u8 *)(u32)(temp_v0) + 0x38) - *(float *)(piVar1[3] + 0x1a4);
           temp_v8 = RwV3dNormalize(&state7Delta,&state7Delta);
-          if (*(float *)piVar1[5] <= temp_v8) {
+          if (temp_v8 >= *(float *)piVar1[5]) {
             piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
             func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
             *piVar1 = 0xb;
@@ -1616,8 +1619,7 @@ else {
         temp_v9 = *(float *)(temp_v0 + 0x20);
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         temp_v1 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-        if (CAND_fGpffff8310 <
-            temp_v10 * temp_v11 + temp_v9 * temp_v8 + *(float *)(temp_v1 + 0x24) * *(float *)(temp_v0 + 0x24))
+        if (temp_v10 * temp_v11 + temp_v9 * temp_v8 + *(float *)(temp_v1 + 0x24) * *(float *)(temp_v0 + 0x24) > CAND_fGpffff8310)
         {
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1690,7 +1692,7 @@ else {
         piVar1[0x18] = piVar1[0x18] - 1;
       }
 else {
-        ((float *)piVar1)[0x1a] = ((float *)piVar1)[0x1b];
+        *(float *)((u8 *)(u32)piVar1 + 0x68) = ((float *)piVar1)[0x1b];
       }
       if ((CAND_iGpffffb258 == 0) && (temp_v0 = piVar1[3], CAND_iGpffffb310 == 0)) {
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
@@ -1721,7 +1723,7 @@ else {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           state8Delta.z = *(float *)((u8 *)(u32)(temp_v0) + 0x38) - *(float *)(piVar1[3] + 0x1a4);
           temp_v8 = RwV3dNormalize(&state8Delta,&state8Delta);
-          if (*(float *)piVar1[5] <= temp_v8) {
+          if (temp_v8 >= *(float *)piVar1[5]) {
             piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
             *piVar1 = 0xb;
             func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
@@ -1767,7 +1769,7 @@ else {
       state9Delta.y = state9Delta.y - temp_v8;
       state9Delta.z = state9Delta.z - temp_v9;
       temp_v8 = RwV3dNormalize(&state9Delta,&state9Delta);
-      temp_v9 = CAND_fGpffff830c * *(float *)((u8 *)(u32)piVar1 + 0x68);
+      temp_v9 = CAND_fGpffff830c * *(float *)&piVar1[0x1a];
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
@@ -1824,7 +1826,7 @@ else {
       state10Delta.y = ((float *)piVar1)[0x15] - aiV1D0.y;
       state10Delta.z = ((float *)piVar1)[0x16] - aiV1D0.z;
       temp_v9 = RwV3dNormalize(&state10Delta,&state10Delta);
-      temp_v8 = CAND_fGpffff830c * *(float *)((u8 *)(u32)piVar1 + 0x68);
+      temp_v8 = CAND_fGpffff830c * *(float *)&piVar1[0x1a];
       if (temp_v9 <= temp_v8) {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
@@ -1955,11 +1957,11 @@ else {
             }
             FUN_0047a850(*(unsigned char **)(piVar1[3] + 0x50));
             temp_v0 = piVar1[3];
-            if (*(char *)(temp_v0 + 0x1ca) == '\0') {
+            if (*(unsigned char *)(temp_v0 + 0x1ca) == '\0') {
               temp_v0 = FUN_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),0xff,0,10);
               piVar1[0x22] = temp_v0;
             }
-            else if (*(char *)(temp_v0 + 0x1ca) == '\x01') {
+            else if (*(unsigned char *)(temp_v0 + 0x1ca) == '\x01') {
               temp_v8 = ((float *)piVar1)[0x1f];
               temp_v7 = (unsigned int)temp_v8;
               temp_v0 = FUN_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),temp_v7,0,10);
@@ -1984,11 +1986,11 @@ else {
         piVar1[0x22] = 0;
         FUN_00168ae0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),(unsigned char *)(piVar1[3] + 0x19c));
         temp_v0 = piVar1[3];
-        if (*(char *)(temp_v0 + 0x1ca) == '\0') {
+        if (*(unsigned char *)(temp_v0 + 0x1ca) == '\0') {
           temp_v0 = FUN_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),0,0xff,10);
           piVar1[0x22] = temp_v0;
         }
-        else if (*(char *)(temp_v0 + 0x1ca) == '\x01') {
+        else if (*(unsigned char *)(temp_v0 + 0x1ca) == '\x01') {
           temp_v8 = ((float *)piVar1)[0x1f];
           temp_v7 = (unsigned int)temp_v8;
           temp_v0 = FUN_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),0,temp_v7,10);
