@@ -864,6 +864,8 @@ void func_004b8f10(void *arg0) {
  * same form in the phase-C case-2 prologue.
  * phase-C case 0 with block-scope locals in retail colour order.
  * fnalign 69 -> 52: the second spline block computes its two ring indices into temp_v2 then temp_v3 (retail colours them $a3/$a2).
+ * fnalign 52 -> 42: temp_v7/temp_v8 roles swapped within the case 2 spline block (both are defined before use there and not used afterwards).
+ * fnalign 42 -> 22: Ghidra's reused float temporaries take retail's roles per case block (temp_v9/temp_v10/temp_v11 swaps; each is defined before use in its block and redefined before any use after the switch).
  */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
@@ -1241,7 +1243,7 @@ void func_004b8f40(u8 *work, void **pp)
       pfVar17[temp_v5 * 3 - 1] = pfVar17[temp_v5 * 3 - 1] * 0.5f;
       temp_v5 = *(s32 *)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
       temp_v7 = (f32)*(s32 *)((*(u8 **)work) + 0xc) + 0.5f;
-      temp_v9 = 1.0f / temp_v7;
+      temp_v10 = 1.0f / temp_v7;
       for (temp_v1 = 0; temp_v1 < 2; temp_v1 = temp_v1 + 1) {
         switch (temp_v1) {
         case 0:
@@ -1251,10 +1253,10 @@ void func_004b8f40(u8 *work, void **pp)
           unaff_s3_lo = (f32 *)(temp_v5 + 0x30);
           break;
         }
-        temp_v11 = 0.5f / temp_v7;
+        temp_v9 = 0.5f / temp_v7;
         temp_v6 = 0xffffffff;
         for (temp_v4 = 0; temp_v4 < *(s32 *)((*(u8 **)work) + 0xc);) {
-          func_004b7460(work,temp_v11,&section,&fraction);
+          func_004b7460(work,temp_v9,&section,&fraction);
           if (section != temp_v6) {
             temp_v6 = section;
             temp_v2 = (*(s32 *)((work) + 0xc) - 1) - section;
@@ -1285,7 +1287,7 @@ void func_004b8f40(u8 *work, void **pp)
                ctrl[0].c[1] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[1] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[1] * fraction * fraction * temp_v8 + ctrl[3].c[1] * fraction * fraction * fraction;
           unaff_s3_lo[2] =
                ctrl[0].c[2] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[2] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[2] * fraction * fraction * temp_v8 + ctrl[3].c[2] * fraction * fraction * fraction;
-          temp_v11 = temp_v11 + temp_v9;
+          temp_v9 = temp_v9 + temp_v10;
           temp_v4++;
           unaff_s3_lo = unaff_s3_lo + 9;
         }
@@ -1311,14 +1313,14 @@ void func_004b8f40(u8 *work, void **pp)
     break;
     case 2:
     {
-      temp_v9 = *(f32 *)((*(u8 **)work) + 0x14) / 2.0f;
+      temp_v11 = *(f32 *)((*(u8 **)work) + 0x14) / 2.0f;
       temp_v5 = func_00457120();
       temp_v5 = *(s32 *)(((u8 *)temp_v5) + 4);
       pfVar16 = (f32 *)(temp_v5 + 0x40);
       pfVar17 = *(f32 **)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
-      temp_v7 = 0.5f + (f32)*(s32 *)((*(u8 **)work) + 0xc);
-      temp_v11 = 1.0f / temp_v7;
-      temp_v7 = 0.5f / temp_v7;
+      temp_v8 = 0.5f + (f32)*(s32 *)((*(u8 **)work) + 0xc);
+      temp_v9 = 1.0f / temp_v8;
+      temp_v8 = 0.5f / temp_v8;
       temp_v6 = 0xffffffff;
       pfVar3 = pfVar17 + 9;
       temp_v1 = *(s32 *)((work) + 0xc) - 1;
@@ -1327,7 +1329,7 @@ void func_004b8f40(u8 *work, void **pp)
       }
       prev = *(EffAfterVec *)(*(u8 **)(work + 0x10) + temp_v1 * 0xc);
       for (temp_v1 = 0; temp_v1 < *(s32 *)((*(u8 **)work) + 0xc);) {
-        func_004b7460(work,temp_v7,&section,&fraction);
+        func_004b7460(work,temp_v8,&section,&fraction);
         if (section != temp_v6) {
           temp_v6 = section;
           temp_v4 = (*(s32 *)((work) + 0xc) - 1) - section;
@@ -1353,10 +1355,10 @@ void func_004b8f40(u8 *work, void **pp)
           ctrl[2].c[2] = pfVar5[2] + pfVar6[2];
           ctrl[3] = *(EffAfterVec *)pfVar5;
         }
-        temp_v8 = 1.0f - fraction;
-        cur.c[0] = ctrl[0].c[0] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[0] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[0] * fraction * fraction * temp_v8 + ctrl[3].c[0] * fraction * fraction * fraction;
-        cur.c[1] = ctrl[0].c[1] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[1] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[1] * fraction * fraction * temp_v8 + ctrl[3].c[1] * fraction * fraction * fraction;
-        cur.c[2] = ctrl[0].c[2] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[2] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[2] * fraction * fraction * temp_v8 + ctrl[3].c[2] * fraction * fraction * fraction;
+        temp_v7 = 1.0f - fraction;
+        cur.c[0] = ctrl[0].c[0] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[0] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[0] * fraction * fraction * temp_v7 + ctrl[3].c[0] * fraction * fraction * fraction;
+        cur.c[1] = ctrl[0].c[1] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[1] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[1] * fraction * fraction * temp_v7 + ctrl[3].c[1] * fraction * fraction * fraction;
+        cur.c[2] = ctrl[0].c[2] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[2] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[2] * fraction * fraction * temp_v7 + ctrl[3].c[2] * fraction * fraction * fraction;
         if (temp_v1 == 0) {
           first = cur;
         }
@@ -1372,15 +1374,15 @@ void func_004b8f40(u8 *work, void **pp)
         v148.c[1] = v188.c[2] * v158.c[0] - v188.c[0] * v158.c[2];
         v148.c[2] = v188.c[0] * v158.c[1] - v188.c[1] * v158.c[0];
         RwV3dNormalize(&v148.c[0],&v148.c[0]);
-        temp_v8 = v188.c[0] * v158.c[0] + v188.c[1] * v158.c[1] + v188.c[2] * v158.c[2];
-        if (temp_v8 < 0.0f) {
-          temp_v8 = temp_v8 * -1.0f;
+        temp_v7 = v188.c[0] * v158.c[0] + v188.c[1] * v158.c[1] + v188.c[2] * v158.c[2];
+        if (temp_v7 < 0.0f) {
+          temp_v7 = temp_v7 * -1.0f;
         }
-        temp_v8 = temp_v8 * (temp_v8 * temp_v8);
-        temp_v8 = temp_v9 * (1.0f - temp_v8);
-        v148.c[0] = v148.c[0] * temp_v8;
-        v148.c[1] = v148.c[1] * temp_v8;
-        v148.c[2] = v148.c[2] * temp_v8;
+        temp_v7 = temp_v7 * (temp_v7 * temp_v7);
+        temp_v7 = temp_v11 * (1.0f - temp_v7);
+        v148.c[0] = v148.c[0] * temp_v7;
+        v148.c[1] = v148.c[1] * temp_v7;
+        v148.c[2] = v148.c[2] * temp_v7;
         pfVar3[0] = cur.c[0] + v148.c[0];
         pfVar3[1] = cur.c[1] + v148.c[1];
         pfVar3[2] = cur.c[2] + v148.c[2];
@@ -1389,7 +1391,7 @@ void func_004b8f40(u8 *work, void **pp)
         pfVar3[5] = cur.c[2] - v148.c[2];
         pfVar3 += 9;
         prev = cur;
-        temp_v7 = temp_v7 + temp_v11;
+        temp_v8 = temp_v8 + temp_v9;
         temp_v1++;
       }
       temp_v4 = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
@@ -1412,15 +1414,15 @@ void func_004b8f40(u8 *work, void **pp)
       v148.c[1] = v188.c[2] * v158.c[0] - v188.c[0] * v158.c[2];
       v148.c[2] = v188.c[0] * v158.c[1] - v188.c[1] * v158.c[0];
       RwV3dNormalize(&v148.c[0],&v148.c[0]);
-      temp_v7 = v188.c[0] * v158.c[0] + v188.c[1] * v158.c[1] + v188.c[2] * v158.c[2];
-      if (temp_v7 < 0.0f) {
-        temp_v7 = temp_v7 * -1.0f;
+      temp_v8 = v188.c[0] * v158.c[0] + v188.c[1] * v158.c[1] + v188.c[2] * v158.c[2];
+      if (temp_v8 < 0.0f) {
+        temp_v8 = temp_v8 * -1.0f;
       }
-      temp_v7 = temp_v7 * (temp_v7 * temp_v7);
-      temp_v7 = temp_v9 * (1.0f - temp_v7);
-      v148.c[0] = v148.c[0] * temp_v7;
-      v148.c[1] = v148.c[1] * temp_v7;
-      v148.c[2] = v148.c[2] * temp_v7;
+      temp_v8 = temp_v8 * (temp_v8 * temp_v8);
+      temp_v8 = temp_v11 * (1.0f - temp_v8);
+      v148.c[0] = v148.c[0] * temp_v8;
+      v148.c[1] = v148.c[1] * temp_v8;
+      v148.c[2] = v148.c[2] * temp_v8;
       *pfVar3 = cur.c[0] + v148.c[0];
       pfVar3[1] = cur.c[1] + v148.c[1];
       pfVar3[2] = cur.c[2] + v148.c[2];
@@ -1451,15 +1453,15 @@ void func_004b8f40(u8 *work, void **pp)
       v148.c[1] = v188.c[2] * v158.c[0] - v188.c[0] * v158.c[2];
       v148.c[2] = v188.c[0] * v158.c[1] - v188.c[1] * v158.c[0];
       RwV3dNormalize(&v148.c[0],&v148.c[0]);
-      temp_v7 = v188.c[0] * v158.c[0] + v188.c[1] * v158.c[1] + v188.c[2] * v158.c[2];
-      if (temp_v7 < 0.0f) {
-        temp_v7 = temp_v7 * -1.0f;
+      temp_v8 = v188.c[0] * v158.c[0] + v188.c[1] * v158.c[1] + v188.c[2] * v158.c[2];
+      if (temp_v8 < 0.0f) {
+        temp_v8 = temp_v8 * -1.0f;
       }
-      temp_v7 = temp_v7 * (temp_v7 * temp_v7);
-      temp_v9 = temp_v9 * (1.0f - temp_v7);
-      v148.c[0] = v148.c[0] * temp_v9;
-      v148.c[1] = v148.c[1] * temp_v9;
-      v148.c[2] = v148.c[2] * temp_v9;
+      temp_v8 = temp_v8 * (temp_v8 * temp_v8);
+      temp_v11 = temp_v11 * (1.0f - temp_v8);
+      v148.c[0] = v148.c[0] * temp_v11;
+      v148.c[1] = v148.c[1] * temp_v11;
+      v148.c[2] = v148.c[2] * temp_v11;
       *pfVar17 = last.c[0] + v148.c[0];
       pfVar17[1] = last.c[1] + v148.c[1];
       pfVar17[2] = last.c[2] + v148.c[2];
