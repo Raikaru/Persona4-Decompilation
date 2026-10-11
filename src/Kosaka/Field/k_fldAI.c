@@ -1009,6 +1009,7 @@ tail:
  * combined 340 -> 315: state 10 speed clamp and steering in retail order (dot y,x,z first, 10 * speed, then 1 - dot).
  * combined 315 -> 284: the patrol toggle stores !cur (retail recomputes sltu/xori), and the state 9 target is a whole FldAIVec3 copy.
  * combined -> 264: y component read through the integer-cast base like x and z.
+ * combined 264 -> 260: state 9 captures pos.y/pos.z just before their subtraction.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1750,12 +1751,12 @@ else {
       aiV190 = *(FldAIVec3 *)(temp_v0 + 0x30);
       aiV190.y = 0.0f;
       temp_v11 = func_0044b7b0(((f32 *)piVar1)[0x1e]);
-      temp_v8 = aiV190.y;
       *(float *)((u8 *)(u32)piVar1 + 0x78) = (*(float *)((u8 *)(u32)piVar1 + 0x78) + CAND_fGpffff8218);
       state9Direction.x = *(float *)((u8 *)(u32)piVar1 + 0x50) - aiV190.x;
-      state9Direction.y = *(float *)((u8 *)(u32)piVar1 + 0x54) - aiV190.y;
-      state9Direction.z = *(float *)((u8 *)(u32)piVar1 + 0x58) - aiV190.z;
+      temp_v8 = aiV190.y;
+      state9Direction.y = *(float *)((u8 *)(u32)piVar1 + 0x54) - temp_v8;
       temp_v9 = aiV190.z;
+      state9Direction.z = *(float *)((u8 *)(u32)piVar1 + 0x58) - temp_v9;
       RwV3dNormalize(&state9Direction,&state9Direction);
       state9Direction.x = state9Direction.x * 200.0f;
       state9Direction.y = state9Direction.y * 200.0f;
