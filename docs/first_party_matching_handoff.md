@@ -231,6 +231,30 @@ alignment, and the C preserves the observed behavior and ABI.
     the stack in ours (521); the unit loop recomputes `unit + (j << 5)`
     per block while ours carries it in stack temporaries, with mixed or
     uniform `(u32)j` spellings alike.
+- **`003599c0`** (fnalign 168 -> 12):
+  - **FPR colours follow declaration order, and a reused local's later
+    groups become split ranges numbered after every declared variable.**
+    The three panel groups reused `x`/`y`/`w`/`h`, so the second group's
+    ranges took the lowest saved FPRs. Giving the second and third groups
+    their own `x2`/`y2`/`w2`/`h2` and `x3`/`y3`/`w3`/`h3`, declared `w2, h2,
+    fade, x0, y0, x2, y2, rowY, …`, reproduced retail's colours (128 ->
+    16). Read the order off the capture: `class-1` virtuals 33.. are the
+    declared floats in order, and retail's colour ranking gives the wanted
+    order.
+  - Integer sums follow source operand order where pointer arithmetic is
+    canonicalised base-first: `(u32)off + (u32)arg1` and the helper
+    `hudOffsetPtr_003599c0(u32 offset, u8 *base)` give retail's
+    offset-first `addu` for the entry fields, the panel `x`/`y`/`alpha` and
+    the sprite tables; `off + (s32)arg1` keeps `mode`'s sum separate from
+    `kind`'s as retail recomputes it.
+  - H011: `func_00246830` masks its argument with `0xFFFF`, so a block-scope
+    `u16` prototype makes `name` spill as a halfword (`sh`/`lhu`).
+  - Commutative FP order: the alpha byte converted into `scale` before
+    `* fade`, and `px = 157.0f + x2`, both through multi-definition floats
+    dead at that point.
+  - Left: retail re-adds `arg0 * 48 + arg1` for each `w`/`h` read with the
+    full displacement (`lhu 0x5c0`), while the `HudPanel_0035` subscript
+    caches `+0x5b0` and any shared sum is reused across blocks.
 - **`0046b380`** (fnalign 41 -> 25): a third record-address spelling,
   `SDK_SPRITE_RECORD_VIA_ADD` (through `sdkAddOffset`, index first), at the
   packed-colour reads and the `points[2].x` extent. The remaining `addu`
