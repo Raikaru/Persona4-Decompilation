@@ -25,10 +25,10 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 11 continuation, part 12: `00183b80` MATCH; split reused locals
+## October 11 continuation, part 12: `00183b80`, `001265a0` MATCH; live-range numbering
 
-**6,837 MATCH / 23 ASM** (`build/after42.json`; against `after41.json` only
-`00183b80` changed; link 604 C / 54 SDK, both sha1 OK in `build/link45.log`).
+**6,838 MATCH / 22 ASM** (`build/after43.json`; against `after42.json` only
+`001265a0` changed; link 604 C / 54 SDK, both sha1 OK in `build/link46.log`).
 
 **Lever: give each repeated code group its own locals.** A local that is
 reassigned in several independent groups (Ghidra/m2c reuse, or one `w`/`h`
@@ -52,6 +52,22 @@ is usually large and immediate.
 Other measured changes this session are listed per function under part 11
 (`001f14f0`, `003599c0`, `0014f310`, `00471370`, `0016bdd0`, `003768e0`,
 `00162e10`).
+
+**The inverse lever: reuse a dead local to get a late number.**
+`001265a0` (55 -> 4): `regalloc_whatif --search 90 … --target 90:17,174:18`
+answered `HIT 90@174`, i.e. the record-delta counter had to be numbered after
+the hoisted `0xFFFFFF` constant. Declaring it in a later block changed
+nothing. Substituting an earlier local that is dead at that point
+(`temp_2`; its next occurrence after the region is a definition) makes the
+counter a later live range of that variable, numbered after the constant.
+The last 4 edits were `&temp_20[idx]` record pointers. Pointer arithmetic is
+canonicalised base-first whatever the spelling; the
+`titleOffsetPtr_001265a0(u32 offset, u8 *base)` helper, whose parameter is a
+variable, gives retail's offset-first `addu` (on four of the six sites).
+
+When `regalloc_whatif` reports a hit only at a position after some temporary,
+look for a dead local to reuse. When it reports a position among the
+declared variables, change the declaration order or split a reused local.
 
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
 
