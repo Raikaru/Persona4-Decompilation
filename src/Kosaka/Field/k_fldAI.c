@@ -1010,6 +1010,7 @@ tail:
  * combined 315 -> 284: the patrol toggle stores !cur (retail recomputes sltu/xori), and the state 9 target is a whole FldAIVec3 copy.
  * combined -> 264: y component read through the integer-cast base like x and z.
  * combined 264 -> 260: state 9 captures pos.y/pos.z just before their subtraction.
+ * combined -> 254: speed limit loads the field before the gp constant.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1350,7 +1351,8 @@ availabilityDone:
       state2Delta.y = ((float *)piVar1)[0x15] - aiV60.y;
       state2Delta.z = ((float *)piVar1)[0x16] - aiV60.z;
       temp_v8 = RwV3dNormalize(&state2Delta,&state2Delta);
-      temp_v9 = CAND_fGpffff830c * *(float *)((u8 *)(u32)piVar1 + 0x68);
+      temp_v9 = *(float *)((u8 *)(u32)piVar1 + 0x68);
+      temp_v9 = CAND_fGpffff830c * temp_v9;
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
@@ -1775,7 +1777,8 @@ else {
       state9Delta.y = state9Delta.y - temp_v8;
       state9Delta.z = state9Delta.z - temp_v9;
       temp_v8 = RwV3dNormalize(&state9Delta,&state9Delta);
-      temp_v9 = CAND_fGpffff830c * *(float *)&piVar1[0x1a];
+      temp_v9 = *(float *)&piVar1[0x1a];
+      temp_v9 = CAND_fGpffff830c * temp_v9;
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
@@ -1833,7 +1836,8 @@ else {
       state10Delta.y = ((float *)piVar1)[0x15] - aiV1D0.y;
       state10Delta.z = ((float *)piVar1)[0x16] - aiV1D0.z;
       temp_v8 = RwV3dNormalize(&state10Delta,&state10Delta);
-      temp_v9 = CAND_fGpffff830c * *(float *)&piVar1[0x1a];
+      temp_v9 = *(float *)&piVar1[0x1a];
+      temp_v9 = CAND_fGpffff830c * temp_v9;
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
