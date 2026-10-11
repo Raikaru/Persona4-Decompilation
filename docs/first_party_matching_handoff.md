@@ -25,10 +25,10 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 11 continuation, part 12: `00183b80`, `001265a0` MATCH; live-range numbering
+## October 11 continuation, part 12: `00183b80`, `001265a0`, `0047b0c0` MATCH; live-range numbering
 
-**6,838 MATCH / 22 ASM** (`build/after43.json`; against `after42.json` only
-`001265a0` changed; link 604 C / 54 SDK, both sha1 OK in `build/link46.log`).
+**6,839 MATCH / 21 ASM** (`build/after44.json`; against `after43.json` only
+`0047b0c0` changed; link 604 C / 54 SDK, both sha1 OK in `build/link48.log`).
 
 **Lever: give each repeated code group its own locals.** A local that is
 reassigned in several independent groups (Ghidra/m2c reuse, or one `w`/`h`
