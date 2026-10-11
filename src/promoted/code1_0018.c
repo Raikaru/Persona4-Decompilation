@@ -2052,6 +2052,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 454 -> 442: the [6]/[8] oscillator update keeps 0.0f and 1.0f in named locals with opt_propagation off (retail reuses $f1 for the zero compare and 1.0 - x).
  * fnalign 442 -> 428: the facing branch keeps one = 1.0f and diff = one - temp_v13 in locals (retail reuses $f2/$f1; 180.0f * diff constant-first).
  * fnalign 428 -> 424: the facing direction components are loaded once into nx/ny/nz for both dot products (retail reuses $f4-$f6).
+ * fnalign 424 -> 311: vecE0 and vec110 are whole FldCopyVec copies, so both live in the frame as retail (frame 0x1c0).
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2549,9 +2550,7 @@ s32 func_0018a200(u8 *param_1)
         }
         func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        vecE0[0] = *(float *)(temp_v4 + 0x30);
-        vecE0[1] = *(float *)(temp_v4 + 0x34);
-        vecE0[2] = *(float *)(temp_v4 + 0x38);
+        *(FldCopyVec *)vecE0 = *(FldCopyVec *)(temp_v4 + 0x30);
         vec100[0] = vecF0[0] - vecE0[0];
         vec100[1] = vecF0[1] - vecE0[1];
         vec100[2] = vecF0[2] - vecE0[2];
@@ -2608,9 +2607,7 @@ s32 func_0018a200(u8 *param_1)
           else {
             func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vec120[0], 0);
             temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-            vec110[0] = *(float *)(temp_v4 + 0x30);
-            vec110[1] = *(float *)(temp_v4 + 0x34);
-            vec110[2] = *(float *)(temp_v4 + 0x38);
+            *(FldCopyVec *)vec110 = *(FldCopyVec *)(temp_v4 + 0x30);
             vec130[0] = vec120[0] - vec110[0];
             vec130[1] = vec120[1] - vec110[1];
             vec130[2] = vec120[2] - vec110[2];
