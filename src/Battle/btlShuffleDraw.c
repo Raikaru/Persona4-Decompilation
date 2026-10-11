@@ -1262,30 +1262,10 @@ void func_00376880(u8 **arg0) {
  * implementation. See docs/probe_archive/Shuffle_trail_003768e0_20261006.
    2026-10-08: opt_lifetimes on lowers fnalign from 464 to 280 edits.
    Also (2026-10-08): the identity flags are ORed into the uninitialised local (retail lw 0xBC/or) and the render-state table is read through a u32 local kept in $s3, 270 edits. */
-/* 2026-10-09: 270 -> 265 edits from a block-declaration order climb.
-   2026-10-09: 265 -> 264: `length` is declared before `rgba` (retail copies
-   the parameters as a0, a1, f12, a3, which is declaration order). The extern
-   and the one call in this file were updated to match; EABI passes the same
-   registers, and the caller still matches. Residual: one extra callee-saved
-   FPR (f26) and the trail-position add order.
-   2026-10-09: 264 -> 182: in both trail loops the sums are formed as px/py/pz
-   straight from `sample->x` etc., then the minus side mx/my/mz is formed
-   before back[0] is stored, as retail orders them.
- * 2026-10-09: 182 -> 168: the per-point pointer steps are in the for header after
- * `point++` (retail increments the counter first).
- * 165: h_right moved to function scope (keeps retail's colouring).
- * 164: hoist sweep.
- * 149: hoist sweep.
- * fnalign 149 -> 127: the -1/21 taper step is a literal (pool reload per loop, as retail).
- * fnalign 127 -> 108: shared x/y/z for the front and back trail points (single-definition px/mx locals were propagated into the TRAIL_POSITION arguments).
- * trail loops reuse the case-scope x/y/z (no shadowing locals).
- * fnalign 108 -> 105: per-case step = length / 21.0f locals, case 0's time at function scope and its fadedOpacity after taper (regalloc_whatif: time numbered first, fadedOpacity after taper).
- * fnalign 105 -> 29: reused locals split per independent group (separate live ranges as retail).
- * fnalign 29 -> 21: float declaration order per scope (exhaustive).
- * fnalign 21 -> 13: case 0 divides length in place (retail div.s $f23,$f23); cases 1/2 keep their step locals.
- */
-// FUN_003768E0 NONMATCHING
-#ifdef NON_MATCHING
+/* Card trail draw (three styles). Each style uses its own locals so live
+   ranges match retail; time and step are declared before opacity, which puts
+   the trail clock in $f24, the step in the length register and opacity in
+   $f22 as retail does. */
 #pragma push
 #pragma opt_lifetimes on
 /* Scratch recovery of the three trail styles. The 0x24-byte vertex and
@@ -1334,6 +1314,7 @@ extern f32 iGpffff8308;
 
 #pragma push
 #pragma opt_loop_invariants on
+// FUN_003768E0
 void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
 {
     TrailVertex first[42];
@@ -1357,6 +1338,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
     u8 *motion;
     s32 kind;
     f32 time;
+    f32 step;
     f32 opacity;
     f32 right;
     f32 height;
@@ -1400,10 +1382,10 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
                 fadedOpacity = iGpffff8400 * opacity;
                 taper = 1.0f;
                 time = 0.0f;
-                length /= 21.0f;
+                step = length / 21.0f;
                 for (point = 0; point < 21; point++, front += 2, back += 2) {
                     func_003764b0(work, cardIndex, time, (u8 *)&samples[point]);
-                    time -= length;
+                    time -= step;
                     TRAIL_COLOR(&front[0], rgba[0], rgba[1], rgba[2], (u8)(opacity * taper));
                     TRAIL_COLOR(&front[1], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
                     TRAIL_COLOR(&back[0], rgba[0], rgba[1], rgba[2], (u8)(fadedOpacity * taper));
@@ -1462,11 +1444,9 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
             }
         case 1:
             {
-                f32 step;
                 s32 point;
                 s32 side;
                 f32 taper;
-                f32 time;
                 f32 halfWidth;
                 f32 halfHeight;
                 f32 x;
@@ -1533,11 +1513,9 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
             break;
         case 2:
             {
-                f32 step;
                 s32 point;
                 s32 side;
                 f32 taper;
-                f32 time;
                 f32 halfWidth;
                 f32 halfHeight;
                 f32 x;
@@ -1609,9 +1587,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
 #undef TRAIL_COLOR
 #undef TRAIL_POSITION
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
-#endif
+
 
 /* Build an untextured screen-space quad from the card's position and rotation.
  * The four 64-byte sky2 vertices retain the PS2 screen/color/reciprocal-Z layout.
