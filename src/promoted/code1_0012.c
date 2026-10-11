@@ -3515,7 +3515,6 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                     f32 size = 137.0f * temp_f16;
 
                     temp_f2 = 1.0f - temp_f21_2;
-
                     temp_f21_2 = 255.0f * temp_f2;
                     func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, (s16)size, (s16)size, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
                 }
