@@ -3985,6 +3985,7 @@ void func_001a7710(void)
  * real parameter types for btlCreateSetFlagsPacket, func_00194c90, func_0019b550, btlUnitCreateLookAtDeactivatePacket (pointers as void *).
  * 0x13/0x10 action selection as a var_2_13 flag test with the 0x13 call first (no goto block_408).
  * sp200 computed directly from the flag (no temp_2_3 copy); plain comparisons.
+ * fnalign 966 -> 960: reused locals split per independent group.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4093,6 +4094,7 @@ void func_001a7720(u8 *arg0) {
     s32 *sp4E0;
     u8 *sp4D0;
     u8 *sp4CC;
+    u8 * sp4CC_s2;
     u8 *sp4C8;
     u8 *sp4C4;
     u8 *sp4C0;
@@ -4125,6 +4127,8 @@ void func_001a7720(u8 *arg0) {
     s32 sp320;
     s32 sp310;
     s32 sp30C;
+    s32 sp30C_s1;
+    s32 sp30C_s2;
     s32 sp2F0;
     s32 sp2E0;
     s32 sp2D0;
@@ -4847,7 +4851,7 @@ void func_001a7720(u8 *arg0) {
             }
         }
     } else if ((sp200 == 0) && (temp_23_2 == 1)) {
-        sp30C = 1;
+        sp30C_s1 = 1;
         if ((s32)(func_0022f8b0(arg0, temp_2_2)) != (s32)(0)) {
             sp2D0 = 1;
             var_21 = 0;
@@ -4879,7 +4883,7 @@ void func_001a7720(u8 *arg0) {
         if ((s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)(arg0) + (0x30)))) + (0xA2)))) == (s32)(1)) {
             if ((s32)(func_0022e4f0(arg0, temp_2_2)) != (s32)(0)) {
                 var_17_5 = 2;
-                sp30C = 0;
+                sp30C_s2 = 0;
                 sp2C0 = 1;
                 temp_4_9 = (u8 *)(iGpffffb3ac);
                 (*( s32 * )((u8 *)(temp_4_9) + (0xC))) = (s32)((s32) ((*( s32 * )((u8 *)(temp_4_9) + (0xC))) | 0x400000));
@@ -5134,7 +5138,7 @@ void func_001a7720(u8 *arg0) {
         (*( s64 * )((u8 *)(var_22) + (0x60))) = temp_16;
         func_00194590(var_22, 1);
         if (sp340 == 0) {
-            sp4CC = (u8 *)(btlSoundCreateSkillSEPacket((u16) sp270, 0));
+            sp4CC_s2 = (u8 *)(btlSoundCreateSkillSEPacket((u16) sp270, 0));
         } else {
             sp4CC = (u8 *)(func_00194b60());
         }
