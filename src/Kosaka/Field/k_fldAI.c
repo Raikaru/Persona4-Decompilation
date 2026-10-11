@@ -1002,6 +1002,7 @@ tail:
  * combined 488 -> 470: target positions copied whole, then y raised by the height table entry (table base + kind*16 summed first).
  * combined 470 -> 434: the patrol-area exit tests read a stack copy of the position (retail swc1 to 0x70 and reloads) in retail polarity.
  * combined 434 -> 405: state 8 scales the forward vector by (ratio * FUN_00175db0()) per component and offsets a whole copy of the target position.
+ * combined 405 -> 375: the height table is a float[..][4] indexed [kind][slot].
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1386,8 +1387,7 @@ else {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         *(FldAIVec3 *)vec70 = *(FldAIVec3 *)(temp_v0 + 0x30);
         vec70[1] = vec70[1] +
-                    *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
-                              ((unsigned int)D_005F1CC0 + (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10));
+                    ((float (*)[4])D_005F1CC0)[*(unsigned char *)(piVar1[3] + 0x1ca)][*(unsigned char *)(piVar1[3] + 0x1cb)];
         pbVar7 = (unsigned char *)FUN_0015c1e0(1);
         FUN_0014e740(pbVar7,&vec70[0]);
         FUN_0045af60(1,0xb,3,5);
@@ -1404,8 +1404,7 @@ else {
           temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
           *(FldAIVec3 *)vec80 = *(FldAIVec3 *)(temp_v0 + 0x30);
           vec80[1] = vec80[1] +
-                      *(float *)((unsigned int)*(unsigned char *)(piVar1[3] + 0x1cb) * 4 +
-                                ((unsigned int)D_005F1CC0 + (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x10));
+                      ((float (*)[4])D_005F1CC0)[*(unsigned char *)(piVar1[3] + 0x1ca)][*(unsigned char *)(piVar1[3] + 0x1cb)];
           pbVar7 = (unsigned char *)FUN_0015c1e0(1);
           FUN_0014e740(pbVar7,&vec80[0]);
           FUN_0045af60(1,0xb,3,5);
