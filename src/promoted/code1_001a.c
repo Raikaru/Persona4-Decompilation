@@ -3020,6 +3020,7 @@ void func_001a5990(void)
  * fnalign 575 -> 545: the 0x13/0x10 selection as a var_2_8 flag test with the 0x13 call first (no goto block_224), as in func_001a7720.
  * fnalign 545 -> 527: the tail state switch (cases 1,3,2 and default both set state 0x20) as in the matched-path sibling 001a7720, with the real btlActionSetState(BtlAction *, u16) prototype (retail daddiu per arm, one shared call).
  * fnalign 527 -> 521: btlCloseCamera reads the unit id before the switch, sends every failing path to one shared result = 0 (default arm, goto fail) and tests the 0x8000 flag first (retail polarity).
+ * fnalign 521 -> 493: integer-cast +0x30 unit reads at selected sites (b210 does not CSE the address across calls, as retail).
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3503,7 +3504,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s16 *)((u8 *)(temp_2_19) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_19) + (0x60))) = temp_17;
             func_00194590(temp_2_19, 1);
-            temp_2_20 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)(temp_18) + (0x30))), temp_19, 2));
+            temp_2_20 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)((s64 *)(u32)temp_18) + (0x30))), temp_19, 2));
             (*(s16 *)((u8 *)(temp_2_20) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_20) + (0x60))) = temp_17;
             func_00194590(temp_2_20, 0);
@@ -3512,7 +3513,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s64 *)((u8 *)(temp_2_21) + (0x60))) = temp_17;
             (*(s16 *)((u8 *)(temp_2_21) + (0x4A))) = (s16) sp170;
             func_00194590(temp_2_21, 0);
-            temp_2_22 = (u8 *)(func_001d3530((*(u8 **)((u8 *)(var_22_3) + (0x30))), (*(u8 **)((u8 *)(temp_18) + (0x30))), 2));
+            temp_2_22 = (u8 *)(func_001d3530((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30))), (*(u8 **)((u8 *)(temp_18) + (0x30))), 2));
             (*(s16 *)((u8 *)(temp_2_22) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_22) + (0x60))) = temp_17;
             func_00194590(temp_2_22, 0);
@@ -3569,7 +3570,7 @@ void func_001a59a0(s64 *arg0_) {
                 } else {
                     sp240 = 1;
                 }
-                temp_2_28 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*(u8 **)((u8 *)(var_22_3) + (0x30))), (s16)sp2A0, 0, 1.0f, 0));
+                temp_2_28 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30))), (s16)sp2A0, 0, 1.0f, 0));
                 sp2DC = (u8 *)(temp_2_28);
                 (*(s8 *)((u8 *)(temp_2_28) + (0))) = 5;
                 (*(s64 *)((u8 *)(temp_2_28) + (8))) = temp_16;
@@ -3728,7 +3729,7 @@ void func_001a59a0(s64 *arg0_) {
                         (*(s64 *)((u8 *)(temp_2_45) + (0x60))) = temp_17;
                         func_00194590(temp_2_45, 2);
                     } else {
-                        temp_2_46 = (u8 *)(func_00197cc0((*(u8 **)((u8 *)(var_22_3) + (0x30))), (s16) (*(u16 *)(arg0 + (0x6E))), 0));
+                        temp_2_46 = (u8 *)(func_00197cc0((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30))), (s16) (*(u16 *)(arg0 + (0x6E))), 0));
                         (*(s8 *)((u8 *)(temp_2_46) + (0))) = 5;
                         (*(s64 *)((u8 *)(temp_2_46) + (8))) = (s64) (*(s64 *)((u8 *)(sp2D4) + (0x58)));
                         (*(s64 *)((u8 *)(temp_2_46) + (0x60))) = temp_17;
@@ -3750,7 +3751,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s16 *)((u8 *)(temp_2_49) + (0x48))) = var_21;
             (*(s64 *)((u8 *)(temp_2_49) + (0x60))) = temp_17;
             func_00194590(temp_2_49, 1);
-            temp_2_50 = (u8 *)(func_00201de0((s32)(temp_19), (s32)((*(u8 **)((u8 *)(var_22_3) + (0x30)))), (*(u16 *)(arg0 + (0x6E))), (*(u16 *)((u8 *)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE))), 0, 1, sp1F0, 0));
+            temp_2_50 = (u8 *)(func_00201de0((s32)(temp_19), (s32)((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30)))), (*(u16 *)(arg0 + (0x6E))), (*(u16 *)((u8 *)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE))), 0, 1, sp1F0, 0));
             (*(s8 *)((u8 *)(temp_2_50) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_50) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_50) + (0x48))) = var_21;
