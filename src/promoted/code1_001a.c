@@ -4050,6 +4050,7 @@ void func_001a7710(void)
  * 2026-10-12 threshold widths: fnalign 779 -> 759; use native unsigned/signed word comparisons for bounded random and signed-halfword thresholds, without 64-bit promotion.
  * 2026-10-12 selector consumers: fnalign 759 -> 752; retain widened motion/effect selectors after their signed-halfword reads, eliminating repeated extensions.
  * 2026-10-12 duration repair: fnalign 752 -> 746; retain the full unsigned word sum and logical shift used by retail, rather than truncating the animation duration to u16.
+ * 2026-10-12 windup duration: fnalign 746 -> 745; retain the signed word consumed by retail's arithmetic right shift at 001A81E8, rather than a logical shift.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4250,7 +4251,7 @@ void func_001a7720(u8 *arg0) {
     s32 temp_3_16;
     s32 temp_5_4;
     s32 var_17;
-    u32 var_18_3;
+    s32 var_18_3;
     s32 var_2_14;
     s16 var_2_17;
     s32 var_2_5;
