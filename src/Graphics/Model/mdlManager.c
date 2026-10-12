@@ -514,9 +514,34 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * measured 2026-10-12: fnalign 18 -> 13; an addressable animation-flag snapshot keeps scalar sw/lw storage, offset-first addressing fixes the control lookup, and callback-first equality fixes bne operands. Remaining: param_4 home and +0x42/interpolator-slot CSE.
  * fnalign 13 -> 12: the created flag's test and store use different address expressions, so IRO no longer hoists +0x42 into a saved register, and the interpolator is stored through `interp` and re-read (retail keeps slot+0x10 in $s6 across the create call).
  * fnalign 12 -> 7: the created interpolator stays in temp_v5 for the store but is re-read through `interp` for the init call; retail keeps temp_v5's early colouring.
+ * fnalign 7 -> 5: param_1 is an RpHAnimHierarchy; typed fields order the currentAnim/numNodes loads and the node-info index as retail. Remaining: param_4's spill slot (0x140 in retail, 0x14c here).
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
+/* Layout from include/rw/inc/rphanim.h. */
+typedef struct RpHAnimNodeInfo
+{
+    s32 nodeID;              /* 0x00 */
+    s32 nodeIndex;           /* 0x04 */
+    s32 flags;               /* 0x08 */
+    struct RwFrame *pFrame;  /* 0x0c */
+} RpHAnimNodeInfo;
+
+/* Layout from include/rw/inc/rphanim.h. */
+typedef struct RpHAnimHierarchy RpHAnimHierarchy;
+struct RpHAnimHierarchy
+{
+    s32 flags;                           /* 0x00 */
+    s32 numNodes;                        /* 0x04 */
+    RwMatrix *pMatrixArray;              /* 0x08 */
+    void *pMatrixArrayUnaligned;         /* 0x0c */
+    RpHAnimNodeInfo *pNodeInfo;          /* 0x10 */
+    struct RwFrame *parentFrame;         /* 0x14 */
+    RpHAnimHierarchy *parentHierarchy;   /* 0x18 */
+    s32 rootParentOffset;                /* 0x1c */
+    RtAnimInterpolator *currentAnim;     /* 0x20 */
+};
+
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
@@ -587,7 +612,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   int temp_v4;
   unsigned int temp_v5;
   unsigned int temp_v6;
-  unsigned int *puVar12;
+  RpHAnimHierarchy *hierarchy;
   int temp_v7;
   int temp_v8;
   int temp_v9;
@@ -664,15 +689,15 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   hasParentMatrix = 0;
   parent = 0;
   resetAnimation = 0;
-  puVar12 = (unsigned int *)param_1;
-  temp_v10 = *puVar12;
-  if (((temp_v10 & 1) != 0) && (puVar12[7] != 0xffffffff)) {
-    temp_v5 = puVar12[6];
-    temp_v4 = puVar12[7] * 0x40;
+  hierarchy = (RpHAnimHierarchy *)param_1;
+  temp_v10 = hierarchy->flags;
+  if (((temp_v10 & 1) != 0) && (hierarchy->rootParentOffset != -1)) {
+    temp_v5 = (unsigned int)hierarchy->parentHierarchy;
+    temp_v4 = hierarchy->rootParentOffset * 0x40;
     pfVar21 = (float *)(*(int *)(temp_v5 + 8) + temp_v4);
     if (((temp_v10 & 0x2000) != 0) && ((temp_v10 & 0x4000) != 0)) {
       hasParentMatrix = 1;
-      parent = *(unsigned int *)(puVar12[6] + 0x14);
+      parent = (unsigned int)hierarchy->parentHierarchy->parentFrame;
     }
   } else {
     if ((temp_v10 & 0x4000) != 0) {
@@ -693,11 +718,11 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       pfVar21 = ((f32 *)&identityMatrix);
       if ((temp_v10 & 0x2000) != 0) {
         hasParentMatrix = 1;
-        parent = puVar12[5];
+        parent = (unsigned int)hierarchy->parentFrame;
       }
     } else {
       hasParentMatrix = 1;
-      parent = puVar12[5];
+      parent = (unsigned int)hierarchy->parentFrame;
       pfVar21 = ((f32 *)&baseMatrix);
     }
   }
@@ -733,23 +758,23 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     }
   }
   animated = temp_v10 & 0x2000;
-  if ((modelAnimationFlag(&animated) != 0) && ((*(unsigned char *)(*(int *)(puVar12[5] + 0xa0) + 3) & 3) == 0)) {
+  if ((modelAnimationFlag(&animated) != 0) && ((*(unsigned char *)(*(int *)((u32)hierarchy->parentFrame + 0xa0) + 3) & 3) == 0)) {
     typedef struct ControllerLink { struct ControllerLink *next; struct ControllerLink *prev; } ControllerLink;
     ControllerLink *list = (ControllerLink *)DAT_0088739c;
 
-    ((ControllerLink *)(*(int *)(puVar12[5] + 0xa0) + 8))->next = list->next;
-    ((ControllerLink *)(*(int *)(puVar12[5] + 0xa0) + 8))->prev = list;
-    list->next->prev = (ControllerLink *)(*(int *)(puVar12[5] + 0xa0) + 8);
-    temp_v9 = *(int *)(puVar12[5] + 0xa0);
+    ((ControllerLink *)(*(int *)((u32)hierarchy->parentFrame + 0xa0) + 8))->next = list->next;
+    ((ControllerLink *)(*(int *)((u32)hierarchy->parentFrame + 0xa0) + 8))->prev = list;
+    list->next->prev = (ControllerLink *)(*(int *)((u32)hierarchy->parentFrame + 0xa0) + 8);
+    temp_v9 = *(int *)((u32)hierarchy->parentFrame + 0xa0);
     list->next = (ControllerLink *)(temp_v9 + 8);
     *(unsigned char *)(temp_v9 + 3) = *(unsigned char *)(temp_v9 + 3) | 2;
   }
-  temp_v6 = puVar12[8];
+  temp_v6 = (unsigned int)hierarchy->currentAnim;
   pcVar2 = *(void (**)(void *, void *))(temp_v6 + 0x3c);
   temp_v9 = *(int *)(temp_v6 + 0x24);
   puVar22 = &temp_v27[1];
-  uStack_430 = puVar12[4];
-  pfVar8 = (float *)puVar12[2];
+  uStack_430 = (unsigned int)hierarchy->pNodeInfo;
+  pfVar8 = (float *)hierarchy->pMatrixArray;
   temp_v11 = temp_v6 + 0x4c;
   temp_v4 = **(int **)(modelState + 0x1a);
   puVar3 = *(unsigned int **)(modelOffsetAddress((short)modelState[2] * 0x50, temp_v4) + 0x48);
@@ -760,7 +785,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     /* Per-hierarchy modes are snapped before callbacks and reused for all
      * nodes, as at retail 004716d0-004716dc. The full entry flags need not
      * remain live throughout the node traversal. */
-    for (iStack_420 = 0; iStack_420 < (int)puVar12[1]; iStack_420 = iStack_420 + 1) {
+    for (iStack_420 = 0; iStack_420 < hierarchy->numNodes; iStack_420 = iStack_420 + 1) {
       if (func_003954b0 == pcVar2) {
         /* RtQuatUnitConvertToMatrixMacro: independent square/cross/wimag
          * products precede matrix construction, as in retail 0047170c-0047172c. */
@@ -800,7 +825,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       else {
         (*pcVar2)(&frameMatrix.right.x,(void *)temp_v11);
       }
-      switch (*(int *)(puVar12[4] + iStack_420 * 0x10)) {
+      switch (hierarchy->pNodeInfo[iStack_420].nodeID) {
       case 0x1389: {
         s32 angleLimited;
         if ((param_4 == 0) && ((*controller & 0x400) == 0)) {
@@ -1256,7 +1281,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           unsigned int *slot = puVar3 + temp_v10;
           unsigned int *interp = slot + 4;
 
-          temp_v5 = (unsigned int)func_003d5790((int)puVar12[1], (int)*(unsigned int *)(puVar12[8] + 0x20));
+          temp_v5 = (unsigned int)func_003d5790(hierarchy->numNodes, hierarchy->currentAnim->maxInterpKeyFrameSize);
           *interp = temp_v5;
           func_003d5840((RtAnimInterpolator *)((void *)*interp),(RtAnimAnimation *)((void *)*slot));
         }
@@ -1269,7 +1294,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       /* Preserve retail's less-than test and unordered fallback selection. */
       if ((!(*(float *)&puVar3[0xe] < 1.0f)) ||
          (pbVar19 = *(unsigned char **)(modelState + 0x14), pbVar19 == (unsigned char *)0x0)) {
-        pbVar19 = (unsigned char *)puVar12[8];
+        pbVar19 = (unsigned char *)hierarchy->currentAnim;
         temp_v21 = *(float *)(pbVar19 + 4);
       }
       else {
@@ -1323,7 +1348,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       }
       /* Preserve retail's less-than test and unordered fallback selection. */
       if ((*(float *)&puVar3[0xe] < 1.0f) && (*(unsigned char **)(modelState + 0x12) != (unsigned char *)0x0)) {
-        func_003d5e90((unsigned char *)puVar12[8],*(unsigned char **)(modelState + 0x12),(unsigned char *)puVar3[puVar3[0x11] + 4]
+        func_003d5e90((unsigned char *)hierarchy->currentAnim,*(unsigned char **)(modelState + 0x12),(unsigned char *)puVar3[puVar3[0x11] + 4]
                       ,*(float *)&puVar3[0xe]);
         /* func_004740c0 stores blend duration as f32 at control+0x34;
          * retail 00472dd0-00472de0 loads it directly without integer conversion. */
@@ -1336,12 +1361,12 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         if ((*(u16 *)controller & 0x100) == 0) {
           *(float *)&puVar3[0xc] = *(float *)&puVar3[0xc] * (1.0f - *(float *)(controller + 2));
           puVar3[0x12] = 0x3f800000;
-          func_003d5e90((unsigned char *)puVar12[8],(unsigned char *)puVar12[8],(unsigned char *)puVar3[puVar3[0x11] + 4],
+          func_003d5e90((unsigned char *)hierarchy->currentAnim,(unsigned char *)hierarchy->currentAnim,(unsigned char *)puVar3[puVar3[0x11] + 4],
                         1.0f - *(float *)&puVar3[0xc]);
         }
         else {
           *(float *)&puVar3[0x12] = *(float *)&puVar3[0x12] * (1.0f - *(float *)(controller + 2));
-          func_003d5e90((unsigned char *)puVar12[8],(unsigned char *)puVar12[8],(unsigned char *)puVar3[puVar3[0x11] + 4],
+          func_003d5e90((unsigned char *)hierarchy->currentAnim,(unsigned char *)hierarchy->currentAnim,(unsigned char *)puVar3[puVar3[0x11] + 4],
                         *(float *)&puVar3[0x12]);
           if (*(float *)&puVar3[0x12] < fGpffff8074) {
             *(u16 *)controller = *(u16 *)controller & 0x7e1f;
