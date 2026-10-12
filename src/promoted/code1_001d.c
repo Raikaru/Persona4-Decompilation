@@ -2307,9 +2307,9 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * 77: local integer types as retail.
  * third sort's count copy is s32 (retail subtracts without re-masking).
  */
-/* measured 2026-10-12: restored stale-index reaching definitions reduce fnalign 37 -> 26 edits.
- * The first two gather counts share the selected-index local; the filtered gather has its own count.
- * The 0x180 frame and all 747 instructions match in shape; sort bounds and one store register remain. */
+/* measured 2026-10-12: restored stale-index reaching definitions reduce fnalign 37 -> 25 edits.
+ * The first two gather counts share the selected-index halfword; the filtered gather has its own count.
+ * The 0x180 frame and all 747 instructions match in shape; only the three sort-bound register roles remain. */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
  * Structure: early count<2 return, D_008C027A 0x2000/8000/1000/4000 -> mode 5/4/2/3 with D_008C0276 hasFlag, 1d8df0==1 remap (5/1->3, 4/0->2), switch in object order 4/5,0/1,2/3 sharing bodies via jtbl_00747110, u16 entry idx/chain (Entry[12] at sp+0x90 -> sp+0x120 exactly), three bubble sorts (score/score/chain, descending), chain filter over *(D_0076449C+0x17C) via +0xA68, 1ec3d0 transform for 0/1, shared tail storing *(arg1+0x3A) with +0x3C|1.
@@ -2342,7 +2342,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     Entry entries[12];
     u16 mode;
     s32 i;
-    s32 selected;
+    u16 selected;
     s32 hasFlag;
     s32 n;
 #define PROJ (&stk[4])
@@ -2423,7 +2423,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             }
             entries[selected & 0xFFFF].unit = unit;
             entries[selected & 0xFFFF].idx = (u16)i;
-            selected = (selected + 1) & 0xFFFF;
+            selected++;
             i = (i + 1) & 0xFFFF;
         }
         {
@@ -2509,7 +2509,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             }
             entries[selected & 0xFFFF].unit = unit;
             entries[selected & 0xFFFF].idx = (u16)i;
-            selected = (selected + 1) & 0xFFFF;
+            selected++;
             i = (i + 1) & 0xFFFF;
         }
         {
