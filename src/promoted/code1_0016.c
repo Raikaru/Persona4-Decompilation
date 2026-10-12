@@ -1956,6 +1956,7 @@ query_complete:
  * measured 2026-10-12: fnalign 242 -> 229; native case 6/7 vector locals and assignments recover both ld/sd triplet copies.
  * measured 2026-10-12: fnalign 229 -> 157; typed frame snapshots, interleaved path ABI, retail dot/reload order, and graph-proven index/frame lifetimes.
  * measured 2026-10-12: fnalign 157 -> 105; propagation/pullout off retain path interpolation order, pointer-valued collision arguments and wall dot products follow retail, and easing reloads avoid shared addresses.
+ * measured 2026-10-12: fnalign 105 -> 73; captured FPR graph orders distance/axis locals as retail ($f23/$f21/$f20/$f22).
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2109,12 +2110,12 @@ s32 func_0016bdd0(u8 *param_1)
   int temp_v7;
   int temp_v8;
   float temp_v9;
-  float temp_v9_s4;
+  float temp_v12_s7;
   float temp_v10;
   float temp_v11;
   s32 moved;
   float temp_v11_s4;
-  float temp_v11_s5;
+  float temp_v14_s6;
   float temp_v11_s6;
   float temp_v11_s7;
   float temp_v11_s8;
@@ -2123,7 +2124,7 @@ s32 func_0016bdd0(u8 *param_1)
   float temp_v12_s1;
   float temp_v12_s2;
   float temp_v12_s4;
-  float temp_v12_s7;
+  float temp_v9_s4;
   float temp_v12_s10;
   float temp_v12_s11;
   float temp_v12_s13;
@@ -2133,7 +2134,7 @@ s32 func_0016bdd0(u8 *param_1)
   float temp_v14_s3;
   float temp_v14_s4;
   float temp_v14_s5;
-  float temp_v14_s6;
+  float temp_v11_s5;
   float temp_v14_s7;
   float temp_v14_s8;
   float temp_v14_s11;
