@@ -98,34 +98,21 @@ extern void func_0036b470(void *work, void *vertices);
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
-/* 2026-09-19: frame -0x90 exact. Lui retail 49 vs object 52 (+3 surplus): retail {0x65:17,0x41f0:1,0x42c8:1,0x4f00:6,0x8000:6,0x437f:6,0x88:4,3:4,7:4} vs object {0:26,0x4f00:6,0x8000:6,0x41f0:1,0x42c8:1,0x437f:4,3:4,7:4}; surplus is symbols (+5 zero for 0x65/0x88 D_0064E480/D_00887300, e.g. reloc-only 16:18 lui 0x65 vs 0) minus 2 missing floats (0x437f 6->4, 255.0f scalings in missing arm). Counts fnalign 1099 vs 1142 (-43, -3.8% OUTSIDE gate), words 759, edits 1089 +14 reloc, window 4576B (4396 emitted). Deletes 18 tot 95 retail-only, inserts 7 tot 191 object-only, replaces 82 (525 vs 386 net -139). Delete runs (retail addr = 0x3694D0+idx*4): [90:93] 0x369638 (sb tmp color 3B); [134:135] 0x3696E8 (andi alpha FF); [148:151] 0x369720 (sb tmp 3B); [173:174] 0x369784 (andi FF); [188:191] 0x3697C0 (sb tmp 3B); [209:219] 0x369814 len10 (lbu color 0x40-43 + sb tmp 0x8C-8F + sb zero 0x8F + addiu b5 0x4D8: mode0 b5 color copy/alpha-zero); [227:230] 0x36985C (sb tmp); [252:253] 0x3698C0 (andi); [272:275] 0x369910 (sb tmp); [276:280] 0x369920 len4 (sb zero x3 + lbu alpha: tmp clear/reload); [315:316] 0x3699BC (andi); [391:392] 0x369AEC (andi); [480:531] 0x369C50-0x369D1B len51 (THE hole: dispatch 10 [addiu 2/beq mode2 +294, beqz mode0 +46, addiu1/beq mode1 +4, b end +361] + mode1 arm 39 [8,1 tbl, 3,0x317F3, lw 0x170/0x174 + jal bee0(unk170,unk174), 1,v0 tbl, 2,0x44, 0x178 b0 block, 3,0x65... + jal 410420/10520/jal104d0] + b +322 + 2 moves for mode0 setup); [894:896] 0x36A2C8 (lui 0x88 table base); [932:936] 0x36A360 (b + lui base); [979:981] 0x36A41C (lui base); [1020:1021] 0x36A4C0 (not flags); [1024:1025] 0x36A4D0 (move s0,s2 colour). Collapsed replace [533:779] 0x369D24-0x36A0FB len246 vs object[454:455] len1 is mode0 7-block field group (8,1/3,0x317F3/3,1/4,1/1,d130(0)/2,0x44/0x178 b0/3,0x65../0x3B8 b4/0x328 b3/0x298 b2/lhu174/1,bff0/0x448 b5/0x4D8 b6/2,0x44/1,d130(1)/0x208 b1/flags&2?/2,0x48/3,3/4,3/1,d130(5)/0x568 b7); object has same 208 at 520:728 (colour s0 vs s2, zero relocs), so 38 short here + 51 above = 89 of the 95; rest colour. Inserts 60 at 103:163 (hoisted float 0x328/0x32C mul/div/c.ole + b5/b6 tbl) and 83 at 734:817 + 36 at 1022:1058 are duplicated tails from if/else vs switch layout (WALL). No code change this round (before=after); closing needs switch reorder to retail 1,0,3,2 layout + bee0/b0 fix, time-boxed.
-   2026-10-08: 350 -> 195 edits. The colour snapshots are 4-byte struct copies, the alphas convert straight to u8 ((u8)f), and the case-0 fades read the alpha inline after 255.0f * dir. Open: retail keeps a second table register per case (move $s2,$s1) and reloads D_00887300 into $s2 in later blocks.
-   2026-10-09: 195 -> 192: the DC test is `~*(u32 *)unkDC & 1` (retail
-   not/andi/beqz) and the unk48 test is a one-case `switch` (retail beqz-to-
-   body plus jump).
-   2026-10-09: 192 -> 139: the render-state table is copied into `fn` at the
-   top of each mode case while `tbl` stays live for the later mode-1 call, so
-   the copies survive as retail's `daddu $18, $17` (a copy whose source is
-   still live is not coalesced). Later sections reassign `fn` and the DC
-   section uses `fn2 = fn`. Residual: retail rematerialises D_00887300 into $18
-   for each later section.
-   2026-10-09: 139 -> 138: the unk4C section assigns `fn` after the
-   RpSkyRenderStateSet(2, 0x58) call.
-   2026-10-09: 138 -> 135: declaration climb.
- * 2026-10-09: 135 -> 49: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 2026-10-09: 49 -> 37: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 34: the mode-1 group reloads the table pointer (retail lui at 0x0036A228).
- * fnalign 34 -> 40 but sdiff struct 11 -> 2: the state table is a plain array address (rematerialised at each fn = ... like retail), the trailing pass goes through fn with the colour id fetched first.
- * mode-1 draw passes address the model directly (retail uses the model register there).
- */
-// FUN_003694D0 NONMATCHING
-#ifdef NON_MATCHING
+/* Social-link model draw. Retail behaviour reproduced as is:
+   - mode 1 copies the model into its own pointer (m1) only for the first two
+     switches; the later mode-1 sections read m0, which is never set for mode 1
+     (retail reads $s3 there without a mode-1 copy);
+   - every fn/fn2 assignment names D_00887300 itself, so b210 forms the copy
+     from the tbl register in the switch cases and reloads it elsewhere, as
+     retail does; the unk48 and tail draws call through tbl. */
+// FUN_003694D0
 void func_003694d0(PscModel *model)
 {
     typedef struct { u8 r, g, b, a; } PscColorCopy;
     u8 tmp[4];
     void *mtx;
     PscModel *m0;
+    PscModel *m1;
     PscModel *m2;
     void (**fn)(u32 state, u32 value);
     void (**fn2)(u32 state, u32 value);
@@ -141,7 +128,7 @@ void func_003694d0(PscModel *model)
     }
     switch (model->mode) {
     case 1:
-        m0 = model;
+        m1 = model;
         e0work = model->e0;
         break;
     case 0:
@@ -197,17 +184,17 @@ void func_003694d0(PscModel *model)
             }
             break;
         case 1:
-            func_0036ae00(m0->u.m01.b1, model->color);
-            func_0036ae00(m0->u.m01.b0, model->color);
+            func_0036ae00(m1->u.m01.b1, model->color);
+            func_0036ae00(m1->u.m01.b0, model->color);
             *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
             tmp[0] = 0;
             tmp[1] = 0;
             tmp[2] = 0;
             alpha = tmp[3];
             alphaf = (f32)alpha;
-            f = m0->u.m01.b3[0].dir.y * (alphaf * m0->u.m01.b3[0].dir.x);
+            f = m1->u.m01.b3[0].dir.y * (alphaf * m1->u.m01.b3[0].dir.x);
             tmp[3] = (u8)f;
-            func_0036ae00(m0->u.m01.b2, tmp);
+            func_0036ae00(m1->u.m01.b2, tmp);
             break;
         case 2:
             func_0036ae00(m2->u.w170, model->color);
@@ -240,7 +227,7 @@ void func_003694d0(PscModel *model)
     (*tbl)(6, 0);
     switch (model->mode) {
     case 1:
-        fn = tbl;
+        fn = (void (**)(u32, u32))D_00887300;
         (*fn)(8, 1);
         RpSkyRenderStateSet(3, 0x317F3);
         (*fn)(1, func_0036bee0(model->u.m01.unk170, model->u.m01.unk174));
@@ -251,7 +238,7 @@ void func_003694d0(PscModel *model)
         break;
     case 0:
         m0 = model;
-        fn = tbl;
+        fn = (void (**)(u32, u32))D_00887300;
         (*fn)(8, 1);
         RpSkyRenderStateSet(3, 0x317F3);
         (*fn)(3, 1);
@@ -302,7 +289,7 @@ void func_003694d0(PscModel *model)
         }
         break;
     case 2:
-        fn = tbl;
+        fn = (void (**)(u32, u32))D_00887300;
         (*fn)(8, 1);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x317F3);
@@ -312,7 +299,7 @@ void func_003694d0(PscModel *model)
         func_004104d0();
         break;
     case 3:
-        fn = tbl;
+        fn = (void (**)(u32, u32))D_00887300;
         (*fn)(8, 1);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x317F3);
@@ -328,7 +315,7 @@ void func_003694d0(PscModel *model)
             switch (model->mode) {
             case 1:
                 RpSkyRenderStateSet(2, 0x6A);
-                (*fn)(1, func_0036d130(1));
+                (*tbl)(1, func_0036d130(1));
                 func_00410420(m0->u.m01.b1, 4, mtx, 3);
                 func_00410520(3, D_0064E470, 6);
                 func_004104d0();
@@ -367,20 +354,19 @@ void func_003694d0(PscModel *model)
     func_00410420(e0work, 4, mtx, 3);
     func_00410520(3, D_0064E470, 6);
     func_004104d0();
-    fn2 = (void (**)(u32, u32))D_00887300;
     if (model->flags & 8) {
         if (~*(u32 *)model->unkDC & 1) {
-            fn2 = fn;
+            fn2 = (void (**)(u32, u32))D_00887300;
             (*fn2)(6, 0);
             (*fn2)(8, 1);
             RpSkyRenderStateSet(2, 0x6A);
             switch (model->mode) {
             case 0:
-                (*fn2)(1, func_0036d130(1));
+                (*tbl)(1, func_0036d130(1));
                 func_00410420(model->u.m01.b1, 4, mtx, 3);
                 break;
             case 1:
-                (*fn2)(1, func_0036d1b0(0));
+                (*tbl)(1, func_0036d1b0(0));
                 func_00410420(model->u.m01.b1, 4, mtx, 3);
                 break;
             case 2:
@@ -403,9 +389,7 @@ void func_003694d0(PscModel *model)
     }
     func_003e0f40(mtx);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/pscModel", func_003694d0);
-#endif
+
 
 
 
