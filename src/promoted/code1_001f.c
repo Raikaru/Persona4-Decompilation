@@ -990,6 +990,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 23 -> 22; snapshot the byte-valued party input index independently of the normalized loop-test view.
  * measured 2026-10-12: fnalign 22 -> 18; use a separate byte index snapshot for the reset phase, restoring its fresh retail mask and record-base calculation.
  * measured 2026-10-12: fnalign 18 -> 16; test the critical counter directly at its native width, removing the redundant integer-promotion move.
+ * measured 2026-10-12: fnalign 16 -> 5; separate the party damage accumulator from battle flags and declare it before the byte cursor, as predicted by the allocator model.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1514,6 +1515,7 @@ void func_001f14f0(u8 *arg0)
         sum = func_001efd50(arg0);
         *(u8 **)(arg0 + 0x88) = sum;
         if (sum != NULL) {
+            s32 totalDamage;
             u8 q;
             s32 flagHit;
             s32 cnt;
@@ -1535,7 +1537,7 @@ void func_001f14f0(u8 *arg0)
             *(u16 *)(first + 0xEC) = 0;
             *(s16 *)(first + 0xEE) = -1;
             flagHit = 0;
-            flags = 0;
+            totalDamage = 0;
             cnt = first[0xD9];
             for (q = 0; q < cnt; q++) {
                 u8 inputIndex = q;
@@ -1544,8 +1546,8 @@ void func_001f14f0(u8 *arg0)
                 u16 *copiedFlags;
                 u8 resetIndex;
 
-                flags += v;
-                if (func_002428f0(sctx, flags) != 0 ||
+                totalDamage += v;
+                if (func_002428f0(sctx, totalDamage) != 0 ||
                     ((*(u32 *)(s + 0xF8) & 0x80000) && !(*(u32 *)(s + 0xFC) & 0x80000))) {
                     flagHit = 1;
                 }
