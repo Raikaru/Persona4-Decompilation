@@ -4115,6 +4115,7 @@ void func_001a7710(void)
  * 2026-10-12 opening motion dispatch: fnalign 629 -> 626; restore the 0/0x11 switch and explicit default delay, retaining retail's two positive tests and branch-only default path.
  * 2026-10-12 final delay selection: fnalign 626 -> 623; recover the short-circuit conditional expression so its true and false results retain retail's explicit join.
  * 2026-10-12 reaction fast path: fnalign 623 -> 616; the outer gates branch directly to packet creation in retail, bypassing the nested eligibility result rather than materializing a second true value.
+ * 2026-10-12 controller fallback: fnalign 616 -> 612; use a zero-result fallback instead of a one-case switch, preserving the nonzero return directly and removing the extra dispatch branch.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5082,11 +5083,8 @@ void func_001a7720(u8 *arg0) {
         }
         if (((s32)(s32)sp210 == 0) && ((s32)(s32)sp220 == 0)) {
             var_2_7 = (s32)((s32)(func_0022d200(arg0)));
-            switch (var_2_7) {
-            case 0:
-
-                var_2_7 = (s32)((s32)((*( s32 * )((u8 *)(iGpffffb3ac) + (0xD40)))));
-                break;
+            if (var_2_7 == 0) {
+                var_2_7 = *(s32 *)((u8 *)iGpffffb3ac + 0xD40);
             }
             temp_2_51 = (u8 *)(func_001d65d0(var_2_7, (*(s32 *)(arg0 + 0x30)), var_17 + 6, 0, 0x100));
             (*( s8 * )((u8 *)(temp_2_51) + (0))) = 4;
