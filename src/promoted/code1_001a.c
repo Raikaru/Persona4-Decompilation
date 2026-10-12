@@ -3032,6 +3032,7 @@ void func_001a5990(void)
  * 2026-10-12 kind accessor: fnalign 331 -> 327, frame 0x3B0 -> 0x3A0; reload the source-unit kind directly rather than spilling its field address.
  * 2026-10-12 effect-unit accessor: fnalign 327 -> 325; inline unit reads in the effect phase replace one spilled-address reload with retail's direct +0x30 load.
  * 2026-10-12 paired-effect unit: fnalign 325 -> 322; the first paired-effect constructor reloads its unit through the existing accessor rather than a spilled field address.
+ * 2026-10-12 target layout: fnalign 322 -> 318, frame 0x3A0 -> 0x380; type the target action's effect/flags at 0xDC/0xDE, removing both hoisted field-address spills.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3125,6 +3126,11 @@ void func_001a59a0(s64 *arg0_) {
     extern f32 fGpffff8128;
     extern f32 fGpffff8358;
 
+    typedef struct ActionTargetView {
+        u8 prefix[0xDC];
+        u16 effect;       /* 0xDC */
+        u16 targetFlags;  /* 0xDE */
+    } ActionTargetView;
     typedef struct ActionHitRowView {
         u8 actionPrefix[0xF0];
         LargeBattleHitResult result;
@@ -3201,7 +3207,7 @@ void func_001a59a0(s64 *arg0_) {
     s32 var_5;
     s32 var_5_2;
     s32 var_6;
-    s64 *temp_18;
+    ActionTargetView *temp_18;
     s64 *var_22_3;
     s64 temp_16;
     s64 temp_17;
@@ -3498,7 +3504,7 @@ void func_001a59a0(s64 *arg0_) {
     sp180 = (s32) temp_2_17;
     sp170 = temp_2_17 + 0xC;
     while ((spC0 = (s32) sp1E0) < (s32) (*(u16 *)(arg0 + (0x6A)))) {
-        temp_18 = (s64 *)((*(s64 **)((u8 *)((arg0 + (sp1E0 * 4))) + (0x38))));
+        temp_18 = (ActionTargetView *)((*(u8 **)((u8 *)((arg0 + (sp1E0 * 4))) + (0x38))));
         sp160 = *(u8 *)((u8 *)temp_18 + 0xD9);
         if (sp1C0 != 0) {
             var_2_4 = 1;
@@ -3592,7 +3598,7 @@ void func_001a59a0(s64 *arg0_) {
                 } else if (sp200 != sp130) {
                     sp2A0 = 2;
                 }
-                if (((*(u16 *)((u8 *)(u32)(temp_18) + (0xDC))) & 0x404) || (hitRow->result.flags & 4)) {
+                if ((temp_18->effect & 0x404) || (hitRow->result.flags & 4)) {
                     sp240 = 0;
                 } else {
                     sp240 = 1;
@@ -3618,7 +3624,7 @@ void func_001a59a0(s64 *arg0_) {
                 (*(s64 *)((u8 *)(sp2DC) + (0x60))) = temp_17;
                 func_00194590(sp2DC, 0);
                 sp2C0 = *(s64 *)(sp2DC + 0x58);
-                if (((*(u16 *)((u8 *)(temp_18) + (0xDC))) & 4) && (sp25C == 0)) {
+                if ((temp_18->effect & 4) && (sp25C == 0)) {
                     temp_2_29 = (u8 *)(func_001f7c20(0xD, 1, 0xF));
                     (*(s8 *)((u8 *)(temp_2_29) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_29) + (8))) = temp_16;
@@ -3637,7 +3643,7 @@ void func_001a59a0(s64 *arg0_) {
                     (*(s16 *)((u8 *)(temp_2_31) + (0x48))) = (s16) sp2B0;
                     func_00194590(temp_2_31, 1);
                 }
-                if ((*(u16 *)((u8 *)(temp_18) + (0xDC))) == 0x400) {
+                if (temp_18->effect == 0x400) {
                     temp_2_32 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD2C))), temp_19, btlActionUnit_001a59a0(var_22_3), 1, 0));
                     (*(s8 *)((u8 *)(temp_2_32) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_32) + (8))) = sp2C0;
@@ -3656,7 +3662,7 @@ void func_001a59a0(s64 *arg0_) {
                     func_00194590(temp_2_34, 1);
                 }
                 if (sp240 != 0) {
-                    if (((*(u16 *)((u8 *)(temp_18) + (0xDE))) & 6) && (sp1C0 == 0)) {
+                    if ((temp_18->targetFlags & 6) && (sp1C0 == 0)) {
                         if (sp200 != sp130) {
                             var_2_5 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD1C))), temp_19, btlActionUnit_001a59a0(var_22_3), 1, 0));
                         } else {
@@ -3772,13 +3778,13 @@ void func_001a59a0(s64 *arg0_) {
             }
             temp_2_48 = &hitRow->result;
             sp1F0 = temp_2_48;
-            temp_2_49 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_22_3), temp_2_48, (*(u16 *)((u8 *)(u32)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE)))));
+            temp_2_49 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_22_3), temp_2_48, temp_18->effect, temp_18->targetFlags));
             (*(s8 *)((u8 *)(temp_2_49) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_49) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_49) + (0x48))) = var_21;
             (*(s64 *)((u8 *)(temp_2_49) + (0x60))) = temp_17;
             func_00194590(temp_2_49, 1);
-            temp_2_50 = (u8 *)(func_00201de0((s32)(temp_19), (s32)((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30)))), (*(u16 *)(arg0 + (0x6E))), (*(u16 *)((u8 *)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE))), 0, 1, sp1F0, 0));
+            temp_2_50 = (u8 *)(func_00201de0((s32)(temp_19), (s32)((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30)))), (*(u16 *)(arg0 + (0x6E))), temp_18->effect, temp_18->targetFlags, 0, 1, sp1F0, 0));
             (*(s8 *)((u8 *)(temp_2_50) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_50) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_50) + (0x48))) = var_21;
@@ -3855,7 +3861,7 @@ block_222:
                         }
                     }
                 } else if (*addedStatus & 0x100000) {
-                    temp_2_56 = (u8 *)(func_001f5f70(arg0, 0x18, (s32) (*(u16 *)((u8 *)(u32)(temp_18) + (0xDE))), 1, 0));
+                    temp_2_56 = (u8 *)(func_001f5f70(arg0, 0x18, (s32) temp_18->targetFlags, 1, 0));
                     (*(s8 *)((u8 *)(temp_2_56) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_56) + (8))) = sp2C0;
                     (*(s64 *)((u8 *)(temp_2_56) + (0x60))) = temp_17;
