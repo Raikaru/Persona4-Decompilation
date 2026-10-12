@@ -220,6 +220,8 @@ s32 func_002ac740(void) {
  * measured: fnalign 303 -> 294 edits; per-phase coordinate masks recover additional retail rematerializations.
  * opt_loop_invariants on retains the retail loop hoists; coordinate CSE and spill allocation remain.
  * fnalign 294 -> 291: two more coordinate sites remask the u8 parameter (retail andi at each use).
+ * fnalign 291 -> 290: the search calls read the parameters directly, so b210 hoists the x snapshot
+ * (frame 0x160; retail 0x190 also spills the hoisted y and the row result).
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -462,16 +464,15 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     }
                 } else {
                     var_18 = 0;
-                    sp160 = (s32)arg1;
                     sp150 = (s32)arg0;
                     temp_23 = temp_17 + temp_16;
                     while ((searchRowStep2 = (s16)var_18) < 2) {
-                        temp_2 = (s8)func_002b2d00(sp160, searchRowStep2, 1, 0x18, 1);
+                        temp_2 = (s8)func_002b2d00(arg1, searchRowStep2, 1, 0x18, 1);
                         sp140 = temp_2;
                         var_22 = 0;
                         sp130 = temp_2 << 8;
                         while ((searchColumnStep2 = (s16)var_22) < 2) {
-                            temp_2_2 = (s8)func_002b2d00(sp150, searchColumnStep2, 1, 0x10, 1);
+                            temp_2_2 = (s8)func_002b2d00(arg0, searchColumnStep2, 1, 0x10, 1);
                             sp120 = temp_2_2;
                             sp110 = temp_2_2 * 0x10;
                             if ((SMAP_GRID_SCAN_AT(sp130, sp110)->reveal & 0xF) == 1) {
