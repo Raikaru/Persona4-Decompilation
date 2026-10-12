@@ -3755,7 +3755,7 @@ static inline u16 btlUnitRosterIndex(u8 *unit)
 // FUN_0022A730
 void func_0022a730(u8 *arg0)
 {
-    extern u8 *func_0019a0c0(u8 *arg0, s16 arg1);
+    extern u8 *func_0019a0c0(u8 *arg0, u16 arg1);
     extern f32 func_00196040(u32 arg0, u32 arg1, RwV3d *arg2, f32 *arg3, f32 *arg4, u32 arg5);
     extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
     extern u8 D_00635530[];

@@ -143,7 +143,7 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 {
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
 }
-u8 *func_0019a0c0(u8 *arg0, s16 arg1);
+u8 *func_0019a0c0(u8 *arg0, u16 arg1);
 extern void func_001eb410(u8 *arg0);
 extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *target, f32 distance, f32 speed, u32 flags);
 extern BtlPacket *func_001d3530(u32 source, u32 target, u16 mode);
@@ -4134,6 +4134,8 @@ void func_001a7710(void)
  * 519 -> 513: the HP delta is -(hp - 1), and the cut-in reads its partner
  * pointer before storing the mode, as retail's load order shows.
  * 513 -> 505: callee declarations use their providers' real prototypes.
+ * 505 -> 483: func_0019a0c0's value is u16 (the provider stores a halfword);
+ * retail reloads sp350 with lhu straight into $a1.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4149,7 +4151,6 @@ void func_001a7720(u8 *arg0) {
     extern u8 *func_00197cc0(s32 unit, s16 skill, s16 delay);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_00198810(u8 *arg0);
-    extern s32 func_0019a0c0();
     extern s32 func_0019a980();
     extern s32 func_0019aa70();
     extern BtlPacket *func_0019ac40(BtlUnit *unit, u16 value, f32 speed, u16 mode);

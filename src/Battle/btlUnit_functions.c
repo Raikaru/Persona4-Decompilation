@@ -172,7 +172,7 @@ BtlPacket* btlUnitCreateRotateTowardUnitPacket(BtlUnit* unit, BtlUnit* targetUni
 
 
 // FUN_0019A0C0
-BtlPacket* func_0019a0c0(BtlUnit* unit, s16 value)
+BtlPacket* func_0019a0c0(BtlUnit* unit, u16 value)
 {
     BtlPacket* packet;
     BtlUnitPacket* work;
