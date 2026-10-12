@@ -4120,6 +4120,7 @@ void func_001a7710(void)
  * 2026-10-12 per-hit speed reuse: fnalign 610 -> 602; pass the initialized animation-speed local to the duration query, matching retail's mov.s from the retained 1.0f value instead of reloading the constant.
  * 2026-10-12 hit-duration consumer: fnalign 602 -> 598; truncate the query into the persistent halfword first, then retain its widened unsigned value for both range tests and the float conversion instead of reloading it at each use.
  * 2026-10-12 last-hit index: fnalign 598 -> 597; derive it from the already-promoted hit-count snapshot rather than loading and widening the halfword count again.
+ * 2026-10-12 hit-duration byte access: fnalign 597 -> 593; correct the selected-action unit read introduced above to byte offset 0x30 (retail 001AA1BC), not s32-pointer offset 0x30.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5560,7 +5561,7 @@ void func_001a7720(u8 *arg0) {
                 /* The two later predicates reload the signed byte after intervening calls. */
                 hitMotion = &hitRow->result.motion;
                 if (hitRow->result.motion == 9) {
-                    sp360 = (u16)func_00199350(*(u8 **)(var_21_2 + 0x30), 9, var_f20_2);
+                    sp360 = (u16)func_00199350(*(u8 **)((u8 *)var_21_2 + 0x30), 9, var_f20_2);
                     temp_2_97 = sp360;
                     if (((s32) temp_2_97 > 0) && ((s32) temp_2_97 < 0xA)) {
                         var_f1 = (f32) temp_2_97;
