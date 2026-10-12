@@ -972,6 +972,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 189 -> 185; use 0023e6f0's documented C89-promoted s32 skill interface, not its old-style u16 formal type.
  * measured 2026-10-12: fnalign 185 -> 166; the captured allocator predicts the party-copy counter before its source unit for retail's $s1/$s0 pair.
  * measured 2026-10-12: fnalign 166 -> 143; initialize the tail's byte counter before loading its bound and use a separate unsigned record index in the body.
+ * measured 2026-10-12: fnalign 143 -> 140; hold the explicitly sign-extended halfword message in a word local, avoiding a second narrowing at its zero test.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1151,7 +1152,7 @@ void func_001f14f0(u8 *arg0)
         u8 *ent;
         s32 m80;
         s32 n80;
-        s16 msg;
+        s32 msg;
         unit = *(u8 **)(arg0 + ui * 4 + 0x38);
         actor = unit;
         uctx = *(u8 **)(*(u8 **)(unit + 0x30) + 0xA64);
@@ -1404,10 +1405,10 @@ void func_001f14f0(u8 *arg0)
             lastMsg = *(u16 *)(uctx + 0x2C);
         }
         if (special != 0) {
-            msg = func_001fb170(special);
+            msg = (s16)func_001fb170(special);
             arg0[0xD8] |= 1;
         } else if (!(recordResult & 6)) {
-            msg = func_001f0260(idw);
+            msg = (s16)func_001f0260(idw);
         } else {
             msg = 0;
         }
