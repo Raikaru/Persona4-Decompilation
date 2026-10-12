@@ -222,12 +222,13 @@ s32 func_002ac740(void) {
  * fnalign 294 -> 291: two more coordinate sites remask the u8 parameter (retail andi at each use).
  * fnalign 291 -> 290: the search calls read the parameters directly, so b210 hoists the x snapshot
  * (frame 0x160; retail 0x190 also spills the hoisted y and the row result).
- * Restructured toward retail's frontend CSE (structural diff 50 -> 36 instructions, frame 0x190 as retail;
- * fnalign 290 -> 398 until the register allocation is re-derived). IRO_CommonSubs shares a widening
+ * Restructured toward retail's frontend CSE (structural diff 50 -> 32 instructions, frame 0x190 as retail;
+ * fnalign 290 -> 397 until the register allocation is re-derived). IRO_CommonSubs shares a widening
  * conversion of a u8 parameter with any dominating identical conversion, across calls; retail re-masks
  * the parameter at almost every use, so each phase spells its coordinate with a distinct conversion:
  * temp_18 is a u32 copy of arg1, temp_16 = (u32)arg0 * 0x10, the search snapshots are u16 locals,
  * the kind < 9 phases alternate int and u16 locals, and twice-used address offsets stay inline.
+ * Each search keeps its own found-anchor locals (36 -> 32: the case 0/2 column offset is no longer spilled).
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -411,6 +412,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
     u16 revealRow;
     s32 scanColumnStep;
     s32 scanRow;
+    s32 anchorColumn3;
+    s32 anchorRow3;
 
     temp_18 = arg1;
     temp_17 = temp_18 * 0x100;
@@ -653,8 +656,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
                         if ((SMAP_GRID_SCAN_AT(spD0, spB0)->reveal & 0xF) == 1) {
                             temp_2_9 = SMAP_GRID_SCAN_AT(spD0, spB0)->kind;
                             if (temp_2_9 == SMAP_GRID_OFFSET_AT(temp_18_7)->kind) {
-                                var_30 = (s8)(s64)spC0;
-                                var_21 = (s8)(s64)spE0;
+                                anchorColumn3 = (s8)(s64)spC0;
+                                anchorRow3 = (s8)(s64)spE0;
                                 break;
                             }
                         }
@@ -668,8 +671,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 case 2:                             /* switch 3 */
                     var_17_3 = 0;
                     while (((s16)(var_17_3)) < 3) {
-                        if (SMAP_GRID_SCAN_AT(arg0 * 0x10, (((s8)var_21) + (s16)var_17_3) << 8)->kind == SMAP_GRID_OFFSET_AT(temp_18_7)->kind) {
-                            ((u16 *)D_00764658)[((s8)var_21) + (s16)var_17_3] |= (1 << sp170) & 0xFFFF & 0xFFFF;
+                        if (SMAP_GRID_SCAN_AT(arg0 * 0x10, (((s8)anchorRow3) + (s16)var_17_3) << 8)->kind == SMAP_GRID_OFFSET_AT(temp_18_7)->kind) {
+                            ((u16 *)D_00764658)[((s8)anchorRow3) + (s16)var_17_3] |= (1 << sp170) & 0xFFFF & 0xFFFF;
                         }
                         var_17_3 = ((s16)((var_17_3 + 1)));
                     }
@@ -678,10 +681,10 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 case 3:                             /* switch 3 */
                     var_16_2 = 0;
                     while ((temp_4_34 = ((s16)(var_16_2))) < 3) {
-                        temp_21_6 = SMAP_GRID_SCAN_AT((arg1 << 8), ((((s8)(var_30)) + temp_4_34) * 0x10))->kind;
+                        temp_21_6 = SMAP_GRID_SCAN_AT((arg1 << 8), ((((s8)(anchorColumn3)) + temp_4_34) * 0x10))->kind;
                         if (temp_21_6 == SMAP_GRID_OFFSET_AT(temp_18_7)->kind) {
                             temp_4_35 = (u16 *)((arg1 * 2) + (u32)D_00764658);
-                            *temp_4_35 |= (1 << (((s8)(var_30)) + temp_4_34)) & 0xFFFF;
+                            *temp_4_35 |= (1 << (((s8)(anchorColumn3)) + temp_4_34)) & 0xFFFF;
                         }
                         var_16_2 = ((s16)((var_16_2 + 1)));
                     }
