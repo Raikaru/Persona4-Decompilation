@@ -3048,6 +3048,7 @@ void func_001a5990(void)
  * 2026-10-12 animation timing dispatch: fnalign 56 -> 54; restore the two-case delay switch, including its explicit default packet-delay path.
  * 2026-10-12 distance-packet address word: fnalign 54 -> 52; read the existing unit-address word at the integer ABI boundary instead of hoisting a pointer-to-integer conversion across the distance branch.
  * 2026-10-12 result-packet address word: fnalign 52 -> 50; likewise read the selected unit as the constructor's native integer address, restoring source/target argument materialization order.
+ * 2026-10-12 camera reaching definitions: fnalign 50 -> 23; assign the predicate in each successful case rather than eagerly initializing it, matching both retail constant/load order and the case-1 success jump.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3059,7 +3060,7 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
     extern u8 *iGpffffb3cc;
     u8 *ctx = *(u8 **)(unit + 0xA64);
     u16 unitId = *(u16 *)(ctx + 2);
-    s32 result = 1;
+    s32 result;
 
     switch (*(u8 *)(unit + 0xA2)) {
     case 0:
@@ -3080,7 +3081,9 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
         }
         break;
     case 1:
-        if (*(s16 *)((s32)iGpffffb3cc + (u16)unitId * 0xE8 + 0x22) != 1) {
+        if (*(s16 *)((s32)iGpffffb3cc + (u16)unitId * 0xE8 + 0x22) == 1) {
+            result = 1;
+        } else {
             goto fail;
         }
         break;
