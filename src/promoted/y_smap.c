@@ -222,6 +222,11 @@ s32 func_002ac740(void) {
  * fnalign 294 -> 291: two more coordinate sites remask the u8 parameter (retail andi at each use).
  * fnalign 291 -> 290: the search calls read the parameters directly, so b210 hoists the x snapshot
  * (frame 0x160; retail 0x190 also spills the hoisted y and the row result).
+ * measured (not installed): b210 CSE keys a conversion by its type. With temp_18 a u32 copy of arg1,
+ * temp_16 = (u32)arg0 * 0x10 and the reveal mask formed before temp_18 * 2, the prologue and the
+ * reveal-1 branch match retail exactly (raw arg0/arg1 kept in $s4/$s3, every s32 remask fresh), but
+ * fnalign rises to 385-392: those searches spill var_30 and temp_30 instead of retail's hoisted
+ * x/y, row result and row offset (opt_common_subs off reproduces the prologue too, 482).
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING

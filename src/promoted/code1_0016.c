@@ -1961,6 +1961,11 @@ query_complete:
  * measured 2026-10-12: fnalign 47 -> 43; snapshot the resume-distance limit before its comparison, restoring the load order and rollback FPR.
  * measured 2026-10-12: fnalign 43 -> 41; the matched title code's float/byte RGBA union preserves the packed colour's lwc1/swc1 copy.
  * measured 2026-10-12: fnalign 41 -> 39; separate low/high waypoint byte offsets around the first low-component snapshot recover both addu operand orders.
+ * measured 2026-10-12 (floor): the remaining 39 edits are one FPR colouring in each horizontal-length block.
+ * regalloc_whatif on the captured FPR graph: numbering the sqrt result below the adda zero seed (r176 before
+ * r175) gives retail's $f2/$f1/$f2 to every value. FPR copies always fold, so the sqrt result stays a codegen
+ * temporary after the seed; an inline length helper, a separate sum local, __sqrt, alias copies and
+ * condition spellings all measured 39.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
