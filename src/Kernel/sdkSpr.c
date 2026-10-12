@@ -514,6 +514,7 @@ f32 func_0046b2f0(u8 *param_1)
  * fnalign 41 -> 25: packed-colour reads and points[2].x extent use
  * SDK_SPRITE_RECORD_VIA_ADD (index-first addu).
  * measured 2026-10-12: fnalign 25 -> 7; named record-load helpers retain each site's index/table load order while using offset-first addition, and signed border addresses remain separate from the unsigned extent lookups. Remaining: three packed-colour addu orders and alpha narrowing/multiply order.
+ * fnalign 7 -> 4: each colour arm assigns one `record` pointer that the flags test reuses (retail keeps the record address across the join).
  */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
@@ -708,25 +709,35 @@ void func_0046b380(u8 *sample, s32 setStates)
         for (vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
             SdkSpriteVertex *vertex = &vertices[vertexIndex];
             RwRGBA color;
+            u8 *record;
 
             vertex->u.els.screen.z = D_008872F8[0] - *(f32 *)(sample + 0x24);
             vertex->u.els.reciprocalZ = reciprocalZ;
             vertex->u.els.u = uv[vertexIndex].x;
             vertex->u.els.v = uv[vertexIndex].y;
             if (vertexIndex == 2) {
-                u32 packed = *(u32 *)(SDK_SPRITE_RECORD_VIA_ADD(sample) + 0x70);
+                u32 packed;
+
+                record = SDK_SPRITE_RECORD(sample);
+                packed = *(u32 *)(record + 0x70);
                 color.red = (packed & 0xFF000000) >> 24;
                 color.green = (packed & 0xFF0000) >> 16;
                 color.blue = (packed & 0xFF00) >> 8;
                 color.alpha = packed & 0xFF;
             } else if (vertexIndex == 3) {
-                u32 packed = *(u32 *)(SDK_SPRITE_RECORD_VIA_ADD(sample) + 0x6C);
+                u32 packed;
+
+                record = SDK_SPRITE_RECORD(sample);
+                packed = *(u32 *)(record + 0x6C);
                 color.red = (packed & 0xFF000000) >> 24;
                 color.green = (packed & 0xFF0000) >> 16;
                 color.blue = (packed & 0xFF00) >> 8;
                 color.alpha = packed & 0xFF;
             } else {
-                u32 packed = *(u32 *)(SDK_SPRITE_RECORD_VIA_ADD(sample) + 0x64 + vertexIndex * 4);
+                u32 packed;
+
+                record = SDK_SPRITE_RECORD(sample);
+                packed = *(u32 *)(record + 0x64 + vertexIndex * 4);
                 color.red = (packed & 0xFF000000) >> 24;
                 color.green = (packed & 0xFF0000) >> 16;
                 color.blue = (packed & 0xFF00) >> 8;
@@ -735,7 +746,7 @@ void func_0046b380(u8 *sample, s32 setStates)
             color.red = color.red * *(u8 *)(sample + 0x28) / 255;
             color.green = color.green * *(u8 *)(sample + 0x29) / 255;
             color.blue = color.blue * *(u8 *)(sample + 0x2A) / 255;
-            if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+            if ((*(u32 *)(record + 0x18) & 8) == 0) {
                 if (color.red > 128) color.red = 255;
                 else color.red = color.red * 255 / 128;
                 if (color.green > 128) color.green = 255;
