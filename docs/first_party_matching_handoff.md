@@ -283,12 +283,13 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   `c.ole limit, r; bc1t`. `(f() < limit) ? ...` gives `c.olt`/`bc1f`, and
   `!(...)` forms change the shape.
 - Stack layout: Ghidra's `stkNNN` / `fStack_NNN` names give retail offsets
-  (`frame - NNN`). Declaring the stack objects in descending retail-offset
-  order makes our layout monotonic with retail's. Retail's frame is smaller
-  because block-scoped matrices overlap earlier, sibling-scoped vectors: the
-  case 3 `RwMatrix` at `sp+0x2b0` overlaps `stk90`/`stkA0`, and the case 4
-  one at `0x280` overlaps `stkC0`/`stkD0`. That scoping still has to be
-  reproduced.
+  (`frame - NNN`). In `0016bdd0`, recover the actual object extents first:
+  `003e0380` is `RwEngineGetMatrixTolerances`, so the case 3/4 objects at
+  `sp+0x2b0` and `sp+0x280` are 12-byte `RwMatrixTolerance` values, not
+  64-byte matrices overlapping vectors. Their consumer is `RwMatrixOptimize`.
+  Correcting those types, separating the fade-colour word from the projected
+  vector, and ordering locals by retail offsets recovers the entire `0x360`
+  frame (2026-10-12: fnalign **725 -> 242**, from `0x3c0`; still guarded).
 - A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.
