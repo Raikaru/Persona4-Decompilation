@@ -890,112 +890,6 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     }
     return var_16;
 }
-/* measured: GUARDED_SCORE 1416 via `python3 tools/measure_guarded.py src/promoted/code1_001f.c func_001f14f0` (romwright oracle de-noised: single-u8* signature from call sites code1_001a.c:2239/4325; void return per retail epilogue setting no $v0 and callers ignoring it; bare func_0043f9c8 call per retail sw $30 after jal ignoring $v0; u16-outer/u8-inner/s16-found loop counters with explicit &0xFFFF/&0xFF init-test-incr per retail F2A20-F2AF8; load signedness per-offset census 0x6C/0x70/0x6A/0x2C/0x3F4 lhu, 0xA2/0x11/0x14B/0x18B/0x24 lbu, 0xEE lh kept for == -1; (s32)/(u8*) casts per file idiom code1_001f.c:740/817); obj 1556I / retail 1524I (+32, +2.10% PASS, band 1478-1570, headroom 14). fnalign 1492 edits +2 reloc-only. */
-/* wide-store 1416->1387 (-29 words), 1492->1406 edits (-86, -5.8%) via `python3 tools/fnalign.py src/promoted/code1_001f.c func_001f14f0 --candidate /tmp/1f14f0_wide.c`: byte-pair/quad stores widened to retail's half/word form per asymmetric sb/sh/sw runs (sb 96->38, sh deficit +20->+11, sw deficit +21->+11; lui unchanged +3). Sites: pbVar4/pbVar6 0x2c halfword 0, p/pbVar5 0xdc halfword 0, 0xe0/0xe4 word 0, 0xe8 word 0/1 (three 0xe8=1 sites), 0xec halfword 0, 0xee halfword 0xffff, pbVar5 0x3f4 halfword 0x240, pbVar5 0xe4 word 1. Obj 1516I vs retail 1523I (-7, -0.5% PASS, band 1477-1569); frame still 0x2c0 vs retail 0x310 (-80, alias not yet addressed); regsave clean (no GPR/FPR diff); jal still 22 vs 10 and dsll32/dsra32 surplus remain for next pass. Honest: no sltiu-for-slti, no s64 flat, no opt_propagation, no volatile, no asm; window alignment untouched. */
-/* measured 001f14f0 (owner, 2026-09-19): fnalign **1406 -> 1384 edits** and the count from
-   1516 to 1520 against retail 1523, by writing the dispatch as `switch (temp_v12)` with
-   `case 3: case 4:` sharing one body.  The chain spelled it `(temp_v12 == 3) || (temp_v12 ==
-   4)` followed by `else if (== 2)` and `else if (== 1)`, which the switch sweep's converter
-   does not recognise - an OR of two equalities against the same variable is a pair of
-   fallthrough cases, not a compound condition.
-   Case ORDER is the whole lever here: ascending 1/2/3+4 is 1384, but keeping the source's
-   3+4/2/1 order is 1443, worse than the chain it replaces.  Measure both directions.
-   The same shape in func_001b2380 - `(temp_v4 == 1) || (temp_v4 == 0)` then `else if (== 2)`,
-   with a `goto LAB_001b2a6c` from the second arm into the first - was converted the same way
-   and is WORSE (1392 -> 1394, count 1014 -> 1016), so it stays a chain. */
-/* measured 001f14f0 (owner, 2026-09-20): fnalign **1384 -> 1340 edits**, count 1520 -> 1505
-   against retail 1523, by giving six float literals their `f` suffix.  A bare `1.5` in C
-   is a DOUBLE, so every expression touching one is promoted to double, and the EE has no
-   hardware doubles - MWCC calls the emulation library instead.  That is a correctness bug
-   in the reconstruction, not a spelling preference.
-   The lever came from func_00471370, where 86 unsuffixed constants were forcing about 155
-   double-emulation calls and suffixing them took that floor 1971 -> 1551 edits and a +11%
-   body to retail's exact length.
-   Swept over every first-party floor carrying a bare literal.  Only this one improved:
-   func_001441e0, func_001c9820, func_001ca590, func_00205ff0 and func_00348c40 are all
-   exactly neutral, and func_001b2380 is WORSE (1392 -> 1418) while losing 91 instructions.
-   The first run of that sweep also reported eleven 'compile failed' floors, which was my
-   regex suffixing inside exponent literals - `2.1474836e9f` became `2.1474836fe9f`.  The
-   pattern now excludes `e`/`E`, and those floors have no bare literal at all.
-   2026-10-08: opt_lifetimes on lowers fnalign from 1587 to 1218 edits.
- * 2026-10-09: 1218 -> 734: body rewritten from the IDA (docs/ida_headstart) and fresh
- * m2c (tools/m2c_with_jtbl.py) drafts. The old Ghidra-derived body lost the
- * entry-shift increment and the unit-loop counter initialisation.
- * 725: s32 `res`/`sub` masked with 0xFFFF; case 4 listed before case 3.
- * 724: `flags |= 1` for the first state test too (retail ori).
- * 721: the party-block running total reuses the dead `flags` local.
- * 707: second-pass result remap is a switch (0x200 first); `special` is u16.
- * 705: `n80 = !(mask2 & 0x80000)` (retail sltu/xori).
- * 700: local `func_0010f3d0(u16, u16)` prototype (H011: the callee in g_data.c masks
- * both arguments with 0xFFFF, the u16-parameter idiom).
- * 694: local `func_001fb170(u16)` prototype (H011: the callee masks its argument
- * with 0xFFFF).
- * 691: `func_0023e6f0(u8 *, u8 *, u16, s32)` (the K&R definition in datCalc.c
- * declares u16 arg2).
- * 689: case 2 before case 4 in the remap.
- * 687: range tests in retail's slti $at form.
- * 615: type sweep.
- * 604: type sweep.
- * 603: type sweep.
- * 577: conversion lever (s:(2, 3)).
- * 567: conversion lever (kind:(0, 1)).
- * 564: conversion lever (j:(1, 2)).
- * 563: conversion lever (ui:(0,)).
- * 2026-10-10: 563 -> 562 aligned edits by restoring 001efd50's actual
- * single-u8* argument call and the 001eff50 integer return contract.
- * fnalign 570 -> 555 (struct 297 -> 281): search loop with an in-body break (n > 1), scale = scale * r, and the second damage factor 1.0f as a local (retail keeps the multiply).
- * fnalign 555 -> 538: the 0xD/0xC type tests, the 0x24 == 2 test and the cntA/cntB res test are switches (retail beq-per-case then b); the res switch lists cases in reverse and switches on (u16)res (retail andi mask).
- * fnalign 538 -> 520: shift loop source index spelled (u16)(i + 1) with base-first addressing; the final store is a subscript (retail index-first).
- * fnalign 520 -> 516: the search loop reads *((u8 **)arg0 + 0xE + i) (retail re-masks i, base-first addu).
- * fnalign 516 -> 513: the shift loop stores through *((u8 **)arg0 + 0xE + i). The sd_00 spelling (source *(u8 **)(arg0 + i * 4 + 0x3C)) is instruction-identical to retail here but colours n/i as $a0/$a1 (fnalign 534).
- * fnalign 513 -> 499: the e4 search is an inline helper returning 1 from the loop and 0 after it (retail li 1/b and move 0), with a u16 counter.
- * fnalign 499 -> 498: func_001fb1f0 is called with flags as a third argument (H011, retail move $a2,$s5).
- * fnalign 498 -> 495: func_001f9cd0 is called with (arg0, unit, id) (H011; retail moves $s4/$s3/$s1 into $a0-$a2, m2c sees the same three).
- * fnalign 495 -> 483: the result-copy loop forms s as (u32)first + (q << 5) and recomputes it as first + ((u32)q << 5) (retail masks q and does not reuse the first address).
- * fnalign 483 -> 482: the two exit-branch record addresses use ((u32)q << 5) as well.
- * combined 484 -> 476: two-label switches list 0xC before 0xD (b210 tests them in reverse), and the record offset is added before the table base.
- * measured 2026-10-12: fnalign 478 -> 476; narrow the skill-table index before its 0x28 stride, as retail does.
- * measured 2026-10-12: fnalign 476 -> 474; use the existing offset-first helper for the initial skill-field address.
- * measured 2026-10-12: fnalign 474 -> 371, frame 0x330 -> retail 0x310; recover scalar spill order and byte/halfword roles, keeping the masked result snapshot as a word.
- * measured 2026-10-12: fnalign 371 -> 338; the captured allocator predicts unit-before-id for retail's $s3/$s1 pair.
- * measured 2026-10-12: fnalign 338 -> 333; align the signed message spill to retail's 0x270 frame slot.
- * measured 2026-10-12: fnalign 333 -> 327; separate the byte-status flag updates and restore the retail-proven third argument to 001fb360.
- * measured 2026-10-12: fnalign 327 -> 292; declare the calculation context before the skill ID to finish retail's entry-register order.
- * measured 2026-10-12: fnalign 292 -> 279; preserve the skill snapshot boundary and recover word-sized loop bounds plus the tail's separate unsigned index.
- * measured 2026-10-12: fnalign 279 -> 265; keep the negated mask predicate word-sized and load message bits with retail's unsigned halfword reads.
- * measured 2026-10-12: fnalign 265 -> 258; use the same offset-first skill-table address idiom for the remaining field reads.
- * measured 2026-10-12: fnalign 258 -> 252; a post-hit-resolution flags pointer copy with propagation off restores the flag-pointer/sub-result $s7/$fp pair.
- * measured 2026-10-12: fnalign 252 -> 244; disable constant pullout to keep the two 1.0f roles separate without an extra saved FPR.
- * measured 2026-10-12: fnalign 244 -> 227; snapshot the setup skill offset at the damage-phase boundary, restoring its word spill at sp+0x1d0.
- * measured 2026-10-12: fnalign 227 -> 219; read the adjacent target directly at i*4+0x3c; the loop bound proves i+1 cannot wrap.
- * measured 2026-10-12: fnalign 219 -> 189; normalize the result into a word snapshot, copy it into the record phase, and enable invariant motion; frame remains retail 0x310.
- * measured 2026-10-12: fnalign 189 -> 185; use 0023e6f0's documented C89-promoted s32 skill interface, not its old-style u16 formal type.
- * measured 2026-10-12: fnalign 185 -> 166; the captured allocator predicts the party-copy counter before its source unit for retail's $s1/$s0 pair.
- * measured 2026-10-12: fnalign 166 -> 143; initialize the tail's byte counter before loading its bound and use a separate unsigned record index in the body.
- * measured 2026-10-12: fnalign 143 -> 140; hold the explicitly sign-extended halfword message in a word local, avoiding a second narrowing at its zero test.
- * measured 2026-10-12: fnalign 140 -> 137; keep the hit-message call result word-sized, sign-extend the stored halfword arm, and narrow at the shared signed test/store.
- * measured 2026-10-12: fnalign 137 -> 130; convert the second damage amount before materializing its 1.0f factor, restoring retail's FPR order and latency nop.
- * measured 2026-10-12: fnalign 130 -> 118; recover the 0x20-byte hit record and write reaction codes through array lvalues instead of caching the record base across phases.
- * measured 2026-10-12: fnalign 118 -> 80; use sizeof the recovered hit record for branch-local reaction addresses, evaluated before each call rather than retained across damage phases.
- * measured 2026-10-12: fnalign 80 -> 77; initialize all three record halfwords through the same promoted-byte index, separate from the reaction phase's sizeof stride.
- * measured 2026-10-12: fnalign 77 -> 63; explicitly widen the reaction-phase byte index to unsigned, reproducing its three fresh reads rather than the loop-test snapshot.
- * measured 2026-10-12: fnalign 63 -> 56; separate the party reset's sizeof stride from typed exit-mask array accesses, avoiding a live widened index across the reset call.
- * measured 2026-10-12: fnalign 56 -> 34; retain the copied record's halfword-flags address across the exit checks, restoring retail's pointer and scratch-register roles.
- * measured 2026-10-12: fnalign 34 -> 33; select the final target through the pointer array, restoring index-first addressing.
- * measured 2026-10-12: fnalign 33 -> 31; prepare the record-flags pointer at the end of each hit-resolution path, preserving retail's short branch joins.
- * measured 2026-10-12: fnalign 31 -> 28; explicitly mask the party input-record index to a byte, restoring the missing retail andi.
- * measured 2026-10-12: fnalign 28 -> 26; materialize the persona-table offset before the helper's base argument, restoring the ratio lookup's evaluation and operand order.
- * measured 2026-10-12: fnalign 26 -> 24; pass the already zero-extended skill ID through 0023d8e0's retail word-call interface; the callee consumes its low 16 bits.
- * measured 2026-10-12: fnalign 24 -> 23; compare the promoted halfword unit counter as signed, with a separate unsigned view for array addressing.
- * measured 2026-10-12: fnalign 23 -> 22; snapshot the byte-valued party input index independently of the normalized loop-test view.
- * measured 2026-10-12: fnalign 22 -> 18; use a separate byte index snapshot for the reset phase, restoring its fresh retail mask and record-base calculation.
- * measured 2026-10-12: fnalign 18 -> 16; test the critical counter directly at its native width, removing the redundant integer-promotion move.
- * measured 2026-10-12: fnalign 16 -> 5; separate the party damage accumulator from battle flags and declare it before the byte cursor, as predicted by the allocator model.
- * measured 2026-10-12: fnalign 5 -> 4; route a missing party recipient directly to the final exit, matching retail rather than threading through the party-loop return.
- * measured 2026-10-12: fnalign 4 -> 2; keep the reflected result as a native halfword through remapping, then transfer each case's value to the word-sized calculation phase.
- */
-// FUN_001F14F0 NONMATCHING
-#ifdef NON_MATCHING
 typedef struct BtlHit_001f14f0 {
     s32 damageA;
     s32 damageB;
@@ -1024,29 +918,32 @@ static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
 
 #pragma push
 #pragma opt_lifetimes on
-/* measured with the normalized result/record-phase snapshot (219 -> 189). */
+/* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
 #pragma opt_loop_invariants on
-/* measured: retain the flags pointer across the hit-resolution phase join (258 -> 252). */
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
+/* Resolve the selected skill, recording damage, reactions and party follow-ups.
+ * Byte/halfword snapshots separate the calculation and record-copy phases. */
+// FUN_001F14F0
 void func_001f14f0(u8 *arg0)
-
 {
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     /* H011: datCalc.c declares the C89-promoted s32 call interface before its K&R definition. */
     extern s32 func_0023e6f0(u8 *, u8 *, s32, s32);
-    /* H011: retail 001f14f0 passes (arg0, unit, id) to this empty callee. */
+    /* lint: allow H011 -- retail passes (arg0, unit, id); the empty callee ignores all arguments. */
     extern void func_001f9cd0(u8 *, u8 *, s32);
+    /* lint: allow H011 -- this call supplies a u16 code; the callee dispatches only its low 16 bits. */
     extern s32 func_001fb170(u16);
-    /* H011: retail 001f14f0 loads $a2 = flags before this call (m2c also sees three arguments). */
+    /* lint: allow H011 -- retail explicitly loads flags into $a2; the callee leaves that argument unused. */
     extern s32 func_001fb1f0(u8 *, s32, s32);
-    /* H011: retail passes flags as the third, unused callee argument. */
+    /* lint: allow H011 -- retail passes flags as the third argument; the callee leaves it unused. */
     extern s32 func_001fb360(u8 *, s32, s32);
     extern s32 func_00242990(u8 *, s32);
     extern s32 func_002411a0(u8 *, u8 *, s32, s32, s32);
-    /* H011: retail forwards the zero-extended skill word; the u16 callee masks its low 16 bits. */
+    /* lint: allow H011 -- retail forwards an already zero-extended skill word; the callee consumes its low 16 bits. */
     extern s32 func_0023d8e0(u8 *, s32);
     extern u8 *func_001efd50(u8 *);
+    /* lint: allow H011 -- both IDs are halfwords here; g_data.c masks both word-formal arguments to 16 bits. */
     extern void func_0010f3d0(u16, u16);
     extern s32 func_001eff50(u8 *);
     extern u8 *iGpffffb3cc;
@@ -1066,6 +963,7 @@ void func_001f14f0(u8 *arg0)
     s32 va;
     s32 vb;
     s32 totalSelf;
+    s32 sub;
     s32 sumA;
     s32 sumB;
     s32 bonus;
@@ -1181,7 +1079,7 @@ void func_001f14f0(u8 *arg0)
     kindU = (s32)kind;
     for (; (s32)ui < *(u16 *)(arg0 + 0x6A); ui++) {
         s32 res;
-        s32 sub;
+        s32 selectedSub;
         s32 e4;
         s32 mask;
         s32 mask2;
@@ -1234,10 +1132,11 @@ void func_001f14f0(u8 *arg0)
             target = uctx;
         }
         if (*(s32 *)(unit + 0xE4) != 0) {
-            sub = 1;
+            selectedSub = 1;
         } else {
-            sub = func_002411a0(ctx, target, id, res, flags) & 0xFFFF;
+            selectedSub = func_002411a0(ctx, target, id, res, flags);
         }
+        sub = selectedSub & 0xFFFF;
         if (func_0023df70(id) != 0) {
             cntA = 1;
             func_0023e1f0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
@@ -1513,7 +1412,6 @@ void func_001f14f0(u8 *arg0)
     if (party == 1 && *(u16 *)(arg0 + 0x6A) == 1 && *(u8 **)(arg0 + 0x38) == *(u8 **)(iGpffffb3ac + 0x170) &&
         *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xE0) == 1) {
         s32 n = *(u16 *)(arg0 + 0x6A);
-        s32 k;
         s32 found;
         u8 *sum;
 
@@ -1651,9 +1549,6 @@ finished:
 }
 
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f14f0);
-#endif
 /* measured: the second loop's slot index is `(u16)var_8_2 * 4` (its own mask, not CSE'd
    with the loop test's `& 0xFFFF`) while the stored count is `(var_8_2 & 0xFFFF) + 1`
    (CSE'd with the test, retail's $a0); the counter store address is offset-first

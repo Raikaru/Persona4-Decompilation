@@ -13292,3 +13292,48 @@ pairs under both orders. No gameplay execution or new exact credit.
 Evidence: `FclFinish/row191-defined-coordinate-proposal.json`,
 `row191-coordinate-smoke-receipt.json` and parent
 `fcl-defined-coordinate-production-verify.json`.
+
+### Exact skill-result application (`001f14f0`, 2026-10-12)
+
+`src/promoted/code1_001f.c`'s skill-result application was remeasured at
+**478 fnalign edits** and recovered to **0**, with **1524 instructions** and
+the retail **0x310-byte frame** instead of 0x330. This was a source-layout
+and lifetime problem, not a compiler floor.
+
+- Recover the scalar frame first. Keep normalized result codes in word
+  snapshots, retain the signed message's aligned spill, and use the real
+  `BtlHit_001f14f0` 0x20-byte record layout. Preserve the two-label
+  `case 0xC: case 0xD:` ordering.
+- Keep setup, damage, hit-resolution and record-copy views separate.
+  Branch-local reaction bases use an explicitly unsigned byte index and
+  `sizeof(BtlHit_001f14f0)`; retaining a base across phases removes retail
+  recomputations and changes allocation.
+- In the party-copy loop, use independent byte-valued input/reset index
+  snapshots. Reusing the normalized loop-test index loses fresh `andi`
+  instructions. A separate damage accumulator declared before the cursor
+  then restores the saved-register roles predicted by `regalloc_whatif`.
+- Test the halfword critical counter directly, rather than promoting it
+  through `!= 0`. Keep the reflected result native-halfword during remapping
+  and transfer each case into the word-sized calculation result; this
+  reproduces both `daddiu` constants without artificial constant aliases.
+- The final two edits were one shared sub-result normalization boundary.
+  Select the raw word first, then mask once after the branch join. This
+  shape initially spilled `sub` and regressed to 125 edits. The captured
+  allocator predicted that moving `sub` before the damage accumulators
+  would retain it in `$fp`; that one declaration move produced the exact
+  body. The raw selection stays in `$v0`.
+
+The scoped settings are `opt_lifetimes on`, `opt_loop_invariants on`,
+`opt_propagation off`, and `opt_pulloutconstants off`. Retail-proven
+call-site word interfaces preserve already-normalized IDs, while the
+actual third flags argument remains explicit. No computational assembly,
+ordinary-memory `volatile`, synthetic stores or permutation search were
+needed.
+
+Promotion gates pass: **157/157 owner functions MATCH**, no blocking
+markers, no unowned code, and no unresolved relocations. The only missing
+data name was `fGpffff80d4` at `0x007611c4`, proved by retail's
+`lwc1` at `0x001f1860` and GP `0x007690f0`; both symbol maps now record it.
+The six permitted call-site ABI exceptions have individual semantic H011
+annotations. Lint retains the owner's **35 pre-existing warnings**, with
+no new or removed findings against the pre-promotion `git show HEAD` body.
