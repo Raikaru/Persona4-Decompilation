@@ -3053,6 +3053,7 @@ void func_001a5990(void)
  * 2026-10-12 post-repeat row accessor: fnalign 15 -> 8; reread the halfword index through the byte-row accessor, then retain the caller's typed result snapshot. Retail's lhu/move and every 0x330-frame offset now agree.
  * 2026-10-12 effect-index API: fnalign 8 -> 6; the canonical callee consumes only the skill key's low halfword and remains byte-exact with u16. Its sole C caller now materializes the native halfword argument in retail order.
  * 2026-10-12 camera field origin: fnalign 6 -> 4; pass the first signed-halfword field to the strided reader, preserving the GP load and both retail index-first addu operands. Four branch-target differences remain.
+ * 2026-10-12 selected-target join: fnalign 4 -> 3; select into a separate target local before handing it to the packet phase. The coalesced copy retains retail's intermediate branch-only join without emitting an instruction.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3240,6 +3241,7 @@ void func_001a59a0(s64 *arg0_) {
     s32 var_6;
     ActionTargetView *temp_18;
     ActionTargetView *var_22_3;
+    ActionTargetView *selectedTarget;
     s64 temp_16;
     s64 temp_17;
     s32 temp_2_17;
@@ -3555,10 +3557,11 @@ void func_001a59a0(s64 *arg0_) {
             (*(s64 *)((u8 *)(temp_2_18) + (0x60))) = temp_17;
             func_00194590(temp_2_18, 1);
             if ((*(s32 *)((u8 *)(temp_18) + (0xE4))) != 0) {
-                var_22_3 = (ActionTargetView *)arg0;
+                selectedTarget = (ActionTargetView *)arg0;
             } else {
-                var_22_3 = temp_18;
+                selectedTarget = temp_18;
             }
+            var_22_3 = selectedTarget;
         } else {
             var_22_3 = (ActionTargetView *)((*(u8 **)(arg0 + (0x88))));
             temp_2_19 = (u8 *)(func_001f99c0((u8 *)var_22_3, 0xD, 0U, 0, 0));
