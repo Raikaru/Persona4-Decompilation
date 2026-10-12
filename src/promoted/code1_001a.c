@@ -4112,6 +4112,7 @@ void func_001a7710(void)
  * 2026-10-12 camera packet frame: fnalign 738 -> 639, frame 0x5D0 -> retail 0x5B0; retain the canonical packet pointer directly in the persistent camera snapshot, without two redundant aliases and their coalesced spill object.
  * 2026-10-12 unit-table flag: fnalign 639 -> 637; normalize bit 0x40 before inverting the boolean, matching retail's sltu/xori pair rather than xor/sltiu.
  * 2026-10-12 scale clamp: fnalign 637 -> 629; retain each floating bound from its comparison for the clamp assignment, eliminating two redundant constant reloads while preserving the NaN path.
+ * 2026-10-12 opening motion dispatch: fnalign 629 -> 626; restore the 0/0x11 switch and explicit default delay, retaining retail's two positive tests and branch-only default path.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4731,10 +4732,14 @@ void func_001a7720(u8 *arg0) {
                 (*( u16 * )((u8 *)(temp_3_4) + (0x18))) = (u16)((u16) ((*( u16 * )((u8 *)(temp_3_4) + (0x18))) | 6));
             }
             temp_3_5 = (s16)func_00198810(*(u8 **)(arg0 + 0x30));
-            if (!((temp_3_5 != 0x11) && (temp_3_5 != 0))) {
+            switch (temp_3_5) {
+            case 0:
+            case 0x11:
                 var_18_2 = 0;
-            } else {
+                break;
+            default:
                 var_18_2 = 6;
+                break;
             }
             if (var_21 != 0) {
                 func_00194590((u8 *)func_001f8330((BtlUnit *)(*( u8 ** )((u8 *)(arg0) + (0x30)))), 0);
