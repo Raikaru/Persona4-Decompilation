@@ -988,6 +988,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 26 -> 24; pass the already zero-extended skill ID through 0023d8e0's retail word-call interface; the callee consumes its low 16 bits.
  * measured 2026-10-12: fnalign 24 -> 23; compare the promoted halfword unit counter as signed, with a separate unsigned view for array addressing.
  * measured 2026-10-12: fnalign 23 -> 22; snapshot the byte-valued party input index independently of the normalized loop-test view.
+ * measured 2026-10-12: fnalign 22 -> 18; use a separate byte index snapshot for the reset phase, restoring its fresh retail mask and record-base calculation.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1540,13 +1541,15 @@ void func_001f14f0(u8 *arg0)
                 u8 *s = first + inputIndex * sizeof(BtlHit_001f14f0);
                 s32 v = *(s32 *)(s + 0xF0);
                 u16 *copiedFlags;
+                u8 resetIndex;
 
                 flags += v;
                 if (func_002428f0(sctx, flags) != 0 ||
                     ((*(u32 *)(s + 0xF8) & 0x80000) && !(*(u32 *)(s + 0xFC) & 0x80000))) {
                     flagHit = 1;
                 }
-                s = first + q * sizeof(BtlHit_001f14f0);
+                resetIndex = q;
+                s = first + resetIndex * sizeof(BtlHit_001f14f0);
                 func_0043f9c8((u8 *)(u32)s + 0xF0, 0, 0x20);
                 *(s32 *)((u8 *)(u32)s + 0xF0) = v;
                 s[0x10C] = 2;
