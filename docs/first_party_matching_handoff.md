@@ -144,8 +144,10 @@ Measured since the table (captures plus `regalloc_whatif`, all reproduced):
   `sp230`/`sp210`/... as word variables; retail spills them as 16-byte
   temps (strip -> 31 of retail's 33 quads, structural 74, fnalign 478-484).
   (2) `spXXX = temp_2_NN` copies make `sp4C0`/`sp4B8` coalesce roots (16-byte);
-  assigning the calls directly packs them as retail's words, but the
-  packed group then lands at 0x254 instead of 0x4b8 and the frame shrinks.
+  assigning the calls directly (keeping the `spXXX` declarations in place,
+  since slot order follows declaration order) packs them as retail's words,
+  and the whole upper area then follows retail's order, 0x20 low because
+  `sp430` and the `sp3C0` halfword are still missing (fnalign 717-723).
   (3) `u16 sp3C0` matches retail's halfword counter, but the shared
   `(s32)sp3C0` CSE temp adds a quadword (frame 0x5c0). (4) retail spills
   `sp430` (s16); in ours it is a low-degree node (spill score is irrelevant),
