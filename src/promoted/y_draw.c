@@ -678,8 +678,8 @@ void func_002b6ea0(void) {
  * docs/probe_archive/First_party_pro_ui_worker8_20261010.md.
  */
 /* measured 2026-10-12: active-entry/append-queue views and declaration order reduce fnalign 56 -> 38 edits.
- * The active row keeps its unsigned offset snapshot; append uses the table's halfword queue view.
- * All 381 instructions remain; the table/base and per-arm offset register roles still differ. */
+ * Explicit post-color base handoffs, split lifetimes, and propagation/pullout off reach 28 edits.
+ * All 381 instructions and the 0x70 frame remain; table/plain-base and per-arm offset roles still differ. */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
 static inline s16 yDrawAnyBit(s32 flags)
@@ -699,6 +699,9 @@ static inline s16 yDrawAnyBit(s32 flags)
 #pragma push
 #pragma opt_common_subs on
 #pragma opt_loop_invariants on
+#pragma opt_lifetimes on
+#pragma opt_propagation off
+#pragma opt_pulloutconstants off
 s32 func_002b6ec0(u8 *arg0) {
     s32 off;
     u32 entryOffset;
@@ -742,7 +745,8 @@ s32 func_002b6ec0(u8 *arg0) {
                     u8 *d;
 
                     color = func_002b2a30(0xFF, (b2 + rowOffset)[0x89], (b2 + rowOffset)[0x8A], (b2 + rowOffset)[0x8B]);
-                    d = b2 + (s32)(u32)rowOffset;
+                    d = b2;
+                    d += (s32)(u32)rowOffset;
                     func_0025ecd0(
                         *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                         color, d[0x72], *(s16 *)(d + 8),
@@ -766,7 +770,8 @@ s32 func_002b6ec0(u8 *arg0) {
                     u8 *d;
 
                     color = func_002b2a30(0xFF, (b2 + rowOffset)[0x89], (b2 + rowOffset)[0x8A], (b2 + rowOffset)[0x8B]);
-                    d = b2 + (s32)(u32)rowOffset;
+                    d = b2;
+                    d += (s32)(u32)rowOffset;
                     func_0025ecd0(
                         *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                         color, d[0x72], *(s16 *)(d + 8),
@@ -784,7 +789,8 @@ s32 func_002b6ec0(u8 *arg0) {
                 entryOffset = (s32)(u32)i * 0x100;
 
                 color = func_002b2a30(0xFF, (base + entryOffset)[0x89], (base + entryOffset)[0x8A], (base + entryOffset)[0x8B]);
-                d = base + (s32)(u32)entryOffset;
+                d = base;
+                d += (s32)(u32)entryOffset;
                 func_0025ecd0(
                     *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                     color, d[0x72], *(s16 *)(d + 8),
