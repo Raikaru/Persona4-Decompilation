@@ -4024,6 +4024,7 @@ void func_001a7710(void)
  * 2026-10-12 frame audit: fnalign 901 -> 887; the hit-index snapshot belongs in the loop test, restoring retail's single quadword spill rather than two word-store sites.
  * 2026-10-12 row recovery: fnalign 887 -> 845; a typed hit-row base and direct stride assignment restore retail's quadword slots at 0x110/0x120 without redundant integer aliases.
  * 2026-10-12 scalar recovery: fnalign 845 -> 820; restore the short-circuit flag's quadword spill, the u16 skill snapshot, and the addressed-output API contracts.
+ * 2026-10-12 retail dataflow: fnalign 820 -> 819; restore the outer loop's zero-target pretest (001a9790 -> 001aadd0), and remove the invented second argument to 00202740.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4101,7 +4102,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_00202120();
     extern s32 func_00202400();
     extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
-    extern s32 func_00202740();
+    extern u8 *func_00202740(u8 *unit);
     extern s32 func_00216da0();
     extern s32 func_0022d200();
     extern s32 func_0022d540(u8 *action, u8 *handles);
@@ -5228,8 +5229,7 @@ void func_001a7720(u8 *arg0) {
     sp3C0 = 0;
     sp290 = (s32) sp450;
     sp2A0 = sp270;
-do {
-        sp260 = (s32) sp3C0;
+    while ((sp260 = (s32)sp3C0) < *(u16 *)(arg0 + 0x6A)) {
             temp_18 = (s32 *)((*( s32 ** )((u8 *)(((s32)(arg0) + (sp3C0 * 4))) + (0x38))));
             sp3A0 = (u16)((u16) (*( u8 * )((u8 *)(temp_18) + (0xD9))));
             sp390 = 0;
@@ -5259,7 +5259,7 @@ do {
             if ((temp_2_78 != 0) || ((*( s32 * )((u8 *)(temp_18) + (0xE4))) != 0)) {
                 sp440 = 0x1E;
             }
-            temp_2_79 = (u8 *)(func_00202740(temp_4_12, var_5));
+            temp_2_79 = (u8 *)(func_00202740(temp_4_12));
             (*( s64 * )((u8 *)(temp_2_79) + (0x60))) = temp_16;
             func_00194590(temp_2_79, 1);
             if (((*( u16 * )((u8 *)(temp_18) + (0xDC))) != 0x400) && ((*( s32 * )((u8 *)(temp_18) + (0xE4))) != 1)) {
@@ -5722,7 +5722,7 @@ do {
             }
             sp380 += sp180;
             sp3C0 += 1;
-} while ((s32)((s32) sp3C0) < (s32)((s32) (*( u16 * )((u8 *)(arg0) + (0x6A)))));
+    }
     temp_18_2 = (s64)((s64)(s64)((*( s64 * )((u8 *)(var_19) + (0x58)))));
     temp_3_16 = (s16)((s16)((*( s16 * )((u8 *)(arg0) + (0xEE)))));
     if (temp_3_16 != -1) {
