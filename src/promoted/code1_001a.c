@@ -3024,6 +3024,7 @@ void func_001a5990(void)
  * fnalign 493 -> 455: integer-cast field-base reads (no cross-call address CSE).
  * fnalign 455 -> 453: integer-cast field-base reads (second pass).
  * 2026-10-12 measured: fnalign 453 -> 452; the hit-effect flag is a word (retail sw/lw), not s16.
+ * 2026-10-12 measured: fnalign 452 -> 405; let the timing APIs narrow their u16 motion argument, without a shared masked temporary.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3345,11 +3346,11 @@ void func_001a59a0(s64 *arg0_) {
         sp22C = 1;
     }
     if (((*(u8 *)((u8 *)(u32)(temp_19) + (0xA2))) != 0) || (var_30 == 4) || (var_30 == 0xC)) {
-        var_23 = func_001991c0(temp_19, var_30 & 0xFFFF, var_f20);
+        var_23 = func_001991c0(temp_19, var_30, var_f20);
     } else {
-        var_23 = func_001999f0(temp_19, var_30 & 0xFFFF, var_f20, 0);
+        var_23 = func_001999f0(temp_19, var_30, var_f20, 0);
     }
-    temp_2_4 = func_00199500(temp_19, var_30 & 0xFFFF, var_f20);
+    temp_2_4 = func_00199500(temp_19, var_30, var_f20);
     sp1A0 = (s32) temp_2_4;
     /* Retail truncates the scaled difference, caps it at 25, then narrows each sum. */
     var_18 = (s16)var_23;
@@ -3420,7 +3421,7 @@ void func_001a59a0(s64 *arg0_) {
         } else {
             var_22_2 = 0;
         }
-        sp190 = (s32) (func_00199350(temp_19, var_30 & 0xFFFF, var_f20));
+        sp190 = (s32) (func_00199350(temp_19, var_30, var_f20));
         if ((*(u8 *)((u8 *)(temp_19) + (0xA2))) == 0) {
             temp_2_11 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xE));
             (*(s8 *)((u8 *)(temp_2_11) + (0))) = 4;
@@ -3693,7 +3694,7 @@ void func_001a59a0(s64 *arg0_) {
                     func_00194590(temp_2_41, 2);
                 }
                 if (sp200 != sp130) {
-                    temp_3_3 = (func_001999f0(temp_19, var_30 & 0xFFFF, var_f20, (sp200 + 1) & 0xFFFF)) - sp2B0;
+                    temp_3_3 = (func_001999f0(temp_19, var_30, var_f20, (sp200 + 1) & 0xFFFF)) - sp2B0;
                     sp2B0 += temp_3_3;
                     var_21 += temp_3_3;
                 } else if ((sp22C != 0) && ((*(s32 *)((u8 *)(temp_18) + (0xE0))) == 0)) {
