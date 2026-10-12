@@ -2521,6 +2521,12 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
  * shift reads unproduced payloads whenever (C - 1) * W > 1. C=3,W=1 reaches
  * the unconditional color load at 0048b4ec before any history-age check.
  * See docs/probe_archive/Sprite_particle_boundaries_20261010.md.
+ * 2026-10-12: the 0x150 frame and every stack slot agree (423 instructions,
+ * still 9 edits). Shared SpawnParticle views tie only with the two clear-age
+ * lvalues kept byte-addressed; member-address CSE otherwise adds a spill.
+ * A dedicated linear anchor costs 40 edits. The captured model puts its r60
+ * in $a3 only after the step-transfer temporary r91; the counter/alpha
+ * transfer order also differs. Const and inline accessor forms stay at 40.
  */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
