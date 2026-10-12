@@ -290,6 +290,9 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   Correcting those types, separating the fade-colour word from the projected
   vector, and ordering locals by retail offsets recovers the entire `0x360`
   frame (2026-10-12: fnalign **725 -> 242**, from `0x3c0`; still guarded).
+  Native vector locals and assignments in cases 6/7 then recover both
+  `ld/sd` triplet copies (**242 -> 229**); casts over float arrays had
+  kept those copies scalarized.
 - A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.

@@ -1953,6 +1953,7 @@ query_complete:
  * combined 592 -> 572: the shared Ghidra temporaries are per-case locals in cases 0/2/5 and 7 (real lifetimes; cases 3/4 and 6 measured neutral/worse).
  * combined 572 -> 308: real per-role locals. Ghidra's shared temporaries become distinct per-case/per-role variables declared before piVar1, the FUN_00457120()->frame holders are single assignments, and lo/hi move to the outer declarations. Every local is then a single web numbered before piVar1, so piVar1 is coloured $s0 as in retail.
  * measured 2026-10-12: fnalign 725 -> 242; real 12-byte matrix tolerances, separate fade colour, and retail stack-local order recover the 0x360 frame.
+ * measured 2026-10-12: fnalign 242 -> 229; native case 6/7 vector locals and assignments recover both ld/sd triplet copies.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2060,7 +2061,7 @@ s32 func_0016bdd0(u8 *param_1)
   float stkC0[3];
   float stkD0[3];
   RwMatrixTolerance tolerance4;
-  float stkF0[3];
+  FldCopyVec stkF0;
   FldCopyVec sv100;
   float stk110[3];
   float stk120[3];
@@ -2078,9 +2079,9 @@ s32 func_0016bdd0(u8 *param_1)
   float stk1E0[3];
   FldCamVec cv0;
   FldCopyVec sv200;
-  float stk210[3];
+  FldCamVec stk210;
   float stk220[3];
-  float stk230[3];
+  FldCamVec stk230;
   float stk240[3];
   float stk250[3];
   float stk260[3];
@@ -2406,7 +2407,7 @@ s32 func_0016bdd0(u8 *param_1)
         goto LAB_0016e0c0;
       case 6:
         FUN_001687f0((unsigned char *)&stk280[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
-        *(FldTriVec *)&stkF0[0] = *(FldTriVec *)&stk280[0];
+        *(FldTriVec *)&stkF0.x = *(FldTriVec *)&stk280[0];
         pfVar8_c = (float *)FUN_0016e8c0(param_1);
         sv100 = *(FldCopyVec *)pfVar8_c;
         temp_v11_s4 = (float)D_008C025E[0] - 128.0f;
@@ -2418,13 +2419,13 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v4_c = FUN_00457120();
           FUN_003e9830(piVar1[3],*(unsigned int *)(temp_v4_c + 4));
         }
-        stkF0[0] = stkF0[0] + ((float *)piVar1)[0x5];
-        stkF0[1] = stkF0[1] + ((float *)piVar1)[0x6];
-        stkF0[2] = stkF0[2] + ((float *)piVar1)[0x7];
-        stk110[0] = stkF0[0] - sv100.x;
+        stkF0.x = stkF0.x + ((float *)piVar1)[0x5];
+        stkF0.y = stkF0.y + ((float *)piVar1)[0x6];
+        stkF0.z = stkF0.z + ((float *)piVar1)[0x7];
+        stk110[0] = stkF0.x - sv100.x;
         temp_v12_s4 = sv100.y;
-        stk110[1] = stkF0[1] - temp_v12_s4;
-        stk110[2] = stkF0[2] - sv100.z;
+        stk110[1] = stkF0.y - temp_v12_s4;
+        stk110[2] = stkF0.z - sv100.z;
         temp_v14_s2 = sqrtf(stk110[0] * stk110[0] + stk110[2] * stk110[2]);
         if (!(temp_v14_s2 <= *(float *)((u8 *)(u32)piVar1 + 0x20))) {
           temp_v14_s2 = temp_v14_s2 - *(float *)((u8 *)(u32)piVar1 + 0x20);
@@ -2435,7 +2436,7 @@ s32 func_0016bdd0(u8 *param_1)
           stk110[2] = stk110[2] * temp_v14_s2;
           FUN_003e9c10(piVar1[3],&stk110[0],2);
         }
-        temp_v12_c = stkF0[1] - temp_v12_s4;
+        temp_v12_c = stkF0.y - temp_v12_s4;
         stk110[1] = temp_v12_c;
         if (temp_v12_c < 0.0f) {
           temp_v12_c = temp_v12_c * -1.0f;
@@ -2469,7 +2470,7 @@ s32 func_0016bdd0(u8 *param_1)
         stk120[2] = stk120[2] * temp_v14_s3;
         FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
         FUN_003e0e20(piVar1[0xb0],temp_v5_c,2);
-        segment[0] = *(FldCopyVec *)stkF0;
+        segment[0] = stkF0;
         temp_v8_c = piVar1[0xb0];
         segment[1] = *(FldCopyVec *)(temp_v8_c + 0x30);
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_c + 0x10));
@@ -2568,14 +2569,14 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v8_c = piVar1[0xb0];
           *(FldCopyVec *)stk1C0 = *(FldCopyVec *)(temp_v8_c + 0x20);
           FUN_003e40b0(&stk1C0[0],&stk1C0[0]);
-          FUN_001687f0((unsigned char *)&stkF0[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
-          stkF0[0] = stkF0[0] + *(float *)((u8 *)(u32)piVar1 + 0x14);
-          stkF0[1] = stkF0[1] + *(float *)((u8 *)(u32)piVar1 + 0x18);
-          stkF0[2] = stkF0[2] + *(float *)((u8 *)(u32)piVar1 + 0x1c);
+          FUN_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
+          stkF0.x = stkF0.x + *(float *)((u8 *)(u32)piVar1 + 0x14);
+          stkF0.y = stkF0.y + *(float *)((u8 *)(u32)piVar1 + 0x18);
+          stkF0.z = stkF0.z + *(float *)((u8 *)(u32)piVar1 + 0x1c);
           temp_v8_c = piVar1[0xb0];
           sv1d0 = *(FldCopyVec *)(temp_v8_c + 0x30);
-          temp_v11_s7 = (stk170[0] * stk1B0[0] - stkF0[0] * stk1B0[0] + stk170[1] * stk1B0[1] - stkF0[1] * stk1B0[1] +
-                         stk170[2] * stk1B0[2] - stkF0[2] * stk1B0[2]) /
+          temp_v11_s7 = (stk170[0] * stk1B0[0] - stkF0.x * stk1B0[0] + stk170[1] * stk1B0[1] - stkF0.y * stk1B0[1] +
+                         stk170[2] * stk1B0[2] - stkF0.z * stk1B0[2]) /
                    -(stk1B0[1] * stk1B0[1] + stk1B0[0] * stk1B0[0] + stk1B0[2] * stk1B0[2]);
           stk10[0] = 0.0f + stk170[0] + stk1B0[0] * temp_v11_s7;
           stk10[1] = 0.0f + stk170[1] + stk1B0[1] * temp_v11_s7;
@@ -2585,11 +2586,11 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v14_s8 = sv1d0.z;
           stk1E0[2] = temp_v14_s8 - stk170[2];
           temp_v11_s8 = FUN_003e4180(&stk1E0[0]);
-          stk1E0[0] = stkF0[0] - stk10[0];
-          stk1E0[1] = stkF0[1] - stk10[1];
-          stk1E0[2] = stkF0[2] - stk10[2];
+          stk1E0[0] = stkF0.x - stk10[0];
+          stk1E0[1] = stkF0.y - stk10[1];
+          stk1E0[2] = stkF0.z - stk10[2];
           temp_v9 = FUN_003e4180(&stk1E0[0]);
-          temp_v14_s8 = (stkF0[2] - temp_v14_s8) / stk1C0[2];
+          temp_v14_s8 = (stkF0.z - temp_v14_s8) / stk1C0[2];
           temp_v11_s8 = (55.0f - temp_v11_s8) / ((temp_v9 - temp_v11_s8) / temp_v14_s8);
           if (temp_v14_s8 < 0.0f) {
             temp_v14_s8 = temp_v14_s8 * -1.0f;
@@ -2712,13 +2713,13 @@ s32 func_0016bdd0(u8 *param_1)
             *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
           }
         }
-        FUN_001687f0((unsigned char *)&stkF0[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
-        stkF0[1] = stkF0[1] + 180.0f;
+        FUN_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
+        stkF0.y = stkF0.y + 180.0f;
         temp_v4_c = FUN_003e9700(temp_v4_c);
         cpv5 = *(FldCopyVec *)(temp_v4_c + 0x30);
-        stk110[0] = stkF0[0] - cpv5.x;
-        stk110[1] = stkF0[1] - cpv5.y;
-        stk110[2] = stkF0[2] - cpv5.z;
+        stk110[0] = stkF0.x - cpv5.x;
+        stk110[1] = stkF0.y - cpv5.y;
+        stk110[2] = stkF0.z - cpv5.z;
         temp_v11_c = FUN_003e4180(&stk110[0]);
         if (((unsigned char *)piVar1[0xaa] != (unsigned char *)0x0) &&
            (temp_v4_c = FUN_0014bd90((unsigned char *)piVar1[0xaa]), temp_v4_c == 1)) {
@@ -2797,34 +2798,34 @@ s32 func_0016bdd0(u8 *param_1)
         FUN_003e0e20(piVar1[0xb0],temp_v5_d,2);
         cv0.y = cv0.y + *(float *)((u8 *)(u32)piVar1 + 0x2a0);
         temp_v8_d = piVar1[0xb0];
-        stk210[0] = *(float *)(temp_v8_d + 0x30) - cv0.x;
-        stk210[1] = *(float *)(temp_v8_d + 0x34) - cv0.y;
-        stk210[2] = *(float *)(temp_v8_d + 0x38) - cv0.z;
-        FUN_003e40b0(&stk210[0],&stk210[0]);
+        stk210.x = *(float *)(temp_v8_d + 0x30) - cv0.x;
+        stk210.y = *(float *)(temp_v8_d + 0x34) - cv0.y;
+        stk210.z = *(float *)(temp_v8_d + 0x38) - cv0.z;
+        FUN_003e40b0(&stk210.x,&stk210.x);
         temp_v14_s11 = *(float *)&piVar1[0xa3];
-        stk210[0] = stk210[0] * temp_v14_s11;
-        stk210[1] = stk210[1] * temp_v14_s11;
-        stk210[2] = stk210[2] * temp_v14_s11;
+        stk210.x = stk210.x * temp_v14_s11;
+        stk210.y = stk210.y * temp_v14_s11;
+        stk210.z = stk210.z * temp_v14_s11;
         chaseSegment[0] = cv0;
         temp_v8_d = piVar1[0xb0];
         chaseSegment[1] = *(FldCamVec *)(temp_v8_d + 0x30);
-        chaseSegment[1].x = chaseSegment[1].x + stk210[0];
-        chaseSegment[1].y = chaseSegment[1].y + stk210[1];
-        chaseSegment[1].z = chaseSegment[1].z + stk210[2];
+        chaseSegment[1].x = chaseSegment[1].x + stk210.x;
+        chaseSegment[1].y = chaseSegment[1].y + stk210.y;
+        chaseSegment[1].z = chaseSegment[1].z + stk210.z;
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_d + 0x10));
-        temp_v6_d = FUN_0016b8a0((float *)chaseSegment,&stk230[0]);
+        temp_v6_d = FUN_0016b8a0((float *)chaseSegment,&stk230.x);
         if (temp_v6_d == 1) {
-          stk230[0] = stk230[0] - chaseSegment[0].x;
-          stk230[1] = stk230[1] - chaseSegment[0].y;
-          stk230[2] = stk230[2] - chaseSegment[0].z;
-          temp_v14_d = FUN_003e40b0(&stk230[0],&stk230[0]);
+          stk230.x = stk230.x - chaseSegment[0].x;
+          stk230.y = stk230.y - chaseSegment[0].y;
+          stk230.z = stk230.z - chaseSegment[0].z;
+          temp_v14_d = FUN_003e40b0(&stk230.x,&stk230.x);
           if (!(temp_v14_d <= 0.0f)) {
-            *(FldCamVec *)stk210 = *(FldCamVec *)stk230;
-            FUN_003e40b0(&stk210[0],&stk210[0]);
-            stk210[0] = stk210[0] * temp_v14_d;
-            stk210[1] = stk210[1] * temp_v14_d;
-            stk210[2] = stk210[2] * temp_v14_d;
-            FUN_003e0c90(piVar1[0xb0],&stk210[0],0);
+            stk210 = stk230;
+            FUN_003e40b0(&stk210.x,&stk210.x);
+            stk210.x = stk210.x * temp_v14_d;
+            stk210.y = stk210.y * temp_v14_d;
+            stk210.z = stk210.z * temp_v14_d;
+            FUN_003e0c90(piVar1[0xb0],&stk210.x,0);
             *(float *)(piVar1[0xb0] + 0x34) = ((float *)piVar1)[0xa8];
             temp_v4_d = piVar1[0xb0];
             *(FldCopyVec *)stk240 = *(FldCopyVec *)(temp_v4_d + 0x30);
@@ -2850,15 +2851,15 @@ s32 func_0016bdd0(u8 *param_1)
           }
           FUN_003e0e20(piVar1[0xb0],temp_v5_d,2);
           temp_v4_d = piVar1[0xb0];
-          stk210[0] = *(float *)(temp_v4_d + 0x30) - cv0.x;
-          stk210[1] = *(float *)(temp_v4_d + 0x34) - cv0.y;
-          stk210[2] = *(float *)(temp_v4_d + 0x38) - cv0.z;
-          FUN_003e40b0(&stk210[0],&stk210[0]);
+          stk210.x = *(float *)(temp_v4_d + 0x30) - cv0.x;
+          stk210.y = *(float *)(temp_v4_d + 0x34) - cv0.y;
+          stk210.z = *(float *)(temp_v4_d + 0x38) - cv0.z;
+          FUN_003e40b0(&stk210.x,&stk210.x);
           temp_v14_d = ((float *)piVar1)[0xa5];
-          stk210[0] = stk210[0] * temp_v14_d;
-          stk210[1] = stk210[1] * temp_v14_d;
-          stk210[2] = stk210[2] * temp_v14_d;
-          FUN_003e0c90(piVar1[0xb0],&stk210[0],0);
+          stk210.x = stk210.x * temp_v14_d;
+          stk210.y = stk210.y * temp_v14_d;
+          stk210.z = stk210.z * temp_v14_d;
+          FUN_003e0c90(piVar1[0xb0],&stk210.x,0);
           *(FldCopyVec *)stk240 = *(FldCopyVec *)(piVar1[0xb0] + 0x30);
           stk240[1] = ((float *)piVar1)[0xa8];
           pbVar9_d = (unsigned char *)FUN_00457120();
