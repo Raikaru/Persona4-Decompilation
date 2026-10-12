@@ -3043,6 +3043,7 @@ void func_001a5990(void)
  * 2026-10-12 opening scan index: fnalign 82 -> 74; narrow the row index independently from the masked loop bound, preserving retail's separate halfword normalizations.
  * 2026-10-12 opening packet contract: fnalign 74 -> 72; use the matched sibling's BtlPacket *(u32, u16) constructor signature to preserve native halfword argument evaluation.
  * 2026-10-12 paired-target flag: fnalign 72 -> 70; normalize the masked flag before inverting it, matching retail's sltu/xori sequence.
+ * 2026-10-12 motion dispatch: fnalign 70 -> 62; recover the two-case switch instead of the empty negated if, preserving retail's two positive tests and default jump.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3601,10 +3602,13 @@ void func_001a59a0(s64 *arg0_) {
             while ((s32)(sp200 = (s32) sp260) < sp140) {
                 temp_2_27 = hitRow->result.motion;
                 sp2A0 = (s32) temp_2_27;
-                if ((temp_2_27 != 0x13) && (temp_2_27 != 9)) {
-
-                } else if (sp200 != sp130) {
-                    sp2A0 = 2;
+                switch (temp_2_27) {
+                case 9:
+                case 0x13:
+                    if (sp200 != sp130) {
+                        sp2A0 = 2;
+                    }
+                    break;
                 }
                 if ((temp_18->effect & 0x404) || (hitRow->result.flags & 4)) {
                     sp240 = 0;
