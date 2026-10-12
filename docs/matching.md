@@ -344,6 +344,22 @@ below are the codegen consequences.
   b210 home a reused value into an `$s` register or byte spill at entry,
   shifting both the saved-register set and the frame. This closed
   `k_field.c` `func_00155e10`.
+- **Where a spilled parameter lands: packed home (`+0xc`) vs quadword slot
+  (`+0`).** Read from b210 (`0x0055deb0` spill setup, `0x004b0060` slot
+  allocator, `0x004be770` coalesce marking). The allocator advances a cursor by
+  the object's size, rounds it up to the object's alignment, and uses
+  `-cursor`. A spilled parameter is allocated as its own 4-byte object, so
+  successive parameter spills pack downwards from the top of a quadword:
+  `+0xc`, `+0x8`, `+0x4`, `+0x0`, ranked among the spilled parameters. A
+  compiler temporary, or a variable whose node is the *root* of a coalesced
+  copy (object flag `0x10`), is allocated as a 16-byte GPR object and lands at
+  `+0x0`. So a lone `sw $a3, 0x140($sp)` in retail where you emit
+  `0x14c($sp)` means retail copied the parameter into a local that survived
+  to the backend and was coalesced back into it. Front-end propagation
+  removes a copy made at the top of the function or inside a loop body. A
+  function-scope local assigned just before the loop that uses it survives
+  and moves the slot. This closed `mdlManager.c` `func_00471370`
+  (`parentMatrix = param_4;` before the node loop).
 - **Split a narrow branch result from its widened join role.** If two arms
   return an `s8` and retail extends exactly once at their common join, assign
   both arms to an `s8 pick`, then write `s32 cur = pick` after the label.
