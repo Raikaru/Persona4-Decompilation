@@ -4048,6 +4048,7 @@ void func_001a7710(void)
  * 2026-10-12 timing repair: fnalign 792 -> 786; retail extends the s16 query result before adding six and retains the word-sized sum, without the decompiler's post-add truncation.
  * 2026-10-12 tail predicates: fnalign 786 -> 779; test the native s32 action predicates directly, without widening their zero comparisons.
  * 2026-10-12 threshold widths: fnalign 779 -> 759; use native unsigned/signed word comparisons for bounded random and signed-halfword thresholds, without 64-bit promotion.
+ * 2026-10-12 selector consumers: fnalign 759 -> 752; retain widened motion/effect selectors after their signed-halfword reads, eliminating repeated extensions.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4246,7 +4247,7 @@ void func_001a7720(u8 *arg0) {
     s16 temp_21_2;
     s32 temp_2_2;
     s32 temp_3_16;
-    s16 temp_5_4;
+    s32 temp_5_4;
     s32 var_17;
     u16 var_18_3;
     s32 var_2_14;
@@ -4289,7 +4290,7 @@ void func_001a7720(u8 *arg0) {
     s16 temp_3_14;
     s32 temp_3_15;
     s32 temp_3_17;
-    s16 temp_3_5;
+    s32 temp_3_5;
     s64 var_17_3;
     s64 var_18;
     s64 var_18_2;
