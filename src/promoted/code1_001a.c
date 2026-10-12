@@ -4022,6 +4022,7 @@ void func_001a7710(void)
  * 2026-10-12 measured: fnalign 907 -> 906 with scoped opt_propagation off; CSE-on and loop-invariant hoisting regress.
  * 2026-10-12 measured: fnalign 906 -> 901; test s32 predicate results without widening and retain the bounded random result's unsigned comparison.
  * 2026-10-12 frame audit: fnalign 901 -> 887; the hit-index snapshot belongs in the loop test, restoring retail's single quadword spill rather than two word-store sites.
+ * 2026-10-12 row recovery: fnalign 887 -> 845; a typed hit-row base and direct stride assignment restore retail's quadword slots at 0x110/0x120 without redundant integer aliases.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4124,6 +4125,10 @@ void func_001a7720(u8 *arg0) {
         u8 unknown9C[0xA0C - 0x9C];
         struct UnitPartnerView *partner;
     } UnitPartnerView;
+    typedef struct ActionHitRowView {
+        u8 actionPrefix[0xF0];
+        LargeBattleHitResult result;
+    } ActionHitRowView;
     s32 sp5AC;
     s32 sp5A8;
     /* 0022d540 returns the three formation effect handles together. */
@@ -4198,8 +4203,8 @@ void func_001a7720(u8 *arg0) {
     s32 sp150;
     s32 sp140;
     s32 sp130;
-    s32 sp120;
-    s32 sp110;
+    s32 hitOffset;
+    ActionHitRowView *hitRow;
     s8 *hitMotion;
     s32 spF0;
     s16 *hpTransfer;
@@ -4212,7 +4217,6 @@ void func_001a7720(u8 *arg0) {
     f32 var_f1_2;
     f32 var_f20;
     f32 var_f20_2;
-    s32 temp_2_95;
     s16 temp_21_2;
     s32 temp_2_2;
     s16 temp_3_16;
@@ -4412,7 +4416,6 @@ void func_001a7720(u8 *arg0) {
     u8 *temp_2_92;
     u8 *temp_2_93;
     u8 *temp_2_94;
-    u8 *temp_2_96;
     u8 *temp_2_98;
     u8 *temp_2_99;
     u8 *temp_2_9;
@@ -5458,13 +5461,11 @@ do {
             sp130 = sp420 + 0x2B;
             while ((spC0 = (s32) sp3B0) < sp150) {
                 var_f20_2 = 1.0f;
-                temp_2_95 = sp3B0 << 5;
-                sp120 = temp_2_95;
-                temp_2_96 = (u8 *)((s32)(temp_18) + temp_2_95);
-                sp110 = (s32)((s32) temp_2_96);
+                hitOffset = sp3B0 << 5;
+                hitRow = (ActionHitRowView *)((u8 *)temp_18 + hitOffset);
                 /* The two later predicates reload the signed byte after intervening calls. */
-                hitMotion = (s8 *)(temp_2_96 + 0x10C);
-                if ((*( s8 * )((u8 *)(temp_2_96) + (0x10C))) == 9) {
+                hitMotion = &hitRow->result.motion;
+                if (hitRow->result.motion == 9) {
                     temp_2_97 = (u16)((u16)(func_00199350((*( u8 ** )((u8 *)(var_21_2) + (0x30))), 9, 1.0f)));
                     sp360 = temp_2_97;
                     if (((s32) temp_2_97 > 0) && ((s32) temp_2_97 < 0xA)) {
@@ -5483,7 +5484,7 @@ do {
                 }
                 (*( s64 * )((u8 *)(var_19) + (0x60))) = temp_16;
                 func_00194590(var_19, 0);
-                if (((s32)(s32)spC0 == sp140) && ((*( s32 * )((u8 *)(sp110) + (0xF8))) & 0x100000) && (sp340 == 0) && ((s32)(s32)sp160 == 1) && ((*( s32 * )((u8 *)(temp_18) + (0xE0))) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(sp2A0)) == (s32)(0))) {
+                if (((s32)(s32)spC0 == sp140) && (hitRow->result.addedStatus & 0x100000) && (sp340 == 0) && ((s32)(s32)sp160 == 1) && ((*( s32 * )((u8 *)(temp_18) + (0xE0))) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(sp2A0)) == (s32)(0))) {
                     sp250 = (s32) sp360;
                     if ((s32) sp360 >= 0x19) {
                         var_2_11 = 0;
@@ -5582,7 +5583,7 @@ do {
                     (*( s64 * )((u8 *)(temp_2_107) + (0x60))) = temp_16;
                     func_00194590(temp_2_107, 1);
                 }
-                temp_2_108 = (s32 *)(sp110 + 0xF0);
+                temp_2_108 = (s32 *)&hitRow->result;
                 sp240 = (s32 *)(temp_2_108);
                 temp_2_109 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_21_2), temp_2_108, (*( u16 * )((u8 *)(temp_18) + (0xDC))), (*( u16 * )((u8 *)(temp_18) + (0xDE)))));
                 (*( s8 * )((u8 *)(temp_2_109) + (0))) = 5;
@@ -5614,7 +5615,7 @@ do {
                 }
                 if ((s32)(spC0) == (s32)(((*( u8 * )((u8 *)(temp_18) + (0xD9))) - 1))) {
                     if (((*( s16 * )((u8 *)(arg0) + (0xEC))) != 0) && !((*( u8 * )((u8 *)(arg0) + (0xD8))) & 1)) {
-                        temp_4_14 = (s32)((s32)((*( s32 * )((u8 *)(((s32)(arg0) + sp120)) + (0x104)))));
+                        temp_4_14 = (s32)((s32)((*( s32 * )((u8 *)(((s32)(arg0) + hitOffset)) + (0x104)))));
                         if (temp_4_14 != 0) {
                             func_00216da0((*( s32 * )((u8 *)(iGpffffb3ac) + (0xC60))), func_0043c6a0(temp_4_14));
                         }
@@ -5626,7 +5627,7 @@ do {
                         func_00194590(temp_2_113, 3);
                     } else {
                         if ((*( s16 * )((u8 *)(temp_18) + (0xEC))) != 0) {
-                            temp_4_15 = (*( s32 * )((u8 *)(sp110) + (0x104)));
+                            temp_4_15 = hitRow->result.field14;
                             if (temp_4_15 != 0) {
                                 func_00216da0((*( s32 * )((u8 *)(iGpffffb3ac) + (0xC60))), func_0043c6a0(temp_4_15));
                             }
@@ -5658,7 +5659,7 @@ do {
                     (*( s64 * )((u8 *)(temp_2_116) + (0x60))) = temp_16;
                     func_00194590(temp_2_116, 3);
                 }
-                if (((*( s32 * )((u8 *)(sp110) + (0xF8))) & 0x100000) && ((s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)(var_21_2) + (0x30)))) + (0xA2)))) == (s32)(1))) {
+                if ((hitRow->result.addedStatus & 0x100000) && ((s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)(var_21_2) + (0x30)))) + (0xA2)))) == (s32)(1))) {
                     temp_2_117 = (u8 *)(func_001f7c20(0xD, 2, 8));
                     (*( s8 * )((u8 *)(temp_2_117) + (0))) = 5;
                     *(s64 *)(temp_2_117 + 8) = *(s64 *)(var_19 + 0x58);
@@ -5666,11 +5667,11 @@ do {
                     (*( s64 * )((u8 *)(temp_2_117) + (0x60))) = temp_16;
                     func_00194590(temp_2_117, 1);
                 }
-                if ((*( u16 * )((u8 *)(sp110) + (0x10E))) & 0x20) {
+                if (hitRow->result.flags & 0x20) {
                     sp310 = 1;
                     (*( s16 * )((u8 *)(iGpffffb3ac) + (0x1C))) = 3;
                 }
-                if ((*( u16 * )((u8 *)(sp110) + (0x10E))) & 0x40) {
+                if (hitRow->result.flags & 0x40) {
                     sp2E0 = 1;
                 }
                 temp_2_118 = (u8 *)((s32)(temp_18) + (sp3B0 << 5));
@@ -5683,7 +5684,7 @@ do {
                 (*( s64 * )((u8 *)(temp_2_119) + (0x60))) = temp_16;
                 func_00194590(temp_2_119, 3);
                 hpTransfer = (s16 *)(temp_2_118 + 0x108);
-                if (((*( s16 * )((u8 *)(temp_2_118) + (0x108))) > 0) || ((*( s16 * )((u8 *)(sp110) + (0x10A))) > 0)) {
+                if (((*( s16 * )((u8 *)(temp_2_118) + (0x108))) > 0) || (hitRow->result.spTransfer > 0)) {
                     spD0 = (s16)sp130;
                     func_001f0a10((u8 *)&result);
                     result.hpDelta = *hpTransfer;
