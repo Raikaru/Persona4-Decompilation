@@ -348,6 +348,12 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * all four resource checks use the inline readiness helper (same output, consistent source).
  * structure identical (fnalign 64 -> 40): the dispatch is an if-chain in retail's descending order whose compare against 1 uses a local `one`; the first readiness check returns that `one` for a NULL file, so the switch's constant 1 in $v0 is reused as retail does; the last test is a one-case switch with default (retail beqz/b).
  * measured 2026-10-12: fnalign 40 -> 14; separate preset-index and copied-resource locals in each publication loop preserve their roles and free the retail table-base register.
+ * 2026-10-12: the 14 edits are the $v0/$v1 swap of the state base and its
+ * +0x28 resource in the two func_0014a270()==1 part reads. Backend copy
+ * propagation folds the base (memory uses only) into its late gp-load temp,
+ * while the resource keeps its low variable number through the +0xA4C addiu;
+ * whatif: base numbered below the resource gives retail. Block/struct/helper/
+ * address-of spellings, an extra base copy and O1 + opt_common_subs stay 14+.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
