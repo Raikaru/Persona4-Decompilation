@@ -620,8 +620,8 @@ below are the codegen consequences.
     Everything else takes the temporary's high number, so declaration order
     cannot move it. Measured with `tools/b210_micro.py` (2026-10-06):
     - a copy use into a physical register keeps the local, e.g. passing it
-      as a call argument. A copy into another local does not: `now = frame`
-      folds both;
+      as a call argument. A same-block copy into another local does not:
+      `now = frame` folds both;
     - two definitions with the same source still fold. A second
       `base = gp` is CSE'd by the frontend into one frontend temporary,
       numbered just after the declared locals, and both copies of `base`
@@ -633,6 +633,17 @@ below are the codegen consequences.
     - the only pcode flags that block the fold (0x80/0x100 on the copy) occur
       on inline-asm instructions. Peephole likewise skips only asm blocks
       (block flags 0x180).
+
+    Cross-block copies are different. In `0017f490` (2026-10-12), the selected
+    patrol bounds survive the point-clear loop and are copied into the
+    interpolation phase's pointer at its join. With `opt_propagation off`,
+    that reaching definition keeps its low declared number; moving the copy
+    before the loop lets CSE fold both aliases into a high codegen temporary.
+    The captured graph's what-if model required the selected pointer before
+    the clear-byte cursor and count. Splitting selection from interpolation,
+    with cursor declared before count, closed the last 9 edits to 0 without
+    changing the bounds, byte clear, or random-point computation. Preserve the
+    phase boundary, not a synthetic read or store to keep a variable alive.
 
   So a swap between a temporary and a surviving local is not reachable
   through declaration order. The value that retail colours later has to be
