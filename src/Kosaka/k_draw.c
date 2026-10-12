@@ -279,8 +279,9 @@ void func_0014db80(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
+/* Parent is forwarded to task creation; drawList is retained for func_00460ac0. */
 // FUN_0014DBB0
-s32 func_0014dbb0(s32 arg0, s32 arg1)
+s32 func_0014dbb0(void *parent, void *drawList)
 {
     u8 *buf;
     s32 ret;
@@ -290,7 +291,7 @@ s32 func_0014dbb0(s32 arg0, s32 arg1)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFC08), 0xF, 0, 0, func_0014db10, func_0014db80, (u8 *)(buf));
+    ret = (s32)func_00451fc0(parent, (const void *)(D_005EFC08), 0xF, 0, 0, func_0014db10, func_0014db80, (u8 *)(buf));
     *(f32 *)(buf + 0x28) = 1.0f;
     *(f32 *)(buf + 0x14) = 1.0f;
     *(f32 *)(buf + 0x00) = 1.0f;
@@ -308,7 +309,7 @@ s32 func_0014dbb0(s32 arg0, s32 arg1)
     *(u8 *)(buf + 0x49) = 0;
     *(u8 *)(buf + 0x4A) = 0;
     *(u8 *)(buf + 0x4B) = 0xFF;
-    *(s32 *)(buf + 0x4C) = arg1;
+    *(void **)(buf + 0x4C) = drawList;
     *(s32 *)(buf + 0x44) = 1;
     return ret;
 }

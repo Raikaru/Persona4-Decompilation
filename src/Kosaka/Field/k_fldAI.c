@@ -1022,6 +1022,7 @@ tail:
  * measured 2026-10-12: fnalign 27 -> 23; recover the NPC prefix and take origin subobject addresses instead of casting integer sums.
  * measured 2026-10-12: fnalign 23 -> 17; inline speed scaling preserves the field-before-scale loads and scale-first multiply at the three clamped movement sites.
  * measured 2026-10-12: fnalign 17 -> 14; reuse scalar scaling for the oscillation amplitude and accumulate total turn through its storage pointer.
+ * measured 2026-10-12: fnalign 14 -> 10; the marker constructor takes a parent task and draw-list pointer, now corrected in both definition and caller.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1091,7 +1092,7 @@ extern unsigned int FUN_0047a250(unsigned int);
 extern int FUN_0014bbe0(int, int, int, int, int);
 extern int FUN_0014bd90(unsigned char *);
 extern unsigned int FUN_0014c240(void *, void *, float, float);
-extern int FUN_0014dbb0(int, int);
+extern s32 FUN_0014dbb0(void *, void *);
 extern void FUN_0014dcd0(unsigned char *, int);
 extern void FUN_0014dce0(unsigned char *, unsigned char *);
 extern void FUN_0014dd10(unsigned char *, unsigned char *);
@@ -1271,7 +1272,7 @@ availabilityDone:
       piVar1[0x17] = (int)((unsigned int)temp_v0 % 3) + 1;
       ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
       ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x18);
-      pbVar7 = (unsigned char *)FUN_0014dbb0((int)param_1,(int)D_00794420);
+      pbVar7 = (unsigned char *)FUN_0014dbb0(param_1,D_00794420);
       piVar1[0x26] = (int)pbVar7;
       FUN_0014dd10(pbVar7,(u8 *)&((FldAINpc *)piVar1[3])->origin);
       FUN_0014dce0((unsigned char *)piVar1[0x26],(unsigned char *)DAT_005f1ce0);
