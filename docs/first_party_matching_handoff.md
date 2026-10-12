@@ -293,6 +293,12 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   Native vector locals and assignments in cases 6/7 then recover both
   `ld/sd` triplet copies (**242 -> 229**); casts over float arrays had
   kept those copies scalarized.
+  Typed frame snapshots and the sibling's interleaved path-call ABI, plus
+  retail dot/reload order, reach **157**. The captured allocator requires
+  the path index after `lo`; splitting the follow-frame handle from the
+  resource/world-matrix temporaries restores its low declared number and
+  the retail `$s3`/`$s2` pair. Global CSE-off regresses to 1376; pullout-off
+  alone changes nothing at the 229 checkpoint.
 - A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.
