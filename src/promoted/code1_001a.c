@@ -3026,6 +3026,7 @@ void func_001a5990(void)
  * 2026-10-12 measured: fnalign 453 -> 452; the hit-effect flag is a word (retail sw/lw), not s16.
  * 2026-10-12 measured: fnalign 452 -> 405; let the timing APIs narrow their u16 motion argument, without a shared masked temporary.
  * 2026-10-12 measured: fnalign 405 -> 343; captured regalloc requires the source unit before the phase locals. Sound query contracts now match their providers.
+ * 2026-10-12 frame audit: fnalign 343 -> 340, frame 0x3C0 -> 0x3B0; voice option is s32 and the target count is already bounded by u16, so no masked spill is needed.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3096,7 +3097,7 @@ void func_001a59a0(s64 *arg0_) {
     extern void func_001f7830(u8 *unit, s32 hit, s32 paired, s16 *cue, s16 *variant);
     extern void func_001f7910(u8 *unit, u32 hit, s32 paired, s16 *cue, s16 *variant);
     extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
-    extern u8 *func_001f99c0();
+    extern u8 *func_001f99c0(u8 *action, u16 voice, s32 option, s32 argument, s32 flags);
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern u8 *func_00202010();
     extern u8 *func_00202400();
@@ -3505,7 +3506,7 @@ void func_001a59a0(s64 *arg0_) {
             }
         } else {
             var_22_3 = (s64 *)((*(s64 **)(arg0 + (0x88))));
-            temp_2_19 = (u8 *)(func_001f99c0(var_22_3, 0xD, 0U, 0, 0));
+            temp_2_19 = (u8 *)(func_001f99c0((u8 *)var_22_3, 0xD, 0U, 0, 0));
             (*(s16 *)((u8 *)(temp_2_19) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_19) + (0x60))) = temp_17;
             func_00194590(temp_2_19, 1);
@@ -3826,7 +3827,7 @@ block_222:
                             (*(s64 *)((u8 *)(temp_2_55) + (0x60))) = temp_17;
                             func_00194590(temp_2_55, 1);
                         } else {
-                            temp_2_54 = (u8 *)(func_001f99c0(arg0, 0x10, (u16) sp290, 0, 0));
+                            temp_2_54 = (u8 *)(func_001f99c0(arg0, 0x10, sp290, 0, 0));
                             (*(s8 *)((u8 *)(temp_2_54) + (0))) = 4;
                             (*(s64 *)((u8 *)(temp_2_54) + (8))) = sp2C0;
                             func_00194590(temp_2_54, 1);
