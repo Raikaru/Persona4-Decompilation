@@ -964,6 +964,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 292 -> 279; preserve the skill snapshot boundary and recover word-sized loop bounds plus the tail's separate unsigned index.
  * measured 2026-10-12: fnalign 279 -> 265; keep the negated mask predicate word-sized and load message bits with retail's unsigned halfword reads.
  * measured 2026-10-12: fnalign 265 -> 258; use the same offset-first skill-table address idiom for the remaining field reads.
+ * measured 2026-10-12: fnalign 258 -> 252; a post-hit-resolution flags pointer copy with propagation off restores the flag-pointer/sub-result $s7/$fp pair.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -981,6 +982,8 @@ static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
 
 #pragma push
 #pragma opt_lifetimes on
+/* measured: retain the flags pointer across the hit-resolution phase join (258 -> 252). */
+#pragma opt_propagation off
 void func_001f14f0(u8 *arg0)
 
 {
@@ -1034,6 +1037,7 @@ void func_001f14f0(u8 *arg0)
     s32 idw;
     u16 kindU;
     s32 off;
+    u16 *flagp;
     s32 resw;
     u8 *vals;
     u16 ui;
@@ -1232,13 +1236,14 @@ void func_001f14f0(u8 *arg0)
         m80 = mask & 0x80000;
         n80 = !(mask2 & 0x80000);
         while (j < cntA) {
-            u16 *flagp = (u16 *)(unit + (j << 5) + 0x10E);
+            u16 *resultFlags;
             u16 *pa;
             u16 *pb;
             s32 *pm;
             s32 x;
             u8 t;
             s32 nj;
+            flagp = (u16 *)(unit + (j << 5) + 0x10E);
             *flagp = 0;
             pa = (u16 *)(unit + ((u32)j << 5) + 0x108);
             *pa = 0;
@@ -1312,15 +1317,16 @@ void func_001f14f0(u8 *arg0)
                     }
                 }
             }
+            resultFlags = flagp;
             nj = j + 1;
             if (nj == cntA || hit) {
                 if (r1 != 0) {
                     *pm |= 0x100000;
                 } else if (((sumA < 0 || resw == 0x100 || resw == 0x400) && func_00232710(target, 0x100000) != 0) ||
                            (*(s32 *)(unit + 0xE4) == 1 && func_00232710(uctx, 0x100000) != 0)) {
-                    *flagp |= 1;
+                    *resultFlags |= 1;
                     if (*(s32 *)(unit + 0xE4) == 1 || resw == 0x100 || resw == 0x400) {
-                        *flagp |= 2;
+                        *resultFlags |= 2;
                     }
                 }
                 if (counter != 0 && sumA < 0 && mask == 0) {
@@ -1329,7 +1335,7 @@ void func_001f14f0(u8 *arg0)
                     counter = 0;
                 }
                 if (r2 != 0) {
-                    *flagp |= 4;
+                    *resultFlags |= 4;
                 }
                 if (resw != 1 || *(s32 *)(unit + 0xE4) == 1 || r2 == 1) {
                     status |= 2;
@@ -1350,7 +1356,7 @@ void func_001f14f0(u8 *arg0)
 
                     *(u16 *)(actor + 0x3F4) = v;
                     slot = unit + (j << 5);
-                    *flagp |= 0x10;
+                    *resultFlags |= 0x10;
                     slot[0x10C] = func_001f12b0(actor, vals, res, sub, 0);
                 } else {
                     *(unit + (j << 5) + 0x10C) = func_001f12b0(actor, vals, res, sub, 1);
