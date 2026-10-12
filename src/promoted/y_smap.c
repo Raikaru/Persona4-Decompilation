@@ -219,6 +219,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 309 -> 303 edits; the kind-9/10 reveal bit remasks the byte coordinate, as retail.
  * measured: fnalign 303 -> 294 edits; per-phase coordinate masks recover additional retail rematerializations.
  * opt_loop_invariants on retains the retail loop hoists; coordinate CSE and spill allocation remain.
+ * fnalign 294 -> 291: two more coordinate sites remask the u8 parameter (retail andi at each use).
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -399,7 +400,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
     u8 *temp_4_31;
     u8 *temp_4_32;
 
-    temp_18 = (s32)arg1;
+    temp_18 = (arg1 & 0xFF);
     temp_17 = temp_18 << 8;
     temp_16 = ((s32)arg0) * 0x10;
     if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 7) {
@@ -522,7 +523,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
             }
         } else {
             temp_4_13 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
-            *temp_4_13 |= (1 << ((s32)arg0)) & 0xFFFF;
+            *temp_4_13 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
         }
     } else if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 9) {
         temp_3_5 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
