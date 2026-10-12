@@ -25,6 +25,41 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 12 continuation, part 13: `0027f6f0`, `0018a200`, `0017f490`, `001f14f0`, `00471370`, `0046b380` MATCH; compiler internals
+
+**6,849 MATCH / 11 ASM** (`build/after49.json`; link 604 C / 54 SDK, both
+sha1 OK in `build/link56.log`).
+
+The six matches all came from the procedure now written up as "Rewrite
+playbook for large or stubborn residuals" at the top of `docs/matching.md`:
+frame and object extents, real structs, call contracts and reaching
+definitions, per-phase locals, evaluation order, allocator evidence, then
+scoped pragmas, each as a measured commit. Three rules read out of b210 in
+Ghidra (project `C:/tmp/mwcc-ghidra`) are documented there:
+
+- spill slot placement (`0x0055deb0`/`0x004b0060`/`0x004be770`): parameter
+  spills pack into `+0xc/+8/+4/+0`, temporaries and coalesce roots take
+  `+0` (closed `00471370`);
+- binary operand evaluation (`0x004a9250`): left first unless
+  `right.cost > left.cost + 2` (closed `0046b380`);
+- `#pragma peephole off` exists, but did not help `0014f310`.
+
+Remaining 11, with their latest edit counts and where they stand:
+
+| Function | Edits | State |
+|---|---|---|
+| `00162e10` | 1 | `found` needs a fourth counted reference with `found = 1`; `found == 0 &&` in the loop condition fixes the colours but adds a test |
+| `004a7830` | 7 | the `abs.s` result must be numbered before the compare zero, which is CSE'd with the MAC chain's `adda` zero |
+| `00320b80` | 8 | loop-top `(s16)i` shares the condition's extension |
+| `0048b340` | 9 | linear anchor needs a late identity |
+| `0014f310` | 14 | O1: the state pointer folds into its load temp. Under O2 + `opt_common_subs off` + `opt_propagation off` both swap sites match, and only the two table loops differ (44): `temp_7`, `a_resource` and `a_preset` must keep declared numbers |
+| `001d8010` | 25 | sort `limit`/`j` numbering |
+| `002b6ec0` | 28 | table/base saved-register roles |
+| `0016bdd0` | 39 | sqrt result versus `adda` zero numbering (three regions) |
+| `002ac750` | 311 | four coordinate snapshots folded away (frame 0x150 vs 0x190) |
+| `001a59a0` | 335 | frame 0x3c0 vs 0x330; quadword field-address spills |
+| `001a7720` | 819 | frame 0x5d0 vs 0x5b0 |
+
 ## October 11 continuation, part 12: `00183b80`, `001265a0`, `0047b0c0`, `004b8f40`, `003768e0`, `003599c0`, `003694d0` MATCH; live-range numbering
 
 **6,843 MATCH / 17 ASM** (`build/after46.json`; against `after45.json` only
