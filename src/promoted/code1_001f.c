@@ -965,6 +965,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 279 -> 265; keep the negated mask predicate word-sized and load message bits with retail's unsigned halfword reads.
  * measured 2026-10-12: fnalign 265 -> 258; use the same offset-first skill-table address idiom for the remaining field reads.
  * measured 2026-10-12: fnalign 258 -> 252; a post-hit-resolution flags pointer copy with propagation off restores the flag-pointer/sub-result $s7/$fp pair.
+ * measured 2026-10-12: fnalign 252 -> 244; disable constant pullout to keep the two 1.0f roles separate without an extra saved FPR.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -984,6 +985,7 @@ static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
 #pragma opt_lifetimes on
 /* measured: retain the flags pointer across the hit-resolution phase join (258 -> 252). */
 #pragma opt_propagation off
+#pragma opt_pulloutconstants off
 void func_001f14f0(u8 *arg0)
 
 {
