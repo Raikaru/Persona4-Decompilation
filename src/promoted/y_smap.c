@@ -212,42 +212,30 @@ s32 func_002ac740(void) {
     return D_00764644;
 }
 
-/* measured: full transcription of the M2C_ERROR-free 574-line draft
-   (nd 1239 -> 1255). All branch structure, func_00155280 re-call sites,
-   func_002adcf0/002b2d00/002b2cb0 calls, the 0x58<7/<9/>=9 dispatch, the
-   0x59 sub-switches, and the search loops are right. Residuals:
-   (1) the prologue arg-save pattern — retail saves raw arg0/arg1 into
-   $s4/$s3 first and re-derives (arg0&0xFF)/(arg1&0xFF) at every later
-   site; mwcc CSEs my masked temps and rotates the saved registers
-   (t18=$s4 vs $s2, t17=$s1, t16=$s0, t20=$s3 vs $s0) — rotation floor
-   family; (2) the u16 bit-sets on D_00764658 — retail emits lhu/or/shu
-   with the &0xFFFF mask at the first use only, then re-masks per
-   later site; mwcc emits lh or adds dsll32/dsra32 extension dances
-   depending on the local's type (tried u16 and s32 forms, nd 1239 and
-   1255). Remaining ~1240 differing words are these two families
-   cascading through 1384 words. */
-/* measured: banked v5 (m2c transcription, s32 temps, M2C_FIELD expanded, block-scope externs, func_00155280() fixed, s8/s16 casts): fnalign retail 1380 obj 1356 (-24, -1.7% inside 1338-1421), 916 edits +5 reloc-only; frame 0x140 vs 0x190 count-neutral. Residuals: saved-reg rotation + u16 bit-set families. */
-/* measured: 2026-09-19 switch-order + default-place (this session): jtbl_007487E0 6 entries share pairwise (0,1->0x2ad2d4 9/10; 2,3->0x2ad4f0 11/12; 4,5->0x2ada3c 13/14) so case9:case10: stacked is correct, no real fallthrough; 9/10->default fallthrough is artefact (different targets, both return via epilogue) so break + default-at-end. Switch1/3 irregular 2,0/3,1 -> ascending 0,2/1,3. fnalign retail 1380: base 916+5 obj1356 -> default-end 915+5 obj1354 (-1) -> sw1-asc 879+5 (-37) -> sw1+sw3-asc 843+5 (-73) -> +default-end 842+5 obj1354 (-74 total). Pointer-walk trial on loop_102 D-table (p_102++) 844+5 (+2 vs 842, reject; retail also index*2). Raw-save prologue trial neutral 842. Frame still 0x140 vs 0x190, saved-reg rotation + u16 families remain. verify 28MATCH/8ASM, lint 0e/1w (pre-existing H003), fnalign object compiles. TU C-linked unverified (prod stays ASM), image hashes unverified. */
-/* Row displacements are byte offsets. Cast the visibility-table base to
-   u8 * before adding them; adding to s16 * doubles each row displacement.
-   Both retail stores add the two byte offsets before their halfword load.
-   2026-10-08: opt_loop_invariants on lowers fnalign from 828 to 679 edits.
-   2026-10-09: 679 -> 445: single-use m2c temporaries whose values are pure
-   (arg masks, shifts, D_00764658 slot addresses, s8 casts) are folded back
-   into their uses; each fold was checked so no operand is reassigned before
-   the use.
-   2026-10-09: 445 -> 439: three disjoint m2c temporaries share
-   sp180/sp160/sp140.
-   2026-10-09: 439 -> 431: one more fold.
- * 2026-10-09: 431 -> 358: the m2c label loops are while loops; loop tests that
- * re-read a value assign it inside the test.
- * 344: type sweep.
- * 343: commutative operand order as retail.
- * fnalign 343 -> 329: both neighbour searches as nested for loops with break (retail tests the counters at the bottom).
- * fnalign 329 -> 327: equality tests written as switches (retail beq-per-case).
+/* Reveal the current minimap cell, connected walls, or the matching room footprint.
+ * measured: fnalign 327 -> 315 edits with typed grid views and offset-first next-row addresses.
+ * opt_loop_invariants on retains the retail loop hoists; coordinate CSE and spill allocation remain.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
+/* Cells begin at map + 0x50; rows contain sixteen 0x10-byte cells. */
+typedef struct SMapGridCell {
+    u8 field00[5];
+    u8 reveal;
+    u8 field06[2];
+    u8 kind;
+    u8 orientation;
+    u8 field0A[4];
+    u8 walls;
+    u8 wallState;
+} SMapGridCell;
+
+/* Do not cache the map provider: every retail field access calls it again. */
+#define SMAP_GRID_CELL_AT(rowOffset, columnOffset) \
+    ((SMapGridCell *)(func_00155280() + (rowOffset) + (columnOffset) + 0x50))
+#define SMAP_GRID_NEIGHBOR_AT(rowOffset, columnOffset, cellOffset) \
+    (SMAP_GRID_CELL_AT(rowOffset, columnOffset) + (cellOffset))
+
 #pragma push
 #pragma opt_loop_invariants on
 void func_002ac750(u8 arg0, u8 arg1) {
@@ -420,20 +408,20 @@ void func_002ac750(u8 arg0, u8 arg1) {
     temp_18 = arg1 & 0xFF;
     temp_17 = temp_18 << 8;
     temp_16 = (arg0 & 0xFF) * 0x10;
-    if ((s32) (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x58))) < 7) {
-        temp_4 = (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x58)));
+    if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 7) {
+        temp_4 = SMAP_GRID_CELL_AT(temp_17, temp_16)->kind;
         if (temp_4 == 2) {
-            if (((s8)(func_002adcf0((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x55)))))) == 1) {
-                if (((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x55))) & 0xF) == 1) {
+            if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
+                if ((SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal & 0xF) == 1) {
                     temp_20 = arg0 & 0xFF;
                     temp_18_2 = temp_18 * 2;
                     temp_3 = (u16 *)((u8 *)D_00764658 + temp_18_2);
                     *temp_3 |= ((1 << temp_20) & 0xFFFF);
                     temp_19 = arg1 & 0xFF;
                     temp_22 = temp_19 << 8;
-                    if (((*( u8 * )((u8*)((func_00155280() + temp_22 + temp_16)) + (-0xA8))) == 2) && ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5E))) & 1)) {
-                        if ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5F))) & 1) {
-                            if ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5F))) & 0x10) {
+                    if ((SMAP_GRID_NEIGHBOR_AT(temp_22, temp_16, -16)->kind == 2) && (SMAP_GRID_CELL_AT(temp_17, temp_16)->walls & 1)) {
+                        if (SMAP_GRID_CELL_AT(temp_17, temp_16)->wallState & 1) {
+                            if (SMAP_GRID_CELL_AT(temp_17, temp_16)->wallState & 0x10) {
                                 temp_4_2 = (u16 *)((u8 *)D_00764658 + (((temp_19 - 1) & 0xFF) * 2));
                                 *temp_4_2 |= ((1 << temp_20) & 0xFFFF) & 0xFFFF;
                             }
@@ -442,9 +430,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
                             *temp_4_3 |= ((1 << temp_20) & 0xFFFF) & 0xFFFF;
                         }
                     }
-                    if (((*( u8 * )((u8*)((func_00155280() + temp_22 + temp_16)) + (0x158))) == 2) && ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5E))) & 4)) {
-                        if ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5F))) & 4) {
-                            if ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5F))) & 0x40) {
+                    if ((SMAP_GRID_NEIGHBOR_AT(temp_22, temp_16, 16)->kind == 2) && (SMAP_GRID_CELL_AT(temp_17, temp_16)->walls & 4)) {
+                        if (SMAP_GRID_CELL_AT(temp_17, temp_16)->wallState & 4) {
+                            if (SMAP_GRID_CELL_AT(temp_17, temp_16)->wallState & 0x40) {
                                 temp_4_4 = (u16 *)((u8 *)D_00764658 + (((temp_19 + 1) & 0xFF) * 2));
                                 *temp_4_4 |= ((1 << temp_20) & 0xFFFF) & 0xFFFF;
                             }
@@ -454,9 +442,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
                         }
                     }
                     temp_19_2 = temp_20 * 0x10;
-                    if (((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_19_2)) + (0x68))) == 2) && ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5E))) & 8)) {
-                        if ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5F))) & 8) {
-                            if ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5F))) & 0x80) {
+                    if ((SMAP_GRID_NEIGHBOR_AT(temp_17, temp_19_2, 1)->kind == 2) && (SMAP_GRID_CELL_AT(temp_17, temp_16)->walls & 8)) {
+                        if (SMAP_GRID_CELL_AT(temp_17, temp_16)->wallState & 8) {
+                            if (SMAP_GRID_CELL_AT(temp_17, temp_16)->wallState & 0x80) {
                                 temp_3_2 = (u16 *)((u8 *)D_00764658 + temp_18_2);
                                 *temp_3_2 |= (1 << ((temp_20 + 1) & 0xFF)) & 0xFFFF;
                             }
@@ -465,10 +453,10 @@ void func_002ac750(u8 arg0, u8 arg1) {
                             *temp_3_3 |= (1 << ((temp_20 + 1) & 0xFF)) & 0xFFFF;
                         }
                     }
-                    temp_4_6 = (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_19_2)) + (0x48)));
-                    if ((temp_4_6 == 2) && ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5E))) & 2)) {
-                        if ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5F))) & 2) {
-                            if ((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x5F))) & 0x20) {
+                    temp_4_6 = SMAP_GRID_NEIGHBOR_AT(temp_17, temp_19_2, -1)->kind;
+                    if ((temp_4_6 == 2) && (SMAP_GRID_CELL_AT(temp_17, temp_16)->walls & 2)) {
+                        if (SMAP_GRID_CELL_AT(temp_17, temp_16)->wallState & 2) {
+                            if (SMAP_GRID_CELL_AT(temp_17, temp_16)->wallState & 0x20) {
                                 temp_4_7 = (u16 *)((u8 *)D_00764658 + temp_18_2);
                                 *temp_4_7 |= (1 << ((temp_20 - 1) & 0xFF)) & 0xFFFF;
                             }
@@ -537,15 +525,15 @@ void func_002ac750(u8 arg0, u8 arg1) {
             temp_4_13 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
             *temp_4_13 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
         }
-    } else if ((s32) (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x58))) < 9) {
+    } else if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 9) {
         temp_3_5 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
         *temp_3_5 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
         temp_30 = (arg0 & 0xFF) + 2;
         temp_22_2 = ((s8)(func_002b2d00((arg0 & 0xFF), 1, 1, temp_30, 1)));
         temp_18_4 = temp_18 << 8;
         temp_21_3 = temp_22_2 * 0x10;
-        temp_23_2 = (*( u8 * )((u8*)((func_00155280() + temp_18_4 + temp_21_3)) + (0x58)));
-        if ((temp_23_2 == (*( u8 * )((u8*)((func_00155280() + temp_16 + temp_18_4)) + (0x58)))) && (((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_21_3)) + (0x55))) & 0xF) == 1)) {
+        temp_23_2 = SMAP_GRID_CELL_AT(temp_18_4, temp_21_3)->kind;
+        if ((temp_23_2 == SMAP_GRID_CELL_AT(temp_16, temp_18_4)->kind) && ((SMAP_GRID_CELL_AT(temp_17, temp_21_3)->reveal & 0xF) == 1)) {
             temp_5_4 = ((s8)(temp_22_2));
             temp_7 = (1 << temp_5_4) & 0xFFFF;
             temp_6 = (arg1 & 0xFF) * 2;
@@ -554,9 +542,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
             temp_5_5 = (1 << (temp_5_4 + 1)) & 0xFFFF;
             temp_4_16 = (u16 *)((u8 *)D_00764658 + temp_6);
             *temp_4_16 |= temp_5_5;
-            temp_4_17 = (u8 *)((u8 *)D_00764658 + (temp_6));
+            temp_4_17 = (u8 *)(temp_6 + (u32)D_00764658);
             (*( u16 * )((u8*)(temp_4_17) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_17) + (2))) | temp_7);
-            temp_4_18 = (u8 *)((u8 *)D_00764658 + (temp_6));
+            temp_4_18 = (u8 *)(temp_6 + (u32)D_00764658);
             (*( u16 * )((u8*)(temp_4_18) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_18) + (2))) | temp_5_5);
             return;
         }
@@ -564,9 +552,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
         temp_23_3 = temp_4_19 + 2;
         temp_18_5 = ((s8)(func_002b2d00(temp_4_19, 1, 1, temp_23_3, 1)));
         temp_22_3 = temp_18_5 << 8;
-        temp_2_5 = (*( u8 * )((u8*)((func_00155280() + temp_22_3 + ((arg0 & 0xFF) * 0x10))) + (0x58)));
+        temp_2_5 = SMAP_GRID_CELL_AT(temp_22_3, ((arg0 & 0xFF) * 0x10))->kind;
         spF0 = (s32) temp_2_5;
-        if ((temp_2_5 == (*( u8 * )((u8*)((func_00155280() + temp_17 + ((arg0 & 0xFF) * 0x10))) + (0x58)))) && (((*( u8 * )((u8*)((func_00155280() + temp_22_3 + temp_16)) + (0x55))) & 0xF) == 1)) {
+        if ((temp_2_5 == SMAP_GRID_CELL_AT(temp_17, ((arg0 & 0xFF) * 0x10))->kind) && ((SMAP_GRID_CELL_AT(temp_22_3, temp_16)->reveal & 0xF) == 1)) {
             temp_5_6 = arg0 & 0xFF;
             temp_7_2 = (1 << temp_5_6) & 0xFFFF;
             temp_6_2 = ((s8)(temp_18_5)) * 2;
@@ -575,9 +563,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
             temp_5_7 = (1 << (temp_5_6 + 1)) & 0xFFFF;
             temp_4_21 = (u16 *)((u8 *)D_00764658 + temp_6_2);
             *temp_4_21 |= temp_5_7;
-            temp_4_22 = (u8 *)((u8 *)D_00764658 + (temp_6_2));
+            temp_4_22 = (u8 *)(temp_6_2 + (u32)D_00764658);
             (*( u16 * )((u8*)(temp_4_22) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_22) + (2))) | temp_7_2);
-            temp_4_23 = (u8 *)((u8 *)D_00764658 + (temp_6_2));
+            temp_4_23 = (u8 *)(temp_6_2 + (u32)D_00764658);
             (*( u16 * )((u8*)(temp_4_23) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_23) + (2))) | temp_5_7);
             return;
         }
@@ -585,8 +573,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
         temp_20_3 = ((s8)(func_002b2d00(arg1 & 0xFF, 1, 1, temp_23_3, 1)));
         temp_19_3 = temp_20_3 << 8;
         temp_18_6 = ((s8)(temp_21_5)) * 0x10;
-        temp_22_4 = (*( u8 * )((u8*)((func_00155280() + temp_19_3 + temp_18_6)) + (0x58)));
-        if ((temp_22_4 == (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x58)))) && (((*( u8 * )((u8*)((func_00155280() + temp_19_3 + temp_18_6)) + (0x55))) & 0xF) == 1)) {
+        temp_22_4 = SMAP_GRID_CELL_AT(temp_19_3, temp_18_6)->kind;
+        if ((temp_22_4 == SMAP_GRID_CELL_AT(temp_17, temp_16)->kind) && ((SMAP_GRID_CELL_AT(temp_19_3, temp_18_6)->reveal & 0xF) == 1)) {
             temp_7_3 = (1 << (((s8)(temp_21_5)))) & 0xFFFF;
             temp_6_3 = ((s8)(temp_20_3)) * 2;
             temp_4_24 = (u16 *)((u8 *)D_00764658 + temp_6_3);
@@ -594,9 +582,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
             temp_5_9 = (1 << ((((s8)(temp_21_5))) + 1)) & 0xFFFF;
             temp_4_25 = (u16 *)((u8 *)D_00764658 + temp_6_3);
             *temp_4_25 |= temp_5_9;
-            temp_4_26 = (u8 *)((u8 *)D_00764658 + (temp_6_3));
+            temp_4_26 = (u8 *)(temp_6_3 + (u32)D_00764658);
             (*( u16 * )((u8*)(temp_4_26) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_26) + (2))) | temp_7_3);
-            temp_4_27 = (u8 *)((u8 *)D_00764658 + (temp_6_3));
+            temp_4_27 = (u8 *)(temp_6_3 + (u32)D_00764658);
             (*( u16 * )((u8*)(temp_4_27) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_27) + (2))) | temp_5_9);
         }
     } else {
