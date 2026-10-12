@@ -4111,6 +4111,7 @@ void func_001a7710(void)
  * 2026-10-12 reaction fallback: fnalign 740 -> 738; keep the fallback test chain inline and compare the bounded random result as unsigned, preserving the positive-byte guard.
  * 2026-10-12 camera packet frame: fnalign 738 -> 639, frame 0x5D0 -> retail 0x5B0; retain the canonical packet pointer directly in the persistent camera snapshot, without two redundant aliases and their coalesced spill object.
  * 2026-10-12 unit-table flag: fnalign 639 -> 637; normalize bit 0x40 before inverting the boolean, matching retail's sltu/xori pair rather than xor/sltiu.
+ * 2026-10-12 scale clamp: fnalign 637 -> 629; retain each floating bound from its comparison for the clamp assignment, eliminating two redundant constant reloads while preserving the NaN path.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4304,6 +4305,7 @@ void func_001a7720(u8 *arg0) {
     f32 temp_f2;
     f32 var_f1;
     f32 var_f1_2;
+    f32 scaleLimit;
     f32 var_f20;
     f32 var_f20_2;
     s16 temp_21_2;
@@ -5629,10 +5631,14 @@ void func_001a7720(u8 *arg0) {
                     temp_2_103 = (u8 *)((*( u8 ** )((u8 *)(var_21_2) + (0x30))));
                     temp_f2 = (*( f32 * )((u8 *)(temp_2_103) + (0x2C)));
                     var_f1_2 = (((*( f32 * )((u8 *)(temp_2_103) + (0x90))) * temp_f2 * ((*( f32 * )((u8 *)(temp_2_103) + (0x8C))) * temp_f2)) / (f32) 0x2710);
-                    if (var_f1_2 < 2.0f) {
-                        var_f1_2 = 2.0f;
-                    } else if (!(var_f1_2 <= 5.0f)) {
-                        var_f1_2 = 5.0f;
+                    scaleLimit = 2.0f;
+                    if (var_f1_2 < scaleLimit) {
+                        var_f1_2 = scaleLimit;
+                    } else {
+                        scaleLimit = 5.0f;
+                        if (!(var_f1_2 <= scaleLimit)) {
+                            var_f1_2 = scaleLimit;
+                        }
                     }
                     temp_2_104 = (u8 *)(func_001bccc0(0x12, (s16)(s32)((80.0f * var_f1_2) / 5.0f), 0, 6));
                     (*( s8 * )((u8 *)(temp_2_104) + (0))) = 5;
