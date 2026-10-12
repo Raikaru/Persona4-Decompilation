@@ -599,7 +599,13 @@ below are the codegen consequences.
     loses its low number this way. Under `#pragma optimization_level 1`
     there is no `propagatecopyinstructions`; peephole alone rewrites
     same-block uses to the temporary, and a copy whose destination is still
-    needed is left in place.
+    needed is left in place. Peephole folds a copy only into memory-address
+    operands (`lw t, d(local)` becomes `lw t, d(temp)`); an arithmetic use
+    (`addiu`, `addu`) or an argument move keeps reading the local, so its
+    copy survives and coalescing later merges the load temporary into the
+    local's lower number. A `base = global;` whose only uses are loads
+    through it therefore folds to the load temporary, while `entry` with an
+    `entry + 0xA4C` argument keeps its declared number (`0014f310`).
 
     Locals with several reaching definitions *from different sources*,
     such as loop counters and flags, keep their low declared numbers.
