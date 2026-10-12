@@ -4128,14 +4128,12 @@ void func_001a7710(void)
  * argument constants (`move $t1,$a1`, 14 sites), which only IR CSE gives. Under
  * CSE, `(u8 *)(p) + (k)` and `x & 0xFFFF` spellings are hoisted, so field
  * reads use uncast u8 pointers (the unit pointers are u8 *) and masks are
- * (u16) casts. The 001b7060/7080/70a0 skill is u16: retail reloads the
- * spilled halfword with lhu (0x270) and passes it unmasked.
+ * (u16) casts; with those spellings the function needs no pragma (519).
+ * The 001b7060/7080/70a0 skill is u16: retail reloads the spilled
+ * halfword with lhu (0x270) and passes it unmasked.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
-#pragma push
-#pragma opt_propagation off
-#pragma opt_rebuildconditionals off
 void func_001a7720(u8 *arg0) {
 
     extern s32 btlCreateSetFlagsPacket(u32);
@@ -6157,8 +6155,6 @@ reactionPacket:
         btlActionSetState((BtlAction *)arg0, state);
     }
 }
-
-#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a7720);
 #endif
