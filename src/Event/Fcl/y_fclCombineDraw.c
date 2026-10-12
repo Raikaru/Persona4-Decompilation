@@ -2617,6 +2617,9 @@ void func_00320970(u8 *arg0, s8 arg1) {
  * b210 spills it to 0xD0 (score 3 spills y/row instead).
  * Open: retail tests the extended byte and spills mode as a 4-byte word
  * (`sw`); ours tests $a1 directly and spills a 16-byte temp (`sq`/`lq`).
+ * whatif on the score-3 graph: no single score or +/-1 degree change (or
+ * mixed pair) gives retail's colours with mode at score 3; mode at score 2
+ * does exactly, so retail's mode reaches the loop as its own variable.
  */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
