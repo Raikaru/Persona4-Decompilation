@@ -510,11 +510,13 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * fnalign 56 -> 51: parent matrix base loaded before the index shift (temp_v5 holds puVar12[6], as retail's lw/sll/lw order).
  * fnalign 51 -> 39: integer-cast field-base reads at selected sites.
  * fnalign 39 -> 27: both 64-byte matrix copies address temp_v7 through a (u32) cast (retail evaluates the source first; b210 does not CSE the field address).
+ * fnalign 27 -> 18: opt_lifetimes on (s0/s1 list walk colours as retail); the Ghidra temp_v3 split into parent (matrix owner) and animated (flag 0x2000).
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_loop_invariants on
+#pragma opt_lifetimes on
 s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 
 {
@@ -592,7 +594,8 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   int iStack_420;
   unsigned int uStack_430;
   s32 hasParentMatrix;
-  int temp_v3;
+  unsigned int parent;
+  u32 animated;
   s32 resetAnimation;
   int iStack_450;
   RwMatrix baseMatrix;
@@ -645,7 +648,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   u16 *controller = (u16 *)param_3;
 
   hasParentMatrix = 0;
-  temp_v3 = 0;
+  parent = 0;
   resetAnimation = 0;
   puVar12 = (unsigned int *)param_1;
   temp_v10 = *puVar12;
@@ -655,7 +658,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     pfVar21 = (float *)(*(int *)(temp_v5 + 8) + temp_v4);
     if (((temp_v10 & 0x2000) != 0) && ((temp_v10 & 0x4000) != 0)) {
       hasParentMatrix = 1;
-      temp_v3 = *(unsigned int *)(puVar12[6] + 0x14);
+      parent = *(unsigned int *)(puVar12[6] + 0x14);
     }
   } else {
     if ((temp_v10 & 0x4000) != 0) {
@@ -676,16 +679,16 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       pfVar21 = ((f32 *)&identityMatrix);
       if ((temp_v10 & 0x2000) != 0) {
         hasParentMatrix = 1;
-        temp_v3 = puVar12[5];
+        parent = puVar12[5];
       }
     } else {
       hasParentMatrix = 1;
-      temp_v3 = puVar12[5];
+      parent = puVar12[5];
       pfVar21 = ((f32 *)&baseMatrix);
     }
   }
   if (hasParentMatrix) {
-    if ((temp_v3 != 0) && (temp_v9 = *(int *)(temp_v3 + 4), temp_v9 != 0)) {
+    if ((parent != 0) && (temp_v9 = *(int *)(parent + 4), temp_v9 != 0)) {
       temp_v4 = func_003e9240((struct RwObjectOwnerLink *)((void *)temp_v9));
       if (temp_v4 == 0) {
         baseMatrix = *(const RwMatrix *)func_003e9700((u8 *)temp_v9);
@@ -715,8 +718,8 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       baseMatrix.flags |= 0x20003;
     }
   }
-  temp_v3 = temp_v10 & 0x2000;
-  if ((temp_v3 != 0) && ((*(unsigned char *)(*(int *)(puVar12[5] + 0xa0) + 3) & 3) == 0)) {
+  animated = temp_v10 & 0x2000;
+  if ((animated != 0) && ((*(unsigned char *)(*(int *)(puVar12[5] + 0xa0) + 3) & 3) == 0)) {
     typedef struct ControllerLink { struct ControllerLink *next; struct ControllerLink *prev; } ControllerLink;
     ControllerLink *list = (ControllerLink *)DAT_0088739c;
 
@@ -1199,11 +1202,11 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       if (temp_v7 != 0) {
         if ((temp_v10 & 0x1000) != 0) {
           *(RwMatrix *)((u8 *)(u32)(temp_v7) + 0x10) = frameMatrix;
-          if (temp_v3 == 0) {
+          if (animated == 0) {
             func_003e9680((u8 *)(temp_v7));
           }
         }
-        if (temp_v3 != 0) {
+        if (animated != 0) {
           if ((temp_v10 & 0x4000) != 0) {
             RwMatrixMultiply((RwMatrix *)(temp_v7 + 0x50),(const RwMatrix *)(pfVar8),(const RwMatrix *)(((f32 *)&baseMatrix)));
           } else {
