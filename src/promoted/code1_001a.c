@@ -3031,6 +3031,7 @@ void func_001a5990(void)
  * 2026-10-12 UID accessor: fnalign 335 -> 331, frame 0x3C0 -> 0x3B0; inline packet UID reads eliminate the cross-call +0x58 address spill.
  * 2026-10-12 kind accessor: fnalign 331 -> 327, frame 0x3B0 -> 0x3A0; reload the source-unit kind directly rather than spilling its field address.
  * 2026-10-12 effect-unit accessor: fnalign 327 -> 325; inline unit reads in the effect phase replace one spilled-address reload with retail's direct +0x30 load.
+ * 2026-10-12 paired-effect unit: fnalign 325 -> 322; the first paired-effect constructor reloads its unit through the existing accessor rather than a spilled field address.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3734,7 +3735,7 @@ void func_001a59a0(s64 *arg0_) {
                     (*(s64 *)((u8 *)(temp_2_42) + (0x60))) = temp_17;
                     func_00194590(temp_2_42, 2);
                     if (sp210 != 0) {
-                        temp_5_3 = (u8 *)((*(u8 **)((u8 *)(var_22_3) + (0x30))));
+                        temp_5_3 = (u8 *)(btlActionUnit_001a59a0(var_22_3));
                         temp_2_43 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD84))), temp_5_3, temp_5_3, 1, 0));
                         (*(s8 *)((u8 *)(temp_2_43) + (0))) = 5;
                         (*(s64 *)((u8 *)(temp_2_43) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
