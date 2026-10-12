@@ -2056,6 +2056,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 311 -> 284: the three direction dot products are written x, y, z (retail accumulates in that order).
  * fnalign 284 -> 283: the state switch has an empty case 8 (retail's 9-entry jump table jtbl_00746DF0 sends 8 to the shared exit).
  * fnalign 283 -> 277: the vec20/vec30 dot product accumulates x, y, z as retail.
+ * measured 2026-10-12: fnalign 277 -> 257: restore the case-1 actor-index reaching definition, use typed chained matrix diagonals, and give the initial vector comparison its own X/zero locals; remove the extra oscillator +0 after retail's accumulator addition.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2162,10 +2163,11 @@ s32 func_0018a200(u8 *param_1)
   long long temp_v10;
   unsigned int *puVar16;
   unsigned int temp_v11;
-  unsigned int temp_v11_s1;
   unsigned int temp_v11_s3;
   float temp_v12;
   float temp_v13;
+  f32 initialZero;
+  f32 initialX;
   float one;
   float diff;
   float nx;
@@ -2342,8 +2344,10 @@ s32 func_0018a200(u8 *param_1)
         FUN_003e05d0(temp_v8);
         FUN_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
         temp_v4 = FUN_001452b0(5);
-        if (((*(float *)(temp_v4 + 0x1f0) != 0.0f) || (*(float *)(temp_v4 + 0x1f8) != 0.0f)) ||
-           (*(float *)(temp_v4 + 500) != 0.0f)) {
+        initialX = *(float *)(temp_v4 + 0x1f0);
+        initialZero = 0.0f;
+        if (((initialZero != initialX) || (initialZero != *(float *)(temp_v4 + 0x1f8))) ||
+           (initialZero != *(float *)(temp_v4 + 500))) {
           pvVar11 = (void *)FUN_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
           FUN_00458f40(pvVar11,(void *)(temp_v4 + 0x1f0));
         }
@@ -2408,7 +2412,7 @@ s32 func_0018a200(u8 *param_1)
         }
         temp_v9 = FUN_00106330(temp_v3 + 0x43f);
         if (temp_v9 != 0) {
-          temp_v11_s1 = 2;
+          temp_v11 = 2;
         } else {
           temp_v9 = FUN_00106330(temp_v3 + 0x45f);
           if (temp_v9 != 0) {
@@ -2468,19 +2472,19 @@ s32 func_0018a200(u8 *param_1)
       if (vecB0[0] < 0.0f) {
         temp_v13 = temp_v13 * -1.0f;
       }
-      *(unsigned int *)(puVar1[5] + 0x28) = 0x3f800000;
-      *(unsigned int *)(puVar1[5] + 0x14) = 0x3f800000;
-      *(unsigned int *)puVar1[5] = 0x3f800000;
-      *(unsigned int *)(puVar1[5] + 0x10) = 0;
-      *(unsigned int *)(puVar1[5] + 8) = 0;
-      *(unsigned int *)(puVar1[5] + 4) = 0;
-      *(unsigned int *)(puVar1[5] + 0x24) = 0;
-      *(unsigned int *)(puVar1[5] + 0x20) = 0;
-      *(unsigned int *)(puVar1[5] + 0x18) = 0;
-      *(unsigned int *)(puVar1[5] + 0x38) = 0;
-      *(unsigned int *)(puVar1[5] + 0x34) = 0;
-      *(unsigned int *)(puVar1[5] + 0x30) = 0;
-      *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
+      ((RainMatrix *)puVar1[5])->right.x =
+          ((RainMatrix *)puVar1[5])->up.y =
+          ((RainMatrix *)puVar1[5])->at.z = 1.0f;
+      ((RainMatrix *)puVar1[5])->up.x = 0.0f;
+      ((RainMatrix *)puVar1[5])->right.z = 0.0f;
+      ((RainMatrix *)puVar1[5])->right.y = 0.0f;
+      ((RainMatrix *)puVar1[5])->at.y = 0.0f;
+      ((RainMatrix *)puVar1[5])->at.x = 0.0f;
+      ((RainMatrix *)puVar1[5])->up.z = 0.0f;
+      ((RainMatrix *)puVar1[5])->pos.z = 0.0f;
+      ((RainMatrix *)puVar1[5])->pos.y = 0.0f;
+      ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
+      ((RainMatrix *)puVar1[5])->flags |= 0x20003;
       func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
       FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
     }
@@ -2562,19 +2566,19 @@ s32 func_0018a200(u8 *param_1)
         if (vec100[0] < 0.0f) {
           temp_v13 = temp_v13 * -1.0f;
         }
-        *(unsigned int *)(puVar1[5] + 0x28) = 0x3f800000;
-        *(unsigned int *)(puVar1[5] + 0x14) = 0x3f800000;
-        *(unsigned int *)puVar1[5] = 0x3f800000;
-        *(unsigned int *)(puVar1[5] + 0x10) = 0;
-        *(unsigned int *)(puVar1[5] + 8) = 0;
-        *(unsigned int *)(puVar1[5] + 4) = 0;
-        *(unsigned int *)(puVar1[5] + 0x24) = 0;
-        *(unsigned int *)(puVar1[5] + 0x20) = 0;
-        *(unsigned int *)(puVar1[5] + 0x18) = 0;
-        *(unsigned int *)(puVar1[5] + 0x38) = 0;
-        *(unsigned int *)(puVar1[5] + 0x34) = 0;
-        *(unsigned int *)(puVar1[5] + 0x30) = 0;
-        *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
+        ((RainMatrix *)puVar1[5])->right.x =
+            ((RainMatrix *)puVar1[5])->up.y =
+            ((RainMatrix *)puVar1[5])->at.z = 1.0f;
+        ((RainMatrix *)puVar1[5])->up.x = 0.0f;
+        ((RainMatrix *)puVar1[5])->right.z = 0.0f;
+        ((RainMatrix *)puVar1[5])->right.y = 0.0f;
+        ((RainMatrix *)puVar1[5])->at.y = 0.0f;
+        ((RainMatrix *)puVar1[5])->at.x = 0.0f;
+        ((RainMatrix *)puVar1[5])->up.z = 0.0f;
+        ((RainMatrix *)puVar1[5])->pos.z = 0.0f;
+        ((RainMatrix *)puVar1[5])->pos.y = 0.0f;
+        ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
+        ((RainMatrix *)puVar1[5])->flags |= 0x20003;
         func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
         if ((*(unsigned short *)(puVar1[3] + 0x220) != 4) || (((float*)puVar1)[6] < 1.0f)) {
           FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
@@ -2618,19 +2622,19 @@ s32 func_0018a200(u8 *param_1)
             if (vec130[0] < 0.0f) {
               temp_v13 = temp_v13 * -1.0f;
             }
-            *(unsigned int *)(puVar1[5] + 0x28) = 0x3f800000;
-            *(unsigned int *)(puVar1[5] + 0x14) = 0x3f800000;
-            *(unsigned int *)puVar1[5] = 0x3f800000;
-            *(unsigned int *)(puVar1[5] + 0x10) = 0;
-            *(unsigned int *)(puVar1[5] + 8) = 0;
-            *(unsigned int *)(puVar1[5] + 4) = 0;
-            *(unsigned int *)(puVar1[5] + 0x24) = 0;
-            *(unsigned int *)(puVar1[5] + 0x20) = 0;
-            *(unsigned int *)(puVar1[5] + 0x18) = 0;
-            *(unsigned int *)(puVar1[5] + 0x38) = 0;
-            *(unsigned int *)(puVar1[5] + 0x34) = 0;
-            *(unsigned int *)(puVar1[5] + 0x30) = 0;
-            *(unsigned int *)(puVar1[5] + 0xc) = *(unsigned int *)(puVar1[5] + 0xc) | 0x20003;
+            ((RainMatrix *)puVar1[5])->right.x =
+                ((RainMatrix *)puVar1[5])->up.y =
+                ((RainMatrix *)puVar1[5])->at.z = 1.0f;
+            ((RainMatrix *)puVar1[5])->up.x = 0.0f;
+            ((RainMatrix *)puVar1[5])->right.z = 0.0f;
+            ((RainMatrix *)puVar1[5])->right.y = 0.0f;
+            ((RainMatrix *)puVar1[5])->at.y = 0.0f;
+            ((RainMatrix *)puVar1[5])->at.x = 0.0f;
+            ((RainMatrix *)puVar1[5])->up.z = 0.0f;
+            ((RainMatrix *)puVar1[5])->pos.z = 0.0f;
+            ((RainMatrix *)puVar1[5])->pos.y = 0.0f;
+            ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
+            ((RainMatrix *)puVar1[5])->flags |= 0x20003;
             func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
             FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
             FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
@@ -2638,7 +2642,7 @@ s32 func_0018a200(u8 *param_1)
             f32 zero = 0.0f;
             f32 one;
 
-            ((float*)puVar1)[6] = (((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6] + zero);
+            ((float*)puVar1)[6] = (((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6]);
             if (!(((float*)puVar1)[8] <= zero)) {
               one = 1.0f;
               if (!(((float*)puVar1)[6] <= one)) {
