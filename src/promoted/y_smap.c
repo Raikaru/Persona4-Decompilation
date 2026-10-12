@@ -216,6 +216,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 327 -> 315 -> 313 edits with typed cell/scan views and offset-first row addresses.
  * measured: fnalign 313 -> 311 edits with an offset-first reveal-row pointer helper.
  * measured: fnalign 311 -> 310 -> 309 edits with per-search signed step locals.
+ * measured: fnalign 309 -> 303 edits; the kind-9/10 reveal bit remasks the byte coordinate, as retail.
  * opt_loop_invariants on retains the retail loop hoists; coordinate CSE and spill allocation remain.
  */
 // FUN_002AC750 NONMATCHING
@@ -590,7 +591,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
         case 10:                                    /* switch 2 */
             if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
                 temp_4_28 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
-                *temp_4_28 |= (1 << ((s32)arg0)) & 0xFFFF;
+                *temp_4_28 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
                 return;
             }
             if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
