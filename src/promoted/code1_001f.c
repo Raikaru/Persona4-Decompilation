@@ -957,6 +957,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 478 -> 476; narrow the skill-table index before its 0x28 stride, as retail does.
  * measured 2026-10-12: fnalign 476 -> 474; use the existing offset-first helper for the initial skill-field address.
  * measured 2026-10-12: fnalign 474 -> 371, frame 0x330 -> retail 0x310; recover scalar spill order and byte/halfword roles, keeping the masked result snapshot as a word.
+ * measured 2026-10-12: fnalign 371 -> 338; the captured allocator predicts unit-before-id for retail's $s3/$s1 pair.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -996,6 +997,7 @@ void func_001f14f0(u8 *arg0)
     extern f32 fGpffff80d4;
     s32 flags;
     f32 scale;
+    u8 *unit;
     s32 id;
     s32 isTen;
     u8 *ctx;
@@ -1116,7 +1118,6 @@ void func_001f14f0(u8 *arg0)
     idw = (u16)id;
     kindU = (s32)kind;
     for (; (u32)ui < *(u16 *)(arg0 + 0x6A); ui++) {
-        u8 *unit = *(u8 **)(arg0 + ui * 4 + 0x38);
         s32 res;
         s32 sub;
         s32 e4;
@@ -1126,6 +1127,7 @@ void func_001f14f0(u8 *arg0)
         s32 m80;
         u16 n80;
         s16 msg;
+        unit = *(u8 **)(arg0 + ui * 4 + 0x38);
         actor = unit;
         uctx = *(u8 **)(*(u8 **)(unit + 0x30) + 0xA64);
         sumA = 0;
