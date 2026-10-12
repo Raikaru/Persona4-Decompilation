@@ -39,6 +39,17 @@ on a thread pool (`P4_BUILD_JOBS`). The C object cache still keys on the
 full source of `build.py`, `verify.py` and mwccgap, so editing them forces a
 full recompile.
 
+**Lever: a loop pointer separate from its source keeps an unthreaded entry
+jump (`00162e10`, 9 -> 1).** Retail branched from `if (node != NULL || ...)`
+to the while loop's entry `b test` block. Ours threaded straight to the test.
+Walking a block-local `u8 *scan = node;` instead of `node` puts the copy in
+that block, so b210 cannot thread through it; the copy is coalesced away
+during colouring, leaving retail's bare `b`. The other edits came from
+`found++` (the subagent's commit `3a2bcd0d`): it gives `found` the fourth
+counted reference retail's colours need. The last edit is that increment
+itself (`addiu $s5,$s5,1` against retail's `$zero`). `found = hit` copies,
+second `if (found)` tests and alias copies all propagate away or add code.
+
 **Lever: give each repeated code group its own locals.** A local that is
 reassigned in several independent groups (Ghidra/m2c reuse, or one `w`/`h`
 for three HUD panels) is split into one live range per group. The first
