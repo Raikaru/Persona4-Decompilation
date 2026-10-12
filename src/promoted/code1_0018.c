@@ -2062,6 +2062,7 @@ static inline s32 fldBothReady_0018a200(void)
  * measured 2026-10-12: fnalign 136 -> 103: recover initial animation-ID loads and walking selection, signed-side component snapshots, the existing clump callback contract, and per-role normalization pointers. The side snapshots restore retail's persistent facing-vector FPR allocation.
  * measured 2026-10-12: fnalign 103 -> 92: pointer-domain position arguments and a look-target snapshot reproduce call preparation order; update model flags before the setter call. Keep the path endpoint store explicitly floating-point.
  * measured 2026-10-12: fnalign 92 -> 68: enable CSE with constant pullout disabled; keep the second fade-range and initial spline-time reload addresses separate from their earlier accesses. Restore literal walking-animation selection so CSE shares the real argument constant.
+ * measured 2026-10-12: fnalign 68 -> 59: start the oscillator comparison-zero lifetime after the progress update, restoring the update's retail floating-point operands.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2725,10 +2726,11 @@ s32 func_0018a200(u8 *param_1)
             FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
             FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
             {
-            f32 zero = 0.0f;
+            f32 zero;
             f32 one;
 
             ((float*)puVar1)[6] = (((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6]);
+            zero = 0.0f;
             if (!(((float*)puVar1)[8] <= zero)) {
               one = 1.0f;
               if (!(((float*)puVar1)[6] <= one)) {
