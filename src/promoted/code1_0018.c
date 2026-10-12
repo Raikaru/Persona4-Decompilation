@@ -2064,6 +2064,7 @@ static inline s32 fldBothReady_0018a200(void)
  * measured 2026-10-12: fnalign 92 -> 68: enable CSE with constant pullout disabled; keep the second fade-range and initial spline-time reload addresses separate from their earlier accesses. Restore literal walking-animation selection so CSE shares the real argument constant.
  * measured 2026-10-12: fnalign 68 -> 59: start the oscillator comparison-zero lifetime after the progress update, restoring the update's retail floating-point operands.
  * measured 2026-10-12: fnalign 59 -> 57: separate the oscillator spline-time reload from the later progress update, avoiding a saved field-address lifetime across model calls.
+ * measured 2026-10-12: fnalign 57 -> 50: split the visibility boolean from the later u16 model flags and preserve its real s32 setter contract, removing redundant narrowing.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2273,9 +2274,10 @@ s32 func_0018a200(u8 *param_1)
       func_003bff30((void *)temp_v8, (KClumpCallback)func_0018a170, &iStack_4);
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + puVar1[0x14] * 4 + 0x34) != 0) {
-        temp_v2 = (iStack_4 != 0) ^ 1;
+        s32 actorVisible;
+        actorVisible = (iStack_4 != 0) ^ 1;
         temp_v4 = FUN_00155280();
-        FUN_0014e920(*(unsigned char **)(temp_v4 + puVar1[0x14] * 4 + 0x34),puVar1[0x15],temp_v2);
+        FUN_0014e920(*(unsigned char **)(temp_v4 + puVar1[0x14] * 4 + 0x34),puVar1[0x15],actorVisible);
       }
       if ((*(unsigned int *)(puVar1[3] + 0x28) & 2) == 0) {
         FUN_0018bed0(param_1,1);
