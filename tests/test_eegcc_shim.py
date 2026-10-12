@@ -42,10 +42,13 @@ class BinutilsDiscoveryTests(unittest.TestCase):
         tool = shim.assembler_tools.Tool(("wsl", "--", "objcopy"), wsl=True)
         with patch.object(shim, "_empty_sections", return_value={".text", ".bss"}), \
                 patch.object(shim.assembler_tools, "_wslpath", return_value="/mnt/c/project with spaces/out.o"), \
-                patch.object(shim.assembler_tools.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, b"")) as run:
+                patch.object(shim.assembler_tools, "_WslShell") as shell:
+            shell.return_value.proc.poll.return_value = None
+            shell.return_value.run.return_value = subprocess.CompletedProcess([], 0, b"")
             shim._strip_gcc_metadata(tool, obj)
-        argv = run.call_args.args[0]
-        self.assertEqual(argv[:3], ["wsl", "--", "objcopy"])
+        self.assertEqual(shell.call_args.args[0], ("wsl", "--"))
+        argv = shell.return_value.run.call_args.args[0]
+        self.assertEqual(argv[0], "objcopy")
         self.assertEqual(argv[-1], "/mnt/c/project with spaces/out.o")
         self.assertIn("--remove-section=.text", argv)
         self.assertIn("--remove-section=.bss", argv)

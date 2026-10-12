@@ -42,7 +42,7 @@
     "config/asm_symbol_baseline.txt": "0c3524c648feaebe852f2b0221acae604de53f77f02e997ea425e368692bab52",
     "tools/slus21782_functions.json": "43d17bf206f4c878e34ed335aa8a715e09b94a6060321f32c22e04ad72284b5a",
     "tools/extract_nonmatching_asm.py": "78cde4a7fded07dff5fd8151ebdcef2aa903d864e8a217669e04d78f27bd40eb",
-    "tools/asm.py": "75670b3a6ddfa7761a0734b5a4d4b2692f365eaf04f8f8a5a2d6d8802ac5ab70",
+    "tools/asm.py": "258766a7b2394bbc522190abc0ade16abe657c2a1d65498f4f0b1f96a7e2d43d",
     "tools/verify.py": "63a76dc2201d2f075dfde5d649a2d672b1c8a7756a8e9240be814cdf644461fd"
   },
   "generated": [

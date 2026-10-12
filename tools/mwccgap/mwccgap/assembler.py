@@ -1,3 +1,4 @@
+import functools
 import hashlib
 import os
 import shutil
@@ -14,6 +15,7 @@ def _wsl_distro() -> str:
     return os.environ.get("P4_WSL_DISTRO", "Debian")
 
 
+@functools.lru_cache(maxsize=None)
 def _wsl_has(cmd: str) -> bool:
     return subprocess.run(
         ["wsl", "-d", _wsl_distro(), "--", "sh", "-lc", f"command -v {cmd} >/dev/null"],
@@ -22,16 +24,26 @@ def _wsl_has(cmd: str) -> bool:
     ).returncode == 0
 
 
-def _wslpath(path: str | Path) -> str:
+@functools.lru_cache(maxsize=None)
+def _wsl_drive_root(letter: str) -> str:
     p = subprocess.run(
-        ["wsl", "-d", _wsl_distro(), "--", "wslpath", "-a", str(path).replace("\\", "/")],
+        ["wsl", "-d", _wsl_distro(), "--", "wslpath", "-a", f"{letter}:/"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
     )
     if p.returncode:
         raise AssemblerException(p.stdout)
-    return p.stdout.strip()
+    return p.stdout.strip().rstrip("/")
+
+
+def _wslpath(path: str | Path) -> str:
+    # Each WSL launch costs about a second; map the drive prefix locally
+    # (one wslpath call per drive) instead of launching wslpath per path.
+    s = str(Path(path).resolve()).replace("\\", "/")
+    if len(s) < 3 or s[1] != ":" or s[2] != "/":
+        raise AssemblerException(f"cannot map {path} into WSL")
+    return _wsl_drive_root(s[0].lower()) + "/" + s[3:].lstrip("/")
 
 
 class Assembler:
