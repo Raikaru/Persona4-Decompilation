@@ -511,12 +511,24 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * fnalign 51 -> 39: integer-cast field-base reads at selected sites.
  * fnalign 39 -> 27: both 64-byte matrix copies address temp_v7 through a (u32) cast (retail evaluates the source first; b210 does not CSE the field address).
  * fnalign 27 -> 18: opt_lifetimes on (s0/s1 list walk colours as retail); the Ghidra temp_v3 split into parent (matrix owner) and animated (flag 0x2000).
+ * measured 2026-10-12: fnalign 18 -> 13; an addressable animation-flag snapshot keeps scalar sw/lw storage, offset-first addressing fixes the control lookup, and callback-first equality fixes bne operands. Remaining: param_4 home and +0x42/interpolator-slot CSE.
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
+static inline u32 modelOffsetAddress(u32 offset, u32 base)
+{
+    return offset + base;
+}
+
+/* Read the scalar snapshot retained across the hierarchy callbacks. */
+static inline u32 modelAnimationFlag(const u32 *flag)
+{
+    return *flag;
+}
+
 s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 
 {
@@ -719,7 +731,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     }
   }
   animated = temp_v10 & 0x2000;
-  if ((animated != 0) && ((*(unsigned char *)(*(int *)(puVar12[5] + 0xa0) + 3) & 3) == 0)) {
+  if ((modelAnimationFlag(&animated) != 0) && ((*(unsigned char *)(*(int *)(puVar12[5] + 0xa0) + 3) & 3) == 0)) {
     typedef struct ControllerLink { struct ControllerLink *next; struct ControllerLink *prev; } ControllerLink;
     ControllerLink *list = (ControllerLink *)DAT_0088739c;
 
@@ -738,7 +750,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   pfVar8 = (float *)puVar12[2];
   temp_v11 = temp_v6 + 0x4c;
   temp_v4 = **(int **)(modelState + 0x1a);
-  puVar3 = *(unsigned int **)(temp_v4 + (short)modelState[2] * 0x50 + 0x48);
+  puVar3 = *(unsigned int **)(modelOffsetAddress((short)modelState[2] * 0x50, temp_v4) + 0x48);
   if ((puVar3 != (unsigned int *)0x0) && (*(float *)(modelState + 4) == 0.0f)) {
     return 1;
   }
@@ -747,7 +759,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
      * nodes, as at retail 004716d0-004716dc. The full entry flags need not
      * remain live throughout the node traversal. */
     for (iStack_420 = 0; iStack_420 < (int)puVar12[1]; iStack_420 = iStack_420 + 1) {
-      if (pcVar2 == func_003954b0) {
+      if (func_003954b0 == pcVar2) {
         /* RtQuatUnitConvertToMatrixMacro: independent square/cross/wimag
          * products precede matrix construction, as in retail 0047170c-0047172c. */
         const f32 x = *(f32 *)(temp_v11 + 8);
@@ -1202,11 +1214,11 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       if (temp_v7 != 0) {
         if ((temp_v10 & 0x1000) != 0) {
           *(RwMatrix *)((u8 *)(u32)(temp_v7) + 0x10) = frameMatrix;
-          if (animated == 0) {
+          if (modelAnimationFlag(&animated) == 0) {
             func_003e9680((u8 *)(temp_v7));
           }
         }
-        if (animated != 0) {
+        if (modelAnimationFlag(&animated) != 0) {
           if ((temp_v10 & 0x4000) != 0) {
             RwMatrixMultiply((RwMatrix *)(temp_v7 + 0x50),(const RwMatrix *)(pfVar8),(const RwMatrix *)(((f32 *)&baseMatrix)));
           } else {
