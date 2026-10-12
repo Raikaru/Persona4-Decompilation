@@ -3036,6 +3036,7 @@ void func_001a5990(void)
  * 2026-10-12 target unit member: fnalign 318 -> 309, frame 0x380 -> 0x370; recover the target's +0x30 unit field and remove its cross-call address spill.
  * 2026-10-12 selected-action layout: fnalign 309 -> 239, frame 0x370 -> 0x340; the selected action shares the typed +0x30 unit member, eliminating three quadword field-address spills and the redundant accessor.
  * 2026-10-12 animation packet type: fnalign 239 -> 218, frame 0x340 -> retail 0x330; keep the constructor's BtlPacket pointer type, avoiding a coalesced 16-byte byte-pointer spill.
+ * 2026-10-12 hit-count consumers: fnalign 218 -> 214; preserve the signed-halfword normalization of the byte-loaded hit count and its conditional snapshot, matching retail's two sign extensions.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3172,7 +3173,7 @@ void func_001a59a0(s64 *arg0_) {
     s32 sp190;
     s32 sp180;
     s32 sp170;
-    s32 sp160;
+    s16 sp160;
     s32 sp150;
     s32 sp140;
     s32 sp130;
@@ -3226,7 +3227,7 @@ void func_001a59a0(s64 *arg0_) {
     u32 temp_4_7;
     u8 temp_2_10;
     u8 temp_2_8;
-    u8 var_2_4;
+    s16 var_2_4;
     u8 *temp_2_11;
     u8 *temp_2_12;
     u8 *temp_2_13;
