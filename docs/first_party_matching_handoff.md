@@ -50,14 +50,14 @@ Remaining 11, with their latest edit counts and where they stand:
 |---|---|---|
 | `00162e10` | 1 | `found` needs a fourth counted reference with `found = 1`; `found == 0 &&` in the loop condition fixes the colours but adds a test |
 | `004a7830` | 7 | the `abs.s` result must be numbered before the compare zero, which is CSE'd with the MAC chain's `adda` zero |
-| `00320b80` | 8 | loop-top `(s16)i` shares the condition's extension |
+| `00320b80` | 3 | entry test reads raw `$a1` and `mode` spills as a 16-byte temp (`sq`); retail tests the extended byte and spills a 4-byte `mode` (`sw`) |
 | `0048b340` | 9 | linear anchor needs a late identity |
 | `0014f310` | 14 | O1: the state pointer folds into its load temp. Under O2 + `opt_common_subs off` + `opt_propagation off` both swap sites match, and only the two table loops differ (44): `temp_7`, `a_resource` and `a_preset` must keep declared numbers |
 | `001d8010` | 25 | sort `limit`/`j` numbering |
 | `002b6ec0` | 28 | table/base saved-register roles |
 | `0016bdd0` | 39 | sqrt result versus `adda` zero numbering (three regions) |
-| `002ac750` | 311 | four coordinate snapshots folded away (frame 0x150 vs 0x190) |
-| `001a59a0` | 335 | frame 0x3c0 vs 0x330; quadword field-address spills |
+| `002ac750` | 290 | spill choice in both search blocks; retail keeps `sp180 = temp_18` as its own spilled value, which b210 coalesces in natural spellings (restructured `d7d2f766`: 397, reverted in `66a26b06`) |
+| `001a59a0` | 6 | two camera-helper index `addu` operand-order sites |
 | `001a7720` | 819 | frame 0x5d0 vs 0x5b0 |
 
 Measured since the table (captures plus `regalloc_whatif`, all reproduced):
@@ -75,10 +75,21 @@ Measured since the table (captures plus `regalloc_whatif`, all reproduced):
   them but emits `addiu $s5,$s5,1`; the IR dump shows the frontend never
   constant-propagates into `found++`/`found = found + 1`/`found += 1`
   inside the search loop. Extra zero definitions cost 11-20.
-- `00320b80` (8): IR dump shows `IRO_CommonSubs` merging `n = i` and the
-  loop test's `(s16)i` into one CSE temporary `@2630`. `long n` breaks the
-  merge but widens everything (83); passing `i` straight to `func_003191c0`
-  shifts the frame (70).
+- `00320b80` (8 -> 3, `1ab9d0b9`): a second `(s16)i` use in the loop-top
+  block (`(s16)(i * 2)`) makes `IRO_CommonSubs` extend `i` at the top instead
+  of reusing the latch test's extension for `n` (one occurrence merges with
+  the latch, two get a body-local temp). Passing `(s8)i` directly and the
+  else-arm delay as `(s16)j + n` then match every register. Spill choice:
+  `regalloc_whatif` on the capture shows retail's spill set needs `mode`'s
+  spill score 2 (ours 3: def + entry test + loop test); no other single
+  score or degree change reproduces it. `mode = arg1;` before `if (!arg1)`
+  gives score 2, but the test then reads raw `$a1` and the spilled node is
+  the sext temporary (`sq`). b210 copy propagation (`0x00555600`) only keeps
+  `mode` as its own (4-byte) node if a use of `mode` is itself a copy or its
+  source is redefined on the way to the loop test; `arg1 == 0` + `mode`
+  share one CSE temporary otherwise. Tried: entry spellings x `arg1 = i`
+  placements, wide/`u32`/`s16`/`s8` mode, `switch (mode)`, `s32` parameter
+  with `(s8)` casts, hoisted call operands, RA pragmas — all 3 or worse.
 - `0048b340` (9): a separate anchor local gives 40; assigning it before the
   loop gives 18; the then-branch's `second` gives 40; an inline helper for
   the else-branch gives 57-64.
