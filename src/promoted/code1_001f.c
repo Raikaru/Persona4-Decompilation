@@ -971,6 +971,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 219 -> 189; normalize the result into a word snapshot, copy it into the record phase, and enable invariant motion; frame remains retail 0x310.
  * measured 2026-10-12: fnalign 189 -> 185; use 0023e6f0's documented C89-promoted s32 skill interface, not its old-style u16 formal type.
  * measured 2026-10-12: fnalign 185 -> 166; the captured allocator predicts the party-copy counter before its source unit for retail's $s1/$s0 pair.
+ * measured 2026-10-12: fnalign 166 -> 143; initialize the tail's byte counter before loading its bound and use a separate unsigned record index in the body.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1540,10 +1541,10 @@ other:
             if (*(s32 *)(u + 0xE0) == 1 && func_00232710(*(u8 **)(*(u8 **)(u + 0x30) + 0xA64), 0x100000) == 0) {
                 cnt++;
             } else {
-                u8 n;
+                u8 n = 0;
                 s32 count = u[0xD9];
-                for (n = 0; n < count; n++) {
-                    if (*(u8 *)(*(u8 **)(u + 0x30) + 0xA2) == 1 && (*(u32 *)(u + (n << 5) + 0xF8) & 0x100000)) {
+                for (; n < count; n++) {
+                    if (*(u8 *)(*(u8 **)(u + 0x30) + 0xA2) == 1 && (*(u32 *)(u + ((u32)n << 5) + 0xF8) & 0x100000)) {
                         cnt++;
                         break;
                     }
