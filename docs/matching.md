@@ -606,6 +606,14 @@ below are the codegen consequences.
     local's lower number. A `base = global;` whose only uses are loads
     through it therefore folds to the load temporary, while `entry` with an
     `entry + 0xA4C` argument keeps its declared number (`0014f310`).
+    Under `opt_lifetimes on` the frontend splits a reused local into new
+    locals, one per later web, appended to the locals list after the
+    declared ones. So a second loop's `i` is numbered after every declared
+    local but still before every codegen temporary (`build/micro_src/lt1.c`:
+    `i` r33, `t` r34, the second `i` r35, codegen temporaries from r36). A
+    loop bound that copy propagation folds into its codegen temporary is
+    therefore always numbered after any loop counter, split or not
+    (`001d8010`'s `limit`/`j` swap).
 
     Locals with several reaching definitions *from different sources*,
     such as loop counters and flags, keep their low declared numbers.
