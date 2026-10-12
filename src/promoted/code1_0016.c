@@ -1955,6 +1955,7 @@ query_complete:
  * measured 2026-10-12: fnalign 725 -> 242; real 12-byte matrix tolerances, separate fade colour, and retail stack-local order recover the 0x360 frame.
  * measured 2026-10-12: fnalign 242 -> 229; native case 6/7 vector locals and assignments recover both ld/sd triplet copies.
  * measured 2026-10-12: fnalign 229 -> 157; typed frame snapshots, interleaved path ABI, retail dot/reload order, and graph-proven index/frame lifetimes.
+ * measured 2026-10-12: fnalign 157 -> 105; propagation/pullout off retain path interpolation order, pointer-valued collision arguments and wall dot products follow retail, and easing reloads avoid shared addresses.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2034,7 +2035,10 @@ extern float D_00756500[];
 extern float D_00756510[];
 extern float D_00756520[];
 #pragma push
+/* measured: propagation/pullout off preserve interpolation phases without hoisting 55.0f; combined fnalign 157 -> 105. */
 #pragma opt_lifetimes on
+#pragma opt_propagation off
+#pragma opt_pulloutconstants off
 s32 func_0016bdd0(u8 *param_1)
 
 {
@@ -2300,9 +2304,11 @@ s32 func_0016bdd0(u8 *param_1)
         temp_v14_b = FUN_003e4180(&stk70[0]);
         {
           float acc = temp_v11_b;
-          int last = piVar1[0xd] - 1;
+          int last;
 
-          for (temp_v4_b = 0; temp_v4_b < last; temp_v4_b++) {
+          temp_v4_b = 0;
+          last = piVar1[0xd] - 1;
+          for (; temp_v4_b < last; temp_v4_b++) {
             if (!(acc <= *(float *)((u8 *)(u32)piVar1 + 0xb8))) break;
             acc = acc + temp_v11_b;
           }
@@ -2542,14 +2548,18 @@ s32 func_0016bdd0(u8 *param_1)
           stk180[1] = *(float *)((u8 *)(u32)piVar1 + 0x2b8) * temp_v9_s4 - *(float *)((u8 *)(u32)piVar1 + 0x2b0) * temp_v14_s6;
           stk180[2] = *(float *)((u8 *)(u32)piVar1 + 0x2b0) * temp_v11_s5 - *(float *)((u8 *)(u32)piVar1 + 0x2b4) * temp_v9_s4;
           FUN_003e40b0(&stk180[0],&stk180[0]);
-          if (stk180[1] * stk1A0[1] + stk180[0] * stk1A0[0] + stk180[2] * stk1A0[2] < 0.0f) {
+          if (stk180[0] * stk1A0[0] + stk180[1] * stk1A0[1] + stk180[2] * stk1A0[2] < 0.0f) {
             stk180[0] = -stk180[0];
             stk180[1] = -stk180[1];
             stk180[2] = -stk180[2];
           }
-          temp_v14_s7 = 180.0f * (1.0f - (stk180[1] * stk1A0[1] + stk180[0] * stk1A0[0] + stk180[2] * stk1A0[2]));
-          temp_v11_s6 = ((float *)piVar1)[0xad] * stk190[1] +
-                   *(float *)&piVar1[0xac] * stk190[0] + ((float *)piVar1)[0xae] * stk190[2];
+          {
+            float alignment = stk180[0] * stk1A0[0] + stk180[1] * stk1A0[1] + stk180[2] * stk1A0[2];
+            temp_v14_s7 = 180.0f;
+            temp_v14_s7 *= 1.0f - alignment;
+          }
+          temp_v11_s6 = *(float *)&piVar1[0xac] * stk190[0] +
+                   ((float *)piVar1)[0xad] * stk190[1] + ((float *)piVar1)[0xae] * stk190[2];
           if (temp_v11_s6 < CAND_fGpffff84e4) {
             *(float *)((u8 *)(u32)piVar1 + 0x2ac) = -temp_v14_s7;
           }
@@ -2561,7 +2571,7 @@ s32 func_0016bdd0(u8 *param_1)
         piVar1[0xad] = 0;
         piVar1[0xae] = 0;
         FUN_003e0e20(piVar1[0xb0],temp_v5_c,2);
-        temp_v8_c = FUN_0016b080((void *)(piVar1[0xb0] + 0x30),55.0f,&stk160[0],&stk170[0]);
+        temp_v8_c = FUN_0016b080((u8 *)piVar1[0xb0] + 0x30,55.0f,&stk160[0],&stk170[0]);
         if (temp_v8_c == 1) {
           *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
           stk1B0[0] = stk160[1] * D_00756518[0] - stk160[2] * D_00756514[0];
@@ -2579,7 +2589,7 @@ s32 func_0016bdd0(u8 *param_1)
           sv1d0 = *(FldCopyVec *)(temp_v8_c + 0x30);
           temp_v11_s7 = (stk170[0] * stk1B0[0] - stkF0.x * stk1B0[0] + stk170[1] * stk1B0[1] - stkF0.y * stk1B0[1] +
                          stk170[2] * stk1B0[2] - stkF0.z * stk1B0[2]) /
-                   -(stk1B0[1] * stk1B0[1] + stk1B0[0] * stk1B0[0] + stk1B0[2] * stk1B0[2]);
+                   -(stk1B0[0] * stk1B0[0] + stk1B0[1] * stk1B0[1] + stk1B0[2] * stk1B0[2]);
           stk10[0] = 0.0f + stk170[0] + stk1B0[0] * temp_v11_s7;
           stk10[1] = 0.0f + stk170[1] + stk1B0[1] * temp_v11_s7;
           stk10[2] = 0.0f + stk170[2] + stk1B0[2] * temp_v11_s7;
@@ -2637,7 +2647,7 @@ s32 func_0016bdd0(u8 *param_1)
             if (0.0f == temp_v11_c) {
               temp_v11_c = 15.0f;
             }
-            temp_v14_c = *(float *)((u8 *)(u32)piVar1 + 0x294);
+            temp_v14_c = *(float *)&piVar1[0xa5];
             if (temp_v12_s7 <= temp_v14_c + temp_v11_c) {
               temp_v11_c = temp_v12_s7 - temp_v14_c;
             }
@@ -2661,7 +2671,7 @@ s32 func_0016bdd0(u8 *param_1)
               temp_v8_c = piVar1[0xb0];
               *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
               FUN_003e0e20(piVar1[0xb0],temp_v5_c,2);
-              temp_v8_c = FUN_0016b080((void *)(piVar1[0xb0] + 0x30),55.0f,&stk160[0],&stk170[0]);
+              temp_v8_c = FUN_0016b080((u8 *)piVar1[0xb0] + 0x30,55.0f,&stk160[0],&stk170[0]);
               if (temp_v8_c == 0) {
                 *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
                 pbVar9_s3 = (unsigned char *)FUN_00457120();
@@ -2677,12 +2687,12 @@ s32 func_0016bdd0(u8 *param_1)
           }
         }
         else if (((*(float *)((u8 *)(u32)piVar1 + 0x2ac) == 0.0f) && ((piVar1[1] & 2U) == 0)) &&
-                (*(float *)&piVar1[0xa5] < *(float *)((u8 *)(u32)piVar1 + 0x28c))) {
+                (*(float *)&piVar1[0xa5] < ((float *)piVar1)[0xa3])) {
           temp_v11_c = (15.0f > FUN_00175db0()) ? FUN_00175db0() : 15.0f;
           if (0.0f == temp_v11_c) {
             temp_v11_c = 15.0f;
           }
-          temp_v14_c = *(float *)((u8 *)(u32)piVar1 + 0x294);
+          temp_v14_c = *(float *)&piVar1[0xa5];
           temp_v12_s11 = *(float *)&piVar1[0xa3];
           if (temp_v12_s11 <= temp_v14_c + temp_v11_c) {
             temp_v11_c = temp_v12_s11 - temp_v14_c;
@@ -2705,13 +2715,13 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v8_c = piVar1[0xb0];
           *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
           FUN_003e0e20(piVar1[0xb0],temp_v5_c,2);
-          temp_v8_c = FUN_0016b080((void *)(piVar1[0xb0] + 0x30),55.0f,&stk160[0],&stk170[0]);
+          temp_v8_c = FUN_0016b080((u8 *)piVar1[0xb0] + 0x30,55.0f,&stk160[0],&stk170[0]);
           if (temp_v8_c == 0) {
             pbVar9_c = (unsigned char *)FUN_00457120();
             FUN_00457630(pbVar9_c,(unsigned char *)((int *)&stk150[0]),D_007F1710,(float *)0x0);
           }
           else {
-            *(float *)&piVar1[0xa5] = (*(float *)((u8 *)(u32)piVar1 + 0x294) - temp_v11_c);
+            *(float *)&piVar1[0xa5] = (*(float *)&piVar1[0xa5] - temp_v11_c);
             *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
           }
         }
