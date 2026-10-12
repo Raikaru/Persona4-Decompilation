@@ -4122,6 +4122,7 @@ void func_001a7710(void)
  * 2026-10-12 last-hit index: fnalign 598 -> 597; derive it from the already-promoted hit-count snapshot rather than loading and widening the halfword count again.
  * 2026-10-12 hit-duration byte access: fnalign 597 -> 593; correct the selected-action unit read introduced above to byte offset 0x30 (retail 001AA1BC), not s32-pointer offset 0x30.
  * 2026-10-12 recovery constructor contract: fnalign 593 -> 590; use 00197cc0's signed-halfword skill/delay formals and pointer return, removing the default-argument promotion ahead of its unit argument.
+ * 2026-10-12 recovery-delay comparison: fnalign 590 -> 588; test the retained word-sized delay snapshot rather than reloading and widening its original halfword.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5582,7 +5583,7 @@ void func_001a7720(u8 *arg0) {
                 func_00194590(var_19, 0);
                 if (((s32)(s32)spC0 == sp140) && (hitRow->result.addedStatus & 0x100000) && (sp340 == 0) && ((s32)(s32)sp160 == 1) && ((*( s32 * )((u8 *)(temp_18) + (0xE0))) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(sp2A0)) == (s32)(0))) {
                     sp250 = (s32) sp360;
-                    if ((s32) sp360 >= 0x19) {
+                    if (sp250 >= 0x19) {
                         var_2_11 = 0;
                     } else {
                         var_2_11 = 0x19 - sp250;
