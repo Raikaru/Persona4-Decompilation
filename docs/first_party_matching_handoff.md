@@ -315,6 +315,15 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   instructions. The remaining three horizontal-length regions share the
   same zero/sqrt FPR-numbering mismatch; splitting the distance/correction,
   staging squares, `register`, and an inline sqrt output helper were neutral.
+  Snapshotting the resume-distance limit before the clamp comparison
+  reaches **43**. Residuals are 39 FPR-colouring edits across the three
+  horizontal-length regions, two path-point `addu` operand swaps, and the
+  packed-colour copy's `lw/sw` versus retail `lwc1/swc1`. The captured graph
+  predicts the first region exactly if its synthetic zero is numbered after
+  the sqrt result (107 capture: r174 after r175); no tested clean scalar/
+  helper form achieves that numbering. Native RGBA copying grows the object
+  by six instructions and is rejected. Keep the guard; these are unresolved
+  source/allocation residuals, not a claimed compiler floor.
 - A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.
