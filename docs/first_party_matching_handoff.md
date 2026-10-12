@@ -324,6 +324,9 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   helper form achieves that numbering. Native RGBA copying grows the object
   by six instructions and is rejected. Keep the guard; these are unresolved
   source/allocation residuals, not a claimed compiler floor.
+  The matched `TitleDrawColor`/`Color` float-and-byte union convention does
+  preserve the packed colour's four-byte native copy as `lwc1/swc1`, reaching
+  **41**. This is a native union assignment, not a numerical float conversion.
 - A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.
