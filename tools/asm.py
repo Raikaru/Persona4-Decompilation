@@ -15,6 +15,7 @@ usage: asm.py <in.s> <out.o> [reference.bin <vram_base_hex> <vram_lo_hex>]
 """
 from __future__ import annotations
 
+import functools
 import json
 import os
 import re
@@ -23,6 +24,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -54,16 +56,29 @@ def _is_windows_path(path: str) -> bool:
     return len(path) >= 3 and path[1] == ":" and path[2] in ("/", "\\")
 
 
-def _wslpath(path: Path | str) -> str:
+@functools.lru_cache(maxsize=None)
+def _wsl_drive_root(letter: str) -> str:
+    """Ask WSL once per drive where it mounts that drive (normally /mnt/<l>)."""
     p = subprocess.run(
-        ["wsl", "-d", os.environ.get("P4_WSL_DISTRO", "Debian"), "--", "wslpath", "-a", str(path).replace("\\", "/")],
+        ["wsl", "-d", os.environ.get("P4_WSL_DISTRO", "Debian"), "--", "wslpath", "-a", f"{letter}:/"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
     )
     if p.returncode:
         raise RuntimeError(p.stdout)
-    return p.stdout.strip()
+    return p.stdout.strip().rstrip("/")
+
+
+def _wslpath(path: Path | str) -> str:
+    # Every WSL launch costs about a second, and each assemble passes several
+    # paths; map the drive prefix locally instead of spawning wslpath per path.
+    s = str(path).replace("\\", "/")
+    if not _is_windows_path(s):
+        s = str(Path(path).resolve()).replace("\\", "/")
+    if not _is_windows_path(s):
+        raise RuntimeError(f"cannot map {path} into WSL")
+    return _wsl_drive_root(s[0].lower()) + "/" + s[3:].lstrip("/")
 
 
 def _which(cmd: str) -> bool:
@@ -109,9 +124,57 @@ def _tool_arg(tool: Tool, arg: str | Path) -> str:
     return s
 
 
+class _WslShell:
+    """One long-lived `bash` inside WSL. Launching WSL costs about a second per
+    process, so tool runs are sent to this shell and their combined output and
+    exit status read back up to a sentinel line."""
+
+    def __init__(self, prefix: tuple[str, ...]):
+        self.proc = subprocess.Popen([*prefix, "bash", "--noprofile", "--norc"],
+                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT)
+        self.token = f"__asm_py_done_{os.getpid()}_{id(self)}__"
+
+    def run(self, argv: list[str]) -> subprocess.CompletedProcess:
+        command = " ".join(shlex.quote(a) for a in argv)
+        script = f"{command} </dev/null 2>&1; printf '\\n%s %d\\n' {self.token} $?\n"
+        self.proc.stdin.write(script.encode())
+        self.proc.stdin.flush()
+        out = bytearray()
+        marker = ("\n" + self.token + " ").encode()
+        while True:
+            line = self.proc.stdout.readline()
+            if not line:
+                raise RuntimeError("WSL shell exited unexpectedly")
+            out += line
+            at = out.rfind(marker)
+            if at != -1 and out.endswith(b"\n") and out[at + len(marker):].strip().lstrip(b"-").isdigit():
+                code = int(out[at + len(marker):].strip())
+                return subprocess.CompletedProcess(argv, code, bytes(out[:at]), None)
+
+
+_WSL_SHELLS = threading.local()
+
+
+def _wsl_split(argv: tuple[str, ...]) -> tuple[tuple[str, ...], list[str]]:
+    if "--" in argv:
+        cut = argv.index("--") + 1
+        return argv[:cut], list(argv[cut:])
+    return argv[:1], list(argv[1:])
+
+
 def _run_tool(tool: Tool, args: list[str | Path], *, stdin: bytes | None = None) -> subprocess.CompletedProcess:
     cmd = list(tool.argv) + [_tool_arg(tool, a) for a in args]
-    return subprocess.run(cmd, input=stdin, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if not tool.wsl or stdin is not None:
+        return subprocess.run(cmd, input=stdin, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    prefix, command = _wsl_split(tool.argv)
+    shells = getattr(_WSL_SHELLS, "by_prefix", None)
+    if shells is None:
+        shells = _WSL_SHELLS.by_prefix = {}
+    shell = shells.get(prefix)
+    if shell is None or shell.proc.poll() is not None:
+        shell = shells[prefix] = _WslShell(prefix)
+    return shell.run(command + [_tool_arg(tool, a) for a in args])
 
 
 def byte_line(line: str) -> str | None:

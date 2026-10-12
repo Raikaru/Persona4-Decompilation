@@ -208,6 +208,74 @@ def extract_image(c):
     temporary.replace(IMAGE)
 
 
+# Set by main(): the validated image bytes, and the assembled-object cache
+# directory (None keeps assemble_cached a plain A.assemble call).
+_IMAGE_BYTES = None
+ASM_CACHE = None
+
+
+def image_bytes():
+    """The retail image; main() reads and validates it once per build."""
+    return _IMAGE_BYTES if _IMAGE_BYTES is not None else IMAGE.read_bytes()
+
+
+def parallel_map(function, items):
+    """Run ``function`` over ``items`` on a thread pool and return a dict of
+    item -> result. The work here is subprocess-bound (mwccgap, assembler), so
+    threads overlap it. P4_BUILD_JOBS overrides the worker count."""
+    from concurrent.futures import ThreadPoolExecutor
+    items = list(items)
+    workers = int(os.environ.get("P4_BUILD_JOBS", 0)) or min(16, os.cpu_count() or 1)
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        return dict(zip(items, pool.map(function, items)))
+
+
+def _asm_cache_key(src, vram, ref_lo, keep_text, with_ref):
+    """Everything A.assemble's output depends on: the source text, the
+    directory its relative includes resolve from, macro.inc, the assembler
+    driver and tools, the validated image (for .incbin and the retail
+    comparison) and the call arguments."""
+    h = hashlib.sha256()
+    for part in (
+        json.dumps(CACHE_TOOL_VERSIONS, sort_keys=True).encode(),
+        (REPO / "tools" / "asm.py").read_bytes(),
+        (ASM / "macro.inc").read_bytes(),
+        IMAGE_SHA1.encode(),
+        src.parent.resolve().relative_to(REPO).as_posix().encode(),
+        repr((vram, ref_lo, keep_text, with_ref)).encode(),
+        src.read_bytes(),
+    ):
+        h.update(hashlib.sha256(part).digest())
+    return h.hexdigest()
+
+
+def assemble_cached(src, obj, *, ref=None, vram=0, ref_lo=0, keep_text=True):
+    """A.assemble with a content-addressed result cache under build/cache/asm.
+
+    Each assemble runs GNU as/objcopy several times (through WSL here), so
+    reusing unchanged carved chunks dominates rebuild time. A hit restores the
+    object and the repaired source lines exactly as the miss produced them."""
+    src, obj = Path(src), Path(obj)
+    if ASM_CACHE is None:
+        return A.assemble(src, obj, AS_TOOL, OBJCOPY_TOOL,
+                          ref=ref, vram=vram, ref_lo=ref_lo, keep_text=keep_text)
+    key = _asm_cache_key(src, vram, ref_lo, keep_text, ref is not None)
+    cached_obj = ASM_CACHE / f"{key}.o"
+    cached_src = ASM_CACHE / f"{key}.s"
+    if cached_obj.is_file() and cached_src.is_file():
+        obj.write_bytes(cached_obj.read_bytes())
+        return True, "", cached_src.read_bytes().decode("utf-8").splitlines(keepends=True)
+    ok, log, lines = A.assemble(src, obj, AS_TOOL, OBJCOPY_TOOL,
+                                ref=ref, vram=vram, ref_lo=ref_lo, keep_text=keep_text)
+    if ok:
+        ASM_CACHE.mkdir(parents=True, exist_ok=True)
+        for path, data in ((cached_src, "".join(lines).encode("utf-8")), (cached_obj, obj.read_bytes())):
+            temporary = path.with_name(path.name + ".tmp")
+            temporary.write_bytes(data)
+            temporary.replace(path)
+    return ok, log, lines
+
+
 def patch_align1(path, sec):
     d = bytearray(path.read_bytes())
     shoff = struct.unpack_from("<I", d, 0x20)[0]
@@ -1228,8 +1296,7 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
     sources = sorted(p for p in (REPO / "src").rglob("*.c")
                      if (include_generated or not V.is_generated(p))
                      and (not V.is_gcc_unit(p) or _gcc_unit_has_c(p)))
-    for cpath in sources:
-        markers = V.scan_markers(cpath)
+    def placeable(markers):
         real = [m for m in markers if m["name"]]
         # A stub is a placeholder with no real body, so it can never be placed.
         # A NONMATCHING function whose body is real-but-wrong C would corrupt the
@@ -1239,9 +1306,18 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
         # exactly, which is precisely what lets a translation unit containing an
         # unmatched function still link as one object. Rejecting those would
         # reinstate the per-unit guard scheme's whole reason for existing.
-        if not real or any(m["stub"] or (m["nonmatching"] and not m.get("asm")) for m in real):
+        return bool(real) and not any(m["stub"] or (m["nonmatching"] and not m.get("asm")) for m in real)
+
+    scanned = [(cpath, V.scan_markers(cpath)) for cpath in sources]
+    # Each compile is its own mwccgap process; run them concurrently, then the
+    # in-order selection below reads the results.
+    compiled = parallel_map(lambda cpath: compile_eligibility(c, cpath, cache),
+                            [cpath for cpath, markers in scanned if placeable(markers)])
+    for cpath, markers in scanned:
+        real = [m for m in markers if m["name"]]
+        if not placeable(markers):
             continue
-        obj = compile_eligibility(c, cpath, cache)
+        obj = compiled[cpath]
         if obj is None:
             continue
         symtab = merge_symbol_sections(obj.symbols)
@@ -1362,7 +1438,7 @@ def build_sony_sdk_objects(preamble, sdk_runs, entries, window_sizes):
     sdk_dir = OBJ / "sony_sdk"
     sdk_dir.mkdir(parents=True, exist_ok=True)
     prov_map = V.sony_sdk_provenance()
-    retail = IMAGE.read_bytes() if sdk_runs else b""
+    retail = image_bytes() if sdk_runs else b""
     sdk_objects = []
     for run in sdk_runs:
         first_addr = run[0][0]
@@ -1386,8 +1462,8 @@ def build_sony_sdk_objects(preamble, sdk_runs, entries, window_sizes):
             sdk_body.extend(make_sdk_aliases(a, b_lines, prov_map))
             funcs_in_obj.append({"addr": a, "name": prov_map[a]["name"], "origin": "sony_sdk"})
         sdk_s_path.write_text("".join(preamble) + "".join(sdk_body))
-        ok, log, _lines = A.assemble(
-            sdk_s_path, sdk_obj_path, AS_TOOL, OBJCOPY_TOOL,
+        ok, log, _lines = assemble_cached(
+            sdk_s_path, sdk_obj_path,
             ref=retail, vram=first_addr, ref_lo=first_addr - VRAM,
             keep_text=True
         )
@@ -1476,6 +1552,7 @@ def build_code_carved(c, name, lo, hi, cobjs, entries, window_sizes):
     # emit + assemble each chunk, compute its start address
     chunk_dir = ASM / "chunks"
     chunk_dir.mkdir(parents=True, exist_ok=True)
+    jobs = []
     for idx, body in sorted(chunks.items()):
         first = None
         for ln in body:
@@ -1487,10 +1564,19 @@ def build_code_carved(c, name, lo, hi, cobjs, entries, window_sizes):
             continue
         cpath = chunk_dir / f"{name}_{idx}.s"
         cpath.write_text("".join(preamble) + "".join(body))
-        obj = OBJ / f"{name}_{idx}.o"
-        ok, log, lines = A.assemble(cpath, obj, AS_TOOL, OBJCOPY_TOOL,
-                                    ref=IMAGE.read_bytes(), vram=first, ref_lo=first - VRAM,
-                                    keep_text=True)
+        jobs.append((first, cpath, OBJ / f"{name}_{idx}.o"))
+    image = image_bytes()
+
+    def assemble_chunk(job):
+        first, cpath, obj = job
+        return assemble_cached(cpath, obj, ref=image, vram=first, ref_lo=first - VRAM, keep_text=True)
+
+    # Chunks are independent objects; cache misses each spend several
+    # assembler/objcopy runs, so run them concurrently.
+    results = parallel_map(assemble_chunk, jobs)
+    for job in jobs:
+        first, cpath, obj = job
+        ok, log, lines = results[job]
         cpath.write_text("".join(lines))
         if not ok:
             sys.stderr.write(log + "\n")
@@ -1502,8 +1588,7 @@ def build_code_carved(c, name, lo, hi, cobjs, entries, window_sizes):
 def build_code_plain(c, name, lo, hi, entries):
     src = ASM / f"{name}.s"
     obj = OBJ / f"{name}.o"
-    ok, log, lines = A.assemble(src, obj, AS_TOOL, OBJCOPY_TOOL,
-                                ref=IMAGE.read_bytes(), vram=VRAM + lo, ref_lo=lo, keep_text=True)
+    ok, log, lines = assemble_cached(src, obj, ref=image_bytes(), vram=VRAM + lo, ref_lo=lo, keep_text=True)
     src.write_text("".join(lines))
     if not ok:
         sys.stderr.write(log + "\n")
@@ -1531,7 +1616,7 @@ def build_data_carved(name, lo, hi, data_carves, entries):
         src = chunk_dir / f"{name}_{i}.s"
         obj = OBJ / f"{name}_{i}.o"
         src.write_text(f'.section .{name}, "aw"\n.incbin "../image.bin", {hex(a)}, {hex(b - a)}\n')
-        ok, log, _ = A.assemble(src, obj, AS_TOOL, OBJCOPY_TOOL, keep_text=False)
+        ok, log, _ = assemble_cached(src, obj, keep_text=False)
         if not ok:
             sys.stderr.write(log + "\n")
             sys.exit(f"build: failed to assemble {name}_{i}")
@@ -1991,7 +2076,7 @@ CACHE_TOOL_VERSIONS = {}
 
 
 def main():
-    global AS_TOOL, OBJCOPY_TOOL, CACHE_TOOL_VERSIONS
+    global AS_TOOL, OBJCOPY_TOOL, CACHE_TOOL_VERSIONS, _IMAGE_BYTES, ASM_CACHE
     parser = argparse.ArgumentParser()
     parser.add_argument("--progress-report", type=Path, metavar="PATH")
     parser.add_argument("--setup-only", action="store_true")
@@ -2016,7 +2101,7 @@ def main():
     retail_load(c)
     if not IMAGE.is_file():
         extract_image(c)
-    validate_image()
+    _IMAGE_BYTES = validate_image()
     for name, kind, lo, hi in SEGMENTS:
         if kind == "code" and not (ASM / f"{name}.s").is_file():
             sys.exit(f"build: {name}.s missing; run `make split` first")
@@ -2039,6 +2124,7 @@ def main():
         },
     }
     cache = BC.ObjectCache(BUILD / "cache" / "c", REPO)
+    ASM_CACHE = BUILD / "cache" / "asm"
 
     gp, defs = load_lcf_symbols()
     symbol_addresses = load_symbol_addr_map()
@@ -2067,12 +2153,15 @@ def main():
     # section, and record the retail ranges to carve out of the baseline.
     c_text_ranges = []
     data_carves = []
+    def link_object(o):
+        return OBJ / (o["src"].relative_to(REPO / "src").as_posix().replace("/", "_") + ".o")
+
+    # Compile every linked unit concurrently (one mwccgap process each);
+    # placement below stays in cobjs order.
+    parallel_map(lambda index: compile_c(c, cobjs[index]["src"], link_object(cobjs[index]), cache),
+                 range(len(cobjs)))
     for o in cobjs:
-        cobj = OBJ / (
-            o["src"].relative_to(REPO / "src").as_posix().replace("/", "_")
-            + ".o"
-        )
-        compile_c(c, o["src"], cobj, cache)
+        cobj = link_object(o)
 
         o["obj"] = cobj
         o["objects"], object_entries = prepare_link_objects(cobj, o, c["linker_backend"])

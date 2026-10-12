@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+import threading
 from typing import Callable, Iterable, Mapping, Sequence
 
 _INCLUDE_RE = re.compile(rb"^[ \t]*#[ \t]*include[ \t]*([<\"])([^>\"\r\n]+)[>\"]", re.MULTILINE)
@@ -110,6 +111,7 @@ class ObjectCache:
         self.project_root = project_root.resolve()
         self._stats: dict[str, dict[str, int]] = defaultdict(lambda: {"hits": 0, "misses": 0})
         self._file_hashes: dict[tuple[str, int, int], str] = {}
+        self._stats_lock = threading.Lock()
 
     @property
     def stats(self) -> dict[str, dict[str, int]]:
@@ -206,12 +208,14 @@ class ObjectCache:
             cached = self.root / "objects" / f"{object_hash}.o"
             if cached.is_file() and self._file_digest(cached) == object_hash:
                 self._copy_atomic(cached, output)
-                self._stats[mode]["hits"] += 1
+                with self._stats_lock:
+                    self._stats[mode]["hits"] += 1
                 return True, ""
         except (OSError, ValueError, KeyError, TypeError):
             pass
 
-        self._stats[mode]["misses"] += 1
+        with self._stats_lock:
+            self._stats[mode]["misses"] += 1
         self.root.mkdir(parents=True, exist_ok=True)
         fd, temporary_name = tempfile.mkstemp(prefix="object-", suffix=".o", dir=self.root)
         os.close(fd)
@@ -235,7 +239,7 @@ class ObjectCache:
 
     @staticmethod
     def _copy_atomic(source: Path, destination: Path) -> None:
-        temporary = destination.with_name(f".{destination.name}.{os.getpid()}.tmp")
+        temporary = destination.with_name(f".{destination.name}.{os.getpid()}.{threading.get_ident()}.tmp")
         try:
             shutil.copyfile(source, temporary)
             os.replace(temporary, destination)
@@ -244,7 +248,7 @@ class ObjectCache:
 
     @staticmethod
     def _write_atomic(destination: Path, content: str) -> None:
-        temporary = destination.with_name(f".{destination.name}.{os.getpid()}.tmp")
+        temporary = destination.with_name(f".{destination.name}.{os.getpid()}.{threading.get_ident()}.tmp")
         try:
             temporary.write_text(content, encoding="ascii")
             os.replace(temporary, destination)
