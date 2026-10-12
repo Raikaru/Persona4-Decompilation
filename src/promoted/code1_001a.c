@@ -4133,6 +4133,7 @@ void func_001a7710(void)
  * halfword with lhu (0x270) and passes it unmasked.
  * 519 -> 513: the HP delta is -(hp - 1), and the cut-in reads its partner
  * pointer before storing the mode, as retail's load order shows.
+ * 513 -> 505: callee declarations use their providers' real prototypes.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4142,12 +4143,12 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_00194590();
     extern s32 func_00194b60();
     extern s32 func_00194c90(void *, void *);
-    extern s32 func_00195530();
+    extern s32 func_00195530(u8 *arg0);
     extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *func_00197cc0(s32 unit, s16 skill, s16 delay);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
-    extern s32 func_00198810();
+    extern s32 func_00198810(u8 *arg0);
     extern s32 func_0019a0c0();
     extern s32 func_0019a980();
     extern s32 func_0019aa70();
@@ -4159,44 +4160,44 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001a03b0();
     extern void func_001b7060(u16 skill, s32 *first, s32 *second);
     extern s32 func_001b7080(u16 skill);
-    extern s32 func_001b7090();
+    extern s32 func_001b7090(s32 arg0);
     extern void func_001b70a0(u16 skill, s32 *first, s32 *second);
-    extern s32 func_001b7880();
-    extern s32 func_001b7e20();
+    extern BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3);
+    extern BtlPacket* func_001b7e20(u32 value);
     extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
     extern s32 func_001b9360();
-    extern s32 func_001b9560();
-    extern s32 func_001b99a0();
-    extern s32 func_001ba090();
+    extern BtlPacket* func_001b9560(u32 param_1, u32 param_2);
+    extern BtlPacket* func_001b99a0(s32 arg);
+    extern BtlPacket* func_001ba090(s32 arg);
     extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
     extern s32 func_001bccc0();
     extern BtlPacket *func_001d2d90();
     extern BtlPacket *func_001d3000(u32 source, u32 action, u32 target, u16 skill);
     extern s32 func_001d3530();
-    extern s32 func_001d3d50();
-    extern s32 func_001d3e00();
-    extern s32 func_001d43f0();
+    extern s32 func_001d3d50(u32 param_1);
+    extern void func_001d3e00(u32 param_1);
+    extern u32 func_001d43f0(s32 param_1);
     extern s32 func_001d6240();
     extern s32 func_001eb440();
-    extern s32 func_001ef4a0();
-    extern s32 func_001ef720();
+    extern s32 func_001ef4a0(s32 arg0);
+    extern s32 func_001ef720(s32 arg0, s32 arg1);
     extern void func_001f0a10(u8 *result);
-    extern s32 func_001f0af0();
-    extern s32 func_001f0b90();
-    extern s32 func_001f0c50();
-    extern s32 func_001f0d30();
-    extern s32 func_001f0dd0();
-    extern s32 func_001f0f70();
+    extern s32 func_001f0af0(u8 *arg0);
+    extern s32 func_001f0b90(u8 *arg0);
+    extern s32 func_001f0c50(u8 *arg0);
+    extern s32 func_001f0d30(u8 *arg0);
+    extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
+    extern u32 func_001f0f70(u8 *arg0);
     extern s32 func_001f0ff0();
-    extern s32 func_001f1030();
-    extern s32 func_001f2f90();
+    extern s32 func_001f1030(u8 *arg0);
+    extern s32 func_001f2f90(u8 *arg0);
     extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-    extern s32 func_001f3950();
-    extern s32 func_001f3b20();
+    extern u8 * func_001f3950(u8 *arg0);
+    extern u8 * func_001f3b20(u8 *arg0);
     extern s32 func_001f5f70();
-    extern s32 func_001f68e0();
-    extern s32 func_001f7c20();
-    extern s32 btlSoundCreateSkillSEPacket();
+    extern s32 func_001f68e0(u8 *arg0);
+    extern BtlPacket* func_001f7c20(u16 channel, u16 cue, u16 variant);
+    extern BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags);
     extern s32 func_001f83b0();
     extern s32 func_001f8430();
     extern s32 func_001f99c0();
@@ -4204,22 +4205,22 @@ void func_001a7720(u8 *arg0) {
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern s32 func_00201f20();
     extern s32 func_00202010();
-    extern s32 func_00202120();
+    extern BtlPacket *func_00202120(u32 action, u16 arg1);
     extern s32 func_00202400();
     extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
     extern u8 *func_00202740(u8 *unit);
     extern s32 func_00216da0();
-    extern s32 func_0022d200();
+    extern s32 func_0022d200(u8 *action);
     extern s32 func_0022d540(u8 *action, u8 *handles);
-    extern s32 func_0022e4f0();
-    extern s32 func_0022eba0();
-    extern s32 func_0022f8b0();
-    extern s32 func_0022f950();
+    extern s32 func_0022e4f0(u8 *arg0, s32 arg1);
+    extern s32 func_0022eba0(u8 *packet);
+    extern s32 func_0022f8b0(u8 *arg0, s32 arg1);
+    extern s32 func_0022f950(u8 *arg0, u8 *arg1);
     extern s32 func_0022fd30();
-    extern s32 func_00230020();
+    extern s32 func_00230020(u8 *arg0);
     extern u16 datCalcGetHp(s32 unit);
     extern s32 func_0023df70(s32 skill);
-    extern s32 func_0043c6a0();
+    extern int func_0043c6a0(int param_1);
     extern s32 effMiscRand();
     extern u8 *iGpffffb3ac;
     extern u8 *iGpffffb3b8;
@@ -4689,7 +4690,7 @@ void func_001a7720(u8 *arg0) {
         (*( s64 * )(temp_2_11 + (0x60))) = temp_16;
         func_00194590(temp_2_11, 3);
     } else {
-        temp_2_12 = (u8 *)(func_00202120((*( u8 ** )(arg0 + (0x30))), (*( u16 * )(arg0 + (0x70)))));
+        temp_2_12 = (u8 *)(func_00202120(*(u32 *)(arg0 + 0x30), *(u16 *)(arg0 + 0x70)));
         (*( s16 * )(temp_2_12 + (0x48))) = (s16) sp1B0;
         (*( s64 * )(temp_2_12 + (0x60))) = temp_16;
         func_00194590(temp_2_12, 3);
