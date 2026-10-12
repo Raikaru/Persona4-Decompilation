@@ -4119,6 +4119,7 @@ void func_001a7710(void)
  * 2026-10-12 formation constructor contract: fnalign 612 -> 610; restore 001d3000's canonical u16 skill formal, loading it directly into the fourth argument instead of promoting it ahead of the pointer arguments.
  * 2026-10-12 per-hit speed reuse: fnalign 610 -> 602; pass the initialized animation-speed local to the duration query, matching retail's mov.s from the retained 1.0f value instead of reloading the constant.
  * 2026-10-12 hit-duration consumer: fnalign 602 -> 598; truncate the query into the persistent halfword first, then retain its widened unsigned value for both range tests and the float conversion instead of reloading it at each use.
+ * 2026-10-12 last-hit index: fnalign 598 -> 597; derive it from the already-promoted hit-count snapshot rather than loading and widening the halfword count again.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5550,7 +5551,7 @@ void func_001a7720(u8 *arg0) {
             }
             sp3B0 = 0;
             sp150 = (s32) sp3A0;
-            sp140 = sp3A0 - 1;
+            sp140 = sp150 - 1;
             sp130 = sp420 + 0x2B;
             while ((spC0 = (s32) sp3B0) < sp150) {
                 var_f20_2 = 1.0f;
