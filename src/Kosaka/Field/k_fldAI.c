@@ -1012,6 +1012,7 @@ tail:
  * combined 264 -> 260: state 9 captures pos.y/pos.z just before their subtraction.
  * combined -> 254: speed limit loads the field before the gp constant.
  * combined 254 -> 230: the near-player check passes FUN_0047a2f0(model) directly as an argument (retail colours the range above the model temporary).
+ * measured 2026-10-12: fnalign 369 -> 105; vector declarations follow the retail frame's per-state lifetime order, including both patrol-pick snapshots.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1081,8 +1082,6 @@ int func_0017f490(unsigned char *param_1)
   typedef struct { unsigned char r, g, b, a; } FldAIColor;
 /* irregular: 10 native warning(s); review required */
   float distVec[3];
-  float vec70[3];
-  float vec80[3];
   int *piVar1;
   float *pfVar2;
   int temp_v0;
@@ -1102,39 +1101,43 @@ int func_0017f490(unsigned char *param_1)
   float temp_v9;
   float temp_v10;
   float temp_v11;
-  FldAIVec3 state7Forward;
-  FldAIVec3 state8Delta;
-  FldAIVec3 state11Right;
-  FldAIVec3 state11Forward;
-  FldAIVec3 state8Right;
-  FldAIVec3 state10Right;
-  FldAIVec3 state10Forward;
-  FldAIVec3 state9Direction;
-  FldAIVec3 state9Delta;
-  FldAIVec3 state9Right;
-  FldAIVec3 state9Forward;
-  FldAIVec3 state10Delta;
-  FldAIVec3 state8Forward;
-  FldAIVec3 state7Delta;
-  FldAIVec3 state7Right;
-  FldAIVec3 state11Delta;
-  FldAIVec3 state6Direction;
-  FldAIVec3 state6Delta;
-  FldAIVec3 state2Delta;
   FldAIVec3 aiPos;
-  FldAIVec3 aiHere;
-  FldAIVec3 aiV210;
-  FldAIVec3 aiV190;
-  FldAIVec3 aiV130;
-  FldAIVec3 aiVF0;
-  FldAIVec3 aiVB0;
-  FldAIVec3 aiV1D0;
-  FldAIVec3 aiV60;
-  FldAIVec3 aiPos2;
-  FldAIVec3 state2Right;
   FldAIVec3 state2Forward;
+  FldAIVec3 state2Right;
+  FldAIVec3 state2Delta;
+  FldAIVec3 aiV60;
+  float vec70[3];
+  float vec80[3];
+  FldAIVec3 state6Delta;
+  FldAIVec3 state6Direction;
+  FldAIVec3 aiVB0;
+  FldAIVec3 state7Forward;
+  FldAIVec3 state7Right;
+  FldAIVec3 state7Delta;
+  FldAIVec3 aiVF0;
+  FldAIVec3 state8Forward;
+  FldAIVec3 state8Right;
+  FldAIVec3 state8Delta;
+  FldAIVec3 aiV130;
+  FldAIVec3 aiPos2;
+  FldAIVec3 state9Forward;
+  FldAIVec3 state9Right;
+  FldAIVec3 state9Delta;
+  FldAIVec3 state9Direction;
+  FldAIVec3 aiV190;
+  FldAIVec3 state10Forward;
+  FldAIVec3 state10Right;
+  FldAIVec3 state10Delta;
+  FldAIVec3 aiV1D0;
+  FldAIVec3 state11Forward;
+  FldAIVec3 state11Right;
+  FldAIVec3 state11Delta;
+  FldAIVec3 aiV210;
+  FldAIVec3 picked;
+  FldAIVec3 pick;
   FldAIVec3 aiPos6;
   FldAIVec3 aiPos8;
+  FldAIVec3 aiHere;
   FldAIColor color;
   
   piVar1 = *(int **)(param_1 + 0x38);
@@ -1298,8 +1301,6 @@ availabilityDone:
           temp_v10 = CAND_fGpffff8308 + (float)((unsigned int)temp_v1 % 0x50) / 100.0f;
           pfVar2 = (float *)piVar1 + piVar1[0x12] * 6 + 6;
           {
-            FldAIVec3 pick;
-            FldAIVec3 picked;
             int clearCount = 0xc;
             unsigned char *clearByte = (unsigned char *)&pick;
 
