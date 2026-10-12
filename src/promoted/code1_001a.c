@@ -3023,6 +3023,7 @@ void func_001a5990(void)
  * fnalign 521 -> 493: integer-cast +0x30 unit reads at selected sites (b210 does not CSE the address across calls, as retail).
  * fnalign 493 -> 455: integer-cast field-base reads (no cross-call address CSE).
  * fnalign 455 -> 453: integer-cast field-base reads (second pass).
+ * 2026-10-12 measured: fnalign 453 -> 452; the hit-effect flag is a word (retail sw/lw), not s16.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3121,7 +3122,7 @@ void func_001a59a0(s64 *arg0_) {
     s32 sp280;
     s32 sp270;
     u16 sp260;
-    s16 sp25C;
+    s32 sp25C;
     s32 sp258;
     s32 sp254;
     s32 sp250;
