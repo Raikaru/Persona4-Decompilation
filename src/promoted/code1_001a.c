@@ -3029,6 +3029,7 @@ void func_001a5990(void)
  * 2026-10-12 frame audit: fnalign 343 -> 340, frame 0x3C0 -> 0x3B0; voice option is s32 and the target count is already bounded by u16, so no masked spill is needed.
  * 2026-10-12 row lifetime: fnalign 340 -> 335; retain the unbiased target-plus-hit-stride base, restoring retail's separate row spill and +0xF0 payload address (frame 0x3C0).
  * 2026-10-12 UID accessor: fnalign 335 -> 331, frame 0x3C0 -> 0x3B0; inline packet UID reads eliminate the cross-call +0x58 address spill.
+ * 2026-10-12 kind accessor: fnalign 331 -> 327, frame 0x3B0 -> 0x3A0; reload the source-unit kind directly rather than spilling its field address.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3075,6 +3076,10 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
 static inline s64 btlPacketUID_001a59a0(u8 *packet)
 {
     return *(s64 *)(packet + 0x58);
+}
+static inline u8 btlUnitKind_001a59a0(u8 *unit)
+{
+    return unit[0xA2];
 }
 void func_001a59a0(s64 *arg0_) {
     u8 *arg0 = (u8 *)arg0_;
@@ -3357,7 +3362,7 @@ void func_001a59a0(s64 *arg0_) {
     if ((var_22 == 1) && (sp1C0 == 0) && (temp_5 == 1) && !((*(s32 *)((u8 *)(iGpffffb3ac) + (0x10))) & 0x2000)) {
         sp22C = 1;
     }
-    if (((*(u8 *)((u8 *)(u32)(temp_19) + (0xA2))) != 0) || (var_30 == 4) || (var_30 == 0xC)) {
+    if ((btlUnitKind_001a59a0(temp_19) != 0) || (var_30 == 4) || (var_30 == 0xC)) {
         var_23 = func_001991c0(temp_19, var_30, var_f20);
     } else {
         var_23 = func_001999f0(temp_19, var_30, var_f20, 0);
@@ -3398,7 +3403,7 @@ void func_001a59a0(s64 *arg0_) {
     temp_16 = *(s64 *)(temp_2_6 + 0x58);
     if (sp1B0 == 0) {
         if ((*(u16 *)(arg0 + (0x6A))) == 1) {
-            if ((*(u8 *)((u8 *)(temp_19) + (0xA2))) == 0) {
+            if (btlUnitKind_001a59a0(temp_19) == 0) {
                 if (((sp250 == 0) && (var_22 == 0)) || (sp1C0 == 1)) {
                     var_5 = btlCloseCamera_001a59a0(*(u8 **)(arg0 + 0x30), sp250);
                     if (var_5 != 0) {
@@ -3434,7 +3439,7 @@ void func_001a59a0(s64 *arg0_) {
             var_22_2 = 0;
         }
         sp190 = (s32) (func_00199350(temp_19, var_30, var_f20));
-        if ((*(u8 *)((u8 *)(temp_19) + (0xA2))) == 0) {
+        if (btlUnitKind_001a59a0(temp_19) == 0) {
             temp_2_11 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xE));
             (*(s8 *)((u8 *)(temp_2_11) + (0))) = 4;
             (*(s64 *)((u8 *)(temp_2_11) + (8))) = (s64) (*(s64 *)((u8 *)(sp2D8) + (0x58)));
@@ -3543,7 +3548,7 @@ void func_001a59a0(s64 *arg0_) {
             func_00194590(temp_2_24, 0);
             sp230 = 1;
         }
-        if ((*(u8 *)((u8 *)(u32)(temp_19) + (0xA2))) == 0) {
+        if (btlUnitKind_001a59a0(temp_19) == 0) {
             if ((func_001f08c0(temp_19) != 0) && (temp_4_5 = (*(u8 **)((u8 *)(var_22_3) + (0x30))), ((*(u8 *)((u8 *)(temp_4_5) + (0xA2))) == 1))) {
                 sp210 = (s32)(((*(s16 *)((u8 *)((((s32)iGpffffb3cc) + ((*(u16 *)((u8 *)(temp_4_5) + (0xA4))) * 0xE8))) + (0x18))) & 0x40) == 0);
             } else {
@@ -3552,7 +3557,7 @@ void func_001a59a0(s64 *arg0_) {
         } else {
             sp210 = 0;
         }
-        if ((sp22C == 1) && (spC0 == 0) && ((*(u8 *)((u8 *)(temp_19) + (0xA2))) == 0) && ((*(u16 *)(arg0 + (0x6A))) == 1) && (sp258 == 0)) {
+        if ((sp22C == 1) && (spC0 == 0) && (btlUnitKind_001a59a0(temp_19) == 0) && ((*(u16 *)(arg0 + (0x6A))) == 1) && (sp258 == 0)) {
             if (sp210 != 0) {
                 var_f12 = fGpffff8358;
             } else {
