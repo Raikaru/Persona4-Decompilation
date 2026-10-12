@@ -347,6 +347,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * sdiff --regs 38 -> 32: the two load checks are one inline helper returning 1/0 in $v0, as retail; retail still reuses the switch's constant 1 for the first NULL case.
  * all four resource checks use the inline readiness helper (same output, consistent source).
  * structure identical (fnalign 64 -> 40): the dispatch is an if-chain in retail's descending order whose compare against 1 uses a local `one`; the first readiness check returns that `one` for a NULL file, so the switch's constant 1 in $v0 is reused as retail does; the last test is a one-case switch with default (retail beqz/b).
+ * measured 2026-10-12: fnalign 40 -> 14; separate preset-index and copied-resource locals in each publication loop preserve their roles and free the retail table-base register.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
@@ -515,12 +516,16 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     s32 temp_7;
     u8 *a_dst;
     u8 *a_idx;
+    s32 a_preset;
+    s32 a_resource;
     u8 *a_tbl;
     s32 var_9_2;
     u8 *temp_8_2;
     s32 temp_7_2;
     u8 *b_dst;
     u8 *b_idx;
+    s32 b_preset;
+    s32 b_resource;
     u8 *b_tbl;
     u8 *var_17_7;
     u8 *temp_16_10;
@@ -799,9 +804,11 @@ block_123:
                 a_dst = (u8 *)D_007E8060;
                 a_idx = (u8 *)D_005F05B8;
                 a_tbl = (u8 *)D_005F0590;
-                while (var_9 < (s32) *( u8 * )((a_tbl + (*( u8 * )((a_idx + *( s32 * )(temp_8 + 0)) + -0x28) * 0xC)) + 0)) {
+                while (a_preset = *(u8 *)(a_idx + *(s32 *)temp_8 - 0x28),
+                       var_9 < *(u8 *)(a_tbl + a_preset * 0xC)) {
                     temp_7 = var_9 * 4;
-                    *(s32 *)(a_dst + temp_7) = *( s32 * )((temp_8 + temp_7) + 0x28);
+                    a_resource = *(s32 *)(temp_8 + temp_7 + 0x28);
+                    *(s32 *)(a_dst + temp_7) = a_resource;
                     var_9 += 1;
                 }
                 if (func_0015ac60(func_0015a160()) == 0) {
@@ -816,9 +823,11 @@ block_123:
                 b_dst = (u8 *)D_007E8060;
                 b_idx = (u8 *)D_005F05B8;
                 b_tbl = (u8 *)D_005F0590;
-                while (var_9_2 < (s32) *( u8 * )((b_tbl + (*( u8 * )((b_idx + *( s32 * )(temp_8_2 + 0)) + -0x3C) * 0xC)) + 1)) {
+                while (b_preset = *(u8 *)(b_idx + *(s32 *)temp_8_2 - 0x3C),
+                       var_9_2 < *(u8 *)(b_tbl + b_preset * 0xC + 1)) {
                     temp_7_2 = var_9_2 * 4;
-                    *(s32 *)(b_dst + temp_7_2) = *( s32 * )((temp_8_2 + temp_7_2) + 0x28);
+                    b_resource = *(s32 *)(temp_8_2 + temp_7_2 + 0x28);
+                    *(s32 *)(b_dst + temp_7_2) = b_resource;
                     var_9_2 += 1;
                 }
                 if (func_0015ac60(func_0015a160()) == 0) {
