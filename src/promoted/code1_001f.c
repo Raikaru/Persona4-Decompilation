@@ -985,6 +985,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 33 -> 31; prepare the record-flags pointer at the end of each hit-resolution path, preserving retail's short branch joins.
  * measured 2026-10-12: fnalign 31 -> 28; explicitly mask the party input-record index to a byte, restoring the missing retail andi.
  * measured 2026-10-12: fnalign 28 -> 26; materialize the persona-table offset before the helper's base argument, restoring the ratio lookup's evaluation and operand order.
+ * measured 2026-10-12: fnalign 26 -> 24; pass the already zero-extended skill ID through 0023d8e0's retail word-call interface; the callee consumes its low 16 bits.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1036,7 +1037,8 @@ void func_001f14f0(u8 *arg0)
     extern s32 func_001fb360(u8 *, s32, s32);
     extern s32 func_00242990(u8 *, s32);
     extern s32 func_002411a0(u8 *, u8 *, s32, s32, s32);
-    extern s32 func_0023d8e0(u8 *, u16);
+    /* H011: retail forwards the zero-extended skill word; the u16 callee masks its low 16 bits. */
+    extern s32 func_0023d8e0(u8 *, s32);
     extern u8 *func_001efd50(u8 *);
     extern void func_0010f3d0(u16, u16);
     extern s32 func_001eff50(u8 *);
