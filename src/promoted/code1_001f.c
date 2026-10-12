@@ -967,6 +967,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 258 -> 252; a post-hit-resolution flags pointer copy with propagation off restores the flag-pointer/sub-result $s7/$fp pair.
  * measured 2026-10-12: fnalign 252 -> 244; disable constant pullout to keep the two 1.0f roles separate without an extra saved FPR.
  * measured 2026-10-12: fnalign 244 -> 227; snapshot the setup skill offset at the damage-phase boundary, restoring its word spill at sp+0x1d0.
+ * measured 2026-10-12: fnalign 227 -> 219; read the adjacent target directly at i*4+0x3c; the loop bound proves i+1 cannot wrap.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1106,7 +1107,7 @@ void func_001f14f0(u8 *arg0)
             }
             if (i != n) {
                 for (; i < *(u16 *)(arg0 + 0x6A) - 1; i++) {
-                    *((u8 **)arg0 + 0xE + i) = *(u8 **)(arg0 + (u16)(i + 1) * 4 + 0x38);
+                    *((u8 **)arg0 + 0xE + i) = *(u8 **)(arg0 + i * 4 + 0x3C);
                 }
                 ((u8 **)(arg0 + 0x38))[i] = arg0;
             }
