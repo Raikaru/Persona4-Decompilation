@@ -3038,6 +3038,7 @@ void func_001a5990(void)
  * 2026-10-12 animation packet type: fnalign 239 -> 218, frame 0x340 -> retail 0x330; keep the constructor's BtlPacket pointer type, avoiding a coalesced 16-byte byte-pointer spill.
  * 2026-10-12 hit-count consumers: fnalign 218 -> 214; preserve the signed-halfword normalization of the byte-loaded hit count and its conditional snapshot, matching retail's two sign extensions.
  * 2026-10-12 captured spill order: fnalign 214 -> 93, every frameslots offset now agrees at 0x330; declare the surviving packet/result pointers beside their aliases (b210 graph replay preserves their spill choices).
+ * 2026-10-12 count/selector joins: fnalign 93 -> 88; keep the repeat-count snapshot signed and the branch-selected effect-table index full-width, removing two non-retail masks.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3208,7 +3209,7 @@ void func_001a59a0(s64 *arg0_) {
     s32 var_10;
     s32 var_16;
     s32 var_22;
-    u16 var_2_6;
+    s32 var_2_6;
     s32 var_2_8;
     s32 var_5;
     s32 var_5_2;
@@ -3218,7 +3219,7 @@ void func_001a59a0(s64 *arg0_) {
     s64 temp_16;
     s64 temp_17;
     s32 temp_2_17;
-    u16 temp_2_26;
+    s16 temp_2_26;
     s32 temp_2_4;
     s32 temp_3_4;
     s16 temp_4_4;
