@@ -959,6 +959,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 474 -> 371, frame 0x330 -> retail 0x310; recover scalar spill order and byte/halfword roles, keeping the masked result snapshot as a word.
  * measured 2026-10-12: fnalign 371 -> 338; the captured allocator predicts unit-before-id for retail's $s3/$s1 pair.
  * measured 2026-10-12: fnalign 338 -> 333; align the signed message spill to retail's 0x270 frame slot.
+ * measured 2026-10-12: fnalign 333 -> 327; separate the byte-status flag updates and restore the retail-proven third argument to 001fb360.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -986,7 +987,8 @@ void func_001f14f0(u8 *arg0)
     extern s32 func_001fb170(u16);
     /* H011: retail 001f14f0 loads $a2 = flags before this call (m2c also sees three arguments). */
     extern s32 func_001fb1f0(u8 *, s32, s32);
-    extern s32 func_001fb360(u8 *, s32);
+    /* H011: retail passes flags as the third, unused callee argument. */
+    extern s32 func_001fb360(u8 *, s32, s32);
     extern s32 func_00242990(u8 *, s32);
     extern s32 func_002411a0(u8 *, u8 *, s32, s32, s32);
     extern s32 func_0023d8e0(u8 *, u16);
@@ -1213,7 +1215,7 @@ void func_001f14f0(u8 *arg0)
         if (mask == 0x80000) {
             *(s32 *)(unit + 0xE0) = 1;
         }
-        special = func_001fb360(unit, idw);
+        special = func_001fb360(unit, idw, flags);
         resw = res;
         if (resw == 1 && *(s32 *)(unit + 0xE4) == 0 && special == 0) {
             bonus = *(s32 *)(iGpffffb3b8 + off + 0x20);
@@ -1413,7 +1415,8 @@ void func_001f14f0(u8 *arg0)
         unit[0xDA] = cntB;
     }
     if (critCount != 0) {
-        status = (status | 1) & ~2;
+        status |= 1;
+        status &= ~2;
     }
     if (*(s16 *)(arg0 + 0xEE) == -1) {
         *(s16 *)(arg0 + 0xEE) = func_001f0610(idw);
