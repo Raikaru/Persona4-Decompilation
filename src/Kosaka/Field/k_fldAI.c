@@ -1016,6 +1016,7 @@ tail:
  * measured 2026-10-12: fnalign 105 -> 96; state 2 XYZ expressions recover retail's YXZ MAC order, correcting Ghidra's reassociation.
  * measured 2026-10-12: fnalign 96 -> 53; recover the same retail YXZ MAC evaluation in states 7-11 with natural XYZ dot expressions.
  * measured 2026-10-12: fnalign 53 -> 52; state 8's model-facing dot uses retail's YXZ MAC order as well.
+ * measured 2026-10-12: fnalign 52 -> 43; facing-phase locals ordered Z/player-Z/X/player-X reproduce regalloc_whatif's r92/r73 swap and retail f23/f21.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1622,17 +1623,21 @@ else {
         aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
       }
       else {
+        f32 facingZ;
+        f32 playerFacingZ;
+        f32 facingX;
+        f32 playerFacingX;
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-        temp_v11 = *(float *)(temp_v0 + 0x28);
+        facingZ = *(float *)(temp_v0 + 0x28);
         temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-        temp_v10 = *(float *)(temp_v0 + 0x28);
+        playerFacingZ = *(float *)(temp_v0 + 0x28);
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
-        temp_v8 = *(float *)(temp_v0 + 0x20);
+        facingX = *(float *)(temp_v0 + 0x20);
         temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-        temp_v9 = *(float *)(temp_v0 + 0x20);
+        playerFacingX = *(float *)(temp_v0 + 0x20);
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         temp_v1 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
-        if (temp_v9 * temp_v8 + *(float *)(temp_v1 + 0x24) * *(float *)(temp_v0 + 0x24) + temp_v10 * temp_v11 > CAND_fGpffff8310)
+        if (playerFacingX * facingX + *(float *)(temp_v1 + 0x24) * *(float *)(temp_v0 + 0x24) + playerFacingZ * facingZ > CAND_fGpffff8310)
         {
           temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
           aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
