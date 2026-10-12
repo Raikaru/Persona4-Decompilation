@@ -4047,6 +4047,7 @@ void func_001a7710(void)
  * 2026-10-12 tail snapshots: fnalign 796 -> 792; keep the signed-halfword voice/count results in word-sized consumers rather than extending them again at later uses.
  * 2026-10-12 timing repair: fnalign 792 -> 786; retail extends the s16 query result before adding six and retains the word-sized sum, without the decompiler's post-add truncation.
  * 2026-10-12 tail predicates: fnalign 786 -> 779; test the native s32 action predicates directly, without widening their zero comparisons.
+ * 2026-10-12 threshold widths: fnalign 779 -> 759; use native unsigned/signed word comparisons for bounded random and signed-halfword thresholds, without 64-bit promotion.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5770,12 +5771,12 @@ void func_001a7720(u8 *arg0) {
                         if (temp_3_17 <= 0) {
                             temp_4_18 = (u32)(func_001ef720(2, 0x80000) & 0xFFFF);
                             temp_3_18 = (u8 *)(iGpffffb3ac);
-                            if (((s64)((u32) ((s16) (*( s16 * )((u8 *)(temp_3_18) + (0xA72))) >> 1)) >= (s64)(temp_4_18)) && (temp_21_2 = (*( s16 * )((u8 *)(temp_3_18) + (0xA70))), ((s64)(temp_21_2) != (s64)(s16)func_001d15a0()))) {
+                            if (((u32)(*(s16 *)(temp_3_18 + 0xA72) >> 1) >= temp_4_18) && (temp_21_2 = (*( s16 * )((u8 *)(temp_3_18) + (0xA70))), (temp_21_2 != func_001d15a0()))) {
                                 var_2_13 = 1;
                             } else {
                                 goto block_406;
                             }
-                        } else if ((s64)(((s16) (*( s16 * )((u8 *)(temp_4_17) + (0xA72))) >> 1)) >= (s64)(temp_3_17)) {
+                        } else if ((*(s16 *)(temp_4_17 + 0xA72) >> 1) >= temp_3_17) {
                             var_2_13 = 1;
                         } else {
                             goto block_406;
