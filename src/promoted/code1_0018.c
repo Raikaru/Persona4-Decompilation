@@ -2061,12 +2061,14 @@ static inline s32 fldBothReady_0018a200(void)
  * measured 2026-10-12: fnalign 151 -> 136: use the SDK spline constructor's s32 count/type and pointer contract; keep the closed-loop type as the value used by both selection and creation. The complete spline-construction branch now aligns.
  * measured 2026-10-12: fnalign 136 -> 103: recover initial animation-ID loads and walking selection, signed-side component snapshots, the existing clump callback contract, and per-role normalization pointers. The side snapshots restore retail's persistent facing-vector FPR allocation.
  * measured 2026-10-12: fnalign 103 -> 92: pointer-domain position arguments and a look-target snapshot reproduce call preparation order; update model flags before the setter call. Keep the path endpoint store explicitly floating-point.
+ * measured 2026-10-12: fnalign 92 -> 68: enable CSE with constant pullout disabled; keep the second fade-range and initial spline-time reload addresses separate from their earlier accesses. Restore literal walking-animation selection so CSE shares the real argument constant.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
-#pragma opt_common_subs off
+#pragma opt_common_subs on
+#pragma opt_pulloutconstants off
 #pragma opt_propagation off
 extern float D_00756520[];
 extern float D_00756524[];
@@ -2176,7 +2178,6 @@ s32 func_0018a200(u8 *param_1)
   FldActorObject *initialPathObject;
   FldActorObject *movingObject;
   s32 updateAnimationKind;
-  s32 walkingAnimation;
   FldActorObject *initialAnimationObject;
   s32 initialAnimationId;
   unsigned int *puVar1;
@@ -2377,7 +2378,7 @@ s32 func_0018a200(u8 *param_1)
       FUN_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
       puVar1[0x13] = 1;
     }
-    if ((puVar1[0x13] == 1) && (!(temp_v13 <= ((float*)puVar1)[0x12] + 55.0f))) {
+    if ((puVar1[0x13] == 1) && (!(temp_v13 <= *(f32 *)((u32)puVar1 + 0x48) + 55.0f))) {
       FUN_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
       temp_v5 = FUN_0014bbe0((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,10);
       puVar1[4] = temp_v5;
@@ -2536,7 +2537,7 @@ s32 func_0018a200(u8 *param_1)
       ((float*)puVar1)[7] = temp_v13;
       ((float*)puVar1)[6] = (((float*)puVar1)[6] + temp_v13);
       func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
-      func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecD0[0], 0);
+      func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, *(f32 *)((u32)puVar1 + 0x18), &vecD0[0], 0);
       temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
       *(FldCopyVec *)vecC0 = *(FldCopyVec *)(temp_v4 + 0x30);
       vecB0[0] = vecD0[0] - vecC0[0];
@@ -2632,12 +2633,9 @@ s32 func_0018a200(u8 *param_1)
       case 2:
       case 4:
       {
-        if (movementMode != 4 || ((float *)puVar1)[6] != 1.0f) {
-          temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0);
-          walkingAnimation = 1;
-          if (temp_v3 != walkingAnimation) {
-            func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,walkingAnimation,4,1);
-          }
+        if (((movementMode != 4) || ((float *)puVar1)[6] != 1.0f) &&
+            (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
+          func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
         }
         func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
