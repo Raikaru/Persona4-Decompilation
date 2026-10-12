@@ -3050,11 +3050,16 @@ void func_001a5990(void)
  * 2026-10-12 result-packet address word: fnalign 52 -> 50; likewise read the selected unit as the constructor's native integer address, restoring source/target argument materialization order.
  * 2026-10-12 camera reaching definitions: fnalign 50 -> 23; assign the predicate in each successful case rather than eagerly initializing it, matching both retail constant/load order and the case-1 success jump.
  * 2026-10-12 reaction reaching definitions: fnalign 23 -> 15; retain the truthy byte/random gate values and the ID comparison's shared one until the common decision test, without an extra boolean-result block.
+ * 2026-10-12 post-repeat row accessor: fnalign 15 -> 8; reread the halfword index through the byte-row accessor, then retain the caller's typed result snapshot. Retail's lhu/move and every 0x330-frame offset now agree.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_loop_invariants on
+static inline u8 *btlHitResult_001a59a0(u8 *action, const u16 *index)
+{
+    return action + (u32)*index * 0x20 + 0xF0;
+}
 static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
 {
     extern u8 *iGpffffb3bc;
@@ -3800,7 +3805,7 @@ void func_001a59a0(s64 *arg0_) {
                 }
                 sp260 += 1;
             }
-            temp_2_48 = &((ActionHitRowView *)((u8 *)temp_18 + (sp1D0 << 5)))->result;
+            temp_2_48 = (LargeBattleHitResult *)btlHitResult_001a59a0((u8 *)temp_18, &sp1D0);
             sp1F0 = temp_2_48;
             temp_2_49 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_22_3), temp_2_48, temp_18->effect, temp_18->targetFlags));
             (*(s8 *)((u8 *)(temp_2_49) + (0))) = 5;
