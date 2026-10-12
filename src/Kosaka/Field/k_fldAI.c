@@ -1017,11 +1017,14 @@ tail:
  * measured 2026-10-12: fnalign 96 -> 53; recover the same retail YXZ MAC evaluation in states 7-11 with natural XYZ dot expressions.
  * measured 2026-10-12: fnalign 53 -> 52; state 8's model-facing dot uses retail's YXZ MAC order as well.
  * measured 2026-10-12: fnalign 52 -> 43; facing-phase locals ordered Z/player-Z/X/player-X reproduce regalloc_whatif's r92/r73 swap and retail f23/f21.
+ * measured 2026-10-12: fnalign 43 -> 37; whole target copy with propagation/pulloutconstants off preserves the patrol snapshot and separate random divisors (CSE remains on).
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
+#pragma opt_propagation off
+#pragma opt_pulloutconstants off
 extern int FUN_003b7060();
 extern int FUN_0047a220();
 /* SDK vector normalization reads and writes complete three-float objects and
@@ -1318,9 +1321,7 @@ availabilityDone:
             pick.x = temp_v8 * (pfVar2[0] - pfVar2[3]) + pfVar2[3] + 0.0f;
             pick.z = temp_v10 * (pfVar2[2] - pfVar2[5]) + pfVar2[5] + 0.0f;
             picked = pick;
-            ((float *)piVar1)[0x14] = picked.x;
-            ((float *)piVar1)[0x15] = picked.y;
-            ((float *)piVar1)[0x16] = picked.z;
+            *(FldAIVec3 *)&((float *)piVar1)[0x14] = picked;
           }
           if (piVar1[0x17] < 1) {
             temp_v7 = piVar1[0x19] != 0 ^ 1;
