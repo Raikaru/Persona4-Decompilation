@@ -308,6 +308,13 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   declaration numbers 33/44 and 36/53; applying those real-local orders
   restores the four saved FPRs and reaches **73**, with the same instruction
   count and exact `0x360` frame.
+  A typed distance-field view for the follow-ray scale and scalar snapshots,
+  plus a distinct clamp-reload expression, removes the unwanted `0x28c`/
+  `0x294` address CSE. Explicit path quotient/index roles and post-first-
+  component chase scale snapshots reach **47**, now **2320/2320**
+  instructions. The remaining three horizontal-length regions share the
+  same zero/sqrt FPR-numbering mismatch; splitting the distance/correction,
+  staging squares, `register`, and an inline sqrt output helper were neutral.
 - A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.

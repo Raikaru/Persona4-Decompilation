@@ -1957,6 +1957,7 @@ query_complete:
  * measured 2026-10-12: fnalign 229 -> 157; typed frame snapshots, interleaved path ABI, retail dot/reload order, and graph-proven index/frame lifetimes.
  * measured 2026-10-12: fnalign 157 -> 105; propagation/pullout off retain path interpolation order, pointer-valued collision arguments and wall dot products follow retail, and easing reloads avoid shared addresses.
  * measured 2026-10-12: fnalign 105 -> 73; captured FPR graph orders distance/axis locals as retail ($f23/$f21/$f20/$f22).
+ * measured 2026-10-12: fnalign 73 -> 47, 2320/2320 instructions; a distance-field view removes address CSE, path quotient/index roles and chase scale snapshots restore retail evaluation order.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2048,6 +2049,10 @@ s32 func_0016bdd0(u8 *param_1)
   extern float fabsf(float);
   typedef struct { float x, y, z; } FldCopyVec;
   typedef struct { float x, y, z; } FldCamVec;
+  typedef struct {
+    u8 prefix[0x28c];
+    f32 desiredDistance, minimumDistance, currentDistance;
+  } FldCameraDistanceView;
   typedef struct RwMatrixTolerance { f32 Normal, Orthogonal, Identity; } RwMatrixTolerance;
   extern s32 RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
   extern RwMatrix *RwMatrixOptimize(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
@@ -2176,6 +2181,7 @@ s32 func_0016bdd0(u8 *param_1)
   signed char lo;
   int temp_v4_b;
   signed char hi;
+  int pathLengthOffset;
   int *piVar1;
   piVar1 = *(int **)((int)param_1 + 0x38);
   if (piVar1[0xa2] == 0) {
@@ -2318,7 +2324,9 @@ s32 func_0016bdd0(u8 *param_1)
           }
         }
         if (*(float *)((u8 *)(u32)piVar1 + 0x20) < temp_v14_b) {
-          temp_v12_s2 = ((temp_v14_b - *(float *)((u8 *)(u32)piVar1 + 0x20)) / ((float *)piVar1)[temp_v4_b + 0xe]) * temp_v11_b;
+          pathLengthOffset = temp_v4_b * 4;
+          temp_v12_s2 = (temp_v14_b - *(float *)((u8 *)(u32)piVar1 + 0x20)) / *(float *)(pathLengthOffset + (u32)piVar1 + 0x38);
+          temp_v12_s2 *= temp_v11_b;
           if (!(temp_v10 <= 0.0f)) {
             ((float *)piVar1)[0x2e] = ((float *)piVar1)[0x2e] + temp_v12_s2;
           }
@@ -2473,7 +2481,7 @@ s32 func_0016bdd0(u8 *param_1)
         stk120[0] = -stk120[0];
         stk120[1] = -stk120[1];
         stk120[2] = -stk120[2];
-        temp_v14_s3 = ((float *)piVar1)[0xa3] + 55.0f;
+        temp_v14_s3 = 55.0f + ((FldCameraDistanceView *)piVar1)->desiredDistance;
         stk120[0] = stk120[0] * temp_v14_s3;
         stk120[1] = stk120[1] * temp_v14_s3;
         stk120[2] = stk120[2] * temp_v14_s3;
@@ -2648,7 +2656,7 @@ s32 func_0016bdd0(u8 *param_1)
             if (0.0f == temp_v11_c) {
               temp_v11_c = 15.0f;
             }
-            temp_v14_c = *(float *)&piVar1[0xa5];
+            temp_v14_c = ((FldCameraDistanceView *)piVar1)->currentDistance;
             if (temp_v12_s7 <= temp_v14_c + temp_v11_c) {
               temp_v11_c = temp_v12_s7 - temp_v14_c;
             }
@@ -2656,7 +2664,7 @@ s32 func_0016bdd0(u8 *param_1)
             if (!(*(float *)((u8 *)(u32)piVar1 + 0x294) < temp_v12_s7)) {
               *(float *)&piVar1[0xa5] = temp_v12_s7;
             }
-            if (*(float *)((u8 *)(u32)piVar1 + 0x294) < *(float *)((u8 *)(u32)piVar1 + 0x28c)) {
+            if (*(float *)&piVar1[0xa5] < *(float *)((u8 *)(u32)piVar1 + 0x28c)) {
               *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
               temp_v8_c = piVar1[0xb0];
               *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
@@ -2693,7 +2701,7 @@ s32 func_0016bdd0(u8 *param_1)
           if (0.0f == temp_v11_c) {
             temp_v11_c = 15.0f;
           }
-          temp_v14_c = *(float *)&piVar1[0xa5];
+          temp_v14_c = ((FldCameraDistanceView *)piVar1)->currentDistance;
           temp_v12_s11 = *(float *)&piVar1[0xa3];
           if (temp_v12_s11 <= temp_v14_c + temp_v11_c) {
             temp_v11_c = temp_v12_s11 - temp_v14_c;
@@ -2815,8 +2823,8 @@ s32 func_0016bdd0(u8 *param_1)
         stk210.y = *(float *)(temp_v8_d + 0x34) - cv0.y;
         stk210.z = *(float *)(temp_v8_d + 0x38) - cv0.z;
         FUN_003e40b0(&stk210.x,&stk210.x);
+        stk210.x = *(float *)&piVar1[0xa3] * stk210.x;
         temp_v14_s11 = *(float *)&piVar1[0xa3];
-        stk210.x = stk210.x * temp_v14_s11;
         stk210.y = stk210.y * temp_v14_s11;
         stk210.z = stk210.z * temp_v14_s11;
         chaseSegment[0] = cv0;
@@ -2868,8 +2876,8 @@ s32 func_0016bdd0(u8 *param_1)
           stk210.y = *(float *)(temp_v4_d + 0x34) - cv0.y;
           stk210.z = *(float *)(temp_v4_d + 0x38) - cv0.z;
           FUN_003e40b0(&stk210.x,&stk210.x);
+          stk210.x = ((float *)piVar1)[0xa5] * stk210.x;
           temp_v14_d = ((float *)piVar1)[0xa5];
-          stk210.x = stk210.x * temp_v14_d;
           stk210.y = stk210.y * temp_v14_d;
           stk210.z = stk210.z * temp_v14_d;
           FUN_003e0c90(piVar1[0xb0],&stk210.x,0);
