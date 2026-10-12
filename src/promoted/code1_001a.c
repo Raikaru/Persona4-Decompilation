@@ -4123,6 +4123,7 @@ void func_001a7710(void)
  * 2026-10-12 hit-duration byte access: fnalign 597 -> 593; correct the selected-action unit read introduced above to byte offset 0x30 (retail 001AA1BC), not s32-pointer offset 0x30.
  * 2026-10-12 recovery constructor contract: fnalign 593 -> 590; use 00197cc0's signed-halfword skill/delay formals and pointer return, removing the default-argument promotion ahead of its unit argument.
  * 2026-10-12 recovery-delay comparison: fnalign 590 -> 588; test the retained word-sized delay snapshot rather than reloading and widening its original halfword.
+ * 2026-10-12 timing accumulation: fnalign 588 -> 587; spell the addition separately from its halfword assignment instead of using compound assignment; the frame remains 0x5B0.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5823,7 +5824,7 @@ void func_001a7720(u8 *arg0) {
             if (sp410 < (s32) sp390) {
                 sp410 = sp390;
             }
-            sp380 += sp180;
+            sp380 = sp380 + sp180;
             sp3C0 += 1;
     }
     temp_18_2 = (s64)((s64)(s64)((*( s64 * )((u8 *)(var_19) + (0x58)))));
