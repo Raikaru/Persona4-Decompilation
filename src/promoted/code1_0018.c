@@ -2057,6 +2057,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 284 -> 283: the state switch has an empty case 8 (retail's 9-entry jump table jtbl_00746DF0 sends 8 to the shared exit).
  * fnalign 283 -> 277: the vec20/vec30 dot product accumulates x, y, z as retail.
  * measured 2026-10-12: fnalign 277 -> 257: restore the case-1 actor-index reaching definition, use typed chained matrix diagonals, and give the initial vector comparison its own X/zero locals; remove the extra oscillator +0 after retail's accumulator addition.
+ * measured 2026-10-12: fnalign 257 -> 151: separate actor lookup, unsigned movement-mode and per-case heading lifetimes; recover typed object snapshots, model-scale combineOp=1, canonical proximity contracts, RGBA size, and unsigned pause rolls. Retail frame/saves retained; ordinary allocation/CSE and call-argument residuals remain.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2075,8 +2076,8 @@ extern float fGpffff8420; /* 0xffff8420 */
 
 extern long FUN_00106330(int);
 extern int FUN_001452b0(s32);
-extern long FUN_0014bff0(float, unsigned long long, int);
-extern long FUN_0014c4c0(float, int, int);
+extern u32 K_FldEvent_IsPosWithinFov(const RainMatrix *, const RainVector *, f32);
+extern u32 K_FldEvent_ArePosWithinDist(const RainVector *, const RainVector *, f32);
 extern int FUN_00155280(void);
 extern int FUN_002467b0(s32);
 extern int FUN_003b7060(void);
@@ -2090,7 +2091,6 @@ extern unsigned int FUN_003e0f80(void);
 /* Supplied declaration required: FUN_003e40b0. */
 extern int FUN_003e9700(unsigned int);
 extern f32 FUN_0044b920(f32);
-/* Supplied declaration required: FUN_0047a1e0. */
 /* Supplied declaration required: FUN_0047a220. */
 /* Supplied declaration required: FUN_0047a2f0. */
 /* Supplied declaration required: FUN_0047a310. */
@@ -2128,7 +2128,7 @@ extern void FUN_0047a9f0(unsigned char *, u16);
 extern u16 FUN_0047aa00(unsigned char *);
 
 
-extern unsigned char D_00763074[];
+extern unsigned char D_00763074[4];
 extern int FUN_003bb3a0();
 extern void func_003e0870(void *matrix, const void *axis, s32 mode, f32 angle);
 extern int FUN_003e05d0();
@@ -2137,41 +2137,88 @@ extern int FUN_0047a2f0();
 extern int FUN_0047a220();
 extern void func_003bb5b0(void *curve, s32 mode, f32 time, f32 *dst, void *aux);
 extern int FUN_003e40b0();
-extern int FUN_0047a1e0();
+extern void mdlScale(void *model, const void *scale, s32 combineOp);
 extern int FUN_0047a310();
+typedef struct {
+    u16 id;
+    u8 unk002[0x162];
+    u8 *model;
+    u8 unk168[0xb8];
+    u16 pathMode;
+    u8 unk222[6];
+    u8 *movementTask;
+    u8 unk22c[8];
+    s32 kind;
+    u8 unk238[8];
+    RainMatrix initialMatrix;
+    u8 *kind1Data;
+    u8 *kind2Data;
+    u8 unk288[12];
+    u8 *otherTask;
+    u16 pointCount;
+    u16 unk29a;
+    RainVector points[16];
+    f32 speed;
+    u32 curve;
+} FldActorObject;
+
 s32 func_0018a200(u8 *param_1)
 
 {
   typedef struct { float x, y, z; } FldCopyVec;
     /* Retail returns zero at 0018BAA8, 0018A234. */
 /* irregular: 10 native warning(s); review required */
+  s32 actorIndex;
+  s32 objectKind;
+  s32 splineMode;
+  FldActorObject *transformObject;
+  FldActorObject *initialPathObject;
+  FldActorObject *movingObject;
+  s32 updateAnimationKind;
+  FldActorObject *initialAnimationObject;
   unsigned int *puVar1;
   unsigned int temp_v0;
   s32 temp_v1;
   unsigned short temp_v2;
   short temp_v3;
+  u32 movementMode;
+  s32 savedAnimation;
+  u32 resourceKey;
+  s32 eventResource;
   unsigned int resourceId;
   int temp_v4;
+  u8 *effectTask;
   unsigned int temp_v5;
+  u32 pauseRoll;
   unsigned int *puVar8;
   unsigned int temp_v6;
   int temp_v7;
   void *pvVar11;
   float *pfVar12;
+  u8 *finalModel;
   unsigned int temp_v8;
   long temp_v9;
+  u32 fovResult;
+  u32 distanceResult;
   long long temp_v10;
   unsigned int *puVar16;
-  unsigned int temp_v11;
+  s32 actorOffset;
   unsigned int temp_v11_s3;
   float temp_v12;
   float temp_v13;
+  f32 facingLimit;
+  f32 proximityLimit;
+  f32 interactionAngle;
+  f32 interactionRange;
+  f32 oscillatorHeading;
+  f32 pathHeading;
+  f32 initialHeading;
   f32 initialZero;
   f32 initialX;
   float one;
   float diff;
-  float nx;
   float ny;
+  float nx;
   float nz;
 
   int iStack_4;
@@ -2226,8 +2273,9 @@ s32 func_0018a200(u8 *param_1)
         (fldBothReady_0018a200())))) {
       temp_v8 = FUN_0047a2f0(D_007EFA00[0]);
       temp_v4 = FUN_0047a2f0(temp_v4);
-      temp_v9 = FUN_0014bff0(120.0f,temp_v8,temp_v4 + 0x30);
-      if (temp_v9 == 1) {
+      facingLimit = 120.0f;
+      fovResult = K_FldEvent_IsPosWithinFov((RainMatrix *)temp_v8, (RainVector *)(temp_v4 + 0x30), facingLimit);
+      if (fovResult == 1) {
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v13 = *(float *)(temp_v4 + 0x30);
         temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
@@ -2260,7 +2308,7 @@ s32 func_0018a200(u8 *param_1)
           FUN_003e40b0(&vec20[0],&vec20[0]);
           FUN_003e40b0(&vec30[0],&vec30[0]);
           if ((vec20[0] * vec30[0] + vec20[1] * vec30[1] + vec20[2] * vec30[2] <= 0.0f) &&
-             (*(unsigned short *)(puVar1[3] + 0x220) != 0)) {
+             (*(unsigned short *)(puVar1[3] + 0x220) > 0)) {
             temp_v1 = 0;
           }
           temp_v4 = FUN_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
@@ -2295,8 +2343,8 @@ s32 func_0018a200(u8 *param_1)
     vec60[1] = vec50[1] - vec70[1];
     vec60[2] = vec50[2] - vec70[2];
     temp_v13 = FUN_003e4180(&vec60[0]);
-    if (((unsigned char *)puVar1[4] != (unsigned char *)0x0) && (temp_v4 = FUN_0014bd90((unsigned char *)puVar1[4]), temp_v4 == 1)
-       ) {
+    effectTask = (u8 *)puVar1[4];
+    if (effectTask != NULL && FUN_0014bd90(effectTask) == 1) {
       FUN_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
       FUN_00452080((void *)puVar1[4]);
       puVar1[4] = 0;
@@ -2339,7 +2387,8 @@ s32 func_0018a200(u8 *param_1)
         transformAngles.x = FUN_0014b660((void *)(puVar1[3] + 0x240));
         transformAngles.y = FUN_0014b5d0((void *)(puVar1[3] + 0x240));
         transformAngles.z = FUN_0014b6f0((void *)(puVar1[3] + 0x240));
-        func_00146e60(*(u16 *)puVar1[3], (u8 *)puVar1[3] + 0x270, (u8 *)&transformAngles);
+        transformObject = (FldActorObject *)puVar1[3];
+        func_00146e60(transformObject->id, (u8 *)&transformObject->initialMatrix.pos, (u8 *)&transformAngles);
         temp_v8 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         FUN_003e05d0(temp_v8);
         FUN_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
@@ -2389,34 +2438,36 @@ s32 func_0018a200(u8 *param_1)
       }
     }
     temp_v5 = puVar1[3];
-    temp_v11 = 1;
-    if (*(int *)(temp_v5 + 0x234) == 1) {
+    objectKind = ((FldActorObject *)temp_v5)->kind;
+    if (objectKind == 1) {
       temp_v13 = *(float *)(*(int *)(temp_v5 + 0x280) + 0x14);
       if (temp_v13 != 0.0f) {
-        vec90[0] = temp_v13;
-        vec90[1] = temp_v13;
-        vec90[2] = temp_v13;
-        FUN_0047a1e0(*(unsigned int *)(temp_v5 + 0x164),&vec90[0]);
+        vec90[0] = vec90[1] = vec90[2] = temp_v13;
+        mdlScale(*(void **)(temp_v5 + 0x164), vec90, 1);
       }
-      func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,(int)*(short *)(*(int *)(puVar1[3] + 0x280) + 6)
-                    ,0,1);
+      initialAnimationObject = (FldActorObject *)puVar1[3];
+      func_00479940(initialAnimationObject->model, 0,
+                    *(s16 *)(initialAnimationObject->kind1Data + 6), 0, 1);
     }
-    else if (*(int *)(temp_v5 + 0x234) == 2) {
+    else if (objectKind == 2) {
       temp_v5 = *(unsigned int *)(*(int *)(temp_v5 + 0x284) + 0x78);
       if (temp_v5 != 0) {
+        actorIndex = 1;
         temp_v3 = (short)temp_v5;
-        temp_v4 = FUN_002467b0(temp_v5 & 0xffff);
+        resourceKey = (u16)temp_v3;
+        temp_v4 = FUN_002467b0(resourceKey);
         if ((*(unsigned int *)(temp_v4 + 4) & 1) != 0) {
-          temp_v10 = FUN_00248d80((long)temp_v3);
+          temp_v10 = FUN_00248d80((s16)resourceKey);
           temp_v3 = (short)temp_v10;
         }
-        temp_v9 = FUN_00106330(temp_v3 + 0x43f);
+        eventResource = temp_v3;
+        temp_v9 = FUN_00106330(eventResource + 0x43f);
         if (temp_v9 != 0) {
-          temp_v11 = 2;
+          actorIndex = 2;
         } else {
-          temp_v9 = FUN_00106330(temp_v3 + 0x45f);
+          temp_v9 = FUN_00106330(eventResource + 0x45f);
           if (temp_v9 != 0) {
-            temp_v11 = 0;
+            actorIndex = 0;
           }
         }
         temp_v4 = FUN_0047a6d0(*(void **)(puVar1[3] + 0x164),2,&vecA0[0]);
@@ -2425,26 +2476,30 @@ s32 func_0018a200(u8 *param_1)
           *(FldCopyVec *)vecA0 = *(FldCopyVec *)(temp_v4 + 0x30);
           vecA0[1] = vecA0[1] + 175.0f;
         }
+        actorOffset = actorIndex * 4;
         temp_v4 = FUN_00155280();
-        temp_v5 = FUN_0014e740(*(unsigned char **)(temp_v4 + temp_v11 * 4 + 0x34),&vecA0[0]);
+        temp_v5 = FUN_0014e740(*(unsigned char **)(temp_v4 + actorOffset + 0x34),&vecA0[0]);
         temp_v4 = FUN_00155280();
-        FUN_0014e880(*(unsigned char **)(temp_v4 + temp_v11 * 4 + 0x34),temp_v5,4);
-        puVar1[0x14] = temp_v11;
+        FUN_0014e880(*(unsigned char **)(temp_v4 + actorOffset + 0x34),temp_v5,4);
+        puVar1[0x14] = actorIndex;
         puVar1[0x15] = temp_v5;
       }
-      func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,
-                    (int)*(short *)(*(int *)(puVar1[3] + 0x284) + 0x6c),0,1);
+      initialAnimationObject = (FldActorObject *)puVar1[3];
+      func_00479940(initialAnimationObject->model, 0,
+                    *(s16 *)(initialAnimationObject->kind2Data + 0x6c), 0, 1);
     }
-    if (*(unsigned short *)(puVar1[3] + 0x298) < 4) {
-      *(unsigned short *)(puVar1[3] + 0x220) = 0;
+    initialPathObject = (FldActorObject *)puVar1[3];
+    if (initialPathObject->pointCount < 4) {
+      initialPathObject->pathMode = 0;
     }
-    temp_v5 = puVar1[3];
-    if (*(unsigned short *)(temp_v5 + 0x220) != 0) {
-      if (*(unsigned short *)(temp_v5 + 0x220) != 2) {
-        temp_v6 = FUN_003bbbe0(*(unsigned short *)(temp_v5 + 0x298),1,temp_v5 + 0x29c);
+    initialPathObject = (FldActorObject *)puVar1[3];
+    splineMode = initialPathObject->pathMode;
+    if (splineMode > 0) {
+      if (splineMode == 2) {
+        temp_v6 = FUN_003bbbe0(initialPathObject->pointCount,2,(u32)initialPathObject->points);
         *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
       } else {
-        temp_v6 = FUN_003bbbe0(*(unsigned short *)(temp_v5 + 0x298),2,temp_v5 + 0x29c);
+        temp_v6 = FUN_003bbbe0(initialPathObject->pointCount,1,(u32)initialPathObject->points);
         *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
       }
       puVar1[6] = 0;
@@ -2455,8 +2510,9 @@ s32 func_0018a200(u8 *param_1)
       vecB0[1] = vecD0[1] - vecC0[1];
       vecB0[2] = vecD0[2] - vecC0[2];
       temp_v13 = FUN_003e4180(&vecB0[0]);
-      temp_v13 = (1.0f / (float)(int)(*(unsigned short *)(puVar1[3] + 0x298) - 1)) *
-               (*(float *)(puVar1[3] + 0x35c) / temp_v13);
+      initialPathObject = (FldActorObject *)puVar1[3];
+      temp_v13 = (1.0f / (initialPathObject->pointCount - 1)) *
+               (initialPathObject->speed / temp_v13);
       ((float*)puVar1)[7] = temp_v13;
       ((float*)puVar1)[6] = (((float*)puVar1)[6] + temp_v13);
       func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
@@ -2468,9 +2524,9 @@ s32 func_0018a200(u8 *param_1)
       vecB0[2] = vecD0[2] - vecC0[2];
       FUN_003e40b0(&vecB0[0],&vecB0[0]);
       temp_v13 = (float)FUN_0044b920(vecB0[0] * D_00756520[0] + vecB0[1] * D_00756524[0] + vecB0[2] * D_00756528[0]);
-      temp_v13 = fGpffff8300 * temp_v13;
+      initialHeading = fGpffff8300 * temp_v13;
       if (vecB0[0] < 0.0f) {
-        temp_v13 = temp_v13 * -1.0f;
+        initialHeading = initialHeading * -1.0f;
       }
       ((RainMatrix *)puVar1[5])->right.x =
           ((RainMatrix *)puVar1[5])->up.y =
@@ -2485,7 +2541,7 @@ s32 func_0018a200(u8 *param_1)
       ((RainMatrix *)puVar1[5])->pos.y = 0.0f;
       ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
       ((RainMatrix *)puVar1[5])->flags |= 0x20003;
-      func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
+      func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, initialHeading);
       FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
     }
     puVar1[0xb] = 0xffffffff;
@@ -2512,11 +2568,14 @@ s32 func_0018a200(u8 *param_1)
     if (fldBothReady_0018a200()) {
       temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
       temp_v7 = FUN_0047a2f0(D_007EFA00[0]);
-      temp_v9 = FUN_0014c4c0(500.0f,temp_v4 + 0x30,temp_v7 + 0x30);
-      if (temp_v9 == 1) {
+      proximityLimit = 500.0f;
+      distanceResult = K_FldEvent_ArePosWithinDist((RainVector *)(temp_v4 + 0x30), (RainVector *)(temp_v7 + 0x30), proximityLimit);
+      if (distanceResult == 1) {
         pvVar11 = (void *)FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
-        temp_v5 = FUN_0014c240(pvVar11,(void *)(temp_v4 + 0x30),90.0f,250.0f);
+        interactionAngle = 90.0f;
+        interactionRange = 250.0f;
+        temp_v5 = FUN_0014c240(pvVar11,(void *)(temp_v4 + 0x30),interactionAngle,interactionRange);
         if (temp_v5 != 0) {
           if (puVar1[0xb] != 0xffffffff) {
             break;
@@ -2524,12 +2583,13 @@ s32 func_0018a200(u8 *param_1)
           temp_v3 = FUN_00479c30(*(int *)(puVar1[3] + 0x164),0);
           puVar1[0xb] = (int)temp_v3;
           temp_v5 = puVar1[3];
-          if (*(int *)(temp_v5 + 0x234) == 1) {
+          updateAnimationKind = ((FldActorObject *)temp_v5)->kind;
+          if (updateAnimationKind == 1) {
             func_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x280) + 6),4
                           ,1);
             break;
           }
-          if (*(int *)(temp_v5 + 0x234) != 2) {
+          if (updateAnimationKind != 2) {
             break;
           }
           func_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x284) + 0x6c),
@@ -2537,20 +2597,21 @@ s32 func_0018a200(u8 *param_1)
           break;
         }
       }
-      if (-1 < (int)puVar1[0xb]) {
-        func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,(int)(short)puVar1[0xb],4,1);
+      savedAnimation = puVar1[0xb];
+      if (savedAnimation >= 0) {
+        func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,(s16)savedAnimation,4,1);
         puVar1[0xb] = 0xffffffff;
       }
       temp_v5 = puVar1[3];
-      temp_v3 = *(unsigned short *)(temp_v5 + 0x220);
-      switch (temp_v3) {
+      movementMode = *(u16 *)(temp_v5 + 0x220);
+      switch (movementMode) {
       case 0:
         break;
       case 1:
       case 2:
       case 4:
       {
-        if (((temp_v3 != 4) || (((float*)puVar1)[6] != 1.0f)) &&
+        if (((movementMode != 4) || (((float*)puVar1)[6] != 1.0f)) &&
            (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
           func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
         }
@@ -2562,9 +2623,9 @@ s32 func_0018a200(u8 *param_1)
         vec100[2] = vecF0[2] - vecE0[2];
         FUN_003e40b0(&vec100[0],&vec100[0]);
         temp_v13 = (float)FUN_0044b920(vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0] + vec100[2] * D_00756528[0]);
-        temp_v13 = fGpffff8300 * temp_v13;
+        pathHeading = fGpffff8300 * temp_v13;
         if (vec100[0] < 0.0f) {
-          temp_v13 = temp_v13 * -1.0f;
+          pathHeading = pathHeading * -1.0f;
         }
         ((RainMatrix *)puVar1[5])->right.x =
             ((RainMatrix *)puVar1[5])->up.y =
@@ -2579,9 +2640,10 @@ s32 func_0018a200(u8 *param_1)
         ((RainMatrix *)puVar1[5])->pos.y = 0.0f;
         ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
         ((RainMatrix *)puVar1[5])->flags |= 0x20003;
-        func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
-        if ((*(unsigned short *)(puVar1[3] + 0x220) != 4) || (((float*)puVar1)[6] < 1.0f)) {
-          FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
+        func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, pathHeading);
+        movingObject = (FldActorObject *)puVar1[3];
+        if (movingObject->pathMode != 4 || ((float *)puVar1)[6] < 1.0f) {
+          FUN_00168890(movingObject->movementTask,(unsigned char *)puVar1[5]);
           FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
           ((float*)puVar1)[6] = (((float*)puVar1)[6] + ((float*)puVar1)[7]);
         }
@@ -2618,9 +2680,9 @@ s32 func_0018a200(u8 *param_1)
             vec130[2] = vec120[2] - vec110[2];
             FUN_003e40b0(&vec130[0],&vec130[0]);
             temp_v13 = (float)FUN_0044b920(vec130[0] * D_00756520[0] + vec130[1] * D_00756524[0] + vec130[2] * D_00756528[0]);
-            temp_v13 = fGpffff8300 * temp_v13;
+            oscillatorHeading = fGpffff8300 * temp_v13;
             if (vec130[0] < 0.0f) {
-              temp_v13 = temp_v13 * -1.0f;
+              oscillatorHeading = oscillatorHeading * -1.0f;
             }
             ((RainMatrix *)puVar1[5])->right.x =
                 ((RainMatrix *)puVar1[5])->up.y =
@@ -2635,7 +2697,7 @@ s32 func_0018a200(u8 *param_1)
             ((RainMatrix *)puVar1[5])->pos.y = 0.0f;
             ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
             ((RainMatrix *)puVar1[5])->flags |= 0x20003;
-            func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, temp_v13);
+            func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, oscillatorHeading);
             FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
             FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
             {
@@ -2649,17 +2711,17 @@ s32 func_0018a200(u8 *param_1)
                 ((float*)puVar1)[6] = (one - ((float*)puVar1)[7]);
                 puVar1[8] = 0xbf800000;
                 puVar1[9] = 0x5a;
-                temp_v4 = FUN_003b7060();
-                puVar1[10] = temp_v4 % 0x5a + 0x3c;
+                pauseRoll = FUN_003b7060();
+                puVar1[10] = pauseRoll % 0x5a + 0x3c;
                 func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
               }
             }
             else if (((float*)puVar1)[6] < zero) {
-              puVar1[6] = puVar1[7];
+              ((float *)puVar1)[6] = ((float *)puVar1)[7];
               puVar1[8] = 0x3f800000;
               puVar1[9] = 0x5a;
-              temp_v4 = FUN_003b7060();
-              puVar1[10] = temp_v4 % 0x5a + 0x3c;
+              pauseRoll = FUN_003b7060();
+              puVar1[10] = pauseRoll % 0x5a + 0x3c;
               func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
             }
             }
@@ -2679,10 +2741,10 @@ s32 func_0018a200(u8 *param_1)
     FUN_003e40b0(&vec140[0],&vec140[0]);
     FUN_003e40b0(&vec150[0],&vec150[0]);
     FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
-    nz = ((float*)puVar1)[0x11];
-    nx = ((float*)puVar1)[0xf];
     ny = ((float*)puVar1)[0x10];
-    temp_v13 = nz * vec140[2] + nx * vec140[0] + ny * vec140[1];
+    nx = ((float*)puVar1)[0xf];
+    nz = ((float*)puVar1)[0x11];
+    temp_v13 = nx * vec140[0] + ny * vec140[1] + nz * vec140[2];
     one = 1.0f;
     if (temp_v13 < one) {
       temp_v12 = 15.0f;
@@ -2691,7 +2753,7 @@ s32 func_0018a200(u8 *param_1)
         temp_v12 = 180.0f * diff;
         temp_v13 = one;
       }
-      if (nz * vec150[2] + nx * vec150[0] + ny * vec150[1] < 0.0f) {
+      if (nx * vec150[0] + ny * vec150[1] + nz * vec150[2] < 0.0f) {
         temp_v12 = temp_v12 * -1.0f;
       }
       func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, temp_v12);
@@ -2708,8 +2770,9 @@ s32 func_0018a200(u8 *param_1)
     }
     break;
   case 7:
-    if ((*(char *)(*(int *)(puVar1[3] + 0x164) + 0xee) == '\x01') &&
-       (temp_v3 = FUN_00479c30(*(int *)(puVar1[3] + 0x164),0), temp_v3 != 0)) {
+    finalModel = ((FldActorObject *)puVar1[3])->model;
+    if (finalModel[0xee] == 1 &&
+       (temp_v3 = FUN_00479c30((s32)finalModel,0), temp_v3 != 0)) {
       func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
     }
   
