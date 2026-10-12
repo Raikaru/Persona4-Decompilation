@@ -3044,6 +3044,7 @@ void func_001a5990(void)
  * 2026-10-12 opening packet contract: fnalign 74 -> 72; use the matched sibling's BtlPacket *(u32, u16) constructor signature to preserve native halfword argument evaluation.
  * 2026-10-12 paired-target flag: fnalign 72 -> 70; normalize the masked flag before inverting it, matching retail's sltu/xori sequence.
  * 2026-10-12 motion dispatch: fnalign 70 -> 62; recover the two-case switch instead of the empty negated if, preserving retail's two positive tests and default jump.
+ * 2026-10-12 camera table order: fnalign 62 -> 56; place the table base before the native halfword index so b210 evaluates the global load before scaling, as in both retail camera checks.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3076,7 +3077,7 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
         }
         break;
     case 1:
-        if (*(s16 *)((unitId & 0xFFFF) * 0xE8 + (s32)iGpffffb3cc + 0x22) != 1) {
+        if (*(s16 *)((s32)iGpffffb3cc + (u16)unitId * 0xE8 + 0x22) != 1) {
             goto fail;
         }
         break;
