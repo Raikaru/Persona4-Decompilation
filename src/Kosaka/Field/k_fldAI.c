@@ -1019,6 +1019,7 @@ tail:
  * measured 2026-10-12: fnalign 52 -> 43; facing-phase locals ordered Z/player-Z/X/player-X reproduce regalloc_whatif's r92/r73 swap and retail f23/f21.
  * measured 2026-10-12: fnalign 43 -> 37; whole target copy with propagation/pulloutconstants off preserves the patrol snapshot and separate random divisors (CSE remains on).
  * measured 2026-10-12: fnalign 37 -> 27; typed matrix-position arguments recover pointer materialization order at all five near-player checks.
+ * measured 2026-10-12: fnalign 27 -> 23; recover the NPC prefix and take origin subobject addresses instead of casting integer sums.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1032,6 +1033,21 @@ typedef struct {
     FldAIVec3 forward; u32 pad2c;
     FldAIVec3 pos; u32 pad3c;
 } FldAIMatrix;
+typedef struct {
+    u8 unk00[0x40];
+    u32 flags;
+    u32 unk44;
+    s32 used;
+    u32 unk4c;
+    u8 *model;
+    u8 *movement;
+    u8 unk58[0x144];
+    FldAIVec3 origin;
+    u8 unk1a8[0x20];
+    u16 configIndex;
+    u8 kind;
+    u8 heightSlot;
+} FldAINpc;
 extern int FUN_003b7060();
 extern int FUN_0047a220();
 /* SDK vector normalization reads and writes complete three-float objects and
@@ -1245,7 +1261,7 @@ availabilityDone:
       ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x18);
       pbVar7 = (unsigned char *)FUN_0014dbb0((int)param_1,(int)D_00794420);
       piVar1[0x26] = (int)pbVar7;
-      FUN_0014dd10(pbVar7,(unsigned char *)(piVar1[3] + 0x19c));
+      FUN_0014dd10(pbVar7,(u8 *)&((FldAINpc *)piVar1[3])->origin);
       FUN_0014dce0((unsigned char *)piVar1[0x26],(unsigned char *)DAT_005f1ce0);
       FUN_0014dcd0((unsigned char *)piVar1[0x26],0);
       *piVar1 = *piVar1 + 1;
@@ -2005,7 +2021,7 @@ else {
       if (temp_v0 != 0) {
         FUN_00452080((void *)piVar1[0x22]);
         piVar1[0x22] = 0;
-        FUN_00168ae0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),(unsigned char *)(piVar1[3] + 0x19c));
+        FUN_00168ae0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),(u8 *)&((FldAINpc *)piVar1[3])->origin);
         temp_v0 = piVar1[3];
         if (*(unsigned char *)(temp_v0 + 0x1ca) == '\0') {
           temp_v0 = FUN_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),0,0xff,10);
