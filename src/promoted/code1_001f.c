@@ -991,6 +991,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 22 -> 18; use a separate byte index snapshot for the reset phase, restoring its fresh retail mask and record-base calculation.
  * measured 2026-10-12: fnalign 18 -> 16; test the critical counter directly at its native width, removing the redundant integer-promotion move.
  * measured 2026-10-12: fnalign 16 -> 5; separate the party damage accumulator from battle flags and declare it before the byte cursor, as predicted by the allocator model.
+ * measured 2026-10-12: fnalign 5 -> 4; route a missing party recipient directly to the final exit, matching retail rather than threading through the party-loop return.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1514,7 +1515,10 @@ void func_001f14f0(u8 *arg0)
         }
         sum = func_001efd50(arg0);
         *(u8 **)(arg0 + 0x88) = sum;
-        if (sum != NULL) {
+        if (sum == NULL) {
+            goto finished;
+        }
+        {
             s32 totalDamage;
             u8 q;
             s32 flagHit;
@@ -1634,6 +1638,8 @@ other:
             }
         }
     }
+finished:
+    return;
 }
 
 #pragma pop
