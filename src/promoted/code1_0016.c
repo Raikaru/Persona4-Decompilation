@@ -1952,6 +1952,7 @@ query_complete:
  * case 4 reads the shifted position from sv60.y/sv60.z (the earlier case 3/4 rewrite left it reading stale temp_v9/temp_v13); combined 612 -> 592.
  * combined 592 -> 572: the shared Ghidra temporaries are per-case locals in cases 0/2/5 and 7 (real lifetimes; cases 3/4 and 6 measured neutral/worse).
  * combined 572 -> 308: real per-role locals. Ghidra's shared temporaries become distinct per-case/per-role variables declared before piVar1, the FUN_00457120()->frame holders are single assignments, and lo/hi move to the outer declarations. Every local is then a single web numbered before piVar1, so piVar1 is coloured $s0 as in retail.
+ * measured 2026-10-12: fnalign 725 -> 242; real 12-byte matrix tolerances, separate fade colour, and retail stack-local order recover the 0x360 frame.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1965,7 +1966,6 @@ extern int FUN_003e0e20();
 extern int FUN_003e9830();
 /* RwV3dNormalize returns its original vector length in f0. */
 extern f32 FUN_003e40b0(void *out, const void *in);
-extern int FUN_003e03e0();
 extern u8 D_007F1710[];
 extern u8 D_007F1720[];
 extern int FUN_003bb5b0(float t, int path, int count, void *out, void *rot);
@@ -2017,7 +2017,6 @@ extern void FUN_001687f0(unsigned char *, unsigned char *);
 extern int FUN_0016b080(void *, float, void *, void *);
 extern void FUN_0016e8e0(unsigned char *, float);
 extern float FUN_00175db0(void);
-extern int FUN_003e0380(void *);
 extern float FUN_003e4180(float *);
 extern int FUN_00452080(void *);
 extern int FUN_00457120(void);
@@ -2041,42 +2040,55 @@ s32 func_0016bdd0(u8 *param_1)
   typedef struct { u32 w[16]; } FldMtx64;
   extern float fabsf(float);
   typedef struct { float x, y, z; } FldCopyVec;
-  FldCopyVec cpv5;
-  FldCopyVec segment[2];
-  FldCopyVec cpv0;
   typedef struct { float x, y, z; } FldCamVec;
-  FldCamVec cv0;
+  typedef struct RwMatrixTolerance { f32 Normal, Orthogonal, Identity; } RwMatrixTolerance;
+  extern s32 RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
+  extern RwMatrix *RwMatrixOptimize(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
   extern f32 sqrtf(f32 arg0);
-  float stk290[3];
-  float stk280[3];
-  float stk270[3];
-  float stk260[3];
-  float stk250[3];
-  float stk240[3];
-  float stk230[3];
-  float stk220[3];
-  float stk210[3];
-  float stk1E0[3];
-  float stk1C0[3];
-  float stk1B0[3];
-  float stk1A0[3];
-  float stk190[3];
-  float stk180[3];
-  float stk170[3];
-  float stk160[3];
-  float stk150[3];
-  float stk130[3];
-  float stk120[3];
-  float stk110[3];
-  float stkF0[3];
-  float stkD0[3];
-  float stkC0[3];
-  float stkA0[3];
-  float stk90[3];
-  float stk70[3];
-  float stk50[3];
+  float stk10[3];
+  u32 fadeColour;
+  FldCopyVec sv20;
+  FldCopyVec cpv0;
   float stk40[3];
-  float stk10[4];
+  float stk50[3];
+  FldCopyVec sv60;
+  float stk70[3];
+  FldCopyVec sv80;
+  float stk90[3];
+  float stkA0[3];
+  RwMatrixTolerance tolerance3;
+  float stkC0[3];
+  float stkD0[3];
+  RwMatrixTolerance tolerance4;
+  float stkF0[3];
+  FldCopyVec sv100;
+  float stk110[3];
+  float stk120[3];
+  float stk130[3];
+  FldCopyVec cpv5;
+  float stk150[3];
+  float stk160[3];
+  float stk170[3];
+  float stk180[3];
+  float stk190[3];
+  float stk1A0[3];
+  float stk1B0[3];
+  float stk1C0[3];
+  FldCopyVec sv1d0;
+  float stk1E0[3];
+  FldCamVec cv0;
+  FldCopyVec sv200;
+  float stk210[3];
+  float stk220[3];
+  float stk230[3];
+  float stk240[3];
+  float stk250[3];
+  float stk260[3];
+  float stk270[3];
+  float stk280[3];
+  float stk290[3];
+  FldCopyVec segment[2];
+  FldCamVec chaseSegment[2];
     /* Retail returns zero at 0016E1D0, 0016BE18, 0016BE34. */
 /* irregular: 14 unstructured edge(s); 13 goto(s); 21 native warning(s); review required */
   int temp_v4;
@@ -2119,13 +2131,6 @@ s32 func_0016bdd0(u8 *param_1)
   float temp_v14_s7;
   float temp_v14_s8;
   float temp_v14_s11;
-  FldCamVec chaseSegment[2];
-  FldCopyVec sv200;
-  FldCopyVec sv1d0;
-  FldCopyVec sv100;
-  FldCopyVec sv80;
-  FldCopyVec sv60;
-  FldCopyVec sv20;
   unsigned char *pbVar9_a;
   float *pfVar8_a;
   float temp_v11_a;
@@ -2322,7 +2327,6 @@ s32 func_0016bdd0(u8 *param_1)
         }
         if (piVar1[2] == 3) {
           int last;
-          float mtxTmp[16];
 
           node3_b = *(int *)(FUN_00457120() + 4);
           temp_v7 = temp_v4_b;
@@ -2381,12 +2385,11 @@ s32 func_0016bdd0(u8 *param_1)
           FUN_003e0870(piVar1[0xb0],(float *)D_00756520,temp_v12_b,2);
           FUN_003e9cb0(node3_b,piVar1[0xb0],0);
           *(FldCopyVec *)(node3_b + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
-          FUN_003e0380(mtxTmp);
-          FUN_003e03e0(node3_b + 0x10,mtxTmp);
+          RwEngineGetMatrixTolerances(&tolerance3);
+          RwMatrixOptimize((RwMatrix *)(node3_b + 0x10),&tolerance3);
           FUN_003e9680(node3_b);
         }
         else if (piVar1[2] == 4) {
-          float mtxTmp[16];
 
           node4_b = *(int *)(FUN_00457120() + 4);
           *(FldTriVec *)&stkC0[0] = *(FldTriVec *)(node4_b + 0x40);
@@ -2396,8 +2399,8 @@ s32 func_0016bdd0(u8 *param_1)
           pbVar9_b = (unsigned char *)FUN_00457120();
           FUN_00457630(pbVar9_b,(unsigned char *)((int *)&stkC0[0]),(unsigned char *)&stkD0[0],(float *)0x0);
           *(FldCopyVec *)(node4_b + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
-          FUN_003e0380(mtxTmp);
-          FUN_003e03e0(node4_b + 0x10,mtxTmp);
+          RwEngineGetMatrixTolerances(&tolerance4);
+          RwMatrixOptimize((RwMatrix *)(node4_b + 0x10),&tolerance4);
           FUN_003e9680(node4_b);
         }
         goto LAB_0016e0c0;
@@ -2723,14 +2726,14 @@ s32 func_0016bdd0(u8 *param_1)
           FUN_00452080((void *)piVar1[0xaa]);
           piVar1[0xaa] = 0;
         }
-        stk10[3] = *(float *)&CAND_uGpffff9f2c;
+        fadeColour = CAND_uGpffff9f2c;
         if (temp_v11_c <= 55.0f + ((float *)piVar1)[0xa4]) {
           if (piVar1[0xaa] != 0) {
             FUN_0047a870(*(unsigned char **)(piVar1[0xa2] + 0x164));
             FUN_00452080((void *)piVar1[0xaa]);
             piVar1[0xaa] = 0;
           }
-          FUN_0047a220(*(unsigned int *)(piVar1[0xa2] + 0x164),((int *)&stk10[3]));
+          FUN_0047a220(*(unsigned int *)(piVar1[0xa2] + 0x164),((int *)&fadeColour));
           piVar1[0xa6] = 1;
         }
         if (piVar1[0xa6] != 1) goto LAB_0016e0c0;
