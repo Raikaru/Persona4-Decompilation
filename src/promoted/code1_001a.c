@@ -3040,6 +3040,7 @@ void func_001a5990(void)
  * 2026-10-12 captured spill order: fnalign 214 -> 93, every frameslots offset now agrees at 0x330; declare the surviving packet/result pointers beside their aliases (b210 graph replay preserves their spill choices).
  * 2026-10-12 count/selector joins: fnalign 93 -> 88; keep the repeat-count snapshot signed and the branch-selected effect-table index full-width, removing two non-retail masks.
  * 2026-10-12 row phases: fnalign 88 -> 82; use unsigned byte-address indices inside both loops and recompute the hit-result view after the repeat phase, separate from the retained hitRow snapshot.
+ * 2026-10-12 opening scan index: fnalign 82 -> 74; narrow the row index independently from the masked loop bound, preserving retail's separate halfword normalizations.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3340,7 +3341,7 @@ void func_001a59a0(s64 *arg0_) {
         temp_4 = (u8 *)((*(u8 **)((u8 *)((arg0 + ((var_6 & 0xFFFF) * 4))) + (0x38))));
         var_10 = 0;
         while ((var_10 & 0xFFFF) < (s32) (*(u8 *)((u8 *)(temp_4) + (0xD9)))) {
-            temp_8 = (u8 *)(temp_4 + ((var_10 & 0xFFFF) << 5));
+            temp_8 = (u8 *)(temp_4 + ((u16)var_10 << 5));
             if ((*(s32 *)((u8 *)(temp_8) + (0xF8))) & 0x100000) {
                 var_22 = 1;
             }
