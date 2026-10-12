@@ -3030,6 +3030,7 @@ void func_001a5990(void)
  * 2026-10-12 row lifetime: fnalign 340 -> 335; retain the unbiased target-plus-hit-stride base, restoring retail's separate row spill and +0xF0 payload address (frame 0x3C0).
  * 2026-10-12 UID accessor: fnalign 335 -> 331, frame 0x3C0 -> 0x3B0; inline packet UID reads eliminate the cross-call +0x58 address spill.
  * 2026-10-12 kind accessor: fnalign 331 -> 327, frame 0x3B0 -> 0x3A0; reload the source-unit kind directly rather than spilling its field address.
+ * 2026-10-12 effect-unit accessor: fnalign 327 -> 325; inline unit reads in the effect phase replace one spilled-address reload with retail's direct +0x30 load.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3080,6 +3081,10 @@ static inline s64 btlPacketUID_001a59a0(u8 *packet)
 static inline u8 btlUnitKind_001a59a0(u8 *unit)
 {
     return unit[0xA2];
+}
+static inline u8 *btlActionUnit_001a59a0(void *action)
+{
+    return *(u8 **)((u8 *)action + 0x30);
 }
 void func_001a59a0(s64 *arg0_) {
     u8 *arg0 = (u8 *)arg0_;
@@ -3632,7 +3637,7 @@ void func_001a59a0(s64 *arg0_) {
                     func_00194590(temp_2_31, 1);
                 }
                 if ((*(u16 *)((u8 *)(temp_18) + (0xDC))) == 0x400) {
-                    temp_2_32 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD2C))), temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), 1, 0));
+                    temp_2_32 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD2C))), temp_19, btlActionUnit_001a59a0(var_22_3), 1, 0));
                     (*(s8 *)((u8 *)(temp_2_32) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_32) + (8))) = sp2C0;
                     func_00194590(temp_2_32, 1);
@@ -3652,9 +3657,9 @@ void func_001a59a0(s64 *arg0_) {
                 if (sp240 != 0) {
                     if (((*(u16 *)((u8 *)(temp_18) + (0xDE))) & 6) && (sp1C0 == 0)) {
                         if (sp200 != sp130) {
-                            var_2_5 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD1C))), temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), 1, 0));
+                            var_2_5 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD1C))), temp_19, btlActionUnit_001a59a0(var_22_3), 1, 0));
                         } else {
-                            var_2_5 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD20))), temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), 1, 0));
+                            var_2_5 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD20))), temp_19, btlActionUnit_001a59a0(var_22_3), 1, 0));
                         }
                         (*(s8 *)((u8 *)(var_2_5) + (0))) = 5;
                         (*(s64 *)((u8 *)(var_2_5) + (8))) = temp_16;
@@ -3669,13 +3674,13 @@ void func_001a59a0(s64 *arg0_) {
                             func_00194590(temp_2_35, 1);
                         }
                     }
-                    temp_2_36 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[0] * 4))) + (0xD04))), temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), 1, 0));
+                    temp_2_36 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[0] * 4))) + (0xD04))), temp_19, btlActionUnit_001a59a0(var_22_3), 1, 0));
                     (*(s8 *)((u8 *)(temp_2_36) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_36) + (8))) = temp_16;
                     (*(s16 *)((u8 *)(temp_2_36) + (0x48))) = var_21;
                     func_00194590(temp_2_36, 2);
                     if (effectIndices[1] >= 0) {
-                        temp_2_37 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[1] * 4))) + (0xD04))), temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), 1, 0));
+                        temp_2_37 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[1] * 4))) + (0xD04))), temp_19, btlActionUnit_001a59a0(var_22_3), 1, 0));
                         (*(s8 *)((u8 *)(temp_2_37) + (0))) = 5;
                         (*(s64 *)((u8 *)(temp_2_37) + (8))) = temp_16;
                         (*(s16 *)((u8 *)(temp_2_37) + (0x48))) = var_21;
