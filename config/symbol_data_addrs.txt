@@ -1087,3 +1087,4 @@ fGpffff8068 = 0x00761158; // type:data evidence: retail func_00471370 GPREL16 im
 fGpffff806c = 0x0076115c; // type:data evidence: retail func_00471370 GPREL16 imm 0x806c at 0x0047235C; gp = 0x007690F0
 fGpffff8070 = 0x00761160; // type:data evidence: retail func_00471370 GPREL16 imm 0x8070 at 0x00472424; gp = 0x007690F0
 fGpffff8074 = 0x00761164; // type:data evidence: retail func_00471370 GPREL16 imm 0x8074 at 0x00472EA8; gp = 0x007690F0
+fGpffff8358 = 0x00761448; // type:data evidence: retail func_001a59a0 lwc1 $f12,-0x7CA8($gp) at 0x001A6668; GP 0x007690F0; matched native relocation has zero addend

@@ -44,7 +44,7 @@ Ghidra (project `C:/tmp/mwcc-ghidra`) are documented there:
   `right.cost > left.cost + 2` (closed `0046b380`);
 - `#pragma peephole off` exists, but did not help `0014f310`.
 
-Remaining 11, with their latest edit counts and where they stand:
+Targets from the remaining-11 snapshot, with recorded counts and subsequent updates:
 
 | Function | Edits | State |
 |---|---|---|
@@ -57,7 +57,7 @@ Remaining 11, with their latest edit counts and where they stand:
 | `002b6ec0` | 28 | table/base saved-register roles |
 | `0016bdd0` | 39 | sqrt result versus `adda` zero numbering (three regions) |
 | `002ac750` | 290 | spill choice in both search blocks; retail keeps `sp180 = temp_18` as its own spilled value, which b210 coalesces in natural spellings (restructured `d7d2f766`: 397, reverted in `66a26b06`) |
-| `001a59a0` | 6 | two camera-helper index `addu` operand-order sites |
+| `001a59a0` | 0 (MATCH) | frame 0x330; closed the camera field-origin operands, selected-target join and reaction short circuits. Owner: 70 MATCH / 1 ASM; exact-link eligibility clean. |
 | `001a7720` | 819 | frame 0x5d0 vs 0x5b0 |
 
 Measured since the table (captures plus `regalloc_whatif`, all reproduced):
