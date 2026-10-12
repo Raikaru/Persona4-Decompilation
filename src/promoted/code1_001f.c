@@ -963,6 +963,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 327 -> 292; declare the calculation context before the skill ID to finish retail's entry-register order.
  * measured 2026-10-12: fnalign 292 -> 279; preserve the skill snapshot boundary and recover word-sized loop bounds plus the tail's separate unsigned index.
  * measured 2026-10-12: fnalign 279 -> 265; keep the negated mask predicate word-sized and load message bits with retail's unsigned halfword reads.
+ * measured 2026-10-12: fnalign 265 -> 258; use the same offset-first skill-table address idiom for the remaining field reads.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1211,7 +1212,7 @@ void func_001f14f0(u8 *arg0)
         }
         mask = func_002397d0(id, ctx, target, res, sub, flags);
         mask2 = func_00239e40(id, ctx, target, res, sub, flags);
-        ent = iGpffffb3b8 + off;
+        ent = (u8 *)addOffsetFirst(off, (u32)iGpffffb3b8);
         if (ent[0x18] == 1 && (*(u32 *)(ent + 0x1C) & 0x80000) && ent[0x24] != 9 && !(mask & 0x80000)) {
             r1 = 0;
         }
@@ -1221,7 +1222,7 @@ void func_001f14f0(u8 *arg0)
         special = func_001fb360(unit, idw, flags);
         resw = res;
         if (resw == 1 && *(s32 *)(unit + 0xE4) == 0 && special == 0) {
-            bonus = *(s32 *)(iGpffffb3b8 + off + 0x20);
+            bonus = *(s32 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x20);
         } else {
             bonus = 0;
         }
@@ -1259,14 +1260,14 @@ void func_001f14f0(u8 *arg0)
             *pm = mask;
             *(s32 *)(unit + (j << 5) + 0xFC) = mask2;
             x = func_002384b0(id, ctx, target, flags);
-            t = *(u8 *)(iGpffffb3b8 + off + 0x11);
+            t = *(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x11);
             switch (t) {
             case 0xC:
             case 0xD:
                 *pa = func_0043c6a0(va);
                 break;
             }
-            t = *(u8 *)(iGpffffb3b8 + off + 0x14);
+            t = *(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x14);
             switch (t) {
             case 0xC:
             case 0xD:
@@ -1283,12 +1284,12 @@ void func_001f14f0(u8 *arg0)
             if (actor == arg0) {
                 totalSelf += va;
             }
-            switch (*(u8 *)(iGpffffb3b8 + off + 0x24)) {
+            switch (*(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x24)) {
             case 2:
                 *flagp |= 0x20;
                 break;
             }
-            if (*(u8 *)(iGpffffb3b8 + off) & 1) {
+            if (*(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8)) & 1) {
                 *flagp |= 0x40;
             }
             if (isTen) {
@@ -1424,7 +1425,7 @@ void func_001f14f0(u8 *arg0)
     if (*(s16 *)(arg0 + 0xEE) == -1) {
         *(s16 *)(arg0 + 0xEE) = func_001f0610(idw);
     }
-    if (*(u8 *)(iGpffffb3b8 + off + 0x24) == 6) {
+    if (*(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x24) == 6) {
         *(u16 *)(arg0 + 0x1A) |= 0x4000;
     }
     {
@@ -1456,7 +1457,7 @@ void func_001f14f0(u8 *arg0)
             u8 q;
             sctx = *(u8 **)(*(u8 **)(sum + 0x30) + 0xA64);
 
-            if (*(u8 *)(iGpffffb3b8 + off + 0x24) == 0xD) {
+            if (*(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x24) == 0xD) {
                 *(s16 *)(sum + 0xEC) = *(s16 *)(first + 0xEC);
             } else {
                 *(s16 *)(sum + 0xEC) = 0;
@@ -1487,7 +1488,7 @@ void func_001f14f0(u8 *arg0)
                 *(s32 *)((u8 *)(u32)s + 0xF0) = v;
                 s[0x10C] = 2;
                 *(u16 *)(s + 0x10E) |= 0x200;
-                if (*(u8 *)(iGpffffb3b8 + off + 0x24) == 0xD) {
+                if (*(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x24) == 0xD) {
                     u8 *s3 = first + ((u32)q << 5);
 
                     *(u32 *)(s3 + 0xF8) |= 0x80000;
