@@ -461,63 +461,8 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
 
 
 
-/* Research-only controller reconstruction. Real matrix/quaternion/cache storage,
- * halfword controller views and direct callback ABI follow the retail window.
- * The former opt-off settings inflated a scalar-fragment draft; this candidate
- * uses the owner configuration. Quaternion interpolation and conversion phases
- * follow the retail arithmetic trees and the checked-in RenderWare macros.
- * Reviewed checkpoint: 7084/7104 live bytes, frame 0x550, 812 resolved-word
- * edits (unit-cost Levenshtein). Still NONMATCHING; see
- * docs/probe_archive/model_00471370_guarded_recovery.md.
- */
-#pragma push
-/* 2026-10-08: opt_loop_invariants on lowers fnalign from 879 to 856 edits. */
-/* 2026-10-09: 856 -> 841 edits. The two angle-limit blocks follow retail's !(a <= lim) && a < 360 - lim test and a < 180 ? lim : 360 - lim choice, which reuses the 360 - lim value.
- * 2026-10-09: 841 -> 739: frame layout. Later declarations sit lower in the frame;
- * the small-vector group is declared axis, position, workingVector, look, eye,
- * direction, forwardAxis (mapped with tools/frameslots.py).
- * 2026-10-09: 739 -> 672: aggregate declaration order (greedy, scored with
- * tools/multiscore.py) moves the matrices and quaternions toward retail's frame slots.
- * 555: swap sweep.
- * 542: swap sweep.
- * fnalign 542 -> 445: aggregates declared in retail slot order (baseMatrix 0x4a0 ... temp_v22 0x150); spilled scalars iStack_420, uStack_430, hasParentMatrix, resetAnimation, iStack_450 in retail spill order.
- * fnalign 445 -> 404: owner-link path first, identity fallback in the else (retail block order).
- * fnalign 404 -> 399: early return for a ready non-null controller with zero weight; hierarchy pointer loaded before the index; temp_v3 int; mode masks tested in the loop (hoisted after the counter init, as retail).
- * fnalign 399 -> 373: angle-limit snapshot block in retail branch order with whole-quaternion copies.
- * fnalign 373 -> 338: controller quaternion writes are whole-quaternion copies.
- * fnalign 338 -> 315: angle wrap loops test x > 360 (direct bc1f, no boolean); func_003e9240 returns RwBool (s32; retail does not mask).
- * workingVector copied from the controller as a whole vector.
- * fnalign 301 -> 291: matrix positions copied from position as whole vectors.
- * 0x1389 node test written as a switch with a default (retail beq-case / b-default shape).
- * fnalign 291 -> 277: quaternion dot products in block-local floats (retail keeps them in f0 across the sign test).
- * hierarchy push/pop stack starts at &temp_v27[1] (retail $fp = sp+0x3e4).
- * fnalign 276 -> 259: dirty-list insert written as the RenderWare link-list macro (list address formed once).
- * hierarchy base loaded before the node index.
- * bit 2 cleared with ~4 (retail and with -5).
- * fnalign 251 -> 159: controller state half-word accessed through a byte pointer (no hoisted address), interpolator slots addressed before the create call, hierarchy base loaded first.
- * 0x3e half-word through a byte pointer too.
- * fnalign 159 -> 122: float control fields through *(float *)&puVar3[N]; final blend test in retail polarity (blend path first).
- * blend weight read from controller + 2 (retail lwc1 4($s2)); the previous controller + 4 read the wrong field.
- * blend step: duration loaded, reciprocal formed, then added.
- * controller flags cleared through a fresh u16 read in the angle-limit else (retail reloads).
- * second hierarchy lookup: node offset formed before the base.
- * owner-chain multiply source as a byte pointer.
- * parent row offset formed before the matrix array load.
- * float temporaries declared temp_v20, temp_v15, temp_v14, temp_v16, temp_v21 (retail FPR colours in the angle clamp).
- * fnalign 95 -> 69: aim angles in block-local floats (pitch, yaw, baseYaw, basePitch, limit); unused temporaries removed.
- * fnalign 69 -> 65: z * weight held in a zw local so the polynomial madd.s takes it as the first operand (retail order).
- * fnalign 65 -> 56: temp_v3 declared after hasParentMatrix (retail $v0/$v1).
- * fnalign 56 -> 51: parent matrix base loaded before the index shift (temp_v5 holds puVar12[6], as retail's lw/sll/lw order).
- * fnalign 51 -> 39: integer-cast field-base reads at selected sites.
- * fnalign 39 -> 27: both 64-byte matrix copies address temp_v7 through a (u32) cast (retail evaluates the source first; b210 does not CSE the field address).
- * fnalign 27 -> 18: opt_lifetimes on (s0/s1 list walk colours as retail); the Ghidra temp_v3 split into parent (matrix owner) and animated (flag 0x2000).
- * measured 2026-10-12: fnalign 18 -> 13; an addressable animation-flag snapshot keeps scalar sw/lw storage, offset-first addressing fixes the control lookup, and callback-first equality fixes bne operands. Remaining: param_4 home and +0x42/interpolator-slot CSE.
- * fnalign 13 -> 12: the created flag's test and store use different address expressions, so IRO no longer hoists +0x42 into a saved register, and the interpolator is stored through `interp` and re-read (retail keeps slot+0x10 in $s6 across the create call).
- * fnalign 12 -> 7: the created interpolator stays in temp_v5 for the store but is re-read through `interp` for the init call; retail keeps temp_v5's early colouring.
- * fnalign 7 -> 5: param_1 is an RpHAnimHierarchy; typed fields order the currentAnim/numNodes loads and the node-info index as retail. Remaining: param_4's spill slot (0x140 in retail, 0x14c here).
- */
-// FUN_00471370 NONMATCHING
-#ifdef NON_MATCHING
+/* Hierarchy controller update. param_1 is an RpHAnimHierarchy, param_2/param_3
+ * the model state and controller halfwords, param_4 an optional parent matrix. */
 /* Layout from include/rw/inc/rphanim.h. */
 typedef struct RpHAnimNodeInfo
 {
@@ -543,6 +488,8 @@ struct RpHAnimHierarchy
 };
 
 #pragma push
+/* measured: without opt_loop_invariants the per-node mode masks are not hoisted
+ * (554 fnalign edits); opt_lifetimes gives the s0/s1 list-walk colours (+9 without). */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 static inline u32 modelOffsetAddress(u32 offset, u32 base)
@@ -556,9 +503,13 @@ static inline u32 modelAnimationFlag(const u32 *flag)
     return *flag;
 }
 
+/* measured: the parent matrix is a local assigned just before the node loop; the
+ * copy coalesces into param_4, which then spills to a quadword slot as retail. */
+// FUN_00471370
 s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 
 {
+    RwMatrix *parentMatrix;
     struct RtQuat;
     struct RtQuatSlerpCache;
     struct RwObjectOwnerLink;
@@ -785,6 +736,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     /* Per-hierarchy modes are snapped before callbacks and reused for all
      * nodes, as at retail 004716d0-004716dc. The full entry flags need not
      * remain live throughout the node traversal. */
+    parentMatrix = (RwMatrix *)param_4;
     for (iStack_420 = 0; iStack_420 < hierarchy->numNodes; iStack_420 = iStack_420 + 1) {
       if (func_003954b0 == pcVar2) {
         /* RtQuatUnitConvertToMatrixMacro: independent square/cross/wimag
@@ -828,7 +780,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       switch (hierarchy->pNodeInfo[iStack_420].nodeID) {
       case 0x1389: {
         s32 angleLimited;
-        if ((param_4 == 0) && ((*controller & 0x400) == 0)) {
+        if ((parentMatrix == 0) && ((*controller & 0x400) == 0)) {
           *controller = *controller | 0x600;
         }
         angleLimited = 0;
@@ -845,7 +797,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         RwMatrixScale((RwMatrix *)(((f32 *)&scaleMatrix)),(const RwV3d *)(&workingVector),(RwOpCombineType)(1));
         RwMatrixMultiply((RwMatrix *)(&localMatrix.right.x),(const RwMatrix *)(&frameMatrix.right.x),(const RwMatrix *)(((f32 *)&scaleMatrix)));
         position = localMatrix.pos;
-        if (param_4 == 0) {
+        if (parentMatrix == 0) {
           RwMatrixScale((RwMatrix *)(&localMatrix.right.x),(const RwV3d *)(&workingVector),(RwOpCombineType)(1));
           axis[0] = 0;
           axis[1] = 0x3f800000;
@@ -1117,7 +1069,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           }
         }
         if (puVar3 == (unsigned int *)0x0) {
-          if (param_4 == 0) {
+          if (parentMatrix == 0) {
             {
               const ControllerQuat *controllerRotation = (const ControllerQuat *)(controller + 8);
               RwV3d scaled;
@@ -1218,7 +1170,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             }
             RwMatrixScale((RwMatrix *)(&localMatrix.right.x),(const RwV3d *)(&workingVector),(RwOpCombineType)(1));
             localMatrix.pos = position;
-            RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(&localMatrix.right.x),(const RwMatrix *)(param_4));
+            RwMatrixMultiply((RwMatrix *)(pfVar8),(const RwMatrix *)(&localMatrix.right.x),(const RwMatrix *)(parentMatrix));
           }
           if (((*(int *)(uStack_430 + 0xc) != 0) &&
               (temp_v7 = *(int *)(*(int *)(uStack_430 + 0xc) + 4), temp_v7 != 0)) &&
@@ -1381,11 +1333,6 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   return 1;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
-#endif
-#pragma pop
-/* The controller remains a research-only NONMATCHING candidate. */
 
 extern s32 func_00397c40(void* hierarchy);
 extern s32 func_00471370(u8 *a, u8 *b, u8 *c, void *d);

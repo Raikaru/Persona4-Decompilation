@@ -1077,3 +1077,13 @@ iGpffff8308 = 0x007613f8; // type:data evidence: func_003768e0 retail lwc1 GPREL
 iGpffff8400 = 0x007614f0; // type:data evidence: func_003768e0 retail lwc1 GPREL -0x7C00($28) at 0x00376B14; gp = 0x007690F0; f32
 iGpffff8408 = 0x007614f8; // type:data evidence: func_003768e0 retail lwc1 GPREL -0x7BF8($28) at 0x00377734; gp = 0x007690F0; f32
 fGpffff80d4 = 0x007611c4; // type:data evidence: retail func_001f14f0 lwc1 gp-0x7F2C at 0x001F1860; configured GP 0x007690F0, matched C relocation with zero addend
+DAT_0088739c = 0x0088739c; // type:data evidence: retail func_00471370 HI16/LO16 at 0x0047160C
+DAT_00922bb0 = 0x00922bb0; // type:data evidence: retail func_00471370 HI16/LO16 at 0x00471890
+DAT_00922bb4 = 0x00922bb4; // type:data evidence: retail func_00471370 HI16/LO16 at 0x004718A4
+fGpffff8040 = 0x00761130; // type:data evidence: retail func_00471370 GPREL16 imm 0x8040 at 0x00472B38; gp = 0x007690F0
+fGpffff8050 = 0x00761140; // type:data evidence: retail func_00471370 GPREL16 imm 0x8050 at 0x00472178; gp = 0x007690F0
+fGpffff8064 = 0x00761154; // type:data evidence: retail func_00471370 GPREL16 imm 0x8064 at 0x004721AC; gp = 0x007690F0
+fGpffff8068 = 0x00761158; // type:data evidence: retail func_00471370 GPREL16 imm 0x8068 at 0x0047231C; gp = 0x007690F0
+fGpffff806c = 0x0076115c; // type:data evidence: retail func_00471370 GPREL16 imm 0x806c at 0x0047235C; gp = 0x007690F0
+fGpffff8070 = 0x00761160; // type:data evidence: retail func_00471370 GPREL16 imm 0x8070 at 0x00472424; gp = 0x007690F0
+fGpffff8074 = 0x00761164; // type:data evidence: retail func_00471370 GPREL16 imm 0x8074 at 0x00472EA8; gp = 0x007690F0
