@@ -3046,6 +3046,7 @@ void func_001a5990(void)
  * 2026-10-12 motion dispatch: fnalign 70 -> 62; recover the two-case switch instead of the empty negated if, preserving retail's two positive tests and default jump.
  * 2026-10-12 camera table order: fnalign 62 -> 56; place the table base before the native halfword index so b210 evaluates the global load before scaling, as in both retail camera checks.
  * 2026-10-12 animation timing dispatch: fnalign 56 -> 54; restore the two-case delay switch, including its explicit default packet-delay path.
+ * 2026-10-12 distance-packet address word: fnalign 54 -> 52; read the existing unit-address word at the integer ABI boundary instead of hoisting a pointer-to-integer conversion across the distance branch.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3586,7 +3587,7 @@ void func_001a59a0(s64 *arg0_) {
             } else {
                 var_f12 = 400.0f;
             }
-            temp_2_25 = (u8 *)(func_001d1eb0((u32)temp_19, (u32)temp_18->unit, var_f12, 3));
+            temp_2_25 = (u8 *)(func_001d1eb0((u32)temp_19, *(u32 *)&temp_18->unit, var_f12, 3));
             (*(s8 *)((u8 *)(temp_2_25) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_25) + (8))) = temp_16;
             (*(s64 *)((u8 *)(temp_2_25) + (0x60))) = temp_17;
