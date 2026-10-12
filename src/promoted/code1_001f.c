@@ -975,9 +975,24 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 143 -> 140; hold the explicitly sign-extended halfword message in a word local, avoiding a second narrowing at its zero test.
  * measured 2026-10-12: fnalign 140 -> 137; keep the hit-message call result word-sized, sign-extend the stored halfword arm, and narrow at the shared signed test/store.
  * measured 2026-10-12: fnalign 137 -> 130; convert the second damage amount before materializing its 1.0f factor, restoring retail's FPR order and latency nop.
+ * measured 2026-10-12: fnalign 130 -> 118; recover the 0x20-byte hit record and write reaction codes through array lvalues instead of caching the record base across phases.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
+typedef struct BtlHit_001f14f0 {
+    s32 damageA;
+    s32 damageB;
+    s32 maskA;
+    s32 maskB;
+    s32 bonus;
+    s32 effect;
+    u16 absoluteA;
+    u16 absoluteB;
+    s8 reaction;
+    u8 pad1D;
+    u16 flags;
+} BtlHit_001f14f0;
+
 static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
 {
     u16 k;
@@ -1371,14 +1386,11 @@ void func_001f14f0(u8 *arg0)
                     v = (s16)*(u16 *)(actor + 0x3F4);
                 }
                 if ((s16)v >= 0) {
-                    u8 *slot;
-
                     *(u16 *)(actor + 0x3F4) = (s16)v;
-                    slot = unit + (j << 5);
                     *resultFlags |= 0x10;
-                    slot[0x10C] = func_001f12b0(actor, vals, res, sub, 0);
+                    ((BtlHit_001f14f0 *)(unit + 0xF0))[j].reaction = func_001f12b0(actor, vals, res, sub, 0);
                 } else {
-                    *(unit + (j << 5) + 0x10C) = func_001f12b0(actor, vals, res, sub, 1);
+                    ((BtlHit_001f14f0 *)(unit + 0xF0))[j].reaction = func_001f12b0(actor, vals, res, sub, 1);
                     *(s32 *)(unit + 0xE0) = 1;
                     if (arg0 == actor) {
                         *pa = 0;
@@ -1387,7 +1399,7 @@ void func_001f14f0(u8 *arg0)
                 cntA = nj;
                 break;
             }
-            *(unit + (j << 5) + 0x10C) = func_001f12b0(actor, vals, res, sub, 0);
+            ((BtlHit_001f14f0 *)(unit + 0xF0))[j].reaction = func_001f12b0(actor, vals, res, sub, 0);
             j++;
         }
         e4 = *(s32 *)(unit + 0xE4);
