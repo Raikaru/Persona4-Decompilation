@@ -86,6 +86,62 @@ Use this loop for every target:
    separate deliberate edit, and run the full link for any translation-unit,
    declaration or relocation change.
 
+### Rewrite playbook for large or stubborn residuals
+
+This is the order that closed `func_001f14f0` (478 edits to 0),
+`func_0017f490` (369 to 0), `func_0018a200` (277 to 0), `func_0027f6f0`
+(103 to 0) and `func_00471370` (13 to 0). It is the concrete form of step 1
+above. Score with `tools/fnalign.py` after every step, keep only changes
+that do not regress, and commit each improvement with its measured note.
+Work one block or phase at a time; never rewrite the whole function in one
+step.
+
+1. **Frame and object extents first.** Map every stack object against
+   retail with `tools/frameslots.py OWNER ADDR CAND`. A frame that is too
+   large usually means a wrong object extent, not overlapping storage: for
+   example, `0016bdd0`'s "matrices" were really 12-byte
+   `RwMatrixTolerance` objects. Check the callee contracts that receive each
+   address (`src/renderware`, `include/`, matched siblings). Frame offsets
+   cascade into many edits, so fix them before anything else. Where the frame
+   is right but one spill sits at a different offset within its quadword,
+   see the spilled-parameter slot rule under
+   [Types and the EE ABI](#types-and-the-ee-abi).
+2. **Recover the real structs.** Replace `ptr[N]` and `*(T *)(p + off)` with
+   the structure being driven: the RenderWare/SDK header type when one
+   exists (`RpHAnimHierarchy`, `RtAnimInterpolator`), otherwise a layout
+   struct with offset comments. Typed field and array accesses change
+   load order and address arithmetic. `00471370`'s typed hierarchy alone
+   fixed a load order and a node-index `addu` (7 to 5).
+3. **Fix real call contracts and reaching definitions.** Correct callee
+   signatures, including missing arguments that retail keeps live (such as
+   `mdlScale`'s `combineOp`) and parameters that are really pointers. Then
+   audit every rewritten block for decompiler errors that retail
+   contradicts: a dead assignment where the use reads an older value, or a
+   do-while where retail tests first. Fix them and say so in the commit.
+   Preserve stale reads that retail really performs, and comment them.
+4. **Split shared temporaries into per-role, per-phase locals.** Ghidra
+   reuses one variable for unrelated values; b210 numbers and colours each
+   declared local once. Give each case or phase its own local with its real
+   lifetime (`0027f6f0`'s per-case window coordinates, 103 to 12). Where
+   retail recomputes an address in each phase, spell the access per phase
+   (array index or inline accessor) instead of caching a pointer.
+5. **Restore evaluation order.** Order statements and arguments the way
+   retail computes them. Normalise once after a branch join rather than in
+   each arm. Use the address-taking helper copy where retail keeps a stack
+   snapshot.
+6. **Order surviving locals from allocator evidence.** Capture with
+   `build/cap.py` and use `tools/regalloc_whatif.py` to find the scan order
+   retail needs. Map it back to declarations with the numbering rules under
+   [Register allocation and caching](#register-allocation-and-caching).
+7. **Scoped optimisation settings last.** Measure `opt_common_subs`,
+   `opt_propagation`, `opt_pulloutconstants`, `opt_loop_invariants` and
+   `opt_lifetimes` at function scope (push/pop), and record the measured
+   reason beside the pragma.
+
+No permutation, random or climb search; bounded per-site sweeps of natural
+spellings are fine. The [semantic gate](#semantic-and-target-gate) applies
+to every step.
+
 ### Five evidence gates before a floor verdict
 
 These are source-shape decisions, not invitations to add pragmas:
