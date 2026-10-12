@@ -1021,6 +1021,7 @@ tail:
  * measured 2026-10-12: fnalign 37 -> 27; typed matrix-position arguments recover pointer materialization order at all five near-player checks.
  * measured 2026-10-12: fnalign 27 -> 23; recover the NPC prefix and take origin subobject addresses instead of casting integer sums.
  * measured 2026-10-12: fnalign 23 -> 17; inline speed scaling preserves the field-before-scale loads and scale-first multiply at the three clamped movement sites.
+ * measured 2026-10-12: fnalign 17 -> 14; reuse scalar scaling for the oscillation amplitude and accumulate total turn through its storage pointer.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1049,9 +1050,15 @@ typedef struct {
     u8 kind;
     u8 heightSlot;
 } FldAINpc;
-static inline f32 fldAIScaleSpeed(f32 scale, f32 speed)
+static inline f32 fldAIScale(f32 scale, f32 speed)
 {
     return scale * speed;
+}
+static inline f32 fldAIAccumulateTurn(f32 *angle, f32 turn)
+{
+    f32 total = *angle + turn;
+    *angle = total;
+    return total;
 }
 extern int FUN_003b7060();
 extern int FUN_0047a220();
@@ -1387,7 +1394,7 @@ availabilityDone:
       state2Delta.z = ((float *)piVar1)[0x16] - aiV60.z;
       temp_v8 = RwV3dNormalize(&state2Delta,&state2Delta);
       temp_v9 = *(float *)((u8 *)(u32)piVar1 + 0x68);
-      temp_v9 = fldAIScaleSpeed(CAND_fGpffff830c, temp_v9);
+      temp_v9 = fldAIScale(CAND_fGpffff830c, temp_v9);
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
@@ -1405,8 +1412,7 @@ availabilityDone:
           temp_v11 = temp_v11 * -1.0f;
         }
         func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
-        temp_v11 = ((float *)piVar1)[0x1c] + temp_v11;
-        ((float *)piVar1)[0x1c] = temp_v11;
+        temp_v11 = fldAIAccumulateTurn(&((float *)piVar1)[0x1c], temp_v11);
         if ((!(temp_v11 <= 360.0f)) || (temp_v11 < -360.0f)) {
           *piVar1 = 1;
         }
@@ -1801,7 +1807,7 @@ else {
       state9Direction.x = state9Direction.x + ((float *)piVar1)[0x14];
       state9Direction.y = state9Direction.y + ((float *)piVar1)[0x15];
       state9Direction.z = state9Direction.z + ((float *)piVar1)[0x16];
-      temp_v11 = temp_v11 * 400.0f;
+      temp_v11 = fldAIScale(400.0f, temp_v11);
       state9Delta.x = state9Right.x * temp_v11;
       state9Delta.y = state9Right.y * temp_v11;
       state9Delta.z = state9Right.z * temp_v11;
@@ -1813,7 +1819,7 @@ else {
       state9Delta.z = state9Delta.z - temp_v9;
       temp_v8 = RwV3dNormalize(&state9Delta,&state9Delta);
       temp_v9 = *(float *)&piVar1[0x1a];
-      temp_v9 = fldAIScaleSpeed(CAND_fGpffff830c, temp_v9);
+      temp_v9 = fldAIScale(CAND_fGpffff830c, temp_v9);
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
@@ -1870,7 +1876,7 @@ else {
       state10Delta.z = ((float *)piVar1)[0x16] - aiV1D0.z;
       temp_v8 = RwV3dNormalize(&state10Delta,&state10Delta);
       temp_v9 = *(float *)&piVar1[0x1a];
-      temp_v9 = fldAIScaleSpeed(CAND_fGpffff830c, temp_v9);
+      temp_v9 = fldAIScale(CAND_fGpffff830c, temp_v9);
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
@@ -1890,8 +1896,7 @@ else {
         temp_v9 = temp_v9 * -1.0f;
       }
       func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
-      temp_v9 = ((float *)piVar1)[0x1c] + temp_v9;
-      ((float *)piVar1)[0x1c] = temp_v9;
+      temp_v9 = fldAIAccumulateTurn(&((float *)piVar1)[0x1c], temp_v9);
       if ((!(temp_v9 <= 360.0f)) || (temp_v9 < -360.0f)) {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
