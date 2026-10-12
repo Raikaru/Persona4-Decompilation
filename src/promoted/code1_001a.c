@@ -4021,6 +4021,7 @@ void func_001a7710(void)
  * 2026-10-12 measured: fnalign 917 -> 907; typed partner view and a promoted flag snapshot restore the partner load before the second flag test.
  * 2026-10-12 measured: fnalign 907 -> 906 with scoped opt_propagation off; CSE-on and loop-invariant hoisting regress.
  * 2026-10-12 measured: fnalign 906 -> 901; test s32 predicate results without widening and retain the bounded random result's unsigned comparison.
+ * 2026-10-12 frame audit: fnalign 901 -> 887; the hit-index snapshot belongs in the loop test, restoring retail's single quadword spill rather than two word-store sites.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5455,8 +5456,7 @@ do {
             sp150 = (s32) sp3A0;
             sp140 = sp3A0 - 1;
             sp130 = sp420 + 0x2B;
-            spC0 = (s32) sp3B0;
-            while ((s32) sp3B0 < sp150) {
+            while ((spC0 = (s32) sp3B0) < sp150) {
                 var_f20_2 = 1.0f;
                 temp_2_95 = sp3B0 << 5;
                 sp120 = temp_2_95;
@@ -5717,7 +5717,6 @@ do {
                 }
                 sp390 += 7;
                 sp3B0 += 1;
-                spC0 = (s32) sp3B0;
             }
             if (sp410 < (s32) sp390) {
                 sp410 = sp390;
