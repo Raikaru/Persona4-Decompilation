@@ -4040,6 +4040,7 @@ void func_001a7710(void)
  * 2026-10-12 row recovery: fnalign 887 -> 845; a typed hit-row base and direct stride assignment restore retail's quadword slots at 0x110/0x120 without redundant integer aliases.
  * 2026-10-12 scalar recovery: fnalign 845 -> 820; restore the short-circuit flag's quadword spill, the u16 skill snapshot, and the addressed-output API contracts.
  * 2026-10-12 retail dataflow: fnalign 820 -> 819; restore the outer loop's zero-target pretest (001a9790 -> 001aadd0), and remove the invented second argument to 00202740.
+ * 2026-10-12 effect-table repair: fnalign 819 -> 817; retail 001AA458 loads a word from the global table directly, not an unaligned doubleword through its first entry.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5531,7 +5532,7 @@ void func_001a7720(u8 *arg0) {
                         temp_3_15 = (s16)var_2_12;
                         if (temp_3_15 != -1) {
                             temp_5_2 = (u8 *)((*( u8 ** )((u8 *)(var_21_2) + (0x30))));
-                            temp_2_100 = (u8 *)(func_001d6240((*( s64 * )((u8 *)(((*( u8 ** )iGpffffb3ac) + (temp_3_15 * 4))) + (0xD04))), temp_5_2, temp_5_2, 1, 0));
+                            temp_2_100 = (u8 *)(func_001d6240((*(s32 *)(iGpffffb3ac + temp_3_15 * 4 + 0xD04)), temp_5_2, temp_5_2, 1, 0));
                             (*( s8 * )((u8 *)(temp_2_100) + (0))) = 4;
                             *(s64 *)(temp_2_100 + 8) = *(s64 *)(var_19 + 0x58);
                             (*( s64 * )((u8 *)(temp_2_100) + (0x60))) = temp_16;
