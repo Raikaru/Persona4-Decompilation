@@ -4023,6 +4023,7 @@ void func_001a7710(void)
  * 2026-10-12 measured: fnalign 906 -> 901; test s32 predicate results without widening and retain the bounded random result's unsigned comparison.
  * 2026-10-12 frame audit: fnalign 901 -> 887; the hit-index snapshot belongs in the loop test, restoring retail's single quadword spill rather than two word-store sites.
  * 2026-10-12 row recovery: fnalign 887 -> 845; a typed hit-row base and direct stride assignment restore retail's quadword slots at 0x110/0x120 without redundant integer aliases.
+ * 2026-10-12 scalar recovery: fnalign 845 -> 820; restore the short-circuit flag's quadword spill, the u16 skill snapshot, and the addressed-output API contracts.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4050,10 +4051,10 @@ void func_001a7720(u8 *arg0) {
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
     extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
     extern s32 func_001a03b0();
-    extern s32 func_001b7060();
+    extern void func_001b7060(u32 skill, s32 *first, s32 *second);
     extern s32 func_001b7080();
     extern s32 func_001b7090();
-    extern s32 func_001b70a0();
+    extern void func_001b70a0(u32 skill, s32 *first, s32 *second);
     extern s32 func_001b7880();
     extern s32 func_001b7e20();
     extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
@@ -4093,7 +4094,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001f83b0();
     extern s32 func_001f8430();
     extern s32 func_001f99c0();
-    extern s32 func_001fa110();
+    extern u8 *func_001fa110(u8 *data);
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern s32 func_00201f20();
     extern s32 func_00202010();
@@ -4103,7 +4104,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_00202740();
     extern s32 func_00216da0();
     extern s32 func_0022d200();
-    extern s32 func_0022d540();
+    extern s32 func_0022d540(u8 *action, u8 *handles);
     extern s32 func_0022e4f0();
     extern s32 func_0022eba0();
     extern s32 func_0022f8b0();
@@ -4182,7 +4183,7 @@ void func_001a7720(u8 *arg0) {
     u16 sp2A0;
     s32 sp290;
     u16 sp280;
-    s32 sp270;
+    u16 sp270;
     s32 sp260;
     s32 sp250;
     s32 *sp240;
@@ -4484,10 +4485,7 @@ void func_001a7720(u8 *arg0) {
     sp350 = 6;
     temp_2_2 = sp450;
     sp210 = (s32)((s32)(s32)((s32)((*((u8 *)(((s32)iGpffffb3b8) + (temp_2_2 * 0x28))) & 2)) != (s32)(0)));
-    sp200 = (*(u16 *)(arg0 + 0x1A) & 0x10) != 0;
-    if (sp200 != 0) {
-        sp200 = (s32)sp210 == 0;
-    }
+    sp200 = ((*(u16 *)(arg0 + 0x1A) & 0x10) != 0) && sp210 == 0;
     sp1F0 = (s32)((s32)(s32)((*( u16 * )((u8 *)(arg0) + (0x6C))) == 3));
     sp33C = (s32)((s32)(func_001f0ff0(arg0)));
     sp1E0 = (s32)(func_001f11e0(sp450));
@@ -5050,14 +5048,14 @@ void func_001a7720(u8 *arg0) {
         (*( u16 * )((u8 *)(temp_3_11) + (0x18))) = (u16)((u16) ((*( u16 * )((u8 *)(temp_3_11) + (0x18))) | 0xF));
     }
     sp270 = sp450;
-    func_001b7060((u16) sp270, (u8 *)&sp5AC, (u8 *)&sp5A8);
+    func_001b7060(sp270, &sp5AC, &sp5A8);
     temp_2_60 = (u8 *)(func_001b7880(sp5AC, sp5A8, 0x10));
     (*( s8 * )((u8 *)(temp_2_60) + (0))) = 4;
     (*( s64 * )((u8 *)(temp_2_60) + (8))) = sp490;
     (*( s64 * )((u8 *)(temp_2_60) + (0x60))) = temp_16;
     func_00194590(temp_2_60, 1);
-    temp_22_2 = (s32)(func_001b7080((u16) sp270));
-    func_001b70a0((u16) sp270, (u8 *)&sp5AC, (u8 *)&sp5A8);
+    temp_22_2 = (s32)(func_001b7080(sp270));
+    func_001b70a0(sp270, &sp5AC, &sp5A8);
     temp_2_61 = (u8 *)(func_001b83f0(temp_22_2, sp5AC, sp5A8, 0x10, ((s32)(((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 2)) != (s32)(0)) & 0xFFFF));
     (*( s8 * )((u8 *)(temp_2_61) + (0))) = 4;
     (*( s64 * )((u8 *)(temp_2_61) + (8))) = sp490;
@@ -5147,7 +5145,7 @@ void func_001a7720(u8 *arg0) {
         temp_3_12 = (u8 *)(iGpffffb3ac);
         (*( u16 * )((u8 *)(temp_3_12) + (0x18))) = (u16)((u16) ((*( u16 * )((u8 *)(temp_3_12) + (0x18))) | 0xF));
     }
-    func_001d69f0((u16) sp270, formation);
+    func_001d69f0(sp270, formation);
     if (var_21 != 0) {
         temp_2_75 = (u8 *)(func_00194b60());
         (*( s8 * )((u8 *)(temp_2_75) + (0))) = 4;
@@ -5166,7 +5164,7 @@ void func_001a7720(u8 *arg0) {
         (*( s64 * )((u8 *)(var_22) + (0x60))) = temp_16;
         func_00194590(var_22, 1);
         if (sp340 == 0) {
-            sp4CC = (u8 *)(btlSoundCreateSkillSEPacket((u16) sp270, 1));
+            sp4CC = (u8 *)(btlSoundCreateSkillSEPacket(sp270, 1));
         } else {
             sp4CC = (u8 *)(func_00194b60());
         }
@@ -5185,7 +5183,7 @@ void func_001a7720(u8 *arg0) {
         (*( s64 * )((u8 *)(var_22) + (0x60))) = temp_16;
         func_00194590(var_22, 1);
         if (sp340 == 0) {
-            sp4CC = (u8 *)(btlSoundCreateSkillSEPacket((u16) sp270, 0));
+            sp4CC = (u8 *)(btlSoundCreateSkillSEPacket(sp270, 0));
         } else {
             sp4CC = (u8 *)(func_00194b60());
         }
@@ -5223,13 +5221,13 @@ void func_001a7720(u8 *arg0) {
     if (sp340 != 0) {
         var_2_8 = 4;
     } else {
-        var_2_8 = (s32)(func_001ef4a0((u16) sp270) & 0xFFFF);
+        var_2_8 = (s32)(func_001ef4a0(sp270) & 0xFFFF);
     }
     sp180 = var_2_8 & 0xFFFF;
     sp410 = 0;
     sp3C0 = 0;
     sp290 = (s32) sp450;
-    sp2A0 = (u16) sp270;
+    sp2A0 = sp270;
 do {
         sp260 = (s32) sp3C0;
             temp_18 = (s32 *)((*( s32 ** )((u8 *)(((s32)(arg0) + (sp3C0 * 4))) + (0x38))));
