@@ -214,6 +214,7 @@ s32 func_002ac740(void) {
 
 /* Reveal the current minimap cell, connected walls, or the matching room footprint.
  * measured: fnalign 327 -> 315 -> 313 edits with typed cell/scan views and offset-first row addresses.
+ * measured: fnalign 313 -> 311 edits with an offset-first reveal-row pointer helper.
  * opt_loop_invariants on retains the retail loop hoists; coordinate CSE and spill allocation remain.
  */
 // FUN_002AC750 NONMATCHING
@@ -240,6 +241,10 @@ typedef struct SMapGridCell {
     ((SMapGridCell *)(func_00155280() + (rowOffset) + (columnOffset) + 0x50))
 #define SMAP_GRID_NEIGHBOR_AT(rowOffset, columnOffset, cellOffset) \
     (SMAP_GRID_CELL_AT(rowOffset, columnOffset) + (cellOffset))
+
+static inline u8 *smapRevealOffsetPtr(u32 offset, u8 *base) {
+    return (u8 *)(offset + (u32)base);
+}
 
 #pragma push
 #pragma opt_loop_invariants on
@@ -479,7 +484,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                         while ((temp_18_3 = ((s16)(var_17))) < 2) {
                             temp_21_2 = SMAP_GRID_SCAN_AT((((s32)arg0) * 0x10), ((temp_16_2 + temp_18_3) << 8))->kind;
                             if (temp_21_2 == SMAP_GRID_OFFSET_AT(temp_23)->kind) {
-                                temp_5_3 = (u16 *)((u8 *)((temp_16_2 * 2) + (u32)D_00764658) + (temp_18_3 * 2));
+                                temp_5_3 = (u16 *)((u8 *)smapRevealOffsetPtr(temp_16_2 * 2, (u8 *)D_00764658) + (temp_18_3 * 2));
                                 *temp_5_3 |= (1 << sp150) & 0xFFFF & 0xFFFF;
                             }
                             var_17 = ((s16)((var_17 + 1)));
