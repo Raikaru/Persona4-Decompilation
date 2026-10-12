@@ -3052,6 +3052,7 @@ void func_001a5990(void)
  * 2026-10-12 reaction reaching definitions: fnalign 23 -> 15; retain the truthy byte/random gate values and the ID comparison's shared one until the common decision test, without an extra boolean-result block.
  * 2026-10-12 post-repeat row accessor: fnalign 15 -> 8; reread the halfword index through the byte-row accessor, then retain the caller's typed result snapshot. Retail's lhu/move and every 0x330-frame offset now agree.
  * 2026-10-12 effect-index API: fnalign 8 -> 6; the canonical callee consumes only the skill key's low halfword and remains byte-exact with u16. Its sole C caller now materializes the native halfword argument in retail order.
+ * 2026-10-12 camera field origin: fnalign 6 -> 4; pass the first signed-halfword field to the strided reader, preserving the GP load and both retail index-first addu operands. Four branch-target differences remain.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3060,6 +3061,10 @@ void func_001a5990(void)
 static inline u8 *btlHitResult_001a59a0(u8 *action, const u16 *index)
 {
     return action + (u32)*index * 0x20 + 0xF0;
+}
+static inline s16 btlCameraField_001a59a0(u16 unitId, s16 *firstField)
+{
+    return *(s16 *)((u8 *)firstField + (u16)unitId * 0xE8);
 }
 static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
 {
@@ -3088,7 +3093,7 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
         }
         break;
     case 1:
-        if (*(s16 *)((s32)iGpffffb3cc + (u16)unitId * 0xE8 + 0x22) == 1) {
+        if (btlCameraField_001a59a0(unitId, (s16 *)(iGpffffb3cc + 0x22)) == 1) {
             result = 1;
         } else {
             goto fail;
