@@ -969,6 +969,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 244 -> 227; snapshot the setup skill offset at the damage-phase boundary, restoring its word spill at sp+0x1d0.
  * measured 2026-10-12: fnalign 227 -> 219; read the adjacent target directly at i*4+0x3c; the loop bound proves i+1 cannot wrap.
  * measured 2026-10-12: fnalign 219 -> 189; normalize the result into a word snapshot, copy it into the record phase, and enable invariant motion; frame remains retail 0x310.
+ * measured 2026-10-12: fnalign 189 -> 185; use 0023e6f0's documented C89-promoted s32 skill interface, not its old-style u16 formal type.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -995,7 +996,8 @@ void func_001f14f0(u8 *arg0)
 
 {
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
-    extern s32 func_0023e6f0(u8 *, u8 *, u16, s32);
+    /* H011: datCalc.c declares the C89-promoted s32 call interface before its K&R definition. */
+    extern s32 func_0023e6f0(u8 *, u8 *, s32, s32);
     /* H011: retail 001f14f0 passes (arg0, unit, id) to this empty callee. */
     extern void func_001f9cd0(u8 *, u8 *, s32);
     extern s32 func_001fb170(u16);
