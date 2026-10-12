@@ -4140,6 +4140,8 @@ void func_001a7710(void)
  * (retail keeps hitRow + 0x10E in $a0), and sp200's tests drop the s32 casts.
  * 478 -> 477: the SP delta reads its row with uncast u8 arithmetic.
  * 477 -> 472: both later timing branches clear var_18 (retail's move $s2,$zero).
+ * 472 -> 470: sp270 is s16 (retail copies sp450 with lh/sh, no conversion);
+ * its u16 uses fold the conversion into lhu reloads.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4295,7 +4297,7 @@ void func_001a7720(u8 *arg0) {
     u16 sp2A0;
     s32 sp290;
     u16 sp280;
-    u16 sp270;
+    s16 sp270;
     s32 sp260;
     s32 sp250;
     s32 *sp240;
