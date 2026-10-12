@@ -215,7 +215,7 @@ s32 func_002ac740(void) {
 /* Reveal the current minimap cell, connected walls, or the matching room footprint.
  * measured: fnalign 327 -> 315 -> 313 edits with typed cell/scan views and offset-first row addresses.
  * measured: fnalign 313 -> 311 edits with an offset-first reveal-row pointer helper.
- * measured: fnalign 311 -> 310 edits with shared signed step locals in the two-cell anchor search.
+ * measured: fnalign 311 -> 310 -> 309 edits with per-search signed step locals.
  * opt_loop_invariants on retains the retail loop hoists; coordinate CSE and spill allocation remain.
  */
 // FUN_002AC750 NONMATCHING
@@ -264,7 +264,6 @@ void func_002ac750(u8 arg0, u8 arg1) {
     s32 spD0;
     s32 spC0;
     s32 spB0;
-    s32 temp_2_8;
     s32 temp_16;
     s32 temp_17;
     s32 temp_17_2;
@@ -339,6 +338,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
     s32 var_21;
     s32 var_21_2;
     s32 var_22;
+    s32 searchRowStep3;
+    s32 searchColumnStep3;
     s32 var_22_2;
     s32 var_23;
     s32 var_30;
@@ -630,21 +631,27 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 sp180 = temp_18;
                 sp170 = (s32)arg0;
                 temp_18_7 = temp_17 + temp_16;
-                for (var_22_2 = 0; (s16)var_22_2 < 3; var_22_2 = (s16)(var_22_2 + 1)) {
-                    temp_2_6 = ((s8)(func_002b2d00(sp180, (s16)var_22_2, 1, 0x18, 1)));
-                    spE0 = (s32) temp_2_6;
+                var_22_2 = 0;
+                while ((searchRowStep3 = (s16)var_22_2) < 3) {
+                    temp_2_6 = (s8)func_002b2d00(sp180, searchRowStep3, 1, 0x18, 1);
+                    spE0 = temp_2_6;
+                    var_23 = 0;
                     spD0 = temp_2_6 << 8;
-                    for (var_23 = 0; (s16)var_23 < 3; var_23 = (s16)(var_23 + 1)) {
-                        temp_2_7 = ((s8)(func_002b2d00(sp170, (s16)var_23, 1, 0x10, 1)));
-                        spC0 = (s32) temp_2_7;
-                        temp_2_8 = temp_2_7 * 0x10;
-                        spB0 = temp_2_8;
-                        if (((SMAP_GRID_SCAN_AT(spD0, temp_2_8)->reveal & 0xF) == 1) && (temp_2_9 = SMAP_GRID_SCAN_AT(spD0, spB0)->kind, (temp_2_9 == SMAP_GRID_OFFSET_AT(temp_18_7)->kind))) {
-                            var_30 = ((s8)((s64) spC0));
-                            var_21 = ((s8)((s64) spE0));
-                            break;
+                    while ((searchColumnStep3 = (s16)var_23) < 3) {
+                        temp_2_7 = (s8)func_002b2d00(sp170, searchColumnStep3, 1, 0x10, 1);
+                        spC0 = temp_2_7;
+                        spB0 = temp_2_7 * 0x10;
+                        if ((SMAP_GRID_SCAN_AT(spD0, spB0)->reveal & 0xF) == 1) {
+                            temp_2_9 = SMAP_GRID_SCAN_AT(spD0, spB0)->kind;
+                            if (temp_2_9 == SMAP_GRID_OFFSET_AT(temp_18_7)->kind) {
+                                var_30 = (s8)(s64)spC0;
+                                var_21 = (s8)(s64)spE0;
+                                break;
+                            }
                         }
+                        var_23 = (s16)(var_23 + 1);
                     }
+                    var_22_2 = (s16)(var_22_2 + 1);
                 }
                 temp_4_33 = SMAP_GRID_CELL_AT(temp_17, temp_16)->orientation;
                 switch (temp_4_33) {                /* switch 3; irregular */
