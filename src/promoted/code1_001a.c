@@ -4014,6 +4014,7 @@ void func_001a7710(void)
  * 2026-10-12 measured: fnalign 953 -> 917; restore retail-reaching sp30C/sp4CC definitions, u16 motion and word flags, and retain the skill offset while reloading its table base.
  * 2026-10-12 measured: fnalign 917 -> 907; typed partner view and a promoted flag snapshot restore the partner load before the second flag test.
  * 2026-10-12 measured: fnalign 907 -> 906 with scoped opt_propagation off; CSE-on and loop-invariant hoisting regress.
+ * 2026-10-12 measured: fnalign 906 -> 901; test s32 predicate results without widening and retain the bounded random result's unsigned comparison.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4584,7 +4585,7 @@ void func_001a7720(u8 *arg0) {
         if (((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
             if (((s32)(s32)sp1D0 == 0) && (sp2B0 == 0)) {
                 if (temp_23_2 == 0) {
-                    if (!((*( u16 * )((u8 *)(arg0) + (0x18))) & 0x40) && ((((s32)(func_001f0af0(arg0)) != (s32)(0)) && ((s32)(func_00231d70(0x64U)) < (s32)(0x14U))) || ((*( s32 * )((u8 *)(iGpffffb3ac) + (0x10))) & 0x1000))) {
+                    if (!((*( u16 * )((u8 *)(arg0) + (0x18))) & 0x40) && ((((s32)(func_001f0af0(arg0)) != (s32)(0)) && (func_00231d70(0x64U) < 0x14U)) || ((*( s32 * )((u8 *)(iGpffffb3ac) + (0x10))) & 0x1000))) {
                         var_21 = 1;
                         (*( u16 * )((u8 *)(arg0) + (0x18))) = (u16)((u16) ((*( u16 * )((u8 *)(arg0) + (0x18))) | 0x40));
                         temp_4_3 = (u8 *)(iGpffffb3ac);
@@ -4621,7 +4622,7 @@ void func_001a7720(u8 *arg0) {
                 sp320 = 1;
                 sp3F0 = 2;
             }
-            if ((temp_23_2 == 0) && ((s64)(func_001f1030(arg0)) != (s64)(0)) && (temp_2_2 != 0xF4)) {
+            if ((temp_23_2 == 0) && (func_001f1030(arg0) != 0) && (temp_2_2 != 0xF4)) {
                 sp2D0 = 1;
                 sp320 = 1;
                 var_21 = 0;
@@ -4837,7 +4838,7 @@ void func_001a7720(u8 *arg0) {
             }
             sp480 = *(s64 *)(var_19 + 0x58);
         } else if (((s32)(s32)sp1F0 == 1) || ((s32)(s32)sp220 == 1)) {
-            if ((temp_23_2 == 0) && ((s64)(func_001f1030(arg0)) != (s64)(0)) && (temp_2_2 != 0xF4)) {
+            if ((temp_23_2 == 0) && (func_001f1030(arg0) != 0) && (temp_2_2 != 0xF4)) {
                 sp2D0 = 1;
                 sp320 = 1;
                 temp_2_38 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
