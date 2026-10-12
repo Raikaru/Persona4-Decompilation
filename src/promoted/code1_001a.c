@@ -3049,6 +3049,7 @@ void func_001a5990(void)
  * 2026-10-12 distance-packet address word: fnalign 54 -> 52; read the existing unit-address word at the integer ABI boundary instead of hoisting a pointer-to-integer conversion across the distance branch.
  * 2026-10-12 result-packet address word: fnalign 52 -> 50; likewise read the selected unit as the constructor's native integer address, restoring source/target argument materialization order.
  * 2026-10-12 camera reaching definitions: fnalign 50 -> 23; assign the predicate in each successful case rather than eagerly initializing it, matching both retail constant/load order and the case-1 success jump.
+ * 2026-10-12 reaction reaching definitions: fnalign 23 -> 15; retain the truthy byte/random gate values and the ID comparison's shared one until the common decision test, without an extra boolean-result block.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3842,33 +3843,37 @@ void func_001a59a0(s64 *arg0_) {
                 if (sp290 > 0) {
                     if ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) == 0) {
                         spF0 = func_001ef720(2, 0x80000) & 0xFFFF;
-                        if (((s32) (*(u8 *)(arg0 + (0x28))) <= 0) && ((*(u16 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA4))) != 1) && (func_00231d70(0x64) < 0x32U)) {
-                            if ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) != 0) {
-                                var_2_8 = 0;
-                            } else {
-                                temp_4_6 = (u8 *)(iGpffffb3ac);
-                                if ((*(s16 *)((u8 *)(temp_4_6) + (0xA70))) != -1) {
-                                    temp_3_4 = (s16)(spF0 - sp290);
-                                    if (temp_3_4 <= 0) {
-                                        temp_4_7 = func_001ef720(2, 0x80000) & 0xFFFF;
-                                        temp_3_5 = (u8 *)(iGpffffb3ac);
-                                        if (((u32) ((s16) (*(s16 *)((u8 *)(temp_3_5) + (0xA72))) >> 1) >= temp_4_7) && (temp_2_53 = (*(s16 *)((u8 *)(temp_3_5) + (0xA70))), spE0 = (s32) temp_2_53, (temp_2_53 != (s16)func_001d15a0()))) {
-                                            var_2_8 = 1;
-                                        } else {
-                                            goto block_222;
-                                        }
-                                    } else if (((s16) (*(s16 *)((u8 *)(temp_4_6) + (0xA72))) >> 1) >= temp_3_4) {
-                                        var_2_8 = 1;
+                        var_2_8 = *(u8 *)(arg0 + 0x28);
+                        if (var_2_8 <= 0) {
+                            if (*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4) != (var_2_8 = 1)) {
+                                var_2_8 = func_00231d70(0x64);
+                                if ((u32)var_2_8 < 0x32U) {
+                                    if ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) != 0) {
+                                        var_2_8 = 0;
                                     } else {
-                                        goto block_222;
-                                    }
-                                } else {
+                                        temp_4_6 = (u8 *)(iGpffffb3ac);
+                                        if ((*(s16 *)((u8 *)(temp_4_6) + (0xA70))) != -1) {
+                                            temp_3_4 = (s16)(spF0 - sp290);
+                                            if (temp_3_4 <= 0) {
+                                                temp_4_7 = func_001ef720(2, 0x80000) & 0xFFFF;
+                                                temp_3_5 = (u8 *)(iGpffffb3ac);
+                                                if (((u32) ((s16) (*(s16 *)((u8 *)(temp_3_5) + (0xA72))) >> 1) >= temp_4_7) && (temp_2_53 = (*(s16 *)((u8 *)(temp_3_5) + (0xA70))), spE0 = (s32) temp_2_53, (temp_2_53 != (s16)func_001d15a0()))) {
+                                                    var_2_8 = 1;
+                                                } else {
+                                                    goto block_222;
+                                                }
+                                            } else if (((s16) (*(s16 *)((u8 *)(temp_4_6) + (0xA72))) >> 1) >= temp_3_4) {
+                                                var_2_8 = 1;
+                                            } else {
+                                                goto block_222;
+                                            }
+                                        } else {
 block_222:
-                                    var_2_8 = 0;
+                                            var_2_8 = 0;
+                                        }
+                                    }
                                 }
                             }
-                        } else {
-                            var_2_8 = 1;
                         }
                         if (var_2_8 != 0) {
                             temp_2_55 = (u8 *)(func_001f5f70(arg0, 0x13, sp290, 0, 0));
