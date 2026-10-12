@@ -284,6 +284,41 @@ Any order with `table` before `size` gives 0 edits.
   Spelling it as a repeated expression makes a CSE temporary but perturbs
   the `c0`/`stride` saved pair (34).
 
+**`004b8f40`, `003768e0`, `003599c0` MATCH.**
+- `004b8f40` (1): the midpoint row is `effAfterOffsetPtr((u32)(i * 3) * 4, base)`
+  assigned inside the first `EffAfterVec` copy, after the source offset is
+  held in its own local. That puts the source index first, then the row,
+  then the source base, which is retail's order.
+- `003768e0` (13): `time` and `step` are declared before `opacity` at
+  function scope (the reverse order gives 13).
+- `003599c0` (12): each panel-width read is spelled per site so retail's
+  index-first `addu` is recomputed per read: the struct view for heights,
+  `*(u16 *)((u8 *)(arg0 * 48) + (u32)arg1 + off)` for the first width,
+  `(u8 *)(u32)(arg0 * 48)` for the second and `... + (s32)arg1 + off` for the
+  third. A uniform spelling gives 55.
+
+**Tool: `tools/spill_costs.py SNAP --vreg N...` lists which references make
+up each spill score.** It reimplements b210's estimator (0x0055E5C0). The
+estimator is called lazily, only when simplify blocks, so a class that
+colours without blocking keeps zero scores. For each block weight `w`
+(1 in our builds: global 0x006365CC is set), it adds:
+- each use of the coloured class: `+w`;
+- each def: `+w`, or `-w` when the node is a rematerialisable constant
+  (node +0x08 set) or the PCode has property 0x8000.
+
+So a score is simply uses + defs. The model reproduces all 371 GPR scores
+of `00162e10`. The debugger now captures block `loop_weight_i32` (+0x28) for
+the `--loop-weights` mode (mwccps2-debugger `5ea1631`). Reading of
+`00162e10` with it:
+- `found` has 3 references and `k` has 4, matching retail's final
+  instructions, but retail's colours need `found` = 4 or `k` <= 3.
+- b210 deletes nothing after colouring (no self-moves removed), so retail's
+  allocation-time code must have had one more `found` reference that a
+  later pass folded, or one fewer `k` reference.
+- Edge additions and removals around either node cannot reproduce retail's
+  colours; only these score changes can.
+
+
 
 
 ## October 10 continuation, part 11: `0036ee60`, `00283490`, `001e9950`, `00160880`, `001400f0` MATCH; spill sets
