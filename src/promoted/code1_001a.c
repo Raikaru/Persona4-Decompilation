@@ -4051,6 +4051,7 @@ void func_001a7710(void)
  * 2026-10-12 selector consumers: fnalign 759 -> 752; retain widened motion/effect selectors after their signed-halfword reads, eliminating repeated extensions.
  * 2026-10-12 duration repair: fnalign 752 -> 746; retain the full unsigned word sum and logical shift used by retail, rather than truncating the animation duration to u16.
  * 2026-10-12 windup duration: fnalign 746 -> 745; retain the signed word consumed by retail's arithmetic right shift at 001A81E8, rather than a logical shift.
+ * 2026-10-12 skill lookup order: fnalign 745 -> 742; evaluate the 0x28-byte row offset before loading its global table base, matching retail's opening skill-flag read.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4512,7 +4513,7 @@ void func_001a7720(u8 *arg0) {
     sp220 = (s32)((s32)(func_001f2f90(arg0)) == (s32)(0));
     sp350 = 6;
     temp_2_2 = sp450;
-    sp210 = (s32)((s32)(s32)((s32)((*((u8 *)(((s32)iGpffffb3b8) + (temp_2_2 * 0x28))) & 2)) != (s32)(0)));
+    sp210 = (s32)((s32)(s32)((s32)((*((u8 *)(temp_2_2 * 0x28) + (u32)iGpffffb3b8) & 2)) != (s32)(0)));
     sp200 = ((*(u16 *)(arg0 + 0x1A) & 0x10) != 0) && sp210 == 0;
     sp1F0 = (s32)((s32)(s32)((*( u16 * )((u8 *)(arg0) + (0x6C))) == 3));
     sp33C = (s32)((s32)(func_001f0ff0(arg0)));
