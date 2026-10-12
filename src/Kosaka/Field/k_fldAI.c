@@ -1023,6 +1023,7 @@ tail:
  * measured 2026-10-12: fnalign 23 -> 17; inline speed scaling preserves the field-before-scale loads and scale-first multiply at the three clamped movement sites.
  * measured 2026-10-12: fnalign 17 -> 14; reuse scalar scaling for the oscillation amplitude and accumulate total turn through its storage pointer.
  * measured 2026-10-12: fnalign 14 -> 10; the marker constructor takes a parent task and draw-list pointer, now corrected in both definition and caller.
+ * measured 2026-10-12: fnalign 10 -> 9; reuse the sibling's storage-offset helper for the alternate patrol-box comparison's offset-first address.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1328,10 +1329,10 @@ availabilityDone:
           int cur = piVar1[0x12];
           temp_v7 = cur != 0 ^ 1;
           temp_v5 = 0;
-          if ((!(aiPos.x < ((float *)piVar1)[temp_v7 * 6 + 9]) &&
-               (aiPos.x <= ((float *)piVar1)[temp_v7 * 6 + 6])) &&
-              (!(aiPos.z < ((float *)piVar1)[temp_v7 * 6 + 0xb])) &&
-             (aiPos.z <= ((float *)piVar1)[temp_v7 * 6 + 8])) {
+          if ((!(aiPos.x < ((float *)fldFollowerStorageOffset(temp_v7 * 24, (u8 *)piVar1))[9]) &&
+               (aiPos.x <= ((float *)fldFollowerStorageOffset(temp_v7 * 24, (u8 *)piVar1))[6])) &&
+              (!(aiPos.z < ((float *)fldFollowerStorageOffset(temp_v7 * 24, (u8 *)piVar1))[0xb])) &&
+             (aiPos.z <= ((float *)fldFollowerStorageOffset(temp_v7 * 24, (u8 *)piVar1))[8])) {
             temp_v5 = 1;
           }
           if (temp_v5 == 1) {
