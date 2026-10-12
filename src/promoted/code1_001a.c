@@ -4042,6 +4042,7 @@ void func_001a7710(void)
  * 2026-10-12 retail dataflow: fnalign 820 -> 819; restore the outer loop's zero-target pretest (001a9790 -> 001aadd0), and remove the invented second argument to 00202740.
  * 2026-10-12 effect-table repair: fnalign 819 -> 817; retail 001AA458 loads a word from the global table directly, not an unaligned doubleword through its first entry.
  * 2026-10-12 conditional rebuild: fnalign 817 -> 810; disable branch-fed scalar rebuilding while retaining the existing scoped CSE/propagation settings.
+ * 2026-10-12 reaction-index join: fnalign 810 -> 803; retain the signed-halfword conversion in a word-sized index, avoiding a second extension before the table lookup.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4281,7 +4282,7 @@ void func_001a7720(u8 *arg0) {
     s16 temp_3;
     s16 temp_3_13;
     s16 temp_3_14;
-    s16 temp_3_15;
+    s32 temp_3_15;
     s16 temp_3_17;
     s16 temp_3_5;
     s64 var_17_3;
