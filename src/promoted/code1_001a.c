@@ -3042,6 +3042,7 @@ void func_001a5990(void)
  * 2026-10-12 row phases: fnalign 88 -> 82; use unsigned byte-address indices inside both loops and recompute the hit-result view after the repeat phase, separate from the retained hitRow snapshot.
  * 2026-10-12 opening scan index: fnalign 82 -> 74; narrow the row index independently from the masked loop bound, preserving retail's separate halfword normalizations.
  * 2026-10-12 opening packet contract: fnalign 74 -> 72; use the matched sibling's BtlPacket *(u32, u16) constructor signature to preserve native halfword argument evaluation.
+ * 2026-10-12 paired-target flag: fnalign 72 -> 70; normalize the masked flag before inverting it, matching retail's sltu/xori sequence.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3569,7 +3570,7 @@ void func_001a59a0(s64 *arg0_) {
         }
         if (btlUnitKind_001a59a0(temp_19) == 0) {
             if ((func_001f08c0(temp_19) != 0) && (temp_4_5 = var_22_3->unit, ((*(u8 *)((u8 *)(temp_4_5) + (0xA2))) == 1))) {
-                sp210 = (s32)(((*(s16 *)((u8 *)((((s32)iGpffffb3cc) + ((*(u16 *)((u8 *)(temp_4_5) + (0xA4))) * 0xE8))) + (0x18))) & 0x40) == 0);
+                sp210 = (s32)(((*(s16 *)((u8 *)((((s32)iGpffffb3cc) + ((*(u16 *)((u8 *)(temp_4_5) + (0xA4))) * 0xE8))) + (0x18))) & 0x40) != 0) ^ 1;
             } else {
                 sp210 = 0;
             }
