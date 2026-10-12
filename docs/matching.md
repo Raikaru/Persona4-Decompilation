@@ -585,6 +585,22 @@ below are the codegen consequences.
       every FPR copy, using only definitions earlier in the same block. A
       copy whose destination is still live out of the block survives.
 
+    Where the numbers come from (Ghidra/objdump of b210, measured with
+    `tools/b210_micro.py`, 2026-10-12): at codegen entry `0x00438000` walks
+    the function's locals list (`*(0x00636D8C)`, next at +0, object at +4)
+    and takes the next GPR (`0x00636F98`), FPR (`0x00636F9C`) or VU number for
+    every register candidate. The frontend appends each declaration to that
+    list in order (`0x00479A8A`). A frontend temporary is created by
+    `0x0044C870` and appended at the tail (`0x0047BD40`), so it is numbered
+    after every declared local. In a function with hundreds of Ghidra
+    locals a frontend temporary lands near r700, far above any declared
+    local. A local that the frontend replaces with such a temporary (for
+    example `base = global;` when the global cannot change before the uses)
+    loses its low number this way. Under `#pragma optimization_level 1`
+    there is no `propagatecopyinstructions`; peephole alone rewrites
+    same-block uses to the temporary, and a copy whose destination is still
+    needed is left in place.
+
     Locals with several reaching definitions *from different sources*,
     such as loop counters and flags, keep their low declared numbers.
     Everything else takes the temporary's high number, so declaration order
