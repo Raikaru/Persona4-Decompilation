@@ -2066,6 +2066,7 @@ static inline s32 fldBothReady_0018a200(void)
  * measured 2026-10-12: fnalign 59 -> 57: separate the oscillator spline-time reload from the later progress update, avoiding a saved field-address lifetime across model calls.
  * measured 2026-10-12: fnalign 57 -> 50: split the visibility boolean from the later u16 model flags and preserve its real s32 setter contract, removing redundant narrowing.
  * measured 2026-10-12: fnalign 50 -> 47: compute the signed-side dot product before initializing its comparison zero; the complete side-test block now aligns.
+ * measured 2026-10-12: fnalign 47 -> 19: recover typed oscillator progress/step/direction fields and a block-local work snapshot; place the shared work pointer after per-role locals, following the captured allocation graph. Retail frame, saves, and 1588-instruction size are exact.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2168,6 +2169,13 @@ typedef struct {
     u32 curve;
 } FldActorObject;
 
+typedef struct {
+    u8 unk00[0x18];
+    f32 progress;
+    f32 step;
+    f32 direction;
+} FldActorWork;
+
 s32 func_0018a200(u8 *param_1)
 
 {
@@ -2184,7 +2192,6 @@ s32 func_0018a200(u8 *param_1)
   s32 updateAnimationKind;
   FldActorObject *initialAnimationObject;
   s32 initialAnimationId;
-  unsigned int *puVar1;
   unsigned int temp_v0;
   s32 temp_v1;
   unsigned short temp_v2;
@@ -2241,6 +2248,7 @@ s32 func_0018a200(u8 *param_1)
   f32 sideY;
   f32 sideZero;
   f32 sideDot;
+  unsigned int *puVar1;
 
   int iStack_4;
   float vec10[3];
@@ -2731,25 +2739,26 @@ s32 func_0018a200(u8 *param_1)
             FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
             FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
             {
+            FldActorWork *motionWork = (FldActorWork *)puVar1;
             f32 zero;
             f32 one;
 
-            ((float*)puVar1)[6] = (((float*)puVar1)[7] * ((float*)puVar1)[8] + ((float*)puVar1)[6]);
+            motionWork->progress = (motionWork->step * motionWork->direction + motionWork->progress);
             zero = 0.0f;
-            if (!(((float*)puVar1)[8] <= zero)) {
+            if (!(motionWork->direction <= zero)) {
               one = 1.0f;
-              if (!(((float*)puVar1)[6] <= one)) {
-                ((float*)puVar1)[6] = (one - ((float*)puVar1)[7]);
-                puVar1[8] = 0xbf800000;
+              if (!(motionWork->progress <= one)) {
+                motionWork->progress = (one - motionWork->step);
+                motionWork->direction = -1.0f;
                 puVar1[9] = 0x5a;
                 pauseRoll = FUN_003b7060();
                 puVar1[10] = pauseRoll % 0x5a + 0x3c;
                 func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
               }
             }
-            else if (((float*)puVar1)[6] < zero) {
-              ((float *)puVar1)[6] = ((float *)puVar1)[7];
-              puVar1[8] = 0x3f800000;
+            else if (motionWork->progress < zero) {
+              motionWork->progress = motionWork->step;
+              motionWork->direction = 1.0f;
               puVar1[9] = 0x5a;
               pauseRoll = FUN_003b7060();
               puVar1[10] = pauseRoll % 0x5a + 0x3c;
