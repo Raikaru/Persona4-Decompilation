@@ -25,11 +25,19 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 11 continuation, part 12: `00183b80`, `001265a0`, `0047b0c0`, `004b8f40`, `003768e0`, `003599c0` MATCH; live-range numbering
+## October 11 continuation, part 12: `00183b80`, `001265a0`, `0047b0c0`, `004b8f40`, `003768e0`, `003599c0`, `003694d0` MATCH; live-range numbering
 
-**6,842 MATCH / 18 ASM** (`build/after45.json`; against `after44.json` only
-`004b8f40`, `003768e0` and `003599c0` changed; link 604 C / 54 SDK, both sha1
-OK in `build/link49.log`).
+**6,843 MATCH / 17 ASM** (`build/after46.json`; against `after45.json` only
+`003694d0` changed; link 604 C / 54 SDK, both sha1 OK in `build/link50.log`).
+
+**Build speed (commit `58aaec60`):** a warm `tools/build.py` run is 115 s and
+a full recompile 599 s, down from about 37 and 60 minutes. Each WSL launch
+costs about 1.2 s, and every path argument used to launch `wslpath`. Paths
+are now mapped locally, WSL tools run through one persistent shell, carved
+assembly is cached in `build/cache/asm`, and compiles and chunk assembly run
+on a thread pool (`P4_BUILD_JOBS`). The C object cache still keys on the
+full source of `build.py`, `verify.py` and mwccgap, so editing them forces a
+full recompile.
 
 **Lever: give each repeated code group its own locals.** A local that is
 reassigned in several independent groups (Ghidra/m2c reuse, or one `w`/`h`
