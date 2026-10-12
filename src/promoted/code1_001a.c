@@ -4110,6 +4110,7 @@ void func_001a7710(void)
  * 2026-10-12 reaction count: fnalign 742 -> 740; pass the full word count to 001f99c0, matching retail's lw argument instead of the decompiler's u16 truncation.
  * 2026-10-12 reaction fallback: fnalign 740 -> 738; keep the fallback test chain inline and compare the bounded random result as unsigned, preserving the positive-byte guard.
  * 2026-10-12 camera packet frame: fnalign 738 -> 639, frame 0x5D0 -> retail 0x5B0; retain the canonical packet pointer directly in the persistent camera snapshot, without two redundant aliases and their coalesced spill object.
+ * 2026-10-12 unit-table flag: fnalign 639 -> 637; normalize bit 0x40 before inverting the boolean, matching retail's sltu/xori pair rather than xor/sltiu.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5338,7 +5339,8 @@ void func_001a7720(u8 *arg0) {
             sp160 = 1;
             if (var_5 == 1) {
                 var_5 = *(u16 *)(temp_4_12 + 0xA4) * 0xE8;
-                sp160 = (s32)((s32)(s32)((s32)(((*( s16 * )((u8 *)((((s32)iGpffffb3cc) + var_5)) + (0x18))) & 0x40)) == (s32)(0)));
+                sp160 = (s32)((s32)(s32)((s32)(((*( s16 * )((u8 *)((((s32)iGpffffb3cc) + var_5)) + (0x18))) & 0x40)) != (s32)(0)));
+                sp160 ^= 1;
             }
             if ((temp_2_78 != 0) || ((*( s32 * )((u8 *)(temp_18) + (0xE4))) != 0)) {
                 sp440 = 0x1E;
