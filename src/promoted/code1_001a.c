@@ -3028,6 +3028,7 @@ void func_001a5990(void)
  * 2026-10-12 measured: fnalign 405 -> 343; captured regalloc requires the source unit before the phase locals. Sound query contracts now match their providers.
  * 2026-10-12 frame audit: fnalign 343 -> 340, frame 0x3C0 -> 0x3B0; voice option is s32 and the target count is already bounded by u16, so no masked spill is needed.
  * 2026-10-12 row lifetime: fnalign 340 -> 335; retain the unbiased target-plus-hit-stride base, restoring retail's separate row spill and +0xF0 payload address (frame 0x3C0).
+ * 2026-10-12 UID accessor: fnalign 335 -> 331, frame 0x3C0 -> 0x3B0; inline packet UID reads eliminate the cross-call +0x58 address spill.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3070,6 +3071,10 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
         break;
     }
     return result;
+}
+static inline s64 btlPacketUID_001a59a0(u8 *packet)
+{
+    return *(s64 *)(packet + 0x58);
 }
 void func_001a59a0(s64 *arg0_) {
     u8 *arg0 = (u8 *)arg0_;
@@ -3722,32 +3727,32 @@ void func_001a59a0(s64 *arg0_) {
                         temp_5_3 = (u8 *)((*(u8 **)((u8 *)(var_22_3) + (0x30))));
                         temp_2_43 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD84))), temp_5_3, temp_5_3, 1, 0));
                         (*(s8 *)((u8 *)(temp_2_43) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_43) + (8))) = (s64) (*(s64 *)((u8 *)(u32)(sp2D4) + (0x58)));
+                        (*(s64 *)((u8 *)(temp_2_43) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
                         (*(s64 *)((u8 *)(temp_2_43) + (0x60))) = temp_17;
                         func_00194590(temp_2_43, 2);
                         temp_5_4 = (u8 *)((*(u8 **)((u8 *)(var_22_3) + (0x30))));
                         temp_2_44 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), temp_5_4, temp_5_4, 1, 0));
                         (*(s8 *)((u8 *)(temp_2_44) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_44) + (8))) = (s64) (*(s64 *)((u8 *)(sp2D4) + (0x58)));
+                        (*(s64 *)((u8 *)(temp_2_44) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
                         (*(s16 *)((u8 *)(temp_2_44) + (0x48))) = 0x14;
                         (*(s64 *)((u8 *)(temp_2_44) + (0x60))) = temp_17;
                         func_00194590(temp_2_44, 2);
                         temp_5_5 = (u8 *)((*(u8 **)((u8 *)(var_22_3) + (0x30))));
                         temp_2_45 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), temp_5_5, temp_5_5, 1, 0));
                         (*(s8 *)((u8 *)(temp_2_45) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_45) + (8))) = (s64) (*(s64 *)((u8 *)(sp2D4) + (0x58)));
+                        (*(s64 *)((u8 *)(temp_2_45) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
                         (*(s16 *)((u8 *)(temp_2_45) + (0x48))) = 0x1A;
                         (*(s64 *)((u8 *)(temp_2_45) + (0x60))) = temp_17;
                         func_00194590(temp_2_45, 2);
                     } else {
                         temp_2_46 = (u8 *)(func_00197cc0((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30))), (s16) (*(u16 *)(arg0 + (0x6E))), 0));
                         (*(s8 *)((u8 *)(temp_2_46) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_46) + (8))) = (s64) (*(s64 *)((u8 *)(u32)(sp2D4) + (0x58)));
+                        (*(s64 *)((u8 *)(temp_2_46) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
                         (*(s64 *)((u8 *)(temp_2_46) + (0x60))) = temp_17;
                         func_00194590(temp_2_46, 1);
                         temp_2_47 = (u8 *)(func_001bccc0(0x14, 0x32, 0, 5));
                         (*(s8 *)((u8 *)(temp_2_47) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_47) + (8))) = (s64) (*(s64 *)((u8 *)(sp2D4) + (0x58)));
+                        (*(s64 *)((u8 *)(temp_2_47) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
                         (*(s64 *)((u8 *)(temp_2_47) + (0x60))) = temp_17;
                         func_00194590(temp_2_47, 1);
                     }
