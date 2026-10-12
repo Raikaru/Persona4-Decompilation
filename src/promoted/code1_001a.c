@@ -4013,11 +4013,13 @@ void func_001a7710(void)
  * fnalign 959 -> 952: if/else arms in retail layout order (negated condition).
  * 2026-10-12 measured: fnalign 953 -> 917; restore retail-reaching sp30C/sp4CC definitions, u16 motion and word flags, and retain the skill offset while reloading its table base.
  * 2026-10-12 measured: fnalign 917 -> 907; typed partner view and a promoted flag snapshot restore the partner load before the second flag test.
+ * 2026-10-12 measured: fnalign 907 -> 906 with scoped opt_propagation off; CSE-on and loop-invariant hoisting regress.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_common_subs off
+#pragma opt_propagation off
 void func_001a7720(u8 *arg0) {
 
     extern s32 btlCreateSetFlagsPacket(u32);
