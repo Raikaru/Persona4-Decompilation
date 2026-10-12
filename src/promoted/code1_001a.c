@@ -3025,6 +3025,7 @@ void func_001a5990(void)
  * fnalign 455 -> 453: integer-cast field-base reads (second pass).
  * 2026-10-12 measured: fnalign 453 -> 452; the hit-effect flag is a word (retail sw/lw), not s16.
  * 2026-10-12 measured: fnalign 452 -> 405; let the timing APIs narrow their u16 motion argument, without a shared masked temporary.
+ * 2026-10-12 measured: fnalign 405 -> 343; captured regalloc requires the source unit before the phase locals. Sound query contracts now match their providers.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3070,6 +3071,7 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
 }
 void func_001a59a0(s64 *arg0_) {
     u8 *arg0 = (u8 *)arg0_;
+    u8 *temp_19;
     extern s32 func_00194590();
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *func_00197cc0();
@@ -3091,9 +3093,9 @@ void func_001a59a0(s64 *arg0_) {
     extern u8 *func_001f3950();
     extern u8 *func_001f5f70();
     extern s32 func_001f68e0();
-    extern s32 func_001f7830();
-    extern s32 func_001f7910();
-    extern u8 *func_001f7c20();
+    extern void func_001f7830(u8 *unit, s32 hit, s32 paired, s16 *cue, s16 *variant);
+    extern void func_001f7910(u8 *unit, u32 hit, s32 paired, s16 *cue, s16 *variant);
+    extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
     extern u8 *func_001f99c0();
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern u8 *func_00202010();
@@ -3196,7 +3198,6 @@ void func_001a59a0(s64 *arg0_) {
     u8 temp_2_10;
     u8 temp_2_8;
     u8 var_2_4;
-    u8 *temp_19;
     u8 *temp_2_11;
     u8 *temp_2_12;
     u8 *temp_2_13;
@@ -3626,7 +3627,7 @@ void func_001a59a0(s64 *arg0_) {
                 }
                 func_001f7830(temp_19, sp200, sp250, &sp32E, &sp32C);
                 if ((sp32E >= 0) && (sp32C >= 0)) {
-                    temp_2_34 = (u8 *)(func_001f7c20(0xD, sp32E & 0xFFFF, sp32C & 0xFFFF));
+                    temp_2_34 = (u8 *)(func_001f7c20(0xD, sp32E, sp32C));
                     (*(s8 *)((u8 *)(temp_2_34) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_34) + (8))) = temp_16;
                     (*(s16 *)((u8 *)(temp_2_34) + (0x48))) = var_21;
@@ -3667,7 +3668,7 @@ void func_001a59a0(s64 *arg0_) {
                     if (sp1C0 == 0) {
                         func_001f7910(temp_19, sp200, sp250, &sp32E, &sp32C);
                         if ((sp32E >= 0) && (sp32C >= 0)) {
-                            temp_2_38 = (u8 *)(func_001f7c20(0xA, sp32E & 0xFFFF, sp32C & 0xFFFF));
+                            temp_2_38 = (u8 *)(func_001f7c20(0xA, sp32E, sp32C));
                             (*(s8 *)((u8 *)(temp_2_38) + (0))) = 5;
                             (*(s64 *)((u8 *)(temp_2_38) + (8))) = temp_16;
                             (*(s16 *)((u8 *)(temp_2_38) + (0x48))) = var_21;
