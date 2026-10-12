@@ -4049,6 +4049,7 @@ void func_001a7710(void)
  * 2026-10-12 tail predicates: fnalign 786 -> 779; test the native s32 action predicates directly, without widening their zero comparisons.
  * 2026-10-12 threshold widths: fnalign 779 -> 759; use native unsigned/signed word comparisons for bounded random and signed-halfword thresholds, without 64-bit promotion.
  * 2026-10-12 selector consumers: fnalign 759 -> 752; retain widened motion/effect selectors after their signed-halfword reads, eliminating repeated extensions.
+ * 2026-10-12 duration repair: fnalign 752 -> 746; retain the full unsigned word sum and logical shift used by retail, rather than truncating the animation duration to u16.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4249,7 +4250,7 @@ void func_001a7720(u8 *arg0) {
     s32 temp_3_16;
     s32 temp_5_4;
     s32 var_17;
-    u16 var_18_3;
+    u32 var_18_3;
     s32 var_2_14;
     s16 var_2_17;
     s32 var_2_5;
@@ -4293,7 +4294,7 @@ void func_001a7720(u8 *arg0) {
     s32 temp_3_5;
     s64 var_17_3;
     s64 var_18;
-    s64 var_18_2;
+    s32 var_18_2;
     s32 var_2_11;
     s32 var_2_12;
     s32 var_2_2;
@@ -4688,7 +4689,7 @@ void func_001a7720(u8 *arg0) {
             func_00194590(var_17_2, 0);
             var_17_3 = *(s64 *)(var_17_2 + 0x58);
             if (sp2B0 == 0) {
-                var_18_3 = (s16)(func_00199500(*(u8 **)(arg0 + 0x30), 0xD, 1.0f) + (s16)var_18_2);
+                var_18_3 = func_00199500(*(u8 **)(arg0 + 0x30), 0xD, 1.0f) + (s16)var_18_2;
             } else {
                 var_18_3 = 0;
             }
