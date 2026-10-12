@@ -2065,6 +2065,7 @@ static inline s32 fldBothReady_0018a200(void)
  * measured 2026-10-12: fnalign 68 -> 59: start the oscillator comparison-zero lifetime after the progress update, restoring the update's retail floating-point operands.
  * measured 2026-10-12: fnalign 59 -> 57: separate the oscillator spline-time reload from the later progress update, avoiding a saved field-address lifetime across model calls.
  * measured 2026-10-12: fnalign 57 -> 50: split the visibility boolean from the later u16 model flags and preserve its real s32 setter contract, removing redundant narrowing.
+ * measured 2026-10-12: fnalign 50 -> 47: compute the signed-side dot product before initializing its comparison zero; the complete side-test block now aligns.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2239,6 +2240,7 @@ s32 func_0018a200(u8 *param_1)
   f32 sideX;
   f32 sideY;
   f32 sideZero;
+  f32 sideDot;
 
   int iStack_4;
   float vec10[3];
@@ -2787,8 +2789,9 @@ s32 func_0018a200(u8 *param_1)
       sideZ = vec150[2];
       sideX = vec150[0];
       sideY = vec150[1];
+      sideDot = nx * sideX + ny * sideY + nz * sideZ;
       sideZero = 0.0f;
-      if (ny * sideY + nx * sideX + nz * sideZ < sideZero) {
+      if (sideDot < sideZero) {
         temp_v12 = temp_v12 * -1.0f;
       }
       func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, temp_v12);
