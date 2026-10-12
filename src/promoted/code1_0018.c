@@ -2059,6 +2059,7 @@ static inline s32 fldBothReady_0018a200(void)
  * measured 2026-10-12: fnalign 277 -> 257: restore the case-1 actor-index reaching definition, use typed chained matrix diagonals, and give the initial vector comparison its own X/zero locals; remove the extra oscillator +0 after retail's accumulator addition.
  * measured 2026-10-12: fnalign 257 -> 151: separate actor lookup, unsigned movement-mode and per-case heading lifetimes; recover typed object snapshots, model-scale combineOp=1, canonical proximity contracts, RGBA size, and unsigned pause rolls. Retail frame/saves retained; ordinary allocation/CSE and call-argument residuals remain.
  * measured 2026-10-12: fnalign 151 -> 136: use the SDK spline constructor's s32 count/type and pointer contract; keep the closed-loop type as the value used by both selection and creation. The complete spline-construction branch now aligns.
+ * measured 2026-10-12: fnalign 136 -> 103: recover initial animation-ID loads and walking selection, signed-side component snapshots, the existing clump callback contract, and per-role normalization pointers. The side snapshots restore retail's persistent facing-vector FPR allocation.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2086,11 +2087,9 @@ extern int FUN_003b7060(void);
 /* Supplied declaration required: FUN_003bb5b0. */
 struct RpSpline;
 extern struct RpSpline *FUN_003bbbe0(s32 count, s32 type, RainVector *points);
-/* Supplied declaration required: FUN_003bff30. */
 /* Supplied declaration required: FUN_003e05d0. */
 /* Supplied declaration required: FUN_003e0870. */
 extern unsigned int FUN_003e0f80(void);
-/* Supplied declaration required: FUN_003e40b0. */
 extern int FUN_003e9700(unsigned int);
 extern f32 FUN_0044b920(f32);
 /* Supplied declaration required: FUN_0047a220. */
@@ -2134,11 +2133,9 @@ extern unsigned char D_00763074[4];
 extern int FUN_003bb3a0();
 extern void func_003e0870(void *matrix, const void *axis, s32 mode, f32 angle);
 extern int FUN_003e05d0();
-extern int FUN_003bff30();
 extern int FUN_0047a2f0();
 extern int FUN_0047a220();
 extern void func_003bb5b0(void *curve, s32 mode, f32 time, f32 *dst, void *aux);
-extern int FUN_003e40b0();
 extern void mdlScale(void *model, const void *scale, s32 combineOp);
 extern int FUN_0047a310();
 typedef struct {
@@ -2178,7 +2175,9 @@ s32 func_0018a200(u8 *param_1)
   FldActorObject *initialPathObject;
   FldActorObject *movingObject;
   s32 updateAnimationKind;
+  s32 walkingAnimation;
   FldActorObject *initialAnimationObject;
+  s32 initialAnimationId;
   unsigned int *puVar1;
   unsigned int temp_v0;
   s32 temp_v1;
@@ -2198,6 +2197,13 @@ s32 func_0018a200(u8 *param_1)
   int temp_v7;
   void *pvVar11;
   float *pfVar12;
+  RainVector *facingNormal;
+  RainVector *targetDirection;
+  RainVector *initialPathDirection;
+  RainVector *pathDirection;
+  RainVector *oscillatorDirection;
+  RainVector *turnForward;
+  RainVector *turnRight;
   u8 *finalModel;
   unsigned int temp_v8;
   long temp_v9;
@@ -2223,6 +2229,10 @@ s32 func_0018a200(u8 *param_1)
   float ny;
   float nx;
   float nz;
+  f32 sideZ;
+  f32 sideX;
+  f32 sideY;
+  f32 sideZero;
 
   int iStack_4;
   float vec10[3];
@@ -2255,7 +2265,7 @@ s32 func_0018a200(u8 *param_1)
     if (*(int *)(puVar1[3] + 0x234) == 2) {
       iStack_4 = 0;
       temp_v8 = FUN_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
-      FUN_003bff30(temp_v8,(int)func_0018a170,&iStack_4);
+      func_003bff30((void *)temp_v8, (KClumpCallback)func_0018a170, &iStack_4);
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + puVar1[0x14] * 4 + 0x34) != 0) {
         temp_v2 = (iStack_4 != 0) ^ 1;
@@ -2308,8 +2318,10 @@ s32 func_0018a200(u8 *param_1)
           temp_v13 = *(float *)(temp_v4 + 0x38);
           temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
           vec30[2] = *(float *)(temp_v4 + 0x38) - temp_v13;
-          FUN_003e40b0(&vec20[0],&vec20[0]);
-          FUN_003e40b0(&vec30[0],&vec30[0]);
+          facingNormal = (RainVector *)vec20;
+          RwV3dNormalize(facingNormal, facingNormal);
+          targetDirection = (RainVector *)vec30;
+          RwV3dNormalize(targetDirection, targetDirection);
           if ((vec20[0] * vec30[0] + vec20[1] * vec30[1] + vec20[2] * vec30[2] <= 0.0f) &&
              (*(unsigned short *)(puVar1[3] + 0x220) > 0)) {
             temp_v1 = 0;
@@ -2449,8 +2461,8 @@ s32 func_0018a200(u8 *param_1)
         mdlScale(*(void **)(temp_v5 + 0x164), vec90, 1);
       }
       initialAnimationObject = (FldActorObject *)puVar1[3];
-      func_00479940(initialAnimationObject->model, 0,
-                    *(s16 *)(initialAnimationObject->kind1Data + 6), 0, 1);
+      initialAnimationId = *(s16 *)(initialAnimationObject->kind1Data + 6);
+      func_00479940(initialAnimationObject->model, 0, initialAnimationId, 0, 1);
     }
     else if (objectKind == 2) {
       temp_v5 = *(unsigned int *)(*(int *)(temp_v5 + 0x284) + 0x78);
@@ -2488,8 +2500,8 @@ s32 func_0018a200(u8 *param_1)
         puVar1[0x15] = temp_v5;
       }
       initialAnimationObject = (FldActorObject *)puVar1[3];
-      func_00479940(initialAnimationObject->model, 0,
-                    *(s16 *)(initialAnimationObject->kind2Data + 0x6c), 0, 1);
+      initialAnimationId = *(s16 *)(initialAnimationObject->kind2Data + 0x6c);
+      func_00479940(initialAnimationObject->model, 0, initialAnimationId, 0, 1);
     }
     initialPathObject = (FldActorObject *)puVar1[3];
     if (initialPathObject->pointCount < 4) {
@@ -2526,7 +2538,8 @@ s32 func_0018a200(u8 *param_1)
       vecB0[0] = vecD0[0] - vecC0[0];
       vecB0[1] = vecD0[1] - vecC0[1];
       vecB0[2] = vecD0[2] - vecC0[2];
-      FUN_003e40b0(&vecB0[0],&vecB0[0]);
+      initialPathDirection = (RainVector *)vecB0;
+      RwV3dNormalize(initialPathDirection, initialPathDirection);
       temp_v13 = (float)FUN_0044b920(vecB0[0] * D_00756520[0] + vecB0[1] * D_00756524[0] + vecB0[2] * D_00756528[0]);
       initialHeading = fGpffff8300 * temp_v13;
       if (vecB0[0] < 0.0f) {
@@ -2615,9 +2628,12 @@ s32 func_0018a200(u8 *param_1)
       case 2:
       case 4:
       {
-        if (((movementMode != 4) || (((float*)puVar1)[6] != 1.0f)) &&
-           (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
-          func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+        if (movementMode != 4 || ((float *)puVar1)[6] != 1.0f) {
+          temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0);
+          walkingAnimation = 1;
+          if (temp_v3 != walkingAnimation) {
+            func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,walkingAnimation,4,1);
+          }
         }
         func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
@@ -2625,7 +2641,8 @@ s32 func_0018a200(u8 *param_1)
         vec100[0] = vecF0[0] - vecE0[0];
         vec100[1] = vecF0[1] - vecE0[1];
         vec100[2] = vecF0[2] - vecE0[2];
-        FUN_003e40b0(&vec100[0],&vec100[0]);
+        pathDirection = (RainVector *)vec100;
+        RwV3dNormalize(pathDirection, pathDirection);
         temp_v13 = (float)FUN_0044b920(vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0] + vec100[2] * D_00756528[0]);
         pathHeading = fGpffff8300 * temp_v13;
         if (vec100[0] < 0.0f) {
@@ -2682,7 +2699,8 @@ s32 func_0018a200(u8 *param_1)
             vec130[0] = vec120[0] - vec110[0];
             vec130[1] = vec120[1] - vec110[1];
             vec130[2] = vec120[2] - vec110[2];
-            FUN_003e40b0(&vec130[0],&vec130[0]);
+            oscillatorDirection = (RainVector *)vec130;
+            RwV3dNormalize(oscillatorDirection, oscillatorDirection);
             temp_v13 = (float)FUN_0044b920(vec130[0] * D_00756520[0] + vec130[1] * D_00756524[0] + vec130[2] * D_00756528[0]);
             oscillatorHeading = fGpffff8300 * temp_v13;
             if (vec130[0] < 0.0f) {
@@ -2742,8 +2760,10 @@ s32 func_0018a200(u8 *param_1)
     *(FldCopyVec *)vec140 = *(FldCopyVec *)(temp_v4 + 0x20);
     pfVar12 = (float *)FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
     *(FldCopyVec *)vec150 = *(FldCopyVec *)(pfVar12);
-    FUN_003e40b0(&vec140[0],&vec140[0]);
-    FUN_003e40b0(&vec150[0],&vec150[0]);
+    turnForward = (RainVector *)vec140;
+    RwV3dNormalize(turnForward, turnForward);
+    turnRight = (RainVector *)vec150;
+    RwV3dNormalize(turnRight, turnRight);
     FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
     ny = ((float*)puVar1)[0x10];
     nx = ((float*)puVar1)[0xf];
@@ -2757,7 +2777,11 @@ s32 func_0018a200(u8 *param_1)
         temp_v12 = 180.0f * diff;
         temp_v13 = one;
       }
-      if (nx * vec150[0] + ny * vec150[1] + nz * vec150[2] < 0.0f) {
+      sideZ = vec150[2];
+      sideX = vec150[0];
+      sideY = vec150[1];
+      sideZero = 0.0f;
+      if (ny * sideY + nx * sideX + nz * sideZ < sideZero) {
         temp_v12 = temp_v12 * -1.0f;
       }
       func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, temp_v12);
