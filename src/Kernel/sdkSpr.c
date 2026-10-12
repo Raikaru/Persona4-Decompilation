@@ -127,9 +127,11 @@ typedef u8 SdkSpriteRecord[0x80];
  * public width/height queries above. Each call reads the current payload. */
 /* Both extents convert the bounds to u32 before the wrapping subtraction;
  * the optional signed override is then converted to the same width. */
+/* measured: the signed border address avoids CSE with the unsigned extent
+ * reads and preserves their separate offset-first addu (fnalign 11 -> 7). */
 static inline f32 sdkSpriteBorder(u8 *output, u32 offset, s32 field)
 {
-    return (f32)*(s32 *)(output + offset + field);
+    return (f32)*(s32 *)((s32)offset + (s32)output + field);
 }
 
 static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
@@ -500,8 +502,8 @@ f32 func_0046b2f0(u8 *param_1)
 /* 2026-10-09: 830 -> 208: the raster-less paths read the same uninitialised
    uv[] and source[].z slots retail does (documented inline). The raster guards
    around the uv flips and the vertex uv copies and the planar-Z writes are
-   gone. fnalign measures this region only with the file's NON_MATCHING support
-   block (lines 32-198) prepended to the candidate.
+   gone. fnalign measures the guarded region with the owner's shared sprite
+   helpers.
    2026-10-09: 208 -> 202: sdkSpriteVertexSetColor takes u8 channels (the
    RwRGBA bytes), so no andi is re-applied before each unsigned conversion.
  * sdiff 72/200 -> 70/197: raster table base formed before the index (retail addiu +0x104).
@@ -511,19 +513,33 @@ f32 func_0046b2f0(u8 *param_1)
  * sdiff 44/102 -> 38/81: three record reads keep the table-first order.
  * fnalign 41 -> 25: packed-colour reads and points[2].x extent use
  * SDK_SPRITE_RECORD_VIA_ADD (index-first addu).
+ * measured 2026-10-12: fnalign 25 -> 7; named record-load helpers retain each site's index/table load order while using offset-first addition, and signed border addresses remain separate from the unsigned extent lookups. Remaining: three packed-colour addu orders and alpha narrowing/multiply order.
  */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
 /* Diagnostic C only: the whole-owner compile emits 7796/7808 bytes with
- * 25 aligned edits: lone commutative addu orders (record reads at the
- * raster lookup and flip tests, coordinate sums) and the alpha narrowing
- * at the colour multiply. This draft still reads unwritten UV/Z inputs and
+ * 7 aligned edits: three packed-colour addu operand orders and the alpha
+ * narrowing/multiply order. This draft still reads unwritten UV/Z inputs and
  * is not an
  * eligible C promotion. The defined-input changes in the October 5 archive
  * are absent here. See docs/probe_archive/Sprite_particle_boundaries_20261010.md
  * for the current owner proofs and producer/consumer boundaries. */
 #pragma push
 #pragma opt_loop_invariants on
+static inline u8 *sdkSpriteIndexedRecord(u8 *sample)
+{
+    u32 offset = *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord);
+    u32 base = *(u32 *)(*(u8 **)sample + 0x204);
+    return (u8 *)sdkAddOffset(offset, base);
+}
+
+static inline u8 *sdkSpriteTableRecord(u8 *sample)
+{
+    u32 base = *(u32 *)(*(u8 **)sample + 0x204);
+    u32 offset = *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord);
+    return (u8 *)sdkAddOffset(offset, base);
+}
+
 void func_0046b380(u8 *sample, s32 setStates)
 {
     RwV2d verticalLeft;
@@ -559,7 +575,7 @@ void func_0046b380(u8 *sample, s32 setStates)
         initialStates[0](2, (void *)4);
         initialStates[0](0xE, (void *)0);
     }
-    rasterIndex = *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x14);
+    rasterIndex = *(s32 *)(sdkSpriteIndexedRecord(sample) + 0x14);
     raster = ((u8 **)(u32)(*(u8 **)(sample) + 0x104))[rasterIndex];
     if (raster != NULL) {
         s32 width = *(s32 *)(raster + 0xC);
@@ -581,11 +597,11 @@ void func_0046b380(u8 *sample, s32 setStates)
     if (setStates != 0) {
         RpSkyRenderStateSet(2, (void *)0x44);
         RpSkyRenderStateSet(3, (void *)0x717FB);
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x2C) & 1) != 0) {
+        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x2C) & 1) != 0) {
             RpSkyRenderStateSet(2, (void *)0x48);
             RpSkyRenderStateSet(3, (void *)0x71801);
         }
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x2C) & 2) != 0) {
+        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x2C) & 2) != 0) {
             RpSkyRenderStateSet(2, (void *)0x42);
             RpSkyRenderStateSet(3, (void *)0x71801);
         }
@@ -741,7 +757,7 @@ void func_0046b380(u8 *sample, s32 setStates)
             vertices[vertexIndex].u.els.screen.y = points[vertexIndex].y;
         }
     }
-    if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+    if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
         states = &((SdkSpriteGlobalsPrefix *)ourGlobals)->device.setState;
         states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
     } else {
@@ -757,11 +773,11 @@ void func_0046b380(u8 *sample, s32 setStates)
         }
     }
 
-    if (*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x34) != 0) {
+    if (*(s32 *)(sdkSpriteTableRecord(sample) + 0x34) != 0) {
         points[0].x = (f32)-*(s16 *)(sample + 0x1C);
-        points[0].y = (f32)-(*(s16 *)(sample + 0x1E) + *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x34));
+        points[0].y = (f32)-(*(s16 *)(sample + 0x1E) + *(s32 *)(sdkSpriteTableRecord(sample) + 0x34));
         points[1].x = sdkSpriteRight(sample, 0);
-        points[1].y = (f32)-(*(s16 *)(sample + 0x1E) + *(s32 *)(SDK_SPRITE_RECORD(sample) + 0x34));
+        points[1].y = (f32)-(*(s16 *)(sample + 0x1E) + *(s32 *)(sdkSpriteTableRecord(sample) + 0x34));
         points[2].x = (f32)-*(s16 *)(sample + 0x1C);
         points[2].y = (f32)-*(s16 *)(sample + 0x1E);
         points[3].x = sdkSpriteRight(sample, 0);
@@ -772,14 +788,14 @@ void func_0046b380(u8 *sample, s32 setStates)
         vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
         vertices[2].u.els.u = uv[0].x; vertices[2].u.els.v = uv[0].y;
         vertices[3].u.els.u = uv[1].x; vertices[3].u.els.v = uv[1].y;
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
         }
         render[0](4, vertices, 4);
     }
-    if (*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x38) != 0) {
+    if (*(s32 *)(sdkSpriteTableRecord(sample) + 0x38) != 0) {
         points[0].x = (f32)-*(s16 *)(sample + 0x1C);
         points[0].y = sdkSpriteBottom(sample, 0);
         points[1].x = sdkSpriteRight(sample, 0);
@@ -794,7 +810,7 @@ void func_0046b380(u8 *sample, s32 setStates)
         vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
         vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
         vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
@@ -816,14 +832,14 @@ void func_0046b380(u8 *sample, s32 setStates)
         vertices[1].u.els.u = uv[0].x; vertices[1].u.els.v = uv[0].y;
         vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
         vertices[3].u.els.u = uv[2].x; vertices[3].u.els.v = uv[2].y;
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
         }
         render[0](4, vertices, 4);
     }
-    if (*(s32 *)(SDK_SPRITE_RECORD_TABLE_FIRST(sample) + 0x40) != 0) {
+    if (*(s32 *)(sdkSpriteIndexedRecord(sample) + 0x40) != 0) {
         points[0].x = sdkSpriteRight(sample, 0);
         points[0].y = (f32)-*(s16 *)(sample + 0x1E);
         points[1].x = sdkSpriteRight(sample, 1);
@@ -838,7 +854,7 @@ void func_0046b380(u8 *sample, s32 setStates)
         vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
         vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
         vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
@@ -864,7 +880,7 @@ void func_0046b380(u8 *sample, s32 setStates)
         vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
         vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
         vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
@@ -883,7 +899,7 @@ void func_0046b380(u8 *sample, s32 setStates)
         vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
         vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
         vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        if ((*(u32 *)(SDK_SPRITE_RECORD(sample) + 0x18) & 8) == 0) {
+        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
