@@ -987,6 +987,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 28 -> 26; materialize the persona-table offset before the helper's base argument, restoring the ratio lookup's evaluation and operand order.
  * measured 2026-10-12: fnalign 26 -> 24; pass the already zero-extended skill ID through 0023d8e0's retail word-call interface; the callee consumes its low 16 bits.
  * measured 2026-10-12: fnalign 24 -> 23; compare the promoted halfword unit counter as signed, with a separate unsigned view for array addressing.
+ * measured 2026-10-12: fnalign 23 -> 22; snapshot the byte-valued party input index independently of the normalized loop-test view.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1535,7 +1536,8 @@ void func_001f14f0(u8 *arg0)
             flags = 0;
             cnt = first[0xD9];
             for (q = 0; q < cnt; q++) {
-                u8 *s = (u8 *)((u32)first + ((q & 0xFF) << 5));
+                u8 inputIndex = q;
+                u8 *s = first + inputIndex * sizeof(BtlHit_001f14f0);
                 s32 v = *(s32 *)(s + 0xF0);
                 u16 *copiedFlags;
 
