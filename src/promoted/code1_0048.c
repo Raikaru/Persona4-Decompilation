@@ -2514,6 +2514,13 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
  * (dead after the first copy loop) instead of a block-scoped local. Under
  * opt_lifetimes on, a web is numbered with its variable.
  * 2026-10-09: 24 -> 9: body taken from the parallel cos/finish-first-party-20261009 worktree.
+ * 2026-10-10: actual-owner probe confirms 1692/1696 bytes, zero structural
+ * and nine register edits. That score is not a defined-input proof: the
+ * constructor/first tick initialize ages, and the age-zero path below seeds
+ * only history slot zero. For positive C/W without count overflow, the next
+ * shift reads unproduced payloads whenever (C - 1) * W > 1. C=3,W=1 reaches
+ * the unconditional color load at 0048b4ec before any history-age check.
+ * See docs/probe_archive/Sprite_particle_boundaries_20261010.md.
  */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
@@ -2604,6 +2611,8 @@ loop0_check:
     goto loop1_check;
 loop1_body:
     memcpy(dst1, src1, 0x20);
+    /* Retail 0048b4ec: memcpy does not initialize the source's color.
+     * An invalid age does not bypass this scalar read. */
     lo = ((TrailColor *)(src1 + 0x14))->rgb;
     ftmp = scaleTop * acc;
     alpha = (u32)ftmp;

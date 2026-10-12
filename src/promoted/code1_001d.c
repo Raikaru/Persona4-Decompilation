@@ -2432,17 +2432,16 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 swapped = 0;
                 j = 0;
                 while ((j & 0xFFFF) < limit) {
-                    s16 jj = j;
-                    if (entries[jj].score < entries[(j & 0xFFFF) + 1].score) {
-                        u8 *tp = entries[jj].unit;
-                        u16 ti = entries[jj].idx;
-                        f32 ts = entries[jj].score;
-                        entries[jj].unit = entries[jj + 1].unit;
-                        entries[jj].idx = entries[jj + 1].idx;
-                        entries[jj].score = entries[jj + 1].score;
-                        entries[jj + 1].unit = tp;
-                        entries[jj + 1].idx = ti;
-                        entries[jj + 1].score = ts;
+                    if (entries[(u16)j].score < entries[(j & 0xFFFF) + 1].score) {
+                        u8 *tp = entries[(u16)j].unit;
+                        u16 ti = entries[(u16)j].idx;
+                        f32 ts = entries[(u16)j].score;
+                        entries[(u16)j].unit = entries[(j & 0xFFFF) + 1].unit;
+                        entries[(u16)j].idx = entries[(j & 0xFFFF) + 1].idx;
+                        entries[(u16)j].score = entries[(j & 0xFFFF) + 1].score;
+                        entries[(j & 0xFFFF) + 1].unit = tp;
+                        entries[(j & 0xFFFF) + 1].idx = ti;
+                        entries[(j & 0xFFFF) + 1].score = ts;
                         swapped = 1;
                     }
                     j = (j + 1) & 0xFFFF;
@@ -2519,17 +2518,16 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 swapped = 0;
                 j = 0;
                 while ((j & 0xFFFF) < limit) {
-                    s16 jj = j;
-                    if (entries[jj].score < entries[(j & 0xFFFF) + 1].score) {
-                        u8 *tp = entries[jj].unit;
-                        u16 ti = entries[jj].idx;
-                        f32 ts = entries[jj].score;
-                        entries[jj].unit = entries[jj + 1].unit;
-                        entries[jj].idx = entries[jj + 1].idx;
-                        entries[jj].score = entries[jj + 1].score;
-                        entries[jj + 1].unit = tp;
-                        entries[jj + 1].idx = ti;
-                        entries[jj + 1].score = ts;
+                    if (entries[(u16)j].score < entries[(j & 0xFFFF) + 1].score) {
+                        u8 *tp = entries[(u16)j].unit;
+                        u16 ti = entries[(u16)j].idx;
+                        f32 ts = entries[(u16)j].score;
+                        entries[(u16)j].unit = entries[(j & 0xFFFF) + 1].unit;
+                        entries[(u16)j].idx = entries[(j & 0xFFFF) + 1].idx;
+                        entries[(u16)j].score = entries[(j & 0xFFFF) + 1].score;
+                        entries[(j & 0xFFFF) + 1].unit = tp;
+                        entries[(j & 0xFFFF) + 1].idx = ti;
+                        entries[(j & 0xFFFF) + 1].score = ts;
                         swapped = 1;
                     }
                     j = (j + 1) & 0xFFFF;
@@ -2599,17 +2597,16 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 swapped = 0;
                 j = 0;
                 while ((j & 0xFFFF) < limit) {
-                    u16 jj = j;
-                    if (entries[jj].chain < entries[(j & 0xFFFF) + 1].chain) {
-                        u8 *tp = entries[jj].unit;
-                        u16 ti = entries[jj].idx;
-                        u16 tc = entries[jj].chain;
-                        entries[jj].unit = entries[jj + 1].unit;
-                        entries[jj].idx = entries[jj + 1].idx;
-                        entries[jj].chain = entries[jj + 1].chain;
-                        entries[jj + 1].unit = tp;
-                        entries[jj + 1].idx = ti;
-                        entries[jj + 1].chain = tc;
+                    if (entries[(u16)j].chain < entries[(j & 0xFFFF) + 1].chain) {
+                        u8 *tp = entries[(u16)j].unit;
+                        u16 ti = entries[(u16)j].idx;
+                        u16 tc = entries[(u16)j].chain;
+                        entries[(u16)j].unit = entries[(j & 0xFFFF) + 1].unit;
+                        entries[(u16)j].idx = entries[(j & 0xFFFF) + 1].idx;
+                        entries[(u16)j].chain = entries[(j & 0xFFFF) + 1].chain;
+                        entries[(j & 0xFFFF) + 1].unit = tp;
+                        entries[(j & 0xFFFF) + 1].idx = ti;
+                        entries[(j & 0xFFFF) + 1].chain = tc;
                         swapped = 1;
                     }
                     j = (j + 1) & 0xFFFF;
