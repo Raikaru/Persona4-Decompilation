@@ -60,6 +60,33 @@ Remaining 11, with their latest edit counts and where they stand:
 | `001a59a0` | 335 | frame 0x3c0 vs 0x330; quadword field-address spills |
 | `001a7720` | 819 | frame 0x5d0 vs 0x5b0 |
 
+Measured since the table (captures plus `regalloc_whatif`, all reproduced):
+
+- `00471370` and `0046b380` closed (see the top of the part).
+- `001d8010` (25): in each sort the bound `nn - 1` is a codegen temporary
+  (the declared `limit` folds into it). Retail's colours need it numbered
+  either before `j` (a surviving declared local) or after the hoisted
+  `swapped = 1` constant. Writing the bound in the loop test numbers it late
+  but the backend hoists it after the constant (wrong emission order, +11 per
+  sort). In `tools/b210_micro.py` the declared bound survives only when its
+  assignment is conditional; `u32`/`short`/split/decrement/function-scope
+  forms all fold (`opt_lifetimes` splits a shared local again).
+- `00162e10` (1): `found` needs four counted references. `found++` gives
+  them but emits `addiu $s5,$s5,1`; the IR dump shows the frontend never
+  constant-propagates into `found++`/`found = found + 1`/`found += 1`
+  inside the search loop. Extra zero definitions cost 11-20.
+- `00320b80` (8): IR dump shows `IRO_CommonSubs` merging `n = i` and the
+  loop test's `(s16)i` into one CSE temporary `@2630`. `long n` breaks the
+  merge but widens everything (83); passing `i` straight to `func_003191c0`
+  shifts the frame (70).
+- `0048b340` (9): a separate anchor local gives 40; assigning it before the
+  loop gives 18; the then-branch's `second` gives 40; an inline helper for
+  the else-branch gives 57-64.
+- `002b6ec0` (28): the table needs a number after rows `r100`-`r142`
+  (`regalloc_whatif --at 35=150.5`, all eight saved colours then match).
+  Spelling the table as a parameter of an inline body helper gives 33, as a
+  repeated load 86.
+
 ## October 11 continuation, part 12: `00183b80`, `001265a0`, `0047b0c0`, `004b8f40`, `003768e0`, `003599c0`, `003694d0` MATCH; live-range numbering
 
 **6,843 MATCH / 17 ASM** (`build/after46.json`; against `after45.json` only
