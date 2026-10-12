@@ -1781,6 +1781,20 @@ When no order matches after trying these, leave the function on its
 `INCLUDE_ASM` fallback and record the attempt. Indexed getters/setters are the
 usual victims.
 
+### Binary operand evaluation order: the cost rule (read from b210)
+
+`SelectBinaryOperandsForPCode` (`0x004a9250`) evaluates the left child
+first unless `right.cost > left.cost + 2`, where cost is ENode byte `+1`
+(computed by `0x004ae1b0`: leaves 0 or 1, and roughly the sum of the
+children plus one or two per operator). The PCode operand slots keep source
+order either way. So swapping the operands in source moves the register
+fields but not which subtree is computed first. To move the evaluation
+order, make one side heavier or lighter. In `x * (255 - *(u8 *)(p + 0x11))`
+the right side (a load, an extension and a subtract) outweighs a plain `u8`
+variable, so the `lbu` comes before the left `andi`. Retail
+`func_0046b380` masks alpha first: `(u8)(alpha & 0xFF) * (255 - fade)`
+raises the left cost enough, and matches retail's double `andi`.
+
 ### Commutative `add.s` operand order — measured
 
 `x + c` puts the *variable* first (`add.s $fx,$fx,$f0`) whenever the sum is
