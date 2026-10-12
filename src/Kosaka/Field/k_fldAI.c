@@ -1018,6 +1018,7 @@ tail:
  * measured 2026-10-12: fnalign 53 -> 52; state 8's model-facing dot uses retail's YXZ MAC order as well.
  * measured 2026-10-12: fnalign 52 -> 43; facing-phase locals ordered Z/player-Z/X/player-X reproduce regalloc_whatif's r92/r73 swap and retail f23/f21.
  * measured 2026-10-12: fnalign 43 -> 37; whole target copy with propagation/pulloutconstants off preserves the patrol snapshot and separate random divisors (CSE remains on).
+ * measured 2026-10-12: fnalign 37 -> 27; typed matrix-position arguments recover pointer materialization order at all five near-player checks.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1025,6 +1026,12 @@ tail:
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
+typedef struct {
+    FldAIVec3 right; u32 flags;
+    FldAIVec3 up; u32 pad1c;
+    FldAIVec3 forward; u32 pad2c;
+    FldAIVec3 pos; u32 pad3c;
+} FldAIMatrix;
 extern int FUN_003b7060();
 extern int FUN_0047a220();
 /* SDK vector normalization reads and writes complete three-float objects and
@@ -1583,7 +1590,7 @@ else {
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         if (FUN_0014c240((void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50)),
-                         (void *)(FUN_0047a2f0((unsigned int)D_007EFA00[0]) + 0x30),
+                         &((FldAIMatrix *)FUN_0047a2f0((unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           CAND_iGpffffb310 = temp_v0;
         }
@@ -1715,7 +1722,7 @@ else {
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         if (FUN_0014c240((void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50)),
-                         (void *)(FUN_0047a2f0((unsigned int)D_007EFA00[0]) + 0x30),
+                         &((FldAIMatrix *)FUN_0047a2f0((unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           CAND_iGpffffb310 = temp_v0;
         }
@@ -1821,7 +1828,7 @@ else {
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         if (FUN_0014c240((void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50)),
-                         (void *)(FUN_0047a2f0((unsigned int)D_007EFA00[0]) + 0x30),
+                         &((FldAIMatrix *)FUN_0047a2f0((unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           CAND_iGpffffb310 = temp_v0;
         }
@@ -1882,7 +1889,7 @@ else {
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         if (FUN_0014c240((void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50)),
-                         (void *)(FUN_0047a2f0((unsigned int)D_007EFA00[0]) + 0x30),
+                         &((FldAIMatrix *)FUN_0047a2f0((unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           CAND_iGpffffb310 = temp_v0;
         }
@@ -1941,7 +1948,7 @@ else {
         temp_v6 = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 +
                  (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
         if (FUN_0014c240((void *)FUN_0047a2f0(*(unsigned int *)(temp_v0 + 0x50)),
-                         (void *)(FUN_0047a2f0((unsigned int)D_007EFA00[0]) + 0x30),
+                         &((FldAIMatrix *)FUN_0047a2f0((unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           CAND_iGpffffb310 = temp_v0;
         }
