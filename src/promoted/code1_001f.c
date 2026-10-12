@@ -984,6 +984,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 34 -> 33; select the final target through the pointer array, restoring index-first addressing.
  * measured 2026-10-12: fnalign 33 -> 31; prepare the record-flags pointer at the end of each hit-resolution path, preserving retail's short branch joins.
  * measured 2026-10-12: fnalign 31 -> 28; explicitly mask the party input-record index to a byte, restoring the missing retail andi.
+ * measured 2026-10-12: fnalign 28 -> 26; materialize the persona-table offset before the helper's base argument, restoring the ratio lookup's evaluation and operand order.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1149,8 +1150,9 @@ void func_001f14f0(u8 *arg0)
     }
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1 && func_00243fa0(id, 1) == 0) {
         u8 *res = *(u8 **)(arg0 + 0x30);
+        s32 personaOffset = *(u16 *)(res + 0xA4) * 0xE8;
         f32 r = *(f32 *)(res + 0x2C) /
-                ((f32)(u32)*(u16 *)(iGpffffb3cc + *(u16 *)(res + 0xA4) * 0xE8 + 0x14) / 100.0f);
+                ((f32)(u32)*(u16 *)((u8 *)addOffsetFirst(personaOffset, (u32)iGpffffb3cc) + 0x14) / 100.0f);
 
         if (!(r <= fGpffff812c)) {
             r = fGpffff812c;
