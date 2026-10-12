@@ -677,6 +677,9 @@ void func_002b6ea0(void) {
  * This remains guarded C and earns no match credit. Current evidence:
  * docs/probe_archive/First_party_pro_ui_worker8_20261010.md.
  */
+/* measured 2026-10-12: active-entry/append-queue views and declaration order reduce fnalign 56 -> 38 edits.
+ * The active row keeps its unsigned offset snapshot; append uses the table's halfword queue view.
+ * All 381 instructions remain; the table/base and per-arm offset register roles still differ. */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
 static inline s16 yDrawAnyBit(s32 flags)
@@ -697,8 +700,10 @@ static inline s16 yDrawAnyBit(s32 flags)
 #pragma opt_common_subs on
 #pragma opt_loop_invariants on
 s32 func_002b6ec0(u8 *arg0) {
-    u8 *table;
     s32 off;
+    u32 entryOffset;
+    u8 *table;
+    s16 *queue;
     s16 i;
     s32 count;
     s32 color;
@@ -718,11 +723,12 @@ s32 func_002b6ec0(u8 *arg0) {
         off = (s32)i << 8;
         e += (s32)off;
         if ((s16)(*(s16 *)(e + 0x14) & 1) == 1) {
+            entryOffset = (u32)off;
             animation = func_002b89a0(e + 0x14);
-            memcpy(YDRAW_BASE + off + 0x14, animation, 0xF0);
-            func_002b7cd0(arg0, i, *(s16 *)(YDRAW_BASE + off + 8));
+            memcpy(YDRAW_BASE + entryOffset + 0x14, animation, 0xF0);
+            func_002b7cd0(arg0, i, *(s16 *)(YDRAW_BASE + entryOffset + 8));
             base = YDRAW_BASE;
-            e = base + (s32)off;
+            e = base + (s32)entryOffset;
             fl = *(s16 *)(e + 0x14);
             if ((s16)((fl & 0x4000) >> 0xE) == 1) {
                 w = func_00460990();
@@ -731,7 +737,7 @@ s32 func_002b6ec0(u8 *arg0) {
                 b2 = YDRAW_BASE;
                 func_00460ac0(D_00793E80 + *(s32 *)(b2 + (s32)i * 0x100 + 0xC) * 0x30, w);
                 b2 = YDRAW_BASE;
-                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + (s32)off + 0xB0) <= 0.1f)) {
+                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + (s32)entryOffset + 0xB0) <= 0.1f)) {
                     s32 rowOffset = (s32)(u32)i * 0x100;
                     u8 *d;
 
@@ -744,8 +750,8 @@ s32 func_002b6ec0(u8 *arg0) {
                         *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4),
                         *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
                 } else {
-                    if (yDrawAnyBit(*(s16 *)(b2 + (s32)off + 0x14)) == 0) {
-                        *(s16 *)(b2 + off + 0x14) &= ~1;
+                    if (yDrawAnyBit(*(s16 *)(b2 + (s32)entryOffset + 0x14)) == 0) {
+                        *(s16 *)(b2 + entryOffset + 0x14) &= ~1;
                     }
                 }
             } else if ((s16)((fl & 0x2000) >> 0xD) == 1) {
@@ -755,7 +761,7 @@ s32 func_002b6ec0(u8 *arg0) {
                 b2 = YDRAW_BASE;
                 func_00460ac0(D_00793E80 + *(s32 *)(b2 + (s32)i * 0x100 + 0xC) * 0x30, w);
                 b2 = YDRAW_BASE;
-                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + (s32)off + 0xB0) <= 0.1f)) {
+                if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + (s32)entryOffset + 0xB0) <= 0.1f)) {
                     s32 rowOffset = (s32)(u32)i * 0x100;
                     u8 *d;
 
@@ -768,17 +774,17 @@ s32 func_002b6ec0(u8 *arg0) {
                         *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4),
                         *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
                 } else {
-                    if (yDrawAnyBit(*(s16 *)(b2 + (s32)off + 0x14)) == 0) {
-                        *(s16 *)(b2 + off + 0x14) &= ~1;
+                    if (yDrawAnyBit(*(s16 *)(b2 + (s32)entryOffset + 0x14)) == 0) {
+                        *(s16 *)(b2 + entryOffset + 0x14) &= ~1;
                     }
                 }
             } else if (e[0x72] > 0 && !(*(f32 *)(e + 0xA4) <= 0.1f) && !(*(f32 *)(e + 0xB0) <= 0.1f)) {
                 u8 *d;
 
-                off = (s32)(u32)i * 0x100;
+                entryOffset = (s32)(u32)i * 0x100;
 
-                color = func_002b2a30(0xFF, (base + off)[0x89], (base + off)[0x8A], (base + off)[0x8B]);
-                d = base + (s32)(u32)off;
+                color = func_002b2a30(0xFF, (base + entryOffset)[0x89], (base + entryOffset)[0x8A], (base + entryOffset)[0x8B]);
+                d = base + (s32)(u32)entryOffset;
                 func_0025ecd0(
                     *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                     color, d[0x72], *(s16 *)(d + 8),
@@ -786,7 +792,7 @@ s32 func_002b6ec0(u8 *arg0) {
                     *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4),
                     *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
             } else {
-                u8 *d = base + off;
+                u8 *d = base + entryOffset;
 
                 fl = *(s16 *)(d + 0x14);
                 if (fl == 1) {
@@ -798,9 +804,10 @@ s32 func_002b6ec0(u8 *arg0) {
                 }
             }
             /* Only entries active on loop entry belong in this list. */
-            count = *(s16 *)(table + 0x30C04);
-            *(s16 *)(table + count * 2 + 0x30C06) = i;
-            (*(s16 *)(table + 0x30C04))++;
+            queue = (s16 *)table;
+            count = queue[0x18602];
+            queue[count + 0x18603] = i;
+            (queue[0x18602])++;
         }
         i++;
     }
