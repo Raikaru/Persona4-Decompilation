@@ -4046,6 +4046,7 @@ void func_001a7710(void)
  * 2026-10-12 delay width: fnalign 803 -> 796; the bounded animation delay is a signed word, matching retail's ADDIU/SUBU rather than 64-bit extension and subtraction.
  * 2026-10-12 tail snapshots: fnalign 796 -> 792; keep the signed-halfword voice/count results in word-sized consumers rather than extending them again at later uses.
  * 2026-10-12 timing repair: fnalign 792 -> 786; retail extends the s16 query result before adding six and retains the word-sized sum, without the decompiler's post-add truncation.
+ * 2026-10-12 tail predicates: fnalign 786 -> 779; test the native s32 action predicates directly, without widening their zero comparisons.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5807,7 +5808,7 @@ block_406:
         (*( s16 * )((u8 *)(temp_2_127) + (0x48))) = (s16) sp410;
         (*( s64 * )((u8 *)(temp_2_127) + (0x60))) = temp_16;
         func_00194590(temp_2_127, 1);
-    } else if ((sp33C != 0) && (temp_23_2 == 0) && ((s64)(func_001f0c50(arg0)) != (s64)(0)) && ((s64)(func_001f0d30(arg0)) == (s64)(0))) {
+    } else if ((sp33C != 0) && (temp_23_2 == 0) && (func_001f0c50(arg0) != 0) && (func_001f0d30(arg0) == 0)) {
         temp_2_128 = (u8 *)(func_001f99c0((*( s32 ** )((u8 *)(arg0) + (0x38))), 0x12, 0U, 0, 0));
         (*( s8 * )((u8 *)(temp_2_128) + (0))) = 5;
         (*( s64 * )((u8 *)(temp_2_128) + (8))) = temp_18_2;
