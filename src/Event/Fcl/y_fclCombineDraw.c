@@ -2620,6 +2620,12 @@ void func_00320970(u8 *arg0, s8 arg1) {
  * whatif on the score-3 graph: no single score or +/-1 degree change (or
  * mixed pair) gives retail's colours with mode at score 3; mode at score 2
  * does exactly, so retail's mode reaches the loop as its own variable.
+ * 2026-10-12: `if (arg1 == 0)` then `mode = arg1;` plus a statement
+ * `arg1 = i;` feeding the call gives retail's entry and 4-byte spill
+ * exactly (the merged entry node r57 spills once the s8 copy adds one
+ * call-crossing neighbour), but that copy then lives in $s5 (8 edits).
+ * No single-node renumbering of that graph reproduces retail, and the
+ * func_002e4ac0 declaration form (none/K&R/int) changes nothing.
  */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
