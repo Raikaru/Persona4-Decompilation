@@ -968,6 +968,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 252 -> 244; disable constant pullout to keep the two 1.0f roles separate without an extra saved FPR.
  * measured 2026-10-12: fnalign 244 -> 227; snapshot the setup skill offset at the damage-phase boundary, restoring its word spill at sp+0x1d0.
  * measured 2026-10-12: fnalign 227 -> 219; read the adjacent target directly at i*4+0x3c; the loop bound proves i+1 cannot wrap.
+ * measured 2026-10-12: fnalign 219 -> 189; normalize the result into a word snapshot, copy it into the record phase, and enable invariant motion; frame remains retail 0x310.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -985,6 +986,8 @@ static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
 
 #pragma push
 #pragma opt_lifetimes on
+/* measured with the normalized result/record-phase snapshot (219 -> 189). */
+#pragma opt_loop_invariants on
 /* measured: retain the flags pointer across the hit-resolution phase join (258 -> 252). */
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
@@ -1044,6 +1047,7 @@ void func_001f14f0(u8 *arg0)
     s32 damageOffset;
     u16 *flagp;
     s32 resw;
+    s32 recordResult;
     u8 *vals;
     u16 ui;
     u8 *sctx;
@@ -1230,7 +1234,7 @@ void func_001f14f0(u8 *arg0)
             *(s32 *)(unit + 0xE0) = 1;
         }
         special = func_001fb360(unit, idw, flags);
-        resw = res;
+        resw = (u16)res;
         if (resw == 1 && *(s32 *)(unit + 0xE4) == 0 && special == 0) {
             bonus = *(s32 *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8) + 0x20);
         } else {
@@ -1238,6 +1242,7 @@ void func_001f14f0(u8 *arg0)
         }
         *(u16 *)(unit + 0xDC) = res;
         *(u16 *)(unit + 0xDE) = sub;
+        recordResult = resw;
         j = 0;
         m80 = mask & 0x80000;
         n80 = !(mask2 & 0x80000);
@@ -1328,10 +1333,10 @@ void func_001f14f0(u8 *arg0)
             if (nj == cntA || hit) {
                 if (r1 != 0) {
                     *pm |= 0x100000;
-                } else if (((sumA < 0 || resw == 0x100 || resw == 0x400) && func_00232710(target, 0x100000) != 0) ||
+                } else if (((sumA < 0 || recordResult == 0x100 || recordResult == 0x400) && func_00232710(target, 0x100000) != 0) ||
                            (*(s32 *)(unit + 0xE4) == 1 && func_00232710(uctx, 0x100000) != 0)) {
                     *resultFlags |= 1;
-                    if (*(s32 *)(unit + 0xE4) == 1 || resw == 0x100 || resw == 0x400) {
+                    if (*(s32 *)(unit + 0xE4) == 1 || recordResult == 0x100 || recordResult == 0x400) {
                         *resultFlags |= 2;
                     }
                 }
@@ -1343,7 +1348,7 @@ void func_001f14f0(u8 *arg0)
                 if (r2 != 0) {
                     *resultFlags |= 4;
                 }
-                if (resw != 1 || *(s32 *)(unit + 0xE4) == 1 || r2 == 1) {
+                if (recordResult != 1 || *(s32 *)(unit + 0xE4) == 1 || r2 == 1) {
                     status |= 2;
                 } else if (r1 != 0) {
                     critCount++;
@@ -1378,14 +1383,14 @@ void func_001f14f0(u8 *arg0)
             j++;
         }
         e4 = *(s32 *)(unit + 0xE4);
-        if (e4 == 1 || (resw & 0x700) || sumA != 0 || sumB != 0 || mask != 0 || mask2 != 0) {
+        if (e4 == 1 || (recordResult & 0x700) || sumA != 0 || sumB != 0 || mask != 0 || mask2 != 0) {
             u8 *res30;
 
-            if (e4 == 1 || (resw & 0x500)) {
+            if (e4 == 1 || (recordResult & 0x500)) {
                 func_001f9cd0(arg0, unit, id);
             }
             res30 = *(u8 **)(unit + 0x30);
-            if (res30[0xA2] == 1 && (s32)kind < 8 && !(resw & 6)) {
+            if (res30[0xA2] == 1 && (s32)kind < 8 && !(recordResult & 6)) {
                 func_0010f3d0(*(u16 *)(res30 + 0xA4), kindU);
             }
         }
@@ -1397,7 +1402,7 @@ void func_001f14f0(u8 *arg0)
         if (special != 0) {
             msg = func_001fb170(special);
             arg0[0xD8] |= 1;
-        } else if (!(resw & 6)) {
+        } else if (!(recordResult & 6)) {
             msg = func_001f0260(idw);
         } else {
             msg = 0;
