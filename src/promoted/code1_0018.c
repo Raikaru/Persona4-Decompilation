@@ -2017,8 +2017,6 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
     }
     return arg0;
 }
-/* measured 0018a200 (owner, romwright R1 + doubles-to-float + float-read fix): fndiff obj 6452B vs window 6352B (+100B); fnalign retail 1588 vs object 1613 (+25, +1.6%, band 1540-1636, inside); edits 1113; GUARDED_SCORE 1404. Frame retail -0x1C0 vs object -0xC0 (-256B). `#pragma opt_common_subs off` scoped to this function and closed after it (CSE off, +73 over v4a base 1540 vs 1587). Residual is 3 fptodp helpers, cvt/mtc1 vs direct loads, and saved-reg colour. Same file idioms as 00183b80 noted (u8* ctx at +0x38 for next step; current uint* preserves count).
-   2026-10-08: opt_lifetimes on lowers fnalign from 1063 to 1007 edits. */
 static inline s32 fldBothReady_0018a200(void)
 {
     extern int D_007EF9F8[];
@@ -2027,50 +2025,9 @@ static inline s32 fldBothReady_0018a200(void)
     return D_007EF9F8[0] != 0 && D_007EFA04[0] != 0;
 }
 
-/* 2026-10-09: corrected two Ghidra artefacts against retail: the five puVar1[6]/[7] stores are float stores (retail swc1, no float-to-unsigned conversion), and func_0014bff0/func_0014c4c0 take their 120.0f/500.0f first argument in $f12. fnalign 1007 -> 969; the frame is still 0xF0 smaller than retail's 0x1C0, so retail has stack locals this body lacks.
- * 2026-10-09: 969 -> 901: the scalarised Ghidra stack floats are grouped back into
- * `float vecN[3]` locals declared in retail stack order (later declarations sit
- * lower). Retail still has four more 16-byte slots (frame 0x1C0 vs 0x180).
- * 2026-10-09: 901 -> 868: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 845: vector copies written as struct copies (retail copies through stack structs).
- * (bit copies through int casts written as float copies)
- * (the callback is func_0018a170 by symbol, as retail's relocation)
- * 826: the globals are retail's absolute D_ objects (%hi/%lo), declared as arrays so
- * b210 does not place them in small data.
- * 814: swap sweep.
- * callee prototypes from the real definitions (pointer parameters keep their existing spelling).
- * *puVar1 >= 4 (retail sltiu into $v0, not $at).
- * fnalign 774 -> 761: vector fields read as whole FldCopyVec copies (retail stores all three, then adjusts y).
- * fnalign 761 -> 755: (iStack_4 != 0) ^ 1 computed before the FUN_00155280 call into temp_v2 (retail xori into $s0 first); temp_v1 is s32 and tested == 1.
- * fnalign 755 -> 742: vec50 is a whole-vector copy of vec160 before the +180 y adjustment.
- * fnalign 742 -> 733: the D_007EF9F8/D_007EFA04 readiness test is the inline fldBothReady_0018a200() (retail materialises the && as a value, sltu each, then one test).
- * fnalign 733 -> 706: early exits inside the state switch are break; (retail beqz/bnez straight to the shared final return 0).
- * fnalign 706 -> 485: the +0x220 state dispatch is a switch (case 0 empty, cases 1/2/4 shared, case 3), as retail's beq 3/4/2/1/beqz chain.
- * fnalign 485 -> 484: split sweep.
- * fnalign 484 -> 480: float compares in retail polarity (c.ole/bc1t forms).
- * fnalign 480 -> 454: the puVar1[9] countdown is written short arm first (retail blez to the long arm).
- * fnalign 454 -> 442: the [6]/[8] oscillator update keeps 0.0f and 1.0f in named locals with opt_propagation off (retail reuses $f1 for the zero compare and 1.0 - x).
- * fnalign 442 -> 428: the facing branch keeps one = 1.0f and diff = one - temp_v13 in locals (retail reuses $f2/$f1; 180.0f * diff constant-first).
- * fnalign 428 -> 424: the facing direction components are loaded once into nx/ny/nz for both dot products (retail reuses $f4-$f6).
- * fnalign 424 -> 311: vecE0 and vec110 are whole FldCopyVec copies, so both live in the frame as retail (frame 0x1c0).
- * fnalign 311 -> 284: the three direction dot products are written x, y, z (retail accumulates in that order).
- * fnalign 284 -> 283: the state switch has an empty case 8 (retail's 9-entry jump table jtbl_00746DF0 sends 8 to the shared exit).
- * fnalign 283 -> 277: the vec20/vec30 dot product accumulates x, y, z as retail.
- * measured 2026-10-12: fnalign 277 -> 257: restore the case-1 actor-index reaching definition, use typed chained matrix diagonals, and give the initial vector comparison its own X/zero locals; remove the extra oscillator +0 after retail's accumulator addition.
- * measured 2026-10-12: fnalign 257 -> 151: separate actor lookup, unsigned movement-mode and per-case heading lifetimes; recover typed object snapshots, model-scale combineOp=1, canonical proximity contracts, RGBA size, and unsigned pause rolls. Retail frame/saves retained; ordinary allocation/CSE and call-argument residuals remain.
- * measured 2026-10-12: fnalign 151 -> 136: use the SDK spline constructor's s32 count/type and pointer contract; keep the closed-loop type as the value used by both selection and creation. The complete spline-construction branch now aligns.
- * measured 2026-10-12: fnalign 136 -> 103: recover initial animation-ID loads and walking selection, signed-side component snapshots, the existing clump callback contract, and per-role normalization pointers. The side snapshots restore retail's persistent facing-vector FPR allocation.
- * measured 2026-10-12: fnalign 103 -> 92: pointer-domain position arguments and a look-target snapshot reproduce call preparation order; update model flags before the setter call. Keep the path endpoint store explicitly floating-point.
- * measured 2026-10-12: fnalign 92 -> 68: enable CSE with constant pullout disabled; keep the second fade-range and initial spline-time reload addresses separate from their earlier accesses. Restore literal walking-animation selection so CSE shares the real argument constant.
- * measured 2026-10-12: fnalign 68 -> 59: start the oscillator comparison-zero lifetime after the progress update, restoring the update's retail floating-point operands.
- * measured 2026-10-12: fnalign 59 -> 57: separate the oscillator spline-time reload from the later progress update, avoiding a saved field-address lifetime across model calls.
- * measured 2026-10-12: fnalign 57 -> 50: split the visibility boolean from the later u16 model flags and preserve its real s32 setter contract, removing redundant narrowing.
- * measured 2026-10-12: fnalign 50 -> 47: compute the signed-side dot product before initializing its comparison zero; the complete side-test block now aligns.
- * measured 2026-10-12: fnalign 47 -> 19: recover typed oscillator progress/step/direction fields and a block-local work snapshot; place the shared work pointer after per-role locals, following the captured allocation graph. Retail frame, saves, and 1588-instruction size are exact.
- * measured 2026-10-12: fnalign 19 -> 2: give linear-path updates a typed work snapshot and capture oscillator endpoint progress before constructing the bound. Only visibility-setter argument load order remains.
- */
-// FUN_0018A200 NONMATCHING
-#ifdef NON_MATCHING
+/* measured 2026-10-12: fnalign 277 -> 0. Per-phase object/work snapshots and
+ * vector lifetimes preserve retail's frame and register allocation. CSE shares
+ * constants; disabling constant pullout avoids cross-phase hoists. */
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_common_subs on
@@ -2085,68 +2042,59 @@ extern int D_007EFA04[];
 extern float fGpffff8300; /* 0xffff8300 */
 extern float fGpffff8420; /* 0xffff8420 */
 
-extern long FUN_00106330(int);
-extern int FUN_001452b0(s32);
+extern long func_00106330(int);
+extern u8 *func_001452b0(s32);
 extern u32 K_FldEvent_IsPosWithinFov(const RainMatrix *, const RainVector *, f32);
 extern u32 K_FldEvent_ArePosWithinDist(const RainVector *, const RainVector *, f32);
-extern int FUN_00155280(void);
-extern int FUN_002467b0(s32);
-extern int FUN_003b7060(void);
-/* Supplied declaration required: FUN_003bb3a0. */
-/* Supplied declaration required: FUN_003bb5b0. */
+extern u8 *func_002467b0(s32);
+extern int func_003b7060(void);
 struct RpSpline;
-extern struct RpSpline *FUN_003bbbe0(s32 count, s32 type, RainVector *points);
-/* Supplied declaration required: FUN_003e05d0. */
-/* Supplied declaration required: FUN_003e0870. */
-extern unsigned int FUN_003e0f80(void);
-extern int FUN_003e9700(unsigned int);
-extern f32 FUN_0044b920(f32);
-/* Supplied declaration required: FUN_0047a220. */
-/* Supplied declaration required: FUN_0047a2f0. */
-/* Supplied declaration required: FUN_0047a310. */
-extern s32 FUN_00102980(void);
-extern f32 FUN_0014b5d0(void *);
-extern f32 FUN_0014b660(void *);
-extern f32 FUN_0014b6f0(void *);
-extern s32 FUN_0014bbe0(s32, s32, s32, s32, s32);
-extern s32 FUN_0014bd90(unsigned char *);
-extern u32 FUN_0014c240(void *, void *, f32, f32);
-extern s32 FUN_0014e710(unsigned char *);
-extern s32 FUN_0014e740(unsigned char *, float *);
-extern void FUN_0014e880(unsigned char *, s32, s16);
-extern void FUN_0014e920(unsigned char *, s32, s32);
-extern void FUN_001687f0(unsigned char *, unsigned char *);
-extern void FUN_00168890(unsigned char *, unsigned char *);
-extern void FUN_00168ae0(unsigned char *, unsigned char *);
+extern struct RpSpline *func_003bbbe0(s32 count, s32 type, RainVector *points);
+extern unsigned int func_003e0f80(void);
+extern int func_003e9700(unsigned int);
+extern f32 func_0044b920(f32);
+extern s32 func_00102980(void);
+extern f32 func_0014b5d0(void *);
+extern f32 func_0014b660(void *);
+extern f32 func_0014b6f0(void *);
+extern s32 func_0014bbe0(s32, s32, s32, s32, s32);
+extern s32 func_0014bd90(unsigned char *);
+extern u32 func_0014c240(void *, void *, f32, f32);
+extern s32 func_0014e710(unsigned char *);
+extern s32 func_0014e740(unsigned char *, float *);
+extern void func_0014e880(unsigned char *, s32, s16);
+extern void func_0014e920(unsigned char *, s32, s32);
+extern void func_001687f0(unsigned char *, unsigned char *);
+extern void func_00168890(unsigned char *, unsigned char *);
+extern void func_00168ae0(unsigned char *, unsigned char *);
 extern void func_00168de0(u8 *task, const void *axis, f32 angle);
-extern void FUN_0018bed0(unsigned char *, s32);
-extern s32 FUN_0018bf50(unsigned char *);
-extern s64 FUN_00248d80(s64);
-extern float FUN_003e4180(float *);
-extern s32 FUN_00452080(void *);
-extern s32 FUN_00457120(void);
-extern void FUN_00458f40(void *, void *);
-extern s32 FUN_004782b0(unsigned char *);
-extern void FUN_00478e70(unsigned char *);
-extern s16 FUN_00479c30(s32, s32);
-extern s32 FUN_0047a6d0(void *, s32, void *);
-extern void FUN_0047a850(unsigned char *);
-extern void FUN_0047a870(unsigned char *);
-extern void FUN_0047a8b0(void *, void *);
-extern void FUN_0047a990(unsigned char *);
-extern void FUN_0047a9f0(unsigned char *, u16);
-extern u16 FUN_0047aa00(unsigned char *);
+extern void func_0018bed0(unsigned char *, s32);
+extern s32 func_0018bf50(unsigned char *);
+extern s64 func_00248d80(s64);
+extern float func_003e4180(float *);
+extern s32 func_00457120(void);
+extern void func_00458f40(void *, void *);
+extern s32 func_004782b0(unsigned char *);
+extern void func_00478e70(unsigned char *);
+extern s16 func_00479c30(s32, s32);
+extern s32 func_0047a6d0(void *, s32, void *);
+extern void func_0047a850(unsigned char *);
+extern void func_0047a870(unsigned char *);
+extern void func_0047a8b0(void *, void *);
+extern void func_0047a990(unsigned char *);
+extern void func_0047a9f0(unsigned char *, u16);
+extern u16 func_0047aa00(unsigned char *);
 
 
 extern unsigned char D_00763074[4];
-extern int FUN_003bb3a0();
+extern int func_003bb3a0();
 extern void func_003e0870(void *matrix, const void *axis, s32 mode, f32 angle);
-extern int FUN_003e05d0();
-extern int FUN_0047a2f0();
-extern int FUN_0047a220();
+extern int func_003e05d0();
+extern int func_0047a2f0();
+extern int func_0047a220();
 extern void func_003bb5b0(void *curve, s32 mode, f32 time, f32 *dst, void *aux);
 extern void mdlScale(void *model, const void *scale, s32 combineOp);
-extern int FUN_0047a310();
+extern int func_0047a310();
 typedef struct {
     u16 id;
     u8 unk002[0x162];
@@ -2177,12 +2125,11 @@ typedef struct {
     f32 direction;
 } FldActorWork;
 
+/* Update field-actor visibility, animation, spline travel, and facing. */
+// FUN_0018A200
 s32 func_0018a200(u8 *param_1)
-
 {
   typedef struct { float x, y, z; } FldCopyVec;
-    /* Retail returns zero at 0018BAA8, 0018A234. */
-/* irregular: 10 native warning(s); review required */
   s32 actorIndex;
   s32 objectKind;
   s32 splineMode;
@@ -2281,17 +2228,19 @@ s32 func_0018a200(u8 *param_1)
   if (*puVar1 >= 4) {
     if (*(int *)(puVar1[3] + 0x234) == 2) {
       iStack_4 = 0;
-      temp_v8 = FUN_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
+      temp_v8 = func_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
       func_003bff30((void *)temp_v8, (KClumpCallback)func_0018a170, &iStack_4);
-      temp_v4 = FUN_00155280();
+      temp_v4 = (s32)func_00155280();
       if (*(int *)(temp_v4 + puVar1[0x14] * 4 + 0x34) != 0) {
         s32 actorVisible;
+        u8 *visibilityTarget;
         actorVisible = (iStack_4 != 0) ^ 1;
-        temp_v4 = FUN_00155280();
-        FUN_0014e920(*(unsigned char **)(temp_v4 + puVar1[0x14] * 4 + 0x34),puVar1[0x15],actorVisible);
+        temp_v4 = (s32)func_00155280();
+        visibilityTarget = *(u8 **)(temp_v4 + puVar1[0x14] * 4 + 0x34);
+        func_0014e920(visibilityTarget,puVar1[0x15],actorVisible);
       }
       if ((*(unsigned int *)(puVar1[3] + 0x28) & 2) == 0) {
-        FUN_0018bed0(param_1,1);
+        func_0018bed0(param_1,1);
       }
     }
     temp_v4 = *(int *)(puVar1[3] + 0x164);
@@ -2302,39 +2251,39 @@ s32 func_0018a200(u8 *param_1)
         ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46b5)))) &&
        (((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46e7)) &&
         (fldBothReady_0018a200())))) {
-      temp_v8 = FUN_0047a2f0(D_007EFA00[0]);
-      temp_v4 = FUN_0047a2f0(temp_v4);
+      temp_v8 = func_0047a2f0(D_007EFA00[0]);
+      temp_v4 = func_0047a2f0(temp_v4);
       facingLimit = 120.0f;
       fovResult = K_FldEvent_IsPosWithinFov((RainMatrix *)temp_v8, &((RainMatrix *)temp_v4)->pos, facingLimit);
       if (fovResult == 1) {
-        temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+        temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v13 = *(float *)(temp_v4 + 0x30);
-        temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
+        temp_v4 = func_0047a2f0(D_007EFA00[0]);
         vec10[0] = temp_v13 - *(float *)(temp_v4 + 0x30);
-        temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+        temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v13 = *(float *)(temp_v4 + 0x34);
-        temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
+        temp_v4 = func_0047a2f0(D_007EFA00[0]);
         vec10[1] = temp_v13 - *(float *)(temp_v4 + 0x34);
-        temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+        temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v13 = *(float *)(temp_v4 + 0x38);
-        temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
+        temp_v4 = func_0047a2f0(D_007EFA00[0]);
         vec10[2] = temp_v13 - *(float *)(temp_v4 + 0x38);
-        temp_v13 = FUN_003e4180(&vec10[0]);
+        temp_v13 = func_003e4180(&vec10[0]);
         if (temp_v13 < 150.0f) {
           temp_v1 = 1;
-          temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           *(FldCopyVec *)vec20 = *(FldCopyVec *)(temp_v4 + 0x20);
-          temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           temp_v13 = *(float *)(temp_v4 + 0x30);
-          temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
+          temp_v4 = func_0047a2f0(D_007EFA00[0]);
           vec30[0] = *(float *)(temp_v4 + 0x30) - temp_v13;
-          temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           temp_v13 = *(float *)(temp_v4 + 0x34);
-          temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
+          temp_v4 = func_0047a2f0(D_007EFA00[0]);
           vec30[1] = *(float *)(temp_v4 + 0x34) - temp_v13;
-          temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           temp_v13 = *(float *)(temp_v4 + 0x38);
-          temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
+          temp_v4 = func_0047a2f0(D_007EFA00[0]);
           vec30[2] = *(float *)(temp_v4 + 0x38) - temp_v13;
           facingNormal = (RainVector *)vec20;
           RwV3dNormalize(facingNormal, facingNormal);
@@ -2344,69 +2293,69 @@ s32 func_0018a200(u8 *param_1)
              (*(unsigned short *)(puVar1[3] + 0x220) > 0)) {
             temp_v1 = 0;
           }
-          temp_v4 = FUN_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
+          temp_v4 = func_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
           if ((temp_v4 == 0) && (temp_v1 == 1)) {
-            temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
+            temp_v4 = func_0047a2f0(D_007EFA00[0]);
             lookTarget = (RainVector *)vec40;
             *(FldCopyVec *)vec40 = *(FldCopyVec *)(temp_v4 + 0x30);
             vec40[1] = vec40[1] + 140.0f;
-            FUN_0047a8b0(*(void **)(puVar1[3] + 0x164),lookTarget);
-            temp_v2 = FUN_0047aa00(*(unsigned char **)(puVar1[3] + 0x164));
+            func_0047a8b0(*(void **)(puVar1[3] + 0x164),lookTarget);
+            temp_v2 = func_0047aa00(*(unsigned char **)(puVar1[3] + 0x164));
             temp_v2 |= 0x1000;
-            FUN_0047a9f0(*(unsigned char **)(puVar1[3] + 0x164),temp_v2);
+            func_0047a9f0(*(unsigned char **)(puVar1[3] + 0x164),temp_v2);
           }
           else {
-            FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
+            func_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
           }
         }
         else {
-          FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
+          func_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
         }
       }
       else {
-        FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
+        func_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
       }
     }
-    temp_v4 = FUN_00457120();
+    temp_v4 = func_00457120();
     temp_v6 = *(unsigned int *)(temp_v4 + 4);
-    FUN_001687f0((unsigned char *)&vec160[0],*(unsigned char **)(puVar1[3] + 0x228));
+    func_001687f0((unsigned char *)&vec160[0],*(unsigned char **)(puVar1[3] + 0x228));
     *(FldCopyVec *)vec50 = *(FldCopyVec *)vec160;
     vec50[1] = vec50[1] + 180.0f;
-    temp_v4 = FUN_003e9700(temp_v6);
+    temp_v4 = func_003e9700(temp_v6);
     *(FldCopyVec *)vec70 = *(FldCopyVec *)(temp_v4 + 0x30);
     vec60[0] = vec50[0] - vec70[0];
     vec60[1] = vec50[1] - vec70[1];
     vec60[2] = vec50[2] - vec70[2];
-    temp_v13 = FUN_003e4180(&vec60[0]);
+    temp_v13 = func_003e4180(&vec60[0]);
     effectTask = (u8 *)puVar1[4];
-    if (effectTask != NULL && FUN_0014bd90(effectTask) == 1) {
-      FUN_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
-      FUN_00452080((void *)puVar1[4]);
+    if (effectTask != NULL && func_0014bd90(effectTask) == 1) {
+      func_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
+      func_00452080((void *)puVar1[4]);
       puVar1[4] = 0;
     }
     if (temp_v13 <= ((float*)puVar1)[0x12] + 55.0f) {
       if (puVar1[4] != 0) {
-        FUN_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
-        FUN_00452080((void *)puVar1[4]);
+        func_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
+        func_00452080((void *)puVar1[4]);
         puVar1[4] = 0;
       }
-      FUN_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
+      func_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
       puVar1[0x13] = 1;
     }
     if ((puVar1[0x13] == 1) && (!(temp_v13 <= *(f32 *)((u32)puVar1 + 0x48) + 55.0f))) {
-      FUN_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
-      temp_v5 = FUN_0014bbe0((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,10);
+      func_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
+      temp_v5 = func_0014bbe0((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,10);
       puVar1[4] = temp_v5;
       puVar1[0x13] = 0;
     }
   }
   switch(*puVar1) {
   case 0:
-    temp_v4 = FUN_004782b0(*(unsigned char **)(puVar1[3] + 0x164));
+    temp_v4 = func_004782b0(*(unsigned char **)(puVar1[3] + 0x164));
     if (temp_v4 != 0) {
       temp_v5 = puVar1[3];
       if (*(int *)(temp_v5 + 0x234) != 3) {
-        puVar8 = (unsigned int *)FUN_0047a2f0(*(unsigned int *)(temp_v5 + 0x164));
+        puVar8 = (unsigned int *)func_0047a2f0(*(unsigned int *)(temp_v5 + 0x164));
         puVar16 = (unsigned int *)(temp_v5 + 0x240);
         temp_v4 = 8;
         do {
@@ -2418,56 +2367,56 @@ s32 func_0018a200(u8 *param_1)
           puVar8[1] = temp_v0;
           puVar8 = puVar8 + 2;
         } while (0 < temp_v4);
-        FUN_00478e70(*(unsigned char **)(puVar1[3] + 0x164));
-        transformAngles.x = FUN_0014b660((void *)(puVar1[3] + 0x240));
-        transformAngles.y = FUN_0014b5d0((void *)(puVar1[3] + 0x240));
-        transformAngles.z = FUN_0014b6f0((void *)(puVar1[3] + 0x240));
+        func_00478e70(*(unsigned char **)(puVar1[3] + 0x164));
+        transformAngles.x = func_0014b660((void *)(puVar1[3] + 0x240));
+        transformAngles.y = func_0014b5d0((void *)(puVar1[3] + 0x240));
+        transformAngles.z = func_0014b6f0((void *)(puVar1[3] + 0x240));
         transformObject = (FldActorObject *)puVar1[3];
         func_00146e60(transformObject->id, (u8 *)&transformObject->initialMatrix.pos, (u8 *)&transformAngles);
-        temp_v8 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        FUN_003e05d0(temp_v8);
-        FUN_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
-        temp_v4 = FUN_001452b0(5);
+        temp_v8 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+        func_003e05d0(temp_v8);
+        func_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
+        temp_v4 = (s32)func_001452b0(5);
         initialX = *(float *)(temp_v4 + 0x1f0);
         initialZero = 0.0f;
         if (((initialZero != initialX) || (initialZero != *(float *)(temp_v4 + 0x1f8))) ||
            (initialZero != *(float *)(temp_v4 + 500))) {
-          pvVar11 = (void *)FUN_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
-          FUN_00458f40(pvVar11,(u8 *)temp_v4 + 0x1f0);
+          pvVar11 = (void *)func_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
+          func_00458f40(pvVar11,(u8 *)temp_v4 + 0x1f0);
         }
       }
-      temp_v5 = FUN_003e0f80();
+      temp_v5 = func_003e0f80();
       puVar1[5] = temp_v5;
       *puVar1 = *puVar1 + 1;
     }
     break;
   case 1:
-    temp_v4 = FUN_00102980();
+    temp_v4 = func_00102980();
     if (temp_v4 == 9) {
-      temp_v4 = FUN_00155280();
+      temp_v4 = (s32)func_00155280();
       if (*(int *)(temp_v4 + 0x34) == 0) {
         break;
       }
-      temp_v4 = FUN_00155280();
-      temp_v4 = FUN_0014e710(*(unsigned char **)(temp_v4 + 0x34));
+      temp_v4 = (s32)func_00155280();
+      temp_v4 = func_0014e710(*(unsigned char **)(temp_v4 + 0x34));
       if (temp_v4 == 0) {
         break;
       }
-      temp_v4 = FUN_00155280();
+      temp_v4 = (s32)func_00155280();
       if (*(int *)(temp_v4 + 0x38) == 0) {
         break;
       }
-      temp_v4 = FUN_00155280();
-      temp_v4 = FUN_0014e710(*(unsigned char **)(temp_v4 + 0x38));
+      temp_v4 = (s32)func_00155280();
+      temp_v4 = func_0014e710(*(unsigned char **)(temp_v4 + 0x38));
       if (temp_v4 == 0) {
         break;
       }
-      temp_v4 = FUN_00155280();
+      temp_v4 = (s32)func_00155280();
       if (*(int *)(temp_v4 + 0x3c) == 0) {
         break;
       }
-      temp_v4 = FUN_00155280();
-      temp_v4 = FUN_0014e710(*(unsigned char **)(temp_v4 + 0x3c));
+      temp_v4 = (s32)func_00155280();
+      temp_v4 = func_0014e710(*(unsigned char **)(temp_v4 + 0x3c));
       if (temp_v4 == 0) {
         break;
       }
@@ -2490,32 +2439,32 @@ s32 func_0018a200(u8 *param_1)
         actorIndex = 1;
         temp_v3 = (short)temp_v5;
         resourceKey = (u16)temp_v3;
-        temp_v4 = FUN_002467b0(resourceKey);
+        temp_v4 = (s32)func_002467b0(resourceKey);
         if ((*(unsigned int *)(temp_v4 + 4) & 1) != 0) {
-          temp_v10 = FUN_00248d80((s16)resourceKey);
+          temp_v10 = func_00248d80((s16)resourceKey);
           temp_v3 = (short)temp_v10;
         }
         eventResource = temp_v3;
-        temp_v9 = FUN_00106330(eventResource + 0x43f);
+        temp_v9 = func_00106330(eventResource + 0x43f);
         if (temp_v9 != 0) {
           actorIndex = 2;
         } else {
-          temp_v9 = FUN_00106330(eventResource + 0x45f);
+          temp_v9 = func_00106330(eventResource + 0x45f);
           if (temp_v9 != 0) {
             actorIndex = 0;
           }
         }
-        temp_v4 = FUN_0047a6d0(*(void **)(puVar1[3] + 0x164),2,&vecA0[0]);
+        temp_v4 = func_0047a6d0(*(void **)(puVar1[3] + 0x164),2,&vecA0[0]);
         if (temp_v4 == 0) {
-          temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           *(FldCopyVec *)vecA0 = *(FldCopyVec *)(temp_v4 + 0x30);
           vecA0[1] = vecA0[1] + 175.0f;
         }
         actorOffset = actorIndex * 4;
-        temp_v4 = FUN_00155280();
-        temp_v5 = FUN_0014e740(*(unsigned char **)(temp_v4 + actorOffset + 0x34),&vecA0[0]);
-        temp_v4 = FUN_00155280();
-        FUN_0014e880(*(unsigned char **)(temp_v4 + actorOffset + 0x34),temp_v5,4);
+        temp_v4 = (s32)func_00155280();
+        temp_v5 = func_0014e740(*(unsigned char **)(temp_v4 + actorOffset + 0x34),&vecA0[0]);
+        temp_v4 = (s32)func_00155280();
+        func_0014e880(*(unsigned char **)(temp_v4 + actorOffset + 0x34),temp_v5,4);
         puVar1[0x14] = actorIndex;
         puVar1[0x15] = temp_v5;
       }
@@ -2532,20 +2481,20 @@ s32 func_0018a200(u8 *param_1)
     if (splineMode > 0) {
       closedLoopType = 2;
       if (splineMode == closedLoopType) {
-        temp_v6 = (u32)FUN_003bbbe0(initialPathObject->pointCount,closedLoopType,initialPathObject->points);
+        temp_v6 = (u32)func_003bbbe0(initialPathObject->pointCount,closedLoopType,initialPathObject->points);
         *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
       } else {
-        temp_v6 = (u32)FUN_003bbbe0(initialPathObject->pointCount,1,initialPathObject->points);
+        temp_v6 = (u32)func_003bbbe0(initialPathObject->pointCount,1,initialPathObject->points);
         *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
       }
       puVar1[6] = 0;
       puVar1[8] = 0x3f800000;
-      FUN_003bb3a0(*(unsigned int *)(puVar1[3] + 0x360),0,&vecC0[0]);
-      FUN_003bb3a0(*(unsigned int *)(puVar1[3] + 0x360),1,&vecD0[0]);
+      func_003bb3a0(*(unsigned int *)(puVar1[3] + 0x360),0,&vecC0[0]);
+      func_003bb3a0(*(unsigned int *)(puVar1[3] + 0x360),1,&vecD0[0]);
       vecB0[0] = vecD0[0] - vecC0[0];
       vecB0[1] = vecD0[1] - vecC0[1];
       vecB0[2] = vecD0[2] - vecC0[2];
-      temp_v13 = FUN_003e4180(&vecB0[0]);
+      temp_v13 = func_003e4180(&vecB0[0]);
       initialPathObject = (FldActorObject *)puVar1[3];
       temp_v13 = (1.0f / (initialPathObject->pointCount - 1)) *
                (initialPathObject->speed / temp_v13);
@@ -2553,14 +2502,14 @@ s32 func_0018a200(u8 *param_1)
       ((float*)puVar1)[6] = (((float*)puVar1)[6] + temp_v13);
       func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
       func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, *(f32 *)((u32)puVar1 + 0x18), &vecD0[0], 0);
-      temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+      temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
       *(FldCopyVec *)vecC0 = *(FldCopyVec *)(temp_v4 + 0x30);
       vecB0[0] = vecD0[0] - vecC0[0];
       vecB0[1] = vecD0[1] - vecC0[1];
       vecB0[2] = vecD0[2] - vecC0[2];
       initialPathDirection = (RainVector *)vecB0;
       RwV3dNormalize(initialPathDirection, initialPathDirection);
-      temp_v13 = (float)FUN_0044b920(vecB0[0] * D_00756520[0] + vecB0[1] * D_00756524[0] + vecB0[2] * D_00756528[0]);
+      temp_v13 = (float)func_0044b920(vecB0[0] * D_00756520[0] + vecB0[1] * D_00756524[0] + vecB0[2] * D_00756528[0]);
       initialHeading = fGpffff8300 * temp_v13;
       if (vecB0[0] < 0.0f) {
         initialHeading = initialHeading * -1.0f;
@@ -2579,23 +2528,23 @@ s32 func_0018a200(u8 *param_1)
       ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
       ((RainMatrix *)puVar1[5])->flags |= 0x20003;
       func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, initialHeading);
-      FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
+      func_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
     }
     puVar1[0xb] = 0xffffffff;
     *puVar1 = *puVar1 + 1;
     break;
   case 2:
     *(unsigned int *)(puVar1[3] + 0x28) = *(unsigned int *)(puVar1[3] + 0x28) | 0x10000000;
-    FUN_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
-    temp_v5 = FUN_0014bbe0((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,8);
+    func_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
+    temp_v5 = func_0014bbe0((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,8);
     puVar1[4] = temp_v5;
     *puVar1 = *puVar1 + 1;
     break;
   case 3:
-    temp_v4 = FUN_0014bd90((unsigned char *)puVar1[4]);
+    temp_v4 = func_0014bd90((unsigned char *)puVar1[4]);
     if (temp_v4 != 0) {
-      FUN_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
-      FUN_00452080((void *)puVar1[4]);
+      func_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
+      func_00452080((void *)puVar1[4]);
       puVar1[4] = 0;
       *(unsigned int *)(puVar1[3] + 0x28) = *(unsigned int *)(puVar1[3] + 0x28) | 0x10000000;
       *puVar1 = *puVar1 + 1;
@@ -2603,21 +2552,21 @@ s32 func_0018a200(u8 *param_1)
     break;
   case 4:
     if (fldBothReady_0018a200()) {
-      temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-      temp_v7 = FUN_0047a2f0(D_007EFA00[0]);
+      temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+      temp_v7 = func_0047a2f0(D_007EFA00[0]);
       proximityLimit = 500.0f;
       distanceResult = K_FldEvent_ArePosWithinDist((RainVector *)(temp_v4 + 0x30), (RainVector *)(temp_v7 + 0x30), proximityLimit);
       if (distanceResult == 1) {
-        pvVar11 = (void *)FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
+        pvVar11 = (void *)func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+        temp_v4 = func_0047a2f0(D_007EFA00[0]);
         interactionAngle = 90.0f;
         interactionRange = 250.0f;
-        temp_v5 = FUN_0014c240(pvVar11,&((RainMatrix *)temp_v4)->pos,interactionAngle,interactionRange);
+        temp_v5 = func_0014c240(pvVar11,&((RainMatrix *)temp_v4)->pos,interactionAngle,interactionRange);
         if (temp_v5 != 0) {
           if (puVar1[0xb] != 0xffffffff) {
             break;
           }
-          temp_v3 = FUN_00479c30(*(int *)(puVar1[3] + 0x164),0);
+          temp_v3 = func_00479c30(*(int *)(puVar1[3] + 0x164),0);
           puVar1[0xb] = (int)temp_v3;
           temp_v5 = puVar1[3];
           updateAnimationKind = ((FldActorObject *)temp_v5)->kind;
@@ -2650,18 +2599,18 @@ s32 func_0018a200(u8 *param_1)
       {
         FldActorWork *pathWork;
         if (((movementMode != 4) || ((float *)puVar1)[6] != 1.0f) &&
-            (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
+            (temp_v3 = func_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
           func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
         }
         func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
-        temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+        temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         *(FldCopyVec *)vecE0 = *(FldCopyVec *)(temp_v4 + 0x30);
         vec100[0] = vecF0[0] - vecE0[0];
         vec100[1] = vecF0[1] - vecE0[1];
         vec100[2] = vecF0[2] - vecE0[2];
         pathDirection = (RainVector *)vec100;
         RwV3dNormalize(pathDirection, pathDirection);
-        temp_v13 = (float)FUN_0044b920(vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0] + vec100[2] * D_00756528[0]);
+        temp_v13 = (float)func_0044b920(vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0] + vec100[2] * D_00756528[0]);
         pathHeading = fGpffff8300 * temp_v13;
         if (vec100[0] < 0.0f) {
           pathHeading = pathHeading * -1.0f;
@@ -2683,8 +2632,8 @@ s32 func_0018a200(u8 *param_1)
         pathWork = (FldActorWork *)puVar1;
         movingObject = (FldActorObject *)puVar1[3];
         if (movingObject->pathMode != 4 || pathWork->progress < 1.0f) {
-          FUN_00168890(movingObject->movementTask,(unsigned char *)puVar1[5]);
-          FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
+          func_00168890(movingObject->movementTask,(unsigned char *)puVar1[5]);
+          func_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
           pathWork->progress = (pathWork->progress + pathWork->step);
         }
         if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
@@ -2704,7 +2653,7 @@ s32 func_0018a200(u8 *param_1)
         if ((int)temp_v11_s3 >= 1) {
           puVar1[10] = temp_v11_s3 - 1;
         } else {
-          if ((temp_v11_s3 == 0) && (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
+          if ((temp_v11_s3 == 0) && (temp_v3 = func_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
           }
           if ((int)puVar1[9] > 0) {
@@ -2713,14 +2662,14 @@ s32 func_0018a200(u8 *param_1)
           }
           else {
             func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, *(f32 *)((u32)puVar1 + 0x18), &vec120[0], 0);
-            temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+            temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
             *(FldCopyVec *)vec110 = *(FldCopyVec *)(temp_v4 + 0x30);
             vec130[0] = vec120[0] - vec110[0];
             vec130[1] = vec120[1] - vec110[1];
             vec130[2] = vec120[2] - vec110[2];
             oscillatorDirection = (RainVector *)vec130;
             RwV3dNormalize(oscillatorDirection, oscillatorDirection);
-            temp_v13 = (float)FUN_0044b920(vec130[0] * D_00756520[0] + vec130[1] * D_00756524[0] + vec130[2] * D_00756528[0]);
+            temp_v13 = (float)func_0044b920(vec130[0] * D_00756520[0] + vec130[1] * D_00756524[0] + vec130[2] * D_00756528[0]);
             oscillatorHeading = fGpffff8300 * temp_v13;
             if (vec130[0] < 0.0f) {
               oscillatorHeading = oscillatorHeading * -1.0f;
@@ -2739,8 +2688,8 @@ s32 func_0018a200(u8 *param_1)
             ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
             ((RainMatrix *)puVar1[5])->flags |= 0x20003;
             func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, oscillatorHeading);
-            FUN_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
-            FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
+            func_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
+            func_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
             {
             FldActorWork *motionWork = (FldActorWork *)puVar1;
             f32 zero;
@@ -2755,7 +2704,7 @@ s32 func_0018a200(u8 *param_1)
                 motionWork->progress = (one - motionWork->step);
                 motionWork->direction = -1.0f;
                 puVar1[9] = 0x5a;
-                pauseRoll = FUN_003b7060();
+                pauseRoll = func_003b7060();
                 puVar1[10] = pauseRoll % 0x5a + 0x3c;
                 func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
               }
@@ -2764,7 +2713,7 @@ s32 func_0018a200(u8 *param_1)
               motionWork->progress = motionWork->step;
               motionWork->direction = 1.0f;
               puVar1[9] = 0x5a;
-              pauseRoll = FUN_003b7060();
+              pauseRoll = func_003b7060();
               puVar1[10] = pauseRoll % 0x5a + 0x3c;
               func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
             }
@@ -2778,15 +2727,15 @@ s32 func_0018a200(u8 *param_1)
     break;
   case 5:
   case 6:
-    temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+    temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
     *(FldCopyVec *)vec140 = *(FldCopyVec *)(temp_v4 + 0x20);
-    pfVar12 = (float *)FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
+    pfVar12 = (float *)func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
     *(FldCopyVec *)vec150 = *(FldCopyVec *)(pfVar12);
     turnForward = (RainVector *)vec140;
     RwV3dNormalize(turnForward, turnForward);
     turnRight = (RainVector *)vec150;
     RwV3dNormalize(turnRight, turnRight);
-    FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
+    func_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
     ny = ((float*)puVar1)[0x10];
     nx = ((float*)puVar1)[0xf];
     nz = ((float*)puVar1)[0x11];
@@ -2823,7 +2772,7 @@ s32 func_0018a200(u8 *param_1)
   case 7:
     finalModel = ((FldActorObject *)puVar1[3])->model;
     if (finalModel[0xee] == 1 &&
-       (temp_v3 = FUN_00479c30((s32)finalModel,0), temp_v3 != 0)) {
+       (temp_v3 = func_00479c30((s32)finalModel,0), temp_v3 != 0)) {
       func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
     }
   
@@ -2832,11 +2781,7 @@ s32 func_0018a200(u8 *param_1)
   }
   return 0;
 }
-#pragma opt_common_subs on
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018a200);
-#endif
 // FUN_0018BAD0
 void func_0018bad0(u8 *arg0) {
     s32 h = *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x14);

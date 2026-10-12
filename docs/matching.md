@@ -719,6 +719,20 @@ below are the codegen consequences.
   retail also pulls out other constants in the same function: on `0048b340`
   it un-hoists `-1` and `255.0f` (54 → 82 edits).
 
+  `func_0018a200` (MATCH 2026-10-12) needed CSE **on** with constant pullout
+  **off**: CSE-off repeated animation constants, while ordinary CSE-on kept
+  a fade-range constant and field addresses live across unrelated calls.
+  Separate reload-address expressions preserved constant sharing without the
+  long-lived fade-range address (92 → 68 edits).
+  Recovering the oscillator work pointer made the main work local survive
+  instead of folding into a late temporary; the captured allocation model
+  then required its declaration after the per-role locals (47 → 19).
+  Typed linear-path work and an endpoint-progress snapshot closed that block
+  (19 → 2); loading the visibility setter's target before its other arguments
+  closed the function. Measure complementary blocks together when one removes
+  an extra instruction and another restores a required FPU-latency nop:
+  branch-distance edits can make either correct block look worse in isolation.
+
   **Lever: reuse a variable and split its lifetimes (`func_001b11c0`, MATCH
   2026-10-06).** Five sessions recorded this function as a `$t1`/`$t3`
   allocator wall. Retail colours the sort loop's index and cursor before the
