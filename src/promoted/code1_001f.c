@@ -961,6 +961,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 338 -> 333; align the signed message spill to retail's 0x270 frame slot.
  * measured 2026-10-12: fnalign 333 -> 327; separate the byte-status flag updates and restore the retail-proven third argument to 001fb360.
  * measured 2026-10-12: fnalign 327 -> 292; declare the calculation context before the skill ID to finish retail's entry-register order.
+ * measured 2026-10-12: fnalign 292 -> 279; preserve the skill snapshot boundary and recover word-sized loop bounds plus the tail's separate unsigned index.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1044,7 +1045,7 @@ void func_001f14f0(u8 *arg0)
     if (*(u16 *)(arg0 + 0x6C) == 3) {
         flags |= 1;
     }
-    off = (u16)id * 0x28;
+    off = (u32)(u16)id * 0x28;
     isTen = *(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x11) == 0x10;
     ctx = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
     *(u16 *)(ctx + 0x2C) = 0;
@@ -1450,7 +1451,7 @@ void func_001f14f0(u8 *arg0)
         if (sum != NULL) {
             u8 *first = *(u8 **)(arg0 + 0x38);
             s32 flagHit;
-            u8 cnt;
+            s32 cnt;
             u8 q;
             sctx = *(u8 **)(*(u8 **)(sum + 0x30) + 0xA64);
 
@@ -1512,13 +1513,14 @@ other:
         u8 *p170;
 
         for (m = 0; m < *(u16 *)(arg0 + 0x6A); m++) {
-            u8 *u = *(u8 **)(arg0 + m * 4 + 0x38);
+            u8 *u = *(u8 **)(arg0 + (u32)m * 4 + 0x38);
 
             if (*(s32 *)(u + 0xE0) == 1 && func_00232710(*(u8 **)(*(u8 **)(u + 0x30) + 0xA64), 0x100000) == 0) {
                 cnt++;
             } else {
                 u8 n;
-                for (n = 0; n < u[0xD9]; n++) {
+                s32 count = u[0xD9];
+                for (n = 0; n < count; n++) {
                     if (*(u8 *)(*(u8 **)(u + 0x30) + 0xA2) == 1 && (*(u32 *)(u + (n << 5) + 0xF8) & 0x100000)) {
                         cnt++;
                         break;
