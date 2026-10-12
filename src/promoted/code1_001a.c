@@ -3039,6 +3039,7 @@ void func_001a5990(void)
  * 2026-10-12 hit-count consumers: fnalign 218 -> 214; preserve the signed-halfword normalization of the byte-loaded hit count and its conditional snapshot, matching retail's two sign extensions.
  * 2026-10-12 captured spill order: fnalign 214 -> 93, every frameslots offset now agrees at 0x330; declare the surviving packet/result pointers beside their aliases (b210 graph replay preserves their spill choices).
  * 2026-10-12 count/selector joins: fnalign 93 -> 88; keep the repeat-count snapshot signed and the branch-selected effect-table index full-width, removing two non-retail masks.
+ * 2026-10-12 row phases: fnalign 88 -> 82; use unsigned byte-address indices inside both loops and recompute the hit-result view after the repeat phase, separate from the retained hitRow snapshot.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3508,7 +3509,7 @@ void func_001a59a0(s64 *arg0_) {
     sp180 = (s32) temp_2_17;
     sp170 = temp_2_17 + 0xC;
     while ((spC0 = (s32) sp1E0) < (s32) (*(u16 *)(arg0 + (0x6A)))) {
-        temp_18 = (ActionTargetView *)((*(u8 **)((u8 *)((arg0 + (sp1E0 * 4))) + (0x38))));
+        temp_18 = (ActionTargetView *)((*(u8 **)((u8 *)((arg0 + ((u32)sp1E0 * 4))) + (0x38))));
         sp160 = *(u8 *)((u8 *)temp_18 + 0xD9);
         if (sp1C0 != 0) {
             var_2_4 = 1;
@@ -3593,7 +3594,7 @@ void func_001a59a0(s64 *arg0_) {
         sp120 = (s16)sp160;
         while ((spD0 = (s32) sp1D0) < sp120) {
             sp260 = 0;
-            hitRow = (ActionHitRowView *)((u8 *)temp_18 + (sp1D0 << 5));
+            hitRow = (ActionHitRowView *)((u8 *)temp_18 + ((u32)sp1D0 << 5));
             while ((s32)(sp200 = (s32) sp260) < sp140) {
                 temp_2_27 = hitRow->result.motion;
                 sp2A0 = (s32) temp_2_27;
@@ -3780,7 +3781,7 @@ void func_001a59a0(s64 *arg0_) {
                 }
                 sp260 += 1;
             }
-            temp_2_48 = &hitRow->result;
+            temp_2_48 = &((ActionHitRowView *)((u8 *)temp_18 + (sp1D0 << 5)))->result;
             sp1F0 = temp_2_48;
             temp_2_49 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_22_3), temp_2_48, temp_18->effect, temp_18->targetFlags));
             (*(s8 *)((u8 *)(temp_2_49) + (0))) = 5;
