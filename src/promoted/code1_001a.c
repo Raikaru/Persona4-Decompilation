@@ -4113,6 +4113,7 @@ void func_001a7710(void)
  * 2026-10-12 unit-table flag: fnalign 639 -> 637; normalize bit 0x40 before inverting the boolean, matching retail's sltu/xori pair rather than xor/sltiu.
  * 2026-10-12 scale clamp: fnalign 637 -> 629; retain each floating bound from its comparison for the clamp assignment, eliminating two redundant constant reloads while preserving the NaN path.
  * 2026-10-12 opening motion dispatch: fnalign 629 -> 626; restore the 0/0x11 switch and explicit default delay, retaining retail's two positive tests and branch-only default path.
+ * 2026-10-12 final delay selection: fnalign 626 -> 623; recover the short-circuit conditional expression so its true and false results retain retail's explicit join.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -6091,15 +6092,7 @@ block_406:
         temp_2_147 = (u8 *)(func_0019bbe0(sp4D0, 0xFFFFFF, 8, 0, 4, 0));
         (*( s8 * )((u8 *)(temp_2_147) + (0))) = 0xB;
         *(s64 *)(temp_2_147 + 8) = *(s64 *)(var_17_6 + 0x58);
-        if (sp33C != 0) {
-            if ((s32)(s32)sp1E0 == 0) {
-                goto block_481;
-            }
-            var_2_17 = 7;
-        } else {
-block_481:
-            var_2_17 = 0xF;
-        }
+        var_2_17 = (sp33C != 0 && (s32)sp1E0 != 0) ? 7 : 0xF;
         (*( s16 * )((u8 *)(temp_2_147) + (0x48))) = var_2_17;
         (*( s64 * )((u8 *)(temp_2_147) + (0x60))) = temp_16;
         func_00194590(temp_2_147, 1);
