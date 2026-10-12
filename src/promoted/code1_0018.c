@@ -2060,6 +2060,7 @@ static inline s32 fldBothReady_0018a200(void)
  * measured 2026-10-12: fnalign 257 -> 151: separate actor lookup, unsigned movement-mode and per-case heading lifetimes; recover typed object snapshots, model-scale combineOp=1, canonical proximity contracts, RGBA size, and unsigned pause rolls. Retail frame/saves retained; ordinary allocation/CSE and call-argument residuals remain.
  * measured 2026-10-12: fnalign 151 -> 136: use the SDK spline constructor's s32 count/type and pointer contract; keep the closed-loop type as the value used by both selection and creation. The complete spline-construction branch now aligns.
  * measured 2026-10-12: fnalign 136 -> 103: recover initial animation-ID loads and walking selection, signed-side component snapshots, the existing clump callback contract, and per-role normalization pointers. The side snapshots restore retail's persistent facing-vector FPR allocation.
+ * measured 2026-10-12: fnalign 103 -> 92: pointer-domain position arguments and a look-target snapshot reproduce call preparation order; update model flags before the setter call. Keep the path endpoint store explicitly floating-point.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2199,6 +2200,7 @@ s32 func_0018a200(u8 *param_1)
   float *pfVar12;
   RainVector *facingNormal;
   RainVector *targetDirection;
+  RainVector *lookTarget;
   RainVector *initialPathDirection;
   RainVector *pathDirection;
   RainVector *oscillatorDirection;
@@ -2287,7 +2289,7 @@ s32 func_0018a200(u8 *param_1)
       temp_v8 = FUN_0047a2f0(D_007EFA00[0]);
       temp_v4 = FUN_0047a2f0(temp_v4);
       facingLimit = 120.0f;
-      fovResult = K_FldEvent_IsPosWithinFov((RainMatrix *)temp_v8, (RainVector *)(temp_v4 + 0x30), facingLimit);
+      fovResult = K_FldEvent_IsPosWithinFov((RainMatrix *)temp_v8, &((RainMatrix *)temp_v4)->pos, facingLimit);
       if (fovResult == 1) {
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         temp_v13 = *(float *)(temp_v4 + 0x30);
@@ -2329,11 +2331,13 @@ s32 func_0018a200(u8 *param_1)
           temp_v4 = FUN_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
           if ((temp_v4 == 0) && (temp_v1 == 1)) {
             temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
+            lookTarget = (RainVector *)vec40;
             *(FldCopyVec *)vec40 = *(FldCopyVec *)(temp_v4 + 0x30);
             vec40[1] = vec40[1] + 140.0f;
-            FUN_0047a8b0(*(void **)(puVar1[3] + 0x164),&(*(int *)&vec40[0]));
+            FUN_0047a8b0(*(void **)(puVar1[3] + 0x164),lookTarget);
             temp_v2 = FUN_0047aa00(*(unsigned char **)(puVar1[3] + 0x164));
-            FUN_0047a9f0(*(unsigned char **)(puVar1[3] + 0x164),temp_v2 | 0x1000);
+            temp_v2 |= 0x1000;
+            FUN_0047a9f0(*(unsigned char **)(puVar1[3] + 0x164),temp_v2);
           }
           else {
             FUN_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
@@ -2413,7 +2417,7 @@ s32 func_0018a200(u8 *param_1)
         if (((initialZero != initialX) || (initialZero != *(float *)(temp_v4 + 0x1f8))) ||
            (initialZero != *(float *)(temp_v4 + 500))) {
           pvVar11 = (void *)FUN_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
-          FUN_00458f40(pvVar11,(void *)(temp_v4 + 0x1f0));
+          FUN_00458f40(pvVar11,(u8 *)temp_v4 + 0x1f0);
         }
       }
       temp_v5 = FUN_003e0f80();
@@ -2592,7 +2596,7 @@ s32 func_0018a200(u8 *param_1)
         temp_v4 = FUN_0047a2f0(D_007EFA00[0]);
         interactionAngle = 90.0f;
         interactionRange = 250.0f;
-        temp_v5 = FUN_0014c240(pvVar11,(void *)(temp_v4 + 0x30),interactionAngle,interactionRange);
+        temp_v5 = FUN_0014c240(pvVar11,&((RainMatrix *)temp_v4)->pos,interactionAngle,interactionRange);
         if (temp_v5 != 0) {
           if (puVar1[0xb] != 0xffffffff) {
             break;
@@ -2670,7 +2674,7 @@ s32 func_0018a200(u8 *param_1)
         }
         if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
           if (!(((float*)puVar1)[6] <= 1.0f)) {
-            puVar1[6] = 0x3f800000;
+            ((f32 *)puVar1)[6] = 1.0f;
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
           }
         }
