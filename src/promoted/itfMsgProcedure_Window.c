@@ -1106,143 +1106,9 @@ static inline s32 msgWinSelectionResource(void)
     return 0;
 }
 
-/* measured 0027f6f0 2026-09-19: `#pragma opt_dead_assignments off` was tried and REMOVED.
-   It bought 72 differing words (1920 -> 1848) and cost **87 fnalign edits** (2392 -> 2479).
-   By the pair rule (handoff 7aw) the edits decide: a pragma that lowers the word score
-   while raising the number of instructions that differ from retail is moving a metric,
-   not reproducing codegen.  Floor stood at retail 2153 / object 2135 (-0.8%, gate
-   2091-2221, mid-band), 2392 edits +80 reloc-only, 1920 differing words, frame -0x2E0
-   against retail's -0x300.  Residual is prologue saved-register rotation (arg0 in $s0
-   against retail's $s1, arg1 in $s1 against $s5) plus the 0x20 frame gap. */
-/* measured 0027f6f0 2026-09-19 tail_classify 2392 edits: structure 184, register 49.
-   Structural hunks worked inside arms (dispatch untouched; ascending-case sort already
-   measures 2514 WORSE and is not repeated): case-7 entry search reshaped to retail's
-   single-post-loop zero (remove per-iteration e=0, assign e only on found) 2392->2388;
-   case-4 cnt<0x10 dead tail (second func_0044b7b0 + f*100/chainD scaffolding after the
-   func_0025ecd0 call) removed 2388->2373; case-18 accumulator scaffolding simplified to
-   live-only (chainA=(1-f)*255, chainB=f*360+180, chainC=chainB, first arg (float)s20)
-   2373->2371; case-4 cnt<0xB *1.0f/+0.0f tail removed with no measurement change (kept
-   as cleanup).  Tried and REVERTED: Quad lq/sq block copy for case-12 copyA/copyB
-   2388->2541 (+153, words 1914->1963); <0x10 head simplification to f2*10-only
-   2373->2382 (+9, words 1943->1924).  Floor now 2371 edits +80 reloc-only, 1943
-   differing words.  Ten COP1 accumulator chains remain as shared-product a*b+-c*d per
-   7r; residual is prologue saved-reg rotation + 0x20 frame gap; production stays ASM. */
-/* measured 0027f6f0 (owner, 2026-09-19): fnalign **2371 -> 2365 edits**, count
-   2125 -> 2123 against retail 2153, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-/* measured 0027f6f0 2026-09-19 loop audit + hoisting: all 14 `for` loops checked
-   individually for the do/while shape. Case-7 search arms 1-2 (field4=3/2) convert
-   +3/+7 (REJECTED; retail keeps the guard there, only the ==0 arm is bottom-tested).
-   Twelve `for (i = 0; i < 4; i++)` convert -2..-6 each but REJECTED: retail keeps the
-   `b` guard before every one of those bodies (dumped in three blocks) and the hunk
-   structure is byte-identical modulo downstream renumbering (aligner jitter in the
-   12-duplicated-block region, not codegen agreement). `s32 i` -> `u32 i` alone is
-   neutral (2365) but retail observation splits it: twelve i<4 compares are `sltiu`,
-   all three i<8 search compares are `slti` (signed, already matching) - so the pts
-   loops need their own unsigned index, not a shared one. Function-scope
-   `#pragma opt_loop_invariants on` (push/pop) hoists the per-iteration float/color
-   materialization into preheaders exactly as retail does (dx/dy into f-regs, colors
-   into GPRs, guard retained): fnalign **2365 -> 2311 edits** (-54), count 2123
-   unchanged, words 1933 -> 1934 (+1 positional noise from the layout shift).
-   Mid-body placement of the same pragma measured zero effect (b210 ignores it
-   inside the body; function scope required). Floor now 2311 edits +80 reloc-only;
-   12-block mega-hunk persists on frame-offset/register residue. Next: case-7
-   e-hoist reshape (retail derives e unconditionally per iteration, no in-loop
-   move) + unsigned pts index. */
-/* measured 0027f6f0 2026-09-20 dispatch switches + chain fixes (retail objdump read):
-   b210 compiles small ascending switches as a REVERSE-test beq cascade (in-TU
-   precedent func_0027f560: switch(0,1,2,3) -> tests ==3(far),==2,==1,==0, layout
-   0,1,2,3). Both aux `if(==0){}else if(==3){}else if(==2){}else if(==1){}` chains
-   (case-4 <0x15, case-5) are really `if(==0){}else{switch(1,2,3)}`: fnalign
-   2311 -> 1339 (-972, case-5 unlocks the 12-block cascade) then -> 1239 (-100,
-   case-4); stale test constant CSEs into the ==2 body (retail `li a2,3` doubles
-   as the slot arg, no `li` in the ==2 arm). Case-4 <0x15 ==0/==1/==2 chains fused
-   to single-expression MAC form (retail adda/msub, ==3 keeps two-statement f21
-   reuse): -> 1221 (-18). Five D_0088202C `==2/==1/==0` chains (case-4 s20/s19,
-   case-5 ec90 slots, case-16/17/18 s20/s19) -> ascending switches: -> 1088 (-133).
-   Case-4 <0xB: removed bogus double-halving (`divA=(1+f)/2` never existed; retail
-   halves once, divA==f), Y-arg is chainA not s20*f+123, p12/p13 are chainC/chainD
-   (f16/f17), chains fused: -> 1056 (-32). Case-4 <0x10: removed dead chainB and
-   the bogus `chainA=(1-f)*10` overwrite tail, fused chainA/chainC: -> 1039 (-17).
-   Twelve pts loops got their own `u32 k` (retail 12x sltiu; searches stay s32,
-   retail 3x slti): neutral, retail-true, banked. REJECTED with both-metrics
-   evidence: case-7 unconditional-e + goto-found (+3 edits/+7 words; branch-polarity
-   floor shared with the 147-edit sibling 002818e0, whose object shows the same
-   single-beqz shape). Floor now **1039 edits** +135 reloc-only, 1940 words, count
-   2130 vs retail 2153 (-1.1%, gate ok); production stays ASM. Remaining: case-4
-   loop-block skip pair (content verified identical arg-for-arg; pure frame-offset
-   + color residue -> prologue/declaration-order probe), cnt reload-vs-cache,
-   search polarity floor. */
-/* measured 0027f6f0 2026-09-20 desync unslide (retail objdump read): the 130-instr
-   retail-only run at 0x00280110-0x00280318 is a CROSS, not missing code: both streams
-   hold the same case-4 pts[3]+pts[4] pair, but the object emits it 128 instrs later.
-   Root cause is array layout, found in three forced steps. (a) Adjacency: every block
-   calls eb20 with a0=&cols[i], a1=&pts[i] and a0==a1-0x10 while successive blocks step
-   0x30, so cols[i]/pts[i] are one 48B row (cols[4] 16B first, pts[4] 32B), not two
-   arrays (separate arrays force a 7.5-row gap, impossible). (b) Order: rows descend in
-   execution, so one blocks[12] at sp+0x80 holds case 4 as 11..6 then case 5 as 5..0
-   (E0 call (0x290,0x2a0) down to E5 (0x1a0,0x1b0); case 5 E6 (0x170,0x180) down to E9
-   (0xE0,0xF0), same lattice). (c) Head: every retail block prestores its first 250.0f
-   at row+8 (blocks[i].pts[1].x), the body wrote row+16 ([2].x). Spelling ladder
-   (fnalign edits, retail 2153 / object 2130): 1039 baseline -> 1038 single-block [1].x
-   (-1, true but masked) -> 848 struct+reversed indices (+0x10 shift remains) -> 848
-   +[1].x (masked) -> 766 blocks[] declared last (base lands exactly sp+0x80, shift
-   closed) -> 778 with [2].x restored (+12, confirms [1].x). REJECTED: loop-local
-   `for (u32 k = ...)` does not compile (C90 TU, for-init-decl syntax error). Floor now
-   **766 edits** +141 reloc-only; production stays ASM. Remaining: 0x20 frame gap
-   (-0x2e0 vs -0x300, other locals), per-block index allocation (shared k in $v0 vs
-   retail per-block temps), deficit_scan re-read. */
-/* measured 0027f6f0 2026-09-20 rejected spellings (fnalign edits vs 766 floor,
-   retail 2153 / object 2130 unless noted). Case-18 unsigned clamp: `tmp=(u32)chainA`
-   781 (+15, count 2146); `tmp=(u8)(u32)chainA` 781 (+15); inline `(u8)(u32)chainA`
-   with no tmp line 785 (+19, dance sinks below call setup). Cause: taken path needs
-   sub+mfc1-bits+or+andi with NO cvt.w.s, and retail duplicates the andi on both
-   paths (ours shares one); dest $a1 direct (inline form) vs $v1-then-late-andi.
-   Pointerized block loops: function-scope pp/cp over whole blocks 960 (+194, saved-reg
-   recolor across the eb20 call); loops-only pp/cp 771 (+5, folds to 0-disp via $t0/$t1
-   but the hoisted setup has no retail counterpart). `#pragma opt_loop_invariants off`
-   975 (+209, load-bearing: colors un-hoist everywhere). Loop-local `for (u32 k=...)`
-   does not compile (C90 TU). iGpffffb4d8/b4dc stay s32: both streams lw the gates
-   (no c.eq.s anywhere) and s19 has int uses (ecd0 6th arg); the R1729 lwc1 is a
-   different small-data float with misdecoded DSP words nearby, and case-12 j/f needs
-   unknown func_00277070/279010 semantics: parked. Case-7 search residue is pure
-   allocation ($s0/$s1 rotation, $v0 vs $a0 index); e-hoist already rejected. Loop
-   address base+disp split stands (struct member access under the kept pragma). */
-/* Current recovery (2026-10-02, baseline 354c1add): real color globals and
- * complete rectangle snapshots replace the discarded/misdirected copies;
- * message handles, live frame reads and the eight-byte resource are explicit.
- * Reusing the inlined resource/first-free helpers preserves retail's joins.
- * Whole-owner b210: 8556/8624 bytes, 590 aligned edits, 668 masked words.
- * This supersedes the historical scores above; the assembly fallback remains.
- * See docs/probe_archive/Message_selection_0027f6f0_20261002.md.
-   2026-10-08: opt_lifetimes on lowers fnalign from 590 to 410 edits.
-   Also (2026-10-08): `tmp = a && b` written as the && test, s32 frame counters, and argument expressions inlined in call order (retail computes them at the call) bring it to 331. */
-/* 2026-10-09: 331 -> 301 edits. Applying the single-definition rule: case 4's 300 - 300*f result reuses prodA (a multi-definition local) so it is computed in statement order. prodA's case-3 value and the 100/x quotient are written in two steps so retail's constant materialisation order comes out. The colour unions are copied whole. Open: retail also stores backgroundColor/selectionColor at 0x2f8/0x2f4 before copying them to color, and those stores are eliminated here.
-   2026-10-09: 295 -> 270: four case-local values reuse other locals of the
-   same type (selection handle in s20, the column count in tmp2, the case-12
-   rectangle in background, the rotation in g), matching retail's register
-   numbering.
- * 2026-10-09: 270 -> 155: the per-corner loops address one element through `pt` /
- * `cl` pointers (retail folds the whole stack offset into one addiu).
- * 2026-10-09: 155 -> 135: declaration climb.
- * 2026-10-09: 135 -> 133: case 8 tests the window pointers inside the assignment.
- * 106: the colour locals are copied by an address-taking helper, so retail's
- * stores of backgroundColor/selectionColor (0x2F8/0x2F4) remain.
- * 104: gp pool floats written as literals.
- * fnalign 104 -> 103: 1 - f held in prodB so the 100.0f product is constant-first as retail.
- */
-// FUN_0027F6F0 NONMATCHING
-#ifdef NON_MATCHING
 #pragma push
 #pragma opt_lifetimes on
-#pragma push
+/* measured: lifetime splitting and invariant hoisting retain the exact selection renderer. */
 #pragma opt_loop_invariants on
 static inline PrimitiveRectangleColor *msgWinCopyColor(u8 *destination, const u8 *source)
 {
@@ -1250,6 +1116,26 @@ static inline PrimitiveRectangleColor *msgWinCopyColor(u8 *destination, const u8
     return (PrimitiveRectangleColor *)destination;
 }
 
+static inline s32 msgWinColumnOffset(s32 stride, s32 column)
+{
+    return stride * column;
+}
+
+static inline PrimitiveRectangleWords *msgWinCopyRectangle(u8 *destination, const u8 *source)
+{
+    typedef unsigned int MsgWinQuadword __attribute__((mode(TI)));
+    typedef union MsgWinRectangleSnapshot {
+        PrimitiveRectangleWords words;
+        MsgWinQuadword quadword;
+    } MsgWinRectangleSnapshot;
+
+    *(MsgWinRectangleSnapshot *)destination = *(const MsgWinRectangleSnapshot *)source;
+    return (PrimitiveRectangleWords *)destination;
+}
+
+/* measured: 103 -> 0 fnalign edits. Per-phase coordinates and the shared resource
+ * handle reproduce retail lifetimes; address-taking copies retain both snapshots. */
+// FUN_0027F6F0
 s32 func_0027f6f0(s32 arg0, u32 arg1)
 {
     extern u32 D_00882020[];
@@ -1267,7 +1153,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     extern PrimitiveRectangleWords D_0063C130;
     extern PrimitiveRectangleWords D_0063C140;
     extern s32 func_0025f500(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 f2);
-    extern s32 func_00273970(void *arg0);
+    extern s32 func_00273970(s32 arg0);
     PrimitiveRectangleColor color;
     PrimitiveRectangleColor backgroundColor;
     PrimitiveRectangleColor selectionColor;
@@ -1275,8 +1161,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     PrimitiveRectangleWords background;
     PrimitiveRectangleWords selection;
     s32 ret;
-    s32 s20;
-    s32 s19;
+    s32 windowX18;
+    s32 windowY18;
+    s32 windowX17;
+    s32 windowY17;
+    s32 windowX16;
+    s32 windowY16;
+    s32 windowX4;
+    s32 windowY4;
     s32 handle;
     s32 i;
     u32 k;
@@ -1344,35 +1236,35 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         D_00882024[0]++;
         switch (D_0088202C[0]) {
         case 0:
-            s20 = 0x45;
-            s19 = 0xD;
+            windowX4 = 0x45;
+            windowY4 = 0xD;
             break;
         case 1:
-            s20 = 0x51;
-            s19 = 0xC;
+            windowX4 = 0x51;
+            windowY4 = 0xC;
             break;
         case 2:
-            s20 = 0x76;
-            s19 = 0xB;
+            windowX4 = 0x76;
+            windowY4 = 0xB;
             break;
         }
         if (D_00882024[0] < 0xB) {
             f = sinf(iGpffff81dc + (iGpffff8084 * (float)D_00882024[0]) / 10.0f);
             f = (f + 1.0f) / 2.0f;
             subA = 1.0f - f;
-            cvtA = (float)(s20 + 0x7B);
+            cvtA = (float)(windowX4 + 0x7B);
             chainA = cvtA - (16.0f * subA);
             prodA = 300.0f - (300.0f * f);
             chainC = 0.2f + (iGpffff811c * f);
             chainD = 0.2f - (iGpffff8118 * f);
-            func_0025ecd0(prodA, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
+            func_0025ecd0(prodA, chainA, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
         } else if (D_00882024[0] < 0x10) {
             f = sinf((iGpffff8094 * (float)(D_00882024[0] - 10)) / 5.0f);
-            chainA = (float)s20 * (1.0f - f) + 123.0f;
+            chainA = (float)windowX4 * (1.0f - f) + 123.0f;
             chainC = iGpffff80d4 * f + iGpffff81e4;
-            func_0025ecd0(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
+            func_0025ecd0(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
         } else if (D_00882024[0] < 0x15) {
-            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, (void *)D_00796490);
             f = sinf((iGpffff8094 * (float)(D_00882024[0] - 15)) / 5.0f);
             if (D_0088202A[0] == 0) {
                 chainA = 36.0f - ((1.0f - f) * 100.0f);
@@ -1550,8 +1442,8 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         break;
     case 5:
         if (D_0088202A[0] != 0) {
-            s20 = msgWinSelectionResource();
-            if (s20 == 0) {
+            handle = msgWinSelectionResource();
+            if (handle == 0) {
                 break;
             }
         }
@@ -1574,14 +1466,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         } else {
             switch (D_0088202A[0]) {
             case 1:
-                func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)s20, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
                 break;
             case 2:
-                func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)s20, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
                 break;
             case 3:
-                func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)s20, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
-                func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)s20, 1, (void *)D_00796490, 234.0f, 143.0f, 0.0f);
+                func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f, 143.0f, 0.0f);
                 break;
             }
         }
@@ -1748,7 +1640,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             func_00272b50(pv2, 0, 0);
             func_00272730(pv2, 0xFF);
             func_002727a0(pv2, 0xFF);
-            tmp2 = func_00273970(pv2);
+            tmp2 = func_00273970((s32)pv2);
             if (tmp2 < 3) {
                 D_0088202C[0] = 0;
             } else if (tmp2 < 4) {
@@ -1818,7 +1710,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             backgroundColor = iGpffffa780;
             msgWinCopyColor((u8 *)&color, (const u8 *)&backgroundColor);
             background = D_0063C130;
-            rectangle = background;
+            msgWinCopyRectangle((u8 *)&rectangle, (const u8 *)&background);
             func_0045da40(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
             tmp = func_00277070((s32)arg0);
             tmp2 = func_00279010((s32)arg0);
@@ -1828,15 +1720,15 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 f = 100.0f;
                 f = f / (float)(s16)tmp2;
                 tmp2 = (s32)f;
-                j = (tmp2 >> 1) * 8 + 0x550 + tmp2 * 8 * tmp;
+                j = (tmp2 >> 1) * 8 + 0x550 + msgWinColumnOffset(tmp2 * 8, tmp);
             }
             selectionColor = iGpffffa784;
             msgWinCopyColor((u8 *)&color, (const u8 *)&selectionColor);
             selection = D_0063C140;
             selection.signedWords.word[0] = 0x38;
             selection.signedWords.word[1] = j >> 3;
-            background = selection;
-            func_0045da40(&color, &background, 0.0f, 1, (void *)D_00796490);
+            rectangle = selection;
+            func_0045da40(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
         }
         ret = 1;
         break;
@@ -1854,16 +1746,16 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             if (tmp != 0) {
                 switch (D_0088202C[0]) {
                 case 0:
-                    s20 = 0x24E;
-                    s19 = 0xDD;
+                    windowX16 = 0x24E;
+                    windowY16 = 0xDD;
                     break;
                 case 1:
-                    s20 = 0x24E;
-                    s19 = 0xF6;
+                    windowX16 = 0x24E;
+                    windowY16 = 0xF6;
                     break;
                 case 2:
-                    s20 = 0x24E;
-                    s19 = 0x142;
+                    windowX16 = 0x24E;
+                    windowY16 = 0x142;
                     break;
                 }
                 cntB = D_00882028[0];
@@ -1874,11 +1766,11 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 cntB++;
                 cntB32 = (s32)cntB;
                 f = sinf((iGpffff8094 * (float)cntB32) / 5.0f);
-                prodA = (float)s20;
-                prodB = (float)s19;
+                prodA = (float)windowX16;
+                prodB = (float)windowY16;
                 g = f * 180.0f;
                 func_0025ecd0(prodA, prodB, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, g, 1.0f, 1.0f, (void *)D_00796490);
-                func_0025ec90((float)s20, (float)s19, 0.0f, 0xFAFF20, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                func_0025ec90((float)windowX16, (float)windowY16, 0.0f, 0xFAFF20, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
                 if (cntB32 >= 5) {
                     D_00882020[0] &= ~0x20u;
                     cntB = 0;
@@ -1898,20 +1790,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             if (tmp != 0) {
                 switch (D_0088202C[0]) {
                 case 0:
-                    s20 = 0x24E;
-                    s19 = 0xDD;
+                    windowX17 = 0x24E;
+                    windowY17 = 0xDD;
                     break;
                 case 1:
-                    s20 = 0x24E;
-                    s19 = 0xF6;
+                    windowX17 = 0x24E;
+                    windowY17 = 0xF6;
                     break;
                 case 2:
-                    s20 = 0x24E;
-                    s19 = 0x142;
+                    windowX17 = 0x24E;
+                    windowY17 = 0x142;
                     break;
                 }
-                func_0025ecd0((float)s20, (float)s19, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, (void *)D_00796490);
-                func_0025ec90((float)s20, (float)s19, 0.0f, 0xFAFF1F, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                func_0025ecd0((float)windowX17, (float)windowY17, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, (void *)D_00796490);
+                func_0025ec90((float)windowX17, (float)windowY17, 0.0f, 0xFAFF1F, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
             }
         }
         break;
@@ -1925,16 +1817,16 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             if (tmp != 0) {
                 switch (D_0088202C[0]) {
                 case 0:
-                    s20 = 0x24E;
-                    s19 = 0xDD;
+                    windowX18 = 0x24E;
+                    windowY18 = 0xDD;
                     break;
                 case 1:
-                    s20 = 0x24E;
-                    s19 = 0xF6;
+                    windowX18 = 0x24E;
+                    windowY18 = 0xF6;
                     break;
                 case 2:
-                    s20 = 0x24E;
-                    s19 = 0x142;
+                    windowX18 = 0x24E;
+                    windowY18 = 0x142;
                     break;
                 }
                 cntB = D_00882028[0];
@@ -1945,7 +1837,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 cntB++;
                 cntB32 = (s32)cntB;
                 f = sinf((iGpffff8094 * (float)cntB32) / 10.0f);
-                func_0025ecd0((float)s20, (float)s19, 0.0f, 0xFFFFFF, (u8)((1.0f - f) * 255.0f), 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, (void *)D_00796490);
+                func_0025ecd0((float)windowX18, (float)windowY18, 0.0f, 0xFFFFFF, (u8)((1.0f - f) * 255.0f), 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, (void *)D_00796490);
                 if (cntB32 >= 10) {
                     D_00882020[0] &= ~0x80u;
                     cntB = 0;
@@ -1961,10 +1853,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     return ret;
 }
 #pragma pop
-#pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027f6f0);
-#endif
+
 // FUN_002818A0
 void func_002818a0(s32 arg0, s32 arg1) {
     s32 *temp_2;
