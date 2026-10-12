@@ -1960,6 +1960,7 @@ query_complete:
  * measured 2026-10-12: fnalign 73 -> 47, 2320/2320 instructions; a distance-field view removes address CSE, path quotient/index roles and chase scale snapshots restore retail evaluation order.
  * measured 2026-10-12: fnalign 47 -> 43; snapshot the resume-distance limit before its comparison, restoring the load order and rollback FPR.
  * measured 2026-10-12: fnalign 43 -> 41; the matched title code's float/byte RGBA union preserves the packed colour's lwc1/swc1 copy.
+ * measured 2026-10-12: fnalign 41 -> 39; separate low/high waypoint byte offsets around the first low-component snapshot recover both addu operand orders.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2186,6 +2187,8 @@ s32 func_0016bdd0(u8 *param_1)
   signed char hi;
   float resumeDistance;
   int pathLengthOffset;
+  int loPositionOffset;
+  int hiPositionOffset;
   int *piVar1;
   piVar1 = *(int **)((int)param_1 + 0x38);
   if (piVar1[0xa2] == 0) {
@@ -2380,14 +2383,19 @@ s32 func_0016bdd0(u8 *param_1)
           }
           {
             float span = temp_v11_b * (float)(hi - lo);
-            float dx = ((float *)piVar1)[hi * 3 + 0x42] - ((float *)piVar1)[lo * 3 + 0x42];
-            float dy = ((float *)piVar1)[hi * 3 + 0x43] - ((float *)piVar1)[lo * 3 + 0x43];
-            float dz = ((float *)piVar1)[hi * 3 + 0x44] - ((float *)piVar1)[lo * 3 + 0x44];
+            float loX;
+            float dx, dy, dz;
+            loPositionOffset = lo * 12;
+            loX = ((float *)(loPositionOffset + (u32)piVar1))[0x42];
+            hiPositionOffset = hi * 12;
+            dx = ((float *)(hiPositionOffset + (u32)piVar1))[0x42] - loX;
+            dy = ((float *)(hiPositionOffset + (u32)piVar1))[0x43] - ((float *)(loPositionOffset + (u32)piVar1))[0x43];
+            dz = ((float *)(hiPositionOffset + (u32)piVar1))[0x44] - ((float *)(loPositionOffset + (u32)piVar1))[0x44];
 
             temp_v11_b = (0.0f + ((float *)piVar1)[0x2e] - temp_v11_b * (float)lo) / span;
-            temp_v13 = 0.0f + ((float *)piVar1)[lo * 3 + 0x42] + dx * temp_v11_b;
-            temp_v10 = 0.0f + ((float *)piVar1)[lo * 3 + 0x43] + dy * temp_v11_b;
-            temp_v12_b = 0.0f + ((float *)piVar1)[lo * 3 + 0x44] + dz * temp_v11_b;
+            temp_v13 = 0.0f + loX + dx * temp_v11_b;
+            temp_v10 = 0.0f + ((float *)(loPositionOffset + (u32)piVar1))[0x43] + dy * temp_v11_b;
+            temp_v12_b = 0.0f + ((float *)(loPositionOffset + (u32)piVar1))[0x44] + dz * temp_v11_b;
           }
           *(unsigned int *)(piVar1[0xb0] + 0x28) = 0x3f800000;
           *(unsigned int *)(piVar1[0xb0] + 0x14) = 0x3f800000;

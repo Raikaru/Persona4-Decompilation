@@ -327,6 +327,10 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   The matched `TitleDrawColor`/`Color` float-and-byte union convention does
   preserve the packed colour's four-byte native copy as `lwc1/swc1`, reaching
   **41**. This is a native union assignment, not a numerical float conversion.
+  Staging the low waypoint byte offset and its X snapshot before the high
+  waypoint byte offset closes both `addu` operand swaps: **39**, all in the
+  three horizontal-length FPR regions. Computing both offsets before either
+  component load changes the schedule and is worse.
 - A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.
