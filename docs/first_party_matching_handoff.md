@@ -25,12 +25,12 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 12 continuation, part 13: `0027f6f0`, `0018a200`, `0017f490`, `001f14f0`, `00471370`, `0046b380` MATCH; compiler internals
+## October 12 continuation, part 13: `0027f6f0`, `0018a200`, `0017f490`, `001f14f0`, `00471370`, `0046b380`, `001a59a0` MATCH; compiler internals
 
-**6,849 MATCH / 11 ASM** (`build/after49.json`; link 604 C / 54 SDK, both
-sha1 OK in `build/link56.log`).
+**6,850 MATCH / 10 ASM** (`build/after50.json`; link 604 C / 54 SDK, both
+sha1 OK in `build/link57.log`).
 
-The six matches all came from the procedure now written up as "Rewrite
+The seven matches all came from the procedure now written up as "Rewrite
 playbook for large or stubborn residuals" at the top of `docs/matching.md`:
 frame and object extents, real structs, call contracts and reaching
 definitions, per-phase locals, evaluation order, allocator evidence, then
@@ -50,7 +50,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 |---|---|---|
 | `00162e10` | 1 | `found` needs a fourth counted reference with `found = 1`; `found == 0 &&` in the loop condition fixes the colours but adds a test |
 | `004a7830` | 7 | the `abs.s` result must be numbered before the compare zero, which is CSE'd with the MAC chain's `adda` zero |
-| `00320b80` | 3 | entry test reads raw `$a1` and `mode` spills as a 16-byte temp (`sq`); retail tests the extended byte and spills a 4-byte `mode` (`sw`) |
+| `00320b80` | 3 | entry test reads raw `$a1` and `mode` spills as a 16-byte temp (`sq`); retail tests the extended byte and spills a 4-byte `mode` (`sw`). `if (arg1 == 0)` then `mode = arg1;` plus a statement `arg1 = i;` feeding the call reproduces retail's entry and spill exactly (one extra call-crossing neighbour), but the s8 copy then needs `$s5` (8) |
 | `0048b340` | 9 | linear anchor needs a late identity |
 | `0014f310` | 14 | O1: the state pointer folds into its load temp. Under O2 + `opt_common_subs off` + `opt_propagation off` both swap sites match, and only the two table loops differ (44): `temp_7`, `a_resource` and `a_preset` must keep declared numbers |
 | `001d8010` | 25 | sort `limit`/`j` numbering |
@@ -58,7 +58,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 | `0016bdd0` | 39 | sqrt result versus `adda` zero numbering (three regions) |
 | `002ac750` | 290 | spill choice in both search blocks; retail keeps `sp180 = temp_18` as its own spilled value, which b210 coalesces in natural spellings (restructured `d7d2f766`: 397, reverted in `66a26b06`) |
 | `001a59a0` | 0 (MATCH) | frame 0x330; closed the camera field-origin operands, selected-target join and reaction short circuits. Owner: 70 MATCH / 1 ASM; exact-link eligibility clean. |
-| `001a7720` | 819 | frame 0x5d0 vs 0x5b0 |
+| `001a7720` | 639 | frame 0x5d0 vs 0x5b0 (Code1aMatch2) |
 
 Measured since the table (captures plus `regalloc_whatif`, all reproduced):
 
@@ -116,6 +116,27 @@ Measured since the table (captures plus `regalloc_whatif`, all reproduced):
   lowest number, so the declared anchor (r61) always wins over the
   `effectVuLoad10` parameter (r94). Inline-helper restructures of the
   else branch renumber the FPR locals as well (57-64).
+- Backend copy propagation, read from `0x00555600`: a copy `dmove d, s` is
+  propagated into a use unless the using instruction is itself a copy
+  (flags `0x10`), the use reads and writes `d` in one instruction (operand
+  flags `&3 == 3` or `&8`), or `s` is not available there (`0x0054bcd0`).
+  A propagated local takes the late number of its source temporary; a local
+  that keeps one rejected use keeps its early declared number.
+- `0014f310` (14): both remaining sites are the `$v0`/`$v1` swap of the
+  state base and its `+0x28` resource in the `func_0014a270() == 1` part
+  reads. The base has only memory uses, so it folds into its late gp-load
+  temporary, while the resource keeps its declared number. `regalloc_whatif`:
+  numbering the base below the resource gives retail and changes nothing
+  else. Block-scope, struct-member, inline-helper, address-of and extra-copy
+  spellings and O1 + `opt_common_subs on` all stay at 14 or worse.
+- `001d8010` (25): at codegen entry `limit` is r43, below `j` (r44); the
+  backend folds it into the `nn - 1` temporary (r278), whose only use is the
+  loop test `slt`. `--at 278=43.5` gives retail's first-sort colours.
+  `register`/`const`/`u32` bounds and `entries[nn + -1]` spellings stay 25.
+- `002b6ec0` (28): on the current body `--at 35=150.5` no longer reproduces
+  retail. Retail needs `table` (r35, `$s3`) and `entryOffset` (r34, `$s2`)
+  simplified before the per-arm offset nodes (r127/r141/r196/r210, `$s1`);
+  no single renumbering or spill-score change does it.
 
 ## October 11 continuation, part 12: `00183b80`, `001265a0`, `0047b0c0`, `004b8f40`, `003768e0`, `003599c0`, `003694d0` MATCH; live-range numbering
 
