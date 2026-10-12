@@ -2307,6 +2307,9 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * 77: local integer types as retail.
  * third sort's count copy is s32 (retail subtracts without re-masking).
  */
+/* measured 2026-10-12: restored stale-index reaching definitions reduce fnalign 37 -> 26 edits.
+ * The first two gather counts share the selected-index local; the filtered gather has its own count.
+ * The 0x180 frame and all 747 instructions match in shape; sort bounds and one store register remain. */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
  * Structure: early count<2 return, D_008C027A 0x2000/8000/1000/4000 -> mode 5/4/2/3 with D_008C0276 hasFlag, 1d8df0==1 remap (5/1->3, 4/0->2), switch in object order 4/5,0/1,2/3 sharing bodies via jtbl_00747110, u16 entry idx/chain (Entry[12] at sp+0x90 -> sp+0x120 exactly), three bubble sorts (score/score/chain, descending), chain filter over *(D_0076449C+0x17C) via +0xA68, 1ec3d0 transform for 0/1, shared tail storing *(arg1+0x3A) with +0x3C|1.
@@ -2339,9 +2342,9 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     Entry entries[12];
     u16 mode;
     s32 i;
-    s32 n;
+    s32 selected;
     s32 hasFlag;
-    u16 selected;
+    s32 n;
 #define PROJ (&stk[4])
 #define POS (&stk[12])
 #define CENTER (&stk[8])
@@ -2395,7 +2398,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             stk[20] = 640.0f * PROJ[0];
             stk[21] = 448.0f * PROJ[1];
         }
-        n = 0;
+        selected = 0;
         i = 0;
         while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
             u8 *unit = *(u8 **)(arg1 + ((u16)i * 4));
@@ -2414,18 +2417,18 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             DELTA[1] = stk[23] - stk[21];
             len = func_003e41e0(DELTA, DELTA);
             if (0.0f >= DELTA[0]) {
-                entries[n & 0xFFFF].score = len;
+                entries[selected & 0xFFFF].score = len;
             } else {
-                entries[n & 0xFFFF].score = -len;
+                entries[selected & 0xFFFF].score = -len;
             }
-            entries[n & 0xFFFF].unit = unit;
-            entries[n & 0xFFFF].idx = (u16)i;
-            n = (n + 1) & 0xFFFF;
+            entries[selected & 0xFFFF].unit = unit;
+            entries[selected & 0xFFFF].idx = (u16)i;
+            selected = (selected + 1) & 0xFFFF;
             i = (i + 1) & 0xFFFF;
         }
         {
             s32 swapped;
-            s32 nn = n & 0xFFFF;
+            s32 nn = selected & 0xFFFF;
             s32 limit = nn - 1;
             do {
                 s32 j;
@@ -2484,7 +2487,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         DIR[0] = DELTA[1];
         DIR[1] = -DELTA[0];
         func_003e41e0(DIR, DIR);
-        n = 0;
+        selected = 0;
         i = 0;
         while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
             u8 *unit = *(u8 **)(arg1 + ((u16)i * 4));
@@ -2500,18 +2503,18 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             func_003e41e0(DELTA, DELTA);
             dot = DELTA[0] * DIR[0] + DELTA[1] * DIR[1];
             if (0.0f >= dot) {
-                entries[n & 0xFFFF].score = dist;
+                entries[selected & 0xFFFF].score = dist;
             } else {
-                entries[n & 0xFFFF].score = -dist;
+                entries[selected & 0xFFFF].score = -dist;
             }
-            entries[n & 0xFFFF].unit = unit;
-            entries[n & 0xFFFF].idx = (u16)i;
-            n = (n + 1) & 0xFFFF;
+            entries[selected & 0xFFFF].unit = unit;
+            entries[selected & 0xFFFF].idx = (u16)i;
+            selected = (selected + 1) & 0xFFFF;
             i = (i + 1) & 0xFFFF;
         }
         {
             s32 swapped;
-            s32 nn = n & 0xFFFF;
+            s32 nn = selected & 0xFFFF;
             s32 limit = nn - 1;
             do {
                 s32 j;
@@ -2599,13 +2602,15 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 while ((j & 0xFFFF) < limit) {
                     if (entries[(u16)j].chain < entries[(j & 0xFFFF) + 1].chain) {
                         u8 *tp = entries[(u16)j].unit;
-                        u16 ti = entries[(u16)j].idx;
-                        u16 tc = entries[(u16)j].chain;
+                        u16 tc;
+
+                        selected = entries[(u16)j].idx;
+                        tc = entries[(u16)j].chain;
                         entries[(u16)j].unit = entries[(j & 0xFFFF) + 1].unit;
                         entries[(u16)j].idx = entries[(j & 0xFFFF) + 1].idx;
                         entries[(u16)j].chain = entries[(j & 0xFFFF) + 1].chain;
                         entries[(j & 0xFFFF) + 1].unit = tp;
-                        entries[(j & 0xFFFF) + 1].idx = ti;
+                        entries[(j & 0xFFFF) + 1].idx = selected;
                         entries[(j & 0xFFFF) + 1].chain = tc;
                         swapped = 1;
                     }
@@ -2622,7 +2627,8 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 }
             }
             if ((i & 0xFFFF) == nn) {
-                return;
+                /* Retail reads the index saved by the last swap; unset if none ran. */
+                break;
             }
             if ((mode & 0xFFFF) == 2) {
                 if ((i & 0xFFFF) + 1 == nn) {
