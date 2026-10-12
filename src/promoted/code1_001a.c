@@ -4052,6 +4052,7 @@ void func_001a7710(void)
  * 2026-10-12 duration repair: fnalign 752 -> 746; retain the full unsigned word sum and logical shift used by retail, rather than truncating the animation duration to u16.
  * 2026-10-12 windup duration: fnalign 746 -> 745; retain the signed word consumed by retail's arithmetic right shift at 001A81E8, rather than a logical shift.
  * 2026-10-12 skill lookup order: fnalign 745 -> 742; evaluate the 0x28-byte row offset before loading its global table base, matching retail's opening skill-flag read.
+ * 2026-10-12 reaction count: fnalign 742 -> 740; pass the full word count to 001f99c0, matching retail's lw argument instead of the decompiler's u16 truncation.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5799,7 +5800,7 @@ block_406:
                 (*( s64 * )((u8 *)(temp_2_126) + (0x60))) = temp_16;
                 func_00194590(temp_2_126, 1);
                         } else {
-                temp_2_125 = (u8 *)(func_001f99c0(arg0, 0x10, (u16) sp3E0, 0, 0));
+                temp_2_125 = (u8 *)(func_001f99c0(arg0, 0x10, sp3E0, 0, 0));
                 (*( s8 * )((u8 *)(temp_2_125) + (0))) = 5;
                 (*( s64 * )((u8 *)(temp_2_125) + (8))) = temp_18_2;
                 (*( s16 * )((u8 *)(temp_2_125) + (0x48))) = (s16) sp410;
