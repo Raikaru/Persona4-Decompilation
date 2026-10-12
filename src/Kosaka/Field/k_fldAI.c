@@ -1020,6 +1020,7 @@ tail:
  * measured 2026-10-12: fnalign 43 -> 37; whole target copy with propagation/pulloutconstants off preserves the patrol snapshot and separate random divisors (CSE remains on).
  * measured 2026-10-12: fnalign 37 -> 27; typed matrix-position arguments recover pointer materialization order at all five near-player checks.
  * measured 2026-10-12: fnalign 27 -> 23; recover the NPC prefix and take origin subobject addresses instead of casting integer sums.
+ * measured 2026-10-12: fnalign 23 -> 17; inline speed scaling preserves the field-before-scale loads and scale-first multiply at the three clamped movement sites.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1048,6 +1049,10 @@ typedef struct {
     u8 kind;
     u8 heightSlot;
 } FldAINpc;
+static inline f32 fldAIScaleSpeed(f32 scale, f32 speed)
+{
+    return scale * speed;
+}
 extern int FUN_003b7060();
 extern int FUN_0047a220();
 /* SDK vector normalization reads and writes complete three-float objects and
@@ -1382,7 +1387,7 @@ availabilityDone:
       state2Delta.z = ((float *)piVar1)[0x16] - aiV60.z;
       temp_v8 = RwV3dNormalize(&state2Delta,&state2Delta);
       temp_v9 = *(float *)((u8 *)(u32)piVar1 + 0x68);
-      temp_v9 = CAND_fGpffff830c * temp_v9;
+      temp_v9 = fldAIScaleSpeed(CAND_fGpffff830c, temp_v9);
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
@@ -1808,7 +1813,7 @@ else {
       state9Delta.z = state9Delta.z - temp_v9;
       temp_v8 = RwV3dNormalize(&state9Delta,&state9Delta);
       temp_v9 = *(float *)&piVar1[0x1a];
-      temp_v9 = CAND_fGpffff830c * temp_v9;
+      temp_v9 = fldAIScaleSpeed(CAND_fGpffff830c, temp_v9);
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
@@ -1865,7 +1870,7 @@ else {
       state10Delta.z = ((float *)piVar1)[0x16] - aiV1D0.z;
       temp_v8 = RwV3dNormalize(&state10Delta,&state10Delta);
       temp_v9 = *(float *)&piVar1[0x1a];
-      temp_v9 = CAND_fGpffff830c * temp_v9;
+      temp_v9 = fldAIScaleSpeed(CAND_fGpffff830c, temp_v9);
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
