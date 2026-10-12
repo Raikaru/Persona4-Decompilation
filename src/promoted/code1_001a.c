@@ -4053,6 +4053,7 @@ void func_001a7710(void)
  * 2026-10-12 windup duration: fnalign 746 -> 745; retain the signed word consumed by retail's arithmetic right shift at 001A81E8, rather than a logical shift.
  * 2026-10-12 skill lookup order: fnalign 745 -> 742; evaluate the 0x28-byte row offset before loading its global table base, matching retail's opening skill-flag read.
  * 2026-10-12 reaction count: fnalign 742 -> 740; pass the full word count to 001f99c0, matching retail's lw argument instead of the decompiler's u16 truncation.
+ * 2026-10-12 reaction fallback: fnalign 740 -> 738; keep the fallback test chain inline and compare the bounded random result as unsigned, preserving the positive-byte guard.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5764,9 +5765,7 @@ void func_001a7720(u8 *arg0) {
     } else if (sp3E0 > 0) {
         if (temp_23_2 == 0) {
             temp_21 = (s32)(func_001ef720(2, 0x80000) & 0xFFFF);
-            if (!(((s32)((s32) (*( u8 * )((u8 *)(arg0) + (0x28)))) <= (s32)(0)) && ((s32)((*( u16 * )((u8 *)((*( u8 ** )((u8 *)(arg0) + (0x30)))) + (0xA4)))) != (s32)(1)) && ((s32)(func_00231d70(0x64U)) < (s32)(0x32U)))) {
-                var_2_13 = 1;
-            } else {
+            if (*(u8 *)(arg0 + 0x28) <= 0 && *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4) != 1 && func_00231d70(0x64U) < 0x32U) {
                 if ((s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)(arg0) + (0x30)))) + (0xA2)))) != (s32)(0)) {
                     var_2_13 = 0;
                 } else {
@@ -5791,6 +5790,8 @@ block_406:
                         var_2_13 = 0;
                     }
                 }
+            } else {
+                var_2_13 = 1;
             }
             if (var_2_13 != 0) {
                 temp_2_126 = (u8 *)(func_001f5f70(arg0, 0x13, sp3E0, 0, 0));
