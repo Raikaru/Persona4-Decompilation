@@ -3045,6 +3045,7 @@ void func_001a5990(void)
  * 2026-10-12 paired-target flag: fnalign 72 -> 70; normalize the masked flag before inverting it, matching retail's sltu/xori sequence.
  * 2026-10-12 motion dispatch: fnalign 70 -> 62; recover the two-case switch instead of the empty negated if, preserving retail's two positive tests and default jump.
  * 2026-10-12 camera table order: fnalign 62 -> 56; place the table base before the native halfword index so b210 evaluates the global load before scaling, as in both retail camera checks.
+ * 2026-10-12 animation timing dispatch: fnalign 56 -> 54; restore the two-case delay switch, including its explicit default packet-delay path.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3620,15 +3621,19 @@ void func_001a59a0(s64 *arg0_) {
                 sp2DC = temp_2_28;
                 (*(s8 *)((u8 *)(temp_2_28) + (0))) = 5;
                 (*(s64 *)((u8 *)(temp_2_28) + (8))) = temp_16;
-                if (!((sp2A0 != -3) && (sp2A0 != 0x17))) {
+                switch (sp2A0) {
+                case 0x17:
+                case -3:
                     if (sp2B0 > 6) {
                         var_3 = sp2B0 - 6;
                     } else {
                         var_3 = 0;
                     }
                     (*(s16 *)((u8 *)(sp2DC) + (0x48))) = var_3;
-                } else {
+                    break;
+                default:
                     (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) sp2B0;
+                    break;
                 }
                 if ((*(s32 *)((u8 *)(u32)(temp_18) + (0xE4))) != 0) {
                     (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) ((*(s16 *)((u8 *)(sp2DC) + (0x48))) + 5);
