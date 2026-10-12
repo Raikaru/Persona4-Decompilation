@@ -4116,6 +4116,7 @@ void func_001a7710(void)
  * 2026-10-12 final delay selection: fnalign 626 -> 623; recover the short-circuit conditional expression so its true and false results retain retail's explicit join.
  * 2026-10-12 reaction fast path: fnalign 623 -> 616; the outer gates branch directly to packet creation in retail, bypassing the nested eligibility result rather than materializing a second true value.
  * 2026-10-12 controller fallback: fnalign 616 -> 612; use a zero-result fallback instead of a one-case switch, preserving the nonzero return directly and removing the extra dispatch branch.
+ * 2026-10-12 formation constructor contract: fnalign 612 -> 610; restore 001d3000's canonical u16 skill formal, loading it directly into the fourth argument instead of promoting it ahead of the pointer arguments.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4158,7 +4159,7 @@ void func_001a7720(u8 *arg0) {
     extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
     extern s32 func_001bccc0();
     extern BtlPacket *func_001d2d90();
-    extern BtlPacket *func_001d3000();
+    extern BtlPacket *func_001d3000(u32 source, u32 action, u32 target, u16 skill);
     extern s32 func_001d3530();
     extern s32 func_001d3d50();
     extern s32 func_001d3e00();
@@ -4814,7 +4815,7 @@ void func_001a7720(u8 *arg0) {
             } else {
                 var_6 = 0;
             }
-            temp_2_19 = (u8 *)(func_001d3000(sp4D0, arg0, var_6, (u16) sp280));
+            temp_2_19 = (u8 *)(func_001d3000((u32)sp4D0, (u32)arg0, (u32)var_6, sp280));
             (*( s8 * )((u8 *)(temp_2_19) + (0))) = 5;
             (*( s64 * )((u8 *)(temp_2_19) + (8))) = sp470;
             (*( s64 * )((u8 *)(temp_2_19) + (0x60))) = temp_16;
