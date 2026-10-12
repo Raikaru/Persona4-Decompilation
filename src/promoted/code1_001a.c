@@ -3041,6 +3041,7 @@ void func_001a5990(void)
  * 2026-10-12 count/selector joins: fnalign 93 -> 88; keep the repeat-count snapshot signed and the branch-selected effect-table index full-width, removing two non-retail masks.
  * 2026-10-12 row phases: fnalign 88 -> 82; use unsigned byte-address indices inside both loops and recompute the hit-result view after the repeat phase, separate from the retained hitRow snapshot.
  * 2026-10-12 opening scan index: fnalign 82 -> 74; narrow the row index independently from the masked loop bound, preserving retail's separate halfword normalizations.
+ * 2026-10-12 opening packet contract: fnalign 74 -> 72; use the matched sibling's BtlPacket *(u32, u16) constructor signature to preserve native halfword argument evaluation.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3121,7 +3122,7 @@ void func_001a59a0(s64 *arg0_) {
     extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
     extern u8 *func_001f99c0(u8 *action, u16 voice, s32 option, s32 argument, s32 flags);
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-    extern u8 *func_00202010();
+    extern BtlPacket *func_00202010(u32 unit, u16 skill);
     extern u8 *func_00202400();
     extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
     extern u8 *iGpffffb3ac;
@@ -3323,7 +3324,7 @@ void func_001a59a0(s64 *arg0_) {
     sp250 = 0;
     sp22C = 0;
     sp230 = 0;
-    func_00194590(func_00202010(temp_19, (*(u16 *)(arg0 + (0x6E)))), 3);
+    func_00194590(func_00202010((u32)temp_19, (*(u16 *)(arg0 + (0x6E)))), 3);
     func_001a0290(arg0, (*(u16 *)(arg0 + (0x6E))), (u8 *)effectIndices);
     if ((*(u16 *)(arg0 + (0x6A))) == 1) {
         temp_2_2 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)(arg0 + (0x30))), (*(u8 **)((u8 *)((*(u8 **)(arg0 + (0x38)))) + (0x30))), 0));
