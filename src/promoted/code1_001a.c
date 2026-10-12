@@ -3033,6 +3033,7 @@ void func_001a5990(void)
  * 2026-10-12 effect-unit accessor: fnalign 327 -> 325; inline unit reads in the effect phase replace one spilled-address reload with retail's direct +0x30 load.
  * 2026-10-12 paired-effect unit: fnalign 325 -> 322; the first paired-effect constructor reloads its unit through the existing accessor rather than a spilled field address.
  * 2026-10-12 target layout: fnalign 322 -> 318, frame 0x3A0 -> 0x380; type the target action's effect/flags at 0xDC/0xDE, removing both hoisted field-address spills.
+ * 2026-10-12 target unit member: fnalign 318 -> 309, frame 0x380 -> 0x370; recover the target's +0x30 unit field and remove its cross-call address spill.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3127,7 +3128,9 @@ void func_001a59a0(s64 *arg0_) {
     extern f32 fGpffff8358;
 
     typedef struct ActionTargetView {
-        u8 prefix[0xDC];
+        u8 prefix[0x30];
+        u8 *unit;         /* 0x30 */
+        u8 unknown34[0xDC - 0x34];
         u16 effect;       /* 0xDC */
         u16 targetFlags;  /* 0xDE */
     } ActionTargetView;
@@ -3519,7 +3522,7 @@ void func_001a59a0(s64 *arg0_) {
             var_21 = 0;
         }
         if (sp1B0 == 0) {
-            temp_2_18 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)((s64 *)(u32)temp_18) + (0x30))), temp_19, 2));
+            temp_2_18 = (u8 *)(btlUnitCreateRotateTowardUnitPacket(temp_18->unit, temp_19, 2));
             (*(s8 *)((u8 *)(temp_2_18) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_18) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_18) + (0x48))) = var_21;
@@ -3537,7 +3540,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s16 *)((u8 *)(temp_2_19) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_19) + (0x60))) = temp_17;
             func_00194590(temp_2_19, 1);
-            temp_2_20 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)((u8 *)((s64 *)(u32)temp_18) + (0x30))), temp_19, 2));
+            temp_2_20 = (u8 *)(btlUnitCreateRotateTowardUnitPacket(temp_18->unit, temp_19, 2));
             (*(s16 *)((u8 *)(temp_2_20) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_20) + (0x60))) = temp_17;
             func_00194590(temp_2_20, 0);
@@ -3546,7 +3549,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s64 *)((u8 *)(temp_2_21) + (0x60))) = temp_17;
             (*(s16 *)((u8 *)(temp_2_21) + (0x4A))) = (s16) sp170;
             func_00194590(temp_2_21, 0);
-            temp_2_22 = (u8 *)(func_001d3530((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30))), (*(u8 **)((u8 *)(u32)(temp_18) + (0x30))), 2));
+            temp_2_22 = (u8 *)(func_001d3530((*(u8 **)((u8 *)((s64 *)(u32)var_22_3) + (0x30))), temp_18->unit, 2));
             (*(s16 *)((u8 *)(temp_2_22) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_22) + (0x60))) = temp_17;
             func_00194590(temp_2_22, 0);
@@ -3554,7 +3557,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s16 *)((u8 *)(temp_2_23) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_23) + (0x60))) = temp_17;
             func_00194590(temp_2_23, 0);
-            temp_2_24 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*(u8 **)((u8 *)(temp_18) + (0x30))), 0x1A, 0, 1.0f, 2));
+            temp_2_24 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)temp_18->unit, 0x1A, 0, 1.0f, 2));
             (*(s16 *)((u8 *)(temp_2_24) + (0x48))) = (s16) sp270;
             (*(s64 *)((u8 *)(temp_2_24) + (0x60))) = temp_17;
             func_00194590(temp_2_24, 0);
@@ -3575,7 +3578,7 @@ void func_001a59a0(s64 *arg0_) {
             } else {
                 var_f12 = 400.0f;
             }
-            temp_2_25 = (u8 *)(func_001d1eb0((u32)temp_19, (u32)(*(u8 **)((u8 *)(temp_18) + (0x30))), var_f12, 3));
+            temp_2_25 = (u8 *)(func_001d1eb0((u32)temp_19, (u32)temp_18->unit, var_f12, 3));
             (*(s8 *)((u8 *)(temp_2_25) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_25) + (8))) = temp_16;
             (*(s64 *)((u8 *)(temp_2_25) + (0x60))) = temp_17;
@@ -3632,7 +3635,7 @@ void func_001a59a0(s64 *arg0_) {
                     func_00194590(temp_2_29, 1);
                 }
                 if ((*(s32 *)((u8 *)(temp_18) + (0xE4))) != 0) {
-                    temp_2_30 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD28))), temp_19, (*(u8 **)((u8 *)(u32)(temp_18) + (0x30))), 1, 0));
+                    temp_2_30 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD28))), temp_19, temp_18->unit, 1, 0));
                     (*(s8 *)((u8 *)(temp_2_30) + (0))) = 5;
                     (*(s64 *)((u8 *)(temp_2_30) + (8))) = temp_16;
                     (*(s16 *)((u8 *)(temp_2_30) + (0x48))) = (s16) sp2B0;
@@ -3900,7 +3903,7 @@ block_222:
         } else {
             temp_5_7 = (s16)((*(s16 *)((u8 *)(temp_18) + (0xEC))));
             if (temp_5_7 != 0) {
-                temp_2_61 = (u8 *)(func_00202400((*(u8 **)((u8 *)(temp_18) + (0x30))), temp_5_7));
+                temp_2_61 = (u8 *)(func_00202400(temp_18->unit, temp_5_7));
                 (*(s8 *)((u8 *)(temp_2_61) + (0))) = 5;
                 (*(s64 *)((u8 *)(temp_2_61) + (8))) = temp_16;
                 (*(s16 *)((u8 *)(temp_2_61) + (0x48))) = var_21;
