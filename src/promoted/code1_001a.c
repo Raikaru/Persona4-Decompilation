@@ -4012,6 +4012,7 @@ void func_001a7710(void)
  * fnalign 960 -> 959: equality tests written as switches (retail beq-per-case).
  * fnalign 959 -> 952: if/else arms in retail layout order (negated condition).
  * 2026-10-12 measured: fnalign 953 -> 917; restore retail-reaching sp30C/sp4CC definitions, u16 motion and word flags, and retain the skill offset while reloading its table base.
+ * 2026-10-12 measured: fnalign 917 -> 907; typed partner view and a promoted flag snapshot restore the partner load before the second flag test.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4107,6 +4108,12 @@ void func_001a7720(u8 *arg0) {
     extern u8 *iGpffffb3cc;
     extern u8 *iGpffffb3bc;
 
+    typedef struct UnitPartnerView {
+        u8 unknown00[0x98];
+        u32 flags98;
+        u8 unknown9C[0xA0C - 0x9C];
+        struct UnitPartnerView *partner;
+    } UnitPartnerView;
     s32 sp5AC;
     s32 sp5A8;
     /* 0022d540 returns the three formation effect handles together. */
@@ -4253,7 +4260,7 @@ void func_001a7720(u8 *arg0) {
     u16 temp_2_97;
     u16 temp_3_21;
     u16 temp_3_2;
-    u16 temp_4;
+    u32 temp_4;
     u32 temp_4_18;
     u8 temp_3_19;
     s32 var_5;
@@ -4498,12 +4505,15 @@ void func_001a7720(u8 *arg0) {
     temp_4 = (u16)((u16)((*( u16 * )((u8 *)(arg0) + (0x1A)))));
     if (!(temp_4 & 1)) {
         var_2 = 0;
-    } else if (!(temp_4 & 0x10)) {
-        var_2 = 0;
-    } else if ((*( s32 * )((u8 *)((*( u8 ** )((u8 *)((*( u8 ** )((u8 *)(arg0) + (0x30)))) + (0xA0C)))) + (0x98))) & 2) {
-        var_2 = 1;
     } else {
-        var_2 = 0;
+        UnitPartnerView *partner = (*(UnitPartnerView **)(arg0 + 0x30))->partner;
+        if (!(temp_4 & 0x10)) {
+            var_2 = 0;
+        } else if (partner->flags98 & 2) {
+            var_2 = 1;
+        } else {
+            var_2 = 0;
+        }
     }
     if (var_2 != 0) {
         sp2B0 = 1;
