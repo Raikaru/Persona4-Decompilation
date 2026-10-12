@@ -2554,32 +2554,11 @@ void func_003599a0(u8 *arg0)
    Probes: f3 via b1 1173/854/223/212 unchanged; f0v load late 1175/852/223/212 (adds lq, worse).
    No mass apply; body left unchanged, in band near finished.
    2026-10-08: opt_propagation off lowers fnalign from 672 to 598 edits. */
-/* 2026-10-09: rewritten without the m2c temporaries, 598 -> 498 edits. Open: retail keeps idx*12 and arg0*48 in saved registers but adds arg1 again at each later use (after the assert call and per panel field), while b210 here keeps the whole sum; opt_common_subs off (744) separates every add, including the ones retail shares within a block.
-   2026-10-09: 498 -> 491: the digit-sprite pointer reuses `ptab` and the last
-   alpha reuses `kind` (same types, disjoint lifetimes).
- * 2026-10-09: 491 -> 490: the palette bytes are absolute (non-small-data) objects in
- * retail (`lui`/`lbu %lo(D_0064B2E9)`), so they are declared as arrays.
- * 2026-10-09: 490 -> 451: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 450: palette bytes declared as absolute arrays (retail lui/lbu %lo).
- * 429: type sweep.
- * 384: conversion lever (alpha:(0, 1)).
- * fnalign 384 -> 306: the sibling cmpConfig/cmpPersona pragma set (opt_pulloutconstants off, opt_propagation off, opt_lifetimes on), sprite pointers loaded into `spr` before each call, u8 alpha.
- * fnalign 306 -> 292: entry offset kept as off*12 with the base re-added (u32) for mode, colour bytes read before the stores, and the w/h halfword reads re-add the panel base as retail.
- * fnalign 292 -> 190: switch arms, name call and the final call in retail statement order (positions first, then the sprite), count masked at use, loop bound computed before the loop.
- * case 0 written before case 1 (retail's test order); the alpha byte converts without (u32).
- * The name lookup's provider is declared u8 *(u32) in its own file but masks the
- * low 16 bits on entry, so this caller declares it with a u16 parameter (H011);
- * the retail halfword spill/reload of `name` follows.
- * fnalign 188 -> 168: float declaration order (w after y).
- * fnalign 168 -> 129: kind/name/count read through integer sums (retail off-first addu); func_00246830 takes u16 (H011, the callee masks 0xFFFF), so name spills as a u16; panel w/h read as HudPanel_0035 subscripts (index-first, recomputed per field).
- * fnalign 129 -> 128: mode reads off + (s32)arg1 (retail recomputes the sum off-first instead of reusing kind's).
- * fnalign 128 -> 31: the second panel group has its own x2/y2/w2/h2, declared w2, h2, fade, x0, y0, x2, y2, rowY (retail FPR colours follow declaration order; reused locals get late split ranges).
- * fnalign 31 -> 28: the panel alpha byte is converted into scale (a multi-definition float, dead at each site) before * fade, so mul.s takes it first as retail.
- * fnalign 28 -> 26: panel x/y/alpha are read through hudOffsetPtr_003599c0(arg0 * 48, arg1), an integer offset-first sum (retail index-first addu).
- * fnalign 26 -> 16: the third panel group has its own x3/y3/w3/h3 (w3 before h3).
- * fnalign 16 -> 13: the sprite-table reads (count, kind, mode) go through the same offset-first helper.
- * fnalign 13 -> 12: the name position is px = 157.0f + x2 (a multi-definition float, so add.s keeps the constant first).
- */
+/* Party HUD panel draw. Each of the three panel groups has its own x/y/w/h
+   locals (separate live ranges, as retail). Panel x/y/alpha and the sprite
+   table go through hudOffsetPtr_003599c0 (offset + base). The panel width
+   reads are spelled index-first, because retail recomputes index + arg1 for
+   each width read; the heights use the struct view. */
 static inline u8 *hudOffsetPtr_003599c0(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
@@ -2606,17 +2585,18 @@ typedef struct {
     u8 pad18[0x18];
 } HudPanel_0035;
 
-// FUN_003599C0 NONMATCHING
-#ifdef NON_MATCHING
 #pragma push
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
 #pragma opt_lifetimes on
+// FUN_003599C0
 void func_003599c0(s32 arg0, u8 *arg1)
 {
     extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
     /* H011: the callee masks its argument with 0xFFFF. */
+    /* H011: the u16 parameter is measured; the u32 definition (cmmMisc.c)
+       mismatches the name-sprite call. */
     extern u8 *func_00246830(u16 arg0);
     extern s32 func_00275020(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
     extern f32 func_0046b260(u8 *arg0);
@@ -2682,7 +2662,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     y = 81.0f + (rowY + (y0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x5B4)));
     scale = (f32)hudOffsetPtr_003599c0(arg0 * 48, arg1)[0x5BA];
     alpha = scale * fade;
-    w = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].w;
+    w = (f32)*(u16 *)((u8 *)(arg0 * 48) + (u32)arg1 + 0x5c0);
     h = (f32)((HudPanel_0035 *)(arg1 + 0x5B0))[arg0].h;
     if (isSelf) {
         u8 r = D_0064B2E8[0];
@@ -2708,7 +2688,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     y2 = 78.0f + (rowY + (y0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x194)));
     scale = (f32)hudOffsetPtr_003599c0(arg0 * 48, arg1)[0x19A];
     alpha = scale * fade;
-    w2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].w;
+    w2 = (f32)*(u16 *)((u8 *)(u32)(arg0 * 48) + (u32)arg1 + 0x1a0);
     h2 = (f32)((HudPanel_0035 *)(arg1 + 0x190))[arg0].h;
     if (isSelf) {
         ptab = D_0064B2EC;
@@ -2791,7 +2771,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     y3 = 78.0f + (rowY + (y0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x4C4)));
     scale = (f32)hudOffsetPtr_003599c0(arg0 * 48, arg1)[0x4CA];
     kind = scale * fade;
-    w3 = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].w;
+    w3 = (f32)*(u16 *)((u8 *)(u32)(arg0 * 48) + (s32)arg1 + 0x4d0);
     h3 = (f32)((HudPanel_0035 *)(arg1 + 0x4C0))[arg0].h;
     px = 15.0f + x3;
     py = 2.0f + y3;
@@ -2800,9 +2780,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
                   0xFF, 0xFF, 0xFF, kind, w3, h3, 0, 0.0f, 0);
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003599c0);
-#endif
+
 // FUN_0035AC60
 void func_0035ac60(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
