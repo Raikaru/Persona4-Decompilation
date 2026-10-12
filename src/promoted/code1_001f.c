@@ -962,6 +962,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 333 -> 327; separate the byte-status flag updates and restore the retail-proven third argument to 001fb360.
  * measured 2026-10-12: fnalign 327 -> 292; declare the calculation context before the skill ID to finish retail's entry-register order.
  * measured 2026-10-12: fnalign 292 -> 279; preserve the skill snapshot boundary and recover word-sized loop bounds plus the tail's separate unsigned index.
+ * measured 2026-10-12: fnalign 279 -> 265; keep the negated mask predicate word-sized and load message bits with retail's unsigned halfword reads.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1130,7 +1131,7 @@ void func_001f14f0(u8 *arg0)
         s32 mask2;
         u8 *ent;
         s32 m80;
-        u16 n80;
+        s32 n80;
         s16 msg;
         unit = *(u8 **)(arg0 + ui * 4 + 0x38);
         actor = unit;
@@ -1375,10 +1376,10 @@ void func_001f14f0(u8 *arg0)
                 func_0010f3d0(*(u16 *)(res30 + 0xA4), kindU);
             }
         }
-        if (*(s16 *)(ctx + 0x2C) != 0) {
-            lastMsg = *(s16 *)(ctx + 0x2C);
-        } else if (*(s16 *)(uctx + 0x2C) != 0) {
-            lastMsg = *(s16 *)(uctx + 0x2C);
+        if (*(u16 *)(ctx + 0x2C) != 0) {
+            lastMsg = *(u16 *)(ctx + 0x2C);
+        } else if (*(u16 *)(uctx + 0x2C) != 0) {
+            lastMsg = *(u16 *)(uctx + 0x2C);
         }
         if (special != 0) {
             msg = func_001fb170(special);
