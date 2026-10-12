@@ -4136,6 +4136,8 @@ void func_001a7710(void)
  * 513 -> 505: callee declarations use their providers' real prototypes.
  * 505 -> 483: func_0019a0c0's value is u16 (the provider stores a halfword);
  * retail reloads sp350 with lhu straight into $a1.
+ * 483 -> 478: the two row-flag tests read through one byte-offset address
+ * (retail keeps hitRow + 0x10E in $a0), and sp200's tests drop the s32 casts.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4696,7 +4698,7 @@ void func_001a7720(u8 *arg0) {
         (*( s64 * )(temp_2_12 + (0x60))) = temp_16;
         func_00194590(temp_2_12, 3);
     }
-    if ((s32)(s32)sp200 == 1) {
+    if (sp200 == 1) {
         if (((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
             if (((s32)(s32)sp1D0 == 0) && (sp2B0 == 0)) {
                 if (temp_23_2 == 0) {
@@ -5478,7 +5480,7 @@ void func_001a7720(u8 *arg0) {
             }
             if (sp2D0 == 1) {
                 if ((s32)(sp4C8) == (s32)(0)) {
-                    if (((s32)(s32)sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
+                    if ((sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
                         temp_2_88 = (u8 *)(func_0019bbe0(sp4D0, 0, 0, 0, 4, 0));
                         (*( s8 * )(temp_2_88 + (0))) = 5;
                         *(s64 *)(temp_2_88 + 8) = *(s64 *)(var_17_6 + 0x58);
@@ -5776,11 +5778,11 @@ void func_001a7720(u8 *arg0) {
                     (*( s64 * )(temp_2_117 + (0x60))) = temp_16;
                     func_00194590(temp_2_117, 1);
                 }
-                if (hitRow->result.flags & 0x20) {
+                if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x20) {
                     sp310 = 1;
                     (*( s16 * )(iGpffffb3ac + (0x1C))) = 3;
                 }
-                if (hitRow->result.flags & 0x40) {
+                if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x40) {
                     sp2E0 = 1;
                 }
                 temp_2_118 = (u8 *)((s32)(temp_18) + (sp3B0 << 5));
@@ -6076,7 +6078,7 @@ reactionPacket:
     (*( u8 * )(temp_2_143 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_143 + (0x47))) & 0xDF));
     (*( s64 * )(temp_2_143 + (0x60))) = temp_16;
     func_00194590(temp_2_143, 0);
-    if (((s32)(s32)sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
+    if ((sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
         if (sp320 == 0) {
             if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40)) {
                 if (temp_23_2 == 0) {
