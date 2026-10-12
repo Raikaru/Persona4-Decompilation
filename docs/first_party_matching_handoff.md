@@ -299,6 +299,11 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   resource/world-matrix temporaries restores its low declared number and
   the retail `$s3`/`$s2` pair. Global CSE-off regresses to 1376; pullout-off
   alone changes nothing at the 229 checkpoint.
+  The complementary propagation-off/pullout-off pair does retain the path
+  interpolation's span/delta/ratio order without hoisting `55.0f` across
+  calls. Together with pointer-valued collision arguments, corrected wall
+  dot order, staged alignment scaling and per-site easing reloads, this
+  reaches **105** (2321 object instructions versus 2320 retail, guarded).
 - A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.
