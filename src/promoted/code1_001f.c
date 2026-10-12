@@ -978,6 +978,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 130 -> 118; recover the 0x20-byte hit record and write reaction codes through array lvalues instead of caching the record base across phases.
  * measured 2026-10-12: fnalign 118 -> 80; use sizeof the recovered hit record for branch-local reaction addresses, evaluated before each call rather than retained across damage phases.
  * measured 2026-10-12: fnalign 80 -> 77; initialize all three record halfwords through the same promoted-byte index, separate from the reaction phase's sizeof stride.
+ * measured 2026-10-12: fnalign 77 -> 63; explicitly widen the reaction-phase byte index to unsigned, reproducing its three fresh reads rather than the loop-test snapshot.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1391,11 +1392,11 @@ void func_001f14f0(u8 *arg0)
                     u8 *slot;
 
                     *(u16 *)(actor + 0x3F4) = (s16)v;
-                    slot = unit + j * sizeof(BtlHit_001f14f0);
+                    slot = unit + (u32)j * sizeof(BtlHit_001f14f0);
                     *resultFlags |= 0x10;
                     slot[0x10C] = func_001f12b0(actor, vals, res, sub, 0);
                 } else {
-                    u8 *reactionBase = unit + j * sizeof(BtlHit_001f14f0);
+                    u8 *reactionBase = unit + (u32)j * sizeof(BtlHit_001f14f0);
 
                     reactionBase[0x10C] = func_001f12b0(actor, vals, res, sub, 1);
                     *(s32 *)(unit + 0xE0) = 1;
@@ -1407,7 +1408,7 @@ void func_001f14f0(u8 *arg0)
                 break;
             }
             {
-                u8 *reactionBase = unit + j * sizeof(BtlHit_001f14f0);
+                u8 *reactionBase = unit + (u32)j * sizeof(BtlHit_001f14f0);
 
                 reactionBase[0x10C] = func_001f12b0(actor, vals, res, sub, 0);
             }
