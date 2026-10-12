@@ -983,6 +983,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 56 -> 34; retain the copied record's halfword-flags address across the exit checks, restoring retail's pointer and scratch-register roles.
  * measured 2026-10-12: fnalign 34 -> 33; select the final target through the pointer array, restoring index-first addressing.
  * measured 2026-10-12: fnalign 33 -> 31; prepare the record-flags pointer at the end of each hit-resolution path, preserving retail's short branch joins.
+ * measured 2026-10-12: fnalign 31 -> 28; explicitly mask the party input-record index to a byte, restoring the missing retail andi.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1529,7 +1530,7 @@ void func_001f14f0(u8 *arg0)
             flags = 0;
             cnt = first[0xD9];
             for (q = 0; q < cnt; q++) {
-                u8 *s = (u8 *)((u32)first + (q << 5));
+                u8 *s = (u8 *)((u32)first + ((q & 0xFF) << 5));
                 s32 v = *(s32 *)(s + 0xF0);
                 u16 *copiedFlags;
 
