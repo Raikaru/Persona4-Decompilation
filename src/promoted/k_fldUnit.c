@@ -279,6 +279,7 @@ s32 func_00162c30(void)
  * sdiff 6/88 -> 4/86: id narrowed to u16 before the resource slot address is formed (retail order).
  * struct 0: the weekday test is `if (... == 1) { found = 0; } else { scan }` (retail's bne/b shape).
  * sdiff 0/6: i declared before mtx. Left: found/k take $s6/$s5 where retail has $s5/$s6 (scores 3/4 equal to retail's reference counts; whatif renumbering of found, k and their 17 common neighbours finds no hit).
+ * measured 2026-10-12: fnalign 9 -> 2; count the first hit with found++ (the immediate break bounds it to one), raising r42's spill score 3 -> 4 and restoring found/k to $s5/$s6. Remaining: node-loop entry branch and addiu's source ($s5 rather than $zero).
  */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
@@ -377,7 +378,7 @@ void func_00162e10(void)
                             s8 odd = func_00110960(day, func_001060c0() & 0xFF);
 
                             if (odd % 2 != 0) {
-                                found = 1;
+                                found++;
                                 break;
                             }
                         }
