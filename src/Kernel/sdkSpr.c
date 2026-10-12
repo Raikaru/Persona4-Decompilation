@@ -499,33 +499,9 @@ f32 func_0046b2f0(u8 *param_1)
     }
     return (f32)value;
 }
-/* 2026-10-09: 830 -> 208: the raster-less paths read the same uninitialised
-   uv[] and source[].z slots retail does (documented inline). The raster guards
-   around the uv flips and the vertex uv copies and the planar-Z writes are
-   gone. fnalign measures the guarded region with the owner's shared sprite
-   helpers.
-   2026-10-09: 208 -> 202: sdkSpriteVertexSetColor takes u8 channels (the
-   RwRGBA bytes), so no andi is re-applied before each unsigned conversion.
- * sdiff 72/200 -> 70/197: raster table base formed before the index (retail addiu +0x104).
- * sdiff 70/197 -> 68/195: the two flip tests read the 0x18 word as (records + 0x18) + index, retail's address order.
- * sdiff 68/195 -> 63/182: third 0x3C read in field-first address order.
- * sdiff 63/182 -> 59/173: first two 0x3C reads field-first (retail addiu +0x3c), third via the record.
- * sdiff 44/102 -> 38/81: three record reads keep the table-first order.
- * fnalign 41 -> 25: packed-colour reads and points[2].x extent use
- * SDK_SPRITE_RECORD_VIA_ADD (index-first addu).
- * measured 2026-10-12: fnalign 25 -> 7; named record-load helpers retain each site's index/table load order while using offset-first addition, and signed border addresses remain separate from the unsigned extent lookups. Remaining: three packed-colour addu orders and alpha narrowing/multiply order.
- * fnalign 7 -> 4: each colour arm assigns one `record` pointer that the flags test reuses (retail keeps the record address across the join).
- */
-// FUN_0046B380 NONMATCHING
-#ifdef NON_MATCHING
-/* Diagnostic C only: the whole-owner compile emits 7796/7808 bytes with
- * 7 aligned edits: three packed-colour addu operand orders and the alpha
- * narrowing/multiply order. This draft still reads unwritten UV/Z inputs and
- * is not an
- * eligible C promotion. The defined-input changes in the October 5 archive
- * are absent here. See docs/probe_archive/Sprite_particle_boundaries_20261010.md
- * for the current owner proofs and producer/consumer boundaries. */
 #pragma push
+/* measured: without opt_loop_invariants the loop constants are rematerialised
+ * in the vertex loop (617 fnalign edits). */
 #pragma opt_loop_invariants on
 static inline u8 *sdkSpriteIndexedRecord(u8 *sample)
 {
@@ -541,6 +517,11 @@ static inline u8 *sdkSpriteTableRecord(u8 *sample)
     return (u8 *)sdkAddOffset(offset, base);
 }
 
+/* Sprite renderer. The raster-less paths read the uv[] and source[].z slots
+ * retail leaves unwritten (commented at each site). Each colour arm forms one
+ * record pointer that the flags test reuses; the redundant alpha mask
+ * reproduces retail's second andi before the fade load. */
+// FUN_0046B380
 void func_0046b380(u8 *sample, s32 setStates)
 {
     RwV2d verticalLeft;
@@ -756,7 +737,9 @@ void func_0046b380(u8 *sample, s32 setStates)
                 if (color.alpha > 128) color.alpha = 255;
                 else color.alpha = color.alpha * 255 / 128;
             }
-            color.alpha = color.alpha * (255 - *(u8 *)(sample + 0x11)) / 255;
+            /* Retail masks alpha again at the join (andi t2,t2,0xff) before the fade:
+             * the narrowed operand is evaluated ahead of the fade load. */
+            color.alpha = (u8)(color.alpha & 0xFF) * (255 - *(u8 *)(sample + 0x11)) / 255;
             if (*(u8 *)(sample + 0x10) < color.alpha) {
                 color.alpha -= *(u8 *)(sample + 0x10);
             } else {
@@ -921,9 +904,6 @@ void func_0046b380(u8 *sample, s32 setStates)
 #pragma pop
 #undef SDK_SPRITE_RECORD
 #undef SDK_SPRITE_RASTERS
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b380);
-#endif
 
 // FUN_0046D200
 u8 *func_0046d200(u32 arg0, u32 arg1)
