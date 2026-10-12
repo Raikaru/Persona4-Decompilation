@@ -2063,6 +2063,7 @@ static inline s32 fldBothReady_0018a200(void)
  * measured 2026-10-12: fnalign 103 -> 92: pointer-domain position arguments and a look-target snapshot reproduce call preparation order; update model flags before the setter call. Keep the path endpoint store explicitly floating-point.
  * measured 2026-10-12: fnalign 92 -> 68: enable CSE with constant pullout disabled; keep the second fade-range and initial spline-time reload addresses separate from their earlier accesses. Restore literal walking-animation selection so CSE shares the real argument constant.
  * measured 2026-10-12: fnalign 68 -> 59: start the oscillator comparison-zero lifetime after the progress update, restoring the update's retail floating-point operands.
+ * measured 2026-10-12: fnalign 59 -> 57: separate the oscillator spline-time reload from the later progress update, avoiding a saved field-address lifetime across model calls.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2696,7 +2697,7 @@ s32 func_0018a200(u8 *param_1)
             puVar1[9] = puVar1[9] - 1;
           }
           else {
-            func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vec120[0], 0);
+            func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, *(f32 *)((u32)puVar1 + 0x18), &vec120[0], 0);
             temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
             *(FldCopyVec *)vec110 = *(FldCopyVec *)(temp_v4 + 0x30);
             vec130[0] = vec120[0] - vec110[0];
