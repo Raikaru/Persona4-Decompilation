@@ -4114,6 +4114,7 @@ void func_001a7710(void)
  * 2026-10-12 scale clamp: fnalign 637 -> 629; retain each floating bound from its comparison for the clamp assignment, eliminating two redundant constant reloads while preserving the NaN path.
  * 2026-10-12 opening motion dispatch: fnalign 629 -> 626; restore the 0/0x11 switch and explicit default delay, retaining retail's two positive tests and branch-only default path.
  * 2026-10-12 final delay selection: fnalign 626 -> 623; recover the short-circuit conditional expression so its true and false results retain retail's explicit join.
+ * 2026-10-12 reaction fast path: fnalign 623 -> 616; the outer gates branch directly to packet creation in retail, bypassing the nested eligibility result rather than materializing a second true value.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5858,9 +5859,10 @@ block_406:
                     }
                 }
             } else {
-                var_2_13 = 1;
+                goto reactionPacket;
             }
             if (var_2_13 != 0) {
+reactionPacket:
                 temp_2_126 = (u8 *)(func_001f5f70(arg0, 0x13, sp3E0, 0, 0));
                 (*( s8 * )((u8 *)(temp_2_126) + (0))) = 5;
                 (*( s64 * )((u8 *)(temp_2_126) + (8))) = temp_18_2;
