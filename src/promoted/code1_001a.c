@@ -4044,6 +4044,7 @@ void func_001a7710(void)
  * 2026-10-12 conditional rebuild: fnalign 817 -> 810; disable branch-fed scalar rebuilding while retaining the existing scoped CSE/propagation settings.
  * 2026-10-12 reaction-index join: fnalign 810 -> 803; retain the signed-halfword conversion in a word-sized index, avoiding a second extension before the table lookup.
  * 2026-10-12 delay width: fnalign 803 -> 796; the bounded animation delay is a signed word, matching retail's ADDIU/SUBU rather than 64-bit extension and subtraction.
+ * 2026-10-12 tail snapshots: fnalign 796 -> 792; keep the signed-halfword voice/count results in word-sized consumers rather than extending them again at later uses.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4241,7 +4242,7 @@ void func_001a7720(u8 *arg0) {
     f32 var_f20_2;
     s16 temp_21_2;
     s32 temp_2_2;
-    s16 temp_3_16;
+    s32 temp_3_16;
     s16 temp_5_4;
     s32 var_17;
     u16 var_18_3;
@@ -4284,7 +4285,7 @@ void func_001a7720(u8 *arg0) {
     s16 temp_3_13;
     s16 temp_3_14;
     s32 temp_3_15;
-    s16 temp_3_17;
+    s32 temp_3_17;
     s16 temp_3_5;
     s64 var_17_3;
     s64 var_18;
