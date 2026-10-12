@@ -986,6 +986,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 31 -> 28; explicitly mask the party input-record index to a byte, restoring the missing retail andi.
  * measured 2026-10-12: fnalign 28 -> 26; materialize the persona-table offset before the helper's base argument, restoring the ratio lookup's evaluation and operand order.
  * measured 2026-10-12: fnalign 26 -> 24; pass the already zero-extended skill ID through 0023d8e0's retail word-call interface; the callee consumes its low 16 bits.
+ * measured 2026-10-12: fnalign 24 -> 23; compare the promoted halfword unit counter as signed, with a separate unsigned view for array addressing.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1172,7 +1173,7 @@ void func_001f14f0(u8 *arg0)
     flags2 = flags | 2;
     idw = (u16)id;
     kindU = (s32)kind;
-    for (; (u32)ui < *(u16 *)(arg0 + 0x6A); ui++) {
+    for (; (s32)ui < *(u16 *)(arg0 + 0x6A); ui++) {
         s32 res;
         s32 sub;
         s32 e4;
@@ -1182,7 +1183,7 @@ void func_001f14f0(u8 *arg0)
         s32 m80;
         s32 n80;
         s32 msg;
-        unit = *(u8 **)(arg0 + ui * 4 + 0x38);
+        unit = *(u8 **)(arg0 + (u32)ui * 4 + 0x38);
         actor = unit;
         uctx = *(u8 **)(*(u8 **)(unit + 0x30) + 0xA64);
         sumA = 0;
