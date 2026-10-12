@@ -977,6 +977,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 137 -> 130; convert the second damage amount before materializing its 1.0f factor, restoring retail's FPR order and latency nop.
  * measured 2026-10-12: fnalign 130 -> 118; recover the 0x20-byte hit record and write reaction codes through array lvalues instead of caching the record base across phases.
  * measured 2026-10-12: fnalign 118 -> 80; use sizeof the recovered hit record for branch-local reaction addresses, evaluated before each call rather than retained across damage phases.
+ * measured 2026-10-12: fnalign 80 -> 77; initialize all three record halfwords through the same promoted-byte index, separate from the reaction phase's sizeof stride.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1279,9 +1280,9 @@ void func_001f14f0(u8 *arg0)
             s32 nj;
             flagp = (u16 *)(unit + (j << 5) + 0x10E);
             *flagp = 0;
-            pa = (u16 *)(unit + ((u32)j << 5) + 0x108);
+            pa = (u16 *)(unit + (j << 5) + 0x108);
             *pa = 0;
-            pb = (u16 *)(unit + ((u32)j << 5) + 0x10A);
+            pb = (u16 *)(unit + (j << 5) + 0x10A);
             *pb = 0;
             va = func_00235520(id, ctx, target, 1, res, sub, flags, 1);
             vb = func_00235520(id, ctx, target, 1, res, sub, flags, 2);
