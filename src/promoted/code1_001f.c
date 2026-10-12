@@ -979,6 +979,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 118 -> 80; use sizeof the recovered hit record for branch-local reaction addresses, evaluated before each call rather than retained across damage phases.
  * measured 2026-10-12: fnalign 80 -> 77; initialize all three record halfwords through the same promoted-byte index, separate from the reaction phase's sizeof stride.
  * measured 2026-10-12: fnalign 77 -> 63; explicitly widen the reaction-phase byte index to unsigned, reproducing its three fresh reads rather than the loop-test snapshot.
+ * measured 2026-10-12: fnalign 63 -> 56; separate the party reset's sizeof stride from typed exit-mask array accesses, avoiding a live widened index across the reset call.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1532,21 +1533,19 @@ void func_001f14f0(u8 *arg0)
                     ((*(u32 *)(s + 0xF8) & 0x80000) && !(*(u32 *)(s + 0xFC) & 0x80000))) {
                     flagHit = 1;
                 }
-                s = first + ((u32)q << 5);
+                s = first + q * sizeof(BtlHit_001f14f0);
                 func_0043f9c8((u8 *)(u32)s + 0xF0, 0, 0x20);
                 *(s32 *)((u8 *)(u32)s + 0xF0) = v;
                 s[0x10C] = 2;
                 *(u16 *)(s + 0x10E) |= 0x200;
                 if (*(u8 *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8) + 0x24) == 0xD) {
-                    u8 *s3 = first + ((u32)q << 5);
-
-                    *(u32 *)(s3 + 0xF8) |= 0x80000;
-                    *(u32 *)(s3 + 0xFC) &= ~0x80000;
+                    ((BtlHit_001f14f0 *)(first + 0xF0))[q].maskA |= 0x80000;
+                    ((BtlHit_001f14f0 *)(first + 0xF0))[q].maskB &= ~0x80000;
                     first[0xD9] = q + 1;
                     return;
                 }
                 if (flagHit != 0) {
-                    *(u32 *)(first + ((u32)q << 5) + 0xF8) |= 0x80000;
+                    ((BtlHit_001f14f0 *)(first + 0xF0))[q].maskA |= 0x80000;
                     *(u16 *)(*(u8 **)(arg0 + 0x88) + 0x3F4) = 0;
                     *(u16 *)(s + 0x10E) |= 0x10;
                     first[0xD9] = q + 1;
