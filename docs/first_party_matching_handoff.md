@@ -58,7 +58,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 | `0016bdd0` | 39 | sqrt result versus `adda` zero numbering (three regions) |
 | `002ac750` | 290 | spill choice in both search blocks; retail keeps `sp180 = temp_18` as its own spilled value, which b210 coalesces in natural spellings (restructured `d7d2f766`: 397, reverted in `66a26b06`) |
 | `001a59a0` | 0 (MATCH) | frame 0x330; closed the camera field-origin operands, selected-target join and reaction short circuits. Owner: 70 MATCH / 1 ASM; exact-link eligibility clean. |
-| `001a7720` | 639 | frame 0x5d0 vs 0x5b0 (Code1aMatch2) |
+| `001a7720` | 472 | frame 0x5b0 matches. Retail has no pragmas: IR CSE on, which requires uncast `u8 *` field reads and `(u16)` masks. The remaining work is spill identity (see below) |
 
 Measured since the table (captures plus `regalloc_whatif`, all reproduced):
 
@@ -137,6 +137,19 @@ Measured since the table (captures plus `regalloc_whatif`, all reproduced):
   retail. Retail needs `table` (r35, `$s3`) and `entryOffset` (r34, `$s2`)
   simplified before the per-arm offset nodes (r127/r141/r196/r210, `$s1`);
   no single renumbering or spill-score change does it.
+- `001a7720` (587 -> 472, commits `1e64c085`..`aa9ad9d8`): of the 472, 248
+  are register fields, 132 stack offsets, 89 structural. Spill identity
+  levers, measured but not yet net-positive: (1) the decompiler's `(s32)(s32)x`
+  casts make IR CSE copy the flag locals (`dmove r336, r78`), which keeps
+  `sp230`/`sp210`/... as word variables; retail spills them as 16-byte
+  temps (strip -> 31 of retail's 33 quads, structural 74, fnalign 478-484).
+  (2) `spXXX = temp_2_NN` copies make `sp4C0`/`sp4B8` coalesce roots (16-byte);
+  assigning the calls directly packs them as retail's words, but the
+  packed group then lands at 0x254 instead of 0x4b8 and the frame shrinks.
+  (3) `u16 sp3C0` matches retail's halfword counter, but the shared
+  `(s32)sp3C0` CSE temp adds a quadword (frame 0x5c0). (4) retail spills
+  `sp430` (s16); in ours it is a low-degree node (spill score is irrelevant),
+  so retail had more interference there.
 
 ## October 11 continuation, part 12: `00183b80`, `001265a0`, `0047b0c0`, `004b8f40`, `003768e0`, `003599c0`, `003694d0` MATCH; live-range numbering
 
