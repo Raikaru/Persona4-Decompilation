@@ -4118,6 +4118,7 @@ void func_001a7710(void)
  * 2026-10-12 controller fallback: fnalign 616 -> 612; use a zero-result fallback instead of a one-case switch, preserving the nonzero return directly and removing the extra dispatch branch.
  * 2026-10-12 formation constructor contract: fnalign 612 -> 610; restore 001d3000's canonical u16 skill formal, loading it directly into the fourth argument instead of promoting it ahead of the pointer arguments.
  * 2026-10-12 per-hit speed reuse: fnalign 610 -> 602; pass the initialized animation-speed local to the duration query, matching retail's mov.s from the retained 1.0f value instead of reloading the constant.
+ * 2026-10-12 hit-duration consumer: fnalign 602 -> 598; truncate the query into the persistent halfword first, then retain its widened unsigned value for both range tests and the float conversion instead of reloading it at each use.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4368,7 +4369,7 @@ void func_001a7720(u8 *arg0) {
     s32 var_2_12;
     s32 var_2_2;
     s8 temp_23;
-    u16 temp_2_97;
+    u32 temp_2_97;
     u16 temp_3_21;
     u16 temp_3_2;
     u32 temp_4;
@@ -5558,8 +5559,8 @@ void func_001a7720(u8 *arg0) {
                 /* The two later predicates reload the signed byte after intervening calls. */
                 hitMotion = &hitRow->result.motion;
                 if (hitRow->result.motion == 9) {
-                    temp_2_97 = (u16)((u16)(func_00199350((*( u8 ** )((u8 *)(var_21_2) + (0x30))), 9, var_f20_2)));
-                    sp360 = temp_2_97;
+                    sp360 = (u16)func_00199350(*(u8 **)(var_21_2 + 0x30), 9, var_f20_2);
+                    temp_2_97 = sp360;
                     if (((s32) temp_2_97 > 0) && ((s32) temp_2_97 < 0xA)) {
                         var_f1 = (f32) temp_2_97;
                         var_f20_2 = var_f1 / 10.0f;
