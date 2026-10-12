@@ -4045,6 +4045,7 @@ void func_001a7710(void)
  * 2026-10-12 reaction-index join: fnalign 810 -> 803; retain the signed-halfword conversion in a word-sized index, avoiding a second extension before the table lookup.
  * 2026-10-12 delay width: fnalign 803 -> 796; the bounded animation delay is a signed word, matching retail's ADDIU/SUBU rather than 64-bit extension and subtraction.
  * 2026-10-12 tail snapshots: fnalign 796 -> 792; keep the signed-halfword voice/count results in word-sized consumers rather than extending them again at later uses.
+ * 2026-10-12 timing repair: fnalign 792 -> 786; retail extends the s16 query result before adding six and retains the word-sized sum, without the decompiler's post-add truncation.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4884,7 +4885,7 @@ void func_001a7720(u8 *arg0) {
             (*( s64 * )((u8 *)(temp_2_39) + (0x60))) = temp_16;
             func_00194590(var_19, 0);
             sp490 = (s64)((s64)(s64)((*( s64 * )((u8 *)(var_19) + (0x58)))));
-                    var_17 = (s16)((func_001991c0((*( u8 ** )((u8 *)(arg0) + (0x30))), 0x16U, 1.0f)) + 6);
+                    var_17 = func_001991c0((*( u8 ** )((u8 *)(arg0) + (0x30))), 0x16U, 1.0f) + 6;
             if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40)) {
                 if ((s32)(func_001f0ff0(arg0)) == (s32)(1)) {
                     temp_2_40 = (u8 *)(func_001d2d90(arg0, 0, 1));
@@ -4985,7 +4986,7 @@ void func_001a7720(u8 *arg0) {
             func_00194590(var_19, 0);
         }
         sp490 = (s64)((s64)(s64)((*( s64 * )((u8 *)(var_19) + (0x58)))));
-            var_17 = (s16)((func_001991c0((*( u8 ** )((u8 *)(arg0) + (0x30))), (u16) sp430, var_f20)) + 6);
+            var_17 = func_001991c0((*( u8 ** )((u8 *)(arg0) + (0x30))), (u16) sp430, var_f20) + 6;
         if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40) && (sp2D0 == 0)) {
             temp_2_49 = (u8 *)(func_001d2d90(arg0,(s32)(((*( u16 * )((u8 *)(arg0) + (0x18))) & 0x10)) != (s32)(0), 1));
             (*( s8 * )((u8 *)(temp_2_49) + (0))) = 4;
@@ -5048,7 +5049,7 @@ void func_001a7720(u8 *arg0) {
         func_00194590(var_19, 0);
         sp490 = 0;
         var_18 = (s64)((s64)(s64)((*( s64 * )((u8 *)(var_19) + (0x58)))));
-        var_17 = (s16)((func_001991c0((*( u8 ** )((u8 *)(arg0) + (0x30))), 7U, 1.0f)) + 6);
+        var_17 = func_001991c0((*( u8 ** )((u8 *)(arg0) + (0x30))), 7U, 1.0f) + 6;
         if ((*( u16 * )((u8 *)(arg0) + (0x6A))) == 1) {
             temp_2_57 = (s32 *)((*( s32 ** )((u8 *)(arg0) + (0x38))));
             if ((s32)(temp_2_57) != (s32)(0)) {
