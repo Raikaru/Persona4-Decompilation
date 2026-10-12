@@ -1958,6 +1958,7 @@ query_complete:
  * measured 2026-10-12: fnalign 157 -> 105; propagation/pullout off retain path interpolation order, pointer-valued collision arguments and wall dot products follow retail, and easing reloads avoid shared addresses.
  * measured 2026-10-12: fnalign 105 -> 73; captured FPR graph orders distance/axis locals as retail ($f23/$f21/$f20/$f22).
  * measured 2026-10-12: fnalign 73 -> 47, 2320/2320 instructions; a distance-field view removes address CSE, path quotient/index roles and chase scale snapshots restore retail evaluation order.
+ * measured 2026-10-12: fnalign 47 -> 43; snapshot the resume-distance limit before its comparison, restoring the load order and rollback FPR.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2181,6 +2182,7 @@ s32 func_0016bdd0(u8 *param_1)
   signed char lo;
   int temp_v4_b;
   signed char hi;
+  float resumeDistance;
   int pathLengthOffset;
   int *piVar1;
   piVar1 = *(int **)((int)param_1 + 0x38);
@@ -2664,7 +2666,8 @@ s32 func_0016bdd0(u8 *param_1)
             if (!(*(float *)((u8 *)(u32)piVar1 + 0x294) < temp_v12_s7)) {
               *(float *)&piVar1[0xa5] = temp_v12_s7;
             }
-            if (*(float *)&piVar1[0xa5] < *(float *)((u8 *)(u32)piVar1 + 0x28c)) {
+            resumeDistance = *(float *)((u8 *)(u32)piVar1 + 0x28c);
+            if (*(float *)&piVar1[0xa5] < resumeDistance) {
               *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
               temp_v8_c = piVar1[0xb0];
               *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
