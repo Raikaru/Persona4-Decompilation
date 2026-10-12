@@ -2616,6 +2616,12 @@ void func_00320970(u8 *arg0, s8 arg1) {
  * extension at the loop top (IRO_CommonSubs reuses the test's for ours) and
  * has no separate s8 copy of the row index.
  * fnalign 10 -> 8: n and arg1 assigned at the loop top before the sp118 call.
+ * 2026-10-12: the 0x150 frame and every stack slot agree (471 instructions,
+ * still 8 edits). Typed grid-header fields and explicit row-lifetime settings
+ * tie; delaying the s8 assignment changes the spill set (70 edits).
+ * Capture: the latch defines r58 for both the test and n, while the body
+ * retains the separate s8 copy r73. Naming the level load adds normalization
+ * instead of realizing the allocator model's earlier load-register order.
  */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
