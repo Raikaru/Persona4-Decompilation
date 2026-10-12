@@ -86,6 +86,16 @@ Measured since the table (captures plus `regalloc_whatif`, all reproduced):
   (`regalloc_whatif --at 35=150.5`, all eight saved colours then match).
   Spelling the table as a parameter of an inline body helper gives 33, as a
   repeated load 86.
+- `004a7830` (7): colouring pushes `zero` (r57, the MAC chain's `adda`
+  seed, which the `<= 0.0f` compare zero is CSE'd into), `value` (r58,
+  the `lwc1`) and `abs` (r60) in ascending number, so retail's colours need
+  `abs` numbered before r57. Only a live copy into the declared `temp_f3`
+  gives it that number (coalescing keeps the lower vreg), but
+  `remove_common_subexpressions` rewires the compare to the abs temp and
+  peephole deletes the dead copy. In `tools/b210_micro.py` the copy survives
+  only when a call separates the abs from its use; retail has none.
+  Spill scores do not move the colours. Helper/`__builtin`/`fabs` spellings,
+  reloads after abs and `register` all stay at 7 or worse.
 
 ## October 11 continuation, part 12: `00183b80`, `001265a0`, `0047b0c0`, `004b8f40`, `003768e0`, `003599c0`, `003694d0` MATCH; live-range numbering
 
