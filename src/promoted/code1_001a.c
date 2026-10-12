@@ -4138,6 +4138,7 @@ void func_001a7710(void)
  * retail reloads sp350 with lhu straight into $a1.
  * 483 -> 478: the two row-flag tests read through one byte-offset address
  * (retail keeps hitRow + 0x10E in $a0), and sp200's tests drop the s32 casts.
+ * 478 -> 477: the SP delta reads its row with uncast u8 arithmetic.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5799,7 +5800,7 @@ void func_001a7720(u8 *arg0) {
                     spD0 = (s16)sp130;
                     func_001f0a10((u8 *)&result);
                     result.hpDelta = *hpTransfer;
-                    result.spDelta = (s32)((s32) (*( s16 * )((u8 *)(((s32)(temp_18) + (sp3B0 << 5))) + (0x10A))));
+                    result.spDelta = (s32)((s32) *(s16 *)(temp_18 + (sp3B0 << 5) + 0x10A));
                     temp_2_120 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
                     (*( s8 * )(temp_2_120 + (0))) = 4;
                     *(s64 *)(temp_2_120 + 8) = *(s64 *)(var_19 + 0x58);
