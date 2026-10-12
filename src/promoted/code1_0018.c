@@ -2058,6 +2058,7 @@ static inline s32 fldBothReady_0018a200(void)
  * fnalign 283 -> 277: the vec20/vec30 dot product accumulates x, y, z as retail.
  * measured 2026-10-12: fnalign 277 -> 257: restore the case-1 actor-index reaching definition, use typed chained matrix diagonals, and give the initial vector comparison its own X/zero locals; remove the extra oscillator +0 after retail's accumulator addition.
  * measured 2026-10-12: fnalign 257 -> 151: separate actor lookup, unsigned movement-mode and per-case heading lifetimes; recover typed object snapshots, model-scale combineOp=1, canonical proximity contracts, RGBA size, and unsigned pause rolls. Retail frame/saves retained; ordinary allocation/CSE and call-argument residuals remain.
+ * measured 2026-10-12: fnalign 151 -> 136: use the SDK spline constructor's s32 count/type and pointer contract; keep the closed-loop type as the value used by both selection and creation. The complete spline-construction branch now aligns.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2083,7 +2084,8 @@ extern int FUN_002467b0(s32);
 extern int FUN_003b7060(void);
 /* Supplied declaration required: FUN_003bb3a0. */
 /* Supplied declaration required: FUN_003bb5b0. */
-extern unsigned int FUN_003bbbe0(unsigned short, unsigned long long, unsigned int);
+struct RpSpline;
+extern struct RpSpline *FUN_003bbbe0(s32 count, s32 type, RainVector *points);
 /* Supplied declaration required: FUN_003bff30. */
 /* Supplied declaration required: FUN_003e05d0. */
 /* Supplied declaration required: FUN_003e0870. */
@@ -2171,6 +2173,7 @@ s32 func_0018a200(u8 *param_1)
   s32 actorIndex;
   s32 objectKind;
   s32 splineMode;
+  s32 closedLoopType;
   FldActorObject *transformObject;
   FldActorObject *initialPathObject;
   FldActorObject *movingObject;
@@ -2495,11 +2498,12 @@ s32 func_0018a200(u8 *param_1)
     initialPathObject = (FldActorObject *)puVar1[3];
     splineMode = initialPathObject->pathMode;
     if (splineMode > 0) {
-      if (splineMode == 2) {
-        temp_v6 = FUN_003bbbe0(initialPathObject->pointCount,2,(u32)initialPathObject->points);
+      closedLoopType = 2;
+      if (splineMode == closedLoopType) {
+        temp_v6 = (u32)FUN_003bbbe0(initialPathObject->pointCount,closedLoopType,initialPathObject->points);
         *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
       } else {
-        temp_v6 = FUN_003bbbe0(initialPathObject->pointCount,1,(u32)initialPathObject->points);
+        temp_v6 = (u32)FUN_003bbbe0(initialPathObject->pointCount,1,initialPathObject->points);
         *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
       }
       puVar1[6] = 0;
