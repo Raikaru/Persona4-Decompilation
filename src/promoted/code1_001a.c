@@ -3027,6 +3027,7 @@ void func_001a5990(void)
  * 2026-10-12 measured: fnalign 452 -> 405; let the timing APIs narrow their u16 motion argument, without a shared masked temporary.
  * 2026-10-12 measured: fnalign 405 -> 343; captured regalloc requires the source unit before the phase locals. Sound query contracts now match their providers.
  * 2026-10-12 frame audit: fnalign 343 -> 340, frame 0x3C0 -> 0x3B0; voice option is s32 and the target count is already bounded by u16, so no masked spill is needed.
+ * 2026-10-12 row lifetime: fnalign 340 -> 335; retain the unbiased target-plus-hit-stride base, restoring retail's separate row spill and +0xF0 payload address (frame 0x3C0).
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3108,6 +3109,10 @@ void func_001a59a0(s64 *arg0_) {
     extern f32 fGpffff8128;
     extern f32 fGpffff8358;
 
+    typedef struct ActionHitRowView {
+        u8 actionPrefix[0xF0];
+        LargeBattleHitResult result;
+    } ActionHitRowView;
     s16 sp32E;
     s16 sp32C;
     /* 001a0290 writes both signed halfword effect indices. */
@@ -3149,7 +3154,7 @@ void func_001a59a0(s64 *arg0_) {
     s32 sp140;
     s32 sp130;
     s32 sp120;
-    LargeBattleHitResult *hit;
+    ActionHitRowView *hitRow;
     u32 *addedStatus;
     s32 spF0;
     s32 spE0;
@@ -3562,16 +3567,16 @@ void func_001a59a0(s64 *arg0_) {
         sp120 = (s16)sp160;
         while ((spD0 = (s32) sp1D0) < sp120) {
             sp260 = 0;
-            hit = &((LargeBattleHitResult *)((u8 *)temp_18 + 0xF0))[sp1D0];
+            hitRow = (ActionHitRowView *)((u8 *)temp_18 + (sp1D0 << 5));
             while ((s32)(sp200 = (s32) sp260) < sp140) {
-                temp_2_27 = hit->motion;
+                temp_2_27 = hitRow->result.motion;
                 sp2A0 = (s32) temp_2_27;
                 if ((temp_2_27 != 0x13) && (temp_2_27 != 9)) {
 
                 } else if (sp200 != sp130) {
                     sp2A0 = 2;
                 }
-                if (((*(u16 *)((u8 *)(u32)(temp_18) + (0xDC))) & 0x404) || (hit->flags & 4)) {
+                if (((*(u16 *)((u8 *)(u32)(temp_18) + (0xDC))) & 0x404) || (hitRow->result.flags & 4)) {
                     sp240 = 0;
                 } else {
                     sp240 = 1;
@@ -3675,7 +3680,7 @@ void func_001a59a0(s64 *arg0_) {
                             (*(s16 *)((u8 *)(temp_2_38) + (0x48))) = var_21;
                             func_00194590(temp_2_38, 1);
                         }
-                        if ((sp200 == sp130) && ((*(s32 *)((u8 *)(temp_18) + (0xE0))) == 0) && (hit->addedStatus & 0x7FFFE)) {
+                        if ((sp200 == sp130) && ((*(s32 *)((u8 *)(temp_18) + (0xE0))) == 0) && (hitRow->result.addedStatus & 0x7FFFE)) {
                             temp_2_39 = (u8 *)(func_001f7c20(0xF, 2, 0xF));
                             (*(s8 *)((u8 *)(temp_2_39) + (0))) = 5;
                             (*(s64 *)((u8 *)(temp_2_39) + (8))) = temp_16;
@@ -3749,7 +3754,7 @@ void func_001a59a0(s64 *arg0_) {
                 }
                 sp260 += 1;
             }
-            temp_2_48 = hit;
+            temp_2_48 = &hitRow->result;
             sp1F0 = temp_2_48;
             temp_2_49 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_22_3), temp_2_48, (*(u16 *)((u8 *)(u32)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE)))));
             (*(s8 *)((u8 *)(temp_2_49) + (0))) = 5;
@@ -3779,8 +3784,8 @@ void func_001a59a0(s64 *arg0_) {
                 func_00194590(temp_2_51, 3);
             }
             /* Retail retains this address and reloads its word at the later branch. */
-            addedStatus = &hit->addedStatus;
-            if ((hit->addedStatus & 0x100000) && ((*(u8 *)((u8 *)((*(u8 **)((u8 *)(var_22_3) + (0x30)))) + (0xA2))) == 1)) {
+            addedStatus = &hitRow->result.addedStatus;
+            if ((hitRow->result.addedStatus & 0x100000) && ((*(u8 *)((u8 *)((*(u8 **)((u8 *)(var_22_3) + (0x30)))) + (0xA2))) == 1)) {
                 temp_2_52 = (u8 *)(func_001f7c20(0xD, 2, 8));
                 (*(s8 *)((u8 *)(temp_2_52) + (0))) = 5;
                 (*(s64 *)((u8 *)(temp_2_52) + (8))) = temp_16;
