@@ -956,6 +956,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * combined 484 -> 476: two-label switches list 0xC before 0xD (b210 tests them in reverse), and the record offset is added before the table base.
  * measured 2026-10-12: fnalign 478 -> 476; narrow the skill-table index before its 0x28 stride, as retail does.
  * measured 2026-10-12: fnalign 476 -> 474; use the existing offset-first helper for the initial skill-field address.
+ * measured 2026-10-12: fnalign 474 -> 371, frame 0x330 -> retail 0x310; recover scalar spill order and byte/halfword roles, keeping the masked result snapshot as a word.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -993,22 +994,41 @@ void func_001f14f0(u8 *arg0)
     extern u8 *iGpffffb3cc;
     extern f32 fGpffff812c;
     extern f32 fGpffff80d4;
-    s16 lastMsg;
     s32 flags;
     f32 scale;
     s32 id;
-    s32 off;
     s32 isTen;
     u8 *ctx;
-    s32 kind;
-    s32 status;
-    s32 critCount;
+    s8 kind;
+    u8 party;
+    u8 *actor;
+    u8 *uctx;
+    u8 *target;
+    s32 va;
+    s32 vb;
     s32 totalSelf;
-    u16 ui;
+    s32 sumA;
+    s32 sumB;
+    s32 bonus;
+    u16 critCount;
+    u16 special;
+    s16 lastMsg;
+    u8 j;
+    u8 cntA;
+    u8 cntB;
+    u8 status;
+    s32 r1;
+    s32 r2;
+    s32 counter;
+    s32 hit;
     s32 flags2;
     s32 idw;
     u16 kindU;
-    u8 party;
+    s32 off;
+    s32 resw;
+    u8 *vals;
+    u16 ui;
+    u8 *sctx;
 
     lastMsg = 0;
     flags = 0;
@@ -1093,34 +1113,25 @@ void func_001f14f0(u8 *arg0)
     totalSelf = 0;
     ui = 0;
     flags2 = flags | 2;
-    idw = id;
+    idw = (u16)id;
     kindU = (s32)kind;
     for (; (u32)ui < *(u16 *)(arg0 + 0x6A); ui++) {
         u8 *unit = *(u8 **)(arg0 + ui * 4 + 0x38);
-        u8 *actor = unit;
-        u8 *uctx = *(u8 **)(*(u8 **)(unit + 0x30) + 0xA64);
-        u8 *target;
-        s32 sumA = 0;
-        s32 sumB = 0;
-        s32 counter = 0;
-        s32 hit = 0;
         s32 res;
         s32 sub;
-        u8 cntA;
-        u8 cntB;
         s32 e4;
-        s32 r1;
-        s32 r2;
         s32 mask;
         s32 mask2;
         u8 *ent;
-        u16 special;
-        u16 resw;
-        s32 bonus;
-        u8 j;
         s32 m80;
         u16 n80;
         s16 msg;
+        actor = unit;
+        uctx = *(u8 **)(*(u8 **)(unit + 0x30) + 0xA64);
+        sumA = 0;
+        sumB = 0;
+        counter = 0;
+        hit = 0;
 
         *(u16 *)(unit + 0x3F4) = 0x240;
         *(u16 *)(uctx + 0x2C) = 0;
@@ -1215,12 +1226,9 @@ void func_001f14f0(u8 *arg0)
             u16 *flagp = (u16 *)(unit + (j << 5) + 0x10E);
             u16 *pa;
             u16 *pb;
-            s32 va;
-            s32 vb;
             s32 *pm;
             s32 x;
             u8 t;
-            u8 *vals;
             s32 nj;
             *flagp = 0;
             pa = (u16 *)(unit + ((u32)j << 5) + 0x108);
@@ -1434,10 +1442,10 @@ void func_001f14f0(u8 *arg0)
         *(u8 **)(arg0 + 0x88) = sum;
         if (sum != NULL) {
             u8 *first = *(u8 **)(arg0 + 0x38);
-            u8 *sctx = *(u8 **)(*(u8 **)(sum + 0x30) + 0xA64);
             s32 flagHit;
             u8 cnt;
             u8 q;
+            sctx = *(u8 **)(*(u8 **)(sum + 0x30) + 0xA64);
 
             if (*(u8 *)(iGpffffb3b8 + off + 0x24) == 0xD) {
                 *(s16 *)(sum + 0xEC) = *(s16 *)(first + 0xEC);
