@@ -973,6 +973,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 185 -> 166; the captured allocator predicts the party-copy counter before its source unit for retail's $s1/$s0 pair.
  * measured 2026-10-12: fnalign 166 -> 143; initialize the tail's byte counter before loading its bound and use a separate unsigned record index in the body.
  * measured 2026-10-12: fnalign 143 -> 140; hold the explicitly sign-extended halfword message in a word local, avoiding a second narrowing at its zero test.
+ * measured 2026-10-12: fnalign 140 -> 137; keep the hit-message call result word-sized, sign-extend the stored halfword arm, and narrow at the shared signed test/store.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1360,17 +1361,17 @@ void func_001f14f0(u8 *arg0)
                 }
             }
             if (hit) {
-                s16 v;
+                s32 v;
 
                 if (*(u16 *)(actor + 0x3F4) == 0x240) {
                     v = func_00242990(*(u8 **)(*(u8 **)(actor + 0x30) + 0xA64), id);
                 } else {
-                    v = *(u16 *)(actor + 0x3F4);
+                    v = (s16)*(u16 *)(actor + 0x3F4);
                 }
-                if (v >= 0) {
+                if ((s16)v >= 0) {
                     u8 *slot;
 
-                    *(u16 *)(actor + 0x3F4) = v;
+                    *(u16 *)(actor + 0x3F4) = (s16)v;
                     slot = unit + (j << 5);
                     *resultFlags |= 0x10;
                     slot[0x10C] = func_001f12b0(actor, vals, res, sub, 0);
