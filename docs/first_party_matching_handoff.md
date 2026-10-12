@@ -304,6 +304,10 @@ and the saved FPRs dropped to retail's `f20`-`f24`.
   calls. Together with pointer-valued collision arguments, corrected wall
   dot order, staged alignment scaling and per-site easing reloads, this
   reaches **105** (2321 object instructions versus 2320 retail, guarded).
+  A fresh FPR capture under that pair predicts swaps of distance/axis
+  declaration numbers 33/44 and 36/53; applying those real-local orders
+  restores the four saved FPRs and reaches **73**, with the same instruction
+  count and exact `0x360` frame.
 - A rewrite can silently change behaviour: an earlier case 3/4 rewrite left
   case 4 reading stale `temp_v9`/`temp_v13`. Check every rewritten case for
   reads before writes.
