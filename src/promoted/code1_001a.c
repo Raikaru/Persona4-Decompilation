@@ -4043,6 +4043,7 @@ void func_001a7710(void)
  * 2026-10-12 effect-table repair: fnalign 819 -> 817; retail 001AA458 loads a word from the global table directly, not an unaligned doubleword through its first entry.
  * 2026-10-12 conditional rebuild: fnalign 817 -> 810; disable branch-fed scalar rebuilding while retaining the existing scoped CSE/propagation settings.
  * 2026-10-12 reaction-index join: fnalign 810 -> 803; retain the signed-halfword conversion in a word-sized index, avoiding a second extension before the table lookup.
+ * 2026-10-12 delay width: fnalign 803 -> 796; the bounded animation delay is a signed word, matching retail's ADDIU/SUBU rather than 64-bit extension and subtraction.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4253,7 +4254,7 @@ void func_001a7720(u8 *arg0) {
     s32 temp_22_2;
     s32 temp_2_78;
     s32 temp_30;
-    s64 temp_3_6;
+    s32 temp_3_6;
     s32 temp_4_13;
     s32 temp_4_14;
     s32 temp_4_15;
