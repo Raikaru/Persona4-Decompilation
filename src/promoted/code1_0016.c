@@ -1954,6 +1954,7 @@ query_complete:
  * combined 572 -> 308: real per-role locals. Ghidra's shared temporaries become distinct per-case/per-role variables declared before piVar1, the FUN_00457120()->frame holders are single assignments, and lo/hi move to the outer declarations. Every local is then a single web numbered before piVar1, so piVar1 is coloured $s0 as in retail.
  * measured 2026-10-12: fnalign 725 -> 242; real 12-byte matrix tolerances, separate fade colour, and retail stack-local order recover the 0x360 frame.
  * measured 2026-10-12: fnalign 242 -> 229; native case 6/7 vector locals and assignments recover both ld/sd triplet copies.
+ * measured 2026-10-12: fnalign 229 -> 157; typed frame snapshots, interleaved path ABI, retail dot/reload order, and graph-proven index/frame lifetimes.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1969,10 +1970,10 @@ extern int FUN_003e9830();
 extern f32 FUN_003e40b0(void *out, const void *in);
 extern u8 D_007F1710[];
 extern u8 D_007F1720[];
-extern int FUN_003bb5b0(float t, int path, int count, void *out, void *rot);
+extern void FUN_003bb5b0(u8 *path, s32 mode, f32 time, void *out, void *rot);
 extern int FUN_003e9cb0();
 extern int FUN_003e9c10();
-extern int FUN_003e0670();
+extern u8 *FUN_003e0670(u8 *dst, u8 *src);
 extern int FUN_003e0c90();
 extern float D_00756510[]; /* 0x756510 */
 extern float D_00756514[]; /* 0x756514 */
@@ -2092,7 +2093,7 @@ s32 func_0016bdd0(u8 *param_1)
   FldCamVec chaseSegment[2];
     /* Retail returns zero at 0016E1D0, 0016BE18, 0016BE34. */
 /* irregular: 14 unstructured edge(s); 13 goto(s); 21 native warning(s); review required */
-  int temp_v4;
+  u8 *frameMatrix;
   unsigned char *pbVar7;
   float *pfVar8;
   unsigned char *pbVar9;
@@ -2142,7 +2143,6 @@ s32 func_0016bdd0(u8 *param_1)
   float temp_v11_b;
   float temp_v12_b;
   float temp_v14_b;
-  int temp_v4_b;
   int count_b;
   int k_b;
   int node3_b;
@@ -2154,6 +2154,7 @@ s32 func_0016bdd0(u8 *param_1)
   float temp_v12_c;
   float temp_v14_c;
   int temp_v4_c;
+  int followFrame;
   unsigned int temp_v5_c;
   int temp_v6_c;
   int temp_v8_c;
@@ -2168,6 +2169,7 @@ s32 func_0016bdd0(u8 *param_1)
   int temp_v8_d;
   s32 moved_d;
   signed char lo;
+  int temp_v4_b;
   signed char hi;
   int *piVar1;
   piVar1 = *(int **)((int)param_1 + 0x38);
@@ -2184,10 +2186,10 @@ s32 func_0016bdd0(u8 *param_1)
     }
     else {
       piVar1[0xb] = 0;
-      temp_v4 = FUN_00457120();
-      FUN_003e0670(piVar1[0xb1],*(int *)(temp_v4 + 4) + 0x10);
-      temp_v4 = FUN_00457120();
-      *(FldMtx64 *)((*(int *)(temp_v4 + 4) + 0x10)) = *(FldMtx64 *)(piVar1[0xb1]);
+      frameMatrix = *(u8 **)(FUN_00457120() + 4);
+      FUN_003e0670((u8 *)piVar1[0xb1],frameMatrix + 0x10);
+      frameMatrix = *(u8 **)(FUN_00457120() + 4);
+      *(FldMtx64 *)(frameMatrix + 0x10) = *(FldMtx64 *)(piVar1[0xb1]);
     }
     switch (*piVar1) {
     case 0:
@@ -2285,10 +2287,10 @@ s32 func_0016bdd0(u8 *param_1)
         stk90[2] = sv60.z - ((float *)piVar1)[0x33];
         FUN_003e40b0(&stkA0[0],&stk90[0]);
         sv80 = *(FldCopyVec *)((u8 *)(u32)piVar1 + 0xd0);
-        temp_v10 = sv80.y * stkA0[1] + sv80.x * stkA0[0] + sv80.z * stkA0[2];
+        temp_v10 = sv80.x * stkA0[0] + sv80.y * stkA0[1] + sv80.z * stkA0[2];
         temp_v12_s1 = (*(float *)((u8 *)(u32)piVar1 + 0xc4) * sv80.x - sv60.x * sv80.x + *(float *)((u8 *)(u32)piVar1 + 0xc8) * sv80.y - sv60.y * sv80.y +
                        *(float *)((u8 *)(u32)piVar1 + 0xcc) * sv80.z - sv60.z * sv80.z) /
-                      -(sv80.y * sv80.y + sv80.x * sv80.x + sv80.z * sv80.z);
+                      -(sv80.x * sv80.x + sv80.y * sv80.y + sv80.z * sv80.z);
         stk10[0] = 0.0f + *(float *)((u8 *)(u32)piVar1 + 0xc4) + sv80.x * temp_v12_s1;
         stk10[1] = 0.0f + *(float *)((u8 *)(u32)piVar1 + 0xc8) + sv80.y * temp_v12_s1;
         stk10[2] = 0.0f + *(float *)((u8 *)(u32)piVar1 + 0xcc) + sv80.z * temp_v12_s1;
@@ -2322,7 +2324,7 @@ s32 func_0016bdd0(u8 *param_1)
           else if (*(float *)((u8 *)(u32)piVar1 + 0xb8) <= ((float *)piVar1)[0x30]) {
             ((float *)piVar1)[0x2e] = ((float *)piVar1)[0x30];
           }
-          FUN_003bb5b0(((float *)piVar1)[0x2e],*(unsigned int *)(*(int *)(CAND_iGpffff9db0 + 0x28) + 0xa20),10,
+          FUN_003bb5b0(*(u8 **)(*(int *)(CAND_iGpffff9db0 + 0x28) + 0xa20),10,((float *)piVar1)[0x2e],
                        piVar1 + 0x31,piVar1 + 0x34);
           FUN_003e40b0(piVar1 + 0x34,piVar1 + 0x34);
         }
@@ -2453,11 +2455,11 @@ s32 func_0016bdd0(u8 *param_1)
           }
           FUN_003e9c10(piVar1[3],&stk110[0],2);
         }
-        temp_v4_c = *(int *)(FUN_00457120() + 4);
-        temp_v5_c = FUN_003e9700(*(unsigned int *)(temp_v4_c + 4));
+        followFrame = *(int *)(FUN_00457120() + 4);
+        temp_v5_c = FUN_003e9700(*(unsigned int *)(followFrame + 4));
         moved_c = 0;
         temp_v12_s7 = *(float *)&piVar1[0xa3];
-        *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_c + 0x10));
+        *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
         temp_v8_c = piVar1[0xb0];
         *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8_c + 0x20);
         FUN_003e40b0(&stk120[0],&stk120[0]);
@@ -2473,7 +2475,7 @@ s32 func_0016bdd0(u8 *param_1)
         segment[0] = stkF0;
         temp_v8_c = piVar1[0xb0];
         segment[1] = *(FldCopyVec *)(temp_v8_c + 0x30);
-        *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_c + 0x10));
+        *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
         temp_v6_c = FUN_0016b8a0((float *)segment,&stk130[0]);
         if (temp_v6_c == 1) {
           stk130[0] = stk130[0] - segment[0].x;
@@ -2525,15 +2527,15 @@ s32 func_0016bdd0(u8 *param_1)
              (*(float *)((u8 *)(u32)piVar1 + 0x2b8) != 0.0f)) &&
             ((*(float *)((u8 *)(u32)piVar1 + 0x294) < *(float *)((u8 *)(u32)piVar1 + 0x28c) && ((D_008C024C[0] & 0xf) == 0)))) &&
            ((!(temp_v11_s4 < -48.0f) && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = FUN_00175db0(), temp_v11_s4 > 0.0f)))))) {
-          temp_v8_c = FUN_003e9700(temp_v4_c);
+          temp_v8_c = FUN_003e9700(followFrame);
           *(FldCopyVec *)stk1A0 = *(FldCopyVec *)(temp_v8_c + 0x20);
           stk1A0[1] = 0.0f;
           FUN_003e40b0(&stk1A0[0],&stk1A0[0]);
-          temp_v14_s6 = D_00756518[0];
-          temp_v11_s5 = D_00756514[0];
           stk190[0] = stk1A0[1] * D_00756518[0] - stk1A0[2] * D_00756514[0];
           stk190[1] = stk1A0[2] * D_00756510[0] - stk1A0[0] * D_00756518[0];
           stk190[2] = stk1A0[0] * D_00756514[0] - stk1A0[1] * D_00756510[0];
+          temp_v14_s6 = D_00756518[0];
+          temp_v11_s5 = D_00756514[0];
           temp_v9_s4 = D_00756510[0];
           FUN_003e40b0(&stk190[0],&stk190[0]);
           stk180[0] = *(float *)((u8 *)(u32)piVar1 + 0x2b4) * temp_v14_s6 - *(float *)((u8 *)(u32)piVar1 + 0x2b8) * temp_v11_s5;
@@ -2613,7 +2615,7 @@ s32 func_0016bdd0(u8 *param_1)
         }
         if (moved_c == 1) {
           if (temp_v12_s7 < ((float *)piVar1)[0xa5]) {
-            *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_c + 0x10));
+            *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
             temp_v8_c = piVar1[0xb0];
             *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
             FUN_003e40b0(&stk120[0],&stk120[0]);
@@ -2644,7 +2646,7 @@ s32 func_0016bdd0(u8 *param_1)
               *(float *)&piVar1[0xa5] = temp_v12_s7;
             }
             if (*(float *)((u8 *)(u32)piVar1 + 0x294) < *(float *)((u8 *)(u32)piVar1 + 0x28c)) {
-              *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_c + 0x10));
+              *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
               temp_v8_c = piVar1[0xb0];
               *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
               FUN_003e40b0(&stk120[0],&stk120[0]);
@@ -2715,7 +2717,7 @@ s32 func_0016bdd0(u8 *param_1)
         }
         FUN_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
         stkF0.y = stkF0.y + 180.0f;
-        temp_v4_c = FUN_003e9700(temp_v4_c);
+        temp_v4_c = FUN_003e9700(followFrame);
         cpv5 = *(FldCopyVec *)(temp_v4_c + 0x30);
         stk110[0] = stkF0.x - cpv5.x;
         stk110[1] = stkF0.y - cpv5.y;
