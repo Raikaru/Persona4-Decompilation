@@ -96,6 +96,15 @@ Measured since the table (captures plus `regalloc_whatif`, all reproduced):
   only when a call separates the abs from its use; retail has none.
   Spill scores do not move the colours. Helper/`__builtin`/`fabs` spellings,
   reloads after abs and `register` all stay at 7 or worse.
+- `0048b340` (9): the else-branch anchor is the function-level `dst1`
+  (r40), whose web also spans the memcpy loop, so it must be callee-saved
+  (`$s3`); `regalloc_whatif` gives no position that yields retail's `$a3`.
+  A separate block-local anchor colours `$a3` only when numbered after
+  r91, i.e. after the `effectVu*` helper parameters. Under the function's
+  `opt_propagation off`, every copy survives and coalescing keeps the
+  lowest number, so the declared anchor (r61) always wins over the
+  `effectVuLoad10` parameter (r94). Inline-helper restructures of the
+  else branch renumber the FPR locals as well (57-64).
 
 ## October 11 continuation, part 12: `00183b80`, `001265a0`, `0047b0c0`, `004b8f40`, `003768e0`, `003599c0`, `003694d0` MATCH; live-range numbering
 
