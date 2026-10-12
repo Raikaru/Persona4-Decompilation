@@ -4139,6 +4139,7 @@ void func_001a7710(void)
  * 483 -> 478: the two row-flag tests read through one byte-offset address
  * (retail keeps hitRow + 0x10E in $a0), and sp200's tests drop the s32 casts.
  * 478 -> 477: the SP delta reads its row with uncast u8 arithmetic.
+ * 477 -> 472: both later timing branches clear var_18 (retail's move $s2,$zero).
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4976,6 +4977,7 @@ void func_001a7720(u8 *arg0) {
             (*( s64 * )(temp_2_39 + (0x60))) = temp_16;
             func_00194590(var_19, 0);
             sp490 = (s64)((s64)(s64)((*( s64 * )(var_19 + (0x58)))));
+            var_18 = 0;
                     var_17 = func_001991c0((*( u8 ** )(arg0 + (0x30))), 0x16U, 1.0f) + 6;
             if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40)) {
                 if ((s32)(func_001f0ff0(arg0)) == (s32)(1)) {
@@ -5077,6 +5079,7 @@ void func_001a7720(u8 *arg0) {
             func_00194590(var_19, 0);
         }
         sp490 = (s64)((s64)(s64)((*( s64 * )(var_19 + (0x58)))));
+        var_18 = 0;
             var_17 = func_001991c0((*( u8 ** )(arg0 + (0x30))), (u16) sp430, var_f20) + 6;
         if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40) && (sp2D0 == 0)) {
             temp_2_49 = (u8 *)(func_001d2d90(arg0,(s32)(((*( u16 * )(arg0 + (0x18))) & 0x10)) != (s32)(0), 1));
