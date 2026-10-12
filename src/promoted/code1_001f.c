@@ -981,6 +981,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 77 -> 63; explicitly widen the reaction-phase byte index to unsigned, reproducing its three fresh reads rather than the loop-test snapshot.
  * measured 2026-10-12: fnalign 63 -> 56; separate the party reset's sizeof stride from typed exit-mask array accesses, avoiding a live widened index across the reset call.
  * measured 2026-10-12: fnalign 56 -> 34; retain the copied record's halfword-flags address across the exit checks, restoring retail's pointer and scratch-register roles.
+ * measured 2026-10-12: fnalign 34 -> 33; select the final target through the pointer array, restoring index-first addressing.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1602,7 +1603,7 @@ other:
                 u16 n = *(u16 *)(arg0 + 0x6A);
 
                 if (n > 1) {
-                    *(u8 **)(e + 0x90) = *(u8 **)(arg0 + func_00231d70(n) * 4 + 0x38);
+                    *(u8 **)(e + 0x90) = ((u8 **)(arg0 + 0x38))[func_00231d70(n)];
                 } else {
                     *(u8 **)(e + 0x90) = *(u8 **)(arg0 + 0x38);
                 }
