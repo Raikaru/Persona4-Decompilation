@@ -512,6 +512,7 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
  * fnalign 39 -> 27: both 64-byte matrix copies address temp_v7 through a (u32) cast (retail evaluates the source first; b210 does not CSE the field address).
  * fnalign 27 -> 18: opt_lifetimes on (s0/s1 list walk colours as retail); the Ghidra temp_v3 split into parent (matrix owner) and animated (flag 0x2000).
  * measured 2026-10-12: fnalign 18 -> 13; an addressable animation-flag snapshot keeps scalar sw/lw storage, offset-first addressing fixes the control lookup, and callback-first equality fixes bne operands. Remaining: param_4 home and +0x42/interpolator-slot CSE.
+ * fnalign 13 -> 12: the created flag's test and store use different address expressions, so IRO no longer hoists +0x42 into a saved register, and the interpolator is stored through `interp` and re-read (retail keeps slot+0x10 in $s6 across the create call).
  */
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
@@ -1254,11 +1255,10 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           unsigned int *slot = puVar3 + temp_v10;
           unsigned int *interp = slot + 4;
 
-          temp_v5 = (unsigned int)func_003d5790((int)puVar12[1], (int)*(unsigned int *)(puVar12[8] + 0x20));
-          *interp = temp_v5;
-          func_003d5840((RtAnimInterpolator *)((void *)temp_v5),(RtAnimAnimation *)((void *)*slot));
+          *interp = (unsigned int)func_003d5790((int)puVar12[1], (int)*(unsigned int *)(puVar12[8] + 0x20));
+          func_003d5840((RtAnimInterpolator *)((void *)*interp),(RtAnimAnimation *)((void *)*slot));
         }
-        *(u16 *)((u8 *)puVar3 + 0x42) = 1;
+        *((u16 *)&puVar3[0x10] + 1) = 1;
       }
       if (resetAnimation) {
         puVar3[0xc] = 0x3f800000;
