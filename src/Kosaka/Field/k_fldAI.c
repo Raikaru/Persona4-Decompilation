@@ -1014,6 +1014,7 @@ tail:
  * combined 254 -> 230: the near-player check passes FUN_0047a2f0(model) directly as an argument (retail colours the range above the model temporary).
  * measured 2026-10-12: fnalign 369 -> 105; vector declarations follow the retail frame's per-state lifetime order, including both patrol-pick snapshots.
  * measured 2026-10-12: fnalign 105 -> 96; state 2 XYZ expressions recover retail's YXZ MAC order, correcting Ghidra's reassociation.
+ * measured 2026-10-12: fnalign 96 -> 53; recover the same retail YXZ MAC evaluation in states 7-11 with natural XYZ dot expressions.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1554,14 +1555,14 @@ else {
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
-      temp_v9 = state7Delta.z * state7Forward.z + state7Delta.x * state7Forward.x + state7Delta.y * state7Forward.y;
+      temp_v9 = state7Delta.x * state7Forward.x + state7Delta.y * state7Forward.y + state7Delta.z * state7Forward.z;
       if (temp_v9 < 1.0f) {
         temp_v11 = ((float *)piVar1)[0x1a] * 10.0f;
         temp_v9 = 1.0f - temp_v9;
         if (temp_v9 < temp_v11 / 180.0f) {
           temp_v11 = temp_v9 * 180.0f;
         }
-        if (state7Delta.z * state7Right.z + state7Delta.x * state7Right.x + state7Delta.y * state7Right.y < 0.0f) {
+        if (state7Delta.x * state7Right.x + state7Delta.y * state7Right.y + state7Delta.z * state7Right.z < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
         func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
@@ -1682,14 +1683,14 @@ else {
       if (!(temp_v8 <= temp_v9)) {
         temp_v8 = temp_v9;
       }
-      temp_v9 = state8Delta.z * state8Forward.z + state8Delta.x * state8Forward.x + state8Delta.y * state8Forward.y;
+      temp_v9 = state8Delta.x * state8Forward.x + state8Delta.y * state8Forward.y + state8Delta.z * state8Forward.z;
       if (temp_v9 < 1.0f) {
         temp_v11 = ((float *)piVar1)[0x1a] * 10.0f;
         temp_v9 = 1.0f - temp_v9;
         if (temp_v9 < temp_v11 / 180.0f) {
           temp_v11 = temp_v9 * 180.0f;
         }
-        if (state8Delta.z * state8Right.z + state8Delta.x * state8Right.x + state8Delta.y * state8Right.y < 0.0f) {
+        if (state8Delta.x * state8Right.x + state8Delta.y * state8Right.y + state8Delta.z * state8Right.z < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
         func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
@@ -1790,13 +1791,13 @@ else {
       else {
         piVar1[0x25] = piVar1[0x25] - 1;
       }
-      temp_v9 = state9Delta.y * state9Forward.y + state9Delta.x * state9Forward.x + state9Delta.z * state9Forward.z;
+      temp_v9 = state9Delta.x * state9Forward.x + state9Delta.y * state9Forward.y + state9Delta.z * state9Forward.z;
       temp_v11 = 5.0f * (10.0f * *(float *)((u8 *)(u32)piVar1 + 0x68));
       temp_v9 = 1.0f - temp_v9;
       if (temp_v9 < temp_v11 / 180.0f) {
         temp_v11 = temp_v9 * 180.0f;
       }
-      if (state9Delta.y * state9Right.y + state9Delta.x * state9Right.x + state9Delta.z * state9Right.z < 0.0f) {
+      if (state9Delta.x * state9Right.x + state9Delta.y * state9Right.y + state9Delta.z * state9Right.z < 0.0f) {
         temp_v11 = temp_v11 * -1.0f;
       }
       func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
@@ -1844,13 +1845,13 @@ else {
         *piVar1 = 1;
         func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
-      temp_v11 = state10Delta.y * state10Forward.y + state10Delta.x * state10Forward.x + state10Delta.z * state10Forward.z;
+      temp_v11 = state10Delta.x * state10Forward.x + state10Delta.y * state10Forward.y + state10Delta.z * state10Forward.z;
       temp_v9 = 10.0f * *(float *)((u8 *)(u32)piVar1 + 0x68);
       temp_v11 = 1.0f - temp_v11;
       if (temp_v11 < temp_v9 / 180.0f) {
         temp_v9 = temp_v11 * 180.0f;
       }
-      if (state10Delta.z * state10Right.z + state10Delta.x * state10Right.x + state10Delta.y * state10Right.y < 0.0f) {
+      if (state10Delta.x * state10Right.x + state10Delta.y * state10Right.y + state10Delta.z * state10Right.z < 0.0f) {
         temp_v9 = temp_v9 * -1.0f;
       }
       func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
@@ -1897,14 +1898,14 @@ else {
       temp_v0 = FUN_0047a2f0((unsigned int)D_007EFA00[0]);
       state11Delta.z = *(float *)(temp_v0 + 0x38) - aiV210.z;
       RwV3dNormalize(&state11Delta,&state11Delta);
-      temp_v8 = state11Delta.z * state11Forward.z + state11Delta.x * state11Forward.x + state11Delta.y * state11Forward.y;
+      temp_v8 = state11Delta.x * state11Forward.x + state11Delta.y * state11Forward.y + state11Delta.z * state11Forward.z;
       if (temp_v8 < 1.0f) {
         temp_v9 = ((float *)piVar1)[0x1a] * 10.0f;
         temp_v8 = 1.0f - temp_v8;
         if (temp_v8 < temp_v9 / 180.0f) {
           temp_v9 = temp_v8 * 180.0f;
         }
-        if (state11Delta.z * state11Right.z + state11Delta.x * state11Right.x + state11Delta.y * state11Right.y < 0.0f) {
+        if (state11Delta.x * state11Right.x + state11Delta.y * state11Right.y + state11Delta.z * state11Right.z < 0.0f) {
           temp_v9 = temp_v9 * -1.0f;
         }
         func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
