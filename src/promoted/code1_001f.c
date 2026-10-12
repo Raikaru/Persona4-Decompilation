@@ -974,6 +974,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 166 -> 143; initialize the tail's byte counter before loading its bound and use a separate unsigned record index in the body.
  * measured 2026-10-12: fnalign 143 -> 140; hold the explicitly sign-extended halfword message in a word local, avoiding a second narrowing at its zero test.
  * measured 2026-10-12: fnalign 140 -> 137; keep the hit-message call result word-sized, sign-extend the stored halfword arm, and narrow at the shared signed test/store.
+ * measured 2026-10-12: fnalign 137 -> 130; convert the second damage amount before materializing its 1.0f factor, restoring retail's FPR order and latency nop.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1272,10 +1273,11 @@ void func_001f14f0(u8 *arg0)
                 va = (f32)va * scale;
             }
             {
+                f32 value = (f32)vb;
                 f32 one = 1.0f;
 
-                if ((s32)((f32)vb * one) != 0) {
-                    vb = (f32)vb * one;
+                if ((s32)(value * one) != 0) {
+                    vb = value * one;
                 }
             }
             pm = (s32 *)(unit + (j << 5) + 0xF8);
