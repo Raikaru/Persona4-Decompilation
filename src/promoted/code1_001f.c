@@ -955,6 +955,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * fnalign 483 -> 482: the two exit-branch record addresses use ((u32)q << 5) as well.
  * combined 484 -> 476: two-label switches list 0xC before 0xD (b210 tests them in reverse), and the record offset is added before the table base.
  * measured 2026-10-12: fnalign 478 -> 476; narrow the skill-table index before its 0x28 stride, as retail does.
+ * measured 2026-10-12: fnalign 476 -> 474; use the existing offset-first helper for the initial skill-field address.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1018,7 +1019,7 @@ void func_001f14f0(u8 *arg0)
         flags |= 1;
     }
     off = (u16)id * 0x28;
-    isTen = *(u8 *)(iGpffffb3b8 + off + 0x11) == 0x10;
+    isTen = *(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x11) == 0x10;
     ctx = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
     *(u16 *)(ctx + 0x2C) = 0;
     if (*(u16 *)(arg0 + 0x6C) == 3 && *(u16 *)(arg0 + 0x70) > 0) {
