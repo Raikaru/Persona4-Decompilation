@@ -4041,12 +4041,14 @@ void func_001a7710(void)
  * 2026-10-12 scalar recovery: fnalign 845 -> 820; restore the short-circuit flag's quadword spill, the u16 skill snapshot, and the addressed-output API contracts.
  * 2026-10-12 retail dataflow: fnalign 820 -> 819; restore the outer loop's zero-target pretest (001a9790 -> 001aadd0), and remove the invented second argument to 00202740.
  * 2026-10-12 effect-table repair: fnalign 819 -> 817; retail 001AA458 loads a word from the global table directly, not an unaligned doubleword through its first entry.
+ * 2026-10-12 conditional rebuild: fnalign 817 -> 810; disable branch-fed scalar rebuilding while retaining the existing scoped CSE/propagation settings.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
+#pragma opt_rebuildconditionals off
 void func_001a7720(u8 *arg0) {
 
     extern s32 btlCreateSetFlagsPacket(u32);
