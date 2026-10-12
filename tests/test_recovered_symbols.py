@@ -196,7 +196,7 @@ class CuratedDataAddressTests(unittest.TestCase):
                     self.fail(self._why_missing(name))
 
     @staticmethod
-    def _why_missing(name: str) -> str:
+    def _why_missing(name: str, src_root: Path = REPO / "src") -> str:
         """Explain the usual cause instead of just reporting None.
 
         A curated entry survives regeneration only if something the build
@@ -207,7 +207,7 @@ class CuratedDataAddressTests(unittest.TestCase):
         .sbss alignment error.
         """
         guarded, active = [], []
-        for path in sorted((REPO / "src").rglob("*.c")):
+        for path in sorted(src_root.rglob("*.c")):
             if path.name.startswith(".") or path.parent.name == "generated":
                 continue
             depth, inside = 0, False
@@ -318,9 +318,20 @@ class CuratedFailureDiagnosis(unittest.TestCase):
     """
 
     def test_guard_only_reference_is_diagnosed(self) -> None:
-        # fGpffff8358 was curated on the strength of a reference that lives
-        # inside func_001a59a0's NON_MATCHING body.
-        message = CuratedDataAddressTests._why_missing("fGpffff8358")
+        # Use a synthetic tree: any real guard-only symbol stops being one as
+        # soon as its function matches (fGpffff8358 did with func_001a59a0).
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "unit.c").write_text(
+                "#ifdef NON_MATCHING\n"
+                "f32 f(void) { return zzzGuardOnly; }\n"
+                "#else\n"
+                "INCLUDE_ASM(\"asm\", f);\n"
+                "#endif\n",
+                encoding="utf-8")
+            message = CuratedDataAddressTests._why_missing("zzzGuardOnly", root)
         self.assertIn("ONLY from inside a NON_MATCHING guard", message)
         self.assertIn("do not regenerate", message)
 
