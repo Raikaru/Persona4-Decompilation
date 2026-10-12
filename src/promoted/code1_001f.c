@@ -992,6 +992,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 18 -> 16; test the critical counter directly at its native width, removing the redundant integer-promotion move.
  * measured 2026-10-12: fnalign 16 -> 5; separate the party damage accumulator from battle flags and declare it before the byte cursor, as predicted by the allocator model.
  * measured 2026-10-12: fnalign 5 -> 4; route a missing party recipient directly to the final exit, matching retail rather than threading through the party-loop return.
+ * measured 2026-10-12: fnalign 4 -> 2; keep the reflected result as a native halfword through remapping, then transfer each case's value to the word-sized calculation phase.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1209,16 +1210,23 @@ void func_001f14f0(u8 *arg0)
         *(s16 *)(unit + 0xEE) = -1;
         res = func_0023e6f0(ctx, uctx, id, flags) & 0xFFFF;
         if (res == 0x200) {
+            u16 reflectedResult;
+
             actor = arg0;
             target = ctx;
-            res = func_0023e6f0(ctx, ctx, id, flags2) & 0xFFFF;
-            switch (res) {
+            reflectedResult = func_0023e6f0(ctx, ctx, id, flags2) & 0xFFFF;
+            switch (reflectedResult) {
             case 0x200:
-                res = 0x100;
+                reflectedResult = 0x100;
+                res = reflectedResult;
                 break;
             case 2:
             case 4:
-                res = 1;
+                reflectedResult = 1;
+                res = reflectedResult;
+                break;
+            default:
+                res = reflectedResult;
                 break;
             }
             *(s32 *)(unit + 0xE4) = 1;
