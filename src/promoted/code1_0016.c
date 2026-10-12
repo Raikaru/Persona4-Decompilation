@@ -1959,6 +1959,7 @@ query_complete:
  * measured 2026-10-12: fnalign 105 -> 73; captured FPR graph orders distance/axis locals as retail ($f23/$f21/$f20/$f22).
  * measured 2026-10-12: fnalign 73 -> 47, 2320/2320 instructions; a distance-field view removes address CSE, path quotient/index roles and chase scale snapshots restore retail evaluation order.
  * measured 2026-10-12: fnalign 47 -> 43; snapshot the resume-distance limit before its comparison, restoring the load order and rollback FPR.
+ * measured 2026-10-12: fnalign 43 -> 41; the matched title code's float/byte RGBA union preserves the packed colour's lwc1/swc1 copy.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2059,7 +2060,8 @@ s32 func_0016bdd0(u8 *param_1)
   extern RwMatrix *RwMatrixOptimize(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
   extern f32 sqrtf(f32 arg0);
   float stk10[3];
-  u32 fadeColour;
+  typedef union { f32 value; u8 bytes[4]; } FldCameraColour;
+  FldCameraColour fadeColour;
   FldCopyVec sv20;
   FldCopyVec cpv0;
   float stk40[3];
@@ -2751,7 +2753,7 @@ s32 func_0016bdd0(u8 *param_1)
           FUN_00452080((void *)piVar1[0xaa]);
           piVar1[0xaa] = 0;
         }
-        fadeColour = CAND_uGpffff9f2c;
+        fadeColour = *(const FldCameraColour *)&CAND_uGpffff9f2c;
         if (temp_v11_c <= 55.0f + ((float *)piVar1)[0xa4]) {
           if (piVar1[0xaa] != 0) {
             FUN_0047a870(*(unsigned char **)(piVar1[0xa2] + 0x164));
