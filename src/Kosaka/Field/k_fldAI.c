@@ -1013,6 +1013,7 @@ tail:
  * combined -> 254: speed limit loads the field before the gp constant.
  * combined 254 -> 230: the near-player check passes FUN_0047a2f0(model) directly as an argument (retail colours the range above the model temporary).
  * measured 2026-10-12: fnalign 369 -> 105; vector declarations follow the retail frame's per-state lifetime order, including both patrol-pick snapshots.
+ * measured 2026-10-12: fnalign 105 -> 96; state 2 XYZ expressions recover retail's YXZ MAC order, correcting Ghidra's reassociation.
  */
 // FUN_0017F490 NONMATCHING
 #ifdef NON_MATCHING
@@ -1361,14 +1362,14 @@ availabilityDone:
       else {
         *piVar1 = 1;
       }
-      temp_v9 = state2Delta.z * state2Forward.z + state2Delta.x * state2Forward.x + state2Delta.y * state2Forward.y;
+      temp_v9 = state2Delta.x * state2Forward.x + state2Delta.y * state2Forward.y + state2Delta.z * state2Forward.z;
       if (temp_v9 < 1.0f) {
         temp_v11 = ((float *)piVar1)[0x1a] * 10.0f;
         temp_v9 = 1.0f - temp_v9;
         if (temp_v9 < temp_v11 / 180.0f) {
           temp_v11 = temp_v9 * 180.0f;
         }
-        if (state2Delta.z * state2Right.z + state2Delta.x * state2Right.x + state2Delta.y * state2Right.y < 0.0f) {
+        if (state2Delta.x * state2Right.x + state2Delta.y * state2Right.y + state2Delta.z * state2Right.z < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
         func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
