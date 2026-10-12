@@ -306,7 +306,7 @@ block_20:
 /* measured: close loop-invariant probe for 001A0140. */
 #pragma opt_loop_invariants off
 // FUN_001A0290
-void func_001a0290(u8 *arg0, s32 arg1, u8 *arg2)
+void func_001a0290(u8 *arg0, u16 arg1, u8 *arg2)
 {
     s32 temp_5;
     s32 temp_3;
@@ -3051,6 +3051,7 @@ void func_001a5990(void)
  * 2026-10-12 camera reaching definitions: fnalign 50 -> 23; assign the predicate in each successful case rather than eagerly initializing it, matching both retail constant/load order and the case-1 success jump.
  * 2026-10-12 reaction reaching definitions: fnalign 23 -> 15; retain the truthy byte/random gate values and the ID comparison's shared one until the common decision test, without an extra boolean-result block.
  * 2026-10-12 post-repeat row accessor: fnalign 15 -> 8; reread the halfword index through the byte-row accessor, then retain the caller's typed result snapshot. Retail's lhu/move and every 0x330-frame offset now agree.
+ * 2026-10-12 effect-index API: fnalign 8 -> 6; the canonical callee consumes only the skill key's low halfword and remains byte-exact with u16. Its sole C caller now materializes the native halfword argument in retail order.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
