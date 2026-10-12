@@ -4131,6 +4131,8 @@ void func_001a7710(void)
  * (u16) casts; with those spellings the function needs no pragma (519).
  * The 001b7060/7080/70a0 skill is u16: retail reloads the spilled
  * halfword with lhu (0x270) and passes it unmasked.
+ * 519 -> 513: the HP delta is -(hp - 1), and the cut-in reads its partner
+ * pointer before storing the mode, as retail's load order shows.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -5925,7 +5927,7 @@ reactionPacket:
         }
         if ((s32)((*( u8 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA2)))) == (s32)(0)) {
             func_001f0a10((u8 *)&result);
-            result.hpDelta = 1 - (s32)(datCalcGetHp((*( s32 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA64)))) & 0xFFFF);
+            result.hpDelta = -((s32)(datCalcGetHp((*( s32 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA64)))) & 0xFFFF) - 1);
             var_18_4 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
             if (sp2D0 == 1) {
                 (*( s8 * )(var_18_4 + (0))) = 4;
@@ -6131,8 +6133,10 @@ reactionPacket:
         func_001d3e00(sp4A0);
     }
     if ((s32)(s32)sp1D0 != 0) {
+        u8 *partner = *(u8 **)(arg0 + 0x8C);
+
         cutin.mode = 3;
-        cutin.unitId = (u16)((u16)((*( u16 * )((u8 *)((*( u8 ** )((u8 *)((*( u8 ** )(arg0 + (0x8C)))) + (0x30)))) + (0xA4)))));
+        cutin.unitId = *(u16 *)(*(u8 **)(partner + 0x30) + 0xA4);
         func_00194590(func_001fa720((u8 *)&cutin), 1);
     }
     if ((s32)(func_001f68e0(arg0)) != (s32)(0)) {
