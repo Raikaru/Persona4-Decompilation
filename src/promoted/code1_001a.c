@@ -3035,6 +3035,7 @@ void func_001a5990(void)
  * 2026-10-12 target layout: fnalign 322 -> 318, frame 0x3A0 -> 0x380; type the target action's effect/flags at 0xDC/0xDE, removing both hoisted field-address spills.
  * 2026-10-12 target unit member: fnalign 318 -> 309, frame 0x380 -> 0x370; recover the target's +0x30 unit field and remove its cross-call address spill.
  * 2026-10-12 selected-action layout: fnalign 309 -> 239, frame 0x370 -> 0x340; the selected action shares the typed +0x30 unit member, eliminating three quadword field-address spills and the redundant accessor.
+ * 2026-10-12 animation packet type: fnalign 239 -> 218, frame 0x340 -> retail 0x330; keep the constructor's BtlPacket pointer type, avoiding a coalesced 16-byte byte-pointer spill.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3143,7 +3144,7 @@ void func_001a59a0(s64 *arg0_) {
     struct { u16 mode, unitId; u8 reserved[6]; } cutin;
     RwV3d targetPosition;
     LargeBattleHitResult result;
-    u8 *sp2DC;
+    BtlPacket *sp2DC;
     u8 *sp2D8;
     u8 *sp2D4;
     s64 sp2C0;
@@ -3240,7 +3241,7 @@ void func_001a59a0(s64 *arg0_) {
     u8 *temp_2_23;
     u8 *temp_2_24;
     u8 *temp_2_25;
-    u8 *temp_2_28;
+    BtlPacket *temp_2_28;
     u8 *temp_2_29;
     u8 *temp_2_2;
     u8 *temp_2_30;
@@ -3603,8 +3604,8 @@ void func_001a59a0(s64 *arg0_) {
                 } else {
                     sp240 = 1;
                 }
-                temp_2_28 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)var_22_3->unit, (s16)sp2A0, 0, 1.0f, 0));
-                sp2DC = (u8 *)(temp_2_28);
+                temp_2_28 = (BtlPacket *)(btlUnitCreateAnimPacket((BtlUnit *)var_22_3->unit, (s16)sp2A0, 0, 1.0f, 0));
+                sp2DC = temp_2_28;
                 (*(s8 *)((u8 *)(temp_2_28) + (0))) = 5;
                 (*(s64 *)((u8 *)(temp_2_28) + (8))) = temp_16;
                 if (!((sp2A0 != -3) && (sp2A0 != 0x17))) {
@@ -3622,8 +3623,8 @@ void func_001a59a0(s64 *arg0_) {
                     var_21 += 5;
                 }
                 (*(s64 *)((u8 *)(sp2DC) + (0x60))) = temp_17;
-                func_00194590(sp2DC, 0);
-                sp2C0 = *(s64 *)(sp2DC + 0x58);
+                func_00194590((u8 *)sp2DC, 0);
+                sp2C0 = *(s64 *)((u8 *)sp2DC + 0x58);
                 if ((temp_18->effect & 4) && (sp25C == 0)) {
                     temp_2_29 = (u8 *)(func_001f7c20(0xD, 1, 0xF));
                     (*(s8 *)((u8 *)(temp_2_29) + (0))) = 5;
