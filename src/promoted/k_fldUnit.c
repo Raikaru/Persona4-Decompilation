@@ -280,6 +280,7 @@ s32 func_00162c30(void)
  * struct 0: the weekday test is `if (... == 1) { found = 0; } else { scan }` (retail's bne/b shape).
  * sdiff 0/6: i declared before mtx. Left: found/k take $s6/$s5 where retail has $s5/$s6 (scores 3/4 equal to retail's reference counts; whatif renumbering of found, k and their 17 common neighbours finds no hit).
  * measured 2026-10-12: fnalign 9 -> 2; count the first hit with found++ (the immediate break bounds it to one), raising r42's spill score 3 -> 4 and restoring found/k to $s5/$s6. Remaining: node-loop entry branch and addiu's source ($s5 rather than $zero).
+ * fnalign 2 -> 1: the node search walks a separate scan pointer (its copy keeps the then-block entry jump, so the node test branches to it as retail does).
  */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
@@ -350,13 +351,15 @@ void func_00162e10(void)
             u8 *node = func_001452b0(0xE);
 
             if (node != NULL || *(u16 *)(slot + 0x58) != 0xFFFF) {
-                while (node != NULL) {
-                    if ((*(u16 *)node & 0x3FF) == *(u16 *)(slot + 0x58)) {
+                u8 *scan = node;
+
+                while (scan != NULL) {
+                    if ((*(u16 *)scan & 0x3FF) == *(u16 *)(slot + 0x58)) {
                         break;
                     }
-                    node = *(u8 **)(node + 0x138);
+                    scan = *(u8 **)(scan + 0x138);
                 }
-                *(u8 **)(slot + 0x1AC) = node;
+                *(u8 **)(slot + 0x1AC) = scan;
             }
         }
         if (i == 0) {
