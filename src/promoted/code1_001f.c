@@ -958,6 +958,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 476 -> 474; use the existing offset-first helper for the initial skill-field address.
  * measured 2026-10-12: fnalign 474 -> 371, frame 0x330 -> retail 0x310; recover scalar spill order and byte/halfword roles, keeping the masked result snapshot as a word.
  * measured 2026-10-12: fnalign 371 -> 338; the captured allocator predicts unit-before-id for retail's $s3/$s1 pair.
+ * measured 2026-10-12: fnalign 338 -> 333; align the signed message spill to retail's 0x270 frame slot.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1014,7 +1015,7 @@ void func_001f14f0(u8 *arg0)
     s32 bonus;
     u16 critCount;
     u16 special;
-    s16 lastMsg;
+    s16 lastMsg __attribute__((aligned(16)));
     u8 j;
     u8 cntA;
     u8 cntB;
