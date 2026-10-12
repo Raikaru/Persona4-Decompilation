@@ -107,8 +107,18 @@ first.
 - `003694d0` (38): `fn` (r36) wants number 34 (between `m0` and `m2`).
   Declaring it there fixes the table pointer but moves `m0` (47). Merging
   `m0`/`m2`/`m3` is far worse (218-250).
-- `0027f6f0` (103): `arg1`/`ret` swap (`$s5`/`$s0`); no renumbering or
-  spill score gives it.
+- `0027f6f0` **resolved 2026-10-12 (103 -> 0)**: the graph, not just its scan
+  order, was wrong. Separate X/Y locals for phases 4/16/17/18 give retail's
+  `arg1`/`ret` `$s5`/`$s0` pair (103 -> 12); phases 4 and 5 share the
+  selection-resource handle (12 -> 3). The last sites need a stride-first
+  column-offset helper and both rectangle submissions copied into the same
+  destination. An address-taking aggregate copy with a quadword transport
+  union retains the background snapshot and retail's `sq/addiu/sq` order;
+  a scalar quadword copy leaves a two-edit argument-order residual. The
+  twelve band-draw blocks were already exact: extracting one inline helper
+  reproduced the same 103-edit object and was not retained. Four missing
+  GP data mappings were recovered from retail; no synthetic stores or
+  computational assembly were needed.
 - `0047b0c0` (9): `copy` must be numbered among the first virtuals, which
   an inline helper local cannot be; hoisting the caller's `table`
   declaration does nothing.
