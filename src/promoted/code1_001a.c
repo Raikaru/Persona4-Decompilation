@@ -3047,6 +3047,7 @@ void func_001a5990(void)
  * 2026-10-12 camera table order: fnalign 62 -> 56; place the table base before the native halfword index so b210 evaluates the global load before scaling, as in both retail camera checks.
  * 2026-10-12 animation timing dispatch: fnalign 56 -> 54; restore the two-case delay switch, including its explicit default packet-delay path.
  * 2026-10-12 distance-packet address word: fnalign 54 -> 52; read the existing unit-address word at the integer ABI boundary instead of hoisting a pointer-to-integer conversion across the distance branch.
+ * 2026-10-12 result-packet address word: fnalign 52 -> 50; likewise read the selected unit as the constructor's native integer address, restoring source/target argument materialization order.
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3803,7 +3804,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s16 *)((u8 *)(temp_2_49) + (0x48))) = var_21;
             (*(s64 *)((u8 *)(temp_2_49) + (0x60))) = temp_17;
             func_00194590(temp_2_49, 1);
-            temp_2_50 = (u8 *)(func_00201de0((s32)(temp_19), (s32)(var_22_3->unit), (*(u16 *)(arg0 + (0x6E))), temp_18->effect, temp_18->targetFlags, 0, 1, sp1F0, 0));
+            temp_2_50 = (u8 *)(func_00201de0((s32)(temp_19), *(s32 *)&var_22_3->unit, (*(u16 *)(arg0 + (0x6E))), temp_18->effect, temp_18->targetFlags, 0, 1, sp1F0, 0));
             (*(s8 *)((u8 *)(temp_2_50) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_50) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_50) + (0x48))) = var_21;
