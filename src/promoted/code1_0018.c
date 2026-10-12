@@ -2067,6 +2067,7 @@ static inline s32 fldBothReady_0018a200(void)
  * measured 2026-10-12: fnalign 57 -> 50: split the visibility boolean from the later u16 model flags and preserve its real s32 setter contract, removing redundant narrowing.
  * measured 2026-10-12: fnalign 50 -> 47: compute the signed-side dot product before initializing its comparison zero; the complete side-test block now aligns.
  * measured 2026-10-12: fnalign 47 -> 19: recover typed oscillator progress/step/direction fields and a block-local work snapshot; place the shared work pointer after per-role locals, following the captured allocation graph. Retail frame, saves, and 1588-instruction size are exact.
+ * measured 2026-10-12: fnalign 19 -> 2: give linear-path updates a typed work snapshot and capture oscillator endpoint progress before constructing the bound. Only visibility-setter argument load order remains.
  */
 // FUN_0018A200 NONMATCHING
 #ifdef NON_MATCHING
@@ -2647,6 +2648,7 @@ s32 func_0018a200(u8 *param_1)
       case 2:
       case 4:
       {
+        FldActorWork *pathWork;
         if (((movementMode != 4) || ((float *)puVar1)[6] != 1.0f) &&
             (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
           func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
@@ -2678,20 +2680,21 @@ s32 func_0018a200(u8 *param_1)
         ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
         ((RainMatrix *)puVar1[5])->flags |= 0x20003;
         func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, pathHeading);
+        pathWork = (FldActorWork *)puVar1;
         movingObject = (FldActorObject *)puVar1[3];
-        if (movingObject->pathMode != 4 || ((float *)puVar1)[6] < 1.0f) {
+        if (movingObject->pathMode != 4 || pathWork->progress < 1.0f) {
           FUN_00168890(movingObject->movementTask,(unsigned char *)puVar1[5]);
           FUN_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
-          ((float*)puVar1)[6] = (((float*)puVar1)[6] + ((float*)puVar1)[7]);
+          pathWork->progress = (pathWork->progress + pathWork->step);
         }
         if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
-          if (!(((float*)puVar1)[6] <= 1.0f)) {
-            ((f32 *)puVar1)[6] = 1.0f;
+          if (!(pathWork->progress <= 1.0f)) {
+            pathWork->progress = 1.0f;
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
           }
         }
-        else if (!(((float*)puVar1)[6] <= 1.0f)) {
-          puVar1[6] = 0;
+        else if (!(pathWork->progress <= 1.0f)) {
+          pathWork->progress = 0.0f;
         }
       }
         break;
@@ -2746,8 +2749,9 @@ s32 func_0018a200(u8 *param_1)
             motionWork->progress = (motionWork->step * motionWork->direction + motionWork->progress);
             zero = 0.0f;
             if (!(motionWork->direction <= zero)) {
+              f32 endProgress = motionWork->progress;
               one = 1.0f;
-              if (!(motionWork->progress <= one)) {
+              if (!(endProgress <= one)) {
                 motionWork->progress = (one - motionWork->step);
                 motionWork->direction = -1.0f;
                 puVar1[9] = 0x5a;
