@@ -970,6 +970,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 227 -> 219; read the adjacent target directly at i*4+0x3c; the loop bound proves i+1 cannot wrap.
  * measured 2026-10-12: fnalign 219 -> 189; normalize the result into a word snapshot, copy it into the record phase, and enable invariant motion; frame remains retail 0x310.
  * measured 2026-10-12: fnalign 189 -> 185; use 0023e6f0's documented C89-promoted s32 skill interface, not its old-style u16 formal type.
+ * measured 2026-10-12: fnalign 185 -> 166; the captured allocator predicts the party-copy counter before its source unit for retail's $s1/$s0 pair.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1470,10 +1471,10 @@ void func_001f14f0(u8 *arg0)
         sum = func_001efd50(arg0);
         *(u8 **)(arg0 + 0x88) = sum;
         if (sum != NULL) {
-            u8 *first = *(u8 **)(arg0 + 0x38);
+            u8 q;
             s32 flagHit;
             s32 cnt;
-            u8 q;
+            u8 *first = *(u8 **)(arg0 + 0x38);
             sctx = *(u8 **)(*(u8 **)(sum + 0x30) + 0xA64);
 
             if (*(u8 *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8) + 0x24) == 0xD) {
