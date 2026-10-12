@@ -4121,6 +4121,7 @@ void func_001a7710(void)
  * 2026-10-12 hit-duration consumer: fnalign 602 -> 598; truncate the query into the persistent halfword first, then retain its widened unsigned value for both range tests and the float conversion instead of reloading it at each use.
  * 2026-10-12 last-hit index: fnalign 598 -> 597; derive it from the already-promoted hit-count snapshot rather than loading and widening the halfword count again.
  * 2026-10-12 hit-duration byte access: fnalign 597 -> 593; correct the selected-action unit read introduced above to byte offset 0x30 (retail 001AA1BC), not s32-pointer offset 0x30.
+ * 2026-10-12 recovery constructor contract: fnalign 593 -> 590; use 00197cc0's signed-halfword skill/delay formals and pointer return, removing the default-argument promotion ahead of its unit argument.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4137,7 +4138,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_00195530();
     extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
-    extern s32 func_00197cc0();
+    extern u8 *func_00197cc0(s32 unit, s16 skill, s16 delay);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_00198810();
     extern s32 func_0019a0c0();
@@ -5586,7 +5587,7 @@ void func_001a7720(u8 *arg0) {
                     } else {
                         var_2_11 = 0x19 - sp250;
                     }
-                    temp_2_99 = (u8 *)(func_00197cc0((*( u8 ** )((u8 *)(var_21_2) + (0x30))), sp450, (s16)var_2_11));
+                    temp_2_99 = (u8 *)(func_00197cc0((s32)*(u8 **)((u8 *)var_21_2 + 0x30), sp450, (s16)var_2_11));
                     (*( s8 * )((u8 *)(temp_2_99) + (0))) = 4;
                     *(s64 *)(temp_2_99 + 8) = *(s64 *)(var_19 + 0x58);
                     (*( s64 * )((u8 *)(temp_2_99) + (0x60))) = temp_16;
