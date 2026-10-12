@@ -3037,6 +3037,7 @@ void func_001a5990(void)
  * 2026-10-12 selected-action layout: fnalign 309 -> 239, frame 0x370 -> 0x340; the selected action shares the typed +0x30 unit member, eliminating three quadword field-address spills and the redundant accessor.
  * 2026-10-12 animation packet type: fnalign 239 -> 218, frame 0x340 -> retail 0x330; keep the constructor's BtlPacket pointer type, avoiding a coalesced 16-byte byte-pointer spill.
  * 2026-10-12 hit-count consumers: fnalign 218 -> 214; preserve the signed-halfword normalization of the byte-loaded hit count and its conditional snapshot, matching retail's two sign extensions.
+ * 2026-10-12 captured spill order: fnalign 214 -> 93, every frameslots offset now agrees at 0x330; declare the surviving packet/result pointers beside their aliases (b210 graph replay preserves their spill choices).
  */
 // FUN_001A59A0 NONMATCHING
 #ifdef NON_MATCHING
@@ -3146,8 +3147,11 @@ void func_001a59a0(s64 *arg0_) {
     RwV3d targetPosition;
     LargeBattleHitResult result;
     BtlPacket *sp2DC;
+    BtlPacket *temp_2_28;
     u8 *sp2D8;
+    u8 *temp_2_6;
     u8 *sp2D4;
+    u8 *temp_2_42;
     s64 sp2C0;
     s32 sp2B0;
     s32 sp2A0;
@@ -3165,6 +3169,7 @@ void func_001a59a0(s64 *arg0_) {
     s32 sp210;
     u32 sp200;
     LargeBattleHitResult *sp1F0;
+    LargeBattleHitResult *temp_2_48;
     u16 sp1E0;
     u16 sp1D0;
     s32 sp1C0;
@@ -3196,7 +3201,6 @@ void func_001a59a0(s64 *arg0_) {
     s32 var_2_3;
     s32 var_2_7;
     s32 var_3;
-    LargeBattleHitResult *temp_2_48;
     s32 temp_2_5;
     s32 temp_3;
     s32 temp_3_2;
@@ -3242,7 +3246,6 @@ void func_001a59a0(s64 *arg0_) {
     u8 *temp_2_23;
     u8 *temp_2_24;
     u8 *temp_2_25;
-    BtlPacket *temp_2_28;
     u8 *temp_2_29;
     u8 *temp_2_2;
     u8 *temp_2_30;
@@ -3258,7 +3261,6 @@ void func_001a59a0(s64 *arg0_) {
     u8 *temp_2_3;
     u8 *temp_2_40;
     u8 *temp_2_41;
-    u8 *temp_2_42;
     u8 *temp_2_43;
     u8 *temp_2_44;
     u8 *temp_2_45;
@@ -3278,7 +3280,6 @@ void func_001a59a0(s64 *arg0_) {
     u8 *temp_2_61;
     u8 *temp_2_62;
     u8 *temp_2_63;
-    u8 *temp_2_6;
     u8 *temp_2_7;
     u8 *temp_2_9;
     u8 *temp_3_5;
