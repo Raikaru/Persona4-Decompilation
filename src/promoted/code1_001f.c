@@ -960,6 +960,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
  * measured 2026-10-12: fnalign 371 -> 338; the captured allocator predicts unit-before-id for retail's $s3/$s1 pair.
  * measured 2026-10-12: fnalign 338 -> 333; align the signed message spill to retail's 0x270 frame slot.
  * measured 2026-10-12: fnalign 333 -> 327; separate the byte-status flag updates and restore the retail-proven third argument to 001fb360.
+ * measured 2026-10-12: fnalign 327 -> 292; declare the calculation context before the skill ID to finish retail's entry-register order.
  */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1001,9 +1002,9 @@ void func_001f14f0(u8 *arg0)
     s32 flags;
     f32 scale;
     u8 *unit;
-    s32 id;
-    s32 isTen;
     u8 *ctx;
+    s32 isTen;
+    s32 id;
     s8 kind;
     u8 party;
     u8 *actor;
