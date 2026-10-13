@@ -248,6 +248,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 112 -> 110; the three-cell reveal copies an unsigned halfword row, not a row offset.
  * measured: fnalign 110 -> 106; reuse the offset-first pointer helper for the two following reveal rows.
  * measured: fnalign 106 -> 96; separate room preparation from reveal and retain caller-owned search snapshots.
+ * measured: fnalign 96 -> 89; prepare a word-sized vertical reveal mask before the kind guard.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -335,6 +336,7 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
         s32 step;
         s32 rowDelta;
         u16 revealColumn;
+        u32 revealMask;
         u8 revealKind;
         u16 *visibility;
 
@@ -342,9 +344,10 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
         revealColumn = column;
         while ((rowDelta = (s16)step) < extent) {
             revealKind = SMAP_GRID_SCAN_AT(revealColumn * 0x10, ((s8)*anchorRow + rowDelta) << 8)->kind;
+            revealMask = (1 << savedColumn) & 0xFFFF & 0xFFFF;
             if (revealKind == SMAP_GRID_OFFSET_AT(cellOffset)->kind) {
                 visibility = (u16 *)((u8 *)smapRevealOffsetPtr((s8)*anchorRow * 2, (u8 *)D_00764658) + rowDelta * 2);
-                *visibility |= (1 << savedColumn) & 0xFFFF & 0xFFFF;
+                *visibility |= revealMask;
             }
             step = (s16)(step + 1);
         }
