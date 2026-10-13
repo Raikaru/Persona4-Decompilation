@@ -241,6 +241,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 212 -> 208; the rectangle's visibility-row byte offset is a word, not a halfword.
  * measured: fnalign 208 -> 198; distinct original-row stride restores the rectangle row (frame 0x1A0).
  * measured: fnalign 198 -> 154, frame 0x190; give the rectangle its own halfword column and column limit.
+ * measured: fnalign 154 -> 146; form vertical footprint addresses directly from the signed-byte anchor.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -320,18 +321,16 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
     case 2: {
         s32 step;
         s32 rowDelta;
-        s32 firstRow;
         u16 revealColumn;
         u8 revealKind;
         u16 *visibility;
 
         step = 0;
-        firstRow = (s8)*anchorRow;
         revealColumn = column;
         while ((rowDelta = (s16)step) < extent) {
-            revealKind = SMAP_GRID_SCAN_AT(revealColumn * 0x10, (firstRow + rowDelta) << 8)->kind;
+            revealKind = SMAP_GRID_SCAN_AT(revealColumn * 0x10, ((s8)*anchorRow + rowDelta) << 8)->kind;
             if (revealKind == SMAP_GRID_OFFSET_AT(cellOffset)->kind) {
-                visibility = (u16 *)((u8 *)smapRevealOffsetPtr(firstRow * 2, (u8 *)D_00764658) + rowDelta * 2);
+                visibility = (u16 *)((u8 *)smapRevealOffsetPtr((s8)*anchorRow * 2, (u8 *)D_00764658) + rowDelta * 2);
                 *visibility |= (1 << savedColumn) & 0xFFFF & 0xFFFF;
             }
             step = (s16)(step + 1);
