@@ -4836,7 +4836,8 @@ void func_001a7720(u8 *arg0) {
             func_00194590((u8 *)waitPkt2, 0);
             cutinTime = waitPkt2->endTime;
             if (sp2B0 == 0) {
-                recoveryFrames = func_00199500(act->unit, 0xD, 1.0f) + (s16)blendFrames;
+                recoveryFrames = func_00199500(act->unit, 0xD, 1.0f);
+                recoveryFrames += (s16)blendFrames;
             } else {
                 recoveryFrames = 0;
             }
