@@ -254,6 +254,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 79 -> 73; each square-scan row likewise prepares its map and visibility byte offsets.
  * measured: fnalign 73 -> 45; preserve the later scans' signed column snapshots and model-derived coordinate/counter order.
  * measured: fnalign 45 -> 43; apply the rectangle's current-cell row offset before its column offset.
+ * measured: fnalign 43 -> 39; enclosing case exits replace redundant returns and restore threaded helper branches.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -556,7 +557,6 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 } else {
                     currentCellOffset2 = smapPrepareRoomReveal(arg0, arg1, 2, temp_17, temp_16, &savedRoomRow2, &savedRoomColumn2, &columnReference, &workingRow);
                     smapRevealRoomFootprint(arg0, arg1, 2, temp_17, temp_16, currentCellOffset2, savedRoomColumn2, &columnReference, &workingRow);
-                    return;
                 }
             } else if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_4_12 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
@@ -685,7 +685,6 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 }
                 currentCellOffset3 = smapPrepareRoomReveal(arg0, arg1, 3, temp_17, temp_16, &savedRoomRow3, &savedRoomColumn3, &columnReference, &workingRow);
                 smapRevealRoomFootprint(arg0, arg1, 3, temp_17, temp_16, currentCellOffset3, savedRoomColumn3, &columnReference, &workingRow);
-                return;
             } else if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_3_10 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_3_10 |= (1 << ((s32)arg0)) & 0xFFFF;
