@@ -1977,6 +1977,12 @@ query_complete:
  * Two product locals (lenX/lenZ) stop the codegen MAC fusion (the backend fuses later, without an
  * adda zero), but stk40[1] = 0.0f then stores sw $zero (46). Retail's swc1 $f1 proves the codegen
  * adda zero exists and is CSE'd into that store.
+ * The fold is backend CSE (after_remove_common_subexpressions forwards the fcopy into the test
+ * and the subtract); the replay closes with the sqrt node anywhere from 60 to just below r175.
+ * A conditional definition keeps the declared web but adds a guard (+4 per block) and merges
+ * the sqrt with the call-crossing amount ($f21). A read+write two-step, a separate amount local,
+ * a named branch zero and a duplicated sqrt (85) all fail. The P3FES twin FUN_001d5220 is itself
+ * NONMATCHING; matched func_001ec350 returns the length, so it has no local web (build/bdd0_*.c).
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
