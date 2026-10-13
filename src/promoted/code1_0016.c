@@ -1966,6 +1966,10 @@ query_complete:
  * r175) gives retail's $f2/$f1/$f2 to every value. FPR copies always fold, so the sqrt result stays a codegen
  * temporary after the seed; an inline length helper, a separate sum local, __sqrt, alias copies and
  * condition spellings all measured 39.
+ * 2026-10-13: FPR replay (000398 snapshot) closes all three regions once the
+ * sqrt result r176 is numbered anywhere before the inline 0.0f r175, i.e. when
+ * temp_v11_a survives copy propagation; a radius-test inline helper (copy use)
+ * booleanises the test (70).
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
