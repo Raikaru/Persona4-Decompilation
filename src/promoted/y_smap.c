@@ -233,6 +233,9 @@ s32 func_002ac740(void) {
  * parameter reassignment on another path and 1200-block functions; no other opt_ pragma moves 290.
  * The allocator's remat predicate (0x0049bb20) clones only constants/LA, so retail's per-use andi are
  * separate source conversions the frontend CSE (candidate test 0x004d06a0) never merged.
+ * Dual micro (build/micro_src/pp_*.c): no single opt_ pragma removes the mask shadow while keeping
+ * the backend's call-constant sharing; stores, calls and every mask/cast/parameter-type spelling
+ * leave the shadow in place (mk_*.c). Only asm store statements kill frontend-CSE availability.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
