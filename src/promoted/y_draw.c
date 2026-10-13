@@ -705,7 +705,6 @@ static inline s16 yDrawAnyBit(s32 flags)
 s32 func_002b6ec0(u8 *arg0) {
     s32 off;
     u32 entryOffset;
-    u8 *table;
     s16 *queue;
     s16 i;
     s32 count;
@@ -717,11 +716,11 @@ s32 func_002b6ec0(u8 *arg0) {
     u8 *b2;
     s16 fl;
 
-    table = *(u8 **)(arg0 + 0x38);
-    *(s16 *)(table + 0x30C04) = 0;
+    queue = *(s16 **)(arg0 + 0x38);
+    *(s16 *)(((u8 *)queue) + 0x30C04) = 0;
     i = 0;
     while (i < 0x30C) {
-        *(s16 *)(table + (s32)i * 2 + 0x30C06) = 0;
+        *(s16 *)(((u8 *)queue) + (s32)i * 2 + 0x30C06) = 0;
         e = YDRAW_BASE;
         off = (s32)i << 8;
         e += (s32)off;
@@ -750,7 +749,7 @@ s32 func_002b6ec0(u8 *arg0) {
                     func_0025ecd0(
                         *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                         color, d[0x72], *(s16 *)(d + 8),
-                        *(void **)(table + 0), 0, *(s16 *)(d + 0x10),
+                        *(void **)(((u8 *)queue) + 0), 0, *(s16 *)(d + 0x10),
                         *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4),
                         *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
                 } else {
@@ -775,7 +774,7 @@ s32 func_002b6ec0(u8 *arg0) {
                     func_0025ecd0(
                         *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                         color, d[0x72], *(s16 *)(d + 8),
-                        *(void **)(table + 0), 0, *(s16 *)(d + 0x10),
+                        *(void **)(((u8 *)queue) + 0), 0, *(s16 *)(d + 0x10),
                         *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4),
                         *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
                 } else {
@@ -794,7 +793,7 @@ s32 func_002b6ec0(u8 *arg0) {
                 func_0025ecd0(
                     *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                     color, d[0x72], *(s16 *)(d + 8),
-                    *(void **)(table + 0), 1, *(s16 *)(d + 0x10),
+                    *(void **)(((u8 *)queue) + 0), 1, *(s16 *)(d + 0x10),
                     *(s16 *)(d + 0x12), *(f32 *)(d + 0xD4), *(f32 *)(d + 0xA4),
                     *(f32 *)(d + 0xB0), D_00793E80 + *(s32 *)(d + 0xC) * 0x30);
             } else {
@@ -810,7 +809,6 @@ s32 func_002b6ec0(u8 *arg0) {
                 }
             }
             /* Only entries active on loop entry belong in this list. */
-            queue = (s16 *)table;
             count = queue[0x18602];
             queue[count + 0x18603] = i;
             (queue[0x18602])++;
