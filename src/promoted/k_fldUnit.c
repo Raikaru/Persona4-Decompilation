@@ -248,301 +248,438 @@ s32 func_00162c30(void)
 }
 /* measured: restore common-subexpression elimination after func_00162c30. */
 #pragma opt_common_subs on
-/* measured: floor 639 differing words (reloc-masked), object 2992B vs 2944B window, 748 vs 736 instrs (1.6% over, within 3%), 481 fnalign edits plus 5 reloc-only.
-   Honest re-derivation from retail window + build/m2c/func_00162e10.c with file levers: opt_common_subs/propagation off preserves the second D_007EF9B0
-   materialization after the allocator call (like func_00162c30); three Frame triples sp90/spA0/spB0 for the 60/35/400/120/200 scaling and normalize live range;
-   block-scope 5-iter/8-copy/0x40 counters (stops the counter claiming a callee-saved register where retail uses $a1, per 001679d0 158->153);
-   real switch on i; (s16)/(s8) idiom for func_001060b0/func_00110960 like code1_0016 func_001623f0; (u32) float casts for the lbu branchy (u32->f32);
-   three func_00155280 calls for the 0x44/0x45/0x59 grid key. v1 687 -> v2/v3 639 via honest (u32) casts (u8 kind, lbu).
-   Residual is scheduling/coloring (daddiu vs addiu, $s1/$s2/$s3 rotation, frame 0xB0 vs retail 0xC0) + entry b vs moves. Production stays ASM. */
-/* 2026-10-07: guarded body rewritten from retail asm under default pragmas
-   (fnalign 458 -> 180). It uses the vector and matrix struct copies (retail
-   groups the three loads before the stores), the spB0/spA0/sp90 declaration
-   order for retail's frame, the reused loop value in the D_005F1350 scan, and
-   the chained spA0 assignment. Open: retail recomputes D_007EF9B0 + i * 0x750
-   in every block. IRO_CommonSubs merges every spelling of that product, and
-   opt_common_subs off costs more elsewhere (315).
-   2026-10-08: opt_dead_assignments off and opt_lifetimes on lowers fnalign from 180 to 173 edits. */
-/* 2026-10-09: 173 -> 159 edits. Retail copies the 64-byte matrix as eight lw/lw/sw/sw rounds, so FieldMatrixCopy is s32 words (word aligned), not bytes. Open: retail recomputes D_007EF9B0 + i * 0x750 at each later use (fresh entry/cur locals) instead of reusing slot, while still sharing other expressions; opt_common_subs off (301), opt_propagation off (380) and struct-array indexing (279) do not reproduce that alone.
- * 2026-10-09: 159 -> 156: the unit-table address goes through a static inline
- * accessor; retail recomputes it (`mult` by 0x750) at most of its uses instead of
- * reusing `slot`.
- * 2026-10-09: 156 -> 139: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 137: conversion lever (cur:(0, 2)).
- * 136: conversion lever (grid:(0,)).
- * sdiff 22/115 -> 14/103: both entry blocks recompute the 0x750 slot address with a converted index (retail mult per block).
- * sdiff 14/103 -> 13/103: first entry block multiplies (s32)i.
- * sdiff 13/103 -> 12/96: resource slot address formed after the id call (retail reuses entry's register).
- * sdiff 12/96 -> 8/91: memset block recomputes the slot with a u16 index (retail mult).
- * sdiff 8/91 -> 7/90: memset block index (s32)(u32)i.
- * sdiff 7/90 -> 6/88: mdlGetMatrix takes *cfg (retail loads it once; the extra dereference was wrong).
- * sdiff 6/88 -> 4/86: id narrowed to u16 before the resource slot address is formed (retail order).
- * struct 0: the weekday test is `if (... == 1) { found = 0; } else { scan }` (retail's bne/b shape).
- * sdiff 0/6: i declared before mtx. Left: found/k take $s6/$s5 where retail has $s5/$s6 (scores 3/4 equal to retail's reference counts; whatif renumbering of found, k and their 17 common neighbours finds no hit).
- * measured 2026-10-12: fnalign 9 -> 2; count the first hit with found++ (the immediate break bounds it to one), raising r42's spill score 3 -> 4 and restoring found/k to $s5/$s6. Remaining: node-loop entry branch and addiu's source ($s5 rather than $zero).
- * fnalign 2 -> 1: the node search walks a separate scan pointer (its copy keeps the then-block entry jump, so the node test branches to it as retail does).
+/* Initialize the four occupied party slots that do not yet have scene resources:
+ * attach models and placements, apply the leader's calendar/room animation rule,
+ * position the party, then create follower controllers and reset per-unit state.
+ *
+ * measured: readability/type recovery preserves 736 instructions and ONE fnalign
+ * edit. The remaining question is confined to foundEligibleRoom's first-hit store:
+ *
+ *     retail:    addiu $s5, $zero, 1
+ *     candidate: addiu $s5, $s5,   1
+ *
+ * The immediate break bounds the count to one, so behavior is unchanged. Writing
+ * foundEligibleRoom = 1 instead gives the correct store but swaps its register
+ * with roomIndex's (8 edits). This is an unresolved lifetime/allocation detail,
+ * not a demonstrated compiler floor. The separate placementCursor is intentional:
+ * its copy preserves retail's node-loop entry branch (the previous 2 -> 1 fix).
+ *
+ * The typed views below document observed offsets; unknown fields remain unnamed.
+ * Per-phase slot lookups and integer-domain address conversions preserve retail's
+ * recomputations. Matrix/vector copies retain their original word-aligned layout.
  */
 // FUN_00162E10 NONMATCHING
 #ifdef NON_MATCHING
+#include "rw/std/stddef.h"
 #pragma push
+/* measured: dead assignments off + lifetimes on took 180 -> 173 edits;
+ * both remain required by the current one-edit candidate. */
 #pragma opt_dead_assignments off
 #pragma opt_lifetimes on
-static inline u8 *fieldUnitSlotAt(const s32 *index)
+/* The current field's prefix and each sentinel-terminated table entry share
+ * this key layout. iGpffff9db0 points to the current field/room state;
+ * D_005F1350 terminates when fieldId is -1.
+ */
+typedef struct {
+    s32 fieldId;
+    s32 roomId;
+} FieldUnitRoomKey;
+
+typedef struct {
+    u8 unknown00[9];
+    u8 direction;                        /* 0x09: quarter-turn orientation */
+    u8 unknown0A[6];
+} FieldUnitGridCell;                     /* 0x10-byte cell, 0x100-byte row */
+
+/* Only the header and first row are described; later rows use a 0x100-byte
+ * displacement from this view. This is not the complete grid allocation. */
+typedef struct {
+    u8 unknown00[0x44];
+    u8 spawnColumn;                      /* 0x44 */
+    u8 spawnRow;                         /* 0x45 */
+    u8 unknown46[0xA];
+    FieldUnitGridCell cells[16];          /* 0x50: first-row view only */
+} FieldUnitGridView;
+
+/* Partial object views recovered from the accesses below and the constructors
+ * func_00145540 (scene resource) and func_00163990 (0x750-byte unit).
+ * Unknown bytes describe real, unclassified fields, not extra storage.
+ */
+typedef struct FieldUnitPlacement {
+    u16 resourceId;                       /* 0x000: low 10 bits are the ID */
+    u8 unknown002[0x136];
+    struct FieldUnitPlacement *next;      /* 0x138 */
+    u8 unknown13C[4];
+    RwV3d position;                       /* 0x140 */
+    f32 yawDegrees;                       /* 0x14C */
+} FieldUnitPlacement;
+
+typedef struct {
+    u8 flags;                            /* bit 0 is changed by the date test */
+    u8 unknown01[3];
+    void *resource;                       /* 0x04 */
+    u8 unknown08[4];
+} FieldUnitAnimationLayer;                /* 0x0C bytes */
+
+typedef struct {
+    u8 unknown000[0xD4];
+    u16 kind;                            /* 0x0D4 */
+    u8 unknown0D6[0x1B6];
+    FieldUnitAnimationLayer layers[5];    /* 0x28C */
+} FieldUnitModelView;
+
+typedef struct {
+    u16 resourceId;                       /* 0x000 */
+    u8 unknown002[0x162];
+    FieldUnitModelView *model;            /* 0x164 */
+    u8 unknown168[0xB8];
+    u8 *movementTask;                     /* 0x220: position/yaw/radius */
+    u8 *effectTask;                       /* 0x224 */
+    Model *markerModel;                   /* 0x228: scaled by the radius */
+} FieldUnitSceneResource;
+
+typedef struct {
+    f32 value0;
+    f32 value1;
+} FieldUnitSamplePair;
+
+typedef struct {
+    u8 unknown000[0x48];
+    void *unitData;                       /* 0x048: NULL means unused */
+    void *modelData;                      /* 0x04C */
+    FieldUnitModelView *model;            /* 0x050 */
+    FieldUnitSceneResource *scene;        /* 0x054: NULL until initialized */
+    u16 placementId;                      /* 0x058 */
+    u8 unknown05A[2];
+    FieldUnitPlacement placementStorage; /* 0x05C */
+    FieldUnitPlacement *placement;        /* 0x1AC */
+    s32 followerTask;                     /* 0x1B0: follows the previous unit */
+    u8 unknown1B4[0x1C];
+    u8 state1D0[0x40];
+    FieldUnitSamplePair samples[0x40];    /* 0x210 */
+    u8 state410[0x300];
+    u8 unknown710[0x18];
+    u16 characterId;                      /* 0x728: datGetPartyId result */
+    u8 unknown72A[0x26];
+} FieldUnitRecord;                       /* 0x750 bytes */
+
+/* Keep the index product separate from the model load, as retail does. */
+static inline FieldUnitAnimationLayer *fieldUnitLayerAt(FieldUnitRecord *unit, s32 index)
 {
-    return D_007EF9B0 + (*index * 0x750);
+    return (FieldUnitAnimationLayer *)(
+        *(u8 **)((u8 *)unit + (s32)offsetof(FieldUnitRecord, model)) +
+        index * (s32)sizeof(FieldUnitAnimationLayer) +
+        (s32)offsetof(FieldUnitModelView, layers));
+}
+
+/* Preserve the byte-address addition used for the two adjacent samples. */
+static inline FieldUnitSamplePair *fieldUnitSampleAt(FieldUnitRecord *unit, s32 index)
+{
+    return (FieldUnitSamplePair *)((u8 *)unit +
+        index * (s32)sizeof(FieldUnitSamplePair) +
+        (s32)offsetof(FieldUnitRecord, samples));
+}
+
+/* Taking the index address retains retail's separate per-phase lookups. */
+static inline FieldUnitRecord *fieldUnitSlotAt(const s32 *index)
+{
+    return (FieldUnitRecord *)(D_007EF9B0 + (*index * 0x750));
 }
 
 void func_00162e10(void)
 {
+    /* Word-aligned RenderWare matrix view; retail copies all 64 bytes. */
     typedef struct {
-        s32 words[0x10];
-    } FieldMatrixCopy;
-    typedef struct {
-        f32 x, y, z;
-    } FieldVec3;
+        RwV3d right;       /* 0x00 */
+        u32 flags;        /* 0x0C */
+        RwV3d up;          /* 0x10 */
+        u32 pad1C;
+        RwV3d forward;     /* 0x20 */
+        u32 pad2C;
+        RwV3d position;    /* 0x30 */
+        u32 pad3C;
+    } FieldUnitMatrix;
     extern u8 *func_003e0f80(void);
     extern void func_003e0f40(u8 *arg0);
     extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
+    extern void func_00168780(u8 *task, f32 radius);
+    extern f32 func_00168770(u8 *task);
+    extern void func_00168730(u8 *task, s32 flags);
+    extern void func_00168ae0(u8 *task, u8 *position);
+    extern void func_0017b9a0(u8 *task, f32 radius);
     extern s32 func_0014a160(void);
     extern s32 func_001060c0(void);
-    extern s32 func_00110680(s32 arg0, s32 arg1, s32 arg2);
-    extern s32 func_00110960(s16 arg0, s32 arg1);
-    extern s32 func_00145540(u16 arg0, u8 arg1, u8 *arg2);
-    extern void func_00479940(u8 *arg0, s32 arg1, s16 arg2, s32 arg3, s32 arg4);
-    extern s32 D_005F1350[];
+    extern s32 func_00110680(s32 date, s32 month, s32 day);
+    extern s64 func_00110960(s32 date, u32 phase);
+    extern s32 func_00145540(u16 index, u16 variant, void *model);
+    extern FieldUnitRoomKey D_005F1350[]; /* Calendar-eligible field/room pairs. */
     extern f32 D_007615DC;
-    f32 spB0[3];
-    f32 spA0[3];
-    f32 sp90[3];
-    s32 i;
-    u8 *mtx;
-    u8 kind;
-    u8 *slot;
-    u8 **res;
-    u8 **cfg;
+    RwV3d formationOffset;
+    RwV3d markerScale;
+    RwV3d spawnPosition;
+    s32 partyIndex;
+    FieldUnitMatrix *formationMatrix;
+    u16 resourceVariant;
+    FieldUnitRecord *unit;
+    FieldUnitSceneResource **sceneResource;
+    FieldUnitModelView **characterModel;
 
-    mtx = func_003e0f80();
-    for (i = 0; i < 4; i++) {
-        kind = 1;
-        slot = D_007EF9B0 + i * 0x750;
-        if (*(s32 *)(slot + 0x48) == 0) {
+    formationMatrix = (FieldUnitMatrix *)func_003e0f80();
+    for (partyIndex = 0; partyIndex < 4; partyIndex++) {
+        resourceVariant = 1;
+        unit = (FieldUnitRecord *)(D_007EF9B0 + partyIndex * 0x750);
+        if (unit->unitData == NULL) {
             continue;
         }
-        res = (u8 **)(slot + 0x54);
-        if (*(u8 **)(slot + 0x54) != NULL) {
+        sceneResource = &unit->scene;
+        if (unit->scene != NULL) {
             continue;
         }
-        if (func_0015a160() != 0 && func_00162510(((u16 *)iGpffff9db0)[0], ((u16 *)iGpffff9db0)[2]) == 0) {
-            kind = 3;
+        if (func_0015a160() != 0 &&
+            func_00162510(((u16 *)iGpffff9db0)[0],
+                          ((u16 *)iGpffff9db0)[2]) == 0) {
+            resourceVariant = 3;
         }
+        /* Register this model with the scene and initialize its attached effect. */
         {
-            u8 *entry = D_007EF9B0 + (s32)i * 0x750;
+            FieldUnitRecord *unitForSetup =
+                (FieldUnitRecord *)(D_007EF9B0 + (s32)partyIndex * 0x750);
 
-            u8 **resource;
-            u16 id;
+            FieldUnitSceneResource **createdResource;
+            u16 resourceId;
 
-            cfg = (u8 **)(entry + 0x50);
-            id = func_00145540(i, kind, *(u8 **)(entry + 0x50));
-            resource = (u8 **)(entry + 0x54);
-            *resource = (u8 *)MT_Scene_GetRes(id);
-            func_0017b9a0(*(s32 *)(*resource + 0x224), 60.0f);
+            characterModel = &unitForSetup->model;
+            resourceId = func_00145540(partyIndex, resourceVariant, unitForSetup->model);
+            createdResource = &unitForSetup->scene;
+            *createdResource = (FieldUnitSceneResource *)MT_Scene_GetRes(resourceId);
+            func_0017b9a0((*createdResource)->effectTask, 60.0f);
         }
+        /* Look up the placement resource. When both the list and ID are absent,
+         * retail leaves the existing unit->placement untouched. */
         {
-            u8 *node = func_001452b0(0xE);
+            FieldUnitPlacement *placementHead =
+                (FieldUnitPlacement *)func_001452b0(0xE);
 
-            if (node != NULL || *(u16 *)(slot + 0x58) != 0xFFFF) {
-                u8 *scan = node;
+            if (placementHead != NULL || unit->placementId != 0xFFFF) {
+                FieldUnitPlacement *placementCursor = placementHead;
 
-                while (scan != NULL) {
-                    if ((*(u16 *)scan & 0x3FF) == *(u16 *)(slot + 0x58)) {
+                while (placementCursor != NULL) {
+                    if ((placementCursor->resourceId & 0x3FF) == unit->placementId) {
                         break;
                     }
-                    scan = *(u8 **)(scan + 0x138);
+                    placementCursor = placementCursor->next;
                 }
-                *(u8 **)(slot + 0x1AC) = scan;
+                unit->placement = placementCursor;
             }
         }
-        if (i == 0) {
-            func_00168780(*(s32 *)(*res + 0x220), 60.0f);
-            if (*(u16 *)(*cfg + 0xD4) != 1) {
-                s32 found = 0;
+        /* Only the leader applies the calendar/room test to animation flags. */
+        if (partyIndex == 0) {
+            func_00168780((*sceneResource)->movementTask, 60.0f);
+            if ((*characterModel)->kind != 1) {
+                s32 foundEligibleRoom = 0;
 
+                /* func_00110680 tests the current month/day: March 20 bypasses. */
                 if (func_00110680((s16)func_001060b0(), 3, 0x14) == 1) {
-                    found = 0;
+                    foundEligibleRoom = 0;
                 } else {
-                    s32 k;
-                    s32 v;
+                    s32 roomIndex;
+                    s32 entryFieldId;
 
-                    s32 *e;
+                    FieldUnitRoomKey *roomEntry;
 
-                    for (k = 0; (v = *(e = &D_005F1350[k * 2])) != -1; k++) {
-                        if (((s32 *)iGpffff9db0)[0] == v && ((s32 *)iGpffff9db0)[1] == e[1]) {
-                            s16 day = func_001060b0();
-                            s8 odd = func_00110960(day, func_001060c0() & 0xFF);
+                    for (roomIndex = 0;
+                         (entryFieldId = (roomEntry = &D_005F1350[roomIndex])->fieldId) != -1;
+                         roomIndex++) {
+                        if (((FieldUnitRoomKey *)iGpffff9db0)->fieldId == entryFieldId &&
+                            ((FieldUnitRoomKey *)iGpffff9db0)->roomId == roomEntry->roomId) {
+                            s32 calendarDay = (s16)func_001060b0();
+                            s8 calendarValue =
+                                func_00110960(calendarDay, func_001060c0() & 0xFF);
 
-                            if (odd % 2 != 0) {
-                                found++;
+                            /* The signed calendar value can be negative; keep % 2. */
+                            if (calendarValue % 2 != 0) {
+                                /* Sole mismatch: retail adds 1 to $zero, not $s5.
+                                 * The immediate break still bounds this count to one. */
+                                foundEligibleRoom++;
                                 break;
                             }
                         }
                     }
                 }
-                if (found == 0) {
-                    s32 j;
+                if (foundEligibleRoom == 0) {
+                    s32 layerIndex;
 
-                    for (j = 0; j < 5; j++) {
-                        *(u8 *)(*(u8 **)(slot + 0x50) + j * 0xC + 0x28C) &= ~1;
+                    for (layerIndex = 0; layerIndex < 5; layerIndex++) {
+                        fieldUnitLayerAt(unit, layerIndex)->flags &= ~1;
                     }
                 } else {
-                    s32 j;
+                    s32 layerIndex;
 
-                    for (j = 0; j < 5; j++) {
-                        *(u8 *)(*(u8 **)(slot + 0x50) + j * 0xC + 0x28C) |= 1;
+                    for (layerIndex = 0; layerIndex < 5; layerIndex++) {
+                        fieldUnitLayerAt(unit, layerIndex)->flags |= 1;
                     }
                 }
-                func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(fieldUnitSlotAt(&i) + 0x728)), 0, 1);
+                func_00479940((u8 *)*characterModel, 0,
+                              func_0016fd00(fieldUnitSlotAt(&partyIndex)->characterId), 0, 1);
             }
         } else {
-            func_00168780(*(s32 *)(*res + 0x220), 35.0f);
+            func_00168780((*sceneResource)->movementTask, 35.0f);
         }
+        /* Scale the marker, then obtain the spawn position and yaw. */
         {
-            u8 *entry = D_007EF9B0 + (u32)i * 0x750;
-            u8 **model = (u8 **)(entry + 0x54);
-            f32 scale;
-            u8 *aux;
+            FieldUnitRecord *unitForSetup =
+                (FieldUnitRecord *)(D_007EF9B0 + (u32)partyIndex * 0x750);
+            FieldUnitSceneResource **setupResource = &unitForSetup->scene;
+            f32 markerScaleValue;
+            FieldUnitPlacement *placement;
 
-            *(u32 **)(*model + 0x228) = func_00478750((u8 *)iGpffffb274);
-            scale = func_00168770(*(s32 *)(*model + 0x220));
-            spA0[0] = spA0[1] = spA0[2] = scale;
-            mdlScale(*(Model **)(*model + 0x228), (const RwV3d *)spA0, 2);
-            func_00478e70(*(u8 **)(*model + 0x228));
-            aux = *(u8 **)(entry + 0x1AC);
-            if (aux == NULL) {
-                u8 *grid;
-                s32 r;
+            (*setupResource)->markerModel = (Model *)func_00478750((u8 *)iGpffffb274);
+            markerScaleValue = func_00168770((*setupResource)->movementTask);
+            markerScale.x = markerScale.y = markerScale.z = markerScaleValue;
+            mdlScale((*setupResource)->markerModel, &markerScale, 2);
+            func_00478e70((u8 *)(*setupResource)->markerModel);
+            placement = unitForSetup->placement;
+            if (placement == NULL) {
+                FieldUnitGridView *gridRow;
 
-                sp90[0] = 1200.0f * (f32)(u32)*((u8 *)func_00155280() + 0x44);
-                sp90[1] = 2.0f;
-                sp90[2] = 1200.0f * (f32)(u32)*((u8 *)func_00155280() + 0x45);
-                entry = fieldUnitSlotAt(&i);
-                grid = (u8 *)func_00155280() + (*((u8 *)func_00155280() + 0x45) << 8);
-                func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, 90.0f * (f32)((*((u8 *)(u32)grid + (*((u8 *)func_00155280() + 0x44) << 4) + 0x59) + 2) % 4));
-                func_00479940(*cfg, 0, func_0016fd00(*(u16 *)(entry + 0x728)), 0, 1);
-                *(FieldMatrixCopy *)mtx = *(FieldMatrixCopy *)mdlGetMatrix(*(void **)(*(u8 **)D_007EFA04 + 0x164));
-                if (i == 0 && func_0014a160() != 0) {
-                    *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x20);
-                    RwV3dNormalize(spB0, spB0);
-                    spB0[0] *= 400.0f;
-                    spB0[1] *= 400.0f;
-                    spB0[2] *= 400.0f;
-                    sp90[0] += spB0[0];
-                    sp90[1] += spB0[1];
-                    sp90[2] += spB0[2];
+                /* Keep the separate grid queries and unsigned byte-to-float casts. */
+                spawnPosition.x = 1200.0f *
+                    (f32)(u32)((FieldUnitGridView *)func_00155280())->spawnColumn;
+                spawnPosition.y = 2.0f;
+                spawnPosition.z = 1200.0f *
+                    (f32)(u32)((FieldUnitGridView *)func_00155280())->spawnRow;
+                unitForSetup = fieldUnitSlotAt(&partyIndex);
+                gridRow = (FieldUnitGridView *)((u8 *)func_00155280() +
+                    (((FieldUnitGridView *)func_00155280())->spawnRow << 8));
+                func_00168de0((*sceneResource)->movementTask, D_00756510,
+                    90.0f * (f32)((((FieldUnitGridView *)(u32)gridRow)->cells[
+                        ((FieldUnitGridView *)func_00155280())->spawnColumn].direction + 2) % 4));
+                func_00479940((u8 *)*characterModel, 0,
+                              func_0016fd00(unitForSetup->characterId), 0, 1);
+                *formationMatrix = *(FieldUnitMatrix *)mdlGetMatrix(
+                    (*(FieldUnitSceneResource **)D_007EFA04)->model);
+                if (partyIndex == 0 && func_0014a160() != 0) {
+                    formationOffset = formationMatrix->forward;
+                    RwV3dNormalize(&formationOffset.x, &formationOffset.x);
+                    formationOffset.x *= 400.0f;
+                    formationOffset.y *= 400.0f;
+                    formationOffset.z *= 400.0f;
+                    spawnPosition.x += formationOffset.x;
+                    spawnPosition.y += formationOffset.y;
+                    spawnPosition.z += formationOffset.z;
                 }
             } else {
-                u8 **auxp = (u8 **)(D_007EF9B0 + i * 0x750 + 0x1AC);
+                FieldUnitPlacement **placementSlot =
+                    &((FieldUnitRecord *)(D_007EF9B0 + partyIndex * 0x750))->placement;
 
-                func_00168de0((u8 *)*(s32 *)(*res + 0x220), D_00756510, *(f32 *)(aux + 0x14C));
-                *(FieldVec3 *)sp90 = *(FieldVec3 *)(*auxp + 0x140);
+                func_00168de0((*sceneResource)->movementTask, D_00756510, placement->yawDegrees);
+                spawnPosition = (*placementSlot)->position;
             }
         }
-        *(FieldMatrixCopy *)mtx = *(FieldMatrixCopy *)mdlGetMatrix(*(void **)(*(u8 **)D_007EFA04 + 0x164));
-        switch (i) {
+        /* D_007EFA04 is the leader's scene-resource slot. Followers start at its
+         * current matrix position, not the not-yet-published spawnPosition. */
+        *formationMatrix = *(FieldUnitMatrix *)mdlGetMatrix(
+            (*(FieldUnitSceneResource **)D_007EFA04)->model);
+        switch (partyIndex) {
         case 0:
-            func_00168ae0(*(s32 *)(*res + 0x220), sp90);
+            func_00168ae0((*sceneResource)->movementTask, (u8 *)&spawnPosition);
             break;
-        case 1:
-            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x0);
-            RwV3dNormalize(spB0, spB0);
-            spB0[0] *= 60.0f;
-            spB0[1] *= 60.0f;
-            spB0[2] *= 60.0f;
-            *(f32 *)(mtx + 0x30) += spB0[0];
-            *(f32 *)(mtx + 0x34) += spB0[1];
-            *(f32 *)(mtx + 0x38) += spB0[2];
-            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x20);
-            RwV3dNormalize(spB0, spB0);
-            spB0[0] = -spB0[0];
-            spB0[1] = -spB0[1];
-            spB0[2] = -spB0[2];
-            spB0[0] *= 60.0f;
-            spB0[1] *= 60.0f;
-            spB0[2] *= 60.0f;
-            *(f32 *)(mtx + 0x30) += spB0[0];
-            *(f32 *)(mtx + 0x34) += spB0[1];
-            *(f32 *)(mtx + 0x38) += spB0[2];
-            func_00168ae0(*(s32 *)(*res + 0x220), mtx + 0x30);
+        case 1: /* 60 right, 60 behind the leader. */
+            formationOffset = formationMatrix->right;
+            RwV3dNormalize(&formationOffset.x, &formationOffset.x);
+            formationOffset.x *= 60.0f;
+            formationOffset.y *= 60.0f;
+            formationOffset.z *= 60.0f;
+            formationMatrix->position.x += formationOffset.x;
+            formationMatrix->position.y += formationOffset.y;
+            formationMatrix->position.z += formationOffset.z;
+            formationOffset = formationMatrix->forward;
+            RwV3dNormalize(&formationOffset.x, &formationOffset.x);
+            formationOffset.x = -formationOffset.x;
+            formationOffset.y = -formationOffset.y;
+            formationOffset.z = -formationOffset.z;
+            formationOffset.x *= 60.0f;
+            formationOffset.y *= 60.0f;
+            formationOffset.z *= 60.0f;
+            formationMatrix->position.x += formationOffset.x;
+            formationMatrix->position.y += formationOffset.y;
+            formationMatrix->position.z += formationOffset.z;
+            func_00168ae0((*sceneResource)->movementTask, (u8 *)&formationMatrix->position);
             break;
-        case 2:
-            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x0);
-            RwV3dNormalize(spB0, spB0);
-            spB0[0] = -spB0[0];
-            spB0[1] = -spB0[1];
-            spB0[2] = -spB0[2];
-            spB0[0] *= 60.0f;
-            spB0[1] *= 60.0f;
-            spB0[2] *= 60.0f;
-            *(f32 *)(mtx + 0x30) += spB0[0];
-            *(f32 *)(mtx + 0x34) += spB0[1];
-            *(f32 *)(mtx + 0x38) += spB0[2];
-            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x20);
-            RwV3dNormalize(spB0, spB0);
-            spB0[0] = -spB0[0];
-            spB0[1] = -spB0[1];
-            spB0[2] = -spB0[2];
-            spB0[0] *= 120.0f;
-            spB0[1] *= 120.0f;
-            spB0[2] *= 120.0f;
-            *(f32 *)(mtx + 0x30) += spB0[0];
-            *(f32 *)(mtx + 0x34) += spB0[1];
-            *(f32 *)(mtx + 0x38) += spB0[2];
-            func_00168ae0(*(s32 *)(*res + 0x220), mtx + 0x30);
+        case 2: /* 60 left, 120 behind the leader. */
+            formationOffset = formationMatrix->right;
+            RwV3dNormalize(&formationOffset.x, &formationOffset.x);
+            formationOffset.x = -formationOffset.x;
+            formationOffset.y = -formationOffset.y;
+            formationOffset.z = -formationOffset.z;
+            formationOffset.x *= 60.0f;
+            formationOffset.y *= 60.0f;
+            formationOffset.z *= 60.0f;
+            formationMatrix->position.x += formationOffset.x;
+            formationMatrix->position.y += formationOffset.y;
+            formationMatrix->position.z += formationOffset.z;
+            formationOffset = formationMatrix->forward;
+            RwV3dNormalize(&formationOffset.x, &formationOffset.x);
+            formationOffset.x = -formationOffset.x;
+            formationOffset.y = -formationOffset.y;
+            formationOffset.z = -formationOffset.z;
+            formationOffset.x *= 120.0f;
+            formationOffset.y *= 120.0f;
+            formationOffset.z *= 120.0f;
+            formationMatrix->position.x += formationOffset.x;
+            formationMatrix->position.y += formationOffset.y;
+            formationMatrix->position.z += formationOffset.z;
+            func_00168ae0((*sceneResource)->movementTask, (u8 *)&formationMatrix->position);
             break;
-        case 3:
-            *(FieldVec3 *)spB0 = *(FieldVec3 *)(mtx + 0x20);
-            RwV3dNormalize(spB0, spB0);
-            spB0[0] = -spB0[0];
-            spB0[1] = -spB0[1];
-            spB0[2] = -spB0[2];
-            spB0[0] *= 200.0f;
-            spB0[1] *= 200.0f;
-            spB0[2] *= 200.0f;
-            *(f32 *)(mtx + 0x30) += spB0[0];
-            *(f32 *)(mtx + 0x34) += spB0[1];
-            *(f32 *)(mtx + 0x38) += spB0[2];
-            func_00168ae0(*(s32 *)(*res + 0x220), mtx + 0x30);
+        case 3: /* 200 behind the leader. */
+            formationOffset = formationMatrix->forward;
+            RwV3dNormalize(&formationOffset.x, &formationOffset.x);
+            formationOffset.x = -formationOffset.x;
+            formationOffset.y = -formationOffset.y;
+            formationOffset.z = -formationOffset.z;
+            formationOffset.x *= 200.0f;
+            formationOffset.y *= 200.0f;
+            formationOffset.z *= 200.0f;
+            formationMatrix->position.x += formationOffset.x;
+            formationMatrix->position.y += formationOffset.y;
+            formationMatrix->position.z += formationOffset.z;
+            func_00168ae0((*sceneResource)->movementTask, (u8 *)&formationMatrix->position);
             break;
         }
-        if (i != 0) {
-            u8 *cur = fieldUnitSlotAt(&i);
+        /* Each follower tracks the preceding party member. */
+        if (partyIndex != 0) {
+            FieldUnitRecord *unitForUpdate = fieldUnitSlotAt(&partyIndex);
 
-            *(s32 *)((u8 *)(u32)cur + 0x1B0) = func_0017e890(0, cur, D_007EF9B0 + (i - 1) * 0x750);
+            ((FieldUnitRecord *)(u32)unitForUpdate)->followerTask =
+                func_0017e890(0, (u8 *)unitForUpdate,
+                             D_007EF9B0 + (partyIndex - 1) * 0x750);
         }
         {
-            u8 *cur = fieldUnitSlotAt(&i);
-            u8 **curRes;
-            f32 fv;
-            s32 j;
+            FieldUnitRecord *unitForUpdate = fieldUnitSlotAt(&partyIndex);
+            FieldUnitSceneResource **resourceForUpdate;
+            f32 initialSampleValue;
+            s32 sampleIndex;
 
-            RwMatrixUpdate((u8 *)mdlGetMatrix((void *)*cfg));
-            curRes = (u8 **)((u8 *)(u32)cur + 0x54);
-            func_0014b0c0(**(u16 **)(cur + 0x54), 1);
-            func_00168730(*(s32 *)(*curRes + 0x220), 0x40000000);
-            j = 0;
-            fv = D_007615DC;
-            for (; j < 0x40; j++) {
-                *(f32 *)(cur + j * 8 + 0x210) = fv;
-                *(f32 *)(cur + j * 8 + 0x214) = fv;
+            RwMatrixUpdate((u8 *)mdlGetMatrix((void *)*characterModel));
+            resourceForUpdate = &((FieldUnitRecord *)(u32)unitForUpdate)->scene;
+            func_0014b0c0(unitForUpdate->scene->resourceId, 1);
+            func_00168730((*resourceForUpdate)->movementTask, 0x40000000);
+            sampleIndex = 0;
+            initialSampleValue = D_007615DC;
+            for (; sampleIndex < 0x40; sampleIndex++) {
+                fieldUnitSampleAt(unitForUpdate, sampleIndex)->value0 = initialSampleValue;
+                fieldUnitSampleAt(unitForUpdate, sampleIndex)->value1 = initialSampleValue;
             }
         }
         {
-            u8 *cur = D_007EF9B0 + (s32)(u32)i * 0x750;
+            FieldUnitRecord *unitForUpdate =
+                (FieldUnitRecord *)(D_007EF9B0 + (s32)(u32)partyIndex * 0x750);
 
-            memset(cur + 0x1D0, 0, 0x40);
-            memset(cur + 0x410, 0, 0x300);
+            memset(unitForUpdate->state1D0, 0, sizeof(unitForUpdate->state1D0));
+            memset(unitForUpdate->state410, 0, sizeof(unitForUpdate->state410));
         }
     }
-    func_003e0f40(mtx);
+    func_003e0f40((u8 *)formationMatrix);
 }
 #pragma pop
 #else
