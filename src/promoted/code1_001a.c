@@ -4377,7 +4377,7 @@ void func_001a7720(u8 *arg0) {
     s32 hitModeDelay;
     s32 isSkill16;
     s64 formationEndTime2;
-    s32 hitDelta;
+    u16 hitDelta;
     s32 hitFlags;
     s32 sameSideTarget;
     ActionHitRowView *hitRow;
@@ -5887,7 +5887,7 @@ void func_001a7720(u8 *arg0) {
             if (hitWait < (s32) hitTimer) {
                 hitWait = hitTimer;
             }
-            hitTimeTotal = hitTimeTotal + hitDelta;
+            hitTimeTotal += hitDelta;
             targetIndex += 1;
     }
     lateChainTime = animPacket->endTime;
