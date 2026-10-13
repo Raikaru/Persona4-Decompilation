@@ -4098,7 +4098,7 @@ s32 func_001bcc80(u8 *arg0) {
 
 
 // FUN_001BCCC0
-void func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
+u8 *func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
     u8 *temp_2;
     u8 *temp_3;
 
@@ -4109,6 +4109,7 @@ void func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
     *(s16 *)(temp_3 + 4) = arg1;
     *(s32 *)(temp_3 + 8) = arg2;
     *(s32 *)(temp_3 + 0xC) = arg3;
+    return temp_2;
 }
 
 /* Apply ordered visibility rules before testing the XZ camera segment.

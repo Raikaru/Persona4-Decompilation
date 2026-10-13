@@ -4014,202 +4014,78 @@ void func_001a7710(void)
 {
 }
 
-/* measured 001a7720 2026-09-19 (owner, landing Nb0012's draft): object 4498 against retail
-   4384 (+2.6%, band 4252-4516, 18 instructions of headroom), 1933 fnalign edits.  4384
-   instructions and no body until now - the second largest first-party function in the tree.
-   The landing was entirely width selection.  From the all-s32 draft the body is 3929
-   (-10.4%, far under); putting twelve s64 temporaries back overshoots to 4541 (+3.6%).
-   The variables are wildly unequal in cost: narrowing temp_23_2 alone is worth **556
-   instructions** (20 uses, each a dsll32/dsra32 pair), temp_30 is worth 32, temp_22 is
-   worth 11, and temp_18_2, sp490, sp470, var_2_12, var_17_3, sp468 and var_2_2 are all
-   worth exactly nothing - MWCC had already proved those values fit in 32 bits.
-   So the landing set is: the twelve-variable s64 draft, minus temp_22 and temp_30.
-   Measured neighbours, for anyone re-tuning: 4541 (v15 base), 4530 (-temp_22), 4529
-   (-temp_22 -temp_3_14 / -temp_3_15), 4528 (-temp_22 -temp_3_13), 4498 (this one), 3985
-   (-temp_23_2).  There is nothing between 4498 and 3985 because temp_23_2 is the only
-   remaining variable with real width cost. */
-/* measured 001a7720 (owner, 2026-09-19): fnalign **1933 -> 1931 edits**, count
-   4498 -> 4496 against retail 4384, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-/* measured 001a7720 2026-09-20 (over-length pass, P6): object 4496 -> 4392 against retail
-   4384 (+0.18%, band 4252-4516), fnalign 1931 -> 1735 edits (plus 32 reloc-only, was 2).
-   Checked cheap cause first: all float literals already carry `f`, but three `fptodp`
-   emulation calls remained from `extern s32 func_*();` prototypes promoting `var_f20` /
-   `var_f20_2` floats to double. Giving 001991c0/00199350/00199500/00199ee0 `s32` returns
-   with `f32` params (s16 returns cost +11 for auto-extension) removes all three `fptodp`
-   (4496 -> 4493, -46 edits); `s16` returns tie worse at 4507/1900. Changing the four
-   `0x3F800000` sites for 00199500/00199350 to `1.0f` rides along (int->float conversion
-   vs direct constant). Then: `var_f1 = (f32)temp_2_97` without the dead `>=0 / else
-   2.0f*...` unsigned-conversion branch (-12, the 2752-insert), and `temp_f2` / `var_f1_2`
-   without the redundant `(f32)(s32)` double casts (4479/1868). Holding `temp_30+base`
-   once in `temp_30_ptr` instead of recomputing at all 17 uses is -51 to 4428/1810 -
-   the recompute-vs-hold the brief names. Removing the `(*(u8**)iGpffffb3ac)` extra
-   indirection to direct `(iGpffffb3ac+off)` (38 sites, the file's own 001a4c80 pattern)
-   plus direct `b3b8/b3cc/b3bc` bases is -36 to this 4392/1735. Inner `loop_385`
-   while/goto -> `do/while` measured individually as 4392 -> 4374 (-18) but +50 edits,
-   so rejected; the banked outer do/while is left alone. Epilogue empty-if -> if/else
-   both calling 0x20 measured +13/-6, rejected for count. Frame stays 0x6f0 vs 0x5b0;
-   count is inside with 124 headroom, which is the primary goal. */
-
-/* 2026-10-03: all eleven animation creations use the canonical provider
-   signature. The opening query preserves its unused a0 word and narrows its
-   result as a signed halfword; the hit animation at 001aa23c is a signed byte.
-   Other reconstruction defects remain; keep this controller ASM-backed. */
-/* 2026-10-03: audited packet dependencies at +8/+0x18/+0x28 and owner UID
-   at +0x60 use retail ld/sd throughout; preserve their full 64-bit values.
-   Four saved dependency locals and the 001d65d0 UID formal are wide too.
- * 2026-10-09: 1489 -> 1486: the m2c label loops are while loops.
- * 2026-10-09: 1486 -> 1358: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 1346: comparison constants in retail's form.
- * 1320: type sweep.
- * 1316: cmp sweep.
- * 1286: type sweep.
- * 1280: type sweep.
- * 1279: cmp sweep.
- * 1267: conversion lever (temp_22_3:(1, 2)).
- * 2026-10-10: 1267 -> 1247 aligned edits by preserving the exclusive
- * main-unit versus fallback-unit hit-packet paths in opposite branch order.
- * The 001d2d90/001d3000 constructors return BtlPacket pointers.
- * sdiff struct 871 -> 652: opt_common_subs off (retail reloads every field; CSE hoisted and spilled field addresses).
- * sp450 stored straight from the s16 field, index reloaded from it; 32-bit flag test at iGpffffb3ac+0xC.
- * sp200/sp1E0 are s32 (retail spills them whole).
- * 0xEC/0xD8 test in retail polarity (arg0 branch first).
- * tail state switch (cases 1,3,2 shared; default separate) with the real btlActionSetState(BtlAction *, u16) prototype instead of the old-style local declaration.
- * real parameter types for btlCreateSetFlagsPacket, func_00194c90, func_0019b550, btlUnitCreateLookAtDeactivatePacket (pointers as void *).
- * 0x13/0x10 action selection as a var_2_13 flag test with the 0x13 call first (no goto block_408).
- * sp200 computed directly from the flag (no temp_2_3 copy); plain comparisons.
- * fnalign 966 -> 960: reused locals split per independent group.
- * fnalign 960 -> 959: equality tests written as switches (retail beq-per-case).
- * fnalign 959 -> 952: if/else arms in retail layout order (negated condition).
- * 2026-10-12 measured: fnalign 953 -> 917; restore retail-reaching sp30C/sp4CC definitions, u16 motion and word flags, and retain the skill offset while reloading its table base.
- * 2026-10-12 measured: fnalign 917 -> 907; typed partner view and a promoted flag snapshot restore the partner load before the second flag test.
- * 2026-10-12 measured: fnalign 907 -> 906 with scoped opt_propagation off; CSE-on and loop-invariant hoisting regress.
- * 2026-10-12 measured: fnalign 906 -> 901; test s32 predicate results without widening and retain the bounded random result's unsigned comparison.
- * 2026-10-12 frame audit: fnalign 901 -> 887; the hit-index snapshot belongs in the loop test, restoring retail's single quadword spill rather than two word-store sites.
- * 2026-10-12 row recovery: fnalign 887 -> 845; a typed hit-row base and direct stride assignment restore retail's quadword slots at 0x110/0x120 without redundant integer aliases.
- * 2026-10-12 scalar recovery: fnalign 845 -> 820; restore the short-circuit flag's quadword spill, the u16 skill snapshot, and the addressed-output API contracts.
- * 2026-10-12 retail dataflow: fnalign 820 -> 819; restore the outer loop's zero-target pretest (001a9790 -> 001aadd0), and remove the invented second argument to 00202740.
- * 2026-10-12 effect-table repair: fnalign 819 -> 817; retail 001AA458 loads a word from the global table directly, not an unaligned doubleword through its first entry.
- * 2026-10-12 conditional rebuild: fnalign 817 -> 810; disable branch-fed scalar rebuilding while retaining the existing scoped CSE/propagation settings.
- * 2026-10-12 reaction-index join: fnalign 810 -> 803; retain the signed-halfword conversion in a word-sized index, avoiding a second extension before the table lookup.
- * 2026-10-12 delay width: fnalign 803 -> 796; the bounded animation delay is a signed word, matching retail's ADDIU/SUBU rather than 64-bit extension and subtraction.
- * 2026-10-12 tail snapshots: fnalign 796 -> 792; keep the signed-halfword voice/count results in word-sized consumers rather than extending them again at later uses.
- * 2026-10-12 timing repair: fnalign 792 -> 786; retail extends the s16 query result before adding six and retains the word-sized sum, without the decompiler's post-add truncation.
- * 2026-10-12 tail predicates: fnalign 786 -> 779; test the native s32 action predicates directly, without widening their zero comparisons.
- * 2026-10-12 threshold widths: fnalign 779 -> 759; use native unsigned/signed word comparisons for bounded random and signed-halfword thresholds, without 64-bit promotion.
- * 2026-10-12 selector consumers: fnalign 759 -> 752; retain widened motion/effect selectors after their signed-halfword reads, eliminating repeated extensions.
- * 2026-10-12 duration repair: fnalign 752 -> 746; retain the full unsigned word sum and logical shift used by retail, rather than truncating the animation duration to u16.
- * 2026-10-12 windup duration: fnalign 746 -> 745; retain the signed word consumed by retail's arithmetic right shift at 001A81E8, rather than a logical shift.
- * 2026-10-12 skill lookup order: fnalign 745 -> 742; evaluate the 0x28-byte row offset before loading its global table base, matching retail's opening skill-flag read.
- * 2026-10-12 reaction count: fnalign 742 -> 740; pass the full word count to 001f99c0, matching retail's lw argument instead of the decompiler's u16 truncation.
- * 2026-10-12 reaction fallback: fnalign 740 -> 738; keep the fallback test chain inline and compare the bounded random result as unsigned, preserving the positive-byte guard.
- * 2026-10-12 camera packet frame: fnalign 738 -> 639, frame 0x5D0 -> retail 0x5B0; retain the canonical packet pointer directly in the persistent camera snapshot, without two redundant aliases and their coalesced spill object.
- * 2026-10-12 unit-table flag: fnalign 639 -> 637; normalize bit 0x40 before inverting the boolean, matching retail's sltu/xori pair rather than xor/sltiu.
- * 2026-10-12 scale clamp: fnalign 637 -> 629; retain each floating bound from its comparison for the clamp assignment, eliminating two redundant constant reloads while preserving the NaN path.
- * 2026-10-12 opening motion dispatch: fnalign 629 -> 626; restore the 0/0x11 switch and explicit default delay, retaining retail's two positive tests and branch-only default path.
- * 2026-10-12 final delay selection: fnalign 626 -> 623; recover the short-circuit conditional expression so its true and false results retain retail's explicit join.
- * 2026-10-12 reaction fast path: fnalign 623 -> 616; the outer gates branch directly to packet creation in retail, bypassing the nested eligibility result rather than materializing a second true value.
- * 2026-10-12 controller fallback: fnalign 616 -> 612; use a zero-result fallback instead of a one-case switch, preserving the nonzero return directly and removing the extra dispatch branch.
- * 2026-10-12 formation constructor contract: fnalign 612 -> 610; restore 001d3000's canonical u16 skill formal, loading it directly into the fourth argument instead of promoting it ahead of the pointer arguments.
- * 2026-10-12 per-hit speed reuse: fnalign 610 -> 602; pass the initialized animation-speed local to the duration query, matching retail's mov.s from the retained 1.0f value instead of reloading the constant.
- * 2026-10-12 hit-duration consumer: fnalign 602 -> 598; truncate the query into the persistent halfword first, then retain its widened unsigned value for both range tests and the float conversion instead of reloading it at each use.
- * 2026-10-12 last-hit index: fnalign 598 -> 597; derive it from the already-promoted hit-count snapshot rather than loading and widening the halfword count again.
- * 2026-10-12 hit-duration byte access: fnalign 597 -> 593; correct the selected-action unit read introduced above to byte offset 0x30 (retail 001AA1BC), not s32-pointer offset 0x30.
- * 2026-10-12 recovery constructor contract: fnalign 593 -> 590; use 00197cc0's signed-halfword skill/delay formals and pointer return, removing the default-argument promotion ahead of its unit argument.
- * 2026-10-12 recovery-delay comparison: fnalign 590 -> 588; test the retained word-sized delay snapshot rather than reloading and widening its original halfword.
- * 2026-10-12 timing accumulation: fnalign 588 -> 587; spell the addition separately from its halfword assignment instead of using compound assignment; the frame remains 0x5B0.
- * 2026-10-12 common subexpressions back on: fnalign 587 -> 582. Retail shares
- * argument constants (`move $t1,$a1`, 14 sites), which only IR CSE gives. Under
- * CSE, `(u8 *)(p) + (k)` and `x & 0xFFFF` spellings are hoisted, so field
- * reads use uncast u8 pointers (the unit pointers are u8 *) and masks are
- * (u16) casts; with those spellings the function needs no pragma (519).
- * The 001b7060/7080/70a0 skill is u16: retail reloads the spilled
- * halfword with lhu (0x270) and passes it unmasked.
- * 519 -> 513: the HP delta is -(hp - 1), and the cut-in reads its partner
- * pointer before storing the mode, as retail's load order shows.
- * 513 -> 505: callee declarations use their providers' real prototypes.
- * 505 -> 483: func_0019a0c0's value is u16 (the provider stores a halfword);
- * retail reloads sp350 with lhu straight into $a1.
- * 483 -> 478: the two row-flag tests read through one byte-offset address
- * (retail keeps hitRow + 0x10E in $a0), and sp200's tests drop the s32 casts.
- * 478 -> 477: the SP delta reads its row with uncast u8 arithmetic.
- * 477 -> 472: both later timing branches clear var_18 (retail's move $s2,$zero).
- * 472 -> 469: sp270 is a u16 copy of (s16)sp450 (retail copies with lh/sh);
- * that conversion is folded by neither copy propagation (plain s16 copy)
- * nor CSE (plain (u16)sp450), so every later use reloads lhu 0x270.
- * 469 -> 322: var_19, the shared packet pointer, is declared first; its
- * lower virtual number gives retail's colouring for the packet webs.
- * 322 -> 279: var_18, the shared packet time (retail's $s2), comes first.
- * 279 -> 89: the hit loop reads rowHitCount directly; unsigned target and
- * hit-row indices; a per-target signed index (copy use keeps
- * targetIndexS32 a word); the same-side flag as one conditional (quad temp).
- * 89 -> 33: opt_loop_invariants (retail's preheader quads for rowHitCount,
- * rowHitCount - 1 and hitDelay + 0x2B), func_001eb440 takes the uncast
- * pointer, and hitDelayS16 is stored without re-extension.
- */
-/* Hit-row address through the row index's address, like btlHitResult_001a59a0;
- * retail recomputes both late row addresses instead of sharing the loop's. */
+/* Queue an action's hit sequence: per-target formation, camera, animation,
+ * effect and damage packets for every hit row.
+ * Retail compiled it under opt_loop_invariants: the hit loop's row count,
+ * last-hit index and hit delay are hoisted preheader temporaries.
+ * targetPos is the per-target copy that keeps targetIndexS32 a word local;
+ * the same-side flag and the primary target are single conditional
+ * expressions; the late hit-row addresses go through the row index's
+ * address, so CSE recomputes them as retail does. */
+/* Effect lead time after the animation; as an inline body it is evaluated
+ * before the other call arguments, as in retail. */
+static inline s32 btlEffectDelay_001a7720(s32 frames)
+{
+    s32 delay;
+    delay = frames + 6;
+    return delay;
+}
+/* Hit-row address through the row index's address, like btlHitResult_001a59a0. */
 static inline u8 *btlHitRow_001a7720(u8 *action, const u16 *index)
 {
     return action + (*index << 5);
 }
 #pragma push
-/* measured: loop-invariant hoisting reduced fnalign from 506 to 33 edits on this body. */
+/* measured: loop-invariant hoisting is required for retail's hit-loop preheader (506 -> 33 edits when introduced). */
 #pragma opt_loop_invariants on
-// FUN_001A7720 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_001A7720
 void func_001a7720(u8 *arg0) {
 
     extern s32 btlCreateSetFlagsPacket(u32);
-    extern s32 func_00194590();
-    extern s32 func_00194b60();
-    extern s32 func_00194c90(void *, void *);
+    extern s64 func_00194590(u8 *arg0, u32 arg1);
+    extern u8 *func_00194b60(void);
+    extern u8 *func_00194c90(void *arg0, void *arg1);
     extern s32 func_00195530(u8 *arg0);
     extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *func_00197cc0(s32 unit, s16 skill, s16 delay);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_00198810(u8 *arg0);
-    extern s32 func_0019a980();
-    extern s32 func_0019aa70();
+    extern BtlPacket *func_0019a980(BtlUnit *unit);
+    extern BtlPacket *func_0019aa70(BtlUnit *unit, s16 value);
     extern BtlPacket *func_0019ac40(BtlUnit *unit, u16 value, f32 speed, u16 mode);
-    extern s32 func_0019b550(void *, u16, s16);
-    extern s32 func_0019bbe0();
+    extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
+    extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
     extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
-    extern s32 func_001a03b0();
-    extern void func_001b7060(u16 skill, s32 *first, s32 *second);
-    extern s32 func_001b7080(u16 skill);
+    extern void func_001a03b0(s64 *arg0);
+    extern void func_001b7060(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
+    extern s32 func_001b7080(u16 skill); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern s32 func_001b7090(s32 arg0);
-    extern void func_001b70a0(u16 skill, s32 *first, s32 *second);
+    extern void func_001b70a0(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3);
     extern BtlPacket* func_001b7e20(u32 value);
     extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
-    extern s32 func_001b9360();
+    /* lint: allow H011 -- retail zero-extends the mode with andi 0xffff: this caller saw a u16 parameter. */
+    extern BtlPacket *func_001b9360(s32 arg, u16 mode);
     extern BtlPacket* func_001b9560(u32 param_1, u32 param_2);
     extern BtlPacket* func_001b99a0(s32 arg);
     extern BtlPacket* func_001ba090(s32 arg);
     extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
-    extern s32 func_001bccc0();
+    extern u8 *func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
     extern BtlPacket *func_001d2d90();
     extern BtlPacket *func_001d3000(u32 source, u32 action, u32 target, u16 skill);
-    extern s32 func_001d3530();
+    extern BtlPacket *func_001d3530(u32 param_1, u32 param_2, u16 param_3);
     extern s32 func_001d3d50(u32 param_1);
     extern void func_001d3e00(u32 param_1);
     extern u32 func_001d43f0(s32 param_1);
-    extern s32 func_001d6240();
-    extern s32 func_001eb440();
-    extern s32 func_001ef4a0(u16 arg0);
-    /* Retail passes these u16 arguments without conversion: this caller saw u16
-     * parameters (the definitions take u32). */
-    extern void func_001d69f0(u16 value, char *destination);
-    extern BtlPacket *func_001b9de0(BtlAction *action, u16 selector, u32 duration);
+    extern BtlPacket *func_001d6240(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param_5);
+    extern u16 func_001eb440(BtlTarget *target);
+    extern s32 func_001ef4a0(u16 arg0); /* lint: allow H011 -- retail passes the lhu skill unconverted */
+    /* lint: allow H011 -- retail passes these u16 arguments without conversion:
+     * this caller saw u16 parameters (the definitions take u32/s32). */
+    extern void func_001d69f0(u16 value, char *destination); /* lint: allow H011 -- retail passes the u16 unconverted */
+    extern BtlPacket *func_001b9de0(BtlAction *action, u16 selector, u32 duration); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern s32 func_001ef720(s32 arg0, s32 arg1);
     extern void func_001f0a10(u8 *result);
     extern s32 func_001f0af0(u8 *arg0);
@@ -4228,18 +4104,18 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001f68e0(u8 *arg0);
     extern BtlPacket* func_001f7c20(u16 channel, u16 cue, u16 variant);
     extern BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags);
-    extern s32 func_001f83b0();
-    extern s32 func_001f8430();
+    extern u8 *func_001f83b0(u32 value);
+    extern u8 *func_001f8430(u32 value);
     extern s32 func_001f99c0();
     extern u8 *func_001fa110(u8 *data);
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-    extern s32 func_00201f20();
-    extern s32 func_00202010();
+    extern u8 *func_00201f20(void);
+    extern BtlPacket *func_00202010(u32 param_1, u16 param_2);
     extern BtlPacket *func_00202120(u32 action, u16 arg1);
-    extern s32 func_00202400();
+    extern BtlPacket *func_00202400(s32 arg0, s32 arg1);
     extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
     extern u8 *func_00202740(u8 *unit);
-    extern s32 func_00216da0();
+    extern void func_00216da0(u8 *arg0, s32 arg1);
     extern s32 func_0022d200(u8 *action);
     extern s32 func_0022d540(u8 *action, u8 *handles);
     extern s32 func_0022e4f0(u8 *arg0, s32 arg1);
@@ -4250,6 +4126,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_00230020(u8 *arg0);
     extern u16 datCalcGetHp(s32 unit);
     extern s32 func_0023df70(s32 skill);
+    /* lint: allow H011 -- the definition is an asm function returning int. */
     extern int func_0043c6a0(int param_1);
     extern s32 effMiscRand();
     extern u8 *iGpffffb3ac;
@@ -4382,7 +4259,6 @@ void func_001a7720(u8 *arg0) {
     s32 sameSideTarget;
     ActionHitRowView *hitRow;
     s8 *hitMotion;
-    s32 hitRowAddr;
     s16 *hpTransfer;
     s16 hitDelayS16;
     s32 hitIndexS32;
@@ -4662,7 +4538,7 @@ void func_001a7720(u8 *arg0) {
     hasCutinPartner = (s32)(s32)(act->cutinPartner) != (s32)(0);
     formationFxPkt = 0;
     actionId = *(s64 *)(arg0 + 0);
-    func_001a03b0(arg0);
+    func_001a03b0((s64 *)arg0);
     side = (s8)unitSide;
     if ((side == 1) && (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000)) {
         actionFlag4000 = 0;
@@ -4711,7 +4587,7 @@ void func_001a7720(u8 *arg0) {
             rotatePkt4->ownerId = actionId;
             func_00194590((u8 *)rotatePkt4, 0);
         } else if (side == 0) {
-            func_00196040((u16)func_001eb440(arg0 + 0x38), 1, &targetPosition, 0, 0, 1);
+            func_00196040((u16)func_001eb440((BtlTarget *)(arg0 + 0x38)), 1, &targetPosition, 0, 0, 1);
             pkt5 = (BtlPacketTiming *)(btlUnitCreateRotatePacket(*(BtlUnit **)(arg0 + 0x30), &targetPosition, rotateFlags));
             pkt5->ownerId = actionId;
             func_00194590((u8 *)pkt5, 0);
@@ -4727,14 +4603,14 @@ void func_001a7720(u8 *arg0) {
         if (bossCheck != 0) {
             lookAtPkt7 = (u8 *)(actionLookAtUnit(0, act->unit, 3));
             *(s64 *)(lookAtPkt7 + 0x60) = *(s64 *)arg0;
-            func_00194590(lookAtPkt7, 1);
+            func_00194590((u8 *)lookAtPkt7, 1);
             lookAtPkt8 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(act->unit, 0));
             *(s64 *)(lookAtPkt8 + 0x60) = *(s64 *)arg0;
-            func_00194590(lookAtPkt8, 1);
+            func_00194590((u8 *)lookAtPkt8, 1);
         } else {
             lookAtPkt9 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
             *(s64 *)(lookAtPkt9 + 0x60) = *(s64 *)arg0;
-            func_00194590(lookAtPkt9, 1);
+            func_00194590((u8 *)lookAtPkt9, 1);
         }
         act->flags = (u16) (act->flags | 0x200);
         rotatePkt10 = (BtlPacketTiming *)(func_001f3b20(arg0));
@@ -4749,7 +4625,7 @@ void func_001a7720(u8 *arg0) {
     }
     hitModeDelay = (s16)hitMode;
     if (isKind3 == 0) {
-        pkt11 = (BtlPacketTiming *)(func_00202010(act->unit, (u16) skill));
+        pkt11 = (BtlPacketTiming *)(func_00202010(*(u32 *)(arg0 + 0x30), (u16) skill));
         pkt11->delay = (s16) hitModeDelay;
         pkt11->ownerId = actionId;
         func_00194590((u8 *)pkt11, 3);
@@ -4786,7 +4662,7 @@ void func_001a7720(u8 *arg0) {
                 effectHandles[2] = (*(s32 *)((u8 *)btlState3_33 + 0xD38));
             }
             if (((s32)(func_001f11e0(skill)) == (s32)(0)) && ((s32)(func_001f0b90(arg0)) == (s32)(0))) {
-                targetGroup = (s32)((u16)func_001eb440(arg0 + 0x38));
+                targetGroup = (s32)((u16)func_001eb440((BtlTarget *)(arg0 + 0x38)));
                 if ((side == 0) && (((u16)targetGroup) == 2)) {
                     randomFlag = (s32)((effMiscRand(0) & 1)) != (s32)(0);
                 } else if ((side == 1) && (((u16)targetGroup) == 1)) {
@@ -4806,7 +4682,7 @@ void func_001a7720(u8 *arg0) {
                 hasCutin = 0;
                 lookAtPkt13 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
                 *(s64 *)(lookAtPkt13 + 0x60) = *(s64 *)arg0;
-                func_00194590(lookAtPkt13, 1);
+                func_00194590((u8 *)lookAtPkt13, 1);
                 btlState5 = (u8 *)(iGpffffb3ac);
                 *(s32 *)(btlState5 + 0xC) = (s32) (*(s32 *)(btlState5 + 0xC) | 0x400000);
                 btlState4 = (u8 *)(iGpffffb3ac);
@@ -4825,7 +4701,7 @@ void func_001a7720(u8 *arg0) {
             if (hasCutin != 0) {
                 func_00194590((u8 *)func_001f8330((BtlUnit *)act->unit), 0);
             } else if (isSkill16 != 0) {
-                func_00194590(func_001f83b0(act->unit), 0);
+                func_00194590((u8 *)(func_001f83b0((u32)act->unit)), 0);
             }
             if (sp2B0 != 0) {
                 waitPkt2 = (BtlPacketTiming *)(func_00194b60());
@@ -4900,14 +4776,14 @@ void func_001a7720(u8 *arg0) {
             func_00194590((u8 *)pkt19, 0);
             if (sp2B0 == 0) {
                 if (hasCutin != 0) {
-                    pkt20 = (BtlPacketTiming *)(func_0019b550(linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0x1D));
+                    pkt20 = (BtlPacketTiming *)(func_0019b550((u8 *)linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0x1D));
                     animChainPkt = (BtlPacketTiming *)((u8 *)pkt20);
                     pkt20->queue = 5;
                     pkt20->startTime = cutinEndTime;
                     (*( s8 * )((u8 *)pkt20 + (0x20))) = 5;
                     (*( s64 * )((u8 *)pkt20 + (0x28))) = formationEndTime;
                 } else {
-                    linkedMotionPkt = (u8 *)(func_0019b550(linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0xD));
+                    linkedMotionPkt = (u8 *)(func_0019b550((u8 *)linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0xD));
                     animChainPkt = (BtlPacketTiming *)(linkedMotionPkt);
                     *(s16 *)(linkedMotionPkt + 0x48) = recoveryFrames;
                 }
@@ -4955,7 +4831,7 @@ void func_001a7720(u8 *arg0) {
                 pkt28->ownerId = actionId;
                 func_00194590((u8 *)pkt28, 0);
             } else if (isSkill16 != 0) {
-                pkt29 = (BtlPacketTiming *)(func_001f8430(act->unit));
+                pkt29 = (BtlPacketTiming *)(func_001f8430((u32)act->unit));
                 pkt29->queue = 4;
                 pkt29->startTime = animPkt27->endTime;
                 pkt29->ownerId = actionId;
@@ -4979,7 +4855,7 @@ void func_001a7720(u8 *arg0) {
             effectPkt32->startTime = chainTime;
             effectPkt32->ownerId = actionId;
             func_00194590((u8 *)effectPkt32, 2);
-            colorPkt33 = (BtlPacketTiming *)(func_0019bbe0(act->unit, 0xFF808080, 0, 0xC, 4, 0));
+            colorPkt33 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)act->unit, 0xFF808080, 0, 0xC, 4, 0));
             colorPkt33->queue = 4;
             colorPkt33->startTime = chainTime;
             colorPkt33->ownerId = actionId;
@@ -4991,7 +4867,7 @@ void func_001a7720(u8 *arg0) {
             animPkt34->delay = 0xF;
             animPkt34->ownerId = actionId;
             func_00194590((u8 *)animPacket, 0);
-            colorPkt35 = (BtlPacketTiming *)(func_0019bbe0(linkedUnit, func_00195530(linkedUnit), 8, 0, 3, 1));
+            colorPkt35 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)linkedUnit, (u32)(func_00195530(linkedUnit)), 8, 0, 3, 1));
             colorPkt35->queue = 4;
             colorPkt35->startTime = animPacket->endTime;
             colorPkt35->ownerId = actionId;
@@ -5026,7 +4902,7 @@ void func_001a7720(u8 *arg0) {
                 randomFlag = 1;
                 lookAtPkt38 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
                 *(s64 *)(lookAtPkt38 + 0x60) = *(s64 *)arg0;
-                func_00194590(lookAtPkt38, 1);
+                func_00194590((u8 *)lookAtPkt38, 1);
                 btlState6 = (u8 *)(iGpffffb3ac);
                 *(s32 *)(btlState6 + 0xC) = (s32) (*(s32 *)(btlState6 + 0xC) | 0x400000);
                 btlState7_37 = (u8 *)(iGpffffb3ac);
@@ -5062,7 +4938,7 @@ void func_001a7720(u8 *arg0) {
                 }
             }
             if (noOverride == 0) {
-                effectPkt43 = (BtlPacketTiming *)(func_001d65d0(*(s32 *)(iGpffffb3ac + 0xD88), (*(s32 *)(arg0 + 0x30)), timingFrames + 6, 0, 0x100));
+                effectPkt43 = (BtlPacketTiming *)(func_001d65d0(*(s32 *)(iGpffffb3ac + 0xD88), (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
                 effectPkt43->queue = 4;
                 effectPkt43->startTime = animPacket->endTime;
                 func_00194590((u8 *)effectPkt43, 1);
@@ -5075,7 +4951,7 @@ void func_001a7720(u8 *arg0) {
             hasCutin = 0;
             lookAtPkt44 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
             *(s64 *)(lookAtPkt44 + 0x60) = *(s64 *)arg0;
-            func_00194590(lookAtPkt44, 1);
+            func_00194590((u8 *)lookAtPkt44, 1);
             btlState7_47 = (u8 *)(iGpffffb3ac);
             *(s32 *)(btlState7_47 + 0xC) = (s32) (*(s32 *)(btlState7_47 + 0xC) | 0x400000);
             btlState8_38 = (u8 *)(iGpffffb3ac);
@@ -5167,7 +5043,7 @@ void func_001a7720(u8 *arg0) {
             if (followState == 0) {
                 followState = *(s32 *)((u8 *)iGpffffb3ac + 0xD40);
             }
-            effectPkt51 = (BtlPacketTiming *)(func_001d65d0(followState, (*(s32 *)(arg0 + 0x30)), timingFrames + 6, 0, 0x100));
+            effectPkt51 = (BtlPacketTiming *)(func_001d65d0(followState, (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
             effectPkt51->queue = 4;
             effectPkt51->startTime = animPacket->endTime;
             func_00194590((u8 *)effectPkt51, 1);
@@ -5204,7 +5080,7 @@ void func_001a7720(u8 *arg0) {
         if (act->targetCount == 1) {
             firstTarget = (u8 *)(act->target);
             if ((s32)(firstTarget) != (s32)(0)) {
-                formationPkt58 = (BtlPacketTiming *)(func_001d3530(act->unit, *(u8 **)(firstTarget + 0x30), 4));
+                formationPkt58 = (BtlPacketTiming *)(func_001d3530((u32)act->unit, (u32)(*(u8 **)(firstTarget + 0x30)), 4));
                 formationPkt58->queue = 4;
                 formationPkt58->startTime = chainTime;
                 formationPkt58->ownerId = actionId;
@@ -5249,7 +5125,7 @@ void func_001a7720(u8 *arg0) {
         followActionPtr = (u8 *)(act->followAction);
         firstTargetEntry = (u8 *)(act->target);
         primaryTarget = (u8 *)(firstTargetEntry);
-        sp4BC = (BtlPacketTiming *)(func_001d3530(*(u8 **)(followActionPtr + 0x30), *(u8 **)(firstTargetEntry + 0x30), 2));
+        sp4BC = (BtlPacketTiming *)(func_001d3530((u32)(*(u8 **)(followActionPtr + 0x30)), (u32)(*(u8 **)(firstTargetEntry + 0x30)), 2));
         sp4BC->queue = 4;
         sp4BC->startTime = chainTime;
         sp4BC->delay = timingFrames;
@@ -5288,7 +5164,7 @@ void func_001a7720(u8 *arg0) {
         cameraPkt70->delay = 0;
         cameraPkt70->ownerId = actionId;
         func_00194590((u8 *)cameraPkt70, 0);
-        formationPkt71 = (BtlPacketTiming *)(func_001d3530(*(u8 **)(followActionPtr + 0x30), *(u8 **)(firstTargetEntry + 0x30), 3));
+        formationPkt71 = (BtlPacketTiming *)(func_001d3530((u32)(*(u8 **)(followActionPtr + 0x30)), (u32)(*(u8 **)(firstTargetEntry + 0x30)), 3));
         formationPkt71->queue = 4;
         formationPkt71->startTime = chainTime;
         formationPkt71->delay = 0;
@@ -5365,7 +5241,7 @@ void func_001a7720(u8 *arg0) {
         func_00194590((u8 *)skillSePkt, 1);
     }
     primaryTarget = (act->targetCount == 1) ? ((hasFollowAction != 0) ? (u8 *)(act->followAction) : primaryTarget) : (u8 *)(arg0);
-    formationPkt76 = (BtlPacketTiming *)(func_001d6240(formationHandle, act->unit, *(u8 **)(primaryTarget + 0x30), 0, 0));
+    formationPkt76 = (BtlPacketTiming *)(func_001d6240(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(primaryTarget + 0x30), 0, 0));
     formationPkt6 = (BtlPacketTiming *)(formationPkt76);
     formationPkt76->queue = 4;
     formationPkt76->startTime = formationNamePkt->endTime;
@@ -5427,7 +5303,7 @@ void func_001a7720(u8 *arg0) {
             pkt79->ownerId = actionId;
             func_00194590((u8 *)pkt79, 1);
             if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (*(s32 *)(targetAction + 0xE4) != 1)) {
-                formationPkt6 = (BtlPacketTiming *)(func_001d6240(formationHandle, act->unit, *(u8 **)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
+                formationPkt6 = (BtlPacketTiming *)(func_001d6240(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
                 if ((s32)(followCameraPkt) == (s32)(0)) {
                     if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x2000)) {
                         formationPkt6->queue = 4;
@@ -5470,7 +5346,7 @@ void func_001a7720(u8 *arg0) {
                     func_00194590((u8 *)soundPkt9, 1);
                 }
             } else {
-                formationPkt81 = (BtlPacketTiming *)(func_001d6240(formationHandle, act->unit, *(u8 **)(effectiveAction + 0x30), 1, hitFlags | 0xC00));
+                formationPkt81 = (BtlPacketTiming *)(func_001d6240(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0xC00));
                 formationPkt6 = (BtlPacketTiming *)(formationPkt81);
                 formationPkt81->queue = 4;
                 formationPkt81->startTime = formationNamePkt->endTime;
@@ -5482,7 +5358,7 @@ void func_001a7720(u8 *arg0) {
                 }
                 func_00194590((u8 *)formationPkt6, 2);
                 if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (*(s32 *)(targetAction + 0xE4) == 1) && (targetPos == 0)) {
-                    sp4C0 = (BtlPacketTiming *)(func_001d6240(formationHandle, act->unit, *(u8 **)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
+                    sp4C0 = (BtlPacketTiming *)(func_001d6240(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
                     sp4C0->queue = 5;
                     sp4C0->startTime = formationPkt6->endTime;
                     if ((*(s32 *)(targetAction + 0xE4) != 0) && ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 8)) {
@@ -5521,7 +5397,7 @@ void func_001a7720(u8 *arg0) {
                     act->flags = (u16) (act->flags | 0x200);
                 }
             } else if ((targetPos == 0) && (side == 0)) {
-                targetGroup2 = (s32)((u16)func_001eb440(arg0 + 0x38));
+                targetGroup2 = (s32)((u16)func_001eb440((BtlTarget *)(arg0 + 0x38)));
                 if (targetGroup2 == 2) {
                     func_00196040(targetGroup2, 1, &targetPosition, 0, 0, 1);
                     pkt87 = (BtlPacketTiming *)(btlUnitCreateLookAtPacket(0, &targetPosition, 1));
@@ -5534,7 +5410,7 @@ void func_001a7720(u8 *arg0) {
             if (sp2D0 == 1) {
                 if ((s32)(followCameraPkt) == (s32)(0)) {
                     if ((altCamera == 1) && (isKind3 == 0) && (noOverride == 0)) {
-                        colorPkt88 = (BtlPacketTiming *)(func_0019bbe0(linkedUnit, 0, 0, 0, 4, 0));
+                        colorPkt88 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)linkedUnit, 0, 0, 0, 4, 0));
                         colorPkt88->queue = 5;
                         colorPkt88->startTime = formationPkt6->endTime;
                         colorPkt88->ownerId = actionId;
@@ -5552,7 +5428,7 @@ void func_001a7720(u8 *arg0) {
                         pkt10->ownerId = actionId;
                         func_00194590((u8 *)pkt10, 0);
                     }
-                    colorPkt89 = (BtlPacketTiming *)(func_0019bbe0(act->unit, -1, 0, 0, 3, 0));
+                    colorPkt89 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)act->unit, -1, 0, 0, 3, 0));
                     colorPkt89->queue = 5;
                     colorPkt89->startTime = formationPkt6->endTime;
                     colorPkt89->ownerId = actionId;
@@ -5585,7 +5461,7 @@ void func_001a7720(u8 *arg0) {
                 func_00194590((u8 *)followCameraPkt, 0);
             }
             if (*(s32 *)(targetAction + 0xE4) != 0) {
-                formationFxPkt = (BtlPacketTiming *)(func_001d6240(*(s32 *)(iGpffffb3ac + 0xD28), act->unit, *(u8 **)(targetAction + 0x30), 1, 0));
+                formationFxPkt = (BtlPacketTiming *)(func_001d6240(*(u32 *)(iGpffffb3ac + 0xD28), *(u32 *)(arg0 + 0x30), *(u32 *)(targetAction + 0x30), 1, 0));
                 if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 4) {
                     formationFxPkt->queue = 0xB;
                     formationFxPkt->startTime = formationPkt6->endTime;
@@ -5600,7 +5476,7 @@ void func_001a7720(u8 *arg0) {
                 func_00194590((u8 *)soundPkt93, 1);
             }
             if (*(u16 *)(targetAction + 0xDC) == 0x400) {
-                formationFxPkt = (BtlPacketTiming *)(func_001d6240(*(s32 *)(iGpffffb3ac + 0xD2C), act->unit, *(u8 **)(effectiveAction + 0x30), 1, 0));
+                formationFxPkt = (BtlPacketTiming *)(func_001d6240(*(u32 *)(iGpffffb3ac + 0xD2C), *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, 0));
                 if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 4) {
                     formationFxPkt->queue = 0xB;
                     formationFxPkt->startTime = formationPkt6->endTime;
@@ -5674,7 +5550,7 @@ void func_001a7720(u8 *arg0) {
                         motionId = (s16)motionIdRaw;
                         if (motionId != -1) {
                             targetUnit2 = (u8 *)(*(u8 **)(effectiveAction + 0x30));
-                            formationPkt100 = (BtlPacketTiming *)(func_001d6240((*(s32 *)(iGpffffb3ac + motionId * 4 + 0xD04)), targetUnit2, targetUnit2, 1, 0));
+                            formationPkt100 = (BtlPacketTiming *)(func_001d6240(*(u32 *)(iGpffffb3ac + motionId * 4 + 0xD04), (u32)targetUnit2, (u32)targetUnit2, 1, 0));
                             formationPkt100->queue = 4;
                             formationPkt100->startTime = animPacket->endTime;
                             formationPkt100->ownerId = actionId;
@@ -5682,14 +5558,14 @@ void func_001a7720(u8 *arg0) {
                         }
                     }
                     if (motionFramesS32 > 0x19) {
-                        pkt101 = (BtlPacketTiming *)(func_0019aa70(*(u8 **)(effectiveAction + 0x30), (s16)(motionFramesS32 - 0x19)));
+                        pkt101 = (BtlPacketTiming *)(func_0019aa70((BtlUnit *)(*(u8 **)(effectiveAction + 0x30)), (s16)(motionFramesS32 - 0x19)));
                         pkt101->queue = 4;
                         pkt101->startTime = animPacket->endTime;
                         pkt101->ownerId = actionId;
                         func_00194590((u8 *)pkt101, 0);
                     }
                     targetUnit3 = (u8 *)(*(u8 **)(effectiveAction + 0x30));
-                    sp4B8 = (BtlPacketTiming *)(func_001d6240(*(s32 *)(iGpffffb3ac + 0xD80), targetUnit3, targetUnit3, 1, 0));
+                    sp4B8 = (BtlPacketTiming *)(func_001d6240(*(u32 *)(iGpffffb3ac + 0xD80), (u32)targetUnit3, (u32)targetUnit3, 1, 0));
                     sp4B8->queue = 4;
                     sp4B8->startTime = animPacket->endTime;
                     if (motionFramesS32 >= 0x19) {
@@ -5715,7 +5591,7 @@ void func_001a7720(u8 *arg0) {
                     pkt104->startTime = sp4B8->endTime;
                     pkt104->ownerId = actionId;
                     func_00194590((u8 *)pkt104, 1);
-                    pkt105 = (BtlPacketTiming *)(func_0019a980(*(u8 **)(effectiveAction + 0x30)));
+                    pkt105 = (BtlPacketTiming *)(func_0019a980((BtlUnit *)(*(u8 **)(effectiveAction + 0x30))));
                     pkt105->queue = 5;
                     pkt105->startTime = animPacket->endTime;
                     pkt105->ownerId = actionId;
@@ -5735,7 +5611,7 @@ void func_001a7720(u8 *arg0) {
                     func_00194590((u8 *)rotatePkt106, 1);
                 }
                 if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-                    pkt107 = (BtlPacketTiming *)(func_00194c90(func_0022eba0, arg0));
+                    pkt107 = (BtlPacketTiming *)(func_00194c90((void *)func_0022eba0, (void *)arg0));
                     pkt107->queue = 5;
                     pkt107->startTime = animPacket->endTime;
                     pkt107->delay = hitDelay;
@@ -5776,9 +5652,9 @@ void func_001a7720(u8 *arg0) {
                     if ((act->fieldEC != 0) && !(act->fieldD8 & 1)) {
                         hitRowWord = (s32)((*( s32 * )((u8 *)(((s32)(arg0) + ((u32)hitIndex << 5))) + (0x104))));
                         if (hitRowWord != 0) {
-                            func_00216da0(*(s32 *)(iGpffffb3ac + 0xC60), func_0043c6a0(hitRowWord));
+                            func_00216da0((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitRowWord));
                         }
-                        pkt113 = (BtlPacketTiming *)(func_00202400(act->unit, act->fieldEC));
+                        pkt113 = (BtlPacketTiming *)(func_00202400(*(s32 *)(arg0 + 0x30), act->fieldEC));
                         pkt113->queue = 5;
                         pkt113->startTime = animPacket->endTime;
                         pkt113->flags = (u8) (pkt113->flags & 0xDF);
@@ -5788,9 +5664,9 @@ void func_001a7720(u8 *arg0) {
                         if (*(s16 *)(targetAction + 0xEC) != 0) {
                             hitField14 = hitRow->result.field14;
                             if (hitField14 != 0) {
-                                func_00216da0(*(s32 *)(iGpffffb3ac + 0xC60), func_0043c6a0(hitField14));
+                                func_00216da0((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitField14));
                             }
-                            pkt114 = (BtlPacketTiming *)(func_00202400(*(u8 **)(targetAction + 0x30), *(s16 *)(targetAction + 0xEC)));
+                            pkt114 = (BtlPacketTiming *)(func_00202400(*(s32 *)(targetAction + 0x30), *(s16 *)(targetAction + 0xEC)));
                             pkt114->queue = 5;
                             pkt114->startTime = animPacket->endTime;
                             pkt114->flags = (u8) (pkt114->flags & 0xDF);
@@ -5799,7 +5675,7 @@ void func_001a7720(u8 *arg0) {
                         } else if (hasFollowAction != 0) {
                             targetFieldEC = (s16)(*(s16 *)(effectiveAction + 0xEC));
                             if (targetFieldEC != 0) {
-                                pkt115 = (BtlPacketTiming *)(func_00202400(*(u8 **)(effectiveAction + 0x30), targetFieldEC));
+                                pkt115 = (BtlPacketTiming *)(func_00202400(*(s32 *)(effectiveAction + 0x30), targetFieldEC));
                                 pkt115->queue = 5;
                                 pkt115->startTime = animPacket->endTime;
                                 pkt115->flags = (u8) (pkt115->flags & 0xDF);
@@ -5834,7 +5710,6 @@ void func_001a7720(u8 *arg0) {
                     sp2E0 = 1;
                 }
                 hitRowBase = btlHitRow_001a7720(targetAction, &hitIndex);
-                hitRowAddr = (s32) hitRowBase;
                 hitPkt119 = (BtlPacketTiming *)(func_00201de0((s32)(act->unit), (s32)(*(u8 **)(effectiveAction + 0x30)), skillS32, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE), hitIndex, rowHitCount, hitResultPtr, 0));
                 hitPkt119->queue = 5;
                 hitPkt119->startTime = animPacket->endTime;
@@ -6030,7 +5905,7 @@ reactionPacket:
                 animPacket->ownerId = actionId;
                 func_00194590((u8 *)animPacket, 0);
             } else {
-                pkt134 = (BtlPacketTiming *)(func_0019a980(act->unit));
+                pkt134 = (BtlPacketTiming *)(func_0019a980((BtlUnit *)act->unit));
                 animPacket = (BtlPacketTiming *)(pkt134);
                 pkt134->queue = 4;
                 pkt134->startTime = (s64)((s64) pkt4->endTime);
@@ -6040,20 +5915,20 @@ reactionPacket:
         }
         actUnit20_420 = (u8 *)(act->unit);
         if (*(s32 *)(actUnit20_420 + 0x9C) & 0x20) {
-            waitPkt135 = (BtlPacketTiming *)(func_00194b60(actUnit20_420));
+            waitPkt135 = (BtlPacketTiming *)(func_00194b60());
             waitPkt135->queue = 4;
             waitPkt135->startTime = (s64)((s64) pkt4->endTime);
             waitPkt135->duration = 0x3C;
             waitPkt135->ownerId = actionId;
             func_00194590((u8 *)waitPkt135, 1);
         } else {
-            colorPkt136 = (BtlPacketTiming *)(func_0019bbe0(actUnit20_420, 0xFFFFFF, 6, 0, 4, 0));
+            colorPkt136 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)actUnit20_420, 0xFFFFFF, 6, 0, 4, 0));
             colorPkt136->queue = 4;
             colorPkt136->startTime = (s64)((s64) pkt4->endTime);
             colorPkt136->ownerId = actionId;
             func_00194590((u8 *)colorPkt136, 1);
             actUnit5_55 = (u8 *)(act->unit);
-            formationPkt137 = (BtlPacketTiming *)(func_001d6240(*(s32 *)(iGpffffb3ac + 0xD48), actUnit5_55, actUnit5_55, 0, 0));
+            formationPkt137 = (BtlPacketTiming *)(func_001d6240(*(u32 *)(iGpffffb3ac + 0xD48), (u32)actUnit5_55, (u32)actUnit5_55, 0, 0));
             formationPkt137->queue = 4;
             formationPkt137->startTime = (s64)((s64) pkt4->endTime);
             formationPkt137->ownerId = actionId;
@@ -6089,7 +5964,7 @@ reactionPacket:
             animPacket->ownerId = actionId;
             func_00194590((u8 *)animPacket, 0);
         } else {
-            pkt139 = (BtlPacketTiming *)(func_0019a980(act->unit));
+            pkt139 = (BtlPacketTiming *)(func_0019a980((BtlUnit *)act->unit));
             animPacket = (BtlPacketTiming *)(pkt139);
             pkt139->queue = 0xB;
             pkt139->startTime = formationPkt6->endTime;
@@ -6149,13 +6024,13 @@ reactionPacket:
             func_00194590((u8 *)cameraPkt145, 0);
         }
         if (sp310 == 0) {
-            colorPkt146 = (BtlPacketTiming *)(func_0019bbe0(act->unit, -1, 0, 0xC, 3, 0));
+            colorPkt146 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)act->unit, -1, 0, 0xC, 3, 0));
             colorPkt146->queue = 0xB;
             colorPkt146->startTime = formationPkt6->endTime;
             colorPkt146->ownerId = actionId;
             func_00194590((u8 *)colorPkt146, 1);
         }
-        colorPkt147 = (BtlPacketTiming *)(func_0019bbe0(linkedUnit, 0xFFFFFF, 8, 0, 4, 0));
+        colorPkt147 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)linkedUnit, 0xFFFFFF, 8, 0, 4, 0));
         colorPkt147->queue = 0xB;
         colorPkt147->startTime = formationPkt6->endTime;
         colorDelay = (rotateFirst != 0 && skillSpecial != 0) ? 7 : 0xF;
@@ -6190,7 +6065,7 @@ reactionPacket:
 
         cutin.mode = 3;
         cutin.unitId = *(u16 *)(*(u8 **)(partner + 0x30) + 0xA4);
-        func_00194590(func_001fa720((u8 *)&cutin), 1);
+        func_00194590((u8 *)(func_001fa720((u8 *)&cutin)), 1);
     }
     if ((s32)(func_001f68e0(arg0)) != (s32)(0)) {
         btlActionSetState((BtlAction *)arg0, 0x1B);
@@ -6212,9 +6087,6 @@ reactionPacket:
         btlActionSetState((BtlAction *)arg0, state);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a7720);
-#endif
 #pragma pop
 // FUN_001ABBA0
 void func_001abba0(void)

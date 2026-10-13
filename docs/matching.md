@@ -1580,6 +1580,27 @@ live in `$a1`/`$a2`; declaring `func_0048aff0` with only its first parameter
 let the allocator recolour both and left nd 6. Its correct three-parameter
 signature preserved those registers and matched.
 
+**1a. The passes behind clause 1 (read from b210, `FunctionCalls.c`
+`FUN_004b3070`).** Lowering a call runs three loops over the argument list,
+which is built left to right:
+
+- arguments whose expression node has byte `+5` set (contains a call,
+  including an inline helper with a statement body) are evaluated first;
+- every remaining argument is evaluated in order to an operand. A memory
+  argument emits only its base here (for example the `$gp` load of a global
+  pointer), and arithmetic is emitted in full;
+- the register moves then run in parameter order and emit the deferred loads.
+
+So `f(*(s32 *)(gGlobal + 0xD88), *(s32 *)(p + 0x30), n + 6, 0, 0x100)` emits
+`lw v0,(gp)` / `addiu a2,n,6` / `lw a0,0xd88(v0)` / `lw a1,0x30(p)`. Retail
+`func_001a7720` has `addiu a2` before the `$gp` load, which only happens when
+the third argument is in the first loop. There it is an inline helper whose
+body declares and assigns a local (`delay = frames + 6; return delay;`); a
+one-line `return frames + 6;` helper folds back to the plain expression and
+keeps the `$gp`-first order. Splitting the argument into its own statement doesn't
+help either: frontend expression propagation folds that local back into the
+call.
+
 **2. A constant that is both stored and passed is materialised once, early,
 into the argument register.** `s32 k = 0x40000; *d = k; f2(g_int, k);` emits
 `lui a1,0x4` *before* `lw a0,0(gp)`, because the shared constant is built

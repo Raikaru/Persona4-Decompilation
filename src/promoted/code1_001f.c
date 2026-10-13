@@ -4094,13 +4094,14 @@ s32 func_001f8380(u8 **arg0)
     return 1;
 }
 // FUN_001F83B0
-void func_001f83b0(u32 value)
+u8 *func_001f83b0(u32 value)
 {
     u8 *packet;
 
     packet = (u8 *)func_00194470(0x90B, 0x4);
     *(void **)(packet + 0x6C) = (void *)func_001f8380;
     *(u32 *)*(u8 **)(packet + 0x78) = value;
+    return packet;
 }
 
 // FUN_001F8400
@@ -4117,13 +4118,14 @@ s32 func_001f8400(u8 **arg0)
     return 1;
 }
 // FUN_001F8430
-void func_001f8430(u32 value)
+u8 *func_001f8430(u32 value)
 {
     u8 *packet;
 
     packet = (u8 *)func_00194470(0x90C, 0x4);
     *(void **)(packet + 0x6C) = (void *)func_001f8400;
     *(u32 *)*(u8 **)(packet + 0x78) = value;
+    return packet;
 }
 
 // FUN_001F8480
