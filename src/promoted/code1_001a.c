@@ -4238,6 +4238,19 @@ void func_001a7720(u8 *arg0) {
     extern u8 *iGpffffb3cc;
     extern u8 *iGpffffb3bc;
 
+    /* Every queued battle packet carries this timing header. */
+    typedef struct BtlPacketTiming {
+        s8 queue;           /* 0x00 */
+        u8 pad01[7];
+        s64 startTime;      /* 0x08 */
+        u8 pad10[0x37];
+        u8 flags;           /* 0x47 */
+        s16 delay;          /* 0x48 */
+        s16 duration;       /* 0x4A */
+        u8 pad4C[0xC];
+        s64 endTime;        /* 0x58 */
+        s64 ownerId;        /* 0x60 */
+    } BtlPacketTiming;
     typedef struct UnitPartnerView {
         u8 unknown00[0x98];
         u32 flags98;
@@ -4249,7 +4262,7 @@ void func_001a7720(u8 *arg0) {
         LargeBattleHitResult result;
     } ActionHitRowView;
     s64 var_18;
-    u8 *var_19;
+    BtlPacketTiming *var_19;
     s32 sp5AC;
     s32 sp5A8;
     /* 0022d540 returns the three formation effect handles together. */
@@ -4262,9 +4275,9 @@ void func_001a7720(u8 *arg0) {
     char formation[96];
     u8 *sp4E0;
     u8 *sp4D0;
-    u8 *sp4CC;
+    BtlPacketTiming *sp4CC;
     BtlPacket *sp4C8;
-    u8 *sp4C4;
+    BtlPacketTiming *sp4C4;
     u8 *sp4C0;
     u8 *sp4BC;
     u8 *sp4B8;
@@ -4401,142 +4414,142 @@ void func_001a7720(u8 *arg0) {
     s32 var_5;
     u8 *temp_17;
     u8 *temp_2;
-    u8 *temp_2_100;
-    u8 *temp_2_101;
-    u8 *temp_2_102;
+    BtlPacketTiming *temp_2_100;
+    BtlPacketTiming *temp_2_101;
+    BtlPacketTiming *temp_2_102;
     u8 *temp_2_103;
-    u8 *temp_2_104;
-    u8 *temp_2_105;
-    u8 *temp_2_106;
-    u8 *temp_2_107;
-    u8 *temp_2_109;
+    BtlPacketTiming *temp_2_104;
+    BtlPacketTiming *temp_2_105;
+    BtlPacketTiming *temp_2_106;
+    BtlPacketTiming *temp_2_107;
+    BtlPacketTiming *temp_2_109;
     u8 *temp_2_10;
-    u8 *temp_2_110;
-    u8 *temp_2_111;
-    u8 *temp_2_112;
-    u8 *temp_2_113;
-    u8 *temp_2_114;
-    u8 *temp_2_115;
-    u8 *temp_2_116;
-    u8 *temp_2_117;
+    BtlPacketTiming *temp_2_110;
+    BtlPacketTiming *temp_2_111;
+    BtlPacketTiming *temp_2_112;
+    BtlPacketTiming *temp_2_113;
+    BtlPacketTiming *temp_2_114;
+    BtlPacketTiming *temp_2_115;
+    BtlPacketTiming *temp_2_116;
+    BtlPacketTiming *temp_2_117;
     u8 *temp_2_118;
-    u8 *temp_2_119;
+    BtlPacketTiming *temp_2_119;
     u8 *temp_2_11;
-    u8 *temp_2_120;
-    u8 *temp_2_121;
+    BtlPacketTiming *temp_2_120;
+    BtlPacketTiming *temp_2_121;
     u8 *temp_2_122;
-    u8 *temp_2_123;
-    u8 *temp_2_124;
-    u8 *temp_2_125;
-    u8 *temp_2_126;
-    u8 *temp_2_127;
-    u8 *temp_2_128;
-    u8 *temp_2_129;
+    BtlPacketTiming *temp_2_123;
+    BtlPacketTiming *temp_2_124;
+    BtlPacketTiming *temp_2_125;
+    BtlPacketTiming *temp_2_126;
+    BtlPacketTiming *temp_2_127;
+    BtlPacketTiming *temp_2_128;
+    BtlPacketTiming *temp_2_129;
     u8 *temp_2_12;
-    u8 *temp_2_130;
-    u8 *temp_2_132;
-    u8 *temp_2_133;
-    u8 *temp_2_134;
-    u8 *temp_2_135;
-    u8 *temp_2_136;
-    u8 *temp_2_137;
-    u8 *temp_2_138;
-    u8 *temp_2_139;
+    BtlPacketTiming *temp_2_130;
+    BtlPacketTiming *temp_2_132;
+    BtlPacketTiming *temp_2_133;
+    BtlPacketTiming *temp_2_134;
+    BtlPacketTiming *temp_2_135;
+    BtlPacketTiming *temp_2_136;
+    BtlPacketTiming *temp_2_137;
+    BtlPacketTiming *temp_2_138;
+    BtlPacketTiming *temp_2_139;
     u8 *temp_2_13;
-    u8 *temp_2_140;
-    u8 *temp_2_141;
-    u8 *temp_2_142;
-    u8 *temp_2_143;
-    u8 *temp_2_144;
-    u8 *temp_2_145;
-    u8 *temp_2_146;
-    u8 *temp_2_147;
-    u8 *temp_2_148;
-    u8 *temp_2_149;
-    u8 *temp_2_14;
-    u8 *temp_2_150;
-    u8 *temp_2_15;
-    u8 *temp_2_16;
-    u8 *temp_2_17;
-    u8 *temp_2_18;
-    u8 *temp_2_19;
-    u8 *temp_2_20;
+    BtlPacketTiming *temp_2_140;
+    BtlPacketTiming *temp_2_141;
+    BtlPacketTiming *temp_2_142;
+    BtlPacketTiming *temp_2_143;
+    BtlPacketTiming *temp_2_144;
+    BtlPacketTiming *temp_2_145;
+    BtlPacketTiming *temp_2_146;
+    BtlPacketTiming *temp_2_147;
+    BtlPacketTiming *temp_2_148;
+    BtlPacketTiming *temp_2_149;
+    BtlPacketTiming *temp_2_14;
+    BtlPacketTiming *temp_2_150;
+    BtlPacketTiming *temp_2_15;
+    BtlPacketTiming *temp_2_16;
+    BtlPacketTiming *temp_2_17;
+    BtlPacketTiming *temp_2_18;
+    BtlPacketTiming *temp_2_19;
+    BtlPacketTiming *temp_2_20;
     u8 *temp_2_21;
     u8 *temp_2_22;
-    u8 *temp_2_23;
+    BtlPacketTiming *temp_2_23;
     u8 *temp_2_24;
     u8 *temp_2_25;
-    u8 *temp_2_27;
-    u8 *temp_2_28;
-    u8 *temp_2_29;
-    u8 *temp_2_30;
-    u8 *temp_2_31;
-    u8 *temp_2_32;
-    u8 *temp_2_33;
-    u8 *temp_2_34;
-    u8 *temp_2_35;
-    u8 *temp_2_36;
-    u8 *temp_2_37;
+    BtlPacketTiming *temp_2_27;
+    BtlPacketTiming *temp_2_28;
+    BtlPacketTiming *temp_2_29;
+    BtlPacketTiming *temp_2_30;
+    BtlPacketTiming *temp_2_31;
+    BtlPacketTiming *temp_2_32;
+    BtlPacketTiming *temp_2_33;
+    BtlPacketTiming *temp_2_34;
+    BtlPacketTiming *temp_2_35;
+    BtlPacketTiming *temp_2_36;
+    BtlPacketTiming *temp_2_37;
     u8 *temp_2_38;
     u8 *temp_2_39;
-    u8 *temp_2_40;
-    u8 *temp_2_41;
-    u8 *temp_2_42;
-    u8 *temp_2_43;
+    BtlPacketTiming *temp_2_40;
+    BtlPacketTiming *temp_2_41;
+    BtlPacketTiming *temp_2_42;
+    BtlPacketTiming *temp_2_43;
     u8 *temp_2_44;
     u8 *temp_2_45;
     u8 *temp_2_46;
-    u8 *temp_2_47;
+    BtlPacketTiming *temp_2_47;
     u8 *temp_2_48;
-    u8 *temp_2_49;
+    BtlPacketTiming *temp_2_49;
     u8 *temp_2_4;
-    u8 *temp_2_50;
-    u8 *temp_2_51;
-    u8 *temp_2_52;
+    BtlPacketTiming *temp_2_50;
+    BtlPacketTiming *temp_2_51;
+    BtlPacketTiming *temp_2_52;
     u8 *temp_2_53;
     u8 *temp_2_54;
     u8 *temp_2_55;
-    u8 *temp_2_56;
-    u8 *temp_2_58;
-    u8 *temp_2_59;
+    BtlPacketTiming *temp_2_56;
+    BtlPacketTiming *temp_2_58;
+    BtlPacketTiming *temp_2_59;
     u8 *temp_2_5;
-    u8 *temp_2_60;
-    u8 *temp_2_61;
-    u8 *temp_2_62;
-    u8 *temp_2_63;
-    u8 *temp_2_65;
-    u8 *temp_2_66;
-    u8 *temp_2_67;
-    u8 *temp_2_68;
-    u8 *temp_2_69;
+    BtlPacketTiming *temp_2_60;
+    BtlPacketTiming *temp_2_61;
+    BtlPacketTiming *temp_2_62;
+    BtlPacketTiming *temp_2_63;
+    BtlPacketTiming *temp_2_65;
+    BtlPacketTiming *temp_2_66;
+    BtlPacketTiming *temp_2_67;
+    BtlPacketTiming *temp_2_68;
+    BtlPacketTiming *temp_2_69;
     u8 *temp_2_6;
-    u8 *temp_2_70;
-    u8 *temp_2_71;
-    u8 *temp_2_72;
-    u8 *temp_2_73;
-    u8 *temp_2_74;
-    u8 *temp_2_75;
-    u8 *temp_2_76;
-    u8 *temp_2_77;
+    BtlPacketTiming *temp_2_70;
+    BtlPacketTiming *temp_2_71;
+    BtlPacketTiming *temp_2_72;
+    BtlPacketTiming *temp_2_73;
+    BtlPacketTiming *temp_2_74;
+    BtlPacketTiming *temp_2_75;
+    BtlPacketTiming *temp_2_76;
+    BtlPacketTiming *temp_2_77;
     u8 *temp_2_79;
     u8 *temp_2_7;
-    u8 *temp_2_80;
-    u8 *temp_2_81;
-    u8 *temp_2_82;
-    u8 *temp_2_83;
-    u8 *temp_2_84;
-    u8 *temp_2_85;
-    u8 *temp_2_86;
-    u8 *temp_2_87;
-    u8 *temp_2_88;
-    u8 *temp_2_89;
+    BtlPacketTiming *temp_2_80;
+    BtlPacketTiming *temp_2_81;
+    BtlPacketTiming *temp_2_82;
+    BtlPacketTiming *temp_2_83;
+    BtlPacketTiming *temp_2_84;
+    BtlPacketTiming *temp_2_85;
+    BtlPacketTiming *temp_2_86;
+    BtlPacketTiming *temp_2_87;
+    BtlPacketTiming *temp_2_88;
+    BtlPacketTiming *temp_2_89;
     u8 *temp_2_8;
-    u8 *temp_2_90;
-    u8 *temp_2_91;
-    u8 *temp_2_93;
-    u8 *temp_2_94;
-    u8 *temp_2_98;
-    u8 *temp_2_99;
+    BtlPacketTiming *temp_2_90;
+    BtlPacketTiming *temp_2_91;
+    BtlPacketTiming *temp_2_93;
+    BtlPacketTiming *temp_2_94;
+    BtlPacketTiming *temp_2_98;
+    BtlPacketTiming *temp_2_99;
     u8 *temp_2_9;
     u8 *temp_3_10;
     u8 *temp_3_11;
@@ -4568,12 +4581,12 @@ void func_001a7720(u8 *arg0) {
     u8 *temp_5_5;
     u8 *var_17_2;
     u8 *var_17_4;
-    u8 *var_17_6;
-    u8 *var_18_4;
+    BtlPacketTiming *var_17_6;
+    BtlPacketTiming *var_18_4;
     u8 *var_19_2;
-    u8 *var_22;
-    u8 *var_2_10;
-    u8 *var_2_9;
+    BtlPacketTiming *var_22;
+    BtlPacketTiming *var_2_10;
+    BtlPacketTiming *var_2_9;
 
     temp_2 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
     temp_23 = (s8)((s8)((*( s8 * )(temp_2 + (0xA2)))));
@@ -4803,55 +4816,55 @@ void func_001a7720(u8 *arg0) {
             if (var_21 != 0) {
                 cutin.mode = 4;
                 cutin.unitId = (u16)((u16)((*( u16 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA4)))));
-                temp_2_14 = (u8 *)(func_001fa110((u8 *)&cutin));
-                (*( s8 * )(temp_2_14 + (0))) = 4;
-                *(s64 *)(temp_2_14 + 8) = var_17_3;
-                (*( s64 * )(temp_2_14 + (0x60))) = temp_16;
-                func_00194590(temp_2_14, 1);
-                temp_2_15 = func_001fa320();
-                (*( s8 * )(temp_2_15 + (0))) = 4;
-                *(s64 *)(temp_2_15 + 8) = *(s64 *)(temp_2_14 + 0x58);
-                (*( s64 * )(temp_2_15 + (0x60))) = temp_16;
-                func_00194590(temp_2_15, 1);
-                temp_2_16 = (u8 *)(func_001f99c0(arg0, 1, (*( u16 * )(sp4D0 + (0xA4))), 0, 1));
-                (*( s8 * )(temp_2_16 + (0))) = 5;
-                *(s64 *)(temp_2_16 + 8) = *(s64 *)(temp_2_15 + 0x58);
-                (*( s64 * )(temp_2_16 + (0x60))) = temp_16;
-                func_00194590(temp_2_16, 1);
-                temp_2_17 = (u8 *)(func_001f7c20(0xA, 2, 0xB));
-                (*( s8 * )(temp_2_17 + (0))) = 5;
-                *(s64 *)(temp_2_17 + 8) = *(s64 *)(temp_2_15 + 0x58);
-                *(s64 *)(temp_2_17 + 0x60) = *(s64 *)arg0;
-                func_00194590(temp_2_17, 1);
-                var_17_3 = *(s64 *)(temp_2_15 + 0x58);
+                temp_2_14 = (BtlPacketTiming *)(func_001fa110((u8 *)&cutin));
+                temp_2_14->queue = 4;
+                temp_2_14->startTime = var_17_3;
+                temp_2_14->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_14, 1);
+                temp_2_15 = (BtlPacketTiming *)func_001fa320();
+                temp_2_15->queue = 4;
+                temp_2_15->startTime = temp_2_14->endTime;
+                temp_2_15->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_15, 1);
+                temp_2_16 = (BtlPacketTiming *)(func_001f99c0(arg0, 1, (*( u16 * )(sp4D0 + (0xA4))), 0, 1));
+                temp_2_16->queue = 5;
+                temp_2_16->startTime = temp_2_15->endTime;
+                temp_2_16->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_16, 1);
+                temp_2_17 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0xB));
+                temp_2_17->queue = 5;
+                temp_2_17->startTime = temp_2_15->endTime;
+                temp_2_17->ownerId = *(s64 *)arg0;
+                func_00194590((u8 *)temp_2_17, 1);
+                var_17_3 = temp_2_15->endTime;
                 sp468 = var_17_3;
                 var_18_3 = 0;
             }
-            temp_2_18 = (u8 *)(func_001d2d90(arg0,(s32)(((*( u16 * )(arg0 + (0x18))) & 0x10)) != (s32)(0), 1));
-            (*( s8 * )(temp_2_18 + (0))) = 4;
-            *(s64 *)(temp_2_18 + 8) = var_17_3;
-            (*( s16 * )(temp_2_18 + (0x48))) = (s16) (var_18_3 - (var_18_3 >> 3));
-            (*( s64 * )(temp_2_18 + (0x60))) = temp_16;
-            func_00194590(temp_2_18, 0);
-            sp470 = (s64)((s64)(s64)((*( s64 * )(temp_2_18 + (0x58)))));
+            temp_2_18 = (BtlPacketTiming *)(func_001d2d90(arg0,(s32)(((*( u16 * )(arg0 + (0x18))) & 0x10)) != (s32)(0), 1));
+            temp_2_18->queue = 4;
+            temp_2_18->startTime = var_17_3;
+            temp_2_18->delay = (s16) (var_18_3 - (var_18_3 >> 3));
+            temp_2_18->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_18, 0);
+            sp470 = (s64)((s64)(s64)(temp_2_18->endTime));
             if (sp33C != 0) {
                 var_6 = (s32 *)((*( s32 ** )(arg0 + (0x38))));
             } else {
                 var_6 = 0;
             }
-            temp_2_19 = (u8 *)(func_001d3000((u32)sp4D0, (u32)arg0, (u32)var_6, sp280));
-            (*( s8 * )(temp_2_19 + (0))) = 5;
-            (*( s64 * )(temp_2_19 + (8))) = sp470;
-            (*( s64 * )(temp_2_19 + (0x60))) = temp_16;
-            func_00194590(temp_2_19, 0);
+            temp_2_19 = (BtlPacketTiming *)(func_001d3000((u32)sp4D0, (u32)arg0, (u32)var_6, sp280));
+            temp_2_19->queue = 5;
+            temp_2_19->startTime = sp470;
+            temp_2_19->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_19, 0);
             if (sp2B0 == 0) {
                 if (var_21 != 0) {
-                    temp_2_20 = (u8 *)(func_0019b550(sp4D0, (*( u16 * )(sp4D0 + (0xA4))), 0x1D));
-                    var_17_4 = (u8 *)(temp_2_20);
-                    (*( s8 * )(temp_2_20 + (0))) = 5;
-                    *(s64 *)(temp_2_20 + 8) = sp468;
-                    (*( s8 * )(temp_2_20 + (0x20))) = 5;
-                    (*( s64 * )(temp_2_20 + (0x28))) = sp470;
+                    temp_2_20 = (BtlPacketTiming *)(func_0019b550(sp4D0, (*( u16 * )(sp4D0 + (0xA4))), 0x1D));
+                    var_17_4 = (u8 *)((u8 *)temp_2_20);
+                    temp_2_20->queue = 5;
+                    temp_2_20->startTime = sp468;
+                    (*( s8 * )((u8 *)temp_2_20 + (0x20))) = 5;
+                    (*( s64 * )((u8 *)temp_2_20 + (0x28))) = sp470;
                 } else {
                     temp_2_21 = (u8 *)(func_0019b550(sp4D0, (*( u16 * )(sp4D0 + (0xA4))), 0xD));
                     var_17_4 = (u8 *)(temp_2_21);
@@ -4865,13 +4878,13 @@ void func_001a7720(u8 *arg0) {
                 (*( s16 * )(temp_2_22 + (0x48))) = var_18_3;
                 func_00194590(var_17_4, 0);
             }
-            temp_2_23 = (u8 *)(func_00194b60());
-            (*( s8 * )(temp_2_23 + (0))) = 4;
-            *(s64 *)(temp_2_23 + 8) = *(s64 *)(var_17_4 + 0x58);
-            (*( s16 * )(temp_2_23 + (0x48))) = 0xC;
-            (*( s64 * )(temp_2_23 + (0x60))) = temp_16;
-            func_00194590(temp_2_23, 1);
-            temp_2_24 = (u8 *)(func_001d65d0(effectHandles[0], (*(s32 *)(arg0 + 0x30)), 0, (*(s64 *)(temp_2_23 + 0x58)), 0x100));
+            temp_2_23 = (BtlPacketTiming *)(func_00194b60());
+            temp_2_23->queue = 4;
+            temp_2_23->startTime = *(s64 *)(var_17_4 + 0x58);
+            temp_2_23->delay = 0xC;
+            temp_2_23->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_23, 1);
+            temp_2_24 = (u8 *)(func_001d65d0(effectHandles[0], (*(s32 *)(arg0 + 0x30)), 0, (temp_2_23->endTime), 0x100));
             (*( s64 * )(temp_2_24 + (0x60))) = temp_16;
             func_00194590(temp_2_24, 2);
             temp_2_25 = (u8 *)(func_001f7c20(0xA, 2, 3));
@@ -4889,83 +4902,83 @@ void func_001a7720(u8 *arg0) {
             } else {
                 var_17 = 0;
             }
-            temp_2_27 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 0xF, 0, 1.0f, 5));
-            (*( s8 * )(temp_2_27 + (0))) = 4;
-            (*( s64 * )(temp_2_27 + (8))) = var_18;
-            (*( s64 * )(temp_2_27 + (0x60))) = temp_16;
-            func_00194590(temp_2_27, 0);
+            temp_2_27 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 0xF, 0, 1.0f, 5));
+            temp_2_27->queue = 4;
+            temp_2_27->startTime = var_18;
+            temp_2_27->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_27, 0);
             if (var_21 != 0) {
-                temp_2_28 = (u8 *)(func_001f82b0((BtlUnit *)(*( u8 ** )(arg0 + (0x30)))));
-                (*( s8 * )(temp_2_28 + (0))) = 4;
-                *(s64 *)(temp_2_28 + 8) = *(s64 *)(temp_2_27 + 0x58);
-                (*( s64 * )(temp_2_28 + (0x60))) = temp_16;
-                func_00194590(temp_2_28, 0);
+                temp_2_28 = (BtlPacketTiming *)(func_001f82b0((BtlUnit *)(*( u8 ** )(arg0 + (0x30)))));
+                temp_2_28->queue = 4;
+                temp_2_28->startTime = temp_2_27->endTime;
+                temp_2_28->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_28, 0);
             } else if ((s32)(s32)sp1A0 != 0) {
-                temp_2_29 = (u8 *)(func_001f8430((*( u8 ** )(arg0 + (0x30)))));
-                (*( s8 * )(temp_2_29 + (0))) = 4;
-                *(s64 *)(temp_2_29 + 8) = *(s64 *)(temp_2_27 + 0x58);
-                (*( s64 * )(temp_2_29 + (0x60))) = temp_16;
-                func_00194590(temp_2_29, 0);
+                temp_2_29 = (BtlPacketTiming *)(func_001f8430((*( u8 ** )(arg0 + (0x30)))));
+                temp_2_29->queue = 4;
+                temp_2_29->startTime = temp_2_27->endTime;
+                temp_2_29->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_29, 0);
             }
             temp_19 = (s32)(func_001991c0((*( u8 ** )(arg0 + (0x30))), 0xFU, 1.0f));
-            temp_2_30 = (u8 *)(func_001d65d0(effectHandles[1], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
-            (*( s8 * )(temp_2_30 + (0))) = 4;
-            (*( s64 * )(temp_2_30 + (8))) = var_18;
-            (*( s16 * )(temp_2_30 + (0x48))) = (s16) temp_19;
-            (*( s64 * )(temp_2_30 + (0x60))) = temp_16;
-            func_00194590(temp_2_30, 2);
-            temp_2_31 = (u8 *)(func_001f7c20(0xC, 2, 4));
-            (*( s8 * )(temp_2_31 + (0))) = 4;
-            (*( s64 * )(temp_2_31 + (8))) = var_18;
-            (*( s16 * )(temp_2_31 + (0x48))) = (s16)((s16)temp_19 + 2);
-            (*( s64 * )(temp_2_31 + (0x60))) = temp_16;
-            func_00194590(temp_2_31, 1);
-            temp_2_32 = (u8 *)(func_001d65d0(effectHandles[2], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
-            (*( s8 * )(temp_2_32 + (0))) = 4;
-            (*( s64 * )(temp_2_32 + (8))) = var_18;
-            (*( s64 * )(temp_2_32 + (0x60))) = temp_16;
-            func_00194590(temp_2_32, 2);
-            temp_2_33 = (u8 *)(func_0019bbe0((*( u8 ** )(arg0 + (0x30))), 0xFF808080, 0, 0xC, 4, 0));
-            (*( s8 * )(temp_2_33 + (0))) = 4;
-            (*( s64 * )(temp_2_33 + (8))) = var_18;
-            (*( s64 * )(temp_2_33 + (0x60))) = temp_16;
-            func_00194590(temp_2_33, 1);
-            temp_2_34 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)sp4D0, temp_22, 0, 1.0f, 2));
-            var_19 = (u8 *)(temp_2_34);
-            (*( s8 * )(temp_2_34 + (0))) = 4;
-            (*( s64 * )(temp_2_34 + (8))) = var_18;
-            (*( s16 * )(temp_2_34 + (0x48))) = 0xF;
-            (*( s64 * )(temp_2_34 + (0x60))) = temp_16;
-            func_00194590(var_19, 0);
-            temp_2_35 = (u8 *)(func_0019bbe0(sp4D0, func_00195530(sp4D0), 8, 0, 3, 1));
-            (*( s8 * )(temp_2_35 + (0))) = 4;
-            *(s64 *)(temp_2_35 + 8) = *(s64 *)(var_19 + 0x58);
-            (*( s64 * )(temp_2_35 + (0x60))) = temp_16;
-            func_00194590(temp_2_35, 1);
-            temp_2_36 = (u8 *)(func_001f7c20(0xD, 2, 5));
-            (*( s8 * )(temp_2_36 + (0))) = 4;
-            *(s64 *)(temp_2_36 + 8) = *(s64 *)(var_19 + 0x58);
-            (*( s64 * )(temp_2_36 + (0x60))) = temp_16;
-            func_00194590(temp_2_36, 1);
+            temp_2_30 = (BtlPacketTiming *)(func_001d65d0(effectHandles[1], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
+            temp_2_30->queue = 4;
+            temp_2_30->startTime = var_18;
+            temp_2_30->delay = (s16) temp_19;
+            temp_2_30->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_30, 2);
+            temp_2_31 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 4));
+            temp_2_31->queue = 4;
+            temp_2_31->startTime = var_18;
+            temp_2_31->delay = (s16)((s16)temp_19 + 2);
+            temp_2_31->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_31, 1);
+            temp_2_32 = (BtlPacketTiming *)(func_001d65d0(effectHandles[2], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
+            temp_2_32->queue = 4;
+            temp_2_32->startTime = var_18;
+            temp_2_32->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_32, 2);
+            temp_2_33 = (BtlPacketTiming *)(func_0019bbe0((*( u8 ** )(arg0 + (0x30))), 0xFF808080, 0, 0xC, 4, 0));
+            temp_2_33->queue = 4;
+            temp_2_33->startTime = var_18;
+            temp_2_33->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_33, 1);
+            temp_2_34 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)sp4D0, temp_22, 0, 1.0f, 2));
+            var_19 = (BtlPacketTiming *)(temp_2_34);
+            temp_2_34->queue = 4;
+            temp_2_34->startTime = var_18;
+            temp_2_34->delay = 0xF;
+            temp_2_34->ownerId = temp_16;
+            func_00194590((u8 *)var_19, 0);
+            temp_2_35 = (BtlPacketTiming *)(func_0019bbe0(sp4D0, func_00195530(sp4D0), 8, 0, 3, 1));
+            temp_2_35->queue = 4;
+            temp_2_35->startTime = var_19->endTime;
+            temp_2_35->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_35, 1);
+            temp_2_36 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 5));
+            temp_2_36->queue = 4;
+            temp_2_36->startTime = var_19->endTime;
+            temp_2_36->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_36, 1);
             if ((sp320 == 1) && (sp2D0 == 0) && !((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40)) {
                 if (temp_23_2 == 0) {
                     var_2_4 = 0x19;
                 } else {
                     var_2_4 = 0x1A;
                 }
-                temp_2_37 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)var_2_4));
-                (*( s8 * )(temp_2_37 + (0))) = 4;
-                *(s64 *)(temp_2_37 + 8) = *(s64 *)(var_19 + 0x58);
+                temp_2_37 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)var_2_4));
+                temp_2_37->queue = 4;
+                temp_2_37->startTime = var_19->endTime;
                 if (sp400 >= sp3F0) {
                     var_2_5 = sp400 - sp3F0;
                 } else {
                     var_2_5 = 0;
                 }
-                (*( s16 * )(temp_2_37 + (0x48))) = var_2_5;
-                (*( s64 * )(temp_2_37 + (0x60))) = temp_16;
-                func_00194590(temp_2_37, 0);
+                temp_2_37->delay = var_2_5;
+                temp_2_37->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_37, 0);
             }
-            sp480 = *(s64 *)(var_19 + 0x58);
+            sp480 = var_19->endTime;
         } else if (((s32)(s32)sp1F0 == 1) || ((s32)(s32)sp220 == 1)) {
             if ((temp_23_2 == 0) && (func_001f1030(arg0) != 0) && (temp_2_2 != 0xF4)) {
                 sp2D0 = 1;
@@ -4979,39 +4992,39 @@ void func_001a7720(u8 *arg0) {
                 (*( u16 * )(temp_3_7 + (0x18))) = (u16)((u16) ((*( u16 * )(temp_3_7 + (0x18))) | 6));
             }
             temp_2_39 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 0x16, 6, 1.0f, 0));
-            var_19 = (u8 *)(temp_2_39);
+            var_19 = (BtlPacketTiming *)(temp_2_39);
             (*( s64 * )(temp_2_39 + (0x60))) = temp_16;
-            func_00194590(var_19, 0);
-            sp490 = (s64)((s64)(s64)((*( s64 * )(var_19 + (0x58)))));
+            func_00194590((u8 *)var_19, 0);
+            sp490 = (s64)((s64)(s64)(var_19->endTime));
             var_18 = 0;
                     var_17 = func_001991c0((*( u8 ** )(arg0 + (0x30))), 0x16U, 1.0f) + 6;
             if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40)) {
                 if ((s32)(func_001f0ff0(arg0)) == (s32)(1)) {
-                    temp_2_40 = (u8 *)(func_001d2d90(arg0, 0, 1));
-                    (*( s8 * )(temp_2_40 + (0))) = 4;
-                    *(s64 *)(temp_2_40 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s64 * )(temp_2_40 + (0x60))) = temp_16;
-                    func_00194590(temp_2_40, 0);
+                    temp_2_40 = (BtlPacketTiming *)(func_001d2d90(arg0, 0, 1));
+                    temp_2_40->queue = 4;
+                    temp_2_40->startTime = var_19->endTime;
+                    temp_2_40->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_40, 0);
                 }
                 if (sp320 == 0) {
-                    temp_2_41 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x19));
-                    (*( s8 * )(temp_2_41 + (0))) = 4;
-                    *(s64 *)(temp_2_41 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s64 * )(temp_2_41 + (0x60))) = temp_16;
-                    func_00194590(temp_2_41, 0);
+                    temp_2_41 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x19));
+                    temp_2_41->queue = 4;
+                    temp_2_41->startTime = var_19->endTime;
+                    temp_2_41->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_41, 0);
                 } else {
-                    temp_2_42 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1B));
-                    (*( s8 * )(temp_2_42 + (0))) = 4;
-                    *(s64 *)(temp_2_42 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s64 * )(temp_2_42 + (0x60))) = temp_16;
-                    func_00194590(temp_2_42, 0);
+                    temp_2_42 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1B));
+                    temp_2_42->queue = 4;
+                    temp_2_42->startTime = var_19->endTime;
+                    temp_2_42->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_42, 0);
                 }
             }
             if ((s32)(s32)sp220 == 0) {
-                temp_2_43 = (u8 *)(func_001d65d0((*( s32 * )(iGpffffb3ac + (0xD88))), (*(s32 *)(arg0 + 0x30)), var_17 + 6, 0, 0x100));
-                (*( s8 * )(temp_2_43 + (0))) = 4;
-                *(s64 *)(temp_2_43 + 8) = *(s64 *)(var_19 + 0x58);
-                func_00194590(temp_2_43, 1);
+                temp_2_43 = (BtlPacketTiming *)(func_001d65d0((*( s32 * )(iGpffffb3ac + (0xD88))), (*(s32 *)(arg0 + 0x30)), var_17 + 6, 0, 0x100));
+                temp_2_43->queue = 4;
+                temp_2_43->startTime = var_19->endTime;
+                func_00194590((u8 *)temp_2_43, 1);
             }
         }
     } else if ((sp200 == 0) && (temp_23_2 == 1)) {
@@ -5062,65 +5075,65 @@ void func_001a7720(u8 *arg0) {
         if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x100)) {
             if ((s32)(func_0022fa90(arg0, sp430)) != (s32)(0)) {
                 temp_2_45 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), (s32) sp430, 6, var_f20, var_17_5));
-                var_19 = (u8 *)(temp_2_45);
+                var_19 = (BtlPacketTiming *)(temp_2_45);
                 (*( s64 * )(temp_2_45 + (0x60))) = temp_16;
-                func_00194590(var_19, 0);
+                func_00194590((u8 *)var_19, 0);
             } else {
                 temp_2_46 = (u8 *)(func_00194b60());
-                var_19 = (u8 *)(temp_2_46);
+                var_19 = (BtlPacketTiming *)(temp_2_46);
                 (*( s64 * )(temp_2_46 + (0x60))) = temp_16;
-                func_00194590(var_19, 0);
+                func_00194590((u8 *)var_19, 0);
             }
             if ((sp340 == 0) && ((s32)(func_0022fd30(arg0, temp_2_2)) != (s32)(0))) {
-                temp_2_47 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x15));
-                (*( s8 * )(temp_2_47 + (0))) = 4;
-                *(s64 *)(temp_2_47 + 8) = *(s64 *)(var_19 + 0x58);
-                (*( s64 * )(temp_2_47 + (0x60))) = temp_16;
-                func_00194590(temp_2_47, 0);
+                temp_2_47 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x15));
+                temp_2_47->queue = 4;
+                temp_2_47->startTime = var_19->endTime;
+                temp_2_47->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_47, 0);
             }
         } else {
             temp_2_48 = (u8 *)(func_00194b60());
-            var_19 = (u8 *)(temp_2_48);
+            var_19 = (BtlPacketTiming *)(temp_2_48);
             (*( s64 * )(temp_2_48 + (0x60))) = temp_16;
-            func_00194590(var_19, 0);
+            func_00194590((u8 *)var_19, 0);
         }
-        sp490 = (s64)((s64)(s64)((*( s64 * )(var_19 + (0x58)))));
+        sp490 = (s64)((s64)(s64)(var_19->endTime));
         var_18 = 0;
             var_17 = func_001991c0((*( u8 ** )(arg0 + (0x30))), (u16) sp430, var_f20) + 6;
         if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40) && (sp2D0 == 0)) {
-            temp_2_49 = (u8 *)(func_001d2d90(arg0,(s32)(((*( u16 * )(arg0 + (0x18))) & 0x10)) != (s32)(0), 1));
-            (*( s8 * )(temp_2_49 + (0))) = 4;
-            *(s64 *)(temp_2_49 + 8) = *(s64 *)(var_19 + 0x58);
+            temp_2_49 = (BtlPacketTiming *)(func_001d2d90(arg0,(s32)(((*( u16 * )(arg0 + (0x18))) & 0x10)) != (s32)(0), 1));
+            temp_2_49->queue = 4;
+            temp_2_49->startTime = var_19->endTime;
             if (sp340 == 0) {
                 if (var_17 > 0xc) {
                     var_2_6 = var_17 - 0xC;
                 } else {
                     var_2_6 = 0;
                 }
-                (*( s16 * )(temp_2_49 + (0x48))) = var_2_6;
+                temp_2_49->delay = var_2_6;
             }
-            (*( s64 * )(temp_2_49 + (0x60))) = temp_16;
-            func_00194590(temp_2_49, 0);
-            sp470 = (s64)((s64)(s64)((*( s64 * )(temp_2_49 + (0x58)))));
-            temp_2_50 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
-            (*( s8 * )(temp_2_50 + (0))) = 4;
-            (*( s64 * )(temp_2_50 + (8))) = sp470;
-            (*( s64 * )(temp_2_50 + (0x60))) = temp_16;
-            func_00194590(temp_2_50, 0);
+            temp_2_49->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_49, 0);
+            sp470 = (s64)((s64)(s64)(temp_2_49->endTime));
+            temp_2_50 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
+            temp_2_50->queue = 4;
+            temp_2_50->startTime = sp470;
+            temp_2_50->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_50, 0);
         }
         if (((s32)(s32)sp210 == 0) && ((s32)(s32)sp220 == 0)) {
             var_2_7 = (s32)((s32)(func_0022d200(arg0)));
             if (var_2_7 == 0) {
                 var_2_7 = *(s32 *)((u8 *)iGpffffb3ac + 0xD40);
             }
-            temp_2_51 = (u8 *)(func_001d65d0(var_2_7, (*(s32 *)(arg0 + 0x30)), var_17 + 6, 0, 0x100));
-            (*( s8 * )(temp_2_51 + (0))) = 4;
-            *(s64 *)(temp_2_51 + 8) = *(s64 *)(var_19 + 0x58);
-            func_00194590(temp_2_51, 1);
-            temp_2_52 = (u8 *)(func_001f7c20(0xA, 2, 7));
-            (*( s8 * )(temp_2_52 + (0))) = 4;
-            *(s64 *)(temp_2_52 + 8) = *(s64 *)(var_19 + 0x58);
-            func_00194590(temp_2_52, 1);
+            temp_2_51 = (BtlPacketTiming *)(func_001d65d0(var_2_7, (*(s32 *)(arg0 + 0x30)), var_17 + 6, 0, 0x100));
+            temp_2_51->queue = 4;
+            temp_2_51->startTime = var_19->endTime;
+            func_00194590((u8 *)temp_2_51, 1);
+            temp_2_52 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 7));
+            temp_2_52->queue = 4;
+            temp_2_52->startTime = var_19->endTime;
+            func_00194590((u8 *)temp_2_52, 1);
         }
     } else if ((sp200 == 0) && (temp_23_2 == 0)) {
         sp2C0 = 1;
@@ -5138,30 +5151,30 @@ void func_001a7720(u8 *arg0) {
         temp_2_55 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x12));
         (*( s64 * )(temp_2_55 + (0x60))) = temp_16;
         func_00194590(temp_2_55, 0);
-        temp_2_56 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 7, 6, 1.0f, 2));
-        var_19 = (u8 *)(temp_2_56);
-        (*( s8 * )(temp_2_56 + (0))) = 4;
-        *(s64 *)(temp_2_56 + 8) = *(s64 *)(temp_17 + 0x58);
-        (*( s64 * )(temp_2_56 + (0x60))) = temp_16;
-        func_00194590(var_19, 0);
+        temp_2_56 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 7, 6, 1.0f, 2));
+        var_19 = (BtlPacketTiming *)(temp_2_56);
+        temp_2_56->queue = 4;
+        temp_2_56->startTime = *(s64 *)(temp_17 + 0x58);
+        temp_2_56->ownerId = temp_16;
+        func_00194590((u8 *)var_19, 0);
         sp490 = 0;
-        var_18 = (s64)((s64)(s64)((*( s64 * )(var_19 + (0x58)))));
+        var_18 = (s64)((s64)(s64)(var_19->endTime));
         var_17 = func_001991c0((*( u8 ** )(arg0 + (0x30))), 7U, 1.0f) + 6;
         if ((*( u16 * )(arg0 + (0x6A))) == 1) {
             temp_2_57 = (u8 *)((*( s32 ** )(arg0 + (0x38))));
             if ((s32)(temp_2_57) != (s32)(0)) {
-                temp_2_58 = (u8 *)(func_001d3530((*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(temp_2_57 + (0x30))), 4));
-                (*( s8 * )(temp_2_58 + (0))) = 4;
-                (*( s64 * )(temp_2_58 + (8))) = var_18;
-                (*( s64 * )(temp_2_58 + (0x60))) = temp_16;
-                func_00194590(temp_2_58, 0);
+                temp_2_58 = (BtlPacketTiming *)(func_001d3530((*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(temp_2_57 + (0x30))), 4));
+                temp_2_58->queue = 4;
+                temp_2_58->startTime = var_18;
+                temp_2_58->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_58, 0);
             }
         }
-        temp_2_59 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x13));
-        (*( s8 * )(temp_2_59 + (0))) = 4;
-        (*( s64 * )(temp_2_59 + (8))) = var_18;
-        (*( s64 * )(temp_2_59 + (0x60))) = temp_16;
-        func_00194590(temp_2_59, 0);
+        temp_2_59 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x13));
+        temp_2_59->queue = 4;
+        temp_2_59->startTime = var_18;
+        temp_2_59->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_59, 0);
         temp_4_10 = (u8 *)(iGpffffb3ac);
         (*( s32 * )(temp_4_10 + (0xC))) = (s32)((s32) ((*( s32 * )(temp_4_10 + (0xC))) | 0x400000));
         temp_3_11 = (u8 *)(iGpffffb3ac);
@@ -5169,97 +5182,97 @@ void func_001a7720(u8 *arg0) {
     }
     sp270 = (s16)sp450;
     func_001b7060(sp270, &sp5AC, &sp5A8);
-    temp_2_60 = (u8 *)(func_001b7880(sp5AC, sp5A8, 0x10));
-    (*( s8 * )(temp_2_60 + (0))) = 4;
-    (*( s64 * )(temp_2_60 + (8))) = sp490;
-    (*( s64 * )(temp_2_60 + (0x60))) = temp_16;
-    func_00194590(temp_2_60, 1);
+    temp_2_60 = (BtlPacketTiming *)(func_001b7880(sp5AC, sp5A8, 0x10));
+    temp_2_60->queue = 4;
+    temp_2_60->startTime = sp490;
+    temp_2_60->ownerId = temp_16;
+    func_00194590((u8 *)temp_2_60, 1);
     temp_22_2 = (s32)(func_001b7080(sp270));
     func_001b70a0(sp270, &sp5AC, &sp5A8);
-    temp_2_61 = (u8 *)(func_001b83f0(temp_22_2, sp5AC, sp5A8, 0x10, ((s32)(((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 2)) != (s32)(0)) & 0xFFFF));
-    (*( s8 * )(temp_2_61 + (0))) = 4;
-    (*( s64 * )(temp_2_61 + (8))) = sp490;
-    (*( s64 * )(temp_2_61 + (0x60))) = temp_16;
-    func_00194590(temp_2_61, 1);
-    temp_2_62 = (u8 *)(func_001b9560(func_001b7090((u16) sp450), 0x10));
-    (*( s8 * )(temp_2_62 + (0))) = 4;
-    (*( s64 * )(temp_2_62 + (8))) = sp490;
-    (*( s64 * )(temp_2_62 + (0x60))) = temp_16;
-    func_00194590(temp_2_62, 1);
-    temp_2_63 = (u8 *)(func_001b9de0((BtlAction *)arg0, (u16) sp450, 8));
-    (*( s8 * )(temp_2_63 + (0))) = 4;
-    (*( s64 * )(temp_2_63 + (8))) = sp490;
-    (*( s64 * )(temp_2_63 + (0x60))) = temp_16;
-    func_00194590(temp_2_63, 1);
+    temp_2_61 = (BtlPacketTiming *)(func_001b83f0(temp_22_2, sp5AC, sp5A8, 0x10, ((s32)(((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 2)) != (s32)(0)) & 0xFFFF));
+    temp_2_61->queue = 4;
+    temp_2_61->startTime = sp490;
+    temp_2_61->ownerId = temp_16;
+    func_00194590((u8 *)temp_2_61, 1);
+    temp_2_62 = (BtlPacketTiming *)(func_001b9560(func_001b7090((u16) sp450), 0x10));
+    temp_2_62->queue = 4;
+    temp_2_62->startTime = sp490;
+    temp_2_62->ownerId = temp_16;
+    func_00194590((u8 *)temp_2_62, 1);
+    temp_2_63 = (BtlPacketTiming *)(func_001b9de0((BtlAction *)arg0, (u16) sp450, 8));
+    temp_2_63->queue = 4;
+    temp_2_63->startTime = sp490;
+    temp_2_63->ownerId = temp_16;
+    func_00194590((u8 *)temp_2_63, 1);
     if ((s32)(s32)sp230 != 0) {
         temp_22_3 = (u8 *)((*( s32 ** )(arg0 + (0x88))));
         temp_2_64 = (u8 *)((*( s32 ** )(arg0 + (0x38))));
         sp4E0 = (u8 *)(temp_2_64);
-        temp_2_65 = (u8 *)(func_001d3530((*( u8 ** )(temp_22_3 + (0x30))), (*( u8 ** )(temp_2_64 + (0x30))), 2));
-        sp4BC = (u8 *)(temp_2_65);
-        (*( s8 * )(temp_2_65 + (0))) = 4;
-        (*( s64 * )(temp_2_65 + (8))) = var_18;
-        (*( s16 * )(temp_2_65 + (0x48))) = var_17;
-        (*( s16 * )(temp_2_65 + (0x4A))) = (s16)((s16) ((func_00199500((*( u8 ** )((u8 *)((s32 *)(u32)temp_22_3) + (0x30))), 0x1A, 1.0f)) - 1));
-        (*( s64 * )(temp_2_65 + (0x60))) = temp_16;
-        func_00194590(temp_2_65, 0);
-        temp_2_66 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1E));
-        (*( s8 * )(temp_2_66 + (0))) = 4;
-        (*( s64 * )(temp_2_66 + (8))) = var_18;
-        (*( s16 * )(temp_2_66 + (0x48))) = var_17;
-        (*( s64 * )(temp_2_66 + (0x60))) = temp_16;
-        func_00194590(temp_2_66, 0);
-        temp_2_67 = (u8 *)(func_001f99c0((s32 *)(u32)temp_22_3, 0xD, 0U, 0, 0));
-        (*( s8 * )(temp_2_67 + (0))) = 4;
-        (*( s64 * )(temp_2_67 + (8))) = var_18;
-        (*( s16 * )(temp_2_67 + (0x48))) = var_17;
-        (*( s64 * )(temp_2_67 + (0x60))) = temp_16;
-        func_00194590(temp_2_67, 1);
-        temp_2_68 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(temp_22_3 + (0x30))), 0x1A, 0, 1.0f, 0));
-        (*( s8 * )(temp_2_68 + (0))) = 4;
-        (*( s64 * )(temp_2_68 + (8))) = var_18;
-        (*( s16 * )(temp_2_68 + (0x48))) = var_17;
-        (*( s64 * )(temp_2_68 + (0x60))) = temp_16;
-        func_00194590(temp_2_68, 0);
-        temp_2_69 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(temp_2_64 + (0x30))), 0x1A, 0, 1.0f, 2));
-        (*( s8 * )(temp_2_69 + (0))) = 4;
-        (*( s64 * )(temp_2_69 + (8))) = var_18;
-        (*( s16 * )(temp_2_69 + (0x48))) = var_17;
-        (*( s64 * )(temp_2_69 + (0x60))) = temp_16;
-        func_00194590(temp_2_69, 0);
-        var_18 = (s64)((s64)(s64)((*( s64 * )(temp_2_65 + (0x58)))));
+        temp_2_65 = (BtlPacketTiming *)(func_001d3530((*( u8 ** )(temp_22_3 + (0x30))), (*( u8 ** )(temp_2_64 + (0x30))), 2));
+        sp4BC = (u8 *)((u8 *)temp_2_65);
+        temp_2_65->queue = 4;
+        temp_2_65->startTime = var_18;
+        temp_2_65->delay = var_17;
+        temp_2_65->duration = (s16)((s16) ((func_00199500((*( u8 ** )((u8 *)((s32 *)(u32)temp_22_3) + (0x30))), 0x1A, 1.0f)) - 1));
+        temp_2_65->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_65, 0);
+        temp_2_66 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1E));
+        temp_2_66->queue = 4;
+        temp_2_66->startTime = var_18;
+        temp_2_66->delay = var_17;
+        temp_2_66->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_66, 0);
+        temp_2_67 = (BtlPacketTiming *)(func_001f99c0((s32 *)(u32)temp_22_3, 0xD, 0U, 0, 0));
+        temp_2_67->queue = 4;
+        temp_2_67->startTime = var_18;
+        temp_2_67->delay = var_17;
+        temp_2_67->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_67, 1);
+        temp_2_68 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(temp_22_3 + (0x30))), 0x1A, 0, 1.0f, 0));
+        temp_2_68->queue = 4;
+        temp_2_68->startTime = var_18;
+        temp_2_68->delay = var_17;
+        temp_2_68->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_68, 0);
+        temp_2_69 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(temp_2_64 + (0x30))), 0x1A, 0, 1.0f, 2));
+        temp_2_69->queue = 4;
+        temp_2_69->startTime = var_18;
+        temp_2_69->delay = var_17;
+        temp_2_69->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_69, 0);
+        var_18 = (s64)((s64)(s64)(temp_2_65->endTime));
         var_17 = 0;
-        temp_2_70 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
-        (*( s8 * )(temp_2_70 + (0))) = 4;
-        (*( s64 * )(temp_2_70 + (8))) = var_18;
-        (*( s16 * )(temp_2_70 + (0x48))) = 0;
-        (*( s64 * )(temp_2_70 + (0x60))) = temp_16;
-        func_00194590(temp_2_70, 0);
-        temp_2_71 = (u8 *)(func_001d3530((*( u8 ** )(temp_22_3 + (0x30))), (*( u8 ** )(temp_2_64 + (0x30))), 3));
-        (*( s8 * )(temp_2_71 + (0))) = 4;
-        (*( s64 * )(temp_2_71 + (8))) = var_18;
-        (*( s16 * )(temp_2_71 + (0x48))) = 0;
-        (*( s64 * )(temp_2_71 + (0x60))) = temp_16;
-        func_00194590(temp_2_71, 0);
-        temp_2_72 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(temp_2_64 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
-        (*( s8 * )(temp_2_72 + (0))) = 4;
-        (*( s64 * )(temp_2_72 + (8))) = var_18;
-        (*( s16 * )(temp_2_72 + (0x48))) = 0;
-        (*( s64 * )(temp_2_72 + (0x60))) = temp_16;
-        func_00194590(temp_2_72, 1);
-        temp_2_73 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(temp_2_64 + (0x30))), 0xA, 0, 1.0f, 1));
-        (*( s8 * )(temp_2_73 + (0))) = 4;
-        (*( s64 * )(temp_2_73 + (8))) = var_18;
-        (*( s16 * )(temp_2_73 + (0x48))) = 0;
-        (*( s64 * )(temp_2_73 + (0x60))) = temp_16;
-        func_00194590(temp_2_73, 0);
-        temp_2_74 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(temp_22_3 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
-        (*( s8 * )(temp_2_74 + (0))) = 4;
-        (*( s64 * )(temp_2_74 + (8))) = var_18;
-        (*( s16 * )(temp_2_74 + (0x48))) = 0;
-        (*( u8 * )(temp_2_74 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_74 + (0x47))) & 0xDF));
-        (*( s64 * )(temp_2_74 + (0x60))) = temp_16;
-        func_00194590(temp_2_74, 1);
+        temp_2_70 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
+        temp_2_70->queue = 4;
+        temp_2_70->startTime = var_18;
+        temp_2_70->delay = 0;
+        temp_2_70->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_70, 0);
+        temp_2_71 = (BtlPacketTiming *)(func_001d3530((*( u8 ** )(temp_22_3 + (0x30))), (*( u8 ** )(temp_2_64 + (0x30))), 3));
+        temp_2_71->queue = 4;
+        temp_2_71->startTime = var_18;
+        temp_2_71->delay = 0;
+        temp_2_71->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_71, 0);
+        temp_2_72 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(temp_2_64 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
+        temp_2_72->queue = 4;
+        temp_2_72->startTime = var_18;
+        temp_2_72->delay = 0;
+        temp_2_72->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_72, 1);
+        temp_2_73 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(temp_2_64 + (0x30))), 0xA, 0, 1.0f, 1));
+        temp_2_73->queue = 4;
+        temp_2_73->startTime = var_18;
+        temp_2_73->delay = 0;
+        temp_2_73->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_73, 0);
+        temp_2_74 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(temp_22_3 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
+        temp_2_74->queue = 4;
+        temp_2_74->startTime = var_18;
+        temp_2_74->delay = 0;
+        temp_2_74->flags = (u8)((u8) (temp_2_74->flags & 0xDF));
+        temp_2_74->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_74, 1);
         temp_4_11 = (u8 *)(iGpffffb3ac);
         (*( s32 * )(temp_4_11 + (0xC))) = (s32)((s32) ((*( s32 * )(temp_4_11 + (0xC))) | 0x400000));
         temp_3_12 = (u8 *)(iGpffffb3ac);
@@ -5267,49 +5280,49 @@ void func_001a7720(u8 *arg0) {
     }
     func_001d69f0(sp270, formation);
     if (var_21 != 0) {
-        temp_2_75 = (u8 *)(func_00194b60());
-        (*( s8 * )(temp_2_75 + (0))) = 4;
-        (*( s64 * )(temp_2_75 + (8))) = var_18;
-        (*( s16 * )(temp_2_75 + (0x48))) = var_17;
-        func_00194590(temp_2_75, 1);
+        temp_2_75 = (BtlPacketTiming *)(func_00194b60());
+        temp_2_75->queue = 4;
+        temp_2_75->startTime = var_18;
+        temp_2_75->delay = var_17;
+        func_00194590((u8 *)temp_2_75, 1);
         if (sp340 == 0) {
-            var_22 = (u8 *)(func_001d5eb0(sp4A0, formation, 1));
+            var_22 = (BtlPacketTiming *)(func_001d5eb0(sp4A0, formation, 1));
         } else {
-            var_22 = (u8 *)(func_00194b60());
+            var_22 = (BtlPacketTiming *)(func_00194b60());
         }
-        (*( s8 * )(var_22 + (0))) = 5;
-        *(s64 *)(var_22 + 8) = sp468;
-        (*( s8 * )(var_22 + (0x20))) = 5;
-        *(s64 *)(var_22 + 0x28) = *(s64 *)(temp_2_75 + 0x58);
-        (*( s64 * )(var_22 + (0x60))) = temp_16;
-        func_00194590(var_22, 1);
+        var_22->queue = 5;
+        var_22->startTime = sp468;
+        (*( s8 * )((u8 *)var_22 + (0x20))) = 5;
+        *(s64 *)((u8 *)var_22 + 0x28) = temp_2_75->endTime;
+        var_22->ownerId = temp_16;
+        func_00194590((u8 *)var_22, 1);
         if (sp340 == 0) {
-            sp4CC = (u8 *)(btlSoundCreateSkillSEPacket(sp270, 1));
+            sp4CC = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(sp270, 1));
         } else {
-            sp4CC = (u8 *)(func_00194b60());
+            sp4CC = (BtlPacketTiming *)(func_00194b60());
         }
-        (*( s8 * )(sp4CC + (0))) = 5;
-        *(s64 *)(sp4CC + 8) = sp468;
-        func_00194590(sp4CC, 1);
+        sp4CC->queue = 5;
+        sp4CC->startTime = sp468;
+        func_00194590((u8 *)sp4CC, 1);
     } else {
         if (sp340 == 0) {
-            var_22 = (u8 *)(func_001d5eb0(sp4A0, formation, 0));
+            var_22 = (BtlPacketTiming *)(func_001d5eb0(sp4A0, formation, 0));
         } else {
-            var_22 = (u8 *)(func_00194b60());
+            var_22 = (BtlPacketTiming *)(func_00194b60());
         }
-        (*( s8 * )(var_22 + (0))) = 4;
-        (*( s64 * )(var_22 + (8))) = var_18;
-        (*( s16 * )(var_22 + (0x48))) = var_17;
-        (*( s64 * )(var_22 + (0x60))) = temp_16;
-        func_00194590(var_22, 1);
+        var_22->queue = 4;
+        var_22->startTime = var_18;
+        var_22->delay = var_17;
+        var_22->ownerId = temp_16;
+        func_00194590((u8 *)var_22, 1);
         if (sp340 == 0) {
-            sp4CC = (u8 *)(btlSoundCreateSkillSEPacket(sp270, 0));
+            sp4CC = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(sp270, 0));
         } else {
-            sp4CC = (u8 *)(func_00194b60());
+            sp4CC = (BtlPacketTiming *)(func_00194b60());
         }
-        (*( s8 * )(sp4CC + (0))) = 4;
-        *(s64 *)(sp4CC + 8) = *(s64 *)(var_22 + 0x58);
-        func_00194590(sp4CC, 1);
+        sp4CC->queue = 4;
+        sp4CC->startTime = var_22->endTime;
+        func_00194590((u8 *)sp4CC, 1);
     }
     if ((*( u16 * )(arg0 + (0x6A))) == 1) {
         if ((s32)(s32)sp230 != 0) {
@@ -5318,22 +5331,22 @@ void func_001a7720(u8 *arg0) {
     } else {
         sp4E0 = (u8 *)(arg0);
     }
-    temp_2_76 = (u8 *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(sp4E0 + (0x30))), 0, 0));
-    var_17_6 = (u8 *)(temp_2_76);
-    (*( s8 * )(temp_2_76 + (0))) = 4;
-    *(s64 *)(temp_2_76 + 8) = *(s64 *)(var_22 + 0x58);
-    (*( s8 * )(temp_2_76 + (0x10))) = 4;
-    *(s64 *)(temp_2_76 + 0x18) = *(s64 *)(sp4CC + 0x58);
+    temp_2_76 = (BtlPacketTiming *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(sp4E0 + (0x30))), 0, 0));
+    var_17_6 = (BtlPacketTiming *)(temp_2_76);
+    temp_2_76->queue = 4;
+    temp_2_76->startTime = var_22->endTime;
+    (*( s8 * )((u8 *)temp_2_76 + (0x10))) = 4;
+    *(s64 *)((u8 *)temp_2_76 + 0x18) = sp4CC->endTime;
     if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x80) {
-        (*( s64 * )(var_17_6 + (0x60))) = temp_16;
+        var_17_6->ownerId = temp_16;
     }
-    func_00194590(var_17_6, 2);
-    sp190 = *(s64 *)(var_17_6 + 0x58);
+    func_00194590((u8 *)var_17_6, 2);
+    sp190 = var_17_6->endTime;
     if (sp340 == 0) {
-        temp_2_77 = (u8 *)(func_001f8140(0));
-        (*( s8 * )(temp_2_77 + (0))) = 5;
-        *(s64 *)(temp_2_77 + 8) = *(s64 *)(var_17_6 + 0x58);
-        func_00194590(temp_2_77, 1);
+        temp_2_77 = (BtlPacketTiming *)(func_001f8140(0));
+        temp_2_77->queue = 5;
+        temp_2_77->startTime = var_17_6->endTime;
+        func_00194590((u8 *)temp_2_77, 1);
     }
     sp4C8 = 0;
     sp440 = 0x18;
@@ -5383,97 +5396,97 @@ void func_001a7720(u8 *arg0) {
             (*( s64 * )(temp_2_79 + (0x60))) = temp_16;
             func_00194590(temp_2_79, 1);
             if (((*( u16 * )(temp_18 + (0xDC))) != 0x400) && ((*( s32 * )(temp_18 + (0xE4))) != 1)) {
-                var_17_6 = (u8 *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0x1000));
+                var_17_6 = (BtlPacketTiming *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0x1000));
                 if ((s32)(sp4C8) == (s32)(0)) {
                     if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x2000)) {
-                        (*( s8 * )(var_17_6 + (0))) = 4;
-                        *(s64 *)(var_17_6 + 8) = *(s64 *)(var_22 + 0x58);
-                        (*( s8 * )(var_17_6 + (0x10))) = 4;
-                        *(s64 *)(var_17_6 + 0x18) = *(s64 *)(sp4CC + 0x58);
+                        var_17_6->queue = 4;
+                        var_17_6->startTime = var_22->endTime;
+                        (*( s8 * )((u8 *)var_17_6 + (0x10))) = 4;
+                        *(s64 *)((u8 *)var_17_6 + 0x18) = sp4CC->endTime;
                     } else {
-                        (*( s8 * )(var_17_6 + (0))) = 4;
-                        *(s64 *)(var_17_6 + 8) = sp190;
+                        var_17_6->queue = 4;
+                        var_17_6->startTime = sp190;
                     }
-                    (*( u16 * )(var_17_6 + (0x48))) = sp380;
+                    (*( u16 * )((u8 *)var_17_6 + (0x48))) = sp380;
                 } else {
-                    (*( s8 * )(var_17_6 + (0))) = 4;
-                    *(s64 *)(var_17_6 + 8) = *(s64 *)((u8 *)sp4C8 + 0x58);
+                    var_17_6->queue = 4;
+                    var_17_6->startTime = *(s64 *)((u8 *)sp4C8 + 0x58);
                 }
                 if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x80) {
-                    (*( s64 * )(var_17_6 + (0x60))) = temp_16;
+                    var_17_6->ownerId = temp_16;
                 }
-                func_00194590(var_17_6, 2);
+                func_00194590((u8 *)var_17_6, 2);
                 if (sp340 == 0) {
-                    temp_2_80 = (u8 *)(func_001f8140(1));
-                    (*( s8 * )(temp_2_80 + (0))) = 5;
-                    *(s64 *)(temp_2_80 + 8) = *(s64 *)(var_17_6 + 0x58);
-                    func_00194590(temp_2_80, 1);
+                    temp_2_80 = (BtlPacketTiming *)(func_001f8140(1));
+                    temp_2_80->queue = 5;
+                    temp_2_80->startTime = var_17_6->endTime;
+                    func_00194590((u8 *)temp_2_80, 1);
                 } else {
                     temp_3_13 = (s16)func_0023d8e0(NULL, sp2A0);
                     switch (temp_3_13) {                /* switch 2; irregular */
                     case 16:                            /* switch 2 */
-                        var_2_9 = (u8 *)(func_001f7c20(0xC, 2, 0x16));
+                        var_2_9 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0x16));
                         break;
                     case 17:                            /* switch 2 */
-                        var_2_9 = (u8 *)(func_001f7c20(0xC, 2, 0x19));
+                        var_2_9 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0x19));
                         break;
                     default:                            /* switch 2 */
-                        var_2_9 = (u8 *)(func_001f7c20(0xC, 2, 0x15));
+                        var_2_9 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0x15));
                         break;
                     }
-                    (*( s8 * )(var_2_9 + (0))) = 5;
-                    *(s64 *)(var_2_9 + 8) = *(s64 *)(var_17_6 + 0x58);
-                    func_00194590(var_2_9, 1);
+                    var_2_9->queue = 5;
+                    var_2_9->startTime = var_17_6->endTime;
+                    func_00194590((u8 *)var_2_9, 1);
                 }
             } else {
-                temp_2_81 = (u8 *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0xC00));
-                var_17_6 = (u8 *)(temp_2_81);
-                (*( s8 * )(temp_2_81 + (0))) = 4;
-                *(s64 *)(temp_2_81 + 8) = *(s64 *)(var_22 + 0x58);
-                (*( s8 * )(temp_2_81 + (0x10))) = 4;
-                *(s64 *)(temp_2_81 + 0x18) = *(s64 *)(sp4CC + 0x58);
-                (*( u16 * )(temp_2_81 + (0x48))) = sp380;
+                temp_2_81 = (BtlPacketTiming *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0xC00));
+                var_17_6 = (BtlPacketTiming *)(temp_2_81);
+                temp_2_81->queue = 4;
+                temp_2_81->startTime = var_22->endTime;
+                (*( s8 * )((u8 *)temp_2_81 + (0x10))) = 4;
+                *(s64 *)((u8 *)temp_2_81 + 0x18) = sp4CC->endTime;
+                (*( u16 * )((u8 *)temp_2_81 + (0x48))) = sp380;
                 if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x80) {
-                    (*( s64 * )(var_17_6 + (0x60))) = temp_16;
+                    var_17_6->ownerId = temp_16;
                 }
-                func_00194590(var_17_6, 2);
+                func_00194590((u8 *)var_17_6, 2);
                 if (((*( u16 * )(temp_18 + (0xDC))) != 0x400) && ((*( s32 * )(temp_18 + (0xE4))) == 1) && (sp260 == 0)) {
-                    temp_2_82 = (u8 *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0x1000));
-                    sp4C0 = (u8 *)(temp_2_82);
-                    (*( s8 * )(temp_2_82 + (0))) = 5;
-                    *(s64 *)(temp_2_82 + 8) = *(s64 *)(var_17_6 + 0x58);
+                    temp_2_82 = (BtlPacketTiming *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0x1000));
+                    sp4C0 = (u8 *)((u8 *)temp_2_82);
+                    temp_2_82->queue = 5;
+                    temp_2_82->startTime = var_17_6->endTime;
                     if (((*( s32 * )(temp_18 + (0xE4))) != 0) && ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 8)) {
                         (*( s16 * )(sp4C0 + (0x48))) = 8;
                     }
                     (*( s64 * )(sp4C0 + (0x60))) = temp_16;
                     func_00194590(sp4C0, 2);
                     if (sp340 == 0) {
-                        temp_2_83 = (u8 *)(func_001f8140(1));
-                        (*( s8 * )(temp_2_83 + (0))) = 5;
-                        *(s64 *)(temp_2_83 + 8) = *(s64 *)(sp4C0 + 0x58);
-                        func_00194590(temp_2_83, 1);
+                        temp_2_83 = (BtlPacketTiming *)(func_001f8140(1));
+                        temp_2_83->queue = 5;
+                        temp_2_83->startTime = *(s64 *)(sp4C0 + 0x58);
+                        func_00194590((u8 *)temp_2_83, 1);
                     }
                 }
             }
             if (sp33C != 0) {
                 if ((s32)(s32)sp1C0 != 0) {
-                    temp_2_84 = (u8 *)(actionLookAtUnit(0, (*( u8 ** )(var_21_2 + (0x30))), 3));
-                    (*( s8 * )(temp_2_84 + (0))) = 5;
-                    *(s64 *)(temp_2_84 + 8) = *(s64 *)(var_17_6 + 0x58);
-                    *(s64 *)(temp_2_84 + 0x60) = *(s64 *)arg0;
-                    func_00194590(temp_2_84, 1);
+                    temp_2_84 = (BtlPacketTiming *)(actionLookAtUnit(0, (*( u8 ** )(var_21_2 + (0x30))), 3));
+                    temp_2_84->queue = 5;
+                    temp_2_84->startTime = var_17_6->endTime;
+                    temp_2_84->ownerId = *(s64 *)arg0;
+                    func_00194590((u8 *)temp_2_84, 1);
                     if ((s32)(var_21_2) != (s32)(arg0)) {
-                        temp_2_85 = (u8 *)(actionLookAtUnit((*( u8 ** )(var_21_2 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 0));
-                        (*( s8 * )(temp_2_85 + (0))) = 5;
-                        *(s64 *)(temp_2_85 + 8) = *(s64 *)(var_17_6 + 0x58);
-                        *(s64 *)(temp_2_85 + 0x60) = *(s64 *)arg0;
-                        func_00194590(temp_2_85, 1);
+                        temp_2_85 = (BtlPacketTiming *)(actionLookAtUnit((*( u8 ** )(var_21_2 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 0));
+                        temp_2_85->queue = 5;
+                        temp_2_85->startTime = var_17_6->endTime;
+                        temp_2_85->ownerId = *(s64 *)arg0;
+                        func_00194590((u8 *)temp_2_85, 1);
                     } else {
-                        temp_2_86 = (u8 *)(btlUnitCreateLookAtDeactivatePacket((*( u8 ** )(var_21_2 + (0x30))), 0));
-                        (*( s8 * )(temp_2_86 + (0))) = 5;
-                        *(s64 *)(temp_2_86 + 8) = *(s64 *)(var_17_6 + 0x58);
-                        *(s64 *)(temp_2_86 + 0x60) = *(s64 *)arg0;
-                        func_00194590(temp_2_86, 1);
+                        temp_2_86 = (BtlPacketTiming *)(btlUnitCreateLookAtDeactivatePacket((*( u8 ** )(var_21_2 + (0x30))), 0));
+                        temp_2_86->queue = 5;
+                        temp_2_86->startTime = var_17_6->endTime;
+                        temp_2_86->ownerId = *(s64 *)arg0;
+                        func_00194590((u8 *)temp_2_86, 1);
                     }
                     (*( u16 * )(arg0 + (0x18))) = (u16)((u16) ((*( u16 * )(arg0 + (0x18))) | 0x200));
                 }
@@ -5481,95 +5494,95 @@ void func_001a7720(u8 *arg0) {
                 temp_4_13 = (s32)((s32)((u16)func_001eb440((s32)(arg0) + 0x38)));
                 if (temp_4_13 == 2) {
                     func_00196040(temp_4_13, 1, &targetPosition, 0, 0, 1);
-                    temp_2_87 = (u8 *)(btlUnitCreateLookAtPacket(0, &targetPosition, 1));
-                    (*( s8 * )(temp_2_87 + (0))) = 5;
-                    *(s64 *)(temp_2_87 + 8) = *(s64 *)(var_17_6 + 0x58);
-                    *(s64 *)(temp_2_87 + 0x60) = *(s64 *)arg0;
-                    func_00194590(temp_2_87, 1);
+                    temp_2_87 = (BtlPacketTiming *)(btlUnitCreateLookAtPacket(0, &targetPosition, 1));
+                    temp_2_87->queue = 5;
+                    temp_2_87->startTime = var_17_6->endTime;
+                    temp_2_87->ownerId = *(s64 *)arg0;
+                    func_00194590((u8 *)temp_2_87, 1);
                 }
             }
             if (sp2D0 == 1) {
                 if ((s32)(sp4C8) == (s32)(0)) {
                     if ((sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
-                        temp_2_88 = (u8 *)(func_0019bbe0(sp4D0, 0, 0, 0, 4, 0));
-                        (*( s8 * )(temp_2_88 + (0))) = 5;
-                        *(s64 *)(temp_2_88 + 8) = *(s64 *)(var_17_6 + 0x58);
-                        (*( s64 * )(temp_2_88 + (0x60))) = temp_16;
-                        func_00194590(temp_2_88, 0);
+                        temp_2_88 = (BtlPacketTiming *)(func_0019bbe0(sp4D0, 0, 0, 0, 4, 0));
+                        temp_2_88->queue = 5;
+                        temp_2_88->startTime = var_17_6->endTime;
+                        temp_2_88->ownerId = temp_16;
+                        func_00194590((u8 *)temp_2_88, 0);
                     }
                     if (sp2C0 == 0) {
                         if (sp30C == 0) {
-                            var_2_10 = (u8 *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
+                            var_2_10 = (BtlPacketTiming *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
                         } else {
                             /* Retail 001a9e5c/001ab480/001ab668 pass 1.0f in $f12. */
-                            var_2_10 = (u8 *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                            var_2_10 = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
                         }
-                        (*( s8 * )(var_2_10 + (0))) = 5;
-                        *(s64 *)(var_2_10 + 8) = *(s64 *)(var_17_6 + 0x58);
-                        (*( s64 * )(var_2_10 + (0x60))) = temp_16;
-                        func_00194590(var_2_10, 0);
+                        var_2_10->queue = 5;
+                        var_2_10->startTime = var_17_6->endTime;
+                        var_2_10->ownerId = temp_16;
+                        func_00194590((u8 *)var_2_10, 0);
                     }
-                    temp_2_89 = (u8 *)(func_0019bbe0((*( u8 ** )(arg0 + (0x30))), -1, 0, 0, 3, 0));
-                    (*( s8 * )(temp_2_89 + (0))) = 5;
-                    *(s64 *)(temp_2_89 + 8) = *(s64 *)(var_17_6 + 0x58);
-                    (*( s64 * )(temp_2_89 + (0x60))) = temp_16;
-                    func_00194590(temp_2_89, 1);
+                    temp_2_89 = (BtlPacketTiming *)(func_0019bbe0((*( u8 ** )(arg0 + (0x30))), -1, 0, 0, 3, 0));
+                    temp_2_89->queue = 5;
+                    temp_2_89->startTime = var_17_6->endTime;
+                    temp_2_89->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_89, 1);
                 }
                 if ((s32)(var_21_2) != (s32)(arg0)) {
-                    temp_2_90 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(var_21_2 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
-                    (*( s8 * )(temp_2_90 + (0))) = 5;
-                    *(s64 *)(temp_2_90 + 8) = *(s64 *)(var_17_6 + 0x58);
-                    (*( s64 * )(temp_2_90 + (0x60))) = temp_16;
-                    func_00194590(temp_2_90, 0);
+                    temp_2_90 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(var_21_2 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
+                    temp_2_90->queue = 5;
+                    temp_2_90->startTime = var_17_6->endTime;
+                    temp_2_90->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_90, 0);
                 }
-                temp_2_91 = (u8 *)(func_00201f20());
-                (*( s8 * )(temp_2_91 + (0))) = 5;
-                *(s64 *)(temp_2_91 + 8) = *(s64 *)(var_17_6 + 0x58);
-                (*( s64 * )(temp_2_91 + (0x60))) = temp_16;
-                func_00194590(temp_2_91, 0);
+                temp_2_91 = (BtlPacketTiming *)(func_00201f20());
+                temp_2_91->queue = 5;
+                temp_2_91->startTime = var_17_6->endTime;
+                temp_2_91->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_91, 0);
                 sp4C8 = (BtlPacket *)(btlCameraCreateSetStatePacket((BtlAction *)var_21_2, 0x1C));
                 (*( s8 * )((u8 *)(sp4C8) + (0))) = 5;
-                *(s64 *)((u8 *)sp4C8 + 8) = *(s64 *)(var_17_6 + 0x58);
+                *(s64 *)((u8 *)sp4C8 + 8) = var_17_6->endTime;
                 if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x80)) {
                     (*( s8 * )((u8 *)(sp4C8) + (0x20))) = 0xB;
-                    *(s64 *)((u8 *)sp4C8 + 0x28) = *(s64 *)(var_17_6 + 0x58);
+                    *(s64 *)((u8 *)sp4C8 + 0x28) = var_17_6->endTime;
                     (*( s16 * )((u8 *)(sp4C8) + (0x4A))) = 0x12;
                 } else {
                     (*( s8 * )((u8 *)(sp4C8) + (0x20))) = 4;
-                    *(s64 *)((u8 *)sp4C8 + 0x28) = *(s64 *)(var_17_6 + 0x58);
+                    *(s64 *)((u8 *)sp4C8 + 0x28) = var_17_6->endTime;
                 }
                 (*( s64 * )((u8 *)(sp4C8) + (0x60))) = temp_16;
                 func_00194590((u8 *)sp4C8, 0);
             }
             if ((*( s32 * )(temp_18 + (0xE4))) != 0) {
-                sp4C4 = (u8 *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD28))), (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(temp_18 + (0x30))), 1, 0));
+                sp4C4 = (BtlPacketTiming *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD28))), (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(temp_18 + (0x30))), 1, 0));
                 if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 4) {
-                    (*( s8 * )(sp4C4 + (0))) = 0xB;
-                    *(s64 *)(sp4C4 + 8) = *(s64 *)(var_17_6 + 0x58);
+                    sp4C4->queue = 0xB;
+                    sp4C4->startTime = var_17_6->endTime;
                 } else {
-                    (*( s8 * )(sp4C4 + (0))) = 5;
-                    *(s64 *)(sp4C4 + 8) = sp190;
+                    sp4C4->queue = 5;
+                    sp4C4->startTime = sp190;
                 }
-                func_00194590(sp4C4, 1);
-                temp_2_93 = (u8 *)(func_001f7c20(0xD, 2, 0xB));
-                (*( s8 * )(temp_2_93 + (0))) = 5;
-                *(s64 *)(temp_2_93 + 8) = *(s64 *)(sp4C4 + 0x58);
-                func_00194590(temp_2_93, 1);
+                func_00194590((u8 *)sp4C4, 1);
+                temp_2_93 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 0xB));
+                temp_2_93->queue = 5;
+                temp_2_93->startTime = sp4C4->endTime;
+                func_00194590((u8 *)temp_2_93, 1);
             }
             if ((*( u16 * )(temp_18 + (0xDC))) == 0x400) {
-                sp4C4 = (u8 *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD2C))), (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, 0));
+                sp4C4 = (BtlPacketTiming *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD2C))), (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, 0));
                 if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 4) {
-                    (*( s8 * )(sp4C4 + (0))) = 0xB;
-                    *(s64 *)(sp4C4 + 8) = *(s64 *)(var_17_6 + 0x58);
+                    sp4C4->queue = 0xB;
+                    sp4C4->startTime = var_17_6->endTime;
                 } else {
-                    (*( s8 * )(sp4C4 + (0))) = 5;
-                    *(s64 *)(sp4C4 + 8) = sp190;
+                    sp4C4->queue = 5;
+                    sp4C4->startTime = sp190;
                 }
-                func_00194590(sp4C4, 1);
-                temp_2_94 = (u8 *)(func_001f7c20(0xC, 2, 0xC));
-                (*( s8 * )(temp_2_94 + (0))) = 5;
-                *(s64 *)(temp_2_94 + 8) = *(s64 *)(sp4C4 + 0x58);
-                func_00194590(temp_2_94, 1);
+                func_00194590((u8 *)sp4C4, 1);
+                temp_2_94 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0xC));
+                temp_2_94->queue = 5;
+                temp_2_94->startTime = sp4C4->endTime;
+                func_00194590((u8 *)temp_2_94, 1);
                 sp420 = 0xA;
             }
             sp3B0 = 0;
@@ -5591,16 +5604,16 @@ void func_001a7720(u8 *arg0) {
                         sp360 = 0xA;
                     }
                 }
-                temp_2_98 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(var_21_2 + (0x30))), *hitMotion, 0, var_f20_2, 0));
-                var_19 = (u8 *)(temp_2_98);
-                (*( s8 * )(temp_2_98 + (0))) = 0xB;
-                *(s64 *)(temp_2_98 + 8) = *(s64 *)(var_17_6 + 0x58);
-                (*( u16 * )(temp_2_98 + (0x48))) = sp390;
+                temp_2_98 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(var_21_2 + (0x30))), *hitMotion, 0, var_f20_2, 0));
+                var_19 = (BtlPacketTiming *)(temp_2_98);
+                temp_2_98->queue = 0xB;
+                temp_2_98->startTime = var_17_6->endTime;
+                (*( u16 * )((u8 *)temp_2_98 + (0x48))) = sp390;
                 if (((*( s32 * )(temp_18 + (0xE4))) != 0) && ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 8)) {
-                    (*( u16 * )(var_19 + (0x48))) = (u16)((u16) ((s16) (*( u16 * )(var_19 + (0x48))) + 8));
+                    (*( u16 * )((u8 *)var_19 + (0x48))) = (u16)((u16) ((s16) (*( u16 * )((u8 *)var_19 + (0x48))) + 8));
                 }
-                (*( s64 * )(var_19 + (0x60))) = temp_16;
-                func_00194590(var_19, 0);
+                var_19->ownerId = temp_16;
+                func_00194590((u8 *)var_19, 0);
                 if (((s32)(s32)spC0 == sp140) && (hitRow->result.addedStatus & 0x100000) && (sp340 == 0) && ((s32)(s32)sp160 == 1) && ((*( s32 * )(temp_18 + (0xE0))) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(sp2A0)) == (s32)(0))) {
                     sp250 = (s32) sp360;
                     if (sp250 >= 0x19) {
@@ -5608,11 +5621,11 @@ void func_001a7720(u8 *arg0) {
                     } else {
                         var_2_11 = 0x19 - sp250;
                     }
-                    temp_2_99 = (u8 *)(func_00197cc0((s32)*(u8 **)((u8 *)var_21_2 + 0x30), sp450, (s16)var_2_11));
-                    (*( s8 * )(temp_2_99 + (0))) = 4;
-                    *(s64 *)(temp_2_99 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s64 * )(temp_2_99 + (0x60))) = temp_16;
-                    func_00194590(temp_2_99, 0);
+                    temp_2_99 = (BtlPacketTiming *)(func_00197cc0((s32)*(u8 **)((u8 *)var_21_2 + 0x30), sp450, (s16)var_2_11));
+                    temp_2_99->queue = 4;
+                    temp_2_99->startTime = var_19->endTime;
+                    temp_2_99->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_99, 0);
                     if ((*( u16 * )(arg0 + (0x6A))) == 1) {
                         temp_3_14 = (s16)func_0023d8e0((u8 *)(u32)(*( s64 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA64))), sp2A0);
                         switch (temp_3_14) {            /* switch 3; irregular */
@@ -5635,25 +5648,25 @@ void func_001a7720(u8 *arg0) {
                         temp_3_15 = (s16)var_2_12;
                         if (temp_3_15 != -1) {
                             temp_5_2 = (u8 *)((*( u8 ** )(var_21_2 + (0x30))));
-                            temp_2_100 = (u8 *)(func_001d6240((*(s32 *)(iGpffffb3ac + temp_3_15 * 4 + 0xD04)), temp_5_2, temp_5_2, 1, 0));
-                            (*( s8 * )(temp_2_100 + (0))) = 4;
-                            *(s64 *)(temp_2_100 + 8) = *(s64 *)(var_19 + 0x58);
-                            (*( s64 * )(temp_2_100 + (0x60))) = temp_16;
-                            func_00194590(temp_2_100, 2);
+                            temp_2_100 = (BtlPacketTiming *)(func_001d6240((*(s32 *)(iGpffffb3ac + temp_3_15 * 4 + 0xD04)), temp_5_2, temp_5_2, 1, 0));
+                            temp_2_100->queue = 4;
+                            temp_2_100->startTime = var_19->endTime;
+                            temp_2_100->ownerId = temp_16;
+                            func_00194590((u8 *)temp_2_100, 2);
                         }
                     }
                     if (sp250 > 0x19) {
-                        temp_2_101 = (u8 *)(func_0019aa70((*( u8 ** )(var_21_2 + (0x30))), (s16)(sp250 - 0x19)));
-                        (*( s8 * )(temp_2_101 + (0))) = 4;
-                        *(s64 *)(temp_2_101 + 8) = *(s64 *)(var_19 + 0x58);
-                        (*( s64 * )(temp_2_101 + (0x60))) = temp_16;
-                        func_00194590(temp_2_101, 0);
+                        temp_2_101 = (BtlPacketTiming *)(func_0019aa70((*( u8 ** )(var_21_2 + (0x30))), (s16)(sp250 - 0x19)));
+                        temp_2_101->queue = 4;
+                        temp_2_101->startTime = var_19->endTime;
+                        temp_2_101->ownerId = temp_16;
+                        func_00194590((u8 *)temp_2_101, 0);
                     }
                     temp_5_3 = (u8 *)((*( u8 ** )(var_21_2 + (0x30))));
-                    temp_2_102 = (u8 *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD80))), temp_5_3, temp_5_3, 1, 0));
-                    sp4B8 = (u8 *)(temp_2_102);
-                    (*( s8 * )(temp_2_102 + (0))) = 4;
-                    *(s64 *)(temp_2_102 + 8) = *(s64 *)(var_19 + 0x58);
+                    temp_2_102 = (BtlPacketTiming *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD80))), temp_5_3, temp_5_3, 1, 0));
+                    sp4B8 = (u8 *)((u8 *)temp_2_102);
+                    temp_2_102->queue = 4;
+                    temp_2_102->startTime = var_19->endTime;
                     if (sp250 >= 0x19) {
                         sp250 = 0x19;
                     }
@@ -5672,67 +5685,67 @@ void func_001a7720(u8 *arg0) {
                             var_f1_2 = scaleLimit;
                         }
                     }
-                    temp_2_104 = (u8 *)(func_001bccc0(0x12, (s16)(s32)((80.0f * var_f1_2) / 5.0f), 0, 6));
-                    (*( s8 * )(temp_2_104 + (0))) = 5;
-                    *(s64 *)(temp_2_104 + 8) = *(s64 *)(sp4B8 + 0x58);
-                    (*( s64 * )(temp_2_104 + (0x60))) = temp_16;
-                    func_00194590(temp_2_104, 1);
-                    temp_2_105 = (u8 *)(func_0019a980((*( u8 ** )(var_21_2 + (0x30)))));
-                    (*( s8 * )(temp_2_105 + (0))) = 5;
-                    *(s64 *)(temp_2_105 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s64 * )(temp_2_105 + (0x60))) = temp_16;
-                    func_00194590(temp_2_105, 0);
+                    temp_2_104 = (BtlPacketTiming *)(func_001bccc0(0x12, (s16)(s32)((80.0f * var_f1_2) / 5.0f), 0, 6));
+                    temp_2_104->queue = 5;
+                    temp_2_104->startTime = *(s64 *)(sp4B8 + 0x58);
+                    temp_2_104->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_104, 1);
+                    temp_2_105 = (BtlPacketTiming *)(func_0019a980((*( u8 ** )(var_21_2 + (0x30)))));
+                    temp_2_105->queue = 5;
+                    temp_2_105->startTime = var_19->endTime;
+                    temp_2_105->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_105, 0);
                 }
                 if ((sp2D0 == 0) && ((*hitMotion != -1) || ((s32)((*( u8 * )((u8 *)((*( u8 ** )(temp_18 + (0x30)))) + (0xA2)))) != (s32)((*( u8 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA2)))))) && ((s32)(datCalcChkBadStatus((s32)(*( u8 ** )((u8 *)((*( u8 ** )(temp_18 + (0x30)))) + (0xA64))), 0x180001)) == (s32)(0))) {
-                    temp_2_106 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(temp_18 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
-                    if (((*( s32 * )(temp_18 + (0xE4))) != 0) && ((s32)(sp4C4) != (s32)(0))) {
-                        (*( s8 * )(temp_2_106 + (0))) = 5;
-                        *(s64 *)(temp_2_106 + 8) = *(s64 *)(sp4C4 + 0x58);
+                    temp_2_106 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(temp_18 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
+                    if (((*( s32 * )(temp_18 + (0xE4))) != 0) && ((s32)((u8 *)sp4C4) != (s32)(0))) {
+                        temp_2_106->queue = 5;
+                        temp_2_106->startTime = sp4C4->endTime;
                     } else {
-                        (*( s8 * )(temp_2_106 + (0))) = 5;
-                        *(s64 *)(temp_2_106 + 8) = *(s64 *)(var_19 + 0x58);
+                        temp_2_106->queue = 5;
+                        temp_2_106->startTime = var_19->endTime;
                     }
-                    (*( u8 * )(temp_2_106 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_106 + (0x47))) & 0xDF));
-                    (*( s64 * )(temp_2_106 + (0x60))) = temp_16;
-                    func_00194590(temp_2_106, 1);
+                    temp_2_106->flags = (u8)((u8) (temp_2_106->flags & 0xDF));
+                    temp_2_106->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_106, 1);
                 }
                 if ((*( s32 * )(iGpffffb3ac + (0xC))) & 0x200000) {
-                    temp_2_107 = (u8 *)(func_00194c90(func_0022eba0, arg0));
-                    (*( s8 * )(temp_2_107 + (0))) = 5;
-                    *(s64 *)(temp_2_107 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s16 * )(temp_2_107 + (0x48))) = sp420;
-                    (*( s64 * )(temp_2_107 + (0x60))) = temp_16;
-                    func_00194590(temp_2_107, 1);
+                    temp_2_107 = (BtlPacketTiming *)(func_00194c90(func_0022eba0, arg0));
+                    temp_2_107->queue = 5;
+                    temp_2_107->startTime = var_19->endTime;
+                    temp_2_107->delay = sp420;
+                    temp_2_107->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_107, 1);
                 }
                 temp_2_108 = (s32 *)&hitRow->result;
                 sp240 = (s32 *)(temp_2_108);
-                temp_2_109 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_21_2), temp_2_108, (*( u16 * )(temp_18 + (0xDC))), (*( u16 * )(temp_18 + (0xDE)))));
-                (*( s8 * )(temp_2_109 + (0))) = 5;
-                *(s64 *)(temp_2_109 + 8) = *(s64 *)(var_19 + 0x58);
-                (*( s16 * )(temp_2_109 + (0x48))) = sp420;
-                (*( s64 * )(temp_2_109 + (0x60))) = temp_16;
-                func_00194590(temp_2_109, 1);
-                temp_2_110 = (u8 *)(func_001f3950(temp_18));
-                (*( s8 * )(temp_2_110 + (0))) = 5;
-                *(s64 *)(temp_2_110 + 8) = *(s64 *)(var_19 + 0x58);
-                (*( s16 * )(temp_2_110 + (0x48))) = sp420;
-                (*( s64 * )(temp_2_110 + (0x60))) = temp_16;
-                func_00194590(temp_2_110, 1);
+                temp_2_109 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(var_21_2), temp_2_108, (*( u16 * )(temp_18 + (0xDC))), (*( u16 * )(temp_18 + (0xDE)))));
+                temp_2_109->queue = 5;
+                temp_2_109->startTime = var_19->endTime;
+                temp_2_109->delay = sp420;
+                temp_2_109->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_109, 1);
+                temp_2_110 = (BtlPacketTiming *)(func_001f3950(temp_18));
+                temp_2_110->queue = 5;
+                temp_2_110->startTime = var_19->endTime;
+                temp_2_110->delay = sp420;
+                temp_2_110->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_110, 1);
                 if (((s32)(sp260) == (s32)(((*( u16 * )(arg0 + (0x6A))) - 1))) && ((s32)(spC0) == (s32)(((*( u8 * )(temp_18 + (0xD9))) - 1)))) {
-                    temp_2_111 = (u8 *)(func_001f3950(arg0));
-                    (*( s8 * )(temp_2_111 + (0))) = 5;
-                    *(s64 *)(temp_2_111 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s16 * )(temp_2_111 + (0x48))) = sp420;
-                    (*( s64 * )(temp_2_111 + (0x60))) = temp_16;
-                    func_00194590(temp_2_111, 1);
+                    temp_2_111 = (BtlPacketTiming *)(func_001f3950(arg0));
+                    temp_2_111->queue = 5;
+                    temp_2_111->startTime = var_19->endTime;
+                    temp_2_111->delay = sp420;
+                    temp_2_111->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_111, 1);
                 }
                 if ((sp260 == 0) && ((s32)(s32)spC0 == 0) && !((*( u16 * )(arg0 + (0x18))) & 4)) {
-                    temp_2_112 = (u8 *)(func_001f3870(arg0, (*( u8 * )(arg0 + (0xDB)))));
-                    (*( s8 * )(temp_2_112 + (0))) = 5;
-                    *(s64 *)(temp_2_112 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s16 * )(temp_2_112 + (0x48))) = sp420;
-                    (*( s64 * )(temp_2_112 + (0x60))) = temp_16;
-                    func_00194590(temp_2_112, 1);
+                    temp_2_112 = (BtlPacketTiming *)(func_001f3870(arg0, (*( u8 * )(arg0 + (0xDB)))));
+                    temp_2_112->queue = 5;
+                    temp_2_112->startTime = var_19->endTime;
+                    temp_2_112->delay = sp420;
+                    temp_2_112->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_112, 1);
                 }
                 if ((s32)(spC0) == (s32)(((*( u8 * )(temp_18 + (0xD9))) - 1))) {
                     if (((*( s16 * )(arg0 + (0xEC))) != 0) && !((*( u8 * )(arg0 + (0xD8))) & 1)) {
@@ -5740,53 +5753,53 @@ void func_001a7720(u8 *arg0) {
                         if (temp_4_14 != 0) {
                             func_00216da0((*( s32 * )(iGpffffb3ac + (0xC60))), func_0043c6a0(temp_4_14));
                         }
-                        temp_2_113 = (u8 *)(func_00202400((*( u8 ** )(arg0 + (0x30))), (*( s16 * )(arg0 + (0xEC)))));
-                        (*( s8 * )(temp_2_113 + (0))) = 5;
-                        *(s64 *)(temp_2_113 + 8) = *(s64 *)(var_19 + 0x58);
-                        (*( u8 * )(temp_2_113 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_113 + (0x47))) & 0xDF));
-                        (*( s64 * )(temp_2_113 + (0x60))) = temp_16;
-                        func_00194590(temp_2_113, 3);
+                        temp_2_113 = (BtlPacketTiming *)(func_00202400((*( u8 ** )(arg0 + (0x30))), (*( s16 * )(arg0 + (0xEC)))));
+                        temp_2_113->queue = 5;
+                        temp_2_113->startTime = var_19->endTime;
+                        temp_2_113->flags = (u8)((u8) (temp_2_113->flags & 0xDF));
+                        temp_2_113->ownerId = temp_16;
+                        func_00194590((u8 *)temp_2_113, 3);
                     } else {
                         if ((*( s16 * )(temp_18 + (0xEC))) != 0) {
                             temp_4_15 = hitRow->result.field14;
                             if (temp_4_15 != 0) {
                                 func_00216da0((*( s32 * )(iGpffffb3ac + (0xC60))), func_0043c6a0(temp_4_15));
                             }
-                            temp_2_114 = (u8 *)(func_00202400((*( u8 ** )(temp_18 + (0x30))), (*( s16 * )(temp_18 + (0xEC)))));
-                            (*( s8 * )(temp_2_114 + (0))) = 5;
-                            *(s64 *)(temp_2_114 + 8) = *(s64 *)(var_19 + 0x58);
-                            (*( u8 * )(temp_2_114 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_114 + (0x47))) & 0xDF));
-                            (*( s64 * )(temp_2_114 + (0x60))) = temp_16;
-                            func_00194590(temp_2_114, 3);
+                            temp_2_114 = (BtlPacketTiming *)(func_00202400((*( u8 ** )(temp_18 + (0x30))), (*( s16 * )(temp_18 + (0xEC)))));
+                            temp_2_114->queue = 5;
+                            temp_2_114->startTime = var_19->endTime;
+                            temp_2_114->flags = (u8)((u8) (temp_2_114->flags & 0xDF));
+                            temp_2_114->ownerId = temp_16;
+                            func_00194590((u8 *)temp_2_114, 3);
                         } else if ((s32)(s32)sp230 != 0) {
                             temp_5_4 = (s16)((s16)((*( s16 * )(var_21_2 + (0xEC)))));
                             if (temp_5_4 != 0) {
-                                temp_2_115 = (u8 *)(func_00202400((*( u8 ** )(var_21_2 + (0x30))), temp_5_4));
-                                (*( s8 * )(temp_2_115 + (0))) = 5;
-                                *(s64 *)(temp_2_115 + 8) = *(s64 *)(var_19 + 0x58);
-                                (*( u8 * )(temp_2_115 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_115 + (0x47))) & 0xDF));
-                                (*( s64 * )(temp_2_115 + (0x60))) = temp_16;
-                                func_00194590(temp_2_115, 3);
+                                temp_2_115 = (BtlPacketTiming *)(func_00202400((*( u8 ** )(var_21_2 + (0x30))), temp_5_4));
+                                temp_2_115->queue = 5;
+                                temp_2_115->startTime = var_19->endTime;
+                                temp_2_115->flags = (u8)((u8) (temp_2_115->flags & 0xDF));
+                                temp_2_115->ownerId = temp_16;
+                                func_00194590((u8 *)temp_2_115, 3);
                             }
                         }
                     }
                 }
                 if ((s32)(*sp240) != (s32)(0)) {
-                    temp_2_116 = (u8 *)(func_00202590((s32)((*( u8 ** )(var_21_2 + (0x30)))), 0, 0));
-                    (*( s8 * )(temp_2_116 + (0))) = 5;
-                    *(s64 *)(temp_2_116 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s16 * )(temp_2_116 + (0x48))) = sp420;
-                    (*( u8 * )(temp_2_116 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_116 + (0x47))) & 0xDF));
-                    (*( s64 * )(temp_2_116 + (0x60))) = temp_16;
-                    func_00194590(temp_2_116, 3);
+                    temp_2_116 = (BtlPacketTiming *)(func_00202590((s32)((*( u8 ** )(var_21_2 + (0x30)))), 0, 0));
+                    temp_2_116->queue = 5;
+                    temp_2_116->startTime = var_19->endTime;
+                    temp_2_116->delay = sp420;
+                    temp_2_116->flags = (u8)((u8) (temp_2_116->flags & 0xDF));
+                    temp_2_116->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_116, 3);
                 }
                 if ((hitRow->result.addedStatus & 0x100000) && ((s32)((*( u8 * )((u8 *)((*( u8 ** )(var_21_2 + (0x30)))) + (0xA2)))) == (s32)(1))) {
-                    temp_2_117 = (u8 *)(func_001f7c20(0xD, 2, 8));
-                    (*( s8 * )(temp_2_117 + (0))) = 5;
-                    *(s64 *)(temp_2_117 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s16 * )(temp_2_117 + (0x48))) = sp420;
-                    (*( s64 * )(temp_2_117 + (0x60))) = temp_16;
-                    func_00194590(temp_2_117, 1);
+                    temp_2_117 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 8));
+                    temp_2_117->queue = 5;
+                    temp_2_117->startTime = var_19->endTime;
+                    temp_2_117->delay = sp420;
+                    temp_2_117->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_117, 1);
                 }
                 if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x20) {
                     sp310 = 1;
@@ -5797,44 +5810,44 @@ void func_001a7720(u8 *arg0) {
                 }
                 temp_2_118 = (u8 *)((s32)(temp_18) + (sp3B0 << 5));
                 spF0 = (s32)((s32) temp_2_118);
-                temp_2_119 = (u8 *)(func_00201de0((s32)((*( u8 ** )(arg0 + (0x30)))), (s32)((*( u8 ** )(var_21_2 + (0x30)))), sp290, (*( u16 * )(temp_18 + (0xDC))), (*( u16 * )(temp_18 + (0xDE))), sp3B0, sp3A0, sp240, 0));
-                (*( s8 * )(temp_2_119 + (0))) = 5;
-                *(s64 *)(temp_2_119 + 8) = *(s64 *)(var_19 + 0x58);
-                (*( s16 * )(temp_2_119 + (0x48))) = sp420;
-                (*( u8 * )(temp_2_119 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_119 + (0x47))) & 0xDF));
-                (*( s64 * )(temp_2_119 + (0x60))) = temp_16;
-                func_00194590(temp_2_119, 3);
+                temp_2_119 = (BtlPacketTiming *)(func_00201de0((s32)((*( u8 ** )(arg0 + (0x30)))), (s32)((*( u8 ** )(var_21_2 + (0x30)))), sp290, (*( u16 * )(temp_18 + (0xDC))), (*( u16 * )(temp_18 + (0xDE))), sp3B0, sp3A0, sp240, 0));
+                temp_2_119->queue = 5;
+                temp_2_119->startTime = var_19->endTime;
+                temp_2_119->delay = sp420;
+                temp_2_119->flags = (u8)((u8) (temp_2_119->flags & 0xDF));
+                temp_2_119->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_119, 3);
                 hpTransfer = (s16 *)(temp_2_118 + 0x108);
                 if (((*( s16 * )(temp_2_118 + (0x108))) > 0) || (hitRow->result.spTransfer > 0)) {
                     spD0 = (s16)sp130;
                     func_001f0a10((u8 *)&result);
                     result.hpDelta = *hpTransfer;
                     result.spDelta = (s32)((s32) *(s16 *)(temp_18 + (sp3B0 << 5) + 0x10A));
-                    temp_2_120 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
-                    (*( s8 * )(temp_2_120 + (0))) = 4;
-                    *(s64 *)(temp_2_120 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s16 * )(temp_2_120 + (0x48))) = (s16) spD0;
-                    (*( s64 * )(temp_2_120 + (0x60))) = temp_16;
-                    func_00194590(temp_2_120, 1);
+                    temp_2_120 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
+                    temp_2_120->queue = 4;
+                    temp_2_120->startTime = var_19->endTime;
+                    temp_2_120->delay = (s16) spD0;
+                    temp_2_120->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_120, 1);
                     temp_4_16 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
-                    temp_2_121 = (u8 *)(func_00201de0((s32)(temp_4_16), (s32)(temp_4_16), -1, 1U, 1U, sp3B0, sp3A0, &result, 0));
-                    (*( s8 * )(temp_2_121 + (0))) = 4;
-                    *(s64 *)(temp_2_121 + 8) = *(s64 *)(var_19 + 0x58);
-                    (*( s16 * )(temp_2_121 + (0x48))) = (s16) spD0;
-                    (*( s64 * )(temp_2_121 + (0x60))) = temp_16;
-                    func_00194590(temp_2_121, 3);
+                    temp_2_121 = (BtlPacketTiming *)(func_00201de0((s32)(temp_4_16), (s32)(temp_4_16), -1, 1U, 1U, sp3B0, sp3A0, &result, 0));
+                    temp_2_121->queue = 4;
+                    temp_2_121->startTime = var_19->endTime;
+                    temp_2_121->delay = (s16) spD0;
+                    temp_2_121->ownerId = temp_16;
+                    func_00194590((u8 *)temp_2_121, 3);
                     if (result.hpDelta != 0) {
                         if ((s32)(s32)spC0 == 0) {
                             temp_2_122 = (u8 *)(func_00202740((*( u8 ** )(arg0 + (0x30)))));
                             (*( s64 * )(temp_2_122 + (0x60))) = temp_16;
                             func_00194590(temp_2_122, 1);
                         }
-                        temp_2_123 = (u8 *)(func_00202590((s32)((*( u8 ** )(arg0 + (0x30)))), 0, 0));
-                        (*( s8 * )(temp_2_123 + (0))) = 4;
-                        *(s64 *)(temp_2_123 + 8) = *(s64 *)(var_19 + 0x58);
-                        (*( s16 * )(temp_2_123 + (0x48))) = (s16) spD0;
-                        (*( s64 * )(temp_2_123 + (0x60))) = temp_16;
-                        func_00194590(temp_2_123, 3);
+                        temp_2_123 = (BtlPacketTiming *)(func_00202590((s32)((*( u8 ** )(arg0 + (0x30)))), 0, 0));
+                        temp_2_123->queue = 4;
+                        temp_2_123->startTime = var_19->endTime;
+                        temp_2_123->delay = (s16) spD0;
+                        temp_2_123->ownerId = temp_16;
+                        func_00194590((u8 *)temp_2_123, 3);
                     }
                 }
                 sp390 += 7;
@@ -5846,15 +5859,15 @@ void func_001a7720(u8 *arg0) {
             sp380 = sp380 + sp180;
             sp3C0 += 1;
     }
-    temp_18_2 = (s64)((s64)(s64)((*( s64 * )(var_19 + (0x58)))));
+    temp_18_2 = (s64)((s64)(s64)(var_19->endTime));
     temp_3_16 = (s16)((s16)((*( s16 * )(arg0 + (0xEE)))));
     if (temp_3_16 != -1) {
-        temp_2_124 = (u8 *)(func_001f5f70(arg0, (u16)temp_3_16, 0, 0, 0));
-        (*( s8 * )(temp_2_124 + (0))) = 5;
-        (*( s64 * )(temp_2_124 + (8))) = temp_18_2;
-        (*( s16 * )(temp_2_124 + (0x48))) = (s16) sp410;
-        (*( s64 * )(temp_2_124 + (0x60))) = temp_16;
-        func_00194590(temp_2_124, 1);
+        temp_2_124 = (BtlPacketTiming *)(func_001f5f70(arg0, (u16)temp_3_16, 0, 0, 0));
+        temp_2_124->queue = 5;
+        temp_2_124->startTime = temp_18_2;
+        temp_2_124->delay = (s16) sp410;
+        temp_2_124->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_124, 1);
     } else if (sp3E0 > 0) {
         if (temp_23_2 == 0) {
             temp_21 = (s32)((u16)func_001ef720(2, 0x80000));
@@ -5888,53 +5901,53 @@ block_406:
             }
             if (var_2_13 != 0) {
 reactionPacket:
-                temp_2_126 = (u8 *)(func_001f5f70(arg0, 0x13, sp3E0, 0, 0));
-                (*( s8 * )(temp_2_126 + (0))) = 5;
-                (*( s64 * )(temp_2_126 + (8))) = temp_18_2;
-                (*( s16 * )(temp_2_126 + (0x48))) = (s16) sp410;
-                (*( s64 * )(temp_2_126 + (0x60))) = temp_16;
-                func_00194590(temp_2_126, 1);
+                temp_2_126 = (BtlPacketTiming *)(func_001f5f70(arg0, 0x13, sp3E0, 0, 0));
+                temp_2_126->queue = 5;
+                temp_2_126->startTime = temp_18_2;
+                temp_2_126->delay = (s16) sp410;
+                temp_2_126->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_126, 1);
                         } else {
-                temp_2_125 = (u8 *)(func_001f99c0(arg0, 0x10, sp3E0, 0, 0));
-                (*( s8 * )(temp_2_125 + (0))) = 5;
-                (*( s64 * )(temp_2_125 + (8))) = temp_18_2;
-                (*( s16 * )(temp_2_125 + (0x48))) = (s16) sp410;
-                func_00194590(temp_2_125, 1);
+                temp_2_125 = (BtlPacketTiming *)(func_001f99c0(arg0, 0x10, sp3E0, 0, 0));
+                temp_2_125->queue = 5;
+                temp_2_125->startTime = temp_18_2;
+                temp_2_125->delay = (s16) sp410;
+                func_00194590((u8 *)temp_2_125, 1);
             }
         }
     } else if ((sp3D0 > 0) && (temp_3_19 = (*( u8 * )(arg0 + (0xDB))), ((temp_3_19 & 1) != 0)) && !(temp_3_19 & 2) && ((s64)((*( u8 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA2)))) == (s64)(0))) {
-        temp_2_127 = (u8 *)(func_001f5f70(arg0, 0x18, (s32) sp370, sp3D0, 0));
-        (*( s8 * )(temp_2_127 + (0))) = 5;
-        (*( s64 * )(temp_2_127 + (8))) = temp_18_2;
-        (*( s16 * )(temp_2_127 + (0x48))) = (s16) sp410;
-        (*( s64 * )(temp_2_127 + (0x60))) = temp_16;
-        func_00194590(temp_2_127, 1);
+        temp_2_127 = (BtlPacketTiming *)(func_001f5f70(arg0, 0x18, (s32) sp370, sp3D0, 0));
+        temp_2_127->queue = 5;
+        temp_2_127->startTime = temp_18_2;
+        temp_2_127->delay = (s16) sp410;
+        temp_2_127->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_127, 1);
     } else if ((sp33C != 0) && (temp_23_2 == 0) && (func_001f0c50(arg0) != 0) && (func_001f0d30(arg0) == 0)) {
-        temp_2_128 = (u8 *)(func_001f99c0((*( s32 ** )(arg0 + (0x38))), 0x12, 0U, 0, 0));
-        (*( s8 * )(temp_2_128 + (0))) = 5;
-        (*( s64 * )(temp_2_128 + (8))) = temp_18_2;
-        (*( s16 * )(temp_2_128 + (0x48))) = (s16) sp410;
-        func_00194590(temp_2_128, 1);
+        temp_2_128 = (BtlPacketTiming *)(func_001f99c0((*( s32 ** )(arg0 + (0x38))), 0x12, 0U, 0, 0));
+        temp_2_128->queue = 5;
+        temp_2_128->startTime = temp_18_2;
+        temp_2_128->delay = (s16) sp410;
+        func_00194590((u8 *)temp_2_128, 1);
     } else if (sp3E0 == 0) {
         if ((s32)(func_001f0dd0(arg0, 1)) != (s32)(0)) {
-            temp_2_129 = (u8 *)(func_001f99c0(arg0, 0xF, 0U, 0, 0));
-            (*( s8 * )(temp_2_129 + (0))) = 5;
-            (*( s64 * )(temp_2_129 + (8))) = temp_18_2;
-            (*( s16 * )(temp_2_129 + (0x48))) = (s16) sp410;
-            func_00194590(temp_2_129, 1);
+            temp_2_129 = (BtlPacketTiming *)(func_001f99c0(arg0, 0xF, 0U, 0, 0));
+            temp_2_129->queue = 5;
+            temp_2_129->startTime = temp_18_2;
+            temp_2_129->delay = (s16) sp410;
+            func_00194590((u8 *)temp_2_129, 1);
         } else if (((s32)(func_001f0f70(arg0)) == (s32)(1)) && ((s32)(func_001f0b90(arg0)) == (s32)(0)) && (sp2E0 == 0)) {
-            temp_2_130 = (u8 *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
-            (*( s8 * )(temp_2_130 + (0))) = 5;
-            (*( s64 * )(temp_2_130 + (8))) = temp_18_2;
-            (*( s16 * )(temp_2_130 + (0x48))) = (s16) sp410;
-            func_00194590(temp_2_130, 1);
+            temp_2_130 = (BtlPacketTiming *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
+            temp_2_130->queue = 5;
+            temp_2_130->startTime = temp_18_2;
+            temp_2_130->delay = (s16) sp410;
+            func_00194590((u8 *)temp_2_130, 1);
         }
     }
     if (sp2E0 != 0) {
         if (sp2D0 == 1) {
             sp4C8 = (BtlPacket *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1B));
             (*( s8 * )((u8 *)(sp4C8) + (0))) = 0xB;
-            *(s64 *)((u8 *)sp4C8 + 8) = *(s64 *)(var_17_6 + 0x58);
+            *(s64 *)((u8 *)sp4C8 + 8) = var_17_6->endTime;
             (*( s16 * )((u8 *)(sp4C8) + (0x48))) = 0x18;
             (*( s64 * )((u8 *)(sp4C8) + (0x60))) = temp_16;
             func_00194590((u8 *)sp4C8, 0);
@@ -5942,152 +5955,152 @@ reactionPacket:
         if ((s32)((*( u8 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA2)))) == (s32)(0)) {
             func_001f0a10((u8 *)&result);
             result.hpDelta = -((s32)(datCalcGetHp((*( s32 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA64)))) & 0xFFFF) - 1);
-            var_18_4 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
+            var_18_4 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
             if (sp2D0 == 1) {
-                (*( s8 * )(var_18_4 + (0))) = 4;
-                (*( s64 * )(var_18_4 + (8))) = (s64)((s64) (*( s64 * )((u8 *)(sp4C8) + (0x58))));
+                var_18_4->queue = 4;
+                var_18_4->startTime = (s64)((s64) (*( s64 * )((u8 *)(sp4C8) + (0x58))));
             } else {
-                (*( s8 * )(var_18_4 + (0))) = 0xB;
-                (*( s64 * )(var_18_4 + (8))) = (s64)((s64) (*( s64 * )(var_17_6 + (0x58))));
+                var_18_4->queue = 0xB;
+                var_18_4->startTime = (s64)((s64) var_17_6->endTime);
             }
-            (*( s64 * )(var_18_4 + (0x60))) = temp_16;
-            func_00194590(var_18_4, 1);
+            var_18_4->ownerId = temp_16;
+            func_00194590((u8 *)var_18_4, 1);
             temp_4_19 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
-            temp_2_132 = (u8 *)(func_00201de0((s32)(temp_4_19), (s32)(temp_4_19), -1, 0U, 0U, 0U, 1U, &result, 0));
-            (*( s8 * )(temp_2_132 + (0))) = 4;
-            (*( s64 * )(temp_2_132 + (8))) = (s64)((s64) (*( s64 * )(var_18_4 + (0x58))));
-            (*( u8 * )(temp_2_132 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_132 + (0x47))) & 0xDF));
-            (*( s64 * )(temp_2_132 + (0x60))) = temp_16;
-            func_00194590(temp_2_132, 3);
-            temp_2_133 = (u8 *)(func_00202590((s32)((*( u8 ** )(arg0 + (0x30)))), 0, 0));
-            (*( s8 * )(temp_2_133 + (0))) = 4;
-            (*( s64 * )(temp_2_133 + (8))) = (s64)((s64) (*( s64 * )(var_18_4 + (0x58))));
-            (*( u8 * )(temp_2_133 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_133 + (0x47))) & 0xDF));
-            (*( s64 * )(temp_2_133 + (0x60))) = temp_16;
-            func_00194590(temp_2_133, 3);
+            temp_2_132 = (BtlPacketTiming *)(func_00201de0((s32)(temp_4_19), (s32)(temp_4_19), -1, 0U, 0U, 0U, 1U, &result, 0));
+            temp_2_132->queue = 4;
+            temp_2_132->startTime = (s64)((s64) var_18_4->endTime);
+            temp_2_132->flags = (u8)((u8) (temp_2_132->flags & 0xDF));
+            temp_2_132->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_132, 3);
+            temp_2_133 = (BtlPacketTiming *)(func_00202590((s32)((*( u8 ** )(arg0 + (0x30)))), 0, 0));
+            temp_2_133->queue = 4;
+            temp_2_133->startTime = (s64)((s64) var_18_4->endTime);
+            temp_2_133->flags = (u8)((u8) (temp_2_133->flags & 0xDF));
+            temp_2_133->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_133, 3);
         } else {
             func_001f0a10((u8 *)&result);
             result.addedStatus = 0x80000;
-            var_18_4 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
+            var_18_4 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
             if (sp2D0 == 1) {
-                (*( s8 * )(var_18_4 + (0))) = 4;
-                (*( s64 * )(var_18_4 + (8))) = (s64)((s64) (*( s64 * )((u8 *)(sp4C8) + (0x58))));
+                var_18_4->queue = 4;
+                var_18_4->startTime = (s64)((s64) (*( s64 * )((u8 *)(sp4C8) + (0x58))));
             } else {
-                (*( s8 * )(var_18_4 + (0))) = 0xB;
-                (*( s64 * )(var_18_4 + (8))) = (s64)((s64) (*( s64 * )(var_17_6 + (0x58))));
+                var_18_4->queue = 0xB;
+                var_18_4->startTime = (s64)((s64) var_17_6->endTime);
             }
-            (*( s64 * )(var_18_4 + (0x60))) = temp_16;
-            func_00194590(var_18_4, 1);
+            var_18_4->ownerId = temp_16;
+            func_00194590((u8 *)var_18_4, 1);
         }
         if (sp2C0 == 0) {
             if (sp2F0 == 0) {
                 if (sp30C == 0) {
-                    var_19 = (u8 *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
+                    var_19 = (BtlPacketTiming *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
                 } else {
-                    var_19 = (u8 *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                    var_19 = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
                 }
-                (*( s8 * )(var_19 + (0))) = 4;
-                (*( s64 * )(var_19 + (8))) = (s64)((s64) (*( s64 * )(var_18_4 + (0x58))));
-                (*( s64 * )(var_19 + (0x60))) = temp_16;
-                func_00194590(var_19, 0);
+                var_19->queue = 4;
+                var_19->startTime = (s64)((s64) var_18_4->endTime);
+                var_19->ownerId = temp_16;
+                func_00194590((u8 *)var_19, 0);
             } else {
-                temp_2_134 = (u8 *)(func_0019a980((*( u8 ** )(arg0 + (0x30)))));
-                var_19 = (u8 *)(temp_2_134);
-                (*( s8 * )(temp_2_134 + (0))) = 4;
-                (*( s64 * )(temp_2_134 + (8))) = (s64)((s64) (*( s64 * )(var_18_4 + (0x58))));
-                (*( s64 * )(temp_2_134 + (0x60))) = temp_16;
-                func_00194590(var_19, 0);
+                temp_2_134 = (BtlPacketTiming *)(func_0019a980((*( u8 ** )(arg0 + (0x30)))));
+                var_19 = (BtlPacketTiming *)(temp_2_134);
+                temp_2_134->queue = 4;
+                temp_2_134->startTime = (s64)((s64) var_18_4->endTime);
+                temp_2_134->ownerId = temp_16;
+                func_00194590((u8 *)var_19, 0);
             }
         }
         temp_4_20 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
         if ((*( s32 * )(temp_4_20 + (0x9C))) & 0x20) {
-            temp_2_135 = (u8 *)(func_00194b60(temp_4_20));
-            (*( s8 * )(temp_2_135 + (0))) = 4;
-            (*( s64 * )(temp_2_135 + (8))) = (s64)((s64) (*( s64 * )(var_18_4 + (0x58))));
-            (*( s16 * )(temp_2_135 + (0x4A))) = 0x3C;
-            (*( s64 * )(temp_2_135 + (0x60))) = temp_16;
-            func_00194590(temp_2_135, 1);
+            temp_2_135 = (BtlPacketTiming *)(func_00194b60(temp_4_20));
+            temp_2_135->queue = 4;
+            temp_2_135->startTime = (s64)((s64) var_18_4->endTime);
+            temp_2_135->duration = 0x3C;
+            temp_2_135->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_135, 1);
         } else {
-            temp_2_136 = (u8 *)(func_0019bbe0(temp_4_20, 0xFFFFFF, 6, 0, 4, 0));
-            (*( s8 * )(temp_2_136 + (0))) = 4;
-            (*( s64 * )(temp_2_136 + (8))) = (s64)((s64) (*( s64 * )(var_18_4 + (0x58))));
-            (*( s64 * )(temp_2_136 + (0x60))) = temp_16;
-            func_00194590(temp_2_136, 1);
+            temp_2_136 = (BtlPacketTiming *)(func_0019bbe0(temp_4_20, 0xFFFFFF, 6, 0, 4, 0));
+            temp_2_136->queue = 4;
+            temp_2_136->startTime = (s64)((s64) var_18_4->endTime);
+            temp_2_136->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_136, 1);
             temp_5_5 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
-            temp_2_137 = (u8 *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD48))), temp_5_5, temp_5_5, 0, 0));
-            (*( s8 * )(temp_2_137 + (0))) = 4;
-            (*( s64 * )(temp_2_137 + (8))) = (s64)((s64) (*( s64 * )(var_18_4 + (0x58))));
-            (*( s64 * )(temp_2_137 + (0x60))) = temp_16;
-            func_00194590(temp_2_137, 2);
-            temp_2_138 = (u8 *)(func_001f7c20(0xA, 2, 0xA));
-            (*( s8 * )(temp_2_138 + (0))) = 4;
-            (*( s64 * )(temp_2_138 + (8))) = (s64)((s64) (*( s64 * )(var_18_4 + (0x58))));
-            (*( s64 * )(temp_2_138 + (0x60))) = temp_16;
-            func_00194590(temp_2_138, 1);
+            temp_2_137 = (BtlPacketTiming *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD48))), temp_5_5, temp_5_5, 0, 0));
+            temp_2_137->queue = 4;
+            temp_2_137->startTime = (s64)((s64) var_18_4->endTime);
+            temp_2_137->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_137, 2);
+            temp_2_138 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0xA));
+            temp_2_138->queue = 4;
+            temp_2_138->startTime = (s64)((s64) var_18_4->endTime);
+            temp_2_138->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_138, 1);
             temp_3_20 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
             *(u32 *)(temp_3_20 + 0x9C) |= 0x100;
         }
     } else if (sp2C0 == 0) {
         if (sp2F0 == 0) {
             if (sp30C == 0) {
-                var_19 = (u8 *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
+                var_19 = (BtlPacketTiming *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
             } else {
-                var_19 = (u8 *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                var_19 = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
             }
-            (*( s8 * )(var_19 + (0))) = 0xB;
-            *(s64 *)(var_19 + 8) = *(s64 *)(var_17_6 + 0x58);
+            var_19->queue = 0xB;
+            var_19->startTime = var_17_6->endTime;
             if (temp_23_2 == 0) {
-                (*( s16 * )(var_19 + (0x48))) = sp440;
+                var_19->delay = sp440;
             } else {
-                (*( s16 * )(var_19 + (0x48))) = 8;
+                var_19->delay = 8;
                 if (sp440 > 8) {
                     var_2_14 = sp440 - 8;
                 } else {
                     var_2_14 = 0;
                 }
-                (*( s16 * )(var_19 + (0x4A))) = var_2_14;
+                var_19->duration = var_2_14;
             }
-            (*( s64 * )(var_19 + (0x60))) = temp_16;
-            func_00194590(var_19, 0);
+            var_19->ownerId = temp_16;
+            func_00194590((u8 *)var_19, 0);
         } else {
-            temp_2_139 = (u8 *)(func_0019a980((*( u8 ** )(arg0 + (0x30)))));
-            var_19 = (u8 *)(temp_2_139);
-            (*( s8 * )(temp_2_139 + (0))) = 0xB;
-            *(s64 *)(temp_2_139 + 8) = *(s64 *)(var_17_6 + 0x58);
-            (*( s16 * )(temp_2_139 + (0x48))) = sp440;
-            (*( s64 * )(temp_2_139 + (0x60))) = temp_16;
-            func_00194590(var_19, 0);
+            temp_2_139 = (BtlPacketTiming *)(func_0019a980((*( u8 ** )(arg0 + (0x30)))));
+            var_19 = (BtlPacketTiming *)(temp_2_139);
+            temp_2_139->queue = 0xB;
+            temp_2_139->startTime = var_17_6->endTime;
+            temp_2_139->delay = sp440;
+            temp_2_139->ownerId = temp_16;
+            func_00194590((u8 *)var_19, 0);
         }
     }
-    temp_2_140 = (u8 *)(func_001b7e20(0x10));
-    (*( s8 * )(temp_2_140 + (0))) = 4;
-    *(s64 *)(temp_2_140 + 8) = *(s64 *)(var_19 + 0x58);
-    (*( u8 * )(temp_2_140 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_140 + (0x47))) & 0xDF));
-    (*( s64 * )(temp_2_140 + (0x60))) = temp_16;
-    func_00194590(temp_2_140, 1);
+    temp_2_140 = (BtlPacketTiming *)(func_001b7e20(0x10));
+    temp_2_140->queue = 4;
+    temp_2_140->startTime = var_19->endTime;
+    temp_2_140->flags = (u8)((u8) (temp_2_140->flags & 0xDF));
+    temp_2_140->ownerId = temp_16;
+    func_00194590((u8 *)temp_2_140, 1);
     if (sp310 != 0) {
         var_2_15 = 2;
     } else {
         var_2_15 = 0;
     }
-    temp_2_141 = (u8 *)(func_001b9360(0x10, (u16)var_2_15));
-    (*( s8 * )(temp_2_141 + (0))) = 4;
-    *(s64 *)(temp_2_141 + 8) = *(s64 *)(var_19 + 0x58);
-    (*( u8 * )(temp_2_141 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_141 + (0x47))) & 0xDF));
-    (*( s64 * )(temp_2_141 + (0x60))) = temp_16;
-    func_00194590(temp_2_141, 1);
-    temp_2_142 = (u8 *)(func_001b99a0(0x10));
-    (*( s8 * )(temp_2_142 + (0))) = 4;
-    *(s64 *)(temp_2_142 + 8) = *(s64 *)(var_19 + 0x58);
-    (*( u8 * )(temp_2_142 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_142 + (0x47))) & 0xDF));
-    (*( s64 * )(temp_2_142 + (0x60))) = temp_16;
-    func_00194590(temp_2_142, 1);
-    temp_2_143 = (u8 *)(func_001ba090(8));
-    (*( s8 * )(temp_2_143 + (0))) = 4;
-    *(s64 *)(temp_2_143 + 8) = *(s64 *)(var_17_6 + 0x58);
-    (*( u8 * )(temp_2_143 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_143 + (0x47))) & 0xDF));
-    (*( s64 * )(temp_2_143 + (0x60))) = temp_16;
-    func_00194590(temp_2_143, 0);
+    temp_2_141 = (BtlPacketTiming *)(func_001b9360(0x10, (u16)var_2_15));
+    temp_2_141->queue = 4;
+    temp_2_141->startTime = var_19->endTime;
+    temp_2_141->flags = (u8)((u8) (temp_2_141->flags & 0xDF));
+    temp_2_141->ownerId = temp_16;
+    func_00194590((u8 *)temp_2_141, 1);
+    temp_2_142 = (BtlPacketTiming *)(func_001b99a0(0x10));
+    temp_2_142->queue = 4;
+    temp_2_142->startTime = var_19->endTime;
+    temp_2_142->flags = (u8)((u8) (temp_2_142->flags & 0xDF));
+    temp_2_142->ownerId = temp_16;
+    func_00194590((u8 *)temp_2_142, 1);
+    temp_2_143 = (BtlPacketTiming *)(func_001ba090(8));
+    temp_2_143->queue = 4;
+    temp_2_143->startTime = var_17_6->endTime;
+    temp_2_143->flags = (u8)((u8) (temp_2_143->flags & 0xDF));
+    temp_2_143->ownerId = temp_16;
+    func_00194590((u8 *)temp_2_143, 0);
     if ((sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
         if (sp320 == 0) {
             if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40)) {
@@ -6096,52 +6109,52 @@ reactionPacket:
                 } else {
                     var_2_16 = 0x1A;
                 }
-                temp_2_144 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)var_2_16));
-                (*( s8 * )(temp_2_144 + (0))) = 5;
-                (*( s64 * )(temp_2_144 + (8))) = sp470;
-                (*( s64 * )(temp_2_144 + (0x60))) = temp_16;
-                func_00194590(temp_2_144, 0);
+                temp_2_144 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)var_2_16));
+                temp_2_144->queue = 5;
+                temp_2_144->startTime = sp470;
+                temp_2_144->ownerId = temp_16;
+                func_00194590((u8 *)temp_2_144, 0);
             }
         } else {
-            temp_2_145 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1D));
-            (*( s8 * )(temp_2_145 + (0))) = 5;
-            (*( s64 * )(temp_2_145 + (8))) = sp470;
-            (*( s64 * )(temp_2_145 + (0x60))) = temp_16;
-            func_00194590(temp_2_145, 0);
+            temp_2_145 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1D));
+            temp_2_145->queue = 5;
+            temp_2_145->startTime = sp470;
+            temp_2_145->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_145, 0);
         }
         if (sp310 == 0) {
-            temp_2_146 = (u8 *)(func_0019bbe0((*( u8 ** )(arg0 + (0x30))), -1, 0, 0xC, 3, 0));
-            (*( s8 * )(temp_2_146 + (0))) = 0xB;
-            *(s64 *)(temp_2_146 + 8) = *(s64 *)(var_17_6 + 0x58);
-            (*( s64 * )(temp_2_146 + (0x60))) = temp_16;
-            func_00194590(temp_2_146, 1);
+            temp_2_146 = (BtlPacketTiming *)(func_0019bbe0((*( u8 ** )(arg0 + (0x30))), -1, 0, 0xC, 3, 0));
+            temp_2_146->queue = 0xB;
+            temp_2_146->startTime = var_17_6->endTime;
+            temp_2_146->ownerId = temp_16;
+            func_00194590((u8 *)temp_2_146, 1);
         }
-        temp_2_147 = (u8 *)(func_0019bbe0(sp4D0, 0xFFFFFF, 8, 0, 4, 0));
-        (*( s8 * )(temp_2_147 + (0))) = 0xB;
-        *(s64 *)(temp_2_147 + 8) = *(s64 *)(var_17_6 + 0x58);
+        temp_2_147 = (BtlPacketTiming *)(func_0019bbe0(sp4D0, 0xFFFFFF, 8, 0, 4, 0));
+        temp_2_147->queue = 0xB;
+        temp_2_147->startTime = var_17_6->endTime;
         var_2_17 = (sp33C != 0 && (s32)sp1E0 != 0) ? 7 : 0xF;
-        (*( s16 * )(temp_2_147 + (0x48))) = var_2_17;
-        (*( s64 * )(temp_2_147 + (0x60))) = temp_16;
-        func_00194590(temp_2_147, 1);
-        temp_2_148 = (u8 *)(func_001d65d0((*( s32 * )(iGpffffb3ac + (0xD70))), (s32)sp4D0, sp400, 0, 0x2100));
-        (*( s8 * )(temp_2_148 + (0))) = 4;
-        *(s64 *)(temp_2_148 + 8) = sp480;
-        (*( s64 * )(temp_2_148 + (0x60))) = temp_16;
-        func_00194590(temp_2_148, 2);
+        temp_2_147->delay = var_2_17;
+        temp_2_147->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_147, 1);
+        temp_2_148 = (BtlPacketTiming *)(func_001d65d0((*( s32 * )(iGpffffb3ac + (0xD70))), (s32)sp4D0, sp400, 0, 0x2100));
+        temp_2_148->queue = 4;
+        temp_2_148->startTime = sp480;
+        temp_2_148->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_148, 2);
     }
     if (sp310 == 1) {
-        temp_2_149 = (u8 *)(btlCreateSetFlagsPacket(0x80));
-        (*( s8 * )(temp_2_149 + (0))) = 4;
-        *(s64 *)(temp_2_149 + 8) = *(s64 *)(var_17_6 + 0x58);
-        (*( s16 * )(temp_2_149 + (0x48))) = 0xC;
-        (*( s64 * )(temp_2_149 + (0x60))) = temp_16;
-        func_00194590(temp_2_149, 1);
-        temp_2_150 = (u8 *)(func_00202850());
-        (*( s8 * )(temp_2_150 + (0))) = 4;
-        *(s64 *)(temp_2_150 + 8) = *(s64 *)(var_19 + 0x58);
-        (*( u8 * )(temp_2_150 + (0x47))) = (u8)((u8) ((*( u8 * )(temp_2_150 + (0x47))) & 0xDF));
-        (*( s64 * )(temp_2_150 + (0x60))) = temp_16;
-        func_00194590(temp_2_150, 1);
+        temp_2_149 = (BtlPacketTiming *)(btlCreateSetFlagsPacket(0x80));
+        temp_2_149->queue = 4;
+        temp_2_149->startTime = var_17_6->endTime;
+        temp_2_149->delay = 0xC;
+        temp_2_149->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_149, 1);
+        temp_2_150 = (BtlPacketTiming *)(func_00202850());
+        temp_2_150->queue = 4;
+        temp_2_150->startTime = var_19->endTime;
+        temp_2_150->flags = (u8)((u8) (temp_2_150->flags & 0xDF));
+        temp_2_150->ownerId = temp_16;
+        func_00194590((u8 *)temp_2_150, 1);
     }
     if (sp340 == 0) {
         func_001d3e00(sp4A0);
