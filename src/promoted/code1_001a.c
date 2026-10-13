@@ -4647,7 +4647,7 @@ void func_001a7720(u8 *arg0) {
     noOverride = (s32)(func_001f2f90(arg0)) == (s32)(0);
     windupFrames = 6;
     skillIndex = skill;
-    skillFlag2 = (s32)(s32)((*((u8 *)(skillIndex * 0x28) + (u32)iGpffffb3b8) & 2)) != (s32)(0);
+    skillFlag2 = (s32)(s32)((*(iGpffffb3b8 + skillIndex * 0x28) & 2)) != (s32)(0);
     altCamera = ((act->flags1A & 0x10) != 0) && skillFlag2 == 0;
     isKind3 = (s32)(s32)(act->kind == 3);
     rotateFirst = (s32)(func_001f0ff0(arg0));
