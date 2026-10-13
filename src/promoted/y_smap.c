@@ -238,6 +238,7 @@ s32 func_002ac740(void) {
  * leave the shadow in place (mk_*.c). Only asm store statements kill frontend-CSE availability.
  * measured: fnalign 290 -> 217, frame 0x190; shared room phase and reused working coordinates.
  * measured: fnalign 217 -> 212; keep the rectangle's halfword row snapshot distinct from the final call.
+ * measured: fnalign 212 -> 208; the rectangle's visibility-row byte offset is a word, not a halfword.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -389,7 +390,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
     u16 temp_5_6;
     s32 temp_5_7;
     s32 temp_5_9;
-    u16 temp_6;
+    s32 temp_6;
     s32 temp_6_2;
     s32 temp_6_3;
     s32 temp_7;
