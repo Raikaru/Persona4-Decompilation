@@ -251,6 +251,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 96 -> 89; prepare a word-sized vertical reveal mask before the kind guard.
  * measured: fnalign 89 -> 81; the rectangle query uses a signed halfword column, distinct from its first snapshot.
  * measured: fnalign 81 -> 79; prepare the horizontal map/visibility offsets at the phase entrance.
+ * measured: fnalign 79 -> 73; each square-scan row likewise prepares its map and visibility byte offsets.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -646,12 +647,16 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 workingRow = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
                 sp140 = 0;
                 while (((s16)(sp140)) < 3) {
+                    s32 mapRowOffset;
+                    s32 visibilityRowOffset;
                     var_17_2 = 0;
                     sp180 = ((s8)(workingRow));
+                    mapRowOffset = sp180 << 8;
+                    visibilityRowOffset = sp180 * 2;
                     while ((sp160 = ((s16)(var_17_2))) < 3) {
                         temp_23_4 = func_002b2cb0((((s8)(temp_16_3))), sp160, 0x10, 0, 1) * 0x10;
-                        if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT((sp180 << 8), temp_23_4)->reveal))) == 2) {
-                            *((u16 *)((sp180 * 2) + (u32)D_00764658)) |= (1 << func_002b2cb0((((s8)(temp_16_3))), sp160, 0x10, 0, 1)) & 0xFFFF;
+                        if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_4)->reveal))) == 2) {
+                            *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0((((s8)(temp_16_3))), sp160, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_17_2 = ((s16)((var_17_2 + 1)));
                     }
@@ -684,12 +689,16 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 var_4 = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
                 var_17_4 = 0;
                 while (((s16)(var_17_4)) < 3) {
+                    s32 mapRowOffset;
+                    s32 visibilityRowOffset;
                     var_16_3 = 0;
                     temp_19_6 = ((s8)(var_4));
+                    mapRowOffset = temp_19_6 << 8;
+                    visibilityRowOffset = temp_19_6 * 2;
                     while ((temp_18_8 = ((s16)(var_16_3))) < 3) {
                         temp_23_5 = func_002b2cb0((((s8)(temp_16_6))), temp_18_8, 0x10, 0, 1) * 0x10;
-                        if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT((temp_19_6 << 8), temp_23_5)->reveal))) == 2) {
-                            *((u16 *)((temp_19_6 * 2) + (u32)D_00764658)) |= (1 << func_002b2cb0((((s8)(temp_16_6))), temp_18_8, 0x10, 0, 1)) & 0xFFFF;
+                        if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_5)->reveal))) == 2) {
+                            *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0((((s8)(temp_16_6))), temp_18_8, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_16_3 = ((s16)((var_16_3 + 1)));
                     }
@@ -719,12 +728,16 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 var_4_2 = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
                 var_17_5 = 0;
                 while (((s16)(var_17_5)) < 3) {
+                    s32 mapRowOffset;
+                    s32 visibilityRowOffset;
                     var_16_4 = 0;
                     temp_19_7 = ((s8)(var_4_2));
+                    mapRowOffset = temp_19_7 << 8;
+                    visibilityRowOffset = temp_19_7 * 2;
                     while ((temp_18_9 = ((s16)(var_16_4))) < 3) {
                         temp_23_6 = func_002b2cb0((((s8)(temp_16_7))), temp_18_9, 0x10, 0, 1) * 0x10;
-                        if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT((temp_19_7 << 8), temp_23_6)->reveal))) == 2) {
-                            *((u16 *)((temp_19_7 * 2) + (u32)D_00764658)) |= (1 << func_002b2cb0((((s8)(temp_16_7))), temp_18_9, 0x10, 0, 1)) & 0xFFFF;
+                        if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_6)->reveal))) == 2) {
+                            *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0((((s8)(temp_16_7))), temp_18_9, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_16_4 = ((s16)((var_16_4 + 1)));
                     }
