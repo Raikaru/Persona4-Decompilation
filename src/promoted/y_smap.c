@@ -226,6 +226,11 @@ s32 func_002ac740(void) {
  * retail's remasks and the 0x190 frame (structural diff 50 -> 32) but fnalign 397. Residual is the spill
  * set: retail keeps a separate sp180 = temp_18 copy (b210 coalesces any non-interfering copy, 0x004be880)
  * and the anchors score 4 (shared across both searches); no natural spelling kept the copy.
+ * 2026-10-13: the shared masks are frontend CSE shadows (compiler locals r170/r171 holding (s32)arg0/arg1
+ * at codegen entry). opt_common_subs off reproduces retail's entry exactly (raw a0/a1 in s4/s3, remask
+ * at each use) but also drops the backend's per-call constant sharing (move t0,a2) that retail keeps
+ * (465). Micro tests: the shadow survives every cast/mask spelling, s32 parameters, local u8 copies,
+ * parameter reassignment on another path and 1200-block functions; no other opt_ pragma moves 290.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
