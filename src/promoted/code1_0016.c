@@ -1974,6 +1974,9 @@ query_complete:
  * declared number only when its own definition is conditional (d = 0; if (c) d = sqrtf(...)).
  * A copy use or a conditional definition in another web of the same variable, a separate sum,
  * operand order, an address-of store and a (f32) cast all leave the sqrt result as a temp.
+ * Two product locals (lenX/lenZ) stop the codegen MAC fusion (the backend fuses later, without an
+ * adda zero), but stk40[1] = 0.0f then stores sw $zero (46). Retail's swc1 $f1 proves the codegen
+ * adda zero exists and is CSE'd into that store.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
