@@ -377,6 +377,8 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * across blocks (retail reloads them) plus two var * 0x18 strides (163). Reading the global as
  * *(u8 **)&iGpffff9db0 at one occurrence per site restores the reloads (87, build/f310_o1cse_87.c),
  * but the strides stay merged and the table loops regress to the O2 colouring.
+ * Capture: with opt_common_subs on, the O1 backend pass also forwards the loop locals' copies into
+ * arithmetic (sll/preset/resource fold), so the O1-only declaration-order colouring is lost.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
