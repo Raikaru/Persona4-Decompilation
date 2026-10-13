@@ -7,6 +7,7 @@
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
 #include "Kosaka/k_model_internal.h"
+#include "rw/std/stddef.h"
 
 typedef struct HCdvd HCdvd;
 typedef struct Model Model;
@@ -252,28 +253,20 @@ s32 func_00162c30(void)
  * attach models and placements, apply the leader's calendar/room animation rule,
  * position the party, then create follower controllers and reset per-unit state.
  *
- * measured: readability/type recovery preserves 736 instructions and ONE fnalign
- * edit. The remaining question is confined to foundEligibleRoom's first-hit store:
+ * measured: 1 -> 0 fnalign edits, 736 instructions. The remaining operand was a
+ * real inline-result lifetime, not a compiler floor. The calendar search below
+ * follows matched sibling func_001623f0: its initial found = 0 and early return 0
+ * both survive allocation, giving found four counted references and retail's $s5.
+ * Post-color CSE removes the early-return zero; the success store is then the
+ * required addiu $s5, $zero, 1. A capture confirms that exact deletion.
  *
- *     retail:    addiu $s5, $zero, 1
- *     candidate: addiu $s5, $s5,   1
- *
- * The immediate break bounds the count to one, so behavior is unchanged. Writing
- * foundEligibleRoom = 1 instead gives the correct store but swaps its register
- * with roomIndex's (8 edits). This is an unresolved lifetime/allocation detail,
- * not a demonstrated compiler floor. The separate placementCursor is intentional:
- * its copy preserves retail's node-loop entry branch (the previous 2 -> 1 fix).
- *
- * The typed views below document observed offsets; unknown fields remain unnamed.
- * Per-phase slot lookups and integer-domain address conversions preserve retail's
- * recomputations. Matrix/vector copies retain their original word-aligned layout.
+ * Typed views document observed offsets; unknown fields remain unnamed. Separate
+ * placementCursor preserves the node-loop entry branch. Per-phase slot lookups,
+ * address conversions and word-aligned copies preserve retail's evaluation order.
  */
-// FUN_00162E10 NONMATCHING
-#ifdef NON_MATCHING
-#include "rw/std/stddef.h"
 #pragma push
 /* measured: dead assignments off + lifetimes on took 180 -> 173 edits;
- * both remain required by the current one-edit candidate. */
+ * retain these scopes for the byte-exact initializer below. */
 #pragma opt_dead_assignments off
 #pragma opt_lifetimes on
 /* The current field's prefix and each sentinel-terminated table entry share
@@ -386,6 +379,60 @@ static inline FieldUnitRecord *fieldUnitSlotAt(const s32 *index)
     return (FieldUnitRecord *)(D_007EF9B0 + (*index * 0x750));
 }
 
+/* The same date/room search as func_001623f0, kept inline so its internal result
+ * and early-return value remain separate until the compiler merges their lives.
+ * Before allocation the result has two zero definitions, one success definition
+ * and one test (score 4). Post-color CSE deletes the redundant early-return zero.
+ * No helper-specific optimization override is needed.
+ */
+static inline s32 fieldUnitCalendarRoomMatch(void)
+{
+    extern s32 func_00110680(s32 date, s32 month, s32 day);
+    extern s16 func_001060b0(void);
+    extern u8 func_001060c0(void);
+    extern s64 func_00110960(s32 date, u32 phase);
+    extern FieldUnitRoomKey D_005F1350[];
+    u8 *fieldState;
+    s32 fieldId;
+    s32 found;
+    s32 roomIndex;
+    s32 calendarDay;
+    s32 calendarValue;
+    s32 remainder;
+    FieldUnitRoomKey *entry;
+
+    found = 0;
+    /* March 20 bypasses the room scan. */
+    if (func_00110680((s16)func_001060b0(), 3, 0x14) == 1) {
+        return 0;
+    }
+    roomIndex = 0;
+    goto room_test;
+room_body:
+    fieldState = iGpffff9db0;
+    if (((FieldUnitRoomKey *)fieldState)->fieldId == fieldId &&
+        ((FieldUnitRoomKey *)fieldState)->roomId == entry->roomId) {
+        calendarDay = (s16)func_001060b0();
+        calendarValue = (s8)func_00110960(calendarDay, func_001060c0() & 0xFF);
+        /* The signed calendar value can be negative; keep the signed remainder. */
+        remainder = calendarValue % 2;
+        if (remainder != 0) {
+            found = 1;
+            goto room_done;
+        }
+    }
+    roomIndex += 1;
+room_test:
+    entry = (FieldUnitRoomKey *)((u8 *)D_005F1350 + roomIndex * 8);
+    fieldId = entry->fieldId;
+    if (fieldId != -1) {
+        goto room_body;
+    }
+room_done:
+    return found;
+}
+
+// FUN_00162E10
 void func_00162e10(void)
 {
     /* Word-aligned RenderWare matrix view; retail copies all 64 bytes. */
@@ -408,11 +455,7 @@ void func_00162e10(void)
     extern void func_00168ae0(u8 *task, u8 *position);
     extern void func_0017b9a0(u8 *task, f32 radius);
     extern s32 func_0014a160(void);
-    extern s32 func_001060c0(void);
-    extern s32 func_00110680(s32 date, s32 month, s32 day);
-    extern s64 func_00110960(s32 date, u32 phase);
     extern s32 func_00145540(u16 index, u16 variant, void *model);
-    extern FieldUnitRoomKey D_005F1350[]; /* Calendar-eligible field/room pairs. */
     extern f32 D_007615DC;
     RwV3d formationOffset;
     RwV3d markerScale;
@@ -476,36 +519,8 @@ void func_00162e10(void)
         if (partyIndex == 0) {
             func_00168780((*sceneResource)->movementTask, 60.0f);
             if ((*characterModel)->kind != 1) {
-                s32 foundEligibleRoom = 0;
+                s32 foundEligibleRoom = fieldUnitCalendarRoomMatch();
 
-                /* func_00110680 tests the current month/day: March 20 bypasses. */
-                if (func_00110680((s16)func_001060b0(), 3, 0x14) == 1) {
-                    foundEligibleRoom = 0;
-                } else {
-                    s32 roomIndex;
-                    s32 entryFieldId;
-
-                    FieldUnitRoomKey *roomEntry;
-
-                    for (roomIndex = 0;
-                         (entryFieldId = (roomEntry = &D_005F1350[roomIndex])->fieldId) != -1;
-                         roomIndex++) {
-                        if (((FieldUnitRoomKey *)iGpffff9db0)->fieldId == entryFieldId &&
-                            ((FieldUnitRoomKey *)iGpffff9db0)->roomId == roomEntry->roomId) {
-                            s32 calendarDay = (s16)func_001060b0();
-                            s8 calendarValue =
-                                func_00110960(calendarDay, func_001060c0() & 0xFF);
-
-                            /* The signed calendar value can be negative; keep % 2. */
-                            if (calendarValue % 2 != 0) {
-                                /* Sole mismatch: retail adds 1 to $zero, not $s5.
-                                 * The immediate break still bounds this count to one. */
-                                foundEligibleRoom++;
-                                break;
-                            }
-                        }
-                    }
-                }
                 if (foundEligibleRoom == 0) {
                     s32 layerIndex;
 
@@ -682,9 +697,6 @@ void func_00162e10(void)
     func_003e0f40((u8 *)formationMatrix);
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00162e10);
-#endif
 
 
 
