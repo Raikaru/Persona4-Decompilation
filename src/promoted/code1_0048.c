@@ -2537,6 +2537,13 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
  * recomputed in the loop (34), and dropping dst1's else web swaps c0/clear
  * ($s7/$fp). An inline else-branch helper (anchor as parameter) needs
  * inline_depth and recolours the branch (57).
+ * 2026-10-13 (build/v8b340, micro sh1-sh11): an order search on the block-anchor capture finds a
+ * 10/10 colouring only with the anchor scanned after the loop's asm-operand and conversion temps
+ * and before tmpE/tmpD/bound, a window only a codegen temp occupies; declared locals number <= 61.
+ * Expression anchors split into per-region shadows at the conversion join or the loop's sqc2 store.
+ * The best is `iter` assigned after the store/scale sequence (23-24), with three separate residuals:
+ * the age test's own addu, the counter/transfer swap and the stride/c0 swap. Whole-else helpers
+ * 40-43; opt_lifetimes 81-107; opt_common_subs off 96-112; opt_propagation on 50.
  */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
