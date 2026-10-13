@@ -237,6 +237,7 @@ s32 func_002ac740(void) {
  * the backend's call-constant sharing; stores, calls and every mask/cast/parameter-type spelling
  * leave the shadow in place (mk_*.c). Only asm store statements kill frontend-CSE availability.
  * measured: fnalign 290 -> 217, frame 0x190; shared room phase and reused working coordinates.
+ * measured: fnalign 217 -> 212; keep the rectangle's halfword row snapshot distinct from the final call.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -554,7 +555,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
             (*( u16 * )((u8*)(temp_4_18) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_18) + (2))) | temp_5_5);
             return;
         }
-        temp_4_19 = arg1 & 0xFF;
+        temp_4_19 = arg1;
         temp_23_3 = temp_4_19 + 2;
         temp_18_5 = ((s8)(func_002b2d00(temp_4_19, 1, 1, temp_23_3, 1)));
         temp_22_3 = temp_18_5 << 8;
