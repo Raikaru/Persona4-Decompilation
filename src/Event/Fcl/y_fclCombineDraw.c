@@ -2629,6 +2629,17 @@ void func_00320970(u8 *arg0, s8 arg1) {
  * Readability pass: still 3 edits; all 471 instructions are unchanged from
  * the captured baseline. Typed state, names and phases expose the lifetime
  * question without changing the sensitive casts, statement order or scopes.
+ * 2026-10-13 mode-use census: retail stores the promoted byte at 00320BCC
+ * (sw v0,0xD0(sp)); its only reload, 00320F20, feeds the 00320F24 branch.
+ * Neither the home address nor the loaded mode is passed to a callee:
+ * both arms overwrite v0 before their next call. A per-row plain copy or
+ * inline-helper parameter folds before codegen_entry. The narrowed spelling
+ * `s32 rowMode = (s8)savedMode` reaches that stage only as sext uses, not a
+ * copy use that would retain the word local; it gives 8 edits, still sq/lq.
+ * An address-taken word snapshot uses retail's sw/lw and entry test, but
+ * shrinks the frame to 0x140 instead of 0x150 (44 edits); no padding added.
+ * Still open, not a compiler-floor claim: retain a genuine word-mode copy
+ * with spill score 2 while the entry test reads a separate promoted byte.
  */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
