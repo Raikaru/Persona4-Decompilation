@@ -246,6 +246,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 142 -> 115; kinds 13/14 use a single-case early-return guard, not a switch.
  * measured: fnalign 115 -> 112; reveal the current cell before preparing the cached neighbor-row offset.
  * measured: fnalign 112 -> 110; the three-cell reveal copies an unsigned halfword row, not a row offset.
+ * measured: fnalign 110 -> 106; reuse the offset-first pointer helper for the two following reveal rows.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -637,9 +638,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     temp_4_30 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                     *temp_4_30 |= ((1 << ((s32)arg0)) & 0xFFFF);
                     temp_5_10 = arg1;
-                    temp_4_31 = (u8 *)(temp_5_10 * 2 + (u32)D_00764658);
+                    temp_4_31 = smapRevealOffsetPtr(temp_5_10 * 2, (u8 *)D_00764658);
                     (*( u16 * )((u8*)(temp_4_31) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_31) + (2))) | ((1 << ((s32)arg0)) & 0xFFFF));
-                    temp_4_32 = (u8 *)(temp_5_10 * 2 + (u32)D_00764658);
+                    temp_4_32 = smapRevealOffsetPtr(temp_5_10 * 2, (u8 *)D_00764658);
                     (*( u16 * )((u8*)(temp_4_32) + (4))) = (u16) ((*( u16 * )((u8*)(temp_4_32) + (4))) | ((1 << ((s32)arg0)) & 0xFFFF));
                     return;
                 }
