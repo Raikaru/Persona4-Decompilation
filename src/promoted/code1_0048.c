@@ -2527,6 +2527,16 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
  * A dedicated linear anchor costs 40 edits. The captured model puts its r60
  * in $a3 only after the step-transfer temporary r91; the counter/alpha
  * transfer order also differs. Const and inline accessor forms stay at 40.
+ * 2026-10-13: allocator replay of a dedicated anchor (any declaration
+ * position: 40, colour $v1) gives retail's $a3 and every other colour once
+ * the anchor is numbered after r91, the else loop's last asm-operand
+ * variable; parse-time locals cannot be. Retail's anchor is therefore an
+ * IR or codegen temporary shared by the pre-loop uses and the loop's
+ * effectVuLoad10. As an expression it is CSE'd before the loop but not into
+ * it: IR LICM hoists only the (u32)clear conversion (34), uncast it is
+ * recomputed in the loop (34), and dropping dst1's else web swaps c0/clear
+ * ($s7/$fp). An inline else-branch helper (anchor as parameter) needs
+ * inline_depth and recolours the branch (57).
  */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
