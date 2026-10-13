@@ -27,8 +27,8 @@ alignment, and the C preserves the observed behavior and ABI.
 
 ## October 12 continuation, part 13: `0027f6f0`, `0018a200`, `0017f490`, `001f14f0`, `00471370`, `0046b380`, `001a59a0`, `00162e10` MATCH; compiler internals
 
-**6,852 MATCH / 8 ASM** (`build/after52.json`; link 604 C / 54 SDK, both
-sha1 OK in `build/link59.log`). `001a7720` matched after this part's table.
+**6,853 MATCH / 7 ASM** (`build/after53.json`; link in `build/link60.log`).
+`001a7720` and `002b6ec0` matched after this part's table.
 
 The seven matches all came from the procedure now written up as "Rewrite
 playbook for large or stubborn residuals" at the top of `docs/matching.md`:
@@ -54,7 +54,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 | `0048b340` | 9 | linear anchor needs a late identity |
 | `0014f310` | 14 | O1: the state pointer folds into its load temp. Under O2 + `opt_common_subs off` + `opt_propagation off` both swap sites match, and only the two table loops differ (44): `temp_7`, `a_resource` and `a_preset` must keep declared numbers |
 | `001d8010` | 25 | sort `limit`/`j` numbering |
-| `002b6ec0` | 28 | table/base saved-register roles |
+| `002b6ec0` | 0 (MATCH) | allocator replay (`regalloc_whatif`) showed both the work-table base and `off` must be late-numbered (temporaries, not declared locals). `queue = (s16 *)table;` was a copy use pinning `table`; one `s16 *queue` loaded once and read through `(u8 *)queue` frees it (28 -> 23). `entryOffset = (u32)off;` pinned `off`; forming `entryOffset` once before the active test closes it (23 -> 0). Owner 58/58, elig clean, lint 8 -> 7 |
 | `0016bdd0` | 39 | sqrt result versus `adda` zero numbering (three regions) |
 | `002ac750` | 290 | spill choice in both search blocks; retail keeps `sp180 = temp_18` as its own spilled value, which b210 coalesces in natural spellings (restructured `d7d2f766`: 397, reverted in `66a26b06`) |
 | `001a59a0` | 0 (MATCH) | frame 0x330; closed the camera field-origin operands, selected-target join and reaction short circuits. Owner: 70 MATCH / 1 ASM; exact-link eligibility clean. |
