@@ -379,6 +379,11 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * but the strides stay merged and the table loops regress to the O2 colouring.
  * Capture: with opt_common_subs on, the O1 backend pass also forwards the loop locals' copies into
  * arithmetic (sll/preset/resource fold), so the O1-only declaration-order colouring is lost.
+ * Replay (build/cap/f310base): the resource colours $v0 only when scanned at >= 714 (its raw load
+ * temp); named values cap near r158 here (inline parameter binding). Also measured: a phase helper
+ * around the whole if/else 79, an s64 base parameter 49 (adds a move per site), a resource passed as a
+ * call-site expression into a helper 14, the base defined before the branch or via an a270 result
+ * local 14, cross-phase variable reuse 19, register 14. Micros: build/micro_src/fwd1-3.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
