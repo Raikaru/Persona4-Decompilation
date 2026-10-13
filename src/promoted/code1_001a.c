@@ -5106,7 +5106,7 @@ void func_001a7720(u8 *arg0) {
                 *(s32 *)(btlState9_49 + 0xC) = (s32) (*(s32 *)(btlState9_49 + 0xC) | 0x400000);
                 btlState10_310 = (u8 *)(iGpffffb3ac);
                 *(u16 *)(btlState10_310 + 0x18) = (u16) (*(u16 *)(btlState10_310 + 0x18) | 7);
-            } else if ((*( s16 * )((u8 *)((((*( u16 * )((u8 *)(act->unit) + (0xA4))) * 0xE8) + ((s32)iGpffffb3cc))) + (0x18))) & 1) {
+            } else if (btlCameraField_001a59a0(*(u16 *)(act->unit + 0xA4), (s16 *)(iGpffffb3cc + 0x18)) & 1) {
                 animBlend = 0;
                 sp2F0 = 1;
                 sp30C = 0;
