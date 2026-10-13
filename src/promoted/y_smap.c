@@ -239,6 +239,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 290 -> 217, frame 0x190; shared room phase and reused working coordinates.
  * measured: fnalign 217 -> 212; keep the rectangle's halfword row snapshot distinct from the final call.
  * measured: fnalign 212 -> 208; the rectangle's visibility-row byte offset is a word, not a halfword.
+ * measured: fnalign 208 -> 198; distinct original-row stride restores the rectangle row (frame 0x1A0).
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -462,7 +463,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
     u8 *temp_4_32;
 
     temp_18 = arg1;
-    temp_17 = temp_18 << 8;
+    temp_17 = temp_18 * 0x100;
     temp_16 = ((u32)arg0) * 0x10;
     if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 7) {
         temp_4 = SMAP_GRID_CELL_AT(temp_17, temp_16)->kind;
