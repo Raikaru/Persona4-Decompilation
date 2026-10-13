@@ -242,6 +242,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 208 -> 198; distinct original-row stride restores the rectangle row (frame 0x1A0).
  * measured: fnalign 198 -> 154, frame 0x190; give the rectangle its own halfword column and column limit.
  * measured: fnalign 154 -> 146; form vertical footprint addresses directly from the signed-byte anchor.
+ * measured: fnalign 146 -> 142; likewise form the horizontal cell address and reveal bit from the anchor.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -341,7 +342,6 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
     case 3: {
         s32 step;
         s32 columnDelta;
-        s32 revealColumn;
         u16 revealRow;
         u8 revealKind;
         u16 *visibility;
@@ -349,11 +349,10 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
         step = 0;
         revealRow = row;
         while ((columnDelta = (s16)step) < extent) {
-            revealColumn = (s8)*anchorColumn + columnDelta;
-            revealKind = SMAP_GRID_SCAN_AT(revealRow << 8, revealColumn * 0x10)->kind;
+            revealKind = SMAP_GRID_SCAN_AT(revealRow << 8, ((s8)*anchorColumn + columnDelta) * 0x10)->kind;
             if (revealKind == SMAP_GRID_OFFSET_AT(cellOffset)->kind) {
                 visibility = (u16 *)((revealRow * 2) + (u32)D_00764658);
-                *visibility |= (1 << revealColumn) & 0xFFFF;
+                *visibility |= (1 << ((s8)*anchorColumn + columnDelta)) & 0xFFFF;
             }
             step = (s16)(step + 1);
         }
