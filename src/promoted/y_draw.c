@@ -641,47 +641,11 @@ void func_002b6ea0(void) {
     func_0048a000();
 }
 
-/* The guarded update follows the retail call boundaries: reacquire the work
-   table after animation, allocation and queue insertion, then retain the draw
-   entry across the pure color packer. Only entries active on loop entry are
-   appended, including entries deactivated during their update. The scale
-   gates use the retail <= rejection tests in all three draw arms.
-
-   The 0025ecd0 provider confirms the existing six float/eight integer channels.
-   Its declaration is shared with the other callers in this owner.
-   Measured 2026-10-05: complete-owner C target 1512 bytes / 1536-byte window,
-   368 differing resolved words; all 57 siblings preserve their exact code and
-   references. The existing common-subexpression setting remains scoped here.
-   Strict guard, typed-layout evidence and behavioral replay:
-   docs/probe_archive/YDraw_update_002b6ec0_20261005/. */
-#pragma push
-#pragma opt_common_subs off
-/* 2026-10-08: opt_lifetimes on lowers fnalign from 231 to 217 edits.
-   2026-10-08: rewritten from retail asm (164 edits). The bit search is an s16 inline helper. Each block uses the retail index form: off = (s32)i << 8 saved at loop entry, a mult-form index for the queue argument and the A4 gate, and a third spelling (0x100U) for the draw call. The table base is held in locals where retail saves it, the draw arm falls through, and opt_common_subs is re-enabled inside, overriding the outer off.
-   The queue count is cleared before i is initialised (163). Open: CSE reuses the loop test's (s16)i extension in the body; retail recomputes it at each use.
- * 2026-10-09: 163 -> 161: the loop loads the entry base before forming `off`
- * (`e = YDRAW_BASE; off = i << 8; e += off`).
- * 155: gp pool floats written as literals.
- * 150: conversion lever (off:(0, 3)).
- * 147: conversion lever (off:(4, 5)).
- * 144: conversion lever (off:(7, 8)).
- * sdiff 19/126 -> 17/110: first draw block recomputes the sext of i (retail).
- * sdiff 17/110 -> 16/109: retail tests the u8 with blez (`> 0`).
- * sdiff 16/109 -> 14/108: third draw block recomputes (s32)(u32)i.
- */
-/* 2026-10-10: sample the queue table before converting its row index.
- * Keep the sampled draw base and row offset across the color packer, then
- * form the draw entry address. The exposed C body is 1524/1536 bytes with
- * 56 alignment edits and 53 fully resolved word differences. All 57 siblings,
- * the existing float pool, and 92 bounded behavioral cases are preserved.
- * This remains guarded C and earns no match credit. Current evidence:
- * docs/probe_archive/First_party_pro_ui_worker8_20261010.md.
- */
-/* measured 2026-10-12: active-entry/append-queue views and declaration order reduce fnalign 56 -> 38 edits.
- * Explicit post-color base handoffs, split lifetimes, and propagation/pullout off reach 28 edits.
- * All 381 instructions and the 0x70 frame remain; table/plain-base and per-arm offset roles still differ. */
-// FUN_002B6EC0 NONMATCHING
-#ifdef NON_MATCHING
+/* Advance every active draw entry: refresh its animation, run the colour
+ * and draw stages, clear finished entries and append active ones to the
+ * queue. One queue pointer holds the work table (a copy of it would keep
+ * the base a declared local; retail's base is a temporary in $s3), and the
+ * entry offset is formed once before the active test. */
 static inline s16 yDrawAnyBit(s32 flags)
 {
     s16 bit;
@@ -698,12 +662,13 @@ static inline s16 yDrawAnyBit(s32 flags)
 
 #pragma push
 #pragma opt_common_subs on
+/* measured: these scopes reproduce retail's lifetimes and register roles (fnalign 0). */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
+// FUN_002B6EC0
 s32 func_002b6ec0(u8 *arg0) {
-    s32 off;
     u32 entryOffset;
     s16 *queue;
     s16 i;
@@ -722,10 +687,9 @@ s32 func_002b6ec0(u8 *arg0) {
     while (i < 0x30C) {
         *(s16 *)(((u8 *)queue) + (s32)i * 2 + 0x30C06) = 0;
         e = YDRAW_BASE;
-        off = (s32)i << 8;
-        e += (s32)off;
+        entryOffset = (u32)((s32)i << 8);
+        e += (s32)entryOffset;
         if ((s16)(*(s16 *)(e + 0x14) & 1) == 1) {
-            entryOffset = (u32)off;
             animation = func_002b89a0(e + 0x14);
             memcpy(YDRAW_BASE + entryOffset + 0x14, animation, 0xF0);
             func_002b7cd0(arg0, i, *(s16 *)(YDRAW_BASE + entryOffset + 8));
@@ -819,10 +783,6 @@ s32 func_002b6ec0(u8 *arg0) {
 }
 #pragma pop
 #undef YDRAW_BASE
-#else
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6ec0);
-#endif
-#pragma pop
 
 // FUN_002B74C0
 void func_002b74c0(u8 *arg0) {
