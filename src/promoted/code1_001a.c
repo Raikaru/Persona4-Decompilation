@@ -5095,7 +5095,7 @@ void func_001a7720(u8 *arg0) {
         }
         if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x100)) {
             if ((s32)(func_0022fa90(arg0, animMotion)) != (s32)(0)) {
-                animPkt45 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, (s32) animMotion, 6, animSpeed, animBlend));
+                animPkt45 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, animMotion, 6, animSpeed, animBlend));
                 animPacket = (BtlPacketTiming *)(animPkt45);
                 animPkt45->ownerId = actionId;
                 func_00194590((u8 *)animPacket, 0);
