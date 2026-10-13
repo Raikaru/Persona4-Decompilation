@@ -2607,156 +2607,189 @@ void func_00320970(u8 *arg0, s8 arg1) {
 
 /* The s16 row and column counters reproduce retail's unextended
  * func_002e48a0 arguments. The inner loops copy the counter into a
- * function-scope s32 `col` before the element call, which keeps retail's
+ * function-scope s32 `columnIndex` before the element call, which keeps retail's
  * per-iteration sign extension (block-scope or initialised copies are
  * propagated into the loop test's extension).
- * fnalign 3: a second (s16)i use in the loop-top block (`(s16)(i * 2)`)
- * makes IRO_CommonSubs extend i at the loop top instead of reusing the loop
- * test's extension for `n`; the else-arm delay uses `n` for the same reason.
- * `mode = arg1` ahead of a `!arg1` test leaves mode with spill score 2, so
- * b210 spills it to 0xD0 (score 3 spills y/row instead).
+ * fnalign 3: a second (s16)row use in the loop-top block (`(s16)(row * 2)`)
+ * makes IRO_CommonSubs extend row at the loop top instead of reusing the loop
+ * test's extension for `rowIndex`; the else-arm delay uses `rowIndex` too.
+ * `savedMode = entryMode` ahead of `!entryMode` leaves spill score 2, so
+ * b210 spills savedMode to 0xD0 (score 3 spills rowY/refreshRowState instead).
  * Open: retail tests the extended byte and spills mode as a 4-byte word
  * (`sw`); ours tests $a1 directly and spills a 16-byte temp (`sq`/`lq`).
  * whatif on the score-3 graph: no single score or +/-1 degree change (or
  * mixed pair) gives retail's colours with mode at score 3; mode at score 2
  * does exactly, so retail's mode reaches the loop as its own variable.
- * 2026-10-12: `if (arg1 == 0)` then `mode = arg1;` plus a statement
- * `arg1 = i;` feeding the call gives retail's entry and 4-byte spill
+ * 2026-10-12: `if (entryMode == 0)` then `savedMode = entryMode;` plus a
+ * statement `entryMode = row;` feeding the call gives the entry and word spill
  * exactly (the merged entry node r57 spills once the s8 copy adds one
  * call-crossing neighbour), but that copy then lives in $s5 (8 edits).
  * No single-node renumbering of that graph reproduces retail, and the
  * func_002e4ac0 declaration form (none/K&R/int) changes nothing.
+ * Readability pass: still 3 edits; all 471 instructions are unchanged from
+ * the captured baseline. Typed state, names and phases expose the lifetime
+ * question without changing the sensitive casts, statement order or scopes.
  */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
+/* Retain the measured baseline's task-argument home reader. This is a
+   storage view, not a recovered game API or a new initialization phase. */
 static inline u8 *fclSavedCombineTask(const void *storage)
 {
     return *(u8 * const *)storage;
 }
 
-void func_00320b80(u8 *arg0, s8 arg1) {
+/* Bias the row view by the column before applying its field displacement.
+   Direct array indexing reverses the final ADDU's operands in b210. */
+static inline void fclClearGridCellTransition(FclCombineGridRowStateView *rowState, s32 column)
+{
+    FclCombineGridRowStateView *cellState = (FclCombineGridRowStateView *)((u8 *)rowState + column);
+    cellState->cellTransitionStarted[0] = 0;
+}
+
+/* Set up the pair-fusion grid, column headers, and staged cell fades.
+   Zero entryMode rebuilds pair availability and fades dark cells to blue;
+   nonzero entryMode keeps the availability data and reverses that fade.
+   Descriptive names below are recovered roles, not original Atlus symbols. */
+void func_00320b80(u8 *task, s8 entryMode) {
     extern void func_002e4ac0(s32, s32);
     extern void func_002b8200(u8 *, FclVec2, FclDrawColor, f32, f32, f32);
-    FclDrawColor c14C;
-    FclDrawColor c148;
-    FclDrawColor c144;
-    FclDrawColor c140;
-    FclDrawColor c13C;
-    FclDrawColor c138;
-    FclDrawColor c134;
-    FclDrawColor c130;
-    FclDrawColor c12C;
-    FclVec2 sp120;
-    FclVec2 sp118;
-    FclVec2 sp110;
-    FclVec2 sp108;
-    FclVec2 sp100;
-    FclVec2 spF8;
-    FclVec2 spF0;
-    FclVec2 spE8;
-    u8 *spC0;
-    u8 *t;
-    s16 i;
-    s32 col;
-    s32 rowCount;
-    s32 mode;
-    t = *(u8 **)(arg0 + 0x38);
-    *(s16 *)(t + 0x11E) = 0;
-    *(s8 *)(t + 0x128) = -1;
-    mode = arg1;
-    if (!arg1) {
+    FclDrawColor columnSpriteColor;
+    FclDrawColor columnHeaderStartColor;
+    FclDrawColor columnHeaderEndColor;
+    FclDrawColor initialCellColor;
+    FclDrawColor initialFadeStartColor;
+    FclDrawColor initialFadeEndColor;
+    FclDrawColor refreshCellColor;
+    FclDrawColor refreshFadeStartColor;
+    FclDrawColor refreshFadeEndColor;
+    FclVec2 titlePosition;
+    FclVec2 personaRowPosition;
+    FclVec2 columnSpritePosition;
+    FclVec2 columnSlideStart;
+    FclVec2 columnSlideEnd;
+    FclVec2 columnHeaderPosition;
+    FclVec2 initialCellPosition;
+    FclVec2 refreshCellPosition;
+    FclCombineGridRowStateView *initialRowState;
+    FclCombineRowWork *work;
+    s16 row;
+    s32 columnIndex;
+    s32 listCountByte;
+    s32 savedMode;
+
+    /* Phase 1: reset selection and, on initial entry, pair availability.
+       Keep the promoted copy before the test of the original byte argument.
+       savedMode remains live across every call and outer-loop iteration. */
+    work = ((FclCombineRowTask *)task)->work;
+    work->cursorRow = 0;
+    work->firstSelectedRow = -1;
+    savedMode = entryMode;
+    if (!entryMode) {
         func_002e4ac0(0, 0);
     }
-    sp120 = func_002b2970(16.0f, 104.0f);
-    func_0031e5b0(fclSavedCombineTask(&arg0), sp120, 0, 0, 0, 0, 0);
-    i = 0;
-    while (i < (u16)func_0010b5b0()) {
-        s32 n;
-        s32 m;
-        s32 persona;
-        n = i;
-        sp118 = func_002b2970(16.0f, 128.0f);
-        persona = *(u16 *)(func_002e48a0(0, i) + 2);
-        func_003191c0(arg0, sp118, (s8)i,
-                      persona,
-                      *(u8 *)(func_002e48a0(0, i) + 4),
-                      (s16)(i * 2), 0, (rowCount = *(s8 *)(func_002e4870(0) + 8)));
-        {
-            s16 m2 = n + 0x25E;
-            u8 *h = (u8 *)func_0046d200(func_00331560(), 0x39);
-            s32 m14e;
-            m = n * 23;
-            m14e = m + 0x14E;
-            sp110 = func_002b2970((f32)m14e, 110.0f);
-            func_002b6c30((s16)(m2), sp110, 158.0f, 0x56);
-            c14C = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-            {
-                u8 *p = func_002b6150(m2);
-                *(FclDrawColor *)(p + 0x85) = c14C;
-            }
-            func_002b6a70(m2, 0, 0xFF, 0, 2, n);
-            func_002b6af0(m2, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 2, n);
-            sp108 = func_002b2970((f32)m14e, 110.0f + func_0046b2f0(h) / 2.0f);
-            sp100 = func_002b2970((f32)m14e, 110.0f);
-            func_002b69f0(m2, sp108, sp100, 0, 2, n);
-            func_0046d280(h);
-        }
-        {
-            u8 *e = func_0034ae50(*(u8 **)(t + 0x184), (s8)i);
-            spF8 = func_002b2970((f32)(m + 0x149), 104.0f);
-            c148 = func_002b2a60(0, 0, 0x99, 0xFF);
-            c144 = func_002b2a60(0, 0, 0x99, 0xFF);
-            func_002b83e0(e, spF8, c148, c144, 0xFF, 0xFF, 32.0f, 159.0f, 2, n, 0, 0);
-        }
-        if (mode == 0) {
-            s16 j = 0;
-            s32 y = m + 0x7F;
-            u8 *q = t + n * 4;
-            spC0 = t + n * 12;
-            while (j < (u16)func_0010b5b0()) {
-                u8 *e2;
 
-                col = j;
-                e2 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
-                spF0 = func_002b2970((f32)(col * 23 + 0x149), (f32)y);
-                c140 = func_002b2a60(0, 0, 0x99, 0xA5);
-                func_002b8200(e2, spF0, c140, 1.0f, 0.0f, 159.0f);
+    /* Phase 2: title, followed by one Persona row and column header per slot. */
+    titlePosition = func_002b2970(16.0f, 104.0f);
+    func_0031e5b0(fclSavedCombineTask(&task), titlePosition, 0, 0, 0, 0, 0);
+    row = 0;
+    while (row < (u16)func_0010b5b0()) {
+        s32 rowIndex;
+        s32 gridOffset;
+        s32 personaId;
+        rowIndex = row;
+        personaRowPosition = func_002b2970(16.0f, 128.0f);
+        personaId = ((FclCombinePersonaHeader *)func_002e48a0(0, row))->personaId;
+        /* The two entry lookups and the signed-byte count read are deliberate.
+           Keep the second (s16)row conversion in the delay expression. */
+        func_003191c0(task, personaRowPosition, (s8)row,
+                      personaId,
+                      ((FclCombinePersonaHeader *)func_002e48a0(0, row))->level,
+                      (s16)(row * 2), 0,
+                      (listCountByte = *(s8 *)&((FclCombinePersonaListHeader *)func_002e4870(0))->count));
+        {
+            s16 columnSprite = rowIndex + 0x25E;
+            u8 *columnResource = (u8 *)func_0046d200(func_00331560(), 0x39);
+            s32 columnSpriteX;
+            gridOffset = rowIndex * 23;
+            columnSpriteX = gridOffset + 0x14E;
+            columnSpritePosition = func_002b2970((f32)columnSpriteX, 110.0f);
+            func_002b6c30((s16)(columnSprite), columnSpritePosition, 158.0f, 0x56);
+            columnSpriteColor = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
+            {
+                FclCombineRowSprite *sprite = (FclCombineRowSprite *)func_002b6150(columnSprite);
+                sprite->color = columnSpriteColor;
+            }
+            func_002b6a70(columnSprite, 0, 0xFF, 0, 2, rowIndex);
+            func_002b6af0(columnSprite, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 2, rowIndex);
+            columnSlideStart = func_002b2970((f32)columnSpriteX, 110.0f + func_0046b2f0(columnResource) / 2.0f);
+            columnSlideEnd = func_002b2970((f32)columnSpriteX, 110.0f);
+            func_002b69f0(columnSprite, columnSlideStart, columnSlideEnd, 0, 2, rowIndex);
+            func_0046d280(columnResource);
+        }
+        {
+            u8 *columnHeaderElement = func_0034ae50(work->gridColumnHeaderTask, (s8)row);
+            columnHeaderPosition = func_002b2970((f32)(gridOffset + 0x149), 104.0f);
+            columnHeaderStartColor = func_002b2a60(0, 0, 0x99, 0xFF);
+            columnHeaderEndColor = func_002b2a60(0, 0, 0x99, 0xFF);
+            func_002b83e0(columnHeaderElement, columnHeaderPosition,
+                          columnHeaderStartColor, columnHeaderEndColor,
+                          0xFF, 0xFF, 32.0f, 159.0f, 2, rowIndex, 0, 0);
+        }
+
+        /* Phase 3: animate this grid row and clear its transition-state bytes.
+           These row-relative pointers intentionally retain the baseline's
+           distinct bases and scopes; they are not cached list-task values. */
+        if (savedMode == 0) {
+            s16 column = 0;
+            s32 rowY = gridOffset + 0x7F;
+            FclCombineGridRowTaskView *rowTasks = (FclCombineGridRowTaskView *)((u8 *)work + rowIndex * 4);
+            initialRowState = (FclCombineGridRowStateView *)((u8 *)work + rowIndex * 12);
+            while (column < (u16)func_0010b5b0()) {
+                u8 *cellElement;
+
+                columnIndex = column;
+                cellElement = func_0034ae50(rowTasks->cellListTask, (s8)column);
+                initialCellPosition = func_002b2970((f32)(columnIndex * 23 + 0x149), (f32)rowY);
+                initialCellColor = func_002b2a60(0, 0, 0x99, 0xA5);
+                func_002b8200(cellElement, initialCellPosition, initialCellColor, 1.0f, 0.0f, 159.0f);
                 {
-                    s32 delay = (s16)j + n;
-                    u8 *e3 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
-                    c13C = func_002b2a60(0, 0, 0x99, 0xFF);
-                    c138 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    func_002b8370(e3, c13C, c138, 0, 0xA, delay);
-                    func_002b82d0(func_0034ae50(*(u8 **)(q + 0x154), (s8)j), 0, 0xA5, 0, 0xA, delay);
+                    s32 delay = (s16)column + rowIndex;
+                    u8 *colorElement = func_0034ae50(rowTasks->cellListTask, (s8)column);
+                    initialFadeStartColor = func_002b2a60(0, 0, 0x99, 0xFF);
+                    initialFadeEndColor = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                    func_002b8370(colorElement, initialFadeStartColor, initialFadeEndColor, 0, 0xA, delay);
+                    func_002b82d0(func_0034ae50(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, delay);
                 }
-                *(s8 *)(spC0 + col + 0x18C) = 0;
-                j++;
+                fclClearGridCellTransition(initialRowState, columnIndex);
+                column++;
             }
         } else {
-            s16 j = 0;
-            s32 y = m + 0x7F;
-            u8 *q = t + n * 4;
-            u8 *row = t + n * 12;
-            while (j < (u16)func_0010b5b0()) {
-                u8 *e2;
+            s16 column = 0;
+            s32 rowY = gridOffset + 0x7F;
+            FclCombineGridRowTaskView *rowTasks = (FclCombineGridRowTaskView *)((u8 *)work + rowIndex * 4);
+            FclCombineGridRowStateView *refreshRowState = (FclCombineGridRowStateView *)((u8 *)work + rowIndex * 12);
+            while (column < (u16)func_0010b5b0()) {
+                u8 *cellElement;
 
-                col = j;
-                e2 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
-                spE8 = func_002b2970((f32)(col * 23 + 0x149), (f32)y);
-                c134 = func_002b2a60(0, 0, 0x99, 0xA5);
-                func_002b8200(e2, spE8, c134, 1.0f, 0.0f, 159.0f);
+                columnIndex = column;
+                cellElement = func_0034ae50(rowTasks->cellListTask, (s8)column);
+                refreshCellPosition = func_002b2970((f32)(columnIndex * 23 + 0x149), (f32)rowY);
+                refreshCellColor = func_002b2a60(0, 0, 0x99, 0xA5);
+                func_002b8200(cellElement, refreshCellPosition, refreshCellColor, 1.0f, 0.0f, 159.0f);
                 {
-                    u8 *e3 = func_0034ae50(*(u8 **)(q + 0x154), (s8)j);
-                    c130 = func_002b2a60(0x49, 0x72, 0xFF, 0xA5);
-                    c12C = func_002b2a60(0, 0, 0x99, 0xA5);
-                    func_002b8370(e3, c130, c12C, 0, 0xA, (s16)j + n);
-                    func_002b82d0(func_0034ae50(*(u8 **)(q + 0x154), (s8)j), 0, 0xA5, 0, 0xA, 0);
+                    u8 *colorElement = func_0034ae50(rowTasks->cellListTask, (s8)column);
+                    refreshFadeStartColor = func_002b2a60(0x49, 0x72, 0xFF, 0xA5);
+                    refreshFadeEndColor = func_002b2a60(0, 0, 0x99, 0xA5);
+                    func_002b8370(colorElement, refreshFadeStartColor, refreshFadeEndColor,
+                                  0, 0xA, (s16)column + rowIndex);
+                    func_002b82d0(func_0034ae50(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, 0);
                 }
-                *(s8 *)(row + col + 0x18C) = 0;
-                j++;
+                fclClearGridCellTransition(refreshRowState, columnIndex);
+                column++;
             }
         }
-        i++;
+        row++;
     }
 }
 #else
