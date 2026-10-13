@@ -148,11 +148,14 @@ Measured since the table (captures plus `regalloc_whatif`, all reproduced):
   since slot order follows declaration order) packs them as retail's words,
   and the whole upper area then follows retail's order, 0x20 low because
   `sp430` and the `sp3C0` halfword are still missing (fnalign 717-723).
-  With (1), (2) and (3) stacked (`build/v/001a7720/m3.c`, frame 0x5a0,
-  fnalign 596) a slot-sequence alignment leaves: `sp430` unspilled, `sp2B0`
-  in `$s6` (retail word at 0x2b0), `sp270`/`sp260` allocated after their
-  declaration position (i.e. their nodes are not the declared variables),
-  and the flag set to 1 that retail spills as a quad at 0x160.
+  Full identity stack (`build/v/001a7720/bigB.c`): flag casts stripped,
+  `spC0` casts stripped (its loop-test copy is a retail quad at 0xc0),
+  `hitOffset` inlined, packet temps merged into `sp4C0`/`sp4BC`/`sp4B8`,
+  `u16 sp3C0`, `s16 sp270` (committed). It reaches retail's 33 quad / 27
+  word spills and 67 structural diffs, frame 0x5a0 (fnalign 547). The only
+  missing object is `sp430`'s halfword: in the replay (r48, degree 89, score
+  5) it never stays in the graph at a blocked point, even with score 0, so
+  retail had more values live across its range.
   (3) `u16 sp3C0` matches retail's halfword counter, but the shared
   `(s32)sp3C0` CSE temp adds a quadword (frame 0x5c0). (4) retail spills
   `sp430` (s16); in ours it is a low-degree node (spill score is irrelevant),
