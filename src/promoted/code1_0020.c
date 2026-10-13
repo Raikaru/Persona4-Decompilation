@@ -982,12 +982,13 @@ s32 func_00201ee0(void)
     return 1;
 }
 // FUN_00201F20
-void func_00201f20(void)
+u8 *func_00201f20(void)
 {
     u8 *temp_2;
 
     temp_2 = (u8 *)func_00194470(0x50B, 0);
     *(void **)(temp_2 + 0x6C) = (void *)func_00201ee0;
+    return temp_2;
 }
 /* measured: opt_rebuildconditionals off tested for callback completion. */
 #pragma opt_rebuildconditionals off

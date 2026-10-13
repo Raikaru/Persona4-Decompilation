@@ -27,8 +27,8 @@ alignment, and the C preserves the observed behavior and ABI.
 
 ## October 12 continuation, part 13: `0027f6f0`, `0018a200`, `0017f490`, `001f14f0`, `00471370`, `0046b380`, `001a59a0`, `00162e10` MATCH; compiler internals
 
-**6,851 MATCH / 9 ASM** (`build/after51.json`; link 604 C / 54 SDK, both
-sha1 OK in `build/link58.log`).
+**6,852 MATCH / 8 ASM** (`build/after52.json`; link 604 C / 54 SDK, both
+sha1 OK in `build/link59.log`). `001a7720` matched after this part's table.
 
 The seven matches all came from the procedure now written up as "Rewrite
 playbook for large or stubborn residuals" at the top of `docs/matching.md`:
@@ -58,7 +58,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 | `0016bdd0` | 39 | sqrt result versus `adda` zero numbering (three regions) |
 | `002ac750` | 290 | spill choice in both search blocks; retail keeps `sp180 = temp_18` as its own spilled value, which b210 coalesces in natural spellings (restructured `d7d2f766`: 397, reverted in `66a26b06`) |
 | `001a59a0` | 0 (MATCH) | frame 0x330; closed the camera field-origin operands, selected-target join and reaction short circuits. Owner: 70 MATCH / 1 ASM; exact-link eligibility clean. |
-| `001a7720` | 22 | frame 0x5b0 and every stack slot match (`df64128e`). Retail compiled it under `opt_loop_invariants on`: the hit loop's `rowHitCount`, `rowHitCount - 1` and `hitDelay + 0x2B` are backend-hoisted quad temps, so write them inline in the loop. Spill sizes identify webs: quad = compiler-temp root, word/half = surviving declared local. b210's backend copy propagation (`FUN_00555600`/`FUN_0054bcd0`) keeps a variable only when one of its uses is a copy (`dmove`), reads and writes it, or its source isn't available on every path; the frontend keeps a binding only when it is a real conversion or its source is reassigned in the loop. Hence `s32 targetPos = targetIndexS32;` per target (retail's word) and the same-side flag as one `?:` (retail's quad). Retail passed `u16` arguments unconverted to `func_001d69f0`/`func_001b9de0`/`func_001ef4a0` (block-scope `u16` prototypes). Remaining: IR CSE shares the 1454 hit-row address with the late `hitRowBase`/`spDelta` sites, which retail recomputes; a scheduling swap at the `0xD88` call; two `addu` operand orders; one coalescing `move` |
+| `001a7720` | 0 (MATCH) | 279 -> 0 in one session. Retail compiled it under `opt_loop_invariants on` (the hit loop's row count, last-hit index and hit delay are hoisted quad temps). Spill sizes identify webs: quad = compiler-temp root, word/half = surviving declared local. b210's backend copy propagation (`FUN_00555600`/`FUN_0054bcd0`) keeps a variable only when a use is a copy, reads and writes it, or its source is unavailable on a path; the frontend keeps a binding only for a real conversion or a loop-carried source (`targetPos`, per-target word). A nested `?:` assignment leaves retail's unthreaded inner branch (its keep arm is a copy coalesced after IR jump chaining). Late hit-row addresses go through `&hitIndex` helpers (IR CSE then recomputes them). Call lowering (`FunctionCalls.c`, `FUN_004b3070`) evaluates call-containing arguments first (ENode byte 5), then the rest left to right; an inline helper with a statement body counts, which gives retail's `addiu a2` before the `$gp` chain at the `0xD88` call. Retail-evidenced `u16` caller prototypes carry `lint: allow H011`; four packet constructors (`func_001f83b0`, `func_001f8430`, `func_00201f20`, `func_001bccc0`) now return their packet (owners still 100%). Owner 71/71, elig clean, lint delta -2 |
 
 Measured since the table (captures plus `regalloc_whatif`, all reproduced):
 
