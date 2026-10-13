@@ -5210,7 +5210,7 @@ void func_001a7720(u8 *arg0) {
     func_00194590((u8 *)cameraPkt60, 1);
     cameraKind = (s32)(func_001b7080(skillKey));
     func_001b70a0(skillKey, &cameraFirst, &cameraSecond);
-    cameraPkt61 = (BtlPacketTiming *)(func_001b83f0(cameraKind, cameraFirst, cameraSecond, 0x10, ((s32)(((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 2)) != (s32)(0)) & 0xFFFF));
+    cameraPkt61 = (BtlPacketTiming *)(func_001b83f0(cameraKind, cameraFirst, cameraSecond, 0x10, ((*(u16 *)((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + 2) & 2) ? 1 : 0)));
     cameraPkt61->queue = 4;
     cameraPkt61->startTime = sceneTime;
     cameraPkt61->ownerId = actionId;
