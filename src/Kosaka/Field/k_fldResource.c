@@ -354,6 +354,13 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * while the resource keeps its low variable number through the +0xA4C addiu;
  * whatif: base numbered below the resource gives retail. Block/struct/helper/
  * address-of spellings, an extra base copy and O1 + opt_common_subs stay 14+.
+ * 2026-10-13: at O1 there is no propagate_copy_instructions stage; the
+ * after_backend_optimization pass forwards copies only into memory-address
+ * operands. The base (loads only) therefore folds into its gp-load temp r713
+ * and the resource survives as r41 through its addiu +0xA4C argument.
+ * Reading the resource twice (no O1 load CSE: duplicate lw, 47), address-of
+ * argument spellings (still addiu, 14) and an inline part-load helper (its
+ * argument is substituted, 14) leave the order unchanged.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
