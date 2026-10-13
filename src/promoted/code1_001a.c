@@ -4320,9 +4320,9 @@ void func_001a7720(u8 *arg0) {
     s32 sp3F0;
     s32 sp3E0;
     s32 sp3D0;
-    s32 sp3C0;
-    u16 sp3B0;
-    u16 sp3A0;
+    s32 targetIndex;
+    u16 hitIndex;
+    u16 rowHitCount;
     u16 sp390;
     u16 sp380;
     u16 sp370;
@@ -4342,16 +4342,16 @@ void func_001a7720(u8 *arg0) {
     s32 sp290;
     u16 sp280;
     u16 skillKey;
-    s32 sp260;
+    s32 targetIndexS32;
     s32 sp250;
     s32 *sp240;
-    s32 sp230;
+    s32 hasFollowAction;
     s32 sp220;
-    s32 sp210;
+    s32 skillFlag2;
     s32 sp200;
-    s32 sp1F0;
+    s32 isKind3;
     s32 sp1E0;
-    s32 sp1D0;
+    s32 hasCutinPartner;
     s32 sp1C0;
     s32 sp1B0;
     s32 sp1A0;
@@ -4406,7 +4406,7 @@ void func_001a7720(u8 *arg0) {
     s32 var_2_4;
     s32 var_2_7;
     s32 var_2_8;
-    u8 *temp_18;
+    u8 *targetAction;
     u8 *temp_22_3;
     u8 *temp_2_57;
     u8 *temp_2_64;
@@ -4637,16 +4637,16 @@ void func_001a7720(u8 *arg0) {
     sp2D0 = 0;
     sp2C0 = 0;
     sp2B0 = 0;
-    sp230 = (s32)(s32)(act->followAction) != (s32)(0);
+    hasFollowAction = (s32)(s32)(act->followAction) != (s32)(0);
     sp220 = (s32)(func_001f2f90(arg0)) == (s32)(0);
     sp350 = 6;
     skillIndex = skill;
-    sp210 = (s32)(s32)((*((u8 *)(skillIndex * 0x28) + (u32)iGpffffb3b8) & 2)) != (s32)(0);
-    sp200 = ((act->flags1A & 0x10) != 0) && sp210 == 0;
-    sp1F0 = (s32)(s32)(act->kind == 3);
+    skillFlag2 = (s32)(s32)((*((u8 *)(skillIndex * 0x28) + (u32)iGpffffb3b8) & 2)) != (s32)(0);
+    sp200 = ((act->flags1A & 0x10) != 0) && skillFlag2 == 0;
+    isKind3 = (s32)(s32)(act->kind == 3);
     sp33C = (s32)(func_001f0ff0(arg0));
     sp1E0 = (s32)(func_001f11e0(skill));
-    sp1D0 = (s32)(s32)(act->cutinPartner) != (s32)(0);
+    hasCutinPartner = (s32)(s32)(act->cutinPartner) != (s32)(0);
     sp4C4 = 0;
     actionId = *(s64 *)(arg0 + 0);
     func_001a03b0(arg0);
@@ -4735,7 +4735,7 @@ void func_001a7720(u8 *arg0) {
         var_2_2 = 1;
     }
     sp1B0 = (s16)var_2_2;
-    if ((s32)(s32)sp1F0 == 0) {
+    if ((s32)(s32)isKind3 == 0) {
         temp_2_11 = (u8 *)(func_00202010(act->unit, (u16) skill));
         *(s16 *)(temp_2_11 + 0x48) = (s16) sp1B0;
         *(s64 *)(temp_2_11 + 0x60) = actionId;
@@ -4747,8 +4747,8 @@ void func_001a7720(u8 *arg0) {
         func_00194590(temp_2_12, 3);
     }
     if (sp200 == 1) {
-        if (((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
-            if (((s32)(s32)sp1D0 == 0) && (sp2B0 == 0)) {
+        if (((s32)(s32)isKind3 == 0) && ((s32)(s32)sp220 == 0)) {
+            if (((s32)(s32)hasCutinPartner == 0) && (sp2B0 == 0)) {
                 if (side == 0) {
                     if (!(act->flags & 0x40) && ((((s32)(func_001f0af0(arg0)) != (s32)(0)) && (func_00231d70(0x64U) < 0x14U)) || (*(s32 *)(iGpffffb3ac + 0x10) & 0x1000))) {
                         var_21 = 1;
@@ -5006,7 +5006,7 @@ void func_001a7720(u8 *arg0) {
                 func_00194590((u8 *)cameraPkt37, 0);
             }
             sp480 = animPacket->endTime;
-        } else if (((s32)(s32)sp1F0 == 1) || ((s32)(s32)sp220 == 1)) {
+        } else if (((s32)(s32)isKind3 == 1) || ((s32)(s32)sp220 == 1)) {
             if ((side == 0) && (func_001f1030(arg0) != 0) && (skillIndex != 0xF4)) {
                 sp2D0 = 1;
                 sp320 = 1;
@@ -5077,7 +5077,7 @@ void func_001a7720(u8 *arg0) {
             temp_3_9 = (u8 *)(iGpffffb3ac);
             *(u16 *)(temp_3_9 + 0x18) = (u16) (*(u16 *)(temp_3_9 + 0x18) | 0x47);
         }
-        if (((s32)(s32)sp210 == 1) || ((s32)(func_001f11e0(skill)) != (s32)(0))) {
+        if (((s32)(s32)skillFlag2 == 1) || ((s32)(func_001f11e0(skill)) != (s32)(0))) {
             sp430 = 4;
             var_17_5 = 2;
         } else {
@@ -5148,7 +5148,7 @@ void func_001a7720(u8 *arg0) {
             cameraPkt50->ownerId = actionId;
             func_00194590((u8 *)cameraPkt50, 0);
         }
-        if (((s32)(s32)sp210 == 0) && ((s32)(s32)sp220 == 0)) {
+        if (((s32)(s32)skillFlag2 == 0) && ((s32)(s32)sp220 == 0)) {
             var_2_7 = (s32)(func_0022d200(arg0));
             if (var_2_7 == 0) {
                 var_2_7 = *(s32 *)((u8 *)iGpffffb3ac + 0xD40);
@@ -5231,7 +5231,7 @@ void func_001a7720(u8 *arg0) {
     cameraPkt63->startTime = sceneTime;
     cameraPkt63->ownerId = actionId;
     func_00194590((u8 *)cameraPkt63, 1);
-    if ((s32)(s32)sp230 != 0) {
+    if ((s32)(s32)hasFollowAction != 0) {
         temp_22_3 = (u8 *)(act->followAction);
         temp_2_64 = (u8 *)(act->target);
         sp4E0 = (u8 *)(temp_2_64);
@@ -5352,7 +5352,7 @@ void func_001a7720(u8 *arg0) {
         func_00194590((u8 *)sp4CC, 1);
     }
     if (act->targetCount == 1) {
-        if ((s32)(s32)sp230 != 0) {
+        if ((s32)(s32)hasFollowAction != 0) {
             sp4E0 = (u8 *)(act->followAction);
         }
     } else {
@@ -5385,28 +5385,28 @@ void func_001a7720(u8 *arg0) {
     }
     sp180 = (u16)var_2_8;
     sp410 = 0;
-    sp3C0 = 0;
+    targetIndex = 0;
     sp290 = (s32) skill;
     sp2A0 = skillKey;
-    while ((sp260 = (s32)sp3C0) < act->targetCount) {
-            temp_18 = (u8 *)((*( s32 ** )((u8 *)(((s32)(arg0) + (sp3C0 * 4))) + (0x38))));
-            sp3A0 = (u16) *(u8 *)(temp_18 + 0xD9);
+    while ((targetIndexS32 = (s32)targetIndex) < act->targetCount) {
+            targetAction = (u8 *)((*( s32 ** )((u8 *)(((s32)(arg0) + (targetIndex * 4))) + (0x38))));
+            rowHitCount = (u16) *(u8 *)(targetAction + 0xD9);
             sp390 = 0;
-            sp170 = (s32)(s32)(func_001d43f0((s32)(temp_18) + 0xD8));
-            if ((s32)(s32)sp230 != 0) {
+            sp170 = (s32)(s32)(func_001d43f0((s32)(targetAction) + 0xD8));
+            if ((s32)(s32)hasFollowAction != 0) {
                 var_21_2 = (u8 *)(act->followAction);
-            } else if (*(s32 *)(temp_18 + 0xE4) != 0) {
+            } else if (*(s32 *)(targetAction + 0xE4) != 0) {
                 var_21_2 = (u8 *)(arg0);
             } else {
-                var_21_2 = (u8 *)(temp_18);
+                var_21_2 = (u8 *)(targetAction);
             }
-            temp_2_78 = (s32)(*(s32 *)(temp_18 + 0xE0));
+            temp_2_78 = (s32)(*(s32 *)(targetAction + 0xE0));
             if ((temp_2_78 != 0) && ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) != (s32)((*( u8 * )((u8 *)(*(u8 **)(var_21_2 + 0x30)) + (0xA2)))))) {
                 sp3E0 += 1;
             }
-            if ((*( s32 * )((u8 *)(((s32)(temp_18) + (sp3A0 << 5))) + (0xD8))) & 0x100000) {
+            if ((*( s32 * )((u8 *)(((s32)(targetAction) + (rowHitCount << 5))) + (0xD8))) & 0x100000) {
                 sp3D0 += 1;
-                sp370 |= *(u16 *)(temp_18 + 0xDE);
+                sp370 |= *(u16 *)(targetAction + 0xDE);
             }
             temp_4_12 = (u8 *)(*(u8 **)(var_21_2 + 0x30));
             var_5 = (u8)(*(u8 *)(temp_4_12 + 0xA2));
@@ -5416,13 +5416,13 @@ void func_001a7720(u8 *arg0) {
                 sp160 = (s32)(s32)(((*( s16 * )((u8 *)((((s32)iGpffffb3cc) + var_5)) + (0x18))) & 0x40)) != (s32)(0);
                 sp160 ^= 1;
             }
-            if ((temp_2_78 != 0) || (*(s32 *)(temp_18 + 0xE4) != 0)) {
+            if ((temp_2_78 != 0) || (*(s32 *)(targetAction + 0xE4) != 0)) {
                 sp440 = 0x1E;
             }
             temp_2_79 = (u8 *)(func_00202740(temp_4_12));
             *(s64 *)(temp_2_79 + 0x60) = actionId;
             func_00194590(temp_2_79, 1);
-            if ((*(u16 *)(temp_18 + 0xDC) != 0x400) && (*(s32 *)(temp_18 + 0xE4) != 1)) {
+            if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (*(s32 *)(targetAction + 0xE4) != 1)) {
                 formationPkt6 = (BtlPacketTiming *)(func_001d6240(formationHandle, act->unit, *(u8 **)(var_21_2 + 0x30), 1, sp170 | 0x1000));
                 if ((s32)(sp4C8) == (s32)(0)) {
                     if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x2000)) {
@@ -5477,12 +5477,12 @@ void func_001a7720(u8 *arg0) {
                     formationPkt6->ownerId = actionId;
                 }
                 func_00194590((u8 *)formationPkt6, 2);
-                if ((*(u16 *)(temp_18 + 0xDC) != 0x400) && (*(s32 *)(temp_18 + 0xE4) == 1) && (sp260 == 0)) {
+                if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (*(s32 *)(targetAction + 0xE4) == 1) && (targetIndexS32 == 0)) {
                     formationPkt82 = (BtlPacketTiming *)(func_001d6240(formationHandle, act->unit, *(u8 **)(var_21_2 + 0x30), 1, sp170 | 0x1000));
                     sp4C0 = (u8 *)((u8 *)formationPkt82);
                     formationPkt82->queue = 5;
                     formationPkt82->startTime = formationPkt6->endTime;
-                    if ((*(s32 *)(temp_18 + 0xE4) != 0) && ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 8)) {
+                    if ((*(s32 *)(targetAction + 0xE4) != 0) && ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 8)) {
                         *(s16 *)(sp4C0 + 0x48) = 8;
                     }
                     *(s64 *)(sp4C0 + 0x60) = actionId;
@@ -5517,7 +5517,7 @@ void func_001a7720(u8 *arg0) {
                     }
                     act->flags = (u16) (act->flags | 0x200);
                 }
-            } else if ((sp260 == 0) && (side == 0)) {
+            } else if ((targetIndexS32 == 0) && (side == 0)) {
                 temp_4_13 = (s32)((u16)func_001eb440((s32)(arg0) + 0x38));
                 if (temp_4_13 == 2) {
                     func_00196040(temp_4_13, 1, &targetPosition, 0, 0, 1);
@@ -5530,7 +5530,7 @@ void func_001a7720(u8 *arg0) {
             }
             if (sp2D0 == 1) {
                 if ((s32)(sp4C8) == (s32)(0)) {
-                    if ((sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
+                    if ((sp200 == 1) && ((s32)(s32)isKind3 == 0) && ((s32)(s32)sp220 == 0)) {
                         colorPkt88 = (BtlPacketTiming *)(func_0019bbe0(linkedUnit, 0, 0, 0, 4, 0));
                         colorPkt88->queue = 5;
                         colorPkt88->startTime = formationPkt6->endTime;
@@ -5581,8 +5581,8 @@ void func_001a7720(u8 *arg0) {
                 (*( s64 * )((u8 *)(sp4C8) + (0x60))) = actionId;
                 func_00194590((u8 *)sp4C8, 0);
             }
-            if (*(s32 *)(temp_18 + 0xE4) != 0) {
-                sp4C4 = (BtlPacketTiming *)(func_001d6240(*(s32 *)(iGpffffb3ac + 0xD28), act->unit, *(u8 **)(temp_18 + 0x30), 1, 0));
+            if (*(s32 *)(targetAction + 0xE4) != 0) {
+                sp4C4 = (BtlPacketTiming *)(func_001d6240(*(s32 *)(iGpffffb3ac + 0xD28), act->unit, *(u8 **)(targetAction + 0x30), 1, 0));
                 if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 4) {
                     sp4C4->queue = 0xB;
                     sp4C4->startTime = formationPkt6->endTime;
@@ -5596,7 +5596,7 @@ void func_001a7720(u8 *arg0) {
                 soundPkt93->startTime = sp4C4->endTime;
                 func_00194590((u8 *)soundPkt93, 1);
             }
-            if (*(u16 *)(temp_18 + 0xDC) == 0x400) {
+            if (*(u16 *)(targetAction + 0xDC) == 0x400) {
                 sp4C4 = (BtlPacketTiming *)(func_001d6240(*(s32 *)(iGpffffb3ac + 0xD2C), act->unit, *(u8 **)(var_21_2 + 0x30), 1, 0));
                 if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 4) {
                     sp4C4->queue = 0xB;
@@ -5612,14 +5612,14 @@ void func_001a7720(u8 *arg0) {
                 func_00194590((u8 *)soundPkt94, 1);
                 sp420 = 0xA;
             }
-            sp3B0 = 0;
-            sp150 = (s32) sp3A0;
+            hitIndex = 0;
+            sp150 = (s32) rowHitCount;
             sp140 = sp150 - 1;
             sp130 = sp420 + 0x2B;
-            while ((spC0 = (s32) sp3B0) < sp150) {
+            while ((spC0 = (s32) hitIndex) < sp150) {
                 var_f20_2 = 1.0f;
-                hitOffset = sp3B0 << 5;
-                hitRow = (ActionHitRowView *)((u8 *)temp_18 + hitOffset);
+                hitOffset = hitIndex << 5;
+                hitRow = (ActionHitRowView *)((u8 *)targetAction + hitOffset);
                 /* The two later predicates reload the signed byte after intervening calls. */
                 hitMotion = &hitRow->result.motion;
                 if (hitRow->result.motion == 9) {
@@ -5636,12 +5636,12 @@ void func_001a7720(u8 *arg0) {
                 animPkt98->queue = 0xB;
                 animPkt98->startTime = formationPkt6->endTime;
                 (*( u16 * )((u8 *)animPkt98 + (0x48))) = sp390;
-                if ((*(s32 *)(temp_18 + 0xE4) != 0) && ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 8)) {
+                if ((*(s32 *)(targetAction + 0xE4) != 0) && ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 8)) {
                     (*( u16 * )((u8 *)animPacket + (0x48))) = (u16) ((s16) (*( u16 * )((u8 *)animPacket + (0x48))) + 8);
                 }
                 animPacket->ownerId = actionId;
                 func_00194590((u8 *)animPacket, 0);
-                if (((s32)(s32)spC0 == sp140) && (hitRow->result.addedStatus & 0x100000) && (actionFlag4000 == 0) && ((s32)(s32)sp160 == 1) && (*(s32 *)(temp_18 + 0xE0) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(sp2A0)) == (s32)(0))) {
+                if (((s32)(s32)spC0 == sp140) && (hitRow->result.addedStatus & 0x100000) && (actionFlag4000 == 0) && ((s32)(s32)sp160 == 1) && (*(s32 *)(targetAction + 0xE0) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(sp2A0)) == (s32)(0))) {
                     sp250 = (s32) sp360;
                     if (sp250 >= 0x19) {
                         var_2_11 = 0;
@@ -5723,9 +5723,9 @@ void func_001a7720(u8 *arg0) {
                     pkt105->ownerId = actionId;
                     func_00194590((u8 *)pkt105, 0);
                 }
-                if ((sp2D0 == 0) && ((*hitMotion != -1) || ((s32)((*( u8 * )((u8 *)(*(u8 **)(temp_18 + 0x30)) + (0xA2)))) != (s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))))) && ((s32)(datCalcChkBadStatus((s32)(*( u8 ** )((u8 *)(*(u8 **)(temp_18 + 0x30)) + (0xA64))), 0x180001)) == (s32)(0))) {
-                    rotatePkt106 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(temp_18 + 0x30), act->unit, 2));
-                    if ((*(s32 *)(temp_18 + 0xE4) != 0) && ((s32)((u8 *)sp4C4) != (s32)(0))) {
+                if ((sp2D0 == 0) && ((*hitMotion != -1) || ((s32)((*( u8 * )((u8 *)(*(u8 **)(targetAction + 0x30)) + (0xA2)))) != (s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))))) && ((s32)(datCalcChkBadStatus((s32)(*( u8 ** )((u8 *)(*(u8 **)(targetAction + 0x30)) + (0xA64))), 0x180001)) == (s32)(0))) {
+                    rotatePkt106 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(targetAction + 0x30), act->unit, 2));
+                    if ((*(s32 *)(targetAction + 0xE4) != 0) && ((s32)((u8 *)sp4C4) != (s32)(0))) {
                         rotatePkt106->queue = 5;
                         rotatePkt106->startTime = sp4C4->endTime;
                     } else {
@@ -5746,19 +5746,19 @@ void func_001a7720(u8 *arg0) {
                 }
                 temp_2_108 = (s32 *)&hitRow->result;
                 sp240 = (s32 *)(temp_2_108);
-                pkt109 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(var_21_2), temp_2_108, *(u16 *)(temp_18 + 0xDC), *(u16 *)(temp_18 + 0xDE)));
+                pkt109 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(var_21_2), temp_2_108, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE)));
                 pkt109->queue = 5;
                 pkt109->startTime = animPacket->endTime;
                 pkt109->delay = sp420;
                 pkt109->ownerId = actionId;
                 func_00194590((u8 *)pkt109, 1);
-                pkt110 = (BtlPacketTiming *)(func_001f3950(temp_18));
+                pkt110 = (BtlPacketTiming *)(func_001f3950(targetAction));
                 pkt110->queue = 5;
                 pkt110->startTime = animPacket->endTime;
                 pkt110->delay = sp420;
                 pkt110->ownerId = actionId;
                 func_00194590((u8 *)pkt110, 1);
-                if (((s32)(sp260) == (s32)((act->targetCount - 1))) && ((s32)(spC0) == (s32)((*(u8 *)(temp_18 + 0xD9) - 1)))) {
+                if (((s32)(targetIndexS32) == (s32)((act->targetCount - 1))) && ((s32)(spC0) == (s32)((*(u8 *)(targetAction + 0xD9) - 1)))) {
                     pkt111 = (BtlPacketTiming *)(func_001f3950(arg0));
                     pkt111->queue = 5;
                     pkt111->startTime = animPacket->endTime;
@@ -5766,7 +5766,7 @@ void func_001a7720(u8 *arg0) {
                     pkt111->ownerId = actionId;
                     func_00194590((u8 *)pkt111, 1);
                 }
-                if ((sp260 == 0) && ((s32)(s32)spC0 == 0) && !(act->flags & 4)) {
+                if ((targetIndexS32 == 0) && ((s32)(s32)spC0 == 0) && !(act->flags & 4)) {
                     pkt112 = (BtlPacketTiming *)(func_001f3870(arg0, act->stateBits));
                     pkt112->queue = 5;
                     pkt112->startTime = animPacket->endTime;
@@ -5774,7 +5774,7 @@ void func_001a7720(u8 *arg0) {
                     pkt112->ownerId = actionId;
                     func_00194590((u8 *)pkt112, 1);
                 }
-                if ((s32)(spC0) == (s32)((*(u8 *)(temp_18 + 0xD9) - 1))) {
+                if ((s32)(spC0) == (s32)((*(u8 *)(targetAction + 0xD9) - 1))) {
                     if ((act->fieldEC != 0) && !(act->fieldD8 & 1)) {
                         temp_4_14 = (s32)((*( s32 * )((u8 *)(((s32)(arg0) + hitOffset)) + (0x104))));
                         if (temp_4_14 != 0) {
@@ -5787,18 +5787,18 @@ void func_001a7720(u8 *arg0) {
                         pkt113->ownerId = actionId;
                         func_00194590((u8 *)pkt113, 3);
                     } else {
-                        if (*(s16 *)(temp_18 + 0xEC) != 0) {
+                        if (*(s16 *)(targetAction + 0xEC) != 0) {
                             temp_4_15 = hitRow->result.field14;
                             if (temp_4_15 != 0) {
                                 func_00216da0(*(s32 *)(iGpffffb3ac + 0xC60), func_0043c6a0(temp_4_15));
                             }
-                            pkt114 = (BtlPacketTiming *)(func_00202400(*(u8 **)(temp_18 + 0x30), *(s16 *)(temp_18 + 0xEC)));
+                            pkt114 = (BtlPacketTiming *)(func_00202400(*(u8 **)(targetAction + 0x30), *(s16 *)(targetAction + 0xEC)));
                             pkt114->queue = 5;
                             pkt114->startTime = animPacket->endTime;
                             pkt114->flags = (u8) (pkt114->flags & 0xDF);
                             pkt114->ownerId = actionId;
                             func_00194590((u8 *)pkt114, 3);
-                        } else if ((s32)(s32)sp230 != 0) {
+                        } else if ((s32)(s32)hasFollowAction != 0) {
                             temp_5_4 = (s16)(*(s16 *)(var_21_2 + 0xEC));
                             if (temp_5_4 != 0) {
                                 pkt115 = (BtlPacketTiming *)(func_00202400(*(u8 **)(var_21_2 + 0x30), temp_5_4));
@@ -5835,9 +5835,9 @@ void func_001a7720(u8 *arg0) {
                 if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x40) {
                     sp2E0 = 1;
                 }
-                temp_2_118 = (u8 *)((s32)(temp_18) + (sp3B0 << 5));
+                temp_2_118 = (u8 *)((s32)(targetAction) + (hitIndex << 5));
                 spF0 = (s32) temp_2_118;
-                hitPkt119 = (BtlPacketTiming *)(func_00201de0((s32)(act->unit), (s32)(*(u8 **)(var_21_2 + 0x30)), sp290, *(u16 *)(temp_18 + 0xDC), *(u16 *)(temp_18 + 0xDE), sp3B0, sp3A0, sp240, 0));
+                hitPkt119 = (BtlPacketTiming *)(func_00201de0((s32)(act->unit), (s32)(*(u8 **)(var_21_2 + 0x30)), sp290, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE), hitIndex, rowHitCount, sp240, 0));
                 hitPkt119->queue = 5;
                 hitPkt119->startTime = animPacket->endTime;
                 hitPkt119->delay = sp420;
@@ -5849,7 +5849,7 @@ void func_001a7720(u8 *arg0) {
                     spD0 = (s16)sp130;
                     func_001f0a10((u8 *)&result);
                     result.hpDelta = *hpTransfer;
-                    result.spDelta = (s32) *(s16 *)(temp_18 + (sp3B0 << 5) + 0x10A);
+                    result.spDelta = (s32) *(s16 *)(targetAction + (hitIndex << 5) + 0x10A);
                     pkt120 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
                     pkt120->queue = 4;
                     pkt120->startTime = animPacket->endTime;
@@ -5857,7 +5857,7 @@ void func_001a7720(u8 *arg0) {
                     pkt120->ownerId = actionId;
                     func_00194590((u8 *)pkt120, 1);
                     temp_4_16 = (u8 *)(act->unit);
-                    hitPkt121 = (BtlPacketTiming *)(func_00201de0((s32)(temp_4_16), (s32)(temp_4_16), -1, 1U, 1U, sp3B0, sp3A0, &result, 0));
+                    hitPkt121 = (BtlPacketTiming *)(func_00201de0((s32)(temp_4_16), (s32)(temp_4_16), -1, 1U, 1U, hitIndex, rowHitCount, &result, 0));
                     hitPkt121->queue = 4;
                     hitPkt121->startTime = animPacket->endTime;
                     hitPkt121->delay = (s16) spD0;
@@ -5878,13 +5878,13 @@ void func_001a7720(u8 *arg0) {
                     }
                 }
                 sp390 += 7;
-                sp3B0 += 1;
+                hitIndex += 1;
             }
             if (sp410 < (s32) sp390) {
                 sp410 = sp390;
             }
             sp380 = sp380 + sp180;
-            sp3C0 += 1;
+            targetIndex += 1;
     }
     temp_18_2 = animPacket->endTime;
     temp_3_16 = (s16)(act->fieldEE);
@@ -6128,7 +6128,7 @@ reactionPacket:
     pkt143->flags = (u8) (pkt143->flags & 0xDF);
     pkt143->ownerId = actionId;
     func_00194590((u8 *)pkt143, 0);
-    if ((sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
+    if ((sp200 == 1) && ((s32)(s32)isKind3 == 0) && ((s32)(s32)sp220 == 0)) {
         if (sp320 == 0) {
             if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
                 if (side == 0) {
@@ -6186,7 +6186,7 @@ reactionPacket:
     if (actionFlag4000 == 0) {
         func_001d3e00(formationHandle);
     }
-    if ((s32)(s32)sp1D0 != 0) {
+    if ((s32)(s32)hasCutinPartner != 0) {
         u8 *partner = act->cutinPartner;
 
         cutin.mode = 3;
