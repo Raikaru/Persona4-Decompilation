@@ -243,6 +243,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 198 -> 154, frame 0x190; give the rectangle its own halfword column and column limit.
  * measured: fnalign 154 -> 146; form vertical footprint addresses directly from the signed-byte anchor.
  * measured: fnalign 146 -> 142; likewise form the horizontal cell address and reveal bit from the anchor.
+ * measured: fnalign 142 -> 115; kinds 13/14 use a single-case early-return guard, not a switch.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -668,13 +669,10 @@ void func_002ac750(u8 arg0, u8 arg1) {
             break;
         case 13:                                    /* switch 2 */
         case 14:                                    /* switch 2 */
-            switch (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal)))) {
-            case 1:
-
+            if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
                 temp_4_37 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_4_37 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
                 return;
-                break;
             }
             temp_4_38 = ((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal)));
             if (temp_4_38 == 3) {
