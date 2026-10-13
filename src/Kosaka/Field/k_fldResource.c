@@ -361,6 +361,16 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * Reading the resource twice (no O1 load CSE: duplicate lw, 47), address-of
  * argument spellings (still addiu, 14) and an inline part-load helper (its
  * argument is substituted, 14) leave the order unchanged.
+ * Replay: the sites close iff the base is a local numbered below the
+ * resource (r39 < r41) or the resource is a temp above r713. Named values
+ * (block-scope locals r154, inline-parameter bindings r158) always number
+ * below codegen temps, so the base must survive. O1 forwarding is block-local:
+ * every memory-only local that survives has a use in a later block, and
+ * retail has none after the call. No effect (14): register, u32/s32 base,
+ * merging with the else-loop base, block scopes, typed helper parameters,
+ * O1 + propagation/dead-code/lifetimes/strength-reduction toggles. O2 + no
+ * CSE/propagation (44) needs the table-loop locals numbered in declaration
+ * order, which only O1 keeps.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
