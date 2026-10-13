@@ -27,10 +27,15 @@ alignment, and the C preserves the observed behavior and ABI.
 
 ## October 13 continuation: compiler rules for the last seven
 
-**6,853 MATCH / 7 ASM**, unchanged (`build/after53.json`, `build/link60.log`).
-Remaining: `00320b80` 3, `004a7830` 7, `0048b340` 9, `0014f310` 14,
+**6,853 MATCH / 7 ASM** (`build/after54.json`; link in `build/link60.log`).
+Remaining: `00320b80` 1, `004a7830` 7, `0048b340` 9, `0014f310` 14,
 `001d8010` 25, `0016bdd0` 39, `002ac750` 290. Each function comment
-records the measured attempts. The rules below were read from b210 in
+records the measured attempts. `00320b80` went 3 -> 1 in `a8fcad84`: the
+traversal takes its own `gridMode = savedMode` snapshot in the `for`
+initializer (matched `002eb270` pattern). Only the entry test register
+differs (`bnez $a1` against retail's `bnez $v0`). Every spelling that tests
+the extended value merges it into `savedMode`'s spill web (66). The rules
+below were read from b210 in
 Ghidra and confirmed with `tools/b210_micro.py`:
 
 - **Frontend CSE** (`IRO_CommonSubs` = `0x005a5060`; candidate test
