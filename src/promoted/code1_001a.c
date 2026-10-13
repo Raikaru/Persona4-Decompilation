@@ -4145,6 +4145,7 @@ void func_001a7710(void)
  * nor CSE (plain (u16)sp450), so every later use reloads lhu 0x270.
  * 469 -> 322: var_19, the shared packet pointer, is declared first; its
  * lower virtual number gives retail's colouring for the packet webs.
+ * 322 -> 279: var_18, the shared packet time (retail's $s2), comes first.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4247,6 +4248,7 @@ void func_001a7720(u8 *arg0) {
         u8 actionPrefix[0xF0];
         LargeBattleHitResult result;
     } ActionHitRowView;
+    s64 var_18;
     u8 *var_19;
     s32 sp5AC;
     s32 sp5A8;
@@ -4385,7 +4387,6 @@ void func_001a7720(u8 *arg0) {
     s32 temp_3_17;
     s32 temp_3_5;
     s64 var_17_3;
-    s64 var_18;
     s32 var_18_2;
     s32 var_2_11;
     s32 var_2_12;
