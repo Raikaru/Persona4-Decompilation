@@ -4153,6 +4153,12 @@ void func_001a7710(void)
  * rowHitCount - 1 and hitDelay + 0x2B), func_001eb440 takes the uncast
  * pointer, and hitDelayS16 is stored without re-extension.
  */
+/* Hit-row address through the row index's address, like btlHitResult_001a59a0;
+ * retail recomputes both late row addresses instead of sharing the loop's. */
+static inline u8 *btlHitRow_001a7720(u8 *action, const u16 *index)
+{
+    return action + (*index << 5);
+}
 #pragma push
 /* measured: loop-invariant hoisting reduced fnalign from 506 to 33 edits on this body. */
 #pragma opt_loop_invariants on
@@ -4311,6 +4317,7 @@ void func_001a7720(u8 *arg0) {
     LargeBattleHitResult result;
     /* Retail reserves 0x60 bytes for the formatted formation name. */
     char formation[96];
+    u8 *spRow;
     u8 *primaryTarget;
     u8 *linkedUnit;
     BtlPacketTiming *skillSePkt;
@@ -5831,7 +5838,7 @@ void func_001a7720(u8 *arg0) {
                 if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x40) {
                     sp2E0 = 1;
                 }
-                hitRowBase = (u8 *)((s32)(targetAction) + (hitIndex << 5));
+                hitRowBase = btlHitRow_001a7720(targetAction, &hitIndex);
                 hitRowAddr = (s32) hitRowBase;
                 hitPkt119 = (BtlPacketTiming *)(func_00201de0((s32)(act->unit), (s32)(*(u8 **)(effectiveAction + 0x30)), skillS32, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE), hitIndex, rowHitCount, hitResultPtr, 0));
                 hitPkt119->queue = 5;
@@ -5844,8 +5851,9 @@ void func_001a7720(u8 *arg0) {
                 if ((*(s16 *)(hitRowBase + 0x108) > 0) || (hitRow->result.spTransfer > 0)) {
                     hitDelayS16 = (s16)(hitDelay + 0x2B);
                     func_001f0a10((u8 *)&result);
+                    spRow = btlHitResult_001a59a0(targetAction, &hitIndex);
                     result.hpDelta = *hpTransfer;
-                    result.spDelta = (s32) *(s16 *)(targetAction + ((u32)hitIndex << 5) + 0x10A);
+                    result.spDelta = (s32) *(s16 *)(spRow + 0x1A);
                     pkt120 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
                     pkt120->queue = 4;
                     pkt120->startTime = animPacket->endTime;
