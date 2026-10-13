@@ -1038,7 +1038,12 @@ void func_004a77b0(void) {
  * (130), propagation-off (43, colours unchanged), lifetimes x declaration x
  * kick-local sweep, goto/while loops, named limits. Sign branches written via
  * magnitude score 6 only by a register coincidence (their store operands can
- * never match once colours flip, and NaN sign differs in one arm): reverted. */
+ * never match once colours flip, and NaN sign differs in one arm): reverted.
+ * 2026-10-13: the zero retail holds in $f2 is the madd chain's adda zero
+ * (r57, created before the abs r60); post-colour CSE folds the compare's
+ * zero into it. Source order is honoured exactly (fabsf written before the
+ * madd gives 24/54), so retail's abs is the surviving declared temp_f3.
+ * Pullout-constants on/off: 7. */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a7830(void)
