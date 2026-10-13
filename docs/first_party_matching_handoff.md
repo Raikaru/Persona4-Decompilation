@@ -25,18 +25,26 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 13 continuation: compiler rules for the last seven
+## October 13 continuation: `00320b80` MATCH; compiler rules for the last six
 
-**6,853 MATCH / 7 ASM** (`build/after54.json`; link in `build/link60.log`).
-Remaining: `00320b80` 1, `004a7830` 7, `0048b340` 9, `0014f310` 14,
-`001d8010` 25, `0016bdd0` 39, `002ac750` 290. Each function comment
-records the measured attempts. `00320b80` went 3 -> 1 in `a8fcad84`: the
-traversal takes its own `gridMode = savedMode` snapshot in the `for`
-initializer (matched `002eb270` pattern). Only the entry test register
-differs (`bnez $a1` against retail's `bnez $v0`). Every spelling that tests
-the extended value merges it into `savedMode`'s spill web (66). The rules
-below were read from b210 in
-Ghidra and confirmed with `tools/b210_micro.py`:
+**6,854 MATCH / 6 ASM** (`build/after55.json`; link in `build/link61.log`).
+Remaining: `004a7830` 7, `0048b340` 9, `0014f310` 14, `001d8010` 25,
+`0016bdd0` 39, `002ac750` 290. Each function comment records the measured
+attempts.
+
+`00320b80` (3 -> 1 -> 0, `a8fcad84`, `c096f0b5`):
+- The traversal takes its own `gridMode = savedMode` snapshot in the `for`
+  initializer (matched `002eb270` pattern).
+- The grid phase is a shared inline helper `fclAnimatePairGridRow(work,
+  s64 renderedRow, gridOffset, mode)` that narrows the row once to `s32`
+  (matched `003212e0` idiom). Its two row webs both colour `$s2`, and
+  post-colour CSE deletes the duplicate `sext`. That keeps retail's word
+  `mode` spill and its test of the extended byte.
+- An `s16` parameter instead leaves an idempotent `sext s2,s2` (5).
+- Owner 70/70, elig clean, lint unchanged.
+
+The rules below were read from b210 in Ghidra and confirmed with
+`tools/b210_micro.py`:
 
 - **Frontend CSE** (`IRO_CommonSubs` = `0x005a5060`; candidate test
   `0x004d06a0`) is gated, together with the backend CSE pass, by
@@ -93,7 +101,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 |---|---|---|
 | `00162e10` | 0 (MATCH, `8e4df6ff`) | the weekday search is an inline predicate with the genuine early `return 0` of matched sibling `001623f0`; that second zero survives allocation (found score 4, `$s5`) and post-colour CSE deletes it. Owner 42/42 |
 | `004a7830` | 7 | the `abs.s` result must be numbered before the compare zero, which is CSE'd with the MAC chain's `adda` zero |
-| `00320b80` | 3 | entry test reads raw `$a1` and `mode` spills as a 16-byte temp (`sq`); retail tests the extended byte and spills a 4-byte `mode` (`sw`). `if (arg1 == 0)` then `mode = arg1;` plus a statement `arg1 = i;` feeding the call reproduces retail's entry and spill exactly (one extra call-crossing neighbour), but the s8 copy then needs `$s5` (8) |
+| `00320b80` | 0 (MATCH, `c096f0b5`) | see the October 13 section: `gridMode` snapshot in the traversal's `for` initializer, plus a shared grid-row helper taking `s64 renderedRow` narrowed once to `s32`. Owner 70/70 |
 | `0048b340` | 9 | linear anchor needs a late identity |
 | `0014f310` | 14 | O1: the state pointer folds into its load temp. Under O2 + `opt_common_subs off` + `opt_propagation off` both swap sites match, and only the two table loops differ (44): `temp_7`, `a_resource` and `a_preset` must keep declared numbers |
 | `001d8010` | 25 | sort `limit`/`j` numbering |
