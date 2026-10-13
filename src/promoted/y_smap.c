@@ -252,6 +252,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 89 -> 81; the rectangle query uses a signed halfword column, distinct from its first snapshot.
  * measured: fnalign 81 -> 79; prepare the horizontal map/visibility offsets at the phase entrance.
  * measured: fnalign 79 -> 73; each square-scan row likewise prepares its map and visibility byte offsets.
+ * measured: fnalign 73 -> 45; preserve the later scans' signed column snapshots and model-derived coordinate/counter order.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -428,22 +429,24 @@ void func_002ac750(u8 arg0, u8 arg1) {
     s32 temp_7_3;
     s32 temp_16_3;
     s32 temp_16_6;
+    s32 scanFirstColumn11;
     s32 temp_16_7;
+    s32 scanFirstColumn13;
     s32 temp_18_5;
-    s32 temp_18_8;
-    s32 temp_18_9;
     s32 temp_19_6;
     s32 temp_19_7;
+    s32 temp_18_8;
+    s32 temp_18_9;
     s32 temp_20_3;
     s32 temp_21_5;
     s32 temp_22_2;
     s32 temp_4_38;
     s32 temp_5_4;
-    s32 var_16_3;
-    s32 var_16_4;
-    s32 var_17_2;
     s32 var_17_4;
     s32 var_17_5;
+    s32 var_17_2;
+    s32 var_16_3;
+    s32 var_16_4;
     /* Shared by the exclusive room-search and square-scan phases.
      * Retail leaves both coordinates stale if a search finds no anchor. */
     s32 workingRow;
@@ -688,6 +691,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 temp_16_6 = ((s8)(func_002b2d00(((s32)arg0), 1, 0, 0, 1)));
                 var_4 = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
                 var_17_4 = 0;
+                scanFirstColumn11 = (s8)temp_16_6;
                 while (((s16)(var_17_4)) < 3) {
                     s32 mapRowOffset;
                     s32 visibilityRowOffset;
@@ -696,9 +700,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     mapRowOffset = temp_19_6 << 8;
                     visibilityRowOffset = temp_19_6 * 2;
                     while ((temp_18_8 = ((s16)(var_16_3))) < 3) {
-                        temp_23_5 = func_002b2cb0((((s8)(temp_16_6))), temp_18_8, 0x10, 0, 1) * 0x10;
+                        temp_23_5 = func_002b2cb0(scanFirstColumn11, temp_18_8, 0x10, 0, 1) * 0x10;
                         if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_5)->reveal))) == 2) {
-                            *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0((((s8)(temp_16_6))), temp_18_8, 0x10, 0, 1)) & 0xFFFF;
+                            *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0(scanFirstColumn11, temp_18_8, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_16_3 = ((s16)((var_16_3 + 1)));
                     }
@@ -727,6 +731,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 temp_16_7 = ((s8)(func_002b2d00(((s32)arg0), 1, 0, 0, 1)));
                 var_4_2 = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
                 var_17_5 = 0;
+                scanFirstColumn13 = (s8)temp_16_7;
                 while (((s16)(var_17_5)) < 3) {
                     s32 mapRowOffset;
                     s32 visibilityRowOffset;
@@ -735,9 +740,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     mapRowOffset = temp_19_7 << 8;
                     visibilityRowOffset = temp_19_7 * 2;
                     while ((temp_18_9 = ((s16)(var_16_4))) < 3) {
-                        temp_23_6 = func_002b2cb0((((s8)(temp_16_7))), temp_18_9, 0x10, 0, 1) * 0x10;
+                        temp_23_6 = func_002b2cb0(scanFirstColumn13, temp_18_9, 0x10, 0, 1) * 0x10;
                         if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_6)->reveal))) == 2) {
-                            *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0((((s8)(temp_16_7))), temp_18_9, 0x10, 0, 1)) & 0xFFFF;
+                            *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0(scanFirstColumn13, temp_18_9, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_16_4 = ((s16)((var_16_4 + 1)));
                     }
