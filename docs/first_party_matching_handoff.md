@@ -25,11 +25,25 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 13 continuation: `00320b80` and `002ac750` MATCH; compiler rules for the last five
+## October 13 continuation: `00320b80`, `002ac750` and `004a7830` MATCH; compiler rules for the last four
 
-**6,855 MATCH / 5 ASM** (`build/after56.json`; link in `build/link62.log`).
-Remaining: `004a7830` 7, `0048b340` 9, `0014f310` 14, `001d8010` 25,
-`0016bdd0` 39. Each function comment records the measured attempts.
+**6,856 MATCH / 4 ASM** (`build/after57.json`; link in `build/link63.log`).
+Remaining: `0048b340` 9, `0014f310` 14, `001d8010` 25, `0016bdd0` 39. Each
+function comment records the measured attempts.
+
+`004a7830` (7 -> 2 -> 0, `10eb56d8`, `6065a219`, Code1aMatch2): explicit
+float phase values (`percentScale`, `axisAmplitude`, `randomSample`,
+`signZero`) under `opt_common_subs off`/`opt_propagation off`, plus a
+block-scoped `const f32 weightedRandom` partial product. That product's
+FCOPY blocks MULA fusion (`0x00558520` needs the ADDA's direct defining op
+to be the MUL) unless it is removed before peephole. `optimization_level 3`
+runs an early copy coalescer (`0x004be350`/`0x004be880`, all register
+classes) that deletes it, leaving `signZero`'s `mtc1` between MULA and MADD
+as in retail. `schedule off`, `opt_loop_invariants off`, `opt_rotateloops
+off` and `tailcall off` undo O3's other changes, and the FPR declaration
+order follows the captured graph. Each pragma carries its measured comment.
+On `001d8010` the same O3 block gives 90 (it drops the hoisted `swapped = 1`
+constant), so this lever is not general.
 
 `002ac750` (290 -> 0, twenty commits `60c4a303`..`4e21d141`, Code1aMatch2):
 - typed grid-cell accesses with distinct coordinate widths, without caching
@@ -116,7 +130,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 | Function | Edits | State |
 |---|---|---|
 | `00162e10` | 0 (MATCH, `8e4df6ff`) | the weekday search is an inline predicate with the genuine early `return 0` of matched sibling `001623f0`; that second zero survives allocation (found score 4, `$s5`) and post-colour CSE deletes it. Owner 42/42 |
-| `004a7830` | 7 | the `abs.s` result must be numbered before the compare zero, which is CSE'd with the MAC chain's `adda` zero |
+| `004a7830` | 0 (MATCH, `6065a219`) | see the October 13 section: explicit float phase values plus O3's early copy coalescer for the partial product. Owner 92/92 |
 | `00320b80` | 0 (MATCH, `c096f0b5`) | see the October 13 section: `gridMode` snapshot in the traversal's `for` initializer, plus a shared grid-row helper taking `s64 renderedRow` narrowed once to `s32`. Owner 70/70 |
 | `0048b340` | 9 | linear anchor needs a late identity |
 | `0014f310` | 14 | O1: the state pointer folds into its load temp. Under O2 + `opt_common_subs off` + `opt_propagation off` both swap sites match, and only the two table loops differ (44): `temp_7`, `a_resource` and `a_preset` must keep declared numbers |
