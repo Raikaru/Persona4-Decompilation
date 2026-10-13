@@ -231,6 +231,8 @@ s32 func_002ac740(void) {
  * at each use) but also drops the backend's per-call constant sharing (move t0,a2) that retail keeps
  * (465). Micro tests: the shadow survives every cast/mask spelling, s32 parameters, local u8 copies,
  * parameter reassignment on another path and 1200-block functions; no other opt_ pragma moves 290.
+ * The allocator's remat predicate (0x0049bb20) clones only constants/LA, so retail's per-use andi are
+ * separate source conversions the frontend CSE (candidate test 0x004d06a0) never merged.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
