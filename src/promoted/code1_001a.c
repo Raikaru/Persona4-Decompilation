@@ -4199,7 +4199,7 @@ void func_001a7720(u8 *arg0) {
     extern u32 func_001d43f0(s32 param_1);
     extern s32 func_001d6240();
     extern s32 func_001eb440();
-    extern s32 func_001ef4a0(s32 arg0);
+    extern s32 func_001ef4a0(u16 arg0);
     extern s32 func_001ef720(s32 arg0, s32 arg1);
     extern void func_001f0a10(u8 *result);
     extern s32 func_001f0af0(u8 *arg0);
