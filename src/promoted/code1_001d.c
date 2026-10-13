@@ -2314,7 +2314,12 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * after the compare (r320); j closes only if numbered right after the bound temp. Measured non-levers:
  * limit = nn; limit-- (frontend rewrites to a hoisted nn - 1 numbered after j but before the compare, 68),
  * nn - 1 in the condition (hoisted one level, 68), an inline sort taking limit (variable argument is
- * substituted, 25 unchanged) or nn - 1 (47), and reusing n/hasFlag as the bound (37/599). */
+ * substituted, 25 unchanged) or nn - 1 (47), and reusing n/hasFlag as the bound (37/599).
+ * Capture build/code1a1d_sort_captures/native_bound_order: limit r43 folds into the addiu temp r278
+ * during backend copy propagation (unconditional in every O2+ pipeline). --at 278=43.5 or 320.5, or
+ * j 44=278.5, gives retail. Whole-sort/pass/pair/cursor helpers and a u16 j stay 25. The matched
+ * btlAICommand sibling form (u32 count, (s32)c - 1 in the test) hoists the bound before the do but
+ * keeps the colours (28). O1 + common_subs/propagation fixes the bound but regresses (189); O3 90. */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
  * Structure: early count<2 return, D_008C027A 0x2000/8000/1000/4000 -> mode 5/4/2/3 with D_008C0276 hasFlag, 1d8df0==1 remap (5/1->3, 4/0->2), switch in object order 4/5,0/1,2/3 sharing bodies via jtbl_00747110, u16 entry idx/chain (Entry[12] at sp+0x90 -> sp+0x120 exactly), three bubble sorts (score/score/chain, descending), chain filter over *(D_0076449C+0x17C) via +0xA68, 1ec3d0 transform for 0/1, shared tail storing *(arg1+0x3A) with +0x3C|1.
