@@ -247,6 +247,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 115 -> 112; reveal the current cell before preparing the cached neighbor-row offset.
  * measured: fnalign 112 -> 110; the three-cell reveal copies an unsigned halfword row, not a row offset.
  * measured: fnalign 110 -> 106; reuse the offset-first pointer helper for the two following reveal rows.
+ * measured: fnalign 106 -> 96; separate room preparation from reveal and retain caller-owned search snapshots.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -279,34 +280,32 @@ static inline u8 *smapRevealOffsetPtr(u32 offset, u8 *base) {
 
 #pragma push
 #pragma opt_loop_invariants on
-static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
-                                          s32 cellRowOffset, s32 cellColumnOffset,
-                                          s32 *anchorColumn, s32 *anchorRow) {
+static inline s32 smapPrepareRoomReveal(u8 column, u8 row, s32 extent,
+                                      s32 cellRowOffset, s32 cellColumnOffset,
+                                      s32 *rowSnapshot, s32 *columnSnapshot,
+                                      s32 *anchorColumn, s32 *anchorRow) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     s32 rowCounter;
     s32 rowStep;
     s32 columnCounter;
     s32 columnStep;
-    s32 savedRow;
-    s32 savedColumn;
     s32 cellOffset;
     s32 candidateRow;
     s32 candidateColumn;
     s32 candidateRowOffset;
     s32 candidateColumnOffset;
     u8 kind;
-    u8 orientation;
 
     rowCounter = 0;
-    savedRow = row;
-    savedColumn = column;
+    *rowSnapshot = row;
+    *columnSnapshot = column;
     cellOffset = cellRowOffset + cellColumnOffset;
     while ((rowStep = (s16)rowCounter) < extent) {
-        candidateRow = (s8)func_002b2d00(savedRow, rowStep, 1, 0x18, 1);
+        candidateRow = (s8)func_002b2d00(*rowSnapshot, rowStep, 1, 0x18, 1);
         columnCounter = 0;
         candidateRowOffset = candidateRow << 8;
         while ((columnStep = (s16)columnCounter) < extent) {
-            candidateColumn = (s8)func_002b2d00(savedColumn, columnStep, 1, 0x10, 1);
+            candidateColumn = (s8)func_002b2d00(*columnSnapshot, columnStep, 1, 0x10, 1);
             candidateColumnOffset = candidateColumn * 0x10;
             if ((SMAP_GRID_SCAN_AT(candidateRowOffset, candidateColumnOffset)->reveal & 0xF) == 1) {
                 kind = SMAP_GRID_SCAN_AT(candidateRowOffset, candidateColumnOffset)->kind;
@@ -320,6 +319,15 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
         }
         rowCounter = (s16)(rowCounter + 1);
     }
+    return cellOffset;
+}
+
+static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
+                                         s32 cellRowOffset, s32 cellColumnOffset,
+                                         s32 cellOffset, s32 savedColumn,
+                                         const s32 *anchorColumn, const s32 *anchorRow) {
+    u8 orientation;
+
     orientation = SMAP_GRID_CELL_AT(cellRowOffset, cellColumnOffset)->orientation;
     switch (orientation) {
     case 0:
@@ -368,6 +376,12 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
 void func_002ac750(u8 arg0, u8 arg1) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern s64 func_002adcf0(u8);
+    s32 savedRoomRow3;
+    s32 savedRoomColumn3;
+    s32 savedRoomRow2;
+    s32 savedRoomColumn2;
+    s32 currentCellOffset2;
+    u32 currentCellOffset3;
     s32 sp180;
     s32 sp160;
     s32 sp140;
@@ -524,7 +538,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
                         }
                     }
                 } else {
-                    smapRevealRoomFootprint(arg0, arg1, 2, temp_17, temp_16, &columnReference, &workingRow);
+                    currentCellOffset2 = smapPrepareRoomReveal(arg0, arg1, 2, temp_17, temp_16, &savedRoomRow2, &savedRoomColumn2, &columnReference, &workingRow);
+                    smapRevealRoomFootprint(arg0, arg1, 2, temp_17, temp_16, currentCellOffset2, savedRoomColumn2, &columnReference, &workingRow);
                     return;
                 }
             } else if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
@@ -644,7 +659,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     (*( u16 * )((u8*)(temp_4_32) + (4))) = (u16) ((*( u16 * )((u8*)(temp_4_32) + (4))) | ((1 << ((s32)arg0)) & 0xFFFF));
                     return;
                 }
-                smapRevealRoomFootprint(arg0, arg1, 3, temp_17, temp_16, &columnReference, &workingRow);
+                currentCellOffset3 = smapPrepareRoomReveal(arg0, arg1, 3, temp_17, temp_16, &savedRoomRow3, &savedRoomColumn3, &columnReference, &workingRow);
+                smapRevealRoomFootprint(arg0, arg1, 3, temp_17, temp_16, currentCellOffset3, savedRoomColumn3, &columnReference, &workingRow);
                 return;
             } else if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_3_10 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
