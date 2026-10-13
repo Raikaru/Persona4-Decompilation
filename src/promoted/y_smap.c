@@ -245,6 +245,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 146 -> 142; likewise form the horizontal cell address and reveal bit from the anchor.
  * measured: fnalign 142 -> 115; kinds 13/14 use a single-case early-return guard, not a switch.
  * measured: fnalign 115 -> 112; reveal the current cell before preparing the cached neighbor-row offset.
+ * measured: fnalign 112 -> 110; the three-cell reveal copies an unsigned halfword row, not a row offset.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -387,7 +388,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
     s32 temp_23_5;
     s32 temp_23_6;
     u16 temp_4_19;
-    s16 temp_5_10;
+    u16 temp_5_10;
     s32 temp_5_5;
     u16 temp_5_6;
     s32 temp_5_7;
@@ -635,10 +636,10 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 if ((SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal & 0xF) == 1) {
                     temp_4_30 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                     *temp_4_30 |= ((1 << ((s32)arg0)) & 0xFFFF);
-                    temp_5_10 = temp_18 * 2;
-                    temp_4_31 = (u8 *)(temp_5_10 + (u32)D_00764658);
+                    temp_5_10 = arg1;
+                    temp_4_31 = (u8 *)(temp_5_10 * 2 + (u32)D_00764658);
                     (*( u16 * )((u8*)(temp_4_31) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_31) + (2))) | ((1 << ((s32)arg0)) & 0xFFFF));
-                    temp_4_32 = (u8 *)(temp_5_10 + (u32)D_00764658);
+                    temp_4_32 = (u8 *)(temp_5_10 * 2 + (u32)D_00764658);
                     (*( u16 * )((u8*)(temp_4_32) + (4))) = (u16) ((*( u16 * )((u8*)(temp_4_32) + (4))) | ((1 << ((s32)arg0)) & 0xFFFF));
                     return;
                 }
