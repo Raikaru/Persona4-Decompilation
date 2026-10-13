@@ -5382,7 +5382,7 @@ void func_001a7720(u8 *arg0) {
     skillS32 = (s32)(u32)skill;
     skillKeyCopy = skillKey;
     while ((targetIndexS32 = (s32)targetIndex) < act->targetCount) {
-            targetAction = (u8 *)((*( s32 ** )((u8 *)(((s32)(arg0) + (targetIndex * 4))) + (0x38))));
+            targetAction = (u8 *)((*( s32 ** )((u8 *)(((s32)(arg0) + ((u32)targetIndex * 4))) + (0x38))));
             rowHitCount = (u16) *(u8 *)(targetAction + 0xD9);
             hitTimer = 0;
             hitFlags = (s32)(s32)(func_001d43f0((s32)(targetAction) + 0xD8));
