@@ -1023,6 +1023,8 @@ void func_004a77b0(void) {
  * Here peephole folds both of its definitions into temporaries because
  * neither is live out of its block. Peephole skips only blocks flagged
  * 0x180 (the asm blocks), and `register` changes nothing. */
+/* measured 2026-10-12: sign branches via magnitude (step-abs / abs-step, exactly
+ * equivalent incl. NaN/zero) 7 -> 6 words; the $f1/$f2/$f3 colour cycle is unchanged. */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a7830(void)
@@ -1057,9 +1059,9 @@ void func_004a7830(void)
             temp_f3 = fabsf(temp_f1);
             if (!(temp_f3 < (temp_f20 * initial[idx]))) {
                 if (temp_f1 <= 0.0f) {
-                    *temp_16 = temp_f1 + temp_f21;
+                    *temp_16 = temp_f21 - temp_f3;
                 } else {
-                    *temp_16 = temp_f1 - temp_f21;
+                    *temp_16 = temp_f3 - temp_f21;
                 }
             } else {
                 f32 random2 = effMiscRandFloat(0);
