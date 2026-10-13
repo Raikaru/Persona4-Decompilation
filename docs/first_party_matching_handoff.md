@@ -48,7 +48,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 
 | Function | Edits | State |
 |---|---|---|
-| `00162e10` | 1 | `found` needs a fourth counted reference with `found = 1`; `found == 0 &&` in the loop condition fixes the colours but adds a test |
+| `00162e10` | 0 (MATCH, `8e4df6ff`) | the weekday search is an inline predicate with the genuine early `return 0` of matched sibling `001623f0`; that second zero survives allocation (found score 4, `$s5`) and post-colour CSE deletes it. Owner 42/42 |
 | `004a7830` | 7 | the `abs.s` result must be numbered before the compare zero, which is CSE'd with the MAC chain's `adda` zero |
 | `00320b80` | 3 | entry test reads raw `$a1` and `mode` spills as a 16-byte temp (`sq`); retail tests the extended byte and spills a 4-byte `mode` (`sw`). `if (arg1 == 0)` then `mode = arg1;` plus a statement `arg1 = i;` feeding the call reproduces retail's entry and spill exactly (one extra call-crossing neighbour), but the s8 copy then needs `$s5` (8) |
 | `0048b340` | 9 | linear anchor needs a late identity |
@@ -58,7 +58,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 | `0016bdd0` | 39 | sqrt result versus `adda` zero numbering (three regions) |
 | `002ac750` | 290 | spill choice in both search blocks; retail keeps `sp180 = temp_18` as its own spilled value, which b210 coalesces in natural spellings (restructured `d7d2f766`: 397, reverted in `66a26b06`) |
 | `001a59a0` | 0 (MATCH) | frame 0x330; closed the camera field-origin operands, selected-target join and reaction short circuits. Owner: 70 MATCH / 1 ASM; exact-link eligibility clean. |
-| `001a7720` | 472 | frame 0x5b0 matches. Retail has no pragmas: IR CSE on, which requires uncast `u8 *` field reads and `(u16)` masks. The remaining work is spill identity (see below) |
+| `001a7720` | 279 | frame 0x5b0 matches. Retail has no pragmas: IR CSE on, which requires uncast `u8 *` field reads and `(u16)` masks. Declaring `var_18` and `var_19` first (`de099502`, `c4e6a086`) fixed most colours (469 -> 279). The rest is spill identity (see below) |
 
 Measured since the table (captures plus `regalloc_whatif`, all reproduced):
 
