@@ -1044,8 +1044,15 @@ void func_004a77b0(void) {
  * zero into it. Source order is honoured exactly (fabsf written before the
  * madd gives 24/54), so retail's abs is the surviving declared temp_f3.
  * Pullout-constants on/off: 7. */
+/* measured: 7 -> 2 fnalign edits, 133 instructions, frame 0x70. With CSE and
+ * propagation disabled, explicit amplitude/scale snapshots and a named random
+ * sample preserve retail's float colours without extending the fabs lifetime.
+ * Only the sign-reference zero remains five instructions earlier than retail. */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 void func_004a7830(void)
 {
     extern f32 fabsf(f32 arg0);
@@ -1055,29 +1062,38 @@ void func_004a7830(void)
     s32 idx;
     s32 temp_17;
     f32 *temp_16;
+    f32 *axisAmplitude;
     f32 temp_f1;
     f32 temp_f20;
     f32 temp_f21;
-    f32 temp_f3;
     f32 temp_f4;
+    f32 temp_f3;
+    f32 percentScale;
+    f32 signZero;
+    f32 randomSample;
     u8 *temp_2;
 
     if (*(u8 *)&D_00724C58 == 0) {
         return;
     }
     *(u8 *)&D_00724C58 = 0;
-    delta[0] = 0.01f * fGpffffbb70;
-    delta[1] = 0.01f * fGpffffbb74;
+    percentScale = 0.01f;
+    delta[0] = percentScale * fGpffffbb70;
+    delta[1] = percentScale * fGpffffbb74;
     for (idx = 0; idx < 2; idx++) {
         temp_17 = idx * 4;
-        temp_f20 = delta[idx];
+        axisAmplitude = (f32 *)((u8 *)delta + temp_17);
+        temp_f20 = *axisAmplitude;
         if (temp_f20 != 0.0f) {
-            temp_f21 = 0.5f * delta[idx] + 0.5f * (delta[idx] * effMiscRandFloat(0));
+            temp_f21 = 0.5f;
+            randomSample = effMiscRandFloat(0);
+            signZero = 0.0f;
+            temp_f21 = temp_f21 * temp_f20 + 0.5f * (temp_f20 * randomSample);
             temp_16 = (f32 *)((u8 *)D_00724C78 + temp_17);
             temp_f1 = *temp_16;
             temp_f3 = fabsf(temp_f1);
-            if (!(temp_f3 < (temp_f20 * initial[idx]))) {
-                if (temp_f1 <= 0.0f) {
+            if (!(temp_f3 < (temp_f20 * *(f32 *)((u8 *)initial + temp_17)))) {
+                if (temp_f1 <= signZero) {
                     *temp_16 = temp_f1 + temp_f21;
                 } else {
                     *temp_16 = temp_f1 - temp_f21;
@@ -1104,6 +1120,7 @@ void func_004a7830(void)
     vec[2] = temp_f3 * ((*(f32 *)(temp_2 + 0x18)) * temp_f4);
     func_003e9c10((u8 *)D_00724C70, vec, 0);
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7830);
 #endif
