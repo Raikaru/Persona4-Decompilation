@@ -25,6 +25,44 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
+## October 13 continuation: compiler rules for the last seven
+
+**6,853 MATCH / 7 ASM**, unchanged (`build/after53.json`, `build/link60.log`).
+Remaining: `00320b80` 3, `004a7830` 7, `0048b340` 9, `0014f310` 14,
+`001d8010` 25, `0016bdd0` 39, `002ac750` 290. Each function comment
+records the measured attempts. The rules below were read from b210 in
+Ghidra and confirmed with `tools/b210_micro.py`:
+
+- **Frontend CSE** (`IRO_CommonSubs` = `0x005a5060`; candidate test
+  `0x004d06a0`) is gated, together with the backend CSE pass, by
+  `opt_common_subs`. It turns repeated expressions into compiler locals
+  ("shadows") numbered after every parse-time local, including asm-operand
+  locals. Widening conversions are candidates; bare narrowing ones
+  (`(u8)s32`) are not. A `u8` parameter used in int context is therefore
+  masked once at entry and shared (the `002ac750` entry difference;
+  `opt_common_subs off` reproduces retail's entry exactly but also drops
+  the backend's per-call constant sharing).
+- **Asm statements whose text is a store** (`sqc2`, with or without `"=m"`
+  or a `"memory"` clobber) kill frontend-CSE availability. Asm loads, VU
+  arithmetic and `qmfc2` into a register do not. Loop-invariant hoisting
+  does not merge a recomputed loop copy back into the shadow (`0048b340`).
+- **Copy propagation keeps locals per variable, not per web**, and never
+  rewrites asm operands. A variable with a call-argument copy anywhere
+  keeps its low number in every web (`0048b340`'s `dst1`).
+- **O1** has no backend CSE stage. Its `after_backend_optimization` pass
+  forwards copies only into memory-address operands within a block, so a
+  memory-only local survives only with a use in a later block (`0014f310`
+  base). `opt_common_subs on` at O1 enables the frontend CSE, which
+  reproduces both `0014f310` swap sites exactly, but it also widens that
+  forwarding into arithmetic and merges ten global reloads retail keeps.
+  Retail therefore needs CSE on at the swap sites and off in the table
+  loops.
+- **Rematerialisation** (`0x0049bb20`) clones only constants and LA-style
+  address loads, never `andi`/`zext`, so repeated masks in retail are
+  separate source conversions.
+- Plain `__asm__` statements did not disable the frontend pass
+  (`0x00576a50` sets the skip flag only through a target callback).
+
 ## October 12 continuation, part 13: `0027f6f0`, `0018a200`, `0017f490`, `001f14f0`, `00471370`, `0046b380`, `001a59a0`, `00162e10` MATCH; compiler internals
 
 **6,853 MATCH / 7 ASM** (`build/after53.json`; link in `build/link60.log`).
