@@ -253,6 +253,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 81 -> 79; prepare the horizontal map/visibility offsets at the phase entrance.
  * measured: fnalign 79 -> 73; each square-scan row likewise prepares its map and visibility byte offsets.
  * measured: fnalign 73 -> 45; preserve the later scans' signed column snapshots and model-derived coordinate/counter order.
+ * measured: fnalign 45 -> 43; apply the rectangle's current-cell row offset before its column offset.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -578,7 +579,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
         temp_18_4 = temp_18 << 8;
         temp_21_3 = temp_22_2 * 0x10;
         temp_23_2 = SMAP_GRID_CELL_AT(temp_18_4, temp_21_3)->kind;
-        if ((temp_23_2 == SMAP_GRID_CELL_AT(temp_16, temp_18_4)->kind) && ((SMAP_GRID_CELL_AT(temp_17, temp_21_3)->reveal & 0xF) == 1)) {
+        if ((temp_23_2 == SMAP_GRID_CELL_AT(temp_18_4, temp_16)->kind) && ((SMAP_GRID_CELL_AT(temp_17, temp_21_3)->reveal & 0xF) == 1)) {
             temp_5_4 = ((s8)(temp_22_2));
             temp_7 = (1 << temp_5_4) & 0xFFFF;
             temp_6 = ((s32)arg1) * 2;
