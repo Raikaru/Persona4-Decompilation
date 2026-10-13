@@ -5645,7 +5645,7 @@ void func_001a7720(u8 *arg0) {
                     } else {
                         motionDelay = 0x19 - motionFramesS32;
                     }
-                    pkt99 = (BtlPacketTiming *)(func_00197cc0((s32)*(u8 **)((u8 *)effectiveAction + 0x30), skill, (s16)motionDelay));
+                    pkt99 = (BtlPacketTiming *)(func_00197cc0(*(s32 *)(effectiveAction + 0x30), skill, (s16)motionDelay));
                     pkt99->queue = 4;
                     pkt99->startTime = animPacket->endTime;
                     pkt99->ownerId = actionId;
