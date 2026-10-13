@@ -967,91 +967,29 @@ void func_004a77b0(void) {
     func_003e9830(D_00724C70, *(s32 *)(((u8 *)(u32)func_00457120()) + 4));
 }
 
-/* measured: sister is mt_scene func_0026d440 (MATCH): `f32 initial[2] = {0.6f, 0.6f}` pair, */
-/* measured: `delta[2]` from fGpffff80f0 (0.01f) times fGpffffbb70/bb74, `fabsf`, `vec[3]` tail */
-/* measured: via func_003e9c10(D_00724C70, vec, 0). Frame 0x70 and tail match; loop body is floor. */
-/* measured: probes (differing words, reloc-masked): a 113, c 117, d 126 (`for`+arrays), */
-/* measured: f 117 (`*(u8*)` flag + `fabsf` + byte-offset), g 19 (arrays + `vec[3]` + byte-offset), */
-/* measured: h 19 (`#pragma opt_loop_invariants on` before `for`, off after loop: 19->19 no-op), */
-/* measured: l 20 (`u32 idx/temp_17`), m 127 (`delta[idx]`/`initial[idx]` vs byte-offset). */
-/* measured: parent levers: loop-invariants 19->19 no-op here; cast-moves-load not applicable */
-/* measured: (tail `&vec[0]` already bare, no cast); full pragma sweep 2026-09-17 on floor g: */
-/* measured: `opt_common_subs off` 110, `schedule on` 116, `opt_propagation off` 122 (all worse), */
-/* measured: re-confirmed cur 19 words (fnalign 133/133 instrs, 19 edits + 11 reloc-only). */
-/* measured: floor g: object 532B/window 544B (12B short), 19 words: `addiu $s0 vs $v0` at 0x6C, */
-/* measured: `lui 0.5f` hoisting (`move $a0` vs `lui` at 0x88), float colouring $f1/$f2/$f3 swaps */
-/* measured: at 0xC0-0x100 (`lwc1/abs/c.lt/c.le/add/sub`). Walls; Keep ASM until colouring closes. */
-/* measured 2026-09-17 full pragma_sweep --pairs: banked 19 via measure_guarded; */
-/* best stays 19 (ties: dead off, loopinv on, strength off, unroll off and pairs; */
-/* 108-110 csoff group, 116-117 schedule/peephole group, 121-124 prop group, 129 */
-/* csoff+peephole). No pair wins; 532B vs 544B shortfall kept (do not shrink). */
-/* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_004a.c func_004a7830 --pairs`. */
-/* 2026-09-18 lead pass, 4 measured variants, floor confirmed at 19 words.
-   133/133 instructions.  Residual: retail computes the `D_00724C78 + i*4`
-   address into `$v0` for the first load and keeps a saved copy in `$s0` for
-   the later ones, where this body uses `$s0` throughout; plus retail
-   materialises 0.5f once into `$f21` and this body rebuilds it, which
-   cascades into an FP register rotation ($f0/$f1/$f2/$f3).
-   Inlining the pointer at its first use ties at 19, computing it after the
-   first load ties at 19, and inlining it everywhere does not compile (the
-   expression needs the local's type).  The separate `amplitude` local is
-   load-bearing: folding it into `temp_f20` costs 19 -> 99. */
-/* measured 2026-09-20: 19 masked / 20 fully resolved words -> seven, still
-   532/544 bytes. Keeping both delta reads and the RNG call in the step
-   expression restores retail's pre-call half-value and post-call product.
-   The remaining seven words only select the magnitude/sign float registers.
-   The RNG and camera declarations now agree with their actual providers,
-   and the two shake outputs use a real float array. See
-   docs/probe_archive/Shake_004a7830_0360227.md. */
-/* measured 2026-09-28 (lane 3): still 7 words. The three registers left are how the loop body's
-   {converted byte x, 0.0f, fabsf(x)} take $f1/$f2/$f3: this body gives abs=$f1, x=$f2, zero=$f3
-   (colouring is by live-range density: the short abs range is coloured first, the long hoisted
-   zero last; the sister mt_scene func_0026d440 has exactly this colouring and MATCHes), retail
-   gives x=$f1, zero=$f2, abs=$f3. In isolation the retail colouring appears as soon as the abs
-   value stays live to the end of the iteration (a later use joined from both branches), so retail's
-   abs local has a longer live range than any spelling tried here makes it. Measured no-ops on the
-   7-word body: declaration order of the float locals, separate `mag`, inlining the abs into the
-   compare, `*p` instead of a cached load, if/else polarity, named zero, static-inline abs wrapper,
-   all cheap pragmas (sweep again 2026-09-28, best stays 7). */
-/* measured 2026-09-28: 532/544B, seven FPU-register words remain.
- * All sixteen relocations resolve, including the 0.6f pair and the 0.01f
- * literal at 0x007611E0. The output scale at 0x007641FC is mutable.
- * 2026-10-06 colouring model, replaying the captured FPR stack: retail's
- * x=$f1/zero=$f2/abs=$f3 follows exactly when the abs value is numbered
- * below the hoisted zero (r57), i.e. when `temp_f3` survives as its declared
- * FPR local. That also explains the else-branch `mul.s $f3`, the same local.
- * Here peephole folds both of its definitions into temporaries because
- * neither is live out of its block. Peephole skips only blocks flagged
- * 0x180 (the asm blocks), and `register` changes nothing. */
-/* measured 2026-10-12 (solo): faithful floor stands at 7. Replay on the FPR
- * capture still flips all three colours only with `--at 60=33.5`; spill scores
- * do nothing. Backend CSE (dominator walk) renumbers the compare to the abs
- * temp in its own block, then peephole deletes the dead `temp_f3` copies; a
- * copy survives only via a copy-use in a later block, a use after a join, a
- * call argument, or a call between def and use (the last puts the value in a
- * saved FPR, contradicting retail $f3). This body has no genuine such use:
- * the sign/kick arms are dominated arms, and any post-join use would read the
- * merged abs/kick value. ~50 measured variants stay at 7: sign-first/goto and
- * magnitude sign branches, flag materialisation, axis/abs/predicate inline
- * helpers (with and without early returns), sibling mt_scene port, split-step
- * forms, pointer/union/array magnitude holders, peephole-off (116), CSE-off
- * (130), propagation-off (43, colours unchanged), lifetimes x declaration x
- * kick-local sweep, goto/while loops, named limits. Sign branches written via
- * magnitude score 6 only by a register coincidence (their store operands can
- * never match once colours flip, and NaN sign differs in one arm): reverted.
- * 2026-10-13: the zero retail holds in $f2 is the madd chain's adda zero
- * (r57, created before the abs r60); post-colour CSE folds the compare's
- * zero into it. Source order is honoured exactly (fabsf written before the
- * madd gives 24/54), so retail's abs is the surviving declared temp_f3.
- * Pullout-constants on/off: 7. */
-/* measured: 7 -> 2 fnalign edits, 133 instructions, frame 0x70. With CSE and
- * propagation disabled, explicit amplitude/scale snapshots and a named random
- * sample preserve retail's float colours without extending the fabs lifetime.
- * Only the sign-reference zero remains five instructions earlier than retail. */
-// FUN_004A7830 NONMATCHING
-#ifdef NON_MATCHING
+/* Matched: 7 -> 2 -> 0 fnalign edits; 532/544 bytes, frame 0x70.
+ * CSE/propagation off preserve the amplitude and scalar snapshots. Level 3's
+ * early copy coalescer (004be350) removes weightedRandom's FCOPY before the
+ * MULA peephole, leaving signZero between MULA and MADD as in retail.
+ * Disable scheduling, loop-invariant hoisting and loop rotation. Keep the
+ * magnitude/sign-reference/current declaration order for $f3/$f2/$f1.
+ * The magnitude does not need an artificial post-comparison lifetime. */
+// FUN_004A7830
+/* measured: isolate this zero-edit pipeline from the other 91 functions. */
 #pragma push
+/* measured: O3 coalesces the partial-product copy before MULA formation. */
+#pragma optimization_level 3
+/* measured: retain retail instruction order and unfilled delay slots. */
+#pragma schedule off
+/* measured: keep the half-value and zero materializations inside the loop. */
+#pragma opt_loop_invariants off
+/* measured: disabling the extra preheader test closes the final 5 edits. */
+#pragma opt_rotateloops off
+/* measured: retain the baseline call/return policy in the zero-edit O3 scope. */
+#pragma tailcall off
+/* measured: preserve the declared magnitude instead of CSE's late ABS temp. */
 #pragma opt_common_subs off
+/* measured: preserve the pre-RNG half-value and explicit load snapshots. */
 #pragma opt_propagation off
 void func_004a7830(void)
 {
@@ -1063,13 +1001,13 @@ void func_004a7830(void)
     s32 temp_17;
     f32 *temp_16;
     f32 *axisAmplitude;
-    f32 temp_f1;
     f32 temp_f20;
     f32 temp_f21;
     f32 temp_f4;
     f32 temp_f3;
     f32 percentScale;
     f32 signZero;
+    f32 temp_f1;
     f32 randomSample;
     u8 *temp_2;
 
@@ -1087,8 +1025,11 @@ void func_004a7830(void)
         if (temp_f20 != 0.0f) {
             temp_f21 = 0.5f;
             randomSample = effMiscRandFloat(0);
-            signZero = 0.0f;
-            temp_f21 = temp_f21 * temp_f20 + 0.5f * (temp_f20 * randomSample);
+            {
+                const f32 weightedRandom = 0.5f * (temp_f20 * randomSample);
+                signZero = 0.0f;
+                temp_f21 = temp_f21 * temp_f20 + weightedRandom;
+            }
             temp_16 = (f32 *)((u8 *)D_00724C78 + temp_17);
             temp_f1 = *temp_16;
             temp_f3 = fabsf(temp_f1);
@@ -1120,10 +1061,8 @@ void func_004a7830(void)
     vec[2] = temp_f3 * ((*(f32 *)(temp_2 + 0x18)) * temp_f4);
     func_003e9c10((u8 *)D_00724C70, vec, 0);
 }
+/* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7830);
-#endif
 // FUN_004A7A50
 void func_004a7a50(void) {
     func_003e9c10((u8 *)D_00724C70, D_00922D80, 0);
