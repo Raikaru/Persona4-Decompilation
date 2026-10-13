@@ -4146,7 +4146,16 @@ void func_001a7710(void)
  * 469 -> 322: var_19, the shared packet pointer, is declared first; its
  * lower virtual number gives retail's colouring for the packet webs.
  * 322 -> 279: var_18, the shared packet time (retail's $s2), comes first.
+ * 279 -> 89: the hit loop reads rowHitCount directly; unsigned target and
+ * hit-row indices; a per-target signed index (copy use keeps
+ * targetIndexS32 a word); the same-side flag as one conditional (quad temp).
+ * 89 -> 33: opt_loop_invariants (retail's preheader quads for rowHitCount,
+ * rowHitCount - 1 and hitDelay + 0x2B), func_001eb440 takes the uncast
+ * pointer, and hitDelayS16 is stored without re-extension.
  */
+#pragma push
+/* measured: loop-invariant hoisting reduced fnalign from 506 to 33 edits on this body. */
+#pragma opt_loop_invariants on
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
 void func_001a7720(u8 *arg0) {
@@ -4360,7 +4369,6 @@ void func_001a7720(u8 *arg0) {
     s32 hitDelta;
     s32 hitFlags;
     s32 sameSideTarget;
-    s32 hitDelayS32;
     ActionHitRowView *hitRow;
     s8 *hitMotion;
     s32 hitRowAddr;
@@ -4692,7 +4700,7 @@ void func_001a7720(u8 *arg0) {
             rotatePkt4->ownerId = actionId;
             func_00194590((u8 *)rotatePkt4, 0);
         } else if (side == 0) {
-            func_00196040((u16)func_001eb440((s32)(arg0) + 0x38), 1, &targetPosition, 0, 0, 1);
+            func_00196040((u16)func_001eb440(arg0 + 0x38), 1, &targetPosition, 0, 0, 1);
             pkt5 = (BtlPacketTiming *)(btlUnitCreateRotatePacket(*(BtlUnit **)(arg0 + 0x30), &targetPosition, rotateFlags));
             pkt5->ownerId = actionId;
             func_00194590((u8 *)pkt5, 0);
@@ -4767,7 +4775,7 @@ void func_001a7720(u8 *arg0) {
                 effectHandles[2] = (*(s32 *)((u8 *)btlState3_33 + 0xD38));
             }
             if (((s32)(func_001f11e0(skill)) == (s32)(0)) && ((s32)(func_001f0b90(arg0)) == (s32)(0))) {
-                targetGroup = (s32)((u16)func_001eb440((s32)(arg0) + 0x38));
+                targetGroup = (s32)((u16)func_001eb440(arg0 + 0x38));
                 if ((side == 0) && (((u16)targetGroup) == 2)) {
                     randomFlag = (s32)((effMiscRand(0) & 1)) != (s32)(0);
                 } else if ((side == 1) && (((u16)targetGroup) == 1)) {
@@ -5507,7 +5515,7 @@ void func_001a7720(u8 *arg0) {
                     act->flags = (u16) (act->flags | 0x200);
                 }
             } else if ((targetPos == 0) && (side == 0)) {
-                targetGroup2 = (s32)((u16)func_001eb440((s32)(arg0) + 0x38));
+                targetGroup2 = (s32)((u16)func_001eb440(arg0 + 0x38));
                 if (targetGroup2 == 2) {
                     func_00196040(targetGroup2, 1, &targetPosition, 0, 0, 1);
                     pkt87 = (BtlPacketTiming *)(btlUnitCreateLookAtPacket(0, &targetPosition, 1));
@@ -5602,7 +5610,6 @@ void func_001a7720(u8 *arg0) {
                 hitDelay = 0xA;
             }
             hitIndex = 0;
-            hitDelayS32 = hitDelay + 0x2B;
             while ((hitIndexS32 = (s32) hitIndex) < (s32)rowHitCount) {
                 motionSpeed = 1.0f;
                                 hitRow = (ActionHitRowView *)(targetAction + ((u32)hitIndex << 5));
@@ -5831,21 +5838,21 @@ void func_001a7720(u8 *arg0) {
                 func_00194590((u8 *)hitPkt119, 3);
                 hpTransfer = (s16 *)(hitRowBase + 0x108);
                 if ((*(s16 *)(hitRowBase + 0x108) > 0) || (hitRow->result.spTransfer > 0)) {
-                    hitDelayS16 = (s16)hitDelayS32;
+                    hitDelayS16 = (s16)(hitDelay + 0x2B);
                     func_001f0a10((u8 *)&result);
                     result.hpDelta = *hpTransfer;
                     result.spDelta = (s32) *(s16 *)(targetAction + ((u32)hitIndex << 5) + 0x10A);
                     pkt120 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
                     pkt120->queue = 4;
                     pkt120->startTime = animPacket->endTime;
-                    pkt120->delay = (s16) hitDelayS16;
+                    pkt120->delay = hitDelayS16;
                     pkt120->ownerId = actionId;
                     func_00194590((u8 *)pkt120, 1);
                     actUnit16 = (u8 *)(act->unit);
                     hitPkt121 = (BtlPacketTiming *)(func_00201de0((s32)(actUnit16), (s32)(actUnit16), -1, 1U, 1U, hitIndex, rowHitCount, &result, 0));
                     hitPkt121->queue = 4;
                     hitPkt121->startTime = animPacket->endTime;
-                    hitPkt121->delay = (s16) hitDelayS16;
+                    hitPkt121->delay = hitDelayS16;
                     hitPkt121->ownerId = actionId;
                     func_00194590((u8 *)hitPkt121, 3);
                     if (result.hpDelta != 0) {
@@ -5857,7 +5864,7 @@ void func_001a7720(u8 *arg0) {
                         pkt123 = (BtlPacketTiming *)(func_00202590((s32)(act->unit), 0, 0));
                         pkt123->queue = 4;
                         pkt123->startTime = animPacket->endTime;
-                        pkt123->delay = (s16) hitDelayS16;
+                        pkt123->delay = hitDelayS16;
                         pkt123->ownerId = actionId;
                         func_00194590((u8 *)pkt123, 3);
                     }
@@ -6201,6 +6208,7 @@ reactionPacket:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a7720);
 #endif
+#pragma pop
 // FUN_001ABBA0
 void func_001abba0(void)
 {
