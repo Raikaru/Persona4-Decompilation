@@ -25,12 +25,28 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 13 continuation: `00320b80` MATCH; compiler rules for the last six
+## October 13 continuation: `00320b80` and `002ac750` MATCH; compiler rules for the last five
 
-**6,854 MATCH / 6 ASM** (`build/after55.json`; link in `build/link61.log`).
+**6,855 MATCH / 5 ASM** (`build/after56.json`; link in `build/link62.log`).
 Remaining: `004a7830` 7, `0048b340` 9, `0014f310` 14, `001d8010` 25,
-`0016bdd0` 39, `002ac750` 290. Each function comment records the measured
-attempts.
+`0016bdd0` 39. Each function comment records the measured attempts.
+
+`002ac750` (290 -> 0, twenty commits `60c4a303`..`4e21d141`, Code1aMatch2):
+- typed grid-cell accesses with distinct coordinate widths, without caching
+  the map provider or changing its call sequence;
+- recovered room-preparation and reveal boundaries, caller-owned word
+  snapshots (retail's 0x190 frame), rectangle query types, and row and
+  visibility preheaders;
+- signed column snapshots across the real clamp calls, in the declaration
+  order the captured allocator model requires;
+- redundant caller returns removed, restoring retail's threaded helper exits;
+- the three-cell preparation kept in the caller beside the shared reveal
+  helper (39 -> 0).
+
+A retail `move $v0,$s2; sw` that looks like a source copy (`sp180 =
+temp_18`) can come from post-colour CSE: it turns a raw-byte remask `zext`
+into a `dmove` when the register already holds the value. Owner 36/36,
+elig clean, lint unchanged.
 
 `00320b80` (3 -> 1 -> 0, `a8fcad84`, `c096f0b5`):
 - The traversal takes its own `gridMode = savedMode` snapshot in the `for`
@@ -107,7 +123,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 | `001d8010` | 25 | sort `limit`/`j` numbering |
 | `002b6ec0` | 0 (MATCH) | allocator replay (`regalloc_whatif`) showed both the work-table base and `off` must be late-numbered (temporaries, not declared locals). `queue = (s16 *)table;` was a copy use pinning `table`; one `s16 *queue` loaded once and read through `(u8 *)queue` frees it (28 -> 23). `entryOffset = (u32)off;` pinned `off`; forming `entryOffset` once before the active test closes it (23 -> 0). Owner 58/58, elig clean, lint 8 -> 7 |
 | `0016bdd0` | 39 | sqrt result versus `adda` zero numbering (three regions) |
-| `002ac750` | 290 | spill choice in both search blocks; retail keeps `sp180 = temp_18` as its own spilled value, which b210 coalesces in natural spellings (restructured `d7d2f766`: 397, reverted in `66a26b06`) |
+| `002ac750` | 0 (MATCH, `4e21d141`) | see the October 13 section: typed coordinates, recovered prepare/reveal phase boundaries and caller-owned word snapshots (frame 0x190). Owner 36/36 |
 | `001a59a0` | 0 (MATCH) | frame 0x330; closed the camera field-origin operands, selected-target join and reaction short circuits. Owner: 70 MATCH / 1 ASM; exact-link eligibility clean. |
 | `001a7720` | 0 (MATCH) | 279 -> 0 in one session. Retail compiled it under `opt_loop_invariants on` (the hit loop's row count, last-hit index and hit delay are hoisted quad temps). Spill sizes identify webs: quad = compiler-temp root, word/half = surviving declared local. b210's backend copy propagation (`FUN_00555600`/`FUN_0054bcd0`) keeps a variable only when a use is a copy, reads and writes it, or its source is unavailable on a path; the frontend keeps a binding only for a real conversion or a loop-carried source (`targetPos`, per-target word). A nested `?:` assignment leaves retail's unthreaded inner branch (its keep arm is a copy coalesced after IR jump chaining). Late hit-row addresses go through `&hitIndex` helpers (IR CSE then recomputes them). Call lowering (`FunctionCalls.c`, `FUN_004b3070`) evaluates call-containing arguments first (ENode byte 5), then the rest left to right; an inline helper with a statement body counts, which gives retail's `addiu a2` before the `$gp` chain at the `0xD88` call. Retail-evidenced `u16` caller prototypes carry `lint: allow H011`; four packet constructors (`func_001f83b0`, `func_001f8430`, `func_00201f20`, `func_001bccc0`) now return their packet (owners still 100%). Owner 71/71, elig clean, lint delta -2 |
 
