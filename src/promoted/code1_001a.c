@@ -4143,6 +4143,8 @@ void func_001a7710(void)
  * 472 -> 469: sp270 is a u16 copy of (s16)sp450 (retail copies with lh/sh);
  * that conversion is folded by neither copy propagation (plain s16 copy)
  * nor CSE (plain (u16)sp450), so every later use reloads lhu 0x270.
+ * 469 -> 322: var_19, the shared packet pointer, is declared first; its
+ * lower virtual number gives retail's colouring for the packet webs.
  */
 // FUN_001A7720 NONMATCHING
 #ifdef NON_MATCHING
@@ -4245,6 +4247,7 @@ void func_001a7720(u8 *arg0) {
         u8 actionPrefix[0xF0];
         LargeBattleHitResult result;
     } ActionHitRowView;
+    u8 *var_19;
     s32 sp5AC;
     s32 sp5A8;
     /* 0022d540 returns the three formation effect handles together. */
@@ -4566,7 +4569,6 @@ void func_001a7720(u8 *arg0) {
     u8 *var_17_4;
     u8 *var_17_6;
     u8 *var_18_4;
-    u8 *var_19;
     u8 *var_19_2;
     u8 *var_22;
     u8 *var_2_10;
