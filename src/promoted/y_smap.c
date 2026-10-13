@@ -255,9 +255,8 @@ s32 func_002ac740(void) {
  * measured: fnalign 73 -> 45; preserve the later scans' signed column snapshots and model-derived coordinate/counter order.
  * measured: fnalign 45 -> 43; apply the rectangle's current-cell row offset before its column offset.
  * measured: fnalign 43 -> 39; enclosing case exits replace redundant returns and restore threaded helper branches.
+ * measured: fnalign 39 -> 0, frame 0x190; caller-owned three-cell preparation preserves the unsigned offset web.
  */
-// FUN_002AC750 NONMATCHING
-#ifdef NON_MATCHING
 /* Cells begin at map + 0x50; rows contain sixteen 0x10-byte cells. */
 typedef struct SMapGridCell {
     u8 field00[5];
@@ -286,6 +285,7 @@ static inline u8 *smapRevealOffsetPtr(u32 offset, u8 *base) {
 }
 
 #pragma push
+/* measured: fnalign 0 with the retail loop-invariant row/column preheaders. */
 #pragma opt_loop_invariants on
 static inline s32 smapPrepareRoomReveal(u8 column, u8 row, s32 extent,
                                       s32 cellRowOffset, s32 cellColumnOffset,
@@ -388,6 +388,7 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
     }
 }
 
+// FUN_002AC750
 void func_002ac750(u8 arg0, u8 arg1) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern s64 func_002adcf0(u8);
@@ -683,7 +684,42 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     (*( u16 * )((u8*)(temp_4_32) + (4))) = (u16) ((*( u16 * )((u8*)(temp_4_32) + (4))) | ((1 << ((s32)arg0)) & 0xFFFF));
                     return;
                 }
-                currentCellOffset3 = smapPrepareRoomReveal(arg0, arg1, 3, temp_17, temp_16, &savedRoomRow3, &savedRoomColumn3, &columnReference, &workingRow);
+                /* This unsigned offset spans the caller's search and the shared reveal phase. */
+                {
+                    s32 rowCounter;
+                    s32 rowStep;
+                    s32 columnCounter;
+                    s32 columnStep;
+                    s32 candidateRow;
+                    s32 candidateColumn;
+                    s32 candidateRowOffset;
+                    s32 candidateColumnOffset;
+                    u8 kind;
+
+                    rowCounter = 0;
+                    savedRoomRow3 = arg1;
+                    savedRoomColumn3 = arg0;
+                    currentCellOffset3 = temp_17 + temp_16;
+                    while ((rowStep = (s16)rowCounter) < 3) {
+                        candidateRow = (s8)func_002b2d00(savedRoomRow3, rowStep, 1, 0x18, 1);
+                        columnCounter = 0;
+                        candidateRowOffset = candidateRow << 8;
+                        while ((columnStep = (s16)columnCounter) < 3) {
+                            candidateColumn = (s8)func_002b2d00(savedRoomColumn3, columnStep, 1, 0x10, 1);
+                            candidateColumnOffset = candidateColumn * 0x10;
+                            if ((SMAP_GRID_SCAN_AT(candidateRowOffset, candidateColumnOffset)->reveal & 0xF) == 1) {
+                                kind = SMAP_GRID_SCAN_AT(candidateRowOffset, candidateColumnOffset)->kind;
+                                if (kind == SMAP_GRID_OFFSET_AT(currentCellOffset3)->kind) {
+                                    columnReference = (s8)(s64)candidateColumn;
+                                    workingRow = (s8)(s64)candidateRow;
+                                    break;
+                                }
+                            }
+                            columnCounter = (s16)(columnCounter + 1);
+                        }
+                        rowCounter = (s16)(rowCounter + 1);
+                    }
+                }
                 smapRevealRoomFootprint(arg0, arg1, 3, temp_17, temp_16, currentCellOffset3, savedRoomColumn3, &columnReference, &workingRow);
             } else if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_3_10 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
@@ -762,9 +798,6 @@ void func_002ac750(u8 arg0, u8 arg1) {
 #undef SMAP_GRID_OFFSET_AT
 #undef SMAP_GRID_CELL_AT
 #undef SMAP_GRID_NEIGHBOR_AT
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002ac750);
-#endif
 // FUN_002ADCF0
 s64 func_002adcf0(u8 arg0) {
     return (s64)(s8)((arg0 & 0xFF) >> 4);
