@@ -371,6 +371,12 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * O1 + propagation/dead-code/lifetimes/strength-reduction toggles. O2 + no
  * CSE/propagation (44) needs the table-loop locals numbered in declaration
  * order, which only O1 keeps.
+ * O1 + opt_common_subs on (frontend CSE only; O1 has no backend CSE stage) with the swap-site
+ * call reading iGpffff9db0 directly reproduces both swap sites exactly: the frontend shadows base
+ * then resource in creation order. The cost is ten iGpffff9db0 reloads that the frontend merges
+ * across blocks (retail reloads them) plus two var * 0x18 strides (163). Reading the global as
+ * *(u8 **)&iGpffff9db0 at one occurrence per site restores the reloads (87, build/f310_o1cse_87.c),
+ * but the strides stay merged and the table loops regress to the O2 colouring.
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
