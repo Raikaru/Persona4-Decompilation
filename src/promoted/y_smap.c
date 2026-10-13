@@ -249,6 +249,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 110 -> 106; reuse the offset-first pointer helper for the two following reveal rows.
  * measured: fnalign 106 -> 96; separate room preparation from reveal and retain caller-owned search snapshots.
  * measured: fnalign 96 -> 89; prepare a word-sized vertical reveal mask before the kind guard.
+ * measured: fnalign 89 -> 81; the rectangle query uses a signed halfword column, distinct from its first snapshot.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -556,6 +557,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
     } else if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 9) {
         u16 rectangleColumn = arg0;
         s32 rectangleColumnLimit;
+        s16 rectangleProbeColumn;
+        s32 rectangleColumnOffset;
 
         temp_3_5 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
         *temp_3_5 |= (1 << rectangleColumn) & 0xFFFF;
@@ -582,9 +585,11 @@ void func_002ac750(u8 arg0, u8 arg1) {
         temp_4_19 = arg1;
         temp_23_3 = temp_4_19 + 2;
         temp_18_5 = ((s8)(func_002b2d00(temp_4_19, 1, 1, temp_23_3, 1)));
+        rectangleProbeColumn = arg0;
+        rectangleColumnOffset = rectangleProbeColumn * 0x10;
         temp_22_3 = temp_18_5 << 8;
-        temp_2_5 = SMAP_GRID_CELL_AT(temp_22_3, (((s32)arg0) * 0x10))->kind;
-        if ((temp_2_5 == SMAP_GRID_CELL_AT(temp_17, (((s32)arg0) * 0x10))->kind) && ((SMAP_GRID_CELL_AT(temp_22_3, temp_16)->reveal & 0xF) == 1)) {
+        temp_2_5 = SMAP_GRID_CELL_AT(temp_22_3, rectangleColumnOffset)->kind;
+        if ((temp_2_5 == SMAP_GRID_CELL_AT(temp_17, rectangleColumnOffset)->kind) && ((SMAP_GRID_CELL_AT(temp_22_3, temp_16)->reveal & 0xF) == 1)) {
             temp_5_6 = arg0 & 0xFF;
             temp_7_2 = (1 << temp_5_6) & 0xFFFF;
             temp_6_2 = ((s8)(temp_18_5)) * 2;
