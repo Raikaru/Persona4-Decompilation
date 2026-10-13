@@ -5364,13 +5364,7 @@ void func_001a7720(u8 *arg0) {
         skillSePkt->startTime = formationNamePkt->endTime;
         func_00194590((u8 *)skillSePkt, 1);
     }
-    if (act->targetCount == 1) {
-        if (hasFollowAction != 0) {
-            primaryTarget = (u8 *)(act->followAction);
-        }
-    } else {
-        primaryTarget = (u8 *)(arg0);
-    }
+    primaryTarget = (act->targetCount == 1) ? ((hasFollowAction != 0) ? (u8 *)(act->followAction) : primaryTarget) : (u8 *)(arg0);
     formationPkt76 = (BtlPacketTiming *)(func_001d6240(formationHandle, act->unit, *(u8 **)(primaryTarget + 0x30), 0, 0));
     formationPkt6 = (BtlPacketTiming *)(formationPkt76);
     formationPkt76->queue = 4;
