@@ -4261,8 +4261,8 @@ void func_001a7720(u8 *arg0) {
         u8 actionPrefix[0xF0];
         LargeBattleHitResult result;
     } ActionHitRowView;
-    s64 var_18;
-    BtlPacketTiming *var_19;
+    s64 chainTime;
+    BtlPacketTiming *animPacket;
     s32 sp5AC;
     s32 sp5A8;
     /* 0022d540 returns the three formation effect handles together. */
@@ -4274,19 +4274,19 @@ void func_001a7720(u8 *arg0) {
     /* Retail reserves 0x60 bytes for the formatted formation name. */
     char formation[96];
     u8 *sp4E0;
-    u8 *sp4D0;
+    u8 *linkedUnit;
     BtlPacketTiming *sp4CC;
     BtlPacket *sp4C8;
     BtlPacketTiming *sp4C4;
     u8 *sp4C0;
     u8 *sp4BC;
     u8 *sp4B8;
-    s32 sp4A0;
-    s64 sp490;
+    s32 formationHandle;
+    s64 sceneTime;
     s64 sp480;
     s64 sp470;
     s64 sp468;
-    s16 sp450;
+    s16 skill;
     s16 sp440;
     s16 sp430;
     s16 sp420;
@@ -4303,7 +4303,7 @@ void func_001a7720(u8 *arg0) {
     u16 sp370;
     u16 sp360;
     u16 sp350;
-    s32 sp340;
+    s32 actionFlag4000;
     s32 sp33C;
     s32 sp320;
     s32 sp310;
@@ -4316,7 +4316,7 @@ void func_001a7720(u8 *arg0) {
     u16 sp2A0;
     s32 sp290;
     u16 sp280;
-    u16 sp270;
+    u16 skillKey;
     s32 sp260;
     s32 sp250;
     s32 *sp240;
@@ -4353,7 +4353,7 @@ void func_001a7720(u8 *arg0) {
     f32 var_f20;
     f32 var_f20_2;
     s16 temp_21_2;
-    s32 temp_2_2;
+    s32 skillIndex;
     s32 temp_3_16;
     s32 temp_5_4;
     s32 var_17;
@@ -4366,7 +4366,7 @@ void func_001a7720(u8 *arg0) {
     s32 temp_21;
     s32 temp_22_2;
     s32 temp_2_78;
-    s32 temp_30;
+    s32 skillFlagsOffset;
     s32 temp_3_6;
     s32 temp_4_13;
     s32 temp_4_14;
@@ -4387,11 +4387,11 @@ void func_001a7720(u8 *arg0) {
     u8 *temp_2_64;
     u8 *var_21_2;
     s32 *var_6;
-    s64 temp_16;
+    s64 actionId;
     s64 temp_18_2;
     s32 temp_19;
     s16 temp_22;
-    s64 temp_23_2;
+    s64 side;
     s32 temp_2_26;
     s16 temp_3;
     s16 temp_3_13;
@@ -4404,7 +4404,7 @@ void func_001a7720(u8 *arg0) {
     s32 var_2_11;
     s32 var_2_12;
     s32 var_2_2;
-    s8 temp_23;
+    s8 unitSide;
     u32 temp_2_97;
     u16 temp_3_21;
     u16 temp_3_2;
@@ -4413,7 +4413,7 @@ void func_001a7720(u8 *arg0) {
     u8 temp_3_19;
     s32 var_5;
     u8 *temp_17;
-    u8 *temp_2;
+    u8 *unit;
     BtlPacketTiming *temp_2_100;
     BtlPacketTiming *temp_2_101;
     BtlPacketTiming *temp_2_102;
@@ -4588,12 +4588,12 @@ void func_001a7720(u8 *arg0) {
     BtlPacketTiming *var_2_10;
     BtlPacketTiming *var_2_9;
 
-    temp_2 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
-    temp_23 = (s8)((s8)((*( s8 * )(temp_2 + (0xA2)))));
-    sp4D0 = (u8 *)((*( u8 ** )(temp_2 + (0xA0C))));
-    sp450 = (s16)((*( s16 * )(arg0 + (0x6E))));
+    unit = (u8 *)((*( u8 ** )(arg0 + (0x30))));
+    unitSide = (s8)((s8)((*( s8 * )(unit + (0xA2)))));
+    linkedUnit = (u8 *)((*( u8 ** )(unit + (0xA0C))));
+    skill = (s16)((*( s16 * )(arg0 + (0x6E))));
     sp4E0 = (u8 *)((*( s32 ** )(arg0 + (0x38))));
-    sp340 = (s32)((s32)((s32)(((*( u16 * )(arg0 + (0x18))) & 0x4000)) != (s32)(0)));
+    actionFlag4000 = (s32)((s32)((s32)(((*( u16 * )(arg0 + (0x18))) & 0x4000)) != (s32)(0)));
     sp470 = 0;
     sp468 = 0;
     sp3E0 = 0;
@@ -4613,33 +4613,33 @@ void func_001a7720(u8 *arg0) {
     sp230 = (s32)((s32)(s32)((s32)((*( s32 ** )(arg0 + (0x88)))) != (s32)(0)));
     sp220 = (s32)((s32)(func_001f2f90(arg0)) == (s32)(0));
     sp350 = 6;
-    temp_2_2 = sp450;
-    sp210 = (s32)((s32)(s32)((s32)((*((u8 *)(temp_2_2 * 0x28) + (u32)iGpffffb3b8) & 2)) != (s32)(0)));
+    skillIndex = skill;
+    sp210 = (s32)((s32)(s32)((s32)((*((u8 *)(skillIndex * 0x28) + (u32)iGpffffb3b8) & 2)) != (s32)(0)));
     sp200 = ((*(u16 *)(arg0 + 0x1A) & 0x10) != 0) && sp210 == 0;
     sp1F0 = (s32)((s32)(s32)((*( u16 * )(arg0 + (0x6C))) == 3));
     sp33C = (s32)((s32)(func_001f0ff0(arg0)));
-    sp1E0 = (s32)(func_001f11e0(sp450));
+    sp1E0 = (s32)(func_001f11e0(skill));
     sp1D0 = (s32)((s32)(s32)((s32)((*( u8 ** )(arg0 + (0x8C)))) != (s32)(0)));
     sp4C4 = 0;
-    temp_16 = (s64)((s64)(s64)((*( s64 * )(arg0 + (0)))));
+    actionId = (s64)((s64)(s64)((*( s64 * )(arg0 + (0)))));
     func_001a03b0(arg0);
-    temp_23_2 = (s8)temp_23;
-    if ((temp_23_2 == 1) && ((*( s32 * )(iGpffffb3ac + (0xC))) & 0x200000)) {
-        sp340 = 0;
+    side = (s8)unitSide;
+    if ((side == 1) && ((*( s32 * )(iGpffffb3ac + (0xC))) & 0x200000)) {
+        actionFlag4000 = 0;
     }
-    if (sp340 == 0) {
-        sp4A0 = (s32)(func_001d3d50(1));
+    if (actionFlag4000 == 0) {
+        formationHandle = (s32)(func_001d3d50(1));
     } else {
-        temp_3 = (s16)func_0023d8e0(NULL, (u16)sp450);
+        temp_3 = (s16)func_0023d8e0(NULL, (u16)skill);
         switch (temp_3) {                           /* switch 1; irregular */
         case 16:                                    /* switch 1 */
-            sp4A0 = (s32)((s32)((*( s32 * )(iGpffffb3ac + (0xD9C)))));
+            formationHandle = (s32)((s32)((*( s32 * )(iGpffffb3ac + (0xD9C)))));
             break;
         case 17:                                    /* switch 1 */
-            sp4A0 = (s32)((s32)((*( s32 * )(iGpffffb3ac + (0xDA0)))));
+            formationHandle = (s32)((s32)((*( s32 * )(iGpffffb3ac + (0xDA0)))));
             break;
         default:                                    /* switch 1 */
-            sp4A0 = (s32)((s32)((*( s32 * )(iGpffffb3ac + (0xD98)))));
+            formationHandle = (s32)((s32)((*( s32 * )(iGpffffb3ac + (0xD98)))));
             break;
         }
     }
@@ -4660,7 +4660,7 @@ void func_001a7720(u8 *arg0) {
         sp2B0 = 1;
     }
     sp1C0 = (s32)((s32)(s32)(func_00230020(arg0)));
-    if (temp_23_2 >= 0) {
+    if (side >= 0) {
         if (sp2B0 != 0) {
             var_30 = 0x1002;
         } else {
@@ -4668,19 +4668,19 @@ void func_001a7720(u8 *arg0) {
         }
         if (sp33C != 0) {
             temp_2_4 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(arg0 + (0x30))), (*( u8 ** )((u8 *)((*( s32 ** )(arg0 + (0x38)))) + (0x30))), var_30));
-            (*( s64 * )(temp_2_4 + (0x60))) = temp_16;
+            (*( s64 * )(temp_2_4 + (0x60))) = actionId;
             func_00194590(temp_2_4, 0);
-        } else if (temp_23_2 == 0) {
+        } else if (side == 0) {
             func_00196040((u16)func_001eb440((s32)(arg0) + 0x38), 1, &targetPosition, 0, 0, 1);
             temp_2_5 = (u8 *)(btlUnitCreateRotatePacket((*( BtlUnit ** )(arg0 + (0x30))), &targetPosition, var_30));
-            (*( s64 * )(temp_2_5 + (0x60))) = temp_16;
+            (*( s64 * )(temp_2_5 + (0x60))) = actionId;
             func_00194590(temp_2_5, 0);
         } else {
             temp_4_2 = (u8 *)(iGpffffb3ac);
             if ((*( s32 * )(temp_4_2 + (0xC))) & 0x200000) {
                 func_001958f0((*( BtlUnit ** )((u8 *)((*( u8 ** )(temp_4_2 + (0x170)))) + (0x30))), &targetPosition);
                 temp_2_6 = (u8 *)(btlUnitCreateRotatePacket((*( BtlUnit ** )(arg0 + (0x30))), &targetPosition, var_30));
-                (*( s64 * )(temp_2_6 + (0x60))) = temp_16;
+                (*( s64 * )(temp_2_6 + (0x60))) = actionId;
                 func_00194590(temp_2_6, 0);
             }
         }
@@ -4698,38 +4698,38 @@ void func_001a7720(u8 *arg0) {
         }
         (*( u16 * )(arg0 + (0x18))) = (u16)((u16) ((*( u16 * )(arg0 + (0x18))) | 0x200));
         temp_2_10 = (u8 *)(func_001f3b20(arg0));
-        (*( s64 * )(temp_2_10 + (0x60))) = temp_16;
+        (*( s64 * )(temp_2_10 + (0x60))) = actionId;
         func_00194590(temp_2_10, 1);
     }
-    temp_30 = temp_2_2 * 4;
-    if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x100) {
+    skillFlagsOffset = skillIndex * 4;
+    if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x100) {
         var_2_2 = 3;
     } else {
         var_2_2 = 1;
     }
     sp1B0 = (s16)var_2_2;
     if ((s32)(s32)sp1F0 == 0) {
-        temp_2_11 = (u8 *)(func_00202010((*( u8 ** )(arg0 + (0x30))), (u16) sp450));
+        temp_2_11 = (u8 *)(func_00202010((*( u8 ** )(arg0 + (0x30))), (u16) skill));
         (*( s16 * )(temp_2_11 + (0x48))) = (s16) sp1B0;
-        (*( s64 * )(temp_2_11 + (0x60))) = temp_16;
+        (*( s64 * )(temp_2_11 + (0x60))) = actionId;
         func_00194590(temp_2_11, 3);
     } else {
         temp_2_12 = (u8 *)(func_00202120(*(u32 *)(arg0 + 0x30), *(u16 *)(arg0 + 0x70)));
         (*( s16 * )(temp_2_12 + (0x48))) = (s16) sp1B0;
-        (*( s64 * )(temp_2_12 + (0x60))) = temp_16;
+        (*( s64 * )(temp_2_12 + (0x60))) = actionId;
         func_00194590(temp_2_12, 3);
     }
     if (sp200 == 1) {
         if (((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
             if (((s32)(s32)sp1D0 == 0) && (sp2B0 == 0)) {
-                if (temp_23_2 == 0) {
+                if (side == 0) {
                     if (!((*( u16 * )(arg0 + (0x18))) & 0x40) && ((((s32)(func_001f0af0(arg0)) != (s32)(0)) && (func_00231d70(0x64U) < 0x14U)) || ((*( s32 * )(iGpffffb3ac + (0x10))) & 0x1000))) {
                         var_21 = 1;
                         (*( u16 * )(arg0 + (0x18))) = (u16)((u16) ((*( u16 * )(arg0 + (0x18))) | 0x40));
                         temp_4_3 = (u8 *)(iGpffffb3ac);
                         (*( s32 * )(temp_4_3 + (0x10))) = (s32)((s32) ((*( s32 * )(temp_4_3 + (0x10))) & ~0x1000));
                     }
-                } else if ((temp_23_2 == 1) && ((*( s32 * )(iGpffffb3ac + (0x10))) & 0x800)) {
+                } else if ((side == 1) && ((*( s32 * )(iGpffffb3ac + (0x10))) & 0x800)) {
                     temp_3_2 = (u16)((u16)((*( u16 * )(arg0 + (0x18)))));
                     if (!(temp_3_2 & 0x40)) {
                         var_21 = 1;
@@ -4737,7 +4737,7 @@ void func_001a7720(u8 *arg0) {
                     }
                 }
             }
-            sp280 = sp450;
+            sp280 = skill;
             sp1A0 = ((s16)func_0023d8e0(NULL, (u16)sp280) == 0x10);
             if ((s32)(func_0022d540(arg0, (u8 *)effectHandles)) == (s32)(0)) {
                 temp_3_3 = (u8 *)(iGpffffb3ac);
@@ -4745,22 +4745,22 @@ void func_001a7720(u8 *arg0) {
                 effectHandles[1] = (*(s32 *)((u8 *)temp_3_3 + 0xD34));
                 effectHandles[2] = (*(s32 *)((u8 *)temp_3_3 + 0xD38));
             }
-            if (((s32)(func_001f11e0(sp450)) == (s32)(0)) && ((s32)(func_001f0b90(arg0)) == (s32)(0))) {
+            if (((s32)(func_001f11e0(skill)) == (s32)(0)) && ((s32)(func_001f0b90(arg0)) == (s32)(0))) {
                 temp_4_4 = (s32)((s32)((u16)func_001eb440((s32)(arg0) + 0x38)));
-                if ((temp_23_2 == 0) && (((u16)temp_4_4) == 2)) {
+                if ((side == 0) && (((u16)temp_4_4) == 2)) {
                     sp320 = (s32)((s32)((effMiscRand(0) & 1)) != (s32)(0));
-                } else if ((temp_23_2 == 1) && (((u16)temp_4_4) == 1)) {
+                } else if ((side == 1) && (((u16)temp_4_4) == 1)) {
                     sp320 = 1;
                 }
             }
-            if (((s32)(func_0022f950(arg0, sp4D0)) != (s32)(0)) || ((*( s32 * )(iGpffffb3ac + (0x10))) & 0x40)) {
+            if (((s32)(func_0022f950(arg0, linkedUnit)) != (s32)(0)) || ((*( s32 * )(iGpffffb3ac + (0x10))) & 0x40)) {
                 sp320 = 1;
             }
-            if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x4000) {
+            if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x4000) {
                 sp320 = 1;
                 sp3F0 = 2;
             }
-            if ((temp_23_2 == 0) && (func_001f1030(arg0) != 0) && (temp_2_2 != 0xF4)) {
+            if ((side == 0) && (func_001f1030(arg0) != 0) && (skillIndex != 0xF4)) {
                 sp2D0 = 1;
                 sp320 = 1;
                 var_21 = 0;
@@ -4792,7 +4792,7 @@ void func_001a7720(u8 *arg0) {
             } else {
                 var_17_2 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 0xD, (u16)var_18_2, 1.0f, 4));
             }
-            (*( s64 * )(var_17_2 + (0x60))) = temp_16;
+            (*( s64 * )(var_17_2 + (0x60))) = actionId;
             func_00194590(var_17_2, 0);
             var_17_3 = *(s64 *)(var_17_2 + 0x58);
             if (sp2B0 == 0) {
@@ -4803,33 +4803,33 @@ void func_001a7720(u8 *arg0) {
             if (sp2B0 != 0) {
                 var_19_2 = (u8 *)(func_00194b60());
             } else {
-                if (temp_23_2 == 0) {
+                if (side == 0) {
                     var_2_3 = 0x14;
                 } else {
                     var_2_3 = 0x15;
                 }
                 var_19_2 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)var_2_3));
             }
-            (*( s64 * )(var_19_2 + (0x60))) = temp_16;
+            (*( s64 * )(var_19_2 + (0x60))) = actionId;
             func_00194590(var_19_2, 0);
-            sp490 = (s64)((s64)(s64)((*( s64 * )(var_19_2 + (0x58)))));
+            sceneTime = (s64)((s64)(s64)((*( s64 * )(var_19_2 + (0x58)))));
             if (var_21 != 0) {
                 cutin.mode = 4;
                 cutin.unitId = (u16)((u16)((*( u16 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA4)))));
                 temp_2_14 = (BtlPacketTiming *)(func_001fa110((u8 *)&cutin));
                 temp_2_14->queue = 4;
                 temp_2_14->startTime = var_17_3;
-                temp_2_14->ownerId = temp_16;
+                temp_2_14->ownerId = actionId;
                 func_00194590((u8 *)temp_2_14, 1);
                 temp_2_15 = (BtlPacketTiming *)func_001fa320();
                 temp_2_15->queue = 4;
                 temp_2_15->startTime = temp_2_14->endTime;
-                temp_2_15->ownerId = temp_16;
+                temp_2_15->ownerId = actionId;
                 func_00194590((u8 *)temp_2_15, 1);
-                temp_2_16 = (BtlPacketTiming *)(func_001f99c0(arg0, 1, (*( u16 * )(sp4D0 + (0xA4))), 0, 1));
+                temp_2_16 = (BtlPacketTiming *)(func_001f99c0(arg0, 1, (*( u16 * )(linkedUnit + (0xA4))), 0, 1));
                 temp_2_16->queue = 5;
                 temp_2_16->startTime = temp_2_15->endTime;
-                temp_2_16->ownerId = temp_16;
+                temp_2_16->ownerId = actionId;
                 func_00194590((u8 *)temp_2_16, 1);
                 temp_2_17 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0xB));
                 temp_2_17->queue = 5;
@@ -4844,7 +4844,7 @@ void func_001a7720(u8 *arg0) {
             temp_2_18->queue = 4;
             temp_2_18->startTime = var_17_3;
             temp_2_18->delay = (s16) (var_18_3 - (var_18_3 >> 3));
-            temp_2_18->ownerId = temp_16;
+            temp_2_18->ownerId = actionId;
             func_00194590((u8 *)temp_2_18, 0);
             sp470 = (s64)((s64)(s64)(temp_2_18->endTime));
             if (sp33C != 0) {
@@ -4852,25 +4852,25 @@ void func_001a7720(u8 *arg0) {
             } else {
                 var_6 = 0;
             }
-            temp_2_19 = (BtlPacketTiming *)(func_001d3000((u32)sp4D0, (u32)arg0, (u32)var_6, sp280));
+            temp_2_19 = (BtlPacketTiming *)(func_001d3000((u32)linkedUnit, (u32)arg0, (u32)var_6, sp280));
             temp_2_19->queue = 5;
             temp_2_19->startTime = sp470;
-            temp_2_19->ownerId = temp_16;
+            temp_2_19->ownerId = actionId;
             func_00194590((u8 *)temp_2_19, 0);
             if (sp2B0 == 0) {
                 if (var_21 != 0) {
-                    temp_2_20 = (BtlPacketTiming *)(func_0019b550(sp4D0, (*( u16 * )(sp4D0 + (0xA4))), 0x1D));
+                    temp_2_20 = (BtlPacketTiming *)(func_0019b550(linkedUnit, (*( u16 * )(linkedUnit + (0xA4))), 0x1D));
                     var_17_4 = (u8 *)((u8 *)temp_2_20);
                     temp_2_20->queue = 5;
                     temp_2_20->startTime = sp468;
                     (*( s8 * )((u8 *)temp_2_20 + (0x20))) = 5;
                     (*( s64 * )((u8 *)temp_2_20 + (0x28))) = sp470;
                 } else {
-                    temp_2_21 = (u8 *)(func_0019b550(sp4D0, (*( u16 * )(sp4D0 + (0xA4))), 0xD));
+                    temp_2_21 = (u8 *)(func_0019b550(linkedUnit, (*( u16 * )(linkedUnit + (0xA4))), 0xD));
                     var_17_4 = (u8 *)(temp_2_21);
                     (*( s16 * )(temp_2_21 + (0x48))) = var_18_3;
                 }
-                (*( s64 * )(var_17_4 + (0x60))) = temp_16;
+                (*( s64 * )(var_17_4 + (0x60))) = actionId;
                 func_00194590(var_17_4, 1);
             } else {
                 temp_2_22 = (u8 *)(func_00194b60());
@@ -4882,20 +4882,20 @@ void func_001a7720(u8 *arg0) {
             temp_2_23->queue = 4;
             temp_2_23->startTime = *(s64 *)(var_17_4 + 0x58);
             temp_2_23->delay = 0xC;
-            temp_2_23->ownerId = temp_16;
+            temp_2_23->ownerId = actionId;
             func_00194590((u8 *)temp_2_23, 1);
             temp_2_24 = (u8 *)(func_001d65d0(effectHandles[0], (*(s32 *)(arg0 + 0x30)), 0, (temp_2_23->endTime), 0x100));
-            (*( s64 * )(temp_2_24 + (0x60))) = temp_16;
+            (*( s64 * )(temp_2_24 + (0x60))) = actionId;
             func_00194590(temp_2_24, 2);
             temp_2_25 = (u8 *)(func_001f7c20(0xA, 2, 3));
-            (*( s64 * )(temp_2_25 + (0x60))) = temp_16;
+            (*( s64 * )(temp_2_25 + (0x60))) = actionId;
             func_00194590(temp_2_25, 1);
             temp_5 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
-            temp_22 = (s16)func_00199d00(*(s32 *)(temp_5 + 0xA0C), temp_5, sp450, sp33C);
+            temp_22 = (s16)func_00199d00(*(s32 *)(temp_5 + 0xA0C), temp_5, skill, sp33C);
             temp_2_26 = (s32)(func_001991c0((*( u8 ** )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA0C))), (u16)temp_22, 1.0f));
             sp400 = (s32) temp_2_26;
             sp350 = (u16)((u16)(func_001996d0((*( u8 ** )(arg0 + (0x30))), 0x10)));
-            var_18 = (s64)((s64)(s64)((*( s64 * )(var_17_4 + (0x58)))));
+            chainTime = (s64)((s64)(s64)((*( s64 * )(var_17_4 + (0x58)))));
             temp_3_6 = temp_2_26 + 0x12;
             if (sp3F0 < temp_3_6) {
                 var_17 = temp_3_6 - sp3F0;
@@ -4904,83 +4904,83 @@ void func_001a7720(u8 *arg0) {
             }
             temp_2_27 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 0xF, 0, 1.0f, 5));
             temp_2_27->queue = 4;
-            temp_2_27->startTime = var_18;
-            temp_2_27->ownerId = temp_16;
+            temp_2_27->startTime = chainTime;
+            temp_2_27->ownerId = actionId;
             func_00194590((u8 *)temp_2_27, 0);
             if (var_21 != 0) {
                 temp_2_28 = (BtlPacketTiming *)(func_001f82b0((BtlUnit *)(*( u8 ** )(arg0 + (0x30)))));
                 temp_2_28->queue = 4;
                 temp_2_28->startTime = temp_2_27->endTime;
-                temp_2_28->ownerId = temp_16;
+                temp_2_28->ownerId = actionId;
                 func_00194590((u8 *)temp_2_28, 0);
             } else if ((s32)(s32)sp1A0 != 0) {
                 temp_2_29 = (BtlPacketTiming *)(func_001f8430((*( u8 ** )(arg0 + (0x30)))));
                 temp_2_29->queue = 4;
                 temp_2_29->startTime = temp_2_27->endTime;
-                temp_2_29->ownerId = temp_16;
+                temp_2_29->ownerId = actionId;
                 func_00194590((u8 *)temp_2_29, 0);
             }
             temp_19 = (s32)(func_001991c0((*( u8 ** )(arg0 + (0x30))), 0xFU, 1.0f));
             temp_2_30 = (BtlPacketTiming *)(func_001d65d0(effectHandles[1], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
             temp_2_30->queue = 4;
-            temp_2_30->startTime = var_18;
+            temp_2_30->startTime = chainTime;
             temp_2_30->delay = (s16) temp_19;
-            temp_2_30->ownerId = temp_16;
+            temp_2_30->ownerId = actionId;
             func_00194590((u8 *)temp_2_30, 2);
             temp_2_31 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 4));
             temp_2_31->queue = 4;
-            temp_2_31->startTime = var_18;
+            temp_2_31->startTime = chainTime;
             temp_2_31->delay = (s16)((s16)temp_19 + 2);
-            temp_2_31->ownerId = temp_16;
+            temp_2_31->ownerId = actionId;
             func_00194590((u8 *)temp_2_31, 1);
             temp_2_32 = (BtlPacketTiming *)(func_001d65d0(effectHandles[2], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
             temp_2_32->queue = 4;
-            temp_2_32->startTime = var_18;
-            temp_2_32->ownerId = temp_16;
+            temp_2_32->startTime = chainTime;
+            temp_2_32->ownerId = actionId;
             func_00194590((u8 *)temp_2_32, 2);
             temp_2_33 = (BtlPacketTiming *)(func_0019bbe0((*( u8 ** )(arg0 + (0x30))), 0xFF808080, 0, 0xC, 4, 0));
             temp_2_33->queue = 4;
-            temp_2_33->startTime = var_18;
-            temp_2_33->ownerId = temp_16;
+            temp_2_33->startTime = chainTime;
+            temp_2_33->ownerId = actionId;
             func_00194590((u8 *)temp_2_33, 1);
-            temp_2_34 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)sp4D0, temp_22, 0, 1.0f, 2));
-            var_19 = (BtlPacketTiming *)(temp_2_34);
+            temp_2_34 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)linkedUnit, temp_22, 0, 1.0f, 2));
+            animPacket = (BtlPacketTiming *)(temp_2_34);
             temp_2_34->queue = 4;
-            temp_2_34->startTime = var_18;
+            temp_2_34->startTime = chainTime;
             temp_2_34->delay = 0xF;
-            temp_2_34->ownerId = temp_16;
-            func_00194590((u8 *)var_19, 0);
-            temp_2_35 = (BtlPacketTiming *)(func_0019bbe0(sp4D0, func_00195530(sp4D0), 8, 0, 3, 1));
+            temp_2_34->ownerId = actionId;
+            func_00194590((u8 *)animPacket, 0);
+            temp_2_35 = (BtlPacketTiming *)(func_0019bbe0(linkedUnit, func_00195530(linkedUnit), 8, 0, 3, 1));
             temp_2_35->queue = 4;
-            temp_2_35->startTime = var_19->endTime;
-            temp_2_35->ownerId = temp_16;
+            temp_2_35->startTime = animPacket->endTime;
+            temp_2_35->ownerId = actionId;
             func_00194590((u8 *)temp_2_35, 1);
             temp_2_36 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 5));
             temp_2_36->queue = 4;
-            temp_2_36->startTime = var_19->endTime;
-            temp_2_36->ownerId = temp_16;
+            temp_2_36->startTime = animPacket->endTime;
+            temp_2_36->ownerId = actionId;
             func_00194590((u8 *)temp_2_36, 1);
-            if ((sp320 == 1) && (sp2D0 == 0) && !((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40)) {
-                if (temp_23_2 == 0) {
+            if ((sp320 == 1) && (sp2D0 == 0) && !((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
+                if (side == 0) {
                     var_2_4 = 0x19;
                 } else {
                     var_2_4 = 0x1A;
                 }
                 temp_2_37 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)var_2_4));
                 temp_2_37->queue = 4;
-                temp_2_37->startTime = var_19->endTime;
+                temp_2_37->startTime = animPacket->endTime;
                 if (sp400 >= sp3F0) {
                     var_2_5 = sp400 - sp3F0;
                 } else {
                     var_2_5 = 0;
                 }
                 temp_2_37->delay = var_2_5;
-                temp_2_37->ownerId = temp_16;
+                temp_2_37->ownerId = actionId;
                 func_00194590((u8 *)temp_2_37, 0);
             }
-            sp480 = var_19->endTime;
+            sp480 = animPacket->endTime;
         } else if (((s32)(s32)sp1F0 == 1) || ((s32)(s32)sp220 == 1)) {
-            if ((temp_23_2 == 0) && (func_001f1030(arg0) != 0) && (temp_2_2 != 0xF4)) {
+            if ((side == 0) && (func_001f1030(arg0) != 0) && (skillIndex != 0xF4)) {
                 sp2D0 = 1;
                 sp320 = 1;
                 temp_2_38 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
@@ -4992,44 +4992,44 @@ void func_001a7720(u8 *arg0) {
                 (*( u16 * )(temp_3_7 + (0x18))) = (u16)((u16) ((*( u16 * )(temp_3_7 + (0x18))) | 6));
             }
             temp_2_39 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 0x16, 6, 1.0f, 0));
-            var_19 = (BtlPacketTiming *)(temp_2_39);
-            (*( s64 * )(temp_2_39 + (0x60))) = temp_16;
-            func_00194590((u8 *)var_19, 0);
-            sp490 = (s64)((s64)(s64)(var_19->endTime));
-            var_18 = 0;
+            animPacket = (BtlPacketTiming *)(temp_2_39);
+            (*( s64 * )(temp_2_39 + (0x60))) = actionId;
+            func_00194590((u8 *)animPacket, 0);
+            sceneTime = (s64)((s64)(s64)(animPacket->endTime));
+            chainTime = 0;
                     var_17 = func_001991c0((*( u8 ** )(arg0 + (0x30))), 0x16U, 1.0f) + 6;
-            if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40)) {
+            if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
                 if ((s32)(func_001f0ff0(arg0)) == (s32)(1)) {
                     temp_2_40 = (BtlPacketTiming *)(func_001d2d90(arg0, 0, 1));
                     temp_2_40->queue = 4;
-                    temp_2_40->startTime = var_19->endTime;
-                    temp_2_40->ownerId = temp_16;
+                    temp_2_40->startTime = animPacket->endTime;
+                    temp_2_40->ownerId = actionId;
                     func_00194590((u8 *)temp_2_40, 0);
                 }
                 if (sp320 == 0) {
                     temp_2_41 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x19));
                     temp_2_41->queue = 4;
-                    temp_2_41->startTime = var_19->endTime;
-                    temp_2_41->ownerId = temp_16;
+                    temp_2_41->startTime = animPacket->endTime;
+                    temp_2_41->ownerId = actionId;
                     func_00194590((u8 *)temp_2_41, 0);
                 } else {
                     temp_2_42 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1B));
                     temp_2_42->queue = 4;
-                    temp_2_42->startTime = var_19->endTime;
-                    temp_2_42->ownerId = temp_16;
+                    temp_2_42->startTime = animPacket->endTime;
+                    temp_2_42->ownerId = actionId;
                     func_00194590((u8 *)temp_2_42, 0);
                 }
             }
             if ((s32)(s32)sp220 == 0) {
                 temp_2_43 = (BtlPacketTiming *)(func_001d65d0((*( s32 * )(iGpffffb3ac + (0xD88))), (*(s32 *)(arg0 + 0x30)), var_17 + 6, 0, 0x100));
                 temp_2_43->queue = 4;
-                temp_2_43->startTime = var_19->endTime;
+                temp_2_43->startTime = animPacket->endTime;
                 func_00194590((u8 *)temp_2_43, 1);
             }
         }
-    } else if ((sp200 == 0) && (temp_23_2 == 1)) {
+    } else if ((sp200 == 0) && (side == 1)) {
         sp30C = 1;
-        if ((s32)(func_0022f8b0(arg0, temp_2_2)) != (s32)(0)) {
+        if ((s32)(func_0022f8b0(arg0, skillIndex)) != (s32)(0)) {
             sp2D0 = 1;
             var_21 = 0;
             temp_2_44 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
@@ -5040,7 +5040,7 @@ void func_001a7720(u8 *arg0) {
             temp_3_8 = (u8 *)(iGpffffb3ac);
             (*( u16 * )(temp_3_8 + (0x18))) = (u16)((u16) ((*( u16 * )(temp_3_8 + (0x18))) | 6));
         }
-        if (sp340 == 0) {
+        if (actionFlag4000 == 0) {
             var_f20 = 1.0f;
         } else {
             var_f20 = 2.0f;
@@ -5050,7 +5050,7 @@ void func_001a7720(u8 *arg0) {
             temp_3_9 = (u8 *)(iGpffffb3ac);
             (*( u16 * )(temp_3_9 + (0x18))) = (u16)((u16) ((*( u16 * )(temp_3_9 + (0x18))) | 0x47));
         }
-        if (((s32)(s32)sp210 == 1) || ((s32)(func_001f11e0(sp450)) != (s32)(0))) {
+        if (((s32)(s32)sp210 == 1) || ((s32)(func_001f11e0(skill)) != (s32)(0))) {
             sp430 = 4;
             var_17_5 = 2;
         } else {
@@ -5058,7 +5058,7 @@ void func_001a7720(u8 *arg0) {
             var_17_5 = 3;
         }
         if ((s32)((*( u8 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA2)))) == (s32)(1)) {
-            if ((s32)(func_0022e4f0(arg0, temp_2_2)) != (s32)(0)) {
+            if ((s32)(func_0022e4f0(arg0, skillIndex)) != (s32)(0)) {
                 var_17_5 = 2;
                 sp30C = 0;
                 sp2C0 = 1;
@@ -5072,39 +5072,39 @@ void func_001a7720(u8 *arg0) {
                 sp30C = 0;
             }
         }
-        if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x100)) {
+        if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x100)) {
             if ((s32)(func_0022fa90(arg0, sp430)) != (s32)(0)) {
                 temp_2_45 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), (s32) sp430, 6, var_f20, var_17_5));
-                var_19 = (BtlPacketTiming *)(temp_2_45);
-                (*( s64 * )(temp_2_45 + (0x60))) = temp_16;
-                func_00194590((u8 *)var_19, 0);
+                animPacket = (BtlPacketTiming *)(temp_2_45);
+                (*( s64 * )(temp_2_45 + (0x60))) = actionId;
+                func_00194590((u8 *)animPacket, 0);
             } else {
                 temp_2_46 = (u8 *)(func_00194b60());
-                var_19 = (BtlPacketTiming *)(temp_2_46);
-                (*( s64 * )(temp_2_46 + (0x60))) = temp_16;
-                func_00194590((u8 *)var_19, 0);
+                animPacket = (BtlPacketTiming *)(temp_2_46);
+                (*( s64 * )(temp_2_46 + (0x60))) = actionId;
+                func_00194590((u8 *)animPacket, 0);
             }
-            if ((sp340 == 0) && ((s32)(func_0022fd30(arg0, temp_2_2)) != (s32)(0))) {
+            if ((actionFlag4000 == 0) && ((s32)(func_0022fd30(arg0, skillIndex)) != (s32)(0))) {
                 temp_2_47 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x15));
                 temp_2_47->queue = 4;
-                temp_2_47->startTime = var_19->endTime;
-                temp_2_47->ownerId = temp_16;
+                temp_2_47->startTime = animPacket->endTime;
+                temp_2_47->ownerId = actionId;
                 func_00194590((u8 *)temp_2_47, 0);
             }
         } else {
             temp_2_48 = (u8 *)(func_00194b60());
-            var_19 = (BtlPacketTiming *)(temp_2_48);
-            (*( s64 * )(temp_2_48 + (0x60))) = temp_16;
-            func_00194590((u8 *)var_19, 0);
+            animPacket = (BtlPacketTiming *)(temp_2_48);
+            (*( s64 * )(temp_2_48 + (0x60))) = actionId;
+            func_00194590((u8 *)animPacket, 0);
         }
-        sp490 = (s64)((s64)(s64)(var_19->endTime));
-        var_18 = 0;
+        sceneTime = (s64)((s64)(s64)(animPacket->endTime));
+        chainTime = 0;
             var_17 = func_001991c0((*( u8 ** )(arg0 + (0x30))), (u16) sp430, var_f20) + 6;
-        if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40) && (sp2D0 == 0)) {
+        if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40) && (sp2D0 == 0)) {
             temp_2_49 = (BtlPacketTiming *)(func_001d2d90(arg0,(s32)(((*( u16 * )(arg0 + (0x18))) & 0x10)) != (s32)(0), 1));
             temp_2_49->queue = 4;
-            temp_2_49->startTime = var_19->endTime;
-            if (sp340 == 0) {
+            temp_2_49->startTime = animPacket->endTime;
+            if (actionFlag4000 == 0) {
                 if (var_17 > 0xc) {
                     var_2_6 = var_17 - 0xC;
                 } else {
@@ -5112,13 +5112,13 @@ void func_001a7720(u8 *arg0) {
                 }
                 temp_2_49->delay = var_2_6;
             }
-            temp_2_49->ownerId = temp_16;
+            temp_2_49->ownerId = actionId;
             func_00194590((u8 *)temp_2_49, 0);
             sp470 = (s64)((s64)(s64)(temp_2_49->endTime));
             temp_2_50 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
             temp_2_50->queue = 4;
             temp_2_50->startTime = sp470;
-            temp_2_50->ownerId = temp_16;
+            temp_2_50->ownerId = actionId;
             func_00194590((u8 *)temp_2_50, 0);
         }
         if (((s32)(s32)sp210 == 0) && ((s32)(s32)sp220 == 0)) {
@@ -5128,81 +5128,81 @@ void func_001a7720(u8 *arg0) {
             }
             temp_2_51 = (BtlPacketTiming *)(func_001d65d0(var_2_7, (*(s32 *)(arg0 + 0x30)), var_17 + 6, 0, 0x100));
             temp_2_51->queue = 4;
-            temp_2_51->startTime = var_19->endTime;
+            temp_2_51->startTime = animPacket->endTime;
             func_00194590((u8 *)temp_2_51, 1);
             temp_2_52 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 7));
             temp_2_52->queue = 4;
-            temp_2_52->startTime = var_19->endTime;
+            temp_2_52->startTime = animPacket->endTime;
             func_00194590((u8 *)temp_2_52, 1);
         }
-    } else if ((sp200 == 0) && (temp_23_2 == 0)) {
+    } else if ((sp200 == 0) && (side == 0)) {
         sp2C0 = 1;
         temp_2_53 = (u8 *)(func_001d65d0((*( s32 * )(iGpffffb3ac + (0xDB8))), (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
-        (*( s64 * )(temp_2_53 + (0x60))) = temp_16;
+        (*( s64 * )(temp_2_53 + (0x60))) = actionId;
         func_00194590(temp_2_53, 2);
         temp_17 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 6, 0, 1.0f, 2));
         (*( s16 * )(temp_17 + (0x4A))) = (s16)(func_00199500((*( u8 ** )(arg0 + (0x30))), 6, 1.0f));
-        (*( s64 * )(temp_17 + (0x60))) = temp_16;
+        (*( s64 * )(temp_17 + (0x60))) = actionId;
         func_00194590(temp_17, 0);
         temp_2_54 = (u8 *)(func_001f7c20(0xA, 2, 0x11));
         (*( s16 * )(temp_2_54 + (0x48))) = 1;
-        (*( s64 * )(temp_2_54 + (0x60))) = temp_16;
+        (*( s64 * )(temp_2_54 + (0x60))) = actionId;
         func_00194590(temp_2_54, 1);
         temp_2_55 = (u8 *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x12));
-        (*( s64 * )(temp_2_55 + (0x60))) = temp_16;
+        (*( s64 * )(temp_2_55 + (0x60))) = actionId;
         func_00194590(temp_2_55, 0);
         temp_2_56 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(arg0 + (0x30))), 7, 6, 1.0f, 2));
-        var_19 = (BtlPacketTiming *)(temp_2_56);
+        animPacket = (BtlPacketTiming *)(temp_2_56);
         temp_2_56->queue = 4;
         temp_2_56->startTime = *(s64 *)(temp_17 + 0x58);
-        temp_2_56->ownerId = temp_16;
-        func_00194590((u8 *)var_19, 0);
-        sp490 = 0;
-        var_18 = (s64)((s64)(s64)(var_19->endTime));
+        temp_2_56->ownerId = actionId;
+        func_00194590((u8 *)animPacket, 0);
+        sceneTime = 0;
+        chainTime = (s64)((s64)(s64)(animPacket->endTime));
         var_17 = func_001991c0((*( u8 ** )(arg0 + (0x30))), 7U, 1.0f) + 6;
         if ((*( u16 * )(arg0 + (0x6A))) == 1) {
             temp_2_57 = (u8 *)((*( s32 ** )(arg0 + (0x38))));
             if ((s32)(temp_2_57) != (s32)(0)) {
                 temp_2_58 = (BtlPacketTiming *)(func_001d3530((*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(temp_2_57 + (0x30))), 4));
                 temp_2_58->queue = 4;
-                temp_2_58->startTime = var_18;
-                temp_2_58->ownerId = temp_16;
+                temp_2_58->startTime = chainTime;
+                temp_2_58->ownerId = actionId;
                 func_00194590((u8 *)temp_2_58, 0);
             }
         }
         temp_2_59 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x13));
         temp_2_59->queue = 4;
-        temp_2_59->startTime = var_18;
-        temp_2_59->ownerId = temp_16;
+        temp_2_59->startTime = chainTime;
+        temp_2_59->ownerId = actionId;
         func_00194590((u8 *)temp_2_59, 0);
         temp_4_10 = (u8 *)(iGpffffb3ac);
         (*( s32 * )(temp_4_10 + (0xC))) = (s32)((s32) ((*( s32 * )(temp_4_10 + (0xC))) | 0x400000));
         temp_3_11 = (u8 *)(iGpffffb3ac);
         (*( u16 * )(temp_3_11 + (0x18))) = (u16)((u16) ((*( u16 * )(temp_3_11 + (0x18))) | 0xF));
     }
-    sp270 = (s16)sp450;
-    func_001b7060(sp270, &sp5AC, &sp5A8);
+    skillKey = (s16)skill;
+    func_001b7060(skillKey, &sp5AC, &sp5A8);
     temp_2_60 = (BtlPacketTiming *)(func_001b7880(sp5AC, sp5A8, 0x10));
     temp_2_60->queue = 4;
-    temp_2_60->startTime = sp490;
-    temp_2_60->ownerId = temp_16;
+    temp_2_60->startTime = sceneTime;
+    temp_2_60->ownerId = actionId;
     func_00194590((u8 *)temp_2_60, 1);
-    temp_22_2 = (s32)(func_001b7080(sp270));
-    func_001b70a0(sp270, &sp5AC, &sp5A8);
-    temp_2_61 = (BtlPacketTiming *)(func_001b83f0(temp_22_2, sp5AC, sp5A8, 0x10, ((s32)(((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 2)) != (s32)(0)) & 0xFFFF));
+    temp_22_2 = (s32)(func_001b7080(skillKey));
+    func_001b70a0(skillKey, &sp5AC, &sp5A8);
+    temp_2_61 = (BtlPacketTiming *)(func_001b83f0(temp_22_2, sp5AC, sp5A8, 0x10, ((s32)(((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 2)) != (s32)(0)) & 0xFFFF));
     temp_2_61->queue = 4;
-    temp_2_61->startTime = sp490;
-    temp_2_61->ownerId = temp_16;
+    temp_2_61->startTime = sceneTime;
+    temp_2_61->ownerId = actionId;
     func_00194590((u8 *)temp_2_61, 1);
-    temp_2_62 = (BtlPacketTiming *)(func_001b9560(func_001b7090((u16) sp450), 0x10));
+    temp_2_62 = (BtlPacketTiming *)(func_001b9560(func_001b7090((u16) skill), 0x10));
     temp_2_62->queue = 4;
-    temp_2_62->startTime = sp490;
-    temp_2_62->ownerId = temp_16;
+    temp_2_62->startTime = sceneTime;
+    temp_2_62->ownerId = actionId;
     func_00194590((u8 *)temp_2_62, 1);
-    temp_2_63 = (BtlPacketTiming *)(func_001b9de0((BtlAction *)arg0, (u16) sp450, 8));
+    temp_2_63 = (BtlPacketTiming *)(func_001b9de0((BtlAction *)arg0, (u16) skill, 8));
     temp_2_63->queue = 4;
-    temp_2_63->startTime = sp490;
-    temp_2_63->ownerId = temp_16;
+    temp_2_63->startTime = sceneTime;
+    temp_2_63->ownerId = actionId;
     func_00194590((u8 *)temp_2_63, 1);
     if ((s32)(s32)sp230 != 0) {
         temp_22_3 = (u8 *)((*( s32 ** )(arg0 + (0x88))));
@@ -5211,82 +5211,82 @@ void func_001a7720(u8 *arg0) {
         temp_2_65 = (BtlPacketTiming *)(func_001d3530((*( u8 ** )(temp_22_3 + (0x30))), (*( u8 ** )(temp_2_64 + (0x30))), 2));
         sp4BC = (u8 *)((u8 *)temp_2_65);
         temp_2_65->queue = 4;
-        temp_2_65->startTime = var_18;
+        temp_2_65->startTime = chainTime;
         temp_2_65->delay = var_17;
         temp_2_65->duration = (s16)((s16) ((func_00199500((*( u8 ** )((u8 *)((s32 *)(u32)temp_22_3) + (0x30))), 0x1A, 1.0f)) - 1));
-        temp_2_65->ownerId = temp_16;
+        temp_2_65->ownerId = actionId;
         func_00194590((u8 *)temp_2_65, 0);
         temp_2_66 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1E));
         temp_2_66->queue = 4;
-        temp_2_66->startTime = var_18;
+        temp_2_66->startTime = chainTime;
         temp_2_66->delay = var_17;
-        temp_2_66->ownerId = temp_16;
+        temp_2_66->ownerId = actionId;
         func_00194590((u8 *)temp_2_66, 0);
         temp_2_67 = (BtlPacketTiming *)(func_001f99c0((s32 *)(u32)temp_22_3, 0xD, 0U, 0, 0));
         temp_2_67->queue = 4;
-        temp_2_67->startTime = var_18;
+        temp_2_67->startTime = chainTime;
         temp_2_67->delay = var_17;
-        temp_2_67->ownerId = temp_16;
+        temp_2_67->ownerId = actionId;
         func_00194590((u8 *)temp_2_67, 1);
         temp_2_68 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(temp_22_3 + (0x30))), 0x1A, 0, 1.0f, 0));
         temp_2_68->queue = 4;
-        temp_2_68->startTime = var_18;
+        temp_2_68->startTime = chainTime;
         temp_2_68->delay = var_17;
-        temp_2_68->ownerId = temp_16;
+        temp_2_68->ownerId = actionId;
         func_00194590((u8 *)temp_2_68, 0);
         temp_2_69 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(temp_2_64 + (0x30))), 0x1A, 0, 1.0f, 2));
         temp_2_69->queue = 4;
-        temp_2_69->startTime = var_18;
+        temp_2_69->startTime = chainTime;
         temp_2_69->delay = var_17;
-        temp_2_69->ownerId = temp_16;
+        temp_2_69->ownerId = actionId;
         func_00194590((u8 *)temp_2_69, 0);
-        var_18 = (s64)((s64)(s64)(temp_2_65->endTime));
+        chainTime = (s64)((s64)(s64)(temp_2_65->endTime));
         var_17 = 0;
         temp_2_70 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
         temp_2_70->queue = 4;
-        temp_2_70->startTime = var_18;
+        temp_2_70->startTime = chainTime;
         temp_2_70->delay = 0;
-        temp_2_70->ownerId = temp_16;
+        temp_2_70->ownerId = actionId;
         func_00194590((u8 *)temp_2_70, 0);
         temp_2_71 = (BtlPacketTiming *)(func_001d3530((*( u8 ** )(temp_22_3 + (0x30))), (*( u8 ** )(temp_2_64 + (0x30))), 3));
         temp_2_71->queue = 4;
-        temp_2_71->startTime = var_18;
+        temp_2_71->startTime = chainTime;
         temp_2_71->delay = 0;
-        temp_2_71->ownerId = temp_16;
+        temp_2_71->ownerId = actionId;
         func_00194590((u8 *)temp_2_71, 0);
         temp_2_72 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(temp_2_64 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
         temp_2_72->queue = 4;
-        temp_2_72->startTime = var_18;
+        temp_2_72->startTime = chainTime;
         temp_2_72->delay = 0;
-        temp_2_72->ownerId = temp_16;
+        temp_2_72->ownerId = actionId;
         func_00194590((u8 *)temp_2_72, 1);
         temp_2_73 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(temp_2_64 + (0x30))), 0xA, 0, 1.0f, 1));
         temp_2_73->queue = 4;
-        temp_2_73->startTime = var_18;
+        temp_2_73->startTime = chainTime;
         temp_2_73->delay = 0;
-        temp_2_73->ownerId = temp_16;
+        temp_2_73->ownerId = actionId;
         func_00194590((u8 *)temp_2_73, 0);
         temp_2_74 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(temp_22_3 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
         temp_2_74->queue = 4;
-        temp_2_74->startTime = var_18;
+        temp_2_74->startTime = chainTime;
         temp_2_74->delay = 0;
         temp_2_74->flags = (u8)((u8) (temp_2_74->flags & 0xDF));
-        temp_2_74->ownerId = temp_16;
+        temp_2_74->ownerId = actionId;
         func_00194590((u8 *)temp_2_74, 1);
         temp_4_11 = (u8 *)(iGpffffb3ac);
         (*( s32 * )(temp_4_11 + (0xC))) = (s32)((s32) ((*( s32 * )(temp_4_11 + (0xC))) | 0x400000));
         temp_3_12 = (u8 *)(iGpffffb3ac);
         (*( u16 * )(temp_3_12 + (0x18))) = (u16)((u16) ((*( u16 * )(temp_3_12 + (0x18))) | 0xF));
     }
-    func_001d69f0(sp270, formation);
+    func_001d69f0(skillKey, formation);
     if (var_21 != 0) {
         temp_2_75 = (BtlPacketTiming *)(func_00194b60());
         temp_2_75->queue = 4;
-        temp_2_75->startTime = var_18;
+        temp_2_75->startTime = chainTime;
         temp_2_75->delay = var_17;
         func_00194590((u8 *)temp_2_75, 1);
-        if (sp340 == 0) {
-            var_22 = (BtlPacketTiming *)(func_001d5eb0(sp4A0, formation, 1));
+        if (actionFlag4000 == 0) {
+            var_22 = (BtlPacketTiming *)(func_001d5eb0(formationHandle, formation, 1));
         } else {
             var_22 = (BtlPacketTiming *)(func_00194b60());
         }
@@ -5294,10 +5294,10 @@ void func_001a7720(u8 *arg0) {
         var_22->startTime = sp468;
         (*( s8 * )((u8 *)var_22 + (0x20))) = 5;
         *(s64 *)((u8 *)var_22 + 0x28) = temp_2_75->endTime;
-        var_22->ownerId = temp_16;
+        var_22->ownerId = actionId;
         func_00194590((u8 *)var_22, 1);
-        if (sp340 == 0) {
-            sp4CC = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(sp270, 1));
+        if (actionFlag4000 == 0) {
+            sp4CC = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 1));
         } else {
             sp4CC = (BtlPacketTiming *)(func_00194b60());
         }
@@ -5305,18 +5305,18 @@ void func_001a7720(u8 *arg0) {
         sp4CC->startTime = sp468;
         func_00194590((u8 *)sp4CC, 1);
     } else {
-        if (sp340 == 0) {
-            var_22 = (BtlPacketTiming *)(func_001d5eb0(sp4A0, formation, 0));
+        if (actionFlag4000 == 0) {
+            var_22 = (BtlPacketTiming *)(func_001d5eb0(formationHandle, formation, 0));
         } else {
             var_22 = (BtlPacketTiming *)(func_00194b60());
         }
         var_22->queue = 4;
-        var_22->startTime = var_18;
+        var_22->startTime = chainTime;
         var_22->delay = var_17;
-        var_22->ownerId = temp_16;
+        var_22->ownerId = actionId;
         func_00194590((u8 *)var_22, 1);
-        if (sp340 == 0) {
-            sp4CC = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(sp270, 0));
+        if (actionFlag4000 == 0) {
+            sp4CC = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 0));
         } else {
             sp4CC = (BtlPacketTiming *)(func_00194b60());
         }
@@ -5331,18 +5331,18 @@ void func_001a7720(u8 *arg0) {
     } else {
         sp4E0 = (u8 *)(arg0);
     }
-    temp_2_76 = (BtlPacketTiming *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(sp4E0 + (0x30))), 0, 0));
+    temp_2_76 = (BtlPacketTiming *)(func_001d6240(formationHandle, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(sp4E0 + (0x30))), 0, 0));
     var_17_6 = (BtlPacketTiming *)(temp_2_76);
     temp_2_76->queue = 4;
     temp_2_76->startTime = var_22->endTime;
     (*( s8 * )((u8 *)temp_2_76 + (0x10))) = 4;
     *(s64 *)((u8 *)temp_2_76 + 0x18) = sp4CC->endTime;
-    if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x80) {
-        var_17_6->ownerId = temp_16;
+    if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80) {
+        var_17_6->ownerId = actionId;
     }
     func_00194590((u8 *)var_17_6, 2);
     sp190 = var_17_6->endTime;
-    if (sp340 == 0) {
+    if (actionFlag4000 == 0) {
         temp_2_77 = (BtlPacketTiming *)(func_001f8140(0));
         temp_2_77->queue = 5;
         temp_2_77->startTime = var_17_6->endTime;
@@ -5351,16 +5351,16 @@ void func_001a7720(u8 *arg0) {
     sp4C8 = 0;
     sp440 = 0x18;
     sp380 = 0;
-    if (sp340 != 0) {
+    if (actionFlag4000 != 0) {
         var_2_8 = 4;
     } else {
-        var_2_8 = (s32)((u16)func_001ef4a0(sp270));
+        var_2_8 = (s32)((u16)func_001ef4a0(skillKey));
     }
     sp180 = (u16)var_2_8;
     sp410 = 0;
     sp3C0 = 0;
-    sp290 = (s32) sp450;
-    sp2A0 = sp270;
+    sp290 = (s32) skill;
+    sp2A0 = skillKey;
     while ((sp260 = (s32)sp3C0) < *(u16 *)(arg0 + 0x6A)) {
             temp_18 = (u8 *)((*( s32 ** )((u8 *)(((s32)(arg0) + (sp3C0 * 4))) + (0x38))));
             sp3A0 = (u16)((u16) (*( u8 * )(temp_18 + (0xD9))));
@@ -5393,12 +5393,12 @@ void func_001a7720(u8 *arg0) {
                 sp440 = 0x1E;
             }
             temp_2_79 = (u8 *)(func_00202740(temp_4_12));
-            (*( s64 * )(temp_2_79 + (0x60))) = temp_16;
+            (*( s64 * )(temp_2_79 + (0x60))) = actionId;
             func_00194590(temp_2_79, 1);
             if (((*( u16 * )(temp_18 + (0xDC))) != 0x400) && ((*( s32 * )(temp_18 + (0xE4))) != 1)) {
-                var_17_6 = (BtlPacketTiming *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0x1000));
+                var_17_6 = (BtlPacketTiming *)(func_001d6240(formationHandle, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0x1000));
                 if ((s32)(sp4C8) == (s32)(0)) {
-                    if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x2000)) {
+                    if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x2000)) {
                         var_17_6->queue = 4;
                         var_17_6->startTime = var_22->endTime;
                         (*( s8 * )((u8 *)var_17_6 + (0x10))) = 4;
@@ -5412,11 +5412,11 @@ void func_001a7720(u8 *arg0) {
                     var_17_6->queue = 4;
                     var_17_6->startTime = *(s64 *)((u8 *)sp4C8 + 0x58);
                 }
-                if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x80) {
-                    var_17_6->ownerId = temp_16;
+                if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80) {
+                    var_17_6->ownerId = actionId;
                 }
                 func_00194590((u8 *)var_17_6, 2);
-                if (sp340 == 0) {
+                if (actionFlag4000 == 0) {
                     temp_2_80 = (BtlPacketTiming *)(func_001f8140(1));
                     temp_2_80->queue = 5;
                     temp_2_80->startTime = var_17_6->endTime;
@@ -5439,28 +5439,28 @@ void func_001a7720(u8 *arg0) {
                     func_00194590((u8 *)var_2_9, 1);
                 }
             } else {
-                temp_2_81 = (BtlPacketTiming *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0xC00));
+                temp_2_81 = (BtlPacketTiming *)(func_001d6240(formationHandle, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0xC00));
                 var_17_6 = (BtlPacketTiming *)(temp_2_81);
                 temp_2_81->queue = 4;
                 temp_2_81->startTime = var_22->endTime;
                 (*( s8 * )((u8 *)temp_2_81 + (0x10))) = 4;
                 *(s64 *)((u8 *)temp_2_81 + 0x18) = sp4CC->endTime;
                 (*( u16 * )((u8 *)temp_2_81 + (0x48))) = sp380;
-                if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x80) {
-                    var_17_6->ownerId = temp_16;
+                if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80) {
+                    var_17_6->ownerId = actionId;
                 }
                 func_00194590((u8 *)var_17_6, 2);
                 if (((*( u16 * )(temp_18 + (0xDC))) != 0x400) && ((*( s32 * )(temp_18 + (0xE4))) == 1) && (sp260 == 0)) {
-                    temp_2_82 = (BtlPacketTiming *)(func_001d6240(sp4A0, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0x1000));
+                    temp_2_82 = (BtlPacketTiming *)(func_001d6240(formationHandle, (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, sp170 | 0x1000));
                     sp4C0 = (u8 *)((u8 *)temp_2_82);
                     temp_2_82->queue = 5;
                     temp_2_82->startTime = var_17_6->endTime;
-                    if (((*( s32 * )(temp_18 + (0xE4))) != 0) && ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 8)) {
+                    if (((*( s32 * )(temp_18 + (0xE4))) != 0) && ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 8)) {
                         (*( s16 * )(sp4C0 + (0x48))) = 8;
                     }
-                    (*( s64 * )(sp4C0 + (0x60))) = temp_16;
+                    (*( s64 * )(sp4C0 + (0x60))) = actionId;
                     func_00194590(sp4C0, 2);
-                    if (sp340 == 0) {
+                    if (actionFlag4000 == 0) {
                         temp_2_83 = (BtlPacketTiming *)(func_001f8140(1));
                         temp_2_83->queue = 5;
                         temp_2_83->startTime = *(s64 *)(sp4C0 + 0x58);
@@ -5490,7 +5490,7 @@ void func_001a7720(u8 *arg0) {
                     }
                     (*( u16 * )(arg0 + (0x18))) = (u16)((u16) ((*( u16 * )(arg0 + (0x18))) | 0x200));
                 }
-            } else if ((sp260 == 0) && (temp_23_2 == 0)) {
+            } else if ((sp260 == 0) && (side == 0)) {
                 temp_4_13 = (s32)((s32)((u16)func_001eb440((s32)(arg0) + 0x38)));
                 if (temp_4_13 == 2) {
                     func_00196040(temp_4_13, 1, &targetPosition, 0, 0, 1);
@@ -5504,10 +5504,10 @@ void func_001a7720(u8 *arg0) {
             if (sp2D0 == 1) {
                 if ((s32)(sp4C8) == (s32)(0)) {
                     if ((sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
-                        temp_2_88 = (BtlPacketTiming *)(func_0019bbe0(sp4D0, 0, 0, 0, 4, 0));
+                        temp_2_88 = (BtlPacketTiming *)(func_0019bbe0(linkedUnit, 0, 0, 0, 4, 0));
                         temp_2_88->queue = 5;
                         temp_2_88->startTime = var_17_6->endTime;
-                        temp_2_88->ownerId = temp_16;
+                        temp_2_88->ownerId = actionId;
                         func_00194590((u8 *)temp_2_88, 0);
                     }
                     if (sp2C0 == 0) {
@@ -5519,31 +5519,31 @@ void func_001a7720(u8 *arg0) {
                         }
                         var_2_10->queue = 5;
                         var_2_10->startTime = var_17_6->endTime;
-                        var_2_10->ownerId = temp_16;
+                        var_2_10->ownerId = actionId;
                         func_00194590((u8 *)var_2_10, 0);
                     }
                     temp_2_89 = (BtlPacketTiming *)(func_0019bbe0((*( u8 ** )(arg0 + (0x30))), -1, 0, 0, 3, 0));
                     temp_2_89->queue = 5;
                     temp_2_89->startTime = var_17_6->endTime;
-                    temp_2_89->ownerId = temp_16;
+                    temp_2_89->ownerId = actionId;
                     func_00194590((u8 *)temp_2_89, 1);
                 }
                 if ((s32)(var_21_2) != (s32)(arg0)) {
                     temp_2_90 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket((*( u8 ** )(var_21_2 + (0x30))), (*( u8 ** )(arg0 + (0x30))), 2));
                     temp_2_90->queue = 5;
                     temp_2_90->startTime = var_17_6->endTime;
-                    temp_2_90->ownerId = temp_16;
+                    temp_2_90->ownerId = actionId;
                     func_00194590((u8 *)temp_2_90, 0);
                 }
                 temp_2_91 = (BtlPacketTiming *)(func_00201f20());
                 temp_2_91->queue = 5;
                 temp_2_91->startTime = var_17_6->endTime;
-                temp_2_91->ownerId = temp_16;
+                temp_2_91->ownerId = actionId;
                 func_00194590((u8 *)temp_2_91, 0);
                 sp4C8 = (BtlPacket *)(btlCameraCreateSetStatePacket((BtlAction *)var_21_2, 0x1C));
                 (*( s8 * )((u8 *)(sp4C8) + (0))) = 5;
                 *(s64 *)((u8 *)sp4C8 + 8) = var_17_6->endTime;
-                if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x80)) {
+                if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80)) {
                     (*( s8 * )((u8 *)(sp4C8) + (0x20))) = 0xB;
                     *(s64 *)((u8 *)sp4C8 + 0x28) = var_17_6->endTime;
                     (*( s16 * )((u8 *)(sp4C8) + (0x4A))) = 0x12;
@@ -5551,12 +5551,12 @@ void func_001a7720(u8 *arg0) {
                     (*( s8 * )((u8 *)(sp4C8) + (0x20))) = 4;
                     *(s64 *)((u8 *)sp4C8 + 0x28) = var_17_6->endTime;
                 }
-                (*( s64 * )((u8 *)(sp4C8) + (0x60))) = temp_16;
+                (*( s64 * )((u8 *)(sp4C8) + (0x60))) = actionId;
                 func_00194590((u8 *)sp4C8, 0);
             }
             if ((*( s32 * )(temp_18 + (0xE4))) != 0) {
                 sp4C4 = (BtlPacketTiming *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD28))), (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(temp_18 + (0x30))), 1, 0));
-                if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 4) {
+                if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 4) {
                     sp4C4->queue = 0xB;
                     sp4C4->startTime = var_17_6->endTime;
                 } else {
@@ -5571,7 +5571,7 @@ void func_001a7720(u8 *arg0) {
             }
             if ((*( u16 * )(temp_18 + (0xDC))) == 0x400) {
                 sp4C4 = (BtlPacketTiming *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD2C))), (*( u8 ** )(arg0 + (0x30))), (*( u8 ** )(var_21_2 + (0x30))), 1, 0));
-                if ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 4) {
+                if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 4) {
                     sp4C4->queue = 0xB;
                     sp4C4->startTime = var_17_6->endTime;
                 } else {
@@ -5605,26 +5605,26 @@ void func_001a7720(u8 *arg0) {
                     }
                 }
                 temp_2_98 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)(*( u8 ** )(var_21_2 + (0x30))), *hitMotion, 0, var_f20_2, 0));
-                var_19 = (BtlPacketTiming *)(temp_2_98);
+                animPacket = (BtlPacketTiming *)(temp_2_98);
                 temp_2_98->queue = 0xB;
                 temp_2_98->startTime = var_17_6->endTime;
                 (*( u16 * )((u8 *)temp_2_98 + (0x48))) = sp390;
-                if (((*( s32 * )(temp_18 + (0xE4))) != 0) && ((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 8)) {
-                    (*( u16 * )((u8 *)var_19 + (0x48))) = (u16)((u16) ((s16) (*( u16 * )((u8 *)var_19 + (0x48))) + 8));
+                if (((*( s32 * )(temp_18 + (0xE4))) != 0) && ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 8)) {
+                    (*( u16 * )((u8 *)animPacket + (0x48))) = (u16)((u16) ((s16) (*( u16 * )((u8 *)animPacket + (0x48))) + 8));
                 }
-                var_19->ownerId = temp_16;
-                func_00194590((u8 *)var_19, 0);
-                if (((s32)(s32)spC0 == sp140) && (hitRow->result.addedStatus & 0x100000) && (sp340 == 0) && ((s32)(s32)sp160 == 1) && ((*( s32 * )(temp_18 + (0xE0))) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(sp2A0)) == (s32)(0))) {
+                animPacket->ownerId = actionId;
+                func_00194590((u8 *)animPacket, 0);
+                if (((s32)(s32)spC0 == sp140) && (hitRow->result.addedStatus & 0x100000) && (actionFlag4000 == 0) && ((s32)(s32)sp160 == 1) && ((*( s32 * )(temp_18 + (0xE0))) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(sp2A0)) == (s32)(0))) {
                     sp250 = (s32) sp360;
                     if (sp250 >= 0x19) {
                         var_2_11 = 0;
                     } else {
                         var_2_11 = 0x19 - sp250;
                     }
-                    temp_2_99 = (BtlPacketTiming *)(func_00197cc0((s32)*(u8 **)((u8 *)var_21_2 + 0x30), sp450, (s16)var_2_11));
+                    temp_2_99 = (BtlPacketTiming *)(func_00197cc0((s32)*(u8 **)((u8 *)var_21_2 + 0x30), skill, (s16)var_2_11));
                     temp_2_99->queue = 4;
-                    temp_2_99->startTime = var_19->endTime;
-                    temp_2_99->ownerId = temp_16;
+                    temp_2_99->startTime = animPacket->endTime;
+                    temp_2_99->ownerId = actionId;
                     func_00194590((u8 *)temp_2_99, 0);
                     if ((*( u16 * )(arg0 + (0x6A))) == 1) {
                         temp_3_14 = (s16)func_0023d8e0((u8 *)(u32)(*( s64 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA64))), sp2A0);
@@ -5650,28 +5650,28 @@ void func_001a7720(u8 *arg0) {
                             temp_5_2 = (u8 *)((*( u8 ** )(var_21_2 + (0x30))));
                             temp_2_100 = (BtlPacketTiming *)(func_001d6240((*(s32 *)(iGpffffb3ac + temp_3_15 * 4 + 0xD04)), temp_5_2, temp_5_2, 1, 0));
                             temp_2_100->queue = 4;
-                            temp_2_100->startTime = var_19->endTime;
-                            temp_2_100->ownerId = temp_16;
+                            temp_2_100->startTime = animPacket->endTime;
+                            temp_2_100->ownerId = actionId;
                             func_00194590((u8 *)temp_2_100, 2);
                         }
                     }
                     if (sp250 > 0x19) {
                         temp_2_101 = (BtlPacketTiming *)(func_0019aa70((*( u8 ** )(var_21_2 + (0x30))), (s16)(sp250 - 0x19)));
                         temp_2_101->queue = 4;
-                        temp_2_101->startTime = var_19->endTime;
-                        temp_2_101->ownerId = temp_16;
+                        temp_2_101->startTime = animPacket->endTime;
+                        temp_2_101->ownerId = actionId;
                         func_00194590((u8 *)temp_2_101, 0);
                     }
                     temp_5_3 = (u8 *)((*( u8 ** )(var_21_2 + (0x30))));
                     temp_2_102 = (BtlPacketTiming *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD80))), temp_5_3, temp_5_3, 1, 0));
                     sp4B8 = (u8 *)((u8 *)temp_2_102);
                     temp_2_102->queue = 4;
-                    temp_2_102->startTime = var_19->endTime;
+                    temp_2_102->startTime = animPacket->endTime;
                     if (sp250 >= 0x19) {
                         sp250 = 0x19;
                     }
                     (*( s16 * )(sp4B8 + (0x48))) = (s16) sp250;
-                    (*( s64 * )(sp4B8 + (0x60))) = temp_16;
+                    (*( s64 * )(sp4B8 + (0x60))) = actionId;
                     func_00194590(sp4B8, 2);
                     temp_2_103 = (u8 *)((*( u8 ** )(var_21_2 + (0x30))));
                     temp_f2 = (*( f32 * )(temp_2_103 + (0x2C)));
@@ -5688,12 +5688,12 @@ void func_001a7720(u8 *arg0) {
                     temp_2_104 = (BtlPacketTiming *)(func_001bccc0(0x12, (s16)(s32)((80.0f * var_f1_2) / 5.0f), 0, 6));
                     temp_2_104->queue = 5;
                     temp_2_104->startTime = *(s64 *)(sp4B8 + 0x58);
-                    temp_2_104->ownerId = temp_16;
+                    temp_2_104->ownerId = actionId;
                     func_00194590((u8 *)temp_2_104, 1);
                     temp_2_105 = (BtlPacketTiming *)(func_0019a980((*( u8 ** )(var_21_2 + (0x30)))));
                     temp_2_105->queue = 5;
-                    temp_2_105->startTime = var_19->endTime;
-                    temp_2_105->ownerId = temp_16;
+                    temp_2_105->startTime = animPacket->endTime;
+                    temp_2_105->ownerId = actionId;
                     func_00194590((u8 *)temp_2_105, 0);
                 }
                 if ((sp2D0 == 0) && ((*hitMotion != -1) || ((s32)((*( u8 * )((u8 *)((*( u8 ** )(temp_18 + (0x30)))) + (0xA2)))) != (s32)((*( u8 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA2)))))) && ((s32)(datCalcChkBadStatus((s32)(*( u8 ** )((u8 *)((*( u8 ** )(temp_18 + (0x30)))) + (0xA64))), 0x180001)) == (s32)(0))) {
@@ -5703,48 +5703,48 @@ void func_001a7720(u8 *arg0) {
                         temp_2_106->startTime = sp4C4->endTime;
                     } else {
                         temp_2_106->queue = 5;
-                        temp_2_106->startTime = var_19->endTime;
+                        temp_2_106->startTime = animPacket->endTime;
                     }
                     temp_2_106->flags = (u8)((u8) (temp_2_106->flags & 0xDF));
-                    temp_2_106->ownerId = temp_16;
+                    temp_2_106->ownerId = actionId;
                     func_00194590((u8 *)temp_2_106, 1);
                 }
                 if ((*( s32 * )(iGpffffb3ac + (0xC))) & 0x200000) {
                     temp_2_107 = (BtlPacketTiming *)(func_00194c90(func_0022eba0, arg0));
                     temp_2_107->queue = 5;
-                    temp_2_107->startTime = var_19->endTime;
+                    temp_2_107->startTime = animPacket->endTime;
                     temp_2_107->delay = sp420;
-                    temp_2_107->ownerId = temp_16;
+                    temp_2_107->ownerId = actionId;
                     func_00194590((u8 *)temp_2_107, 1);
                 }
                 temp_2_108 = (s32 *)&hitRow->result;
                 sp240 = (s32 *)(temp_2_108);
                 temp_2_109 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(var_21_2), temp_2_108, (*( u16 * )(temp_18 + (0xDC))), (*( u16 * )(temp_18 + (0xDE)))));
                 temp_2_109->queue = 5;
-                temp_2_109->startTime = var_19->endTime;
+                temp_2_109->startTime = animPacket->endTime;
                 temp_2_109->delay = sp420;
-                temp_2_109->ownerId = temp_16;
+                temp_2_109->ownerId = actionId;
                 func_00194590((u8 *)temp_2_109, 1);
                 temp_2_110 = (BtlPacketTiming *)(func_001f3950(temp_18));
                 temp_2_110->queue = 5;
-                temp_2_110->startTime = var_19->endTime;
+                temp_2_110->startTime = animPacket->endTime;
                 temp_2_110->delay = sp420;
-                temp_2_110->ownerId = temp_16;
+                temp_2_110->ownerId = actionId;
                 func_00194590((u8 *)temp_2_110, 1);
                 if (((s32)(sp260) == (s32)(((*( u16 * )(arg0 + (0x6A))) - 1))) && ((s32)(spC0) == (s32)(((*( u8 * )(temp_18 + (0xD9))) - 1)))) {
                     temp_2_111 = (BtlPacketTiming *)(func_001f3950(arg0));
                     temp_2_111->queue = 5;
-                    temp_2_111->startTime = var_19->endTime;
+                    temp_2_111->startTime = animPacket->endTime;
                     temp_2_111->delay = sp420;
-                    temp_2_111->ownerId = temp_16;
+                    temp_2_111->ownerId = actionId;
                     func_00194590((u8 *)temp_2_111, 1);
                 }
                 if ((sp260 == 0) && ((s32)(s32)spC0 == 0) && !((*( u16 * )(arg0 + (0x18))) & 4)) {
                     temp_2_112 = (BtlPacketTiming *)(func_001f3870(arg0, (*( u8 * )(arg0 + (0xDB)))));
                     temp_2_112->queue = 5;
-                    temp_2_112->startTime = var_19->endTime;
+                    temp_2_112->startTime = animPacket->endTime;
                     temp_2_112->delay = sp420;
-                    temp_2_112->ownerId = temp_16;
+                    temp_2_112->ownerId = actionId;
                     func_00194590((u8 *)temp_2_112, 1);
                 }
                 if ((s32)(spC0) == (s32)(((*( u8 * )(temp_18 + (0xD9))) - 1))) {
@@ -5755,9 +5755,9 @@ void func_001a7720(u8 *arg0) {
                         }
                         temp_2_113 = (BtlPacketTiming *)(func_00202400((*( u8 ** )(arg0 + (0x30))), (*( s16 * )(arg0 + (0xEC)))));
                         temp_2_113->queue = 5;
-                        temp_2_113->startTime = var_19->endTime;
+                        temp_2_113->startTime = animPacket->endTime;
                         temp_2_113->flags = (u8)((u8) (temp_2_113->flags & 0xDF));
-                        temp_2_113->ownerId = temp_16;
+                        temp_2_113->ownerId = actionId;
                         func_00194590((u8 *)temp_2_113, 3);
                     } else {
                         if ((*( s16 * )(temp_18 + (0xEC))) != 0) {
@@ -5767,18 +5767,18 @@ void func_001a7720(u8 *arg0) {
                             }
                             temp_2_114 = (BtlPacketTiming *)(func_00202400((*( u8 ** )(temp_18 + (0x30))), (*( s16 * )(temp_18 + (0xEC)))));
                             temp_2_114->queue = 5;
-                            temp_2_114->startTime = var_19->endTime;
+                            temp_2_114->startTime = animPacket->endTime;
                             temp_2_114->flags = (u8)((u8) (temp_2_114->flags & 0xDF));
-                            temp_2_114->ownerId = temp_16;
+                            temp_2_114->ownerId = actionId;
                             func_00194590((u8 *)temp_2_114, 3);
                         } else if ((s32)(s32)sp230 != 0) {
                             temp_5_4 = (s16)((s16)((*( s16 * )(var_21_2 + (0xEC)))));
                             if (temp_5_4 != 0) {
                                 temp_2_115 = (BtlPacketTiming *)(func_00202400((*( u8 ** )(var_21_2 + (0x30))), temp_5_4));
                                 temp_2_115->queue = 5;
-                                temp_2_115->startTime = var_19->endTime;
+                                temp_2_115->startTime = animPacket->endTime;
                                 temp_2_115->flags = (u8)((u8) (temp_2_115->flags & 0xDF));
-                                temp_2_115->ownerId = temp_16;
+                                temp_2_115->ownerId = actionId;
                                 func_00194590((u8 *)temp_2_115, 3);
                             }
                         }
@@ -5787,18 +5787,18 @@ void func_001a7720(u8 *arg0) {
                 if ((s32)(*sp240) != (s32)(0)) {
                     temp_2_116 = (BtlPacketTiming *)(func_00202590((s32)((*( u8 ** )(var_21_2 + (0x30)))), 0, 0));
                     temp_2_116->queue = 5;
-                    temp_2_116->startTime = var_19->endTime;
+                    temp_2_116->startTime = animPacket->endTime;
                     temp_2_116->delay = sp420;
                     temp_2_116->flags = (u8)((u8) (temp_2_116->flags & 0xDF));
-                    temp_2_116->ownerId = temp_16;
+                    temp_2_116->ownerId = actionId;
                     func_00194590((u8 *)temp_2_116, 3);
                 }
                 if ((hitRow->result.addedStatus & 0x100000) && ((s32)((*( u8 * )((u8 *)((*( u8 ** )(var_21_2 + (0x30)))) + (0xA2)))) == (s32)(1))) {
                     temp_2_117 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 8));
                     temp_2_117->queue = 5;
-                    temp_2_117->startTime = var_19->endTime;
+                    temp_2_117->startTime = animPacket->endTime;
                     temp_2_117->delay = sp420;
-                    temp_2_117->ownerId = temp_16;
+                    temp_2_117->ownerId = actionId;
                     func_00194590((u8 *)temp_2_117, 1);
                 }
                 if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x20) {
@@ -5812,10 +5812,10 @@ void func_001a7720(u8 *arg0) {
                 spF0 = (s32)((s32) temp_2_118);
                 temp_2_119 = (BtlPacketTiming *)(func_00201de0((s32)((*( u8 ** )(arg0 + (0x30)))), (s32)((*( u8 ** )(var_21_2 + (0x30)))), sp290, (*( u16 * )(temp_18 + (0xDC))), (*( u16 * )(temp_18 + (0xDE))), sp3B0, sp3A0, sp240, 0));
                 temp_2_119->queue = 5;
-                temp_2_119->startTime = var_19->endTime;
+                temp_2_119->startTime = animPacket->endTime;
                 temp_2_119->delay = sp420;
                 temp_2_119->flags = (u8)((u8) (temp_2_119->flags & 0xDF));
-                temp_2_119->ownerId = temp_16;
+                temp_2_119->ownerId = actionId;
                 func_00194590((u8 *)temp_2_119, 3);
                 hpTransfer = (s16 *)(temp_2_118 + 0x108);
                 if (((*( s16 * )(temp_2_118 + (0x108))) > 0) || (hitRow->result.spTransfer > 0)) {
@@ -5825,28 +5825,28 @@ void func_001a7720(u8 *arg0) {
                     result.spDelta = (s32)((s32) *(s16 *)(temp_18 + (sp3B0 << 5) + 0x10A));
                     temp_2_120 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
                     temp_2_120->queue = 4;
-                    temp_2_120->startTime = var_19->endTime;
+                    temp_2_120->startTime = animPacket->endTime;
                     temp_2_120->delay = (s16) spD0;
-                    temp_2_120->ownerId = temp_16;
+                    temp_2_120->ownerId = actionId;
                     func_00194590((u8 *)temp_2_120, 1);
                     temp_4_16 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
                     temp_2_121 = (BtlPacketTiming *)(func_00201de0((s32)(temp_4_16), (s32)(temp_4_16), -1, 1U, 1U, sp3B0, sp3A0, &result, 0));
                     temp_2_121->queue = 4;
-                    temp_2_121->startTime = var_19->endTime;
+                    temp_2_121->startTime = animPacket->endTime;
                     temp_2_121->delay = (s16) spD0;
-                    temp_2_121->ownerId = temp_16;
+                    temp_2_121->ownerId = actionId;
                     func_00194590((u8 *)temp_2_121, 3);
                     if (result.hpDelta != 0) {
                         if ((s32)(s32)spC0 == 0) {
                             temp_2_122 = (u8 *)(func_00202740((*( u8 ** )(arg0 + (0x30)))));
-                            (*( s64 * )(temp_2_122 + (0x60))) = temp_16;
+                            (*( s64 * )(temp_2_122 + (0x60))) = actionId;
                             func_00194590(temp_2_122, 1);
                         }
                         temp_2_123 = (BtlPacketTiming *)(func_00202590((s32)((*( u8 ** )(arg0 + (0x30)))), 0, 0));
                         temp_2_123->queue = 4;
-                        temp_2_123->startTime = var_19->endTime;
+                        temp_2_123->startTime = animPacket->endTime;
                         temp_2_123->delay = (s16) spD0;
-                        temp_2_123->ownerId = temp_16;
+                        temp_2_123->ownerId = actionId;
                         func_00194590((u8 *)temp_2_123, 3);
                     }
                 }
@@ -5859,17 +5859,17 @@ void func_001a7720(u8 *arg0) {
             sp380 = sp380 + sp180;
             sp3C0 += 1;
     }
-    temp_18_2 = (s64)((s64)(s64)(var_19->endTime));
+    temp_18_2 = (s64)((s64)(s64)(animPacket->endTime));
     temp_3_16 = (s16)((s16)((*( s16 * )(arg0 + (0xEE)))));
     if (temp_3_16 != -1) {
         temp_2_124 = (BtlPacketTiming *)(func_001f5f70(arg0, (u16)temp_3_16, 0, 0, 0));
         temp_2_124->queue = 5;
         temp_2_124->startTime = temp_18_2;
         temp_2_124->delay = (s16) sp410;
-        temp_2_124->ownerId = temp_16;
+        temp_2_124->ownerId = actionId;
         func_00194590((u8 *)temp_2_124, 1);
     } else if (sp3E0 > 0) {
-        if (temp_23_2 == 0) {
+        if (side == 0) {
             temp_21 = (s32)((u16)func_001ef720(2, 0x80000));
             if (*(u8 *)(arg0 + 0x28) <= 0 && *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4) != 1 && func_00231d70(0x64U) < 0x32U) {
                 if ((s32)((*( u8 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA2)))) != (s32)(0)) {
@@ -5905,7 +5905,7 @@ reactionPacket:
                 temp_2_126->queue = 5;
                 temp_2_126->startTime = temp_18_2;
                 temp_2_126->delay = (s16) sp410;
-                temp_2_126->ownerId = temp_16;
+                temp_2_126->ownerId = actionId;
                 func_00194590((u8 *)temp_2_126, 1);
                         } else {
                 temp_2_125 = (BtlPacketTiming *)(func_001f99c0(arg0, 0x10, sp3E0, 0, 0));
@@ -5920,9 +5920,9 @@ reactionPacket:
         temp_2_127->queue = 5;
         temp_2_127->startTime = temp_18_2;
         temp_2_127->delay = (s16) sp410;
-        temp_2_127->ownerId = temp_16;
+        temp_2_127->ownerId = actionId;
         func_00194590((u8 *)temp_2_127, 1);
-    } else if ((sp33C != 0) && (temp_23_2 == 0) && (func_001f0c50(arg0) != 0) && (func_001f0d30(arg0) == 0)) {
+    } else if ((sp33C != 0) && (side == 0) && (func_001f0c50(arg0) != 0) && (func_001f0d30(arg0) == 0)) {
         temp_2_128 = (BtlPacketTiming *)(func_001f99c0((*( s32 ** )(arg0 + (0x38))), 0x12, 0U, 0, 0));
         temp_2_128->queue = 5;
         temp_2_128->startTime = temp_18_2;
@@ -5949,7 +5949,7 @@ reactionPacket:
             (*( s8 * )((u8 *)(sp4C8) + (0))) = 0xB;
             *(s64 *)((u8 *)sp4C8 + 8) = var_17_6->endTime;
             (*( s16 * )((u8 *)(sp4C8) + (0x48))) = 0x18;
-            (*( s64 * )((u8 *)(sp4C8) + (0x60))) = temp_16;
+            (*( s64 * )((u8 *)(sp4C8) + (0x60))) = actionId;
             func_00194590((u8 *)sp4C8, 0);
         }
         if ((s32)((*( u8 * )((u8 *)((*( u8 ** )(arg0 + (0x30)))) + (0xA2)))) == (s32)(0)) {
@@ -5963,20 +5963,20 @@ reactionPacket:
                 var_18_4->queue = 0xB;
                 var_18_4->startTime = (s64)((s64) var_17_6->endTime);
             }
-            var_18_4->ownerId = temp_16;
+            var_18_4->ownerId = actionId;
             func_00194590((u8 *)var_18_4, 1);
             temp_4_19 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
             temp_2_132 = (BtlPacketTiming *)(func_00201de0((s32)(temp_4_19), (s32)(temp_4_19), -1, 0U, 0U, 0U, 1U, &result, 0));
             temp_2_132->queue = 4;
             temp_2_132->startTime = (s64)((s64) var_18_4->endTime);
             temp_2_132->flags = (u8)((u8) (temp_2_132->flags & 0xDF));
-            temp_2_132->ownerId = temp_16;
+            temp_2_132->ownerId = actionId;
             func_00194590((u8 *)temp_2_132, 3);
             temp_2_133 = (BtlPacketTiming *)(func_00202590((s32)((*( u8 ** )(arg0 + (0x30)))), 0, 0));
             temp_2_133->queue = 4;
             temp_2_133->startTime = (s64)((s64) var_18_4->endTime);
             temp_2_133->flags = (u8)((u8) (temp_2_133->flags & 0xDF));
-            temp_2_133->ownerId = temp_16;
+            temp_2_133->ownerId = actionId;
             func_00194590((u8 *)temp_2_133, 3);
         } else {
             func_001f0a10((u8 *)&result);
@@ -5989,27 +5989,27 @@ reactionPacket:
                 var_18_4->queue = 0xB;
                 var_18_4->startTime = (s64)((s64) var_17_6->endTime);
             }
-            var_18_4->ownerId = temp_16;
+            var_18_4->ownerId = actionId;
             func_00194590((u8 *)var_18_4, 1);
         }
         if (sp2C0 == 0) {
             if (sp2F0 == 0) {
                 if (sp30C == 0) {
-                    var_19 = (BtlPacketTiming *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
+                    animPacket = (BtlPacketTiming *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
                 } else {
-                    var_19 = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                    animPacket = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
                 }
-                var_19->queue = 4;
-                var_19->startTime = (s64)((s64) var_18_4->endTime);
-                var_19->ownerId = temp_16;
-                func_00194590((u8 *)var_19, 0);
+                animPacket->queue = 4;
+                animPacket->startTime = (s64)((s64) var_18_4->endTime);
+                animPacket->ownerId = actionId;
+                func_00194590((u8 *)animPacket, 0);
             } else {
                 temp_2_134 = (BtlPacketTiming *)(func_0019a980((*( u8 ** )(arg0 + (0x30)))));
-                var_19 = (BtlPacketTiming *)(temp_2_134);
+                animPacket = (BtlPacketTiming *)(temp_2_134);
                 temp_2_134->queue = 4;
                 temp_2_134->startTime = (s64)((s64) var_18_4->endTime);
-                temp_2_134->ownerId = temp_16;
-                func_00194590((u8 *)var_19, 0);
+                temp_2_134->ownerId = actionId;
+                func_00194590((u8 *)animPacket, 0);
             }
         }
         temp_4_20 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
@@ -6018,24 +6018,24 @@ reactionPacket:
             temp_2_135->queue = 4;
             temp_2_135->startTime = (s64)((s64) var_18_4->endTime);
             temp_2_135->duration = 0x3C;
-            temp_2_135->ownerId = temp_16;
+            temp_2_135->ownerId = actionId;
             func_00194590((u8 *)temp_2_135, 1);
         } else {
             temp_2_136 = (BtlPacketTiming *)(func_0019bbe0(temp_4_20, 0xFFFFFF, 6, 0, 4, 0));
             temp_2_136->queue = 4;
             temp_2_136->startTime = (s64)((s64) var_18_4->endTime);
-            temp_2_136->ownerId = temp_16;
+            temp_2_136->ownerId = actionId;
             func_00194590((u8 *)temp_2_136, 1);
             temp_5_5 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
             temp_2_137 = (BtlPacketTiming *)(func_001d6240((*( s32 * )(iGpffffb3ac + (0xD48))), temp_5_5, temp_5_5, 0, 0));
             temp_2_137->queue = 4;
             temp_2_137->startTime = (s64)((s64) var_18_4->endTime);
-            temp_2_137->ownerId = temp_16;
+            temp_2_137->ownerId = actionId;
             func_00194590((u8 *)temp_2_137, 2);
             temp_2_138 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0xA));
             temp_2_138->queue = 4;
             temp_2_138->startTime = (s64)((s64) var_18_4->endTime);
-            temp_2_138->ownerId = temp_16;
+            temp_2_138->ownerId = actionId;
             func_00194590((u8 *)temp_2_138, 1);
             temp_3_20 = (u8 *)((*( u8 ** )(arg0 + (0x30))));
             *(u32 *)(temp_3_20 + 0x9C) |= 0x100;
@@ -6043,40 +6043,40 @@ reactionPacket:
     } else if (sp2C0 == 0) {
         if (sp2F0 == 0) {
             if (sp30C == 0) {
-                var_19 = (BtlPacketTiming *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
+                animPacket = (BtlPacketTiming *)(func_0019a0c0((*( u8 ** )(arg0 + (0x30))), sp350));
             } else {
-                var_19 = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                animPacket = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
             }
-            var_19->queue = 0xB;
-            var_19->startTime = var_17_6->endTime;
-            if (temp_23_2 == 0) {
-                var_19->delay = sp440;
+            animPacket->queue = 0xB;
+            animPacket->startTime = var_17_6->endTime;
+            if (side == 0) {
+                animPacket->delay = sp440;
             } else {
-                var_19->delay = 8;
+                animPacket->delay = 8;
                 if (sp440 > 8) {
                     var_2_14 = sp440 - 8;
                 } else {
                     var_2_14 = 0;
                 }
-                var_19->duration = var_2_14;
+                animPacket->duration = var_2_14;
             }
-            var_19->ownerId = temp_16;
-            func_00194590((u8 *)var_19, 0);
+            animPacket->ownerId = actionId;
+            func_00194590((u8 *)animPacket, 0);
         } else {
             temp_2_139 = (BtlPacketTiming *)(func_0019a980((*( u8 ** )(arg0 + (0x30)))));
-            var_19 = (BtlPacketTiming *)(temp_2_139);
+            animPacket = (BtlPacketTiming *)(temp_2_139);
             temp_2_139->queue = 0xB;
             temp_2_139->startTime = var_17_6->endTime;
             temp_2_139->delay = sp440;
-            temp_2_139->ownerId = temp_16;
-            func_00194590((u8 *)var_19, 0);
+            temp_2_139->ownerId = actionId;
+            func_00194590((u8 *)animPacket, 0);
         }
     }
     temp_2_140 = (BtlPacketTiming *)(func_001b7e20(0x10));
     temp_2_140->queue = 4;
-    temp_2_140->startTime = var_19->endTime;
+    temp_2_140->startTime = animPacket->endTime;
     temp_2_140->flags = (u8)((u8) (temp_2_140->flags & 0xDF));
-    temp_2_140->ownerId = temp_16;
+    temp_2_140->ownerId = actionId;
     func_00194590((u8 *)temp_2_140, 1);
     if (sp310 != 0) {
         var_2_15 = 2;
@@ -6085,26 +6085,26 @@ reactionPacket:
     }
     temp_2_141 = (BtlPacketTiming *)(func_001b9360(0x10, (u16)var_2_15));
     temp_2_141->queue = 4;
-    temp_2_141->startTime = var_19->endTime;
+    temp_2_141->startTime = animPacket->endTime;
     temp_2_141->flags = (u8)((u8) (temp_2_141->flags & 0xDF));
-    temp_2_141->ownerId = temp_16;
+    temp_2_141->ownerId = actionId;
     func_00194590((u8 *)temp_2_141, 1);
     temp_2_142 = (BtlPacketTiming *)(func_001b99a0(0x10));
     temp_2_142->queue = 4;
-    temp_2_142->startTime = var_19->endTime;
+    temp_2_142->startTime = animPacket->endTime;
     temp_2_142->flags = (u8)((u8) (temp_2_142->flags & 0xDF));
-    temp_2_142->ownerId = temp_16;
+    temp_2_142->ownerId = actionId;
     func_00194590((u8 *)temp_2_142, 1);
     temp_2_143 = (BtlPacketTiming *)(func_001ba090(8));
     temp_2_143->queue = 4;
     temp_2_143->startTime = var_17_6->endTime;
     temp_2_143->flags = (u8)((u8) (temp_2_143->flags & 0xDF));
-    temp_2_143->ownerId = temp_16;
+    temp_2_143->ownerId = actionId;
     func_00194590((u8 *)temp_2_143, 0);
     if ((sp200 == 1) && ((s32)(s32)sp1F0 == 0) && ((s32)(s32)sp220 == 0)) {
         if (sp320 == 0) {
-            if (!((*( u16 * )((u8 *)(temp_30 + (s32)iGpffffb3bc) + (2))) & 0x40)) {
-                if (temp_23_2 == 0) {
+            if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
+                if (side == 0) {
                     var_2_16 = 0x19;
                 } else {
                     var_2_16 = 0x1A;
@@ -6112,34 +6112,34 @@ reactionPacket:
                 temp_2_144 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)var_2_16));
                 temp_2_144->queue = 5;
                 temp_2_144->startTime = sp470;
-                temp_2_144->ownerId = temp_16;
+                temp_2_144->ownerId = actionId;
                 func_00194590((u8 *)temp_2_144, 0);
             }
         } else {
             temp_2_145 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1D));
             temp_2_145->queue = 5;
             temp_2_145->startTime = sp470;
-            temp_2_145->ownerId = temp_16;
+            temp_2_145->ownerId = actionId;
             func_00194590((u8 *)temp_2_145, 0);
         }
         if (sp310 == 0) {
             temp_2_146 = (BtlPacketTiming *)(func_0019bbe0((*( u8 ** )(arg0 + (0x30))), -1, 0, 0xC, 3, 0));
             temp_2_146->queue = 0xB;
             temp_2_146->startTime = var_17_6->endTime;
-            temp_2_146->ownerId = temp_16;
+            temp_2_146->ownerId = actionId;
             func_00194590((u8 *)temp_2_146, 1);
         }
-        temp_2_147 = (BtlPacketTiming *)(func_0019bbe0(sp4D0, 0xFFFFFF, 8, 0, 4, 0));
+        temp_2_147 = (BtlPacketTiming *)(func_0019bbe0(linkedUnit, 0xFFFFFF, 8, 0, 4, 0));
         temp_2_147->queue = 0xB;
         temp_2_147->startTime = var_17_6->endTime;
         var_2_17 = (sp33C != 0 && (s32)sp1E0 != 0) ? 7 : 0xF;
         temp_2_147->delay = var_2_17;
-        temp_2_147->ownerId = temp_16;
+        temp_2_147->ownerId = actionId;
         func_00194590((u8 *)temp_2_147, 1);
-        temp_2_148 = (BtlPacketTiming *)(func_001d65d0((*( s32 * )(iGpffffb3ac + (0xD70))), (s32)sp4D0, sp400, 0, 0x2100));
+        temp_2_148 = (BtlPacketTiming *)(func_001d65d0((*( s32 * )(iGpffffb3ac + (0xD70))), (s32)linkedUnit, sp400, 0, 0x2100));
         temp_2_148->queue = 4;
         temp_2_148->startTime = sp480;
-        temp_2_148->ownerId = temp_16;
+        temp_2_148->ownerId = actionId;
         func_00194590((u8 *)temp_2_148, 2);
     }
     if (sp310 == 1) {
@@ -6147,17 +6147,17 @@ reactionPacket:
         temp_2_149->queue = 4;
         temp_2_149->startTime = var_17_6->endTime;
         temp_2_149->delay = 0xC;
-        temp_2_149->ownerId = temp_16;
+        temp_2_149->ownerId = actionId;
         func_00194590((u8 *)temp_2_149, 1);
         temp_2_150 = (BtlPacketTiming *)(func_00202850());
         temp_2_150->queue = 4;
-        temp_2_150->startTime = var_19->endTime;
+        temp_2_150->startTime = animPacket->endTime;
         temp_2_150->flags = (u8)((u8) (temp_2_150->flags & 0xDF));
-        temp_2_150->ownerId = temp_16;
+        temp_2_150->ownerId = actionId;
         func_00194590((u8 *)temp_2_150, 1);
     }
-    if (sp340 == 0) {
-        func_001d3e00(sp4A0);
+    if (actionFlag4000 == 0) {
+        func_001d3e00(formationHandle);
     }
     if ((s32)(s32)sp1D0 != 0) {
         u8 *partner = *(u8 **)(arg0 + 0x8C);
