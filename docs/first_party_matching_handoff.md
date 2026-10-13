@@ -156,6 +156,15 @@ Measured since the table (captures plus `regalloc_whatif`, all reproduced):
   missing object is `sp430`'s halfword: in the replay (r48, degree 89, score
   5) it never stays in the graph at a blocked point, even with score 0, so
   retail had more values live across its range.
+  Since `e4e11c75` (469: `u16 sp270 = (s16)sp450`, which neither copy
+  propagation nor CSE folds), adding `sp290 = (s32)(u32)sp450` to the
+  identity stack (`build/v/001a7720/S_290.c`) puts `temp_2_2` in `$s6` as
+  retail does and gives frame 0x5b0 with 47 structural diffs (fnalign 531;
+  186 edits are a -0x10 slot shift). `sp430` still gets `$s3`, the only
+  callee-saved colour its neighbours leave free (colouring is optimistic, so
+  extra degree alone never spills it); in retail `$s3` holds the packet
+  pointers there and `var_18` is `$s2`, i.e. one more call-crossing value is
+  live across `sp430`'s range.
   (3) `u16 sp3C0` matches retail's halfword counter, but the shared
   `(s32)sp3C0` CSE temp adds a quadword (frame 0x5c0). (4) retail spills
   `sp430` (s16); in ours it is a low-degree node (spill score is irrelevant),
