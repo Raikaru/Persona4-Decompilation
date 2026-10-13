@@ -5397,7 +5397,7 @@ void func_001a7720(u8 *arg0) {
             if ((targetHitValue != 0) && ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) != (s32)((*( u8 * )((u8 *)(*(u8 **)(effectiveAction + 0x30)) + (0xA2)))))) {
                 crossSideHits += 1;
             }
-            if ((*( s32 * )((u8 *)(((s32)(targetAction) + (rowHitCount << 5))) + (0xD8))) & 0x100000) {
+            if ((*( s32 * )((u8 *)(((s32)(targetAction) + ((u32)rowHitCount << 5))) + (0xD8))) & 0x100000) {
                 statusHits += 1;
                 statusMask |= *(u16 *)(targetAction + 0xDE);
             }
@@ -5608,7 +5608,7 @@ void func_001a7720(u8 *arg0) {
             hitDelayS32 = hitDelay + 0x2B;
             while ((hitIndexS32 = (s32) hitIndex) < (s32)rowHitCount) {
                 motionSpeed = 1.0f;
-                                hitRow = (ActionHitRowView *)(targetAction + (hitIndex << 5));
+                                hitRow = (ActionHitRowView *)(targetAction + ((u32)hitIndex << 5));
                 /* The two later predicates reload the signed byte after intervening calls. */
                 hitMotion = &hitRow->result.motion;
                 if (hitRow->result.motion == 9) {
@@ -5764,7 +5764,7 @@ void func_001a7720(u8 *arg0) {
                 }
                 if (hitIndexS32 == (s32)((*(u8 *)(targetAction + 0xD9) - 1))) {
                     if ((act->fieldEC != 0) && !(act->fieldD8 & 1)) {
-                        hitRowWord = (s32)((*( s32 * )((u8 *)(((s32)(arg0) + (hitIndex << 5))) + (0x104))));
+                        hitRowWord = (s32)((*( s32 * )((u8 *)(((s32)(arg0) + ((u32)hitIndex << 5))) + (0x104))));
                         if (hitRowWord != 0) {
                             func_00216da0(*(s32 *)(iGpffffb3ac + 0xC60), func_0043c6a0(hitRowWord));
                         }
@@ -5837,7 +5837,7 @@ void func_001a7720(u8 *arg0) {
                     hitDelayS16 = (s16)hitDelayS32;
                     func_001f0a10((u8 *)&result);
                     result.hpDelta = *hpTransfer;
-                    result.spDelta = (s32) *(s16 *)(targetAction + (hitIndex << 5) + 0x10A);
+                    result.spDelta = (s32) *(s16 *)(targetAction + ((u32)hitIndex << 5) + 0x10A);
                     pkt120 = (BtlPacketTiming *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
                     pkt120->queue = 4;
                     pkt120->startTime = animPacket->endTime;
