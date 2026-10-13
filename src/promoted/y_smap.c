@@ -222,10 +222,10 @@ s32 func_002ac740(void) {
  * fnalign 294 -> 291: two more coordinate sites remask the u8 parameter (retail andi at each use).
  * fnalign 291 -> 290: the search calls read the parameters directly, so b210 hoists the x snapshot
  * (frame 0x160; retail 0x190 also spills the hoisted y and the row result).
- * measured (d7d2f766, reverted for fnalign): per-phase u16/u32/int coordinate conversions reproduce
- * retail's remasks and the 0x190 frame (structural diff 50 -> 32) but fnalign 397. Residual is the spill
- * set: retail keeps a separate sp180 = temp_18 copy (b210 coalesces any non-interfering copy, 0x004be880)
- * and the anchors score 4 (shared across both searches); no natural spelling kept the copy.
+ * measured (d7d2f766, reverted for fnalign): per-phase u16/u32/int coordinate conversions recover
+ * more retail remasks and frame 0x190 (structural diff 50 -> 32), but fnalign 397; the spill set differed.
+ * A native capture now shows that post-colour CSE can replace a fresh row mask with the entry row.
+ * Thus the move into retail sp180 does not, by itself, establish a separate source-level copy.
  * 2026-10-13: the shared masks are frontend CSE shadows (compiler locals r170/r171 holding (s32)arg0/arg1
  * at codegen entry). opt_common_subs off reproduces retail's entry exactly (raw a0/a1 in s4/s3, remask
  * at each use) but also drops the backend's per-call constant sharing (move t0,a2) that retail keeps
@@ -236,6 +236,7 @@ s32 func_002ac740(void) {
  * Dual micro (build/micro_src/pp_*.c): no single opt_ pragma removes the mask shadow while keeping
  * the backend's call-constant sharing; stores, calls and every mask/cast/parameter-type spelling
  * leave the shadow in place (mk_*.c). Only asm store statements kill frontend-CSE availability.
+ * measured: fnalign 290 -> 217, frame 0x190; shared room phase and reused working coordinates.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -268,29 +269,108 @@ static inline u8 *smapRevealOffsetPtr(u32 offset, u8 *base) {
 
 #pragma push
 #pragma opt_loop_invariants on
+static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
+                                          s32 cellRowOffset, s32 cellColumnOffset,
+                                          s32 *anchorColumn, s32 *anchorRow) {
+    extern s32 func_002b2d00(s32, s32, s32, s32, s8);
+    s32 rowCounter;
+    s32 rowStep;
+    s32 columnCounter;
+    s32 columnStep;
+    s32 savedRow;
+    s32 savedColumn;
+    s32 cellOffset;
+    s32 candidateRow;
+    s32 candidateColumn;
+    s32 candidateRowOffset;
+    s32 candidateColumnOffset;
+    u8 kind;
+    u8 orientation;
+
+    rowCounter = 0;
+    savedRow = row;
+    savedColumn = column;
+    cellOffset = cellRowOffset + cellColumnOffset;
+    while ((rowStep = (s16)rowCounter) < extent) {
+        candidateRow = (s8)func_002b2d00(savedRow, rowStep, 1, 0x18, 1);
+        columnCounter = 0;
+        candidateRowOffset = candidateRow << 8;
+        while ((columnStep = (s16)columnCounter) < extent) {
+            candidateColumn = (s8)func_002b2d00(savedColumn, columnStep, 1, 0x10, 1);
+            candidateColumnOffset = candidateColumn * 0x10;
+            if ((SMAP_GRID_SCAN_AT(candidateRowOffset, candidateColumnOffset)->reveal & 0xF) == 1) {
+                kind = SMAP_GRID_SCAN_AT(candidateRowOffset, candidateColumnOffset)->kind;
+                if (kind == SMAP_GRID_OFFSET_AT(cellOffset)->kind) {
+                    *anchorColumn = (s8)(s64)candidateColumn;
+                    *anchorRow = (s8)(s64)candidateRow;
+                    break;
+                }
+            }
+            columnCounter = (s16)(columnCounter + 1);
+        }
+        rowCounter = (s16)(rowCounter + 1);
+    }
+    orientation = SMAP_GRID_CELL_AT(cellRowOffset, cellColumnOffset)->orientation;
+    switch (orientation) {
+    case 0:
+    case 2: {
+        s32 step;
+        s32 rowDelta;
+        s32 firstRow;
+        u16 revealColumn;
+        u8 revealKind;
+        u16 *visibility;
+
+        step = 0;
+        firstRow = (s8)*anchorRow;
+        revealColumn = column;
+        while ((rowDelta = (s16)step) < extent) {
+            revealKind = SMAP_GRID_SCAN_AT(revealColumn * 0x10, (firstRow + rowDelta) << 8)->kind;
+            if (revealKind == SMAP_GRID_OFFSET_AT(cellOffset)->kind) {
+                visibility = (u16 *)((u8 *)smapRevealOffsetPtr(firstRow * 2, (u8 *)D_00764658) + rowDelta * 2);
+                *visibility |= (1 << savedColumn) & 0xFFFF & 0xFFFF;
+            }
+            step = (s16)(step + 1);
+        }
+        return;
+    }
+    case 1:
+    case 3: {
+        s32 step;
+        s32 columnDelta;
+        s32 revealColumn;
+        u16 revealRow;
+        u8 revealKind;
+        u16 *visibility;
+
+        step = 0;
+        revealRow = row;
+        while ((columnDelta = (s16)step) < extent) {
+            revealColumn = (s8)*anchorColumn + columnDelta;
+            revealKind = SMAP_GRID_SCAN_AT(revealRow << 8, revealColumn * 0x10)->kind;
+            if (revealKind == SMAP_GRID_OFFSET_AT(cellOffset)->kind) {
+                visibility = (u16 *)((revealRow * 2) + (u32)D_00764658);
+                *visibility |= (1 << revealColumn) & 0xFFFF;
+            }
+            step = (s16)(step + 1);
+        }
+        return;
+    }
+    }
+}
+
 void func_002ac750(u8 arg0, u8 arg1) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern s64 func_002adcf0(u8);
     s32 sp180;
-    s32 sp170;
     s32 sp160;
-    s32 sp150;
     s32 sp140;
-    s32 sp130;
-    s32 sp120;
-    s32 sp110;
-    s32 spE0;
-    s32 spD0;
-    s32 spC0;
-    s32 spB0;
     s32 temp_16;
     s32 temp_17;
-    s32 temp_17_2;
-    s32 temp_18;
+    u32 temp_18;
     s32 temp_18_2;
     s32 temp_18_4;
     s32 temp_18_6;
-    s32 temp_18_7;
     s32 temp_19;
     s32 temp_19_2;
     s32 temp_19_3;
@@ -298,14 +378,10 @@ void func_002ac750(u8 arg0, u8 arg1) {
     s32 temp_21_3;
     s32 temp_22;
     s32 temp_22_3;
-    s32 temp_23;
     s32 temp_23_3;
     s32 temp_23_4;
     s32 temp_23_5;
     s32 temp_23_6;
-    s32 temp_30;
-    s16 temp_3_4;
-    s32 temp_3_9;
     u16 temp_4_19;
     s16 temp_5_10;
     s32 temp_5_5;
@@ -318,50 +394,29 @@ void func_002ac750(u8 arg0, u8 arg1) {
     s32 temp_7;
     s32 temp_7_2;
     s32 temp_7_3;
-    s32 temp_16_2;
     s32 temp_16_3;
-    s32 temp_16_5;
     s32 temp_16_6;
     s32 temp_16_7;
-    s32 temp_18_3;
     s32 temp_18_5;
     s32 temp_18_8;
     s32 temp_18_9;
-    s32 temp_19_5;
     s32 temp_19_6;
     s32 temp_19_7;
     s32 temp_20_3;
     s32 temp_21_5;
     s32 temp_22_2;
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 temp_2_6;
-    s32 temp_2_7;
-    s32 temp_4_10;
-    s32 temp_4_34;
     s32 temp_4_38;
     s32 temp_5_4;
-    s32 var_16;
-    s32 var_16_2;
     s32 var_16_3;
     s32 var_16_4;
-    s32 var_17;
     s32 var_17_2;
-    s32 var_17_3;
     s32 var_17_4;
     s32 var_17_5;
-    s32 searchRowStep2;
-    s32 searchColumnStep2;
-    s32 var_18;
-    /* Retail retains stale origin coordinates if neither search finds an anchor. */
-    s32 var_21;
-    s32 var_21_2;
-    s32 var_22;
-    s32 searchRowStep3;
-    s32 searchColumnStep3;
-    s32 var_22_2;
-    s32 var_23;
-    s32 var_30;
+    /* Shared by the exclusive room-search and square-scan phases.
+     * Retail leaves both coordinates stale if a search finds no anchor. */
+    s32 workingRow;
+    /* Room anchor column, or the kind-7/8 rectangle's upper column bound. */
+    s32 columnReference;
     s32 var_4;
     s32 var_4_2;
     u16 *temp_3;
@@ -371,7 +426,6 @@ void func_002ac750(u8 arg0, u8 arg1) {
     u16 *temp_3_3;
     u16 *temp_3_5;
     u16 *temp_3_7;
-    u16 *temp_4_11;
     u16 *temp_4_12;
     u16 *temp_4_13;
     u16 *temp_4_15;
@@ -383,7 +437,6 @@ void func_002ac750(u8 arg0, u8 arg1) {
     u16 *temp_4_28;
     u16 *temp_4_2;
     u16 *temp_4_30;
-    u16 *temp_4_35;
     u16 *temp_4_37;
     u16 *temp_4_39;
     u16 *temp_4_3;
@@ -391,22 +444,12 @@ void func_002ac750(u8 arg0, u8 arg1) {
     u16 *temp_4_5;
     u16 *temp_4_7;
     u16 *temp_4_8;
-    u16 *temp_5_13;
-    u16 *temp_5_3;
-    u8 temp_20_2;
-    u8 temp_21_2;
-    u8 temp_21_6;
     u8 temp_22_4;
-    u8 temp_22_5;
     u8 temp_23_2;
-    u8 temp_2_4;
     u8 temp_2_5;
-    u8 temp_2_9;
     u8 temp_3_6;
     u8 temp_4;
-    u8 temp_4_33;
     u8 temp_4_6;
-    u8 temp_4_9;
     u8 *temp_4_17;
     u8 *temp_4_18;
     u8 *temp_4_22;
@@ -416,9 +459,9 @@ void func_002ac750(u8 arg0, u8 arg1) {
     u8 *temp_4_31;
     u8 *temp_4_32;
 
-    temp_18 = (arg1 & 0xFF);
+    temp_18 = arg1;
     temp_17 = temp_18 << 8;
-    temp_16 = ((s32)arg0) * 0x10;
+    temp_16 = ((u32)arg0) * 0x10;
     if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 7) {
         temp_4 = SMAP_GRID_CELL_AT(temp_17, temp_16)->kind;
         if (temp_4 == 2) {
@@ -477,60 +520,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
                         }
                     }
                 } else {
-                    var_18 = 0;
-                    sp150 = (s32)arg0;
-                    temp_23 = temp_17 + temp_16;
-                    while ((searchRowStep2 = (s16)var_18) < 2) {
-                        temp_2 = (s8)func_002b2d00(arg1, searchRowStep2, 1, 0x18, 1);
-                        sp140 = temp_2;
-                        var_22 = 0;
-                        sp130 = temp_2 << 8;
-                        while ((searchColumnStep2 = (s16)var_22) < 2) {
-                            temp_2_2 = (s8)func_002b2d00(arg0, searchColumnStep2, 1, 0x10, 1);
-                            sp120 = temp_2_2;
-                            sp110 = temp_2_2 * 0x10;
-                            if ((SMAP_GRID_SCAN_AT(sp130, sp110)->reveal & 0xF) == 1) {
-                                temp_2_4 = SMAP_GRID_SCAN_AT(sp130, sp110)->kind;
-                                if (temp_2_4 == SMAP_GRID_OFFSET_AT(temp_23)->kind) {
-                                    var_30 = (s8)(s64)sp120;
-                                    var_21 = (s8)(s64)sp140;
-                                    break;
-                                }
-                            }
-                            var_22 = (s16)(var_22 + 1);
-                        }
-                        var_18 = (s16)(var_18 + 1);
-                    }
-                    temp_4_9 = SMAP_GRID_CELL_AT(temp_17, temp_16)->orientation;
-                    switch (temp_4_9) {             /* switch 1; irregular */
-                    case 0:                         /* switch 1 */
-                    case 2:                         /* switch 1 */
-                        var_17 = 0;
-                        temp_16_2 = ((s8)(var_21));
-                        while ((temp_18_3 = ((s16)(var_17))) < 2) {
-                            temp_21_2 = SMAP_GRID_SCAN_AT((arg0 & 0xFF) * 0x10, (temp_16_2 + temp_18_3) << 8)->kind;
-                            if (temp_21_2 == SMAP_GRID_OFFSET_AT(temp_23)->kind) {
-                                temp_5_3 = (u16 *)((u8 *)smapRevealOffsetPtr(temp_16_2 * 2, (u8 *)D_00764658) + (temp_18_3 * 2));
-                                *temp_5_3 |= (1 << sp150) & 0xFFFF & 0xFFFF;
-                            }
-                            var_17 = ((s16)((var_17 + 1)));
-                        }
-                        return;
-                    case 1:                         /* switch 1 */
-                    case 3:                         /* switch 1 */
-                        var_16 = 0;
-                        temp_3_4 = (s32)arg1;
-                        while ((temp_4_10 = ((s16)(var_16))) < 2) {
-                            temp_17_2 = ((s8)(var_30)) + temp_4_10;
-                            temp_20_2 = SMAP_GRID_SCAN_AT((temp_3_4 << 8), (temp_17_2 * 0x10))->kind;
-                            if (temp_20_2 == SMAP_GRID_OFFSET_AT(temp_23)->kind) {
-                                temp_4_11 = (u16 *)((temp_3_4 * 2) + (u32)D_00764658);
-                                *temp_4_11 |= (1 << temp_17_2) & 0xFFFF;
-                            }
-                            var_16 = ((s16)((var_16 + 1)));
-                        }
-                        return;
-                    }
+                    smapRevealRoomFootprint(arg0, arg1, 2, temp_17, temp_16, &columnReference, &workingRow);
+                    return;
                 }
             } else if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_4_12 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
@@ -543,8 +534,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
     } else if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 9) {
         temp_3_5 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
         *temp_3_5 |= (1 << ((s32)arg0)) & 0xFFFF;
-        temp_30 = ((s32)arg0) + 2;
-        temp_22_2 = ((s8)(func_002b2d00(((s32)arg0), 1, 1, temp_30, 1)));
+        columnReference = ((s32)arg0) + 2;
+        temp_22_2 = ((s8)(func_002b2d00(((s32)arg0), 1, 1, columnReference, 1)));
         temp_18_4 = temp_18 << 8;
         temp_21_3 = temp_22_2 * 0x10;
         temp_23_2 = SMAP_GRID_CELL_AT(temp_18_4, temp_21_3)->kind;
@@ -583,7 +574,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
             (*( u16 * )((u8*)(temp_4_23) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_23) + (2))) | temp_5_7);
             return;
         }
-        temp_21_5 = ((s8)(func_002b2d00((arg0 & 0xFF), 1, 1, temp_30, 1)));
+        temp_21_5 = ((s8)(func_002b2d00((arg0 & 0xFF), 1, 1, columnReference, 1)));
         temp_20_3 = ((s8)(func_002b2d00((arg1 & 0xFF), 1, 1, temp_23_3, 1)));
         temp_19_3 = temp_20_3 << 8;
         temp_18_6 = ((s8)(temp_21_5)) * 0x10;
@@ -615,11 +606,11 @@ void func_002ac750(u8 arg0, u8 arg1) {
                 temp_3_7 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_3_7 |= (1 << ((s32)arg0)) & 0xFFFF;
                 temp_16_3 = ((s8)(func_002b2d00(((s32)arg0), 1, 0, 0, 1)));
-                var_21_2 = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
+                workingRow = ((s8)(func_002b2d00(temp_18, 1, 0, 0, 1)));
                 sp140 = 0;
                 while (((s16)(sp140)) < 3) {
                     var_17_2 = 0;
-                    sp180 = ((s8)(var_21_2));
+                    sp180 = ((s8)(workingRow));
                     while ((sp160 = ((s16)(var_17_2))) < 3) {
                         temp_23_4 = func_002b2cb0((((s8)(temp_16_3))), sp160, 0x10, 0, 1) * 0x10;
                         if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT((sp180 << 8), temp_23_4)->reveal))) == 2) {
@@ -627,7 +618,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                         }
                         var_17_2 = ((s16)((var_17_2 + 1)));
                     }
-                    var_21_2 = ((s8)(func_002b2cb0(sp180, 1, 0x18, 0, 1)));
+                    workingRow = ((s8)(func_002b2cb0(sp180, 1, 0x18, 0, 1)));
                     sp140 = ((s16)((sp140 + 1)));
                 }
                 return;
@@ -646,60 +637,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     (*( u16 * )((u8*)(temp_4_32) + (4))) = (u16) ((*( u16 * )((u8*)(temp_4_32) + (4))) | ((1 << ((s32)arg0)) & 0xFFFF));
                     return;
                 }
-                sp180 = temp_18;
-                sp170 = (s32)arg0;
-                temp_18_7 = temp_17 + temp_16;
-                var_22_2 = 0;
-                while ((searchRowStep3 = (s16)var_22_2) < 3) {
-                    temp_2_6 = (s8)func_002b2d00(sp180, searchRowStep3, 1, 0x18, 1);
-                    spE0 = temp_2_6;
-                    var_23 = 0;
-                    spD0 = temp_2_6 << 8;
-                    while ((searchColumnStep3 = (s16)var_23) < 3) {
-                        temp_2_7 = (s8)func_002b2d00(sp170, searchColumnStep3, 1, 0x10, 1);
-                        spC0 = temp_2_7;
-                        spB0 = temp_2_7 * 0x10;
-                        if ((SMAP_GRID_SCAN_AT(spD0, spB0)->reveal & 0xF) == 1) {
-                            temp_2_9 = SMAP_GRID_SCAN_AT(spD0, spB0)->kind;
-                            if (temp_2_9 == SMAP_GRID_OFFSET_AT(temp_18_7)->kind) {
-                                var_30 = (s8)(s64)spC0;
-                                var_21 = (s8)(s64)spE0;
-                                break;
-                            }
-                        }
-                        var_23 = (s16)(var_23 + 1);
-                    }
-                    var_22_2 = (s16)(var_22_2 + 1);
-                }
-                temp_4_33 = SMAP_GRID_CELL_AT(temp_17, temp_16)->orientation;
-                switch (temp_4_33) {                /* switch 3; irregular */
-                case 0:                             /* switch 3 */
-                case 2:                             /* switch 3 */
-                    var_17_3 = 0;
-                    temp_16_5 = ((s8)(var_21));
-                    while ((temp_19_5 = ((s16)(var_17_3))) < 3) {
-                        temp_22_5 = SMAP_GRID_SCAN_AT((((s32)arg0) * 0x10), ((temp_16_5 + temp_19_5) << 8))->kind;
-                        if (temp_22_5 == SMAP_GRID_OFFSET_AT(temp_18_7)->kind) {
-                            temp_5_13 = (u16 *)((u8 *)((temp_16_5 * 2) + (u32)D_00764658) + (temp_19_5 * 2));
-                            *temp_5_13 |= (1 << sp170) & 0xFFFF & 0xFFFF;
-                        }
-                        var_17_3 = ((s16)((var_17_3 + 1)));
-                    }
-                    return;
-                case 1:                             /* switch 3 */
-                case 3:                             /* switch 3 */
-                    var_16_2 = 0;
-                    temp_3_9 = arg1 & 0xFF;
-                    while ((temp_4_34 = ((s16)(var_16_2))) < 3) {
-                        temp_21_6 = SMAP_GRID_SCAN_AT((temp_3_9 << 8), ((((s8)(var_30)) + temp_4_34) * 0x10))->kind;
-                        if (temp_21_6 == SMAP_GRID_OFFSET_AT(temp_18_7)->kind) {
-                            temp_4_35 = (u16 *)((temp_3_9 * 2) + (u32)D_00764658);
-                            *temp_4_35 |= (1 << (((s8)(var_30)) + temp_4_34)) & 0xFFFF;
-                        }
-                        var_16_2 = ((s16)((var_16_2 + 1)));
-                    }
-                    return;
-                }
+                smapRevealRoomFootprint(arg0, arg1, 3, temp_17, temp_16, &columnReference, &workingRow);
+                return;
             } else if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_3_10 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_3_10 |= (1 << ((s32)arg0)) & 0xFFFF;
