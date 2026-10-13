@@ -4331,6 +4331,7 @@ void func_001a7720(u8 *arg0) {
     s32 actionFlag4000;
     s32 rotateFirst;
     s32 randomFlag;
+    /* 0/1 phase flags; named by their retail stack slot. */
     s32 sp310;
     s32 sp30C;
     s32 sp2F0;
@@ -4353,7 +4354,7 @@ void func_001a7720(u8 *arg0) {
     s32 skillSpecial;
     s32 hasCutinPartner;
     s32 bossCheck;
-    s32 sp1B0;
+    s32 hitModeDelay;
     s32 isSkill16;
     s64 formationEndTime2;
     s32 hitDelta;
@@ -4733,15 +4734,15 @@ void func_001a7720(u8 *arg0) {
     } else {
         hitMode = 1;
     }
-    sp1B0 = (s16)hitMode;
+    hitModeDelay = (s16)hitMode;
     if ((s32)(s32)isKind3 == 0) {
         pkt11 = (BtlPacketTiming *)(func_00202010(act->unit, (u16) skill));
-        pkt11->delay = (s16) sp1B0;
+        pkt11->delay = (s16) hitModeDelay;
         pkt11->ownerId = actionId;
         func_00194590((u8 *)pkt11, 3);
     } else {
         pkt12 = (BtlPacketTiming *)(func_00202120(*(u32 *)(arg0 + 0x30), act->field70));
-        pkt12->delay = (s16) sp1B0;
+        pkt12->delay = (s16) hitModeDelay;
         pkt12->ownerId = actionId;
         func_00194590((u8 *)pkt12, 3);
     }
