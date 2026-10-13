@@ -1970,6 +1970,10 @@ query_complete:
  * sqrt result r176 is numbered anywhere before the inline 0.0f r175, i.e. when
  * temp_v11_a survives copy propagation; a radius-test inline helper (copy use)
  * booleanises the test (70).
+ * Micro (build/micro_src/fq*.c, p_*.c) reproduces the zero-before-sqrt order. The FPR local keeps its
+ * declared number only when its own definition is conditional (d = 0; if (c) d = sqrtf(...)).
+ * A copy use or a conditional definition in another web of the same variable, a separate sum,
+ * operand order, an address-of store and a (f32) cast all leave the sqrt result as a temp.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
