@@ -244,6 +244,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 154 -> 146; form vertical footprint addresses directly from the signed-byte anchor.
  * measured: fnalign 146 -> 142; likewise form the horizontal cell address and reveal bit from the anchor.
  * measured: fnalign 142 -> 115; kinds 13/14 use a single-case early-return guard, not a switch.
+ * measured: fnalign 115 -> 112; reveal the current cell before preparing the cached neighbor-row offset.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -422,7 +423,6 @@ void func_002ac750(u8 arg0, u8 arg1) {
     s32 columnReference;
     s32 var_4;
     s32 var_4_2;
-    u16 *temp_3;
     u16 *temp_3_10;
     u16 *temp_3_12;
     u16 *temp_3_2;
@@ -471,9 +471,8 @@ void func_002ac750(u8 arg0, u8 arg1) {
             if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
                 if ((SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal & 0xF) == 1) {
                     temp_20 = (s32)arg0;
+                    *(u16 *)((u8 *)D_00764658 + temp_18 * 2) |= ((1 << temp_20) & 0xFFFF);
                     temp_18_2 = temp_18 * 2;
-                    temp_3 = (u16 *)((u8 *)D_00764658 + temp_18_2);
-                    *temp_3 |= ((1 << temp_20) & 0xFFFF);
                     temp_19 = (s32)arg1;
                     temp_22 = temp_19 << 8;
                     if ((SMAP_GRID_NEIGHBOR_AT(temp_22, temp_16, -16)->kind == 2) && (SMAP_GRID_CELL_AT(temp_17, temp_16)->walls & 1)) {
