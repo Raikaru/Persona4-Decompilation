@@ -4430,12 +4430,11 @@ void func_001a7720(u8 *arg0) {
     s32 motionIdRaw;
     s32 hitMode;
     s8 unitSide;
-    u32 temp_2_97;
-    u16 temp_3_21;
-    u16 temp_3_2;
-    u32 temp_4;
-    u32 temp_4_18;
-    u8 temp_3_19;
+    u32 motionFramesCopy;
+    u16 flagsSnapshot;
+    u32 flags1ASnapshot;
+    u32 statusTotal2;
+    u8 stateBitsCopy;
     s32 hitSide;
     BtlPacketTiming *animPkt17;
     u8 *unit;
@@ -4457,7 +4456,7 @@ void func_001a7720(u8 *arg0) {
     BtlPacketTiming *pkt115;
     BtlPacketTiming *pkt116;
     BtlPacketTiming *soundPkt117;
-    u8 *temp_2_118;
+    u8 *hitRowBase;
     BtlPacketTiming *hitPkt119;
     BtlPacketTiming *pkt11;
     BtlPacketTiming *pkt120;
@@ -4499,8 +4498,8 @@ void func_001a7720(u8 *arg0) {
     BtlPacketTiming *formationPkt18;
     BtlPacketTiming *pkt19;
     BtlPacketTiming *pkt20;
-    u8 *temp_2_21;
-    u8 *temp_2_22;
+    u8 *linkedMotionPkt;
+    u8 *waitPkt22;
     BtlPacketTiming *waitPkt23;
     BtlPacketTiming *effectPkt24;
     BtlPacketTiming *soundPkt25;
@@ -4670,12 +4669,12 @@ void func_001a7720(u8 *arg0) {
             break;
         }
     }
-    temp_4 = (u16)(act->flags1A);
-    if (!(temp_4 & 1)) {
+    flags1ASnapshot = (u16)(act->flags1A);
+    if (!(flags1ASnapshot & 1)) {
         pendingFollow = 0;
     } else {
         UnitPartnerView *partner = (*(UnitPartnerView **)(arg0 + 0x30))->partner;
-        if (!(temp_4 & 0x10)) {
+        if (!(flags1ASnapshot & 0x10)) {
             pendingFollow = 0;
         } else if (partner->flags98 & 2) {
             pendingFollow = 1;
@@ -4757,10 +4756,10 @@ void func_001a7720(u8 *arg0) {
                         *(s32 *)(btlState3_43 + 0x10) = (s32) (*(s32 *)(btlState3_43 + 0x10) & ~0x1000);
                     }
                 } else if ((side == 1) && (*(s32 *)(iGpffffb3ac + 0x10) & 0x800)) {
-                    temp_3_2 = (u16)(act->flags);
-                    if (!(temp_3_2 & 0x40)) {
+                    flagsSnapshot = (u16)(act->flags);
+                    if (!(flagsSnapshot & 0x40)) {
                         hasCutin = 1;
-                        act->flags = (u16) (temp_3_2 | 0x40);
+                        act->flags = (u16) (flagsSnapshot | 0x40);
                     }
                 }
             }
@@ -4893,16 +4892,16 @@ void func_001a7720(u8 *arg0) {
                     (*( s8 * )((u8 *)pkt20 + (0x20))) = 5;
                     (*( s64 * )((u8 *)pkt20 + (0x28))) = formationEndTime;
                 } else {
-                    temp_2_21 = (u8 *)(func_0019b550(linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0xD));
-                    animChainPkt = (BtlPacketTiming *)(temp_2_21);
-                    *(s16 *)(temp_2_21 + 0x48) = recoveryFrames;
+                    linkedMotionPkt = (u8 *)(func_0019b550(linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0xD));
+                    animChainPkt = (BtlPacketTiming *)(linkedMotionPkt);
+                    *(s16 *)(linkedMotionPkt + 0x48) = recoveryFrames;
                 }
                 animChainPkt->ownerId = actionId;
                 func_00194590((u8 *)animChainPkt, 1);
             } else {
-                temp_2_22 = (u8 *)(func_00194b60());
-                animChainPkt = (BtlPacketTiming *)(temp_2_22);
-                *(s16 *)(temp_2_22 + 0x48) = recoveryFrames;
+                waitPkt22 = (u8 *)(func_00194b60());
+                animChainPkt = (BtlPacketTiming *)(waitPkt22);
+                *(s16 *)(waitPkt22 + 0x48) = recoveryFrames;
                 func_00194590((u8 *)animChainPkt, 0);
             }
             waitPkt23 = (BtlPacketTiming *)(func_00194b60());
@@ -5624,9 +5623,9 @@ void func_001a7720(u8 *arg0) {
                 hitMotion = &hitRow->result.motion;
                 if (hitRow->result.motion == 9) {
                     motionFrames = (u16)func_00199350(*(u8 **)((u8 *)effectiveAction + 0x30), 9, motionSpeed);
-                    temp_2_97 = motionFrames;
-                    if (((s32) temp_2_97 > 0) && ((s32) temp_2_97 < 0xA)) {
-                        motionFramesF = (f32) temp_2_97;
+                    motionFramesCopy = motionFrames;
+                    if (((s32) motionFramesCopy > 0) && ((s32) motionFramesCopy < 0xA)) {
+                        motionFramesF = (f32) motionFramesCopy;
                         motionSpeed = motionFramesF / 10.0f;
                         motionFrames = 0xA;
                     }
@@ -5835,8 +5834,8 @@ void func_001a7720(u8 *arg0) {
                 if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x40) {
                     sp2E0 = 1;
                 }
-                temp_2_118 = (u8 *)((s32)(targetAction) + (hitIndex << 5));
-                hitRowAddr = (s32) temp_2_118;
+                hitRowBase = (u8 *)((s32)(targetAction) + (hitIndex << 5));
+                hitRowAddr = (s32) hitRowBase;
                 hitPkt119 = (BtlPacketTiming *)(func_00201de0((s32)(act->unit), (s32)(*(u8 **)(effectiveAction + 0x30)), skillS32, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE), hitIndex, rowHitCount, hitResultPtr, 0));
                 hitPkt119->queue = 5;
                 hitPkt119->startTime = animPacket->endTime;
@@ -5844,8 +5843,8 @@ void func_001a7720(u8 *arg0) {
                 hitPkt119->flags = (u8) (hitPkt119->flags & 0xDF);
                 hitPkt119->ownerId = actionId;
                 func_00194590((u8 *)hitPkt119, 3);
-                hpTransfer = (s16 *)(temp_2_118 + 0x108);
-                if ((*(s16 *)(temp_2_118 + 0x108) > 0) || (hitRow->result.spTransfer > 0)) {
+                hpTransfer = (s16 *)(hitRowBase + 0x108);
+                if ((*(s16 *)(hitRowBase + 0x108) > 0) || (hitRow->result.spTransfer > 0)) {
                     hitDelayS16 = (s16)hitDelayS32;
                     func_001f0a10((u8 *)&result);
                     result.hpDelta = *hpTransfer;
@@ -5906,9 +5905,9 @@ void func_001a7720(u8 *arg0) {
                     if (*(s16 *)(btlState17 + 0xA70) != -1) {
                         statusRemaining = (s16)(statusTotal - crossSideHits);
                         if (statusRemaining <= 0) {
-                            temp_4_18 = (u32)((u16)func_001ef720(2, 0x80000));
+                            statusTotal2 = (u32)((u16)func_001ef720(2, 0x80000));
                             btlState18 = (u8 *)(iGpffffb3ac);
-                            if (((u32)(*(s16 *)(btlState18 + 0xA72) >> 1) >= temp_4_18) && (lastActor = *(s16 *)(btlState18 + 0xA70), (lastActor != func_001d15a0()))) {
+                            if (((u32)(*(s16 *)(btlState18 + 0xA72) >> 1) >= statusTotal2) && (lastActor = *(s16 *)(btlState18 + 0xA70), (lastActor != func_001d15a0()))) {
                                 chanceMiss = 1;
                             } else {
                                 goto block_406;
@@ -5942,7 +5941,7 @@ reactionPacket:
                 func_00194590((u8 *)pkt125, 1);
             }
         }
-    } else if ((statusHits > 0) && (temp_3_19 = act->stateBits, ((temp_3_19 & 1) != 0)) && !(temp_3_19 & 2) && ((s64)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) == (s64)(0))) {
+    } else if ((statusHits > 0) && (stateBitsCopy = act->stateBits, ((stateBitsCopy & 1) != 0)) && !(stateBitsCopy & 2) && ((s64)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) == (s64)(0))) {
         pkt127 = (BtlPacketTiming *)(func_001f5f70(arg0, 0x18, (s32) statusMask, statusHits, 0));
         pkt127->queue = 5;
         pkt127->startTime = lateChainTime;
