@@ -2613,13 +2613,10 @@ void func_00320970(u8 *arg0, s8 arg1) {
  * fnalign 3: a second (s16)row use in the loop-top block (`(s16)(row * 2)`)
  * makes IRO_CommonSubs extend row at the loop top instead of reusing the loop
  * test's extension for `rowIndex`; the else-arm delay uses `rowIndex` too.
- * `savedMode = entryMode` ahead of `!entryMode` leaves spill score 2, so
- * b210 spills savedMode to 0xD0 (score 3 spills rowY/refreshRowState instead).
- * Open: retail tests the extended byte and spills mode as a 4-byte word
- * (`sw`); ours tests $a1 directly and spills a 16-byte temp (`sq`/`lq`).
- * whatif on the score-3 graph: no single score or +/-1 degree change (or
- * mixed pair) gives retail's colours with mode at score 3; mode at score 2
- * does exactly, so retail's mode reaches the loop as its own variable.
+ * The earlier single-mode spelling had spill score 2, but lost the declared
+ * word local and used sq/lq. Testing the promoted mode instead raises its
+ * score to 3 and spills rowY/refreshRowState in that graph. Lowering mode's
+ * score to 2 is one sufficient model solution, not proof of retail's source.
  * 2026-10-12: `if (entryMode == 0)` then `savedMode = entryMode;` plus a
  * statement `entryMode = row;` feeding the call gives the entry and word spill
  * exactly (the merged entry node r57 spills once the s8 copy adds one
@@ -2638,8 +2635,11 @@ void func_00320970(u8 *arg0, s8 arg1) {
  * copy use that would retain the word local; it gives 8 edits, still sq/lq.
  * An address-taken word snapshot uses retail's sw/lw and entry test, but
  * shrinks the frame to 0x140 instead of 0x150 (44 edits); no padding added.
- * Still open, not a compiler-floor claim: retain a genuine word-mode copy
- * with spill score 2 while the entry test reads a separate promoted byte.
+ * Measured 3 -> 1: copy savedMode into gridMode in the traversal initializer,
+ * as in matched 002eb270's left/right transition phases. The copy survives
+ * codegen_entry and retains the declared word node through copy propagation:
+ * sw/lw at 0xD0 and the 0x150 frame now match, with 471 instructions.
+ * Only 00320BD0 remains: bnez reads $a1 instead of retail's promoted $v0.
  */
 // FUN_00320B80 NONMATCHING
 #ifdef NON_MATCHING
@@ -2688,10 +2688,11 @@ void func_00320b80(u8 *task, s8 entryMode) {
     s32 columnIndex;
     s32 listCountByte;
     s32 savedMode;
+    s32 gridMode;
 
     /* Phase 1: reset selection and, on initial entry, pair availability.
        Keep the promoted copy before the test of the original byte argument.
-       savedMode remains live across every call and outer-loop iteration. */
+       The traversal takes its own mode snapshot after the title is set up. */
     work = ((FclCombineRowTask *)task)->work;
     work->cursorRow = 0;
     work->firstSelectedRow = -1;
@@ -2703,8 +2704,7 @@ void func_00320b80(u8 *task, s8 entryMode) {
     /* Phase 2: title, followed by one Persona row and column header per slot. */
     titlePosition = func_002b2970(16.0f, 104.0f);
     func_0031e5b0(fclSavedCombineTask(&task), titlePosition, 0, 0, 0, 0, 0);
-    row = 0;
-    while (row < (u16)func_0010b5b0()) {
+    for (row = 0, gridMode = savedMode; row < (u16)func_0010b5b0(); row++) {
         s32 rowIndex;
         s32 gridOffset;
         s32 personaId;
@@ -2751,7 +2751,7 @@ void func_00320b80(u8 *task, s8 entryMode) {
         /* Phase 3: animate this grid row and clear its transition-state bytes.
            These row-relative pointers intentionally retain the baseline's
            distinct bases and scopes; they are not cached list-task values. */
-        if (savedMode == 0) {
+        if (gridMode == 0) {
             s16 column = 0;
             s32 rowY = gridOffset + 0x7F;
             FclCombineGridRowTaskView *rowTasks = (FclCombineGridRowTaskView *)((u8 *)work + rowIndex * 4);
@@ -2800,7 +2800,6 @@ void func_00320b80(u8 *task, s8 entryMode) {
                 column++;
             }
         }
-        row++;
     }
 }
 #else
