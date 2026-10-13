@@ -240,6 +240,7 @@ s32 func_002ac740(void) {
  * measured: fnalign 217 -> 212; keep the rectangle's halfword row snapshot distinct from the final call.
  * measured: fnalign 212 -> 208; the rectangle's visibility-row byte offset is a word, not a halfword.
  * measured: fnalign 208 -> 198; distinct original-row stride restores the rectangle row (frame 0x1A0).
+ * measured: fnalign 198 -> 154, frame 0x190; give the rectangle its own halfword column and column limit.
  */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
@@ -418,7 +419,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
     /* Shared by the exclusive room-search and square-scan phases.
      * Retail leaves both coordinates stale if a search finds no anchor. */
     s32 workingRow;
-    /* Room anchor column, or the kind-7/8 rectangle's upper column bound. */
+    /* Shared anchor column for the two room-search extents. */
     s32 columnReference;
     s32 var_4;
     s32 var_4_2;
@@ -535,10 +536,13 @@ void func_002ac750(u8 arg0, u8 arg1) {
             *temp_4_13 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
         }
     } else if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 9) {
+        u16 rectangleColumn = arg0;
+        s32 rectangleColumnLimit;
+
         temp_3_5 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
-        *temp_3_5 |= (1 << ((s32)arg0)) & 0xFFFF;
-        columnReference = ((s32)arg0) + 2;
-        temp_22_2 = ((s8)(func_002b2d00(((s32)arg0), 1, 1, columnReference, 1)));
+        *temp_3_5 |= (1 << rectangleColumn) & 0xFFFF;
+        rectangleColumnLimit = rectangleColumn + 2;
+        temp_22_2 = ((s8)(func_002b2d00(rectangleColumn, 1, 1, rectangleColumnLimit, 1)));
         temp_18_4 = temp_18 << 8;
         temp_21_3 = temp_22_2 * 0x10;
         temp_23_2 = SMAP_GRID_CELL_AT(temp_18_4, temp_21_3)->kind;
@@ -577,7 +581,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
             (*( u16 * )((u8*)(temp_4_23) + (2))) = (u16) ((*( u16 * )((u8*)(temp_4_23) + (2))) | temp_5_7);
             return;
         }
-        temp_21_5 = ((s8)(func_002b2d00((arg0 & 0xFF), 1, 1, columnReference, 1)));
+        temp_21_5 = ((s8)(func_002b2d00((arg0 & 0xFF), 1, 1, rectangleColumnLimit, 1)));
         temp_20_3 = ((s8)(func_002b2d00((arg1 & 0xFF), 1, 1, temp_23_3, 1)));
         temp_19_3 = temp_20_3 << 8;
         temp_18_6 = ((s8)(temp_21_5)) * 0x10;
