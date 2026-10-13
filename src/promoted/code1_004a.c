@@ -1023,6 +1023,22 @@ void func_004a77b0(void) {
  * Here peephole folds both of its definitions into temporaries because
  * neither is live out of its block. Peephole skips only blocks flagged
  * 0x180 (the asm blocks), and `register` changes nothing. */
+/* measured 2026-10-12 (solo): faithful floor stands at 7. Replay on the FPR
+ * capture still flips all three colours only with `--at 60=33.5`; spill scores
+ * do nothing. Backend CSE (dominator walk) renumbers the compare to the abs
+ * temp in its own block, then peephole deletes the dead `temp_f3` copies; a
+ * copy survives only via a copy-use in a later block, a use after a join, a
+ * call argument, or a call between def and use (the last puts the value in a
+ * saved FPR, contradicting retail $f3). This body has no genuine such use:
+ * the sign/kick arms are dominated arms, and any post-join use would read the
+ * merged abs/kick value. ~50 measured variants stay at 7: sign-first/goto and
+ * magnitude sign branches, flag materialisation, axis/abs/predicate inline
+ * helpers (with and without early returns), sibling mt_scene port, split-step
+ * forms, pointer/union/array magnitude holders, peephole-off (116), CSE-off
+ * (130), propagation-off (43, colours unchanged), lifetimes x declaration x
+ * kick-local sweep, goto/while loops, named limits. Sign branches written via
+ * magnitude score 6 only by a register coincidence (their store operands can
+ * never match once colours flip, and NaN sign differs in one arm): reverted. */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a7830(void)
