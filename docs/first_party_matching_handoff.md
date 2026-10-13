@@ -25,10 +25,10 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 12 continuation, part 13: `0027f6f0`, `0018a200`, `0017f490`, `001f14f0`, `00471370`, `0046b380`, `001a59a0` MATCH; compiler internals
+## October 12 continuation, part 13: `0027f6f0`, `0018a200`, `0017f490`, `001f14f0`, `00471370`, `0046b380`, `001a59a0`, `00162e10` MATCH; compiler internals
 
-**6,850 MATCH / 10 ASM** (`build/after50.json`; link 604 C / 54 SDK, both
-sha1 OK in `build/link57.log`).
+**6,851 MATCH / 9 ASM** (`build/after51.json`; link 604 C / 54 SDK, both
+sha1 OK in `build/link58.log`).
 
 The seven matches all came from the procedure now written up as "Rewrite
 playbook for large or stubborn residuals" at the top of `docs/matching.md`:
