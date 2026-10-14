@@ -156,6 +156,7 @@ build/               local build output (ignored)
 ```
 
 The [documentation index](wiki/Home.md) points to the detailed guides.
+The [architecture overview](docs/architecture.md) explains how the game's systems fit together.
 Probe records stay tracked: the retail executable can reproduce disassembly,
 not the source hypotheses and measurements used to recover it.
 
