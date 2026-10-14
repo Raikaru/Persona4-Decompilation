@@ -87,7 +87,7 @@ typedef struct
 
 
 // FUN_00176C20
-u32 func_00176c20()
+u32 Cmd_SetSceneResourceParam()
 {
     s32 resourceId;
 
@@ -103,7 +103,7 @@ u32 func_00176c20()
 /* Retail command operands narrow animation to s16 and converted frame to
    u16 at each dispatch; these are caller conversions, not the shared ABI. */
 // FUN_00176C70
-s32 func_00176c70(void)
+s32 Cmd_PlayModelMotion(void)
 {
     s32 v = scrGetParamInt(0);
     s32 w = scrGetParamInt(1);
@@ -174,7 +174,7 @@ s32 func_00176c70(void)
 
 
 // FUN_00176EF0
-s32 func_00176ef0(void)
+s32 Cmd_CheckModelFlag(void)
 {
     s32 v = scrGetParamInt(0);
     s32 k = (v & 0xFFC00) >> 10;
@@ -217,7 +217,7 @@ s32 func_00176ef0(void)
 
 
 // FUN_00176FF0
-s32 func_00176ff0(void)
+s32 Cmd_SetModelFloatParam(void)
 {
     s32 v = scrGetParamInt(0);
     f32 f = scrGetParamFloat(1);
@@ -261,7 +261,7 @@ s32 func_00176ff0(void)
 
 
 // FUN_00177120
-s32 func_00177120(void)
+s32 Cmd_CompareModelThreshold(void)
 {
     s32 v = scrGetParamInt(0);
     f32 threshold = 0.0f;
@@ -300,7 +300,7 @@ s32 func_00177120(void)
 
 
 // FUN_00177280
-s32 func_00177280(void)
+s32 Cmd_SetModelScale(void)
 {
     s32 v = scrGetParamInt(0);
     f32 pos[3];
@@ -348,7 +348,7 @@ s32 func_00177280(void)
 
 
 // FUN_001773D0
-s32 func_001773d0(void)
+s32 Cmd_SetShadowRingRadius(void)
 {
     s32 v = scrGetParamInt(0);
     s32 k = (v & 0xFFC00) >> 10;
@@ -387,7 +387,7 @@ static inline u32 fieldPlacementEnabled(u32 value)
     return value != 0;
 }
 // FUN_001774A0
-s32 func_001774a0(void)
+s32 Cmd_PlaceFieldResource(void)
 {
     s32 resourceId;
     s32 placementId;
@@ -562,7 +562,7 @@ u32 K_Cmd_CREATE_FLD_MDL()
 
 
 // FUN_00177B30
-s32 func_00177b30(void)
+s32 Cmd_CreateFieldModel(void)
 {
     s32 v = scrGetParamInt(0);
     s32 w = scrGetParamInt(1);
@@ -608,7 +608,7 @@ s32 func_00177b30(void)
 }
 
 // FUN_00177D10
-u32 func_00177d10()
+u32 Cmd_CreateModelResource()
 {
     Model* model;
     u32 resourceId;
@@ -632,7 +632,7 @@ u32 func_00177d10()
 
 
 // FUN_00177DB0
-s32 func_00177db0(void)
+s32 Cmd_SetResourceWord150(void)
 {
     s32 a = scrGetParamInt(0);
     s32 b = scrGetParamInt(1);
@@ -666,7 +666,7 @@ u32 K_Cmd_CREATE_MDL()
 
 
 // FUN_00177E80
-s32 func_00177e80(void)
+s32 Cmd_CreateSceneResource(void)
 {
     s32 type = scrGetParamInt(0);
     s32 id = scrGetParamInt(1);
@@ -687,7 +687,7 @@ s32 func_00177e80(void)
 
 
 // FUN_00177F50
-s32 func_00177f50(void)
+s32 Cmd_SetFieldFloat(void)
 {
     s32 v = scrGetParamInt(0);
     f32 f = scrGetParamFloat(1);
@@ -731,7 +731,7 @@ s32 func_00177f50(void)
 
 
 // FUN_00178070
-s32 func_00178070(void)
+s32 Cmd_SetFieldSlot(void)
 {
     s32 a = scrGetParamInt(0);
     s32 b = scrGetParamInt(1);
@@ -742,7 +742,7 @@ s32 func_00178070(void)
 
 
 // FUN_001780D0
-s32 func_001780d0(void)
+s32 Cmd_SetFieldSlotAlt(void)
 {
     s32 a = scrGetParamInt(0);
     s32 b = scrGetParamInt(1);
@@ -753,7 +753,7 @@ s32 func_001780d0(void)
 
 
 // FUN_00178130
-s32 func_00178130(void)
+s32 Cmd_FaceNearestAxis(void)
 {
     s32 v = scrGetParamInt(0);
     u8* p = func_00174c00();
@@ -805,7 +805,7 @@ s32 func_00178130(void)
 
 
 // FUN_00178360
-s32 func_00178360(void)
+s32 Cmd_SetWorkValues(void)
 {
     D_00724B3C = scrGetParamInt(0);
     D_00724B40 = scrGetParamInt(1);
@@ -815,7 +815,7 @@ s32 func_00178360(void)
 }
 
 // FUN_001783B0
-s32 func_001783b0(void)
+s32 Cmd_SetSceneMode(void)
 {
     u8 temp_17;
     u8 temp_16;
@@ -831,7 +831,7 @@ s32 func_001783b0(void)
 
 
 // FUN_00178420
-s32 func_00178420(void)
+s32 Cmd_SetCameraFloat(void)
 {
     f32 value = scrGetParamFloat(0);
     *(f32*)((u8*)func_00457120() + 0x88) = value;
@@ -840,7 +840,7 @@ s32 func_00178420(void)
 }
 
 // FUN_00178470
-s32 func_00178470(void)
+s32 Cmd_SetFloatGlobal(void)
 {
     D_00764B5C = scrGetParamFloat(0);
     return 1;
@@ -851,7 +851,7 @@ s32 func_00178470(void)
 
 
 // FUN_001784A0
-s32 func_001784a0(void)
+s32 Cmd_LoadFieldWord(void)
 {
     u16* p = func_00174c00();
     if (p != 0)
@@ -868,7 +868,7 @@ s32 func_001784a0(void)
 
 
 // FUN_00178500
-s32 func_00178500(void)
+s32 Cmd_LoadFieldWordAlt(void)
 {
     u16* p = func_00174c10();
     if (p != 0)
@@ -883,7 +883,7 @@ s32 func_00178500(void)
 }
 
 // FUN_00178970
-u32 func_00178970()
+u32 Cmd_TestResourceValue()
 {
     s32 resourceId;
     s32 value;
@@ -897,7 +897,7 @@ u32 func_00178970()
 
 
 // FUN_0025C6D0
-u32 func_0025c6d0(void)
+u32 Cmd_SetResourceValueByte(void)
 {
     s32 rawResourceId;
     u16 resourceId;
@@ -912,7 +912,7 @@ u32 func_0025c6d0(void)
 
 
 // FUN_0025D100
-u32 func_0025d100()
+u32 Cmd_LoadTableWord()
 {
     scrSetReturnInt((u8)func_00106600((s16)scrGetParamInt(0)));
 
@@ -920,7 +920,7 @@ u32 func_0025d100()
 }
 
 // FUN_00299FD0
-u32 func_00299fd0(void)
+u32 Cmd_LoadTableWordAlt(void)
 {
     scrSetReturnInt((u8)func_00104c70((s16)scrGetParamInt(0)));
 
