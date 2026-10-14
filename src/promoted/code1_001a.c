@@ -7,15 +7,13 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_target_state_packet_internal.h"
+#include "btl_action_internal.h"
 typedef struct BtlPacket BtlPacket;
 extern BtlPacket *func_001d5eb0(u32 formation, const char *text, u16 mode);
-typedef struct BtlUnit BtlUnit;
 u32 func_00231d70(u32 bound);
-typedef struct BtlAction BtlAction;
 typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
 extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
-typedef struct RwV3d { f32 x, y, z; } RwV3d;
 
 /* 001f14f0 writes 0x20-byte hit records at action+0xF0. The guarded
    controllers also construct this same provider-sized result payload. */
@@ -307,13 +305,13 @@ block_20:
 /* measured: close loop-invariant probe for 001A0140. */
 #pragma opt_loop_invariants off
 // FUN_001A0290
-void func_001a0290(u8 *arg0, u16 arg1, u8 *arg2)
+void func_001a0290(BtlAction *action, u16 arg1, u8 *arg2)
 {
     s32 slotOffset;
     s32 category;
-    u8 *battleUnit;
+    BtlUnit *battleUnit;
 
-    if (*(u16 *)(arg0 + 0x18) & 0x4000) {
+    if (action->unk_18 & 0x4000) {
         *(s16 *)arg2 = 0x24;
         *(s16 *)(arg2 + 2) = -1;
         return;
@@ -322,9 +320,9 @@ void func_001a0290(u8 *arg0, u16 arg1, u8 *arg2)
     *(s16 *)(arg2 + 2) = 3;
     slotOffset = (arg1 & 0xFFFF) * 0x28;
     if (*(u8 *)(iGpffffb3b8 + slotOffset) & 2) {
-        battleUnit = *(u8 **)(arg0 + 0x30);
-        if (battleUnit[0xA2] == 0) {
-            category = func_0023e1f0(*(u8 **)(battleUnit + 0xA64)) & 0xFF;
+        battleUnit = action->unit;
+        if (battleUnit->genus == 0) {
+            category = func_0023e1f0(*(u8 **)((u8 *)battleUnit + 0xA64)) & 0xFF;
             switch (category) {
             case 0:
             case 1:
@@ -342,7 +340,7 @@ void func_001a0290(u8 *arg0, u16 arg1, u8 *arg2)
                 break;
             }
         } else {
-            switch (*(u16 *)(battleUnit + 0xA4)) {
+            switch (battleUnit->charId) {
             case 0x109:
                 *(s16 *)arg2 = 2;
                 *(s16 *)(arg2 + 2) = 5;
@@ -421,17 +419,17 @@ loop_test:
     }
 }
 // FUN_001A05F0
-s32 func_001a05f0(u8 *arg0) {
+s32 func_001a05f0(BtlAction *action) {
     u16 flags;
     u8 *unitState;
 
-    flags = *(u16 *)(arg0 + 0x1A);
+    flags = action->unk_1a;
     if (flags & 1) {
         goto cont1;
     }
     return 0;
 cont1:
-    unitState = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA0C);
+    unitState = *(u8 **)((u8 *)action->unit + 0xA0C);
     if (flags & 0x10) {
         goto cont2;
     }
@@ -458,17 +456,17 @@ void func_001a0660(void)
 }
 
 // FUN_001A0670
-void func_001a0670(u8 *arg0) {
+void func_001a0670(BtlAction *action) {
     s32 unitFlags;
 
-    unitFlags = *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C);
+    unitFlags = (s32)action->unit->flags3;
     if (unitFlags & 0x10) {
-        *(s16 *)(arg0 + 0x430) = 1;
-        btlActionSetState((BtlAction *)arg0, 0x18);
+        *(s16 *)((u8 *)action + 0x430) = 1;
+        btlActionSetState(action, 0x18);
         return;
     }
     if (unitFlags & 1) {
-        btlActionSetState((BtlAction *)arg0, 0x23);
+        btlActionSetState(action, 0x23);
     }
 }
 
@@ -2086,7 +2084,7 @@ void func_001a3df0(u8 *arg0)
     iter = *(u8 **)(D_0076449C + 0x174);
     goto loop_test;
 loop_body:
-    if (func_001a05f0(iter) != 0) {
+    if (func_001a05f0((BtlAction *)iter) != 0) {
         temp = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(iter + 0x30) + 0xA0C));
         *(s64 *)(temp + 0x60) = *(s64 *)iter;
         func_00194590(temp, 1);
@@ -3342,7 +3340,7 @@ void func_001a59a0(s64 *arg0_) {
     counterPending = 0;
     setEffectFlags = 0;
     func_00194590((u8 *)func_00202010((u32)battleUnit, (*(u16 *)(arg0 + (0x6E)))), 3);
-    func_001a0290(arg0, (*(u16 *)(arg0 + (0x6E))), (u8 *)effectIndices);
+    func_001a0290((BtlAction *)arg0, (*(u16 *)(arg0 + (0x6E))), (u8 *)effectIndices);
     if ((*(u16 *)(arg0 + (0x6A))) == 1) {
         rotatePacket = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)(arg0 + (0x30))), (*(u8 **)((u8 *)((*(u8 **)(arg0 + (0x38)))) + (0x30))), 0));
         (*(s64 *)((u8 *)(rotatePacket) + (0x60))) = actionUid;
@@ -6482,7 +6480,7 @@ void func_001ac620(void) {
     u8 *o;
 
     while (p != NULL) {
-        if (func_001a05f0(p) != 0) {
+        if (func_001a05f0((BtlAction *)p) != 0) {
             o = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(p + 0x30) + 0xA0C));
             *(s64 *)(o + 0x60) = *(s64 *)p;
             func_00194590(o, 1);
@@ -7518,7 +7516,7 @@ void func_001ae3d0(u8 *action)
 
     currentAction = *(u8 **)(iGpffffb3ac + 372);
     while (currentAction != NULL) {
-        if (func_001a05f0(currentAction) != 0) {
+        if (func_001a05f0((BtlAction *)currentAction) != 0) {
             packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(currentAction + 48) + 2572));
             *(s64 *)(packet + 96) = *(s64 *)currentAction;
             func_00194590(packet, 1);
