@@ -308,6 +308,25 @@ s32 func_00275d80(s32 x, s32 y, f32 depth, u8 *glyph,
 
 // end FUN_00275D80
 
+/* measured: unprototyped forward declarations keep the retail argument setup for frFontFindOrLoadEntry (prototypes gave nd 7). */
+u8 *func_00276290();
+u8 *func_002762f0();
+
+/* Finds the entry for (arg0, arg2); on a miss, takes a free entry and loads 0x200 bytes from arg1. */
+// FUN_002761F0
+u8 *frFontFindOrLoadEntry(s32 arg0, u8 *arg1, s32 arg2)
+{
+    u8 *var_2;
+
+    var_2 = func_00276290(arg0, arg2);
+    if (var_2 == NULL) {
+        var_2 = func_002762f0(arg0, arg1, arg2);
+        if (var_2 == NULL)
+            var_2 = NULL;
+    }
+    return var_2;
+}
+
 // FUN_00276260
 u32 func_00276260(u32 param_1, int param_2)
 {
@@ -328,7 +347,7 @@ extern u8 *D_007645b8;
 #define iGpffffb954 D_007645b8
 
 // FUN_00276290
-u32 func_00276290(u32 param_1, int param_2)
+u8 *func_00276290(u32 param_1, int param_2)
 {
     u32 *entry;
 
@@ -352,11 +371,11 @@ check:
     }
     entry = 0;
 done:
-    return (u32)entry;
+    return (u8 *)entry;
 }
 
 // FUN_002762F0
-u32 func_002762f0(u32 param_1, u32 param_2, u32 param_3)
+u8 *func_002762f0(u32 param_1, u8 *param_2, u32 param_3)
 {
     u32 *puVar1;
 
@@ -388,7 +407,7 @@ u32 func_002762f0(u32 param_1, u32 param_2, u32 param_3)
     *puVar1 = *puVar1 | 1;
     memcpy(puVar1[3], param_2, 0x200);
     puVar1[4] = 0;
-    return (u32)puVar1;
+    return (u8 *)puVar1;
 }
 
 // FUN_00276420

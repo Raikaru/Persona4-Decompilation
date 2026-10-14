@@ -788,7 +788,7 @@ void func_00271d10(u8 *arg0, s32 arg1)
 // FUN_00271F50
 extern char D_0063BC20[];
 extern u32 func_00276260(u32 param_1, int param_2);
-extern u32 func_002761f0(u32 param_1, u32 param_2, u32 param_3);
+extern u32 frFontFindOrLoadEntry(u32 param_1, u32 param_2, u32 param_3);
 extern u16 func_00273910(u32 param_1);
 extern u16 func_00273940(u32 param_1);
 
@@ -814,7 +814,7 @@ u8 *func_00271f50(u8 *arg0, u32 arg1)
         temp_20 = (u8 *)jtbl_008873E8[0](0x200, 0x40000);
         func_0026e1a0(*(int **)(temp_17 + 0x1C), (int *)sp60);
         func_0026e1e0((int)temp_20, (int)arg1, *(int *)(temp_17 + 0x1C), (int *)sp60);
-        var_18 = (u8 *)(u32)func_002761f0(arg1, (u32)temp_20, arg0[0x14]);
+        var_18 = (u8 *)(u32)frFontFindOrLoadEntry(arg1, (u32)temp_20, arg0[0x14]);
         if (var_18 == NULL) {
             func_0046d730(D_0063BAE8, 0x560);
         }
