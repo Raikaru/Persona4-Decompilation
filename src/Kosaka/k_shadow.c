@@ -43,11 +43,8 @@ extern u32 iGpffff9f50;
 extern u32 iGpffffb308;
 extern u32 iGpffffb30c;
 extern s32 iGpffffba48;
-// lint: allow H011 -- retail callers index the returned pointer ([2] loads/stores in func_0017b990); code1_0045 defines these as s32()
 extern u8 *func_004571a0(void);
-// lint: allow H011 -- same retail pointer-return evidence as func_004571a0
 extern u8 *func_004571b0(void);
-// lint: allow H011 -- same retail pointer-return evidence as func_004571a0
 extern u8 *func_004571c0(void);
 extern u8 *func_003e9700(u8 *);
 extern u8 *func_003e81c0(u8 *, f32);

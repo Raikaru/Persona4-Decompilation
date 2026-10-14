@@ -2871,8 +2871,8 @@ void func_001b6110(void)
 #pragma opt_loop_invariants on
 void func_001b6120(void)
 {
-    extern s32 func_004571a0(void);
-    extern s32 func_004571c0(void);
+    extern u8 *func_004571a0(void);
+    extern u8 *func_004571c0(void);
     extern u8 *func_00149d20(void);
     extern s32 RtQuatConvertFromMatrix(void *quat, const void *matrix);
     extern void *memcpy(void *dst, const void *src, u32 size);
