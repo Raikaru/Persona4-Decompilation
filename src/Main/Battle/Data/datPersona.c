@@ -1,6 +1,7 @@
 /* Original translation unit datPersona.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "datPersona_internal.h"
 
 extern void func_0046d730(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
@@ -28,26 +29,12 @@ static inline s32 datPersonaOrFlag(s32 flags, s32 mask)
 }
 
 extern void memcpy(void *dst, void *src, u32 size);
-extern void func_0010c9e0(u8 *arg0);
 extern void func_0010fde0(u8 *arg0);
 
-extern s32 func_0010be20(u8 *arg0);
 extern void func_0010fde0(u8 *arg0);
-void func_0010cad0(u8 *arg0, u16 arg1);
-s32 func_0010cc20(u8 *arg0, u16 arg1);
-s32 func_0010ce10(u8 *arg0, u16 arg1);
 
-extern u16 *func_0010ace0(s16 arg0);
-extern s32 func_0010b5b0(void);
-extern s32 func_0010ae30(s32 arg0);
 extern s32 func_0010b3b0(); /* old-style: target call preserves s64 argument */
-extern u16 func_0010b460(void);
 
-extern u32 func_0010c750(void *persona, u16 level);
-s32 func_0010ceb0(u8 *arg0);
-extern void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2);
-extern void func_0010c5a0(u8 *arg0, u8 *arg1);
-extern void func_0010d150(u8 *arg0);
 extern u32 func_00231d70(u32 arg0);
 
 extern f32 fGpffff8218; /* gp -0x7DF8 */
@@ -57,13 +44,8 @@ extern f32 fGpffff8208;
 extern f32 fGpffff820c;
 extern s32 (*iGpffffb3e8)[98]; /* gp -0x4C18 */
 
-s8 func_00109d20(u8 *arg0, s32 arg1);
-s8 func_00109dd0(u8 *arg0, s32 arg1);
-s8 func_00109e30(u8 *arg0, s32 arg1);
 
-extern u8 *func_0010b060(u16 personaId);
 
-u16 *func_0010a900(u16 character);
 
 // FUN_00109220
 u8 *func_00109220(u16 personaId)
@@ -316,7 +298,6 @@ u8 func_00109920(u8 *arg0, s32 arg1)
 
 // FUN_00109980
 /* Preserve the public word transport while interpreting the character as a halfword. */
-s32 func_00109980(s32 arg0, s32 arg1);
 s32 func_00109980(arg0, arg1)
 u16 arg0;
 s32 arg1;
