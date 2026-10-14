@@ -1,4 +1,5 @@
 #include "btl_equipment_count_internal.h"
+#include "datCalc_internal.h"
 #include "type.h"
 #include "include_asm.h"
 
@@ -8,7 +9,6 @@ extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_00635938[];
 
 extern u32 RpRandom(void);
-extern u32 func_0023e130(u8 *arg0);
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 
@@ -30,6 +30,19 @@ extern u32 func_001053b0(s16 arg0);
 extern s32 func_00232730(u8 *arg0, s32 arg1);
 
 extern u16 func_00232290(DatUnit* unit);
+extern s32 func_00246480(void);
+extern void func_00246450(u32 arg0);
+extern f32 func_00245030(u32 arg0, s32 arg1);
+extern f32 D_00761260;
+extern f32 fGpffff811c;
+static inline f32 mul_f32_ordered(f32 left, f32 right)
+{
+    return left * right;
+}
+static inline f32 add_f32_ordered(f32 left, f32 right)
+{
+    return left + right;
+}
 
 extern s32 func_00106600(s16 arg);
 
@@ -155,6 +168,18 @@ s32 func_00231e20(u8 *arg0)
     return level;
 }
 
+// FUN_00231ED0
+u16 datCalcGetHp(int unit)
+{
+    return *(u16 *)(unit + 8);
+}
+
+// FUN_00231EE0
+u16 datCalcGetSp(int unit)
+{
+    return *(u16 *)(unit + 0xa);
+}
+
 // FUN_00231EF0
 void func_00231ef0(u8 *arg0, u8 arg1)
 {
@@ -163,6 +188,24 @@ void func_00231ef0(u8 *arg0, u8 arg1)
         arg1 = 0x63;
     }
     arg0[6] = arg1;
+}
+
+// FUN_00231F20
+void datCalcSetHp(int unit, u16 hp)
+{
+    if (hp > 999 && !(*(u16 *)unit & 4)) {
+        hp = 999;
+    }
+    *(u16 *)(unit + 8) = hp;
+}
+
+// FUN_00231F50
+void datCalcSetSp(int unit, u16 sp)
+{
+    if (sp > 999 && !(*(u16 *)unit & 4)) {
+        sp = 999;
+    }
+    *(u16 *)(unit + 0xa) = sp;
 }
 
 /* MATCHED 2026-08-08: func_00231f80 is byte-exact (nd 0, object 784B /
@@ -371,6 +414,42 @@ static inline s32 PTDatCalcHasSkill(u8 *unit, s32 requestedSkill)
         }
     }
     return 0;
+}
+
+// FUN_00232680
+u32 datCalcSetBadStatus(int unit, u32 badStatus)
+{
+    u32 low;
+
+    low = badStatus & 0x000fffff;
+    if (low != 0) {
+        *(u32 *)(unit + 0xc) = (*(u32 *)(unit + 0xc) & 0xfff00000) | low;
+    }
+    return *(u32 *)(unit + 0xc) |= badStatus & 0xfff00000;
+}
+
+// FUN_002326C0
+u32 datCalcGetBadStatusNoDown(int unit)
+{
+    return *(u32 *)(unit + 0xc) & 0x000fffff;
+}
+
+// FUN_002326E0
+u32 datCalcGetBadStatus(int unit)
+{
+    return *(u32 *)(unit + 0xc);
+}
+
+// FUN_002326F0
+u32 datCalcClearBadStatus(int unit, u32 badStatus)
+{
+    return *(u32 *)(unit + 0xc) &= ~badStatus;
+}
+
+// FUN_00232710
+u32 datCalcChkBadStatus(int unit, u32 badStatus)
+{
+    return (*(u32 *)(unit + 0xc) & badStatus) != 0;
 }
 
 // FUN_00232730
@@ -904,6 +983,12 @@ s8 func_00233a90(u8 *arg0, s32 arg1)
     }
     result = (*(u32 *)(arg0 + 0x14) & 1 << uVar3) != 0;
     return result;
+}
+
+// FUN_00233BB0
+void func_00233bb0(int object)
+{
+    *(u32 *)(object + 0x18) = 0;
 }
 
 // FUN_00233BC0
@@ -3330,6 +3415,27 @@ s32 func_0023ddc0(u8 *arg0, s32 arg1)
     return var_17;
 }
 
+// FUN_0023DF20
+u32 datCalcIsSpecialItem(u16 itemId)
+{
+    u32 result;
+
+    switch (itemId) {
+    case 0xc0:
+    case 0xc1:
+    case 0xc2:
+    case 0xc3:
+    case 0xc4:
+    case 0xc5:
+        result = 1;
+        break;
+    default:
+        result = 0;
+        break;
+    }
+    return result;
+}
+
 // FUN_0023DF70
 s32 func_0023df70(s32 arg0)
 {
@@ -3395,6 +3501,13 @@ s32 func_0023dff0(u8 *arg0)
 }
 #pragma pop
 
+
+/* Retail callers pass the unit pointer even though the count is constant. */
+// FUN_0023E130
+u32 func_0023e130(u8 *unused)
+{
+    return 8;
+}
 
 // FUN_0023E140
 u8 *func_0023e140(u8 *arg0)
@@ -4450,6 +4563,24 @@ s32 func_00242800(u8 *arg0, s32 arg1)
     return func_0023a6b0(arg0, arg1);
 }
 
+// FUN_002428F0
+u32 datCalcIsDead(int unit, s32 hpDelta)
+{
+    if (*(u32 *)(unit + 0xc) & 0x80000 ? 1 : 0) {
+        return 1;
+    }
+    return (*(u16 *)(unit + 8) + hpDelta) <= 0;
+}
+
+// FUN_00242930
+u32 datCalcIsLowHp(int unit)
+{
+    u16 hp;
+
+    hp = *(u16 *)(unit + 8);
+    return ((hp * 100) / func_00231f80((DatUnit *)unit)) < 26;
+}
+
 /* measured: fndiff 1 word (reloc-masked), fnalign 2 edits (plus 43 reloc-only), obj 813 instrs / retail 813 instrs (window 3264B, 12B under, 0.4% inside 3% gate). Baseline 172 edits / 750 words at 812/812; all-fresh counters 172->68 edits; loopinv 68->20; head temp_16 reuse 20->14; s16 value 14->3 edits / 558->2 words; tail (u16) mask 2->1 word / 3->2 edits. Free pragmas: loopinv 752, unroll/sched tie 750, commonsubs 578 words but 207 edits (rejected for edits). Subscript P[i] neutral 172; reuse temp_16 alone 246 edits (rejected). Decl swaps tie 172; fresh-first 159. All 8 skill-search loops match (while+goto-done, (u16)var_5 masks, fresh counters per loop, loopinv hoist); 0x231/0x232 early returns, 0x20/0x800/0x400 guards, 6/7 dispatch with 0x340/0x3C-0x38 checks, 0x211/0x221 + 0x212/0x222 with 50% random, 0x210/0x20F tail and 47cb0/107ac0 >=9 all in retail shape. Remaining: single addu $v0,$v1,$v0 vs $v0,$v0,$v1 orientation (commutative, source-invariant across both orders, floor) + lw addend masked as reloc-only. Supersedes prior nd-170 layout floor. */
 /* MATCHED 2026-09-19.  The single differing word at 0x00242CEC - retail
    `addu $v0, $v1, $v0` against b210's `addu $v0, $v0, $v1` - was not a compiler floor.
@@ -5051,6 +5182,16 @@ void func_00243ec0(u8 *arg0, s8 arg1)
     arg0[0x10] = (u8)arg1;
 }
 
+// FUN_00243ED0
+void datCalcInitializeCharacters(void)
+{
+    u16 characterId;
+
+    for (characterId = 1; characterId < 0xb; characterId++) {
+        func_00243f20(characterId);
+    }
+}
+
 // FUN_00243F20
 void func_00243f20(u16 characterId)
 {
@@ -5133,4 +5274,104 @@ s32 func_00243fa0(s32 arg0, s32 arg1)
 // FUN_00244100
 void func_00244100(void)
 {
+}
+
+// FUN_002447C0
+void func_002447c0(void)
+{
+    f32 temp_f20;
+    f32 temp_f21;
+
+    if (func_00246480() != 0) {
+        temp_f20 = func_00245030(0x13, 0);
+        temp_f20 += func_00245030(0x1A, 0);
+    } else {
+        temp_f21 = func_00245030(0x1A, 0);
+        temp_f20 = D_00761260 * temp_f21 + func_00245030(0x13, 0);
+    }
+    func_00246450((s32)temp_f20);
+}
+
+// FUN_002449C0
+void func_002449c0(void)
+{
+    f32 temp_f20;
+    f32 temp_f0;
+
+    if (func_00246480() != 0) {
+        temp_f20 = (50.0f + func_00245030(0xD, 4)) /
+                   (50.0f + func_00245030(0xE, 4));
+        temp_f0 = func_00245030(0x14, 0);
+        temp_f0 *= temp_f20;
+    } else {
+        temp_f20 = (50.0f + func_00245030(0xD, 4)) /
+                   (50.0f + func_00245030(0xE, 4));
+        temp_f0 = fGpffff811c * mul_f32_ordered(func_00245030(0x14, 0), temp_f20);
+    }
+    func_00246450((s32)temp_f0);
+}
+
+// FUN_00244AD0
+void func_00244ad0(void)
+{
+    func_00246480();
+    func_00246450((s32)func_00245030(0x15, 0));
+}
+
+// FUN_00244B10
+void func_00244b10(void)
+{
+    f32 temp_f21;
+    f32 temp_f20;
+
+    temp_f20 = 100.0f + func_00245030(0xD, 3);
+    temp_f21 = temp_f20 / (100.0f + func_00245030(0xE, 3));
+    temp_f20 = 100.0f + func_00245030(0xD, 4);
+    temp_f20 = 75.0f * (temp_f21 * (temp_f20 / (100.0f + func_00245030(0xE, 4))));
+    temp_f20 += 5.0f * func_00245030(0x22, 0);
+    func_00246450((s32)temp_f20);
+}
+
+// FUN_00244C10
+void func_00244c10(void)
+{
+    f32 temp_f20;
+
+    temp_f20 = 3.0f * (func_00245030(1, 0) - 1.0f) + 2.0f;
+    temp_f20 *= func_00245030(0x10, 0);
+    if (temp_f20 > 0.0f) {
+        temp_f20 = 50.0f * (func_00245030(0xD, 4) / temp_f20);
+    } else {
+        temp_f20 = 1.0f;
+    }
+    func_00246450((s32)temp_f20);
+}
+
+// FUN_00244E20
+void func_00244e20(void)
+{
+    f32 temp_f20;
+    f32 temp_f0;
+    f32 temp_f1;
+
+    if (func_00246480() != 0) {
+        temp_f20 = func_00245030(0x12, 0);
+        temp_f20 *= func_00245030(0x10, 0);
+        temp_f0 = func_00245030(0xD, 4);
+        temp_f0 = add_f32_ordered(100.0f, temp_f0);
+        temp_f20 *= temp_f0;
+        temp_f0 = func_00245030(0xE, 4);
+        temp_f0 = add_f32_ordered(100.0f, temp_f0);
+        temp_f0 = temp_f20 / temp_f0;
+    } else {
+        temp_f20 = func_00245030(0x12, 0);
+        temp_f20 *= func_00245030(0x10, 0);
+        temp_f0 = func_00245030(0xD, 4);
+        temp_f0 = add_f32_ordered(100.0f, temp_f0);
+        temp_f20 *= temp_f0;
+        temp_f0 = add_f32_ordered(100.0f, func_00245030(0xE, 4));
+        temp_f1 = temp_f20 / temp_f0;
+        temp_f0 = fGpffff811c * temp_f1;
+    }
+    func_00246450((s32)temp_f0);
 }
