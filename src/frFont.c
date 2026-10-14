@@ -2572,6 +2572,15 @@ void func_00274640(void)
     D_007637F8 = 0;
 }
 
+u32 frFontFlagMask = 0xffffffff;
+
+/* Masks `value` with the font flag mask (all bits set by default). */
+// FUN_00274650
+u32 frFontMaskFlags(u32 value)
+{
+    return frFontFlagMask & value;
+}
+
 // FUN_00274660
 void func_00274660(u32 param_1, int param_2)
 {
