@@ -1867,7 +1867,7 @@ void func_0036d8b0(void)
     func_00457630((void *)view, &local.f30, &local.f20, 0);
 }
 // FUN_0036D940
-void func_0036d940(void)
+void func_0036d940(void *arg0)
 {
     func_0036bbf0();
 }

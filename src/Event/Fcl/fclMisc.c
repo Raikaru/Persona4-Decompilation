@@ -27,7 +27,7 @@ extern s32 func_00276e10(s32);
 extern void func_00276e70();
 extern void func_00277250();
 extern void func_00277ad0();
-extern s32 func_002774d0(s32);
+extern s32 func_002774d0(u8 *);
 extern s32 func_00278610(s32, s16);
 extern void func_00278170(s32, s32);
 extern s32 func_002778c0(s32, s32, s32);
@@ -176,7 +176,7 @@ process_item:
             goto update_tail;
         }
         *(s32 *)(manager + 4) = flags & ~1;
-        fclMiscAcquireHandle(item + 0x10, *(s32 *)(item + 0x28));
+        fclMiscAcquireHandle(item + 0x10, *(u8 **)(item + 0x28));
         func_002bc890(manager, 0);
         func_002bc890(manager, *(s32 *)(item + 0x2c));
         *(s32 *)(item + 4) |= 2;
@@ -205,7 +205,7 @@ update_tail:
 s32 func_002bcfb0(u8 *arg0, u8 *arg1) {
     extern u32 fclMiscCloseHandle(u32 *);
     /* measured: s8 here regresses func_002bcfb0 (MATCH -> MISMATCH); the s32 extern keeps its compare. */
-    extern s32 fclMiscHandleState(int *);
+    extern s32 fclMiscHandleState(int *); /* lint: allow H011 -- measured: s8 regresses func_002bcfb0 MATCH->MISMATCH; retail consumes the full register */
     s32 temp_16;
     s32 temp_18;
     s32 temp_3;
@@ -357,7 +357,7 @@ void func_002bd440(void)
 
 /* Initialises the handle slot and acquires a handle when it has none; returns 1 if one was acquired. */
 // FUN_002BD4A0
-s32 fclMiscAcquireHandle(u8 *param_1, s32 param_2)
+s32 fclMiscAcquireHandle(u8 *param_1, u8 *param_2)
 {
     s32 value;
 

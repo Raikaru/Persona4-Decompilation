@@ -57,13 +57,13 @@ extern u8 D_00794F00[];
 u32 datGetFlag(s32 id);
 void func_00106390(s32, s32);
 s32 func_0045aeb0(s16 channelIndex, u8 *name);
-s32 func_00452490(s32 handle);
+s32 func_00452490(void *target);
 extern u8 D_0064A5B0[];
 s32 func_002b2d00(s32, s32, s32, s32, s8);
 s32 func_004b1130(s32);
 s32 func_004b11b0(s32);
 
-void func_004b11d0(s32, s32);
+void func_004b11d0(void *, void *);
 void func_004b1250(s32, u8 *);
 void func_004b1290(s32, f32, f32, f32);
 void func_004b13d0(s32, f32);
@@ -674,7 +674,7 @@ s32 func_0033fc80(u8 *arg0) {
                       func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
     case 8:
-        if (func_00452490(*(s32 *)(obj + 0x64C)) != 1) {
+        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 2) {
                 table = obj + (s32)i8 * 4;
@@ -809,7 +809,7 @@ s32 func_003407f0(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
-        if (func_00452490(*(s32 *)(obj + 0x64C)) != 1) {
+        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 3) {
                 table = obj + (s32)i8 * 4;
@@ -951,7 +951,7 @@ s32 func_00341640(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
-        if (func_00452490(*(s32 *)(obj + 0x64C)) != 1) {
+        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 4) {
                 table = obj + (s32)i8 * 4;
@@ -1098,7 +1098,7 @@ s32 func_003427a0(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
-        if (func_00452490(*(s32 *)(obj + 0x64C)) != 1) {
+        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 5) {
                 table = obj + (s32)i8 * 4;
@@ -1251,7 +1251,7 @@ s32 func_00343cf0(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
-        if (func_00452490(*(s32 *)(obj + 0x64C)) != 1) {
+        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 6) {
                 table = obj + (s32)i8 * 4;
@@ -1422,7 +1422,7 @@ s32 func_00345700(u8 *arg0) {
                       func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU));
         *(s16 *)(obj + 0x63C) = 8;
     case 8:
-        if (func_00452490(*(s32 *)(obj + 0x64C)) != 1) {
+        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 12) {
                 table = obj + (s32)i8 * 4;
@@ -1787,10 +1787,10 @@ s32 func_00348330(u8 *arg0) {
             }
         }
         func_004b1190(*(u8 **)(obj + 8));
-        func_004b11d0((s32)&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(s32 *)(obj + 8));
+        func_004b11d0(&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(u8 **)(obj + 8));
         if (*(u8 *)(obj + 0x48) == 1) {
             func_004b1190(*(u8 **)(obj + 0x44));
-            func_004b11d0((s32)&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(s32 *)(obj + 0x44));
+            func_004b11d0(&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(u8 **)(obj + 0x44));
         }
         {
             s32 lim = *(s32 *)(obj + 0x10);
