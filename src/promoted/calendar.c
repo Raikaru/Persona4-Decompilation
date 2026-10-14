@@ -81,8 +81,8 @@ void func_001212b0(void)
 // FUN_00121310
 s32 func_00121310(u8 *arg0)
 {
-    s32 sp3C;
-    s32 sp38;
+    s32 month;
+    s32 day;
     u8 *work;
     s32 state;
     s32 v;
@@ -144,14 +144,14 @@ s32 func_00121310(u8 *arg0)
                 func_001062f0(((func_001060c0() & 0xFF) + 1) & 0xFF);
             }
         } else if (D_008C027A[0] & 0x1) {
-            func_001104d0(*(s32 *)(work + 8), &sp3C, &sp38);
-            if (sp3C != 4) {
-                *(s32 *)(work + 8) = *(s32 *)(work + 8) - (func_001104a0(sp3C) - 1);
+            func_001104d0(*(s32 *)(work + 8), &month, &day);
+            if (month != 4) {
+                *(s32 *)(work + 8) = *(s32 *)(work + 8) - (func_001104a0(month) - 1);
             }
         } else if (D_008C027A[0] & 0x2) {
-            func_001104d0(*(s32 *)(work + 8), &sp3C, &sp38);
-            if (sp3C != 3) {
-                *(s32 *)(work + 8) = *(s32 *)(work + 8) + func_001104a0(sp3C);
+            func_001104d0(*(s32 *)(work + 8), &month, &day);
+            if (month != 3) {
+                *(s32 *)(work + 8) = *(s32 *)(work + 8) + func_001104a0(month);
             }
         }
         break;
