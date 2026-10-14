@@ -6,7 +6,7 @@
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
-extern void func_0047d990(u32 *param_1);
+extern void mdlEffectListReleaseNodes(u32 *param_1);
 
 extern void func_004b11d0(s32 arg0, s32 arg1);
 
@@ -37,7 +37,7 @@ extern u64 iGpffffb8e8;
 extern void func_0044ea90(u8 *file, s32 line);
 extern u8 D_007131E8[];
 /* Defined below in this file; called at line 54, above its definition. */
-extern void func_0047d310(u32 *param_1);
+extern void mdlEffectListClear(u32 *param_1);
 extern s32 func_00457120(void);
 extern u8 *func_003e9700(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -79,29 +79,31 @@ static inline u8 *mdlEffect_camera_matrix(u8 *base)
 
 
 
+/* Allocates an empty effect list and clears its head. */
 // FUN_0047D1A0
-u32 func_0047d1a0(void)
+u32 mdlEffectListCreate(void)
 {
     u32 temp_2;
 
     func_0044ea90(D_007131E8, 0x2D);
     temp_2 = (u32)(*jtbl_008873E8)(4, 0x40000);
-    func_0047d310((u32 *)temp_2);
+    mdlEffectListClear((u32 *)temp_2);
     return temp_2;
 }
 
 /* Defined below in this file; called at line 61, above its definition. */
-extern u32 *func_0047d460(u32 *list, u32 *arg1, u16 arg2);
+extern u32 *mdlEffectListAppendNode(u32 *list, u32 *arg1, u16 arg2);
 
+/* Creates a list and appends a reference to each source node. */
 // FUN_0047D200
-u32 *func_0047d200(u32 **arg0)
+u32 *mdlEffectListCopy(u32 **arg0)
 {
     u32 *temp;
     u32 *cur;
 
     func_0044ea90(D_007131E8, 0x2D);
     temp = (u32 *)(*jtbl_008873E8)(4, 0x40000);
-    func_0047d310(temp);
+    mdlEffectListClear(temp);
     cur = (u32 *)*arg0;
     if (cur == NULL) {
         return temp;
@@ -110,15 +112,16 @@ u32 *func_0047d200(u32 **arg0)
         cur = (u32 *)cur[4];
     }
     while (cur != NULL) {
-        func_0047d460(temp, cur, *(u16 *)((u8 *)cur + 4));
+        mdlEffectListAppendNode(temp, cur, *(u16 *)((u8 *)cur + 4));
         cur = (u32 *)cur[3];
     }
     return temp;
 }
+/* Releases every node, then frees the list head. */
 // FUN_0047D2D0
-void func_0047d2d0(u32 *param_1)
+void mdlEffectListDestroy(u32 *param_1)
 {
-  func_0047d990(param_1);
+  mdlEffectListReleaseNodes(param_1);
 
   DAT_008873ec_abs[0](param_1);
 }
@@ -126,14 +129,16 @@ void func_0047d2d0(u32 *param_1)
 
 
 
+/* Clears a list head to the empty state. */
 // FUN_0047D310
-void func_0047d310(u32 *param_1)
+void mdlEffectListClear(u32 *param_1)
 {
     *param_1 = 0;
 }
 
+/* Appends a node that owns a fresh copy of the given data block. */
 // FUN_0047D320
-u32 *func_0047d320(u32 **arg0, s32 arg1, u32 arg2, u16 arg3, u32 arg4)
+u32 *mdlEffectListAppendBlock(u32 **arg0, s32 arg1, u32 arg2, u16 arg3, u32 arg4)
 {
     u32 base;
     u32 head;
@@ -166,8 +171,9 @@ u32 *func_0047d320(u32 **arg0, s32 arg1, u32 arg2, u16 arg3, u32 arg4)
     return node;
 }
 
+/* Appends a node that shares an existing data block and bumps its refcount. */
 // FUN_0047D460
-u32 *func_0047d460(u32 *list, u32 *arg1, u16 arg2)
+u32 *mdlEffectListAppendNode(u32 *list, u32 *arg1, u16 arg2)
 {
     u32 head;
     u32 *data;
@@ -386,8 +392,9 @@ void func_0047d900(int *param_1,float *param_2)
 
 
 
+/* Drops one reference per node, frees blocks whose count reaches zero, and clears the head. */
 // FUN_0047D990
-void func_0047d990(u32 *param_1)
+void mdlEffectListReleaseNodes(u32 *param_1)
 {
     int *current;
     int *next;
