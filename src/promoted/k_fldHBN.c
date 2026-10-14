@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 /* Original translation unit k_fldHBN.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
@@ -103,7 +104,6 @@ void func_0015fb00(u8 *arg0, s32 arg1)
     extern s32 func_00146200(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_001462c0(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_00146380(u16 arg0, f32 *arg1, f32 fparg0);
-    extern u8 *MT_Scene_GetRes(s32 arg0);
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
     u8 *r13;

@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
@@ -1307,7 +1308,6 @@ struct _RxObjSpace3DVertex;
 #pragma opt_propagation off
 // FUN_00179FC0
 s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, f32 farg0, f32 farg1, s32 arg4, u8 *arg5) {
-    extern struct Resrc *MT_Scene_GetRes(u16 id);
     extern struct RwMatrixTag *func_003e0960(struct RwMatrixTag *, const struct RwMatrixTag *);
     extern struct RwMatrixTag *RwMatrixScale(struct RwMatrixTag *, const RwV3d *, enum RwOpCombineType);
     extern struct RwMatrixTag *RwMatrixTranslate(struct RwMatrixTag *, const RwV3d *, enum RwOpCombineType);
@@ -1773,7 +1773,6 @@ extern struct RwFrame *func_003e9df0(struct RwFrame *frame);
 extern void *RwCameraSetProjectionType(void *camera, s32 projection);
 extern void func_001790a0(void *camera);
 extern void *func_003cbc10(s32 world, void *camera);
-extern struct Resrc *MT_Scene_GetRes(u16 id);
 extern f32 fabsf(f32 x);
 
 

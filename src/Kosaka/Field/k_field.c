@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 /* Original translation unit k_field.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
@@ -108,7 +109,6 @@ extern s32 func_00145ac0(u16, s32);
 extern void func_0014a0f0(u16, s32);
 extern void func_0015a350(f32 *);
 extern void func_0047a180(s32, f32 *, s32);
-extern u8 *MT_Scene_GetRes(u16);
 extern s32 func_0029da90(s32, u8 *, s32);
 extern s32 func_0014a200(void);
 extern u8 *func_0015a0c0(void);

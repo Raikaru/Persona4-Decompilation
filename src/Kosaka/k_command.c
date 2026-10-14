@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
 /* Source unit: "k_command.c" (__FILE__ group 0x00176C70..0x00178500; P3 twin src/Kosaka/k_command.c). Members 0x0025C6D0, 0x0025D100 and 0x00299FD0 have no __FILE__ evidence; they stay in this file as its existing members. */
@@ -34,7 +35,6 @@ extern void* func_00174c10(void);
 extern s32 func_0026bc10(u32 resourceId, u32 value);
 extern s32 func_00104c70(s32 value);
 extern void func_0029cf50(s32 value);
-extern u8* MT_Scene_GetRes(u16 arg0);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern void func_0016f130(s32 a, s32 b, s32 c);
 extern void func_0016f3b0(s32 a, s32 b, s32 c);

@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -122,7 +123,6 @@ extern s32 func_00457c90(s32 arg0, const void *arg1);
 extern u8 D_005F0690[];
 extern u8 D_005F06A0[];
 extern void func_0016eb00(s32 arg0);
-extern u8 *MT_Scene_GetRes(s32 arg0);
 extern s32 func_001687d0(s32 arg0);
 extern s32 func_001687e0(s32 arg0);
 extern f32 func_0014b5d0(u8 *arg0);
@@ -1620,7 +1620,6 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
     extern u16 func_0014b510(s32 arg0);
-    extern Resrc *MT_Scene_GetRes(u16 resTypeId);
     extern void func_0015f720(RuntimeVec3 *vertices, const RuntimeVec3 *translation, f32 width, f32 depth, f32 angle);
     extern void *RwMatrixRotate(void *matrix, const void *axis, f32 angle, s32 combine);
     extern void *func_003e42a0(void *out, const void *in, const void *matrix);

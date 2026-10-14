@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
 /* Source unit: src/Kosaka/Field/k_fldFBN.c */
@@ -68,7 +69,6 @@ extern u32 datGetFlag(s32 arg0);
 extern s32 func_001453a0(u16 arg0);
 extern void func_0014aa80(u16 arg0);
 extern void func_0014b0c0(u16 arg0, u32 arg1);
-extern u8 *MT_Scene_GetRes(u16 arg0);
 extern f32 func_0014b660(u8 *arg0);
 extern f32 func_0014b5d0(u8 *arg0);
 extern f32 func_0014b6f0(u8 *arg0);

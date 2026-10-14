@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "field_event_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -17,7 +18,6 @@ extern s32 iGpffff9f08;
 
 extern s32* func_00155280(void);
 extern void (*DAT_008873EC[])(void *);
-extern u8 *MT_Scene_GetRes(u16 arg0);
 extern u8 D_007EF9B0[];
 extern u8 D_007F16F0[];
 extern u8 D_007E4320[];

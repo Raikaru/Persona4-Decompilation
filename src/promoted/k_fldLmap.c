@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 /* Original translation unit k_fldLmap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -46,7 +47,6 @@ extern void func_00144ed0(s64 param);
 extern s32 func_00144f60();
 extern u8 *func_0014b450();
 extern f32 func_0014b4d0();
-extern s32 MT_Scene_GetRes(s32 param);
 extern s32 func_0018ced0();
 extern void func_0018c7e0();
 extern void func_00122640(s32 a, s32 b);
@@ -501,12 +501,12 @@ s32 func_00186eb0(u8 *arg0)
             }
             *(s32 *)(st + 0x15C) = h;
         }
-        *(s32 *)(st + 0x140) = MT_Scene_GetRes(0x280A);
-        *(s32 *)(st + 0x144) = MT_Scene_GetRes(0x2809);
-        *(s32 *)(st + 0x148) = MT_Scene_GetRes(0x2806);
-        *(s32 *)(st + 0x14C) = MT_Scene_GetRes(0x2808);
-        *(s32 *)(st + 0x150) = MT_Scene_GetRes(0x2807);
-        *(s32 *)(st + 0x154) = MT_Scene_GetRes(0x2805);
+        *(s32 *)(st + 0x140) = (s32)MT_Scene_GetRes(0x280A);
+        *(s32 *)(st + 0x144) = (s32)MT_Scene_GetRes(0x2809);
+        *(s32 *)(st + 0x148) = (s32)MT_Scene_GetRes(0x2806);
+        *(s32 *)(st + 0x14C) = (s32)MT_Scene_GetRes(0x2808);
+        *(s32 *)(st + 0x150) = (s32)MT_Scene_GetRes(0x2807);
+        *(s32 *)(st + 0x154) = (s32)MT_Scene_GetRes(0x2805);
         *(u8 **)(st + 0x164) = func_00188f20(arg_save, *(s32 *)(st + 0x140), st + 0x144);
         func_00189060(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
         *(u8 **)(st + 0x168) = func_00189550(arg_save);

@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 /* Source unit: "k_shadow.c" (bare __FILE__ string; span 0x0017B510..0x0017CCC0). */
 /* Prologue is the minimal set found by delta-debugging the committed code1 prologue
    against the span (measured: all 14 functions MATCH). The full prologue ICEs in
@@ -303,7 +304,6 @@ extern const f32 D_005F18B8;
 extern u8 *func_003ef2e0(void *raster);
 extern u8 *func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
 extern u8 *func_003e84a0(void);
-extern struct Resrc *MT_Scene_GetRes(u16 id);
 extern f32 fabsf(f32 x);
 extern s32 func_0017acc0(u8 *task);
 

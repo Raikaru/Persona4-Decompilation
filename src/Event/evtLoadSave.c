@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
 /* Persona 4 USA decompilation - evtLoadSave.c */
@@ -24,7 +25,6 @@ extern void *func_00477f10(u32, u16, void *, u32, u32);
 extern void func_0047aa30(s32, u8 *);
 extern s32 func_002919d0(s32);
 extern void func_00269c20(u16, s32);
-extern u16 *MT_Scene_GetRes(u16);
 extern void func_0046d730(u8 *, s32);
 extern void func_00286ff0(u8 *, u16, u16 *);
 extern u8 *mdlGetColor(s32);
@@ -238,7 +238,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
     u16 resource_id;
     u8 *dest;
     u8 *resource;
-    u16 *temp_3;
+    u8 *temp_3;
     u16 id;
     u16 var_2;
     u16 var_4;
@@ -270,7 +270,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         }
         func_00146e60(resource_id, (u8 *)&stack.vec[1], (u8 *)&stack.vec[0]);
         *(s32 *)((u8 *)idx + 0x144) = 0;
-        *(u16 **)(arg1 + 0x12C) = MT_Scene_GetRes(resource_id);
+        *(u8 **)(arg1 + 0x12C) = MT_Scene_GetRes(resource_id);
         func_0026bfc0(&stack.vec[1].x, 900.0f, 45.0f, 0.0f, 0.0f, &stack.vec[2].x);
         func_00146e60(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         resource = (u8 *)MT_Scene_GetRes(0x1E59);
@@ -283,9 +283,9 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         func_00146e60(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         *(s32 *)((u8 *)MT_Scene_GetRes(resource_id) + 0x144) = 0;
         func_0028be70(arg1, 0);
-        temp_3 = *(u16 **)(arg1 + 0x12C);
+        temp_3 = *(u8 **)(arg1 + 0x12C);
         if (temp_3 != NULL) {
-            dest = (u8 *)func_00287060(0x21, arg1, *temp_3, NULL);
+            dest = (u8 *)func_00287060(0x21, arg1, *(u16 *)temp_3, NULL);
             *(s32 *)(dest + 8) = -1;
             *(EventVector *)(dest + 0x38) = *(EventVector *)&stack.vec[2];
             *(EventVector *)(dest + 0x44) = *(EventVector *)&stack.vec[0];

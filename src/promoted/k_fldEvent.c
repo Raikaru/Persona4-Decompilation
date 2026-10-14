@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 #include "field_event_internal.h"
 #include "model_motion_internal.h"
@@ -31,7 +32,6 @@ extern FldEventVec3 D_005F1838;
 void func_0044ea90(const void *, u32);
 
 void func_00182390(void);
-struct Resrc *MT_Scene_GetRes(u16 arg0);
 void func_00174be0(s32, s32);
 s32 func_00171dc0(void);
 s32 func_00175dc0(u8 *);
@@ -834,7 +834,6 @@ s32 func_00172e00(u8 *arg0)
     void func_0014a0f0(u16, u32);
     void func_0015a350(struct P4_0015_Vec3 *);
     struct RwMatrixTag *func_0047a180(struct RwMatrixTag *, const struct RwV3d *, s32);
-    struct Resrc *MT_Scene_GetRes(u16);
     s32 func_00175ea0(s32, s32, s32);
     u8 *func_002ae630(u8 *);
     void func_002b2950(s32);
