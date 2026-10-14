@@ -9,7 +9,7 @@ typedef struct RwFrame RwFrame;
 typedef struct RwMatrixTag RwMatrix;
 extern u8* iGpffff9db0;
 extern s32 MT_Scene_GetRes(s32 arg0);
-extern u8* func_001452b0(s32 arg0);
+extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern s32 func_0014a160(void);
 extern s32 func_0014a200(void);
 extern s32 func_0014a270(void);
@@ -724,9 +724,9 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     s32 r;
     s32 j;
     result = 0;
-    list10 = func_001452b0(10);
-    list3 = func_001452b0(3);
-    func_001452b0(1);
+    list10 = MT_Scene_GetResListHead(10);
+    list3 = MT_Scene_GetResListHead(3);
+    MT_Scene_GetResListHead(1);
     work.input.components[0] = origin[0] + vector[0];
     work.input.components[1] = origin[1] + vector[1];
     work.input.components[2] = origin[2] + vector[2];
@@ -963,7 +963,7 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
     s32 fieldX;
     s32 fieldY;
         s32 fieldFlags;
-        entry = (u8*)func_001452b0(0xc);
+        entry = (u8*)MT_Scene_GetResListHead(0xc);
         field = (u8*)MT_Scene_GetRes(fieldId);
         fieldFlags = fieldId & 0xffff;
         if (fieldFlags == 0xffff)
@@ -1023,7 +1023,7 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
 #pragma opt_propagation off
 s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 {
-    extern u8* func_001452b0(s32 arg0);
+    extern u8* MT_Scene_GetResListHead(s32 arg0);
     extern void* memset(void* dst, s32 value, u32 size);
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
@@ -1058,9 +1058,9 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
     f32 px, py, pz;
 
     result = 0;
-    list = func_001452b0(10);
-    func_001452b0(3);
-    func_001452b0(1);
+    list = MT_Scene_GetResListHead(10);
+    MT_Scene_GetResListHead(3);
+    MT_Scene_GetResListHead(1);
     px = point->x;
     py = point->y;
     pz = point->z;
@@ -1115,7 +1115,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
                 table = func_00155280();
                 id = *(u16*)((u8*)table + ((z + *zOffset) * 256) + 16 * (x + offsets[0]) + 86);
                 target = 0;
-                node = func_001452b0(12);
+                node = MT_Scene_GetResListHead(12);
                 while (node != 0)
                 {
                     if (*(u16*)node == id)
@@ -1246,7 +1246,7 @@ s32 func_0016b080(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
             fieldZ = (s32)((((const RwV3d*)(map + 0x30))->z + 600.0f) / 1200.0f);
             key = *(u16*)((u8*)func_00155280() + (fieldZ * 256) +
                          (fieldX * 16) + 0x56);
-            for (node = (FldSelectionNode*)func_001452b0(12); node != NULL;
+            for (node = (FldSelectionNode*)MT_Scene_GetResListHead(12); node != NULL;
                  node = node->next)
             {
                 if (node->id == key)
@@ -1464,7 +1464,7 @@ u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
         {
             u8* entry;
             u32 key;
-            entry = func_001452b0(0xc);
+            entry = MT_Scene_GetResListHead(0xc);
             key = *(u16*)((u8*)func_00155280() +
                          (s32)((600.0f + lineCopy.point[0].z) / 1200.0f) * 0x100 +
                          (s32)((600.0f + lineCopy.point[0].x) / 1200.0f) * 0x10 + 0x56);

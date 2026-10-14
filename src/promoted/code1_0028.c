@@ -95,7 +95,7 @@ static inline s32 func_0028_sum(u16 arg0, s16 arg1) {
     return (s32)arg0 + arg1;
 }
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *func_001452b0(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 MT_Scene_GetTotalResInList(s32 arg0);
 
 extern u8 iGpffffa790;
@@ -285,7 +285,7 @@ s32 func_00285dd0(u8 *sdkTaskBytes) {
         break;
     case 8:
         *(s32 *)(data + 0x76C) = 9;
-        node = func_001452b0(3);
+        node = MT_Scene_GetResListHead(3);
         while (node != NULL) {
             node = *(u8 **)(node + 0x138);
         }
@@ -676,7 +676,7 @@ void func_0028b7b0(u8 *arg0) {
     index = 0;
     func_0028b6b0(arg0);
     for (i = 1; i < 0x16; i++) {
-        count_node = func_001452b0(i);
+        count_node = MT_Scene_GetResListHead(i);
         if (count_node != NULL) {
             type = (*(u16 *)count_node & 0xFFC00) >> 10;
             if (type == 12) {
@@ -723,7 +723,7 @@ func_0028b7b0_count_valid_done:
         func_002852a0(12, size);
         *(u8 **)(arg0 + 0x7A4) = array;
         for (i = 1; i < 0x16; i++) {
-            array = func_001452b0(i);
+            array = MT_Scene_GetResListHead(i);
             if (array != NULL) {
                 type = (*(u16 *)array & 0xFFC00) >> 10;
                 if (type == 12) {
@@ -1219,19 +1219,19 @@ void func_0028c3f0(u8 *arg0)
     count += MT_Scene_GetTotalResInList(1);
     count += MT_Scene_GetTotalResInList(0xC);
     if (count < 0x33) {
-        node1 = func_001452b0(3);
+        node1 = MT_Scene_GetResListHead(3);
         while (node1 != NULL) {
             nodes[i] = (u32)node1;
             i++;
             node1 = *(u8 **)(node1 + 0x138);
         }
-        node2 = func_001452b0(1);
+        node2 = MT_Scene_GetResListHead(1);
         while (node2 != NULL) {
             nodes[i] = (u32)node2;
             i++;
             node2 = *(u8 **)(node2 + 0x138);
         }
-        node3 = func_001452b0(0xC);
+        node3 = MT_Scene_GetResListHead(0xC);
         while (node3 != NULL) {
             nodes[i] = (u32)node3;
             i++;

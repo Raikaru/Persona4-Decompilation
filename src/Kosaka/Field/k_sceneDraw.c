@@ -13,7 +13,7 @@ typedef struct Resrc
 #define SCENEDRAW_RESRC_FLAG_VISIBLE 0x00000002
 
 extern Resrc* MT_Scene_GetRes(u16 resTypeId);
-extern u8* func_001452b0(s32 arg0);
+extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 arg3);
 extern f32 fGpffff809c;
 extern f32 fGpffff838c;
@@ -381,7 +381,7 @@ void* func_0014acd0(void)
 {
     u8* res;
 
-    res = func_001452b0(4);
+    res = MT_Scene_GetResListHead(4);
     if (res != NULL)
     {
         return res + 0x140;
@@ -393,7 +393,7 @@ void* func_0014ad10(void)
 {
     u8* res;
 
-    res = func_001452b0(4);
+    res = MT_Scene_GetResListHead(4);
     if (res != NULL)
     {
         return res + 0x150;
@@ -405,7 +405,7 @@ void* func_0014ad50(void)
 {
     u8* res;
 
-    res = func_001452b0(4);
+    res = MT_Scene_GetResListHead(4);
     if (res != NULL)
     {
         return res + 0x160;
@@ -430,7 +430,7 @@ void func_0014ad90(void)
     u8 *var_19;
     u8 *var_20;
 
-    temp_2 = func_001452b0(4);
+    temp_2 = MT_Scene_GetResListHead(4);
     if (temp_2 != NULL)
     {
         var_20 = temp_2 + 0x140;
@@ -439,7 +439,7 @@ void func_0014ad90(void)
     {
         var_20 = NULL;
     }
-    temp_2_2 = func_001452b0(4);
+    temp_2_2 = MT_Scene_GetResListHead(4);
     if (temp_2_2 != NULL)
     {
         var_19 = temp_2_2 + 0x150;
@@ -448,7 +448,7 @@ void func_0014ad90(void)
     {
         var_19 = NULL;
     }
-    temp_2_3 = func_001452b0(4);
+    temp_2_3 = MT_Scene_GetResListHead(4);
     if (temp_2_3 != NULL)
     {
         var_17 = temp_2_3 + 0x160;
@@ -457,7 +457,7 @@ void func_0014ad90(void)
     {
         var_17 = NULL;
     }
-    temp_2_4 = func_001452b0(4);
+    temp_2_4 = MT_Scene_GetResListHead(4);
     if (temp_2_4 != NULL)
     {
         var_18 = temp_2_4 + 0x1a0;
@@ -466,7 +466,7 @@ void func_0014ad90(void)
     {
         var_18 = NULL;
     }
-    temp_2_5 = func_001452b0(4);
+    temp_2_5 = MT_Scene_GetResListHead(4);
     if (temp_2_5 != NULL)
     {
         var_16 = temp_2_5 + 0x1b0;
@@ -538,7 +538,7 @@ void* func_0014b000(void)
 {
     u8* res;
 
-    res = func_001452b0(5);
+    res = MT_Scene_GetResListHead(5);
     if (res != NULL)
     {
         return res + 0x140;
@@ -550,7 +550,7 @@ void* func_0014b040(void)
 {
     u8* res;
 
-    res = func_001452b0(5);
+    res = MT_Scene_GetResListHead(5);
     if (res != NULL)
     {
         return res + 0x150;
@@ -562,7 +562,7 @@ void* func_0014b080(void)
 {
     u8* res;
 
-    res = func_001452b0(5);
+    res = MT_Scene_GetResListHead(5);
     if (res != NULL)
     {
         return res + 0x160;

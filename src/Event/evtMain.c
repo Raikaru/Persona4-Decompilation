@@ -93,7 +93,7 @@ extern char D_0063C628[];
 extern void (*DAT_008873EC[])(void *);
 s32 func_00286430(u8 *arg0);
 u32 func_00145260(void);
-u8 *func_001452b0(s32 arg0);
+u8 *MT_Scene_GetResListHead(s32 arg0);
 void func_00268c20();
 void func_00161460(u8, u8, u8);
 void func_00161500(u8);
@@ -575,7 +575,7 @@ void func_002871a0(s32 arg0, u8 *arg1, u8 *arg2) {
             }
             node2 = *(u8 **)(node2 + 0x90);
         }
-        node3 = func_001452b0(7);
+        node3 = MT_Scene_GetResListHead(7);
         while (node3 != NULL) {
             if (i16 != 0 && arg0 == 0) {
                 func_00268c20(*(u16 *)node3, 1);
@@ -1084,7 +1084,7 @@ void func_00288020(s32 arg0, u8 *arg1) {
                 var_18 = *(u8 **)(var_18 + 0x138);
             }
         }
-        var_18_2 = (u8 *)func_001452b0(3);
+        var_18_2 = (u8 *)MT_Scene_GetResListHead(3);
         while (var_18_2 != NULL) {
             var_4 = NULL;
             var_6_2 = *(u8 **)(arg1 + 0x4C);

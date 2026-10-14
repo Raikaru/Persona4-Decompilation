@@ -173,7 +173,7 @@ void func_00452080(s32 arg0);
 s32 func_00162510(u16 arg0, u16 arg1);
 s32 func_0015a160(void);
 s32 func_001679d0(u8 *arg0);
-u8 *func_001452b0(s32 arg0);
+u8 *MT_Scene_GetResListHead(s32 arg0);
 void func_0046d730(void *arg0, s32 arg1);
 void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2);
@@ -501,7 +501,7 @@ void func_00162e10(void)
          * retail leaves the existing unit->placement untouched. */
         {
             FieldUnitPlacement *placementHead =
-                (FieldUnitPlacement *)func_001452b0(0xE);
+                (FieldUnitPlacement *)MT_Scene_GetResListHead(0xE);
 
             if (placementHead != NULL || unit->placementId != 0xFFFF) {
                 FieldUnitPlacement *placementCursor = placementHead;
@@ -1205,7 +1205,7 @@ static inline u8 *fldChooseRandomSpawn(V3 *delta)
 retry:
     count = 0;
     rejected = 0;
-    cursor = func_001452b0(0xF);
+    cursor = MT_Scene_GetResListHead(0xF);
     goto count_test;
 count_body:
     count++;
@@ -1215,7 +1215,7 @@ count_test:
         goto count_body;
     }
     count = RpRandom() % count;
-    choice = func_001452b0(0xF);
+    choice = MT_Scene_GetResListHead(0xF);
     walked = 0;
     goto walk_test;
 walk_body:
@@ -1308,13 +1308,13 @@ u8 *func_00164880(s32 unused, u32 limit, f32 minimumDistance)
     u32 index;
     u8 *best;
 
-    func_001452b0(0xF);
+    MT_Scene_GetResListHead(0xF);
     best = NULL;
     func_0015a160();
     bestDistance = 1.1754944e-38f;
     if (func_0014a200() == 1) {
         if (func_00164f40() < (s32)limit) {
-            candidate = func_001452b0(0xF);
+            candidate = MT_Scene_GetResListHead(0xF);
             while (candidate != NULL) {
                 primaryPosition = *(V3 *)(candidate + 0x140);
                 index = 0;
@@ -1394,7 +1394,7 @@ next_primary_node:
             goto done;
         }
     } else if (func_0014a270() == 1 && func_00164f40() < (s32)limit) {
-        selection = func_001452b0(0xF);
+        selection = MT_Scene_GetResListHead(0xF);
         goto secondary_node_test;
 secondary_node_body:
         secondaryPosition = *(V3 *)(selection + 0x140);
@@ -1911,7 +1911,7 @@ s32 func_00165be0(void)
         }
     }
     {
-        u8* cursor = func_001452b0(0x11);
+        u8* cursor = MT_Scene_GetResListHead(0x11);
         nodeCount = 0;
         while (cursor != NULL)
         {
@@ -1964,7 +1964,7 @@ s32 func_00165be0(void)
     {
         pair = D_007E8BE8[0];
     }
-    node = func_001452b0(0x11);
+    node = MT_Scene_GetResListHead(0x11);
     {
         s32 steps;
         s32 walked;
@@ -2188,7 +2188,7 @@ void func_001664a0(void)
         for (i = 0; i < 8; i++) {
             p = D_007E80A0 + i * 360;
             if (*(s32 *)p != 0) {
-                node = func_001452b0(0x10);
+                node = MT_Scene_GetResListHead(0x10);
                 if (node == 0) {
                     return;
                 }
@@ -2237,7 +2237,7 @@ u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2)
     s32 var_17;
     s32 var_16;
 
-    var_19 = func_001452b0(0x10);
+    var_19 = MT_Scene_GetResListHead(0x10);
     var_18 = NULL;
     func_0015a160();
     *arg1 = 0;

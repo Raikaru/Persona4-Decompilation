@@ -1712,7 +1712,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
         f32 nearest;
         void *obj;
     } FldRayContext;
-    extern u8 *func_001452b0(s32 arg0);
+    extern u8 *MT_Scene_GetResListHead(s32 arg0);
     extern s32 func_0014a160(void);
     extern s32* func_00155280(void);
     extern void *func_0016b850(void *collisionWorld, void *ray);
@@ -1768,7 +1768,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
             offsets = &D_005F1670[2U * neighbor];
             table = ((u8*)func_00155280());
             storedKey = *(u16 *)((u8 *)table + ((fieldZ + *zOffset) * 256) + 16 * (fieldX + offsets[0]) + 0x56);
-            modelNode = func_001452b0(0xA);
+            modelNode = MT_Scene_GetResListHead(0xA);
             key = storedKey;
             while (modelNode != NULL) {
                 u16 *modelId = *(u16 **)(modelNode + 0x140);
@@ -1795,7 +1795,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
             if (result == 1) {
                 goto query_complete;
             }
-            entry = func_001452b0(0xC);
+            entry = MT_Scene_GetResListHead(0xC);
             while (entry != NULL) {
                 if (*(u16 *)entry == key) {
                     u8 *resource = *(u8 **)(entry + 0x1A0);
@@ -1842,7 +1842,7 @@ next_cell:
         if (result == 1) {
             return result;
         }
-        node = func_001452b0(0xA);
+        node = MT_Scene_GetResListHead(0xA);
         while (node != NULL) {
             if ((*(s32 *)(node + 0x28) & 2) != 0 && *(s32 *)(node + 0x150) == 1) {
                 void *modelWorld = mdlGetClump(*(void **)(node + 0x144));

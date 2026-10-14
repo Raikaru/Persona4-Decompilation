@@ -259,7 +259,7 @@ extern s16 func_00104f10(s16);
 extern s32 func_0033e120(u8 *arg0, s32, s32);
 extern void func_001075d0(s32);
 extern s32 func_00144f60(void);
-extern u8 *func_001452b0(s32);
+extern u8 *MT_Scene_GetResListHead(s32);
 extern u8 *func_00457120(void);
 extern f32 func_0014b4d0(void);
 extern void K_View_SetFov(u8 *arg0, f32 arg1);
@@ -10161,7 +10161,7 @@ s32 func_00310bf0(u8 *arg0) {
         break;
     case 9:
         if (func_00144f60() != 0) {
-            q = func_001452b0(3);
+            q = MT_Scene_GetResListHead(3);
             while (q != 0) {
                 if ((*(u16 *)q & 0x3FF) == 0x38) {
                     func_00479940((u8*)*(u32 *)(q + 0x164), 0, 0xD, 0, 1);
