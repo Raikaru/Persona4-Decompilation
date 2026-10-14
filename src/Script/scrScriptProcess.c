@@ -14,7 +14,7 @@ void dds3SetProcessWorkData(KwlnTask* task, void* workData);
 void scrReleaseScript(ScrData* scr);
 void scrDestroyTask(u8 *task);
 extern s32 func_0029d870(u8 *task);
-extern void func_0029d1c0(void* pool, void* elem);
+extern void scrPoolFree(void* pool, void* elem);
 
 typedef enum
 {
@@ -199,8 +199,9 @@ static inline u8 *scrAddOff(u32 offset, u8 *base)
 
 
 
+// Script pool: allocates a fixed-size element pool and threads its free list.
 // FUN_0029D060
-ScrPool* func_0029d060(s32 elemSize, s32 elemCount)
+ScrPool* scrPoolCreate(s32 elemSize, s32 elemCount)
 {
     ScrPool* pool;
     ScrPoolElem* elem;
@@ -230,8 +231,9 @@ ScrPool* func_0029d060(s32 elemSize, s32 elemCount)
     return pool;
 }
 
+// Script pool: pops one element off the free list and returns its payload.
 // FUN_0029D120
-u8* func_0029d120(ScrPool* pool)
+u8* scrPoolAlloc(ScrPool* pool)
 {
     u8* elem;
 
@@ -259,8 +261,9 @@ u8* func_0029d120(ScrPool* pool)
    materialized through a u32 local and the first call argument through a
    named pointer local; this reproduces retail's lw $a2 before the two move
    instructions without barriers or volatile accesses. */
+// Script pool: pushes an element back onto the free list and zeroes its payload.
 // FUN_0029D1C0
-void func_0029d1c0(void *arg0, void *arg1)
+void scrPoolFree(void *arg0, void *arg1)
 {
     u8 *node;
     void *call0;
@@ -282,8 +285,9 @@ void func_0029d1c0(void *arg0, void *arg1)
         memset(call0, 0, call2);
     }
 }
+// Script work list: unlinks a script work item from the global head list.
 // FUN_0029D270
-void func_0029d270(ScrScriptWork* s)
+void scrScriptWorkUnlink(ScrScriptWork* s)
 {
     if (D_00764608 == s)
     {
@@ -333,7 +337,7 @@ ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* pr
         func_0046d740(D_0063E420, D_0063E3D0, 0x11D);
         return NULL;
     }
-    work = (ScrScriptWork*)func_0029d120(D_00764610);
+    work = (ScrScriptWork*)scrPoolAlloc(D_00764610);
     if (work == NULL)
     {
         func_0046d730(D_0063E3D0, 0x83);
@@ -381,7 +385,7 @@ ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* pr
     {
         func_0046d700(D_0063E3D0, 0x144, D_0063E490, header->localFloatNum);
     }
-    msg = func_0029d120(D_00764614);
+    msg = scrPoolAlloc(D_00764614);
     if (msg == NULL)
     {
         func_0046d730(D_0063E3D0, 0x93);
@@ -524,8 +528,8 @@ void scrDestroyTask(u8 *sdkTaskBytes)
 // FUN_0029D950
 void func_0029d950(void)
 {
-    D_00764610 = func_0029d060(0x160, 3);
-    D_00764614 = func_0029d060(0x340, 3);
+    D_00764610 = scrPoolCreate(0x160, 3);
+    D_00764614 = scrPoolCreate(0x340, 3);
     if (func_0029e970() == 0)
     {
         func_0029e960(0);
@@ -605,7 +609,7 @@ void func_0029dc80(ScrScriptWork* work)
 
     func_00440b68(D_0063E548, (work->index << 5) + work->procedure);
     H_Dbprt_FmtLog(D_0063E560, (work->index << 5) + work->procedure);
-    func_0029d1c0(D_00764614, work->msgA);
+    scrPoolFree(D_00764614, work->msgA);
     handle = work->soundHandle;
     if (handle >= 0)
     {
@@ -637,7 +641,7 @@ void func_0029dc80(ScrScriptWork* work)
     work->prev = NULL;
     work->next = NULL;
     D_00764604--;
-    func_0029d1c0(D_00764610, (u8*)work);
+    scrPoolFree(D_00764610, (u8*)work);
 }
 
 // FUN_0029DDB0
@@ -975,7 +979,7 @@ s32 func_0029e550(u8 *arg0)
                               child->procedure + (child->index << 5));
                 H_Dbprt_FmtLog(D_0063E560,
                               child->procedure + (child->index << 5));
-                func_0029d1c0(D_00764614, child->msgA);
+                scrPoolFree(D_00764614, child->msgA);
                 handle = child->soundHandle;
                 if (handle >= 0) {
                     func_002777f0(handle);
@@ -985,8 +989,8 @@ s32 func_0029e550(u8 *arg0)
                     func_0046a340(child->textBuf);
                     func_00440b68(D_0063E5A0);
                 }
-                func_0029d270(child);
-                func_0029d1c0(D_00764610, child);
+                scrScriptWorkUnlink(child);
+                scrPoolFree(D_00764610, child);
                 task->unk_214 = 0;
             }
             handle = task->unk_210;
@@ -1022,7 +1026,7 @@ void func_0029e7b0(u8* arg0)
     {
         func_00440b68(D_0063E548, (work->index << 5) + work->procedure);
         H_Dbprt_FmtLog(D_0063E560, (work->index << 5) + work->procedure);
-        func_0029d1c0(D_00764614, work->msgA);
+        scrPoolFree(D_00764614, work->msgA);
         handle = work->soundHandle;
         if (handle >= 0)
         {
@@ -1035,8 +1039,8 @@ void func_0029e7b0(u8* arg0)
             func_0046a340((void*)handle);
             func_00440b68(D_0063E5A0);
         }
-        func_0029d270(work);
-        func_0029d1c0(D_00764610, (u8*)work);
+        scrScriptWorkUnlink(work);
+        scrPoolFree(D_00764610, (u8*)work);
         task->unk_214 = 0;
     }
     handle = task->unk_210;
