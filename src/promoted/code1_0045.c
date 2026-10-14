@@ -1165,8 +1165,8 @@ one:
 // FUN_004544B0
 void func_004544b0(void)
 {
-    s32 var_4;
-    u8 *temp_base;
+    s32 index;
+    u8 *table;
 
     func_0042eae0(0);
     sceCdMmode(2);
@@ -1176,14 +1176,14 @@ void func_004544b0(void)
     *(s32 *)D_008D1C90 = 0;
     *(s32 *)D_008D1C98 = 0;
     *(s32 *)D_008D1B88 = 0;
-    var_4 = 0;
-    temp_base = D_008C8780;
-    while (var_4 < 0x100) {
-        *(s32 *)(temp_base + (var_4 * 0x94)) = 0;
-        var_4 += 1;
+    index = 0;
+    table = D_008C8780;
+    while (index < 0x100) {
+        *(s32 *)(table + (index * 0x94)) = 0;
+        index += 1;
     }
     *(s32 *)D_008D1CD4 = 0;
-    func_00468a10(var_4);
+    func_00468a10(index);
 }
 // FUN_004556B0
 s32 func_004556b0(u8* arg0, u32 arg1)
@@ -1261,44 +1261,44 @@ next_entry:
 // FUN_004566C0
 s32 func_004566c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     u8 sp50[0x100];
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 var_16;
-    s32 var_3;
+    s32 bit0;
+    s32 handle;
+    s32 flags;
+    s32 bit1;
 
-    var_16 = 0;
+    flags = 0;
     func_004244c8(D_00711720, arg2);
     strcpy((char *)sp50, (const char *)&iGpffffad88);
     strcat(&sp50, arg2 + strlen(&sp50));
     if (arg2 == 0) {
         return 2;
     }
-    temp_2 = arg3 & 1;
-    if ((temp_2 != 0) && (var_3 = arg3 & 2, (var_3 != 0))) {
-        var_16 |= 3;
+    bit0 = arg3 & 1;
+    if ((bit0 != 0) && (bit1 = arg3 & 2, (bit1 != 0))) {
+        flags |= 3;
     } else {
-        if (temp_2 != 0) {
-            var_16 |= 1;
+        if (bit0 != 0) {
+            flags |= 1;
         }
-        var_3 = arg3 & 2;
-        if (var_3 != 0) {
-            var_16 |= 2;
+        bit1 = arg3 & 2;
+        if (bit1 != 0) {
+            flags |= 2;
         }
     }
     if (arg3 & 4) {
-        var_16 |= 0x200;
+        flags |= 0x200;
     }
-    if ((var_3 != 0) && !(arg3 & 8)) {
-        var_16 |= 0x400;
+    if ((bit1 != 0) && !(arg3 & 8)) {
+        flags |= 0x400;
     }
     *(s32 *)(arg1 + 0x30) = 0;
     *(s64 *)(arg1 + 0x10) = 0;
-    temp_2_2 = func_00426cf0(&sp50, var_16, 0x1FF);
-    *(s32 *)(arg1 + 0x74) = temp_2_2;
-    if (temp_2_2 < 0) {
+    handle = func_00426cf0(&sp50, flags, 0x1FF);
+    *(s32 *)(arg1 + 0x74) = handle;
+    if (handle < 0) {
         return 3;
     }
-    *(s64 *)(arg1 + 0) = (s64)func_004270f8(temp_2_2, 0, 2);
+    *(s64 *)(arg1 + 0) = (s64)func_004270f8(handle, 0, 2);
     func_004270f8(*(s32 *)(arg1 + 0x74), 0, 0);
     *(s32 *)(arg1 + 0x3C) = 1;
     return 1;
@@ -1321,47 +1321,47 @@ u8 *func_00456c30(void)
 #pragma opt_propagation off
 // FUN_00456C60
 u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
-    s32 var_20;
+    s32 index;
     void *(*(*alloc_table))(size_t, size_t, u32);
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_4;
+    u8 *record;
+    u8 *entries;
+    u8 *entry;
 
     if (func_003dd900(arg4) != 0) {
         return NULL;
     }
     func_0044ea90(D_007117C8, 0x106);
     alloc_table = D_008873F4;
-    temp_2 = (*alloc_table)(1, 0x5C, 0x40000);
-    *(void **)(temp_2 + 0x14) = (void *)func_00456b70;
-    *(void **)(temp_2 + 0x18) = (void *)func_00456be0;
-    *(void **)(temp_2 + 0x28) = (void *)func_004566c0;
-    *(void **)(temp_2 + 0x2C) = (void *)func_00456840;
-    *(void **)(temp_2 + 0x30) = (void *)func_004568a0;
-    *(void **)(temp_2 + 0x34) = (void *)func_00456930;
-    *(void **)(temp_2 + 0x44) = (void *)adminiSeqExitTest;
-    *(void **)(temp_2 + 0x38) = (void *)func_004569c0;
-    *(void **)(temp_2 + 0x4C) = (void *)func_00456ae0;
-    *(void **)(temp_2 + 0x1C) = (void *)func_00456c30;
+    record = (*alloc_table)(1, 0x5C, 0x40000);
+    *(void **)(record + 0x14) = (void *)func_00456b70;
+    *(void **)(record + 0x18) = (void *)func_00456be0;
+    *(void **)(record + 0x28) = (void *)func_004566c0;
+    *(void **)(record + 0x2C) = (void *)func_00456840;
+    *(void **)(record + 0x30) = (void *)func_004568a0;
+    *(void **)(record + 0x34) = (void *)func_00456930;
+    *(void **)(record + 0x44) = (void *)adminiSeqExitTest;
+    *(void **)(record + 0x38) = (void *)func_004569c0;
+    *(void **)(record + 0x4C) = (void *)func_00456ae0;
+    *(void **)(record + 0x1C) = (void *)func_00456c30;
     func_0044ea90(D_007117C8, 0x116);
-    temp_2_2 = (*alloc_table)(arg0, 0x90, 0x40000);
-    *(u8 **)(temp_2 + 0x58) = temp_2_2;
-    var_20 = 0;
+    entries = (*alloc_table)(arg0, 0x90, 0x40000);
+    *(u8 **)(record + 0x58) = entries;
+    index = 0;
     goto loop_00456c60_check;
 loop_00456c60_body:
-    temp_4 = temp_2_2 + (var_20 * 0x90);
-    *(u8 **)(temp_4 + 0x50) = temp_2;
-    *(s32 *)(temp_4 + 0x68) = (s32)(arg1 + (var_20 * arg2));
-    *(s32 *)(temp_4 + 0x6C) = arg2;
-    var_20 += 1;
+    entry = entries + (index * 0x90);
+    *(u8 **)(entry + 0x50) = record;
+    *(s32 *)(entry + 0x68) = (s32)(arg1 + (index * arg2));
+    *(s32 *)(entry + 0x6C) = arg2;
+    index += 1;
 loop_00456c60_check:
-    if (var_20 < arg0) {
+    if (index < arg0) {
         goto loop_00456c60_body;
     }
-    if (func_003dd290(temp_2, arg0, arg4, arg3) != 1) {
-        func_00440b68(D_007117E0, var_20);
+    if (func_003dd290(record, arg0, arg4, arg3) != 1) {
+        func_00440b68(D_007117E0, index);
     }
-    return temp_2;
+    return record;
 }
 /* measured probe: close opt_propagation scope after func_00456c60. */
 #pragma opt_propagation on
