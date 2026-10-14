@@ -752,13 +752,13 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         return 0;
     }
     work.collector.mode = 1;
-    func_003bff30((void *)collisionWorld, func_0016a0c0, &work.collector);
+    RpClumpForAllAtomics((void *)collisionWorld, func_0016a0c0, &work.collector);
     while (list10 != NULL)
     {
         if (((*(s32 *)(list10 + 0x28) & 2) != 0) && (*(s32 *)(list10 + 0x150) == 1))
         {
             void *target = mdlGetClump(*(void **)(list10 + 0x144));
-            func_003bff30(target, func_0016a0c0, &work.collector);
+            RpClumpForAllAtomics(target, func_0016a0c0, &work.collector);
             line[1] = *(RwV3d *)origin;
             line[0] = line[1];
             line[0].y += 400.0f;
@@ -802,7 +802,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
                             if (id != 0)
                             {
                                 void *target = mdlGetClump(id);
-                                func_003bff30(target, func_0016a0c0, &work.collector);
+                                RpClumpForAllAtomics(target, func_0016a0c0, &work.collector);
                             }
                         }
                     }
@@ -815,7 +815,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         if (((*(s32 *)(list3 + 0x28) & 2) != 0) && (*(s32 *)(list3 + 0x22c) != 0))
         {
             void *target = mdlGetClump(*(void **)(list3 + 0x22c));
-            func_003bff30(target, func_0016a0c0, &work.collector);
+            RpClumpForAllAtomics(target, func_0016a0c0, &work.collector);
         }
         list3 = *(u8 **)(list3 + 0x138);
     }
@@ -829,7 +829,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
                 if (id != 0)
                 {
                     void *target = mdlGetClump(id);
-                    func_003bff30(target, func_0016a0c0, &work.collector);
+                    RpClumpForAllAtomics(target, func_0016a0c0, &work.collector);
                 }
             }
         }
@@ -1087,7 +1087,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
     if (collisionWorld == 0)
         return 0;
     work.collector.mode = 1;
-    func_003bff30(collisionWorld, func_0016a0c0, ((u8 *)&work.collector));
+    RpClumpForAllAtomics(collisionWorld, func_0016a0c0, ((u8 *)&work.collector));
     if (func_0014a200() == 1 || func_0014a270() == 1)
     {
         const u8* dimensions;
@@ -1127,15 +1127,15 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
                     node = *(u8**)(node + 0x138);
                 }
                 if (target != 0)
-                    func_003bff30(target, func_0016a0c0, ((u8 *)&work.collector));
+                    RpClumpForAllAtomics(target, func_0016a0c0, ((u8 *)&work.collector));
             }
         }
         while (list != 0)
         {
             if ((*(s32*)(list + 0x28) & 2) != 0 && *(s32*)(list + 0x150) == 1)
             {
-                func_003bff30(mdlGetClump(*(void**)(list + 0x144)),
-                              func_0016a0c0, &work.collector);
+                RpClumpForAllAtomics(mdlGetClump(*(void**)(list + 0x144)),
+                                     func_0016a0c0, &work.collector);
             }
             list = *(u8**)(list + 0x138);
         }
@@ -1403,7 +1403,7 @@ u32 func_0016b480(void* collisionWorld, const RwV3d* line,
     {
         return 0;
     }
-    func_003bff30(collisionWorld, func_0016b430, &raycast);
+    RpClumpForAllAtomics(collisionWorld, func_0016b430, &raycast);
     return raycast.didHit;
 }
 
@@ -1493,7 +1493,7 @@ u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
         {
             return 0;
         }
-        func_003bff30(collisionWorld, func_0016b430, &raycast);
+        RpClumpForAllAtomics(collisionWorld, func_0016b430, &raycast);
         return raycast.didHit;
     }
 }

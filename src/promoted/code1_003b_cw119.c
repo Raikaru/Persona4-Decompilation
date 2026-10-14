@@ -201,11 +201,12 @@ done:
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
+/* Calls the callback on each atomic in the clump until it returns NULL; returns the clump. */
 // FUN_003BFF30
 /* measured: no_branch_likely on selects retail's plain beqz/bne branches. */
 #pragma schedule on
 #pragma no_branch_likely on
-void *func_003bff30(void *arg0, KClumpCallback arg1, void *arg2) {
+void *RpClumpForAllAtomics(void *arg0, KClumpCallback arg1, void *arg2) {
     u8 *current;
     u8 *sentinel;
     u8 *next;
@@ -224,7 +225,7 @@ loop:
 done:
     return arg0;
 }
-/* measured: close no_branch_likely around func_003bff30. */
+/* measured: close no_branch_likely around RpClumpForAllAtomics. */
 #pragma no_branch_likely off
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off

@@ -1485,12 +1485,12 @@ join_path:;
                 u8 *object = *entry;
                 void *clump = *(void **)(*(u8 **)(object + 0x1A0) + 0x10);
                 if (clump != NULL) {
-                    func_003bff30(clump, func_00179f70, &ctx);
+                    RpClumpForAllAtomics(clump, func_00179f70, &ctx);
                 } else {
                     u32 k;
                     for (k = 0; k < *(u32 *)(*(u8 **)(object + 0x1A0) + 0x18); k++) {
-                        func_003bff30(*(void **)(*(u8 **)(*entry + 0x1A0) + k * 4 + 0x1C),
-                                     func_00179f70, &ctx);
+                        RpClumpForAllAtomics(*(void **)(*(u8 **)(*entry + 0x1A0) + k * 4 + 0x1C),
+                                             func_00179f70, &ctx);
                     }
                 }
             }

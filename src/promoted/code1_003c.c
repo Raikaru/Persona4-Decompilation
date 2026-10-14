@@ -1954,7 +1954,7 @@ u8 *func_003cbcf0(u8 *arg0, u8 *arg1) {
     count = *(s32 *)(arg0 + 0x24) + 1;
     *(s32 *)(arg0 + 0x24) = count;
     *(u8 **)(base + 0) = arg0;
-    func_003bff30(arg1, func_003cb670, arg0);
+    RpClumpForAllAtomics(arg1, func_003cb670, arg0);
     func_003c0050(arg1, (void *)func_003cb6a0, arg0);
     func_003bffc0(arg1, (void *)func_003cb6d0, arg0);
     if (old != NULL) {

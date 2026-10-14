@@ -28,7 +28,7 @@ struct RpGeometry;
 struct RpMaterial;
 extern struct RpMaterial *func_0018c610(struct RpMaterial *material, void *data);
 extern u8 *iGpffffb590;
-extern void *func_003bff30(void *object, KClumpCallback callback, void *data);
+extern void *RpClumpForAllAtomics(void *object, KClumpCallback callback, void *data);
 
 
 
@@ -80,7 +80,7 @@ void *func_00458c40(void *object, void *arg1)
 // FUN_00458C80
 void func_00458c80(void *arg0, void *arg1)
 {
-    func_003bff30(arg0, func_00458c40, arg1);
+    RpClumpForAllAtomics(arg0, func_00458c40, arg1);
 }
 // FUN_00458CB0
 void func_00458cb0(void *arg0, void *arg1)
@@ -97,7 +97,7 @@ void *func_00458f00(void *object, void *arg1)
 // FUN_00458F40
 void func_00458f40(void *arg0, void *arg1)
 {
-    func_003bff30(arg0, func_00458f00, arg1);
+    RpClumpForAllAtomics(arg0, func_00458f00, arg1);
 }
 // FUN_00458F70
 void func_00458f70(void *arg0, void *arg1)

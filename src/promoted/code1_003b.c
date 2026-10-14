@@ -1846,7 +1846,7 @@ s32 func_003bfe60(void *arg0) {
     s32 result;
 
     result = 0;
-    func_003bff30(arg0, func_003be940, &result);
+    RpClumpForAllAtomics(arg0, func_003be940, &result);
     return result;
 }
 /* measured: close schedule around func_003bfe60. */

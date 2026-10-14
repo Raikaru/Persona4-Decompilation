@@ -2230,7 +2230,7 @@ s32 func_0018a200(u8 *param_1)
     if (*(int *)(puVar1[3] + 0x234) == 2) {
       iStack_4 = 0;
       temp_v8 = func_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
-      func_003bff30((void *)temp_v8, (KClumpCallback)func_0018a170, &iStack_4);
+      RpClumpForAllAtomics((void *)temp_v8, (KClumpCallback)func_0018a170, &iStack_4);
       temp_v4 = (s32)func_00155280();
       if (*(int *)(temp_v4 + puVar1[0x14] * 4 + 0x34) != 0) {
         s32 actorVisible;
@@ -3022,7 +3022,7 @@ s32 func_0018c6c0(u8 *arg0, s32 arg1)
 
     context.found = 0;
     context.texture = (RwTexture *)(uintptr_t)arg1;
-    func_003bff30(arg0, func_0018c680, &context);
+    RpClumpForAllAtomics(arg0, func_0018c680, &context);
     return context.found;
 }
 // FUN_0018C700

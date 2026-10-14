@@ -1716,7 +1716,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
     extern s32 func_0014a160(void);
     extern s32* func_00155280(void);
     extern void *func_0016b850(void *collisionWorld, void *ray);
-    extern void *func_003bff30(void *collisionWorld, void *(*cb)(void *, void *), void *ray);
+    extern void *RpClumpForAllAtomics(void *collisionWorld, void *(*cb)(void *, void *), void *ray);
     extern void *mdlGetClump(void *model);
     extern f32 fGpffff82b4;
     extern u8 *iGpffff9db0;
@@ -1783,7 +1783,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
                     if (selectedWorld == NULL) {
                         result = 0;
                     } else {
-                        func_003bff30(selectedWorld, func_0016b850, &modelRay);
+                        RpClumpForAllAtomics(selectedWorld, func_0016b850, &modelRay);
                         result = modelRay.hit;
                     }
                     if (result == 1) {
@@ -1813,7 +1813,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
             if (selectedWorld == NULL) {
                 result = 0;
             } else {
-                func_003bff30(selectedWorld, func_0016b850, &resourceRay);
+                RpClumpForAllAtomics(selectedWorld, func_0016b850, &resourceRay);
                 result = resourceRay.hit;
             }
             if (result == 1) {
@@ -1836,7 +1836,7 @@ next_cell:
         if (collisionWorld == NULL) {
             result = 0;
         } else {
-            func_003bff30(collisionWorld, func_0016b850, &worldRay);
+            RpClumpForAllAtomics(collisionWorld, func_0016b850, &worldRay);
             result = worldRay.hit;
         }
         if (result == 1) {
@@ -1855,7 +1855,7 @@ next_cell:
                 if (modelWorld == NULL) {
                     result = 0;
                 } else {
-                    func_003bff30(modelWorld, func_0016b850, &fallbackRay);
+                    RpClumpForAllAtomics(modelWorld, func_0016b850, &fallbackRay);
                     result = fallbackRay.hit;
                 }
                 if (result == 1) {

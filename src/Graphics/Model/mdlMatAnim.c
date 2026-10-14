@@ -509,7 +509,7 @@ done:
 // FUN_00480630
 void *func_00480630(void *param_1, void *param_2)
 {
-  func_003bff30(param_1,func_00480580,param_2);
+  RpClumpForAllAtomics(param_1,func_00480580,param_2);
   return param_1;
 }
 
@@ -570,7 +570,7 @@ u16 func_00480800(void *param_1,u32 param_2)
 
   stack.input = param_2;
   stack.output = 0;
-  func_003bff30(param_1,func_00480670,&stack);
+  RpClumpForAllAtomics(param_1,func_00480670,&stack);
   return stack.output;
 }
 
