@@ -20,6 +20,7 @@ extern int *piGpffffb57c;
 extern u32 fclMiscCloseHandle();
 extern void func_002777f0();
 
+/* measured: s8 here regresses fclMiscUpdateHandle (its "< 0" test); s32 is kept. */
 extern s32 func_00276e10(s32);
 
 // Donor calls these implicitly (no prototypes), so keep old-style forms.
@@ -27,9 +28,9 @@ extern void func_00276e70();
 extern void func_00277250();
 extern void func_00277ad0();
 extern s32 func_002774d0(s32);
-extern void func_00278610(s32, s32);
+extern s32 func_00278610(s32, s16);
 extern void func_00278170(s32, s32);
-extern void func_002778c0(s32, s32, s32);
+extern s32 func_002778c0(s32, s32, s32);
 extern u8 *func_002e1db0(s32, s32, s32, s32);
 
 extern u8 D_0063F398[];
@@ -45,8 +46,8 @@ extern u32 fclMiscCloseHandle();
 extern void fclMiscSetWord14();
 extern void func_002e22f0();
 extern void func_002bcbc0();
-extern void func_002bc890();
-extern void func_002bc9e0();
+extern s32 func_002bc890(u8 *, s32);
+extern s32 func_002bc9e0(u8 *);
 extern s32 func_002bcfb0(u8 *, u8 *);
 extern s32 fclMiscPendingIsEmpty(void);
 extern u32 PTR_DAT_00762ea0;
@@ -413,6 +414,7 @@ s32 fclMiscActivateHandle(u8 *param_1, s32 param_2, s32 param_3)
 }
 /* Reports the handle's mode; mode 2 reads as idle while the flag at +5 is set. */
 // FUN_002BD610
+/* measured: an s32 return regresses fclMiscHandleState and fclMiscUpdateHandle (MATCH -> MISMATCH); the s8 definition is kept. */
 s8 fclMiscHandleState(int *param_1)
 {
     s8 result;

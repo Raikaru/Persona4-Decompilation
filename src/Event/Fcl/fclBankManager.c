@@ -11,7 +11,7 @@ extern char iGpffffa890[8];
 extern int iGpffffa898;
 
 extern void func_00446e88(u8 *, s32 *);
-extern u8 *func_002e2170(void *, s32, s32);
+extern u8 *func_002e2170(void *, void *, s32);
 typedef struct NmlistNode NmlistNode;
 typedef struct NmlistList NmlistList;
 extern NmlistNode *func_002e2240(NmlistList *, NmlistList *, int *);
