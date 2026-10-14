@@ -7477,9 +7477,9 @@ void func_001adea0(u8 *action)
 }
 
 // FUN_001AE3C0
-s32 func_001ae3c0(u8 *arg0)
+s32 func_001ae3c0(BtlAction *action)
 {
-    return *(s32 *)(arg0 + 0x428);
+    return *(s32 *)((u8 *)action + 0x428);
 }
 
 typedef struct ActionTargetTable {
