@@ -312,10 +312,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2770);
 // FUN_003A2920
 struct RpAtomic *func_003a2920(struct RpAtomic *arg0)
 {
-    u8 *temp_5;
-    temp_5 = *(u8 **)((u8 *)arg0 + iGpffffb610);
-    *(s32 *)(temp_5 + 0x40) = *(s32 *)(temp_5 + 0x40) | *(s32 *)(temp_5 + 0x3c);
-    *(s32 *)(temp_5 + 0x3c) = 0;
+    u8 *record;
+    record = *(u8 **)((u8 *)arg0 + iGpffffb610);
+    *(s32 *)(record + 0x40) = *(s32 *)(record + 0x40) | *(s32 *)(record + 0x3c);
+    *(s32 *)(record + 0x3c) = 0;
     return arg0;
 }
 // measured: closes the schedule bracket opened above func_003a2920.
@@ -337,27 +337,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a29f0);
 // FUN_003A2AD0
 s32 func_003a2ad0(u8 *arg0, u8 *arg1)
 {
-    u8 *temp_6;
-    u32 temp_4;
-    u32 temp_3;
-    u32 temp_3_2;
-    u64 var_7 = 0;
+    u8 *record;
+    u32 flags;
+    u32 mode;
+    u32 kind;
+    u64 bits = 0;
 
     if (arg1 == NULL)
     {
         goto block_17;
     }
-    temp_6 = *(u8 **)(arg0 + 0x4C);
-    temp_4 = *(s32 *)(arg1 + 0x50);
-    temp_3 = (temp_4 & 0xF00) >> 8;
-    switch (temp_3)
+    record = *(u8 **)(arg0 + 0x4C);
+    flags = *(s32 *)(arg1 + 0x50);
+    mode = (flags & 0xF00) >> 8;
+    switch (mode)
     {
     case 1:
-        var_7 = 0;
-        var_7 &= (s64)-4;
+        bits = 0;
+        bits &= (s64)-4;
         goto block_9;
     case 3:
-        var_7 |= 1;
+        bits |= 1;
         goto block_9;
     case 2:
         goto block_0;
@@ -369,14 +369,14 @@ s32 func_003a2ad0(u8 *arg0, u8 *arg1)
 block_0:
     return 0;
 block_9:
-    temp_3_2 = (temp_4 & 0xF000) >> 0xC;
-    switch (temp_3_2)
+    kind = (flags & 0xF000) >> 0xC;
+    switch (kind)
     {
     case 1:
-        var_7 &= (s64)-0xD;
+        bits &= (s64)-0xD;
         goto block_16;
     case 3:
-        var_7 |= 4;
+        bits |= 4;
         goto block_16;
     case 2:
         goto block_18;
@@ -386,7 +386,7 @@ block_9:
         goto block_18;
     }
 block_16:
-    *(s64 *)(temp_6 + 0xC0) = var_7;
+    *(s64 *)(record + 0xC0) = bits;
 block_17:
     return 1;
 block_18:
@@ -405,20 +405,20 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2bb0);
 // FUN_003A2CE0
 s32 func_003a2ce0(s32 arg0)
 {
-    u8 *temp_2;
+    u8 *record;
 
-    temp_2 = (u8 *)(*jtbl_008873E8)(0x18, 0x4012F);
-    if (temp_2 != NULL) {
-        *(u8 **)(D_008872E0 + iGpffffb614) = temp_2;
-        *(s32 *)(temp_2 + 4) = 0;
-        *(s32 *)(temp_2 + 8) = 0;
-        *(s32 *)(temp_2 + 0xC) = 0;
-        *(s32 *)(temp_2 + 0x10) = 0;
-        *(s32 *)(temp_2 + 0x14) = 0;
-        func_003a8500(temp_2);
-        func_003a7160(temp_2);
-        *(s32 *)(temp_2 + 0) = func_003a8ca0();
-        *(s32 *)(temp_2 + 0x14) = func_003a92d0();
+    record = (u8 *)(*jtbl_008873E8)(0x18, 0x4012F);
+    if (record != NULL) {
+        *(u8 **)(D_008872E0 + iGpffffb614) = record;
+        *(s32 *)(record + 4) = 0;
+        *(s32 *)(record + 8) = 0;
+        *(s32 *)(record + 0xC) = 0;
+        *(s32 *)(record + 0x10) = 0;
+        *(s32 *)(record + 0x14) = 0;
+        func_003a8500(record);
+        func_003a7160(record);
+        *(s32 *)(record + 0) = func_003a8ca0();
+        *(s32 *)(record + 0x14) = func_003a92d0();
         return arg0;
     }
     return 0;
@@ -434,41 +434,41 @@ s32 func_003a2ce0(s32 arg0)
 // FUN_003A2D90
 s32 func_003a2d90(s32 arg0)
 {
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 temp_4_3;
-    s32 temp_4_4;
-    s32 temp_4_5;
-    s32 temp_4_6;
-    u8 *temp_17;
+    s32 handle08;
+    s32 handle04;
+    s32 handle10;
+    s32 handle0C;
+    s32 handle14;
+    s32 handle00;
+    u8 *record;
 
-    temp_17 = *(u8 **)(D_008872E0 + iGpffffb614);
-    if (temp_17 != NULL) {
-        temp_4 = *(s32 *)(temp_17 + 8);
-        if (temp_4 != 0) {
-            func_00411670(temp_4);
+    record = *(u8 **)(D_008872E0 + iGpffffb614);
+    if (record != NULL) {
+        handle08 = *(s32 *)(record + 8);
+        if (handle08 != 0) {
+            func_00411670(handle08);
         }
-        temp_4_2 = *(s32 *)(temp_17 + 4);
-        if (temp_4_2 != 0) {
-            func_00411670(temp_4_2);
+        handle04 = *(s32 *)(record + 4);
+        if (handle04 != 0) {
+            func_00411670(handle04);
         }
-        temp_4_3 = *(s32 *)(temp_17 + 0x10);
-        if (temp_4_3 != 0) {
-            func_00411670(temp_4_3);
+        handle10 = *(s32 *)(record + 0x10);
+        if (handle10 != 0) {
+            func_00411670(handle10);
         }
-        temp_4_4 = *(s32 *)(temp_17 + 0xC);
-        if (temp_4_4 != 0) {
-            func_00411670(temp_4_4);
+        handle0C = *(s32 *)(record + 0xC);
+        if (handle0C != 0) {
+            func_00411670(handle0C);
         }
-        temp_4_5 = *(s32 *)(temp_17 + 0x14);
-        if (temp_4_5 != 0) {
-            func_00411670(temp_4_5);
+        handle14 = *(s32 *)(record + 0x14);
+        if (handle14 != 0) {
+            func_00411670(handle14);
         }
-        temp_4_6 = *(s32 *)(temp_17 + 0);
-        if (temp_4_6 != 0) {
-            func_00411670(temp_4_6);
+        handle00 = *(s32 *)(record + 0);
+        if (handle00 != 0) {
+            func_00411670(handle00);
         }
-        (*jtbl_008873EC)(temp_17);
+        (*jtbl_008873EC)(record);
     }
     return arg0;
 }
@@ -621,39 +621,39 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a63b0);
 // FUN_003A6570
 s32 func_003a6570(u8 *arg0, u8 *arg1)
 {
-    s32 temp_10;
-    s32 temp_4;
-    s32 temp_7;
-    s32 temp_8;
-    s32 temp_9;
-    s32 temp_11;
-    s32 temp_12;
+    s32 value;
+    s32 id;
+    s32 off140;
+    s32 off15C;
+    s32 index;
+    s32 off150;
+    s32 off14C;
     s32 mask = 0xEFFFFFFF;
     void (*callback)(u8 *, u8 *, s32 *, u8 *, u32) = func_003a55a0;
-    u8 *temp_14;
-    u8 *temp_16;
-    u8 *temp_2;
-    temp_14 = *(u8 **)(arg0 + 0x2C);
-    temp_4 = *(s32 *)(arg0 + 8);
-    temp_16 = *(u8 **)(temp_4 + iGpffffb610);
-    temp_2 = *(u8 **)(temp_16 + 0x9C);
-    temp_7 = *(s32 *)(temp_2 + 0xE4) * 0x24;
-    *(s32 *)((s32)temp_7 + (s32)temp_2 + 0x140) =
+    u8 *src;
+    u8 *record;
+    u8 *state;
+    src = *(u8 **)(arg0 + 0x2C);
+    id = *(s32 *)(arg0 + 8);
+    record = *(u8 **)(id + iGpffffb610);
+    state = *(u8 **)(record + 0x9C);
+    off140 = *(s32 *)(state + 0xE4) * 0x24;
+    *(s32 *)((s32)off140 + (s32)state + 0x140) =
         *(s32 *)(arg1 + 0xC);
-    temp_11 = *(s32 *)(temp_2 + 0xE4) * 0x24;
-    *(s32 *)((s32)temp_11 + (s32)temp_2 + 0x150) =
+    off150 = *(s32 *)(state + 0xE4) * 0x24;
+    *(s32 *)((s32)off150 + (s32)state + 0x150) =
         *(s32 *)(arg1 + 0);
-    temp_12 = *(s32 *)(temp_2 + 0xE4) * 0x24;
-    *(s32 *)((s32)temp_12 + (s32)temp_2 + 0x14C) =
+    off14C = *(s32 *)(state + 0xE4) * 0x24;
+    *(s32 *)((s32)off14C + (s32)state + 0x14C) =
         *(s32 *)(arg1 + 4);
-    temp_9 = *(s32 *)(temp_2 + 0xE4);
-    temp_10 = *(s32 *)(arg1 + 8);
-    temp_8 = temp_9 * 0x24;
-    *(s32 *)((s32)temp_8 + (s32)temp_2 + 0x15C) = temp_10;
-    *(void (**)(u8 *, u8 *, s32 *, u8 *, u32))(temp_16 + 0x24) = callback;
-    func_003b42e0(temp_4, temp_16 + 0x50,
-                  *(s32 *)(temp_14 + 4), mask);
-    *(void (**)(void))(temp_16 + 0x24) = func_003a5280;
+    index = *(s32 *)(state + 0xE4);
+    value = *(s32 *)(arg1 + 8);
+    off15C = index * 0x24;
+    *(s32 *)((s32)off15C + (s32)state + 0x15C) = value;
+    *(void (**)(u8 *, u8 *, s32 *, u8 *, u32))(record + 0x24) = callback;
+    func_003b42e0(id, record + 0x50,
+                  *(s32 *)(src + 4), mask);
+    *(void (**)(void))(record + 0x24) = func_003a5280;
     return 1;
 }
 // measured: closes schedule-on probe for 003a6570.
@@ -681,38 +681,38 @@ s32 func_003a7970(u8 *arg0, u8 *arg1)
     s32 mask = 0xEFFFFFFF;
     void (*callback)(u8 *, s32 *, s32) = func_003a76c0;
     u8 *arg0_2c = *(u8 **)(arg0 + 0x2C);
-    s32 temp_4;
-    u8 *temp_16;
-    u8 *temp_2;
+    s32 id;
+    u8 *record;
+    u8 *state;
     s32 index;
-    s32 temp_10;
+    s32 value;
 
-    temp_4 = *(s32 *)(arg0 + 8);
-    temp_16 = *(u8 **)(temp_4 + iGpffffb610);
-    temp_2 = *(u8 **)(temp_16 + 0x9C);
+    id = *(s32 *)(arg0 + 8);
+    record = *(u8 **)(id + iGpffffb610);
+    state = *(u8 **)(record + 0x9C);
     {
         s32 offset;
-        offset = *(s32 *)(temp_2 + 0xE4) * 0x24;
-        *(s32 *)((s32)offset + (s32)temp_2 + 0x140) =
+        offset = *(s32 *)(state + 0xE4) * 0x24;
+        *(s32 *)((s32)offset + (s32)state + 0x140) =
             *(s32 *)(arg1 + 4);
     }
     {
         s32 offset;
-        offset = *(s32 *)(temp_2 + 0xE4) * 0x24;
-        *(s32 *)((s32)offset + (s32)temp_2 + 0x154) =
+        offset = *(s32 *)(state + 0xE4) * 0x24;
+        *(s32 *)((s32)offset + (s32)state + 0x154) =
             *(s32 *)(arg1 + 0);
     }
-    index = *(s32 *)(temp_2 + 0xE4);
-    temp_10 = *(s32 *)(arg1 + 8);
+    index = *(s32 *)(state + 0xE4);
+    value = *(s32 *)(arg1 + 8);
     {
         s32 offset;
         offset = index * 0x24;
-        *(s32 *)((s32)offset + (s32)temp_2 + 0x160) = temp_10;
+        *(s32 *)((s32)offset + (s32)state + 0x160) = value;
     }
-    *(void (**)(u8 *, s32 *, s32))(temp_16 + 0x24) = callback;
-    func_003b42e0(temp_4, temp_16 + 0x50,
+    *(void (**)(u8 *, s32 *, s32))(record + 0x24) = callback;
+    func_003b42e0(id, record + 0x50,
                   (u32)*(u32 *)(arg0_2c + 4) >> 2, mask);
-    *(void (**)(u8 *, s32 *, s32))(temp_16 + 0x24) =
+    *(void (**)(u8 *, s32 *, s32))(record + 0x24) =
         (void (*)(u8 *, s32 *, s32))func_003a72a0;
     return 1;
 }
@@ -838,17 +838,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8840);
 // FUN_003A8CA0
 s32 func_003a8ca0(void)
 {
-    s32 temp_2;
-    s32 temp_2_2;
+    s32 handle;
+    s32 inner;
 
-    temp_2 = func_004115d0();
-    if (temp_2 != 0) {
-        temp_2_2 = func_00412ca0(temp_2);
-        if ((temp_2_2 != 0) &&
-            (func_004125e0(func_00412fb0(temp_2_2, 0, &D_007084A0, 0)) != 0)) {
-            return temp_2;
+    handle = func_004115d0();
+    if (handle != 0) {
+        inner = func_00412ca0(handle);
+        if ((inner != 0) &&
+            (func_004125e0(func_00412fb0(inner, 0, &D_007084A0, 0)) != 0)) {
+            return handle;
         }
-        func_00411670(temp_2);
+        func_00411670(handle);
     }
     return 0;
 }
@@ -866,27 +866,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8d20);
 #pragma no_branch_likely on
 s32 func_003a92d0(void)
 {
-    s32 temp_2;
-    s32 *temp_2_3;
-    s32 temp_2_2;
+    s32 handle;
+    s32 *info;
+    s32 inner;
 
-    temp_2 = func_004115d0();
-    if (temp_2 != 0) {
-        temp_2_2 = func_00412ca0(temp_2);
-        if (temp_2_2 != 0) {
-            temp_2_3 = func_003cfa70();
-            temp_2_2 = func_00412fb0(temp_2_2, 0, temp_2_3, 0);
-            func_00412e90(temp_2_2, *temp_2_3, 0, 0);
-            temp_2_2 = func_004125e0(temp_2_2);
-            if (temp_2_2 != 0) {
+    handle = func_004115d0();
+    if (handle != 0) {
+        inner = func_00412ca0(handle);
+        if (inner != 0) {
+            info = func_003cfa70();
+            inner = func_00412fb0(inner, 0, info, 0);
+            func_00412e90(inner, *info, 0, 0);
+            inner = func_004125e0(inner);
+            if (inner != 0) {
                 func_003cf9b0(
-                    (u8 *)func_00412e90(temp_2_2, *temp_2_3, 0, 0),
+                    (u8 *)func_00412e90(inner, *info, 0, 0),
                     1,
                     (void *)func_003a8d20);
-                return temp_2;
+                return handle;
             }
         }
-        func_00411670(temp_2);
+        func_00411670(handle);
         goto block_5;
     }
 block_5:
