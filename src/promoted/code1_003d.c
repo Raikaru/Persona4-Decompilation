@@ -134,7 +134,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d20d0);
 u8 *RwIm3DPS2AllResEntryAllocCallBack(u8 *arg0, s32 **arg1, s32 arg2, s32 arg3) {
     extern void func_003f3eb0(s32, s32);
     extern u8 *func_003f44c0(s32, s32);
-    u8 *var_2;
+    u8 *entry;
 
     func_003f3eb0(0, 0x80);
     *arg1 = (s32 *)func_003f44c0(arg2 + 0x18, 0);
@@ -144,11 +144,11 @@ u8 *RwIm3DPS2AllResEntryAllocCallBack(u8 *arg0, s32 **arg1, s32 arg2, s32 arg3) 
     (*arg1)[2] = arg2;
     (*arg1)[4] = 0;
     (*arg1)[5] = arg3;
-    var_2 = (u8 *)*arg1;
-    if (var_2 == NULL) {
-        var_2 = NULL;
+    entry = (u8 *)*arg1;
+    if (entry == NULL) {
+        entry = NULL;
     }
-    return var_2;
+    return entry;
 }
 #pragma peephole on
 #pragma no_branch_likely off
@@ -219,16 +219,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3780);
 #pragma no_branch_likely on
 #pragma schedule on
 u8 *func_003d38e0(u8 *arg0, s32 arg1) {
-    u8 *temp_2;
+    u8 *record;
 
     if (arg0 == NULL) {
         goto block_1;
     }
-    temp_2 = *(u8 **)(arg0 + 0x14);
-    if (temp_2 == NULL) {
+    record = *(u8 **)(arg0 + 0x14);
+    if (record == NULL) {
         goto block_2;
     }
-    *(s32 *)(temp_2 + 0x14) = arg1;
+    *(s32 *)(record + 0x14) = arg1;
     return arg0;
 block_1:
     return NULL;
@@ -251,10 +251,10 @@ s32 func_003df7f0();
 /* measured: probe schedule */
 #pragma schedule on
 u8 *func_003d3920(u8 *arg0, u8 *arg1, s32 arg2) {
-    u8 *temp_7;
+    u8 *record;
     if (arg0 == NULL) goto block_1;
-    temp_7 = *(u8 **)(arg0 + 0x14);
-    if (temp_7 == NULL) goto block_2;
+    record = *(u8 **)(arg0 + 0x14);
+    if (record == NULL) goto block_2;
     if (arg1 == NULL) goto block_default;
     if (arg2 != 0) goto block_custom;
     return NULL;
@@ -263,14 +263,14 @@ block_1:
 block_2:
     return NULL;
 block_custom:
-    *(u8 **)(temp_7 + 0x18) = arg1;
-    temp_7 = *(u8 **)(arg0 + 0x14);
-    *(s32 *)(temp_7 + 0x1C) = arg2;
+    *(u8 **)(record + 0x18) = arg1;
+    record = *(u8 **)(arg0 + 0x14);
+    *(s32 *)(record + 0x1C) = arg2;
     goto block_return;
 block_return:
     return arg0;
 block_default:
-    *(u8 **)(temp_7 + 0x18) = D_0070C260;
+    *(u8 **)(record + 0x18) = D_0070C260;
     *(s32 *)(*(u8 **)(arg0 + 0x14) + 0x1C) = 0x20;
     goto block_return;
 }
@@ -599,21 +599,21 @@ ret_one:
 #pragma no_branch_likely on
 // FUN_003D4C70
 s32 func_003d4c70(void) {
-    s32 temp_17;
-    s32 var_16;
+    s32 flags;
+    s32 ok;
     s32 aggregate;
 
-    var_16 = 0;
-    temp_17 = 0;
+    ok = 0;
+    flags = 0;
     iGpffffb730 = func_003c2b70(4, 0x50F, func_003d48c0, func_003d48d0, func_003d4910);
     iGpffffb72c = func_003c1ab0(4, 0x50F, func_003d48c0, func_003d48d0, func_003d49b0);
     iGpffffb728 = func_003c8d00(4, 0x50F, func_003d48c0, func_003d48d0, func_003d4a60);
-    temp_17 |= func_003c1b40(0x50F, func_003d4b00);
-    aggregate = temp_17 | func_003c8d60(0x50F, func_003d4bf0);
+    flags |= func_003c1b40(0x50F, func_003d4b00);
+    aggregate = flags | func_003c8d60(0x50F, func_003d4bf0);
     if ((aggregate | (iGpffffb728 | (iGpffffb730 | iGpffffb72c))) >= 0) {
-        var_16 = 1;
+        ok = 1;
     }
-    return var_16;
+    return ok;
 }
 /* measured: closes schedule around func_003d4c70. */
 #pragma schedule off
@@ -635,14 +635,14 @@ s32 func_003d4ea0(void) {
         s32 sp18;
         s32 sp1C;
     } frame;
-    s32 temp_2;
+    s32 handle;
     u8 *base;
 
-    temp_2 = func_0039b6e0(0x1002);
+    handle = func_0039b6e0(0x1002);
     base = D_008872E0 + iGpffffb9b8;
-    *(s32 *)(base + 0x54) = temp_2;
-    if (temp_2 != 0) {
-        func_003cc070(temp_2);
+    *(s32 *)(base + 0x54) = handle;
+    if (handle != 0) {
+        func_003cc070(handle);
         return 1;
     }
     func_003cc070(0);
@@ -682,12 +682,12 @@ fail_4f20:
 #pragma schedule on
 // FUN_003D4F80
 s32 AnimClose(s32 arg0) {
-    s32 temp_4;
+    s32 handle;
 
-    temp_4 = iGpffffb738;
+    handle = iGpffffb738;
     iGpffffb734 = 0;
-    if (temp_4 != 0) {
-        func_003e12f0(temp_4);
+    if (handle != 0) {
+        func_003e12f0(handle);
         iGpffffb738 = 0;
     }
     return arg0;
@@ -865,17 +865,17 @@ s32 func_003d5e40(u8 *arg0, f32 fparg0) {
 #pragma schedule on
 // FUN_003D5F50
 void func_003d5f50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
-    s32 var_7;
-    u8 *temp_2;
+    s32 value;
+    u8 *record;
 
-    var_7 = arg3;
-    if (var_7 == -1) {
-        var_7 = *(s32 *)(arg0 + 0x20);
+    value = arg3;
+    if (value == -1) {
+        value = *(s32 *)(arg0 + 0x20);
     }
-    temp_2 = func_003d5790(arg2, var_7);
-    *(u8 **)(temp_2 + 0x38) = arg0;
-    *(s32 *)(temp_2 + 0x34) = arg1;
-    *(s32 *)(temp_2 + 0x30) = 1;
+    record = func_003d5790(arg2, value);
+    *(u8 **)(record + 0x38) = arg0;
+    *(s32 *)(record + 0x34) = arg1;
+    *(s32 *)(record + 0x30) = 1;
 }
 /* measured: closes the single-function schedule bracket for func_003d5f50. */
 #pragma schedule off
@@ -1346,12 +1346,12 @@ s32 func_003dd530(u8 *arg0, s32 arg1) {
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003dd590(u8 *arg0) {
-    s64 temp_3;
-    temp_3 = *(s64 *)((u8 *)(arg0) + 0x10);
-    if (temp_3 == -1) {
+    s64 pos;
+    pos = *(s64 *)((u8 *)(arg0) + 0x10);
+    if (pos == -1) {
         return 1;
     }
-    return (s32)(temp_3 >= *(s64 *)((u8 *)(arg0) + 0));
+    return (s32)(pos >= *(s64 *)((u8 *)(arg0) + 0));
 }
 /* measured: closes schedule/no_branch_likely around func_003dd590. */
 #pragma schedule off
@@ -1388,8 +1388,8 @@ void func_003dd5c0(u8 **arg0, s32 arg1) {
 // FUN_003DD6D0
 void func_003dd6d0(u8 *arg0)
 {
-    s32 temp_7;
-    s32 var_5;
+    s32 kind;
+    s32 value;
 
     if (arg0 == NULL) {
         goto block_exit;
@@ -1397,17 +1397,17 @@ void func_003dd6d0(u8 *arg0)
     if (*(s32 *)(arg0 + 0x30) == 0) {
         goto block_exit;
     }
-    temp_7 = *(s32 *)(arg0 + 0x40);
-    if ((temp_7 != 1) &&
+    kind = *(s32 *)(arg0 + 0x40);
+    if ((kind != 1) &&
         (*(u32 *)(arg0 + 0x48) != 0)) {
-        if (temp_7 == 4) {
-            var_5 = *(s32 *)(arg0 + 0x10);
+        if (kind == 4) {
+            value = *(s32 *)(arg0 + 0x10);
         } else {
-            var_5 = *(s32 *)(arg0 + 0x44);
+            value = *(s32 *)(arg0 + 0x44);
         }
         *(s32 *)(arg0 + 0x40) = 1;
         ((void (*)(u8 *, s32, s32, s32, s32))(*(u32 *)(arg0 + 0x48)))(
-            arg0, var_5, *(s32 *)(arg0 + 0x38), temp_7,
+            arg0, value, *(s32 *)(arg0 + 0x38), kind,
             *(s32 *)(arg0 + 0x4C));
         goto block_shared;
     }
@@ -1820,31 +1820,31 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de4d0);
 // FUN_003DE6A0
 s64 func_003de6a0(u8 *arg0, s32 arg1, s64 arg2) {
     extern s64 sceWrite(s32 arg0);
-    s64 temp_4;
-    s64 var_17;
+    s64 pos;
+    s64 bytes;
     s64 result;
 
     *(s32 *)(arg0 + 0x38) = 3;
-    var_17 = arg2;
+    bytes = arg2;
     result = sceWrite(*(s32 *)(arg0 + 0x60));
     if (*(s32 *)(arg0 + 0x30) != 0) {
         if (result < 0) {
-            var_17 = 0;
+            bytes = 0;
         }
-        result = var_17;
+        result = bytes;
     }
     *(s32 *)(arg0 + 0x38) = 2;
     if (result > 0) {
         *(s64 *)(arg0 + 0x10) += (s32)result;
-        temp_4 = *(s64 *)(arg0 + 0x10);
-        if (temp_4 > *(s64 *)arg0) {
+        pos = *(s64 *)(arg0 + 0x10);
+        if (pos > *(s64 *)arg0) {
             goto block_update;
         }
         goto block_finish;
 block_finish:
         return result;
 block_update:
-        *(s64 *)arg0 = temp_4;
+        *(s64 *)arg0 = pos;
         goto block_finish;
     }
     return 0;
