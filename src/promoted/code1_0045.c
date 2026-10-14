@@ -1185,14 +1185,6 @@ void func_004544b0(void)
     *(s32 *)D_008D1CD4 = 0;
     func_00468a10(index);
 }
-// FUN_004556B0
-s32 func_004556b0(u8* arg0, u32 arg1)
-{
-    if (arg1 < *(u32*)(arg0 + 4)) {
-        return (s32)(*(u8**)(arg0 + 0x58) + arg1 * 0x110);
-    }
-    return 0;
-}
 
 
 

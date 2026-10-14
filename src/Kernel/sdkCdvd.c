@@ -327,7 +327,7 @@ void func_004555d0(void* resultData, void* slotData, s32 amount, s32 mode)
 s32 func_003dd900(s32 a0);
 void func_0044ea90(const void* file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_004556b0(void);
+extern void H_Cdvd_StreamGetSlot(void);
 extern void func_004556f0(void);
 extern void func_004553e0(void);
 extern void func_00455520(void);
@@ -375,7 +375,7 @@ u8* func_004557e0(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
     func_0044ea90(D_00710870, 0x425);
     base = (u32)D_008873F4;
     obj = ((u8* (*)(s32, s32, s32))*(u32*)base)(1, 0x5C, 0x40000);
-    *(void**)(obj + 0x14) = &func_004556b0;
+    *(void**)(obj + 0x14) = &H_Cdvd_StreamGetSlot;
     *(void**)(obj + 0x18) = &func_004556f0;
     *(void**)(obj + 0x28) = &func_004553e0;
     *(void**)(obj + 0x2C) = &func_00455510;
