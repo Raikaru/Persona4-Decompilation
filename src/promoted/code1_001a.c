@@ -3118,7 +3118,7 @@ static inline u8 btlUnitKind_001a59a0(u8 *unit)
 // FUN_001A59A0
 void func_001a59a0(s64 *arg0_) {
     u8 *arg0 = (u8 *)arg0_;
-    u8 *temp_19;
+    u8 *battleUnit;
     extern s64 func_00194590(u8 *packet, u32 mode);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *func_00197cc0();
@@ -3167,824 +3167,815 @@ void func_001a59a0(s64 *arg0_) {
         u8 actionPrefix[0xF0];
         LargeBattleHitResult result;
     } ActionHitRowView;
-    s16 sp32E;
-    s16 sp32C;
+    s16 hitCue;
+    s16 hitVariant;
     /* 001a0290 writes both signed halfword effect indices. */
     s16 effectIndices[2];
     /* The constructor copies ten bytes; mode 3 uses the first four. */
     struct { u16 mode, unitId; u8 reserved[6]; } cutin;
     RwV3d targetPosition;
     LargeBattleHitResult result;
-    BtlPacket *sp2DC;
-    BtlPacket *temp_2_28;
-    u8 *sp2D8;
-    u8 *temp_2_6;
-    u8 *sp2D4;
-    u8 *temp_2_42;
-    s64 sp2C0;
-    s32 sp2B0;
-    s32 sp2A0;
-    s32 sp290;
-    s32 sp280;
-    s32 sp270;
-    u16 sp260;
-    s32 sp25C;
-    s32 sp258;
-    s32 sp254;
-    s32 sp250;
-    s32 sp240;
-    s32 sp230;
-    s32 sp22C;
-    s32 sp210;
-    u32 sp200;
-    LargeBattleHitResult *sp1F0;
-    LargeBattleHitResult *temp_2_48;
-    u16 sp1E0;
-    u16 sp1D0;
-    s32 sp1C0;
-    s32 sp1B0;
-    s32 sp1A0;
-    s32 sp190;
-    s32 sp180;
-    s32 sp170;
-    s16 sp160;
-    s32 sp150;
-    s32 sp140;
-    s32 sp130;
-    s32 sp120;
+    BtlPacket *hitAnimPacketSaved;
+    BtlPacket *hitAnimPacket;
+    u8 *leadPacketSaved;
+    u8 *leadPacket;
+    u8 *counterAnimPacketSaved;
+    u8 *counterAnimPacket;
+    s64 hitPacketUid;
+    s32 hitTiming;
+    s32 hitMotion;
+    s32 reactionUnitCount;
+    s32 earlyDelta;
+    s32 lateDelta;
+    u16 hitIndexCounter;
+    s32 unitFlag10E;
+    s32 hasReaction;
+    s32 hasTargetE4;
+    s32 hasTargetFlags6;
+    s32 isPrimaryHit;
+    s32 setEffectFlags;
+    s32 counterPending;
+    s32 shortRangeFlag;
+    u32 hitIndex;
+    LargeBattleHitResult *hitResultSaved;
+    LargeBattleHitResult *hitResultPtr;
+    u16 targetIndex;
+    u16 hitRowIndex;
+    s32 actionFlagSaved;
+    s32 hasCounterUnit;
+    s32 baseDurationSaved;
+    s32 animDuration;
+    s32 timingValueWide;
+    s32 timingValueShifted;
+    s16 hitRowCount;
+    s32 targetFlagDASaved;
+    s32 hitCount;
+    s32 lastHitIndex;
+    s32 hitRowLimit;
     ActionHitRowView *hitRow;
     u32 *addedStatus;
-    s32 spF0;
-    s32 spE0;
-    s32 spD0;
-    s32 spC0;
-    f32 var_f20;
+    s32 reactionRoll;
+    s32 counterUnitId;
+    s32 hitRowNumber;
+    s32 targetNumber;
+    f32 timeScale;
     s32 timingAdjustment;
-    f32 var_f12;
-    s32 temp_2;
-    s16 temp_2_53;
-    s16 temp_5_6;
-    s16 temp_5_7;
-    s32 var_21;
-    s32 var_22_2;
-    s32 var_2_3;
-    s32 var_2_7;
-    s32 var_3;
-    s32 temp_2_5;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_3_3;
-    s32 var_10;
-    s32 var_16;
-    s32 var_22;
-    s32 var_2_6;
-    s32 var_2_8;
-    s32 var_5;
-    s32 var_5_2;
-    s32 var_6;
-    ActionTargetView *temp_18;
-    ActionTargetView *var_22_3;
+    f32 shortRangeDistance;
+    s32 actionFlag;
+    s16 counterUnitId16;
+    s16 auxEffectIndex;
+    s16 auxEffectIndexTarget;
+    s32 hitTimingBase;
+    s32 startDelay;
+    s32 animDelay;
+    s32 timingRemaining;
+    s32 hitDelay;
+    s32 counterDuration;
+    s32 timingDelta;
+    s32 targetRowIndex;
+    s32 actionVariant;
+    s32 hasStatusFlag;
+    s32 hitEffectIndex;
+    s32 reactionCueFlag;
+    s32 closeCameraResult;
+    s32 closeCameraResultB;
+    s32 unitIndex;
+    ActionTargetView *targetView;
+    ActionTargetView *focusTarget;
     ActionTargetView *selectedTarget;
-    s64 temp_16;
-    s64 temp_17;
-    s32 temp_2_17;
-    s16 temp_2_26;
-    s32 temp_2_4;
-    s32 temp_3_4;
-    s16 temp_4_4;
-    s32 var_18;
-    s32 var_23;
-    s32 var_30;
-    s8 temp_2_27;
-    u16 temp_3_8;
-    u16 temp_5;
-    u32 temp_4_7;
-    u8 temp_2_10;
-    u8 temp_2_8;
-    s16 var_2_4;
-    u8 *temp_2_11;
-    u8 *temp_2_12;
-    u8 *temp_2_13;
-    u8 *temp_2_14;
-    u8 *temp_2_15;
-    u8 *temp_2_16;
-    u8 *temp_2_18;
-    u8 *temp_2_19;
-    u8 *temp_2_20;
-    u8 *temp_2_21;
-    u8 *temp_2_22;
-    u8 *temp_2_23;
-    u8 *temp_2_24;
-    u8 *temp_2_25;
-    u8 *temp_2_29;
-    u8 *temp_2_2;
-    u8 *temp_2_30;
-    u8 *temp_2_31;
-    u8 *temp_2_32;
-    u8 *temp_2_33;
-    u8 *temp_2_34;
-    u8 *temp_2_35;
-    u8 *temp_2_36;
-    u8 *temp_2_37;
-    u8 *temp_2_38;
-    u8 *temp_2_39;
-    u8 *temp_2_3;
-    u8 *temp_2_40;
-    u8 *temp_2_41;
-    u8 *temp_2_43;
-    u8 *temp_2_44;
-    u8 *temp_2_45;
-    u8 *temp_2_46;
-    u8 *temp_2_47;
-    u8 *temp_2_49;
-    u8 *temp_2_50;
-    u8 *temp_2_51;
-    u8 *temp_2_52;
-    u8 *temp_2_54;
-    u8 *temp_2_55;
-    u8 *temp_2_56;
-    u8 *temp_2_57;
-    u8 *temp_2_58;
-    u8 *temp_2_59;
-    u8 *temp_2_60;
-    u8 *temp_2_61;
-    u8 *temp_2_62;
-    u8 *temp_2_63;
-    u8 *temp_2_7;
-    u8 *temp_2_9;
-    u8 *temp_3_5;
-    u8 *temp_3_6;
-    u8 *temp_3_7;
-    u8 *temp_4;
-    u8 *temp_4_2;
-    u8 *temp_4_3;
-    u8 *temp_4_5;
-    u8 *temp_4_6;
-    u8 *temp_4_8;
-    u8 *temp_5_2;
-    u8 *temp_5_3;
-    u8 *temp_5_4;
-    u8 *temp_5_5;
-    u8 *temp_8;
-    u8 *var_2_2;
-    u8 *var_2_5;
+    s64 animUid;
+    s64 actionUid;
+    s32 timingValue16;
+    s16 hitCountShort;
+    s32 baseDuration;
+    s32 reactionRemaining;
+    s16 scaledBase;
+    s32 timingValue;
+    s32 actionDuration;
+    s32 actionKind;
+    s8 rowMotion;
+    u16 targetCount;
+    u32 randomRoll;
+    s16 targetFlagDA;
+    u8 *cameraEventPacket;
+    u8 *cuePacket;
+    u8 *effectPacket;
+    u8 *effectPacketB;
+    u8 *resultPacket;
+    u8 *reactionPacket;
+    u8 *rotatePacketTarget;
+    u8 *actionPacket;
+    u8 *rotatePacketFocus;
+    u8 *cameraPacketFocus;
+    u8 *movePacket;
+    u8 *animPacketFocus;
+    u8 *animPacketTarget;
+    u8 *nearMovePacket;
+    u8 *cuePacketB;
+    u8 *rotatePacket;
+    u8 *effectPacketC;
+    u8 *cuePacketC;
+    u8 *effectPacketD;
+    u8 *cuePacketD;
+    u8 *cuePacketE;
+    u8 *cuePacketF;
+    u8 *effectPacketE;
+    u8 *effectPacketF;
+    u8 *cuePacketG;
+    u8 *cuePacketH;
+    u8 *rotateToPointPacket;
+    u8 *cuePacketI;
+    u8 *effectPacketG;
+    u8 *effectPacketH;
+    u8 *effectPacketI;
+    u8 *effectPacketJ;
+    u8 *hitPacket;
+    u8 *shakePacket;
+    u8 *resultPacketB;
+    u8 *statusPacket;
+    u8 *statPacket;
+    u8 *cuePacketJ;
+    u8 *actionPacketB;
+    u8 *reactionPacketB;
+    u8 *reactionPacketC;
+    u8 *actionPacketC;
+    u8 *actionPacketD;
+    u8 *unitStatePacket;
+    u8 *unitStatePacketB;
+    u8 *unitStatePacketC;
+    u8 *unitStatePacketD;
+    u8 *statePacket;
+    u8 *battleStatePtrD;
+    u8 *battleStatePtrB;
+    u8 *cutinUnit;
+    u8 *unitEntry;
+    u8 *focusUnit;
+    u8 *battleStatePtr;
+    u8 *battleStatePtrC;
+    u8 *focusUnitB;
+    u8 *focusUnitC;
+    u8 *focusUnitD;
+    u8 *focusUnitE;
+    u8 *targetRow;
+    u8 *cameraPacket;
+    u8 *effectPacketK;
 
-    /* var_21 init removed */
+    /* hitTimingBase init removed */
     func_001a03b0((s64 *)arg0);
-    temp_17 = (s64)((*(s64 *)(arg0 + (0))));
-    sp2C0 = 0;
-    temp_19 = (u8 *)((*(u8 **)(arg0 + (0x30))));
-    temp_2 = (s32)(s32)(((*(u16 *)(arg0 + (0x18))) & 0x4000) != 0);
-    sp1C0 = temp_2;
-    sp1B0 = (s32)(s32)((*(s64 **)(arg0 + (0x88))) != NULL);
-    if (temp_2 != 0) {
-        var_f20 = 1.75f;
+    actionUid = (s64)((*(s64 *)(arg0 + (0))));
+    hitPacketUid = 0;
+    battleUnit = (u8 *)((*(u8 **)(arg0 + (0x30))));
+    actionFlag = (s32)(s32)(((*(u16 *)(arg0 + (0x18))) & 0x4000) != 0);
+    actionFlagSaved = actionFlag;
+    hasCounterUnit = (s32)(s32)((*(s64 **)(arg0 + (0x88))) != NULL);
+    if (actionFlag != 0) {
+        timeScale = 1.75f;
     } else {
-        var_f20 = 1.0f;
+        timeScale = 1.0f;
     }
-    sp290 = 0;
-    sp25C = 0;
-    sp258 = 0;
-    var_22 = 0;
-    sp254 = 0;
-    sp250 = 0;
-    sp22C = 0;
-    sp230 = 0;
-    func_00194590((u8 *)func_00202010((u32)temp_19, (*(u16 *)(arg0 + (0x6E)))), 3);
+    reactionUnitCount = 0;
+    unitFlag10E = 0;
+    hasReaction = 0;
+    hasStatusFlag = 0;
+    hasTargetE4 = 0;
+    hasTargetFlags6 = 0;
+    counterPending = 0;
+    setEffectFlags = 0;
+    func_00194590((u8 *)func_00202010((u32)battleUnit, (*(u16 *)(arg0 + (0x6E)))), 3);
     func_001a0290(arg0, (*(u16 *)(arg0 + (0x6E))), (u8 *)effectIndices);
     if ((*(u16 *)(arg0 + (0x6A))) == 1) {
-        temp_2_2 = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)(arg0 + (0x30))), (*(u8 **)((u8 *)((*(u8 **)(arg0 + (0x38)))) + (0x30))), 0));
-        (*(s64 *)((u8 *)(temp_2_2) + (0x60))) = temp_17;
-        func_00194590(temp_2_2, 0);
+        rotatePacket = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)(arg0 + (0x30))), (*(u8 **)((u8 *)((*(u8 **)(arg0 + (0x38)))) + (0x30))), 0));
+        (*(s64 *)((u8 *)(rotatePacket) + (0x60))) = actionUid;
+        func_00194590(rotatePacket, 0);
     } else {
         func_00196040(func_001eb440((BtlTarget *)(arg0 + 0x38)) & 0xFFFF, 1, &targetPosition, 0, 0, 1);
-        temp_2_3 = (u8 *)(btlUnitCreateRotatePacket((*(BtlUnit **)(arg0 + (0x30))), &targetPosition, 0));
-        (*(s64 *)((u8 *)(temp_2_3) + (0x60))) = temp_17;
-        func_00194590(temp_2_3, 0);
+        rotateToPointPacket = (u8 *)(btlUnitCreateRotatePacket((*(BtlUnit **)(arg0 + (0x30))), &targetPosition, 0));
+        (*(s64 *)((u8 *)(rotateToPointPacket) + (0x60))) = actionUid;
+        func_00194590(rotateToPointPacket, 0);
     }
-    var_6 = 0;
-    temp_5 = (u16)((*(u16 *)(arg0 + (0x6A))));
-    while (((s32)var_6 & 0xFFFF) < (s32) temp_5) {
-        temp_4 = (u8 *)((*(u8 **)((u8 *)((arg0 + ((var_6 & 0xFFFF) * 4))) + (0x38))));
-        var_10 = 0;
-        while ((var_10 & 0xFFFF) < (s32) (*(u8 *)((u8 *)(temp_4) + (0xD9)))) {
-            temp_8 = (u8 *)(temp_4 + ((u16)var_10 << 5));
-            if ((*(s32 *)((u8 *)(temp_8) + (0xF8))) & 0x100000) {
-                var_22 = 1;
+    unitIndex = 0;
+    targetCount = (u16)((*(u16 *)(arg0 + (0x6A))));
+    while (((s32)unitIndex & 0xFFFF) < (s32) targetCount) {
+        unitEntry = (u8 *)((*(u8 **)((u8 *)((arg0 + ((unitIndex & 0xFFFF) * 4))) + (0x38))));
+        targetRowIndex = 0;
+        while ((targetRowIndex & 0xFFFF) < (s32) (*(u8 *)((u8 *)(unitEntry) + (0xD9)))) {
+            targetRow = (u8 *)(unitEntry + ((u16)targetRowIndex << 5));
+            if ((*(s32 *)((u8 *)(targetRow) + (0xF8))) & 0x100000) {
+                hasStatusFlag = 1;
             }
-            if ((*(u16 *)((u8 *)(temp_8) + (0x10E))) & 4) {
-                sp25C = 1;
+            if ((*(u16 *)((u8 *)(targetRow) + (0x10E))) & 4) {
+                unitFlag10E = 1;
             }
-            var_10 = (var_10 + 1) & 0xFFFF;
+            targetRowIndex = (targetRowIndex + 1) & 0xFFFF;
         }
-        if ((*(s32 *)((u8 *)(temp_4) + (0xE0))) != 0) {
-            sp258 = 1;
-            sp290 += 1;
+        if ((*(s32 *)((u8 *)(unitEntry) + (0xE0))) != 0) {
+            hasReaction = 1;
+            reactionUnitCount += 1;
         }
-        if ((*(s32 *)((u8 *)(temp_4) + (0xE4))) != 0) {
-            sp254 = 1;
+        if ((*(s32 *)((u8 *)(unitEntry) + (0xE4))) != 0) {
+            hasTargetE4 = 1;
         }
-        if ((*(u16 *)((u8 *)(temp_4) + (0xDE))) & 6) {
-            sp250 = 1;
+        if ((*(u16 *)((u8 *)(unitEntry) + (0xDE))) & 6) {
+            hasTargetFlags6 = 1;
         }
-        var_6 = ((s32)var_6 + 1) & 0xFFFF;
+        unitIndex = ((s32)unitIndex + 1) & 0xFFFF;
     }
-    if (sp25C != 0) {
-        var_30 = 0xC;
-        var_16 = 0;
-        sp230 = 1;
-    } else if (sp1C0 != 0) {
-        var_30 = 4;
-        var_16 = 0;
-    } else if (sp250 != 0) {
-        var_30 = 5;
-        var_16 = 2;
-        sp230 = 1;
+    if (unitFlag10E != 0) {
+        actionKind = 0xC;
+        actionVariant = 0;
+        setEffectFlags = 1;
+    } else if (actionFlagSaved != 0) {
+        actionKind = 4;
+        actionVariant = 0;
+    } else if (hasTargetFlags6 != 0) {
+        actionKind = 5;
+        actionVariant = 2;
+        setEffectFlags = 1;
     } else {
-        var_30 = 4;
-        var_16 = 0;
+        actionKind = 4;
+        actionVariant = 0;
     }
-    if ((var_22 == 1) && (sp1C0 == 0) && (temp_5 == 1) && !((*(s32 *)((u8 *)(iGpffffb3ac) + (0x10))) & 0x2000)) {
-        sp22C = 1;
+    if ((hasStatusFlag == 1) && (actionFlagSaved == 0) && (targetCount == 1) && !((*(s32 *)((u8 *)(iGpffffb3ac) + (0x10))) & 0x2000)) {
+        counterPending = 1;
     }
-    if ((btlUnitKind_001a59a0(temp_19) != 0) || (var_30 == 4) || (var_30 == 0xC)) {
-        var_23 = func_001991c0(temp_19, var_30, var_f20);
+    if ((btlUnitKind_001a59a0(battleUnit) != 0) || (actionKind == 4) || (actionKind == 0xC)) {
+        actionDuration = func_001991c0(battleUnit, actionKind, timeScale);
     } else {
-        var_23 = func_001999f0(temp_19, var_30, var_f20, 0);
+        actionDuration = func_001999f0(battleUnit, actionKind, timeScale, 0);
     }
-    temp_2_4 = func_00199500(temp_19, var_30, var_f20);
-    sp1A0 = (s32) temp_2_4;
+    baseDuration = func_00199500(battleUnit, actionKind, timeScale);
+    baseDurationSaved = (s32) baseDuration;
     /* Retail truncates the scaled difference, caps it at 25, then narrows each sum. */
-    var_18 = (s16)var_23;
-    if (var_23 < temp_2_4) {
-        timingAdjustment = (s32)(fGpffff8128 * (f32)(temp_2_4 - var_23));
+    timingValue = (s16)actionDuration;
+    if (actionDuration < baseDuration) {
+        timingAdjustment = (s32)(fGpffff8128 * (f32)(baseDuration - actionDuration));
         if (timingAdjustment > 0x19) {
             timingAdjustment = 25;
         }
-        var_18 = (s16)(var_18 + (s16)timingAdjustment);
+        timingValue = (s16)(timingValue + (s16)timingAdjustment);
     }
-    if ((sp258 != 0) || (sp254 != 0)) {
-        var_18 = (s16)(var_18 + 8);
+    if ((hasReaction != 0) || (hasTargetE4 != 0)) {
+        timingValue = (s16)(timingValue + 8);
     }
-    if (sp1B0 != 0) {
-        temp_2_5 = (func_00199500((*(u8 **)((u8 *)((*(s64 **)(arg0 + (0x88)))) + (0x30))), 0x1A, 1.0f)) - 4;
-        if (var_23 < temp_2_5) {
-            sp280 = temp_2_5 - var_23;
-            sp270 = 0;
+    if (hasCounterUnit != 0) {
+        counterDuration = (func_00199500((*(u8 **)((u8 *)((*(s64 **)(arg0 + (0x88)))) + (0x30))), 0x1A, 1.0f)) - 4;
+        if (actionDuration < counterDuration) {
+            earlyDelta = counterDuration - actionDuration;
+            lateDelta = 0;
         } else {
-            sp280 = 0;
-            sp270 = var_23 - temp_2_5;
+            earlyDelta = 0;
+            lateDelta = actionDuration - counterDuration;
         }
-        var_18 = (s16)(var_18 + 0xC);
+        timingValue = (s16)(timingValue + 0xC);
     } else {
-        sp280 = 0;
-        sp270 = 0;
+        earlyDelta = 0;
+        lateDelta = 0;
     }
-    temp_2_6 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)temp_19, (s16)var_30, 0, var_f20, var_16 & 0xFFFF));
-    sp2D8 = (u8 *)(temp_2_6);
-    (*(s16 *)((u8 *)(temp_2_6) + (0x48))) = (s16) sp280;
-    (*(s64 *)((u8 *)(temp_2_6) + (0x60))) = temp_17;
-    func_00194590(temp_2_6, 0);
-    temp_16 = *(s64 *)(temp_2_6 + 0x58);
-    if (sp1B0 == 0) {
+    leadPacket = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)battleUnit, (s16)actionKind, 0, timeScale, actionVariant & 0xFFFF));
+    leadPacketSaved = (u8 *)(leadPacket);
+    (*(s16 *)((u8 *)(leadPacket) + (0x48))) = (s16) earlyDelta;
+    (*(s64 *)((u8 *)(leadPacket) + (0x60))) = actionUid;
+    func_00194590(leadPacket, 0);
+    animUid = *(s64 *)(leadPacket + 0x58);
+    if (hasCounterUnit == 0) {
         if ((*(u16 *)(arg0 + (0x6A))) == 1) {
-            if (btlUnitKind_001a59a0(temp_19) == 0) {
-                if (((sp250 == 0) && (var_22 == 0)) || (sp1C0 == 1)) {
-                    var_5 = btlCloseCamera_001a59a0(*(u8 **)(arg0 + 0x30), sp250);
-                    if (var_5 != 0) {
-                        var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
+            if (btlUnitKind_001a59a0(battleUnit) == 0) {
+                if (((hasTargetFlags6 == 0) && (hasStatusFlag == 0)) || (actionFlagSaved == 1)) {
+                    closeCameraResult = btlCloseCamera_001a59a0(*(u8 **)(arg0 + 0x30), hasTargetFlags6);
+                    if (closeCameraResult != 0) {
+                        cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
                     } else {
-                        var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xB));
+                        cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xB));
                     }
                 } else {
-                    var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x10));
+                    cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x10));
                 }
-            } else if ((var_22 == 0) || (sp1C0 == 1)) {
-                var_5_2 = btlCloseCamera_001a59a0(*(u8 **)(arg0 + 0x30), sp250);
-                if (var_5_2 != 0) {
-                    var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
+            } else if ((hasStatusFlag == 0) || (actionFlagSaved == 1)) {
+                closeCameraResultB = btlCloseCamera_001a59a0(*(u8 **)(arg0 + 0x30), hasTargetFlags6);
+                if (closeCameraResultB != 0) {
+                    cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xC));
                 } else {
-                    var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xB));
+                    cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xB));
                 }
             } else {
-                var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xD));
+                cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xD));
             }
         } else {
-            var_2_2 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x2C));
+            cameraPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x2C));
         }
-        (*(s8 *)((u8 *)(var_2_2) + (0))) = 5;
-        (*(s64 *)((u8 *)(var_2_2) + (8))) = temp_16;
-        (*(s64 *)((u8 *)(var_2_2) + (0x60))) = temp_17;
-        func_00194590(var_2_2, 0);
+        (*(s8 *)((u8 *)(cameraPacket) + (0))) = 5;
+        (*(s64 *)((u8 *)(cameraPacket) + (8))) = animUid;
+        (*(s64 *)((u8 *)(cameraPacket) + (0x60))) = actionUid;
+        func_00194590(cameraPacket, 0);
     }
-    if (sp25C != 0) {
-        if (var_23 > 6) {
-            var_22_2 = var_23 - 6;
+    if (unitFlag10E != 0) {
+        if (actionDuration > 6) {
+            startDelay = actionDuration - 6;
         } else {
-            var_22_2 = 0;
+            startDelay = 0;
         }
-        sp190 = (s32) (func_00199350(temp_19, var_30, var_f20));
-        if (btlUnitKind_001a59a0(temp_19) == 0) {
-            temp_2_11 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xE));
-            (*(s8 *)((u8 *)(temp_2_11) + (0))) = 4;
-            (*(s64 *)((u8 *)(temp_2_11) + (8))) = (s64) (*(s64 *)((u8 *)(sp2D8) + (0x58)));
-            (*(s16 *)((u8 *)(temp_2_11) + (0x48))) = var_22_2;
-            (*(s64 *)((u8 *)(temp_2_11) + (0x60))) = temp_17;
-            func_00194590(temp_2_11, 0);
+        animDuration = (s32) (func_00199350(battleUnit, actionKind, timeScale));
+        if (btlUnitKind_001a59a0(battleUnit) == 0) {
+            cameraEventPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xE));
+            (*(s8 *)((u8 *)(cameraEventPacket) + (0))) = 4;
+            (*(s64 *)((u8 *)(cameraEventPacket) + (8))) = (s64) (*(s64 *)((u8 *)(leadPacketSaved) + (0x58)));
+            (*(s16 *)((u8 *)(cameraEventPacket) + (0x48))) = startDelay;
+            (*(s64 *)((u8 *)(cameraEventPacket) + (0x60))) = actionUid;
+            func_00194590(cameraEventPacket, 0);
         }
-        temp_2_12 = (u8 *)(func_001f7c20(0xC, 2, 9));
-        (*(s8 *)((u8 *)(temp_2_12) + (0))) = 5;
-        (*(s64 *)((u8 *)(temp_2_12) + (8))) = temp_16;
-        if (sp190 > 8) {
-            var_2_3 = sp190 - 8;
+        cuePacket = (u8 *)(func_001f7c20(0xC, 2, 9));
+        (*(s8 *)((u8 *)(cuePacket) + (0))) = 5;
+        (*(s64 *)((u8 *)(cuePacket) + (8))) = animUid;
+        if (animDuration > 8) {
+            animDelay = animDuration - 8;
         } else {
-            var_2_3 = 0;
+            animDelay = 0;
         }
-        (*(s16 *)((u8 *)(temp_2_12) + (0x48))) = var_2_3;
-        (*(s64 *)((u8 *)(temp_2_12) + (0x60))) = temp_17;
-        func_00194590(temp_2_12, 1);
-        temp_2_13 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), temp_19, temp_19, 1, 0));
-        (*(s8 *)((u8 *)(temp_2_13) + (0))) = 5;
-        (*(s64 *)((u8 *)(temp_2_13) + (8))) = temp_16;
-        (*(s16 *)((u8 *)(temp_2_13) + (0x48))) = (s16) sp190;
-        (*(s64 *)((u8 *)(temp_2_13) + (0x60))) = temp_17;
-        func_00194590(temp_2_13, 2);
-        temp_2_14 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD74))), temp_19, temp_19, 1, 0));
-        (*(s8 *)((u8 *)(temp_2_14) + (0))) = 5;
-        (*(s64 *)((u8 *)(temp_2_14) + (8))) = temp_16;
-        (*(s16 *)((u8 *)(temp_2_14) + (0x48))) = var_22_2;
-        (*(s64 *)((u8 *)(temp_2_14) + (0x60))) = temp_17;
-        func_00194590(temp_2_14, 2);
+        (*(s16 *)((u8 *)(cuePacket) + (0x48))) = animDelay;
+        (*(s64 *)((u8 *)(cuePacket) + (0x60))) = actionUid;
+        func_00194590(cuePacket, 1);
+        effectPacket = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), battleUnit, battleUnit, 1, 0));
+        (*(s8 *)((u8 *)(effectPacket) + (0))) = 5;
+        (*(s64 *)((u8 *)(effectPacket) + (8))) = animUid;
+        (*(s16 *)((u8 *)(effectPacket) + (0x48))) = (s16) animDuration;
+        (*(s64 *)((u8 *)(effectPacket) + (0x60))) = actionUid;
+        func_00194590(effectPacket, 2);
+        effectPacketB = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD74))), battleUnit, battleUnit, 1, 0));
+        (*(s8 *)((u8 *)(effectPacketB) + (0))) = 5;
+        (*(s64 *)((u8 *)(effectPacketB) + (8))) = animUid;
+        (*(s16 *)((u8 *)(effectPacketB) + (0x48))) = startDelay;
+        (*(s64 *)((u8 *)(effectPacketB) + (0x60))) = actionUid;
+        func_00194590(effectPacketB, 2);
         func_001f0a10((u8 *)&result);
         result.addedStatus = 0x100000;
-        temp_2_15 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
-        (*(s8 *)((u8 *)(temp_2_15) + (0))) = 5;
-        (*(s64 *)((u8 *)(temp_2_15) + (8))) = temp_16;
-        temp_4_4 = (s16)sp1A0;
-        (*(s16 *)((u8 *)(temp_2_15) + (0x48))) = (s16) (temp_4_4 - (temp_4_4 >> 2));
-        (*(s64 *)((u8 *)(temp_2_15) + (0x60))) = temp_17;
-        func_00194590(temp_2_15, 1);
-        if ((sp1C0 == 0) && ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) == 0)) {
-            temp_2_16 = (u8 *)(func_001f5f70(arg0, 0x19, 0, 0, 0));
-            (*(s8 *)((u8 *)(temp_2_16) + (0))) = 4;
-            (*(s64 *)((u8 *)(temp_2_16) + (8))) = (s64) (*(s64 *)((u8 *)(temp_2_15) + (0x58)));
-            (*(s64 *)((u8 *)(temp_2_16) + (0x60))) = temp_17;
-            func_00194590(temp_2_16, 1);
+        resultPacket = (u8 *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
+        (*(s8 *)((u8 *)(resultPacket) + (0))) = 5;
+        (*(s64 *)((u8 *)(resultPacket) + (8))) = animUid;
+        scaledBase = (s16)baseDurationSaved;
+        (*(s16 *)((u8 *)(resultPacket) + (0x48))) = (s16) (scaledBase - (scaledBase >> 2));
+        (*(s64 *)((u8 *)(resultPacket) + (0x60))) = actionUid;
+        func_00194590(resultPacket, 1);
+        if ((actionFlagSaved == 0) && ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) == 0)) {
+            reactionPacket = (u8 *)(func_001f5f70(arg0, 0x19, 0, 0, 0));
+            (*(s8 *)((u8 *)(reactionPacket) + (0))) = 4;
+            (*(s64 *)((u8 *)(reactionPacket) + (8))) = (s64) (*(s64 *)((u8 *)(resultPacket) + (0x58)));
+            (*(s64 *)((u8 *)(reactionPacket) + (0x60))) = actionUid;
+            func_00194590(reactionPacket, 1);
         }
     }
-    sp1E0 = 0;
-    temp_2_17 = (s16)var_18;
-    sp180 = (s32) temp_2_17;
-    sp170 = temp_2_17 + 0xC;
-    while ((spC0 = (s32) sp1E0) < (s32) (*(u16 *)(arg0 + (0x6A)))) {
-        temp_18 = (ActionTargetView *)((*(u8 **)((u8 *)((arg0 + ((u32)sp1E0 * 4))) + (0x38))));
-        sp160 = *(u8 *)((u8 *)temp_18 + 0xD9);
-        if (sp1C0 != 0) {
-            var_2_4 = 1;
+    targetIndex = 0;
+    timingValue16 = (s16)timingValue;
+    timingValueWide = (s32) timingValue16;
+    timingValueShifted = timingValue16 + 0xC;
+    while ((targetNumber = (s32) targetIndex) < (s32) (*(u16 *)(arg0 + (0x6A)))) {
+        targetView = (ActionTargetView *)((*(u8 **)((u8 *)((arg0 + ((u32)targetIndex * 4))) + (0x38))));
+        hitRowCount = *(u8 *)((u8 *)targetView + 0xD9);
+        if (actionFlagSaved != 0) {
+            targetFlagDA = 1;
         } else {
-            var_2_4 = (u8)((*(u8 *)((u8 *)(temp_18) + (0xDA))));
+            targetFlagDA = (u8)((*(u8 *)((u8 *)(targetView) + (0xDA))));
         }
-        sp150 = var_2_4;
-        sp2B0 = (s32) var_23;
-        if (var_23 > 3) {
-            var_21 = var_23 - 3;
+        targetFlagDASaved = targetFlagDA;
+        hitTiming = (s32) actionDuration;
+        if (actionDuration > 3) {
+            hitTimingBase = actionDuration - 3;
         } else {
-            var_21 = 0;
+            hitTimingBase = 0;
         }
-        if (sp1B0 == 0) {
-            temp_2_18 = (u8 *)(btlUnitCreateRotateTowardUnitPacket(temp_18->unit, temp_19, 2));
-            (*(s8 *)((u8 *)(temp_2_18) + (0))) = 5;
-            (*(s64 *)((u8 *)(temp_2_18) + (8))) = temp_16;
-            (*(s16 *)((u8 *)(temp_2_18) + (0x48))) = var_21;
-            (*(u8 *)((u8 *)(temp_2_18) + (0x47))) = (u8) ((*(u8 *)((u8 *)(temp_2_18) + (0x47))) & 0xDF);
-            (*(s64 *)((u8 *)(temp_2_18) + (0x60))) = temp_17;
-            func_00194590(temp_2_18, 1);
-            if ((*(s32 *)((u8 *)(temp_18) + (0xE4))) != 0) {
+        if (hasCounterUnit == 0) {
+            rotatePacketTarget = (u8 *)(btlUnitCreateRotateTowardUnitPacket(targetView->unit, battleUnit, 2));
+            (*(s8 *)((u8 *)(rotatePacketTarget) + (0))) = 5;
+            (*(s64 *)((u8 *)(rotatePacketTarget) + (8))) = animUid;
+            (*(s16 *)((u8 *)(rotatePacketTarget) + (0x48))) = hitTimingBase;
+            (*(u8 *)((u8 *)(rotatePacketTarget) + (0x47))) = (u8) ((*(u8 *)((u8 *)(rotatePacketTarget) + (0x47))) & 0xDF);
+            (*(s64 *)((u8 *)(rotatePacketTarget) + (0x60))) = actionUid;
+            func_00194590(rotatePacketTarget, 1);
+            if ((*(s32 *)((u8 *)(targetView) + (0xE4))) != 0) {
                 selectedTarget = (ActionTargetView *)arg0;
             } else {
-                selectedTarget = temp_18;
+                selectedTarget = targetView;
             }
-            var_22_3 = selectedTarget;
+            focusTarget = selectedTarget;
         } else {
-            var_22_3 = (ActionTargetView *)((*(u8 **)(arg0 + (0x88))));
-            temp_2_19 = (u8 *)(func_001f99c0((u8 *)var_22_3, 0xD, 0U, 0, 0));
-            (*(s16 *)((u8 *)(temp_2_19) + (0x48))) = (s16) sp270;
-            (*(s64 *)((u8 *)(temp_2_19) + (0x60))) = temp_17;
-            func_00194590(temp_2_19, 1);
-            temp_2_20 = (u8 *)(btlUnitCreateRotateTowardUnitPacket(temp_18->unit, temp_19, 2));
-            (*(s16 *)((u8 *)(temp_2_20) + (0x48))) = (s16) sp270;
-            (*(s64 *)((u8 *)(temp_2_20) + (0x60))) = temp_17;
-            func_00194590(temp_2_20, 0);
-            temp_2_21 = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x11));
-            (*(s16 *)((u8 *)(temp_2_21) + (0x48))) = (s16) sp270;
-            (*(s64 *)((u8 *)(temp_2_21) + (0x60))) = temp_17;
-            (*(s16 *)((u8 *)(temp_2_21) + (0x4A))) = (s16) sp170;
-            func_00194590(temp_2_21, 0);
-            temp_2_22 = (u8 *)(func_001d3530(var_22_3->unit, temp_18->unit, 2));
-            (*(s16 *)((u8 *)(temp_2_22) + (0x48))) = (s16) sp270;
-            (*(s64 *)((u8 *)(temp_2_22) + (0x60))) = temp_17;
-            func_00194590(temp_2_22, 0);
-            temp_2_23 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)var_22_3->unit, 0x1A, 0, 1.0f, 0));
-            (*(s16 *)((u8 *)(temp_2_23) + (0x48))) = (s16) sp270;
-            (*(s64 *)((u8 *)(temp_2_23) + (0x60))) = temp_17;
-            func_00194590(temp_2_23, 0);
-            temp_2_24 = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)temp_18->unit, 0x1A, 0, 1.0f, 2));
-            (*(s16 *)((u8 *)(temp_2_24) + (0x48))) = (s16) sp270;
-            (*(s64 *)((u8 *)(temp_2_24) + (0x60))) = temp_17;
-            func_00194590(temp_2_24, 0);
-            sp230 = 1;
+            focusTarget = (ActionTargetView *)((*(u8 **)(arg0 + (0x88))));
+            actionPacket = (u8 *)(func_001f99c0((u8 *)focusTarget, 0xD, 0U, 0, 0));
+            (*(s16 *)((u8 *)(actionPacket) + (0x48))) = (s16) lateDelta;
+            (*(s64 *)((u8 *)(actionPacket) + (0x60))) = actionUid;
+            func_00194590(actionPacket, 1);
+            rotatePacketFocus = (u8 *)(btlUnitCreateRotateTowardUnitPacket(targetView->unit, battleUnit, 2));
+            (*(s16 *)((u8 *)(rotatePacketFocus) + (0x48))) = (s16) lateDelta;
+            (*(s64 *)((u8 *)(rotatePacketFocus) + (0x60))) = actionUid;
+            func_00194590(rotatePacketFocus, 0);
+            cameraPacketFocus = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x11));
+            (*(s16 *)((u8 *)(cameraPacketFocus) + (0x48))) = (s16) lateDelta;
+            (*(s64 *)((u8 *)(cameraPacketFocus) + (0x60))) = actionUid;
+            (*(s16 *)((u8 *)(cameraPacketFocus) + (0x4A))) = (s16) timingValueShifted;
+            func_00194590(cameraPacketFocus, 0);
+            movePacket = (u8 *)(func_001d3530(focusTarget->unit, targetView->unit, 2));
+            (*(s16 *)((u8 *)(movePacket) + (0x48))) = (s16) lateDelta;
+            (*(s64 *)((u8 *)(movePacket) + (0x60))) = actionUid;
+            func_00194590(movePacket, 0);
+            animPacketFocus = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)focusTarget->unit, 0x1A, 0, 1.0f, 0));
+            (*(s16 *)((u8 *)(animPacketFocus) + (0x48))) = (s16) lateDelta;
+            (*(s64 *)((u8 *)(animPacketFocus) + (0x60))) = actionUid;
+            func_00194590(animPacketFocus, 0);
+            animPacketTarget = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)targetView->unit, 0x1A, 0, 1.0f, 2));
+            (*(s16 *)((u8 *)(animPacketTarget) + (0x48))) = (s16) lateDelta;
+            (*(s64 *)((u8 *)(animPacketTarget) + (0x60))) = actionUid;
+            func_00194590(animPacketTarget, 0);
+            setEffectFlags = 1;
         }
-        if (btlUnitKind_001a59a0(temp_19) == 0) {
-            if ((func_001f08c0(temp_19) != 0) && (temp_4_5 = var_22_3->unit, ((*(u8 *)((u8 *)(temp_4_5) + (0xA2))) == 1))) {
-                sp210 = (s32)(((*(s16 *)((u8 *)((((s32)iGpffffb3cc) + ((*(u16 *)((u8 *)(temp_4_5) + (0xA4))) * 0xE8))) + (0x18))) & 0x40) != 0) ^ 1;
+        if (btlUnitKind_001a59a0(battleUnit) == 0) {
+            if ((func_001f08c0(battleUnit) != 0) && (focusUnit = focusTarget->unit, ((*(u8 *)((u8 *)(focusUnit) + (0xA2))) == 1))) {
+                shortRangeFlag = (s32)(((*(s16 *)((u8 *)((((s32)iGpffffb3cc) + ((*(u16 *)((u8 *)(focusUnit) + (0xA4))) * 0xE8))) + (0x18))) & 0x40) != 0) ^ 1;
             } else {
-                sp210 = 0;
+                shortRangeFlag = 0;
             }
         } else {
-            sp210 = 0;
+            shortRangeFlag = 0;
         }
-        if ((sp22C == 1) && (spC0 == 0) && (btlUnitKind_001a59a0(temp_19) == 0) && ((*(u16 *)(arg0 + (0x6A))) == 1) && (sp258 == 0)) {
-            if (sp210 != 0) {
-                var_f12 = fGpffff8358;
+        if ((counterPending == 1) && (targetNumber == 0) && (btlUnitKind_001a59a0(battleUnit) == 0) && ((*(u16 *)(arg0 + (0x6A))) == 1) && (hasReaction == 0)) {
+            if (shortRangeFlag != 0) {
+                shortRangeDistance = fGpffff8358;
             } else {
-                var_f12 = 400.0f;
+                shortRangeDistance = 400.0f;
             }
-            temp_2_25 = (u8 *)(func_001d1eb0((u32)temp_19, *(u32 *)&temp_18->unit, var_f12, 3));
-            (*(s8 *)((u8 *)(temp_2_25) + (0))) = 5;
-            (*(s64 *)((u8 *)(temp_2_25) + (8))) = temp_16;
-            (*(s64 *)((u8 *)(temp_2_25) + (0x60))) = temp_17;
-            func_00194590(temp_2_25, 0);
-            sp230 = 1;
+            nearMovePacket = (u8 *)(func_001d1eb0((u32)battleUnit, *(u32 *)&targetView->unit, shortRangeDistance, 3));
+            (*(s8 *)((u8 *)(nearMovePacket) + (0))) = 5;
+            (*(s64 *)((u8 *)(nearMovePacket) + (8))) = animUid;
+            (*(s64 *)((u8 *)(nearMovePacket) + (0x60))) = actionUid;
+            func_00194590(nearMovePacket, 0);
+            setEffectFlags = 1;
         }
-        sp1D0 = 0;
-        temp_2_26 = (s16)sp150;
-        sp140 = (s32) temp_2_26;
-        sp130 = temp_2_26 - 1;
-        sp120 = (s16)sp160;
-        while ((spD0 = (s32) sp1D0) < sp120) {
-            sp260 = 0;
-            hitRow = (ActionHitRowView *)((u8 *)temp_18 + ((u32)sp1D0 << 5));
-            while ((s32)(sp200 = (s32) sp260) < sp140) {
-                temp_2_27 = hitRow->result.motion;
-                sp2A0 = (s32) temp_2_27;
-                switch (temp_2_27) {
+        hitRowIndex = 0;
+        hitCountShort = (s16)targetFlagDASaved;
+        hitCount = (s32) hitCountShort;
+        lastHitIndex = hitCountShort - 1;
+        hitRowLimit = (s16)hitRowCount;
+        while ((hitRowNumber = (s32) hitRowIndex) < hitRowLimit) {
+            hitIndexCounter = 0;
+            hitRow = (ActionHitRowView *)((u8 *)targetView + ((u32)hitRowIndex << 5));
+            while ((s32)(hitIndex = (s32) hitIndexCounter) < hitCount) {
+                rowMotion = hitRow->result.motion;
+                hitMotion = (s32) rowMotion;
+                switch (rowMotion) {
                 case 9:
                 case 0x13:
-                    if (sp200 != sp130) {
-                        sp2A0 = 2;
+                    if (hitIndex != lastHitIndex) {
+                        hitMotion = 2;
                     }
                     break;
                 }
-                if ((temp_18->effect & 0x404) || (hitRow->result.flags & 4)) {
-                    sp240 = 0;
+                if ((targetView->effect & 0x404) || (hitRow->result.flags & 4)) {
+                    isPrimaryHit = 0;
                 } else {
-                    sp240 = 1;
+                    isPrimaryHit = 1;
                 }
-                temp_2_28 = (BtlPacket *)(btlUnitCreateAnimPacket((BtlUnit *)var_22_3->unit, (s16)sp2A0, 0, 1.0f, 0));
-                sp2DC = temp_2_28;
-                (*(s8 *)((u8 *)(temp_2_28) + (0))) = 5;
-                (*(s64 *)((u8 *)(temp_2_28) + (8))) = temp_16;
-                switch (sp2A0) {
+                hitAnimPacket = (BtlPacket *)(btlUnitCreateAnimPacket((BtlUnit *)focusTarget->unit, (s16)hitMotion, 0, 1.0f, 0));
+                hitAnimPacketSaved = hitAnimPacket;
+                (*(s8 *)((u8 *)(hitAnimPacket) + (0))) = 5;
+                (*(s64 *)((u8 *)(hitAnimPacket) + (8))) = animUid;
+                switch (hitMotion) {
                 case 0x17:
                 case -3:
-                    if (sp2B0 > 6) {
-                        var_3 = sp2B0 - 6;
+                    if (hitTiming > 6) {
+                        hitDelay = hitTiming - 6;
                     } else {
-                        var_3 = 0;
+                        hitDelay = 0;
                     }
-                    (*(s16 *)((u8 *)(sp2DC) + (0x48))) = var_3;
+                    (*(s16 *)((u8 *)(hitAnimPacketSaved) + (0x48))) = hitDelay;
                     break;
                 default:
-                    (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) sp2B0;
+                    (*(s16 *)((u8 *)(hitAnimPacketSaved) + (0x48))) = (s16) hitTiming;
                     break;
                 }
-                if ((*(s32 *)((u8 *)(u32)(temp_18) + (0xE4))) != 0) {
-                    (*(s16 *)((u8 *)(sp2DC) + (0x48))) = (s16) ((*(s16 *)((u8 *)(sp2DC) + (0x48))) + 5);
-                    var_21 += 5;
+                if ((*(s32 *)((u8 *)(u32)(targetView) + (0xE4))) != 0) {
+                    (*(s16 *)((u8 *)(hitAnimPacketSaved) + (0x48))) = (s16) ((*(s16 *)((u8 *)(hitAnimPacketSaved) + (0x48))) + 5);
+                    hitTimingBase += 5;
                 }
-                (*(s64 *)((u8 *)(sp2DC) + (0x60))) = temp_17;
-                func_00194590((u8 *)sp2DC, 0);
-                sp2C0 = *(s64 *)((u8 *)sp2DC + 0x58);
-                if ((temp_18->effect & 4) && (sp25C == 0)) {
-                    temp_2_29 = (u8 *)(func_001f7c20(0xD, 1, 0xF));
-                    (*(s8 *)((u8 *)(temp_2_29) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_29) + (8))) = temp_16;
-                    (*(s16 *)((u8 *)(temp_2_29) + (0x48))) = (s16) sp2B0;
-                    func_00194590(temp_2_29, 1);
+                (*(s64 *)((u8 *)(hitAnimPacketSaved) + (0x60))) = actionUid;
+                func_00194590((u8 *)hitAnimPacketSaved, 0);
+                hitPacketUid = *(s64 *)((u8 *)hitAnimPacketSaved + 0x58);
+                if ((targetView->effect & 4) && (unitFlag10E == 0)) {
+                    cuePacketB = (u8 *)(func_001f7c20(0xD, 1, 0xF));
+                    (*(s8 *)((u8 *)(cuePacketB) + (0))) = 5;
+                    (*(s64 *)((u8 *)(cuePacketB) + (8))) = animUid;
+                    (*(s16 *)((u8 *)(cuePacketB) + (0x48))) = (s16) hitTiming;
+                    func_00194590(cuePacketB, 1);
                 }
-                if ((*(s32 *)((u8 *)(temp_18) + (0xE4))) != 0) {
-                    temp_2_30 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD28))), temp_19, temp_18->unit, 1, 0));
-                    (*(s8 *)((u8 *)(temp_2_30) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_30) + (8))) = temp_16;
-                    (*(s16 *)((u8 *)(temp_2_30) + (0x48))) = (s16) sp2B0;
-                    func_00194590(temp_2_30, 1);
-                    temp_2_31 = (u8 *)(func_001f7c20(0xD, 2, 0xB));
-                    (*(s8 *)((u8 *)(temp_2_31) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_31) + (8))) = temp_16;
-                    (*(s16 *)((u8 *)(temp_2_31) + (0x48))) = (s16) sp2B0;
-                    func_00194590(temp_2_31, 1);
+                if ((*(s32 *)((u8 *)(targetView) + (0xE4))) != 0) {
+                    effectPacketC = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD28))), battleUnit, targetView->unit, 1, 0));
+                    (*(s8 *)((u8 *)(effectPacketC) + (0))) = 5;
+                    (*(s64 *)((u8 *)(effectPacketC) + (8))) = animUid;
+                    (*(s16 *)((u8 *)(effectPacketC) + (0x48))) = (s16) hitTiming;
+                    func_00194590(effectPacketC, 1);
+                    cuePacketC = (u8 *)(func_001f7c20(0xD, 2, 0xB));
+                    (*(s8 *)((u8 *)(cuePacketC) + (0))) = 5;
+                    (*(s64 *)((u8 *)(cuePacketC) + (8))) = animUid;
+                    (*(s16 *)((u8 *)(cuePacketC) + (0x48))) = (s16) hitTiming;
+                    func_00194590(cuePacketC, 1);
                 }
-                if (temp_18->effect == 0x400) {
-                    temp_2_32 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD2C))), temp_19, var_22_3->unit, 1, 0));
-                    (*(s8 *)((u8 *)(temp_2_32) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_32) + (8))) = sp2C0;
-                    func_00194590(temp_2_32, 1);
-                    temp_2_33 = (u8 *)(func_001f7c20(0xC, 2, 0xC));
-                    (*(s8 *)((u8 *)(temp_2_33) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_33) + (8))) = sp2C0;
-                    func_00194590(temp_2_33, 1);
+                if (targetView->effect == 0x400) {
+                    effectPacketD = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD2C))), battleUnit, focusTarget->unit, 1, 0));
+                    (*(s8 *)((u8 *)(effectPacketD) + (0))) = 5;
+                    (*(s64 *)((u8 *)(effectPacketD) + (8))) = hitPacketUid;
+                    func_00194590(effectPacketD, 1);
+                    cuePacketD = (u8 *)(func_001f7c20(0xC, 2, 0xC));
+                    (*(s8 *)((u8 *)(cuePacketD) + (0))) = 5;
+                    (*(s64 *)((u8 *)(cuePacketD) + (8))) = hitPacketUid;
+                    func_00194590(cuePacketD, 1);
                 }
-                func_001f7830(temp_19, sp200, sp250, &sp32E, &sp32C);
-                if ((sp32E >= 0) && (sp32C >= 0)) {
-                    temp_2_34 = (u8 *)(func_001f7c20(0xD, sp32E, sp32C));
-                    (*(s8 *)((u8 *)(temp_2_34) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_34) + (8))) = temp_16;
-                    (*(s16 *)((u8 *)(temp_2_34) + (0x48))) = var_21;
-                    func_00194590(temp_2_34, 1);
+                func_001f7830(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
+                if ((hitCue >= 0) && (hitVariant >= 0)) {
+                    cuePacketE = (u8 *)(func_001f7c20(0xD, hitCue, hitVariant));
+                    (*(s8 *)((u8 *)(cuePacketE) + (0))) = 5;
+                    (*(s64 *)((u8 *)(cuePacketE) + (8))) = animUid;
+                    (*(s16 *)((u8 *)(cuePacketE) + (0x48))) = hitTimingBase;
+                    func_00194590(cuePacketE, 1);
                 }
-                if (sp240 != 0) {
-                    if ((temp_18->targetFlags & 6) && (sp1C0 == 0)) {
-                        if (sp200 != sp130) {
-                            var_2_5 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD1C))), temp_19, var_22_3->unit, 1, 0));
+                if (isPrimaryHit != 0) {
+                    if ((targetView->targetFlags & 6) && (actionFlagSaved == 0)) {
+                        if (hitIndex != lastHitIndex) {
+                            effectPacketK = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD1C))), battleUnit, focusTarget->unit, 1, 0));
                         } else {
-                            var_2_5 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD20))), temp_19, var_22_3->unit, 1, 0));
+                            effectPacketK = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD20))), battleUnit, focusTarget->unit, 1, 0));
                         }
-                        (*(s8 *)((u8 *)(var_2_5) + (0))) = 5;
-                        (*(s64 *)((u8 *)(var_2_5) + (8))) = temp_16;
-                        (*(s16 *)((u8 *)(var_2_5) + (0x48))) = var_21;
-                        (*(s64 *)((u8 *)(var_2_5) + (0x60))) = temp_17;
-                        func_00194590(var_2_5, 2);
-                        if (sp200 == sp130) {
-                            temp_2_35 = (u8 *)(func_001f7c20(0xC, 0, 9));
-                            (*(s8 *)((u8 *)(temp_2_35) + (0))) = 5;
-                            (*(s64 *)((u8 *)(temp_2_35) + (8))) = temp_16;
-                            (*(s16 *)((u8 *)(temp_2_35) + (0x48))) = var_21;
-                            func_00194590(temp_2_35, 1);
+                        (*(s8 *)((u8 *)(effectPacketK) + (0))) = 5;
+                        (*(s64 *)((u8 *)(effectPacketK) + (8))) = animUid;
+                        (*(s16 *)((u8 *)(effectPacketK) + (0x48))) = hitTimingBase;
+                        (*(s64 *)((u8 *)(effectPacketK) + (0x60))) = actionUid;
+                        func_00194590(effectPacketK, 2);
+                        if (hitIndex == lastHitIndex) {
+                            cuePacketF = (u8 *)(func_001f7c20(0xC, 0, 9));
+                            (*(s8 *)((u8 *)(cuePacketF) + (0))) = 5;
+                            (*(s64 *)((u8 *)(cuePacketF) + (8))) = animUid;
+                            (*(s16 *)((u8 *)(cuePacketF) + (0x48))) = hitTimingBase;
+                            func_00194590(cuePacketF, 1);
                         }
                     }
-                    temp_2_36 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[0] * 4))) + (0xD04))), temp_19, var_22_3->unit, 1, 0));
-                    (*(s8 *)((u8 *)(temp_2_36) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_36) + (8))) = temp_16;
-                    (*(s16 *)((u8 *)(temp_2_36) + (0x48))) = var_21;
-                    func_00194590(temp_2_36, 2);
+                    effectPacketE = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[0] * 4))) + (0xD04))), battleUnit, focusTarget->unit, 1, 0));
+                    (*(s8 *)((u8 *)(effectPacketE) + (0))) = 5;
+                    (*(s64 *)((u8 *)(effectPacketE) + (8))) = animUid;
+                    (*(s16 *)((u8 *)(effectPacketE) + (0x48))) = hitTimingBase;
+                    func_00194590(effectPacketE, 2);
                     if (effectIndices[1] >= 0) {
-                        temp_2_37 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[1] * 4))) + (0xD04))), temp_19, var_22_3->unit, 1, 0));
-                        (*(s8 *)((u8 *)(temp_2_37) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_37) + (8))) = temp_16;
-                        (*(s16 *)((u8 *)(temp_2_37) + (0x48))) = var_21;
-                        func_00194590(temp_2_37, 2);
+                        effectPacketF = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[1] * 4))) + (0xD04))), battleUnit, focusTarget->unit, 1, 0));
+                        (*(s8 *)((u8 *)(effectPacketF) + (0))) = 5;
+                        (*(s64 *)((u8 *)(effectPacketF) + (8))) = animUid;
+                        (*(s16 *)((u8 *)(effectPacketF) + (0x48))) = hitTimingBase;
+                        func_00194590(effectPacketF, 2);
                     }
-                    if (sp1C0 == 0) {
-                        func_001f7910(temp_19, sp200, sp250, &sp32E, &sp32C);
-                        if ((sp32E >= 0) && (sp32C >= 0)) {
-                            temp_2_38 = (u8 *)(func_001f7c20(0xA, sp32E, sp32C));
-                            (*(s8 *)((u8 *)(temp_2_38) + (0))) = 5;
-                            (*(s64 *)((u8 *)(temp_2_38) + (8))) = temp_16;
-                            (*(s16 *)((u8 *)(temp_2_38) + (0x48))) = var_21;
-                            func_00194590(temp_2_38, 1);
+                    if (actionFlagSaved == 0) {
+                        func_001f7910(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
+                        if ((hitCue >= 0) && (hitVariant >= 0)) {
+                            cuePacketG = (u8 *)(func_001f7c20(0xA, hitCue, hitVariant));
+                            (*(s8 *)((u8 *)(cuePacketG) + (0))) = 5;
+                            (*(s64 *)((u8 *)(cuePacketG) + (8))) = animUid;
+                            (*(s16 *)((u8 *)(cuePacketG) + (0x48))) = hitTimingBase;
+                            func_00194590(cuePacketG, 1);
                         }
-                        if ((sp200 == sp130) && ((*(s32 *)((u8 *)(temp_18) + (0xE0))) == 0) && (hitRow->result.addedStatus & 0x7FFFE)) {
-                            temp_2_39 = (u8 *)(func_001f7c20(0xF, 2, 0xF));
-                            (*(s8 *)((u8 *)(temp_2_39) + (0))) = 5;
-                            (*(s64 *)((u8 *)(temp_2_39) + (8))) = temp_16;
-                            (*(s16 *)((u8 *)(temp_2_39) + (0x48))) = var_21;
-                            func_00194590(temp_2_39, 1);
+                        if ((hitIndex == lastHitIndex) && ((*(s32 *)((u8 *)(targetView) + (0xE0))) == 0) && (hitRow->result.addedStatus & 0x7FFFE)) {
+                            cuePacketH = (u8 *)(func_001f7c20(0xF, 2, 0xF));
+                            (*(s8 *)((u8 *)(cuePacketH) + (0))) = 5;
+                            (*(s64 *)((u8 *)(cuePacketH) + (8))) = animUid;
+                            (*(s16 *)((u8 *)(cuePacketH) + (0x48))) = hitTimingBase;
+                            func_00194590(cuePacketH, 1);
                         }
                     } else {
-                        temp_2_40 = (u8 *)(func_001f7c20(0xA, 2, 0x14));
-                        (*(s8 *)((u8 *)(temp_2_40) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_40) + (8))) = temp_16;
-                        (*(s16 *)((u8 *)(temp_2_40) + (0x48))) = var_21;
-                        func_00194590(temp_2_40, 1);
+                        cuePacketI = (u8 *)(func_001f7c20(0xA, 2, 0x14));
+                        (*(s8 *)((u8 *)(cuePacketI) + (0))) = 5;
+                        (*(s64 *)((u8 *)(cuePacketI) + (8))) = animUid;
+                        (*(s16 *)((u8 *)(cuePacketI) + (0x48))) = hitTimingBase;
+                        func_00194590(cuePacketI, 1);
                     }
-                    temp_2_41 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD24))), temp_19, var_22_3->unit, 1, 0));
-                    (*(s8 *)((u8 *)(temp_2_41) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_41) + (8))) = temp_16;
-                    (*(s16 *)((u8 *)(temp_2_41) + (0x48))) = var_21;
-                    func_00194590(temp_2_41, 2);
+                    effectPacketG = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD24))), battleUnit, focusTarget->unit, 1, 0));
+                    (*(s8 *)((u8 *)(effectPacketG) + (0))) = 5;
+                    (*(s64 *)((u8 *)(effectPacketG) + (8))) = animUid;
+                    (*(s16 *)((u8 *)(effectPacketG) + (0x48))) = hitTimingBase;
+                    func_00194590(effectPacketG, 2);
                 }
-                if (sp200 != sp130) {
-                    temp_3_3 = (func_001999f0(temp_19, var_30, var_f20, (sp200 + 1) & 0xFFFF)) - sp2B0;
-                    sp2B0 += temp_3_3;
-                    var_21 += temp_3_3;
-                } else if ((sp22C != 0) && ((*(s32 *)((u8 *)(temp_18) + (0xE0))) == 0)) {
-                    if (sp210 != 0) {
-                        var_2_6 = 0x1D;
+                if (hitIndex != lastHitIndex) {
+                    timingDelta = (func_001999f0(battleUnit, actionKind, timeScale, (hitIndex + 1) & 0xFFFF)) - hitTiming;
+                    hitTiming += timingDelta;
+                    hitTimingBase += timingDelta;
+                } else if ((counterPending != 0) && ((*(s32 *)((u8 *)(targetView) + (0xE0))) == 0)) {
+                    if (shortRangeFlag != 0) {
+                        hitEffectIndex = 0x1D;
                     } else {
-                        var_2_6 = 0x1E;
+                        hitEffectIndex = 0x1E;
                     }
-                    temp_5_2 = (u8 *)(var_22_3->unit);
-                    temp_2_42 = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (var_2_6 * 4))) + (0xD04))), temp_5_2, temp_5_2, 1, 0));
-                    sp2D4 = (u8 *)(temp_2_42);
-                    (*(s8 *)((u8 *)(temp_2_42) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_42) + (8))) = sp2C0;
-                    (*(s16 *)((u8 *)(temp_2_42) + (0x48))) = 1;
-                    (*(s64 *)((u8 *)(temp_2_42) + (0x60))) = temp_17;
-                    func_00194590(temp_2_42, 2);
-                    if (sp210 != 0) {
-                        temp_5_3 = (u8 *)(var_22_3->unit);
-                        temp_2_43 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD84))), temp_5_3, temp_5_3, 1, 0));
-                        (*(s8 *)((u8 *)(temp_2_43) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_43) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
-                        (*(s64 *)((u8 *)(temp_2_43) + (0x60))) = temp_17;
-                        func_00194590(temp_2_43, 2);
-                        temp_5_4 = (u8 *)(var_22_3->unit);
-                        temp_2_44 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), temp_5_4, temp_5_4, 1, 0));
-                        (*(s8 *)((u8 *)(temp_2_44) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_44) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
-                        (*(s16 *)((u8 *)(temp_2_44) + (0x48))) = 0x14;
-                        (*(s64 *)((u8 *)(temp_2_44) + (0x60))) = temp_17;
-                        func_00194590(temp_2_44, 2);
-                        temp_5_5 = (u8 *)(var_22_3->unit);
-                        temp_2_45 = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), temp_5_5, temp_5_5, 1, 0));
-                        (*(s8 *)((u8 *)(temp_2_45) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_45) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
-                        (*(s16 *)((u8 *)(temp_2_45) + (0x48))) = 0x1A;
-                        (*(s64 *)((u8 *)(temp_2_45) + (0x60))) = temp_17;
-                        func_00194590(temp_2_45, 2);
+                    focusUnitB = (u8 *)(focusTarget->unit);
+                    counterAnimPacket = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (hitEffectIndex * 4))) + (0xD04))), focusUnitB, focusUnitB, 1, 0));
+                    counterAnimPacketSaved = (u8 *)(counterAnimPacket);
+                    (*(s8 *)((u8 *)(counterAnimPacket) + (0))) = 5;
+                    (*(s64 *)((u8 *)(counterAnimPacket) + (8))) = hitPacketUid;
+                    (*(s16 *)((u8 *)(counterAnimPacket) + (0x48))) = 1;
+                    (*(s64 *)((u8 *)(counterAnimPacket) + (0x60))) = actionUid;
+                    func_00194590(counterAnimPacket, 2);
+                    if (shortRangeFlag != 0) {
+                        focusUnitC = (u8 *)(focusTarget->unit);
+                        effectPacketH = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD84))), focusUnitC, focusUnitC, 1, 0));
+                        (*(s8 *)((u8 *)(effectPacketH) + (0))) = 5;
+                        (*(s64 *)((u8 *)(effectPacketH) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
+                        (*(s64 *)((u8 *)(effectPacketH) + (0x60))) = actionUid;
+                        func_00194590(effectPacketH, 2);
+                        focusUnitD = (u8 *)(focusTarget->unit);
+                        effectPacketI = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), focusUnitD, focusUnitD, 1, 0));
+                        (*(s8 *)((u8 *)(effectPacketI) + (0))) = 5;
+                        (*(s64 *)((u8 *)(effectPacketI) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
+                        (*(s16 *)((u8 *)(effectPacketI) + (0x48))) = 0x14;
+                        (*(s64 *)((u8 *)(effectPacketI) + (0x60))) = actionUid;
+                        func_00194590(effectPacketI, 2);
+                        focusUnitE = (u8 *)(focusTarget->unit);
+                        effectPacketJ = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), focusUnitE, focusUnitE, 1, 0));
+                        (*(s8 *)((u8 *)(effectPacketJ) + (0))) = 5;
+                        (*(s64 *)((u8 *)(effectPacketJ) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
+                        (*(s16 *)((u8 *)(effectPacketJ) + (0x48))) = 0x1A;
+                        (*(s64 *)((u8 *)(effectPacketJ) + (0x60))) = actionUid;
+                        func_00194590(effectPacketJ, 2);
                     } else {
-                        temp_2_46 = (u8 *)(func_00197cc0(var_22_3->unit, (s16) (*(u16 *)(arg0 + (0x6E))), 0));
-                        (*(s8 *)((u8 *)(temp_2_46) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_46) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
-                        (*(s64 *)((u8 *)(temp_2_46) + (0x60))) = temp_17;
-                        func_00194590(temp_2_46, 1);
-                        temp_2_47 = (u8 *)(func_001bccc0(0x14, 0x32, 0, 5));
-                        (*(s8 *)((u8 *)(temp_2_47) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_47) + (8))) = (s64) btlPacketUID_001a59a0(sp2D4);
-                        (*(s64 *)((u8 *)(temp_2_47) + (0x60))) = temp_17;
-                        func_00194590(temp_2_47, 1);
+                        hitPacket = (u8 *)(func_00197cc0(focusTarget->unit, (s16) (*(u16 *)(arg0 + (0x6E))), 0));
+                        (*(s8 *)((u8 *)(hitPacket) + (0))) = 5;
+                        (*(s64 *)((u8 *)(hitPacket) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
+                        (*(s64 *)((u8 *)(hitPacket) + (0x60))) = actionUid;
+                        func_00194590(hitPacket, 1);
+                        shakePacket = (u8 *)(func_001bccc0(0x14, 0x32, 0, 5));
+                        (*(s8 *)((u8 *)(shakePacket) + (0))) = 5;
+                        (*(s64 *)((u8 *)(shakePacket) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
+                        (*(s64 *)((u8 *)(shakePacket) + (0x60))) = actionUid;
+                        func_00194590(shakePacket, 1);
                     }
                 }
-                sp260 += 1;
+                hitIndexCounter += 1;
             }
-            temp_2_48 = (LargeBattleHitResult *)btlHitResult_001a59a0((u8 *)temp_18, &sp1D0);
-            sp1F0 = temp_2_48;
-            temp_2_49 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_22_3), temp_2_48, temp_18->effect, temp_18->targetFlags));
-            (*(s8 *)((u8 *)(temp_2_49) + (0))) = 5;
-            (*(s64 *)((u8 *)(temp_2_49) + (8))) = temp_16;
-            (*(s16 *)((u8 *)(temp_2_49) + (0x48))) = var_21;
-            (*(s64 *)((u8 *)(temp_2_49) + (0x60))) = temp_17;
-            func_00194590(temp_2_49, 1);
-            temp_2_50 = (u8 *)(func_00201de0((s32)(temp_19), *(s32 *)&var_22_3->unit, (*(u16 *)(arg0 + (0x6E))), temp_18->effect, temp_18->targetFlags, 0, 1, sp1F0, 0));
-            (*(s8 *)((u8 *)(temp_2_50) + (0))) = 5;
-            (*(s64 *)((u8 *)(temp_2_50) + (8))) = temp_16;
-            (*(s16 *)((u8 *)(temp_2_50) + (0x48))) = var_21;
-            if (var_21 < sp180) {
-                var_2_7 = sp180 - var_21;
+            hitResultPtr = (LargeBattleHitResult *)btlHitResult_001a59a0((u8 *)targetView, &hitRowIndex);
+            hitResultSaved = hitResultPtr;
+            resultPacketB = (u8 *)(func_001f36e0((s32)(arg0), (s32)(focusTarget), hitResultPtr, targetView->effect, targetView->targetFlags));
+            (*(s8 *)((u8 *)(resultPacketB) + (0))) = 5;
+            (*(s64 *)((u8 *)(resultPacketB) + (8))) = animUid;
+            (*(s16 *)((u8 *)(resultPacketB) + (0x48))) = hitTimingBase;
+            (*(s64 *)((u8 *)(resultPacketB) + (0x60))) = actionUid;
+            func_00194590(resultPacketB, 1);
+            statusPacket = (u8 *)(func_00201de0((s32)(battleUnit), *(s32 *)&focusTarget->unit, (*(u16 *)(arg0 + (0x6E))), targetView->effect, targetView->targetFlags, 0, 1, hitResultSaved, 0));
+            (*(s8 *)((u8 *)(statusPacket) + (0))) = 5;
+            (*(s64 *)((u8 *)(statusPacket) + (8))) = animUid;
+            (*(s16 *)((u8 *)(statusPacket) + (0x48))) = hitTimingBase;
+            if (hitTimingBase < timingValueWide) {
+                timingRemaining = timingValueWide - hitTimingBase;
             } else {
-                var_2_7 = 0;
+                timingRemaining = 0;
             }
-            (*(s16 *)((u8 *)(temp_2_50) + (0x4A))) = var_2_7;
-            (*(s64 *)((u8 *)(temp_2_50) + (0x60))) = temp_17;
-            func_00194590(temp_2_50, 3);
-            if ((spD0 == 0) && (sp1F0->hpDelta != 0)) {
-                temp_2_51 = (u8 *)(func_00202590((s32)(var_22_3->unit), 0, 0));
-                (*(s8 *)((u8 *)(temp_2_51) + (0))) = 5;
-                (*(s64 *)((u8 *)(temp_2_51) + (8))) = temp_16;
-                (*(s16 *)((u8 *)(temp_2_51) + (0x48))) = var_21;
-                (*(u8 *)((u8 *)(temp_2_51) + (0x47))) = (u8) ((*(u8 *)((u8 *)(temp_2_51) + (0x47))) & 0xDF);
-                (*(s64 *)((u8 *)(temp_2_51) + (0x60))) = temp_17;
-                func_00194590(temp_2_51, 3);
+            (*(s16 *)((u8 *)(statusPacket) + (0x4A))) = timingRemaining;
+            (*(s64 *)((u8 *)(statusPacket) + (0x60))) = actionUid;
+            func_00194590(statusPacket, 3);
+            if ((hitRowNumber == 0) && (hitResultSaved->hpDelta != 0)) {
+                statPacket = (u8 *)(func_00202590((s32)(focusTarget->unit), 0, 0));
+                (*(s8 *)((u8 *)(statPacket) + (0))) = 5;
+                (*(s64 *)((u8 *)(statPacket) + (8))) = animUid;
+                (*(s16 *)((u8 *)(statPacket) + (0x48))) = hitTimingBase;
+                (*(u8 *)((u8 *)(statPacket) + (0x47))) = (u8) ((*(u8 *)((u8 *)(statPacket) + (0x47))) & 0xDF);
+                (*(s64 *)((u8 *)(statPacket) + (0x60))) = actionUid;
+                func_00194590(statPacket, 3);
             }
             /* Retail retains this address and reloads its word at the later branch. */
             addedStatus = &hitRow->result.addedStatus;
-            if ((hitRow->result.addedStatus & 0x100000) && ((*(u8 *)((u8 *)(var_22_3->unit) + (0xA2))) == 1)) {
-                temp_2_52 = (u8 *)(func_001f7c20(0xD, 2, 8));
-                (*(s8 *)((u8 *)(temp_2_52) + (0))) = 5;
-                (*(s64 *)((u8 *)(temp_2_52) + (8))) = temp_16;
-                (*(s16 *)((u8 *)(temp_2_52) + (0x48))) = var_21;
-                (*(s64 *)((u8 *)(temp_2_52) + (0x60))) = temp_17;
-                func_00194590(temp_2_52, 1);
+            if ((hitRow->result.addedStatus & 0x100000) && ((*(u8 *)((u8 *)(focusTarget->unit) + (0xA2))) == 1)) {
+                cuePacketJ = (u8 *)(func_001f7c20(0xD, 2, 8));
+                (*(s8 *)((u8 *)(cuePacketJ) + (0))) = 5;
+                (*(s64 *)((u8 *)(cuePacketJ) + (8))) = animUid;
+                (*(s16 *)((u8 *)(cuePacketJ) + (0x48))) = hitTimingBase;
+                (*(s64 *)((u8 *)(cuePacketJ) + (0x60))) = actionUid;
+                func_00194590(cuePacketJ, 1);
             }
-            if ((sp1C0 == 0) && ((*(u8 *)((u8 *)(var_22_3->unit) + (0xA2))) == 1)) {
-                if (sp290 > 0) {
+            if ((actionFlagSaved == 0) && ((*(u8 *)((u8 *)(focusTarget->unit) + (0xA2))) == 1)) {
+                if (reactionUnitCount > 0) {
                     if ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) == 0) {
-                        spF0 = func_001ef720(2, 0x80000) & 0xFFFF;
-                        var_2_8 = *(u8 *)(arg0 + 0x28);
-                        if (var_2_8 > 0) {
+                        reactionRoll = func_001ef720(2, 0x80000) & 0xFFFF;
+                        reactionCueFlag = *(u8 *)(arg0 + 0x28);
+                        if (reactionCueFlag > 0) {
                             goto createReaction;
                         }
-                        var_2_8 = 1;
-                        if (*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4) == var_2_8) {
+                        reactionCueFlag = 1;
+                        if (*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4) == reactionCueFlag) {
                             goto createReaction;
                         }
-                        var_2_8 = func_00231d70(0x64);
-                        if ((u32)var_2_8 >= 0x32U) {
+                        reactionCueFlag = func_00231d70(0x64);
+                        if ((u32)reactionCueFlag >= 0x32U) {
                             goto createReaction;
                         }
                         if ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) != 0) {
-                            var_2_8 = 0;
+                            reactionCueFlag = 0;
                         } else {
-                            temp_4_6 = (u8 *)(iGpffffb3ac);
-                            if ((*(s16 *)((u8 *)(temp_4_6) + (0xA70))) != -1) {
-                                temp_3_4 = (s16)(spF0 - sp290);
-                                if (temp_3_4 <= 0) {
-                                    temp_4_7 = func_001ef720(2, 0x80000) & 0xFFFF;
-                                    temp_3_5 = (u8 *)(iGpffffb3ac);
-                                    if (((u32) ((s16) (*(s16 *)((u8 *)(temp_3_5) + (0xA72))) >> 1) >= temp_4_7) && (temp_2_53 = (*(s16 *)((u8 *)(temp_3_5) + (0xA70))), spE0 = (s32) temp_2_53, (temp_2_53 != (s16)func_001d15a0()))) {
-                                        var_2_8 = 1;
+                            battleStatePtr = (u8 *)(iGpffffb3ac);
+                            if ((*(s16 *)((u8 *)(battleStatePtr) + (0xA70))) != -1) {
+                                reactionRemaining = (s16)(reactionRoll - reactionUnitCount);
+                                if (reactionRemaining <= 0) {
+                                    randomRoll = func_001ef720(2, 0x80000) & 0xFFFF;
+                                    battleStatePtrD = (u8 *)(iGpffffb3ac);
+                                    if (((u32) ((s16) (*(s16 *)((u8 *)(battleStatePtrD) + (0xA72))) >> 1) >= randomRoll) && (counterUnitId16 = (*(s16 *)((u8 *)(battleStatePtrD) + (0xA70))), counterUnitId = (s32) counterUnitId16, (counterUnitId16 != (s16)func_001d15a0()))) {
+                                        reactionCueFlag = 1;
                                     } else {
                                         goto block_222;
                                     }
-                                } else if (((s16) (*(s16 *)((u8 *)(temp_4_6) + (0xA72))) >> 1) >= temp_3_4) {
-                                    var_2_8 = 1;
+                                } else if (((s16) (*(s16 *)((u8 *)(battleStatePtr) + (0xA72))) >> 1) >= reactionRemaining) {
+                                    reactionCueFlag = 1;
                                 } else {
                                     goto block_222;
                                 }
                             } else {
 block_222:
-                                var_2_8 = 0;
+                                reactionCueFlag = 0;
                             }
                         }
-                        if (var_2_8 != 0) {
+                        if (reactionCueFlag != 0) {
 createReaction:
-                            temp_2_55 = (u8 *)(func_001f5f70(arg0, 0x13, sp290, 0, 0));
-                            (*(s8 *)((u8 *)(temp_2_55) + (0))) = 4;
-                            (*(s64 *)((u8 *)(temp_2_55) + (8))) = sp2C0;
-                            (*(s64 *)((u8 *)(temp_2_55) + (0x60))) = temp_17;
-                            func_00194590(temp_2_55, 1);
+                            reactionPacketB = (u8 *)(func_001f5f70(arg0, 0x13, reactionUnitCount, 0, 0));
+                            (*(s8 *)((u8 *)(reactionPacketB) + (0))) = 4;
+                            (*(s64 *)((u8 *)(reactionPacketB) + (8))) = hitPacketUid;
+                            (*(s64 *)((u8 *)(reactionPacketB) + (0x60))) = actionUid;
+                            func_00194590(reactionPacketB, 1);
                         } else {
-                            temp_2_54 = (u8 *)(func_001f99c0(arg0, 0x10, sp290, 0, 0));
-                            (*(s8 *)((u8 *)(temp_2_54) + (0))) = 4;
-                            (*(s64 *)((u8 *)(temp_2_54) + (8))) = sp2C0;
-                            func_00194590(temp_2_54, 1);
+                            actionPacketB = (u8 *)(func_001f99c0(arg0, 0x10, reactionUnitCount, 0, 0));
+                            (*(s8 *)((u8 *)(actionPacketB) + (0))) = 4;
+                            (*(s64 *)((u8 *)(actionPacketB) + (8))) = hitPacketUid;
+                            func_00194590(actionPacketB, 1);
                         }
                     }
                 } else if (*addedStatus & 0x100000) {
-                    temp_2_56 = (u8 *)(func_001f5f70(arg0, 0x18, (s32) temp_18->targetFlags, 1, 0));
-                    (*(s8 *)((u8 *)(temp_2_56) + (0))) = 5;
-                    (*(s64 *)((u8 *)(temp_2_56) + (8))) = sp2C0;
-                    (*(s64 *)((u8 *)(temp_2_56) + (0x60))) = temp_17;
-                    func_00194590(temp_2_56, 1);
-                } else if (sp290 == 0) {
+                    reactionPacketC = (u8 *)(func_001f5f70(arg0, 0x18, (s32) targetView->targetFlags, 1, 0));
+                    (*(s8 *)((u8 *)(reactionPacketC) + (0))) = 5;
+                    (*(s64 *)((u8 *)(reactionPacketC) + (8))) = hitPacketUid;
+                    (*(s64 *)((u8 *)(reactionPacketC) + (0x60))) = actionUid;
+                    func_00194590(reactionPacketC, 1);
+                } else if (reactionUnitCount == 0) {
                     if (func_001f0dd0((s64 *)arg0, 1) != 0) {
-                        temp_2_57 = (u8 *)(func_001f99c0(arg0, 0xF, 0U, 0, 0));
-                        (*(s8 *)((u8 *)(temp_2_57) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_57) + (8))) = sp2C0;
-                        func_00194590(temp_2_57, 1);
+                        actionPacketC = (u8 *)(func_001f99c0(arg0, 0xF, 0U, 0, 0));
+                        (*(s8 *)((u8 *)(actionPacketC) + (0))) = 5;
+                        (*(s64 *)((u8 *)(actionPacketC) + (8))) = hitPacketUid;
+                        func_00194590(actionPacketC, 1);
                     } else if ((func_001f0f70(arg0) == 1) && (func_001f0b90(arg0) == 0)) {
-                        temp_2_58 = (u8 *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
-                        (*(s8 *)((u8 *)(temp_2_58) + (0))) = 5;
-                        (*(s64 *)((u8 *)(temp_2_58) + (8))) = sp2C0;
-                        func_00194590(temp_2_58, 1);
+                        actionPacketD = (u8 *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
+                        (*(s8 *)((u8 *)(actionPacketD) + (0))) = 5;
+                        (*(s64 *)((u8 *)(actionPacketD) + (8))) = hitPacketUid;
+                        func_00194590(actionPacketD, 1);
                     }
                 }
             }
-            sp1D0 += 1;
+            hitRowIndex += 1;
         }
-        temp_2_59 = (u8 *)(func_001f3950(temp_18));
-        (*(s8 *)((u8 *)(temp_2_59) + (0))) = 5;
-        (*(s64 *)((u8 *)(temp_2_59) + (8))) = temp_16;
-        (*(s16 *)((u8 *)(temp_2_59) + (0x48))) = var_21;
-        (*(s64 *)((u8 *)(temp_2_59) + (0x60))) = temp_17;
-        func_00194590(temp_2_59, 1);
-        temp_5_6 = (s16)((*(s16 *)(arg0 + (0xEC))));
-        if ((temp_5_6 != 0) && !((*(u8 *)(arg0 + (0xD8))) & 1)) {
-            temp_2_60 = (u8 *)(func_00202400((*(u8 **)(arg0 + (0x30))), temp_5_6));
-            (*(s8 *)((u8 *)(temp_2_60) + (0))) = 5;
-            (*(s64 *)((u8 *)(temp_2_60) + (8))) = temp_16;
-            (*(s16 *)((u8 *)(temp_2_60) + (0x48))) = var_21;
-            (*(u8 *)((u8 *)(temp_2_60) + (0x47))) = (u8) ((*(u8 *)((u8 *)(temp_2_60) + (0x47))) & 0xDF);
-            (*(s64 *)((u8 *)(temp_2_60) + (0x60))) = temp_17;
-            func_00194590(temp_2_60, 3);
+        unitStatePacket = (u8 *)(func_001f3950(targetView));
+        (*(s8 *)((u8 *)(unitStatePacket) + (0))) = 5;
+        (*(s64 *)((u8 *)(unitStatePacket) + (8))) = animUid;
+        (*(s16 *)((u8 *)(unitStatePacket) + (0x48))) = hitTimingBase;
+        (*(s64 *)((u8 *)(unitStatePacket) + (0x60))) = actionUid;
+        func_00194590(unitStatePacket, 1);
+        auxEffectIndex = (s16)((*(s16 *)(arg0 + (0xEC))));
+        if ((auxEffectIndex != 0) && !((*(u8 *)(arg0 + (0xD8))) & 1)) {
+            unitStatePacketB = (u8 *)(func_00202400((*(u8 **)(arg0 + (0x30))), auxEffectIndex));
+            (*(s8 *)((u8 *)(unitStatePacketB) + (0))) = 5;
+            (*(s64 *)((u8 *)(unitStatePacketB) + (8))) = animUid;
+            (*(s16 *)((u8 *)(unitStatePacketB) + (0x48))) = hitTimingBase;
+            (*(u8 *)((u8 *)(unitStatePacketB) + (0x47))) = (u8) ((*(u8 *)((u8 *)(unitStatePacketB) + (0x47))) & 0xDF);
+            (*(s64 *)((u8 *)(unitStatePacketB) + (0x60))) = actionUid;
+            func_00194590(unitStatePacketB, 3);
         } else {
-            temp_5_7 = (s16)((*(s16 *)((u8 *)(temp_18) + (0xEC))));
-            if (temp_5_7 != 0) {
-                temp_2_61 = (u8 *)(func_00202400(temp_18->unit, temp_5_7));
-                (*(s8 *)((u8 *)(temp_2_61) + (0))) = 5;
-                (*(s64 *)((u8 *)(temp_2_61) + (8))) = temp_16;
-                (*(s16 *)((u8 *)(temp_2_61) + (0x48))) = var_21;
-                (*(u8 *)((u8 *)(temp_2_61) + (0x47))) = (u8) ((*(u8 *)((u8 *)(temp_2_61) + (0x47))) & 0xDF);
-                (*(s64 *)((u8 *)(temp_2_61) + (0x60))) = temp_17;
-                func_00194590(temp_2_61, 3);
+            auxEffectIndexTarget = (s16)((*(s16 *)((u8 *)(targetView) + (0xEC))));
+            if (auxEffectIndexTarget != 0) {
+                unitStatePacketC = (u8 *)(func_00202400(targetView->unit, auxEffectIndexTarget));
+                (*(s8 *)((u8 *)(unitStatePacketC) + (0))) = 5;
+                (*(s64 *)((u8 *)(unitStatePacketC) + (8))) = animUid;
+                (*(s16 *)((u8 *)(unitStatePacketC) + (0x48))) = hitTimingBase;
+                (*(u8 *)((u8 *)(unitStatePacketC) + (0x47))) = (u8) ((*(u8 *)((u8 *)(unitStatePacketC) + (0x47))) & 0xDF);
+                (*(s64 *)((u8 *)(unitStatePacketC) + (0x60))) = actionUid;
+                func_00194590(unitStatePacketC, 3);
             }
         }
-        sp1E0 += 1;
+        targetIndex += 1;
     }
-    temp_2_62 = (u8 *)(func_001f3950(arg0));
-    (*(s8 *)((u8 *)(temp_2_62) + (0))) = 5;
-    (*(s64 *)((u8 *)(temp_2_62) + (8))) = temp_16;
-    (*(s16 *)((u8 *)(temp_2_62) + (0x48))) = var_21;
-    (*(s64 *)((u8 *)(temp_2_62) + (0x60))) = temp_17;
-    func_00194590(temp_2_62, 1);
+    unitStatePacketD = (u8 *)(func_001f3950(arg0));
+    (*(s8 *)((u8 *)(unitStatePacketD) + (0))) = 5;
+    (*(s64 *)((u8 *)(unitStatePacketD) + (8))) = animUid;
+    (*(s16 *)((u8 *)(unitStatePacketD) + (0x48))) = hitTimingBase;
+    (*(s64 *)((u8 *)(unitStatePacketD) + (0x60))) = actionUid;
+    func_00194590(unitStatePacketD, 1);
     if (!((*(u16 *)(arg0 + (0x18))) & 4)) {
-        temp_2_63 = (u8 *)(func_001f3870(arg0, (*(u8 *)(arg0 + (0xDB)))));
-        (*(s8 *)((u8 *)(temp_2_63) + (0))) = 5;
-        (*(s64 *)((u8 *)(temp_2_63) + (8))) = temp_16;
-        (*(s16 *)((u8 *)(temp_2_63) + (0x48))) = var_21;
-        (*(s64 *)((u8 *)(temp_2_63) + (0x60))) = temp_17;
-        func_00194590(temp_2_63, 1);
+        statePacket = (u8 *)(func_001f3870(arg0, (*(u8 *)(arg0 + (0xDB)))));
+        (*(s8 *)((u8 *)(statePacket) + (0))) = 5;
+        (*(s64 *)((u8 *)(statePacket) + (8))) = animUid;
+        (*(s16 *)((u8 *)(statePacket) + (0x48))) = hitTimingBase;
+        (*(s64 *)((u8 *)(statePacket) + (0x60))) = actionUid;
+        func_00194590(statePacket, 1);
     }
-    if (sp230 != 0) {
-        temp_4_8 = (u8 *)(iGpffffb3ac);
-        (*(s32 *)((u8 *)(temp_4_8) + (0xC))) = (s32) ((*(s32 *)((u8 *)(temp_4_8) + (0xC))) | 0x400000);
-        temp_3_6 = (u8 *)(iGpffffb3ac);
-        (*(u16 *)((u8 *)(temp_3_6) + (0x18))) = (u16) ((*(u16 *)((u8 *)(temp_3_6) + (0x18))) | 0xF);
+    if (setEffectFlags != 0) {
+        battleStatePtrC = (u8 *)(iGpffffb3ac);
+        (*(s32 *)((u8 *)(battleStatePtrC) + (0xC))) = (s32) ((*(s32 *)((u8 *)(battleStatePtrC) + (0xC))) | 0x400000);
+        battleStatePtrB = (u8 *)(iGpffffb3ac);
+        (*(u16 *)((u8 *)(battleStatePtrB) + (0x18))) = (u16) ((*(u16 *)((u8 *)(battleStatePtrB) + (0x18))) | 0xF);
     }
-    temp_3_7 = (u8 *)((*(u8 **)(arg0 + (0x8C))));
-    if (temp_3_7 != NULL) {
+    cutinUnit = (u8 *)((*(u8 **)(arg0 + (0x8C))));
+    if (cutinUnit != NULL) {
         cutin.mode = 3;
-        cutin.unitId = (u16)((*(u16 *)((u8 *)((*(u8 **)((u8 *)(temp_3_7) + (0x30)))) + (0xA4))));
+        cutin.unitId = (u16)((*(u16 *)((u8 *)((*(u8 **)((u8 *)(cutinUnit) + (0x30)))) + (0xA4))));
         func_00194590(func_001fa720(&cutin), 1);
     }
     if (func_001f68e0((s64 *)arg0) != 0) {
