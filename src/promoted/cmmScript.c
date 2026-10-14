@@ -2306,8 +2306,8 @@ s32 func_00250870(void)
     s16* s;
     s16* d;
     s32 i;
-    s32 p;
-    u8* r;
+    s32 handle;
+    u8* rec;
     s32 idx;
 
     s = D_00635BB8;
@@ -2322,12 +2322,12 @@ s32 func_00250870(void)
         d[1] = b;
         d += 2;
     } while (i > 0);
-    p = (s32)func_00452380((s8 *)(D_00635A78));
-    r = (u8*)(s32)func_00452560((void *)(u32)(p));
-    if (r == 0) {
+    handle = (s32)func_00452380((s8 *)(D_00635A78));
+    rec = (u8*)(s32)func_00452560((void *)(u32)(handle));
+    if (rec == 0) {
         func_0046d730(D_006359F0, 0x41B);
     }
-    idx = *(s32*)(r + 0x20);
+    idx = *(s32*)(rec + 0x20);
     if (idx >= 6) {
         func_0046d730(D_006359F0, 0x8A9);
     }
@@ -2337,43 +2337,41 @@ s32 func_00250870(void)
 // FUN_00250940
 s32 func_00250940(void)
 {
-    s32 b;
-    s32 a;
-    u8* p;
-    u8* q2;
-    u8* q3;
+    s32 field;
+    s32 row;
+    u8* table;
     s32 out1;
     s32 out2;
 
-    a = func_0029cc00(0);
-    b = func_0029cc00(1);
+    row = func_0029cc00(0);
+    field = func_0029cc00(1);
     func_001104d0(func_001060b0(), &out1, &out2);
-    p = (u8 *)func_00246e10((u16)out1);
-    if (p == 0) {
+    table = (u8 *)func_00246e10((u16)out1);
+    if (table == 0) {
         func_0046d730(D_006359F0, 0x8B8);
     }
-    if (b < 0 || !(b <= 3)) {
+    if (field < 0 || !(field <= 3)) {
         func_0046d730(D_006359F0, 0x8B9);
     }
-    switch (b) {
+    switch (field) {
     case 0: {
-        s32 idx = a * 12;
-        func_0029cf50(*(u16*)(idx + (s32)p + 0x18));
+        s32 idx = row * 12;
+        func_0029cf50(*(u16*)(idx + (s32)table + 0x18));
         break;
     }
     case 1: {
-        s32 idx = a * 12;
-        func_0029cf50(*(u16*)(idx + (s32)p + 0x1A));
+        s32 idx = row * 12;
+        func_0029cf50(*(u16*)(idx + (s32)table + 0x1A));
         break;
     }
     case 2: {
-        s32 idx = a * 12;
-        func_0029cf50(*(s32*)(idx + (s32)p + 0x1C));
+        s32 idx = row * 12;
+        func_0029cf50(*(s32*)(idx + (s32)table + 0x1C));
         break;
     }
     case 3: {
-        s32 idx = a * 12;
-        func_0029cf50(*(s32*)(idx + (s32)p + 0x20));
+        s32 idx = row * 12;
+        func_0029cf50(*(s32*)(idx + (s32)table + 0x20));
         break;
     }
     }
