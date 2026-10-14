@@ -213,46 +213,42 @@ void func_002e09b0(u8 *arg0, f32 fparg0, s16 arg1)
 }
 // FUN_002E09E0
 void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
-    u8 *temp_6 = *(u8 **)(arg0 + 0x38);
-    f32 *entry = (f32 *)(D_0063F560 + *(s16 *)(temp_6 + 0xF8) * 8);
-    u8 *temp_16;
+    u8 *work = *(u8 **)(arg0 + 0x38);
+    f32 *entry = (f32 *)(D_0063F560 + *(s16 *)(work + 0xF8) * 8);
     f2 out;
-    *(s16 *)(temp_6 + 4) |= 1;
+    *(s16 *)(work + 4) |= 1;
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
-    temp_16 = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(arg0 + 0x38);
     out = func_002b2970(entry[0], entry[1]);
-    *(f2 *)(temp_16 + 0x2C) = out;
+    *(f2 *)(work + 0x2C) = out;
 }
 
 // FUN_002E0A60
 void func_002e0a60(u8 *arg0, s32 arg1, f32 fparg0)
 {
-    u8 *temp_6;
-    u8 *temp_3;
+    u8 *work;
+    u8 *entry;
     f2 out;
-    u8 *temp_17;
-    u8 *temp_4;
-    u8 *temp_3_2;
 
-    temp_6 = *(u8 **)(arg0 + 0x38);
-    temp_3 = D_0063F560 + *(s16 *)(temp_6 + 0xF8) * 8;
-    *(s16 *)(temp_6 + 4) |= 1;
+    work = *(u8 **)(arg0 + 0x38);
+    entry = D_0063F560 + *(s16 *)(work + 0xF8) * 8;
+    *(s16 *)(work + 4) |= 1;
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
-    temp_17 = *(u8 **)(arg0 + 0x38);
-    out = func_002b2970(*(f32 *)temp_3, *(f32 *)(temp_3 + 4));
-    *(f2 *)(temp_17 + 0x2C) = out;
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    *(u8 *)(temp_4 + 0x62) = 0xFF;
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(temp_4 + 0xA0) = 0x3F800000;
-    *(s32 *)(temp_4 + 0x94) = 0x3F800000;
-    temp_3_2 = *(u8 **)(arg0 + 0x38);
-    *(s8 *)(temp_3_2 + 0xCF) = 0;
-    *(s8 *)(temp_3_2 + 0xA7) = 0;
-    *(s8 *)(temp_3_2 + 0x67) = 0;
-    *(s8 *)(temp_3_2 + 0x3B) = 0;
+    work = *(u8 **)(arg0 + 0x38);
+    out = func_002b2970(*(f32 *)entry, *(f32 *)(entry + 4));
+    *(f2 *)(work + 0x2C) = out;
+    work = *(u8 **)(arg0 + 0x38);
+    *(u8 *)(work + 0x62) = 0xFF;
+    work = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(work + 0xA0) = 0x3F800000;
+    *(s32 *)(work + 0x94) = 0x3F800000;
+    work = *(u8 **)(arg0 + 0x38);
+    *(s8 *)(work + 0xCF) = 0;
+    *(s8 *)(work + 0xA7) = 0;
+    *(s8 *)(work + 0x67) = 0;
+    *(s8 *)(work + 0x3B) = 0;
 }
 // FUN_002E0B20
 void func_002e0b20(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
@@ -469,7 +465,7 @@ s32 func_002e72c0(u8 *arg0)
     extern s8 D_0063FC68[];
     s8 state;
     u8 *work;
-    u8 *temp_17;
+    u8 *view;
 
     work = *(u8 **)(arg0 + 0x38);
     state = *(s8 *)work;
@@ -480,10 +476,10 @@ s32 func_002e72c0(u8 *arg0)
         /* fallthrough */
     case 2:
         if ((func_00144f60() != 0) && (func_0015f660() != 0)) {
-            temp_17 = func_00457120();
-            K_View_SetFov(temp_17, func_0014b4d0());
-            temp_17 = func_00457120();
-            func_003e9cb0(*(u8 **)(temp_17 + 4), func_0014b450(), 0);
+            view = func_00457120();
+            K_View_SetFov(view, func_0014b4d0());
+            view = func_00457120();
+            func_003e9cb0(*(u8 **)(view + 4), func_0014b450(), 0);
             *(s8 *)work = 3;
             func_0045a3e0((s16)0x15, 1);
         }
