@@ -412,35 +412,34 @@ void func_002e7190(u8 *arg0) {
 // FUN_002E71C0
 s32 func_002e71c0(void)
 {
-    s16 var_17;
-    s32 var_16;
-    s16 temp_18;
+    s16 item;
+    s32 found;
+    s16 itemCopy;
 
-    var_16 = 0;
-    var_17 = 0x300;
+    found = 0;
+    item = 0x300;
     goto loop_test;
 loop_body:
-    if (func_002bdff0(var_17) == 1)
+    if (func_002bdff0(item) == 1)
     {
-        if ((clndGetMoonPhase(temp_18) & 0xFF) == 0)
+        if ((clndGetMoonPhase(itemCopy) & 0xFF) == 0)
         {
-            var_16 = (s16)var_17;
-            func_00110810(var_16, (clndGetMoonPhase(var_16) & 0xFF) | 1);
-            var_16 = 1;
+            func_00110810(item, (clndGetMoonPhase(item) & 0xFF) | 1);
+            found = 1;
         }
-        else if (((u8)clndGetMoonPhase(temp_18)) & 1)
+        else if (((u8)clndGetMoonPhase(itemCopy)) & 1)
         {
-            var_16 = 1;
+            found = 1;
         }
     }
-    var_17++;
+    item++;
 loop_test:
-    temp_18 = (s16)var_17;
-    if (temp_18 < 0x3FF)
+    itemCopy = (s16)item;
+    if (itemCopy < 0x3FF)
     {
         goto loop_body;
     }
-    return (s8)var_16 == 1;
+    return (s8)found == 1;
 }
 /* measured: corrected callee declarations; variadic call casts preserve retail's
    extra ignored arguments to the one-parameter routines. */
