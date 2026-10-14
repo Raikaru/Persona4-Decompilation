@@ -474,7 +474,7 @@ void func_00103c40(u8 *slot)
     extern u8 D_005DD640[];
     extern u8 D_005DD670[];
     extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
-    extern const char *func_00456090(struct HCdvd *archive, s32 index);
+    extern const char *H_Cdvd_ArchiveEntryName(struct HCdvd *archive, s32 index);
     extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
                             s32 flags, s32 source, s32 buffer, s32 byteCount,
                             const char *cacheName, s32 resultKind, s32 memoryKind);
@@ -501,10 +501,10 @@ void func_00103c40(u8 *slot)
         if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)(slot + 0x24)) == 0) {
             break;
         }
-        if (func_00456090(*(struct HCdvd **)(slot + 0x24),
+        if (H_Cdvd_ArchiveEntryName(*(struct HCdvd **)(slot + 0x24),
                           *(s32 *)(slot + 0x4C)) != NULL) {
             sprintf(slot + 0x60, D_005DD630,
-                           func_00456090(*(struct HCdvd **)(slot + 0x24),
+                           H_Cdvd_ArchiveEntryName(*(struct HCdvd **)(slot + 0x24),
                                           *(s32 *)(slot + 0x4C)));
             *(u8 **)(slot + 0x48) =
                 func_004667d0(0, (const char *)slot + 0x60, NULL,

@@ -2123,7 +2123,7 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
     extern void func_0044ea90(void *arg0, s32 arg1);
     extern void func_0044ec50(s32 arg0);
     extern u8 kwlnTaskDestroyWithHierarchyByName(const char *name);
-    extern void func_004561a0(void *handle, void *path, s32 sync);
+    extern void H_Cdvd_StartPlayback(void *handle, void *path, s32 sync);
     extern s32 func_00457120(void);
     extern void func_0046d730(void *arg0, s32 arg1);
     extern s32 mwPlyCalcWorkCprmSfd(MWSFD_CRPRM *arg0);
@@ -2276,9 +2276,9 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
             mwPlySetFrmSync(playerHandle, 0);
             work->player = (void *)(playerHandle);
             if (work->usesLoopPlayer != 0) {
-                func_004561a0((void *)playerHandle, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 1);
+                H_Cdvd_StartPlayback((void *)playerHandle, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 1);
             } else {
-                func_004561a0((void *)playerHandle, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 0);
+                H_Cdvd_StartPlayback((void *)playerHandle, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 0);
             }
             func_0044ec50(1);
             rasterKind = (*(s16 *)(D_00712C50 + (work->movieIndex * 0x28)));
