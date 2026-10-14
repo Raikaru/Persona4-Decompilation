@@ -25,3 +25,10 @@ void func_00291900(void)
     }
     return;
 }
+
+/* Source unit: src/Event/mt_evtCustomEvent_002919d0.c */
+// FUN_002919D0
+s32 func_002919d0(s32 object)
+{
+    return object + 0x38e;
+}
