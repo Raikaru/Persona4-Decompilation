@@ -7,6 +7,7 @@
 #include "fcl_color.h"
 #include "fcl_row_draw.h"
 #include "fcl_row_mode.h"
+#include "evt_internal.h"
 #include "include_asm.h"
 #include "fcl_bounds_packet.h"
 #include "fcl_draw_task.h"
@@ -135,7 +136,6 @@ extern u16 D_008C027A[];
 extern u8 *iGpffffb440;
 extern u8 *iGpffffb3d4;
 extern f32 iGpffff8504;
-extern f32 iGpffff8218;
 extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
 extern void func_00310960(u8 *, s32, s32);
 extern void func_00310a10(u8 *, u16);

@@ -5,6 +5,7 @@
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "evt_internal.h"
 
 extern u8 *func_00452380(s8 *name);
 extern u32 func_00452560(void *task);
@@ -128,7 +129,6 @@ typedef union {
 
 extern CmmFishingOrigin D_00635B68;
 extern CmmFishingOrigin D_00635B78;
-extern f32 iGpffff809c;
 extern f32 iGpffff8084;
 extern f32 iGpffff8094;
 extern u8 D_00794E70[];

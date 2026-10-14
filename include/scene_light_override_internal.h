@@ -71,4 +71,7 @@ static inline void sceneLightIdentity(SceneLightMatrix *matrix)
     matrix->flags |= 0x20003;
 }
 
+/* Light slot table shared by code1_0028 and mt_evtMisc. */
+extern SceneLightSlot D_00882210[];
+
 #endif

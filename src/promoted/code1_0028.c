@@ -4,6 +4,7 @@
 #include "type.h"
 #include "scene_event_internal.h"
 #include "scene_light_override_internal.h"
+#include "evt_internal.h"
 
 s32 func_00452380(void *arg0);
 extern s32 D_0063C368[];
@@ -13,8 +14,6 @@ extern u32 func_00452560(void *task);
 void memset(void *arg0, s32 arg1, s32 arg2);
 void func_00285260(void);
 extern void func_0026be60(s32 arg0);
-extern f32 iGpffff809c;
-extern f32 iGpffff8218;
 extern s32 func_00285af0(void);
 extern u8 *func_00285480(u8 *arg0);
 extern void func_004598e0(s16 arg0);
@@ -34,7 +33,6 @@ extern f32 D_00882238[];
 extern f32 D_0088223C[];
 extern f32 D_00882240[];
 extern f32 D_00882244[];
-extern SceneLightSlot D_00882210[];
 extern s32 func_00144b80(s32 arg0, s32 arg1);
 extern void func_00144c90(s32 arg0, s32 arg1);
 extern void func_00144e10(s64 arg0);
@@ -101,7 +99,6 @@ extern s32 MT_Scene_GetTotalResInList(s32 arg0);
 
 extern u8 iGpffffa790;
 
-extern s32 D_00882170[];
 extern s32 D_008825F0[10];
 extern void func_0014a300(u16 resTypeId, u32 customLight);
 extern void *func_0014b000(void);
