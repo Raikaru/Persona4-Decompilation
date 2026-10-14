@@ -606,20 +606,20 @@ void func_00450e80(PackedColor4 color, PackedVec2f position, f32 z,
 #pragma optimization_level 2
 // FUN_004526A0
 void func_004526a0(u8 *arg0) {
-    u8 *var_6;
-    u8 *var_5;
+    u8 *node;
+    u8 *match;
 
-    var_6 = *(u8 **)(arg0 + 0x4C);
+    node = *(u8 **)(arg0 + 0x4C);
     goto loop_004526a0_check;
 loop_004526a0_body:
-    if (*(u8 **)(var_6 + 0x48) == arg0) {
-        var_5 = var_6;
+    if (*(u8 **)(node + 0x48) == arg0) {
+        match = node;
     }
-    var_6 = *(u8 **)(var_6 + 0x50);
-    *(s32 *)(var_5 + 0x48) = 0;
-    *(s32 *)(var_5 + 0x50) = 0;
+    node = *(u8 **)(node + 0x50);
+    *(s32 *)(match + 0x48) = 0;
+    *(s32 *)(match + 0x50) = 0;
 loop_004526a0_check:
-    if (var_6 != NULL) {
+    if (node != NULL) {
         goto loop_004526a0_body;
     }
 }
@@ -858,17 +858,17 @@ void func_00452870(void *arg0)
 
 // FUN_00452CE0
 void func_00452ce0(void) {
-    s32 var_16;
+    s32 index;
 
-    var_16 = 0;
+    index = 0;
     goto loop_00452ce0_check;
 loop_00452ce0_body:
-    func_00452870((void *)(D_008C02E0 + var_16 * 0x4A));
-    func_00452db0(var_16);
-    func_004530b0(var_16);
-    var_16 += 1;
+    func_00452870((void *)(D_008C02E0 + index * 0x4A));
+    func_00452db0(index);
+    func_004530b0(index);
+    index += 1;
 loop_00452ce0_check:
-    if (var_16 < 2) {
+    if (index < 2) {
         goto loop_00452ce0_body;
     }
     D_008C0336[0] = 0;
@@ -958,18 +958,18 @@ void func_00452db0(s32 slot) {
 #pragma pop
 // FUN_004530B0
 void func_004530b0(s32 arg0) {
-    s32 temp_6;
-    u16 *temp_3;
-    u16 *temp_5;
-    u16 temp_5_2;
+    s32 off;
+    u16 *edge;
+    u16 *held;
+    u16 heldBits;
 
-    temp_6 = arg0 * 0x4A;
-    temp_5 = (u16 *)(D_008C0314 + temp_6);
-    *temp_5 = (u16)(*(u16 *)(D_008C02EC + temp_6) | *(u16 *)(D_008C02F6 + temp_6));
-    temp_5_2 = *temp_5;
-    temp_3 = (u16 *)(D_008C0316 + temp_6);
-    *temp_3 = (u16)(temp_5_2 & (temp_5_2 ^ *(u16 *)(D_008C0318 + temp_6)));
-    *(u16 *)(D_008C031A + temp_6) = *temp_3;
+    off = arg0 * 0x4A;
+    held = (u16 *)(D_008C0314 + off);
+    *held = (u16)(*(u16 *)(D_008C02EC + off) | *(u16 *)(D_008C02F6 + off));
+    heldBits = *held;
+    edge = (u16 *)(D_008C0316 + off);
+    *edge = (u16)(heldBits & (heldBits ^ *(u16 *)(D_008C0318 + off)));
+    *(u16 *)(D_008C031A + off) = *edge;
     func_00453310(arg0, 0x1000, 0);
     func_00453310(arg0, 0x4000, 1);
     func_00453310(arg0, 0x8000, 2);
@@ -985,49 +985,49 @@ void func_004530b0(s32 arg0) {
 }
 // FUN_00453250
 void func_00453250(s32 arg0, u16 arg1, s32 arg2) {
-    s32 temp_4;
-    s32 temp_7;
-    u16 *temp_4_2;
-    u8 *temp_6;
+    s32 bits;
+    s32 off;
+    u16 *word;
+    u8 *timer;
 
-    temp_7 = arg0 * 0x4A;
-    temp_4 = arg1 & 0xFFFF;
-    if (temp_4 & *(u16 *)(D_008C02EE + temp_7)) {
-        *(u8 *)(D_008C0300 + temp_7 + arg2) = 7;
+    off = arg0 * 0x4A;
+    bits = arg1 & 0xFFFF;
+    if (bits & *(u16 *)(D_008C02EE + off)) {
+        *(u8 *)(D_008C0300 + off + arg2) = 7;
         return;
     }
-    if (temp_4 & *(u16 *)(D_008C02EC + temp_7)) {
-        temp_6 = D_008C0300 + temp_7;
-        temp_6 = temp_6 + arg2;
-        *temp_6 -= 1;
-        if (*temp_6 == 0) {
-            temp_4_2 = (u16 *)(D_008C02F2 + temp_7);
-            *temp_4_2 |= arg1;
-            *temp_6 = 3;
+    if (bits & *(u16 *)(D_008C02EC + off)) {
+        timer = D_008C0300 + off;
+        timer = timer + arg2;
+        *timer -= 1;
+        if (*timer == 0) {
+            word = (u16 *)(D_008C02F2 + off);
+            *word |= arg1;
+            *timer = 3;
         }
     }
 }
 // FUN_00453310
 void func_00453310(s32 arg0, u16 arg1, s32 arg2) {
-    s32 temp_7;
-    s32 temp_4;
-    u16 *temp_4_2;
-    u8 *temp_6;
+    s32 off;
+    s32 bits;
+    u16 *word;
+    u8 *timer;
 
-    temp_7 = arg0 * 0x4A;
-    temp_4 = arg1 & 0xFFFF;
-    if (temp_4 & *(u16 *)(D_008C0316 + temp_7)) {
-        *(u8 *)(D_008C031E + temp_7 + arg2) = 7;
+    off = arg0 * 0x4A;
+    bits = arg1 & 0xFFFF;
+    if (bits & *(u16 *)(D_008C0316 + off)) {
+        *(u8 *)(D_008C031E + off + arg2) = 7;
         return;
     }
-    if (temp_4 & *(u16 *)(D_008C0314 + temp_7)) {
-        temp_6 = D_008C031E + temp_7;
-        temp_6 = temp_6 + arg2;
-        *temp_6 -= 1;
-        if (*temp_6 == 0) {
-            temp_4_2 = (u16 *)(D_008C031A + temp_7);
-            *temp_4_2 |= arg1;
-            *temp_6 = 3;
+    if (bits & *(u16 *)(D_008C0314 + off)) {
+        timer = D_008C031E + off;
+        timer = timer + arg2;
+        *timer -= 1;
+        if (*timer == 0) {
+            word = (u16 *)(D_008C031A + off);
+            *word |= arg1;
+            *timer = 3;
         }
     }
 }
