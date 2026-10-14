@@ -5,6 +5,7 @@
 #include "include_asm.h"
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
+#include "datCalc_unit_internal.h"
 
 typedef u8 bool;
 typedef int (*code)();
@@ -21,10 +22,8 @@ extern u16 datCalcGetHp(u8 *arg0);
 extern u16 func_00231f80(u8 *arg0);
 extern u16 func_00232290(u8 *arg0);
 extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
-extern s32 func_002340c0(s32 arg0, s32 arg1);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern u32 func_0023e130(u8 *arg0);
-extern u32 func_0023e140();
 extern s32 func_0023df20(s32 arg0);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -348,7 +347,7 @@ s32 btlCond_FRHOJO(u8 *arg0, s32 arg1)
                 temp = *(u8 **)(unit + 0x30);
                 if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == *(u8 *)(temp + 0xA2) &&
                     datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
-                    func_002340c0(*(s32 *)(temp + 0xA64), arg1) != 0) {
+                    func_002340c0(*(u8 **)(temp + 0xA64), arg1) != 0) {
                     return 1;
                 }
             }
@@ -384,7 +383,7 @@ done:
             temp = *(u8 **)(unit + 0x30);
             if (*(u8 *)(temp + 0xA2) == mode &&
                 datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
-                func_002340c0(*(s32 *)(temp + 0xA64), arg1) != 0) {
+                func_002340c0(*(u8 **)(temp + 0xA64), arg1) != 0) {
                 return 1;
             }
         }
@@ -696,7 +695,7 @@ s32 btlCond_MYHREC(u8 *arg0)
 
     data = *(s32 *)(arg0 + 0x30);
     count = (u16)func_0023e130(*(u8 **)(data + 0xA64));
-    skills = (u16 *)func_0023e140(*(u32 *)(data + 0xA64));
+    skills = (u16 *)func_0023e140(*(u8 **)(data + 0xA64));
     index = 0;
     count = (u16)count;
     while (index < count) {

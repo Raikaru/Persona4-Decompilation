@@ -1,5 +1,6 @@
 #include "btl_equipment_count_internal.h"
 #include "datCalc_internal.h"
+#include "datCalc_unit_internal.h"
 #include "datScript_internal.h"
 #include "type.h"
 #include "include_asm.h"
@@ -88,8 +89,6 @@ extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00244f60(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
 extern u16 func_00247cb0(s64 arg0);
 extern u16 func_00107ac0(s32 arg0);
-/* Defined below in this file; used at line 184, before its definition. */
-extern u8 *func_0023e140(u8 *arg0);
 
 extern u8 *iGpffffb3b4;
 

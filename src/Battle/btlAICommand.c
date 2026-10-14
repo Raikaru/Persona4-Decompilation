@@ -1,5 +1,6 @@
 /* Source unit: src/Battle/btlEffect_001db100.c */
 #include "btl_skill_target_internal.h"
+#include "datCalc_unit_internal.h"
 #include "type.h"
 #include "include_asm.h"
 #include "btl_cond_internal.h"
@@ -38,7 +39,6 @@ extern s32 func_0023d8e0(u8 *unit, u16 command);
 extern s32 func_0023d6e0(s16 index);
 extern s8 func_00233a90(u8 *unit, s32 status);
 extern u32 func_0023e130(u8 *unit);
-extern u8 *func_0023e140(u8 *unit);
 extern u32 func_00243920(u32 arg0);
 extern u32 *func_001d9280();
 extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
@@ -51,7 +51,6 @@ extern u32 func_001b1570(u16 arg0);
 extern u32 func_00233880(u32 arg0, u32 arg1);
 extern u32 func_00231d70(u32 arg0);
 extern u16 datCalcGetHp(s32 unit);
-extern u32 func_002340c0();
 extern s32 func_00242800(u8 *unit, s32 index);
 extern void func_001de640(u8 *a, u8 *b, u16 c);
 
@@ -470,7 +469,9 @@ next_unit:
 
 // FUN_001DB8D0
 s32 btlCond_MYHOJO(u8 *arg0) {
-    return (s32)(func_002340c0(*(u32 *)(*(u8 **)(arg0 + 0x30) + 0xA64)) != 0);
+    /* lint: allow H011 -- retail MYHOJO passes one argument; a1 is not set before the jal at 0x1db8e0 */
+    extern s32 func_002340c0();
+    return (s32)(func_002340c0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) != 0);
 }
 
 // FUN_001DB900
@@ -554,7 +555,7 @@ s32 btlCond_MYWALL(u8 *arg0, u32 arg1) {
         mask |= 0x40000000;
     if (mask == 0)
         return 0;
-    return func_002340c0(*(u32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), mask) != 0;
+    return func_002340c0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), mask) != 0;
 }
 
 // FUN_001DBB90
@@ -673,7 +674,7 @@ code arg5;
                 goto docallback;
             }
         }
-        if (func_002340c0(*(u32 *)(temp16 + 0xA64), arg2) != 0) {
+        if (func_002340c0(*(u8 **)(temp16 + 0xA64), arg2) != 0) {
             continue;
         }
     docallback:
@@ -3080,7 +3081,7 @@ s32 func_001e1940(void) {
     u32 *r = func_001d9280(func_0029cc00(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
     if (r != 0)
-        x = func_002340c0(*(u32 *)(*(u8 **)((u8 *)r + 0x30) + 0xA64), func_0029cc00(1));
+        x = func_002340c0(*(u8 **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), func_0029cc00(1));
     else
         x = 0;
     func_0029cf50(x != 0);
@@ -3675,7 +3676,7 @@ s32 func_001e2850(void) {
     }
     r = func_001d9280(func_0029cc00(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
     if (r != 0)
-        x = func_002340c0(*(u32 *)(*(u8 **)((u8 *)r + 0x30) + 0xA64), func_0029cc00(1));
+        x = func_002340c0(*(u8 **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), func_0029cc00(1));
     else
         x = 0;
     func_0029cf50(x != 0);
@@ -3711,7 +3712,7 @@ s32 func_001e2910(void) {
                 if (*(u16 *)(np + 0xA4) == c02) {
                     if (datCalcIsDead(*(u32 *)(np + 0xA64), 0) == 0) {
                         n = (n + 1) & 0xFFFF;
-                        if (func_002340c0(*(u32 *)(np + 0xA64), v) != 0) {
+                        if (func_002340c0(*(u8 **)(np + 0xA64), v) != 0) {
                             k = (k + 1) & 0xFFFF;
                         }
                     }
@@ -3765,7 +3766,7 @@ done:
                 if (*(u16 *)(c0 + 0xa4) == m) {
                     if (datCalcIsDead(*(u32 *)(c0 + 0xa64), 0) == 0) {
                         n = (n + 1) & 0xffff;
-                        if (func_002340c0(*(u32 *)(c0 + 0xa64), v) != 0)
+                        if (func_002340c0(*(u8 **)(c0 + 0xa64), v) != 0)
                             k = (k + 1) & 0xffff;
                     }
                 }
@@ -4597,7 +4598,7 @@ u32 func_001e42e0(void)
 // FUN_001E43D0
 s32 func_001e43d0(void) {
     u8 *p = func_0029d050();
-    func_0029cf50(func_002340c0(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), func_0029cc00(0)) != 0);
+    func_0029cf50(func_002340c0(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64), func_0029cc00(0)) != 0);
     return 1;
 }
 
@@ -5234,7 +5235,7 @@ s32 func_001e65f0(void) {
 s32 func_001e66c0(void) {
     u32 a = func_0029cc00(0);
     u32 b = func_0029cc00(1);
-    u8 t = func_002340c0(*(u32 *)(*(u8 **)((u8 *)func_001b0cc0(a & 0xFFFFFFF) + 0x30) + 0xA64), b) != 0;
+    u8 t = func_002340c0(*(u8 **)(*(u8 **)((u8 *)func_001b0cc0(a & 0xFFFFFFF) + 0x30) + 0xA64), b) != 0;
     func_0029cf50(t != 0);
     return 1;
 }

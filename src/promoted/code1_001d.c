@@ -3,6 +3,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
+#include "datCalc_unit_internal.h"
 typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001d7f10_add(s32 left, s32 right)
 {
@@ -24,7 +25,6 @@ extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
 extern u16 datCalcGetHp(u8 *arg0);
 extern u16 datCalcGetSp(u8 *arg0);
-extern s32 func_002340c0(s32 arg0, s32 arg1);
 extern void func_001d6de0(s32 arg0, s32 arg1);
 extern s32 func_001d6360(u8 *arg0);
 extern void func_001d42e0(s32 arg0);
@@ -2785,7 +2785,7 @@ mode_valid:
             index = 0;
             while ((u16)index < *(u16 *)(arg1 + 0x38)) {
                 if (func_002340c0(
-                        *(s32 *)(*(u8 **)(*(u8 **)(arg1 +
+                        *(u8 **)(*(u8 **)(*(u8 **)(arg1 +
                                                       (u32)(u16)index * 4) +
                                          0x30) +
                                  0xA64),
