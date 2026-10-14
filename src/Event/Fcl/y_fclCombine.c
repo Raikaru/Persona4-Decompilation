@@ -325,16 +325,16 @@ s32 func_002e8410(u8 *arg0) {
     {
         s32 partyIndex;
         for (partyIndex = 0; partyIndex < (func_0010b5b0() & 0xFFFF); partyIndex++) {
-            *(s32 *)(out + partyIndex * 4 + 0x154) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
+            *(s32 *)(out + partyIndex * 4 + 0x154) = fclCmbBallTaskCreateSlots((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
         }
     }
-    *(s32 *)(out + 0x184) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
-    *(s32 *)(out + 0x188) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x58);
+    *(s32 *)(out + 0x184) = fclCmbBallTaskCreateSlots((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
+    *(s32 *)(out + 0x188) = fclCmbBallTaskCreateSlots((s32)arg0, func_0010b5b0() & 0xFF, 0x58);
     {
         s32 segmentIndex;
         for (segmentIndex = 0; segmentIndex < 0xC; segmentIndex++) {
             menuColor = func_002b2a60(0, 0, 0x99, 0xFF);
-            e = func_0034ae50(*(u8 **)(out + 0x188), (s8)segmentIndex);
+            e = fclCombineSlotRecord(*(u8 **)(out + 0x188), (s8)segmentIndex);
             *(FclDrawColor *)(e + 0x75) = menuColor;
         }
     }
@@ -404,7 +404,7 @@ s32 func_002e8410(u8 *arg0) {
     {
         s32 ballIndex;
         for (ballIndex = 0; ballIndex < 0xC; ballIndex++) {
-            *(s32 *)(out + ballIndex * 4 + 0x21C) = func_0034b740((s32)arg0);
+            *(s32 *)(out + ballIndex * 4 + 0x21C) = fclCmbBallTaskCreate((s32)arg0);
         }
     }
     func_002b7750(0x2B4, 0x193);
@@ -1662,7 +1662,7 @@ void func_002ed430(u8 *arg0) {
             && *(s8 *)func_002e4870(2) == 1 && *(s8 *)func_002e4870(0xD) == 1) {
             for (var_16 = 0; var_16 < (func_0010b5b0() & 0xFFFF); var_16++) {
                 col25C = func_002b2a60(0, 0, 0x99, 0xFF);
-                *(FclDrawColor *)(func_0034ae50((u8 *)temp_18->f188, var_16) + 0x75) = col25C;
+                *(FclDrawColor *)(fclCombineSlotRecord((u8 *)temp_18->f188, var_16) + 0x75) = col25C;
             }
             func_003205f0(arg0, 0x93, 0x96);
             func_00320b80(arg0, 0);
@@ -2350,7 +2350,7 @@ typedef struct {
     s16 inner; \
     Fcl0f00RowList *list; \
  \
-    func_002b83e0(func_0034ae50((u8 *)menu->f184, (s8)outer), \
+    func_002b83e0(fclCombineSlotRecord((u8 *)menu->f184, (s8)outer), \
         (headerPosition = func_002b2970((f32)(offset + 329), 104.0f)), \
         (color0 = func_002b2a60(0, 0, 0x99, 0xFF)), \
         (color1 = func_002b2a60(0, 0, 0x99, 0xFF)), 255, 255, 32.0f, 159.0f, 3, 0, transition, 0); \
@@ -2359,21 +2359,21 @@ typedef struct {
     y = offset + 127; \
     for (; inner < (func_0010b5b0() & 0xFFFF); inner++) { \
         if (grid) { \
-            func_002b83e0(func_0034ae50(list->list, (s8)inner), \
+            func_002b83e0(fclCombineSlotRecord(list->list, (s8)inner), \
                 (cellPosition = func_002b2970((f32)(inner * 23 + 329), (f32)y)), \
-                *(FclDrawColor *)(func_0034ae50(list->list, (s8)inner) + 0x75), \
-                *(FclDrawColor *)(func_0034ae50(list->list, (s8)inner) + 0x75), \
-                func_0034ae50(list->list, (s8)inner)[0x5e], \
-                func_0034ae50(list->list, (s8)inner)[0x5e], \
-                32.0f, *(f32 *)(func_0034ae50(list->list, (s8)inner) + 4), 3, 0, transition, 0); \
+                *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
+                *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
+                fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
+                fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
+                32.0f, *(f32 *)(fclCombineSlotRecord(list->list, (s8)inner) + 4), 3, 0, transition, 0); \
         } else { \
-            func_002b83e0(func_0034ae50(list->list, (s8)inner), \
-                *(FclVec2 *)(func_0034ae50(list->list, (s8)inner) + 0x28), \
-                *(FclDrawColor *)(func_0034ae50(list->list, (s8)inner) + 0x75), \
-                *(FclDrawColor *)(func_0034ae50(list->list, (s8)inner) + 0x75), \
-                func_0034ae50(list->list, (s8)inner)[0x5e], \
-                func_0034ae50(list->list, (s8)inner)[0x5e], \
-                32.0f, *(f32 *)(func_0034ae50(list->list, (s8)inner) + 4), 3, 0, transition, 0); \
+            func_002b83e0(fclCombineSlotRecord(list->list, (s8)inner), \
+                *(FclVec2 *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x28), \
+                *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
+                *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
+                fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
+                fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
+                32.0f, *(f32 *)(fclCombineSlotRecord(list->list, (s8)inner) + 4), 3, 0, transition, 0); \
         } \
     } \
 } while (0)
@@ -2651,7 +2651,7 @@ void func_002f0f00(u8 *arg0) {
         if (func_003190d0(arg0) != 1 && *(s8 *)func_002e4870(0) == 1) {
             for (partyRow = 0; partyRow < (func_0010b5b0() & 0xFFFF); partyRow++) {
                 sp3FC = func_002b2a60(0, 0, 0x99, 0xFF);
-                *(FclDrawColor *)(func_0034ae50((u8 *)temp_17->f188, partyRow) + 0x75) = sp3FC;
+                *(FclDrawColor *)(fclCombineSlotRecord((u8 *)temp_17->f188, partyRow) + 0x75) = sp3FC;
             }
             func_003205f0(arg0, 0x93, 0x96);
             func_00320b80(arg0, 1);
@@ -2675,7 +2675,7 @@ void func_002f0f00(u8 *arg0) {
                 func_00275820(113.0f, temp_f20, 43.0f, var_19, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
             }
         }
-        if (((*(s16 *)func_0034ae50(((u8 **)((u8 *)temp_17 + 0x150))[func_0010b5b0() & 0xFFFF], (func_0010b5b0() & 0xFFFF) - 1) & 4) >> 2) == 0) {
+        if (((*(s16 *)fclCombineSlotRecord(((u8 **)((u8 *)temp_17 + 0x150))[func_0010b5b0() & 0xFFFF], (func_0010b5b0() & 0xFFFF) - 1) & 4) >> 2) == 0) {
             temp_f20_2 = (f32)(u32)func_0010b5b0() / 12.0f;
             sp3B8 = func_002b2970((f32)0x149, 128.0f);
             base3A = *(FclVec2f *)&sp3B8;
@@ -2731,7 +2731,7 @@ void func_002f0f00(u8 *arg0) {
                 func_00275820(113.0f, temp_f20, 43.0f, var_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, gridRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
-        if (((s32)((s32)(((s32) (*(s16 *)func_0034ae50((u8 *)(temp_17->rows[0]),  0) & 4) >> 2))) == (s32)((s32)(0))) && ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) == (s32)((s32)(0)))) {
+        if (((s32)((s32)(((s32) (*(s16 *)fclCombineSlotRecord((u8 *)(temp_17->rows[0]), 0) & 4) >> 2))) == (s32)((s32)(0))) && ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) == (s32)((s32)(0)))) {
             func_003205f0(arg0, 0x96, 0x93);
             func_002eb270(arg0, 0U);
             func_00315600(arg0, 0);
@@ -2993,11 +2993,11 @@ block_83:
                         temp_18_21 = (Fcl0f00RowList *)((u8 *)temp_17 + temp_3_3 * 4);
                         for (; (s32)((s32)(((s16)(var_19_8)))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)));) {
                         temp_21_11 = (s16)(var_19_8);
-                            func_002b83e0(func_0034ae50(temp_18_21->list, (s8)var_19_8),
+                            func_002b83e0(fclCombineSlotRecord(temp_18_21->list, (s8)var_19_8),
                                 (sp2C0 = func_002b2970((f32)(temp_21_11 * 23 + 329), (f32)(temp_3_3 * 23 + 127))),
-                                *(FclDrawColor *)(func_0034ae50(temp_18_21->list, (s8)var_19_8) + 0x75),
+                                *(FclDrawColor *)(fclCombineSlotRecord(temp_18_21->list, (s8)var_19_8) + 0x75),
                                 (sp3D8 = func_002b2a60(0, 0, 0x99, 0xA5)), 0xA5, 0xA5,
-                                32.0f, *(f32 *)(func_0034ae50(temp_18_21->list, (s8)var_19_8) + 4), 6, 0, 1, 1);
+                                32.0f, *(f32 *)(fclCombineSlotRecord(temp_18_21->list, (s8)var_19_8) + 4), 6, 0, 1, 1);
                             var_19_8 = (s16)((var_19_8 + 1));
                         }
                     }
@@ -3757,7 +3757,7 @@ void func_002f6cf0(u8 *arg0) {
         *(s16 *)(p + 0x11E) = -1;
         for (i = 0; i < (u16)func_0010b5b0(); i++) {
             color0 = func_002b2a60(0, 0, 0x99, 0xFF);
-            *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x188), i) + 0x75) = color0;
+            *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x188), i) + 0x75) = color0;
         }
         func_00313800(p[0x1A]);
         func_00323d00(arg0, 2, 0);
@@ -4367,7 +4367,7 @@ void func_002f9d90(u8 *arg0) {
         }
         for (i = 0; i < (u16)func_0010b5b0(); i++) {
             slotColor = func_002b2a60(0, 0, 0x99, 0xFF);
-            *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x188), i) + 0x75) = slotColor;
+            *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x188), i) + 0x75) = slotColor;
         }
         p[0x129] = -1;
         p[0x128] = -1;
@@ -6593,7 +6593,7 @@ typedef struct {
     s32 y; \
     FclCombineRowView *list; \
  \
-    func_002b83e0(func_0034ae50((u8 *)menu->f184, (s8)outer), \
+    func_002b83e0(fclCombineSlotRecord((u8 *)menu->f184, (s8)outer), \
         (headerPosition = func_002b2970((f32)(offset + 329), 104.0f)), \
         (color0 = func_002b2a60(0, 0, 0x99, 0xFF)), \
         (color1 = func_002b2a60(0, 0, 0x99, 0xFF)), 255, 255, 32.0f, 159.0f, 3, 0, 1, 0); \
@@ -6602,21 +6602,21 @@ typedef struct {
     y = offset + 127; \
     for (; inner < (func_0010b5b0() & 0xFFFF); inner++) { \
         if (grid) { \
-            func_002b83e0(func_0034ae50(list->list, (s8)inner), \
+            func_002b83e0(fclCombineSlotRecord(list->list, (s8)inner), \
                 (cellPosition = func_002b2970((f32)(inner * 23 + 329), (f32)y)), \
-                *(FclDrawColor *)(func_0034ae50(list->list, (s8)inner) + 0x75), \
-                *(FclDrawColor *)(func_0034ae50(list->list, (s8)inner) + 0x75), \
-                func_0034ae50(list->list, (s8)inner)[0x5e], \
-                func_0034ae50(list->list, (s8)inner)[0x5e], \
-                32.0f, *(f32 *)(func_0034ae50(list->list, (s8)inner) + 4), 3, 0, 1, 0); \
+                *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
+                *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
+                fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
+                fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
+                32.0f, *(f32 *)(fclCombineSlotRecord(list->list, (s8)inner) + 4), 3, 0, 1, 0); \
         } else { \
-            func_002b83e0(func_0034ae50(list->list, (s8)inner), \
-                *(FclVec2 *)(func_0034ae50(list->list, (s8)inner) + 0x28), \
-                *(FclDrawColor *)(func_0034ae50(list->list, (s8)inner) + 0x75), \
-                *(FclDrawColor *)(func_0034ae50(list->list, (s8)inner) + 0x75), \
-                func_0034ae50(list->list, (s8)inner)[0x5e], \
-                func_0034ae50(list->list, (s8)inner)[0x5e], \
-                32.0f, *(f32 *)(func_0034ae50(list->list, (s8)inner) + 4), 3, 0, 1, 0); \
+            func_002b83e0(fclCombineSlotRecord(list->list, (s8)inner), \
+                *(FclVec2 *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x28), \
+                *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
+                *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
+                fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
+                fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
+                32.0f, *(f32 *)(fclCombineSlotRecord(list->list, (s8)inner) + 4), 3, 0, 1, 0); \
         } \
     } \
 } while (0)
@@ -6910,7 +6910,7 @@ void func_00304580(u8 *arg0) {
         } else {
             for (var_16 = 0; var_16 < (func_0010b5b0() & 0xFFFF); var_16++) {
                 col2FC = func_002b2a60(0, 0, 0x99, 0xFF);
-                *(FclDrawColor *)(func_0034ae50((u8 *)work->f188, var_16) + 0x75) = col2FC;
+                *(FclDrawColor *)(fclCombineSlotRecord((u8 *)work->f188, var_16) + 0x75) = col2FC;
             }
             func_003205f0(arg0, 0x93, 0x96);
             func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);

@@ -14,7 +14,7 @@ extern void func_0044ea90(const void *, s32);
 extern char D_0064A740[];
 extern char D_0064A750[];
 extern char D_0064A770[];
-extern s32 func_0034b380(u8 *);
+extern s32 fclCmbBallUpdate(u8 *);
 extern u8 *func_00461390(void *, s32, void *, s32);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
@@ -27,8 +27,9 @@ extern void RpSkyRenderStateSet(s32, s32);
 
 
 
+/* Ball task with a 0x1810-byte state block: arg1 -> +0x1800, arg2 -> each slot's +0x100. */
 // FUN_0034AD70
-s32 func_0034ad70(s32 arg0, u8 arg1, s16 arg2) {
+s32 fclCmbBallTaskCreateSlots(s32 arg0, u8 arg1, s16 arg2) {
     s32 handle;
     u8 *buf;
     s32 i;
@@ -44,8 +45,9 @@ s32 func_0034ad70(s32 arg0, u8 arg1, s16 arg2) {
     return handle;
 }
 
+/* Slot record in the task's record block (base +0x38, 0x200 stride, record at +0x104). */
 // FUN_0034AE50
-u8 *func_0034ae50(u8 *arg0, s8 arg1) {
+u8 *fclCombineSlotRecord(u8 *arg0, s8 arg1) {
     s32 off = arg1 * 0x200;
 
     return *(u8 **)(arg0 + 0x38) + off + 0x104;
@@ -67,8 +69,9 @@ extern u8 D_008872E0[];
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
+/* Renders one fusion ball: sets the render states, then per-slot depth and colour. */
 // FUN_0034AE70
-void func_0034ae70(u8 *arg0, u8 *arg1) {
+void fclCmbBallDraw(u8 *arg0, u8 *arg1) {
     void (**setState)(u32, u32);
     s32 texture;
     f32 scale;
@@ -141,12 +144,13 @@ void func_0034ae70(u8 *arg0, u8 *arg1) {
    The plain u8 result cast preserves retail's float-to-u8 saturation path. */
 /* Target window: 0x390 bytes; the compiled owner image is 0x384 bytes and
    its remaining 12 target bytes are zero padding. */
-/* func_0034b380 -- reconstructed from the complete retail, Ghidra, and IDA
+/* fclCmbBallUpdate -- reconstructed from the complete retail, Ghidra, and IDA
    bodies; all six owner images and all target relocations are checked. */
-extern void func_0034ae70(u8 *, u8 *);
+extern void fclCmbBallDraw(u8 *, u8 *);
 
+/* Per-frame update: advances the interpolation, then queues the 0xE draw packets. */
 // FUN_0034B380
-s32 func_0034b380(u8 *arg0) {
+s32 fclCmbBallUpdate(u8 *arg0) {
     u8 *p;
 
     p = *(u8 **)(arg0 + 0x38);
@@ -198,26 +202,28 @@ s32 func_0034b380(u8 *arg0) {
         for (i = 0; i < 0xE; i++) {
             u8 *q = (u8 *)func_00461390(D_00793E80 + *(s16 *)p * 0x30, 4,
                                         p + i * 0x100 + 0x10, 4);
-            *(void **)(q + 8) = (void *)func_0034ae70;
+            *(void **)(q + 8) = (void *)fclCmbBallDraw;
             *(u8 **)(q + 0x10) = p;
         }
     }
     return 0;
 }
+/* Task destructor: forwards the state block to jump-table slot 0. */
 // FUN_0034B710
-void func_0034b710(u8 *arg0) {
+void fclCmbBallDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
+/* Ball task with a 0xF10-byte state block; its s16 header at +0 is set to 0x41. */
 // FUN_0034B740
-s32 func_0034b740(s32 arg0) {
+s32 fclCmbBallTaskCreate(s32 arg0) {
     s32 handle;
     u8 *buf;
     s16 i;
 
     func_0044ea90(&D_0064A740, 0x14D);
     buf = (u8 *)D_008873F4[0](1, 0xF10, 0x40000);
-    handle = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0064A770), 0xF, 0, 0, func_0034b380, func_0034b710, (u8 *)(buf));
+    handle = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0064A770), 0xF, 0, 0, fclCmbBallUpdate, fclCmbBallDestroy, (u8 *)(buf));
     i = 0;
     *(s16 *)(buf + 0xE10) = 0;
     while (i < 0xE) {
