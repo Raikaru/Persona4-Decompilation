@@ -2544,9 +2544,11 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
  * The best is `iter` assigned after the store/scale sequence (23-24), with three separate residuals:
  * the age test's own addu, the counter/transfer swap and the stride/c0 swap. Whole-else helpers
  * 40-43; opt_lifetimes 81-107; opt_common_subs off 96-112; opt_propagation on 50.
- * 2026-10-16: 9 -> 5 fnalign edits. A separate linear anchor and b210's native
+ * 2026-10-14: 9 -> 5 fnalign edits. A separate linear anchor and b210's native
  * named LQC2 operand remove the GNU operand-binding copy; the anchor now has
  * retail's $a3 lifetime. Only the loop counter / 255.0f transfer swap remains.
+ * 2026-10-14: 5 -> 4: transfer the invariant 255.0f to its native GPR once.
+ * All colours now agree; only MFC1 / loop-bound-zero materialisation order differs.
  */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
@@ -2735,6 +2737,7 @@ loop1_check:
         u32 colTmpB;
         u32 packedTmp;
         u32 colorTransfer;
+        u32 scaleTransfer;
         u32 n;
         f32 inv3;
         const f32 one3 = 1.0f;
@@ -2777,7 +2780,9 @@ loop1_check:
         effectVuScale10(inv3);
         __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
         effectVuStore10((EffectVuVector *)&tmpD0);
-        for (n = 0; n < (u32)c4 - 1; iter -= 0x20, n++) {
+        n = 0;
+        __asm__("mfc1 scaleTransfer, %0" : : "f"(255.0f));
+        for (; n < (u32)c4 - 1; iter -= 0x20, n++) {
             acc3 = acc3 + inv3;
             /* Native b210 operand: read the C pointer without a GNU binding copy. */
             __asm__ volatile("lqc2 $vf10, 0(anchor)" : : : "$vf10", "memory");
@@ -2795,7 +2800,7 @@ loop1_check:
             __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
             effectVuStore10((EffectVuVector *)&tmpE0);
             __asm__ volatile(
-                "qmtc2.ni %2, $vf2\n"
+                "qmtc2.ni scaleTransfer, $vf2\n"
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vftoi0.xyzw $vf10, $vf10\n"
                 "qmfc2.ni %0, $vf10\n"
@@ -2803,7 +2808,7 @@ loop1_check:
                 "ppacb %0, $0, %0\n"
                 "sw %0, packedTmp\n"
                 : "=r"(colorTransfer), "=m"(packedTmp)
-                : "r"(255.0f)
+                :
                 : "$vf2", "$vf10");
             *(u32 *)(iter + 0x14) = packedTmp;
             *(s32 *)(iter + 0x10) = node10;
