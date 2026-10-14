@@ -1,3 +1,4 @@
+#include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -2546,7 +2547,6 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     extern void func_002012d0(u8 *arg0, f32 x, f32 y);
     extern void func_00201410(u8 *arg0, s32 font, s32 id, f32 x, f32 y);
     extern void func_00201820(s32 mode);
-    extern s32 func_002340c0(s32 arg0, s32 mask);
     extern u8 *func_002724d0(u8 *text, s32 style, s8 mode, s32 arg3, u8 *arg4);
     extern void func_00272860(s32 arg0, s32 arg1);
     extern void func_00272950(s32 arg0, s32 arg1, s32 arg2);
@@ -2722,7 +2722,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                 func_00201410((u8 *)p, 10, 41, 400.0f, fade);
                 func_00201720((u8 *)p, 1.0f, 1.0f);
                 if ((*(u16 *)(arg1 + 0x10) & 4) && colorBytes[3] > 0) {
-                    s32 bits;
+                    u8 *bits;
                     s32 allAttacks;
                     s8 attackSprite;
                     s8 defenseSprite;
@@ -2737,7 +2737,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                     u8 speedGreen;
                     u8 speedBlue;
                     func_002012d0((u8 *)p, 94.0f + statusX, 81.0f);
-                    bits = *(s32 *)(*(s32 *)(arg1 + 0x20) + 0xA64);
+                    bits = *(u8 **)(*(s32 *)(arg1 + 0x20) + 0xA64);
                     if (func_002340c0(bits, 0x400) || func_002340c0(bits, 0x800)) {
                         allAttacks = 1;
                     } else {

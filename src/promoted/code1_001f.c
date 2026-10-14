@@ -1,3 +1,4 @@
+#include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
 #include "btl_skill_target_internal.h"
@@ -78,7 +79,6 @@ extern s32 func_002439c0(s32 arg0);
 extern u16 func_00243a30(u8 *arg0, s32 *arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_0060AB08[];
-extern s32 func_002340c0(u8 *unit, s32 flags);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern s16 func_001060b0(void);
 extern s32 func_00110d60(s32 arg0);

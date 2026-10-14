@@ -1,3 +1,4 @@
+#include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
 #include "btl_motion_internal.h"
@@ -46,7 +47,6 @@ extern s32 datCalcGetSp();
 
 extern s32 func_0023d8e0(u8 *unit, u16 skill);
 extern u32 func_0023e130(u8 *arg0);
-extern u8 *func_0023e140(u8 *unit);
 extern s32 func_0023ddc0(u8 *unit, s32 skill);
 extern s32 func_0023dfe0(u8 *unit);
 extern s32 func_00242800(u8 *arg0, s32 arg1);
