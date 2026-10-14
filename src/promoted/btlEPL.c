@@ -99,19 +99,51 @@ static inline void btlEplRgbaToV4(V4 *out, const BtlEplColor *rgba)
 
 
 
+typedef struct BtlEplSelect
+{
+    u8 kind[2]; // 0x00: per reference slot, 0 rejects, 1 accepts only that unit, 2 accepts
+    u8 mask;    // 0x02: bit n selects unit slot n + 2
+    u8 all;     // 0x03: nonzero accepts every unit
+} BtlEplSelect;
+
+typedef struct BtlEplV3
+{
+    f32 x;
+    f32 y;
+    f32 z;
+} BtlEplV3;
+
+typedef struct BtlEplUnit
+{
+    u8 pad00[0x38];
+    BtlEplColor startRgba;   // 0x38
+    BtlEplColor rgba;        // 0x3C
+    u8 pad40[0x14];
+    BtlEplV3 pos;            // 0x54
+    V4 startColor;           // 0x60
+    V4 color;                // 0x70
+    u8 pad80[0x18];
+    u32 flags;               // 0x98
+    u8 pad9C[6];
+    u8 unkA2;                // 0xA2, compared by btlEplUnitIsSelected
+    u8 padA3[0x9C9];
+    struct BtlEplUnit *next; // 0xA6C
+} BtlEplUnit;
+extern BtlEplUnit *D_00881440_abs[];
+
 /* measured: opt_loop_invariants on keeps the table base and the constant 1 hoisted above the
    scan loop as retail; the mode-1 blocks are `var = 1; if (slot == arg0) { t = var; } else
    { var = 0; t = var; } return (s8)t;` - the copy at the join keeps the then-branch as
    retail's `b join` trampoline (the plain if/else folds to xor/sltiu under rebuildconditionals,
    which must stay off for these two blocks). */
 // FUN_001FC300
+/* Selection predicate for EPL unit loops; see BtlEplSelect. */
 #pragma opt_loop_invariants on
 #pragma opt_rebuildconditionals off
-static s64 func_001fc300(u8 *arg0, u8 *arg1)
+static s64 btlEplUnitIsSelected(BtlEplUnit *unit, BtlEplSelect *select)
 {
-    extern s32 D_00881440_abs[];
-    u8 *table;
-    s32 entry;
+    BtlEplUnit **table;
+    BtlEplUnit *entry;
     s32 slot;
     s32 one;
     s64 isEntry1;
@@ -121,18 +153,17 @@ static s64 func_001fc300(u8 *arg0, u8 *arg1)
     u8 kind0;
     u8 kind1;
 
-    if (*(u8 *)(arg1 + 3) != 0) {
+    if (select->all != 0) {
         return 1;
     }
     slot = 0;
-    table = (u8 *)D_00881440_abs;
+    table = D_00881440_abs;
     one = 1;
     goto loop_test;
 loop_body:
-    entry = *(s32 *)(table + ((u16)slot * 4) + 8);
-    if (entry != 0) {
-        if ((*(u8 *)(arg1 + 2) & (one << bit)) &&
-            ((u8 *)entry == arg0)) {
+    entry = table[2 + (u16)slot];
+    if (entry != NULL) {
+        if ((select->mask & (one << bit)) && (entry == unit)) {
             return 1;
         }
         slot = (slot + 1) & 0xFFFF;
@@ -145,16 +176,15 @@ loop_test:
         goto loop_body;
     }
 block_9:
-    if ((D_00881440_abs[0] != 0) &&
-        (*(u8 *)(arg0 + 0xA2) ==
-         *(u8 *)(D_00881440_abs[0] + 0xA2))) {
-        kind0 = *(u8 *)(arg1 + 0);
+    if ((D_00881440_abs[0] != NULL) &&
+        (unit->unkA2 == D_00881440_abs[0]->unkA2)) {
+        kind0 = select->kind[0];
         switch (kind0) {
         case 0:
             return 0;
         case 1:
             isEntry0 = 1;
-            if (D_00881440_abs[0] == (s32)arg0) {
+            if (D_00881440_abs[0] == unit) {
                 t = isEntry0;
             } else {
                 isEntry0 = 0;
@@ -165,16 +195,15 @@ block_9:
             return 1;
         }
     }
-    if ((D_00881440_abs[1] != 0) &&
-        (*(u8 *)(arg0 + 0xA2) ==
-         *(u8 *)(D_00881440_abs[1] + 0xA2))) {
-        kind1 = *(u8 *)(arg1 + 1);
+    if ((D_00881440_abs[1] != NULL) &&
+        (unit->unkA2 == D_00881440_abs[1]->unkA2)) {
+        kind1 = select->kind[1];
         switch (kind1) {
         case 0:
             return 0;
         case 1:
             isEntry1 = 1;
-            if (D_00881440_abs[1] == (s32)arg0) {
+            if (D_00881440_abs[1] == unit) {
                 t = isEntry1;
             } else {
                 isEntry1 = 0;
@@ -187,9 +216,9 @@ block_9:
     }
     return 0;
 }
-/* measured: restore rebuildconditionals after func_001fc300. */
+/* measured: restore rebuildconditionals after btlEplUnitIsSelected. */
 #pragma opt_rebuildconditionals on
-/* measured: restore the unit default after func_001fc300. */
+/* measured: restore the unit default after btlEplUnitIsSelected. */
 #pragma opt_loop_invariants off
 // FUN_001FC4A0
 s32 *func_001fc4a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
@@ -234,34 +263,13 @@ void func_001fc5e0(s32 *arg0) {
 
 typedef struct BtlEplUnitParam
 {
-    u8 select[4];          // 0x00, read by func_001fc300
+    BtlEplSelect select;   // 0x00, read by btlEplUnitIsSelected
     u8 pad04[8];           // 0x04
     BtlEplFadeParam fade;  // 0x0C
     f32 rotate;            // 0x18
     f32 scale;             // 0x1C
 } BtlEplUnitParam;
 
-typedef struct BtlEplV3
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} BtlEplV3;
-
-typedef struct BtlEplUnit
-{
-    u8 pad00[0x38];
-    BtlEplColor startRgba;   // 0x38
-    BtlEplColor rgba;        // 0x3C
-    u8 pad40[0x14];
-    BtlEplV3 pos;            // 0x54
-    V4 startColor;           // 0x60
-    V4 color;                // 0x70
-    u8 pad80[0x18];
-    u32 flags;               // 0x98
-    u8 pad9C[0x9D0];
-    struct BtlEplUnit *next; // 0xA6C
-} BtlEplUnit;
 
 /* measured: opt_dead_assignments off keeps the four colour conversions ahead of
    the blend products (217 words without it); opt_loop_invariants on hoists the
@@ -330,7 +338,7 @@ void func_001fc630(u8 *arg0)
 
         for (i = 0; i < 4; i++) {
             for (node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178); node != NULL; node = node->next) {
-                if (func_001fc300((u8 *)node, param->select) == 0) {
+                if (btlEplUnitIsSelected(node, &param->select) == 0) {
                     continue;
                 }
                 switch (mode) {
@@ -571,7 +579,7 @@ void func_001fd780(void)
 typedef struct BtlEplUnitRgbaParam
 {
     BtlEplFadeParam fade; // 0x00
-    u8 select[4];         // 0x0C, read by func_001fc300
+    BtlEplSelect select;  // 0x0C, read by btlEplUnitIsSelected
 } BtlEplUnitRgbaParam;
 
 /* Fade-in/out alone initialize and consume the scale complement.
@@ -620,7 +628,7 @@ void func_001fd790(u8 *arg0)
     }
     for (i = 0; i < 4; i++) {
         for (node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178); node != NULL; node = node->next) {
-            if (func_001fc300((u8 *)node, param->select) == 0) {
+            if (btlEplUnitIsSelected(node, &param->select) == 0) {
                 continue;
             }
             node->flags |= 4;
@@ -1231,7 +1239,7 @@ void func_001fff40(u8 *arg0) {
     for (i = 0; i < 4; i++) {
         node = *(u8 **)(D_0072449C + i * 8 + 0x178);
         while (node != NULL) {
-            if ((func_001fc300(node, param) != 0) &&
+            if ((btlEplUnitIsSelected((BtlEplUnit *)node, (BtlEplSelect *)param) != 0) &&
                 ((value = *(s32 *)(node + 0xA64), value == 0) ||
                  (func_00243d80(value) != 0) ||
                  (datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0))) {
@@ -1321,7 +1329,8 @@ void func_00200230(u8 *arg0) {
             for (i = 0; i < 2; i++) {
                 node = *(u8 **)(D_0072449C + i * 8 + 0x178);
                 while (node != NULL) {
-                    if ((*(s32 *)(node + 0xA64) != 0) && (func_001fc300(node, param) != 0) &&
+                    if ((*(s32 *)(node + 0xA64) != 0) &&
+                        (btlEplUnitIsSelected((BtlEplUnit *)node, (BtlEplSelect *)param) != 0) &&
                         (datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0)) {
                         func_00194ff0(node, sp120, sp50, NULL);
                         btlUnitSetPos(node, sp120);
@@ -1353,7 +1362,7 @@ void func_00200230(u8 *arg0) {
                 for (i = 0; i < 4; i++) {
                     node = *(u8 **)(D_0072449C + i * 8 + 0x178);
                     while (node != NULL) {
-                        if ((func_001fc300(node, param) != 0) &&
+                        if ((btlEplUnitIsSelected((BtlEplUnit *)node, (BtlEplSelect *)param) != 0) &&
                             (*(s32 *)(node + 0xA64) == 0 ||
                              datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0)) {
                             btlUnitSetPos(node, sp110);
