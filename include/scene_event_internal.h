@@ -53,7 +53,7 @@ void func_0028b5d0(int);
 u64 func_00298190(s16 param_1, int param_2);
 void func_00287360(u8 *, u8 *, u8 *, s32, u8 *);
 void func_00287bf0();
-void func_0028c370(void);
+void sceneLightSlotsReset(void);
 void func_00288020();
 void func_00287d90();
 void func_00293270(void);
@@ -72,13 +72,14 @@ s32 func_0028bef0(s32, u8 *, s32 *, s32 *);
 void func_002909b0(s32 *, s32, s32, s32, s32);
 s32 func_00290e50(u8 *, s32);
 void func_002852a0(s32 arg0, s32 arg1);
-s32 func_00285330(void);
+s32 evtSlotTableIdle(void);
 s32 func_00286430(u8 *arg0);
 void func_00286d80(u32 *, u32 *);
 s32 func_002853f0(s32 arg0);
 extern void *func_0028b2a0(int arg0, int arg1);
 void func_0028f990(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3);
-void func_0028ced0(s32 arg0, s32 arg1, s32 arg2, f32 *arg3, f32 *arg4, f32 *arg5);
+void sceneLightSlotSet(s32 slot, s32 mode, s32 modeValue, f32 *arg3, f32 *arg4, f32 *arg5);
+f32 evtCommandParamF32(s32 param);
 void func_0028b270(int param_1);
 
 #endif
