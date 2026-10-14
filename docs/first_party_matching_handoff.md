@@ -25,11 +25,18 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 13 continuation: `00320b80`, `002ac750`, `004a7830` and `0016bdd0` MATCH; compiler rules for the last three
+## October 13 continuation: `00320b80`, `002ac750`, `004a7830`, `0016bdd0` and `0014f310` MATCH; compiler rules for the last two
 
-**6,857 MATCH / 3 ASM** (`build/after58.json`; link in `build/link64.log`).
-Remaining: `0048b340` 9, `0014f310` 14, `001d8010` 25. Each function
-comment records the measured attempts.
+**6,858 MATCH / 2 ASM** (`build/after59.json`; link in `build/link65.log`).
+Remaining: `0048b340` 9, `001d8010` 25. Each function comment records the
+measured attempts.
+
+`0014f310` (14 -> 4 -> 0, `19ad500d`, `f9bfe995`, Code1aMatch2): each
+phase-local `uintptr_t` first holds the genuine mode-query result and then
+the resource address; both definitions are consumed, and the web coalesces
+with physical `$v0`. The output argument is a typed pointer-member address
+(`&part->slot`), which delays the ADDIU until after the ID and file loads.
+The equivalent integer-address arithmetic leaves four edits. Owner 21/21.
 
 `0016bdd0` (39 -> 16 -> 0, `dbff44d7`, `391a1f9b`, Code1aMatch2): scoped O3
 early copy coalescing with CSE off keeps the sqrt and MAC-zero webs apart.
@@ -144,7 +151,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 | `004a7830` | 0 (MATCH, `6065a219`) | see the October 13 section: explicit float phase values plus O3's early copy coalescer for the partial product. Owner 92/92 |
 | `00320b80` | 0 (MATCH, `c096f0b5`) | see the October 13 section: `gridMode` snapshot in the traversal's `for` initializer, plus a shared grid-row helper taking `s64 renderedRow` narrowed once to `s32`. Owner 70/70 |
 | `0048b340` | 9 | linear anchor needs a late identity |
-| `0014f310` | 14 | O1: the state pointer folds into its load temp. Under O2 + `opt_common_subs off` + `opt_propagation off` both swap sites match, and only the two table loops differ (44): `temp_7`, `a_resource` and `a_preset` must keep declared numbers |
+| `0014f310` | 0 (MATCH, `f9bfe995`) | see the October 13 section: phase-local `uintptr_t` mode/resource lifetimes plus a typed pointer-member output argument. Owner 21/21 |
 | `001d8010` | 25 | sort `limit`/`j` numbering |
 | `002b6ec0` | 0 (MATCH) | allocator replay (`regalloc_whatif`) showed both the work-table base and `off` must be late-numbered (temporaries, not declared locals). `queue = (s16 *)table;` was a copy use pinning `table`; one `s16 *queue` loaded once and read through `(u8 *)queue` frees it (28 -> 23). `entryOffset = (u32)off;` pinned `off`; forming `entryOffset` once before the active test closes it (23 -> 0). Owner 58/58, elig clean, lint 8 -> 7 |
 | `0016bdd0` | 0 (MATCH, `391a1f9b`) | see the October 13 section: O3 early copy coalescing with CSE off plus `origin + scaled` affine spellings. Owner 64/64 |
