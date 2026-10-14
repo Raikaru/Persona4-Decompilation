@@ -107,47 +107,47 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413350);
 // FUN_00413410
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413410);
 
-/* measured: object 192B/window 192B exact MATCH (0 differing words). The var_7 = var_5 assignment rides in the beqz delay slot via schedule on; no_branch_likely on keeps the two forward beqz/beq branches plain with nop delays instead of beql with the next load sunk into the slot. */
+/* measured: object 192B/window 192B exact MATCH (0 differing words). The lastSib = rootA assignment rides in the beqz delay slot via schedule on; no_branch_likely on keeps the two forward beqz/beq branches plain with nop delays instead of beql with the next load sunk into the slot. */
 // FUN_00413640
 #pragma schedule on
 #pragma no_branch_likely on
 void func_00413640(u8 **arg0, u8 **arg1, u8 **arg2) {
-    u8 *var_4;
-    u8 *var_5;
-    u8 *var_6;
-    u8 *var_7;
-    u8 *var_3;
+    u8 *cell;
+    u8 *rootA;
+    u8 *rootB;
+    u8 *lastSib;
+    u8 *node;
 
-    var_4 = (u8 *)(arg0);
-    var_5 = (u8 *)(arg1);
-    var_6 = (u8 *)(arg2);
-    if (*(s32 *)(var_5 + 0xC) != 0) {
+    cell = (u8 *)(arg0);
+    rootA = (u8 *)(arg1);
+    rootB = (u8 *)(arg2);
+    if (*(s32 *)(rootA + 0xC) != 0) {
         do {
-            var_5 = *(u8 **)(var_5 + 0xC);
-        } while (*(s32 *)(var_5 + 0xC) != 0);
+            rootA = *(u8 **)(rootA + 0xC);
+        } while (*(s32 *)(rootA + 0xC) != 0);
     }
-    if (*(s32 *)(var_6 + 0xC) != 0) {
+    if (*(s32 *)(rootB + 0xC) != 0) {
         do {
-            var_6 = *(u8 **)(var_6 + 0xC);
-        } while (*(s32 *)(var_6 + 0xC) != 0);
+            rootB = *(u8 **)(rootB + 0xC);
+        } while (*(s32 *)(rootB + 0xC) != 0);
     }
-    if ((s32)(var_5) != (s32)(var_6)) {
-        var_7 = var_5;
-        if (*(s32 *)(var_5 + 4) != 0) {
+    if ((s32)(rootA) != (s32)(rootB)) {
+        lastSib = rootA;
+        if (*(s32 *)(rootA + 4) != 0) {
             do {
-                var_7 = *(u8 **)(var_7 + 4);
-            } while (*(s32 *)(var_7 + 4) != 0);
+                lastSib = *(u8 **)(lastSib + 4);
+            } while (*(s32 *)(lastSib + 4) != 0);
         }
-        *(u8 **)(var_7 + 4) = (u8 *)(var_6);
-        *(u8 **)(var_6 + 0xC) = (u8 *)(var_5);
-        var_3 = *(u8 **)(var_4);
-        if ((s32)(var_3) != (s32)(var_6)) {
+        *(u8 **)(lastSib + 4) = (u8 *)(rootB);
+        *(u8 **)(rootB + 0xC) = (u8 *)(rootA);
+        node = *(u8 **)(cell);
+        if ((s32)(node) != (s32)(rootB)) {
             do {
-                var_4 = (u8 *)(var_3 + 8);
-                var_3 = *(u8 **)(var_3 + 8);
-            } while ((s32)(var_3) != (s32)(var_6));
+                cell = (u8 *)(node + 8);
+                node = *(u8 **)(node + 8);
+            } while ((s32)(node) != (s32)(rootB));
         }
-        *(u8 **)(var_4) = *(u8 **)(var_3 + 8);
+        *(u8 **)(cell) = *(u8 **)(node + 8);
     }
 }
 #pragma no_branch_likely off
