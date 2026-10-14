@@ -4626,7 +4626,7 @@ extern void func_00475820(void* a, void* b);
 extern u8* func_00473b20(u8* a, u8* b, s32 c);
 extern s32 func_0047a510(void* a, s32 b, void* c);
 extern void* mdlGetMatrix(void* a);
-extern void mdlEffectListReleaseHandles(u32 a);
+extern void mdlEffectListReleaseHandles(u32 *a);
 extern void func_0047de50(u32 a);
 extern void func_0047de00(u32 a, void* b);
 extern void func_0047dd40(u8* a, void* model);
@@ -4680,7 +4680,7 @@ void func_00478a30(u8* mdl, s32 tick)
                 draw = attachments->primaryDraw;
                 if (attachments->nextPrimary != draw) {
                     if (draw != 0) {
-                        mdlEffectListReleaseHandles((u32)draw);
+                        mdlEffectListReleaseHandles((u32 *)draw);
                     }
                     draw = attachments->nextPrimary;
                     if (draw != 0) {
