@@ -430,7 +430,7 @@ void func_00294280(u8 *arg0)
 {
     typedef struct Resrc Resrc;
     typedef struct ResrcManager ResrcManager;
-    extern u32 func_00145260(void);
+    extern u32 MT_Scene_GetResManager(void);
     extern Resrc *MT_Scene_GetRes(u16 arg0);
     extern Resrc *resrcMngGetListHead(ResrcManager *arg0, u8 arg1);
     extern u32 func_001475c0(u8 *arg0, u8 arg1);
@@ -468,7 +468,7 @@ void func_00294280(u8 *arg0)
     f32 value_2;
     f32 value_3;
 
-    temp_2 = func_00145260();
+    temp_2 = MT_Scene_GetResManager();
     if (temp_2 != 0) {
         temp_2_2 = (u16 *)MT_Scene_GetRes(0x400);
         if (temp_2_2 != NULL) {

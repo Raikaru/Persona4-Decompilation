@@ -5,7 +5,7 @@
 #include "type.h"
 #include "scene_event_internal.h"
 
-extern int func_00145250();
+extern int MT_Scene_GetObject();
 extern int MT_Scene_DestroyRes();
 extern u16 func_001459b0(u32, int, u64);
 extern void func_00440b68(...);
@@ -49,7 +49,7 @@ void func_00291220(int param_1, int param_2, int param_3, u64 param_4)
     int iVar4;
 
     if (((param_2 < 0x10) && (param_3 < *(int *)(param_1 + 4))) &&
-        func_00145250() != 0) {
+        MT_Scene_GetObject() != 0) {
         iVar4 = (int)param_2 * 2;
         iVar4 = iVar4 + param_1;
         puVar5 = (u16 *)(iVar4 + 0x170);
@@ -87,7 +87,7 @@ s32 func_00291360(int param_1, int param_2)
         return 0;
     }
 
-    lVar2 = func_00145250();
+    lVar2 = MT_Scene_GetObject();
 
     if (lVar2 == 0) {
         return 0;
@@ -105,7 +105,7 @@ void func_002913d0(int param_1, int param_2)
     u16 sVar1;
     int iVar4;
 
-    if ((param_2 < 0x10) && (func_00145250() != 0)) {
+    if ((param_2 < 0x10) && (MT_Scene_GetObject() != 0)) {
         iVar4 = (int)param_2 * 2;
         iVar4 = iVar4 + param_1;
         puVar5 = (u16 *)(iVar4 + 0x170);
@@ -132,7 +132,7 @@ void func_00291470(int param_1)
     int iVar4;
 
     for (iVar4 = 0; iVar4 < 0x10; iVar4 = iVar4 + 1) {
-        if ((iVar4 < 0x10) && (func_00145250() != 0)) {
+        if ((iVar4 < 0x10) && (MT_Scene_GetObject() != 0)) {
             iVar3 = param_1 + iVar4 * 2;
             puVar5 = (u16 *)(iVar3 + 0x170);
             sVar1 = *(u16 *)(iVar3 + 0x170);

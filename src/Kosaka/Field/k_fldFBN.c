@@ -293,7 +293,7 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
         angles.x = func_0014b660(p + 0x10);
         angles.y = func_0014b5d0(p + 0x10);
         angles.z = func_0014b6f0(p + 0x10);
-        func_00146e60(id, p + 0x40, (u8 *)&angles);
+        MT_Scene_SetResPlacement(id, p + 0x40, (u8 *)&angles);
         out++;
         p += 0x60;
     }
@@ -388,7 +388,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             angles.x = func_0014b660(mtx);
             angles.y = func_0014b5d0(mtx);
             angles.z = func_0014b6f0(mtx);
-            func_00146e60(rid, rec + 0x50, (u8 *)&angles);
+            MT_Scene_SetResPlacement(rid, rec + 0x50, (u8 *)&angles);
             RwMatrixUpdate(mdlGetMatrix(iGpffffb2a4[i]));
         } else if (kind == 1) {
             *(s32 *)(res + 0x280) = FBN_ENTRY(i)->field_4;
