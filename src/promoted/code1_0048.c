@@ -3,9 +3,6 @@
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
-typedef struct EffRandState EffRandState;
-extern u32 effMiscRand(EffRandState *state);
-extern f32 effMiscRandFloat(EffRandState *state);
 
 typedef struct RwV3d
 {

@@ -8,8 +8,6 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 /* FUN_004833F0 is a texture release helper shared by the eff* units. */
 extern void func_004833f0(void *arg0);
-extern u32 effMiscRand(u32 arg0);
-extern f32 effMiscRandFloat(u32 arg0);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_0044ea90(const char *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);

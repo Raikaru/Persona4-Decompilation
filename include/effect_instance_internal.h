@@ -7,6 +7,12 @@
  * and return the allocated instance, or NULL for an unsupported primitive. */
 typedef void *(*EffectInstanceConstructor)(void *source);
 
+/* Effect RNG state (effMisc.c). A NULL state selects the global generator. */
+typedef struct EffRandState EffRandState;
+u32 effMiscRand(EffRandState *state);
+f32 effMiscRandFloat(EffRandState *state);
+void effMiscRandInit(EffRandState *state, u32 seed);
+
 /* Resolve either a linked pointer or an offset within the source descriptor. */
 void *func_00484490(void *source);
 void *func_004844d0(void *source);

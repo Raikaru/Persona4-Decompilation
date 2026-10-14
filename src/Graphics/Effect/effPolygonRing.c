@@ -31,7 +31,6 @@ extern void func_0049a570(void *arg0);
 
 extern void func_0044ea90();
 extern void memcpy(void *dst, void *src, u32 size);
-extern f32 effMiscRandFloat();
 extern u8 D_00713390[];
 extern s32 func_0048abd0();
 extern void func_004836b0(void *arg0, void *arg1, void *arg2, void *arg3);
