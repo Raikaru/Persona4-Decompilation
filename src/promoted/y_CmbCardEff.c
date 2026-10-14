@@ -1629,7 +1629,7 @@ void func_00348130(u8 *arg0) {
 
 // FUN_00348160
 u8 *func_00348160(u8 *arg0, s32 *arg1) {
-    FclDrawColor sp5C;
+    FclDrawColor color;
     u8 *ret;
     u8 *blk;
     s16 i;
@@ -1640,8 +1640,8 @@ u8 *func_00348160(u8 *arg0, s32 *arg1) {
     *(s32 **)(blk + 0x118) = arg1;
     *(s32 *)(blk + 0x11C) = 0;
     for (i = 0; i < 3; i++) {
-        sp5C = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
-        *(CmbRGBA *)(blk + (s32)i * 4 + 0x190) = sp5C;
+        color = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
+        *(CmbRGBA *)(blk + (s32)i * 4 + 0x190) = color;
     }
     *(u32 *)(blk + 0x1A0) = 0x3F800000;
     return ret;
