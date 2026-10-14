@@ -15,9 +15,9 @@ static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
     return (u8 *)(offset + (s32)base);
 }
 
-u16 func_00115750(u8 *arg0);
+u16 ShdSkill_GetPendingSkill(u8 *arg0);
 void func_0046d730(void *file, s32 line);
-void func_00115670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+void ShdSkill_RemovePoolEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern char D_005E4800[];
 extern char D_005E47F0[];
@@ -28,8 +28,8 @@ extern char D_005E5830[];
 extern char D_005E5850[];
 void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 u8 *func_0046a770(char *file);
-void func_001138c0(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
-void func_00114dc0(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture);
+void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
+void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture);
 
 /* 1384/1392 bytes, 23 resolved relocations; eight zero tail bytes.
    Preserve live flag, ID, and style reads across draw callbacks and sample
@@ -38,7 +38,7 @@ void func_00114dc0(Vec2f position, f32 scale, Color4 color, u16 skill, s32 textu
 #pragma push
 #pragma opt_propagation off
 #pragma opt_scalarize off
-void func_001138c0(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode)
+void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode)
 {
     typedef struct { f32 x, y, z; } PayloadVector;
     typedef union {
@@ -130,7 +130,7 @@ void func_001138c0(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mo
             iconColor.b1 = numberGreen;
             iconColor.b2 = numberBlue;
             iconColor.b3 = alpha;
-            func_00114dc0(iconPosition, scale, iconColor, data->data.fields.id, (s32)helpTexture);
+            ShdSkill_DrawIcon(iconPosition, scale, iconColor, data->data.fields.id, (s32)helpTexture);
         }
         position.x += 45.0f;
     }
@@ -188,7 +188,7 @@ void func_001138c0(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mo
    residual is (a) prologue save order: retail `sd $a0,0x48; mov.s $f20,$f12;
    move $s1,$a1; move $s0,$a2`, mwcc groups `[GPR callee-saves, FP
    callee-saves, spills]` = `move $s1; move $s0; mov.s $f20; sd $a0` (same
-   grouping floor as func_00114dc0), and (b) `mov.s $f14,$f20` deferred past
+   grouping floor as ShdSkill_DrawIcon), and (b) `mov.s $f14,$f20` deferred past
    the a2/a3/t0/t1 setup (retail emits it right after the lb $a1). Everything
    else byte-identical (243840 nested call, cvt pairs into f12/f13, the
    x*255/255U divu + |~0xFF chain, lh->sll->D_005E47F0 byte index). Probed
@@ -196,7 +196,7 @@ void func_001138c0(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mo
    nd 5/11. prologue/FP-arg save-order floor. */
 /* measured: MATCH, object 184/192. The cluster's float-first interleaving and callee-first local evaluation reproduce the retail body; the remaining 8 bytes are zero tail padding accepted by the verifier. */
 // FUN_00113E30
-void func_00113e30(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3) {
+void ShdSkill_DrawEntryName(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3) {
     f32 farg;
     s32 color;
     s32 index;
@@ -224,7 +224,7 @@ void func_00113e30(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3) {
 #pragma push
 #pragma opt_propagation off
 #pragma opt_scalarize off
-void func_00113ef0(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry, f32 fade)
+void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry, f32 fade)
 {
     typedef struct { f32 x, y, z; } PayloadVector;
     typedef union {
@@ -304,7 +304,7 @@ void func_00113ef0(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry, f32 fad
             break;
         }
         case 1:
-            func_001138c0(position, scale, alpha, &descriptor, 1);
+            ShdSkill_DrawDescriptor(position, scale, alpha, &descriptor, 1);
             break;
         case 2: {
             Vec2f textPosition = position;
@@ -327,7 +327,7 @@ void func_00113ef0(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry, f32 fad
 #pragma push
 #pragma opt_propagation off
 #pragma opt_scalarize off
-void func_00114460(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fade)
+void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fade)
 {
     typedef struct { f32 x, y, z; } PayloadVector;
     typedef union {
@@ -444,7 +444,7 @@ void func_00114460(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fade)
                     break;
                 }
                 case 1:
-                    func_001138c0(position, scale, drawAlpha, &descriptor, 1);
+                    ShdSkill_DrawDescriptor(position, scale, drawAlpha, &descriptor, 1);
                     break;
                 case 2: {
                     Vec2f textPosition = position;
@@ -471,7 +471,7 @@ void func_00114460(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fade)
 #pragma pop
 
 // FUN_00114CB0
-s32 func_00114cb0(u16 arg0) {
+s32 ShdSkill_GetIconId(u16 arg0) {
     s16 temp_2;
 
     if ((arg0 & 0xFFFF) >= 0x1B8) {
@@ -527,10 +527,10 @@ s32 func_00114cb0(u16 arg0) {
    alpha chain, 11-arg d4c0 setup with a3=alpha, f12/f13=arg0 halves,
    t0-t2=arg1 bytes, f14=fparg0, t3=0). prologue-save scheduling floor. */
 // FUN_00114DC0
-void func_00114dc0(Vec2f arg0, f32 fparg0, Color4 arg1, u16 arg2, s32 arg3) {
+void ShdSkill_DrawIcon(Vec2f arg0, f32 fparg0, Color4 arg1, u16 arg2, s32 arg3) {
     s32 temp;
 
-    temp = func_00114cb0(arg2);
+    temp = ShdSkill_GetIconId(arg2);
     if (temp > 0) {
         func_0046d4c0(0,
                       arg3,
@@ -550,7 +550,7 @@ void func_00114dc0(Vec2f arg0, f32 fparg0, Color4 arg1, u16 arg2, s32 arg3) {
    masks are deleted and the arg setup reorders. Residual is five independent
    families: (1) prologue save rotation (4w: retail `sd $a0; mov.s $f21; move
    $s0; move $s3`, mwcc `move $s0; move $s3; mov.s $f21; sd $a0` -- same
-   floor as func_00114dc0); (2) retail computes each call's f32 args before
+   floor as ShdSkill_DrawIcon); (2) retail computes each call's f32 args before
    the alpha chain, mwcc emits the alpha chain first (8w, argument-evaluation
    order; x/y-locals spellings hoist all FP work before call 1, worse);
    (3) retail coalesces temp_16 into arg1's $s0 with `andi $a3,$s0,0xff` at
@@ -563,7 +563,7 @@ void func_00114dc0(Vec2f arg0, f32 fparg0, Color4 arg1, u16 arg2, s32 arg3) {
    (76), x/y locals (76), alpha local (38), temp_16-first, decl swaps,
    u8 alpha (79). arg-eval-order + reg-coalescing + FP-scheduling floor. */
 // FUN_00114E50
-void func_00114e50(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
+void ShdSkill_DrawSelectionFrame(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
     s32 temp_16;
     s32 temp_17;
     s32 temp_2;
@@ -601,7 +601,7 @@ void func_00114e50(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
    The fallback-first ternary keeps active/previous in the retail registers
    without adding a caller argument or a conditional trampoline. */
 // FUN_00115020
-s32 func_00115020(u8 *state, s32 force) {
+s32 ShdSkill_MoveCursor(u8 *state, s32 force) {
     extern u16 D_008C027A[];
     s8 current;
     s8 next;
@@ -664,7 +664,7 @@ s32 func_00115020(u8 *state, s32 force) {
 }
 
 // FUN_001152B0
-u16 func_001152b0(u8 *arg0) {
+u16 ShdSkill_GetSlotSkillId(u8 *arg0) {
     s8 temp_17;
     s32 p;
     u16 r;
@@ -691,7 +691,7 @@ u16 func_001152b0(u8 *arg0) {
 
 
 // FUN_00115380
-s16 func_00115380(u8 *arg0, s32 arg1) {
+s16 ShdSkill_FindSlot(u8 *arg0, s32 arg1) {
     s16 i;
     s32 target;
     s32 count;
@@ -704,7 +704,7 @@ s16 func_00115380(u8 *arg0, s32 arg1) {
             return i;
         }
     }
-    if (target == (func_00115750(arg0) & 0xFFFF)) {
+    if (target == (ShdSkill_GetPendingSkill(arg0) & 0xFFFF)) {
         return 8;
     }
     return -1;
@@ -712,7 +712,7 @@ s16 func_00115380(u8 *arg0, s32 arg1) {
 
 /* measured: retail allocates the s16 loop counter to $a1, the match key
    (`arg0 & 0xFFFF`) to $a3 and the u16 bound (0x224) to $a2, and reuses the
-   counter register directly at the func_00115670 call (`move $a0,$s0; jal`,
+   counter register directly at the ShdSkill_RemovePoolEntry call (`move $a0,$s0; jal`,
    $5 already holds the counter). mwcc b210 pins the s16 counter in $a3 and
    gives the key $a2 / bound $a1 for EVERY spelling tried (10+ probe_variants
    batches: all 6 declaration orders, all 6 def orders, u16/s16 variants of
@@ -722,7 +722,7 @@ s16 func_00115380(u8 *arg0, s32 arg1) {
    plus the extra dsll32/dsra32 re-extension the call path needs; temp-register
    rotation floor. */
 // FUN_00115420
-void func_00115420(u16 arg0, u8 *arg1) {
+void ShdSkill_AddActiveSkill(u16 arg0, u8 *arg1) {
     s32 target;
     s32 value;
     s32 i;
@@ -742,7 +742,7 @@ void func_00115420(u16 arg0, u8 *arg1) {
 loop_body:
     value = *(u16 *)(arg1 + (s16)i * 12 + 0x66);
     if (value == target) {
-        func_00115670(arg1, i, bound, target);
+        ShdSkill_RemovePoolEntry(arg1, i, bound, target);
         return;
     }
     i = (s16)(i + 1);
@@ -754,13 +754,13 @@ loop_test:
 
 /* measured: MATCH, object 368/window 368. The second-loop counter is made a
    block-local s16 and the call uses a block-scope s16 prototype for
-   func_00115670; this makes b210 retain the counter in $a1 and sign-extend
+   ShdSkill_RemovePoolEntry; this makes b210 retain the counter in $a1 and sign-extend
    through $a0 exactly as retail. The file-scope s32 prototype and helper
-   definition remain unchanged so neighboring func_00115420 and
-   func_00115670 stay MATCH. */
+   definition remain unchanged so neighboring ShdSkill_AddActiveSkill and
+   ShdSkill_RemovePoolEntry stay MATCH. */
 // FUN_00115500
-void func_00115500(u16 arg0, u16 arg1, u8 *arg2) {
-    extern void func_00115670(u8 *, s16, s32, s32);
+void ShdSkill_ReplaceActiveSkill(u16 arg0, u16 arg1, u8 *arg2) {
+    extern void ShdSkill_RemovePoolEntry(u8 *, s16, s32, s32);
     s32 target;
     s16 i;
     s16 index;
@@ -780,7 +780,7 @@ first_test:
     if (i < bound) {
         goto first_body;
     }
-    if (target == (func_00115750(arg2) & 0xFFFF)) {
+    if (target == (ShdSkill_GetPendingSkill(arg2) & 0xFFFF)) {
         index = 8;
     } else {
         index = -1;
@@ -801,7 +801,7 @@ second_body:
         if (value != target) {
             goto second_continue;
         }
-        func_00115670(arg2, j, bound, target);
+        ShdSkill_RemovePoolEntry(arg2, j, bound, target);
         return;
 second_continue:
         j++;
@@ -813,7 +813,7 @@ second_test:
 }
 
 // FUN_00115760
-void func_00115760(u8 *arg0) {
+void ShdSkill_PopPoolEntry(u8 *arg0) {
     typedef struct {
         f32 v[3];
     } S3f;
@@ -839,7 +839,7 @@ void func_00115760(u8 *arg0) {
 
 /* measured: live MATCH, object 220B/window 224B, normalized_diff 0. Corrected func_0046d730 to (void *, s32). The trampoline form initializes a named input local before the guard and assigns the loop counter after the guard; this makes retail's entry branch target the loop pre-jump instead of b210 threading directly to loop_test. */
 // FUN_00115670
-void func_00115670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+void ShdSkill_RemovePoolEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     typedef struct {
         f32 v[3];
     } S3f;
@@ -876,7 +876,7 @@ loop_test_15670:
 }
 
 // FUN_00115750
-u16 func_00115750(u8 *arg0) {
+u16 ShdSkill_GetPendingSkill(u8 *arg0) {
     return *(u16 *)(arg0 + 0x66);
 }
 

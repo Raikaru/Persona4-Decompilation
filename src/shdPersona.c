@@ -24,8 +24,8 @@ void func_0011e3c0(s32, s32);
 void func_0011fd10(s32);
 s32 func_00452080(KwlnTask *task);
 void func_0011bc70();
-s32 func_00115020(u8 *state, s32 force);
-u16 func_001152b0(u8 *);
+s32 ShdSkill_MoveCursor(u8 *state, s32 force);
+u16 ShdSkill_GetSlotSkillId(u8 *);
 void func_00115cb0(Vec2f, f32, u8, s16 *);
 void func_00115e90(Vec2f, f32, u8, s16 *);
 extern char iGpffff9c0c;
@@ -50,12 +50,12 @@ extern char D_005E57F0[];
 void func_0046d730(void *file, s32 line);
 void memset(void *dst, s32 value, s32 size);
 s32 func_0010cc20(u8 *, u16);
-void func_00115420(u16, u8 *);
+void ShdSkill_AddActiveSkill(u16, u8 *);
 void func_00115940();
 u32 func_0010c750(void *persona, u16 level);
 s32 datPersonaGetNextExp();
 s32 func_0010cd70(u8 *, s16, u16);
-void func_00115500(u16, u16, u8 *);
+void ShdSkill_ReplaceActiveSkill(u16, u16, u8 *);
 s32 func_0011dfc0(s32, s32, char *);
 void H_Cdvd_Destroy();
 void func_003ef3a0();
@@ -1838,7 +1838,7 @@ void func_0011dc50(u8 *);
 void func_0011e400(u8 *, u8 *);
 s32 func_0011e460(u8 *);
 u16 func_0011ccb0(u8 *);
-void func_00114e50(Vec2f, f32, u8, u16);
+void ShdSkill_DrawSelectionFrame(Vec2f, f32, u8, u16);
 void func_00119210(u8 *);
 void func_00119810(u8 *);
 void func_00117980(u8 *);
@@ -1914,8 +1914,8 @@ typedef struct PersonaRenderWork {
 // FUN_00119E10
 void func_00119e10(u8 *task, u8 *argument)
 {
-    void func_00113ef0(Vec2f, f32, u8, u8 *, u8, f32);
-    void func_00114460(Vec2f, f32, u8, u8 *, f32);
+    void ShdSkill_DrawListSlot(Vec2f, f32, u8, u8 *, u8, f32);
+    void ShdSkill_DrawDetailFrame(Vec2f, f32, u8, u8 *, f32);
     void func_00274ed0(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
     PackedVec2f position;
     Vec2f modelPosition;
@@ -2168,7 +2168,7 @@ void func_00119e10(u8 *task, u8 *argument)
             position.xy.x = px;
             py = 194.0f + work->selectionPosition.y;
             position.xy.y = py;
-            func_00114e50(position.xy, 0.0f, work->alpha, func_0011ccb0((u8 *)work));
+            ShdSkill_DrawSelectionFrame(position.xy, 0.0f, work->alpha, func_0011ccb0((u8 *)work));
         }
         if ((work->flags & 0x20) != 0) {
             f32 px;
@@ -2188,14 +2188,14 @@ void func_00119e10(u8 *task, u8 *argument)
                     } else {
                         fade = 0.0f;
                     }
-                    func_00113ef0(position.xy, 0.0f, alpha, work->skills, j & 0xFF, fade);
+                    ShdSkill_DrawListSlot(position.xy, 0.0f, alpha, work->skills, j & 0xFF, fade);
                 }
                 if (((work->flags & 0x8000) != 0) && (work->selectedSkill == 8)) {
                     fade = work->selectedSkillFade;
                 } else {
                     fade = 0.0f;
                 }
-                func_00114460(position.xy, 0.0f, alpha, work->skills, fade);
+                ShdSkill_DrawDetailFrame(position.xy, 0.0f, alpha, work->skills, fade);
             }
             if ((work->flags & 0x100000) != 0) {
                 func_00119810((u8 *)work);
@@ -3498,7 +3498,7 @@ void func_0011caf0(u8 *arg0)
         return;
     }
     bit100000 = (flags & 0x100000) != 0;
-    if (func_00115020(work + 0x84, bit100000) != 0) {
+    if (ShdSkill_MoveCursor(work + 0x84, bit100000) != 0) {
         func_0045af60(0, 0, 0, 0);
     }
 }
@@ -3510,7 +3510,7 @@ s32 func_0011cb70(u8 *arg0, u16 arg1)
         func_0046d730(D_005E4868, 0xE21);
     }
     if (func_0010cc20(*(u8 **)b, arg1) != 0) {
-        func_00115420(arg1, b + 0x8C);
+        ShdSkill_AddActiveSkill(arg1, b + 0x8C);
         return 1;
     }
     return 0;
@@ -3526,7 +3526,7 @@ s32 func_0011cc00(u8 *arg0, u16 arg1, u16 arg2)
         func_0046d730(D_005E4868, 0xE45);
     }
     if (func_0010cd70(*(u8 **)b, (s16)arg1, arg2) != -1) {
-        func_00115500(arg1, arg2, b + 0x8C);
+        ShdSkill_ReplaceActiveSkill(arg1, arg2, b + 0x8C);
         return 1;
     }
     return 0;
@@ -3544,7 +3544,7 @@ u16 func_0011ccb0(u8 *arg0)
     if ((v & 0x100000) != 0 && *(s8 *)(arg0 + 0x88) == 8) {
         return *(u16 *)(arg0 + 0x4F4);
     }
-    return func_001152b0(arg0 + 0x84);
+    return ShdSkill_GetSlotSkillId(arg0 + 0x84);
 }
 
 
@@ -4460,8 +4460,8 @@ s32 func_0010a780(u8 *, s32, s32);
 s32 func_0010ceb0(u8 *);
 s32 func_0011fcf0(u8 *);
 u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
-u16 func_00115750(u8 *);
-s16 func_00115380(u8 *, s32);
+u16 ShdSkill_GetPendingSkill(u8 *);
+s16 ShdSkill_FindSlot(u8 *, s32);
 extern u8 func_002baac0(u8 *message);
 void func_002bb7c0(s32);
 s32 func_002bb4e0(void);
@@ -4489,7 +4489,7 @@ static inline s32 personaReplaceLevelSkill(SdkTask *parent, u16 previous, u16 re
         func_0046d730(D_005E4868, 0xE45);
     }
     if (func_0010cd70(*(u8 **)data, (s16)previous, replacement) != -1) {
-        func_00115500(previous, replacement, data + 0x8C);
+        ShdSkill_ReplaceActiveSkill(previous, replacement, data + 0x8C);
         return 1;
     }
     return 0;
@@ -4597,7 +4597,7 @@ s32 func_0011e8e0(u8 *arg0)
             if (*(s32 *)(b + 0x534) & 0x100000) {
                 vv = *(u16 *)(b + 0x4F4);
             } else {
-                vv = func_00115750(b + 0x8C);
+                vv = ShdSkill_GetPendingSkill(b + 0x8C);
             }
             selected = vv & 0xFFFF;
             b = parent->work;
@@ -4605,7 +4605,7 @@ s32 func_0011e8e0(u8 *arg0)
                 s16 sv;
                 *(s32 *)(b + 0x534) = *(s32 *)(b + 0x534) | 0x8000;
                 *(u16 *)(b + 0x518) = 0;
-                *(s16 *)(b + 0x51A) = func_00115380(b + 0x8C, selected);
+                *(s16 *)(b + 0x51A) = ShdSkill_FindSlot(b + 0x8C, selected);
                 sv = *(s16 *)(b + 0x51A);
                 if (sv < 0) {
                     func_0046d730(D_005E4868, 0xEB1);
@@ -4631,7 +4631,7 @@ s32 func_0011e8e0(u8 *arg0)
             if (*(s32 *)(b + 0x534) & 0x100000) {
                 vv = *(u16 *)(b + 0x4F4);
             } else {
-                vv = func_00115750(b + 0x8C);
+                vv = ShdSkill_GetPendingSkill(b + 0x8C);
             }
             if (vv != *personaLevelRow(pc, *(s32 *)(work + 0x10))) {
                 func_0046d730(D_005E4868, 0x139A);
@@ -4656,7 +4656,7 @@ s32 func_0011e8e0(u8 *arg0)
             if (*(s32 *)(b + 0x534) & 0x100000) {
                 vv = *(u16 *)(b + 0x4F4);
             } else {
-                vv = func_00115750(b + 0x8C);
+                vv = ShdSkill_GetPendingSkill(b + 0x8C);
             }
             switch (vv & 0xFFFF) {
             case 0x10C:
@@ -4705,7 +4705,7 @@ s32 func_0011e8e0(u8 *arg0)
                     func_0046d730(D_005E4868, 0xE21);
                 }
                 if (func_0010cc20(*(u8 **)bb, vv2) != 0) {
-                    func_00115420(vv2, bb + 0x8C);
+                    ShdSkill_AddActiveSkill(vv2, bb + 0x8C);
                 }
                 *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
                 func_0011e740(work);
@@ -4756,7 +4756,7 @@ s32 func_0011e8e0(u8 *arg0)
                 s16 sv;
                 *(s32 *)(bb + 0x534) = *(s32 *)(bb + 0x534) | 0x8000;
                 *(u16 *)(bb + 0x518) = 0;
-                *(s16 *)(bb + 0x51A) = func_00115380(bb + 0x8C, highlightSkill);
+                *(s16 *)(bb + 0x51A) = ShdSkill_FindSlot(bb + 0x8C, highlightSkill);
                 sv = *(s16 *)(bb + 0x51A);
                 if (sv < 0) {
                     func_0046d730(D_005E4868, 0xEB1);
@@ -4827,7 +4827,7 @@ s32 func_0011e8e0(u8 *arg0)
                 func_0046d730(D_005E4868, 0xE21);
             }
             if (func_0010cc20(*(u8 **)bb, vv) != 0) {
-                func_00115420(vv, bb + 0x8C);
+                ShdSkill_AddActiveSkill(vv, bb + 0x8C);
             }
             *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
             func_002bb1e0(1);
@@ -4903,7 +4903,7 @@ s32 func_0011f580(u8 *task)
 
 
 
-u16 func_00115750(u8 *);
+u16 ShdSkill_GetPendingSkill(u8 *);
 extern u8 func_002baac0(u8 *message);
 void func_002bb7c0(s32);
 s32 func_002bb4e0(void);
@@ -4911,9 +4911,9 @@ s32 func_002bb600(void);
 u32 func_002bb1e0(s32 arg0);
 s32 func_002bb140(void);
 u16 func_0011ccb0(u8 *arg0);
-void func_00115760(u8 *arg0);
+void ShdSkill_PopPoolEntry(u8 *arg0);
 u16 func_001092f0(u32 arg0);
-s16 func_00115380(u8 *, s32);
+s16 ShdSkill_FindSlot(u8 *, s32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
 void func_0011c630(u8 *arg0);
@@ -4937,7 +4937,7 @@ s32 func_0011f5a0(u8 *arg0)
         if (*(s32 *)(base + 0x534) & 0x100000) {
             a = *(u16 *)(base + 0x4F4);
         } else {
-            a = func_00115750(base + 0x8C);
+            a = ShdSkill_GetPendingSkill(base + 0x8C);
         }
         *(u16 *)(work + 4) = a;
         func_002baac0((u8 *)(*(s32 *)(work + 0x14)));
@@ -4958,7 +4958,7 @@ s32 func_0011f5a0(u8 *arg0)
         s32 b800 = !!(fl & 0x800);
         if (b800 != 0) {
             if (*(s8 *)(base + 0x88) != -1) {
-                if (func_00115020(base + 0x84, (fl & 0x100000) != 0) != 0) {
+                if (ShdSkill_MoveCursor(base + 0x84, (fl & 0x100000) != 0) != 0) {
                     func_0045af60(0, 0, 0, 0);
                 }
             }
@@ -4972,7 +4972,7 @@ s32 func_0011f5a0(u8 *arg0)
             } else if (((fq & 0x100000) != 0) && (*(s8 *)(q + 0x88) == 8)) {
                 vv = *(u16 *)(q + 0x4F4);
             } else {
-                vv = func_001152b0(q + 0x84) & 0xFFFF;
+                vv = ShdSkill_GetSlotSkillId(q + 0x84) & 0xFFFF;
             }
             *(u16 *)(work + 6) = vv;
             *(s32 *)(work + 8) = 3;
@@ -5003,7 +5003,7 @@ s32 func_0011f5a0(u8 *arg0)
                     if (*(s32 *)(bb + 0x534) & 0x100000) {
                         queuedSkill = *(u16 *)(bb + 0x4F4);
                     } else {
-                        queuedSkill = func_00115750(bb + 0x8C);
+                        queuedSkill = ShdSkill_GetPendingSkill(bb + 0x8C);
                     }
                     pendingSkill = queuedSkill & 0xFFFF;
                     current = *(u8 **)(pp + 0x38);
@@ -5011,7 +5011,7 @@ s32 func_0011f5a0(u8 *arg0)
                         func_0046d730(D_005E4868, 0xE45);
                     }
                     if (func_0010cd70(*(u8 **)current, (s16)previousSkill, pendingSkill) != -1) {
-                        func_00115500(previousSkill, pendingSkill, current + 0x8C);
+                        ShdSkill_ReplaceActiveSkill(previousSkill, pendingSkill, current + 0x8C);
                         ok = 1;
                     } else {
                         ok = 0;
@@ -5020,7 +5020,7 @@ s32 func_0011f5a0(u8 *arg0)
                         ok2 = 1;
                     } else {
                         if ((*(s32 *)(bb + 0x534) & 0x100000) == 0) {
-                            func_00115760(bb + 0x8C);
+                            ShdSkill_PopPoolEntry(bb + 0x8C);
                         }
                         ok2 = 0;
                     }
@@ -5079,7 +5079,7 @@ s32 func_0011f5a0(u8 *arg0)
                 s16 sv;
                 *(s32 *)(q + 0x534) = fq | 0x8000;
                 *(u16 *)(q + 0x518) = 0;
-                *(s16 *)(q + 0x51A) = func_00115380(q + 0x8C, selected);
+                *(s16 *)(q + 0x51A) = ShdSkill_FindSlot(q + 0x8C, selected);
                 sv = *(s16 *)(q + 0x51A);
                 if (sv < 0) {
                     func_0046d730(D_005E4868, 0xEB1);
