@@ -40,3 +40,6 @@ MT_Scene_DestroyRes = 0x00146630; // type:func  evidence: string:"delete field c
 
 // h_cdvd stream slot accessor: callback14 of HCdvdStreamContext.
 H_Cdvd_StreamGetSlot = 0x004556B0; // type:func  evidence: p3:H_Cdvd_StreamGetSlot@0x001019a0 (P3 verifier-matched, src/h_cdvd.c)
+
+// battle_draw_2d task update callback: the retail task-name string outranks the p3 name.
+btlUpdateDraw2DTask = 0x00192790; // type:func  evidence: string:"battle_draw_2d"

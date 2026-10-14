@@ -200,6 +200,38 @@ class EvidenceTierTests(unittest.TestCase):
         self.assertIn("Ghidra-exported guess", note)
 
 
+class StringEvidenceTests(unittest.TestCase):
+    def test_drop_string_evidence_skips_overridden_address(self) -> None:
+        """A p3 name at an address already named by string evidence must not be emitted."""
+        accepted = [
+            {"p4_address": 0x00100218, "name": "btlUpdateDraw3DFrontTask"},
+            {"p4_address": 0x00100570, "name": "btlFindFreeCharResId"},
+        ]
+        kept, overridden = port.drop_string_evidence(accepted, {0x00100218})
+        self.assertEqual([entry["name"] for entry in kept], ["btlFindFreeCharResId"])
+        self.assertEqual(
+            [entry["name"] for entry in overridden], ["btlUpdateDraw3DFrontTask"]
+        )
+
+    def test_overlay_addresses_reads_all_curated_files_and_ignores_comments(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            curated = Path(temporary) / "symbol_names.txt"
+            curated.write_text(
+                "// header 0x00100008\n"
+                'btlUpdateDraw2DTask = 0x00192790; // type:func  evidence: string:"battle_draw_2d"\n',
+                encoding="utf-8",
+            )
+            strings = Path(temporary) / "symbol_names.strings.txt"
+            strings.write_text(
+                'btlActAttack = 0x00100218; // type:func  evidence: string:"ATTACK"\n',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                port.overlay_addresses((curated, strings)), {0x00192790, 0x00100218}
+            )
+            self.assertEqual(port.overlay_addresses((Path(temporary) / "absent.txt",)), set())
+
+
 class OutputContractTests(unittest.TestCase):
     def test_rendered_lines_satisfy_the_reconcile_contract(self) -> None:
         accepted, _counts = classify(

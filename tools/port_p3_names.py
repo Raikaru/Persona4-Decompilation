@@ -40,6 +40,9 @@ Each accepted name records its evidence strength tier in the note:
 The output file config/symbol_names.p3.txt is rewritten wholesale on every
 run (idempotent) and is validated by tools/reconcile_function_boundaries.py
 together with the other symbol_names*.txt producers.
+
+Addresses already named by config/symbol_names.txt or
+config/symbol_names.strings.txt are skipped: curated evidence outranks p3:.
 """
 
 from __future__ import annotations
@@ -62,6 +65,10 @@ MAPPING_DEFAULT = Path("C:/tmp/shared.json")  # orchestrator-prebuilt P4<->P3 re
 REGENERATED_REPORT = REPO / "build" / "shared_p3.json"
 P3_ROOT_DEFAULT = Path("../Persona3-FES-Decompilation")
 OUTPUT_DEFAULT = REPO / "config" / "symbol_names.p3.txt"
+OVERLAY_DEFAULTS = (
+    REPO / "config" / "symbol_names.txt",
+    REPO / "config" / "symbol_names.strings.txt",
+)
 CANONICAL_MAP = REPO / "tools" / "slus21782_functions.json"
 
 # A P3 function-name entry: `Name = 0xADDR; // type:func`. Non-func entries
@@ -225,6 +232,31 @@ def evidence_note(entry: dict) -> str:
     return note
 
 
+OVERLAY_ROW = re.compile(r"^\s*[A-Za-z_]\w*\s*=\s*0x([0-9A-Fa-f]{8});")
+
+
+def overlay_addresses(paths: tuple[Path, ...]) -> set[int]:
+    """Addresses already named by a curated overlay (they outrank p3: rows)."""
+    addresses: set[int] = set()
+    for path in paths:
+        if not path.is_file():
+            continue
+        for line in path.read_text(encoding="utf-8").splitlines():
+            match = OVERLAY_ROW.match(line)
+            if match:
+                addresses.add(int(match[1], 16))
+    return addresses
+
+
+def drop_string_evidence(
+    accepted: list[dict], string_addresses: set[int]
+) -> tuple[list[dict], list[dict]]:
+    """Split accepted entries into (kept, overridden by string evidence)."""
+    kept = [entry for entry in accepted if entry["p4_address"] not in string_addresses]
+    overridden = [entry for entry in accepted if entry["p4_address"] in string_addresses]
+    return kept, overridden
+
+
 def build_lines(accepted: list[dict], total: int) -> list[str]:
     """Render the output file lines (header plus one entry per accepted name)."""
     lines = [
@@ -364,6 +396,9 @@ def main() -> int:
     }
     owners = owners_by_address()
     accepted, counts = classify(matches, p3_names, p3_recovered, canonical, owners)
+    string_addresses = overlay_addresses(OVERLAY_DEFAULTS)
+    accepted, overridden = drop_string_evidence(accepted, string_addresses)
+    print(f"skipped by string evidence: {len(overridden)}")
 
     for label in ("non_unique", "p3_name_missing", "placeholder", "address_suffixed",
                   "invalid_identifier", "not_canonical", "third_party", "duplicate_name"):
