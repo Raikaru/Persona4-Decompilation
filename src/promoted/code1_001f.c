@@ -720,6 +720,7 @@ s32 func_001f0ff0(u32 arg0)
 }
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma optimization_level 2
+
 /* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
 #pragma opt_loop_invariants on
 // FUN_001F1030
@@ -1663,57 +1664,10 @@ s32 func_001f2f90(u8 *arg0) {
     return (p[0x24] ^ 6) != 0;
 }
 
-// FUN_001F3870
-/* The allocator result remains in v0 through packet initialization; all eleven
- * retail callers use it for submission or dependency setup. */
-u8 *func_001f3870(u8 *action, u8 flags)
-{
-    u8 *packet;
-    u8 *work;
-
-    packet = func_00194470(0x701, 8);
-    *(BtlTargetStateHook *)(packet + 0x68) = func_001f37b0;
-    *(BtlTargetStateUpdate *)(packet + 0x6C) = func_001f37d0;
-    *(BtlTargetStateHook *)(packet + 0x70) = func_001f3850;
-    work = *(u8 **)(packet + 0x78);
-    *(u8 **)(work + 0) = action;
-    *(u8 *)(work + 4) = flags;
-    return packet;
-}
-
-// FUN_001F38E0
-void func_001f38e0(u8 **arg0)
-{
-    u8 *temp_4;
-
-    temp_4 = *(u8 **)(*arg0 + 0x30);
-    *(u16 *)(temp_4 + 0xA0) = (u16)(*(u16 *)(temp_4 + 0xA0) + 1);
-}
 // FUN_001F3900
 s32 func_001f3900(u8 **arg0) {
     func_00235020(*(s32 *)(*(u8 **)(*arg0 + 0x30) + 0xA64));
     return 1;
-}
-// FUN_001F3950
-u8 *func_001f3950(u8 *arg0)
-{
-    u8 *packet;
-
-    packet = (u8 *)func_00194470(0x703, 4);
-    *(void **)(packet + 0x68) = (void *)func_001f38e0;
-    *(void **)(packet + 0x6C) = (void *)func_001f3900;
-    *(void **)(packet + 0x70) = (void *)func_001f3930;
-    **(u8 ***)(packet + 0x78) = arg0;
-    return packet;
-}
-
-// FUN_001F39B0
-void func_001f39b0(u8 **arg0)
-{
-    u8 *temp_4;
-
-    temp_4 = *(u8 **)(*arg0 + 0x30);
-    *(u16 *)(temp_4 + 0xA0) = (u16)(*(u16 *)(temp_4 + 0xA0) + 1);
 }
 // FUN_001F39D0
 /* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
@@ -1768,19 +1722,6 @@ s32 func_001f39d0(u8 **arg0) {
 }
 /* measured: restore propagation for the rest of the unit. */
 #pragma opt_propagation on
-// FUN_001F3B20
-u8 *func_001f3b20(u8 *arg0)
-{
-    u8 *packet;
-
-    packet = (u8 *)func_00194470(0x702, 4);
-    *(void **)(packet + 0x68) = (void *)func_001f39b0;
-    *(void **)(packet + 0x6C) = (void *)func_001f39d0;
-    *(void **)(packet + 0x70) = (void *)func_001f3b00;
-    **(u8 ***)(packet + 0x78) = arg0;
-    return packet;
-}
-
 // FUN_001F3B80
 s32 func_001f3b80(s32 arg0) {
     s32 temp_5;
@@ -4705,12 +4646,6 @@ s32 func_001f9650(u8 *arg0)
     value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x66;
     return value + func_00231d70(3);
 }
-// FUN_001F9740
-s32 func_001f9740(void)
-{
-    return -1;
-}
-
 // FUN_001F9750
 s32 func_001f9750(s32 *arg0) {
     s32 r;
