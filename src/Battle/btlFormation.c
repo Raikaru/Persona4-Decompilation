@@ -1,3 +1,5 @@
+#include "btl_unit_internal.h"
+#include "datCalc_internal.h"
 /* Source unit: src/Battle/btlFormation_001d1eb0.c */
 #include "include_asm.h"
 #include "type.h"
@@ -47,8 +49,6 @@ extern void func_0019dea0(void *arg0);
 extern void func_001ee490(void *arg0);
 extern u8 *func_001b1510(void);
 extern void func_001d1680(s32 arg0, s32 arg1);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern s32 datCalcIsDead(u32 arg0, u32 arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 
 typedef struct BtlFormationState
@@ -864,16 +864,16 @@ u32 func_001d3760(u16 *arg0)
     f32 temp_f3;
     f32 var_f20;
     u8 *temp_16;
-    u8 *var_17;
+    BtlUnit *var_17;
 
     temp_16 = func_001b1510();
     func_001d1680(!(*arg0 & 2), 0);
     if ((*arg0 & 1) != 0) {
-        var_17 = *(u8 **)(D_0076449C + 0x178);
+        var_17 = *(BtlUnit **)(D_0076449C + 0x178);
         while (var_17 != NULL) {
-            if ((datCalcChkBadStatus((s32)*(u32 *)(var_17 + 0xa64), 0x180017) == 0) &&
-                (datCalcIsDead(*(u32 *)(var_17 + 0xa64), 0) == 0)) {
-                if (*(u8 **)(temp_16 + 0x30) == var_17) {
+            if ((datCalcChkBadStatus(var_17->datUnit, 0x180017) == 0) &&
+                (datCalcIsDead(var_17->datUnit, 0) == 0)) {
+                if (*(BtlUnit **)(temp_16 + 0x30) == var_17) {
                     var_f20 = 250.0f;
                 } else {
                     var_f20 = 350.0f;
@@ -895,7 +895,7 @@ u32 func_001d3760(u16 *arg0)
                 sp60[2] += temp_f1;
                 btlUnitSetPos(var_17, sp60);
             }
-            var_17 = *(u8 **)(var_17 + 0xa6c);
+            var_17 = var_17->nextUnit;
         }
     }
     return 1;
@@ -946,14 +946,14 @@ u32 func_001d3950(u8 **param_1)
     extern FormationDefault D_00881430;
     extern FormationPosition D_00881438;
     FormationScratch scratch;
-    u8 *current;
+    BtlUnit *current;
     u16 index;
     index = 0;
-    current = *(u8 **)(D_0076449C + 0x17c);
+    current = *(BtlUnit **)(D_0076449C + 0x17c);
     while (current != NULL) {
-        if (((*(u32 *)(current + 0x9c) & 8) != 0) &&
-            (datCalcIsDead(*(u32 *)(current + 0xa64), 0) == 0)) {
-            if (*(u8 **)(*param_1 + 0x30) == current) {
+        if (((current->flags3 & 8) != 0) &&
+            (datCalcIsDead(current->datUnit, 0) == 0)) {
+            if (*(BtlUnit **)(*param_1 + 0x30) == current) {
                 {
                     u64 default_pair = D_00881430.whole;
                     f32 default_z = D_00881438.x;
@@ -965,14 +965,14 @@ u32 func_001d3950(u8 **param_1)
                     *(FormationPosition *)(D_00609430 +
                                            (index & 0xffff) * 0xc);
             }
-            func_001ec6d0((s16 *)(current + 0x94),
-                          (s16 *)(current + 0x96),
+            func_001ec6d0(&current->unk_94,
+                          &current->unk_96,
                           scratch.position.values);
             scratch.position.values[0] =
-                (f32)((s32)*(s16 *)(current + 0x94) * 25 - 1750);
+                (f32)((s32)current->unk_94 * 25 - 1750);
             scratch.position_z =
-                (f32)((s32)*(s16 *)(current + 0x96) * 25 - 1750);
-            if (*(u8 **)(*param_1 + 0x30) != current) {
+                (f32)((s32)current->unk_96 * 25 - 1750);
+            if (*(BtlUnit **)(*param_1 + 0x30) != current) {
                 RwV3dNormalize(scratch.delta, scratch.position.values);
                 {
                     f32 scale;
@@ -989,7 +989,7 @@ u32 func_001d3950(u8 **param_1)
             btlUnitSetPos(current, scratch.position.values);
             btlUnitSetRot(current, D_0060A110);
         }
-        current = *(u8 **)(current + 0xa68);
+        current = current->prevUnit;
     }
     return 1;
 }

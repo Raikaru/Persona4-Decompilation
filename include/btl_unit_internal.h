@@ -68,8 +68,8 @@ struct BtlUnit
     u16 movementFlags;       /* 0xC8 */
     u8 unk_ca[0x0A64 - 0x00CA]; /* 0xCA. Not yet named */
     DatUnit *datUnit;             /* 0xA64. Passed to datCalc accessors */
-    u8 unk_a68[0x0A6C - 0x0A68];  /* 0xA68 */
-    struct BtlUnit *nextUnit;     /* 0xA6C. Next unit in the battle unit list */
+    BtlUnit *prevUnit;            /* 0xA68. Previous unit in the battle unit list */
+    BtlUnit *nextUnit;            /* 0xA6C. Next unit in the battle unit list */
 };
 
 #endif
