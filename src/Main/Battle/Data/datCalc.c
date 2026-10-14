@@ -379,7 +379,7 @@ static inline s32 PTDatCalcHasSkill(u8 *unit, s32 requestedSkill)
     s32 result;
     s32 limit;
 
-    count = func_0023e130(unit) & 0xFFFF;
+    count = datCalcGetTableLength(unit) & 0xFFFF;
     base = func_0023e140(unit);
     index = 0;
     skill = requestedSkill & 0xFFFF;
@@ -971,7 +971,8 @@ s8 func_00233a90(u8 *arg0, s32 arg1)
 }
 
 // FUN_00233BB0
-void func_00233bb0(int object)
+/* Clears the word at byte offset 0x18 of the object block. */
+void datCalcClearField18(int object)
 {
     *(u32 *)(object + 0x18) = 0;
 }
@@ -3269,7 +3270,7 @@ u32 func_0023d9b0(u8 *arg0, s32 arg1)
         table = (u8 *)(field_offset + (u32)iGpffffb3b8);
         product = (s32)((u32)maximum * *(u16 *)(table + 4));
         result = product / 100 + *(u16 *)(table + 6);
-        count = (u16)func_0023e130(arg0);
+        count = (u16)datCalcGetTableLength(arg0);
         table = func_0023e140(arg0);
         index = 0;
         limit = count;
@@ -3318,7 +3319,7 @@ u32 func_0023d9b0(u8 *arg0, s32 arg1)
             result = product / 100 + *(u16 *)(table + 6);
         }
         if (result == 0) break;
-        count = (u16)func_0023e130(arg0);
+        count = (u16)datCalcGetTableLength(arg0);
         table = func_0023e140(arg0);
         index = 0;
         limit = count;
@@ -3456,7 +3457,7 @@ s32 func_0023dff0(u8 *arg0)
     u16 value;
     u32 n;
 
-    count = func_0023e130(arg0) & 0xFFFF;
+    count = datCalcGetTableLength(arg0) & 0xFFFF;
     table = (u16 *)func_0023e140(arg0);
     selected = 0;
     index = 0;
@@ -3489,7 +3490,8 @@ s32 func_0023dff0(u8 *arg0)
 
 /* Retail callers pass the unit pointer even though the count is constant. */
 // FUN_0023E130
-u32 func_0023e130(u8 *unused)
+/* Returns the fixed skill-table length (8) used by every unit's table. */
+u32 datCalcGetTableLength(u8 *unused)
 {
     return 8;
 }
@@ -5262,7 +5264,8 @@ void func_00244100(void)
 }
 
 // FUN_002447C0
-void func_002447c0(void)
+/* Result = calc 0x13 + calc 0x1A; 0x1A is scaled by D_00761260 when the target lacks flag 0x4. */
+void datCalcFormulaTerms13And1A(void)
 {
     f32 temp_f20;
     f32 temp_f21;
@@ -5278,7 +5281,8 @@ void func_002447c0(void)
 }
 
 // FUN_002449C0
-void func_002449c0(void)
+/* Result = calc 0x14 times (50+0xD,4)/(50+0xE,4); the product is scaled by fGpffff811c when the target has flag 0x4. */
+void datCalcFormulaScaledRatio(void)
 {
     f32 temp_f20;
     f32 temp_f0;
@@ -5297,14 +5301,16 @@ void func_002449c0(void)
 }
 
 // FUN_00244AD0
-void func_00244ad0(void)
+/* Result = calc 0x15; the flag-4 check runs only for its side effect. */
+void datCalcFormulaPassCalc15(void)
 {
     datScriptTargetLacksFlag4();
     datScriptSetResult(datScriptCalcFloat(0x15, 0));
 }
 
 // FUN_00244B10
-void func_00244b10(void)
+/* Result = 75 * ratio(0xD,3 / 0xE,3) * ratio(0xD,4 / 0xE,4) + 5 * calc 0x22. */
+void datCalcFormulaWeightedRatio(void)
 {
     f32 temp_f21;
     f32 temp_f20;
@@ -5318,7 +5324,8 @@ void func_00244b10(void)
 }
 
 // FUN_00244C10
-void func_00244c10(void)
+/* Result = 50 * calc 0xD(4) / ((3 * (calc 1 - 1) + 2) * calc 0x10), or 1.0 when that divisor is not positive. */
+void datCalcFormulaInverseRatio(void)
 {
     f32 temp_f20;
 
@@ -5333,7 +5340,8 @@ void func_00244c10(void)
 }
 
 // FUN_00244E20
-void func_00244e20(void)
+/* Result = calc 0x12 * calc 0x10 * (100+0xD,4) / (100+0xE,4), scaled by fGpffff811c when the target has flag 0x4. */
+void datCalcFormulaRatioOfProducts(void)
 {
     f32 temp_f20;
     f32 temp_f0;

@@ -46,7 +46,7 @@ extern u16 func_00232290();
 extern s32 datCalcGetSp();
 
 extern s32 func_0023d8e0(u8 *unit, u16 skill);
-extern u32 func_0023e130(u8 *arg0);
+extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 func_0023ddc0(u8 *unit, s32 skill);
 extern s32 func_0023dfe0(u8 *unit);
 extern s32 func_00242800(u8 *arg0, s32 arg1);
@@ -1300,7 +1300,7 @@ s32 func_001e9350(void) {
         func_0029cf50((s16)element);
         return 1;
     }
-    count = func_0023e130(*(u8 **)(entry + 0xA64)) & 0xFFFF;
+    count = datCalcGetTableLength(*(u8 **)(entry + 0xA64)) & 0xFFFF;
     base = func_0023e140(*(u8 **)(entry + 0xA64));
     index = 0;
     while (index < count) {
@@ -1525,7 +1525,7 @@ s32 func_001e9950(void) {
     bestSkill = -1;
     bestCost = 0x3E7;
     bestScore = -1.0f;
-    outerLimit = ((func_0023e130(*(u8 **)(unit + 0xA64)) & 0xFFFF) + 1) & 0xFFFF;
+    outerLimit = ((datCalcGetTableLength(*(u8 **)(unit + 0xA64)) & 0xFFFF) + 1) & 0xFFFF;
     table = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
     outer = 0;
     outerCount = outerLimit & 0xFFFF;
