@@ -4,21 +4,22 @@
 #include "type.h"
 #include "datUnit_internal.h"
 
-/* Battle unit HP, SP, bad-status, and death accessors defined in datCalc.c. */
-u16 datCalcGetHp(int unit);
-u16 datCalcGetSp(int unit);
-void datCalcSetHp(int unit, u16 hp);
-void datCalcSetSp(int unit, u16 sp);
-u32 datCalcSetBadStatus(int unit, u32 badStatus);
-u32 datCalcGetBadStatusNoDown(int unit);
-u32 datCalcGetBadStatus(int unit);
-u32 datCalcClearBadStatus(int unit, u32 badStatus);
-u32 datCalcChkBadStatus(int unit, u32 badStatus);
+/* Battle unit HP, SP, bad-status, and death accessors defined in datCalc.c.
+ * The unit argument is the battle unit's DatUnit record; retail reads its fields. */
+u16 datCalcGetHp(DatUnit *unit);
+u16 datCalcGetSp(DatUnit *unit);
+void datCalcSetHp(DatUnit *unit, u16 hp);
+void datCalcSetSp(DatUnit *unit, u16 sp);
+u32 datCalcSetBadStatus(DatUnit *unit, u32 badStatus);
+u32 datCalcGetBadStatusNoDown(DatUnit *unit);
+u32 datCalcGetBadStatus(DatUnit *unit);
+u32 datCalcClearBadStatus(DatUnit *unit, u32 badStatus);
+u32 datCalcChkBadStatus(DatUnit *unit, u32 badStatus);
 /* Clears the word at byte offset 0x18 of an object block. */
 void datCalcClearField18(int object);
 u32 datCalcIsSpecialItem(u16 itemId);
-u32 datCalcIsDead(int unit, s32 hpDelta);
-u32 datCalcIsLowHp(int unit);
+u32 datCalcIsDead(DatUnit *unit, s32 hpDelta);
+u32 datCalcIsLowHp(DatUnit *unit);
 void datCalcInitializeCharacters(void);
 void func_00243f20(u16 characterId);
 /* Returns the fixed skill-table length (8) for a unit's table. */

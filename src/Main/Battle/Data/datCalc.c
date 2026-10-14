@@ -154,15 +154,15 @@ s32 func_00231e20(u8 *arg0)
 }
 
 // FUN_00231ED0
-u16 datCalcGetHp(int unit)
+u16 datCalcGetHp(DatUnit *unit)
 {
-    return *(u16 *)(unit + 8);
+    return unit->hp;
 }
 
 // FUN_00231EE0
-u16 datCalcGetSp(int unit)
+u16 datCalcGetSp(DatUnit *unit)
 {
-    return *(u16 *)(unit + 0xa);
+    return unit->sp;
 }
 
 // FUN_00231EF0
@@ -176,21 +176,21 @@ void func_00231ef0(u8 *arg0, u8 arg1)
 }
 
 // FUN_00231F20
-void datCalcSetHp(int unit, u16 hp)
+void datCalcSetHp(DatUnit *unit, u16 hp)
 {
-    if (hp > 999 && !(*(u16 *)unit & 4)) {
+    if (hp > 999 && !(unit->flags & 4)) {
         hp = 999;
     }
-    *(u16 *)(unit + 8) = hp;
+    unit->hp = hp;
 }
 
 // FUN_00231F50
-void datCalcSetSp(int unit, u16 sp)
+void datCalcSetSp(DatUnit *unit, u16 sp)
 {
-    if (sp > 999 && !(*(u16 *)unit & 4)) {
+    if (sp > 999 && !(unit->flags & 4)) {
         sp = 999;
     }
-    *(u16 *)(unit + 0xa) = sp;
+    unit->sp = sp;
 }
 
 /* MATCHED 2026-08-08: func_00231f80 is byte-exact (nd 0, object 784B /
@@ -402,39 +402,39 @@ static inline s32 PTDatCalcHasSkill(u8 *unit, s32 requestedSkill)
 }
 
 // FUN_00232680
-u32 datCalcSetBadStatus(int unit, u32 badStatus)
+u32 datCalcSetBadStatus(DatUnit *unit, u32 badStatus)
 {
     u32 low;
 
     low = badStatus & 0x000fffff;
     if (low != 0) {
-        *(u32 *)(unit + 0xc) = (*(u32 *)(unit + 0xc) & 0xfff00000) | low;
+        unit->bad = (unit->bad & 0xfff00000) | low;
     }
-    return *(u32 *)(unit + 0xc) |= badStatus & 0xfff00000;
+    return unit->bad |= badStatus & 0xfff00000;
 }
 
 // FUN_002326C0
-u32 datCalcGetBadStatusNoDown(int unit)
+u32 datCalcGetBadStatusNoDown(DatUnit *unit)
 {
-    return *(u32 *)(unit + 0xc) & 0x000fffff;
+    return unit->bad & 0x000fffff;
 }
 
 // FUN_002326E0
-u32 datCalcGetBadStatus(int unit)
+u32 datCalcGetBadStatus(DatUnit *unit)
 {
-    return *(u32 *)(unit + 0xc);
+    return unit->bad;
 }
 
 // FUN_002326F0
-u32 datCalcClearBadStatus(int unit, u32 badStatus)
+u32 datCalcClearBadStatus(DatUnit *unit, u32 badStatus)
 {
-    return *(u32 *)(unit + 0xc) &= ~badStatus;
+    return unit->bad &= ~badStatus;
 }
 
 // FUN_00232710
-u32 datCalcChkBadStatus(int unit, u32 badStatus)
+u32 datCalcChkBadStatus(DatUnit *unit, u32 badStatus)
 {
-    return (*(u32 *)(unit + 0xc) & badStatus) != 0;
+    return (unit->bad & badStatus) != 0;
 }
 
 // FUN_00232730
@@ -4551,21 +4551,21 @@ s32 func_00242800(u8 *arg0, s32 arg1)
 }
 
 // FUN_002428F0
-u32 datCalcIsDead(int unit, s32 hpDelta)
+u32 datCalcIsDead(DatUnit *unit, s32 hpDelta)
 {
-    if (*(u32 *)(unit + 0xc) & 0x80000 ? 1 : 0) {
+    if (unit->bad & 0x80000 ? 1 : 0) {
         return 1;
     }
-    return (*(u16 *)(unit + 8) + hpDelta) <= 0;
+    return (unit->hp + hpDelta) <= 0;
 }
 
 // FUN_00242930
-u32 datCalcIsLowHp(int unit)
+u32 datCalcIsLowHp(DatUnit *unit)
 {
     u16 hp;
 
-    hp = *(u16 *)(unit + 8);
-    return ((hp * 100) / func_00231f80((DatUnit *)unit)) < 26;
+    hp = unit->hp;
+    return ((hp * 100) / func_00231f80(unit)) < 26;
 }
 
 /* measured: fndiff 1 word (reloc-masked), fnalign 2 edits (plus 43 reloc-only), obj 813 instrs / retail 813 instrs (window 3264B, 12B under, 0.4% inside 3% gate). Baseline 172 edits / 750 words at 812/812; all-fresh counters 172->68 edits; loopinv 68->20; head temp_16 reuse 20->14; s16 value 14->3 edits / 558->2 words; tail (u16) mask 2->1 word / 3->2 edits. Free pragmas: loopinv 752, unroll/sched tie 750, commonsubs 578 words but 207 edits (rejected for edits). Subscript P[i] neutral 172; reuse temp_16 alone 246 edits (rejected). Decl swaps tie 172; fresh-first 159. All 8 skill-search loops match (while+goto-done, (u16)var_5 masks, fresh counters per loop, loopinv hoist); 0x231/0x232 early returns, 0x20/0x800/0x400 guards, 6/7 dispatch with 0x340/0x3C-0x38 checks, 0x211/0x221 + 0x212/0x222 with 50% random, 0x210/0x20F tail and 47cb0/107ac0 >=9 all in retail shape. Remaining: single addu $v0,$v1,$v0 vs $v0,$v0,$v1 orientation (commutative, source-invariant across both orders, floor) + lw addend masked as reloc-only. Supersedes prior nd-170 layout floor. */
