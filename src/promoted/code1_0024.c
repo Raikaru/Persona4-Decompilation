@@ -3,7 +3,7 @@
 #include "type.h"
 extern s32 func_00246480(void);
 extern f32 func_00245030(s32 arg0, s32 arg1);
-extern void func_00246450(s32 arg0);
+#include "datScript_internal.h"
 extern void func_0044ea90(void *file, s32 line);
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -139,7 +139,7 @@ void func_00244110(void)
             temp_f20 *= func_00245030(0xC, 0);
         }
     }
-    func_00246450((s32)temp_f20);
+    func_00246450(temp_f20);
 }
 // FUN_00244540
 void func_00244540(void)
@@ -194,7 +194,7 @@ void func_00244540(void)
         temp_f20 *= 2.0f;
         temp_f20 *= func_00245030(0xC, 0);
     }
-    func_00246450((s32)temp_f20);
+    func_00246450(temp_f20);
 }
 // FUN_00244870
 void func_00244870(void)
@@ -220,7 +220,7 @@ void func_00244870(void)
             temp_f1 = 1.0f;
         temp_f0 = temp_f21 * temp_f1;
     }
-    func_00246450((s32)temp_f0);
+    func_00246450(temp_f0);
 }
 // FUN_00244CF0
 void func_00244cf0(void)
@@ -247,7 +247,7 @@ void func_00244cf0(void)
     temp_f20 *= func_00245030(0x1B, 0);
     temp_f1 = temp_f20 * func_00245030(0x21, 0);
     temp_f0 = temp_f1 * fGpffff811c;
-    func_00246450((s32)temp_f0);
+    func_00246450(temp_f0);
 }
 // FUN_00246550
 s32 func_00246550(void)
