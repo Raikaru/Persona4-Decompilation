@@ -9,7 +9,7 @@ This is not a PC port. You need your own disc image and compiler toolchain;
 the repository does not include the game executable or disc assets.
 
 [![first-party functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20functions&measure=matched_functions&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![fully C-linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fully%20C-linked&measure=complete_code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![first-party fully C-linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20fully%20C-linked&measure=complete_code&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 
 ## Quickstart
 
@@ -82,15 +82,17 @@ not count as recovered C.
 ## Status
 
 [decomp.dev](https://decomp.dev/Raikaru/Persona4-Decompilation) publishes the
-CI results. The table below is the last committed report, not a fresh
-measurement of your working tree. Run `make verify` for that.
+CI results. Its headline figures are first-party (Atlus game and engine) code;
+the whole program, including Sony SDK and middleware, is the `all` category.
+The table below is the last committed report, not a fresh measurement of your
+working tree. Run `make verify` for that.
 
 <details>
 <summary>Detailed progress</summary>
 
-[![perfect match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=perfect%20match&measure=code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![fuzzy match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fuzzy%20match&measure=fuzzy_match_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=matched_functions)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![perfect match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20code%20perfect%20match&measure=code&category=all)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![fuzzy match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20code%20fuzzy%20match&measure=fuzzy_match_percent&category=all)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=matched_functions&category=all)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![ASM-free linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
 [![Sony SDK fully C-linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=Sony%20SDK%20fully%20C-linked&measure=complete_code&category=sony_sdk)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 
