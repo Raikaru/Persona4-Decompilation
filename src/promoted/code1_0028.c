@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scene_event_internal.h"
 #include "scene_light_override_internal.h"
 
 s32 func_00452380(void *arg0);

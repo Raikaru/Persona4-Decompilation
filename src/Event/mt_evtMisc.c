@@ -1,6 +1,7 @@
 /* Source unit: src/promoted/code1_0028.c */
 #include "scene_light_override_internal.h"
 #include "type.h"
+#include "scene_event_internal.h"
 
 extern s32 D_00882170[];
 extern f32 iGpffff809c;

@@ -41,4 +41,42 @@ u32 func_00269820(u16 *resource, s32 layer, s32 animation, s32 frame,
 f32 func_0026cef0(s8 *path, f32 distance, f32 total,
                   f32 *position, f32 *rotation);
 
+/* Event TU prototypes: functions defined in src/Event and the scene-event bucket. */
+void func_00285260(void);
+void func_002871a0();
+s32 func_00286350(void);
+void func_0028ad90(u8 *arg0, s32 arg1);
+void func_0028b440(int, int);
+void func_0028b5d0(int);
+u64 func_00298190(s16 param_1, int param_2);
+void func_00287360(u8 *, u8 *, u8 *, s32, u8 *);
+void func_00287bf0();
+void func_0028c370(void);
+void func_00288020();
+void func_00287d90();
+void func_00293270(void);
+void func_0028be70();
+void func_0028b230(int param_1);
+void func_002e0dd0(void);
+void func_0028d0a0(u8 *arg0);
+void func_00290b00(int *param_1);
+void func_00291900(void);
+void func_00290fa0(u8 *arg0);
+void func_00290470(s32 *arg0, s32 arg1);
+void func_00291470();
+void func_00291220();
+void func_002913d0();
+s32 func_0028bef0(s32, u8 *, s32 *, s32 *);
+void func_002909b0(s32 *, s32, s32, s32, s32);
+s32 func_00290e50(u8 *, s32);
+void func_002852a0(s32 arg0, s32 arg1);
+s32 func_00285330(void);
+s32 func_00286430(u8 *arg0);
+void func_00286d80(u32 *, u32 *);
+s32 func_002853f0(s32 arg0);
+extern void *func_0028b2a0(int arg0, int arg1);
+void func_0028f990(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3);
+void func_0028ced0(s32 arg0, s32 arg1, s32 arg2, f32 *arg3, f32 *arg4, f32 *arg5);
+void func_0028b270(int param_1);
+
 #endif

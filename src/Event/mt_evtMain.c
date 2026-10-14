@@ -1,6 +1,7 @@
 /* Source unit: src/Event/mt_evtMain.c */
 
 #include "type.h"
+#include "scene_event_internal.h"
 
 extern u32 DAT_007645D8;
 

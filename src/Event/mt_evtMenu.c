@@ -1,5 +1,6 @@
 /* Source unit: src/Event/mt_evtMenu_00285260.c */
 #include "type.h"
+#include "scene_event_internal.h"
 extern u32 DAT_00882170_abs[];
 
 
