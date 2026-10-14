@@ -879,9 +879,6 @@ void func_0028be70(u8 *arg0, s32 arg1)
     }
 }
 
-// measured: required for exact retail loop codegen in func_0028c370.
-#pragma push
-#pragma opt_loop_invariants on
 
 // FUN_0028BEF0
 s32 func_0028bef0(s32 arg0, u8 *arg1, s32 *arg2, s32 *arg3) {
@@ -911,6 +908,9 @@ block_6:
     }
 }
 
+/* measured: func_0028bfb0 is nd 97 without opt_loop_invariants on (retail loop codegen). */
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_0028BFB0
 void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3) {
     u8 *temp_3;
@@ -955,6 +955,8 @@ loop_10_test:
 done:
     return;
 }
+/* measured: restore pragma state after func_0028bfb0. */
+#pragma pop
 
 // FUN_0028C080
 void func_0028c080(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3, f32 *arg4,
@@ -1094,8 +1096,6 @@ have_matrix:
 done:
     return;
 }
-/* measured: restore pragma state after func_0028c080. */
-#pragma pop
 
 /* measured: opt_propagation off keeps the `slot = &nodes[i]; node = *slot` pair (retail addiu/lw)
    and the slot search is a while loop whose hit copies the entry into a second pointer before the
