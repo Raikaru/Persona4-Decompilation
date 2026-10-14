@@ -183,30 +183,30 @@ s32 func_003619b0(u8 *arg0) {
 // FUN_00361A30
 void func_00361a30(u8 *arg0)
 {
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 var_18;
-    s8 temp_4_3;
-    u8 *temp_3;
+    s32 handle;
+    s32 handle704;
+    s32 i;
+    s8 id;
+    u8 *slot;
 
-    var_18 = 0;
-    while (var_18 < 0x2A) {
-        temp_3 = arg0 + (var_18 * 4) + 0x658;
-        temp_4 = *(s32 *)temp_3;
-        if (temp_4 != 0) {
-            func_0046d280((void *)temp_4);
-            *(s32 *)temp_3 = 0;
+    i = 0;
+    while (i < 0x2A) {
+        slot = arg0 + (i * 4) + 0x658;
+        handle = *(s32 *)slot;
+        if (handle != 0) {
+            func_0046d280((void *)handle);
+            *(s32 *)slot = 0;
         }
-        var_18 += 1;
+        i += 1;
     }
-    temp_4_2 = *(s32 *)(arg0 + 0x704);
-    if (temp_4_2 != 0) {
-        func_00452080(temp_4_2);
+    handle704 = *(s32 *)(arg0 + 0x704);
+    if (handle704 != 0) {
+        func_00452080(handle704);
         *(s32 *)(arg0 + 0x704) = 0;
     }
-    temp_4_3 = *(s8 *)(arg0 + 0x3C);
-    if (temp_4_3 != -1) {
-        func_002bb550(temp_4_3);
+    id = *(s8 *)(arg0 + 0x3C);
+    if (id != -1) {
+        func_002bb550(id);
         *(s8 *)(arg0 + 0x3C) = -1;
     }
     *(s32 *)(arg0 + 0x1C) = 0;
@@ -220,8 +220,8 @@ void func_00361ae0(u8 *arg0)
     s32 d1;
     s32 d2;
     s64 score;
-    s16 tmp1;
-    s16 tmp2;
+    s16 topScore;
+    s16 bottomScore;
     u8 *p;
 
     *(s16 *)(arg0 + 0x22) = *(s16 *)(arg0 + 0x22) + 1;
@@ -235,10 +235,10 @@ void func_00361ae0(u8 *arg0)
         if (i < top) d1 = top - i; else d1 = i - top;
         if (i < bottom) d2 = bottom - i; else d2 = i - bottom;
         score = 1;
-        tmp1 = (s16)(10 - d1 * 2);
-        if (tmp1 > 1) score = tmp1;
-        tmp2 = (s16)(8 - d2 * 2);
-        if (score < tmp2) score = tmp2;
+        topScore = (s16)(10 - d1 * 2);
+        if (topScore > 1) score = topScore;
+        bottomScore = (s16)(8 - d2 * 2);
+        if (score < bottomScore) score = bottomScore;
         p = arg0 + i * 0xA;
         *(s16 *)(p + 0x5E8) = (s16)score;
         func_0034f8f0(p + 0x5E8);
@@ -653,32 +653,32 @@ block_64:
 // FUN_00362F00
 s32 func_00362f00(u8 *arg0)
 {
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
-    f32 temp_f4;
-    s16 temp_2;
-    s16 temp_3;
+    f32 startY;
+    f32 y;
+    f32 x;
+    f32 startX;
+    f32 ease;
+    s16 step;
+    s16 frame;
 
-    temp_3 = *(s16 *)(arg0 + 0x18);
-    if (temp_3 < *(s16 *)(arg0 + 0x1A)) {
-        *(s16 *)(arg0 + 0x18) = temp_3 + 1;
-        temp_2 = *(s16 *)(arg0 + 0x18);
-        temp_f4 = 1.0f - cosf(iGpffff84a4 * ((f32)temp_2 / (f32)*(s16 *)(arg0 + 0x1A)));
-        temp_f3 = *(f32 *)(arg0 + 0);
-        temp_f2 = *(f32 *)(arg0 + 8);
-        temp_f2 = temp_f2 - temp_f3;
-        temp_f1 = *(f32 *)(arg0 + 0xC);
-        temp_f0 = *(f32 *)(arg0 + 4);
-        temp_f1 = temp_f1 - temp_f0;
-        temp_f2 = temp_f2 * temp_f4;
-        temp_f1 = temp_f1 * temp_f4;
-        temp_f2 = temp_f2 + temp_f3;
-        *(f32 *)(arg0 + 0x10) = temp_f2;
-        temp_f0 = *(f32 *)(arg0 + 4);
-        temp_f0 = p4_00362f00_add(temp_f1, temp_f0);
-        *(f32 *)(arg0 + 0x14) = temp_f0;
+    frame = *(s16 *)(arg0 + 0x18);
+    if (frame < *(s16 *)(arg0 + 0x1A)) {
+        *(s16 *)(arg0 + 0x18) = frame + 1;
+        step = *(s16 *)(arg0 + 0x18);
+        ease = 1.0f - cosf(iGpffff84a4 * ((f32)step / (f32)*(s16 *)(arg0 + 0x1A)));
+        startX = *(f32 *)(arg0 + 0);
+        x = *(f32 *)(arg0 + 8);
+        x = x - startX;
+        y = *(f32 *)(arg0 + 0xC);
+        startY = *(f32 *)(arg0 + 4);
+        y = y - startY;
+        x = x * ease;
+        y = y * ease;
+        x = x + startX;
+        *(f32 *)(arg0 + 0x10) = x;
+        startY = *(f32 *)(arg0 + 4);
+        startY = p4_00362f00_add(y, startY);
+        *(f32 *)(arg0 + 0x14) = startY;
         return 0;
     }
     return 1;
@@ -686,22 +686,22 @@ s32 func_00362f00(u8 *arg0)
 // FUN_003642A0
 void func_003642a0(u8 *arg0)
 {
-    u16 *temp = *(u16 **)(arg0 + 0x38);
+    u16 *flags = *(u16 **)(arg0 + 0x38);
 
     func_003642e0(arg0, NULL);
-    *temp |= 2;
+    *flags |= 2;
 }
 
 // FUN_003642E0
 void func_003642e0(u8 *arg0, void *arg1)
 {
-    u16 *temp;
+    u16 *flags;
 
-    temp = *(u16 **)(arg0 + 0x38);
+    flags = *(u16 **)(arg0 + 0x38);
     if (arg1 != NULL) {
-        *temp |= 1;
+        *flags |= 1;
     } else {
-        *temp &= (u16)~1;
+        *flags &= (u16)~1;
     }
 }
 /* 752/752 bytes, ten resolved relocations, no alignment tail.
@@ -1130,11 +1130,11 @@ void func_003671d0(s16 *arg0)
 // FUN_00367210
 void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2)
 {
-    s16 temp_3;
+    s16 kind;
 
     if (arg1 & 0xFF) {
-        temp_3 = *arg2;
-        switch (temp_3) {
+        kind = *arg2;
+        switch (kind) {
         case 0:
             func_00367420(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
@@ -1190,50 +1190,50 @@ void func_003672d0(void *work, s16 pcId)
 void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 {
     f32 y = *((f32 *)&arg0 + 1);
-    PairBits temp;
+    PairBits pos;
     extern void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 
     if (arg1 & 0xFF) {
-        temp.f.x = *(f32 *)&arg0 - 10.0f;
-        temp.f.y = y + 20.0f;
-        func_003675f0(temp, fparg0, arg1);
+        pos.f.x = *(f32 *)&arg0 - 10.0f;
+        pos.f.y = y + 20.0f;
+        func_003675f0(pos, fparg0, arg1);
 
-        temp.f.x = *(f32 *)&arg0 + 17.0f;
-        temp.f.y = y + 76.0f;
-        func_00367d00(temp.raw, fparg0, arg1, arg2);
+        pos.f.x = *(f32 *)&arg0 + 17.0f;
+        pos.f.y = y + 76.0f;
+        func_00367d00(pos.raw, fparg0, arg1, arg2);
 
-        temp.f.x = *(f32 *)&arg0 + 105.0f;
-        temp.f.y = y + 23.0f;
-        func_00367940(*(P4Pair *)&temp, fparg0, arg1, arg2);
+        pos.f.x = *(f32 *)&arg0 + 105.0f;
+        pos.f.y = y + 23.0f;
+        func_00367940(*(P4Pair *)&pos, fparg0, arg1, arg2);
 
-        temp.f.x = *(f32 *)&arg0 + 98.0f;
-        temp.f.y = y + 85.0f;
-        func_003679c0(temp.raw, fparg0, arg1, arg2);
+        pos.f.x = *(f32 *)&arg0 + 98.0f;
+        pos.f.y = y + 85.0f;
+        func_003679c0(pos.raw, fparg0, arg1, arg2);
 
-        temp.f.x = *(f32 *)&arg0 + 22.0f;
-        temp.f.y = y + 111.0f;
-        func_003676f0(temp.raw, fparg0, arg1, arg2);
+        pos.f.x = *(f32 *)&arg0 + 22.0f;
+        pos.f.y = y + 111.0f;
+        func_003676f0(pos.raw, fparg0, arg1, arg2);
 
-        temp.f.x = *(f32 *)&arg0 + 106.0f;
-        temp.f.y = *(f32 *)&arg0 + 108.0f;
-        func_00367b80(temp.raw, fparg0, arg1, arg2);
+        pos.f.x = *(f32 *)&arg0 + 106.0f;
+        pos.f.y = *(f32 *)&arg0 + 108.0f;
+        func_00367b80(pos.raw, fparg0, arg1, arg2);
     }
 }
 // FUN_003675F0
 void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1)
 {
-    s32 temp;
+    s32 tex;
     s32 alpha;
 
-    temp = func_0046a770(D_005E5810);
-    if (temp == 0) {
+    tex = func_0046a770(D_005E5810);
+    if (tex == 0) {
         func_0046d730(D_0064E460, 0xB5);
     }
     alpha = arg1 & 0xFF;
     alpha = 0xFF - alpha;
-    func_0046d4c0(0, temp, 0x49, arg0.f.x, arg0.f.y,
+    func_0046d4c0(0, tex, 0x49, arg0.f.x, arg0.f.y,
                   alpha & 0xFF, 0xFB, 0xA2, 0, fparg0, 0);
-    func_0046d4c0(0, temp, 0x48, 108.0f + arg0.f.x,
+    func_0046d4c0(0, tex, 0x48, 108.0f + arg0.f.x,
                   arg0.f.y, alpha & 0xFF,
                   0xFB, 0xA2, 0, fparg0, 0);
 }
@@ -1319,7 +1319,7 @@ void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 
 #pragma opt_common_subs on
 // FUN_00367940
-void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 tmp[12]; f32 factor; factor = fparg0; func_0011fd30(tmp); *(s32 *)(tmp + 8) = 3; *(s16 *)(tmp + 6) = 1; *(s16 *)tmp = *(s16 *)(arg2 + 4); func_0011fd50(*(s64 *)&arg0, factor, arg1, tmp, 1); }
+void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 buf[12]; f32 factor; factor = fparg0; func_0011fd30(buf); *(s32 *)(buf + 8) = 3; *(s16 *)(buf + 6) = 1; *(s16 *)buf = *(s16 *)(arg2 + 4); func_0011fd50(*(s64 *)&arg0, factor, arg1, buf, 1); }
 
 // FUN_003679C0
 /* measured: nd 9 -> 0. opt_loop_invariants on hoists the digit loop's 16.0f and 10
@@ -1704,7 +1704,7 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
     s32 even;
     u8 *dst;
     u8 *mtx;
-    u8 *tmp;
+    u8 *view;
     u8 *rgba;
     struct RwMatrixTag *cam;
     f32 dot;
@@ -1720,8 +1720,8 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
     f32 scaled;
 
     stack130 = D_0064E490;
-    tmp = func_00457120();
-    mtx = func_003e9700(*(u8 **)(tmp + 4)) + 0x30;
+    view = func_00457120();
+    mtx = func_003e9700(*(u8 **)(view + 4)) + 0x30;
     stackD0 = D_0064E4A0;
     stackC0 = D_0064E4B0;
     stackB0 = D_0064E4C0;
@@ -1853,18 +1853,18 @@ void func_0036d8b0(void)
         s32 f38;
         u8 pad[4];
     } local;
-    s32 temp_2;
+    s32 view;
 
-    temp_2 = (s32)func_00457120();
-    func_003e8180((void *)temp_2, 1.0f);
+    view = (s32)func_00457120();
+    func_003e8180((void *)view, 1.0f);
     local.f30 = 0;
     local.f34 = 0;
     local.f38 = 0;
     local.f20 = 0;
     local.f24 = 0;
     local.f28 = 0x43480000;
-    K_View_SetFov((void *)temp_2, 100.0f);
-    func_00457630((void *)temp_2, &local.f30, &local.f20, 0);
+    K_View_SetFov((void *)view, 100.0f);
+    func_00457630((void *)view, &local.f30, &local.f20, 0);
 }
 // FUN_0036D940
 void func_0036d940(void)
