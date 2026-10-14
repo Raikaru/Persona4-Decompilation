@@ -13,7 +13,6 @@ void *func_00481540(u16 arg0);
 void func_00460ac0(void *arg0, void *arg1);
 void memcpy(void *dst, const void *src, u32 size);
 void func_004b4430(u8 *arg0, u8 *arg1);
-f32 effMiscRandFloat(u32 param);
 
 extern u8 D_00713310[];
 extern u8 D_00714628[];

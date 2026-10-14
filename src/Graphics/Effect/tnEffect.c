@@ -50,7 +50,6 @@ void H_Cdvd_Destroy(void *arg0);
 void H_Cdvd_ReadSync(void *arg0);
 void sprintf(void *arg0, const void *arg1, s32 arg2);
 u8 *func_003ef740(void *arg0, s32 arg1);
-void effMiscRandInit(s32 arg0, s32 arg1);
 void func_004abb60(void);
 void func_004a77b0(void);
 void func_004b3180(s32 arg0);

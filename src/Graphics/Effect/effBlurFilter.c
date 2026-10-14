@@ -151,8 +151,6 @@ void func_004a8bb0(u8 *a, u8 *b) {
 /* measured: closes func_004a8bb0 O1 bracket; restore O2 for the next function. */
 #pragma optimization_level 2
 
-extern u32 effMiscRand(u32 param);
-extern f32 effMiscRandFloat(u32 param);
 extern f32 cosf(f32 param);
 extern f32 fGpffff80f4;
 extern f32 fGpffff80cc;

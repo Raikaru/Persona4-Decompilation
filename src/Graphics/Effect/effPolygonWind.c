@@ -40,8 +40,6 @@ extern void func_0046d730(void *, s32);
 extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
 extern void func_004843a0();
 extern void func_00484280();
-extern f32 effMiscRandFloat(u32);
-extern u32 effMiscRand(u32);
 extern void memset(void *, s32, s32);
 extern void func_004bd1a0(f32);
 extern void func_004bd3c0(f32);

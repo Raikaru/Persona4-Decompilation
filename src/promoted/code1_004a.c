@@ -33,9 +33,6 @@ extern void func_004adb50();
 extern void func_004ade80(u8 *arg0);
 extern void func_00460ac0();
 extern void func_004aec80();
-struct EffRandState;
-extern f32 effMiscRandFloat(struct EffRandState *state);
-extern u32 effMiscRand(u32 arg0);
 extern f32 iGpffff8080;
 extern void func_004787e0();
 
@@ -92,7 +89,6 @@ extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
 extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00485870(s32 arg0);
-extern u32 effMiscRand(u32 arg0);
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 

@@ -10,8 +10,6 @@
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef signed __int128 s128;
 
-extern u32 effMiscRand(u32);
-extern f32 effMiscRandFloat(u32);
 extern f32 cosf(f32);
 extern f32 sinf(f32);
 /* Anonymous gp-relative float slots (-0x7FBC / -0x7F30 of $28), same
