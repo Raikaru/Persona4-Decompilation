@@ -112,7 +112,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern s32 func_0029d020(void);
 extern s32 func_00110f00(void);
-extern u8 *func_001452b0(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);
 extern void func_0029cf50(s32 arg0);
 extern s32 func_00110fc0(void);
@@ -441,7 +441,7 @@ s32 func_00170f60(u8 *arg0, s32 arg1)
     u8 *var_16;
 
     var_17 = 0;
-    var_16 = func_001452b0(0xD);
+    var_16 = MT_Scene_GetResListHead(0xD);
     if ((func_0014a200() == 0) && (func_0014a270() == 0))
         return 0;
     temp_2 = mdlGetMatrix(*(u8 **)(arg0 + 0x50));
@@ -968,7 +968,7 @@ s32 func_00176a50(void)
     u8 *node;
     s32 count;
 
-    node = (u8 *)func_001452b0(3);
+    node = (u8 *)MT_Scene_GetResListHead(3);
     count = 0;
     while (node != NULL) {
         count += 1;
@@ -988,7 +988,7 @@ s32 func_00176ab0(void)
     u8 *var_2;
 
     temp_16 = func_0029cc00(0);
-    var_2 = func_001452b0(3);
+    var_2 = MT_Scene_GetResListHead(3);
     var_4 = 0;
     var_3 = 0;
     goto loop_3_cond;
@@ -1333,7 +1333,7 @@ s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, f32 farg0, f32 farg1
     FieldRenderStateSetFunction *base;
     s32 outerIndex;
     s32 count;
-    tmp = func_001452b0(0xC);
+    tmp = MT_Scene_GetResListHead(0xC);
     base = D_00887300;
     base[0]((RwRenderState)(1), (void *)(arg1));
     base[0]((RwRenderState)(2), (void *)(3));
@@ -1539,7 +1539,7 @@ void func_0017a700(u8 *arg0, u8 *arg1)
     u8 *temp_17;
     u8 *temp_2;
 
-    temp_17 = func_001452b0(0xC);
+    temp_17 = MT_Scene_GetResListHead(0xC);
     sp40.type = 4;
     temp_f20 = *(f32 *)(arg1 + 0x18);
     sp40.values[0] = temp_f20 +
@@ -2060,7 +2060,7 @@ void *func_0017b510(u8 *arg0, u16 arg1, u16 arg2)
     mode = (u16 *)(data + 0xA);
     *mode = arg2;
 
-    for (node = func_001452b0(0x13); node != NULL; node = *(u8 **)(node + 0x138)) {
+    for (node = MT_Scene_GetResListHead(0x13); node != NULL; node = *(u8 **)(node + 0x138)) {
         if (i == 0) {
             f32 x = *(f32 *)(node + 0x140);
             f32 y = *(f32 *)(node + 0x144);
@@ -2539,7 +2539,7 @@ void func_0017c670(u8 *packet, s32 stateAddress, void *callbackSelf)
 // FUN_0017C930
 s32 func_0017c930(u8 *arg0)
 {
-    extern u8 *func_001452b0(s32);
+    extern u8 *MT_Scene_GetResListHead(s32);
     extern s32 func_0014a160(void);
     extern s32 func_001623f0(void);
     extern u8 *func_00460990(void);
@@ -2562,8 +2562,8 @@ s32 func_0017c930(u8 *arg0)
     u8 *p;
 
     state = *(u8 **)(arg0 + 0x38);
-    list1 = func_001452b0(1);
-    list3 = func_001452b0(3);
+    list1 = MT_Scene_GetResListHead(1);
+    list3 = MT_Scene_GetResListHead(3);
     state_value = *(s32 *)state;
     switch (state_value) {
     case 0:

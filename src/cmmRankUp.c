@@ -279,7 +279,7 @@ extern s32 func_002738d0(u8 *arg0);
 extern void func_00272a10(u8 *arg0, f32 fparg0, f32 fparg1);
 extern void func_00272ba0(u8 *arg0, s32 arg1);
 extern void func_00271b70(u8 *arg0);
-extern u8 *func_001452b0(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 func_00268cb0(u8 *arg0);
 extern void func_00268c20(s32 arg0, s32 arg1);
 
@@ -1452,22 +1452,22 @@ u8 *func_00255b90(void) {
     u8 *node4;
 
     count = 0;
-    cnt = func_001452b0(1);
+    cnt = MT_Scene_GetResListHead(1);
     while (cnt != NULL) {
         count++;
         cnt = *(u8 **)(cnt + 0x138);
     }
-    cnt = func_001452b0(2);
+    cnt = MT_Scene_GetResListHead(2);
     while (cnt != NULL) {
         count++;
         cnt = *(u8 **)(cnt + 0x138);
     }
-    cnt = func_001452b0(3);
+    cnt = MT_Scene_GetResListHead(3);
     while (cnt != NULL) {
         count++;
         cnt = *(u8 **)(cnt + 0x138);
     }
-    cnt = func_001452b0(0xA);
+    cnt = MT_Scene_GetResListHead(0xA);
     while (cnt != NULL) {
         count++;
         cnt = *(u8 **)(cnt + 0x138);
@@ -1475,7 +1475,7 @@ u8 *func_00255b90(void) {
     func_0044ea90(D_00635CF8, 0x5FA);
     entry = (u8 *)D_008873F4[0](1, (count + 1) * 0x10, 0x40000);
     count = 0;
-    node1 = func_001452b0(1);
+    node1 = MT_Scene_GetResListHead(1);
     while (node1 != NULL) {
         u8 *e = entry + count * 0x10;
         *(u8 **)(e + 4) = *(u8 **)(node1 + 0x164);
@@ -1487,7 +1487,7 @@ u8 *func_00255b90(void) {
         func_00268c20(*(u16 *)(node1 + 0), 1);
         node1 = *(u8 **)(node1 + 0x138);
     }
-    node2 = func_001452b0(2);
+    node2 = MT_Scene_GetResListHead(2);
     while (node2 != NULL) {
         u8 *e = entry + count * 0x10;
         *(u8 **)(e + 4) = *(u8 **)(node2 + 0x158);
@@ -1499,7 +1499,7 @@ u8 *func_00255b90(void) {
         func_00268c20(*(u16 *)(node1 + 0), 1);
         node2 = *(u8 **)(node2 + 0x138);
     }
-    node3 = func_001452b0(3);
+    node3 = MT_Scene_GetResListHead(3);
     while (node3 != NULL) {
         u8 *e = entry + count * 0x10;
         *(u8 **)(e + 4) = *(u8 **)(node3 + 0x164);
@@ -1511,7 +1511,7 @@ u8 *func_00255b90(void) {
         func_00268c20(*(u16 *)(node3 + 0), 1);
         node3 = *(u8 **)(node3 + 0x138);
     }
-    node4 = func_001452b0(0xA);
+    node4 = MT_Scene_GetResListHead(0xA);
     while (node4 != NULL) {
         u8 *e = entry + count * 0x10;
         *(u8 **)(e + 4) = *(u8 **)(node4 + 0x144);

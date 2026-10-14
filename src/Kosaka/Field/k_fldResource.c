@@ -477,7 +477,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     /* lint: allow H011 -- the final arguments are array addresses; the provider
      * casts its s32 words to memcpy sources of 0x20 and 0x180 bytes. */
     extern s32 func_00146440(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
-    extern u8 *func_001452b0(s32 arg0);
+    extern u8 *MT_Scene_GetResListHead(s32 arg0);
     extern u8 *MT_Scene_GetRes(s32 arg0);
     extern void MT_Scene_DestroyRes(u16 arg0);
     extern s32 func_00145ac0(u16 arg0, s32 arg1);
@@ -1071,8 +1071,8 @@ waitParts:
         *( s32 * )(temp_3_21 + 0x94) = 0x3E7;
         goto block_259;
 reloadParts:
-        var_18_4 = (u8 *)(func_001452b0(3));
-        var_17_7 = (u8 *)(func_001452b0(8));
+        var_18_4 = (u8 *)(MT_Scene_GetResListHead(3));
+        var_17_7 = (u8 *)(MT_Scene_GetResListHead(8));
         if (fldResourceReady_0014f310((u8 *)iGpffffb200) != 0) {
             while (var_18_4 != NULL) {
                 temp_16_10 = (u8 *)(*( u8 ** )(var_18_4 + 0x138));

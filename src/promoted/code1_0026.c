@@ -22,7 +22,7 @@ extern void func_0026c860(f32 *arg0, f32 *arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern void func_0026dc30(u8 *task);
 extern s32 func_0026dee0(u8 *task);
-extern u8 *func_001452b0(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void func_0026dd60(u8 *arg0);
 extern void func_0026d440(void);
 extern void func_0026a020(u8 *arg0);
@@ -2426,7 +2426,7 @@ s32 func_0026db60(u8 *unusedTask)
     var_17 = 1;
     goto outer_test;
 outer_body:
-    var_16 = func_001452b0(var_17);
+    var_16 = MT_Scene_GetResListHead(var_17);
     goto inner_test;
 inner_body:
     func_0026a020(var_16);
@@ -2440,7 +2440,7 @@ outer_test:
     if (var_17 < 0x16) {
         goto outer_body;
     }
-    var_2 = func_001452b0(7);
+    var_2 = MT_Scene_GetResListHead(7);
     temp_3 = 1;
     goto second_test;
 second_body:
@@ -2599,7 +2599,7 @@ s32 func_0026dee0(u8 *unusedTask)
     s8 temp_3;
     u8 *var_16;
 
-    var_16 = func_001452b0(6);
+    var_16 = MT_Scene_GetResListHead(6);
     func_0026dd60(var_16);
     goto loop_test;
 loop_body:

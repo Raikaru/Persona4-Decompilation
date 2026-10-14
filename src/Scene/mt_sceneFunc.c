@@ -23,7 +23,7 @@ extern u32 func_002699d0(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
 extern u32 func_00269bd0(void* resource, s32 enabled);
 extern s32 func_0026bc90(u8 *arg0, s32 arg1);
 
-extern u8 *func_001452b0(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 arg0);
 
 extern void func_0026c680(float *param_1);
 
@@ -1554,7 +1554,7 @@ s32 func_0026ba60(u16 *arg0)
     u8 *temp_3;
     u8 *var_16;
 
-    var_16 = (u8 *)func_001452b0(0x15);
+    var_16 = (u8 *)MT_Scene_GetResListHead(0x15);
     temp_3 = (u8 *)PTR_DAT_00762ea0;
     index = *(s32 *)(temp_3 + 0);
     offset = *(s32 *)(temp_3 + 4);
@@ -1680,7 +1680,7 @@ s32 func_0026be60(void)
     if (p == NULL) return 0;
     if ((((s32)(*(u16 *)p & 0xFFC00)) >> 10) != 7) return 0;
     {
-        u8 *v = func_001452b0(7);
+        u8 *v = MT_Scene_GetResListHead(7);
 
         while (v != NULL) {
             *(s32 *)(v + 0x148) = 0;
@@ -1693,7 +1693,7 @@ s32 func_0026be60(void)
 
 // FUN_0026BF20
 void func_0026bf20(void) {
-    u8 *var_3 = func_001452b0(7);
+    u8 *var_3 = MT_Scene_GetResListHead(7);
 
     while (var_3 != NULL) {
         *(s32 *)(var_3 + 0x148) = 0;

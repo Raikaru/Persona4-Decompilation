@@ -103,7 +103,7 @@ static inline u8 *wg0015_add_ptr(u8 *base, s32 offset)
 }
 
 
-extern u8 *func_001452b0(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void func_00458f40(s32 arg0, s32 arg1);
 extern void func_00458f70(s32 arg0, s32 arg1);
 extern s32 mdlGetClump(s32 arg0);
@@ -175,7 +175,7 @@ void func_001537c0(u8 *arg0, s32 arg1)
     s32 index;
     u8 *work;
 
-    work = func_001452b0(0xA);
+    work = MT_Scene_GetResListHead(0xA);
     if ((*(s32 *)(arg0 + 0) & 1) != 0) {
         func_00458f70(*(s32 *)(arg0 + 8), arg1);
     }
@@ -197,7 +197,7 @@ void func_001538a0(u32 *resource, const f32 *color)
     RwRGBA rgba;
     u32 model;
 
-    node = (s32)func_001452b0(10);
+    node = (s32)MT_Scene_GetResListHead(10);
     if ((*resource & 1) != 0)
     {
         func_00458cb0(resource[2], color);
@@ -243,7 +243,7 @@ void func_00155070(void)
     s32 var_5;
     s32 var_17;
 
-    temp_2 = func_001452b0(0x14);
+    temp_2 = MT_Scene_GetResListHead(0x14);
     if (temp_2 != NULL) {
         K_View_SetFov((void *)func_00457120(), *(f32 *)(temp_2 + 0x144));
         func_003e0670(sp30, *(s32 *)(temp_2 + 0x148));
@@ -2898,7 +2898,7 @@ void func_0015b240(void)
     s32 field_x;
     s32 field_y;
 
-    entry = func_001452b0(0xA);
+    entry = MT_Scene_GetResListHead(0xA);
     if (func_0014a200() == 0) {
         if (func_0014a270() == 0) {
             return;
@@ -3039,10 +3039,10 @@ void func_0015bae0(void)
     u8 *work;
     u8 *object;
 
-    var_19 = func_001452b0(0xC);
+    var_19 = MT_Scene_GetResListHead(0xC);
     temp_s5 = MT_Scene_GetRes(0x400);
-    var_18 = func_001452b0(0xA);
-    var_17 = func_001452b0(0xB);
+    var_18 = MT_Scene_GetResListHead(0xA);
+    var_17 = MT_Scene_GetResListHead(0xB);
     var_16 = 0;
     var_15 = 0;
     if (func_0014a160() != 0) {
@@ -3057,7 +3057,7 @@ clear_test:
             if (var_19 != NULL) {
                 goto clear_body;
             }
-            func_001452b0(0xC);
+            MT_Scene_GetResListHead(0xC);
         } else {
             goto set_test;
 set_body:
@@ -3067,7 +3067,7 @@ set_test:
             if (var_19 != NULL) {
                 goto set_body;
             }
-            func_001452b0(0xC);
+            MT_Scene_GetResListHead(0xC);
         }
 
         work = (u8 *)func_00457120();
@@ -3576,7 +3576,7 @@ s32 func_0015f600(void)
     u8 *work;
     s32 result;
 
-    work = func_001452b0(3);
+    work = MT_Scene_GetResListHead(3);
     result = 1;
     while (work != NULL) {
         if (!(*(s32 *)(work + 0x28) & 0x10000000)) {
@@ -3598,7 +3598,7 @@ s32 func_0015f660(void)
     u8 *work;
     s32 result;
 
-    work = func_001452b0(3);
+    work = MT_Scene_GetResListHead(3);
     result = 1;
     while (work != NULL) {
         if (!(*(s32 *)(work + 0x28) & 0x10000000)) {

@@ -32,7 +32,7 @@ extern s32 func_00457120(void);
 extern void* func_00174c00(void);
 extern void* func_00174c10(void);
 extern u8* MT_Scene_GetRes(u16 arg0);
-extern u8* func_001452b0(s32 arg0);
+extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern void func_0016f130(s32 a, s32 b, s32 c);
 extern void func_0016f3b0(s32 a, s32 b, s32 c);
 extern s32 func_004782b0(void* arg0);
@@ -394,7 +394,7 @@ s32 func_001774a0(void)
     f32 negativeTranslation[3];
     resourceId = func_0029cc00(0);
     placementId = func_0029cc00(1);
-    placement = func_001452b0(14);
+    placement = MT_Scene_GetResListHead(14);
     {
         Vec3f rotationAxis = {0.0f, 1.0f, 0.0f};
         if (placement == 0) {

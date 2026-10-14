@@ -260,7 +260,7 @@ static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
 // FUN_001823D0
 void func_001823d0(s32 arg0, u16 mode, u16 id)
 {
-    extern u8 *func_001452b0(s32 arg0);
+    extern u8 *MT_Scene_GetResListHead(s32 arg0);
     extern s32 K_FldFrame_IsPointInTriangle(f32 *point, f32 **vertices, f32 *normal);
     extern s32 func_0016fe80(s32 arg0);
     extern s32 func_0016ffd0(s32 arg0);
@@ -283,7 +283,7 @@ void func_001823d0(s32 arg0, u16 mode, u16 id)
         return;
     }
     pos = (f32 *)(mdlGetMatrix(arg0) + 0x30);
-    node = func_001452b0(0x15);
+    node = MT_Scene_GetResListHead(0x15);
     index = ((s32 *)iGpffff9db0)[0];
     offset = ((s32 *)iGpffff9db0)[1];
     if (D_005F08B0[index] == NULL) {
@@ -2043,7 +2043,7 @@ extern float fGpffff8300; /* 0xffff8300 */
 extern float fGpffff8420; /* 0xffff8420 */
 
 extern long func_00106330(int);
-extern u8 *func_001452b0(s32);
+extern u8 *MT_Scene_GetResListHead(s32);
 extern u32 K_FldEvent_IsPosWithinFov(const RainMatrix *, const RainVector *, f32);
 extern u32 K_FldEvent_ArePosWithinDist(const RainVector *, const RainVector *, f32);
 extern u8 *func_002467b0(s32);
@@ -2376,7 +2376,7 @@ s32 func_0018a200(u8 *param_1)
         temp_v8 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         func_003e05d0(temp_v8);
         func_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
-        temp_v4 = (s32)func_001452b0(5);
+        temp_v4 = (s32)MT_Scene_GetResListHead(5);
         initialX = *(float *)(temp_v4 + 0x1f0);
         initialZero = 0.0f;
         if (((initialZero != initialX) || (initialZero != *(float *)(temp_v4 + 0x1f8))) ||

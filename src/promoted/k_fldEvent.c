@@ -63,7 +63,7 @@ s32 func_00231630(s32);
 s32 func_00172e00(u8 *);
 u32 func_002319f0(struct DatUnitGenusBase *);
 f32 RwV3dLength(f32 *);
-s32 func_001452b0(s32);
+s32 MT_Scene_GetResListHead(s32);
 s32 func_0018bbf0(s32);
 u32 K_FldEvent_IsPosWithinFov(const struct RwMatrix *, const struct RwV3d *, f32);
 void func_0015ab20(s32, s32, s32);
@@ -133,7 +133,7 @@ s32 func_00171610(u8 *arg0)
     FldEventVec3 vec;
 
     h = *(s32 **)(arg0 + 0x38);
-    p = (u8 *)func_001452b0(0xA);
+    p = (u8 *)MT_Scene_GetResListHead(0xA);
     if (func_0014a200() == 0 && func_0014a270() == 0) {
         return 0;
     }
@@ -185,7 +185,7 @@ s32 func_00171610(u8 *arg0)
     D_007243E0 = 0;
     return 0;
 found:
-    q = (u8 *)func_001452b0(0xA);
+    q = (u8 *)MT_Scene_GetResListHead(0xA);
     while (q != 0) {
         if (func_00457c90((u8 *)mdlGetClump(*(s32 *)(q + 0x144)),
                           D_005F1780) != 0) {
@@ -324,7 +324,7 @@ s32 func_00171dc0(void)
     void *g;
     s32 *t2;
 
-    p = func_001452b0(3);
+    p = MT_Scene_GetResListHead(3);
     found = 0;
     while (p != 0) {
         if ((*(s32 *)(p + 0x28) & 0x10000000) != 0 &&
@@ -638,7 +638,7 @@ s32 func_001727f0(u8 *arg0)
         if (FLD_EVT_ENTRY(h)->unk10 == 0xFFFF) {
             *(u8 **)(h + 0x1C) = NULL;
             if (FLD_EVT_ENTRY(h)->unk18 != 0) {
-                *(u8 **)(h + 0x1C) = (u8 *)func_001452b0(0xA);
+                *(u8 **)(h + 0x1C) = (u8 *)MT_Scene_GetResListHead(0xA);
                 while ((node = *(u8 **)(h + 0x1C)) != NULL) {
                     node = *(u8 **)(h + 0x1C);
                     id = *(u16 *)node;

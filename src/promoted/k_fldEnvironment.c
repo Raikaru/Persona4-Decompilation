@@ -152,7 +152,7 @@ s32 func_00153c00(s32 arg0) {
 #pragma opt_loop_invariants on
 s32 func_00153d60(u8 *arg0, s32 arg1)
 {
-    extern u8 *func_001452b0(s32 arg0);
+    extern u8 *MT_Scene_GetResListHead(s32 arg0);
     extern void func_00149d60(s32 arg0);
     extern void func_00149db0(s32 arg0);
     extern void func_00149e00(s32 arg0);
@@ -218,8 +218,8 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
             func_0046d700(D_005EFE50, 0x1E3, &iGpffff9e20, &sp60);
         }
     }
-    tmp4 = func_001452b0(4);
-    tmp5 = func_001452b0(5);
+    tmp4 = MT_Scene_GetResListHead(4);
+    tmp5 = MT_Scene_GetResListHead(5);
     func_00149d60(*(u8 *)(data + 8));
     func_00149db0(*(u8 *)(data + 9));
     func_00149e00(*(u8 *)(data + 0xA));
@@ -372,8 +372,8 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
         }
     }
     if ((u32)*(s32 *)(data + 4) > 0x10002U) {
-        u8 *tmp1 = func_001452b0(1);
-        u8 *tmp3 = func_001452b0(3);
+        u8 *tmp1 = MT_Scene_GetResListHead(1);
+        u8 *tmp3 = MT_Scene_GetResListHead(3);
         s32 i;
         for (i = 0; i < *(s32 *)(iGpffff9db0 + 0x24); i++) {
             u8 *base = *(u8 **)(iGpffff9db0 + i * 4 + 0x28);
