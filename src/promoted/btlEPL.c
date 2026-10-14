@@ -128,7 +128,12 @@ typedef struct BtlEplUnit
     u8 unkA2;                // 0xA2, compared by btlEplUnitIsSelected
     u8 padA3[0x935];
     u16 unk9D8;             // 0x9D8, bit 8 set by btlEplUnitApplyMotion
-    u8 pad9DA[0x8A];
+    u8 pad9DA[0x12];
+    s16 motion;             // 0x9EC, stored motion id, read by btlEplApplyScaleEffect
+    u8 pad9EE[2];
+    f32 rate;               // 0x9F0, stored motion rate
+    s8 option;              // 0x9F4, stored motion option
+    u8 pad9F5[0x6F];
     s32 unkA64;             // 0xA64, datCalc handle passed to datCalcIsDead
     u8 padA68[4];
     struct BtlEplUnit *next; // 0xA6C
@@ -1321,8 +1326,18 @@ void func_002001e0(s32 *arg0) {
     jtbl_008873EC[0](arg0);
 }
 
+typedef struct BtlEplScaleParam
+{
+    BtlEplSelect select; // 0x00, read by btlEplUnitIsSelected
+    u32 total;           // 0x04, compared with the effect count
+    f32 unk08;           // 0x08, passed to func_0047a0e0
+    f32 scale;           // 0x0C, multiplies the arg0 + 0x20 scale
+    s32 unk10;           // 0x10, nonzero enables the final unit pass
+} BtlEplScaleParam;
+
 // FUN_00200230
-void func_00200230(u8 *arg0) {
+/* Scales the target model and counter-scales selected units; the final pass reapplies stored motion. */
+void btlEplApplyScaleEffect(u8 *arg0) {
     f32 sp130[4];
     u8 sp120[0x10];
     u8 sp110[0x10];
@@ -1334,54 +1349,52 @@ void func_00200230(u8 *arg0) {
     f32 inv;
     u32 count;
     u32 i;
-    u8 *target;
-    u8 *param;
-    u8 *node;
+    u8 **target;
+    BtlEplScaleParam *param;
+    BtlEplUnit *node;
 
-    target = *(u8 **)(arg0 + 0x30);
-    param = *(u8 **)(arg0 + 0x38);
+    target = *(u8 ***)(arg0 + 0x30);
+    param = *(BtlEplScaleParam **)(arg0 + 0x38);
     count = *(u32 *)(arg0 + 0x28);
-    if ((*(u32 *)(param + 4) >= count) || (*(u32 *)(param + 4) == 0)) {
-        if ((count == *(u32 *)(param + 4)) && (*(s32 *)(param + 0x10) != 0)) {
+    if ((param->total >= count) || (param->total == 0)) {
+        if ((count == param->total) && (param->unk10 != 0)) {
             for (i = 0; i < 2; i++) {
-                node = *(u8 **)(D_0072449C + i * 8 + 0x178);
+                node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
                 while (node != NULL) {
-                    if ((*(s32 *)(node + 0xA64) != 0) &&
-                        (btlEplUnitIsSelected((BtlEplUnit *)node, (BtlEplSelect *)param) != 0) &&
-                        (datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0)) {
+                    if ((node->unkA64 != 0) &&
+                        (btlEplUnitIsSelected(node, &param->select) != 0) &&
+                        (datCalcIsDead(node->unkA64, 0) == 0)) {
                         func_00194ff0(node, sp120, sp50, NULL);
                         btlUnitSetPos(node, sp120);
                         btlUnitSetRot(node, sp50);
-                        func_00198dd0(node, 0);
-                        func_00198920(node, *(s16 *)(node + 0x9EC), 0, *(f32 *)(node + 0x9F0),
-                                      (u16)*(s8 *)(node + 0x9F4));
+                        func_00198dd0((u8 *)node, 0);
+                        func_00198920((u8 *)node, node->motion, 0, node->rate, (u16)node->option);
                     }
-                    node = *(u8 **)(node + 0xA6C);
+                    node = node->next;
                 }
             }
             return;
         }
-        if (*(u8 **)target != NULL) {
+        if (*target != NULL) {
             func_0048a150(spE0, arg0 + 0x10);
-            func_0047a1c0(*(u8 **)target, spE0, 0);
-            scale = *(f32 *)(arg0 + 0x20) * *(f32 *)(param + 0xC);
+            func_0047a1c0(*target, spE0, 0);
+            scale = *(f32 *)(arg0 + 0x20) * param->scale;
             sp130[2] = scale;
             sp130[1] = scale;
             sp130[0] = scale;
-            mdlScale(*(u8 **)target, sp130, 2);
+            mdlScale(*target, sp130, 2);
             sp130[0] = *(f32 *)(arg0 + 0);
             sp130[1] = *(f32 *)(arg0 + 4);
             sp130[2] = *(f32 *)(arg0 + 8);
-            func_0047a180((RwMatrix *)*(u8 **)target, (const RwV3d *)sp130, 2);
-            func_0047a0e0(*(u8 **)target, 0, *(f32 *)(param + 8));
-            func_00478e70(*(u8 **)target);
-            if (func_0047a510(*(u8 **)target, 0, spE0) != 0) {
+            func_0047a180((RwMatrix *)*target, (const RwV3d *)sp130, 2);
+            func_0047a0e0(*target, 0, param->unk08);
+            func_00478e70(*target);
+            if (func_0047a510(*target, 0, spE0) != 0) {
                 for (i = 0; i < 4; i++) {
-                    node = *(u8 **)(D_0072449C + i * 8 + 0x178);
+                    node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
                     while (node != NULL) {
-                        if ((btlEplUnitIsSelected((BtlEplUnit *)node, (BtlEplSelect *)param) != 0) &&
-                            (*(s32 *)(node + 0xA64) == 0 ||
-                             datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0)) {
+                        if ((btlEplUnitIsSelected(node, &param->select) != 0) &&
+                            (node->unkA64 == 0 || datCalcIsDead(node->unkA64, 0) == 0)) {
                             btlUnitSetPos(node, sp110);
                             inv = 1.0f / scale;
                             sp130[2] = inv;
@@ -1393,7 +1406,7 @@ void func_00200230(u8 *arg0) {
                             func_001ec350(sp50, sp50);
                             btlUnitSetRot(node, sp50);
                         }
-                        node = *(u8 **)(node + 0xA6C);
+                        node = node->next;
                     }
                 }
             }
