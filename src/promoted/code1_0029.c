@@ -66,7 +66,7 @@ static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
 extern u8 *MT_Scene_GetRes(s32 arg0);
-extern void func_00146630(u16 arg0);
+extern void MT_Scene_DeleteRes(u16 arg0);
 extern void func_0047ae10(u8 *arg0, s32 arg1, u8 *arg2, s32 arg3);
 extern u8 func_002a2780(s32 arg0);
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
@@ -293,7 +293,7 @@ void func_002919e0(void) {
     while (i < 3) {
         temp = (u16)(((i + 0x384) & 0x3ff) | 0xc00);
         if (MT_Scene_GetRes(temp) != 0) {
-            func_00146630(temp);
+            MT_Scene_DeleteRes(temp);
         }
         i++;
     }
