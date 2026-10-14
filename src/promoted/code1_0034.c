@@ -511,14 +511,14 @@ void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7,
                    f32 fparg3, s16 arg_sp0, s16 arg_sp8)
 {
-    u8 *temp_2;
+    u8 *handle;
 
     if (arg0 == 0)
         func_0046d730(D_0064B310, 0x94);
-    temp_2 = func_0046d200(arg0, arg1);
-    func_0034f320(temp_2, fparg0, fparg1, fparg2, arg2, arg3, arg4,
+    handle = func_0046d200(arg0, arg1);
+    func_0034f320(handle, fparg0, fparg1, fparg2, arg2, arg3, arg4,
                   arg5, arg6, arg7, arg_sp0, fparg3, arg_sp8);
-    func_0046d280(temp_2);
+    func_0046d280(handle);
 }
 /* On countdown expiry, choose a state or -1, then reset the countdown to 2..6.
    Snapshot extent before RNG, but read the other fields after it as retail does.
