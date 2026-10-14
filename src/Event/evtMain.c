@@ -86,14 +86,10 @@ extern u32 DAT_00713890;
 extern void func_00113480(s16 a, s16 b, s16 c, s16 d);
 void func_00113500(void);
 extern void func_00269c20(u16, int);
-extern void func_002866c0(void *arg0, void *arg1);
-extern void func_0028c080(void *arg0, void *arg1, s32 arg2, void *arg3, f32 *arg4, f32 *arg5);
-void func_0028bfb0(u32 node, s32 param_1, s32 *a, s32 *b);
-s32 func_00290de0(u32 *object);
-s32 func_00291360();
-u32 func_002909a0(u32 *object);
 extern f32 fGpffff815c;
 extern void func_0028d110(s32 *arg0);
+extern s32 func_00290de0(u32 *object);
+u32 func_002909a0(u32 *object);
 extern s32 DAT_007645DC;
 extern char D_0063C3F0[];
 extern char D_0063C400[];
@@ -852,14 +848,14 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
  * constant inside the loop body; retail hoists it to the preheader. */
 #pragma opt_loop_invariants on
 void func_00287ad0(int param_1, int param_2) {
-    s32 a = 0;
-    s32 b = 0;
-    u32 node = *(u32 *)(param_2 + 0x4C);
+    u8 *a = NULL;
+    u8 *b = NULL;
+    u8 *node = *(u8 **)(param_2 + 0x4C);
     while (node != 0) {
         if (*(u32 *)node == 0x22) {
             break;
         }
-        node = *(u32 *)(node + 0x90);
+        node = *(u8 **)(node + 0x90);
     }
     if (node != 0) {
         func_0028bfb0(node, param_1, &a, &b);

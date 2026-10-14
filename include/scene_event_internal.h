@@ -81,5 +81,9 @@ void func_0028f990(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3);
 void sceneLightSlotSet(s32 slot, s32 mode, s32 modeValue, f32 *arg3, f32 *arg4, f32 *arg5);
 f32 evtCommandParamF32(s32 param);
 void func_0028b270(int param_1);
+void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3);
+void func_0028c080(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3, f32 *arg4, f32 *arg5);
+void func_002866c0(u8 *arg0, u8 *arg1);
+s32 func_00291360(int param_1, int param_2);
 
 #endif

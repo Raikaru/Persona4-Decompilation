@@ -79,7 +79,7 @@ void func_00291220(int param_1, int param_2, int param_3, u64 param_4)
 
 
 // FUN_00291360
-u16 func_00291360(int param_1, int param_2)
+s32 func_00291360(int param_1, int param_2)
 {
     int lVar2;
 
