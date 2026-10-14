@@ -1,3 +1,5 @@
+#include "btl_target_state_packet_internal.h"
+#include "datPersona_internal.h"
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -8,7 +10,6 @@ extern u32 func_00104ce0(s16 arg0);
 extern u32 func_00104d50(s16 arg0);
 extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 struct GDataEntry;
-extern void (*D_00887300[])(u32 state, u32 value);
 extern s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
@@ -20,7 +21,6 @@ extern void func_001400f0(u8 *arg0);
 extern void func_00141d10(u8 *arg0);
 extern void func_001437b0(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_0010f540(s32 arg0);
-extern s32 func_0010b510(void);
 extern void func_0010b3b0(s16 arg0);
 extern s32 func_0010f6a0(s16 arg0, u32 arg1);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
@@ -78,55 +78,36 @@ typedef struct {
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0013.c; members 0013f720-0013ffd0 */
 
 /* measured: donor loop shape requires invariant hoisting for the retail preheader and loop register coloring. */
-#pragma opt_loop_invariants on
 /* measured: close the donor loop's invariant-hoisting bracket. */
-#pragma opt_loop_invariants off
 /* measured: probing O1 for retail's extra saved pointer. */
-#pragma optimization_level 1
 /* measured: closing O1 probe. */
-#pragma optimization_level 2
 /* measured: 1448B in the 1456B window.  The slot x/y reads are f32-array views
    (retail adds the row before arg0), and the last sprite pointer is a local
    loaded ahead of the alpha conversion, which needs opt_propagation off. */
 #pragma push
-#pragma opt_propagation off
 #pragma pop
 /* measured: opt_propagation off probe for func_00130c30 ordering. */
-#pragma opt_propagation off
 /* measured: close opt_propagation for func_00130c30 probe. */
-#pragma opt_propagation on
 /* measured: second 00134890 probe preserves the retail floating zero and constant materialization. */
-#pragma opt_propagation off
 /* measured: close opt_propagation for func_00134890. */
-#pragma opt_propagation on
 /* measured: loop-invariant hoisting gives 444B / 448B with only zero tail padding. */
 #pragma push
-#pragma opt_loop_invariants on
 #pragma pop
 /* measured: reconstructing the mixed-ABI palette draw pair from the matching 00130C30 shape. */
-#pragma opt_propagation off
 /* measured: close mixed-ABI palette draw pair pragma. */
-#pragma opt_propagation on
 /* measured: transfer the neighboring mixed-ABI palette branch shape. */
-#pragma opt_propagation off
 /* measured: close neighboring mixed-ABI palette branch pragma. */
-#pragma opt_propagation on
 /* measured: 1580B in the 1584B window.  Built from the matched twin
    func_00130680 (same slot views, same sprite-pointer local under
    opt_propagation off); the selected entry is a local so the compare keeps
    retail's operand order. */
 #pragma push
-#pragma opt_propagation off
 #pragma pop
 /* The call consumes a complete position and RGBA packet. Keep explicit
    views of their argument storage: b210 otherwise hoists the Y load before
    the RGB snapshots. All 176 instruction bytes and 42 sibling images match. */
-#pragma opt_propagation off
 /* measured: close family opt_propagation bracket. */
-#pragma opt_propagation on
 /* The sum's inline boundary preserves the retail column-before-row loads. */
-#pragma opt_propagation off
-#pragma opt_propagation on
 // FUN_0013F720
 s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
     u8 *spC0;
@@ -260,6 +241,7 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
    store, and a counter scoped to sprite construction close the saved floor. */
 // FUN_0013FB50
 #pragma push
+/* measured: func_0013fb50 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 void func_0013fb50(u8 *arg0) {
     s16 i;

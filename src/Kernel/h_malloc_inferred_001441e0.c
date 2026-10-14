@@ -242,7 +242,6 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
  * the corner sprite; b210 does not propagate it into the func_0034f320
  * call, so the label pointer is loaded before the stack argument. */
 #pragma push
-#pragma opt_loop_invariants on
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
     Float2_0014 xy;
@@ -274,37 +273,25 @@ extern void func_001423c0(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 
 #pragma pop
 /* measured: opt_loop_invariants on hoists the shared float conversion constants in func_00141d80. */
-#pragma opt_loop_invariants on
 /* measured: restore loop-invariant hoisting after func_00141d80. */
-#pragma opt_loop_invariants off
 /* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
-#pragma opt_loop_invariants on
 /* measured: restore loop-invariant hoisting after func_00142090. */
-#pragma opt_loop_invariants off
 /* measured: optimization level 1 plus base-before-value declaration order
    keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
-#pragma optimization_level 1
 /* measured: closes the scoped optimization-level-1 probe. */
-#pragma optimization_level 2
 /* measured: opt_propagation off probe for func_001423c0. */
-#pragma opt_propagation off
 /* measured: closes opt_propagation off probe for func_001423c0. */
-#pragma opt_propagation on
 #pragma push
-#pragma opt_loop_invariants on
 #pragma pop
 /* measured: opt_propagation off probe for func_00142bf0. */
-#pragma opt_propagation off
 /* measured: opt_loop_invariants on probe for func_00142bf0. */
-#pragma opt_loop_invariants on
 /* measured: closes opt_loop_invariants on probe for func_00142bf0. */
-#pragma opt_loop_invariants off
 /* measured: restores opt_propagation after func_00142bf0 probe. */
-#pragma opt_propagation on
 /* Keep each calendar row live across its four date queries. The third
  * query is combined with the day index before the fourth call.
  * measured: 2268 executable bytes and four zero-tail bytes, all exact. */
 #pragma push
+/* measured: func_001441e0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
 // FUN_001441E0
 s32 func_001441e0(u8 *arg0) {
