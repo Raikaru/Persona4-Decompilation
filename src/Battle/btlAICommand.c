@@ -32,13 +32,13 @@ extern u8 *func_0029d050();
 
 extern s32 func_001d9390();
 extern s32 func_00235520(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, s32 relation, s32 options, s32 channel);
-extern void func_00233bb0(u32 arg0);
+extern void datCalcClearField18(u32 arg0);
 extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
 extern s32 func_0023d8e0(u8 *unit, u16 command);
 extern s32 func_0023d6e0(s16 index);
 extern s8 func_00233a90(u8 *unit, s32 status);
-extern u32 func_0023e130(u8 *unit);
+extern u32 datCalcGetTableLength(u8 *unit);
 extern u32 func_00243920(u32 arg0);
 extern u32 *func_001d9280();
 extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
@@ -225,7 +225,7 @@ s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
         goto scan;
     return 1;
 scan:
-    count = func_0023e130(*(u8 **)(unit + 0xA64));
+    count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
     commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
     index = 0;
     limit = count;
@@ -284,7 +284,7 @@ s32 func_001db360(u8 *formation, s32 index, s32 enabled)
             if (*(u16 *)*(u8 **)(unit + 0xA64) & 0x100)
                 return 0;
         } else {
-            count = func_0023e130(*(u8 **)(unit + 0xA64));
+            count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
             commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
             i = 0;
             limit = count;
@@ -1314,8 +1314,8 @@ s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u16 u, u32 v) {
     next:
         i = (i + 1) & 0xFFFF;
     }
-    func_00233bb0(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64));
-    func_00233bb0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
+    datCalcClearField18(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64));
+    datCalcClearField18(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
     return best;
 }
 // FUN_001DD3A0
@@ -1354,8 +1354,8 @@ s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
         }
         i = (i + 1) & 0xFFFF;
     }
-    func_00233bb0(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64));
-    func_00233bb0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
+    datCalcClearField18(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64));
+    datCalcClearField18(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
     return best;
 }
 /* Recovered: retail's shape is a scoped `opt_propagation off` translation
@@ -1400,7 +1400,7 @@ s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
         buf[0] = 0;
         n++;
     }
-    limit = (u16)func_0023e130(*(u8 **)(unit0 + 0xA64));
+    limit = (u16)datCalcGetTableLength(*(u8 **)(unit0 + 0xA64));
     table = (u16 *)func_0023e140(*(u8 **)(unit0 + 0xA64));
     idx = 0;
     count = limit;
@@ -1499,7 +1499,7 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
     result = -1;
     n = 0;
     unit = *(u8 **)(arg0 + 0x30);
-    count = func_0023e130(*(u8 **)(unit + 0xA64));
+    count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
     commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
     if (datCalcIsDead(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0) != 0) {
         result = 0;
@@ -1652,7 +1652,7 @@ s32 func_001de000(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         table[0] = 0;
         n++;
     }
-    count = func_0023e130(*(u8 **)(unit + 0xA64));
+    count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
     commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
     j = 0;
     limit = count;
@@ -5245,8 +5245,8 @@ s32 func_001e6740(void) {
     s32 x = func_00235520(0, (u8 *)*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), (u8 *)*(u32 *)(*(u8 **)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
     s32 off;
     s32 sum;
-    func_00233bb0(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64));
-    func_00233bb0(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64));
+    datCalcClearField18(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64));
+    datCalcClearField18(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64));
     off = (s32)(datCalcGetHp(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64)) & 0xFFFF);
     sum = off + x;
     func_0029cf50(sum <= 0);

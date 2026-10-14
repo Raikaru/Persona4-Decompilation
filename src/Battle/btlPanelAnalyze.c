@@ -495,7 +495,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
     s32 func_00231e20(void *);
     u16 func_00231f80(void *);
     u16 func_00232290(void *);
-    u32 func_0023e130(u8 *);
+    u32 datCalcGetTableLength(u8 *);
     u8 *func_0023e140(u8 *);
     u8 *func_00243840(s32);
     s32 func_001f0950(s32, s32);
@@ -669,7 +669,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
                 u32 count;
                 u16 *cmds;
                 u32 skillIndex;
-                n = func_0023e130(*(u8 **)(unit + 0xA64)) & 0xFFFF;
+                n = datCalcGetTableLength(*(u8 **)(unit + 0xA64)) & 0xFFFF;
                 cmds = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
                 skillIndex = 0;
                 count = n & 0xFFFF;

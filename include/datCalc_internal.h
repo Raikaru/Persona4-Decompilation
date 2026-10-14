@@ -14,13 +14,15 @@ u32 datCalcGetBadStatusNoDown(int unit);
 u32 datCalcGetBadStatus(int unit);
 u32 datCalcClearBadStatus(int unit, u32 badStatus);
 u32 datCalcChkBadStatus(int unit, u32 badStatus);
-void func_00233bb0(int object);
+/* Clears the word at byte offset 0x18 of an object block. */
+void datCalcClearField18(int object);
 u32 datCalcIsSpecialItem(u16 itemId);
 u32 datCalcIsDead(int unit, s32 hpDelta);
 u32 datCalcIsLowHp(int unit);
 void datCalcInitializeCharacters(void);
 void func_00243f20(u16 characterId);
-u32 func_0023e130(u8 *unused);
+/* Returns the fixed skill-table length (8) for a unit's table. */
+u32 datCalcGetTableLength(u8 *unused);
 u16 func_00231f80(DatUnit *unit);
 u16 func_00232290(DatUnit *unit);
 
