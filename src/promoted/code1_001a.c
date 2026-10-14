@@ -705,49 +705,49 @@ void func_001a0f40(s64 *arg0)
 {
     extern void btlActionSetState(s64 *arg0, u16 arg1);
     RwV3d sp30;
-    s32 temp_7;
-    u16 var_5;
-    u16 temp_6;
-    u8 temp_3;
-    u8 *temp_16;
-    u8 *temp_2;
+    s32 tableColumn;
+    u16 moveId;
+    u16 formRow;
+    u8 unitKind;
+    u8 *battleUnit;
+    u8 *movePacket;
     u32 source_offset;
     u32 tbl;
     u32 sum;
     u32 idx4;
 
-    temp_16 = *(u8 **)((u8 *)arg0 + 0x30);
+    battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
     if (((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) &&
         ((*(u16 *)((u8 *)arg0 + 0x1A) & 1) != 0) &&
-        (temp_16[0xA2] == 0)) {
+        (battleUnit[0xA2] == 0)) {
         *(u16 *)((u8 *)arg0 + 0x14) = 9;
     }
     if (func_001b0e90(arg0) != 0) {
         btlActionSetState(arg0, *(u16 *)((u8 *)arg0 + 0x14));
         return;
     }
-    func_00194ff0(temp_16, (u8 *)&sp30, 0, NULL);
-    if (!(func_001ec250((const RwV3d *)(temp_16 + 4), &sp30) <= 75.0f)) {
-        var_5 = 2;
-        temp_7 = (u16)(!(iGpffffb3b8[
+    func_00194ff0(battleUnit, (u8 *)&sp30, 0, NULL);
+    if (!(func_001ec250((const RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
+        moveId = 2;
+        tableColumn = (u16)(!(iGpffffb3b8[
             (*(u16 *)((u8 *)arg0 + 0x6E) * 0x28)] & 2));
-        temp_6 = *(u16 *)(*(u8 **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA64) + 2);
-        temp_3 = *(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2);
-        switch (temp_3) {
+        formRow = *(u16 *)(*(u8 **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA64) + 2);
+        unitKind = *(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2);
+        switch (unitKind) {
         case 0:
             break;
         case 1:
             tbl = (u32)iGpffffb3cc;
-            source_offset = (u32)temp_6 * 0xE8;
+            source_offset = (u32)formRow * 0xE8;
             sum = source_offset + tbl;
-            idx4 = (u16)temp_7 * 4;
-            var_5 = *(u16 *)(idx4 + sum + 0x24);
+            idx4 = (u16)tableColumn * 4;
+            moveId = *(u16 *)(idx4 + sum + 0x24);
             break;
         }
-        temp_2 = (u8 *)btlUnitCreateMovePacket(
-            *(BtlUnit **)((u8 *)arg0 + 0x30), &sp30, D_005F6D20[var_5 & 0xFFFF], 0);
-        *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-        func_00194590(temp_2, 1);
+        movePacket = (u8 *)btlUnitCreateMovePacket(
+            *(BtlUnit **)((u8 *)arg0 + 0x30), &sp30, D_005F6D20[moveId & 0xFFFF], 0);
+        *(s64 *)(movePacket + 0x60) = *(s64 *)arg0;
+        func_00194590(movePacket, 1);
         return;
     }
     btlActionSetState(arg0, *(u16 *)((u8 *)arg0 + 0x14));
