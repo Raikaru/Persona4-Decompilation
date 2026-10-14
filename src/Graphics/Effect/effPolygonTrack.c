@@ -38,11 +38,11 @@ extern void func_00484350(void *arg0, void *arg1, void *arg2, f32 arg3);
 extern void func_00487fb0(void *arg0, f32 arg1);
 extern void func_00495090(void *arg0, u32 arg1);
 extern void func_00492d10(void *arg0);
-extern s32 func_00494710(void *arg0, u16 arg1);
+extern s32 mdlEffectSlotIsFree(void *arg0, u16 arg1);
 extern void func_00494740(void *arg0, u16 arg1, void *arg2, f32 arg3);
 extern void func_004940d0(void *arg0, u16 arg1, void *arg2);
-extern void func_004946f0(void *arg0, u16 arg1);
-extern void func_004946d0(void *arg0, u16 arg1);
+extern void mdlEffectSlotRelease(void *arg0, u16 arg1);
+extern void mdlEffectSlotSetZero(void *arg0, u16 arg1);
 extern void func_00494f90(void *arg0);
 extern void func_00494ff0(void *arg0);
 extern u8 *func_00483e10(u16 arg0, u16 arg1, void *arg2, s32 arg3, s32 arg4);
@@ -465,14 +465,14 @@ void func_004938e0(u8 *arg0)
     owner = *(u8 **)(arg0 + 0x28);
     func_00494f90(owner);
     for (i = 0; i < count; i++, entry += 0x20) {
-        if (func_00494710(owner, i) != 0) {
+        if (mdlEffectSlotIsFree(owner, i) != 0) {
             continue;
         }
         mode = *(s32 *)(entry + 0x10);
         if (mode == -2) {
             func_00494740(owner, i, D_00922D80, 0.0f);
             func_004940d0(owner, i, &iGpffffbb64);
-            func_004946f0(owner, i);
+            mdlEffectSlotRelease(owner, i);
             continue;
         }
         if (mode == -1) {
@@ -484,7 +484,7 @@ void func_004938e0(u8 *arg0)
 clear_entry:
         func_00494740(owner, i, D_00922D80, 0.0f);
         func_004940d0(owner, i, &iGpffffbb64);
-        func_004946d0(owner, i);
+        mdlEffectSlotSetZero(owner, i);
         continue;
 draw_entry:
         sp80[0] = *(f32 *)(entry + 0);
