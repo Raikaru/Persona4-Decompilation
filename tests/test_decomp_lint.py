@@ -1150,6 +1150,18 @@ class DeclarationContractTests(unittest.TestCase):
         text = "typedef struct { f32 x, y; } FclVec2;\nextern FclVec2 func_002b2970(f32, f32);\n"
         self.assertIn("H011", self.run_with_defs(text, {"func_002b2970": ("void", ("ptr", "f32", "f32"))}))
 
+    def test_fires_on_renamed_function(self) -> None:
+        text = "extern s8 fclMiscHandleState(s32 slot);\n"
+        self.assertIn("H011", self.run_with_defs(text, {"fclMiscHandleState": ("s32", ("s32",))}))
+
+    def test_control_keywords_are_not_declarations(self) -> None:
+        text = ("void f(s32 x) {\n"
+                "    if (x);\n"
+                "    while (x);\n"
+                "}\n")
+        defs = {name: ("void", ()) for name in ("if", "while")}
+        self.assertNotIn("H011", self.run_with_defs(text, defs))
+
     def test_type_spellings_are_not_reported(self) -> None:
         text = ("typedef struct { f32 x, y; } f2;\n"
                 "extern int func_00100000(char *name, float scale, f2 pos);\n")
