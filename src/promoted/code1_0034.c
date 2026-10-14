@@ -395,38 +395,38 @@ void func_0034edc0(void)
 // FUN_0034EE90
 void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
 {
-    f32 temp_f1;
-    f32 temp_f0;
-    f32 temp_f23;
-    f32 temp_f22;
-    f32 temp_f21;
-    f32 temp_f20;
-    f32 var_f1;
-    u8 temp_3;
-    u8 *temp_17;
-    u8 *temp_16;
+    f32 alpha;
+    f32 x;
+    f32 delta;
+    f32 invScale;
+    f32 baseY;
+    f32 baseX;
+    f32 levelF;
+    u8 level;
+    u8 *unit;
+    u8 *layers;
 
-    temp_3 = (u8)((u8)(*(u8 *)(arg0 + 0x994)));
-    var_f1 = (f32)(u32)temp_3;
-    temp_f1 = var_f1 / 255.0f;
-    temp_17 = (u8 *)(arg0);
-    temp_f20 = fparg0;
+    level = (u8)((u8)(*(u8 *)(arg0 + 0x994)));
+    levelF = (f32)(u32)level;
+    alpha = levelF / 255.0f;
+    unit = (u8 *)(arg0);
+    baseX = fparg0;
     if (!(fparg2 <= 0.0f)) {
-        temp_f23 = D_008872F8[0] - D_0088467C[0];
-        temp_f22 = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
-        temp_16 = temp_17 + 0x790;
-        *(s32 *)(temp_17 + 0x990) = 1;
-        temp_f21 = 448.0f + fparg1;
-        temp_f0 = temp_f20 - 208.0f;
-        temp_f0 += *(f32 *)(temp_17 + 0x99C);
-        func_0034f0d0(temp_16, temp_f0, temp_f21 + *(f32 *)(temp_17 + 0x9A0), temp_f23, temp_f22, 0xFF, 0xE9, 0x36, 0);
-        temp_f20 = 640.0f + (f32)temp_f20;
-        temp_f1 = 51.0f * fparg2 * (f32)temp_f1;
-        func_0034f0d0(temp_16 + 0x40, temp_f20 + *(f32 *)(temp_17 + 0x99C), temp_f21 + *(f32 *)(temp_17 + 0x9A0), temp_f23, temp_f22, 0xFF, 0xE9, 0x36, (u8)temp_f1);
-        func_0034f0d0(temp_16 + 0x80, temp_f20 + *(f32 *)(temp_17 + 0x99C), fparg1 + *(f32 *)(temp_17 + 0x9A0), temp_f23, temp_f22, 0xFF, 0xE9, 0x36, 0);
+        delta = D_008872F8[0] - D_0088467C[0];
+        invScale = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
+        layers = unit + 0x790;
+        *(s32 *)(unit + 0x990) = 1;
+        baseY = 448.0f + fparg1;
+        x = baseX - 208.0f;
+        x += *(f32 *)(unit + 0x99C);
+        func_0034f0d0(layers, x, baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
+        baseX = 640.0f + (f32)baseX;
+        alpha = 51.0f * fparg2 * (f32)alpha;
+        func_0034f0d0(layers + 0x40, baseX + *(f32 *)(unit + 0x99C), baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, (u8)alpha);
+        func_0034f0d0(layers + 0x80, baseX + *(f32 *)(unit + 0x99C), fparg1 + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
         return;
     }
-    *(s32 *)(temp_17 + 0x990) = 0;
+    *(s32 *)(unit + 0x990) = 0;
 }
 // FUN_0034F0D0
 void func_0034f0d0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
