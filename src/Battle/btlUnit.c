@@ -1,6 +1,7 @@
 #include "btl_motion_internal.h"
 #include "type.h"
 #include "model_callbacks_internal.h"
+#include "btl_unit_internal.h"
 
 extern u16 btlFindFreeCharResId(void);
 
@@ -33,56 +34,8 @@ extern f32 D_007614c0;
 #define BTLUNIT_FLAG2_DIRTY (1 << 2)
 #define BTLUNIT_FLAG3_NOROT (1 << 13)
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
 extern RwV3d D_0060A0F0;
 
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
-typedef struct RwRGBA RwRGBA;
-struct RwRGBA
-{
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-};
-
-typedef struct BtlUnit BtlUnit;
-struct BtlUnit
-{
-    u16 flags;
-    u16 _pad04;
-    RwV3d pos;
-    u8 _pad10[0xc];
-    RtQuat rot;
-    f32 scale;
-    RwRGBA cols[1];
-    u8 _pad34[0x4c];
-    RwV3d sphereCenter;
-    f32 unk_8c;
-    f32 sphereRadius;
-    s16 unk_94;
-    s16 unk_96;
-    u32 flags2;
-    u32 flags3;
-    u16 packetCount;
-    u8 _padA2[0x22];
-    u32 stateFlags;
-    u16 movementFlags;
-};
 
 typedef struct BtlUnitPacketMove BtlUnitPacketMove;
 struct BtlUnitPacketMove

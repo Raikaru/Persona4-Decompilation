@@ -1,16 +1,9 @@
 #include "btl_motion_internal.h"
 /* Source unit: src/Battle/btlCamera_001bc3a0.c */
 #include "include_asm.h"
+#include "btl_action_internal.h"
 #include "type.h"
 #include "btl_skill_internal.h"
-
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
 
 typedef struct P4Vec4_001EC2B0 { f32 x, y, z, w; } P4Vec4_001EC2B0;
 typedef struct P4Vec4Holder_001EC2B0 { P4Vec4_001EC2B0 quat; } P4Vec4Holder_001EC2B0;
@@ -23,27 +16,16 @@ typedef struct P4CameraBlend {
 typedef struct P4CameraVec2 { f32 x, y; } P4CameraVec2;
 
 
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
 extern f32 fabsf(f32 x);
 extern RwV3d D_0060A0F0;
 RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
 
-typedef struct BtlUnit BtlUnit;
 typedef struct BtlCamera BtlCamera;
 
 s16 func_00198810(BtlUnit* unit);
 s16 func_00199830(BtlUnit* unit);
 
-typedef struct BtlAction BtlAction;
 typedef struct BtlUnitStateWork BtlUnitStateWork;
 
 typedef struct BtlCameraPacketSetState
@@ -169,20 +151,6 @@ typedef struct F32Vec4
     f32 z;
     f32 w;
 } F32Vec4;
-struct BtlUnit
-{
-    u8 _pad00[0x1c];
-    RtQuat rot;        // 0x1c
-    f32 scale;         // 0x2c
-    u8 _pad30[0x5c];
-    f32 unk_8c;        // 0x8c
-    f32 sphereRadius;  // 0x90
-};
-struct BtlAction
-{
-    u8 _pad00[0x30];
-    BtlUnit* unit; // 0x30
-};
 struct BtlCamera
 {
     u8 _pad00[0xb8];
