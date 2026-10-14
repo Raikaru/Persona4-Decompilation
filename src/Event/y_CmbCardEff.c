@@ -68,7 +68,7 @@ void func_004b1250(s32, u8 *);
 void func_004b1290(s32, f32, f32, f32);
 void func_004b13d0(s32, f32);
 void func_004b13f0(s32, u8 *);
-s32 func_004b1520(s32);
+s32 func_004b1520(u8 *);
 extern u8 D_005DC7D0[];
 
 
@@ -1795,7 +1795,7 @@ s32 func_00348330(u8 *arg0) {
         {
             s32 lim = *(s32 *)(obj + 0x10);
             if (lim == -1) {
-                if (func_004b1520(*(s32 *)(obj + 8)) == 0) {
+                if (func_004b1520(*(u8 **)(obj + 8)) == 0) {
                     *(s8 *)(obj + 4) = 3;
                 }
             } else {

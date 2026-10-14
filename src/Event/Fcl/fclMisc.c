@@ -31,7 +31,7 @@ extern s32 func_002774d0(u8 *);
 extern s32 func_00278610(s32, s16);
 extern void func_00278170(s32, s32);
 extern s32 func_002778c0(s32, s32, s32);
-extern u8 *func_002e1db0(s32, s32, s32, s32);
+extern u8 *func_002e1db0(s32, int (*)(), int (*)(), int (*)());
 
 extern u8 D_0063F398[];
 extern u8 D_00882F30[];
@@ -45,7 +45,7 @@ extern void fclMiscUpdateHandle(int *);
 extern u32 fclMiscCloseHandle();
 extern void fclMiscSetWord14();
 extern void func_002e22f0();
-extern void func_002bcbc0();
+extern s32 func_002bcbc0(u8 *, s32);
 extern s32 func_002bc890(u8 *, s32);
 extern s32 func_002bc9e0(u8 *);
 extern s32 func_002bcfb0(u8 *, u8 *);
