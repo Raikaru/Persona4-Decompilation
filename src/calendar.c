@@ -21,7 +21,7 @@ extern void func_0044ea90(u8 *file, s32 line);
 extern s32 func_00120f70(u8 *task);
 extern void func_00121170(u8 *task);
 extern s32 func_001211a0(u8 *task);
-extern s32 func_00121690(u8 *task);
+extern s32 calendarDraw(u8 *task);
 extern s32 func_001104a0(s32 arg0);
 extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
 extern u8 func_001060c0(void);
@@ -44,8 +44,9 @@ extern u8 D_005E5028[];
 
 
 
+/* Opens the calendar view and clears the mode flag D_007242B8. */
 // FUN_001211B0
-void func_001211b0(void)
+void calendarOpenFlagClear(void)
 {
     u8 *work;
     s32 handle;
@@ -60,14 +61,16 @@ void func_001211b0(void)
     }
 }
 
+/* Reports whether the calendar view task is open. */
 // FUN_00121280
-s32 func_00121280(void)
+s32 calendarIsOpen(void)
 {
     return (s32)(func_00452380(D_005E4FE8) != 0);
 }
 
+/* Closes the calendar view task, asserting when it is not open. */
 // FUN_001212B0
-void func_001212b0(void)
+void calendarClose(void)
 {
     s32 handle = func_00452380(D_005E4FE8);
 
@@ -77,8 +80,9 @@ void func_001212b0(void)
     func_00452080(handle);
 }
 
+/* Input task update: cancel, confirm, and date/month cursor moves. */
 // FUN_00121310
-s32 func_00121310(u8 *arg0)
+s32 calendarInputUpdate(u8 *arg0)
 {
     s32 month;
     s32 day;
@@ -164,19 +168,21 @@ s32 func_00121310(u8 *arg0)
     }
     return 0;
 }
+/* Input task release: clears the shared draw work pointer and frees the work block. */
 // FUN_00121660
-void func_00121660(u8 *arg0)
+void calendarInputRelease(u8 *arg0)
 {
     void *p = *(void **)((u8 *)arg0 + 0x38);
     D_007242B4 = 0;
     jtbl_008873EC[0](p);
 }
 
+/* Draw task update: draws the calendar grid and day numbers for the current date. */
 /* Measured: 688 bytes and 17 resolved relocations. Packed positions retain
  * both coordinate components; the formatter consumes a genuine vararg list.
  * Keep the loop bound live and reuse the selected row offset across queries. */
 // FUN_00121690
-s32 func_00121690(u8 *unusedTask)
+s32 calendarDraw(u8 *unusedTask)
 {
     s32 month, day;
     u8 color[4];
@@ -219,8 +225,9 @@ s32 func_00121690(u8 *unusedTask)
     return 0;
 }
 
+/* Creates the input and draw tasks over one work block; returns the input task handle. */
 // FUN_00121940
-s32 func_00121940(void)
+s32 calendarStart(void)
 {
     s32 handle;
     u8 *work;
@@ -230,14 +237,15 @@ s32 func_00121940(void)
     if (work == NULL) {
         return 0;
     }
-    handle = (s32)func_00451de0((const void *)(D_005E5038), 0x100, 0, 0, func_00121310, func_00121660, (u8 *)(work));
+    handle = (s32)func_00451de0((const void *)(D_005E5038), 0x100, 0, 0, calendarInputUpdate, calendarInputRelease, (u8 *)(work));
     D_007242B4 = (s32)work;
-    (s32)func_00451fc0((void *)(handle), (const void *)(D_005E5050), 0x101, 0, 0, func_00121690, 0, (u8 *)(NULL));
+    (s32)func_00451fc0((void *)(handle), (const void *)(D_005E5050), 0x101, 0, 0, calendarDraw, 0, (u8 *)(NULL));
     return handle;
 }
 
+/* Opens the calendar view and sets the mode flag D_007242B8 to 1. */
 // FUN_00121A20
-void func_00121a20(void)
+void calendarOpenFlagSet(void)
 {
     u8 *work;
     s32 handle;

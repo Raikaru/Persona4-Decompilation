@@ -173,8 +173,8 @@ Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
 | 22 | WEAPON STORE | `func_00103200`, which calls `func_002bdb50` (`src/Event/Fcl/y_fclShop.c`) | Polls `Y_FclShopMainProc` |
 | 23 | ITEM STORE | `func_001032c0`, which calls `func_002e7510` | Polls `46ShopSystem` |
 | 24 | COMBINE | `func_00103380`, which calls `func_00311260` (`src/Event/Fcl/y_fclCombine.c`) | Polls `Y_FclCombineTitleProc` |
-| 25 | CALENDAR MAIN | `func_001211b0` (`src/calendar.c`) | Section 10 |
-| 26 | CALENDAR (RESTART) | `func_00121a20` (`src/calendar.c`) | |
+| 25 | CALENDAR MAIN | `calendarOpenFlagClear` (`src/calendar.c`) | Section 10 |
+| 26 | CALENDAR (RESTART) | `calendarOpenFlagSet` (`src/calendar.c`) | |
 | 27 | START GAME | `func_00124240` (`src/Main/gameSequence.c`) | Task `"gameSequence"` with update `clndSceneUpdate` |
 | 28 | NAME ENTRY | `func_00103510`, which calls `func_002a2650` (`src/nEntry.c`) | |
 | 29 | MOVIE | `func_00103440`, which calls `func_0046a110` | Also requested by a script command in `src/Script/scrCommonCommand.c` |
@@ -687,7 +687,7 @@ days since 5 April) and `clndIsDateInRange`.
 
 ### The day loop
 
-Sequence 25, **CALENDAR MAIN**, is `src/calendar.c` `func_001211b0`. It
+Sequence 25, **CALENDAR MAIN**, is `src/calendar.c` `calendarOpenFlagClear`. It
 creates the `"Calendar"` task with update `func_00120f70` in
 `src/promoted/code1_0012.c`, plus a `"CalendarDraw"` child. `func_00120f70`
 advances time. Period 5 rolls over to period 0 of the next day. On days
@@ -709,7 +709,7 @@ It then calls `func_00260450` in `src/cldScheduler.c` and ends.
 per date and period, and those procedures move the player into field,
 dungeon, event and battle sequences through script commands (section 9).
 
-`func_00121310` in `calendar.c` is an interactive date picker that requests
+`calendarInputUpdate` in `calendar.c` is an interactive date picker that requests
 sequence 26 on a button press. **[inferred]** It is a debug tool.
 `src/cldDayChange.c` and `src/cldDungeonIn.c` are further calendar units
 and are unnamed.

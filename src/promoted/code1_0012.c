@@ -1504,7 +1504,7 @@ s32 clndSceneUpdate(u8 *arg0)
     extern s32 func_0012c110(void);
     extern s32 func_0012c1a0(s32 arg0);
     extern s32 func_0046a110(void *arg0, s32 arg1, void *arg2);
-    extern void func_00121940(void);
+    extern void calendarStart(void);
     extern void func_00122640(s32 arg0, s32 arg1);
     extern s32 func_0012b760(void);
     extern s32 func_0012b810(s32 arg0);
@@ -1632,7 +1632,7 @@ s32 clndSceneUpdate(u8 *arg0)
         goto state_done;
     state4:
         func_001238c0(1);
-        func_00121940();
+        calendarStart();
         func_00122640(0, 1);
         *(u32 *)temp_16 = 8;
         goto state_done;
