@@ -39,12 +39,19 @@ typedef struct DatUnitEc
 } DatUnitEc;
 
 /* Battle unit table accessors defined in datUnit.c. */
-DatUnitPc* func_00231580(u16 pcId);
-DatUnitEc* func_00231630(u16 encountId);
-DatUnit* func_002317a0(DatUnitEc* ec, u16 id);
-void func_002318c0(DatUnitEc* ec, DatUnit* unit);
-void func_002319c0(s32 arg0);
-u32 func_002319f0(DatUnitGenusBase* genusBase);
-u32 func_00231af0(DatUnit* unit, u8 genus, u16 id);
+/* Allocates and fills the PC unit record for pcId. */
+DatUnitPc* datUnitCreatePc(u16 pcId);
+/* Allocates an encounter group and fills its enemy slots from the encount table. */
+DatUnitEc* datUnitCreateEncounterGroup(u16 encountId);
+/* Places id into the first free slot of ec and returns that unit. */
+DatUnit* datUnitAddEncounterUnit(DatUnitEc* ec, u16 id);
+/* Clears the slot holding unit and decrements the group count. */
+void datUnitRemoveEncounterUnit(DatUnitEc* ec, DatUnit* unit);
+/* Releases a block through the battle heap free jump table. */
+void datUnitFree(s32 arg0);
+/* Returns 1 when every occupied unit in the group is dead. */
+u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase);
+/* Initialises a unit from the enemy table (EC) or clears PC flags, then sets its id. */
+u32 datUnitInit(DatUnit* unit, u8 genus, u16 id);
 
 #endif

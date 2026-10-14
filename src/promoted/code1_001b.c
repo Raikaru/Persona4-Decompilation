@@ -207,7 +207,7 @@ extern BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
 extern void func_0019d550(u8 *arg0);
 extern void func_001b08f0(void *arg0);
 extern void func_001bc800(u8 *arg0);
-extern void func_002318c0(DatUnitEc *arg0, DatUnit *arg1);
+extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
 extern void func_001bdd60(void);
 extern u8 *func_00105510(s16 arg0);
 extern u16 *func_0010a900(u16 arg0);
@@ -511,7 +511,7 @@ void func_001b05d0(u8 *arg0)
             break;
         case 1:
             if (datCalcIsDead(*(s32 *)(p + 0xA64), 0) != 0) {
-                func_002318c0(*(DatUnitEc **)((u8 *)iGpffffb3ac + 0xC68),
+                datUnitRemoveEncounterUnit(*(DatUnitEc **)((u8 *)iGpffffb3ac + 0xC68),
                               *(DatUnit **)(*(u8 **)(arg0 + 0x30) + 0xA64));
             }
             break;

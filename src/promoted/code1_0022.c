@@ -4241,7 +4241,7 @@ void func_0022b120(u8 *action)
 s32 func_0022b870(u8 *arg0)
 {
     extern void func_0019ea60(u8 *arg0, s32 arg1);
-    extern u32 func_00231af0(DatUnit *unit, u8 genus, u16 id);
+    extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
     extern s32 func_001b0d70(u8 *arg0);
     extern s32 func_001b1540(void);
     extern void func_0022fdc0(u8 *arg0);
@@ -4256,7 +4256,7 @@ s32 func_0022b870(u8 *arg0)
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
         *(s32 *)(DAT_0076449c + 0xC) &= 0xFFF7FFFF;
         func_0019ea60(*(u8 **)(arg0 + 0x30), 0x10E);
-        func_00231af0((DatUnit *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)), 1, 0x10E);
+        datUnitInit((DatUnit *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)), 1, 0x10E);
         func_00106390(0x15FF, 1);
         *(u8 **)(DAT_0076449c + 0xB98) = &D_00630C50[0];
         *(s32 *)(DAT_0076449c + 0xC40) = 1;

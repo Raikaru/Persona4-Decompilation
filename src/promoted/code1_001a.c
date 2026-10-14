@@ -6110,7 +6110,7 @@ void func_001abbb0(s64 *arg0)
     extern BtlPacket *func_001b9360(s32 arg0, s16 arg1);
     extern BtlPacket *func_001b99a0(s32 arg0);
     extern s32 func_001f68e0(u8 *arg0);
-    extern DatUnit *func_002317a0(DatUnitEc *encounter, u16 id);
+    extern DatUnit *datUnitAddEncounterUnit(DatUnitEc *encounter, u16 id);
     extern u8 *iGpffffb3bc;
     typedef struct UnitView {
         u8 unknown00[4];
@@ -6288,7 +6288,7 @@ void func_001abbb0(s64 *arg0)
         }
         loopPkt = func_0019f5f0(1, curId, NULL);
         unit = ((UnitReference *)(loopPkt + 0x30))->pointer;
-        unit->data = func_002317a0(*(DatUnitEc **)(iGpffffb3ac + 0xC68), curId);
+        unit->data = datUnitAddEncounterUnit(*(DatUnitEc **)(iGpffffb3ac + 0xC68), curId);
         func_0019ea60((u8 *)unit, curId & 0xFFFF);
         unit->value94 = action->unitRef.pointer->value94;
         unit->value96 = action->unitRef.pointer->value96;

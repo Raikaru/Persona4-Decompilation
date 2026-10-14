@@ -24,7 +24,7 @@ typedef struct P4_95730_Bytes4 {
     u8 w;
 } P4_95730_Bytes4;
 typedef struct DatUnit DatUnit;
-extern u32 func_00231af0(DatUnit *unit, u8 genus, u16 id);
+extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
 
 extern void func_00106390(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
@@ -57,8 +57,8 @@ extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern s32 datGetPartyId(s32 arg0);
-extern s32 func_00231580(s32 arg0);
-extern s32 func_00231630(s32 arg0);
+extern s32 datUnitCreatePc(s32 arg0);
+extern s32 datUnitCreateEncounterGroup(s32 arg0);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern u8 *iGpffffb3e0;
 extern s32 iGpffffb430;
@@ -290,7 +290,7 @@ extern void func_00452080(s32 arg0);
 extern s32 func_00192cd0(void);
 extern void func_00194a30(void);
 extern void func_0019d670(void);
-extern void func_002319c0(s32 arg0);
+extern void datUnitFree(s32 arg0);
 extern void func_003ef3a0(s32 arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void func_0044ea90(void *arg0, s32 arg1);
@@ -529,21 +529,21 @@ s32 func_00192cd0(void)
             base = (s32 *)iGpffffb3ac;
             temp = *(s32 *)((s32)base + (i & 0xFFFF) * 4 + 0xC74);
             if (temp != 0) {
-                func_002319c0(temp);
+                datUnitFree(temp);
             }
         }
         for (i = 0; (u16)i < 3; i = (u16)(i + 1)) {
             base = (s32 *)iGpffffb3ac;
             temp = *(s32 *)((s32)base + (i & 0xFFFF) * 4 + 0xC84);
             if (temp != 0) {
-                func_002319c0(temp);
+                datUnitFree(temp);
             }
         }
         for (i = 0; (u16)i < (u32)3; i = (u16)(i + 1)) {
             base = (s32 *)iGpffffb3ac;
             temp = *(s32 *)((s32)base + (i & 0xFFFF) * 8 + 0xC94);
             if (temp != 0) {
-                func_002319c0(temp);
+                datUnitFree(temp);
             }
         }
     }
@@ -711,14 +711,14 @@ s32 func_001932f0(void)
     temp_17 = func_0029cc00(0) & 0xFFFF;
     temp_16 = (u8 *)(iGpffffb414 + (temp_17 * 0x18));
     memset(sp50, 0, 0x3C);
-    *(s32 *)(sp50 + 4) = func_00231580(1);
+    *(s32 *)(sp50 + 4) = datUnitCreatePc(1);
     var_18 = 1;
     var_19 = 0;
     goto loop_5_check;
 loop_5_body:
     temp_4_2 = datGetPartyId(temp_4) & 0xFFFF;
     if ((temp_4_2 != 0) && (var_18 < 4)) {
-        ((s32 *)(sp50 + 4))[var_18++] = func_00231580(temp_4_2);
+        ((s32 *)(sp50 + 4))[var_18++] = datUnitCreatePc(temp_4_2);
     }
     var_19 = (var_19 + 1) & 0xFFFF;
 loop_5_check:
@@ -726,7 +726,7 @@ loop_5_check:
     if (temp_4 < 4) {
         goto loop_5_body;
     }
-    *(s32 *)(sp50 + 0x14) = func_00231630(temp_17);
+    *(s32 *)(sp50 + 0x14) = datUnitCreateEncounterGroup(temp_17);
     temp_3 = *(u16 *)(temp_16 + 0x12);
     if ((temp_3 == 0) && (*(u16 *)(temp_16 + 0x14) == 0)) {
         *(u16 *)(sp50 + 0x20) = 0xF0;
@@ -4655,7 +4655,7 @@ void func_0019ea60(u8 *arg0, s32 arg1)
     switch (temp_4) {
     case 0:
         *(s16 *)(*(u8 **)(arg0 + 0xA64) + 2) = temp_6;
-        func_00231af0((DatUnit *)*(u8 **)(arg0 + 0xA64), 0, temp_6);
+        datUnitInit((DatUnit *)*(u8 **)(arg0 + 0xA64), 0, temp_6);
         temp_4_2 = arg1 * 0x14C;
         temp_2 = *(u16 *)((u8 *)((u32)temp_4_2 + (u32)iGpffffb3c0) + 0x14);
         var_f1 = (f32)(u32)temp_2;
