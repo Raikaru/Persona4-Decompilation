@@ -3,19 +3,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_target_state_packet_internal.h"
-
-typedef struct BtlUnit {
-    u8 padding_00[0xa0];
-    u16 packetCount; // 0xa0
-    u8 genus;        // 0xa2
-} BtlUnit;
-
-typedef struct BtlAction {
-    u8 padding_00[0x28];
-    u8 unk_28; // 0x28
-    u8 padding_29[7];
-    BtlUnit* unit; // 0x30
-} BtlAction;
+#include "btl_action_internal.h"
 
 typedef struct BtlTarget {
     BtlAction* targetedActions[12]; // 0x00
