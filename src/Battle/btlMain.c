@@ -31,7 +31,7 @@ BtlPacket* func_00194470(u32 type, u32 workSize);
 extern u32 func_001b7520(void* work);
 extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
 
-u32 func_001b7b30(void* work);
+u32 btlMainUpdateCameraLerp(void* work);
 typedef struct BtlMainColorWork BtlMainColorWork;
 extern u32 func_001b7e70(BtlMainColorWork* param_1); /* retail update target */
 u32 func_001b87e0(void* work);
@@ -74,9 +74,9 @@ typedef struct BtlMainSlerpResult
     f32 angle;
     s32 mode;
 } BtlMainSlerpResult;
-u32 func_001b96e0(void* work);
+u32 btlMainUpdateColorFade(void* work);
 u32 func_001b99f0(void* work);
-u32 func_001b9e50(void* work);
+u32 btlMainUpdateUnitAlphaFade(void* work);
 
 extern u8 *func_003bb4a0(u8 *spline, s32 index, f32 *position);
 
@@ -171,7 +171,7 @@ u32 btlMainUpdateStateExit(void* work)
 
 
 // FUN_001B7880
-BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
+BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3)
 {
     float *color;
     BtlPacket *packet;
@@ -198,7 +198,7 @@ BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
 /* measured: opt_propagation off preserves the retail grouped first-vector products. */
 #pragma opt_propagation off
 // FUN_001B7B30
-u32 func_001b7b30(void* work)
+u32 btlMainUpdateCameraLerp(void* work)
 {
     BtlMainLerpWork* lerpWork;
     u8* global;
@@ -281,15 +281,15 @@ u32 func_001b7b30(void* work)
     lerpWork->currentFrame++;
     return 0;
 }
-/* measured: restore propagation after func_001b7b30. */
+/* measured: restore propagation after btlMainUpdateCameraLerp. */
 #pragma opt_propagation on
 // FUN_001B7E20
-BtlPacket* func_001b7e20(u32 value)
+BtlPacket* btlCreateTimingPacket(u32 value)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x601, 0x28);
-    packet->updateFunc = func_001b7b30;
+    packet->updateFunc = btlMainUpdateCameraLerp;
     *(u32*)((u8*)packet->workData + 0x20) = value;
     return packet;
 }
@@ -772,7 +772,7 @@ u32 func_001b87e0(void *workRaw)
 }
 #pragma pop
 // FUN_001B9360
-BtlPacket* func_001b9360(s32 arg, s16 mode)
+BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
 {
     BtlPacket* packet;
     u8* work;
@@ -788,7 +788,7 @@ BtlPacket* func_001b9360(s32 arg, s16 mode)
 
 
 // FUN_001B93C0
-u8 func_001b93c0(BtlMainLerpWork* param_1)
+u8 btlMainUpdateTintLerp(BtlMainLerpWork* param_1)
 {
     f32 currentFloat;
     f32 totalFloat;
@@ -831,13 +831,13 @@ u8 func_001b93c0(BtlMainLerpWork* param_1)
     return 0;
 }
 // FUN_001B9560
-BtlPacket* func_001b9560(u32 param_1, u32 param_2)
+BtlPacket* btlMainCreateTintPacket(u32 param_1, u32 param_2)
 {
     float *color;
     u32 packed;
     int packet;
     packet = (int)func_00194470(0x604, 0x28);
-    *(code **)(packet + 0x6c) = (code *)func_001b93c0;
+    *(code **)(packet + 0x6c) = (code *)btlMainUpdateTintLerp;
     color = *(float **)(packet + 0x78);
     packed = param_1;
     color[0] = fGpffff81f4 * (float)((u8*)&packed)[0];
@@ -852,7 +852,7 @@ BtlPacket* func_001b9560(u32 param_1, u32 param_2)
 /* measured: opt_common_subs off preserves the retail per-component scale reloads. */
 #pragma opt_common_subs off
 // FUN_001B96E0
-u32 func_001b96e0(void* work)
+u32 btlMainUpdateColorFade(void* work)
 {
     BtlMainColorFadeWork* colorWork;
     f32 currentFloat;
@@ -901,15 +901,15 @@ u32 func_001b96e0(void* work)
     colorWork->currentFrame++;
     return 0;
 }
-/* measured: restore common-subexpression optimization after func_001b96e0. */
+/* measured: restore common-subexpression optimization after btlMainUpdateColorFade. */
 #pragma opt_common_subs on
 // FUN_001B99A0
-BtlPacket* func_001b99a0(s32 arg)
+BtlPacket* btlMainCreateColorFadePacket(s32 arg)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x605, 0x18);
-    packet->updateFunc = func_001b96e0;
+    packet->updateFunc = btlMainUpdateColorFade;
     *(s32*)((u8*)packet->workData + 0x10) = arg;
     return packet;
 }
@@ -1076,7 +1076,7 @@ BtlPacket* func_001b9de0(struct BtlAction *action, u32 selector, u32 duration)
 
 
 // FUN_001B9E50
-u32 func_001b9e50(void* work)
+u32 btlMainUpdateUnitAlphaFade(void* work)
 {
     RwRGBA color;
     f32 temp_f1;
@@ -1140,12 +1140,12 @@ u32 func_001b9e50(void* work)
     return result;
 }
 // FUN_001BA090
-BtlPacket* func_001ba090(s32 arg)
+BtlPacket* btlMainCreateColorSetPacket(s32 arg)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x607, 8);
-    packet->updateFunc = func_001b9e50;
+    packet->updateFunc = btlMainUpdateUnitAlphaFade;
     *(s32*)packet->workData = arg;
     return packet;
 }

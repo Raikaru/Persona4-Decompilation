@@ -157,7 +157,7 @@ u8 *func_00194b60(void);
 extern BtlPacket *func_001d3900(u16 arg0);
 extern u8 *func_0019e9f0(u8 *unit, s16 value);
 extern BtlPacket *func_001d3d00(u32 action);
-BtlPacket *func_001ba090(s32 arg0);
+BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 BtlPacket *func_001d7a10(u16 mode);
 u8 *func_00201f20(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
@@ -394,7 +394,7 @@ loop_test:
             }
         }
         if (*(u16 *)(D_0076449C + 0x18) & 0x10) {
-            effectPacket = (u8 *)func_001ba090(0);
+            effectPacket = (u8 *)btlMainCreateColorSetPacket(0);
             *(s64 *)(effectPacket + 0x60) = *(s64 *)action;
             func_00194590(effectPacket, 1);
         }
@@ -4049,14 +4049,14 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001b7080(u16 skill); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern s32 func_001b7090(s32 arg0);
     extern void func_001b70a0(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
-    extern BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3);
-    extern BtlPacket* func_001b7e20(u32 value);
+    extern BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3);
+    extern BtlPacket* btlCreateTimingPacket(u32 value);
     extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
     /* lint: allow H011 -- retail zero-extends the mode with andi 0xffff: this caller saw a u16 parameter. */
-    extern BtlPacket *func_001b9360(s32 arg, u16 mode);
-    extern BtlPacket* func_001b9560(u32 param_1, u32 param_2);
-    extern BtlPacket* func_001b99a0(s32 arg);
-    extern BtlPacket* func_001ba090(s32 arg);
+    extern BtlPacket *btlMainCreateFadePacket(s32 arg, u16 mode);
+    extern BtlPacket* btlMainCreateTintPacket(u32 param_1, u32 param_2);
+    extern BtlPacket* btlMainCreateColorFadePacket(s32 arg);
+    extern BtlPacket* btlMainCreateColorSetPacket(s32 arg);
     extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
     extern u8 *func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
     extern BtlPacket *func_001d2d90();
@@ -5084,7 +5084,7 @@ void func_001a7720(u8 *arg0) {
     }
     skillKey = (s16)skill;
     func_001b7060(skillKey, &cameraFirst, &cameraSecond);
-    cameraPkt60 = (BtlPacketTiming *)(func_001b7880(cameraFirst, cameraSecond, 0x10));
+    cameraPkt60 = (BtlPacketTiming *)(btlMainCreateColorLerpPacket(cameraFirst, cameraSecond, 0x10));
     cameraPkt60->queue = 4;
     cameraPkt60->startTime = sceneTime;
     cameraPkt60->ownerId = actionId;
@@ -5096,7 +5096,7 @@ void func_001a7720(u8 *arg0) {
     cameraPkt61->startTime = sceneTime;
     cameraPkt61->ownerId = actionId;
     func_00194590((u8 *)cameraPkt61, 1);
-    cameraPkt62 = (BtlPacketTiming *)(func_001b9560(func_001b7090((u16) skill), 0x10));
+    cameraPkt62 = (BtlPacketTiming *)(btlMainCreateTintPacket(func_001b7090((u16) skill), 0x10));
     cameraPkt62->queue = 4;
     cameraPkt62->startTime = sceneTime;
     cameraPkt62->ownerId = actionId;
@@ -5958,7 +5958,7 @@ reactionPacket:
             func_00194590((u8 *)animPacket, 0);
         }
     }
-    pkt140 = (BtlPacketTiming *)(func_001b7e20(0x10));
+    pkt140 = (BtlPacketTiming *)(btlCreateTimingPacket(0x10));
     pkt140->queue = 4;
     pkt140->startTime = animPacket->endTime;
     pkt140->flags = (u8) (pkt140->flags & 0xDF);
@@ -5969,19 +5969,19 @@ reactionPacket:
     } else {
         cameraMode = 0;
     }
-    pkt141 = (BtlPacketTiming *)(func_001b9360(0x10, (u16)cameraMode));
+    pkt141 = (BtlPacketTiming *)(btlMainCreateFadePacket(0x10, (u16)cameraMode));
     pkt141->queue = 4;
     pkt141->startTime = animPacket->endTime;
     pkt141->flags = (u8) (pkt141->flags & 0xDF);
     pkt141->ownerId = actionId;
     func_00194590((u8 *)pkt141, 1);
-    pkt142 = (BtlPacketTiming *)(func_001b99a0(0x10));
+    pkt142 = (BtlPacketTiming *)(btlMainCreateColorFadePacket(0x10));
     pkt142->queue = 4;
     pkt142->startTime = animPacket->endTime;
     pkt142->flags = (u8) (pkt142->flags & 0xDF);
     pkt142->ownerId = actionId;
     func_00194590((u8 *)pkt142, 1);
-    pkt143 = (BtlPacketTiming *)(func_001ba090(8));
+    pkt143 = (BtlPacketTiming *)(btlMainCreateColorSetPacket(8));
     pkt143->queue = 4;
     pkt143->startTime = formationPkt6->endTime;
     pkt143->flags = (u8) (pkt143->flags & 0xDF);
@@ -6097,18 +6097,18 @@ void func_001abbb0(s64 *arg0)
     extern s32 func_001b7080(s32 arg0);
     extern s32 func_001b7090(s32 arg0);
     extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
-    extern BtlPacket *func_001b7880(u32 arg0, u32 arg1, u32 arg2);
+    extern BtlPacket *btlMainCreateColorLerpPacket(u32 arg0, u32 arg1, u32 arg2);
     extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
-    extern BtlPacket *func_001b9560(u32 arg0, u32 arg1);
+    extern BtlPacket *btlMainCreateTintPacket(u32 arg0, u32 arg1);
     extern BtlPacket *btlSoundCreateSkillSEPacket(u16 arg0, u16 arg1);
     extern u8 *func_00194b60(void);
     extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
     extern void func_0019ea60(u8 *arg0, s32 arg1);
     extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
     extern BtlPacket *func_0019c030(BtlUnit *arg0, u16 arg1, u16 arg2);
-    extern BtlPacket *func_001b7e20(u32 arg0);
-    extern BtlPacket *func_001b9360(s32 arg0, s16 arg1);
-    extern BtlPacket *func_001b99a0(s32 arg0);
+    extern BtlPacket *btlCreateTimingPacket(u32 arg0);
+    extern BtlPacket *btlMainCreateFadePacket(s32 arg0, s16 arg1);
+    extern BtlPacket *btlMainCreateColorFadePacket(s32 arg0);
     extern s32 func_001f68e0(u8 *arg0);
     extern DatUnit *datUnitAddEncounterUnit(DatUnitEc *encounter, u16 id);
     extern u8 *iGpffffb3bc;
@@ -6199,7 +6199,7 @@ void func_001abbb0(s64 *arg0)
     func_001b7060(aux, &outHi, &outLo);
     {
         u8 *pkt;
-        pkt = (u8 *)func_001b7880((u32)outHi, (u32)outLo, 0x10);
+        pkt = (u8 *)btlMainCreateColorLerpPacket((u32)outHi, (u32)outLo, 0x10);
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
         *(s64 *)(pkt + 0x60) = uid;
@@ -6218,7 +6218,7 @@ void func_001abbb0(s64 *arg0)
     }
     {
         u8 *pkt;
-        pkt = (u8 *)func_001b9560(func_001b7090(aux), 0x10);
+        pkt = (u8 *)btlMainCreateTintPacket(func_001b7090(aux), 0x10);
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
         *(s64 *)(pkt + 0x60) = uid;
@@ -6389,7 +6389,7 @@ void func_001abbb0(s64 *arg0)
     }
     {
         u8 *pkt;
-        pkt = (u8 *)func_001b7e20(0x10);
+        pkt = (u8 *)btlCreateTimingPacket(0x10);
         *pkt = 4;
         *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
         *(pkt + 0x47) &= ~0x20;
@@ -6398,7 +6398,7 @@ void func_001abbb0(s64 *arg0)
     }
     {
         u8 *pkt;
-        pkt = (u8 *)func_001b9360(0x10, 0);
+        pkt = (u8 *)btlMainCreateFadePacket(0x10, 0);
         *pkt = 4;
         *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
         *(pkt + 0x47) &= ~0x20;
@@ -6407,7 +6407,7 @@ void func_001abbb0(s64 *arg0)
     }
     {
         u8 *pkt;
-        pkt = (u8 *)func_001b99a0(0x10);
+        pkt = (u8 *)btlMainCreateColorFadePacket(0x10);
         *pkt = 4;
         *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
         *(pkt + 0x47) &= ~0x20;
@@ -6416,7 +6416,7 @@ void func_001abbb0(s64 *arg0)
     }
     {
         u8 *pkt;
-        pkt = (u8 *)func_001ba090(8);
+        pkt = (u8 *)btlMainCreateColorSetPacket(8);
         *pkt = 4;
         *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
         *(pkt + 0x47) &= ~0x20;
@@ -6522,9 +6522,9 @@ void func_001ac700(u8 *action) {
 
     BtlPacket *func_00202010(u32 action, u16 arg1);
     BtlPacket *func_00202120(u32 action, u16 arg1);
-    BtlPacket *func_001b9360(s32 action, s16 mode);
-    BtlPacket *func_001b7e20(u32 value);
-    BtlPacket *func_001b99a0(s32 action);
+    BtlPacket *btlMainCreateFadePacket(s32 action, s16 mode);
+    BtlPacket *btlCreateTimingPacket(u32 value);
+    BtlPacket *btlMainCreateColorFadePacket(s32 action);
 
 
     struct {
@@ -6618,7 +6618,7 @@ void func_001ac700(u8 *action) {
     }
     {
         u8 *packet;
-        packet = (u8 *)func_001b7e20(0x10);
+        packet = (u8 *)btlCreateTimingPacket(0x10);
         *(s8 *)(packet + 0) = 4;
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
@@ -6627,7 +6627,7 @@ void func_001ac700(u8 *action) {
     }
     {
         u8 *packet;
-        packet = (u8 *)func_001b9360(0x10, 0);
+        packet = (u8 *)btlMainCreateFadePacket(0x10, 0);
         *(s8 *)(packet + 0) = 4;
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
@@ -6636,7 +6636,7 @@ void func_001ac700(u8 *action) {
     }
     {
         u8 *packet;
-        packet = (u8 *)func_001b99a0(0x10);
+        packet = (u8 *)btlMainCreateColorFadePacket(0x10);
         *(s8 *)(packet + 0) = 4;
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
@@ -6645,7 +6645,7 @@ void func_001ac700(u8 *action) {
     }
     {
         u8 *packet;
-        packet = (u8 *)func_001ba090(8);
+        packet = (u8 *)btlMainCreateColorSetPacket(8);
         *(s8 *)(packet + 0) = 4;
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
@@ -7588,7 +7588,7 @@ void func_001ae3d0(u8 *action)
     packet = (u8 *)func_001d3d00((u32)action);
     *(s64 *)(packet + 96) = *(s64 *)action;
     func_00194590(packet, 0);
-    packet = (u8 *)func_001ba090(0);
+    packet = (u8 *)btlMainCreateColorSetPacket(0);
     *(s64 *)(packet + 96) = *(s64 *)action;
     func_00194590(packet, 0);
     packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 7);
@@ -7811,12 +7811,12 @@ void func_001aed50(u8 *arg0)
     extern s32 func_001b7080(s32 arg0);
     extern s32 func_001b7090(s32 arg0);
     extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
-    extern BtlPacket *func_001b7880(u32 arg0, u32 arg1, u32 arg2);
+    extern BtlPacket *btlMainCreateColorLerpPacket(u32 arg0, u32 arg1, u32 arg2);
     extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
-    extern BtlPacket *func_001b9560(u32 arg0, u32 arg1);
-    extern BtlPacket *func_001b7e20(u32 arg0);
-    extern BtlPacket *func_001b9360(s32 arg0, s16 arg1);
-    extern BtlPacket *func_001b99a0(s32 arg0);
+    extern BtlPacket *btlMainCreateTintPacket(u32 arg0, u32 arg1);
+    extern BtlPacket *btlCreateTimingPacket(u32 arg0);
+    extern BtlPacket *btlMainCreateFadePacket(s32 arg0, s16 arg1);
+    extern BtlPacket *btlMainCreateColorFadePacket(s32 arg0);
     extern BtlPacket *func_001f81f0(u16 arg0, const char *arg1);
     extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
     extern u8 D_005F6D38[];
@@ -7905,7 +7905,7 @@ void func_001aed50(u8 *arg0)
     func_001b7060(selector, &outHi, &outLo);
     {
         u8 *pk;
-        pk = (u8 *)func_001b7880((u32)outHi, (u32)outLo, 0x10);
+        pk = (u8 *)btlMainCreateColorLerpPacket((u32)outHi, (u32)outLo, 0x10);
         *pk = 5;
         *(s64 *)(pk + 8) = cur58;
         *(s16 *)(pk + 0x48) = 0x3C;
@@ -7928,7 +7928,7 @@ void func_001aed50(u8 *arg0)
     {
         u8 *pk;
         aux = (u16)aux;
-        pk = (u8 *)func_001b9560(func_001b7090(aux), 0x10);
+        pk = (u8 *)btlMainCreateTintPacket(func_001b7090(aux), 0x10);
         *pk = 5;
         *(s64 *)(pk + 8) = cur58;
         *(s16 *)(pk + 0x48) = 0x3C;
@@ -8127,7 +8127,7 @@ void func_001aed50(u8 *arg0)
     }
     {
         u8 *pk;
-        pk = (u8 *)func_001b7e20(0x10);
+        pk = (u8 *)btlCreateTimingPacket(0x10);
         *pk = 4;
         *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
         *(pk + 0x47) &= (u8)~0x20;
@@ -8136,7 +8136,7 @@ void func_001aed50(u8 *arg0)
     }
     {
         u8 *pk;
-        pk = (u8 *)func_001b9360(0x10, 0);
+        pk = (u8 *)btlMainCreateFadePacket(0x10, 0);
         *pk = 4;
         *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
         *(pk + 0x47) &= (u8)~0x20;
@@ -8145,7 +8145,7 @@ void func_001aed50(u8 *arg0)
     }
     {
         u8 *pk;
-        pk = (u8 *)func_001b99a0(0x10);
+        pk = (u8 *)btlMainCreateColorFadePacket(0x10);
         *pk = 4;
         *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
         *(pk + 0x47) &= (u8)~0x20;
@@ -8154,7 +8154,7 @@ void func_001aed50(u8 *arg0)
     }
     {
         u8 *pk;
-        pk = (u8 *)func_001ba090(8);
+        pk = (u8 *)btlMainCreateColorSetPacket(8);
         *pk = 4;
         *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
         *(pk + 0x47) &= (u8)~0x20;
