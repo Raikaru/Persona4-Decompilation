@@ -351,7 +351,7 @@ s32 func_0024a490(void)
    baseline everywhere else in this translation unit. */
 #pragma optimization_level 2
 // FUN_0024A710
-/* measured: -O2 CSEs `temp_18 & 0xFFFF` into a callee-saved copy and sinks
+/* measured: -O2 CSEs `entry & 0xFFFF` into a callee-saved copy and sinks
    the iGpffffb3d4 base load past the multiply (nd 287, object 428 of 416);
    level 1 restores the per-site andi and retail's load-first order. Same
    recipe as FUN_0024A8B0 below, including the integer-domain
@@ -359,45 +359,45 @@ s32 func_0024a490(void)
 #pragma optimization_level 1
 s32 func_0024a710(void)
 {
-    s32 sp5C;
-    u16 sp40[0xE];
-    s32 temp_18;
-    s32 temp_16;
-    s32 temp_2;
-    s32 var_16;
-    s32 var_16_2;
+    s32 count;
+    u16 vals[0xE];
+    s32 entry;
+    s32 param1;
+    s32 mesMgr;
+    s32 i;
+    s32 j;
 
-    temp_18 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
-    temp_2 = func_0029d030();
-    if (temp_2 < 0) {
+    entry = func_0029cc00(0);
+    param1 = func_0029cc00(1);
+    mesMgr = func_0029d030();
+    if (mesMgr < 0) {
         func_0046d730(&D_006359F0, 0x16D);
     }
-    if (temp_18 == 0) {
-        temp_18 = func_00108e10() & 0xFFFF;
+    if (entry == 0) {
+        entry = func_00108e10() & 0xFFFF;
     }
-    temp_18 = func_00247900(temp_18 & 0xFFFF, func_00104c70(1), temp_16);
-    if (temp_18 != 0) {
+    entry = func_00247900(entry & 0xFFFF, func_00104c70(1), param1);
+    if (entry != 0) {
         u8 *base = iGpffffb3d4;
-        s32 off = temp_18 * 14;
-        func_002782c0(temp_2, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
-        func_00278450(temp_2, 1, func_00109220(temp_18 & 0xFFFF));
-        for (var_16 = 0; var_16 < 3; var_16++) {
-            func_00278450(temp_2, var_16 + 2, &iGpffffa62c);
+        s32 off = entry * 14;
+        func_002782c0(mesMgr, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
+        func_00278450(mesMgr, 1, func_00109220(entry & 0xFFFF));
+        for (i = 0; i < 3; i++) {
+            func_00278450(mesMgr, i + 2, &iGpffffa62c);
         }
-        func_0010d360(temp_18 & 0xFFFF, sp40, &sp5C);
-        for (var_16_2 = 0; var_16_2 < sp5C; var_16_2++) {
-            func_00278450(temp_2, var_16_2 + 2, func_00243840(sp40[var_16_2]));
+        func_0010d360(entry & 0xFFFF, vals, &count);
+        for (j = 0; j < count; j++) {
+            func_00278450(mesMgr, j + 2, func_00243840(vals[j]));
         }
     }
-    func_0029cf50(temp_18);
+    func_0029cf50(entry);
     return 1;
 }
 /* measured: closes the level 1 scope above; -O2 is the baseline everywhere
    else in this translation unit. */
 #pragma optimization_level 2
 
-/* measured: -O2 CSEs `temp_18 & 0xFFFF` into a callee-saved copy (andi $s0);
+/* measured: -O2 CSEs `entry & 0xFFFF` into a callee-saved copy (andi $s0);
    level 1 restores the per-site andi. The base hoist (u8 *base = iGpffffb3d4)
    reproduces retail's load-first-into-$v1 and the integer-domain add
    ((u32)off + (u32)base) reproduces the index-first addu $v0,$v0,$v1. */
@@ -406,59 +406,59 @@ s32 func_0024a710(void)
 
 s32 func_0024a8b0(void)
 {
-    s32 sp5C;
-    u16 sp40[0xE];
-    s32 temp_18;
-    s32 temp_2;
-    s32 var_16;
-    s32 var_16_2;
+    s32 count;
+    u16 vals[0xE];
+    s32 entry;
+    s32 mesMgr;
+    s32 i;
+    s32 j;
 
-    temp_18 = func_0029cc00(0);
-    temp_2 = func_0029d030();
-    if (temp_2 < 0) {
+    entry = func_0029cc00(0);
+    mesMgr = func_0029d030();
+    if (mesMgr < 0) {
         func_0046d730(&D_006359F0, 0x190);
     }
-    if (temp_18 != 0) {
+    if (entry != 0) {
         u8 *base = iGpffffb3d4;
-        s32 off = temp_18 * 14;
-        func_002782c0(temp_2, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
-        func_00278450(temp_2, 1, func_00109220(temp_18 & 0xFFFF));
-        for (var_16 = 0; var_16 < 3; var_16++) {
-            func_00278450(temp_2, var_16 + 2, &iGpffffa62c);
+        s32 off = entry * 14;
+        func_002782c0(mesMgr, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
+        func_00278450(mesMgr, 1, func_00109220(entry & 0xFFFF));
+        for (i = 0; i < 3; i++) {
+            func_00278450(mesMgr, i + 2, &iGpffffa62c);
         }
-        func_0010d360(temp_18 & 0xFFFF, sp40, &sp5C);
-        for (var_16_2 = 0; var_16_2 < sp5C; var_16_2++) {
-            func_00278450(temp_2, var_16_2 + 2, func_00243840(sp40[var_16_2]));
+        func_0010d360(entry & 0xFFFF, vals, &count);
+        for (j = 0; j < count; j++) {
+            func_00278450(mesMgr, j + 2, func_00243840(vals[j]));
         }
     }
-    func_0029cf50(temp_18);
+    func_0029cf50(entry);
     return 1;
 }
 #pragma optimization_level 2
 // FUN_0024AA10
 s32 func_0024aa10(void)
 {
-    s32 temp_2;
+    s32 id;
 
-    temp_2 = func_0029cc00(0);
-    if (temp_2 == 0) {
-        temp_2 = func_00108e10() & 0xFFFF;
+    id = func_0029cc00(0);
+    if (id == 0) {
+        id = func_00108e10() & 0xFFFF;
     }
-    func_00108ef0(temp_2 & 0xFFFF);
+    func_00108ef0(id & 0xFFFF);
     return 1;
 }
 // FUN_0024AA60
 s32 func_0024aa60(void)
 {
-    s32 temp_16;
-    s32 temp_2;
+    s32 param0;
+    s32 param1;
 
-    temp_16 = func_0029cc00(0);
-    temp_2 = func_0029cc00(1);
-    if (temp_2 == 0) {
-        temp_2 = func_00108e10() & 0xFFFF;
+    param0 = func_0029cc00(0);
+    param1 = func_0029cc00(1);
+    if (param1 == 0) {
+        param1 = func_00108e10() & 0xFFFF;
     }
-    if (func_002485e0(temp_16 & 0xFFFF, temp_2 & 0xFFFF) != 0) {
+    if (func_002485e0(param0 & 0xFFFF, param1 & 0xFFFF) != 0) {
         func_0029cf50(1);
     } else {
         func_0029cf50(0);
@@ -468,13 +468,13 @@ s32 func_0024aa60(void)
 // FUN_0024AAF0
 s32 func_0024aaf0(void)
 {
-    s32 temp_2;
+    s32 id;
 
-    temp_2 = func_0029cc00(0);
-    if (temp_2 == 0) {
+    id = func_0029cc00(0);
+    if (id == 0) {
         func_00108d80();
     } else {
-        func_00108cf0(temp_2 & 0xFFFF);
+        func_00108cf0(id & 0xFFFF);
     }
     return 1;
 }
@@ -495,16 +495,16 @@ u32 func_0024AB40(void)
 // FUN_0024AB70
 s32 func_0024ab70(void)
 {
-    s32 temp_2;
-    s32 r;
+    s32 id;
+    s32 result;
 
-    temp_2 = func_0029cc00(0);
-    if (temp_2 == 0) {
-        temp_2 = func_00108e10() & 0xFFFF;
+    id = func_0029cc00(0);
+    if (id == 0) {
+        id = func_00108e10() & 0xFFFF;
     }
-    r = func_00247820((s16)temp_2);
-    if (r != 0) {
-        func_0029cf50(r);
+    result = func_00247820((s16)id);
+    if (result != 0) {
+        func_0029cf50(result);
     } else {
         func_0029cf50(0);
     }
@@ -539,13 +539,13 @@ u32 func_0024AC20(void)
 // FUN_0024AC50
 s32 func_0024ac50(void)
 {
-    s32 temp_2;
+    s32 id;
 
-    temp_2 = func_0029cc00(0);
-    if (temp_2 == 0) {
-        temp_2 = func_00108e10() & 0xFFFF;
+    id = func_0029cc00(0);
+    if (id == 0) {
+        id = func_00108e10() & 0xFFFF;
     }
-    func_00107bd0(temp_2 & 0xFFFF);
+    func_00107bd0(id & 0xFFFF);
     return 1;
 }
 // FUN_0024ACA0
@@ -561,14 +561,14 @@ s32 func_0024aca0(void)
 // FUN_0024ACF0
 s32 func_0024acf0(void)
 {
-    s32 temp_16;
+    s32 param0;
 
-    temp_16 = func_0029cc00(0);
+    param0 = func_0029cc00(0);
     func_0029cf50(0);
-    if ((temp_16 != 0) && (temp_16 != 1)) {
+    if ((param0 != 0) && (param0 != 1)) {
         return 1;
     }
-    func_0029cf50(func_00107930(temp_16));
+    func_0029cf50(func_00107930(param0));
     return 1;
 }
 
@@ -586,12 +586,12 @@ s32 func_0024ad70(void)
 // FUN_0024ADB0
 s32 func_0024adb0(void)
 {
-    s32 temp_2;
+    s32 value;
 
-    temp_2 = func_001090e0();
-    func_0029cf50(temp_2);
+    value = func_001090e0();
+    func_0029cf50(value);
     datResetTotalBtl();
-    func_00106020(temp_2);
+    func_00106020(value);
     return 1;
 }
 
@@ -636,19 +636,19 @@ s32 func_0024aec0(void)
 // FUN_0024AF00
 s32 func_0024af00(void)
 {
-    s32 temp_16;
-    s32 temp_17;
+    s32 param0;
+    s32 param1;
 
-    temp_16 = func_0029cc00(0);
-    temp_17 = func_0029cc00(1);
+    param0 = func_0029cc00(0);
+    param1 = func_0029cc00(1);
     func_0029cf50(0);
-    if ((temp_17 != 0) && (temp_17 != 1)) {
+    if ((param1 != 0) && (param1 != 1)) {
         return 1;
     }
-    if (temp_16 == 0) {
-        func_0029cf50(func_00249370(0, func_001060b0(), temp_17));
+    if (param0 == 0) {
+        func_0029cf50(func_00249370(0, func_001060b0(), param1));
     } else {
-        func_0029cf50(func_00249370(1, func_001060b0(), temp_17));
+        func_0029cf50(func_00249370(1, func_001060b0(), param1));
     }
     return 1;
 }
@@ -658,90 +658,88 @@ s32 func_0024af00(void)
 // FUN_0024AFE0
 s32 func_0024afe0(void)
 {
-    s32 temp_16;
+    s32 param0;
 
-    temp_16 = func_0029cc00(0);
+    param0 = func_0029cc00(0);
     func_0029cf50(0);
-    if ((temp_16 != 0) && (temp_16 != 1)) {
+    if ((param0 != 0) && (param0 != 1)) {
         return 1;
     }
-    func_0029cf50(func_002494c0(func_001060b0(), temp_16));
+    func_0029cf50(func_002494c0(func_001060b0(), param0));
     return 1;
 }
 
 // FUN_0024B070
 s32 func_0024b070(void)
 {
-    s32 a;
-    s32 r;
-    s32 x;
+    s32 rec;
+    s32 mesMgr;
+    s32 slot;
     u8 buf[0x80];
     u8* p;
-    u8* q2;
-    u8* q3;
 
-    a = func_0029cc00(0);
-    x = func_001060b0();
-    if (a == 0) {
-        a = func_002490b0(x);
+    rec = func_0029cc00(0);
+    slot = func_001060b0();
+    if (rec == 0) {
+        rec = func_002490b0(slot);
     } else {
-        a = func_00249180(x);
+        rec = func_00249180(slot);
     }
-    if (a == 0) {
+    if (rec == 0) {
         func_0046d730(D_006359F0, 0x27A);
     }
-    r = func_0029d030();
-    if (r < 0) {
+    mesMgr = func_0029d030();
+    if (mesMgr < 0) {
         func_0046d730(D_006359F0, 0x27D);
     }
-    func_00278450(r, 0, func_001067f0(*(s16*)(a + 4)));
-    func_00278450(r, 2, func_001067f0(*(s16*)(a + 8)));
-    func_00278450(r, 4, func_001067f0(*(s16*)(a + 0x14)));
-    func_00278450(r, 6, func_001067f0(*(s16*)(a + 0x18)));
-    func_002784e0(r, 0xE, *(u16*)(a + 4));
-    func_002784e0(r, 0xF, *(u16*)(a + 8));
-    func_002784e0(r, 0x10, *(u16*)(a + 0x14));
-    func_002784e0(r, 0x11, *(u16*)(a + 0x18));
-    func_002782c0(r, 1, *(s16*)(a + 6), 0);
-    func_002782c0(r, 3, *(s16*)(a + 0xA), 0);
-    func_002782c0(r, 5, *(s16*)(a + 0x16), 0);
-    func_002782c0(r, 7, *(s16*)(a + 0x1A), 0);
-    func_002782c0(r, 8, *(u32*)(a + 0xC), 0);
-    func_002782c0(r, 9, *(u32*)(a + 0x1C), 0);
-    p = (u8*)func_00246c90(*(u16*)(a + 0x12));
+    func_00278450(mesMgr, 0, func_001067f0(*(s16*)(rec + 4)));
+    func_00278450(mesMgr, 2, func_001067f0(*(s16*)(rec + 8)));
+    func_00278450(mesMgr, 4, func_001067f0(*(s16*)(rec + 0x14)));
+    func_00278450(mesMgr, 6, func_001067f0(*(s16*)(rec + 0x18)));
+    func_002784e0(mesMgr, 0xE, *(u16*)(rec + 4));
+    func_002784e0(mesMgr, 0xF, *(u16*)(rec + 8));
+    func_002784e0(mesMgr, 0x10, *(u16*)(rec + 0x14));
+    func_002784e0(mesMgr, 0x11, *(u16*)(rec + 0x18));
+    func_002782c0(mesMgr, 1, *(s16*)(rec + 6), 0);
+    func_002782c0(mesMgr, 3, *(s16*)(rec + 0xA), 0);
+    func_002782c0(mesMgr, 5, *(s16*)(rec + 0x16), 0);
+    func_002782c0(mesMgr, 7, *(s16*)(rec + 0x1A), 0);
+    func_002782c0(mesMgr, 8, *(u32*)(rec + 0xC), 0);
+    func_002782c0(mesMgr, 9, *(u32*)(rec + 0x1C), 0);
+    p = (u8*)func_00246c90(*(u16*)(rec + 0x12));
     if (p != 0) {
         func_00275980(p, buf, 0x80);
-        func_00278450(r, 0xA, buf);
+        func_00278450(mesMgr, 0xA, buf);
     }
-    p = (u8*)func_00246c90(*(u16*)(a + 0x22));
+    p = (u8*)func_00246c90(*(u16*)(rec + 0x22));
     if (p != 0) {
         func_00275980(p, buf, 0x80);
-        func_00278450(r, 0xB, buf);
+        func_00278450(mesMgr, 0xB, buf);
     }
-    p = (u8*)func_00246d50(*(u16*)(a + 0x10));
+    p = (u8*)func_00246d50(*(u16*)(rec + 0x10));
     if (p != 0) {
         func_00275980(p, buf, 0x80);
-        func_00278450(r, 0xC, buf);
+        func_00278450(mesMgr, 0xC, buf);
     }
-    p = (u8*)func_00246d50(*(u16*)(a + 0x20));
+    p = (u8*)func_00246d50(*(u16*)(rec + 0x20));
     if (p != 0) {
         func_00275980(p, buf, 0x80);
-        func_00278450(r, 0xD, buf);
+        func_00278450(mesMgr, 0xD, buf);
     }
     return 1;
 }
 // FUN_0024B380
 s32 func_0024b380(void)
 {
-    s32 temp_18;
-    s32 temp_17;
-    s32 temp_16;
+    s32 param0;
+    s32 param1;
+    s32 param2;
 
-    temp_18 = func_0029cc00(0);
-    temp_17 = func_0029cc00(1);
-    temp_16 = func_0029cc00(2);
+    param0 = func_0029cc00(0);
+    param1 = func_0029cc00(1);
+    param2 = func_0029cc00(2);
     if (func_0029d020() == 0) {
-        func_0025c230(0, temp_18, temp_17, temp_16);
+        func_0025c230(0, param0, param1, param2);
         goto block_4;
     }
     if (func_0025c310() == 0) {
@@ -753,15 +751,15 @@ block_4:
 // FUN_0024B430
 s32 func_0024b430(void)
 {
-    s32 temp_16;
-    s32 temp_17;
+    s32 param0;
+    s32 param1;
 
-    temp_16 = func_0029cc00(0);
-    temp_17 = func_0029cc00(1);
-    func_0029cf50(func_00249670(temp_16, temp_17));
+    param0 = func_0029cc00(0);
+    param1 = func_0029cc00(1);
+    func_0029cf50(func_00249670(param0, param1));
     return 1;
 }
-/* measured: -O2 CSEs `a & 0xFFFF` into callee-saved copies (frame 0xF0);
+/* measured: -O2 CSEs `id & 0xFFFF` into callee-saved copies (frame 0xF0);
    level 1 restores the per-site andi/0xD0 frame. Loop temps need decl
    order src, dst, i (first-declared -> $a1 at level 1) and the s8 loads
    need an s32 local (s8 adds a move + dsll32/dsra32 re-extension). */
@@ -770,8 +768,8 @@ s32 func_0024b430(void)
 
 s32 func_0024b490(void)
 {
-    s32 r;
-    s32 a;
+    s32 mesMgr;
+    s32 id;
     u8 buf[0x80];
     s32 tbl[5];
     u8* q;
@@ -779,9 +777,9 @@ s32 func_0024b490(void)
     s32* dst;
     s32 i;
     s32 tmp;
-    s32 b;
+    s32 tblIdx;
 
-    a = func_0029cc00(0);
+    id = func_0029cc00(0);
     src = D_00635A20;
     dst = tbl;
     i = 5;
@@ -790,33 +788,33 @@ s32 func_0024b490(void)
         i--;
         *dst++ = tmp;
     } while (i > 0);
-    r = func_0029d030();
-    if (r < 0) {
+    mesMgr = func_0029d030();
+    if (mesMgr < 0) {
         func_0046d730(D_006359F0, 0x2DC);
     }
-    q = (u8*)func_00246cd0(a & 0xFFFF) + 0xC;
+    q = (u8*)func_00246cd0(id & 0xFFFF) + 0xC;
     if (q != 0) {
         func_00275980(q, buf, 0x80);
-        func_00278450(r, 0, buf);
+        func_00278450(mesMgr, 0, buf);
     }
-    func_002782c0(r, 1, *(s32*)(func_00246cd0(a & 0xFFFF) + 4), 0);
-    q = (u8*)func_00246cd0(a & 0xFFFF) + 0x22;
+    func_002782c0(mesMgr, 1, *(s32*)(func_00246cd0(id & 0xFFFF) + 4), 0);
+    q = (u8*)func_00246cd0(id & 0xFFFF) + 0x22;
     if (q != 0) {
         func_00275980(q, buf, 0x80);
-        func_00278450(r, 2, buf);
+        func_00278450(mesMgr, 2, buf);
     }
-    b = *(s8*)(func_00246cd0(a & 0xFFFF) + 8);
-    if (b != -1) {
-        func_00275980(tbl[b], buf, 0x80);
-        func_00278450(r, 3, buf);
+    tblIdx = *(s8*)(func_00246cd0(id & 0xFFFF) + 8);
+    if (tblIdx != -1) {
+        func_00275980(tbl[tblIdx], buf, 0x80);
+        func_00278450(mesMgr, 3, buf);
     }
-    func_002782c0(r, 4, *(s8*)(func_00246cd0(a & 0xFFFF) + 9), 0);
-    b = *(s8*)(func_00246cd0(a & 0xFFFF) + 0xA);
-    if (b != -1) {
-        func_00275980(tbl[b], buf, 0x80);
-        func_00278450(r, 5, buf);
+    func_002782c0(mesMgr, 4, *(s8*)(func_00246cd0(id & 0xFFFF) + 9), 0);
+    tblIdx = *(s8*)(func_00246cd0(id & 0xFFFF) + 0xA);
+    if (tblIdx != -1) {
+        func_00275980(tbl[tblIdx], buf, 0x80);
+        func_00278450(mesMgr, 5, buf);
     }
-    func_002782c0(r, 6, *(s8*)(func_00246cd0(a & 0xFFFF) + 0xB), 0);
+    func_002782c0(mesMgr, 6, *(s8*)(func_00246cd0(id & 0xFFFF) + 0xB), 0);
     return 1;
 }
 #pragma optimization_level 2
