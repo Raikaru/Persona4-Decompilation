@@ -91,8 +91,8 @@ extern u8 D_0064A540[];
 extern u8 D_0064A560[];
 extern u8 D_0064A580[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-s32 func_0033e810(u8 *arg0);
-s32 func_0033e5c0(u8 *arg0);
+s32 cmbCardPathUpdate(u8 *arg0);
+s32 cmbCardLoaderStep(u8 *arg0);
 u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2);
 /* Retail's six-byte "%s %d" diagnostic format, addressed at GP - 0x56C8. */
 extern char D_00763A28[6];
@@ -121,7 +121,8 @@ typedef char CmbLoaderSizeCheck[sizeof(CmbLoaderState) == 0x19FDC ? 1 : -1];
 // FUN_0033E5C0
 #pragma push
 #pragma opt_propagation off
-s32 func_0033e5c0(u8 *arg0) {
+/* Steps the card loader state machine; returns its status. */
+s32 cmbCardLoaderStep(u8 *arg0) {
     s16 i;
     CmbLoaderState *obj;
     s8 type;
@@ -174,7 +175,8 @@ s32 func_0033e5c0(u8 *arg0) {
 
 #pragma pop
 // FUN_0033E7C0
-void func_0033e7c0(u8 *arg0) {
+/* Frees the card controller's sub-object and destroys its state block. */
+void cmbCardControllerDestroy(u8 *arg0) {
     func_0036d940((u8 *)(*(u8 **)(arg0 + 0x38)) + 0x20);
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
@@ -187,7 +189,8 @@ void func_0033e7c0(u8 *arg0) {
 // FUN_0033E810
 #pragma push
 #pragma opt_loop_invariants on
-s32 func_0033e810(u8 *task) {
+/* Advances each card along its CardPathPoint path once per frame. */
+s32 cmbCardPathUpdate(u8 *task) {
     typedef struct {
         CmbVec2f position;
         s16 duration;
@@ -229,16 +232,16 @@ s32 func_0033e810(u8 *task) {
     typedef char CardControllerViewSizeCheck[sizeof(CardControllerView) == 0x6C0 ? 1 : -1];
     typedef char CardColorSizeCheck[sizeof(CmbRGBA) == 4 ? 1 : -1];
 
-    void func_0033fa30(u8 *, s8, f32);
-    void func_0033fb10(u8 *, s8, CmbVec2f);
+    void cmbCardSetAngle(u8 *, s8, f32);
+    void cmbCardSetPosition(u8 *, s8, CmbVec2f);
     void func_0033fb90(u8 *, s8, CmbVec2f, f32);
-    void func_0033fc00(u8 *, s8, CmbVec2f, CmbVec2f, s16);
+    void cmbCardStartMove(u8 *, s8, CmbVec2f, CmbVec2f, s16);
     s32 func_0033fc80(u8 *);
     s32 func_003407f0(u8 *);
     s32 func_00341640(u8 *);
     s32 func_003427a0(u8 *);
     s32 func_00343cf0(u8 *);
-    void func_00347940(u8 *);
+    void cmbCardClearSlots(u8 *);
     s32 func_00348be0(u8 *);
     void func_0036de20(u8 *, void *);
     void func_0036de40(u8 *, void *);
@@ -278,8 +281,8 @@ s32 func_0033e810(u8 *task) {
              (loadedCount = ((CmbLoaderState *)*(u8 **)(work->loaderTask + 0x38))->loaded),
              setupIndex < loadedCount; setupIndex++) {
             initialPosition = func_002b2970(0.0f, 0.0f);
-            func_0033fb10(task, (s8)setupIndex, initialPosition);
-            func_0033fa30(task, (s8)setupIndex, 0.0f);
+            cmbCardSetPosition(task, (s8)setupIndex, initialPosition);
+            cmbCardSetAngle(task, (s8)setupIndex, 0.0f);
             *(CmbRGBA *)initialColorBytes.bytes = func_002b2a60(0xFF, 0xFF, 0xFF, 0);
             func_0036de40(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)setupIndex * 0xFB0 + 0xE398, initialColorBytes.bytes);
             work->cards[setupIndex].scale = 1.0f;
@@ -289,7 +292,7 @@ s32 func_0033e810(u8 *task) {
         }
         work->layout = 0;
         work->phase = work->nextPhase;
-        func_00347940(task);
+        cmbCardClearSlots(task);
         break;
     case 1:
         func_0033fc80(task);
@@ -330,7 +333,7 @@ s32 func_0033e810(u8 *task) {
             if (work->cards[cardIndex].moveFrame < work->cards[cardIndex].moveDuration) {
                 work->cards[cardIndex].moveFrame = func_002b2cb0(work->cards[cardIndex].moveFrame, 1, work->cards[cardIndex].moveDuration, 0, 1);
             } else if ((work->cards[cardIndex].flags & 8) != 0) {
-                func_0033fc00(task, (s8)cardIndex, work->cards[cardIndex].position, work->cards[cardIndex].path[work->cards[cardIndex].pathIndex].position, work->cards[cardIndex].path[work->cards[cardIndex].pathIndex].duration);
+                cmbCardStartMove(task, (s8)cardIndex, work->cards[cardIndex].position, work->cards[cardIndex].path[work->cards[cardIndex].pathIndex].position, work->cards[cardIndex].path[work->cards[cardIndex].pathIndex].duration);
                 work->cards[cardIndex].position.x = func_002b2aa0(0, work->cards[cardIndex].moveStart.x, work->cards[cardIndex].moveEnd.x, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
                 work->cards[cardIndex].position.y = func_002b2aa0(0, work->cards[cardIndex].moveStart.y, work->cards[cardIndex].moveEnd.y, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
                 work->cards[cardIndex].moveFrame = func_002b2cb0(work->cards[cardIndex].moveFrame, 1, work->cards[cardIndex].moveDuration, 0, 1);
@@ -342,7 +345,7 @@ s32 func_0033e810(u8 *task) {
                 work->cards[cardIndex].flags ^= 1;
             }
         }
-        func_0033fb10(task, (s8)cardIndex, work->cards[cardIndex].position);
+        cmbCardSetPosition(task, (s8)cardIndex, work->cards[cardIndex].position);
         if ((work->cards[cardIndex].flags & 2) != 0) {
             work->cards[cardIndex].angle = (f32)(s16)(s32)func_002b2aa0(0, work->cards[cardIndex].angleStart, work->cards[cardIndex].angleEnd, (f32)work->cards[cardIndex].angleFrame, (f32)work->cards[cardIndex].angleDuration);
             if (work->cards[cardIndex].angleFrame < work->cards[cardIndex].angleDuration) {
@@ -350,7 +353,7 @@ s32 func_0033e810(u8 *task) {
             } else {
                 work->cards[cardIndex].flags ^= 2;
             }
-            func_0033fa30(task, (s8)cardIndex, work->cards[cardIndex].angle);
+            cmbCardSetAngle(task, (s8)cardIndex, work->cards[cardIndex].angle);
         }
         if ((work->cards[cardIndex].flags & 4) != 0) {
             work->cards[cardIndex].color.c0 = (u8)func_002b2aa0(0, (f32)work->cards[cardIndex].colorStart.c0, (f32)work->cards[cardIndex].colorEnd.c0, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
@@ -380,7 +383,8 @@ s32 func_0033e810(u8 *task) {
 
 
 // FUN_0033F660
-void func_0033f660(u8 *arg0) {
+/* Releases the card controller's state block through jump-table slot 0. */
+void cmbCardReleaseState(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
@@ -393,7 +397,7 @@ void func_0033f660(u8 *arg0) {
    `s16 j` counter for the second 0x84-stride loop — reusing i makes b210 pick $a2
    where retail's second loop counter is $a0 (the first loop holds $a2). nd path:
    68 (plain array spelling) -> 40 (recipe B) -> 8 (ret-first) -> 0 (separate j).
-   Callbacks func_0033e810/0033e5c0 need file-scope prototypes for the arg passing. */
+   Callbacks cmbCardPathUpdate/cmbCardLoaderStep need file-scope prototypes for the arg passing. */
 // FUN_0033F690
 u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
     u8 *ret;
@@ -406,10 +410,10 @@ u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
     func_0044ea90(D_0064A4A0, 0x1B8);
     base = (u32)D_008873F4;
     blk1 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x6E0, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A4E0), 0xF, 0, 0, func_0033e810, func_0033f660, (u8 *)(blk1));
+    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A4E0), 0xF, 0, 0, cmbCardPathUpdate, cmbCardReleaseState, (u8 *)(blk1));
     func_0044ea90(D_0064A4A0, 0xAD);
     blk2 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x19FDC, 0x40000);
-    ret2 = (u8 *)(s32)func_00451fc0((void *)(ret), (const void *)(D_0064A4B0), 0xF, 0, 0, func_0033e5c0, func_0033e7c0, (u8 *)(blk2));
+    ret2 = (u8 *)(s32)func_00451fc0((void *)(ret), (const void *)(D_0064A4B0), 0xF, 0, 0, cmbCardLoaderStep, cmbCardControllerDestroy, (u8 *)(blk2));
     for (i = 0; i < 0xC; i++) {
         *(s16 *)(blk2 + 2 + (s32)i * 2) = *(s16 *)(arg1 + (s32)i * 2);
     }
@@ -476,7 +480,8 @@ void *func_0033fa20(u8 *arg0) {
    staging loads and the p84 multiply below the arg0 chain (the "scheduler-CSE floor"
    above was propagation, not scheduling). */
 #pragma opt_propagation off
-void func_0033fa30(u8 *arg0, s8 arg1, f32 angle) {
+/* Sets card arg1's angle (f32, radians-style value from the caller). */
+void cmbCardSetAngle(u8 *arg0, s8 arg1, f32 angle) {
     struct { f32 sp30[4]; s64 sp40; f32 sp48; } sp;
     s64 txy;
     f32 tz;
@@ -507,7 +512,8 @@ void func_0033fa30(u8 *arg0, s8 arg1, f32 angle) {
 
 /* Native two-float values preserve four-byte-aligned card positions. */
 // FUN_0033FB10
-void func_0033fb10(u8 *arg0, s8 arg1, CmbVec2f arg2) {
+/* Sets card arg1's position from a native two-float vector. */
+void cmbCardSetPosition(u8 *arg0, s8 arg1, CmbVec2f arg2) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     u32 scaled = (s32)arg1 * 0x84;
     func_0036dd10((u8 *)(*(u32 *)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758), (f32 *)&arg2, 90.0f * *(f32 *)(scaled + (u32)obj + 0x8C));
@@ -546,7 +552,8 @@ void func_0033fb90(u8 *arg0, s8 arg1, CmbVec2f arg2, f32 fparg0) {
    pragma alone on the plain expression: nd 3, still base-first addu). */
 // FUN_0033FC00
 #pragma opt_propagation off /* measured: see above; forces the base load early (lw $a2,0x38($a0) first) */
-void func_0033fc00(u8 *arg0, s8 arg1, CmbVec2f arg2, CmbVec2f arg3, s16 arg4) {
+/* Starts card arg1's move: start and target positions, duration in arg4; sets the active flag. */
+void cmbCardStartMove(u8 *arg0, s8 arg1, CmbVec2f arg2, CmbVec2f arg3, s16 arg4) {
     u8 *p = cmbAddPtrRev((u32)*(u8 **)(arg0 + 0x38), (u32)((s32)arg1 * 0x84));
     *(CmbVec2f *)(p + 0x20) = arg2;
     *(CmbVec2f *)(p + 0x10) = *(CmbVec2f *)(p + 0x20);
@@ -1465,7 +1472,8 @@ s32 func_00345700(u8 *arg0) {
 }
 
 // FUN_00347940
-void func_00347940(u8 *arg0) {
+/* Zeroes the twelve per-card slot words at +0x658. */
+void cmbCardClearSlots(u8 *arg0) {
     u8 *obj;
     s16 i;
 
@@ -1807,7 +1815,8 @@ s32 func_00348330(u8 *arg0) {
     return 0;
 }
 // FUN_00348840
-void func_00348840(u8 *arg0) {
+/* Frees the handle stored at state+0x8, if any. */
+void cmbCardEffFreeHandle(u8 *arg0) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     u32 p = *(u32 *)(obj + 8);
     if (p != 0) {
@@ -1832,7 +1841,7 @@ u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2) {
 
     func_0044ea90(D_0064A4A0, 0x7F5);
     blk = D_008873F4[0](1, 0x70, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A5E8), 0xF, 0, 0, func_00348330, func_00348840, (u8 *)(blk));
+    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A5E8), 0xF, 0, 0, func_00348330, cmbCardEffFreeHandle, (u8 *)(blk));
     *(s8 *)(blk + 4) = 0;
     *(s8 *)(blk + 0x14) = arg2;
     func_00440b68(D_00763A28, D_0064A4A0, 0x805);
@@ -1990,7 +1999,8 @@ s32 func_00348c40(u8 *task) {
 
 #pragma pop
 // FUN_00349260
-void func_00349260(u8 *arg0) {
+/* Releases the effect's state block through jump-table slot 0. */
+void cmbCardEffReleaseState(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
@@ -2004,7 +2014,7 @@ u8 *func_00349290(u8 *arg0, s8 arg1) {
 
     func_0044ea90(D_0064A4A0, 0x8B9);
     blk = D_008873F4[0](1, 0x18, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A600), 0xF, 0, 0, func_00348c40, func_00349260, (u8 *)(blk));
+    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A600), 0xF, 0, 0, func_00348c40, cmbCardEffReleaseState, (u8 *)(blk));
     *(s8 *)(blk + 0) = arg1;
     *(s8 *)(blk + 1) = 0;
     return ret;
