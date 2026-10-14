@@ -4824,17 +4824,9 @@ void func_0014d4e0(u8 *arg0)
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
-// FUN_0014D7D0
-void func_0014d7d0(u8 *arg0, u8 *arg1) {
-    *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
-}
 
 
 
-// FUN_0014D9E0
-void func_0014d9e0(u8 *arg0, u8 *arg1) {
-    *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
-}
 
 
 
