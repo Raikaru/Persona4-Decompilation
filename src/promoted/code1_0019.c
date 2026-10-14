@@ -5,6 +5,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "btl_packet_create_internal.h"
+#include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 typedef struct RwV3d {
     f32 x;
@@ -113,7 +114,6 @@ extern void func_00195aa0(void *arg0, void *arg1, void *arg2);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
 extern P4_95730_Vec3 D_0060A0D0;
-extern f32 effMiscRandFloat(u32 arg0);
 extern f32 fGpffff82d0;
 extern f32 fGpffff811c;
 extern f32 fGpffff8198;
@@ -261,7 +261,6 @@ extern s32 func_00243e30(s32 arg0);
 extern void func_0047a120(void *arg0);
 extern void func_0047a150(void *arg0);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
-extern u32 effMiscRand(u32 arg0);
 extern u16 *datPersonaGetRecord(u16 character);
 extern s32 func_0010f4f0(s32 arg0);
 extern void btlActionSetState(u8 *arg0, u32 arg1);

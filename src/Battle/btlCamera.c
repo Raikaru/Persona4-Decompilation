@@ -4,6 +4,7 @@
 /* Source unit: src/Battle/btlCamera_001bc3a0.c */
 #include "include_asm.h"
 #include "btl_action_internal.h"
+#include "effect_instance_internal.h"
 #include "type.h"
 #include "btl_skill_internal.h"
 
@@ -139,7 +140,6 @@ typedef struct BtlCameraSlerpResult
     f32 angle;
     s32 mode;
 } BtlCameraSlerpResult;
-extern s32 effMiscRand(s32 arg0);
 static inline u32 cd600Add(u32 flagOffset, u32 tableAddr)
 {
     return flagOffset + tableAddr;

@@ -2,6 +2,7 @@
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 
 /* Preserve source operand order in the camera's height products. */
 static inline f32 p4_cacd0_mul(f32 left, f32 right)
@@ -90,7 +91,6 @@ extern void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *secon
 extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void func_001bbef0(u8 *arg0, f32 arg1);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
-extern s32 effMiscRand(s32 arg0);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
@@ -1104,7 +1104,6 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern RwV3d *RtQuatTransformVectors(RwV3d *camera, const RwV3d *notify, s32 distinctPoses, const RtQuat *arg3);
     extern void func_001bd780(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
-    extern s32 effMiscRand(s32 camera);
     extern void func_0019de70(BtlUnitStateWork *work, u16 value);
     extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern u32 func_001bc3a0(f32 *camera, f32 *notify);
@@ -1473,7 +1472,6 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
     extern void func_001bd780(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
     extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
     extern f32 tanf(f32 angle);
-    extern s32 effMiscRand(s32 camera);
     extern void func_0019de70(BtlUnitStateWork *action, u16 value);
     extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern void func_001bac20(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);

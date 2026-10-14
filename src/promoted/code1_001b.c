@@ -4,6 +4,7 @@
 #include "btl_camera_palette_internal.h"
 #include "effect_geometry_internal.h"
 #include "btl_motion_internal.h"
+#include "effect_instance_internal.h"
 #include "include_asm.h"
 #include "type.h"
 
@@ -170,7 +171,6 @@ void func_002baf40(u32 arg0);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern void func_001b73f0(u8 *arg0);
-extern s32 effMiscRand(s32 arg0);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
 extern s32 func_001be990(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 D_005FB400[];

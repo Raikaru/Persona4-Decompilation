@@ -3,6 +3,7 @@
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
 #include "btl_motion_internal.h"
+#include "effect_instance_internal.h"
 
 #include "include_asm.h"
 #include "type.h"
@@ -4113,7 +4114,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_0023df70(s32 skill);
     /* lint: allow H011 -- the definition is an asm function returning int. */
     extern int func_0043c6a0(int param_1);
-    extern s32 effMiscRand();
     extern u8 *iGpffffb3ac;
     extern u8 *iGpffffb3b8;
     extern u8 *iGpffffb3cc;
