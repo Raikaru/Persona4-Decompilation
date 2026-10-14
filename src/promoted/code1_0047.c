@@ -90,14 +90,14 @@ void func_00470210(u8 *arg0)
 // FUN_00470C10
 void func_00470c10(u8 *arg0, s32 arg1, s32 arg2)
 {
-    u8 *temp_2;
+    u8 *node;
 
-    temp_2 = func_00470d10(arg0, arg1);
-    if (temp_2 != NULL) {
-        *(s32 *)(temp_2 + 4) = 2;
-        *(s32 *)(temp_2 + 0x208) = arg2;
-        *(s32 *)(temp_2 + 0x210) = 0;
-        *(s32 *)(temp_2 + 0x214) = 1;
+    node = func_00470d10(arg0, arg1);
+    if (node != NULL) {
+        *(s32 *)(node + 4) = 2;
+        *(s32 *)(node + 0x208) = arg2;
+        *(s32 *)(node + 0x210) = 0;
+        *(s32 *)(node + 0x214) = 1;
         func_004704d0(arg0);
     }
 }
@@ -107,14 +107,14 @@ void func_00470c10(u8 *arg0, s32 arg1, s32 arg2)
 // FUN_00470C80
 void func_00470c80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
-    u8 *temp_2;
+    u8 *node;
 
-    temp_2 = func_00470d10(arg0, arg1);
-    if (temp_2 != NULL) {
-        *(s32 *)(temp_2 + 4) = 4;
-        *(f32 *)(temp_2 + 0x20C) = (f32)arg2;
-        *(s32 *)(temp_2 + 0x210) = arg3;
-        *(s32 *)(temp_2 + 0x214) = arg4;
+    node = func_00470d10(arg0, arg1);
+    if (node != NULL) {
+        *(s32 *)(node + 4) = 4;
+        *(f32 *)(node + 0x20C) = (f32)arg2;
+        *(s32 *)(node + 0x210) = arg3;
+        *(s32 *)(node + 0x214) = arg4;
         func_004704d0(arg0);
     }
 }
@@ -149,49 +149,49 @@ compare:
 // FUN_00470D70
 void func_00470d70(u8 *arg0)
 {
-    u8 *temp_2;
-    u8 *var_3;
+    u8 *work;
+    u8 *node;
 
-    temp_2 = *(u8 **)(arg0 + 0x38);
-    var_3 = *(u8 **)(temp_2 + 0x144);
-    while (var_3 != NULL) {
-        u8 *temp_4;
+    work = *(u8 **)(arg0 + 0x38);
+    node = *(u8 **)(work + 0x144);
+    while (node != NULL) {
+        u8 *next;
 
-        temp_4 = *(u8 **)(var_3 + 0x228);
-        jtbl_008873EC[0](var_3);
-        var_3 = temp_4;
+        next = *(u8 **)(node + 0x228);
+        jtbl_008873EC[0](node);
+        node = next;
     }
-    *(s32 *)(temp_2 + 0x144) = 0;
-    *(s32 *)(temp_2 + 0x148) = 0;
-    *(s32 *)(temp_2 + 0x140) = 0;
-    *(s32 *)(temp_2 + 0x134) = 0;
-    *(s32 *)(temp_2 + 0x138) = 0;
-    func_00453ce0(temp_2 + 0x164, 0);
-    *(s32 *)(temp_2 + 0x140) = func_00453e10(temp_2 + 0x164);
-    *(s32 *)(temp_2 + 0x138) = func_00453d70(temp_2 + 0x164);
-    *(s32 *)(temp_2 + 0x134) = func_00453dc0(temp_2 + 0x164);
+    *(s32 *)(work + 0x144) = 0;
+    *(s32 *)(work + 0x148) = 0;
+    *(s32 *)(work + 0x140) = 0;
+    *(s32 *)(work + 0x134) = 0;
+    *(s32 *)(work + 0x138) = 0;
+    func_00453ce0(work + 0x164, 0);
+    *(s32 *)(work + 0x140) = func_00453e10(work + 0x164);
+    *(s32 *)(work + 0x138) = func_00453d70(work + 0x164);
+    *(s32 *)(work + 0x134) = func_00453dc0(work + 0x164);
 }
 // FUN_00470E20
 s32 func_00470e20(u8 *arg0)
 {
-    s32 temp_3;
-    s32 var_4;
-    u8 *temp_4;
-    u8 *var_5;
+    s32 target;
+    s32 index;
+    u8 *work;
+    u8 *node;
 
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    var_5 = *(u8 **)(temp_4 + 0x144);
-    temp_3 = *(s32 *)(temp_4 + 0x138);
-    temp_3 = viewAddReverse(temp_3, *(s32 *)(temp_4 + 0x134));
-    if (temp_3 >= *(s32 *)(temp_4 + 0x140)) {
+    work = *(u8 **)(arg0 + 0x38);
+    node = *(u8 **)(work + 0x144);
+    target = *(s32 *)(work + 0x138);
+    target = viewAddReverse(target, *(s32 *)(work + 0x134));
+    if (target >= *(s32 *)(work + 0x140)) {
         return -1;
     }
-    var_4 = 0;
-    while (var_4 < temp_3) {
-        var_5 = *(u8 **)(var_5 + 0x228);
-        var_4 += 1;
+    index = 0;
+    while (index < target) {
+        node = *(u8 **)(node + 0x228);
+        index += 1;
     }
-    return *(s32 *)var_5;
+    return *(s32 *)node;
 }
 
 // FUN_00478E70
@@ -238,13 +238,13 @@ s32 func_0047ae90(u8 *arg0, u16 arg1)
 {
     s32 off = arg1 * 0xC;
     u8 *p = (u8 *)(off + (s32)arg0);
-    u8 *temp_4;
+    u8 *object;
 
-    temp_4 = *(u8 **)(p + 0x290);
-    if (temp_4 == NULL) {
+    object = *(u8 **)(p + 0x290);
+    if (object == NULL) {
         return 1;
     }
-    return func_004782b0(temp_4);
+    return func_004782b0(object);
 }
 
 
@@ -381,32 +381,32 @@ void func_0047d170(void *model)
    00476BB0, 00478CC4); this secondary-effect updater does not read it. */
 void func_0047dd40(u8 *arg0, void *model)
 {
-    u8 *temp_4;
+    u8 *effect;
 
-    temp_4 = *(u8 **)(arg0 + 4);
-    if (temp_4 != NULL) {
-        func_004b5800(temp_4);
+    effect = *(u8 **)(arg0 + 4);
+    if (effect != NULL) {
+        func_004b5800(effect);
     }
 }
 // FUN_0047DD70
 void func_0047dd70(u8 *arg0, u8 *arg1)
 {
-    s32 temp_4;
+    s32 handle;
 
-    temp_4 = *(s32 *)(arg1 + 4);
-    if (temp_4 != 0) {
-        func_004b5c20(temp_4);
+    handle = *(s32 *)(arg1 + 4);
+    if (handle != 0) {
+        func_004b5c20(handle);
     }
 }
 
 // FUN_0047DDA0
 void func_0047dda0(u8 *arg0)
 {
-    u8 *temp_4;
+    u8 *effect;
 
-    temp_4 = *(u8 **)(arg0 + 4);
-    if (temp_4 != NULL) {
-        func_004b5f70(temp_4);
+    effect = *(u8 **)(arg0 + 4);
+    if (effect != NULL) {
+        func_004b5f70(effect);
     }
 }
 /* Retail forwards the requested color in a1 to the runtime color consumer. */
@@ -423,12 +423,12 @@ void func_0047ddd0(u8* attachment, const u8* color)
 // FUN_0047EA40
 void func_0047ea40(u8 **arg0, u8 **arg1)
 {
-    u8 *temp_5;
+    u8 *object;
 
-    temp_5 = *arg1;
-    if (temp_5 != NULL) {
-        *(s32 *)(temp_5 + 8) = *(s32 *)(temp_5 + 8) + 1;
-        *arg0 = temp_5;
+    object = *arg1;
+    if (object != NULL) {
+        *(s32 *)(object + 8) = *(s32 *)(object + 8) + 1;
+        *arg0 = object;
     }
 }
 // FUN_0047EA70
@@ -444,20 +444,20 @@ void func_0047ea70(u8 *arg0)
 // FUN_0047EAA0
 void func_0047eaa0(u8 *arg0)
 {
-    u8 *temp_2;
-    s32 temp_3;
-    u8 *temp_4;
+    u8 *object;
+    s32 refCount;
+    u8 *inner;
 
-    temp_2 = *(u8 **)arg0;
-    if (temp_2 != NULL) {
-        temp_3 = *(s32 *)(temp_2 + 8) - 1;
-        *(s32 *)(temp_2 + 8) = temp_3;
-        if (temp_3 == 0) {
-            temp_4 = *(u8 **)temp_2;
-            if (temp_4 != NULL) {
-                jtbl_008873EC[0](temp_4);
+    object = *(u8 **)arg0;
+    if (object != NULL) {
+        refCount = *(s32 *)(object + 8) - 1;
+        *(s32 *)(object + 8) = refCount;
+        if (refCount == 0) {
+            inner = *(u8 **)object;
+            if (inner != NULL) {
+                jtbl_008873EC[0](inner);
             }
-            jtbl_008873EC[0](temp_2);
+            jtbl_008873EC[0](object);
         }
         *(s32 *)arg0 = 0;
     }
@@ -466,7 +466,7 @@ void func_0047eaa0(u8 *arg0)
 void func_0047eb20(u8 *arg0, s16 arg1, u16 arg2)
 {
     u16 status;
-    s32 temp_4_2;
+    s32 kind;
     u16 type;
 
     if ((*(u16 *)(arg0 + 0x10) & 0x10) == 0) {
@@ -510,8 +510,8 @@ void func_0047eb20(u8 *arg0, s16 arg1, u16 arg2)
         *(s16 *)(arg0 + 0x24) = arg2;
         *(s16 *)(arg0 + 0x20) = 0;
         *(s16 *)(arg0 + 0x22) = arg1 - 4;
-        temp_4_2 = *(s32 *)(*(u8 **)arg0 + 4);
-        switch (temp_4_2) {
+        kind = *(s32 *)(*(u8 **)arg0 + 4);
+        switch (kind) {
         case 3:
             *(s16 *)(arg0 + 0x1E) = 1;
             break;
@@ -537,27 +537,27 @@ static inline void code1_0047_abd0(s16 arg0, s32 arg1, s16 arg2)
 // FUN_0047ED60
 void func_0047ed60(u8 *arg0)
 {
-    s16 temp_3_2;
-    s16 temp_3_3;
-    s16 temp_3_4;
-    s16 temp_4;
-    s16 temp_4_2;
-    s32 var_16;
-    u8 *temp_3;
+    s16 waitTicks;
+    s16 scratch;
+    s16 retryCount;
+    s16 pendingTicks;
+    s16 pendingSlot;
+    s32 retryReady;
+    u8 *object;
     s16 call_a0;
     s16 call_a2;
     s32 call_a1;
-    s32 n;
+    s32 retry;
 
     func_0047e6f0((void **)arg0);
-    temp_3 = *(u8 **)arg0;
-    if (temp_3 != NULL && (*(u16 *)(temp_3 + 0x12) & 1) != 0) {
-        var_16 = 1;
-        temp_3_2 = *(s16 *)(arg0 + 0x16);
-        if (temp_3_2 >= 0) {
-            if (temp_3_2 == 0) {
-                temp_3_3 = ((*(u16 *)(arg0 + 0x10) & 0x20) != 0);
-                if (temp_3_3 != 0) {
+    object = *(u8 **)arg0;
+    if (object != NULL && (*(u16 *)(object + 0x12) & 1) != 0) {
+        retryReady = 1;
+        waitTicks = *(s16 *)(arg0 + 0x16);
+        if (waitTicks >= 0) {
+            if (waitTicks == 0) {
+                scratch = ((*(u16 *)(arg0 + 0x10) & 0x20) != 0);
+                if (scratch != 0) {
                     call_a0 = *(s16 *)(arg0 + 0x12);
                     call_a2 = *(s16 *)(arg0 + 0x14);
                     call_a1 = *(s32 *)(arg0 + 0x18);
@@ -565,38 +565,38 @@ void func_0047ed60(u8 *arg0)
                 }
                 *(s16 *)(arg0 + 0x16) = -1;
             } else {
-                *(s16 *)(arg0 + 0x16) = temp_3_2 - 1;
-                var_16 = 0;
+                *(s16 *)(arg0 + 0x16) = waitTicks - 1;
+                retryReady = 0;
             }
         }
-        temp_4 = *(s16 *)(arg0 + 0x24);
-        if (temp_4 >= 0) {
-            if (temp_4 == 0) {
+        pendingTicks = *(s16 *)(arg0 + 0x24);
+        if (pendingTicks >= 0) {
+            if (pendingTicks == 0) {
                 call_a0 = *(s16 *)(arg0 + 0x1E);
                 call_a2 = *(s16 *)(arg0 + 0x20);
-                temp_3_3 = *(s16 *)(arg0 + 0x22);
+                scratch = *(s16 *)(arg0 + 0x22);
                 func_0045af60(*(s16 *)(arg0 + 0x1C), call_a0, call_a2,
-                              temp_3_3);
+                              scratch);
                 *(s16 *)(arg0 + 0x26) = *(s16 *)(arg0 + 0x1C);
                 *(s16 *)(arg0 + 0x24) = -1;
             } else {
-                *(s16 *)(arg0 + 0x24) = temp_4 - 1;
-                var_16 = 0;
+                *(s16 *)(arg0 + 0x24) = pendingTicks - 1;
+                retryReady = 0;
             }
-        } else if (temp_4 == -2) {
-            temp_4_2 = *(s16 *)(arg0 + 0x26);
-            if (temp_4_2 >= 0) {
-                func_0045aa90(temp_4_2, *(s16 *)(arg0 + 0x1E));
+        } else if (pendingTicks == -2) {
+            pendingSlot = *(s16 *)(arg0 + 0x26);
+            if (pendingSlot >= 0) {
+                func_0045aa90(pendingSlot, *(s16 *)(arg0 + 0x1E));
                 *(s16 *)(arg0 + 0x26) = -1;
             }
             *(s16 *)(arg0 + 0x24) = -1;
         }
-        if (*(s32 *)(arg0 + 0xC) != 0 && var_16 == 1 &&
+        if (*(s32 *)(arg0 + 0xC) != 0 && retryReady == 1 &&
             *(s16 *)(arg0 + 8) != -1) {
-            n = *(s16 *)(arg0 + 8) + 1;
-            *(s16 *)(arg0 + 8) = n;
-            temp_3_4 = *(s16 *)(arg0 + 8);
-            if (temp_3_4 < 8) {
+            retry = *(s16 *)(arg0 + 8) + 1;
+            *(s16 *)(arg0 + 8) = retry;
+            retryCount = *(s16 *)(arg0 + 8);
+            if (retryCount < 8) {
                 call_a1 = *(u16 *)(arg0 + 0x06);
                 if (func_0047e0f0(arg0, *(s16 *)((u32)arg0 + 8),
                                   *(s16 *)(arg0 + 0x04), (u16)call_a1) == 0) {
@@ -611,53 +611,53 @@ void func_0047ed60(u8 *arg0)
 // FUN_0047EF10
 static s32 func_0047ef10(u8 *arg0, f32 fparg0)
 {
-    s32 temp_2;
-    s32 var_7;
-    s32 var_6;
+    s32 mid;
+    s32 hi;
+    s32 lo;
     s32 stride;
     u8 *base;
 
-    var_6 = 0;
-    var_7 = *(s32 *)arg0 - 1;
+    lo = 0;
+    hi = *(s32 *)arg0 - 1;
     stride = *(s32 *)(arg0 + 8);
     base = *(u8 **)(arg0 + 0xC);
     do {
-        temp_2 = (var_6 + var_7 + 1) >> 1;
-        if (fparg0 < *(f32 *)(base + (stride * temp_2))) {
-            temp_2 = temp_2 - 1;
-            var_7 = temp_2;
+        mid = (lo + hi + 1) >> 1;
+        if (fparg0 < *(f32 *)(base + (stride * mid))) {
+            mid = mid - 1;
+            hi = mid;
         } else {
-            var_6 = temp_2;
+            lo = mid;
         }
-    } while (var_6 < var_7);
-    return temp_2;
+    } while (lo < hi);
+    return mid;
 }
 // FUN_0047EF70
 u8 *func_0047ef70(u8 *arg0, f32 fparg0)
 {
-    s32 temp_5;
-    s32 temp_6;
-    s32 var_4;
-    s32 var_8;
-    s32 var_7;
+    s32 lastIndex;
+    s32 pairs;
+    s32 mid;
+    s32 hi;
+    s32 lo;
     s32 stride;
 
-    temp_6 = (s32)*(u8 **)(arg0 + 0xC);
-    var_7 = 0;
-    temp_5 = *(s32 *)arg0 - 1;
-    var_8 = temp_5;
+    pairs = (s32)*(u8 **)(arg0 + 0xC);
+    lo = 0;
+    lastIndex = *(s32 *)arg0 - 1;
+    hi = lastIndex;
     stride = *(s32 *)(arg0 + 8);
     do {
-        var_4 = (var_7 + var_8 + 1) >> 1;
-        if (fparg0 < *(f32 *)(temp_6 + (stride * var_4))) {
-            var_4 = var_4 - 1;
-            var_8 = var_4;
+        mid = (lo + hi + 1) >> 1;
+        if (fparg0 < *(f32 *)(pairs + (stride * mid))) {
+            mid = mid - 1;
+            hi = mid;
         } else {
-            var_7 = var_4;
+            lo = mid;
         }
-    } while (var_7 < var_8);
-    if ((u32)var_4 >= (u32)temp_5) {
-        fGpffffbb4c = *(f32 *)(viewAddReverse(temp_6, var_4 * 8) + 4);
+    } while (lo < hi);
+    if ((u32)mid >= (u32)lastIndex) {
+        fGpffffbb4c = *(f32 *)(viewAddReverse(pairs, mid * 8) + 4);
     } else {
         f32 x0;
         f32 y0;
@@ -665,12 +665,12 @@ u8 *func_0047ef70(u8 *arg0, f32 fparg0)
         f32 y1;
         f32 ratio;
 
-        x0 = *(f32 *)(temp_6 + (var_4 * 8));
-        y0 = *(f32 *)(temp_6 + (var_4 * 8) + 4);
+        x0 = *(f32 *)(pairs + (mid * 8));
+        y0 = *(f32 *)(pairs + (mid * 8) + 4);
         ratio = fparg0 - x0;
-        x1 = *(f32 *)(temp_6 + (var_4 * 8) + 8);
+        x1 = *(f32 *)(pairs + (mid * 8) + 8);
         ratio = ratio / (x1 - x0);
-        y1 = *(f32 *)(temp_6 + (var_4 * 8) + 0xC);
+        y1 = *(f32 *)(pairs + (mid * 8) + 0xC);
         fGpffffbb4c = y0 + code1_0047_mul(y1 - y0, ratio);
     }
     fGpffffbb48 = fparg0;
@@ -812,56 +812,56 @@ void *func_0047f1a0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
  * call's $a0 setup before $f12; func_0047f4d0 is 216B in a 224B window with
  * only two retail zero-tail words. */
 // FUN_0047F3A0
-static u32 *func_0047f3a0(int *param_2, float param_1)
+static u32 *func_0047f3a0(int *table, float t)
 {
-  float *key;
+  float *entry;
   float fraction;
   float start;
-  float output;
-  float difference;
-  int high;
-  int low;
+  float value;
+  float delta;
+  int hi;
+  int lo;
   int stride;
-  u8 *data;
+  u8 *keys;
   int mid;
-  u32 address;
+  u32 entryAddr;
 
-  data = (u8 *)param_2[3];
-  low = 0;
-  high = *param_2 - 1;
-  stride = param_2[2];
+  keys = (u8 *)table[3];
+  lo = 0;
+  hi = *table - 1;
+  stride = table[2];
   do {
-    mid = (low + high + 1) >> 1;
-    if (param_1 < *(float *)(data + stride * mid)) {
-      high = --mid;
+    mid = (lo + hi + 1) >> 1;
+    if (t < *(float *)(keys + stride * mid)) {
+      hi = --mid;
     }
     else {
-      low = mid;
+      lo = mid;
     }
-  } while (low < high);
-  if ((u32)mid >= (u32)(*param_2 - 1)) {
-    address = mid * 0x10;
-    address += (u32)data;
-    *(float *)(DAT_00922c30_abs + 4) = *(float *)(address + 4);
-    *(float *)(DAT_00922c30_abs + 8) = *(float *)(address + 8);
-    *(float *)(DAT_00922c30_abs + 12) = *(float *)(address + 0xc);
+  } while (lo < hi);
+  if ((u32)mid >= (u32)(*table - 1)) {
+    entryAddr = mid * 0x10;
+    entryAddr += (u32)keys;
+    *(float *)(DAT_00922c30_abs + 4) = *(float *)(entryAddr + 4);
+    *(float *)(DAT_00922c30_abs + 8) = *(float *)(entryAddr + 8);
+    *(float *)(DAT_00922c30_abs + 12) = *(float *)(entryAddr + 0xc);
   }
   else {
-    key = (float *)((u32)(mid * 0x10) + (u32)data);
-    start = key[0];
-    fraction = param_1 - start;
-    fraction /= key[4] - start;
-    output = key[1];
-    difference = key[5] - output;
-    *(float *)(DAT_00922c30_abs + 4) = fraction * difference + output;
-    output = key[2];
-    difference = key[6] - output;
-    *(float *)(DAT_00922c30_abs + 8) = fraction * difference + output;
-    output = key[3];
-    difference = key[7] - output;
-    *(float *)(DAT_00922c30_abs + 12) = fraction * difference + output;
+    entry = (float *)((u32)(mid * 0x10) + (u32)keys);
+    start = entry[0];
+    fraction = t - start;
+    fraction /= entry[4] - start;
+    value = entry[1];
+    delta = entry[5] - value;
+    *(float *)(DAT_00922c30_abs + 4) = fraction * delta + value;
+    value = entry[2];
+    delta = entry[6] - value;
+    *(float *)(DAT_00922c30_abs + 8) = fraction * delta + value;
+    value = entry[3];
+    delta = entry[7] - value;
+    *(float *)(DAT_00922c30_abs + 12) = fraction * delta + value;
   }
-  *(float *)DAT_00922c30_abs = param_1;
+  *(float *)DAT_00922c30_abs = t;
   return (u32 *)DAT_00922c30_abs;
 }
 typedef struct Code47Vec4 {
