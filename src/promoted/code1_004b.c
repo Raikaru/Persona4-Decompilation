@@ -700,7 +700,7 @@ void func_004b1ad0(u8 *arg0)
         info.size[0] = frame[0];
         info.size[1] = frame[1];
     }
-    RpGeometryLock(*(void **)(*(u8 **)(sprite + 0x10) + 0x18), 0xFF2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(sprite + 0x10) + 0x18), 0xFF2);
     {
         u8 *geometry = *(u8 **)(*(u8 **)(sprite + 0x10) + 0x18);
 

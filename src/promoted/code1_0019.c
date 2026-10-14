@@ -414,7 +414,7 @@ void func_001928c0(void)
         base[0](9, 2);
         base[0](0xC, 1);
         RpGeometryLock(
-            *(void **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0xE7C) + 0x10) + 0x18),
+            *(RpGeometry **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0xE7C) + 0x10) + 0x18),
             0xFF0);
         temp_3 = iGpffffb3ac;
         var_4 = *(u8 **)(*(u8 **)(*(u8 **)(temp_3 + 0xE7C) + 0x10) + 0x18);

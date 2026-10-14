@@ -1414,7 +1414,7 @@ void mdlEffectRenderFlares(u8 *arg0)
     {
         u8 *p = *(u8 **)(listBase + 0x10);
         u8 *q = *(u8 **)(p + 0x18);
-        RpGeometryLock(q, 0xFF2);
+        RpGeometryLock((RpGeometry *)q, 0xFF2);
         vtxCur = *(u8 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x5C);
         vtxCur = *(u8 **)(vtxCur + 0x14);
         vtxBase = vtxCur;

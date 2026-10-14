@@ -164,7 +164,7 @@ void func_00498f10(u8 *arg0)
         temp_f22 += *(f32 *)(temp_18 + 0x40);
         temp_2 = *(s16 *)(temp_17 + 8);
         var_16 = temp_2 / 4;
-        RpGeometryLock(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
         var_19 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18) + 0x5C) + 0x14);
         var_f21 = 0.0f;
         var_f1 = (f32)*(u32 *)(temp_18 + 0x38);
@@ -473,8 +473,8 @@ void func_00499730(u8 *arg0)
     if ((temp_20 >= temp_21) || (temp_20 == 0)) {
         func_0049a660(temp_5);
         step = (f32)temp_21 / (f32)temp_20;
-        RpGeometryLock(*(u8 **)(*(u8 **)(temp_16 + 0x10) + 0x18), 2);
-        RpGeometryLock(*(u8 **)(*(u8 **)(*temp_17 + 0x10) + 0x18), 2);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(temp_16 + 0x10) + 0x18), 2);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*temp_17 + 0x10) + 0x18), 2);
         limit = *(u32 *)(temp_19 + 0x38);
         temp_4 = *temp_17;
         stmp = *(s16 *)(temp_4 + 8) - 1;
@@ -791,7 +791,7 @@ void func_00499e40(u8 *arg0)
         fade = f1 + *(f32 *)(temp_18 + 0x40);
         tmp2 = *(s16 *)(temp_17 + 8);
         var_16 = tmp2 / 4;
-        RpGeometryLock(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
         var_19 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18) + 0x5C) + 0x14);
         phase = 0.0f;
         var_f1 = (f32)*(u32 *)(temp_18 + 0x38);

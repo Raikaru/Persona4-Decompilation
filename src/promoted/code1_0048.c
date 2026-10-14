@@ -476,7 +476,7 @@ u8 *func_00484010(u8 *arg0)
         var_16 += 1;
     }
 
-    RpGeometryLock(temp_19, 1);
+    RpGeometryLock((RpGeometry *)temp_19, 1);
 
     {
         u8 *src;

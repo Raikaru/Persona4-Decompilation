@@ -292,7 +292,7 @@ void func_004b36b0(u8 *unused, u8 *effect)
     }
     particle = *(u8 **)state;
     count = *(u32 *)(config + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 2);
     vertices = *(f32 **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
     {
         f32 opacity = (f32)(u32)particle[2] / 255.0f;
@@ -739,7 +739,7 @@ void func_004b4430(u8 *unused, u8 *effect)
     }
     particle = *(u8 **)state;
     count = *(u32 *)(config + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 2);
     vertices = *(f32 **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
     width = *(f32 *)(config + 0x5c) / 10.0f;
     spread = *(f32 *)(config + 0x60) / 10.0f;

@@ -390,7 +390,7 @@ s32 func_003c1c70(u8 *arg0) {
 
     self = arg0;
     *(s16 *)(arg0 + 0xE) += 1;
-    RpGeometryLock(arg0, 0xFFF);
+    RpGeometryLock((RpGeometry *)arg0, 0xFFF);
     func_003e3c20(D_0070AFB0, self);
     temp = *(u8 **)(self + 0x5C);
     if (temp != NULL) {
@@ -456,15 +456,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1ea0);
 // FUN_003C2290
 #pragma schedule on
 #pragma no_branch_likely on
-u8 *RpGeometryLock(u8 *arg0, s32 arg1) {
+RpGeometry *RpGeometryLock(RpGeometry *arg0, s32 arg1) {
+    u8 *geometry;
     u8 *temp;
 
-    *(u16 *)(arg0 + 0xC) |= (u16)(arg1 & 0xFFFF);
+    geometry = (u8 *)arg0;
+    *(u16 *)(geometry + 0xC) |= (u16)(arg1 & 0xFFFF);
     if (arg1 & 1) {
-        temp = *(u8 **)(arg0 + 0x54);
+        temp = *(u8 **)(geometry + 0x54);
         if (temp != NULL) {
             func_003c5760(temp);
-            *(s32 *)(arg0 + 0x54) = 0;
+            *(s32 *)(geometry + 0x54) = 0;
         }
     }
     return arg0;

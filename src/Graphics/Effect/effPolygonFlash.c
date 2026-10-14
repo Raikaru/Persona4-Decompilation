@@ -201,7 +201,7 @@ void func_0049aa30(u8 *effect)
         firstFrame = 0;
         births = config->births;
     }
-    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
     vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
     colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
     direction.lane[1] = 0.0f;
@@ -545,7 +545,7 @@ void func_0049b470(u8 *arg0)
     entry = *(s32 **)state;
     work = *(u8 **)(state + 4);
     count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
     tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
     memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
     model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
@@ -729,7 +729,7 @@ void func_0049b690(u8 *effect)
         firstFrame = 0;
         births = config->births;
     }
-    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
     vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
     colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
     zero = 0.0f;
@@ -1061,7 +1061,7 @@ void func_0049c1b0(u8 *arg0)
     entry = *(s32 **)state;
     work = *(u8 **)(state + 4);
     count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
     tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
     memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
     model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
@@ -1209,7 +1209,7 @@ void func_0049c3d0(u8 *effect)
         firstFrame = 0;
         births = config->births;
     }
-    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
     vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
     colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
     zero = 0.0f;
@@ -1551,7 +1551,7 @@ void func_0049ced0(u8 *arg0)
     entry = *(s32 **)state;
     work = *(u8 **)(state + 4);
     count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
     tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
     memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
     model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
@@ -1584,7 +1584,7 @@ void func_0049cfc0(u8 *arg0, u8 *arg1)
 
     count = *(u32 *)(arg1 + 0x38);
     if (count != 0) {
-        RpGeometryLock(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18), 0xFF0);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18), 0xFF0);
         p17 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18) + 0x34);
         if (p17 == NULL) {
             func_0046d730(D_00713FF0, 0x4BE);
@@ -1721,7 +1721,7 @@ void func_0049d310(u8 *arg0)
             firstFrame = 0;
             births = *(s32 *)(config + 0x50);
         }
-        RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
         vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
         colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
         zero = 0.0f;
@@ -2039,7 +2039,7 @@ void func_0049dce0(u8 *arg0)
     entry = *(s32 **)state;
     work = *(u8 **)(state + 4);
     count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
     tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
     memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
     model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
@@ -2072,7 +2072,7 @@ void func_0049ddd0(u8 *arg0, u8 *arg1)
 
     count = *(u32 *)(arg1 + 0x38);
     if (count != 0) {
-        RpGeometryLock(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18), 0xFF0);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18), 0xFF0);
         p17 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18) + 0x34);
         if (p17 == NULL) {
             func_0046d730(D_00713FF0, 0x65A);
@@ -2211,7 +2211,7 @@ void func_0049e100(u8 *arg0)
             firstFrame = 0;
             births = *(s32 *)(config + 0x50);
         }
-        RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
         vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
         colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
         zero = 0.0f;
@@ -2517,7 +2517,7 @@ void func_0049eae0(u8 *arg0)
     entry = *(s32 **)state;
     work = *(u8 **)(state + 4);
     count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
     tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
     memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
     model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
@@ -2550,7 +2550,7 @@ void func_0049ebd0(u8 *arg0, u8 *arg1)
 
     count = *(u32 *)(arg1 + 0x38);
     if (count != 0) {
-        RpGeometryLock(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18), 0xFF0);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18), 0xFF0);
         p17 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18) + 0x34);
         if (p17 == NULL) {
             func_0046d730(D_00713FF0, 0x803);
@@ -2681,7 +2681,7 @@ void func_0049ef50(u8 *effect)
         firstFrame = 0;
         births = *(s32 *)(config + 0x50);
     }
-    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
     vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
     colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
     zero = 0.0f;
@@ -3017,7 +3017,7 @@ void func_0049f9e0(u8 *arg0)
     entry = *(s32 **)state;
     work = *(u8 **)(state + 4);
     count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
     tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
     memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
     model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
@@ -3098,7 +3098,7 @@ void func_0049fbf0(u8 *effect)
         firstFrame = 0;
         births = *(s32 *)(config + 0x50);
     }
-    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
     vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
     colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
     zero = 0.0f;
@@ -3457,7 +3457,7 @@ void func_004a07b0(u8 *arg0)
     entry = *(s32 **)state;
     work = *(u8 **)(state + 4);
     count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
     tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
     memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
     model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
@@ -3490,7 +3490,7 @@ void func_004a08a0(u8 *arg0, u8 *arg1)
 
     count = *(u32 *)(arg1 + 0x38);
     if (count != 0) {
-        RpGeometryLock(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18), 0xFF0);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18), 0xFF0);
         p17 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18) + 0x34);
         if (p17 == NULL) {
             func_0046d730(D_00713FF0, 0xB08);
@@ -3650,7 +3650,7 @@ void func_004a0c00(u8 *effect)
         firstFrame = 0;
         births = *(s32 *)(config + 0x50);
     }
-    RpGeometryLock(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18), 10);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
     vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
     colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
     zero = 0.0f;

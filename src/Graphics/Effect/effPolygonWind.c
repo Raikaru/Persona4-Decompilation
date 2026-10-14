@@ -2,11 +2,10 @@
 /* Original translation unit effPolygonWind.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "effect_instance_internal.h"
+#include "rw_geometry_internal.h"
 #include "effect_vu0_internal.h"
 extern void func_004841c0(void *arg0);
 extern void (*D_008873ec[])(void *);
-
-typedef struct RpGeometry RpGeometry;
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef int s128 __attribute__((mode(TI)));
@@ -30,7 +29,6 @@ extern void func_004a1d70(void *, void *);
 extern void func_004a30e0(u8 *, u8 *);
 extern void func_004a4450(u8 *, u8 *);
 extern u8 *func_00484010(u8 *);
-extern RpGeometry *RpGeometryLock(RpGeometry *, s32);
 extern void *memcpy(void *, const void *, u32);
 extern char D_00713330[];
 extern char D_00714148[];
