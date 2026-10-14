@@ -181,12 +181,12 @@ void func_0034a820(u8 *arg0)
 }
 // FUN_0034A840
 void func_0034a840(u8 *arg0) {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    *(s32 *)(temp_16 + 0xE4) = 0;
-    *(s32 *)(temp_16 + 0xE0) = 0;
-    func_003e8130((u8 *)func_00457120(), temp_16 + 0xE0);
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    *(s32 *)(work + 0xE4) = 0;
+    *(s32 *)(work + 0xE0) = 0;
+    func_003e8130((u8 *)func_00457120(), work + 0xE0);
 }
 
 // FUN_0034A890
