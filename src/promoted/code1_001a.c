@@ -354,70 +354,70 @@ void func_001a0290(u8 *arg0, u16 arg1, u8 *arg2)
 // FUN_001A03B0
 void func_001a03b0(s64 *arg0)
 {
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_2_5;
-    u8 *temp_2_6;
-    u8 *temp_2_7;
-    u8 *temp_4;
-    u8 *temp_5;
-    u8 *temp_5_2;
-    u8 *var_16;
+    u8 *lookAtDeactivatePacket;
+    u8 *ambientPacket;
+    u8 *unitPacket;
+    u8 *effectPacket;
+    u8 *subPacket;
+    u8 *cameraPacket;
+    u8 *endPacket;
+    u8 *battleCtxAlt;
+    u8 *battleCtx;
+    u8 *battleCtxClear;
+    u8 *listUnit;
 
-    temp_5 = D_0076449C;
-    if (*(s32 *)(temp_5 + 0xC) & 0x400000) {
-        if (*(u16 *)(temp_5 + 0x18) & 0x20) {
-            temp_2 = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3);
-            *(s64 *)(temp_2 + 0x60) = *arg0;
-            func_00194590(temp_2, 1);
+    battleCtx = D_0076449C;
+    if (*(s32 *)(battleCtx + 0xC) & 0x400000) {
+        if (*(u16 *)(battleCtx + 0x18) & 0x20) {
+            lookAtDeactivatePacket = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3);
+            *(s64 *)(lookAtDeactivatePacket + 0x60) = *arg0;
+            func_00194590(lookAtDeactivatePacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 2) {
-            temp_2_2 = (u8 *)func_001d3700(3, 0xFFF);
-            *(s64 *)(temp_2_2 + 0x60) = *arg0;
-            func_00194590(temp_2_2, 0);
+            ambientPacket = (u8 *)func_001d3700(3, 0xFFF);
+            *(s64 *)(ambientPacket + 0x60) = *arg0;
+            func_00194590(ambientPacket, 0);
         }
-        temp_4 = D_0076449C;
-        if (*(u16 *)(temp_4 + 0x18) & 1) {
-            var_16 = *(u8 **)(temp_4 + 0x174);
+        battleCtxAlt = D_0076449C;
+        if (*(u16 *)(battleCtxAlt + 0x18) & 1) {
+            listUnit = *(u8 **)(battleCtxAlt + 0x174);
             goto loop_test;
 loop_body:
-            if ((*(u16 *)(var_16 + 0x1A) & 1) &&
-                datCalcIsDead(*(s32 *)(*(u8 **)(var_16 + 0x30) + 0xA64), 0) == 0) {
-                temp_2_3 = func_0019a0c0(*(u8 **)(var_16 + 0x30), 0);
-                *(s64 *)(temp_2_3 + 0x60) = *arg0;
-                func_00194590(temp_2_3, 0);
+            if ((*(u16 *)(listUnit + 0x1A) & 1) &&
+                datCalcIsDead(*(s32 *)(*(u8 **)(listUnit + 0x30) + 0xA64), 0) == 0) {
+                unitPacket = func_0019a0c0(*(u8 **)(listUnit + 0x30), 0);
+                *(s64 *)(unitPacket + 0x60) = *arg0;
+                func_00194590(unitPacket, 0);
             }
-            var_16 = *(u8 **)(var_16 + 0x450);
+            listUnit = *(u8 **)(listUnit + 0x450);
 loop_test:
-            if (var_16 != NULL) {
+            if (listUnit != NULL) {
                 goto loop_body;
             }
         }
         if (*(u16 *)(D_0076449C + 0x18) & 0x10) {
-            temp_2_4 = (u8 *)func_001ba090(0);
-            *(s64 *)(temp_2_4 + 0x60) = *arg0;
-            func_00194590(temp_2_4, 1);
+            effectPacket = (u8 *)func_001ba090(0);
+            *(s64 *)(effectPacket + 0x60) = *arg0;
+            func_00194590(effectPacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 8) {
-            temp_2_5 = (u8 *)func_001d7a10(5);
-            *(s64 *)(temp_2_5 + 0x60) = *arg0;
-            func_00194590(temp_2_5, 1);
+            subPacket = (u8 *)func_001d7a10(5);
+            *(s64 *)(subPacket + 0x60) = *arg0;
+            func_00194590(subPacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 4) {
-            temp_2_6 = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x24);
-            *(s64 *)(temp_2_6 + 0x60) = *arg0;
-            func_00194590(temp_2_6, 0);
+            cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x24);
+            *(s64 *)(cameraPacket + 0x60) = *arg0;
+            func_00194590(cameraPacket, 0);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 0x40) {
-            temp_2_7 = func_00201f20();
-            *(s64 *)(temp_2_7 + 0x60) = *arg0;
-            func_00194590(temp_2_7, 0);
+            endPacket = func_00201f20();
+            *(s64 *)(endPacket + 0x60) = *arg0;
+            func_00194590(endPacket, 0);
         }
         *(u16 *)(D_0076449C + 0x18) = 0;
-        temp_5_2 = D_0076449C;
-        *(s32 *)(temp_5_2 + 0xC) &= 0xFFBFFFFF;
+        battleCtxClear = D_0076449C;
+        *(s32 *)(battleCtxClear + 0xC) &= 0xFFBFFFFF;
     }
 }
 // FUN_001A05F0
