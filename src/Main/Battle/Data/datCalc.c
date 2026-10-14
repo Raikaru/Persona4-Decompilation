@@ -5119,18 +5119,18 @@ s32 func_00243ce0(u8 *arg0)
 }
 
 // FUN_00243D80
-s32 func_00243d80(u8 *arg0)
+s32 func_00243d80(DatUnit *unit)
 {
     s16 *b;
 
-    if (!(*(u16 *)arg0 & 4)) {
+    if (!(unit->flags & 4)) {
         return 0;
     }
-    if (*(u16 *)(arg0 + 2) >= 0x150) {
+    if (unit->id >= 0x150) {
         func_0046d730(D_00635938, 0x15D2);
     }
     b = (s16 *)iGpffffb3cc;
-    if (b[*(u16 *)(arg0 + 2) * 0x74 + 0xC] & 0x80) {
+    if (b[unit->id * 0x74 + 0xC] & 0x80) {
         return 1;
     }
     return 0;

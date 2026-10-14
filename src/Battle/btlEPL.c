@@ -1,3 +1,4 @@
+#include "datCalc_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 /* Original translation unit btlEPL.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -36,8 +37,6 @@ extern u32 effMiscRand(s32 arg0);
 extern void func_0019d990(void *arg0, s32 arg1);
 extern void func_00199890(void *arg0, s32 arg1);
 extern void func_0019d7a0(void *arg0, s32 arg1);
-extern s32 func_00243d80(s32 arg0);
-extern s32 datCalcIsDead(u32 arg0, u32 arg1);
 extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
 extern u8 *func_001b7020(void);
 extern u8 *func_001b7030(void);
@@ -134,7 +133,7 @@ typedef struct BtlEplUnit
     f32 rate;               // 0x9F0, stored motion rate
     s8 option;              // 0x9F4, stored motion option
     u8 pad9F5[0x6F];
-    s32 unkA64;             // 0xA64, datCalc handle passed to datCalcIsDead
+    DatUnit *datUnit;        // 0xA64, DatUnit record of this unit
     u8 padA68[4];
     struct BtlEplUnit *next; // 0xA6C
 } BtlEplUnit;
@@ -1264,9 +1263,9 @@ void btlEplUnitApplyMotion(u8 *arg0)
         node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
         while (node != NULL) {
             if ((btlEplUnitIsSelected(node, &param->select) != 0) &&
-                ((value = node->unkA64, value == 0) ||
-                 (func_00243d80(value) != 0) ||
-                 (datCalcIsDead(node->unkA64, 0) == 0))) {
+                ((node->datUnit == 0) ||
+                 (func_00243d80(node->datUnit) != 0) ||
+                 (datCalcIsDead(node->datUnit, 0) == 0))) {
                 node->unk9D8 |= 8;
                 if (count == 0) {
                     if (param->unk0E == 0) {
@@ -1362,9 +1361,9 @@ void btlEplApplyScaleEffect(u8 *arg0) {
             for (i = 0; i < 2; i++) {
                 node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
                 while (node != NULL) {
-                    if ((node->unkA64 != 0) &&
+                    if ((node->datUnit != 0) &&
                         (btlEplUnitIsSelected(node, &param->select) != 0) &&
-                        (datCalcIsDead(node->unkA64, 0) == 0)) {
+                        (datCalcIsDead(node->datUnit, 0) == 0)) {
                         func_00194ff0(node, sp120, sp50, NULL);
                         btlUnitSetPos(node, sp120);
                         btlUnitSetRot(node, sp50);
@@ -1395,7 +1394,7 @@ void btlEplApplyScaleEffect(u8 *arg0) {
                     node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
                     while (node != NULL) {
                         if ((btlEplUnitIsSelected(node, &param->select) != 0) &&
-                            (node->unkA64 == 0 || datCalcIsDead(node->unkA64, 0) == 0)) {
+                            (node->datUnit == 0 || datCalcIsDead(node->datUnit, 0) == 0)) {
                             btlUnitSetPos(node, sp110);
                             inv = 1.0f / scale;
                             sp130[2] = inv;
