@@ -280,14 +280,15 @@ void func_0014efc0(s32 arg0, s32 arg1)
     iGpffffb208 = func_0044ec30();
 }
 #pragma pop
-/* Guarded field-loader recovery: complete camera matrices, vectors and 32-entry
- * tables; real provider contracts; word-wide resource publication; explicit
- * state dispatch and default return. Native b210/O1: 5516/5504 bytes, 513 aligned
+/* Field-loader recovery history (the final byte-exact result is recorded below):
+ * complete camera matrices, vectors and 32-entry tables; word-wide resource
+ * publication; explicit state dispatch and default return. At the first
+ * checkpoint, native b210/O1 gave 5516/5504 bytes and 513 aligned
  * edits (previous guard: 5392 bytes, 574 edits). All 20 guarded siblings are
  * unchanged. The unnecessary 44-byte dispatch table is gone. NPC file-handle
  * storage uses absolute addresses; the old guard emitted out-of-range GP loads.
- * Camera-member failure and legacy matrix output lifetimes remain unresolved;
- * retain assembly. See build/resume-field-worker12/loader-proof.json.
+ * Camera-member and legacy matrix output lifetimes were unresolved at that
+ * checkpoint. Its evidence is in build/resume-field-worker12/loader-proof.json.
 
  * 2026-10-09: 513 -> 450: the m2c `loop_N: if (c) { ...; goto loop_N; }` loops
  * are while loops (retail tests at the bottom), with the re-read of
@@ -379,20 +380,27 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * but the strides stay merged and the table loops regress to the O2 colouring.
  * Capture: with opt_common_subs on, the O1 backend pass also forwards the loop locals' copies into
  * arithmetic (sll/preset/resource fold), so the O1-only declaration-order colouring is lost.
- * Replay (build/cap/f310base): the resource colours $v0 only when scanned at >= 714 (its raw load
- * temp); named values cap near r158 here (inline parameter binding). Also measured: a phase helper
+ * Replay of the old single-definition resource web required a number >= 714
+ * (its raw load temp); named values capped near r158 (inline parameter binding).
+ * Also measured: a phase helper
  * around the whole if/else 79, an s64 base parameter 49 (adds a move per site), a resource passed as a
  * call-site expression into a helper 14, the base defined before the branch or via an a270 result
  * local 14, cross-phase variable reuse 19, register 14. Micros: build/micro_src/fwd1-3.
  * measured: fnalign 14 -> 4 by retaining the FBN output-member address in
  * each primary-resource read, rather than the resource base. The file handle
  * at +0xA48 immediately precedes the output buffer pointer at +0xA4C.
- * All registers now agree; only the output-address addiu is early at each
- * site (before the two ID loads and file load, rather than after them).
+ * At that checkpoint all registers agreed; the output-address addiu was early
+ * at each site, before the two ID loads and file load rather than after them.
+ * measured: 4 -> 0, 1375 instructions. Each primary phase now keeps one result
+ * word for the mode query and then the selected resource address. Both values
+ * are consumed: the first selects the branch, the second supplies the FBN.
+ * The capture in build/code1af310_captures/primary_word_match shows these two
+ * phase-local webs (r41/r46) coalescing with physical $v0, without extra code.
+ * Keep the output argument in the pointer domain: the typed member address is
+ * formed after the file load; integer-address addition materializes it early.
  */
-// FUN_0014F310 NONMATCHING
-#ifdef NON_MATCHING
 #pragma push
+/* measured: O1 preserves the publication-loop pointer/offset lifetimes (fnalign 0). */
 #pragma optimization_level 1
 static inline s32 fldResourceReady_0014f310(u8 *file)
 {
@@ -416,7 +424,22 @@ static inline s32 fldResourceReadyOne_0014f310(u8 *file, s32 one)
     return 0;
 }
 
+// FUN_0014F310
 s32 func_0014f310(s32 arg0, s32 arg1) {
+    /* Only the fields read while opening the primary FBN are described. */
+    typedef struct FldPartReadWork {
+        s32 majorId;                    /* 0x00, narrowed to u16 for the FBN */
+        s32 minorId;                    /* 0x04, narrowed to u16 for the FBN */
+        u8 unknown08[8];
+        s16 variant;                    /* 0x10 */
+        u8 unknown12[0x16];
+        u8 *primaryResource;            /* 0x28 */
+    } FldPartReadWork;
+    typedef struct FldResourceFbnView {
+        u8 unknown000[0xA48];
+        u8 *file;                       /* 0xA48 */
+        u8 *data;                       /* 0xA4C */
+    } FldResourceFbnView;
     /* The matrix layout is the 64-byte RenderWare matrix from bamatrix.h. */
     typedef struct FldResourceCameraTransform {
         Vec3 right;
@@ -448,18 +471,26 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 func_00153d60(u8 *arg0, s32 arg1);
     extern s32 func_00154b10(void);
     extern s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4, u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8);
+    /* lint: allow H011 -- retail passes an already-u16-masked ID as a word;
+     * the provider consumes that same u16 ID. */
     extern void func_00146e60(s32 id, u8 *position, u8 *angles);
+    /* lint: allow H011 -- the final arguments are array addresses; the provider
+     * casts its s32 words to memcpy sources of 0x20 and 0x180 bytes. */
     extern s32 func_00146440(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
     extern u8 *func_001452b0(s32 arg0);
     extern u8 *MT_Scene_GetRes(s32 arg0);
     extern void func_00146630(u16 arg0);
     extern s32 func_00145ac0(u16 arg0, s32 arg1);
     extern s32 func_00145ba0(u16 arg0, s32 arg1);
-    extern s32 func_00145c80(s32 arg0, u8 *arg1);
+    /* lint: allow H011 -- the resource pointer is stored unchanged in the
+     * provider's +0x1A0 field; its s32 parameter is a 32-bit address carrier. */
+    extern s32 func_00145c80(u16 id, u8 *resource);
     extern u8 *func_0015f8e0(s32 arg0, s32 arg1);
     extern s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3);
     extern void func_0015fb00(u8 *arg0, s32 arg1);
     extern u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2);
+    /* lint: allow H011 -- retail supplies a signed halfword variant; the
+     * provider's only use narrows its s32 parameter to s16 for the filename. */
     extern s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s16 arg4);
     extern s32 func_0015f000(u8 *arg0, u8 *arg1);
     extern s32 func_0015c6f0(u8 *arg0);
@@ -503,12 +534,12 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 *temp_2_10;
     u8 *temp_2_11;
     u8 *temp_2_12;
-    u8 **initialFbnOutput;
+    uintptr_t initialPrimary;
     u8 *temp_2_14;
     u8 *temp_2_15;
     u8 *temp_2_16;
     u8 *temp_2_17;
-    u8 **reloadedFbnOutput;
+    uintptr_t reloadedPrimary;
     u8 *temp_2_19;
     u8 *temp_2_20;
     u8 *temp_2_21;
@@ -528,11 +559,11 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 *temp_3_16;
     u8 *temp_3_17;
     u8 *temp_3_18;
-    u8 *temp_3_19;
+    FldPartReadWork *initialPartWork;
     u8 *temp_3_20;
     u8 *temp_3_21;
     u8 *temp_3_22;
-    u8 *temp_3_23;
+    FldPartReadWork *reloadedPartWork;
     u8 *temp_3_24;
     u8 *temp_3_25;
     u8 *temp_3_2;
@@ -994,10 +1025,15 @@ loadParts:
         /* fallthrough */
 readParts:
         var_16_9 = 0;
-        if (func_0014a270() == 1) {
-            temp_3_19 = (u8 *)(iGpffff9db0);
-            initialFbnOutput = (u8 **)(*(u8 **)(temp_3_19 + 0x28) + 0xA4C);
-            if (func_0015e960(*(u8 **)((u8 *)initialFbnOutput - sizeof(*initialFbnOutput)), initialFbnOutput, *( u16 * )(temp_3_19 + 0), *( u16 * )(temp_3_19 + 4), *( s16 * )(temp_3_19 + 0x10)) == 0) {
+        initialPrimary = func_0014a270();
+        if (initialPrimary == 1) {
+            initialPartWork = (FldPartReadWork *)iGpffff9db0;
+            initialPrimary = (uintptr_t)initialPartWork->primaryResource;
+            if (func_0015e960(((FldResourceFbnView *)initialPrimary)->file,
+                             &((FldResourceFbnView *)initialPrimary)->data,
+                             (u16)initialPartWork->majorId,
+                             (u16)initialPartWork->minorId,
+                             initialPartWork->variant) == 0) {
                 var_16_9 += 1;
             }
         } else {
@@ -1064,10 +1100,15 @@ reloadParts:
             *( s32 * )(iGpffff9db0 + 0x94) = 0x1F;
 readReloadedParts:
             var_16_11 = 0;
-            if (func_0014a270() == 1) {
-                temp_3_23 = (u8 *)(iGpffff9db0);
-                reloadedFbnOutput = (u8 **)(*(u8 **)(temp_3_23 + 0x28) + 0xA4C);
-                if (func_0015e960(*(u8 **)((u8 *)reloadedFbnOutput - sizeof(*reloadedFbnOutput)), reloadedFbnOutput, *( u16 * )(temp_3_23 + 0), *( u16 * )(temp_3_23 + 4), *( s16 * )(temp_3_23 + 0x10)) == 0) {
+            reloadedPrimary = func_0014a270();
+            if (reloadedPrimary == 1) {
+                reloadedPartWork = (FldPartReadWork *)iGpffff9db0;
+                reloadedPrimary = (uintptr_t)reloadedPartWork->primaryResource;
+                if (func_0015e960(((FldResourceFbnView *)reloadedPrimary)->file,
+                                 &((FldResourceFbnView *)reloadedPrimary)->data,
+                                 (u16)reloadedPartWork->majorId,
+                                 (u16)reloadedPartWork->minorId,
+                                 reloadedPartWork->variant) == 0) {
                     var_16_11 += 1;
                 }
             } else {
@@ -1144,9 +1185,6 @@ block_259:
     return 0;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014f310);
-#endif
 /* measured: opt_loop_invariants hoists the slash loop constant. */
 #pragma push
 #pragma opt_loop_invariants on
