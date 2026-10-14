@@ -1640,7 +1640,7 @@ s32 func_001d6360(u8 *arg0)
     u8 *packet;
     u8 *abort_packet;
     s32 arg4;
-    if (func_001d4120((void *)*(s32 *)(arg0 + 0)) == 0)
+    if (func_001d4120(*(u8 **)(arg0 + 0)) == 0)
         return 0;
     packet = *(u8 **)(arg0 + 0x18);
     if ((*(s32 *)(packet + 4) & 0xFF000000) == 0)
