@@ -2407,45 +2407,45 @@ void func_001a4800(u8 *arg0)
     extern void func_001f5bd0(s32 state);
     extern s32 func_001f68e0(u8 *action);
     extern void func_0022dc70(u8 *action);
-    s32 temp_16;
-    s32 var_16;
-    s32 var_18;
-    s32 var_2;
-    u16 temp_2;
-    u8 *temp_17;
-    ActionState001a4800 *temp_4;
+    s32 loopIndex;
+    s32 delayFlag;
+    s32 actionIndex;
+    s32 personaId;
+    u16 actionKind;
+    u8 *otherAction;
+    ActionState001a4800 *battleState;
     if (((s32)(func_00193cd0(0x506)) == (s32)(0)) && ((s32)(func_00193cd0(0xC05)) == (s32)(0))) {
-        var_18 = 0;
-        while ((s32)(temp_16 = var_18 & 0xFFFF) < (s32)(*(u16 *)((u8 *)arg0 + 0x6A))) {
-            temp_17 = (u8 *)((*(u8 **)((u8 *)(((s32)(arg0) + ((var_18 & 0xFFFF) * 4))) + 0x38)));
-            if ((s32)(arg0) == (s32)(temp_17)) {
+        actionIndex = 0;
+        while ((s32)(loopIndex = actionIndex & 0xFFFF) < (s32)(*(u16 *)((u8 *)arg0 + 0x6A))) {
+            otherAction = (u8 *)((*(u8 **)((u8 *)(((s32)(arg0) + ((actionIndex & 0xFFFF) * 4))) + 0x38)));
+            if ((s32)(arg0) == (s32)(otherAction)) {
                 goto incr;
             }
-            if (!((*(u16 *)((u8 *)(temp_17) + 0x1A)) & 1)) {
+            if (!((*(u16 *)((u8 *)(otherAction) + 0x1A)) & 1)) {
                 goto incr;
             }
-            if (((s32)(datCalcIsDead((*(s32 *)((u8 *)((*(s32 *)((u8 *)(temp_17) + 0x30))) + 0xA64)), 0)) != (s32)(0))) {
+            if (((s32)(datCalcIsDead((*(s32 *)((u8 *)((*(s32 *)((u8 *)(otherAction) + 0x30))) + 0xA64)), 0)) != (s32)(0))) {
                 goto incr;
             }
-            if ((*(u16 *)((u8 *)(temp_17) + 0xC)) != 1) {
+            if ((*(u16 *)((u8 *)(otherAction) + 0xC)) != 1) {
                 goto donecheck;
             }
 incr:
-            var_18 = (var_18 + 1) & 0xFFFF;
+            actionIndex = (actionIndex + 1) & 0xFFFF;
         }
 donecheck:
-        if (temp_16 == (*( u16*)((u8 *)(arg0) + 0x6A))) {
+        if (loopIndex == (*( u16*)((u8 *)(arg0) + 0x6A))) {
             if (!((*( u16*)((u8 *)(arg0) + 0x18)) & 4)) {
                 func_001eb420(arg0 + 0x38);
             }
             (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFFD));
-            var_16 = 0;
-            temp_2 = (u16)((u16)((*( u16*)((u8 *)(arg0) + 0x6C))));
-            switch (temp_2) {
+            delayFlag = 0;
+            actionKind = (u16)((u16)((*( u16*)((u8 *)(arg0) + 0x6C))));
+            switch (actionKind) {
             case 1:
             case 2:
             case 3:
-                var_16 = 1;
+                delayFlag = 1;
                 /* fallthrough */
             case 9:
                 func_001f14f0(arg0);
@@ -2469,11 +2469,11 @@ donecheck:
             case 6:
                 if ((s32)((*( u8*)((*( u8**)((u8 *)(arg0) + 0x30)) + 0xA2))) == (s32)(0)) {
                     if ((s32)(datGetFlag(0x38)) != (s32)(0)) {
-                        var_2 = 5;
+                        personaId = 5;
                     } else {
-                        var_2 = 8;
+                        personaId = 8;
                     }
-                    if (((s32)(func_0010ce10((u8 *)func_0010a900(var_2 & 0xFFFF), 0x114)) != (s32)(-1)) || ((temp_4 = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (temp_4->flags & 2))) {
+                    if (((s32)(func_0010ce10((u8 *)func_0010a900(personaId & 0xFFFF), 0x114)) != (s32)(-1)) || ((battleState = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (battleState->flags & 2))) {
                         func_00194590(actionTargetPacketBytes(arg0, 8, 0, 0, 3), 1);
                         func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 8), 0);
                         actionSetDelayBytes(arg0, 0x1D, 0xC);
@@ -2502,7 +2502,7 @@ donecheck:
                 btlActionSetState((BtlAction *)arg0, 7U);
                 break;
             }
-            if ((var_16 != 0) && ((s32)(func_001a0140(arg0)) != (s32)(0))) {
+            if ((delayFlag != 0) && ((s32)(func_001a0140(arg0)) != (s32)(0))) {
                 (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) | 8));
             } else {
                 (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFF7));
