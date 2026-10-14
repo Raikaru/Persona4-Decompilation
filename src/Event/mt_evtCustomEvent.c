@@ -1,5 +1,6 @@
 /* Source unit: src/Event/mt_evtCustomEvent_00291900.c */
 #include "type.h"
+#include "scene_event_internal.h"
 
 /* Ported from P3FES src/Event/mt_evtCustomEvent.c FUN_0039eb90 (verified MATCH
  * there). 003b5d10 -> func_00145270, 003b7090 -> func_00146630. */

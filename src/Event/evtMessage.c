@@ -2,6 +2,7 @@
 /* Original translation unit evtMessage.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "scene_event_internal.h"
 extern void func_002777f0();
 extern void memset();
 extern s32 func_002774d0();

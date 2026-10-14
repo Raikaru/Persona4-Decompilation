@@ -2,6 +2,7 @@
 
 /* Source unit: src/Event/mt_misc_00290ec0.c */
 #include "type.h"
+#include "scene_event_internal.h"
 
 extern int func_00145250();
 extern int MT_Scene_GetRes();
