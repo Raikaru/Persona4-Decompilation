@@ -229,10 +229,10 @@ void func_001fad10(void);
 s32 func_001a0140(u8 *arg0)
 {
     s32 i0;
-    u8 temp_3;
+    u8 unitKind;
 
-    temp_3 = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2);
-    switch (temp_3) {
+    unitKind = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2);
+    switch (unitKind) {
     case 0:
     {
         s32 j0;
@@ -6450,19 +6450,19 @@ void func_001abbb0(s64 *arg0)
 #pragma pop
 // FUN_001AC500
 void func_001ac500(s64 *arg0) {
-    u8 *temp_2;
-    u8 *temp_2_2;
+    u8 *resetPacket;
+    u8 *cameraPacket;
 
     func_001a03b0(arg0);
     func_001eb3b0((u8 *)arg0 + 0x38);
     func_001dbf20(arg0, 0);
     func_001a03b0(arg0);
-    temp_2 = (u8 *)func_001d3700(3, 0xFFF);
-    *(s64 *)(temp_2 + 0x60) = *arg0;
-    func_00194590(temp_2, 0);
-    temp_2_2 = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x2C);
-    *(s64 *)(temp_2_2 + 0x60) = *arg0;
-    func_00194590(temp_2_2, 0);
+    resetPacket = (u8 *)func_001d3700(3, 0xFFF);
+    *(s64 *)(resetPacket + 0x60) = *arg0;
+    func_00194590(resetPacket, 0);
+    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x2C);
+    *(s64 *)(cameraPacket + 0x60) = *arg0;
+    func_00194590(cameraPacket, 0);
     *(u16 *)((u8 *)arg0 + 0x18) |= 2;
 }
 
@@ -6680,23 +6680,23 @@ void func_001ac700(u8 *action) {
 // FUN_001ACB10
 void func_001acb10(u8 *arg0)
 {
-    u16 temp_5;
-    u8 *temp_5_4;
+    u16 skillId;
+    u8 *unitStatePtr;
 
-    temp_5 = *(u16 *)(arg0 + 0x3F4);
-    switch (temp_5) {
+    skillId = *(u16 *)(arg0 + 0x3F4);
+    switch (skillId) {
     case 0x20F:
-        temp_5_4 = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
-        *(u16 *)temp_5_4 = *(u16 *)temp_5_4 | 0x400;
+        unitStatePtr = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
+        *(u16 *)unitStatePtr = *(u16 *)unitStatePtr | 0x400;
         break;
     case 0x210:
-        temp_5_4 = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
-        *(u16 *)temp_5_4 = *(u16 *)temp_5_4 | 0x800;
+        unitStatePtr = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
+        *(u16 *)unitStatePtr = *(u16 *)unitStatePtr | 0x800;
         break;
     }
     if (*(u16 *)(arg0 + 0x3F4) == 0) {
-        temp_5_4 = *(u8 **)(arg0 + 0x30);
-        *(s32 *)(temp_5_4 + 0x9C) = *(s32 *)(temp_5_4 + 0x9C) & ~0x10;
+        unitStatePtr = *(u8 **)(arg0 + 0x30);
+        *(s32 *)(unitStatePtr + 0x9C) = *(s32 *)(unitStatePtr + 0x9C) & ~0x10;
         btlActionSetState((BtlAction *)arg0, *(u16 *)(arg0 + 0x430));
     }
 }
@@ -6920,33 +6920,36 @@ void func_001acf50(u8 *arg0) {
 // FUN_001AD280
 void func_001ad280(u8 *arg0)
 {
-    s16 sp20[8];
-    u8 *temp_2;
+    s16 cutinParams[8];
+    u8 *lookAtPacket;
+    u8 *resetPacket;
+    u8 *cameraPacket;
+    u8 *cutinPacket;
 
     func_001a03b0((s64 *)arg0);
-    temp_2 = actionLookAtUnit(
+    lookAtPacket = actionLookAtUnit(
         *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
         *(u8 **)(arg0 + 0x30),
         0);
-    *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2, 1);
-    temp_2 = actionLookAtUnit(
+    *(s64 *)(lookAtPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(lookAtPacket, 1);
+    lookAtPacket = actionLookAtUnit(
         *(u8 **)(arg0 + 0x30),
         *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
         0);
-    *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2, 1);
+    *(s64 *)(lookAtPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(lookAtPacket, 1);
     *(u16 *)(arg0 + 0x18) |= 0x200;
-    temp_2 = (u8 *)func_001d3700(3, 0xFFF);
-    *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2, 0);
-    temp_2 = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 9);
-    *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2, 0);
-    sp20[0] = 5;
-    temp_2 = func_001fa720((u8 *)&sp20[0]);
-    *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2, 1);
+    resetPacket = (u8 *)func_001d3700(3, 0xFFF);
+    *(s64 *)(resetPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(resetPacket, 0);
+    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 9);
+    *(s64 *)(cameraPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(cameraPacket, 0);
+    cutinParams[0] = 5;
+    cutinPacket = func_001fa720((u8 *)&cutinParams[0]);
+    *(s64 *)(cutinPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(cutinPacket, 1);
     if (func_001eb860() == 1) {
         *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
         func_00212240(*(u8 **)(D_0076449C + 0xDD4), 0);
