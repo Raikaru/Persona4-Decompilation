@@ -145,10 +145,12 @@ typedef struct CalendarRecord {
     f32 field_04;
     f32 field_08;
     f32 field_0C;
-    u8 pad_10[0x8];
+    f32 field_10;
+    f32 field_14;
     s8 field_18;
     s8 field_19;
-    u8 pad_1A[0xE];
+    u8 field_1A;
+    u8 pad_1B[0xD];
     s32 field_28;
     s32 field_2C;
 } CalendarRecord;
@@ -971,7 +973,7 @@ void func_00122a40(void *unusedNode, void *work)
     s32 (**states)(RwRenderState state, void *value);
     u8 *sprite;
     s32 parent;
-    u8 *calendar;
+    CalendarState *calendar;
     s32 value;
     s32 progress;
     s32 savedFog;
@@ -986,7 +988,7 @@ void func_00122a40(void *unusedNode, void *work)
     f32 xOffset;
     f32 backgroundX;
     f32 yOffset;
-    calendar = (u8 *)work;
+    calendar = (CalendarState *)work;
     parent = 0;
     D_00887304[0](rwRENDERSTATEFOGENABLE, &savedFog);
     states = D_00887300;
@@ -1002,54 +1004,54 @@ void func_00122a40(void *unusedNode, void *work)
     states[0](rwRENDERSTATEFOGENABLE, (void *)0);
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
-    if ((*(s32 *)(calendar + 0xC) & 1) != 0) {
-        if (*(s32 *)(calendar + 0x14) != 0) {
-            value = *(s32 *)(calendar + 0x10);
+    if ((calendar->field_0C & 1) != 0) {
+        if (calendar->field_14 != 0) {
+            value = calendar->field_10;
             if (value < 0x64) {
-                *(s32 *)(calendar + 0x10) = value + 1;
+                calendar->field_10 = value + 1;
             }
         } else {
-            value = *(s32 *)(calendar + 0x10);
+            value = calendar->field_10;
             if (value != 0) {
-                *(s32 *)(calendar + 0x10) = value - 1;
+                calendar->field_10 = value - 1;
             }
-            if (*(s32 *)(calendar + 0x10) == 0) {
-                *(s32 *)(calendar + 0xC) = 0;
+            if (calendar->field_10 == 0) {
+                calendar->field_0C = 0;
             }
         }
         for (i = 0; i < 5; i++) {
-            func_001437b0(calendar + i * 0x30 + 0x20, *(s32 *)(calendar + 0x10), 0);
+            func_001437b0((u8 *)&calendar->records[i], calendar->field_10, 0);
         }
-        startFrame = *(s32 *)(calendar + 0x78);
-        value = *(s32 *)(calendar + 0x10);
+        startFrame = calendar->records[1].field_28;
+        value = calendar->field_10;
         if (value < startFrame) {
             elapsed = 0;
         } else {
             elapsed = value - startFrame;
         }
-        duration = *(s32 *)(calendar + 0x7C) - startFrame;
+        duration = calendar->records[1].field_2C - startFrame;
         if (duration < elapsed) {
             elapsed = duration;
         }
         progress = (elapsed * 0x90) / duration;
         xOffset = (f32)0x23E;
-        func_0046d3b0(0, *(s32 *)(calendar + 0x110), 0x25, xOffset + *(f32 *)(calendar + 0x30), *(f32 *)(calendar + 0x34), 0, (0xFF - *(u8 *)(calendar + 0x3A)) & 0xFF, 0.0f, 1);
-        if (*(s32 *)(calendar + 0x18) != 0) {
-            if (*(s32 *)(calendar + 0x1C) == 0) {
-                sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), 0x1D);
+        func_0046d3b0(0, calendar->field_110, 0x25, xOffset + calendar->records[0].field_10, calendar->records[0].field_14, 0, (0xFF - calendar->records[0].field_1A) & 0xFF, 0.0f, 1);
+        if (calendar->field_18 != 0) {
+            if (calendar->field_1C == 0) {
+                sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1D);
             } else {
-                sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), 0x1E);
+                sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1E);
             }
         } else if ((func_0015a160() == 0) && (func_0028b650() == 0)) {
-            sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), 0x1D);
+            sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1D);
         } else {
-            sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), 0x1E);
+            sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1E);
         }
         *(s32 *)(sprite + 0x24) = 0;
         backgroundX = (f32)0x223;
-        *(f32 *)(sprite + 8) = backgroundX + *(f32 *)(calendar + 0x60);
-        *(f32 *)(sprite + 0xC) = -33.0f + *(f32 *)(calendar + 0x64);
-        *(s8 *)(sprite + 0x10) = (s8)(0xFF - *(u8 *)(calendar + 0x6A));
+        *(f32 *)(sprite + 8) = backgroundX + calendar->records[1].field_10;
+        *(f32 *)(sprite + 0xC) = -33.0f + calendar->records[1].field_14;
+        *(s8 *)(sprite + 0x10) = (s8)(0xFF - calendar->records[1].field_1A);
         *(s16 *)(sprite + 0x1C) = 0x50;
         *(s16 *)(sprite + 0x1E) = 0x2D;
         *(f32 *)(sprite + 0x18) = (f32)(0x90 - progress);
@@ -1058,59 +1060,59 @@ void func_00122a40(void *unusedNode, void *work)
         parent = (s32)sprite;
         func_0046d280(sprite);
     }
-    if ((*(s32 *)(calendar + 0xC) & 2) != 0) {
-        func_001104d0(*(s16 *)(calendar + 4), &month, &day);
-        value = (s32)*(f32 *)(calendar + 0x90);
-        func_0046d4c0(parent, *(s32 *)(calendar + 0x110), 7, (f32)(value + 0x1C2), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
-        func_0046d4c0(parent, *(s32 *)(calendar + 0x110), 8, (f32)(value + 0x246), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
+    if ((calendar->field_0C & 2) != 0) {
+        func_001104d0(calendar->field_04, &month, &day);
+        value = (s32)calendar->records[2].field_10;
+        func_0046d4c0(parent, calendar->field_110, 7, (f32)(value + 0x1C2), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
+        func_0046d4c0(parent, calendar->field_110, 8, (f32)(value + 0x246), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
         value = month / 10 + 9;
         xOffset = (f32)0x1CF;
-        xOffset += *(f32 *)(calendar + 0x90);
-        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), value, 14.0f + xOffset, 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
-        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), month % 10 + 9, 14.0f + (476.0f + *(f32 *)(calendar + 0x90)), 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
-        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), 0x13, 14.0f + (490.0f + *(f32 *)(calendar + 0x90)), 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
-        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), day / 10 + 9, 14.0f + (500.0f + *(f32 *)(calendar + 0x90)), 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
+        xOffset += calendar->records[2].field_10;
+        func_0046d3b0(parent, calendar->field_110, value, 14.0f + xOffset, 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
+        func_0046d3b0(parent, calendar->field_110, month % 10 + 9, 14.0f + (476.0f + calendar->records[2].field_10), 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
+        func_0046d3b0(parent, calendar->field_110, 0x13, 14.0f + (490.0f + calendar->records[2].field_10), 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
+        func_0046d3b0(parent, calendar->field_110, day / 10 + 9, 14.0f + (500.0f + calendar->records[2].field_10), 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
         value = day % 10 + 9;
         xOffset = (f32)0x201;
-        xOffset += *(f32 *)(calendar + 0x90);
-        func_0046d3b0(parent, *(s32 *)(calendar + 0x110), value, 14.0f + xOffset, 17.0f + *(f32 *)(calendar + 0x94), 0, (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0.0f, 1);
-        if (func_00110d30(*(s16 *)(calendar + 4)) != 0) {
-            value = func_00110580(*(s16 *)(calendar + 4));
+        xOffset += calendar->records[2].field_10;
+        func_0046d3b0(parent, calendar->field_110, value, 14.0f + xOffset, 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
+        if (func_00110d30(calendar->field_04) != 0) {
+            value = func_00110580(calendar->field_04);
             xOffset = (f32)0x219;
-            func_0046d4c0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0x90), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0xFF, 0xAC, 0x99, 0.0f, 1);
-        } else if (func_00110580(*(s16 *)(calendar + 4)) == 6) {
-            value = func_00110580(*(s16 *)(calendar + 4));
+            func_0046d4c0(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xAC, 0x99, 0.0f, 1);
+        } else if (func_00110580(calendar->field_04) == 6) {
+            value = func_00110580(calendar->field_04);
             xOffset = (f32)0x219;
-            func_0046d4c0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0x90), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0x99, 0xA4, 0xFF, 0.0f, 1);
+            func_0046d4c0(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x99, 0xA4, 0xFF, 0.0f, 1);
         } else {
-            value = func_00110580(*(s16 *)(calendar + 4));
+            value = func_00110580(calendar->field_04);
             xOffset = (f32)0x219;
-            func_0046d4c0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0x90), 17.0f + *(f32 *)(calendar + 0x94), (0xFF - *(u8 *)(calendar + 0x9A)) & 0xFF, 0xFF, 0xFF, 0xFF, 0.0f, 1);
+            func_0046d4c0(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xFF, 0xFF, 0.0f, 1);
         }
-        startFrame = *(s32 *)(calendar + 0xD8);
-        value = *(s32 *)(calendar + 0x10);
+        startFrame = calendar->records[3].field_28;
+        value = calendar->field_10;
         if (value < startFrame) {
             elapsed = 0;
         } else {
             elapsed = value - startFrame;
         }
-        duration = *(s32 *)(calendar + 0xDC) - startFrame;
+        duration = calendar->records[3].field_2C - startFrame;
         if (duration < elapsed) {
             elapsed = duration;
         }
         progress = (elapsed << 0xC) / duration;
-        if (func_00110d30(*(s16 *)(calendar + 4)) != 0) {
-            value = *(s16 *)(calendar + 6);
+        if (func_00110d30(calendar->field_04) != 0) {
+            value = calendar->field_06;
             if (value == 3) {
                 spriteIndex = 0x1A;
             } else {
                 spriteIndex = value + 0x14;
             }
         } else {
-            spriteIndex = *(s16 *)(calendar + 6) + 0x14;
+            spriteIndex = calendar->field_06 + 0x14;
         }
-        if (*(s32 *)(calendar + 0x18) != 0) {
-            if (*(s32 *)(calendar + 0x1C) == 1) {
+        if (calendar->field_18 != 0) {
+            if (calendar->field_1C == 1) {
                 switch (spriteIndex) {
                 case 0x18:
                     spriteIndex = 0x1B;
@@ -1130,16 +1132,16 @@ void func_00122a40(void *unusedNode, void *work)
                     break;
                 }
         }
-        sprite = (u8 *)func_0046d200((u32)*(s32 *)(calendar + 0x110), spriteIndex);
+        sprite = (u8 *)func_0046d200((u32)calendar->field_110, spriteIndex);
         *(s32 *)(sprite + 0x24) = 0;
-        *(f32 *)(sprite + 8) = 552.0f + *(f32 *)(calendar + 0xC0);
-        *(f32 *)(sprite + 0xC) = 31.0f + *(f32 *)(calendar + 0xC4);
-        *(s8 *)(sprite + 0x10) = (s8)(0xFF - *(u8 *)(calendar + 0xCA));
+        *(f32 *)(sprite + 8) = 552.0f + calendar->records[3].field_10;
+        *(f32 *)(sprite + 0xC) = 31.0f + calendar->records[3].field_14;
+        *(s8 *)(sprite + 0x10) = (s8)(0xFF - calendar->records[3].field_1A);
         height = (s32)func_0046b2f0(sprite);
         *(s16 *)(sprite + 0x20) = 0xFF6;
         *(s16 *)(sprite + 0x22) = (s16)progress;
         value = (s32)(func_0046b2f0(sprite) / 2.0f + (f32)(height / 2));
-        yOffset = 31.0f + *(f32 *)(calendar + 0xC4);
+        yOffset = 31.0f + calendar->records[3].field_14;
         yOffset -= (f32)value;
         *(f32 *)(sprite + 0xC) = (f32)height + yOffset;
         func_0046b380(sprite, 1);
@@ -1147,21 +1149,21 @@ void func_00122a40(void *unusedNode, void *work)
         parent = (s32)sprite;
         func_0046d280(sprite);
     }
-    if ((*(s32 *)(calendar + 0xC) & 4) != 0) {
-        if (*(s32 *)(calendar + 0x18) != 0) {
-            if (*(s32 *)(calendar + 0x1C) == 0) {
+    if ((calendar->field_0C & 4) != 0) {
+        if (calendar->field_18 != 0) {
+            if (calendar->field_1C == 0) {
                 xOffset = (f32)0x247;
-                func_0046d3b0(parent, *(s32 *)(calendar + 0x110), 0x1F, xOffset + *(f32 *)(calendar + 0xF0), 51.0f + *(f32 *)(calendar + 0xF4), 0, (0xFF - *(u8 *)(calendar + 0xFA)) & 0xFF, 0.0f, 1);
-                value = *(s16 *)(calendar + 8) + 0x20;
+                func_0046d3b0(parent, calendar->field_110, 0x1F, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
+                value = calendar->field_08 + 0x20;
                 xOffset = (f32)0x247;
-                func_0046d3b0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0xF0), 51.0f + *(f32 *)(calendar + 0xF4), 0, (0xFF - *(u8 *)(calendar + 0xFA)) & 0xFF, 0.0f, 1);
+                func_0046d3b0(parent, calendar->field_110, value, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
             }
         } else if ((func_0015a160() == 0) && (func_0028b650() == 0)) {
             xOffset = (f32)0x247;
-            func_0046d3b0(parent, *(s32 *)(calendar + 0x110), 0x1F, xOffset + *(f32 *)(calendar + 0xF0), 51.0f + *(f32 *)(calendar + 0xF4), 0, (0xFF - *(u8 *)(calendar + 0xFA)) & 0xFF, 0.0f, 1);
-            value = *(s16 *)(calendar + 8) + 0x20;
+            func_0046d3b0(parent, calendar->field_110, 0x1F, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
+            value = calendar->field_08 + 0x20;
             xOffset = (f32)0x247;
-            func_0046d3b0(parent, *(s32 *)(calendar + 0x110), value, xOffset + *(f32 *)(calendar + 0xF0), 51.0f + *(f32 *)(calendar + 0xF4), 0, (0xFF - *(u8 *)(calendar + 0xFA)) & 0xFF, 0.0f, 1);
+            func_0046d3b0(parent, calendar->field_110, value, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
         }
     }
     states[0](rwRENDERSTATEFOGENABLE, (void *)savedFog);
