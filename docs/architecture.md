@@ -627,9 +627,9 @@ ends the frame.
 **Commands.** The `COMM` opcode, `func_0029ad40`, calls a native command.
 The operand's top bits pick a group; the table of `{commands, count}`
 pairs is at `D_00748530`. Each command entry is `{function, paramCount}`.
-Commands read their arguments with `func_0029cc00` (int), `func_0029cd50`
-(float) and `func_0029ce90` (string), and return a value with
-`func_0029cf50`/`func_0029cf70`. Returning 0 makes the script yield and
+Commands read their arguments with `scrGetParamInt` (int), `scrGetParamFloat`
+(float) and `scrGetParamString` (string), and return a value with
+`scrSetReturnInt`/`scrSetReturnFloat`. Returning 0 makes the script yield and
 retry the command next frame.
 
 | Group | Table | Entries | Main owners |
