@@ -83,7 +83,7 @@ void func_001d8cb0(void *arg0, void *arg1);
 
 s32 btlUnitIsMoving(u8 *arg0);
 
-void func_001a03b0(BtlAction *action);
+void btlActionFinishPresentation(BtlAction *action);
 void func_001dbf20(void *arg0, s32 arg1);
 BtlPacket *func_001d3700(u16 arg0, u16 arg1);
 s64 func_00194590(u8 *arg0, u32 arg1);
@@ -206,7 +206,7 @@ s64 func_00235320(u8 *arg0);
 s32 func_00243e30(u16 *arg0);
 s32 func_001f6770(u8 *arg0);
 s32 func_001fac30(void);
-s32 func_001a3de0(BtlAction *action);
+s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *func_002022e0(u32 arg0, u16 arg1);
 s32 func_0010b300(s32 arg0);
@@ -350,7 +350,7 @@ void func_001a0290(BtlAction *action, u16 arg1, u8 *arg2)
     }
 }
 // FUN_001A03B0
-void func_001a03b0(BtlAction *action)
+void btlActionFinishPresentation(BtlAction *action)
 {
     u8 *lookAtDeactivatePacket;
     u8 *ambientPacket;
@@ -473,7 +473,7 @@ void func_001a0670(BtlAction *action) {
 
 
 // FUN_001A06D0
-void func_001a06d0(BtlAction *action) {
+void btlActionTryBegin(BtlAction *action) {
     extern void btlActionSetState(BtlAction *action, u16 state);
     BtlAction *otherAction;
     s32 canAct;
@@ -624,7 +624,7 @@ void func_001a0b00(s64 *arg0) {
         func_00193cd0(0x700) == 0 && func_00193cd0(0x504) == 0 &&
         func_00193cd0(0x506) == 0 && func_00193cd0(0x301) == 0 &&
         func_00193cd0(0x104) == 0) {
-        func_001a03b0((BtlAction *)arg0);
+        btlActionFinishPresentation((BtlAction *)arg0);
         func_001f0a10((u8 *)&result);
         if (func_00243e30((u16 *)action->unit->data) != 0) {
             result.flags |= 0x80;
@@ -699,7 +699,7 @@ void func_001a0b00(s64 *arg0) {
    addu b,a*k); the table base must be copied first so its lw leads the block. */
 #pragma opt_propagation off
 // FUN_001A0F40
-void func_001a0f40(BtlAction *action)
+void btlActionSelectMove(BtlAction *action)
 {
     RwV3d sp30;
     s32 tableColumn;
@@ -785,7 +785,7 @@ void func_001a1450(s64 *arg0)
         btlActionSetState((BtlAction *)arg0, 9);
         return;
     }
-    func_001a03b0((BtlAction *)arg0);
+    btlActionFinishPresentation((BtlAction *)arg0);
     actionType = *(u16 *)((u8 *)arg0 + 0x10);
     if ((actionType != 0x25) && (actionType != 4) && (actionType != 6) &&
         (actionType != 5) && (*(u16 *)(iGpffffb3ac + 0xF4) != 2)) {
@@ -1253,7 +1253,7 @@ select_action:
 
 #pragma pop
 // FUN_001A24A0
-void func_001a24a0(BtlAction *action)
+void btlActionSetPendingFlag(BtlAction *action)
 {
     *(s32 *)((u8 *)action + 0x41C) = 1;
 }
@@ -1317,7 +1317,7 @@ void func_001a24b0(u8 *action)
         if (hasOther) {
             func_00218730(*(s32 *)(D_0076449C + 0xDD4));
         }
-        func_001a03b0((BtlAction *)action);
+        btlActionFinishPresentation((BtlAction *)action);
         {
             u8 *cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)selected, 1);
             *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
@@ -1437,7 +1437,7 @@ void func_001a24b0(u8 *action)
 }
 #pragma pop
 // FUN_001A2AD0
-void func_001a2ad0(BtlAction *action) {
+void btlActionTryEnterState9(BtlAction *action) {
     func_001eb3b0((u8 *)action + 0x38);
     if ((*(s32 *)(D_0076449C + 0xC) & 0x1000) == 0) {
         return;
@@ -1656,7 +1656,7 @@ void func_001a2d70(u8 *arg0) {
             break;
         }
         if (state != 0) {
-            func_001a03b0((BtlAction *)arg0);
+            btlActionFinishPresentation((BtlAction *)arg0);
             packet = btlCameraCreateSetStatePacket((u8 *)arg0, 10);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
             func_00194590(packet, 0);
@@ -1701,7 +1701,7 @@ void func_001a31e0(BtlAction *actionState)
     struct { s32 words[8]; } result;
 
     if (func_00193cd0(0x506) == 0 && func_00193cd0(0x105) == 0) {
-        func_001a03b0((BtlAction *)action);
+        btlActionFinishPresentation((BtlAction *)action);
         badStatus = datCalcGetBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64));
         if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x100000) != 0 &&
             *(s32 *)(action + 0x420) == 0) {
@@ -1946,7 +1946,7 @@ void func_001a3840(register BtlAction *actionState)
         *(u16 *)(action + 0x1A) |= 0x1000;
         break;
     }
-    func_001a03b0((BtlAction *)action);
+    btlActionFinishPresentation((BtlAction *)action);
     func_001eb410(action + 0x38);
     *(u8 **)(action + 0x38) = target;
     *(s16 *)(action + 0x6A) = 1;
@@ -2057,7 +2057,7 @@ void func_001a3840(register BtlAction *actionState)
 
 #pragma pop
 // FUN_001A3D50
-void func_001a3d50(BtlAction *action)
+void btlActionReleaseTarget(BtlAction *action)
 {
     if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         *(s16 *)((u8 *)action + 0x448) = -1;
@@ -2067,13 +2067,13 @@ void func_001a3d50(BtlAction *action)
     }
 }
 // FUN_001A3DE0
-s32 func_001a3de0(BtlAction *action)
+s32 btlActionGetCounter420(BtlAction *action)
 {
     return *(s32 *)((u8 *)action + 0x420);
 }
 
 // FUN_001A3DF0
-void func_001a3df0(BtlAction *action)
+void btlActionEndTurn(BtlAction *action)
 {
     s32 status;
     u8 *iter;
@@ -2140,7 +2140,7 @@ void func_001a3f90(u8 *arg0)
             *(u16 *)(frame + 2) =
                 *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
             func_00194590(func_001fa110(frame), 1);
-            func_001a03b0((BtlAction *)arg0);
+            btlActionFinishPresentation((BtlAction *)arg0);
             func_00194590(func_00202850(), 1);
             func_00194590(func_001fa8f0(), 1);
             func_002182c0(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
@@ -2162,7 +2162,7 @@ void func_001a3f90(u8 *arg0)
                               (u8 *)partner->field_30, 0),
                 1);
             func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x30), 0);
-            waitPacket = func_00194c90((s32)func_001a3de0, (s32)arg0);
+            waitPacket = func_00194c90((s32)btlActionGetCounter420, (s32)arg0);
             func_00194590(waitPacket, 1);
             func_00194590(
                 func_001d65d0(*(s32 *)(D_0076449C + 0xD90),
@@ -2750,7 +2750,7 @@ range_done:
     if (proceed == 0) {
         return;
     }
-    func_001a03b0((BtlAction *)action);
+    btlActionFinishPresentation((BtlAction *)action);
     {
         u16 speedIndex;
         u16 unitId;
@@ -2835,7 +2835,7 @@ range_done:
 
 #pragma pop
 // FUN_001A55A0
-void func_001a55a0(BtlAction *action) {
+void btlActionSetMoveResultStateAlt(BtlAction *action) {
     u16 actionState;
 
     if (btlUnitIsMoving(*(u8 **)((u8 *)action + 0x30)) == 0) {
@@ -2909,7 +2909,7 @@ void func_001a5650(s64 *arg0)
     }
     func_00194ff0(battleUnit, (u8 *)&sp30, NULL, NULL);
     if (!(func_001ec250((RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
-        func_001a03b0((BtlAction *)arg0);
+        btlActionFinishPresentation((BtlAction *)arg0);
         speedIndex = 2;
         slotIndex = (!(iGpffffb3b8[
             (*(u16 *)((u8 *)arg0 + 0x6E) * 0x28)] & 2)) & 0xFFFF;
@@ -2960,7 +2960,7 @@ void func_001a5650(s64 *arg0)
 #pragma pop
 
 // FUN_001A58E0
-void func_001a58e0(BtlAction *action) {
+void btlActionSetMoveResultState(BtlAction *action) {
     u16 actionState;
 
     if (btlUnitIsMoving(*(u8 **)((u8 *)action + 0x30)) == 0) {
@@ -3318,7 +3318,7 @@ void func_001a59a0(s64 *arg0_) {
     u8 *effectPacketK;
 
     /* hitTimingBase init removed */
-    func_001a03b0((BtlAction *)arg0);
+    btlActionFinishPresentation((BtlAction *)arg0);
     actionUid = (s64)((*(s64 *)(arg0 + (0))));
     hitPacketUid = 0;
     battleUnit = (u8 *)((*(u8 **)(arg0 + (0x30))));
@@ -4045,7 +4045,7 @@ void func_001a7720(u8 *arg0) {
     extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
     extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
-    extern void func_001a03b0(BtlAction *arg0);
+    extern void btlActionFinishPresentation(BtlAction *arg0);
     extern void func_001b7060(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern s32 func_001b7080(u16 skill); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern s32 func_001b7090(s32 arg0);
@@ -4525,7 +4525,7 @@ void func_001a7720(u8 *arg0) {
     hasCutinPartner = (s32)(s32)(act->cutinPartner) != (s32)(0);
     formationFxPkt = 0;
     actionId = *(s64 *)(arg0 + 0);
-    func_001a03b0((BtlAction *)arg0);
+    btlActionFinishPresentation((BtlAction *)arg0);
     side = (s8)unitSide;
     if ((side == 1) && (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000)) {
         actionFlag4000 = 0;
@@ -6163,7 +6163,7 @@ void func_001abbb0(s64 *arg0)
     action = (ActionView *)arg0;
     auxRaw = action->aux;
     uid = action->uid;
-    func_001a03b0((BtlAction *)arg0);
+    btlActionFinishPresentation((BtlAction *)arg0);
     handle = func_001d3d50(1);
     selector = (u16)auxRaw;
     aux = selector;
@@ -6446,14 +6446,14 @@ void func_001abbb0(s64 *arg0)
 
 #pragma pop
 // FUN_001AC500
-void func_001ac500(BtlAction *action) {
+void btlActionReset(BtlAction *action) {
     u8 *resetPacket;
     u8 *cameraPacket;
 
-    func_001a03b0(action);
+    btlActionFinishPresentation(action);
     func_001eb3b0((u8 *)action + 0x38);
     func_001dbf20(action, 0);
-    func_001a03b0(action);
+    btlActionFinishPresentation(action);
     resetPacket = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(resetPacket + 0x60) = *(s64 *)action;
     func_00194590(resetPacket, 0);
@@ -6466,7 +6466,7 @@ void func_001ac500(BtlAction *action) {
 
 
 // FUN_001AC5B0
-void func_001ac5b0(BtlAction *action) {
+void btlActionSetStateIfClear(BtlAction *action) {
     if ((func_00193cd0(0x506) == 0) && (func_00193cd0(0x800) == 0)) {
         *(u16 *)((u8 *)action + 0x18) = (u16) (*(u16 *)((u8 *)action + 0x18) | 0x100);
         btlActionSetState(action, 0xFU);
@@ -6489,7 +6489,7 @@ void func_001ac620(void) {
 }
 
 // FUN_001AC6A0
-void func_001ac6a0(BtlAction *action) {
+void btlActionRunCallbackThenSetState(BtlAction *action) {
     if ((*(s32 (**)(void))((u8 *)action + 0x440))() == 0) {
         btlActionSetState(action, *(u16 *)((u8 *)action + 0x43C));
     }
@@ -6536,7 +6536,7 @@ void func_001ac700(u8 *action) {
         u16 cameraState;
     } selection;
 
-    func_001a03b0((BtlAction *)action);
+    btlActionFinishPresentation((BtlAction *)action);
     alternateAction = (*(u16 *)(action + 0x6C) == 3);
     packetIdentity = *(s64 *)action;
     if (alternateAction == 0) {
@@ -6845,12 +6845,12 @@ void func_001acf50(u8 *arg0) {
     u16 actionKind;
     u8 *packet;
     u8 *battleUnit;
-    void func_001a03b0();
+    void btlActionFinishPresentation();
     u8 *recoveryPacket;
 
     switch (*(u16 *)(arg0 + 0x6C)) {
     case 7:
-        func_001a03b0();
+        btlActionFinishPresentation();
         packet = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3);
         *(s64 *)(packet + 0x60) = *(s64 *)arg0;
         func_00194590(packet, 0);
@@ -6923,7 +6923,7 @@ void func_001ad280(u8 *arg0)
     u8 *cameraPacket;
     u8 *cutinPacket;
 
-    func_001a03b0((BtlAction *)arg0);
+    btlActionFinishPresentation((BtlAction *)arg0);
     lookAtPacket = actionLookAtUnit(
         *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
         *(u8 **)(arg0 + 0x30),
@@ -7052,7 +7052,7 @@ void func_001ad550(s64 *arg0)
     u16 idx;
 
     action = (ActionView *)arg0;
-    func_001a03b0((BtlAction *)arg0);
+    btlActionFinishPresentation((BtlAction *)arg0);
     first = func_002022e0((u32)action->unit, 6);
     *(s64 *)(first + 0x60) = action->uid;
     func_00194590(first, 3);
@@ -7253,7 +7253,7 @@ void func_001adb80(s64 *arg0)
         *(s64 *)(introPacket + 0x60) = *(s64 *)arg0;
         func_00194590(introPacket, 1);
     }
-    func_001a03b0((BtlAction *)arg0);
+    btlActionFinishPresentation((BtlAction *)arg0);
     actionPacket = func_002022e0(
         *(u32 *)((u8 *)arg0 + 0x30),
         *(u16 *)((u8 *)arg0 + 0x6C));
@@ -7301,7 +7301,7 @@ void func_001adb80(s64 *arg0)
 #pragma pop
 
 // FUN_001ADE10
-void func_001ade10(BtlAction *action)
+void btlActionResumeState(BtlAction *action)
 {
     if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         if (*(u8 *)(*(u8 **)((u8 *)action + 0x30) + 0xA2) == 0) {
@@ -7477,7 +7477,7 @@ void func_001adea0(u8 *action)
 }
 
 // FUN_001AE3C0
-s32 func_001ae3c0(BtlAction *action)
+s32 btlActionGetCounter428(BtlAction *action)
 {
     return *(s32 *)((u8 *)action + 0x428);
 }
@@ -7646,7 +7646,7 @@ void func_001ae800(u8 *arg0)
         packet2 = func_001fa8f0();
         *(s16 *)(packet2 + 0x48) = *(s16 *)(arg0 + 0x42C);
         func_00194590(packet2, 1);
-        packet3 = func_00194c90((s32)func_001ae3c0, (s32)arg0);
+        packet3 = func_00194c90((s32)btlActionGetCounter428, (s32)arg0);
         *(s16 *)(packet3 + 0x48) = *(s16 *)(arg0 + 0x42C);
         func_00194590(packet3, 1);
         packet4 = func_001d65d0(
@@ -8182,7 +8182,7 @@ void func_001af9d0(void)
 {
 }
 // FUN_001AF9E0
-void func_001af9e0(BtlAction *action)
+void btlActionAdvanceToState21(BtlAction *action)
 {
     if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         btlActionSetState(action, 0x21U);

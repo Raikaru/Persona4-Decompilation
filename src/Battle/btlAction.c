@@ -90,7 +90,7 @@ void func_001a1190(BtlAction* action)
 {
     extern u8* D_0076449C;
     extern f32 fGpffff809c;
-    extern void func_001a03b0(BtlAction* action);
+    extern void btlActionFinishPresentation(BtlAction* action);
     extern BtlPacket* func_001d3900(u16 param_1);
     extern BtlPacket* func_001d3700(u16 param_1, u16 param_2);
     extern BtlPacket* func_001f99c0(BtlAction* action, u16 param_2, s32 param_3,
@@ -108,7 +108,7 @@ void func_001a1190(BtlAction* action)
     BtlPacket* rootPacket;
     u8* unit;
 
-    func_001a03b0(action);
+    btlActionFinishPresentation(action);
 
     rootPacket = func_001d3900(1);
     rootPacket->actionUID = action->uid;

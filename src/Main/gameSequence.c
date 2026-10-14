@@ -12,7 +12,7 @@ extern void func_00452080(s32 handle);
 extern char D_005E51C0[];
 extern char D_005E51D0[];
 extern void func_00123a80(void);
-extern s32 func_00123e80(u8 *task);
+extern s32 clndSceneUpdate(u8 *task);
 extern void func_00124210(u8 *task);
 
 // FUN_00124240
@@ -23,7 +23,7 @@ void func_00124240(void)
     func_0046a2d0(D_005E51C0, 0x178);
     temp_2 = H_Calloc(1, 0x10);
     if (temp_2 != 0) {
-        (s32)func_00451de0((const void *)(D_005E51D0), 0x100, 0, 0, func_00123e80, func_00124210, (u8 *)(temp_2));
+        (s32)func_00451de0((const void *)(D_005E51D0), 0x100, 0, 0, clndSceneUpdate, func_00124210, (u8 *)(temp_2));
         func_00123a80();
     }
 }

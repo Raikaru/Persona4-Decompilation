@@ -231,7 +231,7 @@ extern u8 *func_0019ef90(s32 arg0, s32 arg1);
 extern void func_0019d0c0(u8 *arg0);
 extern void func_002339d0(u8 *arg0);
 extern u8 D_0062D920[];
-extern void func_001a03b0(s64 *arg0);
+extern void btlActionFinishPresentation(s64 *arg0);
 extern s32 func_001d3d50(u32 param_1);
 extern void func_001d4490(s32 formation, u32 data);
 extern u8 *func_0022ced0(s32 arg0);
@@ -3331,7 +3331,7 @@ void func_002299b0(u8 *arg0)
         *(u16 *)(temp_3 + 0x18) =
             (u16)(*(u16 *)(temp_3 + 0x18) | 0x23);
     }
-    func_001a03b0((s64 *)saved_arg0);
+    btlActionFinishPresentation((s64 *)saved_arg0);
     temp_17 = func_001d3d50(0);
     func_001d3ea0((int)temp_17, (u32)func_0022ced0(0xC));
     {
@@ -3952,7 +3952,7 @@ void func_0022ae00(u8 *arg0)
         *(u16 *)(temp_3_2 + 0x18) =
             (u16)(*(u16 *)(temp_3_2 + 0x18) | 0x23);
     }
-    func_001a03b0((s64 *)arg0);
+    btlActionFinishPresentation((s64 *)arg0);
     temp_16 = func_001d3d50(0);
     func_001d3ea0((int)temp_16, (u32)func_0022ced0(0xC));
     {
@@ -4055,7 +4055,7 @@ void func_0022b120(u8 *action)
     actor = *(u8 **)(action + 0x30);
     *(u32 *)(DAT_0076449c + 0xC) |= 0x400000;
     *(u16 *)(DAT_0076449c + 0x18) |= 0x23;
-    func_001a03b0((s64 *)action);
+    btlActionFinishPresentation((s64 *)action);
     openingFormation = func_001d3d50(0);
     closingFormation = func_001d3d50(0);
     func_001d3ea0(openingFormation, (u32)func_0022ced0(0xC));
