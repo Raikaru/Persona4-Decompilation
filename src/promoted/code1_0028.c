@@ -49,7 +49,6 @@ typedef struct {
 
 extern void func_0028b160(s32 arg0, s32 arg1);
 extern u8 *func_0028afe0(void);
-extern void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3);
 extern s32 func_00285dd0(u8 *task);
 
 extern void func_0028ad90(u8 *arg0, s32 arg1);
@@ -500,7 +499,7 @@ void func_002865e0(UnkStruct_002865E0 *arg0) {
 
 
 // FUN_002866C0
-void func_002866c0(u8 *arg0, s32 *arg1) {
+void func_002866c0(u8 *arg0, u8 *arg1) {
     u8 *temp_3;
     u8 *var_7;
 
