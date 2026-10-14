@@ -111,7 +111,7 @@ extern void func_00355370(u8 *arg0, u8 *arg1);
 
 extern void func_0046d280(void *node);
 extern void func_00452080(s32 arg0);
-extern void MT_Scene_DeleteRes(u16 arg0);
+extern void MT_Scene_DeleteRes(u16 resTypeId);
 extern void resrcMngDestroy(u8 *arg0);
 extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
 extern void func_0015cc40(void);
@@ -2620,7 +2620,7 @@ s32 func_00146440(u16 arg0, s32 arg1, f32 fparg0, u8 *arg2, u8 *arg3, u8 *arg4, 
 /* measured: schedule-off probe for 46630 branch delay slots. */
 #pragma schedule off
 // FUN_00146630
-void MT_Scene_DeleteRes(u16 arg0) {
+void MT_Scene_DeleteRes(u16 resTypeId) {
     s32 slotValue;
     s32 resourceKind;
     s32 value1A0;
@@ -2652,7 +2652,7 @@ void MT_Scene_DeleteRes(u16 arg0) {
     if (resourceOwner == NULL) {
         resourceRecord = NULL;
     } else {
-        resourceRecord = func_00147530(resourceOwner, arg0);
+        resourceRecord = func_00147530(resourceOwner, resTypeId);
     }
     if (resourceRecord != NULL) {
         resourceKind = (*(u16 *)(resourceRecord + 0) & 0xFFC00) >> 0xA;
