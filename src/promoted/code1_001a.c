@@ -422,22 +422,22 @@ loop_test:
 }
 // FUN_001A05F0
 s32 func_001a05f0(u8 *arg0) {
-    u16 temp_5;
-    u8 *temp_3;
+    u16 flags;
+    u8 *unitState;
 
-    temp_5 = *(u16 *)(arg0 + 0x1A);
-    if (temp_5 & 1) {
+    flags = *(u16 *)(arg0 + 0x1A);
+    if (flags & 1) {
         goto cont1;
     }
     return 0;
 cont1:
-    temp_3 = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA0C);
-    if (temp_5 & 0x10) {
+    unitState = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA0C);
+    if (flags & 0x10) {
         goto cont2;
     }
     return 0;
 cont2:
-    return (*(s32 *)(temp_3 + 0x98) & 2) != 0;
+    return (*(s32 *)(unitState + 0x98) & 2) != 0;
 }
 
 
@@ -459,15 +459,15 @@ void func_001a0660(void)
 
 // FUN_001A0670
 void func_001a0670(u8 *arg0) {
-    s32 temp_5;
+    s32 unitFlags;
 
-    temp_5 = *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C);
-    if (temp_5 & 0x10) {
+    unitFlags = *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C);
+    if (unitFlags & 0x10) {
         *(s16 *)(arg0 + 0x430) = 1;
         btlActionSetState((BtlAction *)arg0, 0x18);
         return;
     }
-    if (temp_5 & 1) {
+    if (unitFlags & 1) {
         btlActionSetState((BtlAction *)arg0, 0x23);
     }
 }
