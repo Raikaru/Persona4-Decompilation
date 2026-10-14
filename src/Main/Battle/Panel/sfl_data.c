@@ -16,7 +16,8 @@ extern f32 D_00761488;
 extern f32 D_0076148C;
 
 // FUN_00367F50
-void func_00367f50(u8 *work)
+/* Clears a panel work block and sets its default scale and colour. */
+void sflDataInitPanel(u8 *work)
 {
     *(u32 *)(work + 0x00) = 0;
     *(u32 *)(work + 0x38) = 0;
@@ -39,7 +40,8 @@ void func_00367f50(u8 *work)
 }
 
 // FUN_00367FB0
-void func_00367fb0(void* work)
+/* Initialises a type-0 panel and fills its full corner layout. */
+void sflDataSetupLayoutPanel(void* work)
 {
     u8* panel = (u8*)work;
 
@@ -84,7 +86,7 @@ void func_00367fb0(void* work)
     f32 valC;
     f32 valD;
 
-    func_00367f50(panel);
+    sflDataInitPanel(panel);
     *(u32*)(panel + 0x4) = 0;
     func_0036a900(panel + 0xe0);
     *(u32*)(panel + 0x170) = 0;
@@ -451,7 +453,8 @@ void func_00367fb0(void* work)
 }
 
 // FUN_003688B0
-void func_003688b0(void* work)
+/* Initialises a type-1 panel and fills its outer, inner and centre corners. */
+void sflDataSetupFramePanel(void* work)
 {
     u8* panel;
     PanelVec3 outerUpperRight;
@@ -470,7 +473,7 @@ void func_003688b0(void* work)
     f32 lowerY;
 
     panel = (u8*)work;
-    func_00367f50(panel);
+    sflDataInitPanel(panel);
     *(u32*)(panel + 4) = 1;
     func_0036a900(panel + 0xe0);
     *(u32*)(panel + 0x328) = 0;
@@ -605,7 +608,8 @@ void func_003688b0(void* work)
 }
 
 // FUN_00368BE0
-void func_00368be0(void* work)
+/* Initialises a type-2 panel and fills its four corners. */
+void sflDataSetupQuadPanel(void* work)
 {
     u8* panel;
     PanelVec3 upperRight;
@@ -614,7 +618,7 @@ void func_00368be0(void* work)
     PanelVec3 upperLeft;
 
     panel = (u8*)work;
-    func_00367f50(panel);
+    sflDataInitPanel(panel);
     *(u32*)(panel + 4) = 2;
     func_0036a900(panel + 0xe0);
 
