@@ -1253,9 +1253,9 @@ select_action:
 
 #pragma pop
 // FUN_001A24A0
-void func_001a24a0(u8 *arg0)
+void func_001a24a0(BtlAction *action)
 {
-    *(s32 *)(arg0 + 0x41c) = 1;
+    *(s32 *)((u8 *)action + 0x41C) = 1;
 }
 /* measured: 1564/1568 bytes, 47 resolved relocations, four zero tail bytes.
  * Loop invariants hoist the first scan's true value and each unsigned wrap
@@ -7301,15 +7301,13 @@ void func_001adb80(s64 *arg0)
 #pragma pop
 
 // FUN_001ADE10
-void func_001ade10(s64 *arg0)
+void func_001ade10(BtlAction *action)
 {
-    void btlActionSetState(u8 *arg0, u16 arg1);
-
-    if (func_00193bf0(*arg0, 0x3FFFFFFFFFFFFFFFLL) == 0) {
-        if (*(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2) == 0) {
-            *(u16 *)((u8 *)arg0 + 0x18) &= 0xFBFF;
+    if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
+        if (*(u8 *)(*(u8 **)((u8 *)action + 0x30) + 0xA2) == 0) {
+            *(u16 *)((u8 *)action + 0x18) &= 0xFBFF;
         }
-        btlActionSetState((u8 *)arg0, *(u16 *)((u8 *)arg0 + 0x14));
+        btlActionSetState(action, *(u16 *)((u8 *)action + 0x14));
     }
 }
 // FUN_001ADE90
@@ -8184,10 +8182,10 @@ void func_001af9d0(void)
 {
 }
 // FUN_001AF9E0
-void func_001af9e0(s64 *arg0)
+void func_001af9e0(BtlAction *action)
 {
-    if (func_00193bf0(*arg0, 0x3FFFFFFFFFFFFFFFLL) == 0) {
-        btlActionSetState((BtlAction *)arg0, 0x21U);
+    if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
+        btlActionSetState(action, 0x21U);
     }
 }
 // FUN_001AFA50
