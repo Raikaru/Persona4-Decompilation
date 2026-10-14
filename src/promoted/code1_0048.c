@@ -2544,6 +2544,9 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
  * The best is `iter` assigned after the store/scale sequence (23-24), with three separate residuals:
  * the age test's own addu, the counter/transfer swap and the stride/c0 swap. Whole-else helpers
  * 40-43; opt_lifetimes 81-107; opt_common_subs off 96-112; opt_propagation on 50.
+ * 2026-10-16: 9 -> 5 fnalign edits. A separate linear anchor and b210's native
+ * named LQC2 operand remove the GNU operand-binding copy; the anchor now has
+ * retail's $a3 lifetime. Only the loop counter / 255.0f transfer swap remains.
  */
 // FUN_0048B340 NONMATCHING
 #ifdef NON_MATCHING
@@ -2727,6 +2730,7 @@ loop1_check:
             *(s32 *)(iter + 0x10) = node10;
         }
     } else {
+        u8 *anchor;
         u32 colTmpA;
         u32 colTmpB;
         u32 packedTmp;
@@ -2743,16 +2747,16 @@ loop1_check:
         if (node10 <= 0) {
             return;
         }
-        dst1 = (u8 *)(stride + (u32)clear);
-        if (*(s32 *)(dst1 + 0x10) < 0) {
+        anchor = (u8 *)(stride + (u32)clear);
+        if (*(s32 *)(anchor + 0x10) < 0) {
             return;
         }
-        iter = dst1 - 0x20;
+        iter = anchor - 0x20;
         acc3 = 0.0f;
         inv3 = one3 / (f32)(u32)((u32)c4 + 1);
-        bx = *(f32 *)(dst1 + 0x18);
+        bx = *(f32 *)(anchor + 0x18);
         dx = *(f32 *)(clear + 0x18) - bx;
-        by = *(f32 *)(dst1 + 0x1C);
+        by = *(f32 *)(anchor + 0x1C);
         dy = *(f32 *)(clear + 0x1C) - by;
         colTmpA = *(u32 *)(clear + 0x14);
         {
@@ -2762,7 +2766,7 @@ loop1_check:
             sc = D_00761134;
             effectVuUnpackColor10V0(word, sc);
             __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
-            colTmpB = *(u32 *)(dst1 + 0x14);
+            colTmpB = *(u32 *)(anchor + 0x14);
             effectVuUnpackColor10V0(&colTmpB, sc);
         }
         effectVuStore10((EffectVuVector *)&tmpE0);
@@ -2775,7 +2779,8 @@ loop1_check:
         effectVuStore10((EffectVuVector *)&tmpD0);
         for (n = 0; n < (u32)c4 - 1; iter -= 0x20, n++) {
             acc3 = acc3 + inv3;
-            effectVuLoad10((EffectVuVector *)dst1);
+            /* Native b210 operand: read the C pointer without a GNU binding copy. */
+            __asm__ volatile("lqc2 $vf10, 0(anchor)" : : : "$vf10", "memory");
             effectVuLoad11((EffectVuVector *)clear);
             __asm__ volatile(
                 "qmtc2.ni %0, $vf2\n"
