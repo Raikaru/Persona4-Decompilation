@@ -48,9 +48,9 @@ extern f32 func_0047a080(s32 arg0, s32 arg1);
 extern void func_0047a0e0(s32 arg0, s32 arg1, f32 arg2);
 extern void* mdlGetMatrix(u32 arg0);
 extern void mdlScale(s32 arg0, void* arg1, s32 arg2);
-extern f32 func_0014b660(u8* arg0);
-extern f32 func_0014b5d0(u8* arg0);
-extern f32 func_0014b6f0(u8* arg0);
+extern f32 KDraw_MatrixPitchDeg(u8* arg0);
+extern f32 KDraw_MatrixYawDeg(u8* arg0);
+extern f32 KDraw_MatrixRollDeg(u8* arg0);
 extern s32 func_00151580(s32 a, s32 b, s32* c);
 extern s32 func_003e9700(s32 arg0);
 extern void RwV3dNormalize(f32* a, f32* b);
@@ -589,9 +589,9 @@ s32 Cmd_CreateFieldModel(void)
         {
             f32 vec[3];
             p2 = (u8*)func_003e9700((s32)p2);
-            vec[0] = func_0014b660(p2);
-            vec[1] = func_0014b5d0(p2);
-            vec[2] = func_0014b6f0(p2);
+            vec[0] = KDraw_MatrixPitchDeg(p2);
+            vec[1] = KDraw_MatrixYawDeg(p2);
+            vec[2] = KDraw_MatrixRollDeg(p2);
             MT_Scene_SetResPlacement(flag & 0xFFFF, (u8*)(p2 + 0x30), (u8 *)&vec);
             func_0047a1c0(v, p2, 0);
             func_00479940((u8*)v, 0, 0, 8, 1);
@@ -773,7 +773,7 @@ s32 Cmd_FaceNearestAxis(void)
         diff.z = v2x - ((Vec3f*)((u8*)mdlGetMatrix(D_007EFA00[0]) + 0x30))->z;
         RwV3dNormalize(&diff.x, &diff.x);
         RwV3dNormalize(&v1.x, &v1.x);
-        func_0014b5d0((u8*)func_003e9700(*(s32*)((u8*)func_00457120() + 4)));
+        KDraw_MatrixYawDeg((u8*)func_003e9700(*(s32*)((u8*)func_00457120() + 4)));
         dot = diff.x * v1.x + diff.y * v1.y + diff.z * v1.z;
         if (dot < 0.0f)
         {

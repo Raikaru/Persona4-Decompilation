@@ -69,9 +69,9 @@ extern u32 datGetFlag(s32 arg0);
 extern s32 func_001453a0(u16 arg0);
 extern void func_0014aa80(u16 arg0);
 extern void func_0014b0c0(u16 arg0, u32 arg1);
-extern f32 func_0014b660(u8 *arg0);
-extern f32 func_0014b5d0(u8 *arg0);
-extern f32 func_0014b6f0(u8 *arg0);
+extern f32 KDraw_MatrixPitchDeg(u8 *arg0);
+extern f32 KDraw_MatrixYawDeg(u8 *arg0);
+extern f32 KDraw_MatrixRollDeg(u8 *arg0);
 extern void *func_0015ca30(void);
 extern u16 *func_0015cbe0(s32 arg0);
 extern void func_0015d100(u8 *arg0, s32 arg1);
@@ -290,9 +290,9 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
     for (out = 0; out < *(u32 *)(fbn + 0x10); ) {
         u16 id = func_001453a0(*(u16 *)(p + 0x50) & 0x3FF);
 
-        angles.x = func_0014b660(p + 0x10);
-        angles.y = func_0014b5d0(p + 0x10);
-        angles.z = func_0014b6f0(p + 0x10);
+        angles.x = KDraw_MatrixPitchDeg(p + 0x10);
+        angles.y = KDraw_MatrixYawDeg(p + 0x10);
+        angles.z = KDraw_MatrixRollDeg(p + 0x10);
         MT_Scene_SetResPlacement(id, p + 0x40, (u8 *)&angles);
         out++;
         p += 0x60;
@@ -385,9 +385,9 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             func_00478e70(*(u8 **)(res + 0x22C));
             mtx = rec + 0x20;
             *(FbnMatrix *)mdlGetMatrix(iGpffffb2a4[i]) = *(FbnMatrix *)mtx;
-            angles.x = func_0014b660(mtx);
-            angles.y = func_0014b5d0(mtx);
-            angles.z = func_0014b6f0(mtx);
+            angles.x = KDraw_MatrixPitchDeg(mtx);
+            angles.y = KDraw_MatrixYawDeg(mtx);
+            angles.z = KDraw_MatrixRollDeg(mtx);
             MT_Scene_SetResPlacement(rid, rec + 0x50, (u8 *)&angles);
             RwMatrixUpdate(mdlGetMatrix(iGpffffb2a4[i]));
         } else if (kind == 1) {

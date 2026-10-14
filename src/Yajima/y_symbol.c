@@ -45,7 +45,7 @@ extern u8 D_007EFA04[];
 extern void func_0044ea90(void *msg, s32 id);
 
 extern s32 K_FldEvent_ArePosWithinDist(u8 *arg0, u8 *arg1, f32 arg2);
-extern f32 func_0014b5d0(u8 *arg0);
+extern f32 KDraw_MatrixYawDeg(u8 *arg0);
 extern void *mdlGetMatrix(void *arg0);
 extern s32 func_002ac740(void);
 extern s64 func_002ac3c0(s32 arg0, s32 arg1);
@@ -107,7 +107,7 @@ void func_002b3ae0(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
 
     fparg0_saved = fparg0;
     p = *(u8 **)(arg0 + 0x38);
-    angle = func_0014b5d0((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]));
+    angle = KDraw_MatrixYawDeg((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]));
     if (angle >= 0.0f) {
         temp = angle - 180.0f;
     } else {

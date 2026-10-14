@@ -86,12 +86,12 @@ extern void *func_003e9320(void);
 extern void func_003e9df0(void *arg0);
 extern s32 func_003e0f80(void);
 extern s32 func_0016bdd0(u8 *task);
-extern s32 func_0014d510(s32 arg0, s32 arg1, void *arg2);
-extern s32 func_0014d700(s32 arg0, void *arg1);
-extern s32 func_0014d910(s32 arg0, void *arg1);
-extern void func_0014d800(void *arg0, void *arg1);
+extern s32 KDraw_CreateGroupTask(s32 arg0, s32 arg1, void *arg2);
+extern s32 KDraw_CreateSphereTask(s32 arg0, void *arg1);
+extern s32 KDraw_CreateCylinderTask(s32 arg0, void *arg1);
+extern void KDraw_SetSphereColor(void *arg0, void *arg1);
 extern f32 fabsf(f32 x);
-extern f32 func_0014b5d0(u8 *arg0);
+extern f32 KDraw_MatrixYawDeg(u8 *arg0);
 extern f32 K_View_GetFov(u8 *arg0);
 extern void K_FldFilter_InitQuads(u8 *arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
@@ -1901,13 +1901,13 @@ extern unsigned int uGpffff9f2c; /* 0xffff9f2c */
 extern u8 *func_0016e8c0(u8 *);
 extern int func_0014bbe0(int, int, int, int, int);
 extern int func_0014bd90(unsigned char *);
-extern void func_0014d5e0(u8 *, u32);
-extern void func_0014d7c0(u8 *, u32);
-extern void func_0014d7d0(unsigned char *, unsigned char *);
-extern void func_0014d9d0(u8 *, u32);
-extern void func_0014d9e0(unsigned char *, unsigned char *);
-extern void func_0014da10(unsigned char *, float);
-extern void func_0014da20(unsigned char *, float);
+extern void KDraw_SetGroupFlags(u8 *, u32);
+extern void KDraw_SetSphereFlags(u8 *, u32);
+extern void KDraw_SetSphereCenter(unsigned char *, unsigned char *);
+extern void KDraw_SetCylinderFlags(u8 *, u32);
+extern void KDraw_SetCylinderCenter(unsigned char *, unsigned char *);
+extern void KDraw_SetCylinderRadius(unsigned char *, float);
+extern void KDraw_SetCylinderHeight(unsigned char *, float);
 extern s32 func_0016b080(const RwV3d *, f32, RwV3d *, RwV3d *);
 extern void func_0016e8e0(u8 *, f32);
 extern float func_00175db0(void);
@@ -3119,34 +3119,34 @@ s32 func_0016bdd0(u8 *param_1)
         goto LAB_0016e0c0;
       default:
 LAB_0016e0c0:
-        func_0014d9d0((unsigned char *)piVar1[0xb2],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+        KDraw_SetCylinderFlags((unsigned char *)piVar1[0xb2],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
         puVar10_s7 = (unsigned int *)func_0016e8c0(param_1);
         {
           unsigned char *targetPosition = (unsigned char *)&stk250[0];
           *(FldCopyVec *)stk250 = *(FldCopyVec *)puVar10_s7;
-          func_0014d9e0((unsigned char *)piVar1[0xb2],targetPosition);
+          KDraw_SetCylinderCenter((unsigned char *)piVar1[0xb2],targetPosition);
         }
-        func_0014da10((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x20));
-        func_0014da20((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x24));
+        KDraw_SetCylinderRadius((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x20));
+        KDraw_SetCylinderHeight((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x24));
         if (*(int *)(*(int *)(iGpffff9db0 + 0x28) + 0xa20) != 0) {
           {
             unsigned char *cameraHelper = (unsigned char *)piVar1[0xb3];
             if (cameraHelper != (unsigned char *)0x0) {
-              func_0014d5e0(cameraHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+              KDraw_SetGroupFlags(cameraHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
             }
           }
           {
             unsigned char *pathHelper = (unsigned char *)piVar1[0xb4];
             if (pathHelper != (unsigned char *)0x0) {
-              func_0014d7c0(pathHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
-              func_0014d7d0((unsigned char *)piVar1[0xb4],(unsigned char *)(piVar1 + 0x31));
+              KDraw_SetSphereFlags(pathHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+              KDraw_SetSphereCenter((unsigned char *)piVar1[0xb4],(unsigned char *)(piVar1 + 0x31));
             }
           }
           {
             unsigned char *projectionHelper = (unsigned char *)piVar1[0xb5];
             if (projectionHelper != (unsigned char *)0x0) {
-              func_0014d7c0(projectionHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
-              func_0014d7d0((unsigned char *)piVar1[0xb5],(unsigned char *)&stk10[0]);
+              KDraw_SetSphereFlags(projectionHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+              KDraw_SetSphereCenter((unsigned char *)piVar1[0xb5],(unsigned char *)&stk10[0]);
             }
           }
         }
@@ -3226,23 +3226,23 @@ s32 func_0016e2e0(s32 arg0)
     *(s32 *)(temp_2 + 0x2BC) = func_003e0f80();
     *(s32 *)(temp_2 + 0x2C0) = func_003e0f80();
     *(s32 *)(temp_2 + 0x2C4) = func_003e0f80();
-    *(s32 *)(temp_2 + 0x2C8) = func_0014d910(temp_18, D_007948D0);
+    *(s32 *)(temp_2 + 0x2C8) = KDraw_CreateCylinderTask(temp_18, D_007948D0);
     temp_5 = *(s32 *)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20);
     if (temp_5 != 0) {
         temp_19 = temp_2 + 0x2CC;
-        *(s32 *)(temp_19 + 0) = func_0014d510(temp_18, temp_5,
+        *(s32 *)(temp_19 + 0) = KDraw_CreateGroupTask(temp_18, temp_5,
                                               D_007948D0);
         temp_17 = temp_2 + 0x2D0;
-        *(s32 *)(temp_17 + 0) = func_0014d700(temp_18,
+        *(s32 *)(temp_17 + 0) = KDraw_CreateSphereTask(temp_18,
                                               D_007948D0);
         temp_16 = temp_2 + 0x2D4;
-        *(s32 *)(temp_16 + 0) = func_0014d700(temp_18,
+        *(s32 *)(temp_16 + 0) = KDraw_CreateSphereTask(temp_18,
                                               D_007948D0);
-        func_0014d5f0(*(void **)(temp_19 + 0),
+        KDraw_SetGroupColor(*(void **)(temp_19 + 0),
                       (u8 *)&iGpffff9f00 + 0x30);
-        func_0014d800(*(void **)(temp_17 + 0),
+        KDraw_SetSphereColor(*(void **)(temp_17 + 0),
                       (u8 *)&iGpffff9f00 + 0x30);
-        func_0014d800(*(void **)(temp_16 + 0),
+        KDraw_SetSphereColor(*(void **)(temp_16 + 0),
                       (u8 *)&iGpffff9f00 + 0x34);
     }
     return temp_18;
@@ -3756,12 +3756,12 @@ u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
         }
             result = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
             *(s32 *)(temp_2 + 4) = arg1;
-            temp_f20 = func_0014b5d0(
+            temp_f20 = KDraw_MatrixYawDeg(
                 mdlGetMatrix(*(s32 *)D_007EFA00));
             if (temp_f20 < 0.0f) {
                 temp_f20 += 360.0f;
             }
-            temp_f0 = func_0014b5d0(
+            temp_f0 = KDraw_MatrixYawDeg(
                 func_003e9700(*(s32 *)(func_00457120() + 4)));
             if (temp_f0 < 0.0f) {
                 temp_f0 += 360.0f;
@@ -3817,8 +3817,8 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
         }
         result = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
         *(s32 *)(temp_2 + 4) = arg1;
-        func_0014b5d0(mdlGetMatrix(*(s32 *)D_007EFA00));
-        temp_f0 = func_0014b5d0(
+        KDraw_MatrixYawDeg(mdlGetMatrix(*(s32 *)D_007EFA00));
+        temp_f0 = KDraw_MatrixYawDeg(
             func_003e9700(*(s32 *)(func_00457120() + 4)));
         if (temp_f0 < 0.0f) {
             temp_f0 += 360.0f;

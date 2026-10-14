@@ -996,7 +996,7 @@ extern void *mdlGetColor(void *);
 extern int func_0014bbe0(int, int, int, int, int);
 extern int func_0014bd90(unsigned char *);
 extern unsigned int func_0014c240(void *, void *, float, float);
-extern s32 func_0014dbb0(void *, void *);
+extern s32 KDraw_CreateAxesTask(void *, void *);
 extern void func_0014dcd0(unsigned char *, int);
 extern void func_0014dce0(unsigned char *, unsigned char *);
 extern void func_0014dd10(unsigned char *, unsigned char *);
@@ -1166,7 +1166,7 @@ availabilityDone:
       piVar1[0x17] = (int)((unsigned int)temp_v0 % 3) + 1;
       ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
       ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x18);
-      pbVar7 = (unsigned char *)func_0014dbb0(param_1,D_00794420);
+      pbVar7 = (unsigned char *)KDraw_CreateAxesTask(param_1,D_00794420);
       piVar1[0x26] = (int)pbVar7;
       func_0014dd10(pbVar7,(u8 *)&((FldAINpc *)piVar1[3])->origin);
       func_0014dce0((unsigned char *)piVar1[0x26],(unsigned char *)D_005F1CE0);

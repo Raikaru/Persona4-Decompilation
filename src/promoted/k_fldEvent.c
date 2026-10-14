@@ -1723,7 +1723,7 @@ s32 func_00174e10(u8 *arg0)
     extern FldEventVec3 D_00756510;
     s32 func_00457120(void);
     MovementMatrix *func_003e9700(void *);
-    f32 func_0014b5d0(const MovementMatrix *);
+    f32 KDraw_MatrixYawDeg(const MovementMatrix *);
     f32 func_0014b590(f32);
     s32 func_0016e580(u8 *);
     u32 datGetFlag(s32);
@@ -1785,7 +1785,7 @@ s32 func_00174e10(u8 *arg0)
         s32 t = *(s32 *)(h + 0x138);
         if (t != 0 && func_00452490((void *)(t)) == 0) {
             *(s32 *)(h + 0x138) = 0;
-            *(f32 *)(h + 0x140) = func_0014b5d0(func_003e9700(*(void **)(func_00457120() + 4)));
+            *(f32 *)(h + 0x140) = KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4)));
         }
     }
     move.z = (f32)D_008C025D[0] - 128.0f;
@@ -1824,7 +1824,7 @@ s32 func_00174e10(u8 *arg0)
             if (datGetFlag(0x3E) == 1) {
                 f21 *= -1.0f;
             }
-            a = func_0014b590(func_0014b5d0(func_003e9700(*(void **)(func_00457120() + 4))));
+            a = func_0014b590(KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4))));
             if (a < 0.0f) {
                 a += 360.0f;
             }
@@ -1850,13 +1850,13 @@ s32 func_00174e10(u8 *arg0)
                 f21 *= -1.0f;
             }
             {
-                f32 angle = func_0014b590(func_0014b5d0(func_003e9700(*(void **)(func_00457120() + 4))));
+                f32 angle = func_0014b590(KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4))));
 
                 if (angle < 0.0f) {
                     angle += 360.0f;
                 }
             }
-            add = f21 + func_0014b5d0(func_003e9700(*(void **)(func_00457120() + 4)));
+            add = f21 + KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4)));
             *(u8 **)(h + 0x138) = func_0016f3b0(arg0, 5, (s32)add);
         }
     } else if (camera.x < -48.0f) {

@@ -49,11 +49,11 @@ extern u8 D_005EFBF8[];
 extern u8 D_005EFC08[];
 extern s32 func_0014d470(u8 *);
 extern void func_0014d4e0(u8 *);
-extern void func_0014d830(u8 *, u8 *);
-extern void func_0014da30(u8 *, u8 *);
+extern void KDraw_DrawCylinder(u8 *, u8 *);
+extern void KDraw_DrawAxes(u8 *, u8 *);
 
 // FUN_0014B5D0
-f32 func_0014b5d0(const RwMatrix* matrix)
+f32 KDraw_MatrixYawDeg(const RwMatrix* matrix)
 {
     RwMatrix normalized;
 
@@ -63,7 +63,7 @@ f32 func_0014b5d0(const RwMatrix* matrix)
 }
 
 // FUN_0014B660
-f32 func_0014b660(const RwMatrix* matrix)
+f32 KDraw_MatrixPitchDeg(const RwMatrix* matrix)
 {
     RwMatrix normalized;
     RwV3d* up;
@@ -75,7 +75,7 @@ f32 func_0014b660(const RwMatrix* matrix)
 }
 
 // FUN_0014B6F0
-f32 func_0014b6f0(const RwMatrix* matrix)
+f32 KDraw_MatrixRollDeg(const RwMatrix* matrix)
 {
     RwMatrix normalized;
     RwV3d* up;
@@ -87,7 +87,7 @@ f32 func_0014b6f0(const RwMatrix* matrix)
 }
 
 // FUN_0014D510
-s32 func_0014d510(s32 arg0, s32 arg1, s32 arg2)
+s32 KDraw_CreateGroupTask(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *buf;
     s32 ret;
@@ -105,26 +105,26 @@ s32 func_0014d510(s32 arg0, s32 arg1, s32 arg2)
 }
 
 // FUN_0014D5E0
-void func_0014d5e0(u8 *arg0, u32 arg1)
+void KDraw_SetGroupFlags(u8 *arg0, u32 arg1)
 {
     *(u32 *) *(u8 **)(arg0 + 0x38) = arg1;
 }
 
 // FUN_0014D5F0
-void func_0014d5f0(u8 *arg0, u8 *arg1) {
+void KDraw_SetGroupColor(u8 *arg0, u8 *arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     *(Rgba8 *)(p + 0x8) = *(Rgba8 *)arg1;
 }
 
 // FUN_0014D620
-void func_0014d620(u8 *arg0, u8 *arg1)
+void KDraw_DrawSphere(u8 *arg0, u8 *arg1)
 {
     primSphereLine3D(arg1 + 4, 10.0f, arg1 + 0x10, 1);
 }
 
 // FUN_0014D660
-s32 func_0014d660(u8 *arg0)
+s32 KDraw_UpdateSphere(u8 *arg0)
 {
     u8 *work;
     u8 *obj;
@@ -134,20 +134,20 @@ s32 func_0014d660(u8 *arg0)
         return 0;
     }
     obj = func_00460990();
-    *(void **)(obj + 8) = func_0014d620;
+    *(void **)(obj + 8) = KDraw_DrawSphere;
     *(void **)(obj + 0x10) = work;
     func_00460ac0(*(void **)(work + 0x14), obj);
     return 0;
 }
 
 // FUN_0014D6D0
-void func_0014d6d0(u8 *arg0)
+void KDraw_DestroySphere(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
 // FUN_0014D700
-s32 func_0014d700(s32 arg0, s32 arg1)
+s32 KDraw_CreateSphereTask(s32 arg0, s32 arg1)
 {
     u8 *buf;
     s32 ret;
@@ -157,23 +157,23 @@ s32 func_0014d700(s32 arg0, s32 arg1)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBE8), 0xF, 0, 0, func_0014d660, func_0014d6d0, (u8 *)(buf));
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBE8), 0xF, 0, 0, KDraw_UpdateSphere, KDraw_DestroySphere, (u8 *)(buf));
     *(s32 *)(buf + 0x14) = arg1;
     return ret;
 }
 
 // FUN_0014D7C0
-void func_0014d7c0(u8 *arg0, u32 arg1)
+void KDraw_SetSphereFlags(u8 *arg0, u32 arg1)
 {
     *(u32 *) *(u8 **)(arg0 + 0x38) = arg1;
 }
 
 // FUN_0014D7D0
-void func_0014d7d0(u8 *arg0, u8 *arg1) {
+void KDraw_SetSphereCenter(u8 *arg0, u8 *arg1) {
     *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
 }
 // FUN_0014D800
-void func_0014d800(u8 *arg0, u8 *arg1) {
+void KDraw_SetSphereColor(u8 *arg0, u8 *arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     *(Rgba8 *)(p + 0x10) = *(Rgba8 *)arg1;
@@ -184,13 +184,13 @@ void func_0014d800(u8 *arg0, u8 *arg1) {
    arg1 into $v0 to survive. Naming the floats or the pointer in locals first does not
    change the order; both spellings give the identical nd 12. Evaluation-order floor. */
 // FUN_0014D830
-void func_0014d830(u8 *arg0, u8 *arg1)
+void KDraw_DrawCylinder(u8 *arg0, u8 *arg1)
 {
     primCylinderLine3D((f32 *)(arg1 + 4), *(f32 *)(arg1 + 0x10), *(f32 *)(arg1 + 0x14),
                   &iGpffff9dd4, 1);
 }
 // FUN_0014D870
-s32 func_0014d870(u8 *arg0)
+s32 KDraw_UpdateCylinder(u8 *arg0)
 {
     u8 *work;
     u8 *obj;
@@ -200,20 +200,20 @@ s32 func_0014d870(u8 *arg0)
         return 0;
     }
     obj = func_00460990();
-    *(void **)(obj + 8) = func_0014d830;
+    *(void **)(obj + 8) = KDraw_DrawCylinder;
     *(void **)(obj + 0x10) = work;
     func_00460ac0(*(void **)(work + 0x18), obj);
     return 0;
 }
 
 // FUN_0014D8E0
-void func_0014d8e0(u8 *arg0)
+void KDraw_DestroyCylinder(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
 // FUN_0014D910
-s32 func_0014d910(s32 arg0, s32 arg1)
+s32 KDraw_CreateCylinderTask(s32 arg0, s32 arg1)
 {
     u8 *buf;
     s32 ret;
@@ -223,35 +223,35 @@ s32 func_0014d910(s32 arg0, s32 arg1)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBF8), 0xF, 0, 0, func_0014d870, func_0014d8e0, (u8 *)(buf));
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBF8), 0xF, 0, 0, KDraw_UpdateCylinder, KDraw_DestroyCylinder, (u8 *)(buf));
     *(s32 *)(buf + 0x18) = arg1;
     return ret;
 }
 
 // FUN_0014D9D0
-void func_0014d9d0(u8 *arg0, u32 arg1)
+void KDraw_SetCylinderFlags(u8 *arg0, u32 arg1)
 {
     *(u32 *) *(u8 **)(arg0 + 0x38) = arg1;
 }
 
 // FUN_0014D9E0
-void func_0014d9e0(u8 *arg0, u8 *arg1) {
+void KDraw_SetCylinderCenter(u8 *arg0, u8 *arg1) {
     *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
 }
 // FUN_0014DA10
-void func_0014da10(u8 *arg0, f32 arg1)
+void KDraw_SetCylinderRadius(u8 *arg0, f32 arg1)
 {
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x10) = arg1;
 }
 
 // FUN_0014DA20
-void func_0014da20(u8 *arg0, f32 arg1)
+void KDraw_SetCylinderHeight(u8 *arg0, f32 arg1)
 {
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x14) = arg1;
 }
 
 // FUN_0014DA30
-void func_0014da30(u8 *arg0, u8 *arg1)
+void KDraw_DrawAxes(u8 *arg0, u8 *arg1)
 {
     KDrawFunc *tbl = (KDrawFunc *)D_00887300_abs;
 
@@ -265,7 +265,7 @@ void func_0014da30(u8 *arg0, u8 *arg1)
     primSphereLine3D(arg1 + 0x30, 20.0f, arg1 + 0x48, 1);
 }
 // FUN_0014DB10
-s32 func_0014db10(u8 *arg0)
+s32 KDraw_UpdateAxes(u8 *arg0)
 {
     u8 *work;
     u8 *obj;
@@ -275,21 +275,21 @@ s32 func_0014db10(u8 *arg0)
         return 0;
     }
     obj = func_00460990();
-    *(void **)(obj + 8) = func_0014da30;
+    *(void **)(obj + 8) = KDraw_DrawAxes;
     *(void **)(obj + 0x10) = work;
     func_00460ac0(*(void **)(work + 0x4C), obj);
     return 0;
 }
 
 // FUN_0014DB80
-void func_0014db80(u8 *arg0)
+void KDraw_DestroyAxes(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
 /* Parent is forwarded to task creation; drawList is retained for func_00460ac0. */
 // FUN_0014DBB0
-s32 func_0014dbb0(void *parent, void *drawList)
+s32 KDraw_CreateAxesTask(void *parent, void *drawList)
 {
     u8 *buf;
     s32 ret;
@@ -299,7 +299,7 @@ s32 func_0014dbb0(void *parent, void *drawList)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0(parent, (const void *)(D_005EFC08), 0xF, 0, 0, func_0014db10, func_0014db80, (u8 *)(buf));
+    ret = (s32)func_00451fc0(parent, (const void *)(D_005EFC08), 0xF, 0, 0, KDraw_UpdateAxes, KDraw_DestroyAxes, (u8 *)(buf));
     *(f32 *)(buf + 0x28) = 1.0f;
     *(f32 *)(buf + 0x14) = 1.0f;
     *(f32 *)(buf + 0x00) = 1.0f;
