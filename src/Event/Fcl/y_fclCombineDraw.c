@@ -1285,7 +1285,7 @@ s32 func_003190d0(u8 *arg0) {
    docs/probe_archive/FclDraw_003191c0_20260925.md). */
 // FUN_003191C0
 void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg5, s8 arg6, s8 arg7) {
-    extern u8 *func_0034ae50(u8 *, s32);
+    extern u8 *fclCombineSlotRecord(u8 *, s32);
     extern u8 func_00109280(u16);
     extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
     extern void func_0034b820(u8 *, FclVec2, s16, FclDrawColor, f32);
@@ -1333,9 +1333,9 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
 
     t = *(u8 **)(arg0 + 0x38);
     special = 0;
-    if (*(u8 *)(func_0034ae50(*(u8 **)(t + 0x188), arg2) + 0x75) == 0x8C) {
-        if (*(u8 *)(func_0034ae50(*(u8 **)(t + 0x188), arg2) + 0x76) == 0xE2) {
-            if (*(u8 *)(func_0034ae50(*(u8 **)(t + 0x188), arg2) + 0x77) == 0xFF) {
+    if (*(u8 *)(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2) + 0x75) == 0x8C) {
+        if (*(u8 *)(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2) + 0x76) == 0xE2) {
+            if (*(u8 *)(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2) + 0x77) == 0xFF) {
                 special = 1;
             }
         }
@@ -1454,16 +1454,16 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
     }
     func_0046d280(hD);
     if (*(s16 *)(t + 0x11E) == c) {
-        func_002b83e0(func_0034ae50(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
+        func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
                       (c260 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF)), (c25C = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF)),
                       0xFF, 0xFF, 32.0f, 159.0f, 3, (s16)arg5, arg6, 0);
     } else if (special == 1) {
-        func_002b83e0(func_0034ae50(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
-                      *(FclDrawColor *)(func_0034ae50(*(u8 **)(t + 0x188), arg2) + 0x75),
-                      *(FclDrawColor *)(func_0034ae50(*(u8 **)(t + 0x188), arg2) + 0x75),
+        func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
+                      *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2) + 0x75),
+                      *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2) + 0x75),
                       0xFF, 0xFF, 32.0f, 159.0f, 3, (s16)arg5, arg6, 0);
     } else {
-        func_002b83e0(func_0034ae50(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
+        func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
                       (c258 = func_002b2a60(0, 0, 0x99, 0xFF)), (c254 = func_002b2a60(0, 0, 0x99, 0xFF)),
                       0xFF, 0xFF, 32.0f, 159.0f, 3, (s16)arg5, arg6, 0);
     }
@@ -1909,15 +1909,15 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
             u8 *base = t + (s32)v * 4;
             s32 off12 = row * 12;
             for (; (s16)i < (u16)func_0010b5b0(); ++i) {
-                e = func_0034ae50(*(u8 **)(base + 0x154), (s8)i);
+                e = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i);
                 if (((*(s16 *)e & 4) >> 2) == 0) {
                     cDC = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                    p = func_0034ae50(*(u8 **)(base + 0x154), (s8)i);
+                    p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i);
                     *(FclByte4 *)(p + 0x75) = cDC;
-                    *(u8 *)(func_0034ae50(*(u8 **)(base + 0x154), (s8)i) + 0x5E) = 0xFF;
+                    *(u8 *)(fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i) + 0x5E) = 0xFF;
                     if (*(s8 *)((u8 *)(off12 + (uintptr_t)func_002e4870(0)) + (s16)i + 0x14) > 0) {
                         cD8 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-                        p = func_0034ae50(*(u8 **)(base + 0x154), (s8)i);
+                        p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i);
                         *(FclByte4 *)(p + 0x75) = cD8;
                     }
                 }
@@ -1951,7 +1951,7 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
             q = func_002b6150((s16)(slot + 0x238));
             *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
             cC8 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-            p = func_0034ae50(*(u8 **)(t + 0x188), arg1);
+            p = fclCombineSlotRecord(*(u8 **)(t + 0x188), arg1);
             *(FclByte4 *)(p + 0x75) = cC8;
             cC4 = func_002b2a60(0, 0, 0x66, 0xFF);
             p = func_002b6150((s16)(slot + 0x39));
@@ -1965,17 +1965,17 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
             u8 *base = t + (s8)arg1 * 4;
             s32 off12 = (s8)arg1 * 12;
             for (; (s16)j < (u16)func_0010b5b0(); ++j) {
-                e = func_0034ae50(*(u8 **)(base + 0x154), (s8)j);
+                e = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j);
                 if (((*(s16 *)e & 4) >> 2) == 0) {
                     cBC = func_002b2a60(0, 0, 0x99, 0xA5);
-                    p = func_0034ae50(*(u8 **)(base + 0x154), (s8)j);
+                    p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j);
                     *(FclByte4 *)(p + 0x75) = cBC;
-                    *(u8 *)(func_0034ae50(*(u8 **)(base + 0x154), (s8)j) + 0x5E) = 0xA5;
+                    *(u8 *)(fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j) + 0x5E) = 0xA5;
                     if (*(s8 *)((u8 *)(off12 + (uintptr_t)func_002e4870(0)) + (s16)j + 0x14) > 0) {
                         cB8 = func_002b2a60(0x49, 0x72, 0xFF, 0xA5);
-                        p = func_0034ae50(*(u8 **)(base + 0x154), (s8)j);
+                        p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j);
                         *(FclByte4 *)(p + 0x75) = cB8;
-                        *(u8 *)(func_0034ae50(*(u8 **)(base + 0x154), (s8)j) + 0x5E) = 0xCC;
+                        *(u8 *)(fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j) + 0x5E) = 0xCC;
                     }
                 }
             }
@@ -2020,7 +2020,7 @@ s32 func_0031ddf0(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
         *(u8 *)(func_002b6150((s16)v18) + 0x6E) =
             *(u8 *)(func_002b6150((s16)v17) + 0x6E) = 0xFF;
         cBC = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-        p = func_0034ae50(*(u8 **)(t + 0x188), arg1);
+        p = fclCombineSlotRecord(*(u8 **)(t + 0x188), arg1);
         *(FclByte4 *)(p + 0x75) = cBC;
         q = func_002b6150((s16)(v16 + 0x244));
         *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x75);
@@ -2058,7 +2058,7 @@ s32 func_0031ddf0(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
         q = func_002b6150((s16)(v16 + 0x238));
         *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
         cA8 = func_002b2a60(0, 0, 0x99, 0xFF);
-        *(FclByte4 *)(func_0034ae50(*(u8 **)(t + 0x188), arg1) + 0x75) = cA8;
+        *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg1) + 0x75) = cA8;
         cA4 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
         *(FclByte4 *)(func_002b6150((s16)(v16 + 0x39)) + 0x85) = cA4;
         cA0 = func_002b2a60(0, 0, 0x66, 0xFF);
@@ -2107,11 +2107,11 @@ void func_0031e320(u8 *arg0, s8 arg1) {
     c70 = func_002b2a60(0xFF, 0xFF, 0x9E, 0xFF);
     func_002b6b90(n4, *(s32 *)(p4 + 0x85), *(s32 *)&c70, 1, 6, 0);
     *(s8 *)(func_002b6150(n4) + 0x91) = 1;
-    q1 = func_0034ae50(*(u8 **)(work + 0x188), arg1);
-    q2 = func_0034ae50(*(u8 **)(work + 0x188), arg1);
+    q1 = fclCombineSlotRecord(*(u8 **)(work + 0x188), arg1);
+    q2 = fclCombineSlotRecord(*(u8 **)(work + 0x188), arg1);
     c6C = func_002b2a60(0xFF, 0xFF, 0x9E, 0xFF);
     func_002b8370(q1, *(FclByte4 *)(q2 + 0x75), *(FclByte4 *)&c6C, 1, 6, 0);
-    *(s8 *)(func_0034ae50(*(u8 **)(work + 0x188), arg1) + 0x81) = 1;
+    *(s8 *)(fclCombineSlotRecord(*(u8 **)(work + 0x188), arg1) + 0x81) = 1;
 }
 
 
@@ -2662,17 +2662,17 @@ static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRo
             u8 *cellElement;
 
             columnIndex = column;
-            cellElement = func_0034ae50(rowTasks->cellListTask, (s8)column);
+            cellElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
             initialCellPosition = func_002b2970((f32)(columnIndex * 23 + 0x149), (f32)rowY);
             initialCellColor = func_002b2a60(0, 0, 0x99, 0xA5);
             func_002b8200(cellElement, initialCellPosition, initialCellColor, 1.0f, 0.0f, 159.0f);
             {
                 s32 delay = (s16)column + rowIndex;
-                u8 *colorElement = func_0034ae50(rowTasks->cellListTask, (s8)column);
+                u8 *colorElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
                 initialFadeStartColor = func_002b2a60(0, 0, 0x99, 0xFF);
                 initialFadeEndColor = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                 func_002b8370(colorElement, initialFadeStartColor, initialFadeEndColor, 0, 0xA, delay);
-                func_002b82d0(func_0034ae50(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, delay);
+                func_002b82d0(fclCombineSlotRecord(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, delay);
             }
             fclClearGridCellTransition(initialRowState, columnIndex);
             column++;
@@ -2686,17 +2686,17 @@ static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRo
             u8 *cellElement;
 
             columnIndex = column;
-            cellElement = func_0034ae50(rowTasks->cellListTask, (s8)column);
+            cellElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
             refreshCellPosition = func_002b2970((f32)(columnIndex * 23 + 0x149), (f32)rowY);
             refreshCellColor = func_002b2a60(0, 0, 0x99, 0xA5);
             func_002b8200(cellElement, refreshCellPosition, refreshCellColor, 1.0f, 0.0f, 159.0f);
             {
-                u8 *colorElement = func_0034ae50(rowTasks->cellListTask, (s8)column);
+                u8 *colorElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
                 refreshFadeStartColor = func_002b2a60(0x49, 0x72, 0xFF, 0xA5);
                 refreshFadeEndColor = func_002b2a60(0, 0, 0x99, 0xA5);
                 func_002b8370(colorElement, refreshFadeStartColor, refreshFadeEndColor,
                               0, 0xA, (s16)column + rowIndex);
-                func_002b82d0(func_0034ae50(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, 0);
+                func_002b82d0(fclCombineSlotRecord(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, 0);
             }
             fclClearGridCellTransition(refreshRowState, columnIndex);
             column++;
@@ -2775,7 +2775,7 @@ void func_00320b80(u8 *task, s8 entryMode) {
             func_0046d280(columnResource);
         }
         {
-            u8 *columnHeaderElement = func_0034ae50(work->gridColumnHeaderTask, (s8)row);
+            u8 *columnHeaderElement = fclCombineSlotRecord(work->gridColumnHeaderTask, (s8)row);
             columnHeaderPosition = func_002b2970((f32)(gridOffset + 0x149), 104.0f);
             columnHeaderStartColor = func_002b2a60(0, 0, 0x99, 0xFF);
             columnHeaderEndColor = func_002b2a60(0, 0, 0x99, 0xFF);
@@ -2838,18 +2838,18 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
         for (; (s16)j < (s32)(u16)func_0010b5b0(); j = (s16)(j + 1)) {
             temp_2 = spB0 + (s32)(s16)j + 0x18C;
             if (*(s8 *)temp_2 == 0) {
-                if (((*(s16 *)func_0034ae50(*(u8 **)(temp_17 + 0x154), j) & 0x200) >> 9) == 0) {
-                    func_002b8370(func_0034ae50(*(u8 **)(temp_17 + 0x154), j), spE8, spEC, 0, 2, 1);
+                if (((*(s16 *)fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j) & 0x200) >> 9) == 0) {
+                    func_002b8370(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j), spE8, spEC, 0, 2, 1);
                     if (*(s8 *)((u8 *)addOff(temp_22, (u32)func_002e4870(0)) + (s32)(s16)j + 0x14) > 0) {
-                        func_002b8370(func_0034ae50(*(u8 **)(temp_17 + 0x154), j), spE8, spE4, 0, 2, 1);
-                        cell2 = func_0034ae50(*(u8 **)(temp_17 + 0x154), j);
-                        func_002b82d0(cell2, *(u8 *)(func_0034ae50(*(u8 **)(temp_17 + 0x154), j) + 0x5E), 0xCC, 0, 2, 1);
+                        func_002b8370(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j), spE8, spE4, 0, 2, 1);
+                        cell2 = fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j);
+                        func_002b82d0(cell2, *(u8 *)(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j) + 0x5E), 0xCC, 0, 2, 1);
                     }
                     *(s8 *)temp_2 = 1;
                 }
             } else if ((*(s8 *)(spC0 + 0x18C) == 1) && ((s16)var_16 == ((s16)j + temp_22))) {
                 temp_21_3 = temp_18 + ((u16)func_0010b5b0() * 4);
-                if (((*(s16 *)func_0034ae50(*(u8 **)(temp_21_3 + 0x150), (u16)func_0010b5b0() - 1) & 0x200) >> 9) == 0) {
+                if (((*(s16 *)fclCombineSlotRecord(*(u8 **)(temp_21_3 + 0x150), (u16)func_0010b5b0() - 1) & 0x200) >> 9) == 0) {
                     *(u8 *)(temp_18 + 1) = arg1;
                     if (*(s8 *)(temp_18 + 0x128) == -1) {
                         *(s16 *)(temp_18 + 0x11E) = 0;
@@ -2919,7 +2919,7 @@ void func_003218a0(u8 *arg0, s16 arg1) {
     order = arg1;
     for (; i < (u16)func_0010b5b0(); i++) {
         x = i * 23;
-        e = func_0034ae50(*(u8 **)(t + 0x184), i);
+        e = fclCombineSlotRecord(*(u8 **)(t + 0x184), i);
         func_002b83e0(e, func_002b2970(x + 0x149, 104.0f),
                       c16C = func_002b2a60(0, 0, 0x99, 0xFF), c168 = func_002b2a60(0, 0, 0x99, 0xFF),
                       0xFF, 0xFF, 32.0f, 159.0f, 2, order, 0, 0);
@@ -2939,27 +2939,27 @@ void func_003218a0(u8 *arg0, s16 arg1) {
         for (; j < (u16)func_0010b5b0(); j++) {
             if (*(s16 *)(t + 0x11E) == i) {
                 c164 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75) = c164;
+                *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75) = c164;
                 if (((s8 *)func_002e4870(0))[row + j + 0x14] > 0) {
                     c160 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-                    *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75) = c160;
+                    *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75) = c160;
                 }
             } else {
                 c15C = func_002b2a60(0, 0, 0x99, 0xA5);
-                *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75) = c15C;
+                *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75) = c15C;
                 if (((s8 *)func_002e4870(0))[row + j + 0x14] > 0) {
                     c158 = func_002b2a60(0x49, 0x72, 0xFF, 0xCC);
-                    *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75) = c158;
+                    *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75) = c158;
                 }
             }
-            func_002b83e0(func_0034ae50(*(u8 **)(p + 0x154), j),
+            func_002b83e0(fclCombineSlotRecord(*(u8 **)(p + 0x154), j),
                           func_002b2970(j * 23 + 0x149, y),
-                          *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75),
-                          *(FclDrawColor *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x75),
-                          *(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x78),
-                          *(func_0034ae50(*(u8 **)(p + 0x154), j) + 0x78),
+                          *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75),
+                          *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75),
+                          *(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x78),
+                          *(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x78),
                           32.0f,
-                          *(f32 *)(func_0034ae50(*(u8 **)(p + 0x154), j) + 4),
+                          *(f32 *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 4),
                           3, order, 0, 0);
         }
     }
@@ -3067,20 +3067,20 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             ja = 0;
             while ((s16)ja < (u16)func_0010b5b0()) {
                 ma = ja * 23;
-                pa = func_0034ae50(*(u8 **)(t + 0x184), (s8)ja);
+                pa = fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)ja);
                 func_002b83e0(pa, func_002b2970((f32)(ma + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
                               func_002b2a60(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
                 ka = 0;
                 rowa = t + ja * 4;
                 acca = ma + 0x7F;
                 while ((s16)ka < (u16)func_0010b5b0()) {
-                    func_002b83e0(func_0034ae50(*(u8 **)(rowa + 0x154), (s8)ka),
+                    func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka),
                                   func_002b2970((f32)(ka * 23 + 0x149), (f32)acca),
-                                  *(FclByte4 *)(func_0034ae50(*(u8 **)(rowa + 0x154), (s8)ka) + 0x75),
-                                  *(FclByte4 *)(func_0034ae50(*(u8 **)(rowa + 0x154), (s8)ka) + 0x75),
-                                  *(u8 *)(func_0034ae50(*(u8 **)(rowa + 0x154), (s8)ka) + 0x5E),
-                                  *(u8 *)(func_0034ae50(*(u8 **)(rowa + 0x154), (s8)ka) + 0x5E),
-                                  32.0f, *(f32 *)(func_0034ae50(*(u8 **)(rowa + 0x154), (s8)ka) + 4), 3, 0, 1, 0);
+                                  *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x75),
+                                  *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x75),
+                                  *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x5E),
+                                  *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x5E),
+                                  32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 4), 3, 0, 1, 0);
                     ++ka;
                 }
                 {
@@ -3116,20 +3116,20 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                                   *(u16 *)(func_002e48a0(*(s8 *)(t + 0x128) + 1, jb1) + 2),
                                   *(u8 *)(func_002e48a0(*(s8 *)(t + 0x128) + 1, jb1) + 4), 3, 0, 1, 0xCC);
                     mb1 = jb1 * 23;
-                    pb1 = func_0034ae50(*(u8 **)(t + 0x184), (s8)jb1);
+                    pb1 = fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)jb1);
                     func_002b83e0(pb1, func_002b2970((f32)(mb1 + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
                                   func_002b2a60(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
                     kb1 = 0;
                     rowb1 = t + jb1 * 4;
                     accb1 = mb1 + 0x7F;
                     while ((s16)kb1 < (u16)func_0010b5b0()) {
-                        func_002b83e0(func_0034ae50(*(u8 **)(rowb1 + 0x154), (s8)kb1),
+                        func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1),
                                       func_002b2970((f32)(kb1 * 23 + 0x149), (f32)accb1),
-                                      *(FclByte4 *)(func_0034ae50(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x75),
-                                      *(FclByte4 *)(func_0034ae50(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x75),
-                                      *(u8 *)(func_0034ae50(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x5E),
-                                      *(u8 *)(func_0034ae50(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x5E),
-                                      32.0f, *(f32 *)(func_0034ae50(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 4), 3, 0, 1, 0);
+                                      *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x75),
+                                      *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x75),
+                                      *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x5E),
+                                      *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x5E),
+                                      32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 4), 3, 0, 1, 0);
                         ++kb1;
                     }
                     {
@@ -3175,10 +3175,10 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                                 c21C = func_002b2a60(0, 0, 0x99, 0xA5);
                             }
                             alpha = c21C.c3;
-                            func_002b83e0(func_0034ae50(*(u8 **)(rowb2 + 0x154), (s8)kb2),
-                                          *(FclVec2 *)(func_0034ae50(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 0x28),
+                            func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2),
+                                          *(FclVec2 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 0x28),
                                           func_002b2a60(0, 0, 0x99, 0xA5), c21C, alpha, alpha,
-                                          32.0f, *(f32 *)(func_0034ae50(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 4), 6, 0, 1, 1);
+                                          32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 4), 6, 0, 1, 1);
                         } else {
                             if (*(s16 *)(t + 0x11E) == cur) {
                                 c21C = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
@@ -3186,10 +3186,10 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                                 c21C = func_002b2a60(0x49, 0x72, 0xFF, 0xCC);
                             }
                             alpha = c21C.c3;
-                            func_002b83e0(func_0034ae50(*(u8 **)(rowb2 + 0x154), (s8)kb2),
-                                          *(FclVec2 *)(func_0034ae50(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 0x28),
+                            func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2),
+                                          *(FclVec2 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 0x28),
                                           func_002b2a60(0, 0, 0x99, 0xCC), c21C, alpha, alpha,
-                                          32.0f, *(f32 *)(func_0034ae50(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 4), 6, 0, 1, 1);
+                                          32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 4), 6, 0, 1, 1);
                         }
                         ++kb2;
                     }
@@ -3209,18 +3209,18 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             func_003191c0(arg0, func_002b2970(16.0f, 128.0f), (s8)jc, *(u16 *)(func_002e48a0(0, jc) + 2),
                           *(u8 *)(func_002e48a0(0, jc) + 4), 0, 1, (rowCount = *(s8 *)(func_002e4870(0) + 8)));
             m = jc * 23;
-            func_002b83e0(func_0034ae50(*(u8 **)(t + 0x184), (s8)jc), func_002b2970((f32)(m + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
+            func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)jc), func_002b2970((f32)(m + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
                           func_002b2a60(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
             kc = 0;
             rowc = t + jc * 4;
             while ((s16)kc < (u16)func_0010b5b0()) {
-                func_002b83e0(func_0034ae50(*(u8 **)(rowc + 0x154), (s8)kc),
-                              *(FclVec2 *)(func_0034ae50(*(u8 **)(rowc + 0x154), (s8)kc) + 0x28),
-                              *(FclByte4 *)(func_0034ae50(*(u8 **)(rowc + 0x154), (s8)kc) + 0x75),
-                              *(FclByte4 *)(func_0034ae50(*(u8 **)(rowc + 0x154), (s8)kc) + 0x75),
-                              *(u8 *)(func_0034ae50(*(u8 **)(rowc + 0x154), (s8)kc) + 0x5E),
-                              *(u8 *)(func_0034ae50(*(u8 **)(rowc + 0x154), (s8)kc) + 0x5E),
-                              32.0f, *(f32 *)(func_0034ae50(*(u8 **)(rowc + 0x154), (s8)kc) + 4), 3, 0, 1, 0);
+                func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc),
+                              *(FclVec2 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x28),
+                              *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x75),
+                              *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x75),
+                              *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x5E),
+                              *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x5E),
+                              32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 4), 3, 0, 1, 0);
                 ++kc;
             }
             {
@@ -5800,20 +5800,20 @@ void func_0032fbc0(u8 *arg0) {
             u8 *e4;
             u8 *e5;
             u8 *e6;
-            e0 = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            e1 = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            e2 = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            e3 = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            e4 = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            e5 = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
-            e6 = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
+            e0 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
+            e1 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
+            e2 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
+            e3 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
+            e4 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
+            e5 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
+            e6 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
             func_002b83e0(e0, *(FclVec2 *)(e1 + 0x28),
                           *(FclByte4 *)(e2 + 0x75), *(FclByte4 *)(e3 + 0x75),
                           *(u8 *)(e4 + 0x5E), *(u8 *)(e5 + 0x5E),
                           32.0f, *(f32 *)(e6 + 4), 3, 0, 1, 0);
             ++j;
         }
-        p = func_0034ae50(*(u8 **)(t + 0x184), (s8)i);
+        p = fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)i);
         {
             f32 spacing = 23.0f;
             f32 row = (f32)i;

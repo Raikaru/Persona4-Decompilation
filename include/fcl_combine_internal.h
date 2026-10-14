@@ -29,7 +29,7 @@ void func_0032c660(u8 *task, s32 slot, FclVec2 start, FclVec2 end, s32 arg4,
 void func_0033e540(u8 *task, FclVec2 start, FclVec2 end, s16 duration,
                    s16 arg4);
 
-u8 *func_0034ae50(u8 *task, s8 slot);
+u8 *fclCombineSlotRecord(u8 *task, s8 slot);
 s32 func_0034b810(u8 *task);
 
 /* This forwarding routine consumes the same signed resource indices. */

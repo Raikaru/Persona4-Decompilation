@@ -6,8 +6,8 @@
 
 /* Creators return the SDK task handle; the handle is stored in EE word fields. */
 s32 func_002b5c90(s32 parent, FclVec2 position);
-s32 func_0034ad70(s32 parent, u8 count, s16 order);
-s32 func_0034b740(s32 parent);
+s32 fclCmbBallTaskCreateSlots(s32 parent, u8 count, s16 order);
+s32 fclCmbBallTaskCreate(s32 parent);
 s32 func_002b8150(s32 parent);
 s32 func_002b9f90(s32 parent, s16 count, s32 resource);
 
