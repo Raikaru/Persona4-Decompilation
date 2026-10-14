@@ -81,8 +81,8 @@ extern u8 D_00795F20[];
 extern u8 D_006296D0[];
 extern u8 D_008C0240[0x94];
 extern void func_00460ac0(u8 *list, u8 *node);
-extern u16 func_0010b6f0(void);
-extern u16 *func_0010ace0(s16 slot);
+extern u16 datPersonaCountValidMembers(void);
+extern u16 *datPersonaRosterSlot(s16 slot);
 extern u8 *func_00117780(s32 parent, s32 priority, s32 mode, s32 layout, s32 option);
 extern void func_00117580(u8 *window, s32 value);
 extern void func_0011d100(u8 *window, f32 *position);
@@ -257,9 +257,9 @@ extern u8 D_00629750[], D_00629EA0[], D_0062CA80[], D_0062D1D0[];
 extern u8 D_0062E7C0[], D_0062EF10[], D_0062F660[], D_0062FDB0[];
 extern u8 D_00630500[], D_00630C50[], D_006313A0[], D_00631AF0[];
 extern u8 D_006355A0[];
-extern void func_0010b7c0(void);
-extern u8 *func_0010b010(u16 personaId);
-extern s32 func_0010b300(s32 personaId);
+extern void datPersonaClearRoster(void);
+extern u8 *datPersonaAddRosterMember(u16 personaId);
+extern s32 datPersonaSelectRosterMemberById(s32 personaId);
 extern void func_0019ef30(u8 *unit, u16 action);
 extern void func_00106d40(s16 character, s16 slot, s16 value);
 extern u16 func_00104dc0(s16 character);
@@ -643,7 +643,7 @@ s32 func_002232a0(u8 *sdkTaskBytes)
     switch (*(u32 *)(work + 4)) {
     case 0:
         *(s32 *)(work + 0x3C) = 0;
-        *(s32 *)(work + 0x38) = (u16)func_0010b6f0();
+        *(s32 *)(work + 0x38) = (u16)datPersonaCountValidMembers();
         *(u8 **)(work + 0x4C) = func_00117780(0, 15, 4, 5, 0);
         if (*(u8 **)(work + 0x4C) == 0) {
             func_0046d730(D_006296D0, 0x2F);
@@ -660,7 +660,7 @@ s32 func_002232a0(u8 *sdkTaskBytes)
         while ((index = *(s32 *)(work + 0x3C)) < *(s32 *)(work + 0x38)) {
             u32 reward;
 
-            persona = (u8 *)func_0010ace0((s16)index);
+            persona = (u8 *)datPersonaRosterSlot((s16)index);
             reward = *(u32 *)(results + 8 + *(s32 *)(work + 0x3C) * 4);
             *(u32 *)(persona + 8) += reward;
             index = *(s32 *)(work + 0x3C);
@@ -4778,9 +4778,9 @@ void func_0022cc90(void)
 
     switch (func_001ef9a0()) {
     case 0x214:
-        func_0010b7c0();
-        func_0010b010(1);
-        func_0010b300(1);
+        datPersonaClearRoster();
+        datPersonaAddRosterMember(1);
+        datPersonaSelectRosterMemberById(1);
         func_00106d40(1, 0, 1);
         break;
     }
@@ -5493,17 +5493,17 @@ s32 func_0022e630(u8 *arg0)
     if (*(u8 *)(unit + 0xA2) != 1) {
         switch (func_001ef9a0()) {
         case 0x214:
-            func_0010b7c0();
-            func_0010b010(0xE0);
-            func_0010b300(0xE0);
+            datPersonaClearRoster();
+            datPersonaAddRosterMember(0xE0);
+            datPersonaSelectRosterMemberById(0xE0);
             func_0019ef30(unit, 0xE0);
             func_00106d40(1, 0, 4);
             *(u16 *)(arg0 + 0x18) |= 0x40;
             break;
         case 0x215:
-            func_0010b7c0();
-            func_0010b010(0xE1);
-            func_0010b300(0xE1);
+            datPersonaClearRoster();
+            datPersonaAddRosterMember(0xE1);
+            datPersonaSelectRosterMemberById(0xE1);
             func_0019ef30(unit, 0xE1);
             func_001056e0(1, (s16)func_00104dc0(1));
             func_00105730(1, (s16)func_00104e30(1));

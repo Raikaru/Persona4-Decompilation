@@ -36,7 +36,7 @@ extern s64 func_00248760(s32 idx);
 extern s32 func_001077f0(u16 idx);
 extern u8 func_00109280(u16 idx);
 extern s32 func_00109300(s32 idx);
-extern s32 func_0010b6f0(void);
+extern s32 datPersonaCountValidMembers(void);
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
 extern s32 func_00110600(s32 a, s32 b);
 extern s32 func_00110d30(s32 idx);
@@ -546,7 +546,7 @@ s16 func_00247820(s32 arg0) {
     largest = 0;
     result = 0;
     target = (s8)func_00248760(arg0 & 0xFFFF);
-    for (i = 0; i < (func_0010b6f0() & 0xFFFF); i++) {
+    for (i = 0; i < (datPersonaCountValidMembers() & 0xFFFF); i++) {
         v = func_00109300(i & 0xFFFF) & 0xFFFF;
         if (target == (func_00109280(v) & 0xFF)) {
             w = func_001093a0(i & 0xFFFF) & 0xFF;
@@ -662,7 +662,7 @@ s32 func_00247c20(s16 arg0) {
     s32 i = 0;
     s32 key = (s32)arg0;
 
-    while (i < (func_0010b6f0() & 0xFFFF)) {
+    while (i < (datPersonaCountValidMembers() & 0xFFFF)) {
         if (key == (func_00109280(func_00109300(i & 0xFFFF) & 0xFFFF) & 0xFF)) {
             return 1;
         }

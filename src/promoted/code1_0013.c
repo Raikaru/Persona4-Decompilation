@@ -40,11 +40,11 @@ extern void func_00453760(void *arg0, s32 arg1);
 extern void func_004538e0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00453960(u8 *arg0);
 extern void func_00136fa0(u8 *arg0, s32 arg1, s32 arg2);
-extern s32 func_0010ace0(s16 arg0);
-extern u16 *func_0010a900(u16 arg0);
+extern s32 datPersonaRosterSlot(s16 arg0);
+extern u16 *datPersonaGetRecord(u16 arg0);
 extern void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern s32 func_0010b510(void);
-extern void func_0010b3b0(s16 arg0);
+extern s32 datPersonaGetLeadSlot(void);
+extern void datPersonaSetLeadSlot(s16 arg0);
 extern s32 func_0010f6a0(s16 arg0, u32 arg1);
 extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2);
@@ -1964,8 +1964,8 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void func_001370e0(u8 *arg0);
     extern void func_0011bb90(u8 *arg0);
     extern void func_0013d7d0(u8 *arg0, s32 arg1);
-    extern s32 func_0010ace0(s32 arg0);
-    extern u16 *func_0010a900(u16 arg0);
+    extern s32 datPersonaRosterSlot(s32 arg0);
+    extern u16 *datPersonaGetRecord(u16 arg0);
     u8 buf[0x30];
     f32 temp_f1;
     f32 var_f1;
@@ -2028,7 +2028,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_001370e0(arg2);
                     func_0034bb20(0xF);
                     func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
-                    func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, func_0010ace0(*(s16 *)(arg2 + 0x52)), 0);
+                    func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                     func_0013d7d0(arg2, 1);
                     func_0011d0d0(*(u8 **)(arg2 + 0x1CB4), NULL);
                     func_0011d080(*(u8 **)(arg2 + 0x1CB4), 0x40000);
@@ -2040,7 +2040,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_0034bb20(0x11);
                     func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                     func_0013d7d0(arg2, 0);
-                    func_0011b480(*(u8 **)(arg2 + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24), (u32)func_0010a900(*(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24)), 0);
+                    func_0011b480(*(u8 **)(arg2 + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24), (u32)datPersonaGetRecord(*(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24)), 0);
                     func_0011bb90(*(u8 **)(arg2 + 0x1CB4));
                     func_0011d0a0(*(u8 **)(arg2 + 0x1CB4), 0x40000);
                 }
@@ -2074,7 +2074,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_0010b7f0();
             func_0045af60(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
-            func_0010b3b0(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
+            datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
             func_0045af60(1, 3, 2, 6);
             func_001375f0(arg2);
         } else if (D_008C024E[0] & 0x80) {
@@ -2107,7 +2107,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             if (func_00453960(buf) != 0) {
                 func_00136fa0(arg2, 1, *(s32 *)(buf + 0x24));
                 func_00137570(arg2);
-                func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, func_0010ace0(*(s16 *)(arg2 + 0x52)), 0);
+                func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                 func_0045af60(0, 1, 0, 0);
             }
         }
@@ -2216,7 +2216,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             temp_2 = func_002bb140();
             switch (temp_2) {
             case 0:
-                func_0010b3b0(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
+                datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
                 func_0045af60(1, 3, 2, 6);
                 break;
             case 1:
@@ -2233,13 +2233,13 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             temp_2_2 = func_002bb140();
             switch (temp_2_2) {
             case 0:
-                func_0010ae30(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
+                datPersonaRemoveRosterSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
                 func_00135c10(arg2);
                 temp_3_2 = (s16)(*(s16 *)(arg2 + 0x4E));
                 if (*(s16 *)(arg2 + 0x52) >= temp_3_2) {
                     func_00136fa0(arg2, 1, temp_3_2 - 1);
                 }
-                func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, func_0010ace0(*(s16 *)(arg2 + 0x52)), 0);
+                func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                 break;
             case 1:
                 break;
@@ -2289,11 +2289,11 @@ void func_0013e7c0(u8 *arg0, s32 *arg1) {
         func_00136fa0(arg0, 1, *(s32 *)(sp40 + 0x24));
         *arg1 = 8;
         if (temp_2 == 1) {
-            func_0011c2c0(*(u8 **)(arg0 + 0x1CB4), 1, func_0010ace0(*(s16 *)(arg0 + 0x52)), 0);
+            func_0011c2c0(*(u8 **)(arg0 + 0x1CB4), 1, datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
             return;
         }
         if (temp_2 == 2) {
-            func_0011c180(*(u8 **)(arg0 + 0x1CB4), 1, func_0010ace0(*(s16 *)(arg0 + 0x52)), 0);
+            func_0011c180(*(u8 **)(arg0 + 0x1CB4), 1, datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
         }
     }
 }
@@ -2313,9 +2313,9 @@ s32 func_0013e8e0(u8 *arg0, s32 *arg1) {
         *arg1 = 0xB;
         temp_18 = character = *(u16 *)(code13AddOff(*(s32 *)(sp40 + 0x24) * 2, arg0) + 0x24);
         if (temp_2 == 1) {
-            func_0011c2c0(*(u8 **)(arg0 + 0x1CB4), temp_18, (s32)func_0010a900(character), 0);
+            func_0011c2c0(*(u8 **)(arg0 + 0x1CB4), temp_18, (s32)datPersonaGetRecord(character), 0);
         } else if (temp_2 == 2) {
-            func_0011c180(*(u8 **)(arg0 + 0x1CB4), temp_18, (s32)func_0010a900(character), 0);
+            func_0011c180(*(u8 **)(arg0 + 0x1CB4), temp_18, (s32)datPersonaGetRecord(character), 0);
         }
         return 1;
     }
@@ -2640,14 +2640,14 @@ s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2) {
         return 0;
     }
     if (temp_17 != -1) {
-        var_18 = (s16)func_0010b510();
-        func_0010b3b0(temp_17);
+        var_18 = (s16)datPersonaGetLeadSlot();
+        datPersonaSetLeadSlot(temp_17);
     }
     if (func_0010f6a0(arg0, temp_16) != 0) {
         var_19 = 0;
     }
     if (var_18 != -1) {
-        func_0010b3b0(var_18);
+        datPersonaSetLeadSlot(var_18);
     }
     return var_19;
 }

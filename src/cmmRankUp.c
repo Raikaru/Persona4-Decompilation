@@ -3237,7 +3237,7 @@ extern void func_00275980(char *source, char *destination, s32 capacity);
 extern void func_002bbd80(s8 handle, s32 variable, void *text);
 extern s32 datGetFlag();
 extern void func_00106390();
-extern u16 *func_0010a900(u16 character);
+extern u16 *datPersonaGetRecord(u16 character);
 extern s32 func_0010cc20(u8 *character, u16 skill);
 extern void func_004599a0();
 extern void func_00459950();
@@ -3556,18 +3556,18 @@ s32 func_0025b240(u8 *arg0) {
             skill = 0x113;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1469));
             func_002badc0(*(s8 *)(ctx + 0x3C), 0x12);
-            func_0010cc20((u8 *)func_0010a900(5), 0x113);
+            func_0010cc20((u8 *)datPersonaGetRecord(5), 0x113);
             break;
         case 8:
             skill = 0x112;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1456));
             func_002badc0(*(s8 *)(ctx + 0x3C), 0x13);
-            func_0010cc20((u8 *)func_0010a900(5), 0x112);
+            func_0010cc20((u8 *)datPersonaGetRecord(5), 0x112);
             break;
         case 9:
             skill = 0x10D;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x13F7));
-            func_0010cc20((u8 *)func_0010a900(5), 0x10D);
+            func_0010cc20((u8 *)datPersonaGetRecord(5), 0x10D);
             break;
         }
         if (skill == 0x113) {

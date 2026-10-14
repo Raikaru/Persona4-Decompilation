@@ -44,10 +44,10 @@ extern s32 func_00381a70(u8 *arg0);
 extern s32 func_003816e0(u8 *arg0);
 extern s32 func_00381830(u8 *arg0);
 extern s32 func_00382ba0(u8 *arg0);
-extern u16 *func_0010ace0(s16 a);
+extern u16 *datPersonaRosterSlot(s16 a);
 extern void func_0010cad0(u8 *dst, u16 id);
-extern s32 func_0010b5b0(void);
-extern u16 func_0010b460(void);
+extern s32 datPersonaRosterCapacity(void);
+extern u16 datPersonaLeadSlotWord(void);
 extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern u8 *func_00109220(u16 id);
 extern void func_002bbd20(s32 a, void *text);
@@ -74,8 +74,8 @@ extern void func_0038d0d0(u8 *arg0, s32 arg1);
 extern void func_0038d0a0(u8 *arg0);
 extern void func_00388d20(u8 *arg0);
 extern void func_00388d40(u8 *arg0);
-extern s32 func_0010ad80(s32 arg0);
-extern u8 *func_0010b060(u16 personaId);
+extern s32 datPersonaRemoveRosterMemberById(s32 arg0);
+extern u8 *datPersonaTryAddRosterMember(u16 personaId);
 extern u16 D_008C024E[];
 extern s32 datGetFlag(s32 a);
 extern s32 func_00107890(s32 a);
@@ -105,9 +105,9 @@ extern void func_00389350(u8 *a);
 extern void func_003798d0(u8 *a, s32 b);
 extern s32 func_00379920(u8 *a);
 extern s32 func_00380980(u8 *a);
-extern u16 func_0010b6f0(void);
-extern u16 *func_0010ac10(s32 a);
-extern u8 *func_0010b010(u16 personaId);
+extern u16 datPersonaCountValidMembers(void);
+extern u16 *datPersonaFindRosterRecordById(s32 a);
+extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern char *func_002438b0(s32 a);
 extern char *strcpy(char *dst, const char *source);
 struct KwlnTask;
@@ -146,13 +146,13 @@ s32 func_00380ea0(u8 *arg0)
     case 0:
         func_0010cad0(state + 0x1C, *(u16 *)(arg0 + 0x10));
         *(u8 **)(state + 0x4C) = state + 0x1C;
-        cnt = (u16)func_0010b5b0();
-        cur = (u16)func_0010b460();
+        cnt = (u16)datPersonaRosterCapacity();
+        cur = (u16)datPersonaLeadSlotWord();
         i = 0;
         j = 1;
         for (; i < cnt; i++) {
             dst = (u16 **)(state + j * 4 + 0x4C);
-            slotp = func_0010ace0((s16)i);
+            slotp = datPersonaRosterSlot((s16)i);
             *dst = slotp;
             if (*(u16 *)((u8 *)slotp + 2) != cur) {
                 j++;
@@ -327,8 +327,8 @@ s32 func_00380ea0(u8 *arg0)
                     func_002bad10(6);
                     *(s32 *)state = 6;
                     if (sum != 0) {
-                        func_0010ad80(*(u16 *)(*slot + 2));
-                        func_0010b060(*(u16 *)(arg0 + 0x10));
+                        datPersonaRemoveRosterMemberById(*(u16 *)(*slot + 2));
+                        datPersonaTryAddRosterMember(*(u16 *)(arg0 + 0x10));
                     }
                 }
                 break;
@@ -567,9 +567,9 @@ static inline s32 shuffleResultPersonaState(u8 *work)
     u16 count;
     s32 result;
     persona = (u16)*(u16 *)(work + 0x10);
-    capacity = func_0010b6f0();
-    count = (u16)func_0010b5b0();
-    result = (s32)func_0010ac10((u16)persona);
+    capacity = datPersonaCountValidMembers();
+    count = (u16)datPersonaRosterCapacity();
+    result = (s32)datPersonaFindRosterRecordById((u16)persona);
     if (result != 0) {
         func_002bad10(2);
         result = 6;
@@ -580,7 +580,7 @@ static inline s32 shuffleResultPersonaState(u8 *work)
             func_002bad10(3);
             result = 7;
         } else {
-            func_0010b010((u16)persona);
+            datPersonaAddRosterMember((u16)persona);
             func_002bbd20(0, func_00109220((u16)persona));
             func_002bad10(1);
             result = 5;

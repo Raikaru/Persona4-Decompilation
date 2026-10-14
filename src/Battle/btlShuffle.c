@@ -62,21 +62,21 @@ extern u8 D_0064E5F1[];
 
 extern u32 RpRandom();
 
-extern s32 func_0010b5b0();
+extern s32 datPersonaRosterCapacity();
 
-extern s32 func_0010b510();
+extern s32 datPersonaGetLeadSlot();
 
-extern s32 func_0010abd0(s16 slot);
+extern s32 datPersonaRosterSlotActive(s16 slot);
 
-extern s32 func_0010aa80();
+extern s32 datPersonaFindRosterSlotById();
 
-extern u16 *func_0010ace0(s16 slot);
+extern u16 *datPersonaRosterSlot(s16 slot);
 
 extern s32 datPersonaGetLevel();
 
-extern void func_0010ad80();
+extern void datPersonaRemoveRosterMemberById();
 
-extern u8 *func_0010b010(u16 personaId);
+extern u8 *datPersonaAddRosterMember(u16 personaId);
 
 extern u8 *iGpffffb3c0;
 
@@ -113,7 +113,7 @@ extern u8 D_0064E650[];
 extern u8 D_0064E670[];
 
 extern u8 D_0064E6A0[];
-extern u16 func_0010b6f0(void);
+extern u16 datPersonaCountValidMembers(void);
 extern u8 func_00109920(u8 *arg0, u16 arg1);
 extern u8 func_001099f0(u8 *arg0, u16 arg1);
 extern s32 func_0010a780(u8 *arg0, u16 arg1, s8 arg2);
@@ -677,7 +677,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
                 continue;
             }
         }
-        if ((s16)func_0010aa80((s16)i) != -1) {
+        if ((s16)datPersonaFindRosterSlotById((s16)i) != -1) {
             listA[nA++] = i;
         } else if (lvl < mlvl) {
             listB[nB++] = i;
@@ -888,7 +888,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
     u8 *list[12];
     union { u32 word; u16 skills[2]; } cand[8];
     s32 flag = arg0 & 0xFFFF;
-    u16 count = func_0010b5b0();
+    u16 count = datPersonaRosterCapacity();
     u8 *p;
     u16 *skills;
     u16 i;
@@ -907,8 +907,8 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
         func_0046d730(D_0064E790, 1207);
     }
     for (i = 0; i < count; i++) {
-        if (func_0010abd0((s16)i) != 0) {
-            list[n] = (u8 *)func_0010ace0((s16)i);
+        if (datPersonaRosterSlotActive((s16)i) != 0) {
+            list[n] = (u8 *)datPersonaRosterSlot((s16)i);
             n++;
         }
     }
@@ -1017,7 +1017,7 @@ s32 func_0036fbe0(s32 arg0)
 s32 func_0036fd00(s32 arg0, u8 *arg1)
 {
     s32 flag = arg0 & 0xFFFF;
-    s32 count = (u16)func_0010b5b0();
+    s32 count = (u16)datPersonaRosterCapacity();
     u8 *p;
     u8 *best = NULL;
     u16 i;
@@ -1026,19 +1026,19 @@ s32 func_0036fd00(s32 arg0, u8 *arg1)
     u16 t;
 
     for (i = 0; i < count; i++) {
-        if (i == (s16)func_0010b510()) {
+        if (i == (s16)datPersonaGetLeadSlot()) {
             continue;
         }
-        if (func_0010abd0((s16)i) == 0) {
+        if (datPersonaRosterSlotActive((s16)i) == 0) {
             continue;
         }
-        p = (u8 *)func_0010ace0((s16)i);
+        p = (u8 *)datPersonaRosterSlot((s16)i);
         if (flag != 0) {
             t = *(u16 *)((u8 *)iGpffffb3f0 + *(u16 *)(p + 2) * 4 + 2);
         } else {
             t = *(u16 *)((u8 *)iGpffffb3f0 + *(u16 *)(p + 2) * 4);
         }
-        if (t != 0 && (s16)func_0010aa80((s16)t) == -1 && (datPersonaGetLevel(p) & 0xFF) < min) {
+        if (t != 0 && (s16)datPersonaFindRosterSlotById((s16)t) == -1 && (datPersonaGetLevel(p) & 0xFF) < min) {
             best = p;
             min = datPersonaGetLevel(p) & 0xFF;
             bestFlag = t & 0xFFFF;
@@ -1049,8 +1049,8 @@ s32 func_0036fd00(s32 arg0, u8 *arg1)
     }
     *(u16 *)(arg1 + 4) = *(u16 *)(best + 2);
     *(s16 *)(arg1 + 8) = bestFlag;
-    func_0010ad80(*(u16 *)(best + 2));
-    func_0010b010(bestFlag);
+    datPersonaRemoveRosterMemberById(*(u16 *)(best + 2));
+    datPersonaAddRosterMember(bestFlag);
     return 1;
 }
 
@@ -1114,7 +1114,7 @@ s32 func_00370020(s32 arg0, u8 *arg1)
         func_0046d730(D_0064E790, 0x5D6);
         break;
     }
-    p = (u8 *)func_0010ace0((s16)func_00231d70(func_0010b6f0() & 0xFFFF));
+    p = (u8 *)datPersonaRosterSlot((s16)func_00231d70(datPersonaCountValidMembers() & 0xFFFF));
     if (p == NULL) {
         func_0046d730(D_0064E790, 0x5DC);
     }

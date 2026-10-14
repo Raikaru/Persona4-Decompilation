@@ -34,14 +34,14 @@ extern s32 func_002e6b20(const void *arg0, const void *arg1);
 extern s32 func_002e6630(const void *arg0, const void *arg1);
 #include "rw/std/stdlib.h"
 extern u8 *func_0010fcb0(s32 arg0);
-extern s32 func_0010aa80(s32 arg0);
-extern u16 *func_0010ac10(s32 arg0);
+extern s32 datPersonaFindRosterSlotById(s32 arg0);
+extern u16 *datPersonaFindRosterRecordById(s32 arg0);
 
 extern void func_0010cad0(u8 *dest, u16 id);
-extern s32 func_0010b5b0(void);
-extern s32 func_0010abd0(s16 arg0);
-extern u16 *func_0010ace0(s16 arg0);
-extern u16 *func_0010a900(u16 arg0);
+extern s32 datPersonaRosterCapacity(void);
+extern s32 datPersonaRosterSlotActive(s16 arg0);
+extern u16 *datPersonaRosterSlot(s16 arg0);
+extern u16 *datPersonaGetRecord(u16 arg0);
 extern void func_0010ffa0(void);
 extern s32 func_002e5270(u8 *arg0, u8 *arg1);
 extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
@@ -651,10 +651,10 @@ s32 func_002e4090(u8 *arg0) {
         }
         break;
     case 1:
-        for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
-            if (func_0010abd0(i) == 1) {
+        for (i = 0; i < (datPersonaRosterCapacity() & 0xFFFF); i++) {
+            if (datPersonaRosterSlotActive(i) == 1) {
                 memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
+                memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, datPersonaRosterSlot(i), 0x30);
                 *(s32 *)(p + 8) += 1;
             }
         }
@@ -669,26 +669,26 @@ s32 func_002e4090(u8 *arg0) {
         }
         break;
     case 5:
-        for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
-            if (func_0010abd0(i) == 1) {
-                tmp = func_0010a900(1);
-                if (tmp != func_0010ace0(i)) {
+        for (i = 0; i < (datPersonaRosterCapacity() & 0xFFFF); i++) {
+            if (datPersonaRosterSlotActive(i) == 1) {
+                tmp = datPersonaGetRecord(1);
+                if (tmp != datPersonaRosterSlot(i)) {
                     memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                    memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
+                    memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, datPersonaRosterSlot(i), 0x30);
                     *(s32 *)(p + 8) += 1;
                 }
             }
         }
         break;
     case 6:
-        for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
-            if (func_0010abd0(i) == 1) {
-                memcpy(&current, func_0010ace0(i), 0x30);
+        for (i = 0; i < (datPersonaRosterCapacity() & 0xFFFF); i++) {
+            if (datPersonaRosterSlotActive(i) == 1) {
+                memcpy(&current, datPersonaRosterSlot(i), 0x30);
                 if (*(u8 *)(iGpffffb3d4 + current.id * 0xE + 2) < 0x16) {
                     memcpy(&registered, func_0010fcb0(current.id), 0x30);
                     if (func_002e5270((u8 *)&current, (u8 *)&registered) == 1) {
                         memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                        memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
+                        memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, datPersonaRosterSlot(i), 0x30);
                         *(s32 *)(p + 8) += 1;
                     }
                 }
@@ -1136,7 +1136,7 @@ void func_002e55c0(s8 arg0, s32 arg1, s8 arg2) {
                 break;
             }
             func_0010cad0(q, arg1 & 0xFFFF);
-        } else if ((s16)func_0010aa80(arg1) == -1) {
+        } else if ((s16)datPersonaFindRosterSlotById(arg1) == -1) {
             {
                 u8 *p;
                 u8 *q;
@@ -1214,7 +1214,7 @@ void func_002e55c0(s8 arg0, s32 arg1, s8 arg2) {
                 q = p + ((index * 3) * 0x10) + 0x14;
                 break;
             }
-            src = func_0010ac10((u16)arg1);
+            src = datPersonaFindRosterRecordById((u16)arg1);
             memcpy(q, src, 0x30);
         }
         (*(s32 *)(*(u8 **)(*entryp + 0x38) + 8))++;

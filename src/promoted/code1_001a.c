@@ -209,7 +209,7 @@ s32 func_001fac30(void);
 s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *func_002022e0(u32 arg0, u16 arg1);
-s32 func_0010b300(s32 arg0);
+s32 datPersonaSelectRosterMemberById(s32 arg0);
 extern void func_0019ef30(u8 *arg0, u16 arg1);
 extern void func_0010b7f0(void);
 extern s32 datGetFlag(s32 arg0);
@@ -2397,7 +2397,7 @@ typedef struct ActionState001a4800 {
 void func_001a4800(u8 *arg0)
 {
     extern void func_001eb420(u8 *target);
-    extern u16 *func_0010a900(u16 personaId);
+    extern u16 *datPersonaGetRecord(u16 personaId);
     extern s32 func_0010ce10(u8 *persona, u16 skillId);
     extern s32 func_0019fc70(u8 *action);
     extern void func_001f5bd0(s32 state);
@@ -2469,7 +2469,7 @@ donecheck:
                     } else {
                         personaId = 8;
                     }
-                    if (((s32)(func_0010ce10((u8 *)func_0010a900(personaId & 0xFFFF), 0x114)) != (s32)(-1)) || ((battleState = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (battleState->flags & 2))) {
+                    if (((s32)(func_0010ce10((u8 *)datPersonaGetRecord(personaId & 0xFFFF), 0x114)) != (s32)(-1)) || ((battleState = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (battleState->flags & 2))) {
                         func_00194590(actionTargetPacketBytes(arg0, 8, 0, 0, 3), 1);
                         func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 8), 0);
                         actionSetDelayBytes(arg0, 0x1D, 0xC);
@@ -7268,7 +7268,7 @@ void func_001adb80(s64 *arg0)
     *(s64 *)(effectPacket + 0x60) = *(s64 *)arg0;
     func_00194590(effectPacket, 1);
     if (*(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2) == 0) {
-        func_0010b300(*(u16 *)((u8 *)arg0 + 0x74));
+        datPersonaSelectRosterMemberById(*(u16 *)((u8 *)arg0 + 0x74));
         person = *(u16 *)((u8 *)arg0 + 0x74);
         func_0019ef30(*(u8 **)((u8 *)arg0 + 0x30), person);
         func_0010b7f0();

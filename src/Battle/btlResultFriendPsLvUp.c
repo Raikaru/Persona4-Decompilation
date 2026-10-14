@@ -11,7 +11,7 @@ extern u8 *func_00117780(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4);
 extern void func_0011d100(u8 *task, f32 *position);
 extern void func_0011bb90(u8 *task);
 extern void func_00117580(u8 *task, s32 a1);
-extern u16 *func_0010a900(u16 arg0);
+extern u16 *datPersonaGetRecord(u16 arg0);
 extern u32 datGetFlag(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
 /* This unit's view of the window helper takes the 16-bit display id as u16.
@@ -134,7 +134,7 @@ s32 func_002239a0(u8 *sdkTaskBytes)
         while ((index = *(s32 *)(r + 56)) < 4) {
             id = *(u16 *)(base + index * 2 + 0x69A);
             if (id != 0) {
-                q = (u8 *)func_0010a900(id);
+                q = (u8 *)datPersonaGetRecord(id);
                 v = *(s32 *)(base + *(s32 *)(r + 56) * 4 + 0x6A4);
                 *(u32 *)(q + 8) = *(u32 *)(q + 8) + (u32)v;
                 index = *(s32 *)(r + 56);

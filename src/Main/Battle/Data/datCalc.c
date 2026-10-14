@@ -50,7 +50,7 @@ extern void func_00105730(s16 character, s16 value);
 extern void func_00105d50(s16 character, u32 mask);
 
 extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
-extern u16 *func_0010a900(u16 arg0);
+extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaGetLevel(s32 arg0);
 extern u32 func_00105ed0(void);
 extern u8 *func_00105510(s32 arg0);
@@ -81,7 +81,7 @@ extern u8 *iGpffffb3b4;
 extern u8 *iGpffffb408;
 extern f32 iGpffff8110;
 
-extern s32 func_0010a9b0(s32 arg0);
+extern s32 datPersonaLeadHasFlag4(s32 arg0);
 
 extern u8 *iGpffffb3c4;
 extern u8 *iGpffffb448;
@@ -141,7 +141,7 @@ s32 func_00231e20(u8 *arg0)
     if (*(u16 *)arg0 & 4 || *(u16 *)(arg0 + 2) == 1) {
         level = *(u8 *)(arg0 + 6);
     } else {
-        level = (s32)func_0010a900(*(u16 *)(arg0 + 2));
+        level = (s32)datPersonaGetRecord(*(u16 *)(arg0 + 2));
         if (level == 0) {
             func_0046d730(D_00635938, 0x58);
         }
@@ -1024,7 +1024,7 @@ f32 func_00233bc0(u8 *arg0, s32 arg1, u16 arg2)
         if ((s8)active > 0) {
             multiplier = multiplier * 2.5f;
         }
-        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+        if (enemyFlag == 0 && datPersonaLeadHasFlag4(*(u16 *)(arg0 + 2)) != 0) {
             multiplier = multiplier * iGpffff8110;
         }
         break;
@@ -1038,7 +1038,7 @@ f32 func_00233bc0(u8 *arg0, s32 arg1, u16 arg2)
         if ((s8)active > 0) {
             multiplier = multiplier * 2.5f;
         }
-        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+        if (enemyFlag == 0 && datPersonaLeadHasFlag4(*(u16 *)(arg0 + 2)) != 0) {
             multiplier = multiplier * iGpffff8110;
         }
         break;
@@ -1047,7 +1047,7 @@ f32 func_00233bc0(u8 *arg0, s32 arg1, u16 arg2)
         value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + 7U - (u32)status);
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
-        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+        if (enemyFlag == 0 && datPersonaLeadHasFlag4(*(u16 *)(arg0 + 2)) != 0) {
             multiplier = multiplier * 0.75f;
         }
         break;
@@ -1056,7 +1056,7 @@ f32 func_00233bc0(u8 *arg0, s32 arg1, u16 arg2)
         value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + 1U - (u32)status);
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
-        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+        if (enemyFlag == 0 && datPersonaLeadHasFlag4(*(u16 *)(arg0 + 2)) != 0) {
             multiplier = multiplier * 0.75f;
         }
         break;
@@ -1066,7 +1066,7 @@ f32 func_00233bc0(u8 *arg0, s32 arg1, u16 arg2)
             PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table)) + 7U);
         percentage = (f32)(u32)value;
         multiplier = percentage / 100.0f;
-        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+        if (enemyFlag == 0 && datPersonaLeadHasFlag4(*(u16 *)(arg0 + 2)) != 0) {
             multiplier = multiplier * iGpffff8110;
         }
         break;
@@ -2163,7 +2163,7 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
         if ((*(u16 *)arg1 & 4) || (temp_4 = *(u16 *)(arg1 + 2), temp_4 == 1)) {
             var_16 = *(u8 *)(arg1 + 6);
         } else {
-            temp_2_2 = (s32)func_0010a900(temp_4);
+            temp_2_2 = (s32)datPersonaGetRecord(temp_4);
             if (temp_2_2 == 0) {
                 func_0046d730(D_00635938, 0x58);
             }
@@ -2182,7 +2182,7 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
         if ((*(u16 *)temp_2_4 & 4) || (temp_4_2 = *(u16 *)(temp_2_4 + 2), temp_4_2 == 1)) {
             var_18 = *(u8 *)(temp_2_4 + 6);
         } else {
-            temp_2_5 = (s32)func_0010a900(temp_4_2);
+            temp_2_5 = (s32)datPersonaGetRecord(temp_4_2);
             if (temp_2_5 == 0) {
                 func_0046d730(D_00635938, 0x58);
             }

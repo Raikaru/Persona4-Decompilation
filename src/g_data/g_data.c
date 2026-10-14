@@ -71,7 +71,7 @@ extern u8 D_0079BE2C[];
 extern s32 func_00232a40(s32 arg0);
 extern s32 func_0023ddc0(u8* arg0, s32 arg1);
 
-extern void func_0010b610(s32 arg0);
+extern void datPersonaSetRosterMode(s32 arg0);
 
 extern void func_00193ad0(void* arg0);
 
@@ -228,7 +228,7 @@ typedef struct PersonaWork {
     u8 bonusStats[5];
 } PersonaWork;
 
-extern u16 *func_0010a900(u16 pcId);
+extern u16 *datPersonaGetRecord(u16 pcId);
 
 extern u32 func_0010c750(void *persona, u16 level);
 
@@ -487,7 +487,7 @@ u32 func_00105210(s16 arg0)
     }
     else
     {
-        PersonaWork* persona = (PersonaWork *)func_0010a900(arg0);
+        PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(arg0);
 
         K_ASSERT(persona != 0, 0x1B8);
         return datPersonaGetNextExp((int)persona);
@@ -752,7 +752,7 @@ s32 func_00105a50(s16 arg0)
     if (arg0 == 1)
         value = D_00797400[0];
     else {
-        PersonaWork *persona = (PersonaWork *)func_0010a900((u16)arg0);
+        PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
         if (persona == 0)
             func_0046d730((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetNextExp((int)persona);
@@ -778,7 +778,7 @@ first_done:
     if (arg0 == 1)
         value = D_00797400[0];
     else {
-        PersonaWork *persona = (PersonaWork *)func_0010a900((u16)arg0);
+        PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
         if (persona == 0)
             func_0046d730((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetNextExp((int)persona);
@@ -803,7 +803,7 @@ second_done:
     if (arg0 == 1)
         value = D_00797400[0];
     else {
-        PersonaWork *persona = (PersonaWork *)func_0010a900((u16)arg0);
+        PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
         if (persona == 0)
             func_0046d730((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetNextExp((int)persona);
@@ -1121,7 +1121,7 @@ void func_00106480(void)
 // FUN_001064C0
 void func_001064c0(void)
 {
-    func_0010b610(0);
+    datPersonaSetRosterMode(0);
 }
 
 // FUN_001064F0
@@ -1496,7 +1496,7 @@ u8 datPersonaGetLevel(int persona)
 // FUN_00109400
 u8 datPersonaGetLevelByPcId(u16 pcId)
 {
-    PersonaWork* persona = (PersonaWork *)func_0010a900(pcId);
+    PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(pcId);
     return persona->level;
 }
 
@@ -1529,7 +1529,7 @@ u16* datPersonaGetSkills(int persona)
 // FUN_001094E0
 u16* datPersonaGetSkillsByPcId(u16 pcId)
 {
-    PersonaWork* persona = (PersonaWork *)func_0010a900(pcId);
+    PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(pcId);
 
     return persona->skills;
 }
@@ -1539,7 +1539,7 @@ u16* datPersonaGetSkillsByPcId(u16 pcId)
 // FUN_00109D80
 void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 {
-    PersonaWork* persona = (PersonaWork *)func_0010a900(pcId);
+    PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(pcId);
 
     persona->bonusStats[statId] += amount;
 }
