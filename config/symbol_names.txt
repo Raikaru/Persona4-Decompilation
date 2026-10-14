@@ -37,3 +37,6 @@ MWSTM_ReqStart = 0x00512238; // type:func  evidence: source:src/cri/re4/mwstm.c 
 
 // Resource teardown: retail debug prints "delete <kind> res" per resource type.
 MT_Scene_DestroyRes = 0x00146630; // type:func  evidence: string:"delete field camera res =0x%x"
+
+// h_cdvd stream slot accessor: callback14 of HCdvdStreamContext.
+H_Cdvd_StreamGetSlot = 0x004556B0; // type:func  evidence: p3:H_Cdvd_StreamGetSlot@0x001019a0 (P3 verifier-matched, src/h_cdvd.c)

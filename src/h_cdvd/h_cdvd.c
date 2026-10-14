@@ -558,6 +558,16 @@ u32 func_004555b0(void* slotData)
 
 
 
+/* Slot `index` of a stream context, or NULL once `index` passes its count. */
+// FUN_004556B0
+u8* H_Cdvd_StreamGetSlot(HCdvdStreamContext* context, u32 index)
+{
+    if (index < context->count) {
+        return (u8*)context->slots + index * 0x110;
+    }
+    return NULL;
+}
+
 // FUN_004556F0
 void func_004556f0(void* contextData)
 {
