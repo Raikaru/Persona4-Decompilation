@@ -90,7 +90,7 @@ u8 *func_00273650(u8 *arg0, u8 *arg1, s32 arg2);
 extern char D_0063BE80[];
 extern char D_0063BEA0[];
 typedef signed __int128 s128;
-u32 func_00274650(u32 arg0);
+u32 frFontMaskFlags(u32 arg0);
 s32 func_0027b6e0(s32 arg0, s32 arg1);
 void func_0027bb60(s32 arg0);
 void func_0027bbc0(s32 arg0);
@@ -856,7 +856,7 @@ void func_00277be0(s32 arg0, s32 arg1)
             remaining_mask >>= 1;
         } else {
             func_002748e0(*text, 2, 0);
-            if (func_00274650(8) != 0)
+            if (frFontMaskFlags(8) != 0)
                 new_mask |= 1U << index;
         }
         index += 1;
@@ -1670,13 +1670,13 @@ void func_00279780(u8 *arg0)
     *(u8 **)(base + 4) = obj;
     if (obj != NULL)
         *(s16 *)(base + 0xE) = func_0027a2d0((u8 *)func_00272bf0((s32)obj), obj);
-    flags = func_00274650(3);
+    flags = frFontMaskFlags(3);
     *(u8 *)(base + 9) = (u8)flags;
     if (*(u8 *)(base + 9) & 2U)
         *(s32 *)arg0 |= 0x10000;
     else
         *(s32 *)arg0 &= ~0x10000;
-    flags = func_00274650(0x30);
+    flags = frFontMaskFlags(0x30);
     if (flags != 0)
         *(s32 *)arg0 |= 0x08000000;
     else
@@ -1686,7 +1686,7 @@ void func_00279780(u8 *arg0)
     else
         *(s32 *)arg0 &= ~0x04000000;
     func_0027a340(obj, *(s32 *)(arg0 + 0xC));
-    if (func_00274650(4) != 0)
+    if (frFontMaskFlags(4) != 0)
         func_00279dd0(arg0, D_00881530);
     node = *(u8 **)DAT_008817EC_abs;
     goto list_test;
