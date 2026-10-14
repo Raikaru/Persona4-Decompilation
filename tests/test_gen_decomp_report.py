@@ -126,8 +126,9 @@ class MixedOriginReportTests(unittest.TestCase):
             report = gen.build_report(report_path, str(linked_path))
         unit = next(u for u in report["units"] if u["metadata"]["source_path"] == source)
         self.assertFalse(unit["metadata"]["complete"])
-        self.assertEqual(report["measures"]["complete_code"], "0")
-        self.assertEqual(report["measures"]["matched_code"], "16")
+        whole = {c["id"]: c["measures"] for c in report["categories"]}["all"]
+        self.assertEqual(whole["complete_code"], "0")
+        self.assertEqual(whole["matched_code"], "16")
 
     def test_inline_assembly_file_is_not_fully_linked_c(self) -> None:
         source = "src/sce/query_intr_context.c"
@@ -143,8 +144,9 @@ class MixedOriginReportTests(unittest.TestCase):
                 "linked_functions": [{"address": "004222b0", "file": source}],
             }))
             report = gen.build_report(report_path, str(linked_path))
-        self.assertEqual(report["measures"]["matched_code"], "16")
-        self.assertEqual(report["measures"]["complete_code"], "0")
+        whole = {c["id"]: c["measures"] for c in report["categories"]}["all"]
+        self.assertEqual(whole["matched_code"], "16")
+        self.assertEqual(whole["complete_code"], "0")
 
 
 class ReportShapeTests(unittest.TestCase):
@@ -161,8 +163,16 @@ class ReportShapeTests(unittest.TestCase):
         raise unittest.SkipTest("no full verifier report in build/")
 
     def test_denominator_is_the_whole_program(self) -> None:
-        """A shrunk denominator inflates every published percentage."""
-        self.assertEqual(self.report["measures"]["total_functions"], CANONICAL_TOTAL)
+        """A shrunk denominator inflates every published percentage, so the
+        whole-program category keeps every canonical window."""
+        whole = {c["id"]: c["measures"] for c in self.report["categories"]}["all"]
+        self.assertEqual(whole["total_functions"], CANONICAL_TOTAL)
+
+    def test_headline_is_first_party_code(self) -> None:
+        """decomp.dev's main figure is the first-party `main` attribution."""
+        main = {c["id"]: c["measures"] for c in self.report["categories"]}["main"]
+        self.assertEqual(self.report["measures"], main)
+        self.assertLess(main["total_functions"], CANONICAL_TOTAL)
 
     def test_fully_linked_code_is_a_subset_of_matching_c(self) -> None:
         totals = [self.report["measures"]] + [category["measures"]
@@ -178,8 +188,8 @@ class ReportShapeTests(unittest.TestCase):
         counts = {c["id"]: c["measures"].get("total_functions", 0)
                   for c in self.report["categories"]}
         origins = ("main", "sony_sdk", "third_party", "unclassified")
-        self.assertEqual(sum(counts[c] for c in origins),
-                         self.report["measures"]["total_functions"])
+        whole = {c["id"]: c["measures"] for c in self.report["categories"]}["all"]
+        self.assertEqual(sum(counts[c] for c in origins), whole["total_functions"])
         totals = dict.fromkeys(origins, 0)
         for unit in self.report["units"]:
             attribution = [c for c in unit["metadata"]["progress_categories"] if c in totals]

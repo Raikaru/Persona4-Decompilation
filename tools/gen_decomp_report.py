@@ -30,6 +30,12 @@ game code, Sony SDK and other vendor code. Attribution categories are `main`,
 only functions from complete C files. Completion is checked against the WHOLE
 source file before splitting it into categories.
 
+Headline: the top-level `measures`, which decomp.dev shows as the project's
+main progress, cover first-party (`main`) code only. The project's goal is the
+Atlus game and engine; SDK and middleware windows are tracked but are not what
+the project decompiles. The whole program, every canonical window included,
+stays published as the additive `all` category.
+
 `matched_*` measures compiled C matching retail. `complete_*` measures C files
 with no assembly fallbacks whose functions all link in the verified image.
 Retail-backed SDK assembly is neither matching C nor fully linked C.
@@ -49,6 +55,9 @@ sys.path.insert(0, str(REPO / "tools"))
 
 import gen_objdiff  # noqa: E402  (path set above)
 import verify as V  # noqa: E402
+
+# Additive report-only category: the whole program, as the headline used to be.
+ALL_CATEGORY = {"id": "all", "name": "Whole program (incl. SDK and middleware)"}
 
 
 def f32(value: float) -> float:
@@ -215,18 +224,22 @@ def build_report(report_path: Path, linked_report: str | None) -> dict:
         })
 
     complete_units = sum(1 for unit in units if unit["metadata"]["complete"])
+    for unit in units:
+        unit["metadata"]["progress_categories"].append("all")
+
+    def category_measures(category_id: str) -> dict:
+        members = [u for u in units if category_id in u["metadata"]["progress_categories"]]
+        return measures(per_category[category_id], len(members),
+                        sum(1 for u in members if u["metadata"]["complete"]))
+
     return {
         "version": 2,
-        "measures": measures(results, len(units), complete_units),
+        "measures": category_measures("main"),
         "categories": [
-            dict(id=cat["id"], name=cat["name"], measures=measures(
-                per_category[cat["id"]],
-                sum(1 for u in units if cat["id"] in u["metadata"]["progress_categories"]),
-                sum(1 for u in units if cat["id"] in u["metadata"]["progress_categories"]
-                    and u["metadata"]["complete"]),
-            ))
+            dict(id=cat["id"], name=cat["name"], measures=category_measures(cat["id"]))
             for cat in gen_objdiff.PROGRESS_CATEGORIES
-        ],
+        ] + [dict(id=ALL_CATEGORY["id"], name=ALL_CATEGORY["name"],
+                  measures=measures(results, len(units), complete_units))],
         "units": units,
     }
 
@@ -259,7 +272,8 @@ def main() -> int:
     out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
     top = report["measures"]
-    print("%s/%s byte-exact (%.2f%%), fuzzy %.2f%%, linked code %.2f%%, %s/%s units linked -> %s"
+    print("headline (first-party): %s/%s byte-exact (%.2f%%), fuzzy %.2f%%, linked code %.2f%%, "
+          "%s/%s units linked -> %s"
           % (top["matched_functions"], top["total_functions"],
              top["matched_functions_percent"], top["fuzzy_match_percent"],
              top["complete_code_percent"], top["complete_units"],
