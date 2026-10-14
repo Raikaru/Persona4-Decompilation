@@ -1,13 +1,8 @@
 /* Source unit: src/Battle/btlBoss_0022fb90.c */
 #include "btl_skill_target_internal.h"
 #include "type.h"
+#include "btl_unit_internal.h"
 #include "include_asm.h"
-
-/* Partial view of BtlUnit: genus lives at 0xa2 (see P3 include/Battle/btlUnit.h). */
-typedef struct BtlUnit {
-    u8 padding_00[0xa2];
-    u8 genus; // 0xa2
-} BtlUnit;
 
 /* UNIT_GENUS_EC = 1 (include/Main/Battle/Data/datUnit.h in P3). */
 enum { UNIT_GENUS_EC = 1 };

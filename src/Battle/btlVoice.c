@@ -1,5 +1,6 @@
 /* Source unit: src/Battle/btlVoice_001f99c0.c */
 #include "type.h"
+#include "btl_action_internal.h"
 
 typedef u32 (*BtlPacketUpdateFunc)(void* work);
 
@@ -11,8 +12,6 @@ typedef struct BtlPacket {
     u8 padding_70[8];
     void* workData;
 } BtlPacket;
-
-typedef struct BtlAction BtlAction;
 
 typedef struct BtlVoicePacket001f99c0 {
     BtlAction* action; // 0x00
@@ -34,17 +33,6 @@ typedef struct BtlVoicePacketA03Work {
     u16 voiceId;
 } BtlVoicePacketA03Work;
 u32 func_001f9ac0(BtlVoicePacketA03Work* work);
-
-typedef struct BtlUnit {
-    u8 padding_00[0xa2];
-    u8 genus;
-} BtlUnit;
-struct BtlAction {
-    u8 padding_00[0x1a];
-    u16 unk_1a;
-    u8 padding_1c[0x14];
-    BtlUnit* unit;
-};
 
 typedef struct BtlCamera {
     u8 padding_00[0xe0];
