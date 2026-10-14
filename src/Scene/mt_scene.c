@@ -7,6 +7,9 @@
 
 typedef struct Resrc Resrc;
 typedef struct ResrcManager ResrcManager;
+extern u8* PTR_DAT_00762ea0;
+extern u8 *iGpffff9db0;
+extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
 
 typedef struct MtScene
 {
@@ -56,6 +59,15 @@ extern RwMatrix* RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, s
 
 
 
+// FUN_00145250
+s32 func_00145250(void) {
+    return (s32)PTR_DAT_00762ea0;
+}
+// FUN_00145260
+u32 func_00145260(void)
+{
+    return *(u32*)(PTR_DAT_00762ea0 + 8);
+}
 // FUN_00145270
 Resrc* MT_Scene_GetRes(u16 resTypeId)
 {
@@ -69,6 +81,17 @@ Resrc* MT_Scene_GetRes(u16 resTypeId)
 
 
 
+// FUN_001452B0
+u8 *MT_Scene_GetResListHead(s32 arg0)
+{
+    u8 *resManager;
+
+    resManager = *(u8 **)(iGpffff9db0 + 8);
+    if (resManager == NULL) {
+        return NULL;
+    }
+    return resrcMngGetListHead(resManager, (u8)(arg0 & 0xFF));
+}
 // FUN_00145300
 u32 MT_Scene_GetTotalResInList(u32 resType)
 {

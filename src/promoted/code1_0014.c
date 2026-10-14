@@ -2020,24 +2020,9 @@ loop_20_test:
     *(s32 *)(iGpffff9db0 + 0x14) = 0;
     func_003e1a70();
 }
-// FUN_00145250
-s32 func_00145250(void) {
-    return D_00762EA0;
-}
 
 
 
-// FUN_001452B0
-u8 *MT_Scene_GetResListHead(s32 arg0)
-{
-    u8 *resManager;
-
-    resManager = *(u8 **)(iGpffff9db0 + 8);
-    if (resManager == NULL) {
-        return NULL;
-    }
-    return resrcMngGetListHead(resManager, (u8)(arg0 & 0xFF));
-}
 
 // FUN_001453A0
 s32 func_001453a0(u16 arg0)
