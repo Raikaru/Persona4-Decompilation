@@ -127,76 +127,76 @@ extern s64 datGetPartyId(s32 arg0);
 // FUN_00353B50
 s16 func_00353b50(s16 *arg0)
 {
-    s16 var_17;
-    s16 temp_3;
-    s32 var_16;
+    s16 len;
+    s16 partyId;
+    s32 i;
 
-    var_17 = 1;
+    len = 1;
     *arg0 = 1;
-    for (var_16 = 0; var_16 < 3; var_16++) {
-        temp_3 = datGetPartyId(var_16);
-        if (temp_3 != 0) {
-            ((s16 *)arg0)[var_17] = temp_3;
-            var_17++;
+    for (i = 0; i < 3; i++) {
+        partyId = datGetPartyId(i);
+        if (partyId != 0) {
+            ((s16 *)arg0)[len] = partyId;
+            len++;
         }
     }
-    if (var_17 <= 4) {
+    if (len <= 4) {
         goto done;
     }
     func_0046d730(&D_0064B310, 0x259);
 done:
-    return var_17;
+    return len;
 }
 // FUN_00353C10
 s16 func_00353c10(s16 *arg0)
 {
-    s16 var_17;
-    s16 temp_3;
-    s32 var_16;
+    s16 len;
+    s16 memberId;
+    s32 i;
 
-    var_17 = 1;
+    len = 1;
     *arg0 = 1;
-    for (var_16 = 1; var_16 < 8; var_16++) {
-        temp_3 = (s16)(var_16 + 1);
-        if (func_00353dc0(temp_3) != 0) {
-            ((s16 *)arg0)[var_17] = temp_3;
-            var_17++;
+    for (i = 1; i < 8; i++) {
+        memberId = (s16)(i + 1);
+        if (func_00353dc0(memberId) != 0) {
+            ((s16 *)arg0)[len] = memberId;
+            len++;
         }
     }
-    if (var_17 <= 8) {
+    if (len <= 8) {
         goto done;
     }
     func_0046d730(&D_0064B310, 0x26F);
 done:
-    return var_17;
+    return len;
 }
 // FUN_00353CE0
 s16 func_00353ce0(s16 *arg0)
 {
-    s16 var_17;
-    s16 temp_3;
-    s32 var_16;
+    s16 len;
+    s16 memberId;
+    s32 i;
 
-    var_17 = 1;
+    len = 1;
     *arg0 = 1;
-    for (var_16 = 1; var_16 < 8; var_16++) {
-        temp_3 = (s16)(var_16 + 1);
-        if (temp_3 == 5) {
+    for (i = 1; i < 8; i++) {
+        memberId = (s16)(i + 1);
+        if (memberId == 5) {
             goto skip;
         }
-        if (func_00353dc0(temp_3) != 0) {
-            ((s16 *)arg0)[var_17] = temp_3;
-            var_17++;
+        if (func_00353dc0(memberId) != 0) {
+            ((s16 *)arg0)[len] = memberId;
+            len++;
         }
 skip:
         ;
     }
-    if (var_17 <= 8) {
+    if (len <= 8) {
         goto done;
     }
     func_0046d730(&D_0064B310, 0x286);
 done:
-    return var_17;
+    return len;
 }
 // FUN_00353DC0
 s32 func_00353dc0(s64 arg0)
@@ -342,22 +342,22 @@ s32 func_003540f0(u8 *arg0)
 // FUN_00354230
 void func_00354230(u8 *arg0)
 {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    func_002bb550(*(s8 *)(temp_16 + 8));
-    (*D_008873EC)(temp_16);
+    work = *(u8 **)(arg0 + 0x38);
+    func_002bb550(*(s8 *)(work + 8));
+    (*D_008873EC)(work);
 }
 
 // FUN_00354280
 void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
 {
-    u8 sp90[0x40];
-    u8 sp50[0x40];
-    s32 temp_8;
-    s32 var_17;
-    s32 var_16;
-    s32 temp_16;
+    u8 label[0x40];
+    u8 subLabel[0x40];
+    s32 mode;
+    s32 i;
+    s32 msgId;
+    s32 flagId;
     extern s8 func_002bab80(void *arg0);
     extern void func_00106390(s32 arg0, s32 arg1);
     extern void func_00275980(void *src, void *dst, s32 maxlen);
@@ -370,18 +370,18 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
 
     *(s8 *)(arg0 + 8) = func_002bab80(D_0064A790);
     if (arg2 == 0) {
-        temp_16 = arg1 + 0x100;
-        if (datGetFlag(temp_16) != 0)
+        flagId = arg1 + 0x100;
+        if (datGetFlag(flagId) != 0)
             func_0046d730(&D_0064B310, 0x369);
-        var_17 = 0;
-        while (var_17 < 0x40) {
-            func_00106390(var_17 + 0x180, 0);
-            var_17++;
+        i = 0;
+        while (i < 0x40) {
+            func_00106390(i + 0x180, 0);
+            i++;
         }
         func_00106390(arg1 + 0x180, 1);
-        func_00106390(temp_16, 1);
-        temp_8 = 5;
-        var_16 = 0x2CF;
+        func_00106390(flagId, 1);
+        mode = 5;
+        msgId = 0x2CF;
         if (datGetFlag(0xC3) == 0) {
             *(u16 *)arg0 = *(u16 *)arg0 | 1;
             func_00106390(0xC3, 1);
@@ -391,17 +391,17 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
             func_0046d730(&D_0064B310, 0x37E);
         func_00106390(arg1 + 0x180, 0);
         func_00106390(arg1 + 0x140, 1);
-        temp_8 = 6;
-        var_16 = 0x2D0;
+        mode = 6;
+        msgId = 0x2D0;
     }
-    sprintf(sp90, &D_0064B340, var_16);
-    func_0045aeb0(2, (const char *)sp90);
-    func_00275980((void *)(u32)func_00354490(arg1), sp90, 0x40);
-    func_002bbd80(*(s8 *)(arg0 + 8), 0, sp90);
-    sprintf(sp50, &iGpffffa958, arg1 + 1);
-    func_00275980(sp50, sp90, 0x40);
-    func_002bbd80(*(s8 *)(arg0 + 8), 1, sp90);
-    func_002badc0(*(s8 *)(arg0 + 8), temp_8);
+    sprintf(label, &D_0064B340, msgId);
+    func_0045aeb0(2, (const char *)label);
+    func_00275980((void *)(u32)func_00354490(arg1), label, 0x40);
+    func_002bbd80(*(s8 *)(arg0 + 8), 0, label);
+    sprintf(subLabel, &iGpffffa958, arg1 + 1);
+    func_00275980(subLabel, label, 0x40);
+    func_002bbd80(*(s8 *)(arg0 + 8), 1, label);
+    func_002badc0(*(s8 *)(arg0 + 8), mode);
 }
 // FUN_00354490
 u32 func_00354490(s32 arg0)
@@ -420,32 +420,32 @@ s32 func_003544f0(void)
 
 // FUN_00354500
 s32 func_00354500(void) {
-    s32 temp_17;
-    s32 temp_3;
-    u8 *temp_2;
-    u8 *temp_2_2;
+    s32 slot;
+    s32 state;
+    u8 *task;
+    u8 *newTask;
 
-    if ((temp_2 = func_00452380(&D_0064B320)) != NULL) {
-        temp_3 = *(s32 *)(*(u8 **)(temp_2 + 0x38) + 4);
-        if (temp_3 == 3) {
-            if (temp_3 != 3) {
+    if ((task = func_00452380(&D_0064B320)) != NULL) {
+        state = *(s32 *)(*(u8 **)(task + 0x38) + 4);
+        if (state == 3) {
+            if (state != 3) {
                 func_0046d730(&D_0064B310, 0x3CC);
             }
-            func_00452080((s32)(u32)temp_2);
+            func_00452080((s32)(u32)task);
             return 1;
         }
         goto block_10;
     }
-    temp_17 = func_0029cc00(0) - 1;
+    slot = func_0029cc00(0) - 1;
     func_0044ea90(&D_0064B310, 0x3AB);
-    temp_2_2 = D_008873F4[0](1, 0x10, 0x40000);
-    if (temp_2_2 == NULL) {
+    newTask = D_008873F4[0](1, 0x10, 0x40000);
+    if (newTask == NULL) {
         func_0046d730(&D_0064B310, 0x3AC);
     }
-    if (func_00451fc0((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(temp_2_2)) == NULL) {
+    if (func_00451fc0((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(newTask)) == NULL) {
         func_0046d730(&D_0064B310, 0x3B5);
     }
-    func_00354280(temp_2_2, temp_17, 0);
+    func_00354280(newTask, slot, 0);
 block_10:
     return 0;
 }
