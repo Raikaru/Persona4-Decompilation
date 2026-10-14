@@ -113,12 +113,12 @@ extern char D_0063ECF0[];
 extern char D_0063ED20[];
 extern s32 func_00465a10(s32);
 extern s32 func_0025e8f0(s32);
-extern void func_004653f0(void);
+extern void H_Memcard_SetAbort(void);
 extern s32 func_00465400(void);
 extern s32 func_00466280(s32);
 extern s32 func_004647c0(void);
-extern void func_004647a0(void);
-extern void func_004647b0(void);
+extern void H_Memcard_SetSeqMode9(void);
+extern void H_Memcard_SetSeqMode4(void);
 extern void func_00465570(s32, s32, s32);
 extern s32 func_00465590(void);
 extern void func_0010e710(s32, u8 *, s32);
@@ -246,7 +246,7 @@ s32 func_002a3070(u8 *arg0) {
         break;
     case 0xA:
         *(s32 *)(arg0 + 0xC) = 0xB;
-        func_004653f0();
+        H_Memcard_SetAbort();
         /* fallthrough */
     case 0xB:
         r = func_0025e8f0(*(s32 *)(arg0 + 0x394));
@@ -477,7 +477,7 @@ s32 func_002a34e0(u8 *arg0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
         *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 4);
-        func_004653f0();
+        H_Memcard_SetAbort();
         /* fallthrough */
     case 4:
         t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
@@ -492,7 +492,7 @@ s32 func_002a34e0(u8 *arg0) {
                 *(s32 *)(arg0 + 0x394) = 0;
             }
             *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 7);
-            func_004647a0();
+            H_Memcard_SetSeqMode9();
             break;
         case 2:
             D_008873EC[0](*(void **)(arg0 + 0x39C));
@@ -520,7 +520,7 @@ s32 func_002a34e0(u8 *arg0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
         *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 1);
-        func_004653f0();
+        H_Memcard_SetAbort();
         /* fallthrough */
     case 6:
         t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
@@ -535,7 +535,7 @@ s32 func_002a34e0(u8 *arg0) {
                 *(s32 *)(arg0 + 0x394) = 0;
             }
             *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 2);
-            func_004647b0();
+            H_Memcard_SetSeqMode4();
             break;
         case 2:
             return 2;
@@ -565,7 +565,7 @@ s32 func_002a34e0(u8 *arg0) {
         break;
     case 10:
         *(s32 *)(arg0 + 0xC) = 0xB;
-        func_004653f0();
+        H_Memcard_SetAbort();
         /* fallthrough */
     case 11:
         t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
@@ -585,7 +585,7 @@ s32 func_002a34e0(u8 *arg0) {
         break;
     case 12:
         *(s32 *)(arg0 + 0xC) = 0xD;
-        func_004653f0();
+        H_Memcard_SetAbort();
         if (*(s32 *)(arg0 + 0x10) & 1) {
             if (*(s32 *)(arg0 + 0x394) != 0) {
                 func_0025e8b0(*(s32 *)(arg0 + 0x394));
@@ -648,7 +648,7 @@ s32 func_002a3d80(s32 address) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
         *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xB);
-        func_004653f0();
+        H_Memcard_SetAbort();
         /* fallthrough */
     case 17:
         t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
@@ -758,7 +758,7 @@ read_failed:
             *(s32 *)(arg0 + 0x394) = 0;
         }
         *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0x14);
-        func_004653f0();
+        H_Memcard_SetAbort();
         /* fallthrough */
     case 23:
         t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
@@ -778,7 +778,7 @@ read_failed:
         break;
     case 12:
         *(s32 *)(arg0 + 0xC) = 0xD;
-        func_004653f0();
+        H_Memcard_SetAbort();
         if (*(s32 *)(arg0 + 0x394) != 0) {
             func_0025e8b0(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
@@ -803,7 +803,7 @@ read_failed:
         break;
     case 14:
         *(s32 *)(arg0 + 0xC) = 0xF;
-        func_004653f0();
+        H_Memcard_SetAbort();
         if (*(s32 *)(arg0 + 0x394) != 0) {
             func_0025e8b0(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
@@ -952,7 +952,7 @@ s32 func_002a4570(u8 *work) {
         /* fallthrough */
     case 5:
         *(s16 *)(work + 2) = 6;
-        func_004653f0();
+        H_Memcard_SetAbort();
         /* fallthrough */
     case 6:
         func_002a4390((s32)work);

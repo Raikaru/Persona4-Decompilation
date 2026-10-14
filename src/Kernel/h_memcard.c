@@ -61,14 +61,14 @@ void func_00464650(s32 file, void* buffer, s32 size)
 
 /* Sets the memory-card sequence mode to 9. */
 // FUN_004647A0
-void func_004647a0(void)
+void H_Memcard_SetSeqMode9(void)
 {
     D_00764BC0 = 9;
 }
 
 /* Sets the memory-card sequence mode to 4. */
 // FUN_004647B0
-void func_004647b0(void)
+void H_Memcard_SetSeqMode4(void)
 {
     D_00764BC0 = 4;
 }
@@ -149,7 +149,7 @@ card_done:
 
 /* Raises the memory-card abort flag (D_00764B9C). */
 // FUN_004653F0
-void func_004653f0(void)
+void H_Memcard_SetAbort(void)
 {
     D_00764B9C = 1;
 }
