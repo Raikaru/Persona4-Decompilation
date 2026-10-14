@@ -1285,6 +1285,8 @@ s32 func_003190d0(u8 *arg0) {
    docs/probe_archive/FclDraw_003191c0_20260925.md). */
 // FUN_003191C0
 void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg5, s8 arg6, s8 arg7) {
+    /* Slot is s32 here, not the header's s8: func_003191c0 passes an unnarrowed
+       value. Measured: the s8 prototype regresses this function to nd. */
     extern u8 *fclCombineSlotRecord(u8 *, s32);
     extern u8 func_00109280(u16);
     extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
