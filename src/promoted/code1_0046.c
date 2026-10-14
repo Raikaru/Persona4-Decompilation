@@ -624,14 +624,14 @@ void func_00461a40(u8 *arg0)
 {
     s32 sp3C;
     s32 sp38;
-    s32 temp_4;
-    u8 *temp_16;
-    u8 *temp_4_2;
-    u8 *var_16;
+    s32 handle;
+    u8 *record;
+    u8 *object;
+    u8 *node;
     WindowRenderStateSet *table;
 
-    temp_16 = *(u8 **)(arg0 + 0x1C);
-    if (temp_16 != NULL) {
+    record = *(u8 **)(arg0 + 0x1C);
+    if (record != NULL) {
         if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
             table = D_00887300;
             table[0]((RwRenderState)(6), (void *)(1));
@@ -639,32 +639,32 @@ void func_00461a40(u8 *arg0)
         }
         RpSkyRenderStateSet(2, (void *)(0x44));
         RpSkyRenderStateSet(3, (void *)(0x717FB));
-        var_16 = *(u8 **)(temp_16 + 0x20);
+        node = *(u8 **)(record + 0x20);
         goto loop_00461A40_test;
 loop_00461A40_body:
         sp38 = 0;
-        temp_4 = *(s32 *)(*(u8 **)(var_16 + 0) + 0x18);
-        if (temp_4 != 0) {
-            func_003c21e0(temp_4, func_00461530, &sp38);
+        handle = *(s32 *)(*(u8 **)(node + 0) + 0x18);
+        if (handle != 0) {
+            func_003c21e0(handle, func_00461530, &sp38);
             if ((sp38 != 1) &&
                 (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
-                               func_003bfae0(*(s32 *)(var_16 + 0))) != 0)) {
-                if (*(s32 *)(var_16 + 4) == 1) {
+                               func_003bfae0(*(s32 *)(node + 0))) != 0)) {
+                if (*(s32 *)(node + 4) == 1) {
                     D_00887304[0]((RwRenderState)(0xE), (void *)(&sp3C));
                     D_00887300[0]((RwRenderState)(0xE), (void *)(0));
                 }
                 if (iGpffffaf60 == 1) {
-                    temp_4_2 = *(u8 **)(var_16 + 0);
-                    ((void (*)(u8 *))(*(void **)(temp_4_2 + 0x48)))(temp_4_2);
+                    object = *(u8 **)(node + 0);
+                    ((void (*)(u8 *))(*(void **)(object + 0x48)))(object);
                 }
-                if (*(s32 *)(var_16 + 4) == 1) {
+                if (*(s32 *)(node + 4) == 1) {
                     D_00887300[0]((RwRenderState)(0xE), (void *)(sp3C));
                 }
             }
         }
-        var_16 = *(u8 **)(var_16 + 0x24);
+        node = *(u8 **)(node + 0x24);
 loop_00461A40_test:
-        if (var_16 != NULL) {
+        if (node != NULL) {
             goto loop_00461A40_body;
         }
     }
@@ -676,21 +676,21 @@ void func_00461be0(u8 *arg0)
 {
     s32 sp4C;
     s32 sp48;
-    s32 temp_4_3;
-    u8 *temp_16;
-    u8 *temp_4;
-    u8 *temp_4_2;
-    u8 *temp_4_4;
-    u8 *temp_4_5;
-    u8 *temp_4_6;
-    u8 *var_16;
-    u8 *var_17;
-    u8 *var_17_2;
-    u8 *var_17_3;
-    u8 *var_17_4;
+    s32 handle;
+    u8 *record;
+    u8 *object;
+    u8 *objectB;
+    u8 *objectC;
+    u8 *objectD;
+    u8 *objectE;
+    u8 *nodeE;
+    u8 *node;
+    u8 *nodeB;
+    u8 *nodeC;
+    u8 *nodeD;
 
-    temp_16 = *(u8 **)(arg0 + 0x1C);
-    if (temp_16 != NULL) {
+    record = *(u8 **)(arg0 + 0x1C);
+    if (record != NULL) {
 #pragma opt_propagation off
         if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
             {
@@ -703,50 +703,50 @@ void func_00461be0(u8 *arg0)
 #pragma opt_propagation on
         RpSkyRenderStateSet(2, (void *)(0x44));
         RpSkyRenderStateSet(3, (void *)(0x715FB));
-        var_17 = *(u8 **)(temp_16 + 0xC);
+        node = *(u8 **)(record + 0xC);
         goto loop_00461BE0_first_test;
 loop_00461BE0_first_body:
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
-                          func_003bfae0(*(s32 *)(var_17 + 0))) != 0) {
-            if (*(s32 *)(var_17 + 4) == 1) {
+                          func_003bfae0(*(s32 *)(node + 0))) != 0) {
+            if (*(s32 *)(node + 4) == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 - 0x14)) == 1) {
-                temp_4 = *(u8 **)(var_17 + 0);
-                ((void (*)(u8 *))(*(void **)(temp_4 + 0x48)))(temp_4);
+                object = *(u8 **)(node + 0);
+                ((void (*)(u8 *))(*(void **)(object + 0x48)))(object);
             }
-            if (*(s32 *)(var_17 + 4) == 1) {
+            if (*(s32 *)(node + 4) == 1) {
                 D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
-        var_17 = *(u8 **)(var_17 + 0x24);
+        node = *(u8 **)(node + 0x24);
 loop_00461BE0_first_test:
-        if (var_17 != NULL) {
+        if (node != NULL) {
             goto loop_00461BE0_first_body;
         }
         RpSkyRenderStateSet(2, (void *)(0x44));
         RpSkyRenderStateSet(3, (void *)(0x735FB));
-        var_17_2 = *(u8 **)(temp_16 + 0x10);
+        nodeB = *(u8 **)(record + 0x10);
         goto loop_00461BE0_second_test;
 loop_00461BE0_second_body:
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
-                          func_003bfae0(*(s32 *)(var_17_2 + 0))) != 0) {
-            if (*(s32 *)(var_17_2 + 4) == 1) {
+                          func_003bfae0(*(s32 *)(nodeB + 0))) != 0) {
+            if (*(s32 *)(nodeB + 4) == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 - 0x10)) == 1) {
-                temp_4_2 = *(u8 **)(var_17_2 + 0);
-                ((void (*)(u8 *))(*(void **)(temp_4_2 + 0x48)))(temp_4_2);
+                objectB = *(u8 **)(nodeB + 0);
+                ((void (*)(u8 *))(*(void **)(objectB + 0x48)))(objectB);
             }
-            if (*(s32 *)(var_17_2 + 4) == 1) {
+            if (*(s32 *)(nodeB + 4) == 1) {
                 D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
-        var_17_2 = *(u8 **)(var_17_2 + 0x24);
+        nodeB = *(u8 **)(nodeB + 0x24);
 loop_00461BE0_second_test:
-        if (var_17_2 != NULL) {
+        if (nodeB != NULL) {
             goto loop_00461BE0_second_body;
         }
 #pragma opt_propagation off
@@ -761,80 +761,80 @@ loop_00461BE0_second_test:
 #pragma opt_propagation on
         RpSkyRenderStateSet(2, (void *)(0x44));
         RpSkyRenderStateSet(3, (void *)(0x717FB));
-        var_17_3 = *(u8 **)(temp_16 + 0x14);
+        nodeC = *(u8 **)(record + 0x14);
         goto loop_00461BE0_third_test;
 loop_00461BE0_third_body:
         sp48 = 0;
-        temp_4_3 = *(s32 *)(*(u8 **)(var_17_3 + 0) + 0x18);
-        if (temp_4_3 != 0) {
-            func_003c21e0(temp_4_3, func_00461530, &sp48);
+        handle = *(s32 *)(*(u8 **)(nodeC + 0) + 0x18);
+        if (handle != 0) {
+            func_003c21e0(handle, func_00461530, &sp48);
             if (sp48 == 0 &&
                 RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
-                              func_003bfae0(*(s32 *)(var_17_3 + 0))) != 0) {
-                if (*(s32 *)(var_17_3 + 4) == 1) {
+                              func_003bfae0(*(s32 *)(nodeC + 0))) != 0) {
+                if (*(s32 *)(nodeC + 4) == 1) {
                     D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
                     D_00887300[0]((RwRenderState)(0xE), (void *)(0));
                 }
                 if (*((s32 *)((u8 *)&iGpffffaf60 - 0xC)) == 1) {
-                    temp_4_4 = *(u8 **)(var_17_3 + 0);
-                    ((void (*)(u8 *))(*(void **)(temp_4_4 + 0x48)))(temp_4_4);
+                    objectC = *(u8 **)(nodeC + 0);
+                    ((void (*)(u8 *))(*(void **)(objectC + 0x48)))(objectC);
                 }
-                if (*(s32 *)(var_17_3 + 4) == 1) {
+                if (*(s32 *)(nodeC + 4) == 1) {
                     D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
                 }
             }
         }
-        var_17_3 = *(u8 **)(var_17_3 + 0x24);
+        nodeC = *(u8 **)(nodeC + 0x24);
 loop_00461BE0_third_test:
-        if (var_17_3 != NULL) {
+        if (nodeC != NULL) {
             goto loop_00461BE0_third_body;
         }
         RpSkyRenderStateSet(2, (void *)(0x42));
         RpSkyRenderStateSet(3, (void *)(0x71801));
-        var_17_4 = *(u8 **)(temp_16 + 0x28);
+        nodeD = *(u8 **)(record + 0x28);
         goto loop_00461BE0_fourth_test;
 loop_00461BE0_fourth_body:
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
-                          func_003bfae0(*(s32 *)(var_17_4 + 0))) != 0) {
-            if (*(s32 *)(var_17_4 + 4) == 1) {
+                          func_003bfae0(*(s32 *)(nodeD + 0))) != 0) {
+            if (*(s32 *)(nodeD + 4) == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 + 8)) == 1) {
-                temp_4_5 = *(u8 **)(var_17_4 + 0);
-                ((void (*)(u8 *))(*(void **)(temp_4_5 + 0x48)))(temp_4_5);
+                objectD = *(u8 **)(nodeD + 0);
+                ((void (*)(u8 *))(*(void **)(objectD + 0x48)))(objectD);
             }
-            if (*(s32 *)(var_17_4 + 4) == 1) {
+            if (*(s32 *)(nodeD + 4) == 1) {
                 D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
-        var_17_4 = *(u8 **)(var_17_4 + 0x24);
+        nodeD = *(u8 **)(nodeD + 0x24);
 loop_00461BE0_fourth_test:
-        if (var_17_4 != NULL) {
+        if (nodeD != NULL) {
             goto loop_00461BE0_fourth_body;
         }
         RpSkyRenderStateSet(2, (void *)(0x48));
         RpSkyRenderStateSet(3, (void *)(0x71801));
-        var_16 = *(u8 **)(temp_16 + 0x24);
+        nodeE = *(u8 **)(record + 0x24);
         goto loop_00461BE0_fifth_test;
 loop_00461BE0_fifth_body:
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
-                          func_003bfae0(*(s32 *)(var_16 + 0))) != 0) {
-            if (*(s32 *)(var_16 + 4) == 1) {
+                          func_003bfae0(*(s32 *)(nodeE + 0))) != 0) {
+            if (*(s32 *)(nodeE + 4) == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 + 4)) == 1) {
-                temp_4_6 = *(u8 **)(var_16 + 0);
-                ((void (*)(u8 *))(*(void **)(temp_4_6 + 0x48)))(temp_4_6);
+                objectE = *(u8 **)(nodeE + 0);
+                ((void (*)(u8 *))(*(void **)(objectE + 0x48)))(objectE);
             }
-            if (*(s32 *)(var_16 + 4) == 1) {
+            if (*(s32 *)(nodeE + 4) == 1) {
                 D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
-        var_16 = *(u8 **)(var_16 + 0x24);
+        nodeE = *(u8 **)(nodeE + 0x24);
 loop_00461BE0_fifth_test:
-        if (var_16 != NULL) {
+        if (nodeE != NULL) {
             goto loop_00461BE0_fifth_body;
         }
     }
@@ -1118,21 +1118,21 @@ void func_004633c0(void *arg0, void *arg1)
 // FUN_004633F0
 s32 func_004633f0(u8 *unusedTask)
 {
-    f32 var_f0_2;
-    f32 var_f0;
-    s32 temp_2;
-    s32 temp_4;
+    f32 timerNowF;
+    f32 elapsedF;
+    s32 elapsedTicks;
+    s32 timerNow;
 
     func_0044f720();
     iGpffffba8c = func_003e23e0();
     func_003e82e0(func_00457120(), 0, 0);
-    temp_4 = *(s32 *)0x10000000;
-    iGpffffb198 = temp_4;
-    temp_2 = temp_4 - iGpffffb194;
-    var_f0 = (f32)(u32)temp_2;
-    iGpffffbb20 = var_f0;
-    var_f0_2 = (f32)(u32)temp_4;
-    iGpffffbb1c = var_f0_2;
+    timerNow = *(s32 *)0x10000000;
+    iGpffffb198 = timerNow;
+    elapsedTicks = timerNow - iGpffffb194;
+    elapsedF = (f32)(u32)elapsedTicks;
+    iGpffffbb20 = elapsedF;
+    timerNowF = (f32)(u32)timerNow;
+    iGpffffbb1c = timerNowF;
     iGpffffbb24 = 100.0f * ((*(f32 *)&iGpffffbb20) / 520.0f);
     *(s32 *)0x10000000 = 0;
     func_003e5510(0);
@@ -1160,27 +1160,27 @@ void func_004645e0(void) {
 
 // FUN_00464670
 s32 func_00464670(s32 *arg0, s32 *arg1, s32 *arg2) {
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_3;
+    s32 cmp;
+    s32 value;
+    s32 valueCopy;
+    s32 kind;
 
-    temp_2 = func_00432ec0(arg0, arg1);
-    switch (temp_2) {
+    cmp = func_00432ec0(arg0, arg1);
+    switch (cmp) {
     case -1:
         return -1;
     case 0:
         return 0;
     case 1:
-        temp_3 = *arg0;
-        switch (temp_3) {
+        kind = *arg0;
+        switch (kind) {
         case 5:
         case 6:
             if (*arg1 < 0) {
                 *arg2 = 0;
-                temp_2_3 = *arg1;
-                if (temp_2_3 < 0) {
-                    *arg1 = temp_2_3 & 0xFFFF;
+                valueCopy = *arg1;
+                if (valueCopy < 0) {
+                    *arg1 = valueCopy & 0xFFFF;
                 }
             } else {
                 *arg2 = 1;
@@ -1192,9 +1192,9 @@ s32 func_00464670(s32 *arg0, s32 *arg1, s32 *arg2) {
             } else {
                 *arg2 = 0;
             }
-            temp_2_2 = *arg1;
-            if (temp_2_2 < 0) {
-                *arg1 = temp_2_2 & 0xFFFF;
+            value = *arg1;
+            if (value < 0) {
+                *arg1 = value & 0xFFFF;
             }
             break;
         }
@@ -1209,7 +1209,7 @@ s32 func_00466280(void)
     s32 sp1c;
     s32 sp18;
     s32 sp14;
-    s32 temp_6;
+    s32 blocks;
 
     func_00440b68(D_00712950, D_00764BC0);
     switch (D_00764BC0) {
@@ -1253,8 +1253,8 @@ s32 func_00466280(void)
         goto done;
     case 2:
         if (func_00464670(&sp1c, &sp18, &sp14) == -1) {
-            temp_6 = D_00764BB8;
-            sprintf(D_008E4A20, D_007127D0, temp_6, temp_6);
+            blocks = D_00764BB8;
+            sprintf(D_008E4A20, D_007127D0, blocks, blocks);
             func_00431d78(D_00764BA4, D_008E4A20, D_008E4900);
             D_00764BC0 = 3;
         }
