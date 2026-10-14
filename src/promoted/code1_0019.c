@@ -3619,11 +3619,6 @@ void func_0019bc90(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
-// FUN_0019BCB0
-s32 func_0019bcb0(u8 *arg0) {
-    func_0019d040(*(u8 **)arg0);
-    return 1;
-}
 // FUN_0019BCE0
 void func_0019bce0(u8 *arg0)
 {
@@ -3636,11 +3631,6 @@ void func_0019bd60(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
-// FUN_0019BD80
-s32 func_0019bd80(u8 *arg0) {
-    func_0019d0c0(*(u8 **)arg0);
-    return 1;
-}
 // FUN_0019BDB0
 void func_0019bdb0(u8 *arg0)
 {
@@ -4452,15 +4442,6 @@ void func_0019dea0(u8 *arg0)
     }
 }
 
-// FUN_0019DF00
-void func_0019df00(u8 *arg0) {
-    u8 *temp;
-
-    temp = *(u8 **)arg0;
-    if (temp != NULL) {
-        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) + 1;
-    }
-}
 /* measured: opt_propagation off plus named call_angle locals preserve retail's stack reloads before func_0047a8a0. */
 #pragma push
 #pragma opt_propagation off
@@ -4539,24 +4520,6 @@ s32 func_0019df20(u8 *arg0)
 }
 /* measured: restore pragma state after func_0019df20. */
 #pragma pop
-// FUN_0019E130
-void func_0019e130(u8 *arg0) {
-    u8 *temp;
-
-    temp = *(u8 **)arg0;
-    if (temp != NULL) {
-        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) - 1;
-    }
-}
-// FUN_0019E830
-void func_0019e830(u8 *arg0) {
-    u8 *temp;
-
-    temp = *(u8 **)arg0;
-    if (temp != NULL) {
-        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) + 1;
-    }
-}
 // FUN_0019E850
 s32 func_0019e850(u8 *arg0)
 {
@@ -4600,15 +4563,6 @@ s32 func_0019e850(u8 *arg0)
         }
     }
     return 1;
-}
-// FUN_0019E9D0
-void func_0019e9d0(u8 *arg0) {
-    u8 *temp;
-
-    temp = *(u8 **)arg0;
-    if (temp != NULL) {
-        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) - 1;
-    }
 }
 // FUN_0019E9F0
 u8 *func_0019e9f0(u8 *unit, s16 value)
