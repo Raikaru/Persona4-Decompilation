@@ -513,88 +513,88 @@ extern void func_0011bc70(u8 *arg0);
 extern u8 func_0011d0c0(u8 *arg0);
 // FUN_00314010
 s32 func_00314010(u8 *arg0) {
-    s32 temp_5;
-    s8 temp_2;
-    u8 *temp_16;
+    s32 value;
+    s8 state;
+    u8 *work;
     s8 arg3;
     u32 arg2;
     s32 task_int;
     u8 *task;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_2 = *(s8 *)(temp_16 + 0);
-    switch (temp_2) {
+    work = *(u8 **)(arg0 + 0x38);
+    state = *(s8 *)(work + 0);
+    switch (state) {
     case 0:
-        arg3 = *(s8 *)(temp_16 + 0xC);
-        arg2 = *(u32 *)(temp_16 + 8);
+        arg3 = *(s8 *)(work + 0xC);
+        arg2 = *(u32 *)(work + 8);
         task_int = 0;
-        task = *(u8 **)(temp_16 + 4);
+        task = *(u8 **)(work + 4);
         func_0011b480(task, task_int, arg2, arg3);
-        func_0011b9f0((int)*(u8 **)(temp_16 + 4), 0);
-        *(s8 *)(temp_16 + 0) = 1;
+        func_0011b9f0((int)*(u8 **)(work + 4), 0);
+        *(s8 *)(work + 0) = 1;
         /* fallthrough */
     case 1:
-        if ((func_0011d0c0(*(u8 **)(temp_16 + 4)) & 0xFF) == 0xFF) {
-            *(s8 *)(temp_16 + 0) = 5;
-        } else if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
-            func_0011bb90(*(u8 **)(temp_16 + 4));
+        if ((func_0011d0c0(*(u8 **)(work + 4)) & 0xFF) == 0xFF) {
+            *(s8 *)(work + 0) = 5;
+        } else if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+            func_0011bb90(*(u8 **)(work + 4));
         } else {
-            *(s8 *)(temp_16 + 0) = 2;
+            *(s8 *)(work + 0) = 2;
         }
         goto block_33;
     case 2:
-        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
-            *(s8 *)(temp_16 + 0) = 5;
+        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+            *(s8 *)(work + 0) = 5;
         }
         goto block_33;
     case 3:
-        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
-            func_0011bc70(*(u8 **)(temp_16 + 4));
+        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+            func_0011bc70(*(u8 **)(work + 4));
         } else {
-            *(s8 *)(temp_16 + 0) = 4;
+            *(s8 *)(work + 0) = 4;
         }
         goto block_33;
     case 4:
-        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
-            *(s8 *)(temp_16 + 0) = 6;
+        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+            *(s8 *)(work + 0) = 6;
         }
         goto block_33;
     case 8:
-        func_0011b480(*(u8 **)(temp_16 + 4), 0, *(u32 *)(temp_16 + 8), *(s8 *)(temp_16 + 0xC));
-        temp_5 = *(s32 *)(temp_16 + 0x10);
-        if (temp_5 != 0) {
-            func_0011b9f0((int)*(u8 **)(temp_16 + 4), temp_5);
+        func_0011b480(*(u8 **)(work + 4), 0, *(u32 *)(work + 8), *(s8 *)(work + 0xC));
+        value = *(s32 *)(work + 0x10);
+        if (value != 0) {
+            func_0011b9f0((int)*(u8 **)(work + 4), value);
         }
-        *(s8 *)(temp_16 + 0) = 9;
+        *(s8 *)(work + 0) = 9;
         /* fallthrough */
     case 9:
-        if ((func_0011d0c0(*(u8 **)(temp_16 + 4)) & 0xFF) == 0xFF) {
-            *(s8 *)(temp_16 + 0) = 0xD;
-        } else if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
-            func_0011bb90(*(u8 **)(temp_16 + 4));
+        if ((func_0011d0c0(*(u8 **)(work + 4)) & 0xFF) == 0xFF) {
+            *(s8 *)(work + 0) = 0xD;
+        } else if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+            func_0011bb90(*(u8 **)(work + 4));
         } else {
-            *(s8 *)(temp_16 + 0) = 0xA;
+            *(s8 *)(work + 0) = 0xA;
         }
         goto block_33;
     case 10:
-        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
-            *(s8 *)(temp_16 + 0) = 0xD;
+        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+            *(s8 *)(work + 0) = 0xD;
         }
         goto block_33;
     case 11:
-        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
-            func_0011bc70(*(u8 **)(temp_16 + 4));
+        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+            func_0011bc70(*(u8 **)(work + 4));
         } else {
-            *(s8 *)(temp_16 + 0) = 0xC;
+            *(s8 *)(work + 0) = 0xC;
         }
         goto block_33;
     case 12:
-        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
-            *(s8 *)(temp_16 + 0) = 0xE;
+        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+            *(s8 *)(work + 0) = 0xE;
         }
         goto block_33;
     case 15:
-        if (func_0011ba00((u8 *)*(s32 *)(temp_16 + 4)) != 1) {
+        if (func_0011ba00((u8 *)*(s32 *)(work + 4)) != 1) {
             return -1;
         }
         goto block_33;
