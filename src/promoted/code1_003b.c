@@ -434,11 +434,11 @@ s32 func_003b6cc0(s32 arg0, u8 *arg1) {
 #pragma no_branch_likely on
 // FUN_003B6E00
 s32 func_003b6e00(s32 arg0) {
-    u8 *temp;
+    u8 *handle;
 
-    temp = *(u8 **)(D_008872E0 + iGpffffb618);
-    if (temp != NULL) {
-        jtbl_008873EC[0](temp);
+    handle = *(u8 **)(D_008872E0 + iGpffffb618);
+    if (handle != NULL) {
+        jtbl_008873EC[0](handle);
         *(u8 **)(D_008872E0 + iGpffffb618) = NULL;
     }
     return arg0;
@@ -537,20 +537,20 @@ s32 func_003b7110(void) {
 #pragma no_branch_likely on
 // FUN_003B7150
 s32 func_003b7150(u8 *arg0) {
-    u8 *temp_16;
-    u8 *temp_4;
+    u8 *state;
+    u8 *handle;
 
-    temp_16 = arg0 + 0x2C;
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    if (temp_4 != NULL) {
-        jtbl_008873EC[0](temp_4);
+    state = arg0 + 0x2C;
+    handle = *(u8 **)(arg0 + 0x38);
+    if (handle != NULL) {
+        jtbl_008873EC[0](handle);
     }
-    *(s32 *)(temp_16 + 0) = 0;
-    *(s32 *)(temp_16 + 4) = 0;
-    *(s32 *)(temp_16 + 8) = 0;
-    *(s32 *)(temp_16 + 0xC) = 0;
-    *(s32 *)(temp_16 + 0x10) = 0;
-    *(s32 *)(temp_16 + 0x14) = 0;
+    *(s32 *)(state + 0) = 0;
+    *(s32 *)(state + 4) = 0;
+    *(s32 *)(state + 8) = 0;
+    *(s32 *)(state + 0xC) = 0;
+    *(s32 *)(state + 0x10) = 0;
+    *(s32 *)(state + 0x14) = 0;
     return 1;
 }
 /* measured: no_branch_likely off closes the branch-form probe. */
@@ -575,25 +575,25 @@ static inline s32 add003b(s32 left, s32 right) {
 /* measured: opt_propagation off probe around func_003b7450. */
 #pragma opt_propagation off
 s32 _rpSkinSplitDataStreamGetSize(s32 *arg0) {
-    s32 temp_3;
-    s32 var_2;
+    s32 count;
+    s32 size;
     s32 field34;
     s32 base;
     s32 scaled;
     s32 sum;
 
-    temp_3 = *(s32 *)((u8 *)arg0 + 0x30);
-    var_2 = 0xC;
-    if (temp_3 != 0) {
-        scaled = temp_3 * 2;
+    count = *(s32 *)((u8 *)arg0 + 0x30);
+    size = 0xC;
+    if (count != 0) {
+        scaled = count * 2;
         base = *(s32 *)((u8 *)arg0 + 0);
         field34 = *(s32 *)((u8 *)arg0 + 0x34);
         sum = add003b(base, scaled);
         field34 = field34 * 2;
         sum = add003b(sum, field34);
-        var_2 = add003b(var_2, sum);
+        size = add003b(size, sum);
     }
-    return var_2;
+    return size;
 }
 /* measured: close opt_propagation around func_003b7450. */
 #pragma opt_propagation on
@@ -609,25 +609,25 @@ s32 _rpSkinSplitDataStreamGetSize(s32 *arg0) {
 #pragma no_branch_likely on
 // FUN_003B7480
 void func_003b7480(u8 *arg0, s32 arg1) {
-    s32 var_16;
+    s32 mode;
 
-    var_16 = arg1;
+    mode = arg1;
     if (func_003e8960(0x120) != -1) {
         goto second;
     }
-    if (var_16 != 2) {
+    if (mode != 2) {
         goto second;
     }
 set_one:
-    var_16 = 1;
+    mode = 1;
 final:
-    func_003b8d40(arg0, var_16);
+    func_003b8d40(arg0, mode);
     return;
 second:
     if (func_003e8960(0x12E) != -1) {
         goto final;
     }
-    if (var_16 == 3) {
+    if (mode == 3) {
         goto set_one;
     }
     goto final;
@@ -695,16 +695,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7680);
 #pragma no_branch_likely on
 // FUN_003B7970
 s32 func_003b7970(s32 arg0) {
-    s32 temp_3;
+    s32 remaining;
     extern void func_003b8d30(void);
     extern void func_003e12f0(s32 arg0);
     extern s32 D_008864B0[];
     extern s32 D_008864A8[];
     extern u8 *D_008864A0[];
 
-    temp_3 = D_008864B0[0] - 1;
-    D_008864B0[0] = temp_3;
-    if (temp_3 == 0) {
+    remaining = D_008864B0[0] - 1;
+    D_008864B0[0] = remaining;
+    if (remaining == 0) {
         goto cleanup;
     }
 done:
@@ -739,13 +739,13 @@ s32 func_003b79f0(s32 arg0) {
 #pragma no_branch_likely on
 // FUN_003B7A10
 s32 func_003b7a10(s32 arg0) {
-    u8 *temp_17;
+    u8 *record;
 
-    temp_17 = *(u8 **)(arg0 + *(s32 *)D_00886498);
-    if (temp_17 != NULL) {
+    record = *(u8 **)(arg0 + *(s32 *)D_00886498);
+    if (record != NULL) {
         func_003b88c0();
         *(u8 **)(arg0 + *(s32 *)D_00886498) =
-            (u8 *)func_003b84a0(temp_17);
+            (u8 *)func_003b84a0(record);
     }
     return arg0;
 }
@@ -762,18 +762,18 @@ s32 func_003b88d0(s32 arg0) {
     s32 *var_10;
     s32 base;
     s32 sum;
-    s32 temp_16;
+    s32 partial;
     s32 result;
-    u8 *temp_4;
+    u8 *stream;
 
     var_10 = (s32 *)0x10;
     base = (s32)(var_10 + 1);
-    temp_4 = *(u8 **)(arg0 + *(s32 *)D_00886498);
-    sum = base + (*(s32 *)(temp_4 + 0) << 6);
-    temp_16 = add003b(sum, *(s32 *)(temp_4 + 4));
-    temp_16 += 0x10;
-    result = _rpSkinSplitDataStreamGetSize((s32 *)temp_4);
-    return temp_16 + result;
+    stream = *(u8 **)(arg0 + *(s32 *)D_00886498);
+    sum = base + (*(s32 *)(stream + 0) << 6);
+    partial = add003b(sum, *(s32 *)(stream + 4));
+    partial += 0x10;
+    result = _rpSkinSplitDataStreamGetSize((s32 *)stream);
+    return partial + result;
 }
 /* measured: close opt_propagation off probe for func_003b88d0. */
 #pragma opt_propagation on
@@ -811,30 +811,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b9a40);
 #pragma schedule on
 // FUN_003BB030
 s32 func_003bb030(s32 arg0) {
-    s32 temp_2;
-    s32 var_19;
-    u32 **var_18;
-    void (**var_17)(u8 *arg0);
+    s32 remaining;
+    s32 count;
+    u32 **slot;
+    void (**release)(u8 *arg0);
 
-    temp_2 = iGpffffb654 - 1;
-    iGpffffb654 = temp_2;
-    if (temp_2 == 0) {
+    remaining = iGpffffb654 - 1;
+    iGpffffb654 = remaining;
+    if (remaining == 0) {
         goto clear;
     }
     goto done;
 done:
     return arg0;
 clear:
-    var_19 = 0xA;
-    var_18 = (u32 **)D_008864E8;
-    var_17 = jtbl_008873EC;
+    count = 0xA;
+    slot = (u32 **)D_008864E8;
+    release = jtbl_008873EC;
     do {
-        var_17[0]((u8 *)*var_18);
-        var_19 -= 1;
-        *var_18 = NULL;
-        var_18 -= 1;
-    } while (var_19 >= 4);
-    var_17[0]((u8 *)iGpffffb61c);
+        release[0]((u8 *)*slot);
+        count -= 1;
+        *slot = NULL;
+        slot -= 1;
+    } while (count >= 4);
+    release[0]((u8 *)iGpffffb61c);
     iGpffffb61c = 0;
     goto done;
 }
@@ -918,18 +918,18 @@ u8 *func_003bba90(u8 *arg0) {
 #pragma no_branch_likely on
 // FUN_003BBB60
 s32 func_003bbb60(u8 *arg0) {
-    u8 *temp_4;
-    u8 *temp_4_2;
+    u8 *handle14;
+    u8 *handle10;
     void (*callback)(u8 *);
 
-    temp_4 = *(u8 **)(arg0 + 0x14);
-    if (temp_4 != NULL) {
-        jtbl_008873EC[0](temp_4);
+    handle14 = *(u8 **)(arg0 + 0x14);
+    if (handle14 != NULL) {
+        jtbl_008873EC[0](handle14);
         *(u8 **)(arg0 + 0x14) = NULL;
     }
-    temp_4_2 = *(u8 **)(arg0 + 0x10);
-    if (temp_4_2 != NULL) {
-        jtbl_008873EC[0](temp_4_2);
+    handle10 = *(u8 **)(arg0 + 0x10);
+    if (handle10 != NULL) {
+        jtbl_008873EC[0](handle10);
         *(u8 **)(arg0 + 0x10) = NULL;
     }
     callback = jtbl_008873EC[0];
@@ -1068,11 +1068,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc9c0);
 /* measured: schedule fills the second zero store in the jr delay slot. */
 #pragma schedule on
 s32 UserDataObjectConstruct(s32 arg0, s32 arg1) {
-    u8 *temp_3;
+    u8 *object;
 
-    temp_3 = (u8 *)(arg0 + arg1);
-    *(s32 *)(temp_3 + 0) = 0;
-    *(s32 *)(temp_3 + 4) = 0;
+    object = (u8 *)(arg0 + arg1);
+    *(s32 *)(object + 0) = 0;
+    *(s32 *)(object + 4) = 0;
     return arg0;
 }
 /* measured: closes schedule around func_003bcbc0. */
@@ -1261,13 +1261,13 @@ s32 func_003bcf10(void *arg0) {
 // FUN_003BCF60
 void *func_003bcf60(void *arg0, s32 arg1) {
     s32 result;
-    s32 value;
-    u8 *temp_4;
+    s32 items;
+    u8 *table;
 
-    temp_4 = (u8 *)arg0 + iGpffffb668;
-    if (arg1 < *(s32 *)(temp_4 + 0)) {
-        value = *(s32 *)(temp_4 + 4);
-        result = value + (arg1 * 0x10);
+    table = (u8 *)arg0 + iGpffffb668;
+    if (arg1 < *(s32 *)(table + 0)) {
+        items = *(s32 *)(table + 4);
+        result = items + (arg1 * 0x10);
         goto done;
     }
     result = 0;
@@ -1314,13 +1314,13 @@ s32 func_003bcfb0(const RpMaterial *arg0) {
 // FUN_003BD000
 RpUserDataArray *func_003bd000(const RpMaterial *arg0, s32 arg1) {
     s32 result;
-    s32 value;
-    u8 *temp_4;
+    s32 items;
+    u8 *table;
 
-    temp_4 = (u8 *)arg0 + D_00764770;
-    if (arg1 < *(s32 *)(temp_4 + 0)) {
-        value = *(s32 *)(temp_4 + 4);
-        result = value + (arg1 * 0x10);
+    table = (u8 *)arg0 + D_00764770;
+    if (arg1 < *(s32 *)(table + 0)) {
+        items = *(s32 *)(table + 4);
+        result = items + (arg1 * 0x10);
         goto done;
     }
     result = 0;
@@ -1453,10 +1453,10 @@ do2:
    likely form is simply wrong here; nd 4 -> MATCH with this pragma. */
 #pragma no_branch_likely on
 s32 func_003bd560(u8 *arg0) {
-    u8 *temp_2;
+    u8 *record;
 
-    temp_2 = *(u8 **)(arg0 + 0x6C);
-    if ((temp_2 != NULL) && (*(s32 *)(temp_2 + 0x2C) != 0)) {
+    record = *(u8 **)(arg0 + 0x6C);
+    if ((record != NULL) && (*(s32 *)(record + 0x2C) != 0)) {
         return 8;
     }
     return 0;
@@ -1519,10 +1519,10 @@ do2:
    likely form is simply wrong here; nd 4 -> MATCH with this pragma. */
 #pragma no_branch_likely on
 s32 func_003bd680(u8 *arg0) {
-    u8 *temp_2;
+    u8 *record;
 
-    temp_2 = *(u8 **)(arg0 + 0x7C);
-    if ((temp_2 != NULL) && (*(s32 *)(temp_2 + 0x2C) != 0)) {
+    record = *(u8 **)(arg0 + 0x7C);
+    if ((record != NULL) && (*(s32 *)(record + 0x2C) != 0)) {
         return 8;
     }
     return 0;
@@ -1635,10 +1635,10 @@ do2:
    likely form is simply wrong here; nd 4 -> MATCH with this pragma. */
 #pragma no_branch_likely on
 s32 func_003be910(u8 *arg0) {
-    u8 *temp_2;
+    u8 *record;
 
-    temp_2 = *(u8 **)(arg0 + 0x6C);
-    if ((temp_2 != NULL) && (*(s32 *)(temp_2 + 0x2C) != 0)) {
+    record = *(u8 **)(arg0 + 0x6C);
+    if ((record != NULL) && (*(s32 *)(record + 0x2C) != 0)) {
         return 8;
     }
     return 0;
@@ -1738,30 +1738,30 @@ extern u8 *func_003bea60(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/re
 #pragma opt_propagation off
 // FUN_003BEB10
 u8 *func_003beb10(u8 *arg0) {
-    s32 *temp_4;
-    s32 var_15;
-    s32 var_17;
-    s32 var_16;
+    s32 *items;
+    s32 hasItems;
+    s32 index;
+    s32 offset;
 
-    var_17 = 0;
-    var_15 = 0 < *(s32 *)(arg0 + 4);
-    if (var_15 != 0) {
+    index = 0;
+    hasItems = 0 < *(s32 *)(arg0 + 4);
+    if (hasItems != 0) {
         goto loop_entry;
     }
 cleanup:
-    temp_4 = *(s32 **)(arg0 + 0);
-    if (temp_4 != NULL) {
-        jtbl_008873EC[0]((u8 *)temp_4);
+    items = *(s32 **)(arg0 + 0);
+    if (items != NULL) {
+        jtbl_008873EC[0]((u8 *)items);
         *(s32 **)(arg0 + 0) = NULL;
     }
     return arg0;
 loop_entry:
-    var_16 = 0;
+    offset = 0;
     do {
-        func_003c2a80(*(s32 *)(*(u8 **)(arg0 + 0) + var_16));
-        var_17 += 1;
-        var_16 += 4;
-    } while (var_17 < *(s32 *)(arg0 + 4));
+        func_003c2a80(*(s32 *)(*(u8 **)(arg0 + 0) + offset));
+        index += 1;
+        offset += 4;
+    } while (index < *(s32 *)(arg0 + 4));
     goto cleanup;
 }
 /* measured: close opt_propagation probe for func_003beb10. */
@@ -1805,15 +1805,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfae0);
 #pragma schedule on
 // FUN_003BFC40
 s32 func_003bfc40(s32 arg0) {
-    u8 *temp_4;
+    u8 *pair;
 
     func_003e18c0(*(u8 **)(D_008872E0 + iGpffffb6c0 + 4), (void *)func_003be800, 0);
     func_003e18c0(*(u8 **)(D_008872E0 + iGpffffb6c0), (void *)func_003be810, 0);
     func_003e12f0(*(u8 **)(D_008872E0 + iGpffffb6c0));
     func_003e12f0(*(u8 **)(D_008872E0 + iGpffffb6c0 + 4));
-    temp_4 = (u8 *)(D_008872E0 + iGpffffb6c0);
-    *(s32 *)(temp_4 + 0) = 0;
-    *(s32 *)(temp_4 + 4) = 0;
+    pair = (u8 *)(D_008872E0 + iGpffffb6c0);
+    *(s32 *)(pair + 0) = 0;
+    *(s32 *)(pair + 4) = 0;
     iGpffffb6c4 -= 1;
     return arg0;
 }
