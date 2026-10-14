@@ -459,9 +459,9 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 func_001510c0(u8 *arg0);
     extern void func_00151710(u8 *arg0);
     extern s32 func_00151c80(u8 *arg0);
-    extern f32 func_0014b660(u8 *arg0);
-    extern f32 func_0014b5d0(u8 *arg0);
-    extern f32 func_0014b6f0(u8 *arg0);
+    extern f32 KDraw_MatrixPitchDeg(u8 *arg0);
+    extern f32 KDraw_MatrixYawDeg(u8 *arg0);
+    extern f32 KDraw_MatrixRollDeg(u8 *arg0);
     extern s32 func_0014a270(void);
     extern s32 func_0014a200(void);
     extern void func_00149ea0(void);
@@ -922,9 +922,9 @@ block_123:
                         if (temp_19 == 0) {
                             func_0046d730((const char *)D_005EFC80, 0x297);
                         }
-                        angles.x = func_0014b660(temp_18);
-                        angles.y = func_0014b5d0(temp_18);
-                        angles.z = func_0014b6f0(temp_18);
+                        angles.x = KDraw_MatrixPitchDeg(temp_18);
+                        angles.y = KDraw_MatrixYawDeg(temp_18);
+                        angles.z = KDraw_MatrixRollDeg(temp_18);
                         MT_Scene_SetResPlacement(temp_19, temp_18 + 0x30, (u8 *)&angles);
                         temp_4_8 = (u8 *)(iGpffff9db0);
                         if ((*( s32 * )(temp_4_8 + 0) != 0x14) || (*( s32 * )(temp_4_8 + 4) != 1)) {

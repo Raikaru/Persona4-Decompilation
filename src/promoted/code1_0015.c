@@ -125,7 +125,7 @@ extern u8 D_005F06A0[];
 extern void func_0016eb00(s32 arg0);
 extern s32 func_001687d0(s32 arg0);
 extern s32 func_001687e0(s32 arg0);
-extern f32 func_0014b5d0(u8 *arg0);
+extern f32 KDraw_MatrixYawDeg(u8 *arg0);
 extern void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3,
                           s32 arg4, s32 arg5, u8 arg6, s32 *arg7);
 extern s32 D_0076430C;
@@ -3070,7 +3070,7 @@ set_test:
         }
 
         work = (u8 *)func_00457120();
-        angle = func_0014b5d0(*(u8 **)(work + 4) + 0x10);
+        angle = KDraw_MatrixYawDeg(*(u8 **)(work + 4) + 0x10);
         D_0076430C = 0;
         if ((angle <= 45.0f) && !(angle < -45.0f)) {
             if ((angle <= 25.0f) && !(angle < -25.0f)) {
