@@ -471,7 +471,7 @@ Sequence 6 calls `func_00192e90` in `src/promoted/code1_0019.c`, which:
   the subsystems and enters btlMain state 1 through `func_001b60a0`
 - creates the `"battle"` task (priority `0x10`, update `func_00192610`)
 - creates two children, `"battle_draw_3d"` (`func_001926c0`) and
-  `"battle_draw_2d"` (`btlUpdateDraw3DFrontTask`)
+  `"battle_draw_2d"` (`btlUpdateDraw3DFrontTask`, the P3-matched name of its update callback)
 - copies the 0x3C-byte packet to `+0xC70`
 
 `func_00192610` in `src/Battle/battle.c` is the battle frame. While context
