@@ -7740,50 +7740,50 @@ void func_001ae800(u8 *arg0)
 // FUN_001AEC20
 void func_001aec20(u8 *arg0)
 {
-    s32 temp_3_3;
-    s32 var_4;
-    s32 var_6;
-    s32 var_5;
-    s32 temp_3;
-    s32 temp_4;
-    u8 *temp_3_2;
+    s32 activeCountMasked;
+    s32 unitIndex;
+    s32 activeCount;
+    s32 slotIndex;
+    s32 unitCount;
+    s32 slotCount;
+    u8 *slot;
 
     func_001eb3b0(arg0 + 0x38);
     func_001d7f10(arg0, arg0 + 0x98, 0x100, 0);
-    var_4 = 0;
+    unitIndex = 0;
     goto loop_2_test;
 loop_2_body:
-    temp_3_2 = arg0 + ((u16)var_4 * 4);
-    *(s32 *)(temp_3_2 + 0x38) = *(s32 *)(temp_3_2 + 0x98);
-    var_4 = (var_4 + 1) & 0xFFFF;
+    slot = arg0 + ((u16)unitIndex * 4);
+    *(s32 *)(slot + 0x38) = *(s32 *)(slot + 0x98);
+    unitIndex = (unitIndex + 1) & 0xFFFF;
 loop_2_test:
-    temp_3 = *(u16 *)(arg0 + 0xD0);
-    if ((var_4 & 0xFFFF) < temp_3) {
+    unitCount = *(u16 *)(arg0 + 0xD0);
+    if ((unitIndex & 0xFFFF) < unitCount) {
         goto loop_2_body;
     }
-    *(u16 *)(arg0 + 0x6A) = temp_3;
+    *(u16 *)(arg0 + 0x6A) = unitCount;
     *(s16 *)(arg0 + 0x6C) = 2;
     *(s16 *)(arg0 + 0x6E) = 0x100;
     func_001f14f0(arg0);
-    var_6 = 0;
-    var_5 = 0;
-    temp_4 = *(u16 *)(arg0 + 0x6A);
+    activeCount = 0;
+    slotIndex = 0;
+    slotCount = *(u16 *)(arg0 + 0x6A);
     goto loop_7_test;
 loop_7_body:
-    if (*(s32 *)(*(u8 **)(arg0 + ((u16)var_5 * 4) + 0x38) + 0xE0) != 0) {
-        var_6 = (var_6 + 1) & 0xFFFF;
+    if (*(s32 *)(*(u8 **)(arg0 + ((u16)slotIndex * 4) + 0x38) + 0xE0) != 0) {
+        activeCount = (activeCount + 1) & 0xFFFF;
     }
-    var_5 = (var_5 + 1) & 0xFFFF;
+    slotIndex = (slotIndex + 1) & 0xFFFF;
 loop_7_test:
-    if ((var_5 & 0xFFFF) < temp_4) {
+    if ((slotIndex & 0xFFFF) < slotCount) {
         goto loop_7_body;
     }
-    temp_3_3 = var_6 & 0xFFFF;
-    if (temp_4 == temp_3_3) {
+    activeCountMasked = activeCount & 0xFFFF;
+    if (slotCount == activeCountMasked) {
         *(s16 *)(arg0 + 0x6E) = 0x102;
         return;
     }
-    if (temp_3_3 != 0) {
+    if (activeCountMasked != 0) {
         *(s16 *)(arg0 + 0x6E) = 0x100;
         return;
     }
