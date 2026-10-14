@@ -920,6 +920,32 @@ void func_00287ad0(int param_1, int param_2) {
 /* measured: see annotation above (func_00287ad0). */
 #pragma opt_loop_invariants off
 
+// FUN_00287BF0
+void func_00287bf0(s32 arg0, u8 *arg1) {
+    u8 *var_17;
+    u8 *var_16;
+    u16 temp_4;
+
+    var_17 = *(u8 **)(arg1 + 0x4C);
+    while (var_17 != NULL) {
+        if (*(s32 *)var_17 == 0x26) {
+            var_16 = *(u8 **)(var_17 + 0x68);
+            while (var_16 != NULL) {
+                if (func_00286430(var_16) != 0) {
+                    temp_4 = *(u16 *)var_16;
+                    if (((s32)temp_4 <= arg0) && ((temp_4 + *(s16 *)(var_16 + 0x12)) >= arg0)) {
+                        *(s32 *)(arg1 + 0x20) = *(s16 *)(var_16 + 0x10);
+                        *(s32 *)(arg1 + 0x1C) = 1;
+                        return;
+                    }
+                }
+                var_16 = *(u8 **)(var_16 + 0x4C);
+            }
+        }
+        var_17 = *(u8 **)(var_17 + 0x90);
+    }
+}
+
 // FUN_00287CC0
 u8 *func_00287cc0(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
     u8 *node;
