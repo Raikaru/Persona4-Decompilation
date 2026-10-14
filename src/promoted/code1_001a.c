@@ -309,9 +309,9 @@ block_20:
 // FUN_001A0290
 void func_001a0290(u8 *arg0, u16 arg1, u8 *arg2)
 {
-    s32 temp_5;
-    s32 temp_3;
-    u8 *temp_4;
+    s32 slotOffset;
+    s32 category;
+    u8 *battleUnit;
 
     if (*(u16 *)(arg0 + 0x18) & 0x4000) {
         *(s16 *)arg2 = 0x24;
@@ -320,12 +320,12 @@ void func_001a0290(u8 *arg0, u16 arg1, u8 *arg2)
     }
     *(s16 *)arg2 = 0;
     *(s16 *)(arg2 + 2) = 3;
-    temp_5 = (arg1 & 0xFFFF) * 0x28;
-    if (*(u8 *)(iGpffffb3b8 + temp_5) & 2) {
-        temp_4 = *(u8 **)(arg0 + 0x30);
-        if (temp_4[0xA2] == 0) {
-            temp_3 = func_0023e1f0(*(u8 **)(temp_4 + 0xA64)) & 0xFF;
-            switch (temp_3) {
+    slotOffset = (arg1 & 0xFFFF) * 0x28;
+    if (*(u8 *)(iGpffffb3b8 + slotOffset) & 2) {
+        battleUnit = *(u8 **)(arg0 + 0x30);
+        if (battleUnit[0xA2] == 0) {
+            category = func_0023e1f0(*(u8 **)(battleUnit + 0xA64)) & 0xFF;
+            switch (category) {
             case 0:
             case 1:
             case 6:
@@ -342,7 +342,7 @@ void func_001a0290(u8 *arg0, u16 arg1, u8 *arg2)
                 break;
             }
         } else {
-            switch (*(u16 *)(temp_4 + 0xA4)) {
+            switch (*(u16 *)(battleUnit + 0xA4)) {
             case 0x109:
                 *(s16 *)arg2 = 2;
                 *(s16 *)(arg2 + 2) = 5;
