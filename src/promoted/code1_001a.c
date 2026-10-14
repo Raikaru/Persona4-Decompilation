@@ -543,7 +543,7 @@ void btlActionTryBegin(BtlAction *action) {
         action->unk_1a &= 0xFFBF;
     }
     if ((action->unk_28 == 0) && (action->unk_29 == 0)) {
-        action->unk_41c = func_00232d80(action->unit->datUnit);
+        action->unk_41c = func_00232d80((u8 *)action->unit->datUnit);
     } else {
         action->unk_41c = 0;
     }
@@ -557,7 +557,7 @@ void btlActionTryBegin(BtlAction *action) {
             (action->unk_28 == 0) && (action->unk_29 == 0)) {
             *(s32 *)(iGpffffb3ac + 0x20) += 1;
         }
-        if ((s8)func_00235320(action->unit->datUnit) >= 0) {
+        if ((s8)func_00235320((u8 *)action->unit->datUnit) >= 0) {
             btlActionSetState(action, 0xA);
             return;
         }
