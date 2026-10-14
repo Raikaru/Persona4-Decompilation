@@ -270,7 +270,7 @@ extern u32* func_003971d0(u8*, s32, s32, s32);
 extern void* func_00462ae0(void* object);
 extern void func_0047da30();
 extern void* func_003c0520();
-extern u32 *func_0047d200(u32 **head);
+extern u32 *mdlEffectListCopy(u32 **head);
 extern u32 *func_0047dc30(u32 **head);
 extern void func_0047ea40();
 extern s32 func_0047ae90(u8* model, u16 index);
@@ -1592,7 +1592,7 @@ void func_004735b0(u8 *arg0)
             p = (u32*)(base + j);
             if (*p != 0)
             {
-                func_0047d2d0(*p);
+                mdlEffectListDestroy(*p);
             }
             base = *(u32*)((u8*)obj + 0x20);
             p = (u32*)(base + j);
@@ -4497,7 +4497,7 @@ void func_00478410(u8* source, u8* destination)
                 for (index = 0; index < copy->count.word; index++) {
                     void** primary = original->primary;
                     if (primary[index] != 0) {
-                        void* cloned = func_0047d200(primary[index]);
+                        void* cloned = mdlEffectListCopy(primary[index]);
                         copy->primary[index] = cloned;
                     }
                     if (original->secondary[index] != 0) {
@@ -4533,7 +4533,7 @@ void func_00478410(u8* source, u8* destination)
         }
     }
     if (*(void**)(source + 0x2cc) != 0) {
-        void* copy = func_0047d200(*(void**)(source + 0x2cc));
+        void* copy = mdlEffectListCopy(*(void**)(source + 0x2cc));
         *(void**)(destination + 0x2cc) = copy;
         func_0047da30(copy);
     }
@@ -4595,7 +4595,7 @@ void func_004787e0(u8* param_1)
     }
     func_004b7140(param_1);
     if (*(void**)(param_1 + 0x2CC) != 0) {
-        func_0047d2d0(*(void**)(param_1 + 0x2CC));
+        mdlEffectListDestroy(*(void**)(param_1 + 0x2CC));
     }
     func_0047eaa0(param_1 + 0x2D0);
     if (*(void**)(param_1 + 0x308) != 0) {
@@ -6109,9 +6109,9 @@ s32 func_0047b0c0(u8 *model)
     extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
         s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
         const void *resultKind, s32 memoryKind);
-    extern u32 func_0047d1a0(void);
-    extern u32 *func_0047d320(u32 **head, s32 data, u32 length, u16 index, u32 flags);
-    extern u32 *func_0047d460(u32 *head, u32 *node, u16 index);
+    extern u32 mdlEffectListCreate(void);
+    extern u32 *mdlEffectListAppendBlock(u32 **head, s32 data, u32 length, u16 index, u32 flags);
+    extern u32 *mdlEffectListAppendNode(u32 *head, u32 *node, u16 index);
     extern u32 *func_0047db50(s32 data, s32 length);
     extern s32 *func_0047f9f0(void);
     extern s32 func_004800d0(void *stream, u8 **head, u32 kind, void *clump);
@@ -6321,7 +6321,7 @@ s32 func_0047b0c0(u8 *model)
                 u16 source = sourceIndex;
                 u16 destination = state->slot;
                 if (attachments->primary[source] != 0) {
-                    void *copy = func_0047d200(attachments->primary[source]);
+                    void *copy = mdlEffectListCopy(attachments->primary[source]);
                     attachments->primary[destination] = copy;
                 }
                 if (*(void **)((u32)attachments->secondary + source * 4) != 0) {
@@ -6432,7 +6432,7 @@ s32 func_0047b0c0(u8 *model)
             payload = state->memory + *(u32 *)((u8 *)state->stream + 0xc);
             if (*(void **)(model + 0xdc) == 0 && state->clumpStream == 0) {
                 if (*(void **)(model + 0x2cc) == 0) {
-                    *(u32 *)(model + 0x2cc) = func_0047d1a0();
+                    *(u32 *)(model + 0x2cc) = mdlEffectListCreate();
                 }
                 head = *(u32 ***)(model + 0x2cc);
             } else {
@@ -6441,14 +6441,14 @@ s32 func_0047b0c0(u8 *model)
                     LOAD_LAYER()->attachments = table;
                 }
                 if (LOAD_LAYER()->attachments->primary[state->slot] == 0) {
-                    void *wrapper = (void *)func_0047d1a0();
+                    void *wrapper = (void *)mdlEffectListCreate();
                     LOAD_LAYER()->attachments->primary[state->slot] = wrapper;
                 }
                 head = LOAD_LAYER()->attachments->primary[state->slot];
             }
-            node = func_0047d320(head, (s32)payload, (s32)effect.length, effect.first, effect.flags);
+            node = mdlEffectListAppendBlock(head, (s32)payload, (s32)effect.length, effect.first, effect.flags);
             for (slot = effect.first + 1; slot < effect.last + 1; slot++) {
-                func_0047d460((u32 *)head, node, slot);
+                mdlEffectListAppendNode((u32 *)head, node, slot);
             }
             func_003e2ce0(state->stream, effect.length);
         }
@@ -6794,7 +6794,7 @@ s32 func_0047c660(u8 *arg0)
                                 srcPointerOff = srcIdx * 4;
                                 if (*(u32 **)(entries + srcPointerOff) != 0) {
                                     *(u32 **)(*(u8 **)(tbl + 0x14) + dstIdx * 4) =
-                                        func_0047d200(*(u32 ***)(entries + srcPointerOff));
+                                        mdlEffectListCopy(*(u32 ***)(entries + srcPointerOff));
                                 }
                                 entries = *(u8 **)(tbl + 0x20);
                                 if (*(u32 **)(entries + srcPointerOff) != 0) {
