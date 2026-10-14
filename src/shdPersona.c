@@ -10,6 +10,8 @@
 typedef struct KwlnTask KwlnTask;
 
 u16 func_00109360(u16 character);
+void func_0011b9e0(int task, u32 value);
+void func_0011b9f0(int task, u32 value);
 
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
@@ -2749,6 +2751,16 @@ void func_0011b8f0(u8 *arg0, u8 *arg1)
 
 
 
+// FUN_0011B9E0
+void func_0011b9e0(int task, u32 value)
+{
+    *(u32 *)(*(int *)(task + 0x38) + 0x44) = value;
+}
+// FUN_0011B9F0
+void func_0011b9f0(int task, u32 value)
+{
+    *(u32 *)(*(int *)(task + 0x38) + 0x4c4) = value;
+}
 // FUN_0011BA00
 s32 func_0011ba00(u8 *arg0)
 {
