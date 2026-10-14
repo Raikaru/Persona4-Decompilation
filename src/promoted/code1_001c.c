@@ -299,128 +299,6 @@ void func_001c04e0(u8 *camera)
 }
 // FUN_001C09A0
 void func_001c09a0(void) {}
-/* Ported from current P3FES src/Battle/btlCamera.c btlCameraFrameActionTarget
- * (0x002a7390, donor 04d95e2). Historical donor verification is
- * recorded in the recovery note; no fresh P3 retail run is claimed.
- * Complete pose and quaternion objects retain the retail copy boundaries.
- * measured: 1156/1168 bytes; all executable bytes and relocations exact. */
-// FUN_001C09B0
-void func_001c09b0(u8* camera)
-{
-    extern void func_001bd560(f32*, f32*);
-    extern void func_00194ff0(u8*, u8*, f32*, f32*);
-    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
-    extern void func_003dcc70(f32*, f32*, void*);
-    extern f32 tanf(f32);
-    extern f32 func_003e41e0(f32*, f32*);
-    extern f32 fGpffff8118, fGpffff815c, fGpffff804c, fGpffff8160, fGpffff8110, fGpffff818c;
-    extern f32 fGpffff8180;
-    extern f32 fGpffff8054, fGpffff8058, fGpffff805c, fGpffff8060, fGpffff8108;
-    extern RtQuat* func_003dc740(RtQuat*, const RwV3d*, f32, s32);
-    f32 horiz[2];
-    RwV3d eyeAdj;
-    RwV3d center;
-    P4Vec4Holder_001EC2B0 blended;
-    P4CameraBlend blend;
-    P4CameraFrame frames[2];
-    u8* unit;
-    f32 height;
-    f32 angle;
-    f32 ratio;
-    f32 w1;
-    f32 x;
-    f32 x2;
-    f32 r;
-    f32 r2;
-    f32 dist;
-    f32 sideOffset;
-
-    unit = *(u8**)(*(u8**)(camera + 0xe0) + 0x30);
-    func_001bd560((f32*)&frames[0], (f32*)(camera + 0x9c));
-    func_00194ff0(unit, (u8*)&center, NULL, NULL);
-    height = *(f32*)(unit + 0x84) * *(f32*)(unit + 0x2c);
-    height += fGpffff8118 * (*(f32*)(unit + 0x8c) * *(f32*)(unit + 0x2c));
-    center.y = height;
-    eyeAdj = frames[0].pos;
-    eyeAdj.y = height;
-    func_001bd780(&frames[1].rot, &eyeAdj, &center, D_0060A0E0);
-    angle = func_001ec2b0(&frames[0].rot, &frames[1].rot);
-    if (angle > fGpffff815c)
-    {
-        ratio = fGpffff815c / angle;
-        func_003dcc70((f32*)&frames[0].rot, (f32*)&frames[1].rot, &blend);
-        if (ratio <= 0.0f)
-        {
-            blended = frames[0].rot;
-        }
-        else if (1.0f <= ratio)
-        {
-            blended = frames[1].rot;
-        }
-        else
-        {
-            w1 = 1.0f - ratio;
-            if (blend.flag == 0)
-            {
-                x = w1 * blend.scalar;
-                x2 = x * x;
-                r = fGpffff8054 + fGpffff8180 * x2;
-                r = fGpffff8058 + x2 * r;
-                r = fGpffff805c + x2 * r;
-                r = fGpffff8060 + x2 * r;
-                r2 = fGpffff8108 + x2 * r;
-                r = x2 * x;
-                w1 = x + r * r2;
-                x = ratio * blend.scalar;
-                x2 = x * x;
-                r = fGpffff8054 + fGpffff8180 * x2;
-                r = fGpffff8058 + x2 * r;
-                r = fGpffff805c + x2 * r;
-                r = fGpffff8060 + x2 * r;
-                r2 = fGpffff8108 + x2 * r;
-                r = x2 * x;
-                ratio = x + r * r2;
-            }
-            blended.quat.x = blend.first.quat.x * w1;
-            blended.quat.y = blend.first.quat.y * w1;
-            blended.quat.z = blend.first.quat.z * w1;
-            blended.quat.x = 0.0f + blended.quat.x + blend.second.quat.x * ratio;
-            blended.quat.y = 0.0f + blended.quat.y + blend.second.quat.y * ratio;
-            blended.quat.z = 0.0f + blended.quat.z + blend.second.quat.z * ratio;
-            blended.quat.w = blend.first.quat.w * w1 + blend.second.quat.w * ratio;
-        }
-        RtQuatTransformVectors(&eyeAdj, (const RwV3d*)D_0060A100, 1, (const RtQuat*)&blended);
-        eyeAdj.x = eyeAdj.x + center.x;
-        eyeAdj.y = eyeAdj.y + center.y;
-        eyeAdj.z = eyeAdj.z + center.z;
-        func_001bd780(&frames[1].rot, &eyeAdj, &center, D_0060A0E0);
-    }
-    else if (angle < fGpffff804c)
-    {
-        func_003dc740((RtQuat*)&frames[1].rot, (const RwV3d*)D_0060A0E0, fGpffff8160, 2);
-    }
-    RtQuatTransformVectors(&eyeAdj, (const RwV3d*)D_0060A100, 1, (const RtQuat*)&frames[1].rot);
-    dist = 375 / tanf(fGpffff8110 * (0.5f * *(f32*)(camera + 0xb8)));
-    eyeAdj.x = eyeAdj.x * dist;
-    eyeAdj.y = eyeAdj.y * dist;
-    eyeAdj.z = eyeAdj.z * dist;
-    sideOffset = dist * tanf(fGpffff8110 * (0.5f * *(f32*)(camera + 0xb8)));
-    sideOffset = sideOffset * 0.21875f;
-    horiz[0] = eyeAdj.x;
-    horiz[1] = eyeAdj.z;
-    func_003e41e0(horiz, horiz);
-    center.x = 0.0f + center.x + horiz[1] * sideOffset;
-    center.z = 0.0f + center.z - horiz[0] * sideOffset;
-    frames[1].pos.x = center.x + eyeAdj.x;
-    frames[1].pos.y = center.y + eyeAdj.y;
-    frames[1].pos.z = center.z + eyeAdj.z;
-    if (frames[1].pos.y < 25.0f)
-    {
-        frames[1].pos.y = 25.0f;
-    }
-    func_001bac20((u16*)camera, (f32*)&frames[0], (f32*)&frames[1], 1);
-    func_001bbef0(camera, fGpffff818c);
-}
 
 // FUN_001C0E40
 void func_001c0e40(void) {}
@@ -3576,10 +3454,6 @@ limitedTransition:
     }
     func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     func_001bbef0(camera, forwardDot);
-}
-// FUN_001CA550
-void func_001ca550(u8 *arg0) {
-    func_001c9820(arg0, 50.0f, 0, 0);
 }
 // FUN_001CA590
 void func_001ca590(u8 *camera, f32 angle, f32 duration)
