@@ -1599,7 +1599,7 @@ void func_004941f0(u8 *track, u32 *colors)
     u32 capRowIndex;
 
     work = *(u8 **)(track + 0x10);
-    RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 8);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 8);
     rowCount = *(s16 *)(work + 0x48);
     vertexCount = *(s16 *)(work + 8);
     segmentCount = vertexCount / 3U;
@@ -1688,7 +1688,7 @@ void func_004941f0(u8 *track, u32 *colors)
         *(u16 *)(geometry + 0xC) |= 1;
     }
     cap = *(u8 **)(track + 0x14);
-    RpGeometryLock(*(u8 **)(*(u8 **)(cap + 0x10) + 0x18), 8);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(cap + 0x10) + 0x18), 8);
     capColors = *(u8 **)(*(u8 **)(*(u8 **)(cap + 0x10) + 0x18) + 0x30);
     *(u32 *)capColors = colors[0];
     *(u32 *)(capColors + 4) = colors[1];
@@ -2097,8 +2097,8 @@ tail_check:
 // FUN_00494F90
 void func_00494f90(u8 *arg0) {
     func_0048a1f0(arg0);
-    RpGeometryLock(*(u8 **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x10)) + 0x10)) + 0x18), 0xA);
-    RpGeometryLock(*(u8 **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x14)) + 0x10)) + 0x18), 0xA);
+    RpGeometryLock(*(RpGeometry **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x10)) + 0x10)) + 0x18), 0xA);
+    RpGeometryLock(*(RpGeometry **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x14)) + 0x10)) + 0x18), 0xA);
 }
 
 // FUN_00494FF0
@@ -2279,7 +2279,7 @@ void func_0049a810(u8 *arg0)
     entry = *(s32 **)state;
     work = *(u8 **)(state + 4);
     count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
-    RpGeometryLock(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
     tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
     memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
     model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);

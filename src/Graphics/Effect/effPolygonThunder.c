@@ -318,7 +318,7 @@ void func_004956b0(u8 *arg0)
         }
         instance = *(u8 **)bolt;
         rows = *(s16 *)(instance + 8) / 5;
-        RpGeometryLock(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18), 2);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(instance + 0x10) + 0x18), 2);
         vertices = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18) + 0x5C) + 0x14);
         if ((effMiscRand(0) & 1) != 0) {
             amplitude = amplitude * negone;
@@ -960,7 +960,7 @@ void func_004968a0(u8 *arg0)
         }
         instance = *(u8 **)bolt;
         rows = *(s16 *)(instance + 8) / 5;
-        RpGeometryLock(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18), 2);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(instance + 0x10) + 0x18), 2);
         vertices = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18) + 0x5C) + 0x14);
         if ((effMiscRand(0) & 1) != 0) {
             amplitude = amplitude * negone;
@@ -1621,7 +1621,7 @@ void func_00497ce0(u8 *arg0)
         }
         instance = *(u8 **)bolt;
         rows = (*(s16 *)(instance + 8) / 5) >> 1;
-        RpGeometryLock(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18), 2);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(instance + 0x10) + 0x18), 2);
         vertices = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(instance + 0x10) + 0x18) + 0x5C) + 0x14);
         effectVuLoad10(&up);
         effectVuLoad11(&direction);

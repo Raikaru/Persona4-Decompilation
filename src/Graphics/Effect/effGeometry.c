@@ -275,7 +275,7 @@ u8 *func_00483270(u8 *arg0) {
         if (temp_5_2 != 0) {
             func_003c42b0((void *)(u32)temp_16, temp_5_2);
         }
-        RpGeometryLock(temp_21, 1);
+        RpGeometryLock((RpGeometry *)temp_21, 1);
         var_20 = *(u8 **)(temp_21 + 0x2C);
         var_19 = *(u8 **)(temp_23 + 0x2C);
         var_22 = 0;

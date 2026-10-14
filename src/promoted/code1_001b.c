@@ -3039,7 +3039,7 @@ void func_001b6120(void)
         base = D_0076449C;
         func_003c42b0(*(void **)(*(u8 **)(base + 0xE7C) + 0x14), *(void **)(base + 0xE78));
         base = D_0076449C;
-        RpGeometryLock(*(u8 **)(*(u8 **)(*(u8 **)(base + 0xE7C) + 0x10) + 0x18), 0xFF2);
+        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*(u8 **)(base + 0xE7C) + 0x10) + 0x18), 0xFF2);
         base = D_0076449C;
         p = *(u8 **)(*(u8 **)(*(u8 **)(base + 0xE7C) + 0x10) + 0x18);
         dstPos = *(u8 **)(*(u8 **)(p + 0x5C) + 0x14);

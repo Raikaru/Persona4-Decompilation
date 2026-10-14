@@ -283,7 +283,7 @@ void func_004a1d70(u8 *arg0, u8 *arg1)
     meshCount = *(u32 *)(arg1 + 0x38);
     if (meshCount != 0) {
         geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
-        RpGeometryLock(geometry, 0xFF8);
+        RpGeometryLock((RpGeometry *)geometry, 0xFF8);
         geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
         colorsBase = *(u8 **)(geometry + 0x30);
         colors = colorsBase;
@@ -743,7 +743,7 @@ void func_004a5fc0(u8 *arg0)
         info.size[0] = frame[0];
         info.size[1] = frame[1];
     }
-    RpGeometryLock(*(void **)(*(u8 **)(sprite + 0x10) + 0x18), 0xFF2);
+    RpGeometryLock(*(RpGeometry **)(*(u8 **)(sprite + 0x10) + 0x18), 0xFF2);
     {
         u8 *geometry = *(u8 **)(*(u8 **)(sprite + 0x10) + 0x18);
 
@@ -864,7 +864,7 @@ u8 *func_004a6c00(u8 *arg0)
     temp_3 = *(u16 **)(temp_2 + 0x58);
     *temp_3 = *temp_3 & 0xFFFB;
     RpGeometryLock(
-        *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18), 8);
+        *(RpGeometry **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18), 8);
     var_5 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18) + 0x30);
     temp_3 = (u16 *)(s32)-1;
     var_4 = 0;
