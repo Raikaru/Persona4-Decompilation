@@ -952,9 +952,12 @@ _SCALAR_CLASS = {
 _TYPE_WORDS = frozenset(("const", "volatile", "register", "struct", "union", "enum",
                          "unsigned", "signed", "short", "long", "int", "char"))
 _NOT_A_TYPE = frozenset(("return", "else", "case", "goto", "do", "sizeof"))
+# Names are any identifier, not only func_XXXXXXXX placeholders: renaming a
+# function must not hide a declaration that disagrees with its definition.
+_NOT_A_FUNCTION = frozenset(("if", "while", "for", "switch", "return", "sizeof"))
 _FUNC_DECL_RE = re.compile(
     r"^(?P<indent>\s*)(?:extern\s+)?(?:static\s+)?(?:inline\s+)?"
-    r"(?P<ret>[A-Za-z_][A-Za-z0-9_ ]*?[ \*]+)(?P<name>func_[0-9a-f]{8})\s*"
+    r"(?P<ret>[A-Za-z_][A-Za-z0-9_ ]*?[ \*]+)(?P<name>[A-Za-z_]\w*)\s*"
     r"\((?P<args>[^()]*)\)\s*(?P<end>[;{])?\s*(?://.*|/\*.*)?$")
 _TYPEDEF_RE = re.compile(r"^\s*typedef\s+([^;{}()]+?)\s*(\**)\s*([A-Za-z_]\w*)\s*;")
 
@@ -1022,7 +1025,7 @@ def _signatures(src, typedefs):
         if not m:
             continue
         ret = m.group("ret").strip()
-        if not ret or ret.split()[0] in _NOT_A_TYPE:
+        if not ret or ret.split()[0] in _NOT_A_TYPE or m.group("name") in _NOT_A_FUNCTION:
             continue
         end = m.group("end")
         if end is None:
@@ -1061,7 +1064,7 @@ def _describe(ret, params):
 
 
 def check_decl_contract(src):
-    """A func_ declaration whose contract disagrees with the active definition."""
+    """A declaration whose contract disagrees with the active definition."""
     typedefs = dict(_global_typedefs())
     _typedefs_from(src.code, typedefs)
     index = _definition_index()
