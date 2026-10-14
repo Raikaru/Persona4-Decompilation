@@ -2621,161 +2621,161 @@ s32 func_00146440(u16 arg0, s32 arg1, f32 fparg0, u8 *arg2, u8 *arg3, u8 *arg4, 
 #pragma schedule off
 // FUN_00146630
 void func_00146630(u16 arg0) {
-    s32 var_19;
-    s32 temp_2;
-    s32 temp_4_12;
-    s32 temp_4_6;
-    s32 temp_4_8;
-    s32 var_17;
-    u8 *temp_18;
-    u8 *temp_17;
-    u8 *temp_17_2;
-    u8 *temp_17_3;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_4;
-    u8 *temp_4_10;
-    u8 *temp_4_11;
-    u8 *temp_4_2;
-    u8 *temp_4_3;
-    u8 *temp_4_4;
-    u8 *temp_4_5;
-    u8 *temp_4_7;
-    u8 *temp_4_9;
-    u8 *temp_4_14;
-    u8 *var_16;
-    temp_18 = *(u8 **)(iGpffff9db0 + 8);
-    if (temp_18 == NULL) {
+    s32 slotValue;
+    s32 resourceKind;
+    s32 value1A0;
+    s32 value288;
+    s32 value360;
+    s32 slotIndex;
+    u8 *resourceOwner;
+    u8 *handle164;
+    u8 *handle158;
+    u8 *handle144;
+    u8 *slotAddr;
+    u8 *slotAddrB;
+    u8 *slotHandle;
+    u8 *handle16C;
+    u8 *handle144Case11;
+    u8 *handle228;
+    u8 *handle228Case3;
+    u8 *handle22C;
+    u8 *slotHandleB;
+    u8 *handle290;
+    u8 *handle144Case6;
+    u8 *slotHandleAddr;
+    u8 *resourceRecord;
+    resourceOwner = *(u8 **)(iGpffff9db0 + 8);
+    if (resourceOwner == NULL) {
         func_00440b68(&D_005EF820);
         return;
     }
-    if (temp_18 == NULL) {
-        var_16 = NULL;
+    if (resourceOwner == NULL) {
+        resourceRecord = NULL;
     } else {
-        var_16 = func_00147530(temp_18, arg0);
+        resourceRecord = func_00147530(resourceOwner, arg0);
     }
-    if (var_16 != NULL) {
-        temp_2 = (*(u16 *)(var_16 + 0) & 0xFFC00) >> 0xA;
-            switch (temp_2) {
+    if (resourceRecord != NULL) {
+        resourceKind = (*(u16 *)(resourceRecord + 0) & 0xFFC00) >> 0xA;
+            switch (resourceKind) {
             case 1:
-                temp_17 = *(u8 **)(var_16 + 0x164);
-                func_00452080(*(s32 *)(var_16 + 0x220));
-                *(s32 *)(var_16 + 0x220) = 0;
-                *(s32 *)(var_16 + 0x224) = 0;
-                *(s32 *)(var_16 + 0x164) = 0;
-                var_19 = 0;
-                while (var_19 < 2) {
-                    temp_2_2 = var_16 + var_19 * 4;
-                    temp_4_14 = temp_2_2 + 0x140;
-                    temp_4 = *(u8 **)(temp_2_2 + 0x140);
-                    if (temp_4 != NULL) {
-                        func_004b1150((s32)temp_4);
-                        *(s32 *)temp_4_14 = 0;
+                handle164 = *(u8 **)(resourceRecord + 0x164);
+                func_00452080(*(s32 *)(resourceRecord + 0x220));
+                *(s32 *)(resourceRecord + 0x220) = 0;
+                *(s32 *)(resourceRecord + 0x224) = 0;
+                *(s32 *)(resourceRecord + 0x164) = 0;
+                slotValue = 0;
+                while (slotValue < 2) {
+                    slotAddr = resourceRecord + slotValue * 4;
+                    slotHandleAddr = slotAddr + 0x140;
+                    slotHandle = *(u8 **)(slotAddr + 0x140);
+                    if (slotHandle != NULL) {
+                        func_004b1150((s32)slotHandle);
+                        *(s32 *)slotHandleAddr = 0;
                     }
-                    var_19 += 1;
+                    slotValue += 1;
                 }
-                temp_4_2 = *(u8 **)(var_16 + 0x228);
-                if (temp_4_2 != NULL) {
-                    func_004787e0((s32)temp_4_2);
-                    *(s32 *)(var_16 + 0x228) = 0;
+                handle228 = *(u8 **)(resourceRecord + 0x228);
+                if (handle228 != NULL) {
+                    func_004787e0((s32)handle228);
+                    *(s32 *)(resourceRecord + 0x228) = 0;
                 }
-                func_00440b68(&D_005EF890, temp_17);
+                func_00440b68(&D_005EF890, handle164);
                 break;
             case 2:
-                temp_17_2 = *(u8 **)(var_16 + 0x158);
-                func_004787e0((s32)temp_17_2);
-                *(s32 *)(var_16 + 0x158) = 0;
-                func_00440b68(&D_005EF890, temp_17_2);
+                handle158 = *(u8 **)(resourceRecord + 0x158);
+                func_004787e0((s32)handle158);
+                *(s32 *)(resourceRecord + 0x158) = 0;
+                func_00440b68(&D_005EF890, handle158);
                 break;
             case 3:
-                var_19 = (s32)*(u8 **)(var_16 + 0x164);
-                temp_4_3 = *(u8 **)(var_16 + 0x228);
-                if (temp_4_3 != NULL) {
-                    func_00452080((s32)temp_4_3);
-                    *(s32 *)(var_16 + 0x228) = 0;
+                slotValue = (s32)*(u8 **)(resourceRecord + 0x164);
+                handle228Case3 = *(u8 **)(resourceRecord + 0x228);
+                if (handle228Case3 != NULL) {
+                    func_00452080((s32)handle228Case3);
+                    *(s32 *)(resourceRecord + 0x228) = 0;
                 }
-                *(s32 *)(var_16 + 0x230) = 0;
-                *(s32 *)(var_16 + 0x294) = 0;
-                temp_4_4 = *(u8 **)(var_16 + 0x22C);
-                if (temp_4_4 != NULL) {
-                    func_004787e0((s32)temp_4_4);
-                    *(s32 *)(var_16 + 0x22C) = 0;
+                *(s32 *)(resourceRecord + 0x230) = 0;
+                *(s32 *)(resourceRecord + 0x294) = 0;
+                handle22C = *(u8 **)(resourceRecord + 0x22C);
+                if (handle22C != NULL) {
+                    func_004787e0((s32)handle22C);
+                    *(s32 *)(resourceRecord + 0x22C) = 0;
                 }
-                func_004787e0((s32)var_19);
-                *(s32 *)(var_16 + 0x164) = 0;
-                var_17 = 0;
-                while (var_17 < 2) {
-                    temp_2_3 = var_16 + var_17 * 4;
-                    temp_4_14 = temp_2_3 + 0x140;
-                    temp_4_5 = *(u8 **)(temp_2_3 + 0x140);
-                    if (temp_4_5 != NULL) {
-                        func_004b1150((s32)temp_4_5);
-                        *(s32 *)temp_4_14 = 0;
+                func_004787e0((s32)slotValue);
+                *(s32 *)(resourceRecord + 0x164) = 0;
+                slotIndex = 0;
+                while (slotIndex < 2) {
+                    slotAddrB = resourceRecord + slotIndex * 4;
+                    slotHandleAddr = slotAddrB + 0x140;
+                    slotHandleB = *(u8 **)(slotAddrB + 0x140);
+                    if (slotHandleB != NULL) {
+                        func_004b1150((s32)slotHandleB);
+                        *(s32 *)slotHandleAddr = 0;
                     }
-                    var_17 += 1;
+                    slotIndex += 1;
                 }
-                temp_4_6 = *(s32 *)(var_16 + 0x288);
-                if (temp_4_6 != 0) {
-                    jtbl_008873EC[0]((u8 *)temp_4_6);
+                value288 = *(s32 *)(resourceRecord + 0x288);
+                if (value288 != 0) {
+                    jtbl_008873EC[0]((u8 *)value288);
                 }
-                temp_4_7 = *(u8 **)(var_16 + 0x290);
-                if (temp_4_7 != NULL) {
-                    func_00452080((s32)temp_4_7);
+                handle290 = *(u8 **)(resourceRecord + 0x290);
+                if (handle290 != NULL) {
+                    func_00452080((s32)handle290);
                 }
-                temp_4_8 = *(s32 *)(var_16 + 0x360);
-                if (temp_4_8 != 0) {
-                    func_003bbb60(temp_4_8);
+                value360 = *(s32 *)(resourceRecord + 0x360);
+                if (value360 != 0) {
+                    func_003bbb60(value360);
                 }
-                func_00440b68(&D_005EF890, (u8 *)var_19);
+                func_00440b68(&D_005EF890, (u8 *)slotValue);
                 break;
             case 6:
-                temp_4_9 = *(u8 **)(var_16 + 0x144);
-                if (temp_4_9 != NULL) {
-                    func_00268b20(temp_4_9);
-                    *(s32 *)(var_16 + 0x144) = 0;
-                    func_00440b68(&D_005EF8B0, var_16);
+                handle144Case6 = *(u8 **)(resourceRecord + 0x144);
+                if (handle144Case6 != NULL) {
+                    func_00268b20(handle144Case6);
+                    *(s32 *)(resourceRecord + 0x144) = 0;
+                    func_00440b68(&D_005EF8B0, resourceRecord);
                 }
                 break;
             case 10:
-                temp_17_3 = *(u8 **)(var_16 + 0x144);
-                func_004787e0((s32)temp_17_3);
-                *(s32 *)(var_16 + 0x144) = 0;
-                temp_4_10 = *(u8 **)(var_16 + 0x16C);
-                if (temp_4_10 != NULL) {
-                    func_004787e0((s32)temp_4_10);
-                    *(s32 *)(var_16 + 0x16C) = 0;
+                handle144 = *(u8 **)(resourceRecord + 0x144);
+                func_004787e0((s32)handle144);
+                *(s32 *)(resourceRecord + 0x144) = 0;
+                handle16C = *(u8 **)(resourceRecord + 0x16C);
+                if (handle16C != NULL) {
+                    func_004787e0((s32)handle16C);
+                    *(s32 *)(resourceRecord + 0x16C) = 0;
                 }
-                func_00440b68(&D_005EF8D0, temp_17_3);
+                func_00440b68(&D_005EF8D0, handle144);
                 break;
             case 11:
-                temp_4_11 = *(u8 **)(var_16 + 0x144);
-                if (temp_4_11 != NULL) {
-                    func_004b1150((s32)temp_4_11);
-                    *(s32 *)(var_16 + 0x144) = 0;
-                    func_00440b68(&D_005EF8F0, var_16);
+                handle144Case11 = *(u8 **)(resourceRecord + 0x144);
+                if (handle144Case11 != NULL) {
+                    func_004b1150((s32)handle144Case11);
+                    *(s32 *)(resourceRecord + 0x144) = 0;
+                    func_00440b68(&D_005EF8F0, resourceRecord);
                 }
                 break;
             case 12:
-                temp_4_12 = *(s32 *)(var_16 + 0x1A0);
-                if (temp_4_12 != 0) {
-                    func_00151f80((void *)temp_4_12);
-                    *(s32 *)(var_16 + 0x1A0) = 0;
-                    func_00440b68(&D_005EF910, var_16);
+                value1A0 = *(s32 *)(resourceRecord + 0x1A0);
+                if (value1A0 != 0) {
+                    func_00151f80((void *)value1A0);
+                    *(s32 *)(resourceRecord + 0x1A0) = 0;
+                    func_00440b68(&D_005EF910, resourceRecord);
                 }
                 break;
             case 13:
             case 21:
-                func_00440b68(&D_005EF930, var_16);
+                func_00440b68(&D_005EF930, resourceRecord);
                 break;
             case 14:
             case 15:
             case 16:
-                func_00440b68(&D_005EF950, var_16);
+                func_00440b68(&D_005EF950, resourceRecord);
                 break;
             case 20:
-                func_003e0f40(*(s32 *)(var_16 + 0x148));
-                func_003e0f40(*(s32 *)(var_16 + 0x14C));
-                func_00440b68(&D_005EF970, var_16);
+                func_003e0f40(*(s32 *)(resourceRecord + 0x148));
+                func_003e0f40(*(s32 *)(resourceRecord + 0x14C));
+                func_00440b68(&D_005EF970, resourceRecord);
                 break;
             case 4:
             case 5:
@@ -2787,7 +2787,7 @@ void func_00146630(u16 arg0) {
             case 19:
             ;
             }
-        func_00147430(temp_18, var_16);
+        func_00147430(resourceOwner, resourceRecord);
     }
 }
 /* measured: closes schedule-off probe for 46630. */
