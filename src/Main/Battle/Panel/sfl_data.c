@@ -8,13 +8,35 @@ typedef struct PanelVec3 {
     f32 z;
 } PanelVec3;
 
-extern void func_00367f50(u8* work);
 extern void func_0036a900(u8* work);
 
 extern f32 D_00761480;
 extern f32 D_00761484;
 extern f32 D_00761488;
 extern f32 D_0076148C;
+
+// FUN_00367F50
+void func_00367f50(u8 *work)
+{
+    *(u32 *)(work + 0x00) = 0;
+    *(u32 *)(work + 0x38) = 0;
+    *(u32 *)(work + 0x20) = 0;
+    *(u32 *)(work + 0x24) = 0;
+    *(u32 *)(work + 0x28) = 0;
+    *(f32 *)(work + 0x1c) = 1.0f;
+    *(u32 *)(work + 0x10) = 0;
+    *(u32 *)(work + 0x14) = 0;
+    *(u32 *)(work + 0x18) = 0;
+    *(f32 *)(work + 0x2c) = 1.0f;
+    *(f32 *)(work + 0x30) = 1.0f;
+    *(f32 *)(work + 0x34) = 1.0f;
+    *(u32 *)(work + 0x3c) = 0;
+    *(u8 *)(work + 0x40) = 0xff;
+    *(u8 *)(work + 0x41) = 0xff;
+    *(u8 *)(work + 0x42) = 0xff;
+    *(u8 *)(work + 0x43) = 0xff;
+    *(u32 *)(work + 0xdc) = 0;
+}
 
 // FUN_00367FB0
 void func_00367fb0(void* work)
