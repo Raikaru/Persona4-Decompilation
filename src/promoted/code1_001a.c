@@ -2839,25 +2839,25 @@ range_done:
 #pragma pop
 // FUN_001A55A0
 void func_001a55a0(s64 *arg0) {
-    u16 var_5;
+    u16 actionState;
 
     if (btlUnitIsMoving(*(u8 **)((u8 *)arg0 + 0x30)) == 0) {
         switch (*(u16 *)((u8 *)arg0 + 0x6C)) {
         case 1:
-            var_5 = 0x12;
+            actionState = 0x12;
             break;
         case 2:
         case 3:
-            var_5 = 0x13;
+            actionState = 0x13;
             break;
         case 9:
-            var_5 = 0x14;
+            actionState = 0x14;
             break;
         default:
-            var_5 = 0;
+            actionState = 0;
             break;
         }
-        btlActionSetState((BtlAction *)arg0, var_5);
+        btlActionSetState((BtlAction *)arg0, actionState);
     }
 }
 
@@ -2964,25 +2964,25 @@ void func_001a5650(s64 *arg0)
 
 // FUN_001A58E0
 void func_001a58e0(s64 *arg0) {
-    u16 var_5;
+    u16 actionState;
 
     if (btlUnitIsMoving(*(u8 **)((u8 *)arg0 + 0x30)) == 0) {
         switch (*(u16 *)((u8 *)arg0 + 0x6C)) {
         case 1:
-            var_5 = 0x12;
+            actionState = 0x12;
             break;
         case 2:
         case 3:
-            var_5 = 0x13;
+            actionState = 0x13;
             break;
         case 9:
-            var_5 = 0x14;
+            actionState = 0x14;
             break;
         default:
-            var_5 = 0;
+            actionState = 0;
             break;
         }
-        btlActionSetState((BtlAction *)arg0, var_5);
+        btlActionSetState((BtlAction *)arg0, actionState);
     }
 }
 
