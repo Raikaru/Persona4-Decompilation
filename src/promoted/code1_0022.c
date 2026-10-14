@@ -5,6 +5,7 @@
 #include "type.h"
 #include "btl_skill_internal.h"
 #include "btl_cond_internal.h"
+#include "effect_instance_internal.h"
 typedef struct BtlTarget BtlTarget;
 typedef struct BtlCamera BtlCamera;
 typedef struct BtlUnitStateWork BtlUnitStateWork;
@@ -223,7 +224,6 @@ extern s32 func_0022ff70(u8 *arg0);
 extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
 extern s64 func_00194590(u8 *arg0, u32 arg1);
 extern u8 *func_00202400(s32 arg0, s32 arg1);
-extern s32 effMiscRand(s32 arg0);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];

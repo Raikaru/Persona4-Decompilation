@@ -79,8 +79,6 @@ void func_004903c0(u8 *arg0)
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern void func_004bceb0(void);
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
     extern f32 fabsf(f32 arg0);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
@@ -384,8 +382,6 @@ loop_00490bb0_check:
 // FUN_00490C40
 void func_00490c40(u8 *arg0)
 {
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern u32 effMiscRand(s32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern void memcpy(void *dst, void *src, u32 size);
@@ -730,8 +726,6 @@ loop_00491660_check:
 void func_004916f0(u8 *arg0)
 {
     extern void func_004bceb0(void);
-    extern f32 effMiscRandFloat(s32 arg0);
-    extern s32 effMiscRand(s32 arg0);
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern f32 fabsf(f32 arg0);
@@ -1064,8 +1058,6 @@ void func_00492100(u8 *arg0)
 {
     extern void func_004bceb0(void);
     extern f32 fabsf(f32 value);
-    extern f32 effMiscRandFloat(EffRandState *state);
-    extern u32 effMiscRand(EffRandState *state);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 sinf(f32 arg0);

@@ -1,6 +1,7 @@
 #include "datCalc_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
+#include "effect_instance_internal.h"
 /* Original translation unit btlEPL.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
@@ -33,7 +34,6 @@ extern void RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
 extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
 extern void func_001ec350(void *arg0, void *arg1);
 extern u32 func_0047a7c0(u32 arg0);
-extern u32 effMiscRand(s32 arg0);
 extern void func_0019d990(void *arg0, s32 arg1);
 extern void func_00199890(void *arg0, s32 arg1);
 extern void func_0019d7a0(void *arg0, s32 arg1);
