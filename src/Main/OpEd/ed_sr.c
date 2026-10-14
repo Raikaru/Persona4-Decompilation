@@ -23,7 +23,7 @@ extern void func_0038f620(void);
 extern void func_0038f680(void);
 extern void func_0038f7f0(void);
 extern u32 func_0038f880(void);
-extern void func_0038f600(u8 *arg0);
+extern void brpParamSetCurrent(u8 *arg0);
 extern void func_0038dd90(u8 *arg0);
 
 /* Window / effect / scripting helpers. */
@@ -196,7 +196,7 @@ s32 func_0038f290(void) {
         *(s32 *)(w + 8) = (s32)func_00451de0((const void *)(&D_0064F230), 0x97, 1, 2, func_0038f1c0, 0, (u8 *)(0));
         func_00452570((void *)state, (void *)*(s32 *)(w + 8));
         *(s32 *)(w + 0) = 0;
-        func_0038f600(w + 0xC);
+        brpParamSetCurrent(w + 0xC);
         func_0038dd90(w + 0x1C);
         *(s32 *)(w + 4) = state;
         iGpffffb5b8 = (s32 *)w;
