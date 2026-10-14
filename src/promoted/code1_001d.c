@@ -2323,8 +2323,8 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
  * Without opt_lifetimes the body regresses (191; reusing i/n for j 273/248, bound still $v0); with it,
  * reusing i for j stays 25. Micro pv0/pv1: a call-argument copy of the same variable in another web
  * does not keep the bound's web (propagation is per web). */
-/* measured: 25 -> 18 edits. The first score sort tests the live selected count;
- * hoisting creates the real bound copy, and reusing the gather cursor splits its later lifetime. */
+/* measured: 25 -> 18 -> 11 edits. Both score sorts test the live selected count;
+ * hoisting creates real bound copies, and reusing the gather cursor splits its later lifetimes. */
 // FUN_001D8010 NONMATCHING
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
  * Structure: early count<2 return, D_008C027A 0x2000/8000/1000/4000 -> mode 5/4/2/3 with D_008C0276 hasFlag, 1d8df0==1 remap (5/1->3, 4/0->2), switch in object order 4/5,0/1,2/3 sharing bodies via jtbl_00747110, u16 entry idx/chain (Entry[12] at sp+0x90 -> sp+0x120 exactly), three bubble sorts (score/score/chain, descending), chain filter over *(D_0076449C+0x17C) via +0xA68, 1ec3d0 transform for 0/1, shared tail storing *(arg1+0x3A) with +0x3C|1.
@@ -2528,25 +2528,23 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         {
             s32 swapped;
             s32 nn = selected & 0xFFFF;
-            s32 limit = nn - 1;
             do {
-                s32 j;
                 swapped = 0;
-                j = 0;
-                while ((j & 0xFFFF) < limit) {
-                    if (entries[(u16)j].score < entries[(j & 0xFFFF) + 1].score) {
-                        u8 *tp = entries[(u16)j].unit;
-                        u16 ti = entries[(u16)j].idx;
-                        f32 ts = entries[(u16)j].score;
-                        entries[(u16)j].unit = entries[(j & 0xFFFF) + 1].unit;
-                        entries[(u16)j].idx = entries[(j & 0xFFFF) + 1].idx;
-                        entries[(u16)j].score = entries[(j & 0xFFFF) + 1].score;
-                        entries[(j & 0xFFFF) + 1].unit = tp;
-                        entries[(j & 0xFFFF) + 1].idx = ti;
-                        entries[(j & 0xFFFF) + 1].score = ts;
+                i = 0;
+                while ((i & 0xFFFF) < selected - 1) {
+                    if (entries[(u16)i].score < entries[(i & 0xFFFF) + 1].score) {
+                        u8 *tp = entries[(u16)i].unit;
+                        u16 ti = entries[(u16)i].idx;
+                        f32 ts = entries[(u16)i].score;
+                        entries[(u16)i].unit = entries[(i & 0xFFFF) + 1].unit;
+                        entries[(u16)i].idx = entries[(i & 0xFFFF) + 1].idx;
+                        entries[(u16)i].score = entries[(i & 0xFFFF) + 1].score;
+                        entries[(i & 0xFFFF) + 1].unit = tp;
+                        entries[(i & 0xFFFF) + 1].idx = ti;
+                        entries[(i & 0xFFFF) + 1].score = ts;
                         swapped = 1;
                     }
-                    j = (j + 1) & 0xFFFF;
+                    i = (i + 1) & 0xFFFF;
                 }
             } while (swapped != 0);
             {
