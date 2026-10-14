@@ -7,6 +7,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "message_frame_internal.h"
+extern void *func_0018c680(void *object, void *data);
 
 typedef struct RwV3d {
     f32 x, y, z;
@@ -3014,13 +3015,6 @@ struct RpMaterial *func_0018c610(struct RpMaterial *material, void *data) {
     return material;
 }
 
-// FUN_0018C680
-void *func_0018c680(void *object, void *data)
-{
-    u8 *arg0 = object;
-    func_003c21e0(*(struct RpGeometry **)(arg0 + 0x18), func_0018c610, data);
-    return object;
-}
 // FUN_0018C6C0
 s32 func_0018c6c0(u8 *arg0, s32 arg1)
 {
