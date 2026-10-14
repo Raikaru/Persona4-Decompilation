@@ -4,10 +4,10 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
+#include "h_cdvd.h"
 
 /* The SDK getter requires the callback task and returns a packed address. */
 extern u32 func_00452560(void *task);
-extern void H_Cdvd_Destroy(u8 *ptr);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern void func_0045d6e0(void *, void *, f32, s32);
@@ -24,7 +24,6 @@ extern void func_00489f80(void);
 extern void func_0048a000(void);
 extern s32 func_0025ef20(const void *);
 extern s32 func_0025f110(s32);
-extern s32 H_Cdvd_IsFileLoaded(s32);
 extern s32 func_00454a60(const char *path, s32 flags);
 extern void func_00440b68(const void *, ...);
 extern void func_004659f0(void *);
@@ -1121,7 +1120,7 @@ s32 func_002a4b10(u8 *sdkTaskBytes) {
         if (func_0025f110(*(u32 *)(w + 0x398)) == 0) {
             break;
         }
-        if (H_Cdvd_IsFileLoaded(*(u32 *)(w + 0x3A4)) == 0) {
+        if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)(w + 0x3A4)) == 0) {
             break;
         }
         *(s16 *)(w + 0) = 5;
@@ -1161,7 +1160,7 @@ void func_002a4cb0(u8 *sdkTaskBytes) {
     u8 *work = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     s32 p = *(s32 *)(work + 0x3A4);
     if (p != 0) {
-        H_Cdvd_Destroy((u8 *)p);
+        H_Cdvd_Destroy((struct HCdvd *)p);
         *(s32 *)(work + 0x3A4) = 0;
     }
     func_0025f230(*(u32 *)(work + 0x398));
@@ -2840,7 +2839,7 @@ void func_002aa2b0(void *arg0) {
     typedef struct { u8 pad[0x3A4]; s32 handle; } Work;
     Work *work = arg0;
     if (work->handle != 0) {
-        H_Cdvd_Destroy((u8 *)work->handle);
+        H_Cdvd_Destroy((struct HCdvd *)work->handle);
         work->handle = 0;
     }
     D_008873EC[0](work);

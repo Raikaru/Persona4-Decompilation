@@ -16,7 +16,6 @@ extern u8 D_007129C0[];
 extern s32 func_004671c0(u8 *arg0);
 extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
 extern void func_003ef3a0(s32 arg0);
-extern void H_Cdvd_Destroy(u8 *arg0);
 extern void func_00466c60(void);
 extern void func_00466e80(u8 *);
 
@@ -216,7 +215,7 @@ process:
         }
         if (*(s32 *)(*(u8 **)(arg0 + 4) + 0x1B0) != 0) {
             lock = func_0042ba20();
-            H_Cdvd_Destroy(*(u8 **)(*(u8 **)(arg0 + 4) + 0x1B0));
+            H_Cdvd_Destroy(*(struct HCdvd **)(*(u8 **)(arg0 + 4) + 0x1B0));
             *(s32 *)(*(u8 **)(arg0 + 4) + 0x1B0) = 0;
             if (lock != 0) {
                 func_0042ba70();
@@ -269,7 +268,7 @@ s32 func_004671c0(u8 *arg0)
             func_003ef3a0(handle);
         }
         if (*(u8 **)(work + 4) != NULL) {
-            H_Cdvd_Destroy(*(u8 **)(work + 4));
+            H_Cdvd_Destroy(*(struct HCdvd **)(work + 4));
         }
         *(s32 *)work = 0;
         *(u8 **)(work + 4) = NULL;

@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "g_data_internal.h"
 
 /* gp-relative global at 0x0076467C (gp - 0x4A74): pointer to the active list. */
 static u8 *iGpffffb58c;
@@ -53,7 +54,6 @@ extern u32 func_00106880(s16 arg0);
 extern u32 func_00106a60(s16 arg0);
 extern u32 func_00106b20(s16 arg0);
 extern u32 func_00106b50(s16 arg0);
-extern u32 datGetFlag(s32 arg0);
 
 /* 228/240 bytes; fifteen resolved relocations and twelve zero alignment bytes. */
 // FUN_002E24A0
