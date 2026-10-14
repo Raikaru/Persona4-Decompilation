@@ -59,9 +59,9 @@ s32 func_0015a130(void);
 s32 func_0029db50(s32, s32, s32, s32);
 s32 func_00452490(void *);
 s32 *func_00162390(void);
-s32 func_00231630(s32);
+s32 datUnitCreateEncounterGroup(s32);
 s32 func_00172e00(u8 *);
-u32 func_002319f0(struct DatUnitGenusBase *);
+u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
 f32 RwV3dLength(f32 *);
 s32 MT_Scene_GetResListHead(s32);
 s32 func_0018bbf0(s32);
@@ -824,7 +824,7 @@ s32 func_00172e00(u8 *arg0)
 
     void func_00164020(u8 *);
     void func_00182390(void);
-    u32 func_002319f0(struct DatUnitGenusBase *);
+    u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
     s32 func_0029da90(s32, u8 *, s32);
 
     void func_00144c90(s32, s32);
@@ -1287,7 +1287,7 @@ s32 func_00172e00(u8 *arg0)
                 work->target = NULL;
                 work->nearby[0] = NULL;
                 work->nearby[1] = NULL;
-                if (func_002319f0((struct DatUnitGenusBase *)(D_007EF9F8[0].x)) == 1) {
+                if (datUnitGroupIsDefeated((struct DatUnitGenusBase *)(D_007EF9F8[0].x)) == 1) {
                     func_0029da90(0xF, (u8 *)(iGpffffb284), 0);
                     work->state = 0x63;
                     if (work->returnMode == 1) {
@@ -1300,7 +1300,7 @@ s32 func_00172e00(u8 *arg0)
                     u32 i = 1;
                     for (i = 1; i < 4; i++) {
                         s32 p = *(s32 *)(D_007EF9B0 + (i * 0x750) + 0x48);
-                        if (p != 0 && func_002319f0((struct DatUnitGenusBase *)(p)) == 1) {
+                        if (p != 0 && datUnitGroupIsDefeated((struct DatUnitGenusBase *)(p)) == 1) {
                             s16 *partyId = &((FldEventActor *)(D_007EF9B0 + (s32)i * 0x750))->partyId;
                             func_001056e0(*partyId, 1);
                             func_00105d50(*partyId, 0x80000);
@@ -1493,7 +1493,7 @@ s32 func_00174680(s32 arg0, s32 arg1, s32 arg2)
         h[0x44] = h[4];
         h[1] = 3;
         s16 = func_00162390();
-        s16[0x12] = func_00231630(arg1);
+        s16[0x12] = datUnitCreateEncounterGroup(arg1);
         s16[0x13] = D_00724504 + ((arg1 & 0xFFFF) * 24);
         *(u16 *)((u8 *)s16 + 0x728) = 0;
         h[0x11] = (s32)s16;
@@ -1508,7 +1508,7 @@ s32 func_00174680(s32 arg0, s32 arg1, s32 arg2)
     if (D_007EF9F8[0].x == 0) {
         r = 0;
     } else {
-        if (func_002319f0((struct DatUnitGenusBase *)(D_007EF9F8[0].x)) == r) {
+        if (datUnitGroupIsDefeated((struct DatUnitGenusBase *)(D_007EF9F8[0].x)) == r) {
             r = (s32)s16 | 0x80000000;
         } else {
             r = 0;

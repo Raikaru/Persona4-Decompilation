@@ -46,7 +46,7 @@ extern u8* iGpffffb414;              /* 0x00764504 (gp-0x4BEC) */
 
 
 // FUN_00231580
-DatUnitPc* func_00231580(u16 pcId)
+DatUnitPc* datUnitCreatePc(u16 pcId)
 {
     DatUnitPc* pc;
 
@@ -58,7 +58,7 @@ DatUnitPc* func_00231580(u16 pcId)
     pc->base.count = 1;
     pc->base.unit = (DatUnit*)func_00105510(pcId);
 
-    func_00231af0(pc->base.unit, UNIT_GENUS_PC, pcId);
+    datUnitInit(pc->base.unit, UNIT_GENUS_PC, pcId);
 
     return pc;
 }
@@ -66,7 +66,7 @@ DatUnitPc* func_00231580(u16 pcId)
 /* measured: canonical iGpffffb414 GP symbol and explicit offset local produce the retail global-load ordering and exact 368-byte object. */
 #pragma opt_loop_invariants on
 // FUN_00231630
-DatUnitEc* func_00231630(u16 encountId)
+DatUnitEc* datUnitCreateEncounterGroup(u16 encountId)
 {
     u32 count;
     u16 i;
@@ -107,7 +107,7 @@ DatUnitEc* func_00231630(u16 encountId)
     {
         if (((EncountTblEntry*)((u32)stride + (u32)iGpffffb414))->enmIds[k] != 0)
         {
-            func_00231af0(&ec->base.unit[j], UNIT_GENUS_EC, ((EncountTblEntry*)((u32)stride + (u32)iGpffffb414))->enmIds[k]);
+            datUnitInit(&ec->base.unit[j], UNIT_GENUS_EC, ((EncountTblEntry*)((u32)stride + (u32)iGpffffb414))->enmIds[k]);
             j++;
         }
     }
@@ -117,7 +117,7 @@ DatUnitEc* func_00231630(u16 encountId)
 #pragma opt_loop_invariants off
 
 // FUN_002317A0
-DatUnit* func_002317a0(DatUnitEc* ec, u16 id)
+DatUnit* datUnitAddEncounterUnit(DatUnitEc* ec, u16 id)
 {
     u16 i;
     DatUnit* curr;
@@ -131,7 +131,7 @@ DatUnit* func_002317a0(DatUnitEc* ec, u16 id)
 
         if (curr->id == 0)
         {
-            func_00231af0(curr, UNIT_GENUS_EC, id);
+            datUnitInit(curr, UNIT_GENUS_EC, id);
             ec->base.count++;
 
             break;
@@ -144,7 +144,7 @@ DatUnit* func_002317a0(DatUnitEc* ec, u16 id)
 }
 
 // FUN_002318C0
-void func_002318c0(DatUnitEc* ec, DatUnit* unit)
+void datUnitRemoveEncounterUnit(DatUnitEc* ec, DatUnit* unit)
 {
     u16 i;
     DatUnit* curr;
@@ -169,13 +169,13 @@ void func_002318c0(DatUnitEc* ec, DatUnit* unit)
 }
 
 // FUN_002319C0
-void func_002319c0(s32 arg0)
+void datUnitFree(s32 arg0)
 {
     jtbl_008873EC[0]((void *)arg0);
 }
 
 // FUN_002319F0
-u32 func_002319f0(DatUnitGenusBase* genusBase)
+u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase)
 {
     u16 i;
 
@@ -210,7 +210,7 @@ u32 func_002319f0(DatUnitGenusBase* genusBase)
  * opt_loop_invariants MWCC rematerializes them inside the loop. */
 #pragma opt_loop_invariants on
 // FUN_00231AF0
-u32 func_00231af0(DatUnit* unit, u8 genus, u16 id)
+u32 datUnitInit(DatUnit* unit, u8 genus, u16 id)
 {
     u32 i;
     u32 j;

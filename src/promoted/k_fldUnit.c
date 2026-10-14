@@ -38,7 +38,7 @@ extern u8 iGpffff9f2a;
 extern u8 iGpffff9f2b;
 extern u8 iGpffff9f24;
 extern s32 func_0014b870(s32 arg0, s32 arg1);
-extern void func_002319c0(s32 arg0);
+extern void datUnitFree(s32 arg0);
 extern s32 func_0047ae90(u8 *arg0, u16 arg1);
 extern void func_0047ae10(u8 *arg0, u16 arg1);
 extern u32 H_Cdvd_IsFileLoaded(HCdvd *arg0);
@@ -49,7 +49,7 @@ extern s32 func_00161a70(u16 arg0, u16 arg1, u16 arg2);
 extern void func_00182310(s32 arg0);
 extern s32 func_00164570(u32 arg0, s32 arg1);
 typedef struct DatUnitEc DatUnitEc;
-extern DatUnitEc *func_00231630(u16 encountId);
+extern DatUnitEc *datUnitCreateEncounterGroup(u16 encountId);
 extern u8 *func_00163990(u32 arg0, u8 *arg1, s32 arg2);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
@@ -69,7 +69,7 @@ extern u32 *func_00478750(u8 *arg0);
 extern f32 func_00168770(s32 arg0);
 extern void func_00478e70(u8 *arg0);
 extern s32 func_00182220(s32 arg0, u8 *arg1, s32 arg2);
-extern s32 func_002319f0(s32 arg0);
+extern s32 datUnitGroupIsDefeated(s32 arg0);
 extern s32 func_0016fd00(s32 arg0);
 extern s32 func_0017e890(s32 arg0, u8 *arg1, u8 *arg2);
 extern void func_0017e990(s32 arg0);
@@ -85,7 +85,7 @@ extern s32 datGetFlag(s32 arg0);
 extern s32 func_00145ac0(s32 arg0, s32 arg1);
 extern u8 *func_00162330(void);
 typedef struct DatUnitPc DatUnitPc;
-extern DatUnitPc *func_00231580(u16 arg0);
+extern DatUnitPc *datUnitCreatePc(u16 arg0);
 extern u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2);
 extern u8 datPersonaGetLevelByPcId(u16 arg0);
 extern s16 datGetPartyId(s32 arg0);
@@ -735,7 +735,7 @@ u8 *func_00163990(u32 encounter, u8 *placement, s32 variant)
         return NULL;
     }
     encounterId = encounter & 0xFFFF;
-    *(u8 **)(slot + 0x48) = (u8 *)func_00231630((u16)encounterId);
+    *(u8 **)(slot + 0x48) = (u8 *)datUnitCreateEncounterGroup((u16)encounterId);
     *(s32 *)(slot + 0x4C) = (s32)(iGpffffb414 + (encounterId * 0x18));
     *(s16 *)(slot + 0x728) = 0;
     category = (encounter >> 0x10) & 0xFFFF;
@@ -937,7 +937,7 @@ void func_00164020(u8 *arg0)
 
     t48 = *(s32 *)(arg0 + 0x48);
     if (t48 != 0) {
-        func_002319c0(t48);
+        datUnitFree(t48);
         t54 = *(u16 **)(arg0 + 0x54);
         if (t54 != NULL) {
             MT_Scene_DestroyRes(*t54);
@@ -1010,7 +1010,7 @@ void func_00164230(u16 fieldId, u16 roomId, u16 entryId)
 
         unit = func_00162330();
         if (unit != NULL) {
-            *(DatUnitPc **)(unit + 0x48) = func_00231580(1);
+            *(DatUnitPc **)(unit + 0x48) = datUnitCreatePc(1);
             *(u8 **)(unit + 0x50) = func_00162680(fieldId, roomId, 1);
             *(u16 *)(unit + 0x728) = 1;
             *(s32 *)(unit + 0x44) = 0;
@@ -1062,7 +1062,7 @@ void func_00164230(u16 fieldId, u16 roomId, u16 entryId)
                 unit = func_00162330();
                 if (unit != NULL) {
                     pcId = (u16)selectedId;
-                    *(DatUnitPc **)(unit + 0x48) = func_00231580(pcId);
+                    *(DatUnitPc **)(unit + 0x48) = datUnitCreatePc(pcId);
                     modelId = pcId;
                     *(u8 **)(unit + 0x50) = func_00162680(fieldId, roomId, modelId);
                     *(u16 *)(unit + 0x728) = pcId;
@@ -1561,7 +1561,7 @@ void func_00164fa0(s32 arg0)
         sp70[0] = sp70[1] = sp70[2] = temp_f0;
         mdlScale((Model *)(*(u8 **)(*temp_20_2 + 0x228)), (const RwV3d *)(&sp70[0]), 2);
         func_00478e70(*(u8 **)(*temp_20_2 + 0x228));
-        if (func_002319f0(*temp_21) == 0) {
+        if (datUnitGroupIsDefeated(*temp_21) == 0) {
             func_00479940(*temp_16, 0, (s16)func_0016fd00(*(u16 *)(D_007F00D8 + (arg0 * 0x750))), 0, 1);
         }
         if (arg0 != 0) {
