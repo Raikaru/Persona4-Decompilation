@@ -5,6 +5,7 @@
 #include "type.h"
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
+#include "btl_cond_internal.h"
 typedef struct BtlPacket BtlPacket;
 typedef signed __int128 s128;
 typedef struct P4Vec4_001EC2B0 {
@@ -70,21 +71,14 @@ extern void btlActionFinishPresentation(s32 arg0);
 extern BtlPacket *func_001d3700(u16 arg0, u16 arg1);
 extern u8 *btlCameraCreateSetStatePacket(s32 arg0, s32 arg1);
 extern s32 func_001dbba0();
-extern void btlCond_MYWEAK();
 extern u32 func_00231d70(u32 arg0);
 extern u8 *func_001d9280();
 extern u8 *func_001d8c00();
 extern u8 *func_001de370();
-extern void btlCond_MYNOMAL();
-extern void btlCond_MYHOJO();
 extern s32 func_001dd570();
 extern s32 func_001de000();
 extern s32 func_001d9390();
 extern s32 func_001dbb90(void);
-extern void btlCond_MYHANSYA();
-extern void btlCond_MYKYUSYU();
-extern void btlCond_MYMUKOU();
-extern void btlCond_MYTAISEI();
 
 
 extern void func_00194590(u8 *arg0, s32 arg1);
@@ -376,7 +370,6 @@ s32 func_001e7400(void) {
     extern s32 func_0029cc00(s32 arg0);
     extern void func_0029cf50(s32 arg0);
     extern u8 *func_0029d050(void);
-    extern void btlCond_MYHOJO();
     u8 *formation;
     u16 count;
     int selected;
@@ -417,7 +410,6 @@ s32 func_001e7510(void) {
     extern s64 func_0029cc00();
     extern void func_0029cf50();
     extern u8 *func_0029d050();
-    extern void btlCond_MYHOJO();
     u8 *var_19;
     s32 var_18;
     s32 temp_17;
@@ -665,7 +657,6 @@ s32 func_001e7c20(void) {
     extern s64 func_0029cc00();
     extern void func_0029cf50();
     extern u8 *func_0029d050();
-    extern void btlCond_MYNOMAL();
     u8 *temp_18;
     s32 var_17;
     s32 var_16;

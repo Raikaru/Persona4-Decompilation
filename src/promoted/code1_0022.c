@@ -4,6 +4,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "btl_skill_internal.h"
+#include "btl_cond_internal.h"
 typedef struct BtlTarget BtlTarget;
 typedef struct BtlCamera BtlCamera;
 typedef struct BtlUnitStateWork BtlUnitStateWork;
@@ -22,7 +23,6 @@ extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
 extern u32 func_001064f0(s32 counter);
 extern void func_00106550(s32 counter, u32 value);
 extern void func_001fae60(s32 initialize, s32 update, s32 packet);
-extern s32 btlCond_MYHP(u8 *packet, s32 percentage);
 extern void mdlScale(Model *model, const RwV3d *scale, int combineOp);
 /* Retail forwards the matrix result as well as all three inputs. */
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
