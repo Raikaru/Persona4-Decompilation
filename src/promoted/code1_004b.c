@@ -17,7 +17,7 @@ extern void func_00485b20(u8 *model);
 extern void func_00485fe0();
 extern void func_00485630(u8 *object);
 extern void func_00486400();
-extern void func_00486060();
+extern s32 func_00486060(u8 *);
 extern void func_004860f0();
 extern void func_00486180();
 
@@ -327,9 +327,9 @@ typedef signed __int128 s128;
 
 
 // FUN_004B1520
-void func_004b1520(void)
+s32 func_004b1520(u8 *arg0)
 {
-    func_00486060();
+    return func_00486060(arg0);
 }
 
 // FUN_004B1540

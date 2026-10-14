@@ -2112,7 +2112,7 @@ loop_19:
     return 0;
 }
 // FUN_002BCBC0
-s32 func_002bcbc0(s32 arg0, s32 arg1)
+s32 func_002bcbc0(u8 *arg0, s32 arg1)
 {
     u8 *temp_3;
 
@@ -2128,7 +2128,7 @@ s32 func_002bcbc0(s32 arg0, s32 arg1)
 error:
     func_0046d730(D_0063F2A0, 0x590);
 done:
-    temp_3 = (u8 *)(arg0 + arg1 * 0xC);
+    temp_3 = arg0 + arg1 * 0xC;
     *(s32 *)(temp_3 + 0x1C) |= 4;
     return 0;
 }
