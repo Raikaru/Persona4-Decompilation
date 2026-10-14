@@ -83,16 +83,16 @@ not count as recovered C.
 
 [decomp.dev](https://decomp.dev/Raikaru/Persona4-Decompilation) publishes the
 CI results. Its headline figures are first-party (Atlus game and engine) code;
-the whole program, including Sony SDK and middleware, is the `all` category.
+the whole program, including Sony SDK and middleware, is the `whole` category.
 The table below is the last committed report, not a fresh measurement of your
 working tree. Run `make verify` for that.
 
 <details>
 <summary>Detailed progress</summary>
 
-[![perfect match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20code%20perfect%20match&measure=code&category=all)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![fuzzy match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20code%20fuzzy%20match&measure=fuzzy_match_percent&category=all)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=matched_functions&category=all)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![perfect match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20code%20perfect%20match&measure=code&category=whole)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![fuzzy match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20code%20fuzzy%20match&measure=fuzzy_match_percent&category=whole)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=matched_functions&category=whole)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![ASM-free linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
 [![Sony SDK fully C-linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=Sony%20SDK%20fully%20C-linked&measure=complete_code&category=sony_sdk)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 

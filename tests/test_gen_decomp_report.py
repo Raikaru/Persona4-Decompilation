@@ -126,7 +126,7 @@ class MixedOriginReportTests(unittest.TestCase):
             report = gen.build_report(report_path, str(linked_path))
         unit = next(u for u in report["units"] if u["metadata"]["source_path"] == source)
         self.assertFalse(unit["metadata"]["complete"])
-        whole = {c["id"]: c["measures"] for c in report["categories"]}["all"]
+        whole = {c["id"]: c["measures"] for c in report["categories"]}["whole"]
         self.assertEqual(whole["complete_code"], "0")
         self.assertEqual(whole["matched_code"], "16")
 
@@ -144,7 +144,7 @@ class MixedOriginReportTests(unittest.TestCase):
                 "linked_functions": [{"address": "004222b0", "file": source}],
             }))
             report = gen.build_report(report_path, str(linked_path))
-        whole = {c["id"]: c["measures"] for c in report["categories"]}["all"]
+        whole = {c["id"]: c["measures"] for c in report["categories"]}["whole"]
         self.assertEqual(whole["matched_code"], "16")
         self.assertEqual(whole["complete_code"], "0")
 
@@ -165,7 +165,7 @@ class ReportShapeTests(unittest.TestCase):
     def test_denominator_is_the_whole_program(self) -> None:
         """A shrunk denominator inflates every published percentage, so the
         whole-program category keeps every canonical window."""
-        whole = {c["id"]: c["measures"] for c in self.report["categories"]}["all"]
+        whole = {c["id"]: c["measures"] for c in self.report["categories"]}["whole"]
         self.assertEqual(whole["total_functions"], CANONICAL_TOTAL)
 
     def test_headline_is_first_party_code(self) -> None:
@@ -188,7 +188,7 @@ class ReportShapeTests(unittest.TestCase):
         counts = {c["id"]: c["measures"].get("total_functions", 0)
                   for c in self.report["categories"]}
         origins = ("main", "sony_sdk", "third_party", "unclassified")
-        whole = {c["id"]: c["measures"] for c in self.report["categories"]}["all"]
+        whole = {c["id"]: c["measures"] for c in self.report["categories"]}["whole"]
         self.assertEqual(sum(counts[c] for c in origins), whole["total_functions"])
         totals = dict.fromkeys(origins, 0)
         for unit in self.report["units"]:

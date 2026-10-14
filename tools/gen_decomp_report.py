@@ -34,7 +34,8 @@ Headline: the top-level `measures`, which decomp.dev shows as the project's
 main progress, cover first-party (`main`) code only. The project's goal is the
 Atlus game and engine; SDK and middleware windows are tracked but are not what
 the project decompiles. The whole program, every canonical window included,
-stays published as the additive `all` category.
+stays published as the additive `whole` category, listed right after `main`.
+(Not `all`: decomp.dev lists an `all` category first, ahead of `main`.)
 
 `matched_*` measures compiled C matching retail. `complete_*` measures C files
 with no assembly fallbacks whose functions all link in the verified image.
@@ -57,7 +58,7 @@ import gen_objdiff  # noqa: E402  (path set above)
 import verify as V  # noqa: E402
 
 # Additive report-only category: the whole program, as the headline used to be.
-ALL_CATEGORY = {"id": "all", "name": "Whole program (incl. SDK and middleware)"}
+ALL_CATEGORY = {"id": "whole", "name": "Whole program (incl. SDK and middleware)"}
 
 
 def f32(value: float) -> float:
@@ -225,21 +226,23 @@ def build_report(report_path: Path, linked_report: str | None) -> dict:
 
     complete_units = sum(1 for unit in units if unit["metadata"]["complete"])
     for unit in units:
-        unit["metadata"]["progress_categories"].append("all")
+        unit["metadata"]["progress_categories"].append(ALL_CATEGORY["id"])
 
     def category_measures(category_id: str) -> dict:
         members = [u for u in units if category_id in u["metadata"]["progress_categories"]]
         return measures(per_category[category_id], len(members),
                         sum(1 for u in members if u["metadata"]["complete"]))
 
+    categories = [dict(id=cat["id"], name=cat["name"], measures=category_measures(cat["id"]))
+                  for cat in gen_objdiff.PROGRESS_CATEGORIES]
+    # First-party first, then the whole program, then the remaining breakdowns.
+    main_index = next(i for i, cat in enumerate(categories) if cat["id"] == "main")
+    categories.insert(main_index + 1, dict(id=ALL_CATEGORY["id"], name=ALL_CATEGORY["name"],
+                                           measures=measures(results, len(units), complete_units)))
     return {
         "version": 2,
         "measures": category_measures("main"),
-        "categories": [
-            dict(id=cat["id"], name=cat["name"], measures=category_measures(cat["id"]))
-            for cat in gen_objdiff.PROGRESS_CATEGORIES
-        ] + [dict(id=ALL_CATEGORY["id"], name=ALL_CATEGORY["name"],
-                  measures=measures(results, len(units), complete_units))],
+        "categories": categories,
         "units": units,
     }
 
