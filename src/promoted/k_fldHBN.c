@@ -56,8 +56,8 @@ s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
 {
     u32 sp9C;
     char sp50[0x40];
-    u8 *var_18;
-    u16 *temp_2;
+    u8 *data;
+    u16 *buf;
 
     if (arg0 == NULL)
     {
@@ -70,19 +70,19 @@ s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
     if (func_0014eec0() == 0)
     {
         sp9C = *(u32 *)(arg0 + 0x118);
-        var_18 = (u8 *)*(u32 **)(arg0 + 0x110);
+        data = (u8 *)*(u32 **)(arg0 + 0x110);
     }
     else
     {
         sprintf(&sp50, D_005F1150, arg2 & 0xFFFF, arg3 & 0xFFFF);
-        var_18 = func_00455f70(&sp50, &sp9C);
+        data = func_00455f70(&sp50, &sp9C);
     }
-    if (var_18 != NULL)
+    if (data != NULL)
     {
         func_0044ea90(D_005F1108, 0x1AE);
-        temp_2 = (u16 *)D_008873F4[0](1, (s32)(sp9C), 0x40000);
-        *arg1 = temp_2;
-        memcpy(temp_2, var_18, sp9C);
+        buf = (u16 *)D_008873F4[0](1, (s32)(sp9C), 0x40000);
+        *arg1 = buf;
+        memcpy(buf, data, sp9C);
     }
     if (func_0014eec0() == 0)
     {
@@ -191,17 +191,17 @@ u8 *func_0015ff20(s32 arg0, s32 arg1)
 {
     char spB0[0x80];
     char sp30[0x80];
-    s32 temp_16;
+    s32 id;
 
-    temp_16 = (u16)arg0;
-    if (temp_16 == -1)
+    id = (u16)arg0;
+    if (id == -1)
     {
         return NULL;
     }
     if (func_0014eec0() == 0)
     {
         strcpy(&spB0, D_005F1118);
-        sprintf(&sp30, D_005F1170, temp_16, arg1 & 0xFFFF);
+        sprintf(&sp30, D_005F1170, id, arg1 & 0xFFFF);
         if (H_Cdvd_FileExists(&sp30) == 0)
         {
             return NULL;
@@ -217,7 +217,7 @@ s32 func_00160000(u8 *arg0)
 {
     u32 sp8C;
     char sp40[0x40];
-    u8 *var_16;
+    u8 *data;
     u8 *temp_2;
 
     if (arg0 == NULL)
@@ -231,22 +231,22 @@ s32 func_00160000(u8 *arg0)
     if (func_0014eec0() == 0)
     {
         sp8C = *(u32 *)(arg0 + 0x118);
-        var_16 = *(u8 **)(arg0 + 0x110);
+        data = *(u8 **)(arg0 + 0x110);
     }
     else
     {
         temp_2 = (u8 *)iGpffff9db0;
         sprintf(&sp40, D_005F1190, *(s32 *)(temp_2 + 0), *(s32 *)(temp_2 + 4));
-        var_16 = func_00455f70(&sp40, &sp8C);
+        data = func_00455f70(&sp40, &sp8C);
     }
-    if (var_16 != NULL)
+    if (data != NULL)
     {
         func_00160180();
         *(s32 *)((u8 *)func_00155280() + 0x18D8) = sp8C / 44;
         func_0044ea90(D_005F1108, 0x2AD);
         temp_2 = D_008873F4[0](1, (s32)(sp8C), 0x40000);
         *(u8 **)((u8 *)func_00155280() + 0x18DC) = temp_2;
-        memcpy(*(void **)((u8 *)func_00155280() + 0x18DC), var_16, sp8C);
+        memcpy(*(void **)((u8 *)func_00155280() + 0x18DC), data, sp8C);
     }
     if (func_0014eec0() == 0)
     {
@@ -293,8 +293,8 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
 {
     u32 sp7C;
     char sp30[0x40];
-    u8 *var_16;
-    u8 *temp_2;
+    u8 *buf;
+    u8 *data;
 
     if (arg0 == NULL)
     {
@@ -305,8 +305,8 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
         if (H_Cdvd_IsFileLoaded(arg0) != 0)
         {
             func_0044ea90(D_005F1108, 0x2F9);
-            var_16 = D_008873F4[0](1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
-            *(u8 **)((u8 *)func_00155280() + 0x1854) = var_16;
+            buf = D_008873F4[0](1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
+            *(u8 **)((u8 *)func_00155280() + 0x1854) = buf;
             *(u32 *)((u8 *)func_00155280() + 0x1858) = *(u32 *)(arg0 + 0x118);
             memcpy(*(void **)((u8 *)func_00155280() + 0x1854), *(void **)(arg0 + 0x110), *(u32 *)(arg0 + 0x118));
             H_Cdvd_Destroy(arg0);
@@ -316,14 +316,14 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
     else
     {
         sprintf(&sp30, D_005F11D0, arg1 & 0xFFFF);
-        temp_2 = func_00455f70(&sp30, &sp7C);
-        if (temp_2 != NULL)
+        data = func_00455f70(&sp30, &sp7C);
+        if (data != NULL)
         {
             func_0044ea90(D_005F1108, 0x30C);
-            var_16 = D_008873F4[0](1, (s32)(sp7C), 0x40000);
-            *(u8 **)((u8 *)func_00155280() + 0x1854) = var_16;
+            buf = D_008873F4[0](1, (s32)(sp7C), 0x40000);
+            *(u8 **)((u8 *)func_00155280() + 0x1854) = buf;
             *(u32 *)((u8 *)func_00155280() + 0x1858) = sp7C;
-            memcpy(*(void **)((u8 *)func_00155280() + 0x1854), temp_2, sp7C);
+            memcpy(*(void **)((u8 *)func_00155280() + 0x1854), data, sp7C);
         }
         return 1;
     }
