@@ -58,91 +58,91 @@ u8 *func_00468170(void *arg0, const char *arg1) {
    only, MATCH), matching the previous spelling exactly. */
 // FUN_00468260
 s32 func_00468260(u8 *arg0) {
-    u8 *temp_4;
-    u8 *temp_2_4;
-    u8 *p16;
-    s32 temp_2;
+    u8 *filer;
+    u8 *slot;
+    u8 *slotFlag;
+    s32 state;
     s32 idx;
-    u16 var_5;
+    u16 buttons;
 
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    temp_2 = *(s32 *)temp_4;
-    switch (temp_2) {
+    filer = *(u8 **)(arg0 + 0x38);
+    state = *(s32 *)filer;
+    switch (state) {
     case 0:
-        *(s32 *)(temp_4 + 0x30) |= 1;
-        *(s32 *)temp_4 = 1;
+        *(s32 *)(filer + 0x30) |= 1;
+        *(s32 *)filer = 1;
         break;
     case 1:
-        var_5 = D_008C024E[0];
-        if (var_5 & 0x800) {
-            *(s32 *)temp_4 = 2;
-        } else if (var_5 & 0x40) {
-            if (*(s32 *)(temp_4 + 0xC) == 0x14) {
-                idx = *(s32 *)(temp_4 + 0xC);
-                *(s8 *)(idx + (u32)temp_4 + 0x10) = *(s8 *)(D_00712AA0[*(s32 *)(temp_4 + 8)] + *(s32 *)(temp_4 + 4));
+        buttons = D_008C024E[0];
+        if (buttons & 0x800) {
+            *(s32 *)filer = 2;
+        } else if (buttons & 0x40) {
+            if (*(s32 *)(filer + 0xC) == 0x14) {
+                idx = *(s32 *)(filer + 0xC);
+                *(s8 *)(idx + (u32)filer + 0x10) = *(s8 *)(D_00712AA0[*(s32 *)(filer + 8)] + *(s32 *)(filer + 4));
             } else {
-                idx = *(s32 *)(temp_4 + 0xC);
-                *(s8 *)(idx + (u32)temp_4 + 0x10) = *(s8 *)(D_00712AA0[*(s32 *)(temp_4 + 8)] + *(s32 *)(temp_4 + 4));
-                *(s32 *)(temp_4 + 0xC) += 1;
-                idx = *(s32 *)(temp_4 + 0xC);
-                *(s8 *)(idx + (u32)temp_4 + 0x10) = 0;
+                idx = *(s32 *)(filer + 0xC);
+                *(s8 *)(idx + (u32)filer + 0x10) = *(s8 *)(D_00712AA0[*(s32 *)(filer + 8)] + *(s32 *)(filer + 4));
+                *(s32 *)(filer + 0xC) += 1;
+                idx = *(s32 *)(filer + 0xC);
+                *(s8 *)(idx + (u32)filer + 0x10) = 0;
             }
-        } else if (var_5 & 0x20) {
-            if (*(s32 *)(temp_4 + 0xC) == 0) {
-                temp_2_4 = (u8 *)(*(s32 *)(temp_4 + 0xC) + (u32)temp_4);
-                p16 = temp_2_4 + 0x10;
-                if (*(s8 *)p16 == 0) {
-                    *(s32 *)temp_4 = 2;
+        } else if (buttons & 0x20) {
+            if (*(s32 *)(filer + 0xC) == 0) {
+                slot = (u8 *)(*(s32 *)(filer + 0xC) + (u32)filer);
+                slotFlag = slot + 0x10;
+                if (*(s8 *)slotFlag == 0) {
+                    *(s32 *)filer = 2;
                 } else {
-                    *(s8 *)p16 = 0;
+                    *(s8 *)slotFlag = 0;
                 }
             } else {
-                *(s8 *)((u8 *)(*(s32 *)(temp_4 + 0xC) + (u32)temp_4) + 0x10) = 0;
-                *(s32 *)(temp_4 + 0xC) -= 1;
+                *(s8 *)((u8 *)(*(s32 *)(filer + 0xC) + (u32)filer) + 0x10) = 0;
+                *(s32 *)(filer + 0xC) -= 1;
             }
         } else if (D_008C0252[0] & 0x1000) {
-            if (*(s32 *)(temp_4 + 8) != 0) {
-                *(s32 *)(temp_4 + 8) -= 1;
-            } else if (var_5 & 0x1000) {
-                *(s32 *)(temp_4 + 8) = 3;
+            if (*(s32 *)(filer + 8) != 0) {
+                *(s32 *)(filer + 8) -= 1;
+            } else if (buttons & 0x1000) {
+                *(s32 *)(filer + 8) = 3;
             }
         } else if (D_008C0252[0] & 0x4000) {
-            if (*(s32 *)(temp_4 + 8) != 3) {
-                *(s32 *)(temp_4 + 8) += 1;
-            } else if (var_5 & 0x4000) {
-                *(s32 *)(temp_4 + 8) = 0;
+            if (*(s32 *)(filer + 8) != 3) {
+                *(s32 *)(filer + 8) += 1;
+            } else if (buttons & 0x4000) {
+                *(s32 *)(filer + 8) = 0;
             }
         } else if (D_008C0252[0] & 0x8000) {
-            if (*(s32 *)(temp_4 + 4) != 0) {
-                *(s32 *)(temp_4 + 4) -= 1;
-            } else if (var_5 & 0x8000) {
-                *(s32 *)(temp_4 + 4) = 9;
+            if (*(s32 *)(filer + 4) != 0) {
+                *(s32 *)(filer + 4) -= 1;
+            } else if (buttons & 0x8000) {
+                *(s32 *)(filer + 4) = 9;
             }
         } else if (D_008C0252[0] & 0x2000) {
-            if (*(s32 *)(temp_4 + 4) != 9) {
-                *(s32 *)(temp_4 + 4) += 1;
-            } else if (var_5 & 0x2000) {
-                *(s32 *)(temp_4 + 4) = 0;
+            if (*(s32 *)(filer + 4) != 9) {
+                *(s32 *)(filer + 4) += 1;
+            } else if (buttons & 0x2000) {
+                *(s32 *)(filer + 4) = 0;
             }
         }
         if (*(u16 *)&D_008C0256[0] & 0x1000) {
-            *(f32 *)(temp_4 + 0x2C) -= 5.0f;
+            *(f32 *)(filer + 0x2C) -= 5.0f;
         }
         if (*(u16 *)((u8 *)D_008C0256 + 0) & 0x4000) {
-            *(f32 *)(temp_4 + 0x2C) += 5.0f;
+            *(f32 *)(filer + 0x2C) += 5.0f;
         }
         if (*(u16 *)((u32)&D_008C0256[0]) & 0x8000) {
-            *(f32 *)(temp_4 + 0x28) -= 5.0f;
+            *(f32 *)(filer + 0x28) -= 5.0f;
         }
         if (*(u16 *)((s32)&D_008C0256[0]) & 0x2000) {
-            *(f32 *)(temp_4 + 0x28) += 5.0f;
+            *(f32 *)(filer + 0x28) += 5.0f;
         }
         break;
     case 2:
         break;
     }
-    if (*(s32 *)(temp_4 + 0x30) & 1) {
-        func_004685c0(temp_4);
+    if (*(s32 *)(filer + 0x30) & 1) {
+        func_004685c0(filer);
     }
     return 0;
 }
