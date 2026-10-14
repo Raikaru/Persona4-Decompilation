@@ -2835,11 +2835,11 @@ range_done:
 
 #pragma pop
 // FUN_001A55A0
-void func_001a55a0(s64 *arg0) {
+void func_001a55a0(BtlAction *action) {
     u16 actionState;
 
-    if (btlUnitIsMoving(*(u8 **)((u8 *)arg0 + 0x30)) == 0) {
-        switch (*(u16 *)((u8 *)arg0 + 0x6C)) {
+    if (btlUnitIsMoving(*(u8 **)((u8 *)action + 0x30)) == 0) {
+        switch (*(u16 *)((u8 *)action + 0x6C)) {
         case 1:
             actionState = 0x12;
             break;
@@ -2854,7 +2854,7 @@ void func_001a55a0(s64 *arg0) {
             actionState = 0;
             break;
         }
-        btlActionSetState((BtlAction *)arg0, actionState);
+        btlActionSetState(action, actionState);
     }
 }
 
@@ -2960,11 +2960,11 @@ void func_001a5650(s64 *arg0)
 #pragma pop
 
 // FUN_001A58E0
-void func_001a58e0(s64 *arg0) {
+void func_001a58e0(BtlAction *action) {
     u16 actionState;
 
-    if (btlUnitIsMoving(*(u8 **)((u8 *)arg0 + 0x30)) == 0) {
-        switch (*(u16 *)((u8 *)arg0 + 0x6C)) {
+    if (btlUnitIsMoving(*(u8 **)((u8 *)action + 0x30)) == 0) {
+        switch (*(u16 *)((u8 *)action + 0x6C)) {
         case 1:
             actionState = 0x12;
             break;
@@ -2979,7 +2979,7 @@ void func_001a58e0(s64 *arg0) {
             actionState = 0;
             break;
         }
-        btlActionSetState((BtlAction *)arg0, actionState);
+        btlActionSetState(action, actionState);
     }
 }
 
@@ -6446,30 +6446,30 @@ void func_001abbb0(s64 *arg0)
 
 #pragma pop
 // FUN_001AC500
-void func_001ac500(s64 *arg0) {
+void func_001ac500(BtlAction *action) {
     u8 *resetPacket;
     u8 *cameraPacket;
 
-    func_001a03b0((BtlAction *)arg0);
-    func_001eb3b0((u8 *)arg0 + 0x38);
-    func_001dbf20(arg0, 0);
-    func_001a03b0((BtlAction *)arg0);
+    func_001a03b0(action);
+    func_001eb3b0((u8 *)action + 0x38);
+    func_001dbf20(action, 0);
+    func_001a03b0(action);
     resetPacket = (u8 *)func_001d3700(3, 0xFFF);
-    *(s64 *)(resetPacket + 0x60) = *arg0;
+    *(s64 *)(resetPacket + 0x60) = *(s64 *)action;
     func_00194590(resetPacket, 0);
-    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x2C);
-    *(s64 *)(cameraPacket + 0x60) = *arg0;
+    cameraPacket = (u8 *)btlCameraCreateSetStatePacket(action, 0x2C);
+    *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
     func_00194590(cameraPacket, 0);
-    *(u16 *)((u8 *)arg0 + 0x18) |= 2;
+    *(u16 *)((u8 *)action + 0x18) |= 2;
 }
 
 
 
 // FUN_001AC5B0
-void func_001ac5b0(s64 *arg0) {
+void func_001ac5b0(BtlAction *action) {
     if ((func_00193cd0(0x506) == 0) && (func_00193cd0(0x800) == 0)) {
-        *(u16 *)((u8 *)(arg0) + 0x18) = (u16) (*(u16 *)((u8 *)(arg0) + 0x18) | 0x100);
-        btlActionSetState((BtlAction *)arg0, 0xFU);
+        *(u16 *)((u8 *)action + 0x18) = (u16) (*(u16 *)((u8 *)action + 0x18) | 0x100);
+        btlActionSetState(action, 0xFU);
     }
 }
 
@@ -6489,9 +6489,9 @@ void func_001ac620(void) {
 }
 
 // FUN_001AC6A0
-void func_001ac6a0(u8 *arg0) {
-    if ((*(s32 (**)(void))(arg0 + 0x440))() == 0) {
-        btlActionSetState((BtlAction *)arg0, *(u16 *)(arg0 + 0x43C));
+void func_001ac6a0(BtlAction *action) {
+    if ((*(s32 (**)(void))((u8 *)action + 0x440))() == 0) {
+        btlActionSetState(action, *(u16 *)((u8 *)action + 0x43C));
     }
 }
 
