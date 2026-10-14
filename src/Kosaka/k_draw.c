@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scene_event_internal.h"
 #include "rw/plcore/barenderstate.h"
 extern u8 D_00887300_abs[];
 typedef s32 (*KDrawFunc)(RwRenderState state, void *value);
@@ -167,6 +168,10 @@ void func_0014d7c0(u8 *arg0, u32 arg1)
     *(u32 *) *(u8 **)(arg0 + 0x38) = arg1;
 }
 
+// FUN_0014D7D0
+void func_0014d7d0(u8 *arg0, u8 *arg1) {
+    *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
+}
 // FUN_0014D800
 void func_0014d800(u8 *arg0, u8 *arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
@@ -229,6 +234,10 @@ void func_0014d9d0(u8 *arg0, u32 arg1)
     *(u32 *) *(u8 **)(arg0 + 0x38) = arg1;
 }
 
+// FUN_0014D9E0
+void func_0014d9e0(u8 *arg0, u8 *arg1) {
+    *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
+}
 // FUN_0014DA10
 void func_0014da10(u8 *arg0, f32 arg1)
 {
