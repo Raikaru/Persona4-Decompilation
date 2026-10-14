@@ -99,7 +99,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
     extern void mdlScale(void *a, void *b, s32 c);
     extern void memcpy(void *dst, void *src, u32 size);
     extern s32 func_00457190(void);
-    extern s32 func_004571c0(void);
+    extern u8 *func_004571c0(void);
     extern void func_003cbf30(s32 a, s32 b);
     extern void func_003e8130(void *a, void *b);
     extern u8 D_0064A648[];
@@ -330,7 +330,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
         func_003e9cb0(*(s32 *)((u8 *)func_004571b0() + 4), matQ, 0);
         *(u8 *)((u8 *)func_004571b0() + 2) = 3;
         (void)func_004571b0();
-        func_003cbf30(func_00457190(), func_004571c0());
+        func_003cbf30(func_00457190(), (s32)func_004571c0());
         func_003e8130(func_00457120(), win);
     }
 }

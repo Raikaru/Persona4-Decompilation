@@ -195,9 +195,9 @@ extern f32 fGpffff802c;
 extern f32 fGpffff8030;
 extern s32 iGpffffba80;
 extern s32 iGpffffba70;
-extern s32 iGpffffba74;
-extern s32 iGpffffba78;
-extern s32 iGpffffba7c;
+extern u8 *iGpffffba74;
+extern u8 *iGpffffba78;
+extern u8 *iGpffffba7c;
 extern s8 iGpffffba84;
 extern s8 iGpffffba85;
 extern s8 iGpffffba86;
@@ -1381,7 +1381,7 @@ void func_00456e40(void) {
         func_003c38b0(parent, D_00711800);
         func_003cbe80(obj, parent);
     }
-    iGpffffba74 = (s32)parent;
+    iGpffffba74 = parent;
     parent = (u8 *)iGpffffba70;
     if ((slot = func_003c3d20(1)) != NULL) {
         if ((obj = func_003e9320()) != NULL) {
@@ -1398,7 +1398,7 @@ void func_00456e40(void) {
 loop_00456e40_second_done:
         slot = NULL;
     }
-    iGpffffba78 = (s32)slot;
+    iGpffffba78 = slot;
     parent = (u8 *)iGpffffba70;
     if ((slot = func_003c3d20(1)) != NULL) {
         if ((obj = func_003e9320()) != NULL) {
@@ -1416,7 +1416,7 @@ loop_00456e40_second_done:
 loop_00456e40_third_done:
         slot = NULL;
     }
-    iGpffffba7c = (s32)slot;
+    iGpffffba7c = slot;
     parent = (u8 *)iGpffffba70;
     func_003e8970(work.sp50, func_003e89c0());
     if ((obj = func_004574d0(*(s32 *)work.sp50, *(s32 *)(work.sp50 + 4), 1)) != NULL) {
@@ -1474,19 +1474,19 @@ s32 func_00457190(void)
 }
 
 // FUN_004571A0
-s32 func_004571a0(void)
+u8 *func_004571a0(void)
 {
     return iGpffffba74;
 }
 
 // FUN_004571B0
-s32 func_004571b0(void)
+u8 *func_004571b0(void)
 {
     return iGpffffba78;
 }
 
 // FUN_004571C0
-s32 func_004571c0(void)
+u8 *func_004571c0(void)
 {
     return iGpffffba7c;
 }
