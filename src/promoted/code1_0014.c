@@ -8,6 +8,7 @@
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
 #include "field_light_internal.h"
+#include "resrc_manager_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "rw/plcore/barenderstate.h"
 
@@ -2642,8 +2643,9 @@ void MT_Scene_DeleteRes(u16 resTypeId) {
     u8 *slotHandleB;
     u8 *handle290;
     u8 *handle144Case6;
-    u8 *slotHandleAddr;
-    u8 *resourceRecord;
+    void **slotHandleAddr;
+    ResrcRecord *resourceRecord;
+
     resourceOwner = *(u8 **)(iGpffff9db0 + 8);
     if (resourceOwner == NULL) {
         func_00440b68(&D_005EF820);
@@ -2652,141 +2654,141 @@ void MT_Scene_DeleteRes(u16 resTypeId) {
     if (resourceOwner == NULL) {
         resourceRecord = NULL;
     } else {
-        resourceRecord = func_00147530(resourceOwner, resTypeId);
+        resourceRecord = (ResrcRecord *)func_00147530(resourceOwner, resTypeId);
     }
     if (resourceRecord != NULL) {
-        resourceKind = (*(u16 *)(resourceRecord + 0) & 0xFFC00) >> 0xA;
-            switch (resourceKind) {
-            case 1:
-                handle164 = *(u8 **)(resourceRecord + 0x164);
-                func_00452080(*(s32 *)(resourceRecord + 0x220));
-                *(s32 *)(resourceRecord + 0x220) = 0;
-                *(s32 *)(resourceRecord + 0x224) = 0;
-                *(s32 *)(resourceRecord + 0x164) = 0;
-                slotValue = 0;
-                while (slotValue < 2) {
-                    slotAddr = resourceRecord + slotValue * 4;
-                    slotHandleAddr = slotAddr + 0x140;
-                    slotHandle = *(u8 **)(slotAddr + 0x140);
-                    if (slotHandle != NULL) {
-                        func_004b1150((s32)slotHandle);
-                        *(s32 *)slotHandleAddr = 0;
-                    }
-                    slotValue += 1;
+        resourceKind = RESRC_GET_TYPE(resourceRecord->resTypeId);
+        switch (resourceKind) {
+        case RESRC_TYPE_MODELCHAR:
+            handle164 = resourceRecord->modelHandle164;
+            func_00452080(resourceRecord->handle220);
+            resourceRecord->handle220 = 0;
+            resourceRecord->handle224 = 0;
+            resourceRecord->modelHandle164 = NULL;
+            slotValue = 0;
+            while (slotValue < 2) {
+                slotAddr = (u8 *)resourceRecord + slotValue * 4;
+                slotHandleAddr = (void **)(slotAddr + 0x140);
+                slotHandle = *slotHandleAddr;
+                if (slotHandle != NULL) {
+                    func_004b1150((s32)slotHandle);
+                    *slotHandleAddr = NULL;
                 }
-                handle228 = *(u8 **)(resourceRecord + 0x228);
-                if (handle228 != NULL) {
-                    func_004787e0((s32)handle228);
-                    *(s32 *)(resourceRecord + 0x228) = 0;
-                }
-                func_00440b68(&D_005EF890, handle164);
-                break;
-            case 2:
-                handle158 = *(u8 **)(resourceRecord + 0x158);
-                func_004787e0((s32)handle158);
-                *(s32 *)(resourceRecord + 0x158) = 0;
-                func_00440b68(&D_005EF890, handle158);
-                break;
-            case 3:
-                slotValue = (s32)*(u8 **)(resourceRecord + 0x164);
-                handle228Case3 = *(u8 **)(resourceRecord + 0x228);
-                if (handle228Case3 != NULL) {
-                    func_00452080((s32)handle228Case3);
-                    *(s32 *)(resourceRecord + 0x228) = 0;
-                }
-                *(s32 *)(resourceRecord + 0x230) = 0;
-                *(s32 *)(resourceRecord + 0x294) = 0;
-                handle22C = *(u8 **)(resourceRecord + 0x22C);
-                if (handle22C != NULL) {
-                    func_004787e0((s32)handle22C);
-                    *(s32 *)(resourceRecord + 0x22C) = 0;
-                }
-                func_004787e0((s32)slotValue);
-                *(s32 *)(resourceRecord + 0x164) = 0;
-                slotIndex = 0;
-                while (slotIndex < 2) {
-                    slotAddrB = resourceRecord + slotIndex * 4;
-                    slotHandleAddr = slotAddrB + 0x140;
-                    slotHandleB = *(u8 **)(slotAddrB + 0x140);
-                    if (slotHandleB != NULL) {
-                        func_004b1150((s32)slotHandleB);
-                        *(s32 *)slotHandleAddr = 0;
-                    }
-                    slotIndex += 1;
-                }
-                value288 = *(s32 *)(resourceRecord + 0x288);
-                if (value288 != 0) {
-                    jtbl_008873EC[0]((u8 *)value288);
-                }
-                handle290 = *(u8 **)(resourceRecord + 0x290);
-                if (handle290 != NULL) {
-                    func_00452080((s32)handle290);
-                }
-                value360 = *(s32 *)(resourceRecord + 0x360);
-                if (value360 != 0) {
-                    func_003bbb60(value360);
-                }
-                func_00440b68(&D_005EF890, (u8 *)slotValue);
-                break;
-            case 6:
-                handle144Case6 = *(u8 **)(resourceRecord + 0x144);
-                if (handle144Case6 != NULL) {
-                    func_00268b20(handle144Case6);
-                    *(s32 *)(resourceRecord + 0x144) = 0;
-                    func_00440b68(&D_005EF8B0, resourceRecord);
-                }
-                break;
-            case 10:
-                handle144 = *(u8 **)(resourceRecord + 0x144);
-                func_004787e0((s32)handle144);
-                *(s32 *)(resourceRecord + 0x144) = 0;
-                handle16C = *(u8 **)(resourceRecord + 0x16C);
-                if (handle16C != NULL) {
-                    func_004787e0((s32)handle16C);
-                    *(s32 *)(resourceRecord + 0x16C) = 0;
-                }
-                func_00440b68(&D_005EF8D0, handle144);
-                break;
-            case 11:
-                handle144Case11 = *(u8 **)(resourceRecord + 0x144);
-                if (handle144Case11 != NULL) {
-                    func_004b1150((s32)handle144Case11);
-                    *(s32 *)(resourceRecord + 0x144) = 0;
-                    func_00440b68(&D_005EF8F0, resourceRecord);
-                }
-                break;
-            case 12:
-                value1A0 = *(s32 *)(resourceRecord + 0x1A0);
-                if (value1A0 != 0) {
-                    func_00151f80((void *)value1A0);
-                    *(s32 *)(resourceRecord + 0x1A0) = 0;
-                    func_00440b68(&D_005EF910, resourceRecord);
-                }
-                break;
-            case 13:
-            case 21:
-                func_00440b68(&D_005EF930, resourceRecord);
-                break;
-            case 14:
-            case 15:
-            case 16:
-                func_00440b68(&D_005EF950, resourceRecord);
-                break;
-            case 20:
-                func_003e0f40(*(s32 *)(resourceRecord + 0x148));
-                func_003e0f40(*(s32 *)(resourceRecord + 0x14C));
-                func_00440b68(&D_005EF970, resourceRecord);
-                break;
-            case 4:
-            case 5:
-            case 7:
-            case 8:
-            case 9:
-            case 17:
-            case 18:
-            case 19:
-            ;
+                slotValue += 1;
             }
+            handle228 = resourceRecord->handle228;
+            if (handle228 != NULL) {
+                func_004787e0((s32)handle228);
+                resourceRecord->handle228 = NULL;
+            }
+            func_00440b68(&D_005EF890, handle164);
+            break;
+        case RESRC_TYPE_MODELUNK:
+            handle158 = resourceRecord->modelHandle158;
+            func_004787e0((s32)handle158);
+            resourceRecord->modelHandle158 = NULL;
+            func_00440b68(&D_005EF890, handle158);
+            break;
+        case RESRC_TYPE_MODELNPC:
+            slotValue = (s32)resourceRecord->modelHandle164;
+            handle228Case3 = resourceRecord->handle228;
+            if (handle228Case3 != NULL) {
+                func_00452080((s32)handle228Case3);
+                resourceRecord->handle228 = NULL;
+            }
+            resourceRecord->handle230 = 0;
+            resourceRecord->handle294 = 0;
+            handle22C = resourceRecord->handle22C;
+            if (handle22C != NULL) {
+                func_004787e0((s32)handle22C);
+                resourceRecord->handle22C = NULL;
+            }
+            func_004787e0((s32)slotValue);
+            resourceRecord->modelHandle164 = NULL;
+            slotIndex = 0;
+            while (slotIndex < 2) {
+                slotAddrB = (u8 *)resourceRecord + slotIndex * 4;
+                slotHandleAddr = (void **)(slotAddrB + 0x140);
+                slotHandleB = *slotHandleAddr;
+                if (slotHandleB != NULL) {
+                    func_004b1150((s32)slotHandleB);
+                    *slotHandleAddr = NULL;
+                }
+                slotIndex += 1;
+            }
+            value288 = resourceRecord->handle288;
+            if (value288 != 0) {
+                jtbl_008873EC[0]((u8 *)value288);
+            }
+            handle290 = resourceRecord->handle290;
+            if (handle290 != NULL) {
+                func_00452080((s32)handle290);
+            }
+            value360 = resourceRecord->handle360;
+            if (value360 != 0) {
+                func_003bbb60(value360);
+            }
+            func_00440b68(&D_005EF890, (u8 *)slotValue);
+            break;
+        case RESRC_TYPE_06:
+            handle144Case6 = resourceRecord->slotHandle[1];
+            if (handle144Case6 != NULL) {
+                func_00268b20(handle144Case6);
+                resourceRecord->slotHandle[1] = NULL;
+                func_00440b68(&D_005EF8B0, resourceRecord);
+            }
+            break;
+        case RESRC_TYPE_MODELFLD:
+            handle144 = resourceRecord->slotHandle[1];
+            func_004787e0((s32)handle144);
+            resourceRecord->slotHandle[1] = NULL;
+            handle16C = resourceRecord->handle16C;
+            if (handle16C != NULL) {
+                func_004787e0((s32)handle16C);
+                resourceRecord->handle16C = NULL;
+            }
+            func_00440b68(&D_005EF8D0, handle144);
+            break;
+        case RESRC_TYPE_11:
+            handle144Case11 = resourceRecord->slotHandle[1];
+            if (handle144Case11 != NULL) {
+                func_004b1150((s32)handle144Case11);
+                resourceRecord->slotHandle[1] = NULL;
+                func_00440b68(&D_005EF8F0, resourceRecord);
+            }
+            break;
+        case RESRC_TYPE_FLD:
+            value1A0 = resourceRecord->handle1A0;
+            if (value1A0 != 0) {
+                func_00151f80((void *)value1A0);
+                resourceRecord->handle1A0 = 0;
+                func_00440b68(&D_005EF910, resourceRecord);
+            }
+            break;
+        case RESRC_TYPE_FLDHIT:
+        case RESRC_TYPE_21:
+            func_00440b68(&D_005EF930, resourceRecord);
+            break;
+        case RESRC_TYPE_14:
+        case RESRC_TYPE_15:
+        case RESRC_TYPE_16:
+            func_00440b68(&D_005EF950, resourceRecord);
+            break;
+        case RESRC_TYPE_20:
+            func_003e0f40(resourceRecord->cameraRes[0]);
+            func_003e0f40(resourceRecord->cameraRes[1]);
+            func_00440b68(&D_005EF970, resourceRecord);
+            break;
+        case RESRC_TYPE_LIGHTCHAR:
+        case RESRC_TYPE_LIGHTNPC:
+        case RESRC_TYPE_07:
+        case RESRC_TYPE_08:
+        case RESRC_TYPE_09:
+        case RESRC_TYPE_17:
+        case RESRC_TYPE_18:
+        case RESRC_TYPE_19:
+            ;
+        }
         func_00147430(resourceOwner, resourceRecord);
     }
 }
