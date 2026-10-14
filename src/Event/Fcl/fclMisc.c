@@ -21,7 +21,7 @@ extern u32 fclMiscCloseHandle();
 extern void func_002777f0();
 
 /* measured: s8 here regresses fclMiscUpdateHandle (its "< 0" test); s32 is kept. */
-extern s32 func_00276e10(s32);
+extern s32 func_00276e10(s32); /* lint: allow H011 -- measured: s8 regresses fclMiscUpdateHandle ("< 0" test); retail consumes the full register */
 
 // Donor calls these implicitly (no prototypes), so keep old-style forms.
 extern void func_00276e70();
