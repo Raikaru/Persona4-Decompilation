@@ -118,11 +118,11 @@ void func_00481360(u8 *arg0)
 // FUN_00481390
 void func_00481390(u8 *arg0)
 {
-    u8 *temp_2 = func_003ef2e0((u8 *)func_00464100(arg0, 1));
-    s32 temp_4 = (*(s32 *)(temp_2 + 0x50) & ~0xFF) | 2;
+    u8 *obj = func_003ef2e0((u8 *)func_00464100(arg0, 1));
+    s32 flags = (*(s32 *)(obj + 0x50) & ~0xFF) | 2;
 
-    *(s32 *)(temp_2 + 0x50) = temp_4;
-    *(s32 *)(temp_2 + 0x50) = (temp_4 & 0xFFFF00FF) | 0x1100;
+    *(s32 *)(obj + 0x50) = flags;
+    *(s32 *)(obj + 0x50) = (flags & 0xFFFF00FF) | 0x1100;
 }
 
 // FUN_004813F0
