@@ -578,56 +578,56 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
  s32 func_0033d9d0(u8 *arg0)
  {
      D9D0Locals locals;
-     s32 temp_4_2;
-     s8 temp_4;
-     u8 *temp_16;
-     u8 *temp_17;
-     u8 *temp_17_2;
+     s32 taskHandle;
+     s8 state;
+     u8 *work;
+     u8 *view;
+     u8 *viewRec;
 
-     temp_16 = *(u8 **)(arg0 + 0x38);
-     temp_4 = *(s8 *)temp_16;
-     switch (temp_4) {
+     work = *(u8 **)(arg0 + 0x38);
+     state = *(s8 *)work;
+     switch (state) {
      case 0:
-         *(s32 *)(temp_16 + 4) = func_00293ed0(
-             0x5A, *(s8 *)(temp_16 + 0x10) + 1, 0, 0);
-         *(s8 *)temp_16 = *(s8 *)temp_16 + 1;
+         *(s32 *)(work + 4) = func_00293ed0(
+             0x5A, *(s8 *)(work + 0x10) + 1, 0, 0);
+         *(s8 *)work = *(s8 *)work + 1;
      default:
          goto out;
      case 1:
-         if ((func_00293fc0(*(s32 *)(temp_16 + 4)) != 0) &&
-             (func_002940a0(*(s32 *)(temp_16 + 4), &locals.sp3c,
+         if ((func_00293fc0(*(s32 *)(work + 4)) != 0) &&
+             (func_002940a0(*(s32 *)(work + 4), &locals.sp3c,
                             &locals.sp38, &locals.sp34, &locals.sp30) == 1)) {
              func_00144c90(locals.sp3c, locals.sp38);
              func_00144e10(locals.sp34);
              func_00144ed0(3);
-             *(s8 *)temp_16 = *(s8 *)temp_16 + 1;
+             *(s8 *)work = *(s8 *)work + 1;
          }
          goto out;
      case 2:
          if (func_00144f60() != 0) {
-             *(s32 *)(temp_16 + 8) = func_002859e0(
-                 0x5A, *(s8 *)(temp_16 + 0x10) + 1, 0);
-             *(s32 *)(temp_16 + 0xC) = func_0033de90(arg0, 0x58);
-             *(s8 *)temp_16 = *(s8 *)temp_16 + 1;
+             *(s32 *)(work + 8) = func_002859e0(
+                 0x5A, *(s8 *)(work + 0x10) + 1, 0);
+             *(s32 *)(work + 0xC) = func_0033de90(arg0, 0x58);
+             *(s8 *)work = *(s8 *)work + 1;
          }
          goto out;
      case 3:
-         if (func_00452490(*(s32 *)(temp_16 + 8)) != 1) {
-             temp_4_2 = *(s32 *)(temp_16 + 4);
-             if (temp_4_2 != 0) {
-                 func_00452080(temp_4_2);
+         if (func_00452490(*(s32 *)(work + 8)) != 1) {
+             taskHandle = *(s32 *)(work + 4);
+             if (taskHandle != 0) {
+                 func_00452080(taskHandle);
              }
-             *(s8 *)temp_16 = *(s8 *)temp_16 + 1;
+             *(s8 *)work = *(s8 *)work + 1;
          }
          goto out;
      case 4:
      case 5:
-         *(s8 *)temp_16 = (s8)(temp_4 + 1);
+         *(s8 *)work = (s8)(state + 1);
          goto out;
      case 6:
          func_00144c90(8, 3);
          func_00144e10(1);
-         *(s8 *)temp_16 = *(s8 *)temp_16 + 1;
+         *(s8 *)work = *(s8 *)work + 1;
          goto out;
      case 7:
          if (func_00144f60() == 0) {
@@ -636,12 +636,12 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          if (func_0015f660() == 0) {
              goto out;
          }
-         temp_17 = func_00457120();
-         K_View_SetFov(temp_17, func_0014b4d0());
-         temp_17_2 = func_00457120();
-         func_003e9cb0(*(s32 *)(temp_17_2 + 4), func_0014b450(), 0);
+         view = func_00457120();
+         K_View_SetFov(view, func_0014b4d0());
+         viewRec = func_00457120();
+         func_003e9cb0(*(s32 *)(viewRec + 4), func_0014b450(), 0);
          func_00122640(1, 0xA);
-         *(s8 *)temp_16 = *(s8 *)temp_16 + 1;
+         *(s8 *)work = *(s8 *)work + 1;
      case 8:
          if (func_00122720() != 0) {
              return -1;
@@ -742,16 +742,16 @@ void func_0033e4b0(u8 *arg0)
 // FUN_0033E540
 void func_0033e540(u8 *arg0, F2_0033 arg1, F2_0033 arg2, s16 arg3, s16 arg4)
 {
-    u8 *temp_4;
+    u8 *work;
 
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    *(F2_0033 *)(temp_4 + 0x1C) = arg1;
-    *(F2_0033 *)(temp_4 + 0x0C) = *(F2_0033 *)(temp_4 + 0x1C);
-    *(F2_0033 *)(temp_4 + 0x14) = arg2;
-    *(s16 *)(temp_4 + 0x24) = arg3;
-    *(s16 *)(temp_4 + 0x26) = 0;
-    *(s16 *)(temp_4 + 0x28) = arg4;
-    *(s8 *)temp_4 = 2;
+    work = *(u8 **)(arg0 + 0x38);
+    *(F2_0033 *)(work + 0x1C) = arg1;
+    *(F2_0033 *)(work + 0x0C) = *(F2_0033 *)(work + 0x1C);
+    *(F2_0033 *)(work + 0x14) = arg2;
+    *(s16 *)(work + 0x24) = arg3;
+    *(s16 *)(work + 0x26) = 0;
+    *(s16 *)(work + 0x28) = arg4;
+    *(s8 *)work = 2;
 }
 // FUN_0033E5A0
 s32 func_0033e5a0(u8 *arg0)
