@@ -1,4 +1,5 @@
 #include "effect_geometry_internal.h"
+#include "rw_geometry_internal.h"
 /* Original translation unit effPolygonFlash.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
@@ -26,7 +27,6 @@ extern u32 D_00713FB0[];
 extern void func_004833f0();
 extern void (*jtbl_008873EC[])(void *);
 extern void (*D_008873ec[])(void *);
-extern void RpGeometryLock(void *, s32);
 extern void func_003c22f0(void *);
 extern s32 func_00481300(s32);
 extern void func_003c42b0(void *, void *);

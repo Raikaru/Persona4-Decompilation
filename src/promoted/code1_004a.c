@@ -1,4 +1,5 @@
 #include "effect_geometry_internal.h"
+#include "rw_geometry_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -96,7 +97,6 @@ extern void memset(void *dst, s32 value, u32 size);
 extern void func_003c22f0();
 extern u16 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           void *arg4, s32 arg5);
-extern void RpGeometryLock(void *arg0, s32 arg1);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern void func_004a5ef0(u8 *arg0, u8 *arg1);
 extern u8 *func_00483270(s32 arg0);
@@ -590,7 +590,6 @@ void func_004a5fc0(u8 *arg0)
     extern void func_00482ad0(void *arg0, u32 arg1, f32 *arg2);
     extern void func_004839d0(s32 arg0, u32 *arg1);
     extern void func_00483490(void *arg0, s32 arg1);
-    extern void RpGeometryLock(void *arg0, s32 arg1);
     extern void func_003c22f0(void *arg0);
     extern void func_003c42b0(void *arg0, s32 arg1);
     extern f32 cosf(f32 arg0);

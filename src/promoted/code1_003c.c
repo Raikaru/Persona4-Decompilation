@@ -1,4 +1,5 @@
 #include "Kosaka/k_clump_internal.h"
+#include "rw_geometry_internal.h"
 #include "include_asm.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])();
@@ -11,7 +12,6 @@ extern s32 func_003c2bd0(u8 *arg0);
 extern s32 func_003c4c00(u8 *arg0);
 extern s32 func_003c4a80(u8 *arg0, s32 arg1);
 extern s32 func_003c4bc0(u8 *arg0, s32 arg1);
-extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern u8 *func_003c49a0(u8 *arg0);
 extern s32 func_003ce2e0(u8 *arg0);
 extern s32 func_003c2c90(u8 *arg0);

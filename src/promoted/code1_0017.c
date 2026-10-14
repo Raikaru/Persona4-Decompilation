@@ -1,4 +1,5 @@
 #include "mt_scene_internal.h"
+#include "rw_geometry_internal.h"
 #include "field_transition_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
@@ -102,7 +103,6 @@ extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32
 extern f32 sinf(f32 arg0);
 extern f32 cosf(f32 arg0);
 extern f32 iGpffff8304;
-extern void RpGeometryLock(u8 *arg0, s32 arg1);
 extern struct RpGeometry *func_003c22f0(struct RpGeometry *geometry);
 extern u8 *func_0046a770(char *arg0);
 extern char D_005E5850[];

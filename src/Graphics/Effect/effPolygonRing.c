@@ -1,4 +1,5 @@
 #include "effect_geometry_internal.h"
+#include "rw_geometry_internal.h"
 /* Original translation unit effPolygonRing.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "effect_instance_internal.h"
@@ -47,7 +48,6 @@ extern s32 D_00713F24[];
 extern u32 D_00713F14[];
 extern u32 D_00713F10[];
 extern void func_0049a6c0(void *arg0);
-extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern void func_003c22f0(void *arg0);
 extern f32 cosf(f32 arg0);
 extern f32 sinf(f32 arg0);

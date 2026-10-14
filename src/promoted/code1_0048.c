@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "rw_geometry_internal.h"
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
@@ -50,7 +51,6 @@ s32 func_00481460(s32 arg0);
 extern void func_00460ac0(s32 arg0, void *arg1);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
-extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern u8 *func_003c22f0(u8 *arg0);
 extern u8 *func_00483a00(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00481390(s32 arg0);
