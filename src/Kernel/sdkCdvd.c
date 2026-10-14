@@ -7,7 +7,7 @@ extern u8 D_008C0780[];
 extern u8 D_008C0880[];
 extern u8 D_005BC790[];
 void H_Cdvd_BuildPathUppercase(void* a0, void* a1);
-void func_00454e10(void* a0, void* a1, void* a2);
+void H_Cdvd_SplitPath(void* a0, void* a1, void* a2);
 s32 func_004c74f8(void* a0, void* a1, void* a2, void* a3);
 void memcpy(void* dst, void* src, u32 size);
 typedef void *ADXF;
@@ -71,8 +71,8 @@ void func_00454640(void)
 {
     extern void func_00468a50(void);
     extern void func_00468d10(void);
-    extern void func_00455230(void *arg0);
-    extern void func_00455b70(void *arg0);
+    extern void H_Cdvd_SelectDirectory(void *arg0);
+    extern void H_Cdvd_ParseArchive(void *arg0);
     extern ADXF func_004c85a0(void *name, s32 mode);
     extern void func_004c8a60(ADXF handle);
     extern s32 func_004c9010(ADXF handle, s32 count, void *buffer);
@@ -110,7 +110,7 @@ loop:
         switch (node->readState) {
         case 0:
             node->readPollCount = 0;
-            func_00455230(node->dir);
+            H_Cdvd_SelectDirectory(node->dir);
             node->adxf = func_004c85a0(node->fileName, 0);
             handle = node->adxf;
             if (handle == NULL) {
@@ -176,7 +176,7 @@ loop:
             }
 do_state3:
         case 3:
-            func_00455b70(&node->hasExternalMemory);
+            H_Cdvd_ParseArchive(&node->hasExternalMemory);
             node->readState = 4;
             func_004c8a60(node->adxf);
             node->adxf = NULL;
@@ -328,11 +328,11 @@ s32 func_003dd900(s32 a0);
 void func_0044ea90(const void* file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void H_Cdvd_StreamGetSlot(void);
-extern void func_004556f0(void);
-extern void func_004553e0(void);
-extern void func_00455520(void);
-extern void func_004555b0(void);
-extern void func_00455720(void);
+extern void H_Cdvd_StreamContextFree(void);
+extern void H_Cdvd_StreamAttachCacheEntry(void);
+extern void H_Cdvd_StreamReadChunk(void);
+extern void H_Cdvd_StreamAtEnd(void);
+extern void H_Cdvd_IsCached(void);
 extern char D_00711658[];
 s32 func_003dd290(void* a0, s32 a1, s32 a2, s32 a3);
 void func_003dd760(s32 a0);
@@ -376,13 +376,13 @@ u8* func_004557e0(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
     base = (u32)D_008873F4;
     obj = ((u8* (*)(s32, s32, s32))*(u32*)base)(1, 0x5C, 0x40000);
     *(void**)(obj + 0x14) = &H_Cdvd_StreamGetSlot;
-    *(void**)(obj + 0x18) = &func_004556f0;
-    *(void**)(obj + 0x28) = &func_004553e0;
+    *(void**)(obj + 0x18) = &H_Cdvd_StreamContextFree;
+    *(void**)(obj + 0x28) = &H_Cdvd_StreamAttachCacheEntry;
     *(void**)(obj + 0x2C) = &func_00455510;
-    *(void**)(obj + 0x30) = &func_00455520;
-    *(void**)(obj + 0x44) = &func_004555b0;
+    *(void**)(obj + 0x30) = &H_Cdvd_StreamReadChunk;
+    *(void**)(obj + 0x44) = &H_Cdvd_StreamAtEnd;
     *(void**)(obj + 0x38) = &func_004555d0;
-    *(void**)(obj + 0x4C) = &func_00455720;
+    *(void**)(obj + 0x4C) = &H_Cdvd_IsCached;
     func_0044ea90(D_00710870, 0x430);
     sub = ((u8* (*)(s32, s32, s32))*(u32*)base)(arg0, 0x110, 0x40000);
     *(void**)(obj + 0x58) = sub;
@@ -527,7 +527,7 @@ s32 func_00455f70(s32 arg0, s32* arg1) {
 // FUN_00456250
 s32 func_00456250(s32 arg0, void* arg1, s32 arg2, void* arg3) {
     H_Cdvd_BuildPathUppercase(arg1, D_008C0680);
-    func_00454e10(D_008C0680, D_008C0780, D_008C0880);
+    H_Cdvd_SplitPath(D_008C0680, D_008C0780, D_008C0880);
     func_004c74f8((void*)arg0, D_008C0780, D_005BC790, arg3);
     return 0;
 }

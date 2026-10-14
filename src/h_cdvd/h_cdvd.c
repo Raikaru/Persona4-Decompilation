@@ -7,8 +7,8 @@
  * sites use these named forms). */
 extern void H_Cdvd_BuildPathUppercase(const char* src, char* dst);
 extern void H_Cdvd_NormalizePath(const char* src, char* dst);
-extern void func_00454e10(const char* path, char* fileName, char* directory);
-extern void func_00455230(const char* directory);
+extern void H_Cdvd_SplitPath(const char* path, char* fileName, char* directory);
+extern void H_Cdvd_SelectDirectory(const char* directory);
 
 extern void strcpy(char* destination, const char* source);
 extern u32 strlen(const char* text);
@@ -111,8 +111,8 @@ u32 H_Cdvd_FileExists(const char* path)
     func_00440b68(" Exist %s\n", path);
     H_Cdvd_BuildPathUppercase(path, unusedUppercasePath);
     H_Cdvd_BuildPathUppercase(path, uppercasePath);
-    func_00454e10(uppercasePath, fileName, directory);
-    func_00455230(directory);
+    H_Cdvd_SplitPath(uppercasePath, fileName, directory);
+    H_Cdvd_SelectDirectory(directory);
 
     adxf = func_004c85a0(fileName, 0);
     if (adxf == NULL)
@@ -238,8 +238,9 @@ void H_Cdvd_BuildPathUppercase(const char* src, char* dst)
 /* Removing this loses FUN_00454E10 (MATCH nd0 -> MISMATCH nd29) - measured W161. */
 
 #pragma opt_loop_invariants on
+/* Splits `path` into a VOL: file name and its directory part. */
 // FUN_00454E10
-void func_00454e10(const char* path, char* fileNameDst, char* dirDst)
+void H_Cdvd_SplitPath(const char* path, char* fileNameDst, char* dirDst)
 {
     /* Separate pointer objects in the two path builders share the VOL string. */
     static const char* volumePrefix = "VOL:";
@@ -408,8 +409,9 @@ advance:
 
 
 
+/* Selects the directory `dir` by running its command sequence from the table. */
 // FUN_00455230
-void func_00455230(const char* dir)
+void H_Cdvd_SelectDirectory(const char* dir)
 {
     char normalized[256];
     s16 i;
@@ -473,8 +475,9 @@ u32 H_Cdvd_IsFileLoaded(HCdvd* cdvd)
 
 
 
+/* Attaches a stream slot to a cached file entry; returns 1 when found, 2 otherwise. */
 // FUN_004553E0
-s32 func_004553e0(void* unused, void* slotData, uintptr_t pathOrMode)
+s32 H_Cdvd_StreamAttachCacheEntry(void* unused, void* slotData, uintptr_t pathOrMode)
 {
     char uppercasePath[256];
     char normalizedPath[256];
@@ -514,8 +517,9 @@ s32 func_004553e0(void* unused, void* slotData, uintptr_t pathOrMode)
 
 
 
+/* Copies up to `size` bytes from the slot's in-memory file; returns the byte count. */
 // FUN_00455520
-u32 func_00455520(void* slotData, void* dst, u32 size)
+u32 H_Cdvd_StreamReadChunk(void* slotData, void* dst, u32 size)
 {
     struct HCdvdStreamData
     {
@@ -548,8 +552,9 @@ read_file:
 
 
 
+/* Returns -1 when the slot's read offset has reached the end of its file, 0 otherwise. */
 // FUN_004555B0
-u32 func_004555b0(void* slotData)
+u32 H_Cdvd_StreamAtEnd(void* slotData)
 {
     u8* data = (u8*)slotData + 0x70;
     return -(*(s32*)(data + 0x8c) <= *(s32*)(data + 0x90));
@@ -567,8 +572,9 @@ u8* H_Cdvd_StreamGetSlot(HCdvdStreamContext* context, u32 index)
     return NULL;
 }
 
+/* Frees the slot array of a stream context. */
 // FUN_004556F0
-void func_004556f0(void* contextData)
+void H_Cdvd_StreamContextFree(void* contextData)
 {
     HCdvdStreamContext* context = (HCdvdStreamContext*)contextData;
     HCDVD_FREE(context->slots);
@@ -576,8 +582,9 @@ void func_004556f0(void* contextData)
 
 
 
+/* Reports whether `path` names an entry in the cdvd cache table. */
 // FUN_00455720
-s32 func_00455720(void* unused, const char* path)
+s32 H_Cdvd_IsCached(void* unused, const char* path)
 {
     char uppercasePath[256];
     char normalizedPath[256];
@@ -608,8 +615,9 @@ s32 func_00455720(void* unused, const char* path)
  * preserves the archive scan's constants and field addresses. */
 #pragma opt_loop_invariants on
 
+/* Parses a file request: a whole file is read directly, an archive is walked entry by entry. */
 // FUN_00455B70
-void func_00455b70(void* requestData)
+void H_Cdvd_ParseArchive(void* requestData)
 {
     struct
     {
@@ -725,8 +733,9 @@ outer_check:
 
 
 
+/* Returns the name of archive entry `entryIndex`, or NULL past the end. */
 // FUN_00456090
-const char* func_00456090(HCdvd* cdvd, s32 entryIndex)
+const char* H_Cdvd_ArchiveEntryName(HCdvd* cdvd, s32 entryIndex)
 {
     s32 i;
     u8* entry;
@@ -770,16 +779,17 @@ void H_Cdvd_ReadSync(HCdvd* cdvd)
 
 
 
+/* Starts a movie playback on `handle`, synchronously or through the async loader. */
 // FUN_004561A0
-void func_004561a0(void* handle, const char* path, s32 synchronous)
+void H_Cdvd_StartPlayback(void* handle, const char* path, s32 synchronous)
 {
     static char uppercasePath[256];
     static char fileName[256];
     static char directory[256];
 
     H_Cdvd_BuildPathUppercase(path, uppercasePath);
-    func_00454e10(uppercasePath, fileName, directory);
-    func_00455230(directory);
+    H_Cdvd_SplitPath(uppercasePath, fileName, directory);
+    H_Cdvd_SelectDirectory(directory);
     if (synchronous)
     {
         mwPlyStartFnameLp(handle, fileName);
@@ -792,8 +802,9 @@ void func_004561a0(void* handle, const char* path, s32 synchronous)
 
 
 
+/* Opens the file at `path` on the stream object. */
 // FUN_004562E0
-void func_004562e0(void* handle, const char* path)
+void H_Cdvd_StreamOpenByPath(void* handle, const char* path)
 {
     static char uppercasePath[256];
     static char fileName[256];
@@ -802,16 +813,17 @@ void func_004562e0(void* handle, const char* path)
 
     stream = func_004d9020();
     H_Cdvd_BuildPathUppercase(path, uppercasePath);
-    func_00454e10(uppercasePath, fileName, directory);
-    func_00455230(directory);
+    H_Cdvd_SplitPath(uppercasePath, fileName, directory);
+    H_Cdvd_SelectDirectory(directory);
     func_004d6f78(stream, fileName);
     (void)handle;
 }
 
 
 
+/* Opens the file at `path` on the given handle. */
 // FUN_00456370
-void func_00456370(void* handle, const char* path)
+void H_Cdvd_StreamOpenHandle(void* handle, const char* path)
 {
     static char uppercasePath[256];
     static char fileName[256];
@@ -819,15 +831,16 @@ void func_00456370(void* handle, const char* path)
 
     func_004d9020();
     H_Cdvd_BuildPathUppercase(path, uppercasePath);
-    func_00454e10(uppercasePath, fileName, directory);
-    func_00455230(directory);
+    H_Cdvd_SplitPath(uppercasePath, fileName, directory);
+    H_Cdvd_SelectDirectory(directory);
     func_004d8d30(handle, fileName);
 }
 
 
 
+/* Reads up to `size` bytes from the slot's file descriptor and marks the slot state 3. */
 // FUN_004568A0
-s32 func_004568a0(void* slot, void* dst, u32 size)
+s32 H_Cdvd_SlotRead(void* slot, void* dst, u32 size)
 {
     s32 amount;
 
@@ -844,8 +857,9 @@ s32 func_004568a0(void* slot, void* dst, u32 size)
 
 
 
+/* Writes `size` bytes to the slot's file descriptor and advances its position. */
 // FUN_00456930
-s32 func_00456930(void* slot, void* dst, u32 size)
+s32 H_Cdvd_SlotWrite(void* slot, void* dst, u32 size)
 {
     s32 amount;
 
@@ -861,8 +875,9 @@ s32 func_00456930(void* slot, void* dst, u32 size)
 
 
 
+/* Seeks the slot's file: mode 1 sets, 2 adds, 3 subtracts `amount`; clamps at zero. */
 // FUN_004569C0
-void func_004569c0(void* resultData, void* slot, s32 amount, s32 mode)
+void H_Cdvd_SlotSeek(void* resultData, void* slot, s32 amount, s32 mode)
 {
     typedef struct
     {
@@ -921,8 +936,9 @@ common:
 
 
 
+/* Probes whether `path` opens under the base prefix; returns 1 if it does. */
 // FUN_00456AE0
-s32 func_00456ae0(void* unused, const char* path)
+s32 H_Cdvd_ProbeFile(void* unused, const char* path)
 {
     char fullPath[256];
     s32 fd;
@@ -937,8 +953,9 @@ s32 func_00456ae0(void* unused, const char* path)
     }
     return 0;
 }
+/* Returns slot `index` of a file context, or NULL past its count. */
 // FUN_00456b70
-void* func_00456b70(void* contextData, u32 index)
+void* H_Cdvd_FileContextSlot(void* contextData, u32 index)
 {
     s32 i = index;
     HCdvdFileContext* context = (HCdvdFileContext*)contextData;
@@ -953,8 +970,9 @@ void* func_00456b70(void* contextData, u32 index)
 
 
 
+/* Frees the slot array of a file context. */
 // FUN_00456BE0
-void func_00456be0(void* contextData)
+void H_Cdvd_FileContextFree(void* contextData)
 {
     HCdvdFileContext* context = (HCdvdFileContext*)contextData;
     func_004244c8(D_007117a0);

@@ -176,9 +176,9 @@ extern void strcpy();
 extern void H_Cdvd_Destroy(void *handle);
 extern void func_00452080(s32 handle);
 extern void func_00452570(void *parent, void *child);
-extern void func_00456370(void*, const char*);
+extern void H_Cdvd_StreamOpenHandle(void*, const char*);
 extern void func_00456250();
-extern void func_004562e0(void*, const char*);
+extern void H_Cdvd_StreamOpenByPath(void*, const char*);
 extern s32 func_004c7ef8(s32);
 extern void func_004ccb50(void);
 extern void func_004d5440(s32);
@@ -634,12 +634,12 @@ s32 func_00459ad0(s32 arg0)
         }
         else if (arg0 != 0)
         {
-            func_00456370((void*)CH_HANDLE(SND_IDX(arg0)),
+            H_Cdvd_StreamOpenHandle((void*)CH_HANDLE(SND_IDX(arg0)),
                          ((char *)&D_008D2B90[arg0] + 0x18));
         }
         else
         {
-            func_004562e0((void*)CH_HANDLE(SND_IDX(arg0)),
+            H_Cdvd_StreamOpenByPath((void*)CH_HANDLE(SND_IDX(arg0)),
                          ((char *)&D_008D2B90[arg0] + 0x18));
         }
         func_004d8e98(CH_HANDLE(SND_IDX(arg0)), 1);
