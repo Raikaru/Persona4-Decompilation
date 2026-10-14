@@ -66,36 +66,37 @@ s32 func_00311930(s32 arg0, u8 *arg1, s8 arg2)
     extern s32 func_00115890(u8 *arg0, s32 arg1);
     extern f32 D_007494D0[];
     extern f32 D_00749500[];
-    f32 temp_f1;
-    f32 temp_f1_2;
-    f32 var_f0;
-    s32 temp_19;
-    s32 var_18;
-    s64 temp_17;
-    s32 var_17;
-    s32 temp_16;
-    s32 var_3;
-    temp_f1 = D_00749500[func_00107ac0(arg0)];
-    temp_19 = (u8)temp_f1;
-    temp_f1_2 = D_00749500[func_00107ac0(arg0)];
-    var_f0 = (f32)(u32)temp_19;
-    temp_17 = (s16)(10.0f * (temp_f1_2 - var_f0));
-    var_18 = 0;
-    var_17 = 0;
-    temp_16 = temp_19 & 0xFF;
-    while ((s16)(s64)var_17 < temp_16) {
-        var_18 = func_00115890(arg1, (u8)var_17);
-        var_17 = (s16)(var_17 + 1);
+    f32 scale;
+    f32 fracScale;
+    f32 wholeF;
+    s32 whole;
+    s32 total;
+    s64 frac10;
+    s32 i;
+    s32 limit;
+    s32 fracDelta;
+
+    scale = D_00749500[func_00107ac0(arg0)];
+    whole = (u8)scale;
+    fracScale = D_00749500[func_00107ac0(arg0)];
+    wholeF = (f32)(u32)whole;
+    frac10 = (s16)(10.0f * (fracScale - wholeF));
+    total = 0;
+    i = 0;
+    limit = whole & 0xFF;
+    while ((s16)(s64)i < limit) {
+        total = func_00115890(arg1, (u8)i);
+        i = (s16)(i + 1);
     }
-    var_3 = (s16)temp_17;
-    if (var_3 != 0) {
-        temp_16 = func_00115890(arg1, (u8)(temp_16 - 1));
-        var_18 += (s32)((s32)var_3 * 10 * ((func_00115890(arg1, temp_19) - temp_16) / 100));
+    fracDelta = (s16)frac10;
+    if (fracDelta != 0) {
+        limit = func_00115890(arg1, (u8)(limit - 1));
+        total += (s32)((s32)fracDelta * 10 * ((func_00115890(arg1, whole) - limit) / 100));
     }
     if ((s8)arg2 == 0) {
-        return var_18;
+        return total;
     }
-    return (s32)((f32)var_18 * D_007494D0[func_00107ac0(arg0)]);
+    return (s32)((f32)total * D_007494D0[func_00107ac0(arg0)]);
 }
 /* measured: b210 -O2 with loop-invariant hoisting gives 364B/368B,
    normalized diff 0; the remaining retail word is zero tail padding.
