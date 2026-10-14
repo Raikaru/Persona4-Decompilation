@@ -43,10 +43,10 @@ extern u8 D_00629720[];
 // FUN_002238F0
 s32 func_002238f0(s64 arg0)
 {
-    s64 temp_2;
+    s64 kind;
 
-    temp_2 = (s16)arg0;
-    switch (temp_2) {
+    kind = (s16)arg0;
+    switch (kind) {
     case 2:
         return 0xE2;
     case 3:
