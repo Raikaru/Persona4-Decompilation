@@ -1385,7 +1385,7 @@ u32 func_001d6010(u32 *param_1)
     u32 unaff_s2_lo;
     u32 unaff_s1_lo;
 
-    if (!func_001d4120((void *)param_1[0])) {
+    if (!func_001d4120(*(u8 **)param_1)) {
         return 0;
     }
     puVar2 = (u16 *)param_1[4];
@@ -1435,14 +1435,14 @@ bool func_001d6170(u32 *param_1)
 {
     int iVar2;
     u16 index;
-    u32 value;
+    u8 *value;
 
-    if (!func_001d4120((void *)*param_1)) {
+    if (!func_001d4120(*(u8 **)param_1)) {
         return false;
     }
     iVar2 = (index = *(u16 *)(param_1 + 3),
-             value = *(u32 *)((u8 *)param_1 + ((u32)index & 0)),
-             func_001d4190((void *)value, index));
+             value = *(u8 **)((u8 *)param_1 + ((u32)index & 0)),
+             func_001d4190(value, index));
     iVar2 <<= 1;
     if (iVar2 < 1) {
         iVar2 = 2;
