@@ -65,8 +65,9 @@ extern struct RpGeometry *func_003c2150(struct RpGeometry *, struct RpTriangle *
 extern struct RpGeometry *func_003c2630(s32 nVtx, s32 nIdx, u32 flags);
 extern void func_004bc540(u8 *work, s32 side, f32 t, u8 *out);
 
+/* Finds the section containing `distance` along the path and the fraction of that section it reaches. */
 // FUN_004B7460
-void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
+void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction) {
     EffAfterVec leadingDelta;
     EffAfterVec trailingDelta;
     u8 *vectorBase;
@@ -795,8 +796,9 @@ u8 *func_004b8350(u8 *arg0, struct RpMaterial *arg1)
     return obj;
 }
 #pragma pop
+/* Allocates the per-section vector buffers sized from arg1's count and stores their pointers in arg0. */
 // FUN_004B8DF0
-void func_004b8df0(u8 *arg0, u8 *arg1) {
+void effAfterAllocVectorBuffers(u8 *arg0, u8 *arg1) {
     u8 *p;
     u8 *q;
     s32 size;
@@ -823,8 +825,9 @@ void func_004b8df0(u8 *arg0, u8 *arg1) {
     *(s16 *)(arg0 + 0x38) = *(s32 *)(arg1 + 0x10);
 }
 
+/* Frees the vector buffer at arg0+0x10. */
 // FUN_004B8F10
-void func_004b8f10(void *arg0) {
+void effAfterFreeVectorBuffers(void *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x10));
 }
 
@@ -1124,17 +1127,17 @@ void func_004b8f40(u8 *work, void **pp)
           }
           if (side == 0) {
             if (jj == 0) {
-              func_004b7460(work,(f32)jj / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),&section,
+              effAfterSectionFraction(work,(f32)jj / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),&section,
                             &fraction);
             }
             else {
-              func_004b7460(work,((f32)jj - 0.5f) /
+              effAfterSectionFraction(work,((f32)jj - 0.5f) /
                                     (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),&section,&fraction
                            );
             }
           }
           else {
-            func_004b7460(work,(f32)jj / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),
+            effAfterSectionFraction(work,(f32)jj / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),
                           &section,&fraction);
           }
           if (section != cache) {
@@ -1250,7 +1253,7 @@ void func_004b8f40(u8 *work, void **pp)
         temp_v9 = 0.5f / temp_v7;
         temp_v6 = 0xffffffff;
         for (temp_v4 = 0; temp_v4 < *(s32 *)((*(u8 **)work) + 0xc);) {
-          func_004b7460(work,temp_v9,&section,&fraction);
+          effAfterSectionFraction(work,temp_v9,&section,&fraction);
           if (section != temp_v6) {
             temp_v6 = section;
             temp_v2 = (*(s32 *)((work) + 0xc) - 1) - section;
@@ -1323,7 +1326,7 @@ void func_004b8f40(u8 *work, void **pp)
       }
       prev = *(EffAfterVec *)(*(u8 **)(work + 0x10) + temp_v1 * 0xc);
       for (temp_v1 = 0; temp_v1 < *(s32 *)((*(u8 **)work) + 0xc);) {
-        func_004b7460(work,temp_v8,&section,&fraction);
+        effAfterSectionFraction(work,temp_v8,&section,&fraction);
         if (section != temp_v6) {
           temp_v6 = section;
           temp_v4 = (*(s32 *)((work) + 0xc) - 1) - section;

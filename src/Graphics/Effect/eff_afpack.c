@@ -45,11 +45,11 @@ extern void func_0046d730(const void* file, s32 line);
 extern void func_003e9390(void* frame);
 extern void func_003c02e0(void* arg);
 extern void func_003c4220(void* arg);
-extern void func_004b8f10(void* arg0);
+extern void effAfterFreeVectorBuffers(void* arg0);
 extern void (*jtbl_008873EC[])(void* ptr);
 extern void func_0044ea90(const void* file, s32 line);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
-extern void func_004b8df0(void* arg0, void* arg1);
+extern void effAfterAllocVectorBuffers(void* arg0, void* arg1);
 extern s32 func_003c4140(void);
 extern void func_003c42b0(void* a, void* b);
 struct RpMaterial;
@@ -380,7 +380,7 @@ u8* func_004b6900(u8* arg0)
         color.c[3] = 0xFE;
         while (i < *(s16*)(arg0 + 4))
         {
-            func_004b8df0(*(u8**)(node + 8) + i * 0x3C,
+            effAfterAllocVectorBuffers(*(u8**)(node + 8) + i * 0x3C,
                           *(u8**)(arg0 + 0xC) + i * 0x18);
             *(s32*)(*(u8**)(node + 0xC) + i * 8 + 4) = func_003c4140();
             {
@@ -572,7 +572,7 @@ void func_004b6e80(void) {
                 work = *(u8 **)(temp + 4);
                 i = 0;
                 while (i < *(s16 *)(*(u8 **)(temp + 4) + 4)) {
-                    func_004b8f10(*(u8 **)(temp + 8) + i * 0x3C);
+                    effAfterFreeVectorBuffers(*(u8 **)(temp + 8) + i * 0x3C);
                     off = i * 8;
                     func_003e9390(*(u8 **)(*(u8 **)(*(u8 **)(temp + 0xC) + off) + 4));
                     func_003c02e0(*(u8 **)(*(u8 **)(temp + 0xC) + off));
@@ -647,7 +647,7 @@ void func_004b7140(s32 arg0)
             var_17 = 0;
             while (var_17 < *(s16*)(*(u8**)(temp_18 + 4) + 4))
             {
-                func_004b8f10(*(u8**)(temp_18 + 8) + var_17 * 0x3C);
+                effAfterFreeVectorBuffers(*(u8**)(temp_18 + 8) + var_17 * 0x3C);
                 temp_16 = var_17 * 8;
                 func_003e9390(*(void**)(*(u8**)(*(u8**)(temp_18 + 0xC) + temp_16) + 4));
                 func_003c02e0(*(u8**)(*(u8**)(temp_18 + 0xC) + temp_16));
