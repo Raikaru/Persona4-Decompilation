@@ -1,5 +1,6 @@
 #include "btl_equipment_count_internal.h"
 #include "datCalc_internal.h"
+#include "datScript_internal.h"
 #include "type.h"
 #include "include_asm.h"
 
@@ -31,7 +32,6 @@ extern s32 func_00232730(u8 *arg0, s32 arg1);
 
 extern u16 func_00232290(DatUnit* unit);
 extern s32 func_00246480(void);
-extern void func_00246450(u32 arg0);
 extern f32 func_00245030(u32 arg0, s32 arg1);
 extern f32 D_00761260;
 extern f32 fGpffff811c;
