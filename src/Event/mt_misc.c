@@ -5,7 +5,7 @@
 
 extern int func_00145250();
 extern int MT_Scene_GetRes();
-extern int func_00146630();
+extern int MT_Scene_DeleteRes();
 extern u16 func_001459b0(u32, int, u64);
 extern void func_00440b68(...);
 extern void func_00269c20(u16, int);
@@ -55,7 +55,7 @@ void func_00291220(int param_1, int param_2, int param_3, u64 param_4)
         sVar1 = *(u16 *)(iVar4 + 0x170);
         if (sVar1 != 0) {
             if (MT_Scene_GetRes(sVar1) != 0) {
-                func_00146630(sVar1);
+                MT_Scene_DeleteRes(sVar1);
             }
             *puVar5 = 0;
         }
@@ -111,7 +111,7 @@ void func_002913d0(int param_1, int param_2)
         sVar1 = *(u16 *)(iVar4 + 0x170);
         if (sVar1 != 0) {
             if (MT_Scene_GetRes(sVar1) != 0) {
-                func_00146630(sVar1);
+                MT_Scene_DeleteRes(sVar1);
                 func_00440b68(DAT_0063c8c0);
             }
             *puVar5 = 0;
@@ -137,7 +137,7 @@ void func_00291470(int param_1)
             sVar1 = *(u16 *)(iVar3 + 0x170);
             if (sVar1 != 0) {
                 if (MT_Scene_GetRes(sVar1) != 0) {
-                    func_00146630(sVar1);
+                    MT_Scene_DeleteRes(sVar1);
                     func_00440b68(DAT_0063c8c0);
                 }
                 *puVar5 = 0;

@@ -5,7 +5,7 @@
  * there). 003b5d10 -> func_00145270, 003b7090 -> func_00146630. */
 
 extern u32 MT_Scene_GetRes(u32);
-extern void func_00146630(u32);
+extern void MT_Scene_DeleteRes(u32);
 
 
 
@@ -20,7 +20,7 @@ void func_00291900(void)
         uVar1 = iVar3 + 0x38eU & 0x3ff | 0xc00;
         lVar2 = MT_Scene_GetRes((u16)uVar1);
         if (lVar2 != 0) {
-            func_00146630((u16)uVar1);
+            MT_Scene_DeleteRes((u16)uVar1);
         }
     }
     return;

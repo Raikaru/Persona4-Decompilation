@@ -205,7 +205,7 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 {
     func_0029db50(arg0, arg1, arg2, arg3);
 }
-extern void func_00146630(u16 arg0);
+extern void MT_Scene_DeleteRes(u16 arg0);
 extern void func_004787e0(void *arg0);
 extern void mdlSetColor(void *arg0, s32 *arg1);
 extern void func_0047a0e0(u8 *arg0, s32 arg1, f32 arg2);
@@ -4102,7 +4102,7 @@ void func_0019d3c0(u8 *arg0)
     temp_4 = *(u16 *)(arg0 + 0x9FE);
     if (temp_4 != 0) {
         index = ((s32)temp_4 & 0xFFC00) >> 10;
-        func_00146630(temp_4);
+        MT_Scene_DeleteRes(temp_4);
         if (*(u8 **)(arg0 + 0xA00) != NULL) {
             func_0019d990(arg0, 4);
             func_0019d990(arg0, 1);
