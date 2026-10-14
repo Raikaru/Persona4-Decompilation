@@ -271,27 +271,27 @@ void func_0036df90(u8 *arg0, u8 *queue)
 // FUN_0036E000
 void func_0036e000(u8 *arg0)
 {
-    s32 temp_17;
-    s32 temp_3;
+    s32 handle;
+    s32 state;
 
     if (*(u16 *)(arg0 + 0xFAC) & 1) {
-        temp_3 = *(s32 *)(arg0 + 4);
-        switch (temp_3) {
+        state = *(s32 *)(arg0 + 4);
+        switch (state) {
         case 0:
-            if (temp_3 != 0) {
+            if (state != 0) {
                 func_0046d730(D_0064E5B0, 0x160);
             }
             func_0036c230(*(u16 *)(arg0 + 0x174));
             break;
         case 1:
-            if (temp_3 != 1) {
+            if (state != 1) {
                 func_0046d730(D_0064E5B0, 0x16A);
             }
-            temp_17 = *(s32 *)(arg0 + 0x170);
+            handle = *(s32 *)(arg0 + 0x170);
             if (*(s32 *)(arg0 + 4) != 1) {
                 func_0046d730(D_0064E5B0, 0x174);
             }
-            func_0036c140(temp_17, *(s32 *)(arg0 + 0x174));
+            func_0036c140(handle, *(s32 *)(arg0 + 0x174));
             break;
         case 2:
             func_0036c310();
