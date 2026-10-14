@@ -477,6 +477,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
      * casts its s32 words to memcpy sources of 0x20 and 0x180 bytes. */
     extern s32 func_00146440(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
+    // lint: allow H011 -- measured: u16 prototype regresses func_0014f310 (andi on wide id args)
     extern u8 *MT_Scene_GetRes(s32 arg0);
     extern void MT_Scene_DestroyRes(u16 arg0);
     extern s32 func_00145ac0(u16 arg0, s32 arg1);

@@ -5,6 +5,7 @@
 /* Ported from P3FES src/Event/mt_evtCustomEvent.c FUN_0039eb90 (verified MATCH
  * there). 003b5d10 -> func_00145270, 003b7090 -> func_00146630. */
 
+// lint: allow H011 -- measured: u16 prototype regresses func_00291900 (u32 id passed through, 53 diff)
 extern u32 MT_Scene_GetRes(u32);
 extern void MT_Scene_DestroyRes(u32);
 

@@ -51,6 +51,7 @@ extern f32 fGpffff8514; /* gp -0x7aec */
 extern f32 D_00761260;  /* gp -0x7e90 */
 
 extern s32 func_00291a60(u32 id);
+// lint: allow H011 -- measured: u16 prototype regresses func_00292ef0 (andi on wide id args)
 extern void *MT_Scene_GetRes(u32 id);
 
 extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
