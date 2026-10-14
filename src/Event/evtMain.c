@@ -88,8 +88,6 @@ void func_00113500(void);
 extern void func_00269c20(u16, int);
 extern f32 fGpffff815c;
 extern void func_0028d110(s32 *arg0);
-extern s32 func_00290de0(u32 *object);
-u32 func_002909a0(u32 *object);
 extern s32 DAT_007645DC;
 extern char D_0063C3F0[];
 extern char D_0063C400[];
@@ -2572,7 +2570,7 @@ loop_6_test:
     func_0026d810();
     sceneLightSlotsReset();
     if ((*(s32 *)(arg0 + 4) != 0) && (func_002909a0((u32 *)(arg0 + 0x678)) != 0)) {
-        func_00290b00((s32 *)(arg0 + 0x678));
+        func_00290b00((u32 *)(arg0 + 0x678));
     }
     func_0028d0a0(arg0);
     func_00298190(2, 0);
@@ -2621,7 +2619,7 @@ loop_27_test:
     }
     temp_4_5 = (s32)(*(s32 *)(arg0 + 4));
     if (temp_4_5 != 0) {
-        func_00290470((s32 *)temp_4_5, (s32)(arg0 + 0x678));
+        func_00290470((s32 *)temp_4_5, (u32 *)(arg0 + 0x678));
         *(s32 *)(arg0 + 4) = 0;
     }
 }

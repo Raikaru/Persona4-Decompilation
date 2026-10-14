@@ -15,8 +15,6 @@ extern void func_0046d730(u8 *file, s32 line);
 extern void func_002852a0(s32 arg0, s32 arg1);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void memset(void *dst, s32 value, u32 size);
-extern s32 func_002909a0(s32 arg0);
-extern void func_00290940(s32 arg0);
 extern void sprintf();
 extern void func_0026c770(f32 *param_1, f32 *param_2, f32 *param_3);
 extern void func_0026c680(f32 *param_1);
@@ -383,7 +381,7 @@ u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *
 }
 #pragma pop
 // FUN_00290470
-void func_00290470(s32 *arg0, s32 arg1)
+void func_00290470(s32 *arg0, u32 *arg1)
 {
     if (arg0 != NULL) {
         if (func_002909a0(arg1) == 1) {
