@@ -320,7 +320,7 @@ void func_00383d70(u8 *arg0)
 /* Window frame fade.  The 192 alpha is converted at each vertex (u8)(192.0f *
    scale) - the product is shared, the float->u8 conversion is not - and the
    primitive table is read through an integer view so its address stays in
-   $s0 across the first draw, as in func_0034ae70's twin 0014dd80 recipe. */
+   $s0 across the first draw, as in fclCmbBallDraw's twin 0014dd80 recipe. */
 // FUN_00383F80
 void func_00383f80(u8 *arg0)
 {
