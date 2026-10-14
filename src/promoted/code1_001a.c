@@ -763,17 +763,17 @@ void func_001a1450(s64 *arg0)
         f32 z;
     } sp40;
     struct Vec3 sp30;
-    u16 temp_3;
-    u16 temp_3_2;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_2_5;
-    u8 *temp_2_6;
-    u8 *temp_2_7;
-    u8 *var_16;
-    u8 *var_16_2;
+    u16 actionType;
+    u16 actionTypeAfter;
+    u8 *rotatePacket;
+    u8 *rotatePacketB;
+    u8 *ambientPacket;
+    u8 *targetPacket;
+    u8 *lookAtPacket;
+    u8 *lookAtDeactivatePacket;
+    u8 *cameraPacket;
+    u8 *listUnit;
+    u8 *listUnit2;
 
     extern void func_001958f0(u8 *arg0, f32 *arg1);
     extern s32 btlUnitIsMoving(u8 *arg0);
@@ -789,76 +789,76 @@ void func_001a1450(s64 *arg0)
         return;
     }
     func_001a03b0(arg0);
-    temp_3 = *(u16 *)((u8 *)arg0 + 0x10);
-    if ((temp_3 != 0x25) && (temp_3 != 4) && (temp_3 != 6) &&
-        (temp_3 != 5) && (*(u16 *)(iGpffffb3ac + 0xF4) != 2)) {
+    actionType = *(u16 *)((u8 *)arg0 + 0x10);
+    if ((actionType != 0x25) && (actionType != 4) && (actionType != 6) &&
+        (actionType != 5) && (*(u16 *)(iGpffffb3ac + 0xF4) != 2)) {
         func_00194ff0(
             *(u8 **)((u8 *)arg0 + 0x30), NULL, 0, (f32 *)&sp40);
-        var_16 = *(u8 **)(iGpffffb3ac + 0x17C);
+        listUnit = *(u8 **)(iGpffffb3ac + 0x17C);
         goto loop_14_test;
 loop_14_body:
-        if (datCalcChkBadStatus((s32)*(u8 **)(var_16 + 0xA64), 0x100) != 0) {
+        if (datCalcChkBadStatus((s32)*(u8 **)(listUnit + 0xA64), 0x100) != 0) {
             func_001958f0(
                 *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
                 (f32 *)&sp30);
         } else {
             sp30 = sp40;
         }
-        temp_2 = actionRotatePacketBytes(var_16, &sp30, 2);
-        *(s64 *)(temp_2 + 0x60) = *arg0;
-        func_00194590(temp_2, 0);
-        var_16 = *(u8 **)(var_16 + 0xA68);
+        rotatePacket = actionRotatePacketBytes(listUnit, &sp30, 2);
+        *(s64 *)(rotatePacket + 0x60) = *arg0;
+        func_00194590(rotatePacket, 0);
+        listUnit = *(u8 **)(listUnit + 0xA68);
 loop_14_test:
-        if (var_16 != NULL) {
+        if (listUnit != NULL) {
             goto loop_14_body;
         }
-        var_16_2 = *(u8 **)(iGpffffb3ac + 0x184);
+        listUnit2 = *(u8 **)(iGpffffb3ac + 0x184);
         goto loop_19_test;
 loop_19_body:
-        if (btlUnitIsMoving(var_16_2) == 0) {
-            func_00194ff0(var_16_2, NULL, 0, (f32 *)&sp40);
-            temp_2_2 = actionRotatePacketBytes(var_16_2, &sp40, 2);
-            *(s64 *)(temp_2_2 + 0x60) = *arg0;
-            func_00194590(temp_2_2, 0);
+        if (btlUnitIsMoving(listUnit2) == 0) {
+            func_00194ff0(listUnit2, NULL, 0, (f32 *)&sp40);
+            rotatePacketB = actionRotatePacketBytes(listUnit2, &sp40, 2);
+            *(s64 *)(rotatePacketB + 0x60) = *arg0;
+            func_00194590(rotatePacketB, 0);
         }
-        var_16_2 = *(u8 **)(var_16_2 + 0xA68);
+        listUnit2 = *(u8 **)(listUnit2 + 0xA68);
 loop_19_test:
-        if (var_16_2 != NULL) {
+        if (listUnit2 != NULL) {
             goto loop_19_body;
         }
-        temp_2_3 = (u8 *)func_001d3700(3, 0x8001);
-        *(s64 *)(temp_2_3 + 0x60) = *arg0;
-        func_00194590(temp_2_3, 0);
+        ambientPacket = (u8 *)func_001d3700(3, 0x8001);
+        *(s64 *)(ambientPacket + 0x60) = *arg0;
+        func_00194590(ambientPacket, 0);
         if (*(u8 *)((u8 *)arg0 + 0x28) == 0) {
-            temp_2_4 = actionTargetPacketBytes((u8 *)arg0, 0x1D, 0, 0, 0);
-            *(s64 *)(temp_2_4 + 0x60) = *arg0;
-            func_00194590(temp_2_4, 1);
+            targetPacket = actionTargetPacketBytes((u8 *)arg0, 0x1D, 0, 0, 0);
+            *(s64 *)(targetPacket + 0x60) = *arg0;
+            func_00194590(targetPacket, 1);
         }
     }
     {
-        u8 *temp_5;
+        u8 *battleUnit;
 
-        temp_5 = *(u8 **)((u8 *)arg0 + 0x30);
-        if (temp_5[0xA2] == 0) {
-            temp_2_5 = actionLookAtUnit(NULL, temp_5, 2);
-            *(s64 *)(temp_2_5 + 0x60) = *arg0;
-            func_00194590(temp_2_5, 1);
+        battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
+        if (battleUnit[0xA2] == 0) {
+            lookAtPacket = actionLookAtUnit(NULL, battleUnit, 2);
+            *(s64 *)(lookAtPacket + 0x60) = *arg0;
+            func_00194590(lookAtPacket, 1);
         } else {
-            temp_2_6 = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 2);
-            *(s64 *)(temp_2_6 + 0x60) = *arg0;
-            func_00194590(temp_2_6, 1);
+            lookAtDeactivatePacket = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 2);
+            *(s64 *)(lookAtDeactivatePacket + 0x60) = *arg0;
+            func_00194590(lookAtDeactivatePacket, 1);
         }
     }
     func_00194590(
         (u8 *)btlUnitCreateLookAtDeactivatePacket(
             (BtlUnit *)*(s32 *)(u8 *)func_001a_add_offset(0x30, (s32)arg0), 0),
         1);
-    temp_2_7 = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x21);
-    *(s64 *)(temp_2_7 + 0x60) = *arg0;
-    func_00194590(temp_2_7, 0);
+    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x21);
+    *(s64 *)(cameraPacket + 0x60) = *arg0;
+    func_00194590(cameraPacket, 0);
     func_001eb3b0((u8 *)arg0 + 0x38);
-    temp_3_2 = *(u16 *)(u8 *)func_001a_add_offset(0x10, (s32)arg0);
-    if ((temp_3_2 != 0x25) && (temp_3_2 != 6) && (temp_3_2 != 5)) {
+    actionTypeAfter = *(u16 *)(u8 *)func_001a_add_offset(0x10, (s32)arg0);
+    if ((actionTypeAfter != 0x25) && (actionTypeAfter != 6) && (actionTypeAfter != 5)) {
         func_00203670(*(s32 *)(iGpffffb3ac + 0xDD4), (u8 *)arg0);
         func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
     }
