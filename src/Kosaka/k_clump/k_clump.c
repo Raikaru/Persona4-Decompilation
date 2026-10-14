@@ -169,7 +169,7 @@ u32 func_00457c90(void* clump, const char* name)
 
     context.found = 0;
     strcpy(context.copiedName, name);
-    func_003bff30(clump, (KClumpCallback)func_00457b60, &context);
+    RpClumpForAllAtomics(clump, (KClumpCallback)func_00457b60, &context);
     return context.found;
 }
 

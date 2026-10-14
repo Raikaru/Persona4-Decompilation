@@ -1678,9 +1678,9 @@ void func_00473710(u8 *arg0, u8 *arg1, s32 arg2)
     func_003e9af0(*frame, func_004711e0, &hierarchy);
     selected = (MdlHierarchyView *)hierarchy;
     model->hierarchy = selected;
-    func_003bff30(arg1, func_00471250, selected);
+    RpClumpForAllAtomics(arg1, func_00471250, selected);
     if (arg2 != 0)
-        func_003bff30(arg1, func_00473250, *frame);
+        RpClumpForAllAtomics(arg1, func_00473250, *frame);
     func_004633c0(arg1, model->hierarchy);
     model->hierarchy->flags |= 0x3000;
     if (model->source != 0 && model->source->animation != 0) {
@@ -2508,7 +2508,7 @@ void func_00474df0(u8* param_1, void* param_2)
         callbackData.callback = (code)func_00474970;
         callbackData.value = uVar1;
 
-        func_003bff30(param_2, func_00474a10, &callbackData);
+        RpClumpForAllAtomics(param_2, func_00474a10, &callbackData);
 
         *(u32*)(*(int*)(param_1 + 0x18) + 8) = uVar1;
 
@@ -2791,8 +2791,8 @@ void func_00475350(void *clump, MdlAnimControlView *state,
                     } else mdlSetupDetach(object);
                 }
             }
-            func_003bff30(clump, func_00475090, 0);
-            func_003bff30(clump, func_00474f40, 0);
+            RpClumpForAllAtomics(clump, func_00475090, 0);
+            RpClumpForAllAtomics(clump, func_00474f40, 0);
         } else {
             s32 *objects = resource->objects;
             for (object = (u32 *)func_003df890(objects); object != (u32 *)func_003df8a0(objects); ++object)
@@ -3739,7 +3739,7 @@ void func_00477260(void* param_1, u32* param_2, u16 param_3)
 
     context.ptr = param_2;
     context.value = param_3;
-    func_003bff30(param_1, func_00476e90, &context);
+    RpClumpForAllAtomics(param_1, func_00476e90, &context);
     return;
 }
 
@@ -3790,7 +3790,7 @@ void* func_00477350(void* param_1, void* param_2)
 // FUN_00477400
 void func_00477400(void* param_1, int param_2)
 {
-    func_003bff30(param_1, func_00477350, &param_2);
+    RpClumpForAllAtomics(param_1, func_00477350, &param_2);
 }
 
 // FUN_00477430
@@ -3812,7 +3812,7 @@ void* func_00477430(void* param_1, void* data)
 // FUN_004774E0
 void func_004774e0(void* param_1)
 {
-    func_003bff30(param_1, func_00477430, 0);
+    RpClumpForAllAtomics(param_1, func_00477430, 0);
 }
 
 // FUN_00477510
@@ -3907,7 +3907,7 @@ void func_004777d0(void* param_1, int param_2, u8 param_3)
     } s;
     s.b = param_3;
     s.i = param_2;
-    func_003bff30(*(void**)((u8*)param_1 + 0xDC), func_004776c0, &s);
+    RpClumpForAllAtomics(*(void**)((u8*)param_1 + 0xDC), func_004776c0, &s);
 }
 
 /* measured: retail hoists the 1.0f const (lui/mtc1 -> $f3) to function top and
@@ -4171,7 +4171,7 @@ void func_00477ca0(u8* arg0)
     u8* temp_16;
 
     entries = (u8 (*)[0xA4])arg0;
-    func_003bff30(*(void**)(arg0 + 0xDC), func_00477900, NULL);
+    RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00477900, NULL);
     if (*(s32*)(arg0 + 0x254) != 0) {
         func_00474df0(arg0 + 0x23C, *(void**)(arg0 + 0xDC));
     }
@@ -4189,7 +4189,7 @@ void func_00477ca0(u8* arg0)
         }
     }
     *(void**)(arg0 + 0xE0) = func_00462ae0(*(void**)(arg0 + 0xDC));
-    func_003bff30(*(void**)(arg0 + 0xDC), func_00476e10, NULL);
+    RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00476e10, NULL);
     temp_3 = *(u16*)(arg0 + 0xD4);
     switch (temp_3) {
     case 1:
@@ -4197,10 +4197,10 @@ void func_00477ca0(u8* arg0)
         values[0] = fGpffff80cc;
         values[2] = 1.0f;
         values[1] = fGpffff809c;
-        func_003bff30(*(void**)(arg0 + 0xDC), func_00477660, values);
+        RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00477660, values);
         break;
     default:
-        func_003bff30(*(void**)(arg0 + 0xDC), func_00477510, NULL);
+        RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00477510, NULL);
         break;
     }
     temp_4_2 = *(u32*)(arg0 + 0x2CC);
@@ -4804,7 +4804,7 @@ void func_00478ec0(void* param_1, MdlFlags78ec0* o)
     dc = o->dc;
     ctx.p38 = (u8*)o + 0xD0;
     ctx.p3C = 0;
-    func_003bff30(dc, func_00476e90, &ctx);
+    RpClumpForAllAtomics(dc, func_00476e90, &ctx);
     t = (o->d8 & 8) != 0;
     base = D_00887300_abs;
     base[0](6, t);
@@ -4948,7 +4948,7 @@ void func_00479100(void* queue, u8* model)
         {
             void* clump = ((Model*)model)->clump;
             uncolored = 1;
-            func_003bff30(clump, (KClumpCallback)func_004772a0, &uncolored);
+            RpClumpForAllAtomics(clump, (KClumpCallback)func_004772a0, &uncolored);
             if (uncolored != 0)
                 goto layers;
         }
@@ -5011,7 +5011,7 @@ layers:
             {
                 void* childClump = ((Model*)*child)->clump;
                 childUncolored = 1;
-                func_003bff30(childClump, (KClumpCallback)func_004772a0, &childUncolored);
+                RpClumpForAllAtomics(childClump, (KClumpCallback)func_004772a0, &childUncolored);
                 if (childUncolored == 0)
                     *(u32*)((u8*)*child + 0xd8) &= ~0x20000u;
                 else
@@ -5044,7 +5044,7 @@ void* func_00479880(void* param_1, void* data)
 // FUN_00479910
 void func_00479910(void* param_1)
 {
-    func_003bff30(param_1, func_00479880, 0);
+    RpClumpForAllAtomics(param_1, func_00479880, 0);
 }
 
 /* IDA 00479940, mdlManager.c:2873-2957: validate raw arguments before
@@ -5421,7 +5421,7 @@ void func_0047a260(void* param_1)
     void* arg0 = *(void**)((u8*)param_1 + 0xDC);
     s.ptr = (u8*)param_1 + 0xD0;
     s.v = 0;
-    func_003bff30(arg0, func_00476e90, &s);
+    RpClumpForAllAtomics(arg0, func_00476e90, &s);
 }
 // FUN_0047A2A0
 void func_0047a2a0(u32* param_1)
@@ -5540,7 +5540,7 @@ void *func_0047a4a0(void *arg0, void *arg1) {
 // FUN_0047A4D0
 void func_0047a4d0(void* param_1, int param_2)
 {
-    func_003bff30(*(void**)((u8*)param_1 + 0xDC), func_0047a4a0, &param_2);
+    RpClumpForAllAtomics(*(void**)((u8*)param_1 + 0xDC), func_0047a4a0, &param_2);
 }
 
 

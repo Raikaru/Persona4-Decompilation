@@ -31,7 +31,7 @@ extern char* func_003bd040(RpUserDataArray* userData);
 extern RpUserDataFormat func_003bd050(RpUserDataArray* userData);
 extern s32 func_003bd060(void* object);
 extern s32 func_003bd070(RpUserDataArray* userData, s32 index);
-extern void* func_003bff30(void* object, KClumpCallback callback, void* data);
+extern void* RpClumpForAllAtomics(void* object, KClumpCallback callback, void* data);
 extern s32 func_00461530(u8* arg0, s32* arg1);
 extern void* func_003e9af0(void* object, KClumpCallback callback, void* data);
 extern s32 strcmp(const char* left, const char* right);

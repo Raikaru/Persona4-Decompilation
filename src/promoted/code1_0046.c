@@ -949,7 +949,7 @@ void func_004623a0(u8 *arg0)
             func_00461be0(p);
             break;
         case 9:
-            func_003bff30(*(void **)(p + 0x1C), func_00462170, NULL);
+            RpClumpForAllAtomics(*(void **)(p + 0x1C), func_00462170, NULL);
             break;
         case 10:
             func_003c9d00(*(u8 **)(p + 0x1C));
@@ -1105,7 +1105,7 @@ s32 func_00462df0(u8 *arg0) {
 // FUN_004633C0
 void func_004633c0(void *arg0, void *arg1)
 {
-    func_003bff30(arg0, func_004632f0, arg1);
+    RpClumpForAllAtomics(arg0, func_004632f0, arg1);
 }
 // FUN_004633F0
 s32 func_004633f0(u8 *unusedTask)

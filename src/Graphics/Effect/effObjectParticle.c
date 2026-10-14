@@ -173,7 +173,7 @@ void func_004ae880(u8 *arg0, u8 *arg1)
         }
         temp_2 = func_003c0520((void *)*(u32 *)(arg1 + 0x54));
         *(u8 **)(arg0 + 0x54) = temp_2;
-        func_003bff30(temp_2, func_004ae080, 0);
+        RpClumpForAllAtomics(temp_2, func_004ae080, 0);
         break;
     default:
         func_0046d730(D_00714520, 0x172);
@@ -254,7 +254,7 @@ void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
       }
     }
   done:
-    func_003e2e40(temp18, &work.in1); if (work.out != 0) func_00463250((void *)work.out); if (var17 == NULL) func_0046d730(D_00714520, 0x1DF); *(u8 **)(arg0 + 0x54) = var17; func_003bff30(var17, func_004ae080, NULL);
+    func_003e2e40(temp18, &work.in1); if (work.out != 0) func_00463250((void *)work.out); if (var17 == NULL) func_0046d730(D_00714520, 0x1DF); *(u8 **)(arg0 + 0x54) = var17; RpClumpForAllAtomics(var17, func_004ae080, NULL);
 }
 
 
@@ -465,7 +465,7 @@ void func_004aed70(u8 *arg0)
                         "ppacb $2, $0, $2\n"
                         "sw $2, packedA\n" : "=m"(packedA) : : "$2", "$vf2", "$vf10");
                     *(u32 *)&packedArg = *(u32 *)&packedA;
-                    func_003bff30(clump, (KClumpCallback)mdlEffectSetAllColors, &packedArg);
+                    RpClumpForAllAtomics(clump, (KClumpCallback)mdlEffectSetAllColors, &packedArg);
                     {
                         f32 age = (f32)*(s32 *)(p18 + 0x10);
 
@@ -558,7 +558,7 @@ void func_004aed70(u8 *arg0)
                         "ppacb $2, $0, $2\n"
                         "sw $2, packedB\n" : "=m"(packedB) : : "$2", "$vf10");
                     *(u32 *)&packedArg = *(u32 *)&packedB;
-                    func_003bff30(clump, (KClumpCallback)mdlEffectSetAllColors, &packedArg);
+                    RpClumpForAllAtomics(clump, (KClumpCallback)mdlEffectSetAllColors, &packedArg);
                     {
                         f32 age = (f32)*(s32 *)(p18 + 0x10);
 

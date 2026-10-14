@@ -110,8 +110,8 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
                 {
                     if (*(s32 *)(arg2 + 0x14C) != 0)
                     {
-                        func_003bff30(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
-                                      func_00191e20, NULL);
+                        RpClumpForAllAtomics(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
+                                             func_00191e20, NULL);
                     }
                 }
                 func_003c0960(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150), s0);
