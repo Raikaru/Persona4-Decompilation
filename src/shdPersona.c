@@ -6,12 +6,11 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 #include "shd_misc_internal.h"
+#include "shdPersona_internal.h"
 
 typedef struct KwlnTask KwlnTask;
 
 u16 func_00109360(u16 character);
-void func_0011b9e0(int task, u32 value);
-void func_0011b9f0(int task, u32 value);
 
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 

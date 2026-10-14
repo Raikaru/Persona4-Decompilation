@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "shdPersona_internal.h"
 extern void (*jtbl_008873EC[])(void *);
 extern s8 D_00641E60[];
 extern s32 func_00246830();
@@ -506,7 +507,6 @@ s32 func_00313fb0(u8 *arg0)
  
 /* measured: corrected all six callee declarations from the verified definitions. */
 extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
-extern void func_0011b9f0(int task, u32 value);
 extern s32 func_0011ba00(u8 *arg0);
 extern void func_0011bb90(u8 *arg0);
 extern void func_0011bc70(u8 *arg0);
