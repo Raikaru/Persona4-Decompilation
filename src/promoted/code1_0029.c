@@ -49,7 +49,7 @@ u16 func_00104dc0(s16 arg0);
 
 u32 func_00104d50(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);
-extern s64 func_0029cc00_s64(s32 arg0);
+extern s64 scrGetParamIntS64(s32 arg0);
 extern void func_0045b2e0(s32 arg0);
 extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern s32 D_0063CB50[];
@@ -2057,11 +2057,11 @@ s32 func_00299ac0(void) {
     s64 d;
     s64 e;
 
-    a = func_0029cc00_s64(0);
-    b = func_0029cc00_s64(1);
-    c = func_0029cc00_s64(2);
-    d = func_0029cc00_s64(3);
-    e = func_0029cc00_s64(4);
+    a = scrGetParamIntS64(0);
+    b = scrGetParamIntS64(1);
+    c = scrGetParamIntS64(2);
+    d = scrGetParamIntS64(3);
+    e = scrGetParamIntS64(4);
     func_0029e990(a, b, c, d, e);
     return 1;
 }
@@ -2073,11 +2073,11 @@ s32 func_00299b70(void) {
     s64 d;
     s64 e;
 
-    a = func_0029cc00_s64(0);
-    b = func_0029cc00_s64(1);
-    c = func_0029cc00_s64(2);
-    d = func_0029cc00_s64(3);
-    e = func_0029cc00_s64(4);
+    a = scrGetParamIntS64(0);
+    b = scrGetParamIntS64(1);
+    c = scrGetParamIntS64(2);
+    d = scrGetParamIntS64(3);
+    e = scrGetParamIntS64(4);
     func_0029e9a0(a, b, c, d, e);
     return 1;
 }
@@ -2109,8 +2109,8 @@ s32 func_00299d00(void)
     s64 temp_16;
     s64 temp_17;
 
-    temp_16 = func_0029cc00_s64(0);
-    temp_17 = func_0029cc00_s64(1);
+    temp_16 = scrGetParamIntS64(0);
+    temp_17 = scrGetParamIntS64(1);
     func_001056e0((s16)temp_16, (s16)temp_17);
     return 1;
 }
@@ -2123,7 +2123,7 @@ s32 func_00299d60(void) {
 
 // FUN_00299DB0
 s32 func_00299db0(void) {
-    scrSetReturnInt(func_00104e30((s16)func_0029cc00_s64(0)) & 0xFFFF);
+    scrSetReturnInt(func_00104e30((s16)scrGetParamIntS64(0)) & 0xFFFF);
     return 1;
 }
 // FUN_00299E00
@@ -2132,8 +2132,8 @@ s32 func_00299e00(void)
     s64 temp_16;
     s64 temp_17;
 
-    temp_16 = func_0029cc00_s64(0);
-    temp_17 = func_0029cc00_s64(1);
+    temp_16 = scrGetParamIntS64(0);
+    temp_17 = scrGetParamIntS64(1);
     func_00105730((s16)temp_16, (s16)temp_17);
     return 1;
 }

@@ -31,7 +31,7 @@ struct BtlPacket* func_001f60c0(void);
 extern u8 *func_001f6030(s32 arg0, s64 arg1); /* lint: allow H011 -- raw s64 argument is passed unconverted, as in code1_001e */
 
 extern s64 scrGetParamInt(); /* lint: allow H011 -- raw s64 call result feeds s64 temporaries, as in code1_001e */
-extern s32 func_0029cc00_s32(s32 index);
+extern s32 scrGetParamIntS32(s32 index);
 extern s64 func_00194590(u8 *arg0, u32 arg1);
 extern u8 *func_0029d050(void); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
 extern void func_001de640(u8 *arg0, u8 *arg1, u16 arg2);
@@ -86,7 +86,7 @@ s32 func_001eaa30(void)
     s32 temp_16;
     u8 *temp_2;
 
-    temp_16 = func_0029cc00_s32(0);
+    temp_16 = scrGetParamIntS32(0);
     temp_2 = (u8 *)func_001f60c0();
     *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
     func_00194590(temp_2, 1);
