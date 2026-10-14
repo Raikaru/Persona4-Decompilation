@@ -229,7 +229,7 @@ typedef struct CmmScriptTask
     s32 state;      // 0x04
     s32 cdvdHandle; // 0x08, H_Cdvd file handle
     s32 handles[5]; // 0x0C, released with func_00452080
-    u8 pad20[4];
+    s32 weatherChoice; // 0x20, category result written by func_0024be40
     s32 data;       // 0x24, buffer from func_0046af60, freed on destroy
 } CmmScriptTask;
 
@@ -1069,7 +1069,7 @@ s32 func_0024be40(void)
     } CmmMonthProfile;
     s32 month;
     s32 result;
-    u8 *weatherWork;
+    CmmScriptTask *task;
     s32 weightIndex;
     f32 randomValue;
     CmmWeatherRow *weights;
@@ -1123,11 +1123,11 @@ s32 func_0024be40(void)
             choiceIndex++;
         }
     }
-    weatherWork = (u8 *)func_00452560(func_00452380((s8 *)D_00635A78));
-    if (weatherWork == 0) {
+    task = (CmmScriptTask *)func_00452560(func_00452380((s8 *)D_00635A78));
+    if (task == 0) {
         func_0046d730(D_006359F0, 1041);
     }
-    *(s32 *)(weatherWork + 0x20) = result;
+    task->weatherChoice = result;
     return result;
 }
 // FUN_0024C0E0
