@@ -111,54 +111,54 @@ static s64 func_001fc300(u8 *arg0, u8 *arg1)
 {
     extern s32 D_00881440_abs[];
     u8 *table;
-    s32 temp_8;
-    s32 var_10;
+    s32 entry;
+    s32 slot;
     s32 one;
-    s64 var_2;
+    s64 isEntry1;
     s64 t;
-    s64 var_2_2;
-    u32 temp_6;
-    u8 temp_3;
-    u8 temp_3_2;
+    s64 isEntry0;
+    u32 bit;
+    u8 kind0;
+    u8 kind1;
 
     if (*(u8 *)(arg1 + 3) != 0) {
         return 1;
     }
-    var_10 = 0;
+    slot = 0;
     table = (u8 *)D_00881440_abs;
     one = 1;
     goto loop_test;
 loop_body:
-    temp_8 = *(s32 *)(table + ((u16)var_10 * 4) + 8);
-    if (temp_8 != 0) {
-        if ((*(u8 *)(arg1 + 2) & (one << temp_6)) &&
-            ((u8 *)temp_8 == arg0)) {
+    entry = *(s32 *)(table + ((u16)slot * 4) + 8);
+    if (entry != 0) {
+        if ((*(u8 *)(arg1 + 2) & (one << bit)) &&
+            ((u8 *)entry == arg0)) {
             return 1;
         }
-        var_10 = (var_10 + 1) & 0xFFFF;
+        slot = (slot + 1) & 0xFFFF;
         goto loop_test;
     }
     goto block_9;
 loop_test:
-    temp_6 = var_10 & 0xFFFF;
-    if (temp_6 < 3U) {
+    bit = slot & 0xFFFF;
+    if (bit < 3U) {
         goto loop_body;
     }
 block_9:
     if ((D_00881440_abs[0] != 0) &&
         (*(u8 *)(arg0 + 0xA2) ==
          *(u8 *)(D_00881440_abs[0] + 0xA2))) {
-        temp_3 = *(u8 *)(arg1 + 0);
-        switch (temp_3) {
+        kind0 = *(u8 *)(arg1 + 0);
+        switch (kind0) {
         case 0:
             return 0;
         case 1:
-            var_2_2 = 1;
+            isEntry0 = 1;
             if (D_00881440_abs[0] == (s32)arg0) {
-                t = var_2_2;
+                t = isEntry0;
             } else {
-                var_2_2 = 0;
-                t = var_2_2;
+                isEntry0 = 0;
+                t = isEntry0;
             }
             return (s64)(t << 0x38) >> 0x38;
         case 2:
@@ -168,17 +168,17 @@ block_9:
     if ((D_00881440_abs[1] != 0) &&
         (*(u8 *)(arg0 + 0xA2) ==
          *(u8 *)(D_00881440_abs[1] + 0xA2))) {
-        temp_3_2 = *(u8 *)(arg1 + 1);
-        switch (temp_3_2) {
+        kind1 = *(u8 *)(arg1 + 1);
+        switch (kind1) {
         case 0:
             return 0;
         case 1:
-            var_2 = 1;
+            isEntry1 = 1;
             if (D_00881440_abs[1] == (s32)arg0) {
-                t = var_2;
+                t = isEntry1;
             } else {
-                var_2 = 0;
-                t = var_2;
+                isEntry1 = 0;
+                t = isEntry1;
             }
             return (s64)(t << 0x38) >> 0x38;
         case 2:
