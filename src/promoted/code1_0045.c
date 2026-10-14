@@ -1034,19 +1034,19 @@ void func_00453310(s32 arg0, u16 arg1, s32 arg2) {
 // FUN_004533D0
 void func_004533d0(void)
 {
-    s16 temp_3;
-    s16 temp_4;
-    s16 temp_5;
+    s16 remaining;
+    s16 phase;
+    s16 pending;
 
-    temp_4 = iGpffffba1c;
-    switch (temp_4) {
+    phase = iGpffffba1c;
+    switch (phase) {
     case 0:
         iGpffffba34 = 0;
         iGpffffba2c = 0;
         iGpffffba20 = 0;
         D_008C030C[0] = 0;
         D_008C030E[0] = 0;
-        iGpffffba1c = (s16)(temp_4 + 1);
+        iGpffffba1c = (s16)(phase + 1);
         return;
     case 1:
         D_008C030C[0] = 0;
@@ -1057,12 +1057,12 @@ void func_004533d0(void)
             iGpffffba1c = 1;
             return;
         }
-        temp_3 = iGpffffba30;
-        if (temp_3 == 0) {
+        remaining = iGpffffba30;
+        if (remaining == 0) {
             if (iGpffffba24 == 0) {
-                temp_5 = iGpffffba20;
-                D_008C030C[0] = temp_5 & 1;
-                D_008C030E[0] = temp_5 & 0xFF;
+                pending = iGpffffba20;
+                D_008C030C[0] = pending & 1;
+                D_008C030E[0] = pending & 0xFF;
                 iGpffffba30 = iGpffffba2c;
                 iGpffffba24 = 1;
             } else {
@@ -1072,7 +1072,7 @@ void func_004533d0(void)
                 iGpffffba24 = 0;
             }
         } else {
-            iGpffffba30 = (s16)(temp_3 - 1);
+            iGpffffba30 = (s16)(remaining - 1);
         }
         iGpffffba34 -= 1;
         return;
@@ -1100,36 +1100,36 @@ s32 func_004535b0(void)
 
 // FUN_004543D0
 s32 func_004543d0(u8 *arg0) {
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_5;
-    s32 temp_5_2;
-    s32 var_6;
+    s32 f14;
+    s32 next28;
+    s32 f28;
+    s32 reload20;
+    s32 f20;
+    s32 reload14;
+    s32 clamped;
 
-    temp_2 = *(s32 *)(arg0 + 0x14);
-    temp_5 = *(s32 *)(arg0 + 0x20);
-    var_6 = temp_2;
-    if (temp_5 < temp_2) {
-        var_6 = temp_5;
+    f14 = *(s32 *)(arg0 + 0x14);
+    f20 = *(s32 *)(arg0 + 0x20);
+    clamped = f14;
+    if (f20 < f14) {
+        clamped = f20;
     }
-    temp_3 = *(s32 *)(arg0 + 0x28);
-    if ((temp_3 + temp_2) >= temp_5) {
+    f28 = *(s32 *)(arg0 + 0x28);
+    if ((f28 + f14) >= f20) {
         goto zero;
     }
-    temp_2_2 = temp_3 + *(s32 *)(arg0 + 0x1C);
-    *(s32 *)(arg0 + 0x28) = temp_2_2;
-    temp_5_2 = *(s32 *)(arg0 + 0x14);
-    temp_3_2 = *(s32 *)(arg0 + 0x20);
-    if (temp_3_2 >= (temp_2_2 + temp_5_2)) {
+    next28 = f28 + *(s32 *)(arg0 + 0x1C);
+    *(s32 *)(arg0 + 0x28) = next28;
+    reload14 = *(s32 *)(arg0 + 0x14);
+    reload20 = *(s32 *)(arg0 + 0x20);
+    if (reload20 >= (next28 + reload14)) {
         goto one;
     }
-    *(s32 *)(arg0 + 0x28) = temp_3_2 - temp_5_2;
+    *(s32 *)(arg0 + 0x28) = reload20 - reload14;
     goto one;
 zero:
-    *(s32 *)(arg0 + 0x28) = temp_5 - var_6;
-    *(s32 *)(arg0 + 0x24) = var_6 - 1;
+    *(s32 *)(arg0 + 0x28) = f20 - clamped;
+    *(s32 *)(arg0 + 0x24) = clamped - 1;
     return 0;
 one:
     return 1;
