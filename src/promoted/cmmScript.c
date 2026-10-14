@@ -276,13 +276,11 @@ s32 func_0024a2e0(void)
 // FUN_0024A450
 s32 func_0024a450(void)
 {
-    u8* p;
-    u8* q2;
-    u8* q3;
+    cmmMsgState *p;
 
-    p = func_00108dc0();
+    p = (cmmMsgState *)func_00108dc0();
     if (p != 0) {
-        func_0029cf50(p[0xA]);
+        func_0029cf50(p->view.raw.unk0A);
     }
     return 1;
 }
@@ -298,38 +296,38 @@ s32 func_0024a450(void)
 
 s32 func_0024a490(void)
 {
-    s32 a;
-    s32 r;
+    s32 id;
+    s32 mesMgr;
     u8 buf[0x80];
     s32 tbl[7];
-    s32 b;
+    s32 key;
     s32 idx;
     s32 i;
     s32 tmp;
     s32* src;
     s32* dst;
 
-    a = func_0029cc00(0);
-    if (a == 0) {
-        a = func_00108e10() & 0xFFFF;
+    id = func_0029cc00(0);
+    if (id == 0) {
+        id = func_00108e10() & 0xFFFF;
     }
-    r = func_0029d030();
-    if (r < 0) {
+    mesMgr = func_0029d030();
+    if (mesMgr < 0) {
         func_0046d730(D_006359F0, 0x140);
     }
-    b = func_002487e0(a & 0xFFFF, 0);
-    if (b != 0) {
-        func_00278450(r, 0, func_0010d620((s16)b));
+    key = func_002487e0(id & 0xFFFF, 0);
+    if (key != 0) {
+        func_00278450(mesMgr, 0, func_0010d620((s16)key));
     }
-    func_00275980(func_00246830(a & 0xFFFF), buf, 0x80);
-    func_00278450(r, 1, buf);
-    func_00278450(r, 2, func_002438b0((u8)func_00248760(a & 0xFFFF)));
-    func_00275980(func_00246b10((s8)func_00248760(a & 0xFFFF)), buf, 0x80);
-    func_00278450(r, 3, buf);
-    func_002782c0(r, 4, func_00107ac0(a & 0xFFFF) & 0xFFFF, 0);
-    b = func_00247820((s16)a);
-    if (b != 0) {
-        func_00278450(r, 5, func_00109220(b & 0xFFFF));
+    func_00275980(func_00246830(id & 0xFFFF), buf, 0x80);
+    func_00278450(mesMgr, 1, buf);
+    func_00278450(mesMgr, 2, func_002438b0((u8)func_00248760(id & 0xFFFF)));
+    func_00275980(func_00246b10((s8)func_00248760(id & 0xFFFF)), buf, 0x80);
+    func_00278450(mesMgr, 3, buf);
+    func_002782c0(mesMgr, 4, func_00107ac0(id & 0xFFFF) & 0xFFFF, 0);
+    key = func_00247820((s16)id);
+    if (key != 0) {
+        func_00278450(mesMgr, 5, func_00109220(key & 0xFFFF));
     }
     idx = func_00248040(func_001060b0());
     if (idx != 0) {
@@ -342,10 +340,10 @@ s32 func_0024a490(void)
             *dst++ = tmp;
         } while (i > 0);
         func_00275980(tbl[func_00110580(idx, dst, src)], buf, 0x80);
-        func_00278450(r, 6, buf);
+        func_00278450(mesMgr, 6, buf);
     }
-    func_00275980(func_002468a0(a & 0xFFFF), buf, 0x80);
-    func_00278450(r, 7, buf);
+    func_00275980(func_002468a0(id & 0xFFFF), buf, 0x80);
+    func_00278450(mesMgr, 7, buf);
     return 1;
 }
 
