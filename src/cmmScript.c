@@ -206,7 +206,7 @@ typedef struct cmmMsgState
         struct
         {
             u8 pad08[2];
-            u8 unk0A;  // 0x0A, passed to func_0029cf50
+            u8 unk0A;  // 0x0A, passed to scrSetReturnInt
             u8 pad0B;
             s32 unk0C; // 0x0C, packed into pack.hi/lo
             u16 unk10; // 0x10, pack.u
