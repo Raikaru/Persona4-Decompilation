@@ -1,33 +1,35 @@
 /* Source unit: "k_shadow.c" (bare __FILE__ string; span 0x0017B510..0x0017CCC0). */
+/* Prologue is the minimal set found by delta-debugging the committed code1 prologue
+   against the span (measured: all 14 functions MATCH). The full prologue ICEs in
+   InterferenceGraph.c line 400 while compiling func_0017b510. The trigger is not
+   isolated to one declaration: removing any kept declaration breaks compile or match,
+   so the whole minimal set is required. */
 #include "sdk_task_registration.h"
-typedef struct
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} Vec3_00178590;
 extern u8 D_005F18C0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 #include "field_shadow_internal.h"
 #include "rw/plcore/barenderstate.h"
-typedef struct RwV3d { f32 x, y, z; } RwV3d;
-typedef struct RwRGBA RwRGBA;
-typedef s32 (*FieldRenderStateSetFunction)(RwRenderState, void *);
-typedef struct
+#include "Kosaka/k_fldFrame_internal.h"
+typedef struct RwRGBA
 {
     u8 red;
     u8 green;
     u8 blue;
     u8 alpha;
-} FieldColor_0017;
+} RwRGBA;
+typedef struct RwSphere
+{
+    RwV3d center;
+    f32 radius;
+} RwSphere;
+typedef s32 (*FieldRenderStateSetFunction)(RwRenderState, void *);
 extern u8 D_005F1910[];
 extern f32 sinf(f32 arg0);
 extern f32 cosf(f32 arg0);
 extern f32 iGpffff8304;
 extern FieldRenderStateSetFunction D_00887300[];
-typedef struct RwSphere { RwV3d center; f32 radius; } RwSphere;
 void func_0017a700(u8 *arg0, u8 *arg1);
 void func_0017a8d0(u8 *arg0, u8 *arg1);
 void func_0017aae0(u8 *arg0, u8 *arg1);
@@ -77,7 +79,7 @@ s32 func_0017acc0(u8 *arg0)
     extern u8 *func_00460990(void);
     extern void func_00460ac0(u8 *pool, u8 *node);
     extern void func_00479100(void *pool, u8 *model);
-    extern FieldColor_0017 iGpffff9f48;
+    extern RwRGBA iGpffff9f48;
     extern f32 fGpffff82bc;
     extern u8 D_00794330[];
     u8 *ctx;
@@ -138,7 +140,7 @@ s32 func_0017acc0(u8 *arg0)
                 RwSphere sphere;
 
                 *(u8 **)(*(u8 **)(ctx + 0x50) + 8) = func_003c4140();
-                *(FieldColor_0017 *)(*(u8 **)(*(u8 **)(ctx + 0x50) + 8) + 4) = iGpffff9f48;
+                *(RwRGBA *)(*(u8 **)(*(u8 **)(ctx + 0x50) + 8) + 4) = iGpffff9f48;
                 geometry = (u8 *)func_003c2630(0x22, 0x20, 0x4A);
                 triangle = *(u8 **)(geometry + 0x2C);
                 for (triangleIndex = 0; triangleIndex < 32; triangleIndex++) {
@@ -325,7 +327,7 @@ void *func_0017b510(u8 *arg0, u16 arg1, u16 arg2)
     u8 *camera;
     u8 *zRaster;
     u8 *obj;
-    Vec3_00178590 pos;
+    RwV3d pos;
     void *(**table)(size_t, size_t, u32);
     u16 *mode;
 
@@ -548,11 +550,11 @@ void func_0017bbe0(u8 *arg0, u8 *arg1)
 // FUN_0017BC60
 void func_0017bc60(u8 *unused, u8 *state)
 {
-    Vec3_00178590 position;
+    RwV3d position;
     f32 localTolerance[3];
     f32 sceneTolerance[3];
     f32 viewWindow[2];
-    Vec3_00178590 translation;
+    RwV3d translation;
     u8 *data;
     u8 *camera;
     u8 **frameSlot;
@@ -563,14 +565,14 @@ void func_0017bc60(u8 *unused, u8 *state)
     data = *(u8 **)(*(u8 **)(state + 0x224) + 0x38);
     camera = *(u8 **)(data + 0x44);
     height = *(f32 *)(data + 0x18);
-    position = *(Vec3_00178590 *)((u8 *)mdlGetMatrix(*(void **)(state + 0x164)) + 0x30);
+    position = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(state + 0x164)) + 0x30);
     if (*(s32 *)(*(u8 **)(*(u8 **)(state + 0x224) + 0x38)) > 0) {
         if (*(u32 *)(state + 0x28) & 0x80000000U) {
             frameSlot = (u8 **)(camera + 4);
             frame = *frameSlot;
-            *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(state + 0x190);
-            *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(state + 0x1A0);
-            *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(state + 0x1B0);
+            *(RwV3d *)(frame + 0x10) = *(RwV3d *)(state + 0x190);
+            *(RwV3d *)(frame + 0x20) = *(RwV3d *)(state + 0x1A0);
+            *(RwV3d *)(frame + 0x30) = *(RwV3d *)(state + 0x1B0);
             RwEngineGetMatrixTolerances(localTolerance);
             RwMatrixOptimize(frame + 0x10, localTolerance);
             RwMatrixUpdate(frame + 0x10);
@@ -578,9 +580,9 @@ void func_0017bc60(u8 *unused, u8 *state)
             u8 *basis = func_0014ad50();
             frameSlot = (u8 **)(camera + 4);
             frame = *frameSlot;
-            *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(basis + 0);
-            *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(basis + 0x10);
-            *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(basis + 0x20);
+            *(RwV3d *)(frame + 0x10) = *(RwV3d *)(basis + 0);
+            *(RwV3d *)(frame + 0x20) = *(RwV3d *)(basis + 0x10);
+            *(RwV3d *)(frame + 0x30) = *(RwV3d *)(basis + 0x20);
             RwEngineGetMatrixTolerances(sceneTolerance);
             RwMatrixOptimize(frame + 0x10, sceneTolerance);
             RwMatrixUpdate(frame + 0x10);
@@ -614,8 +616,8 @@ void func_0017bc60(u8 *unused, u8 *state)
         }
         RwCameraClear(camera, &iGpffffb308, 3);
         if (func_003e8120((u32)camera)) {
-            FieldColor_0017 *savedColor = (FieldColor_0017 *)(*(u8 **)(*(u8 **)(state + 0x224) + 0x38) + 0x48);
-            *savedColor = *(FieldColor_0017 *)mdlGetColor(*(void **)(state + 0x164));
+            RwRGBA *savedColor = (RwRGBA *)(*(u8 **)(*(u8 **)(state + 0x224) + 0x38) + 0x48);
+            *savedColor = *(RwRGBA *)mdlGetColor(*(void **)(state + 0x164));
             mdlSetColor(*(u8 **)(state + 0x164), &iGpffff9f4c);
         } else {
             func_0046d730(D_005F18C0, 0x764);
@@ -681,11 +683,11 @@ void func_0017c010(u8 *packet, s32 stateAddress, void *callbackSelf)
    and the later frame, model and resource-chain reloads across callbacks. */
 void func_0017c270(u8 *unused, u8 *state)
 {
-    Vec3_00178590 position;
+    RwV3d position;
     f32 localTolerance[3];
     f32 sceneTolerance[3];
     f32 viewWindow[2];
-    Vec3_00178590 translation;
+    RwV3d translation;
     u8 *data;
     u8 *camera;
     u8 **frameSlot;
@@ -697,14 +699,14 @@ void func_0017c270(u8 *unused, u8 *state)
     data = *(u8 **)(*(u8 **)(state + 0x230) + 0x38);
     camera = *(u8 **)(data + 0x44);
     height = *(f32 *)(data + 0x18);
-    position = *(Vec3_00178590 *)((u8 *)mdlGetMatrix(*(void **)(state + 0x164)) + 0x30);
+    position = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(state + 0x164)) + 0x30);
     if (*(s32 *)(*(u8 **)(*(u8 **)(state + 0x230) + 0x38)) > 0) {
         if (*(u32 *)(state + 0x28) & 0x80000000U) {
             frameSlot = (u8 **)(camera + 4);
             frame = *frameSlot;
-            *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(state + 0x190);
-            *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(state + 0x1A0);
-            *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(state + 0x1B0);
+            *(RwV3d *)(frame + 0x10) = *(RwV3d *)(state + 0x190);
+            *(RwV3d *)(frame + 0x20) = *(RwV3d *)(state + 0x1A0);
+            *(RwV3d *)(frame + 0x30) = *(RwV3d *)(state + 0x1B0);
             RwEngineGetMatrixTolerances(localTolerance);
             RwMatrixOptimize(frame + 0x10, localTolerance);
             RwMatrixUpdate(frame + 0x10);
@@ -712,9 +714,9 @@ void func_0017c270(u8 *unused, u8 *state)
             u8 *basis = func_0014ad50();
             frameSlot = (u8 **)(camera + 4);
             frame = *frameSlot;
-            *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(basis + 0);
-            *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(basis + 0x10);
-            *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(basis + 0x20);
+            *(RwV3d *)(frame + 0x10) = *(RwV3d *)(basis + 0);
+            *(RwV3d *)(frame + 0x20) = *(RwV3d *)(basis + 0x10);
+            *(RwV3d *)(frame + 0x30) = *(RwV3d *)(basis + 0x20);
             RwEngineGetMatrixTolerances(sceneTolerance);
             RwMatrixOptimize(frame + 0x10, sceneTolerance);
             RwMatrixUpdate(frame + 0x10);
@@ -748,8 +750,8 @@ void func_0017c270(u8 *unused, u8 *state)
         }
         RwCameraClear(camera, &iGpffffb30c, 3);
         if (func_003e8120((u32)camera)) {
-            FieldColor_0017 *savedColor = (FieldColor_0017 *)(*(u8 **)(*(u8 **)(state + 0x230) + 0x38) + 0x48);
-            *savedColor = *(FieldColor_0017 *)mdlGetColor(*(void **)(state + 0x164));
+            RwRGBA *savedColor = (RwRGBA *)(*(u8 **)(*(u8 **)(state + 0x230) + 0x38) + 0x48);
+            *savedColor = *(RwRGBA *)mdlGetColor(*(void **)(state + 0x164));
             mdlSetColor(*(u8 **)(state + 0x164), &iGpffff9f50);
             for (i = 0; i < 5; i++) {
                 *(u8 *)(*(u8 **)(state + 0x164) + i * 0xC + 0x28C) &= ~1;
