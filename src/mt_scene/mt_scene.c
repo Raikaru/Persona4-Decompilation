@@ -15,11 +15,6 @@ extern void func_004b1590();
 
 
 
-// FUN_00145260
-u32 func_00145260(void)
-{
-    return *(u32*)(PTR_DAT_00762ea0 + 8);
-}
 
 
 
