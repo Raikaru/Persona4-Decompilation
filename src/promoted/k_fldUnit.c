@@ -166,7 +166,7 @@ void mdlSetColor(s32 arg0, u8 *arg1);
 void func_004b14f0(u8 *arg0, u8 *arg1);
 void func_004b13f0(u8 *arg0, u8 *arg1);
 void *mdlGetMatrix(void *arg0);
-void MT_Scene_DeleteRes(u16 arg0);
+void MT_Scene_DestroyRes(u16 arg0);
 void func_0047a870(s32 arg0);
 void func_004787e0(u8 *arg0);
 void func_00452080(s32 arg0);
@@ -940,7 +940,7 @@ void func_00164020(u8 *arg0)
         func_002319c0(t48);
         t54 = *(u16 **)(arg0 + 0x54);
         if (t54 != NULL) {
-            MT_Scene_DeleteRes(*t54);
+            MT_Scene_DestroyRes(*t54);
         }
         if ((*(s32 *)(arg0 + 0x50) != 0) &&
             ((*(u16 *)(arg0 + 0x728) == 0) || (*(s32 *)(arg0 + 0x44) == 1))) {
@@ -1725,7 +1725,7 @@ void func_00165670(u8 *arg0, s32 arg1)
             *(u32 *)(d + 4) = w1;
             d += 8;
         } while (n > 0);
-        MT_Scene_DeleteRes(*(u16 *)(*(u32 *)(p + 0x54)));
+        MT_Scene_DestroyRes(*(u16 *)(*(u32 *)(p + 0x54)));
         *(u32 *)(p + 0x54) = 0;
         if (*(u32 *)(p + 0x50) != 0) {
             func_0047a870(*(u32 *)(p + 0x50));

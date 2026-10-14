@@ -479,7 +479,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 func_00146440(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
     extern u8 *func_001452b0(s32 arg0);
     extern u8 *MT_Scene_GetRes(s32 arg0);
-    extern void MT_Scene_DeleteRes(u16 arg0);
+    extern void MT_Scene_DestroyRes(u16 arg0);
     extern s32 func_00145ac0(u16 arg0, s32 arg1);
     extern s32 func_00145ba0(u16 arg0, s32 arg1);
     /* lint: allow H011 -- the resource pointer is stored unchanged in the
@@ -1076,12 +1076,12 @@ reloadParts:
         if (fldResourceReady_0014f310((u8 *)iGpffffb200) != 0) {
             while (var_18_4 != NULL) {
                 temp_16_10 = (u8 *)(*( u8 ** )(var_18_4 + 0x138));
-                MT_Scene_DeleteRes(*( u16 * )(var_18_4 + 0));
+                MT_Scene_DestroyRes(*( u16 * )(var_18_4 + 0));
                 var_18_4 = (u8 *)(temp_16_10);
             }
             while (var_17_7 != NULL) {
                 temp_16_11 = (u8 *)(*( u8 ** )(var_17_7 + 0x138));
-                MT_Scene_DeleteRes(*( u16 * )(var_17_7 + 0));
+                MT_Scene_DestroyRes(*( u16 * )(var_17_7 + 0));
                 var_17_7 = (u8 *)(temp_16_11);
             }
             if (func_0014a270() == 1) {

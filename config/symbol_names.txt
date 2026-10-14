@@ -36,4 +36,4 @@ mwsfd_StartStm = 0x005115F0; // type:func  evidence: source:src/cri/re4/mwsfdsvr
 MWSTM_ReqStart = 0x00512238; // type:func  evidence: source:src/cri/re4/mwstm.c FUN_00512238 delegates to ADXSTM_Start
 
 // Resource teardown: retail debug prints "delete <kind> res" per resource type.
-MT_Scene_DeleteRes = 0x00146630; // type:func  evidence: string:"delete field camera res =0x%x"
+MT_Scene_DestroyRes = 0x00146630; // type:func  evidence: string:"delete field camera res =0x%x"
