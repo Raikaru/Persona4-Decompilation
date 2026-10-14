@@ -1,8 +1,8 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
-extern s32 func_00246480(void);
-extern f32 func_00245030(s32 arg0, s32 arg1);
+extern s32 datScriptTargetLacksFlag4(void);
+extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
 #include "datScript_internal.h"
 extern void func_0044ea90(void *file, s32 line);
 
@@ -57,7 +57,7 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 // FUN_00244110
 void func_00244110(void)
 {
-    extern s32 func_002464e0(void);
+    extern s32 datScriptCmdFlag2Set(void);
     extern f32 sqrtf(f32 arg0);
     extern f32 fGpffff82c0;
     extern f32 fGpffff824c;
@@ -67,79 +67,79 @@ void func_00244110(void)
     f32 temp_f2;
     f32 temp_f3;
 
-    if (func_002464e0() != 0) {
-        if (func_00246480() != 0) {
-            temp_f20 = func_00245030(0xE, 2);
-            temp_f20 += func_00245030(0xE, 2);
-            temp_f1 = func_00245030(0x13, 0) / 2.0f;
+    if (datScriptCmdFlag2Set() != 0) {
+        if (datScriptTargetLacksFlag4() != 0) {
+            temp_f20 = datScriptCalcFloat(0xE, 2);
+            temp_f20 += datScriptCalcFloat(0xE, 2);
+            temp_f1 = datScriptCalcFloat(0x13, 0) / 2.0f;
             temp_f1 = mul_f32_ordered(30.0f, temp_f1);
             temp_f0 = 5.0f * temp_f20;
             temp_f20 = temp_f1 / temp_f0;
-            temp_f0 = func_00245030(0xD, 0) / 5.0f;
+            temp_f0 = datScriptCalcFloat(0xD, 0) / 5.0f;
             temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
             temp_f1 = sqrtf(temp_f0);
             temp_f20 = 10.0f * temp_f1;
-            temp_f20 *= func_00245030(0xC, 0);
-            temp_f20 *= func_00245030(0x17, 0);
+            temp_f20 *= datScriptCalcFloat(0xC, 0);
+            temp_f20 *= datScriptCalcFloat(0x17, 0);
         } else {
-            temp_f20 = func_00245030(0x20, 0) / 4.0f;
+            temp_f20 = datScriptCalcFloat(0x20, 0) / 4.0f;
             temp_f3 = 2.0f;
-            temp_f0 = func_00245030(0xE, 2);
+            temp_f0 = datScriptCalcFloat(0xE, 2);
             temp_f2 = temp_f20 / temp_f3;
             temp_f1 = temp_f2 + temp_f3 * temp_f0;
             temp_f0 = fGpffff811c * temp_f1;
             temp_f20 = temp_f0;
-            temp_f1 = func_00245030(0x13, 0);
+            temp_f1 = datScriptCalcFloat(0x13, 0);
             temp_f1 = mul_f32_ordered(30.0f, temp_f1);
             temp_f0 = mul_f32_ordered(5.0f, temp_f20);
             temp_f20 = temp_f1 / temp_f0;
-            temp_f0 = func_00245030(0xD, 0) / 5.0f;
+            temp_f0 = datScriptCalcFloat(0xD, 0) / 5.0f;
             temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
             temp_f1 = sqrtf(temp_f0);
             temp_f20 = 10.0f * temp_f1;
-            temp_f20 *= func_00245030(0xC, 0);
-            temp_f1 = temp_f20 * func_00245030(0x17, 0);
+            temp_f20 *= datScriptCalcFloat(0xC, 0);
+            temp_f1 = temp_f20 * datScriptCalcFloat(0x17, 0);
             temp_f20 = fGpffff82c0 * temp_f1;
         }
     } else {
-        if (func_00246480() != 0) {
-            temp_f20 = func_00245030(0xE, 2);
-            temp_f20 += func_00245030(0xE, 2);
-            temp_f1 = func_00245030(0x13, 0);
+        if (datScriptTargetLacksFlag4() != 0) {
+            temp_f20 = datScriptCalcFloat(0xE, 2);
+            temp_f20 += datScriptCalcFloat(0xE, 2);
+            temp_f1 = datScriptCalcFloat(0x13, 0);
             temp_f1 = mul_f32_ordered(30.0f, temp_f1);
             temp_f0 = 5.0f * temp_f20;
             temp_f20 = temp_f1 / temp_f0;
-            temp_f0 = func_00245030(0xD, 0) / 5.0f;
+            temp_f0 = datScriptCalcFloat(0xD, 0) / 5.0f;
             temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
             temp_f1 = sqrtf(temp_f0);
             temp_f20 = 10.0f * temp_f1;
-            temp_f20 *= func_00245030(0xC, 0);
-            temp_f20 *= func_00245030(0x17, 0);
+            temp_f20 *= datScriptCalcFloat(0xC, 0);
+            temp_f20 *= datScriptCalcFloat(0x17, 0);
         } else {
-            temp_f20 = func_00245030(0x20, 0) / 2.0f;
+            temp_f20 = datScriptCalcFloat(0x20, 0) / 2.0f;
             temp_f3 = 2.0f;
-            temp_f0 = func_00245030(0xE, 2);
+            temp_f0 = datScriptCalcFloat(0xE, 2);
             temp_f2 = temp_f20 / temp_f3;
             temp_f1 = temp_f2 + temp_f3 * temp_f0;
             temp_f0 = fGpffff811c * temp_f1;
             temp_f20 = temp_f0;
-            temp_f1 = func_00245030(0x13, 0);
+            temp_f1 = datScriptCalcFloat(0x13, 0);
             temp_f1 = mul_f32_ordered(30.0f, temp_f1);
             temp_f0 = mul_f32_ordered(5.0f, temp_f20);
             temp_f20 = temp_f1 / temp_f0;
-            temp_f0 = func_00245030(0xD, 0) / 5.0f;
+            temp_f0 = datScriptCalcFloat(0xD, 0) / 5.0f;
             temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
             temp_f1 = sqrtf(temp_f0);
             temp_f20 = 10.0f * temp_f1;
-            temp_f1 = temp_f20 * func_00245030(0x17, 0);
+            temp_f1 = temp_f20 * datScriptCalcFloat(0x17, 0);
             temp_f20 = temp_f1 - 30.0f;
             if (temp_f20 <= 0.0f)
                 temp_f20 = 1.0f;
             temp_f20 *= fGpffff824c;
-            temp_f20 *= func_00245030(0xC, 0);
+            temp_f20 *= datScriptCalcFloat(0xC, 0);
         }
     }
-    func_00246450(temp_f20);
+    datScriptSetResult(temp_f20);
 }
 // FUN_00244540
 void func_00244540(void)
@@ -153,48 +153,48 @@ void func_00244540(void)
     f32 temp_f2;
     f32 temp_f3;
 
-    if (func_00246480() != 0) {
-        temp_f20 = func_00245030(0xE, 2);
-        temp_f20 += func_00245030(0xE, 2);
-        temp_f1 = func_00245030(0x13, 0);
+    if (datScriptTargetLacksFlag4() != 0) {
+        temp_f20 = datScriptCalcFloat(0xE, 2);
+        temp_f20 += datScriptCalcFloat(0xE, 2);
+        temp_f1 = datScriptCalcFloat(0x13, 0);
         temp_f1 = mul_f32_ordered(30.0f, temp_f1);
         temp_f0 = 5.0f * temp_f20;
         temp_f20 = temp_f1 / temp_f0;
-        temp_f0 = func_00245030(0xD, 1) / 5.0f;
+        temp_f0 = datScriptCalcFloat(0xD, 1) / 5.0f;
         temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
         temp_f1 = sqrtf(temp_f0);
         temp_f21 = 10.0f * temp_f1;
-        temp_f21 *= func_00245030(0xC, 0);
-        temp_f20 = func_00245030(0x17, 0);
-        temp_f0 = func_00245030(0x19, 0);
+        temp_f21 *= datScriptCalcFloat(0xC, 0);
+        temp_f20 = datScriptCalcFloat(0x17, 0);
+        temp_f0 = datScriptCalcFloat(0x19, 0);
         temp_f20 = temp_f0 + temp_f21 * temp_f20;
     } else {
-        temp_f20 = func_00245030(0x20, 0) / 2.0f;
+        temp_f20 = datScriptCalcFloat(0x20, 0) / 2.0f;
         temp_f3 = 2.0f;
-        temp_f0 = func_00245030(0xE, 2);
+        temp_f0 = datScriptCalcFloat(0xE, 2);
         temp_f2 = temp_f20 / temp_f3;
         temp_f1 = temp_f2 + temp_f3 * temp_f0;
         temp_f0 = fGpffff811c * temp_f1;
         temp_f20 = temp_f0;
-        temp_f1 = func_00245030(0x13, 0);
+        temp_f1 = datScriptCalcFloat(0x13, 0);
         temp_f1 = mul_f32_ordered(30.0f, temp_f1);
         temp_f0 = mul_f32_ordered(5.0f, temp_f20);
         temp_f20 = temp_f1 / temp_f0;
-        temp_f0 = func_00245030(0xD, 1) / 5.0f;
+        temp_f0 = datScriptCalcFloat(0xD, 1) / 5.0f;
         temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
         temp_f1 = sqrtf(temp_f0);
         temp_f21 = 10.0f * temp_f1;
-        temp_f20 = func_00245030(0x17, 0);
-        temp_f0 = func_00245030(0x19, 0);
+        temp_f20 = datScriptCalcFloat(0x17, 0);
+        temp_f0 = datScriptCalcFloat(0x19, 0);
         temp_f2 = temp_f0 + temp_f21 * temp_f20;
         temp_f0 = 30.0f;
         temp_f20 = temp_f2 - temp_f0;
         if (temp_f20 <= 0.0f)
             temp_f20 = 1.0f;
         temp_f20 *= 2.0f;
-        temp_f20 *= func_00245030(0xC, 0);
+        temp_f20 *= datScriptCalcFloat(0xC, 0);
     }
-    func_00246450(temp_f20);
+    datScriptSetResult(temp_f20);
 }
 // FUN_00244870
 void func_00244870(void)
@@ -205,22 +205,22 @@ void func_00244870(void)
     f32 temp_f0;
     f32 temp_f1;
 
-    if (func_00246480() != 0) {
-        temp_f20 = add_f32_ordered(200.0f, func_00245030(0xD, 3));
-        temp_f0 = add_f32_ordered(200.0f, func_00245030(0xE, 3));
+    if (datScriptTargetLacksFlag4() != 0) {
+        temp_f20 = add_f32_ordered(200.0f, datScriptCalcFloat(0xD, 3));
+        temp_f0 = add_f32_ordered(200.0f, datScriptCalcFloat(0xE, 3));
         temp_f20 = temp_f20 / temp_f0;
-        temp_f0 = temp_f20 * func_00245030(0x11, 0);
+        temp_f0 = temp_f20 * datScriptCalcFloat(0x11, 0);
     } else {
-        temp_f20 = add_f32_ordered(200.0f, func_00245030(0xD, 3));
-        temp_f0 = add_f32_ordered(200.0f, func_00245030(0xE, 3));
+        temp_f20 = add_f32_ordered(200.0f, datScriptCalcFloat(0xD, 3));
+        temp_f0 = add_f32_ordered(200.0f, datScriptCalcFloat(0xE, 3));
         temp_f21 = temp_f20 / temp_f0;
-        temp_f20 = func_00245030(0x1F, 0) / fGpffff824c;
-        temp_f1 = func_00245030(0x11, 0) - temp_f20;
+        temp_f20 = datScriptCalcFloat(0x1F, 0) / fGpffff824c;
+        temp_f1 = datScriptCalcFloat(0x11, 0) - temp_f20;
         if (temp_f1 <= 0.0f)
             temp_f1 = 1.0f;
         temp_f0 = temp_f21 * temp_f1;
     }
-    func_00246450(temp_f0);
+    datScriptSetResult(temp_f0);
 }
 // FUN_00244CF0
 void func_00244cf0(void)
@@ -230,24 +230,24 @@ void func_00244cf0(void)
     f32 temp_f0;
     f32 temp_f1;
 
-    temp_f20 = func_00245030(0xE, 2);
-    temp_f20 += func_00245030(0xE, 2);
-    temp_f0 = func_00245030(0x13, 0);
+    temp_f20 = datScriptCalcFloat(0xE, 2);
+    temp_f20 += datScriptCalcFloat(0xE, 2);
+    temp_f0 = datScriptCalcFloat(0x13, 0);
     temp_f1 = temp_f0 / 2.0f;
     temp_f0 = 30.0f * temp_f1;
     temp_f1 = 5.0f * temp_f20;
     temp_f20 = temp_f0 / temp_f1;
-    temp_f0 = func_00245030(0xD, 0);
+    temp_f0 = datScriptCalcFloat(0xD, 0);
     temp_f0 = temp_f0 / 5.0f;
     temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
     temp_f1 = sqrtf(temp_f0);
     temp_f20 = 10.0f * temp_f1;
-    temp_f20 *= func_00245030(0xC, 0);
-    temp_f20 *= func_00245030(0x17, 0);
-    temp_f20 *= func_00245030(0x1B, 0);
-    temp_f1 = temp_f20 * func_00245030(0x21, 0);
+    temp_f20 *= datScriptCalcFloat(0xC, 0);
+    temp_f20 *= datScriptCalcFloat(0x17, 0);
+    temp_f20 *= datScriptCalcFloat(0x1B, 0);
+    temp_f1 = temp_f20 * datScriptCalcFloat(0x21, 0);
     temp_f0 = temp_f1 * fGpffff811c;
-    func_00246450(temp_f0);
+    datScriptSetResult(temp_f0);
 }
 // FUN_00246550
 s32 func_00246550(void)

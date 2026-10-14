@@ -18,8 +18,8 @@ extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern u32 func_001053b0(s16 arg0);
 extern s32 func_00232730(u8 *arg0, s32 arg1);
 
-extern s32 func_00246480(void);
-extern f32 func_00245030(u32 arg0, s32 arg1);
+extern s32 datScriptTargetLacksFlag4(void);
+extern f32 datScriptCalcFloat(u32 arg0, s32 arg1);
 extern f32 D_00761260;
 extern f32 fGpffff811c;
 static inline f32 mul_f32_ordered(f32 left, f32 right)
@@ -72,7 +72,7 @@ extern s32 func_00109980(s32 arg0, s32 arg1);
 extern s64 func_00233570(u8 *arg0, s32 arg1, s64 arg2);
 /* func_00241de0 passes a 5th arg (arg4) that func_00241bc0 ignores. */
 extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00244f60(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
+extern s32 datScriptRunCalc(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
 extern u16 func_00247cb0(s64 arg0);
 extern u16 func_00107ac0(s32 arg0);
 
@@ -1709,10 +1709,10 @@ u8 arg7;
     case 2:
         switch (DCDamageSkillKind(arg0)) {
         case 1:
-            healing = func_00244f60(1, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
+            healing = datScriptRunCalc(1, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         case 2:
-            healing = func_00244f60(3, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
+            healing = datScriptRunCalc(3, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         default:
             func_0046d730(D_00635938, 0x75E);
@@ -1756,10 +1756,10 @@ u8 arg7;
     case 14:
         switch (DCDamageSkillKind(arg0)) {
         case 1:
-            damage = func_00244f60(1, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
+            damage = datScriptRunCalc(1, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         case 2:
-            damage = func_00244f60(2, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
+            damage = datScriptRunCalc(2, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         default:
             func_0046d730(D_00635938, 0x7A7);
@@ -1796,7 +1796,7 @@ u8 arg7;
         }
         break;
     case 16:
-        damage = DCDamageAddBonus((s32)func_00244f60(9, (u16 *)arg1, (u16 *)arg2, arg0, arg7), bonus);
+        damage = DCDamageAddBonus((s32)datScriptRunCalc(9, (u16 *)arg1, (u16 *)arg2, arg0, arg7), bonus);
         if (damage <= 0) {
             damage = 1;
         }
@@ -2388,7 +2388,7 @@ return_zero_1:
     if ((s32)iGpffffb3b8[offset + 0x19] >= 100) {
         success = 1;
     } else {
-        chance = (f32)func_00244f60(10, (u16 *)(source), (u16 *)(target), skillId, (s32)statuses);
+        chance = (f32)datScriptRunCalc(10, (u16 *)(source), (u16 *)(target), skillId, (s32)statuses);
         chance = chance * multiplier;
         rate = (s32)chance;
         if (rate > 99) {
@@ -3931,7 +3931,7 @@ s32 arg3;
             evadeMultiplier *= 0.5f;
         }
     }
-    baseRate = func_00244f60(4, (u16 *)arg0, (u16 *)arg1, arg2, 0);
+    baseRate = datScriptRunCalc(4, (u16 *)arg0, (u16 *)arg1, arg2, 0);
     if (!(*(u16 *)arg1 & 4)) {
         switch (element) {
         case 0:
@@ -4132,7 +4132,7 @@ s32 arg4;
     switch (entry[idx + 2]) {
     case 1:
         if (base == 0) {
-            base = func_00244f60(5, (u16 *)(arg0), (u16 *)(arg1), arg2, 0);
+            base = datScriptRunCalc(5, (u16 *)(arg0), (u16 *)(arg1), arg2, 0);
         }
         if (DC411HasFixedSkill(arg1, 0x206)) {
             f20 = f20 * 0.5f;
@@ -5267,14 +5267,14 @@ void func_002447c0(void)
     f32 temp_f20;
     f32 temp_f21;
 
-    if (func_00246480() != 0) {
-        temp_f20 = func_00245030(0x13, 0);
-        temp_f20 += func_00245030(0x1A, 0);
+    if (datScriptTargetLacksFlag4() != 0) {
+        temp_f20 = datScriptCalcFloat(0x13, 0);
+        temp_f20 += datScriptCalcFloat(0x1A, 0);
     } else {
-        temp_f21 = func_00245030(0x1A, 0);
-        temp_f20 = D_00761260 * temp_f21 + func_00245030(0x13, 0);
+        temp_f21 = datScriptCalcFloat(0x1A, 0);
+        temp_f20 = D_00761260 * temp_f21 + datScriptCalcFloat(0x13, 0);
     }
-    func_00246450(temp_f20);
+    datScriptSetResult(temp_f20);
 }
 
 // FUN_002449C0
@@ -5283,24 +5283,24 @@ void func_002449c0(void)
     f32 temp_f20;
     f32 temp_f0;
 
-    if (func_00246480() != 0) {
-        temp_f20 = (50.0f + func_00245030(0xD, 4)) /
-                   (50.0f + func_00245030(0xE, 4));
-        temp_f0 = func_00245030(0x14, 0);
+    if (datScriptTargetLacksFlag4() != 0) {
+        temp_f20 = (50.0f + datScriptCalcFloat(0xD, 4)) /
+                   (50.0f + datScriptCalcFloat(0xE, 4));
+        temp_f0 = datScriptCalcFloat(0x14, 0);
         temp_f0 *= temp_f20;
     } else {
-        temp_f20 = (50.0f + func_00245030(0xD, 4)) /
-                   (50.0f + func_00245030(0xE, 4));
-        temp_f0 = fGpffff811c * mul_f32_ordered(func_00245030(0x14, 0), temp_f20);
+        temp_f20 = (50.0f + datScriptCalcFloat(0xD, 4)) /
+                   (50.0f + datScriptCalcFloat(0xE, 4));
+        temp_f0 = fGpffff811c * mul_f32_ordered(datScriptCalcFloat(0x14, 0), temp_f20);
     }
-    func_00246450(temp_f0);
+    datScriptSetResult(temp_f0);
 }
 
 // FUN_00244AD0
 void func_00244ad0(void)
 {
-    func_00246480();
-    func_00246450(func_00245030(0x15, 0));
+    datScriptTargetLacksFlag4();
+    datScriptSetResult(datScriptCalcFloat(0x15, 0));
 }
 
 // FUN_00244B10
@@ -5309,12 +5309,12 @@ void func_00244b10(void)
     f32 temp_f21;
     f32 temp_f20;
 
-    temp_f20 = 100.0f + func_00245030(0xD, 3);
-    temp_f21 = temp_f20 / (100.0f + func_00245030(0xE, 3));
-    temp_f20 = 100.0f + func_00245030(0xD, 4);
-    temp_f20 = 75.0f * (temp_f21 * (temp_f20 / (100.0f + func_00245030(0xE, 4))));
-    temp_f20 += 5.0f * func_00245030(0x22, 0);
-    func_00246450(temp_f20);
+    temp_f20 = 100.0f + datScriptCalcFloat(0xD, 3);
+    temp_f21 = temp_f20 / (100.0f + datScriptCalcFloat(0xE, 3));
+    temp_f20 = 100.0f + datScriptCalcFloat(0xD, 4);
+    temp_f20 = 75.0f * (temp_f21 * (temp_f20 / (100.0f + datScriptCalcFloat(0xE, 4))));
+    temp_f20 += 5.0f * datScriptCalcFloat(0x22, 0);
+    datScriptSetResult(temp_f20);
 }
 
 // FUN_00244C10
@@ -5322,14 +5322,14 @@ void func_00244c10(void)
 {
     f32 temp_f20;
 
-    temp_f20 = 3.0f * (func_00245030(1, 0) - 1.0f) + 2.0f;
-    temp_f20 *= func_00245030(0x10, 0);
+    temp_f20 = 3.0f * (datScriptCalcFloat(1, 0) - 1.0f) + 2.0f;
+    temp_f20 *= datScriptCalcFloat(0x10, 0);
     if (temp_f20 > 0.0f) {
-        temp_f20 = 50.0f * (func_00245030(0xD, 4) / temp_f20);
+        temp_f20 = 50.0f * (datScriptCalcFloat(0xD, 4) / temp_f20);
     } else {
         temp_f20 = 1.0f;
     }
-    func_00246450(temp_f20);
+    datScriptSetResult(temp_f20);
 }
 
 // FUN_00244E20
@@ -5339,24 +5339,24 @@ void func_00244e20(void)
     f32 temp_f0;
     f32 temp_f1;
 
-    if (func_00246480() != 0) {
-        temp_f20 = func_00245030(0x12, 0);
-        temp_f20 *= func_00245030(0x10, 0);
-        temp_f0 = func_00245030(0xD, 4);
+    if (datScriptTargetLacksFlag4() != 0) {
+        temp_f20 = datScriptCalcFloat(0x12, 0);
+        temp_f20 *= datScriptCalcFloat(0x10, 0);
+        temp_f0 = datScriptCalcFloat(0xD, 4);
         temp_f0 = add_f32_ordered(100.0f, temp_f0);
         temp_f20 *= temp_f0;
-        temp_f0 = func_00245030(0xE, 4);
+        temp_f0 = datScriptCalcFloat(0xE, 4);
         temp_f0 = add_f32_ordered(100.0f, temp_f0);
         temp_f0 = temp_f20 / temp_f0;
     } else {
-        temp_f20 = func_00245030(0x12, 0);
-        temp_f20 *= func_00245030(0x10, 0);
-        temp_f0 = func_00245030(0xD, 4);
+        temp_f20 = datScriptCalcFloat(0x12, 0);
+        temp_f20 *= datScriptCalcFloat(0x10, 0);
+        temp_f0 = datScriptCalcFloat(0xD, 4);
         temp_f0 = add_f32_ordered(100.0f, temp_f0);
         temp_f20 *= temp_f0;
-        temp_f0 = add_f32_ordered(100.0f, func_00245030(0xE, 4));
+        temp_f0 = add_f32_ordered(100.0f, datScriptCalcFloat(0xE, 4));
         temp_f1 = temp_f20 / temp_f0;
         temp_f0 = fGpffff811c * temp_f1;
     }
-    func_00246450(temp_f0);
+    datScriptSetResult(temp_f0);
 }
