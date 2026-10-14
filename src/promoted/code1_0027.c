@@ -718,20 +718,6 @@ void func_002746c0(s32 arg0, s32 arg1)
 
 
 
-// FUN_002761F0
-u8 *func_002761f0(s32 arg0, u8 *arg1, s32 arg2)
-{
-    u8 *var_2;
-
-    var_2 = func_00276290(arg0, arg2);
-    if (var_2 == NULL) {
-        var_2 = func_002762f0(arg0, arg1, arg2);
-        if (var_2 == NULL)
-            var_2 = NULL;
-    }
-    return var_2;
-}
-
 // FUN_0027A400
 void func_0027a400(arg0, arg1, arg2, arg3)
 u8 *arg0;
