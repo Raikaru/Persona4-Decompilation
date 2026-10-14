@@ -101,7 +101,8 @@ static inline void btlEplRgbaToV4(V4 *out, const BtlEplColor *rgba)
 
 typedef struct BtlEplSelect
 {
-    u8 kind[2]; // 0x00: per reference slot, 0 rejects, 1 accepts only that unit, 2 accepts
+    u8 kind[2]; // 0x00: for reference slot n (D_00881440_abs[n]) when unit->unkA2 matches it:
+                //       0 rejects, 1 accepts only that entry, 2 accepts; other values fall through
     u8 mask;    // 0x02: bit n selects unit slot n + 2
     u8 all;     // 0x03: nonzero accepts every unit
 } BtlEplSelect;
@@ -141,7 +142,8 @@ typedef struct BtlEplUnit
 extern BtlEplUnit *D_00881440_abs[];
 
 /* measured: opt_loop_invariants on keeps the table base and the constant 1 hoisted above the
-   scan loop as retail; the mode-1 blocks are `var = 1; if (slot == arg0) { t = var; } else
+   scan loop as retail; a `for` form of the scan loop mismatched at `cmp 8`, so the goto
+   ladder stays. The mode-1 blocks are `var = 1; if (slot == arg0) { t = var; } else
    { var = 0; t = var; } return (s8)t;` - the copy at the join keeps the then-branch as
    retail's `b join` trampoline (the plain if/else folds to xor/sltiu under rebuildconditionals,
    which must stay off for these two blocks). */
