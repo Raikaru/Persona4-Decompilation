@@ -1038,14 +1038,6 @@ void func_001d4dc0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     frame.zero2 = 0;
     func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
 }
-// FUN_001D4E90
-void func_001d4e90(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
-    arg3[0] = 0.0f;
-    arg3[1] = 0.0f;
-    arg3[2] = 0.0f;
-    arg3[3] = 0.0f;
-}
-
 // FUN_001D4EB0
 void func_001d4eb0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3)
 {
@@ -1636,7 +1628,7 @@ void func_001d6300(u8 *arg0) {
 s32 func_001d6360(u8 *arg0)
 {
     extern s32 func_00193b70(s64 arg0, s64 arg1);
-    extern s32 func_001d4120(s32 arg0);
+    extern u32 func_001d4120(void *arg0);
     extern s32 func_001d4140(s32 arg0, s32 arg1);
     extern s32 func_001d41b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     s32 count;
@@ -1648,7 +1640,7 @@ s32 func_001d6360(u8 *arg0)
     u8 *packet;
     u8 *abort_packet;
     s32 arg4;
-    if (func_001d4120(*(s32 *)(arg0 + 0)) == 0)
+    if (func_001d4120((void *)*(s32 *)(arg0 + 0)) == 0)
         return 0;
     packet = *(u8 **)(arg0 + 0x18);
     if ((*(s32 *)(packet + 4) & 0xFF000000) == 0)
