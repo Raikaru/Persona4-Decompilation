@@ -319,8 +319,9 @@ void func_0047d540(u8 **arg0, u8 *arg1)
             node = *(u8 **)(node + 16);
     }
 }
+/* Calls func_004b11d0 with each node's payload and the first argument. */
 // FUN_0047D7E0
-void func_0047d7e0(s32 arg0, u8 **arg1)
+void mdlEffectListInvokeEach(s32 arg0, u8 **arg1)
 {
     s32 temp_5;
     u8 *var_16;
@@ -337,8 +338,9 @@ void func_0047d7e0(s32 arg0, u8 **arg1)
 
 
 
+/* Calls func_004b1170 on each node whose data block has flag bit 1 set. */
 // FUN_0047D840
-void func_0047d840(u32 *param_1)
+void mdlEffectListCallFlagged(u32 *param_1)
 {
   int *piVar1;
 
@@ -358,8 +360,9 @@ void func_0047d840(u32 *param_1)
 
 
 
+/* Applies a colour to each node's payload through func_004b13f0. */
 // FUN_0047D8A0
-void func_0047d8a0(u8 **arg0, s32 *arg1)
+void mdlEffectListSetColor(u8 **arg0, s32 *arg1)
 {
     s32 temp_4;
     u8 *var_16;
@@ -376,8 +379,9 @@ void func_0047d8a0(u8 **arg0, s32 *arg1)
 
 
 
+/* Averages the three vector components and applies the result as a uniform scale via func_004b13d0. */
 // FUN_0047D900
-void func_0047d900(int *param_1,float *param_2)
+void mdlEffectListSetUniformScale(int *param_1,float *param_2)
 {
     int current;
     float average;

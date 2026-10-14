@@ -258,7 +258,7 @@ typedef struct Model
 extern void func_003e9cb0(void* frame, void* matrix, u32 flags);
 extern void func_0047aee0(Model* mdl, RwMatrix* matrix);
 extern void func_0047ae10(u8* mdl, u16 wpnIdx);
-extern void func_0047d840();
+extern void mdlEffectListCallFlagged();
 extern void func_0047dda0();
 extern void func_0047ea70(u8* a);
 extern void func_0047adf0(u8* a, u16 b, s32 c);
@@ -1510,7 +1510,7 @@ void* func_00473350(void* arg0, u8* arg1)
             p38 = *(void**)(arg1 + 0x38);
             if (p38 != 0) {
                 if (*(s32*)((u8*)p38 + 0x18) != 0) {
-                    func_0047d840(*(s32*)((u8*)p38 + 0x18), rawIndex);
+                    mdlEffectListCallFlagged(*(s32*)((u8*)p38 + 0x18), rawIndex);
                 }
                 if (*(s32*)((u8*)p38 + 0x24) != 0) {
                     func_0047dda0(*(s32*)((u8*)p38 + 0x24));
@@ -3134,7 +3134,7 @@ extern void* mdlGetMatrix(void* a);
 extern s32 func_0047a510(void* a, s32 b, void* c);
 extern s32 func_0047ae90(u8* model, u16 index);
 extern void func_0047d540(u8** a, u8* b);
-extern void func_0047d900(s32* a, f32* b);
+extern void mdlEffectListSetUniformScale(s32* a, f32* b);
 extern void func_0047dd40(u8* a, void* model);
 extern void (*D_00887300_abs[])(s32, s32);
 extern void (*D_00887304[])(s32, void*);
@@ -3417,7 +3417,7 @@ void func_00475cd0(MdlDrawState* owner)
     u8* effect;
     effect = owner->effect2CC;
     if (effect != 0) {
-        func_0047d900((s32*)effect, (f32*)(&owner->scale));
+        mdlEffectListSetUniformScale((s32*)effect, (f32*)(&owner->scale));
         func_0047d540((u8**)owner->effect2CC, (u8*)owner);
     }
     }
@@ -3430,7 +3430,7 @@ void func_00475cd0(MdlDrawState* owner)
         if (model != 0) {
             effect = *(u8**)(model + 0x18);
             if (effect != 0 && *(u16*)(model + 0x30) == 0) {
-                func_0047d900((s32*)effect, (f32*)(model + 8));
+                mdlEffectListSetUniformScale((s32*)effect, (f32*)(model + 8));
                 func_0047d540(*(u8***)(model + 0x18), (u8*)owner);
             }
             effect = *(u8**)(model + 0x24);
@@ -3520,7 +3520,7 @@ void func_00475cd0(MdlDrawState* owner)
                 }
                 effect = attached.model->effect2CC;
                 if (effect != 0) {
-                    func_0047d900((s32*)effect, (f32*)&attached.model->scale);
+                    mdlEffectListSetUniformScale((s32*)effect, (f32*)&attached.model->scale);
                     func_0047d540((u8**)attached.model->effect2CC, (u8*)attached.model);
                 }
                 {
@@ -3531,7 +3531,7 @@ void func_00475cd0(MdlDrawState* owner)
                     if (layerCursor.table != 0) {
                         source = *(u8**)(layerCursor.table + 0x18);
                         if (source != 0 && *(u16*)(layerCursor.table + 0x30) == 0) {
-                            func_0047d900((s32*)source, (f32*)(layerCursor.table + 8));
+                            mdlEffectListSetUniformScale((s32*)source, (f32*)(layerCursor.table + 8));
                             func_0047d540(*(u8***)(layerCursor.table + 0x18), (u8*)attached.model);
                         }
                         source = *(u8**)(layerCursor.table + 0x24);
@@ -4630,7 +4630,7 @@ extern void func_0047dae0(u32 a);
 extern void func_0047de50(u32 a);
 extern void func_0047de00(u32 a, void* b);
 extern void func_0047dd40(u8* a, void* model);
-extern void func_0047d900(s32* a, f32* b);
+extern void mdlEffectListSetUniformScale(s32* a, f32* b);
 extern void func_0047d540(u8** a, u8* b);
 extern void func_0047ed60(void* a);
 extern void func_0047a0e0(u8* a, s32 b, f32 c);
@@ -4705,7 +4705,7 @@ void func_00478a30(u8* mdl, s32 tick)
         if (tick != 0) {
             draw = *(void**)(mdl + 0x2CC);
             if (draw != 0) {
-                func_0047d900((s32*)draw, (f32*)&((Model*)mdl)->scale);
+                mdlEffectListSetUniformScale((s32*)draw, (f32*)&((Model*)mdl)->scale);
                 func_0047d540(*(u8***)(mdl + 0x2CC), mdl);
             }
             for (updateLayer = 0; updateLayer < 2; updateLayer++) {
@@ -4713,7 +4713,7 @@ void func_00478a30(u8* mdl, s32 tick)
                 if (attachments != 0) {
                     draw = attachments->primaryDraw;
                     if (draw != 0 && attachments->delay == 0) {
-                        func_0047d900((s32*)draw, (f32*)&attachments->scale);
+                        mdlEffectListSetUniformScale((s32*)draw, (f32*)&attachments->scale);
                         func_0047d540((u8**)attachments->primaryDraw, mdl);
                     }
                     draw = attachments->secondaryDraw;
@@ -4853,7 +4853,7 @@ void func_00479080(void* param_1, void* param_2)
 }
 
 /* Colour tint uses the same RwRGBA <-> real helpers as func_00476e90; the
- * draw-colour forwarder func_0047d8a0 takes the colour by pointer. */
+ * draw-colour forwarder mdlEffectListSetColor takes the colour by pointer. */
 // FUN_00479100
 /* IDA mdlManager.c:2696-2870; retail 00479100-00479870.
  * Integration requirements, including attachment fields and the corrected
@@ -4864,8 +4864,8 @@ extern u8* func_00460990(void);
 extern void func_00460ac0(void*, void*);
 extern void func_00478a30(u8*, s32);
 extern void func_00479030(u8*, u8*);
-extern void func_0047d8a0(u8**, s32*);
-extern void func_0047d7e0(s32, u8**);
+extern void mdlEffectListSetColor(u8**, s32*);
+extern void mdlEffectListInvokeEach(s32, u8**);
 extern void func_0047ddd0(u8*, const u8*);
 extern void func_0047dd70(u8*, u8*);
 extern void mdlSetColor(Model*, const RwRGBA*);
@@ -4963,13 +4963,13 @@ void func_00479100(void* queue, u8* model)
             real.blue *= tint.blue;
             real.alpha *= tint.alpha;
             mdlColorQuantize(&color, &real);
-            func_0047d8a0(*(u8***)(model + 0x2cc), (s32*)&color);
+            mdlEffectListSetColor(*(u8***)(model + 0x2cc), (s32*)&color);
             if (color.alpha > 0)
-                func_0047d7e0(*(s32*)(model + 0x2fc), *(u8***)(model + 0x2cc));
+                mdlEffectListInvokeEach(*(s32*)(model + 0x2fc), *(u8***)(model + 0x2cc));
         }
         else
         {
-            func_0047d7e0(*(s32*)(model + 0x2fc), *(u8***)(model + 0x2cc));
+            mdlEffectListInvokeEach(*(s32*)(model + 0x2fc), *(u8***)(model + 0x2cc));
         }
     }
 
@@ -4990,8 +4990,8 @@ layers:
             draw = attachments->primaryDraw;
             if (draw != 0)
             {
-                func_0047d8a0(draw, (s32*)&attachments->color);
-                func_0047d7e0((s32)attachmentQueue, attachments->primaryDraw);
+                mdlEffectListSetColor(draw, (s32*)&attachments->color);
+                mdlEffectListInvokeEach((s32)attachmentQueue, attachments->primaryDraw);
             }
             draw = attachments->secondaryDraw;
             if (draw != 0)
