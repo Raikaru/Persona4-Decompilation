@@ -1,5 +1,6 @@
 /* Source unit: src/Kosaka/Field/k_fldrc.c */
 #include "type.h"
+#include "Kosaka/k_clump_internal.h"
 
 /*
  * Retail reaches the "%03d" / "_%03d" / ".rws" fragments of its field-path
@@ -17,8 +18,17 @@ extern char D_005efcc0[];
 extern char D_005efcd0[];
 extern u32 sprintf();
 extern u32 strcat();
-extern u32 strcpy();
 extern void* func_00150970(char* path);
+extern void func_003c21e0();
+extern void func_003ca270(void *object, void *callback, void *userdata);
+extern s32 func_00452080(void *arg0);
+extern u8 *func_004587d0(u8 *arg0, u8 *arg1);
+extern u8 *func_00458ce0(u8 *material, u8 *data);
+struct RpGeometry;
+struct RpMaterial;
+extern struct RpMaterial *func_0018c610(struct RpMaterial *material, void *data);
+extern u8 *iGpffffb590;
+extern void *func_003bff30(void *object, KClumpCallback callback, void *data);
 
 
 
@@ -42,4 +52,55 @@ void* func_00150890(s16 majorId, s16 minorId)
     strcat(path, token);
     strcat(path, (const char*)&gp0xffff9e08 - 0x61f8);
     return func_00150970(path);
+}
+// FUN_0018C680
+void *func_0018c680(void *object, void *data)
+{
+    u8 *arg0 = object;
+    func_003c21e0(*(struct RpGeometry **)(arg0 + 0x18), func_0018c610, data);
+    return object;
+}
+// FUN_002E7870
+void func_002e7870(void) {
+    u8 *g = iGpffffb590;
+
+    if (g != NULL) {
+        func_00452080(g);
+        iGpffffb590 = NULL;
+    }
+}
+/* Measured callback-wrapper idiom: preserve the object in s0, move userdata to a2, and call the shared iterator with the object field and callback. */
+// FUN_00458C40
+void *func_00458c40(void *object, void *arg1)
+{
+    u8 *arg0 = object;
+    func_003c21e0(*(s32 *)(arg0 + 0x18), func_004587d0, arg1);
+    return object;
+}
+// FUN_00458C80
+void func_00458c80(void *arg0, void *arg1)
+{
+    func_003bff30(arg0, func_00458c40, arg1);
+}
+// FUN_00458CB0
+void func_00458cb0(void *arg0, void *arg1)
+{
+    func_003ca270(arg0, func_004587d0, arg1);
+}
+// FUN_00458F00
+void *func_00458f00(void *object, void *arg1)
+{
+    u8 *arg0 = object;
+    func_003c21e0(*(s32 *)(arg0 + 0x18), func_00458ce0, arg1);
+    return object;
+}
+// FUN_00458F40
+void func_00458f40(void *arg0, void *arg1)
+{
+    func_003bff30(arg0, func_00458f00, arg1);
+}
+// FUN_00458F70
+void func_00458f70(void *arg0, void *arg1)
+{
+    func_003ca270(arg0, func_00458ce0, arg1);
 }

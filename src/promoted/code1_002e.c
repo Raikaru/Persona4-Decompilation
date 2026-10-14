@@ -563,15 +563,6 @@ s32 func_002e7510(s32 arg0)
     }
     return result;
 }
-// FUN_002E7870
-void func_002e7870(void) {
-    u8 *g = iGpffffb590;
-
-    if (g != NULL) {
-        func_00452080((s32)g);
-        iGpffffb590 = NULL;
-    }
-}
 // FUN_002E78A0
 u8 func_002e78a0(void)
 {
