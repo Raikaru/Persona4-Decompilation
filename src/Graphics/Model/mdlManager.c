@@ -4756,6 +4756,12 @@ void func_00478a30(u8* mdl, s32 tick)
 }
 #pragma pop
 
+// FUN_00478E70
+void func_00478e70(u8 *arg0)
+{
+    func_00478a30(arg0, (*(s32 *)(arg0 + 0xD8) & 1) == 0);
+}
+
 // FUN_00478EA0
 void func_00478ea0(void* param_1, int param_2, int param_3)
 {
@@ -4821,6 +4827,15 @@ void func_00478ec0(void* param_1, MdlFlags78ec0* o)
     }
 }
 #pragma opt_propagation on
+
+/* The draw callback's second argument supplies the model to color/setup. */
+// FUN_00479030
+void func_00479030(u8 *arg0, u8 *arg1)
+{
+    func_00478ec0(arg0, (struct MdlFlags78ec0*)arg1);
+    RpSkyRenderStateSet(2, *(s32 *)(arg1 + 0xE4));
+    RpSkyRenderStateSet(3, *(s32 *)(arg1 + 0xE8));
+}
 
 // FUN_00479080
 void func_00479080(void* param_1, void* param_2)
@@ -5108,6 +5123,16 @@ s32 func_00479940(u8* mdl, u32 layer, s16 animation, u16 frame, s32 flags)
 }
 #pragma pop
 
+// FUN_00479C30
+s16 func_00479c30(s32 arg0, s32 arg1)
+{
+    if (func_00479ca0((u8 *)arg0, arg1) != 0) {
+        s32 off = (arg1 & 0xFFFF) * 0xA4;
+        return *(s16 *)(off + (s32)arg0 + 0xF0);
+    }
+    return -1;
+}
+
 // FUN_00479CA0
 s32 func_00479ca0(void* param_1, s32 param_2)
 {
@@ -5380,6 +5405,12 @@ void mdlSetColor(Model* mdl, const RwRGBA* color)
 
 
 
+// FUN_0047A250
+void* mdlGetColor(void* mdl)
+{
+    return (u8*)mdl + 0xd0;
+}
+
 // FUN_0047A260
 void func_0047a260(void* param_1)
 {
@@ -5409,6 +5440,25 @@ void func_0047a2a0(u32* param_1)
     param_1[0xc] = 0;
     param_1[3] = param_1[3] | 0x20003;
     return;
+}
+
+// FUN_0047A2F0
+void* mdlGetMatrix(void* mdl)
+{
+    return mdl;
+}
+
+// FUN_0047A300
+void* mdlGetClumpFrame(void* mdl)
+{
+    void* clump = *(void**)((u8*)mdl + 0xdc);
+    return *(void**)((u8*)clump + 4);
+}
+
+// FUN_0047A310
+void* mdlGetClump(void* mdl)
+{
+    return *(void**)((u8*)mdl + 0xdc);
 }
 
 /* measured (recipe A retest, 4 attempts nd 82/67/63/6): no u16 sign-test in
@@ -5829,6 +5879,16 @@ done:
     *(u8*)((u8*)slot + 0x28C) |= 1;
 }
 
+// FUN_0047ADF0
+void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2) {
+    /* Offset added to the base, not the other way round: `arg0 + off` makes
+       mwcc emit `addu $v1,$a0,$v1` where retail has `addu $v1,$v1,$a0`. */
+    s32 off = arg1 * 12;
+    u8 *p = (u8 *)(off + (s32)arg0);
+
+    *(s32 *)(p + 0x294) = arg2;
+}
+
 /* Ported from P3FES mdlManager.c func_003196f0 (verified MATCH there). Keep the
    iVar1/iVar2/pWpnMdl local structure and the recompute of iVar2+param_1 before
    the post-call byte clear exactly; P4 offsets are wpnMdl ptr 0x290, flags byte
@@ -5852,6 +5912,20 @@ void func_0047ae10(u8* param_1, u16 param_2)
         iVar2 = iVar2 + (int)(u8*)param_1;
         *(u8*)(iVar2 + 0x28C) = *(u8*)(iVar2 + 0x28C) & 0xfe;
     }
+}
+
+// FUN_0047AE90
+s32 func_0047ae90(u8 *arg0, u16 arg1)
+{
+    s32 off = arg1 * 0xC;
+    u8 *p = (u8 *)(off + (s32)arg0);
+    u8 *object;
+
+    object = *(u8 **)(p + 0x290);
+    if (object == NULL) {
+        return 1;
+    }
+    return func_004782b0(object);
 }
 
 /* Ported from P3FES mdlManager.c func_003197c0 (verified MATCH there).

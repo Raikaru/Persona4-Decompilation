@@ -194,60 +194,6 @@ s32 func_00470e20(u8 *arg0)
     return *(s32 *)node;
 }
 
-// FUN_00478E70
-void func_00478e70(u8 *arg0)
-{
-    func_00478a30(arg0, (*(s32 *)(arg0 + 0xD8) & 1) == 0);
-}
-
-
-
-/* The draw callback's second argument supplies the model to color/setup. */
-// FUN_00479030
-void func_00479030(u8 *arg0, u8 *arg1)
-{
-    func_00478ec0(arg0, (struct MdlFlags78ec0*)arg1);
-    RpSkyRenderStateSet(2, *(s32 *)(arg1 + 0xE4));
-    RpSkyRenderStateSet(3, *(s32 *)(arg1 + 0xE8));
-}
-
-
-// FUN_00479C30
-s16 func_00479c30(s32 arg0, s32 arg1)
-{
-    if (func_00479ca0((u8 *)arg0, arg1) != 0) {
-        s32 off = (arg1 & 0xFFFF) * 0xA4;
-        return *(s16 *)(off + (s32)arg0 + 0xF0);
-    }
-    return -1;
-}
-
-
-// FUN_0047ADF0
-void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2) {
-    /* Offset added to the base, not the other way round: `arg0 + off` makes
-       mwcc emit `addu $v1,$a0,$v1` where retail has `addu $v1,$v1,$a0`. */
-    s32 off = arg1 * 12;
-    u8 *p = (u8 *)(off + (s32)arg0);
-
-    *(s32 *)(p + 0x294) = arg2;
-}
-
-// FUN_0047AE90
-s32 func_0047ae90(u8 *arg0, u16 arg1)
-{
-    s32 off = arg1 * 0xC;
-    u8 *p = (u8 *)(off + (s32)arg0);
-    u8 *object;
-
-    object = *(u8 **)(p + 0x290);
-    if (object == NULL) {
-        return 1;
-    }
-    return func_004782b0(object);
-}
-
-
 
 // FUN_0047CE00
 s32 func_0047ce00(u8 *arg0)
