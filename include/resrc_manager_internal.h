@@ -38,7 +38,7 @@ typedef enum
 typedef struct ResrcRecord ResrcRecord;
 
 /* Resource record as the per-type delete path reads it. Only offsets used by
- * MT_Scene_DeleteRes are named; the remaining bytes are padding. A few offsets
+ * MT_Scene_DestroyRes are named; the remaining bytes are padding. A few offsets
  * hold different handles per type, so each name is the first user's role. */
 struct ResrcRecord
 {

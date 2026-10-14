@@ -27,7 +27,7 @@ extern void func_00460ac0(void *param, void *work);
 extern s32 func_00452080(void *task);
 extern u8 *func_00452380(s8 *name);
 extern s32 func_00452490(void *target);
-extern void MT_Scene_DeleteRes(u32);
+extern void MT_Scene_DestroyRes(u32);
 extern void func_00269c20(s32, s32);
 extern u16 *MT_Scene_GetRes(s32);
 extern s32 func_004782b0(u32 arg0);
@@ -83,7 +83,7 @@ s32 func_00298370(u8 *unusedTask) {
     temp_2 = (u8 *)func_00452560();
     temp_17 = *(s32 *)(temp_2 + 0);
     if (func_004782b0(temp_17) == 1) {
-        MT_Scene_DeleteRes((u16)((( *(s32 *)(temp_2 + 4) + 0x384) & 0x3FF) | 0xC00));
+        MT_Scene_DestroyRes((u16)((( *(s32 *)(temp_2 + 4) + 0x384) & 0x3FF) | 0xC00));
         temp_17 = (s32)(func_00145780((*(s32 *)(temp_2 + 4) + 0x384) & 0xFFFF, 3, temp_17) & 0xFFFF);
         if (temp_17 == 0) {
             func_0046d730(D_0063CF80, 0x34);
