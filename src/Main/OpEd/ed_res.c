@@ -107,7 +107,7 @@ void func_0038f8d0(void)
     if ((work[1] & 1) == 0) {
         func_0046d730(D_0064F250, 0x84);
     }
-    func_0038f590((u8 *)(uintptr_t)work[3]);
+    brpParamFree((u8 *)(uintptr_t)work[3]);
     func_00271820(6);
 }
 
