@@ -3,7 +3,7 @@
 #include "type.h"
 
 
-extern void func_00368be0(void);
+extern void sflDataSetupQuadPanel(void);
 extern void func_0036c450(void);
 extern void func_0036dba0(u8 *arg0);
 
@@ -12,10 +12,10 @@ extern void func_0036de20(u8 *arg0, void *arg1);
 
 extern void func_0036b5e0(u8 *arg0, f32 *out);
 
-extern void func_00367fb0(void);
+extern void sflDataSetupLayoutPanel(void);
 extern void func_0036a820(u8 *arg0, s32 arg1);
 extern void func_0036c7e0(s32 arg0);
-extern void func_003688b0(void);
+extern void sflDataSetupFramePanel(void);
 extern void func_0036a880(u8 *arg0, u16 arg1, s32 arg2);
 extern void func_0036c570(s32 arg0, s32 arg1);
 extern void func_00368d30(void);
@@ -87,7 +87,7 @@ void func_0036d990(u8 *arg0, u8 *arg1)
 // FUN_0036DA40
 void func_0036da40(u8 *arg0, s32 arg1)
 {
-    func_00367fb0();
+    sflDataSetupLayoutPanel();
     func_0036a820(arg0, arg1);
     func_0036c7e0(arg1);
     func_0036dba0(arg0);
@@ -98,7 +98,7 @@ void func_0036daa0(u8 *arg0, s32 arg1, s32 arg2)
 {
     s32 masked;
 
-    func_003688b0();
+    sflDataSetupFramePanel();
     masked = arg1 & 0xFFFF;
     func_0036a880(arg0, masked, arg2);
     func_0036c570(masked, arg2);
@@ -111,7 +111,7 @@ void func_0036daa0(u8 *arg0, s32 arg1, s32 arg2)
 // FUN_0036DB20
 void func_0036db20(u8 *arg0)
 {
-    func_00368be0();
+    sflDataSetupQuadPanel();
     func_0036c450();
     func_0036dba0(arg0);
 }

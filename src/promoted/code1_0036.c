@@ -87,7 +87,7 @@ extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
 extern void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void func_00367f50(void);
+extern void sflDataInitPanel(void);
 extern void func_0036a900(u8 *arg0);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
@@ -1437,7 +1437,7 @@ void func_00368d30(u8 *arg0)
     RwV3d p4;
     u8 color;
 
-    func_00367f50();
+    sflDataInitPanel();
     *(s32 *)(arg0 + 4) = 3;
     func_0036a900(arg0 + 0xE0);
     p1.x = 3.0f;
