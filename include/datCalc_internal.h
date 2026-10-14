@@ -26,5 +26,7 @@ void func_00243f20(u16 characterId);
 u32 datCalcGetTableLength(u8 *unused);
 u16 func_00231f80(DatUnit *unit);
 u16 func_00232290(DatUnit *unit);
+/* Returns 1 when the unit is flagged (flag 4) and its id's table entry has bit 0x80 set. */
+s32 func_00243d80(DatUnit *unit);
 
 #endif
