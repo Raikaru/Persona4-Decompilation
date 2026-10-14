@@ -39,7 +39,8 @@ s32 func_0023e5b0(u16* unit, s32 param);
 s32 func_00243ce0(u16* unit);
 
 // FUN_00244F60
-s32 func_00244f60(u32 arg0, u16* arg1, u16* arg2, u16 arg3, s32 arg4)
+/* Stores the command's unit pointers and parameters, then runs calculation kind arg0 and returns its result. */
+s32 datScriptRunCalc(u32 arg0, u16* arg1, u16* arg2, u16 arg3, s32 arg4)
 {
     D_0088146C[0] = arg3;
     D_00881460[0] = arg1;
@@ -63,7 +64,8 @@ s32 func_00244f60(u32 arg0, u16* arg1, u16* arg2, u16 arg3, s32 arg4)
    moves it to $v1.  The count divisions are compound (`step /= 3`), which
    extends once instead of truncating and re-extending. */
 // FUN_00245030
-f32 func_00245030(u32 arg0, s32 arg1)
+/* Floating-point calculation dispatch: runs kind arg0 with param and returns the f32 result. */
+f32 datScriptCalcFloat(u32 arg0, s32 arg1)
 {
     f32 result;
     f32 value;
@@ -309,7 +311,7 @@ f32 func_00245030(u32 arg0, s32 arg1)
 #pragma push
 #pragma optimization_level 1
 // FUN_00246450
-void func_00246450(s32 value)
+void datScriptSetResult(s32 value)
 {
     D_00881474[0] |= 1;
     D_00881468[0] = value;
@@ -317,14 +319,16 @@ void func_00246450(s32 value)
 #pragma pop
 
 // FUN_00246480
-s32 func_00246480(void)
+/* Returns 1 when the current command target does not have flag 0x4 set. */
+s32 datScriptTargetLacksFlag4(void)
 {
     K_ASSERT(D_00881460[0] != 0, 0x1FD);
     return !(*D_00881460[0] & 4);
 }
 
 // FUN_002464E0
-s32 func_002464e0(void)
+/* Returns 1 when the current command table entry has flag 0x2 set. */
+s32 datScriptCmdFlag2Set(void)
 {
     K_ASSERT(D_0088146C[0] < 0x1B8, 0x21A);
     return (DAT_007644A8[(u32)D_0088146C[0] * 0x28] & 2) != 0;
