@@ -13,27 +13,3 @@ u32 func_0036de60(int work)
 {
     return *(u32*)(work + 4);
 }
-
-/* Source unit: src/op_fade/op_fade_0038f5c0.c (1 function markers) */
-
-// FUN_0038F5C0
-u32 func_0038f5c0(const u32* work, u32 index)
-{
-    return *(const u32*)(index * sizeof(u32) + work[2]);
-}
-
-/* Source unit: src/op_fade/op_fade_0038f5e0.c (1 function markers) */
-
-// FUN_0038F5E0
-u32 func_0038f5e0(const u32* work)
-{
-    return work[4];
-}
-
-/* Source unit: src/op_fade/op_fade_0038f5f0.c (1 function markers) */
-
-// FUN_0038F5F0
-u32 func_0038f5f0(const u32* work)
-{
-    return work[1];
-}
