@@ -17,7 +17,7 @@ extern int iGpffffb57c;
 // P3 counterpart piGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
 // uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
 extern int *piGpffffb57c;
-extern u32 func_002bd730();
+extern u32 fclMiscCloseHandle();
 extern void func_002777f0();
 
 extern s32 func_00276e10(s32);
@@ -37,18 +37,18 @@ extern u8 D_00882F30[];
 extern s32 func_002bce00(u8 *task);
 extern void func_0046d730(void *, s32);
 extern char D_0063F2A0[];
-extern void func_002bd530(int *);
-extern s32 func_002bd580(u8 *, s32, s32);
+extern void fclMiscReleaseHandle(int *);
+extern s32 fclMiscActivateHandle(u8 *, s32, s32);
 
-extern void func_002bd660(int *);
-extern u32 func_002bd730();
-extern void func_002bd260();
+extern void fclMiscUpdateHandle(int *);
+extern u32 fclMiscCloseHandle();
+extern void fclMiscSetWord14();
 extern void func_002e22f0();
 extern void func_002bcbc0();
 extern void func_002bc890();
 extern void func_002bc9e0();
 extern s32 func_002bcfb0(u8 *, u8 *);
-extern s32 func_002bd220(void);
+extern s32 fclMiscPendingIsEmpty(void);
 extern u32 PTR_DAT_00762ea0;
 extern u32 D_0076466C;
 
@@ -147,10 +147,10 @@ s32 func_002bce00(u8 *unusedTask)
         if ((flags & 2) != 0)
         {
             func_002bcc60((int *)manager);
-            if (func_002bd220() != 0)
+            if (fclMiscPendingIsEmpty() != 0)
             {
                 *(s32 *)(manager + 4) &= ~2;
-                func_002bd260(0);
+                fclMiscSetWord14(0);
                 func_002e22f0(*(void **)manager,
                               (u8 *)*(void **)manager + 4);
                 i = 0;
@@ -175,7 +175,7 @@ process_item:
             goto update_tail;
         }
         *(s32 *)(manager + 4) = flags & ~1;
-        func_002bd4a0(item + 0x10, *(s32 *)(item + 0x28));
+        fclMiscAcquireHandle(item + 0x10, *(s32 *)(item + 0x28));
         func_002bc890(manager, 0);
         func_002bc890(manager, *(s32 *)(item + 0x2c));
         *(s32 *)(item + 4) |= 2;
@@ -202,8 +202,9 @@ update_tail:
 }
 // FUN_002BCFB0
 s32 func_002bcfb0(u8 *arg0, u8 *arg1) {
-    extern u32 func_002bd730(u32 *);
-    extern s32 func_002bd610(int *);
+    extern u32 fclMiscCloseHandle(u32 *);
+    /* measured: s8 here regresses func_002bcfb0 (MATCH -> MISMATCH); the s32 extern keeps its compare. */
+    extern s32 fclMiscHandleState(int *);
     s32 temp_16;
     s32 temp_18;
     s32 temp_3;
@@ -212,7 +213,7 @@ s32 func_002bcfb0(u8 *arg0, u8 *arg1) {
     temp_3 = *(s32 *)(arg1 + 4);
     if (temp_3 & 4) {
         if (!(func_00278110(*(s32 *)(arg1 + 0x10)) & 0x3300)) {
-            func_002bd530((int *)(arg1 + 0x10));
+            fclMiscReleaseHandle((int *)(arg1 + 0x10));
             if (!(*(s32 *)(arg0 + 0x14) & 1)) {
                 if (arg0 == NULL) {
                     func_0046d730(&D_0063F2A0, 0x58F);
@@ -249,11 +250,11 @@ s32 func_002bcfb0(u8 *arg0, u8 *arg1) {
             return 0;
         }
         *(s32 *)(arg1 + 4) &= ~1;
-        func_002bd580(arg1 + 0x10, *(s32 *)(arg1 + 0x2C), *(s32 *)(arg1 + 0x20));
+        fclMiscActivateHandle(arg1 + 0x10, *(s32 *)(arg1 + 0x2C), *(s32 *)(arg1 + 0x20));
     }
-    func_002bd660((int *)(arg1 + 0x10));
-    if (func_002bd610((int *)(arg1 + 0x10)) == 0) {
-        func_002bd730((u32 *)(arg1 + 0x10));
+    fclMiscUpdateHandle((int *)(arg1 + 0x10));
+    if (fclMiscHandleState((int *)(arg1 + 0x10)) == 0) {
+        fclMiscCloseHandle((u32 *)(arg1 + 0x10));
         *(s32 *)(arg1 + 4) |= 4;
     }
     return 0;
@@ -271,8 +272,9 @@ s32 func_002bd1e0(s32 param_1)
     }
     return *(s32*)(entry + 0x24);
 }
+/* Returns 1 when the pending list at iGpffffb57c+0x18 has no entries. */
 // FUN_002BD220
-s32 func_002bd220(void)
+s32 fclMiscPendingIsEmpty(void)
 {
     return *(int *)(*(int *)(iGpffffb57c + 0x18) + 4) == 0;
 }
@@ -286,8 +288,9 @@ void func_002bd240(u32 param_1)
 }
 
 /* Source unit: src/Event/Fcl/fcl_misc_002bd260.c */
+/* Stores value in the word at D_0076466C+0x14. */
 // FUN_002BD260
-void func_002bd260(u32 value)
+void fclMiscSetWord14(u32 value)
 {
     *(u32 *)(D_0076466C + 0x14) = value;
 }
@@ -343,7 +346,7 @@ void func_002bd440(void)
     if (*(int *)(*piGpffffb57c + 4) != 0) {
         context = *(u8 **)(*(int *)(*piGpffffb57c + 4) + 0x14);
         if ((*(u32 *)(context + 4) & 2) != 0) {
-            func_002bd730(context + 0x10);
+            fclMiscCloseHandle(context + 0x10);
             *(u32 *)(context + 4) |= 4;
         }
     }
@@ -351,8 +354,9 @@ void func_002bd440(void)
 
 
 
+/* Initialises the handle slot and acquires a handle when it has none; returns 1 if one was acquired. */
 // FUN_002BD4A0
-s32 func_002bd4a0(u8 *param_1, s32 param_2)
+s32 fclMiscAcquireHandle(u8 *param_1, s32 param_2)
 {
     s32 value;
 
@@ -374,10 +378,11 @@ s32 func_002bd4a0(u8 *param_1, s32 param_2)
     }
     return 0;
 }
+/* Closes the handle, releases it, and resets the slot to idle. */
 // FUN_002BD530
-void func_002bd530(int *param_1)
+void fclMiscReleaseHandle(int *param_1)
 {
-    func_002bd730(param_1);
+    fclMiscCloseHandle(param_1);
 
     if (*param_1 >= 0) {
         func_002777f0(*param_1);
@@ -389,8 +394,9 @@ void func_002bd530(int *param_1)
 
 
 
+/* Sets the handle's flags and parameters and marks its mode active. */
 // FUN_002BD580
-s32 func_002bd580(u8 *param_1, s32 param_2, s32 param_3)
+s32 fclMiscActivateHandle(u8 *param_1, s32 param_2, s32 param_3)
 {
     s32 value;
 
@@ -405,8 +411,9 @@ s32 func_002bd580(u8 *param_1, s32 param_2, s32 param_3)
     *(s8 *)(param_1 + 4) = 1;
     return 0;
 }
+/* Reports the handle's mode; mode 2 reads as idle while the flag at +5 is set. */
 // FUN_002BD610
-s8 func_002bd610(int *param_1)
+s8 fclMiscHandleState(int *param_1)
 {
     s8 result;
 
@@ -424,8 +431,9 @@ s8 func_002bd610(int *param_1)
 
 
 
+/* Per-frame step of the handle's mode state machine. */
 // FUN_002BD660
-void func_002bd660(int *param_1)
+void fclMiscUpdateHandle(int *param_1)
 {
     int state;
     s8 mode;
@@ -452,15 +460,16 @@ void func_002bd660(int *param_1)
         }
         break;
     case 3:
-        func_002bd730((u32 *)param_1);
+        fclMiscCloseHandle((u32 *)param_1);
         break;
     }
 }
 
 
 
+/* Closes the handle's hooks and clears its mode; returns 1 when closed. */
 // FUN_002BD730
-u32 func_002bd730(u32 *param_1)
+u32 fclMiscCloseHandle(u32 *param_1)
 {
     u32 result;
 
