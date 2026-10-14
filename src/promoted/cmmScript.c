@@ -198,26 +198,47 @@ typedef struct {
     u32 u;
 } cmmMsgPack;
 
+typedef struct cmmMsgState
+{
+    u16 unk00;   // 0x00, passed to func_002483c0
+    u8 pad02[6];
+    union
+    {
+        Vec4f vec; // 0x08, copied from the stream entry at cur
+        struct
+        {
+            u8 pad08[2];
+            u8 unk0A;  // 0x0A, passed to func_0029cf50
+            u8 pad0B;
+            s32 unk0C; // 0x0C, packed into pack.hi/lo
+            u16 unk10; // 0x10, pack.u
+            u8 pad12;
+            u8 unk13;  // 0x13, nonzero selects the stream branch
+            u8 pad14[4];
+        } raw;
+    } view;
+    u8 *cur;     // 0x18, next stream entry
+    s32 counter; // 0x1C, frames since the last send
+} cmmMsgState;
+
 // FUN_0024A2E0
 s32 func_0024a2e0(void)
 {
-    u8* p;
-    u8* q2;
-    u8* q3;
+    cmmMsgState *p;
     s32 x;
     u32 u16val;
     u32 lo;
     cmmMsgPack pack1;
     cmmMsgPack pack2;
 
-    p = func_00108dc0();
+    p = (cmmMsgState *)func_00108dc0();
     if (p == 0) {
         func_0046d730(D_006359F0, 0x109);
     }
-    x = *(s32*)(p + 0x1C);
+    x = p->counter;
     if (x == 0) {
-        u16val = *(u16*)(p + 0x10);
-        x = *(s32*)(p + 0xC);
+        u16val = p->view.raw.unk10;
+        x = p->view.raw.unk0C;
         lo = x & 0xFFFF;
         pack1.hi = (u32)(x & 0xFFFF0000) >> 0x10;
         pack1.lo = lo;
@@ -228,28 +249,28 @@ s32 func_0024a2e0(void)
 
         b = ~func_00102980() == 0;
         if (b) {
-            if (*(u8*)(p + 0x13) != 0) {
-            u8* q;
+            if (p->view.raw.unk13 != 0) {
+                u8* entry;
 
-            q = *(u8**)(p + 0x18);
-            *(u8**)(p + 0x18) = q + 0x10;
-            *(Vec4f*)(p + 8) = *(Vec4f*)(q + 0x10);
-            u16val = *(u16*)(p + 0x10);
-            x = *(s32*)(p + 0xC);
-            lo = x & 0xFFFF;
-            pack2.hi = (u32)(x & 0xFFFF0000) >> 0x10;
-            pack2.lo = lo;
-            pack2.u = u16val;
-            func_001029a0(0xA, &pack2, 0x1C, 2);
-            *(s32*)(p + 0x1C) = 0;
-        } else {
-            func_00108d80();
-                func_002483c0(*(u16*)(p + 0));
+                entry = p->cur;
+                p->cur = entry + 0x10;
+                p->view.vec = *(Vec4f*)(entry + 0x10);
+                u16val = p->view.raw.unk10;
+                x = p->view.raw.unk0C;
+                lo = x & 0xFFFF;
+                pack2.hi = (u32)(x & 0xFFFF0000) >> 0x10;
+                pack2.lo = lo;
+                pack2.u = u16val;
+                func_001029a0(0xA, &pack2, 0x1C, 2);
+                p->counter = 0;
+            } else {
+                func_00108d80();
+                func_002483c0(p->unk00);
                 return 1;
             }
         }
     }
-    *(s32*)(p + 0x1C) += 1;
+    p->counter += 1;
     return 0;
 }
 // FUN_0024A450
