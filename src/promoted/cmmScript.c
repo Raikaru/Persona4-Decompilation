@@ -2170,29 +2170,27 @@ s32 func_00250120(void)
 // FUN_002502F0
 s32 func_002502f0(void)
 {
-    u8* p;
-    u8* q2;
-    u8* q3;
+    u8* parent;
     cmmScriptEntry* e;
     s32 handle;
     s32 st;
     s32 ret;
 
     if (func_0029d020() == 0) {
-        p = func_00285af0();
+        parent = func_00285af0();
         if ((s32)func_00452380((s8 *)(D_00635BA8)) == 0) {
             if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
                 if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
                     func_0044ea90(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
-                    (s32)func_00451fc0((void *)(p), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
+                    (s32)func_00451fc0((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
                 }
             }
             func_0044ea90(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
-            (s32)func_00451fc0((void *)(p), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
+            (s32)func_00451fc0((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
         }
         handle = (s32)func_00452380((s8 *)(D_00635BA8));
         if (handle == 0) {
@@ -2229,29 +2227,27 @@ s32 func_002502f0(void)
 // FUN_00250560
 s32 func_00250560(void)
 {
-    u8* p;
-    u8* q2;
-    u8* q3;
+    u8* parent;
     cmmScriptEntry* e;
     s32 handle;
     s32 st;
     s32 ret;
 
     if (func_0029d020() == 0) {
-        p = func_00285af0();
+        parent = func_00285af0();
         if ((s32)func_00452380((s8 *)(D_00635BA8)) == 0) {
             if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
                 if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
                     func_0044ea90(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
-                    (s32)func_00451fc0((void *)(p), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
+                    (s32)func_00451fc0((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
                 }
             }
             func_0044ea90(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
-            (s32)func_00451fc0((void *)(p), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
+            (s32)func_00451fc0((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
         }
         handle = (s32)func_00452380((s8 *)(D_00635BA8));
         if (handle == 0) {
