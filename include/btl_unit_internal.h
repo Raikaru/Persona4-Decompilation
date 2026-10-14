@@ -65,6 +65,8 @@ struct BtlUnit
     RwV3d lookAtTargetPos;   /* 0xB8 */
     u32 stateFlags;          /* 0xC4 */
     u16 movementFlags;       /* 0xC8 */
+    u8 unk_ca[0x0A64 - 0x00CA]; /* 0xCA. Not yet named */
+    u8 *datUnit;             /* 0xA64. DatUnit *, passed to datCalc and func_0023 helpers */
 };
 
 #endif

@@ -311,7 +311,7 @@ void func_001a0290(BtlAction *action, u16 arg1, u8 *arg2)
     s32 category;
     BtlUnit *battleUnit;
 
-    if (action->unk_18 & 0x4000) {
+    if (action->flags & 0x4000) {
         *(s16 *)arg2 = 0x24;
         *(s16 *)(arg2 + 2) = -1;
         return;
@@ -473,43 +473,43 @@ void func_001a0670(BtlAction *action) {
 
 
 // FUN_001A06D0
-void func_001a06d0(u8 *arg0) {
-    extern void btlActionSetState(u8 *arg0, u16 arg1);
-    u8 *otherUnit;
+void func_001a06d0(BtlAction *action) {
+    extern void btlActionSetState(BtlAction *action, u16 state);
+    BtlAction *otherAction;
     s32 canAct;
     u32 threshold;
     s16 storedId;
     s32 needsDelay;
 
     canAct = 1;
-    if (*(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) & 0x10) {
-        *(s16 *)(arg0 + 0x430) = 2;
-        btlActionSetState(arg0, 0x18);
+    if (action->unit->flags3 & 0x10) {
+        action->unk_430 = 2;
+        btlActionSetState(action, 0x18);
         return;
     }
-    otherUnit = *(u8 **)(D_0076449C + 0x174);
-    while (otherUnit != NULL) {
-        if ((arg0 != otherUnit) && (*(u16 *)(otherUnit + 0x1A) & 1) &&
-            (datCalcIsDead(*(s32 *)(*(u8 **)(otherUnit + 0x30) + 0xA64), 0) == 0) &&
-            (*(s32 *)(*(u8 **)(otherUnit + 0x30) + 0x9C) & 0x10)) {
+    otherAction = *(BtlAction **)(D_0076449C + 0x174);
+    while (otherAction != NULL) {
+        if ((action != otherAction) && (otherAction->unk_1a & 1) &&
+            (datCalcIsDead((s32)otherAction->unit->datUnit, 0) == 0) &&
+            (otherAction->unit->flags3 & 0x10)) {
             canAct = 0;
             break;
         }
-        otherUnit = *(u8 **)(otherUnit + 0x450);
+        otherAction = otherAction->next;
     }
-    func_0022db90(arg0);
-    if (*(u16 *)(arg0 + 0x18) & 0x8000) {
-        btlActionSetState(arg0, 0x21);
+    func_0022db90((u8 *)action);
+    if (action->flags & 0x8000) {
+        btlActionSetState(action, 0x21);
         return;
     }
-    func_001f0a40(arg0 + 0xD8);
-    if (func_001fabe0(arg0) != 0) {
-        *(void **)(arg0 + 0x440) = (void *)&func_001fac30;
-        *(s16 *)(arg0 + 0x43C) = 2;
-        btlActionSetState(arg0, 0x16);
+    func_001f0a40(action->unk_d8);
+    if (func_001fabe0((u8 *)action) != 0) {
+        action->unk_440 = (void *)&func_001fac30;
+        action->unk_43c = 2;
+        btlActionSetState(action, 0x16);
         return;
     }
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (action->unit->genus != 0) {
         needsDelay = 0;
     } else if ((*(s16 *)(iGpffffb3ac + 0xA70) != -1) &&
                (threshold = func_001ef720(2, 0x80000) & 0xFFFF,
@@ -520,8 +520,8 @@ void func_001a06d0(u8 *arg0) {
         needsDelay = 0;
     }
     if ((needsDelay != 0) &&
-        (datCalcChkBadStatus((s32)*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180001) == 0)) {
-        actionSetDelayBytes(arg0, 4, 1);
+        (datCalcChkBadStatus((s32)action->unit->datUnit, 0x180001) == 0)) {
+        actionSetDelayBytes((u8 *)action, 4, 1);
         return;
     }
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x80000) {
@@ -533,39 +533,39 @@ void func_001a06d0(u8 *arg0) {
         *(s32 *)(iGpffffb3ac + 0xC) &= ~0x2000;
         func_001eb7f0();
     }
-    if ((s32)*(u8 *)(arg0 + 0x28) > 0) {
+    if ((s32)action->unk_28 > 0) {
         if (!(*(s32 *)(iGpffffb3ac + 0x10) & 0x20)) {
-            func_00212070(*(u8 **)(iGpffffb3ac + 0xDD4), arg0);
-            func_00194590(func_001f99c0(arg0, 0xE, 0, 0, 0), 1);
+            func_00212070(*(u8 **)(iGpffffb3ac + 0xDD4), (u8 *)action);
+            func_00194590(func_001f99c0((u8 *)action, 0xE, 0, 0, 0), 1);
         }
     } else {
-        *(u16 *)(arg0 + 0x18) |= 0x400;
-        *(u16 *)(arg0 + 0x1A) &= 0xFFBF;
+        action->flags |= 0x400;
+        action->unk_1a &= 0xFFBF;
     }
-    if ((*(u8 *)(arg0 + 0x28) == 0) && (*(u8 *)(arg0 + 0x29) == 0)) {
-        *(s32 *)(arg0 + 0x41C) = func_00232d80(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
+    if ((action->unk_28 == 0) && (action->unk_29 == 0)) {
+        action->unk_41c = func_00232d80(action->unit->datUnit);
     } else {
-        *(s32 *)(arg0 + 0x41C) = 0;
+        action->unk_41c = 0;
     }
-    if ((*(s32 *)(arg0 + 0x41C) != 0) ||
-        (func_00243e30(*(u16 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) != 0)) {
+    if ((action->unk_41c != 0) ||
+        (func_00243e30((u16 *)action->unit->datUnit) != 0)) {
         canAct = 0;
     }
     if (canAct != 0) {
-        if ((*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0) &&
-            (*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4) == 1) &&
-            (*(u8 *)(arg0 + 0x28) == 0) && (*(u8 *)(arg0 + 0x29) == 0)) {
+        if ((action->unit->genus == 0) &&
+            (action->unit->charId == 1) &&
+            (action->unk_28 == 0) && (action->unk_29 == 0)) {
             *(s32 *)(iGpffffb3ac + 0x20) += 1;
         }
-        if ((s8)func_00235320(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) >= 0) {
-            btlActionSetState(arg0, 0xA);
+        if ((s8)func_00235320(action->unit->datUnit) >= 0) {
+            btlActionSetState(action, 0xA);
             return;
         }
-        if (func_001f6770(arg0) != 0) {
-            btlActionSetState(arg0, 0xB);
+        if (func_001f6770((u8 *)action) != 0) {
+            btlActionSetState(action, 0xB);
             return;
         }
-        btlActionSetState(arg0, *(u16 *)(arg0 + 0x14));
+        btlActionSetState(action, action->state);
     }
 }
 /* P4 initializes and copies the complete 0x20-byte target result. The P3FES
