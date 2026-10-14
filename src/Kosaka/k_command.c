@@ -71,7 +71,7 @@ extern void func_00168c00(s32 arg0);
 extern void func_0015bae0(void);
 extern void func_0016ec90(s32 arg0);
 extern void func_0017e9b0(s32 arg0);
-extern void func_0017b9a0(s32 arg0, f32 arg1);
+extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
 extern u8* func_00155280(void);
 
 typedef struct
@@ -362,7 +362,7 @@ s32 func_001773d0(void)
         if (p != 0 && *(s32*)(p + 0x230) != 0)
         {
             f32 f = scrGetParamFloat(1);
-            func_0017b9a0(*(s32*)(p + 0x230), f);
+            FldShadow_SetRingParticles(*(s32*)(p + 0x230), f);
         }
         break;
     }

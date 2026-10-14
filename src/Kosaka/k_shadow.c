@@ -2,7 +2,7 @@
 /* Source unit: "k_shadow.c" (bare __FILE__ string; span 0x0017B510..0x0017CCC0). */
 /* Prologue is the minimal set found by delta-debugging the committed code1 prologue
    against the span (measured: all 14 functions MATCH). The full prologue ICEs in
-   InterferenceGraph.c line 400 while compiling func_0017b510. The trigger is not
+   InterferenceGraph.c line 400 while compiling FldShadow_CreateCaster. The trigger is not
    isolated to one declaration: removing any kept declaration breaks compile or match,
    so the whole minimal set is required. */
 #include "sdk_task_registration.h"
@@ -57,7 +57,7 @@ typedef struct FldShadowBoundsAccum {
     void *largestAtomic;
 } FldShadowBoundsAccum;
 // FUN_0017ACC0
-s32 func_0017acc0(u8 *arg0)
+s32 FldShadow_StepCasterSetup(u8 *arg0)
 {
     extern s32 func_004782b0(u8 *model);
     extern void *mdlGetClump(void *model);
@@ -246,7 +246,7 @@ s32 func_0017acc0(u8 *arg0)
     return 0;
 }
 // FUN_0017B350
-void func_0017b350(u8 *arg0)
+void FldShadow_ReleaseCaster(u8 *arg0)
 {
     u8 *temp_19;
     s32 temp_18;
@@ -305,7 +305,7 @@ extern u8 *func_003ef2e0(void *raster);
 extern u8 *func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
 extern u8 *func_003e84a0(void);
 extern f32 fabsf(f32 x);
-extern s32 func_0017acc0(u8 *task);
+extern s32 FldShadow_StepCasterSetup(u8 *task);
 
 /* measured: b510 matches only with loop-invariant hoisting on and propagation off (14/14). */
 #pragma opt_loop_invariants on
@@ -313,7 +313,7 @@ extern s32 func_0017acc0(u8 *task);
 // FUN_0017B510
 /* Measured: 1148 executable bytes, 48 resolved relocations, four zero
    alignment bytes. Slot pointers retain the retail callback reloads. */
-void *func_0017b510(u8 *arg0, u16 arg1, u16 arg2)
+void *FldShadow_CreateCaster(u8 *arg0, u16 arg1, u16 arg2)
 {
     u8 *data;
     void *task;
@@ -336,7 +336,7 @@ void *func_0017b510(u8 *arg0, u16 arg1, u16 arg2)
         return NULL;
     }
 
-    task = func_00451fc0((void *)(arg0), (const void *)(D_005F18D0), 0x10, 0, 0, func_0017acc0, func_0017b350, (u8 *)(data));
+    task = func_00451fc0((void *)(arg0), (const void *)(D_005F18D0), 0x10, 0, 0, FldShadow_StepCasterSetup, FldShadow_ReleaseCaster, (u8 *)(data));
     *(u16 *)(data + 0x8) = arg1;
     mode = (u16 *)(data + 0xA);
     *mode = arg2;
@@ -457,12 +457,12 @@ camera_registered:
 #pragma opt_loop_invariants off
 
 // FUN_0017B990
-void func_0017b990(u8 *arg0, s32 arg1)
+void FldShadow_SetCasterFlag(u8 *arg0, s32 arg1)
 {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 4) = arg1;
 }
 // FUN_0017B9A0
-void func_0017b9a0(u8 *arg0, f32 fparg0)
+void FldShadow_SetRingParticles(u8 *arg0, f32 fparg0)
 {
     u8 *state;
     s32 object;
@@ -508,7 +508,7 @@ void func_0017b9a0(u8 *arg0, f32 fparg0)
 }
 
 // FUN_0017BB50
-void func_0017bb50(u8 *arg0, u8 *arg1)
+void FldShadow_SaveFrameSlots(u8 *arg0, u8 *arg1)
 {
     *(s32 *)(arg1 + 0x3C) = func_004571b0()[2];
     func_004571b0()[2] = 0;
@@ -524,7 +524,7 @@ void func_0017bb50(u8 *arg0, u8 *arg1)
 
 
 // FUN_0017BBE0
-void func_0017bbe0(u8 *arg0, u8 *arg1)
+void FldShadow_RestoreFrameSlots(u8 *arg0, u8 *arg1)
 {
     u8 temp_16;
 
@@ -545,7 +545,7 @@ void func_0017bbe0(u8 *arg0, u8 *arg1)
  * lifetime, and component-wise scaled increment's operand order.
  */
 // FUN_0017BC60
-void func_0017bc60(u8 *unused, u8 *state)
+void FldShadow_UpdateSceneShadow(u8 *unused, u8 *state)
 {
     RwV3d position;
     f32 localTolerance[3];
@@ -624,7 +624,7 @@ void func_0017bc60(u8 *unused, u8 *state)
 // FUN_0017C010
 /* measured: 608/608 bytes and 29 resolved relocations. The shared draw
    signature preserves both packet-end callbacks and the real provider. */
-void func_0017c010(u8 *packet, s32 stateAddress, void *callbackSelf)
+void FldShadow_DrawBlobPacket(u8 *packet, s32 stateAddress, void *callbackSelf)
 {
     extern u32 K_FldShadow_Draw(f32, f32, f32, f32,
                                const RwRGBA *, const RwRGBA *, f32, f32);
@@ -678,7 +678,7 @@ void func_0017c010(u8 *packet, s32 stateAddress, void *callbackSelf)
 /* measured: 1016/1024 bytes; 29 independently resolved relocations and eight
    zero alignment bytes. Preserve the early camera/height/position snapshots
    and the later frame, model and resource-chain reloads across callbacks. */
-void func_0017c270(u8 *unused, u8 *state)
+void FldShadow_UpdateModelShadow(u8 *unused, u8 *state)
 {
     RwV3d position;
     f32 localTolerance[3];
@@ -761,7 +761,7 @@ void func_0017c270(u8 *unused, u8 *state)
 }
 
 // FUN_0017C670
-void func_0017c670(u8 *packet, s32 stateAddress, void *callbackSelf)
+void FldShadow_DrawBlobModel(u8 *packet, s32 stateAddress, void *callbackSelf)
 {
     u8 *arg1 = (u8 *)stateAddress;
     extern void *mdlGetMatrix(void *);
@@ -820,7 +820,7 @@ void func_0017c670(u8 *packet, s32 stateAddress, void *callbackSelf)
 
 
 // FUN_0017C930
-s32 func_0017c930(u8 *arg0)
+s32 FldShadow_CasterStep(u8 *arg0)
 {
     extern u8 *MT_Scene_GetResListHead(s32);
     extern s32 func_0014a160(void);
@@ -830,12 +830,12 @@ s32 func_0017c930(u8 *arg0)
     extern void func_00460ac0(void *, void *);
     extern void func_004623a0(void *);
     extern void func_00479100(void *, void *);
-    extern void func_0017bb50(u8 *, u8 *);
-    extern void func_0017bbe0(u8 *);
-    extern void func_0017c010(u8 *, s32, void *);
+    extern void FldShadow_SaveFrameSlots(u8 *, u8 *);
+    extern void FldShadow_RestoreFrameSlots(u8 *);
+    extern void FldShadow_DrawBlobPacket(u8 *, s32, void *);
 
-    extern void func_0017c270(u8 *, u8 *);
-    extern void func_0017c670(u8 *, s32, void *);
+    extern void FldShadow_UpdateModelShadow(u8 *, u8 *);
+    extern void FldShadow_DrawBlobModel(u8 *, s32, void *);
     u8 *list1;
     u8 *list3;
     u8 *state;
@@ -855,14 +855,14 @@ s32 func_0017c930(u8 *arg0)
     case 1: {
         func_00460a80(state + 4, 1);
         work = func_00460990();
-        *(void **)(work + 8) = (void *)func_0017bb50;
+        *(void **)(work + 8) = (void *)FldShadow_SaveFrameSlots;
         *(u8 **)(work + 0x10) = state;
         func_00460ac0(state + 4, work);
         while (list1 != NULL) {
             if ((*(s32 *)(list1 + 0x28) & 2) != 0 &&
                 *(u16 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38) + 0xA) == 1) {
                 work = func_00460990();
-                *(void **)(work + 8) = (void *)func_0017bc60;
+                *(void **)(work + 8) = (void *)FldShadow_UpdateSceneShadow;
                 *(u8 **)(work + 0x10) = list1;
                 func_00460ac0(state + 4, work);
                 if (*(s32 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38)) > 0) {
@@ -887,7 +887,7 @@ s32 func_0017c930(u8 *arg0)
                     }
                 }
                 work = func_00460990();
-                *(void **)(work + 0xC) = (void *)func_0017c010;
+                *(void **)(work + 0xC) = (void *)FldShadow_DrawBlobPacket;
                 *(u8 **)(work + 0x14) = list1;
                 func_00460ac0(state + 4, work);
             }
@@ -897,21 +897,21 @@ s32 func_0017c930(u8 *arg0)
             if ((*(s32 *)(list3 + 0x28) & 2) != 0 &&
                 *(u16 *)(*(u8 **)(*(u8 **)(list3 + 0x230) + 0x38) + 0xA) == 1) {
                 work = func_00460990();
-                *(void **)(work + 8) = (void *)func_0017c270;
+                *(void **)(work + 8) = (void *)FldShadow_UpdateModelShadow;
                 *(u8 **)(work + 0x10) = list1;
                 func_00460ac0(state + 4, work);
                 if (*(s32 *)(*(u8 **)(*(u8 **)(list3 + 0x230) + 0x38)) > 0) {
                     func_00479100(state + 4, *(u8 **)(list3 + 0x164));
                 }
                 work = func_00460990();
-                *(void **)(work + 0xC) = (void *)func_0017c670;
+                *(void **)(work + 0xC) = (void *)FldShadow_DrawBlobModel;
                 *(u8 **)(work + 0x14) = list1;
                 func_00460ac0(state + 4, work);
             }
             list3 = *(u8 **)(list3 + 0x138);
         }
         work = func_00460990();
-        *(void **)(work + 0xC) = (void *)func_0017bbe0;
+        *(void **)(work + 0xC) = (void *)FldShadow_RestoreFrameSlots;
         *(u8 **)(work + 0x14) = state;
         func_00460ac0(state + 4, work);
         func_004623a0(state + 4);
@@ -926,12 +926,12 @@ s32 func_0017c930(u8 *arg0)
 }
 
 // FUN_0017CC90
-void func_0017cc90(u8 *arg0)
+void FldShadow_CasterDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_0017CCC0
-s32 func_0017ccc0(u8 *arg0) {
+s32 FldShadow_SpawnCasterTask(u8 *arg0) {
     u8 *buf;
 
     func_0044ea90(D_005F18C0, 0x8E5);
@@ -939,6 +939,6 @@ s32 func_0017ccc0(u8 *arg0) {
     if (buf == NULL) {
         return 0;
     }
-    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1910), 8, 0, 0, func_0017c930, func_0017cc90, (u8 *)(buf));
+    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1910), 8, 0, 0, FldShadow_CasterStep, FldShadow_CasterDestroy, (u8 *)(buf));
 }
 
