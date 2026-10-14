@@ -2875,91 +2875,91 @@ void func_001a5650(s64 *arg0)
     RwV3d sp30;
     u32 source_offset, sum, idx4;
     f32 speed, scale;
-    u16 temp_7;
-    u16 temp_3_3;
-    u16 var_5;
-    u16 var_5_2;
-    u16 var_5_3;
-    u16 temp_3;
-    u8 temp_3_2;
-    u8 *temp_16;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_4;
-    u8 *temp_4_2;
+    u16 slotIndex;
+    u16 actionKind;
+    u16 actionState;
+    u16 speedIndex;
+    u16 nextState;
+    u16 recordIndex;
+    u8 unitMode;
+    u8 *battleUnit;
+    u8 *movePacket;
+    u8 *cameraPacket;
+    u8 *ctx;
+    u8 *actionUnit;
 
-    temp_16 = *(u8 **)((u8 *)arg0 + 0x30);
-    temp_4 = D_0076449C;
-    if ((*(s32 *)(temp_4 + 0xC) & 0x400000) &&
-        (*(u16 *)(temp_4 + 0x18) & 2)) {
-        temp_3 = *(u16 *)((u8 *)arg0 + 0x6C);
-        switch (temp_3) {
+    battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
+    ctx = D_0076449C;
+    if ((*(s32 *)(ctx + 0xC) & 0x400000) &&
+        (*(u16 *)(ctx + 0x18) & 2)) {
+        recordIndex = *(u16 *)((u8 *)arg0 + 0x6C);
+        switch (recordIndex) {
         case 1:
-            var_5 = 0x12;
+            actionState = 0x12;
             break;
         case 2:
         case 3:
-            var_5 = 0x13;
+            actionState = 0x13;
             break;
         case 9:
-            var_5 = 0x14;
+            actionState = 0x14;
             break;
         default:
-            var_5 = 0;
+            actionState = 0;
             break;
         }
-        btlActionSetState((BtlAction *)arg0, var_5);
+        btlActionSetState((BtlAction *)arg0, actionState);
         return;
     }
-    func_00194ff0(temp_16, (u8 *)&sp30, NULL, NULL);
-    if (!(func_001ec250((RwV3d *)(temp_16 + 4), &sp30) <= 75.0f)) {
+    func_00194ff0(battleUnit, (u8 *)&sp30, NULL, NULL);
+    if (!(func_001ec250((RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
         func_001a03b0(arg0);
-        var_5_2 = 2;
-        temp_7 = (!(iGpffffb3b8[
+        speedIndex = 2;
+        slotIndex = (!(iGpffffb3b8[
             (*(u16 *)((u8 *)arg0 + 0x6E) * 0x28)] & 2)) & 0xFFFF;
-        temp_4_2 = *(u8 **)((u8 *)arg0 + 0x30);
-        temp_3 = *(u16 *)(*(u8 **)(temp_4_2 + 0xA64) + 2);
-        temp_3_2 = *(u8 *)(temp_4_2 + 0xA2);
-        switch (temp_3_2) {
+        actionUnit = *(u8 **)((u8 *)arg0 + 0x30);
+        recordIndex = *(u16 *)(*(u8 **)(actionUnit + 0xA64) + 2);
+        unitMode = *(u8 *)(actionUnit + 0xA2);
+        switch (unitMode) {
         case 0:
             break;
         case 1:
-            temp_4 = iGpffffb3cc;
-            source_offset = temp_3 * 0xE8;
-            sum = source_offset + (u32)temp_4;
-            idx4 = temp_7 * 4;
-            var_5_2 = *(u16 *)(idx4 + sum + 0x24);
+            ctx = iGpffffb3cc;
+            source_offset = recordIndex * 0xE8;
+            sum = source_offset + (u32)ctx;
+            idx4 = slotIndex * 4;
+            speedIndex = *(u16 *)(idx4 + sum + 0x24);
             break;
         }
-        speed = D_005F6D20[var_5_2];
+        speed = D_005F6D20[speedIndex];
         scale = D_0076144C;
-        temp_2 = (u8 *)btlUnitCreateMovePacket(
-            (BtlUnit *)temp_4_2, &sp30,
+        movePacket = (u8 *)btlUnitCreateMovePacket(
+            (BtlUnit *)actionUnit, &sp30,
             speed * scale, 0);
-        *(s64 *)(temp_2 + 0x60) = *arg0;
-        func_00194590(temp_2, 1);
-        temp_2_2 = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x18);
-        *(s64 *)(temp_2_2 + 0x60) = *arg0;
-        func_00194590(temp_2_2, 0);
+        *(s64 *)(movePacket + 0x60) = *arg0;
+        func_00194590(movePacket, 1);
+        cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x18);
+        *(s64 *)(cameraPacket + 0x60) = *arg0;
+        func_00194590(cameraPacket, 0);
         return;
     }
-    temp_3_3 = *(u16 *)((u8 *)arg0 + 0x6C);
-    switch (temp_3_3) {
+    actionKind = *(u16 *)((u8 *)arg0 + 0x6C);
+    switch (actionKind) {
     case 1:
-        var_5_3 = 0x12;
+        nextState = 0x12;
         break;
     case 2:
     case 3:
-        var_5_3 = 0x13;
+        nextState = 0x13;
         break;
     case 9:
-        var_5_3 = 0x14;
+        nextState = 0x14;
         break;
     default:
-        var_5_3 = 0;
+        nextState = 0;
         break;
     }
-    btlActionSetState((BtlAction *)arg0, var_5_3);
+    btlActionSetState((BtlAction *)arg0, nextState);
 }
 #pragma pop
 
