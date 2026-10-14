@@ -894,45 +894,45 @@ void func_00122860(s32 arg0, s32 arg1)
 // FUN_001228C0
 s32 func_001228c0(u8 *unusedTask)
 {
-    s32 temp_3;
+    s32 state;
     s32 i;
-    u8 *temp_16;
-    u8 *temp_3_2;
-    u8 *temp_4;
-    u8 *temp_6;
+    CalendarState *calendar;
+    CalendarState *reloaded;
+    CalendarRecord *record;
+    u8 *src;
     u8 *table;
 
-    temp_16 = iGpffffb1dc;
-    temp_3 = *(s32 *)(temp_16 + 0);
-    switch (temp_3) {
+    calendar = (CalendarState *)iGpffffb1dc;
+    state = calendar->state;
+    switch (state) {
     case 0:
-        *(s32 *)(temp_16 + 0x110) = (s32)func_0046a770((char *)D_005E5870);
-        temp_6 = iGpffffb1dc;
+        calendar->field_110 = (s32)func_0046a770((char *)D_005E5870);
+        reloaded = (CalendarState *)iGpffffb1dc;
         i = 0;
         table = D_005E50D0;
         while (i < 5) {
-            temp_4 = table + (i << 5);
-            temp_3_2 = temp_6 + i * 0x30;
-            *(f32 *)(temp_3_2 + 0x20) = *(f32 *)(temp_4 + 0);
-            *(f32 *)(temp_3_2 + 0x24) = *(f32 *)(temp_4 + 4);
-            *(f32 *)(temp_3_2 + 0x28) = *(f32 *)(temp_4 + 8);
-            *(f32 *)(temp_3_2 + 0x2C) = *(f32 *)(temp_4 + 0xC);
-            *(s32 *)(temp_3_2 + 0x48) = *(s32 *)(temp_4 + 0x14);
-            *(s32 *)(temp_3_2 + 0x4C) = *(s32 *)(temp_4 + 0x18);
-            *(s8 *)(temp_3_2 + 0x39) = *(s32 *)(temp_4 + 0x10);
-            *(s8 *)(temp_3_2 + 0x38) = 0;
+            src = table + (i << 5);
+            record = &reloaded->records[i];
+            record->field_00 = *(f32 *)(src + 0);
+            record->field_04 = *(f32 *)(src + 4);
+            record->field_08 = *(f32 *)(src + 8);
+            record->field_0C = *(f32 *)(src + 0xC);
+            record->field_28 = *(s32 *)(src + 0x14);
+            record->field_2C = *(s32 *)(src + 0x18);
+            record->field_19 = *(s32 *)(src + 0x10);
+            record->field_18 = 0;
             i++;
         }
-        *(s32 *)(temp_6 + 0x10) = 0;
-        *(s32 *)(temp_16 + 0) = 1;
+        reloaded->field_10 = 0;
+        calendar->state = 1;
         break;
     case 1:
-        *(s16 *)(temp_16 + 4) = (s16)func_001060b0();
-        *(s16 *)(temp_16 + 6) = func_001060c0() & 0xFF;
-        *(s16 *)(temp_16 + 8) =
-            (s8)func_00110850(*(s16 *)(temp_16 + 4), *(s16 *)(temp_16 + 6));
+        calendar->field_04 = (s16)func_001060b0();
+        calendar->field_06 = func_001060c0() & 0xFF;
+        calendar->field_08 =
+            (s8)func_00110850(calendar->field_04, calendar->field_06);
         func_001238c0(0);
-        *(s32 *)(temp_16 + 0) = 2;
+        calendar->state = 2;
         break;
     case 2:
         break;
