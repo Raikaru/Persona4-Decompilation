@@ -1246,7 +1246,7 @@ void func_00146a10(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput)
                 func_00440b68(D_005EF9F0);
                 return;
             }
-            func_00146f50(transformMatrix, resource + 4, (u32 *)(resource + 16));
+            MT_Scene_BuildResMatrix(transformMatrix, resource + 4, (u32 *)(resource + 16));
             sourceWords = transformMatrix;
             outputWords = effectMatrix;
             remainingPairs = 8;

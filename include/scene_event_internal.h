@@ -9,8 +9,8 @@ typedef struct SVec3 {
 
 /* Transform pointers address three consecutive floats; NULL leaves that
    transform unchanged. Resource IDs contain the packed 16-bit type/index. */
-void func_00146e60(u16 resourceId, u8 *position, u8 *angles);
-void func_00146ee0(u16 resourceId, u8 *scale);
+void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles);
+void MT_Scene_SetResAngles(u16 resourceId, u8 *scale);
 
 s32 func_00268f20(u32 resourceId, SVec3 *position, u32 duration, s8 easing);
 s32 func_002690b0(u32 resourceId, u8 *fromPosition, u8 *toPosition,
@@ -22,7 +22,7 @@ s32 func_00269740(u32 resourceId);
 void func_0026bf70(u32 resourceId);
 
 /* The matrix output is sixteen words; both input vectors contain three floats. */
-void func_00146f50(u32 *matrix, const void *position, u32 *angles);
+void MT_Scene_BuildResMatrix(u32 *matrix, const void *position, u32 *angles);
 
 /* The path address refers to a complete 304-byte count/flags/vector record. */
 u32 func_002692d0(u32 resourceId, u32 pathAddress, f32 speed, u32 loop);

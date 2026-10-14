@@ -13,7 +13,7 @@ typedef struct { s64 a; f32 b; s32 pad; } StateFrame;
 typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 
 
-extern s32 func_00145260(void);
+extern s32 MT_Scene_GetResManager(void);
 extern u16 func_00145480(u16);
 extern void func_0026bfc0(f32 *, f32, f32, f32, f32, f32 *);
 extern u8 *func_00287060(s32, u8 *, u16, u8 *);
@@ -260,7 +260,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
     *angles_z_ptr = D_0063CAF0[0];
     *(s64 *)&stack.vec[0] = angles_xy;
     stack.vec[0].z = angles_z;
-    if (func_00145260() != 0) {
+    if (MT_Scene_GetResManager() != 0) {
         idx = (s32)MT_Scene_GetRes(0x1E58);
         if (idx == 0) {
             resource_id = func_00145480(0x258) & 0xFFFF;
@@ -268,11 +268,11 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         } else {
             resource_id = *(u16 *)idx;
         }
-        func_00146e60(resource_id, (u8 *)&stack.vec[1], (u8 *)&stack.vec[0]);
+        MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[1], (u8 *)&stack.vec[0]);
         *(s32 *)((u8 *)idx + 0x144) = 0;
         *(u8 **)(arg1 + 0x12C) = MT_Scene_GetRes(resource_id);
         func_0026bfc0(&stack.vec[1].x, 900.0f, 45.0f, 0.0f, 0.0f, &stack.vec[2].x);
-        func_00146e60(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
+        MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         resource = (u8 *)MT_Scene_GetRes(0x1E59);
         if (resource == NULL) {
             resource_id = func_00145480(0x259) & 0xFFFF;
@@ -280,7 +280,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         } else {
             resource_id = *(u16 *)resource;
         }
-        func_00146e60(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
+        MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         *(s32 *)((u8 *)MT_Scene_GetRes(resource_id) + 0x144) = 0;
         func_0028be70(arg1, 0);
         temp_3 = *(u8 **)(arg1 + 0x12C);
@@ -598,7 +598,7 @@ void func_00295740(s32 arg0, u8 *arg1) {
             sp58.x = (f32)temp_2_2;
             sp58.y = 0;
             sp58.z = (f32)-temp_2_2;
-            func_00146e60(temp_16, (u8 *)&sp58, 0);
+            MT_Scene_SetResPlacement(temp_16, (u8 *)&sp58, 0);
             temp_2_3 = (u16 *)(MT_Scene_GetRes(temp_16));
             if (temp_2_3 == NULL) {
                 func_0046d730(D_0063CAB0, 0x9C5);

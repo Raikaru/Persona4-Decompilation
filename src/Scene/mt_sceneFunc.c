@@ -1859,7 +1859,7 @@ void func_0026c190(f32 *out, void *resource, f32 scale)
             base[1] = *(f32 *)(handle + 8);
             base[2] = *(f32 *)(handle + 0xc);
             scale = *(f32 *)((u8 *)resource + 0x144);
-            func_00146f50((u32 *)matrix, base, (u32 *)axis);
+            MT_Scene_BuildResMatrix((u32 *)matrix, base, (u32 *)axis);
             src = (s32 *)matrix;
             dst = (s32 *)matrix_copy;
             count = 8;

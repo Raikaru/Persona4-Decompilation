@@ -2373,7 +2373,7 @@ s32 func_0018a200(u8 *param_1)
         transformAngles.y = func_0014b5d0((void *)(puVar1[3] + 0x240));
         transformAngles.z = func_0014b6f0((void *)(puVar1[3] + 0x240));
         transformObject = (FldActorObject *)puVar1[3];
-        func_00146e60(transformObject->id, (u8 *)&transformObject->initialMatrix.pos, (u8 *)&transformAngles);
+        MT_Scene_SetResPlacement(transformObject->id, (u8 *)&transformObject->initialMatrix.pos, (u8 *)&transformAngles);
         temp_v8 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         func_003e05d0(temp_v8);
         func_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);

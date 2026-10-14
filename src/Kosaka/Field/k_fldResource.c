@@ -330,7 +330,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * 2026-10-09: 116 -> 99: MT_Scene_GetRes is called before the constant store, the
  * flag call passes one `enable` local twice (retail copies $a0 to $a1), and the
  * frame-list loop keeps a `u32 *frameCount` from its test for the final clear.
- * 2026-10-09: func_00146e60 is declared here with an s32 id: retail passes the
+ * 2026-10-09: MT_Scene_SetResPlacement is declared here with an s32 id: retail passes the
  * masked id without the u16 re-mask that the header prototype would force
  * (H011, retail 0x0014FE90 area).
  * 2026-10-09: 99 -> 94: the frame record is the list base plus `i * 0x18`, added
@@ -472,7 +472,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4, u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8);
     /* lint: allow H011 -- retail passes an already-u16-masked ID as a word;
      * the provider consumes that same u16 ID. */
-    extern void func_00146e60(s32 id, u8 *position, u8 *angles);
+    extern void MT_Scene_SetResPlacement(s32 id, u8 *position, u8 *angles);
     /* lint: allow H011 -- the final arguments are array addresses; the provider
      * casts its s32 words to memcpy sources of 0x20 and 0x180 bytes. */
     extern s32 func_00146440(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
@@ -925,7 +925,7 @@ block_123:
                         angles.x = func_0014b660(temp_18);
                         angles.y = func_0014b5d0(temp_18);
                         angles.z = func_0014b6f0(temp_18);
-                        func_00146e60(temp_19, temp_18 + 0x30, (u8 *)&angles);
+                        MT_Scene_SetResPlacement(temp_19, temp_18 + 0x30, (u8 *)&angles);
                         temp_4_8 = (u8 *)(iGpffff9db0);
                         if ((*( s32 * )(temp_4_8 + 0) != 0x14) || (*( s32 * )(temp_4_8 + 4) != 1)) {
                             temp_18_2 = (s32)(mdlGetClump(*( void ** )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C)));

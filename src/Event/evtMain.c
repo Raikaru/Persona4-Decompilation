@@ -61,7 +61,7 @@ void func_0014a2f0(s32 arg0);
 extern void func_00440b68(char *fmt, ...);
 extern char D_0063C628[];
 extern void (*DAT_008873EC[])(void *);
-u32 func_00145260(void);
+u32 MT_Scene_GetResManager(void);
 u8 *MT_Scene_GetResListHead(s32 arg0);
 void func_00268c20();
 void func_00161460(u8, u8, u8);
@@ -506,7 +506,7 @@ void func_002871a0(s32 arg0, u8 *arg1, u8 *arg2) {
     u8 *node3;
     s32 i16;
 
-    if (func_00145260() != 0) {
+    if (MT_Scene_GetResManager() != 0) {
         node = *(u8 **)(arg2 + 0x4C);
         while (node != NULL) {
             if (*(u32 *)node == 1 || *(u32 *)node == 0x30) {
@@ -1048,7 +1048,7 @@ void func_00288020(s32 arg0, u8 *arg1) {
     u8 *var_6;
     u8 *var_6_2;
 
-    temp_2 = (u8 *)func_00145260();
+    temp_2 = (u8 *)MT_Scene_GetResManager();
     if (temp_2 != NULL) {
         var_18 = *(u8 **)(temp_2 + 4);
         while (var_18 != NULL) {
@@ -1190,11 +1190,11 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                 u32 initialize = *(u32 *)event & 0x80000000;
                 s32 enabled = initialize != 0;
                 if (enabled && (frame == *(s32 *)(event + 0xC))) {
-                    func_00146e60(*(u16 *)(resource + 0xC), resource + 0x38, resource + 0x44);
+                    MT_Scene_SetResPlacement(*(u16 *)(resource + 0xC), resource + 0x38, resource + 0x44);
                     scale.x = 1.0f;
                     scale.y = 1.0f;
                     scale.z = 1.0f;
-                    func_00146ee0(*(u16 *)(resource + 0xC), (u8 *)&scale);
+                    MT_Scene_SetResAngles(*(u16 *)(resource + 0xC), (u8 *)&scale);
                     func_00269740(*(u16 *)(resource + 0xC));
                     func_00269620(*(u16 *)(resource + 0xC), *(u8 *)(resource + 0x53), 0, 0);
                     *(s32 *)(resource + 0x60) = 0;
@@ -1379,7 +1379,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                         direction.x = *(f32 *)(command + 0x18);
                         direction.y = *(f32 *)(command + 0x1C);
                         direction.z = 0.0f;
-                        func_00146f50(matrix.words, &origin, (u32 *)&direction);
+                        MT_Scene_BuildResMatrix(matrix.words, &origin, (u32 *)&direction);
                         func_0047a890(modelData, factor);
                         func_0047a900(modelData, &matrix.value.at);
                     }
@@ -1527,7 +1527,7 @@ s32 func_00288af0(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *comma
         }
         if (frame == *(s32 *)(event + 0xC)) {
             func_0026bf70(0x1E58);
-            func_00146e60(resource->id, (u8 *)&resource->position,
+            MT_Scene_SetResPlacement(resource->id, (u8 *)&resource->position,
                          (u8 *)&resource->angles);
             func_00269740(resource->id);
             camera = MT_Scene_GetRes(0x1E58);
@@ -1754,7 +1754,7 @@ s32 func_002891d0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                         sp60.x = *(f32 *)(arg4 + 0x20);
                         sp60.y = *(f32 *)(arg4 + 0x24);
                         sp60.z = *(f32 *)(arg4 + 0x28);
-                        func_00146e60(t, (u8 *)&sp70, (u8 *)&sp60);
+                        MT_Scene_SetResPlacement(t, (u8 *)&sp70, (u8 *)&sp60);
                         func_00440b68((char *)D_0063C558);
                     }
                     break;

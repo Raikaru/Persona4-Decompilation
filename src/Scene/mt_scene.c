@@ -61,11 +61,11 @@ extern RwMatrix* RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, s
 
 
 // FUN_00145250
-s32 func_00145250(void) {
+s32 MT_Scene_GetObject(void) {
     return (s32)PTR_DAT_00762ea0;
 }
 // FUN_00145260
-u32 func_00145260(void)
+u32 MT_Scene_GetResManager(void)
 {
     return *(u32*)(PTR_DAT_00762ea0 + 8);
 }
@@ -174,7 +174,7 @@ u16 MT_Scene_CreateResLightNpc(u16 resId)
 
 
 // FUN_00146E60
-void func_00146e60(u16 resourceId, u8 *position, u8 *angles)
+void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles)
 {
     u8 *resource;
 
@@ -196,7 +196,7 @@ void func_00146e60(u16 resourceId, u8 *position, u8 *angles)
 
 
 // FUN_00146EE0
-void func_00146ee0(u16 resourceId, u8 *angles)
+void MT_Scene_SetResAngles(u16 resourceId, u8 *angles)
 {
     u8 *resource;
 
@@ -215,7 +215,7 @@ void func_00146ee0(u16 resourceId, u8 *angles)
     }
 }
 // FUN_00146F50
-void func_00146f50(u32* param_1, const void* param_2, u32* param_3)
+void MT_Scene_BuildResMatrix(u32* param_1, const void* param_2, u32* param_3)
 {
     u32 uVar1;
     u32 uVar2;

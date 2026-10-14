@@ -592,7 +592,7 @@ s32 func_00177b30(void)
             vec[0] = func_0014b660(p2);
             vec[1] = func_0014b5d0(p2);
             vec[2] = func_0014b6f0(p2);
-            func_00146e60(flag & 0xFFFF, (u8*)(p2 + 0x30), (u8 *)&vec);
+            MT_Scene_SetResPlacement(flag & 0xFFFF, (u8*)(p2 + 0x30), (u8 *)&vec);
             func_0047a1c0(v, p2, 0);
             func_00479940((u8*)v, 0, 0, 8, 1);
         }
