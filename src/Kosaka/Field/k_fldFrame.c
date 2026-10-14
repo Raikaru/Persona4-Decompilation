@@ -8,6 +8,7 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef struct RwFrame RwFrame;
 typedef struct RwMatrixTag RwMatrix;
 extern u8* iGpffff9db0;
+// lint: allow H011 -- measured: u16 prototype regresses func_0016a960 (andi on wide id args)
 extern s32 MT_Scene_GetRes(s32 arg0);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern s32 func_0014a160(void);

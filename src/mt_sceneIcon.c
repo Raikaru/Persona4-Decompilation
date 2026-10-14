@@ -18,7 +18,8 @@ extern u8 iGpffffa700;
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-extern u8 *MT_Scene_GetRes(); /* old-style: func_0026d890 passes the icon id in $a0, func_0026da30 calls it bare */
+// lint: allow H011 -- measured: u16 prototype regresses func_0026da30 (andi on the wide icon id); retail declared this old-style
+extern u8 *MT_Scene_GetRes();
 extern void func_004b1170(s32 a);
 /* measured: returns 0 / -1 in $v0; the task dispatcher discards it, so the callback site casts. */
 extern s32 func_0026d890(u8 *arg0);
@@ -109,7 +110,7 @@ s32 func_0026da30(s32 arg0, s32 arg1)
     s32 kind;
 
     if (arg1 == 0xA) {
-        icon = MT_Scene_GetRes();
+        icon = MT_Scene_GetRes(arg0);
         /* measured: the NULL return is an `else` clause, not an early return, so
            its zero lands after the two kind blocks exactly as retail places it. */
         if (icon != NULL) {

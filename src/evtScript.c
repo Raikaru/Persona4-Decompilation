@@ -29,6 +29,7 @@ extern u8 *func_00452380(s8 *name);
 extern s32 func_00452490(void *target);
 extern void MT_Scene_DestroyRes(u32);
 extern void func_00269c20(s32, s32);
+// lint: allow H011 -- measured: u16 prototype regresses func_00298370 and func_00298550 (andi on wide id args)
 extern u16 *MT_Scene_GetRes(s32);
 extern s32 func_004782b0(u32 arg0);
 extern u8 *mdlGetColor(s32);

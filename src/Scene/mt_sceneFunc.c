@@ -1,7 +1,7 @@
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Source unit: src/mt_scene/mt_scene_00268bd0.c (1 function markers) */
+/* Source unit: src/Scene/mt_sceneFunc.c (functions consolidated from the retired src/mt_scene/mt_scene_00268bd0.c) */
 #include "type.h"
 #include "effect_update_internal.h"
 #include "scene_event_internal.h"
@@ -11,8 +11,9 @@ typedef struct Resrc {
     u32 flags;
 } Resrc;
 
-extern void *MT_Scene_GetRes();
 
+// lint: allow H011 -- measured: u16 prototype regresses func_00268e60 (andi on wide id args); retail declared this old-style
+extern void *MT_Scene_GetRes();
 u32 func_00268ce0(float* first, float* second, float* output, float* third);
 
 extern u32 func_00269190(Resrc* param_1, u32 param_2, float param_3, u32 param_4);
@@ -277,7 +278,7 @@ u32 func_00268e30(float* first, float* second, float* third)
 // FUN_00268E60
 s32 func_00268e60(u32 unk, u8 *arg1, f32 fparg0) {
     s32 temp_4;
-    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
     if (temp_2 == NULL) {
         return 0;
@@ -468,7 +469,7 @@ s32 func_00269340(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
 
 // FUN_00269440
 s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
-    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
     if (temp_2 == NULL) {
         return 0;
@@ -538,7 +539,7 @@ u32 func_00269620(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
     u32 lVar1;
     u32 uVar2;
 
-    lVar1 = (u32)MT_Scene_GetRes();
+    lVar1 = (u32)MT_Scene_GetRes(param_1);
     if (lVar1 != 0)
     {
         uVar2 = func_002694f0(lVar1, param_2, param_3, param_4);
@@ -737,7 +738,7 @@ u32 func_00269bd0(void* resource, s32 enabled)
 
 // FUN_00269C20
 s32 func_00269c20(u32 unk, s32 arg1) {
-    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
     if (temp_2 != NULL) {
         return func_00269bd0(temp_2, arg1);
@@ -1644,7 +1645,7 @@ s32 func_0026bc90(u8 *arg0, s32 arg1)
 
 // FUN_0026BD50
 s32 func_0026bd50(u32 unk, s32 arg1) {
-    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
     if (temp_2 != NULL) {
         return func_0026bc90(temp_2, arg1);
@@ -1675,9 +1676,9 @@ s32 func_0026bda0(u32 arg0, s32 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5)
 }
 
 // FUN_0026BE60
-s32 func_0026be60(void)
+s32 func_0026be60(s32 arg0)
 {
-    u8 *p = MT_Scene_GetRes();
+    u8 *p = MT_Scene_GetRes(arg0);
 
     if (p == NULL) return 0;
     if (p == NULL) return 0;
