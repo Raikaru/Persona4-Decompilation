@@ -451,32 +451,32 @@ block_10:
 }
 // FUN_00354660
 s32 func_00354660(void) {
-    s32 temp_17;
-    s32 temp_3;
-    u8 *temp_2;
-    u8 *temp_2_2;
+    s32 slot;
+    s32 state;
+    u8 *task;
+    u8 *work;
 
-    if ((temp_2 = func_00452380(&D_0064B320)) != NULL) {
-        temp_3 = *(s32 *)(*(u8 **)(temp_2 + 0x38) + 4);
-        if (temp_3 == 3) {
-            if (temp_3 != 3) {
+    if ((task = func_00452380(&D_0064B320)) != NULL) {
+        state = *(s32 *)(*(u8 **)(task + 0x38) + 4);
+        if (state == 3) {
+            if (state != 3) {
                 func_0046d730(&D_0064B310, 0x3CC);
             }
-            func_00452080((s32)(u32)temp_2);
+            func_00452080((s32)(u32)task);
             return 1;
         }
         goto block_10_2;
     }
-    temp_17 = func_0029cc00(0) - 1;
+    slot = func_0029cc00(0) - 1;
     func_0044ea90(&D_0064B310, 0x3AB);
-    temp_2_2 = D_008873F4[0](1, 0x10, 0x40000);
-    if (temp_2_2 == NULL) {
+    work = D_008873F4[0](1, 0x10, 0x40000);
+    if (work == NULL) {
         func_0046d730(&D_0064B310, 0x3AC);
     }
-    if (func_00451fc0((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(temp_2_2)) == NULL) {
+    if (func_00451fc0((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(work)) == NULL) {
         func_0046d730(&D_0064B310, 0x3B5);
     }
-    func_00354280(temp_2_2, temp_17, 1);
+    func_00354280(work, slot, 1);
 block_10_2:
     return 0;
 }
@@ -495,19 +495,19 @@ void func_003547c0(s32 *arg0, u8 *arg1)
 // FUN_00354830
 s32 func_00354830(u8 *arg0) {
     s32 sp3C;
-    s32 temp_2;
-    s32 temp_3;
+    s32 handle;
+    s32 state;
 
-    temp_3 = *(s32 *)(arg0 + 0);
-    switch (temp_3) {
+    state = *(s32 *)(arg0 + 0);
+    switch (state) {
     case 0:
         if (func_00452380(&D_0064B360) != NULL) {
             func_00440b68(&D_0064B380);
         } else {
             func_00440b68(&iGpffffa960, &D_0064B310, 0x433);
-            temp_2 = func_00454a60(arg0 + 0x10, 0);
-            *(s32 *)(arg0 + 8) = temp_2;
-            if (temp_2 == 0) {
+            handle = func_00454a60(arg0 + 0x10, 0);
+            *(s32 *)(arg0 + 8) = handle;
+            if (handle == 0) {
                 func_0046d730(&D_0064B310, 0x434);
             }
             *(s32 *)(arg0 + 0) = 1;
@@ -541,11 +541,11 @@ block_15:
 // FUN_003549D0
 void func_003549d0(u8 *arg0)
 {
-    s32 temp_4;
+    s32 handle;
 
-    temp_4 = *(s32 *)(arg0 + 4);
-    if (temp_4 != 0) {
-        func_004672c0(temp_4, *(s32 *)(arg0 + 8));
+    handle = *(s32 *)(arg0 + 4);
+    if (handle != 0) {
+        func_004672c0(handle, *(s32 *)(arg0 + 8));
         *(s32 *)(arg0 + 4) = 0;
         *(s32 *)(arg0 + 8) = 0;
         *(s32 *)(arg0 + 0xC) = 0;
@@ -564,32 +564,32 @@ void func_003549d0(u8 *arg0)
 // FUN_00354A50
 u8 *func_00354a50(s32 arg0, u16 arg1) {
     Float2 sp48;
-    u8 *temp_2;
-    u8 *temp_2_2;
+    u8 *task;
+    u8 *work;
 
     func_0044ea90(&D_0064B310, 0x48C);
-    temp_2_2 = D_008873F4[0](1, 0x258, 0x40000);
-    if (temp_2_2 == NULL) {
+    work = D_008873F4[0](1, 0x258, 0x40000);
+    if (work == NULL) {
         return NULL;
     }
-    temp_2 = func_00451fc0((void *)(arg0), (const void *)(&D_0064B3D0), 0xC7, 0, 0, func_00355460, func_003554b0, (u8 *)(temp_2_2));
-    if (temp_2 == NULL) {
+    task = func_00451fc0((void *)(arg0), (const void *)(&D_0064B3D0), 0xC7, 0, 0, func_00355460, func_003554b0, (u8 *)(work));
+    if (task == NULL) {
         return NULL;
     }
-    *(s16 *)(temp_2_2 + 8) = 0;
-    *(u8 *)(temp_2_2 + 0xA) = 0xFF;
-    *(s32 *)(temp_2_2 + 0xC) =
-        *(u8 *)(temp_2_2 + 0xA) | 0x2D2D2D00;
+    *(s16 *)(work + 8) = 0;
+    *(u8 *)(work + 0xA) = 0xFF;
+    *(s32 *)(work + 0xC) =
+        *(u8 *)(work + 0xA) | 0x2D2D2D00;
     sp48.x = 640.0f;
     sp48.y = 640.0f;
-    func_003550d0(temp_2, &sp48, &sp48);
-    func_00355370(temp_2, NULL);
-    *(s32 *)(temp_2_2 + 0x150) = 0;
-    *(s32 *)(temp_2_2 + 0x148) = 0;
-    *(s32 *)(temp_2_2 + 0x14C) = 0;
-    *(void **)(temp_2_2 + 0x254) = (void *)&D_0064B3B0;
-    func_00355190(temp_2, arg1);
-    return temp_2;
+    func_003550d0(task, &sp48, &sp48);
+    func_00355370(task, NULL);
+    *(s32 *)(work + 0x150) = 0;
+    *(s32 *)(work + 0x148) = 0;
+    *(s32 *)(work + 0x14C) = 0;
+    *(void **)(work + 0x254) = (void *)&D_0064B3B0;
+    func_00355190(task, arg1);
+    return task;
 }
 /* measured: live body obj 1224B/window 1232B (-8B, -0.65%); verify nd 58; probe_variants 16 differing words; fnalign 306/306 instrs, 6 edits (+7 reloc-only). Reconstructed from retail asm + P4_UNIT_00354BA0 draft (160 lines, noise 5: two adda/madd lerps); frame locals as 4x Q40 quads at sp+0x40/0x80/0xC0/0x100 (x,y,z,q,a floats; u,v,r,g,b s32); each jal checked (00457120 no-arg+0x80, 0044b7b0 f12, 00364680 s32,s32*,s32,s32+7 floats sx/sy in f17/f18, 003f6440 s32,s32, D_00887300 u32-cast hoist into $s0, D_00887310 s32,ptr,s32 daddu). File-scope decls differ here so body carries function-local externs. Tried || vs two-ifs (|| matches bnez+b), u32-cast hoist vs opt_propagation off (u32 avoids extra f22). Residuals are call-arg-setup-order + scheduling floors. */
 /* measured 2026-09-17 full pragma_sweep --pairs: banked 16 via measure_guarded; */
