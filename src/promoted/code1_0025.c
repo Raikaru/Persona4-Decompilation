@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "effect_instance_internal.h"
 
 static inline f32 p4_0025_mul_add(f32 left, f32 right, f32 base) {
     return left * right + base;
@@ -11,8 +12,6 @@ s32 func_00452380(void *arg0);
 extern u32 func_00452560(void *task);
 extern void func_0025f230(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void effBlurFilterDirectDestroy(s32 arg0);
-extern void effBlurFilterCopiedDestroy(s32 arg0);
 extern s32 D_006367C0[];
 extern void func_0045aeb0(s32 arg0, const char *arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
@@ -68,8 +67,6 @@ s32 func_002aa300(u8 *parent, s32 mode);
 s32 func_002aa3f0(void);
 extern s32 func_00481450(void);
 extern void func_00481440(s32 arg0);
-extern void effBlurFilterDirectAdvanceAndSync(s32 arg0);
-extern void effBlurFilterCopiedAdvanceAndSync(s32 arg0);
 extern void func_0046b380(u8 *arg0, s32 arg1);
 extern void func_0046d280(void *arg0);
 extern u8 *func_0046d200(u32 arg0, u32 arg1);
@@ -1127,11 +1124,11 @@ s32 func_0025f960(u8 *task) {
     temp_3 = p[0];
     switch (temp_3) {
     case 0:
-        effBlurFilterDirectAdvanceAndSync(p[1]);
+        effBlurFilterDirectAdvanceAndSync((u8 *)p[1]);
         p[2] = p[2] + 1;
         break;
     case 1:
-        effBlurFilterCopiedAdvanceAndSync(p[1]);
+        effBlurFilterCopiedAdvanceAndSync((u8 *)p[1]);
         p[2] = p[2] + 1;
         break;
     }
@@ -1150,10 +1147,10 @@ void func_0025fa30(u8 *task)
     temp_3 = temp_2[0];
     switch (temp_3) {
     case 0:
-        effBlurFilterDirectDestroy(temp_2[1]);
+        effBlurFilterDirectDestroy((void *)temp_2[1]);
         break;
     case 1:
-        effBlurFilterCopiedDestroy(temp_2[1]);
+        effBlurFilterCopiedDestroy((void *)temp_2[1]);
         break;
     }
     jtbl_008873EC[0](temp_2);

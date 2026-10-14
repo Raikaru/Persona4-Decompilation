@@ -1,6 +1,7 @@
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
 #include "sdk_task_registration.h"
+#include "effect_instance_internal.h"
 
 typedef struct ShdFbuf
 {
@@ -33,7 +34,6 @@ typedef struct ShdFarg
 
 extern void func_0044ea90(const void *msg, s32 id);
 
-extern s32 effBlurFilterDirectCreate(s32 a, void *b);
 extern u32 func_00452560(void *task);
 extern void func_004b1210(void *a, void *b);
 extern u32 func_004b1580(s32 a);
@@ -65,7 +65,7 @@ s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext)
     }
     else
     {
-        *(s32 *)(buf + 4) = effBlurFilterDirectCreate(arg1 & 0xFFFF, arg3);
+        *(s32 *)(buf + 4) = (s32)effBlurFilterDirectCreate(arg1 & 0xFFFF, arg3);
     }
     *(s32 *)(buf + 0xC) = *(s32 *)(arg3 + 0xB8);
     *(void **)(buf + 0x10) = renderContext;

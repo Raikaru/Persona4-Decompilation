@@ -1,5 +1,6 @@
 #include "type.h"
 #include "sdk_task_registration.h"
+#include "effect_instance_internal.h"
 #include "include_asm.h"
 extern s32 func_00452380();
 extern u8 iGpffffa7a8;
@@ -8,8 +9,6 @@ extern u8 iGpffffa7a8;
  * several call sites below pass an argument (a0 is set by the caller), which a
  * (void) prototype would forbid. */
 s32 *func_00452560();
-void effBlurFilterDirectDestroy(s32 arg0);
-void effBlurFilterCopiedDestroy(s32 arg0);
 extern void (*jtbl_008873EC[])(void *);
 
 void func_0044ea90(const void *msg, s32 id);
@@ -54,7 +53,6 @@ extern code DAT_008873ec_abs[];
 
 typedef struct { f32 x, y, z; } SVec3;
 typedef unsigned int EvtU128 __attribute__((mode(TI)));
-u8 *effBlurFilterDirectCreate(s32 type, void *data);
 u8 *func_004ab960(u16 *texture, u16 kind);
 extern u8 D_0063C648[];
 
@@ -170,11 +168,11 @@ s32 func_0028d280(u8 *unusedTask) {
     temp_3 = temp_2[0];
     switch (temp_3) {
     case 0:
-        effBlurFilterDirectAdvanceAndSync(temp_2[1]);
+        effBlurFilterDirectAdvanceAndSync((u8 *)temp_2[1]);
         temp_2[2] = temp_2[2] + 1;
         break;
     case 1:
-        effBlurFilterCopiedAdvanceAndSync(temp_2[1]);
+        effBlurFilterCopiedAdvanceAndSync((u8 *)temp_2[1]);
         temp_2[2] = temp_2[2] + 1;
         break;
     }
@@ -190,10 +188,10 @@ void func_0028d310(u8 *unusedTask) {
     temp_3 = temp_2[0];
     switch (temp_3) {
     case 0:
-        effBlurFilterDirectDestroy(temp_2[1]);
+        effBlurFilterDirectDestroy((void *)temp_2[1]);
         break;
     case 1:
-        effBlurFilterCopiedDestroy(temp_2[1]);
+        effBlurFilterCopiedDestroy((void *)temp_2[1]);
         break;
     }
     jtbl_008873EC[0](temp_2);
@@ -458,7 +456,6 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
 #pragma opt_lifetimes on
 s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
 {
-    extern u8 *effBlurFilterCopiedCreate(u32 type, const void *parameters);
     extern u8 D_0063C660[];
     typedef struct { EvtFilterParams params; u8 extra[0x28]; } F28;
     typedef struct { EvtFilterParams params; u8 extra[0x2C]; } F2C;
