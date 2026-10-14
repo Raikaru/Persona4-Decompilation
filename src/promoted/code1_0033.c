@@ -141,9 +141,9 @@ s32 func_00331600(void)
 }
 
 // FUN_00331620
-s32 func_00331620(void)
+s32 *func_00331620(void)
 {
-    return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x30);
+    return *(s32 **)(*(int *)(iGpffffb598 + 0x38) + 0x30);
 }
 
 // FUN_00331640

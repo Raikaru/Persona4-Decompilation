@@ -276,7 +276,7 @@ void func_004b12e0(s32 arg0, u8 *arg1) {
     func_00486330(arg0, work.result);
 }
 // FUN_004B13D0
-void func_004b13d0(void)
+void func_004b13d0(s32 arg0, f32 arg1)
 {
     func_00486400();
 }
