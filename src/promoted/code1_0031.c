@@ -190,45 +190,45 @@ exit:
 // FUN_00311D60
 s32 func_00311d60(s32 arg0)
 {
-    s16 temp_3;
-    u32 var_18;
-    s32 var_17;
+    s16 flags;
+    u32 index;
+    s32 status;
     s32 value;
-    u8 *temp_4;
+    u8 *entry;
     s32 result;
 
-    var_17 = 1;
-    var_18 = 0;
+    status = 1;
+    index = 0;
     value = arg0 & 0xFFFF;
     goto loop_test;
 loop_body:
-    temp_4 = (u8 *)D_006420A0 + (var_18 * 8);
-    if (value != *(s16 *)(temp_4 + 4)) {
+    entry = (u8 *)D_006420A0 + (index * 8);
+    if (value != *(s16 *)(entry + 4)) {
         goto block_8;
     }
-    temp_3 = *(s16 *)(temp_4 + 6);
-    if (temp_3 & 1) {
-        if (datGetFlag(*(s32 *)temp_4) == 0) {
+    flags = *(s16 *)(entry + 6);
+    if (flags & 1) {
+        if (datGetFlag(*(s32 *)entry) == 0) {
             result = 0;
             goto done;
         }
     } else {
-        if ((temp_3 & 2) == 0) {
+        if ((flags & 2) == 0) {
             goto block_8;
         }
-        var_17 = 0;
-        if (datGetFlag(*(s32 *)temp_4) == 1) {
+        status = 0;
+        if (datGetFlag(*(s32 *)entry) == 1) {
             result = 1;
             goto done;
         }
     }
 block_8:
-    var_18 += 1;
+    index += 1;
 loop_test:
-    if (var_18 < 0x17U) {
+    if (index < 0x17U) {
         goto loop_body;
     }
-    result = var_17;
+    result = status;
 done:
     return result;
 }
