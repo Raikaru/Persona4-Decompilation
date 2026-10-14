@@ -70,7 +70,7 @@ u8 btlCond_MYID(int param_1, int param_2);
 
 /* Predicates defined in btlAICommand.c and referenced from other TUs. */
 s32 btlCond_MYNOMAL(u8 *formation, s32 index);
-s32 btlCond_MYHOJO(u8 *arg0);
+s32 btlCond_MYHOJO(u8 *arg0, s32 arg1);
 s32 btlCond_MYTAISEI(u8 *arg0, s16 arg1);
 
 /* Group helper in code1_001d.c, called by the btlCond_*GROUP predicates. */
