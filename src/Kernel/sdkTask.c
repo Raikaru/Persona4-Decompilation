@@ -983,6 +983,13 @@ u32 kwlnTaskGetTimer(void* task)
     return *(u32*)((u8*)task + 0x28);
 }
 
+/* Stores `value` in the task's +0x38 field. */
+// FUN_00452550
+void kwlnTaskSetValue38(KwlnTask* task, u32 value)
+{
+    *(u32*)((u8*)task + 0x38) = value;
+}
+
 // FUN_00452560
 u32 func_00452560(void* task)
 {

@@ -6,7 +6,6 @@
 void func_0036a8f0(void* work, u32 value);
 void func_0036adc0(void* work, const u8* color);
 void func_0036ae00(void* work, const u8* color);
-void func_00452550(void* work, u32 value);
 
 /* Source unit: src/bp_support_mid/bp_support_mid_0036a8f0.c */
 
@@ -64,10 +63,3 @@ void func_0036ae00(void* work, const u8* color)
     panel[0x7b] = color[3];
 }
 
-/* Source unit: src/bp_support_mid/bp_support_mid_00452550.c */
-
-// FUN_00452550
-void func_00452550(void* work, u32 value)
-{
-    *(u32*)((u8*)work + 0x38) = value;
-}
