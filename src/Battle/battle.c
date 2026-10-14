@@ -135,6 +135,7 @@ s32 func_001926c0(u8 *unusedTask)
     }
     return 0;
 }
+/* Update callback of the "battle_draw_2d" task; the name is the P3-matched symbol. */
 // FUN_00192790
 s32 btlUpdateDraw3DFrontTask(u8 *task)
 {
