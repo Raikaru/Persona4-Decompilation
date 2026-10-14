@@ -176,34 +176,34 @@ s32 func_00380bd0(u8 **arg0)
     extern s32 datGetFlag(s32 arg0);
     extern u32 RpRandom(void);
     extern u8 D_0064E760[];
-    f32 temp_f1;
-    f32 var_f1;
-    u16 temp_16;
-    u16 temp_2;
-    s32 var_3;
-    u8 var_16;
+    f32 percent;
+    f32 rnd;
+    u16 rawLevel;
+    u16 clamped;
+    s32 rollPercent;
+    u8 threshold;
     if (*(s32 *)(*arg0 + 0x1F30C) != 0) {
         return 0;
     }
-    temp_16 = func_00109bf0(1, 4) & 0xFF;
+    rawLevel = func_00109bf0(1, 4) & 0xFF;
     func_00104c70(1);
     if (datGetFlag(0x1426) != 0) {
-        var_16 = 0x3C;
+        threshold = 0x3C;
     } else if (datGetFlag(0x1427) != 0) {
-        var_16 = 0xA;
+        threshold = 0xA;
     } else {
-        temp_2 = temp_16 & 0xFF;
-        if (temp_2 == 0) {
-            temp_2 = 1;
-        } else if (temp_2 > 0x63) {
-            temp_2 = 0x63;
+        clamped = rawLevel & 0xFF;
+        if (clamped == 0) {
+            clamped = 1;
+        } else if (clamped > 0x63) {
+            clamped = 0x63;
         }
-        var_16 = D_0064E760[((temp_2 & 0xFF) - 1) / 10];
+        threshold = D_0064E760[((clamped & 0xFF) - 1) / 10];
     }
-    var_f1 = (f32)(u32)(RpRandom() & 0xFFF);
-    temp_f1 = 100.0f * (var_f1 / 4096.0f);
-    var_3 = (u8)temp_f1;
-    return (var_3 & 0xFF) < (var_16 & 0xFF);
+    rnd = (f32)(u32)(RpRandom() & 0xFFF);
+    percent = 100.0f * (rnd / 4096.0f);
+    rollPercent = (u8)percent;
+    return (rollPercent & 0xFF) < (threshold & 0xFF);
 }
 // FUN_00380D80
 s32 func_00380d80(u8 *arg0, s32 arg1)
@@ -347,16 +347,16 @@ void func_00383f80(u8 *arg0)
     f32 f21;
     f32 scale;
     u8 alpha;
-    s32 var17;
+    s32 stride;
     s32 count;
-    s32 tmp;
+    s32 groupCount;
     s32 i;
     s32 lo;
     u32 draw;
     s32 j;
     s32 hi;
     u16 flags;
-    s32 v18;
+    s32 groupIndex;
 
     state = arg0 + 0x20;
     ctx = *(u8 **)arg0;
@@ -379,18 +379,18 @@ void func_00383f80(u8 *arg0)
         scale = 1.0f;
         alpha = 0xFF;
     }
-    v18 = *(u16 *)(info + 4);
-    v18 = (v18 < 3) ? v18 : 2;
-    tmp = *(s32 *)(ctx + 0x1F304);
-    var17 = (tmp < 6) ? tmp * 2 : tmp;
-    count = func_00378530(tmp, *(s32 *)(ctx + 0x1F2FC));
+    groupIndex = *(u16 *)(info + 4);
+    groupIndex = (groupIndex < 3) ? groupIndex : 2;
+    groupCount = *(s32 *)(ctx + 0x1F304);
+    stride = (groupCount < 6) ? groupCount * 2 : groupCount;
+    count = func_00378530(groupCount, *(s32 *)(ctx + 0x1F2FC));
     f22 = D_008872F8[0];
     f21 = 1.0f / *(f32 *)(func_00457120() + 0x80);
     colors[0] = 0x5F;
     colors[1] = 0x31;
     colors[2] = 0;
     colors[3] = (u8)(((alpha & 0xFF) * 0xC0) / 255);
-    lo = var17 * (v18 + 1);
+    lo = stride * (groupIndex + 1);
     hi = count;
     for (i = lo; i < hi; i++) {
         func_00377930(ctx, i, 0, colors, 0);
@@ -401,8 +401,8 @@ void func_00383f80(u8 *arg0)
     colors[1] = 0x4B;
     colors[2] = 0x3C;
     colors[3] = (u8)(((alpha & 0xFF) << 7) / 255);
-    lo = var17 * v18;
-    hi = var17 * (v18 + 1);
+    lo = stride * groupIndex;
+    hi = stride * (groupIndex + 1);
     for (j = lo; j < hi; j++) {
         func_00377930(ctx, j, 0, colors, 0);
     }
@@ -1055,9 +1055,9 @@ void func_003874c0(s32 arg0, u8 *arg1)
     u8 *base;
     u8 *entry;
     s32 value;
-    f32 var_f12;
-    f32 temp_f1;
-    u8 temp_3;
+    f32 ramp;
+    f32 alphaF;
+    u8 alpha;
     s32 i;
 
     func_0034f1e0();
@@ -1067,11 +1067,11 @@ void func_003874c0(s32 arg0, u8 *arg1)
         value = *(u16 *)entry;
         if (value < 0x23) {
             value = ++*(u16 *)entry;
-            var_f12 = (f32)(u16)value;
-            temp_f1 = 255.0f *
-                func_00373cb0(var_f12, 0.0f, 30.0f, 0);
-            temp_3 = (u8)temp_f1;
-            *(u8 *)(entry + 5) = temp_3;
+            ramp = (f32)(u16)value;
+            alphaF = 255.0f *
+                func_00373cb0(ramp, 0.0f, 30.0f, 0);
+            alpha = (u8)alphaF;
+            *(u8 *)(entry + 5) = alpha;
         }
         RpSkyRenderStateSet(3, (void *)0x71801);
         RpSkyRenderStateSet(2, (void *)0x48);
@@ -1450,10 +1450,10 @@ void func_003889b0(s32 arg0, u8 *arg1)
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern void func_0045c870(void *arg0, s32 arg1);
     u8 colors[4];
-    f32 temp_f1;
-    f32 var_f12;
+    f32 alphaF;
+    f32 ramp;
     u16 *counter;
-    u16 temp_3;
+    u16 ticks;
 
     func_0034f1e0();
     if ((*(u16 *)(arg1 + 0x4C) & 0x400) != 0) {
@@ -1467,13 +1467,13 @@ void func_003889b0(s32 arg0, u8 *arg1)
         colors[0] = *(u8 *)(arg1 + 0x42);
         colors[1] = *(u8 *)(arg1 + 0x43);
         colors[2] = *(u8 *)(arg1 + 0x44);
-        var_f12 = (f32)(u16)*counter;
-        temp_f1 = 128.0f *
-            (1.0f - func_00373cb0(var_f12, 0.0f, 30.0f, 2));
-        colors[3] = (u8)temp_f1;
+        ramp = (f32)(u16)*counter;
+        alphaF = 128.0f *
+            (1.0f - func_00373cb0(ramp, 0.0f, 30.0f, 2));
+        colors[3] = (u8)alphaF;
         func_0045c870(colors, 1);
-        temp_3 = ++*counter;
-        if (temp_3 >= 0x1E) {
+        ticks = ++*counter;
+        if (ticks >= 0x1E) {
             *(u16 *)(arg1 + 0x4C) =
                 *(u16 *)(arg1 + 0x4C) & 0xFEFF;
         }
@@ -1502,15 +1502,15 @@ void func_00388ba0(u8 *arg0) {
 u8 *func_00388bd0(s32 arg0)
 {
     u8 *work;
-    u8 *temp;
+    u8 *task;
 
     func_0044ea90(D_0064EEB0, 0x63F);
     work = D_008873F4[0](1, 0xB0, 0x40000);
     if (work == NULL) {
         func_0046d730(D_0064EEB0, 0x640);
     }
-    temp = func_00451fc0((void *)(arg0), (const void *)(D_0064ECA0), 0x13, 0, 0, func_00388b40, func_00388ba0, (u8 *)(work));
-    if (temp == NULL) {
+    task = func_00451fc0((void *)(arg0), (const void *)(D_0064ECA0), 0x13, 0, 0, func_00388b40, func_00388ba0, (u8 *)(work));
+    if (task == NULL) {
         func_0046d730(D_0064EEB0, 0x64A);
     }
     *(s32 *)work = func_0036e910(arg0);
@@ -1520,8 +1520,8 @@ u8 *func_00388bd0(s32 arg0)
     *(void **)(work + 0x60) = (void *)work;
     *(void **)(work + 0x88) = (void *)func_003889b0;
     *(void **)(work + 0x90) = (void *)work;
-    func_00388d10(temp);
-    return temp;
+    func_00388d10(task);
+    return task;
 }
 // FUN_00388D10
 void func_00388d10(u8 *arg0)
@@ -1610,11 +1610,11 @@ void func_00388f40(u8 *arg0)
 
 // FUN_00388F60
 void func_00388f60(u8 *arg0) {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    memset(temp_16 + 0x20, 0, 4);
-    *(u16 *)(temp_16 + 0x4C) = (u16) (*(u16 *)(temp_16 + 0x4C) | 0x20);
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    memset(work + 0x20, 0, 4);
+    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 0x20);
 }
 
 // FUN_00388FB0
@@ -1625,11 +1625,11 @@ void func_00388fb0(u8 *arg0)
 
 // FUN_00388FD0
 void func_00388fd0(u8 *arg0) {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    memset(temp_16 + 0x24, 0, 4);
-    *(u16 *)(temp_16 + 0x4C) = (u16) (*(u16 *)(temp_16 + 0x4C) | 0x40);
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    memset(work + 0x24, 0, 4);
+    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 0x40);
 }
 
 // FUN_00389020
@@ -1640,11 +1640,11 @@ void func_00389020(u8 *arg0)
 
 // FUN_00389040
 void func_00389040(u8 *arg0) {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    memset(temp_16 + 0x28, 0, 0x18);
-    *(u16 *)(temp_16 + 0x4C) = (u16) (*(u16 *)(temp_16 + 0x4C) | 0x80);
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    memset(work + 0x28, 0, 0x18);
+    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 0x80);
 }
 
 // FUN_00389090
@@ -1669,11 +1669,11 @@ void func_003890f0(u8 *arg0)
 
 // FUN_00389110
 void func_00389110(u8 *arg0) {
-    u8 *temp_3;
+    u8 *work;
 
-    temp_3 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    *(s16 *)(temp_3 + 0x1E) = 0;
-    *(u16 *)(temp_3 + 0x4C) = (u16) (*(u16 *)(temp_3 + 0x4C) | 8);
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    *(s16 *)(work + 0x1E) = 0;
+    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 8);
     func_0045af60(1, 5, 5, 0);
 }
 
@@ -1706,16 +1706,16 @@ s32 func_003891e0(u8 *arg0) {
 
 // FUN_00389200
 void func_00389200(u8 *arg0, s8 arg1, s8 arg2, s8 arg3) {
-    u8 *temp_16;
-    u8 *temp_17;
+    u8 *params;
+    u8 *work;
 
-    temp_17 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    temp_16 = (u8 *)(temp_17 + 0x46);
-    memset(temp_16, 0, 6);
-    *(s8 *)(temp_16 + 2) = arg1;
-    *(s8 *)(temp_16 + 3) = arg2;
-    *(s8 *)(temp_16 + 4) = arg3;
-    *(u16 *)(temp_17 + 0x4C) = (u16) (*(u16 *)(temp_17 + 0x4C) | 0x200);
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    params = (u8 *)(work + 0x46);
+    memset(params, 0, 6);
+    *(s8 *)(params + 2) = arg1;
+    *(s8 *)(params + 3) = arg2;
+    *(s8 *)(params + 4) = arg3;
+    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 0x200);
 }
 
 /* measured: opt_rebuildconditionals off preserves the retail positive branch. */
@@ -1745,11 +1745,11 @@ void func_003892c0(u8 *arg0)
 
 // FUN_003892E0
 void func_003892e0(u8 *arg0) {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    memset(temp_16 + 0x46, 0, 6);
-    *(u16 *)(temp_16 + 0x4C) = (u16) (*(u16 *)(temp_16 + 0x4C) | 0x400);
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    memset(work + 0x46, 0, 6);
+    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 0x400);
 }
 
 // FUN_00389330
@@ -1911,7 +1911,7 @@ void func_00389cb0(u8 *arg0)
     s32 i;
     f32 scale300;
     f32 scale20;
-    f32 temp;
+    f32 scaled;
 
     dst = arg0 + 0xA0;
     i = 0;
@@ -1930,10 +1930,10 @@ void func_00389cb0(u8 *arg0)
         *(f32 *)(d + 0xC) = *(f32 *)(s + 0x14);
         *(f32 *)(d + 0x18) = *(f32 *)(s + 0x18);
         *(f32 *)(d + 0x1C) = *(f32 *)(s + 0x1C);
-        temp = scale300 * *(f32 *)(s + 0x20);
-        *(u16 *)(d + 0x24) = (u16)temp;
-        temp = scale300 * *(f32 *)(s + 0x24);
-        *(u16 *)(d + 0x26) = (u16)temp;
+        scaled = scale300 * *(f32 *)(s + 0x20);
+        *(u16 *)(d + 0x24) = (u16)scaled;
+        scaled = scale300 * *(f32 *)(s + 0x24);
+        *(u16 *)(d + 0x26) = (u16)scaled;
         *(f32 *)(d + 0x28) = scale20 * *(f32 *)(s + 0x28);
         *(u8 *)(d + 0x2C) = *(u8 *)(s + 0x2C);
         *(u8 *)(d + 0x2D) = *(u8 *)(s + 0x2D);
@@ -2113,22 +2113,22 @@ void func_00389e10(u8 **arg0)
 // FUN_0038A3E0
 void func_0038a3e0(u8 *arg0)
 {
-    u8 *temp_16;
+    u8 *rec;
 
     arg0 += 0x168;
-    temp_16 = (u8 *)add_offset_first_0038(4, (u32)arg0);
+    rec = (u8 *)add_offset_first_0038(4, (u32)arg0);
     memset(arg0, 0, 0x28);
-    *(s16 *)temp_16 = 0;
-    *(f32 *)(temp_16 + 0x10) = (f32)0x13D;
-    *(s32 *)(temp_16 + 0x14) = 0x43880000;
-    *(s32 *)(temp_16 + 0x18) = 0x3F800000;
-    *(s32 *)(temp_16 + 0x1C) = 0x3E800000;
-    *(s32 *)(temp_16 + 4) = 0x43330000;
-    *(s32 *)(temp_16 + 8) = 0x43610000;
-    *(u8 *)(temp_16 + 0x20) = 0xD7;
-    *(u8 *)(temp_16 + 0x21) = 0x84;
-    *(u8 *)(temp_16 + 0x22) = 0x15;
-    *(u8 *)(temp_16 + 0x23) = 0xFF;
+    *(s16 *)rec = 0;
+    *(f32 *)(rec + 0x10) = (f32)0x13D;
+    *(s32 *)(rec + 0x14) = 0x43880000;
+    *(s32 *)(rec + 0x18) = 0x3F800000;
+    *(s32 *)(rec + 0x1C) = 0x3E800000;
+    *(s32 *)(rec + 4) = 0x43330000;
+    *(s32 *)(rec + 8) = 0x43610000;
+    *(u8 *)(rec + 0x20) = 0xD7;
+    *(u8 *)(rec + 0x21) = 0x84;
+    *(u8 *)(rec + 0x22) = 0x15;
+    *(u8 *)(rec + 0x23) = 0xFF;
 }
 /* Ring samples use complete three-component vectors and two vertices per
  * sample. The 65 samples occupy the entire 130-vertex buffer. */
@@ -2472,12 +2472,12 @@ void func_0038b1c0(u8 *arg0)
 // FUN_0038B490
 void func_0038b490(s32 arg0, u8 **arg1)
 {
-    s32 temp_16;
+    s32 resource;
     func_0034f1e0();
     func_00389370(arg1);
     func_00389640(arg1);
-    temp_16 = *(s32 *)(*arg1 + 0x1F2B4);
-    func_0034f460(temp_16, 0, 0.0f, 0.0f, 0xDA, 0x8C, 0x17, 0xC0);
+    resource = *(s32 *)(*arg1 + 0x1F2B4);
+    func_0034f460(resource, 0, 0.0f, 0.0f, 0xDA, 0x8C, 0x17, 0xC0);
     func_00389e10(arg1);
     func_0038a940(arg1);
     func_0038b1c0((u8 *)arg1);
@@ -2767,10 +2767,10 @@ void func_0038c770(u8 *arg0)
         u8 colors[4];
     };
     struct Work work;
-    f32 var_f12;
-    f32 var_f12_2;
-    f32 temp_f1;
-    f32 temp_f1_2;
+    f32 inRamp;
+    f32 outRamp;
+    f32 inAlpha;
+    f32 outAlpha;
     u8 *base;
     s32 count;
     s32 i;
@@ -2788,10 +2788,10 @@ void func_0038c770(u8 *arg0)
         flags = *(u16 *)(state + 2);
         if ((flags & 1) == 0) {
             value = *(u16 *)state;
-            var_f12 = (f32)(u16)value;
-            temp_f1 = 102.0f *
-                func_00373cb0(var_f12, 0.0f, 20.0f, 1);
-            work.colors[3] = (u8)temp_f1;
+            inRamp = (f32)(u16)value;
+            inAlpha = 102.0f *
+                func_00373cb0(inRamp, 0.0f, 20.0f, 1);
+            work.colors[3] = (u8)inAlpha;
             next = ++*(u16 *)state;
             if (next >= 0x14) {
                 *(u16 *)(state + 2) |= 1;
@@ -2799,10 +2799,10 @@ void func_0038c770(u8 *arg0)
             }
         } else if ((flags & 2) != 0) {
             value = *(u16 *)state;
-            var_f12_2 = (f32)(u16)value;
-            temp_f1_2 = 102.0f *
-                (1.0f - func_00373cb0(var_f12_2, 0.0f, 20.0f, 1));
-            work.colors[3] = (u8)temp_f1_2;
+            outRamp = (f32)(u16)value;
+            outAlpha = 102.0f *
+                (1.0f - func_00373cb0(outRamp, 0.0f, 20.0f, 1));
+            work.colors[3] = (u8)outAlpha;
             next = ++*(u16 *)state;
             if (next >= 0x14) {
                 *(u16 *)(arg0 + 4) &= 0xFFFB;
@@ -2983,15 +2983,15 @@ void func_0038ce90(u8 *arg0)
 u8 *func_0038cec0(s32 arg0)
 {
     u8 *work;
-    u8 *temp;
+    u8 *task;
 
     func_0044ea90(D_0064F0E0, 0x59D);
     work = D_008873F4[0](1, 0x1B8, 0x40000);
     if (work == NULL) {
         func_0046d730(D_0064F0E0, 0x59E);
     }
-    temp = func_00451fc0((void *)(arg0), (const void *)(D_0064EED0), 0x13, 0, 0, func_0038ce30, func_0038ce90, (u8 *)(work));
-    if (temp == NULL) {
+    task = func_00451fc0((void *)(arg0), (const void *)(D_0064EED0), 0x13, 0, 0, func_0038ce30, func_0038ce90, (u8 *)(work));
+    if (task == NULL) {
         func_0046d730(D_0064F0E0, 0x5A8);
     }
     *(s32 *)work = func_0036e910(arg0);
@@ -3003,8 +3003,8 @@ u8 *func_0038cec0(s32 arg0)
     memset(work + 0x38, 0, 0x30);
     *(void **)(work + 0x40) = (void *)func_0038cd70;
     *(u8 **)(work + 0x48) = work;
-    func_0038d020(temp);
-    return temp;
+    func_0038d020(task);
+    return task;
 }
 // FUN_0038D020
 void func_0038d020(u8 *arg0)
@@ -3047,45 +3047,45 @@ void func_0038d0a0(u8 *arg0)
 // FUN_0038D0D0
 void func_0038d0d0(u8 *arg0, s32 arg1)
 {
-    s32 temp_3_2;
-    s32 var_3;
-    u8 *temp_3;
-    u8 *temp_4;
+    s32 prevKind;
+    s32 flagOn;
+    u8 *work;
+    u8 *state;
 
-    temp_3 = *(u8 **)(arg0 + 0x38);
-    temp_4 = temp_3 + 0x190;
-    temp_3_2 = *(s32 *)(temp_3 + 0x198);
-    if (temp_3_2 != arg1) {
-        *(s32 *)(temp_4 + 0xC) = temp_3_2;
-        *(s32 *)(temp_4 + 8) = arg1;
-        *(s16 *)temp_4 = 0;
-        *(s16 *)(temp_4 + 2) = 0;
-        *(u16 *)(temp_4 + 4) = *(u16 *)(temp_4 + 4) & 0xFFF7;
+    work = *(u8 **)(arg0 + 0x38);
+    state = work + 0x190;
+    prevKind = *(s32 *)(work + 0x198);
+    if (prevKind != arg1) {
+        *(s32 *)(state + 0xC) = prevKind;
+        *(s32 *)(state + 8) = arg1;
+        *(s16 *)state = 0;
+        *(s16 *)(state + 2) = 0;
+        *(u16 *)(state + 4) = *(u16 *)(state + 4) & 0xFFF7;
         switch (arg1) {
         case 1:
         case 3:
         case 4:
-            var_3 = 1;
+            flagOn = 1;
             break;
         default:
-            var_3 = 0;
+            flagOn = 0;
             break;
         }
-        if (var_3 != 0) {
-            *(u16 *)(temp_4 + 4) = *(u16 *)(temp_4 + 4) | 2;
+        if (flagOn != 0) {
+            *(u16 *)(state + 4) = *(u16 *)(state + 4) | 2;
         }
     }
 }
 // FUN_0038D160
 void func_0038d160(u8 *arg0) {
-    u8 *temp_16;
-    u8 *temp_17;
+    u8 *work;
+    u8 *params;
 
-    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    temp_17 = (u8 *)(temp_16 + 0x1A4);
-    memset(temp_17, 0, 6);
-    *(u16 *)(temp_17 + 4) = (u16) *(u16 *)((u8 *)(*(u8 **)(temp_16 + 0)) + 0x1F1D8);
-    *(u16 *)(temp_16 + 4) = (u16) (*(u16 *)(temp_16 + 4) | 2);
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    params = (u8 *)(work + 0x1A4);
+    memset(params, 0, 6);
+    *(u16 *)(params + 4) = (u16) *(u16 *)((u8 *)(*(u8 **)(work + 0)) + 0x1F1D8);
+    *(u16 *)(work + 4) = (u16) (*(u16 *)(work + 4) | 2);
 }
 
 // FUN_0038D1D0
@@ -3128,11 +3128,11 @@ void func_0038d2a0(u8 *arg0)
 
 // FUN_0038D2C0
 void func_0038d2c0(u8 *arg0) {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    memset(temp_16 + 0x1B4, 0, 4);
-    *(u16 *)(temp_16 + 4) = (u16) (*(u16 *)(temp_16 + 4) | 0x20);
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    memset(work + 0x1B4, 0, 4);
+    *(u16 *)(work + 4) = (u16) (*(u16 *)(work + 4) | 0x20);
 }
 
 // FUN_0038D310
@@ -3150,86 +3150,86 @@ void func_0038d330(s32 *raw_arg0)
     extern u8 D_005DC974[];
     extern u8 D_005DC9C8[];
     u8 *arg0;
-    u8 *temp_5;
-    s32 temp_4;
+    u8 *timer;
+    s32 handle;
 
     arg0 = (u8 *)raw_arg0;
     if (*(u16 *)(arg0 + 4) & 1) {
-        temp_5 = (u8 *)(arg0 + 8);
+        timer = (u8 *)(arg0 + 8);
         if (++*(u16 *)(arg0 + 8) >= 0x5A) {
-            temp_4 = *(s32 *)(arg0 + 0xC);
-            if (temp_4 != 0) {
-                func_004b1150(temp_4, temp_5);
+            handle = *(s32 *)(arg0 + 0xC);
+            if (handle != 0) {
+                func_004b1150(handle, timer);
                 *(s32 *)(arg0 + 0xC) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFE;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 2) {
-        temp_5 = (u8 *)(arg0 + 0x10);
+        timer = (u8 *)(arg0 + 0x10);
         if (++*(u16 *)(arg0 + 0x10) >= 0x5A) {
-            temp_4 = *(s32 *)(arg0 + 0x14);
-            if (temp_4 != 0) {
-                func_004b1150(temp_4, temp_5);
+            handle = *(s32 *)(arg0 + 0x14);
+            if (handle != 0) {
+                func_004b1150(handle, timer);
                 *(s32 *)(arg0 + 0x14) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFD;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 4) {
-        temp_5 = (u8 *)(arg0 + 0x18);
+        timer = (u8 *)(arg0 + 0x18);
         if (++*(u16 *)(arg0 + 0x18) >= 0x5A) {
-            temp_4 = *(s32 *)(arg0 + 0x1C);
-            if (temp_4 != 0) {
-                func_004b1150(temp_4, temp_5);
+            handle = *(s32 *)(arg0 + 0x1C);
+            if (handle != 0) {
+                func_004b1150(handle, timer);
                 *(s32 *)(arg0 + 0x1C) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFB;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 8) {
-        temp_5 = (u8 *)(arg0 + 0x20);
+        timer = (u8 *)(arg0 + 0x20);
         if (++*(u16 *)(arg0 + 0x20) >= 0x5A) {
-            temp_4 = *(s32 *)(arg0 + 0x24);
-            if (temp_4 != 0) {
-                func_004b1150(temp_4, temp_5);
+            handle = *(s32 *)(arg0 + 0x24);
+            if (handle != 0) {
+                func_004b1150(handle, timer);
                 *(s32 *)(arg0 + 0x24) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFF7;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 0x10) {
-        temp_5 = (u8 *)(arg0 + 0x28);
+        timer = (u8 *)(arg0 + 0x28);
         if (++*(u16 *)(arg0 + 0x28) >= 0x5A) {
-            temp_4 = *(s32 *)(arg0 + 0x2C);
-            if (temp_4 != 0) {
-                func_004b1150(temp_4, temp_5);
+            handle = *(s32 *)(arg0 + 0x2C);
+            if (handle != 0) {
+                func_004b1150(handle, timer);
                 *(s32 *)(arg0 + 0x2C) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFEF;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 0x20) {
-        temp_5 = (u8 *)(arg0 + 0x30);
+        timer = (u8 *)(arg0 + 0x30);
         if (++*(u16 *)(arg0 + 0x30) >= 0x5A) {
-            temp_4 = *(s32 *)(arg0 + 0x34);
-            if (temp_4 != 0) {
-                func_004b1150(temp_4, temp_5);
+            handle = *(s32 *)(arg0 + 0x34);
+            if (handle != 0) {
+                func_004b1150(handle, timer);
                 *(s32 *)(arg0 + 0x34) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFDF;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 0x40) {
@@ -3244,12 +3244,12 @@ void func_0038d330(s32 *raw_arg0)
 }
 // FUN_0038D660
 s32 func_0038d660(u8 *arg0) {
-    s32 *temp_16;
+    s32 *work;
 
-    temp_16 = (s32 *)(*(s32 **)(arg0 + 0x38));
-    func_00374910(*temp_16);
+    work = (s32 *)(*(s32 **)(arg0 + 0x38));
+    func_00374910(*work);
     func_0038d9f0(arg0);
-    func_0038d330(temp_16);
+    func_0038d330(work);
     return 0;
 }
 
