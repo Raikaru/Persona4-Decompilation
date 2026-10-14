@@ -565,9 +565,8 @@ The retail names of the action states:
 > ENDURE, WAIT, PERSONA, BAD DAMAGE, ESCAPE_MES, ESCAPE, ROUNDUP_MES,
 > ROUNDUP, PACKET, END, END HOME, DEAD, EXIT, TEST
 
-Only a few update functions are named. Some of the names do not match the
-state their entry occupies: COOPERATE's update is `btlActionReleaseTarget`
-and ASSIST's is `btlActionSetStateIfClear`, both in
+Only a few update functions are named. COOPERATE's update is
+`btlActionCooperateUpdate` and ASSIST's is `btlActionAssistUpdate`, both in
 `src/promoted/code1_001a.c`.
 
 ### Targeting

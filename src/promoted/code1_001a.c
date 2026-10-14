@@ -2057,7 +2057,7 @@ void func_001a3840(register BtlAction *actionState)
 
 #pragma pop
 // FUN_001A3D50
-void btlActionReleaseTarget(BtlAction *action)
+void btlActionCooperateUpdate(BtlAction *action)
 {
     if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         *(s16 *)((u8 *)action + 0x448) = -1;
@@ -6464,7 +6464,7 @@ void btlActionReset(BtlAction *action) {
 
 
 // FUN_001AC5B0
-void btlActionSetStateIfClear(BtlAction *action) {
+void btlActionAssistUpdate(BtlAction *action) {
     if ((func_00193cd0(0x506) == 0) && (func_00193cd0(0x800) == 0)) {
         *(u16 *)((u8 *)action + 0x18) = (u16) (*(u16 *)((u8 *)action + 0x18) | 0x100);
         btlActionSetState(action, 0xFU);
