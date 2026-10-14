@@ -876,56 +876,55 @@ s32 func_00381a70(u8 *arg0)
 
 // FUN_00382BA0
 s32 func_00382ba0(u8 *arg0) {
-    f32 sp48[2];
+    f32 pos[2];
     struct {
         u8 pad[8];
         u8 out[16];
-    } spbuf;
-    s32 temp_3;
-    u16 temp_2;
-    u8 *temp_16;
-    u8 *temp_17;
+    } outBuf;
+    s32 stage;
+    u8 *phaseState;
+    u8 *work;
 
-    temp_16 = arg0 + 0x18;
-    temp_17 = *(u8 **)arg0;
-    temp_3 = *(s32 *)temp_16;
-    switch (temp_3) {
+    phaseState = arg0 + 0x18;
+    work = *(u8 **)arg0;
+    stage = *(s32 *)phaseState;
+    switch (stage) {
     case 0:
-        *(f32 *)(temp_17 + 0x1F310) = 10.0f;
-        func_00374910(temp_17);
-        sp48[0] = 316.0f;
-        sp48[1] = 211.0f;
-        func_0036dc60(temp_17 + *(s32 *)(temp_17 + 0x1F308) * 0xFB0, &sp48[0], 160.0f, (f32 *)&spbuf.out[0]);
-        func_00375d50(temp_17, *(s32 *)(temp_17 + 0x1F308), 0.0f, 0.0f, (f32 *)&spbuf.out[0], (f32 *)&spbuf.out[0]);
-        func_0038d9f0(*(u8 **)(temp_17 + 0x1F29C));
-        func_0038d970(*(u8 **)(temp_17 + 0x1F29C));
-        func_00388d60(*(u8 **)(temp_17 + 0x1F294));
-        func_0038daf0(*(u8 **)(temp_17 + 0x1F29C), 7);
-        *(s32 *)(temp_17 + 0x1F30C) = 1;
-        *(s32 *)temp_16 = 1;
+        *(f32 *)(work + 0x1F310) = 10.0f;
+        func_00374910(work);
+        pos[0] = 316.0f;
+        pos[1] = 211.0f;
+        func_0036dc60(work + *(s32 *)(work + 0x1F308) * 0xFB0, &pos[0], 160.0f, (f32 *)&outBuf.out[0]);
+        func_00375d50(work, *(s32 *)(work + 0x1F308), 0.0f, 0.0f, (f32 *)&outBuf.out[0], (f32 *)&outBuf.out[0]);
+        func_0038d9f0(*(u8 **)(work + 0x1F29C));
+        func_0038d970(*(u8 **)(work + 0x1F29C));
+        func_00388d60(*(u8 **)(work + 0x1F294));
+        func_0038daf0(*(u8 **)(work + 0x1F29C), 7);
+        *(s32 *)(work + 0x1F30C) = 1;
+        *(s32 *)phaseState = 1;
     case 1:
-        if (((*(u16 *)(temp_16 + 4) += 1) & 0xFFFF) >= 0xA && func_00388de0(*(u8 **)(temp_17 + 0x1F294)) != 0) {
+        if (((*(u16 *)(phaseState + 4) += 1) & 0xFFFF) >= 0xA && func_00388de0(*(u8 **)(work + 0x1F294)) != 0) {
             func_002bad10(0x12);
-            *(s32 *)temp_16 = 2;
+            *(s32 *)phaseState = 2;
         case 2:
             func_002bb7c0(1);
             if (func_002bb600() == 0) {
                 func_002bb1e0(1);
-                *(s32 *)temp_16 = 3;
-                func_00379090(temp_17, *(s32 *)(temp_17 + 0x1F308), 0xA, 1);
-                func_00388e00(*(u8 **)(temp_17 + 0x1F294));
-                func_0038dcc0(*(u8 **)(temp_17 + 0x1F29C), 7);
-                func_0038d310(*(u8 **)(temp_17 + 0x1F298));
+                *(s32 *)phaseState = 3;
+                func_00379090(work, *(s32 *)(work + 0x1F308), 0xA, 1);
+                func_00388e00(*(u8 **)(work + 0x1F294));
+                func_0038dcc0(*(u8 **)(work + 0x1F29C), 7);
+                func_0038d310(*(u8 **)(work + 0x1F298));
             }
         }
         goto block_17;
     case 3:
-        if (func_00375a00(temp_17 + *(s32 *)(temp_17 + 0x1F308) * 0xE8 + 0x1D6A0) != 0) {
-            *(u16 *)(temp_17 + 0x1F2F4) = (u16)(*(u16 *)(temp_17 + 0x1F2F4) & 0xFFFB);
-            *(s32 *)temp_16 = 4;
+        if (func_00375a00(work + *(s32 *)(work + 0x1F308) * 0xE8 + 0x1D6A0) != 0) {
+            *(u16 *)(work + 0x1F2F4) = (u16)(*(u16 *)(work + 0x1F2F4) & 0xFFFB);
+            *(s32 *)phaseState = 4;
         case 4:
-            if (func_00388e20(*(u8 **)(temp_17 + 0x1F294)) != 0) {
-                *(s32 *)(temp_16 + 8) = 2;
+            if (func_00388e20(*(u8 **)(work + 0x1F294)) != 0) {
+                *(s32 *)(phaseState + 8) = 2;
                 return 1;
             }
             goto block_17;
@@ -1070,17 +1069,17 @@ s32 func_00383720(u8 *arg0) {
     s32 func_00381830(u8 *arg0);
     s32 func_00382ba0(u8 *arg0);
     s32 func_00380ea0(u8 *arg0);
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_2_3;
-    u16 temp_2_2;
-    u32 temp_2;
+    s32 flag5;
+    s32 flag6;
+    s32 flag8;
+    u16 count;
+    u32 stage;
 
-    temp_2 = (u32)*(s32 *)(arg0 + 8);
-    switch (temp_2) {
+    stage = (u32)*(s32 *)(arg0 + 8);
+    switch (stage) {
     case 0:
-        temp_2_2 = *(u16 *)(arg0 + 6);
-        if ((s32)temp_2_2 < 0xA) {
+        count = *(u16 *)(arg0 + 6);
+        if ((s32)count < 0xA) {
             if (((*(u16 *)(arg0 + 6) += 1) & 0xFFFF) == 0xA) {
                 func_0045af60(1, 1, 5, 0xA);
             }
@@ -1107,11 +1106,11 @@ s32 func_00383720(u8 *arg0) {
         func_002bb7c0(1);
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
-            var_2 = 1;
+            flag5 = 1;
         } else {
-            var_2 = 0;
+            flag5 = 0;
         }
-        if (var_2 != 0) {
+        if (flag5 != 0) {
             if (*(u16 *)(arg0 + 4) & 1) {
                 memset(arg0 + 0x18, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
@@ -1125,11 +1124,11 @@ s32 func_00383720(u8 *arg0) {
         func_002bb7c0(1);
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
-            var_2_2 = 1;
+            flag6 = 1;
         } else {
-            var_2_2 = 0;
+            flag6 = 0;
         }
-        if (var_2_2 != 0) {
+        if (flag6 != 0) {
             if (*(u16 *)(arg0 + 4) & 1) {
                 memset(arg0 + 0x18, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
@@ -1154,11 +1153,11 @@ s32 func_00383720(u8 *arg0) {
         func_002bb7c0(1);
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
-            var_2_3 = 1;
+            flag8 = 1;
         } else {
-            var_2_3 = 0;
+            flag8 = 0;
         }
-        if (var_2_3 != 0) return 1;
+        if (flag8 != 0) return 1;
         goto block_39;
     default:
         func_0046d730(&D_0064EC70, 0x72B);
@@ -1170,14 +1169,14 @@ block_39:
 
 // FUN_00383A40
 s32 func_00383a40(u8 *arg0) {
-    u8 *temp_16;
+    u8 *state;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    if (*(u16 *)(temp_16 + 4) & 4) {
+    state = *(u8 **)(arg0 + 0x38);
+    if (*(u16 *)(state + 4) & 4) {
         return -1;
     }
-    if (*(s32 *)(temp_16 + 0x14) == 0) {
-        *(s32 *)(temp_16 + 0x14) = func_00383720(temp_16);
+    if (*(s32 *)(state + 0x14) == 0) {
+        *(s32 *)(state + 0x14) = func_00383720(state);
     }
     return 0;
 }
