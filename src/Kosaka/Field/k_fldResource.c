@@ -384,9 +384,15 @@ void func_0014efc0(s32 arg0, s32 arg1)
  * around the whole if/else 79, an s64 base parameter 49 (adds a move per site), a resource passed as a
  * call-site expression into a helper 14, the base defined before the branch or via an a270 result
  * local 14, cross-phase variable reuse 19, register 14. Micros: build/micro_src/fwd1-3.
+ * measured: fnalign 14 -> 4 by retaining the FBN output-member address in
+ * each primary-resource read, rather than the resource base. The file handle
+ * at +0xA48 immediately precedes the output buffer pointer at +0xA4C.
+ * All registers now agree; only the output-address addiu is early at each
+ * site (before the two ID loads and file load, rather than after them).
  */
 // FUN_0014F310 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
 #pragma optimization_level 1
 static inline s32 fldResourceReady_0014f310(u8 *file)
 {
@@ -497,12 +503,12 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     u8 *temp_2_10;
     u8 *temp_2_11;
     u8 *temp_2_12;
-    u8 *temp_2_13;
+    u8 **initialFbnOutput;
     u8 *temp_2_14;
     u8 *temp_2_15;
     u8 *temp_2_16;
     u8 *temp_2_17;
-    u8 *temp_2_18;
+    u8 **reloadedFbnOutput;
     u8 *temp_2_19;
     u8 *temp_2_20;
     u8 *temp_2_21;
@@ -990,8 +996,8 @@ readParts:
         var_16_9 = 0;
         if (func_0014a270() == 1) {
             temp_3_19 = (u8 *)(iGpffff9db0);
-            temp_2_13 = (u8 *)(*( u8 ** )(temp_3_19 + 0x28));
-            if (func_0015e960((u8 *)(*( s32 * )(temp_2_13 + 0xA48)), (u8 **)(temp_2_13 + 0xA4C), *( u16 * )(temp_3_19 + 0), *( u16 * )(temp_3_19 + 4), *( s16 * )(temp_3_19 + 0x10)) == 0) {
+            initialFbnOutput = (u8 **)(*(u8 **)(temp_3_19 + 0x28) + 0xA4C);
+            if (func_0015e960(*(u8 **)((u8 *)initialFbnOutput - sizeof(*initialFbnOutput)), initialFbnOutput, *( u16 * )(temp_3_19 + 0), *( u16 * )(temp_3_19 + 4), *( s16 * )(temp_3_19 + 0x10)) == 0) {
                 var_16_9 += 1;
             }
         } else {
@@ -1060,8 +1066,8 @@ readReloadedParts:
             var_16_11 = 0;
             if (func_0014a270() == 1) {
                 temp_3_23 = (u8 *)(iGpffff9db0);
-                temp_2_18 = (u8 *)(*( u8 ** )(temp_3_23 + 0x28));
-                if (func_0015e960((u8 *)(*( s32 * )(temp_2_18 + 0xA48)), (u8 **)(temp_2_18 + 0xA4C), *( u16 * )(temp_3_23 + 0), *( u16 * )(temp_3_23 + 4), *( s16 * )(temp_3_23 + 0x10)) == 0) {
+                reloadedFbnOutput = (u8 **)(*(u8 **)(temp_3_23 + 0x28) + 0xA4C);
+                if (func_0015e960(*(u8 **)((u8 *)reloadedFbnOutput - sizeof(*reloadedFbnOutput)), reloadedFbnOutput, *( u16 * )(temp_3_23 + 0), *( u16 * )(temp_3_23 + 4), *( s16 * )(temp_3_23 + 0x10)) == 0) {
                     var_16_11 += 1;
                 }
             } else {
@@ -1137,6 +1143,7 @@ completed:
 block_259:
     return 0;
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014f310);
 #endif
