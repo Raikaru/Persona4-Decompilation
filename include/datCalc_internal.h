@@ -2,6 +2,7 @@
 #define DATCALC_INTERNAL_H
 
 #include "type.h"
+#include "datUnit_internal.h"
 
 /* Battle unit HP, SP, bad-status, and death accessors defined in datCalc.c. */
 u16 datCalcGetHp(int unit);
@@ -20,5 +21,7 @@ u32 datCalcIsLowHp(int unit);
 void datCalcInitializeCharacters(void);
 void func_00243f20(u16 characterId);
 u32 func_0023e130(u8 *unused);
+u16 func_00231f80(DatUnit *unit);
+u16 func_00232290(DatUnit *unit);
 
 #endif

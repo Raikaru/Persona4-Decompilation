@@ -1,5 +1,6 @@
 /* Translation unit brp_param.c (P3 twin src/Main/Battle/Result/brp_param.c). 0x38F590-0x38F5F0 are the HIGH-tier audit group; 0x38F600 is a census inferred_tu row. */
 #include "type.h"
+#include "brp_param_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern u8 *D_007246AC;

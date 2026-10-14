@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit datUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "datUnit_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 
@@ -10,39 +11,6 @@ extern void (*jtbl_008873EC[])(void *);
  * (0x1B/0x3F/0x64/0x65/0x75/0x86/0x87/0x93/0xB9/0xD3/0xDA/0xFE) and file
  * string D_00635928, DatUnit stride 0x30 (P3: 0x2C), enemy-table stride
  * 0x3C (P3: 0x3E), func_0044ea90 location calls, jtbl_008873E8 malloc. */
-
-typedef struct DatUnit
-{
-    u16 flags;          // 0x00
-    u16 id;             // 0x02
-    u16 id2;            // 0x04
-    u8 level;           // 0x06
-    u16 hp;             // 0x08
-    u16 sp;             // 0x0A
-    u32 bad;            // 0x0C
-    u8 unknown10[0x20]; // 0x10
-} DatUnit;
-
-typedef struct DatUnitGenusBase
-{
-    u16 genus;     // 0x00
-    u16 count;     // 0x02
-    DatUnit* unit; // 0x04
-} DatUnitGenusBase;
-
-typedef struct DatUnitPc
-{
-    DatUnitGenusBase base;
-    u32 unknown08;
-} DatUnitPc;
-
-typedef struct DatUnitEc
-{
-    DatUnitGenusBase base; // 0x00
-    u16 encountId;         // 0x08
-    u16 unknown0A;         // 0x0A
-    DatUnit units[6];      // 0x0C
-} DatUnitEc;
 
 typedef struct DatEnemyUnitInit
 {
@@ -76,7 +44,6 @@ extern void func_00233880(DatUnit* unit, u8 index);
 extern u8* iGpffffb3c4;              /* 0x007644B4 (gp-0x4C3C): enemy data table */
 extern u8* iGpffffb414;              /* 0x00764504 (gp-0x4BEC) */
 
-extern u32 func_00231af0(DatUnit* unit, u8 genus, u16 id);
 
 // FUN_00231580
 DatUnitPc* func_00231580(u16 pcId)

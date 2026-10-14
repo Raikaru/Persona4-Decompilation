@@ -14,24 +14,10 @@ extern u32 RpRandom(void);
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 
-typedef struct DatUnit
-{
-    u16 flags;         // 0x00
-    u16 id;            // 0x02
-    u16 id2;           // 0x04
-    u8 level;          // 0x06
-    u16 hp;            // 0x08
-    u16 sp;            // 0x0a
-    u32 bad;           // 0x0c
-    s8 aiTactic;       // 0x10
-    u8 unkData1[0x28];
-} DatUnit;
 
-extern u16 func_00231f80(DatUnit* unit);
 extern u32 func_001053b0(s16 arg0);
 extern s32 func_00232730(u8 *arg0, s32 arg1);
 
-extern u16 func_00232290(DatUnit* unit);
 extern s32 func_00246480(void);
 extern f32 func_00245030(u32 arg0, s32 arg1);
 extern f32 D_00761260;
