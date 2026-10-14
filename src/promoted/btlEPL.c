@@ -126,7 +126,11 @@ typedef struct BtlEplUnit
     u32 flags;               // 0x98
     u8 pad9C[6];
     u8 unkA2;                // 0xA2, compared by btlEplUnitIsSelected
-    u8 padA3[0x9C9];
+    u8 padA3[0x935];
+    u16 unk9D8;             // 0x9D8, bit 8 set by btlEplUnitApplyMotion
+    u8 pad9DA[0x8A];
+    s32 unkA64;             // 0xA64, datCalc handle passed to datCalcIsDead
+    u8 padA68[4];
     struct BtlEplUnit *next; // 0xA6C
 } BtlEplUnit;
 extern BtlEplUnit *D_00881440_abs[];
@@ -1226,39 +1230,52 @@ void func_001ff490(u8 *arg0)
     }
 }
 #pragma opt_dead_assignments on
+typedef struct BtlEplMotionParam
+{
+    BtlEplSelect select; // 0x00, read by btlEplUnitIsSelected
+    s16 motion;          // 0x04, unit motion id
+    u16 option;          // 0x06
+    f32 rate;            // 0x08
+    u16 frame;           // 0x0C
+    u8 unk0E;            // 0x0E, zero also calls func_0019d990
+    u8 pad0F;            // 0x0F
+    s32 unk10;           // 0x10, nonzero also calls func_00199890
+} BtlEplMotionParam;
+
 // FUN_001FFF40
-void func_001fff40(u8 *arg0) {
+/* Applies the motion parameters to every selected unit when the effect starts (count 0). */
+void btlEplUnitApplyMotion(u8 *arg0)
+{
     s32 count;
-    u8 *param;
-    u8 *node;
+    BtlEplMotionParam *param;
+    BtlEplUnit *node;
     u32 i;
     s32 value;
 
-    param = *(u8 **)(arg0 + 0x38);
+    param = *(BtlEplMotionParam **)(arg0 + 0x38);
     count = *(s32 *)(arg0 + 0x28);
     for (i = 0; i < 4; i++) {
-        node = *(u8 **)(D_0072449C + i * 8 + 0x178);
+        node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
         while (node != NULL) {
-            if ((btlEplUnitIsSelected((BtlEplUnit *)node, (BtlEplSelect *)param) != 0) &&
-                ((value = *(s32 *)(node + 0xA64), value == 0) ||
+            if ((btlEplUnitIsSelected(node, &param->select) != 0) &&
+                ((value = node->unkA64, value == 0) ||
                  (func_00243d80(value) != 0) ||
-                 (datCalcIsDead(*(s32 *)(node + 0xA64), 0) == 0))) {
-                *(u16 *)(node + 0x9D8) |= 8;
+                 (datCalcIsDead(node->unkA64, 0) == 0))) {
+                node->unk9D8 |= 8;
                 if (count == 0) {
-                    if (*(u8 *)(param + 0xE) == 0) {
+                    if (param->unk0E == 0) {
                         func_0019d990(node, 4);
                     }
-                    value = *(s16 *)(param + 4);
-                    func_00198920(node, (s16)value, *(u16 *)(param + 0xC),
-                                  *(f32 *)(param + 8), *(u16 *)(param + 6));
-                    value = *(s32 *)(param + 0x10);
+                    value = param->motion;
+                    func_00198920((u8 *)node, (s16)value, param->frame, param->rate, param->option);
+                    value = param->unk10;
                     if (value != 0) {
                         func_00199890(node, (s16)value);
                     }
                     func_0019d7a0(node, 4);
                 }
             }
-            node = *(u8 **)(node + 0xA6C);
+            node = node->next;
         }
     }
 }
