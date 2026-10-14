@@ -13,4 +13,8 @@ u16 func_001d7f10(u8 *action, u8 *targets, u16 skill, u32 reverseGroups);
 s32 func_001f11e0(s16 skill);
 s32 func_001f1210(u8 *unit, s16 skill, s32 paired);
 
+/* Battle unit group queries defined in code1_001e.c. */
+s32 func_001ef4d0(s32 arg0, s32 arg1);
+s32 func_001ef720(s32 arg0, s32 arg1);
+
 #endif

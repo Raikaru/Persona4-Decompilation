@@ -3129,7 +3129,6 @@ void func_001a59a0(s64 *arg0_) {
     extern u8 *func_001d3530();
     extern u8 *func_001d6240();
     extern u16 func_001eb440(BtlTarget *target);
-    extern s32 func_001ef720();
     extern s32 func_001f08c0();
     extern void func_001f0a10(u8 *result);
     extern s32 func_001f0b90();
@@ -4073,7 +4072,6 @@ void func_001a7720(u8 *arg0) {
      * this caller saw u16 parameters (the definitions take u32/s32). */
     extern void func_001d69f0(u16 value, char *destination); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern BtlPacket *func_001b9de0(BtlAction *action, u16 selector, u32 duration); /* lint: allow H011 -- retail passes the u16 unconverted */
-    extern s32 func_001ef720(s32 arg0, s32 arg1);
     extern void func_001f0a10(u8 *result);
     extern s32 func_001f0af0(u8 *arg0);
     extern s32 func_001f0b90(u8 *arg0);

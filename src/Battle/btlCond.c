@@ -14,8 +14,6 @@ static inline s32 p4_001da5f0_xor(s32 left, s32 right)
     return left ^ right;
 }
 
-extern u32 func_001ef4d0();
-extern u32 func_001ef720();
 extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
 extern s32 func_00231e20(u8 *arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
