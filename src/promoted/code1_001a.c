@@ -206,7 +206,7 @@ s64 func_00235320(u8 *arg0);
 s32 func_00243e30(u16 *arg0);
 s32 func_001f6770(u8 *arg0);
 s32 func_001fac30(void);
-s32 func_001a3de0(u8 *arg0);
+s32 func_001a3de0(BtlAction *action);
 
 u8 *func_002022e0(u32 arg0, u16 arg1);
 s32 func_0010b300(s32 arg0);
@@ -699,9 +699,8 @@ void func_001a0b00(s64 *arg0) {
    addu b,a*k); the table base must be copied first so its lw leads the block. */
 #pragma opt_propagation off
 // FUN_001A0F40
-void func_001a0f40(s64 *arg0)
+void func_001a0f40(BtlAction *action)
 {
-    extern void btlActionSetState(s64 *arg0, u16 arg1);
     RwV3d sp30;
     s32 tableColumn;
     u16 moveId;
@@ -714,23 +713,23 @@ void func_001a0f40(s64 *arg0)
     u32 sum;
     u32 idx4;
 
-    battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
+    battleUnit = *(u8 **)((u8 *)action + 0x30);
     if (((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) &&
-        ((*(u16 *)((u8 *)arg0 + 0x1A) & 1) != 0) &&
+        ((*(u16 *)((u8 *)action + 0x1A) & 1) != 0) &&
         (battleUnit[0xA2] == 0)) {
-        *(u16 *)((u8 *)arg0 + 0x14) = 9;
+        *(u16 *)((u8 *)action + 0x14) = 9;
     }
-    if (func_001b0e90(arg0) != 0) {
-        btlActionSetState(arg0, *(u16 *)((u8 *)arg0 + 0x14));
+    if (func_001b0e90(action) != 0) {
+        btlActionSetState(action, *(u16 *)((u8 *)action + 0x14));
         return;
     }
     func_00194ff0(battleUnit, (u8 *)&sp30, 0, NULL);
     if (!(func_001ec250((const RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
         moveId = 2;
         tableColumn = (u16)(!(iGpffffb3b8[
-            (*(u16 *)((u8 *)arg0 + 0x6E) * 0x28)] & 2));
-        formRow = *(u16 *)(*(u8 **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA64) + 2);
-        unitKind = *(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2);
+            (*(u16 *)((u8 *)action + 0x6E) * 0x28)] & 2));
+        formRow = *(u16 *)(*(u8 **)(*(u8 **)((u8 *)action + 0x30) + 0xA64) + 2);
+        unitKind = *(u8 *)(*(u8 **)((u8 *)action + 0x30) + 0xA2);
         switch (unitKind) {
         case 0:
             break;
@@ -743,12 +742,12 @@ void func_001a0f40(s64 *arg0)
             break;
         }
         movePacket = (u8 *)btlUnitCreateMovePacket(
-            *(BtlUnit **)((u8 *)arg0 + 0x30), &sp30, D_005F6D20[moveId & 0xFFFF], 0);
-        *(s64 *)(movePacket + 0x60) = *(s64 *)arg0;
+            *(BtlUnit **)((u8 *)action + 0x30), &sp30, D_005F6D20[moveId & 0xFFFF], 0);
+        *(s64 *)(movePacket + 0x60) = *(s64 *)action;
         func_00194590(movePacket, 1);
         return;
     }
-    btlActionSetState(arg0, *(u16 *)((u8 *)arg0 + 0x14));
+    btlActionSetState(action, *(u16 *)((u8 *)action + 0x14));
 }
 /* measured: restore propagation for the rest of the unit. */
 #pragma opt_propagation on
@@ -1438,18 +1437,18 @@ void func_001a24b0(u8 *action)
 }
 #pragma pop
 // FUN_001A2AD0
-void func_001a2ad0(u8 *arg0) {
-    func_001eb3b0(arg0 + 0x38);
+void func_001a2ad0(BtlAction *action) {
+    func_001eb3b0((u8 *)action + 0x38);
     if ((*(s32 *)(D_0076449C + 0xC) & 0x1000) == 0) {
         return;
     }
-    if ((*(u16 *)(arg0 + 0x1A) & 1) == 0) {
+    if ((*(u16 *)((u8 *)action + 0x1A) & 1) == 0) {
         return;
     }
-    if (*(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (*(*(u8 **)((u8 *)action + 0x30) + 0xA2) != 0) {
         return;
     }
-    btlActionSetState((BtlAction *)arg0, 9);
+    btlActionSetState(action, 9);
 }
 
 // FUN_001A2B50
@@ -2058,23 +2057,23 @@ void func_001a3840(register BtlAction *actionState)
 
 #pragma pop
 // FUN_001A3D50
-void func_001a3d50(s64 *arg0)
+void func_001a3d50(BtlAction *action)
 {
-    if (func_00193bf0(*arg0, 0x3FFFFFFFFFFFFFFFLL) == 0) {
-        *(s16 *)((u8 *)arg0 + 0x448) = -1;
+    if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
+        *(s16 *)((u8 *)action + 0x448) = -1;
         *(s32 *)(D_0076449C + 0xC) |= 0x400000;
         *(u16 *)(D_0076449C + 0x18) |= 7;
-        btlActionSetState((BtlAction *)arg0, 0x20);
+        btlActionSetState(action, 0x20);
     }
 }
 // FUN_001A3DE0
-s32 func_001a3de0(u8 *arg0)
+s32 func_001a3de0(BtlAction *action)
 {
-    return *(s32 *)(arg0 + 0x420);
+    return *(s32 *)((u8 *)action + 0x420);
 }
 
 // FUN_001A3DF0
-void func_001a3df0(u8 *arg0)
+void func_001a3df0(BtlAction *action)
 {
     s32 status;
     u8 *iter;
@@ -2102,25 +2101,25 @@ loop_test:
     }
     if (status == 1) {
         status = func_001d94d0(
-            arg0,
+            (u8 *)action,
             func_0023d8e0(
-                *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64),
-                func_001f01a0(arg0, *(u8 **)(arg0 + 0x90)) & 0xFFFF) & 0xFFFF,
+                *(u8 **)(*(u8 **)((u8 *)action + 0x30) + 0xA64),
+                func_001f01a0((u8 *)action, *(u8 **)((u8 *)action + 0x90)) & 0xFFFF) & 0xFFFF,
             2, 0x80000, 2, func_001db5e0);
     }
     if (status == 0) {
         temp = func_001fa9c0();
-        *(s64 *)(temp + 0x60) = *(s64 *)arg0;
+        *(s64 *)(temp + 0x60) = *(s64 *)action;
         func_00194590(temp, 1);
-        btlActionSetState((BtlAction *)arg0, 0x20);
+        btlActionSetState(action, 0x20);
         return;
     }
     if (func_001eb860() == 1) {
         *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
         func_00212240(*(u8 **)(D_0076449C + 0xDD4), 0);
     }
-    *(s32 *)(arg0 + 0x41C) = 0;
-    *(s32 *)(arg0 + 0x420) = 0;
+    *(s32 *)((u8 *)action + 0x41C) = 0;
+    *(s32 *)((u8 *)action + 0x420) = 0;
 }
 // FUN_001A3F90
 void func_001a3f90(u8 *arg0)
