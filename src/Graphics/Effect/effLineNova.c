@@ -645,7 +645,7 @@ void func_004b4430(u8 *unused, u8 *effect)
     f32 *vertices;
 
     extern u8 *RwMatrixMultiply(u8 *, u8 *, u8 *);
-    extern u8 *func_003e0870(u8 *, const u8 *, f32, s32);
+    extern u8 *RwMatrixRotate(u8 *, const u8 *, f32, s32);
     extern u8 D_00714638[], D_00714640[];
     #pragma push
     #pragma pack(4)
@@ -805,7 +805,7 @@ vertices[17] = *(f32 *)D_00713D18;
     }
 
     matrix = func_003e9700(*(u8 **)(func_00457120() + 4));
-    func_003e0870(rotation, (const u8 *)&axis, (f32)*(s16 *)(config + 0x90), 0);
+    RwMatrixRotate(rotation, (const u8 *)&axis, (f32)*(s16 *)(config + 0x90), 0);
     *(f32 *)(rotation + 0x30) += novaCameraOffset(centerX, (const f32 *)cameraDimensions, depth, screenX, 320.0f);
     {
         f32 factor = 2.0f * *(const f32 *)(cameraDimensions + 4);

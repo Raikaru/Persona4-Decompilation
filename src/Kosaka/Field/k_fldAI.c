@@ -991,7 +991,7 @@ struct RwFrame;
 struct RwMatrix;
 extern void *func_003e0f80(void);
 extern struct RwMatrix *func_003e9700(struct RwFrame *);
-extern f32 func_0044b7b0(f32 angle);
+extern f32 sinf(f32 angle);
 extern void *mdlGetColor(void *);
 extern int func_0014bbe0(int, int, int, int, int);
 extern int func_0014bd90(unsigned char *);
@@ -1688,7 +1688,7 @@ else {
       temp_v0 = (int)mdlGetMatrix((u8 *)*(unsigned int *)(piVar1[3] + 0x50));
       aiV190 = *(FldAIVec3 *)(temp_v0 + 0x30);
       aiV190.y = 0.0f;
-      temp_v11 = func_0044b7b0(((f32 *)piVar1)[0x1e]);
+      temp_v11 = sinf(((f32 *)piVar1)[0x1e]);
       *(float *)((u8 *)(u32)piVar1 + 0x78) = (*(float *)((u8 *)(u32)piVar1 + 0x78) + fGpffff8218);
       state9Direction.x = *(float *)((u8 *)(u32)piVar1 + 0x50) - aiV190.x;
       temp_v8 = aiV190.y;
