@@ -7,7 +7,7 @@
 #include "fr_font_internal.h"
 
 s32 func_0029d030(void);
-s32 func_0029cc00(s32 index);
+s32 scrGetParamInt(s32 index);
 void func_00277f70(s32 mesHandleIdx, u32 param_2);
 void func_00440b68();
 extern char D_0063BE20[];
@@ -123,7 +123,7 @@ void func_0027b8a0(s32 arg0);
 void func_00277ad0(s32 arg0, s32 arg1);
 void func_00277be0(s32 arg0, s32 arg1);
 void func_00277e80(s32 arg0);
-void func_0029cf50(s32 arg0);
+void scrSetReturnInt(s32 arg0);
 void func_00278a70(s32 arg0);
 void func_00278b80(u8 *arg0);
 s32 func_00278da0(u8 *arg0);
@@ -165,7 +165,7 @@ s32 func_00276630(void)
     if (object == NULL)
         func_0046d730(D_0063BE10, 0x165);
 
-    handle = func_0029cc00(0);
+    handle = scrGetParamInt(0);
     base = object + 0x1C;
     flag = *(s8 *)(object + 0x24);
     if (flag == 0) {
@@ -197,7 +197,7 @@ s32 func_00276730(void)
     if (object == NULL)
         func_0046d730(D_0063BE10, 0x18F);
 
-    handle = func_0029cc00(0);
+    handle = scrGetParamInt(0);
     base = object + 0x1C;
     flag = *(s8 *)(object + 0x24);
     if (flag == 0) {
@@ -247,14 +247,14 @@ s32 func_002768e0(void)
     if (object == NULL)
         func_0046d730(D_0063BE10, 0x1CE);
 
-    handle = func_0029cc00(0);
+    handle = scrGetParamInt(0);
     base = object + 0x1C;
     flag = *(s8 *)(object + 0x24);
     if (flag == 0) {
         func_00278610(index, 1);
         func_00278170(index, 0x200000);
         result = func_002778c0(index, handle, 0);
-        func_0027b750(index, 0, func_0029cc00(1));
+        func_0027b750(index, 0, scrGetParamInt(1));
         func_0027b8a0(index);
         if (result == 0)
             return 1;
@@ -300,9 +300,9 @@ s32 func_00276ac0(void)
     if (object == NULL)
         func_0046d730(D_0063BE10, 0x210);
 
-    h0 = func_0029cc00(0);
-    h1 = func_0029cc00(1);
-    h2 = func_0029cc00(2);
+    h0 = scrGetParamInt(0);
+    h1 = scrGetParamInt(1);
+    h2 = scrGetParamInt(2);
     base = object + 0x3C;
     f = *(s16 *)(object + 0x48);
     if (f == 0) {
@@ -316,7 +316,7 @@ s32 func_00276ac0(void)
         *(s16 *)(base + 0xC) = 0;
         func_00277ad0(index, 0);
         *(s8 *)(object + 0x24) = 0;
-        func_0029cf50(*(s16 *)(base + 0x10));
+        scrSetReturnInt(*(s16 *)(base + 0x10));
         func_00277e80(index);
         func_00277250(index);
         return 1;
@@ -342,7 +342,7 @@ s32 func_00276c60(void)
     if (object == NULL)
         func_0046d730(D_0063BE10, 0x249);
 
-    handle = func_0029cc00(0);
+    handle = scrGetParamInt(0);
     base = object + 0x1C;
     flag = *(s8 *)(object + 0x24);
     if (flag == 0) {
@@ -412,14 +412,14 @@ s32 func_00276ed0(void)
     if (object == NULL)
         func_0046d730(D_0063BE10, 0x2C2);
 
-    h = func_0029cc00(0);
+    h = scrGetParamInt(0);
     base = object + 0x3C;
     f = *(s16 *)(object + 0x48);
     if (f == 0) {
         func_00277be0(index, h);
     } else if (f < 0) {
         *(s16 *)(base + 0xC) = 0;
-        func_0029cf50(*(s16 *)(base + 0x10));
+        scrSetReturnInt(*(s16 *)(base + 0x10));
         func_00277e80(index);
         return 1;
     }
@@ -468,7 +468,7 @@ u32 func_002770d0(void)
   if (value < 0)
     return 1;
 
-  other = func_0029cc00(0);
+  other = scrGetParamInt(0);
   func_00277f70(value, other);
   return 1;
 }
@@ -562,13 +562,13 @@ u32 func_00277370(void)
   if (lVar1 < 0) {
     return 1;
   }
-  uVar2 = func_0029cc00(0);
-  uVar3 = func_0029cc00(1);
-  uVar4 = func_0029cc00(2);
+  uVar2 = scrGetParamInt(0);
+  uVar3 = scrGetParamInt(1);
+  uVar4 = scrGetParamInt(2);
   func_00440b68(D_0063BE20,uVar2,uVar3,uVar4);
-  uVar2 = func_0029cc00(0);
-  uVar3 = func_0029cc00(1);
-  uVar4 = func_0029cc00(2);
+  uVar2 = scrGetParamInt(0);
+  uVar3 = scrGetParamInt(1);
+  uVar4 = scrGetParamInt(2);
   func_002782c0(lVar1,uVar2,uVar3,uVar4);
   return 1;
 }
@@ -586,8 +586,8 @@ u32 func_00277450(void)
   if (lVar1 < 0) {
     return 1;
   }
-  uVar2 = func_0029cc00(0);
-  uVar3 = func_0029cc00(1);
+  uVar2 = scrGetParamInt(0);
+  uVar3 = scrGetParamInt(1);
   func_002786c0(lVar1,uVar2,uVar3);
   return 1;
 }

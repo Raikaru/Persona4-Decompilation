@@ -3,7 +3,7 @@
 
 typedef struct KwlnTask KwlnTask;
 
-extern s32 func_0029cc00(s32 paramIdx);
+extern s32 scrGetParamInt(s32 paramIdx);
 extern u32 func_0029d020(void);
 
 void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
@@ -12,22 +12,22 @@ void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 #include "include_asm.h"
 
 extern u32 func_00452490(KwlnTask* task);
-extern void func_0029cf50(s32 retVal);
+extern void scrSetReturnInt(s32 retVal);
 extern u32 kwlnTaskGetTimer(KwlnTask* task);
 
 extern void func_0046d730(const char* file, u32 line);
 extern void func_00440b68(const char* fmt, ...);
 extern void func_00106390(s32 flag, s32 value);
 extern u32 RpRandom(void);
-extern float func_0029cd50(s32 paramIdx);
-extern void func_0029cf70(float value);
+extern float scrGetParamFloat(s32 paramIdx);
+extern void scrSetReturnFloat(float value);
 extern float sqrtf(float x);
-extern char* func_0029ce90(s32 paramIdx);
+extern char* scrGetParamString(s32 paramIdx);
 extern void func_00122640(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
 extern s32 func_00102980(void);
-extern s32 func_0029cf90(s32 index);
+extern s32 scrGetLabelAddr(s32 index);
 extern void func_0029d010(s32 addr);
 extern void func_00113480(s16 a, s16 b, s16 c, s16 d);
 extern void func_00113500(void);
@@ -76,7 +76,7 @@ u32 func_00298db0(void)
 {
     u32 param;
 
-    param = func_0029cc00(0);
+    param = scrGetParamInt(0);
     if (param >= 0x1600)
     {
         func_0046d730(D_0063CFB0, 0x47);
@@ -90,7 +90,7 @@ u32 func_00298e20(void)
 {
     u32 param;
 
-    param = func_0029cc00(0);
+    param = scrGetParamInt(0);
     if (param >= 0x1600)
     {
         func_0046d730(D_0063CFB0, 0x54);
@@ -105,13 +105,13 @@ s32 func_00298e90(void)
     f32 ratio;
 
     ratio = (f32)(u32)RpRandom() / 2147483648.0f;
-    func_0029cf50((s32)(ratio * (f32)(func_0029cc00(0) + 1)));
+    scrSetReturnInt((s32)(ratio * (f32)(scrGetParamInt(0) + 1)));
     return 1;
 }
 // FUN_00298F40
 u32 func_00298f40(void)
 {
-    func_0029cf70(sqrtf(func_0029cd50(0)));
+    scrSetReturnFloat(sqrtf(scrGetParamFloat(0)));
     return 1;
 }
 
@@ -126,14 +126,14 @@ u32 scrCommand_WAIT()
 {
     s32 cmdTimer;
 
-    if (func_0029cc00(0) < 1)
+    if (scrGetParamInt(0) < 1)
     {
         return 1;
     }
 
     cmdTimer = func_0029d020();
 
-    return func_0029cc00(0) <= cmdTimer;
+    return scrGetParamInt(0) <= cmdTimer;
 }
 
 
@@ -142,14 +142,14 @@ u32 scrCommand_WAIT()
 // FUN_00299020
 u32 func_00299020(void)
 {
-    func_00440b68(D_0063CFC8, func_0029cc00(0));
+    func_00440b68(D_0063CFC8, scrGetParamInt(0));
     return 1;
 }
 
 // FUN_00299060
 u32 func_00299060(void)
 {
-    func_00440b68(D_0063CFD8, func_0029ce90(0));
+    func_00440b68(D_0063CFD8, scrGetParamString(0));
     return 1;
 }
 
@@ -158,7 +158,7 @@ u32 func_002990a0(void)
 {
     s32 task;
 
-    task = func_0029cc00(0);
+    task = scrGetParamInt(0);
     if (task != 0)
     {
         func_00122640(0, task);
@@ -172,8 +172,8 @@ u32 func_002990e0(void)
     s32 p0;
     s32 p1;
 
-    p0 = func_0029cc00(0);
-    p1 = func_0029cc00(1);
+    p0 = scrGetParamInt(0);
+    p1 = scrGetParamInt(1);
     if (p1 != 0)
     {
         func_00122520(p0, p1);
@@ -191,7 +191,7 @@ u32 func_00299140(void)
 s32 func_00299170(void) {
     s16 sp1C[2]; /* measured: 2-element form required for retail slot at 0x1c */
 
-    sp1C[0] = func_0029cc00(0);
+    sp1C[0] = scrGetParamInt(0);
     func_001029a0(0x1D, sp1C, 2, 0xA);
     return 1;
 }
@@ -211,7 +211,7 @@ u32 func_002991f0(void)
     s32 caseIdx;
     s32 lblIdx;
 
-    caseIdx = func_0029cc00(0);
+    caseIdx = scrGetParamInt(0);
     if (caseIdx < 0)
     {
         return 1;
@@ -220,26 +220,26 @@ u32 func_002991f0(void)
     {
         func_0046d730(D_0063CFB0, 0xFB);
     }
-    lblIdx = func_0029cc00(caseIdx + 1);
+    lblIdx = scrGetParamInt(caseIdx + 1);
     if (lblIdx < 0)
     {
         return 1;
     }
-    func_0029d010(func_0029cf90(lblIdx));
+    func_0029d010(scrGetLabelAddr(lblIdx));
     return 1;
 }
 
 // FUN_00299290
 u32 func_00299290(void)
 {
-    func_0029cf50(D_008C024E[0] & func_0029cc00(0));
+    scrSetReturnInt(D_008C024E[0] & scrGetParamInt(0));
     return 1;
 }
 
 // FUN_002992D0
 u32 func_002992d0(void)
 {
-    func_0029cf50(D_008C024C[0] & func_0029cc00(0));
+    scrSetReturnInt(D_008C024C[0] & scrGetParamInt(0));
     return 1;
 }
 
@@ -251,10 +251,10 @@ u32 func_00299310(void)
     s32 p2;
     s32 p3;
 
-    p0 = func_0029cc00(0);
-    p1 = func_0029cc00(1);
-    p2 = func_0029cc00(2);
-    p3 = func_0029cc00(3);
+    p0 = scrGetParamInt(0);
+    p1 = scrGetParamInt(1);
+    p2 = scrGetParamInt(2);
+    p3 = scrGetParamInt(3);
     if (p0 == 0)
     {
         func_00113500();
@@ -269,14 +269,14 @@ u32 func_00299310(void)
 // FUN_002993C0
 u32 func_002993c0(void)
 {
-    func_0029cf50(func_001064f0(func_0029cc00(0)));
+    scrSetReturnInt(func_001064f0(scrGetParamInt(0)));
     return 1;
 }
 
 // FUN_00299400
 u32 func_00299400()
 {
-    func_00106550(func_0029cc00(0), func_0029cc00(1));
+    func_00106550(scrGetParamInt(0), scrGetParamInt(1));
 
     return true;
 }
@@ -292,7 +292,7 @@ u32 func_00299450(void)
     ScrContentEntry450 *entries;
     s32 priority;
 
-    prcdIdx = func_0029cc00(0);
+    prcdIdx = scrGetParamInt(0);
     scr = (ScrData450 *)func_0029d040();
     if (scr == NULL)
     {
@@ -307,8 +307,8 @@ u32 func_00299450(void)
     {
         return 1;
     }
-    priority = ((ScrTask450 *)scr->task)->priority + func_0029cc00(1);
-    func_0029cf50((s32)func_0029d9b0(
+    priority = ((ScrTask450 *)scr->task)->priority + scrGetParamInt(1);
+    scrSetReturnInt((s32)func_0029d9b0(
         priority,
         scr->scrHeader,
         entries,
@@ -326,7 +326,7 @@ u32 scrCommand_SCR_KILL_SYNC()
 {
     KwlnTask* task;
 
-    task = (KwlnTask*)func_0029cc00(0);
+    task = (KwlnTask*)scrGetParamInt(0);
 
     return func_00452490(task) == 0;
 }
@@ -338,15 +338,15 @@ u32 scrCommand_SCR_EXISTS()
 {
     KwlnTask* task;
 
-    task = (KwlnTask*)func_0029cc00(0);
+    task = (KwlnTask*)scrGetParamInt(0);
 
     if (func_00452490(task))
     {
-        func_0029cf50(1);
+        scrSetReturnInt(1);
     }
     else
     {
-        func_0029cf50(0);
+        scrSetReturnInt(0);
     }
 
     return 1;
@@ -359,15 +359,15 @@ u32 scrCommand_SCR_GET_TIMER()
 {
     KwlnTask* task;
 
-    task = (KwlnTask*)func_0029cc00(0);
+    task = (KwlnTask*)scrGetParamInt(0);
 
     if (!func_00452490(task))
     {
-        func_0029cf50(0);
+        scrSetReturnInt(0);
     }
     else
     {
-        func_0029cf50(kwlnTaskGetTimer(task));
+        scrSetReturnInt(kwlnTaskGetTimer(task));
     }
 
     return 1;

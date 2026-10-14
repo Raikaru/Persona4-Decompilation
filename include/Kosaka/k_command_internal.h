@@ -15,7 +15,7 @@ extern void func_00106550(s32 arg0, s32 arg1);
 extern void* func_00477e80(u32 type, u16 id, void* path, u32 mode);
 extern s32 func_00145ac0(u16 resourceId, s32 model);
 extern u32 func_002bd360(s32 resourceId, s32 value);
-extern s32 func_0029cc00(s32 index);
-extern void func_0029cf50(s32 value);
+extern s32 scrGetParamInt(s32 index);
+extern void scrSetReturnInt(s32 value);
 
 #endif

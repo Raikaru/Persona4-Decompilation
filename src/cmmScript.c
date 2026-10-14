@@ -13,13 +13,13 @@ extern s32 func_0045af60(s16 channel, s16 stream, s16 arg2, s16 arg3);
 extern void func_0046d730(void *file, s32 line);
 
 u16 func_00248b80();
-extern void func_0029cf50(s32 arg0);
+extern void scrSetReturnInt(s32 arg0);
 
 u16 func_00247270();
 
 u16 func_002474f0();
 
-extern s32 func_0029cc00(s32 arg0);
+extern s32 scrGetParamInt(s32 arg0);
 extern s32 func_00107930(s32 arg0);
 extern s32 func_00109100(s32 arg0);
 extern void func_001090c0(s32 arg0);
@@ -174,8 +174,8 @@ s32 func_0024a200(void)
     u8* q3;
     u8* q;
 
-    a = func_0029cc00(0);
-    b = func_0029cc00(1);
+    a = scrGetParamInt(0);
+    b = scrGetParamInt(1);
     func_00108cf0(b);
     p = func_00108dc0();
     if (p == 0) {
@@ -290,7 +290,7 @@ s32 func_0024a450(void)
 
     p = (cmmMsgState *)func_00108dc0();
     if (p != 0) {
-        func_0029cf50(p->view.raw.unk0A);
+        scrSetReturnInt(p->view.raw.unk0A);
     }
     return 1;
 }
@@ -317,7 +317,7 @@ s32 func_0024a490(void)
     s32* src;
     s32* dst;
 
-    id = func_0029cc00(0);
+    id = scrGetParamInt(0);
     if (id == 0) {
         id = func_00108e10() & 0xFFFF;
     }
@@ -377,8 +377,8 @@ s32 func_0024a710(void)
     s32 i;
     s32 j;
 
-    entry = func_0029cc00(0);
-    param1 = func_0029cc00(1);
+    entry = scrGetParamInt(0);
+    param1 = scrGetParamInt(1);
     mesMgr = func_0029d030();
     if (mesMgr < 0) {
         func_0046d730(&D_006359F0, 0x16D);
@@ -400,7 +400,7 @@ s32 func_0024a710(void)
             func_00278450(mesMgr, j + 2, func_00243840(vals[j]));
         }
     }
-    func_0029cf50(entry);
+    scrSetReturnInt(entry);
     return 1;
 }
 /* measured: closes the level 1 scope above; -O2 is the baseline everywhere
@@ -423,7 +423,7 @@ s32 func_0024a8b0(void)
     s32 i;
     s32 j;
 
-    entry = func_0029cc00(0);
+    entry = scrGetParamInt(0);
     mesMgr = func_0029d030();
     if (mesMgr < 0) {
         func_0046d730(&D_006359F0, 0x190);
@@ -441,7 +441,7 @@ s32 func_0024a8b0(void)
             func_00278450(mesMgr, j + 2, func_00243840(vals[j]));
         }
     }
-    func_0029cf50(entry);
+    scrSetReturnInt(entry);
     return 1;
 }
 #pragma optimization_level 2
@@ -450,7 +450,7 @@ s32 func_0024aa10(void)
 {
     s32 id;
 
-    id = func_0029cc00(0);
+    id = scrGetParamInt(0);
     if (id == 0) {
         id = func_00108e10() & 0xFFFF;
     }
@@ -463,15 +463,15 @@ s32 func_0024aa60(void)
     s32 param0;
     s32 param1;
 
-    param0 = func_0029cc00(0);
-    param1 = func_0029cc00(1);
+    param0 = scrGetParamInt(0);
+    param1 = scrGetParamInt(1);
     if (param1 == 0) {
         param1 = func_00108e10() & 0xFFFF;
     }
     if (func_002485e0(param0 & 0xFFFF, param1 & 0xFFFF) != 0) {
-        func_0029cf50(1);
+        scrSetReturnInt(1);
     } else {
-        func_0029cf50(0);
+        scrSetReturnInt(0);
     }
     return 1;
 }
@@ -480,7 +480,7 @@ s32 func_0024aaf0(void)
 {
     s32 id;
 
-    id = func_0029cc00(0);
+    id = scrGetParamInt(0);
     if (id == 0) {
         func_00108d80();
     } else {
@@ -498,7 +498,7 @@ u32 func_0024AB40(void)
     u16 value;
 
     value = func_00248b80();
-    func_0029cf50(value);
+    scrSetReturnInt(value);
     return 1;
 }
 
@@ -508,15 +508,15 @@ s32 func_0024ab70(void)
     s32 id;
     s32 result;
 
-    id = func_0029cc00(0);
+    id = scrGetParamInt(0);
     if (id == 0) {
         id = func_00108e10() & 0xFFFF;
     }
     result = func_00247820((s16)id);
     if (result != 0) {
-        func_0029cf50(result);
+        scrSetReturnInt(result);
     } else {
-        func_0029cf50(0);
+        scrSetReturnInt(0);
     }
     return 1;
 }
@@ -530,7 +530,7 @@ u32 func_0024ABF0(void)
     u16 value;
 
     value = func_00247270();
-    func_0029cf50(value);
+    scrSetReturnInt(value);
     return 1;
 }
 
@@ -542,7 +542,7 @@ u32 func_0024AC20(void)
     u16 value;
 
     value = func_002474f0();
-    func_0029cf50(value);
+    scrSetReturnInt(value);
     return 1;
 }
 
@@ -551,7 +551,7 @@ s32 func_0024ac50(void)
 {
     s32 id;
 
-    id = func_0029cc00(0);
+    id = scrGetParamInt(0);
     if (id == 0) {
         id = func_00108e10() & 0xFFFF;
     }
@@ -561,7 +561,7 @@ s32 func_0024ac50(void)
 // FUN_0024ACA0
 s32 func_0024aca0(void)
 {
-    func_0029cf50(func_00248d80((s16)(func_0029cc00(0) & 0xFFFF)));
+    scrSetReturnInt(func_00248d80((s16)(scrGetParamInt(0) & 0xFFFF)));
     return 1;
 }
 
@@ -573,12 +573,12 @@ s32 func_0024acf0(void)
 {
     s32 param0;
 
-    param0 = func_0029cc00(0);
-    func_0029cf50(0);
+    param0 = scrGetParamInt(0);
+    scrSetReturnInt(0);
     if ((param0 != 0) && (param0 != 1)) {
         return 1;
     }
-    func_0029cf50(func_00107930(param0));
+    scrSetReturnInt(func_00107930(param0));
     return 1;
 }
 
@@ -587,7 +587,7 @@ s32 func_0024acf0(void)
 // FUN_0024AD70
 s32 func_0024ad70(void)
 {
-    func_001090c0(func_00109100(func_0029cc00(0) & 0xFFFF));
+    func_001090c0(func_00109100(scrGetParamInt(0) & 0xFFFF));
     return 1;
 }
 
@@ -599,7 +599,7 @@ s32 func_0024adb0(void)
     s32 value;
 
     value = func_001090e0();
-    func_0029cf50(value);
+    scrSetReturnInt(value);
     datResetTotalBtl();
     func_00106020(value);
     return 1;
@@ -610,7 +610,7 @@ s32 func_0024adb0(void)
 // FUN_0024AE00
 s32 func_0024ae00(void)
 {
-    func_0029cf50(func_00109100(func_0029cc00(0) & 0xFFFF));
+    scrSetReturnInt(func_00109100(scrGetParamInt(0) & 0xFFFF));
     return 1;
 }
 
@@ -619,7 +619,7 @@ s32 func_0024ae00(void)
 // FUN_0024AE40
 s32 func_0024ae40(void)
 {
-    func_0029cf50(func_00249010(func_001060b0()));
+    scrSetReturnInt(func_00249010(func_001060b0()));
     return 1;
 }
 
@@ -628,7 +628,7 @@ s32 func_0024ae40(void)
 // FUN_0024AE80
 s32 func_0024ae80(void)
 {
-    func_0029cf50(func_00249230(func_001060b0()) != 0);
+    scrSetReturnInt(func_00249230(func_001060b0()) != 0);
     return 1;
 }
 
@@ -637,7 +637,7 @@ s32 func_0024ae80(void)
 // FUN_0024AEC0
 s32 func_0024aec0(void)
 {
-    func_0029cf50(func_002492b0(func_001060b0()) != 0);
+    scrSetReturnInt(func_002492b0(func_001060b0()) != 0);
     return 1;
 }
 
@@ -649,16 +649,16 @@ s32 func_0024af00(void)
     s32 param0;
     s32 param1;
 
-    param0 = func_0029cc00(0);
-    param1 = func_0029cc00(1);
-    func_0029cf50(0);
+    param0 = scrGetParamInt(0);
+    param1 = scrGetParamInt(1);
+    scrSetReturnInt(0);
     if ((param1 != 0) && (param1 != 1)) {
         return 1;
     }
     if (param0 == 0) {
-        func_0029cf50(func_00249370(0, func_001060b0(), param1));
+        scrSetReturnInt(func_00249370(0, func_001060b0(), param1));
     } else {
-        func_0029cf50(func_00249370(1, func_001060b0(), param1));
+        scrSetReturnInt(func_00249370(1, func_001060b0(), param1));
     }
     return 1;
 }
@@ -670,12 +670,12 @@ s32 func_0024afe0(void)
 {
     s32 param0;
 
-    param0 = func_0029cc00(0);
-    func_0029cf50(0);
+    param0 = scrGetParamInt(0);
+    scrSetReturnInt(0);
     if ((param0 != 0) && (param0 != 1)) {
         return 1;
     }
-    func_0029cf50(func_002494c0(func_001060b0(), param0));
+    scrSetReturnInt(func_002494c0(func_001060b0(), param0));
     return 1;
 }
 
@@ -688,7 +688,7 @@ s32 func_0024b070(void)
     u8 buf[0x80];
     u8* p;
 
-    rec = func_0029cc00(0);
+    rec = scrGetParamInt(0);
     slot = func_001060b0();
     if (rec == 0) {
         rec = func_002490b0(slot);
@@ -745,9 +745,9 @@ s32 func_0024b380(void)
     s32 param1;
     s32 param2;
 
-    param0 = func_0029cc00(0);
-    param1 = func_0029cc00(1);
-    param2 = func_0029cc00(2);
+    param0 = scrGetParamInt(0);
+    param1 = scrGetParamInt(1);
+    param2 = scrGetParamInt(2);
     if (func_0029d020() == 0) {
         func_0025c230(0, param0, param1, param2);
         goto block_4;
@@ -764,9 +764,9 @@ s32 func_0024b430(void)
     s32 param0;
     s32 param1;
 
-    param0 = func_0029cc00(0);
-    param1 = func_0029cc00(1);
-    func_0029cf50(func_00249670(param0, param1));
+    param0 = scrGetParamInt(0);
+    param1 = scrGetParamInt(1);
+    scrSetReturnInt(func_00249670(param0, param1));
     return 1;
 }
 /* measured: -O2 CSEs `id & 0xFFFF` into callee-saved copies (frame 0xF0);
@@ -789,7 +789,7 @@ s32 func_0024b490(void)
     s32 tmp;
     s32 tblIdx;
 
-    id = func_0029cc00(0);
+    id = scrGetParamInt(0);
     src = D_00635A20;
     dst = tbl;
     i = 5;
@@ -835,10 +835,10 @@ s32 func_0024b6a0(void)
     s32 param1;
     s32 param2;
 
-    param0 = func_0029cc00(0);
-    param1 = func_0029cc00(1);
-    param2 = func_0029cc00(2);
-    func_0029cf50(func_00249770(param0, param1, param2));
+    param0 = scrGetParamInt(0);
+    param1 = scrGetParamInt(1);
+    param2 = scrGetParamInt(2);
+    scrSetReturnInt(func_00249770(param0, param1, param2));
     return 1;
 }
 // FUN_0024B720
@@ -848,8 +848,8 @@ s32 func_0024b720(void)
     s32 field;
     u8* rec;
 
-    id = func_0029cc00(0);
-    field = func_0029cc00(1);
+    id = scrGetParamInt(0);
+    field = scrGetParamInt(1);
     if (id == 0) {
         func_0046d730(D_006359F0, 0x30A);
     }
@@ -859,22 +859,22 @@ s32 func_0024b720(void)
     }
     switch (field) {
     case 0:
-        func_0029cf50(*(s32*)(rec + 4));
+        scrSetReturnInt(*(s32*)(rec + 4));
         break;
     case 1:
-        func_0029cf50(*(s8*)(rec + 8));
+        scrSetReturnInt(*(s8*)(rec + 8));
         break;
     case 2:
-        func_0029cf50(*(s8*)(rec + 0xA));
+        scrSetReturnInt(*(s8*)(rec + 0xA));
         break;
     case 3:
-        func_0029cf50(*(s32*)(rec + 0));
+        scrSetReturnInt(*(s32*)(rec + 0));
         break;
     case 4:
-        func_0029cf50(*(s8*)(rec + 9));
+        scrSetReturnInt(*(s8*)(rec + 9));
         break;
     case 5:
-        func_0029cf50(*(s8*)(rec + 0xB));
+        scrSetReturnInt(*(s8*)(rec + 0xB));
         break;
     default:
         func_0046d730(D_006359F0, 0x321);
@@ -2215,7 +2215,7 @@ s32 func_002502f0(void)
             ret = 0;
         }
         if (ret != 0) {
-            func_0029cf50(ret - 1);
+            scrSetReturnInt(ret - 1);
             func_00452080((s32)func_00452380((s8 *)(D_00635BA8)));
             return 1;
         }
@@ -2270,7 +2270,7 @@ s32 func_00250560(void)
             ret = 0;
         }
         if (ret != 0) {
-            func_0029cf50(ret - 1);
+            scrSetReturnInt(ret - 1);
             func_00452080((s32)func_00452380((s8 *)(D_00635BA8)));
             return 1;
         }
@@ -2329,7 +2329,7 @@ s32 func_00250870(void)
     if (idx >= 6) {
         func_0046d730(D_006359F0, 0x8A9);
     }
-    func_0029cf50(buf[idx]);
+    scrSetReturnInt(buf[idx]);
     return 1;
 }
 // FUN_00250940
@@ -2341,8 +2341,8 @@ s32 func_00250940(void)
     s32 out1;
     s32 out2;
 
-    row = func_0029cc00(0);
-    field = func_0029cc00(1);
+    row = scrGetParamInt(0);
+    field = scrGetParamInt(1);
     func_001104d0(func_001060b0(), &out1, &out2);
     table = (u8 *)func_00246e10((u16)out1);
     if (table == 0) {
@@ -2354,22 +2354,22 @@ s32 func_00250940(void)
     switch (field) {
     case 0: {
         s32 idx = row * 12;
-        func_0029cf50(*(u16*)(idx + (s32)table + 0x18));
+        scrSetReturnInt(*(u16*)(idx + (s32)table + 0x18));
         break;
     }
     case 1: {
         s32 idx = row * 12;
-        func_0029cf50(*(u16*)(idx + (s32)table + 0x1A));
+        scrSetReturnInt(*(u16*)(idx + (s32)table + 0x1A));
         break;
     }
     case 2: {
         s32 idx = row * 12;
-        func_0029cf50(*(s32*)(idx + (s32)table + 0x1C));
+        scrSetReturnInt(*(s32*)(idx + (s32)table + 0x1C));
         break;
     }
     case 3: {
         s32 idx = row * 12;
-        func_0029cf50(*(s32*)(idx + (s32)table + 0x20));
+        scrSetReturnInt(*(s32*)(idx + (s32)table + 0x20));
         break;
     }
     }

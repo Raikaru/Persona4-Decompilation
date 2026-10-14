@@ -1042,8 +1042,9 @@ u32 func_0029cb00(ScrData* scr)
     }
 }
 
+// Script parameter: reads paramIdx as an integer (float, address and table values are converted).
 // FUN_0029CC00
-s32 func_0029cc00(s32 paramIdx)
+s32 scrGetParamInt(s32 paramIdx)
 {
     s32 paramSP;
     f32* f;
@@ -1068,8 +1069,9 @@ s32 func_0029cc00(s32 paramIdx)
     return 0;
 }
 
+// Script parameter: reads paramIdx as a float.
 // FUN_0029CD50
-f32 func_0029cd50(s32 paramIdx)
+f32 scrGetParamFloat(s32 paramIdx)
 {
     s32 paramSP;
     f32* f;
@@ -1094,8 +1096,9 @@ f32 func_0029cd50(s32 paramIdx)
     return 0.0f;
 }
 
+// Script parameter: returns the string at paramIdx; aborts on any other stack type.
 // FUN_0029CE90
-char* func_0029ce90(s32 paramIdx)
+char* scrGetParamString(s32 paramIdx)
 {
     s32 paramSP;
 
@@ -1118,22 +1121,25 @@ char* func_0029ce90(s32 paramIdx)
     }
 }
 
+// Script return slot: stores an integer result and sets the int return type.
 // FUN_0029CF50. Set 'retType' of the current script to int and set 'iVal' to 'retVal'
-void func_0029cf50(s32 retVal)
+void scrSetReturnInt(s32 retVal)
 {
     sCurrScript->stackTypes[SCR_STACK_RET] = SCR_STACK_TYPE_INTEGER;
     sCurrScript->stackValues[SCR_STACK_RET].iVal = retVal;
 }
 
+// Script return slot: stores a float result and sets the float return type.
 // FUN_0029CF70. Set 'retType' of the current script to float and set 'fVal' to 'retVal'
-void func_0029cf70(f32 retVal)
+void scrSetReturnFloat(f32 retVal)
 {
     sCurrScript->stackTypes[SCR_STACK_RET] = SCR_STACK_TYPE_FLOAT;
     sCurrScript->stackValues[SCR_STACK_RET].fVal = retVal;
 }
 
+// Script label table: returns the code address of label lblIdx (P3FES twin: scrGetLabelAddr).
 // FUN_0029CF90
-u32 func_0029cf90(s32 lblIdx)
+u32 scrGetLabelAddr(s32 lblIdx)
 {
     K_ASSERT(lblIdx >= 0, 1165);
     K_ASSERT(lblIdx < sCurrScript->entries[SCR_CONTENT_TYPE_LABEL].elementCount, 1166);

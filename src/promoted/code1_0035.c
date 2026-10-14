@@ -15,7 +15,7 @@ extern s32 func_00110d60(s64 arg0);
 extern s32 func_00353dc0(s64 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern u8 *func_00452380(const void *arg0);
-extern s32 func_0029cc00(s32 arg0);
+extern s32 scrGetParamInt(s32 arg0);
 extern u8 D_0064B320[];
 extern void func_00354280(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_0064B3B0[];
@@ -436,7 +436,7 @@ s32 func_00354500(void) {
         }
         goto block_10;
     }
-    slot = func_0029cc00(0) - 1;
+    slot = scrGetParamInt(0) - 1;
     func_0044ea90(&D_0064B310, 0x3AB);
     newTask = D_008873F4[0](1, 0x10, 0x40000);
     if (newTask == NULL) {
@@ -467,7 +467,7 @@ s32 func_00354660(void) {
         }
         goto block_10_2;
     }
-    slot = func_0029cc00(0) - 1;
+    slot = scrGetParamInt(0) - 1;
     func_0044ea90(&D_0064B310, 0x3AB);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work == NULL) {

@@ -2,7 +2,7 @@
 #include "type.h"
 
 u16 func_00108ee0();
-void func_0029cf50();
+void scrSetReturnInt();
 
 u16 func_0010b460();
 
@@ -14,7 +14,7 @@ u32 func_0024A0B0(void)
     u16 uVar1;
 
     uVar1 = func_00108ee0();
-    func_0029cf50(uVar1);
+    scrSetReturnInt(uVar1);
     return 1;
 }
 
@@ -26,6 +26,6 @@ u32 func_0025CFD0(void)
     u16 uVar1;
 
     uVar1 = func_0010b460();
-    func_0029cf50(uVar1);
+    scrSetReturnInt(uVar1);
     return 1;
 }

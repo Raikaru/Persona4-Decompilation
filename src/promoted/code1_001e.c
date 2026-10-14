@@ -33,7 +33,7 @@ extern f32 sqrtf(f32 arg0);
 extern u8 *func_001b0cc0();
 extern void *D_00609850[];
 extern s32 func_00231f80();
-extern s64 func_0029cc00();
+extern s64 scrGetParamInt();
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
 extern s32 func_0029cc00_s32(s32 index);
@@ -110,7 +110,7 @@ extern s32 func_001de800(u8 *arg0);
 extern u8 *func_001dea90(u8 *arg0, u32 arg1);
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
-extern f32 func_0029cd50(s32 arg0);
+extern f32 scrGetParamFloat(s32 arg0);
 extern f32 D_00881400[];
 extern f32 D_00881404[];
 extern f32 D_00881408[];
@@ -169,7 +169,7 @@ s32 func_001e6b90(void) {
         x = 0;
     else
         x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    func_0029cf50(x != 0);
+    scrSetReturnInt(x != 0);
     return 1;
 }
 // FUN_001E6C60
@@ -206,7 +206,7 @@ s32 func_001e6d20(void) {
         result = func_001d9280(second, 2, 0x80000);
         break;
     }
-    func_0029cf50(*(s32 *)(result + 8) | 0x80000000);
+    scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
     return 1;
 }
 
@@ -237,7 +237,7 @@ s32 func_001e6dc0(void) {
         }
         current = *(u8 **)(current + 0x450);
     }
-    func_0029cf50(*(s32 *)(best + 8) | 0x80000000);
+    scrSetReturnInt(*(s32 *)(best + 8) | 0x80000000);
     return 1;
 }
 // FUN_001E6EA0
@@ -248,21 +248,21 @@ s32 func_001e6ea0(void) {
     u8 *result;
 
     work = func_0029d050();
-    flags = func_0029cc00(0);
+    flags = scrGetParamInt(0);
     if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
             }
-            func_0029cf50(*(s32 *)(result + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -272,15 +272,15 @@ s32 func_001e6fa0(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            func_0029cf50(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -290,15 +290,15 @@ s32 func_001e7080(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            func_0029cf50(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -308,15 +308,15 @@ s32 func_001e7160(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            func_0029cf50(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -326,15 +326,15 @@ s32 func_001e7240(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            func_0029cf50(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -344,21 +344,21 @@ s32 func_001e7320(void)
     int count;
     u8 *work;
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1)
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1)
     {
         count = *(u16 *)(work + 0x6A);
         if (count == 1)
         {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         }
         else
         {
-            func_0029cf50(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     }
     else
     {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -367,8 +367,8 @@ s32 func_001e7320(void)
 s32 func_001e7400(void) {
     extern s32 func_001d9390();
     extern u32 func_00231d70(u32 arg0);
-    extern s32 func_0029cc00(s32 arg0);
-    extern void func_0029cf50(s32 arg0);
+    extern s32 scrGetParamInt(s32 arg0);
+    extern void scrSetReturnInt(s32 arg0);
     extern u8 *func_0029d050(void);
     u8 *formation;
     u16 count;
@@ -379,7 +379,7 @@ s32 func_001e7400(void) {
     int candidates[12];
 
     unit = (u32)func_0029d050();
-    selector = (u32)func_0029cc00(0);
+    selector = (u32)scrGetParamInt(0);
     count = func_001d9390(unit, selector, 0x80000, 1, 1,
                           &btlCond_MYHOJO, candidates);
     if (count > 0) {
@@ -396,9 +396,9 @@ s32 func_001e7400(void) {
         } else {
             selected = *(s32 *)(formation + 0x170);
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -407,8 +407,8 @@ s32 func_001e7510(void) {
     extern s32 func_001d9390();
     extern s32 func_00231d70();
     extern s32 func_00231e20();
-    extern s64 func_0029cc00();
-    extern void func_0029cf50();
+    extern s64 scrGetParamInt();
+    extern void scrSetReturnInt();
     extern u8 *func_0029d050();
     u8 *var_19;
     s32 var_18;
@@ -418,7 +418,7 @@ s32 func_001e7510(void) {
     u8 *sp50[12];
 
     temp_16 = func_0029d050();
-    temp_17 = func_001d9390(temp_16, func_0029cc00(0), 0x80000, 2, 1, &btlCond_MYHOJO, sp50) & 0xFFFF;
+    temp_17 = func_001d9390(temp_16, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, sp50) & 0xFFFF;
     if (temp_17 > 0) {
         var_19 = NULL;
         var_18 = 0;
@@ -434,9 +434,9 @@ loop_test:
             goto loop_body;
         if (var_19 == NULL)
             var_19 = sp50[func_00231d70(temp_17 & 0xFFFF)];
-        func_0029cf50(*(s32 *)(var_19 + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(var_19 + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -462,7 +462,7 @@ s32 func_001e7640(void)
     extern u32 func_00231d70(u32);
     extern s32 func_00231e20(u8 *);
     extern s32 datCalcIsDead(s32, s32);
-    extern void func_0029cf50(s32);
+    extern void scrSetReturnInt(s32);
     struct {
         s32 entries[14];
         u16 count;
@@ -505,9 +505,9 @@ s32 func_001e7640(void)
     }
     if (selectedCount > 0) {
         value = func_00231d70(selectedCount);
-        func_0029cf50(*(s32 *)(selected[value] + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected[value] + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -525,7 +525,7 @@ s32 func_001e77f0(void) {
     u32 var_22;
 
     temp_21 = func_0029d050();
-    if (func_001dbba0(temp_21, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (func_001dbba0(temp_21, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(temp_21 + 0x6A) == 1) {
             var_19 = *(u8 **)(temp_21 + 0x38);
         } else {
@@ -550,9 +550,9 @@ loop_test:
             if (var_18 < *(u16 *)(temp_21 + 0x6A))
                 goto loop_body;
         }
-        func_0029cf50(*(s32 *)(var_19 + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(var_19 + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return -1;
 }
@@ -567,7 +567,7 @@ s32 func_001e7950(void) {
     u8 *sp50[12];
 
     temp_19 = func_0029d050();
-    if (func_001dbba0(temp_19, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (func_001dbba0(temp_19, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         var_17 = 0;
         var_18 = 0;
         goto loop_test;
@@ -583,12 +583,12 @@ loop_test:
             goto loop_body;
         temp_4 = var_17 & 0xFFFF;
         if (temp_4 == 0) {
-            func_0029cf50(-1);
+            scrSetReturnInt(-1);
         } else {
-            func_0029cf50(*(s32 *)(sp50[func_00231d70(temp_4)] + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(sp50[func_00231d70(temp_4)] + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return -1;
 }
@@ -605,8 +605,8 @@ s32 func_001e7ab0(void) {
     extern void func_001db5b0();
     extern s32 func_00231d70();
     extern s32 func_00231e20();
-    extern s64 func_0029cc00();
-    extern void func_0029cf50();
+    extern s64 scrGetParamInt();
+    extern void scrSetReturnInt();
     extern u8 *func_0029d050();
     u8 *temp_20;
     u32 var_19;
@@ -618,7 +618,7 @@ s32 func_001e7ab0(void) {
     u8 *var_2;
 
     temp_20 = func_0029d050();
-    if (func_001dbba0(temp_20, func_0029cc00(0), 0, 0x2C, 1, &func_001db5b0) == 1) {
+    if (func_001dbba0(temp_20, scrGetParamInt(0), 0, 0x2C, 1, &func_001db5b0) == 1) {
         if (*(u16 *)(temp_20 + 0x6A) == 1) {
             var_2 = *(u8 **)(temp_20 + 0x38);
         } else {
@@ -644,9 +644,9 @@ loop_test:
                 goto loop_body;
             var_2 = sp60[func_00231d70(var_17 & 0xFFFF)];
         }
-        func_0029cf50(*(s32 *)(var_2 + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(var_2 + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return -1;
 }
@@ -654,15 +654,15 @@ loop_test:
 s32 func_001e7c20(void) {
     extern s32 func_001dbba0();
     extern s32 datCalcGetBadStatusNoDown();
-    extern s64 func_0029cc00();
-    extern void func_0029cf50();
+    extern s64 scrGetParamInt();
+    extern void scrSetReturnInt();
     extern u8 *func_0029d050();
     u8 *temp_18;
     s32 var_17;
     s32 var_16;
 
     temp_18 = func_0029d050();
-    if (func_001dbba0(temp_18, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (func_001dbba0(temp_18, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         var_16 = 0;
         var_17 = 0;
         goto loop_test;
@@ -674,9 +674,9 @@ loop_body:
 loop_test:
         if ((var_17 & 0xFFFF) < (s32)*(u16 *)(temp_18 + 0x6A))
             goto loop_body;
-        func_0029cf50(var_16 & 0xFFFF);
+        scrSetReturnInt(var_16 & 0xFFFF);
     } else {
-        func_0029cf50(0);
+        scrSetReturnInt(0);
     }
     return -1;
 }
@@ -685,12 +685,12 @@ s32 func_001e7d30(void) {
     u8 *temp;
 
     temp = func_0029d050();
-    func_0029cf50(*(s32 *)(temp + 8) | 0x80000000);
+    scrSetReturnInt(*(s32 *)(temp + 8) | 0x80000000);
     return 1;
 }
 // FUN_001E7D70
 s32 func_001e7d70(void) {
-    func_0029cf50(func_00231f80(*(s32 *)(*(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(func_00231f80(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
@@ -698,7 +698,7 @@ s32 func_001e7d70(void) {
 
 // FUN_001E7DD0
 s32 func_001e7dd0(void) {
-    func_0029cf50(datCalcGetHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcGetHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
@@ -709,7 +709,7 @@ s32 func_001e7e30(void) {
     u8 *temp;
 
     temp = func_001b1560();
-    func_0029cf50(*(s32 *)(temp + 8) | 0x80000000);
+    scrSetReturnInt(*(s32 *)(temp + 8) | 0x80000000);
     return 1;
 }
 // FUN_001E7E70
@@ -721,20 +721,20 @@ s32 func_001e7e70(void)
     u8 *payload;
     s32 value;
 
-    base = *(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30);
+    base = *(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30);
     if (*(u8 *)(base + 0xA2) == 0 && *(u16 *)(base + 0xA4) != 1) {
         payload = *(u8 **)(base + 0xA64);
         value = *(s8 *)(payload + 0x10);
     } else {
         value = -1;
     }
-    func_0029cf50(value);
+    scrSetReturnInt(value);
     return 1;
 }
 
 // FUN_001E7EF0
 s32 func_001e7ef0(void) {
-    func_0029cf50(func_00232290(*(s32 *)(*(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(func_00232290(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
@@ -742,7 +742,7 @@ s32 func_001e7ef0(void) {
 
 // FUN_001E7F50
 s32 func_001e7f50(void) {
-    func_0029cf50(datCalcGetSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcGetSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
@@ -754,15 +754,15 @@ s32 func_001e7fb0(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2E, 0, &btlCond_MYHOJO) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYHOJO) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            func_0029cf50(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -774,21 +774,21 @@ s32 func_001e8090(void) {
     u8 *result;
 
     work = func_0029d050();
-    flags = func_0029cc00(0);
+    flags = scrGetParamInt(0);
     if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYHANSYA) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
             }
-            func_0029cf50(*(s32 *)(result + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -800,21 +800,21 @@ s32 func_001e8190(void) {
     u8 *result;
 
     work = func_0029d050();
-    flags = func_0029cc00(0);
+    flags = scrGetParamInt(0);
     if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYKYUSYU) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
             }
-            func_0029cf50(*(s32 *)(result + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -826,21 +826,21 @@ s32 func_001e8290(void) {
     u8 *result;
 
     work = func_0029d050();
-    flags = func_0029cc00(0);
+    flags = scrGetParamInt(0);
     if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYMUKOU) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
             }
-            func_0029cf50(*(s32 *)(result + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -852,21 +852,21 @@ s32 func_001e8390(void) {
     u8 *result;
 
     work = func_0029d050();
-    flags = func_0029cc00(0);
+    flags = scrGetParamInt(0);
     if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYTAISEI) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
-            func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
             }
-            func_0029cf50(*(s32 *)(result + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -880,7 +880,7 @@ s32 func_001e8490(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -897,9 +897,9 @@ s32 func_001e8490(void) {
                 index++;
             }
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -913,7 +913,7 @@ s32 func_001e85c0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -930,9 +930,9 @@ s32 func_001e85c0(void) {
                 index++;
             }
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -946,7 +946,7 @@ s32 func_001e86f0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -963,9 +963,9 @@ s32 func_001e86f0(void) {
                 index++;
             }
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -979,7 +979,7 @@ s32 func_001e8820(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -996,9 +996,9 @@ s32 func_001e8820(void) {
                 index++;
             }
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -1012,7 +1012,7 @@ s32 func_001e8950(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1029,9 +1029,9 @@ s32 func_001e8950(void) {
                 index++;
             }
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -1045,7 +1045,7 @@ s32 func_001e8a80(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1062,9 +1062,9 @@ s32 func_001e8a80(void) {
                 index++;
             }
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -1076,10 +1076,10 @@ s32 func_001e8bb0(void) {
     u64 temp_18;
 
     temp_19 = func_0029d050();
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
-    temp_18 = func_0029cc00(2);
-    func_0029cf50(func_001de000(temp_19, func_001b0cc0((u64)(temp_17 << 0x24) >> 0x24), (s16)temp_16, temp_18));
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
+    temp_18 = scrGetParamInt(2);
+    scrSetReturnInt(func_001de000(temp_19, func_001b0cc0((u64)(temp_17 << 0x24) >> 0x24), (s16)temp_16, temp_18));
     return 1;
 }
 // FUN_001E8C60
@@ -1087,11 +1087,11 @@ s32 func_001e8c60(void) {
     u64 temp_16;
 
     func_0029d050();
-    temp_16 = func_0029cc00(0);
-    func_0029cc00(1);
-    func_0029cc00(2);
+    temp_16 = scrGetParamInt(0);
+    scrGetParamInt(1);
+    scrGetParamInt(2);
     func_001b0cc0((u64) (temp_16 << 0x24) >> 0x24);
-    func_0029cf50(-1);
+    scrSetReturnInt(-1);
     return 1;
 }
 
@@ -1103,15 +1103,15 @@ s32 func_001e8cd0(void) {
     u64 temp_17;
 
     temp_19 = func_0029d050();
-    temp_16 = func_0029cc00(0);
-    temp_18 = func_0029cc00(1);
-    temp_17 = func_0029cc00(2);
-    func_0029cf50(func_001dd570(temp_19, func_001b0cc0((u64)(temp_16 << 0x24) >> 0x24), temp_18, temp_17));
+    temp_16 = scrGetParamInt(0);
+    temp_18 = scrGetParamInt(1);
+    temp_17 = scrGetParamInt(2);
+    scrSetReturnInt(func_001dd570(temp_19, func_001b0cc0((u64)(temp_16 << 0x24) >> 0x24), temp_18, temp_17));
     return 1;
 }
 // FUN_001E8D80
 s32 func_001e8d80(void) {
-    func_0029cf50((s16) func_0023d8e0(*(u8 **)(*(u8 **)(func_0029d050() + 0x30) + 0xA64), 0U));
+    scrSetReturnInt((s16) func_0023d8e0(*(u8 **)(*(u8 **)(func_0029d050() + 0x30) + 0xA64), 0U));
     return 1;
 }
 
@@ -1144,7 +1144,7 @@ s32 func_001e8dd0(void) {
         }
         current = *(u8 **)(current + 0x450);
     }
-    func_0029cf50(*(s32 *)(best + 8) | 0x80000000);
+    scrSetReturnInt(*(s32 *)(best + 8) | 0x80000000);
     return 1;
 }
 // FUN_001E8EB0
@@ -1157,7 +1157,7 @@ s32 func_001e8eb0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1174,9 +1174,9 @@ s32 func_001e8eb0(void) {
                 index++;
             }
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -1190,7 +1190,7 @@ s32 func_001e8fe0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1207,9 +1207,9 @@ s32 func_001e8fe0(void) {
                 index++;
             }
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -1223,7 +1223,7 @@ s32 func_001e9110(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1) {
+    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1240,9 +1240,9 @@ s32 func_001e9110(void) {
                 index++;
             }
         }
-        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -1276,7 +1276,7 @@ s32 func_001e9240(void) {
         }
         selected = stack[func_00231d70(count & 0xFFFF)];
     }
-    func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+    scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     return 1;
 }
 // FUN_001E9350
@@ -1292,12 +1292,12 @@ s32 func_001e9350(void) {
     s32 element;
 
     work = func_0029d050();
-    command = func_0029cc00(0);
+    command = scrGetParamInt(0);
     result = func_001b0cc0((u64)(command << 0x24) >> 0x24);
     entry = *(u8 **)(work + 0x30);
     element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), 0);
     if (func_00242800(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
-        func_0029cf50((s16)element);
+        scrSetReturnInt((s16)element);
         return 1;
     }
     count = datCalcGetTableLength(*(u8 **)(entry + 0xA64)) & 0xFFFF;
@@ -1308,13 +1308,13 @@ s32 func_001e9350(void) {
         if (skill != 0 && skill < 0x1B8) {
             element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), skill);
             if (func_00242800(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
-                func_0029cf50((s16)element);
+                scrSetReturnInt((s16)element);
                 return 1;
             }
         }
         index++;
     }
-    func_0029cf50(-1);
+    scrSetReturnInt(-1);
     return 1;
 }
 // FUN_001E94E0
@@ -1348,7 +1348,7 @@ s32 func_001e94e0(void) {
         }
         selected = stack[func_00231d70(count & 0xFFFF)];
     }
-    func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
+    scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     return 1;
 }
 // FUN_001E9600
@@ -1390,16 +1390,16 @@ s32 func_001e9600(void) {
         current = *(u8 **)(current + 0x450);
     }
     if (best_eligible != NULL) {
-        func_0029cf50(*(s32 *)(best_eligible + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(best_eligible + 8) | 0x80000000);
     } else {
-        func_0029cf50(*(s32 *)(best_fallback + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(best_fallback + 8) | 0x80000000);
     }
     return 1;
 }
 // FUN_001E9770
 s32 func_001e9770(void) {
-    extern s32 func_0029cc00(s32 arg0);
-    extern void func_0029cf50(s32 arg0);
+    extern s32 scrGetParamInt(s32 arg0);
+    extern void scrSetReturnInt(s32 arg0);
     extern s32 datCalcIsDead(s32 arg0, s32 arg1);
     extern s32 datCalcGetHp(s32 arg0);
     extern s32 func_00231f80(s32 arg0);
@@ -1415,9 +1415,9 @@ s32 func_001e9770(void) {
     u16 temp_3;
     u8 *temp_4;
     s32 temp_22;
-    temp_23 = func_0029cc00(0);
-    temp_30 = func_0029cc00(1);
-    temp_17 = func_0029cc00(2);
+    temp_23 = scrGetParamInt(0);
+    temp_30 = scrGetParamInt(1);
+    temp_17 = scrGetParamInt(2);
     var_20 = NULL;
     var_18 = 0x0FFFFFFF;
     var_21 = *(u8 **)(iGpffffb3ac + 0x174);
@@ -1455,9 +1455,9 @@ loop_test:
     if (var_21 != NULL)
         goto loop_body;
     if (var_20 != NULL) {
-        func_0029cf50(*(s32 *)(var_20 + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(var_20 + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -1471,8 +1471,8 @@ loop_test:
  * after paramA/paramB) reproduces that spill set and slot order. */
 // FUN_001E9950
 s32 func_001e9950(void) {
-    extern s32 func_0029cc00(s32 arg0);
-    extern void func_0029cf50(s32 arg0);
+    extern s32 scrGetParamInt(s32 arg0);
+    extern void scrSetReturnInt(s32 arg0);
     extern s32 func_0023d6e0(s16 arg0);
     extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
     extern u16 func_001d7f10(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
@@ -1519,7 +1519,7 @@ s32 func_001e9950(void) {
         u8 flags;
     } tgt;
     work = func_0029d050();
-    mode = func_0029cc00(0);
+    mode = scrGetParamInt(0);
     unit = *(u8 **)(work + 0x30);
     bestTarget = 0;
     bestSkill = -1;
@@ -1652,15 +1652,15 @@ outer_test:
             func_001dbf20(work, 0);
         }
     }
-    func_0029cf50(bestSkill);
+    scrSetReturnInt(bestSkill);
     return 1;
 }
 // FUN_001E9F20
 s32 func_001e9f20(void) {
-    extern s32 func_0029cc00(s32 arg0);
+    extern s32 scrGetParamInt(s32 arg0);
     extern s32 datCalcGetHp(s32 arg0);
     extern s32 datCalcIsDead(s32 arg0, s32 arg1);
-    extern void func_0029cf50(s32 arg0);
+    extern void scrSetReturnInt(s32 arg0);
     u16 flags;
     u32 value;
     u8 *current;
@@ -1668,7 +1668,7 @@ s32 func_001e9f20(void) {
     u32 best_value;
     s32 random;
 
-    random = func_0029cc00(0);
+    random = scrGetParamInt(0);
     best = NULL;
     best_value = 0;
     current = *(u8 **)(iGpffffb3ac + 0x174);
@@ -1688,18 +1688,18 @@ s32 func_001e9f20(void) {
         current = *(u8 **)(current + 0x450);
     }
     if (best != NULL) {
-        func_0029cf50(*(s32 *)(best + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(best + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
 // FUN_001EA050
 s32 func_001ea050(void) {
-    extern s32 func_0029cc00(s32 arg0);
+    extern s32 scrGetParamInt(s32 arg0);
     extern s32 datCalcGetHp(s32 arg0);
     extern s32 datCalcIsDead(s32 arg0, s32 arg1);
-    extern void func_0029cf50(s32 arg0);
+    extern void scrSetReturnInt(s32 arg0);
     u16 flags;
     u32 value;
     u8 *current;
@@ -1707,7 +1707,7 @@ s32 func_001ea050(void) {
     u32 best_value;
     s32 random;
 
-    random = func_0029cc00(0);
+    random = scrGetParamInt(0);
     best = NULL;
     best_value = 0x0FFFFFFF;
     current = *(u8 **)(iGpffffb3ac + 0x174);
@@ -1727,9 +1727,9 @@ s32 func_001ea050(void) {
         current = *(u8 **)(current + 0x450);
     }
     if (best != NULL) {
-        func_0029cf50(*(s32 *)(best + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(best + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -1740,9 +1740,9 @@ s32 func_001ea180(void) {
 
     temp_4 = (s32)(func_001d9390(func_0029d050(), 0, 0x80000, 2, 0, &func_001dbb90, &sp10) & 0xFFFF);
     if (temp_4 > 0) {
-        func_0029cf50(*(s32 *)(sp10[func_00231d70(temp_4)] + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(sp10[func_00231d70(temp_4)] + 8) | 0x80000000);
     } else {
-        func_0029cf50(-1);
+        scrSetReturnInt(-1);
     }
     return 1;
 }
@@ -1751,11 +1751,11 @@ s32 func_001ea220(void) {
     u8 *temp_16;
 
     temp_16 = func_0029d050();
-    *(s16 *)(temp_16 + 0x6E) = func_0029cc00(0);
+    *(s16 *)(temp_16 + 0x6E) = scrGetParamInt(0);
     *(s16 *)(temp_16 + 0x6C) = 9;
-    *(s16 *)(temp_16 + 0x76) = func_0029cc00(1);
-    *(s16 *)(temp_16 + 0x78) = func_0029cc00(2);
-    *(s16 *)(temp_16 + 0x7A) = func_0029cc00(3);
+    *(s16 *)(temp_16 + 0x76) = scrGetParamInt(1);
+    *(s16 *)(temp_16 + 0x78) = scrGetParamInt(2);
+    *(s16 *)(temp_16 + 0x7A) = scrGetParamInt(3);
     if (((s32 (*)(u8 *, s32))D_00609D20[0])(temp_16, 0) == 0)
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_16, 0);
     return 1;
@@ -1767,8 +1767,8 @@ s32 func_001ea2d0(void) {
     u64 temp_17;
 
     temp_18 = func_0029d050();
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
     func_0019ef30(*(u8 **)(temp_18 + 0x30), temp_17);
     func_001de640(temp_18, temp_18 + 0x38, temp_16 & 0xFFFF);
     return 1;
@@ -1799,13 +1799,13 @@ s32 func_001ea390(void)
 // FUN_001EA420
 s32 func_001ea420(void)
 {
-    func_0029cf50(((*(u32 *)(D_00724504 + (*(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8) * 0x18))) & 0x20) != 0);
+    scrSetReturnInt(((*(u32 *)(D_00724504 + (*(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8) * 0x18))) & 0x20) != 0);
     return 1;
 }
 
 // FUN_001EA470
 s32 func_001ea470(void) {
-    func_0029cf50(*(s16 *)(iGpffffb3ac + 0xC34));
+    scrSetReturnInt(*(s16 *)(iGpffffb3ac + 0xC34));
     return 1;
 }
 
@@ -1870,13 +1870,13 @@ s32 func_001ea660(void)
 
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
     func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
-    first.x = func_0029cd50(0);
-    first.y = func_0029cd50(1);
-    first.z = func_0029cd50(2);
-    second.x = func_0029cd50(3);
-    second.y = func_0029cd50(4);
-    second.z = func_0029cd50(5);
-    value = func_0029cd50(6);
+    first.x = scrGetParamFloat(0);
+    first.y = scrGetParamFloat(1);
+    first.z = scrGetParamFloat(2);
+    second.x = scrGetParamFloat(3);
+    second.y = scrGetParamFloat(4);
+    second.z = scrGetParamFloat(5);
+    value = scrGetParamFloat(6);
     first_copy = first;
     second_copy = second;
     func_00194590(func_001bcb50(
@@ -1892,24 +1892,24 @@ s32 func_001ea660(void)
 }
 // FUN_001EA780
 s32 func_001ea780(void) {
-    D_00881420[0] = func_0029cd50(0);
-    D_00881424[0] = func_0029cd50(1);
-    D_00881428[0] = func_0029cd50(2);
-    D_00881400[0] = func_0029cd50(3);
-    D_00881404[0] = func_0029cd50(4);
-    D_00881408[0] = func_0029cd50(5);
-    fGpffffb458 = func_0029cd50(6);
+    D_00881420[0] = scrGetParamFloat(0);
+    D_00881424[0] = scrGetParamFloat(1);
+    D_00881428[0] = scrGetParamFloat(2);
+    D_00881400[0] = scrGetParamFloat(3);
+    D_00881404[0] = scrGetParamFloat(4);
+    D_00881408[0] = scrGetParamFloat(5);
+    fGpffffb458 = scrGetParamFloat(6);
     return 1;
 }
 // FUN_001EA830
 s32 func_001ea830(void) {
-    D_00881410[0] = func_0029cd50(0);
-    D_00881414[0] = func_0029cd50(1);
-    D_00881418[0] = func_0029cd50(2);
-    D_008813F0[0] = func_0029cd50(3);
-    D_008813F4[0] = func_0029cd50(4);
-    D_008813F8[0] = func_0029cd50(5);
-    fGpffffb454 = func_0029cd50(6);
+    D_00881410[0] = scrGetParamFloat(0);
+    D_00881414[0] = scrGetParamFloat(1);
+    D_00881418[0] = scrGetParamFloat(2);
+    D_008813F0[0] = scrGetParamFloat(3);
+    D_008813F4[0] = scrGetParamFloat(4);
+    D_008813F8[0] = scrGetParamFloat(5);
+    fGpffffb454 = scrGetParamFloat(6);
     return 1;
 }
 // FUN_001EA8E0
@@ -1986,7 +1986,7 @@ s32 func_001eabc0(void) {
     }
     if (flag == 1 && *(u16 *)(*(u8 **)(p + 0x30) + 0xA4) != (b & 0xFFFF))
         flag = 0;
-    func_0029cf50(flag != 0);
+    scrSetReturnInt(flag != 0);
     return 1;
 }
 // FUN_001EACA0
@@ -2071,11 +2071,11 @@ s32 func_001eaec0(void)
     s32 var_2;
     u8 *temp_2;
 
-    temp_20 = func_0029cc00(0);
-    temp_19 = func_0029cc00(1);
-    temp_18 = func_0029cc00(2);
-    temp_17 = func_0029cc00(3);
-    temp_16 = func_0029cc00(4);
+    temp_20 = scrGetParamInt(0);
+    temp_19 = scrGetParamInt(1);
+    temp_18 = scrGetParamInt(2);
+    temp_17 = scrGetParamInt(3);
+    temp_16 = scrGetParamInt(4);
     if (temp_20 == 0) {
         var_2 = 1;
     } else {
@@ -2094,8 +2094,8 @@ s32 func_001eaec0(void)
 s32 func_001eafb0(void) {
     extern void func_001ec6d0();
     extern void btlUnitSetPos();
-    extern s64 func_0029cc00();
-    extern f32 func_0029cd50();
+    extern s64 scrGetParamInt();
+    extern f32 scrGetParamFloat();
     f32 sp30[3];
     s32 temp_16;
     s32 temp_17;
@@ -2105,9 +2105,9 @@ s32 func_001eafb0(void) {
 
     temp_17 = func_0029cc00_s32(0);
     temp_16 = func_0029cc00_s32(1);
-    sp30[0] = func_0029cd50(2);
-    sp30[1] = func_0029cd50(3);
-    sp30[2] = func_0029cd50(4);
+    sp30[0] = scrGetParamFloat(2);
+    sp30[1] = scrGetParamFloat(3);
+    sp30[2] = scrGetParamFloat(4);
     var_4 = 0;
     if (temp_17 != 0)
         goto set_one;
@@ -2155,8 +2155,8 @@ s32 func_001eb110(void) {
     s64 temp_2;
     u8 *temp_2_2;
 
-    temp_16 = func_0029cc00(0);
-    temp_2 = func_0029cc00(1);
+    temp_16 = scrGetParamInt(0);
+    temp_2 = scrGetParamInt(1);
     switch (temp_2) {
     case 0:
         temp_2_2 = (u8 *)func_002306d0();
@@ -2177,7 +2177,7 @@ s32 func_001eb2a0(void) {
 
     temp = func_0029cc00_s32(0);
     temp = func_00231d70(temp);
-    func_0029cf50(temp);
+    scrSetReturnInt(temp);
     return 1;
 }
 
@@ -2190,7 +2190,7 @@ s32 func_001eb2e0(void) {
 
     index = func_0029cc00_s32(0);
     slot = p4_slot_001eb320((u32)index * 4, iGpffffb3ac);
-    func_0029cf50(*(s32 *)(slot + 0xDD8));
+    scrSetReturnInt(*(s32 *)(slot + 0xDD8));
     return 1;
 }
 /* measured: close optimization_level 1 probe for func_001eb2e0. */
