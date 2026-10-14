@@ -2,6 +2,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
+#include "h_cdvd.h"
 
 extern void func_002716b0(s32 arg0, u8 *arg1, u8 *arg2);
 
@@ -98,7 +99,6 @@ extern void func_0026e170(int param_1);
 extern void func_00275bd0(void);
 extern void func_00271a40(void);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
-extern void H_Cdvd_Destroy();
 extern void func_00440b68();
 extern char D_0063BBB0[];
 extern char D_0063BBF0[];
@@ -594,7 +594,7 @@ void func_00271a40(void)
         if (tmp == 0)
             continue;
         pslot = (u32 *)((u8 *)DAT_00881630_abs + (u32)(u8)i * 4 + 0x180);
-        H_Cdvd_Destroy((u8 *)tmp);
+        H_Cdvd_Destroy((struct HCdvd *)tmp);
         *pslot = 0;
         func_00440b68(D_0063BBF0, mask);
         *(u32 *)slot = 0;

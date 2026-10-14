@@ -1,6 +1,8 @@
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "g_data_internal.h"
+#include "h_cdvd.h"
 extern u8 D_007973A0[];
 
 extern s16 D_00797F88[];
@@ -185,8 +187,6 @@ extern void H_Cdvd_ReadSync(u8* ptr);
 
 extern u8* func_00454a60(u8* param, s32 mode);
 
-extern void H_Cdvd_Destroy(u8* ptr);
-
 extern void func_00106390(s32 arg0, s32 arg1);
 
 extern u32 func_00110580(s32 arg0);
@@ -299,7 +299,7 @@ void func_00104a60(void)
     dst = dst + *(u32*)((u8*)iGpffffb1ac + 4) * 16;
     memcpy(*(void**)((u8*)iGpffffb1ac + 0x18), dst, *(u32*)((u8*)iGpffffb1ac + 0x10) * 32);
     memcpy(*(void**)((u8*)iGpffffb1ac + 0x1C), dst + *(u32*)((u8*)iGpffffb1ac + 0x10) * 32, *(u32*)((u8*)iGpffffb1ac + 0x14) * 16);
-    H_Cdvd_Destroy(obj);
+    H_Cdvd_Destroy((struct HCdvd *)obj);
 }
 
 // FUN_00104C50

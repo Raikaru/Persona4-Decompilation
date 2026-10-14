@@ -1,5 +1,6 @@
 /* Source unit: src/h_fade_001228a0.c */
 #include "type.h"
+#include "h_fade_internal.h"
 
 static u8 sFadeRed __attribute__((aligned(4)));   // 007642c8
 static u8 sFadeGreen __attribute__((aligned(4))); // 007642c4

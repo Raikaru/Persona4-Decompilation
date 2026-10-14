@@ -5,6 +5,8 @@
 /* Original translation unit y_smap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "fcl_draw_types.h"
+#include "g_data_internal.h"
+#include "h_cdvd.h"
 extern void (*D_00887304[])(s32, void *);
 
 extern void (*D_00887300[])(s32 state, s32 value);
@@ -56,8 +58,6 @@ extern void func_0044ea90(void *msg, s32 id);
 extern void func_00460ac0(void *param, void *work);
 extern void func_00440b68();
 extern u8 *func_00454a60(u8 *param, s32 mode);
-extern void H_Cdvd_Destroy(u8 *ptr);
-extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 extern s32 func_0046a750(s32 param);
 extern s32 func_0046aea0(const u8 *name);
 extern void func_0046d280(void *node);
@@ -79,7 +79,6 @@ typedef struct YRGBA { u8 a, b, c, d; } YRGBA;
 /* func_002afbc0 callees */
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2bd0(f32 *, s64, f32, f32, f32, f32);
-extern s32 datGetFlag(s32);
 extern u8 *func_00155280(void);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern void func_002b0b10(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
@@ -164,7 +163,7 @@ s32 func_002ac400(u8 *arg0) {
         *(s8 *)(p + 4) += 1;
         break;
     case 3:
-        if (H_Cdvd_IsFileLoaded(*(u8 **)p) != 0) {
+        if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)p) != 0) {
             *(s32 *)(p + 8) = func_004667d0(0, D_0063EFB0, 0, 0, 0, 0, 0, 0, 0, 0);
             *(s8 *)(p + 4) += 1;
         }
@@ -173,7 +172,7 @@ s32 func_002ac400(u8 *arg0) {
         D_00764648 = func_004669d0(*(s32 *)(p + 8), &x, 0);
         if (x != 0) {
             *(s32 *)(p + 8) = 0;
-            H_Cdvd_Destroy(*(u8 **)p);
+            H_Cdvd_Destroy(*(struct HCdvd **)p);
             return -1;
         }
         break;

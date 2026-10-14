@@ -4,6 +4,7 @@
 /* Persona 4 USA decompilation - y_symbol.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "g_data_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -43,7 +44,6 @@ extern u8 D_007EFA04[];
 
 extern void func_0044ea90(void *msg, s32 id);
 
-extern s32 datGetFlag(s32 arg0);
 extern s32 K_FldEvent_ArePosWithinDist(u8 *arg0, u8 *arg1, f32 arg2);
 extern f32 func_0014b5d0(u8 *arg0);
 extern void *mdlGetMatrix(void *arg0);

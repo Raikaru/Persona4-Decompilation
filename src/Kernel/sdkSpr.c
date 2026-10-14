@@ -2,13 +2,12 @@
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
 #include "type.h"
+#include "h_cdvd.h"
 
 void func_0044ea90(void *arg0, s32 arg1);
 void strcpy(void *arg0, const char *arg1);
 void func_00440b68(char *arg0, const char *arg1, s32 arg2);
 void memcpy(void *arg0, void *arg1, s32 arg2);
-void H_Cdvd_Destroy(u8 *ptr);
-s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 u8 *func_00455f70(void *arg0, u32 *arg1);
 u8 *func_00454a60(void *arg0, s32 arg1);
 void func_003ec330(void *ptr);
@@ -234,7 +233,7 @@ void func_0046ab90(u8 *arg0)
         break;
     case 1:
         if (*(u32 *)(arg0 + 0x208) != 0) {
-            if (H_Cdvd_IsFileLoaded((u8 *)*(u32 *)(arg0 + 0x208)) != 1) {
+            if (H_Cdvd_IsFileLoaded((struct HCdvd *)*(u32 *)(arg0 + 0x208)) != 1) {
                 break;
             }
             *(u32 *)(arg0 + 0x20C) =
@@ -295,7 +294,7 @@ void func_0046ab90(u8 *arg0)
                           0x80);
         }
         if (*(u32 *)(arg0 + 0x208) != 0) {
-            H_Cdvd_Destroy((u8 *)*(u32 *)(arg0 + 0x208));
+            H_Cdvd_Destroy((struct HCdvd *)*(u32 *)(arg0 + 0x208));
         }
         *(u32 *)(arg0 + 0x208) = 0;
         *(s16 *)(arg0 + 0x216) = *(u16 *)(arg0 + 0x22E);
@@ -414,7 +413,7 @@ void func_0046b0d0(u8 *node)
         i++;
     }
     if (*(u8 **)(node + 0x208) != NULL) {
-        H_Cdvd_Destroy(*(u8 **)(node + 0x208));
+        H_Cdvd_Destroy(*(struct HCdvd **)(node + 0x208));
         *(u8 **)(node + 0x208) = NULL;
     }
     if (*(u32 *)(node + 0x204) != 0) {

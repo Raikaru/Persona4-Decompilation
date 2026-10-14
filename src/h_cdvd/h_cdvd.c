@@ -7,7 +7,6 @@
  * sites use these named forms). */
 extern void H_Cdvd_BuildPathUppercase(const char* src, char* dst);
 extern void H_Cdvd_NormalizePath(const char* src, char* dst);
-extern u32 H_Cdvd_IsFileLoaded(HCdvd* cdvd);
 extern void func_00454e10(const char* path, char* fileName, char* directory);
 extern void func_00455230(const char* directory);
 

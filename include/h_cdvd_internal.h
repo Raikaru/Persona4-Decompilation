@@ -2,6 +2,7 @@
 #define H_CDVD_INTERNAL_H
 
 #include "Utils.h"
+#include "h_cdvd.h"
 
 typedef void* ADXF;
 
@@ -94,7 +95,6 @@ extern void H_Cdvd_BuildPathUppercase(const char* source, char* destination);
 extern void func_00454e10(const char* path, char* fileName, char* directory);
 extern void H_Cdvd_NormalizePath(const char* source, char* destination);
 extern void func_00455230(const char* directory);
-extern u32 H_Cdvd_IsFileLoaded(HCdvd* cdvd);
 extern u8* H_Cdvd_StreamGetSlot(HCdvdStreamContext* context, u32 index);
 extern ADXF func_004c85a0(const char* path, s32 mode);
 extern void func_004c8a60(ADXF adxf);
