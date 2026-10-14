@@ -7,6 +7,7 @@
 #include "fcl_draw_task.h"
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
+#include "shdPersona_internal.h"
 /* Persona 4 USA decompilation - y_fclCombineDraw.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
@@ -56,7 +57,6 @@ extern s32 func_00314010(u8 *task);
 extern void func_003142f0(u8 *arg0);
 extern s32 datGetFlag(s32);
 extern s32 func_00452490(void *);
-extern void func_0011b9e0(s32 task, u32 value);
 extern void func_0011d100(u8 *arg0, f32 *arg1);
 extern void func_0011b480(u8 *, s32, u32, s8);
 extern void func_0011bc70(u8 *arg0);
