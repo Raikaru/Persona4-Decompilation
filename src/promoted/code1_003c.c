@@ -179,34 +179,34 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0520);
 #pragma no_branch_likely on
 // FUN_003C0640
 u8 *func_003c0640(void) {
-    u8 *temp_2;
-    u8 *temp_3;
-    u8 *temp_6;
-    u8 *temp_7;
+    u8 *record;
+    u8 *sentinel18;
+    u8 *sentinel10;
+    u8 *sentinel08;
 
-    temp_2 = (u8 *)D_008873F8[0](*(s32 *)(D_008872E0 + iGpffffb6c0 + 4), 0x30010);
-    if (temp_2 != NULL) {
-        *(s8 *)(temp_2 + 0) = 2;
-        temp_7 = temp_2 + 8;
-        *(s8 *)(temp_2 + 1) = 0;
-        *(s8 *)(temp_2 + 2) = 0;
-        temp_6 = temp_2 + 0x10;
-        *(s8 *)(temp_2 + 3) = 0;
-        temp_3 = temp_2 + 0x18;
-        *(s32 *)(temp_2 + 4) = 0;
-        *(u8 **)(temp_2 + 8) = temp_7;
-        *(u8 **)(temp_2 + 0xC) = temp_7;
-        *(u8 **)(temp_2 + 0x10) = temp_6;
-        *(u8 **)(temp_2 + 0x14) = temp_6;
-        *(u8 **)(temp_2 + 0x18) = temp_3;
-        *(u8 **)(temp_2 + 0x1C) = temp_3;
-        *(s32 *)(temp_2 + 0x24) = 0;
-        *(s32 *)(temp_2 + 0x20) = 0;
-        *(u8 **)(temp_2 + 0x28) = (u8 *)func_003bf320;
-        func_003e3b70(D_0070AF90, temp_2, temp_6, temp_7);
-        return temp_2;
+    record = (u8 *)D_008873F8[0](*(s32 *)(D_008872E0 + iGpffffb6c0 + 4), 0x30010);
+    if (record != NULL) {
+        *(s8 *)(record + 0) = 2;
+        sentinel08 = record + 8;
+        *(s8 *)(record + 1) = 0;
+        *(s8 *)(record + 2) = 0;
+        sentinel10 = record + 0x10;
+        *(s8 *)(record + 3) = 0;
+        sentinel18 = record + 0x18;
+        *(s32 *)(record + 4) = 0;
+        *(u8 **)(record + 8) = sentinel08;
+        *(u8 **)(record + 0xC) = sentinel08;
+        *(u8 **)(record + 0x10) = sentinel10;
+        *(u8 **)(record + 0x14) = sentinel10;
+        *(u8 **)(record + 0x18) = sentinel18;
+        *(u8 **)(record + 0x1C) = sentinel18;
+        *(s32 *)(record + 0x24) = 0;
+        *(s32 *)(record + 0x20) = 0;
+        *(u8 **)(record + 0x28) = (u8 *)func_003bf320;
+        func_003e3b70(D_0070AF90, record, sentinel10, sentinel08);
+        return record;
     }
-    return temp_2;
+    return record;
 }
 /* measured: no_branch_likely off closes allocator null-branch probe. */
 #pragma no_branch_likely off
@@ -362,19 +362,19 @@ u8 *RpAtomicSetFrame(u8 *arg0, u8 *arg1, s32 arg2) {
 #pragma no_branch_likely on
 s32 func_003c1bd0(u8 *arg0) {
     extern s32 func_003ce2e0(u8 *arg0);
-    u8 *temp_16;
-    temp_16 = *(u8 **)(arg0 + 0x18);
-    if (*(s32 *)(temp_16 + 0x18) == 1) {
-        if ((*(s32 *)(temp_16 + 8) & 0x01000000) != 0) {
+    u8 *record;
+    record = *(u8 **)(arg0 + 0x18);
+    if (*(s32 *)(record + 0x18) == 1) {
+        if ((*(s32 *)(record + 8) & 0x01000000) != 0) {
             return 1;
         }
     } else {
         return 0;
     }
-    func_003ce2e0(temp_16);
-    *(s32 *)(temp_16 + 8) |= 0x02000000;
+    func_003ce2e0(record);
+    *(s32 *)(record + 8) |= 0x02000000;
     ((void (*)(u8 *))(*(void **)(arg0 + 0x48)))(arg0);
-    *(s32 *)(temp_16 + 8) = (*(s32 *)(temp_16 + 8) & 0xFDFFFFFF) | 0x01000000;
+    *(s32 *)(record + 8) = (*(s32 *)(record + 8) & 0xFDFFFFFF) | 0x01000000;
     return 1;
 }
 #pragma no_branch_likely off
@@ -667,14 +667,14 @@ s32 func_003c3e90(s32 arg0, s32 arg1)
     extern u8 D_0070AFD0[];
     extern u8 D_00886550[];
     extern u8 D_008872E0[];
-    s32 *temp_3;
+    s32 *slot;
     s32 result;
 
     iGpffffb6d0 = arg1;
     result = func_003e1220(*(s32 *)D_0070AFD0, iGpffffaa98, 0x10, iGpffffaa9c, D_00886550, 0x40012);
-    temp_3 = (s32 *)(D_008872E0 + iGpffffb6d0);
-    *temp_3 = result;
-    result = *temp_3;
+    slot = (s32 *)(D_008872E0 + iGpffffb6d0);
+    *slot = result;
+    result = *slot;
     if (result == 0) {
         return 0;
     }
@@ -1258,29 +1258,29 @@ finish:
 #pragma schedule on
 // FUN_003C99F0
 void func_003c99f0(u8 *arg0) {
-    u8 **temp_6_2;
-    u8 *temp_3;
-    u8 *temp_6;
-    u8 *temp_5;
-    u8 *var_7;
+    u8 **prev;
+    u8 *head;
+    u8 *sentinel;
+    u8 *node;
+    u8 *cursor;
 
-    temp_3 = D_008872E0 + iGpffffb700;
-    var_7 = *(u8 **)(temp_3 + 4);
-    temp_6 = temp_3 + 4;
-    if (var_7 != temp_6) {
+    head = D_008872E0 + iGpffffb700;
+    cursor = *(u8 **)(head + 4);
+    sentinel = head + 4;
+    if (cursor != sentinel) {
 loop:
-        temp_5 = var_7 - 8;
-        if (*(u8 **)(var_7 - 8) == arg0) {
-            *(u8 **)(*(u8 **)(temp_5 + 0xC)) =
-                *(u8 **)(temp_5 + 8);
-            temp_6_2 = (u8 **)(*(u8 **)(temp_5 + 0xC));
-            *(u8 **)(*(u8 **)(temp_5 + 8) + 4) = (u8 *)temp_6_2;
+        node = cursor - 8;
+        if (*(u8 **)(cursor - 8) == arg0) {
+            *(u8 **)(*(u8 **)(node + 0xC)) =
+                *(u8 **)(node + 8);
+            prev = (u8 **)(*(u8 **)(node + 0xC));
+            *(u8 **)(*(u8 **)(node + 8) + 4) = (u8 *)prev;
             jtbl_008873FC[0](
-                *(u8 **)(D_008872E0 + iGpffffb700), temp_5);
+                *(u8 **)(D_008872E0 + iGpffffb700), node);
             goto done;
         }
-        var_7 = *(u8 **)var_7;
-        if (var_7 == temp_6)
+        cursor = *(u8 **)cursor;
+        if (cursor == sentinel)
             goto done;
         goto loop;
     }
@@ -1619,36 +1619,36 @@ extern u8 *func_003cb210(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/re
 // FUN_003CB250
 u8 *func_003cb250(u8 *arg0) {
     extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
-    u8 *var_18;
-    s32 temp_17;
-    u8 *temp_5;
+    u8 *cursor;
+    s32 sentinel;
+    u8 *node;
     u8 *x;
     u8 *y;
     void (**callback)(u8 *arg0, u8 *arg1);
 
-    temp_17 = (s32)(arg0 + 0x2C);
-    var_18 = *(u8 **)(arg0 + 0x2C);
-    if (var_18 == (u8 *)temp_17)
+    sentinel = (s32)(arg0 + 0x2C);
+    cursor = *(u8 **)(arg0 + 0x2C);
+    if (cursor == (u8 *)sentinel)
         goto done;
     callback = jtbl_008873FC;
 loop:
-    temp_5 = var_18 - 0xC;
-    var_18 = *(u8 **)var_18;
-    x = *(u8 **)(temp_5 + 0xC);
-    y = *(u8 **)(temp_5 + 0x10);
+    node = cursor - 0xC;
+    cursor = *(u8 **)cursor;
+    x = *(u8 **)(node + 0xC);
+    y = *(u8 **)(node + 0x10);
     *(u8 **)(y + 0) = x;
-    x = *(u8 **)(temp_5 + 0x10);
-    y = *(u8 **)(temp_5 + 0xC);
+    x = *(u8 **)(node + 0x10);
+    y = *(u8 **)(node + 0xC);
     *(u8 **)(y + 4) = x;
-    x = *(u8 **)(temp_5 + 0);
-    y = *(u8 **)(temp_5 + 4);
+    x = *(u8 **)(node + 0);
+    y = *(u8 **)(node + 4);
     *(u8 **)(y + 0) = x;
-    y = *(u8 **)(temp_5 + 4);
-    x = *(u8 **)(temp_5 + 0);
+    y = *(u8 **)(node + 4);
+    x = *(u8 **)(node + 0);
     *(u8 **)(x + 4) = y;
     callback[0](
-        *(u8 **)(D_008872E0 + (s32)iGpffffb718 + 4), temp_5);
-    if (var_18 != (u8 *)temp_17)
+        *(u8 **)(D_008872E0 + (s32)iGpffffb718 + 4), node);
+    if (cursor != (u8 *)sentinel)
         goto loop;
 done:
     return arg0;
@@ -2142,40 +2142,40 @@ s32 func_003cc170(void) {
     extern void func_003d4e00(void);
     extern void func_003d4e90(void);
     extern void func_003d4d70(void);
-    u8 *temp_2;
-    s32 var_2;
+    u8 *block;
+    s32 result;
 
-    temp_2 = D_008872E0 + iGpffffb9b8;
-    *(s32 *)(temp_2 + 0x3C) = 0;
-    *(s32 *)(temp_2 + 0x40) = 0;
-    *(s32 *)(temp_2 + 0x44) = 0;
-    *(s32 *)(temp_2 + 0x48) = 0;
-    *(s32 *)(temp_2 + 0x4C) = 0;
-    *(s32 *)(temp_2 + 0x50) = 0;
-    *(s32 *)(temp_2 + 0x54) = 0;
-    *(s32 *)(temp_2 + 0x58) = 0;
-    *(s32 *)(temp_2 + 0x5C) = 0;
-    var_2 = func_003d4d80();
-    if (var_2 != 0)
+    block = D_008872E0 + iGpffffb9b8;
+    *(s32 *)(block + 0x3C) = 0;
+    *(s32 *)(block + 0x40) = 0;
+    *(s32 *)(block + 0x44) = 0;
+    *(s32 *)(block + 0x48) = 0;
+    *(s32 *)(block + 0x4C) = 0;
+    *(s32 *)(block + 0x50) = 0;
+    *(s32 *)(block + 0x54) = 0;
+    *(s32 *)(block + 0x58) = 0;
+    *(s32 *)(block + 0x5C) = 0;
+    result = func_003d4d80();
+    if (result != 0)
         goto call_2;
 check_2:
-    if (var_2 != 0)
+    if (result != 0)
         goto call_3;
 check_3:
-    if (var_2 != 0)
+    if (result != 0)
         goto call_4;
 check_4:
-    if (var_2 != 0)
+    if (result != 0)
         goto success;
     goto fail;
 call_2:
-    var_2 = func_003d4ea0();
+    result = func_003d4ea0();
     goto check_2;
 call_3:
-    var_2 = func_003d4e10();
+    result = func_003d4e10();
     goto check_3;
 call_4:
-    var_2 = func_003cc370();
+    result = func_003cc370();
     goto check_4;
 fail:
     func_003cc460();
@@ -2265,25 +2265,25 @@ u8 *func_003cc2c0(void) {
     extern u8 D_0070B0A0[];
     extern u8 D_0070B0E0[];
     s32 sp[2];
-    s32 temp_2_2;
-    s32 temp_2_3;
-    u8 *temp_2;
+    s32 handle;
+    s32 handle2;
+    u8 *record;
 
-    temp_2 = (u8 *)func_004115d0();
-    if (temp_2 == NULL)
+    record = (u8 *)func_004115d0();
+    if (record == NULL)
         goto block_6;
-    *(s32 *)(temp_2 + 0x2C) = 1;
-    temp_2_2 = func_00412ca0((s32)temp_2);
-    if (temp_2_2 == 0)
+    *(s32 *)(record + 0x2C) = 1;
+    handle = func_00412ca0((s32)record);
+    if (handle == 0)
         goto cleanup;
-    temp_2_3 = func_00412fb0(temp_2_2, 0, D_0070B0A0, 0);
-    if (temp_2_3 == 0)
+    handle2 = func_00412fb0(handle, 0, D_0070B0A0, 0);
+    if (handle2 == 0)
         goto cleanup;
-    if (func_004125e0(temp_2_3) == 0)
+    if (func_004125e0(handle2) == 0)
         goto cleanup;
-    return temp_2;
+    return record;
 cleanup:
-    func_00411670((s32)temp_2);
+    func_00411670((s32)record);
 block_6:
     sp[0] = 2;
     sp[1] = func_003df590(0x80000006, D_0070B0E0);
@@ -2299,7 +2299,7 @@ block_6:
 #pragma schedule on
 // FUN_003CC460
 void func_003cc460(void) {
-    u8 *temp_2;
+    u8 *block;
 
     func_00410ab0(0, 2);
     func_00410ab0(0, 1);
@@ -2307,15 +2307,15 @@ void func_003cc460(void) {
     func_00410ab0(0, 5);
     func_00410ab0(0, 3);
     func_00410a40(0);
-    temp_2 = D_008872E0 + iGpffffb9b0;
-    *(s32 *)(temp_2 + 0x3C) = 0;
-    *(s32 *)(temp_2 + 0x38) = 0;
-    *(s32 *)(temp_2 + 0x30) = 0;
-    *(s32 *)(temp_2 + 0x2C) = 0;
-    *(s32 *)(temp_2 + 0x24) = 0;
-    *(s32 *)(temp_2 + 0x28) = 0;
-    *(s32 *)(temp_2 + 0x20) = 0;
-    func_00411670(*(s32 *)(temp_2 + 0x1C));
+    block = D_008872E0 + iGpffffb9b0;
+    *(s32 *)(block + 0x3C) = 0;
+    *(s32 *)(block + 0x38) = 0;
+    *(s32 *)(block + 0x30) = 0;
+    *(s32 *)(block + 0x2C) = 0;
+    *(s32 *)(block + 0x24) = 0;
+    *(s32 *)(block + 0x28) = 0;
+    *(s32 *)(block + 0x20) = 0;
+    func_00411670(*(s32 *)(block + 0x1C));
     *(s32 *)(D_008872E0 + iGpffffb9b0 + 0x1C) = 0;
 }
 /* measured: closes schedule-on probe for cc460 and restores file default. */
