@@ -1214,9 +1214,9 @@ block_20:
 s32 func_0024c460(u8 *arg0, u8 *work)
 {
     u8 *task;
-    u8 *checkTask;
+    u8 *loadTask;
     void *atlas;
-    s32 active;
+    s32 loaded;
     s32 flags;
     s32 frame;
     s32 alpha;
@@ -1227,12 +1227,12 @@ s32 func_0024c460(u8 *arg0, u8 *work)
     f32 y;
 
     task = func_00452380((s8 *)D_00635A78);
-    checkTask = func_00452380((s8 *)D_00635A78);
-    if (checkTask == 0) {
+    loadTask = func_00452380((s8 *)D_00635A78);
+    if (loadTask == 0) {
         func_0046d730(D_006359F0, 0x392);
     }
-    active = (*(u32 *)func_00452560(checkTask) & 1) != 0;
-    if (active == 0) {
+    loaded = (*(u32 *)func_00452560(loadTask) & 1) != 0;
+    if (loaded == 0) {
         func_0046d730(D_006359F0, 0x39D);
     }
     atlas = *(void **)(func_00452560(task) + 0x24);
