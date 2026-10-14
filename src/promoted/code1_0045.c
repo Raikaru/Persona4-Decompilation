@@ -1373,9 +1373,9 @@ void func_00456e40(void) {
         u8 pad[0x18];
         u8 sp70[0x18];
     } work;
-    u8 *var_18;
-    u8 *temp_2_2;
-    u8 *temp_2;
+    u8 *slot;
+    u8 *parent;
+    u8 *obj;
 
     *(s32 *)(work.sp70 + 0x14) = 0xC3160000;
     *(s32 *)(work.sp70 + 0x10) = 0xC3160000;
@@ -1383,65 +1383,65 @@ void func_00456e40(void) {
     *(s32 *)(work.sp70 + 8) = 0x43160000;
     *(s32 *)(work.sp70 + 4) = 0x43160000;
     *(s32 *)(work.sp70 + 0) = 0x43160000;
-    temp_2 = func_003c9eb0(work.sp70);
-    iGpffffba70 = (s32)temp_2;
-    if ((temp_2_2 = func_003c3d20(2)) != NULL) {
-        func_003c38b0(temp_2_2, D_00711800);
-        func_003cbe80(temp_2, temp_2_2);
+    obj = func_003c9eb0(work.sp70);
+    iGpffffba70 = (s32)obj;
+    if ((parent = func_003c3d20(2)) != NULL) {
+        func_003c38b0(parent, D_00711800);
+        func_003cbe80(obj, parent);
     }
-    iGpffffba74 = (s32)temp_2_2;
-    temp_2_2 = (u8 *)iGpffffba70;
-    if ((var_18 = func_003c3d20(1)) != NULL) {
-        if ((temp_2 = func_003e9320()) != NULL) {
-            *(s8 *)(var_18 + 2) = 1;
-            func_003e9df0(temp_2);
-            func_003efd20(var_18, temp_2);
-            func_003c38b0(var_18, D_00711810);
-            func_003cbe80(temp_2_2, var_18);
+    iGpffffba74 = (s32)parent;
+    parent = (u8 *)iGpffffba70;
+    if ((slot = func_003c3d20(1)) != NULL) {
+        if ((obj = func_003e9320()) != NULL) {
+            *(s8 *)(slot + 2) = 1;
+            func_003e9df0(obj);
+            func_003efd20(slot, obj);
+            func_003c38b0(slot, D_00711810);
+            func_003cbe80(parent, slot);
         } else {
-            func_003c3cc0(var_18);
+            func_003c3cc0(slot);
             goto loop_00456e40_second_done;
         }
     } else {
 loop_00456e40_second_done:
-        var_18 = NULL;
+        slot = NULL;
     }
-    iGpffffba78 = (s32)var_18;
-    temp_2_2 = (u8 *)iGpffffba70;
-    if ((var_18 = func_003c3d20(1)) != NULL) {
-        if ((temp_2 = func_003e9320()) != NULL) {
-            *(s8 *)(var_18 + 2) = 1;
-            func_003e9d50(temp_2, D_00756500, 0, 25.0f);
-            func_003e9d50(temp_2, D_00756510, 2, 170.0f);
-            func_003efd20(var_18, temp_2);
-            func_003c38b0(var_18, D_00711820);
-            func_003cbe80(temp_2_2, var_18);
+    iGpffffba78 = (s32)slot;
+    parent = (u8 *)iGpffffba70;
+    if ((slot = func_003c3d20(1)) != NULL) {
+        if ((obj = func_003e9320()) != NULL) {
+            *(s8 *)(slot + 2) = 1;
+            func_003e9d50(obj, D_00756500, 0, 25.0f);
+            func_003e9d50(obj, D_00756510, 2, 170.0f);
+            func_003efd20(slot, obj);
+            func_003c38b0(slot, D_00711820);
+            func_003cbe80(parent, slot);
         } else {
-            func_003c3cc0(var_18);
+            func_003c3cc0(slot);
             goto loop_00456e40_third_done;
         }
     } else {
 loop_00456e40_third_done:
-        var_18 = NULL;
+        slot = NULL;
     }
-    iGpffffba7c = (s32)var_18;
-    temp_2_2 = (u8 *)iGpffffba70;
+    iGpffffba7c = (s32)slot;
+    parent = (u8 *)iGpffffba70;
     func_003e8970(work.sp50, func_003e89c0());
-    if ((temp_2 = func_004574d0(*(s32 *)work.sp50, *(s32 *)(work.sp50 + 4), 1)) != NULL) {
-        func_003e81c0(temp_2, 25600.0f);
-        func_003e8180(temp_2, 20.0f);
-        func_003cbc10(temp_2_2, temp_2);
+    if ((obj = func_004574d0(*(s32 *)work.sp50, *(s32 *)(work.sp50 + 4), 1)) != NULL) {
+        func_003e81c0(obj, 25600.0f);
+        func_003e8180(obj, 20.0f);
+        func_003cbc10(parent, obj);
         *(s32 *)(work.sp40 + 0) = 0;
         *(s32 *)(work.sp40 + 4) = 0;
         *(s32 *)(work.sp40 + 8) = *(s32 *)work.sp50;
         *(s32 *)(work.sp40 + 0xC) = *(s32 *)(work.sp50 + 4);
-        func_004571d0(temp_2, work.sp40, 0.5f, fGpffff802c);
-        *(f32 *)(temp_2 + 0x88) = fGpffff8030;
+        func_004571d0(obj, work.sp40, 0.5f, fGpffff802c);
+        *(f32 *)(obj + 0x88) = fGpffff8030;
     }
-    iGpffffba80 = (s32)temp_2;
+    iGpffffba80 = (s32)obj;
     func_00440b68(D_00711830, func_00410360(),
-                  *(s32 *)(*(u8 **)(temp_2 + 0x60) + 0x14),
-                  *(s32 *)(*(u8 **)(temp_2 + 0x64) + 0x14));
+                  *(s32 *)(*(u8 **)(obj + 0x60) + 0x14),
+                  *(s32 *)(*(u8 **)(obj + 0x64) + 0x14));
 }
 // FUN_00457120
 s32 func_00457120(void)
@@ -1510,11 +1510,11 @@ void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     s64 source_qword;
     f32 source_value;
     f32 *fallback;
-    u8 *temp_18;
-    u8 *temp_17;
-    f32 *temp_16;
-    u8 *temp_4;
-    u8 *temp_4_2;
+    u8 *record;
+    u8 *basis;
+    f32 *refVec;
+    u8 *fwd;
+    u8 *up;
     f32 first_a;
     f32 first_c;
 
@@ -1524,107 +1524,106 @@ void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     local.qword = source_qword;
     local.value = source_value;
     if (arg3 == NULL) {
-        temp_16 = fallback;
+        refVec = fallback;
     } else {
-        temp_16 = arg3;
+        refVec = arg3;
     }
-    temp_18 = *(u8 **)(arg0 + 4);
-    temp_17 = temp_18 + 0x10;
-    *(Code45Vec3 *)(temp_18 + 0x40) = *(Code45Vec3 *)arg1;
-    *(f32 *)(temp_18 + 0x30) = *(f32 *)(arg2 + 0) - *(f32 *)(temp_18 + 0x40);
-    *(f32 *)(temp_18 + 0x34) = *(f32 *)(arg2 + 4) - *(f32 *)(temp_18 + 0x44);
-    *(f32 *)(temp_18 + 0x38) = *(f32 *)(arg2 + 8) - *(f32 *)(temp_18 + 0x48);
-    temp_4 = temp_17 + 0x20;
-    RwV3dNormalize((f32 *)temp_4, (f32 *)temp_4);
-    *(f32 *)(temp_17 + 0) =
-        *(f32 *)(temp_17 + 0x24) * temp_16[2] -
-        *(f32 *)(temp_17 + 0x28) * temp_16[1];
-    *(f32 *)(temp_17 + 4) =
-        *(f32 *)(temp_17 + 0x28) * temp_16[0] -
-        *(f32 *)(temp_17 + 0x20) * temp_16[2];
-    first_a = *(f32 *)(temp_17 + 0x24);
-    first_c = *(f32 *)(temp_17 + 0x20);
-    *(f32 *)(temp_17 + 8) =
-        first_c * temp_16[1] -
-        first_a * temp_16[0];
-    RwV3dNormalize((f32 *)temp_17, (f32 *)temp_17);
-    *(f32 *)(temp_17 + 0x10) =
-        *(f32 *)(temp_17 + 0x24) * *(f32 *)(temp_17 + 8) -
-        *(f32 *)(temp_17 + 0x28) * *(f32 *)(temp_17 + 4);
-    *(f32 *)(temp_17 + 0x14) =
-        *(f32 *)(temp_17 + 0x28) * *(f32 *)(temp_17 + 0) -
-        *(f32 *)(temp_17 + 0x20) * *(f32 *)(temp_17 + 8);
-    *(f32 *)(temp_17 + 0x18) =
-        *(f32 *)(temp_17 + 0x20) * *(f32 *)(temp_17 + 4) -
-        *(f32 *)(temp_17 + 0x24) * *(f32 *)(temp_17 + 0);
-    temp_4_2 = temp_17 + 0x10;
-    RwV3dNormalize((f32 *)temp_4_2, (f32 *)temp_4_2);
-    RwMatrixUpdate(temp_17);
-    func_003e9680(temp_18);
+    record = *(u8 **)(arg0 + 4);
+    basis = record + 0x10;
+    *(Code45Vec3 *)(record + 0x40) = *(Code45Vec3 *)arg1;
+    *(f32 *)(record + 0x30) = *(f32 *)(arg2 + 0) - *(f32 *)(record + 0x40);
+    *(f32 *)(record + 0x34) = *(f32 *)(arg2 + 4) - *(f32 *)(record + 0x44);
+    *(f32 *)(record + 0x38) = *(f32 *)(arg2 + 8) - *(f32 *)(record + 0x48);
+    fwd = basis + 0x20;
+    RwV3dNormalize((f32 *)fwd, (f32 *)fwd);
+    *(f32 *)(basis + 0) =
+        *(f32 *)(basis + 0x24) * refVec[2] -
+        *(f32 *)(basis + 0x28) * refVec[1];
+    *(f32 *)(basis + 4) =
+        *(f32 *)(basis + 0x28) * refVec[0] -
+        *(f32 *)(basis + 0x20) * refVec[2];
+    first_a = *(f32 *)(basis + 0x24);
+    first_c = *(f32 *)(basis + 0x20);
+    *(f32 *)(basis + 8) =
+        first_c * refVec[1] -
+        first_a * refVec[0];
+    RwV3dNormalize((f32 *)basis, (f32 *)basis);
+    *(f32 *)(basis + 0x10) =
+        *(f32 *)(basis + 0x24) * *(f32 *)(basis + 8) -
+        *(f32 *)(basis + 0x28) * *(f32 *)(basis + 4);
+    *(f32 *)(basis + 0x14) =
+        *(f32 *)(basis + 0x28) * *(f32 *)(basis + 0) -
+        *(f32 *)(basis + 0x20) * *(f32 *)(basis + 8);
+    *(f32 *)(basis + 0x18) =
+        *(f32 *)(basis + 0x20) * *(f32 *)(basis + 4) -
+        *(f32 *)(basis + 0x24) * *(f32 *)(basis + 0);
+    up = basis + 0x10;
+    RwV3dNormalize((f32 *)up, (f32 *)up);
+    RwMatrixUpdate(basis);
+    func_003e9680(record);
 }
 /* measured: close propagation-off probe for func_00457630. */
 #pragma opt_propagation on
 // FUN_004585C0
 void func_004585c0(u8 *arg0) {
-    s32 temp_17;
-    s32 var_19;
-    s32 var_18;
-    s32 temp_2;
+    s32 index;
+    s32 found;
+    s32 value;
 
-    var_18 = 0;
-    var_19 = 0;
+    found = 0;
+    index = 0;
     goto loop_004585c0_test;
 loop_004585c0_body:
-    temp_2 = (s32)func_003bd000((const RpMaterial *)arg0, var_19);
-    func_003bd040((RpUserDataArray *)temp_2);
-    if (strcmp(func_003bd040((RpUserDataArray *)temp_2), (const char *)D_00711870_abs) == 0) {
-        var_18 = 1;
+    value = (s32)func_003bd000((const RpMaterial *)arg0, index);
+    func_003bd040((RpUserDataArray *)value);
+    if (strcmp(func_003bd040((RpUserDataArray *)value), (const char *)D_00711870_abs) == 0) {
+        found = 1;
         goto loop_004585c0_done;
     }
-    var_19 += 1;
+    index += 1;
 loop_004585c0_test:
-    if (var_19 < func_003bcfb0((const RpMaterial *)arg0)) {
+    if (index < func_003bcfb0((const RpMaterial *)arg0)) {
         goto loop_004585c0_body;
     }
 loop_004585c0_done:
-    if (var_18 == 0) {
+    if (found == 0) {
         func_003bd0d0(
             (u8 *)func_003bd000(
                 (const RpMaterial *)arg0,
                 func_003bcfa0(
                     (RpMaterial *)arg0,
                     (char *)D_00711870_abs,
-                    (temp_2 = (s32)(
+                    (value = (s32)(
                         *(u8 *)(arg0 + 6) |
                         (*(u8 *)(arg0 + 5) << 8 |
                             (*(u8 *)(arg0 + 7) << 0x18 |
                                 (*(u8 *)(arg0 + 4) << 0x10)))), 1),
                     1)),
             0,
-            temp_2);
+            value);
     }
 }
 // FUN_004586F0
 void func_004586f0(u8 *arg0, u8 *arg1) {
-    s32 var_16;
-    s32 var_18;
+    s32 userData;
+    s32 index;
 
-    var_18 = 0;
+    index = 0;
     goto loop_004586f0_test;
 loop_004586f0_body:
-    var_16 = (s32)func_003bd000((const RpMaterial *)arg0, var_18);
-    if (strcmp(func_003bd040((RpUserDataArray *)var_16), (const char *)D_00711870_abs) != 0) {
-        var_18 += 1;
+    userData = (s32)func_003bd000((const RpMaterial *)arg0, index);
+    if (strcmp(func_003bd040((RpUserDataArray *)userData), (const char *)D_00711870_abs) != 0) {
+        index += 1;
         goto loop_004586f0_test;
     }
     goto loop_004586f0_done;
 loop_004586f0_test:
-    if (var_18 < func_003bcfb0((const RpMaterial *)arg0)) {
+    if (index < func_003bcfb0((const RpMaterial *)arg0)) {
         goto loop_004586f0_body;
     }
 loop_004586f0_done:
     func_003bd0d0(
-        (u8 *)var_16,
+        (u8 *)userData,
         0,
         *(u8 *)(arg1 + 2) |
         (*(u8 *)(arg1 + 1) << 8 |
