@@ -31,10 +31,10 @@ void func_0036d230(u8 *arg0);
 s32 func_0036d960(void);
 void func_0036da40(u8 *arg0, s32 arg1);
 s32 func_00347c70(u8 *arg0);
-u8 *func_00348160(u8 *arg0, s32 *arg1);
-void *func_00348290(u8 *arg0);
-void func_003482a0(u8 *arg0, u8 arg1, u8 arg2, u16 arg3);
-void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3);
+u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1);
+void *cmbCardEffState(u8 *arg0);
+void cmbCardEffSetParams(u8 *arg0, u8 arg1, u8 arg2, u16 arg3);
+void cmbCardEffSetPosition(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3);
 void func_00348a90(u8 *arg0, CmbVec3f src1, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f src2, f32 f4, f32 f5, f32 f6, f32 f7, CmbRGBA arg6);
 s32 *func_00331620(void);
 void RpSkyRenderStateSet(u32 arg0, u32 arg1);
@@ -612,7 +612,7 @@ s32 func_0033fc80(u8 *arg0) {
         while (i0 < 2) {
             cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
@@ -649,12 +649,12 @@ s32 func_0033fc80(u8 *arg0) {
                 slot = obj + (s32)i6 * 0x84;
                 table = table6 + 0x658;
                 fvalue = *(f32 *)(slot + 0x20) + 16.0f;
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x134) = fvalue;
                 fvalue = *(f32 *)(slot + 0x24);
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x138) = fvalue;
-                func_003482a0(*(u8 **)table, 0, 0x80, 0x3C);
+                cmbCardEffSetParams(*(u8 **)table, 0, 0x80, 0x3C);
                 i6++;
             }
             *(s16 *)(obj + 0x63C) = 7;
@@ -671,7 +671,7 @@ s32 func_0033fc80(u8 *arg0) {
             i8 = 0;
             while (i8 < 2) {
                 table = obj + (s32)i8 * 4;
-                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+                ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
                 *(s32 *)(ret + 0x11C) |= 2;
                 i8++;
             }
@@ -685,10 +685,8 @@ s32 func_0033fc80(u8 *arg0) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot = table + 0x658;
-                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
-                func_003482d0(*(u8 **)slot,
-                              *(CmbVec2f *)(ret + 0x134),
-                              func_002b2970(339.0f, 217.0f), 3);
+                ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
+                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -699,7 +697,7 @@ s32 func_0033fc80(u8 *arg0) {
         while (i10 < 2) {
             cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i10++;
         }
@@ -746,7 +744,7 @@ s32 func_003407f0(u8 *arg0) {
         while (i0 < 3) {
             cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
@@ -787,12 +785,12 @@ s32 func_003407f0(u8 *arg0) {
                 slot = obj + (s32)i6 * 0x84;
                 table = table6 + 0x658;
                 fvalue = *(f32 *)(slot + 0x20) + 16.0f;
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x134) = fvalue;
                 fvalue = *(f32 *)(slot + 0x24);
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x138) = fvalue;
-                func_003482a0(*(u8 **)table, 0, 0x80, 0x32);
+                cmbCardEffSetParams(*(u8 **)table, 0, 0x80, 0x32);
                 i6++;
             }
             *(s16 *)(obj + 0x63C) = 7;
@@ -808,7 +806,7 @@ s32 func_003407f0(u8 *arg0) {
             i8 = 0;
             while (i8 < 3) {
                 table = obj + (s32)i8 * 4;
-                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+                ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
                 *(s32 *)(ret + 0x11C) |= 2;
                 i8++;
             }
@@ -822,8 +820,8 @@ s32 func_003407f0(u8 *arg0) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot = table + 0x658;
-                ret = (u8 *)func_00348290(*(u8 **)slot);
-                func_003482d0(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                ret = (u8 *)cmbCardEffState(*(u8 **)slot);
+                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -835,7 +833,7 @@ s32 func_003407f0(u8 *arg0) {
         while (i10 < 3) {
             cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i10++;
         }
@@ -883,7 +881,7 @@ s32 func_00341640(u8 *arg0) {
         while (i0 < 4) {
             cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
@@ -929,12 +927,12 @@ s32 func_00341640(u8 *arg0) {
                 slot = obj + (s32)i6 * 0x84;
                 table = table6 + 0x658;
                 fvalue = *(f32 *)(slot + 0x20) + 16.0f;
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x134) = fvalue;
                 fvalue = *(f32 *)(slot + 0x24);
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x138) = fvalue;
-                func_003482a0(*(u8 **)table, 0, 0x80, 0x32);
+                cmbCardEffSetParams(*(u8 **)table, 0, 0x80, 0x32);
                 i6++;
             }
             *(s16 *)(obj + 0x63C) = 7;
@@ -950,7 +948,7 @@ s32 func_00341640(u8 *arg0) {
             i8 = 0;
             while (i8 < 4) {
                 table = obj + (s32)i8 * 4;
-                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+                ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
                 *(s32 *)(ret + 0x11C) |= 2;
                 i8++;
             }
@@ -964,8 +962,8 @@ s32 func_00341640(u8 *arg0) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot = table + 0x658;
-                ret = (u8 *)func_00348290(*(u8 **)slot);
-                func_003482d0(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                ret = (u8 *)cmbCardEffState(*(u8 **)slot);
+                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -977,7 +975,7 @@ s32 func_00341640(u8 *arg0) {
         while (i10 < 4) {
             cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i10++;
         }
@@ -1024,7 +1022,7 @@ s32 func_003427a0(u8 *arg0) {
         while (i0 < 5) {
             cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
@@ -1076,12 +1074,12 @@ s32 func_003427a0(u8 *arg0) {
                 slot2 = obj + (s32)i6 * 0x84;
                 table = table6 + 0x658;
                 fvalue = *(f32 *)(slot2 + 0x20) + 16.0f;
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x134) = fvalue;
                 fvalue = *(f32 *)(slot2 + 0x24);
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x138) = fvalue;
-                func_003482a0(*(u8 **)table, 0, 0x80, 0x32);
+                cmbCardEffSetParams(*(u8 **)table, 0, 0x80, 0x32);
                 i6++;
             }
             *(s16 *)(obj + 0x63C) = 7;
@@ -1097,7 +1095,7 @@ s32 func_003427a0(u8 *arg0) {
             i8 = 0;
             while (i8 < 5) {
                 table = obj + (s32)i8 * 4;
-                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+                ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
                 *(s32 *)(ret + 0x11C) |= 2;
                 i8++;
             }
@@ -1111,8 +1109,8 @@ s32 func_003427a0(u8 *arg0) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot2 = table + 0x658;
-                ret = (u8 *)func_00348290(*(u8 **)slot2);
-                func_003482d0(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                ret = (u8 *)cmbCardEffState(*(u8 **)slot2);
+                cmbCardEffSetPosition(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -1124,7 +1122,7 @@ s32 func_003427a0(u8 *arg0) {
         while (i10 < 5) {
             cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i10++;
         }
@@ -1170,7 +1168,7 @@ s32 func_00343cf0(u8 *arg0) {
         while (i0 < 6) {
             cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
@@ -1229,12 +1227,12 @@ s32 func_00343cf0(u8 *arg0) {
                 slot2 = obj + (s32)i6 * 0x84;
                 table = table6 + 0x658;
                 fvalue = *(f32 *)(slot2 + 0x20) + 16.0f;
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x134) = fvalue;
                 fvalue = *(f32 *)(slot2 + 0x24);
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x138) = fvalue;
-                func_003482a0(*(u8 **)table, 0, 0x80, 0x32);
+                cmbCardEffSetParams(*(u8 **)table, 0, 0x80, 0x32);
                 i6++;
             }
             *(s16 *)(obj + 0x63C) = 7;
@@ -1250,7 +1248,7 @@ s32 func_00343cf0(u8 *arg0) {
             i8 = 0;
             while (i8 < 6) {
                 table = obj + (s32)i8 * 4;
-                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+                ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
                 *(s32 *)(ret + 0x11C) |= 2;
                 i8++;
             }
@@ -1264,8 +1262,8 @@ s32 func_00343cf0(u8 *arg0) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot2 = table + 0x658;
-                ret = (u8 *)func_00348290(*(u8 **)slot2);
-                func_003482d0(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                ret = (u8 *)cmbCardEffState(*(u8 **)slot2);
+                cmbCardEffSetPosition(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -1277,7 +1275,7 @@ s32 func_00343cf0(u8 *arg0) {
         while (i10 < 6) {
             cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i10++;
         }
@@ -1324,7 +1322,7 @@ s32 func_00345700(u8 *arg0) {
         while (i0 < 12) {
             cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
@@ -1392,14 +1390,14 @@ s32 func_00345700(u8 *arg0) {
                 slot = obj + (s32)i6 * 0x84;
                 table = table6 + 0x658;
                 fvalue = *(f32 *)(slot + 0x20) + 12.0f;
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x134) = fvalue;
                 fvalue = *(f32 *)(slot + 0x24);
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x138) = fvalue;
-                func_003482a0(*(u8 **)table, 0, 0x80, 0x32);
+                cmbCardEffSetParams(*(u8 **)table, 0, 0x80, 0x32);
                 fvalue = iGpffff8508;
-                ret = (u8 *)func_00348290(*(u8 **)table);
+                ret = (u8 *)cmbCardEffState(*(u8 **)table);
                 *(f32 *)(ret + 0x1A0) = fvalue;
                 i6++;
             }
@@ -1421,7 +1419,7 @@ s32 func_00345700(u8 *arg0) {
             i8 = 0;
             while (i8 < 12) {
                 table = obj + (s32)i8 * 4;
-                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+                ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
                 *(s32 *)(ret + 0x11C) |= 2;
                 i8++;
             }
@@ -1435,10 +1433,8 @@ s32 func_00345700(u8 *arg0) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(0x143, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot = table + 0x658;
-                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
-                func_003482d0(*(u8 **)slot,
-                              *(CmbVec2f *)(ret + 0x134),
-                              func_002b2970(0x153, 217.0f), 3);
+                ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
+                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(0x153, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -1450,7 +1446,7 @@ s32 func_00345700(u8 *arg0) {
         while (i10 < 12) {
             cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
-            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i10++;
         }
@@ -1479,23 +1475,23 @@ void func_00347940(u8 *arg0) {
     }
     switch (*(s8 *)(obj + 0x63E)) {
     case 6:
-        *(u32 *)(obj + 0x670) = (u32)func_00348160(arg0, func_00331620());
-        *(u32 *)(obj + 0x674) = (u32)func_00348160(arg0, func_00331620());
-        *(u32 *)(obj + 0x678) = (u32)func_00348160(arg0, func_00331620());
-        *(u32 *)(obj + 0x67C) = (u32)func_00348160(arg0, func_00331620());
-        *(u32 *)(obj + 0x680) = (u32)func_00348160(arg0, func_00331620());
-        *(u32 *)(obj + 0x684) = (u32)func_00348160(arg0, func_00331620());
+        *(u32 *)(obj + 0x670) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x674) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x678) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x67C) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x680) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x684) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
     case 5:
-        *(u32 *)(obj + 0x66C) = (u32)func_00348160(arg0, func_00331620());
+        *(u32 *)(obj + 0x66C) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
     case 4:
-        *(u32 *)(obj + 0x668) = (u32)func_00348160(arg0, func_00331620());
+        *(u32 *)(obj + 0x668) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
     case 3:
-        *(u32 *)(obj + 0x664) = (u32)func_00348160(arg0, func_00331620());
+        *(u32 *)(obj + 0x664) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
     case 2:
-        *(u32 *)(obj + 0x660) = (u32)func_00348160(arg0, func_00331620());
+        *(u32 *)(obj + 0x660) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
     case 1:
-        *(u32 *)(obj + 0x658) = (u32)func_00348160(arg0, func_00331620());
-        *(u32 *)(obj + 0x65C) = (u32)func_00348160(arg0, func_00331620());
+        *(u32 *)(obj + 0x658) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x65C) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
         break;
     }
 }
@@ -1619,15 +1615,17 @@ s32 func_00347c70(u8 *task)
     return 0;
 }
 #pragma pop
+/* Effect task destructor: forwards the state block to jump-table slot 0. */
 // FUN_00348130
-void func_00348130(u8 *arg0) {
+void cmbCardEffDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
 
 
+/* Effect task with a 0x1B0-byte state block: arg1 at +0x118, three white colours, unit scale at +0x1A0. */
 // FUN_00348160
-u8 *func_00348160(u8 *arg0, s32 *arg1) {
+u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1) {
     FclDrawColor color;
     u8 *ret;
     u8 *blk;
@@ -1635,7 +1633,7 @@ u8 *func_00348160(u8 *arg0, s32 *arg1) {
 
     func_0044ea90(D_0064A4A0, 0x702);
     blk = D_008873F4[0](1, 0x1B0, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A5D0), 0xF, 0, 0, func_00347c70, func_00348130, (u8 *)(blk));
+    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A5D0), 0xF, 0, 0, func_00347c70, cmbCardEffDestroy, (u8 *)(blk));
     *(s32 **)(blk + 0x118) = arg1;
     *(s32 *)(blk + 0x11C) = 0;
     for (i = 0; i < 3; i++) {
@@ -1646,13 +1644,15 @@ u8 *func_00348160(u8 *arg0, s32 *arg1) {
     return ret;
 }
 
+/* Returns the effect's state block (task +0x38). */
 // FUN_00348290
-void *func_00348290(u8 *arg0) {
+void *cmbCardEffState(u8 *arg0) {
     return *(void **)(arg0 + 0x38);
 }
 
+/* Sets the mode bytes (+0x193, +0x19B, +0x197) and the 16-bit parameter at +0x19E; clears +0x19C. */
 // FUN_003482A0
-void func_003482a0(u8 *arg0, u8 arg1, u8 arg2, u16 arg3) {
+void cmbCardEffSetParams(u8 *arg0, u8 arg1, u8 arg2, u16 arg3) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     *(u32 *)(obj + 0x11C) |= 0x10;
     *(u8 *)(obj + 0x19B) = arg1;
@@ -1662,8 +1662,9 @@ void func_003482a0(u8 *arg0, u8 arg1, u8 arg2, u16 arg3) {
     *(u16 *)(obj + 0x19E) = arg3;
 }
 
+/* Sets the position at +0x134 (copied to +0x124), the target at +0x12C, and the timer at +0x13C. */
 // FUN_003482D0
-void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3) {
+void cmbCardEffSetPosition(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     *(u32 *)(obj + 0x11C) |= 4;
     *(CmbVec2f *)(obj + 0x134) = arg1;
