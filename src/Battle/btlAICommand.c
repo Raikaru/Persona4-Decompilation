@@ -468,10 +468,8 @@ next_unit:
 
 
 // FUN_001DB8D0
-s32 btlCond_MYHOJO(u8 *arg0) {
-    /* lint: allow H011 -- retail MYHOJO passes one argument; a1 is not set before the jal at 0x1db8e0 */
-    extern s32 func_002340c0();
-    return (s32)(func_002340c0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) != 0);
+s32 btlCond_MYHOJO(u8 *arg0, s32 arg1) {
+    return (s32)(func_002340c0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), arg1) != 0);
 }
 
 // FUN_001DB900
