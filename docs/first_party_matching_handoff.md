@@ -25,11 +25,21 @@ compiles to the retail instructions, every relocation resolves to the retail
 symbol and addend, any missing suffix of the window is retail zero
 alignment, and the C preserves the observed behavior and ABI.
 
-## October 13 continuation: `00320b80`, `002ac750`, `004a7830`, `0016bdd0` and `0014f310` MATCH; compiler rules for the last two
+## October 13 continuation: six functions MATCH (`00320b80`, `002ac750`, `004a7830`, `0016bdd0`, `0014f310`, `0048b340`); compiler rules for the last one
 
-**6,858 MATCH / 2 ASM** (`build/after59.json`; link in `build/link65.log`).
-Remaining: `0048b340` 9, `001d8010` 25. Each function comment records the
-measured attempts.
+**6,859 MATCH / 1 ASM** (`build/after60.json`; link in `build/link67.log`).
+Remaining: `001d8010` 25. Its function comment records the measured attempts.
+
+`0048b340` (9 -> 5 -> 4 -> 0, `5f435ee1`, `e36ade9b`, `d3e80792`, Code1aMatch2):
+- A native `lqc2 $vf10, 0(anchor)` replaces the GNU input-binding copy and
+  gives the anchor its exact web.
+- The last edits came from `IRO_SplitLifetimes` (`0x005ac960`), which skips
+  any variable with an inline-asm def or use (ENode kind 0x13). With
+  `opt_lifetimes on`, `k` is reused for both interpolation counters, and the
+  existing `src1` history cursor drives the linear phase, named directly in
+  a native `sqc2 $vf10, 0(src1)`. That keeps `src1`'s clear/shift/linear
+  web whole, while the second `k` web is numbered after the 255.0f transfer.
+- Owner 73/73.
 
 `0014f310` (14 -> 4 -> 0, `19ad500d`, `f9bfe995`, Code1aMatch2): each
 phase-local `uintptr_t` first holds the genuine mode-query result and then
@@ -150,7 +160,7 @@ Targets from the remaining-11 snapshot, with recorded counts and subsequent upda
 | `00162e10` | 0 (MATCH, `8e4df6ff`) | the weekday search is an inline predicate with the genuine early `return 0` of matched sibling `001623f0`; that second zero survives allocation (found score 4, `$s5`) and post-colour CSE deletes it. Owner 42/42 |
 | `004a7830` | 0 (MATCH, `6065a219`) | see the October 13 section: explicit float phase values plus O3's early copy coalescer for the partial product. Owner 92/92 |
 | `00320b80` | 0 (MATCH, `c096f0b5`) | see the October 13 section: `gridMode` snapshot in the traversal's `for` initializer, plus a shared grid-row helper taking `s64 renderedRow` narrowed once to `s32`. Owner 70/70 |
-| `0048b340` | 9 | linear anchor needs a late identity |
+| `0048b340` | 0 (MATCH, `d3e80792`) | see the October 13 section: native VU anchor, plus IRO_SplitLifetimes skipping asm-touched variables (reused `k`, `src1` cursor). Owner 73/73 |
 | `0014f310` | 0 (MATCH, `f9bfe995`) | see the October 13 section: phase-local `uintptr_t` mode/resource lifetimes plus a typed pointer-member output argument. Owner 21/21 |
 | `001d8010` | 25 | sort `limit`/`j` numbering |
 | `002b6ec0` | 0 (MATCH) | allocator replay (`regalloc_whatif`) showed both the work-table base and `off` must be late-numbered (temporaries, not declared locals). `queue = (s16 *)table;` was a copy use pinning `table`; one `s16 *queue` loaded once and read through `(u8 *)queue` frees it (28 -> 23). `entryOffset = (u32)off;` pinned `off`; forming `entryOffset` once before the active test closes it (23 -> 0). Owner 58/58, elig clean, lint 8 -> 7 |
