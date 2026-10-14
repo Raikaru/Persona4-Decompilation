@@ -3348,17 +3348,6 @@ EffectStateHeader *func_0038f400(const u32 *arg0)
     }
     return result;
 }
-// FUN_0038F590
-void func_0038f590(u8 *allocation)
-{
-    jtbl_008873EC[0](allocation);
-}
-// FUN_0038F600
-void func_0038f600(u8 *arg0) {
-    *(s32 *)(arg0 + 0) = 0;
-    *(s32 *)(arg0 + 4) = 0;
-    D_007246AC = arg0;
-}
 
 #pragma schedule on
 #pragma no_branch_likely on
