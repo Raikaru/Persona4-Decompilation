@@ -196,21 +196,6 @@ void func_00244540(void)
     }
     func_00246450((s32)temp_f20);
 }
-// FUN_002447C0
-void func_002447c0(void)
-{
-    f32 temp_f20;
-    f32 temp_f21;
-
-    if (func_00246480() != 0) {
-        temp_f20 = func_00245030(0x13, 0);
-        temp_f20 += func_00245030(0x1A, 0);
-    } else {
-        temp_f21 = func_00245030(0x1A, 0);
-        temp_f20 = D_00761260 * temp_f21 + func_00245030(0x13, 0);
-    }
-    func_00246450((s32)temp_f20);
-}
 // FUN_00244870
 void func_00244870(void)
 {
@@ -237,57 +222,6 @@ void func_00244870(void)
     }
     func_00246450((s32)temp_f0);
 }
-// FUN_002449C0
-void func_002449c0(void)
-{
-    f32 temp_f20;
-    f32 temp_f0;
-
-    if (func_00246480() != 0) {
-        temp_f20 = (50.0f + func_00245030(0xD, 4)) /
-                   (50.0f + func_00245030(0xE, 4));
-        temp_f0 = func_00245030(0x14, 0);
-        temp_f0 *= temp_f20;
-    } else {
-        temp_f20 = (50.0f + func_00245030(0xD, 4)) /
-                   (50.0f + func_00245030(0xE, 4));
-        temp_f0 = fGpffff811c * mul_f32_ordered(func_00245030(0x14, 0), temp_f20);
-    }
-    func_00246450((s32)temp_f0);
-}
-// FUN_00244AD0
-void func_00244ad0(void)
-{
-    func_00246480();
-    func_00246450(func_00245030(0x15, 0));
-}
-// FUN_00244B10
-void func_00244b10(void)
-{
-    f32 temp_f21;
-    f32 temp_f20;
-
-    temp_f20 = 100.0f + func_00245030(0xD, 3);
-    temp_f21 = temp_f20 / (100.0f + func_00245030(0xE, 3));
-    temp_f20 = 100.0f + func_00245030(0xD, 4);
-    temp_f20 = 75.0f * (temp_f21 * (temp_f20 / (100.0f + func_00245030(0xE, 4))));
-    temp_f20 += 5.0f * func_00245030(0x22, 0);
-    func_00246450((s32)temp_f20);
-}
-// FUN_00244C10
-void func_00244c10(void)
-{
-    f32 temp_f20;
-
-    temp_f20 = 3.0f * (func_00245030(1, 0) - 1.0f) + 2.0f;
-    temp_f20 *= func_00245030(0x10, 0);
-    if (temp_f20 > 0.0f) {
-        temp_f20 = 50.0f * (func_00245030(0xD, 4) / temp_f20);
-    } else {
-        temp_f20 = 1.0f;
-    }
-    func_00246450((s32)temp_f20);
-}
 // FUN_00244CF0
 void func_00244cf0(void)
 {
@@ -313,34 +247,6 @@ void func_00244cf0(void)
     temp_f20 *= func_00245030(0x1B, 0);
     temp_f1 = temp_f20 * func_00245030(0x21, 0);
     temp_f0 = temp_f1 * fGpffff811c;
-    func_00246450((s32)temp_f0);
-}
-// FUN_00244E20
-void func_00244e20(void)
-{
-    f32 temp_f20;
-    f32 temp_f0;
-    f32 temp_f1;
-
-    if (func_00246480() != 0) {
-        temp_f20 = func_00245030(0x12, 0);
-        temp_f20 *= func_00245030(0x10, 0);
-        temp_f0 = func_00245030(0xD, 4);
-        temp_f0 = add_f32_ordered(100.0f, temp_f0);
-        temp_f20 *= temp_f0;
-        temp_f0 = func_00245030(0xE, 4);
-        temp_f0 = add_f32_ordered(100.0f, temp_f0);
-        temp_f0 = temp_f20 / temp_f0;
-    } else {
-        temp_f20 = func_00245030(0x12, 0);
-        temp_f20 *= func_00245030(0x10, 0);
-        temp_f0 = func_00245030(0xD, 4);
-        temp_f0 = add_f32_ordered(100.0f, temp_f0);
-        temp_f20 *= temp_f0;
-        temp_f0 = add_f32_ordered(100.0f, func_00245030(0xE, 4));
-        temp_f1 = temp_f20 / temp_f0;
-        temp_f0 = fGpffff811c * temp_f1;
-    }
     func_00246450((s32)temp_f0);
 }
 // FUN_00246550
