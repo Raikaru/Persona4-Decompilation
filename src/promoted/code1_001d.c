@@ -2262,80 +2262,13 @@ u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
     arg0 = (u8 *)(u32)iGpffffb3b8;
     return (arg0 + (arg2 & 0xFFFF) * 0x28)[8];
 }
-/* 2026-10-08: opt_loop_invariants on with opt_lifetimes on lowers fnalign from 709 to 511 edits.
- * 2026-10-09: 511 -> 495: `mode` is u16 (retail daddiu + andi 0xFFFF), the
- * non-sky remap is a switch with cases 0/4 (mode 2) before 1/5 (mode 3), and
- * the count test is `<= 1` (slti $at).
- * 2026-10-09: 495 -> 457: `entries` is declared after `stk` (retail puts the
- * Entry table below the float scratch), and the scratch views are plain
- * `&stk[n]` (with the `(f32 *)` cast, b210 hoists their addresses into saved
- * registers).
- * 2026-10-09: 457 -> 450: the hasFlag selections are ternaries (retail joins
- * the two loads and then masks once).
- * 2026-10-09: 450 -> 367: the current-unit search is a `for` loop that breaks on a
- * match, and the wrap-around pick is `entries[nn - 1]` with no mask.
- * 2026-10-09: 367 -> 363: in the 0/1 case the anchor centre is fetched before
- * func_001d8df0, whose result goes straight into func_00196040.
- * 2026-10-09: 363 -> 358: the sort loops compare through an `Entry *e` for the
- * lower slot, and the inner counter is u16.
- * 2026-10-09: 358 -> 346: the sort index is `u16 jj = j` and the upper slot is
- * indexed `entries[(j & 0xFFFF) + 1]`. Retail keeps the two address forms
- * separate, as here.
- * 2026-10-09: 346 -> 235: the gathered idx stores `(u16)i` with no mask, so b210
- * does not keep the masked counter live across the body. That frees $s7 and
- * the frame drops to retail's 0x180.
- * 2026-10-09: 235 -> 226: case 2/3's search is the same for-break loop, followed
- * by `(i & 0xFFFF) == nn`.
- * 2026-10-09: 226 -> 199: the search body indexes `entries[(u16)i]`; with the
- * loop-test spelling, b210 reuses the test's mask instead of re-masking.
- * 2026-10-09: 199 -> 185: the gather loops index the unit list with `(u16)i`.
- * 2026-10-09: 185 -> 179: the chain depth walk is a for loop over the node list that
- * breaks at the unit.
- * 2026-10-09: 179 -> 172: declaration order of the function-scope scalars.
- * 2026-10-09: 172 -> 123: case 4/5 keeps the camera in its own block local `cam`
- * rather than reusing arg0.
- * 2026-10-09: 123 -> 113: the neighbour picks use the masked index from the
- * search test (`(i & 0xFFFF) + 1 == nn`, `((i & 0xFFFF) - 1) & 0xFFFF`).
- * 2026-10-09: 113 -> 105: the depth walk declares `node` before `depth`.
- * 2026-10-09: 105 -> 101: the facing dot product is written x term first.
- * 2026-10-09: the next-neighbour pick indexes `entries[((i & 0xFFFF) + 1) & 0xFFFF]`,
- * reusing the compare's sum as retail does (structurally exact there; 101 -> 105
- * edits on register colouring).
- * 2026-10-09: 105 -> 87: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 91: the swap flags are int (retail tests them without a byte mask).
- * 84: local integer types as retail.
- * 77: local integer types as retail.
- * third sort's count copy is s32 (retail subtracts without re-masking).
- */
-/* measured 2026-10-12: restored stale-index reaching definitions reduce fnalign 37 -> 25 edits.
- * The first two gather counts share the selected-index halfword; the filtered gather has its own count.
- * The 0x180 frame and all 747 instructions match in shape; only the three sort-bound register roles remain.
- * 2026-10-13 replay: the bound closes only below j (r44, i.e. limit surviving as its declared local) or
- * after the compare (r320); j closes only if numbered right after the bound temp. Measured non-levers:
- * limit = nn; limit-- (frontend rewrites to a hoisted nn - 1 numbered after j but before the compare, 68),
- * nn - 1 in the condition (hoisted one level, 68), an inline sort taking limit (variable argument is
- * substituted, 25 unchanged) or nn - 1 (47), and reusing n/hasFlag as the bound (37/599).
- * Capture build/code1a1d_sort_captures/native_bound_order: limit r43 folds into the addiu temp r278
- * during backend copy propagation (unconditional in every O2+ pipeline). --at 278=43.5 or 320.5, or
- * j 44=278.5, gives retail. Whole-sort/pass/pair/cursor helpers and a u16 j stay 25. The matched
- * btlAICommand sibling form (u32 count, (s32)c - 1 in the test) hoists the bound before the do but
- * keeps the colours (28). O1 + common_subs/propagation fixes the bound but regresses (189); O3 90.
- * Without opt_lifetimes the body regresses (191; reusing i/n for j 273/248, bound still $v0); with it,
- * reusing i for j stays 25. Micro pv0/pv1: a call-argument copy of the same variable in another web
- * does not keep the bound's web (propagation is per web). */
-/* measured: 25 -> 18 -> 11 edits. Both score sorts test the live selected count;
- * hoisting creates real bound copies, and reusing the gather cursor splits its later lifetimes. */
-// FUN_001D8010 NONMATCHING
-/* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
- * Structure: early count<2 return, D_008C027A 0x2000/8000/1000/4000 -> mode 5/4/2/3 with D_008C0276 hasFlag, 1d8df0==1 remap (5/1->3, 4/0->2), switch in object order 4/5,0/1,2/3 sharing bodies via jtbl_00747110, u16 entry idx/chain (Entry[12] at sp+0x90 -> sp+0x120 exactly), three bubble sorts (score/score/chain, descending), chain filter over *(D_0076449C+0x17C) via +0xA68, 1ec3d0 transform for 0/1, shared tail storing *(arg1+0x3A) with +0x3C|1.
- * Phases measured (probe_variants, cwd REPO): v1 separate floats 695, v2 stk[24]+Entry[12] 687 best, v3 s64 mode 699 (regresses, retail daddiu not reached via s64), v4 s32 mode+arg0 reuse+m-inside 687 tie best (banked), v5 u16 counters+dummy s16 687 tie, v6 u16+s16 depth 696 (regresses). (s64)(x<<0x30)>>0x30 tried as s16 depth, regresses.
- * v7 branch-layout (this session): head PROJ divide == -> != with arms swapped (matches the per-entry != site, div-first + bc1t at both), two score stores < -> >= with arms swapped (POS/dist-first like retail). 720 -> 709 edits (-5 head, -6 stores, additive); words 687 -> 689 (+2 from c.olt->c.ole/bc1f at the two store compares, the documented arms-corrected tradeoff). Rejected: nested else-if remap (722, duplicates mode=3), swapped=1/while/bound sorts (727, +9 instrs), s64 mode/hasFlag (722/720/722).
- * Blockers for MATCH: 0/1 dot uses mula.s/madd.s accumulator (plain C gives mul/add, 2-word MAC floor per compiler-floors), mode sets need daddiu (6 words, s64 tried, still addiu), frame retail -0x180 vs candidate -0x1a0 (+32, extra s7/f22/f23 saves from 8 live ints vs 7), integer/FPR coloring (arg1 s0/mode s1/arg0 s2/hasFlag s3/n s4/i s5/unit s6) and stack offsets (entries 0x90, fixed 0x120-0x17C) remain.
- * Guarded floor, production stays INCLUDE_ASM; verify.py src/promoted/code1_001d.c still 91 MATCH/3 ASM, no regression. */
-#ifdef SKIP_ASM
 #pragma push
+/* measured: 25 -> 18 -> 11 -> 0. Hoisting retains the live-count bound copies;
+ * opt_lifetimes splits the reused gather counters after those bounds. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
+/* Select a neighbouring battle target by screen position, facing, or chain order. */
+// FUN_001D8010
 void func_001d8010(u8 *arg0, u8 *arg1) {
     extern void btlUnitGetSphereWorldCenter(u8 *a0, f32 *a1);
     extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
@@ -2425,6 +2358,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
                 stk[22] = 640.0f * (PROJ[0] / PROJ[2]);
                 stk[23] = 448.0f * (PROJ[1] / PROJ[2]);
             } else {
+                /* Retail overwrites the anchor; stk[22..23] remain stale or unset. */
                 stk[20] = 640.0f * PROJ[0];
                 stk[21] = 448.0f * PROJ[1];
             }
@@ -2573,23 +2507,26 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     }
     case 2:
     case 3: {
+        u8 *unit;
+        u8 *ud;
+        u8 *node;
+        /* Keep the halfword depth wrap; its finished lifetime becomes the swap flag. */
+        s32 depth;
+
         n = 0;
         i = 0;
         while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
-            u8 *unit = *(u8 **)(arg1 + ((u16)i * 4));
+            unit = *(u8 **)(arg1 + ((u16)i * 4));
             if ((*(u16 *)(unit + 0x1A) & 1) != 0) {
-                u8 *ud = *(u8 **)(unit + 0x30);
+                ud = *(u8 **)(unit + 0x30);
                 if (*(u8 *)(ud + 0xA2) == 0) {
-                    u8 *node;
-                    u16 depth;
-
                     depth = 0;
                     node = *(u8 **)(D_0076449C + 0x17C);
                     for (; node != 0; node = *(u8 **)(node + 0xA68)) {
                         if (node == ud) {
                             break;
                         }
-                        depth++;
+                        depth = (depth + 1) & 0xFFFF;
                     }
                     entries[n & 0xFFFF].unit = unit;
                     entries[n & 0xFFFF].idx = (u16)i;
@@ -2603,31 +2540,27 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             return;
         }
         if ((n & 0xFFFF) >= 2) {
-            s32 swapped;
-            s32 nn = n & 0xFFFF;
-            s32 limit = nn - 1;
             do {
-                s32 j;
-                swapped = 0;
-                j = 0;
-                while ((j & 0xFFFF) < limit) {
-                    if (entries[(u16)j].chain < entries[(j & 0xFFFF) + 1].chain) {
-                        u8 *tp = entries[(u16)j].unit;
+                depth = 0;
+                i = 0;
+                while ((i & 0xFFFF) < (n & 0xFFFF) - 1) {
+                    if (entries[(u16)i].chain < entries[(i & 0xFFFF) + 1].chain) {
+                        u8 *tp = entries[(u16)i].unit;
                         u16 tc;
 
-                        selected = entries[(u16)j].idx;
-                        tc = entries[(u16)j].chain;
-                        entries[(u16)j].unit = entries[(j & 0xFFFF) + 1].unit;
-                        entries[(u16)j].idx = entries[(j & 0xFFFF) + 1].idx;
-                        entries[(u16)j].chain = entries[(j & 0xFFFF) + 1].chain;
-                        entries[(j & 0xFFFF) + 1].unit = tp;
-                        entries[(j & 0xFFFF) + 1].idx = selected;
-                        entries[(j & 0xFFFF) + 1].chain = tc;
-                        swapped = 1;
+                        selected = entries[(u16)i].idx;
+                        tc = entries[(u16)i].chain;
+                        entries[(u16)i].unit = entries[(i & 0xFFFF) + 1].unit;
+                        entries[(u16)i].idx = entries[(i & 0xFFFF) + 1].idx;
+                        entries[(u16)i].chain = entries[(i & 0xFFFF) + 1].chain;
+                        entries[(i & 0xFFFF) + 1].unit = tp;
+                        entries[(i & 0xFFFF) + 1].idx = selected;
+                        entries[(i & 0xFFFF) + 1].chain = tc;
+                        depth = 1;
                     }
-                    j = (j + 1) & 0xFFFF;
+                    i = (i + 1) & 0xFFFF;
                 }
-            } while (swapped != 0);
+            } while (depth != 0);
         }
         {
             u8 *curPtr = func_001d8bc0(arg1);
@@ -2673,9 +2606,6 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
 #undef DELTA
 #undef DIR
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8010);
-#endif
 // FUN_001D8C00
 u8 *func_001d8c00(u8 *arg0)
 {
