@@ -259,15 +259,15 @@ extern u8 D_00559800[];
 extern u8 D_938A00[];
 extern u8 D_A0000[];
 u8 *func_00100230(void) {
-    s32 temp_2;
-    u8 *temp_16;
-    temp_16 = (u8 *)((u32)0x02000000 + (u32)((-0x2000 - (s32)&D_A0000) - (s32)&D_938A00));
-    temp_2 = func_0043ece8(temp_16 - 16);
-    if (temp_2 == 0) {
+    s32 status;
+    u8 *base;
+    base = (u8 *)((u32)0x02000000 + (u32)((-0x2000 - (s32)&D_A0000) - (s32)&D_938A00));
+    status = func_0043ece8(base - 16);
+    if (status == 0) {
         func_00440b68(&D_00559800);
     }
-    func_0043ed08(temp_2);
-    return temp_16 - 16;
+    func_0043ed08(status);
+    return base - 16;
 }
 // FUN_001002C0
 s32 func_001002c0(void) {
@@ -830,8 +830,8 @@ void func_00100e60(void)
 // FUN_00101270
 s32 func_00101270(void)
 {
-    s32 temp_3;
-    s32 temp_3_2;
+    s32 counter0;
+    s32 counter1;
 
     if (iGpffff85b8 != 0) {
         iGpffff85b8 = 0;
@@ -851,13 +851,13 @@ s32 func_00101270(void)
     func_00466580();
     func_003e5510(1);
 block_5:
-    temp_3 = iGpffffb1a0;
-    if (temp_3 != -1) {
-        iGpffffb1a0 = temp_3 + 1;
+    counter0 = iGpffffb1a0;
+    if (counter0 != -1) {
+        iGpffffb1a0 = counter0 + 1;
     }
-    temp_3_2 = iGpffffb19c;
-    if (temp_3_2 != -1) {
-        iGpffffb19c = temp_3_2 + 1;
+    counter1 = iGpffffb19c;
+    if (counter1 != -1) {
+        iGpffffb19c = counter1 + 1;
     }
     return 1;
 }
@@ -907,34 +907,34 @@ void func_001013a0(void)
 // FUN_00102780
 s32 func_00102780(u8 *arg0)
 {
-    s32 temp_2;
-    s32 temp_3;
-    s32 temp_4;
-    u8 *temp_16;
+    s32 remaining;
+    s32 kind;
+    s32 handle;
+    u8 *state;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_3 = *(s32 *)(temp_16 + 4);
-    if (temp_3 > -1) {
-        if (*(s32 *)temp_16 & 1) {
-            temp_2 = *(s32 *)(temp_16 + 0xC);
-            if (temp_2 <= 0) {
-                (*(void (**)(s32))((u8 *)D_005DCC64 + temp_3 * 0x50))(*(s32 *)(temp_16 + 0x14));
-                temp_4 = *(s32 *)(temp_16 + 0x14);
-                if (temp_4 != 0) {
-                    jtbl_008873EC[0]((u8 *)(u32)temp_4);
+    state = *(u8 **)(arg0 + 0x38);
+    kind = *(s32 *)(state + 4);
+    if (kind > -1) {
+        if (*(s32 *)state & 1) {
+            remaining = *(s32 *)(state + 0xC);
+            if (remaining <= 0) {
+                (*(void (**)(s32))((u8 *)D_005DCC64 + kind * 0x50))(*(s32 *)(state + 0x14));
+                handle = *(s32 *)(state + 0x14);
+                if (handle != 0) {
+                    jtbl_008873EC[0]((u8 *)(u32)handle);
                 }
-                *(s32 *)(temp_16 + 0x14) = 0;
-                *(s32 *)temp_16 &= ~1;
+                *(s32 *)(state + 0x14) = 0;
+                *(s32 *)state &= ~1;
             } else {
-                *(s32 *)(temp_16 + 0xC) = temp_2 - 1;
+                *(s32 *)(state + 0xC) = remaining - 1;
             }
             goto block_10;
         }
-        if ((*(s32 (**)(void))((u8 *)D_005DCC68 + temp_3 * 0x50))() == 1) {
+        if ((*(s32 (**)(void))((u8 *)D_005DCC68 + kind * 0x50))() == 1) {
             return 0;
         }
-        *(s32 *)(temp_16 + 4) = -1;
-        *(s32 *)(temp_16 + 0x10) = 0;
+        *(s32 *)(state + 4) = -1;
+        *(s32 *)(state + 0x10) = 0;
     }
 block_10:
     return 0;
@@ -981,15 +981,15 @@ void func_001035a0(void) {
 // FUN_00103600
 void func_00103600(void)
 {
-    u8 *temp_16;
+    u8 *fnTable;
 
-    temp_16 = (u8 *)D_00887300;
-    (*(void (**)(s32, s32))temp_16)(6, 1);
-    (*(void (**)(s32, s32))temp_16)(8, 1);
-    (*(void (**)(s32, s32))temp_16)(9, 1);
-    (*(void (**)(s32, s32))temp_16)(0xC, 1);
-    (*(void (**)(s32, s32))temp_16)(7, 2);
-    (*(void (**)(s32, s32))temp_16)(1, iGpffffb9e8);
+    fnTable = (u8 *)D_00887300;
+    (*(void (**)(s32, s32))fnTable)(6, 1);
+    (*(void (**)(s32, s32))fnTable)(8, 1);
+    (*(void (**)(s32, s32))fnTable)(9, 1);
+    (*(void (**)(s32, s32))fnTable)(0xC, 1);
+    (*(void (**)(s32, s32))fnTable)(7, 2);
+    (*(void (**)(s32, s32))fnTable)(1, iGpffffb9e8);
     RpSkyRenderStateSet(2, 0x44);
     RpSkyRenderStateSet(3, 0x717FB);
 }
@@ -1118,11 +1118,11 @@ loop2_check:
 }
 // FUN_00103980
 void func_00103980(u8 *arg0) {
-    u8 *temp_16;
+    u8 *state;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    func_00460a50(*(s32 *)(temp_16 + 4));
-    func_00460a50(*(s32 *)(temp_16 + 8));
+    state = *(u8 **)(arg0 + 0x38);
+    func_00460a50(*(s32 *)(state + 4));
+    func_00460a50(*(s32 *)(state + 8));
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_001039E0
@@ -1515,23 +1515,23 @@ void func_00104770(s64 arg0, u8 arg1) {
 }
 // FUN_001047B0
 void func_001047b0(s64 arg0, s32 arg1) {
-    s32 temp_6;
+    s32 offset;
 
-    temp_6 = (s16)arg0 * 0x370;
-    *(s32 *)(D_00796750 + temp_6) = arg1;
+    offset = (s16)arg0 * 0x370;
+    *(s32 *)(D_00796750 + offset) = arg1;
     if (arg1 != 0) {
-        *(s32 *)(D_00796754 + temp_6) = 1;
-        *(s32 *)(D_0079675C + temp_6) = 0;
-        *(s32 *)(D_00796758 + temp_6) = 2;
+        *(s32 *)(D_00796754 + offset) = 1;
+        *(s32 *)(D_0079675C + offset) = 0;
+        *(s32 *)(D_00796758 + offset) = 2;
     }
 }
 // FUN_00104830
 void func_00104830(s64 arg0) {
-    s16 *temp_5;
+    s16 *entry;
 
-    temp_5 = (s16 *)(D_00796700 + ((s16)arg0 * 0x370));
-    if (*temp_5 == 3) {
-        *temp_5 = 4;
+    entry = (s16 *)(D_00796700 + ((s16)arg0 * 0x370));
+    if (*entry == 3) {
+        *entry = 4;
     }
 }
 // FUN_00104880
