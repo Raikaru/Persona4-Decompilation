@@ -171,13 +171,13 @@ typedef struct CalendarState {
 } CalendarState;
 
 extern u8 *iGpffffb1dc;
-extern s32 func_00123b70(u8 *arg0);
+extern s32 clndPromptUpdate(u8 *arg0);
 extern u8 D_005E5170[];
 extern u8 D_005E5180[];
 extern u8 D_005E5190[];
 extern u8 D_005E51A0[];
 extern u8 D_005E51B0[];
-extern void func_00123d50(u8 *arg0);
+extern void clndPromptDestroy(u8 *arg0);
 extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
 extern void func_0046d730(const void *file, s32 line);
 extern u8 D_005E5548[];
@@ -1394,7 +1394,7 @@ s16 func_00123b40(void) {
     return -1;
 }
 // FUN_00123B70
-s32 func_00123b70(u8 *arg0)
+s32 clndPromptUpdate(u8 *arg0)
 {
     s32 temp_2_2;
     s32 temp_2_3;
@@ -1463,13 +1463,13 @@ block_20:
     return 0;
 }
 // FUN_00123D50
-void func_00123d50(u8 *arg0)
+void clndPromptDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_00123D80
-s32 func_00123d80(void)
+s32 clndPromptStart(void)
 {
     s32 temp_2;
     func_0044ea90(D_005E51A0, 0x84);
@@ -1477,7 +1477,7 @@ s32 func_00123d80(void)
     if (temp_2 == 0) {
         temp_2 = 0;
     } else {
-        temp_2 = (s32)func_00451fc0((void *)(0), (const void *)(D_005E51B0), 0xF, 0, 0, func_00123b70, func_00123d50, (u8 *)((u8 *)temp_2));
+        temp_2 = (s32)func_00451fc0((void *)(0), (const void *)(D_005E51B0), 0xF, 0, 0, clndPromptUpdate, clndPromptDestroy, (u8 *)((u8 *)temp_2));
         if (temp_2 == 0)
             temp_2 = 0;
     }
@@ -1485,7 +1485,7 @@ s32 func_00123d80(void)
     return 1;
 }
 // FUN_00123E30
-s32 func_00123e30(void)
+s32 clndPromptFinished(void)
 {
     if (func_004522d0(iGpffffb1e0) == 3) {
         iGpffffb1e0 = 0;
@@ -1495,7 +1495,7 @@ s32 func_00123e30(void)
 }
 
 // FUN_00123E80
-s32 func_00123e80(u8 *arg0)
+s32 clndSceneUpdate(u8 *arg0)
 {
     extern s32 func_00122520(s32 arg0, s32 arg1);
     extern void func_00111050(s32 arg0);
