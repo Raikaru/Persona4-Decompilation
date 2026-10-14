@@ -1,14 +1,7 @@
 /* Source unit: src/Battle/btlAction_001a1100.c */
 #include "include_asm.h"
 #include "type.h"
-
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
+#include "btl_action_internal.h"
 
 typedef u32 (*BtlPacketFunc)(void* work);
 
@@ -23,24 +16,6 @@ struct BtlPacket
     BtlPacketFunc destroyFunc; // 0x70
     u8 _pad74[4];              // 0x74
     void* workData;            // 0x78
-};
-
-typedef struct BtlAction BtlAction;
-struct BtlAction
-{
-    u64 uid;               // 0x00
-    u8 _pad08[0x4];        // 0x08
-    u16 currState;         // 0x0c
-    u16 pendingState;      // 0x0e
-    u16 oldState;          // 0x10
-    u16 pendingStateTimer; // 0x12
-    u16 state;             // 0x14
-    u16 _pad16;            // 0x16
-    u16 _pad18;            // 0x18
-    u16 _pad1a;            // 0x1a
-    u32 stateTimer;        // 0x1c
-    u8 _pad20[0x10];       // 0x20
-    void* unit;            // 0x30
 };
 
 extern u32 btlUnitIsMoving(void* unit);
