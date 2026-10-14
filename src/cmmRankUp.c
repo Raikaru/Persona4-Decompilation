@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 /* Original translation unit cmmRankUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "primitive_point_buffer.h"
@@ -40,7 +41,6 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void func_0044ea90(void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);
-extern u8 *MT_Scene_GetRes(s32 size);
 extern void func_0047a6d0(s32 arg0, s32 arg1, void *arg2);
 extern void func_00189ec0();
 extern void func_00268bd0(s32 arg0, s32 arg1);

@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "model_motion_internal.h"
 /* Original translation unit k_fldUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -53,7 +54,6 @@ extern u8 *func_00163990(u32 arg0, u8 *arg1, s32 arg2);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern u32 RpRandom(void);
-extern Resrc *MT_Scene_GetRes(u16 arg0);
 extern void func_0047aa30(u8 *arg0, u8 *arg1);
 extern s32 func_0014c780(void);
 extern void func_0017b9a0(s32 arg0, f32 arg1);

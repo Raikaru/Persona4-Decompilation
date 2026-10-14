@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 /* Whole-file translation unit: src/Event/mt_misc.c */
 
 /* Source unit: src/Event/mt_misc_00290ec0.c */
@@ -5,7 +6,6 @@
 #include "scene_event_internal.h"
 
 extern int func_00145250();
-extern int MT_Scene_GetRes();
 extern int MT_Scene_DestroyRes();
 extern u16 func_001459b0(u32, int, u64);
 extern void func_00440b68(...);

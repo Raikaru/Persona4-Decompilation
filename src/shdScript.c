@@ -1,3 +1,4 @@
+#include "mt_scene_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Original translation unit shdScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -15,7 +16,6 @@ extern u8 *D_00636820[];
 extern u8 D_00636838[];
 extern u8 D_00636850[];
 typedef struct Resrc Resrc;
-extern Resrc *MT_Scene_GetRes(u16 arg0);
 extern s32 func_0026bc10(u32 resourceId, u32 value);
 extern s64 func_002bab80(void *arg0);
 extern void strcpy(u8 *arg0, u8 *arg1);

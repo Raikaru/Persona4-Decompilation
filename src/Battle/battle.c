@@ -1,10 +1,10 @@
+#include "mt_scene_internal.h"
 /* Source unit: src/Battle/battle_00192560.c */
 #include "include_asm.h"
 #include "type.h"
 
 static u64 iGpffffa090 = 1;
 
-extern void* MT_Scene_GetRes(u16 resTypeId);
 
 static u16 iGpffffa098 = 0x100;
 
