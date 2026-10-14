@@ -1725,13 +1725,13 @@ s32 func_0024f160(u8 *arg0)
     s32 result;
     s32 i;
     s32 id;
-    s32 handle;
-    s32 handle2;
+    s32 task;
+    s32 loadTask;
     s32 rec;
     s32 state;
     s32 resource;
     s32 signal;
-    s32 active;
+    s32 loaded;
     u32 random;
     f32 value;
     u8 color[4];
@@ -1795,16 +1795,16 @@ s32 func_0024f160(u8 *arg0)
             func_0045aeb0((s16)(2), (const char *)(D_00635B50));
         }
 
-        handle = (s32)func_00452380((s8 *)(D_00635A78));
-        handle2 = (s32)func_00452380((s8 *)(D_00635A78));
-        if (handle2 == 0) {
+        task = (s32)func_00452380((s8 *)(D_00635A78));
+        loadTask = (s32)func_00452380((s8 *)(D_00635A78));
+        if (loadTask == 0) {
             func_0046d730(D_006359F0, 0x392);
         }
-        active = (*(s32 *)(s32)func_00452560((void *)(u32)(handle2)) & 1) != 0;
-        if (active == 0) {
+        loaded = (*(s32 *)(s32)func_00452560((void *)(u32)(loadTask)) & 1) != 0;
+        if (loaded == 0) {
             func_0046d730(D_006359F0, 0x3A6);
         }
-        rec = (s32)func_00452560((void *)(u32)(handle));
+        rec = (s32)func_00452560((void *)(u32)(task));
         if (*(s32 *)(rec + 0x18) != 0) {
             resource = func_0025ff60(*(s32 *)(rec + 0x18));
         } else {
