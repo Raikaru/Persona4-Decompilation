@@ -52,8 +52,8 @@ extern u8 D_00714390[];
 extern u8 D_007143A4[];
 extern u8 D_00714460[];
 extern u8 D_00714474[];
-extern u8 *func_004aaee0(u32 arg0, const void *arg1);
-extern u8 *func_004ab420(u32 arg0, s32 arg1);
+extern u8 *effBlurFilterCopiedCreate(u32 arg0, const void *arg1);
+extern u8 *effBlurFilterDirectCreate(u32 arg0, s32 arg1);
 
 typedef struct BlurRefObj {
     s32 f0;
@@ -1360,11 +1360,12 @@ void func_004aad30(u8 *arg0) {
 }
 
 /* measured: 372B/window 384B; only three zero-padding words remain.
-   As in func_004ab420, the narrowed callback index and one-use header span
+   As in effBlurFilterDirectCreate, the narrowed callback index and one-use header span
    retain 0x60 in the saved constant register. This initializer receives
    the copied-data pointer reloaded from the object, not initialData. */
+/* Creates a node whose initializer receives the node's own copy of the parameter block. */
 // FUN_004AAEE0
-u8 *func_004aaee0(u32 type, const void *initialData)
+u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData)
 {
     s32 (*initialize)(u8 *);
     s32 kind;
@@ -1409,8 +1410,9 @@ u8 *func_004aaee0(u32 type, const void *initialData)
    if-block (nd 24), obj2-first declaration order, s32 obj2 + cast,
    nested-if, #pragma schedule on (nd 46) — all nd 4. Same shape as the
    documented bpc 00245420 floor (retail move-before-load). */
+/* Rebuilds a node from a record's parameter block and attaches its texture sub-object. */
 // FUN_004AB060
-void *func_004ab060(void *arg0) {
+void *effBlurFilterCopiedInstantiate(void *arg0) {
     s32 temp_2_2;
     s32 temp_2_3;
     u8 *temp_2;
@@ -1419,7 +1421,7 @@ void *func_004ab060(void *arg0) {
     if (temp_2_2 == 0) {
         func_0046d730(D_00714380, 0x660);
     }
-    temp_2 = (u8 *)func_004aaee0(*(u16 *)((u8 *)arg0 + 0xC), (const void *)temp_2_2);
+    temp_2 = (u8 *)effBlurFilterCopiedCreate(*(u16 *)((u8 *)arg0 + 0xC), (const void *)temp_2_2);
     if (temp_2 == 0) {
         func_0046d730(D_00714380, 0x662);
     }
@@ -1430,8 +1432,9 @@ void *func_004ab060(void *arg0) {
     return temp_2;
 }
 
+/* Rebuilds a node from a record's data pointer and attaches its texture sub-object. */
 // FUN_004AB5A0
-void *func_004ab5a0(void *param_1) {
+void *effBlurFilterDirectInstantiate(void *param_1) {
     u8 *tmp;
     u16 *tex;
 
@@ -1439,7 +1442,7 @@ void *func_004ab5a0(void *param_1) {
     if (tmp == 0) {
         func_0046d730(D_00714380, 0x72B);
     }
-    tmp = func_004ab420(*(u16 *)((char *)param_1 + 0xC), (s32)tmp);
+    tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0xC), (s32)tmp);
     if (tmp == 0) {
         func_0046d730(D_00714380, 0x72D);
     }
@@ -1450,8 +1453,9 @@ void *func_004ab5a0(void *param_1) {
     return tmp;
 }
 
+/* Destroys a node: runs the type's destructor, releases its sub-object, and frees it. */
 // FUN_004AB140
-void func_004ab140(void *param_1) {
+void effBlurFilterCopiedDestroy(void *param_1) {
     if (*(void **)((char *)param_1 + 0x20) != 0) {
         ((void (*)(void *))(*(u32 *)(D_00714394 + *(s32 *)((char *)param_1 + 0x18) * 24)))(*(void **)((char *)param_1 + 0x20));
     }
@@ -1461,35 +1465,40 @@ void func_004ab140(void *param_1) {
     (*jtbl_008873EC)(param_1);
 }
 
+/* Duplicates a node from its own type and copied parameter block and takes a reference on its sub-object. */
 // FUN_004AB1C0
-void *func_004ab1c0(void *param_1) {
+void *effBlurFilterCopiedDuplicate(void *param_1) {
     u8 *tmp;
 
-    tmp = func_004aaee0(*(u16 *)((char *)param_1 + 0x18), *(const void **)((char *)param_1 + 0x24));
+    tmp = effBlurFilterCopiedCreate(*(u16 *)((char *)param_1 + 0x18), *(const void **)((char *)param_1 + 0x24));
     if ((*(void **)((char *)param_1 + 0x28) != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
         *(s32 *)(tmp + 0x28) = (s32)func_004abb00(*(void **)((char *)param_1 + 0x28));
     }
     return tmp;
 }
 
+/* Clears the step counter at +0x1C. */
 // FUN_004AB250
-void func_004ab250(void *param_1) {
+void effBlurFilterCopiedResetCounter(void *param_1) {
     *(s32 *)((char *)param_1 + 0x1C) = 0;
 }
 
+/* Runs the type's update handler, then increments the step counter at +0x1C. */
 // FUN_004AB260
-void func_004ab260(void *param_1) {
+void effBlurFilterCopiedAdvance(void *param_1) {
     ((void (*)(void *))(*(u32 *)(D_00714398 + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
     *(s32 *)((char *)param_1 + 0x1C) += 1;
 }
 
+/* Calls the type's secondary handler for the node. */
 // FUN_004AB2C0
-void func_004ab2c0(void *param_1) {
+void effBlurFilterCopiedDispatch(void *param_1) {
     ((void (*)(void *))(*(u32 *)(D_0071439C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
 }
 
+/* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to func_00460ac0. */
 // FUN_004AB300
-void func_004ab300(u8 *param_1) {
+void effBlurFilterCopiedSync(u8 *param_1) {
     u8 *p;
     if (*(s32 *)(param_1 + 0x1C) > 0) {
         p = *(u8 **)(param_1 + 0x24);
@@ -1498,8 +1507,9 @@ void func_004ab300(u8 *param_1) {
         func_00460ac0(func_004814d0(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
+/* Runs the update handler, increments the step counter, and syncs once it is positive. */
 // FUN_004AB360
-void func_004ab360(u8 *param_1) {
+void effBlurFilterCopiedAdvanceAndSync(u8 *param_1) {
     s32 count;
     u8 *p;
     ((void (*)(void *))(*(u32 *)(D_00714398 + *(s32 *)(param_1 + 0x18) * 24)))(param_1);
@@ -1514,20 +1524,23 @@ void func_004ab360(u8 *param_1) {
 }
 typedef signed __int128 s128;
 
+/* Copies a 128-bit value into the node's first field and returns it. */
 // FUN_004AB3F0
-s128 func_004ab3f0(void *param_1, const void *param_2) {
+s128 effBlurFilterCopiedStoreVector(void *param_1, const void *param_2) {
     s128 temp = *(const s128 *)param_2;
     *(s128 *)param_1 = temp;
     return temp;
 }
 
+/* Stores an s32 at +0x10 of the node. */
 // FUN_004AB400
-void func_004ab400(void *param_1, s32 param_2) {
+void effBlurFilterCopiedSetCount(void *param_1, s32 param_2) {
     *(s32 *)((char *)param_1 + 0x10) = param_2;
 }
 
+/* Stores an f32 at +0x14 of the node (1.0f from the constructor by default). */
 // FUN_004AB410
-void func_004ab410(void *param_1, f32 param_2) {
+void effBlurFilterCopiedSetScale(void *param_1, f32 param_2) {
     *(f32 *)((char *)param_1 + 0x14) = param_2;
 }
 
@@ -1536,8 +1549,9 @@ void func_004ab410(void *param_1, f32 param_2) {
    named so b210 retains 0x60, not 0xFFFF, in the saved constant register.
    The unsigned size assertion and allocation-before-size declaration
    order preserve the remaining retail allocation and call sequence. */
+/* Creates a node whose initializer receives the caller's data pointer rather than a copy. */
 // FUN_004AB420
-u8 *func_004ab420(u32 type, s32 initialData)
+u8 *effBlurFilterDirectCreate(u32 type, s32 initialData)
 {
     s32 (*initialize)(s32);
     s32 kind;
@@ -1573,8 +1587,9 @@ u8 *func_004ab420(u32 type, s32 initialData)
     return object;
 }
 
+/* Destroys a node: runs the type's destructor, releases its sub-object, and frees it. */
 // FUN_004AB680
-void func_004ab680(void *param_1) {
+void effBlurFilterDirectDestroy(void *param_1) {
     if (*(void **)((char *)param_1 + 0x20) != 0) {
         ((void (*)(void *))(*(u32 *)(D_00714464 + *(s32 *)((char *)param_1 + 0x18) * 24)))(*(void **)((char *)param_1 + 0x20));
     }
@@ -1584,35 +1599,40 @@ void func_004ab680(void *param_1) {
     (*jtbl_008873EC)(param_1);
 }
 
+/* Duplicates a node from its own type and direct data pointer and takes a reference on its sub-object. */
 // FUN_004AB700
-void *func_004ab700(void *param_1) {
+void *effBlurFilterDirectDuplicate(void *param_1) {
     u8 *tmp;
 
-    tmp = func_004ab420(*(u16 *)((char *)param_1 + 0x18), *(s32 *)((char *)param_1 + 0x24));
+    tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0x18), *(s32 *)((char *)param_1 + 0x24));
     if ((*(void **)((char *)param_1 + 0x28) != 0) && (*(s8 *)(D_00714470 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
         *(s32 *)(tmp + 0x28) = (s32)func_004abb00(*(void **)((char *)param_1 + 0x28));
     }
     return tmp;
 }
 
+/* Clears the step counter at +0x1C. */
 // FUN_004AB790
-void func_004ab790(void *param_1) {
+void effBlurFilterDirectResetCounter(void *param_1) {
     *(s32 *)((char *)param_1 + 0x1C) = 0;
 }
 
+/* Runs the type's update handler, then increments the step counter at +0x1C. */
 // FUN_004AB7A0
-void func_004ab7a0(void *param_1) {
+void effBlurFilterDirectAdvance(void *param_1) {
     ((void (*)(void *))(*(u32 *)(D_00714468 + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
     *(s32 *)((char *)param_1 + 0x1C) += 1;
 }
 
+/* Calls the type's secondary handler for the node. */
 // FUN_004AB800
-void func_004ab800(void *param_1) {
+void effBlurFilterDirectDispatch(void *param_1) {
     ((void (*)(void *))(*(u32 *)(D_0071446C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
 }
 
+/* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to func_00460ac0. */
 // FUN_004AB840
-void func_004ab840(u8 *param_1) {
+void effBlurFilterDirectSync(u8 *param_1) {
     u8 *p;
     if (*(s32 *)(param_1 + 0x1C) > 0) {
         p = *(u8 **)(param_1 + 0x24);
@@ -1621,8 +1641,9 @@ void func_004ab840(u8 *param_1) {
         func_00460ac0(func_004814d0(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
+/* Runs the update handler, increments the step counter, and syncs once it is positive. */
 // FUN_004AB8A0
-void func_004ab8a0(u8 *param_1) {
+void effBlurFilterDirectAdvanceAndSync(u8 *param_1) {
     s32 count;
     u8 *p;
     ((void (*)(void *))(*(u32 *)(D_00714468 + *(s32 *)(param_1 + 0x18) * 24)))(param_1);
@@ -1635,20 +1656,23 @@ void func_004ab8a0(u8 *param_1) {
         func_00460ac0(func_004814d0(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
+/* Copies a 128-bit value into the node's first field and returns it. */
 // FUN_004AB930
-s128 func_004ab930(void *param_1, const void *param_2) {
+s128 effBlurFilterDirectStoreVector(void *param_1, const void *param_2) {
     s128 temp = *(const s128 *)param_2;
     *(s128 *)param_1 = temp;
     return temp;
 }
 
+/* Stores an s32 at +0x10 of the node. */
 // FUN_004AB940
-void func_004ab940(void *param_1, s32 param_2) {
+void effBlurFilterDirectSetCount(void *param_1, s32 param_2) {
     *(s32 *)((char *)param_1 + 0x10) = param_2;
 }
 
+/* Stores an f32 at +0x14 of the node (1.0f from the constructor by default). */
 // FUN_004AB950
-void func_004ab950(void *param_1, f32 param_2) {
+void effBlurFilterDirectSetScale(void *param_1, f32 param_2) {
     *(f32 *)((char *)param_1 + 0x14) = param_2;
 }
 

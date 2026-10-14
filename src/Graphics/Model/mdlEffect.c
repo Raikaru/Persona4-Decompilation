@@ -601,16 +601,18 @@ done:
 
 
 
+/* Copies one 0x90-byte record from source to destination. */
 // FUN_00486710
-void func_00486710(u8 *destination, u8 *source)
+void mdlEffectCopyRecord(u8 *destination, u8 *source)
 {
   memcpy(destination, source, 0x90);
 }
 
 
 
+/* Walks the node list at root+0x8c (linked through +0xac) and returns the node whose id at +0x90 matches identifier, or NULL. */
 // FUN_00486740
-u8 *func_00486740(u8 *root, s32 identifier)
+u8 *mdlEffectFindNodeById(u8 *root, s32 identifier)
 {
   u8 *node;
 
@@ -1228,8 +1230,9 @@ u_long128 func_00492e10(int param_1, u32 *param_2)
 
 
 
+/* Stores 0 in the slot-table entry for param_2 (table at +0x18); -1 is the free state. */
 // FUN_004946D0
-void func_004946d0(int param_1, u32 param_2)
+void mdlEffectSlotSetZero(int param_1, u32 param_2)
 {
   u32 index;
   u8 *base;
@@ -1243,8 +1246,9 @@ void func_004946d0(int param_1, u32 param_2)
 
 
 
+/* Stores -1 (the free state) in the slot-table entry for param_2. */
 // FUN_004946F0
-void func_004946f0(int param_1, u32 param_2)
+void mdlEffectSlotRelease(int param_1, u32 param_2)
 {
   s16 value;
   u32 index;
@@ -1261,8 +1265,9 @@ void func_004946f0(int param_1, u32 param_2)
 
 
 
+/* Returns 1 when the slot-table entry for param_2 holds -1 (free). */
 // FUN_00494710
-u8 func_00494710(int param_1, u32 param_2)
+u8 mdlEffectSlotIsFree(int param_1, u32 param_2)
 {
   u32 index;
   u8 *base;

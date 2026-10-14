@@ -8,8 +8,8 @@ extern u8 iGpffffa7a8;
  * several call sites below pass an argument (a0 is set by the caller), which a
  * (void) prototype would forbid. */
 s32 *func_00452560();
-void func_004ab680(s32 arg0);
-void func_004ab140(s32 arg0);
+void effBlurFilterDirectDestroy(s32 arg0);
+void effBlurFilterCopiedDestroy(s32 arg0);
 extern void (*jtbl_008873EC[])(void *);
 
 void func_0044ea90(const void *msg, s32 id);
@@ -54,7 +54,7 @@ extern code DAT_008873ec_abs[];
 
 typedef struct { f32 x, y, z; } SVec3;
 typedef unsigned int EvtU128 __attribute__((mode(TI)));
-u8 *func_004ab420(s32 type, void *data);
+u8 *effBlurFilterDirectCreate(s32 type, void *data);
 u8 *func_004ab960(u16 *texture, u16 kind);
 extern u8 D_0063C648[];
 
@@ -170,11 +170,11 @@ s32 func_0028d280(u8 *unusedTask) {
     temp_3 = temp_2[0];
     switch (temp_3) {
     case 0:
-        func_004ab8a0(temp_2[1]);
+        effBlurFilterDirectAdvanceAndSync(temp_2[1]);
         temp_2[2] = temp_2[2] + 1;
         break;
     case 1:
-        func_004ab360(temp_2[1]);
+        effBlurFilterCopiedAdvanceAndSync(temp_2[1]);
         temp_2[2] = temp_2[2] + 1;
         break;
     }
@@ -190,10 +190,10 @@ void func_0028d310(u8 *unusedTask) {
     temp_3 = temp_2[0];
     switch (temp_3) {
     case 0:
-        func_004ab680(temp_2[1]);
+        effBlurFilterDirectDestroy(temp_2[1]);
         break;
     case 1:
-        func_004ab140(temp_2[1]);
+        effBlurFilterCopiedDestroy(temp_2[1]);
         break;
     }
     jtbl_008873EC[0](temp_2);
@@ -322,7 +322,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
         func_0044ea90(D_0063C638, 0x11E0);
         task1 = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task1[0] = 0;
-        task1[1] = (s32)func_004ab420(1, &frame.filter1);
+        task1[1] = (s32)effBlurFilterDirectCreate(1, &frame.filter1);
         task1[3] = frame.filter1.params.valueB8;
         (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task1));
         break;
@@ -428,7 +428,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
         }
         frame.filter1.argument = arg2[0x2A];
 
-        filter2 = func_004ab420(2, &frame.filter2);
+        filter2 = effBlurFilterDirectCreate(2, &frame.filter2);
         *(s32 *)(filter2 + 0x28) =
             (s32)func_004ab960((u16 *)&frame.filter1.argument, 4);
         func_0044ea90(D_0063C638, 0x11E0);
@@ -437,7 +437,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
         if (filter2 != NULL) {
             task2[1] = (s32)filter2;
         } else {
-            task2[1] = (s32)func_004ab420(2, &frame.filter2);
+            task2[1] = (s32)effBlurFilterDirectCreate(2, &frame.filter2);
         }
         task2[3] = frame.filter2.params.valueB8;
         (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task2));
@@ -458,7 +458,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
 #pragma opt_lifetimes on
 s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
 {
-    extern u8 *func_004aaee0(u32 type, const void *parameters);
+    extern u8 *effBlurFilterCopiedCreate(u32 type, const void *parameters);
     extern u8 D_0063C660[];
     typedef struct { EvtFilterParams params; u8 extra[0x28]; } F28;
     typedef struct { EvtFilterParams params; u8 extra[0x2C]; } F2C;
@@ -573,7 +573,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         func_0044ea90(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
-        task[1] = (s32)func_004aaee0(1, &f1.params);
+        task[1] = (s32)effBlurFilterCopiedCreate(1, &f1.params);
         task[3] = f1.params.valueB8;
         return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
     case 2:
@@ -665,7 +665,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             } while (blocks > 0);
         }
         argSave = arg2[0x2A];
-        tmp = func_004aaee0(2, &f2.params);
+        tmp = effBlurFilterCopiedCreate(2, &f2.params);
         *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
         func_0044ea90(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
@@ -673,7 +673,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         if (tmp != NULL) {
             task[1] = (s32)tmp;
         } else {
-            task[1] = (s32)func_004aaee0(2, &f2.params);
+            task[1] = (s32)effBlurFilterCopiedCreate(2, &f2.params);
         }
         task[3] = f2.params.valueB8;
         return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
@@ -781,7 +781,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             } while (blocks > 0);
         }
         argSave = arg2[0x2A];
-        tmp = func_004aaee0(3, &f3.params);
+        tmp = effBlurFilterCopiedCreate(3, &f3.params);
         *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
         func_0044ea90(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
@@ -789,7 +789,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         if (tmp != NULL) {
             task[1] = (s32)tmp;
         } else {
-            task[1] = (s32)func_004aaee0(3, &f3.params);
+            task[1] = (s32)effBlurFilterCopiedCreate(3, &f3.params);
         }
         task[3] = f3.params.valueB8;
         return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
@@ -884,7 +884,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             } while (blocks > 0);
         }
         argSave = 0;
-        tmp = func_004aaee0(5, &f5.params);
+        tmp = effBlurFilterCopiedCreate(5, &f5.params);
         *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
         func_0044ea90(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
@@ -892,7 +892,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         if (tmp != NULL) {
             task[1] = (s32)tmp;
         } else {
-            task[1] = (s32)func_004aaee0(5, &f5.params);
+            task[1] = (s32)effBlurFilterCopiedCreate(5, &f5.params);
         }
         task[3] = f5.params.valueB8;
         return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));

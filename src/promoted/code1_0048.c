@@ -80,11 +80,11 @@ extern u8 D_007134B0[];
 extern char D_00713CE0[];
 extern f32 fGpffff8044;
 extern void func_00494f90(u8 *arg0);
-extern s32 func_00494710(u8 *arg0, u16 arg1);
+extern s32 mdlEffectSlotIsFree(u8 *arg0, u16 arg1);
 extern void func_00494740(u8 *arg0, u16 arg1, void *arg2, f32 arg3);
 extern void func_004940d0(u8 *arg0, u16 arg1, void *arg2);
-extern void func_004946f0(u8 *arg0, u16 arg1);
-extern void func_004946d0(u8 *arg0, u16 arg1);
+extern void mdlEffectSlotRelease(u8 *arg0, u16 arg1);
+extern void mdlEffectSlotSetZero(u8 *arg0, u16 arg1);
 extern void func_00494ff0(u8 *arg0);
 
 
@@ -941,7 +941,7 @@ u8 *func_00484bb0(u8 *arg0)
                         (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)))(linkedSource);
                     *(u8 **)(nodeClone + 0x90) = prim;
                 } else {
-                    found = func_00486740(input, *(s32 *)(node + 0x90));
+                    found = mdlEffectFindNodeById(input, *(s32 *)(node + 0x90));
                     idx = func_004867e0(input, found);
                     csrc = *(u8 **)(func_00486780(clone, idx) + 0x90);
                     if (*(u32 *)csrc > 0xD2) {
@@ -965,7 +965,7 @@ u8 *func_00484bb0(u8 *arg0)
                         (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(void **)(csrc + 8));
                     *(u8 **)(nodeClone + 0x90) = prim;
                 }
-                func_00486710(nodeClone, node);
+                mdlEffectCopyRecord(nodeClone, node);
                 strcpy((char *)nodeClone + 0x9C, (const char *)node + 0x9C);
                 *(s32 *)(nodeClone + 0xAC) = 0;
                 if (*(u8 **)(clone + 0x88) != NULL) {
@@ -1098,7 +1098,7 @@ u8 *func_00484bb0(u8 *arg0)
                     (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(void **)(csrc + 8));
                 *(u8 **)(nodeClone + 0x90) = prim;
             }
-            func_00486710(nodeClone, cur);
+            mdlEffectCopyRecord(nodeClone, cur);
             strcpy((char *)nodeClone + 0x9C, (const char *)cur + 0x9C);
             *(s32 *)(nodeClone + 0xAC) = 0;
             if (*(u8 **)(clone + 0x88) != NULL) {
@@ -1495,7 +1495,7 @@ u8 *func_00485c80(u8 *arg0)
         *(void **)(prim + 8) =
             (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(void **)(src + 8));
         *(u8 **)(nodeClone + 0x90) = prim;
-        func_00486710(nodeClone, node);
+        mdlEffectCopyRecord(nodeClone, node);
         *(s32 *)(nodeClone + 0xAC) = 0;
         if (*(u8 **)(clone + 0x88) != NULL) {
             *(u8 **)(*(u8 **)(clone + 0x88) + 0xAC) = nodeClone;

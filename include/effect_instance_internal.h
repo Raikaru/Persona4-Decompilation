@@ -13,8 +13,8 @@ void *func_004844d0(void *source);
 
 u8 *func_00484bb0(u8 *resource);
 u8 *func_00485c80(u8 *resource);
-void func_00486710(u8 *destination, u8 *source);
-u8 *func_00486740(u8 *root, s32 identifier);
+void mdlEffectCopyRecord(u8 *destination, u8 *source);
+u8 *mdlEffectFindNodeById(u8 *root, s32 identifier);
 
 u8 *func_004988c0(u16 kind, u8 *parameters);
 u8 *func_0049a370(u16 kind, u8 *parameters);
@@ -41,10 +41,10 @@ void *func_004a6d90(void *source);
 void *func_004a6e10(void *source);
 void *func_004a7a90(void *source);
 void *func_004a7b70(void *source);
-void *func_004ab060(void *source);
-void *func_004ab1c0(void *source);
-void *func_004ab5a0(void *source);
-void *func_004ab700(void *source);
+void *effBlurFilterCopiedInstantiate(void *source);
+void *effBlurFilterCopiedDuplicate(void *source);
+void *effBlurFilterDirectInstantiate(void *source);
+void *effBlurFilterDirectDuplicate(void *source);
 void *func_004abe80(void *source);
 void *func_004ac100(void *source);
 void *func_004ac640(void *source);

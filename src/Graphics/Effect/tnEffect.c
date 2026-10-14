@@ -32,8 +32,8 @@ typedef struct {
 s32 func_00464100(u8 *arg0, s32 arg1);
 u8 *func_003ef2e0(u8 *arg0);
 void func_0046d730(const char *file, s32 line);
-s32 func_004ab2c0(void *arg0);
-s32 func_004ab800(void *arg0);
+s32 effBlurFilterCopiedDispatch(void *arg0);
+s32 effBlurFilterDirectDispatch(void *arg0);
 void func_00488d70(u8 *arg0);
 s32 func_004b0f70(void *arg0);
 s32 func_004b0fa0(void *arg0);
@@ -195,7 +195,7 @@ void func_004815b0(void *arg0) {
 void func_00481660(void *arg0) {
     TNFunc *tbl = (TNFunc *)D_00887300_abs;
     (*tbl)(6, 0);
-    func_004ab2c0(arg0);
+    effBlurFilterCopiedDispatch(arg0);
     (*tbl)(6, 1);
 }
 
@@ -203,7 +203,7 @@ void func_00481660(void *arg0) {
 void func_004816d0(void *arg0) {
     TNFunc *tbl = (TNFunc *)D_00887300_abs;
     (*tbl)(6, 0);
-    func_004ab800(arg0);
+    effBlurFilterDirectDispatch(arg0);
     (*tbl)(6, 1);
 }
 
