@@ -466,10 +466,10 @@ s32 func_0024aaf0(void)
 // FUN_0024AB40
 u32 func_0024AB40(void)
 {
-    u16 uVar1;
+    u16 value;
 
-    uVar1 = func_00248b80();
-    func_0029cf50(uVar1);
+    value = func_00248b80();
+    func_0029cf50(value);
     return 1;
 }
 
@@ -498,10 +498,10 @@ s32 func_0024ab70(void)
 // FUN_0024ABF0
 u32 func_0024ABF0(void)
 {
-    u16 uVar1;
+    u16 value;
 
-    uVar1 = func_00247270();
-    func_0029cf50(uVar1);
+    value = func_00247270();
+    func_0029cf50(value);
     return 1;
 }
 
@@ -510,10 +510,10 @@ u32 func_0024ABF0(void)
 // FUN_0024AC20
 u32 func_0024AC20(void)
 {
-    u16 uVar1;
+    u16 value;
 
-    uVar1 = func_002474f0();
-    func_0029cf50(uVar1);
+    value = func_002474f0();
+    func_0029cf50(value);
     return 1;
 }
 
