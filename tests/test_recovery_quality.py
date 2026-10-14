@@ -19,6 +19,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
 
+import gen_decomp_report  # noqa: E402
 import gen_objdiff  # noqa: E402
 import progress  # noqa: E402
 import recovery_quality as rq  # noqa: E402
@@ -273,7 +274,7 @@ class ReadmeBadgeTests(unittest.TestCase):
             self.assertEqual(self.query(url).get("mode"), ["shield"], url)
 
     def test_every_category_is_one_we_actually_emit(self) -> None:
-        ids = {c["id"] for c in gen_objdiff.PROGRESS_CATEGORIES}
+        ids = {c["id"] for c in gen_objdiff.PROGRESS_CATEGORIES} | {gen_decomp_report.ALL_CATEGORY["id"]}
         for url in self.urls:
             for category in self.query(url).get("category", []):
                 self.assertIn(category, ids, url)
