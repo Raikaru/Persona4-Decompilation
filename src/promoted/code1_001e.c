@@ -36,7 +36,7 @@ extern s32 func_00231f80();
 extern s64 scrGetParamInt();
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
-extern s32 func_0029cc00_s32(s32 index);
+extern s32 scrGetParamIntS32(s32 index);
 static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
@@ -157,8 +157,8 @@ extern u16 func_00247cb0(s64 arg0);
 extern u8 *iGpffffb42c;
 // FUN_001E6B90
 s32 func_001e6b90(void) {
-    u32 a = func_0029cc00_s32(0);
-    u32 b = func_0029cc00_s32(1);
+    u32 a = scrGetParamIntS32(0);
+    u32 b = scrGetParamIntS32(1);
     u8 *p = func_001b0cc0(a & 0xFFFFFFF);
     u32 v = (b & 0xFFFFFF) | 0x48000000;
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -179,7 +179,7 @@ s32 func_001e6c60(void) {
 
     temp_2 = func_0029d050();
     if ((func_001d7f10(temp_2, 0, *(u16 *)(temp_2 + 0x6E), 0) & 0xFFFF) == 0) {
-        index = func_0029cc00_s32(0);
+        index = scrGetParamIntS32(0);
         *(u8 **)(temp_2 + 0x38) = func_001b0cc0(index & 0xFFFFFFF);
         *(s16 *)(temp_2 + 0x6A) = 1;
     } else if (((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0) == 0) {
@@ -194,8 +194,8 @@ s32 func_001e6d20(void) {
     s32 kind;
     u8 *result;
 
-    first = func_0029cc00_s32(0) & 0xFFFF;
-    second = func_0029cc00_s32(1) & 0xFFFF;
+    first = scrGetParamIntS32(0) & 0xFFFF;
+    second = scrGetParamIntS32(1) & 0xFFFF;
     result = 0;
     kind = first & 0xFFFF;
     switch (kind) {
@@ -1788,7 +1788,7 @@ s32 func_001ea390(void)
     s32 index;
 
     work = func_0029d050();
-    index = func_0029cc00_s32(0);
+    index = scrGetParamIntS32(0);
     if ((iGpffffb3b8[index * 0x28] & 2) == 0) {
         func_0046d730(D_00609E30, 5711);
     }
@@ -1924,7 +1924,7 @@ s32 func_001ea8e0(void) {
         &D_00881410[0],
         &D_008813F0[0],
         fGpffffb454,
-        (f32)func_0029cc00_s32(0) / 30.0f), 0);
+        (f32)scrGetParamIntS32(0) / 30.0f), 0);
     return 1;
 }
 // FUN_001EAA80
@@ -1968,8 +1968,8 @@ s32 func_001eab60(void) {
 // FUN_001EABC0
 s32 func_001eabc0(void) {
     u8 *p = func_001b1510();
-    u32 a = func_0029cc00_s32(0) & 0xFFFF;
-    u32 b = func_0029cc00_s32(1) & 0xFFFF;
+    u32 a = scrGetParamIntS32(0) & 0xFFFF;
+    u32 b = scrGetParamIntS32(1) & 0xFFFF;
     u32 flag = 1;
 
     switch (a & 0xFFFF) {
@@ -2007,7 +2007,7 @@ s32 func_001eaca0(void) {
     u16 temp_3_2;
 
     temp_16 = (u8 *)func_001d3d50(0);
-    temp_4 = func_0029cc00_s32(0) & 0xFFFF;
+    temp_4 = scrGetParamIntS32(0) & 0xFFFF;
     temp_4 = temp_4 + 1;
     func_001d3ea0(temp_16, func_0022ced0(temp_4 & 0xFFFF));
     temp_18 = *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30);
@@ -2103,8 +2103,8 @@ s32 func_001eafb0(void) {
     s32 var_4;
     u8 *var_17;
 
-    temp_17 = func_0029cc00_s32(0);
-    temp_16 = func_0029cc00_s32(1);
+    temp_17 = scrGetParamIntS32(0);
+    temp_16 = scrGetParamIntS32(1);
     sp30[0] = scrGetParamFloat(2);
     sp30[1] = scrGetParamFloat(3);
     sp30[2] = scrGetParamFloat(4);
@@ -2175,7 +2175,7 @@ s32 func_001eb110(void) {
 s32 func_001eb2a0(void) {
     s32 temp;
 
-    temp = func_0029cc00_s32(0);
+    temp = scrGetParamIntS32(0);
     temp = func_00231d70(temp);
     scrSetReturnInt(temp);
     return 1;
@@ -2188,7 +2188,7 @@ s32 func_001eb2e0(void) {
     s32 index;
     u8 *slot;
 
-    index = func_0029cc00_s32(0);
+    index = scrGetParamIntS32(0);
     slot = p4_slot_001eb320((u32)index * 4, iGpffffb3ac);
     scrSetReturnInt(*(s32 *)(slot + 0xDD8));
     return 1;
@@ -2203,8 +2203,8 @@ s32 func_001eb320(void)
     s32 idx;
     s32 value;
 
-    idx = func_0029cc00_s32(0);
-    value = func_0029cc00_s32(1);
+    idx = scrGetParamIntS32(0);
+    value = scrGetParamIntS32(1);
     *(s32 *)(p4_slot_001eb320((u32)idx * 4, iGpffffb3ac) + 0xDD8) = value;
     return 1;
 }
