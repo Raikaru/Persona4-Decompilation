@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "datScript_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Ported from Persona 3 FES datScript.c (FUN_0030fc40/FUN_0030fdf0/
    FUN_003111f0/FUN_00311250 counterparts), adapted to the P4 build. */
@@ -304,6 +305,17 @@ f32 func_00245030(u32 arg0, s32 arg1)
     }
     return result;
 }
+
+/* measured: removing this pragma takes func_00246450 nd 0 -> nd 16 (object 36 -> 28, window 48). */
+#pragma push
+#pragma optimization_level 1
+// FUN_00246450
+void func_00246450(u32 value)
+{
+    D_00881474[0] |= 1;
+    D_00881468[0] = value;
+}
+#pragma pop
 
 // FUN_00246480
 s32 func_00246480(void)
