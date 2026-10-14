@@ -1883,13 +1883,13 @@ void func_004680c0(u8 *arg0)
 
 // FUN_004680F0
 s32 func_004680f0(u8 *arg0, s8 *arg1) {
-    u8 *temp_6;
+    u8 *record;
 
-    temp_6 = (u8 *)(*(u8 **)(arg0 + 0x38));
+    record = (u8 *)(*(u8 **)(arg0 + 0x38));
     *arg1 = 0;
-    if (*(s16 *)(temp_6 + 0x80F80) == 3) {
-        if (*(s32 *)(temp_6 + 0x80F88) != 0) {
-            strcpy((char *)arg1, (char *)temp_6 + 0x80F90);
+    if (*(s16 *)(record + 0x80F80) == 3) {
+        if (*(s32 *)(record + 0x80F88) != 0) {
+            strcpy((char *)arg1, (char *)record + 0x80F90);
         }
         return 1;
     }
@@ -2179,44 +2179,44 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
     struct { f32 x, y; } screenExtent;
     f32 var_f0;
     f32 var_f0_2;
-    s16 temp_3_3;
+    s16 rasterKind;
     s32 temp_3_5;
-    s32 temp_3_8;
-    s16 temp_4_4;
-    s32 temp_5;
+    s32 movieId;
+    s16 fadeOutLength;
+    s32 state;
     void (**tblEC)(void *);
-    s32 temp_2;
-    s32 temp_2_3;
-    s32 temp_3_4;
-    s32 temp_3_6;
-    RwRaster *temp_4_12;
-    s32 temp_4_13;
-    RwRaster *temp_4_16;
-    s32 temp_4_2;
-    s32 temp_4_3;
-    s32 temp_4_5;
-    RwRaster *temp_4_8;
-    s32 temp_4_9;
-    s32 temp_5_2;
-    s32 temp_5_4;
-    u8 var_7_2;
-    s16 var_6_3;
-    s16 var_7_3;
-    s16 var_9;
-    u32 temp_3_2;
-    u32 temp_4;
-    u32 temp_4_10;
-    u32 temp_4_11;
-    u32 temp_4_14;
-    u32 temp_4_15;
-    u32 temp_4_6;
-    u32 temp_4_7;
-    u32 temp_5_6;
+    s32 playerHandle;
+    s32 playerStatus;
+    s32 neededHeight;
+    s32 recordOffsetB;
+    RwRaster *rasterB;
+    s32 playerC;
+    RwRaster *rasterC;
+    s32 neededWidth;
+    s32 fadeInNext;
+    s32 playerA;
+    RwRaster *rasterA;
+    s32 playerB;
+    s32 recordOffset;
+    s32 fadeOutNext;
+    u8 fadeInAlpha;
+    s16 fadeInVertex;
+    s16 fadeOutVertex;
+    s16 vertexIndex;
+    u32 decoderWork;
+    u32 imageBufAddr;
+    u32 decoderB;
+    u32 imageB;
+    u32 decoderC;
+    u32 imageC;
+    u32 decoderA;
+    u32 imageA;
+    u32 imageAddr;
     MWSFD_CRPRM *parameters;
     (void)arg0;
 
-    temp_5 = work->state;
-    switch (temp_5) {                               /* switch 1 */
+    state = work->state;
+    switch (state) {                               /* switch 1 */
     case 0:                                         /* switch 1 */
         if (work->ownsList != 0) {
             work->ownsList = 0;
@@ -2261,36 +2261,36 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
             work->imageBuffer = (void *)((u32)(D_008873F4[0](1U, 0x118000, 0x40000)));
             func_0044ec50(0);
             func_00440b68(D_00713030, work->decoderWorkAddress);
-            temp_3_2 = work->decoderWorkAddress;
-            if ((temp_3_2 == 0) || ((u32)work->imageBuffer == 0)) {
+            decoderWork = work->decoderWorkAddress;
+            if ((decoderWork == 0) || ((u32)work->imageBuffer == 0)) {
                 func_00440b68(D_00713040);
                 work->state = 0xB;
                 goto movieComplete;
             }
-            parameters->work = (void *)temp_3_2;
-            work->payload = (void *)(temp_3_2);
-            temp_2 = func_00509268((u8 *)parameters);
-            if (temp_2 == 0) {
+            parameters->work = (void *)decoderWork;
+            work->payload = (void *)(decoderWork);
+            playerHandle = func_00509268((u8 *)parameters);
+            if (playerHandle == 0) {
                 tblEC = (void (**)(void *))(u32)jtbl_008873EC;
                 tblEC[0]((void *)work->decoderWorkAddress);
                 work->decoderWorkAddress = 0U;
-                temp_4 = (u32)work->imageBuffer;
-                if (temp_4 != 0) {
-                    tblEC[0]((void *)temp_4);
+                imageBufAddr = (u32)work->imageBuffer;
+                if (imageBufAddr != 0) {
+                    tblEC[0]((void *)imageBufAddr);
                     work->imageBuffer = 0U;
                     iGpffffbae8 = 0U;
                 }
             }
-            mwPlySetFrmSync(temp_2, 0);
-            work->player = (void *)(temp_2);
+            mwPlySetFrmSync(playerHandle, 0);
+            work->player = (void *)(playerHandle);
             if (work->usesLoopPlayer != 0) {
-                func_004561a0((void *)temp_2, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 1);
+                func_004561a0((void *)playerHandle, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 1);
             } else {
-                func_004561a0((void *)temp_2, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 0);
+                func_004561a0((void *)playerHandle, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 0);
             }
             func_0044ec50(1);
-            temp_3_3 = (*(s16 *)(D_00712C50 + (work->movieIndex * 0x28)));
-            switch (temp_3_3) {
+            rasterKind = (*(s16 *)(D_00712C50 + (work->movieIndex * 0x28)));
+            switch (rasterKind) {
             case 0:
                 work->raster = RwRasterCreate(0x280, 0x1C0, 0x20, 0x584);
                 break;
@@ -2303,23 +2303,23 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
                 work->state = 0xB;
                 goto movieComplete;
             }
-            var_9 = 0;
-            for (; var_9 < 4; var_9++) {
-                work->vertices[var_9].u.els.scrVertex.z = ((MovieEnginePrefix *)ourGlobals)->device.zBufferNear;
-                work->vertices[var_9].u.els.recipZ = temp_f20;
+            vertexIndex = 0;
+            for (; vertexIndex < 4; vertexIndex++) {
+                work->vertices[vertexIndex].u.els.scrVertex.z = ((MovieEnginePrefix *)ourGlobals)->device.zBufferNear;
+                work->vertices[vertexIndex].u.els.recipZ = temp_f20;
                 if ((*(s32 *)(D_00712C50 + (work->movieIndex * 0x28) + (0x1C))) != 0) {
-                    work->vertices[var_9].u.els.color.red = 255.0f;
-                    work->vertices[var_9].u.els.color.green = 255.0f;
-                    work->vertices[var_9].u.els.color.blue = 255.0f;
-                    work->vertices[var_9].u.els.color.alpha = 0.0f;
+                    work->vertices[vertexIndex].u.els.color.red = 255.0f;
+                    work->vertices[vertexIndex].u.els.color.green = 255.0f;
+                    work->vertices[vertexIndex].u.els.color.blue = 255.0f;
+                    work->vertices[vertexIndex].u.els.color.alpha = 0.0f;
                     work->field1e6 = (*(s16 *)(D_00712C50 + (work->movieIndex * 0x28) + (0x22)));
                     work->field1e8 = 0;
                     work->state = 3;
                 } else {
-                    work->vertices[var_9].u.els.color.red = 255.0f;
-                    work->vertices[var_9].u.els.color.green = 255.0f;
-                    work->vertices[var_9].u.els.color.blue = 255.0f;
-                    work->vertices[var_9].u.els.color.alpha = 255.0f;
+                    work->vertices[vertexIndex].u.els.color.red = 255.0f;
+                    work->vertices[vertexIndex].u.els.color.green = 255.0f;
+                    work->vertices[vertexIndex].u.els.color.blue = 255.0f;
+                    work->vertices[vertexIndex].u.els.color.alpha = 255.0f;
                     work->state = 3;
                 }
             }
@@ -2355,22 +2355,22 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
             {
                 s32 textureWidth = 16;
                 s32 textureHeight = 16;
-            temp_5_2 = work->movieIndex * 0x28;
-            temp_4_2 = (*(s32 *)(D_00712C5C + temp_5_2)) + 1;
-            temp_3_4 = (*(s32 *)(D_00712C60 + temp_5_2)) + 1;
-            while (temp_4_2 > textureWidth) {
+            recordOffset = work->movieIndex * 0x28;
+            neededWidth = (*(s32 *)(D_00712C5C + recordOffset)) + 1;
+            neededHeight = (*(s32 *)(D_00712C60 + recordOffset)) + 1;
+            while (neededWidth > textureWidth) {
                 textureWidth *= 2;
             }
-            while (temp_3_4 > textureHeight) {
+            while (neededHeight > textureHeight) {
                 textureHeight *= 2;
             }
             work->vertices[0].u.els.u = 0;
             work->vertices[1].u.els.u = 0;
-            temp_f0_2 = (f32) temp_4_2 / (f32) textureWidth;
+            temp_f0_2 = (f32) neededWidth / (f32) textureWidth;
             work->vertices[2].u.els.u = temp_f0_2;
             work->vertices[3].u.els.u = temp_f0_2;
             work->vertices[0].u.els.v = 0;
-            temp_f0_3 = (f32) temp_3_4 / (f32) textureHeight;
+            temp_f0_3 = (f32) neededHeight / (f32) textureHeight;
             work->vertices[1].u.els.v = temp_f0_3;
             work->vertices[2].u.els.v = 0;
             work->vertices[3].u.els.v = temp_f0_3;
@@ -2385,7 +2385,7 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
     case 3:                                         /* switch 1 */
     case 4:                                         /* switch 1 */
     case 5:                                         /* switch 1 */
-        if (temp_5 != 3) {
+        if (state != 3) {
             switch (work->movieIndex) {
             case 0x15:
             case 0x16:
@@ -2406,8 +2406,8 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
         if (frame.buffer != 0) {
             iGpffffbaf8 = frame.frameNumber;
             if (work->state == 4) {
-                temp_3_6 = work->movieIndex * 0x28;
-                if ((*(s32 *)(D_00712C6C + temp_3_6) != 0) && (frame.frameNumber >= (*(s16 *)(D_00712C70 + temp_3_6)))) {
+                recordOffsetB = work->movieIndex * 0x28;
+                if ((*(s32 *)(D_00712C6C + recordOffsetB) != 0) && (frame.frameNumber >= (*(s16 *)(D_00712C70 + recordOffsetB)))) {
                     work->fadeOutFrames = 0;
                     work->state = 5;
                 }
@@ -2422,14 +2422,14 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
             work->frame = frame;
             if (work->state == 3) {
                 if ((*(s16 *)(D_00712C74 + (work->movieIndex * 0x28))) == 0) {
-                    var_7_2 = 0xFF;
+                    fadeInAlpha = 0xFF;
                     work->state = 4;
                 } else {
-                    temp_4_3 = work->fadeInFrames + 1;
-                    work->fadeInFrames = temp_4_3;
-                    temp_3_8 = work->movieIndex;
-                    if (temp_4_3 == (*(s16 *)(D_00712C74 + (temp_3_8 * 0x28)))) {
-                        switch (temp_3_8) {
+                    fadeInNext = work->fadeInFrames + 1;
+                    work->fadeInFrames = fadeInNext;
+                    movieId = work->movieIndex;
+                    if (fadeInNext == (*(s16 *)(D_00712C74 + (movieId * 0x28)))) {
+                        switch (movieId) {
                         case 4:
                         case 16:
                             H_Fade_SetCustomColor(0, 0, 0);
@@ -2447,50 +2447,50 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
                         }
                         work->state = 4;
                     }
-                    var_7_2 = ((work->fadeInFrames * 0xFF) / (*(s16 *)(D_00712C74 + (work->movieIndex * 0x28)))) & 0xFF;
+                    fadeInAlpha = ((work->fadeInFrames * 0xFF) / (*(s16 *)(D_00712C74 + (work->movieIndex * 0x28)))) & 0xFF;
                 }
-                var_6_3 = 0;
-                for (; var_6_3 < 4; var_6_3++) {
-                    work->vertices[var_6_3].u.els.color.red = 255.0f;
-                    work->vertices[var_6_3].u.els.color.green = 255.0f;
-                    work->vertices[var_6_3].u.els.color.blue = 255.0f;
-                    var_f0 = (f32)var_7_2;
-                    work->vertices[var_6_3].u.els.color.alpha = var_f0;
+                fadeInVertex = 0;
+                for (; fadeInVertex < 4; fadeInVertex++) {
+                    work->vertices[fadeInVertex].u.els.color.red = 255.0f;
+                    work->vertices[fadeInVertex].u.els.color.green = 255.0f;
+                    work->vertices[fadeInVertex].u.els.color.blue = 255.0f;
+                    var_f0 = (f32)fadeInAlpha;
+                    work->vertices[fadeInVertex].u.els.color.alpha = var_f0;
                 }
             }
             if (work->state == 5) {
-                u32 temp_6;
-                temp_5_4 = work->fadeOutFrames + 1;
-                work->fadeOutFrames = temp_5_4;
-                temp_4_4 = (*(s16 *)(D_00712C72 + (work->movieIndex * 0x28)));
-                temp_6 = (0xFF - (((s32) (temp_5_4 * 0xFF) / temp_4_4) & 0xFF)) & 0xFF;
-                if (temp_5_4 >= temp_4_4) {
+                u32 fadeOutAlpha;
+                fadeOutNext = work->fadeOutFrames + 1;
+                work->fadeOutFrames = fadeOutNext;
+                fadeOutLength = (*(s16 *)(D_00712C72 + (work->movieIndex * 0x28)));
+                fadeOutAlpha = (0xFF - (((s32) (fadeOutNext * 0xFF) / fadeOutLength) & 0xFF)) & 0xFF;
+                if (fadeOutNext >= fadeOutLength) {
                     work->state = 6;
                 }
-                var_7_3 = 0;
-                for (; var_7_3 < 4; var_7_3++) {
-                    work->vertices[var_7_3].u.els.color.red = 255.0f;
-                    work->vertices[var_7_3].u.els.color.green = 255.0f;
-                    work->vertices[var_7_3].u.els.color.blue = 255.0f;
-                    var_f0_2 = (f32)(u32)temp_6;
-                    work->vertices[var_7_3].u.els.color.alpha = var_f0_2;
+                fadeOutVertex = 0;
+                for (; fadeOutVertex < 4; fadeOutVertex++) {
+                    work->vertices[fadeOutVertex].u.els.color.red = 255.0f;
+                    work->vertices[fadeOutVertex].u.els.color.green = 255.0f;
+                    work->vertices[fadeOutVertex].u.els.color.blue = 255.0f;
+                    var_f0_2 = (f32)(u32)fadeOutAlpha;
+                    work->vertices[fadeOutVertex].u.els.color.alpha = var_f0_2;
                 }
             }
         }
         mwPlyRelCurFrm((s32)work->player);
-        temp_2_3 = func_0050d4d0((s32)work->player);
-        if ((u32) (temp_2_3 - 3) < 2U) {
+        playerStatus = func_0050d4d0((s32)work->player);
+        if ((u32) (playerStatus - 3) < 2U) {
             work->state = 6;
             goto movieComplete;
         }
         ((MovieEnginePrefix *)ourGlobals)->device.getState((RwRenderState)(0xE), (void *)(&spFC));
         ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(0xE), (void *)(0));
         func_0040fcd0(work->raster, 1);
-        temp_5_6 = iGpffffbae8;
-        if (temp_5_6 != 0) {
-            func_00143ba0(work->raster, temp_5_6, iGpffffbaf4, iGpffffbaf0);
+        imageAddr = iGpffffbae8;
+        if (imageAddr != 0) {
+            func_00143ba0(work->raster, imageAddr, iGpffffbaf4, iGpffffbaf0);
             ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(0x14), (void *)(1));
-            work->playerStatus = temp_2_3;
+            work->playerStatus = playerStatus;
             ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(6), (void *)(0));
             ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(7), (void *)(2));
             ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(8), (void *)(0));
@@ -2510,28 +2510,28 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
             kwlnTaskDestroyWithHierarchyByName((const char *)iGpffffb034);
             goto movieComplete;
         }
-        temp_4_5 = (s32)work->player;
-        if (temp_4_5 != 0) {
+        playerA = (s32)work->player;
+        if (playerA != 0) {
             if (work->usesLoopPlayer != 0) {
-                mwPlyReleaseLp(temp_4_5);
+                mwPlyReleaseLp(playerA);
             }
             func_005097e8((s32)work->player);
             work->player = 0;
         }
-        temp_4_6 = work->decoderWorkAddress;
-        if (temp_4_6 != 0) {
-            jtbl_008873EC[0]((void *)temp_4_6);
+        decoderA = work->decoderWorkAddress;
+        if (decoderA != 0) {
+            jtbl_008873EC[0]((void *)decoderA);
             work->decoderWorkAddress = 0U;
         }
-        temp_4_7 = (u32)work->imageBuffer;
-        if (temp_4_7 != 0) {
-            jtbl_008873EC[0]((void *)temp_4_7);
+        imageA = (u32)work->imageBuffer;
+        if (imageA != 0) {
+            jtbl_008873EC[0]((void *)imageA);
             work->imageBuffer = 0U;
             iGpffffbae8 = 0U;
         }
-        temp_4_8 = work->raster;
-        if (temp_4_8 != 0) {
-            RwRasterDestroy(temp_4_8);
+        rasterA = work->raster;
+        if (rasterA != 0) {
+            RwRasterDestroy(rasterA);
             work->raster = 0;
         }
         work->startupTicks = 0;
@@ -2553,28 +2553,28 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
                 kwlnTaskDestroyWithHierarchyByName((const char *)iGpffffb034);
                 goto movieComplete;
             }
-            temp_4_9 = (s32)work->player;
-            if (temp_4_9 != 0) {
+            playerB = (s32)work->player;
+            if (playerB != 0) {
                 if (work->usesLoopPlayer != 0) {
-                    mwPlyReleaseLp(temp_4_9);
+                    mwPlyReleaseLp(playerB);
                 }
                 func_005097e8((s32)work->player);
                 work->player = 0;
             }
-            temp_4_10 = work->decoderWorkAddress;
-            if (temp_4_10 != 0) {
-                jtbl_008873EC[0]((void *)temp_4_10);
+            decoderB = work->decoderWorkAddress;
+            if (decoderB != 0) {
+                jtbl_008873EC[0]((void *)decoderB);
                 work->decoderWorkAddress = 0U;
             }
-            temp_4_11 = (u32)work->imageBuffer;
-            if (temp_4_11 != 0) {
-                jtbl_008873EC[0]((void *)temp_4_11);
+            imageB = (u32)work->imageBuffer;
+            if (imageB != 0) {
+                jtbl_008873EC[0]((void *)imageB);
                 work->imageBuffer = 0U;
                 iGpffffbae8 = 0U;
             }
-            temp_4_12 = work->raster;
-            if (temp_4_12 != 0) {
-                RwRasterDestroy(temp_4_12);
+            rasterB = work->raster;
+            if (rasterB != 0) {
+                RwRasterDestroy(rasterB);
                 work->raster = 0;
             }
             work->startupTicks = 0;
@@ -2594,28 +2594,28 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
                 kwlnTaskDestroyWithHierarchyByName((const char *)iGpffffb034);
                 goto movieComplete;
             }
-            temp_4_13 = (s32)work->player;
-            if (temp_4_13 != 0) {
+            playerC = (s32)work->player;
+            if (playerC != 0) {
                 if (work->usesLoopPlayer != 0) {
-                    mwPlyReleaseLp(temp_4_13);
+                    mwPlyReleaseLp(playerC);
                 }
                 func_005097e8((s32)work->player);
                 work->player = 0;
             }
-            temp_4_14 = work->decoderWorkAddress;
-            if (temp_4_14 != 0) {
-                jtbl_008873EC[0]((void *)temp_4_14);
+            decoderC = work->decoderWorkAddress;
+            if (decoderC != 0) {
+                jtbl_008873EC[0]((void *)decoderC);
                 work->decoderWorkAddress = 0U;
             }
-            temp_4_15 = (u32)work->imageBuffer;
-            if (temp_4_15 != 0) {
-                jtbl_008873EC[0]((void *)temp_4_15);
+            imageC = (u32)work->imageBuffer;
+            if (imageC != 0) {
+                jtbl_008873EC[0]((void *)imageC);
                 work->imageBuffer = 0U;
                 iGpffffbae8 = 0U;
             }
-            temp_4_16 = work->raster;
-            if (temp_4_16 != 0) {
-                RwRasterDestroy(temp_4_16);
+            rasterC = work->raster;
+            if (rasterC != 0) {
+                RwRasterDestroy(rasterC);
                 work->raster = 0;
             }
             work->startupTicks = 0;
@@ -2742,10 +2742,10 @@ void func_0046a2e0(u8 *arg0, s32 arg1) {
 
 // FUN_0046A340
 void func_0046a340(u32 arg0) {
-    s32 temp_2;
-    u32 var_4;
-    u32 var_7;
-    u8 *temp_5;
+    s32 flag;
+    u32 count;
+    u32 index;
+    u8 *table;
     u8 *entry;
 
     if (arg0 < iGpffffbb14) {
@@ -2756,28 +2756,28 @@ void func_0046a340(u32 arg0) {
         (*jtbl_008873EC)((void *)arg0);
         return;
     }
-    temp_2 = func_0042ba20();
-    temp_5 = (u8 *)iGpffffbb14;
-    var_7 = 0;
-    var_4 = iGpffffbb0c;
+    flag = func_0042ba20();
+    table = (u8 *)iGpffffbb14;
+    index = 0;
+    count = iGpffffbb0c;
     goto loop_test;
 loop_body:
-    entry = temp_5 + (var_7 * 8);
+    entry = table + (index * 8);
     if (arg0 == *(s32 *)(entry + 0)) {
-        var_4 = iGpffffbb04;
-        iGpffffbb04 = var_4 - *(s32 *)(entry + 4);
+        count = iGpffffbb04;
+        iGpffffbb04 = count - *(s32 *)(entry + 4);
         *(s32 *)(entry + 0) = 0;
         *(s32 *)(entry + 4) = 0;
         goto loop_done;
     }
-    var_7 += 1;
+    index += 1;
 loop_test:
-    if (var_7 < var_4) {
+    if (index < count) {
         goto loop_body;
     }
 loop_done:
-    if (temp_2 != 0) {
-        func_0042ba70(var_4);
+    if (flag != 0) {
+        func_0042ba70(count);
     }
 }
 extern void func_00451b70(void);
@@ -3004,11 +3004,11 @@ void func_0046a7f0(u8 *attachment, u8 *points)
 // FUN_0046AB40
 void func_0046ab40(void)
 {
-    u8 *var_16 = D_00724C08;
+    u8 *attachment = D_00724C08;
 loop_1:
-    if (var_16 != NULL) {
-        func_0046ab90(var_16);
-        var_16 = *(u8 **)(var_16 + 0x238);
+    if (attachment != NULL) {
+        func_0046ab90(attachment);
+        attachment = *(u8 **)(attachment + 0x238);
         goto loop_1;
     }
 }
@@ -3431,68 +3431,68 @@ void func_0046ea60(u8 *arg0, u8 *arg1)
     f32 temp_f2;
     f32 temp_f3;
     f32 temp_f4;
-    s32 temp_4;
-    s32 temp_5;
-    u8 *temp_3;
+    s32 bottom;
+    s32 sum;
+    u8 *record;
 
     input = *(union Input *)arg1;
-    temp_3 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(temp_3 + 0) == 6) {
-        *(struct FInput *)(temp_3 + 0xC) = input.f;
+    record = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)(record + 0) == 6) {
+        *(struct FInput *)(record + 0xC) = input.f;
         temp_f4 = (f32)sp0;
-        *(f32 *)(temp_3 + 0x60) = temp_f4;
+        *(f32 *)(record + 0x60) = temp_f4;
         temp_f3 = (f32)sp4;
-        *(f32 *)(temp_3 + 0x64) = temp_f3;
-        temp_5 = sp0 + sp8;
-        temp_f2 = (f32)temp_5;
-        *(f32 *)(temp_3 + 0xA0) = temp_f2;
-        *(f32 *)(temp_3 + 0xA4) = temp_f3;
-        *(f32 *)(temp_3 + 0xE0) = temp_f4;
+        *(f32 *)(record + 0x64) = temp_f3;
+        sum = sp0 + sp8;
+        temp_f2 = (f32)sum;
+        *(f32 *)(record + 0xA0) = temp_f2;
+        *(f32 *)(record + 0xA4) = temp_f3;
+        *(f32 *)(record + 0xE0) = temp_f4;
         temp_f0 = (f32)(sp4 + 2);
-        *(f32 *)(temp_3 + 0xE4) = temp_f0;
-        *(f32 *)(temp_3 + 0x120) = temp_f2;
-        *(f32 *)(temp_3 + 0x124) = temp_f0;
-        temp_f0_2 = (f32)(temp_5 - 2);
-        *(f32 *)(temp_3 + 0x160) = temp_f0_2;
-        *(f32 *)(temp_3 + 0x164) = temp_f3;
-        *(f32 *)(temp_3 + 0x1A0) = temp_f2;
-        *(f32 *)(temp_3 + 0x1A4) = temp_f3;
-        *(f32 *)(temp_3 + 0x1E0) = temp_f0_2;
-        temp_4 = sp4 + spC;
-        temp_f1 = (f32)temp_4;
-        *(f32 *)(temp_3 + 0x1E4) = temp_f1;
-        *(f32 *)(temp_3 + 0x220) = temp_f2;
-        *(f32 *)(temp_3 + 0x224) = temp_f1;
-        *(f32 *)(temp_3 + 0x260) = temp_f4;
-        temp_f0_3 = (f32)(temp_4 - 2);
-        *(f32 *)(temp_3 + 0x264) = temp_f0_3;
-        *(f32 *)(temp_3 + 0x2A0) = temp_f2;
-        *(f32 *)(temp_3 + 0x2A4) = temp_f0_3;
-        *(f32 *)(temp_3 + 0x2E0) = temp_f4;
-        *(f32 *)(temp_3 + 0x2E4) = temp_f1;
-        *(f32 *)(temp_3 + 0x320) = temp_f2;
-        *(f32 *)(temp_3 + 0x324) = temp_f1;
-        *(f32 *)(temp_3 + 0x360) = temp_f4;
-        *(f32 *)(temp_3 + 0x364) = temp_f3;
+        *(f32 *)(record + 0xE4) = temp_f0;
+        *(f32 *)(record + 0x120) = temp_f2;
+        *(f32 *)(record + 0x124) = temp_f0;
+        temp_f0_2 = (f32)(sum - 2);
+        *(f32 *)(record + 0x160) = temp_f0_2;
+        *(f32 *)(record + 0x164) = temp_f3;
+        *(f32 *)(record + 0x1A0) = temp_f2;
+        *(f32 *)(record + 0x1A4) = temp_f3;
+        *(f32 *)(record + 0x1E0) = temp_f0_2;
+        bottom = sp4 + spC;
+        temp_f1 = (f32)bottom;
+        *(f32 *)(record + 0x1E4) = temp_f1;
+        *(f32 *)(record + 0x220) = temp_f2;
+        *(f32 *)(record + 0x224) = temp_f1;
+        *(f32 *)(record + 0x260) = temp_f4;
+        temp_f0_3 = (f32)(bottom - 2);
+        *(f32 *)(record + 0x264) = temp_f0_3;
+        *(f32 *)(record + 0x2A0) = temp_f2;
+        *(f32 *)(record + 0x2A4) = temp_f0_3;
+        *(f32 *)(record + 0x2E0) = temp_f4;
+        *(f32 *)(record + 0x2E4) = temp_f1;
+        *(f32 *)(record + 0x320) = temp_f2;
+        *(f32 *)(record + 0x324) = temp_f1;
+        *(f32 *)(record + 0x360) = temp_f4;
+        *(f32 *)(record + 0x364) = temp_f3;
         temp_f0_4 = (f32)(sp0 + 2);
-        *(f32 *)(temp_3 + 0x3A0) = temp_f0_4;
-        *(f32 *)(temp_3 + 0x3A4) = temp_f3;
-        *(f32 *)(temp_3 + 0x3E0) = temp_f4;
-        *(f32 *)(temp_3 + 0x3E4) = temp_f1;
-        *(f32 *)(temp_3 + 0x420) = temp_f0_4;
-        *(f32 *)(temp_3 + 0x424) = temp_f1;
-        *(f32 *)(temp_3 + 0x460) = (f32)*(s32 *)(temp_3 + 0xC);
-        *(f32 *)(temp_3 + 0x464) = (f32)*(s32 *)(temp_3 + 0x10);
-        temp_5 = *(s32 *)(temp_3 + 0xC) + *(s32 *)(temp_3 + 0x14);
-        *(f32 *)(temp_3 + 0x4A0) = (f32)temp_5;
-        *(f32 *)(temp_3 + 0x4A4) = (f32)*(s32 *)(temp_3 + 0x10);
-        *(f32 *)(temp_3 + 0x4E0) = (f32)*(s32 *)(temp_3 + 0xC);
-        temp_5 = *(s32 *)(temp_3 + 0x10) + *(s32 *)(temp_3 + 0x18);
-        *(f32 *)(temp_3 + 0x4E4) = (f32)temp_5;
-        temp_5 = *(s32 *)(temp_3 + 0xC) + *(s32 *)(temp_3 + 0x14);
-        *(f32 *)(temp_3 + 0x520) = (f32)temp_5;
-        temp_5 = *(s32 *)(temp_3 + 0x10) + *(s32 *)(temp_3 + 0x18);
-        *(f32 *)(temp_3 + 0x524) = (f32)temp_5;
+        *(f32 *)(record + 0x3A0) = temp_f0_4;
+        *(f32 *)(record + 0x3A4) = temp_f3;
+        *(f32 *)(record + 0x3E0) = temp_f4;
+        *(f32 *)(record + 0x3E4) = temp_f1;
+        *(f32 *)(record + 0x420) = temp_f0_4;
+        *(f32 *)(record + 0x424) = temp_f1;
+        *(f32 *)(record + 0x460) = (f32)*(s32 *)(record + 0xC);
+        *(f32 *)(record + 0x464) = (f32)*(s32 *)(record + 0x10);
+        sum = *(s32 *)(record + 0xC) + *(s32 *)(record + 0x14);
+        *(f32 *)(record + 0x4A0) = (f32)sum;
+        *(f32 *)(record + 0x4A4) = (f32)*(s32 *)(record + 0x10);
+        *(f32 *)(record + 0x4E0) = (f32)*(s32 *)(record + 0xC);
+        sum = *(s32 *)(record + 0x10) + *(s32 *)(record + 0x18);
+        *(f32 *)(record + 0x4E4) = (f32)sum;
+        sum = *(s32 *)(record + 0xC) + *(s32 *)(record + 0x14);
+        *(f32 *)(record + 0x520) = (f32)sum;
+        sum = *(s32 *)(record + 0x10) + *(s32 *)(record + 0x18);
+        *(f32 *)(record + 0x524) = (f32)sum;
     }
 }
 #undef sp0
