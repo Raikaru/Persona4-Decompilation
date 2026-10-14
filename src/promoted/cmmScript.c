@@ -221,6 +221,18 @@ typedef struct cmmMsgState
     s32 counter; // 0x1C, frames since the last send
 } cmmMsgState;
 
+/* Script task user data. Offsets are shared by func_0024b870 (state
+   machine), func_0024b990 (destroy) and func_0024ba60 (handle release). */
+typedef struct CmmScriptTask
+{
+    u32 flags;      // 0x00, bit 0 set once the file is loaded
+    s32 state;      // 0x04
+    s32 cdvdHandle; // 0x08, H_Cdvd file handle
+    s32 handles[5]; // 0x0C, released with func_00452080
+    u8 pad20[4];
+    s32 data;       // 0x24, buffer from func_0046af60, freed on destroy
+} CmmScriptTask;
+
 // FUN_0024A2E0
 s32 func_0024a2e0(void)
 {
@@ -821,52 +833,50 @@ s32 func_0024b490(void)
 // FUN_0024B6A0
 s32 func_0024b6a0(void)
 {
-    s32 temp_17;
-    s32 temp_16;
-    s32 temp_2;
+    s32 param0;
+    s32 param1;
+    s32 param2;
 
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
-    temp_2 = func_0029cc00(2);
-    func_0029cf50(func_00249770(temp_17, temp_16, temp_2));
+    param0 = func_0029cc00(0);
+    param1 = func_0029cc00(1);
+    param2 = func_0029cc00(2);
+    func_0029cf50(func_00249770(param0, param1, param2));
     return 1;
 }
 // FUN_0024B720
 s32 func_0024b720(void)
 {
-    s32 a;
-    s32 b;
-    u8* p;
-    u8* q2;
-    u8* q3;
+    s32 id;
+    s32 field;
+    u8* rec;
 
-    a = func_0029cc00(0);
-    b = func_0029cc00(1);
-    if (a == 0) {
+    id = func_0029cc00(0);
+    field = func_0029cc00(1);
+    if (id == 0) {
         func_0046d730(D_006359F0, 0x30A);
     }
-    p = func_00246cd0(a & 0xFFFF);
-    if (p == 0) {
+    rec = func_00246cd0(id & 0xFFFF);
+    if (rec == 0) {
         func_0046d730(D_006359F0, 0x30C);
     }
-    switch (b) {
+    switch (field) {
     case 0:
-        func_0029cf50(*(s32*)(p + 4));
+        func_0029cf50(*(s32*)(rec + 4));
         break;
     case 1:
-        func_0029cf50(*(s8*)(p + 8));
+        func_0029cf50(*(s8*)(rec + 8));
         break;
     case 2:
-        func_0029cf50(*(s8*)(p + 0xA));
+        func_0029cf50(*(s8*)(rec + 0xA));
         break;
     case 3:
-        func_0029cf50(*(s32*)(p + 0));
+        func_0029cf50(*(s32*)(rec + 0));
         break;
     case 4:
-        func_0029cf50(*(s8*)(p + 9));
+        func_0029cf50(*(s8*)(rec + 9));
         break;
     case 5:
-        func_0029cf50(*(s8*)(p + 0xB));
+        func_0029cf50(*(s8*)(rec + 0xB));
         break;
     default:
         func_0046d730(D_006359F0, 0x321);
@@ -877,35 +887,35 @@ s32 func_0024b720(void)
 // FUN_0024B870
 s32 func_0024b870(u8 *task)
 {
-    s32* s0;
+    CmmScriptTask *t;
     s32 sp2c;
-    s32 temp;
+    s32 loadId;
     s32 state;
 
-    s0 = (s32*)(s32)func_00452560(task);
-    state = s0[1];
+    t = (CmmScriptTask *)(s32)func_00452560(task);
+    state = t->state;
     switch (state) {
     case 0:
-        s0[1] = 1;
+        t->state = 1;
     case 1:
-        s0[1] = 2;
+        t->state = 2;
         func_00440b68(&iGpffffa658, D_006359F0, 0x35D);
-        s0[2] = (s32)func_00454a60(D_00635A40, 1);
+        t->cdvdHandle = (s32)func_00454a60(D_00635A40, 1);
     case 2:
-        if (H_Cdvd_IsFileLoaded((u8*)s0[2]) != 0) {
-            s0[1] = 3;
-            s0[0] |= 1;
+        if (H_Cdvd_IsFileLoaded((u8*)t->cdvdHandle) != 0) {
+            t->state = 3;
+            t->flags |= 1;
         }
         break;
     case 3:
-        s0[1] = 4;
-        temp = func_00455f70(D_00635A60, (u32*)&sp2c);
-        if (temp != 0) {
-            s0[9] = (s32)func_0046af60((u32)temp);
+        t->state = 4;
+        loadId = func_00455f70(D_00635A60, (u32*)&sp2c);
+        if (loadId != 0) {
+            t->data = (s32)func_0046af60((u32)loadId);
         }
     case 4:
-        if (func_0046a750(s0[9]) != 0) {
-            s0[1] = 5;
+        if (func_0046a750(t->data) != 0) {
+            t->state = 5;
         }
         break;
     case 5:
@@ -916,45 +926,43 @@ s32 func_0024b870(u8 *task)
 // FUN_0024B990
 void func_0024b990(u8 *task)
 {
-    u8* p;
-    u8* q2;
-    u8* q3;
+    CmmScriptTask *t;
     s32 h;
     s32 i;
     s32 x;
 
-    p = (u8*)(s32)func_00452560(task);
+    t = (CmmScriptTask *)(s32)func_00452560(task);
     for (i = 0; i < 5; i++) {
-        h = *(s32*)(p + i * 4 + 0xC);
+        h = *(s32*)((u8*)t + i * 4 + 0xC);
         if (h != 0) {
             if (func_00452490(h) != 0) {
                 func_00452080(h);
             }
         }
     }
-    x = *(s32*)(p + 0x24);
+    x = t->data;
     if (x != 0) {
         func_0046b0d0((u8*)x);
-        *(s32*)(p + 0x24) = 0;
+        t->data = 0;
     }
-    H_Cdvd_Destroy((u8*)*(s32*)(p + 0x8));
-    DAT_008873ec_abs[0](p);
+    H_Cdvd_Destroy((u8*)t->cdvdHandle);
+    DAT_008873ec_abs[0]((u8*)t);
 }
 // FUN_0024BA60
 void func_0024ba60(s32 arg0)
 {
-    s32 p;
-    s32* q;
+    s32 task;
+    CmmScriptTask *t;
 
-    p = (s32)func_00452380((s8 *)(D_00635A78));
+    task = (s32)func_00452380((s8 *)(D_00635A78));
     if (arg0 < 0 || arg0 >= 5) {
         func_0046d730(D_006359F0, 0x3B2);
     }
-    if (p != 0) {
-        q = (s32*)((int)(s32)func_00452560((void *)(u32)(p)) + arg0 * 4 + 0xC);
-        if (q[0] != 0) {
-            func_00452080(q[0]);
-            q[0] = 0;
+    if (task != 0) {
+        t = (CmmScriptTask *)((int)(s32)func_00452560((void *)(u32)(task)));
+        if (t->handles[arg0] != 0) {
+            func_00452080(t->handles[arg0]);
+            t->handles[arg0] = 0;
         }
     }
 }
