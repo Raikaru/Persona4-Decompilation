@@ -973,11 +973,11 @@ s32 func_0024bb00(s32 arg0) {
     extern s32 func_00452080(struct KwlnTask* task);
     extern s32 func_00455f70(s32 arg0, s32* arg1);
     extern s32 func_0025ff60(s32 arg0);
-    s64 sp40;
+    s64 pos;
     f32 sp48;
     s32 sp4C;
-    s32 temp_17;
-    s32 temp_2;
+    s32 task;
+    s32 loadTask;
     s32* temp_16;
     s32* temp_2_2;
     s32 temp_2_3;
@@ -986,60 +986,60 @@ s32 func_0024bb00(s32 arg0) {
     s32 temp_2_6;
     s32 temp_2_7;
     s32 temp_2_8;
-    s32 temp_4;
-    u8 flag;
-    s64 temp_q;
-    f32 temp_f;
-    temp_17 = (s32)(s32)func_00452380((s8 *)((s8*)&D_00635A78));
-    temp_q = *(s64*)D_00635A88;
-    temp_f = *(f32*)(D_00635A88 + 8);
-    sp40 = temp_q;
-    sp48 = temp_f;
-    *(f32*)((u8*)&sp40 + 8) = sp48;
-    temp_2 = (s32)(s32)func_00452380((s8 *)((s8*)&D_00635A78));
-    if (temp_2 == 0) {
+    s32 oldHandle;
+    u8 loaded;
+    s64 posXY;
+    f32 posZ;
+    task = (s32)(s32)func_00452380((s8 *)((s8*)&D_00635A78));
+    posXY = *(s64*)D_00635A88;
+    posZ = *(f32*)(D_00635A88 + 8);
+    pos = posXY;
+    sp48 = posZ;
+    *(f32*)((u8*)&pos + 8) = sp48;
+    loadTask = (s32)(s32)func_00452380((s8 *)((s8*)&D_00635A78));
+    if (loadTask == 0) {
         func_0046d730(&D_006359F0, 0x392);
     }
-    flag = (*(u32*)(s32)func_00452560((void *)(u32)((void*)temp_2)) & 1U) != 0;
-    if (!flag) {
+    loaded = (*(u32*)(s32)func_00452560((void *)(u32)((void*)loadTask)) & 1U) != 0;
+    if (!loaded) {
         func_0046d730(&D_006359F0, 0x3CD);
     }
-    temp_16 = (s32*)(s32)func_00452560((void *)(u32)((void*)temp_17));
+    temp_16 = (s32*)(s32)func_00452560((void *)(u32)((void*)task));
     if (arg0 < 0 || arg0 >= 5) {
         func_0046d730(&D_006359F0, 0x3CF);
     }
     temp_2_2 = (s32*)((u32)(arg0 << 2) + (u32)temp_16);
     temp_16 = temp_2_2 + 3;
-    temp_4 = temp_2_2[3];
-    if (temp_4 != 0) {
-        func_00452080((struct KwlnTask*)(uintptr_t)temp_4);
+    oldHandle = temp_2_2[3];
+    if (oldHandle != 0) {
+        func_00452080((struct KwlnTask*)(uintptr_t)oldHandle);
     }
     switch (arg0) {
     case 0:
-        temp_2_3 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635AA0, &sp4C), 0, &D_005DC7D0);
-        func_004b1250((void *)(u32)(func_0025ff60(temp_2_3)), (f32 *)((void*)&sp40));
+        temp_2_3 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635AA0, &sp4C), 0, &D_005DC7D0);
+        func_004b1250((void *)(u32)(func_0025ff60(temp_2_3)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_3;
         break;
     case 1:
-        temp_2_4 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635AC0, &sp4C), 0, &D_005DC7D0);
-        func_004b1250((void *)(u32)(func_0025ff60(temp_2_4)), (f32 *)((void*)&sp40));
+        temp_2_4 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635AC0, &sp4C), 0, &D_005DC7D0);
+        func_004b1250((void *)(u32)(func_0025ff60(temp_2_4)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_4;
         break;
     case 2:
-        temp_2_5 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635AE0, &sp4C), 0, &D_005DC7D0);
-        func_004b1250((void *)(u32)(func_0025ff60(temp_2_5)), (f32 *)((void*)&sp40));
+        temp_2_5 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635AE0, &sp4C), 0, &D_005DC7D0);
+        func_004b1250((void *)(u32)(func_0025ff60(temp_2_5)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_5;
         break;
     case 3:
-        temp_2_6 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635B00, &sp4C), 0, &D_005DC7D0);
+        temp_2_6 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635B00, &sp4C), 0, &D_005DC7D0);
         temp_2_7 = func_0025ff60(temp_2_6);
-        (*(f32*)((u8*)&sp40 + 4)) -= 10.0f;
-        func_004b1250((void *)(u32)(temp_2_7), (f32 *)((void*)&sp40));
+        (*(f32*)((u8*)&pos + 4)) -= 10.0f;
+        func_004b1250((void *)(u32)(temp_2_7), (f32 *)((void*)&pos));
         *temp_16 = temp_2_6;
         break;
     case 4:
-        temp_2_8 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635B20, &sp4C), 0, &D_005DC7D0);
-        func_004b1250((void *)(u32)(func_0025ff60(temp_2_8)), (f32 *)((void*)&sp40));
+        temp_2_8 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635B20, &sp4C), 0, &D_005DC7D0);
+        func_004b1250((void *)(u32)(func_0025ff60(temp_2_8)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_8;
         break;
     }
