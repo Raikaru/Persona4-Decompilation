@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "rw_geometry_internal.h"
 /* Source unit: src/Graphics/Model/mdlFile_0047d2d0.c (1 function markers) */
 #include "type.h"
 #include "effect_instance_internal.h"
@@ -1303,7 +1304,6 @@ void mdlEffectIncrementCounter(int param_1)
 void mdlEffectRenderFlares(u8 *arg0)
 {
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
-    extern u8 *RpGeometryLock(u8 *a, s32 b);
     extern RpGeometry *func_003c22f0(RpGeometry *geometry);
     extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture);
     extern s32 func_00481300(u16 b);

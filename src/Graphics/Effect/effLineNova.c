@@ -1,4 +1,5 @@
 #include "effect_vu0_internal.h"
+#include "rw_geometry_internal.h"
 #include "effect_geometry_internal.h"
 /* Original translation unit effLineNova.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -179,7 +180,6 @@ void func_004b36b0(u8 *unused, u8 *effect)
 
     extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
     extern u8 *func_00457120(void);
-    extern u8 *RpGeometryLock(u8 *, s32);
     extern u8 *func_003c22f0(u8 *);
     extern u8 *func_003e9700(u8 *);
     extern u8 *func_003e9cb0(u8 *, u8 *, s32);
@@ -624,7 +624,6 @@ void func_004b4430(u8 *unused, u8 *effect)
 
     extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
     extern u8 *func_00457120(void);
-    extern u8 *RpGeometryLock(u8 *, s32);
     extern u8 *func_003c22f0(u8 *);
     extern u8 *func_003e9700(u8 *);
     extern u8 *func_003e9cb0(u8 *, u8 *, s32);

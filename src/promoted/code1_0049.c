@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "rw_geometry_internal.h"
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "particle_spawn_internal.h"
@@ -1567,7 +1568,6 @@ void func_004940d0(u8 *arg0, u16 arg1, Code1_0049Color *arg2)
 // FUN_004941F0
 void func_004941f0(u8 *track, u32 *colors)
 {
-    extern u8 *RpGeometryLock(u8 *geometry, s32 lockMode);
     extern u8 *func_003c22f0(u8 *geometry);
     extern f32 fGpffff8044;
     u32 firstWord;
@@ -2265,7 +2265,6 @@ void func_0049a7f0(u8 *arg0, f32 *arg1) {
 // FUN_0049A810
 void func_0049a810(u8 *arg0)
 {
-    extern void RpGeometryLock(void *, s32);
     extern void func_003c22f0(void *);
     u8 *state;
     u8 *work;

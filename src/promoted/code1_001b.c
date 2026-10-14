@@ -1,4 +1,5 @@
 #include "list_item_internal.h"
+#include "rw_geometry_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "model_callbacks_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -2882,7 +2883,6 @@ void func_001b6120(void)
     extern RwTexture *func_003ef650(RwTexDictionary *dictionary, const char *name);
     extern RwTexDictionary *func_003ef6d0(void);
     extern void *func_003c42b0(void *material, void *texture);
-    extern u8 *RpGeometryLock(u8 *a, s32 b);
     extern void *func_003c22f0(void *geometry);
     extern u8 *func_003e9c10(u8 *a0, const f32 *a1, s32 a2);
     extern char D_005F7270[];

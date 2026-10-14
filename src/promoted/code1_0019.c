@@ -1,4 +1,5 @@
 #include "btl_skill_target_internal.h"
+#include "rw_geometry_internal.h"
 #include "model_motion_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
@@ -34,7 +35,6 @@ extern void func_00489f80(void);
 extern void func_0045c870(void *arg0, s32 arg1);
 extern void func_0048a000(void);
 extern f32 fGpffff8474;
-extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern void func_003c22f0(void *arg0);
 extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];

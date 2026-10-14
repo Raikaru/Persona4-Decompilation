@@ -1,4 +1,5 @@
 #include "effect_geometry_internal.h"
+#include "rw_geometry_internal.h"
 #include "include_asm.h"
 /* Original translation unit effGeometry.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -41,7 +42,6 @@ extern u8 D_00713460[];
 extern void memcpy(void *dst, const void *src, u32 size);
 extern s32 func_003c2130(void *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
-extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
 extern void func_003c22f0(void *arg0);
 
 typedef struct RwV3d
@@ -244,7 +244,6 @@ u8 *func_004830f0(u16 arg0, s32 arg1) {
 // FUN_00483270
 u8 *func_00483270(u8 *arg0) {
     extern u8 *func_003c42b0(void *arg0, s32 arg1);
-    extern u8 *RpGeometryLock(u8 *arg0, s32 arg1);
     extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
     extern void func_003c22f0(void *arg0);
     u8 *self;

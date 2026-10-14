@@ -1,4 +1,5 @@
 /* Original translation unit effPolygonThunder.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "rw_geometry_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
@@ -195,7 +196,6 @@ void func_004956b0(u8 *arg0)
     extern f32 sqrtf(f32 arg0);
     extern f32 func_0044b938(f32 arg0);
     extern void func_004bd380(f32 angle, f32 *axis);
-    extern void RpGeometryLock(u8 *geometry, s32 lockMode);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff8084;
     extern f32 iGpffff8084;
@@ -801,7 +801,6 @@ void func_004968a0(u8 *arg0)
     extern void func_004bd3c0(f32 arg0);
     extern void func_004bd450(void);
     extern void func_004bd380(f32 angle, f32 *axis);
-    extern void RpGeometryLock(u8 *geometry, s32 lockMode);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff804c;
     extern f32 fGpffff8084;
@@ -1487,7 +1486,6 @@ void func_00497ce0(u8 *arg0)
     extern void func_004bceb0(void);
     extern f32 sinf(f32 arg0);
     extern void func_004bd380(f32 angle, f32 *axis);
-    extern void RpGeometryLock(u8 *geometry, s32 lockMode);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff8084;
     extern f32 fGpffff80d0;
