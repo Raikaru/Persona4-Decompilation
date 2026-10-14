@@ -75,8 +75,8 @@ extern void func_00106310();
 extern void func_00106320();
 extern s32 func_00110d30();
 extern void func_00260450(void);
-extern s16 func_00123810(void);
-extern s16 func_00123830(void);
+extern s16 clndGetPeriod(void);
+extern s16 clndGetDaysSinceApr5(void);
 extern void func_00123850(void);
 extern s32 func_00268990(s32 arg0);
 extern void func_00103b00(void);
@@ -157,8 +157,8 @@ typedef struct CalendarRecord {
 
 typedef struct CalendarState {
     s32 state; /* 0 init, 1 load, 2 done */
-    s16 field_04;
-    s16 field_06;
+    s16 daysSinceApr5;
+    s16 period;
     s16 field_08;
     s16 field_0A;
     s32 field_0C;
@@ -516,8 +516,8 @@ void func_00121b20(void) {
 s32 func_00121b70(u8 *unusedTask) {
     extern s32 func_00122820(s32 arg0, s32 arg1);
     extern s32 func_00122860(s32 arg0, s32 arg1);
-    extern s32 func_00123810(void);
-    extern s32 func_00123830(void);
+    extern s32 clndGetPeriod(void);
+    extern s32 clndGetDaysSinceApr5(void);
     extern void func_00123850(void);
     s32 temp_17;
     s32 temp_18;
@@ -575,11 +575,11 @@ s32 func_00121b70(u8 *unusedTask) {
         }
         break;
     case 6:
-        temp_17 = func_00123830();
-        temp_18 = func_00123810();
+        temp_17 = clndGetDaysSinceApr5();
+        temp_18 = clndGetPeriod();
         func_00123850();
-        temp_19 = func_00123830();
-        temp_2_4 = func_00123810();
+        temp_19 = clndGetDaysSinceApr5();
+        temp_2_4 = clndGetPeriod();
         if (temp_17 != temp_19) {
             *(s32 *)(temp_16 + 0x1C) = func_00122820(temp_17, temp_19);
             *(u32 *)(temp_16 + 0) = 7;
@@ -929,10 +929,10 @@ s32 func_001228c0(u8 *unusedTask)
         calendar->state = 1;
         break;
     case 1:
-        calendar->field_04 = (s16)func_001060b0();
-        calendar->field_06 = func_001060c0() & 0xFF;
+        calendar->daysSinceApr5 = (s16)func_001060b0();
+        calendar->period = func_001060c0() & 0xFF;
         calendar->field_08 =
-            (s8)func_00110850(calendar->field_04, calendar->field_06);
+            (s8)func_00110850(calendar->daysSinceApr5, calendar->period);
         func_001238c0(0);
         calendar->state = 2;
         break;
@@ -1061,7 +1061,7 @@ void func_00122a40(void *unusedNode, void *work)
         func_0046d280(sprite);
     }
     if ((calendar->field_0C & 2) != 0) {
-        func_001104d0(calendar->field_04, &month, &day);
+        func_001104d0(calendar->daysSinceApr5, &month, &day);
         value = (s32)calendar->records[2].field_10;
         func_0046d4c0(parent, calendar->field_110, 7, (f32)(value + 0x1C2), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
         func_0046d4c0(parent, calendar->field_110, 8, (f32)(value + 0x246), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
@@ -1076,16 +1076,16 @@ void func_00122a40(void *unusedNode, void *work)
         xOffset = (f32)0x201;
         xOffset += calendar->records[2].field_10;
         func_0046d3b0(parent, calendar->field_110, value, 14.0f + xOffset, 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
-        if (func_00110d30(calendar->field_04) != 0) {
-            value = func_00110580(calendar->field_04);
+        if (func_00110d30(calendar->daysSinceApr5) != 0) {
+            value = func_00110580(calendar->daysSinceApr5);
             xOffset = (f32)0x219;
             func_0046d4c0(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xAC, 0x99, 0.0f, 1);
-        } else if (func_00110580(calendar->field_04) == 6) {
-            value = func_00110580(calendar->field_04);
+        } else if (func_00110580(calendar->daysSinceApr5) == 6) {
+            value = func_00110580(calendar->daysSinceApr5);
             xOffset = (f32)0x219;
             func_0046d4c0(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x99, 0xA4, 0xFF, 0.0f, 1);
         } else {
-            value = func_00110580(calendar->field_04);
+            value = func_00110580(calendar->daysSinceApr5);
             xOffset = (f32)0x219;
             func_0046d4c0(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xFF, 0xFF, 0.0f, 1);
         }
@@ -1101,15 +1101,15 @@ void func_00122a40(void *unusedNode, void *work)
             elapsed = duration;
         }
         progress = (elapsed << 0xC) / duration;
-        if (func_00110d30(calendar->field_04) != 0) {
-            value = calendar->field_06;
+        if (func_00110d30(calendar->daysSinceApr5) != 0) {
+            value = calendar->period;
             if (value == 3) {
                 spriteIndex = 0x1A;
             } else {
                 spriteIndex = value + 0x14;
             }
         } else {
-            spriteIndex = calendar->field_06 + 0x14;
+            spriteIndex = calendar->period + 0x14;
         }
         if (calendar->field_18 != 0) {
             if (calendar->field_1C == 1) {
@@ -1197,7 +1197,7 @@ s32 func_00123730(s32 arg0)
     return temp_2;
 }
 // FUN_00123810
-s16 func_00123810(void)
+s16 clndGetPeriod(void)
 {
     CalendarState *p;
     s16 value;
@@ -1205,7 +1205,7 @@ s16 func_00123810(void)
     value = 0;
     p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        value = p->field_06;
+        value = p->period;
     }
     return value;
 }
@@ -1213,7 +1213,7 @@ s16 func_00123810(void)
 
 
 // FUN_00123830
-s16 func_00123830(void)
+s16 clndGetDaysSinceApr5(void)
 {
     CalendarState *p;
     s16 value;
@@ -1221,7 +1221,7 @@ s16 func_00123830(void)
     value = 0;
     p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        value = p->field_04;
+        value = p->daysSinceApr5;
     }
     return value;
 }
@@ -1239,10 +1239,10 @@ void func_00123850(void) {
 
     p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        p->field_04 = (s16)func_001060b0();
+        p->daysSinceApr5 = (s16)func_001060b0();
         t = func_001060c0() & 0xFF;
-        p->field_06 = (s16)t;
-        first = p->field_04;
+        p->period = (s16)t;
+        first = p->daysSinceApr5;
         p->field_08 = (s8)func_00110850(first, (s16)t);
     }
 }
@@ -1379,7 +1379,7 @@ s16 func_00123b10(void) {
 
     p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        return p->field_04;
+        return p->daysSinceApr5;
     }
     return -1;
 }
@@ -1389,7 +1389,7 @@ s16 func_00123b40(void) {
 
     p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        return p->field_06;
+        return p->period;
     }
     return -1;
 }
