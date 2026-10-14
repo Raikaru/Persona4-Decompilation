@@ -139,6 +139,35 @@ extern void func_0012e9d0(u8 *arg0);
 extern void func_0012fdf0(u8 *arg0);
 extern void func_0012feb0(u8 *arg0);
 extern s32 func_001228c0(u8 *task);
+/* Calendar state block at iGpffffb1dc: header fields, five 0x30-byte records from 0x20, owner pointer at 0x110. */
+typedef struct CalendarRecord {
+    f32 field_00;
+    f32 field_04;
+    f32 field_08;
+    f32 field_0C;
+    u8 pad_10[0x8];
+    s8 field_18;
+    s8 field_19;
+    u8 pad_1A[0xE];
+    s32 field_28;
+    s32 field_2C;
+} CalendarRecord;
+
+typedef struct CalendarState {
+    s32 state; /* 0 init, 1 load, 2 done */
+    s16 field_04;
+    s16 field_06;
+    s16 field_08;
+    s16 field_0A;
+    s32 field_0C;
+    s32 field_10;
+    s32 field_14;
+    s32 field_18;
+    s32 field_1C;
+    CalendarRecord records[5];
+    s32 field_110;
+} CalendarState;
+
 extern u8 *iGpffffb1dc;
 extern s32 func_00123b70(u8 *arg0);
 extern u8 D_005E5170[];
@@ -1168,15 +1197,15 @@ s32 func_00123730(s32 arg0)
 // FUN_00123810
 s16 func_00123810(void)
 {
-    s16 var_2;
-    u8 *temp_3;
+    CalendarState *p;
+    s16 value;
 
-    var_2 = 0;
-    temp_3 = iGpffffb1dc;
-    if (temp_3 != NULL) {
-        var_2 = *(s16 *)(temp_3 + 6);
+    value = 0;
+    p = (CalendarState *)iGpffffb1dc;
+    if (p != NULL) {
+        value = p->field_06;
     }
-    return var_2;
+    return value;
 }
 
 
@@ -1184,15 +1213,15 @@ s16 func_00123810(void)
 // FUN_00123830
 s16 func_00123830(void)
 {
-    s16 var_2;
-    u8 *temp_3;
+    CalendarState *p;
+    s16 value;
 
-    var_2 = 0;
-    temp_3 = iGpffffb1dc;
-    if (temp_3 != NULL) {
-        var_2 = *(s16 *)(temp_3 + 4);
+    value = 0;
+    p = (CalendarState *)iGpffffb1dc;
+    if (p != NULL) {
+        value = p->field_04;
     }
-    return var_2;
+    return value;
 }
 
 
@@ -1202,17 +1231,17 @@ s16 func_00123830(void)
 /* measured: opens optimization_level 1 to keep the +6 store and +4 load before the call conversion (nd 0). */
 #pragma optimization_level 1
 void func_00123850(void) {
-    u8 *p;
+    CalendarState *p;
     s32 t;
     s16 first;
 
-    p = iGpffffb1dc;
+    p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        *(s16 *)(p + 4) = (s16)func_001060b0();
+        p->field_04 = (s16)func_001060b0();
         t = func_001060c0() & 0xFF;
-        *(s16 *)(p + 6) = (s16)t;
-        first = *(s16 *)(p + 4);
-        *(s16 *)(p + 8) = (s8)func_00110850(first, (s16)t);
+        p->field_06 = (s16)t;
+        first = p->field_04;
+        p->field_08 = (s8)func_00110850(first, (s16)t);
     }
 }
 /* measured: closes the optimization_level bracket at the file's -O2 baseline (nd 0). */
@@ -1221,94 +1250,93 @@ void func_00123850(void) {
 // FUN_001238C0
 void func_001238c0(s32 arg0)
 {
-    s32 var_8;
-    s32 var_9;
-    u8 *temp_4;
-    u8 *temp_4_2;
-    u8 *temp_5;
-    u8 *temp_5_2;
-    u8 *temp_7;
-    u8 *temp_7_2;
-    u8 *temp_8;
+    s32 i;
+    s32 j;
+    CalendarState *state;
+    CalendarState *reloaded;
+    CalendarRecord *record;
+    CalendarRecord *record2;
+    u8 *src;
+    u8 *src2;
     u8 *table;
 
-    temp_8 = (u8 *)iGpffffb1dc;
-    if (temp_8 != NULL) {
+    state = (CalendarState *)iGpffffb1dc;
+    if (state != NULL) {
         if (arg0 != 0) {
-            *(s32 *)(temp_8 + 0x18) = 0;
+            state->field_18 = 0;
         }
-        if (*(s32 *)(temp_8 + 0x14) != arg0) {
-            *(s32 *)(temp_8 + 0x14) = arg0;
+        if (state->field_14 != arg0) {
+            state->field_14 = arg0;
             if (arg0 == 1) {
-                temp_7 = (u8 *)iGpffffb1dc;
-                var_9 = 0;
+                reloaded = (CalendarState *)iGpffffb1dc;
+                i = 0;
                 table = D_005E50D0;
-                while (var_9 < 5) {
-                    temp_5 = table + (var_9 << 5);
-                    temp_4 = temp_7 + (var_9 * 0x30);
-                    *(f32 *)(temp_4 + 0x20) = *(f32 *)(temp_5 + 0);
-                    *(f32 *)(temp_4 + 0x24) = *(f32 *)(temp_5 + 4);
-                    *(f32 *)(temp_4 + 0x28) = *(f32 *)(temp_5 + 8);
-                    *(f32 *)(temp_4 + 0x2C) = *(f32 *)(temp_5 + 0xC);
-                    *(s32 *)(temp_4 + 0x48) = *(s32 *)(temp_5 + 0x14);
-                    *(s32 *)(temp_4 + 0x4C) = *(s32 *)(temp_5 + 0x18);
-                    *(s8 *)(temp_4 + 0x39) = *(s32 *)(temp_5 + 0x10);
-                    *(s8 *)(temp_4 + 0x38) = 0;
-                    var_9 += 1;
+                while (i < 5) {
+                    src = table + (i << 5);
+                    record = &reloaded->records[i];
+                    record->field_00 = *(f32 *)(src + 0);
+                    record->field_04 = *(f32 *)(src + 4);
+                    record->field_08 = *(f32 *)(src + 8);
+                    record->field_0C = *(f32 *)(src + 0xC);
+                    record->field_28 = *(s32 *)(src + 0x14);
+                    record->field_2C = *(s32 *)(src + 0x18);
+                    record->field_19 = *(s32 *)(src + 0x10);
+                    record->field_18 = 0;
+                    i += 1;
                 }
-                *(s32 *)(temp_7 + 0x10) = 0;
-                *(s32 *)(temp_8 + 0xC) = 7;
+                reloaded->field_10 = 0;
+                state->field_0C = 7;
                 return;
             }
-            temp_7_2 = (u8 *)iGpffffb1dc;
-            var_8 = 0;
+            reloaded = (CalendarState *)iGpffffb1dc;
+            j = 0;
             table = D_005E50D0;
-            while (var_8 < 5) {
-                temp_5_2 = table + (var_8 << 5);
-                temp_4_2 = temp_7_2 + (var_8 * 0x30);
-                *(f32 *)(temp_4_2 + 0x20) = *(f32 *)(temp_5_2 + 0);
-                *(f32 *)(temp_4_2 + 0x24) = *(f32 *)(temp_5_2 + 4);
-                *(f32 *)(temp_4_2 + 0x28) = *(f32 *)(temp_5_2 + 8);
-                *(f32 *)(temp_4_2 + 0x2C) = *(f32 *)(temp_5_2 + 0xC);
-                *(s32 *)(temp_4_2 + 0x48) = *(s32 *)(temp_5_2 + 0x14);
-                *(s32 *)(temp_4_2 + 0x4C) = *(s32 *)(temp_5_2 + 0x18);
-                *(s8 *)(temp_4_2 + 0x39) = *(s32 *)(temp_5_2 + 0x10);
-                *(s8 *)(temp_4_2 + 0x38) = 0;
-                var_8 += 1;
+            while (j < 5) {
+                src2 = table + (j << 5);
+                record2 = &reloaded->records[j];
+                record2->field_00 = *(f32 *)(src2 + 0);
+                record2->field_04 = *(f32 *)(src2 + 4);
+                record2->field_08 = *(f32 *)(src2 + 8);
+                record2->field_0C = *(f32 *)(src2 + 0xC);
+                record2->field_28 = *(s32 *)(src2 + 0x14);
+                record2->field_2C = *(s32 *)(src2 + 0x18);
+                record2->field_19 = *(s32 *)(src2 + 0x10);
+                record2->field_18 = 0;
+                j += 1;
             }
-            *(s32 *)(temp_7_2 + 0x10) = 0x46;
+            reloaded->field_10 = 0x46;
         }
     }
 }
 // FUN_00123A10
 void func_00123a10(void) {
-    u8 *p;
+    CalendarState *p;
 
-    p = iGpffffb1dc;
+    p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        *(s32 *)(p + 0x18) = 1;
+        p->field_18 = 1;
         if (func_0015a160() != 0) {
             goto set1;
         }
         if (func_0028b650() != 0) {
             goto set1;
         }
-        *(s32 *)(p + 0x1C) = 0;
+        p->field_1C = 0;
         return;
 set1:
-        *(s32 *)(p + 0x1C) = 1;
+        p->field_1C = 1;
     }
 }
 
 // FUN_00123A80
 void func_00123a80(void)
 {
-    u8 *temp_3;
+    CalendarState *p;
 
-    temp_3 = iGpffffb1dc;
-    if (temp_3 != NULL) {
-        *(s32 *)(temp_3 + 0x14) = 0;
-        *(s32 *)(temp_3 + 0xC) = 0;
+    p = (CalendarState *)iGpffffb1dc;
+    if (p != NULL) {
+        p->field_14 = 0;
+        p->field_0C = 0;
     }
 }
 
@@ -1316,50 +1344,50 @@ void func_00123a80(void)
 
 // FUN_00123AA0
 void func_00123aa0(s16 arg0) {
-    u8 *p;
+    CalendarState *p;
 
-    p = iGpffffb1dc;
+    p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        *(s16 *)(p + 0xA) = *(s16 *)(p + 8);
-        *(s16 *)(p + 8) = arg0;
+        p->field_0A = p->field_08;
+        p->field_08 = arg0;
     }
 }
 // FUN_00123AC0
 void func_00123ac0(void) {
-    u8 *p;
+    CalendarState *p;
 
-    p = iGpffffb1dc;
+    p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        *(s16 *)(p + 8) = *(s16 *)(p + 0xA);
+        p->field_08 = p->field_0A;
     }
 }
 // FUN_00123AE0
 s8 func_00123ae0(void) {
-    u8 *p;
+    CalendarState *p;
 
-    p = iGpffffb1dc;
+    p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        return *(s8 *)(p + 8);
+        return *(s8 *)&p->field_08; /* low byte of field_08 */
     }
     return -1;
 }
 // FUN_00123B10
 s16 func_00123b10(void) {
-    u8 *p;
+    CalendarState *p;
 
-    p = iGpffffb1dc;
+    p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        return *(s16 *)(p + 4);
+        return p->field_04;
     }
     return -1;
 }
 // FUN_00123B40
 s16 func_00123b40(void) {
-    u8 *p;
+    CalendarState *p;
 
-    p = iGpffffb1dc;
+    p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        return *(s16 *)(p + 6);
+        return p->field_06;
     }
     return -1;
 }
