@@ -945,28 +945,28 @@ s32 func_00355550(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
                   s64 arg4, s32 arg5, s32 arg6, s32 arg7)
 {
     s32 result;
-    u8 *temp_2;
+    u8 *work;
     func_0044ea90(&D_0064B310, 0x63D);
-    temp_2 = D_008873F4[0](1, 0x22C, 0x40000);
-    if (temp_2 == NULL) {
+    work = D_008873F4[0](1, 0x22C, 0x40000);
+    if (work == NULL) {
         func_0046d730(&D_0064B310, 0x63E);
     }
-    result = (s32)func_00451de0((const void *)(&D_0064B410), arg6, 0, 0, func_003558a0, func_00356140, (u8 *)(temp_2));
-    *(s16 *)(temp_2 + 0x0) = arg0;
-    *(s32 *)(temp_2 + 0x4) = arg5;
-    *(s16 *)(temp_2 + 0xC) = arg2;
-    *(s16 *)(temp_2 + 0xE) = arg3;
+    result = (s32)func_00451de0((const void *)(&D_0064B410), arg6, 0, 0, func_003558a0, func_00356140, (u8 *)(work));
+    *(s16 *)(work + 0x0) = arg0;
+    *(s32 *)(work + 0x4) = arg5;
+    *(s16 *)(work + 0xC) = arg2;
+    *(s16 *)(work + 0xE) = arg3;
     {
         u8 color_0 = ((u8 *)&arg1)[0];
         u8 color_1 = ((u8 *)&arg1)[1];
         u8 color_2 = ((u8 *)&arg1)[2];
         u8 color_3 = ((u8 *)&arg1)[3];
-        *(u8 *)(temp_2 + 0x14) = color_0;
-        *(u8 *)(temp_2 + 0x15) = color_1;
-        *(u8 *)(temp_2 + 0x16) = color_2;
-        *(u8 *)(temp_2 + 0x17) = color_3;
+        *(u8 *)(work + 0x14) = color_0;
+        *(u8 *)(work + 0x15) = color_1;
+        *(u8 *)(work + 0x16) = color_2;
+        *(u8 *)(work + 0x17) = color_3;
     }
-    func_003556a0(temp_2, arg4, arg7);
+    func_003556a0(work, arg4, arg7);
     return result;
 }
 #pragma optimization_level 2
@@ -1062,13 +1062,13 @@ void func_00355740(u8 *arg0, s64 arg1)
 // FUN_003558A0
 s32 func_003558a0(u8 *arg0)
 {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(temp_16 + 0x1F8) = 0;
-    *(s32 *)(temp_16 + 0x1FC) = 0;
-    func_00460ac0((u8 *)&D_00793E80 + (*(s32 *)(temp_16 + 0x228) * 0x30), temp_16 + 0x1F8);
-    if (!(*(s32 *)(temp_16 + 8) & 4)) {
+    work = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(work + 0x1F8) = 0;
+    *(s32 *)(work + 0x1FC) = 0;
+    func_00460ac0((u8 *)&D_00793E80 + (*(s32 *)(work + 0x228) * 0x30), work + 0x1F8);
+    if (!(*(s32 *)(work + 8) & 4)) {
         goto ret0;
     }
     return -1;
@@ -1508,40 +1508,40 @@ s32 func_00356820(u8 *arg0) {
 // FUN_00356870
 s32 func_00356870(u8 *arg0)
 {
-    s16 temp_2;
-    s32 var_17;
-    s32 var_16;
-    u8 *var_19;
+    s16 counter;
+    s32 index;
+    s32 result;
+    u8 *slot;
     extern void func_00356a10(u8 *arg0);
     extern void func_00359340(u8 *arg0);
     extern void func_003593b0(u8 *arg0);
 
-    var_16 = 1;
-    temp_2 = *(s16 *)(arg0 + 0x20);
-    if (temp_2 < 0x64) {
-        *(s16 *)(arg0 + 0x20) = temp_2 + 1;
+    result = 1;
+    counter = *(s16 *)(arg0 + 0x20);
+    if (counter < 0x64) {
+        *(s16 *)(arg0 + 0x20) = counter + 1;
     }
-    var_17 = 0;
+    index = 0;
     goto loop_test;
 loop_body:
-    if (((var_17 >= 0x12) && (var_17 <= 0x1B)) ||
-        ((var_17 > 0) && (var_17 <= 5)) ||
-        ((var_17 >= 0x27) && (var_17 <= 0x28))) {
-        var_19 = arg0 + (var_17 * 0x30);
-        func_001437b0(var_19 + 0x150, *(s16 *)(arg0 + 0x20), 1);
-    } else if (var_17 == 0x26) {
-        var_19 = arg0 + (var_17 * 0x30);
-        func_001437b0(var_19 + 0x150, *(s16 *)(arg0 + 0x20), 2);
+    if (((index >= 0x12) && (index <= 0x1B)) ||
+        ((index > 0) && (index <= 5)) ||
+        ((index >= 0x27) && (index <= 0x28))) {
+        slot = arg0 + (index * 0x30);
+        func_001437b0(slot + 0x150, *(s16 *)(arg0 + 0x20), 1);
+    } else if (index == 0x26) {
+        slot = arg0 + (index * 0x30);
+        func_001437b0(slot + 0x150, *(s16 *)(arg0 + 0x20), 2);
     } else {
-        var_19 = arg0 + (var_17 * 0x30);
-        func_001437b0(var_19 + 0x150, *(s16 *)(arg0 + 0x20), 0);
+        slot = arg0 + (index * 0x30);
+        func_001437b0(slot + 0x150, *(s16 *)(arg0 + 0x20), 0);
     }
-    if (*(u8 *)(var_19 + 0x16A) != 0) {
-        var_16 = 0;
+    if (*(u8 *)(slot + 0x16A) != 0) {
+        result = 0;
     }
-    var_17 += 1;
+    index += 1;
 loop_test:
-    if (var_17 < 0x2B) {
+    if (index < 0x2B) {
         goto loop_body;
     }
     *(s16 *)(arg0 + 0x22) = *(s16 *)(arg0 + 0x22) + 1;
@@ -1551,7 +1551,7 @@ loop_test:
     func_00359340(arg0);
     func_003593b0(arg0);
     func_00356a10(arg0);
-    return var_16;
+    return result;
 }
 /* Community-list renderer: 10536/10544 bytes, all 115 relocations exact.
  * Native byte-opacity contracts, the Vec2f output, and real RGBA/rectangle
