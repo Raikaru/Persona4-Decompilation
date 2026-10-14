@@ -4,6 +4,8 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
+extern void func_004841c0(void *arg0);
+extern void (*D_008873ec[])(void *);
 
 typedef struct RpGeometry RpGeometry;
 
@@ -110,6 +112,15 @@ u8 *func_004a21e0(u8 *arg0)
     *(u8 **)(work + 4) = func_00484010(*(u8 **)(p16 + 4));
     func_004a1d70(work, p17);
     return work;
+}
+
+// FUN_004A22C0
+void func_004a22c0(u8 *arg0) {
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x3C);
+    func_004841c0((void *)*(s32 *)(temp_16 + 4));
+    D_008873ec[0](*(void **)(temp_16 + 8));
 }
 
 /* Funnel wind strip update, the func_004a4a10 sibling without the VU0 matrix:
@@ -697,6 +708,15 @@ u8 *func_004a3510(u8 *arg0)
     *(u8 **)(work + 4) = func_00484010(*(u8 **)(p16 + 4));
     func_004a30e0(work, p17);
     return work;
+}
+
+// FUN_004A35F0
+void func_004a35f0(u8 *arg0) {
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x3C);
+    func_004841c0((void *)*(s32 *)(temp_16 + 4));
+    D_008873ec[0](*(void **)(temp_16 + 8));
 }
 
 /* Falling funnel wind strip, the func_004a2310 sibling with a call-free inner
@@ -1320,6 +1340,15 @@ u8 *func_004a48d0(u8 *arg0)
     *(u8 **)(work + 4) = func_00484010(*(u8 **)(p16 + 4));
     func_004a4450(work, p17);
     return work;
+}
+
+// FUN_004A49C0
+void func_004a49c0(u8 *arg0) {
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x3C);
+    func_004841c0((void *)*(s32 *)(temp_16 + 4));
+    D_008873ec[0](*(void **)(temp_16 + 8));
 }
 
 /* Spiral wind strip update. Each live particle samples sampleCount points on a

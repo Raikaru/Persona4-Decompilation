@@ -340,39 +340,6 @@ void func_004a1d70(u8 *arg0, u8 *arg1)
 }
 /* measured: restores the file's O2 loop-invariant baseline. */
 #pragma opt_loop_invariants off
-// FUN_004A22C0
-void func_004a22c0(u8 *arg0) {
-    u8 *temp_16;
-
-    temp_16 = *(u8 **)(arg0 + 0x3C);
-    func_004841c0(*(s32 *)(temp_16 + 4));
-    D_008873ec[0](*(void **)(temp_16 + 8));
-}
-
-
-
-// FUN_004A35F0
-void func_004a35f0(u8 *arg0) {
-    u8 *temp_16;
-
-    temp_16 = *(u8 **)(arg0 + 0x3C);
-    func_004841c0(*(s32 *)(temp_16 + 4));
-    D_008873ec[0](*(void **)(temp_16 + 8));
-}
-
-
-
-// FUN_004A49C0
-void func_004a49c0(u8 *arg0) {
-    u8 *temp_16;
-
-    temp_16 = *(u8 **)(arg0 + 0x3C);
-    func_004841c0(*(s32 *)(temp_16 + 4));
-    D_008873ec[0](*(void **)(temp_16 + 8));
-}
-
-
-
 // FUN_004A58B0
 void func_004a58b0(u8 *arg0)
 {
