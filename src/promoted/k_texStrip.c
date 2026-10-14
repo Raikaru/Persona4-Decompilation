@@ -1,7 +1,6 @@
 #include "include_asm.h"
 #include "Kosaka/k_clump_property_internal.h"
 #include "sdk_task_registration.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit k_texStrip.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 

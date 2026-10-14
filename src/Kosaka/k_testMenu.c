@@ -1,5 +1,4 @@
 #include "field_transition_internal.h"
-/* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "sdk_lbox_internal.h"
 #include "type.h"

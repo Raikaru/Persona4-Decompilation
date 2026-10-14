@@ -1,4 +1,3 @@
-/* Consolidated Persona 4 source units. */
 /* Original translation unit cmmRankUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "primitive_point_buffer.h"

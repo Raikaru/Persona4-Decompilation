@@ -1,5 +1,4 @@
 #include "field_transition_internal.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldFoodCourt.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"

@@ -1,5 +1,4 @@
 #include "include_asm.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit datUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "datUnit_internal.h"

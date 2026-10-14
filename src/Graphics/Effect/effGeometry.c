@@ -1,6 +1,5 @@
 #include "effect_geometry_internal.h"
 #include "include_asm.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit effGeometry.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 /* RenderWare's public RwFrame typedef carries the SDK's 16-byte alignment. */

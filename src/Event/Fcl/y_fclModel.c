@@ -1,5 +1,4 @@
 #include "model_motion_internal.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "fcl_color.h"
 #include "cmb_card_eff.h"

@@ -1,4 +1,3 @@
-/* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
 #include "sfl_data_internal.h"

@@ -1,4 +1,3 @@
-/* Consolidated Persona 4 source units. */
 /* Original translation unit effPolygonTrack.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "effect_instance_internal.h"

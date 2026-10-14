@@ -1,4 +1,3 @@
-/* Consolidated Persona 4 source units. */
 
 /* Grouped RenderWare animation and UV-animation source units. */
 /* The 0x135 registration below is rwID_UVANIMPLUGIN; this block is not Rt2d. */
