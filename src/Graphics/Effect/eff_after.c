@@ -16,13 +16,43 @@ static inline u8 *effAfterOffsetPtr(u32 offset, u8 *base)
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007146E0[];
+typedef struct RuntimeWork
+{
+    u32 flags;
+    u32 requestFlags;
+    u32 completedFlags;
+    u32 state;
+    u32 phase;
+    u32 selection;
+} RuntimeWork;
+typedef struct RuntimeCommandWork
+{
+    u32 flags;
+    u16* cursor;
+    u8 reserved08[8];
+    RuntimeWork* target;
+    u32 elapsed;
+    u16 delay;
+    u16 reserved1a;
+    u32 duration;
+} RuntimeCommandWork;
+typedef struct RuntimeResetWork
+{
+    u32 flags;
+    u32 value;
+    u32 completedFlags;
+    u32 reserved;
+    void* work;
+} RuntimeResetWork;
+extern void func_004bc4d0(f32 value, RuntimeWork* work);
+extern void func_004bc500(void* work);
 
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
 extern f32 RwV3dLength(void *a0);
 extern void RwV3dNormalize(f32 *a, f32 *b);
 extern f32 func_004b7300(void *arg0, s32 arg1);
-extern s32 func_004b7800(void *arg0, s32 arg1);
+extern s32 func_004b7800(const RuntimeWork *work, s32 index);
 extern f32 func_004bc310(u8 *arg0, s32 arg1);
 extern f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_004bb1d0(struct EffAfterQueue *queue, s32 section);
@@ -72,8 +102,8 @@ void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
     while (currentSection < *(s32 *)(data + 8) - 1) {
         cumulative = 0.0f;
         for (leadingIndex = 0; leadingIndex < currentSection + 1; leadingIndex++) {
-            firstIndex = func_004b7800(data, leadingIndex);
-            nextIndex = func_004b7800(data, leadingIndex + 1);
+            firstIndex = func_004b7800((const RuntimeWork *)data, leadingIndex);
+            nextIndex = func_004b7800((const RuntimeWork *)data, leadingIndex + 1);
             sectionLength = 0.0f;
             vectorBase = (u8 *)*(s32 *)(data + 0x10);
             firstOffset = firstIndex * 0xC;
@@ -107,8 +137,8 @@ void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
     } else {
         previous = 0.0f;
         for (trailingIndex = 0; trailingIndex < currentSection; trailingIndex++) {
-            firstIndex = func_004b7800(data, trailingIndex);
-            nextIndex = func_004b7800(data, trailingIndex + 1);
+            firstIndex = func_004b7800((const RuntimeWork *)data, trailingIndex);
+            nextIndex = func_004b7800((const RuntimeWork *)data, trailingIndex + 1);
             sectionLength = 0.0f;
             vectorBase = (u8 *)*(s32 *)(data + 0x10);
             firstOffset = firstIndex * 0xC;
@@ -139,6 +169,18 @@ void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
         func_0046d730(D_007146E0, 0x7E);
     }
     *fraction = (targetDistance - previous) / sectionLength;
+}
+// FUN_004B7800
+s32 func_004b7800(const RuntimeWork* work, s32 index)
+{
+    s32 result;
+
+    result = (s32)work->state - 1 - index;
+    if (result < 0)
+    {
+        result += (s32)work->completedFlags;
+    }
+    return result;
 }
 // FUN_004B7830
 void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
@@ -1521,6 +1563,121 @@ void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
  * after it, for both the position and the normal strip. Each vector blends
  * the sample's own direction with the directions to the neighbouring samples
  * in the ring buffer, then is normalised and scaled by the section width. */
+// FUN_004BAEA0
+void func_004baea0(RuntimeResetWork* work)
+{
+    work->value = work->completedFlags;
+    work->flags = 0;
+    func_004bc500(work->work);
+}
+// FUN_004BAED0
+void func_004baed0(RuntimeCommandWork* work, u32* unused)
+{
+    u16* cursor;
+    u32 duration;
+    u16* durationParts;
+    RuntimeWork* target;
+    s32 stop;
+
+    cursor = work->cursor;
+    stop = 0;
+    do
+    {
+        switch (*cursor)
+        {
+        case 0:
+            stop = 1;
+            break;
+        case 1:
+            if ((~work->flags & 1) != 0)
+            {
+                if ((((u32)(cursor + 1) >> 1) & 1) != 0)
+                {
+                    durationParts = (u16*)&duration;
+                    durationParts[0] = cursor[1];
+                    durationParts[1] = cursor[2];
+                }
+                else
+                {
+                    duration = *(u32*)(cursor + 1);
+                }
+                work->flags |= 1;
+                work->elapsed = 0;
+            }
+            else
+            {
+                work->elapsed++;
+            }
+            if ((((u32)(cursor + 1) >> 1) & 1) != 0)
+            {
+                durationParts = (u16*)&duration;
+                durationParts[0] = cursor[1];
+                durationParts[1] = cursor[2];
+            }
+            else
+            {
+                duration = *(u32*)(cursor + 1);
+            }
+            stop = 1;
+            if (work->elapsed >= duration)
+            {
+                cursor += 3;
+                work->flags &= ~1;
+                stop = 0;
+            }
+            break;
+        case 0x100:
+            work->flags |= 2;
+            cursor++;
+            break;
+        case 0x101:
+            work->flags &= ~2;
+            cursor++;
+            break;
+        case 0x102:
+            target = work->target;
+            target->completedFlags = 0;
+            target->state = 0;
+            cursor++;
+            break;
+        case 0x200:
+            switch (work->delay)
+            {
+            case 0:
+                if (work->duration != 0)
+                {
+                    func_004bc4d0((f32)work->duration / 30.0f, work->target);
+                }
+                break;
+            }
+            cursor++;
+            break;
+        case 0x201:
+            work->delay = (s16)cursor[1];
+            cursor += 2;
+            break;
+        case 0x202:
+            if ((((u32)(cursor + 1) >> 1) & 1) != 0)
+            {
+                durationParts = (u16*)&duration;
+                durationParts[0] = cursor[1];
+                durationParts[1] = cursor[2];
+            }
+            else
+            {
+                duration = *(u32*)(cursor + 1);
+            }
+            work->duration = duration;
+            cursor += 3;
+            break;
+        case 0x400:
+            work->flags |= 8;
+            cursor++;
+            break;
+        }
+    } while ((u32)(stop != 0) ^ 1);
+    work->cursor = cursor;
+}
 // FUN_004BB1D0
 void func_004bb1d0(EffAfterQueue *queue, s32 section)
 {
