@@ -724,83 +724,83 @@ void func_00354ba0(u8 *arg0) {
 }
 // FUN_00355070
 void func_00355070(u8 *arg0, u8 *arg1) {
-    u8 *temp_3;
+    u8 *work;
 
-    temp_3 = (u8 *)(*(u8 **)(arg0 + 0x38));
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
     if (arg1 != NULL) {
-        *(f32 *)(temp_3 + 0x18) = (f32) *(f32 *)(temp_3 + 0x10);
-        *(f32 *)(temp_3 + 0x1C) = (f32) *(f32 *)(temp_3 + 0x14);
-        *(f32 *)(temp_3 + 0x20) = (f32) *(f32 *)(arg1 + 0);
-        *(f32 *)(temp_3 + 0x24) = (f32) *(f32 *)(arg1 + 4);
+        *(f32 *)(work + 0x18) = (f32) *(f32 *)(work + 0x10);
+        *(f32 *)(work + 0x1C) = (f32) *(f32 *)(work + 0x14);
+        *(f32 *)(work + 0x20) = (f32) *(f32 *)(arg1 + 0);
+        *(f32 *)(work + 0x24) = (f32) *(f32 *)(arg1 + 4);
     } else {
-        *(f32 *)(temp_3 + 0x10) = (f32) *(f32 *)(temp_3 + 0x18);
-        *(f32 *)(temp_3 + 0x14) = (f32) *(f32 *)(temp_3 + 0x1C);
-        *(f32 *)(temp_3 + 0x30) = (f32) *(f32 *)(temp_3 + 0x18);
-        *(f32 *)(temp_3 + 0x34) = (f32) *(f32 *)(temp_3 + 0x1C);
+        *(f32 *)(work + 0x10) = (f32) *(f32 *)(work + 0x18);
+        *(f32 *)(work + 0x14) = (f32) *(f32 *)(work + 0x1C);
+        *(f32 *)(work + 0x30) = (f32) *(f32 *)(work + 0x18);
+        *(f32 *)(work + 0x34) = (f32) *(f32 *)(work + 0x1C);
     }
-    *(s32 *)(temp_3 + 4) = 0;
+    *(s32 *)(work + 4) = 0;
 }
 
 // FUN_003550D0
 void func_003550d0(u8 *arg0, Float2 *arg1, Float2 *arg2)
 {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(arg0 + 0x38);
     if (arg1 == NULL) {
         func_0046d730(&D_0064B310, 0x53A);
     }
     if (arg2 == NULL) {
         func_0046d730(&D_0064B310, 0x53B);
     }
-    *(f32 *)(temp_16 + 0x18) = arg1->x;
-    *(f32 *)(temp_16 + 0x1C) = arg1->y;
-    *(f32 *)(temp_16 + 0x10) = arg1->x;
-    *(f32 *)(temp_16 + 0x14) = arg1->y;
-    *(f32 *)(temp_16 + 0x20) = arg2->x;
-    *(f32 *)(temp_16 + 0x24) = arg2->y;
-    *(f32 *)(temp_16 + 0x30) = arg1->x;
-    *(f32 *)(temp_16 + 0x34) = arg1->y;
-    *(s32 *)(temp_16 + 4) = 0;
+    *(f32 *)(work + 0x18) = arg1->x;
+    *(f32 *)(work + 0x1C) = arg1->y;
+    *(f32 *)(work + 0x10) = arg1->x;
+    *(f32 *)(work + 0x14) = arg1->y;
+    *(f32 *)(work + 0x20) = arg2->x;
+    *(f32 *)(work + 0x24) = arg2->y;
+    *(f32 *)(work + 0x30) = arg1->x;
+    *(f32 *)(work + 0x34) = arg1->y;
+    *(s32 *)(work + 4) = 0;
 }
 // FUN_00355190
 void func_00355190(u8 *arg0, u16 arg1)
 {
     u8 sp50[0x100];
-    s32 temp_17;
-    s8 var_2;
-    u8 *temp_16;
-    u8 *temp_3;
+    s32 id;
+    s8 suffix;
+    u8 *work;
+    u8 *reloadedWork;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_17 = arg1 & 0xFFFF;
-    if (*(u16 *)(temp_16 + 8) != temp_17) {
+    work = *(u8 **)(arg0 + 0x38);
+    id = arg1 & 0xFFFF;
+    if (*(u16 *)(work + 8) != id) {
         if (func_00110d60((s64)(s16)func_001060b0()) & 1) {
-            var_2 = 0x61;
+            suffix = 0x61;
         } else {
-            var_2 = 0x62;
+            suffix = 0x62;
         }
-        if (temp_17 == 0) {
-            func_003549d0(temp_16 + 0x144);
-            *(s32 *)(temp_16 + 0x144) = 3;
+        if (id == 0) {
+            func_003549d0(work + 0x144);
+            *(s32 *)(work + 0x144) = 3;
         } else {
-            sprintf(sp50, &D_0064B3F0, temp_17, var_2);
-            func_003549d0(temp_16 + 0x144);
+            sprintf(sp50, &D_0064B3F0, id, suffix);
+            func_003549d0(work + 0x144);
             if ((u8 *)sp50 == NULL) {
-                *(s32 *)(temp_16 + 0x144) = 3;
+                *(s32 *)(work + 0x144) = 3;
             } else {
-                strncpy(temp_16 + 0x154, sp50, 0x100);
-                *(s32 *)(temp_16 + 0x144) = 0;
+                strncpy(work + 0x154, sp50, 0x100);
+                *(s32 *)(work + 0x144) = 0;
             }
         }
-        *(u16 *)(temp_16 + 8) = arg1;
-        *(s32 *)(temp_16 + 0x40) = 0;
-        temp_3 = *(u8 **)(arg0 + 0x38);
-        *(f32 *)(temp_3 + 0x10) = *(f32 *)(temp_3 + 0x18);
-        *(f32 *)(temp_3 + 0x14) = *(f32 *)(temp_3 + 0x1C);
-        *(f32 *)(temp_3 + 0x30) = *(f32 *)(temp_3 + 0x18);
-        *(f32 *)(temp_3 + 0x34) = *(f32 *)(temp_3 + 0x1C);
-        *(s32 *)(temp_3 + 4) = 0;
+        *(u16 *)(work + 8) = arg1;
+        *(s32 *)(work + 0x40) = 0;
+        reloadedWork = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(reloadedWork + 0x10) = *(f32 *)(reloadedWork + 0x18);
+        *(f32 *)(reloadedWork + 0x14) = *(f32 *)(reloadedWork + 0x1C);
+        *(f32 *)(reloadedWork + 0x30) = *(f32 *)(reloadedWork + 0x18);
+        *(f32 *)(reloadedWork + 0x34) = *(f32 *)(reloadedWork + 0x1C);
+        *(s32 *)(reloadedWork + 4) = 0;
     }
 }
 // FUN_003552D0
@@ -819,49 +819,49 @@ void func_00355300(u8 *arg0, s32 arg1)
 
 // FUN_00355310
 void func_00355310(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
-    u8 *temp_3;
+    u8 *work;
 
-    temp_3 = (u8 *)(*(u8 **)(arg0 + 0x38));
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
     if (arg1 != NULL) {
-        *(f32 *)(arg1 + 0) = (f32) *(f32 *)(temp_3 + 0x18);
-        *(f32 *)(arg1 + 4) = (f32) *(f32 *)(temp_3 + 0x1C);
+        *(f32 *)(arg1 + 0) = (f32) *(f32 *)(work + 0x18);
+        *(f32 *)(arg1 + 4) = (f32) *(f32 *)(work + 0x1C);
     }
     if (arg2 != NULL) {
-        *(f32 *)(arg2 + 0) = (f32) *(f32 *)(temp_3 + 0x10);
-        *(f32 *)(arg2 + 4) = (f32) *(f32 *)(temp_3 + 0x14);
+        *(f32 *)(arg2 + 0) = (f32) *(f32 *)(work + 0x10);
+        *(f32 *)(arg2 + 4) = (f32) *(f32 *)(work + 0x14);
     }
     if (arg3 != NULL) {
-        *(f32 *)(arg3 + 0) = (f32) *(f32 *)(temp_3 + 0x20);
-        *(f32 *)(arg3 + 4) = (f32) *(f32 *)(temp_3 + 0x24);
+        *(f32 *)(arg3 + 0) = (f32) *(f32 *)(work + 0x20);
+        *(f32 *)(arg3 + 4) = (f32) *(f32 *)(work + 0x24);
     }
 }
 
 // FUN_00355370
 void func_00355370(u8 *arg0, u8 *arg1)
 {
-    u8 *temp_4;
+    u8 *work;
 
-    temp_4 = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(arg0 + 0x38);
     if (arg1 == NULL) {
-        *(u32 *)(temp_4 + 0x38) = 0x3F800000;
-        *(u32 *)(temp_4 + 0x3C) = 0x3F800000;
+        *(u32 *)(work + 0x38) = 0x3F800000;
+        *(u32 *)(work + 0x3C) = 0x3F800000;
     } else {
-        *(f32 *)(temp_4 + 0x38) = *(f32 *)(arg1 + 0);
-        *(f32 *)(temp_4 + 0x3C) = *(f32 *)(arg1 + 4);
+        *(f32 *)(work + 0x38) = *(f32 *)(arg1 + 0);
+        *(f32 *)(work + 0x3C) = *(f32 *)(arg1 + 4);
     }
 }
 
 // FUN_003553B0
 void func_003553b0(u8 *arg0, f32 *arg1)
 {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(arg0 + 0x38);
     if (arg1 == NULL) {
         func_0046d730(D_0064B310, 0x5CD);
     }
-    arg1[0] = *(f32 *)(temp_16 + 0x38);
-    arg1[1] = *(f32 *)(temp_16 + 0x3C);
+    arg1[0] = *(f32 *)(work + 0x38);
+    arg1[1] = *(f32 *)(work + 0x3C);
 }
 
 /* measured: the read and the write of the same field must use DIFFERENT
@@ -876,21 +876,21 @@ void func_003553b0(u8 *arg0, f32 *arg1)
 /* The opacity component is a byte, as stored by the state and passed by every caller. */
 void func_00355410(u8 *arg0, u8 arg1)
 {
-    u8 *temp_4;
+    u8 *work;
 
     *(u8 *)(*(u8 **)(arg0 + 0x38) + 0xA) = arg1;
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(temp_4 + 0xC) = ((s32 *)temp_4)[3];
+    work = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(work + 0xC) = ((s32 *)work)[3];
 }
 
 // FUN_00355430
 s32 func_00355430(u8 *arg0)
 {
-    u8 *temp_3;
+    u8 *work;
 
-    temp_3 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(temp_3 + 0x40) != 0) {
-        return *(s32 *)(temp_3 + 0x150);
+    work = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)(work + 0x40) != 0) {
+        return *(s32 *)(work + 0x150);
     }
     return 0;
 }
@@ -909,27 +909,27 @@ s32 func_00355460(u8 *arg0)
 // FUN_003554B0
 void func_003554b0(u8 *arg0)
 {
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 temp_4_3;
+    s32 handle;
+    s32 cdvdHandle;
+    s32 loadResult;
     u8 *p;
 
     p = *(u8 **)(arg0 + 0x38);
-    temp_4 = *(s32 *)(p + 0x148);
-    if (temp_4 != 0) {
-        func_004672c0(temp_4, *(s32 *)(p + 0x14C));
+    handle = *(s32 *)(p + 0x148);
+    if (handle != 0) {
+        func_004672c0(handle, *(s32 *)(p + 0x14C));
         *(s32 *)(p + 0x148) = 0;
         *(s32 *)(p + 0x14C) = 0;
         *(s32 *)(p + 0x150) = 0;
     } else {
-        temp_4_2 = *(s32 *)(p + 0x14C);
-        if (temp_4_2 != 0) {
-            H_Cdvd_Destroy((u8 *)temp_4_2);
+        cdvdHandle = *(s32 *)(p + 0x14C);
+        if (cdvdHandle != 0) {
+            H_Cdvd_Destroy((u8 *)cdvdHandle);
             *(s32 *)(p + 0x14C) = 0;
         }
-        temp_4_3 = *(s32 *)(p + 0x150);
-        if (temp_4_3 != 0) {
-            func_003ef3a0((void *)temp_4_3);
+        loadResult = *(s32 *)(p + 0x150);
+        if (loadResult != 0) {
+            func_003ef3a0((void *)loadResult);
             *(s32 *)(p + 0x150) = 0;
         }
     }
