@@ -70,7 +70,6 @@ typedef struct RuntimeCommandWork
     u32 duration;
 } RuntimeCommandWork;
 
-extern void func_004bc4d0(f32 value, RuntimeWork* work);
 extern void (*D_00887300[])(s32 state, s32 value);
 extern void (*D_00887304[])(s32 state, void* value);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);

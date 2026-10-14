@@ -43,7 +43,7 @@ typedef struct RuntimeResetWork
     u32 reserved;
     void* work;
 } RuntimeResetWork;
-extern void func_004bc4d0(f32 value, RuntimeWork* work);
+extern void func_004bc4d0(u8 *arg0, f32 arg1);
 extern void func_004bc500(void* work);
 
 extern void func_0044ea90(u8 *file, s32 line);
@@ -1645,7 +1645,7 @@ void func_004baed0(RuntimeCommandWork* work, u32* unused)
             case 0:
                 if (work->duration != 0)
                 {
-                    func_004bc4d0((f32)work->duration / 30.0f, work->target);
+                    func_004bc4d0((u8 *)work->target, (f32)work->duration / 30.0f);
                 }
                 break;
             }
