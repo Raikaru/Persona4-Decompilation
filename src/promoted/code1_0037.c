@@ -451,18 +451,18 @@ void func_00370cd0(u8 *arg0) {
 // FUN_00371160
 void func_00371160(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, u8 *arg3) {
     f32 sp70[3];
-    void *temp_16;
+    void *matrix;
 
-    temp_16 = func_003e0f80();
+    matrix = func_003e0f80();
     sp70[0] = *(f32 *)(arg2 + 0) - *(f32 *)(arg0 + 0);
     sp70[1] = *(f32 *)(arg2 + 4) - *(f32 *)(arg0 + 4);
     sp70[2] = *(f32 *)(arg2 + 8) - *(f32 *)(arg0 + 8);
-    RwMatrixRotate(temp_16, arg1, fparg0, 0);
-    func_003e42a0(arg3, sp70, temp_16);
+    RwMatrixRotate(matrix, arg1, fparg0, 0);
+    func_003e42a0(arg3, sp70, matrix);
     *(f32 *)(arg3 + 0) += *(f32 *)(arg0 + 0);
     *(f32 *)(arg3 + 4) += *(f32 *)(arg0 + 4);
     *(f32 *)(arg3 + 8) += *(f32 *)(arg0 + 8);
-    func_003e0f40(temp_16);
+    func_003e0f40(matrix);
 }
 // measured: opt_propagation off probe for 00379e90 load order
 #pragma opt_propagation off
@@ -1128,15 +1128,15 @@ void func_0037b8c0(u8 *arg0, s32 arg1, f32 *arg2) {
         f32 sp78;
     } work;
     f32 temp_f20;
-    s32 temp_hi;
+    s32 phase;
 
     func_00371260((u8 *)&work.sp70);
     work.sp74 = work.sp74 - 25.0f;
     work.sp60 = work.sp70;
     work.sp64 = work.sp74;
     work.sp68 = add_retail_order(work.sp78, 200.0f);
-    temp_hi = arg1 % 3;
-    switch (temp_hi) {
+    phase = arg1 % 3;
+    switch (phase) {
     case 0:
         work.sp50 = 0.0f;
         work.sp54 = cosf(fGpffff80d8);
