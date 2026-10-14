@@ -613,13 +613,13 @@ void func_001a0b00(s64 *arg0) {
     typedef char ActionResultSizeCheck[sizeof(ActionResult) == 0x20 ? 1 : -1];
     ActionResult result;
     ActionView *action;
-    s64 var_17;
-    s32 temp_16;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_2_5;
+    s64 passiveCue;
+    s32 unitHp;
+    u8 *unitPacket;
+    u8 *cuePacket;
+    u8 *resultPacket;
+    u8 *statusPacket;
+    u8 *statPacket;
 
     action = (ActionView *)arg0;
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x80000) == 0 &&
@@ -632,17 +632,17 @@ void func_001a0b00(s64 *arg0) {
             result.flags |= 0x80;
         }
         if (action->passiveFlags != 0) {
-            temp_16 = (u16)func_00231f80(action->unit->data);
+            unitHp = (u16)func_00231f80(action->unit->data);
             func_00232290(action->unit->data);
-            var_17 = 0x16;
+            passiveCue = 0x16;
             if (action->passiveFlags & 1) {
-                result.hpDelta += ((u16)temp_16 * 0x64) / 5000;
+                result.hpDelta += ((u16)unitHp * 0x64) / 5000;
             }
             if (action->passiveFlags & 2) {
-                result.hpDelta += ((u16)temp_16 * 0x64) / 2500;
+                result.hpDelta += ((u16)unitHp * 0x64) / 2500;
             }
             if (action->passiveFlags & 4) {
-                result.hpDelta += ((u16)temp_16 * 0x64) / 1666;
+                result.hpDelta += ((u16)unitHp * 0x64) / 1666;
             }
             if (action->passiveFlags & 8) {
                 result.spDelta += 3;
@@ -656,32 +656,32 @@ void func_001a0b00(s64 *arg0) {
         }
         if ((result.flags != 0) || (result.hpDelta != 0) || (result.spDelta != 0)) {
             if ((result.hpDelta != 0) || (result.spDelta != 0)) {
-                temp_2 = func_00202740((u8 *)action->unit);
-                *(s64 *)(temp_2 + 0x60) = action->uid;
-                func_00194590(temp_2, 1);
-                if ((s16)var_17 != -1) {
-                    temp_2_2 = (u8 *)func_001f7c20(0xE, 2, (u16)var_17);
-                    *(s64 *)(temp_2_2 + 0x60) = action->uid;
-                    func_00194590(temp_2_2, 1);
+                unitPacket = func_00202740((u8 *)action->unit);
+                *(s64 *)(unitPacket + 0x60) = action->uid;
+                func_00194590(unitPacket, 1);
+                if ((s16)passiveCue != -1) {
+                    cuePacket = (u8 *)func_001f7c20(0xE, 2, (u16)passiveCue);
+                    *(s64 *)(cuePacket + 0x60) = action->uid;
+                    func_00194590(cuePacket, 1);
                 }
             }
-            temp_2_3 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, &result, 1, 1);
-            *(s64 *)(temp_2_3 + 0x60) = action->uid;
-            func_00194590(temp_2_3, 1);
+            resultPacket = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, &result, 1, 1);
+            *(s64 *)(resultPacket + 0x60) = action->uid;
+            func_00194590(resultPacket, 1);
             if ((result.hpDelta != 0) || (result.spDelta != 0)) {
                 s32 unit;
                 unit = (s32)(u8 *)action->unit;
-                temp_2_4 = func_00201de0(unit, unit, -1, 0, 0, 0, 1, &result, 8);
-                *(s8 *)(temp_2_4 + 0) = 4;
-                *(s64 *)(temp_2_4 + 8) = *(s64 *)(temp_2_3 + 0x58);
-                *(u8 *)(temp_2_4 + 0x47) &= ~0x20;
-                func_00194590(temp_2_4, 3);
+                statusPacket = func_00201de0(unit, unit, -1, 0, 0, 0, 1, &result, 8);
+                *(s8 *)(statusPacket + 0) = 4;
+                *(s64 *)(statusPacket + 8) = *(s64 *)(resultPacket + 0x58);
+                *(u8 *)(statusPacket + 0x47) &= ~0x20;
+                func_00194590(statusPacket, 3);
                 if (result.hpDelta != 0) {
-                    temp_2_5 = (u8 *)func_00202590((s32)(u8 *)action->unit, 0, 0);
-                    *(s8 *)(temp_2_5 + 0) = 4;
-                    *(s64 *)(temp_2_5 + 8) = *(s64 *)(temp_2_3 + 0x58);
-                    *(u8 *)(temp_2_5 + 0x47) &= ~0x20;
-                    func_00194590(temp_2_5, 3);
+                    statPacket = (u8 *)func_00202590((s32)(u8 *)action->unit, 0, 0);
+                    *(s8 *)(statPacket + 0) = 4;
+                    *(s64 *)(statPacket + 8) = *(s64 *)(resultPacket + 0x58);
+                    *(u8 *)(statPacket + 0x47) &= ~0x20;
+                    func_00194590(statPacket, 3);
                 }
             }
         }
