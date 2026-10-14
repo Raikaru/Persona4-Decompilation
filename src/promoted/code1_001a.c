@@ -7230,81 +7230,81 @@ void func_001adb80(s64 *arg0)
 {
     u16 person;
     u32 unit;
-    s32 var_2;
-    s32 temp_4;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_2_5;
-    u8 *temp_2_6;
-    u8 *temp_2_7;
-    u8 *temp_2_8;
-    u8 *temp_6;
-    u8 *temp_7;
+    s32 needsIntro;
+    s32 actionFlags;
+    u8 *introPacket;
+    u8 *actionPacket;
+    u8 *cameraPacket;
+    u8 *animPacket;
+    u8 *effectPacket;
+    u8 *pendingRecord;
+    u8 *resultPacket;
+    u8 *followPacket;
+    u8 *battleUnit;
+    u8 *linkedUnit;
 
-    temp_4 = *(u16 *)((u8 *)arg0 + 0x1A);
-    if ((temp_4 & 1) == 0) {
-        var_2 = 0;
+    actionFlags = *(u16 *)((u8 *)arg0 + 0x1A);
+    if ((actionFlags & 1) == 0) {
+        needsIntro = 0;
     } else {
-        temp_6 = *(u8 **)((u8 *)arg0 + 0x30);
-        temp_7 = *(u8 **)(temp_6 + 0xA0C);
-        if ((temp_4 & 0x10) == 0) {
-            var_2 = 0;
-        } else if ((*(s32 *)(temp_7 + 0x98) & 2) != 0) {
-            var_2 = 1;
+        battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
+        linkedUnit = *(u8 **)(battleUnit + 0xA0C);
+        if ((actionFlags & 0x10) == 0) {
+            needsIntro = 0;
+        } else if ((*(s32 *)(linkedUnit + 0x98) & 2) != 0) {
+            needsIntro = 1;
         } else {
-            var_2 = 0;
+            needsIntro = 0;
         }
     }
-    if (var_2 != 0) {
-        temp_2 = (u8 *)func_0019b6a0(
+    if (needsIntro != 0) {
+        introPacket = (u8 *)func_0019b6a0(
             *(BtlUnit **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA0C));
-        *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-        func_00194590(temp_2, 1);
+        *(s64 *)(introPacket + 0x60) = *(s64 *)arg0;
+        func_00194590(introPacket, 1);
     }
     func_001a03b0(arg0);
-    temp_2_2 = func_002022e0(
+    actionPacket = func_002022e0(
         *(u32 *)((u8 *)arg0 + 0x30),
         *(u16 *)((u8 *)arg0 + 0x6C));
-    *(s64 *)(temp_2_2 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2_2, 3);
-    temp_2_3 = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1F);
-    *(s64 *)(temp_2_3 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2_3, 0);
-    temp_2_4 = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)((u8 *)arg0 + 0x30),
+    *(s64 *)(actionPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(actionPacket, 3);
+    cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1F);
+    *(s64 *)(cameraPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(cameraPacket, 0);
+    animPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)((u8 *)arg0 + 0x30),
                              0x19, 0, 1.0f, 0);
-    *(s64 *)(temp_2_4 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2_4, 0);
-    temp_2_5 = func_001f99c0((u8 *)arg0, 0x15, 0, 0, 0);
-    *(s64 *)(temp_2_5 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2_5, 1);
+    *(s64 *)(animPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(animPacket, 0);
+    effectPacket = func_001f99c0((u8 *)arg0, 0x15, 0, 0, 0);
+    *(s64 *)(effectPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(effectPacket, 1);
     if (*(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2) == 0) {
         func_0010b300(*(u16 *)((u8 *)arg0 + 0x74));
         person = *(u16 *)((u8 *)arg0 + 0x74);
         func_0019ef30(*(u8 **)((u8 *)arg0 + 0x30), person);
         func_0010b7f0();
         if (datGetFlag(0x3C) != 0) {
-            temp_2_6 = *(u8 **)((u8 *)arg0 + 0x3F0);
-            if (temp_2_6 != NULL) {
-                *(s16 *)(temp_2_6 + 6) = 0;
+            pendingRecord = *(u8 **)((u8 *)arg0 + 0x3F0);
+            if (pendingRecord != NULL) {
+                *(s16 *)(pendingRecord + 6) = 0;
                 *(s16 *)(*(u8 **)((u8 *)arg0 + 0x3F0) + 4) = 0;
             }
         }
     }
     unit = *(u32 *)((u8 *)arg0 + 0x30);
-    temp_2_7 = (u8 *)func_001d6240(
+    resultPacket = (u8 *)func_001d6240(
         *(s32 *)(D_0076449C + 0xD3C),
         unit, unit,
         0, 0);
-    *(s16 *)(temp_2_7 + 0x48) = 0xF;
-    *(s64 *)(temp_2_7 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2_7, 2);
-    temp_2_8 = (u8 *)func_001f7c20(0xA, 2, 6);
-    *(s8 *)(temp_2_8 + 0) = 5;
-    *(s64 *)(temp_2_8 + 8) = *(s64 *)(temp_2_7 + 0x58);
-    *(s64 *)(temp_2_8 + 0x60) = *(s64 *)arg0;
-    func_00194590(temp_2_8, 1);
+    *(s16 *)(resultPacket + 0x48) = 0xF;
+    *(s64 *)(resultPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(resultPacket, 2);
+    followPacket = (u8 *)func_001f7c20(0xA, 2, 6);
+    *(s8 *)(followPacket + 0) = 5;
+    *(s64 *)(followPacket + 8) = *(s64 *)(resultPacket + 0x58);
+    *(s64 *)(followPacket + 0x60) = *(s64 *)arg0;
+    func_00194590(followPacket, 1);
     *(s32 *)(D_0076449C + 0xC) |= 0x400000;
     *(u16 *)(D_0076449C + 0x18) |= 5;
 }
