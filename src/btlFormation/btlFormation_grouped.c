@@ -34,21 +34,6 @@ extern void func_004787e0(u32 arg0);
 
 /* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */
 
-// FUN_001D4120
-u32 func_001d4120(void* formation)
-{
-    return (*(u16*)((u8*)formation + 0x630) & 2) != 0;
-}
-
-// FUN_001D4190
-u32 func_001d4190(void* formation, u32 index)
-{
-    u32 offset;
-
-    offset = (index & 0xFFFF) * 0x314;
-    return *(u32*)(offset + (u32)formation + 0xC);
-}
-
 // FUN_001D6EE0
 void func_001d6ee0(void** units)
 {
@@ -249,55 +234,7 @@ u32 func_001deeb0(void* object)
 
 /* Source unit: src/btlFormation/btlFormation_001d43f0.c (1 function markers) */
 
-// FUN_001D43F0
-u32 func_001d43f0(s32 param_1)
-{
-    u16 flags = 0;
-    u32 result = 0;
-
-    if (*(s32*)(param_1 + 8) != 0)
-    {
-        result |= 0x80;
-    }
-    if (*(s32*)(param_1 + 0xc) != 0)
-    {
-        result |= 1;
-    }
-    flags = *(u16*)(param_1 + 4);
-    if ((flags & 0x400) != 0)
-    {
-        result |= 2;
-    }
-    if ((flags & 0x100) != 0)
-    {
-        result |= 4;
-    }
-    if ((flags & 4) != 0)
-    {
-        result |= 0x10;
-    }
-    if ((flags & 2) != 0)
-    {
-        result |= 8;
-    }
-    if ((*(u16*)(param_1 + 6) & 2) != 0)
-    {
-        result |= 0x20;
-    }
-    if ((*(u16*)(param_1 + 6) & 4) != 0)
-    {
-        result |= 0x40;
-    }
-    return result;
-}
-
 /* Source unit: src/btlFormation/btlFormation_001d4490.c (1 function markers) */
-
-// FUN_001D4490
-void func_001d4490(s32 param_1, u32 param_2)
-{
-    *(u32*)(param_1 + 0x634) = param_2;
-}
 
 /* Source unit: src/btlFormation/btlFormation_001d7130.c (1 function markers) */
 

@@ -101,8 +101,8 @@ typedef u8 bool;
 #define true 1
 #define false 0
 
-extern bool func_001d4120(int param_1);
-extern u32 func_001d4190(int param_1, u16 param_2);
+u32 func_001d4120(void *formation);
+u32 func_001d4190(void *formation, u32 index);
 
 extern u32 func_001d6de0(int param_1, u16 *param_2);
 extern void func_001d3e00(u32 param_1);
@@ -1194,6 +1194,12 @@ void func_001d40d0(int param_1)
 
 
 
+// FUN_001D4120
+u32 func_001d4120(void* formation)
+{
+    return (*(u16*)((u8*)formation + 0x630) & 2) != 0;
+}
+
 // FUN_001D4140
 u32 func_001d4140(int param_1, u16 param_2)
 {
@@ -1214,6 +1220,15 @@ u32 func_001d4140(int param_1, u16 param_2)
 }
 
 
+
+// FUN_001D4190
+u32 func_001d4190(void* formation, u32 index)
+{
+    u32 offset;
+
+    offset = (index & 0xFFFF) * 0x314;
+    return *(u32*)(offset + (u32)formation + 0xC);
+}
 
 // FUN_001D42E0
 void func_001d42e0(BtlFormationWork *work)
@@ -1254,6 +1269,62 @@ float func_001d4380(int param_1)
 }
 
 
+
+// FUN_001D43F0
+u32 func_001d43f0(s32 param_1)
+{
+    u16 flags = 0;
+    u32 result = 0;
+
+    if (*(s32*)(param_1 + 8) != 0)
+    {
+        result |= 0x80;
+    }
+    if (*(s32*)(param_1 + 0xc) != 0)
+    {
+        result |= 1;
+    }
+    flags = *(u16*)(param_1 + 4);
+    if ((flags & 0x400) != 0)
+    {
+        result |= 2;
+    }
+    if ((flags & 0x100) != 0)
+    {
+        result |= 4;
+    }
+    if ((flags & 4) != 0)
+    {
+        result |= 0x10;
+    }
+    if ((flags & 2) != 0)
+    {
+        result |= 8;
+    }
+    if ((*(u16*)(param_1 + 6) & 2) != 0)
+    {
+        result |= 0x20;
+    }
+    if ((*(u16*)(param_1 + 6) & 4) != 0)
+    {
+        result |= 0x40;
+    }
+    return result;
+}
+
+// FUN_001D4490
+void func_001d4490(s32 param_1, u32 param_2)
+{
+    *(u32*)(param_1 + 0x634) = param_2;
+}
+
+// FUN_001D4E90
+void func_001d4e90(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+    arg3[0] = 0.0f;
+    arg3[1] = 0.0f;
+    arg3[2] = 0.0f;
+    arg3[3] = 0.0f;
+}
 
 // FUN_001D5EB0
 BtlPacket *func_001d5eb0(u32 param_1, const char *param_2, u16 param_3)
@@ -1314,7 +1385,7 @@ u32 func_001d6010(u32 *param_1)
     u32 unaff_s2_lo;
     u32 unaff_s1_lo;
 
-    if (!func_001d4120(param_1[0])) {
+    if (!func_001d4120((void *)param_1[0])) {
         return 0;
     }
     puVar2 = (u16 *)param_1[4];
@@ -1366,12 +1437,12 @@ bool func_001d6170(u32 *param_1)
     u16 index;
     u32 value;
 
-    if (!func_001d4120(*param_1)) {
+    if (!func_001d4120((void *)*param_1)) {
         return false;
     }
     iVar2 = (index = *(u16 *)(param_1 + 3),
              value = *(u32 *)((u8 *)param_1 + ((u32)index & 0)),
-             func_001d4190(value, index));
+             func_001d4190((void *)value, index));
     iVar2 <<= 1;
     if (iVar2 < 1) {
         iVar2 = 2;
