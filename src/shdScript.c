@@ -36,8 +36,8 @@ extern s32 func_0025c790(u8 *task);
 extern u32 func_00452560(void *task);
 extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
 extern s32 func_0029d020(void);
-extern s32 func_0029cc00(s32 which);
-extern void func_0029cf50(s32 arg0);
+extern s32 scrGetParamInt(s32 which);
+extern void scrSetReturnInt(s32 arg0);
 
 typedef struct {
     s32 state;
@@ -166,8 +166,8 @@ s32 func_0025ccb0(void) {
     s32 hit;
 
     if (func_0029d020() == 0) {
-        a = func_0029cc00(0);
-        b = func_0029cc00(1);
+        a = scrGetParamInt(0);
+        b = scrGetParamInt(1);
         func_0044ea90(D_00636838, 0x113);
         buf = D_008873F4[0](1, 0x10, 0x40000);
         *(s32 *)(buf + 4) = a;
@@ -180,7 +180,7 @@ s32 func_0025ccb0(void) {
     if (hit != 0) {
         goto done;
     }
-    func_0029cf50(0);
+    scrSetReturnInt(0);
     return 1;
 done:
     return 0;

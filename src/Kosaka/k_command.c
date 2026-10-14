@@ -12,10 +12,10 @@ extern char* strcat(char* destination, const char* source);
 #include "model_matrix_internal.h"
 #include "include_asm.h"
 
-extern s32 func_0029cc00(s32 arg0);
+extern s32 scrGetParamInt(s32 arg0);
 extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 
-extern f32 func_0029cd50(s32 arg0);
+extern f32 scrGetParamFloat(s32 arg0);
 extern f32 D_00764B5C;
 
 extern u8 D_00724B3C;
@@ -34,7 +34,7 @@ extern void* func_00174c00(void);
 extern void* func_00174c10(void);
 extern s32 func_0026bc10(u32 resourceId, u32 value);
 extern s32 func_00104c70(s32 value);
-extern void func_0029cf50(s32 value);
+extern void scrSetReturnInt(s32 value);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern void func_0016f130(s32 a, s32 b, s32 c);
 extern void func_0016f3b0(s32 a, s32 b, s32 c);
@@ -91,8 +91,8 @@ u32 func_00176c20()
 {
     s32 resourceId;
 
-    resourceId = func_0029cc00(0);
-    func_0014a0f0((u16)resourceId, func_0029cc00(1));
+    resourceId = scrGetParamInt(0);
+    func_0014a0f0((u16)resourceId, scrGetParamInt(1));
     return true;
 }
 
@@ -105,11 +105,11 @@ u32 func_00176c20()
 // FUN_00176C70
 s32 func_00176c70(void)
 {
-    s32 v = func_0029cc00(0);
-    s32 w = func_0029cc00(1);
-    s32 x = func_0029cc00(2);
-    s32 iv = (s32)func_0029cd50(3);
-    f32 g = func_0029cd50(4);
+    s32 v = scrGetParamInt(0);
+    s32 w = scrGetParamInt(1);
+    s32 x = scrGetParamInt(2);
+    s32 iv = (s32)scrGetParamFloat(3);
+    f32 g = scrGetParamFloat(4);
     s32 k = (v & 0xFFC00) >> 10;
     switch (k)
     {
@@ -176,7 +176,7 @@ s32 func_00176c70(void)
 // FUN_00176EF0
 s32 func_00176ef0(void)
 {
-    s32 v = func_0029cc00(0);
+    s32 v = scrGetParamInt(0);
     s32 k = (v & 0xFFC00) >> 10;
     switch (k)
     {
@@ -219,8 +219,8 @@ s32 func_00176ef0(void)
 // FUN_00176FF0
 s32 func_00176ff0(void)
 {
-    s32 v = func_0029cc00(0);
-    f32 f = func_0029cd50(1);
+    s32 v = scrGetParamInt(0);
+    f32 f = scrGetParamFloat(1);
     s32 k = (v & 0xFFC00) >> 10;
     switch (k)
     {
@@ -263,9 +263,9 @@ s32 func_00176ff0(void)
 // FUN_00177120
 s32 func_00177120(void)
 {
-    s32 v = func_0029cc00(0);
+    s32 v = scrGetParamInt(0);
     f32 threshold = 0.0f;
-    f32 f = func_0029cd50(1);
+    f32 f = scrGetParamFloat(1);
     s32 k = (v & 0xFFC00) >> 10;
     u8* p;
     s32 result;
@@ -302,12 +302,12 @@ s32 func_00177120(void)
 // FUN_00177280
 s32 func_00177280(void)
 {
-    s32 v = func_0029cc00(0);
+    s32 v = scrGetParamInt(0);
     f32 pos[3];
     s32 k;
-    pos[0] = func_0029cd50(1);
-    pos[1] = func_0029cd50(1);
-    pos[2] = func_0029cd50(1);
+    pos[0] = scrGetParamFloat(1);
+    pos[1] = scrGetParamFloat(1);
+    pos[2] = scrGetParamFloat(1);
     k = (v & 0xFFC00) >> 10;
     switch (k)
     {
@@ -350,7 +350,7 @@ s32 func_00177280(void)
 // FUN_001773D0
 s32 func_001773d0(void)
 {
-    s32 v = func_0029cc00(0);
+    s32 v = scrGetParamInt(0);
     s32 k = (v & 0xFFC00) >> 10;
     switch (k)
     {
@@ -361,7 +361,7 @@ s32 func_001773d0(void)
         u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0 && *(s32*)(p + 0x230) != 0)
         {
-            f32 f = func_0029cd50(1);
+            f32 f = scrGetParamFloat(1);
             func_0017b9a0(*(s32*)(p + 0x230), f);
         }
         break;
@@ -395,8 +395,8 @@ s32 func_001774a0(void)
     s32 resourceType;
     f32 translation[3];
     f32 negativeTranslation[3];
-    resourceId = func_0029cc00(0);
-    placementId = func_0029cc00(1);
+    resourceId = scrGetParamInt(0);
+    placementId = scrGetParamInt(1);
     placement = MT_Scene_GetResListHead(14);
     {
         Vec3f rotationAxis = {0.0f, 1.0f, 0.0f};
@@ -531,8 +531,8 @@ u32 K_Cmd_CREATE_FLD_MDL()
     u32 minorId;
     Model* mdl;
 
-    majorId = func_0029cc00(0);
-    minorId = func_0029cc00(1);
+    majorId = scrGetParamInt(0);
+    minorId = scrGetParamInt(1);
 
     if (majorId > -1)
     {
@@ -552,7 +552,7 @@ u32 K_Cmd_CREATE_FLD_MDL()
     }
 
     mdl = func_00477e80(4, minorId, path, 0);
-    func_0029cf50((s32)mdl);
+    scrSetReturnInt((s32)mdl);
 
     return true;
 }
@@ -564,8 +564,8 @@ u32 K_Cmd_CREATE_FLD_MDL()
 // FUN_00177B30
 s32 func_00177b30(void)
 {
-    s32 v = func_0029cc00(0);
-    s32 w = func_0029cc00(1);
+    s32 v = scrGetParamInt(0);
+    s32 w = scrGetParamInt(1);
     s32 flag = 0;
     s32 created = 0;
     u8* p2 = 0;
@@ -576,7 +576,7 @@ s32 func_00177b30(void)
         if (p != 0)
         {
             func_004787e0(v);
-            func_0029cf50(0);
+            scrSetReturnInt(0);
             return 1;
         }
         flag = func_00145ac0(w & 0xFFFF, v) & 0xFFFF;
@@ -603,7 +603,7 @@ s32 func_00177b30(void)
         }
         created = 1;
     }
-    func_0029cf50(flag);
+    scrSetReturnInt(flag);
     return created;
 }
 
@@ -614,7 +614,7 @@ u32 func_00177d10()
     u32 resourceId;
     u32 created;
 
-    model = (Model*)func_0029cc00(0);
+    model = (Model*)scrGetParamInt(0);
     resourceId = 0;
     created = 0;
     if (func_004782b0(model) == true)
@@ -622,7 +622,7 @@ u32 func_00177d10()
         resourceId = (u16)func_00145ac0(func_0014b510(10), (s32)model);
         created = 1;
     }
-    func_0029cf50(resourceId);
+    scrSetReturnInt(resourceId);
 
     return created;
 }
@@ -634,8 +634,8 @@ u32 func_00177d10()
 // FUN_00177DB0
 s32 func_00177db0(void)
 {
-    s32 a = func_0029cc00(0);
-    s32 b = func_0029cc00(1);
+    s32 a = scrGetParamInt(0);
+    s32 b = scrGetParamInt(1);
     u8* p = MT_Scene_GetRes(a);
     if (p != 0)
     {
@@ -651,12 +651,12 @@ u32 K_Cmd_CREATE_MDL()
     s32 id;
     Model* mdl;
 
-    type = func_0029cc00(0);
-    id = func_0029cc00(1);
+    type = scrGetParamInt(0);
+    id = scrGetParamInt(1);
 
     mdl = func_00478140((u16)type, id, 0);
 
-    func_0029cf50((s32)mdl);
+    scrSetReturnInt((s32)mdl);
 
     return true;
 }
@@ -668,8 +668,8 @@ u32 K_Cmd_CREATE_MDL()
 // FUN_00177E80
 s32 func_00177e80(void)
 {
-    s32 type = func_0029cc00(0);
-    s32 id = func_0029cc00(1);
+    s32 type = scrGetParamInt(0);
+    s32 id = scrGetParamInt(1);
     s32 res = 0;
     s32 created = 0;
     if (func_004782b0((void*)type) == 1)
@@ -680,7 +680,7 @@ s32 func_00177e80(void)
         *(s32*)(p + 0x22C) = (s32)func_00478750(D_00764364);
         created = 1;
     }
-    func_0029cf50(res);
+    scrSetReturnInt(res);
     return created;
 }
 
@@ -689,8 +689,8 @@ s32 func_00177e80(void)
 // FUN_00177F50
 s32 func_00177f50(void)
 {
-    s32 v = func_0029cc00(0);
-    f32 f = func_0029cd50(1);
+    s32 v = scrGetParamInt(0);
+    f32 f = scrGetParamFloat(1);
     s32 k = (v & 0xFFC00) >> 10;
     switch (k)
     {
@@ -733,8 +733,8 @@ s32 func_00177f50(void)
 // FUN_00178070
 s32 func_00178070(void)
 {
-    s32 a = func_0029cc00(0);
-    s32 b = func_0029cc00(1);
+    s32 a = scrGetParamInt(0);
+    s32 b = scrGetParamInt(1);
     func_0016f130(0, b, a);
     return 1;
 }
@@ -744,8 +744,8 @@ s32 func_00178070(void)
 // FUN_001780D0
 s32 func_001780d0(void)
 {
-    s32 a = func_0029cc00(0);
-    s32 b = func_0029cc00(1);
+    s32 a = scrGetParamInt(0);
+    s32 b = scrGetParamInt(1);
     func_0016f3b0(0, b, a);
     return 1;
 }
@@ -755,7 +755,7 @@ s32 func_001780d0(void)
 // FUN_00178130
 s32 func_00178130(void)
 {
-    s32 v = func_0029cc00(0);
+    s32 v = scrGetParamInt(0);
     u8* p = func_00174c00();
     Vec3f diff;
     Vec3f v1;
@@ -807,9 +807,9 @@ s32 func_00178130(void)
 // FUN_00178360
 s32 func_00178360(void)
 {
-    D_00724B3C = func_0029cc00(0);
-    D_00724B40 = func_0029cc00(1);
-    D_00724B44 = func_0029cc00(2);
+    D_00724B3C = scrGetParamInt(0);
+    D_00724B40 = scrGetParamInt(1);
+    D_00724B44 = scrGetParamInt(2);
     D_00724B48 = 0;
     return 1;
 }
@@ -820,9 +820,9 @@ s32 func_001783b0(void)
     u8 temp_17;
     u8 temp_16;
 
-    temp_17 = func_0029cc00(0) & 0xFF;
-    temp_16 = func_0029cc00(1) & 0xFF;
-    func_00457140(temp_17, temp_16, func_0029cc00(2) & 0xFF, 0);
+    temp_17 = scrGetParamInt(0) & 0xFF;
+    temp_16 = scrGetParamInt(1) & 0xFF;
+    func_00457140(temp_17, temp_16, scrGetParamInt(2) & 0xFF, 0);
     return 1;
 }
 
@@ -833,7 +833,7 @@ s32 func_001783b0(void)
 // FUN_00178420
 s32 func_00178420(void)
 {
-    f32 value = func_0029cd50(0);
+    f32 value = scrGetParamFloat(0);
     *(f32*)((u8*)func_00457120() + 0x88) = value;
     func_00457120();
     return 1;
@@ -842,7 +842,7 @@ s32 func_00178420(void)
 // FUN_00178470
 s32 func_00178470(void)
 {
-    D_00764B5C = func_0029cd50(0);
+    D_00764B5C = scrGetParamFloat(0);
     return 1;
 }
 
@@ -856,7 +856,7 @@ s32 func_001784a0(void)
     u16* p = func_00174c00();
     if (p != 0)
     {
-        func_0029cf50(*p);
+        scrSetReturnInt(*p);
     }
     else
     {
@@ -873,7 +873,7 @@ s32 func_00178500(void)
     u16* p = func_00174c10();
     if (p != 0)
     {
-        func_0029cf50(*p);
+        scrSetReturnInt(*p);
     }
     else
     {
@@ -888,8 +888,8 @@ u32 func_00178970()
     s32 resourceId;
     s32 value;
 
-    resourceId = func_0029cc00(0);
-    value = func_0029cc00(1);
+    resourceId = scrGetParamInt(0);
+    value = scrGetParamInt(1);
 
     return func_002bd360(resourceId, value) == 0;
 }
@@ -903,8 +903,8 @@ u32 func_0025c6d0(void)
     u16 resourceId;
     s32 value;
 
-    rawResourceId = func_0029cc00(0);
-    value = func_0029cc00(1);
+    rawResourceId = scrGetParamInt(0);
+    value = scrGetParamInt(1);
     resourceId = (u16)(rawResourceId & 0x3ff) | 0x400;
     func_0026bc10(resourceId, (u8)value);
     return 1;
@@ -914,7 +914,7 @@ u32 func_0025c6d0(void)
 // FUN_0025D100
 u32 func_0025d100()
 {
-    func_0029cf50((u8)func_00106600((s16)func_0029cc00(0)));
+    scrSetReturnInt((u8)func_00106600((s16)scrGetParamInt(0)));
 
     return true;
 }
@@ -922,7 +922,7 @@ u32 func_0025d100()
 // FUN_00299FD0
 u32 func_00299fd0(void)
 {
-    func_0029cf50((u8)func_00104c70((s16)func_0029cc00(0)));
+    scrSetReturnInt((u8)func_00104c70((s16)scrGetParamInt(0)));
 
     return 1;
 }

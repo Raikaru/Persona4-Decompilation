@@ -115,7 +115,7 @@ extern s32 func_0029d020(void);
 extern s32 func_00110f00(void);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);
-extern void func_0029cf50(s32 arg0);
+extern void scrSetReturnInt(s32 arg0);
 extern s32 func_00110fc0(void);
 extern s32 func_00174680(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0018ced0(void);
@@ -127,7 +127,7 @@ extern s32 func_0029d050(void);
 extern void func_0029dfe0(s32 arg0, s32 arg1);
 extern s32 func_00452490(s32 arg0);
 
-extern s32 func_0029cc00(s32 arg0);
+extern s32 scrGetParamInt(s32 arg0);
 extern s64 datGetPartyId(s32 arg0);
 extern u8 *func_0029d040(void);
 extern void func_002bd240(s32 arg0);
@@ -717,10 +717,10 @@ s32 func_001761f0(void)
 s32 func_00176220(void)
 {
     if (func_0029d020() > 3) {
-        func_0029cf50(func_00110f00());
+        scrSetReturnInt(func_00110f00());
         return 1;
     }
-    func_0029cf50(0);
+    scrSetReturnInt(0);
     return 0;
 }
 
@@ -765,7 +765,7 @@ s32 func_00176370(void) {
     }
     func_00260510();
     memset(&sp1C, 0, 4);
-    sp1C = func_0029cc00(0);
+    sp1C = scrGetParamInt(0);
     func_001029a0(0xC, &sp1C, 4, 2);
     return 1;
 }
@@ -790,10 +790,10 @@ s32 func_00176450(void)
     }
     func_00260510();
     memset(sp10, 0, 0x1C);
-    sp10[0] = (s16)func_0029cc00(0);
-    sp10[1] = (s16)func_0029cc00(1);
-    sp10[2] = (s16)func_0029cc00(2);
-    sp10[4] = (s16)func_0029cc00(3);
+    sp10[0] = (s16)scrGetParamInt(0);
+    sp10[1] = (s16)scrGetParamInt(1);
+    sp10[2] = (s16)scrGetParamInt(2);
+    sp10[4] = (s16)scrGetParamInt(3);
     func_001029a0(9, sp10, 0x1C, 2);
     return 1;
 }
@@ -808,10 +808,10 @@ s32 func_00176500(void)
     func_00260510();
     *(s16 *)(iGpffff9db0 + 0x10) = -1;
     memset(sp10, 0, 0x1C);
-    sp10[0] = (s16)func_0029cc00(0);
-    sp10[1] = (s16)func_0029cc00(1);
-    sp10[2] = (s16)func_0029cc00(2);
-    sp10[4] = (s16)func_0029cc00(3);
+    sp10[0] = (s16)scrGetParamInt(0);
+    sp10[1] = (s16)scrGetParamInt(1);
+    sp10[2] = (s16)scrGetParamInt(2);
+    sp10[4] = (s16)scrGetParamInt(3);
     func_001029a0(9, sp10, 0x1C, 2);
     return 1;
 }
@@ -832,9 +832,9 @@ s32 func_001765c0(void)
     }
     if ((temp_17 == 0) || ((temp_17 - 1) == iGpffffb304))
         iGpffffb300 = 0;
-    sp30[3] = func_0029cc00(0);
-    sp30[4] = func_0029cc00(1);
-    sp30[5] = func_0029cc00(2);
+    sp30[3] = scrGetParamInt(0);
+    sp30[4] = scrGetParamInt(1);
+    sp30[5] = scrGetParamInt(2);
     temp_3 = iGpffffb300;
     if (temp_3 == 3) {
         func_001029a0(0xA, sp30, 0x1C, 2);
@@ -861,7 +861,7 @@ s32 func_001766e0(void)
     if (func_00102980() != 0xB) {
         func_00145080();
     }
-    sp18[0] = func_0029cc00(0);
+    sp18[0] = scrGetParamInt(0);
     sp18[1] = 0xFFFF;
     func_001029a0(0xB, sp18, 8, 4);
     return 1;
@@ -878,15 +878,15 @@ s32 func_00176770(void)
         func_00145080();
     }
     func_00260510();
-    sp18[0] = func_0029cc00(0);
-    sp18[1] = func_0029cc00(1);
+    sp18[0] = scrGetParamInt(0);
+    sp18[1] = scrGetParamInt(1);
     func_001029a0(0xB, sp18, 8, 4);
     return 1;
 }
 // FUN_00176810
 s32 func_00176810(void)
 {
-    func_00159f70(func_0029cc00(0));
+    func_00159f70(scrGetParamInt(0));
     return 1;
 }
 // FUN_00176850
@@ -899,13 +899,13 @@ s32 func_00176850(void)
 // FUN_00176880
 s32 func_00176880(void)
 {
-    func_0029cf50(func_0015a160());
+    scrSetReturnInt(func_0015a160());
     return 1;
 }
 // FUN_001768B0
 s32 func_001768b0(void)
 {
-    func_0029cf50(func_00155290());
+    scrSetReturnInt(func_00155290());
     return 1;
 }
 // FUN_001768E0
@@ -920,7 +920,7 @@ s32 func_001768e0(void)
     u16 var_16;
     s32 var_3;
 
-    var_17 = func_0029cc00(0);
+    var_17 = scrGetParamInt(0);
     var_16 = 0;
     if (var_17 != 0) {
         var_18 = 0;
@@ -946,7 +946,7 @@ loop_8_cond:
 loop_8_found:
         ;
         if (var_18 >= 4) {
-            func_0029cf50(0);
+            scrSetReturnInt(0);
             return 1;
         }
         var_17 = var_18;
@@ -960,7 +960,7 @@ block_12:
     var_3 = (var_3 != 0);
     if (var_3 == 1)
         var_16 = **(u16 **)((u8 *)D_007EFA04 + temp_4_2);
-    func_0029cf50(var_16 & 0xFFFF);
+    scrSetReturnInt(var_16 & 0xFFFF);
     return 1;
 }
 // FUN_00176A50
@@ -975,7 +975,7 @@ s32 func_00176a50(void)
         count += 1;
         node = *(u8 **)(node + 0x138);
     }
-    func_0029cf50(count);
+    scrSetReturnInt(count);
     return 1;
 }
 
@@ -988,7 +988,7 @@ s32 func_00176ab0(void)
     u16 temp_3;
     u8 *var_2;
 
-    temp_16 = func_0029cc00(0);
+    temp_16 = scrGetParamInt(0);
     var_2 = MT_Scene_GetResListHead(3);
     var_4 = 0;
     var_3 = 0;
@@ -1008,7 +1008,7 @@ loop_3_done:
         if ((s32)temp_3 > 0x1F4)
             var_4 = 0;
     }
-    func_0029cf50(var_4);
+    scrSetReturnInt(var_4);
     return 1;
 }
 // FUN_00176B60
@@ -1019,7 +1019,7 @@ s32 func_00176b60(void) {
     if (*(s32 *)(u8 *)func_00155280() != 0) {
         v = func_00156170(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;
     }
-    func_0029cf50(v);
+    scrSetReturnInt(v);
     return 1;
 }
 
@@ -1031,7 +1031,7 @@ s32 func_00176bc0(void) {
     if (*(s32 *)(u8 *)func_00155280() != 0) {
         v = func_00156180(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;
     }
-    func_0029cf50(v);
+    scrSetReturnInt(v);
     return 1;
 }
 
@@ -1072,7 +1072,7 @@ s32 func_00178590(void) {
             var_17 = 3;
         }
     }
-    func_0029cf50(var_17);
+    scrSetReturnInt(var_17);
     return 1;
 }
 
@@ -1102,19 +1102,19 @@ s32 func_00178790(void)
     s32 temp_17;
     s32 temp_2;
 
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
     temp_2 = func_00174680(*(s32 *)((u8 *)func_00155280() + 8), temp_17 & 0xFFFF,
                            temp_16 & 0xFFFF);
     if (temp_2 & 1) {
         return 0;
     }
     if (temp_2 & 0x80000000) {
-        func_0029cf50(1);
+        scrSetReturnInt(1);
     } else if (temp_2 & 0x40000000) {
-        func_0029cf50(2);
+        scrSetReturnInt(2);
     } else {
-        func_0029cf50(0);
+        scrSetReturnInt(0);
     }
     return 1;
 }
@@ -1134,11 +1134,11 @@ s32 func_00178790(void)
 // FUN_00178870
 s32 func_00178870(void)
 {
-    s32 a = func_0029cc00(0);
+    s32 a = scrGetParamInt(0);
     u8 *p = iGpffff9db0;
     u16 b = func_0015a160();
 
-    func_0029cf50(func_00161630(*(u16 *)p, *(u16 *)(p + 4), b, (u16)a) & 0xFFFF);
+    scrSetReturnInt(func_00161630(*(u16 *)p, *(u16 *)(p + 4), b, (u16)a) & 0xFFFF);
     return 1;
 }
 // FUN_001788E0
@@ -1147,8 +1147,8 @@ s32 func_001788e0(void)
     s32 temp_17;
     s32 temp_16;
 
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
     func_002bd240(1);
     func_002bd270(*(s32 *)(func_0029d040() + 0x124));
     func_002bd280(temp_17, temp_16, 0, 0);
@@ -1167,7 +1167,7 @@ s32 func_001789d0(void)
 // FUN_00178A00
 s32 func_00178a00(void)
 {
-    func_0029cf50(*(u16 *)(D_007643D0 + 0xC));
+    scrSetReturnInt(*(u16 *)(D_007643D0 + 0xC));
     return 1;
 }
 // FUN_00178A30
@@ -1178,17 +1178,17 @@ s32 func_00178a30(void)
 
     temp_3 = *(u8 **)(D_007643D0 + 0x160);
     if (*(s32 *)(temp_3 + 8) != 0) {
-        func_0029cf50(4);
+        scrSetReturnInt(4);
     } else {
         temp_3_2 = *(u16 *)(temp_3 + 2);
         if ((s32)temp_3_2 >= 0x500) {
-            func_0029cf50(3);
+            scrSetReturnInt(3);
         } else if ((s32)temp_3_2 >= 0x400) {
-            func_0029cf50(2);
+            scrSetReturnInt(2);
         } else if ((s32)temp_3_2 >= 0x300) {
-            func_0029cf50(1);
+            scrSetReturnInt(1);
         } else {
-            func_0029cf50(0);
+            scrSetReturnInt(0);
         }
     }
     return 1;
@@ -1196,7 +1196,7 @@ s32 func_00178a30(void)
 // FUN_00178AF0
 s32 func_00178af0(void)
 {
-    func_0029cf50((*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 7) & 1) != 0);
+    scrSetReturnInt((*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 7) & 1) != 0);
     return 1;
 }
 /* measured: plain C body is object 64B in a 64B window; only the retail
@@ -1213,25 +1213,25 @@ s32 func_00178b30(void)
   value = *(s32 *)(*(u8 **)(state + 0x160) + 8);
   if (value)
     result = value;
-  func_0029cf50(result);
+  scrSetReturnInt(result);
   return 1;
 }
 // FUN_00178B70
 s32 func_00178b70(void)
 {
-    func_0029cf50(*(u16 *)(*(u8 **)(D_007643D0 + 0x160) + 2));
+    scrSetReturnInt(*(u16 *)(*(u8 **)(D_007643D0 + 0x160) + 2));
     return 1;
 }
 // FUN_00178BA0
 s32 func_00178ba0(void)
 {
-    func_0029cf50((u16)*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 6));
+    scrSetReturnInt((u16)*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 6));
     return 1;
 }
 // FUN_00178BD0
 s32 func_00178bd0(void)
 {
-    func_0029cf50((u16)*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 4));
+    scrSetReturnInt((u16)*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 4));
     return 1;
 }
 // FUN_00178C00

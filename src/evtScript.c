@@ -37,7 +37,7 @@ extern void func_00286ff0(u8 *, s32, u16 *);
 extern s32 func_00285af0();
 extern u8 *func_00285480();
 extern u8 *func_00285b80();
-extern s32 func_0029cc00();
+extern s32 scrGetParamInt();
 extern s32 func_0029d020(void);
 extern void *func_00478140(u32, u16, u32);
 extern s32 func_00286350();
@@ -124,8 +124,8 @@ s32 func_00298550(void)
     u8 *p;
     u8 *work;
 
-    v0 = func_0029cc00(0);
-    v1 = func_0029cc00(1);
+    v0 = scrGetParamInt(0);
+    v1 = scrGetParamInt(1);
     if (func_0029d020() == 0) {
         id = (u16)(((v0 + 0x384) & 0x3FF) | 0xC00);
         if (MT_Scene_GetRes(id) != 0) {
@@ -165,8 +165,8 @@ s32 func_00298700(void) {
     s32 kind;
     u8 *p;
 
-    slot = func_0029cc00(0);
-    value = func_0029cc00(1);
+    slot = scrGetParamInt(0);
+    value = scrGetParamInt(1);
     if (slot >= 5) {
         return 1;
     }

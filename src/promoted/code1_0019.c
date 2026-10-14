@@ -46,11 +46,11 @@ extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 extern s64 btlGetUID(void);
 
-extern s64 func_0029cc00(s32 arg0);
+extern s64 scrGetParamInt(s32 arg0);
 extern u8 *func_00105510(s16 arg0);
 extern void func_00243ec0(u8 *arg0, s16 arg1);
 extern s32 func_00243e90(u8 *arg0);
-extern void func_0029cf50(s32 arg0);
+extern void scrSetReturnInt(s32 arg0);
 
 extern u8 *iGpffff9db0;
 extern u8 *D_0076449C;
@@ -708,7 +708,7 @@ s32 func_001932f0(void)
     u8 *temp_16;
 
     func_001fc1b0(1);
-    temp_17 = func_0029cc00(0) & 0xFFFF;
+    temp_17 = scrGetParamInt(0) & 0xFFFF;
     temp_16 = (u8 *)(iGpffffb414 + (temp_17 * 0x18));
     memset(sp50, 0, 0x3C);
     *(s32 *)(sp50 + 4) = datUnitCreatePc(1);
@@ -793,8 +793,8 @@ s32 func_00193630(void) {
     s64 temp_17;
     s64 temp_16;
 
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
     func_00243ec0(func_00105510((s16)temp_17), (s16)temp_16);
     return 1;
 }
@@ -803,7 +803,7 @@ s32 func_00193630(void) {
 
 // FUN_001936A0
 s32 func_001936a0(void) {
-    func_0029cf50((s16)func_00243e90(func_00105510((s16)func_0029cc00(0))));
+    scrSetReturnInt((s16)func_00243e90(func_00105510((s16)scrGetParamInt(0))));
     return 1;
 }
 

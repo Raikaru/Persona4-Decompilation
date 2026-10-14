@@ -13,7 +13,7 @@ extern void (*jtbl_008873EC[])(void *);
 // i.e. absolute 0x007690f0 - 0x4a68 = 0x00764688, GP-relative.
 extern int iGpffffb598;
 extern u16 D_008C024E[];
-extern s32 func_0029cc00(s32 arg0);
+extern s32 scrGetParamInt(s32 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
@@ -261,14 +261,14 @@ s32 func_00331950(void)
 // FUN_00331980
 s32 func_00331980(void)
 {
-    return datGetFlag(func_0029cc00(0)) != 0;
+    return datGetFlag(scrGetParamInt(0)) != 0;
 }
 // FUN_003319C0
 s32 func_003319c0(void) {
     s32 r;
 
     if ((D_008C024E[0] & 0x800) != 0) {
-        func_00106390(func_0029cc00(0), 1);
+        func_00106390(scrGetParamInt(0), 1);
         r = 1;
     } else {
         r = 0;

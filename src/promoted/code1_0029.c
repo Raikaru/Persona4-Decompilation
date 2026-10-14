@@ -10,7 +10,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern void func_004b15d0();
 extern s32 iGpffffa7c8;
-extern s32 func_0029ce90(s32 arg0);
+extern s32 scrGetParamString(s32 arg0);
 extern void func_0029e9b0(void *arg0, ...);
 
 s32 func_00291a60(s32 arg0);
@@ -18,7 +18,7 @@ s32 func_00291a60(s32 arg0);
 s32 func_0045a8d0(s64 arg0, s32 arg1);
 
 extern void func_00106390();
-s32 func_0029cc00(s32 arg0);
+s32 scrGetParamInt(s32 arg0);
 extern void func_0018c7e0(void);
 extern s32 func_0018ced0();
 extern void strncpy(void *arg0, void *arg1, s32 arg2);
@@ -43,7 +43,7 @@ s32 func_00459880(void);
 s32 func_004598e0(s16 arg0);
 
 u32 func_00104ce0(s16 arg0);
-void func_0029cf50(s32 arg0);
+void scrSetReturnInt(s32 arg0);
 
 u16 func_00104dc0(s16 arg0);
 
@@ -1898,7 +1898,7 @@ found_98250:
 }
 // FUN_00298340
 s32 func_00298340(void) {
-    func_0029cf50(func_00108e70());
+    scrSetReturnInt(func_00108e70());
     return 1;
 }
 // FUN_00298D30
@@ -1913,14 +1913,14 @@ s32 func_00298d30(void) {
 }
 // FUN_00298D70
 s32 func_00298d70(void) {
-    func_0029cf50(datGetFlag(func_0029cc00(0)));
+    scrSetReturnInt(datGetFlag(scrGetParamInt(0)));
     return 1;
 }
 // FUN_00299560
 s32 func_00299560(void) {
     s32 v;
 
-    v = func_0029cc00(0);
+    v = scrGetParamInt(0);
     if (func_00452490(v) == 0) {
         return 1;
     }
@@ -1932,8 +1932,8 @@ s32 func_00299560(void) {
 s32 func_002996e0(void) {
     s32 temp_16;
 
-    temp_16 = func_0029cc00(0);
-    func_004b1590(temp_16, func_0029cc00(1));
+    temp_16 = scrGetParamInt(0);
+    func_004b1590(temp_16, scrGetParamInt(1));
     return 1;
 }
 
@@ -1951,8 +1951,8 @@ s32 func_00299770(void) {
     s32 a;
     s32 b;
 
-    a = func_0029cc00(0);
-    b = func_0029cc00(1);
+    a = scrGetParamInt(0);
+    b = scrGetParamInt(1);
     func_0045af60(0, 0, (s16)a, (s16)b);
     return 1;
 }
@@ -1967,8 +1967,8 @@ s32 func_00299800(void) {
     s32 a;
     s32 b;
 
-    a = func_0029cc00(0);
-    b = func_0029cc00(1);
+    a = scrGetParamInt(0);
+    b = scrGetParamInt(1);
     func_0045af60(1, 0, (s16)a, (s16)b);
     return 1;
 }
@@ -1980,7 +1980,7 @@ s32 func_00299860(void) {
 }
 // FUN_00299890
 s32 func_00299890(void) {
-    func_0045a3e0(func_0029cc00(0), 1);
+    func_0045a3e0(scrGetParamInt(0), 1);
     return 1;
 }
 
@@ -1990,7 +1990,7 @@ s32 func_00299890(void) {
 s32 func_002998d0(void) {
     s32 temp_2;
 
-    temp_2 = func_0029cc00(0);
+    temp_2 = scrGetParamInt(0);
     if (temp_2 == 0) {
         func_00459880();
     } else {
@@ -2006,7 +2006,7 @@ s32 func_00299920(void) {
     char sp10[0x20];
     s32 v;
 
-    v = func_0029cc00(0);
+    v = scrGetParamInt(0);
     sprintf(sp10, D_0063D050, v);
     func_0045aeb0(2, sp10);
     return 1;
@@ -2016,7 +2016,7 @@ s32 func_00299920(void) {
 s32 func_00299970(void) {
     s32 v;
 
-    v = func_0029cc00(0);
+    v = scrGetParamInt(0);
     if (v == 0) {
         func_0045a9a0(2, 0);
     } else {
@@ -2027,12 +2027,12 @@ s32 func_00299970(void) {
 
 // FUN_002999D0
 s32 func_002999d0(void) {
-    func_0045b2e0(func_0029cc00(0));
+    func_0045b2e0(scrGetParamInt(0));
     return 1;
 }
 // FUN_00299A10
 s32 func_00299a10(void) {
-    func_0029cc00(0);
+    scrGetParamInt(0);
     func_0045a8d0(3, 0);
     return 1;
 }
@@ -2042,9 +2042,9 @@ s32 func_00299a50(void) {
     s32 b;
     s32 c;
 
-    a = func_0029cc00(0);
-    b = func_0029cc00(1);
-    c = func_0029cc00(2);
+    a = scrGetParamInt(0);
+    b = scrGetParamInt(1);
+    c = scrGetParamInt(2);
     H_Fade_SetCustomColor(a & 0xFF, b & 0xFF, c & 0xFF);
     return 1;
 }
@@ -2084,12 +2084,12 @@ s32 func_00299b70(void) {
 // FUN_00299C20
 s32 func_00299c20(void)
 {
-    func_0029e9b0(&iGpffffa7c8, func_0029ce90(0));
+    func_0029e9b0(&iGpffffa7c8, scrGetParamString(0));
     return 1;
 }
 // FUN_00299C60
 s32 func_00299c60(void) {
-    func_0029cf50(func_00104ce0(func_0029cc00(0)) & 0xFFFF);
+    scrSetReturnInt(func_00104ce0(scrGetParamInt(0)) & 0xFFFF);
     return 1;
 }
 
@@ -2097,7 +2097,7 @@ s32 func_00299c60(void) {
 
 // FUN_00299CB0
 s32 func_00299cb0(void) {
-    func_0029cf50(func_00104dc0((s16)func_0029cc00(0)) & 0xFFFF);
+    scrSetReturnInt(func_00104dc0((s16)scrGetParamInt(0)) & 0xFFFF);
     return 1;
 }
 
@@ -2117,13 +2117,13 @@ s32 func_00299d00(void)
 
 // FUN_00299D60
 s32 func_00299d60(void) {
-    func_0029cf50(func_00104d50(func_0029cc00(0)) & 0xFFFF);
+    scrSetReturnInt(func_00104d50(scrGetParamInt(0)) & 0xFFFF);
     return 1;
 }
 
 // FUN_00299DB0
 s32 func_00299db0(void) {
-    func_0029cf50(func_00104e30((s16)func_0029cc00_s64(0)) & 0xFFFF);
+    scrSetReturnInt(func_00104e30((s16)func_0029cc00_s64(0)) & 0xFFFF);
     return 1;
 }
 // FUN_00299E00
@@ -2139,7 +2139,7 @@ s32 func_00299e00(void)
 }
 // FUN_00299E60
 s32 func_00299e60(void) {
-    func_001238c0(func_0029cc00(0) != 0);
+    func_001238c0(scrGetParamInt(0) != 0);
     return 1;
 }
 // FUN_00299EA0
@@ -2147,7 +2147,7 @@ s32 func_00299ea0(void)
 {
     s32 temp_16;
 
-    temp_16 = func_0029cc00(0);
+    temp_16 = scrGetParamInt(0);
     func_00106390(0x1203, 0);
     func_00106390(0x1204, 0);
     func_00106390(0x1205, 0);

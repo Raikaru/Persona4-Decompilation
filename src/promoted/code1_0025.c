@@ -34,10 +34,10 @@ extern s32 iGpffffb480;
 
 s16 func_001060b0(void);
 void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
-void func_0029cf50(s32 arg0);
+void scrSetReturnInt(s32 arg0);
 s32 func_00110580(s64 arg0);
 
-s32 func_0029cc00(s32 arg0);
+s32 scrGetParamInt(s32 arg0);
 s16 func_00110600(s32 arg0, s32 arg1);
 void func_00106300(s64 arg0);
 void func_00106310(s32 arg0);
@@ -52,7 +52,7 @@ s32 func_001227f0(void);
 
 s32 func_001060c0(void);
 s8 func_00110960(s16 arg0, s32 arg1);
-float func_0029cd50(s32 arg0);
+float scrGetParamFloat(s32 arg0);
 s16 func_00105010(s16 arg0, float arg1);
 s16 func_00104f10(s16 arg0);
 s32 func_0010a840(u16 arg0, s32 arg1, s32 arg2);
@@ -490,7 +490,7 @@ s32 func_0025c340(void) {
     sp1C = 0;
     sp18 = 0;
     func_001104d0(func_001060b0(), &sp1C, &sp18);
-    func_0029cf50(sp1C);
+    scrSetReturnInt(sp1C);
     return 1;
 }
 
@@ -504,7 +504,7 @@ s32 func_0025c390(void) {
     sp1C = 0;
     sp18 = 0;
     func_001104d0(func_001060b0(), &sp1C, &sp18);
-    func_0029cf50(sp18);
+    scrSetReturnInt(sp18);
     return 1;
 }
 
@@ -512,7 +512,7 @@ s32 func_0025c390(void) {
 
 // FUN_0025C3E0
 s32 func_0025c3e0(void) {
-    func_0029cf50(func_00110580(func_001060b0()));
+    scrSetReturnInt(func_00110580(func_001060b0()));
     return 1;
 }
 
@@ -520,7 +520,7 @@ s32 func_0025c3e0(void) {
 
 // FUN_0025C420
 s32 func_0025c420(void) {
-    func_0029cf50(func_001060c0() & 0xFF);
+    scrSetReturnInt(func_001060c0() & 0xFF);
     return 1;
 }
 // FUN_0025C450
@@ -528,7 +528,7 @@ s32 func_0025c450(void) {
     s16 temp_16;
 
     temp_16 = func_001060b0();
-    func_0029cf50((s32)func_00110960(temp_16, func_001060c0() & 0xFF));
+    scrSetReturnInt((s32)func_00110960(temp_16, func_001060c0() & 0xFF));
     return 1;
 }
 
@@ -541,13 +541,13 @@ s32 func_0025c4b0(void) {
 
     sp3C = 0;
     sp38 = 0;
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
     func_001104d0(func_001060b0(), &sp3C, &sp38);
     if ((sp3C == temp_17) && (sp38 == temp_16)) {
-        func_0029cf50(1);
+        scrSetReturnInt(1);
     } else {
-        func_0029cf50(0);
+        scrSetReturnInt(0);
     }
     return 1;
 }
@@ -560,9 +560,9 @@ s32 func_0025c560(void) {
     s32 temp_17;
     s32 temp_16;
 
-    temp_18 = func_0029cc00(0);
-    temp_17 = func_0029cc00(1);
-    temp_16 = func_0029cc00(2);
+    temp_18 = scrGetParamInt(0);
+    temp_17 = scrGetParamInt(1);
+    temp_16 = scrGetParamInt(2);
     func_00106300(func_00110600(temp_18, temp_17));
     func_00106310(temp_16 & 0xFF);
     func_00106320(1);
@@ -578,14 +578,14 @@ s32 func_0025c600(void) {
     s32 temp_17;
     s32 temp_16;
 
-    temp_19 = func_0029cc00(0);
-    temp_18 = func_0029cc00(1);
-    temp_17 = func_0029cc00(2);
-    temp_16 = func_0029cc00(3);
+    temp_19 = scrGetParamInt(0);
+    temp_18 = scrGetParamInt(1);
+    temp_17 = scrGetParamInt(2);
+    temp_16 = scrGetParamInt(3);
     if (func_001106f0(func_001060b0(), temp_19, temp_18, temp_17, temp_16) == 1) {
-        func_0029cf50(1);
+        scrSetReturnInt(1);
     } else {
-        func_0029cf50(0);
+        scrSetReturnInt(0);
     }
     return 1;
 }
@@ -597,8 +597,8 @@ s32 func_0025c730(void) {
     s32 temp_16;
     s32 temp_17;
 
-    temp_16 = func_0029cc00(0);
-    temp_17 = func_0029cc00(1);
+    temp_16 = scrGetParamInt(0);
+    temp_17 = scrGetParamInt(1);
     func_0026bc10(((temp_16 & 0x3FF) | 0xC00) & 0xFFFF, temp_17 & 0xFF);
     return 1;
 }
@@ -609,14 +609,14 @@ s32 func_0025c730(void) {
 s32 func_0025cdd0(void) {
     s32 temp_16;
 
-    temp_16 = func_0029cc00(0);
-    func_0029cf50((s32)func_00105010((s16)temp_16, func_0029cd50(1)));
+    temp_16 = scrGetParamInt(0);
+    scrSetReturnInt((s32)func_00105010((s16)temp_16, scrGetParamFloat(1)));
     return 1;
 }
 
 // FUN_0025CE40
 s32 func_0025ce40(void) {
-    func_0029cf50((s32)func_00104f10((s16)func_0029cc00(0)));
+    scrSetReturnInt((s32)func_00104f10((s16)scrGetParamInt(0)));
     return 1;
 }
 
@@ -627,9 +627,9 @@ s32 func_0025ce90(void) {
     s32 temp_17;
     s32 temp_18;
 
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
-    temp_18 = func_0029cc00(2);
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
+    temp_18 = scrGetParamInt(2);
     func_0010a840(temp_17 & 0xFFFF, temp_16 & 0xFFFF, (s8)temp_18);
     return 1;
 }
@@ -639,9 +639,9 @@ s32 func_0025cf00(void) {
     s32 temp_16;
     s32 temp_17;
 
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
-    datPersonaAddToBonusStatByPcId(temp_17 & 0xFFFF, temp_16 & 0xFFFF, func_0029cc00(2));
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
+    datPersonaAddToBonusStatByPcId(temp_17 & 0xFFFF, temp_16 & 0xFFFF, scrGetParamInt(2));
     return 1;
 }
 
@@ -650,9 +650,9 @@ s32 func_0025cf70(void) {
     s32 temp_16;
     s32 temp_17;
 
-    temp_16 = func_0029cc00(0);
-    temp_17 = func_0029cc00(1);
-    func_0029cf50(func_00109bf0(temp_16 & 0xFFFF, temp_17 & 0xFFFF) & 0xFF);
+    temp_16 = scrGetParamInt(0);
+    temp_17 = scrGetParamInt(1);
+    scrSetReturnInt(func_00109bf0(temp_16 & 0xFFFF, temp_17 & 0xFFFF) & 0xFF);
     return 1;
 }
 
@@ -664,7 +664,7 @@ s32 func_0025d000(void) {
     s32 var_4;
     temp_16 = func_00105ed0();
 
-    var_4 = temp_16 + func_0029cc00(0);
+    var_4 = temp_16 + scrGetParamInt(0);
     if (var_4 <= 0x0098967F) {
         goto block_1;
     }
@@ -674,7 +674,7 @@ block_1:
         var_4 = 0;
     }
     func_00105fa0(var_4);
-    func_0029cf50(func_00105ed0());
+    scrSetReturnInt(func_00105ed0());
     return 1;
 }
 // FUN_0025D090
@@ -694,8 +694,8 @@ block_4:
 s32 func_0025d150(void) {
     s16 temp_16;
 
-    temp_16 = func_0029cc00(0);
-    func_00106620(temp_16, func_0029cc00(1) & 0xFF);
+    temp_16 = scrGetParamInt(0);
+    func_00106620(temp_16, scrGetParamInt(1) & 0xFF);
     return 1;
 }
 
@@ -713,7 +713,7 @@ s32 func_0025d1b0(void) {
     goto loop_4_test;
 loop_4:
     temp_16 = datGetPartyId(var_18);
-    if ((s32)temp_16 == func_0029cc00(0)) {
+    if ((s32)temp_16 == scrGetParamInt(0)) {
         var_16 = 1;
     }
     var_18 += 1;
@@ -728,7 +728,7 @@ loop_4_test:
     goto loop_10_test;
 loop_10:
     if ((s64)datGetPartyId(var_17) == 0) {
-        datSetPartyId(var_17, (s32)(s64)(s16)func_0029cc00(0));
+        datSetPartyId(var_17, (s32)(s64)(s16)scrGetParamInt(0));
         var_16 = 1;
         goto block_4;
     }
@@ -739,7 +739,7 @@ loop_10_test:
     }
 block_4:
     if (var_16 == 0) {
-        datSetPartyId(2, (s32)(s64)(s16)func_0029cc00(0));
+        datSetPartyId(2, (s32)(s64)(s16)scrGetParamInt(0));
     }
     return 1;
 }
@@ -753,7 +753,7 @@ s32 func_0025d2d0(void) {
     var_17 = 0;
     while (var_17 < 3) {
         temp_16 = datGetPartyId(var_17);
-        if (temp_16 == func_0029cc00(0)) {
+        if (temp_16 == scrGetParamInt(0)) {
             datSetPartyId(var_17, 0);
         }
         var_17++;
@@ -766,9 +766,9 @@ s32 func_0025d350(void) {
     s16 temp_16;
     s16 temp_5;
 
-    temp_16 = func_0029cc00(0);
-    temp_5 = func_0029cc00(1);
-    func_0029cf50((s32)func_00106cd0(temp_16, temp_5));
+    temp_16 = scrGetParamInt(0);
+    temp_5 = scrGetParamInt(1);
+    scrSetReturnInt((s32)func_00106cd0(temp_16, temp_5));
     return 1;
 }
 
@@ -777,9 +777,9 @@ s32 func_0025d3c0(void) {
     s16 a;
     s16 b;
 
-    a = func_0029cc00(0);
-    b = func_0029cc00(1);
-    func_00106d40(a, b, (s16)func_0029cc00(2));
+    a = scrGetParamInt(0);
+    b = scrGetParamInt(1);
+    func_00106d40(a, b, (s16)scrGetParamInt(2));
     return 1;
 }
 
@@ -793,7 +793,7 @@ s32 func_0025d440(void) {
     }
     temp_2 = func_002aa3f0();
     if (temp_2 != 0) {
-        func_0029cf50(temp_2);
+        scrSetReturnInt(temp_2);
         return 1;
     }
 block_4:
@@ -809,7 +809,7 @@ s32 func_0025d4b0(void) {
     } else {
         temp_2 = func_002aa3f0();
         if (temp_2 != 0) {
-            func_0029cf50(temp_2);
+            scrSetReturnInt(temp_2);
             return 1;
         }
     }
@@ -825,7 +825,7 @@ s32 func_0025d520(void)
 // FUN_0025D530
 s32 func_0025d530(void)
 {
-    func_0029cf50((s16)datGetPartyId(func_0029cc00(0)));
+    scrSetReturnInt((s16)datGetPartyId(scrGetParamInt(0)));
     return 1;
 }
 
@@ -845,7 +845,7 @@ s32 func_0025d580(void) {
     s32 temp_2_2;
     u16 temp_16;
     s32 var_4;
-    temp_16 = func_0029cc00(0) & 0xFFFF;
+    temp_16 = scrGetParamInt(0) & 0xFFFF;
     var_6 = D_00636A40;
     var_5 = (s16 *)sp30;
     var_4 = 9;
@@ -883,10 +883,10 @@ s32 func_0025d650(void) {
     s32 temp_16;
     s32 temp_17;
 
-    local.f0 = (f32)func_0029cc00(0);
-    local.f1 = (f32)func_0029cc00(1);
-    temp_17 = func_0029cc00(2);
-    temp_16 = func_0029cc00(3);
+    local.f0 = (f32)scrGetParamInt(0);
+    local.f1 = (f32)scrGetParamInt(1);
+    temp_17 = scrGetParamInt(2);
+    temp_16 = scrGetParamInt(3);
     if (func_0029d020() == 0) {
         local.h0 = (s16)temp_17;
         local.h1 = (s16)temp_16;
@@ -896,7 +896,7 @@ s32 func_0025d650(void) {
     if (func_00120ee0(iGpffffb480) != 0) {
         func_00120f00(iGpffffb480);
         func_00120f40(iGpffffb480, *(s64 *)&local.f0);
-        func_0029cf50(iGpffffb480);
+        scrSetReturnInt(iGpffffb480);
         iGpffffb480 = 0;
         return 1;
     }
@@ -907,7 +907,7 @@ block_4:
 s32 func_0025d760(void) {
     s32 temp_16;
 
-    temp_16 = func_0029cc00(0);
+    temp_16 = scrGetParamInt(0);
     if (func_0029d020() == 0) {
         if (func_00452490(temp_16) != 0) {
             func_00120f20(temp_16);
