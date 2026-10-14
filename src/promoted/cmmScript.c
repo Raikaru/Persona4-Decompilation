@@ -1133,42 +1133,42 @@ s32 func_0024be40(void)
 // FUN_0024C0E0
 s32 func_0024c0e0(u8 *arg0, u8 *arg1)
 {
-    f32 temp_f1;
-    f32 var_f0;
-    s32 temp_16;
-    s32 temp_2;
-    s32 temp_16_2;
-    s32 temp_3;
+    f32 angle;
+    f32 wave;
+    s32 loadTask;
+    s32 task;
+    s32 data;
+    s32 flags;
     s32 temp_2_2;
     s32 temp_2_3;
     s32 temp_2_4;
     s32 temp_2_5;
 
-    temp_2 = (s32)func_00452380((s8 *)(D_00635A78));
-    temp_16 = (s32)func_00452380((s8 *)(D_00635A78));
-    if (temp_16 == 0) {
+    task = (s32)func_00452380((s8 *)(D_00635A78));
+    loadTask = (s32)func_00452380((s8 *)(D_00635A78));
+    if (loadTask == 0) {
         func_0046d730(D_006359F0, 0x392);
     }
-    temp_2_2 = (*(s32 *)(s32)func_00452560((void *)(u32)(temp_16)) & 1) != 0;
+    temp_2_2 = (*(s32 *)(s32)func_00452560((void *)(u32)(loadTask)) & 1) != 0;
     if (temp_2_2 != 0) {
         goto block_1;
     }
     func_0046d730(D_006359F0, 0x39D);
 block_1:
-    temp_16_2 = *(s32 *)((u8 *)(s32)func_00452560((void *)(u32)(temp_2)) + 0x24);
-    temp_3 = *(s32 *)arg1;
-    if (temp_3 & 2) {
+    data = *(s32 *)((u8 *)(s32)func_00452560((void *)(u32)(task)) + 0x24);
+    flags = *(s32 *)arg1;
+    if (flags & 2) {
         temp_2_2 = *(s32 *)(arg1 + 8);
         if (temp_2_2 < 10) {
-            temp_f1 = (f32)temp_2_2;
-            temp_f1 = (iGpffff8094 * temp_f1) / 10.0f;
-            var_f0 = sinf(temp_f1);
+            angle = (f32)temp_2_2;
+            angle = (iGpffff8094 * angle) / 10.0f;
+            wave = sinf(angle);
         } else {
-            var_f0 = 1.0f;
+            wave = 1.0f;
         }
         func_0025ecd0(512.0f,
-                      418.0f + 200.0f * (1.0f - var_f0), 0.0f,
-                      0xFFFFFF, 0xFF, 0, (void *)(uintptr_t)temp_16_2, 1, 0, 0,
+                      418.0f + 200.0f * (1.0f - wave), 0.0f,
+                      0xFFFFFF, 0xFF, 0, (void *)(uintptr_t)data, 1, 0, 0,
                       -30.0f, 1.0f, 1.0f, D_00794E70);
         temp_2_3 = *(s32 *)(arg1 + 8) + 1;
         *(s32 *)(arg1 + 8) = temp_2_3;
@@ -1178,19 +1178,19 @@ block_1:
         }
         goto block_20;
     }
-    if (temp_3 & 4) {
+    if (flags & 4) {
         temp_2_4 = *(s32 *)(arg1 + 8);
         if (temp_2_4 < 10) {
-            temp_f1 = (f32)temp_2_4;
-            temp_f1 = (iGpffff8094 * temp_f1) / 10.0f;
-            var_f0 = sinf(temp_f1);
+            angle = (f32)temp_2_4;
+            angle = (iGpffff8094 * angle) / 10.0f;
+            wave = sinf(angle);
         } else {
-            var_f0 = 1.0f;
+            wave = 1.0f;
         }
         func_0025ecd0(512.0f, 418.0f, 0.0f,
                       0xFFFFFF,
-                      (u8)(255.0f * (1.0f - var_f0)),
-                      0, (void *)(uintptr_t)temp_16_2, 1, 0, 0,
+                      (u8)(255.0f * (1.0f - wave)),
+                      0, (void *)(uintptr_t)data, 1, 0, 0,
                       -30.0f, 1.0f, 1.0f, D_00794E70);
         temp_2_5 = *(s32 *)(arg1 + 8) + 1;
         *(s32 *)(arg1 + 8) = temp_2_5;
@@ -1201,7 +1201,7 @@ block_1:
         }
     } else {
         func_0025ecd0(512.0f, 418.0f, 0.0f,
-                      0xFFFFFF, 0xFF, 0, (void *)(uintptr_t)temp_16_2, 1, 0, 0,
+                      0xFFFFFF, 0xFF, 0, (void *)(uintptr_t)data, 1, 0, 0,
                       -30.0f, 1.0f, 1.0f, D_00794E70);
     }
 block_20:
