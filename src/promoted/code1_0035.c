@@ -2402,40 +2402,40 @@ s32 func_003596a0(u8 *arg0) {
 // FUN_00359720
 void func_00359720(u8 *arg0)
 {
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 temp_4_3;
-    s32 temp_4_4;
-    s32 var_17;
-    u8 *temp_2;
+    s32 handle;
+    s32 handle1308;
+    s32 handle130C;
+    s32 handle1310;
+    s32 index;
+    u8 *slot;
 
-    var_17 = 0;
+    index = 0;
     goto loop_test;
 loop_body:
-    temp_2 = arg0 + (var_17 * 4) + 0x11D0;
-    temp_4 = *(s32 *)temp_2;
-    if (temp_4 != 0) {
-        func_0046d280((void *)temp_4);
-        *(s32 *)temp_2 = 0;
+    slot = arg0 + (index * 4) + 0x11D0;
+    handle = *(s32 *)slot;
+    if (handle != 0) {
+        func_0046d280((void *)handle);
+        *(s32 *)slot = 0;
     }
-    var_17 += 1;
+    index += 1;
 loop_test:
-    if (var_17 < 0x4D) {
+    if (index < 0x4D) {
         goto loop_body;
     }
-    temp_4_2 = *(s32 *)(arg0 + 0x1308);
-    if (temp_4_2 != 0) {
-        func_00452080(temp_4_2);
+    handle1308 = *(s32 *)(arg0 + 0x1308);
+    if (handle1308 != 0) {
+        func_00452080(handle1308);
         *(s32 *)(arg0 + 0x1308) = 0;
     }
-    temp_4_3 = *(s32 *)(arg0 + 0x130C);
-    if (temp_4_3 != 0) {
-        func_00452080(temp_4_3);
+    handle130C = *(s32 *)(arg0 + 0x130C);
+    if (handle130C != 0) {
+        func_00452080(handle130C);
         *(s32 *)(arg0 + 0x130C) = 0;
     }
-    temp_4_4 = *(s32 *)(arg0 + 0x1310);
-    if (temp_4_4 != 0) {
-        func_00452080(temp_4_4);
+    handle1310 = *(s32 *)(arg0 + 0x1310);
+    if (handle1310 != 0) {
+        func_00452080(handle1310);
         *(s32 *)(arg0 + 0x1310) = 0;
     }
     *(s32 *)(arg0 + 0x1C) = 0;
@@ -2444,51 +2444,51 @@ loop_test:
 // FUN_003597F0
 void func_003597f0(u8 *arg0)
 {
-    s32 temp_16;
-    s32 temp_4_2;
-    s32 var_18;
-    s32 var_17;
-    u8 *temp_4;
-    u8 *temp_5;
+    s32 table;
+    s32 flagId;
+    s32 index;
+    s32 count;
+    u8 *entry;
+    u8 *valuePtr;
 
-    temp_16 = func_002467b0(
+    table = func_002467b0(
         *(u16 *)((u8 *)add_offset_first(
             (s32)(*(s16 *)(arg0 + 0x24) + *(s16 *)(arg0 + 0x26)) * 0xC,
             (u32)arg0) + 0x3A));
-    var_18 = 0;
-    var_17 = 0;
+    index = 0;
+    count = 0;
     goto loop_test;
 loop_body:
-    temp_4 = (u8 *)(temp_16 + (var_18 * 8));
-    temp_5 = temp_4 + 0x28;
-    if ((*(s32 *)temp_5 != 0) &&
-        ((temp_4_2 = *(s32 *)(temp_4 + 0x24), temp_4_2 == 0) ||
-         (datGetFlag(temp_4_2) != 0))) {
-        *(s16 *)(arg0 + (var_17 * 2) + 0x136) = *(s32 *)temp_5;
-        var_17 += 1;
+    entry = (u8 *)(table + (index * 8));
+    valuePtr = entry + 0x28;
+    if ((*(s32 *)valuePtr != 0) &&
+        ((flagId = *(s32 *)(entry + 0x24), flagId == 0) ||
+         (datGetFlag(flagId) != 0))) {
+        *(s16 *)(arg0 + (count * 2) + 0x136) = *(s32 *)valuePtr;
+        count += 1;
     }
-    var_18 += 1;
+    index += 1;
 loop_test:
-    if (var_18 < 8) {
+    if (index < 8) {
         goto loop_body;
     }
-    *(s32 *)(arg0 + 0x148) = var_17;
+    *(s32 *)(arg0 + 0x148) = count;
 }
 /* measured: probe loop-invariant constant hoisting for func_003598d0. */
 #pragma opt_loop_invariants on
 // FUN_003598D0
 void func_003598d0(u8 *arg0)
 {
-    s32 temp_3;
-    s32 var_5;
+    s32 activeCount;
+    s32 index;
     f32 value_1;
     f32 value_2;
     f32 value_3;
     s32 value_4;
     f32 value_5;
 
-    temp_3 = *(s16 *)(arg0 + 0x24);
-    var_5 = 0;
+    activeCount = *(s16 *)(arg0 + 0x24);
+    index = 0;
     value_1 = 800.0f;
     value_2 = -400.0f;
     value_3 = 29.5f;
@@ -2496,27 +2496,27 @@ void func_003598d0(u8 *arg0)
     value_5 = 22.0f;
     goto loop_test;
 loop_body:
-    if (var_5 != temp_3) {
-        if (var_5 < temp_3) {
-            *(f32 *)(arg0 + (var_5 * 0x30) + 0x5AC) = value_2;
-            *(f32 *)(arg0 + (var_5 * 0x30) + 0x18C) = value_2;
+    if (index != activeCount) {
+        if (index < activeCount) {
+            *(f32 *)(arg0 + (index * 0x30) + 0x5AC) = value_2;
+            *(f32 *)(arg0 + (index * 0x30) + 0x18C) = value_2;
         } else {
-            *(f32 *)(arg0 + (var_5 * 0x30) + 0x5AC) = value_1;
-            *(f32 *)(arg0 + (var_5 * 0x30) + 0x18C) = value_1;
+            *(f32 *)(arg0 + (index * 0x30) + 0x5AC) = value_1;
+            *(f32 *)(arg0 + (index * 0x30) + 0x18C) = value_1;
         }
-        *(f32 *)(arg0 + (var_5 * 0x30) + 0x4B8) = value_5;
-        *(s16 *)(arg0 + (var_5 * 0x30) + 0x4CE) = value_4;
+        *(f32 *)(arg0 + (index * 0x30) + 0x4B8) = value_5;
+        *(s16 *)(arg0 + (index * 0x30) + 0x4CE) = value_4;
     } else {
-        *(f32 *)(arg0 + (var_5 * 0x30) + 0x5AC) = value_3;
-        *(s16 *)(arg0 + (var_5 * 0x30) + 0x5C4) = value_4;
-        *(f32 *)(arg0 + (var_5 * 0x30) + 0x18C) = value_3;
-        *(s16 *)(arg0 + (var_5 * 0x30) + 0x1A4) = value_4;
-        *(f32 *)(arg0 + (var_5 * 0x30) + 0x4BC) = value_3;
-        *(s16 *)(arg0 + (var_5 * 0x30) + 0x4D4) = value_4;
+        *(f32 *)(arg0 + (index * 0x30) + 0x5AC) = value_3;
+        *(s16 *)(arg0 + (index * 0x30) + 0x5C4) = value_4;
+        *(f32 *)(arg0 + (index * 0x30) + 0x18C) = value_3;
+        *(s16 *)(arg0 + (index * 0x30) + 0x1A4) = value_4;
+        *(f32 *)(arg0 + (index * 0x30) + 0x4BC) = value_3;
+        *(s16 *)(arg0 + (index * 0x30) + 0x4D4) = value_4;
     }
-    var_5 += 1;
+    index += 1;
 loop_test:
-    if (var_5 < 5) {
+    if (index < 5) {
         goto loop_body;
     }
 }
@@ -2785,10 +2785,10 @@ void func_003599c0(s32 arg0, u8 *arg1)
 void func_0035ac60(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     Float2 pair;
-    s32 temp_17;
-    u8 *temp_2;
-    u8 *var_5;
-    u8 *var_6;
+    s32 value;
+    u8 *pairSrc;
+    u8 *posA;
+    u8 *posB;
 
     if ((arg1 < 0) || (arg1 >= 2)) {
         func_0046d730(&D_0064CC98, 0x6B8);
@@ -2797,43 +2797,43 @@ void func_0035ac60(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
         func_0046d730(&D_0064CC98, 0x6B9);
     }
     if (arg3 != 0) {
-        var_6 = D_0064CC60 + (arg1 * 0x1C);
-        var_5 = var_6 + 8;
+        posB = D_0064CC60 + (arg1 * 0x1C);
+        posA = posB + 8;
     } else {
-        var_5 = D_0064CC60 + (arg1 * 0x1C);
-        var_6 = var_5 + 8;
+        posA = D_0064CC60 + (arg1 * 0x1C);
+        posB = posA + 8;
     }
-    temp_2 = D_0064CC70 + (arg1 * 0x1C);
-    pair = *(Float2 *)temp_2;
-    temp_17 = *(s32 *)(D_0064CC78 + (arg1 * 0x1C));
+    pairSrc = D_0064CC70 + (arg1 * 0x1C);
+    pair = *(Float2 *)pairSrc;
+    value = *(s32 *)(D_0064CC78 + (arg1 * 0x1C));
     if (arg2 != 0) {
-        func_003550d0(arg0, (Float2 *)var_5, (Float2 *)var_6);
+        func_003550d0(arg0, (Float2 *)posA, (Float2 *)posB);
     } else {
-        func_00355070(arg0, var_6);
+        func_00355070(arg0, posB);
     }
     func_003552d0(arg0, pair);
-    func_00355300(arg0, temp_17);
+    func_00355300(arg0, value);
 }
 // FUN_0035ADC0
 u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2)
 {
-    u8 *temp_2;
-    u8 *temp_18;
+    u8 *work;
+    u8 *task;
 
     func_0044ea90(&D_0064CC98, 0x6ED);
-    temp_2 = D_008873F4[0](1, 0x144, 0x40000);
-    if (temp_2 == NULL) {
+    work = D_008873F4[0](1, 0x144, 0x40000);
+    if (work == NULL) {
         func_0046d730(&D_0064CC98, 0x6EE);
     }
-    temp_18 = func_00451fc0((void *)(arg0), (const void *)(&D_0064CCD0), 0xC7, 0, 0, func_0035aec0, func_0035af10, (u8 *)(temp_2));
-    *(s8 *)(temp_2 + 0x20) = 0;
-    *(s32 *)(temp_2 + 0x2C) = 0;
-    *(u8 **)(temp_2 + 0x140) = D_0064CCB0;
+    task = func_00451fc0((void *)(arg0), (const void *)(&D_0064CCD0), 0xC7, 0, 0, func_0035aec0, func_0035af10, (u8 *)(work));
+    *(s8 *)(work + 0x20) = 0;
+    *(s32 *)(work + 0x2C) = 0;
+    *(u8 **)(work + 0x140) = D_0064CCB0;
     {
         extern void func_0035bc10();
-        func_0035bc10((s32)temp_18, arg1, arg2);
+        func_0035bc10((s32)task, arg1, arg2);
     }
-    return temp_18;
+    return task;
 }
 // FUN_0035AEC0
 s32 func_0035aec0(u8 *arg0)
@@ -2850,37 +2850,37 @@ s32 func_0035aec0(u8 *arg0)
 // FUN_0035AF10
 void func_0035af10(u8 *arg0)
 {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    func_003549d0(temp_16 + 0x30);
-    (*D_008873EC)(temp_16);
+    work = *(u8 **)(arg0 + 0x38);
+    func_003549d0(work + 0x30);
+    (*D_008873EC)(work);
 }
 
 // FUN_0035AF60
 s32 func_0035af60(u8 *arg0)
 {
-    u8 *temp_3;
+    u8 *work;
 
-    temp_3 = *(u8 **)(arg0 + 0x38);
-    if ((*(s32 *)(temp_3 + 0x2C) == 0) || (*(s8 *)(temp_3 + 0x20) == 0)) {
+    work = *(u8 **)(arg0 + 0x38);
+    if ((*(s32 *)(work + 0x2C) == 0) || (*(s8 *)(work + 0x20) == 0)) {
         return 0;
     }
     return 1;
 }
 // FUN_0035AFA0
 s32 func_0035afa0(u8 *arg0) {
-    s32 var_2;
-    u8 *temp_3;
+    s32 ready;
+    u8 *work;
 
-    temp_3 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    if ((*(s32 *)(temp_3 + 0x2C) == 0) || (*(s8 *)(temp_3 + 0x20) == 0)) {
-        var_2 = 0;
+    work = (u8 *)(*(u8 **)(arg0 + 0x38));
+    if ((*(s32 *)(work + 0x2C) == 0) || (*(s8 *)(work + 0x20) == 0)) {
+        ready = 0;
     } else {
-        var_2 = 1;
+        ready = 1;
     }
-    if (var_2 != 0) {
-        return (s32)(**(s32 **)(temp_3 + 0x3C));
+    if (ready != 0) {
+        return (s32)(**(s32 **)(work + 0x3C));
     }
     return 0;
 }
@@ -3181,31 +3181,30 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
 // FUN_0035BAD0
 f32 func_0035bad0(u8 *arg0)
 {
-    f32 temp_f20;
-    f32 temp_f22;
-    f32 temp_f21;
-    f32 temp_f21_2;
-    s16 temp_2;
-    s16 temp_2_2;
+    f32 ratio;
+    f32 angle;
+    f32 fromX;
+    f32 fromY;
+    s16 step;
 
     *(s16 *)(arg0 + 0x24) = *(s16 *)(arg0 + 0x24) + 1;
     if (*(s16 *)(arg0 + 0x24) >= 0x64) {
         *(s16 *)(arg0 + 0x24) = 0;
     }
-    temp_2_2 = *(s16 *)(arg0 + 0x22);
-    if (temp_2_2 < 0xA) {
-        *(s16 *)(arg0 + 0x22) = (s16)(temp_2_2 + 1);
+    step = *(s16 *)(arg0 + 0x22);
+    if (step < 0xA) {
+        *(s16 *)(arg0 + 0x22) = (s16)(step + 1);
     }
-    temp_f20 = (f32)*(s16 *)(arg0 + 0x22) / 10.0f;
-    if ((temp_f20 < 0.0f) || (temp_f20 > 1.0f)) {
+    ratio = (f32)*(s16 *)(arg0 + 0x22) / 10.0f;
+    if ((ratio < 0.0f) || (ratio > 1.0f)) {
         func_0046d730(&D_0064CC98, 0x881);
     }
-    temp_f22 = fGpffff84a4 * temp_f20;
-    temp_f21 = *(f32 *)(arg0 + 0x18);
-    *(f32 *)(arg0 + 8) = temp_f21 + ((*(f32 *)(arg0 + 0x10) - temp_f21) * sinf(temp_f22));
-    temp_f21_2 = *(f32 *)(arg0 + 0x1C);
-    *(f32 *)(arg0 + 0xC) = temp_f21_2 + ((*(f32 *)(arg0 + 0x14) - temp_f21_2) * sinf(temp_f22));
-    return temp_f20;
+    angle = fGpffff84a4 * ratio;
+    fromX = *(f32 *)(arg0 + 0x18);
+    *(f32 *)(arg0 + 8) = fromX + ((*(f32 *)(arg0 + 0x10) - fromX) * sinf(angle));
+    fromY = *(f32 *)(arg0 + 0x1C);
+    *(f32 *)(arg0 + 0xC) = fromY + ((*(f32 *)(arg0 + 0x14) - fromY) * sinf(angle));
+    return ratio;
 }
 // FUN_0035BC10
 void func_0035bc10(u8 *arg0, s8 arg1, s32 arg2)
@@ -3292,33 +3291,33 @@ s32 func_0035be70(u8 *arg0)
 // FUN_0035BEC0
 void func_0035bec0(u8 *arg0)
 {
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    func_003549d0(temp_16 + 0x30);
-    (*D_008873EC)(temp_16);
+    work = *(u8 **)(arg0 + 0x38);
+    func_003549d0(work + 0x30);
+    (*D_008873EC)(work);
 }
 
 // FUN_0035BF10
 u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
 {
-    u8 *temp_2;
-    u8 *temp_16;
+    u8 *work;
+    u8 *task;
 
     func_0044ea90(&D_0064CC98, 0x905);
-    temp_2 = D_008873F4[0](1, 0x144, 0x40000);
-    if (temp_2 == NULL) {
+    work = D_008873F4[0](1, 0x144, 0x40000);
+    if (work == NULL) {
         func_0046d730(&D_0064CC98, 0x906);
     }
-    temp_16 = func_00451fc0((void *)(arg0), (const void *)(&D_0064CD40), 0xC7, 0, 0, func_0035be70, func_0035bec0, (u8 *)(temp_2));
-    *(s16 *)(temp_2 + 0x20) = 0;
-    *(s32 *)(temp_2 + 0x2C) = 0;
-    *(f32 *)(temp_2 + 0x10) = 353.0f;
-    *(s32 *)(temp_2 + 0x14) = 0x42BC0000;
-    *(f32 *)(temp_2 + 8) = 300.0f + *(f32 *)(temp_2 + 0x10);
-    *(f32 *)(temp_2 + 0xC) = *(f32 *)(temp_2 + 0x14);
-    func_0035c480((s32)temp_16, arg1, arg2);
-    return temp_16;
+    task = func_00451fc0((void *)(arg0), (const void *)(&D_0064CD40), 0xC7, 0, 0, func_0035be70, func_0035bec0, (u8 *)(work));
+    *(s16 *)(work + 0x20) = 0;
+    *(s32 *)(work + 0x2C) = 0;
+    *(f32 *)(work + 0x10) = 353.0f;
+    *(s32 *)(work + 0x14) = 0x42BC0000;
+    *(f32 *)(work + 8) = 300.0f + *(f32 *)(work + 0x10);
+    *(f32 *)(work + 0xC) = *(f32 *)(work + 0x14);
+    func_0035c480((s32)task, arg1, arg2);
+    return task;
 }
 /* MATCHED 2026-09-18.  Two levers, both measured:
    1. the four `256.0f + load` adds needed splitting into a load statement and
@@ -3454,49 +3453,49 @@ void func_0035c480(s32 arg0, u16 arg1, s32 arg2)
 {
     s8 sp168[8];
     u8 sp60[0x100];
-    f32 temp_f1;
-    f32 temp_f0;
-    s64 var_18;
-    u32 temp_17;
-    u8 *temp_16;
+    f32 x;
+    f32 y;
+    s64 suffix;
+    u32 id;
+    u8 *work;
     extern u8 iGpffffa968;
     extern u8 iGpffffa96c;
     extern u8 D_0064CD60[];
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    *(s16 *)(temp_16 + 0x22) = 0;
-    temp_f1 = *(f32 *)(temp_16 + 8);
-    temp_f0 = *(f32 *)(temp_16 + 0xC);
-    *(f32 *)(temp_16 + 0x18) = temp_f1;
-    *(f32 *)(temp_16 + 0x1C) = temp_f0;
-    temp_f1 = *(f32 *)(temp_16 + 8);
-    temp_f0 = *(f32 *)(temp_16 + 0xC);
-    *(f32 *)(temp_16 + 0) = temp_f1;
-    *(f32 *)(temp_16 + 4) = temp_f0;
-    temp_17 = arg1 & 0xFFFF;
-    if ((*(u16 *)(temp_16 + 0x20) != temp_17) ||
-        (*(s32 *)(temp_16 + 0x24) != arg2)) {
-        switch (temp_17) {
+    work = *(u8 **)(arg0 + 0x38);
+    *(s16 *)(work + 0x22) = 0;
+    x = *(f32 *)(work + 8);
+    y = *(f32 *)(work + 0xC);
+    *(f32 *)(work + 0x18) = x;
+    *(f32 *)(work + 0x1C) = y;
+    x = *(f32 *)(work + 8);
+    y = *(f32 *)(work + 0xC);
+    *(f32 *)(work + 0) = x;
+    *(f32 *)(work + 4) = y;
+    id = arg1 & 0xFFFF;
+    if ((*(u16 *)(work + 0x20) != id) ||
+        (*(s32 *)(work + 0x24) != arg2)) {
+        switch (id) {
         case 0:
             goto zero_case;
         default:
             goto nonzero_case;
         }
 zero_case:
-        func_003547c0((s32 *)(temp_16 + 0x30), NULL);
+        func_003547c0((s32 *)(work + 0x30), NULL);
         goto done;
 nonzero_case:
         if (arg2 & 1) {
-            *(s32 *)(temp_16 + 0x28) = 0xF6001600;
-            var_18 = 0x62;
+            *(s32 *)(work + 0x28) = 0xF6001600;
+            suffix = 0x62;
         } else if (arg2 & 2) {
-            *(s32 *)(temp_16 + 0x28) = 0xF600B000;
-            var_18 = 0x63;
+            *(s32 *)(work + 0x28) = 0xF600B000;
+            suffix = 0x63;
         } else {
-            *(s32 *)(temp_16 + 0x28) = 0xFFD13400;
-            var_18 = 0x61;
+            *(s32 *)(work + 0x28) = 0xFFD13400;
+            suffix = 0x61;
         }
-        switch (temp_17) {
+        switch (id) {
         case 1:
         case 2:
         case 3:
@@ -3532,13 +3531,13 @@ nonzero_case:
             func_0046d730(&D_0064CC98, 0xA05);
             break;
         }
-        sprintf(sp60, D_0064CD60, temp_17, (s8)var_18, sp168);
-        func_003547c0((s32 *)(temp_16 + 0x30), sp60);
+        sprintf(sp60, D_0064CD60, id, (s8)suffix, sp168);
+        func_003547c0((s32 *)(work + 0x30), sp60);
         goto done;
 done:
-        *(u16 *)(temp_16 + 0x20) = arg1;
-        *(s32 *)(temp_16 + 0x24) = arg2;
-        *(s32 *)(temp_16 + 0x2C) = 0;
+        *(u16 *)(work + 0x20) = arg1;
+        *(s32 *)(work + 0x24) = arg2;
+        *(s32 *)(work + 0x2C) = 0;
     }
 }
 #pragma pop
@@ -3581,18 +3580,15 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
     extern void func_0035ef80(u8 *);
     extern void func_0035f020(u8 *);
     u8 buf[44];
-    f32 temp_f1;
-    f32 var_f1;
-    s32 temp_2;
-    s32 var_6;
-    s32 var_3;
-    s16 temp_2_3;
-    s16 temp_2_4;
-    u32 temp_2_5;
+    f32 alphaF;
+    s32 result;
+    s32 resultFlag;
+    s32 alpha;
+    u32 state;
 
-    *arg1 = (var_6 = 1);
-    temp_2_5 = *arg0;
-    switch (temp_2_5) {
+    *arg1 = (resultFlag = 1);
+    state = *arg0;
+    switch (state) {
     case 0:
         *(f32 *)(arg2 + 4) = 0.0f;
         *(f32 *)(arg2 + 8) = 0.0f;
@@ -3650,10 +3646,10 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         } else {
             func_00453670(buf, 5, *(s16 *)(arg2 + 0x134), *(s16 *)(arg2 + 0x24), *(s16 *)(arg2 + 0x26));
             func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if ((temp_2 = func_00453960(buf)) > 0) {
+            if ((result = func_00453960(buf)) > 0) {
                 func_003593e0((s32)arg2, 1, *(s32 *)(buf + 0x28));
                 func_003593e0((s32)arg2, 0, *(s32 *)(buf + 0x24));
-                func_00354080(temp_2);
+                func_00354080(result);
             }
         }
         break;
@@ -3704,14 +3700,14 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         break;
     case 7:
         if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
-            var_6 = 1;
+            resultFlag = 1;
         } else {
-            temp_f1 = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
-            var_3 = (u8)temp_f1;
-            *(u8 *)arg2 = var_3;
-            var_6 = 0;
+            alphaF = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
+            alpha = (u8)alphaF;
+            *(u8 *)arg2 = alpha;
+            resultFlag = 0;
         }
-        if (var_6 != 0) {
+        if (resultFlag != 0) {
             return 2;
         }
         break;
@@ -3721,52 +3717,52 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
 // FUN_0035EF80
 void func_0035ef80(u8 *arg0)
 {
-    s32 var_6;
-    s32 temp_3;
-    s8 temp_4;
-    u8 *temp_2;
+    s32 flags;
+    s32 kind;
+    s8 state;
+    u8 *record;
 
-    temp_2 = (u8 *)add_offset_first((s32)(*(s16 *)(arg0 + 0x24) + *(s16 *)(arg0 + 0x26)) * 0xC, (u32)arg0);
-    temp_4 = *(s8 *)(temp_2 + 0x38);
-    var_6 = 0;
-    temp_3 = *(s32 *)(temp_2 + 0x40);
-    switch (temp_3) {
+    record = (u8 *)add_offset_first((s32)(*(s16 *)(arg0 + 0x24) + *(s16 *)(arg0 + 0x26)) * 0xC, (u32)arg0);
+    state = *(s8 *)(record + 0x38);
+    flags = 0;
+    kind = *(s32 *)(record + 0x40);
+    switch (kind) {
     case 2:
-        var_6 |= 1;
+        flags |= 1;
         break;
     case 3:
-        var_6 |= 2;
+        flags |= 2;
         break;
     case 1:
-        var_6 |= 4;
+        flags |= 4;
         break;
     }
-    func_0035bc10((u8 *)*(s32 *)(arg0 + 0x130C), temp_4, var_6);
+    func_0035bc10((u8 *)*(s32 *)(arg0 + 0x130C), state, flags);
 }
 // FUN_0035F020
 void func_0035f020(u8 *arg0)
 {
-    s32 var_6;
-    s32 temp_3;
-    u16 temp_4;
-    u8 *temp_2;
+    s32 flags;
+    s32 kind;
+    u16 id;
+    u8 *record;
 
-    temp_4 = *(u16 *)((u8 *)add_offset_first((s32)*(s16 *)(arg0 + 0x28) * 2, (u32)arg0) + 0x136);
-    var_6 = 0;
-    temp_2 = (u8 *)add_offset_first((s32)(*(s16 *)(arg0 + 0x24) + *(s16 *)(arg0 + 0x26)) * 0xC, (u32)arg0);
-    temp_3 = *(s32 *)(temp_2 + 0x40);
-    switch (temp_3) {
+    id = *(u16 *)((u8 *)add_offset_first((s32)*(s16 *)(arg0 + 0x28) * 2, (u32)arg0) + 0x136);
+    flags = 0;
+    record = (u8 *)add_offset_first((s32)(*(s16 *)(arg0 + 0x24) + *(s16 *)(arg0 + 0x26)) * 0xC, (u32)arg0);
+    kind = *(s32 *)(record + 0x40);
+    switch (kind) {
     case 2:
-        var_6 |= 1;
+        flags |= 1;
         break;
     case 3:
-        var_6 |= 2;
+        flags |= 2;
         break;
     case 1:
-        var_6 |= 4;
+        flags |= 4;
         break;
     }
-    func_0035c480(*(s32 *)(arg0 + 0x1310), temp_4, var_6);
+    func_0035c480(*(s32 *)(arg0 + 0x1310), id, flags);
 }
 /* MATCHED: built from func_0035e8b0 in this file, which is the same state
    machine - `*arg1 = (resultFlag = 1);`, a switch on `*arg0` whose arms
@@ -3921,33 +3917,33 @@ s32 func_0035fc40(u8 *arg0)
 // FUN_0035FC90
 s32 func_0035fc90(u8 *arg0)
 {
-    s16 temp_2;
-    s32 var_17;
-    s32 var_16;
-    u8 *temp_19;
+    s16 counter;
+    s32 index;
+    s32 allIdle;
+    u8 *panel;
 
-    var_16 = 1;
-    temp_2 = *(s16 *)(arg0 + 0x20);
-    if (temp_2 < 0x64) {
-        *(s16 *)(arg0 + 0x20) = temp_2 + 1;
+    allIdle = 1;
+    counter = *(s16 *)(arg0 + 0x20);
+    if (counter < 0x64) {
+        *(s16 *)(arg0 + 0x20) = counter + 1;
     }
-    var_17 = 0;
+    index = 0;
     goto loop_test;
 loop_body:
-    temp_19 = arg0 + var_17 * 0x30;
-    func_001437b0(temp_19 + 0x48, *(s16 *)(arg0 + 0x20), 0);
-    if (*(u8 *)(temp_19 + 0x62) != 0) {
-        var_16 = 0;
+    panel = arg0 + index * 0x30;
+    func_001437b0(panel + 0x48, *(s16 *)(arg0 + 0x20), 0);
+    if (*(u8 *)(panel + 0x62) != 0) {
+        allIdle = 0;
     }
-    var_17 += 1;
+    index += 1;
 loop_test:
-    if (var_17 < 0x1D) {
+    if (index < 0x1D) {
         goto loop_body;
     }
     func_00361ae0(arg0);
     func_00361ca0(arg0);
     func_0035fd60(arg0);
-    return var_16;
+    return allIdle;
 }
 /* Draw the animated menu panels, eleven-column pip grids and scrolling list.
  * Position, texture and opacity snapshots preserve the values used by each
