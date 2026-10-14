@@ -266,12 +266,12 @@ jobs:
           report = json.load(open('build/report.json'))
           categories = {c['id']: c['measures'] for c in report['categories']}
           # The headline is first-party code; the whole program is the additive
-          # `all` category. A whole-program denominator that is not the canonical
+          # `whole` category. A whole-program denominator that is not the canonical
           # map's function_count means a silent shrink, which would inflate every
           # published percentage (tests/test_reconcile.py pins that number to the
           # map; a registered hidden sibling moves both).
           canonical = json.load(open('tools/slus21782_functions.json'))['function_count']
-          whole = categories['all']
+          whole = categories['whole']
           assert whole['total_functions'] == canonical, (whole['total_functions'], canonical)
           assert report['measures'] == categories['main'], 'headline must be first-party'
           for m in (report['measures'], whole):
