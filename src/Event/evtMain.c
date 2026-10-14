@@ -735,7 +735,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 break;
             }
             if (var_16 != 0) {
-                func_0028ced0(*(s32 *)(arg0 + 4), *(s8 *)(arg0 + 0x1E), (s32)var_19, D_008821B0, D_008821C0, D_008821D0);
+                sceneLightSlotSet(*(s32 *)(arg0 + 4), *(s8 *)(arg0 + 0x1E), (s32)var_19, D_008821B0, D_008821C0, D_008821D0);
             }
         }
         break;
@@ -1137,7 +1137,6 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
     extern s32 func_00269c20(u32, s32);
     extern s32 func_0026bc10(u32, u32);
     extern s32 func_0026bd50(u32, s32);
-    extern f32 func_0028bf90(s32);
     extern void func_0028d1b0(u8 *, u8 *, s32);
     extern s32 func_002915f0(u8 *, u8 *, s32, s32, s32);
     extern void func_00291790(u8 *, s32);
@@ -1234,7 +1233,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                     target.y = *(f32 *)(command + 0x1C);
                     target.z = *(f32 *)(command + 0x20);
                     if (*(s8 *)(command + 0x15) == 0) {
-                        f32 f = func_0028bf90(*(s16 *)(command + 0x16));
+                        f32 f = evtCommandParamF32(*(s16 *)(command + 0x16));
                         if (func_00268e60(*(u16 *)(resource + 0xC), (u8 *)&target, f) == 1) {
                             *(s32 *)(resource + 0x60) = (*(s8 *)(command + 0x25) != 0);
                             if ((*(s8 *)(command + 0x34) & 1) != 0) {
@@ -1260,7 +1259,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                 case 1: {
                     func_0028d1b0(*(u8 **)(command + 0x40), (u8 *)&path, 0);
                     if (*(s8 *)(command + 0x15) == 0) {
-                        f32 f = func_0028bf90(*(s16 *)(command + 0x16));
+                        f32 f = evtCommandParamF32(*(s16 *)(command + 0x16));
                         s32 a = (*(s8 *)(command + 0x24) != 0);
                         s32 b = (*(s8 *)(command + 0x25) != 0);
                         if ((*(s8 *)(command + 0x34) & 1) != 0) {
@@ -2475,7 +2474,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
     temp_3 = *(s32 *)arg1 & ~2;
     *(s32 *)arg1 = temp_3;
     *(s32 *)arg1 = temp_3 & ~4;
-    func_0028c370();
+    sceneLightSlotsReset();
     func_00288020(arg0, arg1);
     var_18 = *(u8 **)(arg1 + 0x4C);
     while (var_18 != NULL) {
@@ -2575,7 +2574,7 @@ loop_6_test:
     func_002e0dd0();
     func_00113500();
     func_0026d810();
-    func_0028c370();
+    sceneLightSlotsReset();
     if ((*(s32 *)(arg0 + 4) != 0) && (func_002909a0((u32 *)(arg0 + 0x678)) != 0)) {
         func_00290b00((s32 *)(arg0 + 0x678));
     }
@@ -2699,7 +2698,7 @@ void func_0028b160(int param_1, s32 arg1) {
     func_0014a2f0(0);
     DAT_008873EC[0]((void *)param_1);
     func_002852a0(0, -0x7B0);
-    func_00285330();
+    evtSlotTableIdle();
     func_00440b68(D_0063C628);
 }
 

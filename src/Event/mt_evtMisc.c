@@ -20,40 +20,43 @@ extern f32 D_00882244[];
 /* measured: retail window 128 bytes; derived from complete retail disassembly. */
 /* measured: O1 probe preserves the retail comparison constants. */
 #pragma optimization_level 1
+// Returns 1 when the light-slot table is idle: every entry except slot 0 and slots 4-6 is zero.
 // FUN_00285330
-s32 func_00285330(void) {
+s32 evtSlotTableIdle(void) {
     s32 i;
-    s32 c4;
-    s32 c5;
-    s32 c6;
+    s32 exemptSlot4;
+    s32 exemptSlot5;
+    s32 exemptSlot6;
     s32 *table;
 
     i = 0;
     table = D_00882170;
-    c6 = 6;
-    c5 = 5;
-    c4 = 4;
+    exemptSlot6 = 6;
+    exemptSlot5 = 5;
+    exemptSlot4 = 4;
     while (i < 0xD) {
-        if ((i != 0) && (i != c4) && (i != c5) && (i != c6) && (table[i] != 0)) {
+        if ((i != 0) && (i != exemptSlot4) && (i != exemptSlot5) && (i != exemptSlot6) && (table[i] != 0)) {
             return 0;
         }
         i++;
     }
     return 1;
 }
-/* measured: restore the translation unit optimization level after func_00285330. */
+/* measured: restore the translation unit optimization level after evtSlotTableIdle. */
 #pragma optimization_level 2
+// Returns the command parameter as f32, biased by +2.0.
 // FUN_0028BF90
-f32 func_0028bf90(s32 arg0) {
-    return (f32)arg0 + 2.0f;
+f32 evtCommandParamF32(s32 param) {
+    return (f32)param + 2.0f;
 }
 
-/* measured: required for exact retail loop codegen in func_0028c370. */
+/* measured: required for exact retail loop codegen in sceneLightSlotsReset. */
 #pragma push
 #pragma opt_loop_invariants on
 
+// Resets the first three light slots to default colours, mode 0, and no resource.
 // FUN_0028C370
-void func_0028c370(void)
+void sceneLightSlotsReset(void)
 {
     f32 secondColor;
     f32 firstColor;
@@ -87,32 +90,33 @@ void func_0028c370(void)
         entry->resource = NULL;
     }
 }
-/* measured: restore pragma state after func_0028c370. */
+/* measured: restore pragma state after sceneLightSlotsReset. */
 #pragma pop
+// Writes slot `slot` (0-2) of the light slot table: position, colour, and mode value.
 // FUN_0028CED0
-void func_0028ced0(s32 arg0, s32 arg1, s32 arg2, f32 *arg3,
-                   f32 *arg4, f32 *arg5) {
-    s32 temp_3;
+void sceneLightSlotSet(s32 slot, s32 mode, s32 modeValue, f32 *arg3,
+                       f32 *arg4, f32 *arg5) {
+    s32 slotOffset;
 
-    if (arg0 < 3) {
-        temp_3 = arg0 << 6;
-        *(f32 *)((u8 *)D_00882218 + temp_3) = arg3[0];
-        *(f32 *)((u8 *)D_0088221C + temp_3) = arg3[1];
-        *(f32 *)((u8 *)D_00882220 + temp_3) = arg3[2];
-        *(u32 *)((u8 *)D_00882224 + temp_3) = 0;
-        *(f32 *)((u8 *)D_00882228 + temp_3) = arg4[0];
-        *(f32 *)((u8 *)D_0088222C + temp_3) = arg4[1];
-        *(f32 *)((u8 *)D_00882230 + temp_3) = arg4[2];
-        *(f32 *)((u8 *)D_00882234 + temp_3) = arg4[3];
-        *(f32 *)((u8 *)D_00882238 + temp_3) = arg5[0];
-        *(f32 *)((u8 *)D_0088223C + temp_3) = arg5[1];
-        *(f32 *)((u8 *)D_00882240 + temp_3) = arg5[2];
-        *(u32 *)((u8 *)D_00882244 + temp_3) = 0x3F800000;
-        *(s32 *)((u8 *)D_00882210 + temp_3) = arg1;
-        if (arg1 == 3) {
-            *(s32 *)((u8 *)D_00882214 + temp_3) = arg2;
+    if (slot < 3) {
+        slotOffset = slot << 6;
+        *(f32 *)((u8 *)D_00882218 + slotOffset) = arg3[0];
+        *(f32 *)((u8 *)D_0088221C + slotOffset) = arg3[1];
+        *(f32 *)((u8 *)D_00882220 + slotOffset) = arg3[2];
+        *(u32 *)((u8 *)D_00882224 + slotOffset) = 0;
+        *(f32 *)((u8 *)D_00882228 + slotOffset) = arg4[0];
+        *(f32 *)((u8 *)D_0088222C + slotOffset) = arg4[1];
+        *(f32 *)((u8 *)D_00882230 + slotOffset) = arg4[2];
+        *(f32 *)((u8 *)D_00882234 + slotOffset) = arg4[3];
+        *(f32 *)((u8 *)D_00882238 + slotOffset) = arg5[0];
+        *(f32 *)((u8 *)D_0088223C + slotOffset) = arg5[1];
+        *(f32 *)((u8 *)D_00882240 + slotOffset) = arg5[2];
+        *(u32 *)((u8 *)D_00882244 + slotOffset) = 0x3F800000;
+        *(s32 *)((u8 *)D_00882210 + slotOffset) = mode;
+        if (mode == 3) {
+            *(s32 *)((u8 *)D_00882214 + slotOffset) = modeValue;
             return;
         }
-        *(s32 *)((u8 *)D_00882214 + temp_3) = 0;
+        *(s32 *)((u8 *)D_00882214 + slotOffset) = 0;
     }
 }
