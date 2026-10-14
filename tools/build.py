@@ -1184,7 +1184,7 @@ LINK_FLOOR = REPO / "config" / "link_floor.json"
 
 
 def check_link_floor(count, cobjs=None):
-    """Fail when a translation unit silently drops out of the from-source link.
+    """Fail when C functions silently drop out of the from-source link.
 
     Both image SHA1s keep verifying when a TU loses eligibility, because an
     ineligible unit falls back to the retail bytes it was supposed to replace.
@@ -1203,24 +1203,29 @@ def check_link_floor(count, cobjs=None):
     fallback .s now carries its own jump table (see mwccgap's rodata
     transplant), and the symbol was corrected against the retail immediate.
 
-    The floor only ratchets upward: raise it when a unit is genuinely added.
+    ``count`` is the number of C functions linked from source, not the number
+    of translation units: merging files into their original TU legitimately
+    reduces the unit count while every function stays linked, so a unit-count
+    ratchet forced a manual floor edit (and a merge race) on every merge.
+
+    The floor only ratchets upward: raise it when functions are genuinely added.
     """
     if not LINK_FLOOR.exists():
         return
     policy = json.loads(LINK_FLOOR.read_text())
-    floor = policy["linked_tu_count"]
+    floor = policy["linked_function_count"]
     if count >= floor:
         check_required_c_functions(policy.get("required_c_functions", {}), cobjs)
         return
     sys.exit(
-        f"build: linked TU count {count} is below the recorded floor {floor}.\n"
+        f"build: linked C function count {count} is below the recorded floor {floor}.\n"
         "  A translation unit lost link eligibility. SHA1 cannot catch this -- "
         "the unit falls back to retail bytes -- and verify.py cannot either, "
         "because relocation masking hides an unplaceable operand.\n"
         "  Find it by diffing linked_functions in the --progress-report JSON "
         "against the previous run, then check that function's relocations "
         "resolve to data the object actually places.\n"
-        f"  If a unit was legitimately removed, lower {LINK_FLOOR.name} "
+        f"  If a function was legitimately removed from C, lower {LINK_FLOOR.name} "
         "deliberately and say why in the commit."
     )
 
@@ -2145,8 +2150,9 @@ def main():
     )
     print(f"eligible C objects: {len(cobjs)}  "
           f"({', '.join(o['src'].name for o in cobjs) if cobjs else 'none'})")
-    check_link_floor(len(cobjs), cobjs)
     linked_functions = linked_function_records(cobjs, boundaries)
+    print(f"C functions linked from source: {len(linked_functions)}")
+    check_link_floor(len(linked_functions), cobjs)
 
     entries = []
     # Compile each decompiled TU once; place its .text and every owned data

@@ -27,7 +27,7 @@ class LinkFloorIdentityTests(unittest.TestCase):
             for a in self.ADDRESSES]}
 
     def check(self, count, owners=None, required=True):
-        policy = {"linked_tu_count": 604}
+        policy = {"linked_function_count": 604}
         if required:
             policy["required_c_functions"] = {self.SOURCE: self.ADDRESSES}
         with tempfile.TemporaryDirectory() as temporary:
@@ -140,20 +140,20 @@ class FieldLinkFloorTests(unittest.TestCase):
         owners.append({'src': REPO / 'src/unrelated_gain.c', 'funcs': [
             {'addr': 0x123456, 'name': 'func_00123456'}]})
         field = next(owner for owner in owners if owner['src'] == REPO / source)
-        build.check_link_floor(policy['linked_tu_count'] + 1, owners)
+        build.check_link_floor(policy['linked_function_count'] + 1, owners)
         with self.assertRaisesRegex(SystemExit, 'required C owner.*k_fldEvent.*lost link eligibility'):
-            build.check_link_floor(policy['linked_tu_count'] + 1,
+            build.check_link_floor(policy['linked_function_count'] + 1,
                                    [owner for owner in owners if owner is not field])
         markers = field['funcs']
         field['funcs'] = []
         with self.assertRaisesRegex(SystemExit, '00174e10 is missing'):
-            build.check_link_floor(policy['linked_tu_count'] + 1, owners)
+            build.check_link_floor(policy['linked_function_count'] + 1, owners)
         field['funcs'] = markers
         for flag in ('asm', 'nonmatching', 'stub'):
             with self.subTest(flag=flag):
                 markers[0][flag] = True
                 with self.assertRaisesRegex(SystemExit, '00174e10.*assembly fallback'):
-                    build.check_link_floor(policy['linked_tu_count'] + 1, owners)
+                    build.check_link_floor(policy['linked_function_count'] + 1, owners)
                 del markers[0][flag]
 
 
