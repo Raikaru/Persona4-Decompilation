@@ -2,11 +2,8 @@
 #include "scene_light_override_internal.h"
 #include "type.h"
 #include "scene_event_internal.h"
+#include "evt_internal.h"
 
-extern s32 D_00882170[];
-extern f32 iGpffff809c;
-extern f32 iGpffff8218;
-extern SceneLightSlot D_00882210[];
 extern f32 D_00882214[];
 extern f32 D_00882218[];
 extern f32 D_0088221C[];

@@ -6,6 +6,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "evt_internal.h"
 #include "fcl_draw_types.h"
 extern void (*jtbl_008873EC[])(void *ptr);
 #include "fcl_color.h"
@@ -115,7 +116,6 @@ extern f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, 
 extern void func_00122520(s32 arg0, s32 arg1);
 extern f32 iGpffff8424;
 extern f32 iGpffff851c;
-extern f32 iGpffff809c;
 extern f32 iGpffff84cc;
 extern f32 D_0064A210[];
 extern f32 D_0064A218[];

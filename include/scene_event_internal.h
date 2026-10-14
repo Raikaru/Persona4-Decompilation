@@ -41,6 +41,8 @@ u32 func_00269820(u16 *resource, s32 layer, s32 animation, s32 frame,
 f32 func_0026cef0(s8 *path, f32 distance, f32 total,
                   f32 *position, f32 *rotation);
 
+extern s32 D_00882170[];
+
 /* Event TU prototypes: functions defined in src/Event and the scene-event bucket. */
 void func_00285260(void);
 void func_002871a0();
