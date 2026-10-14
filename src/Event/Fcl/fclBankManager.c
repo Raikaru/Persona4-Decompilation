@@ -23,7 +23,7 @@ extern char D_0063FBC8[];
 
 // Variadic wrapper (PS2 SDK pattern, mirrors src/h_dbprt.c); call sites pass
 // whatever tail args they have.
-extern void func_002e0ea0(u8 *, ...);
+extern void fclBankLogf(u8 *, ...);
 
 // PS2 SDK va_list: the register-save area is the spill block mwcc emits for
 // __builtin_args_info; mirrors src/h_dbprt.c.
@@ -34,8 +34,9 @@ typedef char *va_list;
 
 
 
+/* Variadic bank log: forwards the format and its varargs to func_00446e88. */
 // FUN_002E0EA0
-void func_002e0ea0(u8 *fmt, ...)
+void fclBankLogf(u8 *fmt, ...)
 {
     va_list args;
 
@@ -66,7 +67,7 @@ void func_002e0dd0(void)
         node = next;
     }
     func_00440b68(iGpffffa890, D_0063FBB0, 0xCA);
-    func_002e0ea0((u8 *)&iGpffffa898);
+    fclBankLogf((u8 *)&iGpffffa898);
 }
 
 // FUN_002E0F20
@@ -144,8 +145,9 @@ static inline s16 findReusableBank(u8 *banks)
 /* Measured: wide selection and return retain retail narrowing boundaries;
    the low-halfword index store keeps the original selected register.
    Exact 500/512 bytes, with twelve zero tail bytes. */
+/* Places node in a free or reusable bank slot; returns the slot index or -1. */
 // FUN_002E1030
-s64 func_002e1030(int *node)
+s64 fclBankAcquire(int *node)
 {
     FclBankSlot *slot;
     s64 selected;
@@ -170,7 +172,7 @@ s64 func_002e1030(int *node)
     slot->flags |= 2;
     func_002e2240((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
     func_00440b68(iGpffffa890, D_0063FBB0, 0x19D);
-    func_002e0ea0((u8 *)D_0063FBC8, slot->index);
+    fclBankLogf((u8 *)D_0063FBC8, slot->index);
     return selected;
 }
 
@@ -205,10 +207,11 @@ void func_002e1230(s32 arg0, s64 arg1)
 /* measured: the best exploratory C scored nd 117 (object 184B / window
    208B); it was size-deficit and discarded. The historical nd 26 note above
    describes a discarded body, not a retained target. */
+/* Marks the other slots whose key matches arg0; returns 0 if any of them lacks flag 4. */
 // FUN_002E12E0
 /* measured: retail keeps the invariant key mask in the loop preheader. */
 #pragma opt_loop_invariants on
-s32 func_002e12e0(s16 *arg0)
+s32 fclBankScanOthers(s16 *arg0)
 {
     s16 *p;
     s32 i;
@@ -243,8 +246,9 @@ s32 func_002e12e0(s16 *arg0)
    propagation off keeps the fade ratio across position getters. Direct
    float-to-u8 conversion retains both retail conversion branches. */
 #pragma opt_propagation off
+/* Advances each bank's fade state (switch on the state halfword) once per frame. */
 // FUN_002E13B0
-void func_002e13b0(void)
+void fclBankUpdateFades(void)
 {
     extern u8 *func_00104880(s64 bank);
     extern void func_00104770(s64 bank, u8 alpha);
@@ -375,9 +379,9 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
     node = *(s32 **)(iGpffffb588 + 4);
     while (node != NULL) {
         next = *(s32 **)((u8 *)node + 0x10);
-        if ((s16)func_002e1030(node) == -1) {
+        if ((s16)fclBankAcquire(node) == -1) {
             func_00440b68(iGpffffa890, D_0063FBB0, 690);
-            func_002e0ea0(D_0063FBD8);
+            fclBankLogf(D_0063FBD8);
             break;
         }
         node = next;
@@ -401,10 +405,10 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
                     if (flags & 8) {
                         *slot &= ~0x200;
                         func_00440b68(iGpffffa890, D_0063FBB0, 721);
-                        func_002e0ea0(D_0063FBE8, slot[4]);
-                    } else if (func_002e12e0(slot)) {
+                        fclBankLogf(D_0063FBE8, slot[4]);
+                    } else if (fclBankScanOthers(slot)) {
                         func_00440b68(iGpffffa890, D_0063FBB0, 725);
-                        func_002e0ea0(D_0063FBF8, slot[4]);
+                        fclBankLogf(D_0063FBF8, slot[4]);
                         *slot &= ~0x200;
                         *slot &= ~4;
                         slot[1] = 1;
@@ -414,7 +418,7 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
                     }
                 } else if (flags & 0x400) {
                     func_00440b68(iGpffffa890, D_0063FBB0, 736);
-                    func_002e0ea0(D_0063FC08, slot[4]);
+                    fclBankLogf(D_0063FC08, slot[4]);
                     *slot &= ~0x400;
                     if (*slot & 8) {
                         *slot &= ~4;
@@ -426,7 +430,7 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
                         *slot = (s16)flags | 0x400;
                     } else {
                         func_00440b68(iGpffffa890, D_0063FBB0, 753);
-                        func_002e0ea0(D_0063FC18, slot[4]);
+                        fclBankLogf(D_0063FC18, slot[4]);
                         *slot &= ~0x800;
                         *slot &= ~4;
                         *slot &= ~1;
@@ -434,7 +438,7 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
                     }
                 } else if (flags & 0x1000) {
                     func_00440b68(iGpffffa890, D_0063FBB0, 763);
-                    func_002e0ea0(D_0063FC28, slot[4]);
+                    fclBankLogf(D_0063FC28, slot[4]);
                     *slot &= ~0x1000;
                     *slot &= ~4;
                     *slot &= ~1;
@@ -444,7 +448,7 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
         }
         slot += 10;
     }
-    func_002e13b0();
+    fclBankUpdateFades();
     *(u32 *)(banks + 0x2C) &= ~1;
     return 0;
 }
