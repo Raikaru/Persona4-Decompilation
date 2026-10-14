@@ -2131,12 +2131,11 @@ void func_001a3f90(u8 *arg0)
     struct {
         u8 pad[0x30];
         s32 field_30;
-    } *temp_2;
-    s64 *temp_2_4;
-    u16 temp_3_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_3;
+    } *partner;
+    s64 *targetUnit;
+    u16 waitFrames;
+    u8 *waitPacket;
+    u8 *effectPacket;
 
     if (*(s32 *)(arg0 + 0x41C) == 0) {
         if ((func_00193cd0(0xC00) == 0) && (func_00193cd0(0xC04) == 0)) {
@@ -2149,29 +2148,29 @@ void func_001a3f90(u8 *arg0)
             func_00194590(func_001fa8f0(), 1);
             func_002182c0(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
             func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
-            temp_2 = (void *)func_001b1540();
+            partner = (void *)func_001b1540();
             func_00194590(
-                btlUnitCreateRotateTowardUnitPacket((u8 *)temp_2->field_30,
+                btlUnitCreateRotateTowardUnitPacket((u8 *)partner->field_30,
                               *(u8 **)(arg0 + 0x30), 2),
                 0);
             func_00194590(
                 btlUnitCreateRotateTowardUnitPacket(*(u8 **)(arg0 + 0x30),
-                              (u8 *)temp_2->field_30, 2),
+                              (u8 *)partner->field_30, 2),
                 0);
             func_00194590(
-                (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)temp_2->field_30, 0),
+                (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)partner->field_30, 0),
                 1);
             func_00194590(
                 actionLookAtUnit(*(u8 **)(arg0 + 0x30),
-                              (u8 *)temp_2->field_30, 0),
+                              (u8 *)partner->field_30, 0),
                 1);
             func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x30), 0);
-            temp_2_2 = func_00194c90((s32)func_001a3de0, (s32)arg0);
-            func_00194590(temp_2_2, 1);
+            waitPacket = func_00194c90((s32)func_001a3de0, (s32)arg0);
+            func_00194590(waitPacket, 1);
             func_00194590(
                 func_001d65d0(*(s32 *)(D_0076449C + 0xD90),
                               *(s32 *)(arg0 + 0x30), 0,
-                              *(s64 *)(temp_2_2 + 0x58), 0xC000),
+                              *(s64 *)(waitPacket + 0x58), 0xC000),
                 2);
             if (func_001eb860() == 1) {
                 *(s32 *)(D_0076449C + 0xC) |= 0x2000;
@@ -2183,11 +2182,11 @@ void func_001a3f90(u8 *arg0)
         if (func_00218360(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
             if (func_00218390(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
                 func_00194590(func_001f99c0((u8 *)arg0, 8, 0, 0, 0), 1);
-                temp_2_3 = func_001fa450();
-                *(s8 *)(temp_2_3 + 0) = 0xA;
-                *(s16 *)(temp_2_3 + 8) = 0xC00;
-                *(s64 *)(temp_2_3 + 0x60) = *(s64 *)arg0;
-                func_00194590(temp_2_3, 1);
+                effectPacket = func_001fa450();
+                *(s8 *)(effectPacket + 0) = 0xA;
+                *(s16 *)(effectPacket + 8) = 0xC00;
+                *(s64 *)(effectPacket + 0x60) = *(s64 *)arg0;
+                func_00194590(effectPacket, 1);
                 func_00194590(func_002027e0(), 1);
             }
             func_00194590(func_001faa60(), 1);
@@ -2195,13 +2194,13 @@ void func_001a3f90(u8 *arg0)
             *(u16 *)(arg0 + 0x424) = 6;
         }
     } else {
-        temp_3_2 = *(u16 *)(arg0 + 0x424);
-        if (temp_3_2 == 0) {
+        waitFrames = *(u16 *)(arg0 + 0x424);
+        if (waitFrames == 0) {
             func_00194590((u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3), 1);
             if (func_00218390(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
-                temp_2_4 = func_001b1540();
-                func_00194590(func_001f3870((u8 *)temp_2_4, 2), 1);
-                *(u16 *)((u8 *)temp_2_4 + 0x18) |= 0x8000;
+                targetUnit = func_001b1540();
+                func_00194590(func_001f3870((u8 *)targetUnit, 2), 1);
+                *(u16 *)((u8 *)targetUnit + 0x18) |= 0x8000;
                 btlActionSetState((BtlAction *)arg0, 0xE);
             } else {
                 btlActionSetState((BtlAction *)arg0, 0x20);
@@ -2209,7 +2208,7 @@ void func_001a3f90(u8 *arg0)
             func_002183c0(*(s32 *)(D_0076449C + 0xDD4));
             return;
         }
-        *(u16 *)(arg0 + 0x424) = temp_3_2 - 1;
+        *(u16 *)(arg0 + 0x424) = waitFrames - 1;
     }
 }
 // FUN_001A4390
