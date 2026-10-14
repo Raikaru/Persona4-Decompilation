@@ -1,3 +1,4 @@
+#include "btl_target_state_packet_internal.h"
 #include "sdk_dbprt.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -10,9 +11,7 @@ extern u8 *D_00764298;
 extern u8 D_00559810[];
 extern u8 D_00559820[];
 
-extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void (*D_00887300[])(s32, s32);
 extern s32 iGpffffb1a8;
 extern s32 iGpffffb9e8;
 extern u8 D_005DCB58[];
@@ -126,17 +125,9 @@ extern u8 iGpffff85d0;
 /* measured: close tailcall bracket around func_00100218. */
 #pragma tailcall off
 /* measured: opt_propagation off keeps each GP-relative queue address in the caller's temporary registers. */
-#pragma opt_propagation off
 /* measured: opt_loop_invariants off prevents the four queue-address expressions from being hoisted across their wait loops. */
-#pragma opt_loop_invariants off
 /* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
-#pragma opt_common_subs off
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
-#pragma opt_propagation on
-#pragma opt_propagation off
 /* measured: opt_propagation on closes the bracket after the exact-match body. */
-#pragma opt_propagation on
 // FUN_00102B90
 void func_00102b90(void) {
     func_00111b30();

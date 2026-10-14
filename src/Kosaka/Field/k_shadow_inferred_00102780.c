@@ -124,17 +124,9 @@ extern u8 iGpffff85d0;
 /* measured: close tailcall bracket around func_00100218. */
 #pragma tailcall off
 /* measured: opt_propagation off keeps each GP-relative queue address in the caller's temporary registers. */
-#pragma opt_propagation off
 /* measured: opt_loop_invariants off prevents the four queue-address expressions from being hoisted across their wait loops. */
-#pragma opt_loop_invariants off
 /* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
-#pragma opt_common_subs off
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
-#pragma opt_propagation on
-#pragma opt_propagation off
 /* measured: opt_propagation on closes the bracket after the exact-match body. */
-#pragma opt_propagation on
 // FUN_00102780
 s32 func_00102780(u8 *arg0)
 {

@@ -244,6 +244,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
  * the corner sprite; b210 does not propagate it into the func_0034f320
  * call, so the label pointer is loaded before the stack argument. */
 #pragma push
+/* measured: func_001400f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -618,6 +619,7 @@ void func_00141d10(u8 *arg0) {
 }
 
 /* measured: opt_loop_invariants on hoists the shared float conversion constants in func_00141d80. */
+/* measured: func_00141d80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_00141D80
 s32 func_00141d80(u8 *arg0, s32 arg1) {
@@ -703,9 +705,7 @@ s32 func_00141d80(u8 *arg0, s32 arg1) {
 }
 
 /* measured: restore loop-invariant hoisting after func_00141d80. */
-#pragma opt_loop_invariants off
 /* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
-#pragma opt_loop_invariants on
 // FUN_00142090
 void func_00142090(u8 *arg0)
 {
@@ -735,7 +735,6 @@ void func_00142090(u8 *arg0)
 }
 
 /* measured: restore loop-invariant hoisting after func_00142090. */
-#pragma opt_loop_invariants off
 // FUN_00142130
 void func_00142130(u8 *arg0) {
     *(f32 *)(arg0 + 0x250) = (f32) 0x28A;
@@ -785,6 +784,7 @@ void func_001421b0(u8 *arg0) {
 // FUN_00142230
 /* measured: optimization level 1 plus base-before-value declaration order
    keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
+/* measured: func_00142230 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 void func_00142230(u8 *arg0) {
     extern u8 iGpffff9cd8[8];
@@ -809,6 +809,7 @@ void func_00142230(u8 *arg0) {
 }
 
 /* measured: closes the scoped optimization-level-1 probe. */
+/* measured: func_001423c0, func_001424b0, func_001427c0, func_00142bf0, func_00142d80, func_00142f20, func_001437b0 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_001422B0
 void func_001422b0(u8 *arg0) {
@@ -851,7 +852,6 @@ s32 func_00142340(u8 *arg0) {
 }
 
 /* measured: opt_propagation off probe for func_001423c0. */
-#pragma opt_propagation off
 // FUN_001423C0
 void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 {
@@ -875,7 +875,6 @@ void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 }
 
 /* measured: closes opt_propagation off probe for func_001423c0. */
-#pragma opt_propagation on
 /* Field portrait circle, type icon and rank label. Unions preserve the packed
    position/color words; keep retail's integer tint scaling. Exact 776/784
    bytes, 16 fully resolved relocations and eight zero alignment bytes. */
@@ -960,6 +959,7 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
    See Radar_001427c0_20260922_worker1.md. */
 // FUN_001427C0
 #pragma push
+/* measured: func_001427c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 void func_001427c0(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 {
@@ -1038,8 +1038,8 @@ void func_001427c0(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 
 #pragma pop
 /* measured: opt_propagation off probe for func_00142bf0. */
-#pragma opt_propagation off
 /* measured: opt_loop_invariants on probe for func_00142bf0. */
+/* measured: func_00142bf0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_00142BF0
 void func_00142bf0(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
@@ -1085,9 +1085,7 @@ void func_00142bf0(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
 }
 
 /* measured: closes opt_loop_invariants on probe for func_00142bf0. */
-#pragma opt_loop_invariants off
 /* measured: restores opt_propagation after func_00142bf0 probe. */
-#pragma opt_propagation on
 // FUN_00142D80
 void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     Float2_0014 pair;

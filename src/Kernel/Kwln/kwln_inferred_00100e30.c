@@ -217,10 +217,11 @@ s32 func_00100e30(void)
 }
 
 /* measured: opt_propagation off keeps each GP-relative queue address in the caller's temporary registers. */
+/* measured: func_00100e60 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* measured: opt_loop_invariants off prevents the four queue-address expressions from being hoisted across their wait loops. */
-#pragma opt_loop_invariants off
 /* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
+/* measured: func_00100e60 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 // FUN_00100E60
 void func_00100e60(void)
@@ -313,9 +314,8 @@ void func_00100e60(void)
     func_0034b970();
 }
 
-#pragma opt_loop_invariants on
+/* measured: func_00101270 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs on
-#pragma opt_propagation on
 // FUN_00101270
 s32 func_00101270(void)
 {
@@ -366,7 +366,6 @@ loop_1:
 
 /* measured: func_001013a0 is a live plain-C MATCH (272B window, 272B object, normalized_diff 0); staging kind = 4 before data = &iGpffffba6c reproduces retail's argument materialization order. */
 // FUN_001013A0
-#pragma opt_propagation off
 void func_001013a0(void)
 {
     u32 color;
