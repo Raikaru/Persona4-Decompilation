@@ -1868,219 +1868,76 @@ next_cell:
 query_complete:
     return result;
 }
-/* Guarded reconstruction: remove the 22 artificial getter calls and their
- * keep-alive sink, which are absent from the retail control flow.
- * Native C remains nonmatching at 8828/9280 bytes; complete aggregates,
- * stack lifetimes and provider types still need recovery.
- * Preservation proof: docs/probe_archive/Field_guard_cleanup_0016bdd0_20261005/. */
-/* 2026-10-09: 1792 -> 1637 edits. Ghidra's `(float)piVar1[n]` reads were int-to-float conversions; retail loads these fields as floats (lwc1, no cvt.s.w), so they are `((float *)piVar1)[n]`. func_003e0870 (RwMatrixRotate) takes (matrix, axis, angle, op), not Ghidra's float-first order; func_003bb5b0 takes its path time as a float in $f12.
- * 2026-10-09: 1635 -> 1629: aggregate declaration order (greedy climb).
- * 1724: the 30 address-taken Ghidra stack vectors are float arrays. As split scalars
- * b210 dropped the y/z (and w) stores their callees read through the pointer, so
- * the old body was not retail's program (2113 vs 2320 instructions; now 2375).
- * 1705: the Ghidra `SQRT` intrinsic compiled as an implicit int call; it is sqrtf
- * (b210 inlines sqrt.s, as retail).
- * 2621: 22 float fields were stored through `piVar1[n] = (int)expr`, a Ghidra
- * mistyping that converted to int (cvt.w.s) where retail stores the float. The
- * structural diff falls 1139 -> 1068 and the size 2358 -> 2294 (retail 2319);
- * the edit count rises with the new register pressure.
- * 2589: 36 `(float)*(int *)` reads were Ghidra mistypings of float loads (retail
- * lwc1, no cvt.s.w).
- * 2548: case 3/4 tail rebuilt from the IDA control flow (case 3 and case 4 are
- * exclusive; the bracketing key indices replace Ghidra's unaff_s2/unaff_s5; real
- * matrix temporaries replace the uninitialised temp_v15/16 pointers).
- * (cleanup: unused Ghidra declarations removed)
- * 2517: the key searches run on int counters and record the hit with break (as
- * retail); lo/hi stay unset only on the asserted not-found path, as in retail.
- * 1727: vector copies are FldCamVec struct copies (retail copies through stack
- * structs; scalar copies let b210 keep them in registers).
- * 1724: vector copies written as struct copies (retail copies through stack structs).
- * 1688: the three copies into the +0x2B0 vector are struct stores.
- * 1686: the normalize calls take the vector base (&v[0]); Ghidra passed the address
- * of the last element.
- * 1640: the push-out block (IDA: sub_16B8A0 hit) only normalises and negates the
- * matrix at-vector scaled by the overlap; the interpolation statements Ghidra
- * spliced in (pointer arithmetic on key indices) are gone.
- * 1634: two more matrix-row copies are struct copies.
- * 1572: the camera push vector is negated, then scaled (IDA order); the hit test
- * takes a two-vector segment (struct copies of the target and the matrix
- * position), replacing Ghidra's swapped scalar copy.
- * 1543: the two field-scaled push vectors negate first, then scale by +0x294 (IDA order).
- * 1516: more vector copies written as struct copies.
- * 1518: the axis table entries are the absolute objects D_00756500..D_00756520
- * (retail %hi/%lo relocations), not small-data scalars or raw addresses.
- * 1516: the pad state globals are retail's absolute D_008C024C/D_008C025E.
- * 1515: gp pool floats written as literals.
- * 2026-10-10: pass the actual child to frame detachment and recover the case-7
- * ray as two contiguous XYZ vectors. Camera targets 007F1710/20 are data.
- * Native owner probe: 9152 bytes, 2360 aligned differences; this semantic
- * repair remains guarded. See Field_pro_recovery_20261010_worker9.md.
- * fnalign 2360 -> 1540: role swaps of reused temporaries within blocks.
- * fnalign 1540 -> 1525: early returns for the 0xa2 and flag tests and a two-case switch on *piVar1 (retail tests 1 then 0).
- * fnalign 1525 -> 1418: reused locals split per independent group (separate live ranges as retail).
- * fnalign 1418 -> 1405: further per-group local splits.
- * fnalign 1405 -> 1394: float comparison forms in retail's polarity.
- * fnalign 1394 -> 1390: comparison forms in retail's polarity.
- * fnalign 1390 -> 1388: float compares in retail polarity.
- * levenshtein 1311 -> 1129: piVar1 float fields read through an integer-cast base (fnalign's SequenceMatcher count is unreliable at this size).
- * normalised levenshtein 776 -> 745: the fStack triplets are FldCopyVec struct locals copied whole (retail keeps them in the frame and copies with lwc1/swc1).
- * structural 465 -> 441: case 0 keeps a moved flag (cleared before the dispatch, set in each correction) and the signed y in stk40[1], as retail.
- * structural 441 -> 414: case 3/4 search loops as for/break, the pos/dir vectors as FldCopyVec structs, the closest-point expression in retail operand order, and the assert bound in a local.
- * structural 414 -> 382: #pragma opt_lifetimes on scoped to the function.
- * structural 382 -> 337: per-site float field spelling (array vs integer-cast base) so b210 does not keep field addresses in saved registers.
- * structural 337 -> 322: second per-site field spelling sweep.
- * structural 322 -> 298: case 3/4 b8 clamp as float compares, the next-key bound as if/else, and the key interpolation with span and deltas computed first (retail order).
- * structural 298 -> 292: fpolar sweep.
- * structural 292 -> 278: case 6 correction block in retail order (y offset kept, float compare polarity, explicit sign arms).
- * structural 278 -> 263: case 6 0x2ac easing uses one step variable (3.0f negated by multiply), float zero compares constant-first, negate then scale as separate statements, and one distance variable seeded from +0x28c.
- * structural 263 -> 245: fabsf intrinsic (block-scope prototype) for retail abs.s, the ratio clamp in retail polarity, and case 6's moved flag as an int compared with 1.
- * structural 245 -> 239: wall-normal block copies the whole basis vector then zeroes y, dot products y,x,z, 180.0f * (1 - dot).
- * structural 239 -> 233: wall projection in retail operand order with the hit point as a FldCopyVec struct.
- * structural 233 -> 231: the +0x294 easing step is a ternary over FUN_00175db0 and clamps against the target in retail polarity.
- * combined 940 -> 909: the other two easing steps as ternaries over FUN_00175db0 with retail clamp polarity.
- * combined 909 -> 885: per-site field spelling sweep.
- * combined 885 -> 879: gp float copied as float, distance compares as dist <= 55.0f + field.
- * combined 879 -> 856: case 7 correction block in the case 0/6 retail shape.
- * combined 856 -> 738: case 7 chase tail in retail shape (moved flag, distance seeded from +0x28c, ternary step, float y overrides).
- * combined 738 -> 735: rig position copies as FldCopyVec struct copies (retail lwc1/swc1).
- * combined 735 -> 707: per-site field spelling sweep.
- * combined 707 -> 683: field spelling sweep with four spellings.
- * combined 683 -> 653: Ghidra's 8x8-byte copy loops are 64-byte struct copies (b210 expands them to retail's counted loop with its own temporaries); unused declarations dropped.
- * combined 653 -> 642: element-wise vector copies written as FldTriVec struct copies (retail loads all three before storing).
- * combined -> 624: float copies of +0x28c into +0x294 and the final position as a FldCopyVec copy.
- * combined 624 -> 612: the easing step clamp is (limit > FUN_00175db0()) ? FUN_00175db0() : limit (retail c.ole limit, r / bc1t).
- * case 4 reads the shifted position from sv60.y/sv60.z (the earlier case 3/4 rewrite left it reading stale temp_v9/temp_v13); combined 612 -> 592.
- * combined 592 -> 572: the shared Ghidra temporaries are per-case locals in cases 0/2/5 and 7 (real lifetimes; cases 3/4 and 6 measured neutral/worse).
- * combined 572 -> 308: real per-role locals. Ghidra's shared temporaries become distinct per-case/per-role variables declared before piVar1, the FUN_00457120()->frame holders are single assignments, and lo/hi move to the outer declarations. Every local is then a single web numbered before piVar1, so piVar1 is coloured $s0 as in retail.
- * measured 2026-10-12: fnalign 725 -> 242; real 12-byte matrix tolerances, separate fade colour, and retail stack-local order recover the 0x360 frame.
- * measured 2026-10-12: fnalign 242 -> 229; native case 6/7 vector locals and assignments recover both ld/sd triplet copies.
- * measured 2026-10-12: fnalign 229 -> 157; typed frame snapshots, interleaved path ABI, retail dot/reload order, and graph-proven index/frame lifetimes.
- * measured 2026-10-12: fnalign 157 -> 105; propagation/pullout off retain path interpolation order, pointer-valued collision arguments and wall dot products follow retail, and easing reloads avoid shared addresses.
- * measured 2026-10-12: fnalign 105 -> 73; captured FPR graph orders distance/axis locals as retail ($f23/$f21/$f20/$f22).
- * measured 2026-10-12: fnalign 73 -> 47, 2320/2320 instructions; a distance-field view removes address CSE, path quotient/index roles and chase scale snapshots restore retail evaluation order.
- * measured 2026-10-12: fnalign 47 -> 43; snapshot the resume-distance limit before its comparison, restoring the load order and rollback FPR.
- * measured 2026-10-12: fnalign 43 -> 41; the matched title code's float/byte RGBA union preserves the packed colour's lwc1/swc1 copy.
- * measured 2026-10-12: fnalign 41 -> 39; separate low/high waypoint byte offsets around the first low-component snapshot recover both addu operand orders.
- * measured 2026-10-12 (floor): the remaining 39 edits are one FPR colouring in each horizontal-length block.
- * regalloc_whatif on the captured FPR graph: numbering the sqrt result below the adda zero seed (r176 before
- * r175) gives retail's $f2/$f1/$f2 to every value. FPR copies always fold, so the sqrt result stays a codegen
- * temporary after the seed; an inline length helper, a separate sum local, __sqrt, alias copies and
- * condition spellings all measured 39.
- * 2026-10-13: FPR replay (000398 snapshot) closes all three regions once the
- * sqrt result r176 is numbered anywhere before the inline 0.0f r175, i.e. when
- * temp_v11_a survives copy propagation; a radius-test inline helper (copy use)
- * booleanises the test (70).
- * Micro (build/micro_src/fq*.c, p_*.c) reproduces the zero-before-sqrt order. The FPR local keeps its
- * declared number only when its own definition is conditional (d = 0; if (c) d = sqrtf(...)).
- * A copy use or a conditional definition in another web of the same variable, a separate sum,
- * operand order, an address-of store and a (f32) cast all leave the sqrt result as a temp.
- * Two product locals (lenX/lenZ) stop the codegen MAC fusion (the backend fuses later, without an
- * adda zero), but stk40[1] = 0.0f then stores sw $zero (46). Retail's swc1 $f1 proves the codegen
- * adda zero exists and is CSE'd into that store.
- * The fold is backend CSE (after_remove_common_subexpressions forwards the fcopy into the test
- * and the subtract); the replay closes with the sqrt node anywhere from 60 to just below r175.
- * A conditional definition keeps the declared web but adds a guard (+4 per block) and merges
- * the sqrt with the call-crossing amount ($f21). A read+write two-step, a separate amount local,
- * a named branch zero and a duplicated sqrt (85) all fail. The P3FES twin FUN_001d5220 is itself
- * NONMATCHING; matched func_001ec350 returns the length, so it has no local web (build/bdd0_*.c).
- * measured 2026-10-13: fnalign 39 -> 16, frame 0x360. O3 early coalescing with CSE/decomposition off,
- * explicit phase snapshots and shared affine zeros close every camera-math block; the remaining
- * differences are final debug-vector argument bindings and three pointer reloads, not an FPR floor.
+/* Camera follow: cylindrical target correction, waypoint interpolation,
+ * wall projection and collision-constrained chase easing.
+ *
+ * measured 2026-10-13: fnalign 39 -> 16 (dbff44d7) -> 0; 2320 instructions,
+ * frame 0x360. O3's early copy coalescer plus CSE off preserves the declared
+ * sqrt/zero webs. Real phase snapshots replace the sharing normally supplied
+ * by CSE; partial products and explicit affine addends retain the shared zero
+ * in the retail MULA/ADDA/MADD sequences. Aggregate decomposition stays off
+ * for the stack-vector ld/sd copies. The final 16 edits were genuine vector
+ * argument bindings and helper-pointer snapshots, not a compiler floor.
+ * See the comments at the call-crossing coordinate snapshots for stale reads.
  */
-// FUN_0016BDD0 NONMATCHING
-#ifdef NON_MATCHING
-extern int FUN_003e0870(int matrix, float *axis, float angle, int op);
-extern int FUN_003e9680();
-extern unsigned char DAT_005f1698[];
-extern int FUN_0047a220();
-extern int FUN_003e9700();
-extern int FUN_003e99a0();
-extern int FUN_003e0e20();
-extern int FUN_003e9830();
+// FUN_0016BDD0
+extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const RwV3d *axis, f32 angle, s32 op);
+extern u8 *func_003e9680(u8 *frame);
 /* RwV3dNormalize returns its original vector length in f0. */
-extern f32 FUN_003e40b0(void *out, const void *in);
 extern u8 D_007F1710[];
 extern u8 D_007F1720[];
-extern void FUN_003bb5b0(u8 *path, s32 mode, f32 time, void *out, void *rot);
-extern int FUN_003e9cb0();
-extern int FUN_003e9c10();
-extern u8 *FUN_003e0670(u8 *dst, u8 *src);
-extern int FUN_003e0c90();
+extern void func_003bb5b0(u8 *path, s32 mode, f32 time, void *out, void *rot);
+extern u8 *func_003e9c10(u8 *frame, const f32 *translation, s32 combineOp);
+extern u8 *func_003e0670(u8 *dst, u8 *src);
 extern float D_00756510[]; /* 0x756510 */
 extern float D_00756514[]; /* 0x756514 */
 extern float D_00756518[]; /* 0x756518 */
 extern u16 D_008C024C[];
 extern u8 D_008C025E[];
-extern float CAND_fGpffff8218; /* 0xffff8218 */
-extern float CAND_fGpffff84e4; /* 0xffff84e4 */
-extern float CAND_fGpffff84e8; /* 0xffff84e8 */
-extern int CAND_iGpffff9db0; /* 0xffff9db0 */
-extern unsigned int CAND_uGpffff9f2c; /* 0xffff9f2c */
+extern float fGpffff84e4; /* 0xffff84e4 */
+extern float fGpffff84e8; /* 0xffff84e8 */
+extern unsigned int uGpffff9f2c; /* 0xffff9f2c */
 
-/* Unsupported intrinsic, declaration required: SQRT (FLOAT_SQRT). */
-/* Unsupported intrinsic, declaration required: CONCAT44 (PIECE). */
-/* Unsupported intrinsic, declaration required: while (INT_ADD). */
-extern int FUN_00155280(void);
-extern int FUN_0016b8a0(float *, float *);
-extern void *FUN_0016e8c0(void *);
-/* Supplied declaration required: FUN_003bb5b0. */
-/* Supplied declaration required: FUN_003e03e0. */
-/* Supplied declaration required: FUN_003e0670. */
-/* Supplied declaration required: FUN_003e0870. */
-/* Supplied declaration required: FUN_003e0c90. */
-/* Supplied declaration required: FUN_003e0e20. */
-/* Supplied declaration required: FUN_003e40b0. */
-/* Supplied declaration required: FUN_003e9680. */
-/* Supplied declaration required: FUN_003e9700. */
-/* Supplied declaration required: FUN_003e9830. */
-/* Supplied declaration required: FUN_003e99a0. */
-/* Supplied declaration required: FUN_003e9c10. */
-/* Supplied declaration required: FUN_003e9cb0. */
-/* Supplied declaration required: FUN_0047a220. */
-extern int FUN_0014bbe0(int, int, int, int, int);
-extern int FUN_0014bd90(unsigned char *);
-extern void FUN_0014d5e0(unsigned char *, int);
-extern void FUN_0014d7c0(unsigned char *, int);
-extern void FUN_0014d7d0(unsigned char *, unsigned char *);
-extern void FUN_0014d9d0(unsigned char *, int);
-extern void FUN_0014d9e0(unsigned char *, unsigned char *);
-extern void FUN_0014da10(unsigned char *, float);
-extern void FUN_0014da20(unsigned char *, float);
-extern void FUN_001687f0(unsigned char *, unsigned char *);
-extern int FUN_0016b080(void *, float, void *, void *);
-extern void FUN_0016e8e0(unsigned char *, float);
-extern float FUN_00175db0(void);
-extern float FUN_003e4180(float *);
-extern int FUN_00452080(void *);
-extern int FUN_00457120(void);
-extern void FUN_00457630(unsigned char *, unsigned char *, unsigned char *, float *);
-extern void FUN_0046d730(void *, int);
-extern void FUN_0047a850(unsigned char *);
-extern void FUN_0047a870(unsigned char *);
+extern u8 *func_0016e8c0(u8 *);
+extern int func_0014bbe0(int, int, int, int, int);
+extern int func_0014bd90(unsigned char *);
+extern void func_0014d5e0(u8 *, u32);
+extern void func_0014d7c0(u8 *, u32);
+extern void func_0014d7d0(unsigned char *, unsigned char *);
+extern void func_0014d9d0(u8 *, u32);
+extern void func_0014d9e0(unsigned char *, unsigned char *);
+extern void func_0014da10(unsigned char *, float);
+extern void func_0014da20(unsigned char *, float);
+extern s32 func_0016b080(const RwV3d *, f32, RwV3d *, RwV3d *);
+extern void func_0016e8e0(u8 *, f32);
+extern float func_00175db0(void);
+extern float RwV3dLength(float *);
+extern void func_0046d730(void *, int);
+extern void func_0047a850(void *);
+extern void func_0047a870(void *);
 
 
-/* WARNING: Removing unreachable block (ram,0x0016c900) */
 
 extern float D_00756500[];
 extern float D_00756510[];
 extern float D_00756520[];
-/* measured: scope the 39 -> 16 camera reconstruction to this function. */
+/* measured: scope the 39 -> 0 camera reconstruction to this function. */
 #pragma push
 /* measured: O3 early copy coalescing retains the declared float webs. */
 #pragma optimization_level 3
 /* measured: the O3 profile preserves retail's unscheduled delay slots. */
 #pragma schedule off
-/* measured: keep loop-invariant motion off in the 39 -> 16 profile. */
+/* measured: keep loop-invariant motion off in the 39 -> 0 profile. */
 #pragma opt_loop_invariants off
-/* measured: keep loop rotation off in the 39 -> 16 profile. */
+/* measured: keep loop rotation off in the 39 -> 0 profile. */
 #pragma opt_rotateloops off
-/* measured: retain framed calls in the 39 -> 16 O3 profile. */
+/* measured: retain framed calls in the 39 -> 0 O3 profile. */
 #pragma tailcall off
 /* measured: CSE off prevents the sqrt and zero copies from folding into late temps. */
 #pragma opt_common_subs off
 /* measured: decomposition off recovers the retail stack-vector ld/sd copies. */
 #pragma opt_decomposeaggregates off
-/* measured: retain the existing per-role lifetime splitting (39 -> 16). */
+/* measured: retain the existing per-role lifetime splitting (39 -> 0). */
 #pragma opt_lifetimes on
 /* measured: propagation off preserves the real phase-value bindings. */
 #pragma opt_propagation off
@@ -2089,6 +1946,7 @@ extern float D_00756520[];
 s32 func_0016bdd0(u8 *param_1)
 
 {
+  extern int func_00452080(void *);
   typedef struct { float x, y, z; } FldTriVec;
   typedef struct { u32 w[16]; } FldMtx64;
   extern float fabsf(float);
@@ -2148,7 +2006,6 @@ s32 func_0016bdd0(u8 *param_1)
   FldCopyVec segment[2];
   FldCamVec chaseSegment[2];
     /* Retail returns zero at 0016E1D0, 0016BE18, 0016BE34. */
-/* irregular: 14 unstructured edge(s); 13 goto(s); 21 native warning(s); review required */
   u8 *frameMatrix;
   unsigned char *pbVar7;
   float *pfVar8;
@@ -2272,9 +2129,9 @@ s32 func_0016bdd0(u8 *param_1)
     }
     else {
       piVar1[0xb] = 0;
-      frameMatrix = *(u8 **)(FUN_00457120() + 4);
-      FUN_003e0670((u8 *)piVar1[0xb1],frameMatrix + 0x10);
-      frameMatrix = *(u8 **)(FUN_00457120() + 4);
+      frameMatrix = *(u8 **)(func_00457120() + 4);
+      func_003e0670((u8 *)piVar1[0xb1],frameMatrix + 0x10);
+      frameMatrix = *(u8 **)(func_00457120() + 4);
       *(FldMtx64 *)(frameMatrix + 0x10) = *(FldMtx64 *)(piVar1[0xb1]);
     }
     switch (*piVar1) {
@@ -2284,34 +2141,34 @@ s32 func_0016bdd0(u8 *param_1)
       case 0:
       case 2:
       case 5:
-        FUN_001687f0((unsigned char *)&stk260[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
+        func_001687f0((unsigned char *)&stk260[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         sv20 = *(FldCopyVec *)stk260;
-        pfVar8_a = (float *)FUN_0016e8c0(param_1);
+        pfVar8_a = (float *)func_0016e8c0(param_1);
         cpv0 = *(FldCopyVec *)(pfVar8_a);
         moved_a = 0;
         attachmentMode = piVar1[2];
         if ((attachmentMode == 0) || (attachmentMode == 5)) {
-          temp_v4_a = FUN_00457120();
+          temp_v4_a = (int)func_00457120();
           if (*(int *)(*(int *)(temp_v4_a + 4) + 4) == piVar1[4]) {
-            temp_v4_a = FUN_00457120();
-            FUN_003e99a0(*(unsigned int *)(temp_v4_a + 4));
-            FUN_003e9830(piVar1[4],piVar1[3]);
-            temp_v4_a = FUN_00457120();
-            FUN_003e9830(piVar1[3],*(unsigned int *)(temp_v4_a + 4));
+            temp_v4_a = (int)func_00457120();
+            func_003e99a0((void *)*(unsigned int *)(temp_v4_a + 4));
+            func_003e9830(piVar1[4],piVar1[3]);
+            temp_v4_a = (int)func_00457120();
+            func_003e9830(piVar1[3],*(int *)(temp_v4_a + 4));
           }
         }
         else {
-          temp_v4_a = FUN_00457120();
+          temp_v4_a = (int)func_00457120();
           if (*(int *)(*(int *)(temp_v4_a + 4) + 4) != 0) {
-            temp_v4_a = FUN_00457120();
-            FUN_003e99a0(*(unsigned int *)(temp_v4_a + 4));
+            temp_v4_a = (int)func_00457120();
+            func_003e99a0((void *)*(unsigned int *)(temp_v4_a + 4));
           }
           detachedFrame = (u8 *)piVar1[3];
           if (*(int *)(detachedFrame + 4) != 0) {
             func_003e99a0(detachedFrame);
           }
-          temp_v4_a = FUN_00457120();
-          FUN_003e9830(piVar1[4],*(unsigned int *)(temp_v4_a + 4));
+          temp_v4_a = (int)func_00457120();
+          func_003e9830(piVar1[4],*(int *)(temp_v4_a + 4));
         }
         targetX0 = (sv20.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
         targetY0 = (sv20.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
@@ -2332,11 +2189,11 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v11_a = horizontalLength0 - horizontalRadius0;
           stk40[1] = horizontalZero0;
           correctionVector0 = &stk40[0];
-          FUN_003e40b0(correctionVector0,correctionVector0);
+          RwV3dNormalize((RwV3d *)correctionVector0,(const RwV3d *)correctionVector0);
           stk40[0] = stk40[0] * temp_v11_a;
           stk40[1] = stk40[1] * temp_v11_a;
           stk40[2] = stk40[2] * temp_v11_a;
-          FUN_003e9c10(piVar1[3],&stk40[0],2);
+          func_003e9c10((u8 *)piVar1[3],&stk40[0],2);
           moved_a = 1;
         }
         stk40[1] = temp_v12_a;
@@ -2356,24 +2213,24 @@ s32 func_0016bdd0(u8 *param_1)
           else {
             stk40[1] = verticalAmount0;
           }
-          FUN_003e9c10(piVar1[3],&stk40[0],2);
+          func_003e9c10((u8 *)piVar1[3],&stk40[0],2);
           moved_a = 1;
         }
         if ((moved_a == 1) && (piVar1[2] == 2)) {
-          temp_v4_a = *(int *)(FUN_00457120() + 4);
+          temp_v4_a = *(int *)(func_00457120() + 4);
           *(FldCopyVec *)stk50 = *(FldCopyVec *)(temp_v4_a + 0x40);
-          pbVar9_a = (unsigned char *)FUN_00457120();
-          pbVar7 = (unsigned char *)FUN_0016e8c0(param_1);
-          FUN_00457630(pbVar9_a,(unsigned char *)((int *)&stk50[0]),pbVar7,(float *)0x0);
+          pbVar9_a = (unsigned char *)func_00457120();
+          pbVar7 = (unsigned char *)func_0016e8c0(param_1);
+          func_00457630(pbVar9_a,(unsigned char *)((int *)&stk50[0]),pbVar7,0);
         }
         goto LAB_0016e0c0;
       case 3:
       case 4:
-        FUN_001687f0((unsigned char *)&stk270[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
+        func_001687f0((unsigned char *)&stk270[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         sv60 = *(FldCopyVec *)stk270;
         count_b = piVar1[0xd] - 1;
         temp_v11_b = 1.0f / (float)count_b;
-        if (*(int *)(*(int *)(CAND_iGpffff9db0 + 0x28) + 0xa20) == 0) goto LAB_0016e0c0;
+        if (*(int *)(*(int *)(iGpffff9db0 + 0x28) + 0xa20) == 0) goto LAB_0016e0c0;
         for (k_b = 0; k_b < count_b; k_b++) {
           if (*(char *)((int)piVar1 + k_b + 0xe8) != '\0') break;
         }
@@ -2385,7 +2242,7 @@ s32 func_0016bdd0(u8 *param_1)
         stk90[0] = targetX34 - *(float *)&piVar1[0x31];
         stk90[1] = targetY34 - ((float *)piVar1)[0x32];
         stk90[2] = targetZ34 - ((float *)piVar1)[0x33];
-        FUN_003e40b0(&stkA0[0],&stk90[0]);
+        RwV3dNormalize((RwV3d *)&stkA0[0],(const RwV3d *)&stk90[0]);
         sv80 = *(FldCopyVec *)((u8 *)(u32)piVar1 + 0xd0);
         basisY34 = sv80.y;
         basisZ34 = sv80.z;
@@ -2426,7 +2283,7 @@ s32 func_0016bdd0(u8 *param_1)
           stk70[1] = originY34 - closestY34;
           stk70[2] = originZ34 - closestZ34;
         }
-        temp_v14_b = FUN_003e4180(&stk70[0]);
+        temp_v14_b = RwV3dLength(&stk70[0]);
         {
           float acc = temp_v11_b;
           int last;
@@ -2438,7 +2295,7 @@ s32 func_0016bdd0(u8 *param_1)
             acc = acc + temp_v11_b;
           }
           if (temp_v4_b >= last) {
-            FUN_0046d730(DAT_005f1698,0x15b);
+            func_0046d730(D_005F1698,0x15b);
           }
         }
         pathRadius34 = *(float *)((u8 *)(u32)piVar1 + 0x20);
@@ -2467,11 +2324,11 @@ s32 func_0016bdd0(u8 *param_1)
               }
             }
           }
-          FUN_003bb5b0(*(u8 **)(*(int *)(CAND_iGpffff9db0 + 0x28) + 0xa20),10,((float *)piVar1)[0x2e],
+          func_003bb5b0(*(u8 **)(*(int *)(iGpffff9db0 + 0x28) + 0xa20),10,((float *)piVar1)[0x2e],
                        piVar1 + 0x31,piVar1 + 0x34);
           {
             float *pathDirection = ((float *)piVar1) + 0x34;
-            FUN_003e40b0(pathDirection,pathDirection);
+            RwV3dNormalize((RwV3d *)pathDirection,(const RwV3d *)pathDirection);
           }
         }
         pathMode34 = piVar1[2];
@@ -2479,7 +2336,7 @@ s32 func_0016bdd0(u8 *param_1)
           int last;
           int keyCount, penultimateKey, nextKey;
 
-          node3_b = *(int *)(FUN_00457120() + 4);
+          node3_b = *(int *)(func_00457120() + 4);
           temp_v7 = temp_v4_b;
           while (0 < temp_v7) {
             if (*(char *)((int)piVar1 + temp_v7 + 0xe8) != '\0') {
@@ -2489,7 +2346,7 @@ s32 func_0016bdd0(u8 *param_1)
             temp_v7 = temp_v7 - 1;
           }
           if (temp_v7 < 1) {
-            FUN_0046d730(DAT_005f1698,0x187);
+            func_0046d730(D_005F1698,0x187);
           }
           keyCount = piVar1[0xd];
           penultimateKey = keyCount - 2;
@@ -2509,7 +2366,7 @@ s32 func_0016bdd0(u8 *param_1)
             }
           }
           if (temp_v7 >= last) {
-            FUN_0046d730(DAT_005f1698,0x193);
+            func_0046d730(D_005F1698,0x193);
           }
           {
             s32 lowIndex, highIndex;
@@ -2571,18 +2428,18 @@ s32 func_0016bdd0(u8 *param_1)
           *(unsigned int *)(piVar1[0xb0] + 0x34) = 0;
           *(unsigned int *)(piVar1[0xb0] + 0x30) = 0;
           *(unsigned int *)(piVar1[0xb0] + 0xc) = *(unsigned int *)(piVar1[0xb0] + 0xc) | 0x20003;
-          FUN_003e0870(piVar1[0xb0],(float *)D_00756500,temp_v13,2);
-          FUN_003e0870(piVar1[0xb0],(float *)D_00756510,temp_v10,2);
-          FUN_003e0870(piVar1[0xb0],(float *)D_00756520,temp_v12_b,2);
-          FUN_003e9cb0(node3_b,piVar1[0xb0],0);
+          RwMatrixRotate((RwMatrix *)piVar1[0xb0],(const RwV3d *)D_00756500,temp_v13,2);
+          RwMatrixRotate((RwMatrix *)piVar1[0xb0],(const RwV3d *)D_00756510,temp_v10,2);
+          RwMatrixRotate((RwMatrix *)piVar1[0xb0],(const RwV3d *)D_00756520,temp_v12_b,2);
+          func_003e9cb0((void *)node3_b,(void *)piVar1[0xb0],0);
           *(FldCopyVec *)(node3_b + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
           RwEngineGetMatrixTolerances(&tolerance3);
           RwMatrixOptimize((RwMatrix *)(node3_b + 0x10),&tolerance3);
-          FUN_003e9680(node3_b);
+          func_003e9680((u8 *)node3_b);
         }
         else if (pathMode34 == 4) {
 
-          node4_b = *(int *)(FUN_00457120() + 4);
+          node4_b = *(int *)(func_00457120() + 4);
           *(FldTriVec *)&stkC0[0] = *(FldTriVec *)(node4_b + 0x40);
           {
             u8 *frame = (u8 *)piVar1[3];
@@ -2590,27 +2447,27 @@ s32 func_0016bdd0(u8 *param_1)
             stkD0[1] = targetY34 - *(float *)(frame + 0x44);
             stkD0[2] = targetZ34 - *(float *)(frame + 0x48);
           }
-          pbVar9_b = (unsigned char *)FUN_00457120();
-          FUN_00457630(pbVar9_b,(unsigned char *)((int *)&stkC0[0]),(unsigned char *)&stkD0[0],(float *)0x0);
+          pbVar9_b = (unsigned char *)func_00457120();
+          func_00457630(pbVar9_b,(unsigned char *)((int *)&stkC0[0]),(unsigned char *)&stkD0[0],0);
           *(FldCopyVec *)(node4_b + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
           RwEngineGetMatrixTolerances(&tolerance4);
           RwMatrixOptimize((RwMatrix *)(node4_b + 0x10),&tolerance4);
-          FUN_003e9680(node4_b);
+          func_003e9680((u8 *)node4_b);
         }
         goto LAB_0016e0c0;
       case 6:
-        FUN_001687f0((unsigned char *)&stk280[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
+        func_001687f0((unsigned char *)&stk280[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         *(FldTriVec *)&stkF0.x = *(FldTriVec *)&stk280[0];
-        pfVar8_c = (float *)FUN_0016e8c0(param_1);
+        pfVar8_c = (float *)func_0016e8c0(param_1);
         sv100 = *(FldCopyVec *)pfVar8_c;
         temp_v11_s4 = (float)D_008C025E[0] - 128.0f;
-        temp_v4_c = FUN_00457120();
+        temp_v4_c = (int)func_00457120();
         if (*(int *)(*(int *)(temp_v4_c + 4) + 4) == piVar1[4]) {
-          temp_v4_c = FUN_00457120();
-          FUN_003e99a0(*(unsigned int *)(temp_v4_c + 4));
-          FUN_003e9830(piVar1[4],piVar1[3]);
-          temp_v4_c = FUN_00457120();
-          FUN_003e9830(piVar1[3],*(unsigned int *)(temp_v4_c + 4));
+          temp_v4_c = (int)func_00457120();
+          func_003e99a0((void *)*(unsigned int *)(temp_v4_c + 4));
+          func_003e9830(piVar1[4],piVar1[3]);
+          temp_v4_c = (int)func_00457120();
+          func_003e9830(piVar1[3],*(int *)(temp_v4_c + 4));
         }
         targetX6 = (stkF0.x += ((float *)piVar1)[0x5]);
         targetY6 = (stkF0.y += ((float *)piVar1)[0x6]);
@@ -2631,11 +2488,11 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v14_s2 = horizontalLength6 - horizontalRadius6;
           stk110[1] = horizontalZero6;
           correctionVector6 = &stk110[0];
-          FUN_003e40b0(correctionVector6,correctionVector6);
+          RwV3dNormalize((RwV3d *)correctionVector6,(const RwV3d *)correctionVector6);
           stk110[0] = stk110[0] * temp_v14_s2;
           stk110[1] = stk110[1] * temp_v14_s2;
           stk110[2] = stk110[2] * temp_v14_s2;
-          FUN_003e9c10(piVar1[3],&stk110[0],2);
+          func_003e9c10((u8 *)piVar1[3],&stk110[0],2);
         }
         temp_v12_c = stkF0.y - temp_v12_s4;
         stk110[1] = temp_v12_c;
@@ -2655,10 +2512,10 @@ s32 func_0016bdd0(u8 *param_1)
           else {
             stk110[1] = temp_v12_c;
           }
-          FUN_003e9c10(piVar1[3],&stk110[0],2);
+          func_003e9c10((u8 *)piVar1[3],&stk110[0],2);
         }
-        followFrame = *(int *)(FUN_00457120() + 4);
-        temp_v5_c = FUN_003e9700(*(unsigned int *)(followFrame + 4));
+        followFrame = *(int *)(func_00457120() + 4);
+        temp_v5_c = (unsigned int)func_003e9700(*(unsigned int *)(followFrame + 4));
         moved_c = 0;
         temp_v12_s7 = *(float *)&piVar1[0xa3];
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
@@ -2668,7 +2525,7 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v8_c = piVar1[0xb0];
           pushVector = &stk120[0];
           *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8_c + 0x20);
-          FUN_003e40b0(pushVector,pushVector);
+          RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
           negativeX = (stk120[0] = -stk120[0]);
           negativeY = (stk120[1] = -stk120[1]);
           negativeZ = (stk120[2] = -stk120[2]);
@@ -2677,18 +2534,18 @@ s32 func_0016bdd0(u8 *param_1)
           stk120[1] = negativeY * followDistance;
           stk120[2] = negativeZ * followDistance;
         }
-        FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
-        FUN_003e0e20(piVar1[0xb0],temp_v5_c,2);
+        RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
+        func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
         segment[0] = stkF0;
         temp_v8_c = piVar1[0xb0];
         segment[1] = *(FldCopyVec *)(temp_v8_c + 0x30);
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
-        temp_v6_c = FUN_0016b8a0((float *)segment,&stk130[0]);
+        temp_v6_c = func_0016b8a0((const RwV3d *)segment,(RwV3d *)&stk130[0]);
         if (temp_v6_c == 1) {
           stk130[0] = stk130[0] - segment[0].x;
           stk130[1] = stk130[1] - segment[0].y;
           stk130[2] = stk130[2] - segment[0].z;
-          temp_v14_s4 = FUN_003e4180(&stk130[0]);
+          temp_v14_s4 = RwV3dLength(&stk130[0]);
           if (!(temp_v14_s4 <= 0.0f)) {
             {
               float negativeX, negativeY, negativeZ;
@@ -2696,7 +2553,7 @@ s32 func_0016bdd0(u8 *param_1)
               temp_v8_c = piVar1[0xb0];
               pushVector = &stk120[0];
               *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8_c + 0x20);
-              FUN_003e40b0(pushVector,pushVector);
+              RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
               negativeX = (stk120[0] = -stk120[0]);
               negativeY = (stk120[1] = -stk120[1]);
               negativeZ = (stk120[2] = -stk120[2]);
@@ -2704,7 +2561,7 @@ s32 func_0016bdd0(u8 *param_1)
               stk120[1] = negativeY * temp_v14_s4;
               stk120[2] = negativeZ * temp_v14_s4;
             }
-            FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
+            RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
             temp_v8_c = piVar1[0xb0];
             *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
             temp_v12_s7 = temp_v14_s4;
@@ -2737,8 +2594,8 @@ s32 func_0016bdd0(u8 *param_1)
                 temp_v9 = temp_v9 + remaining;
               }
             }
-            temp_v8_c = FUN_00155280();
-            FUN_0016e8e0(*(unsigned char **)(temp_v8_c + 4),temp_v9);
+            temp_v8_c = (int)func_00155280();
+            func_0016e8e0(*(unsigned char **)(temp_v8_c + 4),temp_v9);
             *(float *)((u8 *)(u32)piVar1 + 0x2ac) = (*(float *)((u8 *)(u32)piVar1 + 0x2ac) - temp_v9);
             {
               float completionZero = 0.0f;
@@ -2755,15 +2612,15 @@ s32 func_0016bdd0(u8 *param_1)
           if ((((wallZero != wallNormalX || wallZero != *(float *)((u8 *)(u32)piVar1 + 0x2b4)) ||
                (wallZero != *(float *)((u8 *)(u32)piVar1 + 0x2b8))) &&
               ((*(float *)((u8 *)(u32)piVar1 + 0x294) < *(float *)((u8 *)(u32)piVar1 + 0x28c) && ((D_008C024C[0] & 0xf) == 0)))) &&
-             ((!(temp_v11_s4 < -48.0f) && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = FUN_00175db0(), temp_v11_s4 > 0.0f)))))) {
+             ((!(temp_v11_s4 < -48.0f) && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = func_00175db0(), temp_v11_s4 > 0.0f)))))) {
             {
               float forwardZ, forwardY, forwardX;
               float *forwardVector;
-              temp_v8_c = FUN_003e9700(followFrame);
+              temp_v8_c = (int)func_003e9700((s32)followFrame);
               forwardVector = &stk1A0[0];
               *(FldCopyVec *)stk1A0 = *(FldCopyVec *)(temp_v8_c + 0x20);
               stk1A0[1] = 0.0f;
-              FUN_003e40b0(forwardVector,forwardVector);
+              RwV3dNormalize((RwV3d *)forwardVector,(const RwV3d *)forwardVector);
               temp_v11_s5 = D_00756514[0];
               forwardZ = stk1A0[2];
               temp_v14_s6 = D_00756518[0];
@@ -2775,7 +2632,7 @@ s32 func_0016bdd0(u8 *param_1)
               stk190[2] = forwardX * temp_v11_s5 - forwardY * temp_v9_s4;
               {
                 float *rightVector = &stk190[0];
-                FUN_003e40b0(rightVector,rightVector);
+                RwV3dNormalize((RwV3d *)rightVector,(const RwV3d *)rightVector);
               }
             }
             {
@@ -2788,7 +2645,7 @@ s32 func_0016bdd0(u8 *param_1)
               stk180[2] = normalX * temp_v11_s5 - normalY * temp_v9_s4;
               {
                 float *tangentVector = &stk180[0];
-                FUN_003e40b0(tangentVector,tangentVector);
+                RwV3dNormalize((RwV3d *)tangentVector,(const RwV3d *)tangentVector);
               }
             }
             {
@@ -2820,10 +2677,10 @@ s32 func_0016bdd0(u8 *param_1)
             }
             temp_v11_s6 = *(float *)&piVar1[0xac] * stk190[0] +
                      ((float *)piVar1)[0xad] * stk190[1] + ((float *)piVar1)[0xae] * stk190[2];
-            if (temp_v11_s6 < CAND_fGpffff84e4) {
+            if (temp_v11_s6 < fGpffff84e4) {
               *(float *)((u8 *)(u32)piVar1 + 0x2ac) = -temp_v14_s7;
             }
-            else if (!(temp_v11_s6 <= CAND_fGpffff84e8)) {
+            else if (!(temp_v11_s6 <= fGpffff84e8)) {
               *(float *)((u8 *)(u32)piVar1 + 0x2ac) = temp_v14_s7;
             }
           }
@@ -2831,8 +2688,8 @@ s32 func_0016bdd0(u8 *param_1)
         piVar1[0xac] = 0;
         piVar1[0xad] = 0;
         piVar1[0xae] = 0;
-        FUN_003e0e20(piVar1[0xb0],temp_v5_c,2);
-        temp_v8_c = FUN_0016b080((u8 *)piVar1[0xb0] + 0x30,55.0f,&stk160[0],&stk170[0]);
+        func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
+        temp_v8_c = func_0016b080((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
         if (temp_v8_c == 1) {
           *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
           {
@@ -2848,7 +2705,7 @@ s32 func_0016bdd0(u8 *param_1)
             stk1B0[2] = normalX * upY - normalY * upX;
             {
               float *tangentVector = &stk1B0[0];
-              FUN_003e40b0(tangentVector,tangentVector);
+              RwV3dNormalize((RwV3d *)tangentVector,(const RwV3d *)tangentVector);
             }
           }
           {
@@ -2856,13 +2713,13 @@ s32 func_0016bdd0(u8 *param_1)
             temp_v8_c = piVar1[0xb0];
             forwardVector = &stk1C0[0];
             *(FldCopyVec *)stk1C0 = *(FldCopyVec *)(temp_v8_c + 0x20);
-            FUN_003e40b0(forwardVector,forwardVector);
+            RwV3dNormalize((RwV3d *)forwardVector,(const RwV3d *)forwardVector);
           }
           {
             float targetX, targetY, targetZ;
             float tangentY, tangentX, tangentZ;
             float hitX, hitY, hitZ, projectionZero, projectionScale;
-            FUN_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
+            func_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
             targetX = (stkF0.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
             targetY = (stkF0.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
             targetZ = (stkF0.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
@@ -2901,12 +2758,12 @@ s32 func_0016bdd0(u8 *param_1)
             /* Retail keeps camera Z across both vector-length calls. */
             cameraPositionZ = sv1d0.z;
             stk1E0[2] = cameraPositionZ - hitZ;
-            temp_v11_s8 = FUN_003e4180(&stk1E0[0]);
+            temp_v11_s8 = RwV3dLength(&stk1E0[0]);
           }
           stk1E0[0] = stkF0.x - stk10[0];
           stk1E0[1] = stkF0.y - stk10[1];
           stk1E0[2] = stkF0.z - stk10[2];
-          temp_v9 = FUN_003e4180(&stk1E0[0]);
+          temp_v9 = RwV3dLength(&stk1E0[0]);
           temp_v14_s8 = (stkF0.z - cameraPositionZ) / stk1C0[2];
           temp_v11_s8 = (55.0f - temp_v11_s8) / ((temp_v9 - temp_v11_s8) / temp_v14_s8);
           if (temp_v14_s8 < 0.0f) {
@@ -2947,7 +2804,7 @@ s32 func_0016bdd0(u8 *param_1)
               temp_v8_c = piVar1[0xb0];
               pushVector = &stk120[0];
               *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
-              FUN_003e40b0(pushVector,pushVector);
+              RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
               negativeX = (stk120[0] = -stk120[0]);
               negativeY = (stk120[1] = -stk120[1]);
               negativeZ = (stk120[2] = -stk120[2]);
@@ -2955,17 +2812,17 @@ s32 func_0016bdd0(u8 *param_1)
               stk120[1] = negativeY * temp_v12_s7;
               stk120[2] = negativeZ * temp_v12_s7;
             }
-            FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
+            RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
             temp_v8_c = piVar1[0xb0];
             *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
-            pbVar9_s2 = (unsigned char *)FUN_00457120();
-            FUN_00457630(pbVar9_s2,(unsigned char *)((int *)&stk150[0]),D_007F1710,(float *)0x0);
+            pbVar9_s2 = (unsigned char *)func_00457120();
+            func_00457630(pbVar9_s2,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
             *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v12_s7;
           }
           else if ((0.0f == *(float *)((u8 *)(u32)piVar1 + 0x2ac)) && ((piVar1[1] & 2U) == 0)) {
             {
               float maximumStep;
-              if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > FUN_00175db0()) ? FUN_00175db0() : maximumStep)) {
+              if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > func_00175db0()) ? func_00175db0() : maximumStep)) {
                 temp_v11_c = 15.0f;
               }
             }
@@ -2986,7 +2843,7 @@ s32 func_0016bdd0(u8 *param_1)
                 temp_v8_c = piVar1[0xb0];
                 pushVector = &stk120[0];
                 *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
-                FUN_003e40b0(pushVector,pushVector);
+                RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
                 negativeX = (stk120[0] = -stk120[0]);
                 negativeY = (stk120[1] = -stk120[1]);
                 negativeZ = (stk120[2] = -stk120[2]);
@@ -2995,15 +2852,15 @@ s32 func_0016bdd0(u8 *param_1)
                 stk120[1] = negativeY * followDistance;
                 stk120[2] = negativeZ * followDistance;
               }
-              FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
+              RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
               temp_v8_c = piVar1[0xb0];
               *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
-              FUN_003e0e20(piVar1[0xb0],temp_v5_c,2);
-              temp_v8_c = FUN_0016b080((u8 *)piVar1[0xb0] + 0x30,55.0f,&stk160[0],&stk170[0]);
+              func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
+              temp_v8_c = func_0016b080((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
               if (temp_v8_c == 0) {
                 *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
-                pbVar9_s3 = (unsigned char *)FUN_00457120();
-                FUN_00457630(pbVar9_s3,(unsigned char *)((int *)&stk150[0]),D_007F1710,(float *)0x0);
+                pbVar9_s3 = (unsigned char *)func_00457120();
+                func_00457630(pbVar9_s3,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
               }
               else {
                 *(float *)&piVar1[0xa5] = (*(float *)&piVar1[0xa5] - temp_v11_c);
@@ -3018,7 +2875,7 @@ s32 func_0016bdd0(u8 *param_1)
                 (*(float *)&piVar1[0xa5] < ((float *)piVar1)[0xa3])) {
           {
             float maximumStep;
-            if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > FUN_00175db0()) ? FUN_00175db0() : maximumStep)) {
+            if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > func_00175db0()) ? func_00175db0() : maximumStep)) {
               temp_v11_c = 15.0f;
             }
           }
@@ -3045,7 +2902,7 @@ s32 func_0016bdd0(u8 *param_1)
             temp_v8_c = piVar1[0xb0];
             pushVector = &stk120[0];
             *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
-            FUN_003e40b0(pushVector,pushVector);
+            RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
             negativeX = (stk120[0] = -stk120[0]);
             negativeY = (stk120[1] = -stk120[1]);
             negativeZ = (stk120[2] = -stk120[2]);
@@ -3054,66 +2911,66 @@ s32 func_0016bdd0(u8 *param_1)
             stk120[1] = negativeY * followDistance;
             stk120[2] = negativeZ * followDistance;
           }
-          FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
+          RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
           temp_v8_c = piVar1[0xb0];
           *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
-          FUN_003e0e20(piVar1[0xb0],temp_v5_c,2);
-          temp_v8_c = FUN_0016b080((u8 *)piVar1[0xb0] + 0x30,55.0f,&stk160[0],&stk170[0]);
+          func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
+          temp_v8_c = func_0016b080((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
           if (temp_v8_c == 0) {
-            pbVar9_c = (unsigned char *)FUN_00457120();
-            FUN_00457630(pbVar9_c,(unsigned char *)((int *)&stk150[0]),D_007F1710,(float *)0x0);
+            pbVar9_c = (unsigned char *)func_00457120();
+            func_00457630(pbVar9_c,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
           }
           else {
             *(float *)&piVar1[0xa5] = (*(float *)&piVar1[0xa5] - temp_v11_c);
             *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
           }
         }
-        FUN_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
+        func_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
         stkF0.y = stkF0.y + 180.0f;
-        temp_v4_c = FUN_003e9700(followFrame);
+        temp_v4_c = (int)func_003e9700((s32)followFrame);
         cpv5 = *(FldCopyVec *)(temp_v4_c + 0x30);
         stk110[0] = stkF0.x - cpv5.x;
         stk110[1] = stkF0.y - cpv5.y;
         stk110[2] = stkF0.z - cpv5.z;
-        temp_v11_c = FUN_003e4180(&stk110[0]);
+        temp_v11_c = RwV3dLength(&stk110[0]);
         {
           unsigned char *fadeTask = (unsigned char *)piVar1[0xaa];
           if (fadeTask != (unsigned char *)0x0 &&
-              (temp_v4_c = FUN_0014bd90(fadeTask), temp_v4_c == 1)) {
-            FUN_0047a870(*(unsigned char **)(piVar1[0xa2] + 0x164));
-            FUN_00452080((void *)piVar1[0xaa]);
+              (temp_v4_c = func_0014bd90(fadeTask), temp_v4_c == 1)) {
+            func_0047a870(*(unsigned char **)(piVar1[0xa2] + 0x164));
+            func_00452080((void *)piVar1[0xaa]);
             piVar1[0xaa] = 0;
           }
         }
-        fadeColour = *(const FldCameraColour *)&CAND_uGpffff9f2c;
+        fadeColour = *(const FldCameraColour *)&uGpffff9f2c;
         if (temp_v11_c <= 55.0f + ((float *)piVar1)[0xa4]) {
           if (piVar1[0xaa] != 0) {
-            FUN_0047a870(*(unsigned char **)(piVar1[0xa2] + 0x164));
-            FUN_00452080((void *)piVar1[0xaa]);
+            func_0047a870(*(unsigned char **)(piVar1[0xa2] + 0x164));
+            func_00452080((void *)piVar1[0xaa]);
             piVar1[0xaa] = 0;
           }
-          FUN_0047a220(*(unsigned int *)(piVar1[0xa2] + 0x164),((int *)&fadeColour));
+          mdlSetColor((void *)*(unsigned int *)(piVar1[0xa2] + 0x164),((int *)&fadeColour));
           piVar1[0xa6] = 1;
         }
         if (piVar1[0xa6] != 1) goto LAB_0016e0c0;
         if (temp_v11_c <= 55.0f + *(float *)((u8 *)(u32)piVar1 + 0x290)) goto LAB_0016e0c0;
-        FUN_0047a850(*(unsigned char **)(piVar1[0xa2] + 0x164));
-        temp_v4_c = FUN_0014bbe0((int)param_1,*(int *)(piVar1[0xa2] + 0x164),0,0xff,10);
+        func_0047a850(*(unsigned char **)(piVar1[0xa2] + 0x164));
+        temp_v4_c = func_0014bbe0((int)param_1,*(int *)(piVar1[0xa2] + 0x164),0,0xff,10);
         piVar1[0xaa] = temp_v4_c;
         piVar1[0xa6] = 0;
         goto LAB_0016e0c0;
       case 7:
-        FUN_001687f0((unsigned char *)&stk290[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
+        func_001687f0((unsigned char *)&stk290[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         cv0 = *(FldCamVec *)(stk290);
-        pfVar8_d = (float *)FUN_0016e8c0(param_1);
+        pfVar8_d = (float *)func_0016e8c0(param_1);
         sv200 = *(FldCopyVec *)pfVar8_d;
-        temp_v4_d = FUN_00457120();
+        temp_v4_d = (int)func_00457120();
         if (*(int *)(*(int *)(temp_v4_d + 4) + 4) == piVar1[4]) {
-          temp_v4_d = FUN_00457120();
-          FUN_003e99a0(*(unsigned int *)(temp_v4_d + 4));
-          FUN_003e9830(piVar1[4],piVar1[3]);
-          temp_v4_d = FUN_00457120();
-          FUN_003e9830(piVar1[3],*(unsigned int *)(temp_v4_d + 4));
+          temp_v4_d = (int)func_00457120();
+          func_003e99a0((void *)*(unsigned int *)(temp_v4_d + 4));
+          func_003e9830(piVar1[4],piVar1[3]);
+          temp_v4_d = (int)func_00457120();
+          func_003e9830(piVar1[3],*(int *)(temp_v4_d + 4));
         }
         targetX7 = (cv0.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
         targetY7 = (cv0.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
@@ -3134,11 +2991,11 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v11_s20 = horizontalLength7 - horizontalRadius7;
           stk220[1] = horizontalZero7;
           correctionVector7 = &stk220[0];
-          FUN_003e40b0(correctionVector7,correctionVector7);
+          RwV3dNormalize((RwV3d *)correctionVector7,(const RwV3d *)correctionVector7);
           stk220[0] = stk220[0] * temp_v11_s20;
           stk220[1] = stk220[1] * temp_v11_s20;
           stk220[2] = stk220[2] * temp_v11_s20;
-          FUN_003e9c10(piVar1[3],&stk220[0],2);
+          func_003e9c10((u8 *)piVar1[3],&stk220[0],2);
         }
         stk220[1] = temp_v12_s13;
         if (temp_v12_s13 < 0.0f) {
@@ -3157,14 +3014,14 @@ s32 func_0016bdd0(u8 *param_1)
           else {
             stk220[1] = verticalAmount7;
           }
-          FUN_003e9c10(piVar1[3],&stk220[0],2);
+          func_003e9c10((u8 *)piVar1[3],&stk220[0],2);
         }
-        temp_v4_d = *(int *)(FUN_00457120() + 4);
-        temp_v5_d = FUN_003e9700(*(unsigned int *)(temp_v4_d + 4));
+        temp_v4_d = *(int *)(func_00457120() + 4);
+        temp_v5_d = (unsigned int)func_003e9700(*(unsigned int *)(temp_v4_d + 4));
         moved_d = 0;
         temp_v11_d = ((float *)piVar1)[0xa3];
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_d + 0x10));
-        FUN_003e0e20(piVar1[0xb0],temp_v5_d,2);
+        func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_d,2);
         /* Retail retains these Y/Z snapshots across camera calls; X is reloaded. */
         chaseTargetY = (cv0.y += *(float *)((u8 *)(u32)piVar1 + 0x2a0));
         temp_v8_d = piVar1[0xb0];
@@ -3175,7 +3032,7 @@ s32 func_0016bdd0(u8 *param_1)
         {
           float scaledX, scaledY, scaledZ, chaseScale, directionX;
           float *chaseDirection = &stk210.x;
-          FUN_003e40b0(chaseDirection,chaseDirection);
+          RwV3dNormalize((RwV3d *)chaseDirection,(const RwV3d *)chaseDirection);
           directionX = stk210.x;
           chaseScale = *(float *)&piVar1[0xa3];
           scaledX = (stk210.x = directionX * chaseScale);
@@ -3189,25 +3046,25 @@ s32 func_0016bdd0(u8 *param_1)
           chaseSegment[1].z = chaseSegment[1].z + scaledZ;
         }
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_d + 0x10));
-        temp_v6_d = FUN_0016b8a0((float *)chaseSegment,&stk230.x);
+        temp_v6_d = func_0016b8a0((const RwV3d *)chaseSegment,(RwV3d *)&stk230.x);
         if (temp_v6_d == 1) {
           stk230.x = stk230.x - chaseSegment[0].x;
           stk230.y = stk230.y - chaseSegment[0].y;
           stk230.z = stk230.z - chaseSegment[0].z;
           {
             float *hitVector = &stk230.x;
-            temp_v14_d = FUN_003e40b0(hitVector,hitVector);
+            temp_v14_d = RwV3dNormalize((RwV3d *)hitVector,(const RwV3d *)hitVector);
           }
           if (!(temp_v14_d <= 0.0f)) {
             {
               float *chaseDirection = &stk210.x;
               stk210 = stk230;
-              FUN_003e40b0(chaseDirection,chaseDirection);
+              RwV3dNormalize((RwV3d *)chaseDirection,(const RwV3d *)chaseDirection);
             }
             stk210.x = stk210.x * temp_v14_d;
             stk210.y = stk210.y * temp_v14_d;
             stk210.z = stk210.z * temp_v14_d;
-            FUN_003e0c90(piVar1[0xb0],&stk210.x,0);
+            RwMatrixTranslate((void *)piVar1[0xb0],&stk210.x,0);
             *(float *)(piVar1[0xb0] + 0x34) = ((float *)piVar1)[0xa8];
             temp_v4_d = piVar1[0xb0];
             *(FldCopyVec *)stk240 = *(FldCopyVec *)(temp_v4_d + 0x30);
@@ -3217,15 +3074,15 @@ s32 func_0016bdd0(u8 *param_1)
         }
         if (moved_d == 1) {
           if (temp_v11_d < ((float *)piVar1)[0xa5]) {
-            pbVar9_d = (unsigned char *)FUN_00457120();
-            FUN_00457630(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,(float *)0x0);
+            pbVar9_d = (unsigned char *)func_00457120();
+            func_00457630(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
             *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v11_d;
           }
         }
         else if (!(temp_v11_d <= *(float *)((u8 *)(u32)piVar1 + 0x294))) {
           {
             float maximumStep;
-            if (0.0f == (temp_v14_d = ((maximumStep = 20.0f) > FUN_00175db0()) ? FUN_00175db0() : maximumStep)) {
+            if (0.0f == (temp_v14_d = ((maximumStep = 20.0f) > func_00175db0()) ? func_00175db0() : maximumStep)) {
               temp_v14_d = 20.0f;
             }
           }
@@ -3238,7 +3095,7 @@ s32 func_0016bdd0(u8 *param_1)
               ((float *)piVar1)[0xa5] = desiredDistance;
             }
           }
-          FUN_003e0e20(piVar1[0xb0],temp_v5_d,2);
+          func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_d,2);
           temp_v4_d = piVar1[0xb0];
           stk210.x = *(float *)(temp_v4_d + 0x30) - cv0.x;
           stk210.y = *(float *)(temp_v4_d + 0x34) - chaseTargetY;
@@ -3246,39 +3103,51 @@ s32 func_0016bdd0(u8 *param_1)
           {
             float chaseScale, directionX;
             float *chaseDirection = &stk210.x;
-            FUN_003e40b0(chaseDirection,chaseDirection);
+            RwV3dNormalize((RwV3d *)chaseDirection,(const RwV3d *)chaseDirection);
             directionX = stk210.x;
             chaseScale = ((float *)piVar1)[0xa5];
             stk210.x = directionX * chaseScale;
             stk210.y = stk210.y * chaseScale;
             stk210.z = stk210.z * chaseScale;
           }
-          FUN_003e0c90(piVar1[0xb0],&stk210.x,0);
+          RwMatrixTranslate((void *)piVar1[0xb0],&stk210.x,0);
           *(FldCopyVec *)stk240 = *(FldCopyVec *)(piVar1[0xb0] + 0x30);
           stk240[1] = ((float *)piVar1)[0xa8];
-          pbVar9_d = (unsigned char *)FUN_00457120();
-          FUN_00457630(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,(float *)0x0);
+          pbVar9_d = (unsigned char *)func_00457120();
+          func_00457630(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
         }
         goto LAB_0016e0c0;
       default:
 LAB_0016e0c0:
-        FUN_0014d9d0((unsigned char *)piVar1[0xb2],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
-        puVar10_s7 = (unsigned int *)FUN_0016e8c0(param_1);
-        *(FldCopyVec *)stk250 = *(FldCopyVec *)puVar10_s7;
-        FUN_0014d9e0((unsigned char *)piVar1[0xb2],(unsigned char *)((int *)&stk250[0]));
-        FUN_0014da10((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x20));
-        FUN_0014da20((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x24));
-        if (*(int *)(*(int *)(CAND_iGpffff9db0 + 0x28) + 0xa20) != 0) {
-          if ((unsigned char *)piVar1[0xb3] != (unsigned char *)0x0) {
-            FUN_0014d5e0((unsigned char *)piVar1[0xb3],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+        func_0014d9d0((unsigned char *)piVar1[0xb2],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+        puVar10_s7 = (unsigned int *)func_0016e8c0(param_1);
+        {
+          unsigned char *targetPosition = (unsigned char *)&stk250[0];
+          *(FldCopyVec *)stk250 = *(FldCopyVec *)puVar10_s7;
+          func_0014d9e0((unsigned char *)piVar1[0xb2],targetPosition);
+        }
+        func_0014da10((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x20));
+        func_0014da20((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x24));
+        if (*(int *)(*(int *)(iGpffff9db0 + 0x28) + 0xa20) != 0) {
+          {
+            unsigned char *cameraHelper = (unsigned char *)piVar1[0xb3];
+            if (cameraHelper != (unsigned char *)0x0) {
+              func_0014d5e0(cameraHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+            }
           }
-          if ((unsigned char *)piVar1[0xb4] != (unsigned char *)0x0) {
-            FUN_0014d7c0((unsigned char *)piVar1[0xb4],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
-            FUN_0014d7d0((unsigned char *)piVar1[0xb4],(unsigned char *)(piVar1 + 0x31));
+          {
+            unsigned char *pathHelper = (unsigned char *)piVar1[0xb4];
+            if (pathHelper != (unsigned char *)0x0) {
+              func_0014d7c0(pathHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+              func_0014d7d0((unsigned char *)piVar1[0xb4],(unsigned char *)(piVar1 + 0x31));
+            }
           }
-          if ((unsigned char *)piVar1[0xb5] != (unsigned char *)0x0) {
-            FUN_0014d7c0((unsigned char *)piVar1[0xb5],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
-            FUN_0014d7d0((unsigned char *)piVar1[0xb5],(unsigned char *)&stk10[0]);
+          {
+            unsigned char *projectionHelper = (unsigned char *)piVar1[0xb5];
+            if (projectionHelper != (unsigned char *)0x0) {
+              func_0014d7c0(projectionHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+              func_0014d7d0((unsigned char *)piVar1[0xb5],(unsigned char *)&stk10[0]);
+            }
           }
         }
         break;
@@ -3293,9 +3162,6 @@ LAB_0016e0c0:
 }
 /* measured: restore the surrounding translation-unit settings. */
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016bdd0);
-#endif
 // FUN_0016E210
 void func_0016e210(u8 *arg0) {
     u8 *temp_16;

@@ -8690,3 +8690,7 @@ fGpffff8068 = 0x00761158; // type:data
 fGpffff806c = 0x0076115c; // type:data
 fGpffff8070 = 0x00761160; // type:data
 fGpffff8074 = 0x00761164; // type:data
+fGpffff84e4 = 0x007615d4; // type:data
+fGpffff84e8 = 0x007615d8; // type:data
+uGpffff9f2c = 0x0076301c; // type:data
+D_005F1698 = 0x005f1698; // type:data

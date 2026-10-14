@@ -1088,3 +1088,7 @@ fGpffff806c = 0x0076115c; // type:data evidence: retail func_00471370 GPREL16 im
 fGpffff8070 = 0x00761160; // type:data evidence: retail func_00471370 GPREL16 imm 0x8070 at 0x00472424; gp = 0x007690F0
 fGpffff8074 = 0x00761164; // type:data evidence: retail func_00471370 GPREL16 imm 0x8074 at 0x00472EA8; gp = 0x007690F0
 fGpffff8358 = 0x00761448; // type:data evidence: retail func_001a59a0 lwc1 $f12,-0x7CA8($gp) at 0x001A6668; GP 0x007690F0; matched native relocation has zero addend
+fGpffff84e4 = 0x007615d4; // type:data evidence: retail func_0016bdd0 lwc1 $f0,-0x7B1C($gp) at 0x0016D074; GP 0x007690F0; matched native relocation has zero addend
+fGpffff84e8 = 0x007615d8; // type:data evidence: retail func_0016bdd0 lwc1 $f0,-0x7B18($gp) at 0x0016D094; GP 0x007690F0; matched native relocation has zero addend
+uGpffff9f2c = 0x0076301c; // type:data evidence: retail func_0016bdd0 copies four colour bytes with lwc1 $f0,-0x60D4($gp) at 0x0016D9D8; GP 0x007690F0; matched native relocation has zero addend
+D_005F1698 = 0x005f1698; // type:data evidence: retail func_0016bdd0 lui/addiu $a0 at 0x0016C41C/0x0016C420, repeated at 0x0016C568/0x0016C56C and 0x0016C5E8/0x0016C5EC, before func_0046d730 calls
