@@ -15,7 +15,7 @@ extern void func_004b1170();
 extern void func_004b13f0(void *object, s32 *color);
 
 extern void func_004b13d0(float param_1, u8 param_2[][16]);
-extern void func_0047dae0(u32 *param_1);
+extern void mdlEffectListReleaseHandles(u32 *param_1);
 extern void func_004b1150_i(int param_1);
 extern u32 func_004b1130_u32(u32 param_1);
 extern u32 func_004b11b0();
@@ -403,7 +403,7 @@ void mdlEffectListReleaseNodes(u32 *param_1)
     int *current;
     int *next;
 
-    func_0047dae0(param_1);
+    mdlEffectListReleaseHandles(param_1);
     current = (int*)*param_1;
     while (current != 0) {
         next = (int*)current[4];
@@ -420,8 +420,9 @@ void mdlEffectListReleaseNodes(u32 *param_1)
 
 
 
+/* Releases each node's handle, then acquires a new handle from its payload. */
 // FUN_0047DA30
-void func_0047da30(u32 *param_1)
+void mdlEffectListRefreshHandles(u32 *param_1)
 {
     int *current;
     u32 value;
@@ -447,8 +448,9 @@ void func_0047da30(u32 *param_1)
 
 
 
+/* Releases each node's handle and clears it, also clearing the payload's back-reference when it matches. */
 // FUN_0047DAE0
-void func_0047dae0(u32 *param_1)
+void mdlEffectListReleaseHandles(u32 *param_1)
 {
   int *piVar1;
 
@@ -477,8 +479,9 @@ void func_0047dae0(u32 *param_1)
 
 
 
+/* Copies arg1 bytes from arg0 into a new reference-counted block and returns a wrapper that points at it. */
 // FUN_0047DB50
-u32 *func_0047db50(s32 arg0, s32 arg1)
+u32 *mdlEffectListWrapCopy(s32 arg0, s32 arg1)
 {
     u32 *node;
     u32 *wrap;
@@ -496,8 +499,9 @@ u32 *func_0047db50(s32 arg0, s32 arg1)
     wrap[0] = (u32)node;
     return wrap;
 }
+/* Makes a new wrapper that shares the payload of *arg0 and bumps its reference count. */
 // FUN_0047DC30
-u32 *func_0047dc30(u32 **arg0)
+u32 *mdlEffectListWrapShared(u32 **arg0)
 {
     u32 *obj;
     u32 *temp;

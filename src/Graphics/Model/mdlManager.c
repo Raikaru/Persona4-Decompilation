@@ -268,10 +268,10 @@ extern void* func_004779b0(u32 type, u16 id);
 extern s32 func_00479ca0(void* a, s32 b);
 extern u32* func_003971d0(u8*, s32, s32, s32);
 extern void* func_00462ae0(void* object);
-extern void func_0047da30();
+extern void mdlEffectListRefreshHandles();
 extern void* func_003c0520();
 extern u32 *mdlEffectListCopy(u32 **head);
-extern u32 *func_0047dc30(u32 **head);
+extern u32 *mdlEffectListWrapShared(u32 **head);
 extern void func_0047ea40();
 extern s32 func_0047ae90(u8* model, u16 index);
 extern void func_00478410(u8* a, u8* b);
@@ -4160,7 +4160,7 @@ extern void func_0047b060(void* a);
 // FUN_00477CA0
 void func_00477ca0(u8* arg0)
 {
-    extern void func_0047da30(u32*);
+    extern void mdlEffectListRefreshHandles(u32*);
     extern f32 fGpffff80cc;
     f32 values[3];
     u8 (*entries)[0xA4];
@@ -4205,7 +4205,7 @@ void func_00477ca0(u8* arg0)
     }
     temp_4_2 = *(u32*)(arg0 + 0x2CC);
     if (temp_4_2 != 0) {
-        func_0047da30((u32*)temp_4_2);
+        mdlEffectListRefreshHandles((u32*)temp_4_2);
     }
 }
 // FUN_00477E80
@@ -4501,7 +4501,7 @@ void func_00478410(u8* source, u8* destination)
                         copy->primary[index] = cloned;
                     }
                     if (original->secondary[index] != 0) {
-                        void* cloned = func_0047dc30(original->secondary[index]);
+                        void* cloned = mdlEffectListWrapShared(original->secondary[index]);
                         copy->secondary[index] = cloned;
                     }
                 }
@@ -4535,7 +4535,7 @@ void func_00478410(u8* source, u8* destination)
     if (*(void**)(source + 0x2cc) != 0) {
         void* copy = mdlEffectListCopy(*(void**)(source + 0x2cc));
         *(void**)(destination + 0x2cc) = copy;
-        func_0047da30(copy);
+        mdlEffectListRefreshHandles(copy);
     }
     if (*(void**)(source + 0x2d0) != 0)
         func_0047ea40(destination + 0x2d0, source + 0x2d0);
@@ -4626,7 +4626,7 @@ extern void func_00475820(void* a, void* b);
 extern u8* func_00473b20(u8* a, u8* b, s32 c);
 extern s32 func_0047a510(void* a, s32 b, void* c);
 extern void* mdlGetMatrix(void* a);
-extern void func_0047dae0(u32 a);
+extern void mdlEffectListReleaseHandles(u32 a);
 extern void func_0047de50(u32 a);
 extern void func_0047de00(u32 a, void* b);
 extern void func_0047dd40(u8* a, void* model);
@@ -4680,11 +4680,11 @@ void func_00478a30(u8* mdl, s32 tick)
                 draw = attachments->primaryDraw;
                 if (attachments->nextPrimary != draw) {
                     if (draw != 0) {
-                        func_0047dae0((u32)draw);
+                        mdlEffectListReleaseHandles((u32)draw);
                     }
                     draw = attachments->nextPrimary;
                     if (draw != 0) {
-                        func_0047da30(draw);
+                        mdlEffectListRefreshHandles(draw);
                     }
                     attachments->primaryDraw = attachments->nextPrimary;
                 }
@@ -6112,7 +6112,7 @@ s32 func_0047b0c0(u8 *model)
     extern u32 mdlEffectListCreate(void);
     extern u32 *mdlEffectListAppendBlock(u32 **head, s32 data, u32 length, u16 index, u32 flags);
     extern u32 *mdlEffectListAppendNode(u32 *head, u32 *node, u16 index);
-    extern u32 *func_0047db50(s32 data, s32 length);
+    extern u32 *mdlEffectListWrapCopy(s32 data, s32 length);
     extern s32 *func_0047f9f0(void);
     extern s32 func_004800d0(void *stream, u8 **head, u32 kind, void *clump);
     extern u8 D_0070B610[];
@@ -6325,7 +6325,7 @@ s32 func_0047b0c0(u8 *model)
                     attachments->primary[destination] = copy;
                 }
                 if (*(void **)((u32)attachments->secondary + source * 4) != 0) {
-                    void *copy = func_0047dc30(attachments->secondary[source]);
+                    void *copy = mdlEffectListWrapShared(attachments->secondary[source]);
                     attachments->secondary[destination] = copy;
                 }
             }
@@ -6474,7 +6474,7 @@ s32 func_0047b0c0(u8 *model)
                 LOAD_LAYER()->attachments = table;
             }
             {
-                u32 *wrapper = func_0047db50((s32)payload, chunk.length);
+                u32 *wrapper = mdlEffectListWrapCopy((s32)payload, chunk.length);
                 LOAD_LAYER()->attachments->secondary[state->slot] = wrapper;
             }
             func_003e2ce0(state->stream, chunk.length);
@@ -6799,7 +6799,7 @@ s32 func_0047c660(u8 *arg0)
                                 entries = *(u8 **)(tbl + 0x20);
                                 if (*(u32 **)(entries + srcPointerOff) != 0) {
                                     *(u32 **)(*(u8 **)(tbl + 0x20) + dstIdx * 4) =
-                                        func_0047dc30(*(u32 ***)(entries + srcPointerOff));
+                                        mdlEffectListWrapShared(*(u32 ***)(entries + srcPointerOff));
                                 }
                             }
                         }
