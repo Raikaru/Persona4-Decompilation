@@ -554,8 +554,8 @@ void func_004b1ad0(u8 *arg0)
     extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
     extern void func_00460ac0(void *arg0, void *arg1);
     extern s32 func_004814d0(u16 arg0);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern f32 D_00761134;
     extern f32 fGpffff8084;
     EffScreenSpriteRGBA color;
@@ -712,8 +712,8 @@ void func_004b1ad0(u8 *arg0)
     right = info.rect[2] * scale;
     bottom = info.rect[3] * scale;
     {
-        f32 c = func_0044b610(spin);
-        f32 s = func_0044b7b0(spin);
+        f32 c = cosf(spin);
+        f32 s = sinf(spin);
         f32 x1 = left + right;
         f32 y1 = top + bottom;
         f32 x2;

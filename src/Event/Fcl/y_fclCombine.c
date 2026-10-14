@@ -498,7 +498,7 @@ typedef struct {
 void func_002e90d0(u8 *arg0)
 {
     extern u8 D_00641870[];
-    extern s32 func_00106330(s32);
+    extern s32 datGetFlag(s32);
     extern s32 func_0033e5a0(u8 *);
     extern void func_00315310(u8 *, s64);
     extern void func_00317410(u8 *, s8);
@@ -567,7 +567,7 @@ void func_002e90d0(u8 *arg0)
         break;
     case 0x12:
         p[1] = 0x14;
-        if (func_00106330(0x131D) == 0) {
+        if (datGetFlag(0x131D) == 0) {
             p[0xD] = func_002bab80((void *)func_00331660());
             func_002badc0(p[0xD], 0x4C);
             func_00106390(0x131D, 1);
@@ -586,7 +586,7 @@ void func_002e90d0(u8 *arg0)
         selected = -1;
         for (k = 0; k < 2; k++) {
             entry = D_00641870 + k * 8;
-            if (func_00106330(*(s32 *)(entry + 4)) == 0) {
+            if (datGetFlag(*(s32 *)(entry + 4)) == 0) {
                 if ((f32)*(s8 *)entry <= 100.0f * func_00109190()) {
                     selected = k;
                 }
@@ -633,7 +633,7 @@ void func_002e90d0(u8 *arg0)
         selected2 = -1;
         for (k2 = 0; k2 < 2; k2++) {
             entry = D_00641870 + k2 * 8;
-            if (func_00106330(*(s32 *)(entry + 4)) == 0) {
+            if (datGetFlag(*(s32 *)(entry + 4)) == 0) {
                 if ((f32)*(s8 *)entry <= 100.0f * func_00109190()) {
                     selected2 = k2;
                 }
@@ -699,7 +699,7 @@ void func_002e90d0(u8 *arg0)
         func_003205f0(arg0, 0x92, 0);
         func_00316e80(arg0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0);
         p[0x138] = 0;
-        if (func_00106330(0x1305) != 0 && func_00106330(0x1308) == 0) {
+        if (datGetFlag(0x1305) != 0 && datGetFlag(0x1308) == 0) {
             p[0x138] |= 2;
         }
         if (func_00302570(arg0) == 0) {
@@ -741,7 +741,7 @@ void func_002e90d0(u8 *arg0)
             }
             switch (p[0xB3]) {
             case 0:
-                if (func_00106330(0x131E) == 0) {
+                if (datGetFlag(0x131E) == 0) {
                     p[0xD] = func_002bab80((void *)func_00331660());
                     func_002badc0(p[0xD], 0x4D);
                     func_00106390(0x131E, 1);
@@ -751,7 +751,7 @@ void func_002e90d0(u8 *arg0)
                 }
                 break;
             case 1:
-                if (func_00106330(0x131B) == 0) {
+                if (datGetFlag(0x131B) == 0) {
                     p[0xD] = func_002bab80((void *)func_00331660());
                     func_002badc0(p[0xD], 0x4F);
                     func_00106390(0x131B, 1);
@@ -911,7 +911,7 @@ void func_002e90d0(u8 *arg0)
             color4 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
             color5 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
             func_0032fa30(arg0, menu, color3, color4, color5);
-            if (func_00106330(0x1306) != 0) {
+            if (datGetFlag(0x1306) != 0) {
                 p[0xB6] = func_002b2d00(p[0xB6], 1, 0, (s16)(p[0xB7] - 2), 2);
             } else {
                 p[0xB6] = func_002b2d00(p[0xB6], 1, 0, (s16)(p[0xB7] - 1), 2);
@@ -930,7 +930,7 @@ void func_002e90d0(u8 *arg0)
             color10 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
             color11 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
             func_0032fa30(arg0, menu, color9, color10, color11);
-            if (func_00106330(0x1306) != 0) {
+            if (datGetFlag(0x1306) != 0) {
                 p[0xB6] = func_002b2cb0(p[0xB6], 1, (s16)(p[0xB7] - 2), 0, 2);
             } else {
                 p[0xB6] = func_002b2cb0(p[0xB6], 1, (s16)(p[0xB7] - 1), 0, 2);
@@ -973,7 +973,7 @@ void func_002e90d0(u8 *arg0)
                     func_003205f0(arg0, 0x118, 0x96);
                     break;
                 case 2:
-                    if (func_00106330(0x1305) != 0) {
+                    if (datGetFlag(0x1305) != 0) {
                         p[0] = 8;
                         p[1] = 0x75;
                     } else {
@@ -982,7 +982,7 @@ void func_002e90d0(u8 *arg0)
                     }
                     break;
                 case 3:
-                    if (func_00106330(0x1305) != 0) {
+                    if (datGetFlag(0x1305) != 0) {
                         p[0] = 0xA;
                         ((u8 *)p)[1] = 0xC2;
                     } else {
@@ -994,7 +994,7 @@ void func_002e90d0(u8 *arg0)
                     }
                     break;
                 case 4:
-                    if (func_00106330(0x1305) != 0) {
+                    if (datGetFlag(0x1305) != 0) {
                         func_00315310(arg0, 3);
                         func_003205f0(arg0, 0x92, 0x96);
                         if (func_00302570(arg0) == 0) {
@@ -8788,7 +8788,7 @@ static inline u16 fclItemHalf(const s32 *value)
 /* measured: keeps the 0xAC slot pointer as its own index-first address. */
 #pragma opt_propagation off
 void func_0030c3c0(u8 *arg0) {
-    extern s32 func_00106330(s32);
+    extern s32 datGetFlag(s32);
     extern u32 func_0011f560(u8 *);
     extern void func_003146c0(u8 *, u32);
     extern s32 func_0045aa90(s16, s16);
@@ -8866,7 +8866,7 @@ void func_0030c3c0(u8 *arg0) {
     id = ((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[1];
     switch (p[1]) {
     case 0xA0:
-        if (func_00106330(0x5E) != 0) {
+        if (datGetFlag(0x5E) != 0) {
             *((s8 *)func_0034a630(*(u8 **)(p + 0x254))) = 4;
             func_003144d0(*(u8 **)(p + 0x148), (s32)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 0, 0, 0);
             func_0011d140(func_003147d0(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));

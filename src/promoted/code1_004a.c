@@ -630,8 +630,8 @@ void func_004a5fc0(u8 *arg0)
     extern void RpGeometryLock(void *arg0, s32 arg1);
     extern void func_003c22f0(void *arg0);
     extern void func_003c42b0(void *arg0, s32 arg1);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 cosf(f32 arg0);
+    extern f32 sinf(f32 arg0);
     extern f32 D_00761134;
     EffSpriteRGBA color;
     u32 baseWord;
@@ -793,8 +793,8 @@ void func_004a5fc0(u8 *arg0)
     right = info.rect[2] * scale;
     bottom = info.rect[3] * scale;
     {
-        f32 c = func_0044b610(spin);
-        f32 s = func_0044b7b0(spin);
+        f32 c = cosf(spin);
+        f32 s = sinf(spin);
         f32 x1 = left + right;
         f32 y1 = top + bottom;
         f32 x2;
