@@ -440,6 +440,13 @@ void func_0036a880(u8 *arg0, s32 arg1, s32 arg2)
     *(s32 *)(arg0 + 0x170) = arg1;
     *(s32 *)(arg0 + 0x174) = arg2;
 }
+
+// FUN_0036A8F0
+void func_0036a8f0(void* work, u32 value)
+{
+    *(u32*)((u8*)work + 0x38) = value;
+}
+
 // FUN_0036A900
 void func_0036a900(PscLight *dst)
 {

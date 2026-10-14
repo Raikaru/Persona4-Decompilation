@@ -153,6 +153,50 @@ void func_0036abd0(PanelMatrix* output, const PanelTransform* transform)
 
 
 
+// FUN_0036ADC0
+void func_0036adc0(void* work, const u8* color)
+{
+    struct Color {
+        u8 red;
+        u8 green;
+        u8 blue;
+        u8 alpha;
+    };
+    struct Panel {
+        u32 flags;
+        u8 pad[0x3c];
+        struct Color color;
+    };
+    struct Panel* panel = (struct Panel*)work;
+    const struct Color* rgba = (const struct Color*)color;
+
+    panel->color = *rgba;
+    panel->flags |= 4;
+}
+
+// FUN_0036AE00
+void func_0036ae00(void* work, const u8* color)
+{
+    u8* panel = (u8*)work;
+
+    panel[0x0c] = color[0];
+    panel[0x0d] = color[1];
+    panel[0x0e] = color[2];
+    panel[0x0f] = color[3];
+    panel[0x30] = color[0];
+    panel[0x31] = color[1];
+    panel[0x32] = color[2];
+    panel[0x33] = color[3];
+    panel[0x54] = color[0];
+    panel[0x55] = color[1];
+    panel[0x56] = color[2];
+    panel[0x57] = color[3];
+    panel[0x78] = color[0];
+    panel[0x79] = color[1];
+    panel[0x7a] = color[2];
+    panel[0x7b] = color[3];
+}
+
 // FUN_0036B470
 void func_0036b470(u32* work, const f32* vertices)
 {
