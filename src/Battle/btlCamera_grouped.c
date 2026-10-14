@@ -2,13 +2,13 @@
 /* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
+#include "btl_camera_sequence_internal.h"
 static inline u8 *btlCamera_add_index(s32 index, u8 *base)
 {
     return (u8 *)(index + (u32)base);
 }
 
 /* Canonical grouped function declarations. */
-u32 func_001d10d0(void* camera);
 void btlUnitGetSphereWorldCenter(u8* arg0, f32* arg1);
 void func_001bcd40(u8* arg0, u8* arg1, f32* arg2, f32 arg4, u16 arg3);
 extern s32 effMiscRand(s32 arg0);
@@ -109,7 +109,6 @@ static inline f32 btlCamera_product(f32 left, f32 right)
 // FUN_001D07E0
 s32 func_001d07e0(u8 *arg0, u8 *arg1)
 {
-    extern u32 func_001d10d0(void *camera);
     extern u8 *func_001b0c80(s32 arg0);
     extern void func_00195aa0(BtlUnit *unit, BtlUnit *target, RwV3d *out);
     extern void func_001ec1c0(u8 *out, u8 *first, u8 *second);
