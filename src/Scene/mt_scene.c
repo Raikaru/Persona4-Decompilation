@@ -20,6 +20,7 @@ typedef struct MtScene
 
 extern MtScene* gMtScene;
 extern Resrc* func_00147530(ResrcManager* resManager, u16 resTypeId);
+extern void func_00146a10(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput);
 
 /* Ported from P3FES src/Scene/mt_scene.c FUN_003b5df0 (verified MATCH there).
  * 007cd540 -> PTR_DAT_00762ea0, 003b5550 -> func_001475c0. */
@@ -172,6 +173,47 @@ u16 MT_Scene_CreateResLightNpc(u16 resId)
 
 
 
+// FUN_00146E60
+void func_00146e60(u16 resourceId, u8 *position, u8 *angles)
+{
+    Resrc *resource;
+
+    if (*(u8 **)(PTR_DAT_00762ea0 + 8) == 0)
+    {
+        resource = 0;
+    }
+    else
+    {
+        resource = func_00147530(*(ResrcManager **)(PTR_DAT_00762ea0 + 8), resourceId);
+    }
+
+    if (resource != 0)
+    {
+        (func_00146a10)((u8 *)resource, position, angles, 0);
+    }
+}
+
+
+
+// FUN_00146EE0
+void func_00146ee0(u16 resourceId, u8 *angles)
+{
+    Resrc *resource;
+
+    if (*(u8 **)(PTR_DAT_00762ea0 + 8) == 0)
+    {
+        resource = 0;
+    }
+    else
+    {
+        resource = func_00147530(*(ResrcManager **)(PTR_DAT_00762ea0 + 8), resourceId);
+    }
+
+    if (resource != 0)
+    {
+        (func_00146a10)((u8 *)resource, 0, 0, angles);
+    }
+}
 // FUN_00146F50
 void func_00146f50(u32* param_1, const void* param_2, u32* param_3)
 {
