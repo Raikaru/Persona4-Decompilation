@@ -83,7 +83,7 @@ void func_001d8cb0(void *arg0, void *arg1);
 
 s32 btlUnitIsMoving(u8 *arg0);
 
-void func_001a03b0(s64 *arg0);
+void func_001a03b0(BtlAction *action);
 void func_001dbf20(void *arg0, s32 arg1);
 BtlPacket *func_001d3700(u16 arg0, u16 arg1);
 s64 func_00194590(u8 *arg0, u32 arg1);
@@ -350,7 +350,7 @@ void func_001a0290(BtlAction *action, u16 arg1, u8 *arg2)
     }
 }
 // FUN_001A03B0
-void func_001a03b0(s64 *arg0)
+void func_001a03b0(BtlAction *action)
 {
     u8 *lookAtDeactivatePacket;
     u8 *ambientPacket;
@@ -368,12 +368,12 @@ void func_001a03b0(s64 *arg0)
     if (*(s32 *)(battleCtx + 0xC) & 0x400000) {
         if (*(u16 *)(battleCtx + 0x18) & 0x20) {
             lookAtDeactivatePacket = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3);
-            *(s64 *)(lookAtDeactivatePacket + 0x60) = *arg0;
+            *(s64 *)(lookAtDeactivatePacket + 0x60) = *(s64 *)action;
             func_00194590(lookAtDeactivatePacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 2) {
             ambientPacket = (u8 *)func_001d3700(3, 0xFFF);
-            *(s64 *)(ambientPacket + 0x60) = *arg0;
+            *(s64 *)(ambientPacket + 0x60) = *(s64 *)action;
             func_00194590(ambientPacket, 0);
         }
         battleCtxAlt = D_0076449C;
@@ -384,7 +384,7 @@ loop_body:
             if ((*(u16 *)(listUnit + 0x1A) & 1) &&
                 datCalcIsDead(*(s32 *)(*(u8 **)(listUnit + 0x30) + 0xA64), 0) == 0) {
                 unitPacket = func_0019a0c0(*(u8 **)(listUnit + 0x30), 0);
-                *(s64 *)(unitPacket + 0x60) = *arg0;
+                *(s64 *)(unitPacket + 0x60) = *(s64 *)action;
                 func_00194590(unitPacket, 0);
             }
             listUnit = *(u8 **)(listUnit + 0x450);
@@ -395,22 +395,22 @@ loop_test:
         }
         if (*(u16 *)(D_0076449C + 0x18) & 0x10) {
             effectPacket = (u8 *)func_001ba090(0);
-            *(s64 *)(effectPacket + 0x60) = *arg0;
+            *(s64 *)(effectPacket + 0x60) = *(s64 *)action;
             func_00194590(effectPacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 8) {
             subPacket = (u8 *)func_001d7a10(5);
-            *(s64 *)(subPacket + 0x60) = *arg0;
+            *(s64 *)(subPacket + 0x60) = *(s64 *)action;
             func_00194590(subPacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 4) {
-            cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x24);
-            *(s64 *)(cameraPacket + 0x60) = *arg0;
+            cameraPacket = (u8 *)btlCameraCreateSetStatePacket(action, 0x24);
+            *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
             func_00194590(cameraPacket, 0);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 0x40) {
             endPacket = func_00201f20();
-            *(s64 *)(endPacket + 0x60) = *arg0;
+            *(s64 *)(endPacket + 0x60) = *(s64 *)action;
             func_00194590(endPacket, 0);
         }
         *(u16 *)(D_0076449C + 0x18) = 0;
@@ -624,7 +624,7 @@ void func_001a0b00(s64 *arg0) {
         func_00193cd0(0x700) == 0 && func_00193cd0(0x504) == 0 &&
         func_00193cd0(0x506) == 0 && func_00193cd0(0x301) == 0 &&
         func_00193cd0(0x104) == 0) {
-        func_001a03b0(arg0);
+        func_001a03b0((BtlAction *)arg0);
         func_001f0a10((u8 *)&result);
         if (func_00243e30((u16 *)action->unit->data) != 0) {
             result.flags |= 0x80;
@@ -786,7 +786,7 @@ void func_001a1450(s64 *arg0)
         btlActionSetState((BtlAction *)arg0, 9);
         return;
     }
-    func_001a03b0(arg0);
+    func_001a03b0((BtlAction *)arg0);
     actionType = *(u16 *)((u8 *)arg0 + 0x10);
     if ((actionType != 0x25) && (actionType != 4) && (actionType != 6) &&
         (actionType != 5) && (*(u16 *)(iGpffffb3ac + 0xF4) != 2)) {
@@ -1318,7 +1318,7 @@ void func_001a24b0(u8 *action)
         if (hasOther) {
             func_00218730(*(s32 *)(D_0076449C + 0xDD4));
         }
-        func_001a03b0((s64 *)action);
+        func_001a03b0((BtlAction *)action);
         {
             u8 *cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)selected, 1);
             *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
@@ -1657,7 +1657,7 @@ void func_001a2d70(u8 *arg0) {
             break;
         }
         if (state != 0) {
-            func_001a03b0((s64 *)arg0);
+            func_001a03b0((BtlAction *)arg0);
             packet = btlCameraCreateSetStatePacket((u8 *)arg0, 10);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
             func_00194590(packet, 0);
@@ -1702,7 +1702,7 @@ void func_001a31e0(BtlAction *actionState)
     struct { s32 words[8]; } result;
 
     if (func_00193cd0(0x506) == 0 && func_00193cd0(0x105) == 0) {
-        func_001a03b0((s64 *)action);
+        func_001a03b0((BtlAction *)action);
         badStatus = datCalcGetBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64));
         if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x100000) != 0 &&
             *(s32 *)(action + 0x420) == 0) {
@@ -1947,7 +1947,7 @@ void func_001a3840(register BtlAction *actionState)
         *(u16 *)(action + 0x1A) |= 0x1000;
         break;
     }
-    func_001a03b0((s64 *)action);
+    func_001a03b0((BtlAction *)action);
     func_001eb410(action + 0x38);
     *(u8 **)(action + 0x38) = target;
     *(s16 *)(action + 0x6A) = 1;
@@ -2141,7 +2141,7 @@ void func_001a3f90(u8 *arg0)
             *(u16 *)(frame + 2) =
                 *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
             func_00194590(func_001fa110(frame), 1);
-            func_001a03b0((s64 *)arg0);
+            func_001a03b0((BtlAction *)arg0);
             func_00194590(func_00202850(), 1);
             func_00194590(func_001fa8f0(), 1);
             func_002182c0(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
@@ -2751,7 +2751,7 @@ range_done:
     if (proceed == 0) {
         return;
     }
-    func_001a03b0((s64 *)action);
+    func_001a03b0((BtlAction *)action);
     {
         u16 speedIndex;
         u16 unitId;
@@ -2910,7 +2910,7 @@ void func_001a5650(s64 *arg0)
     }
     func_00194ff0(battleUnit, (u8 *)&sp30, NULL, NULL);
     if (!(func_001ec250((RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
-        func_001a03b0(arg0);
+        func_001a03b0((BtlAction *)arg0);
         speedIndex = 2;
         slotIndex = (!(iGpffffb3b8[
             (*(u16 *)((u8 *)arg0 + 0x6E) * 0x28)] & 2)) & 0xFFFF;
@@ -3319,7 +3319,7 @@ void func_001a59a0(s64 *arg0_) {
     u8 *effectPacketK;
 
     /* hitTimingBase init removed */
-    func_001a03b0((s64 *)arg0);
+    func_001a03b0((BtlAction *)arg0);
     actionUid = (s64)((*(s64 *)(arg0 + (0))));
     hitPacketUid = 0;
     battleUnit = (u8 *)((*(u8 **)(arg0 + (0x30))));
@@ -4046,7 +4046,7 @@ void func_001a7720(u8 *arg0) {
     extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
     extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
-    extern void func_001a03b0(s64 *arg0);
+    extern void func_001a03b0(BtlAction *arg0);
     extern void func_001b7060(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern s32 func_001b7080(u16 skill); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern s32 func_001b7090(s32 arg0);
@@ -4526,7 +4526,7 @@ void func_001a7720(u8 *arg0) {
     hasCutinPartner = (s32)(s32)(act->cutinPartner) != (s32)(0);
     formationFxPkt = 0;
     actionId = *(s64 *)(arg0 + 0);
-    func_001a03b0((s64 *)arg0);
+    func_001a03b0((BtlAction *)arg0);
     side = (s8)unitSide;
     if ((side == 1) && (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000)) {
         actionFlag4000 = 0;
@@ -6164,7 +6164,7 @@ void func_001abbb0(s64 *arg0)
     action = (ActionView *)arg0;
     auxRaw = action->aux;
     uid = action->uid;
-    func_001a03b0(arg0);
+    func_001a03b0((BtlAction *)arg0);
     handle = func_001d3d50(1);
     selector = (u16)auxRaw;
     aux = selector;
@@ -6451,10 +6451,10 @@ void func_001ac500(s64 *arg0) {
     u8 *resetPacket;
     u8 *cameraPacket;
 
-    func_001a03b0(arg0);
+    func_001a03b0((BtlAction *)arg0);
     func_001eb3b0((u8 *)arg0 + 0x38);
     func_001dbf20(arg0, 0);
-    func_001a03b0(arg0);
+    func_001a03b0((BtlAction *)arg0);
     resetPacket = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(resetPacket + 0x60) = *arg0;
     func_00194590(resetPacket, 0);
@@ -6537,7 +6537,7 @@ void func_001ac700(u8 *action) {
         u16 cameraState;
     } selection;
 
-    func_001a03b0((s64 *)action);
+    func_001a03b0((BtlAction *)action);
     alternateAction = (*(u16 *)(action + 0x6C) == 3);
     packetIdentity = *(s64 *)action;
     if (alternateAction == 0) {
@@ -6924,7 +6924,7 @@ void func_001ad280(u8 *arg0)
     u8 *cameraPacket;
     u8 *cutinPacket;
 
-    func_001a03b0((s64 *)arg0);
+    func_001a03b0((BtlAction *)arg0);
     lookAtPacket = actionLookAtUnit(
         *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
         *(u8 **)(arg0 + 0x30),
@@ -7053,7 +7053,7 @@ void func_001ad550(s64 *arg0)
     u16 idx;
 
     action = (ActionView *)arg0;
-    func_001a03b0(arg0);
+    func_001a03b0((BtlAction *)arg0);
     first = func_002022e0((u32)action->unit, 6);
     *(s64 *)(first + 0x60) = action->uid;
     func_00194590(first, 3);
@@ -7254,7 +7254,7 @@ void func_001adb80(s64 *arg0)
         *(s64 *)(introPacket + 0x60) = *(s64 *)arg0;
         func_00194590(introPacket, 1);
     }
-    func_001a03b0(arg0);
+    func_001a03b0((BtlAction *)arg0);
     actionPacket = func_002022e0(
         *(u32 *)((u8 *)arg0 + 0x30),
         *(u16 *)((u8 *)arg0 + 0x6C));
