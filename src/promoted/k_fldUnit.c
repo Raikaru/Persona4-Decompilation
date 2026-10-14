@@ -56,7 +56,7 @@ extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern u32 RpRandom(void);
 extern void func_0047aa30(u8 *arg0, u8 *arg1);
 extern s32 func_0014c780(void);
-extern void func_0017b9a0(s32 arg0, f32 arg1);
+extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
 extern void mdlScale(Model *arg0, const RwV3d *arg1, s32 arg2);
 extern void RwMatrixUpdate(u8 *arg0);
 extern void func_00168de0(u8 *task, const void *axis, f32 angle);
@@ -452,7 +452,7 @@ void func_00162e10(void)
     extern f32 func_00168770(u8 *task);
     extern void func_00168730(u8 *task, s32 flags);
     extern void func_00168ae0(u8 *task, u8 *position);
-    extern void func_0017b9a0(u8 *task, f32 radius);
+    extern void FldShadow_SetRingParticles(u8 *task, f32 radius);
     extern s32 func_0014a160(void);
     extern s32 func_00145540(u16 index, u16 variant, void *model);
     extern f32 D_007615DC;
@@ -494,7 +494,7 @@ void func_00162e10(void)
             resourceId = func_00145540(partyIndex, resourceVariant, unitForSetup->model);
             createdResource = &unitForSetup->scene;
             *createdResource = (FieldUnitSceneResource *)MT_Scene_GetRes(resourceId);
-            func_0017b9a0((*createdResource)->effectTask, 60.0f);
+            FldShadow_SetRingParticles((*createdResource)->effectTask, 60.0f);
         }
         /* Look up the placement resource. When both the list and ID are absent,
          * retail leaves the existing unit->placement untouched. */
@@ -882,7 +882,7 @@ s32 func_00163c90(s32 arg0)
   }
   if ((*((u8 *) (temp_16 + 0x1CA))) == 1)
   {
-    func_0017b9a0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x224)), *((f32 *) (D_005F1340 + ((*((u8 *) (temp_16 + 0x1CB))) * 4))));
+    FldShadow_SetRingParticles(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x224)), *((f32 *) (D_005F1340 + ((*((u8 *) (temp_16 + 0x1CB))) * 4))));
   }
   mdlScale((Model *)(*((void **) (temp_16 + 0x50))), (const RwV3d *)((D_005F12E0 + ((*((u8 *) (temp_16 + 0x1CA))) * 0x30)) + ((*((u8 *) (temp_16 + 0x1CB))) * 0xC)), 2);
   RwMatrixUpdate((u8 *)mdlGetMatrix(*((void **)  (temp_16 + 0x50))));
@@ -1531,7 +1531,7 @@ void func_00164fa0(s32 arg0)
         temp_20 = (u8 **)(D_007EFA04 + temp_17);
         temp_2 = (u8 *)MT_Scene_GetRes(actorId);
         *temp_20 = temp_2;
-        func_0017b9a0(*(s32 *)(temp_2 + 0x224), 60.0f);
+        FldShadow_SetRingParticles(*(s32 *)(temp_2 + 0x224), 60.0f);
         temp_18 = D_007EF9B0 + temp_17;
         var_2 = (u8 *)mdlGetMatrix(*temp_16);
         i = 8;
@@ -1654,7 +1654,7 @@ void func_00165380(void)
             func_0047aa30(*(u8 **)f50, D_005DC920);
             if (*f1ca == 1) {
                 p = D_007E8C00 + i * 0x750;
-                func_0017b9a0(*(s32 *)(*(u8 **)slot + 0x224), *(f32 *)(D_005F1340 + *(u8 *)(p + 0x1CB) * 4));
+                FldShadow_SetRingParticles(*(s32 *)(*(u8 **)slot + 0x224), *(f32 *)(D_005F1340 + *(u8 *)(p + 0x1CB) * 4));
             }
             slot = D_007E8C00 + i * 0x750;
             f1ca = slot + 0x1CA;

@@ -80,7 +80,7 @@ extern void func_0015d270(u8 *arg0);
 extern u16 *func_0015d2c0(u32 arg0);
 extern u8 *func_0015d310(u16 *arg0);
 extern void func_00168780(u8 *arg0, f32 arg1);
-extern void func_0017b9a0(u8 *arg0, f32 arg1);
+extern void FldShadow_SetRingParticles(u8 *arg0, f32 arg1);
 extern s32 func_0018bb20(s32 arg0, s32 arg1);
 extern void *RwMatrixUpdate(void *arg0);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
@@ -360,7 +360,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
         res = MT_Scene_GetRes(rid);
         size = (f32 *)(rec + 0xC);
         func_00168780(*(u8 **)(res + 0x228), *size);
-        func_0017b9a0(*(u8 **)(res + 0x230), 40.0f);
+        FldShadow_SetRingParticles(*(u8 **)(res + 0x230), 40.0f);
         scale.z = scale.y = scale.x = *size;
         *(u32 **)(res + 0x22C) = func_00478750((u8 *)D_00764364);
         /* Retail passes the yaw slot before this iteration writes it. */

@@ -88,7 +88,7 @@ extern void func_004b15d0(void);
 extern void func_0026c740(s32 object);
 extern float func_0026cdb0(char *param_1);
 extern s32 func_0026da30(u16 arg0, s32 arg1);
-extern s32 func_0017b990(s32 arg0, s32 arg1, s32 arg2);
+extern s32 FldShadow_SetCasterFlag(s32 arg0, s32 arg1, s32 arg2);
 extern void memset(void *dst, s32 value, s32 size);
 extern f32 RwV3dNormalize();
 extern s64 D_0063B110;
@@ -1636,9 +1636,9 @@ s32 func_0026bc90(u8 *arg0, s32 arg1)
     }
     if (var_6 == 0) return 0;
     if (arg1 == 1) {
-        func_0017b990(var_6, 0, var_6);
+        FldShadow_SetCasterFlag(var_6, 0, var_6);
     } else {
-        func_0017b990(var_6, 1, var_6);
+        FldShadow_SetCasterFlag(var_6, 1, var_6);
     }
     return 1;
 }

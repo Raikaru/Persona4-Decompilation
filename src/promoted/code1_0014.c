@@ -220,7 +220,7 @@ extern void func_004b13d0(s32 arg0, f32 arg1);
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 extern s32 func_00148280(u8 *task);
-extern void func_0017ccc0(u8 *arg0);
+extern void FldShadow_SpawnCasterTask(u8 *arg0);
 
 
 static inline u8 *p4_e740_add(s32 offset, u8 *base) {
@@ -502,7 +502,7 @@ s32 func_00145540(u16 arg0, u16 arg1, void *arg2) {
     RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)(temp_2 + 0x164)));
     temp_2_2 = func_001684a0(0, temp_16 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x220) = temp_2_2;
-    *(void **)(temp_2 + 0x224) = func_0017b510((u8 *)temp_2_2, shadowId, arg1);
+    *(void **)(temp_2 + 0x224) = FldShadow_CreateCaster((u8 *)temp_2_2, shadowId, arg1);
     return temp_16;
 }
 // FUN_00145690
@@ -578,7 +578,7 @@ s32 func_00145780(u16 arg0, u16 arg1, s32 arg2) {
     *(s32 *)(temp_2 + 0x164) = arg2;
     temp_2_2 = func_001684a0(0, temp_17 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x228) = temp_2_2;
-    *(void **)(temp_2 + 0x230) = func_0017b510((u8 *)temp_2_2, shadowId, arg1);
+    *(void **)(temp_2 + 0x230) = FldShadow_CreateCaster((u8 *)temp_2_2, shadowId, arg1);
     return temp_17;
 }
 // FUN_001459B0
@@ -2130,7 +2130,7 @@ u8 *func_00149620(u8 *ctx) {
     u8 *o;
 
     o = func_00451fc0((void *)(ctx), (const void *)(D_005EFB10), 0xC7, 0, 0, func_00148280, 0, (u8 *)(NULL));
-    func_0017ccc0(o);
+    FldShadow_SpawnCasterTask(o);
     return o;
 }
 
