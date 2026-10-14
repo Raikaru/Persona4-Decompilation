@@ -1392,15 +1392,15 @@ static inline f32 cmmScoreProduct(f32 phase, f32 scale)
 static inline void *cmmScoreAtlas(void)
 {
     u8 *task;
-    u8 *checkTask;
-    s32 active;
+    u8 *loadTask;
+    s32 loaded;
     task = func_00452380((s8 *)D_00635A78);
-    checkTask = func_00452380((s8 *)D_00635A78);
-    if (checkTask == NULL) {
+    loadTask = func_00452380((s8 *)D_00635A78);
+    if (loadTask == NULL) {
         func_0046d730(D_006359F0, 0x392);
     }
-    active = (*(u32 *)func_00452560(checkTask) & 1) != 0;
-    if (active == 0) {
+    loaded = (*(u32 *)func_00452560(loadTask) & 1) != 0;
+    if (loaded == 0) {
         func_0046d730(D_006359F0, 0x39D);
     }
     return *(void **)(func_00452560(task) + 0x24);
@@ -1662,20 +1662,20 @@ typedef struct cmmScriptEntry {
 // FUN_0024EFA0
 s32 func_0024efa0(u8 *task)
 {
-    cmmScriptEntry* p;
-    cmmScriptEntry* q;
+    cmmScriptEntry* entries;
+    cmmScriptEntry* entry;
     s32 i;
 
-    p = (cmmScriptEntry*)(s32)func_00452560(task);
-    q = p;
+    entries = (cmmScriptEntry*)(s32)func_00452560(task);
+    entry = entries;
     i = 0;
     while (i < 3) {
-        if ((q->flags & 1) != 0) {
-            if (q->func((u8 *)p, (u8 *)q) != 0) {
-                q->flags = q->flags & ~1;
+        if ((entry->flags & 1) != 0) {
+            if (entry->func((u8 *)entries, (u8 *)entry) != 0) {
+                entry->flags = entry->flags & ~1;
             }
         }
-        q++;
+        entry++;
         i++;
     }
     return 0;
@@ -1689,10 +1689,10 @@ s32 func_0024efa0(u8 *task)
 // FUN_0024F040
 void func_0024f040(u8 *task)
 {
-    int iVar1;
+    int record;
 
-    iVar1 = (s32)func_00452560(task);
-    DAT_008873ec_abs[0](iVar1);
+    record = (s32)func_00452560(task);
+    DAT_008873ec_abs[0](record);
 }
 
 // FUN_0024F080
