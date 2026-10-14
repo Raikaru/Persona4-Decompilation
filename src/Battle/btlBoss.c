@@ -1,3 +1,5 @@
+#include "btl_unit_internal.h"
+#include "datCalc_internal.h"
 /* Source unit: src/Battle/btlBoss_0022fb90.c */
 #include "btl_skill_target_internal.h"
 #include "type.h"
@@ -23,10 +25,8 @@ BtlPacket* func_00194470(u32 type, u32 workSize);
 u32 func_002303e0(void* work);
 u32 func_00230450(void* work);
 extern s32 func_001f0ff0();
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 func_0019fc70();
 extern s32 func_001ef9a0();
-extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern s32 func_001b1540();
 extern void func_001b0fa0(s32 arg0);
 extern void func_001b11c0(s32 arg0);
@@ -71,9 +71,9 @@ s32 func_0022fb90(BtlUnit* first, BtlUnit* second)
 s32 func_0022fc00(u8* arg0)
 {
     u8 temp_4;
-    u8* temp_3;
-    u8* temp_4_2;
-    u8* temp_5;
+    BtlUnit* temp_3;
+    DatUnit* temp_4_2;
+    BtlUnit* temp_5;
 
     if ((*(s32*)(DAT_0076449c + 0xc) & 0x200000) == 0)
     {
@@ -83,9 +83,9 @@ s32 func_0022fc00(u8* arg0)
     {
         return 1;
     }
-    temp_5 = *(u8**)(arg0 + 0x30);
-    temp_3 = *(u8**)(*(u8**)(arg0 + 0x38) + 0x30);
-    temp_4 = *(u8*)(temp_5 + 0xa2);
+    temp_5 = *(BtlUnit **)(arg0 + 0x30);
+    temp_3 = *(BtlUnit **)(*(u8 **)(arg0 + 0x38) + 0x30);
+    temp_4 = temp_5->genus;
     if (temp_4 == 1)
     {
         return 1;
@@ -94,12 +94,12 @@ s32 func_0022fc00(u8* arg0)
     {
         return 1;
     }
-    if (temp_4 != *(u8*)(temp_3 + 0xa2))
+    if (temp_4 != temp_3->genus)
     {
         return 1;
     }
-    temp_4_2 = *(u8**)(temp_5 + 0xa64);
-    if ((temp_4_2 != NULL) && (datCalcChkBadStatus((s32)temp_4_2, 0x100) != 0))
+    temp_4_2 = temp_5->datUnit;
+    if ((temp_4_2 != NULL) && (datCalcChkBadStatus(temp_4_2, 0x100) != 0))
     {
         return 1;
     }
@@ -174,8 +174,7 @@ loop_2:
 loop_4:
         if (((*(u16 *)(var_17 + 0x1A) & 1) != 0) ^ 1)
             goto loop_4_next;
-        if (datCalcIsDead(
-                *(s32 *)(*(u8 **)(var_17 + 0x30) + 0xA64), 0) != 0)
+        if (datCalcIsDead((*(BtlUnit **)(var_17 + 0x30))->datUnit, 0) != 0)
             goto loop_4_next;
         {
             *var_18 = var_17;
@@ -208,8 +207,7 @@ loop_4_done:
         if ((*temp_16 & 0x10) != 0)
             func_001b11c0(1);
         if ((arg0 != NULL) &&
-            (datCalcIsDead(
-                 *(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0) == 0))
+            (datCalcIsDead((*(BtlUnit **)(arg0 + 0x30))->datUnit, 0) == 0))
         {
 loop_16:
             temp_2 = func_001b1540();
