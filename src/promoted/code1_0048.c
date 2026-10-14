@@ -2549,10 +2549,14 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
  * retail's $a3 lifetime. Only the loop counter / 255.0f transfer swap remains.
  * 2026-10-14: 5 -> 4: transfer the invariant 255.0f to its native GPR once.
  * All colours now agree; only MFC1 / loop-bound-zero materialisation order differs.
+ * 2026-10-14: measured 4 -> 0. Native SQC2 keeps the history cursor's clear/shift/linear
+ * web intact under opt_lifetimes; the shared subdivision counter's second web
+ * then numbers after the compiler-generated 255.0f transfer, matching its hoist.
  */
-// FUN_0048B340 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0048B340
 #pragma push
+/* measured: split the two counter webs, but preserve the native-asm cursor. */
+#pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 void func_0048b340(u8 *arg0, u8 *arg1)
@@ -2580,7 +2584,6 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     u32 boundC0;
     u32 nmult;
     s32 node10;
-    u8 *nodesBase;
     f32 one;
     f32 acc;
     f32 invN;
@@ -2591,10 +2594,7 @@ void func_0048b340(u8 *arg0, u8 *arg1)
     f32 diffX;
     f32 baseY;
     f32 diffY;
-    f32 packScale;
     u32 stride;
-    u8 *dst2;
-    u8 *dst3;
     f32 ftmp;
     u32 alpha;
     u32 lo;
@@ -2737,8 +2737,6 @@ loop1_check:
         u32 colTmpB;
         u32 packedTmp;
         u32 colorTransfer;
-        u32 scaleTransfer;
-        u32 n;
         f32 inv3;
         const f32 one3 = 1.0f;
         f32 acc3;
@@ -2754,7 +2752,7 @@ loop1_check:
         if (*(s32 *)(anchor + 0x10) < 0) {
             return;
         }
-        iter = anchor - 0x20;
+        src1 = anchor - 0x20;
         acc3 = 0.0f;
         inv3 = one3 / (f32)(u32)((u32)c4 + 1);
         bx = *(f32 *)(anchor + 0x18);
@@ -2780,9 +2778,7 @@ loop1_check:
         effectVuScale10(inv3);
         __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
         effectVuStore10((EffectVuVector *)&tmpD0);
-        n = 0;
-        __asm__("mfc1 scaleTransfer, %0" : : "f"(255.0f));
-        for (; n < (u32)c4 - 1; iter -= 0x20, n++) {
+        for (k = 0; k < (u32)c4 - 1; src1 -= 0x20, k++) {
             acc3 = acc3 + inv3;
             /* Native b210 operand: read the C pointer without a GNU binding copy. */
             __asm__ volatile("lqc2 $vf10, 0(anchor)" : : : "$vf10", "memory");
@@ -2792,15 +2788,15 @@ loop1_check:
                 "vsubx.w $vf3, $vf0, $vf2x\n"
                 "vmulax.xyzw $ACC, $vf11, $vf2x\n"
                 "vmaddw.xyzw $vf10, $vf10, $vf3w\n" : : "r"(acc3) : "$vf2", "$vf3", "$vf10");
-            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)iter) : "r"(iter) : "memory");
-            *(f32 *)(iter + 0x18) = bx + dx * acc3;
-            *(f32 *)(iter + 0x1C) = by + dy * acc3;
+            __asm__ volatile("sqc2 $vf10, 0(src1)" : : : "memory");
+            *(f32 *)(src1 + 0x18) = bx + dx * acc3;
+            *(f32 *)(src1 + 0x1C) = by + dy * acc3;
             effectVuLoad10((EffectVuVector *)&tmpE0);
             effectVuLoad11((EffectVuVector *)&tmpD0);
             __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
             effectVuStore10((EffectVuVector *)&tmpE0);
             __asm__ volatile(
-                "qmtc2.ni scaleTransfer, $vf2\n"
+                "qmtc2.ni %2, $vf2\n"
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vftoi0.xyzw $vf10, $vf10\n"
                 "qmfc2.ni %0, $vf10\n"
@@ -2808,18 +2804,15 @@ loop1_check:
                 "ppacb %0, $0, %0\n"
                 "sw %0, packedTmp\n"
                 : "=r"(colorTransfer), "=m"(packedTmp)
-                :
+                : "r"(255.0f)
                 : "$vf2", "$vf10");
-            *(u32 *)(iter + 0x14) = packedTmp;
-            *(s32 *)(iter + 0x10) = node10;
+            *(u32 *)(src1 + 0x14) = packedTmp;
+            *(s32 *)(src1 + 0x10) = node10;
         }
     }
 }
 
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b340);
-#endif
 /* Recovered Wave controller: complete position snapshots and actual live trail
  * indexing. Domain and source/compiler evidence are recorded in
  * docs/probe_archive/wave-spawn-20261005/. The existing trail provider retains
