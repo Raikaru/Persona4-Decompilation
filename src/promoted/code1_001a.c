@@ -6711,24 +6711,24 @@ void func_001acb10(u8 *arg0)
 }
 // FUN_001ACBB0
 void func_001acbb0(u8 *arg0) {
-    s32 sp80[8];
-    s32 temp_19;
-    s32 temp_2_4;
-    s32 temp_4;
-    s32 var_17;
-    s64 temp_20;
-    s64 temp_21;
-    s64 var_2;
-    s64 var_2_2;
-    s64 var_2_3;
-    u16 temp_3;
-    u8 *temp_16;
-    u8 *temp_2_2;
-    u8 *temp_2_5;
-    u8 *temp_2_6;
-    u8 *temp_2_7;
-    u8 *temp_2_8;
-    u8 *temp_2_9;
+    s32 damageResult[8];
+    s32 value;
+    s32 remainingCount;
+    s32 prevFlags;
+    s32 flagAdded;
+    s64 secondPacketTag;
+    s64 firstPacketTag;
+    s64 messageIdVariant;
+    s64 messageId;
+    s64 messageIdDefault;
+    u16 skillId;
+    u8 *battleUnit;
+    u8 *messagePacket;
+    u8 *damagePacket;
+    u8 *unitPacket;
+    u8 *statusPacket;
+    u8 *statPacket;
+    u8 *removeFlagsPacket;
 
     s32 func_00106600(s16 id);
     u8 *btlCreateRemoveFlagsPacket(s32 arg0);
@@ -6743,95 +6743,95 @@ void func_001acbb0(u8 *arg0) {
     u32 datCalcGetHp(u8 *arg0);
     u32 func_00231f80(u8 *arg0);
 
-    temp_16 = *(u8 **)((u8 *)arg0 + 0x30);
-    *(s32 *)(temp_16 + 0x9C) &= ~0x10;
+    battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
+    *(s32 *)(battleUnit + 0x9C) &= ~0x10;
     if (func_00193cd0(0xFF03) == 0) {
-        temp_4 = *(s32 *)(D_0076449C + 0xC);
-        if (!(temp_4 & 0x80000)) {
-            *(s32 *)(D_0076449C + 0xC) = temp_4 | 0x80000;
-            var_17 = 1;
+        prevFlags = *(s32 *)(D_0076449C + 0xC);
+        if (!(prevFlags & 0x80000)) {
+            *(s32 *)(D_0076449C + 0xC) = prevFlags | 0x80000;
+            flagAdded = 1;
         } else {
-            var_17 = 0;
+            flagAdded = 0;
         }
-        temp_3 = *(u16 *)(arg0 + 0x3F4);
-        switch (temp_3) {
+        skillId = *(u16 *)(arg0 + 0x3F4);
+        switch (skillId) {
         case 0x210:
-            if (temp_16[0xA2] == 0) {
-                var_2 = 0x3E;
+            if (battleUnit[0xA2] == 0) {
+                messageIdVariant = 0x3E;
             } else {
-                var_2 = 0x3F;
+                messageIdVariant = 0x3F;
             }
-            var_2_2 = (s16)var_2;
+            messageId = (s16)messageIdVariant;
             break;
         case 0x154:
-            var_2_2 = 0x9B;
+            messageId = 0x9B;
             break;
         case 0x231:
-            var_2_2 = 0xB4;
+            messageId = 0xB4;
             break;
         case 0x232:
-            var_2_2 = 0xB6;
+            messageId = 0xB6;
             break;
         default:
-            if (temp_16[0xA2] == 0) {
-                var_2_3 = 0x3C;
+            if (battleUnit[0xA2] == 0) {
+                messageIdDefault = 0x3C;
             } else {
-                var_2_3 = 0x3D;
+                messageIdDefault = 0x3D;
             }
-            var_2_2 = (s16)var_2_3;
+            messageId = (s16)messageIdDefault;
             break;
         }
-        temp_19 = (s16)var_2_2;
-        temp_2_2 = actionMessagePacketBytes((s32)*(u8 **)(arg0 + 0x30),
-                                 temp_19);
-        *(s16 *)(temp_2_2 + 0x48) = 8;
-        *(s64 *)(temp_2_2 + 0x60) = *(s64 *)arg0;
-        func_00194590(temp_2_2, 3);
-        temp_21 = *(s64 *)(temp_2_2 + 0x58);
-        temp_2_2 = func_00194b60();
-        *(s16 *)(temp_2_2 + 0x48) = 8;
-        *(s64 *)(temp_2_2 + 0x60) = *(s64 *)arg0;
-        func_00194590(temp_2_2, 0);
-        temp_20 = *(s64 *)(temp_2_2 + 0x58);
+        value = (s16)messageId;
+        messagePacket = actionMessagePacketBytes((s32)*(u8 **)(arg0 + 0x30),
+                                 value);
+        *(s16 *)(messagePacket + 0x48) = 8;
+        *(s64 *)(messagePacket + 0x60) = *(s64 *)arg0;
+        func_00194590(messagePacket, 3);
+        firstPacketTag = *(s64 *)(messagePacket + 0x58);
+        messagePacket = func_00194b60();
+        *(s16 *)(messagePacket + 0x48) = 8;
+        *(s64 *)(messagePacket + 0x60) = *(s64 *)arg0;
+        func_00194590(messagePacket, 0);
+        secondPacketTag = *(s64 *)(messagePacket + 0x58);
         if (*(u16 *)(arg0 + 0x3F4) == 0x154) {
-            temp_2_4 = func_00106600(0x340) & 0xFF;
-            if (temp_2_4 > 0) {
-                func_00106620(0x340, (temp_2_4 - 1) & 0xFF);
+            remainingCount = func_00106600(0x340) & 0xFF;
+            if (remainingCount > 0) {
+                func_00106620(0x340, (remainingCount - 1) & 0xFF);
             }
         }
         if (*(u16 *)(arg0 + 0x3F4) == 0x210) {
-            func_001f0a10((u8 *)&sp80);
-            temp_19 = func_00231f80(*(u8 **)(temp_16 + 0xA64)) & 0xFFFF;
-            sp80[0] = temp_19 - (datCalcGetHp(*(u8 **)(temp_16 + 0xA64)) & 0xFFFF);
-            temp_2_5 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0,
-                                     &sp80, 1, 1);
-            *(s8 *)(temp_2_5 + 0) = 4;
-            *(s64 *)(temp_2_5 + 8) = temp_20;
-            *(s64 *)(temp_2_5 + 0x60) = *(s64 *)arg0;
-            func_00194590(temp_2_5, 1);
-            temp_2_6 = func_00202740(temp_16);
-            *(s8 *)(temp_2_6 + 0) = 4;
-            *(s64 *)(temp_2_6 + 8) = temp_20;
-            *(s64 *)(temp_2_6 + 0x60) = *(s64 *)arg0;
-            func_00194590(temp_2_6, 1);
-            temp_2_7 = func_00201de0((s32)temp_16, (s32)temp_16, -1, 0, 0,
-                                     0, 1, (u8 *)&sp80, 0);
-            *(s8 *)(temp_2_7 + 0) = 4;
-            *(s64 *)(temp_2_7 + 8) = temp_20;
-            *(s64 *)(temp_2_7 + 0x60) = *(s64 *)arg0;
-            func_00194590(temp_2_7, 3);
-            temp_2_8 = func_00202590((s32)temp_16, 0, 0);
-            *(s8 *)(temp_2_8 + 0) = 4;
-            *(s64 *)(temp_2_8 + 8) = temp_20;
-            *(s64 *)(temp_2_8 + 0x60) = *(s64 *)arg0;
-            func_00194590(temp_2_8, 3);
+            func_001f0a10((u8 *)&damageResult);
+            value = func_00231f80(*(u8 **)(battleUnit + 0xA64)) & 0xFFFF;
+            damageResult[0] = value - (datCalcGetHp(*(u8 **)(battleUnit + 0xA64)) & 0xFFFF);
+            damagePacket = (u8 *)func_001f36e0((s32)arg0, (s32)arg0,
+                                     &damageResult, 1, 1);
+            *(s8 *)(damagePacket + 0) = 4;
+            *(s64 *)(damagePacket + 8) = secondPacketTag;
+            *(s64 *)(damagePacket + 0x60) = *(s64 *)arg0;
+            func_00194590(damagePacket, 1);
+            unitPacket = func_00202740(battleUnit);
+            *(s8 *)(unitPacket + 0) = 4;
+            *(s64 *)(unitPacket + 8) = secondPacketTag;
+            *(s64 *)(unitPacket + 0x60) = *(s64 *)arg0;
+            func_00194590(unitPacket, 1);
+            statusPacket = func_00201de0((s32)battleUnit, (s32)battleUnit, -1, 0, 0,
+                                     0, 1, (u8 *)&damageResult, 0);
+            *(s8 *)(statusPacket + 0) = 4;
+            *(s64 *)(statusPacket + 8) = secondPacketTag;
+            *(s64 *)(statusPacket + 0x60) = *(s64 *)arg0;
+            func_00194590(statusPacket, 3);
+            statPacket = func_00202590((s32)battleUnit, 0, 0);
+            *(s8 *)(statPacket + 0) = 4;
+            *(s64 *)(statPacket + 8) = secondPacketTag;
+            *(s64 *)(statPacket + 0x60) = *(s64 *)arg0;
+            func_00194590(statPacket, 3);
         }
-        if (var_17 != 0) {
-            temp_2_9 = btlCreateRemoveFlagsPacket(0x80000);
-            *(s8 *)(temp_2_9 + 0) = 4;
-            *(s64 *)(temp_2_9 + 8) = temp_21;
-            *(s64 *)(temp_2_9 + 0x60) = *(s64 *)arg0;
-            func_00194590(temp_2_9, 0);
+        if (flagAdded != 0) {
+            removeFlagsPacket = btlCreateRemoveFlagsPacket(0x80000);
+            *(s8 *)(removeFlagsPacket + 0) = 4;
+            *(s64 *)(removeFlagsPacket + 8) = firstPacketTag;
+            *(s64 *)(removeFlagsPacket + 0x60) = *(s64 *)arg0;
+            func_00194590(removeFlagsPacket, 0);
         }
         btlActionSetState(arg0, *(u16 *)(arg0 + 0x430));
     }
