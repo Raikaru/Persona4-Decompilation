@@ -47,12 +47,12 @@ s32 func_00290880(u8 *arg0, s32 arg1) {
     return temp_2;
 }
 // FUN_00290940
-void func_00290b00(int *param_1);
+void func_00290b00(u32 *param_1);
 void func_00290a50(int *param_1);
 
-void func_00290940(int *param_1)
+void func_00290940(u32 *param_1)
 {
-  int *piVar1;
+  u32 *piVar1;
   u8 bVar1;
 
   piVar1 = param_1;
@@ -115,7 +115,7 @@ void func_00290a50(int *param_1)
 
 
 // FUN_00290B00
-void func_00290b00(int *param_1)
+void func_00290b00(u32 *param_1)
 {
   int iVar1;
   u8 bVar1;
@@ -211,8 +211,9 @@ void func_00290bc0(int *param_1)
 
 
 // FUN_00290DE0
-u8 func_00290de0(int *param_1)
+s32 func_00290de0(void *object)
 {
+  int *param_1 = object;
   if ((u8)(*param_1 != 0)) goto nonzero;
   return 1;
 

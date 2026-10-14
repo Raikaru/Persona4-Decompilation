@@ -593,7 +593,6 @@ loop_9_copy:
 // FUN_002962F0
 void func_002962f0(u8 *arg0, u8 *arg1)
 {
-  extern u32 func_002909a0(u32 *arg0);
   extern s32 func_00290e10(s32 *arg0);
   extern u8 *func_00286f00(s32 arg0, u8 *arg1);
   extern u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2);

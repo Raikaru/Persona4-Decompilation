@@ -24,10 +24,8 @@ extern void func_00286380(s32 task);
 extern s32 func_002863b0(s32);
 extern void func_0028aaf0(s32, s32 *);
 extern void func_0028c3f0(s32 *);
-extern s32 func_002909a0(s32 *);
 extern void func_00290bc0(s32 *);
 void func_002854e0(u8 *arg0);
-extern s32 func_00290de0(u8 *);
 extern s32 func_00120ee0(s32);
 extern s32 func_00122720(void);
 extern s32 func_0028f8e0(s32);
@@ -163,7 +161,7 @@ s32 func_002857c0(u8 *task)
         }
         *(s32 *)(temp_2_2 + 0x18) = *(s32 *)(temp_2_2 + 0x14);
         func_0028c3f0((s32 *)temp_2_2);
-        if ((*(s32 *)(temp_2_2 + 4) != 0) && (func_002909a0((s32 *)(temp_2_2 + 0x678)) != 0)) {
+        if ((*(s32 *)(temp_2_2 + 4) != 0) && (func_002909a0((u32 *)(temp_2_2 + 0x678)) != 0)) {
             func_00290bc0((s32 *)(temp_2_2 + 0x678));
         }
         func_002854e0(temp_2_2);
