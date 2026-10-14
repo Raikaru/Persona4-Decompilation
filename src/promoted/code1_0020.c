@@ -2407,7 +2407,7 @@ void func_00204dc0(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, s32 
  * Keep the signed row ID and narrow it at provider boundaries; the
  * cost-type provider returns u16 from its byte-sized table field. */
 typedef struct { u8 b0, b1, b2, b3; } BattleSkillIconColor;
-extern void func_00114dc0(Vec2f position, f32 scale,
+extern void ShdSkill_DrawIcon(Vec2f position, f32 scale,
                           BattleSkillIconColor color, u16 skill, s32 texture);
 extern u32 func_0023d9b0(u8 *unit, s32 skill);
 extern s32 func_0023ddc0(u8 *unit, s32 skill);
@@ -2459,7 +2459,7 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
     iconColor.b1 = tone;
     iconColor.b2 = tone;
     iconColor.b3 = opacity;
-    func_00114dc0(iconPosition, 50.0f, iconColor, (u16)skill,
+    ShdSkill_DrawIcon(iconPosition, 50.0f, iconColor, (u16)skill,
                   *(s32 *)(glyphs + 0x60));
     func_00272c60(0x40);
     alpha = opacity & 0xFF;
