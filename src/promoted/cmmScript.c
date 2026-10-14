@@ -1885,14 +1885,14 @@ s32 func_0024f790(u8 *work)
 {
     s32 i;
     u8 *task;
-    u8 *checkTask;
+    u8 *loadTask;
     u8 *fishingData;
     s32 flags;
     s32 model;
     s32 direction;
     s16 currentDirection;
     s16 frameCount;
-    s32 active;
+    s32 loaded;
     s32 directionPressed;
     u32 random;
     f32 randomFloat;
@@ -2029,12 +2029,12 @@ s32 func_0024f790(u8 *work)
         result.value[2] = cmmFishingBlend(delta, ratio, origin);
     }
     task = func_00452380((s8 *)D_00635A78);
-    checkTask = func_00452380((s8 *)D_00635A78);
-    if (checkTask == 0) {
+    loadTask = func_00452380((s8 *)D_00635A78);
+    if (loadTask == 0) {
         func_0046d730(D_006359F0, 0x392);
     }
-    active = (*(s32 *)func_00452560(checkTask) & 1) != 0;
-    if (active == 0) {
+    loaded = (*(s32 *)func_00452560(loadTask) & 1) != 0;
+    if (loaded == 0) {
         func_0046d730(D_006359F0, 0x3A6);
     }
     fishingData = (u8 *)func_00452560(task);
@@ -2071,7 +2071,7 @@ done:
 s32 func_0024ff60(u8 *task)
 {
     cmmScriptEntry* e;
-    s32 handle;
+    s32 loadTask;
     s32 st;
 
     e = (cmmScriptEntry*)(s32)func_00452560(task);
@@ -2081,11 +2081,11 @@ s32 func_0024ff60(u8 *task)
     case 1:
         e->unk4 = 2;
     case 2:
-        handle = (s32)func_00452380((s8 *)(D_00635A78));
-        if (handle == 0) {
+        loadTask = (s32)func_00452380((s8 *)(D_00635A78));
+        if (loadTask == 0) {
             func_0046d730(D_006359F0, 0x392);
         }
-        st = (((cmmScriptEntry*)(s32)func_00452560((void *)(u32)(handle)))->flags & 1) != 0;
+        st = (((cmmScriptEntry*)(s32)func_00452560((void *)(u32)(loadTask)))->flags & 1) != 0;
         if (st) {
             e->unk4 = 3;
         }
@@ -2135,8 +2135,6 @@ s32 func_00250120(void)
     s32 i;
     s32 handle;
     u8* p;
-    u8* q2;
-    u8* q3;
     u8* e;
 
     handle = (s32)func_00452380((s8 *)(D_00635BA8));
