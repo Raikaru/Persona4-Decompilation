@@ -434,6 +434,14 @@ void func_00458430(KClumpIntPropertyResult* result, void* object, const char* na
 
 
 
+// FUN_00461530
+s32 func_00461530(u8 *arg0, s32 *arg1)
+{
+    if (*(u8 *)(arg0 + 7) == 0xFF) {
+        *arg1 = 1;
+    }
+    return (s32)arg0;
+}
 // FUN_00462170
 void* func_00462170(void* item, void* data)
 {

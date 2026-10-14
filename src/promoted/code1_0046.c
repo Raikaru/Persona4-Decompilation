@@ -460,14 +460,6 @@ void func_004614b0(void) {
     RpSkyRenderStateSet(3, (void *)(0x717FB));
 }
 
-// FUN_00461530
-s32 func_00461530(u8 *arg0, s32 *arg1)
-{
-    if (*(u8 *)(arg0 + 7) == 0xFF) {
-        *arg1 = 1;
-    }
-    return (s32)arg0;
-}
 // FUN_00461560
 void func_00461560(u8 *arg0)
 {
