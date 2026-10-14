@@ -1,3 +1,4 @@
+#include "datCalc_internal.h"
 /* Source unit: src/Battle/btlAction_001a1100.c */
 #include "include_asm.h"
 #include "type.h"
@@ -70,8 +71,6 @@ void func_001a1190(BtlAction* action)
     extern BtlPacket* func_001d3700(u16 param_1, u16 param_2);
     extern BtlPacket* func_001f99c0(BtlAction* action, u16 param_2, s32 param_3,
                                      s32 param_4, s32 param_5);
-    extern u32 datCalcChkBadStatus(u32 unit, u32 badStatus);
-    extern u32 datCalcIsDead(u32 unit, s32 hpDelta);
     extern BtlPacket* btlUnitCreateMovePacket(void* unit, const RwV3d* targetPos,
                                                f32 speed, u32 flags);
     extern BtlPacket* func_0019beb0(void* unit);
@@ -81,7 +80,7 @@ void func_001a1190(BtlAction* action)
     extern BtlPacket* btlCameraCreateSetStatePacket(BtlAction* action, u16 state);
 
     BtlPacket* rootPacket;
-    u8* unit;
+    BtlUnit* unit;
 
     btlActionFinishPresentation(action);
 
@@ -97,11 +96,11 @@ void func_001a1190(BtlAction* action)
         func_00194590(packet, 1);
     }
 
-    unit = *(u8**)(D_0076449C + 0x178);
+    unit = *(BtlUnit**)(D_0076449C + 0x178);
     while (unit != NULL)
     {
-        if (datCalcChkBadStatus(*(u32*)(unit + 0xA64), 0x180017) == 0 &&
-            datCalcIsDead(*(u32*)(unit + 0xA64), 0) == 0)
+        if (datCalcChkBadStatus(unit->datUnit, 0x180017) == 0 &&
+            datCalcIsDead(unit->datUnit, 0) == 0)
         {
             BtlPacket* packet;
 
@@ -112,7 +111,7 @@ void func_001a1190(BtlAction* action)
             func_00194590(packet, 1);
         }
 
-        unit = *(u8**)(unit + 0xA6C);
+        unit = unit->nextUnit;
     }
 
     {
@@ -125,10 +124,10 @@ void func_001a1190(BtlAction* action)
         func_00194590(packet, 0);
     }
 
-    unit = *(u8**)(D_0076449C + 0x180);
+    unit = *(BtlUnit**)(D_0076449C + 0x180);
     while (unit != NULL)
     {
-        if (datCalcIsDead(*(u32*)(unit + 0xA64), 0) != 0)
+        if (datCalcIsDead(unit->datUnit, 0) != 0)
         {
             BtlPacket* packet;
 
@@ -150,7 +149,7 @@ void func_001a1190(BtlAction* action)
             func_00194590(packet, 0);
         }
 
-        unit = *(u8**)(unit + 0xA6C);
+        unit = unit->nextUnit;
     }
 
     {
