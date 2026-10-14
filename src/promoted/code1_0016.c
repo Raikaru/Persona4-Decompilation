@@ -1983,6 +1983,9 @@ query_complete:
  * the sqrt with the call-crossing amount ($f21). A read+write two-step, a separate amount local,
  * a named branch zero and a duplicated sqrt (85) all fail. The P3FES twin FUN_001d5220 is itself
  * NONMATCHING; matched func_001ec350 returns the length, so it has no local web (build/bdd0_*.c).
+ * measured 2026-10-13: fnalign 39 -> 16, frame 0x360. O3 early coalescing with CSE/decomposition off,
+ * explicit phase snapshots and shared affine zeros close every camera-math block; the remaining
+ * differences are final debug-vector argument bindings and three pointer reloads, not an FPR floor.
  */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2061,10 +2064,27 @@ extern void FUN_0047a870(unsigned char *);
 extern float D_00756500[];
 extern float D_00756510[];
 extern float D_00756520[];
+/* measured: scope the 39 -> 16 camera reconstruction to this function. */
 #pragma push
-/* measured: propagation/pullout off preserve interpolation phases without hoisting 55.0f; combined fnalign 157 -> 105. */
+/* measured: O3 early copy coalescing retains the declared float webs. */
+#pragma optimization_level 3
+/* measured: the O3 profile preserves retail's unscheduled delay slots. */
+#pragma schedule off
+/* measured: keep loop-invariant motion off in the 39 -> 16 profile. */
+#pragma opt_loop_invariants off
+/* measured: keep loop rotation off in the 39 -> 16 profile. */
+#pragma opt_rotateloops off
+/* measured: retain framed calls in the 39 -> 16 O3 profile. */
+#pragma tailcall off
+/* measured: CSE off prevents the sqrt and zero copies from folding into late temps. */
+#pragma opt_common_subs off
+/* measured: decomposition off recovers the retail stack-vector ld/sd copies. */
+#pragma opt_decomposeaggregates off
+/* measured: retain the existing per-role lifetime splitting (39 -> 16). */
 #pragma opt_lifetimes on
+/* measured: propagation off preserves the real phase-value bindings. */
 #pragma opt_propagation off
+/* measured: pullout off keeps the 55.0f and phase constants at their retail uses. */
 #pragma opt_pulloutconstants off
 s32 func_0016bdd0(u8 *param_1)
 
@@ -2149,7 +2169,12 @@ s32 func_0016bdd0(u8 *param_1)
   float temp_v14_s6;
   float temp_v11_s6;
   float temp_v11_s7;
+  float cameraPositionZ;
   float temp_v11_s8;
+  float targetX7, targetY7, targetZ7, deltaX7, deltaZ7;
+  float horizontalLength7, horizontalZero7, horizontalRadius7;
+  float verticalHeight7, verticalRadius7, verticalAmount7, correctionZero7;
+  float *correctionVector7;
   float temp_v11_s20;
   float temp_v12;
   float temp_v12_s1;
@@ -2171,12 +2196,23 @@ s32 func_0016bdd0(u8 *param_1)
   float temp_v14_s11;
   unsigned char *pbVar9_a;
   float *pfVar8_a;
+  float targetX0, targetY0, targetZ0;
+  float deltaX0, deltaZ0;
+  float horizontalLength0, horizontalZero0, horizontalRadius0;
+  float verticalHeight0, verticalRadius0, verticalAmount0, correctionZero0;
+  float *correctionVector0;
   float temp_v11_a;
   float temp_v12_a;
   int temp_v4_a;
   s32 moved_a;
   unsigned char *pbVar9_b;
+  float pathDirectionDot;
   float temp_v11_b;
+  float targetX34, targetY34, targetZ34;
+  float basisY34, basisZ34, projectionZero34;
+  float originX34, originZ34, originY34;
+  float projectionScale34, closestX34, closestY34, closestZ34;
+  float pathRadius34;
   float temp_v12_b;
   float temp_v14_b;
   int count_b;
@@ -2188,6 +2224,10 @@ s32 func_0016bdd0(u8 *param_1)
   float *pfVar8_c;
   float temp_v11_c;
   float temp_v12_c;
+  float targetX6, targetY6, targetZ6, deltaX6, deltaZ6;
+  float horizontalLength6, horizontalZero6, horizontalRadius6;
+  float verticalHeight6, verticalRadius6, correctionZero6;
+  float *correctionVector6;
   float temp_v14_c;
   int temp_v4_c;
   int followFrame;
@@ -2198,6 +2238,7 @@ s32 func_0016bdd0(u8 *param_1)
   unsigned char *pbVar9_d;
   float *pfVar8_d;
   float temp_v11_d;
+  float chaseTargetY, chaseTargetZ;
   float temp_v14_d;
   int temp_v4_d;
   unsigned int temp_v5_d;
@@ -2209,8 +2250,12 @@ s32 func_0016bdd0(u8 *param_1)
   signed char hi;
   float resumeDistance;
   int pathLengthOffset;
+  s32 pathMode34;
   int loPositionOffset;
   int hiPositionOffset;
+  s32 refreshCount;
+  s32 attachmentMode;
+  u8 *detachedFrame;
   int *piVar1;
   piVar1 = *(int **)((int)param_1 + 0x38);
   if (piVar1[0xa2] == 0) {
@@ -2221,8 +2266,9 @@ s32 func_0016bdd0(u8 *param_1)
   }
   {
 
-    if (piVar1[0xb] < 0x80) {
-      piVar1[0xb] = piVar1[0xb] + 1;
+    refreshCount = piVar1[0xb];
+    if (refreshCount < 0x80) {
+      piVar1[0xb] = refreshCount + 1;
     }
     else {
       piVar1[0xb] = 0;
@@ -2243,7 +2289,8 @@ s32 func_0016bdd0(u8 *param_1)
         pfVar8_a = (float *)FUN_0016e8c0(param_1);
         cpv0 = *(FldCopyVec *)(pfVar8_a);
         moved_a = 0;
-        if ((piVar1[2] == 0) || (piVar1[2] == 5)) {
+        attachmentMode = piVar1[2];
+        if ((attachmentMode == 0) || (attachmentMode == 5)) {
           temp_v4_a = FUN_00457120();
           if (*(int *)(*(int *)(temp_v4_a + 4) + 4) == piVar1[4]) {
             temp_v4_a = FUN_00457120();
@@ -2259,24 +2306,33 @@ s32 func_0016bdd0(u8 *param_1)
             temp_v4_a = FUN_00457120();
             FUN_003e99a0(*(unsigned int *)(temp_v4_a + 4));
           }
-          if (*(int *)(piVar1[3] + 4) != 0) {
-            func_003e99a0((void *)piVar1[3]);
+          detachedFrame = (u8 *)piVar1[3];
+          if (*(int *)(detachedFrame + 4) != 0) {
+            func_003e99a0(detachedFrame);
           }
           temp_v4_a = FUN_00457120();
           FUN_003e9830(piVar1[4],*(unsigned int *)(temp_v4_a + 4));
         }
-        sv20.x = sv20.x + *(float *)((u8 *)(u32)piVar1 + 0x14);
-        sv20.y = sv20.y + *(float *)((u8 *)(u32)piVar1 + 0x18);
-        sv20.z = sv20.z + *(float *)((u8 *)(u32)piVar1 + 0x1c);
-        stk40[0] = sv20.x - cpv0.x;
-        temp_v12_a = sv20.y - cpv0.y;
+        targetX0 = (sv20.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
+        targetY0 = (sv20.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
+        targetZ0 = (sv20.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
+        deltaX0 = targetX0 - cpv0.x;
+        stk40[0] = deltaX0;
+        temp_v12_a = targetY0 - cpv0.y;
         stk40[1] = temp_v12_a;
-        stk40[2] = sv20.z - cpv0.z;
-        temp_v11_a = sqrtf(stk40[0] * stk40[0] + stk40[2] * stk40[2]);
-        if (!(temp_v11_a <= *(float *)((u8 *)(u32)piVar1 + 0x20))) {
-          temp_v11_a = temp_v11_a - *(float *)((u8 *)(u32)piVar1 + 0x20);
-          stk40[1] = 0.0f;
-          FUN_003e40b0(&stk40[0],&stk40[0]);
+        deltaZ0 = targetZ0 - cpv0.z;
+        stk40[2] = deltaZ0;
+        {
+          const float squaredZ0 = deltaZ0 * deltaZ0;
+          horizontalZero0 = 0.0f;
+          horizontalLength0 = sqrtf(deltaX0 * deltaX0 + squaredZ0);
+        }
+        horizontalRadius0 = *(float *)((u8 *)(u32)piVar1 + 0x20);
+        if (!(horizontalLength0 <= horizontalRadius0)) {
+          temp_v11_a = horizontalLength0 - horizontalRadius0;
+          stk40[1] = horizontalZero0;
+          correctionVector0 = &stk40[0];
+          FUN_003e40b0(correctionVector0,correctionVector0);
           stk40[0] = stk40[0] * temp_v11_a;
           stk40[1] = stk40[1] * temp_v11_a;
           stk40[2] = stk40[2] * temp_v11_a;
@@ -2287,15 +2343,18 @@ s32 func_0016bdd0(u8 *param_1)
         if (temp_v12_a < 0.0f) {
           temp_v12_a = temp_v12_a * -1.0f;
         }
-        if (!(temp_v12_a <= *(float *)((u8 *)(u32)piVar1 + 0x24) / 2.0f)) {
-          temp_v11_a = temp_v12_a - *(float *)((u8 *)(u32)piVar1 + 0x24) / 2.0f;
+        verticalHeight0 = *(float *)((u8 *)(u32)piVar1 + 0x24);
+        verticalRadius0 = verticalHeight0 / 2.0f;
+        if (!(temp_v12_a <= verticalRadius0)) {
+          verticalAmount0 = temp_v12_a - verticalRadius0;
+          correctionZero0 = 0.0f;
           stk40[0] = 0.0f;
           stk40[2] = 0.0f;
-          if (stk40[1] < 0.0f) {
-            stk40[1] = -temp_v11_a;
+          if (stk40[1] < correctionZero0) {
+            stk40[1] = -verticalAmount0;
           }
           else {
-            stk40[1] = temp_v11_a;
+            stk40[1] = verticalAmount0;
           }
           FUN_003e9c10(piVar1[3],&stk40[0],2);
           moved_a = 1;
@@ -2319,24 +2378,54 @@ s32 func_0016bdd0(u8 *param_1)
           if (*(char *)((int)piVar1 + k_b + 0xe8) != '\0') break;
         }
         if (k_b >= count_b) goto LAB_0016e0c0;
-        sv60.x = sv60.x + *(float *)((u8 *)(u32)piVar1 + 0x14);
-        sv60.y = sv60.y + *(float *)((u8 *)(u32)piVar1 + 0x18);
-        sv60.z = sv60.z + *(float *)((u8 *)(u32)piVar1 + 0x1c);
-        stk90[0] = sv60.x - *(float *)&piVar1[0x31];
-        stk90[1] = sv60.y - ((float *)piVar1)[0x32];
-        stk90[2] = sv60.z - ((float *)piVar1)[0x33];
+        /* Retail caches Y/Z across the path calls, but reloads X below. */
+        targetX34 = (sv60.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
+        targetY34 = (sv60.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
+        targetZ34 = (sv60.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
+        stk90[0] = targetX34 - *(float *)&piVar1[0x31];
+        stk90[1] = targetY34 - ((float *)piVar1)[0x32];
+        stk90[2] = targetZ34 - ((float *)piVar1)[0x33];
         FUN_003e40b0(&stkA0[0],&stk90[0]);
         sv80 = *(FldCopyVec *)((u8 *)(u32)piVar1 + 0xd0);
-        temp_v10 = sv80.x * stkA0[0] + sv80.y * stkA0[1] + sv80.z * stkA0[2];
-        temp_v12_s1 = (*(float *)((u8 *)(u32)piVar1 + 0xc4) * sv80.x - sv60.x * sv80.x + *(float *)((u8 *)(u32)piVar1 + 0xc8) * sv80.y - sv60.y * sv80.y +
-                       *(float *)((u8 *)(u32)piVar1 + 0xcc) * sv80.z - sv60.z * sv80.z) /
-                      -(sv80.x * sv80.x + sv80.y * sv80.y + sv80.z * sv80.z);
-        stk10[0] = 0.0f + *(float *)((u8 *)(u32)piVar1 + 0xc4) + sv80.x * temp_v12_s1;
-        stk10[1] = 0.0f + *(float *)((u8 *)(u32)piVar1 + 0xc8) + sv80.y * temp_v12_s1;
-        stk10[2] = 0.0f + *(float *)((u8 *)(u32)piVar1 + 0xcc) + sv80.z * temp_v12_s1;
-        stk70[0] = *(float *)((u8 *)(u32)piVar1 + 0xc4) - stk10[0];
-        stk70[1] = *(float *)((u8 *)(u32)piVar1 + 0xc8) - stk10[1];
-        stk70[2] = *(float *)((u8 *)(u32)piVar1 + 0xcc) - stk10[2];
+        basisY34 = sv80.y;
+        basisZ34 = sv80.z;
+        {
+          const float directionZ = stkA0[2];
+          float basisX34;
+          float directionX, directionY;
+          basisX34 = sv80.x;
+          directionX = stkA0[0];
+          directionY = stkA0[1];
+          {
+            const float yProduct = basisY34 * directionY;
+            projectionZero34 = 0.0f;
+            pathDirectionDot = basisX34 * directionX + yProduct + basisZ34 * directionZ;
+          }
+          originX34 = *(float *)((u8 *)(u32)piVar1 + 0xc4);
+          originZ34 = *(float *)((u8 *)(u32)piVar1 + 0xcc);
+          originY34 = *(float *)((u8 *)(u32)piVar1 + 0xc8);
+          projectionScale34 = (originX34 * basisX34 - sv60.x * basisX34 + originY34 * basisY34 - targetY34 * basisY34 +
+                               originZ34 * basisZ34 - targetZ34 * basisZ34) /
+                              -(basisX34 * basisX34 + basisY34 * basisY34 + basisZ34 * basisZ34);
+          {
+            const float affineOrigin = projectionZero34 + originX34;
+            const float scaledDirection = basisX34 * projectionScale34;
+            closestX34 = (stk10[0] = affineOrigin + scaledDirection);
+          }
+          {
+            const float affineOrigin = projectionZero34 + originY34;
+            const float scaledDirection = basisY34 * projectionScale34;
+            closestY34 = (stk10[1] = affineOrigin + scaledDirection);
+          }
+          {
+            const float affineOrigin = projectionZero34 + originZ34;
+            const float scaledDirection = basisZ34 * projectionScale34;
+            closestZ34 = (stk10[2] = affineOrigin + scaledDirection);
+          }
+          stk70[0] = originX34 - closestX34;
+          stk70[1] = originY34 - closestY34;
+          stk70[2] = originZ34 - closestZ34;
+        }
         temp_v14_b = FUN_003e4180(&stk70[0]);
         {
           float acc = temp_v11_b;
@@ -2352,28 +2441,43 @@ s32 func_0016bdd0(u8 *param_1)
             FUN_0046d730(DAT_005f1698,0x15b);
           }
         }
-        if (*(float *)((u8 *)(u32)piVar1 + 0x20) < temp_v14_b) {
+        pathRadius34 = *(float *)((u8 *)(u32)piVar1 + 0x20);
+        if (pathRadius34 < temp_v14_b) {
+          float lengthRatio;
           pathLengthOffset = temp_v4_b * 4;
-          temp_v12_s2 = (temp_v14_b - *(float *)((u8 *)(u32)piVar1 + 0x20)) / *(float *)(pathLengthOffset + (u32)piVar1 + 0x38);
-          temp_v12_s2 *= temp_v11_b;
-          if (!(temp_v10 <= 0.0f)) {
+          lengthRatio = (temp_v14_b - pathRadius34) / *(float *)(pathLengthOffset + (u32)piVar1 + 0x38);
+          temp_v12_s2 = lengthRatio * temp_v11_b;
+          if (!(pathDirectionDot <= 0.0f)) {
             ((float *)piVar1)[0x2e] = ((float *)piVar1)[0x2e] + temp_v12_s2;
           }
-          else if (temp_v10 < -0.0f) {
+          else if (pathDirectionDot < -0.0f) {
             ((float *)piVar1)[0x2e] = ((float *)piVar1)[0x2e] - temp_v12_s2;
           }
-          if (!(*(float *)((u8 *)(u32)piVar1 + 0xb8) < ((float *)piVar1)[0x2f])) {
-            ((float *)piVar1)[0x2e] = ((float *)piVar1)[0x2f];
-          }
-          else if (*(float *)((u8 *)(u32)piVar1 + 0xb8) <= ((float *)piVar1)[0x30]) {
-            ((float *)piVar1)[0x2e] = ((float *)piVar1)[0x30];
+          {
+            float pathTime;
+            float maximumTime = ((float *)piVar1)[0x2f];
+            pathTime = *(float *)((u8 *)(u32)piVar1 + 0xb8);
+            if (!(pathTime < maximumTime)) {
+              ((float *)piVar1)[0x2e] = maximumTime;
+            }
+            else {
+              const float minimumTime = ((float *)piVar1)[0x30];
+              if (pathTime <= minimumTime) {
+                ((float *)piVar1)[0x2e] = minimumTime;
+              }
+            }
           }
           FUN_003bb5b0(*(u8 **)(*(int *)(CAND_iGpffff9db0 + 0x28) + 0xa20),10,((float *)piVar1)[0x2e],
                        piVar1 + 0x31,piVar1 + 0x34);
-          FUN_003e40b0(piVar1 + 0x34,piVar1 + 0x34);
+          {
+            float *pathDirection = ((float *)piVar1) + 0x34;
+            FUN_003e40b0(pathDirection,pathDirection);
+          }
         }
-        if (piVar1[2] == 3) {
+        pathMode34 = piVar1[2];
+        if (pathMode34 == 3) {
           int last;
+          int keyCount, penultimateKey, nextKey;
 
           node3_b = *(int *)(FUN_00457120() + 4);
           temp_v7 = temp_v4_b;
@@ -2387,13 +2491,17 @@ s32 func_0016bdd0(u8 *param_1)
           if (temp_v7 < 1) {
             FUN_0046d730(DAT_005f1698,0x187);
           }
-          if (piVar1[0xd] - 2 < temp_v4_b + 1) {
-            temp_v7 = piVar1[0xd] - 2;
+          keyCount = piVar1[0xd];
+          penultimateKey = keyCount - 2;
+          nextKey = temp_v4_b + 1;
+          if (penultimateKey < nextKey) {
+            temp_v7 = penultimateKey;
           }
           else {
-            temp_v7 = temp_v4_b + 1;
+            temp_v7 = nextKey;
           }
-          last = piVar1[0xd] - 1;
+          last = keyCount;
+          last--;
           for (; temp_v7 < last; temp_v7++) {
             if (*(char *)((int)piVar1 + temp_v7 + 0xe8) != '\0') {
               hi = temp_v7;
@@ -2404,24 +2512,55 @@ s32 func_0016bdd0(u8 *param_1)
             FUN_0046d730(DAT_005f1698,0x193);
           }
           {
-            float span = temp_v11_b * (float)(hi - lo);
-            float loX;
-            float dx, dy, dz;
-            loPositionOffset = lo * 12;
-            loX = ((float *)(loPositionOffset + (u32)piVar1))[0x42];
-            hiPositionOffset = hi * 12;
-            dx = ((float *)(hiPositionOffset + (u32)piVar1))[0x42] - loX;
-            dy = ((float *)(hiPositionOffset + (u32)piVar1))[0x43] - ((float *)(loPositionOffset + (u32)piVar1))[0x43];
-            dz = ((float *)(hiPositionOffset + (u32)piVar1))[0x44] - ((float *)(loPositionOffset + (u32)piVar1))[0x44];
-
-            temp_v11_b = (0.0f + ((float *)piVar1)[0x2e] - temp_v11_b * (float)lo) / span;
-            temp_v13 = 0.0f + loX + dx * temp_v11_b;
-            temp_v10 = 0.0f + ((float *)(loPositionOffset + (u32)piVar1))[0x43] + dy * temp_v11_b;
-            temp_v12_b = 0.0f + ((float *)(loPositionOffset + (u32)piVar1))[0x44] + dz * temp_v11_b;
+            s32 lowIndex, highIndex;
+            float span, loX, dx, loY, dy, loZ, dz, lowCoordinate;
+            float interpolationZero, interpolationFraction;
+            float *loData, *hiData;
+            lowIndex = (s32)lo;
+            highIndex = (s32)hi;
+            span = temp_v11_b * (float)(highIndex - lowIndex);
+            loPositionOffset = lowIndex * 12;
+            loData = (float *)(loPositionOffset + (u32)piVar1);
+            loX = loData[0x42];
+            hiPositionOffset = highIndex * 12;
+            hiData = (float *)(hiPositionOffset + (u32)piVar1);
+            dx = hiData[0x42] - loX;
+            loY = loData[0x43];
+            dy = hiData[0x43] - loY;
+            loZ = loData[0x44];
+            dz = hiData[0x44] - loZ;
+            lowCoordinate = (float)lo;
+            {
+              const float pathTime = ((float *)piVar1)[0x2e];
+              interpolationZero = 0.0f;
+              {
+                const float seededTime = interpolationZero + pathTime;
+                const float lowTime = temp_v11_b * lowCoordinate;
+                interpolationFraction = (seededTime - lowTime) / span;
+              }
+            }
+            {
+              const float affineOrigin = interpolationZero + loX;
+              const float scaledDelta = dx * interpolationFraction;
+              temp_v13 = affineOrigin + scaledDelta;
+            }
+            {
+              const float affineOrigin = interpolationZero + loY;
+              const float scaledDelta = dy * interpolationFraction;
+              temp_v10 = affineOrigin + scaledDelta;
+            }
+            {
+              const float affineOrigin = interpolationZero + loZ;
+              const float scaledDelta = dz * interpolationFraction;
+              temp_v12_b = affineOrigin + scaledDelta;
+            }
           }
-          *(unsigned int *)(piVar1[0xb0] + 0x28) = 0x3f800000;
-          *(unsigned int *)(piVar1[0xb0] + 0x14) = 0x3f800000;
-          *(unsigned int *)piVar1[0xb0] = 0x3f800000;
+          {
+            u32 identityOne = 0x3f800000;
+            *(unsigned int *)(piVar1[0xb0] + 0x28) = identityOne;
+            *(unsigned int *)(piVar1[0xb0] + 0x14) = identityOne;
+            *(unsigned int *)piVar1[0xb0] = identityOne;
+          }
           *(unsigned int *)(piVar1[0xb0] + 0x10) = 0;
           *(unsigned int *)(piVar1[0xb0] + 8) = 0;
           *(unsigned int *)(piVar1[0xb0] + 4) = 0;
@@ -2441,13 +2580,16 @@ s32 func_0016bdd0(u8 *param_1)
           RwMatrixOptimize((RwMatrix *)(node3_b + 0x10),&tolerance3);
           FUN_003e9680(node3_b);
         }
-        else if (piVar1[2] == 4) {
+        else if (pathMode34 == 4) {
 
           node4_b = *(int *)(FUN_00457120() + 4);
           *(FldTriVec *)&stkC0[0] = *(FldTriVec *)(node4_b + 0x40);
-          stkD0[0] = sv60.x - *(float *)(piVar1[3] + 0x40);
-          stkD0[1] = sv60.y - *(float *)(piVar1[3] + 0x44);
-          stkD0[2] = sv60.z - *(float *)(piVar1[3] + 0x48);
+          {
+            u8 *frame = (u8 *)piVar1[3];
+            stkD0[0] = sv60.x - *(float *)(frame + 0x40);
+            stkD0[1] = targetY34 - *(float *)(frame + 0x44);
+            stkD0[2] = targetZ34 - *(float *)(frame + 0x48);
+          }
           pbVar9_b = (unsigned char *)FUN_00457120();
           FUN_00457630(pbVar9_b,(unsigned char *)((int *)&stkC0[0]),(unsigned char *)&stkD0[0],(float *)0x0);
           *(FldCopyVec *)(node4_b + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
@@ -2470,18 +2612,26 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v4_c = FUN_00457120();
           FUN_003e9830(piVar1[3],*(unsigned int *)(temp_v4_c + 4));
         }
-        stkF0.x = stkF0.x + ((float *)piVar1)[0x5];
-        stkF0.y = stkF0.y + ((float *)piVar1)[0x6];
-        stkF0.z = stkF0.z + ((float *)piVar1)[0x7];
-        stk110[0] = stkF0.x - sv100.x;
+        targetX6 = (stkF0.x += ((float *)piVar1)[0x5]);
+        targetY6 = (stkF0.y += ((float *)piVar1)[0x6]);
+        targetZ6 = (stkF0.z += ((float *)piVar1)[0x7]);
+        deltaX6 = targetX6 - sv100.x;
+        stk110[0] = deltaX6;
         temp_v12_s4 = sv100.y;
-        stk110[1] = stkF0.y - temp_v12_s4;
-        stk110[2] = stkF0.z - sv100.z;
-        temp_v14_s2 = sqrtf(stk110[0] * stk110[0] + stk110[2] * stk110[2]);
-        if (!(temp_v14_s2 <= *(float *)((u8 *)(u32)piVar1 + 0x20))) {
-          temp_v14_s2 = temp_v14_s2 - *(float *)((u8 *)(u32)piVar1 + 0x20);
-          stk110[1] = 0.0f;
-          FUN_003e40b0(&stk110[0],&stk110[0]);
+        stk110[1] = targetY6 - temp_v12_s4;
+        deltaZ6 = targetZ6 - sv100.z;
+        stk110[2] = deltaZ6;
+        {
+          const float squaredZ6 = deltaZ6 * deltaZ6;
+          horizontalZero6 = 0.0f;
+          horizontalLength6 = sqrtf(deltaX6 * deltaX6 + squaredZ6);
+        }
+        horizontalRadius6 = *(float *)((u8 *)(u32)piVar1 + 0x20);
+        if (!(horizontalLength6 <= horizontalRadius6)) {
+          temp_v14_s2 = horizontalLength6 - horizontalRadius6;
+          stk110[1] = horizontalZero6;
+          correctionVector6 = &stk110[0];
+          FUN_003e40b0(correctionVector6,correctionVector6);
           stk110[0] = stk110[0] * temp_v14_s2;
           stk110[1] = stk110[1] * temp_v14_s2;
           stk110[2] = stk110[2] * temp_v14_s2;
@@ -2492,11 +2642,14 @@ s32 func_0016bdd0(u8 *param_1)
         if (temp_v12_c < 0.0f) {
           temp_v12_c = temp_v12_c * -1.0f;
         }
-        if (!(temp_v12_c <= *(float *)((u8 *)(u32)piVar1 + 0x24) / 2.0f)) {
-          temp_v12_c = temp_v12_c - *(float *)((u8 *)(u32)piVar1 + 0x24) / 2.0f;
+        verticalHeight6 = *(float *)((u8 *)(u32)piVar1 + 0x24);
+        verticalRadius6 = verticalHeight6 / 2.0f;
+        if (!(temp_v12_c <= verticalRadius6)) {
+          temp_v12_c = temp_v12_c - verticalRadius6;
+          correctionZero6 = 0.0f;
           stk110[0] = 0.0f;
           stk110[2] = 0.0f;
-          if (stk110[1] < 0.0f) {
+          if (stk110[1] < correctionZero6) {
             stk110[1] = -temp_v12_c;
           }
           else {
@@ -2509,16 +2662,21 @@ s32 func_0016bdd0(u8 *param_1)
         moved_c = 0;
         temp_v12_s7 = *(float *)&piVar1[0xa3];
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
-        temp_v8_c = piVar1[0xb0];
-        *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8_c + 0x20);
-        FUN_003e40b0(&stk120[0],&stk120[0]);
-        stk120[0] = -stk120[0];
-        stk120[1] = -stk120[1];
-        stk120[2] = -stk120[2];
-        temp_v14_s3 = 55.0f + ((FldCameraDistanceView *)piVar1)->desiredDistance;
-        stk120[0] = stk120[0] * temp_v14_s3;
-        stk120[1] = stk120[1] * temp_v14_s3;
-        stk120[2] = stk120[2] * temp_v14_s3;
+        {
+          float negativeX, negativeY, negativeZ, followDistance;
+          float *pushVector;
+          temp_v8_c = piVar1[0xb0];
+          pushVector = &stk120[0];
+          *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8_c + 0x20);
+          FUN_003e40b0(pushVector,pushVector);
+          negativeX = (stk120[0] = -stk120[0]);
+          negativeY = (stk120[1] = -stk120[1]);
+          negativeZ = (stk120[2] = -stk120[2]);
+          followDistance = 55.0f + ((FldCameraDistanceView *)piVar1)->desiredDistance;
+          stk120[0] = negativeX * followDistance;
+          stk120[1] = negativeY * followDistance;
+          stk120[2] = negativeZ * followDistance;
+        }
         FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
         FUN_003e0e20(piVar1[0xb0],temp_v5_c,2);
         segment[0] = stkF0;
@@ -2532,15 +2690,20 @@ s32 func_0016bdd0(u8 *param_1)
           stk130[2] = stk130[2] - segment[0].z;
           temp_v14_s4 = FUN_003e4180(&stk130[0]);
           if (!(temp_v14_s4 <= 0.0f)) {
-            temp_v8_c = piVar1[0xb0];
-            *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8_c + 0x20);
-            FUN_003e40b0(&stk120[0],&stk120[0]);
-            stk120[0] = -stk120[0];
-            stk120[1] = -stk120[1];
-            stk120[2] = -stk120[2];
-            stk120[0] = stk120[0] * temp_v14_s4;
-            stk120[1] = stk120[1] * temp_v14_s4;
-            stk120[2] = stk120[2] * temp_v14_s4;
+            {
+              float negativeX, negativeY, negativeZ;
+              float *pushVector;
+              temp_v8_c = piVar1[0xb0];
+              pushVector = &stk120[0];
+              *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8_c + 0x20);
+              FUN_003e40b0(pushVector,pushVector);
+              negativeX = (stk120[0] = -stk120[0]);
+              negativeY = (stk120[1] = -stk120[1]);
+              negativeZ = (stk120[2] = -stk120[2]);
+              stk120[0] = negativeX * temp_v14_s4;
+              stk120[1] = negativeY * temp_v14_s4;
+              stk120[2] = negativeZ * temp_v14_s4;
+            }
             FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
             temp_v8_c = piVar1[0xb0];
             *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
@@ -2551,63 +2714,118 @@ s32 func_0016bdd0(u8 *param_1)
         if ((((D_008C024C[0] & 0xf) != 0) || (temp_v11_s4 < -48.0f)) || (!(temp_v11_s4 <= 48.0f))) {
           piVar1[0xab] = 0;
         }
-        temp_v14_s5 = *(float *)&piVar1[0xab];
-        if (!(0.0f == temp_v14_s5)) {
-          temp_v9 = 3.0f;
-          if (temp_v14_s5 < 0.0f) {
-            temp_v9 = temp_v9 * -1.0f;
-          }
-          if (temp_v9 < 0.0f) {
-            if (!(temp_v14_s5 - temp_v9 <= 0.0f)) {
-              temp_v9 = temp_v9 + (temp_v14_s5 - temp_v9);
+        {
+          float yawEntryZero;
+          temp_v14_s5 = *(float *)&piVar1[0xab];
+          yawEntryZero = 0.0f;
+          if (!(yawEntryZero == temp_v14_s5)) {
+            float clampZero;
+            temp_v9 = 3.0f;
+            if (temp_v14_s5 < yawEntryZero) {
+              temp_v9 = temp_v9 * -1.0f;
+            }
+            clampZero = 0.0f;
+            if (temp_v9 < clampZero) {
+              const float remaining = temp_v14_s5 - temp_v9;
+              if (!(remaining <= clampZero)) {
+                temp_v9 = temp_v9 + remaining;
+              }
+            }
+            else {
+              const float remaining = temp_v14_s5 - temp_v9;
+              if (remaining < clampZero) {
+                temp_v9 = temp_v9 + remaining;
+              }
+            }
+            temp_v8_c = FUN_00155280();
+            FUN_0016e8e0(*(unsigned char **)(temp_v8_c + 4),temp_v9);
+            *(float *)((u8 *)(u32)piVar1 + 0x2ac) = (*(float *)((u8 *)(u32)piVar1 + 0x2ac) - temp_v9);
+            {
+              float completionZero = 0.0f;
+              if (completionZero == temp_v9) {
+                ((float *)piVar1)[0xab] = completionZero;
+              }
             }
           }
-          else if (temp_v14_s5 - temp_v9 < 0.0f) {
-            temp_v9 = temp_v9 + (temp_v14_s5 - temp_v9);
-          }
-          temp_v8_c = FUN_00155280();
-          FUN_0016e8e0(*(unsigned char **)(temp_v8_c + 4),temp_v9);
-          *(float *)((u8 *)(u32)piVar1 + 0x2ac) = (*(float *)((u8 *)(u32)piVar1 + 0x2ac) - temp_v9);
-          if (0.0f == temp_v9) {
-            ((float *)piVar1)[0xab] = 0.0f;
-          }
         }
-        if (((((((float *)piVar1)[0xac] != 0.0f) || (*(float *)((u8 *)(u32)piVar1 + 0x2b4) != 0.0f)) ||
-             (*(float *)((u8 *)(u32)piVar1 + 0x2b8) != 0.0f)) &&
-            ((*(float *)((u8 *)(u32)piVar1 + 0x294) < *(float *)((u8 *)(u32)piVar1 + 0x28c) && ((D_008C024C[0] & 0xf) == 0)))) &&
-           ((!(temp_v11_s4 < -48.0f) && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = FUN_00175db0(), temp_v11_s4 > 0.0f)))))) {
-          temp_v8_c = FUN_003e9700(followFrame);
-          *(FldCopyVec *)stk1A0 = *(FldCopyVec *)(temp_v8_c + 0x20);
-          stk1A0[1] = 0.0f;
-          FUN_003e40b0(&stk1A0[0],&stk1A0[0]);
-          stk190[0] = stk1A0[1] * D_00756518[0] - stk1A0[2] * D_00756514[0];
-          stk190[1] = stk1A0[2] * D_00756510[0] - stk1A0[0] * D_00756518[0];
-          stk190[2] = stk1A0[0] * D_00756514[0] - stk1A0[1] * D_00756510[0];
-          temp_v14_s6 = D_00756518[0];
-          temp_v11_s5 = D_00756514[0];
-          temp_v9_s4 = D_00756510[0];
-          FUN_003e40b0(&stk190[0],&stk190[0]);
-          stk180[0] = *(float *)((u8 *)(u32)piVar1 + 0x2b4) * temp_v14_s6 - *(float *)((u8 *)(u32)piVar1 + 0x2b8) * temp_v11_s5;
-          stk180[1] = *(float *)((u8 *)(u32)piVar1 + 0x2b8) * temp_v9_s4 - *(float *)((u8 *)(u32)piVar1 + 0x2b0) * temp_v14_s6;
-          stk180[2] = *(float *)((u8 *)(u32)piVar1 + 0x2b0) * temp_v11_s5 - *(float *)((u8 *)(u32)piVar1 + 0x2b4) * temp_v9_s4;
-          FUN_003e40b0(&stk180[0],&stk180[0]);
-          if (stk180[0] * stk1A0[0] + stk180[1] * stk1A0[1] + stk180[2] * stk1A0[2] < 0.0f) {
-            stk180[0] = -stk180[0];
-            stk180[1] = -stk180[1];
-            stk180[2] = -stk180[2];
-          }
-          {
-            float alignment = stk180[0] * stk1A0[0] + stk180[1] * stk1A0[1] + stk180[2] * stk1A0[2];
-            temp_v14_s7 = 180.0f;
-            temp_v14_s7 *= 1.0f - alignment;
-          }
-          temp_v11_s6 = *(float *)&piVar1[0xac] * stk190[0] +
-                   ((float *)piVar1)[0xad] * stk190[1] + ((float *)piVar1)[0xae] * stk190[2];
-          if (temp_v11_s6 < CAND_fGpffff84e4) {
-            *(float *)((u8 *)(u32)piVar1 + 0x2ac) = -temp_v14_s7;
-          }
-          else if (!(temp_v11_s6 <= CAND_fGpffff84e8)) {
-            *(float *)((u8 *)(u32)piVar1 + 0x2ac) = temp_v14_s7;
+        {
+          float wallZero, wallNormalX;
+          wallNormalX = ((float *)piVar1)[0xac];
+          wallZero = 0.0f;
+          if ((((wallZero != wallNormalX || wallZero != *(float *)((u8 *)(u32)piVar1 + 0x2b4)) ||
+               (wallZero != *(float *)((u8 *)(u32)piVar1 + 0x2b8))) &&
+              ((*(float *)((u8 *)(u32)piVar1 + 0x294) < *(float *)((u8 *)(u32)piVar1 + 0x28c) && ((D_008C024C[0] & 0xf) == 0)))) &&
+             ((!(temp_v11_s4 < -48.0f) && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = FUN_00175db0(), temp_v11_s4 > 0.0f)))))) {
+            {
+              float forwardZ, forwardY, forwardX;
+              float *forwardVector;
+              temp_v8_c = FUN_003e9700(followFrame);
+              forwardVector = &stk1A0[0];
+              *(FldCopyVec *)stk1A0 = *(FldCopyVec *)(temp_v8_c + 0x20);
+              stk1A0[1] = 0.0f;
+              FUN_003e40b0(forwardVector,forwardVector);
+              temp_v11_s5 = D_00756514[0];
+              forwardZ = stk1A0[2];
+              temp_v14_s6 = D_00756518[0];
+              forwardY = stk1A0[1];
+              stk190[0] = forwardY * temp_v14_s6 - forwardZ * temp_v11_s5;
+              forwardX = stk1A0[0];
+              temp_v9_s4 = D_00756510[0];
+              stk190[1] = forwardZ * temp_v9_s4 - forwardX * temp_v14_s6;
+              stk190[2] = forwardX * temp_v11_s5 - forwardY * temp_v9_s4;
+              {
+                float *rightVector = &stk190[0];
+                FUN_003e40b0(rightVector,rightVector);
+              }
+            }
+            {
+              float normalZ, normalY, normalX;
+              normalZ = *(float *)((u8 *)(u32)piVar1 + 0x2b8);
+              normalY = *(float *)((u8 *)(u32)piVar1 + 0x2b4);
+              stk180[0] = normalY * temp_v14_s6 - normalZ * temp_v11_s5;
+              normalX = *(float *)((u8 *)(u32)piVar1 + 0x2b0);
+              stk180[1] = normalZ * temp_v9_s4 - normalX * temp_v14_s6;
+              stk180[2] = normalX * temp_v11_s5 - normalY * temp_v9_s4;
+              {
+                float *tangentVector = &stk180[0];
+                FUN_003e40b0(tangentVector,tangentVector);
+              }
+            }
+            {
+              float forwardY, forwardX, forwardZ;
+              float normalX, normalZ, normalY, facingZero, facingDot;
+              forwardY = stk1A0[1];
+              forwardX = stk1A0[0];
+              normalX = stk180[0];
+              forwardZ = stk1A0[2];
+              normalZ = stk180[2];
+              normalY = stk180[1];
+              {
+                const float yProduct = normalY * forwardY;
+                facingZero = 0.0f;
+                facingDot = normalX * forwardX + yProduct + normalZ * forwardZ;
+              }
+              if (facingDot < facingZero) {
+                stk180[0] = -normalX;
+                stk180[1] = -normalY;
+                stk180[2] = -normalZ;
+              }
+              {
+                float reloadedZ = stk180[2];
+                float reloadedX = stk180[0];
+                float reloadedY = stk180[1];
+                float alignment = reloadedX * forwardX + reloadedY * forwardY + reloadedZ * forwardZ;
+                temp_v14_s7 = 180.0f * (1.0f - alignment);
+              }
+            }
+            temp_v11_s6 = *(float *)&piVar1[0xac] * stk190[0] +
+                     ((float *)piVar1)[0xad] * stk190[1] + ((float *)piVar1)[0xae] * stk190[2];
+            if (temp_v11_s6 < CAND_fGpffff84e4) {
+              *(float *)((u8 *)(u32)piVar1 + 0x2ac) = -temp_v14_s7;
+            }
+            else if (!(temp_v11_s6 <= CAND_fGpffff84e8)) {
+              *(float *)((u8 *)(u32)piVar1 + 0x2ac) = temp_v14_s7;
+            }
           }
         }
         piVar1[0xac] = 0;
@@ -2617,35 +2835,79 @@ s32 func_0016bdd0(u8 *param_1)
         temp_v8_c = FUN_0016b080((u8 *)piVar1[0xb0] + 0x30,55.0f,&stk160[0],&stk170[0]);
         if (temp_v8_c == 1) {
           *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
-          stk1B0[0] = stk160[1] * D_00756518[0] - stk160[2] * D_00756514[0];
-          stk1B0[1] = stk160[2] * D_00756510[0] - stk160[0] * D_00756518[0];
-          stk1B0[2] = stk160[0] * D_00756514[0] - stk160[1] * D_00756510[0];
-          FUN_003e40b0(&stk1B0[0],&stk1B0[0]);
-          temp_v8_c = piVar1[0xb0];
-          *(FldCopyVec *)stk1C0 = *(FldCopyVec *)(temp_v8_c + 0x20);
-          FUN_003e40b0(&stk1C0[0],&stk1C0[0]);
-          FUN_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
-          stkF0.x = stkF0.x + *(float *)((u8 *)(u32)piVar1 + 0x14);
-          stkF0.y = stkF0.y + *(float *)((u8 *)(u32)piVar1 + 0x18);
-          stkF0.z = stkF0.z + *(float *)((u8 *)(u32)piVar1 + 0x1c);
-          temp_v8_c = piVar1[0xb0];
-          sv1d0 = *(FldCopyVec *)(temp_v8_c + 0x30);
-          temp_v11_s7 = (stk170[0] * stk1B0[0] - stkF0.x * stk1B0[0] + stk170[1] * stk1B0[1] - stkF0.y * stk1B0[1] +
-                         stk170[2] * stk1B0[2] - stkF0.z * stk1B0[2]) /
-                   -(stk1B0[0] * stk1B0[0] + stk1B0[1] * stk1B0[1] + stk1B0[2] * stk1B0[2]);
-          stk10[0] = 0.0f + stk170[0] + stk1B0[0] * temp_v11_s7;
-          stk10[1] = 0.0f + stk170[1] + stk1B0[1] * temp_v11_s7;
-          stk10[2] = 0.0f + stk170[2] + stk1B0[2] * temp_v11_s7;
-          stk1E0[0] = sv1d0.x - stk170[0];
-          stk1E0[1] = sv1d0.y - stk170[1];
-          temp_v14_s8 = sv1d0.z;
-          stk1E0[2] = temp_v14_s8 - stk170[2];
-          temp_v11_s8 = FUN_003e4180(&stk1E0[0]);
+          {
+            float upY, normalZ, upZ, normalY, normalX, upX;
+            upY = D_00756514[0];
+            normalZ = stk160[2];
+            upZ = D_00756518[0];
+            normalY = stk160[1];
+            stk1B0[0] = normalY * upZ - normalZ * upY;
+            normalX = stk160[0];
+            upX = D_00756510[0];
+            stk1B0[1] = normalZ * upX - normalX * upZ;
+            stk1B0[2] = normalX * upY - normalY * upX;
+            {
+              float *tangentVector = &stk1B0[0];
+              FUN_003e40b0(tangentVector,tangentVector);
+            }
+          }
+          {
+            float *forwardVector;
+            temp_v8_c = piVar1[0xb0];
+            forwardVector = &stk1C0[0];
+            *(FldCopyVec *)stk1C0 = *(FldCopyVec *)(temp_v8_c + 0x20);
+            FUN_003e40b0(forwardVector,forwardVector);
+          }
+          {
+            float targetX, targetY, targetZ;
+            float tangentY, tangentX, tangentZ;
+            float hitX, hitY, hitZ, projectionZero, projectionScale;
+            FUN_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
+            targetX = (stkF0.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
+            targetY = (stkF0.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
+            targetZ = (stkF0.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
+            temp_v8_c = piVar1[0xb0];
+            sv1d0 = *(FldCopyVec *)(temp_v8_c + 0x30);
+            tangentY = stk1B0[1];
+            tangentX = stk1B0[0];
+            tangentZ = stk1B0[2];
+            hitX = stk170[0];
+            hitY = stk170[1];
+            hitZ = stk170[2];
+            {
+              const float numeratorStart = hitX * tangentX;
+              projectionZero = 0.0f;
+              projectionScale = (numeratorStart - targetX * tangentX + hitY * tangentY - targetY * tangentY +
+                                 hitZ * tangentZ - targetZ * tangentZ) /
+                               -(tangentX * tangentX + tangentY * tangentY + tangentZ * tangentZ);
+            }
+            {
+              const float affineOrigin = projectionZero + hitX;
+              const float scaledDirection = tangentX * projectionScale;
+              stk10[0] = affineOrigin + scaledDirection;
+            }
+            {
+              const float affineOrigin = projectionZero + hitY;
+              const float scaledDirection = tangentY * projectionScale;
+              stk10[1] = affineOrigin + scaledDirection;
+            }
+            {
+              const float affineOrigin = projectionZero + hitZ;
+              const float scaledDirection = tangentZ * projectionScale;
+              stk10[2] = affineOrigin + scaledDirection;
+            }
+            stk1E0[0] = sv1d0.x - hitX;
+            stk1E0[1] = sv1d0.y - hitY;
+            /* Retail keeps camera Z across both vector-length calls. */
+            cameraPositionZ = sv1d0.z;
+            stk1E0[2] = cameraPositionZ - hitZ;
+            temp_v11_s8 = FUN_003e4180(&stk1E0[0]);
+          }
           stk1E0[0] = stkF0.x - stk10[0];
           stk1E0[1] = stkF0.y - stk10[1];
           stk1E0[2] = stkF0.z - stk10[2];
           temp_v9 = FUN_003e4180(&stk1E0[0]);
-          temp_v14_s8 = (stkF0.z - temp_v14_s8) / stk1C0[2];
+          temp_v14_s8 = (stkF0.z - cameraPositionZ) / stk1C0[2];
           temp_v11_s8 = (55.0f - temp_v11_s8) / ((temp_v9 - temp_v11_s8) / temp_v14_s8);
           if (temp_v14_s8 < 0.0f) {
             temp_v14_s8 = temp_v14_s8 * -1.0f;
@@ -2656,28 +2918,43 @@ s32 func_0016bdd0(u8 *param_1)
           if (temp_v12_s7 <= 0.0f) {
             temp_v12_s7 = *(float *)((u8 *)(u32)piVar1 + 0x28c);
           }
-          temp_v14_s8 = fabsf((temp_v14_s8 - temp_v11_s8) / temp_v14_s8);
-          if (!(temp_v14_s8 <= 1.0f)) {
-            temp_v14_s8 = 1.0f;
+          {
+            float wallRatio = fabsf((temp_v14_s8 - temp_v11_s8) / temp_v14_s8);
+            {
+              float maximumRatio = 1.0f;
+              if (!(wallRatio <= maximumRatio)) {
+                wallRatio = maximumRatio;
+              }
+            }
+            {
+              float normalThreshold, absoluteX;
+              absoluteX = fabsf(stk160[0]);
+              normalThreshold = 0.2f;
+              if (!(absoluteX <= normalThreshold) && !(fabsf(stk160[2]) <= normalThreshold)) {
+                wallRatio = wallRatio * 0.5f;
+              }
+            }
+            temp_v12_s7 = temp_v12_s7 * wallRatio;
           }
-          if (!(fabsf(stk160[0]) <= 0.2f) && !(fabsf(stk160[2]) <= 0.2f)) {
-            temp_v14_s8 = temp_v14_s8 * 0.5f;
-          }
-          temp_v12_s7 = temp_v12_s7 * temp_v14_s8;
           moved_c = 1;
         }
         if (moved_c == 1) {
           if (temp_v12_s7 < ((float *)piVar1)[0xa5]) {
             *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
-            temp_v8_c = piVar1[0xb0];
-            *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
-            FUN_003e40b0(&stk120[0],&stk120[0]);
-            stk120[0] = -stk120[0];
-            stk120[1] = -stk120[1];
-            stk120[2] = -stk120[2];
-            stk120[0] = stk120[0] * temp_v12_s7;
-            stk120[1] = stk120[1] * temp_v12_s7;
-            stk120[2] = stk120[2] * temp_v12_s7;
+            {
+              float negativeX, negativeY, negativeZ;
+              float *pushVector;
+              temp_v8_c = piVar1[0xb0];
+              pushVector = &stk120[0];
+              *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
+              FUN_003e40b0(pushVector,pushVector);
+              negativeX = (stk120[0] = -stk120[0]);
+              negativeY = (stk120[1] = -stk120[1]);
+              negativeZ = (stk120[2] = -stk120[2]);
+              stk120[0] = negativeX * temp_v12_s7;
+              stk120[1] = negativeY * temp_v12_s7;
+              stk120[2] = negativeZ * temp_v12_s7;
+            }
             FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
             temp_v8_c = piVar1[0xb0];
             *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
@@ -2686,9 +2963,11 @@ s32 func_0016bdd0(u8 *param_1)
             *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v12_s7;
           }
           else if ((0.0f == *(float *)((u8 *)(u32)piVar1 + 0x2ac)) && ((piVar1[1] & 2U) == 0)) {
-            temp_v11_c = (15.0f > FUN_00175db0()) ? FUN_00175db0() : 15.0f;
-            if (0.0f == temp_v11_c) {
-              temp_v11_c = 15.0f;
+            {
+              float maximumStep;
+              if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > FUN_00175db0()) ? FUN_00175db0() : maximumStep)) {
+                temp_v11_c = 15.0f;
+              }
             }
             temp_v14_c = ((FldCameraDistanceView *)piVar1)->currentDistance;
             if (temp_v12_s7 <= temp_v14_c + temp_v11_c) {
@@ -2701,16 +2980,21 @@ s32 func_0016bdd0(u8 *param_1)
             resumeDistance = *(float *)((u8 *)(u32)piVar1 + 0x28c);
             if (*(float *)&piVar1[0xa5] < resumeDistance) {
               *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
-              temp_v8_c = piVar1[0xb0];
-              *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
-              FUN_003e40b0(&stk120[0],&stk120[0]);
-              stk120[0] = -stk120[0];
-              stk120[1] = -stk120[1];
-              stk120[2] = -stk120[2];
-              temp_v12_s10 = *(float *)&piVar1[0xa5];
-              stk120[0] = stk120[0] * temp_v12_s10;
-              stk120[1] = stk120[1] * temp_v12_s10;
-              stk120[2] = stk120[2] * temp_v12_s10;
+              {
+                float negativeX, negativeY, negativeZ, followDistance;
+                float *pushVector;
+                temp_v8_c = piVar1[0xb0];
+                pushVector = &stk120[0];
+                *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
+                FUN_003e40b0(pushVector,pushVector);
+                negativeX = (stk120[0] = -stk120[0]);
+                negativeY = (stk120[1] = -stk120[1]);
+                negativeZ = (stk120[2] = -stk120[2]);
+                followDistance = *(float *)&piVar1[0xa5];
+                stk120[0] = negativeX * followDistance;
+                stk120[1] = negativeY * followDistance;
+                stk120[2] = negativeZ * followDistance;
+              }
               FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
               temp_v8_c = piVar1[0xb0];
               *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
@@ -2726,35 +3010,50 @@ s32 func_0016bdd0(u8 *param_1)
               }
             }
             else {
-              *(float *)&piVar1[0xa5] = *(float *)&piVar1[0xa3];
+              *(float *)&piVar1[0xa5] = resumeDistance;
             }
           }
         }
         else if (((*(float *)((u8 *)(u32)piVar1 + 0x2ac) == 0.0f) && ((piVar1[1] & 2U) == 0)) &&
                 (*(float *)&piVar1[0xa5] < ((float *)piVar1)[0xa3])) {
-          temp_v11_c = (15.0f > FUN_00175db0()) ? FUN_00175db0() : 15.0f;
-          if (0.0f == temp_v11_c) {
-            temp_v11_c = 15.0f;
+          {
+            float maximumStep;
+            if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > FUN_00175db0()) ? FUN_00175db0() : maximumStep)) {
+              temp_v11_c = 15.0f;
+            }
           }
-          temp_v14_c = ((FldCameraDistanceView *)piVar1)->currentDistance;
-          temp_v12_s11 = *(float *)&piVar1[0xa3];
-          if (temp_v12_s11 <= temp_v14_c + temp_v11_c) {
-            temp_v11_c = temp_v12_s11 - temp_v14_c;
+          {
+            float currentDistance, desiredDistance;
+            currentDistance = ((FldCameraDistanceView *)piVar1)->currentDistance;
+            desiredDistance = *(float *)&piVar1[0xa3];
+            if (desiredDistance <= currentDistance + temp_v11_c) {
+              temp_v11_c = desiredDistance - currentDistance;
+            }
           }
           *(float *)((u8 *)(u32)piVar1 + 0x294) = *(float *)((u8 *)(u32)piVar1 + 0x294) + temp_v11_c;
-          if (!(*(float *)((u8 *)(u32)piVar1 + 0x294) < *(float *)((u8 *)(u32)piVar1 + 0x28c))) {
-            ((float *)piVar1)[0xa5] = *(float *)((u8 *)(u32)piVar1 + 0x28c);
+          {
+            float desiredDistance, currentDistance;
+            desiredDistance = ((FldCameraDistanceView *)piVar1)->desiredDistance;
+            currentDistance = ((FldCameraDistanceView *)piVar1)->currentDistance;
+            if (!(currentDistance < desiredDistance)) {
+              ((float *)piVar1)[0xa5] = desiredDistance;
+            }
           }
-          temp_v8_c = piVar1[0xb0];
-          *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
-          FUN_003e40b0(&stk120[0],&stk120[0]);
-          stk120[0] = -stk120[0];
-          stk120[1] = -stk120[1];
-          stk120[2] = -stk120[2];
-          temp_v12_s7 = ((float *)piVar1)[0xa5];
-          stk120[0] = stk120[0] * temp_v12_s7;
-          stk120[1] = stk120[1] * temp_v12_s7;
-          stk120[2] = stk120[2] * temp_v12_s7;
+          {
+            float negativeX, negativeY, negativeZ, followDistance;
+            float *pushVector;
+            temp_v8_c = piVar1[0xb0];
+            pushVector = &stk120[0];
+            *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
+            FUN_003e40b0(pushVector,pushVector);
+            negativeX = (stk120[0] = -stk120[0]);
+            negativeY = (stk120[1] = -stk120[1]);
+            negativeZ = (stk120[2] = -stk120[2]);
+            followDistance = ((float *)piVar1)[0xa5];
+            stk120[0] = negativeX * followDistance;
+            stk120[1] = negativeY * followDistance;
+            stk120[2] = negativeZ * followDistance;
+          }
           FUN_003e0c90(piVar1[0xb0],&stk120[0],0);
           temp_v8_c = piVar1[0xb0];
           *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
@@ -2777,11 +3076,14 @@ s32 func_0016bdd0(u8 *param_1)
         stk110[1] = stkF0.y - cpv5.y;
         stk110[2] = stkF0.z - cpv5.z;
         temp_v11_c = FUN_003e4180(&stk110[0]);
-        if (((unsigned char *)piVar1[0xaa] != (unsigned char *)0x0) &&
-           (temp_v4_c = FUN_0014bd90((unsigned char *)piVar1[0xaa]), temp_v4_c == 1)) {
-          FUN_0047a870(*(unsigned char **)(piVar1[0xa2] + 0x164));
-          FUN_00452080((void *)piVar1[0xaa]);
-          piVar1[0xaa] = 0;
+        {
+          unsigned char *fadeTask = (unsigned char *)piVar1[0xaa];
+          if (fadeTask != (unsigned char *)0x0 &&
+              (temp_v4_c = FUN_0014bd90(fadeTask), temp_v4_c == 1)) {
+            FUN_0047a870(*(unsigned char **)(piVar1[0xa2] + 0x164));
+            FUN_00452080((void *)piVar1[0xaa]);
+            piVar1[0xaa] = 0;
+          }
         }
         fadeColour = *(const FldCameraColour *)&CAND_uGpffff9f2c;
         if (temp_v11_c <= 55.0f + ((float *)piVar1)[0xa4]) {
@@ -2813,18 +3115,26 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v4_d = FUN_00457120();
           FUN_003e9830(piVar1[3],*(unsigned int *)(temp_v4_d + 4));
         }
-        cv0.x = cv0.x + *(float *)((u8 *)(u32)piVar1 + 0x14);
-        cv0.y = cv0.y + *(float *)((u8 *)(u32)piVar1 + 0x18);
-        cv0.z = cv0.z + *(float *)((u8 *)(u32)piVar1 + 0x1c);
-        stk220[0] = cv0.x - sv200.x;
-        temp_v12_s13 = cv0.y - sv200.y;
+        targetX7 = (cv0.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
+        targetY7 = (cv0.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
+        targetZ7 = (cv0.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
+        deltaX7 = targetX7 - sv200.x;
+        stk220[0] = deltaX7;
+        temp_v12_s13 = targetY7 - sv200.y;
         stk220[1] = temp_v12_s13;
-        stk220[2] = cv0.z - sv200.z;
-        temp_v11_s20 = sqrtf(stk220[0] * stk220[0] + stk220[2] * stk220[2]);
-        if (!(temp_v11_s20 <= *(float *)((u8 *)(u32)piVar1 + 0x20))) {
-          temp_v11_s20 = temp_v11_s20 - *(float *)((u8 *)(u32)piVar1 + 0x20);
-          stk220[1] = 0.0f;
-          FUN_003e40b0(&stk220[0],&stk220[0]);
+        deltaZ7 = targetZ7 - sv200.z;
+        stk220[2] = deltaZ7;
+        {
+          const float squaredZ7 = deltaZ7 * deltaZ7;
+          horizontalZero7 = 0.0f;
+          horizontalLength7 = sqrtf(deltaX7 * deltaX7 + squaredZ7);
+        }
+        horizontalRadius7 = *(float *)((u8 *)(u32)piVar1 + 0x20);
+        if (!(horizontalLength7 <= horizontalRadius7)) {
+          temp_v11_s20 = horizontalLength7 - horizontalRadius7;
+          stk220[1] = horizontalZero7;
+          correctionVector7 = &stk220[0];
+          FUN_003e40b0(correctionVector7,correctionVector7);
           stk220[0] = stk220[0] * temp_v11_s20;
           stk220[1] = stk220[1] * temp_v11_s20;
           stk220[2] = stk220[2] * temp_v11_s20;
@@ -2834,15 +3144,18 @@ s32 func_0016bdd0(u8 *param_1)
         if (temp_v12_s13 < 0.0f) {
           temp_v12_s13 = temp_v12_s13 * -1.0f;
         }
-        if (!(temp_v12_s13 <= *(float *)((u8 *)(u32)piVar1 + 0x24) / 2.0f)) {
-          temp_v11_s20 = temp_v12_s13 - *(float *)((u8 *)(u32)piVar1 + 0x24) / 2.0f;
+        verticalHeight7 = *(float *)((u8 *)(u32)piVar1 + 0x24);
+        verticalRadius7 = verticalHeight7 / 2.0f;
+        if (!(temp_v12_s13 <= verticalRadius7)) {
+          verticalAmount7 = temp_v12_s13 - verticalRadius7;
+          correctionZero7 = 0.0f;
           stk220[0] = 0.0f;
           stk220[2] = 0.0f;
-          if (stk220[1] < 0.0f) {
-            stk220[1] = -temp_v11_s20;
+          if (stk220[1] < correctionZero7) {
+            stk220[1] = -verticalAmount7;
           }
           else {
-            stk220[1] = temp_v11_s20;
+            stk220[1] = verticalAmount7;
           }
           FUN_003e9c10(piVar1[3],&stk220[0],2);
         }
@@ -2852,32 +3165,45 @@ s32 func_0016bdd0(u8 *param_1)
         temp_v11_d = ((float *)piVar1)[0xa3];
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_d + 0x10));
         FUN_003e0e20(piVar1[0xb0],temp_v5_d,2);
-        cv0.y = cv0.y + *(float *)((u8 *)(u32)piVar1 + 0x2a0);
+        /* Retail retains these Y/Z snapshots across camera calls; X is reloaded. */
+        chaseTargetY = (cv0.y += *(float *)((u8 *)(u32)piVar1 + 0x2a0));
         temp_v8_d = piVar1[0xb0];
         stk210.x = *(float *)(temp_v8_d + 0x30) - cv0.x;
-        stk210.y = *(float *)(temp_v8_d + 0x34) - cv0.y;
-        stk210.z = *(float *)(temp_v8_d + 0x38) - cv0.z;
-        FUN_003e40b0(&stk210.x,&stk210.x);
-        stk210.x = *(float *)&piVar1[0xa3] * stk210.x;
-        temp_v14_s11 = *(float *)&piVar1[0xa3];
-        stk210.y = stk210.y * temp_v14_s11;
-        stk210.z = stk210.z * temp_v14_s11;
-        chaseSegment[0] = cv0;
-        temp_v8_d = piVar1[0xb0];
-        chaseSegment[1] = *(FldCamVec *)(temp_v8_d + 0x30);
-        chaseSegment[1].x = chaseSegment[1].x + stk210.x;
-        chaseSegment[1].y = chaseSegment[1].y + stk210.y;
-        chaseSegment[1].z = chaseSegment[1].z + stk210.z;
+        stk210.y = *(float *)(temp_v8_d + 0x34) - chaseTargetY;
+        chaseTargetZ = cv0.z;
+        stk210.z = *(float *)(temp_v8_d + 0x38) - chaseTargetZ;
+        {
+          float scaledX, scaledY, scaledZ, chaseScale, directionX;
+          float *chaseDirection = &stk210.x;
+          FUN_003e40b0(chaseDirection,chaseDirection);
+          directionX = stk210.x;
+          chaseScale = *(float *)&piVar1[0xa3];
+          scaledX = (stk210.x = directionX * chaseScale);
+          scaledY = (stk210.y = stk210.y * chaseScale);
+          scaledZ = (stk210.z = stk210.z * chaseScale);
+          chaseSegment[0] = cv0;
+          temp_v8_d = piVar1[0xb0];
+          chaseSegment[1] = *(FldCamVec *)(temp_v8_d + 0x30);
+          chaseSegment[1].x = chaseSegment[1].x + scaledX;
+          chaseSegment[1].y = chaseSegment[1].y + scaledY;
+          chaseSegment[1].z = chaseSegment[1].z + scaledZ;
+        }
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_d + 0x10));
         temp_v6_d = FUN_0016b8a0((float *)chaseSegment,&stk230.x);
         if (temp_v6_d == 1) {
           stk230.x = stk230.x - chaseSegment[0].x;
           stk230.y = stk230.y - chaseSegment[0].y;
           stk230.z = stk230.z - chaseSegment[0].z;
-          temp_v14_d = FUN_003e40b0(&stk230.x,&stk230.x);
+          {
+            float *hitVector = &stk230.x;
+            temp_v14_d = FUN_003e40b0(hitVector,hitVector);
+          }
           if (!(temp_v14_d <= 0.0f)) {
-            stk210 = stk230;
-            FUN_003e40b0(&stk210.x,&stk210.x);
+            {
+              float *chaseDirection = &stk210.x;
+              stk210 = stk230;
+              FUN_003e40b0(chaseDirection,chaseDirection);
+            }
             stk210.x = stk210.x * temp_v14_d;
             stk210.y = stk210.y * temp_v14_d;
             stk210.z = stk210.z * temp_v14_d;
@@ -2897,24 +3223,36 @@ s32 func_0016bdd0(u8 *param_1)
           }
         }
         else if (!(temp_v11_d <= *(float *)((u8 *)(u32)piVar1 + 0x294))) {
-          temp_v14_d = (20.0f > FUN_00175db0()) ? FUN_00175db0() : 20.0f;
-          if (0.0f == temp_v14_d) {
-            temp_v14_d = 20.0f;
+          {
+            float maximumStep;
+            if (0.0f == (temp_v14_d = ((maximumStep = 20.0f) > FUN_00175db0()) ? FUN_00175db0() : maximumStep)) {
+              temp_v14_d = 20.0f;
+            }
           }
           *(float *)((u8 *)(u32)piVar1 + 0x294) = *(float *)((u8 *)(u32)piVar1 + 0x294) + temp_v14_d;
-          if (!(*(float *)((u8 *)(u32)piVar1 + 0x294) <= *(float *)((u8 *)(u32)piVar1 + 0x28c))) {
-            ((float *)piVar1)[0xa5] = *(float *)((u8 *)(u32)piVar1 + 0x28c);
+          {
+            float desiredDistance, currentDistance;
+            desiredDistance = ((FldCameraDistanceView *)piVar1)->desiredDistance;
+            currentDistance = ((FldCameraDistanceView *)piVar1)->currentDistance;
+            if (!(currentDistance <= desiredDistance)) {
+              ((float *)piVar1)[0xa5] = desiredDistance;
+            }
           }
           FUN_003e0e20(piVar1[0xb0],temp_v5_d,2);
           temp_v4_d = piVar1[0xb0];
           stk210.x = *(float *)(temp_v4_d + 0x30) - cv0.x;
-          stk210.y = *(float *)(temp_v4_d + 0x34) - cv0.y;
-          stk210.z = *(float *)(temp_v4_d + 0x38) - cv0.z;
-          FUN_003e40b0(&stk210.x,&stk210.x);
-          stk210.x = ((float *)piVar1)[0xa5] * stk210.x;
-          temp_v14_d = ((float *)piVar1)[0xa5];
-          stk210.y = stk210.y * temp_v14_d;
-          stk210.z = stk210.z * temp_v14_d;
+          stk210.y = *(float *)(temp_v4_d + 0x34) - chaseTargetY;
+          stk210.z = *(float *)(temp_v4_d + 0x38) - chaseTargetZ;
+          {
+            float chaseScale, directionX;
+            float *chaseDirection = &stk210.x;
+            FUN_003e40b0(chaseDirection,chaseDirection);
+            directionX = stk210.x;
+            chaseScale = ((float *)piVar1)[0xa5];
+            stk210.x = directionX * chaseScale;
+            stk210.y = stk210.y * chaseScale;
+            stk210.z = stk210.z * chaseScale;
+          }
           FUN_003e0c90(piVar1[0xb0],&stk210.x,0);
           *(FldCopyVec *)stk240 = *(FldCopyVec *)(piVar1[0xb0] + 0x30);
           stk240[1] = ((float *)piVar1)[0xa8];
@@ -2953,6 +3291,7 @@ LAB_0016e0c0:
   }
   return 0;
 }
+/* measured: restore the surrounding translation-unit settings. */
 #pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016bdd0);
