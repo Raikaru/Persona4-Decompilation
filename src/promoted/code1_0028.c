@@ -134,32 +134,6 @@ void func_002852a0(s32 arg0, s32 arg1) {
         }
     }
 }
-/* measured: retail window 128 bytes; derived from complete retail disassembly. */
-/* measured: O1 probe preserves the retail comparison constants. */
-#pragma optimization_level 1
-// FUN_00285330
-s32 func_00285330(void) {
-    s32 i;
-    s32 c4;
-    s32 c5;
-    s32 c6;
-    s32 *table;
-
-    i = 0;
-    table = D_00882170;
-    c6 = 6;
-    c5 = 5;
-    c4 = 4;
-    while (i < 0xD) {
-        if ((i != 0) && (i != c4) && (i != c5) && (i != c6) && (table[i] != 0)) {
-            return 0;
-        }
-        i++;
-    }
-    return 1;
-}
-/* measured: restore the translation unit optimization level after func_00285330. */
-#pragma optimization_level 2
 // FUN_002853B0
 s32 func_002853b0(void) {
     return 0;
@@ -574,32 +548,6 @@ block_24:
 done:
     *(s32 *)(arg0 + 0x64) = *(s32 *)(arg0 + 0x64) + 1;
 }
-// FUN_00287BF0
-void func_00287bf0(s32 arg0, u8 *arg1) {
-    u8 *var_17;
-    u8 *var_16;
-    u16 temp_4;
-
-    var_17 = *(u8 **)(arg1 + 0x4C);
-    while (var_17 != NULL) {
-        if (*(s32 *)var_17 == 0x26) {
-            var_16 = *(u8 **)(var_17 + 0x68);
-            while (var_16 != NULL) {
-                if (func_00286430(var_16) != 0) {
-                    temp_4 = *(u16 *)var_16;
-                    if (((s32)temp_4 <= arg0) && ((temp_4 + *(s16 *)(var_16 + 0x12)) >= arg0)) {
-                        *(s32 *)(arg1 + 0x20) = *(s16 *)(var_16 + 0x10);
-                        *(s32 *)(arg1 + 0x1C) = 1;
-                        return;
-                    }
-                }
-                var_16 = *(u8 **)(var_16 + 0x4C);
-            }
-        }
-        var_17 = *(u8 **)(var_17 + 0x90);
-    }
-}
-
 
 
 // FUN_0028B650
@@ -965,11 +913,6 @@ block_6:
     }
 }
 
-// FUN_0028BF90
-f32 func_0028bf90(s32 arg0) {
-    return (f32)arg0 + 2.0f;
-}
-
 // FUN_0028BFB0
 void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3) {
     u8 *temp_3;
@@ -1153,42 +1096,7 @@ have_matrix:
 done:
     return;
 }
-// FUN_0028C370
-void func_0028c370(void)
-{
-    f32 secondColor;
-    f32 firstColor;
-    s32 index;
-    SceneLightSlot *entry;
-    SceneLightSlot *slots;
-    f32 unknown38;
-
-    index = 0;
-    slots = D_00882210;
-    secondColor = iGpffff809c;
-    firstColor = iGpffff8218;
-    unknown38 = 7.0f;
-    for (; index < 3; index = index + 1) {
-        entry = &slots[index];
-        entry->secondColor.x = secondColor;
-        entry->secondColor.y = secondColor;
-        entry->secondColor.z = secondColor;
-        entry->secondColor.w = 0.0f;
-        entry->angles.x = 0.0f;
-        entry->angles.y = 0.0f;
-        entry->angles.z = 0.0f;
-        entry->angles.w = 0.0f;
-        entry->firstColor.x = firstColor;
-        entry->firstColor.y = firstColor;
-        entry->firstColor.z = firstColor;
-        entry->firstColor.w = 0.0f;
-        entry->unknown38 = unknown38;
-        entry->unknown3c = 0.0f;
-        entry->mode = 0;
-        entry->resource = NULL;
-    }
-}
-/* measured: restore pragma state after func_0028c370. */
+/* measured: restore pragma state after func_0028c080. */
 #pragma pop
 
 /* measured: opt_propagation off keeps the `slot = &nodes[i]; node = *slot` pair (retail addiu/lw)
@@ -1416,33 +1324,6 @@ void func_0028c580(u8 *workBytes, u8 *resource, u8 *defaults)
 
 
 
-// FUN_0028CED0
-void func_0028ced0(s32 arg0, s32 arg1, s32 arg2, f32 *arg3,
-                   f32 *arg4, f32 *arg5) {
-    s32 temp_3;
-
-    if (arg0 < 3) {
-        temp_3 = arg0 << 6;
-        *(f32 *)((u8 *)D_00882218 + temp_3) = arg3[0];
-        *(f32 *)((u8 *)D_0088221C + temp_3) = arg3[1];
-        *(f32 *)((u8 *)D_00882220 + temp_3) = arg3[2];
-        *(u32 *)((u8 *)D_00882224 + temp_3) = 0;
-        *(f32 *)((u8 *)D_00882228 + temp_3) = arg4[0];
-        *(f32 *)((u8 *)D_0088222C + temp_3) = arg4[1];
-        *(f32 *)((u8 *)D_00882230 + temp_3) = arg4[2];
-        *(f32 *)((u8 *)D_00882234 + temp_3) = arg4[3];
-        *(f32 *)((u8 *)D_00882238 + temp_3) = arg5[0];
-        *(f32 *)((u8 *)D_0088223C + temp_3) = arg5[1];
-        *(f32 *)((u8 *)D_00882240 + temp_3) = arg5[2];
-        *(u32 *)((u8 *)D_00882244 + temp_3) = 0x3F800000;
-        *(s32 *)((u8 *)D_00882210 + temp_3) = arg1;
-        if (arg1 == 3) {
-            *(s32 *)((u8 *)D_00882214 + temp_3) = arg2;
-            return;
-        }
-        *(s32 *)((u8 *)D_00882214 + temp_3) = 0;
-    }
-}
 // FUN_0028D020
 void func_0028d020(s32 arg0, s32 arg1) {
     if ((arg0 >= 0xA) || (arg0 < 0)) {
