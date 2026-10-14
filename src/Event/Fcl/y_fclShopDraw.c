@@ -6,7 +6,6 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "fcl_draw_task.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "fr_font_internal.h"

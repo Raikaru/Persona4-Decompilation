@@ -1,5 +1,4 @@
 #include "field_transition_internal.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldLmap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "sdk_sprite_loader.h"

@@ -1,5 +1,4 @@
 #include "model_callbacks_internal.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit evtScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "sdk_task_registration.h"

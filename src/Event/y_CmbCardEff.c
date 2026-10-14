@@ -1,4 +1,3 @@
-/* Consolidated Persona 4 source units. */
 /* Original translation unit y_CmbCardEff.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "fcl_color.h"
 #include "type.h"

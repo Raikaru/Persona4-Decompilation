@@ -5,7 +5,6 @@
 #include "sdk_task_registration.h"
 extern s32 func_0034ac00(u8 *task);
 extern void func_0034ad40(u8 *task);
-/* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclCmbBall.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 

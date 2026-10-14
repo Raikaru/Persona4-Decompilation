@@ -1,6 +1,5 @@
 #include "field_transition_internal.h"
 #include "include_asm.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit evtMain.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "scene_event_internal.h"

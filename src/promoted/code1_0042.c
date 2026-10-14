@@ -1,4 +1,3 @@
-/* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 /* Retail saves callee-saved `$s` registers with `sd`; MWCCPS2 3.0.1 emits `sq`; toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 

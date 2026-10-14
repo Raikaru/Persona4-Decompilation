@@ -1,7 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
 #include "datScript_internal.h"
-/* Consolidated Persona 4 source units. */
 /* Ported from Persona 3 FES datScript.c (FUN_0030fc40/FUN_0030fdf0/
    FUN_003111f0/FUN_00311250 counterparts), adapted to the P4 build. */
 

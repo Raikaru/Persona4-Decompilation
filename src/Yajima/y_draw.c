@@ -1,5 +1,4 @@
 #include "fcl_scale_transition.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit y_draw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "fcl_animation_internal.h"
 #include "fcl_color.h"

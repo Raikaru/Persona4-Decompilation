@@ -1,4 +1,3 @@
-/* Consolidated Persona 4 source units. */
 
 /* Empty callback bodies (`jr $ra; nop`) installed in data records. Splat's
    control-flow scan cannot see them because nothing calls them directly, so

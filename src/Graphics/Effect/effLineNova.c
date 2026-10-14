@@ -1,6 +1,5 @@
 #include "effect_vu0_internal.h"
 #include "effect_geometry_internal.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit effLineNova.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "effect_instance_internal.h"

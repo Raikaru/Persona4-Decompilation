@@ -1,4 +1,3 @@
-/* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"

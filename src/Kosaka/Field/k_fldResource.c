@@ -2,7 +2,6 @@
 #include "texture_callback_internal.h"
 #include "include_asm.h"
 #include "Kosaka/k_clump_property_internal.h"
-/* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldResource.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "scene_event_internal.h"
