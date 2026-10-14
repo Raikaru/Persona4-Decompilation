@@ -15,6 +15,7 @@ extern u8 D_00797F8E[];
 extern s32 D_0079B40C[];
 extern u8 *DAT_007644c8;
 extern u8 *DAT_007644c4;
+extern u8 *DAT_00764530;
 extern u8 *DAT_007644cc;
 extern u8 *DAT_007644d4;
 extern u8 *iGpffffb3d8; /* gp -0x4C28 */
@@ -63,6 +64,30 @@ s8 func_00109e30(u8 *arg0, s32 arg1);
 extern u8 *func_0010b060(u16 personaId);
 
 u16 *func_0010a900(u16 character);
+
+// FUN_00109220
+u8 *func_00109220(u16 personaId)
+{
+    if (!(personaId < 0x100)) {
+        func_0046d730(D_005E4318, 0x18);
+    }
+    return DAT_00764530 + (u32)personaId * 0x11;
+}
+
+// FUN_00109280
+/* measured: the u16 parameter is zero-extended separately for the range
+   check and for the (u32) row offset, as retail does (two andi). A plain
+   int row offset shares one entry mask. */
+u8 func_00109280(u16 personaId)
+{
+    u8 *table;
+
+    if (!(personaId < 0x100)) {
+        func_0046d730(D_005E4318, 0x26);
+    }
+    table = DAT_007644c4;
+    return table[(u32)personaId * 0xE + 2];
+}
 
 // FUN_001092F0
 u16 func_001092f0(u32 arg0)

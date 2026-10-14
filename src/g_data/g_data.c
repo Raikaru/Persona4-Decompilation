@@ -215,8 +215,6 @@ extern void FUN_0046d730(const char* file, s32 line);
 
 #define K_ASSERT(condition, line) do { if (!(condition)) { FUN_0046d730(__FILE__, (line)); } } while (0)
 
-extern u8* DAT_00764530;
-
 extern u8* DAT_007644c4;
 
 typedef struct PersonaWork {
@@ -1484,31 +1482,6 @@ f32 func_00109190(void) {
     return sum / 210.0f;
 }
 
-// FUN_00109220
-u8* func_00109220(u16 personaId)
-{
-    if (!(personaId < 0x100)) {
-        FUN_0046d730(D_005E4318, 0x18);
-    }
-    return DAT_00764530 + (u32)personaId * 0x11;
-}
-
-
-
-// FUN_00109280
-/* measured: the u16 parameter is zero-extended separately for the range
-   check and for the (u32) row offset, as retail does (two andi). A plain
-   int row offset shares one entry mask. */
-u8 func_00109280(u16 personaId)
-{
-    u8* table;
-
-    if (!(personaId < 0x100)) {
-        FUN_0046d730(D_005E4318, 0x26);
-    }
-    table = DAT_007644c4;
-    return table[(u32)personaId * 0xE + 2];
-}
 
 
 
