@@ -310,7 +310,7 @@ f32 func_00245030(u32 arg0, s32 arg1)
 #pragma push
 #pragma optimization_level 1
 // FUN_00246450
-void func_00246450(u32 value)
+void func_00246450(s32 value)
 {
     D_00881474[0] |= 1;
     D_00881468[0] = value;
