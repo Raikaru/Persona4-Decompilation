@@ -35,7 +35,7 @@ void func_00182390(void);
 void func_00174be0(s32, s32);
 s32 func_00171dc0(void);
 s32 func_00175dc0(u8 *);
-u16 *func_0010a900(u16);
+u16 *datPersonaGetRecord(u16);
 s32 func_0010ce10(u8 *, u16);
 s16 datGetPartyId(s32);
 s16 func_00106cd0(s16, s32);
@@ -695,7 +695,7 @@ s32 func_00172ba0(void)
     s32 vals[4];
     s32 i;
 
-    if (func_0010ce10((u8 *)func_0010a900(1), 0x205) != -1) {
+    if (func_0010ce10((u8 *)datPersonaGetRecord(1), 0x205) != -1) {
         return 1;
     }
     vals[0] = 1;

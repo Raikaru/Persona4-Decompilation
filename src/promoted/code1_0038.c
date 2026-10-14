@@ -17,13 +17,13 @@ s32 datGetFlag(u32 arg0);
 extern u8 *D_007246AC;
 void func_00389180(u8 *arg0);
 extern void memset(void *dst, s32 value, u32 size);
-extern s32 func_0010b6f0(void);
-extern s32 func_0010b5b0(void);
-extern s32 func_0010ac10(u16 arg0);
+extern s32 datPersonaCountValidMembers(void);
+extern s32 datPersonaRosterCapacity(void);
+extern s32 datPersonaFindRosterRecordById(u16 arg0);
 extern u8 *func_00109220(u16 arg0);
 extern void func_002bad10(s32 arg0);
 extern void func_002bbd20(s32 arg0, void *arg1);
-extern u8 *func_0010b010(u16 personaId);
+extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern s32 func_00376590(u8 *arg0, u8 *arg1);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -211,9 +211,9 @@ s32 func_00380d80(u8 *arg0, s32 arg1)
     u16 count2;
     u16 count1;
 
-    count1 = func_0010b6f0();
-    count2 = func_0010b5b0();
-    if (func_0010ac10(arg1) != 0) {
+    count1 = datPersonaCountValidMembers();
+    count2 = datPersonaRosterCapacity();
+    if (datPersonaFindRosterRecordById(arg1) != 0) {
         func_002bad10(2);
         return 6;
     }
@@ -223,7 +223,7 @@ s32 func_00380d80(u8 *arg0, s32 arg1)
         func_002bad10(3);
         return 7;
     }
-    func_0010b010((u16)arg1);
+    datPersonaAddRosterMember((u16)arg1);
     func_002bbd20(0, func_00109220(arg1));
     func_002bad10(1);
     return 5;
@@ -1248,7 +1248,7 @@ void func_00387750(u8 *arg0)
 void func_00387e70(u8 *arg0)
 {
     extern u8 *func_0046a770(char *name);
-    extern s32 func_0010b5b0(void);
+    extern s32 datPersonaRosterCapacity(void);
     extern u8 func_00109280(u16 personaId);
     extern u8 *func_00109220(u16 personaId);
     extern u8 datPersonaGetLevel(int persona);
@@ -1302,7 +1302,7 @@ void func_00387e70(u8 *arg0)
         } else if (fade < 0.0f) {
             fade = 0.0f;
         }
-        switch ((u16)func_0010b5b0()) {
+        switch ((u16)datPersonaRosterCapacity()) {
         case 6:
             slot = 0x3D;
             x = 154.0f;

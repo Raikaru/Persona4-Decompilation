@@ -12,7 +12,7 @@ struct CmpHead {
     s16 f22;   // 0x22
 };
 
-s32 func_0010abd0(s16 arg0);
+s32 datPersonaRosterSlotActive(s16 arg0);
 s32 func_0034c210(void);
 void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f5d0(void* arg0);
@@ -180,7 +180,7 @@ void func_00135c10(u8* arg0) {
     s16 j = 0;
     s16 i = 0;
     while (j < 0xC) {
-        if (func_0010abd0(j) == 0) {
+        if (datPersonaRosterSlotActive(j) == 0) {
             break;
         }
         *(s16*)((u8*)arg0 + i * 2 + 0x36) = j;
@@ -306,7 +306,7 @@ void func_00135dc0(u8* work)
     extern void func_00355410(u8 *task, u8 alpha);
     extern void func_00354ba0(void *task);
     extern void func_00137890(u8 *work, s32 index);
-    extern s32 func_0010b5b0(void);
+    extern s32 datPersonaRosterCapacity(void);
     extern u32 func_0010d6d0(s16 character);
     extern int func_00274ed0(f32 x, f32 y, f32 scale, int color, s8 font, int id, const char *text, int flags,
                              int extra);
@@ -539,7 +539,7 @@ void func_00135dc0(u8* work)
         if (menu->personaCount == 0) {
             func_0046d730(D_005EB580, 0x2FB);
         } else {
-            for (personaIndex = 0; personaIndex < (func_0010b5b0() & 0xFFFF); personaIndex++) {
+            for (personaIndex = 0; personaIndex < (datPersonaRosterCapacity() & 0xFFFF); personaIndex++) {
                 func_00137890(work, personaIndex);
             }
         }
@@ -929,8 +929,8 @@ static inline u32 CmpPersonaOffsetAddress(u32 offset, u32 base)
 // FUN_00137890
 void func_00137890(u8 *arg0, s32 arg1)
 {
-    extern s32 func_0010b5b0(void);
-    extern u16 *func_0010ace0(s16 slot);
+    extern s32 datPersonaRosterCapacity(void);
+    extern u16 *datPersonaRosterSlot(s16 slot);
     extern void func_00115830(u8 *panel);
     extern void func_00115940(u8 *persona, u8 *record, s32 mode);
     extern void func_0034f2e0(void *sprite, f32 x, f32 y,
@@ -964,7 +964,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     CmpPersonaPanel panel;
     Vec2f position;
 
-    if (arg1 < 0 || arg1 >= (func_0010b5b0() & 0xFFFF)) {
+    if (arg1 < 0 || arg1 >= (datPersonaRosterCapacity() & 0xFFFF)) {
         func_0046d730(D_005EB580, 0x478);
     }
     menu = (CmpPersonaLayoutView *)arg0;
@@ -1008,7 +1008,7 @@ void func_00137890(u8 *arg0, s32 arg1)
             selected = 0;
         }
         panel.halves[0] = 2;
-        func_00115940((u8 *)func_0010ace0(*(s16 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 2, (u32)arg0) + 0x36)),
+        func_00115940((u8 *)datPersonaRosterSlot(*(s16 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 2, (u32)arg0) + 0x36)),
                       panel.bytes + 8, 2);
         position.x = x - 40.0f;
         position.y = y + 21.0f;

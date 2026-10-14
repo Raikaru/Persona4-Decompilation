@@ -210,7 +210,7 @@ extern void func_001bc800(u8 *arg0);
 extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
 extern void func_001bdd60(void);
 extern u8 *func_00105510(s16 arg0);
-extern u16 *func_0010a900(u16 arg0);
+extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 func_0010ce10(u8 *arg0, u16 arg1);
 extern void func_002038c0(s32 arg0);
 extern void datCalcSetHp(s32 arg0, u16 arg1);
@@ -2676,7 +2676,7 @@ void func_001b5970(void)
 
     if (*(u16 *)(D_0076449C + 0x1C) == 1) {
         if (datGetFlag(0x38) != 0) var_2 = 5; else var_2 = 8;
-        temp_2 = (s32)func_0010a900(var_2 & 0xFFFF);
+        temp_2 = (s32)datPersonaGetRecord(var_2 & 0xFFFF);
         temp_17 = func_0010ce10((u8 *)temp_2, 0x10E) != -1;
         temp_16 = func_0010ce10((u8 *)temp_2, 0x10F) != -1;
         var_18 = *(u8 **)(D_0076449C + 0x178);

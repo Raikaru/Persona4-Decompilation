@@ -3616,7 +3616,7 @@ void func_0011cee0(u8 *arg0)
         switch (state) {
         case 0:
             if (*(u16 *)(work + 0xC) == 1) {
-                if ((func_0010b6f0(1, state) & 0xFFFF) == 1) {
+                if ((datPersonaCountValidMembers(1, state) & 0xFFFF) == 1) {
                     *(s32 *)(work + 0x528) = 0xD;
                     return;
                 }
@@ -3626,7 +3626,7 @@ void func_0011cee0(u8 *arg0)
             *(s32 *)(work + 0x528) = -1;
             return;
         case 1:
-            if ((func_0010b6f0(1, state) & 0xFFFF) == 1) {
+            if ((datPersonaCountValidMembers(1, state) & 0xFFFF) == 1) {
                 *(s32 *)(work + 0x528) = 0xA;
                 return;
             }
@@ -3642,7 +3642,7 @@ void func_0011cee0(u8 *arg0)
             return;
         case 3:
         case 4:
-            if ((func_0010b6f0(flags, state) & 0xFFFF) == 1) {
+            if ((datPersonaCountValidMembers(flags, state) & 0xFFFF) == 1) {
                 *(s32 *)(work + 0x528) = 0xA;
                 return;
             }

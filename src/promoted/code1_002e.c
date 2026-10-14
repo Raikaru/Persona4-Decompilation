@@ -804,7 +804,7 @@ done:
 // FUN_002E82B0
 void func_002e82b0(u8 *arg0)
 {
-    s32 func_0010b5b0(void);
+    s32 datPersonaRosterCapacity(void);
     s8 func_002e4820(s8 arg0);
     s32 func_00452080(struct KwlnTask *arg0);
     s16 i;
@@ -826,7 +826,7 @@ loop_7_body:
     i++;
 loop_7_test:
     j = (s16)i;
-    if ((s16)j < (u16)func_0010b5b0()) {
+    if ((s16)j < (u16)datPersonaRosterCapacity()) {
         goto loop_7_body;
     }
     i = 0;

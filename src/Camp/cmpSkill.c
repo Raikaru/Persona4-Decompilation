@@ -29,12 +29,12 @@ typedef struct {
     s32 paletteIndex;
 } SkillDecoration;
 
-s16 func_0010b510(void);
-u16 func_0010b6f0(void);
-s32 func_0010ace0(s16);
-void func_0010b3b0(s16);
+s16 datPersonaGetLeadSlot(void);
+u16 datPersonaCountValidMembers(void);
+s32 datPersonaRosterSlot(s16);
+void datPersonaSetLeadSlot(s16);
 s32 func_00113520(s32, s32, s32, void *);
-u16 *func_0010a900(u16);
+u16 *datPersonaGetRecord(u16);
 u16 *datPersonaGetSkills(s32);
 void func_0010fa80(s32, s32, u16, s32, s32 *, s32, s32);
 void func_001437b0(void *, s32, s32);
@@ -306,11 +306,11 @@ void func_00138490(void *arg0)
         v = *(s16 *)((u8 *)(off + (s32)arg0) + 0xF4);
     }
     if (v == 1) {
-        sel = func_0010b510();
-        for (i = 0; i < func_0010b6f0(); i++) {
-            w = func_0010ace0((s16)i);
+        sel = datPersonaGetLeadSlot();
+        for (i = 0; i < datPersonaCountValidMembers(); i++) {
+            w = datPersonaRosterSlot((s16)i);
             if (w != 0) {
-                func_0010b3b0((s16)i);
+                datPersonaSetLeadSlot((s16)i);
                 for (j = 0; j < 8; j++) {
                     p = b + count * 12;
                     if (func_00113520(1, w, j, p + 0x100) != 0) {
@@ -321,7 +321,7 @@ void func_00138490(void *arg0)
             }
         }
     } else {
-        w = (s32)func_0010a900((u16)v);
+        w = (s32)datPersonaGetRecord((u16)v);
         for (i = 0; i < 8; i++) {
             p = b + count * 12;
             if (func_00113520(v, w, i, p + 0x100) != 0) {
@@ -339,16 +339,16 @@ void func_00138490(void *arg0)
             key = *kp;
             if (cur == key) {
                 if (cur < 0x1B8 && sel != -1) {
-                    res = campSkillListHas(datPersonaGetSkills(func_0010ace0(*(s16 *)(p + 0x100))), 0x20A);
+                    res = campSkillListHas(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(p + 0x100))), 0x20A);
                     if (res == 0) {
                         qr = (SkillRec *)(q + 0x100);
-                        res = campSkillListHas(datPersonaGetSkills(func_0010ace0(*(s16 *)(q + 0x100))), 0x20A);
+                        res = campSkillListHas(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(q + 0x100))), 0x20A);
                         if (res != 0) {
                             *(SkillRec *)(p + 0x100) = *qr;
                         } else {
-                            func_0010b3b0(*(s16 *)(p + 0x100));
+                            datPersonaSetLeadSlot(*(s16 *)(p + 0x100));
                             func_0010fa80(v, v, *(u16 *)(p + 0x102), 0, &x, 0, 0);
-                            func_0010b3b0(qr->id);
+                            datPersonaSetLeadSlot(qr->id);
                             func_0010fa80(v, v, *kp, 0, &y, 0, 0);
                             if (x < y) {
                                 *(SkillRec *)(p + 0x100) = *qr;
@@ -401,7 +401,7 @@ void func_00138490(void *arg0)
         }
     }
     if (sel != -1) {
-        func_0010b3b0(sel);
+        datPersonaSetLeadSlot(sel);
     }
     if (*(s16 *)(b + 0x580) > 0x60) {
         func_0046d730(D_005ED9C0, 0x336);

@@ -85,12 +85,12 @@ extern u8 D_006290E0[];
 
 extern void func_0021dc50(s32 arg0, s32 *arg1);
 extern void func_0021dd60(u8 *task);
-extern u16 *func_0010ace0(s16 arg0);
-extern u16 func_0010b6f0(void);
+extern u16 *datPersonaRosterSlot(s16 arg0);
+extern u16 datPersonaCountValidMembers(void);
 extern void func_0010c980(u8 *arg0, s32 arg1);
 extern s32 func_0010c6f0(PersonaWork *arg0);
 extern void func_0010c5a0(u8 *arg0, u8 *arg1);
-extern u16 *func_0010a900(u16 arg0);
+extern u16 *datPersonaGetRecord(u16 arg0);
 extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
 extern void func_00201300(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void func_002016e0(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
@@ -4380,17 +4380,17 @@ void func_0021e110(u8 *arg0, u8 *arg1)
     }
     *(s16 *)(arg0 + 0x698) = *(s16 *)(arg1 + 0x10);
     *(u32 *)(arg0 + 4) = level;
-    entry = func_0010a900(1);
+    entry = datPersonaGetRecord(1);
     func_00105510(1);
     ref = entry[1];
-    count = func_0010b6f0() & 0xFFFF;
+    count = datPersonaCountValidMembers() & 0xFFFF;
     for (i = 0; i < count; i++) {
-        entry2 = func_0010ace0((s16)i);
+        entry2 = datPersonaRosterSlot((s16)i);
         id = datPersonaGetLevel((s32)entry2) & 0xFF;
         lv = func_0021de90(id, arg1);
         if (entry2[1] == ref) {
             level = lv;
-            if (func_0010a9b0(1) != 0) {
+            if (datPersonaLeadHasFlag4(1) != 0) {
                 level += (s32)(0.5f * (f32)lv);
             }
             if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {
@@ -4445,7 +4445,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
     for (j = 0; j < count2; j++) {
         id2 = *(u16 *)(arg1 + j * 2 + 0x12);
         if (id2 != 1) {
-            entry3 = func_0010a900((u16)id2);
+            entry3 = datPersonaGetRecord((u16)id2);
             v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
             lv2 = func_0021de90(v5, arg1);
             level2 = lv2;
@@ -4469,7 +4469,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
         }
     }
     if (datGetFlag(0x38) != 0) {
-        entry3 = func_0010a900(5);
+        entry3 = datPersonaGetRecord(5);
         v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
         lv3 = func_0021de90(v5, arg1);
         level2 = lv3;
@@ -4554,12 +4554,12 @@ void func_0021eb60(u8 *arg0)
     u8 *persona;
     s32 i;
 
-    limit = func_0010b6f0() & 0xFFFF;
+    limit = datPersonaCountValidMembers() & 0xFFFF;
     i = 0;
     while (i < limit) {
         value = *(s32 *)(arg0 + (i * 4) + 8);
         if (value != 0) {
-            persona = (u8 *)func_0010ace0((s16)i);
+            persona = (u8 *)datPersonaRosterSlot((s16)i);
             func_0010c980(persona, value);
             if (func_0010c6f0((PersonaWork *)persona) != 0) {
                 func_0010c5a0(persona, arg0 + (i * 0x88) + 0x38);
@@ -4580,7 +4580,7 @@ void func_0021ec40(s32 arg0)
 loop_body:
     temp_19 = *(s32 *)((u8 *)arg0 + (var_16 * 4) + 0x6A4);
     if (temp_19 != 0) {
-        temp_2 = (s32)func_0010a900(*(u16 *)((u8 *)arg0 + (var_16 * 2) + 0x69A));
+        temp_2 = (s32)datPersonaGetRecord(*(u16 *)((u8 *)arg0 + (var_16 * 2) + 0x69A));
         func_0010c980((u8 *)temp_2, temp_19);
         if (func_0010c6f0((PersonaWork *)temp_2) != 0) {
             func_0010c5a0((u8 *)temp_2,

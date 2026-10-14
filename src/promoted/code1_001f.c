@@ -140,7 +140,7 @@ extern s32 func_001fbb50(u8 *arg0);
 
 extern void func_001f38e0(u8 **arg0);
 extern u16 func_00109360(u16 arg0);
-extern u16 *func_0010a900(u16 character);
+extern u16 *datPersonaGetRecord(u16 character);
 extern s32 func_0010ce10(u8 *persona, u16 skill);
 extern s32 func_001f3900(u8 **arg0);
 extern void func_001f3930(void);
@@ -1775,7 +1775,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     } else {
         actorId = 8;
     }
-    hasSkill = func_0010ce10((u8 *)func_0010a900(actorId & 0xFFFF), 0x10D) != -1;
+    hasSkill = func_0010ce10((u8 *)datPersonaGetRecord(actorId & 0xFFFF), 0x10D) != -1;
 
     averageLevel = func_001ef4d0(2, 0x80000) & 0xFFFF;
     referenceLevel = func_00231e20(*(u8 **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;

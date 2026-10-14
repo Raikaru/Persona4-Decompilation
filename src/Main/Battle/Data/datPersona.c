@@ -33,7 +33,7 @@ extern void func_0010fde0(u8 *arg0);
 
 extern void func_0010fde0(u8 *arg0);
 
-extern s32 func_0010b3b0(); /* old-style: target call preserves s64 argument */
+extern s32 datPersonaSetLeadSlot(); /* old-style: target call preserves s64 argument */
 
 extern u32 func_00231d70(u32 arg0);
 
@@ -80,7 +80,7 @@ u16 func_001092f0(u32 arg0)
 // FUN_00109300
 u16 func_00109300(s32 arg0)
 {
-    u16 *p = func_0010ace0(arg0);
+    u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
         func_0046d730(D_005E4318, 0x3E);
     }
@@ -90,13 +90,13 @@ u16 func_00109300(s32 arg0)
 // FUN_00109360
 u16 func_00109360(u16 arg0)
 {
-    return *(u16 *)((u8 *)func_0010a900(arg0) + 2);
+    return *(u16 *)((u8 *)datPersonaGetRecord(arg0) + 2);
 }
 
 // FUN_001093A0
 u8 func_001093a0(s32 arg0)
 {
-    u16 *p = func_0010ace0(arg0);
+    u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
         func_0046d730(D_005E4318, 0x5F);
     }
@@ -106,7 +106,7 @@ u8 func_001093a0(s32 arg0)
 // FUN_00109470
 u16 func_00109470(s32 arg0)
 {
-    u16 *p = func_0010ace0(arg0);
+    u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
         func_0046d730(D_005E4318, 0xF1);
     }
@@ -277,7 +277,7 @@ u32 func_00109870(u16 arg0, s32 arg1)
 {
     u8 *persona;
 
-    persona = (u8 *)func_0010a900(arg0);
+    persona = (u8 *)datPersonaGetRecord(arg0);
     if ((u16)*(u16 *)(persona + 2) >= 0x100) {
         func_0046d730(D_005E4318, 0x1B7);
     }
@@ -302,7 +302,7 @@ s32 func_00109980(arg0, arg1)
 u16 arg0;
 s32 arg1;
 {
-    u16 *p = func_0010a900(arg0);
+    u16 *p = datPersonaGetRecord(arg0);
     u8 *base = (u8 *)p;
     if ((arg1 & 0xFFFF) >= 5) {
         func_0046d730(D_005E4318, 0x1DE);
@@ -363,7 +363,7 @@ u8 func_00109bf0(u16 arg0, s32 arg1)
     s16 c;
     s8 d;
     s16 sum;
-    u8 *p = (u8 *)func_0010a900(arg0);
+    u8 *p = (u8 *)datPersonaGetRecord(arg0);
 
     if ((arg1 & 0xFFFF) >= 5) {
         func_0046d730(D_005E4318, 0x1DE);
@@ -539,7 +539,7 @@ s32 func_0010a840(u16 arg0, s32 arg1, s32 arg2) {
     s16 delta;
     s16 total;
 
-    base = (u8 *)func_0010a900(arg0);
+    base = (u8 *)datPersonaGetRecord(arg0);
     if ((arg1 & 0xFFFF) >= 5) {
         func_0046d730(D_005E4318, 0x36C);
     }
@@ -557,13 +557,14 @@ s32 func_0010a840(u16 arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_0010A900
-u16 *func_0010a900(u16 arg0)
+// Intent: maps a persona id to its record; 1 is the selected roster slot, 2..10 index the party array.
+u16 *datPersonaGetRecord(u16 arg0)
 {
     u16 *p;
     s32 v = arg0 & 0xFFFF;
 
     if (v == 1) {
-        p = func_0010ace0(D_00797F88[0]);
+        p = datPersonaRosterSlot(D_00797F88[0]);
     } else {
         if (v >= 0xB) {
             func_0046d730(D_005E4318, 0x3A5);
@@ -577,7 +578,8 @@ u16 *func_0010a900(u16 arg0)
 }
 
 // FUN_0010A9B0
-s32 func_0010a9b0(s32 arg0)
+// Intent: true when the lead (id 1) record has flag bit 4 set; any other id returns 0.
+s32 datPersonaLeadHasFlag4(s32 arg0)
 {
     u16 *p;
     s32 v = arg0 & 0xFFFF;
@@ -586,7 +588,7 @@ s32 func_0010a9b0(s32 arg0)
         return 0;
     }
     if (v == 1) {
-        p = func_0010ace0(D_00797F88[0]);
+        p = datPersonaRosterSlot(D_00797F88[0]);
     } else {
         if (v >= 0xB) {
             func_0046d730(D_005E4318, 0x3A5);
@@ -600,9 +602,10 @@ s32 func_0010a9b0(s32 arg0)
 }
 
 // FUN_0010AA80
-s32 func_0010aa80(s32 arg0)
+// Intent: index of the active roster slot whose id matches, or -1.
+s32 datPersonaFindRosterSlotById(s32 arg0)
 {
-    s32 count = func_0010b5b0() & 0xFFFF;
+    s32 count = datPersonaRosterCapacity() & 0xFFFF;
     s32 i = 0;
     s32 id = (s16)arg0;
     u8 *base = D_007973A0;
@@ -617,11 +620,12 @@ s32 func_0010aa80(s32 arg0)
 }
 
 // FUN_0010AB30
-s32 func_0010ab30(void)
+// Intent: index of the first inactive roster slot, or -1 when the roster is full.
+s32 datPersonaFindFreeRosterSlot(void)
 {
     s32 i = 0;
 
-    while ((u16)i < (u16)func_0010b5b0()) {
+    while ((u16)i < (u16)datPersonaRosterCapacity()) {
         if ((*(u16 *)((u8 *)D_007973A0 + (i & 0xFFFF) * 0x30 + 0xBEC) & 1) == 0) {
             return (s16)i;
         }
@@ -631,15 +635,17 @@ s32 func_0010ab30(void)
 }
 
 // FUN_0010ABD0
-s32 func_0010abd0(s16 arg0)
+// Intent: true when roster slot arg0 has its active flag set.
+s32 datPersonaRosterSlotActive(s16 arg0)
 {
     return (*(u16 *)((u8 *)D_00797F8C + (s32)arg0 * 0x30) & 1) != 0;
 }
 
 // FUN_0010AC10
-u16 *func_0010ac10(s32 arg0)
+// Intent: roster record of the active slot matching the id, or NULL.
+u16 *datPersonaFindRosterRecordById(s32 arg0)
 {
-    s32 count = func_0010b5b0() & 0xFFFF;
+    s32 count = datPersonaRosterCapacity() & 0xFFFF;
     s32 i = 0;
     s16 found;
     s32 id = (s16)arg0;
@@ -659,15 +665,16 @@ done:
     if (found == -1) {
         return NULL;
     }
-    return func_0010ace0(found);
+    return datPersonaRosterSlot(found);
 }
 
 // FUN_0010ACE0
-u16 *func_0010ace0(s16 arg0)
+// Intent: roster record at index arg0, or NULL when the slot is inactive.
+u16 *datPersonaRosterSlot(s16 arg0)
 {
     s32 v = (s32)arg0;
 
-    if (v < 0 || v >= (u16)func_0010b5b0()) {
+    if (v < 0 || v >= (u16)datPersonaRosterCapacity()) {
         func_0046d730(D_005E4318, 0x3FE);
     }
     if ((*(u16 *)((u8 *)D_00797F8C + v * 0x30) & 1) == 0) {
@@ -677,9 +684,10 @@ u16 *func_0010ace0(s16 arg0)
 }
 
 // FUN_0010AD80
-s32 func_0010ad80(s32 arg0)
+// Intent: removes the active roster slot holding the id, if any.
+s32 datPersonaRemoveRosterMemberById(s32 arg0)
 {
-    s32 count = func_0010b5b0() & 0xFFFF;
+    s32 count = datPersonaRosterCapacity() & 0xFFFF;
     s32 i = 0;
     s32 arg;
     s32 id = (s16)arg0;
@@ -694,11 +702,12 @@ s32 func_0010ad80(s32 arg0)
     }
     arg = -1;
 done:
-    return func_0010ae30(arg);
+    return datPersonaRemoveRosterSlot(arg);
 }
 
 // FUN_0010AE30
-s32 func_0010ae30(s32 arg0)
+// Intent: removes roster slot arg0, shifts later slots down, then reselects the lead.
+s32 datPersonaRemoveRosterSlot(s32 arg0)
 {
     s16 i;
     s32 id;
@@ -711,20 +720,20 @@ s32 func_0010ae30(s32 arg0)
     u8 *base;
 
     id = (s16)arg0;
-    if (id < 0 || id >= (u16)func_0010b5b0()) {
+    if (id < 0 || id >= (u16)datPersonaRosterCapacity()) {
         func_0046d730(D_005E4318, 0x417);
     }
     if ((*(u16 *)((u8 *)D_00797F8C + id * 0x30) & 1) == 0) {
         return 0;
     }
-    selected = func_0010b460();
+    selected = datPersonaLeadSlotWord();
     for (i = (s16)arg0; (s32)i < 0xB; i++) {
         memcpy((u8 *)D_007973A0 + (s32)i * 0x30 + 0xBEC,
                       (u8 *)D_007973A0 + ((s32)i + 1) * 0x30 + 0xBEC,
                       0x30);
     }
     memset(D_0079819C, 0, 0x30);
-    count = func_0010b5b0() & 0xFFFF;
+    count = datPersonaRosterCapacity() & 0xFFFF;
     j = 0;
     selected32 = selected;
     base = (u8 *)D_007973A0;
@@ -739,15 +748,16 @@ s32 func_0010ae30(s32 arg0)
     found = -1;
 done:
     if ((s16)found != -1) {
-        func_0010b3b0(found);
+        datPersonaSetLeadSlot(found);
     }
     return 1;
 }
 
 // FUN_0010B010
-u8 *func_0010b010(u16 personaId)
+// Intent: adds persona id to the first free roster slot; fatal when the roster is full.
+u8 *datPersonaAddRosterMember(u16 personaId)
 {
-    u8 *p = func_0010b060(personaId);
+    u8 *p = datPersonaTryAddRosterMember(personaId);
     if (p == NULL) {
         func_0046d730(D_005E4318, 0x43A);
     }
@@ -755,13 +765,14 @@ u8 *func_0010b010(u16 personaId)
 }
 
 // FUN_0010B060
-u8 *func_0010b060(u16 personaId)
+// Intent: adds persona id to the first free roster slot, returning NULL when full.
+u8 *datPersonaTryAddRosterMember(u16 personaId)
 {
     s32 i = 0;
     s16 found;
     u8 *entry;
 
-    while ((u16)i < (u16)func_0010b5b0()) {
+    while ((u16)i < (u16)datPersonaRosterCapacity()) {
         if ((*(u16 *)((u8 *)D_007973A0 + (i & 0xFFFF) * 0x30 + 0xBEC) & 1) == 0) {
             found = (s16)i;
             goto done;
@@ -782,7 +793,8 @@ done:
 }
 
 // FUN_0010B190
-s32 func_0010b190(u8 *arg0)
+// Intent: copies a 0x30-byte record into the first free roster slot; returns 1 on success, 0 when full.
+s32 datPersonaInsertRosterRecord(u8 *arg0)
 {
     s32 i;
     s16 found;
@@ -795,7 +807,7 @@ s32 func_0010b190(u8 *arg0)
         func_0046d730(D_005E4318, 0x465);
     }
     i = 0;
-    while ((u16)i < (u16)func_0010b5b0()) {
+    while ((u16)i < (u16)datPersonaRosterCapacity()) {
         if ((*(u16 *)((u8 *)D_007973A0 + (i & 0xFFFF) * 0x30 + 0xBEC) & 1) == 0) {
             found = (s16)i;
             goto done;
@@ -816,9 +828,10 @@ done:
 }
 
 // FUN_0010B300
-s32 func_0010b300(s32 arg0)
+// Intent: selects the active roster slot holding the id as lead; returns 0 when no slot matches.
+s32 datPersonaSelectRosterMemberById(s32 arg0)
 {
-    s32 count = func_0010b5b0() & 0xFFFF;
+    s32 count = datPersonaRosterCapacity() & 0xFFFF;
     s32 i = 0;
     s32 arg;
     s32 id = (s16)arg0;
@@ -833,14 +846,15 @@ s32 func_0010b300(s32 arg0)
     }
     arg = -1;
 done:
-    return func_0010b3b0(arg);
+    return datPersonaSetLeadSlot(arg);
 }
 
 // FUN_0010B3B0
-s32 func_0010b3b0(s32 arg0)
+// Intent: makes roster slot arg0 the lead when it is active; returns 0 otherwise.
+s32 datPersonaSetLeadSlot(s32 arg0)
 {
     s32 idx = (s16)arg0;
-    if (idx < 0 || idx >= (u16)func_0010b5b0()) {
+    if (idx < 0 || idx >= (u16)datPersonaRosterCapacity()) {
         func_0046d730(D_005E4318, 0x47E);
     }
     if ((*(u16 *)((u8 *)D_00797F8C + idx * 0x30) & 1) == 0) {
@@ -851,12 +865,13 @@ s32 func_0010b3b0(s32 arg0)
 }
 
 // FUN_0010B460
-u16 func_0010b460(void)
+// Intent: u16 word at +2 of the lead slot's flag record.
+u16 datPersonaLeadSlotWord(void)
 {
     s32 v = D_00797F88[0];
     s32 off;
 
-    if (v < 0 || v >= (u16)func_0010b5b0()) {
+    if (v < 0 || v >= (u16)datPersonaRosterCapacity()) {
         func_0046d730(D_005E4318, 0x491);
     }
     off = v * 0x30;
@@ -867,11 +882,12 @@ u16 func_0010b460(void)
 }
 
 // FUN_0010B510
-s32 func_0010b510(void)
+// Intent: index of the lead roster slot; fatal when the lead slot is inactive.
+s32 datPersonaGetLeadSlot(void)
 {
     s32 v = D_00797F88[0];
 
-    if (v < 0 || v >= (u16)func_0010b5b0()) {
+    if (v < 0 || v >= (u16)datPersonaRosterCapacity()) {
         func_0046d730(D_005E4318, 0x49C);
     }
     if ((*(u16 *)((u8 *)D_00797F8C + v * 0x30) & 1) == 0) {
@@ -881,7 +897,8 @@ s32 func_0010b510(void)
 }
 
 // FUN_0010B5B0
-s32 func_0010b5b0(void)
+// Intent: roster capacity (6, 8, 10 or 12) selected by the mode flags at D_0079B40C.
+s32 datPersonaRosterCapacity(void)
 {
     s32 v = D_0079B40C[0];
     if (v & 4) {
@@ -901,7 +918,8 @@ s32 func_0010b5b0(void)
 /* measured: opt_propagation off preserves the three retail mask/and steps. */
 #pragma opt_propagation off
 // FUN_0010B610
-void func_0010b610(s32 arg0)
+// Intent: sets the roster mode flags (none, 1, 2 or 3 cumulative) that select the capacity.
+void datPersonaSetRosterMode(s32 arg0)
 {
     s32 flags;
     s32 mode;
@@ -935,7 +953,8 @@ void func_0010b610(s32 arg0)
    opt_loop_invariants; the explicit bracket is required for the hoisted base. */
 #pragma opt_loop_invariants on
 // FUN_0010B6F0
-u16 func_0010b6f0(void)
+// Intent: number of active roster slots within the current capacity.
+u16 datPersonaCountValidMembers(void)
 {
     u16 validCount;
     u32 modeFlags;
@@ -968,7 +987,8 @@ u16 func_0010b6f0(void)
 /* measured: explicit opposite pragma closes the one-function optimization bracket. */
 #pragma opt_loop_invariants off
 // FUN_0010B7C0
-void func_0010b7c0(void)
+// Intent: clears the roster flag records.
+void datPersonaClearRoster(void)
 {
     memset((void *)D_00797F8C, 0, 0x240);
 }
@@ -976,7 +996,7 @@ void func_0010b7c0(void)
 /* measured: retail loads the count-select constants with daddiu (the
    b5b0-return form) inside the ||; mwcc b210 emits addiu for ternary/local
    forms and hoists the D_0079B40C load. Tried ternary/u16/s64 arms and
-   assignment forms; nd 104-106. Same daddiu-local floor as func_0010b6f0. */
+   assignment forms; nd 104-106. Same daddiu-local floor as datPersonaCountValidMembers. */
 // FUN_0010B7F0
 void func_0010b7f0(void)
 {
@@ -1046,7 +1066,7 @@ s32 func_0010b9a0(s32 arg0, u16 arg1)
     s32 curOff;
 
     if (v == 1) {
-        empty = func_0010ab30();
+        empty = datPersonaFindFreeRosterSlot();
         if (empty == -1) {
             p = NULL;
         } else {
@@ -1122,7 +1142,7 @@ pass47E:
     } else {
         if (v == 1) {
             cur = D_00797F88[0];
-            if (cur < 0 || cur >= (u16)func_0010b5b0()) {
+            if (cur < 0 || cur >= (u16)datPersonaRosterCapacity()) {
                 func_0046d730(D_005E4318, 0x3FE);
             }
             curOff = cur * 0x30;

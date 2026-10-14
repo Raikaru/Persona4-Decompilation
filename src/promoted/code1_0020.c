@@ -67,8 +67,8 @@ static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
 extern u32 func_00452560();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
-extern u8 *func_0010ace0(s16 arg0);
-extern s32 func_0010b510(void);
+extern u8 *datPersonaRosterSlot(s16 arg0);
+extern s32 datPersonaGetLeadSlot(void);
 extern s32 datPersonaGetLevel(u8 *arg0);
 extern u8 *func_00109220(u16 arg0);
 extern u16 func_00272c60(s16 arg0);
@@ -2620,8 +2620,8 @@ void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
     const char *name;
 
     glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
-    persona = func_0010ace0((s16)slot);
-    if (slot == (s16)func_0010b510()) {
+    persona = datPersonaRosterSlot((s16)slot);
+    if (slot == (s16)datPersonaGetLeadSlot()) {
         func_00201650(glyphs, 13, 0x2B, -11.0f + x, 6.0f + y,
                       0xF3, 0, 0xB, opacity);
         if (highlighted != 0) {
@@ -3105,7 +3105,7 @@ void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
 }
 
 extern s32 func_00106600(s16 id);
-extern u16 *func_0010a900(u16 id);
+extern u16 *datPersonaGetRecord(u16 id);
 extern u16 func_0010cf40(u8 *persona, s16 slot);
 extern s32 func_00232aa0(s32 id);
 extern u8 *iGpffffb3b8;
@@ -3149,7 +3149,7 @@ void func_00207140(u16 *flags, u8 *work)
     skillCount = 0;
     unit = *(u8 **)(*(u8 **)(work + 0x178) + 0x30);
     if (unit[0xA2] == 0) {
-        persona = (u8 *)func_0010a900(*(u16 *)(unit + 0xA4));
+        persona = (u8 *)datPersonaGetRecord(*(u16 *)(unit + 0xA4));
         for (skillSlot = 0; skillSlot < 8; skillSlot++) {
             skill = func_0010cf40(persona, (s16)skillSlot);
             if (skill != 0 && skill < 0x1B8 && (*(u8 *)(skill * 0x28 + iGpffffb3b8 + 1) & 2)) {
@@ -3180,12 +3180,12 @@ void func_00207140(u16 *flags, u8 *work)
 s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
     extern u32 func_00452560(void *task);
-    extern u16 *func_0010a900(u16 character);
+    extern u16 *datPersonaGetRecord(u16 character);
     extern s32 func_001f0620(u8 *arg0, s64 arg1);
     extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern s32 func_0023dfe0(u8 *unit);
     extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern u16 func_0010b6f0(void);
+    extern u16 datPersonaCountValidMembers(void);
     extern void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
     extern void func_00202e60(u8 *arg0, void *arg1);
     extern void func_002019f0(s32 arg0, u32 arg1);
@@ -3267,7 +3267,7 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        func_0010a900(*(u16 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA4));
+        datPersonaGetRecord(*(u16 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA4));
         func_00202c60(work + 0x74, 4, *(s16 *)(work + 0x1A4), func_00208a50,
                       func_00208b00, func_00208d00, func_002090d0, work);
         panel = work + 0x74;
@@ -3331,7 +3331,7 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
         }
         *(u8 **)(work + 0x5A8) = func_00117780(*(s32 *)(work + 0x5B0), 0xF, 1, 8, 8);
         *(s16 *)(work + 0x5AC) = -1;
-        func_00202c60(work + 0x144, 4, (s16)func_0010b6f0(), func_0020a5d0,
+        func_00202c60(work + 0x144, 4, (s16)datPersonaCountValidMembers(), func_0020a5d0,
                       func_0020a640, func_0020aa70, func_0020ad70, work);
         panel = work + 0x144;
         *nextPanel = panel;
@@ -4432,8 +4432,8 @@ u16 func_0020a640(u8 *arg0, u8 *arg1)
     switch (var_16) {
     case 2:
         temp_16 = *(s16 *)(arg0 + 4);
-        if (temp_16 != (s16)func_0010b510()) {
-            temp_2 = func_0010ace0(temp_16);
+        if (temp_16 != (s16)datPersonaGetLeadSlot()) {
+            temp_2 = datPersonaRosterSlot(temp_16);
             *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 5;
             *(u16 *)(*(u8 **)(arg1 + 0x178) + 0x74) = *(u16 *)((u8 *)temp_2 + 2);
             func_0011b360(*(u8 **)(arg1 + 0x5A8));
@@ -4452,7 +4452,7 @@ u16 func_0020a640(u8 *arg0, u8 *arg1)
     case 3:
         if (*(s16 *)(arg1 + 0x5AC) == -1) {
             if (func_0011ba00(*(u8 **)(arg1 + 0x5A8)) == 0) {
-                temp_2 = func_0010ace0(*(s16 *)(arg0 + 4));
+                temp_2 = datPersonaRosterSlot(*(s16 *)(arg0 + 4));
                 *(s32 *)(iGpffffb3ac + 0xC) &= ~0x2000;
                 *(s32 *)(iGpffffb3ac + 0xC) &= ~0x20000;
                 stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
@@ -4503,7 +4503,7 @@ u16 func_0020a640(u8 *arg0, u8 *arg1)
     default:
         if (*(s16 *)(arg1 + 0x5AC) != -1) {
             if (*(s16 *)(arg1 + 0x5AC) != *(s16 *)(arg0 + 4)) {
-                temp_2 = func_0010ace0(*(s16 *)(arg0 + 4));
+                temp_2 = datPersonaRosterSlot(*(s16 *)(arg0 + 4));
                 if (var_16 == 5) {
                     stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
                     task = *(u8 **)(arg1 + 0x5A8);
@@ -4823,7 +4823,7 @@ void func_0020b5b0(s32 arg0, u8 *arg1)
 
 // FUN_0020B6D0
 extern u32 func_001d8df0(u8 *arg0);
-extern u16 *func_0010a900(u16 arg0);
+extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 func_0010ce10(u8 *arg0, u16 arg1);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
@@ -4884,7 +4884,7 @@ void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
         } else {
             var_2 = 8;
         }
-        if (func_0010ce10((u8 *)func_0010a900(var_2 & 0xFFFF), 0x10C) != -1) {
+        if (func_0010ce10((u8 *)datPersonaGetRecord(var_2 & 0xFFFF), 0x10C) != -1) {
             var_23 = 1;
         }
     }
