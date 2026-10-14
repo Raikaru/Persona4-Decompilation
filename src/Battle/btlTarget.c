@@ -11,6 +11,85 @@ typedef struct BtlTarget {
     u16 targetedCount;              // 0x32
 } BtlTarget;
 
+extern s64 func_0029cc00(); /* lint: allow H011 -- raw s64 call result feeds s64 temporaries, as in code1_001e */
+extern s32 func_0029cc00_s32(s32 index);
+extern s64 func_00194590(u8 *arg0, u32 arg1);
+extern u8 *func_001f60c0(void);
+extern u8 *func_001f6030(s32 arg0, s64 arg1); /* lint: allow H011 -- raw s64 argument is passed unconverted, as in code1_001e */
+extern u8 *func_0029d050(void); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
+extern void func_001de640(u8 *arg0, u8 *arg1, u16 arg2);
+extern s32 func_001de800(u8 *arg0); /* lint: allow H011 -- s32 view of the u8 definition, as in code1_001e; the u8 view changes the caller's extension */
+extern u8 *func_001dea90(u8 *arg0, u32 arg1);
+extern void *D_00609CE0[];
+typedef struct P4Vec4_001EC2B0 {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} P4Vec4_001EC2B0;
+typedef struct P4Vec4Holder_001EC2B0 {
+    P4Vec4_001EC2B0 quat;
+} P4Vec4Holder_001EC2B0;
+extern f32 sqrtf(f32 arg0);
+extern f32 func_0044b950(f32 arg0, f32 arg1);
+extern void func_003dc740(void *arg0, void *arg1, f32 arg3, s32 arg2);
+extern f32 fGpffff8048;
+extern u8 D_0060A0E0[];
+extern s32 func_001f3900(u8 **arg0);
+extern void func_001f3930(s32 *param_1);
+extern s32 func_001f39d0(u8 **arg0);
+extern void func_001f3b00(s32 *param_1);
+
+// FUN_001EA9A0
+s32 func_001ea9a0(void) {
+    s64 temp_16;
+    s64 temp_17;
+    u8 *temp_2;
+    u8 *temp_2_2;
+
+    temp_17 = func_0029cc00(0);
+    temp_16 = func_0029cc00(1);
+    temp_2 = func_001f60c0();
+    *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
+    func_00194590(temp_2, 1);
+    temp_2_2 = func_001f6030(0x20, temp_17);
+    *(s16 *)(temp_2_2 + 0x48) = (s16)temp_16;
+    func_00194590(temp_2_2, 1);
+    return 1;
+}
+
+// FUN_001EAA30
+s32 func_001eaa30(void)
+{
+    s32 temp_16;
+    u8 *temp_2;
+
+    temp_16 = func_0029cc00_s32(0);
+    temp_2 = func_001f60c0();
+    *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
+    func_00194590(temp_2, 1);
+    return 1;
+}
+
+// FUN_001EB1D0
+s32 func_001eb1d0(void) {
+    s32 temp_3;
+    u32 index;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    s32 (*callback)(u8 *, s64);
+
+    temp_2 = func_0029d050();
+    temp_2_2 = func_001dea90(temp_2, (u32)func_001de800(temp_2) & 0xFFFF);
+    func_001de640(temp_2, temp_2 + 0x38, *(u16 *)(temp_2_2 + 2));
+    temp_3 = *(s32 *)(temp_2_2 + 4);
+    index = ((u32)temp_3 & 0xFF000000) >> 24;
+    callback = *(s32 (**)(u8 *, s64))((u8 *)D_00609CE0 + index * 8);
+    if (callback(temp_2, ((u64)temp_3 << 40) >> 40) == 0)
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0);
+    return 1;
+}
+
 /* Ported from the P3FES btlTarget donor at 002d1600 (verified MATCH there),
  * which wraps this function in the same pragma. It is load-bearing:
  * measured: without it MWCC rematerializes the loop constant inside the loop
@@ -88,6 +167,138 @@ u16 func_001eb440(BtlTarget* target)
 /* measured: see the annotation above the matching `on` pragma (func_001eb440). */
 #pragma opt_loop_invariants off
 
+
+// FUN_001EBA20
+s32 func_001eba20(u8 *arg0) {
+    s32 result;
+    u8 *temp_16;
+
+    if (*(s32 *)(arg0 + 8) == 0) {
+        func_001debb0(*(u8 **)arg0, *(u8 **)arg0 + 0x38,
+                     *(s32 *)(arg0 + 0xC), *(s32 *)(arg0 + 4));
+        *(u8 *)(*(u8 **)arg0 + 0x68) = 1;
+        *(s32 *)(arg0 + 8) = 1;
+        goto zero_path;
+    }
+    temp_16 = *(u8 **)arg0 + 0x38;
+    if (*(u8 *)(*(u8 **)arg0 + 0x68) != 0)
+        goto check_flags;
+    result = 1;
+    goto common;
+check_flags:
+    if (*(s32 *)(temp_16 + 0x4C) != 0)
+        goto check_call;
+    result = 1;
+    goto common;
+check_call:
+    if (func_00452490(*(s32 *)(temp_16 + 0x4C)) != 0)
+        goto result_zero;
+    *(s8 *)(temp_16 + 0x30) = 0;
+    *(s32 *)(temp_16 + 0x4C) = 0;
+    result = 1;
+    goto common;
+result_zero:
+    result = 0;
+common:
+    if (result == 0)
+        goto zero_path;
+    result = 1;
+    goto done;
+zero_path:
+    result = 0;
+done:
+    return result;
+}
+
+// FUN_001EC1C0
+void func_001ec1c0(u8 *arg0, u8 *arg1, u8 *arg2) {
+    f32 temp_f12;
+    f32 temp_f13;
+    f32 var_f0;
+
+    temp_f12 = *(f32 *)(arg2 + 0) - *(f32 *)(arg1 + 0);
+    temp_f13 = *(f32 *)(arg2 + 8) - *(f32 *)(arg1 + 8);
+    var_f0 = 0.0f;
+    if ((temp_f12 != 0.0f) || (temp_f13 != 0.0f))
+        var_f0 = fGpffff8048 * func_0044b950(temp_f12, temp_f13);
+    func_003dc740(arg0, D_0060A0E0, var_f0, 0);
+}
+
+/* measured: opt_propagation off probe for ec2b0 load ordering. */
+#pragma opt_propagation off
+// FUN_001EC2B0
+f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *right, P4Vec4Holder_001EC2B0 *left)
+{
+    extern f32 func_0044b920(f32 arg0);
+    f32 dot;
+
+    dot = right->quat.x * left->quat.x +
+          right->quat.y * left->quat.y +
+          right->quat.z * left->quat.z;
+    dot += right->quat.w * left->quat.w;
+    if (dot < 0.0f) {
+        dot = right->quat.x * -left->quat.x +
+              right->quat.y * -left->quat.y +
+              right->quat.z * -left->quat.z;
+        dot += right->quat.w * -left->quat.w;
+    }
+    return 2.0f * func_0044b920(dot);
+}
+/* measured: close opt_propagation probe for func_001ec2b0. */
+#pragma opt_propagation on
+
+// FUN_001EC3D0
+f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+{
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 fabsf(f32 arg0);
+    f32 delta[2];
+    f32 vx;
+    f32 vy;
+    f32 cross;
+
+    delta[0] = *(f32 *)(arg0 + 0) - *(f32 *)(arg1 + 0);
+    delta[1] = *(f32 *)(arg0 + 4) - *(f32 *)(arg1 + 4);
+    func_003e41e0(delta, delta);
+    vx = *(f32 *)(arg2 + 0) - *(f32 *)(arg0 + 0);
+    vy = *(f32 *)(arg2 + 4) - *(f32 *)(arg0 + 4);
+    cross = (vx * delta[1]) + (vy * -delta[0]);
+    if (arg3 != NULL) {
+        *(f32 *)(arg3 + 0) = *(f32 *)(arg2 + 0) - cross * delta[1];
+        *(f32 *)(arg3 + 4) = *(f32 *)(arg2 + 4) - cross * -delta[0];
+    }
+    return fabsf(cross);
+}
+
+// FUN_001EC4A0
+s32 func_001ec4a0(s32 arg0, u8 *arg1)
+{
+    extern void func_003e42a0();
+    extern u8 *func_00457120(); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
+    f32 sp40[3];
+    f32 temp_f0;
+    f32 temp_f1;
+    f32 temp_f20;
+    f32 temp_f2;
+    u8 *camera;
+
+    camera = func_00457120() + 0x20;
+    func_003e42a0(sp40, arg0, camera);
+    temp_f20 = *(f32 *)(func_00457120() + 0x80);
+    temp_f0 = *(f32 *)(func_00457120() + 0x84);
+    if ((sp40[2] <= temp_f20) || !(sp40[2] < temp_f0)) {
+        return 0;
+    }
+    temp_f2 = 640.0f * (sp40[0] / sp40[2]);
+    temp_f1 = 448.0f * (sp40[1] / sp40[2]);
+    if ((temp_f2 < -640.0f) || !(temp_f2 <= 1280.0f) ||
+        (temp_f1 < -448.0f) || !(temp_f1 <= 896.0f)) {
+        return 0;
+    }
+    *(f32 *)(arg1 + 0) = temp_f2;
+    *(f32 *)(arg1 + 4) = temp_f1;
+    return 1;
+}
 
 /* measured: the `volatile` on `state` is load-bearing (see annotation above);
  * removing it costs FUN_001EC630 MATCH nd0 -> nd6. */
@@ -384,6 +595,67 @@ u32 func_001f37d0(void* arg)
     return 1;
 }
 
+// FUN_001F3870
+/* The allocator result remains in v0 through packet initialization; all eleven
+ * retail callers use it for submission or dependency setup. */
+u8 *func_001f3870(u8 *action, u8 flags)
+{
+    u8 *packet;
+    u8 *work;
+
+    packet = (u8 *)func_00194470(0x701, 8);
+    *(BtlTargetStateHook *)(packet + 0x68) = func_001f37b0;
+    *(BtlTargetStateUpdate *)(packet + 0x6C) = func_001f37d0;
+    *(BtlTargetStateHook *)(packet + 0x70) = func_001f3850;
+    work = *(u8 **)(packet + 0x78);
+    *(u8 **)(work + 0) = action;
+    *(u8 *)(work + 4) = flags;
+    return packet;
+}
+
+// FUN_001F38E0
+void func_001f38e0(u8 **arg0)
+{
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(*arg0 + 0x30);
+    *(u16 *)(temp_4 + 0xA0) = (u16)(*(u16 *)(temp_4 + 0xA0) + 1);
+}
+
+// FUN_001F3950
+u8 *func_001f3950(u8 *arg0)
+{
+    u8 *packet;
+
+    packet = (u8 *)func_00194470(0x703, 4);
+    *(void **)(packet + 0x68) = (void *)func_001f38e0;
+    *(void **)(packet + 0x6C) = (void *)func_001f3900;
+    *(void **)(packet + 0x70) = (void *)func_001f3930;
+    **(u8 ***)(packet + 0x78) = arg0;
+    return packet;
+}
+
+// FUN_001F39B0
+void func_001f39b0(u8 **arg0)
+{
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(*arg0 + 0x30);
+    *(u16 *)(temp_4 + 0xA0) = (u16)(*(u16 *)(temp_4 + 0xA0) + 1);
+}
+
+// FUN_001F3B20
+u8 *func_001f3b20(u8 *arg0)
+{
+    u8 *packet;
+
+    packet = (u8 *)func_00194470(0x702, 4);
+    *(void **)(packet + 0x68) = (void *)func_001f39b0;
+    *(void **)(packet + 0x6C) = (void *)func_001f39d0;
+    *(void **)(packet + 0x70) = (void *)func_001f3b00;
+    **(u8 ***)(packet + 0x78) = arg0;
+    return packet;
+}
 
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 
@@ -461,6 +733,12 @@ s32 func_001f9720(void)
 
 // FUN_001F9730
 s32 func_001f9730(void)
+{
+    return -1;
+}
+
+// FUN_001F9740
+s32 func_001f9740(void)
 {
     return -1;
 }

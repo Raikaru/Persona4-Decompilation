@@ -1927,36 +1927,6 @@ s32 func_001ea8e0(void) {
         (f32)func_0029cc00_s32(0) / 30.0f), 0);
     return 1;
 }
-// FUN_001EA9A0
-s32 func_001ea9a0(void) {
-    s64 temp_16;
-    s64 temp_17;
-    u8 *temp_2;
-    u8 *temp_2_2;
-
-    temp_17 = func_0029cc00(0);
-    temp_16 = func_0029cc00(1);
-    temp_2 = func_001f60c0();
-    *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
-    func_00194590(temp_2, 1);
-    temp_2_2 = func_001f6030(0x20, temp_17);
-    *(s16 *)(temp_2_2 + 0x48) = (s16)temp_16;
-    func_00194590(temp_2_2, 1);
-    return 1;
-}
-// FUN_001EAA30
-s32 func_001eaa30(void)
-{
-    s32 temp_16;
-    u8 *temp_2;
-
-    temp_16 = func_0029cc00_s32(0);
-    temp_2 = func_001f60c0();
-    *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
-    func_00194590(temp_2, 1);
-    return 1;
-}
-
 // FUN_001EAA80
 s32 func_001eaa80(void) {
     if (func_001eb860() == 1) {
@@ -2201,24 +2171,6 @@ s32 func_001eb110(void) {
     return 1;
 }
 
-// FUN_001EB1D0
-s32 func_001eb1d0(void) {
-    s32 temp_3;
-    u32 index;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    s32 (*callback)(u8 *, s64);
-
-    temp_2 = func_0029d050();
-    temp_2_2 = func_001dea90(temp_2, (u32)func_001de800(temp_2) & 0xFFFF);
-    func_001de640(temp_2, temp_2 + 0x38, *(u16 *)(temp_2_2 + 2));
-    temp_3 = *(s32 *)(temp_2_2 + 4);
-    index = ((u32)temp_3 & 0xFF000000) >> 24;
-    callback = *(s32 (**)(u8 *, s64))((u8 *)D_00609CE0 + index * 8);
-    if (callback(temp_2, ((u64)temp_3 << 40) >> 40) == 0)
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0);
-    return 1;
-}
 // FUN_001EB2A0
 s32 func_001eb2a0(void) {
     s32 temp;
@@ -2481,47 +2433,6 @@ void func_001eb8d0(void) {
         }
     }
 }
-// FUN_001EBA20
-s32 func_001eba20(u8 *arg0) {
-    s32 result;
-    u8 *temp_16;
-
-    if (*(s32 *)(arg0 + 8) == 0) {
-        func_001debb0(*(u8 **)arg0, *(u8 **)arg0 + 0x38,
-                     *(s32 *)(arg0 + 0xC), *(s32 *)(arg0 + 4));
-        *(u8 *)(*(u8 **)arg0 + 0x68) = 1;
-        *(s32 *)(arg0 + 8) = 1;
-        goto zero_path;
-    }
-    temp_16 = *(u8 **)arg0 + 0x38;
-    if (*(u8 *)(*(u8 **)arg0 + 0x68) != 0)
-        goto check_flags;
-    result = 1;
-    goto common;
-check_flags:
-    if (*(s32 *)(temp_16 + 0x4C) != 0)
-        goto check_call;
-    result = 1;
-    goto common;
-check_call:
-    if (func_00452490(*(s32 *)(temp_16 + 0x4C)) != 0)
-        goto result_zero;
-    *(s8 *)(temp_16 + 0x30) = 0;
-    *(s32 *)(temp_16 + 0x4C) = 0;
-    result = 1;
-    goto common;
-result_zero:
-    result = 0;
-common:
-    if (result == 0)
-        goto zero_path;
-    result = 1;
-    goto done;
-zero_path:
-    result = 0;
-done:
-    return result;
-}
 // FUN_001EBB00
 u8 *func_001ebb00(s32 arg0, s32 arg1, u8 *arg2) {
     s32 kind;
@@ -2684,41 +2595,6 @@ void func_001ebc00(u8 *action, u8 *command)
     }
 }
 #pragma opt_common_subs on
-// FUN_001EC1C0
-void func_001ec1c0(u8 *arg0, u8 *arg1, u8 *arg2) {
-    f32 temp_f12;
-    f32 temp_f13;
-    f32 var_f0;
-
-    temp_f12 = *(f32 *)(arg2 + 0) - *(f32 *)(arg1 + 0);
-    temp_f13 = *(f32 *)(arg2 + 8) - *(f32 *)(arg1 + 8);
-    var_f0 = 0.0f;
-    if ((temp_f12 != 0.0f) || (temp_f13 != 0.0f))
-        var_f0 = fGpffff8048 * func_0044b950(temp_f12, temp_f13);
-    func_003dc740(arg0, D_0060A0E0, var_f0, 0);
-}
-/* measured: opt_propagation off probe for ec2b0 load ordering. */
-#pragma opt_propagation off
-// FUN_001EC2B0
-f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *right, P4Vec4Holder_001EC2B0 *left)
-{
-    extern f32 func_0044b920(f32 arg0);
-    f32 dot;
-
-    dot = right->quat.x * left->quat.x +
-          right->quat.y * left->quat.y +
-          right->quat.z * left->quat.z;
-    dot += right->quat.w * left->quat.w;
-    if (dot < 0.0f) {
-        dot = right->quat.x * -left->quat.x +
-              right->quat.y * -left->quat.y +
-              right->quat.z * -left->quat.z;
-        dot += right->quat.w * -left->quat.w;
-    }
-    return 2.0f * func_0044b920(dot);
-}
-/* measured: close opt_propagation probe for func_001ec2b0. */
-#pragma opt_propagation on
 // FUN_001EC350
 f32 func_001ec350(f32 *arg0, f32 *arg1)
 {
@@ -2738,57 +2614,6 @@ f32 func_001ec350(f32 *arg0, f32 *arg1)
         arg1[3] = arg0[3] / length;
     }
     return length;
-}
-// FUN_001EC3D0
-f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
-{
-    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
-    extern f32 fabsf(f32 arg0);
-    f32 delta[2];
-    f32 vx;
-    f32 vy;
-    f32 cross;
-
-    delta[0] = *(f32 *)(arg0 + 0) - *(f32 *)(arg1 + 0);
-    delta[1] = *(f32 *)(arg0 + 4) - *(f32 *)(arg1 + 4);
-    func_003e41e0(delta, delta);
-    vx = *(f32 *)(arg2 + 0) - *(f32 *)(arg0 + 0);
-    vy = *(f32 *)(arg2 + 4) - *(f32 *)(arg0 + 4);
-    cross = (vx * delta[1]) + (vy * -delta[0]);
-    if (arg3 != NULL) {
-        *(f32 *)(arg3 + 0) = *(f32 *)(arg2 + 0) - cross * delta[1];
-        *(f32 *)(arg3 + 4) = *(f32 *)(arg2 + 4) - cross * -delta[0];
-    }
-    return fabsf(cross);
-}
-// FUN_001EC4A0
-s32 func_001ec4a0(s32 arg0, u8 *arg1)
-{
-    extern void func_003e42a0();
-    extern u8 *func_00457120();
-    f32 sp40[3];
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f20;
-    f32 temp_f2;
-    u8 *camera;
-
-    camera = func_00457120() + 0x20;
-    func_003e42a0(sp40, arg0, camera);
-    temp_f20 = *(f32 *)(func_00457120() + 0x80);
-    temp_f0 = *(f32 *)(func_00457120() + 0x84);
-    if ((sp40[2] <= temp_f20) || !(sp40[2] < temp_f0)) {
-        return 0;
-    }
-    temp_f2 = 640.0f * (sp40[0] / sp40[2]);
-    temp_f1 = 448.0f * (sp40[1] / sp40[2]);
-    if ((temp_f2 < -640.0f) || !(temp_f2 <= 1280.0f) ||
-        (temp_f1 < -448.0f) || !(temp_f1 <= 896.0f)) {
-        return 0;
-    }
-    *(f32 *)(arg1 + 0) = temp_f2;
-    *(f32 *)(arg1 + 4) = temp_f1;
-    return 1;
 }
 /* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
 #pragma opt_propagation off
