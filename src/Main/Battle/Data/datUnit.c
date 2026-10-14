@@ -201,6 +201,12 @@ void func_002318c0(DatUnitEc* ec, DatUnit* unit)
     if (i >= 6) func_0046d730(D_00635928, 0x93);
 }
 
+// FUN_002319C0
+void func_002319c0(s32 arg0)
+{
+    jtbl_008873EC[0]((void *)arg0);
+}
+
 // FUN_002319F0
 u32 func_002319f0(DatUnitGenusBase* genusBase)
 {
@@ -288,9 +294,3 @@ u32 func_00231af0(DatUnit* unit, u8 genus, u16 id)
     return 1;
 }
 #pragma opt_loop_invariants off
-
-// FUN_002319C0
-void func_002319c0(s32 arg0)
-{
-    jtbl_008873EC[0]((void *)arg0);
-}
