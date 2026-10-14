@@ -80,11 +80,8 @@ extern u8 D_007134B0[];
 extern char D_00713CE0[];
 extern f32 fGpffff8044;
 extern void func_00494f90(u8 *arg0);
-extern s32 mdlEffectSlotIsFree(u8 *arg0, u16 arg1);
 extern void func_00494740(u8 *arg0, u16 arg1, void *arg2, f32 arg3);
 extern void func_004940d0(u8 *arg0, u16 arg1, void *arg2);
-extern void mdlEffectSlotRelease(u8 *arg0, u16 arg1);
-extern void mdlEffectSlotSetZero(u8 *arg0, u16 arg1);
 extern void func_00494ff0(u8 *arg0);
 
 

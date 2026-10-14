@@ -52,8 +52,6 @@ extern u8 D_00714390[];
 extern u8 D_007143A4[];
 extern u8 D_00714460[];
 extern u8 D_00714474[];
-extern u8 *effBlurFilterCopiedCreate(u32 arg0, const void *arg1);
-extern u8 *effBlurFilterDirectCreate(u32 arg0, s32 arg1);
 
 typedef struct BlurRefObj {
     s32 f0;
@@ -1442,7 +1440,7 @@ void *effBlurFilterDirectInstantiate(void *param_1) {
     if (tmp == 0) {
         func_0046d730(D_00714380, 0x72B);
     }
-    tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0xC), (s32)tmp);
+    tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0xC), tmp);
     if (tmp == 0) {
         func_0046d730(D_00714380, 0x72D);
     }
@@ -1551,9 +1549,9 @@ void effBlurFilterCopiedSetScale(void *param_1, f32 param_2) {
    order preserve the remaining retail allocation and call sequence. */
 /* Creates a node whose initializer receives the caller's data pointer rather than a copy. */
 // FUN_004AB420
-u8 *effBlurFilterDirectCreate(u32 type, s32 initialData)
+u8 *effBlurFilterDirectCreate(u32 type, const void *initialData)
 {
-    s32 (*initialize)(s32);
+    s32 (*initialize)(const void *);
     s32 kind;
     u8 *allocated;
     s32 dataSize;
@@ -1578,9 +1576,9 @@ u8 *effBlurFilterDirectCreate(u32 type, s32 initialData)
     __asm__ ("sqc2 vf0, 0(%0)" : : "r"(object) : "memory");
     data = object + headerBytes;
     *(u8 **)(object + 0x24) = data;
-    memcpy(data, (const void *)initialData, dataSize);
-    initialize = *(s32 (**)(s32))(D_00714460 + ((u16)type * 0x18));
-    if (initialize != (s32 (*)(s32))0)
+    memcpy(data, initialData, dataSize);
+    initialize = *(s32 (**)(const void *))(D_00714460 + ((u16)type * 0x18));
+    if (initialize != (s32 (*)(const void *))0)
         *(s32 *)(object + 0x20) = initialize(initialData);
     *(s16 *)(object + 0x44) = 0x17;
     *(u8 **)(object + 0x48) = object;
@@ -1604,7 +1602,7 @@ void effBlurFilterDirectDestroy(void *param_1) {
 void *effBlurFilterDirectDuplicate(void *param_1) {
     u8 *tmp;
 
-    tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0x18), *(s32 *)((char *)param_1 + 0x24));
+    tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0x18), *(const void **)((char *)param_1 + 0x24));
     if ((*(void **)((char *)param_1 + 0x28) != 0) && (*(s8 *)(D_00714470 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
         *(s32 *)(tmp + 0x28) = (s32)func_004abb00(*(void **)((char *)param_1 + 0x28));
     }
