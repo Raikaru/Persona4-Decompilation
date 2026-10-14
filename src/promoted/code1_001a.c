@@ -1457,15 +1457,15 @@ void func_001a2ad0(u8 *arg0) {
 // FUN_001A2B50
 void func_001a2b50(u8 *arg0)
 {
-    s32 temp_3;
+    s32 battleFlags;
 
     if (func_001deeb0(arg0 + 0x38) == 0) {
         func_001ded30(arg0, arg0 + 0x38);
     }
     if (func_001deee0(arg0 + 0x38) != 0) {
-        temp_3 = *(s32 *)(D_0076449C + 0xC);
-        if ((temp_3 & 0x1000) &&
-            (temp_3 & 0x04000000) &&
+        battleFlags = *(s32 *)(D_0076449C + 0xC);
+        if ((battleFlags & 0x1000) &&
+            (battleFlags & 0x04000000) &&
             (*(u8 **)(arg0 + 0x30))[0xA2] == 1) {
             *(u16 *)(arg0 + 0x18) |= 0x4000;
         }
@@ -1485,7 +1485,7 @@ void func_001a2c10(s64 *arg0) {
 // FUN_001A2C70
 void func_001a2c70(u8 *arg0)
 {
-    u8 *temp_3;
+    u8 *battleUnit;
 
     *(s16 *)(arg0 + 0x6C) = 1;
     *(s16 *)(arg0 + 0x6E) =
@@ -1493,8 +1493,8 @@ void func_001a2c70(u8 *arg0)
     *(s32 *)(arg0 + 0x38) = func_001d8bc0(arg0 + 0x98);
     *(s16 *)(arg0 + 0x6A) = 1;
     func_001d8be0((s32)(arg0 + 0x98), *(u64 **)(arg0 + 0x38));
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if ((temp_3[0xA2] == 0) && (*(u16 *)(temp_3 + 0xA4) == 1)) {
+    battleUnit = *(u8 **)(arg0 + 0x30);
+    if ((battleUnit[0xA2] == 0) && (*(u16 *)(battleUnit + 0xA4) == 1)) {
         func_00194590(actionTargetPacketBytes(arg0, 1, 0, 0, 0), 1);
     }
     if (*(s32 *)(D_0076449C + 0xC) & 0x04000000) {
