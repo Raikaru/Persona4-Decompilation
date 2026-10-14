@@ -344,7 +344,7 @@ void func_004aed70(u8 *arg0)
     extern u_long128 func_00492db0(int param_1, u32 *param_2);
     extern void func_004bceb0(void);
     extern void func_004ae2f0(u8 *a, u8 *b, s32 c);
-    extern void *func_004ae020(void *object, void *data);
+    extern void *mdlEffectSetAllColors(void *object, void *data);
     extern u8 *func_003bfe90(u8 *arg0);
     extern void RwMatrixMultiply(EffObjectMatrix *dst, EffObjectMatrix *a, EffObjectMatrix *b);
     extern void RwMatrixRotate(EffObjectMatrix *m, f32 *axis, f32 angle, s32 op);
@@ -465,7 +465,7 @@ void func_004aed70(u8 *arg0)
                         "ppacb $2, $0, $2\n"
                         "sw $2, packedA\n" : "=m"(packedA) : : "$2", "$vf2", "$vf10");
                     *(u32 *)&packedArg = *(u32 *)&packedA;
-                    func_003bff30(clump, (KClumpCallback)func_004ae020, &packedArg);
+                    func_003bff30(clump, (KClumpCallback)mdlEffectSetAllColors, &packedArg);
                     {
                         f32 age = (f32)*(s32 *)(p18 + 0x10);
 
@@ -558,7 +558,7 @@ void func_004aed70(u8 *arg0)
                         "ppacb $2, $0, $2\n"
                         "sw $2, packedB\n" : "=m"(packedB) : : "$2", "$vf10");
                     *(u32 *)&packedArg = *(u32 *)&packedB;
-                    func_003bff30(clump, (KClumpCallback)func_004ae020, &packedArg);
+                    func_003bff30(clump, (KClumpCallback)mdlEffectSetAllColors, &packedArg);
                     {
                         f32 age = (f32)*(s32 *)(p18 + 0x10);
 

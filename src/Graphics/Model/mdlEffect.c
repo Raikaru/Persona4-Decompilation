@@ -1277,8 +1277,9 @@ u8 func_00494710(int param_1, u32 param_2)
 
 
 
+/* Increments the u32 counter at +0x10 of the record by one. */
 // FUN_004A6E50
-void func_004a6e50(int param_1)
+void mdlEffectIncrementCounter(int param_1)
 {
   *(u32 *)(param_1 + 0x10) = *(u32 *)(param_1 + 0x10) + 1;
 }
@@ -1294,7 +1295,7 @@ void func_004a6e50(int param_1)
 #pragma vu0_mmi_reg_binding on
 /* measured: keep outer-loop material and scale values at their use sites. */
 #pragma opt_loop_invariants off
-void func_004a6e70(u8 *arg0)
+void mdlEffectRenderFlares(u8 *arg0)
 {
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
     extern u8 *RpGeometryLock(u8 *a, s32 b);
@@ -1651,13 +1652,15 @@ void func_004a6e70(u8 *arg0)
     }
 }
 #pragma pop
+/* Increments the counter at +0x10 and renders the flares via mdlEffectRenderFlares. */
 // FUN_004A7760
-void func_004a7760(u8 *arg0) {
+void mdlEffectIncrementAndRender(u8 *arg0) {
     (*(s32 *)(arg0 + 0x10))++;
-    func_004a6e70(arg0);
+    mdlEffectRenderFlares(arg0);
 }
+/* Copies one 128-bit value from *arg1 into *arg0 and returns it. */
 // FUN_004A7790
-u_long128 func_004a7790(u_long128 *arg0, u_long128 *arg1)
+u_long128 mdlEffectStoreQuad(u_long128 *arg0, u_long128 *arg1)
 {
     return *arg0 = *arg1;
 }
@@ -1669,8 +1672,9 @@ void func_004a77a0(u32 *param_1, u32 param_2)
 
 
 
+/* Writes the four colour bytes at param_2 into bytes +4..+7 of every entry in the record's entry table. */
 // FUN_004AE020
-u32 *func_004ae020(u32 *param_1, u8 *param_2)
+u32 *mdlEffectSetAllColors(u32 *param_1, u8 *param_2)
 {
   u32 *t2;
   int t1;
