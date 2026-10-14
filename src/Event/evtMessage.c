@@ -66,6 +66,12 @@ void func_00290940(int *param_1)
   }
   return;
 }
+/* Source unit: src/Event/mt_evtMessage_002909a0.c */
+// FUN_002909A0
+u32 func_002909a0(u32 *object)
+{
+    return *object != 0;
+}
 // FUN_002909B0
 void func_002909b0(int *param_1, int a2, int a3, int a4, int a5)
 {
