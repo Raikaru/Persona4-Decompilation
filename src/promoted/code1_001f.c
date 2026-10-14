@@ -7,6 +7,7 @@
 #include "effect_instance_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_skill_internal.h"
+#include "btl_cond_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_target_state_packet_internal.h"
 /* Force the offset operand into the first addu slot. */

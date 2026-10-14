@@ -2,6 +2,7 @@
 #include "btl_skill_target_internal.h"
 #include "type.h"
 #include "include_asm.h"
+#include "btl_cond_internal.h"
 
 typedef u8 bool;
 typedef int (*code)();
@@ -9,11 +10,8 @@ typedef int (*code)();
 typedef struct DatUnit DatUnit;
 extern u16 func_00231f80(DatUnit *unit);
 
-extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
-extern bool btlCond_MYWEAK(int param_1, short param_2);
 
 s32 func_001db360(u8 *formation, s32 index, s32 enabled);
-extern s32 btlCond_MYNOMAL(u8 *formation, s32 index);
 
 extern u64 func_0010f460();
 
@@ -31,17 +29,11 @@ extern u32 func_0029cc00();
 extern void func_0029cf50();
 extern u8 *func_0029d050();
 
-extern s32 btlCond_MYBAD(u8 *task, s32 mask);
-extern void btlCond_MYID();
-extern void btlCond_MYHANSYA();
-extern void btlCond_MYKYUSYU();
-extern void btlCond_MYMUKOU();
 extern s32 func_001d9390();
 extern s32 func_00235520(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, s32 relation, s32 options, s32 channel);
 extern void func_00233bb0(u32 arg0);
 extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
-extern void btlCond_MYHP();
 extern s32 func_0023d8e0(u8 *unit, u16 command);
 extern s32 func_0023d6e0(s16 index);
 extern s8 func_00233a90(u8 *unit, s32 status);
