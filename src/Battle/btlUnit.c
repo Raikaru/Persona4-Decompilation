@@ -25,6 +25,8 @@ extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern void func_0019dea0(void *unit);
 extern f32 func_003e41e0(f32 *out, f32 *in);
+extern void func_0019d040(u8 *arg0);
+extern void func_0019d0c0(u8 *arg0);
 extern f32 RwV2dLength(f32 *value);
 extern s32 func_0044dcd8(f32 value);
 extern s32 func_0044b310(s32 value);
@@ -1207,6 +1209,25 @@ s32 func_0019ae20(u8 *arg0) {
     }
     return 0;
 }
+// FUN_0019BCB0
+s32 func_0019bcb0(u8 *arg0) {
+    func_0019d040(*(u8 **)arg0);
+    return 1;
+}
+// FUN_0019BD80
+s32 func_0019bd80(u8 *arg0) {
+    func_0019d0c0(*(u8 **)arg0);
+    return 1;
+}
+// FUN_0019E130
+void func_0019e130(BtlUnitPacketCountRef* arg0) {
+    u8 *temp;
+
+    temp = *(u8 **)arg0;
+    if (temp != NULL) {
+        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) - 1;
+    }
+}
 // FUN_0019E150
 BtlPacket* btlUnitCreateLookAtPacket(BtlUnit* unit, const RwV3d* targetPos, u16 flags)
 {
@@ -1435,6 +1456,16 @@ void func_0019de70(BtlUnitStateWork* work, u16 value)
     }
 }
 
+// FUN_0019DF00
+void func_0019df00(BtlUnitPacketCountRef* arg0) {
+    u8 *temp;
+
+    temp = *(u8 **)arg0;
+    if (temp != NULL) {
+        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) + 1;
+    }
+}
+
 // FUN_0019E1F0
 void func_0019e1f0(BtlUnitPacketTwoUnits* packet)
 {
@@ -1615,6 +1646,24 @@ void func_00199890(BtlUnit* unit, s32 param_2);
 extern RwV3d D_0060a0d0;
 extern f32 DAT_007613f8;
 
+// FUN_0019E830
+void func_0019e830(u8 *arg0) {
+    u8 *temp;
+
+    temp = *(u8 **)arg0;
+    if (temp != NULL) {
+        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) + 1;
+    }
+}
+// FUN_0019E9D0
+void func_0019e9d0(u8 *arg0) {
+    u8 *temp;
+
+    temp = *(u8 **)arg0;
+    if (temp != NULL) {
+        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) - 1;
+    }
+}
 // FUN_00195590
 void func_00195590(BtlUnit* unit, const RwV3d* target)
 {
