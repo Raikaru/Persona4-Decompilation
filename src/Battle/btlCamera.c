@@ -1,3 +1,5 @@
+#include "btl_unit_internal.h"
+#include "datCalc_internal.h"
 #include "btl_motion_internal.h"
 /* Source unit: src/Battle/btlCamera_001bc3a0.c */
 #include "include_asm.h"
@@ -143,7 +145,6 @@ static inline u32 cd600Add(u32 flagOffset, u32 tableAddr)
     return flagOffset + tableAddr;
 }
 extern u8 D_005FC900[];
-extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern u8 D_005FDE00[];
 void func_001bbef0(u8* camera, f32 step);
 
@@ -1991,18 +1992,18 @@ void func_001cd6a0(void)
 void func_001cd6c0(u8 *arg0)
 {
     s32 var_16;
-    u8 *var_18;
+    BtlUnit *var_18;
 
     var_16 = 0;
-    var_18 = *(u8 **)(iGpffffb3ac + 0x17C);
+    var_18 = *(BtlUnit **)(iGpffffb3ac + 0x17C);
     goto loop_cond;
 loop_body:
-    if ((*(s32 *)(var_18 + 0x9C) & 8) &&
-        (datCalcIsDead(*(s32 *)(var_18 + 0xA64), 0) == 0))
+    if ((var_18->flags3 & 8) &&
+        (datCalcIsDead(var_18->datUnit, 0) == 0))
     {
         var_16 = (var_16 + 1) & 0xFFFF;
     }
-    var_18 = *(u8 **)(var_18 + 0xA68);
+    var_18 = var_18->prevUnit;
 loop_cond:
     if (var_18 != NULL)
     {
