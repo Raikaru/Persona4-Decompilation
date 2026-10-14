@@ -12,7 +12,6 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern void btlUnitSetRot(void *arg0, void *arg1);
 extern void func_001ec1c0(void *out, void *first, void *second);
 extern void func_001ec6d0(s16 *arg0, s16 *arg1, f32 *position);
-extern s32 func_001ef720(s32 groupFlags, s32 excludedFlags);
 extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
 extern u16 func_00231f80(u8 *arg0);
 extern u16 func_00232290(u8 *arg0);

@@ -70,7 +70,6 @@ extern s32 func_0045af90(s32 arg0);
 
 extern void memset(void *destination, s32 value, u32 size);
 
-extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2);
 
 extern u32 func_00231d70();
@@ -1802,7 +1801,6 @@ s32 func_001f3b80(s32 arg0) {
 // FUN_001F3BB0
 s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
-    extern s32 func_001ef4d0(s32 arg0, s32 arg1);
     extern s32 func_00231e20(u8 *arg0);
     extern s32 func_00242800(u8 *arg0, s32 arg1);
     typedef struct ResistanceScanNode {
@@ -3153,7 +3151,6 @@ static inline s32 battleMessageBand(s32 value, s32 band)
 // FUN_001F62F0
 s32 func_001f62f0(u8 *arg0)
 {
-    extern s32 func_001ef4d0(s32 arg0, s32 arg1);
     extern s32 func_00231e20(u8 *arg0);
     extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
     extern u32 effMiscRand(struct EffRandState *state);

@@ -50,8 +50,6 @@ extern u32 D_00609600[];
 extern u32 func_001b1570(u16 arg0);
 extern u32 func_00233880(u32 arg0, u32 arg1);
 extern u32 func_00231d70(u32 arg0);
-extern s32 func_001ef720(s32 arg0, s32 arg1);
-extern s32 func_001ef4d0(s32 arg0, s32 arg1);
 extern u16 datCalcGetHp(s32 unit);
 extern u32 func_002340c0();
 extern s32 func_00242800(u8 *unit, s32 index);

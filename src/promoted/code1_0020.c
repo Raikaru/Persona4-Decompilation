@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "list_item_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
@@ -3182,7 +3183,6 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
     extern u16 *func_0010a900(u16 character);
     extern s32 func_001f0620(u8 *arg0, s64 arg1);
     extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern s32 func_001ef720(s32 arg0, s32 arg1);
     extern s32 func_0023dfe0(u8 *unit);
     extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u16 func_0010b6f0(void);

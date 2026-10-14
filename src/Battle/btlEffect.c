@@ -46,9 +46,7 @@ extern u32 func_001d7a60(u8 *param_1);
 
 typedef u8 bool;
 
-extern u32 func_001ef4d0();
 
-extern u32 func_001ef720();
 
 extern u32 func_00201f60(int param_1);
 
