@@ -219,7 +219,7 @@ u32 K_FldShadow_Draw(f32 xLeft, f32 yTop,
 
 
 // FUN_001790A0
-void func_001790a0(RwCamera* camera)
+void FldShadow_DestroyCamera(RwCamera* camera)
 {
     RwFrame* frame;
     RwRaster* zBuffer;
@@ -572,7 +572,7 @@ struct RpCollisionTriangle* FldShadow_ProjectSkinnedTriangle(
     return triangle;
 }
 // FUN_00179F70
-void* func_00179f70(void* atomic, void* data)
+void* FldShadow_ProjectAtomic(void* atomic, void* data)
 {
     FldShadowAtomicContext* context = data;
     context->atomic = atomic;
