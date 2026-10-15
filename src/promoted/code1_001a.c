@@ -180,7 +180,7 @@ s32 func_001f01a0(u8 *arg0, u8 *arg1);
 s32 func_0023d8e0(u8 *arg0, u16 arg1);
 u8 *func_001fa9c0(void);
 s32 btlAICommandNomalStatusCheck(u8 *arg0, s64 arg1);
-u32 func_00193cd0(u32 arg0);
+u32 btlCountUnitRecordsById(u32 arg0);
 u8 *func_001fa110(u8 *arg0);
 extern void func_002182c0(u8 *arg0, u8 *arg1);
 u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
@@ -622,9 +622,9 @@ void func_001a0b00(s64 *arg0) {
 
     action = (ActionView *)arg0;
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x80000) == 0 &&
-        func_00193cd0(0x700) == 0 && func_00193cd0(0x504) == 0 &&
-        func_00193cd0(0x506) == 0 && func_00193cd0(0x301) == 0 &&
-        func_00193cd0(0x104) == 0) {
+        btlCountUnitRecordsById(0x700) == 0 && btlCountUnitRecordsById(0x504) == 0 &&
+        btlCountUnitRecordsById(0x506) == 0 && btlCountUnitRecordsById(0x301) == 0 &&
+        btlCountUnitRecordsById(0x104) == 0) {
         btlActionFinishPresentation((BtlAction *)arg0);
         func_001f0a10((u8 *)&result);
         if (func_00243e30((u16 *)action->unit->data) != 0) {
@@ -1269,7 +1269,7 @@ void func_001a24b0(u8 *action)
     extern u16 D_008C024C[];
     extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
 
-    if (func_00193cd0(0x800) != 0) {
+    if (btlCountUnitRecordsById(0x800) != 0) {
         return;
     }
     switch (*(s32 *)(action + 0x41C)) {
@@ -1529,7 +1529,7 @@ void func_001a2d70(u8 *arg0) {
     void datCalcClearBuffLevel(u8 *arg0, s32 arg1);
 
 
-    if (func_00193cd0(0x506) == 0) {
+    if (btlCountUnitRecordsById(0x506) == 0) {
         unit = *(u8 **)((u8 *)arg0 + 0x30);
         kind = (u8)datCalcFindStrongBuff(*(u8 **)(unit + 0xA64));
         if (kind < 0) {
@@ -1701,7 +1701,7 @@ void func_001a31e0(BtlAction *actionState)
     f32 rotation[3];
     struct { s32 words[8]; } result;
 
-    if (func_00193cd0(0x506) == 0 && func_00193cd0(0x105) == 0) {
+    if (btlCountUnitRecordsById(0x506) == 0 && btlCountUnitRecordsById(0x105) == 0) {
         btlActionFinishPresentation((BtlAction *)action);
         badStatus = datCalcGetBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64));
         if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x100000) != 0 &&
@@ -2136,7 +2136,7 @@ void func_001a3f90(u8 *arg0)
     u8 *effectPacket;
 
     if (*(s32 *)(arg0 + 0x41C) == 0) {
-        if ((func_00193cd0(0xC00) == 0) && (func_00193cd0(0xC04) == 0)) {
+        if ((btlCountUnitRecordsById(0xC00) == 0) && (btlCountUnitRecordsById(0xC04) == 0)) {
             *(s16 *)(frame + 0) = 2;
             *(u16 *)(frame + 2) =
                 *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
@@ -2257,7 +2257,7 @@ void func_001a43a0(u8 *action)
     s32 rawElement;
     u8 *task;
 
-    if (func_00193cd0(0xC00) != 0) {
+    if (btlCountUnitRecordsById(0xC00) != 0) {
         return;
     }
     referenceAction = *(u8 **)(action + 0x90);
@@ -2411,7 +2411,7 @@ void func_001a4800(u8 *arg0)
     u16 actionKind;
     u8 *otherAction;
     ActionState001a4800 *battleState;
-    if (((s32)(func_00193cd0(0x506)) == (s32)(0)) && ((s32)(func_00193cd0(0xC05)) == (s32)(0))) {
+    if (((s32)(btlCountUnitRecordsById(0x506)) == (s32)(0)) && ((s32)(btlCountUnitRecordsById(0xC05)) == (s32)(0))) {
         actionIndex = 0;
         while ((s32)(loopIndex = actionIndex & 0xFFFF) < (s32)(*(u16 *)((u8 *)arg0 + 0x6A))) {
             otherAction = (u8 *)((*(u8 **)((u8 *)(((s32)(arg0) + ((actionIndex & 0xFFFF) * 4))) + 0x38)));
@@ -6465,7 +6465,7 @@ void btlActionReset(BtlAction *action) {
 
 // FUN_001AC5B0
 void btlActionAssistUpdate(BtlAction *action) {
-    if ((func_00193cd0(0x506) == 0) && (func_00193cd0(0x800) == 0)) {
+    if ((btlCountUnitRecordsById(0x506) == 0) && (btlCountUnitRecordsById(0x800) == 0)) {
         *(u16 *)((u8 *)action + 0x18) = (u16) (*(u16 *)((u8 *)action + 0x18) | 0x100);
         btlActionSetState(action, 0xFU);
     }
@@ -6731,7 +6731,7 @@ void func_001acbb0(u8 *arg0) {
 
     battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
     *(s32 *)(battleUnit + 0x9C) &= ~0x10;
-    if (func_00193cd0(0xFF03) == 0) {
+    if (btlCountUnitRecordsById(0xFF03) == 0) {
         prevFlags = *(s32 *)(D_0076449C + 0xC);
         if (!(prevFlags & 0x80000)) {
             *(s32 *)(D_0076449C + 0xC) = prevFlags | 0x80000;
@@ -7339,7 +7339,7 @@ void func_001adea0(u8 *action)
     u8 *animationPacket;
     u8 *soundPacket;
 
-    if (func_00193cd0(0x700) == 0 && func_00193cd0(0x506) == 0 && func_00193cd0(0x507) == 0) {
+    if (btlCountUnitRecordsById(0x700) == 0 && btlCountUnitRecordsById(0x506) == 0 && btlCountUnitRecordsById(0x507) == 0) {
         unit = *(u8 **)(action + 48);
         badStatus = datCalcGetBadStatus(*(s32 *)(unit + 2660));
         packetIdentity = *(s64 *)action;
@@ -7623,10 +7623,10 @@ void func_001ae800(u8 *arg0)
     u8 frame[0x10];
 
     if (*(s32 *)(arg0 + 0x424) == 0) {
-        if (func_00193cd0(0xC00) != 0) {
+        if (btlCountUnitRecordsById(0xC00) != 0) {
             return;
         }
-        if (func_00193cd0(0xC04) != 0) {
+        if (btlCountUnitRecordsById(0xC04) != 0) {
             return;
         }
         *(s16 *)frame = 0;
@@ -8239,10 +8239,10 @@ void func_001afb50(u8 *action)
         entryFlags = *(u16 *)(action + 0x18);
         specialOrder = (entryFlags & 4) != 0;
         if ((entryFlags & 8) != 0 && func_0019ff60(action) != 0) {
-            if (func_00193cd0(0x504) != 0) {
+            if (btlCountUnitRecordsById(0x504) != 0) {
                 return;
             }
-            if (func_00193cd0(0x506) != 0) {
+            if (btlCountUnitRecordsById(0x506) != 0) {
                 return;
             }
             *(s16 *)(action + 0x16) = 30;

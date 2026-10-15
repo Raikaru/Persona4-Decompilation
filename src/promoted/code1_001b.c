@@ -107,7 +107,7 @@ extern u8 *D_0076449C;
 extern s32 func_0022bd20(void);
 extern void func_0022bd60(void);
 extern s32 func_001fadc0(u8 *arg0);
-extern u32 func_00193c70(void);
+extern u32 btlCountUnitRecords(void);
 extern BtlPacket *func_001f5f70(u32 arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
 extern void func_0019d040(u8 *arg0);
 extern void func_0019d0c0(u8 *arg0);
@@ -477,7 +477,7 @@ void func_001b19a0(void)
 s32 func_001b19c0(void)
 {
     extern s32 func_001b6a00(void);
-    extern u32 func_00193c70(void);
+    extern u32 btlCountUnitRecords(void);
     extern void func_0014a2e0(u32 arg0);
     extern void func_001b6120(void);
     extern u32 datGetFlag(s32 arg0);
@@ -499,7 +499,7 @@ s32 func_001b19c0(void)
     if (func_001b6a00() == 0) {
         goto done;
     }
-    if (func_00193c70() != 0) {
+    if (btlCountUnitRecords() != 0) {
         goto done;
     }
     func_0014a2e0(1);
@@ -854,7 +854,7 @@ s32 func_001b2380(void)
     RwV3d actorCenter;
     RwV3d offset;
 
-    if (func_00193c70() == 0) {
+    if (btlCountUnitRecords() == 0) {
       /* Valid special continuations have a fresh, nonempty enemy row from
        * the authenticated normal encounter queue. That prepass supplies Y
        * before a dead party unit reuses it. Script/direct descriptors have
@@ -1295,7 +1295,7 @@ s32 func_001b36b0(void)
     u8 *temp4;
     u8 *var16;
 
-    if (func_00193c70() == 0) {
+    if (btlCountUnitRecords() == 0) {
         temp4 = D_0076449C;
         temp3 = *(s32 *)(temp4 + 0xC);
         if ((temp3 & 0x100000) == 0) {
@@ -1370,7 +1370,7 @@ s32 func_001b3870(void)
     u8 *var_16;
 
     if (func_0021d470(*(s32 *)(D_0076449C + 0xDD4)) != 1) goto done;
-    if (func_00193c70() != 0) goto done;
+    if (btlCountUnitRecords() != 0) goto done;
     if (func_001faaf0() != 0) goto done;
     if (func_001fab90() != 0) goto done;
     if (func_001fab40(*(u8 **)(D_0076449C + 0x170)) != 0) {
@@ -2086,7 +2086,7 @@ s32 func_001b5300(u8 *arg0)
         return 0;
     }
 after_cac:
-    if ((u32)func_00193c70() < 3) {
+    if ((u32)btlCountUnitRecords() < 3) {
         if (*(s32 *)(p + 0x14) == 0) {
             hit = *(s32 *)(p + 8);
             hit = hit < (*(u16 *)(p + 0xC) + *(u16 *)(p + 0x10));
