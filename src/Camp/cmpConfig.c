@@ -424,9 +424,9 @@ static inline u32 config_gray_text(u8 alpha, u8 shade)
 #pragma opt_lifetimes on
 
 void func_0035d0a0(u8 *work) {
-    extern int func_00274ed0(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
+    extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
                              int charWidth);
-    extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
+    extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
                              int charWidth);
     ConfigMenuView *menu;
     s32 selectedOption;
@@ -559,7 +559,7 @@ void func_0035d0a0(u8 *work) {
                 }
                 pos.x = (f32)0x1C7 + optionX;
                 pos.y = 122.0f + optionY;
-                func_00275020(pos.x, pos.y, 0.0f, textColor, 8, 1, (const char *)D_0064D230[index], 2, -1);
+                frFontExDrawTextWithCharWidth(pos.x, pos.y, 0.0f, textColor, 8, 1, (const char *)D_0064D230[index], 2, -1);
             }
             if (index != 6) {
                 u16 *timer = &menu->timers[index];
@@ -610,7 +610,7 @@ void func_0035d0a0(u8 *work) {
         pos.y = (f32)0x15B + (baseY + menu->motion[15].position.y);
         alpha = (u8)((f32)menu->motion[15].opacity * fade);
         textColor = alpha | ~0xFF;
-        func_00274ed0(pos.x, pos.y, 0.0f, textColor, 6, 1, (const char *)D_0064D380[selectedOption], 2, 0);
+        frFontExDrawText(pos.x, pos.y, 0.0f, textColor, 6, 1, (const char *)D_0064D380[selectedOption], 2, 0);
     }
     pos.x = 640.0f + (baseX + menu->motion[16].position.x);
     pos.y = 400.0f + (baseY + menu->motion[16].position.y);

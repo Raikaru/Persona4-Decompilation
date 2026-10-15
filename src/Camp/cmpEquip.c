@@ -251,7 +251,7 @@ void func_00131a00(u8 *arg0)
     extern void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
     extern void func_00135130(u8 *arg0, s64 arg1, u8 arg2, u8 *arg3);
     extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
-    extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
+    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
     extern void func_0034f9d0(Vec2f arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
     extern void func_0046d730(void *arg0, s32 arg1);
   s16 temp_v2;
@@ -403,7 +403,7 @@ void func_00131a00(u8 *arg0)
       func_0034f320(drawSprite,drawPosition.xy.x + 202.0f,drawY,0.0f,*actorPalette,actorPalette[1],
                     actorPalette[2],opacity.value,(u16)scaleX,(u16)scaleY,0,0.0f,0);
       labelText = (char *)func_0010d6d0(*(s16 *)(work + temp_v8 * 2 + 0x38));
-      func_00274ed0(drawPosition.xy.x + 105.0f,drawY,0.0f,packedColor,labelStyle,1,labelText,8,0);
+      frFontExDrawText(drawPosition.xy.x + 105.0f,drawY,0.0f,packedColor,labelStyle,1,labelText,8,0);
       }
       temp_v4 = (s32)(s16)(temp_v4 + 1);
     }
@@ -547,7 +547,7 @@ void func_00131a00(u8 *arg0)
       partyAddress += (u32)work;
       labelText = (char *)func_0010d6d0(*(s16 *)(partyAddress + 0x38));
     }
-    func_00274ed0(drawPosition.xy.x + 105.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
+    frFontExDrawText(drawPosition.xy.x + 105.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
   }
   if ((*(u32 *)(work + 0x1c) & 2) != 0) {
     u8 headerAlpha, layoutAlpha;
@@ -577,7 +577,7 @@ void func_00131a00(u8 *arg0)
     alpha = (u8)temp_v9;
     packedColor = (alpha) | 0xffffff00;
     labelText = (char *)func_0010d6d0(*(s16 *)(work + 0xc7e));
-    func_00274ed0(drawPosition.xy.x + 88.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
+    frFontExDrawText(drawPosition.xy.x + 88.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
     drawPosition.xy.x = originX + *(f32 *)(work + 0x13e0) + 18.0f;
     drawPosition.xy.y = originY + *(f32 *)(work + 0x13e4) + 60.0f;
     temp_v9 = (f32)work[0x13ea];
@@ -589,7 +589,7 @@ void func_00131a00(u8 *arg0)
       partyAddress += (u32)work;
       labelText = (char *)func_0010d6d0(*(s16 *)(partyAddress + 0x38));
     }
-    func_00274ed0(drawPosition.xy.x + 88.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
+    frFontExDrawText(drawPosition.xy.x + 88.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
     palette = (EquipColor *)D_0064B2E0;
     temp_v9 = (f32)work[0x13ba];
     temp_v9 *= opacityScale;

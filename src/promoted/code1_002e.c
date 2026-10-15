@@ -640,7 +640,7 @@ void func_002e7a80(s32 arg0)
 #define P4_002E7AC0_DRAW() \
     do { \
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(105) + 0x10), 0) == 1) { \
-            func_00275820(*(f32 *)(func_002b6150(105) + 0x38) + 52.0f, 41.0f, 88.0f, \
+            frFontExDrawTextDeferredOutB(*(f32 *)(func_002b6150(105) + 0x38) + 52.0f, 41.0f, 88.0f, \
                           func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1, \
                           (const char *)func_0010d6d0(1), 0, 0, D_00794E70, 24); \
         } \

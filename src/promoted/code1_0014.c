@@ -368,7 +368,7 @@ extern void func_00354ba0(void *work);
 extern void func_00367210(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
 extern s32 func_00104c70(s32 work);
 extern u32 func_0010d6d0(s16 work);
-extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
+extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
 extern void func_001423c0(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
 

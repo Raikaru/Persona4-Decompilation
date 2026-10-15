@@ -137,7 +137,7 @@ void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descript
     text = func_00243840(data->data.fields.id);
     textAlpha = alpha & 0xFF;
     baseY = position.y;
-    func_00275020((f32)(s32)position.x, (f32)(s32)baseY, scale,
+    frFontExDrawTextWithCharWidth((f32)(s32)position.x, (f32)(s32)baseY, scale,
                   ((textAlpha * 255) / 255U) | ~0xFF,
                   D_005E47F0[data->style * 2], 1, text, 0, -1);
     digitX = 250.0f + position.x;
@@ -206,7 +206,7 @@ void ShdSkill_DrawEntryName(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg
     temp = func_00243840(*(u16 *)((u8 *)arg2 + 0xA));
     color = (((arg1 & 0xFF) * 0xFF) / 255U) | ~0xFF;
     index = *((s8 *)((s32)&D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2)));
-    func_00275020((f32)(s32)arg0.x,
+    frFontExDrawTextWithCharWidth((f32)(s32)arg0.x,
                   (f32)(s32)arg0.y,
                   farg,
                   color,
@@ -298,7 +298,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
         case 0: {
             Vec2f textPosition = position;
             const char *text = (const char *)func_00243840(descriptor.data.fields.id);
-            func_00274ed0((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
+            frFontExDrawText((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
                           textAlpha | ~0xFF, ((char *)D_005E47F0)[descriptor.style * 2],
                           1, text, 0, 0);
             break;
@@ -309,7 +309,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
         case 2: {
             Vec2f textPosition = position;
             const char *text = (const char *)func_00243840(descriptor.data.fields.id);
-            func_00275020((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
+            frFontExDrawTextWithCharWidth((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
                           textAlpha | ~0xFF, ((char *)D_005E47F0)[descriptor.style * 2],
                           1, text, 8, -1);
             break;
@@ -439,7 +439,7 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
                 case 0: {
                     Vec2f textPosition = position;
                     const char *text = (const char *)func_00243840(descriptor.data.fields.id);
-                    func_00274ed0((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
+                    frFontExDrawText((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
                                   color, ((char *)D_005E47F0)[descriptor.style * 2], 1, text, 0, 0);
                     break;
                 }
@@ -449,7 +449,7 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
                 case 2: {
                     Vec2f textPosition = position;
                     const char *text = (const char *)func_00243840(descriptor.data.fields.id);
-                    func_00275020((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
+                    frFontExDrawTextWithCharWidth((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
                                   color, ((char *)D_005E47F0)[descriptor.style * 2], 1, text, 8, -1);
                     break;
                 }

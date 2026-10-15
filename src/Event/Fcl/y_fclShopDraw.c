@@ -3227,7 +3227,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
             func_002e0b20(icon, sp1D0, 69.0f, iconColor, ((u8 *)func_002e04e0(work->fC8C))[0x62], 0, D_00795E60);
             sp1C8 = func_002b2970(189.0f, 132.0f + (f32)rowY);
             pos = *(Vec2f *)&sp1C8;
-            func_00275680(pos.x, pos.y, 70.0f, textColor, 0, 1, ((void *)func_001067f0((s16)func_002e2740(cur))), 0, 0, D_00795E30, -1);
+            frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, 70.0f, textColor, 0, 1, ((void *)func_001067f0((s16)func_002e2740(cur))), 0, 0, D_00795E30, -1);
             sp1C0 = func_002b2970(498.0f, 142.0f + (f32)rowY);
             func_002cacd0(sp1C0, 70.0f, rowColor, 0x10, 5, func_00106a90((s16)func_002e2740(cur)), 9, 0x7B,
                           (s32)func_0046a770((char *)(D_0063FB50)), (s32)work->fF28, 0xA9);
@@ -3634,7 +3634,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
 
 static inline void shopDrawLabel(f32 size, const char *text, Vec2f pos, s32 color)
 {
-    func_00275680(pos.x, pos.y, size, color, 0, 1, text, 0, 0, D_00795E30, -1);
+    frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, size, color, 0, 1, text, 0, 0, D_00795E30, -1);
 }
 
 /* func_002cdf80 (shop buy list: draw + input) best draft, 2026-09-26.
@@ -4454,7 +4454,7 @@ s32 func_002d1590(void *arg0)
         }
         sp228 = func_002b2970(129.0f, 255.0f);
         sp130 = *(Vec2f *)&sp228;
-        func_00275680(sp130.x, sp130.y, 70.0f, colB, 0, 1, ((void *)func_001067f0((s16)func_002e2740(work->f2))), 0, 0, D_00794ED0, -1);
+        frFontExDrawTextDeferredWithCharWidth(sp130.x, sp130.y, 70.0f, colB, 0, 1, ((void *)func_001067f0((s16)func_002e2740(work->f2))), 0, 0, D_00794ED0, -1);
         if (func_001069d0((s16)func_002e2740(work->f2)) == 0) {
             for (dash = 0; dash < 0xF; dash++) {
                 sp220 = func_002b2970((f32)(dash * 0x16 + 0x6F), (f32)0x12B);
@@ -4625,7 +4625,7 @@ s32 func_002d1590(void *arg0)
             white = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
             sp1A0 = func_002b2970(129.0f, 89.0f);
             spC8 = *(Vec2f *)&sp1A0;
-            func_00275680(spC8.x, spC8.y, 70.0f, white, 0, 1, ((void *)func_001067f0((s32)func_00106cd0(work->kind[work->sel], 0))), 0, 0, D_00794ED0, -1);
+            frFontExDrawTextDeferredWithCharWidth(spC8.x, spC8.y, 70.0f, white, 0, 1, ((void *)func_001067f0((s32)func_00106cd0(work->kind[work->sel], 0))), 0, 0, D_00794ED0, -1);
             sp198 = func_002b2970(86.0f, 90.0f);
             func_002e0b20(work->icon[work->sel], sp198, 69.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
             func_002bc7f0((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 0)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 0, 0x57, 109.0f, 158.0f, 70.0f);
@@ -4658,7 +4658,7 @@ s32 func_002d1590(void *arg0)
             white = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
             sp180 = func_002b2970(129.0f, 89.0f);
             spC0 = *(Vec2f *)&sp180;
-            func_00275680(spC0.x, spC0.y, 70.0f, white, 0, 1, ((void *)func_001067f0((s32)func_00106cd0(work->kind[work->sel], 1))), 0, 0, D_00794ED0, -1);
+            frFontExDrawTextDeferredWithCharWidth(spC0.x, spC0.y, 70.0f, white, 0, 1, ((void *)func_001067f0((s32)func_00106cd0(work->kind[work->sel], 1))), 0, 0, D_00794ED0, -1);
             sp178 = func_002b2970(86.0f, 90.0f);
             func_002e0b20(0x1B, sp178, 69.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
             func_002bc7f0((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 1)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 1, 0x57, 109.0f, 158.0f, 70.0f);
@@ -4691,7 +4691,7 @@ s32 func_002d1590(void *arg0)
             white = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
             sp160 = func_002b2970(129.0f, 89.0f);
             spB8 = *(Vec2f *)&sp160;
-            func_00275680(spB8.x, spB8.y, 70.0f, white, 0, 1, ((void *)func_001067f0((s32)func_00106cd0(work->kind[work->sel], 2))), 0, 0, D_00794ED0, -1);
+            frFontExDrawTextDeferredWithCharWidth(spB8.x, spB8.y, 70.0f, white, 0, 1, ((void *)func_001067f0((s32)func_00106cd0(work->kind[work->sel], 2))), 0, 0, D_00794ED0, -1);
             sp158 = func_002b2970(86.0f, 90.0f);
             func_002e0b20(0x1C, sp158, 69.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
             func_002bc7f0((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 2)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 2, 0x57, 109.0f, 158.0f, 70.0f);
@@ -6107,7 +6107,7 @@ void func_002d8a60(void *arg0, s8 arg1, f32 x, f32 y) {
                 }
                 sp158 = func_002b2970(43.0f + fx, 133.0f + (f32)(row * 32));
                 pos = *(Vec2f *)&sp158; /* word-aligned view: lwc1/swc1 copy, not ld/sd */
-                func_00275680(pos.x, pos.y, 141.0f, textColor, 0, 1,
+                frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, 141.0f, textColor, 0, 1,
                               ((void *)func_001067f0((s16)func_002e2830(work->list[idx], cur))),
                               0, 0, D_00795E30, -1);
                 digits = func_00106a90((s16)func_002e2830(work->list[idx], cur)) / 5;
@@ -7123,7 +7123,7 @@ s32 func_002dff90(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4) {
 
 // FUN_002E0080
 void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
-    func_00275520(77.0f + arg2.x, arg2.y, 1.0f, (s32)(u32)arg3, 0, 1,
+    frFontExDrawTextDeferred(77.0f + arg2.x, arg2.y, 1.0f, (s32)(u32)arg3, 0, 1,
                   (const char *)func_0010d6d0(arg1), 8, 0, D_00795E60);
 }
 

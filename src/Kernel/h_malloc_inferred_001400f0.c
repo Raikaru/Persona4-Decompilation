@@ -281,7 +281,7 @@ extern void func_00354ba0(void *work);
 extern void func_00367210(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
 extern s32 func_00104c70(s32 work);
 extern u32 func_0010d6d0(s16 work);
-extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
+extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
 extern void func_001423c0(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
 
@@ -408,7 +408,7 @@ void func_001400f0(u8 *work)
             level = func_00104c70(*unit) & 0xFF;
             func_001423c0(numberPosition.bits, 0.0f, color.packed, work, level);
             name = (const char *)func_0010d6d0(*unit);
-            func_00274ed0((105.0f + position.xy.x) - 20.0f, position.xy.y, 0.0f,
+            frFontExDrawText((105.0f + position.xy.x) - 20.0f, position.xy.y, 0.0f,
                           fontColor, fontStyle, 1, name, 8, 0);
         }
     }
@@ -889,7 +889,7 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     extern void func_00356170(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
     extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern s32 func_00246980(s16 arg0, s16 arg1);
-    extern s32 func_002751a0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
+    extern s32 frFontExDrawTextOutA(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
 
     f32 saved_fparg0;
     f32 pos_y;
@@ -940,7 +940,7 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 
     func_0034f2e0(*(u8 **)(p4_00141cf0_add(arg3 * 4, arg2) + 0x1820), pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, arg1);
     str = (u8 *)func_00246980((s16) kind, *(s16 *)(p4_00141cf0_add(kind * 2, arg2) + 0x187E));
-    func_002751a0(61.0f + pos.x + D_005EF6E0[arg3 * 2],
+    frFontExDrawTextOutA(61.0f + pos.x + D_005EF6E0[arg3 * 2],
                   62.0f + pos_y + D_005EF6E4[arg3 * 2],
                   0.0f,
                   ((u8)arg1 | -256),

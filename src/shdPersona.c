@@ -239,7 +239,7 @@ void func_00115c40(Vec2f arg0, u8 arg1, s16 *arg2, f32 farg3)
 /* measured: the 15cb0/15dc0 fp-colour family shares the Vec2f, six-GP/three-float
    renderer-call shape. The exact 15cb0 source uses the interleaved
    `(Vec2f,f32,s32,s16*)` formal order and the local interleaved
-   `func_00275020(f32,f32,f32,s32,s32,s32,u8*,s32,s32)` declaration, so retail's
+   `frFontExDrawTextWithCharWidth(f32,f32,f32,s32,s32,s32,u8*,s32,s32)` declaration, so retail's
    f14 move precedes the six GP moves. MATCH, object 260B / window 272B; the
    remaining 12-byte tail is zero padding accepted by the verifier.
    The prior high-nd probes remain archived in `build/` for family history. */
@@ -264,7 +264,7 @@ void func_00115cb0(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
         sprintf(&sp60[0], &iGpffff9c08, temp_2);
         break;
     }
-    func_00275020((f32)(s32)arg0.x, (f32)(s32)arg0.y, farg3, color, var_16, 1, (const char *)sp60, 0, -1);
+    frFontExDrawTextWithCharWidth((f32)(s32)arg0.x, (f32)(s32)arg0.y, farg3, color, var_16, 1, (const char *)sp60, 0, -1);
 }
 
 
@@ -275,7 +275,7 @@ void func_00115cb0(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
 u8 *datPersonaGetRow(u16 personaId);
 /* measured: func_00115dc0 closes the 208B fp-colour member. Its final
    renderer declaration is interleaved as
-   `func_00274ed0(f32,f32,f32,s32,s8,s32,const char*,s32,s32)`, preserving the
+   `frFontExDrawText(f32,f32,f32,s32,s8,s32,const char*,s32,s32)`, preserving the
    six GP register assignments while making the f14 move precede them. Keep
    `scale = fparg0` before the colour expression; this source shape matches
    the helper call, mode switch, and final six-GP/three-float setup exactly.
@@ -304,7 +304,7 @@ void func_00115dc0(Vec2f arg0, f32 fparg0, u8 arg1, s16 *arg2)
         break;
     }
     temp_2 = (s32)datPersonaGetRow(*(u16 *)(arg2 + 5));
-    func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, var_16, 1, (void *)temp_2, 0, 0);
+    frFontExDrawText((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, var_16, 1, (void *)temp_2, 0, 0);
 }
 
 
@@ -385,7 +385,7 @@ void func_00116190(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
         func_0046d4c0(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, high, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
         x = (f32)(s32)(114.0f + *(f32 *)&arg0);
         y = (f32)(s32)(2.0f + high);
-        func_00274ed0(x, y, fparg0, color | -0x100, 8, 1, (const char *)func_0010d6d0(*(s16 *)arg2), 8, 0);
+        frFontExDrawText(x, y, fparg0, color | -0x100, 8, 1, (const char *)func_0010d6d0(*(s16 *)arg2), 8, 0);
     }
 }
 
@@ -497,7 +497,7 @@ void func_001163e0(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
 void func_00117310(Vec2f, f32, s32, u32, u32, s32);
 /* measured: (Vec2f,f32,s32,u32,u32,s32) plus an unsigned number-field
    load preserves retail's `ld $a0; mov.s $f12; lw/lw/move/addiu`
-   materialisation. This body uses the float-first func_00275020 declaration
+   materialisation. This body uses the float-first frFontExDrawTextWithCharWidth declaration
    and the direct `iGpffff9c0c` spelling for retail `-0x63F4($gp)`.
    Object 524B / window 528B, MATCH (nd 0). */
 // FUN_00116610
@@ -536,7 +536,7 @@ void func_00116610(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     func_00117310(sp190, fparg0, *(s32 *)sp19c, *(u32 *)(arg2 + 0x38), id1, 1);
     temp = (s32)datPersonaGetRow(*(u16 *)(arg2 + 2));
     sprintf(&sp90[0], (void *)&iGpffff9c0c, temp);
-    func_00275020((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, (const char *)sp90, 0, -1);
+    frFontExDrawTextWithCharWidth((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, (const char *)sp90, 0, -1);
 }
 
 
@@ -1820,7 +1820,7 @@ void func_00119810(u8 *work)
         color = (u8)labelOpacity;
         color = (color & 0xFF) | -0x100;
     }
-    func_00274ed0(iGpffff8368, (f32)0x145, 0.0f, color, (s8)mode, 1,
+    frFontExDrawText(iGpffff8368, (f32)0x145, 0.0f, color, (s8)mode, 1,
                   (const char *)func_00243840(*(u16 *)(animation + 4)), 8, 0);
 }
 void func_0011ac70(u8 *);
@@ -1916,7 +1916,7 @@ void func_00119e10(u8 *task, u8 *argument)
 {
     void ShdSkill_DrawListSlot(Vec2f, f32, u8, u8 *, u8, f32);
     void ShdSkill_DrawDetailFrame(Vec2f, f32, u8, u8 *, f32);
-    void func_00274ed0(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
+    void frFontExDrawText(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
     PackedVec2f position;
     Vec2f modelPosition;
     PackedVec2f headerPosition;
@@ -2072,7 +2072,7 @@ void func_00119e10(u8 *task, u8 *argument)
                 func_0046d4c0(0, id, 0x59, 207.0f + headerPosition.xy.x, headerY, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
                 x = (f32)(s32)(114.0f + headerPosition.xy.x);
                 y = (f32)(s32)(2.0f + headerY);
-                func_00274ed0(x, y, 0.0f, color | ~0xFF, 8, 1, (const char *)func_0010d6d0((s16)work->persona[0].category), 8, 0);
+                frFontExDrawText(x, y, 0.0f, color | ~0xFF, 8, 1, (const char *)func_0010d6d0((s16)work->persona[0].category), 8, 0);
             }
         }
         if ((work->flags & 0x40) != 0) {

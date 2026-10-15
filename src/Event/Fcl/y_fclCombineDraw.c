@@ -138,7 +138,7 @@ extern s32 iGpffffb440;
 extern u8 D_00796310[];
 extern u8 D_00796370[];
 extern s32 func_00279350(f32, f32, f32, s32, s32, s32, s32, s32, s32, u8 *);
-extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
+extern int frFontExDrawTextDeferredOutB(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
 extern void func_0034a640(s32, u16, s32);
 extern s32 func_0034a630(u8 *);
 extern u8 datPersonaGetArcana(u16);
@@ -1985,7 +1985,7 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
     }
     if (v < *(s32 *)(func_002e4870(0) + 8)) {
         f = (f32)((s32)v * 0x17 + 0x80);
-        func_00275820(113.0f, f, 43.0f, ret, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(func_002e48a0(0, (s8)arg1) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(113.0f, f, 43.0f, ret, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(func_002e48a0(0, (s8)arg1) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
     }
 }
 
@@ -2874,7 +2874,7 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
             }
             if ((s16)i < *(s32 *)((u8 *)func_002e4870(0) + 8)) {
                 f20 = (f32)(s32)((s16)i * 0x17 + 0x80);
-                func_00275820(113.0f, f20, 43.0f, var_3, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)((u8 *)func_002e48a0(0, i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, f20, 43.0f, var_3, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)((u8 *)func_002e48a0(0, i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
     }
@@ -3366,7 +3366,7 @@ void func_003233d0(u8 *arg0) {
                             ret = func_002b2a30(0xFF, 0xCC, 0xFA, alpha);
                         }
                     }
-                    func_00275820(405.0f, (f32)((s16)i * 0x17 + 0x80), 43.0f, ret, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(func_002e48a0((s8)(*(s8 *)(t + 0x129) + 1), (s16)i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
+                    frFontExDrawTextDeferredOutB(405.0f, (f32)((s16)i * 0x17 + 0x80), 43.0f, ret, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(func_002e48a0((s8)(*(s8 *)(t + 0x129) + 1), (s16)i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
                 }
             }
         }
@@ -4916,7 +4916,7 @@ void func_0032c480(u8 *arg0)
     s32 n;
 
     obj = (CdfCombineWork *)*(u8 **)(arg0 + 0x38);
-    func_00275820(140.0f, 101.0f, 1.0f, func_002b2a30(0, 0, 0, 0xFF), 0, 2,
+    frFontExDrawTextDeferredOutB(140.0f, 101.0f, 1.0f, func_002b2a30(0, 0, 0, 0xFF), 0, 2,
         (const char *)((u8 *)iGpffffb440 + *(u16 *)(func_002e48a0(0, obj->selection) + 2) * 0x11),
         0, 0, D_00796310, 0x15);
     n = (s16)((datPersonaGetArcana(*(u16 *)(func_002e48a0(0, obj->selection) + 2)) & 0xFF) + 0x1B);
@@ -5482,10 +5482,10 @@ void func_0032e570(u8 *arg0) {
     extern char *D_00644D1C[];
     extern char *D_00644D20[];
     extern s32 iGpffffb44c;
-    extern int func_00275520(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int unused, void *param);
+    extern int frFontExDrawTextDeferred(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int unused, void *param);
     extern void strcpy(char *dst, const char *src);
     extern void strcat(char *dst, char *src);
-    extern void func_00275980(char *src, char *dst, s32 maxlen);
+    extern void frFontExCopyString(char *src, char *dst, s32 maxlen);
     extern char *func_002b32d0(char *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4);
     extern char *func_00243840(s32 arg0);
     char sp130[128];
@@ -5522,7 +5522,7 @@ void func_0032e570(u8 *arg0) {
             base = D_00643D00 + (s8)func_00110a60(*(s8 *)(t + 0x2D2), *(s8 *)(t + 0x2D3)) * 0x14;
         }
         func_00330e50(0x1D2, func_002b2970(135.0f, 96.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
-        func_00275520(153.0f, 86.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D18[0], 0, 0, D_00795E60);
+        frFontExDrawTextDeferred(153.0f, 86.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D18[0], 0, 0, D_00795E60);
         for (j1 = 0, n1 = 0; j1 < 5; j1++) {
             if (*(s8 *)(t + *(s8 *)(t + 0x2D6) * 5 + j1 + 0x2C4) == 1) {
                 off = n1 * 0x22;
@@ -5532,18 +5532,18 @@ void func_0032e570(u8 *arg0) {
                 if (id == 0xA) {
                     strcpy(sp130, func_00243840(*(u16 *)(e + 2)));
                     strcpy(spB0, D_00644D20[0]);
-                    func_00275980(spB0, spF0, 0x40);
+                    frFontExCopyString(spB0, spF0, 0x40);
                     strcat(sp130, spF0);
-                    func_00275520(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, sp130, 0, 0, D_00795E60);
+                    frFontExDrawTextDeferred(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, sp130, 0, 0, D_00795E60);
                 } else {
-                    func_00275520(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_006430B0[id], 0, 0, D_00795E60);
+                    frFontExDrawTextDeferred(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_006430B0[id], 0, 0, D_00795E60);
                 }
                 n1++;
             }
         }
         if (n1 == 0) {
             func_00330e50(0x1D2, func_002b2970(135.0f, 195.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
-            func_00275520(153.0f, 185.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D1C[0], 0, 0, D_00795E60);
+            frFontExDrawTextDeferred(153.0f, 185.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D1C[0], 0, 0, D_00795E60);
         }
     } else {
         ent = D_006432B0 + v * 0x1C;
@@ -5557,13 +5557,13 @@ void func_0032e570(u8 *arg0) {
                 b44c = (u8 *)iGpffffb44c;
                 v4 = *(s16 *)(ent + 4);
                 b440 = (u8 *)iGpffffb440;
-                func_00275520(153.0f, (f32)(k * 0x19 + 0x56), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1,
+                frFontExDrawTextDeferred(153.0f, (f32)(k * 0x19 + 0x56), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1,
                               func_002b32d0(sp130, b440 + v4 * 0x11, b440 + v6 * 0x11, b44c + v4 * 0x15, b44c + v6 * 0x15),
                               0, 0, D_00795E60);
             }
         } else {
             x = 153.0f;
-            func_00275520(153.0f, 86.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D18[0], 0, 0, D_00795E60);
+            frFontExDrawTextDeferred(153.0f, 86.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D18[0], 0, 0, D_00795E60);
         }
         for (j = 0, n = 0; j < 5; j++) {
             if (*(s8 *)(t + *(s8 *)(t + 0x2D6) * 5 + j + 0x2C4) == 1) {
@@ -5574,18 +5574,18 @@ void func_0032e570(u8 *arg0) {
                 if (id == 0xA) {
                     strcpy(sp130, func_00243840(*(u16 *)(e + 10)));
                     strcpy(spB0, D_00644D20[0]);
-                    func_00275980(spB0, spF0, 0x40);
+                    frFontExCopyString(spB0, spF0, 0x40);
                     strcat(sp130, spF0);
-                    func_00275520(x, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, sp130, 0, 0, D_00795E60);
+                    frFontExDrawTextDeferred(x, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, sp130, 0, 0, D_00795E60);
                 } else {
-                    func_00275520(x, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_006430B0[id], 0, 0, D_00795E60);
+                    frFontExDrawTextDeferred(x, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_006430B0[id], 0, 0, D_00795E60);
                 }
                 n++;
             }
         }
         if (n == 0) {
             func_00330e50(0x1D2, func_002b2970(135.0f, 195.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
-            func_00275520(x, 185.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D1C[0], 0, 0, D_00795E60);
+            frFontExDrawTextDeferred(x, 185.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D1C[0], 0, 0, D_00795E60);
         }
     }
 }

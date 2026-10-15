@@ -308,7 +308,7 @@ void func_00135dc0(u8* work)
     extern void func_00137890(u8 *work, s32 index);
     extern s32 datPersonaRosterCapacity(void);
     extern u32 func_0010d6d0(s16 character);
-    extern int func_00274ed0(f32 x, f32 y, f32 scale, int color, s8 font, int id, const char *text, int flags,
+    extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 font, int id, const char *text, int flags,
                              int extra);
     extern s32 func_0011d1e0(u8 *work);
     extern void func_0011dc50(u8 *work);
@@ -474,7 +474,7 @@ void func_00135dc0(u8* work)
             rowSprite = menu->sprites[1];
             func_0034f320(rowSprite, 202.0f + position.x, position.y, 0.0f, rowPalette[0], rowPalette[1],
                           rowPalette[2], rowAlpha, width, height, 0, 0.0f, 0);
-            func_00274ed0(105.0f + position.x, position.y, 0.0f, rowColor, rowStyle, 1,
+            frFontExDrawText(105.0f + position.x, position.y, 0.0f, rowColor, rowStyle, 1,
                           (const char*)func_0010d6d0(*(s16*)(work + rowIndex * 2 + 0x24)), 8, 0);
         }
     }

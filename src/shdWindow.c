@@ -124,7 +124,7 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 // prop/dead/loopinv/strength pairs; 157 csoff+propoff, 165 csoff group,
 // 220-224 peephole group, 244-247 schedule group). No pair wins; floor stands.
 // `python3 -E -s tools/pragma_sweep.py src/shdWindow.c func_0025dd30 --pairs`.
-extern s8 func_00275a40(char param_1);
+extern s8 frFontExGlyphHeight(char param_1);
 extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
 // MATCH.  The last six words were the emission slot of `mtc1 $zero, $f12`
 // at the two func_00366670 calls: retail materialises that first float
@@ -162,7 +162,7 @@ void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
     s32 ret;
 
     *(struct ShdWindowQuad *)table = *(struct ShdWindowQuad *)D_00637260;
-    func_00275a40(2);
+    frFontExGlyphHeight(2);
     y = *(s32 *)(data + 12);
     if (y >= 0x17) {
         func_0046d730(D_00637248, 121);
@@ -181,13 +181,13 @@ void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
         if (*(s32 *)(data + 20) == 0) {
             u32 combined = (color & 0xFF) | -256;
             func_00366670((s32)(110.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
-            func_00274ed0(163.0f + param_1, (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8], 0, (const char *)iGpffffa6a0, 8, 0);
-            func_00274ed0((f32)293 + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 1, (const char *)iGpffffa6a4, 8, 0);
+            frFontExDrawText(163.0f + param_1, (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8], 0, (const char *)iGpffffa6a0, 8, 0);
+            frFontExDrawText((f32)293 + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 1, (const char *)iGpffffa6a4, 8, 0);
         } else {
             u32 combined = (color & 0xFF) | -256;
             func_00366670((s32)(240.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
-            func_00274ed0(163.0f + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8], 1, (const char *)iGpffffa6a0, 8, 0);
-            func_00274ed0(3.0f + ((f32)293 + param_1), (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 0, (const char *)iGpffffa6a4, 8, 0);
+            frFontExDrawText(163.0f + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8], 1, (const char *)iGpffffa6a0, 8, 0);
+            frFontExDrawText(3.0f + ((f32)293 + param_1), (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 0, (const char *)iGpffffa6a4, 8, 0);
         }
         break;
     case 1:

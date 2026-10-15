@@ -53,7 +53,7 @@ extern void func_001104d0(s32 date, s32 *month, s32 *day);
 extern s32 sprintf(void *arg0, const void *arg1, s32 arg2);
 extern u8 iGpffffa738;
 extern s32 func_001105b0(s32 arg0);
-extern void func_00275980(void *arg0, void *arg1, s32 arg2);
+extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
 extern s8 D_0063BAB0[];
 extern s32 func_00108e10(void);
 extern void func_00278a70(s32 arg0);
@@ -414,7 +414,7 @@ s32 func_00270780(s32 arg0, u8 *arg1) {
         return 0;
     }
     func_00273f70(arg1);
-    func_00275980(func_00246c20(temp_17 & 0xFFFF), sp30, 0x20);
+    frFontExCopyString(func_00246c20(temp_17 & 0xFFFF), sp30, 0x20);
     func_00273cc0(sp30, arg1);
     return 0;
 }
@@ -479,7 +479,7 @@ s32 func_002709b0(s32 arg0, u8 *arg1)
     } while (count > 0);
     if (func_002746a0() != 0)
         return 0;
-    func_00275980(work.sp40 + func_001105b0((s16)func_001060b0()) * 8,
+    frFontExCopyString(work.sp40 + func_001105b0((s16)func_001060b0()) * 8,
                   work.sp20, 0x20);
     func_00273f70(arg1);
     func_00273cc0(work.sp20, arg1);
@@ -518,7 +518,7 @@ s32 func_00270a80(s32 arg0, u8 *arg1) {
     } else {
         var_2_2 = func_00246830((u16)temp_17);
     }
-    func_00275980(var_2_2, sp30, 0x40);
+    frFontExCopyString(var_2_2, sp30, 0x40);
     func_00273f70(arg1);
     func_00273cc0(sp30, arg1);
     return 0;

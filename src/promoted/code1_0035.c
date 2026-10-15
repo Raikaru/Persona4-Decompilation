@@ -360,7 +360,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
     s32 flagId;
     extern s8 func_002bab80(void *arg0);
     extern void func_00106390(s32 arg0, s32 arg1);
-    extern void func_00275980(void *src, void *dst, s32 maxlen);
+    extern void frFontExCopyString(void *src, void *dst, s32 maxlen);
     extern s32 func_002badc0(s8 arg0, s32 arg1);
     extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
     extern u8 func_0045aeb0(s16 channelIndex, const char *name);
@@ -396,10 +396,10 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
     }
     sprintf(label, &D_0064B340, msgId);
     func_0045aeb0(2, (const char *)label);
-    func_00275980((void *)(u32)func_00354490(arg1), label, 0x40);
+    frFontExCopyString((void *)(u32)func_00354490(arg1), label, 0x40);
     func_002bbd80(*(s8 *)(arg0 + 8), 0, label);
     sprintf(subLabel, &iGpffffa958, arg1 + 1);
-    func_00275980(subLabel, label, 0x40);
+    frFontExCopyString(subLabel, label, 0x40);
     func_002bbd80(*(s8 *)(arg0 + 8), 1, label);
     func_002badc0(*(s8 *)(arg0 + 8), mode);
 }
@@ -1716,7 +1716,7 @@ void func_00356a10(u8 *work) {
     } CommunityMenuView;
     CommunityMenuView *menu;
     extern void func_0034f1e0(void);
-    extern s32 func_00275330(f32, f32, f32, s32, s8, s32, const char *, s32, s32, s32);
+    extern s32 frFontExDrawTextOutB(f32, f32, f32, s32, s8, s32, const char *, s32, s32, s32);
     extern void func_0034c270(Vec2f, s32, s32, f32);
     extern void func_0045d6e0(u8 *, f32 *, f32, s32);
     extern void func_003599c0(s32, u8 *);
@@ -1728,7 +1728,7 @@ void func_00356a10(u8 *work) {
     extern f32 func_0046b2f0(u8 *);
     extern void func_0046d730(const void *, u32);
     extern f32 func_0034f720(u8 *, f32, f32, f32);
-    extern s32 func_00275020(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
+    extern s32 frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
     extern u8 *func_00246830(u32);
     extern u8 *func_00246910(s16);
     extern u8 *func_00246940(s16);
@@ -2041,7 +2041,7 @@ void func_00356a10(u8 *work) {
         rankColor = titleOpacity & 0xFF;
         nameColor = rankColor | ~0x7EFF;
         nameId = (u16 *)((u8 *)add_offset_first((u32)(selectedIndex * 12), (u32)work) + 0x3A);
-        func_00275020(position.x, position.y, 0.0f, nameColor, 0, 1, (const char *)func_00246830(*nameId), 0, -2);
+        frFontExDrawTextWithCharWidth(position.x, position.y, 0.0f, nameColor, 0, 1, (const char *)func_00246830(*nameId), 0, -2);
         rankNames = func_00246910((s16)*nameId);
         position.x = (130.0f + (originX + menu->titleOffset.x));
         position.y = (46.0f + (originY + menu->titleOffset.y));
@@ -2176,7 +2176,7 @@ void func_00356a10(u8 *work) {
             func_0034f2e0(sprite, position.x, position.y, palette->r, palette->g, palette->b, rowOpacity);
             sprite = menu->resource1260;
             func_0034f2e0(sprite, 172.0f + position.x, position.y, palette->r, palette->g, palette->b, rowOpacity);
-            func_00275330(91.0f + position.x, position.y, 0.0f, rowColor, rowFontMode, 2, (const char *)func_0010d620(*(s16 *)(work + detailIndex * 2 + 0x136)), 8, 0x18, -1);
+            frFontExDrawTextOutB(91.0f + position.x, position.y, 0.0f, rowColor, rowFontMode, 2, (const char *)func_0010d620(*(s16 *)(work + detailIndex * 2 + 0x136)), 8, 0x18, -1);
         }
         detailOpacity = (u8)(menu->detailOpacity);
         if (detailOpacity > 0) {
@@ -2598,7 +2598,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     /* H011: the u16 parameter is measured; the u32 definition (cmmMisc.c)
        mismatches the name-sprite call. */
     extern u8 *func_00246830(u16 arg0);
-    extern s32 func_00275020(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
+    extern s32 frFontExDrawTextWithCharWidth(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
     extern f32 func_0046b260(u8 *arg0);
     extern s32 (*D_00887300[])(s32, s32);
     extern u8 D_0064B2E0[];
@@ -2765,7 +2765,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
         scale = y2 + 30.0f * scale;
         nameAlpha = (alpha * 0xFF) / 0xFFU;
         spr = func_00246830(name);
-        func_00275020(px, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
+        frFontExDrawTextWithCharWidth(px, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
     x3 = 5.0f + (x0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x4C0));
     y3 = 78.0f + (rowY + (y0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x4C4)));
@@ -3962,8 +3962,8 @@ void func_0035fd60(u8 *work)
     extern void func_0034c270(Vec2f position, s32 alpha, s32 background, f32 depth);
     extern void func_0034f2e0(void *ptr, f32 x, f32 y, u8 r, u8 g, u8 b, u8 a);
     extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 resource);
-    extern void func_00275980(void *src, void *dst, s32 n);
-    extern s32 func_00274ed0(f32 x, f32 y, f32 depth, s32 color, s8 character, s32 font,
+    extern void frFontExCopyString(void *src, void *dst, s32 n);
+    extern s32 frFontExDrawText(f32 x, f32 y, f32 depth, s32 color, s8 character, s32 font,
                             const char *text, s32 flags, s32 reserved);
     extern void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
                               s32 textColor, s32 font, s32 mode, s32 table);
@@ -4129,8 +4129,8 @@ void func_0035fd60(u8 *work)
         position.y = 269.0f + (originY + *(f32 *)(work + 0xEC));
         opacity = (u8)((f32)*(u8 *)(work + 0xF2) * opacityScale);
         textColor = opacity | ~0xFF;
-        func_00275980(D_0064D448[*(s16 *)(work + 0x28)], text, 0x100);
-        func_00274ed0(position.x, position.y, 0.0f, textColor, 7, 1, text, 2, 0);
+        frFontExCopyString(D_0064D448[*(s16 *)(work + 0x28)], text, 0x100);
+        frFontExDrawText(position.x, position.y, 0.0f, textColor, 7, 1, text, 2, 0);
         position.x = 640.0f + (originX + *(f32 *)(work + 0x1A8));
         position.y = 400.0f + (originY + *(f32 *)(work + 0x1AC));
         opacity = (u8)((f32)*(u8 *)(work + 0x1B2) * opacityScale);

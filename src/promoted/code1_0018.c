@@ -157,7 +157,7 @@ extern s32 func_0015a560(void);
 extern f32 sinf(f32 arg0);
 
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
-extern s32 func_00275680(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id,
+extern s32 frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id,
                          const char *str, s32 flags, s32 unused, void *param,
                          s32 charWidth);
 extern f32 D_008872F8[];
@@ -1897,10 +1897,10 @@ s32 func_00189940(u8 *arg0)
             *(s32 *)(temp_2 + 0x10) = 0;
             func_00461390(D_00794C60, 4, temp_16 + 0x120, 4);
             if (*(const char **)(temp_16 + 0x10) != NULL) {
-                func_00275680((f32)(s32)*(f32 *)(temp_16 + 0x18), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(temp_16 + 0x10), 8, 0, D_00794C60, -1);
+                frFontExDrawTextDeferredWithCharWidth((f32)(s32)*(f32 *)(temp_16 + 0x18), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(temp_16 + 0x10), 8, 0, D_00794C60, -1);
             }
             if (*(const char **)(temp_16 + 0x14) != NULL) {
-                func_00275680((f32)(s32)*(f32 *)(temp_16 + 0x1C), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(temp_16 + 0x14), 8, 0, D_00794C60, -1);
+                frFontExDrawTextDeferredWithCharWidth((f32)(s32)*(f32 *)(temp_16 + 0x1C), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(temp_16 + 0x14), 8, 0, D_00794C60, -1);
             }
         }
         break;
