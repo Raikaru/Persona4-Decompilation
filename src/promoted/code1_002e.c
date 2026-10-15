@@ -603,7 +603,7 @@ void func_002e7a80(s32 arg0)
 // FUN_002E7AC0
 s32 fclCombineMenuUpdate(u8 *arg0)
 {
-    void fclCombineMenuEnter(u8 *arg0);
+    void fclCombineMenuRoot(u8 *arg0);
     u8 *fclSpriteEntry(s16 arg0);
     s16 fclSpriteFlagBit(s16 arg0, s16 arg1);
     s32 func_002b2a30(u8, u8, u8, u8);
@@ -681,7 +681,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     }
     switch (state) {
     case 0:
-        fclCombineMenuEnter(arg0);
+        fclCombineMenuRoot(arg0);
         break;
     default:
         break;
