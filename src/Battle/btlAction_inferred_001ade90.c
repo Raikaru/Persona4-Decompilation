@@ -786,7 +786,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     extern void btlBossResetPendingCue(u8 *arg0);
     extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
     extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
-    extern s32 func_001b7080(s32 arg0);
+    extern s32 btlMainSkillColorDefault(s32 arg0);
     extern s32 func_001b7090(s32 arg0);
     extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
     extern BtlPacket *btlMainCreateColorLerpPacket(u32 arg0, u32 arg1, u32 arg2);
@@ -890,7 +890,7 @@ void btlActionRoundupUpdate(u8 *arg0)
         *(s64 *)(pk + 0x60) = uid;
         btlPacketEnqueue(pk, 1);
     }
-    colorKind = func_001b7080(selector);
+    colorKind = btlMainSkillColorDefault(selector);
     func_001b70a0(selector, &outHi, &outLo);
     /* Palette entries are four bytes; their flags are the second halfword. */
     sp100 = (s16)aux;

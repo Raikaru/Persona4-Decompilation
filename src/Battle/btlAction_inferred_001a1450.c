@@ -3493,7 +3493,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
     extern void btlActionFinishPresentation(BtlAction *arg0);
     extern void func_001b7060(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
-    extern s32 func_001b7080(u16 skill); /* lint: allow H011 -- retail passes the lhu skill unconverted */
+    extern s32 btlMainSkillColorDefault(u16 skill); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern s32 func_001b7090(s32 arg0);
     extern void func_001b70a0(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3);
@@ -4535,7 +4535,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     cameraPkt60->startTime = sceneTime;
     cameraPkt60->ownerId = actionId;
     btlPacketEnqueue((u8 *)cameraPkt60, 1);
-    cameraKind = (s32)(func_001b7080(skillKey));
+    cameraKind = (s32)(btlMainSkillColorDefault(skillKey));
     func_001b70a0(skillKey, &cameraFirst, &cameraSecond);
     cameraPkt61 = (BtlPacketTiming *)(btlMainCreateColorWorkPacket(cameraKind, cameraFirst, cameraSecond, 0x10, ((*(u16 *)((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + 2) & 2) ? 1 : 0)));
     cameraPkt61->queue = 4;
@@ -5542,7 +5542,7 @@ void btlActionSummonUpdate(s64 *arg0)
     extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 arg0, u16 arg1);
     extern u8 *btlTargetCreateHitPacket(u8 *arg0);
     extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
-    extern s32 func_001b7080(s32 arg0);
+    extern s32 btlMainSkillColorDefault(s32 arg0);
     extern s32 func_001b7090(s32 arg0);
     extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
     extern BtlPacket *btlMainCreateColorLerpPacket(u32 arg0, u32 arg1, u32 arg2);
@@ -5656,7 +5656,7 @@ void btlActionSummonUpdate(s64 *arg0)
     {
         s32 kind;
         u8 *pkt;
-        kind = func_001b7080(aux);
+        kind = btlMainSkillColorDefault(aux);
         func_001b70a0(aux, &outHi, &outLo);
         pkt = (u8 *)btlMainCreateColorWorkPacket(kind, outHi, outLo, 0x10, 0);
         *pkt = 4;

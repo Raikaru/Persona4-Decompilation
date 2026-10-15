@@ -58,7 +58,7 @@ extern u8 *btlMainCreateColorFadePacket(s32 arg0);
 extern u16 datCalcGetHp(s32 unit);
 extern u16 datCalcGetSp(s32 unit);
 extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
-extern s32 func_001b7080(s32 arg0);
+extern s32 btlMainSkillColorDefault(s32 arg0);
 extern s32 func_001b7090(s32 arg0);
 extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
 extern void btlFormationSetPlacement(s32 arg0);
@@ -1607,7 +1607,7 @@ void btlMainRevivalInit(void)
     next = btlMainCreateColorLerpPacket(camA, camB, 0x10);
     *(s64 *)(next + 0x60) = *(s64 *)action;
     btlPacketEnqueue(next, 1);
-    id = func_001b7080(0x13D);
+    id = btlMainSkillColorDefault(0x13D);
     func_001b70a0(0x13D, &camA, &camB);
     next = (u8 *)btlMainCreateColorWorkPacket(id, camA, camB, 0x10, 0);
     *(s64 *)(next + 0x60) = *(s64 *)action;
