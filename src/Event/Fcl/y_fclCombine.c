@@ -145,9 +145,9 @@ extern int frFontExDrawTextDeferred(f32, f32, f32, int, s8, int, const char *, i
 extern s32 func_002bb1c0(s8);
 extern void func_002e5000(void);
 extern void func_0032fbc0(u8 *);
-extern u16 *func_00308cc0(u8 *);
-extern s32 func_00308dc0(u8 *);
-extern s32 func_00308e50(u8 *);
+extern u16 *fclCombineFindMatchPtr(u8 *);
+extern s32 fclCombineRollTier(u8 *);
+extern s32 fclCombineFindMatchIndex(u8 *);
 extern s32 func_00309630(u16);
 extern s32 func_003096d0(u8 *);
 extern s32 datPersonaReplaceSkill(u8 *, s16, u16);
@@ -7162,7 +7162,7 @@ void func_00304580(u8 *arg0) {
                     for (var_4 = 0; var_4 < 5; var_4++) {
                         work->f30C[var_4] = 0;
                     }
-                    temp_3_10 = (s8)(func_00308e50(arg0));
+                    temp_3_10 = (s8)(fclCombineFindMatchIndex(arg0));
                     switch (temp_3_10) {            /* switch 3; irregular */
                     case 0:                         /* switch 3 */
                         temp_2_15 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
@@ -7386,7 +7386,7 @@ void func_00304580(u8 *arg0) {
                     sp2C8[var_4_2] = 0;
                 }
                 func_0011b8f0(func_003147d0((u8 *)work->f148), sp2C8);
-                temp_4_2 = (s8)(func_00308e50(arg0));
+                temp_4_2 = (s8)(fclCombineFindMatchIndex(arg0));
                 switch (temp_4_2) {                 /* switch 4; irregular */
                 case 0:                             /* switch 4 */
                     temp_2_28 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
@@ -7543,7 +7543,7 @@ void func_00304580(u8 *arg0) {
                 sp2B0[var_4_5] = 0;
             }
             func_0011b8f0(func_003147d0((u8 *)work->f148), sp2B0);
-            temp_3_17 = (s8)(func_00308e50(arg0));
+            temp_3_17 = (s8)(fclCombineFindMatchIndex(arg0));
             switch (temp_3_17) {                    /* switch 7; irregular */
             case 0:                                 /* switch 7 */
                 temp_2_38 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
@@ -7570,9 +7570,9 @@ void func_00304580(u8 *arg0) {
                 (*(u8 *)((u8 *)(temp_2_45)+(0x1E))) = (u8) ((*(u8 *)((u8 *)(temp_2_45)+(0x1E))) - 6);
                 break;
             }
-            temp_18_17 = (s8)(func_00308dc0(arg0));
-            temp_16_37 = (s8)(func_00308e50(arg0));
-            func_00110270((u8 *)func_00308cc0(arg0), ((((s8)(temp_18_17)) << 8) | (((s8)(temp_16_37)) | 0x30)) & 0xFFFF);
+            temp_18_17 = (s8)(fclCombineRollTier(arg0));
+            temp_16_37 = (s8)(fclCombineFindMatchIndex(arg0));
+            func_00110270((u8 *)fclCombineFindMatchPtr(arg0), ((((s8)(temp_18_17)) << 8) | (((s8)(temp_16_37)) | 0x30)) & 0xFFFF);
             datPersonaRemoveRosterMemberById((*(u16 *)((u8 *)(func_002e48a0(0, work->f128))+(2))));
             datPersonaRemoveRosterMemberById((*(u16 *)((u8 *)(func_002e48a0(0, work->f129))+(2))));
             func_003205f0(arg0, 0x96, 0x94);
@@ -7716,7 +7716,7 @@ block_274:
 }
 #undef FCL_COMBINE_GRID_ROW
 #pragma pop
-/* measured: same stack-lookup-table floor as func_00308e50 — retail loads
+/* measured: same stack-lookup-table floor as fclCombineFindMatchIndex — retail loads
    tbl[i] via sll/addu($sp)/addiu(0x48)/lh ($v0); mwcc b210 folds the 0x48
    into the load displacement in every spelling (array-index nd 42,
    byte-offset arithmetic nd 42), shifting all following words by one. */
@@ -7728,8 +7728,9 @@ block_274:
    lhu load shape then matches byte-for-byte). nd 95 -> 1 -> MATCH. Note the
    return type is u16* (returns the raw func_002e48a0 results), and the
    per-iteration args reload p[0x128]/p[0x129] with (s8) hunches. */
+// Fcl combine match: when one material's code matches a table entry, returns the other material's record; else 0.
 // FUN_00308CC0
-u16 *func_00308cc0(u8 *arg0) {
+u16 *fclCombineFindMatchPtr(u8 *arg0) {
     s16 table[4];
     s8 *p = *(s8 **)(arg0 + 0x38);
     s16 i;
@@ -7747,8 +7748,9 @@ u16 *func_00308cc0(u8 *arg0) {
     }
     return 0;
 }
+// Fcl combine roll: picks a tier 0-5 from a percentage roll against the cumulative thresholds in D_007490F8.
 // FUN_00308DC0
-s32 func_00308dc0(u8 *task)
+s32 fclCombineRollTier(u8 *task)
 {
     s16 i;
     s32 temp;
@@ -7770,15 +7772,16 @@ s32 func_00308dc0(u8 *task)
    (sll/addu/lh 0x48($v0)) no matter the spelling — probed array-index,
    named pointer, byte-offset arithmetic, for-loop, initializer-list, and
    #pragma schedule on (nd 56); best nd 40. Same floor family as func_00308f40. */
-/* MATCHED wave 14: same fix as func_00308cc0 — the table INITIALIZER was the
+/* MATCHED wave 14: same fix as fclCombineFindMatchPtr — the table INITIALIZER was the
    defect. Individual stores `table[0]=0xD; …` (not the array initializer,
    which pulls the 4 constants from a gp pool) reproduce retail's addiu/sh
    pairs; the sll/addu/sp/addiu(0x48)/lh read immediately matches, and the
    loop/branch layout falls into place (nd 10 -> 1 benign padding -> MATCH).
    Key types: table is s16[4], p is the s8* work at arg0+0x38, table compare
    against func_002e48a0(0, p[0x128])[1] / [0x129] with (s8)i return. */
+// Fcl combine match index: returns the index (0-3) of the matching code, or -1 when none matches.
 // FUN_00308E50
-s32 func_00308e50(u8 *arg0) {
+s32 fclCombineFindMatchIndex(u8 *arg0) {
     s16 table[4];
     s8 *p = *(s8 **)(arg0 + 0x38);
     s16 i;
