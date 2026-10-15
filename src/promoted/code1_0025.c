@@ -50,7 +50,7 @@ s32 func_0029d020(void);
 void func_001227d0(void);
 s32 func_001227f0(void);
 
-s32 func_001060c0(void);
+s32 datGetTimeSlot(void);
 s8 func_00110960(s16 arg0, s32 arg1);
 float scrGetParamFloat(s32 arg0);
 s16 func_00105010(s16 arg0, float arg1);
@@ -154,7 +154,7 @@ s32 func_0025c3e0(void) {
 
 // FUN_0025C420
 s32 func_0025c420(void) {
-    scrSetReturnInt(func_001060c0() & 0xFF);
+    scrSetReturnInt(datGetTimeSlot() & 0xFF);
     return 1;
 }
 // FUN_0025C450
@@ -162,7 +162,7 @@ s32 func_0025c450(void) {
     s16 temp_16;
 
     temp_16 = func_001060b0();
-    scrSetReturnInt((s32)func_00110960(temp_16, func_001060c0() & 0xFF));
+    scrSetReturnInt((s32)func_00110960(temp_16, datGetTimeSlot() & 0xFF));
     return 1;
 }
 

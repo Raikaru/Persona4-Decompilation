@@ -580,7 +580,7 @@ u16 func_00105460(s16 arg0)
 }
 
 // FUN_00105510
-u8* func_00105510(s16 arg0)
+u8* datUnitGetRecord(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -964,7 +964,7 @@ s16 func_001060b0(void)
 
 
 // FUN_001060C0
-u8 func_001060c0(void)
+u8 datGetTimeSlot(void)
 {
     return D_00797B7C[0];
 }
@@ -1043,7 +1043,7 @@ void func_00106100(s16 arg0)
 }
 
 // FUN_001062F0
-void func_001062f0(u8 arg0)
+void datSetTimeSlot(u8 arg0)
 {
     D_00797B7C[0] = arg0;
 }
@@ -1216,13 +1216,13 @@ void func_00106620(s16 arg0, s32 arg1)
 }
 
 // FUN_001067F0
-u32 func_001067f0(s16 arg0)
+u32 datGetItemNameId(s16 arg0)
 {
     return D_005E2200[arg0];
 }
 
 // FUN_00106820
-GDataEntry* func_00106820(s16 arg0)
+GDataEntry* datEntryAt(s16 arg0)
 {
     return (GDataEntry*)((u8*)D_007242A0 + (s32)arg0 * 68);
 }
@@ -1234,7 +1234,7 @@ u32 func_00106850(s16 arg0)
 }
 
 // FUN_00106880
-u32 func_00106880(s16 arg0)
+u32 datEntryGetFlags(s16 arg0)
 {
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 4);
 }
@@ -2607,7 +2607,7 @@ void func_0010fd40(u8* src)
 }
 
 // FUN_0010FDE0
-u8* func_0010fde0(u8* arg0)
+u8* datPersonaResolveRecord(u8* arg0)
 {
     s32 v;
     u16 w;

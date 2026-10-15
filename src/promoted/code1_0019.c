@@ -48,7 +48,7 @@ extern u8 *iGpffffb3cc;
 extern s64 btlGetUID(void);
 
 extern s64 scrGetParamInt(s32 arg0);
-extern u8 *func_00105510(s16 arg0);
+extern u8 *datUnitGetRecord(s16 arg0);
 extern void datCalcSetUnitClass(u8 *arg0, s16 arg1);
 extern s32 datCalcUnitClass(u8 *arg0);
 extern void scrSetReturnInt(s32 arg0);

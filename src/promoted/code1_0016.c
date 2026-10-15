@@ -126,7 +126,7 @@ extern s16 datGetPartyId(s32 arg0);
 extern s64 func_001060b0(void);
 extern s32 func_00110d60(s32 arg0);
 extern s32 func_00110680(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_001060c0(void);
+extern s32 datGetTimeSlot(void);
 extern s32 func_00110960(s16 arg0, s32 arg1);
 extern s32 D_005F1350[];
 extern void mdlSetColor(void *arg0, void *arg1);
@@ -848,7 +848,7 @@ loop_body:
     if ((*(s32 *)(temp_5 + 0) == temp_3) &&
         (*(s32 *)(temp_5 + 4) == *(s32 *)(temp_4 + 4))) {
         temp_18 = (s16)func_001060b0();
-        temp_3_2 = (s8)func_00110960(temp_18, func_001060c0() & 0xFF);
+        temp_3_2 = (s8)func_00110960(temp_18, datGetTimeSlot() & 0xFF);
         var_2 = temp_3_2 & 1;
         if ((temp_3_2 < 0) && (var_2 != 0)) {
             var_2 -= 2;

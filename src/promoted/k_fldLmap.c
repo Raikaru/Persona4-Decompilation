@@ -38,7 +38,7 @@ extern void func_00457630(u8 *param, u8 *src, u8 *dst, s32 mode);
 extern f32 sinf(f32 param);
 extern f32 cosf(f32 param);
 extern s64 func_001060b0();
-extern s32 func_001060c0();
+extern s32 datGetTimeSlot();
 extern s64 func_00110960(s64 param, s32 param2);
 extern s32 datGetFlag(s32 id);
 extern u8 *func_003e0f80();
@@ -136,8 +136,8 @@ s32 func_001866d0(u8 *arg0)
     switch (temp_3) {
     case 0:
         temp_17 = (s16)func_001060b0();
-        temp_18 = (s8)func_00110960(temp_17, func_001060c0() & 0xFF);
-        temp_17_2 = func_001060c0() & 0xFF;
+        temp_18 = (s8)func_00110960(temp_17, datGetTimeSlot() & 0xFF);
+        temp_17_2 = datGetTimeSlot() & 0xFF;
         if (datGetFlag(0x8A) == 1) {
             if ((s8)temp_18 == 1) {
                 sprintf(sp40, D_005F1E40);

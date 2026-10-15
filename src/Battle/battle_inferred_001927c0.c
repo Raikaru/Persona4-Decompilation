@@ -43,7 +43,7 @@ extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 
 extern s64 scrGetParamInt(s32 arg0);
-extern u8 *func_00105510(s16 arg0);
+extern u8 *datUnitGetRecord(s16 arg0);
 
 extern u8 *iGpffff9db0;
 extern u8 *D_0076449C;
@@ -615,7 +615,7 @@ s32 func_00193450(void)
             return 0;
         }
         if (iGpffffb3b0 == 0) {
-            if (datCalcIsDead(func_00105510(1), 0) != 0) {
+            if (datCalcIsDead(datUnitGetRecord(1), 0) != 0) {
                 dep = iGpffffb280;
                 func_0029db50(0xF, iGpffffb284, dep, 0);
                 KMisc_CreateScrShutdown(*(s32 *)(func_0029d040() + 0x148));

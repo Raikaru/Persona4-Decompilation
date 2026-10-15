@@ -64,7 +64,7 @@ extern void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                           f32 z, s32 arg6);
-extern u32 func_00106880(s16 arg0);
+extern u32 datEntryGetFlags(s16 arg0);
 extern s32 func_0046a770(void *param);
 extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
@@ -685,7 +685,7 @@ void func_001113b0(void)
     void func_00105fa0(u32);
     void datSetPartyId(s32, s16);
     void func_00106100(s16);
-    void func_001062f0(u8);
+    void datSetTimeSlot(u8);
     void func_00106300(s16);
     void func_00106310(u8);
     void func_00106320(u32);
@@ -750,7 +750,7 @@ loop_1_check:
     func_00106480();
     func_001065c0();
     func_001064c0();
-    func_001062f0(5);
+    datSetTimeSlot(5);
     func_00106100(9);
     func_00106310(5);
     func_00106300(9);
@@ -1072,7 +1072,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     }
     if (*(s32 *)(arg2 + 0xC) != 0) {
         temp19 = arg1 & 0xFF;
-        temp_2 = (s32)func_001067f0(*(s16 *)arg2);
+        temp_2 = (s32)datGetItemNameId(*(s16 *)arg2);
         frFontExDrawTextWithCharWidth(
             arg0.x,
             arg0.y,
@@ -1156,7 +1156,7 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
     u8 *table;
     s32 alpha;
 
-    flags = func_00106880(*(s16 *)(arg2 + 0));
+    flags = datEntryGetFlags(*(s16 *)(arg2 + 0));
     if (*(u16 *)(arg2 + 0x14) & 2) {
         table = &D_005E4710[(*(s16 *)(arg2 + 0x16)) * 4];
         color_a = *(Color4 *)table;
@@ -1365,7 +1365,7 @@ void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
     s32 alpha;
 
     scale = fparg0;
-    flags = func_00106880(arg2);
+    flags = datEntryGetFlags(arg2);
     mode = -1;
     if (flags & 0x81) {
         mode = 0x14;

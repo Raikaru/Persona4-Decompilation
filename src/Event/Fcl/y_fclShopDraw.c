@@ -233,7 +233,7 @@ void func_002e0700(u8 *, s64, f32, f32, s32, s32, s64);
 void func_002e09e0(u8 *, s32, f32);
 s32 yListCountFor(void *);
 void func_002e0b20(s32, Vec2f, f32, s32, u8, s32, u8 *);
-u32 func_001067f0(s16);
+u32 datGetItemNameId(s16);
 
 s16 func_00106cd0(s16, s16);
 /* measured: the item getters take s16, as defined in g_data.c (each callee
@@ -241,7 +241,7 @@ s16 func_00106cd0(s16, s16);
    ids are extended at every call, and an explicit (s32) widening before an s16
    parameter reproduces the single extension retail emits (func_002df020,
    func_002dd3b0, func_002de5a0, func_002d5040, func_002d1590). */
-u32 func_00106880(s16);
+u32 datEntryGetFlags(s16);
 u16 func_001068b0(s16);
 u16 func_001068e0(s16);
 u16 func_00106940(s16);
@@ -922,36 +922,36 @@ s32 func_002be530(u8 *arg0)
             (*(f32 *)(work + 0xF34)) = (f32) (temp_f1 + ((temp_f21 - temp_f1) / 2.0f));
             (*(f32 *)(work + 0xF38)) = (f32) (65.0f + ((temp_f20 - 65.0f) / 2.0f));
             (*(s8 *)(work + 0xF73)) = 1;
-            (*(s8 *)(work + 0xF7C)) = func_002d4f30((s16) ((s16) (func_00106880(func_00106cd0(1, 0)))));
+            (*(s8 *)(work + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0(1, 0)))));
             (*(s8 *)(work + 9)) = 1;
             if (datGetFlag(0x30) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 2;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (func_00106880(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x31) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 3;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (func_00106880(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x32) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 4;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (func_00106880(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x33) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 6;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (func_00106880(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x35) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 8;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (func_00106880(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x36) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 7;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (func_00106880(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             for (var_5 = 0; var_5 < 9; var_5++) {
@@ -3227,7 +3227,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
             func_002e0b20(icon, sp1D0, 69.0f, iconColor, ((u8 *)func_002e04e0(work->fC8C))[0x62], 0, D_00795E60);
             sp1C8 = func_002b2970(189.0f, 132.0f + (f32)rowY);
             pos = *(Vec2f *)&sp1C8;
-            frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, 70.0f, textColor, 0, 1, ((void *)func_001067f0((s16)yListValueAt(cur))), 0, 0, D_00795E30, -1);
+            frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, 70.0f, textColor, 0, 1, ((void *)datGetItemNameId((s16)yListValueAt(cur))), 0, 0, D_00795E30, -1);
             sp1C0 = func_002b2970(498.0f, 142.0f + (f32)rowY);
             func_002cacd0(sp1C0, 70.0f, rowColor, 0x10, 5, func_00106a90((s16)yListValueAt(cur)), 9, 0x7B,
                           (s32)func_0046a770((char *)(D_0063FB50)), (s32)work->fF28, 0xA9);
@@ -3876,7 +3876,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
                         sp1E0 = func_002b2970(mx, 9.0f + ((ShopWork *)func_002e04e0(work->O(0xDCC)))->field_30);
                         sp1D0 = *(Vec2f *)((u8 *)func_002e04e0(work->O(0xDCC)) + 0x2C);
                     }
-                    flags = func_00106880((s16)yListValueAtFor(work->list[work->sel], cur));
+                    flags = datEntryGetFlags((s16)yListValueAtFor(work->list[work->sel], cur));
                     if (flags & 0x81) {
                         func_002e0b20(0x14, sp1E0, 115.0f, iconColor, 0xFF, 0, D_00795E60);
                     } else if (flags & 0x102) {
@@ -3900,7 +3900,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
                     } else {
                         func_002e0ca0(0x1B, sp1E0, 115.0f, iconColor, 0xFF, 0, D_00795E60);
                     }
-                    shopDrawLabel(115.0f, ((void *)func_001067f0((s16)yListValueAtFor(work->list[work->sel], cur))), func_002b2970(53.0f + sp1D0.x, 7.0f + sp1D0.y), textColor);
+                    shopDrawLabel(115.0f, ((void *)datGetItemNameId((s16)yListValueAtFor(work->list[work->sel], cur))), func_002b2970(53.0f + sp1D0.x, 7.0f + sp1D0.y), textColor);
                     digits = func_00106a90((s16)yListValueAtFor(work->list[work->sel], cur)) / 5;
                     func_002cacd0(func_002b2970(372.0f + sp1D0.x, 16.0f + sp1D0.y), 115.0f, rowColor, 0x10, 5, digits, 9, 0x7B, (s32)func_0046a770((char *)(D_0063FB50)), (s32)work->font, 0xA9);
                     func_002e0b20(0x47, func_002b2970(400.0f + sp1D0.x, 18.0f + sp1D0.y), 115.0f, iconColor, 0xFF, 0, D_00795E60);
@@ -4454,7 +4454,7 @@ s32 func_002d1590(void *arg0)
         }
         sp228 = func_002b2970(129.0f, 255.0f);
         sp130 = *(Vec2f *)&sp228;
-        frFontExDrawTextDeferredWithCharWidth(sp130.x, sp130.y, 70.0f, colB, 0, 1, ((void *)func_001067f0((s16)yListValueAt(work->f2))), 0, 0, D_00794ED0, -1);
+        frFontExDrawTextDeferredWithCharWidth(sp130.x, sp130.y, 70.0f, colB, 0, 1, ((void *)datGetItemNameId((s16)yListValueAt(work->f2))), 0, 0, D_00794ED0, -1);
         if (func_001069d0((s16)yListValueAt(work->f2)) == 0) {
             for (dash = 0; dash < 0xF; dash++) {
                 sp220 = func_002b2970((f32)(dash * 0x16 + 0x6F), (f32)0x12B);
@@ -4625,7 +4625,7 @@ s32 func_002d1590(void *arg0)
             white = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
             sp1A0 = func_002b2970(129.0f, 89.0f);
             spC8 = *(Vec2f *)&sp1A0;
-            frFontExDrawTextDeferredWithCharWidth(spC8.x, spC8.y, 70.0f, white, 0, 1, ((void *)func_001067f0((s32)func_00106cd0(work->kind[work->sel], 0))), 0, 0, D_00794ED0, -1);
+            frFontExDrawTextDeferredWithCharWidth(spC8.x, spC8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 0))), 0, 0, D_00794ED0, -1);
             sp198 = func_002b2970(86.0f, 90.0f);
             func_002e0b20(work->icon[work->sel], sp198, 69.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
             func_002bc7f0((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 0)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 0, 0x57, 109.0f, 158.0f, 70.0f);
@@ -4658,7 +4658,7 @@ s32 func_002d1590(void *arg0)
             white = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
             sp180 = func_002b2970(129.0f, 89.0f);
             spC0 = *(Vec2f *)&sp180;
-            frFontExDrawTextDeferredWithCharWidth(spC0.x, spC0.y, 70.0f, white, 0, 1, ((void *)func_001067f0((s32)func_00106cd0(work->kind[work->sel], 1))), 0, 0, D_00794ED0, -1);
+            frFontExDrawTextDeferredWithCharWidth(spC0.x, spC0.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 1))), 0, 0, D_00794ED0, -1);
             sp178 = func_002b2970(86.0f, 90.0f);
             func_002e0b20(0x1B, sp178, 69.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
             func_002bc7f0((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 1)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 1, 0x57, 109.0f, 158.0f, 70.0f);
@@ -4691,7 +4691,7 @@ s32 func_002d1590(void *arg0)
             white = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
             sp160 = func_002b2970(129.0f, 89.0f);
             spB8 = *(Vec2f *)&sp160;
-            frFontExDrawTextDeferredWithCharWidth(spB8.x, spB8.y, 70.0f, white, 0, 1, ((void *)func_001067f0((s32)func_00106cd0(work->kind[work->sel], 2))), 0, 0, D_00794ED0, -1);
+            frFontExDrawTextDeferredWithCharWidth(spB8.x, spB8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 2))), 0, 0, D_00794ED0, -1);
             sp158 = func_002b2970(86.0f, 90.0f);
             func_002e0b20(0x1C, sp158, 69.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
             func_002bc7f0((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 2)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 2, 0x57, 109.0f, 158.0f, 70.0f);
@@ -5141,9 +5141,9 @@ void func_002d5040(void *arg0) {
     f32 x;
 
     work = *(u8 **)((u8 *)arg0 + 0x38);
-    func_002e0b20(func_002d4f30((s16)func_00106880((s32)yListValueAt(*(s16 *)(work + 2)))) & 0xFFFF, func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-    shopDrawLabel(31.0f, (const char *)((void *)func_001067f0((s32)yListValueAt(*(s16 *)(work + 2)))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
-    shopDrawLabel(31.0f, (const char *)((void *)func_001067f0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7)))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    func_002e0b20(func_002d4f30((s16)datEntryGetFlags((s32)yListValueAt(*(s16 *)(work + 2)))) & 0xFFFF, func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+    shopDrawLabel(31.0f, (const char *)((void *)datGetItemNameId((s32)yListValueAt(*(s16 *)(work + 2)))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    shopDrawLabel(31.0f, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7)))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     switch (*(s8 *)(work + 7)) {
     case 0:
         x = 51.0f + (296.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C));
@@ -6070,7 +6070,7 @@ void func_002d8a60(void *arg0, s8 arg1, f32 x, f32 y) {
                     ((ShopWork *)func_002e04e0(work->frame0))->field_2C = 144.0f + fx;
                 }
             } else {
-                flags = func_00106880((s16)yListValueAtFor(work->list[idx], cur));
+                flags = datEntryGetFlags((s16)yListValueAtFor(work->list[idx], cur));
                 if (flags & 0x81) {
                     sp1B0 = func_002b2970(fx, 135.0f + (f32)(row * 32));
                     func_002e0b20(0x14, sp1B0, 141.0f, iconColor, 0xFF, 0, D_00795E60);
@@ -6108,7 +6108,7 @@ void func_002d8a60(void *arg0, s8 arg1, f32 x, f32 y) {
                 sp158 = func_002b2970(43.0f + fx, 133.0f + (f32)(row * 32));
                 pos = *(Vec2f *)&sp158; /* word-aligned view: lwc1/swc1 copy, not ld/sd */
                 frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, 141.0f, textColor, 0, 1,
-                              ((void *)func_001067f0((s16)yListValueAtFor(work->list[idx], cur))),
+                              ((void *)datGetItemNameId((s16)yListValueAtFor(work->list[idx], cur))),
                               0, 0, D_00795E30, -1);
                 digits = func_00106a90((s16)yListValueAtFor(work->list[idx], cur)) / 5;
                 sp150 = func_002b2970(362.0f + fx, 142.0f + (f32)(row * 32));
@@ -6788,7 +6788,7 @@ void func_002dd3b0(void *arg0) {
         func_002e04f0(*(void **)(work + 0xC98), 0, 1);
     }
     id = yListValueAtFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)], *(s16 *)(work + 2));
-    shopDrawLabel(70.0f, (const char *)((void *)func_001067f0(id)), func_002b2970(129.0f, 134.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    shopDrawLabel(70.0f, (const char *)((void *)datGetItemNameId(id)), func_002b2970(129.0f, 134.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     count = func_00106a90((s32)id) / 5U;
     func_002cacd0(func_002b2970(486.0f, 145.0f), 70.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)func_0046a770((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
     func_002e0b20(0x47, func_002b2970((f32)0x202, 147.0f), 70.0f, func_002b2a30(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
@@ -6802,8 +6802,8 @@ void func_002dd3b0(void *arg0) {
     }
     switch (*(s8 *)(work + 0x11)) {
     case 1:
-        func_002e0b20(func_002d4f30((s16)func_00106880(id)) & 0xFFFF, func_002b2970(86.0f, 135.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        switch ((s16)func_002d4f30((s16)func_00106880(id))) {
+        func_002e0b20(func_002d4f30((s16)datEntryGetFlags(id)) & 0xFFFF, func_002b2970(86.0f, 135.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        switch ((s16)func_002d4f30((s16)datEntryGetFlags(id))) {
         case 20:
         case 21:
         case 22:
@@ -6888,33 +6888,33 @@ void func_002de5a0(void *arg0) {
         x = (f32)0x177;
         func_002e0b20(2, func_002b2970(x, 243.0f), 70.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         func_002e0b20(5, func_002b2970(420.0f, 246.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize = 70.0f, (const char *)((void *)func_001067f0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0))), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+        shopDrawLabel(labelSize = 70.0f, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0))), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     } else {
         size = 70.0f;
         x = (f32)0x177;
         func_002e0b20(2, func_002b2970(x, 243.0f), 70.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
         func_002e0b20(5, func_002b2970(420.0f, 246.0f), 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize = 70.0f, (const char *)((void *)func_001067f0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0))), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
+        shopDrawLabel(labelSize = 70.0f, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0))), func_002b2970(420.0f, (f32)0x10F), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
     }
     func_002e0b20(0x1B, func_002b2970(378.0f, (f32)0x12F), 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
     if (*(s8 *)(work + 7) == 1) {
         func_002e0b20(3, func_002b2970(x, (f32)0x12D), size, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         func_002e0b20(6, func_002b2970(420.0f, (f32)0x131), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)((void *)func_001067f0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1))), func_002b2970(420.0f, 330.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1))), func_002b2970(420.0f, 330.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     } else {
         func_002e0b20(3, func_002b2970(x, (f32)0x12D), size, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
         func_002e0b20(6, func_002b2970(420.0f, (f32)0x131), 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)((void *)func_001067f0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1))), func_002b2970(420.0f, 330.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
+        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1))), func_002b2970(420.0f, 330.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
     }
     func_002e0b20(0x1C, func_002b2970(378.0f, 368.0f), 69.0f, func_002b2a30(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
     if (*(s8 *)(work + 7) == 2) {
         func_002e0b20(3, func_002b2970(x, 366.0f), size, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         func_002e0b20(7, func_002b2970(420.0f, (f32)0x171), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)((void *)func_001067f0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2))), func_002b2970(420.0f, 394.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2))), func_002b2970(420.0f, 394.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     } else {
         func_002e0b20(3, func_002b2970(x, 366.0f), size, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
         func_002e0b20(7, func_002b2970(420.0f, (f32)0x171), 69.0f, func_002b2a30(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)((void *)func_001067f0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2))), func_002b2970(420.0f, 394.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
+        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2))), func_002b2970(420.0f, 394.0f), func_002b2a30(0xFF, 0xEF, 0x81, 0xFF));
     }
 }
 
@@ -6931,8 +6931,8 @@ void func_002de5a0(void *arg0) {
    (0x00763978); (5) the name goes through the inlined shopDrawLabel, whose
    right-to-left argument binding gives retail's colour / constructor copy /
    name order.
-   arg1 is an s16 item id: it is passed unchanged to func_00106880 and
-   func_001067f0, and widened with (s32) for func_00106a90, which retail
+   arg1 is an s16 item id: it is passed unchanged to datEntryGetFlags and
+   datGetItemNameId, and widened with (s32) for func_00106a90, which retail
    re-extends. */
 // FUN_002DF020
 void func_002df020(void *arg0, s16 arg1, s32 arg2) {
@@ -6948,13 +6948,13 @@ void func_002df020(void *arg0, s16 arg1, s32 arg2) {
         func_002e0ca0(0x1A, func_002b2970(97.0f, 178.0f), 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         break;
     case 1:
-        func_002e0b20(func_002d4f30((s16)func_00106880(arg1)) & 0xFFFF, func_002b2970(97.0f, 178.0f), 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        func_002e0b20(func_002d4f30((s16)datEntryGetFlags(arg1)) & 0xFFFF, func_002b2970(97.0f, 178.0f), 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         break;
     case 2:
         func_002e0ca0(0x1B, func_002b2970(97.0f, 178.0f), 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         break;
     }
-    shopDrawLabel(13.0f, (const char *)((void *)func_001067f0(arg1)), func_002b2970(140.0f, 178.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
+    shopDrawLabel(13.0f, (const char *)((void *)datGetItemNameId(arg1)), func_002b2970(140.0f, 178.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     count = func_00106a90((s32)arg1) / 5U;
     func_002cacd0(func_002b2970(448.0f, 185.0f), 13.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)func_0046a770((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
     func_002e0b20(0x47, func_002b2970(476.0f, 187.0f), 13.0f, func_002b2a30(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);

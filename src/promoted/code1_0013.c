@@ -11,8 +11,8 @@ extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 extern u32 RpRandom(void);
 extern s32 func_0034c210(void);
 struct GDataEntry;
-extern struct GDataEntry *func_00106820(s16 arg0);
-extern u32 func_00106880(s16 arg0);
+extern struct GDataEntry *datEntryAt(s16 arg0);
+extern u32 datEntryGetFlags(s16 arg0);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 static inline u8 *code13AddOff(s32 offset, u8 *base) {
@@ -885,7 +885,7 @@ void func_00135130(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
     func_00112300(position.xy, 0.0f, inputAlpha, entry);
     position.xy.x = 128.0f + ((f32 *)&inputPosition)[0];
     position.xy.y = 32.0f + originalY;
-    if ((func_00106880(*(s16 *)entry) & 0x8000) != 0) {
+    if ((datEntryGetFlags(*(s16 *)entry) & 0x8000) != 0) {
         itemValue = 0;
     } else {
         itemValue = func_001069d0(*(s16 *)entry) & 0xFFFF;
@@ -1219,10 +1219,10 @@ void func_0013b420(void *context, Vec2f inputPosition, s32 inputAlpha, void *ent
 static inline s32 code13GroupBefore(u8 *arg0, s32 index)
 {
     u32 selected;
-    selected = func_00106880(*(s16 *)(code13AddOff((index - 1) * 4, arg0) + 0x3E));
+    selected = datEntryGetFlags(*(s16 *)(code13AddOff((index - 1) * 4, arg0) + 0x3E));
     index = index - 1;
     while (index > 0) {
-        if (func_00106880(*(s16 *)(arg0 + index * 4 + 0x3A)) != selected) break;
+        if (datEntryGetFlags(*(s16 *)(arg0 + index * 4 + 0x3A)) != selected) break;
         index--;
     }
     return index;
@@ -1239,10 +1239,10 @@ static inline s32 code13GroupAfter(u8 *arg0, s32 total, s32 count, s32 wrap)
 {
     s32 index;
     u32 selected;
-    selected = func_00106880(*(s16 *)(code13AddOff(total * 4, arg0) + 0x3E));
+    selected = datEntryGetFlags(*(s16 *)(code13AddOff(total * 4, arg0) + 0x3E));
     index = total + 1;
     while (index < count) {
-        if (func_00106880(*(s16 *)(arg0 + index * 4 + 0x3E)) != selected) break;
+        if (datEntryGetFlags(*(s16 *)(arg0 + index * 4 + 0x3E)) != selected) break;
         index++;
     }
     if (index >= count) index = wrap;
@@ -1518,7 +1518,7 @@ void func_0013c5a0(s32 *arg0, u8 *arg1) {
         func_0045af60(0, 0, 0, 8);
         return;
     }
-    type = (s16)func_0010f8c0(*(u16 *)((u8 *)func_00106820(*(s16 *)entry) + 0x24));
+    type = (s16)func_0010f8c0(*(u16 *)((u8 *)datEntryAt(*(s16 *)entry) + 0x24));
     if (type == 0) {
         func_0012ff60(arg1, 4);
         func_001302d0(arg1);
@@ -1534,7 +1534,7 @@ void func_0013c5a0(s32 *arg0, u8 *arg1) {
 }
 // FUN_0013C6D0
 s32 func_0013c6d0(s16 arg0) {
-    return func_0010f540(*(u16 *)((u8 *)func_00106820(arg0) + 0x24)) != 0;
+    return func_0010f540(*(u16 *)((u8 *)datEntryAt(arg0) + 0x24)) != 0;
 }
 /* MATCHED: the same menu state machine as func_0013d8b0 beside it.  Nine of
    m2c's call arguments are stale registers - func_001312b0, func_001318c0,
@@ -1773,7 +1773,7 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
     state = 1;
     total = *(s16 *)(arg2 + 0x24) + *(s16 *)(arg2 + 0x22);
     item = ((s16 *)(arg2 + 0x3E))[total * 2];
-    item_type = *(u16 *)((u8 *)func_00106820(item) + 0x24);
+    item_type = *(u16 *)((u8 *)datEntryAt(item) + 0x24);
     if (item_type == 246) {
         if (func_00354010() != 0) state = 3;
         else state = 0;

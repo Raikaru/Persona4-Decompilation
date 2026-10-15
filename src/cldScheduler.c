@@ -19,7 +19,7 @@ typedef struct SdlSched
 } SdlSched;
 
 extern s16 func_001060b0(void);
-extern u8 func_001060c0(void);
+extern u8 datGetTimeSlot(void);
 extern void func_001104d0(s32 date, s32 *month, s32 *day);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern void func_00248240(void);
@@ -120,7 +120,7 @@ s32 func_00260020(u8 *task)
             v3 = 0;
             v4 = 0;
             func_001104d0((s16)func_001060b0(), &v3, &v4);
-            period = func_001060c0() & 0xFF;
+            period = datGetTimeSlot() & 0xFF;
             {
                 char labels[6][8] = { "AM_A", "AM_B", "PM_A", "PM_B", "PM_C", "PM_D" };
                 sprintf(buf70, D_00637310, v3, v4, labels[period & 0xFF]);

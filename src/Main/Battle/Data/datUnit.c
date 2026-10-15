@@ -37,7 +37,7 @@ extern void chkmemAllocSiteTag(const char* file, s32 line);
 extern void kAssertFail(const char* file, s32 line);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern void memset(void* dest, s32 value, s32 size);
-extern u8* func_00105510(s16 arg0);
+extern u8* datUnitGetRecord(s16 arg0);
 extern s32 datCalcIsDead(DatUnit* unit, s32 arg1);
 extern void datCalcClearBuffLevel(DatUnit* unit, u8 index);
 extern u8* iGpffffb3c4;              /* 0x007644B4 (gp-0x4C3C): enemy data table */
@@ -55,7 +55,7 @@ DatUnitPc* datUnitCreatePc(u16 pcId)
 
     pc->base.genus = UNIT_GENUS_PC;
     pc->base.count = 1;
-    pc->base.unit = (DatUnit*)func_00105510(pcId);
+    pc->base.unit = (DatUnit*)datUnitGetRecord(pcId);
 
     datUnitInit(pc->base.unit, UNIT_GENUS_PC, pcId);
 

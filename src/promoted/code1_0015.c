@@ -398,7 +398,7 @@ typedef char FldLoadWorkSizeCheck[sizeof(FldLoadWork) == 0x20 ? 1 : -1];
 s32 func_001561a0(u8 *task)
 {
     extern s16 func_001060b0(void);
-    extern u8 func_001060c0(void);
+    extern u8 datGetTimeSlot(void);
     extern s64 func_00110960(s32 day, u32 period);
     extern s32 func_00248e20(s32 group, s32 entry, s32 condition);
     extern void func_00123aa0(s16 selection);
@@ -487,7 +487,7 @@ s32 func_001561a0(u8 *task)
             selectedEnvironment = 0;
             if (work->mode == 1) {
                 initialDay = (s16)func_001060b0();
-                condition = (s8)func_00110960(initialDay, func_001060c0() & 0xFF);
+                condition = (s8)func_00110960(initialDay, datGetTimeSlot() & 0xFF);
                 selection = func_00248e20(work->storyGroup, work->storyEntry, condition);
                 if (selection != -1) {
                     if ((selection & 0x8000) != 0) {
@@ -501,7 +501,7 @@ s32 func_001561a0(u8 *task)
             if (selectedEnvironment == 0) {
                 if (selection == -1) {
                     day = (s16)func_001060b0();
-                    selection = (s8)func_00110960(day, func_001060c0() & 0xFF);
+                    selection = (s8)func_00110960(day, datGetTimeSlot() & 0xFF);
                 }
                 work->environmentState = func_00154720(work->fieldId, work->roomId, selection);
             } else {
@@ -3409,7 +3409,7 @@ u8 *func_0015d310(u16 *arg0)
 {
     extern s16 func_001060b0(void);
     extern s64 func_00110960(s32 arg0, u32 arg1);
-    extern u8 func_001060c0(void);
+    extern u8 datGetTimeSlot(void);
     extern void func_001104d0(s32 date, s32 *month, s32 *day);
     extern s32 func_00110580(s32 date);
     extern s32 func_00110d30(s32 date);
@@ -3475,7 +3475,7 @@ loop_body:
                              var_18, var_19) == 1) {
                 if ((*(u16 *)(recordAddress + 2) == sp8C) &&
                     (*(u16 *)(recordAddress + 4) == sp88) &&
-                    ((func_001060c0() & 0xFF) < var_20)) {
+                    ((datGetTimeSlot() & 0xFF) < var_20)) {
                     var_18 = *(u16 *)(recordAddress + 2);
                     var_19 = *(u16 *)(recordAddress + 4);
                     var_20 = *(u16 *)(recordAddress + 6);
@@ -3489,12 +3489,12 @@ loop_body:
                       (1U << func_00110580((s16)func_001060b0())))) &&
                     ((*(u8 *)(recordAddress + 0xA) == 0) ||
                      (*(u8 *)(recordAddress + 0xA) &
-                      (1U << (func_001060c0() & 0xFF))))) {
+                      (1U << (datGetTimeSlot() & 0xFF))))) {
                     temp_3 = *(u8 *)(recordAddress + 0xB);
                     if (temp_3 == 1) {
                         temp_22 = (s16)func_001060b0();
                         var_2 = (s64)(s8)func_00110960(temp_22,
-                                                     func_001060c0() & 0xFF);
+                                                     datGetTimeSlot() & 0xFF);
                         temp_3_2 = (s32)var_2 % 2;
                         if (temp_3_2 != 0) {
                             goto block_50;
@@ -3504,7 +3504,7 @@ loop_body:
                     if (temp_3 == 2) {
                         temp_22_2 = (s16)func_001060b0();
                         var_2_2 = (s64)(s8)func_00110960(temp_22_2,
-                                                       func_001060c0() & 0xFF);
+                                                       datGetTimeSlot() & 0xFF);
                         temp_3_3 = (s32)var_2_2 % 2;
                         if (temp_3_3 != 0) {
                             goto block_34;

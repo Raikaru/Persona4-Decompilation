@@ -169,7 +169,7 @@ extern s32 func_0021db40(s32 task);
 extern s32 func_00122720(void);
 extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern void func_001bdd60(void);
-extern u8 *func_00105510(s16 arg0);
+extern u8 *datUnitGetRecord(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern void func_002038c0(s32 arg0);
@@ -2256,7 +2256,7 @@ loop_21_check:
     if (var_16 != NULL) goto loop_21;
     if (datGetFlag(0x3D) == 0) {
         for (var_16_2 = 1; var_16_2 < 0xB; ++var_16_2)
-            *(s8 *)(func_00105510(var_16_2) + 0x10) = 0;
+            *(s8 *)(datUnitGetRecord(var_16_2) + 0x10) = 0;
     }
     var_16_3 = *(u8 **)(D_0076449C + 0x174);
     goto loop_30_check;

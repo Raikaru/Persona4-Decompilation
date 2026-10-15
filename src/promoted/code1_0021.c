@@ -37,7 +37,7 @@ extern f32 fGpffff837c;
 extern f32 fGpffff8378;
 extern u8 *iGpffffb414;
 extern f32 *iGpffffb40c;
-extern u8 *func_00105510(s16 arg0);
+extern u8 *datUnitGetRecord(s16 arg0);
 extern u32 func_00105210(s16 arg0);
 extern void func_00105990(s16 arg0, u32 value);
 extern u8 func_001059e0(s32 arg0);
@@ -4381,7 +4381,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
     *(s16 *)(arg0 + 0x698) = *(s16 *)(arg1 + 0x10);
     *(u32 *)(arg0 + 4) = level;
     entry = datPersonaGetRecord(1);
-    func_00105510(1);
+    datUnitGetRecord(1);
     ref = entry[1];
     count = datPersonaCountValidMembers() & 0xFFFF;
     for (i = 0; i < count; i++) {
@@ -4515,7 +4515,7 @@ void func_0021e9a0(u8 *arg0, u8 *arg1)
     u8 *temp_20;
     s32 temp_21;
     s16 sum;
-    temp_17 = (s32)func_00105510(1);
+    temp_17 = (s32)datUnitGetRecord(1);
     temp_2 = (s32)func_00105210(1);
     if ((func_001059e0(temp_2) & 0xFF) < 0x63) {
         temp_16 = temp_2 + *(s32 *)(arg0 + 4);

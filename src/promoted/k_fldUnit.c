@@ -388,7 +388,7 @@ static inline s32 fieldUnitCalendarRoomMatch(void)
 {
     extern s32 func_00110680(s32 date, s32 month, s32 day);
     extern s16 func_001060b0(void);
-    extern u8 func_001060c0(void);
+    extern u8 datGetTimeSlot(void);
     extern s64 func_00110960(s32 date, u32 phase);
     extern FieldUnitRoomKey D_005F1350[];
     u8 *fieldState;
@@ -412,7 +412,7 @@ room_body:
     if (((FieldUnitRoomKey *)fieldState)->fieldId == fieldId &&
         ((FieldUnitRoomKey *)fieldState)->roomId == entry->roomId) {
         calendarDay = (s16)func_001060b0();
-        calendarValue = (s8)func_00110960(calendarDay, func_001060c0() & 0xFF);
+        calendarValue = (s8)func_00110960(calendarDay, datGetTimeSlot() & 0xFF);
         /* The signed calendar value can be negative; keep the signed remainder. */
         remainder = calendarValue % 2;
         if (remainder != 0) {

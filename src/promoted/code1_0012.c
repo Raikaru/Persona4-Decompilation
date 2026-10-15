@@ -62,7 +62,7 @@ extern void func_00122a40(void *unusedNode, void *work);
 extern char D_00796340[];
 extern char D_00795F50[];
 extern s64 func_001060b0(void);
-extern s32 func_001060c0(void);
+extern s32 datGetTimeSlot(void);
 extern s32 func_00110850(s16 arg0, s16 arg1);
 extern s32 func_0015a160(void);
 extern s32 evtHasTaskHandle(void);
@@ -455,24 +455,24 @@ s32 func_00120f70(u8 *arg0) {
     case 2:
         if ((iGpffffb1c8 == 0) && (func_001060f0() != 0)) {
             func_00106100(func_001060d0());
-            func_001062f0(func_001060e0());
+            datSetTimeSlot(func_001060e0());
             func_00106320(0);
         }
-        if ((func_001060c0() & 0xFF) == 5) {
+        if ((datGetTimeSlot() & 0xFF) == 5) {
             func_00106300((s64)(s16)((s16)func_001060b0() + 1));
             func_00106310(0);
         } else if (func_00110d30(
                        (s64)(s16)func_001060b0()) == 0) {
             func_00106300(func_001060b0());
-            func_00106310(((func_001060c0() & 0xFF) + 1) & 0xFF);
+            func_00106310(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
         } else {
             func_00106300(func_001060b0());
-            if ((func_001060c0() & 0xFF) == 0) {
+            if ((datGetTimeSlot() & 0xFF) == 0) {
                 func_00106310(3);
-            } else if ((func_001060c0() & 0xFF) == 3) {
+            } else if ((datGetTimeSlot() & 0xFF) == 3) {
                 func_00106310(5);
             } else {
-                func_00106310(((func_001060c0() & 0xFF) + 1) & 0xFF);
+                func_00106310(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
             }
         }
         func_00106320(1);
@@ -930,7 +930,7 @@ s32 func_001228c0(u8 *unusedTask)
         break;
     case 1:
         calendar->daysSinceApr5 = (s16)func_001060b0();
-        calendar->period = func_001060c0() & 0xFF;
+        calendar->period = datGetTimeSlot() & 0xFF;
         calendar->field_08 =
             (s8)func_00110850(calendar->daysSinceApr5, calendar->period);
         func_001238c0(0);
@@ -1240,7 +1240,7 @@ void func_00123850(void) {
     p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
         p->daysSinceApr5 = (s16)func_001060b0();
-        t = func_001060c0() & 0xFF;
+        t = datGetTimeSlot() & 0xFF;
         p->period = (s16)t;
         first = p->daysSinceApr5;
         p->field_08 = (s8)func_00110850(first, (s16)t);
@@ -4179,7 +4179,7 @@ void func_0012b660(u8 *unusedTask)
         break;
     case 3:
         if ((s64)(s16)func_001060b0() == 9 &&
-            (func_001060c0() & 0xFF) == 5) {
+            (datGetTimeSlot() & 0xFF) == 5) {
             break;
         }
         goto error;
@@ -5304,7 +5304,7 @@ void func_0012e9d0(u8 *state)
     extern void func_001125d0(u8 *entry);
     extern void func_00112300(Vec2f position, f32 depth, u8 alpha, u8 *entry);
     extern void func_00130680(u8 *state, s32 index);
-    extern u32 func_00106880(s16 item);
+    extern u32 datEntryGetFlags(s16 item);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 font, s32 mode, const char *text, s32 flags,
         s32 unused);
     extern void func_00130ce0(u8 *state, PackedVec2f position, s32 alpha, s16 *entry);
@@ -5507,7 +5507,7 @@ void func_0012e9d0(u8 *state)
                     row = state + itemIndex * 4;
                     itemId = *(s16 *)(row + 0x3E);
                     quantity = *(s16 *)(row + 0x40);
-                    itemFlags = func_00106880(itemId);
+                    itemFlags = datEntryGetFlags(itemId);
                     selection = *(s16 *)(state + 0x22);
                     if (rowIndex == selection) {
                         theme = D_0064B2E8;
