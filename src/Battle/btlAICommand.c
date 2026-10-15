@@ -3075,7 +3075,7 @@ u32 btlAICommandSideIdQueryMyBad(void)
 }
 
 // FUN_001E1940
-s32 func_001e1940(void) {
+s32 btlAICommandIdScriptQueryHasBuff(void) {
     u8 *p = func_0029d050();
     u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
@@ -3310,7 +3310,7 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
 
 
 // FUN_001E1F90
-s32 func_001e1f90(void) {
+s32 btlAICommandIdScriptQueryMyGroup(void) {
     u8 *p = func_0029d050();
     u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
@@ -3323,7 +3323,7 @@ s32 func_001e1f90(void) {
 }
 
 // FUN_001E2030
-s32 func_001e2030(void) {
+s32 btlAICommandIdScriptQueryMyHrec(void) {
     u8 *p = func_0029d050();
     u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
