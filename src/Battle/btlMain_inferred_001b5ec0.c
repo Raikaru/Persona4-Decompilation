@@ -30,10 +30,10 @@ extern u8 *iGpffffb3e0;
 extern void *SceneDraw_GetList4FirstColor(void);
 extern void *SceneDraw_GetList4SecondColor(void);
 extern void func_001b6990();
-extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
+extern void btlMainSkillColorPairDefaults(u32 arg0, s32 *arg1, s32 *arg2);
 extern s32 btlMainSkillColorDefault(s32 arg0);
-extern s32 func_001b7090(s32 arg0);
-extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
+extern s32 btlMainSkillTintDefault(s32 arg0);
+extern void btlMainSkillColorPairDefaultsAlt(u32 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_00144f60(void);
 extern void func_004833f0(void *arg0);
 extern f32 D_00922CA0[];
@@ -622,7 +622,7 @@ s32 func_001b7050(void)
 }
 
 // FUN_001B7060
-void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2) {
+void btlMainSkillColorPairDefaults(u32 arg0, s32 *arg1, s32 *arg2) {
     *arg1 = 0xFF808080;
     *arg2 = -1;
 }
@@ -634,13 +634,15 @@ s32 btlMainSkillColorDefault(s32 arg0)
 }
 
 // FUN_001B7090
-s32 func_001b7090(s32 arg0)
+s32 btlMainSkillTintDefault(s32 arg0)
 {
     return 0;
 }
 
+/* Identical body to btlMainSkillColorPairDefaults; a separate retail
+ * function at its own address. */
 // FUN_001B70A0
-void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2) {
+void btlMainSkillColorPairDefaultsAlt(u32 arg0, s32 *arg1, s32 *arg2) {
     *arg1 = 0xFF808080;
     *arg2 = -1;
 }
