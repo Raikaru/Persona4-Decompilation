@@ -274,7 +274,7 @@ void func_00200770(u8 *arg0)
     extern void func_0048a150(void *arg0, void *arg1);
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
-    extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+    extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
     extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
     extern void mdlAdvanceModelFromFlags(void *arg0);
     extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
@@ -312,7 +312,7 @@ void func_00200770(u8 *arg0)
             frame.sp120.x = *(f32 *)(arg0 + 0);
             frame.sp120.y = *(f32 *)(arg0 + 4);
             frame.sp120.z = *(f32 *)(arg0 + 8);
-            func_0047a180((RwMatrix *)*(u8 **)temp_17, (const RwV3d *)&frame.sp120, 2);
+            mdlTranslateMatrix((RwMatrix *)*(u8 **)temp_17, (const RwV3d *)&frame.sp120, 2);
             mdlSetLayerWeight(*(u8 **)temp_17, 0, *(f32 *)(temp_16 + 0x30));
             mdlAdvanceModelFromFlags(*(u8 **)temp_17);
             func_0047a510(*(u8 **)temp_17, *(u16 *)(temp_17 + 4), frame.sp60);

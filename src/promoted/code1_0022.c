@@ -26,7 +26,7 @@ extern void func_00106550(s32 counter, u32 value);
 extern void func_001fae60(s32 initialize, s32 update, s32 packet);
 extern void mdlScale(Model *model, const RwV3d *scale, int combineOp);
 /* Retail forwards the matrix result as well as all three inputs. */
-extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 typedef struct BtlAction BtlAction;
 extern void btlActionSetState(BtlAction *action, u16 state);
 extern void func_00229da0(u8 *packet);
@@ -5071,19 +5071,19 @@ void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
         translation.z = -450.0f;
         if (hp < maxHp) {
             mdlScale(*(Model **)(resource + 0x144), &scale, 0);
-            func_0047a180(*(RwMatrix **)(resource + 0x144), &translation, 2);
+            mdlTranslateMatrix(*(RwMatrix **)(resource + 0x144), &translation, 2);
             model = *(void **)(resource + 0x144);
             mdlSetFrameColorByName(model, (s32)D_006355C0, 0xFF);
         }
         if (hp * 100 <= maxHp * 50) {
             mdlScale(*(Model **)(resource + 0x144), &scale, 0);
-            func_0047a180(*(RwMatrix **)(resource + 0x144), &translation, 2);
+            mdlTranslateMatrix(*(RwMatrix **)(resource + 0x144), &translation, 2);
             model = *(void **)(resource + 0x144);
             mdlSetFrameColorByName(model, (s32)D_006355E0, 0xFF);
         }
         if (hp * 100 <= maxHp * 75) {
             mdlScale(*(Model **)(resource + 0x144), &scale, 0);
-            func_0047a180(*(RwMatrix **)(resource + 0x144), &translation, 2);
+            mdlTranslateMatrix(*(RwMatrix **)(resource + 0x144), &translation, 2);
             model = *(void **)(resource + 0x144);
             mdlSetFrameColorByName(model, (s32)D_00635600, 0xFF);
         }

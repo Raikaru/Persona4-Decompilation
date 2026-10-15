@@ -44,7 +44,7 @@ extern void mdlDestroyModelObject(u32 arg0);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern void func_00479e60(s32 a, s32 b, f32 c);
 extern void func_0047a1c0(s32 a, void* b, s32 c);
-extern f32 func_0047a080(s32 arg0, s32 arg1);
+extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
 extern void mdlSetLayerWeight(s32 arg0, s32 arg1, f32 arg2);
 extern void* mdlGetMatrix(u32 arg0);
 extern void mdlScale(s32 arg0, void* arg1, s32 arg2);
@@ -275,19 +275,19 @@ s32 Cmd_CompareModelThreshold(void)
         p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
-            threshold = func_0047a080(*(s32*)(p + 0x164), 0);
+            threshold = mdlGetLayerWeight(*(s32*)(p + 0x164), 0);
         }
         break;
     case 3:
         if (MT_Scene_GetRes(v & 0xFFFF) != 0)
         {
-            threshold = func_0047a080(*(s32*)(p + 0x164), 0);
+            threshold = mdlGetLayerWeight(*(s32*)(p + 0x164), 0);
         }
         break;
     case 10:
         if (MT_Scene_GetRes(v & 0xFFFF) != 0)
         {
-            threshold = func_0047a080(*(s32*)(p + 0x164), 0);
+            threshold = mdlGetLayerWeight(*(s32*)(p + 0x164), 0);
         }
         break;
     default:
@@ -427,9 +427,9 @@ s32 Cmd_PlaceFieldResource(void)
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
                 negativeTranslation[2] = -1.0f * translation[2];
-                func_0047a180(*(s32 *)(resource + 0x164), negativeTranslation, 2);
-                func_0047a1a0((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
-                func_0047a180(*(s32 *)(resource + 0x164), translation, 2);
+                mdlTranslateMatrix(*(s32 *)(resource + 0x164), negativeTranslation, 2);
+                mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
+                mdlTranslateMatrix(*(s32 *)(resource + 0x164), translation, 2);
                 matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
                 *(Vec3f *)(matrix + 0x30) = *(Vec3f *)(placement + 0x140);
                 RwEngineGetMatrixTolerances(&tolerance);
@@ -470,9 +470,9 @@ s32 Cmd_PlaceFieldResource(void)
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
                 negativeTranslation[2] = -1.0f * translation[2];
-                func_0047a180(*(s32 *)(resource + 0x164), negativeTranslation, 2);
-                func_0047a1a0((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
-                func_0047a180(*(s32 *)(resource + 0x164), translation, 2);
+                mdlTranslateMatrix(*(s32 *)(resource + 0x164), negativeTranslation, 2);
+                mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
+                mdlTranslateMatrix(*(s32 *)(resource + 0x164), translation, 2);
                 matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
                 *(Vec3f *)(matrix + 0x30) = *(Vec3f *)(placement + 0x140);
                 RwEngineGetMatrixTolerances(&tolerance);
@@ -483,9 +483,9 @@ s32 Cmd_PlaceFieldResource(void)
                     scale[2] = uniformScale;
                     scale[1] = uniformScale;
                     scale[0] = uniformScale;
-                    func_0047a1a0((void *)(u32)*(s32 *)(resource + 0x22C), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
+                    mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x22C), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
                     mdlScale(*(s32 *)(resource + 0x22C), scale, 2);
-                    func_0047a180(*(s32 *)(resource + 0x22C), placement + 0x140, 2);
+                    mdlTranslateMatrix(*(s32 *)(resource + 0x22C), placement + 0x140, 2);
                     mdlAdvanceModelFromFlags(*(s32 *)(resource + 0x22C));
                 }
             }
@@ -503,9 +503,9 @@ s32 Cmd_PlaceFieldResource(void)
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
                 negativeTranslation[2] = -1.0f * translation[2];
-                func_0047a180(*(s32 *)(resource + 0x144), negativeTranslation, 2);
-                func_0047a1a0((void *)(u32)*(s32 *)(resource + 0x144), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
-                func_0047a180(*(s32 *)(resource + 0x144), translation, 2);
+                mdlTranslateMatrix(*(s32 *)(resource + 0x144), negativeTranslation, 2);
+                mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x144), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
+                mdlTranslateMatrix(*(s32 *)(resource + 0x144), translation, 2);
                 matrix = mdlGetMatrix(*(s32 *)(resource + 0x144));
                 *(Vec3f *)(matrix + 0x30) = *(Vec3f *)(placement + 0x140);
                 RwEngineGetMatrixTolerances(&tolerance);

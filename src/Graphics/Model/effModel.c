@@ -191,7 +191,7 @@ extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
 extern void func_0048a150(void *arg0, void *arg1);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
-extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void func_0047aa30(void *arg0, s32 arg1);
 extern s32 func_00481450(void);
 extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
@@ -277,7 +277,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
         spA0[0] = *(f32 *)(arg1 + 0);
         spA0[1] = *(f32 *)(arg1 + 4);
         spA0[2] = *(f32 *)(arg1 + 8);
-        func_0047a180((RwMatrix *)*(u8 **)(arg1 + 0x94), (const RwV3d *)spA0, 2);
+        mdlTranslateMatrix((RwMatrix *)*(u8 **)(arg1 + 0x94), (const RwV3d *)spA0, 2);
         if (*(u8 *)(arg1 + 0x90) != 0) {
             temp_3_2 = *(u8 **)(arg1 + 0x94);
             *(s32 *)(temp_3_2 + 0xD8) = *(s32 *)(temp_3_2 + 0xD8) | 0x18;

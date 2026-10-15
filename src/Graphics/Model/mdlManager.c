@@ -5392,8 +5392,9 @@ f32 func_0047a000(void* param_1, s32 param_2, s64 param_3)
     return value / iGpffff8040;
 }
 
+/* Returns a layer's weight at +0xF8, or 0 when the layer's signed index at +0xF0 is negative, divided by a global scale. */
 // FUN_0047A080
-f32 func_0047a080(s32 arg0, s32 arg1) {
+f32 mdlGetLayerWeight(s32 arg0, s32 arg1) {
     s32 off = (arg1 & 0xFFFF) * 0xA4;
     u8 *p = (u8 *)(off + arg0);
     f32 v;
@@ -5436,14 +5437,16 @@ void func_0047a150(void* param_1)
     }
 }
 
+/* Translates matrix by translation through RwMatrixTranslate, keeping the caller's combine mode. */
 // FUN_0047A180
-RwMatrix* func_0047a180(RwMatrix* matrix, const RwV3d* translation, int combineOp)
+RwMatrix* mdlTranslateMatrix(RwMatrix* matrix, const RwV3d* translation, int combineOp)
 {
     return RwMatrixTranslate(matrix, translation, (RwOpCombineType)combineOp);
 }
 
+/* Rotates matrix about axis by angle through RwMatrixRotate, keeping the caller's combine mode. */
 // FUN_0047A1A0
-void func_0047a1a0(void *matrix, const void *axis, f32 angle, s32 combineOp)
+void mdlRotateMatrix(void *matrix, const void *axis, f32 angle, s32 combineOp)
 {
     RwMatrixRotate((struct RwMatrixTag *)matrix, (const RwV3d *)axis,
                   angle, (RwOpCombineType)combineOp);

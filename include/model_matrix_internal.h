@@ -4,6 +4,6 @@
 #include "type.h"
 
 /* The model wrapper forwards these storage addresses to the native matrix API. */
-void func_0047a1a0(void *matrix, const void *axis, f32 angle, s32 combineOp);
+void mdlRotateMatrix(void *matrix, const void *axis, f32 angle, s32 combineOp);
 
 #endif

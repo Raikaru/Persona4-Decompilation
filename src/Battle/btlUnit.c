@@ -1200,7 +1200,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             sp100[0] = *(f32 *)(t17 + 4) + *(f32 *)(t17 + 0x10);
             sp100[1] = *(f32 *)(t17 + 8) + *(f32 *)(t17 + 0x14);
             sp100[2] = *(f32 *)(t17 + 0xC) + *(f32 *)(t17 + 0x18);
-            func_0047a180(*(u8 **)(t17 + 0xA00), sp100, 2);
+            mdlTranslateMatrix(*(u8 **)(t17 + 0xA00), sp100, 2);
             mdlUpdateModelMatrix(*(u8 **)(t17 + 0xA00));
             func_0047a320(*(u8 **)(t17 + 0xA00));
         } break;

@@ -230,7 +230,7 @@ void func_0019c0d0(void)
     extern void func_001b70c0(u8 *arg0);
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
-    extern void *func_0047a180(void *arg0, void *arg1, s32 arg2);
+    extern void *mdlTranslateMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlAdvanceModelFromFlags(void *arg0);
     extern s32 func_001ee490(u8 *arg0);
     extern u32 func_0019d130(u8 *arg0);
@@ -355,7 +355,7 @@ void func_0019c0d0(void)
                     vec[0] = *(f32 *)(entry + 4) + *(f32 *)(entry + 0x10);
                     vec[1] = *(f32 *)(entry + 8) + *(f32 *)(entry + 0x14);
                     vec[2] = *(f32 *)(entry + 0xC) + *(f32 *)(entry + 0x18);
-                    func_0047a180(*(u8 **)(entry + 0xA00), vec, 2);
+                    mdlTranslateMatrix(*(u8 **)(entry + 0xA00), vec, 2);
                     col = *(Col4_0019 *)(entry + 0x30);
                     colMul_0019(&col, entry + 0x34);
                     colMul_0019(&col, entry + 0x3C);

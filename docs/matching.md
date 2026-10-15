@@ -7947,14 +7947,14 @@ signed clamp. The start helper's first complete candidate differed in nine
 saved-register uses. Declaring the list cursor before the `started` flag
 closed all nine differences without changing control flow.
 
-The matrix translation wrapper `func_0047a180` now explicitly forwards all
+The matrix translation wrapper `mdlTranslateMatrix` (was `func_0047a180`) now explicitly forwards all
 three inputs to `RwMatrixTranslate` and returns the resulting matrix pointer.
 Its consumers retain their original matrix/vector addresses and combine
 modes; they no longer depend on a zero-argument C forwarding body.
 
 A throwaway wasm32 setup smoke passes **79 scenarios** using the integrated
 dispatcher and six actual provider bodies: `datCalcChkBadStatus`,
-`func_002325a0`, `func_001d9740`, `func_001fae60`, `func_0047a180`, and
+`func_002325a0`, `func_001d9740`, `func_001fae60`, `mdlTranslateMatrix` (was `func_0047a180`), and
 `mdlScale`. It checks status branches, unsigned counter boundaries, callback
 storage, overlapping HP-display thresholds, model-handle replacement between
 calls, paired-unit HP clamping and fallthrough, and all three translation

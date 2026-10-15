@@ -130,7 +130,7 @@ extern RwMatrix *func_003e0f80(void);
 extern RwBool func_003e0f40(RwMatrix *matrix);
 extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const Vec3 *axis, f32 angle, RwOpCombineType combine);
 extern Vec3 *func_003e42a0(Vec3 *pointOut, const Vec3 *pointIn, const RwMatrix *matrix);
-extern RwMatrix *func_0047a180(RwMatrix *matrix, const Vec3 *translation, s32 combine);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const Vec3 *translation, s32 combine);
 extern s64 D_005EFE28[];
 extern f32 D_005EFE30[];
 extern u8 *iGpffff9db0;
@@ -2136,7 +2136,7 @@ void FldResource_TransformFrames(u8 *arg0, u8 *arg1, f32 fparg0)
     while (j < *(u32 *)(arg0 + 0x11C)) {
         kind = *(u16 *)(arg0 + j * 0x18 + 0x120);
         if (kind == 0 || kind == 2) {
-            func_0047a180(*(RwMatrix **)(arg0 + j * 0x18 + 0x12C), (const Vec3 *)arg1, 2);
+            mdlTranslateMatrix(*(RwMatrix **)(arg0 + j * 0x18 + 0x12C), (const Vec3 *)arg1, 2);
         } else if (kind == 1) {
             {
                 s64 tmp_xy = D_005EFE28[0];
@@ -2247,7 +2247,7 @@ loop_body_19:
         goto switch_case_1_test;
     }
 switch_body_a:
-    func_0047a1a0((void *)(*(s32 *)(temp_5 + 0x12C)), &sp.sp40, fparg0, 2);
+    mdlRotateMatrix((void *)(*(s32 *)(temp_5 + 0x12C)), &sp.sp40, fparg0, 2);
     goto switch_end;
 switch_case_1_test:
     if (temp_4 != 1) {

@@ -208,7 +208,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
                 iGpffffb5a0 = 0.0f;
             }
         }
-        func_0047a1a0(*(u8 **)(obj + 0xC), axisX, iGpffffb5a0, 1);
+        mdlRotateMatrix(*(u8 **)(obj + 0xC), axisX, iGpffffb5a0, 1);
         colA = *(s128 *)D_0064A680;
         colB = *(s128 *)D_0064A690;
         quat = *(s128 *)D_0064A6A0;

@@ -101,7 +101,7 @@ extern u32 *mdlCloneModelObject(u8 *arg0);
 extern void mdlAdvanceModelFromFlags(u8 *arg0);
 extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern void *mdlGetMatrix(void *arg0);
-extern void *func_0047a180(void *matrix, const void *translation, s32 combineOp);
+extern void *mdlTranslateMatrix(void *matrix, const void *translation, s32 combineOp);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb2a8;
@@ -364,7 +364,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
         scale.z = scale.y = scale.x = *size;
         *(u32 **)(res + 0x22C) = mdlCloneModelObject((u8 *)D_00764364);
         /* Retail passes the yaw slot before this iteration writes it. */
-        func_0047a1a0(*(u32 **)(res + 0x22C), &axis, angles.y, 2);
+        mdlRotateMatrix(*(u32 **)(res + 0x22C), &axis, angles.y, 2);
         mdlScale(*(u32 **)(res + 0x22C), &scale, 2);
         if (rec[0xB] & 1) {
             *(u32 *)(res + 0x28) |= 0x80000000;
@@ -392,14 +392,14 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             RwMatrixUpdate(mdlGetMatrix(iGpffffb2a4[i]));
         } else if (kind == 1) {
             *(s32 *)(res + 0x280) = FBN_ENTRY(i)->field_4;
-            func_0047a180(*(u8 **)(res + 0x22C), rec + 0x50, 2);
+            mdlTranslateMatrix(*(u8 **)(res + 0x22C), rec + 0x50, 2);
             mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
             *(u32 *)(res + 0x28) &= ~0x10000000;
             *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);
             *(s32 *)(res + 0x294) = func_0018bb20(*(s32 *)(res + 0x228), (s32)res);
         } else if (kind == 2) {
             *(s32 *)(res + 0x284) = FBN_ENTRY(i)->field_4;
-            func_0047a180(*(u8 **)(res + 0x22C), rec + 0x50, 2);
+            mdlTranslateMatrix(*(u8 **)(res + 0x22C), rec + 0x50, 2);
             mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
             *(u32 *)(res + 0x28) &= ~0x10000000;
             *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);

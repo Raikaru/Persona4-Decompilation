@@ -1601,13 +1601,13 @@ void func_004acb50(u8 *arg0) {
 // FUN_004ACB80
 void func_004acb80(u8 *arg0)
 {
-    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
     f32 temp_f0;
     u32 temp_3;
     u32 temp_3_2;
     u32 temp_4;
 
-    temp_f0 = func_0047a080(*(s32 *)(arg0 + 0xB4), 0);
+    temp_f0 = mdlGetLayerWeight(*(s32 *)(arg0 + 0xB4), 0);
     temp_4 = (u32)temp_f0 + 1;
     temp_3 = *(u32 *)(arg0 + 0x9C);
     if (temp_3 >= temp_4 || temp_3 == 0) {
@@ -1655,7 +1655,7 @@ void func_004accc0(u8 *arg0)
     extern union BasisConst D_007144C8[];
     extern union BasisConst D_007144D8[];
     extern union BasisConst D_007144E8[];
-    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
     extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
     extern u8 *func_003e9700(s32 arg0);
     extern u8 *mdlGetMatrix(s32 arg0);
@@ -1681,7 +1681,7 @@ void func_004accc0(u8 *arg0)
     basis1 = D_007144C8[0].value;
     basis2 = D_007144D8[0].value;
     basis3 = D_007144E8[0].value;
-    frame_index = (u32)func_0047a080(*(s32 *)(arg0 + 0xB4), 0);
+    frame_index = (u32)mdlGetLayerWeight(*(s32 *)(arg0 + 0xB4), 0);
     frame_count = *(s32 *)(arg0 + 0x9C);
     if (frame_count >= (s32)frame_index || frame_count == 0) {
         scale = func_0048aff0(arg0 + 0x44, frame_index, frame_count) / 10.0f;
@@ -1746,7 +1746,7 @@ void func_004accc0(u8 *arg0)
 // FUN_004AD030
 void func_004ad030(s32 arg0, u8 *arg1)
 {
-    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     extern void mdlSetColor(void *arg0, s32 *arg1);
     extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
@@ -1764,7 +1764,7 @@ void func_004ad030(s32 arg0, u8 *arg1)
     u32 frame_count;
     s32 color;
 
-    temp_f0 = func_0047a080(*(s32 *)(arg1 + 0xB4), 0);
+    temp_f0 = mdlGetLayerWeight(*(s32 *)(arg1 + 0xB4), 0);
     frame_index = (u32)temp_f0;
     frame_count = *(u32 *)(arg1 + 0x9C);
     if ((frame_count >= frame_index) || (frame_count == 0)) {
@@ -1829,13 +1829,13 @@ void func_004ad240(u8 *arg0) {
 // FUN_004AD280
 void func_004ad280(u8 *arg0)
 {
-    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
     f32 temp_f0;
     u32 var_3;
     u32 temp_2;
     u32 temp_2_2;
 
-    temp_f0 = func_0047a080(*(s32 *)(arg0 + 0xB4), 0);
+    temp_f0 = mdlGetLayerWeight(*(s32 *)(arg0 + 0xB4), 0);
     var_3 = (u32)temp_f0 + 1;
     temp_2 = *(u32 *)(arg0 + 0x9C);
     if (temp_2 >= var_3 || temp_2 == 0) {
@@ -1925,7 +1925,7 @@ u8 *arg0;
     extern void func_0048a150(void *arg0, void *arg1);
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
-    extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+    extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
     extern void mdlAdvanceModelFromFlags(void *arg0);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
@@ -1972,7 +1972,7 @@ u8 *arg0;
         vec[0] = *(f32 *)(arg0 + 0);
         vec[1] = *(f32 *)(arg0 + 4);
         vec[2] = *(f32 *)(arg0 + 8);
-        func_0047a180((RwMatrix *)*(void **)(arg0 + 0xA0), (const RwV3d *)vec, 2);
+        mdlTranslateMatrix((RwMatrix *)*(void **)(arg0 + 0xA0), (const RwV3d *)vec, 2);
         mdlSetLayerWeight(*(void **)(arg0 + 0xA0), 0, *(f32 *)(arg0 + 0x94));
         mdlAdvanceModelFromFlags(*(void **)(arg0 + 0xA0));
         if (*(s32 *)(arg0 + 0x9C) != 0) {

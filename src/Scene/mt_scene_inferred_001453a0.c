@@ -116,7 +116,7 @@ extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
 extern void func_0046d730(const void *arg0, s32 arg1);
-extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern u8 D_007EF9B0[];
@@ -354,7 +354,7 @@ s32 MT_Scene_CreateModelCharShadowRes(u16 arg0, u16 arg1, void *arg2) {
         return 0;
     }
     *(void **)(temp_2 + 0x164) = arg2;
-    func_0047a180((RwMatrix *)arg2, (const RwV3d *)sp50, 0);
+    mdlTranslateMatrix((RwMatrix *)arg2, (const RwV3d *)sp50, 0);
     RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)(temp_2 + 0x164)));
     temp_2_2 = FldFrameTask_Spawn(0, temp_16 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x220) = temp_2_2;
@@ -394,7 +394,7 @@ s32 MT_Scene_CreateModelUnkRes(u16 arg0, s32 arg1) {
         return 0;
     }
     *(s32 *)(temp_2 + 0x158) = arg1;
-    func_0047a180((RwMatrix *)arg1, (const RwV3d *)sp30, 0);
+    mdlTranslateMatrix((RwMatrix *)arg1, (const RwV3d *)sp30, 0);
     return temp_17;
 }
 

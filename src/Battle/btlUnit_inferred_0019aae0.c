@@ -126,7 +126,7 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
     *(u8 **)(address + offset) = stored;
 }
 
-extern f32 func_0047a080(s32 arg0, s32 arg1);
+extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
 extern void func_00479e60(void *arg0, s32 arg1, f32 arg2);
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
@@ -211,7 +211,7 @@ u32 btlUnitMotionSpeedPacketUpdate(void *workData)
     if (*(s32 *)(temp_18 + 0x98) & 2) {
         btlUnitClearModelState(temp_18, 4);
         if (*(s32 *)(temp_18 + 0x98) & 2)
-            temp_19_low = (s32)(s16)(s32)func_0047a080(*(s32 *)(temp_18 + 0xA00), 0);
+            temp_19_low = (s32)(s16)(s32)mdlGetLayerWeight(*(s32 *)(temp_18 + 0xA00), 0);
         else
             temp_19_low = 0;
         temp_19 = temp_19_low;

@@ -73,7 +73,7 @@ extern u8 D_005F1610[];
 extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
 extern s32 FldFrameTask_Update(u8 *arg0);
-extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern s32 iGpffff9f00;
 extern char D_005F11E8[];
@@ -291,7 +291,7 @@ s32 FldFrameTask_Update(u8 *arg0)
                 FldFrame_RaycastFieldWorlds(&stack.sp70, &stack.sp80,
                               *(f32 *)(work + 0x24), *(u16 *)(work + 8));
             }
-            func_0047a180((RwMatrix *)*(s32 *)(work + 0x10), &stack.sp80, 2);
+            mdlTranslateMatrix((RwMatrix *)*(s32 *)(work + 0x10), &stack.sp80, 2);
             if (*(s32 *)(work + 0x14) != 0) {
                 source = mdlGetMatrix(*(s32 *)(work + 0x10));
                 target = mdlGetMatrix(*(s32 *)(work + 0x14));
@@ -683,9 +683,9 @@ void FldFrameTask_Rotate(u8 *arg0, const void *arg1, f32 fparg0) {
         sp40.x = -1.0f * sp50.x;
         sp40.y = -1.0f * sp50.y;
         sp40.z = -1.0f * sp50.z;
-        func_0047a180((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp40, 2);
-        func_0047a1a0((void *)(u32)*(s32 *)(temp_16 + 0x10), arg1, fparg0, 2);
-        func_0047a180((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp50, 2);
+        mdlTranslateMatrix((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp40, 2);
+        mdlRotateMatrix((void *)(u32)*(s32 *)(temp_16 + 0x10), arg1, fparg0, 2);
+        mdlTranslateMatrix((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp50, 2);
     }
 }
 
