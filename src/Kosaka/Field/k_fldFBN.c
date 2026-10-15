@@ -98,7 +98,7 @@ extern void func_0046d700(const char *file, s32 line, const char *message, ...);
 extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern s32 mdlPrepareModel(u8 *arg0);
 extern u32 *func_00478750(u8 *arg0);
-extern void func_00478e70(u8 *arg0);
+extern void mdlAdvanceModelFromFlags(u8 *arg0);
 extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern void *mdlGetMatrix(void *arg0);
 extern void *func_0047a180(void *matrix, const void *translation, s32 combineOp);
@@ -382,7 +382,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
         if (kind == 0) {
             u8 *mtx;
 
-            func_00478e70(*(u8 **)(res + 0x22C));
+            mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
             mtx = rec + 0x20;
             *(FbnMatrix *)mdlGetMatrix(iGpffffb2a4[i]) = *(FbnMatrix *)mtx;
             angles.x = KDraw_MatrixPitchDeg(mtx);
@@ -393,14 +393,14 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
         } else if (kind == 1) {
             *(s32 *)(res + 0x280) = FBN_ENTRY(i)->field_4;
             func_0047a180(*(u8 **)(res + 0x22C), rec + 0x50, 2);
-            func_00478e70(*(u8 **)(res + 0x22C));
+            mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
             *(u32 *)(res + 0x28) &= ~0x10000000;
             *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);
             *(s32 *)(res + 0x294) = func_0018bb20(*(s32 *)(res + 0x228), (s32)res);
         } else if (kind == 2) {
             *(s32 *)(res + 0x284) = FBN_ENTRY(i)->field_4;
             func_0047a180(*(u8 **)(res + 0x22C), rec + 0x50, 2);
-            func_00478e70(*(u8 **)(res + 0x22C));
+            mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
             *(u32 *)(res + 0x28) &= ~0x10000000;
             *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);
             *(s32 *)(res + 0x294) = func_0018bb20(*(s32 *)(res + 0x228), (s32)res);

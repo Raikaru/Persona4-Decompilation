@@ -5004,7 +5004,7 @@ Progress endpoints and the README are regenerated and validated.
 
 ### Recursive model update: cache within call boundaries
 
-`func_00478a30` is now production C in `src/Graphics/Model/mdlManager.c`:
+`mdlAdvanceModel` (was `func_00478a30`) is now production C in `src/Graphics/Model/mdlManager.c`:
 **1080B emitted / 1088B retail window, MATCH**. The two standalone
 diff words are trailing zero padding. The existing attachment-table view
 now names its RGBA, scale, primary/secondary draw state and unsigned delay

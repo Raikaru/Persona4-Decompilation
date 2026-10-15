@@ -231,7 +231,7 @@ void func_0019c0d0(void)
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
     extern void *func_0047a180(void *arg0, void *arg1, s32 arg2);
-    extern void func_00478e70(void *arg0);
+    extern void mdlAdvanceModelFromFlags(void *arg0);
     extern s32 func_001ee490(u8 *arg0);
     extern u32 func_0019d130(u8 *arg0);
     extern s32 func_001d72e0(s32 arg0);
@@ -399,7 +399,7 @@ void func_0019c0d0(void)
                     u8 *obj2 = *(u8 **)(entry + 0xA00);
 
                     if ((*(s32 *)(obj2 + 0xD8) & 4) != 0) {
-                        func_00478e70(obj2);
+                        mdlAdvanceModelFromFlags(obj2);
                     }
                 }
                 if (*(s32 *)(entry + 0xA04) != 0 && func_0019d130(entry) != 0) {

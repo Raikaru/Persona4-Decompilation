@@ -41,7 +41,7 @@ extern void func_0016f3b0(s32 a, s32 b, s32 c);
 extern s32 mdlPrepareModel(void* arg0);
 extern void* func_00478750(s32 arg0);
 extern void mdlDestroyModelObject(u32 arg0);
-extern void func_00478e70(s32 arg0);
+extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern void func_00479e60(s32 a, s32 b, f32 c);
 extern void func_0047a1c0(s32 a, void* b, s32 c);
 extern f32 func_0047a080(s32 arg0, s32 arg1);
@@ -486,7 +486,7 @@ s32 Cmd_PlaceFieldResource(void)
                     func_0047a1a0((void *)(u32)*(s32 *)(resource + 0x22C), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
                     mdlScale(*(s32 *)(resource + 0x22C), scale, 2);
                     func_0047a180(*(s32 *)(resource + 0x22C), placement + 0x140, 2);
-                    func_00478e70(*(s32 *)(resource + 0x22C));
+                    mdlAdvanceModelFromFlags(*(s32 *)(resource + 0x22C));
                 }
             }
             break;
@@ -716,7 +716,7 @@ s32 Cmd_SetFieldFloat(void)
                 vec[1] = f;
                 vec[0] = f;
                 mdlScale(*(s32*)(p + 0x22C), vec, 2);
-                func_00478e70(*(s32*)(p + 0x22C));
+                mdlAdvanceModelFromFlags(*(s32*)(p + 0x22C));
             }
         }
         break;

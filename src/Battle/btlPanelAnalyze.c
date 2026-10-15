@@ -334,8 +334,8 @@ void func_00219130(u8 *arg0) {
     u8 *func_00478750(u8 *);
     void mdlDestroyModelObject(u8 *);
     void func_0047aa30(u8 *, void *);
-    void func_00478ea0(u8 *, void (*)(u8 *), u8 *);
-    void func_00478eb0(u8 *, void (*)(u8 *), u8 *);
+    void mdlSetDrawCallback(u8 *, void (*)(u8 *), u8 *);
+    void mdlSetResetCallback(u8 *, void (*)(u8 *), u8 *);
     void *func_003e4320(void *, const void *, const void *);
     void *RwMatrixRotate(void *, const void *, f32, s32);
     void *RwMatrixMultiply(void *, const void *, const void *);
@@ -383,8 +383,8 @@ void func_00219130(u8 *arg0) {
                 *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) |= 0x800;
             }
         }
-        func_00478ea0(*(u8 **)(arg0 + 0xC), func_00218ea0, arg0);
-        func_00478eb0(*(u8 **)(arg0 + 0xC), func_00219060, arg0);
+        mdlSetDrawCallback(*(u8 **)(arg0 + 0xC), func_00218ea0, arg0);
+        mdlSetResetCallback(*(u8 **)(arg0 + 0xC), func_00219060, arg0);
         *(u16 *)(arg0 + 0) &= ~2;
         *(u16 *)(arg0 + 0) |= 1;
         *(f32 *)(arg0 + 0x88) = 0.0f;
@@ -397,8 +397,8 @@ void func_00219130(u8 *arg0) {
         *(u8 **)(arg0 + 0xC) = model;
         func_0047aa30(model, D_005DC9C8);
         *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) &= ~0x100;
-        func_00478ea0(*(u8 **)(arg0 + 0xC), func_00218ea0, arg0);
-        func_00478eb0(*(u8 **)(arg0 + 0xC), func_00219060, arg0);
+        mdlSetDrawCallback(*(u8 **)(arg0 + 0xC), func_00218ea0, arg0);
+        mdlSetResetCallback(*(u8 **)(arg0 + 0xC), func_00219060, arg0);
         *(f32 *)(arg0 + 0x88) = 0.0f;
         *(u16 *)(arg0 + 2) = 3;
     case 3:

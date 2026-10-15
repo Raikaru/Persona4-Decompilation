@@ -108,7 +108,7 @@ extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
 extern s32 FldFrameTask_Update(u8 *arg0);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern void func_00478e70(s32 arg0);
+extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern s32 iGpffff9f00;
 extern void func_003e99a0(void *arg0);
 extern void func_003e9390(void *arg0);

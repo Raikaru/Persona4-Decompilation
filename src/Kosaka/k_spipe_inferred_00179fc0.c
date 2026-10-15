@@ -78,7 +78,7 @@ extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern s32 RwEngineGetMatrixTolerances(f32 *arg0);
 extern u8 *RwMatrixOptimize(void *arg0, f32 *arg1);
 extern u8 *RwMatrixUpdate(void *arg0);
-extern void func_004789c0(void *arg0);
+extern void mdlUpdateModelMatrix(void *arg0);
 extern void func_0047a320(void *arg0);
 extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
@@ -567,7 +567,7 @@ loop_11_cond:
                   (f32 *)(stack + 0x40));
     RwMatrixUpdate(mdlGetMatrix(*(u8 **)(arg1 + 0x10)));
     *(s32 *)(*(u8 **)(arg1 + 0x10) + 0xD8) |= 0x40;
-    func_004789c0(*(u8 **)(arg1 + 0x10));
+    mdlUpdateModelMatrix(*(u8 **)(arg1 + 0x10));
     func_0047a320(*(u8 **)(arg1 + 0x10));
 }
 
@@ -601,7 +601,7 @@ void func_0017aae0(u8 *arg0, u8 *arg1)
     } while (var_5_2 > 0);
     temp_4_3 = *(u8 **)(arg1 + 0x10);
     *(s32 *)(temp_4_3 + 0xD8) &= ~4;
-    func_004789c0(*(u8 **)(arg1 + 0x10));
+    mdlUpdateModelMatrix(*(u8 **)(arg1 + 0x10));
     func_0047a320(*(u8 **)(arg1 + 0x10));
     var_5_2 = 0;
     goto loop_4_cond;

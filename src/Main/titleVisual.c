@@ -19,7 +19,7 @@ extern void func_00489f80(void);
 extern void func_0048a000(void);
 extern void mdlSetColor(void *arg0, void *arg1);
 extern void func_0047a260(void *arg0);
-extern void func_004789c0(void *arg0);
+extern void mdlUpdateModelMatrix(void *arg0);
 extern void func_0047a320(void *arg0);
 extern void mdlDrawVisibleAtomics(s32 arg0);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
@@ -217,7 +217,7 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
     }
     mdlSetColor(arg0, arg1);
     func_0047a260(arg0);
-    func_004789c0(arg0);
+    mdlUpdateModelMatrix(arg0);
     func_0047a320(arg0);
     mdlDrawVisibleAtomics(*(s32 *)(arg0 + 0xDC));
     if ((*(s32 *)(arg0 + 0xD8) & 0x40000) != 0) {
