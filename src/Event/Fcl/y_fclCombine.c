@@ -5945,10 +5945,10 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
             fclCombineDrawStageBanner(arg0, 2, 0);
             sp240 = func_002b2970(57.0f, 72.0f);
             sp238 = func_002b2970(-346.0f, 72.0f);
-            func_0032c660(arg0, 0, sp240, sp238, 1, 0);
+            fclCombineSlidePanelColumn(arg0, 0, sp240, sp238, 1, 0);
             sp230 = func_002b2970(460.0f, 72.0f);
             sp228 = func_002b2970(460.0f, 72.0f);
-            func_0032c660(arg0, 1, sp230, sp228, 1, 0);
+            fclCombineSlidePanelColumn(arg0, 1, sp230, sp228, 1, 0);
             func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 1);
             func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 1);
             fclCombineLayoutDetailSprites(arg0, 1);
@@ -5994,10 +5994,10 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(q + 0x38), sp1F8, 1, 4, 0);
                 sp1F0 = func_002b2970(57.0f, 72.0f);
                 sp1E8 = func_002b2970(-346.0f, 72.0f);
-                func_0032c660(arg0, 0, sp1F0, sp1E8, 0, 1);
+                fclCombineSlidePanelColumn(arg0, 0, sp1F0, sp1E8, 0, 1);
                 sp1E0 = func_002b2970(460.0f, 72.0f);
                 sp1D8 = func_002b2970(460.0f, 72.0f);
-                func_0032c660(arg0, 1, sp1E0, sp1D8, 0, 0);
+                fclCombineSlidePanelColumn(arg0, 1, sp1E0, sp1D8, 0, 0);
                 *(s8 *)(p + 0x122) = 0;
             } else if (D_008C024E[0] & 4) {
                 if (*(s8 *)(p + 0x122) != 0) {
@@ -6012,10 +6012,10 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(q + 0x38), sp1C8, 1, 4, 0);
                 sp1C0 = func_002b2970(57.0f, 72.0f);
                 sp1B8 = func_002b2970(-346.0f, 72.0f);
-                func_0032c660(arg0, 0, sp1C0, sp1B8, 0, 0);
+                fclCombineSlidePanelColumn(arg0, 0, sp1C0, sp1B8, 0, 0);
                 sp1B0 = func_002b2970(460.0f, 72.0f);
                 sp1A8 = func_002b2970(460.0f, 72.0f);
-                func_0032c660(arg0, 1, sp1B0, sp1A8, 0, 1);
+                fclCombineSlidePanelColumn(arg0, 1, sp1B0, sp1A8, 0, 1);
                 *(s8 *)(p + 0x122) = 1;
             } else if ((D_008C024E[0] & 0x20) && p[1] == 0x73) {
                 func_002bb550(*(s8 *)(p + 0xD));
@@ -6024,19 +6024,19 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
                 if (*(s8 *)(p + 0x122) == 1) {
                     sp1A0 = func_002b2970(57.0f, 72.0f);
                     sp198 = func_002b2970(940.0f, 72.0f);
-                    func_0032c660(arg0, 0, sp1A0, sp198, 0, 1);
+                    fclCombineSlidePanelColumn(arg0, 0, sp1A0, sp198, 0, 1);
                     sp190 = func_002b2970(460.0f, 72.0f);
                     sp188 = func_002b2970(940.0f, 72.0f);
-                    func_0032c660(arg0, 1, sp190, sp188, 0, 1);
+                    fclCombineSlidePanelColumn(arg0, 1, sp190, sp188, 0, 1);
                     fclSpriteSetFlag(0x2E8, 0, 1);
                     fclSpriteSetFlag(0x2EE, 0, 1);
                 } else if (*(s8 *)(p + 0x122) == 0) {
                     sp180 = func_002b2970(57.0f, 72.0f);
                     sp178 = func_002b2970(-640.0f, 72.0f);
-                    func_0032c660(arg0, 0, sp180, sp178, 0, 1);
+                    fclCombineSlidePanelColumn(arg0, 0, sp180, sp178, 0, 1);
                     sp170 = func_002b2970(460.0f, 72.0f);
                     sp168 = func_002b2970(-640.0f, 72.0f);
-                    func_0032c660(arg0, 1, sp170, sp168, 0, 1);
+                    fclCombineSlidePanelColumn(arg0, 1, sp170, sp168, 0, 1);
                 }
                 fclCombineLayoutTransition(arg0, 0);
                 p[1] = 0x74;

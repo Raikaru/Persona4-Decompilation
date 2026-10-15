@@ -25,8 +25,8 @@ void fclCombineDrawStageTiles(u8 *task, s16 delay, s8 mode);
 void fclCombineDrawSlotFields(u8 *task, FclVec2 position, s16 delay, s8 mode, s32 arg4,
                               s32 arg5, s32 variant);
 void fclCombineDrawSlotLabels(u8 *task, FclVec2 position, s16 delay, s8 mode);
-void func_0032c660(u8 *task, s32 slot, FclVec2 start, FclVec2 end, s32 arg4,
-                   s32 arg5);
+void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosition, s32 mode,
+                   s32 useHiddenPosition);
 void func_0033e540(u8 *task, FclVec2 start, FclVec2 end, s16 duration,
                    s16 arg4);
 

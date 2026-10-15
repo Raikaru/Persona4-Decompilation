@@ -4976,8 +4976,9 @@ void fclCombineDrawSelectedName(u8 *arg0)
    measured: b210 -O2, 7944 executable bytes and eight retail alignment
    zeros; complete owner and native proof in
    build/cos20335-continuation/fcl-completion-worker16/32c660-review-v1. */
+// Fcl combine slot panel column: slides the panel of column slot (0 or 1; sprite bases 0x1CA and 0x2E4) in or out. mode 1 creates the sprites at origin plus travelDistance and slides them to shownPosition, then sets the two clip boxes from the work table. Any other mode slides them to origin, or to hiddenPosition when useHiddenPosition is set, and fades the frame sprites out.
 // FUN_0032C660
-void func_0032c660(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosition, s32 mode, s32 useHiddenPosition) {
+void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosition, s32 mode, s32 useHiddenPosition) {
     f32 travelDistance = 600.0f;
     FclDrawColor sp34C;
     FclDrawColor sp348;
