@@ -39,13 +39,13 @@ s32 func_0046a770(u32 param);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
 s32 func_0046a750(s32 param);
-void func_0021fea0(u8 *arg0, u8 *work);
-void func_002214d0(u8 *task);
+void btlResultSimpleDraw(u8 *arg0, u8 *work);
+void btlResultSimpleTaskDestroy(u8 *task);
 void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
 extern s32 sprintf(void *dst, const void *fmt, ...);
 void func_00460ac0(void *param, void *work);
 extern u32 D_00795F20[];
-s32 func_0021f520(u8 *arg0);
+s32 btlResultSimpleStepPhase(u8 *arg0);
 s32 btlShuffleOverlayIdle(void);
 static inline u32 addBase(u32 base, u32 index) { return base + index; }
 extern char iGpffffa5b8;
@@ -54,7 +54,7 @@ extern s32 iGpffffa5a8[2];
 extern s32 iGpffffa5b0;
 extern char iGpffffa5b4;
 
-/* Work buffer handed to the result state machine (see func_002215c0). */
+/* Work buffer handed to the result state machine (see btlResultSimpleCreateTask). */
 typedef struct BtlResultWork BtlResultWork;
 struct BtlResultWork
 {
@@ -74,13 +74,13 @@ struct BtlResultWork
     u8 *field570;      // 0x570
 };
 
-s32 func_0021f340(BtlResultWork *work);
-void func_0021ef70(BtlResultWork *work);
+s32 btlResultSimpleLoadAssets(BtlResultWork *work);
+void btlResultSimpleCreateSprites(BtlResultWork *work);
 extern u8 func_002baac0(u8 *message);
 void func_002bad10(s32 param);
 void func_002bb4e0(void);
 s32 func_00353f50(s32 param);
-extern s32 func_0021f790(u8 *arg0);
+extern s32 btlResultSimpleUpdate(u8 *arg0);
 
 typedef struct BtlResultSubWork BtlResultSubWork;
 struct BtlResultSubWork
@@ -96,7 +96,7 @@ struct BtlResultSubWork
  * Scoped loop invariants retain the digit-loop constants and allocation. */
 // FUN_0021ED10
 #pragma opt_loop_invariants on
-void func_0021ed10(u8 *arg0, f32 *arg1, f32 arg5, s32 arg2, u32 arg3, s32 arg4)
+void btlResultSimpleDrawLabel(u8 *arg0, f32 *arg1, f32 arg5, s32 arg2, u32 arg3, s32 arg4)
 {
     s8 rev[0x40];
     s8 buf[0x40];
@@ -176,7 +176,7 @@ void func_0021ed10(u8 *arg0, f32 *arg1, f32 arg5, s32 arg2, u32 arg3, s32 arg4)
  * invariants retain the retail table bases and register allocation. */
 // FUN_0021EF70
 #pragma opt_loop_invariants on
-void func_0021ef70(BtlResultWork *work)
+void btlResultSimpleCreateSprites(BtlResultWork *work)
 {
     u8 *base;
     u8 *row;
@@ -272,7 +272,7 @@ void func_0021ef70(BtlResultWork *work)
    `lw $a0,0x4bc($s1)`). The discarded body is archived in
    build/WCBattleUI_btlResultSimple_prepark_validate.c. */
 // FUN_0021F340
-s32 func_0021f340(BtlResultWork *work)
+s32 btlResultSimpleLoadAssets(BtlResultWork *work)
 {
     s32 temp_4_2;
     s32 temp_4_3;
@@ -338,7 +338,7 @@ s32 func_0021f340(BtlResultWork *work)
 
 
 // FUN_0021F520
-s32 func_0021f520(u8 *arg0) {
+s32 btlResultSimpleStepPhase(u8 *arg0) {
     u8 *work;
     u8 *sub;
     u32 state;
@@ -415,7 +415,7 @@ s32 func_0021f520(u8 *arg0) {
     }
 }
 // FUN_0021F790
-s32 func_0021f790(u8 *arg0) {
+s32 btlResultSimpleUpdate(u8 *arg0) {
     BtlResultWork *work;
     u32 state;
     s32 v;
@@ -434,19 +434,19 @@ s32 func_0021f790(u8 *arg0) {
         if ((v & 1) && (v & 8)) {
             goto case2;
         }
-        if ((v & 4) && (func_0021f340(work) != 0)) {
+        if ((v & 4) && (btlResultSimpleLoadAssets(work) != 0)) {
             work->flags &= 0xFFFB;
             work->flags |= 8;
         }
         goto L;
     case 2:
     case2:
-        func_0021ef70(work);
+        btlResultSimpleCreateSprites(work);
         work->flags |= 2;
         work->state = 3;
         goto L;
     case 3:
-        if (func_0021f520(arg0) != 0) {
+        if (btlResultSimpleStepPhase(arg0) != 0) {
             v = *(s32 *)(work->field570 + 0x60);
             if (v & 2) {
                 work->state = 4;
@@ -497,7 +497,7 @@ s32 func_0021f790(u8 *arg0) {
     }
 }
 /* Five 32-byte animation records begin at work+0x4C0. The initializer
- * in func_0021ef70 writes the same timer and coordinate fields. */
+ * in btlResultSimpleCreateSprites writes the same timer and coordinate fields. */
 typedef struct ResultParticleState {
     u16 age;
     u16 duration;
@@ -528,7 +528,7 @@ static inline f32 resultParticleProduct(f32 range, f32 sample)
  * sprites using their individual motion and random-duration styles.
  * See docs/probe_archive/Result_particles_0021fa40_20260924.md. */
 // FUN_0021FA40
-void func_0021fa40(u8 *work)
+void btlResultSimpleInitAnimRecords(u8 *work)
 {
     extern void func_00364c50(void);
     extern void func_00364c70(void);
@@ -607,7 +607,7 @@ void func_0021fa40(u8 *work)
 // FUN_0021FEA0
 #pragma push
 #pragma opt_loop_invariants on
-void func_0021fea0(u8 *arg0, u8 *arg1)
+void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
 {
     typedef struct { f32 x, y; } Vec2f;
     typedef union { Vec2f xy; f32 v[2]; s64 bits; } ResultPosition;
@@ -761,7 +761,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
         c11[2] = 0x2C;
         c11[3] = 0xFF;
         func_0045d6e0(&c11[0], (f32 *)&sC[0], 0.0f, 0);
-        func_0021fa40(w);
+        btlResultSimpleInitAnimRecords(w);
         RpSkyRenderStateSet(3, (void *)0x32801);
         ((s32 (*)(s32, void *))*(u32 *)vt)(8, (void *)1);
         sC[0] = 0;
@@ -865,14 +865,14 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
             position.v[0] =(75.0f + (*(f32 *)(w + 0xE0)));
             position.v[1] =(52.0f + (*(f32 *)(w + 0xE4)));
             bEA = (u8)((*(u8 *)(w + 0xEA)));
-            func_0021ed10(w, &position.v[0], 0.0f, bEA | (s32)0xEC7C0000, fld64, 0);
+            btlResultSimpleDrawLabel(w, &position.v[0], 0.0f, bEA | (s32)0xEC7C0000, fld64, 0);
             sprite = *(u8 **)(w + 0x42C);
             func_0034f2e0(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, bEA);
             eret = (u32)(btlXpBaseAward((u8 *)&p16->flags));
             position.v[0] =(75.0f + (*(f32 *)(w + 0x110)));
             position.v[1] =(112.0f + (*(f32 *)(w + 0x114)));
             b11A = (u8)((*(u8 *)(w + 0x11A)));
-            func_0021ed10(w, &position.v[0], 0.0f, b11A | (s32)0xEC7C0000, eret, 1);
+            btlResultSimpleDrawLabel(w, &position.v[0], 0.0f, b11A | (s32)0xEC7C0000, eret, 1);
             sprite = *(u8 **)(w + 0x430);
             func_0034f2e0(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, b11A);
             position.v[0] =(73.0f + (*(f32 *)(w + 0x140)));
@@ -1050,7 +1050,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
    of p/w/i (8 variants), loop-local addr pointers, shared addr var, u16/u32
    counters; all give the identical 12-word rotation. Register-coloring floor. */
 // FUN_002214D0
-void func_002214d0(u8 *unusedTask) {
+void btlResultSimpleTaskDestroy(u8 *unusedTask) {
     BtlResultWork *p;
     s32 i;
     s32 j;
@@ -1077,7 +1077,7 @@ void func_002214d0(u8 *unusedTask) {
     jtbl_008873EC[0](p);
 }
 // FUN_002215C0
-s32 func_002215c0(s32 arg0) {
+s32 btlResultSimpleCreateTask(s32 arg0) {
     u8 *buf;
     u16 *q;
     s32 r;
@@ -1085,18 +1085,18 @@ s32 func_002215c0(s32 arg0) {
     chkmemAllocSiteTag(&D_00629628, 0x3A);
     buf = (u8 *)(*jtbl_008873E8)(0x578, 0x40000);
     memset(buf, 0, 0x578);
-    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006290F0), 0xF, 0, 0, func_0021f790, func_002214d0, (u8 *)(buf));
+    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006290F0), 0xF, 0, 0, btlResultSimpleUpdate, btlResultSimpleTaskDestroy, (u8 *)(buf));
     q = kwlnTaskGetWork(arg0);
     *(s32 *)(buf + 4) = 0;
     *(u16 **)(buf + 0x570) = q;
     memset(buf + 8, 0, 0x30);
-    *(void (**)(u8 *, u8 *))(buf + 0x10) = func_0021fea0;
+    *(void (**)(u8 *, u8 *))(buf + 0x10) = btlResultSimpleDraw;
     *(u8 **)(buf + 0x18) = buf;
     return r;
 }
 
 // FUN_002216B0
-void func_002216b0(void) {
+void btlResultSimpleSetDoneFlag(void) {
     u16 *temp_2;
 
     temp_2 = kwlnTaskGetWork();
@@ -1104,7 +1104,7 @@ void func_002216b0(void) {
 }
 
 // FUN_002216E0
-void func_002216e0(void) {
+void btlResultSimpleOnConfirm(void) {
     u16 *temp_2;
 
     temp_2 = kwlnTaskGetWork();
@@ -1118,7 +1118,7 @@ void func_002216e0(void) {
 }
 
 // FUN_00221740
-u16 func_00221740(void) {
+u16 btlResultSimpleIsDone(void) {
     u16 *temp_2;
 
     temp_2 = kwlnTaskGetWork();
