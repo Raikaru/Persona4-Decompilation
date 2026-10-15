@@ -248,5 +248,31 @@ f32 func_003e40b0(f32 *arg0, const f32 *arg1) {
 /* measured: closes schedule bracket around func_003e40b0; unit default is off. */
 #pragma schedule off
 
+/* measured: schedule on is required for COP1 FMA accumulator pipelining in func_003e41e0. */
+#pragma schedule on
+// FUN_003E41E0
+f32 func_003e41e0(f32 *arg0, const f32 *arg1) {
+    f32 x = arg1[0];
+    f32 length;
+    f32 recip;
+
+    length = arg1[1] * arg1[1];
+    length += x * x;
+    length = sqrtf(length);
+    recip = (length > 0.0f) ? (1.0f / length) : length;
+    arg0[0] = x * recip;
+    arg0[1] = arg1[1] * recip;
+    if (length <= 0.0f) {
+        struct RwError003e err;
+        err.pluginID = 1;
+        err.errorCode = func_003df590(0x19);
+        func_003df4d0(&err);
+    }
+    return length;
+}
+/* measured: closes schedule bracket around func_003e41e0; unit default is off. */
+#pragma schedule off
+
+
 
 

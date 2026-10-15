@@ -546,8 +546,8 @@ f32 RwV2dLength(f32 *arg0) {
 /* measured: closes optimization_level 3 around func_003e41b0. */
 #pragma optimization_level 2
 
-// FUN_003E41E0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e41e0);
+/* FUN_003E41E0: matched byte-exact in src/promoted/code1_003e_cw119.c under cw3.0.1b119 */
+extern f32 func_003e41e0(f32 *arg0, const f32 *arg1);
 
 /* measured: schedule on places the saved self in the jalr delay slot. */
 #pragma schedule on
