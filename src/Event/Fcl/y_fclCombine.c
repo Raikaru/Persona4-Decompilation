@@ -136,7 +136,7 @@ extern u16 D_008C027A[];
 extern u8 *iGpffffb440;
 extern u8 *iGpffffb3d4;
 extern f32 iGpffff8504;
-extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
+extern void fclCombineFuseSourceRecords(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
 extern void fclCombinePlayCue(u8 *, s32, s32);
 extern void fclCombinePlayResultCue(u8 *, u16);
 extern void func_0011b8f0(u8 *, u8 *);
@@ -2907,7 +2907,7 @@ block_83:
                                 temp_16_18 = (u16 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow)));
                                 temp_21_9 = (u16 *)(((u16 *)yListSlotEntry(0, temp_17->f128)));
                                 temp_22_5 = (u16 *)(((u16 *)yListSlotEntry(0, temp_17->f129)));
-                                func_002f9c30(temp_16_18, (u8 *)temp_21_9, (u8 *)temp_22_5, (u8 *)((u16 *)yListSlotEntry(0, gridRow)), NULL, NULL, NULL, 3, (s8)((temp_18_16 + 1)), (s8)(gridRow));
+                                fclCombineFuseSourceRecords(temp_16_18, (u8 *)temp_21_9, (u8 *)temp_22_5, (u8 *)((u16 *)yListSlotEntry(0, gridRow)), NULL, NULL, NULL, 3, (s8)((temp_18_16 + 1)), (s8)(gridRow));
                             }
                         }
                         sp300 = func_002b2970((f32) 0x149, 104.0f);
@@ -3995,10 +3995,10 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         p[0x2F9] = 0;
         if (func_003139d0(p[0x1A], p[0x2FA]) == 1) {
             slot = p[0x2FA];
-            func_002f9c30((u16 *)yListSlotEntry(0, slot), (u8 *)yListSlotEntry(p[0x2FA] + 1, 0),
-                          (u8 *)yListSlotEntry(p[0x2FA] + 1, 1), (u8 *)yListSlotEntry(p[0x2FA] + 1, 2),
-                          (u8 *)yListSlotEntry(p[0x2FA] + 1, 3), (u8 *)yListSlotEntry(p[0x2FA] + 1, 4),
-                          (u8 *)yListSlotEntry(slot + 1, 5), p[0x1A], 0, slot);
+            fclCombineFuseSourceRecords((u16 *)yListSlotEntry(0, slot), (u8 *)yListSlotEntry(p[0x2FA] + 1, 0),
+                                        (u8 *)yListSlotEntry(p[0x2FA] + 1, 1), (u8 *)yListSlotEntry(p[0x2FA] + 1, 2),
+                                        (u8 *)yListSlotEntry(p[0x2FA] + 1, 3), (u8 *)yListSlotEntry(p[0x2FA] + 1, 4),
+                                        (u8 *)yListSlotEntry(slot + 1, 5), p[0x1A], 0, slot);
         }
         fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                       (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
@@ -4235,8 +4235,9 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
 }
 #pragma pop
 
+// Fcl combine fusion source records: copies the first arg7 source records (arg1 to arg6, 0x30 bytes each) into a buffer, initialises the result record arg0 from its persona id, computes the fusion result from the buffer (func_00312c60) and stores it in the slot work at arg8, offset arg9 + 0x2E4.
 // FUN_002F9C30
-void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, u8 *arg6, s32 arg7, s8 arg8, s8 arg9) {
+void fclCombineFuseSourceRecords(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, u8 *arg6, s32 arg7, s8 arg8, s8 arg9) {
     u16 buf[6 * 24];
     s8 v;
 
