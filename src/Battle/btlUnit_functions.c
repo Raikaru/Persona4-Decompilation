@@ -91,12 +91,12 @@ typedef struct BtlUnitColorWork {
 u32 func_0019b710(void* work);
 u32 func_0019b730(void* work);
 u32 func_0019bbc0(void* work);
-u32 btlUnitIncrementPacketCount(void* work);
+u32 btlUnitHoldPendingPacket(void* work);
 u32 func_0019bcb0(void* work);
-u32 btlUnitDecrementPacketCount(void* work);
-u32 btlUnitIncrementPacketCount114(void* work);
+u32 btlUnitReleasePendingPacket(void* work);
+u32 btlUnitHoldPendingPacket114(void* work);
 u32 func_0019bd80(void* work);
-u32 btlUnitDecrementPacketCount114(void* work);
+u32 btlUnitReleasePendingPacket114(void* work);
 struct BtlUnit {
     u8 padding_00[0x98];
     u32 flags2;
@@ -141,7 +141,7 @@ u32 func_0019e7a0(void* work);
 
 typedef struct BattleUnit {
     u8 pad[0xa0];
-    u16 packetCount;
+    u16 pendingPacketCount;
 } BattleUnit;
 
 typedef struct RotateTowardUnitPacket {
@@ -350,9 +350,9 @@ BtlPacket* func_0019bd00(BtlUnit* unit)
     BtlPacket* packet;
 
     packet = func_00194470(0x113, sizeof(BtlUnit*));
-    packet->initFunc = btlUnitIncrementPacketCount;
+    packet->initFunc = btlUnitHoldPendingPacket;
     packet->updateFunc = func_0019bcb0;
-    packet->destroyFunc = btlUnitDecrementPacketCount;
+    packet->destroyFunc = btlUnitReleasePendingPacket;
     *(BtlUnit**)packet->workData = unit;
 
     return packet;
@@ -366,9 +366,9 @@ BtlPacket* func_0019bdd0(BtlUnit* unit)
     BtlPacket* packet;
 
     packet = func_00194470(0x114, sizeof(BtlUnit*));
-    packet->initFunc = btlUnitIncrementPacketCount114;
+    packet->initFunc = btlUnitHoldPendingPacket114;
     packet->updateFunc = func_0019bd80;
-    packet->destroyFunc = btlUnitDecrementPacketCount114;
+    packet->destroyFunc = btlUnitReleasePendingPacket114;
     *(BtlUnit**)packet->workData = unit;
 
     return packet;
@@ -527,6 +527,6 @@ void func_00201db0(void* work)
 
     packet = (RotateTowardUnitPacket*)work;
 
-    packet->unit->packetCount--;
-    packet->targetUnit->packetCount--;
+    packet->unit->pendingPacketCount--;
+    packet->targetUnit->pendingPacketCount--;
 }

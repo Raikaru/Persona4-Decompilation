@@ -1406,39 +1406,39 @@ BtlPacket* btlUnitCreateMovePacket(BtlUnit* unit, const RwV3d* targetPos, f32 sp
 // FUN_001974D0
 void func_001974d0(BtlUnitPacketCountRef* packet)
 {
-    packet->unit->packetCount++;
+    packet->unit->pendingPacketCount++;
 }
 
 // FUN_001979C0
 void func_001979c0(BtlUnitPacketCountRef* packet)
 {
-    packet->unit->packetCount--;
+    packet->unit->pendingPacketCount--;
 }
 
 // FUN_00198020
 void func_00198020(BtlUnitPacketPair* packet)
 {
-    packet->first->packetCount++;
-    packet->second->packetCount++;
+    packet->first->pendingPacketCount++;
+    packet->second->pendingPacketCount++;
 }
 
 // FUN_001982D0
 void func_001982d0(BtlUnitPacketPair* packet)
 {
-    packet->first->packetCount--;
-    packet->second->packetCount--;
+    packet->first->pendingPacketCount--;
+    packet->second->pendingPacketCount--;
 }
 
 // FUN_0019A350
 void func_0019a350(BtlUnitPacketUnitAtC* packet)
 {
-    packet->unit->packetCount++;
+    packet->unit->pendingPacketCount++;
 }
 
 // FUN_0019A5C0
 void func_0019a5c0(BtlUnitPacketUnitAtC* packet)
 {
-    packet->unit->packetCount--;
+    packet->unit->pendingPacketCount--;
 }
 
 // FUN_0019D130
@@ -1471,9 +1471,9 @@ void func_0019e1f0(BtlUnitPacketTwoUnits* packet)
 {
     if (packet->first != NULL)
     {
-        packet->first->packetCount++;
+        packet->first->pendingPacketCount++;
     }
-    packet->second->packetCount++;
+    packet->second->pendingPacketCount++;
 }
 
 // FUN_0019E220
@@ -1619,9 +1619,9 @@ void func_0019e520(BtlUnitPacketTwoUnits* packet)
 {
     if (packet->first != NULL)
     {
-        packet->first->packetCount--;
+        packet->first->pendingPacketCount--;
     }
-    packet->second->packetCount--;
+    packet->second->pendingPacketCount--;
 }
 
 #define BTLUNIT_FLAG3_UNK400 (1 << 10)
@@ -1644,7 +1644,7 @@ extern RwV3d D_0060a0d0;
 extern f32 DAT_007613f8;
 
 // FUN_0019E830
-void btlUnitIncrementPacketCountIfUnit(u8 *arg0) {
+void btlUnitHoldPendingPacketIfUnit(u8 *arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;
@@ -1653,7 +1653,7 @@ void btlUnitIncrementPacketCountIfUnit(u8 *arg0) {
     }
 }
 // FUN_0019E9D0
-void btlUnitDecrementPacketCountIfUnit(u8 *arg0) {
+void btlUnitReleasePendingPacketIfUnit(u8 *arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;

@@ -728,8 +728,8 @@ s32 func_001f0610(void)
 void func_001f2fe0(void* arg)
 {
     BtlTargetPacketWork* work = (BtlTargetPacketWork*)arg;
-    work->source->unit->packetCount++;
-    work->action->unit->packetCount++;
+    work->source->unit->pendingPacketCount++;
+    work->action->unit->pendingPacketCount++;
 }
 
 
@@ -890,8 +890,8 @@ s32 func_001f3010(u8* arg0)
 void func_001f36b0(void* arg)
 {
     BtlTargetPacketWork* work = (BtlTargetPacketWork*)arg;
-    work->source->unit->packetCount--;
-    work->action->unit->packetCount--;
+    work->source->unit->pendingPacketCount--;
+    work->action->unit->pendingPacketCount--;
 }
 
 
@@ -920,7 +920,7 @@ void func_001f37b0(u8* arg)
     BtlAction* action;
 
     action = *(BtlAction**)arg;
-    action->unit->packetCount++;
+    action->unit->pendingPacketCount++;
 }
 // FUN_001F37D0
 u32 func_001f37d0(void* arg)

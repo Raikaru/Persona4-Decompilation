@@ -54,7 +54,7 @@ struct BtlUnit
     s16 unk_96;              /* 0x96 */
     u32 flags2;              /* 0x98 */
     u32 flags3;              /* 0x9C. See BTLUNIT_FLAG3_* */
-    u16 packetCount;         /* 0xA0 */
+    u16 pendingPacketCount;  /* 0xA0. Packets currently holding the unit; the unit's state machine waits for 0 */
     u8 genus;                /* 0xA2. UnitGenus */
     u8 _padA3;               /* 0xA3 */
     u16 charId;              /* 0xA4 */
