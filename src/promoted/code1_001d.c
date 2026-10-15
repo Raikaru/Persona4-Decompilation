@@ -66,7 +66,7 @@ extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCen
                           f32 *outTop, f32 *outBottom, u32 options);
 extern void btlUnitSetPos(u8 *arg0, f32 *arg1);
 extern void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2);
-extern u8 *func_0019eda0(u8 *arg0, s32 arg1);
+extern u8 *btlUnitGetRecordPtr(u8 *arg0, s32 arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
@@ -491,7 +491,7 @@ s32 func_001d1cc0(u8 *arg0)
     if ((frame.value60 == 0.0f) && (frame.value68 == 0.0f)) {
         return 1;
     }
-    bounds = func_0019eda0(temp_16, 0xA);
+    bounds = btlUnitGetRecordPtr(temp_16, 0xA);
     temp_f3 = (f32)*(s16 *)(bounds + 4);
     temp_f2 = *(f32 *)(temp_16 + 0x2C);
     temp_f1 = *(f32 *)(arg0 + 8);

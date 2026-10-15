@@ -260,7 +260,7 @@ extern u8 D_006355A0[];
 extern void datPersonaClearRoster(void);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern s32 datPersonaSelectRosterMemberById(s32 personaId);
-extern void func_0019ef30(u8 *unit, u16 action);
+extern void btlUnitInitChild(u8 *unit, u16 action);
 extern void func_00106d40(s16 character, s16 slot, s16 value);
 extern u16 func_00104dc0(s16 character);
 extern u16 func_00104e30(s16 character);
@@ -4240,7 +4240,7 @@ void func_0022b120(u8 *action)
 // FUN_0022B870
 s32 func_0022b870(u8 *arg0)
 {
-    extern void func_0019ea60(u8 *arg0, s32 arg1);
+    extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
     extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
     extern s32 func_001b0d70(u8 *arg0);
     extern s32 func_001b1540(void);
@@ -4255,7 +4255,7 @@ s32 func_0022b870(u8 *arg0)
     if (func_00193bf0(*(u64 *)arg0,
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
         *(s32 *)(DAT_0076449c + 0xC) &= 0xFFF7FFFF;
-        func_0019ea60(*(u8 **)(arg0 + 0x30), 0x10E);
+        btlUnitInitFromRecord(*(u8 **)(arg0 + 0x30), 0x10E);
         datUnitInit((DatUnit *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)), 1, 0x10E);
         func_00106390(0x15FF, 1);
         *(u8 **)(DAT_0076449c + 0xB98) = &D_00630C50[0];
@@ -5496,7 +5496,7 @@ s32 func_0022e630(u8 *arg0)
             datPersonaClearRoster();
             datPersonaAddRosterMember(0xE0);
             datPersonaSelectRosterMemberById(0xE0);
-            func_0019ef30(unit, 0xE0);
+            btlUnitInitChild(unit, 0xE0);
             func_00106d40(1, 0, 4);
             *(u16 *)(arg0 + 0x18) |= 0x40;
             break;
@@ -5504,7 +5504,7 @@ s32 func_0022e630(u8 *arg0)
             datPersonaClearRoster();
             datPersonaAddRosterMember(0xE1);
             datPersonaSelectRosterMemberById(0xE1);
-            func_0019ef30(unit, 0xE1);
+            btlUnitInitChild(unit, 0xE1);
             func_001056e0(1, (s16)func_00104dc0(1));
             func_00105730(1, (s16)func_00104e30(1));
             func_00105d50(1, -1);
@@ -5548,7 +5548,7 @@ s32 func_0022e630(u8 *arg0)
     case 0x109:
         *(u16 *)(arg0 + 0x1A) |= 0x200;
         *(u16 *)(arg0 + 0x1A) |= 0x10;
-        func_0019ef30(unit, 0xCE);
+        btlUnitInitChild(unit, 0xCE);
         break;
     case 0x10A:
         *(u16 *)(arg0 + 0x1A) |= 0x100;
@@ -5577,7 +5577,7 @@ s32 func_0022e630(u8 *arg0)
     case 0x112:
         *(u32 *)(unit + 0x9C) |= 0x8000;
         *(u16 *)(arg0 + 0x1A) |= 0x10;
-        func_0019ef30(unit, 7);
+        btlUnitInitChild(unit, 7);
         break;
     case 0x113:
         **(u16 **)(unit + 0xA64) |= 0x20;

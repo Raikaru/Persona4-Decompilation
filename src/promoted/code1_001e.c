@@ -104,7 +104,7 @@ extern u32 datCalcRandomBelow(u32 arg0);
 
 
 
-extern void func_0019ef30(u8 *arg0, u64 arg1);
+extern void btlUnitInitChild(u8 *arg0, u64 arg1);
 extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
 extern s32 btlAICommandPickTableAction(u8 *arg0);
 extern u8 *func_001dea90(u8 *arg0, u32 arg1);
@@ -1679,7 +1679,7 @@ s32 func_001ea2d0(void) {
     temp_18 = func_0029d050();
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    func_0019ef30(*(u8 **)(temp_18 + 0x30), temp_17);
+    btlUnitInitChild(*(u8 **)(temp_18 + 0x30), temp_17);
     btlAICommandSetActionCode(temp_18, temp_18 + 0x38, temp_16 & 0xFFFF);
     return 1;
 }
