@@ -294,7 +294,7 @@ extern u16 datPersonaRosterSlotFlags(u16);
 extern void func_00110270(u8 *, u16);
 extern void func_001102c0(u16);
 extern u8 D_00749350[];
-extern u16 func_003095f0(void);
+extern u16 fclCombineOtherHeroId(void);
 
 
 
@@ -1390,7 +1390,7 @@ void func_002ecfc0(u8 *arg0) {
    `(s32)sp` -> (*(s32 *)col)), the (s32)(sp)+0x110/0xF0 stores rewritten as sp110[]/spF0[] (u16[16]),
    37 s64 temporaries narrowed to s32 (3963 -> 3659) with four - var_16, var_16_2, var_16_3, var_17_2 - kept s64
    to land 3659 inside the band, the switch-3 labels restored as case 0-2 (retail jtbl, +157 to 3816, still inside),
-   the m2c arg-count hallucinations on func_002b6150/func_0010b5b0/func_003190d0/func_00314660/func_002b6970/
+   the m2c arg-count hallucinations on func_002b6150/func_0010b5b0/func_003190d0/fclDrawGetState/func_002b6970/
    func_002bb680/func_00122720 cut back to the retail arg counts, the (f32)(s32) float wrappers collapsed
    (0x437F0000->255.0f, 0x43000000->128.0f, 0x422C0000->43.0f), and D_008C027A/024E to [0]. */
 /* measured 002ed430 (owner, 2026-09-19): fnalign **2865 -> 2856 edits**, count
@@ -1408,7 +1408,7 @@ void func_002ecfc0(u8 *arg0) {
    unsigned sum, so it is not CSE'd with the alpha lookup's id and its spill
    gives retail's 0x260 frame; func_00275820 uses its real (f32 x, f32 y,
    f32 scale, ...) signature; `> 5` for the menu range test; store-then-reread
-   of f11E/f2FA; func_003144d0 takes the slot byte as s8. */
+   of f11E/f2FA; fclDrawSetPlacementEx takes the slot byte as s8. */
 typedef struct {
     s8 f0;
     u8 f1;
@@ -7855,14 +7855,14 @@ void func_00308f40(void) {
         }
         if (n3 >= n2 || n3 == 6) {
             p = (u8 *)func_001102e0();
-            datPersonaInitRecord(p, func_003095f0());
+            datPersonaInitRecord(p, fclCombineOtherHeroId());
             func_00110270((u8 *)func_001102e0(), packed);
             func_00106390(0x1307, 1);
             return;
         }
         if (total >= 0x1E) {
             p = (u8 *)func_001102e0();
-            datPersonaInitRecord(p, func_003095f0());
+            datPersonaInitRecord(p, fclCombineOtherHeroId());
             func_00110270((u8 *)func_001102e0(), packed);
             func_00106390(0x1307, 1);
             return;
@@ -7921,8 +7921,9 @@ void func_00308f40(void) {
     }
 }
 
+// Fcl combine other hero: returns the other hero persona id, 0xBA when the current one is 0xB3, else 0xB3.
 // FUN_003095F0
-u16 func_003095f0(void)
+u16 fclCombineOtherHeroId(void)
 {
     if (((u16 *)func_001102e0())[1] == 0xB3) {
         return 0xBA;
@@ -9937,8 +9938,9 @@ void func_0030f650(u8 *arg0) {
     }
 }
 
+// Fcl combine recipe unlocked: returns 1 when all four prerequisite records of recipe slot 0x14 hold, else 0.
 // FUN_00310480
-s32 func_00310480(void) {
+s32 fclCombineRecipeUnlocked(void) {
     u16 *p;
     s8 *base;
     s16 i;
@@ -9993,8 +9995,9 @@ s32 func_00310480(void) {
     }
     return 1;
 }
+// Fcl combine snapshot save: copies the persona records and the four combine flags into a work buffer.
 // FUN_00310700
-void func_00310700(void)
+void fclCombineSaveSnapshot(void)
 {
     s16 i;
     s16 j;
@@ -10020,8 +10023,9 @@ void func_00310700(void)
     }
 }
 
+// Fcl combine snapshot restore: writes back the saved persona records and flags, then frees the buffer.
 // FUN_00310850
-void func_00310850(void)
+void fclCombineRestoreSnapshot(void)
 {
     s16 i;
 
@@ -10193,7 +10197,7 @@ s32 func_00310bf0(u8 *arg0) {
             if ((func_002e78a0() & 0xFF) == 3 && (func_002e78e0() & 0xFF) >= 0x14 && (func_002e78e0() & 0xFF) < 0x20) {
                 p[0] = 0;
                 p[0] = 3;
-            } else if (func_00310480() == 1) {
+            } else if (fclCombineRecipeUnlocked() == 1) {
                 if (*(u32 *)(p + 0x1C) != 0) {
                     *(u32 *)(p + 0x1C) = 0;
                 }

@@ -829,8 +829,8 @@ void func_00111bc0(void)
     void func_001051a0(s16, s16, s16);
     u32 func_00110460(void);
     void func_00110470(u32);
-    void func_00310700(void);
-    void func_00310850(void);
+    void fclCombineSaveSnapshot(void);
+    void fclCombineRestoreSnapshot(void);
     extern float D_005E4700[4];
     typedef struct { float a; float b; float c; float d; } Vec4;
     saved = iGpffffb19c;
@@ -955,7 +955,7 @@ loop2_check:
         goto loop2;
     }
 loop2_done:
-    func_00310700();
+    fclCombineSaveSnapshot();
     i = 0;
     goto loop3_check;
 loop3:
@@ -1006,7 +1006,7 @@ loop6_check:
     if (flag == 1) {
         func_00106390(0x1DD, 1);
     }
-    func_00310850();
+    fclCombineRestoreSnapshot();
     func_00106390(0x1210, 1);
     func_00106550(0x7C, (u32)value);
     func_00110470((u32)end_date);
