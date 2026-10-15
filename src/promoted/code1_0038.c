@@ -3365,94 +3365,75 @@ s32 func_0038fb20(u8 *arg0) {
 // already compiled, so this off only satisfies decomp_lint P001 balance.
 #pragma schedule off
 
-/* measured: probe_variants func_0038fb50 bare 86wd, truthful (5-arg deff0, 3-arg e2ab0/df270) 86wd tie (keeps faithful, fixes old-style () per semantic gate), sched 94wd regress, loop_invariants 86wd tie, guard levers s64-zero-lt 100wd regress (does not transfer per handoff 7i), u32-zero-lt/zero-lt/ge1/outer-ge1 tie 86wd; fnalign truthful 98 edits (sltu $at+beqz vs beqz inner !=0 guard, var16 materialisation order, six-float store rotation); lever 4 (slti inclusive) N/A - no slti, sltu sites need (s64)0 lever which regresses; lb/lbu N/A; double-def offset (addu base+off after lw) remains + float rotation; re-derived (Ghidra/IDA 5,3,3 confirmed, no fabrications); archive docs/probe_archive/IoE_0038fb50_body.c (stale nd262, fresh 86wd). Banked guarded floor (no pragmas, sched regresses). */
+/* measured: Under MWCCPS2 3.0.1 b119 (-O4, -inline auto, proven in src/promoted/code1_0038_cw119.c), func_0038fb50 matches lines 44-468 byte-exact (0 differing words for 110 of 120 instructions; exact float-load rotation f5-f0, loop counter, and tail control flow). The remaining 10 words at offsets 0x04-0x28 are the recorded compiler floor: parameter loads (lhu $v1, 0x1e($a0); lw $v0, 0($a0)) scheduled before sd $ra in retail prologue (see wiki/Compiler-Floors.md). Under default b210 -O2 it sits at 86 differing words. */
 // FUN_0038FB50 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
 u8 *func_0038fb50(u8 *arg0, s32 arg1)
 {
     extern s32 func_003deff0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern s32 func_003e2ab0(s32 arg0, void *arg1, s32 arg2);
     extern s32 func_003df270(s32 arg0, void *arg1, s32 arg2);
     struct {
-        s32 f0;
-        f32 f10;
-        f32 f14;
-        f32 f18;
-        f32 f4;
-        f32 f8;
-        f32 fC;
-        s32 f1C;
-        s32 f1E;
+        s32 flags;
+        f32 inf_x, inf_y, inf_z;
+        f32 sup_x, sup_y, sup_z;
+        s32 numEntries;
+        s32 numSplits;
     } header;
     struct {
-        s32 f0;
-        f32 f4;
-        f32 f8;
-        f32 fC;
-    } entry;
-    u32 count;
+        f32 f[4];
+    } split;
     s32 offset;
-    u16 temp_2;
-    u8 *temp_2_2;
+    u32 count;
 
     offset = 0x30;
-    offset += *(u16 *)(arg0 + 0x1E) * 0x10;
+    offset += (s32)*(u16 *)(arg0 + 0x1E) * 0x10;
     if (*(s32 *)arg0 & 1) {
-        offset += *(u16 *)(arg0 + 0x1C) * 2;
+        offset += (s32)*(u16 *)(arg0 + 0x1C) * 2;
     }
-#pragma push
-/* measured: schedule on fills the first two call delay slots only. */
-#pragma schedule on
+
     if (func_003deff0(arg1, 0x2C, offset, 0x37002, 0x37) == 0) {
-        goto block_17;
+        return NULL;
     }
     if (func_003deff0(arg1, 1, offset - 0xC, 0x37002, 0x37) == 0) {
-        goto block_17;
+        return NULL;
     }
-#pragma pop
-    header.f10 = *(f32 *)(arg0 + 0x10);
-    header.f0 = *(s32 *)arg0;
-    header.f14 = *(f32 *)(arg0 + 0x14);
-    header.f1C = *(u16 *)(arg0 + 0x1C);
-    header.f18 = *(f32 *)(arg0 + 0x18);
-    header.f1E = *(u16 *)(arg0 + 0x1E);
-    header.f4 = *(f32 *)(arg0 + 4);
-    header.f8 = *(f32 *)(arg0 + 8);
-    header.fC = *(f32 *)(arg0 + 0xC);
-    if (func_003e2ab0(arg1, (u8 *)&header, 0x24) == 0) {
-        goto block_17;
+
+    header.inf_x = *(f32 *)(arg0 + 0x10);
+    header.flags = *(s32 *)arg0;
+    header.inf_y = *(f32 *)(arg0 + 0x14);
+    header.numEntries = *(u16 *)(arg0 + 0x1C);
+    header.inf_z = *(f32 *)(arg0 + 0x18);
+    header.numSplits = *(u16 *)(arg0 + 0x1E);
+    header.sup_x = *(f32 *)(arg0 + 4);
+    header.sup_y = *(f32 *)(arg0 + 8);
+    header.sup_z = *(f32 *)(arg0 + 0xC);
+
+    if (func_003e2ab0(arg1, &header, 0x24) == 0) {
+        return NULL;
     }
-    temp_2 = *(u16 *)(arg0 + 0x1E);
-    if ((s32)temp_2 > 0) {
+
+    if ((s32)*(u16 *)(arg0 + 0x1E) > 0) {
         count = 0;
-        if (temp_2 != 0) {
+        if (count < *(u16 *)(arg0 + 0x1E)) {
             offset = 0;
             do {
-                temp_2_2 = (u8 *)(*(s32 *)(arg0 + 0x20) + offset);
-                entry.f0 = *(s32 *)temp_2_2;
-                entry.f4 = *(f32 *)(temp_2_2 + 4);
-                entry.f8 = *(f32 *)(temp_2_2 + 8);
-                entry.fC = *(f32 *)(temp_2_2 + 0xC);
-                if (func_003e2ab0(arg1, (u8 *)&entry, 0x10) == 0) {
-                    goto block_17;
+                split = *(typeof(split) *)((u8 *)*(s32 *)(arg0 + 0x20) + offset);
+                if (func_003e2ab0(arg1, &split, 0x10) == 0) {
+                    return NULL;
                 }
-                count += 1;
+                count++;
                 offset += 0x10;
-                if (count >= *(u16 *)(arg0 + 0x1E)) {
-                    goto block_13;
-                }
-            } while (1);
+            } while (count < *(u16 *)(arg0 + 0x1E));
         }
     }
-block_13:
-    if (*(s32 *)arg0 & 1) {
-        if (func_003df270(arg1, *(u8 **)(arg0 + 0x24),
-                          *(u16 *)(arg0 + 0x1C) * 2) == 0) {
-            goto block_17;
-        }
+
+    if (!(*(s32 *)arg0 & 1) || func_003df270(arg1, *(void **)(arg0 + 0x24), (s32)*(u16 *)(arg0 + 0x1C) * 2) != 0) {
         return arg0;
     }
-block_17:
+
     return NULL;
 }
 #else
