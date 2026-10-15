@@ -184,8 +184,9 @@ s32 Cmd_GetNearestEntryFacing(void) {
     return 1;
 }
 
+/* P4 flowscript library (build/p4flow/Field.json, index 0x1028): FLD_EFFECT_TRAESTO_START(), no parameters. Creates the transition task and waits for it. */
 // FUN_001786F0
-s32 Cmd_WaitForFieldEvent(void)
+s32 K_Cmd_FLD_EFFECT_TRAESTO_START(void)
 {
     s32 temp_2;
     u8 *temp_16;
@@ -203,8 +204,9 @@ s32 Cmd_WaitForFieldEvent(void)
     return 1;
 }
 
+/* P4 flowscript library (build/p4flow/Field.json, index 0x1016): CALL_BATTLE(encounterId, param2). Starts the encounter and yields until it returns. */
 // FUN_00178790
-s32 Cmd_BeginEncounter(void)
+s32 K_Cmd_CALL_BATTLE(void)
 {
     s32 temp_16;
     s32 temp_17;
