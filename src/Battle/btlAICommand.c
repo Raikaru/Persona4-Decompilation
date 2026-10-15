@@ -2449,19 +2449,19 @@ s32 btlAICommandScriptQueryEnHojo(void) {
 }
 
 // FUN_001DFF70
-s32 func_001dff70(void) {
+s32 btlAICommandScriptQueryEscape(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609934[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
 // FUN_001DFFC0
-s32 func_001dffc0(void) {
+s32 btlAICommandScriptQuerySummon(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609940[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
 // FUN_001E0010
-s32 func_001e0010(void) {
+s32 btlAICommandScriptQuerySensei(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_0060994C[0])(func_0029d050(), 0) != 0);
     return 1;
 }
