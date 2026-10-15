@@ -199,7 +199,7 @@ extern s32 func_00218230(s32 task);
 extern void func_00218260(s32 task);
 s16 func_001d15a0(void);
 void func_001eb7f0(void);
-s32 func_001ef720(s32 arg0, s32 arg1);
+s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 s32 func_001fabe0(u8 *arg0);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s32 datCalcGetSkillMask(u8 *arg0);
@@ -513,7 +513,7 @@ void btlActionTryBegin(BtlAction *action) {
     if (action->unit->genus != 0) {
         needsDelay = 0;
     } else if ((*(s16 *)(iGpffffb3ac + 0xA70) != -1) &&
-               (threshold = func_001ef720(2, 0x80000) & 0xFFFF,
+               (threshold = btlSideCountNotBad(2, 0x80000) & 0xFFFF,
                 (u32)(*(s16 *)(iGpffffb3ac + 0xA72) >> 1) >= threshold) &&
                ((storedId = *(s16 *)(iGpffffb3ac + 0xA70)) != (s16)func_001d15a0())) {
         needsDelay = 1;
@@ -3847,7 +3847,7 @@ void func_001a59a0(s64 *arg0_) {
             if ((actionFlagSaved == 0) && ((*(u8 *)((u8 *)(focusTarget->unit) + (0xA2))) == 1)) {
                 if (reactionUnitCount > 0) {
                     if ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) == 0) {
-                        reactionRoll = func_001ef720(2, 0x80000) & 0xFFFF;
+                        reactionRoll = btlSideCountNotBad(2, 0x80000) & 0xFFFF;
                         reactionCueFlag = *(u8 *)(arg0 + 0x28);
                         if (reactionCueFlag > 0) {
                             goto createReaction;
@@ -3867,7 +3867,7 @@ void func_001a59a0(s64 *arg0_) {
                             if ((*(s16 *)((u8 *)(battleStatePtr) + (0xA70))) != -1) {
                                 reactionRemaining = (s16)(reactionRoll - reactionUnitCount);
                                 if (reactionRemaining <= 0) {
-                                    randomRoll = func_001ef720(2, 0x80000) & 0xFFFF;
+                                    randomRoll = btlSideCountNotBad(2, 0x80000) & 0xFFFF;
                                     battleStatePtrD = (u8 *)(iGpffffb3ac);
                                     if (((u32) ((s16) (*(s16 *)((u8 *)(battleStatePtrD) + (0xA72))) >> 1) >= randomRoll) && (counterUnitId16 = (*(s16 *)((u8 *)(battleStatePtrD) + (0xA70))), counterUnitId = (s32) counterUnitId16, (counterUnitId16 != (s16)func_001d15a0()))) {
                                         reactionCueFlag = 1;
@@ -5756,7 +5756,7 @@ void func_001a7720(u8 *arg0) {
         func_00194590((u8 *)pkt124, 1);
     } else if (crossSideHits > 0) {
         if (side == 0) {
-            statusTotal = (s32)((u16)func_001ef720(2, 0x80000));
+            statusTotal = (s32)((u16)btlSideCountNotBad(2, 0x80000));
             if (*(u8 *)(arg0 + 0x28) <= 0 && *(u16 *)(act->unit + 0xA4) != 1 && datCalcRandomBelow(0x64U) < 0x32U) {
                 if ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) != (s32)(0)) {
                     chanceMiss = 0;
@@ -5765,7 +5765,7 @@ void func_001a7720(u8 *arg0) {
                     if (*(s16 *)(btlState17 + 0xA70) != -1) {
                         statusRemaining = (s16)(statusTotal - crossSideHits);
                         if (statusRemaining <= 0) {
-                            statusTotal2 = (u32)((u16)func_001ef720(2, 0x80000));
+                            statusTotal2 = (u32)((u16)btlSideCountNotBad(2, 0x80000));
                             btlState18 = (u8 *)(iGpffffb3ac);
                             if (((u32)(*(s16 *)(btlState18 + 0xA72) >> 1) >= statusTotal2) && (lastActor = *(s16 *)(btlState18 + 0xA70), (lastActor != func_001d15a0()))) {
                                 chanceMiss = 1;
@@ -7552,7 +7552,7 @@ void func_001ae3d0(u8 *action)
     if (*(u8 *)(*(u8 **)(action + 48) + 162) != 0) {
         changeFormation = 0;
     } else if ((*(s16 *)(iGpffffb3ac + 2672) != -1) &&
-               (enemyCount = func_001ef720(2, 0x80000) & 0xFFFF,
+               (enemyCount = btlSideCountNotBad(2, 0x80000) & 0xFFFF,
                 (u32)(*(s16 *)(iGpffffb3ac + 2674) >> 1) >= enemyCount) &&
                (previousFormation = *(s16 *)(iGpffffb3ac + 2672),
                 previousFormation != (s16)func_001d15a0())) {

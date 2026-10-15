@@ -452,7 +452,7 @@ void func_001d1680(s32 applyPositions, s32 unused)
             facingUnit = *(u8 **)(facingUnit + 0xA68);
         }
         *(s16 *)(iGpffffb3ac + 0xA70) = formation;
-        *(s16 *)(iGpffffb3ac + 0xA72) = func_001ef720(2, 0x80000);
+        *(s16 *)(iGpffffb3ac + 0xA72) = btlSideCountNotBad(2, 0x80000);
     }
 }
 #pragma pop
@@ -2138,7 +2138,7 @@ next_branch:
     return NULL;
 }
 // FUN_001D9390
-int func_001d9390(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*arg5)(u8 *, s32), u8 **arg6) {
+int btlSideSelectUnits(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*arg5)(u8 *, s32), u8 **arg6) {
     struct Frame {
         u8 *entries[14];
         u16 count;

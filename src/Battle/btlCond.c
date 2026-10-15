@@ -156,7 +156,7 @@ bool btlCond_FRCNT(int param_1, u32 param_2)
 {
   u32 uVar1 = 0;
 
-  uVar1 = func_001ef720(1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000);
+  uVar1 = btlSideCountNotBad(1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000);
   return (uVar1 & 0xffff) <= param_2;
 }
 
@@ -181,7 +181,7 @@ nonzero:
 done:
     genus = shift;
   }
-  uVar1 = func_001ef720(1 << genus & 0xffff, 0x80000);
+  uVar1 = btlSideCountNotBad(1 << genus & 0xffff, 0x80000);
   return (uVar1 & 0xffff) <= param_2;
 }
 /* measured: closes opt_rebuildconditionals for FUN_001D9AF0. */
