@@ -29,7 +29,7 @@ extern void func_001d6de0(s32 arg0, s32 arg1);
 extern s32 func_001d6360(u8 *arg0);
 extern void func_001d42e0(s32 arg0);
 extern void func_00485b20(s32 arg0);
-extern void func_004787e0(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
 extern void func_001d6880(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_001d3e00(s32 arg0);

@@ -130,7 +130,7 @@ extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int c
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern void func_004b1150(s32 arg0);
-extern void func_004787e0(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
@@ -755,14 +755,14 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
             }
             handle228 = resourceRecord->handle228;
             if (handle228 != NULL) {
-                func_004787e0((s32)handle228);
+                mdlDestroyModelObject((s32)handle228);
                 resourceRecord->handle228 = NULL;
             }
             func_00440b68(&D_005EF890, handle164);
             break;
         case RESRC_TYPE_MODELUNK:
             handle158 = resourceRecord->modelHandle158;
-            func_004787e0((s32)handle158);
+            mdlDestroyModelObject((s32)handle158);
             resourceRecord->modelHandle158 = NULL;
             func_00440b68(&D_005EF890, handle158);
             break;
@@ -777,10 +777,10 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
             resourceRecord->handle294 = 0;
             handle22C = resourceRecord->handle22C;
             if (handle22C != NULL) {
-                func_004787e0((s32)handle22C);
+                mdlDestroyModelObject((s32)handle22C);
                 resourceRecord->handle22C = NULL;
             }
-            func_004787e0((s32)slotValue);
+            mdlDestroyModelObject((s32)slotValue);
             resourceRecord->modelHandle164 = NULL;
             slotIndex = 0;
             while (slotIndex < 2) {
@@ -817,11 +817,11 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
             break;
         case RESRC_TYPE_MODELFLD:
             handle144 = resourceRecord->slotHandle[1];
-            func_004787e0((s32)handle144);
+            mdlDestroyModelObject((s32)handle144);
             resourceRecord->slotHandle[1] = NULL;
             handle16C = resourceRecord->handle16C;
             if (handle16C != NULL) {
-                func_004787e0((s32)handle16C);
+                mdlDestroyModelObject((s32)handle16C);
                 resourceRecord->handle16C = NULL;
             }
             func_00440b68(&D_005EF8D0, handle144);

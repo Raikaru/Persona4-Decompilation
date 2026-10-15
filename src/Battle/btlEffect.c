@@ -22,7 +22,7 @@ typedef struct BtlFormationWork {
 
 extern void func_001d42e0(BtlFormationWork* param_1);
 extern void func_00485b20(u32 param_1);
-extern void func_004787e0(u32 param_1);
+extern void mdlDestroyModelObject(u32 param_1);
 
 typedef int (*code)();
 
@@ -86,7 +86,7 @@ void func_001d6880(u16 *param_1)
     *(u32 *)(param_1 + 10) = 0;
   }
   if (*(int *)(param_1 + 0xc) != 0) {
-    func_004787e0(*(int *)(param_1 + 0xc));
+    mdlDestroyModelObject(*(int *)(param_1 + 0xc));
     *(u32 *)(param_1 + 0xc) = 0;
   }
   *(u32 *)(param_1 + 2) = 0xffffffff;
@@ -119,7 +119,7 @@ u16 *func_001d6ce0(int param_1)
         *(u32 *)(entry + 10) = 0;
       }
       if (*(int *)(entry + 0xc) != 0) {
-        func_004787e0(*(int *)(entry + 0xc));
+        mdlDestroyModelObject(*(int *)(entry + 0xc));
         *(u32 *)(entry + 0xc) = 0;
       }
       *(u32 *)(entry + 2) = 0xffffffff;
@@ -156,7 +156,7 @@ u32 func_001d6de0(int param_1, u16 *entry)
         *(u32 *)(entry + 10) = 0;
       }
       if (*(int *)(entry + 0xc) != 0) {
-        func_004787e0(*(int *)(entry + 0xc));
+        mdlDestroyModelObject(*(int *)(entry + 0xc));
         *(u32 *)(entry + 0xc) = 0;
       }
       *(u32 *)(entry + 2) = 0xffffffff;

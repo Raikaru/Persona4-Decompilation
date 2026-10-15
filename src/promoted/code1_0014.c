@@ -149,8 +149,8 @@ extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int c
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern void func_004b1150(s32 arg0);
-extern s32 func_004782b0(s32 arg0);
-extern void func_004787e0(s32 arg0);
+extern s32 mdlPrepareModel(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
 extern s32 func_00104c70(s32 arg0);
 extern u8 D_007EF9B0[];
 extern void func_003c38b0(void *arg0, void *arg1);

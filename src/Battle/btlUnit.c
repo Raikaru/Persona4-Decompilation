@@ -5,7 +5,7 @@
 
 extern u16 btlFindFreeCharResId(void);
 
-extern void func_004787e0(); /* old-style: retail jals with $a1 still holding the compared coordinate */
+extern void mdlDestroyModelObject(); /* old-style: retail jals with $a1 still holding the compared coordinate */
 extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void *func_00477fb0(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern u32 *func_00478750(u8 *arg0);
@@ -992,7 +992,7 @@ void func_0019acd0(u8 *arg0)
                     return;
                 }
             }
-            func_004787e0(obj);
+            mdlDestroyModelObject(obj);
             *(u8 **)(p + 0xA00) = NULL;
         }
         made = mdlFindModelObject(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
@@ -1074,7 +1074,7 @@ s32 func_0019ae20(u8 *arg0) {
                 func_0047d140(*(u8 **)(t17 + 0xA00));
             }
         }
-    } else if (func_004782b0(t4) != 0) {
+    } else if (mdlPrepareModel(t4) != 0) {
         if (*(u16 *)(arg0 + 8) & 4) {
             t3 = *(u8 *)(t17 + 0xA2);
             switch (t3) {

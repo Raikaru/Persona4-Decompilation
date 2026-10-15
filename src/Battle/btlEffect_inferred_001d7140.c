@@ -13,7 +13,7 @@ extern void func_001d42e0(u8* arg0);
 extern void func_001d40d0(u8* arg0);
 extern u8* func_001d41b0(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00485b20(u32 arg0);
-extern void func_004787e0(u32 arg0);
+extern void mdlDestroyModelObject(u32 arg0);
 
 /* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */
 
@@ -56,7 +56,7 @@ void func_001d7140(u8* arg0)
             temp_4_3 = *(s32*)(temp_17 + 0x18);
             if (temp_4_3 != 0)
             {
-                func_004787e0((u32)temp_4_3);
+                mdlDestroyModelObject((u32)temp_4_3);
                 *(s32*)(temp_17 + 0x18) = 0;
             }
             *(s32*)(temp_17 + 4) = -1;

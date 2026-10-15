@@ -38,14 +38,14 @@ extern void scrSetReturnInt(s32 value);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern void func_0016f130(s32 a, s32 b, s32 c);
 extern void func_0016f3b0(s32 a, s32 b, s32 c);
-extern s32 func_004782b0(void* arg0);
+extern s32 mdlPrepareModel(void* arg0);
 extern void* func_00478750(s32 arg0);
-extern void func_004787e0(u32 arg0);
+extern void mdlDestroyModelObject(u32 arg0);
 extern void func_00478e70(s32 arg0);
 extern void func_00479e60(s32 a, s32 b, f32 c);
 extern void func_0047a1c0(s32 a, void* b, s32 c);
 extern f32 func_0047a080(s32 arg0, s32 arg1);
-extern void func_0047a0e0(s32 arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerWeight(s32 arg0, s32 arg1, f32 arg2);
 extern void* mdlGetMatrix(u32 arg0);
 extern void mdlScale(s32 arg0, void* arg1, s32 arg2);
 extern f32 KDraw_MatrixPitchDeg(u8* arg0);
@@ -126,7 +126,7 @@ s32 Cmd_PlayModelMotion(void)
             {
                 mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
             }
-            func_0047a0e0(*(s32*)(p + 0x164), 0, g);
+            mdlSetLayerWeight(*(s32*)(p + 0x164), 0, g);
         }
         break;
     }
@@ -143,7 +143,7 @@ s32 Cmd_PlayModelMotion(void)
             {
                 mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
             }
-            func_0047a0e0(*(s32*)(p + 0x164), 0, g);
+            mdlSetLayerWeight(*(s32*)(p + 0x164), 0, g);
         }
         break;
     }
@@ -160,7 +160,7 @@ s32 Cmd_PlayModelMotion(void)
             {
                 mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x144), 0, (s16)w, (u16)iv, 0);
             }
-            func_0047a0e0(*(s32*)(p + 0x144), 0, g);
+            mdlSetLayerWeight(*(s32*)(p + 0x144), 0, g);
         }
         break;
     }
@@ -570,12 +570,12 @@ s32 Cmd_CreateFieldModel(void)
     s32 created = 0;
     u8* p2 = 0;
     s32 tmp;
-    if (func_004782b0((void*)v) == 1)
+    if (mdlPrepareModel((void*)v) == 1)
     {
         u8* p = MT_Scene_GetRes((w & 0x3FF) | 0x2800);
         if (p != 0)
         {
-            func_004787e0(v);
+            mdlDestroyModelObject(v);
             scrSetReturnInt(0);
             return 1;
         }
@@ -617,7 +617,7 @@ u32 Cmd_CreateModelResource()
     model = (Model*)scrGetParamInt(0);
     resourceId = 0;
     created = 0;
-    if (func_004782b0(model) == true)
+    if (mdlPrepareModel(model) == true)
     {
         resourceId = (u16)MT_Scene_CreateModelFldRes(func_0014b510(10), (s32)model);
         created = 1;
@@ -672,7 +672,7 @@ s32 Cmd_CreateSceneResource(void)
     s32 id = scrGetParamInt(1);
     s32 res = 0;
     s32 created = 0;
-    if (func_004782b0((void*)type) == 1)
+    if (mdlPrepareModel((void*)type) == 1)
     {
         u8* p;
         res = (u16)func_00145780(func_0014b510(3), (u16)id, type);

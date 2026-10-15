@@ -92,7 +92,7 @@ extern void func_001587d0(u16 arg0, u32 arg1, u32 arg2);
 extern s32 func_0014a160(void);
 extern void func_0016e540(s32 arg0, s32 arg1);
 extern void func_003642a0(s32 arg0);
-extern void func_004787e0(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
 /* Forces b210's offset-first addu operand order. */
 static inline u32 wg0035_add_offset(u32 offset, u32 base)
 {
@@ -163,7 +163,7 @@ static inline void wg0015_place_special(u8 special_direction, s32 x, s32 y,
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
 extern s32 func_00457120(void);
-extern s32 func_004782b0(s32 arg0);
+extern s32 mdlPrepareModel(s32 arg0);
 
 
 
@@ -2114,7 +2114,7 @@ s32 func_00159a60(u8 *arg0)
     case 1:
         if (func_0015c4b0(*(u8 **)(work + 0x14)) != 0) {
             *(s32 *)(work + 0x14) = 0;
-            if (*(s32 *)(work + 0x38) == 0 || func_004782b0(*(s32 *)(work + 0x38)) != 0) {
+            if (*(s32 *)(work + 0x38) == 0 || mdlPrepareModel(*(s32 *)(work + 0x38)) != 0) {
                 if (func_0015c280() != 0 && func_0015c360() != 0) {
                     *(u8 **)(work + 0x20) = D_007E3720;
                     if (*(s32 *)(work + 4) != 0x9F) {
@@ -2205,7 +2205,7 @@ void func_00159d50(u8 *arg0)
     }
     temp_4_3 = *(s32 *)(temp_16 + 0x38);
     if (temp_4_3 != 0) {
-        func_004787e0(temp_4_3);
+        mdlDestroyModelObject(temp_4_3);
     }
     var_17 = 0;
     goto loop_14_test;
@@ -3601,7 +3601,7 @@ s32 func_0015f660(void)
     result = 1;
     while (work != NULL) {
         if (!(*(s32 *)(work + 0x28) & 0x10000000)) {
-            if (func_004782b0(*(s32 *)(work + 0x164)) != 0) {
+            if (mdlPrepareModel(*(s32 *)(work + 0x164)) != 0) {
                 *(s32 *)(work + 0x28) |= 0x10000000;
             }
             result = 0;
