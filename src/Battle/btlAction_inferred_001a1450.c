@@ -346,7 +346,7 @@ void btlActionCommandInit(s64 *arg0)
     extern s32 btlUnitIsMoving(u8 *arg0);
 
     extern void btlPacketEnqueue(u8 *arg0, s32 arg1);
-    extern void func_00203670(s32 arg0, u8 *arg1);
+    extern void btlPanelInit(s32 arg0, u8 *arg1);
     extern void func_00213c10(s32 task);
 
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) &&
@@ -426,7 +426,7 @@ loop_19_test:
     func_001eb3b0((u8 *)arg0 + 0x38);
     actionTypeAfter = *(u16 *)(u8 *)func_001a_add_offset(0x10, (s32)arg0);
     if ((actionTypeAfter != 0x25) && (actionTypeAfter != 6) && (actionTypeAfter != 5)) {
-        func_00203670(*(s32 *)(iGpffffb3ac + 0xDD4), (u8 *)arg0);
+        btlPanelInit(*(s32 *)(iGpffffb3ac + 0xDD4), (u8 *)arg0);
         func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
     }
     btlUnitRequestLookAtOthers((u8 *)arg0);
@@ -456,18 +456,18 @@ void btlActionCommandUpdate(u8 *arg0)
     if (*(s32 *)(arg0 + 0x420) == 1) {
         t = *(u16 *)(arg0 + 0x41C);
         if (t == 0) {
-            func_002037b0(*(s32 *)(iGpffffb3ac + 0xDD4));
+            btlPanelSetActive(*(s32 *)(iGpffffb3ac + 0xDD4));
             *(s32 *)(arg0 + 0x420) = 0;
         } else {
             *(u16 *)(arg0 + 0x41C) = t - 1;
         }
         return;
     }
-    v4 = func_002037e0(*(s32 *)(iGpffffb3ac + 0xDD4)) & 0xFFFF;
+    v4 = btlPanelGetState(*(s32 *)(iGpffffb3ac + 0xDD4)) & 0xFFFF;
     if ((D_008C024C[0] & 8) != 0 && (v4 & 0xFFFF) == 1 && (*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) == 0) {
         if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000) != 0) {
             if (func_00203810(*(s32 *)(iGpffffb3ac + 0xDD4)) == 1) {
-                if (func_00203850(*(s32 *)(iGpffffb3ac + 0xDD4)) == 0) {
+                if (btlPanelIsReady(*(s32 *)(iGpffffb3ac + 0xDD4)) == 0) {
                     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x10000) == 0) {
                         func_0020bf60(*(s32 *)(iGpffffb3ac + 0xDD4));
                         *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x10000;
@@ -521,7 +521,7 @@ void btlActionCommandUpdate(u8 *arg0)
                 btlUiSelectEffect(*(s32 *)(arg0 + 0x30), sVar2);
                 *(u16 *)(arg0 + 0x41C) = 6;
                 *(s32 *)(arg0 + 0x420) = 1;
-                func_00203890(*(s32 *)(iGpffffb3ac + 0xDD4));
+                btlPanelSetClosing(*(s32 *)(iGpffffb3ac + 0xDD4));
                 return;
             } else {
                 func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
@@ -541,7 +541,7 @@ tail:
     *(u16 *)(arg0 + 0x18) = *(u16 *)(arg0 + 0x18) | 2;
     func_00212040(*(s32 *)(iGpffffb3ac + 0xDD4));
     func_00216ca0(*(s32 *)(iGpffffb3ac + 0xDD4));
-    func_002038c0(*(s32 *)(iGpffffb3ac + 0xDD4));
+    btlPanelReset(*(s32 *)(iGpffffb3ac + 0xDD4));
     func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
     for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
     }
@@ -551,7 +551,7 @@ check9:
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) {
         func_00212040(*(s32 *)(iGpffffb3ac + 0xDD4));
         func_00216ca0(*(s32 *)(iGpffffb3ac + 0xDD4));
-        func_002038c0(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlPanelReset(*(s32 *)(iGpffffb3ac + 0xDD4));
         func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
         for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
         }
@@ -642,8 +642,8 @@ void btlActionTargetUpdate(u8 *action) {
     extern void func_0019fc60(void);
     extern s32 func_001fb170(s32 condition);
     extern void btlUiSelectEffect(s32 unit, u32 message);
-    extern void func_002037b0(s32 task);
-    extern void func_002038c0(s32 task);
+    extern void btlPanelSetActive(s32 task);
+    extern void btlPanelReset(s32 task);
     extern void func_00204d50(s32 task);
     extern void func_0020bf60(s32 task);
     extern void func_0020bf90(s32 task);
@@ -712,7 +712,7 @@ select_action:
             func_00212040((s32)(*(u8**)(selectionBattle + 0xDD4)));
             func_00216ca0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            func_002038c0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             actionCursor = (*(u8**)(iGpffffb3ac + 0x174));
             while (actionCursor != NULL) {
@@ -784,7 +784,7 @@ select_action:
             func_00212040((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00216ca0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            func_002038c0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             clearCursor = (*(u8**)(iGpffffb3ac + 0x174));
             while (clearCursor != NULL) {
@@ -799,7 +799,7 @@ select_action:
         func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
         func_00204d50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        func_002037b0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+        btlPanelSetActive((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         btlActionSetState((BtlAction *)action, 5);
         /* fallthrough */
     case 3:
