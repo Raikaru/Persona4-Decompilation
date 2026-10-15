@@ -23,9 +23,9 @@ typedef struct RotateTowardUnitWork {
 } RotateTowardUnitWork;
 
 BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-u32 func_00198020(void* work);
+u32 btlUnitHoldPendingPair(void* work);
 u32 func_00198050(void* work);
-u32 func_001982d0(void* work);
+u32 btlUnitReleasePendingPair(void* work);
 typedef struct BtlUnitPacket {
     BtlUnit* unit;
     s16 value;
@@ -48,9 +48,9 @@ typedef struct BtlUnitMotionWork {
     s16 counter;
     f32 phase;
 } BtlUnitMotionWork;
-u32 func_0019a350(void* work);
+u32 btlUnitHoldPendingUnit(void* work);
 u32 func_0019a370(void* work);
-u32 func_0019a5c0(void* work);
+u32 btlUnitReleasePendingUnit(void* work);
 typedef struct BtlUnitPacketEnmDodgeAnim {
     BtlUnit* unit;
     s32 value;
@@ -158,9 +158,9 @@ BtlPacket* btlUnitCreateRotateTowardUnitPacket(BtlUnit* unit, BtlUnit* targetUni
     RotateTowardUnitWork* work;
 
     packet = btlPacketAlloc(0x10e, sizeof(RotateTowardUnitWork));
-    packet->initFunc = func_00198020;
+    packet->initFunc = btlUnitHoldPendingPair;
     packet->updateFunc = func_00198050;
-    packet->destroyFunc = func_001982d0;
+    packet->destroyFunc = btlUnitReleasePendingPair;
     work = (RotateTowardUnitWork*)packet->workData;
     work->unit = unit;
     work->targetUnit = targetUnit;
@@ -216,9 +216,9 @@ BtlPacket* func_0019a5e0(BtlUnit* unit, s32 value)
     BtlUnitMotionWork* work;
 
     packet = btlPacketAlloc(0x108, sizeof(BtlUnitMotionWork));
-    packet->initFunc = func_0019a350;
+    packet->initFunc = btlUnitHoldPendingUnit;
     packet->updateFunc = func_0019a370;
-    packet->destroyFunc = func_0019a5c0;
+    packet->destroyFunc = btlUnitReleasePendingUnit;
     work = (BtlUnitMotionWork*)packet->workData;
     work->unit = unit;
     work->value = value;

@@ -150,9 +150,9 @@ extern RwV3d D_00881430;
 void func_00196ce0(BtlUnitPacketMove* work);
 u32 func_00196d00(void* work);
 void func_001973d0(BtlUnitPacketMove* work);
-void func_001974d0(BtlUnitPacketCountRef* work);
+void btlUnitHoldPendingPacket(BtlUnitPacketCountRef* work);
 u32 func_001974f0(BtlUnitPacketMoveToUnit* work);
-void func_001979c0(BtlUnitPacketCountRef* work);
+void btlUnitReleasePendingPacket(BtlUnitPacketCountRef* work);
 
 // FUN_00195B60
 void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2)
@@ -757,9 +757,9 @@ BtlPacket* btlUnitCreateMoveToUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, f32
 
     packet = btlPacketAlloc(0x10B, sizeof(BtlUnitPacketMoveToUnit));
 
-    packet->initFunc = (BtlPacketFunc)func_001974d0;
+    packet->initFunc = (BtlPacketFunc)btlUnitHoldPendingPacket;
     packet->updateFunc = (BtlPacketFunc)func_001974f0;
-    packet->destroyFunc = (BtlPacketFunc)func_001979c0;
+    packet->destroyFunc = (BtlPacketFunc)btlUnitReleasePendingPacket;
 
     work = (BtlUnitPacketMoveToUnit*)packet->workData;
 
@@ -1404,39 +1404,39 @@ BtlPacket* btlUnitCreateMovePacket(BtlUnit* unit, const RwV3d* targetPos, f32 sp
 }
 
 // FUN_001974D0
-void func_001974d0(BtlUnitPacketCountRef* packet)
+void btlUnitHoldPendingPacket(BtlUnitPacketCountRef* packet)
 {
     packet->unit->pendingPacketCount++;
 }
 
 // FUN_001979C0
-void func_001979c0(BtlUnitPacketCountRef* packet)
+void btlUnitReleasePendingPacket(BtlUnitPacketCountRef* packet)
 {
     packet->unit->pendingPacketCount--;
 }
 
 // FUN_00198020
-void func_00198020(BtlUnitPacketPair* packet)
+void btlUnitHoldPendingPair(BtlUnitPacketPair* packet)
 {
     packet->first->pendingPacketCount++;
     packet->second->pendingPacketCount++;
 }
 
 // FUN_001982D0
-void func_001982d0(BtlUnitPacketPair* packet)
+void btlUnitReleasePendingPair(BtlUnitPacketPair* packet)
 {
     packet->first->pendingPacketCount--;
     packet->second->pendingPacketCount--;
 }
 
 // FUN_0019A350
-void func_0019a350(BtlUnitPacketUnitAtC* packet)
+void btlUnitHoldPendingUnit(BtlUnitPacketUnitAtC* packet)
 {
     packet->unit->pendingPacketCount++;
 }
 
 // FUN_0019A5C0
-void func_0019a5c0(BtlUnitPacketUnitAtC* packet)
+void btlUnitReleasePendingUnit(BtlUnitPacketUnitAtC* packet)
 {
     packet->unit->pendingPacketCount--;
 }
