@@ -3688,8 +3688,9 @@ void fclCombineDrawPairLayout(u8 *arg0, s32 arg1, s8 arg2) {
 }
 #pragma pop
 
+// Fcl combine slot frames: creates or fades the frame sprites of slot arg2 (0xAA/0xA9 for the two slot indices, 0xAD, 0xB1 and 0xB5). arg3 is the mode: 1 fades the frames out, otherwise they are created at position and faded in.
 // FUN_00324F80
-void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
+void fclCombineDrawSlotFrames(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     FclByte4 sp8C, sp88, sp84, sp80, sp7C;
     FclPackedPosition sp70, sp68, sp60, sp58, sp50, sp48;
     s16 v17;
@@ -3771,8 +3772,9 @@ static inline void fclShowCursorArrow(s8 flag)
    and is reassigned in place outside mode 2. One named point takes each
    func_002b2970 result, and every other value is left to b210's CSE
    (docs/probe_archive/FclDraw_00325450_20260925.md). */
+// Fcl combine stage banner: draws the banner tiles for stage arg1 (cases 0-7 and beyond; each resets its sprites and draws its tiles), with the moving marker placed by the stage index byte at t+0x122. arg2 is the entry mode: mode 0 also sets the stage index.
 // FUN_00325450
-void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
+void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
     u8 *t = *(u8 **)(arg0 + 0x38);
     FclVec2 pos = func_002b2970(18.0f, 14.0f);
     FclByte4 c12C = func_002b2a60(0, 0, 0x99, 0xFF);
@@ -4750,7 +4752,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
   new_var6 = obj;
   new_var10 = (f32 *) (obj + 0x124);
   spB8 = func_002b2970(472.0f, 112.0f);
-  func_00324f80(arg0, spB8, 0, arg3);
+  fclCombineDrawSlotFrames(arg0, spB8, 0, arg3);
   f21 = (new_var7 = *new_var8) - (*((s16 *) (new_var6 + 0x120)));
   f20 = *new_var10;
   new_var4 = &f20;
@@ -4840,7 +4842,7 @@ void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
         func_002b77d0((s8)row + 0x2C5, spC0, 0x19E, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
     }
     sp108 = func_002b2970(535, 154.0f);
-    func_00324f80(arg0, sp108, 0, arg3);
+    fclCombineDrawSlotFrames(arg0, sp108, 0, arg3);
     *(f32 *)(fclSpriteEntry(0xB1) + 0x3C) = *(f32 *)(t + 0x124) * (*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120)) + *(f32 *)(fclSpriteEntry(0xAA) + 0x3C);
     *(f32 *)(fclSpriteEntry(0xB5) + 0x3C) = 52.0f + *(f32 *)(fclSpriteEntry(0xB1) + 0x3C);
     func_003297f0(359, 300.0f, arg0, 1, arg3);
