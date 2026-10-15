@@ -934,17 +934,17 @@ s32 func_001dc5b0(void) {
 }
 
 // FUN_001DC5C0
-void func_001dc5c0(u64 formation, u32 flags) {
+void btlAICommandSelectMyBadAll(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYBAD);
 }
 
 // FUN_001DC600
-void func_001dc600(u64 formation, u32 flags) {
+void btlAICommandSelectMyBadRandom(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYBAD);
 }
 
 // FUN_001DC640
-void func_001dc640(u64 formation, u32 flags) {
+void btlAICommandSelectMyIdAll(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYID);
 }
 
@@ -994,42 +994,42 @@ u32 func_001dc6a0(int param_1)
 
 
 // FUN_001DC7A0
-void func_001dc7a0(u64 formation, u32 flags) {
+void btlAICommandSelectMyHansyaAll(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYHANSYA);
 }
 
 // FUN_001DC7E0
-void func_001dc7e0(u64 formation, u32 flags) {
+void btlAICommandSelectMyKyusyuAll(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYKYUSYU);
 }
 
 // FUN_001DC820
-void func_001dc820(u64 formation, u32 flags) {
+void btlAICommandSelectMyMukouAll(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYMUKOU);
 }
 
 // FUN_001DC860
-void func_001dc860(u64 formation, u32 flags) {
+void btlAICommandSelectMyWeakAll(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 0, btlCond_MYWEAK);
 }
 
 // FUN_001DC8A0
-void func_001dc8a0(u64 formation, u32 flags) {
+void btlAICommandSelectMyHansyaRandom(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYHANSYA);
 }
 
 // FUN_001DC8E0
-void func_001dc8e0(u64 formation, u32 flags) {
+void btlAICommandSelectMyKyusyuRandom(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYKYUSYU);
 }
 
 // FUN_001DC920
-void func_001dc920(u64 formation, u32 flags) {
+void btlAICommandSelectMyMukouRandom(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYMUKOU);
 }
 
 // FUN_001DC960
-void func_001dc960(u64 formation, u32 flags) {
+void btlAICommandSelectMyWeakRandom(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 1, btlCond_MYWEAK);
 }
 
