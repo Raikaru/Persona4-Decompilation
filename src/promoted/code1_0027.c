@@ -9,7 +9,7 @@ extern u16 D_008C024E[];
 
 extern void func_0046a340(s32 arg0);
 extern void itfMesListSetColor();
-extern void func_0027a400();
+extern void itfMesListSetRangeFlag();
 
 extern s32 frFontGetMode(void);
 extern void func_002e0f20(void);
@@ -20,7 +20,7 @@ extern s32 D_008815B0[];
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void MT_Scene_SetResMotionSlot(u32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
-extern s32 func_0027bf10(s32 arg0);
+extern s32 itfMesWindowProcedureForKind(s32 arg0);
 extern s32 cmmCommunityFindActiveSlotInGroup(s64 arg0);
 extern u8 *func_00246c20(s32 arg0);
 extern s32 cmmCommunityGetCurrentId(void);
@@ -40,7 +40,7 @@ extern void func_0027b5a0(s32 arg0);
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
-extern void func_0027a780(u8 *arg0);
+extern void itfMesWindowStepState(u8 *arg0);
 extern void func_0027a970(u8 *arg0);
 extern void func_0027ac50(u8 *arg0);
 extern void func_0027b230(u8 *arg0);
@@ -722,8 +722,9 @@ void func_002746c0(s32 arg0, s32 arg1)
 
 
 
+// Intent: Sets the given flag on list entries whose key falls in a run from arg1 to arg2 [inferred]
 // FUN_0027A400
-void func_0027a400(arg0, arg1, arg2, arg3)
+void itfMesListSetRangeFlag(arg0, arg1, arg2, arg3)
 u8 *arg0;
 s32 arg1;
 s32 arg2;
@@ -782,26 +783,29 @@ void func_0027a490(void)
 // FUN_0027A4B0
 void func_0027a4b0(void)
 {
-    func_0027a400();
+    itfMesListSetRangeFlag();
 }
 
+// Intent: Clears a window's procedure block and stores the procedure for its kind [inferred]
 // FUN_0027A5E0
-void func_0027a5e0(s32 *arg0, s32 arg1)
+void itfMesWindowSetProcedure(s32 *arg0, s32 arg1)
 {
     memset(arg0, 0, 0x1C);
-    *arg0 = func_0027bf10(arg1);
+    *arg0 = itfMesWindowProcedureForKind(arg1);
 }
 
 
 
+// Intent: Resets a slot to empty (value 0, index 0xFFFF) [inferred]
 // FUN_0027A630
-void func_0027a630(u8 *arg0)
+void itfMesSlotReset(u8 *arg0)
 {
     *(s32 *)arg0 = 0;
     *(u16 *)(arg0 + 4) = 0xFFFF;
 }
+// Intent: Zeroes a window record and sets its trailing byte to 0xFF [inferred]
 // FUN_0027A650
-void func_0027a650(u8 *arg0)
+void itfMesRecordReset(u8 *arg0)
 {
     *(s32 *)(arg0 + 0) = 0;
     *(s32 *)(arg0 + 4) = 0;
@@ -835,8 +839,9 @@ void func_0027a6f0(s32 *arg0)
 {
     *arg0 &= ~0xF00;
 }
+// Intent: Frees up to 32 non-null slot entries and clears them [inferred]
 // FUN_0027A710
-void func_0027a710(s32 arg0) {
+void itfMesWindowFreeSlots(s32 arg0) {
     s32 i;
     s32 *p;
     s32 v;
@@ -851,8 +856,9 @@ void func_0027a710(s32 arg0) {
     }
 }
 
+// Intent: Advances one list node's window state by calling its op handlers (ops 4, 5, 6, 0xB, 0xC, 0xD) [inferred]
 // FUN_0027A780
-void func_0027a780(u8 *arg0)
+void itfMesWindowStepState(u8 *arg0)
 {
     extern s32 func_0027b980(s32 arg0);
     extern s32 func_0027b9e0(s32 arg0);
@@ -1422,7 +1428,7 @@ s32 func_0027b500(u8 *sdkTaskBytes)
     while (node != NULL)
     {
         temp = *(u8 **)(node + 0xC);
-        func_0027a780(temp);
+        itfMesWindowStepState(temp);
         func_0027a970(temp);
         func_0027ac50(temp);
         func_0027b230(temp);
@@ -1675,8 +1681,9 @@ s32 func_0027bec0(s32 handle)
     }
     return 0;
 }
+// Intent: Returns the window procedure registered for a kind [inferred]
 // FUN_0027BF10
-s32 func_0027bf10(s32 arg0)
+s32 itfMesWindowProcedureForKind(s32 arg0)
 {
     return D_0063BF80[arg0];
 }

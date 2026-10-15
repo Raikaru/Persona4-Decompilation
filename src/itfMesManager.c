@@ -46,7 +46,7 @@ s32 func_0027b500(u8 *task);
 void func_0027b690(u8 *task);
 extern char D_0063BF10[];
 extern char D_0063BF20[];
-void func_0027a710();
+void itfMesWindowFreeSlots();
 void func_0046a340();
 void func_0046a2d0();
 void *func_0046a430();
@@ -130,8 +130,8 @@ s32 itfMesRecordIsValid(u8 *arg0);
 u8 *itfMesObjectCreate(u8 *arg0);
 extern u8 DAT_008817E0_abs[];
 s32 frFontListKeepOrRelease(s32 arg0);
-void func_0027a630(void *arg0, s32 arg1);
-void func_0027a650(void *arg0, s32 arg1);
+void itfMesSlotReset(void *arg0, s32 arg1);
+void itfMesRecordReset(void *arg0, s32 arg1);
 void func_0027baa0(s32 arg0);
 void itfMesWindowClearObject(u8 *arg0, s32 arg1);
 void frFontMoveListTo(s32 arg0, s32 arg1, s32 arg2);
@@ -139,7 +139,7 @@ void itfMesWindowResetObject(u8 *arg0);
 void itfMesObjectSetString(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 void itfMesObjectSetNumber(u8 *arg0, s32 arg1, s32 arg2);
 void itfMesRecordFixup(u8 *arg0);
-void func_0027a5e0(void *arg0, s16 arg1);
+void itfMesWindowSetProcedure(void *arg0, s16 arg1);
 extern char D_0063BED0[];
 s32 func_00454a60(char *arg0, s32 arg1);
 void H_Cdvd_ReadSync(s32 arg0);
@@ -669,9 +669,9 @@ u8 *itfMesObjectCreate(u8 *arg0)
     *(s32 *)obj = 0;
     *(s32 *)(obj + 0xC) = 0;
     *(s32 *)(obj + 0x10) = 0;
-    func_0027a5e0(obj + 0x114, 0);
-    func_0027a630(obj + 0x14, 1);
-    func_0027a650(obj + 0x1C, 1);
+    itfMesWindowSetProcedure(obj + 0x114, 0);
+    itfMesSlotReset(obj + 0x14, 1);
+    itfMesRecordReset(obj + 0x1C, 1);
     func_0027a690(obj + 0x3C);
     itfMesClearSlots(obj + 0x94);
     return obj;
@@ -783,7 +783,7 @@ void itfMesWindowClearObject(u8 *arg0, s32 arg1)
         frFontListKeepOrRelease(*(s32 *)(arg0 + 0x20));
         *(s32 *)(base + 4) = 0;
     }
-    func_0027a650(base, 0);
+    itfMesRecordReset(base, 0);
     v = *(s32 *)arg0 & ~7;
     *(s32 *)arg0 = v;
     v = v & ~0x300;
@@ -795,7 +795,7 @@ void itfMesWindowClearObject(u8 *arg0, s32 arg1)
             frFontListKeepOrRelease(*(s32 *)base2);
             *(s32 *)base2 = 0;
         }
-        func_0027a630(arg0 + 0x14, 0);
+        itfMesSlotReset(arg0 + 0x14, 0);
     }
 }
 
@@ -1135,7 +1135,7 @@ void itfMesWindowApplyStyle(s32 arg0, s16 arg1, s32 arg2)
     if (!(*(u32 *)object & 0x3300)) {
         *(s32 *)(object + 0x10) = arg1;
         func_00440b68(D_0063BED0);
-        func_0027a5e0(object + 0x114, arg1);
+        itfMesWindowSetProcedure(object + 0x114, arg1);
     }
 }
 
@@ -1303,7 +1303,7 @@ void itfMesObjectFree(u8 *arg0)
         v = v & ~0xC00;
         *(s32 *)arg0 = v;
         *(s32 *)arg0 = v & 0xFFFBFFFF;
-        func_0027a710(arg0 + 0x94);
+        itfMesWindowFreeSlots(arg0 + 0x94);
         *(s32 *)arg0 = 0;
         func_0046a340(arg0);
     }
