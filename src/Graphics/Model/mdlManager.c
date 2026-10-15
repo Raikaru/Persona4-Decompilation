@@ -155,7 +155,7 @@ extern void* mdlMatFXSetEnvMapStateCallback(void*, void*);
 extern void* func_00479880(void*, void*);
 extern void* func_004776c0(void* param_1, void* param_2);
 extern void* func_00474a10(void* param_1, void* data);
-extern u32 func_00474ce0(void* param_1);
+extern u32 mdlGetFrameNameUserData(void* param_1);
 extern int strncmp();
 extern int func_003d8130();
 extern void RtAnimInterpolatorSetAnimLoopCallBack();
@@ -2470,8 +2470,9 @@ void* func_00474ba0(void* param_1, void* param_2)
     return param_1;
 }
 #pragma opt_propagation on
+/* Returns the string value of the frame's name-keyed user-data entry, or 0 when the frame has none. The key string at DAT_007641c8 is not yet read from rodata; callers use the result as the object name (consumer not yet traced). */
 // FUN_00474CE0
-u32 func_00474ce0(void* param_1)
+u32 mdlGetFrameNameUserData(void* param_1)
 {
     s32 iVar2;
     s32 iVar1;
@@ -2532,7 +2533,7 @@ void func_00474df0(u8* param_1, void* param_2)
         for (puVar2 = (u32*)func_003df890((s32*)(*(u32*)(*(int*)(param_1 + 0x18) + 8)));
              puVar3 = (u32*)func_003df8a0(*(u32*)(*(int*)(param_1 + 0x18) + 8)),
              puVar2 != puVar3; puVar2 = puVar2 + 1) {
-            userData = func_00474ce0((void*)*puVar2);
+            userData = mdlGetFrameNameUserData((void*)*puVar2);
 
             if (((userData != 0) && (strncmp(userData, &gp0xffff9d10, 5) == 0)) &&
                 (animation = func_003d8130(*puVar2, 0), animation != 0)) {
@@ -2772,7 +2773,7 @@ void func_00475350(void *clump, MdlAnimControlView *state,
                 switch (RpMatFXMaterialGetEffects(*object)) {
                 case 5: case 6: func_0039a700(*object, 0, 0); break;
                 }
-                name = func_00474ce0((void *)*object);
+                name = mdlGetFrameNameUserData((void *)*object);
                 if (name != 0) {
                     animation = func_003d6170(((MdlAnimResourceEntry *)addOff((s32)index * 8, (u32)state->resource->entries))->resource, name);
                     if (animation != 0) {
@@ -2813,7 +2814,7 @@ void func_00475350(void *clump, MdlAnimControlView *state,
         } else {
             s32 *objects = resource->objects;
             for (object = (u32 *)func_003df890(objects); object != (u32 *)func_003df8a0(objects); ++object)
-                if (func_00474ce0((void *)*object) != 0) mdlSetupDetach(object);
+                if (mdlGetFrameNameUserData((void *)*object) != 0) mdlSetupDetach(object);
         }
         state->index = index;
     }
@@ -3910,7 +3911,7 @@ void *func_004776c0(void *arg0, void *arg1)
     var_18 = 0;
     while (var_18 < temp_22) {
         temp_19 = (u8*)*(u32*)(*(u8 **)(temp_16 + 0x20) + var_18 * 4);
-        if (strncmp(*(s32 *)(pArg1 + 4), (s32)func_00474ce0(temp_19), temp_17) == 0) {
+        if (strncmp(*(s32 *)(pArg1 + 4), (s32)mdlGetFrameNameUserData(temp_19), temp_17) == 0) {
             value = K_Clump_MatUsrDataGetInt(temp_19, D_00713160);
             buf[2] = (u8)value;
             buf[1] = (u8)(value >> 8);
