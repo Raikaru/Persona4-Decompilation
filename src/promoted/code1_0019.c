@@ -248,7 +248,7 @@ extern s32 func_0019be50(u8 *arg0);
 extern s32 func_0010d6d0(s16 arg0);
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern float func_001d4380(int arg0);
-extern s32 func_00197a80(u8 *arg0);
+extern s32 btlUnitArcMovePacketUpdate(u8 *arg0);
 extern s32 func_0010d740(s16 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
 extern s32 iGpffffb444;

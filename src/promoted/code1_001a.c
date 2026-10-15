@@ -3119,7 +3119,7 @@ void func_001a59a0(s64 *arg0_) {
     u8 *battleUnit;
     extern s64 btlPacketEnqueue(u8 *packet, u32 mode);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
-    extern u8 *func_00197cc0();
+    extern u8 *btlUnitCreateArcMovePacket();
     extern u8 *btlUnitCreateRotateTowardUnitPacket();
     extern u8 *btlCameraCreateSetStatePacket();
     /* Retail's call at 0x001A6F38 returns the packet in $v0, consumed by
@@ -3791,7 +3791,7 @@ void func_001a59a0(s64 *arg0_) {
                         (*(s64 *)((u8 *)(effectPacketJ) + (0x60))) = actionUid;
                         btlPacketEnqueue(effectPacketJ, 2);
                     } else {
-                        hitPacket = (u8 *)(func_00197cc0(focusTarget->unit, (s16) (*(u16 *)(arg0 + (0x6E))), 0));
+                        hitPacket = (u8 *)(btlUnitCreateArcMovePacket(focusTarget->unit, (s16) (*(u16 *)(arg0 + (0x6E))), 0));
                         (*(s8 *)((u8 *)(hitPacket) + (0))) = 5;
                         (*(s64 *)((u8 *)(hitPacket) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
                         (*(s64 *)((u8 *)(hitPacket) + (0x60))) = actionUid;
@@ -4035,7 +4035,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_00195530(u8 *arg0);
     extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
-    extern u8 *func_00197cc0(s32 unit, s16 skill, s16 delay);
+    extern u8 *btlUnitCreateArcMovePacket(s32 unit, s16 skill, s16 delay);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_00198810(u8 *arg0);
     extern BtlPacket *func_0019a980(BtlUnit *unit);
@@ -5508,7 +5508,7 @@ void func_001a7720(u8 *arg0) {
                     } else {
                         motionDelay = 0x19 - motionFramesS32;
                     }
-                    pkt99 = (BtlPacketTiming *)(func_00197cc0(*(s32 *)(effectiveAction + 0x30), skill, (s16)motionDelay));
+                    pkt99 = (BtlPacketTiming *)(btlUnitCreateArcMovePacket(*(s32 *)(effectiveAction + 0x30), skill, (s16)motionDelay));
                     pkt99->queue = 4;
                     pkt99->startTime = animPacket->endTime;
                     pkt99->ownerId = actionId;

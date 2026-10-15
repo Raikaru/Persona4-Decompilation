@@ -144,7 +144,7 @@ extern f32 DAT_0076112c;
 
 
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
-extern s32 func_00197a80(u8 *arg0);
+extern s32 btlUnitArcMovePacketUpdate(u8 *arg0);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
