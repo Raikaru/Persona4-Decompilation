@@ -196,7 +196,7 @@ s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *func_002022e0(u32 arg0, u16 arg1);
 s32 datPersonaSelectRosterMemberById(s32 arg0);
-extern void func_0019ef30(u8 *arg0, u16 arg1);
+extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void datPersonaRemoveSelectedRosterMember(void);
 extern s32 datGetFlag(s32 arg0);
 BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
@@ -5564,7 +5564,7 @@ void func_001abbb0(s64 *arg0)
     extern BtlPacket *btlSoundCreateSkillSEPacket(u16 arg0, u16 arg1);
     extern u8 *func_00194b60(void);
     extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
-    extern void func_0019ea60(u8 *arg0, s32 arg1);
+    extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern BtlPacket *btlUnitCreateResourceLoadPacket(BtlUnit *arg0, u16 arg1, u16 arg2);
     extern BtlPacket *btlCreateTimingPacket(u32 arg0);
@@ -5750,7 +5750,7 @@ void func_001abbb0(s64 *arg0)
         loopPkt = func_0019f5f0(1, curId, NULL);
         unit = ((UnitReference *)(loopPkt + 0x30))->pointer;
         unit->data = datUnitAddEncounterUnit(*(DatUnitEc **)(iGpffffb3ac + 0xC68), curId);
-        func_0019ea60((u8 *)unit, curId & 0xFFFF);
+        btlUnitInitFromRecord((u8 *)unit, curId & 0xFFFF);
         unit->value94 = action->unitRef.pointer->value94;
         unit->value96 = action->unitRef.pointer->value96;
         unit->pos = action->unitRef.pointer->pos;
@@ -6723,7 +6723,7 @@ void func_001adb80(s64 *arg0)
     if (*(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2) == 0) {
         datPersonaSelectRosterMemberById(*(u16 *)((u8 *)arg0 + 0x74));
         person = *(u16 *)((u8 *)arg0 + 0x74);
-        func_0019ef30(*(u8 **)((u8 *)arg0 + 0x30), person);
+        btlUnitInitChild(*(u8 **)((u8 *)arg0 + 0x30), person);
         datPersonaRemoveSelectedRosterMember();
         if (datGetFlag(0x3C) != 0) {
             pendingRecord = *(u8 **)((u8 *)arg0 + 0x3F0);

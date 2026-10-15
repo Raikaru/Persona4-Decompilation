@@ -211,7 +211,7 @@ s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *func_002022e0(u32 arg0, u16 arg1);
 s32 datPersonaSelectRosterMemberById(s32 arg0);
-extern void func_0019ef30(u8 *arg0, u16 arg1);
+extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void datPersonaRemoveSelectedRosterMember(void);
 extern s32 datGetFlag(s32 arg0);
 BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
