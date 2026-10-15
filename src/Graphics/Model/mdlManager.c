@@ -153,7 +153,7 @@ extern int mdlAppendUniqueListEntry(int param_1, void* param_2);
 extern void* mdlMatFXSetEnvMapValueCallback(void*, void*);
 extern void* mdlMatFXSetEnvMapStateCallback(void*, void*);
 extern void* mdlDrawAtomicIfVisible(void*, void*);
-extern void* func_004776c0(void* param_1, void* param_2);
+extern void* mdlSetFrameColorIfNamed(void* param_1, void* param_2);
 extern void* func_00474a10(void* param_1, void* data);
 extern u32 mdlGetFrameNameUserData(void* param_1);
 extern int strncmp();
@@ -3902,8 +3902,9 @@ void* func_00477660(void* param_1, void* data)
    alignment nops after jr/nop. The previous six residual rows were the
    filter-result/item-pointer and loop-counter $s-register allocation swaps;
    declaration order now reproduces retail exactly (nd 0). */
+/* RpClumpForAllAtomics callback: for each frame entry whose user-data name matches the string at +4 of arg1, sets its colour from the material user-data int and alpha from arg1+0. */
 // FUN_004776C0
-void *func_004776c0(void *arg0, void *arg1)
+void *mdlSetFrameColorIfNamed(void *arg0, void *arg1)
 {
     extern s32 strlen(s32 value);
     extern s32 strncmp(s32 a, s32 b, s32 c);
@@ -3936,8 +3937,9 @@ void *func_004776c0(void *arg0, void *arg1)
     }
     return arg0;
 }
+/* Sets the colour and alpha of every frame named by the string in param_2 (the name pointer) on the model's clump. */
 // FUN_004777D0
-void func_004777d0(void* param_1, int param_2, u8 param_3)
+void mdlSetFrameColorByName(void* param_1, int param_2, u8 param_3)
 {
     struct {
         u8 b;
@@ -3945,7 +3947,7 @@ void func_004777d0(void* param_1, int param_2, u8 param_3)
     } s;
     s.b = param_3;
     s.i = param_2;
-    RpClumpForAllAtomics(*(void**)((u8*)param_1 + 0xDC), func_004776c0, &s);
+    RpClumpForAllAtomics(*(void**)((u8*)param_1 + 0xDC), mdlSetFrameColorIfNamed, &s);
 }
 
 /* measured: retail hoists the 1.0f const (lui/mtc1 -> $f3) to function top and
