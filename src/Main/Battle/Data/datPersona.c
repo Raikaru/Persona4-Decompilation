@@ -416,7 +416,7 @@ s8 datPersonaGetStatBonusB(u8 *arg0, s32 arg1)
     return (s8)arg0[(u16)arg1 + 0x26];
 }
 
-extern u16 func_00232880(u16 arg0, u16 arg1);
+extern u16 datCalcCountIdSlotsWithValue(u16 arg0, u16 arg1);
 extern s16 D_00797578[];
 extern u8 D_00796D90[];
 extern u8 *iGpffffb1b0;
@@ -473,52 +473,52 @@ s8 datPersonaGetEquipStatBonus(u8 *arg0, s32 arg1)
     }
     switch (stat) {
     case 0:
-        bonus += (s16)(func_00232880(party, 1) * 1);
-        bonus += (s16)(func_00232880(party, 2) * 2);
-        bonus += (s16)(func_00232880(party, 3) * 3);
-        bonus += (s16)(func_00232880(party, 4) * 4);
-        bonus += (s16)(func_00232880(party, 5) * 5);
-        bonus += (s16)(func_00232880(party, 86) * 10);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 1) * 1);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 2) * 2);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 3) * 3);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 4) * 4);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 5) * 5);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 86) * 10);
         break;
     case 1:
-        bonus += (s16)(func_00232880(party, 11) * 1);
-        bonus += (s16)(func_00232880(party, 12) * 2);
-        bonus += (s16)(func_00232880(party, 13) * 3);
-        bonus += (s16)(func_00232880(party, 14) * 4);
-        bonus += (s16)(func_00232880(party, 15) * 5);
-        bonus += (s16)(func_00232880(party, 88) * 10);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 11) * 1);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 12) * 2);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 13) * 3);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 14) * 4);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 15) * 5);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 88) * 10);
         break;
     case 2:
-        bonus += (s16)(func_00232880(party, 6) * 1);
-        bonus += (s16)(func_00232880(party, 7) * 2);
-        bonus += (s16)(func_00232880(party, 8) * 3);
-        bonus += (s16)(func_00232880(party, 9) * 4);
-        bonus += (s16)(func_00232880(party, 10) * 5);
-        bonus += (s16)(func_00232880(party, 87) * 10);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 6) * 1);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 7) * 2);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 8) * 3);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 9) * 4);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 10) * 5);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 87) * 10);
         break;
     case 3:
-        bonus += (s16)(func_00232880(party, 16) * 1);
-        bonus += (s16)(func_00232880(party, 17) * 2);
-        bonus += (s16)(func_00232880(party, 18) * 3);
-        bonus += (s16)(func_00232880(party, 19) * 4);
-        bonus += (s16)(func_00232880(party, 20) * 5);
-        bonus += (s16)(func_00232880(party, 89) * 10);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 16) * 1);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 17) * 2);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 18) * 3);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 19) * 4);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 20) * 5);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 89) * 10);
         break;
     case 4:
-        bonus += (s16)(func_00232880(party, 21) * 1);
-        bonus += (s16)(func_00232880(party, 22) * 2);
-        bonus += (s16)(func_00232880(party, 23) * 3);
-        bonus += (s16)(func_00232880(party, 24) * 4);
-        bonus += (s16)(func_00232880(party, 25) * 5);
-        bonus += (s16)(func_00232880(party, 90) * 10);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 21) * 1);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 22) * 2);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 23) * 3);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 24) * 4);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 25) * 5);
+        bonus += (s16)(datCalcCountIdSlotsWithValue(party, 90) * 10);
         break;
     }
-    bonus += (s16)(func_00232880(party, 63) * 1);
-    bonus += (s16)(func_00232880(party, 64) * 2);
-    bonus += (s16)(func_00232880(party, 65) * 3);
-    bonus += (s16)(func_00232880(party, 66) * 4);
-    bonus += (s16)(func_00232880(party, 67) * 5);
-    bonus += (s16)(func_00232880(party, 139) * 10);
+    bonus += (s16)(datCalcCountIdSlotsWithValue(party, 63) * 1);
+    bonus += (s16)(datCalcCountIdSlotsWithValue(party, 64) * 2);
+    bonus += (s16)(datCalcCountIdSlotsWithValue(party, 65) * 3);
+    bonus += (s16)(datCalcCountIdSlotsWithValue(party, 66) * 4);
+    bonus += (s16)(datCalcCountIdSlotsWithValue(party, 67) * 5);
+    bonus += (s16)(datCalcCountIdSlotsWithValue(party, 139) * 10);
     return (s8)bonus;
 }
 

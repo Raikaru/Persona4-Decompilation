@@ -3107,7 +3107,7 @@ void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
 extern s32 func_00106600(s16 id);
 extern u16 *datPersonaGetRecord(u16 id);
 extern u16 datPersonaGetSkillAt(u8 *persona, s16 slot);
-extern s32 func_00232aa0(s32 id);
+extern s32 datCalcIsFlaggedPersonaSkill(s32 id);
 extern u8 *iGpffffb3b8;
 
 typedef struct {
@@ -3162,7 +3162,7 @@ void func_00207140(u16 *flags, u8 *work)
     itemCount = 0;
     for (itemSlot = 0; itemSlot < 0x100; itemSlot++) {
         if (func_00106600((s16)(itemSlot + 0x300)) != 0 &&
-            func_00232aa0((u16)(itemSlot + 0x300)) != 0) {
+            datCalcIsFlaggedPersonaSkill((u16)(itemSlot + 0x300)) != 0) {
             ((BattleListWork *)work)->items[itemCount].id = itemSlot + 0x300;
             ((BattleListWork *)work)->items[itemCount].quantity = func_00106600((s16)(itemSlot + 0x300));
             itemCount++;

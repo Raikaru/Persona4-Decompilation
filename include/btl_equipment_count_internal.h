@@ -7,6 +7,7 @@
  * narrowed after each increment, then returned as a complete signed word.
  * 001b3138/3188/31d8 consume that word directly; numerical callers explicitly
  * narrow it before multiplication. The result is always in [0, 2]. */
-s32 func_00232950(u8 *unit, s32 value);
+// Intent: count (0..2) of the unit's two equipment slots whose value equals arg1; see the note above.
+s32 datCalcCountSlotsWithValue(u8 *unit, s32 value);
 
 #endif

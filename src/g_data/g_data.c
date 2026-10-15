@@ -68,7 +68,7 @@ extern u8 D_007981CC[];
 
 extern u8 D_0079BE2C[];
 
-extern s32 func_00232a40(s32 arg0);
+extern s32 datCalcIsSkillAvailable(s32 arg0);
 extern s32 func_0023ddc0(u8* arg0, s32 arg1);
 
 extern void datPersonaSetRosterMode(s32 arg0);
@@ -2401,7 +2401,7 @@ u8 *func_0010f4f0(s32 arg0) {
 // FUN_0010F540
 s32 func_0010f540(s32 arg0)
 {
-    return func_00232a40(arg0);
+    return datCalcIsSkillAvailable(arg0);
 }
 
 // FUN_0010F560

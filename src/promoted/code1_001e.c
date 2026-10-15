@@ -134,7 +134,7 @@ extern u8 *func_001f81f0(s32 arg0, void *arg1);
 extern void sprintf(void *arg0, void *arg1, s64 arg2);
 extern u8 D_00609E40[];
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern s32 func_00232c70(s32 arg0, s32 arg1);
+extern s32 datCalcGetBattleStat(s32 arg0, s32 arg1);
 extern s32 datCalcGetHp(s32 arg0);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern s32 datGetFlag(s32 arg0);
@@ -3816,7 +3816,7 @@ s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2)
                 if ((arg2 == 0) ||
                     (datCalcChkBadStatus(*(s32 *)(entry + 0xA64), arg2) == 0)) {
                     total = (total +
-                             (func_00232c70(*(s32 *)(entry + 0xA64), arg1) & 0xFF)) &
+                             (datCalcGetBattleStat(*(s32 *)(entry + 0xA64), arg1) & 0xFF)) &
                             0xFFFF;
                     count = (count + 1) & 0xFFFF;
                 }
@@ -4132,7 +4132,7 @@ s32 func_001eff50(u8 *arg0)
                                   0xFFFF)) &
                   0xFFFF) >= 3)) {
                 temp_16_2 =
-                    (func_00232950(*(u8 **)(temp_16 + 0xA64), 0x88) &
+                    (datCalcCountSlotsWithValue(*(u8 **)(temp_16 + 0xA64), 0x88) &
                      0xFFFF) *
                     10;
                 temp_5 = datCalcRandomBelow(0x64);
