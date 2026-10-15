@@ -5194,14 +5194,14 @@ s32 btlAICommandScriptGetCommandRow(void) {
 }
 
 // FUN_001E6530
-s32 func_001e6530(void) {
+s32 btlAICommandScriptCountOwnAlive(void) {
     func_0029d050();
     scrSetReturnInt(btlSideCountNotBad(1, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6570
-s32 func_001e6570(void) {
+s32 btlAICommandScriptCountOppAlive(void) {
     func_0029d050();
     scrSetReturnInt(btlSideCountNotBad(2, 0) & 0xFFFF);
     return -1;
