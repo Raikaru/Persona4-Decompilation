@@ -843,7 +843,7 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
    func_002bff60_u16->func_001d7f10; offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64;
    lowest init 0xfffffff. */
 // FUN_001DC380
-u32 func_001dc380(u32 param_1)
+u32 btlCond_HPMIN(u32 param_1)
 {
     u32 unit;
     u16 available;
@@ -893,7 +893,7 @@ u32 func_001dc380(u32 param_1)
    func_002bff60_u16->func_001d7f10, func_002ffcc0->func_00231e20 (score masked
    (u8)); offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64. */
 // FUN_001DC480
-u32 func_001dc480(u32 param_1)
+u32 btlCond_LVMIN(u32 param_1)
 {
     u16 result;
     u16 copyIndex;
@@ -930,7 +930,7 @@ u32 func_001dc480(u32 param_1)
 }
 
 // FUN_001DC5B0
-s32 func_001dc5b0(void) {
+s32 btlCond_MPMAX(void) {
     return 0;
 }
 
@@ -963,7 +963,7 @@ void btlAICommandPickMyId(u64 formation, u32 flags) {
    func_002ffbc0 -> func_00231d70 (extern switched u16->u32 so the index
    call doesn't re-mask the return); field 0xa2c -> 0xa64, 0x4a8 -> 0x450. */
 // FUN_001DC6A0
-u32 func_001dc6a0(int param_1)
+u32 btlCond_MYAI(int param_1)
 {
     int iVar1;
     u16 uVar3;
@@ -1047,7 +1047,7 @@ void btlAICommandPickNotMyWeak(u64 formation, u32 flags) {
    func_002bff60_u16->func_001d7f10 (4th arg 1), func_002ffbc0_u16->func_00231d70;
    offsets 0x88->0x98, 0xc0->0xd0. */
 // FUN_001DC9A0
-u32 func_001dc9a0(u32 param_1)
+u32 btlCond_AI_REV(u32 param_1)
 {
     u16 result;
     u16 index;
@@ -1081,7 +1081,7 @@ u32 func_001dc9a0(u32 param_1)
    if with return 1, func_001dbf20 as trailing return) emits the mirror
    layout at nd 36. */
 // FUN_001DCA60
-s32 func_001dca60(u8 *param_1, u32 param_2)
+s32 btlCond_APPOINT(u8 *param_1, u32 param_2)
 {
     u16 result;
     u16 index;
@@ -1187,7 +1187,7 @@ void func_001dced0(u64 formation, u32 flags) {
    func_002bff60_u16->func_001d7f10 (4th arg 0), func_002ffbc0_u16->func_00231d70;
    offsets 0x88->0x98, 0xc0->0xd0. */
 // FUN_001DCF10
-u32 func_001dcf10(u32 param_1)
+u32 btlCond_RND(u32 param_1)
 {
     u16 result;
     u16 index;
