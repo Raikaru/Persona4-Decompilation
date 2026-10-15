@@ -453,7 +453,7 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     typedef char FldResourceCameraTransformSize[
         sizeof(FldResourceCameraTransform) == 0x40 ? 1 : -1];
 
-    extern void *func_00150890(s16 arg0, s16 arg1);
+    extern void *FldRc_CreateResource(s16 arg0, s16 arg1);
     extern s32 FldResource_IsFileLoaded(u8 *arg0);
     extern void FldResource_ParseChunks(u8 *arg0);
     extern s32 FldResource_PollLoads(u8 *arg0);
@@ -696,7 +696,7 @@ loadFieldResource:
             temp_16 = (u8 *)(iGpffff9db0);
             temp_2 = (u8 *)(*( s32 * )(temp_16 + 0x98) * 4);
             temp_2 += (s32)temp_16;
-            (((s32 *)(temp_16 + 0x28))[*( s32 * )(temp_16 + 0x24)]) = (s32)func_00150890(*( s16 * )(temp_2 + 0x9C), *( s16 * )(temp_2 + 0x9E));
+            (((s32 *)(temp_16 + 0x28))[*( s32 * )(temp_16 + 0x24)]) = (s32)FldRc_CreateResource(*( s16 * )(temp_2 + 0x9C), *( s16 * )(temp_2 + 0x9E));
             *( s32 * )(iGpffff9db0 + 0x94) = 1;
 waitFieldResource:
             temp_3_3 = (u8 *)(iGpffff9db0);

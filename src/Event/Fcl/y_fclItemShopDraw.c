@@ -132,7 +132,7 @@ extern f32 D_0064A330[];
 extern u16 D_008C027A[];
 extern u8 D_007950B0[];
 extern char iGpffffa930;
-extern void func_002e7870(void);
+extern void FldRc_ReleaseCachedObject(void);
 extern u16 D_008C0276[];
 extern s32 func_002e26a0(void);
 extern s16 func_002b2d50(s16, s16, s16, s16, s16);
@@ -247,7 +247,7 @@ s32 func_00332bb0(u8 *arg0) {
         }
         break;
     case 2:
-        func_002e7870();
+        FldRc_ReleaseCachedObject();
         for (i = 0; i < 0x24; i++) {
             *(s8 *)(work + i + 0x2D8) = 1;
         }

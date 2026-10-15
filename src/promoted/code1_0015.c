@@ -105,8 +105,8 @@ static inline u8 *wg0015_add_ptr(u8 *base, s32 offset)
 
 
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void func_00458f40(s32 arg0, s32 arg1);
-extern void func_00458f70(s32 arg0, s32 arg1);
+extern void FldRc_SetClumpVector(s32 arg0, s32 arg1);
+extern void FldRc_SetObjectVector(s32 arg0, s32 arg1);
 extern s32 mdlGetClump(s32 arg0);
 extern s32 *func_00155280(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
@@ -177,15 +177,15 @@ void func_001537c0(u8 *arg0, s32 arg1)
 
     work = MT_Scene_GetResListHead(0xA);
     if ((*(s32 *)(arg0 + 0) & 1) != 0) {
-        func_00458f70(*(s32 *)(arg0 + 8), arg1);
+        FldRc_SetObjectVector(*(s32 *)(arg0 + 8), arg1);
     }
     index = 0;
     while ((u32)index < *(u32 *)(arg0 + 0x18)) {
-        func_00458f40(*(s32 *)(arg0 + (index * 4) + 0x1C), arg1);
+        FldRc_SetClumpVector(*(s32 *)(arg0 + (index * 4) + 0x1C), arg1);
         index += 1;
     }
     while (work != NULL) {
-        func_00458f40(mdlGetClump(*(s32 *)(work + 0x144)), arg1);
+        FldRc_SetClumpVector(mdlGetClump(*(s32 *)(work + 0x144)), arg1);
         work = *(u8 **)(work + 0x138);
     }
 }
@@ -200,11 +200,11 @@ void func_001538a0(u32 *resource, const f32 *color)
     node = (s32)MT_Scene_GetResListHead(10);
     if ((*resource & 1) != 0)
     {
-        func_00458cb0(resource[2], color);
+        FldRc_ScaleObjectColors(resource[2], color);
     }
     for (i = 0; i < resource[6]; i++)
     {
-        func_00458c80(*(u32 *)((u8 *)resource + i * 4 + 0x1C), color);
+        FldRc_ScaleClumpColors(*(u32 *)((u8 *)resource + i * 4 + 0x1C), color);
     }
     while (node != 0)
     {
