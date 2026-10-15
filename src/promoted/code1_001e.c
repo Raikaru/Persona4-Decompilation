@@ -1473,7 +1473,7 @@ loop_test:
 s32 func_001e9950(void) {
     extern s32 scrGetParamInt(s32 arg0);
     extern void scrSetReturnInt(s32 arg0);
-    extern s32 func_0023d6e0(s16 arg0);
+    extern s32 datCalcElementBit(s16 arg0);
     extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
     extern u16 func_001d7f10(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
     extern s32 func_0023df70(s32 arg0);
@@ -1544,7 +1544,7 @@ outer_body:
         goto outer_next;
     }
     kind = (s16)func_0023d8e0(*(u8 **)(unit + 0xA64), skill);
-    if ((func_0023d6e0(kind) & 0x7E) == 0) {
+    if ((datCalcElementBit(kind) & 0x7E) == 0) {
         goto outer_next;
     }
     if (!(s16)kind) {

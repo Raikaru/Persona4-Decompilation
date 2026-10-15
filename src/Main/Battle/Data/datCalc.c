@@ -1643,7 +1643,7 @@ u16 arg5;
 s32 arg6;
 u8 arg7;
 {
-    extern s32 func_0023d6e0(s16 element);
+    extern s32 datCalcElementBit(s16 element);
     extern f32 iGpffff8170;
     extern f32 fGpffff82c0;
     extern f32 fGpffff82c4;
@@ -1838,7 +1838,7 @@ u8 arg7;
     }
     if (fixed == 0 && damage > 0 && !(arg6 & 1)) {
         rawElement = (s16)func_0023d8e0(arg1, arg0);
-        elementMask = func_0023d6e0(rawElement);
+        elementMask = datCalcElementBit(rawElement);
         offset = ((u32)arg0 % 0x10000U) * 0x28;
         switch (iGpffffb3b8[offset + 2]) {
         case 1:
@@ -3174,8 +3174,9 @@ skp_12_b:
 }
 #pragma pop
 
+// Intent: element bit (1 << (index+1)) for element index arg0 (0..0x12); callers mask it against the element and status sets; [inferred].
 // FUN_0023D6E0
-s32 func_0023d6e0(s16 arg0)
+s32 datCalcElementBit(s16 arg0)
 {
     if (arg0 >= 0x13) {
         func_0046d730(D_00635938, 0xE47);

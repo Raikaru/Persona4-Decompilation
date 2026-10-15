@@ -37,7 +37,7 @@ extern void datCalcClearField18(u32 arg0);
 extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
 extern s32 func_0023d8e0(u8 *unit, u16 command);
-extern s32 func_0023d6e0(s16 index);
+extern s32 datCalcElementBit(s16 index);
 extern s8 datCalcGetBuffStatus(u8 *unit, s32 status);
 extern u32 datCalcGetTableLength(u8 *unit);
 extern u32 func_00243920(u32 arg0);
@@ -269,7 +269,7 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
             return 1;
     }
 
-    flags = func_0023d6e0((s16)index);
+    flags = datCalcElementBit((s16)index);
     if (enabled == 1 && !(flags & 0xE0001)) {
         if (flags & 2) {
             if (datCalcGetBuffStatus(*(u8 **)(unit + 0xA64), 0x10) > 0)
@@ -1410,7 +1410,7 @@ s32 btlAICommandCollectSkillCandidates(u8 *p, u8 *q, s32 arg2, s32 arg3)
         v = *e;
         if (v != 0 && v < 0x1B8) {
             cur = (s16)func_0023d8e0(*(u8 **)(unit0 + 0xA64), v);
-            flags = func_0023d6e0(cur);
+            flags = datCalcElementBit(cur);
             if (arg3 == 0) {
                 if ((flags & 0x7E) == 0)
                     goto next;

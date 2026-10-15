@@ -855,7 +855,7 @@ s32 func_00201b00(u8 *work)
 
     extern u8 *iGpffffb3b8;
     extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
-    extern s32 func_0023d6e0(s16 arg0);
+    extern s32 datCalcElementBit(s16 arg0);
     extern void func_00195ea0(BtlUnit *unit, RwV3d *position);
     extern void func_001959d0(BtlUnit *unit, RwV3d *position);
     extern void func_0020e250(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4);
@@ -900,7 +900,7 @@ s32 func_00201b00(u8 *work)
             value = *(s32 *)(work + 0x28);
             if (value != -1 && *(u8 **)(*(u8 **)work + 0xA64) != NULL) {
                 value = func_0023d8e0(*(u8 **)(*(u8 **)work + 0xA64), value & 0xFFFF);
-                value = func_0023d6e0((s16)value);
+                value = datCalcElementBit((s16)value);
             } else {
                 value = 0;
             }
@@ -4827,7 +4827,7 @@ extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
-extern s32 func_0023d6e0(s16 arg0);
+extern s32 datCalcElementBit(s16 arg0);
 extern s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern s32 func_001f0950(s32 arg0, s32 arg1);
@@ -4902,7 +4902,7 @@ loop_body:
     } else {
         var_19 = 0;
         temp_18 = (s16)func_0023d8e0(*(u8 **)(temp_16_2 + 0xA64), spD0);
-        temp_2_2 = func_0023d6e0((s64)(s16)temp_18);
+        temp_2_2 = datCalcElementBit((s64)(s16)temp_18);
         if (!(temp_2_2 & 0xE0001)) {
             if (temp_2_2 & 2) {
                 if ((s8)datCalcGetBuffStatus(*(u8 **)(temp_16_2 + 0xA64), 0x10) > 0) {
