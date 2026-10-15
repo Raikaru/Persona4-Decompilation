@@ -731,8 +731,10 @@ s32 Cmd_SetFieldFloat(void)
 
 
 
+/* P4 flowscript library (build/p4flow/Field.json, index 0x1017): FLD_CAMERA_ROTATE(degrees, speed).
+ * func_0016f130 creates a camera rotation task: yaw delta from the player's yaw plus degrees, at speed. */
 // FUN_00178070
-s32 Cmd_SetFieldSlot(void)
+s32 K_Cmd_FLD_CAMERA_ROTATE(void)
 {
     s32 a = scrGetParamInt(0);
     s32 b = scrGetParamInt(1);
@@ -742,8 +744,11 @@ s32 Cmd_SetFieldSlot(void)
 
 
 
+/* P4 flowscript library (build/p4flow/Field.json, index 0x1018): FLD_CAMERA_ROTATE_BEHIND(degrees, speed).
+ * func_0016f3b0 takes an absolute target yaw (wrapped to 360) where func_0016f130 adds
+ * degrees to the player's yaw. The library name is kept. */
 // FUN_001780D0
-s32 Cmd_SetFieldSlotAlt(void)
+s32 K_Cmd_FLD_CAMERA_ROTATE_BEHIND(void)
 {
     s32 a = scrGetParamInt(0);
     s32 b = scrGetParamInt(1);
