@@ -17,7 +17,7 @@ extern void func_004813f0(void);
 extern void func_004abe60(void);
 extern s32 func_00481460(s32 arg0);
 extern void *mdlFindOrCreateModelObject(u32 arg0, u16 arg1, u32 arg2);
-extern void func_0046d730(const char *arg0, s32 arg1);
+extern void kAssertFail(const char *arg0, s32 arg1);
 extern void func_0047a2a0(void *arg0);
 extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
@@ -46,7 +46,7 @@ void *func_004abd80(void *arg0)
 
     work = mdlFindOrCreateModelObject(*(u16 *)((u8 *)arg0 + 0xD4), *(u16 *)((u8 *)arg0 + 0xD6), 1);
     if (work == 0) {
-        func_0046d730(D_007144A8, 0x55);
+        kAssertFail(D_007144A8, 0x55);
     }
     func_0047a2a0(work);
     if (mdlLayerIsPresent(work, 0) != 0) {
@@ -81,7 +81,7 @@ void *func_004abe80(void *arg0) {
     temp_2 = (u8 *)jtbl_008873E8[0](0x9C, 0x40000);
     memset(temp_2, 0, 0x9C);
     if (temp_2 == NULL) {
-        func_0046d730(D_007144A8, 0x73);
+        kAssertFail(D_007144A8, 0x73);
     }
     *(s32 *)(temp_2 + 0x98) = 0;
     *(s32 *)(temp_2 + 0x28) = -1;
@@ -92,13 +92,13 @@ void *func_004abe80(void *arg0) {
     if (arg0 != NULL) {
         temp_2_2 = func_00484490(arg0);
         if (temp_2_2 == NULL) {
-            func_0046d730(D_007144A8, 0x83);
+            kAssertFail(D_007144A8, 0x83);
         }
         memcpy(temp_2 + 0x2C, temp_2_2, 0x68);
         temp_2_3 = (s32)func_004844d0(arg0);
         if (temp_2_3 != 0) {
             if (*(u16 *)((u8 *)arg0 + 0x1C) != 3) {
-                func_0046d730(D_007144A8, 0x8A);
+                kAssertFail(D_007144A8, 0x8A);
             }
             temp_18 = *(s32 *)((u8 *)arg0 + 0x24);
             while ((lookupType = 6, mdlFindModelObject(lookupType, iGpffffbb90, 0)) != 0) {
@@ -145,14 +145,14 @@ void func_004ac170(u8 *dst, u8 *src)
     void *work;
 
     if (*(void **)(src + 0x94) == 0) {
-        func_0046d730(D_007144A8, 0xBB);
+        kAssertFail(D_007144A8, 0xBB);
     }
     if (*(void **)(dst + 0x94) != 0) {
         mdlDestroyModelObject(*(u32 *)(dst + 0x94));
     }
     work = mdlFindOrCreateModelObject(*(u16 *)(*(u32 *)(src + 0x94) + 0xD4), *(u16 *)(*(u32 *)(src + 0x94) + 0xD6), 0);
     if (work == 0) {
-        func_0046d730(D_007144A8, 0xC5);
+        kAssertFail(D_007144A8, 0xC5);
     }
     func_0047a2a0(work);
     if (mdlLayerIsPresent(work, 0) != 0) {
@@ -348,19 +348,19 @@ void *func_004ac640(void *arg0) {
     temp_2 = (u8 *)jtbl_008873E8[0](0xBC, 0x40000);
     memset(temp_2, 0, 0xBC);
     if (temp_2 == NULL) {
-        func_0046d730(D_007144A8, 0x18A);
+        kAssertFail(D_007144A8, 0x18A);
     }
     *(s32 *)(temp_2 + 0xC) = -1;
     if (arg0 != NULL) {
         temp_2_2 = func_00484490(arg0);
         if (temp_2_2 == NULL) {
-            func_0046d730(D_007144A8, 0x196);
+            kAssertFail(D_007144A8, 0x196);
         }
         memcpy(temp_2 + 0x10, temp_2_2, 0xA4);
         temp_2_3 = (s32)func_004844d0(arg0);
         if (temp_2_3 != 0) {
             if (*(u16 *)((u8 *)arg0 + 0x1C) != 3) {
-                func_0046d730(D_007144A8, 0x19D);
+                kAssertFail(D_007144A8, 0x19D);
             }
             temp_18 = *(s32 *)((u8 *)arg0 + 0x24);
             while ((lookupType = 6, mdlFindModelObject(lookupType, iGpffffbb90, 0)) != 0) {
@@ -421,14 +421,14 @@ void func_004ac9a0(u8 *dst, u8 *src)
     void *work;
 
     if (*(void **)(src + 0xB4) == 0) {
-        func_0046d730(D_007144A8, 0x1D0);
+        kAssertFail(D_007144A8, 0x1D0);
     }
     if (*(void **)(dst + 0xB4) != 0) {
         mdlDestroyModelObject(*(u32 *)(dst + 0xB4));
     }
     work = mdlFindOrCreateModelObject(*(u16 *)(*(u32 *)(src + 0xB4) + 0xD4), *(u16 *)(*(u32 *)(src + 0xB4) + 0xD6), 0);
     if (work == 0) {
-        func_0046d730(D_007144A8, 0x1DA);
+        kAssertFail(D_007144A8, 0x1DA);
     }
     func_0047a2a0(work);
     if (mdlLayerIsPresent(work, 0) != 0) {

@@ -39,7 +39,7 @@ extern void func_004b1210(void *a, void *b);
 extern u32 func_004b1580(s32 a);
 extern void func_004b1150(s32 a);
 extern s32 func_004b1130(s32 a);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern s32 func_0025f960(u8 *task);
 extern void func_0025fa30(u8 *task);
 extern s32 func_0025fd80(u8 *task);
@@ -182,11 +182,11 @@ s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3)
 
     if (arg1 == 0)
     {
-        func_0046d730(D_00637290, 0xD7);
+        kAssertFail(D_00637290, 0xD7);
     }
     if (arg3 == 0)
     {
-        func_0046d730(D_00637290, 0xD8);
+        kAssertFail(D_00637290, 0xD8);
     }
     chkmemAllocSiteTag(D_00637290, 0xD9);
     buf = D_008873F4[0](1, 0xC, 0x40000);

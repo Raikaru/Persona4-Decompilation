@@ -23,7 +23,7 @@ extern void RwMatrixScale(void *arg0, f32 *arg1, s32 arg2);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern void RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
 extern void func_003a2950();
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern u8 D_00713448[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern RwFrame *func_003e9320(void);
@@ -130,10 +130,10 @@ u8 *func_00482dc0(u16 arg0, void *arg1, s32 arg2, s32 arg3) {
     s32 spA0;
 
     if ((arg0 & 0xFFFF) < 2) {
-        func_0046d730(D_00713448, 0x4C);
+        kAssertFail(D_00713448, 0x4C);
     }
     if ((arg2 & 0xFFFF) < 2) {
-        func_0046d730(D_00713448, 0x4D);
+        kAssertFail(D_00713448, 0x4D);
     }
     temp_2 = (arg2 & 0xFFFF) - 1;
     spA0 = temp_2 * 4 + temp_2 * 2;
@@ -184,7 +184,7 @@ u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, const void *arg3, s32 arg4) {
 
     temp_17 = arg2 & 0xFFFF;
     if (temp_17 < 2) {
-        func_0046d730(D_00713448, 0x7F);
+        kAssertFail(D_00713448, 0x7F);
     }
     temp_3 = arg1 & 0xFFFF;
     spA0 = temp_3 * 3;
@@ -350,7 +350,7 @@ void func_004834e0(u8 *arg0, s32 arg1) {
             func_003a2950(*(s32 **)(arg0 + 0x10), 1, 6);
             break;
         default:
-            func_0046d730(D_00713448, 0x14C);
+            kAssertFail(D_00713448, 0x14C);
             break;
         }
     }
@@ -499,7 +499,7 @@ u8 *func_00483a00(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 
 {
     /* The count check uses the signed interpretation of the low product word. */
     if ((s32)((u32)(verticesPerPart & 0xFFFF) * (partCount & 0xFFFF)) > 0xFFFF) {
-        func_0046d730(D_00713448, 459);
+        kAssertFail(D_00713448, 459);
     }
     chkmemAllocSiteTag(D_00713448, 461);
     {
@@ -579,7 +579,7 @@ u8 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     spEC = arg4;
     temp_16 = arg3 & 0xFFFF;
     if (temp_16 < 2) {
-        func_0046d730(D_00713448, 0x20D);
+        kAssertFail(D_00713448, 0x20D);
     }
     temp_3 = arg2 & 0xFFFF;
     spD0 = temp_3 * 3;
@@ -638,10 +638,10 @@ u8 *func_00483e10(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     u8 *spA0;
 
     if ((arg1 & 0xFFFF) < 2) {
-        func_0046d730(D_00713448, 0x241);
+        kAssertFail(D_00713448, 0x241);
     }
     if ((arg3 & 0xFFFF) < 2) {
-        func_0046d730(D_00713448, 0x242);
+        kAssertFail(D_00713448, 0x242);
     }
     temp_2 = (arg3 & 0xFFFF) - 1;
     spD0 = temp_2 * 4 + temp_2 * 2;

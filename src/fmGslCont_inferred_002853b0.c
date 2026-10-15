@@ -11,7 +11,7 @@ s32 kwlnTaskGetTaskByName(void *arg0);
 extern s32 D_0063C368[];
 
 
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 D_0063C1D0[];
 extern u8 D_0063C2B8[];
 extern f32 D_00882214[];
@@ -81,7 +81,7 @@ s32 evtKeyIndex(s32 arg0) {
     s32 i;
 
     if (arg0 >= 0x3A) {
-        func_0046d730(D_0063C2B8, 0x1E6);
+        kAssertFail(D_0063C2B8, 0x1E6);
     }
     i = 0;
     while (i < 0x3A) {

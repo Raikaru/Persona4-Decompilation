@@ -115,7 +115,7 @@ extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
-extern void func_0046d730(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *arg0, s32 arg1);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern u8 D_007EF9B0[];
@@ -891,7 +891,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     n1 = 0;
     while (l1 != NULL) {
         if (n1 >= 0x40) {
-            func_0046d730(D_005EFB00, 0x264);
+            kAssertFail(D_005EFB00, 0x264);
         }
         arrA[n1] = l1;
         l1 = *(u8 **)(l1 + 0x138);

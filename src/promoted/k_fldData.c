@@ -77,7 +77,7 @@ extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags
 extern u8 *func_004669d0(u8 *request, s32 *ready, s32 *source);
 extern s32 func_0018c580(u8 *arg0);
 extern s32 kwlnTaskIsLinked(void *task);
-extern void func_0046d730(const void *msg, s32 id);
+extern void kAssertFail(const void *msg, s32 id);
 extern s32 D_007E3710[];
 extern s32 D_007E3714[];
 extern s32 D_007E3718[];
@@ -233,7 +233,7 @@ s32 func_0015d730(u8 *task)
                 dungeonReady = 0;
             } else {
                 if (dungeonFile->fileSize >= 0xC00U) {
-                    func_0046d730(D_005F0A88, 0xB3);
+                    kAssertFail(D_005F0A88, 0xB3);
                 }
                 dungeonCopySize = dungeonFile->fileSize;
                 memcpy(D_007E3720, dungeonFile->fileMemory, dungeonCopySize);

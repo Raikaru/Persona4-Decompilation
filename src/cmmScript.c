@@ -10,7 +10,7 @@ extern u32 kwlnTaskGetWork(void *task);
 extern void func_004b1250(void *model, f32 *position);
 extern s32 func_0045aeb0(s16 channel, const char *name);
 extern s32 func_0045af60(s16 channel, s16 stream, s16 arg2, s16 arg3);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 
 u16 func_00248b80();
 extern void scrSetReturnInt(s32 arg0);
@@ -180,12 +180,12 @@ s32 cmmMsgStreamStart(void)
     func_00108cf0(b);
     p = func_00108dc0();
     if (p == 0) {
-        func_0046d730(D_006359F0, 0xE7);
+        kAssertFail(D_006359F0, 0xE7);
     }
     q = func_002485e0(a & 0xFFFF, b & 0xFFFF);
     *(u8**)(p + 0x18) = q;
     if (q == 0) {
-        func_0046d730(D_006359F0, 0xE9);
+        kAssertFail(D_006359F0, 0xE9);
     }
     *(Vec4f*)(p + 8) = *(Vec4f*)(*(u8**)(p + 0x18));
     return 1;
@@ -245,7 +245,7 @@ s32 cmmMsgStreamUpdate(void)
 
     p = (cmmMsgState *)func_00108dc0();
     if (p == 0) {
-        func_0046d730(D_006359F0, 0x109);
+        kAssertFail(D_006359F0, 0x109);
     }
     x = p->counter;
     if (x == 0) {
@@ -326,7 +326,7 @@ s32 func_0024a490(void)
     }
     mesMgr = func_0029d030();
     if (mesMgr < 0) {
-        func_0046d730(D_006359F0, 0x140);
+        kAssertFail(D_006359F0, 0x140);
     }
     key = func_002487e0(id & 0xFFFF, 0);
     if (key != 0) {
@@ -385,7 +385,7 @@ s32 cmmPersonaInfoLookupShow(void)
     param1 = scrGetParamInt(1);
     mesMgr = func_0029d030();
     if (mesMgr < 0) {
-        func_0046d730(&D_006359F0, 0x16D);
+        kAssertFail(&D_006359F0, 0x16D);
     }
     if (entry == 0) {
         entry = func_00108e10() & 0xFFFF;
@@ -431,7 +431,7 @@ s32 cmmPersonaInfoShow(void)
     entry = scrGetParamInt(0);
     mesMgr = func_0029d030();
     if (mesMgr < 0) {
-        func_0046d730(&D_006359F0, 0x190);
+        kAssertFail(&D_006359F0, 0x190);
     }
     if (entry != 0) {
         u8 *base = iGpffffb3d4;
@@ -701,11 +701,11 @@ s32 func_0024b070(void)
         rec = func_00249180(slot);
     }
     if (rec == 0) {
-        func_0046d730(D_006359F0, 0x27A);
+        kAssertFail(D_006359F0, 0x27A);
     }
     mesMgr = func_0029d030();
     if (mesMgr < 0) {
-        func_0046d730(D_006359F0, 0x27D);
+        kAssertFail(D_006359F0, 0x27D);
     }
     itfMesWindowSetString(mesMgr, 0, func_001067f0(*(s16*)(rec + 4)));
     itfMesWindowSetString(mesMgr, 2, func_001067f0(*(s16*)(rec + 8)));
@@ -805,7 +805,7 @@ s32 func_0024b490(void)
     } while (i > 0);
     mesMgr = func_0029d030();
     if (mesMgr < 0) {
-        func_0046d730(D_006359F0, 0x2DC);
+        kAssertFail(D_006359F0, 0x2DC);
     }
     q = (u8*)func_00246cd0(id & 0xFFFF) + 0xC;
     if (q != 0) {
@@ -856,11 +856,11 @@ s32 func_0024b720(void)
     id = scrGetParamInt(0);
     field = scrGetParamInt(1);
     if (id == 0) {
-        func_0046d730(D_006359F0, 0x30A);
+        kAssertFail(D_006359F0, 0x30A);
     }
     rec = func_00246cd0(id & 0xFFFF);
     if (rec == 0) {
-        func_0046d730(D_006359F0, 0x30C);
+        kAssertFail(D_006359F0, 0x30C);
     }
     switch (field) {
     case 0:
@@ -882,7 +882,7 @@ s32 func_0024b720(void)
         scrSetReturnInt(*(s8*)(rec + 0xB));
         break;
     default:
-        func_0046d730(D_006359F0, 0x321);
+        kAssertFail(D_006359F0, 0x321);
         break;
     }
     return 1;
@@ -959,7 +959,7 @@ void func_0024ba60(s32 arg0)
 
     task = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
     if (arg0 < 0 || arg0 >= 5) {
-        func_0046d730(D_006359F0, 0x3B2);
+        kAssertFail(D_006359F0, 0x3B2);
     }
     if (task != 0) {
         t = (CmmScriptTask *)((int)(s32)kwlnTaskGetWork((void *)(u32)(task)));
@@ -1001,15 +1001,15 @@ s32 func_0024bb00(s32 arg0) {
     *(f32*)((u8*)&pos + 8) = sp48;
     loadTask = (s32)(s32)kwlnTaskGetTaskByName((s8 *)((s8*)&D_00635A78));
     if (loadTask == 0) {
-        func_0046d730(&D_006359F0, 0x392);
+        kAssertFail(&D_006359F0, 0x392);
     }
     loaded = (*(u32*)(s32)kwlnTaskGetWork((void *)(u32)((void*)loadTask)) & 1U) != 0;
     if (!loaded) {
-        func_0046d730(&D_006359F0, 0x3CD);
+        kAssertFail(&D_006359F0, 0x3CD);
     }
     temp_16 = (s32*)(s32)kwlnTaskGetWork((void *)(u32)((void*)task));
     if (arg0 < 0 || arg0 >= 5) {
-        func_0046d730(&D_006359F0, 0x3CF);
+        kAssertFail(&D_006359F0, 0x3CF);
     }
     temp_2_2 = (s32*)((u32)(arg0 << 2) + (u32)temp_16);
     temp_16 = temp_2_2 + 3;
@@ -1128,7 +1128,7 @@ s32 func_0024be40(void)
     }
     task = (CmmScriptTask *)kwlnTaskGetWork(kwlnTaskGetTaskByName((s8 *)D_00635A78));
     if (task == 0) {
-        func_0046d730(D_006359F0, 1041);
+        kAssertFail(D_006359F0, 1041);
     }
     task->weatherChoice = result;
     return result;
@@ -1150,13 +1150,13 @@ s32 func_0024c0e0(u8 *arg0, u8 *arg1)
     task = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
     loadTask = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
     if (loadTask == 0) {
-        func_0046d730(D_006359F0, 0x392);
+        kAssertFail(D_006359F0, 0x392);
     }
     temp_2_2 = (*(s32 *)(s32)kwlnTaskGetWork((void *)(u32)(loadTask)) & 1) != 0;
     if (temp_2_2 != 0) {
         goto block_1;
     }
-    func_0046d730(D_006359F0, 0x39D);
+    kAssertFail(D_006359F0, 0x39D);
 block_1:
     data = *(s32 *)((u8 *)(s32)kwlnTaskGetWork((void *)(u32)(task)) + 0x24);
     flags = *(s32 *)arg1;
@@ -1232,11 +1232,11 @@ s32 func_0024c460(u8 *arg0, u8 *work)
     task = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     loadTask = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     if (loadTask == 0) {
-        func_0046d730(D_006359F0, 0x392);
+        kAssertFail(D_006359F0, 0x392);
     }
     loaded = (*(u32 *)kwlnTaskGetWork(loadTask) & 1) != 0;
     if (loaded == 0) {
-        func_0046d730(D_006359F0, 0x39D);
+        kAssertFail(D_006359F0, 0x39D);
     }
     atlas = *(void **)(kwlnTaskGetWork(task) + 0x24);
     flags = *(s32 *)work;
@@ -1400,11 +1400,11 @@ static inline void *cmmScoreAtlas(void)
     task = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     loadTask = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     if (loadTask == NULL) {
-        func_0046d730(D_006359F0, 0x392);
+        kAssertFail(D_006359F0, 0x392);
     }
     loaded = (*(u32 *)kwlnTaskGetWork(loadTask) & 1) != 0;
     if (loaded == 0) {
-        func_0046d730(D_006359F0, 0x39D);
+        kAssertFail(D_006359F0, 0x39D);
     }
     return *(void **)(kwlnTaskGetWork(task) + 0x24);
 }
@@ -1706,7 +1706,7 @@ void func_0024f080(s32 arg0, s32 arg1)
 
     p = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635B38));
     if (p == 0) {
-        func_0046d730(D_006359F0, 0x67E);
+        kAssertFail(D_006359F0, 0x67E);
     }
     e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(p)) + arg0;
     e->flags |= 1;
@@ -1767,7 +1767,7 @@ s32 func_0024f160(u8 *arg0)
 
     rec = (s32)kwlnTaskGetWork((void *)(u32)((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78))));
     if (rec == 0) {
-        func_0046d730(D_006359F0, 0x41B);
+        kAssertFail(D_006359F0, 0x41B);
     }
     id = *(s32 *)(rec + 0x20);
     entry = func_00246e90((u16)id);
@@ -1801,11 +1801,11 @@ s32 func_0024f160(u8 *arg0)
         task = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
         loadTask = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
         if (loadTask == 0) {
-            func_0046d730(D_006359F0, 0x392);
+            kAssertFail(D_006359F0, 0x392);
         }
         loaded = (*(s32 *)(s32)kwlnTaskGetWork((void *)(u32)(loadTask)) & 1) != 0;
         if (loaded == 0) {
-            func_0046d730(D_006359F0, 0x3A6);
+            kAssertFail(D_006359F0, 0x3A6);
         }
         rec = (s32)kwlnTaskGetWork((void *)(u32)(task));
         if (*(s32 *)(rec + 0x18) != 0) {
@@ -1930,7 +1930,7 @@ s32 func_0024f790(u8 *work)
 
     fishingData = (u8 *)kwlnTaskGetWork(kwlnTaskGetTaskByName((s8 *)D_00635A78));
     if (fishingData == 0) {
-        func_0046d730(D_006359F0, 0x41B);
+        kAssertFail(D_006359F0, 0x41B);
     }
     fishEntry = func_00246e90(*(u16 *)(fishingData + 0x20));
     if ((*(s16 *)(work + 0xC) % 60) == 0) {
@@ -1957,7 +1957,7 @@ s32 func_0024f790(u8 *work)
 
             directionTask = kwlnTaskGetTaskByName((s8 *)D_00635B38);
             if (directionTask == 0) {
-                func_0046d730(D_006359F0, 0x696);
+                kAssertFail(D_006359F0, 0x696);
             }
             *(s32 *)(kwlnTaskGetWork(directionTask) + 0x28) = direction;
         }
@@ -1990,7 +1990,7 @@ s32 func_0024f790(u8 *work)
             func_0045af60(0, 0, 4, 3);
             task = kwlnTaskGetTaskByName((s8 *)D_00635B38);
             if (task == 0) {
-                func_0046d730(D_006359F0, 0x6A2);
+                kAssertFail(D_006359F0, 0x6A2);
             }
             *(s32 *)(kwlnTaskGetWork(task) + 0x18) |= 0x10;
             flags = *(s32 *)work & ~0x10;
@@ -2034,11 +2034,11 @@ s32 func_0024f790(u8 *work)
     task = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     loadTask = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     if (loadTask == 0) {
-        func_0046d730(D_006359F0, 0x392);
+        kAssertFail(D_006359F0, 0x392);
     }
     loaded = (*(s32 *)kwlnTaskGetWork(loadTask) & 1) != 0;
     if (loaded == 0) {
-        func_0046d730(D_006359F0, 0x3A6);
+        kAssertFail(D_006359F0, 0x3A6);
     }
     fishingData = (u8 *)kwlnTaskGetWork(task);
     if (*(s32 *)(fishingData + 0xC) != 0) {
@@ -2086,7 +2086,7 @@ s32 func_0024ff60(u8 *task)
     case 2:
         loadTask = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
         if (loadTask == 0) {
-            func_0046d730(D_006359F0, 0x392);
+            kAssertFail(D_006359F0, 0x392);
         }
         st = (((cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(loadTask)))->flags & 1) != 0;
         if (st) {
@@ -2197,14 +2197,14 @@ s32 func_002502f0(void)
         }
         handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
-            func_0046d730(D_006359F0, 0x82A);
+            kAssertFail(D_006359F0, 0x82A);
         }
         e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
         e->flags |= 1;
     } else {
         handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
-            func_0046d730(D_006359F0, 0x83E);
+            kAssertFail(D_006359F0, 0x83E);
         }
         e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
         st = e->flags;
@@ -2254,14 +2254,14 @@ s32 func_00250560(void)
         }
         handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
-            func_0046d730(D_006359F0, 0x834);
+            kAssertFail(D_006359F0, 0x834);
         }
         e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
         e->flags |= 2;
     } else {
         handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
-            func_0046d730(D_006359F0, 0x84E);
+            kAssertFail(D_006359F0, 0x84E);
         }
         e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
         st = e->flags;
@@ -2328,11 +2328,11 @@ s32 func_00250870(void)
     handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
     rec = (u8*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
     if (rec == 0) {
-        func_0046d730(D_006359F0, 0x41B);
+        kAssertFail(D_006359F0, 0x41B);
     }
     idx = *(s32*)(rec + 0x20);
     if (idx >= 6) {
-        func_0046d730(D_006359F0, 0x8A9);
+        kAssertFail(D_006359F0, 0x8A9);
     }
     scrSetReturnInt(buf[idx]);
     return 1;
@@ -2351,10 +2351,10 @@ s32 func_00250940(void)
     func_001104d0(func_001060b0(), &out1, &out2);
     table = (u8 *)func_00246e10((u16)out1);
     if (table == 0) {
-        func_0046d730(D_006359F0, 0x8B8);
+        kAssertFail(D_006359F0, 0x8B8);
     }
     if (field < 0 || !(field <= 3)) {
-        func_0046d730(D_006359F0, 0x8B9);
+        kAssertFail(D_006359F0, 0x8B9);
     }
     switch (field) {
     case 0: {

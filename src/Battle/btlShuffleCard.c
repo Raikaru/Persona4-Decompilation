@@ -36,7 +36,7 @@ extern void func_0036c230(s32 arg0);
 extern void func_0036c310(void);
 extern void func_0036c3b0(void);
 extern void *func_00457120(void);
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern char D_0064E5B0[];
 
 /* Retail float-pool constant at gp - 0x7C44 = 0x007614AC (8.133125f). */
@@ -80,7 +80,7 @@ void func_0036d990(u8 *arg0, u8 *arg1)
         func_0036db60(arg0);
         break;
     default:
-        func_0046d730(D_0064E5B0, 0x72);
+        kAssertFail(D_0064E5B0, 0x72);
         break;
     }
 }
@@ -153,10 +153,10 @@ void func_0036dba0(u8 *arg0)
 void func_0036dc60(u8 *unit, f32 *src, f32 scale, f32 *dst)
 {
     if (src == NULL) {
-        func_0046d730(D_0064E5B0, 0xD4);
+        kAssertFail(D_0064E5B0, 0xD4);
     }
     if (dst == NULL) {
-        func_0046d730(D_0064E5B0, 0xD5);
+        kAssertFail(D_0064E5B0, 0xD5);
     }
     func_0036a6b0(unit, src, func_0036a790((const f32 *)unit, scale), dst);
 }
@@ -167,7 +167,7 @@ void func_0036dd10(u8 *unit, f32 *src, f32 scale)
     f32 sp40[4];
 
     if (src == NULL) {
-        func_0046d730(D_0064E5B0, 0xD4);
+        kAssertFail(D_0064E5B0, 0xD4);
     }
     func_0036a6b0(unit, src, func_0036a790((const f32 *)unit, scale), sp40);
     func_0036dda0(unit, sp40);
@@ -234,7 +234,7 @@ f32 func_0036deb0(u8 *arg0)
 u16 func_0036dee0(u8 *arg0)
 {
     if (*(s32 *)(arg0 + 4) != 0) {
-        func_0046d730(D_0064E5B0, 0x160);
+        kAssertFail(D_0064E5B0, 0x160);
     }
     return *(u16 *)(arg0 + 0x174);
 }
@@ -278,17 +278,17 @@ void func_0036e000(u8 *arg0)
         switch (state) {
         case 0:
             if (state != 0) {
-                func_0046d730(D_0064E5B0, 0x160);
+                kAssertFail(D_0064E5B0, 0x160);
             }
             func_0036c230(*(u16 *)(arg0 + 0x174));
             break;
         case 1:
             if (state != 1) {
-                func_0046d730(D_0064E5B0, 0x16A);
+                kAssertFail(D_0064E5B0, 0x16A);
             }
             handle = *(s32 *)(arg0 + 0x170);
             if (*(s32 *)(arg0 + 4) != 1) {
-                func_0046d730(D_0064E5B0, 0x174);
+                kAssertFail(D_0064E5B0, 0x174);
             }
             func_0036c140(handle, *(s32 *)(arg0 + 0x174));
             break;
@@ -299,7 +299,7 @@ void func_0036e000(u8 *arg0)
             func_0036c3b0();
             break;
         default:
-            func_0046d730(D_0064E5B0, 0x1E5);
+            kAssertFail(D_0064E5B0, 0x1E5);
             break;
         }
         *(u16 *)(arg0 + 0xFAC) &= ~1;

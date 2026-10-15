@@ -11,7 +11,7 @@ extern u32 *D_007246AC;
 extern char D_0064F250[];
 extern char D_0064F260[];
 
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 /* Defined below in this file; called at line 33, above its definition. */
 extern void func_0038f8d0(void);
@@ -28,7 +28,7 @@ extern void frFontSlotFree(s32 slot);
 void func_0038f620(void)
 {
     if (sOpTailC == NULL) {
-        func_0046d730(D_0064F250, 0x28);
+        kAssertFail(D_0064F250, 0x28);
     }
     if ((sOpTailC[1] & 1) != 0) {
         func_0038f8d0();
@@ -46,7 +46,7 @@ void func_0038f680(void)
     void *copy;
 
     if (sOpTailC == NULL) {
-        func_0046d730(D_0064F250, 0x28);
+        kAssertFail(D_0064F250, 0x28);
     }
     work = sOpTailC;
     if ((work[0] & 1) != 0 && H_Cdvd_IsFileLoaded((u8 *)(uintptr_t)work[2]) != 0) {
@@ -76,11 +76,11 @@ void func_0038f7f0(void)
     u32 *work;
 
     if (sOpTailC == NULL) {
-        func_0046d730(D_0064F250, 0x28);
+        kAssertFail(D_0064F250, 0x28);
     }
     work = sOpTailC;
     if ((~work[0] & 1) == 0) {
-        func_0046d730(D_0064F250, 0x68);
+        kAssertFail(D_0064F250, 0x68);
     }
     work[2] = (u32)func_00454a60((u8 *)D_0064F260, 1);
     work[0] |= 1;
@@ -90,7 +90,7 @@ void func_0038f7f0(void)
 u32 func_0038f880(void)
 {
     if (sOpTailC == NULL) {
-        func_0046d730(D_0064F250, 0x28);
+        kAssertFail(D_0064F250, 0x28);
     }
     return sOpTailC[0] & 1;
 }
@@ -101,11 +101,11 @@ void func_0038f8d0(void)
     u32 *work;
 
     if (sOpTailC == NULL) {
-        func_0046d730(D_0064F250, 0x28);
+        kAssertFail(D_0064F250, 0x28);
     }
     work = sOpTailC;
     if ((work[1] & 1) == 0) {
-        func_0046d730(D_0064F250, 0x84);
+        kAssertFail(D_0064F250, 0x84);
     }
     brpParamFree((u8 *)(uintptr_t)work[3]);
     frFontSlotFree(6);
@@ -115,7 +115,7 @@ void func_0038f8d0(void)
 u32 func_0038f950(void)
 {
     if (sOpTailC == NULL) {
-        func_0046d730(D_0064F250, 0x28);
+        kAssertFail(D_0064F250, 0x28);
     }
     return sOpTailC[3];
 }

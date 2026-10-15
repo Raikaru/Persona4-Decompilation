@@ -11,7 +11,7 @@ extern u32 RpRandom();
 extern s16 yListSlotIndexOf(s8 arg0, s16 arg1);
 extern u8 *yListSlotEntry(s8 arg0, s16 arg1);
 extern void memcpy(void *dst, void *src, u32 size);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void *memset(void *dst, s32 value, u32 size);
 extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
 extern u8 *iGpffffb3d4;
@@ -35,7 +35,7 @@ extern u8 D_00642967[];
 static inline u8 fclTriangleUpperArcana(s32 first, s32 second)
 {
     if (first == 0 || second == 0)
-        func_0046d730(D_00642F30, 0x90);
+        kAssertFail(D_00642F30, 0x90);
     if (first < second)
         return *(second + (D_00642967 + first * 24));
     return *(first + (D_00642967 + second * 24));
@@ -98,7 +98,7 @@ u8 func_00311ea0(u8 *arg0, u8 *arg1, u8 *arg2)
         destination += 2;
     } while (copies > 0);
     if (arg0 == NULL || arg1 == NULL || arg2 == NULL)
-        func_0046d730(D_00642F30, 0x156);
+        kAssertFail(D_00642F30, 0x156);
     pairIndex = 0;
     base = iGpffffb3d4;
     while (pairIndex < 3) {
@@ -126,10 +126,10 @@ u8 func_00311ea0(u8 *arg0, u8 *arg1, u8 *arg2)
     secondArcana = base[*(u16 *)(personas[1] + 2) * 14];
     thirdArcana = base[*(u16 *)(personas[2] + 2) * 14];
     if (firstArcana == 0 || secondArcana == 0 || thirdArcana == 0)
-        func_0046d730(D_00642F30, 0x167);
+        kAssertFail(D_00642F30, 0x167);
     secondKey = secondArcana;
     if (secondKey == 0 || thirdArcana == 0)
-        func_0046d730(D_00642F30, 0x90);
+        kAssertFail(D_00642F30, 0x90);
     thirdKey = thirdArcana;
     if (secondKey < thirdKey)
         resultByte = *(thirdKey + (D_00642727 + secondKey * 24));
@@ -162,7 +162,7 @@ s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
     s16 bits;
     u16 *skill;
     if (arg0 == NULL || arg2 == NULL || arg1 >= 5)
-        func_0046d730(D_00642F30, 0x17B);
+        kAssertFail(D_00642F30, 0x17B);
     entry = *(u16 **)(D_00642F00 + arg1 * 8);
     count = *(s32 *)(D_00642F04 + arg1 * 8);
     row = 0;
@@ -213,7 +213,7 @@ flag_done:
 static inline u8 fclNormalPairArcana(s32 first, s32 second)
 {
     if (first == 0 || second == 0)
-        func_0046d730(D_00642F30, 0x90);
+        kAssertFail(D_00642F30, 0x90);
     if (first < second)
         return *(second + (D_00642147 + first * 24));
     return *(first + (D_00642147 + second * 24));
@@ -222,7 +222,7 @@ static inline u8 fclNormalPairArcana(s32 first, s32 second)
 static inline u8 fclAlternatePairArcana(s32 first, s32 second)
 {
     if (first == 0 || second == 0)
-        func_0046d730(D_00642F30, 0x90);
+        kAssertFail(D_00642F30, 0x90);
     if (first < second)
         return *(second + (D_00642387 + first * 24));
     return *(first + (D_00642387 + second * 24));
@@ -250,7 +250,7 @@ s32 fclFusePair(u16 *output, u16 first, u16 second)
     pair[0] = first;
     pair[1] = second;
     if (output == NULL || first == 0 || second == 0)
-        func_0046d730(D_00642F30, 0x1A1);
+        kAssertFail(D_00642F30, 0x1A1);
     if (func_00312220(output, 0, pair, 2) & 0xFF)
         return 2;
     secondIndex = second * 14;
@@ -295,7 +295,7 @@ s32 func_003127e0(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     sp78[1] = *(u16 *)(arg2 + 2);
     sp78[2] = *(u16 *)(arg3 + 2);
     if (arg0 == NULL || arg1 == NULL || arg2 == NULL || arg3 == NULL) {
-        func_0046d730(D_00642F30, 0x1CC);
+        kAssertFail(D_00642F30, 0x1CC);
     }
     if (func_00312220(arg0, 1, sp78, 3) & 0xFF) {
         return 2;
@@ -438,7 +438,7 @@ static inline s32 fclSkillWeight(u16 *arg0, s32 id)
     s8 rate;
 
     if (arg0 == NULL) {
-        func_0046d730(D_00642F30, 0x327);
+        kAssertFail(D_00642F30, 0x327);
     }
     arcana = (s8)iGpffffb3b4[id * 2];
     if (arcana == -1) {
@@ -487,7 +487,7 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
 
     taken = 0;
     if (arg0 == NULL) {
-        func_0046d730(D_00642F30, 0x3AF);
+        kAssertFail(D_00642F30, 0x3AF);
     }
     pool = yListAllocIndexTable();
     for (i = 0; i < (s8)arg2; i++) {
@@ -815,7 +815,7 @@ loop_28_done:
         }
     }
     if (var_18 == 0) {
-        func_0046d730(D_00642F30, 0x43A);
+        kAssertFail(D_00642F30, 0x43A);
     }
     if (!(var_19 & 0xFFFF)) {
         temp_4_3 = (s32)DAT_007644c4;

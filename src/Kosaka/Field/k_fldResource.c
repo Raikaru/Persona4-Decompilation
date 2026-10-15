@@ -40,7 +40,7 @@ extern u8 *func_00461180(u8 *list, s32 arg1);
 extern u8 *func_003e9d50(u8 *arg0);
 extern void FldResource_BeginDrawState(u8 *arg0, u8 *arg1);
 extern s32 K_Clump_CountIntUsrData(void *object, const char *name);
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern void func_004b1290(s32 a0, f32 f12, f32 f13, f32 f14);
 extern void func_003c9d40(void *arg0);
 extern void func_003c0700(void *arg0);
@@ -920,7 +920,7 @@ block_123:
                         temp_2_5 += var_17_3 * 0x18;
                         temp_19 = (s32)(MT_Scene_CreateModelFldRes(*( u16 * )(temp_2_5 + 0x124), *( s32 * )(temp_2_5 + 0x12C)) & 0xFFFF);
                         if (temp_19 == 0) {
-                            func_0046d730((const char *)D_005EFC80, 0x297);
+                            kAssertFail((const char *)D_005EFC80, 0x297);
                         }
                         angles.x = KDraw_MatrixPitchDeg(temp_18);
                         angles.y = KDraw_MatrixYawDeg(temp_18);
@@ -951,7 +951,7 @@ block_123:
                         temp_2_7 = (u8 *)(temp_4_10 + (var_17_4 * 0x18));
                         temp_18_3 = (s32)(MT_Scene_CreateRes11(*( u16 * )(temp_2_7 + 0x124), *( s32 * )(temp_2_7 + 0x130)) & 0xFFFF);
                         if (temp_18_3 == 0) {
-                            func_0046d730((const char *)D_005EFC80, 0x2C7);
+                            kAssertFail((const char *)D_005EFC80, 0x2C7);
                         }
                         *( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_8) + 0x130) = 0;
                         temp_2_8 = (u8 *)(MT_Scene_GetRes(temp_18_3));
@@ -1393,7 +1393,7 @@ s32 FldResource_PollLoads(u8 *arg0)
     }
     if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84) != 0) {
         if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x128) != 0) {
-            func_0046d730((const char *)D_005EFC80, 0x56C);
+            kAssertFail((const char *)D_005EFC80, 0x56C);
         }
         temp_18 = (s32)func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84), &sp68, &sp6C);
         if (sp68 == 1) {
@@ -1412,7 +1412,7 @@ s32 FldResource_PollLoads(u8 *arg0)
             temp_19 = func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_20 * 4 + 0x90), &sp68, &sp6C);
             if (sp68 == 1) {
                 if (temp_19 == NULL) {
-                    func_0046d730((const char *)D_005EFC80, 0x588);
+                    kAssertFail((const char *)D_005EFC80, 0x588);
                 }
                 if (K_Clump_GeometryHasMatUsrData(temp_19, D_005EFCE0) != 0) {
                     *(s32 *)(arg0 + 0x10) = (s32)temp_19;
@@ -1439,7 +1439,7 @@ s32 FldResource_PollLoads(u8 *arg0)
             temp_20 = func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_19 * 4 + 0xA4), &sp68, &sp6C);
             if (sp68 == 1) {
                 if (temp_20 == NULL) {
-                    func_0046d730((const char *)D_005EFC80, 0x5B4);
+                    kAssertFail((const char *)D_005EFC80, 0x5B4);
                 }
                 if (K_Clump_ClumpHasMatUsrData(temp_20, D_005EFCE0) != 0) {
                     *(s32 *)(arg0 + 0x10) = (s32)temp_20;
@@ -1469,7 +1469,7 @@ s32 FldResource_PollLoads(u8 *arg0)
                 func_003e2e40(sp6C, 0);
             }
             if (*(s32 *)(arg0 + 0xA20) == 0) {
-                func_0046d730((const char *)D_005EFC80, 0x5D9);
+                kAssertFail((const char *)D_005EFC80, 0x5D9);
             }
             *(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x124) = 0;
         } else {
@@ -1514,7 +1514,7 @@ s32 FldResource_FindFrameForId(u8 *arg0, s32 arg1, s32 *arg2)
         for (var_16 = 0; var_16 < temp_23; var_16++) {
             K_Clump_GetIntUsrDataAt(&spA0, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD40, var_16);
             if (spA0.value == 0) {
-                func_0046d730((const char *)D_005EFC80, 0x622);
+                kAssertFail((const char *)D_005EFC80, 0x622);
             }
             K_Clump_GetIntUsrDataAt(&spA8, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD20, var_16);
             K_Clump_GetIntUsrDataAt(&sp98, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD60, var_16);
@@ -1563,7 +1563,7 @@ void FldResource_RequestEntryLoads(u8 *arg0)
             if (sp1F8.value != 0) {
                 K_Clump_GetIntUsrDataAt(&sp1E8, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD40, var_18);
                 if (sp1E8.value == 0) {
-                    func_0046d730((const char *)D_005EFC80, 0x65A);
+                    kAssertFail((const char *)D_005EFC80, 0x65A);
                 }
                 *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x124) = (u16)sp1E8.value;
                 K_Clump_GetIntUsrDataAt(&sp1E0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD60, var_18);
@@ -1599,7 +1599,7 @@ void FldResource_RequestEntryLoads(u8 *arg0)
                         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x6A1);
                         *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) = func_00454a60(sp120, 0);
                         if (*(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) == 0) {
-                            func_0046d730((const char *)D_005EFC80, 0x6A2);
+                            kAssertFail((const char *)D_005EFC80, 0x6A2);
                         }
                     } else {
                         strcpy(sp120, D_005EFDE8);
@@ -1635,7 +1635,7 @@ s32 FldResource_TryInstallEntries(u8 *arg0)
     for (i = 0; i < *(u32 *)(arg0 + 0x11C); i++) {
         if (*(u16 *)(arg0 + i * 0x18 + 0x120) == 0 || *(u16 *)(arg0 + i * 0x18 + 0x120) == 2) {
             if (*(u32 *)(arg0 + i * 0x18 + 0x12C) == 0) {
-                func_0046d730((const char *)D_005EFC80, 0x6E4);
+                kAssertFail((const char *)D_005EFC80, 0x6E4);
             }
             if (mdlPrepareModel(*(u32 *)(arg0 + i * 0x18 + 0x12C)) == 0) {
                 return 0;

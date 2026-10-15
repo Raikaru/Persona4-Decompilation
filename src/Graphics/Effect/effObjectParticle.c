@@ -11,7 +11,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_00492cd0(void *ptr);
 extern void func_003c0700(void *arg0);
 extern u8 *func_003c0520(void *ptr);
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern char D_00714520[];
 extern void *func_004ae080(void *object, void *data);
 extern void func_00492d10(void *arg0);
@@ -48,7 +48,7 @@ void *func_004ae460(void *opaqueSource)
 
     temp_2_2 = func_00484490(arg0);
     if (temp_2_2 == 0) {
-        func_0046d730(D_00714520, 0xFD);
+        kAssertFail(D_00714520, 0xFD);
     }
     temp_3 = *(s32 *)(temp_2_2 + 0x64);
     if (temp_3 == 0) {
@@ -63,7 +63,7 @@ void *func_004ae460(void *opaqueSource)
     temp_2 = (u8 *)jtbl_008873E8[0](0x94, 0x40000);
     memset(temp_2, 0, 0x94);
     if (temp_2 == 0) {
-        func_0046d730(D_00714520, 0xC5);
+        kAssertFail(D_00714520, 0xC5);
     }
     *(u32 *)(temp_2 + 0) = var_19;
     *(u32 *)(temp_2 + 4) = -1;
@@ -71,7 +71,7 @@ void *func_004ae460(void *opaqueSource)
     *(u16 *)(temp_2 + 0x7C) = 0x18;
     *(u8 **)(temp_2 + 0x80) = temp_2;
     if (temp_2 == 0) {
-        func_0046d730(D_00714520, 0xFF);
+        kAssertFail(D_00714520, 0xFF);
     }
     memcpy(temp_2 + 0x10, temp_2_2, 0x44);
     func_004ae930(temp_2, *(u16 *)(arg0 + 0xC), temp_2_2 + 0x44);
@@ -85,7 +85,7 @@ void *func_004ae460(void *opaqueSource)
             func_004aea70(temp_2, temp_2_3, *(u32 *)(arg0 + 0x24));
             break;
         default:
-            func_0046d730(D_00714520, 0x114);
+            kAssertFail(D_00714520, 0x114);
             break;
         }
         *(u16 *)(temp_2 + 0xC) = *(u16 *)(arg0 + 0x1C);
@@ -124,11 +124,11 @@ void *func_004ae6d0(void *opaqueSource)
     u8 *temp_17;
     u8 *temp_2;
     if (*(u8 **)(arg0 + 0x58) == 0) {
-        func_0046d730(D_00714520, 0x148);
+        kAssertFail(D_00714520, 0x148);
     }
     temp_17 = *(u8 **)(*(u8 **)(arg0 + 0x58) + 0x24);
     if (temp_17 == 0) {
-        func_0046d730(D_00714520, 0x14A);
+        kAssertFail(D_00714520, 0x14A);
     }
     temp_3 = *(u32 *)(temp_17 + 0x20);
     if (temp_3 == 0) {
@@ -143,7 +143,7 @@ void *func_004ae6d0(void *opaqueSource)
     temp_2 = (u8 *)jtbl_008873E8[0](0x94, 0x40000);
     memset(temp_2, 0, 0x94);
     if (temp_2 == 0) {
-        func_0046d730(D_00714520, 0xC5);
+        kAssertFail(D_00714520, 0xC5);
     }
     *(u32 *)(temp_2 + 0) = var_19;
     *(u32 *)(temp_2 + 4) = -1;
@@ -151,7 +151,7 @@ void *func_004ae6d0(void *opaqueSource)
     *(u16 *)(temp_2 + 0x7C) = 0x18;
     *(u8 **)(temp_2 + 0x80) = temp_2;
     if (temp_2 == 0) {
-        func_0046d730(D_00714520, 0x14C);
+        kAssertFail(D_00714520, 0x14C);
     }
     memcpy(temp_2 + 0x10, arg0 + 0x10, 0x44);
     func_004ae930(temp_2, *(u16 *)(*(u8 **)(arg0 + 0x58) + 0), temp_17);
@@ -176,7 +176,7 @@ void func_004ae880(u8 *arg0, u8 *arg1)
         RpClumpForAllAtomics(temp_2, func_004ae080, 0);
         break;
     default:
-        func_0046d730(D_00714520, 0x172);
+        kAssertFail(D_00714520, 0x172);
         break;
     }
     *(u16 *)(arg0 + 0xC) = *(u16 *)(arg1 + 0xC);
@@ -195,7 +195,7 @@ void func_004ae930(u8 *arg0, u32 arg1, u8 *arg2)
         func_00492cd0(temp_4);
     }
     if (*(u32 *)(arg2 + 0xC0) != 0) {
-        func_0046d730(D_00714520, 0x18B);
+        kAssertFail(D_00714520, 0x18B);
     }
     *(u8 **)(arg0 + 0x58) = func_00492b20(arg1 & 0xFFFF, *(u32 *)(arg0 + 0), arg2);
     if (*(u32 *)(arg0 + 0x60) != 0) {
@@ -205,7 +205,7 @@ void func_004ae930(u8 *arg0, u32 arg1, u8 *arg2)
     chkmemAllocSiteTag(D_00714520, 0x195);
     *(u8 **)(arg0 + 0x60) = (u8 *)jtbl_008873E8[0](temp_16 * 0x18, 0x40000);
     if (*(u8 **)(arg0 + 0x60) == 0) {
-        func_0046d730(D_00714520, 0x196);
+        kAssertFail(D_00714520, 0x196);
     }
     var_19 = *(u8 **)(arg0 + 0x60);
     *(u8 **)(arg0 + 0x5C) = var_19;
@@ -232,8 +232,8 @@ void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
     struct AeaWork { s32 code; u32 value; u8 pad8[0x18]; s32 in1; s32 in2; s32 outpad; s32 out; } work;
     s32 temp18; u8 *var17; u8 *var16;
     var17 = NULL; var16 = NULL; work.out = 0;
-    if (*(u8 **)(arg0 + 0x58) == NULL) func_0046d730(D_00714520, 0x1B3);
-    if (*(s32 *)(*(u8 **)(arg0 + 0x58) + 8) == 0) func_0046d730(D_00714520, 0x1B4);
+    if (*(u8 **)(arg0 + 0x58) == NULL) kAssertFail(D_00714520, 0x1B3);
+    if (*(s32 *)(*(u8 **)(arg0 + 0x58) + 8) == 0) kAssertFail(D_00714520, 0x1B4);
     work.in1 = arg1; work.in2 = arg2; temp18 = func_003e2f60(3, 1, &work.in1);
     while (func_003df3c0(temp18, &work.code) != 0) {
       if (work.code == 0) goto done;
@@ -254,7 +254,7 @@ void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
       }
     }
   done:
-    func_003e2e40(temp18, &work.in1); if (work.out != 0) K_Clump_FreeTextureNameList((void *)work.out); if (var17 == NULL) func_0046d730(D_00714520, 0x1DF); *(u8 **)(arg0 + 0x54) = var17; RpClumpForAllAtomics(var17, func_004ae080, NULL);
+    func_003e2e40(temp18, &work.in1); if (work.out != 0) K_Clump_FreeTextureNameList((void *)work.out); if (var17 == NULL) kAssertFail(D_00714520, 0x1DF); *(u8 **)(arg0 + 0x54) = var17; RpClumpForAllAtomics(var17, func_004ae080, NULL);
 }
 
 
@@ -300,7 +300,7 @@ void func_004aec80(u8 *arg0)
             }
             break;
         default:
-            func_0046d730(D_00714520, 0x213);
+            kAssertFail(D_00714520, 0x213);
             break;
         }
     }
@@ -598,7 +598,7 @@ void func_004aed70(u8 *arg0)
         }
         break;
     default:
-        func_0046d730(D_00714520, 0x2A2);
+        kAssertFail(D_00714520, 0x2A2);
         break;
     }
     func_004813f0();

@@ -11,7 +11,7 @@ void evtMemAccount(s32 arg0, s32 arg1);
 
 s32 kwlnTaskGetTaskByName(void *arg0);
 extern s32 D_0063C2F8[];
-extern void func_0046d730(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
 extern u8 D_0063C2C8[];
 extern u8 D_00748340[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -43,7 +43,7 @@ s32 func_00285480(u8 *arg0)
     s32 handle;
 
     if (arg0 == 0) {
-        func_0046d730(D_0063C2C8, 0x2E);
+        kAssertFail(D_0063C2C8, 0x2E);
     }
     handle = *(s32 *)(arg0 + 0xC);
     if (handle == 0) {
@@ -133,7 +133,7 @@ s32 func_002857c0(u8 *task)
 
     temp_2 = (u8 *)kwlnTaskGetWork(task);
     if (temp_2 == NULL) {
-        func_0046d730(D_0063C2C8, 0x2E);
+        kAssertFail(D_0063C2C8, 0x2E);
     }
     temp_4 = *(s32 *)(temp_2 + 0xC);
     if (temp_4 != 0) {
@@ -278,7 +278,7 @@ u8 *func_00285b80(u8 *arg0, s32 arg1)
   if ((*((u8 **) (p + 0x90))) == ((void *) 0))
   {
     line = 0x18F;
-    func_0046d730(D_0063C2C8, line);
+    kAssertFail(D_0063C2C8, line);
   }
 
   p = *((u8 **) (p + 0x90));

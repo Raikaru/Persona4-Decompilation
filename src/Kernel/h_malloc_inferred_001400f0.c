@@ -122,7 +122,7 @@ extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
-extern void func_0046d730(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *arg0, s32 arg1);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern s32 func_00104c70(s32 arg0);
@@ -683,7 +683,7 @@ s32 func_00141d80(u8 *arg0, s32 arg1) {
         *(s16 *)(arg0 + 0x38) = 7;
         break;
     default:
-        func_0046d730(&D_005EF6C8, 0x425);
+        kAssertFail(&D_005EF6C8, 0x425);
         break;
     }
     if (table != NULL) {
@@ -885,7 +885,7 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     extern u8 iGpffff9cd8[8];
     extern f32 D_005EF6E0[];
     extern f32 D_005EF6E4[];
-    extern void func_0046d730(const void *file, s32 line);
+    extern void kAssertFail(const void *file, s32 line);
     extern void func_00356170(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
     extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern s32 func_00246980(s16 arg0, s16 arg1);
@@ -901,7 +901,7 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     saved_fparg0 = fparg0;
     pos_y = pos.y;
     if (arg3 >= 5) {
-        func_0046d730(&D_005EF6C8, 0x50F);
+        kAssertFail(&D_005EF6C8, 0x50F);
     }
 
     color.value = fGpffff9ce0;
@@ -934,7 +934,7 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
         pos2.position.y = 36.0f + pos_y;
         break;
     default:
-        func_0046d730(&D_005EF6C8, 0x539);
+        kAssertFail(&D_005EF6C8, 0x539);
         break;
     }
 
@@ -1054,7 +1054,7 @@ void func_00142bf0(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
     u8 *temp_7;
 
     if (arg2 >= 5) {
-        func_0046d730(&D_005EF6C8, 0x5B6);
+        kAssertFail(&D_005EF6C8, 0x5B6);
     }
     temp_f20 = D_008872F8[0];
     D_00887300[0](1, 0);
@@ -1096,10 +1096,10 @@ void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *var_6;
 
     if ((arg1 < 0) || (arg1 >= 4)) {
-        func_0046d730(&D_005EF6C8, 0x5D8);
+        kAssertFail(&D_005EF6C8, 0x5D8);
     }
     if (arg0 == NULL) {
-        func_0046d730(&D_005EF6C8, 0x5D9);
+        kAssertFail(&D_005EF6C8, 0x5D9);
     }
     if (arg3 != 0) {
         var_6 = D_005EF530 + (arg1 * 0x1C);

@@ -41,7 +41,7 @@ extern void* D_00922DB8[];
 extern s32 D_00922DC0[];
 extern void func_004b6e80(void);
 extern s32 func_004b6e40(u8 *task);
-extern void func_0046d730(const void* file, s32 line);
+extern void kAssertFail(const void* file, s32 line);
 extern void func_003e9390(void* frame);
 extern void func_003c02e0(void* arg);
 extern void func_003c4220(void* arg);
@@ -110,7 +110,7 @@ u8 *func_004b6030(void *arg0)
             p += 4;
             break;
         default:
-            func_0046d730(D_007146B0, 0x1AE);
+            kAssertFail(D_007146B0, 0x1AE);
             break;
         }
         cTmp2[(u32)i1] = p;
@@ -119,7 +119,7 @@ u8 *func_004b6030(void *arg0)
             p += 0x10;
             break;
         default:
-            func_0046d730(D_007146B0, 0x1BA);
+            kAssertFail(D_007146B0, 0x1BA);
             break;
         }
     }
@@ -133,7 +133,7 @@ u8 *func_004b6030(void *arg0)
             p += 0x20;
             break;
         default:
-            func_0046d730(D_007146B0, 0x1C8);
+            kAssertFail(D_007146B0, 0x1C8);
             break;
         }
         bTmp2[i1] = p;
@@ -237,7 +237,7 @@ u8 *func_004b6030(void *arg0)
             break;
         }
         default:
-            func_0046d730(D_007146B0, 0x22E);
+            kAssertFail(D_007146B0, 0x22E);
             break;
         }
     }
@@ -550,10 +550,10 @@ void func_004b6e80(void) {
             }
             if (bits == 0) {
                 if (D_00764CA0 == NULL) {
-                    func_0046d730(D_007146B0, 0x326);
+                    kAssertFail(D_007146B0, 0x326);
                 }
                 if (D_00764C9C == NULL) {
-                    func_0046d730(D_007146B0, 0x327);
+                    kAssertFail(D_007146B0, 0x327);
                 }
                 next = *(u8 **)(temp + 0x1C);
                 if (next != NULL) {
@@ -619,11 +619,11 @@ void func_004b7140(s32 arg0)
         {
             if (D_00764CA0 == NULL)
             {
-                func_0046d730(D_007146B0, 0x326);
+                kAssertFail(D_007146B0, 0x326);
             }
             if (D_00764C9C == NULL)
             {
-                func_0046d730(D_007146B0, 0x327);
+                kAssertFail(D_007146B0, 0x327);
             }
             temp_3 = *(u8**)(temp_18 + 0x1C);
             if (temp_3 != NULL)

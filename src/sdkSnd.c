@@ -207,7 +207,7 @@ extern void func_004d90f8(void);
 extern void func_004d9148(s32);
 extern void func_004d9180(s32);
 extern void func_004d91b8(s32);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern void mwPlyInitSfdFx(void *);
 
@@ -732,7 +732,7 @@ s32 func_0045a3e0(s16 arg0)
     x = (s16)arg0;
     if (!((u32)x < 0x31))
     {
-        func_0046d730(D_00712238, 0x295);
+        kAssertFail(D_00712238, 0x295);
     }
     cur = D_008D2B90[0].f00;
     if (cur == 0)
@@ -787,7 +787,7 @@ s32 func_0045a570(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *ar
     }
     else if (D_008D3ED0[(s16)arg0].state == 3)
     {
-        func_0046d730(D_00712238, 713);
+        kAssertFail(D_00712238, 713);
     }
     D_008D3ED0[(s16)arg0].callbackMode = 1;
     D_008D3ED0[(s16)arg0].completed = 0;
@@ -1201,7 +1201,7 @@ s32 func_0045b2e0(s32 arg0)
 
     if (!((u32)arg0 < 0x42))
     {
-        func_0046d730(D_00712238, 0x50A);
+        kAssertFail(D_00712238, 0x50A);
     }
     if (D_008D2F2C[0] != 0 && arg0 == D_008D2F34[0])
     {
@@ -1217,7 +1217,7 @@ s32 func_0045b2e0(s32 arg0)
     func_00459ad0(3);
     if (arg0 <= 0)
     {
-        func_0046d730(D_00712238, 0x510);
+        kAssertFail(D_00712238, 0x510);
     }
     D_008D2F34[0] = arg0;
     return 1;

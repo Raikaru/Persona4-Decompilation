@@ -8,7 +8,7 @@
 extern void *memset(void *dest, s32 value, s32 size);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern u32 kwlnTaskGetWork(s32 task);
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern s64 func_00248760(s32 arg0);
 extern s32 func_00247dd0(s32 arg0);
@@ -58,7 +58,7 @@ void func_00106db0(s32 a, s32 b)
 
     if (id <= 0)
     {
-        func_0046d730(D_005E42C8, 0x31);
+        kAssertFail(D_005E42C8, 0x31);
     }
     if (b < 4 || b > 0xC)
     {
@@ -74,14 +74,14 @@ bpath:
     {
         if (id <= 0)
         {
-            func_0046d730(D_005E42C8, 0x1E);
+            kAssertFail(D_005E42C8, 0x1E);
         }
         func_00106390(id + ((i << 5) + 0x3FF), 0);
         i++;
     }
     if (id <= 0)
     {
-        func_0046d730(D_005E42C8, 0x1E);
+        kAssertFail(D_005E42C8, 0x1E);
     }
     func_00106390(id + 0x41F, 0);
     goto end;
@@ -92,12 +92,12 @@ cpath:
     }
     if (id <= 0)
     {
-        func_0046d730(D_005E42C8, 0x1E);
+        kAssertFail(D_005E42C8, 0x1E);
     }
     func_00106390((a & 0xFFFF) + 0x43F, 0);
     if ((a & 0xFFFF) <= 0)
     {
-        func_0046d730(D_005E42C8, 0x1E);
+        kAssertFail(D_005E42C8, 0x1E);
     }
     func_00106390(id + 0x45F, 0);
 end:
@@ -112,7 +112,7 @@ static inline void CommunityFlags_Clear(s32 community)
     s32 id = community & 0xFFFF;
     s32 flag;
     if (id <= 0) {
-        func_0046d730(D_005E42C8, 0x27);
+        kAssertFail(D_005E42C8, 0x27);
     }
     for (flag = 0; flag < 13; flag++) {
         func_00106390(id + ((flag << 5) + 0x3FF), 0);
@@ -127,7 +127,7 @@ void func_00106f40(s32 arg0) {
     record = (u8 *)func_001070e0(arg0);
     id = arg0 & 0xFFFF;
     if (id <= 0) {
-        func_0046d730(D_005E42C8, 0x48);
+        kAssertFail(D_005E42C8, 0x48);
     }
     CommunityFlags_Clear(arg0);
     if (record == NULL) {
@@ -164,7 +164,7 @@ s32 func_001070e0(s32 arg0)
 
     if (id >= 0x1F)
     {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0)
     {
@@ -193,7 +193,7 @@ s32 func_00107180(s16 arg0)
     result = 0;
     if (arg0 >= 0x15)
     {
-        func_0046d730(D_005E42C8, 0x77);
+        kAssertFail(D_005E42C8, 0x77);
     }
     for (i = 1; i < 0x1F; i++)
     {
@@ -339,10 +339,10 @@ void func_001075d0(s32 arg0) {
     r = NULL;
 ret:
     if (r == NULL) {
-        func_0046d730(D_005E42C8, 0x107);
+        kAssertFail(D_005E42C8, 0x107);
     }
     if ((arg0 & 0xFFFF) == 0) {
-        func_0046d730(D_005E42C8, 0x108);
+        kAssertFail(D_005E42C8, 0x108);
     }
     memset(r, 0, 0x10);
     *(s32 *)r = 0;
@@ -385,7 +385,7 @@ void func_001076e0(s32 arg0) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -406,7 +406,7 @@ ret:
     if (r != NULL) {
         memset(r, 0, 0x10);
         if (id <= 0) {
-            func_0046d730(D_005E42C8, 0x27);
+            kAssertFail(D_005E42C8, 0x27);
         }
         j = 0;
         while (j < 0xD) {
@@ -438,7 +438,7 @@ s32 func_001077f0(s32 arg0) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -524,7 +524,7 @@ s32 func_00107a00(s32 arg0, s32 arg1) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -561,7 +561,7 @@ u16 func_00107ac0(s32 arg0) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -617,7 +617,7 @@ void func_00107bd0(s32 arg0) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -653,7 +653,7 @@ void func_00107ce0(s32 arg0) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -691,7 +691,7 @@ void func_00107dc0(s32 arg0) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -712,7 +712,7 @@ ret:
     if (r != NULL) {
         *(s32 *)r &= ~1;
         if (id <= 0) {
-            func_0046d730(D_005E42C8, 0x1E);
+            kAssertFail(D_005E42C8, 0x1E);
         }
         func_00106390(id + 0x43F, 0);
     }
@@ -769,7 +769,7 @@ void func_00107f00(s32 arg0) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -807,7 +807,7 @@ void func_00107fe0(s32 arg0) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -828,7 +828,7 @@ ret:
     if (r != NULL) {
         *(s32 *)r &= ~2;
         if (id <= 0) {
-            func_0046d730(D_005E42C8, 0x1E);
+            kAssertFail(D_005E42C8, 0x1E);
         }
         func_00106390(id + 0x45F, 0);
     }
@@ -906,7 +906,7 @@ s32 func_00108290(s32 arg0, u32 arg1) {
     x = arg0;
     id = x & 0xFFFF;
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -966,7 +966,7 @@ ret:
 #pragma opt_loop_invariants on
 // FUN_00108590
 u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
-    extern void func_0046d730(void *file, s32 line);
+    extern void kAssertFail(void *file, s32 line);
     typedef struct { f32 x; f32 y; f32 z; } Vec3;
     typedef struct {
         f32 bytes[3];
@@ -991,7 +991,7 @@ u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
         arg0 = func_00108e10() & 0xFFFF;
     }
     if (!(arg0 & 0xFFFF)) {
-        func_0046d730(&D_005E42C8[0], 0x21F);
+        kAssertFail(&D_005E42C8[0], 0x21F);
     }
     {
         s32 *temp_2_2;
@@ -1038,7 +1038,7 @@ s32 func_001087e0(s32 arg0) {
     s32 t;
     s32 rank;
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -1121,7 +1121,7 @@ s32 func_00108950(s32 arg0) {
     u8 ok;
     id = arg0 & 0xFFFF;
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -1205,7 +1205,7 @@ void func_00108b60(s32 arg0, s32 arg1) {
     s32 i;
 
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -1227,10 +1227,10 @@ ret:
         return;
     }
     if (arg1 == 0) {
-        func_0046d730(D_005E42C8, 0x254);
+        kAssertFail(D_005E42C8, 0x254);
     }
     if (arg1 > 0xA) {
-        func_0046d730(D_005E42C8, 0x255);
+        kAssertFail(D_005E42C8, 0x255);
     }
     *(s16 *)(r + 6) = arg1;
     if (*(u16 *)(r + 6) == 0xA) {
@@ -1341,7 +1341,7 @@ void func_00108ef0(s32 arg0) {
 
     id = arg0 & 0xFFFF;
     if (id >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
+        kAssertFail(D_005E42C8, 0x66);
     }
     if (id == 0) {
         r = NULL;
@@ -1386,7 +1386,7 @@ ret:
         break;
     }
     if (id <= 0) {
-        func_0046d730(D_005E42C8, 0x27);
+        kAssertFail(D_005E42C8, 0x27);
     }
     j = 0;
     while (j < 0xD) {
@@ -1420,7 +1420,7 @@ s32 func_00109100(void)
     id = *(s16 *)work;
     index = (s16)func_00104f50(id, D_007973F4[id]);
     if (index <= 0) {
-        func_0046d730(D_005E42C8, 0x2F6);
+        kAssertFail(D_005E42C8, 0x2F6);
     }
     return *(s32 *)(work + index * 4);
 }

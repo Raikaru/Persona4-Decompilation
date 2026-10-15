@@ -86,7 +86,7 @@ extern void func_0048a980(f32 *arg0);
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_00483970(u8 *arg0, u16 *arg1);
@@ -402,7 +402,7 @@ void *func_004b16c0(void *opaqueSource) {
     chkmemAllocSiteTag(&iGpffffb118, 0x1A);
     temp_2 = (u8 *)jtbl_008873E8[0](0xB0, 0x40000);
     if (temp_2 == NULL) {
-        func_0046d730(&iGpffffb118, 0x1B);
+        kAssertFail(&iGpffffb118, 0x1B);
     }
     memset(temp_2, 0, 0xB0);
     *(s32 *)(temp_2 + 0) = -1;
@@ -412,7 +412,7 @@ void *func_004b16c0(void *opaqueSource) {
     *(s32 *)(temp_2 + 4) = *(u16 *)(arg0 + 0xC);
     temp_2_2 = func_00484490(arg0);
     if (temp_2_2 == NULL) {
-        func_0046d730(&iGpffffb118, 0x2C);
+        kAssertFail(&iGpffffb118, 0x2C);
     }
     memcpy(temp_2 + 0xC, temp_2_2, 0x98);
     temp_2_3 = (u16 *)func_00482f70(1, 2, 4, D_00713408, 0x4C);
@@ -442,7 +442,7 @@ void *func_004b16c0(void *opaqueSource) {
             *(s32 *)(temp_2 + 0xA8) = func_00482800(temp_2_4);
             break;
         default:
-            func_0046d730(&iGpffffb118, 0x5C);
+            kAssertFail(&iGpffffb118, 0x5C);
             break;
         }
     }

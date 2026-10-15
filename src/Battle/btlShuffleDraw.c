@@ -43,7 +43,7 @@ extern s32 sprintf(char *buf, const char *fmt, ...);
 extern char D_0064EA80[];
 extern void func_003547c0(s32 *arg0, u8 *arg1);
 extern char D_0064EA20[];
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern f32 func_00373cb0(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
 extern s64 func_001060b0(void);
 extern s32 func_00110d60(s16 value);
@@ -152,10 +152,10 @@ extern void RwMatrixScale(void *arg0, void *arg1, s32 arg2);
 // FUN_00373E10
 void func_00373e10(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     if (arg2 > 8) {
-        func_0046d730(D_0064EA20, 0x53);
+        kAssertFail(D_0064EA20, 0x53);
     }
     if ((arg3 < 0) || (arg3 > 4)) {
-        func_0046d730(D_0064EA20, 0x54);
+        kAssertFail(D_0064EA20, 0x54);
     }
     *(s32 *)(arg0 + 0x1F2A8) = arg1;
     *(s32 *)(arg0 + 0x1F304) = arg2;
@@ -193,7 +193,7 @@ void func_00373f00(u8 *arg0) {
         *(s32 *)(arg0 + 0x1F310) = 0x41200000;
         break;
     default:
-        func_0046d730(D_0064EA20, 0x7C);
+        kAssertFail(D_0064EA20, 0x7C);
         break;
     }
     for (i = 0; i < count; i++) {
@@ -234,7 +234,7 @@ void func_003741f0(u8 *arg0) {
     temp_2 = (s32)(func_00454a60(*(u8 **)((u8 *)&iGpffffa9c8 + temp_17 * 4), 1));
     *(s32 *)(arg0 + 0x1F2E8) = temp_2;
     if (temp_2 == 0) {
-        func_0046d730(D_0064EA20, 0xB6);
+        kAssertFail(D_0064EA20, 0xB6);
     }
     *(s32 *)(arg0 + 0x1F2EC) = 0;
 }
@@ -291,7 +291,7 @@ s32 func_003742b0(u8 *work)
                 p = work + copyIndex * 4 + 0x1F2B8;
                 *(u8 **)p = val;
                 if (val == 0) {
-                    func_0046d730(&D_0064EA20, 0x102);
+                    kAssertFail(&D_0064EA20, 0x102);
                 }
                 memcpy(*(u8 **)p, source, (size_t)byteCount);
             }
@@ -302,7 +302,7 @@ s32 func_003742b0(u8 *work)
                 p = work + spriteIndex * 4 + 0x1F2AC;
                 *(u8 **)p = sdkSpriteAdoptBlob((u32)func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
                 if (*(u8 **)p == NULL) {
-                    func_0046d730(&D_0064EA20, 0x109);
+                    kAssertFail(&D_0064EA20, 0x109);
                 }
             }
         }
@@ -316,7 +316,7 @@ s32 func_003742b0(u8 *work)
                 p = work + copyIndex * 4 + 0x1F2DC;
                 *(u8 **)p = val;
                 if (val == 0) {
-                    func_0046d730(&D_0064EA20, 0x110);
+                    kAssertFail(&D_0064EA20, 0x110);
                 }
                 memcpy(*(u8 **)p, source, (size_t)byteCount);
             }
@@ -490,7 +490,7 @@ void func_00374a10(u8 *arg0, s32 arg1) {
         }
         break;
     default:
-        func_0046d730(D_0064EA20, 0x1F5);
+        kAssertFail(D_0064EA20, 0x1F5);
         break;
     }
     switch (*(s32 *)(p + 8)) {
@@ -515,7 +515,7 @@ void func_00374a10(u8 *arg0, s32 arg1) {
         }
         break;
     default:
-        func_0046d730(D_0064EA20, 0x218);
+        kAssertFail(D_0064EA20, 0x218);
         break;
     }
     func_003733f0(p + 0xD8);
@@ -900,7 +900,7 @@ void func_00375b40(u8 *arg0, s32 arg1, u16 arg2, u16 arg3) {
     axis.bits.xy = bits;
     axis.bits.z = value;
     if (arg1 >= func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC))) {
-        func_0046d730(D_0064EA20, 0x3E9);
+        kAssertFail(D_0064EA20, 0x3E9);
     }
     p = arg0 + arg1 * 0xE8 + 0x1D6A0;
     state = *(s32 *)(p + 8);
@@ -1106,7 +1106,7 @@ void func_00376330(u8 *arg0, s32 arg1, f32 *arg2) {
         *(ShuffleVec3 *)arg2 = *(ShuffleVec3 *)(p + 0x30);
         return;
     default:
-        func_0046d730(D_0064EA20, 0x4DA);
+        kAssertFail(D_0064EA20, 0x4DA);
         return;
     }
 }
@@ -1131,14 +1131,14 @@ void func_003764b0(u8 *arg0, s32 arg1, f32 fparg0, u8 *arg2) {
 
     p = (u8 *)(arg0 + arg1 * 0xE8 + 0x1D6A0);
     if (arg2 == NULL) {
-        func_0046d730(D_0064EA20, 0x4E5);
+        kAssertFail(D_0064EA20, 0x4E5);
     }
     switch ((u32)*(s32 *)(p + 4)) {
     case 6:
         func_00371f40(p + 0xC, fparg0, arg2);
         break;
     default:
-        func_0046d730(D_0064EA20, 0x508);
+        kAssertFail(D_0064EA20, 0x508);
         break;
     case 0:
     case 1:
@@ -1165,7 +1165,7 @@ s32 func_00376590(u8 *arg0, u8 *arg1) {
 
     count = *(s32 *)(arg0 + 0x1F2FC);
     if ((count < 0) || (count > 2)) {
-        func_0046d730(D_0064EA20, 0x516);
+        kAssertFail(D_0064EA20, 0x516);
     }
     count = func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
     func_00376330(arg0, 0, (f32 *)&sp70);
@@ -1199,7 +1199,7 @@ void func_003766f0(f32 **arg0, void (*arg1)(u8 **), u8 **arg2, u8 *arg3) {
     chkmemAllocSiteTag(D_0064EA20, 0x589);
     temp_2 = (f32 *)D_008873F4[0](1, 0x10, 0x40000);
     if (temp_2 == NULL) {
-        func_0046d730(D_0064EA20, 0x58A);
+        kAssertFail(D_0064EA20, 0x58A);
     }
     key = func_00373c20(arg3);
     *(void (**)(u8 **))(temp_2 + 1) = arg1;
@@ -1345,7 +1345,7 @@ void func_003768e0(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba)
 
     kind = (s8)mode;
     if (kind >= 3) {
-        func_0046d730(D_0064EA20, 0x5DE);
+        kAssertFail(D_0064EA20, 0x5DE);
     }
     identity.right.x = identity.up.y = identity.at.z = 1.0f;
     identity.right.y = identity.right.z = identity.up.x = 0.0f;
@@ -1747,11 +1747,11 @@ s32 func_00377eb0(u8 *arg0, s32 arg1)
     chkmemAllocSiteTag(D_0064EA20, 0x76C);
     work = D_008873F4[0](1, 0x240, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_0064EA20, 0x76D);
+        kAssertFail(D_0064EA20, 0x76D);
     }
     task = (u8 *)(s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0064EA60), 0x12, 0, 0, func_00377e10, func_00377e60, work);
     if (task == NULL) {
-        func_0046d730(D_0064EA20, 0x777);
+        kAssertFail(D_0064EA20, 0x777);
     }
     func_003781d0(task, cardIndex);
     func_00378260(task, 0xFF, 0xFF, 0xFF, 0);
@@ -1978,7 +1978,7 @@ s32 func_00378530(s32 arg0, s32 arg1) {
         }
         return var_2;
     default:
-        func_0046d730(&D_0064EA20, 0x854);
+        kAssertFail(&D_0064EA20, 0x854);
         return 0;
     }
 }

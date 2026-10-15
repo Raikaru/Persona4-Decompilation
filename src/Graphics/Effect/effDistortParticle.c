@@ -9,7 +9,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_00714538[];
 extern char D_00714550[];
 
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
@@ -41,7 +41,7 @@ u8 *func_004af680(u32 arg0) {
     temp = (u8 *)(*jtbl_008873E8)(0x9C, 0x40000);
     memset(temp, 0, 0x9C);
     if (temp == NULL) {
-        func_0046d730(D_00714550, 0x2F);
+        kAssertFail(D_00714550, 0x2F);
     }
     *(u32 *)(temp + 0) = arg0;
     *(s32 *)(temp + 4) = -1;
@@ -64,7 +64,7 @@ void *func_004af740(void *opaqueSource) {
 
     temp_2_2 = func_00484490(arg0);
     if (temp_2_2 == NULL) {
-        func_0046d730(D_00714550, 0x69);
+        kAssertFail(D_00714550, 0x69);
     }
     temp_3 = *(s32 *)(temp_2_2 + 0x68);
     if (temp_3 == 0) {
@@ -77,7 +77,7 @@ void *func_004af740(void *opaqueSource) {
     }
     temp_2 = func_004af680(var_4);
     if (temp_2 == NULL) {
-        func_0046d730(D_00714550, 0x6B);
+        kAssertFail(D_00714550, 0x6B);
     }
     memcpy(temp_2 + 0xC, temp_2_2, 0x48);
     func_004afb10(temp_2, *(u16 *)(arg0 + 0xC), temp_2_2 + 0x48);
@@ -91,7 +91,7 @@ void *func_004af740(void *opaqueSource) {
             func_004afa60(temp_2, temp_2_3);
             break;
         default:
-            func_0046d730(D_00714550, 0x80);
+            kAssertFail(D_00714550, 0x80);
             break;
         }
     }
@@ -126,11 +126,11 @@ void *func_004af920(void *opaqueSource) {
     u8 *temp_2;
 
     if (*(u8 **)(arg0 + 0x5C) == NULL) {
-        func_0046d730(D_00714550, 0xB3);
+        kAssertFail(D_00714550, 0xB3);
     }
     temp_16 = *(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x24);
     if (temp_16 == NULL) {
-        func_0046d730(D_00714550, 0xB5);
+        kAssertFail(D_00714550, 0xB5);
     }
     temp_3 = *(s32 *)(temp_16 + 0x20);
     if (temp_3 == 0) {
@@ -143,7 +143,7 @@ void *func_004af920(void *opaqueSource) {
     }
     temp_2 = func_004af680(var_4);
     if (temp_2 == NULL) {
-        func_0046d730(D_00714550, 0xB7);
+        kAssertFail(D_00714550, 0xB7);
     }
     memcpy(temp_2 + 0xC, arg0 + 0xC, 0x48);
     func_004afb10(temp_2, *(u16 *)(*(u8 **)(arg0 + 0x5C) + 0), temp_16);
@@ -164,7 +164,7 @@ void func_004afaa0(u8 *arg0, u8 *arg1) {
     u8 *temp;
 
     if (*(u32 *)(arg1 + 0x60) == 0) {
-        func_0046d730(D_00714550, 0xDA);
+        kAssertFail(D_00714550, 0xDA);
     }
     temp = *(u8 **)(arg1 + 0x60);
     *(u8 **)(arg0 + 0x60) = temp;
@@ -182,7 +182,7 @@ void func_004afb10(u8 *arg0, u32 arg1, u8 *arg2) {
         func_00492cd0(*(u8 **)(arg0 + 0x5C));
     }
     if (*(s32 *)(arg2 + 0xC0) != 0) {
-        func_0046d730(D_00714550, 0xF4);
+        kAssertFail(D_00714550, 0xF4);
     }
     *(u8 **)(arg0 + 0x5C) = func_00492b20(arg1 & 0xFFFF, *(s32 *)(arg0 + 0), arg2);
     if (*(u8 **)(arg0 + 0x68) != NULL) {
@@ -193,7 +193,7 @@ void func_004afb10(u8 *arg0, u32 arg1, u8 *arg2) {
     temp_2 = (u8 *)(*jtbl_008873E8)(temp_16 * 0x1C, 0x40000);
     *(u8 **)(arg0 + 0x68) = temp_2;
     if (temp_2 == NULL) {
-        func_0046d730(D_00714550, 0xFF);
+        kAssertFail(D_00714550, 0xFF);
     }
     var_19 = *(u8 **)(arg0 + 0x68);
     *(u8 **)(arg0 + 0x64) = var_19;
@@ -572,7 +572,7 @@ void func_004b0ce0(u8 *arg0, s32 arg1) {
     temp_16 = *(s32 *)(temp_3 + 8);
     if ((temp_16 != 0) && (*(s32 *)(temp_3 + 0x10) != 0)) {
         if (*(s32 *)(arg0 + 0x60) == 0) {
-            func_0046d730(D_00714550, 0x265);
+            kAssertFail(D_00714550, 0x265);
         }
         var_18 = *(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x18);
         var_17 = *(u8 **)(arg0 + 0x64);

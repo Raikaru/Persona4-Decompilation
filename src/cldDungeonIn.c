@@ -115,7 +115,7 @@ extern void func_00267b20(f32, f32, f32, s32, s32, s32, s32, s32, s32, f32, f32,
 extern s32 func_0025ea20(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
 extern u8 *func_0046a770(char *);
 extern u8 *func_002e2170(u8 *, u8 *, s32);
-extern void func_0046d730(const void *, s32);
+extern void kAssertFail(const void *, s32);
 extern void *memcpy(void *, const void *, u32);
 extern void func_00267670(u8 **);
 extern u8 D_005E5810[];
@@ -227,11 +227,11 @@ void func_00268230(void *unused, void *task)
                 nodeWork = ((DungeonInNode *)func_002e2170((u8 *)*work->list,
                     (u8 *)(u32)((*work->list)->count + 1), 0x58))->work;
                 nodeWork->flags |= 1;
-                if (nodeWork == NULL) func_0046d730(D_00638FC0, 86);
+                if (nodeWork == NULL) kAssertFail(D_00638FC0, 86);
                 initial = entry->initial;
-                if (initial == NULL) func_0046d730(D_00638FC0, 87);
+                if (initial == NULL) kAssertFail(D_00638FC0, 87);
                 target = entry->target;
-                if (target == NULL) func_0046d730(D_00638FC0, 88);
+                if (target == NULL) kAssertFail(D_00638FC0, 88);
                 nodeWork->kind = kind;
                 nodeWork->duration = duration;
                 nodeWork->mode = mode;

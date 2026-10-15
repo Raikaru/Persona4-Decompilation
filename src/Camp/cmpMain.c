@@ -5,7 +5,7 @@
 #include "sdk_snd_internal.h"
 
 void chkmemAllocSiteTag(void *file, s32 line);
-void func_0046d730(void *arg0, s32 arg1);
+void kAssertFail(void *arg0, s32 arg1);
 void func_00460ac0(void *param, void *work);
 s32 func_0034bb20(s32 arg0);
 void func_0034c260(s32 arg0);
@@ -150,7 +150,7 @@ s32 func_0012c510(u8 *unusedTask) {
                     *(s32 *)(p + 8) = 0xA;
                     break;
                 default:
-                    func_0046d730(D_005E5890, 0xFD);
+                    kAssertFail(D_005E5890, 0xFD);
                     break;
                 }
                 func_0012dea0(p + 0x18, 3);
@@ -181,7 +181,7 @@ s32 func_0012c510(u8 *unusedTask) {
     case 3:
         r = *(s32 *)(p + 8);
         if ((r < 4) || (r > 0xD)) {
-            func_0046d730(D_005E5890, 0x133);
+            kAssertFail(D_005E5890, 0x133);
         }
         if (func_0012e1d0(p + 0x18) != 0) {
             func_0012e150(p + 0x18);
@@ -358,7 +358,7 @@ void func_0012cc50(u8 *arg0) {
     case 11:
     case 12:
     default:
-        func_0046d730(D_005E5890, 0x223);
+        kAssertFail(D_005E5890, 0x223);
         break;
     }
     func_00353fb0();
@@ -449,7 +449,7 @@ s32 func_0012d000(s32 arg0, s16 arg1) {
     chkmemAllocSiteTag(D_005E5890, 0x27E);
     p = (u8 *)D_008873F4[0](1, 0x9740, 0x40000);
     if (iGpffffb1ec != 0) {
-        func_0046d730(D_005E5890, 0x27F);
+        kAssertFail(D_005E5890, 0x27F);
     }
     iGpffffb1ec = p;
     if (p == NULL) {
@@ -505,7 +505,7 @@ state0:
     func_00440b68(&iGpffff9cc0, D_005E5890, 0x2F8);
     *(u8 **)(p + 0x34) = func_00454a60(D_005E58A0, 1);
     if (*(u8 **)(p + 0x34) == NULL) {
-        func_0046d730(D_005E5890, 0x2F9);
+        kAssertFail(D_005E5890, 0x2F9);
     }
     *(u16 *)p += 1;
 
@@ -516,7 +516,7 @@ state1:
             dst = q + 0x1C;
             *(s32 *)dst = sdkSpriteCreateFromName(*(u32 *)(q + 4));
             if (*(s32 *)dst == 0) {
-                func_0046d730(D_005E5890, 0x30C);
+                kAssertFail(D_005E5890, 0x30C);
             }
         }
         *(u16 *)p += 1;

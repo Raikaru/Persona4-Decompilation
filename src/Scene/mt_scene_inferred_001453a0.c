@@ -115,7 +115,7 @@ extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
-extern void func_0046d730(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *arg0, s32 arg1);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
@@ -289,7 +289,7 @@ s32 MT_Scene_CreateRes08(u16 arg0)
         return 0;
     }
     if (temp_2 == NULL) {
-        func_0046d730(D_005EF858, 0x1DE);
+        kAssertFail(D_005EF858, 0x1DE);
     }
     return temp_16;
 }

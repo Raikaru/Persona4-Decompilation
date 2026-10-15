@@ -3,7 +3,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 
-extern void func_0046d730(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 
 extern s32 func_00102780(u8 *task);
@@ -25,7 +25,7 @@ s32 func_001028c0(void)
     s32 handle;
 
     if (iGpffffb1a8 != 0) {
-        func_0046d730(D_005DCB28, 0x7B);
+        kAssertFail(D_005DCB28, 0x7B);
     }
     chkmemAllocSiteTag(D_005DCB28, 0x7D);
     mem = D_008873F4[0](1, 0x18, 0x40000);
@@ -44,10 +44,10 @@ void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 
     work = *(u8 **)((u8 *)iGpffffb1a8 + 0x38);
     if (arg0 < 0) {
-        func_0046d730(D_005DCB28, 0xFE);
+        kAssertFail(D_005DCB28, 0xFE);
     }
     if ((*(s32 *)work & 1) != 0) {
-        func_0046d730(D_005DCB28, 0xFF);
+        kAssertFail(D_005DCB28, 0xFF);
     }
     *(s32 *)(work + 8) = *(s32 *)(work + 4);
     work2 = *(u8 **)((u8 *)iGpffffb1a8 + 0x38);

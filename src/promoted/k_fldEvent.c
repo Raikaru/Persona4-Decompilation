@@ -66,7 +66,7 @@ s32 MT_Scene_GetResListHead(s32);
 s32 func_0018bbf0(s32);
 u32 K_FldEvent_IsPosWithinFov(const struct RwMatrix *, const struct RwV3d *, f32);
 void func_0015ab20(s32, s32, s32);
-void func_0046d730(const void *, u32);
+void kAssertFail(const void *, u32);
 void FldUnit_UpdateFieldState(void);
 s32 func_0015f600(void);
 s16 mdlGetLayerAnimation(s32, s32);
@@ -215,7 +215,7 @@ found:
         }
         q = *(u8 **)(q + 0x138);
     }
-    func_0046d730(D_005F1798, 0x2F3);
+    kAssertFail(D_005F1798, 0x2F3);
     return 0;
 }
 // FUN_00171A80
@@ -428,7 +428,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                     *(s32 *)(h + 0x10) = func_0029db50(
                         0xF, *(s32 *)(tmp + 0x18E0), t2, t);
                 } else {
-                    func_0046d730(D_005F1798, 0x3F6);
+                    kAssertFail(D_005F1798, 0x3F6);
                 }
             } else if (*(s32 *)(s2 + 0x234) == 2) {
                 t = *(s32 *)(*(u8 **)(s2 + 0x284) + 0x74);
@@ -437,7 +437,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                     *(s32 *)(h + 0x10) = func_0029db50(
                         0xF, *(s32 *)(s2 + 0x288), t2, t);
                 } else {
-                    func_0046d730(D_005F1798, 0x407);
+                    kAssertFail(D_005F1798, 0x407);
                 }
             } else if (*(s32 *)(s2 + 0x234) == 3) {
                 if (*(s32 *)(s2 + 0x288) != 0) {
@@ -448,7 +448,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                     *(s32 *)(h + 0x10) = func_0029db50(
                         0xF, *(s32 *)(*(u8 **)(h + 0x20) + 0x288), t2, 1);
                 } else {
-                    func_0046d730(D_005F1798, 0x41D);
+                    kAssertFail(D_005F1798, 0x41D);
                 }
             }
             (*(s32 *)(h + 4))++;
@@ -504,7 +504,7 @@ s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
         }
         if ((u32)index >=
             *(u32 *)((u8 *)(s32)func_00155280() + 0x18D8)) {
-            func_0046d730(D_005F1798, 0x454);
+            kAssertFail(D_005F1798, 0x454);
         }
 
         id = *(u16 *)(h + 0x2C);
@@ -1675,7 +1675,7 @@ void FldEvent_StepGridCell(void)
         0xF) {
         ;
     } else {
-        func_0046d730(D_005F1798, 0x9DD);
+        kAssertFail(D_005F1798, 0x9DD);
     }
     temp_18_2 =
         (u8)((*(u8 *)((u8 *)(s32)func_00155280() + (var_16 * 0x100) +

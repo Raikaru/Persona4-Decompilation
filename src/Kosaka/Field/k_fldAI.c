@@ -87,7 +87,7 @@ s32 FldAI_ChaserUpdate(u8 *task)
     extern u32 RpRandom(void);
     extern void *memset(void *, int, size_t);
     extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
-    extern void func_0046d730(const void *, s32);
+    extern void kAssertFail(const void *, s32);
     extern s16 mdlGetLayerAnimation(s32, s32);
     extern void mdlSetColor(void *, const void *);
     extern void mdlSetAlphaBlend(void *);
@@ -183,7 +183,7 @@ discoveryAvailabilityDone:
                 break;
         }
         if (discoveryIndex >= 4)
-            func_0046d730(D_005F1B18, 0x97);
+            kAssertFail(D_005F1B18, 0x97);
         *(s32 *)(work + 0x20) = discoveryIndex;
         *(f32 *)(work + 0x24) = 2800.0f;
         *(f32 *)(work + 0x28) = 360.0f;
@@ -410,7 +410,7 @@ distanceChosen:
                     }
                     break;
                 default:
-                    func_0046d730(D_005F1B18, 0x19F);
+                    kAssertFail(D_005F1B18, 0x19F);
                     break;
                 }
             } else {
@@ -455,7 +455,7 @@ distanceChosen:
                     }
                     break;
                 default:
-                    func_0046d730(D_005F1B18, 0x1B6);
+                    kAssertFail(D_005F1B18, 0x1B6);
                     break;
                 }
             }

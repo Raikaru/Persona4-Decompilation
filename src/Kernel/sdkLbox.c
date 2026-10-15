@@ -244,7 +244,7 @@ s32 func_00470970(u8 *arg0, u8 *arg1)
     chkmemAllocSiteTag(D_00713118, 0x37D);
     node = D_008873F4[0](1, 0x22C, 0x40000);
     if (node == NULL) {
-        func_0046d730(D_00713118, 0x37F);
+        kAssertFail(D_00713118, 0x37F);
     }
     strcpy(node + 8, arg1);
     *(s32 *)(node + 4) = 0;

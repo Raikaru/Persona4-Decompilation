@@ -525,7 +525,7 @@ s32 func_00379f90(u8 *arg0) {
     extern void func_00389110(u8 *arg0);
     extern s32 func_00389160(u8 *arg0);
     extern s32 func_0045af60(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
-    extern void func_0046d730(const void *file, u32 line);
+    extern void kAssertFail(const void *file, u32 line);
     extern char D_0064EAC0[];
     extern u16 D_008C024E[];
     extern s32 datGetFlag(s32 arg0);
@@ -594,7 +594,7 @@ s32 func_00379f90(u8 *arg0) {
             factor = 0.8f;
             break;
         default:
-            func_0046d730(D_0064EAC0, 0x38);
+            kAssertFail(D_0064EAC0, 0x38);
             break;
         }
         *(u16 *)(sbase2 + 2) = *(u16 *)(sbase2 + 2) * (1.0f + factor * (*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f);
@@ -658,7 +658,7 @@ s32 func_00379f90(u8 *arg0) {
                 sel = *(s32 *)(sbase + 8);
                 offset = ((u16)mod * (*(s32 *)(arg0 + 0x1F304) - sel)) & 0xFFFF;
                 if (sel >= *(s32 *)(arg0 + 0x1F304)) {
-                    func_0046d730(D_0064EAC0, 0x5F);
+                    kAssertFail(D_0064EAC0, 0x5F);
                 }
                 func_00379e90(arg0, k, (f32 *)0);
                 v2 = *(struct Vec3 *)(arg0 + k * 0xE8 + 0x1D6CC);
@@ -766,7 +766,7 @@ s32 func_00379f90(u8 *arg0) {
         *(u32 *)(arg0 + 0x1F2F8) = 7;
         break;
     default:
-        func_0046d730(D_0064EAC0, 0x1B6);
+        kAssertFail(D_0064EAC0, 0x1B6);
         break;
     }
     if (*(u16 *)(sbase + 0) & 1) {
@@ -848,7 +848,7 @@ extern void func_00388f40(u8 *arg0);
 extern void func_00389110(u8 *arg0);
 extern s32 func_00389160(u8 *arg0);
 extern s32 func_0045af60(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern char D_0064EAE0[];
 extern char D_0064EB00[];
 extern u16 D_008C024E[];
@@ -924,7 +924,7 @@ s32 func_0037ad10(u8 *arg0) {
             factor = 0.8f;
             break;
         default:
-            func_0046d730(D_0064EAE0, 0x3A);
+            kAssertFail(D_0064EAE0, 0x3A);
             break;
         }
         *(u16 *)(sbase2 + 2) = *(u16 *)(sbase2 + 2) * (1.0f + factor * (*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f);
@@ -991,7 +991,7 @@ s32 func_0037ad10(u8 *arg0) {
                 sel = *(s32 *)(sbase + 8);
                 offset = ((u16)mod * (*(s32 *)(arg0 + 0x1F304) - sel)) & 0xFFFF;
                 if (sel >= *(s32 *)(arg0 + 0x1F304)) {
-                    func_0046d730(D_0064EAE0, 0x6B);
+                    kAssertFail(D_0064EAE0, 0x6B);
                 }
                 func_0037ab50(arg0, k, (f32 *)0);
                 v2 = *(struct Vec3 *)(arg0 + k * 0xE8 + 0x1D6CC);
@@ -1099,7 +1099,7 @@ s32 func_0037ad10(u8 *arg0) {
         *(u32 *)(arg0 + 0x1F2F8) = 7;
         break;
     default:
-        func_0046d730(D_0064EAE0, 0x19E);
+        kAssertFail(D_0064EAE0, 0x19E);
         break;
     }
     if (*(u16 *)(sbase + 0) & 1) {
@@ -1266,7 +1266,7 @@ s32 func_0037bc80(u8 *arg0) {
             factor = 0.8f;
             break;
         default:
-            func_0046d730(D_0064EB00, 0x3A);
+            kAssertFail(D_0064EB00, 0x3A);
             break;
         }
         *(u16 *)(sbase2 + 2) = *(u16 *)(sbase2 + 2) * (1.0f + factor * (*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f);
@@ -1317,7 +1317,7 @@ s32 func_0037bc80(u8 *arg0) {
                 offset = ((u16)mod * (*(s32 *)(arg0 + 0x1F304) - k)) & 0xFFFF;
                 sel = *(s32 *)(sbase + 8);
                 if (sel >= *(s32 *)(arg0 + 0x1F304)) {
-                    func_0046d730(D_0064EB00, 0x72);
+                    kAssertFail(D_0064EB00, 0x72);
                 }
                 func_0037b8c0(arg0, k, (f32 *)0);
                 func_00378c80(arg0, k, offset);
@@ -1426,7 +1426,7 @@ s32 func_0037bc80(u8 *arg0) {
         *(u32 *)(arg0 + 0x1F2F8) = 7;
         break;
     default:
-        func_0046d730(D_0064EB00, 0x1AF);
+        kAssertFail(D_0064EB00, 0x1AF);
         break;
     }
     if (*(u16 *)(sbase + 0) & 1) {

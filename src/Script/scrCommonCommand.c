@@ -15,7 +15,7 @@ extern u32 kwlnTaskIsLinked(KwlnTask* task);
 extern void scrSetReturnInt(s32 retVal);
 extern u32 kwlnTaskGetTimer(KwlnTask* task);
 
-extern void func_0046d730(const char* file, u32 line);
+extern void kAssertFail(const char* file, u32 line);
 extern void func_00440b68(const char* fmt, ...);
 extern void func_00106390(s32 flag, s32 value);
 extern u32 RpRandom(void);
@@ -79,7 +79,7 @@ u32 func_00298db0(void)
     param = scrGetParamInt(0);
     if (param >= 0x1600)
     {
-        func_0046d730(D_0063CFB0, 0x47);
+        kAssertFail(D_0063CFB0, 0x47);
     }
     func_00106390(param, 1);
     return 1;
@@ -93,7 +93,7 @@ u32 func_00298e20(void)
     param = scrGetParamInt(0);
     if (param >= 0x1600)
     {
-        func_0046d730(D_0063CFB0, 0x54);
+        kAssertFail(D_0063CFB0, 0x54);
     }
     func_00106390(param, 0);
     return 1;
@@ -218,7 +218,7 @@ u32 func_002991f0(void)
     }
     if (!(caseIdx <= 6))
     {
-        func_0046d730(D_0063CFB0, 0xFB);
+        kAssertFail(D_0063CFB0, 0xFB);
     }
     lblIdx = scrGetParamInt(caseIdx + 1);
     if (lblIdx < 0)

@@ -159,11 +159,11 @@ extern s32 D_00748534[][2];       /* grouped command table, count view (base + 4
 extern CodeFunc D_0063E2B0[]; /* sCodeFuncTable */
 
 void func_0046d700(const char* file, s32 line, const char* msg, s32 value);
-void func_0046d730(const char* file, s32 line);
+void kAssertFail(const char* file, s32 line);
 void func_0046d740(const void *msg, const void *file, u32 line);
 
 #define K_ASSERT(condition, line) \
-    if (!(condition)) { func_0046d730(D_0063E068, (line)); }
+    if (!(condition)) { kAssertFail(D_0063E068, (line)); }
 #define K_ASSERT_MSG(condition, line, msg, value) \
     if (!(condition)) { func_0046d700(D_0063E068, (line), (msg), (value)); }
 #define K_ABORT(msg, line) \

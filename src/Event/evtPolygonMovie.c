@@ -11,7 +11,7 @@ typedef struct {
 } s2x128;
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern void func_0046d730(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
 extern void evtMemAccount(s32 arg0, s32 arg1);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void memset(void *dst, s32 value, u32 size);
@@ -52,7 +52,7 @@ void func_0028f990(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3)
     var_18 = arg1;
     var_16 = arg3;
     if (var_16 == NULL) {
-        func_0046d730(D_0063C6A0, 0x8F);
+        kAssertFail(D_0063C6A0, 0x8F);
     }
     if (arg0 == 0) {
         fparg0 = 0.0f;
@@ -114,7 +114,7 @@ u8 *func_0028fb90(void)
     work = D_008873F4[0](1, 0x114, 0x40000);
     evtMemAccount(1, 0x114);
     if (work == NULL) {
-        func_0046d730(D_0063C6A0, 0x12D);
+        kAssertFail(D_0063C6A0, 0x12D);
         return NULL;
     }
     memset(work, 0, 0x114);
@@ -148,7 +148,7 @@ u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *
     extern char D_0063C6E0[];
 
     if (primary == NULL) {
-        func_0046d730(D_0063C6A0, 0x155);
+        kAssertFail(D_0063C6A0, 0x155);
         return NULL;
     }
     *(s32 *)(work + 0x110) = 0;
@@ -223,7 +223,7 @@ u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *
             *(u8 **)(work + 0x5C) = primary + *(s32 *)(entry + 0xC);
             break;
         default:
-            func_0046d730(D_0063C6A0, 0x1C3);
+            kAssertFail(D_0063C6A0, 0x1C3);
             break;
         }
     }
@@ -344,7 +344,7 @@ u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *
             *(s32 *)(work + 0x64) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
             break;
         default:
-            func_0046d730(D_0063C6A0, 0x24D);
+            kAssertFail(D_0063C6A0, 0x24D);
             break;
         }
     }
@@ -458,16 +458,16 @@ void func_00290710(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5)
     s32 temp;
 
     if (arg2 == 0) {
-        func_0046d730(D_0063C6A0, 0x36B);
+        kAssertFail(D_0063C6A0, 0x36B);
     }
     if (arg3 == 0) {
-        func_0046d730(D_0063C6A0, 0x36C);
+        kAssertFail(D_0063C6A0, 0x36C);
     }
     if (arg4 == 0) {
-        func_0046d730(D_0063C6A0, 0x36D);
+        kAssertFail(D_0063C6A0, 0x36D);
     }
     if (arg5 == 0) {
-        func_0046d730(D_0063C6A0, 0x36E);
+        kAssertFail(D_0063C6A0, 0x36E);
     }
     temp = (arg0 / 10) * 10;
     sprintf(arg2, D_0063C7A0, temp, arg0, arg1);

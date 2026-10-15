@@ -45,7 +45,7 @@ extern void func_003ec2e0(s32 arg0);
 extern u32 func_003ec3d0(s32 arg0, s32 arg1);
 extern s32 func_003ec590(u16 arg0, u16 arg1, s32 arg2, s32 arg3);
 extern u32 func_003ec6a0(s32 arg0, s32 arg1, s32 arg2);
-extern void func_0046d730(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
 extern void tmxDmaCopy(u32 arg0, u32 arg1, u32 arg2);
 
 #pragma push
@@ -639,19 +639,19 @@ s32 tmxUploadStream(u8 *arg0, s32 arg1)
   texture_handle = (source_addr = 0);
   if (arg0 == ((void *) 0))
   {
-    func_0046d730(D_00712688, 0x453);
+    kAssertFail(D_00712688, 0x453);
   }
   if ((*((u8 *) (arg0 + 0))) != 2)
   {
-    func_0046d730(D_00712688, 0x457);
+    kAssertFail(D_00712688, 0x457);
   }
   if ((*((u8 *) (arg0 + 1))) != 0)
   {
-    func_0046d730(D_00712688, 0x458);
+    kAssertFail(D_00712688, 0x458);
   }
   if (((((*((u8 *) (arg0 + 8))) != 0x54) || ((*((u8 *) (arg0 + 9))) != 0x4D)) || ((*((u8 *) (arg0 + 0xA))) != 0x58)) && ((*((u8 *) (arg0 + 0xB))) != 0x30))
   {
-    func_0046d730(D_00712688, 0x459);
+    kAssertFail(D_00712688, 0x459);
   }
   format_code = *((u8 *) (arg0 + 0x16));
   switch (format_code)
@@ -725,13 +725,13 @@ s32 tmxUploadStream(u8 *arg0, s32 arg1)
   texture_handle = func_003ec590(width, height, bits_per_pixel, resource_value);
   if (texture_handle == 0)
   {
-    func_0046d730(D_00712688, 0x48D);
+    kAssertFail(D_00712688, 0x48D);
   }
   texture_buffer = func_003ec6a0(texture_handle, 0, 1);
   copy_mode = arg1;
   if (texture_buffer == 0)
   {
-    func_0046d730(D_00712688, 0x48F);
+    kAssertFail(D_00712688, 0x48F);
   }
   switch (bits_per_pixel)
   {
@@ -789,7 +789,7 @@ s32 tmxUploadStream(u8 *arg0, s32 arg1)
     resource_value = func_003ec3d0(texture_handle, 1);
     if (resource_value == 0)
     {
-      func_0046d730(D_00712688, 0x4C2);
+      kAssertFail(D_00712688, 0x4C2);
     }
     if (arg1 != 0)
     {

@@ -19,7 +19,7 @@ extern s32 fclCombineTaskCreate(s32);
 extern void func_0034b8c0(void);
 extern s32 kwlnTaskGetTaskByName(void *);
 extern void kwlnTaskDestroyWithHierarchy(s32);
-extern void func_0046d730(const void *, u32);
+extern void kAssertFail(const void *, u32);
 extern s32 func_0046a110(s32, s16, void *);
 extern void *func_0046a1e0(void);
 
@@ -45,7 +45,7 @@ void SeqInitDataRead_End(void)
 
     if (handle != 0) {
         if (handle == 0) {
-            func_0046d730(D_005DCB68, 0x56);
+            kAssertFail(D_005DCB68, 0x56);
         }
         kwlnTaskDestroyWithHierarchy(handle);
     }
@@ -69,7 +69,7 @@ void SeqMemcardBootCheck_End(void)
     s32 handle = kwlnTaskGetTaskByName(D_005DCB80);
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x74);
+        kAssertFail(D_005DCB68, 0x74);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -92,7 +92,7 @@ void SeqDebugMenu_End(void)
     s32 handle = kwlnTaskGetTaskByName(D_005DCB98);
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x95);
+        kAssertFail(D_005DCB68, 0x95);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -115,7 +115,7 @@ void SeqSample_End(void)
     s32 handle = kwlnTaskGetTaskByName(&D_007616B0);
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0xB2);
+        kAssertFail(D_005DCB68, 0xB2);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -165,7 +165,7 @@ void SeqScriptViewer_End(void)
     s32 handle = kwlnTaskGetTaskByName(D_005DCBB0);
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x145);
+        kAssertFail(D_005DCB68, 0x145);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -190,7 +190,7 @@ void SeqEvent_End(void)
     s32 handle = func_002853c0();
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x165);
+        kAssertFail(D_005DCB68, 0x165);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -213,7 +213,7 @@ void SeqYaji_End(void)
     s32 handle = kwlnTaskGetTaskByName(D_005DCBC0);
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x180);
+        kAssertFail(D_005DCB68, 0x180);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -236,7 +236,7 @@ void SeqNowatari_End(void)
     s32 handle = kwlnTaskGetTaskByName(D_00763A30);
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x19B);
+        kAssertFail(D_005DCB68, 0x19B);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -259,7 +259,7 @@ void SeqWeaponStore_End(void)
     s32 handle = kwlnTaskGetTaskByName(D_005DCBD0);
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x1B8);
+        kAssertFail(D_005DCB68, 0x1B8);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -282,7 +282,7 @@ void SeqItemStore_End(void)
     s32 handle = kwlnTaskGetTaskByName(D_005DCBE8);
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x1D7);
+        kAssertFail(D_005DCB68, 0x1D7);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -305,7 +305,7 @@ void SeqCombine_End(void)
     s32 handle = kwlnTaskGetTaskByName(D_005DCC00);
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x1F3);
+        kAssertFail(D_005DCB68, 0x1F3);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }
@@ -328,7 +328,7 @@ void SeqMovie_End(void)
     s32 handle = kwlnTaskGetTaskByName(func_0046a1e0());
 
     if (handle == 0) {
-        func_0046d730(D_005DCB68, 0x20F);
+        kAssertFail(D_005DCB68, 0x20F);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }

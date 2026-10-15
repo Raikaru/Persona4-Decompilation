@@ -17,7 +17,7 @@ extern void MT_Scene_SetExclusiveRes(s32 arg0);
 extern s32 func_00285af0(void);
 extern u8 *func_00285480(u8 *arg0);
 extern void func_004598e0(s16 arg0);
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 D_0063C1D0[];
 extern u8 D_0063C2B8[];
 extern f32 D_00882214[];

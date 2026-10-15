@@ -34,7 +34,7 @@ extern char D_00713330[];
 extern char D_00714148[];
 extern u_long128 D_00713CE0;
 
-extern void func_0046d730(void *, s32);
+extern void kAssertFail(void *, s32);
 extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
 extern void func_004843a0();
 extern void func_00484280();
@@ -66,7 +66,7 @@ u8 *func_004a20b0(u8 *arg0, s32 arg1)
     chkmemAllocSiteTag(D_00714110, 0x52);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_00714110, 0x53);
+        kAssertFail(D_00714110, 0x53);
     }
     *(u8 **)work = work + 0xC;
     *(u8 **)(work + 8) = work;
@@ -97,7 +97,7 @@ u8 *func_004a21e0(u8 *arg0)
     chkmemAllocSiteTag(D_00714110, 0x52);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_00714110, 0x53);
+        kAssertFail(D_00714110, 0x53);
     }
     *(u8 **)work = work + 0xC;
     *(u8 **)(work + 8) = work;
@@ -662,7 +662,7 @@ u8 *func_004a33e0(u8 *arg0, s32 arg1)
     chkmemAllocSiteTag(D_00714110, 0x212);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_00714110, 0x213);
+        kAssertFail(D_00714110, 0x213);
     }
     *(u8 **)work = work + 0xC;
     *(u8 **)(work + 8) = work;
@@ -693,7 +693,7 @@ u8 *func_004a3510(u8 *arg0)
     chkmemAllocSiteTag(D_00714110, 0x212);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_00714110, 0x213);
+        kAssertFail(D_00714110, 0x213);
     }
     *(u8 **)work = work + 0xC;
     *(u8 **)(work + 8) = work;
@@ -1294,7 +1294,7 @@ u8 *func_004a4790(u8 *arg0, s32 arg1)
     chkmemAllocSiteTag(D_00714110, 0x3E4);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_00714110, 0x3E5);
+        kAssertFail(D_00714110, 0x3E5);
     }
     *(u8 **)work = work + 0xC;
     *(u8 **)(work + 8) = work;
@@ -1325,7 +1325,7 @@ u8 *func_004a48d0(u8 *arg0)
     chkmemAllocSiteTag(D_00714110, 0x3E4);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_00714110, 0x3E5);
+        kAssertFail(D_00714110, 0x3E5);
     }
     *(u8 **)work = work + 0xC;
     *(u8 **)(work + 8) = work;
@@ -1763,14 +1763,14 @@ void *func_004a5630(s32 arg0, void *arg1)
     s32 temp_17;
 
     if ((u16)arg0 >= 4) {
-        func_0046d730(D_00714110, 0x59F);
+        kAssertFail(D_00714110, 0x59F);
     }
     temp_16 = arg0 & 0xFFFF;
     temp_17 = *(s32 *)(D_00714148 + temp_16 * 0x1C);
     chkmemAllocSiteTag(D_00714110, 0x5A3);
     p18 = jtbl_008873E8[0](temp_17 + 0x50, 0x40000);
     if (p18 == NULL) {
-        func_0046d730(D_00714110, 0x5A4);
+        kAssertFail(D_00714110, 0x5A4);
     }
     *(u32 *)(p18 + 0x40) = (u32)(p18 + 0x50);
     *(u32 *)(p18 + 0x34) = 0;
@@ -1796,7 +1796,7 @@ void *func_004a5750(void *arg0)
 
     p18 = func_004844d0(arg0);
     if (p18 == NULL) {
-        func_0046d730(D_00714110, 0x5D5);
+        kAssertFail(D_00714110, 0x5D5);
     }
     switch (*(u16 *)((u8 *)arg0 + 0x1C)) {
     case 1:
@@ -1805,12 +1805,12 @@ void *func_004a5750(void *arg0)
         p18 = NULL;
         break;
     default:
-        func_0046d730(D_00714110, 0x5DE);
+        kAssertFail(D_00714110, 0x5DE);
         break;
     }
     p19 = func_00484490(arg0);
     if (p19 == NULL) {
-        func_0046d730(D_00714110, 0x5E3);
+        kAssertFail(D_00714110, 0x5E3);
     }
     p16 = (u8 *)(*(u16 *)((u8 *)arg0 + 0xC) & 0xFFFF);
     p17 = func_004a5630((s32)p16, p19);
@@ -1818,7 +1818,7 @@ void *func_004a5750(void *arg0)
     *(u32 *)(p17 + 0x3C) = (u32)((void *(*)(void *, void *))(*(void **)(D_00714134 + idx)))(p19, p18);
     ((void (*)(void *))(*(void **)(D_00714130 + idx)))(p17);
     if (p17 == NULL) {
-        func_0046d730(D_00714110, 0x5E5);
+        kAssertFail(D_00714110, 0x5E5);
     }
     return p17;
 }

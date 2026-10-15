@@ -22,7 +22,7 @@ extern u8 D_00713E10[];
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern void func_0046d730(const void *file, s32 line);
+extern void kAssertFail(const void *file, s32 line);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -1387,7 +1387,7 @@ u8 *func_00492b20(u16 arg0, s32 arg1, u8 *arg2)
     s32 temp_18;
 
     if ((arg0 & 0xFFFF) >= 0xC) {
-        func_0046d730(D_00713E10, 0xD66);
+        kAssertFail(D_00713E10, 0xD66);
     }
     temp_16 = arg1 * (*(s32 *)(arg2 + 0xC4) * *(s32 *)(arg2 + 0xC0) + 1);
     temp_22 = temp_16 << 5;
@@ -1398,7 +1398,7 @@ u8 *func_00492b20(u16 arg0, s32 arg1, u8 *arg2)
     chkmemAllocSiteTag(D_00713E10, 0xD73);
     temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
     if (temp_2 == NULL) {
-        func_0046d730(D_00713E10, 0xD74);
+        kAssertFail(D_00713E10, 0xD74);
     }
     temp_2_2 = temp_2 + 0x30;
     *(u8 **)(temp_2 + 0x18) = temp_2_2;

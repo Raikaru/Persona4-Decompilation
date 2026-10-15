@@ -77,7 +77,7 @@ extern char D_00764030;
 
 /* Sony SDK PS2 sound-library helpers (shared blob). */
 extern void func_00440b68(const void *format, ...);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern void func_00421a60();
 extern s32 func_00424708();
@@ -121,7 +121,7 @@ s32 func_0045b650(s32 handle, void *data, s32 size)
     q = func_00424708(&D_008E3FC0[0], 1);
     func_00440b68(D_007123F8, q);
     if (q == 0) {
-        func_0046d730(D_00712408, 0xF0);
+        kAssertFail(D_00712408, 0xF0);
     }
     do {
         r = func_00421b80(q);
@@ -187,7 +187,7 @@ void func_0045b7c0(void)
                 source = (u8 *)func_00455f70((s32)fileEntry->path[0], &size);
                 address = func_00429d10(0, size, 0);
                 if (!address) {
-                    func_0046d730(D_00712408, 0x129);
+                    kAssertFail(D_00712408, 0x129);
                 }
                 memcpy(D_008D3FD0, source, size);
                 func_0045b650(address, D_008D3FD0, size);
@@ -222,7 +222,7 @@ void func_0045b7c0(void)
                 source = (u8 *)func_00455f70((s32)fileEntry->path[1], &size);
                 address = func_00429d10(0, 0x1000, 0);
                 if (!address) {
-                    func_0046d730(D_00712408, 0x140);
+                    kAssertFail(D_00712408, 0x140);
                 }
                 slot = &sSfdDecodeSlots_abs[i];
                 destination = slot->intermediate;
@@ -274,7 +274,7 @@ void func_0045b7c0(void)
                 source = (u8 *)func_00455f70((s32)fileEntry->path[2], &size);
                 address = func_00429d10(0, size, 0);
                 if (!address) {
-                    func_0046d730(D_00712408, 0x165);
+                    kAssertFail(D_00712408, 0x165);
                 }
                 func_0045b650(address, source, size);
                 slot = &sSfdDecodeSlots_abs[i];
@@ -288,17 +288,17 @@ void func_0045b7c0(void)
                 queue = &slot->queueHandle;
                 if ((*queue = func_0043c230(3, -1, slot->input, slot->inputSize,
                                            slot->intermediate, slot->intermediateSize)) < 0) {
-                    func_0046d730(D_00712408, 0x16F);
+                    kAssertFail(D_00712408, 0x16F);
                 }
                 slot = &sSfdDecodeSlots_abs[i];
                 handle = &slot->outputHandle;
                 if ((*handle = func_0043c230(5, -1, *queue, 0)) < 0) {
-                    func_0046d730(D_00712408, 0x174);
+                    kAssertFail(D_00712408, 0x174);
                 }
                 slot = &sSfdDecodeSlots_abs[i];
                 decode = &slot->decodeHandle;
                 if ((*decode = func_0043c3b0(0, -1, *output, *outputSize)) < 0) {
-                    func_0046d730(D_00712408, 0x178);
+                    kAssertFail(D_00712408, 0x178);
                 }
                 slot = &sSfdDecodeSlots_abs[i];
                 slot->completion = func_0043c3b0(5, *handle, *decode);
@@ -326,7 +326,7 @@ void func_0045b7c0(void)
                     size = *inputSize;
                     address = func_00429d10(0, size, 0);
                     if (!address) {
-                        func_0046d730(D_00712408, 0x189);
+                        kAssertFail(D_00712408, 0x189);
                     }
                     func_0045b650(address, source, size);
                     slot = &sSfdDecodeSlots_abs[i];
@@ -345,7 +345,7 @@ void func_0045b7c0(void)
                     size = *intermediateSize;
                     address = func_00429d10(0, 0x1000, 0);
                     if (!address) {
-                        func_0046d730(D_00712408, 0x193);
+                        kAssertFail(D_00712408, 0x193);
                     }
                     intermediate = &initial->intermediate;
                     destination = *intermediate;
@@ -376,7 +376,7 @@ void func_0045b7c0(void)
                     size = *outputSize;
                     address = func_00429d10(0, size, 0);
                     if (!address) {
-                        func_0046d730(D_00712408, 0x1AB);
+                        kAssertFail(D_00712408, 0x1AB);
                     }
                     func_0045b650(address, source, size);
                     slot = &sSfdDecodeSlots_abs[i];

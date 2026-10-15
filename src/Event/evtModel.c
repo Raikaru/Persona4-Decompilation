@@ -67,7 +67,7 @@ extern s32 func_0044dcd8(f32 a);
 extern f32 func_0044e7d8(s32 a);
 
 extern u8 **kwlnTaskGetWork();
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void *mdlGetMatrix(s32 a);
 extern void mdlSetBlendWeight(s32 a, f32 b);
 extern void mdlSetLookAtDirection(s32 a, void *b);
@@ -121,7 +121,7 @@ state_ready:
     if (state == 1) {
         temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
-            func_0046d730(&D_0063C948, 0x176);
+            kAssertFail(&D_0063C948, 0x176);
         }
         if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f20)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
@@ -152,7 +152,7 @@ state1_counter:
     if (state == 2) {
         temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
-            func_0046d730(&D_0063C948, 0x176);
+            kAssertFail(&D_0063C948, 0x176);
         }
         if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f20)))) < fGpffff8514) {
             rec->counterB = rec->counterB + 1;
@@ -259,7 +259,7 @@ state_ready:
     if (state == 1) {
         temp_f21 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f21 < -1.0f) || !(temp_f21 <= 1.0f)) {
-            func_0046d730(&D_0063C948, 0x176);
+            kAssertFail(&D_0063C948, 0x176);
         }
         if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f21)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
@@ -302,7 +302,7 @@ block_21:
         mdlSetBlendWeight(model, var_f12_3);
         temp_f0_3 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_3 < -1.0f) || !(temp_f0_3 <= 1.0f)) {
-            func_0046d730(&D_0063C948, 0x176);
+            kAssertFail(&D_0063C948, 0x176);
         }
         if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_3)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
@@ -345,7 +345,7 @@ block_42:
         mdlSetBlendWeight(model, var_f12_5);
         temp_f0_5 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_5 < -1.0f) || !(temp_f0_5 <= 1.0f)) {
-            func_0046d730(&D_0063C948, 0x176);
+            kAssertFail(&D_0063C948, 0x176);
         }
         if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_5)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
@@ -387,7 +387,7 @@ block_63:
         mdlSetBlendWeight(model, var_f12_7);
         temp_f0_6 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_6 < -1.0f) || !(temp_f0_6 <= 1.0f)) {
-            func_0046d730(&D_0063C948, 0x176);
+            kAssertFail(&D_0063C948, 0x176);
         }
         if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_6)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
@@ -430,7 +430,7 @@ block_84:
         mdlSetBlendWeight(model, var_f12_9);
         temp_f0_8 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_8 < -1.0f) || !(temp_f0_8 <= 1.0f)) {
-            func_0046d730(&D_0063C948, 0x176);
+            kAssertFail(&D_0063C948, 0x176);
         }
         if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_8)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
@@ -461,7 +461,7 @@ block_105:
     if (state == 6) {
         temp_f0_9 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_9 < -1.0f) || !(temp_f0_9 <= 1.0f)) {
-            func_0046d730(&D_0063C948, 0x176);
+            kAssertFail(&D_0063C948, 0x176);
         }
         if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_9)))) < fGpffff8514) {
             rec->counterB = rec->counterB + 1;
@@ -751,7 +751,7 @@ void func_002933a0(u16 arg0, s32 arg1, f32 fparg0) {
     *(s32 *)(sp + 4) = arg1;
     *(f32 *)(sp + 8) = fparg0;
     if (temp_17 == NULL) {
-        func_0046d730(D_0063C948, 0x32C);
+        kAssertFail(D_0063C948, 0x32C);
     }
     temp_19 = (u8 *)*temp_17;
     if (temp_19 != NULL) {
@@ -801,7 +801,7 @@ void func_00293550(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
     *(s32 *)(sp + 4) = arg2;
     *(f32 *)(sp + 8) = fparg0;
     if (temp_17 == NULL) {
-        func_0046d730(D_0063C948, 0x32C);
+        kAssertFail(D_0063C948, 0x32C);
     }
     temp_19 = (u8 *)*temp_17;
     if (temp_19 != NULL) {

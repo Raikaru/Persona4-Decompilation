@@ -22,7 +22,7 @@ typedef struct
 } PscLight;
 
 extern void* func_00457120(void);
-extern void func_0046d730(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
 extern u8 D_0064E480[];
 extern u16 D_00884690[];
 extern void* func_003e89c0(void);
@@ -123,7 +123,7 @@ void func_003694d0(PscModel *model)
     f32 f;
 
     if (model->mode < 0 || model->mode >= 4) {
-        func_0046d730(D_0064E480, 0x2F7);
+        kAssertFail(D_0064E480, 0x2F7);
     }
     switch (model->mode) {
     case 1:
@@ -426,7 +426,7 @@ f32 func_0036a790(const f32* value, f32 scale)
 void func_0036a820(u8 *arg0, s16 arg1)
 {
     if (*(s32 *)(arg0 + 4) != 0) {
-        func_0046d730(D_0064E480, 0x524);
+        kAssertFail(D_0064E480, 0x524);
     }
     *(u16 *)(arg0 + 0x174) = arg1;
 }
@@ -435,7 +435,7 @@ void func_0036a820(u8 *arg0, s16 arg1)
 void func_0036a880(u8 *arg0, s32 arg1, s32 arg2)
 {
     if (*(s32 *)(arg0 + 4) != 1) {
-        func_0046d730(D_0064E480, 0x52F);
+        kAssertFail(D_0064E480, 0x52F);
     }
     *(s32 *)(arg0 + 0x170) = arg1;
     *(s32 *)(arg0 + 0x174) = arg2;
@@ -552,10 +552,10 @@ void func_0036aa20(void)
     }
     for (i = 0; i < 0x138; i++) {
         if (D_00884690[i] >= 0x44) {
-            func_0046d730(D_0064E480, 0x5C8);
+            kAssertFail(D_0064E480, 0x5C8);
         }
     }
     if ((p - D_00884690) != 0x138) {
-        func_0046d730(D_0064E480, 0x5CA);
+        kAssertFail(D_0064E480, 0x5CA);
     }
 }

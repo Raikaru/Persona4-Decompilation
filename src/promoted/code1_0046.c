@@ -81,7 +81,7 @@ extern s32 D_00724BF0;
 extern void sdkSpriteLoadStep(u8 *arg0);
 extern u8 *D_00724C08;
 
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern u8 D_007130E8[];
 extern s32 D_00724130;
 
@@ -2125,7 +2125,7 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
     extern u8 kwlnTaskDestroyWithHierarchyByName(const char *name);
     extern void H_Cdvd_StartPlayback(void *handle, void *path, s32 sync);
     extern s32 func_00457120(void);
-    extern void func_0046d730(void *arg0, s32 arg1);
+    extern void kAssertFail(void *arg0, s32 arg1);
     extern s32 mwPlyCalcWorkCprmSfd(MWSFD_CRPRM *arg0);
     extern s32 func_00509268(u8 *arg0);
     extern void func_005097e8(s32 arg0);
@@ -2228,7 +2228,7 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
         }
         if (work->startupTicks == 6) {
             if (func_003df860(*(struct RwSList **)(D_0070B610 + 0x10)) != 0) {
-                func_0046d730(D_00712FF8, 0x120);
+                kAssertFail(D_00712FF8, 0x120);
             }
             func_003d6010(D_0070B610);
         }
@@ -2852,7 +2852,7 @@ retry:
         func_0046d700((const char *)D_00756748, 0xB2,
                       (const char *)D_00756730, iGpffffbb04, size,
                       task_name, D_00724BEC, D_00724BF0);
-        func_0046d730(D_00756720, 0xB3);
+        kAssertFail(D_00756720, 0xB3);
 allocated:
         if (lock != 0) {
             func_0042ba70();
@@ -2874,7 +2874,7 @@ allocated:
         func_0046d700((const char *)D_00713088, 0xFA,
                       (const char *)D_007130A0, iGpffffbb04, size,
                       task_name, D_00724BEC, D_00724BF0);
-        func_0046d730(D_00713088, 0xFB);
+        kAssertFail(D_00713088, 0xFB);
     }
     goto retry;
 }
@@ -3011,7 +3011,7 @@ loop_1:
 void func_0046d6b0(s32 arg0)
 {
     if (arg0 == 0) {
-        func_0046d730(D_007130E8, 0x37);
+        kAssertFail(D_007130E8, 0x37);
     }
     D_00724130 = arg0;
 }
@@ -3020,8 +3020,9 @@ void func_0046d6b0(s32 arg0)
 void func_0046d700(const char *file, s32 line, const char *msg, ...)
 {
 }
+// Intent: assert-fail reporter for a failed K_ASSERT-style guard; takes the source file and line. Empty in this build. [inferred]
 // FUN_0046D730
-void func_0046d730(void *arg0, s32 arg1) {}
+void kAssertFail(void *arg0, s32 arg1) {}
 // FUN_0046D740
 void func_0046d740(const void *msg, const void *file, u32 line) {}
 /* RwGlobals.dOpenDevice begins at +0x10, with fpRenderStateSet at +0x20.

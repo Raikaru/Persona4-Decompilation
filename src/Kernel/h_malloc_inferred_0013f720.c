@@ -53,7 +53,7 @@ extern s16 func_00353c10(s16 *arg0);
 extern u8 *func_00354a50(s32 arg0, u16 arg1);
 extern u8 *func_0046a770(char *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 func_00141d80(u8 *arg0, s32 arg1);
 extern u8 D_005E57F0[];
 extern u8 D_005E5810[];
@@ -176,14 +176,14 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
         if (temp_23 > 0) {
             temp_17_2 = (func_00104ce0(arg0) & 0xFFFF) - temp_23;
             if (temp_17_2 <= 0) {
-                func_0046d730(D_005ED9F0, 0x25B);
+                kAssertFail(D_005ED9F0, 0x25B);
             }
             func_001056e0(arg0, (s16)temp_17_2);
         }
         if (temp_30 > 0) {
             temp_17_3 = (func_00104d50(arg0) & 0xFFFF) - temp_30;
             if (temp_17_3 < 0) {
-                func_0046d730(D_005ED9F0, 0x261);
+                kAssertFail(D_005ED9F0, 0x261);
             }
             func_00105730(arg0, (s16)temp_17_3);
         }
@@ -230,7 +230,7 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
     case 3:
         break;
     default:
-        func_0046d730(D_005ED9F0, 0x28C);
+        kAssertFail(D_005ED9F0, 0x28C);
         break;
     }
     return var_19;
@@ -298,18 +298,18 @@ void func_0013fb50(u8 *arg0) {
     *(s16 *)(arg0 + 0x32) = func_00353c10((s16 *)(arg0 + 0x22));
     resource0 = func_0046a770((char *)D_005E5830);
     if (resource0 == 0) {
-        func_0046d730(D_005EF6C8, 0x1EB);
+        kAssertFail(D_005EF6C8, 0x1EB);
     }
     resource1 = func_0046a770((char *)D_005E5850);
     if (resource1 == 0) {
-        func_0046d730(D_005EF6C8, 0x1ED);
+        kAssertFail(D_005EF6C8, 0x1ED);
     }
     *(u8 **)(arg0 + 0x1874) = resource2 = func_0046a770((char *)D_005E57F0);
     if (resource2 == 0) {
-        func_0046d730(D_005EF6C8, 0x1EF);
+        kAssertFail(D_005EF6C8, 0x1EF);
     }
     if (func_0046a770((char *)D_005E5810) == 0) {
-        func_0046d730(D_005EF6C8, 0x1F1);
+        kAssertFail(D_005EF6C8, 0x1F1);
     }
 
     {
@@ -327,7 +327,7 @@ void func_0013fb50(u8 *arg0) {
                 *slot = (s32)sdkSpriteNewNode((u32)resource2, *(u8 *)(D_005EDA00 + k));
             }
             if (*slot == 0) {
-                func_0046d730(D_005EF6C8, 0x1FD);
+                kAssertFail(D_005EF6C8, 0x1FD);
             }
             k++;
         }

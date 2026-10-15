@@ -17,7 +17,7 @@ u8 *func_004571a0(void);
 u8 *func_004571c0(void);
 void sprintf(void *dst, const void *fmt, s32 value);
 s32 strlen(const char *text);
-void func_0046d730(const void *file, s32 line);
+void kAssertFail(const void *file, s32 line);
 extern u8 D_00628F80[];
 extern char iGpffffa59c;
 extern void (*D_00887300[])(u32 state, u32 value);
@@ -86,7 +86,7 @@ mode23:
     color6 = 0xFF;
     goto mode_done;
 mode_error:
-    func_0046d730(D_00628F80, 0x12D);
+    kAssertFail(D_00628F80, 0x12D);
 mode_done:
     mode2 = mode;
     func_00201650(arg0, 0xA, 0x40, px, py,
@@ -108,7 +108,7 @@ mode_done:
                       color3, color4, color5, color6);
         break;
     default:
-        func_0046d730(D_00628F80, 0x13F);
+        kAssertFail(D_00628F80, 0x13F);
         break;
     }
     switch (mode2) {
@@ -130,7 +130,7 @@ mode_done:
     case 3:
         break;
     default:
-        func_0046d730(D_00628F80, 0x14E);
+        kAssertFail(D_00628F80, 0x14E);
         break;
     }
 }
@@ -550,7 +550,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
                 sprintf(text, &iGpffffa59c, datCalcGetLevel(*(u8 **)(unit + 0xA64)) & 0xFF);
                 len = strlen(text);
                 if (len > 2) {
-                    func_0046d730(D_00628F80, 0xF4);
+                    kAssertFail(D_00628F80, 0xF4);
                 }
                 nx += ((f32)(2 - len) * 22.0f) / 2.0f;
                 digitIndex = 0;

@@ -11,7 +11,7 @@ extern void frFontExSetScale(u32 resource, f32 angle);
 
 extern void frFontSetGlyphColor(u32 resource, u32 color);
 
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern char D_0064F220[];
 
 extern u32 *D_007246A0;
@@ -52,7 +52,7 @@ void func_0038ddf0(void)
     u32 *work;
 
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
     for (i = 0; i < 0x20; i++) {
@@ -71,7 +71,7 @@ void func_0038de90(void)
     u32 *work;
 
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
     work[0x484] = 0;
@@ -90,7 +90,7 @@ void func_0038de90(void)
 u32 func_0038df10(void)
 {
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     return D_007246A0[0] & 1;
 }
@@ -116,7 +116,7 @@ void func_0038df60(void)
     f32 elapsed;
 
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
     if ((~work[0] & 1) == 0) {
@@ -246,7 +246,7 @@ void func_0038e4b0(void)
     u32 *work;
 
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
     if ((~work[0] & 1) != 0) {
@@ -277,7 +277,7 @@ u32 *func_0038e610(void)
     u32 *record;
 
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
     for (i = 0; i < 0x20; i++) {
@@ -288,7 +288,7 @@ u32 *func_0038e610(void)
         }
     }
     if (!(i < 0x20)) {
-        func_0046d730(D_0064F220, 0x1AA);
+        kAssertFail(D_0064F220, 0x1AA);
     }
     record[0] |= 1;
     return record;
@@ -315,7 +315,7 @@ void func_0038e740(void)
     f32 pos[2];
 
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
     for (i = 0; i < 0x20; i++) {
@@ -466,7 +466,7 @@ u32 func_0038ec50(void)
     u32 base;
 
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
     stream = func_0038f950();
@@ -482,7 +482,7 @@ s32 func_0038ecc0(void)
     u32 base;
 
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
     stream = func_0038f950();
@@ -500,7 +500,7 @@ void func_0038ed30(void)
     u8 command;
 
     if (D_007246A0 == NULL) {
-        func_0046d730(D_0064F220, 0x6B);
+        kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
     stream = func_0038f950();

@@ -14,7 +14,7 @@ extern u32 func_002bb1e0(int param_1);
 extern s32 func_002bad10(s32 arg0);
 extern void *memset(void *dst, s32 value, size_t size);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064EB60[];
 extern u8 D_0064EC70[];
@@ -347,7 +347,7 @@ s32 func_00380ea0(u8 *arg0)
         }
         break;
     default:
-        func_0046d730(D_0064EC70, 0x3F4);
+        kAssertFail(D_0064EC70, 0x3F4);
         break;
     }
     return 0;
@@ -434,7 +434,7 @@ s32 func_00381830(u8 *arg0)
                 for (i = 0; i < count; i++) {
                     if (i != *(s32 *)(base + 0x1F308)) {
                         if (*(u16 *)(base + (i * 0xE8) + 0x1D6A0) & 2) {
-                            func_0046d730(D_0064EC70, 0x8C);
+                            kAssertFail(D_0064EC70, 0x8C);
                         }
                         func_0036e000(base + (i * 0xFB0));
                     }
@@ -930,7 +930,7 @@ s32 func_00382ba0(u8 *arg0) {
         }
         goto block_17;
     default:
-        func_0046d730(&D_0064EC70, 0x64E);
+        kAssertFail(&D_0064EC70, 0x64E);
         goto block_17;
     }
 block_17:
@@ -1043,7 +1043,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         *(s32 *)(work + 8) = 3;
         break;
     default:
-        func_0046d730(D_0064EC70, 0x6C7);
+        kAssertFail(D_0064EC70, 0x6C7);
         break;
     }
     if ((*(u16 *)(work + 4) & 2) == 0) {
@@ -1052,7 +1052,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         for (i = 0; i < count; i++) {
             if (i != *(s32 *)(u + 0x1F308)) {
                 if (*(u16 *)(u + i * 0xE8 + 0x1D6A0) & 2) {
-                    func_0046d730(D_0064EC70, 0x8C);
+                    kAssertFail(D_0064EC70, 0x8C);
                 }
                 func_0036e000(u + i * 0xFB0);
             }
@@ -1159,7 +1159,7 @@ s32 func_00383720(u8 *arg0) {
         if (flag8 != 0) return 1;
         goto block_39;
     default:
-        func_0046d730(&D_0064EC70, 0x72B);
+        kAssertFail(&D_0064EC70, 0x72B);
         goto block_39;
     }
 block_39:
@@ -1196,11 +1196,11 @@ s32 func_00383ae0(u8 *arg0, s32 arg1, u16 arg2, s32 arg3) {
     chkmemAllocSiteTag(&D_0064EC70, 0x757);
     work = D_008873F4[0](1, 0x94, 0x40000);
     if (work == NULL) {
-        func_0046d730(&D_0064EC70, 0x758);
+        kAssertFail(&D_0064EC70, 0x758);
     }
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064EB60), 0x12, 0, 0, func_00383a40, func_00383aa0, (u8 *)(work));
     if (ret == 0) {
-        func_0046d730(&D_0064EC70, 0x762);
+        kAssertFail(&D_0064EC70, 0x762);
     }
     func_00382ea0(work, arg0, arg1, arg2, arg3);
     return ret;

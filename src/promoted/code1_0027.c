@@ -1697,7 +1697,7 @@ void func_0027bf30(u8 *unusedTask, u8 *arg1)
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
-    extern void func_0046d730(void *arg0, s32 arg1);
+    extern void kAssertFail(void *arg0, s32 arg1);
     extern s32 func_00110580(s32 arg0);
     extern s32 func_00110d30(s32 arg0);
     extern s32 func_00110c50(s32 arg0, s32 arg1);
@@ -1780,14 +1780,14 @@ void func_0027bf30(u8 *unusedTask, u8 *arg1)
         }
         rot = (f32)frame / 120.0f;
         if (handle == NULL) {
-            func_0046d730(D_007482F0, 0x59);
+            kAssertFail(D_007482F0, 0x59);
         }
         func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 255.0f * fade, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * rot, 1.0f, 1.0f);
         frame = *(s32 *)(arg1 + 0x10);
         if (frame < 4) {
             fade = sinf(1.5707964f * (f32)frame / 4.0f);
             if (handle == NULL) {
-                func_0046d730(D_007482F0, 0x59);
+                kAssertFail(D_007482F0, 0x59);
             }
             rot = 1.0f - fade;
             func_0025ea20(165.0f, 244.0f + 95.0f * fade, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, rot);
@@ -1838,7 +1838,7 @@ void func_0027bf30(u8 *unusedTask, u8 *arg1)
             func_001104d0(date, &month, &day);
             if (day == 1) {
                 if (handle == NULL) {
-                    func_0046d730(D_007482F0, 0x59);
+                    kAssertFail(D_007482F0, 0x59);
                 }
                 func_0025ea20(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }

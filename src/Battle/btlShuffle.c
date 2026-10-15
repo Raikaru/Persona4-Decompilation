@@ -14,7 +14,7 @@ extern s32 kwlnTaskGetTaskByName(void *arg0);
 
 extern u32 datCalcRandomBelow(u32 max);
 
-extern void func_0046d730(const void *file, s32 line);
+extern void kAssertFail(const void *file, s32 line);
 
 extern u8 D_0064E5D0[];
 
@@ -288,7 +288,7 @@ case2_body:
         *(s32 *)(work + 8) = 4;
         break;
     default:
-        func_0046d730(D_0064E790, 0x178);
+        kAssertFail(D_0064E790, 0x178);
         break;
     }
     return 0;
@@ -433,7 +433,7 @@ s32 func_0036e920(u8 arg0)
         }
     }
     if (i >= 5) {
-        func_0046d730(D_0064E790, 0x26C);
+        kAssertFail(D_0064E790, 0x26C);
     }
     return i;
 }
@@ -527,7 +527,7 @@ s32 func_0036eb50(s32 arg0, u8 arg1)
                 i++;
             }
             if (i >= 3) {
-                func_0046d730(D_0064E790, 0x2CF);
+                kAssertFail(D_0064E790, 0x2CF);
             }
         }
         break;
@@ -541,7 +541,7 @@ s32 func_0036eb50(s32 arg0, u8 arg1)
                 i++;
             }
             if (i >= 4) {
-                func_0046d730(D_0064E790, 0x2DB);
+                kAssertFail(D_0064E790, 0x2DB);
             }
         }
         break;
@@ -555,7 +555,7 @@ s32 func_0036eb50(s32 arg0, u8 arg1)
                 i++;
             }
             if (i >= 3) {
-                func_0046d730(D_0064E790, 0x2E7);
+                kAssertFail(D_0064E790, 0x2E7);
             }
         }
         break;
@@ -587,7 +587,7 @@ s32 func_0036eda0(s32 arg0)
         }
     }
     if (i < 0) {
-        func_0046d730(D_0064E790, 0x307);
+        kAssertFail(D_0064E790, 0x307);
     }
     return i + 1;
 }
@@ -861,7 +861,7 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
             break;
         }
         if (idx2 == 0x2C) {
-            func_0046d730(D_0064E790, 0x4A1);
+            kAssertFail(D_0064E790, 0x4A1);
         }
     }
     return result;
@@ -904,7 +904,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
 
     n = 0;
     if (count > 12) {
-        func_0046d730(D_0064E790, 1207);
+        kAssertFail(D_0064E790, 1207);
     }
     for (i = 0; i < count; i++) {
         if (datPersonaRosterSlotActive((s16)i) != 0) {
@@ -1111,12 +1111,12 @@ s32 func_00370020(s32 arg0, u8 *arg1)
         kind = 2;
         break;
     default:
-        func_0046d730(D_0064E790, 0x5D6);
+        kAssertFail(D_0064E790, 0x5D6);
         break;
     }
     p = (u8 *)datPersonaRosterSlot((s16)datCalcRandomBelow(datPersonaCountValidMembers() & 0xFFFF));
     if (p == NULL) {
-        func_0046d730(D_0064E790, 0x5DC);
+        kAssertFail(D_0064E790, 0x5DC);
     }
     if ((flag & 0xFFFF) != 0) {
         s32 sum;

@@ -3,7 +3,7 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern char D_0063BAE8[];
 extern char D_0063BC78[];
 
@@ -46,7 +46,7 @@ extern int func_00275a40_typed(int);
 void frFontExSetScale(int font, f32 scale)
 {
     if (font == 0) {
-        func_0046d730(D_0063BC78, 0x12);
+        kAssertFail(D_0063BC78, 0x12);
     }
     while (font != 0) {
         *(f32 *)(font + 0x14) = scale;
@@ -84,7 +84,7 @@ s32 frFontExLayoutText(int font, f32 x, f32 y, f32 scale, s32 color, s8 mode,
     }
     node = font;
     if (font == 0) {
-        func_0046d730(D_0063BAE8, 0x71F);
+        kAssertFail(D_0063BAE8, 0x71F);
     }
     while (*(int *)(node + 0x24) != 0) {
         node = *(int *)(node + 0x24);
@@ -98,7 +98,7 @@ s32 frFontExLayoutText(int font, f32 x, f32 y, f32 scale, s32 color, s8 mode,
     }
     node = font;
     if (font == 0) {
-        func_0046d730(D_0063BC78, 0x12);
+        kAssertFail(D_0063BC78, 0x12);
     }
     while (node != 0) {
         *(f32 *)(node + 0x14) = scale;
@@ -149,7 +149,7 @@ int frFontExCreateText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     frFontMoveListToFloat(font, x, y);
     node = font;
     if (font == 0) {
-        func_0046d730(D_0063BC78, 0x12);
+        kAssertFail(D_0063BC78, 0x12);
     }
     while (node != 0) {
         *(f32 *)(node + 0x14) = scale;
@@ -201,7 +201,7 @@ int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, in
     font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
-        func_0046d730(D_0063BAE8, 0x6C3);
+        kAssertFail(D_0063BAE8, 0x6C3);
     }
     *(s8 *)(font + 3) = charWidth;
     *(int *)(font + 0xc) = frFontNodeWidth(font);
@@ -230,7 +230,7 @@ int frFontExDrawTextOutA(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
-        func_0046d730(D_0063BAE8, 0x6C3);
+        kAssertFail(D_0063BAE8, 0x6C3);
     }
     *(s8 *)(font + 3) = charWidth;
     *(int *)(font + 0xc) = frFontNodeWidth(font);
@@ -260,7 +260,7 @@ int frFontExDrawTextOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
-        func_0046d730(D_0063BAE8, 0x6C3);
+        kAssertFail(D_0063BAE8, 0x6C3);
     }
     *(s8 *)(font + 3) = charWidth;
     *(int *)(font + 0xc) = frFontNodeWidth(font);
@@ -304,7 +304,7 @@ int frFontExDrawTextDeferred(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
         result = tmp;
     }
     if (font == 0) {
-        func_0046d730(D_0063BC78, 0xE6);
+        kAssertFail(D_0063BC78, 0xE6);
     }
     work = func_00460990();
     *(void **)((char *)work + 0x8) = (void *)frFontExFreeText;
@@ -328,7 +328,7 @@ int frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, int color, s8
     font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
-        func_0046d730(D_0063BAE8, 0x6C3);
+        kAssertFail(D_0063BAE8, 0x6C3);
     }
     *(s8 *)(font + 3) = charWidth;
     *(int *)(font + 0xc) = frFontNodeWidth(font);
@@ -337,7 +337,7 @@ int frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, int color, s8
         result = tmp;
     }
     if (font == 0) {
-        func_0046d730(D_0063BC78, 0xF9);
+        kAssertFail(D_0063BC78, 0xF9);
     }
     work = func_00460990();
     *(void **)((char *)work + 0x8) = (void *)frFontExFreeText;
@@ -366,7 +366,7 @@ int frFontExDrawTextDeferredOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int
     }
     D_007645A8 = 0;
     if (font == 0) {
-        func_0046d730(D_0063BC78, 0x128);
+        kAssertFail(D_0063BC78, 0x128);
     }
     work = func_00460990();
     *(void **)((char *)work + 0x8) = (void *)frFontExFreeText;
@@ -391,7 +391,7 @@ void frFontExCopyString(char *src, char *dst, int maxlen)
     int i = 0;
 
     if (dst == 0 || src == 0 || maxlen == 0) {
-        func_0046d730(D_0063BC78, 0x134);
+        kAssertFail(D_0063BC78, 0x134);
     }
     memset(dst, 0, maxlen);
     for (; src[i] != 0 && maxlen - 1 > i; i++) {

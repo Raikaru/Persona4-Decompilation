@@ -742,7 +742,7 @@ void func_00105990(s16 arg0, u32 arg1)
 // FUN_00105A50
 s32 func_00105a50(s16 arg0)
 {
-    extern void func_0046d730(const char *file, s32 line);
+    extern void kAssertFail(const char *file, s32 line);
     s32 value;
     s32 value3;
     u8 j;
@@ -754,7 +754,7 @@ s32 func_00105a50(s16 arg0)
     else {
         PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
         if (persona == 0)
-            func_0046d730((const char *)D_005E4298, 0x1B8);
+            kAssertFail((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetNextExp((int)persona);
     }
     index = 0;
@@ -780,7 +780,7 @@ first_done:
     else {
         PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
         if (persona == 0)
-            func_0046d730((const char *)D_005E4298, 0x1B8);
+            kAssertFail((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetNextExp((int)persona);
     }
     index2 = 0;
@@ -805,7 +805,7 @@ second_done:
     else {
         PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
         if (persona == 0)
-            func_0046d730((const char *)D_005E4298, 0x1B8);
+            kAssertFail((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetNextExp((int)persona);
     }
     return (s32)((u32)value3 - (u32)value);

@@ -81,7 +81,7 @@ extern void func_001d7c60(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3, u8 *arg4);
 extern s32 btlAICommandCollectSkillCandidates(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1);
 extern char D_006095E0[];
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
 extern s32 datCalcHasSkill(u8 *unit, s32 command);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 command);
@@ -119,7 +119,7 @@ static inline s32 btlCommandUsable(u8 *p, u32 arg1) {
 
     a = arg1 & 0xFFFF;
     if (a >= 0x240) {
-        func_0046d730(D_006095E0, 0x45F);
+        kAssertFail(D_006095E0, 0x45F);
     }
     p = *(u8 **)(p + 0x30);
     if (a < 0x1B8) {
@@ -1423,7 +1423,7 @@ s32 btlAICommandCollectSkillCandidates(u8 *p, u8 *q, s32 arg2, s32 arg3)
             }
             cmd = *e;
             if (cmd >= 0x240)
-                func_0046d730(D_006095E0, 0x45F);
+                kAssertFail(D_006095E0, 0x45F);
             unitP = *(u8 **)(p + 0x30);
             if (cmd < 0x1B8) {
                 if (datCalcChkBadStatus(*(u32 *)(unitP + 0xA64), 0x80008) != 0) {
@@ -5313,7 +5313,7 @@ s32 btlAICommandIdScriptQueryCanUseCommand(void) {
     s32 idx = r1 & 0xFFFF;
     s32 x;
     if (idx >= 0x240)
-        func_0046d730(D_006095E0, 0x45F);
+        kAssertFail(D_006095E0, 0x45F);
     q = *(u8 **)(q + 0x30);
     if (idx < 0x1B8) {
         if (datCalcChkBadStatus((s32)*(u8 **)(q + 0xA64), 0x80008) != 0)

@@ -106,7 +106,7 @@ extern void *mdlGetColor();
 extern void func_004b14f0(void *object, s32 *color);
 extern void chkmemAllocSiteTag(const void *msg, u32 id);
 
-extern void func_0046d730(const void *msg, u32 line);
+extern void kAssertFail(const void *msg, u32 line);
 extern void func_00440b68(const void *msg, u32 value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u32 *jtbl_008873E8[];
@@ -402,7 +402,7 @@ u32 MT_Scene_BeginResPathAnim(Resrc *param_1, u32 param_2, float param_3, u32 pa
         uVar2 = (u32)((u32(*)(u32, u32))jtbl_008873E8[0])(0x130, 0x40000);
         *(u32 *)(iVar3 + 0x58) = uVar2;
         if (uVar2 == 0) {
-            func_0046d730(D_0063B090, 0x26A);
+            kAssertFail(D_0063B090, 0x26A);
         }
     }
     puVar4 = *(u32 **)(iVar3 + 0x58);
@@ -2265,7 +2265,7 @@ float MT_Scene_SampleCurveTable(u32 arg0, float param_2, float param_3)
     u8 auStack[0x138];
 
     if (arg0 >= 6) {
-        func_0046d730(D_0063B090, 0xA24);
+        kAssertFail(D_0063B090, 0xA24);
     }
     if (param_2 == 0.0f) {
         param_3 = 1.0f;

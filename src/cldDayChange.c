@@ -14,7 +14,7 @@ extern u8 *func_00460990();
 extern void func_00460ac0(void *, void *);
 extern u8 *kwlnTaskGetWork();
 extern void sdkSpriteRelease(void *);
-void func_0046d730(const void *file, s32 line);
+void kAssertFail(const void *file, s32 line);
 void chkmemAllocSiteTag(const void *msg, s32 id);
 
 s32 func_0045a8d0();
@@ -56,7 +56,7 @@ void cldDayChangeStartTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *p;
 
     if (arg3 == 0) {
-        func_0046d730(&D_006376B0, 0x451);
+        kAssertFail(&D_006376B0, 0x451);
     }
     chkmemAllocSiteTag(&D_006376B0, 0x452);
     p = D_008873F4[0](1, 0x24, 0x40000);
@@ -718,7 +718,7 @@ s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2) {
     s32 r;
 
     if (arg2 == 0) {
-        func_0046d730(&D_006376B0, 0x692);
+        kAssertFail(&D_006376B0, 0x692);
     }
     chkmemAllocSiteTag(&D_006376B0, 0x693);
     p = D_008873F4[0](1, 0x24, 0x40000);

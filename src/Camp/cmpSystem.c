@@ -21,7 +21,7 @@ s32 func_003544f0(void);
 void memset(void *, s32, s32);
 void *func_0046a770(char *);
 s32 sdkSpriteNewNode(void *, u8);
-void func_0046d730(char *, s32);
+void kAssertFail(char *, s32);
 s32 func_0035fa20(u8 *, u32);
 
 // FUN_0035F5B0
@@ -76,19 +76,19 @@ void func_0035f5b0(u8 *arg0)
     }
     spr2 = func_0046a770(D_005E5830);
     if (spr2 == NULL) {
-        func_0046d730(D_0064E270, 0x15B);
+        kAssertFail(D_0064E270, 0x15B);
     }
     spr1 = func_0046a770(D_005E5850);
     if (spr1 == NULL) {
-        func_0046d730(D_0064E270, 0x15D);
+        kAssertFail(D_0064E270, 0x15D);
     }
     *(s32 *)(arg0 + 0x700) = (s32)(spr3 = func_0046a770(D_005E57F0));
     if (spr3 == NULL) {
-        func_0046d730(D_0064E270, 0x15F);
+        kAssertFail(D_0064E270, 0x15F);
     }
     spr4 = func_0046a770(D_005E5810);
     if (spr4 == NULL) {
-        func_0046d730(D_0064E270, 0x161);
+        kAssertFail(D_0064E270, 0x161);
     }
     for (i4 = 0; i4 < 0x2A; i4++) {
         if (i4 < 0x25) {
@@ -109,7 +109,7 @@ void func_0035f5b0(u8 *arg0)
             *slot = sdkSpriteNewNode(spr4, byte);
         }
         if (*slot == 0) {
-            func_0046d730(D_0064E270, 0x171);
+            kAssertFail(D_0064E270, 0x171);
         }
     }
     *(u8 *)(arg0 + 0x3C) = func_002bab80(&D_0064A790[0]);
@@ -191,7 +191,7 @@ s32 func_0035fa20(u8 *arg0, u32 arg1)
         *(s16 *)(arg0 + 0x34) = 0xF;
         break;
     default:
-        func_0046d730(D_0064E270, 0x1CF);
+        kAssertFail(D_0064E270, 0x1CF);
         break;
     }
     if (var_16 != NULL) {

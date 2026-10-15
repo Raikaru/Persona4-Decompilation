@@ -36,7 +36,7 @@ extern u8 *func_002e1db0(s32, int (*)(), int (*)(), int (*)());
 extern u8 D_0063F398[];
 extern u8 D_00882F30[];
 extern s32 func_002bce00(u8 *task);
-extern void func_0046d730(void *, s32);
+extern void kAssertFail(void *, s32);
 extern char D_0063F2A0[];
 extern void fclMiscReleaseHandle(int *);
 extern s32 fclMiscActivateHandle(u8 *, s32, s32);
@@ -217,17 +217,17 @@ s32 func_002bcfb0(u8 *arg0, u8 *arg1) {
             fclMiscReleaseHandle((int *)(arg1 + 0x10));
             if (!(*(s32 *)(arg0 + 0x14) & 1)) {
                 if (arg0 == NULL) {
-                    func_0046d730(&D_0063F2A0, 0x58F);
+                    kAssertFail(&D_0063F2A0, 0x58F);
                 }
                 *(s32 *)(arg0 + 0x1C) |= 4;
             }
             temp_16 = *(s32 *)(arg1 + 0x2C);
             if (!(*(s32 *)(arg0 + 0x14) & (1 << temp_16))) {
                 if (arg0 == NULL) {
-                    func_0046d730(&D_0063F2A0, 0x58F);
+                    kAssertFail(&D_0063F2A0, 0x58F);
                 }
                 if ((temp_16 < 0) || (temp_16 > 0xB)) {
-                    func_0046d730(&D_0063F2A0, 0x590);
+                    kAssertFail(&D_0063F2A0, 0x590);
                 }
                 temp_3_2 = arg0 + (temp_16 * 0xC);
                 *(s32 *)(temp_3_2 + 0x1C) |= 4;
@@ -238,14 +238,14 @@ s32 func_002bcfb0(u8 *arg0, u8 *arg1) {
     }
     if (temp_3 & 1) {
         if (arg0 == NULL) {
-            func_0046d730(&D_0063F2A0, 0x587);
+            kAssertFail(&D_0063F2A0, 0x587);
         }
         if (!(*(s32 *)(arg0 + 0x1C) & 2)) {
             return 0;
         }
         temp_18 = *(s32 *)(arg1 + 0x2C);
         if (arg0 == NULL) {
-            func_0046d730(&D_0063F2A0, 0x587);
+            kAssertFail(&D_0063F2A0, 0x587);
         }
         if (!(*(s32 *)(arg0 + (temp_18 * 0xC) + 0x1C) & 2)) {
             return 0;

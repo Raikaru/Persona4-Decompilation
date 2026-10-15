@@ -160,7 +160,7 @@ extern u16 D_008C0252[];
 extern u16 D_008C0256[];
 
 void chkmemAllocSiteTag(char* file, s32 line);
-void func_0046d730(char* file, s32 line);
+void kAssertFail(char* file, s32 line);
 void func_0046d740(const void *msg, const void *file, u32 line);
 void func_0046d700(char* file, s32 line, char* msg, s32 value);
 void memset(void* dst, s32 value, s32 size);
@@ -239,7 +239,7 @@ u8* scrPoolAlloc(ScrPool* pool)
 
     if (pool == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x5B);
+        kAssertFail(D_0063E3D0, 0x5B);
     }
     if (pool->freeCount == pool->elemCount)
     {
@@ -248,7 +248,7 @@ u8* scrPoolAlloc(ScrPool* pool)
     elem = pool->freeList;
     if (elem == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x5F);
+        kAssertFail(D_0063E3D0, 0x5F);
     }
     pool->freeList = ((ScrPoolElem*)elem)->next;
     ((ScrPoolElem*)elem)->next = NULL;
@@ -270,10 +270,10 @@ void scrPoolFree(void *arg0, void *arg1)
     u32 call2;
 
     if (arg0 == NULL) {
-        func_0046d730(D_0063E3D0, 0x6A);
+        kAssertFail(D_0063E3D0, 0x6A);
     }
     if (arg1 == NULL) {
-        func_0046d730(D_0063E3D0, 0x6B);
+        kAssertFail(D_0063E3D0, 0x6B);
     }
     node = (u8 *)arg1 - 8;
     if (*(s32 *)((u8 *)arg1 - 4) == 0) {
@@ -340,7 +340,7 @@ ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* pr
     work = (ScrScriptWork*)scrPoolAlloc(D_00764610);
     if (work == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x83);
+        kAssertFail(D_0063E3D0, 0x83);
     }
     if (work == NULL)
     {
@@ -388,11 +388,11 @@ ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* pr
     msg = scrPoolAlloc(D_00764614);
     if (msg == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x93);
+        kAssertFail(D_0063E3D0, 0x93);
     }
     if (msg == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x148);
+        kAssertFail(D_0063E3D0, 0x148);
     }
     work->msgA = msg;
     work->msgB = msg + 0x320;
@@ -445,7 +445,7 @@ ScrScriptWork* func_0029d660(ScrHeader* header, s32 index)
     strings = NULL;
     if (header == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x180);
+        kAssertFail(D_0063E3D0, 0x180);
     }
     entries = header->entries;
     if (header->magic[0] != 'F' || header->magic[1] != 'L' || header->magic[2] != 'W' || header->magic[3] != '0')
@@ -545,12 +545,12 @@ s32 func_0029d9b0(s32 arg0, u8* arg1, u8* arg2, u8* arg3, u8* arg4, u8* arg5, u8
     work = func_0029d2f0((ScrHeader*)arg1, (ScrContentEntry*)arg2, arg3, arg4, arg5, arg6, arg7, arg8);
     if (work == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x23D);
+        kAssertFail(D_0063E3D0, 0x23D);
     }
     task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
-        func_0046d730(D_0063E3D0, 0x1F4);
+        kAssertFail(D_0063E3D0, 0x1F4);
     }
     work->taskId = task;
     return task;
@@ -565,12 +565,12 @@ s32 func_0029da90(s32 arg0, u8* arg1, s32 arg2)
     work = func_0029d660((ScrHeader*)arg1, arg2);
     if (work == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x259);
+        kAssertFail(D_0063E3D0, 0x259);
     }
     task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
-        func_0046d730(D_0063E3D0, 0x1F4);
+        kAssertFail(D_0063E3D0, 0x1F4);
     }
     work->taskId = task;
     return task;
@@ -590,13 +590,13 @@ s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     work = func_0029d660((ScrHeader*)text, arg3);
     if (work == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x27C);
+        kAssertFail(D_0063E3D0, 0x27C);
     }
     work->textBuf = text;
     task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
-        func_0046d730(D_0063E3D0, 0x1F4);
+        kAssertFail(D_0063E3D0, 0x1F4);
     }
     work->taskId = task;
     return task;
@@ -750,7 +750,7 @@ void func_0029dfe0(void* arg0, u8* proc)
     work = (ScrScriptWork*)kwlnTaskGetWork(arg0);
     if (work == NULL)
     {
-        func_0046d730(D_0063E3D0, 0x3C5);
+        kAssertFail(D_0063E3D0, 0x3C5);
     }
     work->proc = proc;
 }
@@ -910,7 +910,7 @@ s32 func_0029e040(u8 *sdkTask)
         case 3:
             task->unk_214 = func_0029d660((ScrHeader *)(void *)task->unk_224, task->unk_218);
             if (task->unk_214 == NULL) {
-                func_0046d730(D_0063E3D0, 0x44C);
+                kAssertFail(D_0063E3D0, 0x44C);
             }
             task->state = 4;
             task->flags |= 1;

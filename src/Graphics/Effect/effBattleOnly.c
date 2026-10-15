@@ -3,7 +3,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 
-void func_0046d730(u8 *file, s32 line);
+void kAssertFail(u8 *file, s32 line);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 
@@ -54,14 +54,14 @@ u8 *func_004b50f0(s32 id, s32 arg1)
     s32 size;
 
     if ((u16)id >= 0xD) {
-        func_0046d730(D_007146A0, 0x1B);
+        kAssertFail(D_007146A0, 0x1B);
     } else {
     }
     size = D_00764C90[(id & 0xFFFF)].size;
     chkmemAllocSiteTag(D_007146A0, 0x1F);
     work = (EffBattleWork *)(*jtbl_008873E8)(size + 0x40, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_007146A0, 0x20);
+        kAssertFail(D_007146A0, 0x20);
     }
     work->data = (u8 *)work + 0x40;
     work->count = 0;
@@ -94,7 +94,7 @@ void *func_004b5200(void *arg0)
 
     tex = func_00484490(arg0);
     if (tex == NULL) {
-        func_0046d730(D_007146A0, 0x58);
+        kAssertFail(D_007146A0, 0x58);
     }
     value = (s32)func_004844d0(arg0);
     id16 = *(u16 *)((u8 *)arg0 + 0x1C);
@@ -124,7 +124,7 @@ void *func_004b5200(void *arg0)
         }
     }
     if (work == NULL) {
-        func_0046d730(D_007146A0, 0x5D);
+        kAssertFail(D_007146A0, 0x5D);
     }
     return work;
 }

@@ -47,7 +47,7 @@ extern void func_004bc4d0(u8 *arg0, f32 arg1);
 extern void func_004bc500(void* work);
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern void func_0046d730(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
 extern f32 RwV3dLength(void *a0);
 extern void RwV3dNormalize(f32 *a, f32 *b);
 extern f32 Vpad_GetSegmentLength(void *arg0, s32 arg1);
@@ -166,7 +166,7 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
     *section = currentSection;
     sectionLength = cumulative - previous;
     if (sectionLength <= 0.0f) {
-        func_0046d730(D_007146E0, 0x7E);
+        kAssertFail(D_007146E0, 0x7E);
     }
     *fraction = (targetDistance - previous) / sectionLength;
 }
@@ -206,7 +206,7 @@ void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
     f32 projection;
 
     if (data->count < 2) {
-        func_0046d730(D_007146E0, 0xAA);
+        kAssertFail(D_007146E0, 0xAA);
     }
     if (section == data->count - 1) {
         s32 secondIndex;
@@ -334,7 +334,7 @@ void func_004b7dc0(u8 *work, s32 section, EffAfterVec *output) {
     f32 trailingLength;
 
     if (data->count < 2) {
-        func_0046d730(D_007146E0, 0xF7);
+        kAssertFail(D_007146E0, 0xF7);
     }
     if (section == data->count - 1) {
         s32 secondIndex;
@@ -649,7 +649,7 @@ u8 *func_004b8350(u8 *arg0, struct RpMaterial *arg1)
                 uv = *(AfterTexCoord **)(obj + 0x34);
                 for (attributeIndex = 0; attributeIndex < *(s32 *)(*(u8 **)arg0 + 0xC);) {
                     if (*(s32 *)(*(u8 **)arg0 + 0xC) - 1 <= 0) {
-                        func_0046d730(D_007146E0, 0x226);
+                        kAssertFail(D_007146E0, 0x226);
                     }
                     if (attributeIndex == 0) {
                         uv[0].u = (f32)attributeIndex / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
@@ -668,7 +668,7 @@ u8 *func_004b8350(u8 *arg0, struct RpMaterial *arg1)
                     rightUV = *(AfterTexCoord **)(obj + 0x34) + 1;
                     for (rightIndex = 0; rightIndex < *(s32 *)(*(u8 **)arg0 + 0xC);) {
                         if (*(s32 *)(*(u8 **)arg0 + 0xC) - 1 <= 0) {
-                            func_0046d730(D_007146E0, 0x234);
+                            kAssertFail(D_007146E0, 0x234);
                         }
                         rightUV[0].u = (f32)rightIndex / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
                         rightUV[0].v = 1.0f;
@@ -922,7 +922,7 @@ void func_004b8f40(u8 *work, void **pp)
       col = *(u8 **)(*(u8 **)pp + 0x30);
       for (i = 0; i < *(s32 *)(*(u8 **)work + 0xC);) {
         if (*(s32 *)(*(u8 **)work + 0xC) - 1 < 1) {
-          func_0046d730(D_007146E0,0x3d1);
+          kAssertFail(D_007146E0,0x3d1);
         }
         if (i == 0) {
           fraction = (f32)i / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
@@ -938,7 +938,7 @@ void func_004b8f40(u8 *work, void **pp)
       col = *(u8 **)(*(u8 **)pp + 0x30) + 4;
       for (i = 0; i < *(s32 *)(*(u8 **)work + 0xC);) {
         if (*(s32 *)(*(u8 **)work + 0xC) - 1 < 1) {
-          func_0046d730(D_007146E0,0x3dc);
+          kAssertFail(D_007146E0,0x3dc);
         }
         fraction = (f32)i / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
         func_004bc540(work,1,fraction,col);
@@ -1043,7 +1043,7 @@ void func_004b8f40(u8 *work, void **pp)
       puVar10 = puVar13 + *(s32 *)(*(u8 **)pp + 0x14) * 3;
       for (temp_v5 = 0; temp_v5 < *(s32 *)(*(u8 **)work + 0xC) + 1;) {
         if (puVar10 == puVar13) {
-          func_0046d730(D_007146E0,0x43c);
+          kAssertFail(D_007146E0,0x43c);
         }
         puVar13[0] = 0;
         puVar13[1] = 0;
@@ -1054,7 +1054,7 @@ void func_004b8f40(u8 *work, void **pp)
       puVar13 = (u32 *)(*(u8 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14) + 0xc);
       for (temp_v5 = 0; temp_v5 < *(s32 *)(*(u8 **)work + 0xC);) {
         if (puVar10 == puVar13) {
-          func_0046d730(D_007146E0,0x446);
+          kAssertFail(D_007146E0,0x446);
         }
         puVar13[0] = 0;
         puVar13[1] = 0;
@@ -1123,7 +1123,7 @@ void func_004b8f40(u8 *work, void **pp)
         }
         for (jj = 0; jj < span;) {
           if (*(s32 *)((*(u8 **)work) + 0xc) - 1 < 1) {
-            func_0046d730(D_007146E0,0x480);
+            kAssertFail(D_007146E0,0x480);
           }
           if (side == 0) {
             if (jj == 0) {
@@ -1166,7 +1166,7 @@ void func_004b8f40(u8 *work, void **pp)
           }
           s = 1.0f - fraction;
           if (!(out < lim)) {
-            func_0046d730(D_007146E0,0x49d);
+            kAssertFail(D_007146E0,0x49d);
           }
           *out = ctrl[0].c[0] * s * s * s + 3.0f * ctrl[1].c[0] * fraction * s * s + 3.0f * ctrl[2].c[0] * fraction * fraction * s + ctrl[3].c[0] * fraction * fraction * fraction;
           out[1] = ctrl[0].c[1] * s * s * s + 3.0f * ctrl[1].c[1] * fraction * s * s + 3.0f * ctrl[2].c[1] * fraction * fraction * s + ctrl[3].c[1] * fraction * fraction * fraction;
@@ -1179,7 +1179,7 @@ void func_004b8f40(u8 *work, void **pp)
           jj = jj + *(s32 *)((work) + 8);
         }
         if (out >= lim) {
-          func_0046d730(D_007146E0,0x4ae);
+          kAssertFail(D_007146E0,0x4ae);
         }
         pb = (f32 *)(*(s32 *)(((work) + side * 4 + 0x10)) + jj * 0xc);
         *(EffAfterVec *)out = *(EffAfterVec *)pb;
@@ -1548,7 +1548,7 @@ void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
     queue->writeIndex %= queue->config->capacity;
     switch (queue->count) {
     case 0:
-        func_0046d730(D_007146E0, 0x5BB);
+        kAssertFail(D_007146E0, 0x5BB);
         break;
     case 1:
         break;
@@ -1742,7 +1742,7 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
     if (queue->count < 2) {
-        func_0046d730(D_007146E0, 0x14E);
+        kAssertFail(D_007146E0, 0x14E);
     }
     if (section == 0) {
         dir.c[0] = 0.0f;
@@ -1772,7 +1772,7 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
     if (queue->count < 2) {
-        func_0046d730(D_007146E0, 0x137);
+        kAssertFail(D_007146E0, 0x137);
     }
     if (section == queue->count - 1) {
         dir.c[0] = 0.0f;
@@ -1833,7 +1833,7 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
     if (queue->count < 2) {
-        func_0046d730(D_007146E0, 0x14E);
+        kAssertFail(D_007146E0, 0x14E);
     }
     if (section == 0) {
         dir.c[0] = 0.0f;
@@ -1863,7 +1863,7 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
     if (queue->count < 2) {
-        func_0046d730(D_007146E0, 0x137);
+        kAssertFail(D_007146E0, 0x137);
     }
     if (section == queue->count - 1) {
         dir.c[0] = 0.0f;
@@ -1931,7 +1931,7 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
     if (queue->count < 2) {
-        func_0046d730(D_007146E0, 0x14E);
+        kAssertFail(D_007146E0, 0x14E);
     }
     if (following == 0) {
         dir.c[0] = 0.0f;
@@ -1961,7 +1961,7 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
     if (queue->count < 2) {
-        func_0046d730(D_007146E0, 0x137);
+        kAssertFail(D_007146E0, 0x137);
     }
     if (following == queue->count - 1) {
         dir.c[0] = 0.0f;
@@ -2019,7 +2019,7 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
     if (queue->count < 2) {
-        func_0046d730(D_007146E0, 0x14E);
+        kAssertFail(D_007146E0, 0x14E);
     }
     if (following == 0) {
         dir.c[0] = 0.0f;
@@ -2049,7 +2049,7 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] += dir.c[1];
     acc.c[2] += dir.c[2];
     if (queue->count < 2) {
-        func_0046d730(D_007146E0, 0x137);
+        kAssertFail(D_007146E0, 0x137);
     }
     if (following == queue->count - 1) {
         dir.c[0] = 0.0f;
@@ -2128,7 +2128,7 @@ f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
     f32 t;
 
     if (arg1 == *(s32 *)(arg0 + 8) - 1) {
-        func_0046d730(D_007146E0, 0x6F8);
+        kAssertFail(D_007146E0, 0x6F8);
     }
     i = -2 - arg1 + *(s32 *)(arg0 + 0xC);
     if (i < 0) {
@@ -2169,7 +2169,7 @@ f32 func_004bc310(u8 *arg0, s32 arg1) {
     u8 *p;
 
     if (arg1 == *(s32 *)(arg0 + 8) - 1) {
-        func_0046d730(D_007146E0, 0x709);
+        kAssertFail(D_007146E0, 0x709);
     }
     i = (*(s32 *)(arg0 + 0xC) - 1) - arg1;
     if (i < 0) {

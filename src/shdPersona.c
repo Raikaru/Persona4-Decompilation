@@ -47,7 +47,7 @@ extern char D_005E5830[];
 extern char D_005E5850[];
 extern char D_005E57F0[];
 
-void func_0046d730(void *file, s32 line);
+void kAssertFail(void *file, s32 line);
 void memset(void *dst, s32 value, s32 size);
 s32 datPersonaAddSkill(u8 *, u16);
 void ShdSkill_AddActiveSkill(u16, u8 *);
@@ -129,7 +129,7 @@ s32 func_00115890(u8 *arg0, s32 arg1)
     }
     s17 = c + (arg1 & 0xFF);
     if (s17 > 0x63) {
-        func_0046d730(D_005E4868, 0x65);
+        kAssertFail(D_005E4868, 0x65);
     }
     s17 = datPersonaGetExpForLevel(arg0, (u16)(s17 + 1));
     r = s17 - datPersonaGetNextExp(arg0);
@@ -155,7 +155,7 @@ void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
     s32 i;
 
     if (arg0 == NULL) {
-        func_0046d730(D_005E4868, 0x76);
+        kAssertFail(D_005E4868, 0x76);
     }
     *(u16 *)(arg1 + 2) = *(u16 *)(arg0 + 2);
     *(s8 *)(arg1 + 4) = datPersonaGetLevel(arg0);
@@ -164,7 +164,7 @@ void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
         v2 = 0;
     } else {
         if ((s32)b4 > 0x63) {
-            func_0046d730(D_005E4868, 0x65);
+            kAssertFail(D_005E4868, 0x65);
         }
         v2 = datPersonaGetExpForLevel(arg0, (b4 + 1) & 0xFFFF) - datPersonaGetNextExp(arg0);
         if (v2 < 0) {
@@ -195,7 +195,7 @@ void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
         *(s8 *)(arg1 + 0xB) = datPersonaGetTotalStat(arg0, 4);
         break;
     default:
-        func_0046d730(D_005E4868, 0x96);
+        kAssertFail(D_005E4868, 0x96);
         break;
     }
     for (i = 0; i < 7; i++) {
@@ -379,7 +379,7 @@ void func_00116190(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     if (*(u16 *)arg2 != 0) {
         temp_18 = arg3[1];
         if (temp_18 == 0) {
-            func_0046d730(D_005E4868, 0x171);
+            kAssertFail(D_005E4868, 0x171);
         }
         high = *((f32 *)&arg0 + 1);
         sdkSpriteDrawOnceTinted(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, high, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
@@ -401,7 +401,7 @@ void func_001162f0(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
 
     t17 = *arg3;
     if (t17 == 0) {
-        func_0046d730(D_005E4868, 0x197);
+        kAssertFail(D_005E4868, 0x197);
     }
     m = arg1 & 0xFF;
     c = 0xFF - m;
@@ -464,15 +464,15 @@ void func_001163e0(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     high = *((f32 *)&arg0 + 1);
     id0 = arg3[0];
     if (id0 == 0) {
-        func_0046d730(D_005E4868, 0x1BF);
+        kAssertFail(D_005E4868, 0x1BF);
     }
     id1 = arg3[2];
     if (id1 == 0) {
-        func_0046d730(D_005E4868, 0x1C1);
+        kAssertFail(D_005E4868, 0x1C1);
     }
     count = (s32)(datPersonaGetArcana(*(u16 *)(arg2 + 2)) & 0xFF);
     if (count <= 0 || count >= 0x20) {
-        func_0046d730(D_005E4868, 0x1E6);
+        kAssertFail(D_005E4868, 0x1E6);
     }
     sp90[1] = 6.0f + high;
     width = (((count & 0xFFFF) - 1) & 0xFFFF) + 0x21;
@@ -518,11 +518,11 @@ void func_00116610(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     color = (u32)((alpha * 0xFF) / 255U);
     id0 = arg3[0];
     if (id0 == 0) {
-        func_0046d730(D_005E4868, 0x235);
+        kAssertFail(D_005E4868, 0x235);
     }
     id1 = arg3[1];
     if (id1 == 0) {
-        func_0046d730(D_005E4868, 0x237);
+        kAssertFail(D_005E4868, 0x237);
     }
     sp190.x = 129.0f + *(f32 *)&arg0;
     sp190.y = 39.0f + high;
@@ -565,15 +565,15 @@ void func_00116820(Vec2f position, f32 depth, u8 alpha, u8 *persona, s32 *sprite
     baseY = position.y;
     panelSprites = sprites[0];
     if (panelSprites == 0) {
-        func_0046d730(D_005E4868, 0x298);
+        kAssertFail(D_005E4868, 0x298);
     }
     digitSprites = sprites[1];
     if (digitSprites == 0) {
-        func_0046d730(D_005E4868, 0x29A);
+        kAssertFail(D_005E4868, 0x29A);
     }
     affinitySprites = sprites[2];
     if (affinitySprites == 0) {
-        func_0046d730(D_005E4868, 0x29C);
+        kAssertFail(D_005E4868, 0x29C);
     }
     point.x = position.x;
     point.y = baseY;
@@ -768,7 +768,7 @@ void func_001171c0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3)
     id = arg3;
     y = *((f32 *)&sp70 + 1);
     if (id == 0) {
-        func_0046d730(D_005E4868, 0x400);
+        kAssertFail(D_005E4868, 0x400);
     }
     rem = n & 0xFF;
     if (rem < 10) {
@@ -806,7 +806,7 @@ void func_00117310(Vec2f arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3, s32 arg
     f32 y;
     y = arg0.y;
     if (id == 0) {
-        func_0046d730(D_005E4868, 0x424);
+        kAssertFail(D_005E4868, 0x424);
     }
     if (arg4 != 0) {
         f = arg0.x;
@@ -863,7 +863,7 @@ void func_00117580(u8 *arg0, s32 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (!((arg1 & 0xFFFF) < 0xD8)) {
-        func_0046d730(D_005E4868, 0x595);
+        kAssertFail(D_005E4868, 0x595);
     }
     *(u16 *)(b + 0x570) = arg1;
 }
@@ -934,11 +934,11 @@ u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     chkmemAllocSiteTag(D_005E4868, 0x5ED);
     w = D_008873F4[0](1, 0x574, 0x40000);
     if (w == NULL) {
-        func_0046d730(D_005E4868, 0x5EE);
+        kAssertFail(D_005E4868, 0x5EE);
     }
     r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4810), arg1, 0, 0, func_001178a0, func_0011b2d0, (u8 *)(w));
     if (r == NULL) {
-        func_0046d730(D_005E4868, 0x5F8);
+        kAssertFail(D_005E4868, 0x5F8);
     }
     func_001175e0(r, arg2, arg3, arg4);
     return r;
@@ -1665,7 +1665,7 @@ void func_00119210(u8 *work)
                 } while (n > 0);
             }
             if (index >= 10) {
-                func_0046d730(D_005E4868, 0x7FB);
+                kAssertFail(D_005E4868, 0x7FB);
             }
             {
                 if (++*(u16 *)particle < *(u16 *)(particle + 2)) {
@@ -1935,7 +1935,7 @@ void func_00119e10(u8 *task, u8 *argument)
     counter = work->meterPhase;
     work->meterPhase = counter + 1;
     if (work->controllerAddress == 0) {
-        func_0046d730(D_005E4868, 0x933);
+        kAssertFail(D_005E4868, 0x933);
     }
     counter = work->openingFrame;
     if (counter < 0x64) {
@@ -2066,7 +2066,7 @@ void func_00119e10(u8 *task, u8 *argument)
             if (work->persona[0].category != 0) {
                 id = work->sprites[1];
                 if (id == 0) {
-                    func_0046d730(D_005E4868, 0x171);
+                    kAssertFail(D_005E4868, 0x171);
                 }
                 headerY = headerPosition.xy.y;
                 sdkSpriteDrawOnceTinted(0, id, 0x59, 207.0f + headerPosition.xy.x, headerY, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
@@ -2095,7 +2095,7 @@ void func_00119e10(u8 *task, u8 *argument)
             labelPosition.packed = position.packed;
             id = work->sprites[0];
             if (id == 0) {
-                func_0046d730(D_005E4868, 0x197);
+                kAssertFail(D_005E4868, 0x197);
             }
             inv = 0xFF - (alpha & 0xFF);
             sy = labelPosition.xy.y;
@@ -2120,7 +2120,7 @@ void func_00119e10(u8 *task, u8 *argument)
                 comparisonLabelPosition.packed = position.packed;
                 id = work->sprites[0];
                 if (id == 0) {
-                    func_0046d730(D_005E4868, 0x197);
+                    kAssertFail(D_005E4868, 0x197);
                 }
                 inv = 0xFF - (alpha & 0xFF);
                 sy = comparisonLabelPosition.xy.y;
@@ -2254,11 +2254,11 @@ void func_0011aaa0(u8 *arg0, u32 arg1)
         vf20 = (f32)*(s32 *)(arg0 + 0x510);
         break;
     default:
-        func_0046d730(D_005E4868, 0xAA6);
+        kAssertFail(D_005E4868, 0xAA6);
         break;
     }
     if (p == NULL) {
-        func_0046d730(D_005E4868, 0xAA9);
+        kAssertFail(D_005E4868, 0xAA9);
     }
     for (i = 0; i < 0xA; i++) {
         t = p + i * 0x14;
@@ -2489,7 +2489,7 @@ void func_0011b110(u8 *arg0)
         func_0045d6e0(color, (f32 *)work, 0.0f, 0);
         return;
     default:
-        func_0046d730(D_005E4868, 0xB3D);
+        kAssertFail(D_005E4868, 0xB3D);
         return;
     }
 }
@@ -2504,7 +2504,7 @@ void func_0011b2d0(u8 *arg0)
     u8 *b = ((SdkTask *)arg0)->work;
     s32 v = *(s32 *)(b + 0x52C);
     if (!(v == 1 || v == 4 || v == 3 || v == 2 || v == 0)) {
-        func_0046d730(D_005E4868, 0xB59);
+        kAssertFail(D_005E4868, 0xB59);
     }
     jtbl_008873EC[0](b);
 }
@@ -2540,7 +2540,7 @@ void func_0011b3d0(u8 *arg0, u8 *arg1)
         func_00115940(arg1, arg0 + 0xC, 1);
         break;
     default:
-        func_0046d730(D_005E4868, 0xB91);
+        kAssertFail(D_005E4868, 0xB91);
         break;
     }
 }
@@ -2581,7 +2581,7 @@ void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
         func_00115940((u8 *)(u16 *)arg2, work + 0xC, 1);
         break;
     default:
-        func_0046d730(D_005E4868, 0xB91);
+        kAssertFail(D_005E4868, 0xB91);
         break;
     }
     *(s16 *)(work + 0xC) = (s16)arg1;
@@ -2694,7 +2694,7 @@ s32 func_0011b6d0(u8 *arg0, s32 arg1)
             t7 = (s32)func_0046a770(D_005E4E00);
             *(s32 *)(work + 0x2C8) = t7;
             if (t7 == 0) {
-                func_0046d730(D_005E4868, 0xC02);
+                kAssertFail(D_005E4868, 0xC02);
             }
             break;
         case 4:
@@ -2708,7 +2708,7 @@ s32 func_0011b6d0(u8 *arg0, s32 arg1)
             *(s32 *)(work + 0x534) = t4;
             break;
         default:
-            func_0046d730(D_005E4868, 0xC0E);
+            kAssertFail(D_005E4868, 0xC0E);
             break;
         }
         func_0011e360(*(u8 **)(work + 0x4F8), 1);
@@ -2740,7 +2740,7 @@ void func_0011b8f0(u8 *arg0, u8 *arg1)
         func_00115940((u8 *)ptr, work + 0xC, 1);
         break;
     default:
-        func_0046d730(D_005E4868, 0xB91);
+        kAssertFail(D_005E4868, 0xB91);
         break;
     }
     for (i = 0; i < 5; i++) {
@@ -2814,7 +2814,7 @@ void func_0011ba40(u8 *arg0)
         func_0045af60(0, 1, 0, 3);
         return;
     default:
-        func_0046d730(D_005E4868, 0xC8F);
+        kAssertFail(D_005E4868, 0xC8F);
         /* fallthrough */
     case 3:
     case 4:
@@ -2892,7 +2892,7 @@ void func_0011bc70(u8 *arg0)
         case 4:
             break;
         default:
-            func_0046d730(D_005E4868, 0xCCC);
+            kAssertFail(D_005E4868, 0xCCC);
             break;
         }
         *(s16 *)(work + 0x508) = 0;
@@ -3066,7 +3066,7 @@ void func_0011bf10(u8 *arg0)
       {
       }
 
- do { case 3: case 2: case 4: break; default: arg0++; arg0--; func_0046d730(D_005E4868, 0xCCC & 0xFFFFFFFFFFFFFFFF); if (1) { } break; }
+do { case 3: case 2: case 4: break; default: arg0++; arg0--; kAssertFail(D_005E4868, 0xCCC & 0xFFFFFFFFFFFFFFFF); if (1) { } break; }
  while (0 * (!new_var2));
     }
 
@@ -3507,7 +3507,7 @@ s32 func_0011cb70(u8 *arg0, u16 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)b == 0) {
-        func_0046d730(D_005E4868, 0xE21);
+        kAssertFail(D_005E4868, 0xE21);
     }
     if (datPersonaAddSkill(*(u8 **)b, arg1) != 0) {
         ShdSkill_AddActiveSkill(arg1, b + 0x8C);
@@ -3523,7 +3523,7 @@ s32 func_0011cc00(u8 *arg0, u16 arg1, u16 arg2)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)b == 0) {
-        func_0046d730(D_005E4868, 0xE45);
+        kAssertFail(D_005E4868, 0xE45);
     }
     if (datPersonaReplaceSkill(*(u8 **)b, (s16)arg1, arg2) != -1) {
         ShdSkill_ReplaceActiveSkill(arg1, arg2, b + 0x8C);
@@ -3649,7 +3649,7 @@ void func_0011cee0(u8 *arg0)
             *(s32 *)(work + 0x528) = 9;
             return;
         default:
-            func_0046d730(D_005E4868, 0xF87);
+            kAssertFail(D_005E4868, 0xF87);
             break;
         }
     }
@@ -3772,7 +3772,7 @@ s32 func_0011d1f0(u8 *arg0)
                 temp_2 = func_00454a60(work + 0x54, 0);
                 *(s32 *)(work + 0x4C) = temp_2;
                 if (temp_2 == 0) {
-                    func_0046d730(D_005E4868, 0x1047);
+                    kAssertFail(D_005E4868, 0x1047);
                 }
                 func_0011e240(arg0, NULL);
                 *(s32 *)(work + 0) = 1;
@@ -4236,10 +4236,10 @@ void func_0011e2b0(u8 *arg0, Vec2f *arg1, Vec2f *arg2)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (arg1 == NULL) {
-        func_0046d730(D_005E4868, 0x120A);
+        kAssertFail(D_005E4868, 0x120A);
     }
     if (arg2 == NULL) {
-        func_0046d730(D_005E4868, 0x120B);
+        kAssertFail(D_005E4868, 0x120B);
     }
     *(Vec2f *)(b + 0x20) = *arg1;
     *(Vec2f *)(b + 0x28) = *arg1;
@@ -4299,7 +4299,7 @@ void func_0011e400(u8 *arg0, u8 *arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (arg1 == NULL) {
-        func_0046d730(D_005E4868, 0x124F);
+        kAssertFail(D_005E4868, 0x124F);
     }
     *(Vec2f *)arg1 = *(Vec2f *)(b + 0x28);
 }
@@ -4398,7 +4398,7 @@ s32 func_0011e490(u8 *arg0)
         f = (f32)count * f / 4096.0f;
         idx = (s32)f;
         if (!(idx < count)) {
-            func_0046d730(D_005E4868, 0x12CF);
+            kAssertFail(D_005E4868, 0x12CF);
         }
         i = stack[idx];
         *(u16 *)(arg0 + 6) = iGpffffb3ec[2 * i];
@@ -4486,7 +4486,7 @@ static inline s32 personaReplaceLevelSkill(SdkTask *parent, u16 previous, u16 re
 {
     u8 *data = parent->work;
     if (*(u8 **)data == NULL) {
-        func_0046d730(D_005E4868, 0xE45);
+        kAssertFail(D_005E4868, 0xE45);
     }
     if (datPersonaReplaceSkill(*(u8 **)data, (s16)previous, replacement) != -1) {
         ShdSkill_ReplaceActiveSkill(previous, replacement, data + 0x8C);
@@ -4608,7 +4608,7 @@ s32 func_0011e8e0(u8 *arg0)
                 *(s16 *)(b + 0x51A) = ShdSkill_FindSlot(b + 0x8C, selected);
                 sv = *(s16 *)(b + 0x51A);
                 if (sv < 0) {
-                    func_0046d730(D_005E4868, 0xEB1);
+                    kAssertFail(D_005E4868, 0xEB1);
                 }
             }
             func_0045af60(1, 3, 3, 2);
@@ -4634,7 +4634,7 @@ s32 func_0011e8e0(u8 *arg0)
                 vv = ShdSkill_GetPendingSkill(b + 0x8C);
             }
             if (vv != *personaLevelRow(pc, *(s32 *)(work + 0x10))) {
-                func_0046d730(D_005E4868, 0x139A);
+                kAssertFail(D_005E4868, 0x139A);
             }
             *(s32 *)(work + 0x14) = 6;
             func_002bbd20(0, datPersonaGetRow(datPersonaRecordId((u32)first)));
@@ -4687,7 +4687,7 @@ s32 func_0011e8e0(u8 *arg0)
             if (idx >= 0) {
                 func_002bb4e0();
                 if (*(s32 *)(work + 0x28) == 0) {
-                    func_0046d730(D_005E4868, 0x13AD);
+                    kAssertFail(D_005E4868, 0x13AD);
                 }
                 func_002baac0((u8 *)(*(s32 *)(work + 0x28)));
                 func_002bad10(idx);
@@ -4702,7 +4702,7 @@ s32 func_0011e8e0(u8 *arg0)
                 vv2 = *personaLevelRow(pc, *(s32 *)(work + 0x10));
                 bb = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
                 if (*(u8 **)bb == NULL) {
-                    func_0046d730(D_005E4868, 0xE21);
+                    kAssertFail(D_005E4868, 0xE21);
                 }
                 if (datPersonaAddSkill(*(u8 **)bb, vv2) != 0) {
                     ShdSkill_AddActiveSkill(vv2, bb + 0x8C);
@@ -4759,7 +4759,7 @@ s32 func_0011e8e0(u8 *arg0)
                 *(s16 *)(bb + 0x51A) = ShdSkill_FindSlot(bb + 0x8C, highlightSkill);
                 sv = *(s16 *)(bb + 0x51A);
                 if (sv < 0) {
-                    func_0046d730(D_005E4868, 0xEB1);
+                    kAssertFail(D_005E4868, 0xEB1);
                 }
             }
             func_0045af60(1, 3, 3, 3);
@@ -4824,7 +4824,7 @@ s32 func_0011e8e0(u8 *arg0)
             vv = *personaLevelRow(pc, *(s32 *)(work + 0x10));
             bb = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
             if (*(u8 **)bb == NULL) {
-                func_0046d730(D_005E4868, 0xE21);
+                kAssertFail(D_005E4868, 0xE21);
             }
             if (datPersonaAddSkill(*(u8 **)bb, vv) != 0) {
                 ShdSkill_AddActiveSkill(vv, bb + 0x8C);
@@ -4869,11 +4869,11 @@ u8 *func_0011f410(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
     chkmemAllocSiteTag(D_005E4868, 0x1464);
     w = D_008873F4[0](1, 0x58, 0x40000);
     if (w == NULL) {
-        func_0046d730(D_005E4868, 0x1465);
+        kAssertFail(D_005E4868, 0x1465);
     }
     r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F30), 0xF, 0, 0, func_0011e8e0, func_0011f3c0, (u8 *)(w));
     if (r == NULL) {
-        func_0046d730(D_005E4868, 0x146F);
+        kAssertFail(D_005E4868, 0x146F);
     }
     *(s32 *)(w + 0x1C) = arg1;
     *(u8 **)(w + 0x20) = arg2;
@@ -5008,7 +5008,7 @@ s32 func_0011f5a0(u8 *arg0)
                     pendingSkill = queuedSkill & 0xFFFF;
                     current = *(u8 **)(pp + 0x38);
                     if (*(u8 **)current == NULL) {
-                        func_0046d730(D_005E4868, 0xE45);
+                        kAssertFail(D_005E4868, 0xE45);
                     }
                     if (datPersonaReplaceSkill(*(u8 **)current, (s16)previousSkill, pendingSkill) != -1) {
                         ShdSkill_ReplaceActiveSkill(previousSkill, pendingSkill, current + 0x8C);
@@ -5082,7 +5082,7 @@ s32 func_0011f5a0(u8 *arg0)
                 *(s16 *)(q + 0x51A) = ShdSkill_FindSlot(q + 0x8C, selected);
                 sv = *(s16 *)(q + 0x51A);
                 if (sv < 0) {
-                    func_0046d730(D_005E4868, 0xEB1);
+                    kAssertFail(D_005E4868, 0xEB1);
                 }
             }
             func_0045af60(1, 3, 3, 2);
@@ -5140,11 +5140,11 @@ u8 *func_0011fbc0(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
     chkmemAllocSiteTag(D_005E4868, 0x1551);
     w = D_008873F4[0](1, 0x44, 0x40000);
     if (w == NULL) {
-        func_0046d730(D_005E4868, 0x1552);
+        kAssertFail(D_005E4868, 0x1552);
     }
     r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F50), 0xF, 0, 0, func_0011f5a0, func_0011fb90, (u8 *)(w));
     if (r == NULL) {
-        func_0046d730(D_005E4868, 0x155C);
+        kAssertFail(D_005E4868, 0x155C);
     }
     *(u8 **)(w + 0xC) = arg1;
     *(s32 *)(w + 0x14) = arg2;

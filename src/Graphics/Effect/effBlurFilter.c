@@ -21,7 +21,7 @@ extern u8 D_00714468[];
 extern u8 D_0071446C[];
 extern u8 D_00714470[];
 
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void func_003f6690(s32 param, void *out);
 extern void RpSkyRenderStateSet(s32 param, s32 value);
@@ -106,7 +106,7 @@ void func_004a8bb0(u8 *a, u8 *b) {
 
     iVar1 = *param_1;
     if (!(iVar1 <= 0x64)) {
-        func_0046d730(D_00714380, 0x190);
+        kAssertFail(D_00714380, 0x190);
     }
     uVar2.packed = (u32)param_1[3];
     alpha = (u32)uVar2.rgba.a;
@@ -224,7 +224,7 @@ void func_004a8f90(u8 *a, u8 *b) {
 
     iVar1 = *param_1;
     if (!(iVar1 <= 0x64)) {
-        func_0046d730(D_00714380, 575);
+        kAssertFail(D_00714380, 575);
     }
     uVar2.packed = (u32)param_1[3];
     alpha = (u32)uVar2.rgba.a;
@@ -589,7 +589,7 @@ u8 *func_004a9aa0(u8 *arg0) {
 
     base = arg0 + 0xC0;
     if (!(*(u32 *)base <= 0x64)) {
-        func_0046d730(D_00714380, 0x169);
+        kAssertFail(D_00714380, 0x169);
     }
     count = *(u32 *)base;
     chkmemAllocSiteTag(D_00714380, 0x16F);
@@ -715,7 +715,7 @@ void func_004a9dd0(u8 *arg0) {
         table = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
         count = *(s32 *)base;
         if (!(count <= 0x64)) {
-            func_0046d730(D_00714380, 0x1BA);
+            kAssertFail(D_00714380, 0x1BA);
         }
         for (i = 0; i < count; i++) {
             if (*(s32 *)list == 0 && *(u8 *)(list + 0xF) > 0) {
@@ -735,7 +735,7 @@ void func_004a9ea0(u8 *arg0) {
 
     base = arg0 + 0xC0;
     if (!(*(u32 *)base <= 0x28)) {
-        func_0046d730(D_00714380, 0x292);
+        kAssertFail(D_00714380, 0x292);
     }
     count = *(u32 *)base;
     chkmemAllocSiteTag(D_00714380, 0x298);
@@ -984,7 +984,7 @@ u8 *func_004aa560(u8 *arg0) {
 
     base = arg0 + 0xC0;
     if (!(*(u32 *)base <= 0x64)) {
-        func_0046d730(D_00714380, 0x218);
+        kAssertFail(D_00714380, 0x218);
     }
     count = *(u32 *)base;
     chkmemAllocSiteTag(D_00714380, 0x21E);
@@ -1111,7 +1111,7 @@ void func_004aa890(u8 *arg0) {
         table = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
         count = *(s32 *)base;
         if (!(count <= 0x64)) {
-            func_0046d730(D_00714380, 0x269);
+            kAssertFail(D_00714380, 0x269);
         }
         for (i = 0; i < count; i++) {
             if (*(s32 *)list == 0 && *(u8 *)(list + 0xF) > 0) {
@@ -1374,13 +1374,13 @@ u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData)
     kind = type & 0xFFFF;
     dataSize = *(s32 *)(D_007143A4 + kind * 0x18);
     if ((u32)dataSize + 0x60 >= 0x200U)
-        func_0046d730(D_00714450, 0x170);
+        kAssertFail(D_00714450, 0x170);
     chkmemAllocSiteTag(D_00714450, 0x171);
     allocated = (u8 *)(*jtbl_008873E8)(dataSize + 0x60, 0x40000);
     object = allocated;
     memset(object, 0, dataSize + 0x60);
     if (object == (u8 *)0)
-        func_0046d730(D_00714380, 0x63B);
+        kAssertFail(D_00714380, 0x63B);
     *(s32 *)(object + 0x18) = kind;
     *(s32 *)(object + 0x10) = -1;
     *(s32 *)(object + 0x14) = 0x3F800000;
@@ -1415,11 +1415,11 @@ void *effBlurFilterCopiedInstantiate(void *arg0) {
 
     temp_2_2 = (s32)func_00484490(arg0);
     if (temp_2_2 == 0) {
-        func_0046d730(D_00714380, 0x660);
+        kAssertFail(D_00714380, 0x660);
     }
     temp_2 = (u8 *)effBlurFilterCopiedCreate(*(u16 *)((u8 *)arg0 + 0xC), (const void *)temp_2_2);
     if (temp_2 == 0) {
-        func_0046d730(D_00714380, 0x662);
+        kAssertFail(D_00714380, 0x662);
     }
     temp_2_3 = (s32)func_004844d0(arg0);
     if ((temp_2_3 != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(temp_2 + 0x18) * 24) != 0)) {
@@ -1436,11 +1436,11 @@ void *effBlurFilterDirectInstantiate(void *param_1) {
 
     tmp = (u8 *)func_00484490(param_1);
     if (tmp == 0) {
-        func_0046d730(D_00714380, 0x72B);
+        kAssertFail(D_00714380, 0x72B);
     }
     tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0xC), tmp);
     if (tmp == 0) {
-        func_0046d730(D_00714380, 0x72D);
+        kAssertFail(D_00714380, 0x72D);
     }
     tex = func_004844d0(param_1);
     if ((tex != 0) && (*(s8 *)(D_00714470 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
@@ -1560,13 +1560,13 @@ u8 *effBlurFilterDirectCreate(u32 type, const void *initialData)
     kind = type & 0xFFFF;
     dataSize = *(s32 *)(D_00714474 + kind * 0x18);
     if ((u32)dataSize + 0x60 >= 0x200U)
-        func_0046d730(D_00714450, 0x170);
+        kAssertFail(D_00714450, 0x170);
     chkmemAllocSiteTag(D_00714450, 0x171);
     allocated = (u8 *)(*jtbl_008873E8)(dataSize + 0x60, 0x40000);
     object = allocated;
     memset(object, 0, dataSize + 0x60);
     if (object == (u8 *)0)
-        func_0046d730(D_00714380, 0x706);
+        kAssertFail(D_00714380, 0x706);
     *(s32 *)(object + 0x18) = kind;
     *(s32 *)(object + 0x10) = -1;
     *(s32 *)(object + 0x14) = 0x3F800000;
@@ -1681,7 +1681,7 @@ u8 *func_004ab960(u16 *arg0, u16 arg1) {
     tmp = (u8 *)(*jtbl_008873E8)(0xC, 0x40000);
     memset(tmp, 0, 0xC);
     if (tmp == 0) {
-        func_0046d730(D_00714380, 0x7B0);
+        kAssertFail(D_00714380, 0x7B0);
     }
     t = arg1 & 0xFFFF;
     *(s32 *)(tmp + 0) = t;
@@ -1694,7 +1694,7 @@ u8 *func_004ab960(u16 *arg0, u16 arg1) {
         *(s32 *)(tmp + 8) = func_00481300(*arg0);
         break;
     default:
-        func_0046d730(D_00714380, 0x7BC);
+        kAssertFail(D_00714380, 0x7BC);
         break;
     }
     return tmp;
@@ -1705,7 +1705,7 @@ void func_004aba70(void *param_1) {
     s32 n;
 
     if (*(s32 *)((char *)param_1 + 4) == 0) {
-        func_0046d730(D_00714380, 0x7C5);
+        kAssertFail(D_00714380, 0x7C5);
     }
     n = *(s32 *)((char *)param_1 + 4) - 1;
     *(s32 *)((char *)param_1 + 4) = n;
@@ -1720,7 +1720,7 @@ void func_004aba70(void *param_1) {
 // FUN_004ABB00
 void *func_004abb00(BlurRefObj *param_1) {
     if (param_1->f4 == 0) {
-        func_0046d730(D_00714380, 0x7D7);
+        kAssertFail(D_00714380, 0x7D7);
     }
     param_1->f4 += 1;
     return param_1;

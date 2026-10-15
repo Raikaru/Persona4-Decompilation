@@ -4,7 +4,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 
-void func_0046d730(u8 *file, s32 line);
+void kAssertFail(u8 *file, s32 line);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 void *memset(void *dst, s32 value, s32 size);
@@ -56,7 +56,7 @@ void *func_004ad460(void *arg0)
     allocSlot = jtbl_008873E8;
     work = (EffHlpWork *)(*allocSlot)(0xA4, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_007144F8, 0x1E);
+        kAssertFail(D_007144F8, 0x1E);
     }
     memset(work, 0, 0xA4);
     work->lastTex = -1;
@@ -68,7 +68,7 @@ void *func_004ad460(void *arg0)
     }
     tex = func_00484490(arg0);
     if (tex == NULL) {
-        func_0046d730(D_007144F8, 0x2E);
+        kAssertFail(D_007144F8, 0x2E);
     }
     switch (*(u16 *)((u8 *)arg0 + 0xC)) {
     case 0:
@@ -76,13 +76,13 @@ void *func_004ad460(void *arg0)
         memcpy((u8 *)work + 0x30, tex, 0x68);
         break;
     default:
-        func_0046d730(D_007144F8, 0x38);
+        kAssertFail(D_007144F8, 0x38);
         v20 = 0;
         break;
     }
     work->res = (s32)func_004abc50(tex + v20, *(s32 *)((u8 *)arg0 + 0x14) - v20);
     if (work->res == 0) {
-        func_0046d730(D_007144F8, 0x40);
+        kAssertFail(D_007144F8, 0x40);
     }
     if (mdlLayerIsPresent(work->res, 0) != 0) {
         if (work->data.mode != 0) {
@@ -98,7 +98,7 @@ void *func_004ad460(void *arg0)
     v = (s32)func_004844d0(arg0);
     if (v != 0) {
         if (*(u16 *)((u8 *)arg0 + 0x1C) != 6) {
-            func_0046d730(D_007144F8, 0x53);
+            kAssertFail(D_007144F8, 0x53);
         }
         {
             u32 bytes = work->count * 4;
@@ -106,7 +106,7 @@ void *func_004ad460(void *arg0)
             work->listAlloc = (*allocSlot)(bytes, 0x40000);
         }
         if (work->listAlloc == NULL) {
-            func_0046d730(D_007144F8, 0x58);
+            kAssertFail(D_007144F8, 0x58);
         }
         work->list = work->listAlloc;
         work->list[0] = (u32)func_00484bb0((u8 *)v);
@@ -151,7 +151,7 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
     u32 i;
 
     if (src->res == 0) {
-        func_0046d730(D_007144F8, 0x9F);
+        kAssertFail(D_007144F8, 0x9F);
     }
     if (work->res != 0) {
         func_004abd60(work->res);
@@ -159,7 +159,7 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
     work->res = (s32)mdlFindOrCreateModelObject(*(u16 *)((u8 *)src->res + 0xD4),
                                    *(u16 *)((u8 *)src->res + 0xD6), 0);
     if (work->res == 0) {
-        func_0046d730(D_007144F8, 0xA9);
+        kAssertFail(D_007144F8, 0xA9);
     }
     func_004abbb0(work->res);
     if (mdlLayerIsPresent(work->res, 0) != 0) {
@@ -183,7 +183,7 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
             work->listAlloc = (*jtbl_008873E8)(bytes, 0x40000);
         }
         if (work->listAlloc == NULL) {
-            func_0046d730(D_007144F8, 0xCC);
+            kAssertFail(D_007144F8, 0xCC);
         }
         work->list = work->listAlloc;
         for (i = 0; i < work->count; i++) {

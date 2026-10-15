@@ -6,7 +6,7 @@
 
 extern void func_00440b68(...);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern void *func_00454a60(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *handle);
 extern s32 H_Cdvd_IsFileLoaded(void *handle);
@@ -200,7 +200,7 @@ void logoTaskDestroy(u8 *unusedTask)
         var_2 = 0;
     }
     if (var_2 == 0) {
-        func_0046d730(&D_005E5730, 0xF8);
+        kAssertFail(&D_005E5730, 0xF8);
     }
     temp_18_2 = temp_2->task14;
     temp_17_2 = kwlnTaskGetWork(temp_18_2);
@@ -212,7 +212,7 @@ void logoTaskDestroy(u8 *unusedTask)
         var_2_2 = 0;
     }
     if (var_2_2 == 0) {
-        func_0046d730(&D_005E5730, 0xF9);
+        kAssertFail(&D_005E5730, 0xF9);
     }
     kwlnTaskDestroyWithHierarchy(temp_2->task10);
     kwlnTaskDestroyWithHierarchy(temp_2->task14);

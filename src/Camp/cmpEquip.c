@@ -14,7 +14,7 @@ s16 func_00353ce0(void *arg0);
 void memset(void *arg0, s32 arg1, s32 arg2);
 void *func_0046a770(void *arg0);
 s32 sdkSpriteNewNode(void *arg0, s8 arg1);
-void func_0046d730(void *arg0, s32 arg1);
+void kAssertFail(void *arg0, s32 arg1);
 extern u8 D_005E5830[];
 extern u8 D_005E5850[];
 extern u8 D_005E57F0[];
@@ -103,15 +103,15 @@ void func_001312b0(u8 *arg0)
     func_00134560(base, 0);
     asset0 = func_0046a770(D_005E5830);
     if (asset0 == 0) {
-        func_0046d730(D_005E9FA0, 0x26A);
+        kAssertFail(D_005E9FA0, 0x26A);
     }
     asset1 = func_0046a770(D_005E5850);
     if (asset1 == 0) {
-        func_0046d730(D_005E9FA0, 0x26C);
+        kAssertFail(D_005E9FA0, 0x26C);
     }
     *(s32 *)(base + 0x1590) = (s32)(asset2 = func_0046a770(D_005E57F0));
     if (asset2 == 0) {
-        func_0046d730(D_005E9FA0, 0x26E);
+        kAssertFail(D_005E9FA0, 0x26E);
     }
     for (final_i = 0; final_i < 0x34; final_i++) {
         if (final_i < 0x29) {
@@ -128,7 +128,7 @@ void func_001312b0(u8 *arg0)
             *slot = sdkSpriteNewNode(asset2, byte);
         }
         if (*slot == 0) {
-            func_0046d730(D_005E9FA0, 0x27B);
+            kAssertFail(D_005E9FA0, 0x27B);
         }
     }
 }
@@ -175,7 +175,7 @@ void func_00131730(s16 *arg0) {
     }
     arg0[1571] = count;
     if (count > 0x2FF) {
-        func_0046d730(D_005E9FA0, 0x299);
+        kAssertFail(D_005E9FA0, 0x299);
     }
 }
 // FUN_001318C0
@@ -253,7 +253,7 @@ void func_00131a00(u8 *arg0)
     extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
     extern void func_0034f9d0(Vec2f arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-    extern void func_0046d730(void *arg0, s32 arg1);
+    extern void kAssertFail(void *arg0, s32 arg1);
   s16 temp_v2;
   /* Logical snapshots of values preserved across the draw calls, not external layouts. */
   struct { s16 id; } actor;
@@ -690,7 +690,7 @@ void func_00131a00(u8 *arg0)
   if ((*(u32 *)(work + 0x1c) & 1) != 0) {
     u8 panelAlpha;
     if (*(s16 *)(work + 0xc46) == 0) {
-      func_0046d730(D_005E9FA0,0x507);
+      kAssertFail(D_005E9FA0,0x507);
     }
     panelAlpha = work[0x144a];
     if (0 < (s32)panelAlpha) {
@@ -885,7 +885,7 @@ s32 func_00134560(u8 *arg0, s32 arg1)
         *(s16 *)(arg0 + 0xC78) = 4;
         break;
     default:
-        func_0046d730(D_005E9FA0, 0x5F8);
+        kAssertFail(D_005E9FA0, 0x5F8);
         break;
     }
     if (table != 0) {

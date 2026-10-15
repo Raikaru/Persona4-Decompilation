@@ -65,7 +65,7 @@ extern u8 D_0064B2F4[];
 void *func_0046a770(char *);
 s32 sdkSpriteNewNode(void *, u8);
 s16 func_00353b50(void *);
-void func_0046d730(char *, s32);
+void kAssertFail(char *, s32);
 void memset(void *, s32, s32);
 s32 func_0013a040(s16 *, s32, s32);
 void func_0013a060(void *);
@@ -190,15 +190,15 @@ loop4_test:
 
     asset0 = func_0046a770(D_005E5830);
     if (asset0 == 0) {
-        func_0046d730(D_005ED9C0, 0x25F);
+        kAssertFail(D_005ED9C0, 0x25F);
     }
     asset1 = func_0046a770(D_005E5850);
     if (asset1 == 0) {
-        func_0046d730(D_005ED9C0, 0x261);
+        kAssertFail(D_005ED9C0, 0x261);
     }
     *(void **)(arg0 + 0x1334) = asset2 = func_0046a770(D_005E57F0);
     if (asset2 == 0) {
-        func_0046d730(D_005ED9C0, 0x263);
+        kAssertFail(D_005ED9C0, 0x263);
     }
 
     n = 0;
@@ -221,7 +221,7 @@ resolve_body:
         *slot = sdkSpriteNewNode(asset2, asset_id);
     }
     if (*slot == 0) {
-        func_0046d730(D_005ED9C0, 0x270);
+        kAssertFail(D_005ED9C0, 0x270);
     }
     narrow.half = n + 1;
     n = narrow.half;
@@ -404,7 +404,7 @@ void func_00138490(void *arg0)
         datPersonaSetLeadSlot(sel);
     }
     if (*(s16 *)(b + 0x580) > 0x60) {
-        func_0046d730(D_005ED9C0, 0x336);
+        kAssertFail(D_005ED9C0, 0x336);
     }
     func_0013a040((s16 *)arg0, 1, 0);
     func_0013a040((s16 *)arg0, 2, 0);
@@ -1025,7 +1025,7 @@ s32 func_0013a530(u8 *arg0, s32 arg1)
         *(s16 *)(arg0 + 0x582) = 2;
         break;
     default:
-        func_0046d730(D_005ED9C0, 0x5C9);
+        kAssertFail(D_005ED9C0, 0x5C9);
         break;
     }
     if (table != 0) {
@@ -1242,6 +1242,6 @@ s32 func_0013ac30(u16 arg0) {
     case 0:
         return -1;
     }
-    func_0046d730(D_005ED9C0, 0x6B2);
+    kAssertFail(D_005ED9C0, 0x6B2);
     return -1;
 }

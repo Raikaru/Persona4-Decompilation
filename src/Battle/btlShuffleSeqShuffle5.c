@@ -33,7 +33,7 @@ typedef struct ShuffleContext {
     s32 count_1F304;        /* 0x1F304 */
 } ShuffleContext;           /* 0x1F308 */
 
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern u32 RpRandom(void);
 extern s32 func_0037ed90(u8 *ctx, s32 slot);
 extern s32 func_00379150(u8 *ctx, s32 a, s32 b);
@@ -112,7 +112,7 @@ void func_0037ef40(u8 *arg0) {
 
     cards = (ShuffleCardRecord *)arg0;
     if (*(s32 *)(arg0 + 0x1F2FC) != 4) {
-        func_0046d730(&D_0064EB40[0], 0xBD);
+        kAssertFail(&D_0064EB40[0], 0xBD);
     }
     n = *(s32 *)(arg0 + 0x1F304);
     if (n < 6) {
@@ -122,10 +122,10 @@ void func_0037ef40(u8 *arg0) {
             for (k = n - 1; k > 0; k--) {
                 c = (k + 1) * ((f32)(RpRandom() & 0xFFF) / 4096.0f);
                 if (k < 0 || k >= n) {
-                    func_0046d730(&D_0064EB40[0], 0xCB);
+                    kAssertFail(&D_0064EB40[0], 0xCB);
                 }
                 if (c < 0 || c >= n) {
-                    func_0046d730(&D_0064EB40[0], 0xCC);
+                    kAssertFail(&D_0064EB40[0], 0xCC);
                 }
                 tmp0 = cards[first + k];
                 cards[first + k] = cards[first + c];
@@ -141,10 +141,10 @@ void func_0037ef40(u8 *arg0) {
             for (k = *(s32 *)(arg0 + 0x1F304) - 1; k > 0; k--) {
                 c = (k + 1) * ((f32)(RpRandom() & 0xFFF) / 4096.0f);
                 if (k < 0 || k >= n) {
-                    func_0046d730(&D_0064EB40[0], 0xDF);
+                    kAssertFail(&D_0064EB40[0], 0xDF);
                 }
                 if (c < 0 || c >= n) {
-                    func_0046d730(&D_0064EB40[0], 0xE0);
+                    kAssertFail(&D_0064EB40[0], 0xE0);
                 }
                 tmp2 = cards[first + k];
                 cards[first + k] = cards[first + c];
@@ -217,7 +217,7 @@ s32 func_0037f550(u8 *arg0)
         }
     }
     if (sub->count_28 > 7) {
-        func_0046d730(&D_0064EB40[0], 0x132);
+        kAssertFail(&D_0064EB40[0], 0x132);
     }
     return var_20;
 }
@@ -240,7 +240,7 @@ static inline u16 shuffle5RowMask(s32 row)
     case 2:
         return 8;
     default:
-        func_0046d730(&D_0064EB40, 0x8C);
+        kAssertFail(&D_0064EB40, 0x8C);
         return 0;
     }
 }
@@ -318,7 +318,7 @@ s32 func_0037f6e0(u8 *work)
                 *rowFlags |= 0x10 << (s32)(3.0f * ((f32)(RpRandom() & 0xFFF) / 4096.0f));
                 break;
             default:
-                func_0046d730(&D_0064EB40, 0x41);
+                kAssertFail(&D_0064EB40, 0x41);
                 break;
             }
             rowFlags[1] = 5;
@@ -531,7 +531,7 @@ s32 func_0037f6e0(u8 *work)
         }
         break;
     default:
-        func_0046d730(&D_0064EB40, 0x295);
+        kAssertFail(&D_0064EB40, 0x295);
         break;
     }
     for (k = 0; k < 3; k++) {

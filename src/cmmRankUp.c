@@ -40,7 +40,7 @@ extern void (*D_00887300[])(u32, u32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void chkmemAllocSiteTag(void *msg, s32 id);
-void func_0046d730(const void *file, s32 line);
+void kAssertFail(const void *file, s32 line);
 extern void func_0047a6d0(s32 arg0, s32 arg1, void *arg2);
 extern void func_00189ec0();
 extern void MT_Scene_SetResEnabled(s32 arg0, s32 arg1);
@@ -174,7 +174,7 @@ void func_00251d80(s32 arg0, s32 *arg1) {
     for (i = 0; i < 0x10; i++) {
         if (*(u32 *)entry & 1) {
             if (*(void **)(entry + 8) == NULL) {
-                func_0046d730(D_00635CF8, 0x289);
+                kAssertFail(D_00635CF8, 0x289);
             }
             if ((*(s32 (**)(u8 *, u8 *, u8 *))(entry + 8))(base, entry, *(u8 **)(base + 0x9E0)) != 0) {
                 *(u32 *)entry &= ~1;
@@ -219,7 +219,7 @@ void func_00251f00(s32 arg0, u32 *arg1) {
     temp_2 = (u8 *)D_008873F4[0](1, 0x9E4, 0x40000);
     *(u8 **)(temp_2 + 0x9E0) = (u8 *)arg1;
     if (temp_2 == NULL) {
-        func_0046d730(D_00635CF8, 0x2D5);
+        kAssertFail(D_00635CF8, 0x2D5);
     }
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00635D18), 0xF, 0, 0, func_00251e60, func_00251ec0, (u8 *)(temp_2));
 }
@@ -344,7 +344,7 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
 
     p = kwlnTaskGetWork(arg0);
     if (arg1 >= 3) {
-        func_0046d730(D_00635CF8, 0x329);
+        kAssertFail(D_00635CF8, 0x329);
     }
     switch (arg1) {
     case 0:
@@ -360,7 +360,7 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
     temp_18 = *(s32 *)&spFloat[arg1];
     p = func_00251d30(p);
     if (p == NULL) {
-        func_0046d730(D_00635CF8, 0x2A5);
+        kAssertFail(D_00635CF8, 0x2A5);
     }
     memset(p, 0, 0x78);
     *(u32 *)p |= 1;
@@ -930,7 +930,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             sprites = *(u8 **)(context + 0x10);
             font = func_0046a770((char *)D_00635CE0);
             if (font == NULL) {
-                func_0046d730(D_00635CF8, 0x1E4);
+                kAssertFail(D_00635CF8, 0x1E4);
             }
             width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
             complement = 1.0f;
@@ -986,7 +986,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             sprites = *(u8 **)(context + 0x10);
             font = func_0046a770((char *)D_00635CE0);
             if (font == NULL) {
-                func_0046d730(D_00635CF8, 0x1E4);
+                kAssertFail(D_00635CF8, 0x1E4);
             }
             width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
             func_0025e9e0(
@@ -1327,7 +1327,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         sprites = *(u8 **)(context + 0x10);
         font = func_0046a770((char *)D_00635CE0);
         if (font == NULL) {
-            func_0046d730(D_00635CF8, 0x1E4);
+            kAssertFail(D_00635CF8, 0x1E4);
         }
         /* The width query and glyph lookup use signed and unsigned word
            masks respectively; this preserves both retail narrowing points. */
@@ -1396,7 +1396,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         sprites = *(u8 **)(context + 0x10);
         font = func_0046a770((char *)D_00635CE0);
         if (font == NULL) {
-            func_0046d730(D_00635CF8, 0x1E4);
+            kAssertFail(D_00635CF8, 0x1E4);
         }
         /* The width query and glyph lookup use signed and unsigned word
            masks respectively; this preserves both retail narrowing points. */
@@ -3006,7 +3006,7 @@ s32 func_00257900(u8 *task) {
                 palette = (RankUpColor *)func_003ec3d0((void *)firstTexture, 1);
                 original = *(const RankUpColor **)(context + 0x58);
                 if (palette == NULL) {
-                    func_0046d730(&D_00635CF8, 0xA5E);
+                    kAssertFail(&D_00635CF8, 0xA5E);
                 }
                 for (index = 0; index < 0x100; ++index) {
                     s32 green = palette->g;
@@ -3337,7 +3337,7 @@ s32 func_0025b240(u8 *arg0) {
         raster = func_0035afa0(*(s32 *)(ctx + 0x2C));
         palette = func_003ec3d0((void *)raster, 1);
         if (palette == 0) {
-            func_0046d730(D_00635CF8, 0xAF7);
+            kAssertFail(D_00635CF8, 0xAF7);
         }
         chkmemAllocSiteTag(D_00635CF8, 0xAF8);
         paletteCopy = D_008873F4[0](1, 0x400, 0x40000);
@@ -3390,7 +3390,7 @@ s32 func_0025b240(u8 *arg0) {
         tmp4 = *(s32 *)(ctx + 0x1C);
         tmp3 = *(s32 *)(ctx + 0x18);
         if (tmp3 == 0) {
-            func_0046d730(D_00635CF8, 0x25D);
+            kAssertFail(D_00635CF8, 0x25D);
         }
         chkmemAllocSiteTag(D_00635CF8, 0x25E);
         pv = D_008873F4[0](1, 0x40, 0x40000);
@@ -3650,7 +3650,7 @@ void func_0025c100(u8 *unusedTask) {
     fp = (void (**)(void *))DAT_008873ec_abs;
     (*fp)(list);
     if (*(u32 *)(p + 0x50) != 0) {
-        func_0046d730(&D_00635CF8, 0xC2F);
+        kAssertFail(&D_00635CF8, 0xC2F);
     }
     if (*(u8 **)(p + 0x58) != NULL) {
         (*fp)(*(u8 **)(p + 0x58));
@@ -3666,7 +3666,7 @@ void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *p;
 
     if (arg1 == 0) {
-        func_0046d730(D_00635CF8, 0xC40);
+        kAssertFail(D_00635CF8, 0xC40);
     }
     chkmemAllocSiteTag(D_00635CF8, 0xC41);
     p = (u8 *)D_008873F4[0](1, 0x5C, 0x40000);

@@ -8,7 +8,7 @@
 extern u32 DAT_007645D8;
 // lint: allow H011 -- measured: u16 prototype regresses evtCmdResPlace (andi on wide id args)
 u8 *MT_Scene_GetRes(s32 arg0);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void *func_00457120(void);
 extern u8 *func_00457130(void);
 void func_003e8180(void *, float);
@@ -128,7 +128,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
         r = D_008873F4[0](1, 0x30, 0x40000);
         evtMemAccount(9, 0x30);
         if (r == NULL) {
-            func_0046d730(D_0063C3B0, 0x170);
+            kAssertFail(D_0063C3B0, 0x170);
         }
         func_0028c080(arg2, arg0, arg1, r, &sp8c, &sp88);
         break;
@@ -140,7 +140,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
     temp_17 = D_008873F4[0](1, 0x54, 0x40000);
     evtMemAccount(8, 0x54);
     if (temp_17 == NULL) {
-        func_0046d730(D_0063C3B0, 0x198);
+        kAssertFail(D_0063C3B0, 0x198);
     }
     memset(temp_17, 0, 0x54);
     *(u16 *)(temp_17 + 0) = arg1;
@@ -325,7 +325,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
         break;
     case 0:
     default:
-        func_0046d730(D_0063C3B0, 0x27E);
+        kAssertFail(D_0063C3B0, 0x27E);
         break;
     }
     return temp_17;
@@ -732,7 +732,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 var_16 = 1;
                 break;
             default:
-                func_0046d730(D_0063C3B0, 0x700);
+                kAssertFail(D_0063C3B0, 0x700);
                 break;
             }
             if (var_16 != 0) {
@@ -1923,7 +1923,7 @@ s32 evtCmdLabelText(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 *(u32 *)(arg2 + 0x760) = func_0028f770(evtFindTask());
             }
             if (*(u32 *)(arg2 + 0x760) == 0) {
-                func_0046d730(D_0063C3B0, 0xCE7);
+                kAssertFail(D_0063C3B0, 0xCE7);
             }
             func_0028f800(*(u32 *)(arg2 + 0x760), 0xF, sp30, *(s16 *)(arg4 + 0x16));
             return 1;
@@ -2285,7 +2285,7 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 func_00459880(2, 1);
                 break;
             default:
-                func_0046d730(D_0063C3B0, 0xE4C);
+                kAssertFail(D_0063C3B0, 0xE4C);
                 break;
             }
             return 1;
@@ -2440,7 +2440,7 @@ s32 evtDispatchNode(s32 arg0, s32 arg1, u8 *arg2) {
     u8 *node;
 
     if (arg2 == NULL) {
-        func_0046d730(D_0063C3B0, 0xEDD);
+        kAssertFail(D_0063C3B0, 0xEDD);
     }
     n = *(u32 *)arg2;
     if (n >= 0x3A) {
@@ -2611,7 +2611,7 @@ loop_6_test:
         *(s32 *)(arg0 + 0x75C) = 0;
     }
     if (arg0 == NULL) {
-        func_0046d730(D_0063C3B0, 0xF4);
+        kAssertFail(D_0063C3B0, 0xF4);
     }
     func_00291900();
     func_002919e0();
@@ -2728,10 +2728,10 @@ u32 func_0028b260(void) { return DAT_007645D8 != 0; }
 // FUN_0028B2A0
 void *evtEnvSlot(int param_1, int param_2) {
     if (param_1 == 0) {
-        func_0046d730(D_0063C3B0, 0x10B6);
+        kAssertFail(D_0063C3B0, 0x10B6);
     }
     if (param_2 >= 2) {
-        func_0046d730(D_0063C3B0, 0x10B7);
+        kAssertFail(D_0063C3B0, 0x10B7);
     }
     return (void *)(param_1 + param_2 * 20 + 0x68);
 }
@@ -2742,10 +2742,10 @@ void evtEnvSlotSave(s32 arg0, s32 arg1) {
     u8 *p;
 
     if (arg0 == 0) {
-        func_0046d730(D_0063C3B0, 0x10B6);
+        kAssertFail(D_0063C3B0, 0x10B6);
     }
     if (arg1 >= 2) {
-        func_0046d730(D_0063C3B0, 0x10B7);
+        kAssertFail(D_0063C3B0, 0x10B7);
     }
     p = (u8 *)(arg0 + arg1 * 20 + 0x68);
     memset(p, 0, 0x14);
@@ -2765,10 +2765,10 @@ void evtEnvSlotRestore(int param_1, int param_2) {
     f32 v;
     void *cam;
     if (param_1 == 0) {
-        func_0046d730(D_0063C3B0, 0x10B6);
+        kAssertFail(D_0063C3B0, 0x10B6);
     }
     if (param_2 >= 2) {
-        func_0046d730(D_0063C3B0, 0x10B7);
+        kAssertFail(D_0063C3B0, 0x10B7);
     }
     p = param_1 + param_2 * 20 + 0x68;
     if (*(u32 *)p & 1) {
@@ -2793,7 +2793,7 @@ void evtCamPosSave(int param_1) {
     f32 *p;
     void *cam;
     if (param_1 == 0) {
-        func_0046d730(D_0063C3B0, 0x110D);
+        kAssertFail(D_0063C3B0, 0x110D);
     }
     p = (f32 *)(param_1 + 0x98);
     memset(p, 0, 8);
@@ -2808,7 +2808,7 @@ void evtCamPosSave(int param_1) {
 void evtCamPosRestore(int param_1) {
     f32 *p;
     if (param_1 == 0) {
-        func_0046d730(D_0063C3B0, 0x110D);
+        kAssertFail(D_0063C3B0, 0x110D);
     }
     p = (f32 *)(param_1 + 0x98);
     func_003e8180(func_00457120(), p[0]);

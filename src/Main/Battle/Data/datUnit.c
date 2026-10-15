@@ -34,7 +34,7 @@ enum { UNIT_GENUS_PC = 0, UNIT_GENUS_EC = 1 };
 
 extern char D_00635928[];
 extern void chkmemAllocSiteTag(const char* file, s32 line);
-extern void func_0046d730(const char* file, s32 line);
+extern void kAssertFail(const char* file, s32 line);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern void memset(void* dest, s32 value, s32 size);
 extern u8* func_00105510(s16 arg0);
@@ -121,8 +121,8 @@ DatUnit* datUnitAddEncounterUnit(DatUnitEc* ec, u16 id)
     u16 i;
     DatUnit* curr;
 
-    if (ec->base.genus != UNIT_GENUS_EC) func_0046d730(D_00635928, 0x64);
-    if (ec->base.count >= 6) func_0046d730(D_00635928, 0x65);
+    if (ec->base.genus != UNIT_GENUS_EC) kAssertFail(D_00635928, 0x64);
+    if (ec->base.count >= 6) kAssertFail(D_00635928, 0x65);
 
     for (i = 0; i < 6; i++)
     {
@@ -137,7 +137,7 @@ DatUnit* datUnitAddEncounterUnit(DatUnitEc* ec, u16 id)
         }
     }
 
-    if (i >= 6) func_0046d730(D_00635928, 0x75);
+    if (i >= 6) kAssertFail(D_00635928, 0x75);
 
     return curr;
 }
@@ -148,8 +148,8 @@ void datUnitRemoveEncounterUnit(DatUnitEc* ec, DatUnit* unit)
     u16 i;
     DatUnit* curr;
 
-    if (ec->base.genus != UNIT_GENUS_EC) func_0046d730(D_00635928, 0x86);
-    if (ec->base.count > 6) func_0046d730(D_00635928, 0x87);
+    if (ec->base.genus != UNIT_GENUS_EC) kAssertFail(D_00635928, 0x86);
+    if (ec->base.count > 6) kAssertFail(D_00635928, 0x87);
 
     for (i = 0; i < 6; i++)
     {
@@ -164,7 +164,7 @@ void datUnitRemoveEncounterUnit(DatUnitEc* ec, DatUnit* unit)
         }
     }
 
-    if (i >= 6) func_0046d730(D_00635928, 0x93);
+    if (i >= 6) kAssertFail(D_00635928, 0x93);
 }
 
 // FUN_002319C0
@@ -193,7 +193,7 @@ u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase)
     }
     else
     {
-        if (genusBase->count != 1) func_0046d730(D_00635928, 0xB9);
+        if (genusBase->count != 1) kAssertFail(D_00635928, 0xB9);
 
         if (datCalcIsDead(genusBase->unit, 0) == 0)
         {
@@ -217,14 +217,14 @@ u32 datUnitInit(DatUnit* unit, u8 genus, u16 id)
     switch (genus)
     {
     case UNIT_GENUS_PC:
-        if ((id & 0xFFFF) >= 0xB) func_0046d730(D_00635928, 0xD3);
+        if ((id & 0xFFFF) >= 0xB) kAssertFail(D_00635928, 0xD3);
         unit->flags &= ~0x4;
         unit->flags &= ~0x8;
         unit->flags &= ~0x10;
         unit->flags &= ~0x200;
         break;
     case UNIT_GENUS_EC:
-        if ((id & 0xFFFF) >= 0x150) func_0046d730(D_00635928, 0xDA);
+        if ((id & 0xFFFF) >= 0x150) kAssertFail(D_00635928, 0xDA);
         unit->flags = 4;
         unit->level = iGpffffb3c4[id * 0x3c + 3];
         unit->hp = *(u16*)((u8*)(uintptr_t)((u32)id * 0x3c) +
@@ -250,7 +250,7 @@ u32 datUnitInit(DatUnit* unit, u8 genus, u16 id)
         }
         break;
     default:
-        func_0046d730(D_00635928, 0xFE);
+        kAssertFail(D_00635928, 0xFE);
         break;
     }
     for (j = 0; j < 0x18; j++) datCalcClearBuffLevel(unit, (u8)j);

@@ -28,7 +28,7 @@ extern s32 func_002bc0e0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
-extern void func_0046d730(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *arg0, s32 arg1);
 extern char D_0063F2A0[];
 extern char D_007488E8[];
 extern void func_0045a9a0(s32 arg0, s32 arg1);
@@ -2006,12 +2006,12 @@ s32 func_002bc890(u8 *arg0, s32 arg1)
     u8 *var_4;
     u8 *var_5;
 
-    if (arg0 == NULL) func_0046d730(&D_0063F2A0, 0x541);
+    if (arg0 == NULL) kAssertFail(&D_0063F2A0, 0x541);
     if (arg1 < 0) goto invalid_arg;
     if (arg1 > 0xB) goto invalid_arg;
     goto valid_arg;
 invalid_arg:
-    func_0046d730(&D_0063F2A0, 0x542);
+    kAssertFail(&D_0063F2A0, 0x542);
 valid_arg:
     temp_2 = arg0 + (arg1 * 0xC);
     temp_16 = temp_2 + 0x1C;
@@ -2037,7 +2037,7 @@ loop_done:
             *(s32 *)(temp_16 + 4) = arg1;
             temp_4 = *(u8 **)(arg0 + 0x18);
             temp_2_2 = func_002e2170(temp_4, *(u16 *)(temp_4 + 0x10) + 1, 0);
-            if (temp_2_2 == NULL) func_0046d730(&D_007488E8, 0x52);
+            if (temp_2_2 == NULL) kAssertFail(&D_007488E8, 0x52);
             *(u8 **)(temp_2_2 + 0x14) = temp_16;
             return 1;
         }
@@ -2061,7 +2061,7 @@ s32 func_002bc9e0(u8 *arg0)
     u8 *var_16;
 
     if (arg0 == NULL) {
-        func_0046d730(&D_0063F2A0, 0x558);
+        kAssertFail(&D_0063F2A0, 0x558);
     }
     temp_18 = *(u8 **)(*(u8 **)(arg0 + 0x18) + 4);
     if (temp_18 != NULL) {
@@ -2117,7 +2117,7 @@ s32 func_002bcbc0(u8 *arg0, s32 arg1)
     u8 *temp_3;
 
     if (arg0 == 0) {
-        func_0046d730(D_0063F2A0, 0x58F);
+        kAssertFail(D_0063F2A0, 0x58F);
     }
     if (arg1 < 0) {
         goto error;
@@ -2126,7 +2126,7 @@ s32 func_002bcbc0(u8 *arg0, s32 arg1)
         goto done;
     }
 error:
-    func_0046d730(D_0063F2A0, 0x590);
+    kAssertFail(D_0063F2A0, 0x590);
 done:
     temp_3 = arg0 + arg1 * 0xC;
     *(s32 *)(temp_3 + 0x1C) |= 4;
@@ -2143,7 +2143,7 @@ s32 func_002bd280(s32 arg0, s32 arg1, s32 arg2, s16 arg3)
 
     temp_21 = (u8 *)iGpffffb57c;
     if (*(s32 *)(temp_21 + 0xC) == 0) {
-        func_0046d730(&D_0063F2A0, 0x668);
+        kAssertFail(&D_0063F2A0, 0x668);
     }
     temp_20 = *(s32 *)(temp_21 + 0xC);
     temp_4 = *(u8 **)(temp_21 + 0);

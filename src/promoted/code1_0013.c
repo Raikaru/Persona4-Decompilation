@@ -109,7 +109,7 @@ extern s32 FldUnit_SpawnPartyTask(u8 *arg0);
 extern u8 *func_00354a50(s32 arg0, u16 arg1);
 extern u8 *func_0046a770(char *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 func_00141d80(u8 *arg0, s32 arg1);
 extern u8 D_005E57F0[];
 extern u8 D_005E5810[];
@@ -1797,7 +1797,7 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
     } else state = 0;
     if (state > 0) {
         updated = (s16)(func_00106600(item) & 0xff) - 1;
-        if (updated < 0) func_0046d730(D_005ED9D0, 0x29c);
+        if (updated < 0) kAssertFail(D_005ED9D0, 0x29c);
         func_00106620(item, updated & 0xff);
         if (state == 3) {
             func_00106390(5121, 1);
@@ -1832,7 +1832,7 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
     case 3:
         break;
     default:
-        func_0046d730(D_005ED9D0, 0x2ca);
+        kAssertFail(D_005ED9D0, 0x2ca);
         break;
     }
     return state;
@@ -2222,7 +2222,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             case 1:
                 break;
             default:
-                func_0046d730(D_005ED9E0, 0x220);
+                kAssertFail(D_005ED9E0, 0x220);
                 break;
             }
             *arg0 = 7;
@@ -2244,7 +2244,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             case 1:
                 break;
             default:
-                func_0046d730(D_005ED9E0, 0x244);
+                kAssertFail(D_005ED9E0, 0x244);
                 break;
             }
             func_00137570(arg2);
@@ -2271,7 +2271,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     default:
-        func_0046d730(D_005ED9E0, 0x25C);
+        kAssertFail(D_005ED9E0, 0x25C);
         break;
     }
     return 0;

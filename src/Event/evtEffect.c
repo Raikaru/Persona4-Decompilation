@@ -4,7 +4,7 @@
 #include "scene_event_internal.h"
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern void func_0046d730(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
 extern void evtMemAccount(s32 arg0, s32 arg1);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern void func_00291470(u8 *arg0);
@@ -30,7 +30,7 @@ u8 *func_00290f00(void)
     work = D_008873F4[0](1, 0x190, 0x40000);
     evtMemAccount(0xB, 0x190);
     if (work == 0) {
-        func_0046d730(D_0063C830, 0x69);
+        kAssertFail(D_0063C830, 0x69);
     }
     memset(work, 0, 0x190);
     *(s32 *)work = 0;

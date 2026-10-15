@@ -467,7 +467,7 @@ extern s32 FldFrame_CollideSphereSelected(const RwV3d *, f32, RwV3d *, RwV3d *);
 extern void func_0016e8e0(u8 *, f32);
 extern float FldEvent_GetMoveStep(void);
 extern float RwV3dLength(float *);
-extern void func_0046d730(void *, int);
+extern void kAssertFail(void *, int);
 extern void mdlSetAlphaBlend(void *);
 extern void mdlClearAlphaBlend(void *);
 
@@ -851,7 +851,7 @@ s32 func_0016bdd0(u8 *param_1)
             acc = acc + temp_v11_b;
           }
           if (temp_v4_b >= last) {
-            func_0046d730(D_005F1698,0x15b);
+            kAssertFail(D_005F1698,0x15b);
           }
         }
         pathRadius34 = *(float *)((u8 *)(u32)piVar1 + 0x20);
@@ -902,7 +902,7 @@ s32 func_0016bdd0(u8 *param_1)
             temp_v7 = temp_v7 - 1;
           }
           if (temp_v7 < 1) {
-            func_0046d730(D_005F1698,0x187);
+            kAssertFail(D_005F1698,0x187);
           }
           keyCount = piVar1[0xd];
           penultimateKey = keyCount - 2;
@@ -922,7 +922,7 @@ s32 func_0016bdd0(u8 *param_1)
             }
           }
           if (temp_v7 >= last) {
-            func_0046d730(D_005F1698,0x193);
+            kAssertFail(D_005F1698,0x193);
           }
           {
             s32 lowIndex, highIndex;
@@ -1780,7 +1780,7 @@ s32 func_0016e2e0(s32 arg0)
         func_003e9830(*(s32 *)(temp_17 + 0),
                       *(s32 *)(func_00457120() + 4));
     } else {
-        func_0046d730(D_005F1698, 0x4F6);
+        kAssertFail(D_005F1698, 0x4F6);
     }
     *(s32 *)(temp_2 + 0x2BC) = func_003e0f80();
     *(s32 *)(temp_2 + 0x2C0) = func_003e0f80();
@@ -1841,7 +1841,7 @@ void func_0016e590(u8 *arg0, s32 arg1)
     extern void func_003bb3a0(u8 *arg0, s32 arg1, void *arg2);
     extern void func_003bb5b0(u8 *curve, s32 mode, f32 time, void *dst, void *aux);
     extern f32 RwV3dLength(void *arg0);
-    extern void func_0046d730(const void *arg0, s32 arg1);
+    extern void kAssertFail(const void *arg0, s32 arg1);
     RwV3d diff;
     RwV3d prev;
     RwV3d cur;
@@ -1870,7 +1870,7 @@ body:
             func_003e9df0(*(void **)(func_00457120() + 4));
             *(s32 *)(work + 0x34) = func_003bb330(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20));
             if (*(s32 *)(work + 0x34) > 0x20) {
-                func_0046d730(D_005F1698, 0x557);
+                kAssertFail(D_005F1698, 0x557);
             }
             func_003bb3a0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), 0, &prev);
             for (i = 1; i < *(s32 *)(work + 0x34); i++) {

@@ -64,7 +64,7 @@ extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_002bb550(s8 arg0);
 extern f32 iGpffff84a4;
 extern s32 func_0046a770(const void *arg0);
-extern void func_0046d730(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *arg0, s32 arg1);
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                           f32 z, s32 arg6);
@@ -444,7 +444,7 @@ void func_00362630(u8 *arg0)
     while (i < count) {
         if (datGetFlag(i + 0x180) != 0) {
             if ((s16)i >= count) {
-                func_0046d730(D_0064E280, 0x37);
+                kAssertFail(D_0064E280, 0x37);
             }
             if ((s16)i < 3) {
                 offset = 0;
@@ -455,7 +455,7 @@ void func_00362630(u8 *arg0)
             }
             difference = i - offset;
             if (difference + offset >= count) {
-                func_0046d730(D_0064E280, 0x54);
+                kAssertFail(D_0064E280, 0x54);
             }
             func_0035fa00(arg0, 1, difference);
             func_0035fa00(arg0, 2, offset);
@@ -1227,7 +1227,7 @@ void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1)
 
     tex = func_0046a770(D_005E5810);
     if (tex == 0) {
-        func_0046d730(D_0064E460, 0xB5);
+        kAssertFail(D_0064E460, 0xB5);
     }
     alpha = arg1 & 0xFF;
     alpha = 0xFF - alpha;
@@ -1254,11 +1254,11 @@ void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     value = *(u8 *)(arg2 + 0x19);
     tex0 = func_0046a770(D_005E5810);
     if (tex0 == 0) {
-        func_0046d730(D_0064E460, 0xDD);
+        kAssertFail(D_0064E460, 0xDD);
     }
     tex1 = func_0046a770(D_005E5850);
     if (tex1 == 0) {
-        func_0046d730(D_0064E460, 0xDF);
+        kAssertFail(D_0064E460, 0xDF);
     }
     alpha = arg1 & 0xFF;
     alpha = 0xFF - alpha;
@@ -1302,16 +1302,16 @@ void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     color = (arg1 & 0xFF) | 0xFFFFFF00;
     tex = func_0046a770(D_005E5810);
     if (tex == 0) {
-        func_0046d730(D_0064E460, 0x174);
+        kAssertFail(D_0064E460, 0x174);
     }
     if (func_0046a770(D_005E5830) == 0) {
-        func_0046d730(D_0064E460, 0x176);
+        kAssertFail(D_0064E460, 0x176);
     }
     y = *((f32 *)&arg0 + 1);
     frFontExDrawText((f32)(s32)*(f32 *)&arg0, (f32)(s32)y, 0.0f, color, 6, 1, *(const char **)(arg2 + 0x14), 0, 0);
     value = *(u8 *)(arg2 + 0x18);
     if (value <= 0 || value >= 0x20) {
-        func_0046d730(D_0064E460, 0x186);
+        kAssertFail(D_0064E460, 0x186);
     }
     sdkSpriteDrawOnceTinted(0, tex, (u8)((u8)value - 1) + 0x21, *(f32 *)&arg0, 30.0f + y,
                   (u8)(0xFF - (arg1 & 0xFF)), 0xEC, 0x7C, 0, scale, 0);
@@ -1341,11 +1341,11 @@ void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     y = *((f32 *)&arg0 + 1);
     tex1 = func_0046a770(D_005E5810);
     if (tex1 == 0) {
-        func_0046d730(D_0064E460, 0x13D);
+        kAssertFail(D_0064E460, 0x13D);
     }
     tex2 = func_0046a770(D_005E5830);
     if (tex2 == 0) {
-        func_0046d730(D_0064E460, 0x13F);
+        kAssertFail(D_0064E460, 0x13F);
     }
     n = arg1 & 0xFF;
     arg1 = 0xFF - n;
@@ -1390,11 +1390,11 @@ void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     factor = fparg0;
     tex0 = func_0046a770(D_005E5850);
     if (tex0 == 0) {
-        func_0046d730(D_0064E460, 0x1A1);
+        kAssertFail(D_0064E460, 0x1A1);
     }
     tex1 = func_0046a770(D_005E57F0);
     if (tex1 == 0) {
-        func_0046d730(D_0064E460, 0x1A3);
+        kAssertFail(D_0064E460, 0x1A3);
     }
     alpha = arg1 & 0xFF;
     alpha = 0xFF - alpha;

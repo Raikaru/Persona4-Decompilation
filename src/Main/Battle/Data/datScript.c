@@ -5,10 +5,10 @@
    FUN_003111f0/FUN_00311250 counterparts), adapted to the P4 build. */
 
 extern char D_00635980[];          /* "datScript.c" assert file name */
-extern void func_0046d730(const char* file, u32 line);
+extern void kAssertFail(const char* file, u32 line);
 
 #define K_ASSERT(condition, line) \
-    if (!(condition)) { func_0046d730(D_00635980, (line)); }
+    if (!(condition)) { kAssertFail(D_00635980, (line)); }
 
 /* Script command dispatch table (0xB entries). */
 extern void* D_00635950[];
@@ -187,7 +187,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         } else if (D_00881470[0] == 2) {
             result = (f32)*(s16 *)(cmd + 0x16);
         } else {
-            func_0046d730(D_00635980, 0x123);
+            kAssertFail(D_00635980, 0x123);
         }
         break;
     case 20:
@@ -301,7 +301,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         result = (f32)(u32)*(u16 *)(DAT_0076449c + 0xC5E);
         break;
     default:
-        func_0046d730(D_00635980, 0x1C3);
+        kAssertFail(D_00635980, 0x1C3);
         break;
     }
     return result;

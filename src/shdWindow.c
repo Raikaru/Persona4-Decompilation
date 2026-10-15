@@ -9,7 +9,7 @@ typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 extern void chkmemAllocSiteTag(const void *file, s32 line);
-extern void func_0046d730(const void *file, s32 line);
+extern void kAssertFail(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00637190[];
 extern u8 D_00637248[];
@@ -61,7 +61,7 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 
     arg1 |= -0x100;
     if (arg2 >= 0x17) {
-        func_0046d730(&D_00637248, 0x75);
+        kAssertFail(&D_00637248, 0x75);
     }
     temp_22 = *(s32 *)((u8 *)&D_00637190 + arg2 * 8);
     var_17 = 0;
@@ -165,7 +165,7 @@ void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
     frFontExGlyphHeight(2);
     y = *(s32 *)(data + 12);
     if (y >= 0x17) {
-        func_0046d730(D_00637248, 121);
+        kAssertFail(D_00637248, 121);
     }
     kind = *(u16 *)(D_00637190 + y * 8 + 4);
     xprog = 228.0f + param_1;
@@ -220,7 +220,7 @@ s32 func_0025e170(u8 *sdkTaskBytes)
         *(s32 *)(p + 0x1C) = temp_3_2 & ~2;
         temp_18 = *(s32 *)(p + 0xC);
         if (temp_18 >= 0x17) {
-            func_0046d730(&D_00637248, 0x7D);
+            kAssertFail(&D_00637248, 0x7D);
         }
         switch (((*(s32 *)((u8 *)&D_00637190 + temp_18 * 8 + 4)) >> 16)) {
         case 1:
@@ -243,7 +243,7 @@ s32 func_0025e170(u8 *sdkTaskBytes)
     case 6:
         temp_18 = *(s32 *)(p + 0xC);
         if (temp_18 >= 0x17) {
-            func_0046d730(&D_00637248, 0x79);
+            kAssertFail(&D_00637248, 0x79);
         }
         temp_3_3 = *(u16 *)((u8 *)&D_00637190 + temp_18 * 8 + 4);
         switch (temp_3_3) {
@@ -397,7 +397,7 @@ s32 func_0025e8f0(void)
     }
     b = *(s32 *)(p + 0xC);
     if (b >= 0x17) {
-        func_0046d730(&D_00637248, 0x79);
+        kAssertFail(&D_00637248, 0x79);
     }
     t = *(u16 *)((u8 *)&D_00637190 + b * 8 + 4);
     switch (t) {

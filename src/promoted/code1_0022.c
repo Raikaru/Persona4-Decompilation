@@ -94,7 +94,7 @@ extern u32 func_0011f560(u8 *child);
 extern s32 func_0011f580(u8 *child);
 extern s32 func_00353f50(s32 mode);
 extern s32 func_0021de60(void);
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern u8 D_00635560[], D_00635580[];
 extern u8 iGpffffa4d8[4];
 extern u8 *func_001ebb00(s32 action, s32 kind, u8 *name);
@@ -646,7 +646,7 @@ s32 func_002232a0(u8 *sdkTaskBytes)
         *(s32 *)(work + 0x38) = (u16)datPersonaCountValidMembers();
         *(u8 **)(work + 0x4C) = func_00117780(0, 15, 4, 5, 0);
         if (*(u8 **)(work + 0x4C) == 0) {
-            func_0046d730(D_006296D0, 0x2F);
+            kAssertFail(D_006296D0, 0x2F);
         }
         func_00117580(*(u8 **)(work + 0x4C), 0xAE);
         position[0] = 0.0f;

@@ -10,7 +10,7 @@
 #include "include_asm.h"
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern s32 func_0025f110(void *arg);
 extern void func_0025f230(u32 arg);
 extern void func_0046a750(void *arg);
@@ -212,7 +212,7 @@ s32 msgWinEntryStep(MsgProcWindowEntry *arg)
         break;
     case 4:
         if (arg == 0) {
-            func_0046d730(D_0063BFC0, 0xCC);
+            kAssertFail(D_0063BFC0, 0xCC);
         }
         tmp = func_00460990();
         *(void **)(tmp + 8) = (void *)func_0027bf30;
@@ -582,7 +582,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
         itfMesWindowClearFlagBits((void *)arg0, 0x400000);
         itfMesWindowClearFlagBits((void *)arg0, 0x800000);
         if ((void *)D_00882000 == (void *)0) {
-            func_0046d730(D_0063BFC0, 0x18F);
+            kAssertFail(D_0063BFC0, 0x18F);
         }
         memset((void *)D_00882000, 0, 0x18);
         break;
@@ -1054,7 +1054,7 @@ void msgWinSelectionDestroy(u8 *unusedTask)
 
     if (D_007245D4 != 0) {
         if (func_0025f110((void *)work->sprite) == 0) {
-            func_0046d730(D_0063BFC0, 0x3D9);
+            kAssertFail(D_0063BFC0, 0x3D9);
         }
         func_0025f230(work->sprite);
         work->sprite = 0;
@@ -1211,7 +1211,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
         itfMesWindowSetFlagBits((void *)arg0, 0x400000);
         itfMesWindowClearFlagBits((void *)arg0, 0x800000);
         if ((void *)D_00882020 == (void *)0) {
-            func_0046d730(D_0063BFC0, 0x18F);
+            kAssertFail(D_0063BFC0, 0x18F);
         }
         memset(D_00882020, 0, 0x18);
         break;
@@ -1887,7 +1887,7 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
         itfMesWindowSetFlagBits(arg0, 0x100000);
         itfMesWindowSetFlagBits(arg0, 0x400000);
         if (D_00882040 == NULL) {
-            func_0046d730(D_0063BFC0, 0x18F);
+            kAssertFail(D_0063BFC0, 0x18F);
         }
         memset(D_00882040, 0, 0x18);
         if (func_0027BE60((s32)arg0) == NULL) {
@@ -2041,7 +2041,7 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
         itfMesWindowSetFlagBits(arg0, 0x400000);
         itfMesWindowSetFlagBits(arg0, 0x800000);
         if (D_00882060 == NULL) {
-            func_0046d730(D_0063BFC0, 0x18F);
+            kAssertFail(D_0063BFC0, 0x18F);
         }
         memset(D_00882060, 0, 0x18);
         break;
@@ -2353,14 +2353,14 @@ void msgCalResourceDestroy(u8 *unusedTask)
 
     if (D_0088209C[0] != 0) {
         if (func_0025f110((void *)work->field4) == 0) {
-            func_0046d730(D_0063BFC0, 0x7AA);
+            kAssertFail(D_0063BFC0, 0x7AA);
         }
         func_0025f230(work->field4);
         work->field4 = 0;
     }
     if (work->field8 != 0) {
         if (func_0025f110((void *)work->field8) == 0) {
-            func_0046d730(D_0063BFC0, 0x7B0);
+            kAssertFail(D_0063BFC0, 0x7B0);
         }
         func_0025f230(work->field8);
         work->field8 = 0;
@@ -2546,7 +2546,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         angle = iGpffff8094 * (f32)frame;
         t = sinf(angle / 15.0f);
         if (handle == NULL) {
-            func_0046d730(D_007482F0, 0x59);
+            kAssertFail(D_007482F0, 0x59);
         }
         {
             f32 back = 1.0f - t;
@@ -2560,14 +2560,14 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         } else if (frame < 12) {
             fade = sinf(iGpffff8094 * (f32)(frame - 5) / 7.0f);
             if (handle == NULL) {
-                func_0046d730(D_007482F0, 0x59);
+                kAssertFail(D_007482F0, 0x59);
             }
             alpha = 1.0f - fade;
             func_0025ea20(165.0f, 254.0f + 95.0f * alpha - 10.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, fade);
             func_00366380(0xB0, 281 + 64.0f * alpha - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c + fGpffff811c * fade);
         } else {
             if (handle == NULL) {
-                func_0046d730(D_007482F0, 0x59);
+                kAssertFail(D_007482F0, 0x59);
             }
             func_0025e9e0(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
             func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
@@ -2605,7 +2605,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             func_001104d0(date, &month, &day);
             if (day == 1) {
                 if ((u8 *)(u32)handle == NULL) {
-                    func_0046d730(D_007482F0, 0x59);
+                    kAssertFail(D_007482F0, 0x59);
                 }
                 func_0025ea20(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)((u8 *)(u32)handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
@@ -2666,11 +2666,11 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             phase = (phase + 1) % 4;
         }
         if (handle == NULL) {
-            func_0046d730(D_007482F0, 0x59);
+            kAssertFail(D_007482F0, 0x59);
         }
         func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 0xFF, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * alpha, 1.0f, 1.0f);
         if (handle == NULL) {
-            func_0046d730(D_007482F0, 0x59);
+            kAssertFail(D_007482F0, 0x59);
         }
         func_0025e9e0(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
         func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
@@ -2692,7 +2692,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             func_001104d0(date, &month, &day);
             if (day == 1) {
                 if (handle == NULL) {
-                    func_0046d730(D_007482F0, 0x59);
+                    kAssertFail(D_007482F0, 0x59);
                 }
                 func_0025e9e0(i * 0x53 + 0x4B, 69.0f, 0.0f, phase, 0xFF, month + 4, **(void ***)(handle + 8), 1);
             }
@@ -2757,7 +2757,7 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
         itfMesWindowSetFlagBits(arg0, 0x400000);
         itfMesWindowClearFlagBits(arg0, 0x800000);
         if (D_00882080 == NULL) {
-            func_0046d730(D_0063BFC0, 399);
+            kAssertFail(D_0063BFC0, 399);
         }
         memset(&D_00882080, 0, 24);
         break;
@@ -2773,7 +2773,7 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
                 ret = 1;
             }
             if (D_00882080 == NULL) {
-                func_0046d730(D_0063BFC0, 2270);
+                kAssertFail(D_0063BFC0, 2270);
             }
             D_00882090[0] = (u32)arg0;
             D_00882094[0] = (u32)arg1;
@@ -2797,7 +2797,7 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
                 D_00882084[0] = 0;
             }
             if (D_00882080 == NULL) {
-                func_0046d730(D_0063BFC0, 2270);
+                kAssertFail(D_0063BFC0, 2270);
             }
             D_00882090[0] = (u32)arg0;
             D_00882094[0] = (u32)arg1;

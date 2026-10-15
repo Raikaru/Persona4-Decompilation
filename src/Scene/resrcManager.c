@@ -61,7 +61,7 @@ typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 extern void chkmemAllocSiteTag(const char* file, s32 line);
-extern void func_0046d730(const char* file, s32 line);
+extern void kAssertFail(const char* file, s32 line);
 extern void func_00440b68(const char* fmt, ...);
 extern void memset(void* dst, s32 value, u32 size);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
@@ -207,7 +207,7 @@ Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId)
         {
             (*jtbl_008873EC)(res);
             func_00440b68(D_005EFA70, D_005EFA40);
-            func_0046d730(D_005EFA40, 0xAB);
+            kAssertFail(D_005EFA40, 0xAB);
             return NULL;
         }
     }

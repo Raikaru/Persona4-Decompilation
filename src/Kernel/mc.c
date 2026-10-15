@@ -17,7 +17,7 @@ extern void func_002a6650(void *, void *);
 extern void func_002a6680(s32);
 extern void mcIconWorkFree(void *arg0);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 
 extern void RpSkyRenderStateSet(s32, s32);
 extern void func_00489f80(void);
@@ -397,7 +397,7 @@ s32 func_002a34e0(u8 *arg0) {
             func_00440b68(&D_0063EC90);
             *(s32 *)(arg0 + 0xC) = 9;
             if (arg0 == NULL) {
-                func_0046d730(&D_007638F8, 0xE3);
+                kAssertFail(&D_007638F8, 0xE3);
             }
             D_00764638 = *(s32 *)(arg0 + 0x3AC);
             break;
@@ -711,7 +711,7 @@ s32 mcSaveState(s32 address) {
                 func_00440b68(D_0063ECD0);
                 *(s32 *)(arg0 + 0xC) = 0x14;
                 if (arg0 == NULL) {
-                    func_0046d730(&D_007638F8, 0xE3);
+                    kAssertFail(&D_007638F8, 0xE3);
                 }
                 D_00764638 = *(s32 *)(arg0 + 0x3AC);
             } else {
@@ -2853,7 +2853,7 @@ s32 mcIconTaskCreate(u8 *parent, s32 arg1) {
     chkmemAllocSiteTag(&D_007638F8, 0x8FF);
     work = D_008873F4[0](1, 0x56C, 0x40000);
     if (work == NULL) {
-        func_0046d730(&D_007638F8, 0xE8);
+        kAssertFail(&D_007638F8, 0xE8);
     }
     *(s32 *)(work + 0x3AC) = D_00764638;
     *(s32 *)(work + 0x3B4) = D_00764638 << 16;

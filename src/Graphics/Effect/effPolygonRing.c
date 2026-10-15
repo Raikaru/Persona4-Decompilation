@@ -24,7 +24,7 @@ typedef struct RwRGBA
     u8 alpha;
 } RwRGBA;
 
-extern void func_0046d730();
+extern void kAssertFail();
 extern u8 D_00713EF0[];
 extern void func_004833f0(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
@@ -74,7 +74,7 @@ u8 *func_00498da0(u8 *arg0) {
     chkmemAllocSiteTag(D_00713EF0, 0x39);
     alloc = (u8 *)(*jtbl_008873E8)(4, 0x40000);
     if (alloc == NULL) {
-        func_0046d730(D_00713EF0, 0x3A);
+        kAssertFail(D_00713EF0, 0x3A);
     }
     if (*(u32 *)(arg0 + 0x38) < 3) {
         *(u32 *)(arg0 + 0x38) = 3;
@@ -391,7 +391,7 @@ u8 *func_00499510(u8 *arg0) {
     stride = count * 4;
     p = (u8 *)(*jtbl_008873E8)(stride + 0x10, 0x40000);
     if (p == NULL) {
-        func_0046d730(D_00713EF0, 0x110);
+        kAssertFail(D_00713EF0, 0x110);
     }
     work = p + stride;
     *(u32 *)(work + 0) = (u32)p;
@@ -700,7 +700,7 @@ u8 *func_00499cd0(u8 *arg0) {
     chkmemAllocSiteTag(D_00713EF0, 0x1E6);
     alloc = (u8 *)(*jtbl_008873E8)(4, 0x40000);
     if (alloc == NULL) {
-        func_0046d730(D_00713EF0, 0x1E7);
+        kAssertFail(D_00713EF0, 0x1E7);
     }
     if (*(u32 *)(arg0 + 0x38) < 3) {
         *(u32 *)(arg0 + 0x38) = 3;
@@ -964,14 +964,14 @@ u8 *func_0049a370(u16 arg0, u8 *arg1)
     u32 idx;
 
     if (arg0 >= 4) {
-        func_0046d730(D_00713EF0, 0x2BD);
+        kAssertFail(D_00713EF0, 0x2BD);
     }
     idx = arg0;
     size = D_00713F24[idx * 6];
     chkmemAllocSiteTag(D_00713EF0, 0x2C1);
     p = (u8 *)(*jtbl_008873E8)(size + 0x50, 0x40000);
     if (p == NULL) {
-        func_0046d730(D_00713EF0, 0x2C2);
+        kAssertFail(D_00713EF0, 0x2C2);
     }
     *(u8 **)(p + 0x40) = p + 0x50;
     *(s32 *)(p + 0x34) = 0;
@@ -995,11 +995,11 @@ void *func_0049a4e0(void *arg0) {
 
     p = func_00484490(arg0);
     if (p == NULL) {
-        func_0046d730(D_00713EF0, 0x2E5);
+        kAssertFail(D_00713EF0, 0x2E5);
     }
     p = func_0049a370(*(u16 *)((u8 *)arg0 + 0xC), p);
     if (p == NULL) {
-        func_0046d730(D_00713EF0, 0x2E7);
+        kAssertFail(D_00713EF0, 0x2E7);
     }
     return p;
 }

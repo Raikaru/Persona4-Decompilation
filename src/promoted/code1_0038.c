@@ -45,7 +45,7 @@ extern u8 D_00795E30[];
 extern u8 D_00795EF0[];
 extern u8 D_0064EEB0[];
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern void func_0034f1e0(void);
 extern void func_0038acd0(u8 *arg0);
 extern void func_0038bab0(u8 *arg0);
@@ -264,7 +264,7 @@ void func_00383c40(u8 *arg0)
         value = *(u16 *)(base + 0x1F1D4);
         break;
     default:
-        func_0046d730(D_0064EEB0, 0x103);
+        kAssertFail(D_0064EEB0, 0x103);
         break;
     }
     RpSkyRenderStateSet(3, (void *)0x71801);
@@ -512,7 +512,7 @@ void func_00384cc0(u8 *work)
     texture = *(s32 *)(base + 0x1F2AC);
     mask = 0;
     if (*(s32 *)(base + 0x1F2FC) != 4) {
-        func_0046d730(D_0064EEB0, 459);
+        kAssertFail(D_0064EEB0, 459);
     }
     flags = state->flags;
     if ((flags & 1) == 0) {
@@ -1282,7 +1282,7 @@ void func_00387e70(u8 *arg0)
     resource = *(s32 *)(base + 0x1F2AC);
     /* Retail tests the handle array's address before filling it. */
     if (fonts == NULL) {
-        func_0046d730(D_0064EEB0, 0x50B);
+        kAssertFail(D_0064EEB0, 0x50B);
     }
     fonts[0] = (s32)func_0046a770((char *)D_005E5810);
     fonts[1] = (s32)func_0046a770((char *)D_005E5850);
@@ -1389,7 +1389,7 @@ void func_00387e70(u8 *arg0)
             id = *(u16 *)(*entry + 2);
             icon = datPersonaGetArcana(id);
             if (icon <= 0 || icon >= 0x20) {
-                func_0046d730(D_0064EEB0, 0x588);
+                kAssertFail(D_0064EEB0, 0x588);
             }
             func_0034f460(fonts[0], (u16)((u16)icon - 1) + 0x21, 168.0f, 55.0f + y, r, g, b, alpha);
             frFontExDrawTextWithCharWidth(269, 55.0f + y - 3.0f, 0.0f,
@@ -1507,11 +1507,11 @@ u8 *func_00388bd0(s32 arg0)
     chkmemAllocSiteTag(D_0064EEB0, 0x63F);
     work = D_008873F4[0](1, 0xB0, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_0064EEB0, 0x640);
+        kAssertFail(D_0064EEB0, 0x640);
     }
     task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064ECA0), 0x13, 0, 0, func_00388b40, func_00388ba0, (u8 *)(work));
     if (task == NULL) {
-        func_0046d730(D_0064EEB0, 0x64A);
+        kAssertFail(D_0064EEB0, 0x64A);
     }
     *(s32 *)work = func_0036e910(arg0);
     memset(work + 0x50, 0, 0x30);
@@ -1657,7 +1657,7 @@ void func_00389090(u8 *arg0, s32 arg1) {
     slot = (s32 *)((u32)(n << 2) + (u32)slot);
     slot[1] = arg1;
     if (*(s32 *)(p + 0x3C) > 4) {
-        func_0046d730(D_0064EEB0, 0x745);
+        kAssertFail(D_0064EEB0, 0x745);
     }
   }
 
@@ -1839,7 +1839,7 @@ void func_00389640(u8 **arg0)
     if ((*tickp % 80) == 0) {
         slot = *tickp / 80;
         if (slot >= 4) {
-            func_0046d730(D_0064F0E0, 0xEB);
+            kAssertFail(D_0064F0E0, 0xEB);
         }
         {
             u8 *entry;
@@ -2219,7 +2219,7 @@ void func_0038a480(u8 *arg0)
     }
     if (count <= 130) {
     } else {
-        func_0046d730(D_0064F0E0, 0x21E);
+        kAssertFail(D_0064F0E0, 0x21E);
     }
     func_003e0f40(matrix);
     D_00887300[0]((RwRenderState)1, (void *)0);
@@ -2544,7 +2544,7 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     default:
-        func_0046d730(D_0064F0E0, 0x3B2);
+        kAssertFail(D_0064F0E0, 0x3B2);
         break;
     }
 }
@@ -2698,7 +2698,7 @@ void func_0038c100(u8 *arg0)
     ctx = *(u8 **)arg0;
     handle = *(s32 *)(ctx + 0x1F2AC);
     if (*(s32 *)(ctx + 0x1F2FC) != 3) {
-        func_0046d730(D_0064F0E0, 0x44D);
+        kAssertFail(D_0064F0E0, 0x44D);
     }
     info = ctx + 0x1F1D0;
     flags = *(u16 *)(state + 2);
@@ -2988,11 +2988,11 @@ u8 *func_0038cec0(s32 arg0)
     chkmemAllocSiteTag(D_0064F0E0, 0x59D);
     work = D_008873F4[0](1, 0x1B8, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_0064F0E0, 0x59E);
+        kAssertFail(D_0064F0E0, 0x59E);
     }
     task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064EED0), 0x13, 0, 0, func_0038ce30, func_0038ce90, (u8 *)(work));
     if (task == NULL) {
-        func_0046d730(D_0064F0E0, 0x5A8);
+        kAssertFail(D_0064F0E0, 0x5A8);
     }
     *(s32 *)work = func_0036e910(arg0);
     func_0038a3e0(work);
@@ -3103,7 +3103,7 @@ void func_0038d1f0(u8 *arg0)
     temp_17 = *(u8 **)(arg0 + 0x38);
     temp_16 = temp_17 + 0x1A0;
     if (*(s32 *)(*(u8 **)temp_17 + 0x1F2FC) != 4) {
-        func_0046d730(D_0064F0E0, 0x641);
+        kAssertFail(D_0064F0E0, 0x641);
     }
     *(u16 *)(temp_17 + 4) = *(u16 *)(temp_17 + 4) | 8;
     *(s32 *)(temp_16 + 4) = 0x434F0000;

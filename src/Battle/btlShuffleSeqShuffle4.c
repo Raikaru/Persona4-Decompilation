@@ -4,7 +4,7 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern u32 RpRandom();
 extern s32 func_00378530(s32 a, s32 b);
 extern s32 func_003717e0(u8 *a, f32 *b);
@@ -100,7 +100,7 @@ void func_0037c720(u8 *arg0) {
     t1 = (u16)v1;
     *(u16 *)(base + 0xA) = t1;
     if (*(u16 *)(base + 0xA) > 0x10) {
-        func_0046d730(&D_0064EB20[0], 0x32);
+        kAssertFail(&D_0064EB20[0], 0x32);
     }
     if (*(s32 *)(arg0 + 0x1F300) == 3) {
         *(s16 *)(base + 0x2C) = 0;
@@ -123,7 +123,7 @@ void func_0037c720(u8 *arg0) {
             *(s16 *)(base + 2) = 5;
             break;
         default:
-            func_0046d730(&D_0064EB20[0], 0x49);
+            kAssertFail(&D_0064EB20[0], 0x49);
             break;
         }
         if (t2 <= 0) {
@@ -132,7 +132,7 @@ void func_0037c720(u8 *arg0) {
         *(s16 *)(base + 0x2C) = t2;
     }
     if (*(u16 *)(base + 0x2C) > 0x10) {
-        func_0046d730(&D_0064EB20[0], 0x4E);
+        kAssertFail(&D_0064EB20[0], 0x4E);
     }
 }
 
@@ -156,7 +156,7 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
     ShuffleSlotPos pos;
     s32 n;
     if (*(s32 *)(arg0 + 0x1F2FC) != 3) {
-        func_0046d730(&D_0064EB20[0], 0x5B);
+        kAssertFail(&D_0064EB20[0], 0x5B);
     }
     n = func_00378530(*(s32 *)(arg0 + 0x1F304), ((s32 *)(arg0 + 0x1F2F8))[1]);
     switch (n) {
@@ -239,7 +239,7 @@ void func_0037ca60(u8 *arg0, s32 arg1, f32 *arg2) {
         }
         break;
     default:
-        func_0046d730(&D_0064EB20[0], 0x116);
+        kAssertFail(&D_0064EB20[0], 0x116);
         break;
     }
     *(ShuffleSlotPos *)arg2 = pos;
@@ -323,7 +323,7 @@ void func_0037d460(u8 *arg0) {
         } while (n != 0);
     }
     if (*(s32 *)(arg0 + 0x1F2FC) != 3) {
-        func_0046d730(&D_0064EB20[0], 0x1A6);
+        kAssertFail(&D_0064EB20[0], 0x1A6);
     }
     cur = *(u16 *)(base + 4);
     func_003717e0(arg0 + cur * 0xE8 + 0x1D6B8, (f32 *)&sp40);
@@ -415,7 +415,7 @@ void func_0037d840(u8 *arg0) {
     f32 temp_f0;
 
     if (*(s32 *)(arg0 + 0x1F2FC) != 3) {
-        func_0046d730(&D_0064EB20[0], 0x23B);
+        kAssertFail(&D_0064EB20[0], 0x23B);
     }
     n = func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
     var_18 = n - 1;
@@ -426,10 +426,10 @@ void func_0037d840(u8 *arg0) {
         temp_f0 = (f32)(var_18 + 1) * (f32)temp_f0;
         var_16 = (s32)temp_f0;
         if ((var_18 < 0) || (var_18 >= n)) {
-            func_0046d730(&D_0064EB20[0], 0x243);
+            kAssertFail(&D_0064EB20[0], 0x243);
         }
         if ((var_16 < 0) || (var_16 >= n)) {
-            func_0046d730(&D_0064EB20[0], 0x244);
+            kAssertFail(&D_0064EB20[0], 0x244);
         }
         var_8 = arg0 + var_18 * 0xFB0;
         var_6 = buf;
@@ -662,7 +662,7 @@ s32 func_0037da60(u8 *arg0)
             limit = 1;
             break;
         default:
-            func_0046d730(&D_0064EB20[0], 0x26C);
+            kAssertFail(&D_0064EB20[0], 0x26C);
             limit = 0;
             break;
         }
@@ -809,7 +809,7 @@ s32 func_0037da60(u8 *arg0)
         *(u32 *)(arg0 + 0x1F2F8) = 5;
         break;
     default:
-        func_0046d730(&D_0064EB20[0], 0x3F6);
+        kAssertFail(&D_0064EB20[0], 0x3F6);
         break;
     }
     return 0;

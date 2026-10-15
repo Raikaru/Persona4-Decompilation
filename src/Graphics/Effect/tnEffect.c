@@ -32,7 +32,7 @@ typedef struct {
 } TnFlags;
 s32 tmxUploadStream(u8 *arg0, s32 arg1);
 u8 *func_003ef2e0(u8 *arg0);
-void func_0046d730(const char *file, s32 line);
+void kAssertFail(const char *file, s32 line);
 void func_00488d70(u8 *arg0);
 s32 func_004b0f70(void *arg0);
 s32 func_004b0fa0(void *arg0);
@@ -97,7 +97,7 @@ static void *sPtr_764C48;
 // FUN_00481300
 s32 func_00481300(u16 arg0) {
     if (!((u16)arg0 < 0x16)) {
-        func_0046d730(D_00713270, 0x27);
+        kAssertFail(D_00713270, 0x27);
     }
     return (s32)D_00922D10[(u16)arg0];
 }
@@ -148,7 +148,7 @@ s32 func_00481450(void) {
 s32 func_00481460(u16 arg0) {
     s32 idx;
     if (!((u16)arg0 < 0x7)) {
-        func_0046d730(D_00713270, 0xCD);
+        kAssertFail(D_00713270, 0xCD);
     }
     idx = (u32)sTbl_7641F0[(u16)arg0] * 4;
     return *(s32 *)(idx + (u32)sPtr_764C48 + 0x1C);
@@ -158,7 +158,7 @@ s32 func_00481460(u16 arg0) {
 s32 func_004814d0(u16 arg0) {
     s32 idx;
     if (!((u16)arg0 < 0x7)) {
-        func_0046d730(D_00713270, 0xD2);
+        kAssertFail(D_00713270, 0xD2);
     }
     idx = (u32)sTbl_7641F0[(u16)arg0] * 4;
     return *(s32 *)(idx + (u32)sPtr_764C48 + 0x38);
@@ -167,7 +167,7 @@ s32 func_004814d0(u16 arg0) {
 // FUN_00481540
 s32 func_00481540(u16 arg0) {
     if (!((u16)arg0 < 0x7)) {
-        func_0046d730(D_00713270, 0xD7);
+        kAssertFail(D_00713270, 0xD7);
     }
     return ((u32 *)sPtr_764C48)[sTbl_7641F0[(u16)arg0]];
 }

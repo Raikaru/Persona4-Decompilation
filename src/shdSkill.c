@@ -16,7 +16,7 @@ static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
 }
 
 u16 ShdSkill_GetPendingSkill(u8 *arg0);
-void func_0046d730(void *file, s32 line);
+void kAssertFail(void *file, s32 line);
 void ShdSkill_RemovePoolEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern char D_005E4800[];
@@ -65,11 +65,11 @@ void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descript
 
     texture = func_0046a770(D_005E5830);
     if (texture == 0) {
-        func_0046d730(D_005E4800, 0xE4);
+        kAssertFail(D_005E4800, 0xE4);
     }
     helpTexture = func_0046a770(D_005E5850);
     if (helpTexture == 0) {
-        func_0046d730(D_005E4800, 0xE6);
+        kAssertFail(D_005E4800, 0xE6);
     }
     switch (data->style) {
     case 2:
@@ -248,11 +248,11 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
     baseY = base.y;
     selected = entry & 0xFF;
     if (selected < 0 || selected >= 8) {
-        func_0046d730(D_005E4800, 0x1E1);
+        kAssertFail(D_005E4800, 0x1E1);
     }
     texture = func_0046a770(D_005E5830);
     if (texture == 0) {
-        func_0046d730(D_005E4800, 0x1E4);
+        kAssertFail(D_005E4800, 0x1E4);
     }
     if (*(s8 *)(state + 4) == selected) {
         red = 45;
@@ -359,16 +359,16 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
     baseY = base.y;
     panelTexture = func_0046a770(D_005E5830);
     if (panelTexture == 0) {
-        func_0046d730(D_005E4800, 0x243);
+        kAssertFail(D_005E4800, 0x243);
     }
     descriptor.style = 2;
     frameTexture = func_0046a770(D_005E5810);
     if (frameTexture == 0) {
-        func_0046d730(D_005E4800, 0x247);
+        kAssertFail(D_005E4800, 0x247);
     }
     helpTexture = func_0046a770(D_005E5850);
     if (helpTexture == 0) {
-        func_0046d730(D_005E4800, 0x249);
+        kAssertFail(D_005E4800, 0x249);
     }
     if (*(u16 *)(state + 0x22C) != 0) {
         if (*(s8 *)(state + 4) == 8) {
@@ -510,7 +510,7 @@ s32 ShdSkill_GetIconId(u16 arg0) {
     case -1:
         return -1;
     default:
-        func_0046d730(D_005E4800, 0x32E);
+        kAssertFail(D_005E4800, 0x32E);
         return 0;
     }
 }
@@ -573,7 +573,7 @@ void ShdSkill_DrawSelectionFrame(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
 
     temp_2 = (s32)func_0046a770(D_005E5850);
     if (temp_2 == 0) {
-        func_0046d730(D_005E4800, 0x353);
+        kAssertFail(D_005E4800, 0x353);
     }
     x = 1.0f + arg0.x;
     y = arg0.y - 1.0f;
@@ -671,7 +671,7 @@ u16 ShdSkill_GetSlotSkillId(u8 *arg0) {
 
     temp_17 = *(s8 *)(arg0 + 4);
     if ((temp_17 < 0) || (temp_17 > 8)) {
-        func_0046d730(D_005E4800, 0x447);
+        kAssertFail(D_005E4800, 0x447);
     }
     if (temp_17 < 8) {
         if (temp_17 < (s32) *(u16 *)(arg0 + 0x68)) {
@@ -682,7 +682,7 @@ u16 ShdSkill_GetSlotSkillId(u8 *arg0) {
         }
     } else {
         if ((temp_17 - 8) >= (s32) *(u16 *)(arg0 + 0x22C)) {
-            func_0046d730(D_005E4800, 0x453);
+            kAssertFail(D_005E4800, 0x453);
         }
         r = *(u16 *)(arg0 + 0x6E);
     }
@@ -730,7 +730,7 @@ void ShdSkill_AddActiveSkill(u16 arg0, u8 *arg1) {
     u16 count;
 
     if (*(u16 *)(arg1 + 0x60) >= 8) {
-        func_0046d730(D_005E4800, 0x472);
+        kAssertFail(D_005E4800, 0x472);
     }
     count = *(u16 *)(arg1 + 0x60);
     *(u16 *)(arg1 + 0x60) = count + 1;
@@ -787,7 +787,7 @@ first_test:
     }
 index_done:
     if ((index == -1) || (index >= (s32)*(u16 *)(arg2 + 0x60))) {
-        func_0046d730(D_005E4800, 0x4A1);
+        kAssertFail(D_005E4800, 0x4A1);
     }
     *(u16 *)(shdSkill_addOff(index * 12, arg2) + 2) = arg1;
     {
@@ -822,7 +822,7 @@ void ShdSkill_PopPoolEntry(u8 *arg0) {
     s32 p;
 
     if (*(u16 *)(arg0 + 0x224) <= 0) {
-        func_0046d730(D_005E4800, 0x4B7);
+        kAssertFail(D_005E4800, 0x4B7);
     }
     for (i = 0; i < *(u16 *)(arg0 + 0x224) - 1; i++) {
         *(S3f *)(arg0 + i * 12 + 0x64) = *(S3f *)(arg0 + i * 12 + 0x70);
@@ -837,7 +837,7 @@ void ShdSkill_PopPoolEntry(u8 *arg0) {
     *(u16 *)(arg0 + 0x224) -= 1;
 }
 
-/* measured: live MATCH, object 220B/window 224B, normalized_diff 0. Corrected func_0046d730 to (void *, s32). The trampoline form initializes a named input local before the guard and assigns the loop counter after the guard; this makes retail's entry branch target the loop pre-jump instead of b210 threading directly to loop_test. */
+/* measured: live MATCH, object 220B/window 224B, normalized_diff 0. Corrected kAssertFail to (void *, s32). The trampoline form initializes a named input local before the guard and assigns the loop counter after the guard; this makes retail's entry branch target the loop pre-jump instead of b210 threading directly to loop_test. */
 // FUN_00115670
 void ShdSkill_RemovePoolEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     typedef struct {
@@ -853,7 +853,7 @@ void ShdSkill_RemovePoolEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (input < (s32)*(u16 *)(arg0 + 0x224)) {
         goto loop_entry_15670;
     }
-    func_0046d730(D_005E4800, 0x4B7);
+    kAssertFail(D_005E4800, 0x4B7);
 loop_entry_15670:
     i = input;
     goto loop_test_15670;

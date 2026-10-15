@@ -75,7 +75,7 @@ void calendarClose(void)
     s32 handle = kwlnTaskGetTaskByName(D_005E4FE8);
 
     if (handle == 0) {
-        func_0046d730(D_005E4FD8, 0xA8);
+        kAssertFail(D_005E4FD8, 0xA8);
     }
     kwlnTaskDestroyWithHierarchy(handle);
 }

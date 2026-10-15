@@ -23,7 +23,7 @@ u8 *sdkSpriteRequestLoad(const char *name);
 u32 func_0046a750(s16 *param);
 f32 sdkSpriteEntryWidth(void *ptr, s32 index);
 s32 sdkSpriteSlotHandle(u8 *ptr, s32 index);
-void func_0046d730(const void *file, s32 line);
+void kAssertFail(const void *file, s32 line);
 
 s32 func_0025ea20(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
 s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
@@ -320,10 +320,10 @@ u32 func_0025f6b0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, s16 *a4
             bp = &buf[j];
             *bp = (s8)(*sp - 0x30);
             if ((s8)*bp < 0) {
-                func_0046d730(D_00637280, 0x1B9);
+                kAssertFail(D_00637280, 0x1B9);
             }
             if (*bp >= 0xA) {
-                func_0046d730(D_00637280, 0x1BA);
+                kAssertFail(D_00637280, 0x1BA);
             }
             width += (u32)a4[*bp];
             i++;
