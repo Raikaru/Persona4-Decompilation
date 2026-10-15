@@ -143,7 +143,7 @@ void func_0027a5e0(void *arg0, s16 arg1);
 extern char D_0063BED0[];
 s32 func_00454a60(char *arg0, s32 arg1);
 void H_Cdvd_ReadSync(s32 arg0);
-void func_0027d2f0(s32 arg0);
+void msgWinStart(s32 arg0);
 extern char D_0063BF00[];
 extern char DAT_00723858;
 
@@ -1227,7 +1227,7 @@ void itfMesLoadData(void)
 {
     func_00440b68(&DAT_00723858, D_0063BE10, 0xA00);
     H_Cdvd_ReadSync(func_00454a60(D_0063BF00, 1));
-    func_0027d2f0(0);
+    msgWinStart(0);
 }
 
 // FUN_002789A0
