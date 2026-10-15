@@ -575,8 +575,9 @@ s32 func_00144b80(s32 arg0, s32 arg1)
     return result;
 }
 
+/* Loads field `arg0`, room `arg1`: same-room reloads only reset the resource lists; a new room rebuilds the scene. */
 // FUN_00144C90
-void func_00144c90(s32 arg0, s32 arg1) {
+void fieldSceneLoad(s32 arg0, s32 arg1) {
     u8 *temp_3;
     u8 *temp_3_2;
     u8 *temp_3_3;

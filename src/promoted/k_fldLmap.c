@@ -42,7 +42,7 @@ extern s32 func_001060c0();
 extern s64 func_00110960(s64 param, s32 param2);
 extern s32 datGetFlag(s32 id);
 extern u8 *func_003e0f80();
-extern void func_00144c90(s32 a, s32 b);
+extern void fieldSceneLoad(s32 a, s32 b);
 extern void func_00144ed0(s64 param);
 extern s32 func_00144f60();
 extern u8 *func_0014b450();
@@ -431,7 +431,7 @@ s32 func_00186eb0(u8 *arg0)
     /* fallthrough */
     case 1:
         *(u8 **)(st + 0x18) = func_003e0f80();
-        func_00144c90(1, 1);
+        fieldSceneLoad(1, 1);
         func_00144ed0((s16)func_001546a0(1, 1));
         func_00440b68(&iGpffff9f68, D_005F1EF8, 0x211);
         *(u8 **)(st + 0x1C) = func_00454a60(D_005F1FD0, 1);

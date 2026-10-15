@@ -826,7 +826,7 @@ s32 func_00172e00(u8 *arg0)
     u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
     s32 func_0029da90(s32, u8 *, s32);
 
-    void func_00144c90(s32, s32);
+    void fieldSceneLoad(s32, s32);
     void func_00144e10(s64);
     void func_00144ed0(s64);
     s32 func_00145ac0(u16, s32);
@@ -1333,7 +1333,7 @@ s32 func_00172e00(u8 *arg0)
                     *(s32 *)(_p88 + 0x88) = *(s32 *)(_p88 + 0x88) | 0x80000000;
                 }
                 b = func_00156170(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;
-                func_00144c90(b, func_00156180(*(u8 **)(u8 *)func_00155280()) & 0xFFFF);
+                fieldSceneLoad(b, func_00156180(*(u8 **)(u8 *)func_00155280()) & 0xFFFF);
                 func_00144e10((s16)func_00156190(*(u8 **)(u8 *)func_00155280()));
                 func_00144ed0((s64)(s16)func_001546a0(func_00156170(*(u8 **)(u8 *)func_00155280()), func_00156180(*(u8 **)(u8 *)func_00155280())));
                 v6 = func_00156170(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;

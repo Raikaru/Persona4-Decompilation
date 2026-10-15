@@ -85,7 +85,7 @@ extern f32 sinf(f32 arg0);
 extern s32 func_002e78a0(void);
 extern s32 func_002e78e0(void);
 extern s32 func_002be100(s32 arg0);
-extern void func_00144c90(s32 arg0, s32 arg1);
+extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern s32 func_00144f60(void);
 extern s32 func_0015f660(void);
 extern void func_00122520(s32 arg0, s32 arg1);
@@ -2221,7 +2221,7 @@ s32 func_002bd8e0(u8 *arg0)
     temp_3 = *(s8 *)(temp_16 + 0);
     switch (temp_3) {
     case 1:
-        func_00144c90(8, 4);
+        fieldSceneLoad(8, 4);
         *(s8 *)(temp_16 + 0) = 2;
     case 2:
         if ((func_00144f60() != 0) && (func_0015f660() != 0)) {

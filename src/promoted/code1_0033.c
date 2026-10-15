@@ -70,7 +70,7 @@ extern s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00293fc0(s32 arg0);
 extern s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2,
                          s16 *arg3, s32 *arg4);
-extern void func_00144c90(s32 arg0, s32 arg1);
+extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern void func_00144e10(s32 arg0);
 extern void func_00144ed0(s32 arg0);
 extern s32 func_00144f60(void);
@@ -597,7 +597,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          if ((func_00293fc0(*(s32 *)(work + 4)) != 0) &&
              (func_002940a0(*(s32 *)(work + 4), &locals.sp3c,
                             &locals.sp38, &locals.sp34, &locals.sp30) == 1)) {
-             func_00144c90(locals.sp3c, locals.sp38);
+             fieldSceneLoad(locals.sp3c, locals.sp38);
              func_00144e10(locals.sp34);
              func_00144ed0(3);
              *(s8 *)work = *(s8 *)work + 1;
@@ -625,7 +625,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          *(s8 *)work = (s8)(state + 1);
          goto out;
      case 6:
-         func_00144c90(8, 3);
+         fieldSceneLoad(8, 3);
          func_00144e10(1);
          *(s8 *)work = *(s8 *)work + 1;
          goto out;

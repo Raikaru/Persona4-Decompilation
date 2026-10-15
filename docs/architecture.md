@@ -23,7 +23,7 @@ rest of the code much easier to read.
 | `func_0046d730(file, line)` | Assertion-failure hook. The retail body is empty, but callers still pass a source-file string and a line number. | `src/promoted/code1_0046.c` |
 | `func_0046d740(msg, file, line)` | Assertion hook that also takes a message. Its body is empty too. | `src/promoted/code1_0046.c` |
 | `func_0044ea90(file, line)` | Allocation-site tag that callers issue before an allocation. Its body is empty. | `src/Kernel/sdkChkmem.c` |
-| `func_00440b68(fmt, ...)` | Formatted debug output, for example `"Scene data load..."` in `func_00144c90`. Still `INCLUDE_ASM`. **[inferred]** printf-like | `src/promoted/code1_0044.c` |
+| `func_00440b68(fmt, ...)` | Formatted debug output, for example `"Scene data load..."` in `fieldSceneLoad`. Still `INCLUDE_ASM`. **[inferred]** printf-like | `src/promoted/code1_0044.c` |
 | `jtbl_008873E8[0](size, hint)` | Allocate | e.g. `src/Scene/resrcManager.c` `resrcMngCreate` |
 | `jtbl_008873EC[0](ptr)` | Free | e.g. `resrcMngDestroy` |
 | `D_008873F4[0](count, size, hint)` | Zeroing allocate (calloc) | e.g. `src/Main/sequence.c` `func_001028c0` |
@@ -52,7 +52,7 @@ flowchart TD
     I3 -->|"func_001029a0(0x1E)"| S30["seq 30 MEMORY CARD BOOT CHECK<br/>BootupCheckMemcard task"]
     I3 --> L["func_00101270 every frame<br/>runs the task lists"]
     S30 -->|"func_0012c410: seq 1"| S1["seq 1 initDataRead<br/>src/Main/init.c"]
-    S1 -->|"func_00111ae0: seq 27"| S27["seq 27 START GAME<br/>gameSequence task, clndSceneUpdate"]
+    S1 -->|"initBootChainDestroy: seq 27"| S27["seq 27 START GAME<br/>gameSequence task, clndSceneUpdate"]
     S27 -->|"new game (inferred)"| S25["seq 25 CALENDAR MAIN<br/>advance date/period"]
     S27 -->|"continue (inferred)"| S9["seq 9 FIELD / seq 11 DUNGEON"]
     S25 --> SDL["sdlScheduler task<br/>scheduler_MM.bf procedure sdlMM_DD_PERIOD"]
@@ -159,7 +159,7 @@ Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
 | Id | Retail name | Start callback (owner) | Notes |
 |---|---|---|---|
 | 0 | (none) | `func_00102d10` (sequenceList.c), which calls the empty `func_00103590` | Polls for the `"debug menu"` task, which is stripped from retail |
-| 1 | (none) | `func_00102b90`, which calls `func_00111b30` (`src/Main/init.c`) | `initDataRead`: loads the init tables |
+| 1 | (none) | `func_00102b90`, which calls `initBootChainStart` (`src/Main/init.c`) | `initDataRead`: loads the init tables |
 | 2–5 | FIELD (EVENT) VIEW, DUNGEON VIEW, DUNGEON EDITOR, LARGE MAP DEBUG | k_sequence.c | Viewer and debug modes |
 | 6 | BATTLE | `K_Fldrc_DestroyArchives`, which calls `func_00192e90` and `func_00193730` (`src/promoted/code1_0019.c`) | See section 8. The start callback's name does not describe what it does. |
 | 7 | SCRIPT VIEWER | `func_00102f10`, which calls `func_0029e8d0` (`scrScriptProcess.c`) | |
@@ -186,11 +186,11 @@ Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
    `BootupCheckMemcard` task; its destroy callback `func_0012c410` requests
    sequence 1.
 2. Sequence 1 runs the `initDataRead` task (`src/Main/init.c`
-   `func_00111990`). It calls three step callbacks from `0x5E46D0` in turn
-   (`func_001118f0`, which reads `init/itemtbl.bin` into `D_0079BF00`;
+   `initBootChainStep`). It calls three step callbacks from `0x5E46D0` in turn
+   (`initDataReadStart`, which reads `init/itemtbl.bin` into `D_0079BF00`;
    `func_0012d320` in `src/Camp/cmpMain.c`; `func_0015e7d0` in
    `src/promoted/k_fldData.c`), each returning a task, and waits for each
-   task to reach the dying state. Then `func_00111ae0` requests sequence 27
+   task to reach the dying state. Then `initBootChainDestroy` requests sequence 27
    with a 5-frame delay.
 3. Sequence 27 runs `clndSceneUpdate` in `src/promoted/code1_0012.c`, which
    either requests sequence 25 (calendar) or resumes at a saved location
@@ -296,7 +296,7 @@ unrelated GS texture-upload packet builders (`func_00143ba0`..`func_001441a0`).
 The current scene is the `MtScene` object at `iGpffff9db0` (`0x762EA0`),
 typed in `src/Scene/mt_scene.c` as `fldMajorId`, `fldMinorId` and
 `resManager` (offsets 0, 4 and 8). `src/promoted/code1_0014.c`
-`func_00144c90(major, minor)` loads a scene. If that major/minor is already
+`fieldSceneLoad(major, minor)` loads a scene. If that major/minor is already
 loaded it prints `"Scene data cashe hit!!"` and reuses it. Otherwise it frees
 the old scene (`func_00145080`, which calls `resrcMngDestroy`), creates a new
 manager with `resrcMngCreate`, and creates the default character and NPC
@@ -333,7 +333,7 @@ handles; `func_004c85a0` and friends in `src/cri/`), allocates
 Callers poll `H_Cdvd_IsFileLoaded`, or block with `H_Cdvd_ReadSync`, read
 the data at `+0x110` (pointer) and `+0x118` (size), then release it with
 `H_Cdvd_Destroy`. All three are in `src/h_cdvd/h_cdvd.c`. `src/Main/init.c`
-`func_001117c0` is the smallest complete example.
+`initDataReadStep` is the smallest complete example.
 
 ## 6. Rendering
 
@@ -416,7 +416,7 @@ field's state machine:
 | State | What happens |
 |---|---|
 | 0 | Event-driven entry. Reads the field and room from an event reader (`func_00293fc0`/`func_002940a0`). |
-| 1–3 | `func_00156640` (`src/promoted/code1_0015.c`) starts the child task `"setup field resource"` (`func_001561a0`). That task loads the scene through `func_00144c90` and the field script. State 3 waits for it. |
+| 1–3 | `func_00156640` (`src/promoted/code1_0015.c`) starts the child task `"setup field resource"` (`func_001561a0`). That task loads the scene through `fieldSceneLoad` and the field script. State 3 waits for it. |
 | 4–5 | For fields `0x2C`..`0x44`, loads an extra field model (`func_00477e80`) and in state 5 positions it (`func_0015a350`, `func_0047a180`). Calls `func_0016ea40` and `func_0016f130`. In event mode, starts the event instead (`func_002859e0`) and goes to state 14. |
 | 6–8 | Waits on `func_001227f0`, starts the room's script as a task (`func_0029da90`), and loads room data (`func_0015c590`). |
 | 9–10 | Creates field units (`func_001664a0`/`func_001662d0`, `func_00166b40` in `k_fldUnit.c`), the minimap (`func_002ae630` in `src/Yajima/y_smap.c`) and other field tasks, then fades in (`func_00122640`). |

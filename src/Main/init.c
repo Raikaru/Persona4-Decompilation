@@ -28,8 +28,9 @@ extern char D_005E46D0[];
 extern char D_005E46E8[];
 extern u8 D_0079BF00[];
 
+/* Init-data read step: loads init/itemtbl.bin once the file is ready, then unloads the handle. */
 // FUN_001117C0
-s32 func_001117c0(u8 *arg0)
+s32 initDataReadStep(u8 *arg0)
 {
     u8 *temp_16;
     s32 temp_3;
@@ -57,8 +58,9 @@ s32 func_001117c0(u8 *arg0)
     return 0;
 }
 
+/* Destroy callback of the init-data read task: releases the pending read handle. */
 // FUN_001118A0
-void func_001118a0(u8 *arg0)
+void initDataReadDestroy(u8 *arg0)
 {
     u8 *temp_16;
     u8 *temp_4;
@@ -72,8 +74,9 @@ void func_001118a0(u8 *arg0)
     jtbl_008873EC[0](temp_16);
 }
 
+/* Starts the init-data read task that loads the boot tables. */
 // FUN_001118F0
-s32 func_001118f0(void)
+s32 initDataReadStart(void)
 {
     s32 temp_2;
     s32 var_2;
@@ -83,12 +86,13 @@ s32 func_001118f0(void)
     if (temp_2 == 0) {
         return 0;
     }
-    var_2 = (s32)func_00451de0((const void *)(D_005E46C0), 0x100, 0, 0, func_001117c0, func_001118a0, (u8 *)(temp_2));
+    var_2 = (s32)func_00451de0((const void *)(D_005E46C0), 0x100, 0, 0, initDataReadStep, initDataReadDestroy, (u8 *)(temp_2));
     return var_2 == 0 ? 0 : var_2;
 }
 
+/* Boot chain step task: runs its three step callbacks in turn, then ends the chain. */
 // FUN_00111990
-s32 func_00111990(u8 *arg0)
+s32 initBootChainStep(u8 *arg0)
 {
     typedef s32 (*StepCallback)(void);
     StepCallback callbacks[8];
@@ -143,16 +147,18 @@ s32 func_00111990(u8 *arg0)
     return 0;
 }
 
+/* Destroy callback of the boot chain: calls the destroy table, then requests sequence 27. */
 // FUN_00111AE0
-void func_00111ae0(u8 *arg0)
+void initBootChainDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
     func_001113b0();
     func_001029a0(0x1B, 0, 0, 5);
 }
 
+/* Starts the boot chain task, which runs the init-data read and the step callbacks. */
 // FUN_00111B30
-s32 func_00111b30(void)
+s32 initBootChainStart(void)
 {
     s32 temp_2;
 
@@ -161,5 +167,5 @@ s32 func_00111b30(void)
     if (temp_2 == 0) {
         return 0;
     }
-    return (s32)func_00451de0((const void *)(D_005E46E8), 0x100, 0, 0, func_00111990, func_00111ae0, (u8 *)(temp_2));
+    return (s32)func_00451de0((const void *)(D_005E46E8), 0x100, 0, 0, initBootChainStep, initBootChainDestroy, (u8 *)(temp_2));
 }
