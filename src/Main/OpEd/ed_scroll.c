@@ -386,7 +386,7 @@ void func_0038e810(u32 *work, char *text, s32 align)
                     break;
                 }
                 {
-                    u32 handle = (u32)func_002724d0((u8 *)token, (s8)style, (s8)mode, 0, NULL);
+                    u32 handle = (u32)frFontCreateTextList((u8 *)token, (s8)style, (s8)mode, 0, NULL);
                     frFontExSetScale(handle, 0.0f);
                     *(u32 *)((u8 *)work + count * 8 + 8) = handle;
                     *(f32 *)((u8 *)work + 4 + count * 8) = width;

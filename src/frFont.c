@@ -943,8 +943,9 @@ zero_store:
 done:
     return node;
 }
+/* Returns the x kerning adjustment for a glyph pair (T/Y/V and vowel codes), scaled by D_007645A0. */
 // FUN_00272390
-int func_00272390(short *param_1)
+int frFontKerningOffset(short *param_1)
 {
     u16 *puVar3;
     u16 sVar1;
@@ -1030,6 +1031,7 @@ extern u8 *frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3);
 
 
 
+/* Builds a text list from a string: one glyph node per character (1 or 2 bytes), linked and width-summed with kerning. */
 /* Converted from INCLUDE_ASM. Retail keeps var16=$s0, var17=$s1,
    var18/i=$s2, arg4=$s3, arg0=$s4, result count=$s5, arg2=$s6,
    and arg3=$s7. The u8 helper arguments are materialized once in
@@ -1038,7 +1040,7 @@ extern u8 *frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3);
    Callers explicitly sequence character loads, and dynamic style before
    character, to retain the retail argument evaluation order. */
 // FUN_002724D0
-u8 *func_002724d0(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
+u8 *frFontCreateTextList(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
     s32 temp2;
     u16 ch;
     u32 var21;
@@ -1098,7 +1100,7 @@ u8 *func_002724d0(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
         var16 = var17;
         *(s32 *)(var19 + 0x0C) += *(s32 *)(var17 + 0x0C);
         *(s32 *)(var19 + 0x18) += 1;
-        temp2 = func_00272390((short *)var17);
+        temp2 = frFontKerningOffset((short *)var17);
         if (temp2 != 0) {
             temp4 = *(u8 **)(var17 + 0x24);
             if (temp4 != NULL) {
@@ -2051,7 +2053,7 @@ text_body:
                 if (node->glyphs == NULL) {
                     goto apply_attribute;
                 }
-                new_node = (character = *(s8 *)(context + 0xD), func_002724d0((u8 *)&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
+                new_node = (character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
                 if (new_node != NULL) {
                     goto link_new_node;
                 }
@@ -2065,7 +2067,7 @@ store_new_node:
                 *(u8 **)(context + 0x14) = (u8 *)node;
                 goto apply_attribute;
 create_first_node:
-                first_node = (character = *(s8 *)(context + 0xD), func_002724d0((u8 *)&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
+                first_node = (character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
                 if (first_node != NULL) {
                     goto link_first_node;
                 }
@@ -2090,7 +2092,7 @@ apply_attribute:
                 previous_style = (s8)style;
             }
             *(u8 **)(context + 0x14) =
-                (character = *(s8 *)(context + 0xD), func_002724d0((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
+                (character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
             spacing = D_0076380C;
             glyph_node = *(u8 **)(context + 0x14);
             if (glyph_node == NULL) {
@@ -2202,7 +2204,7 @@ loop_body_30:
                 if (var_16_2->flag_1C == 0) {
                     goto common_node_1;
                 }
-                temp_2 = (character = *(s8 *)(arg1 + 0xD), func_002724d0((u8 *)&iGpffffa748, 0, character, *(s8 *)(arg1 + 0xE), NULL));
+                temp_2 = (character = *(s8 *)(arg1 + 0xD), frFontCreateTextList((u8 *)&iGpffffa748, 0, character, *(s8 *)(arg1 + 0xE), NULL));
                 if (temp_2 != NULL) {
                     goto call_node_1;
                 }
@@ -2217,7 +2219,7 @@ store_node_1:
                 *(u8 **)(arg1 + 0x14) = (u8 *)var_16_2;
                 goto common_node_1;
 null_node_1:
-                temp_2_2 = (character = *(s8 *)(arg1 + 0xD), func_002724d0((u8 *)&iGpffffa748, 0, character, *(s8 *)(arg1 + 0xE), NULL));
+                temp_2_2 = (character = *(s8 *)(arg1 + 0xD), frFontCreateTextList((u8 *)&iGpffffa748, 0, character, *(s8 *)(arg1 + 0xE), NULL));
                 if (temp_2_2 != NULL) {
                     goto call_node_2;
                 }
@@ -2243,7 +2245,7 @@ common_node_1:
                 var_16 = (s8)temp_17;
             }
             *(u8 **)(arg1 + 0x14) =
-                (character = *(s8 *)(arg1 + 0xD), func_002724d0((u8 *)sp8.bytes, temp_17, character, *(s8 *)(arg1 + 0xE), *(u8 **)(arg1 + 0x14)));
+                (character = *(s8 *)(arg1 + 0xD), frFontCreateTextList((u8 *)sp8.bytes, temp_17, character, *(s8 *)(arg1 + 0xE), *(u8 **)(arg1 + 0x14)));
             temp_21_2 = D_0076380C;
             temp_2_3 = *(u8 **)(arg1 + 0x14);
             if (temp_2_3 == NULL) {
@@ -2321,7 +2323,7 @@ void func_00273f70(u8 *arg0)
         goto done;
     }
     list = work->list_14;
-    result = (u8 *)(character = work->code_0D, func_002724d0(&iGpffffa748, 0, character, work->code_0E, NULL));
+    result = (u8 *)(character = work->code_0D, frFontCreateTextList(&iGpffffa748, 0, character, work->code_0E, NULL));
     if (result == NULL) {
         updated = list;
         goto call_after;
@@ -2455,7 +2457,7 @@ u8 *func_002740b0(void *data)
             }
             if (*(s8 *)(context + 0x1C) != 0) {
                 node = *(FrFontNode **)(context + 0x14);
-                allocated = (character = *(s8 *)(context + 0xD), func_002724d0(&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
+                allocated = (character = *(s8 *)(context + 0xD), frFontCreateTextList(&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
                 if (allocated != NULL) {
                     goto link_node;
                 }
@@ -2489,20 +2491,20 @@ store_node:
                     glyph[0] = code;
                     glyph[1] = 0;
                 }
-                *(u8 **)(context + 0x14) = (style = *(s8 *)(context + 0xC), character = *(s8 *)(context + 0xD), func_002724d0((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
+                *(u8 **)(context + 0x14) = (style = *(s8 *)(context + 0xC), character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
             } else {
                 pair = (code << 8) | script->data[script->pos++];
                 if (pair < 0xC080) {
                     glyph[0] = (pair & 0xFF00) >> 8;
                     glyph[1] = pair;
                     glyph[2] = 0;
-                    *(u8 **)(context + 0x14) = (style = *(s8 *)(context + 0xC), character = *(s8 *)(context + 0xD), func_002724d0((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
+                    *(u8 **)(context + 0x14) = (style = *(s8 *)(context + 0xC), character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
                 } else {
                     pair -= 0x4000;
                     glyph[0] = (pair & 0xFF00) >> 8;
                     glyph[1] = pair;
                     glyph[2] = 0;
-                    *(u8 **)(context + 0x14) = (character = *(s8 *)(context + 0xD), func_002724d0((u8 *)glyph, 8, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
+                    *(u8 **)(context + 0x14) = (character = *(s8 *)(context + 0xD), frFontCreateTextList((u8 *)glyph, 8, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
                 }
             }
             spacing = (-D_00763808[*(u8 *)(context + 0xC)] * 2) / 32;
