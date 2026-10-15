@@ -198,7 +198,7 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off plus named call_angle locals preserve retail's stack reloads before mdlLookAtSetupSetRange. */
 #pragma push
 // FUN_0019DF20
-s32 func_0019df20(u8 *arg0)
+s32 btlUnitSetLookAtRanges(u8 *arg0)
 {
     u8 *unit;
 

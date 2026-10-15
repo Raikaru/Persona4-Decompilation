@@ -144,7 +144,7 @@ extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-extern void func_0019d990(u8 *arg0, s32 arg1);
+extern void btlUnitClearModelState(u8 *arg0, s32 arg1);
 
 
 
@@ -209,10 +209,10 @@ void btlUnitReleaseModel(u8 *arg0)
         index = ((s32)temp_4 & 0xFFC00) >> 10;
         MT_Scene_DestroyRes(temp_4);
         if (*(u8 **)(arg0 + 0xA00) != NULL) {
-            func_0019d990(arg0, 4);
-            func_0019d990(arg0, 1);
-            func_0019d990(arg0, 2);
-            func_0019d990(arg0, 3);
+            btlUnitClearModelState(arg0, 4);
+            btlUnitClearModelState(arg0, 1);
+            btlUnitClearModelState(arg0, 2);
+            btlUnitClearModelState(arg0, 3);
             mdlSetColor(*(u8 **)(arg0 + 0xA00), (s32 *)&iGpffffa4d8);
             mdlSetLayerWeight(*(u8 **)(arg0 + 0xA00), 0, 1.0f);
             if (index == 1 && (*(s32 *)(arg0 + 0x98) & 8) == 0)

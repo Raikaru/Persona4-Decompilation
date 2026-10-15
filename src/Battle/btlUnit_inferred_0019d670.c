@@ -156,7 +156,7 @@ extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
 extern f32 DAT_0076112c;
 
 
-extern void func_0019d990(u8 *arg0, s32 arg1);
+extern void btlUnitClearModelState(u8 *arg0, s32 arg1);
 extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 extern u8 *func_001f7650(u8 *arg0);
 
@@ -177,7 +177,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_0019db40(u8 *arg0);
+extern void btlUnitUpdateLookAtTarget(u8 *arg0);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
@@ -321,7 +321,7 @@ void btlUnitApplyModelState(u8 *arg0, s32 arg1)
 }
 
 // FUN_0019D990
-void func_0019d990(u8 *arg0, s32 arg1)
+void btlUnitClearModelState(u8 *arg0, s32 arg1)
 {
     s32 temp_4;
     u16 temp_5;
@@ -381,7 +381,7 @@ void func_0019d990(u8 *arg0, s32 arg1)
    real prototype at block scope (it is defined later in the unit). The scale
    multiplies are inline `*(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C)` so the
    0x80 load precedes the 0x2C load. */
-void func_0019db40(u8 *arg0)
+void btlUnitUpdateLookAtTarget(u8 *arg0)
 {
     extern void mdlSetLookAtTargetPoint(void *arg0, void *arg1);
     extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
