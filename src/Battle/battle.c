@@ -58,7 +58,7 @@ struct BtlPacket
     void* workData;
 };
 
-extern BtlPacket* func_00194470(u32 type, u32 workSize);
+extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 extern u32 func_00193750(void* work);
 extern u32 func_001937c0(void* work);
 
@@ -178,7 +178,7 @@ BtlPacket* btlCreateSetFlagsPacket(u32 flags)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0xFF02, sizeof(BtlBattleFlagPacket));
+    packet = btlPacketAlloc(0xFF02, sizeof(BtlBattleFlagPacket));
     packet->updateFunc = func_00193750;
     ((BtlBattleFlagPacket*)packet->workData)->flags = flags;
 
@@ -210,7 +210,7 @@ BtlPacket* btlCreateRemoveFlagsPacket(u32 flags)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0xFF03, sizeof(BtlBattleFlagPacket));
+    packet = btlPacketAlloc(0xFF03, sizeof(BtlBattleFlagPacket));
     packet->updateFunc = func_001937c0;
     ((BtlBattleFlagPacket*)packet->workData)->flags = flags;
 

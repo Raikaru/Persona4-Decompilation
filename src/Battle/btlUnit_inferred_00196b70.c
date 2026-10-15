@@ -144,7 +144,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
@@ -165,8 +165,8 @@ extern u8 D_00794150[];
 /* Source unit: src/promoted/code1_0019.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00196b70-001973d0 */
 
-extern u8 *func_00194470(s32 arg0, s32 arg1);
-extern s64 func_00194590(u8 *arg0, u32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void func_001949d0(s32 arg0);
 extern void func_001eec50(void *work);
 extern s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius);

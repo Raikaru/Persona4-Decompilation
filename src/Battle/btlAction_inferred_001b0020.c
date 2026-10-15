@@ -40,7 +40,7 @@ extern s32 D_00922CC0[];
 extern s32 btlUnitIsMoving(u8 *arg0);
 extern void func_00194ff0(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
-extern s64 func_00194590(u8 *arg0, u32 arg1);
+extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlActionSetState(BtlAction *arg0, u16 arg1);
 
 extern u8 *D_0076449C;
@@ -54,7 +54,7 @@ extern void (*D_005F6E20[])(u8 *arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern void func_0022fdc0(u8 *arg0);
 extern u32 iGpffffa0b8;
-s64 func_00194590(u8 *arg0, u32 arg1);
+s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -165,7 +165,7 @@ void func_001b0020(u8 *arg0)
         }
         packet = (u8 *)btlUnitCreateMovePacket(*(BtlUnit **)(arg0 + 0x30), &position, D_005F6D20[speed], 0);
         *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
         *(s32 *)(arg0 + 0x41C) = 1;
     }
 }
@@ -181,7 +181,7 @@ void func_001b0260(u8 *arg0)
             func_00194ff0(*(u8 **)(arg0 + 0x30), NULL, NULL, sp20);
             temp_2 = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)(*(u8 **)(arg0 + 0x30)), (const RwV3d *)(sp20), (u32)(0));
             *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-            func_00194590(temp_2, 1);
+            btlPacketEnqueue(temp_2, 1);
         }
         btlActionSetState((BtlAction *)arg0, 1);
     }
@@ -209,13 +209,13 @@ void func_001b0300(u8 *arg0)
         if ((flags & 0x20) == 0 && (flags & 0x100) == 0) {
             work = (u8 *)func_0019bbe0((BtlUnit *)p, 0xFFFFFF, 6, 0, 4, 0);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
-            func_00194590(work, 1);
+            btlPacketEnqueue(work, 1);
             work = (u8 *)func_001d6240((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)p, (u32)p, 0, 0);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
-            func_00194590(work, 2);
+            btlPacketEnqueue(work, 2);
             work = (u8 *)func_001f7c20(0xA, 2, 0xA);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
-            func_00194590(work, 1);
+            btlPacketEnqueue(work, 1);
         }
         flags2 = *(s32 *)(p + 0x9C);
         if ((flags2 & 0x40) == 0 && (flags2 & 8) != 0) {

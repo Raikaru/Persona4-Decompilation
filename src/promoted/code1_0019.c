@@ -214,7 +214,7 @@ extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001ee430(u8 *arg0);
 extern void func_001d7040(s32 arg0);
 extern void func_001d6c10(s32 arg0);
-extern void func_00194670(u8 *arg0);
+extern void btlPacketStep(u8 *arg0);
 extern int mdlHasActiveMode(void *arg0);
 extern void mdlSetLookAtActive(void *arg0);
 extern void func_0019d550(u8 *arg0);
@@ -246,7 +246,7 @@ extern void func_0019ea60(u8 *arg0, s32 arg1);
 
 extern s32 func_0019be50(u8 *arg0);
 extern s32 func_0010d6d0(s16 arg0);
-extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern float func_001d4380(int arg0);
 extern s32 func_00197a80(u8 *arg0);
 extern s32 func_0010d740(s16 arg0);

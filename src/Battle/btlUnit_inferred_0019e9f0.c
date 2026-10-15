@@ -153,7 +153,7 @@ extern void func_0019ea60(u8 *arg0, s32 arg1);
 
 
 extern s32 func_0010d6d0(s16 arg0);
-extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 func_0010d740(s16 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
 extern s32 iGpffffb444;
@@ -232,7 +232,7 @@ u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value)
     u8 *packet;
     u8 *work;
 
-    packet = (u8 *)func_00194470(0x11A, 8);
+    packet = (u8 *)btlPacketAlloc(0x11A, 8);
     *(void **)(packet + 0x68) = (void *)btlUnitHoldPendingLookAt;
     *(void **)(packet + 0x6C) = (void *)btlUnitLookAtSidePacketUpdate;
     *(void **)(packet + 0x70) = (void *)btlUnitReleasePendingLookAt;
@@ -748,7 +748,7 @@ s32 func_0019f8a0(u8 *arg0)
             return 0;
         }
         if ((s16)func_00199830(*(u8 **)(arg0 + 0x30)) < 4) {
-            func_00194590(btlUnitCreateAnimPacket(*(u8 **)(arg0 + 0x30),
+            btlPacketEnqueue(btlUnitCreateAnimPacket(*(u8 **)(arg0 + 0x30),
                                          0x11, 4, 0, 1.0f),
                           0);
             *(s32 *)(arg0 + 0x24) = -1;
@@ -814,7 +814,7 @@ void func_0019faf0(u8 *arg0)
                 case 5:
                     if (arg0 != var_17) {
                         func_00194ff0(temp_16, NULL, NULL, sp40);
-                        func_00194590(btlUnitCreateLookAtPacket(temp_16, sp40, 0), 1);
+                        btlPacketEnqueue(btlUnitCreateLookAtPacket(temp_16, sp40, 0), 1);
                     }
                     break;
                 default:

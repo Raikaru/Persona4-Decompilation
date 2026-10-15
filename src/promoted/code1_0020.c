@@ -99,7 +99,7 @@ extern void func_00216d10(s32 task);
 
 
 
-extern u8 *func_00194470(s32 id, s32 size);
+extern u8 *btlPacketAlloc(s32 id, s32 size);
 extern s32 func_00202340(u8 *arg0);
 extern s32 func_00202070(u8 *arg0);
 extern s32 func_00202180(u8 *arg0);
@@ -958,7 +958,7 @@ u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags,
     u8 *temp_16;
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00194470(0x50A, 0x3C);
+    temp_2 = (u8 *)btlPacketAlloc(0x50A, 0x3C);
     spAC = temp_2;
     *(void **)(temp_2 + 0x68) = (void *)func_00201a80;
     *(void **)(temp_2 + 0x6C) = (void *)func_00201b00;
@@ -987,7 +987,7 @@ u8 *func_00201f20(void)
 {
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00194470(0x50B, 0);
+    temp_2 = (u8 *)btlPacketAlloc(0x50B, 0);
     *(void **)(temp_2 + 0x6C) = (void *)func_00201ee0;
     return temp_2;
 }
@@ -1043,7 +1043,7 @@ BtlPacket *func_00202120(u32 param_1, u16 param_2)
   u32 *puVar1;
   int iVar2 = 0;
 
-  iVar2 = (int)func_00194470(0x505, 0xc);
+  iVar2 = (int)btlPacketAlloc(0x505, 0xc);
   *(void **)(iVar2 + 0x6c) = (void *)func_00202070;
   puVar1 = *(u32 **)(iVar2 + 0x78);
   *puVar1 = param_1;
@@ -1096,7 +1096,7 @@ u8 *func_002022e0(u32 param_1, u16 param_2)
   u32 *puVar1;
   int iVar2 = 0;
 
-  iVar2 = (int)func_00194470(0x507, 0xc);
+  iVar2 = (int)btlPacketAlloc(0x507, 0xc);
   *(void **)(iVar2 + 0x6c) = (void *)func_00202180;
   puVar1 = *(u32 **)(iVar2 + 0x78);
   *puVar1 = param_1;
@@ -1138,7 +1138,7 @@ BtlPacket *func_00202400(s32 arg0, s32 arg1)
     u8 *temp_2;
     u8 *temp_3;
 
-    temp_2 = (u8 *)func_00194470(0x506, 0xC);
+    temp_2 = (u8 *)btlPacketAlloc(0x506, 0xC);
     *(void **)(temp_2 + 0x6C) = (void *)func_00202340;
     temp_3 = *(u8 **)(temp_2 + 0x78);
     *(s32 *)(temp_3 + 0) = arg0;
@@ -1196,7 +1196,7 @@ u8 *func_00202590(s32 arg0, s8 arg1, s16 arg2)
     u8 *packet;
     u8 *temp;
 
-    packet = (u8 *)func_00194470(0x500, 8);
+    packet = (u8 *)btlPacketAlloc(0x500, 8);
     *(u8 *)(packet + 0x47) &= 0xEF;
     *(void **)(packet + 0x68) = (void *)func_00202460;
     *(void **)(packet + 0x6C) = (void *)func_00202480;
@@ -1236,7 +1236,7 @@ void func_00202720(u8 *arg0)
 u8 *func_00202740(u8 *unit)
 {
     u8 *packet;
-    packet = (u8 *)func_00194470(0x501, 4);
+    packet = (u8 *)btlPacketAlloc(0x501, 4);
     *(u8 *)(packet + 71) &= ~(1 << 4);
     *(void **)(packet + 0x68) = (void *)func_00202620;
     *(void **)(packet + 0x6C) = (void *)func_00202640;
@@ -1261,7 +1261,7 @@ u8 *func_00202850(void)
 {
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00194470(0x50E, 0);
+    temp_2 = (u8 *)btlPacketAlloc(0x50E, 0);
     *(void **)(temp_2 + 0x6C) = (void *)func_00202820;
     return temp_2;
 }
@@ -4179,7 +4179,7 @@ u16 func_00209dc0(u8 *arg0, u8 *arg1)
     extern u8 *func_001b0c80(s32 arg0);
     extern u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3,
                               s32 arg4);
-    extern s64 func_00194590(u8 *arg0, u32 arg1);
+    extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
     s16 temp_16;
     u8 *temp_2;
     s32 temp_2_2;
@@ -4196,7 +4196,7 @@ u16 func_00209dc0(u8 *arg0, u8 *arg1)
                 *(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4), temp_16);
             temp_2 = func_001b0c80(*(s32 *)(arg1 + 0x190));
             if (temp_2 != NULL) {
-                func_00194590(
+                btlPacketEnqueue(
                     func_001f99c0(temp_2, 2, *(s16 *)(arg0 + 4), 0, 0), 1);
             }
         }

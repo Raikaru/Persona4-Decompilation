@@ -32,7 +32,7 @@ struct BtlPacket
     void* workData;
 };
 
-extern BtlPacket* func_00194470(u32 type, u32 workSize);
+extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 extern void func_001f7ad0(void* work);
 extern u32 func_001f7b40(void* work);
 
@@ -117,7 +117,7 @@ BtlPacket* func_001f7c20(u16 channel, u16 cue, u16 variant)
     BtlPacket* packet;
     u16* work;
 
-    packet = func_00194470(0x902, 6);
+    packet = btlPacketAlloc(0x902, 6);
     packet->initFunc = (BtlPacketFunc)func_001f7ad0;
     packet->updateFunc = func_001f7b40;
     work = (u16*)packet->workData;
@@ -154,7 +154,7 @@ BtlPacket* func_001f7d10(u16 channel, u16 cue, u16 variant)
     BtlPacket* packet;
     u16* work;
 
-    packet = func_00194470(0x901, 6);
+    packet = btlPacketAlloc(0x901, 6);
     packet->initFunc = (BtlPacketFunc)func_001f7ca0;
     packet->updateFunc = (BtlPacketFunc)func_001f7cd0;
     work = (u16*)packet->workData;
@@ -248,7 +248,7 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
     BtlPacket* packet;
     BtlSoundPacketSkillSE* work;
 
-    packet = func_00194470(0x903, sizeof(BtlSoundPacketSkillSE));
+    packet = btlPacketAlloc(0x903, sizeof(BtlSoundPacketSkillSE));
     packet->unk_47 &= ~(1 << 0);
     packet->initFunc = (BtlPacketFunc)func_001f7d90;
     packet->updateFunc = func_001f7e30;
@@ -294,7 +294,7 @@ BtlPacket* func_001f8140(u16 state)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x904, 2);
+    packet = btlPacketAlloc(0x904, 2);
     packet->updateFunc = (BtlPacketFunc)func_001f8070;
     *(u16*)packet->workData = state;
     return packet;
@@ -322,7 +322,7 @@ BtlPacket* func_001f81f0(u16 channel, const char* streamName)
     u8* work;
 
     length = strlen(streamName);
-    packet = func_00194470(0x905, length + 8);
+    packet = btlPacketAlloc(0x905, length + 8);
     packet->updateFunc = (BtlPacketFunc)func_001f8190;
     work = (u8*)packet->workData;
     *(u16*)work = channel;
@@ -350,7 +350,7 @@ BtlPacket* func_001f82b0(struct BtlUnit* unit)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x909, 4);
+    packet = btlPacketAlloc(0x909, 4);
     packet->updateFunc = func_001f8280;
     *(struct BtlUnit**)packet->workData = unit;
     return packet;
@@ -375,7 +375,7 @@ BtlPacket* func_001f8330(struct BtlUnit* unit)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x90A, 4);
+    packet = btlPacketAlloc(0x90A, 4);
     packet->updateFunc = func_001f8300;
     *(struct BtlUnit**)packet->workData = unit;
     return packet;
@@ -389,7 +389,7 @@ void func_001f97b0(void)
     BtlPacket* packet;
     u32* work;
 
-    packet = func_00194470(0xA00, 8);
+    packet = btlPacketAlloc(0xA00, 8);
     packet->unk_47 &= ~(1 << 0);
     packet->updateFunc = func_001f9750;
     work = (u32*)packet->workData;

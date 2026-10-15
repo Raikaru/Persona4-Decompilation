@@ -38,7 +38,7 @@ typedef struct BtlPacket {
     void* workData;
 } BtlPacket;
 
-extern BtlPacket* func_00194470(u32 type, u32 workSize);
+extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 extern void func_001d7700(void);
 extern u32 func_001d7760(void);
 extern u32 func_001d79e0(u16 *param_1);
@@ -205,7 +205,7 @@ u8 *func_001d7880(void)
 {
   int iVar1 = 0;
 
-  iVar1 = (int)func_00194470(0x306,0);
+  iVar1 = (int)btlPacketAlloc(0x306,0);
   *(u8 *)(iVar1 + 0x47) = *(u8 *)(iVar1 + 0x47) & 0xfe;
   *(code *)(iVar1 + 0x68) = (code)func_001d7700;
   *(code *)(iVar1 + 0x6c) = (code)func_001d7760;
@@ -253,7 +253,7 @@ BtlPacket *func_001d7a10(u16 mode)
 {
     BtlPacket *packet;
 
-    packet = func_00194470(0x308, sizeof(u16));
+    packet = btlPacketAlloc(0x308, sizeof(u16));
     packet->updateFunc = (BtlPacketFunc)func_001d79e0;
     *(u16 *)packet->workData = mode;
     return packet;
@@ -271,7 +271,7 @@ BtlPacket* func_001d7ab0(u8 *param_1,u16 param_2)
   u8 *work;
   int packet = 0;
 
-  packet = (int)func_00194470(0x30a,6);
+  packet = (int)btlPacketAlloc(0x30a,6);
   *(code *)(packet + 0x6c) = (code)func_001d7a60;
   work = *(u8 **)(packet + 0x78);
   *(BtlMessageArgs *)work = *(BtlMessageArgs *)param_1;
@@ -323,7 +323,7 @@ BtlPacket* func_00202010(u32 param_1, u16 param_2)
   u32 *puVar1;
   int iVar2 = 0;
 
-  iVar2 = (int)func_00194470(0x504, 0xc);
+  iVar2 = (int)btlPacketAlloc(0x504, 0xc);
   *(code *)(iVar2 + 0x6c) = (code)func_00201f60;
   puVar1 = *(u32 **)(iVar2 + 0x78);
   *puVar1 = param_1;

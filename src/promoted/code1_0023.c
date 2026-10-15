@@ -9,7 +9,7 @@ extern u8 *iGpffffb3ac;
 
 extern u8 *iGpffffa5f0;
 extern void func_0045a9a0(s32 arg0, s32 arg1);
-extern u8 *func_00194470(s32 type, s32 workSize);
+extern u8 *btlPacketAlloc(s32 type, s32 workSize);
 extern void H_Cdvd_Destroy(u8 *ptr);
 extern void func_0045ac90(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00230500(u8 *work);
@@ -57,7 +57,7 @@ BtlPacket *func_002305c0(s32 arg0)
     u8 *p;
     u8 *work;
 
-    p = func_00194470(0xE01, 8);
+    p = btlPacketAlloc(0xE01, 8);
     *(void **)(p + 0x6C) = (void *)func_00230500;
     work = *(u8 **)(p + 0x78);
     *(s32 *)(work + 0) = arg0;
@@ -81,7 +81,7 @@ BtlPacket *func_00230650(void)
 {
     u8 *p;
 
-    p = func_00194470(0xE02, 0);
+    p = btlPacketAlloc(0xE02, 0);
     p[0x47] &= 0xFE;
     *(void **)(p + 0x6C) = (void *)func_00230610;
     return (BtlPacket *)p;
@@ -102,7 +102,7 @@ BtlPacket *func_002306d0(void)
 {
     u8 *p;
 
-    p = func_00194470(0xE03, 0);
+    p = btlPacketAlloc(0xE03, 0);
     p[0x47] &= 0xFE;
     *(void **)(p + 0x6C) = (void *)func_00230690;
     return (BtlPacket *)p;
@@ -123,7 +123,7 @@ BtlPacket *func_00230750(void)
 {
     u8 *p;
 
-    p = func_00194470(0xE04, 0);
+    p = btlPacketAlloc(0xE04, 0);
     p[0x47] &= 0xFE;
     *(void **)(p + 0x6C) = (void *)func_00230710;
     return (BtlPacket *)p;

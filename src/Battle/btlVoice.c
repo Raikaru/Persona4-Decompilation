@@ -24,7 +24,7 @@ typedef struct BtlVoicePacket001f99c0 {
     s32 unk_14;        // 0x14
 } BtlVoicePacket001f99c0;
 
-BtlPacket* func_00194470(u32 type, s32 workSize);
+BtlPacket* btlPacketAlloc(u32 type, s32 workSize);
 u32 func_001f9800(void* work);
 
 typedef struct BtlVoicePacketA03Work {
@@ -50,7 +50,7 @@ BtlPacket* btlVoiceCreatePacket(BtlAction* action, u16 param_2, s32 param_3,
     BtlPacket* packet;
     BtlVoicePacket001f99c0* work;
 
-    packet = func_00194470(0xa01, sizeof(BtlVoicePacket001f99c0));
+    packet = btlPacketAlloc(0xa01, sizeof(BtlVoicePacket001f99c0));
     packet->updateFunc = func_001f9800;
     work = (BtlVoicePacket001f99c0*)packet->workData;
     work->action = action;
@@ -70,7 +70,7 @@ BtlPacket* func_001f9b80(u16 voiceId)
     BtlPacket* packet;
     BtlVoicePacketA03Work* work;
 
-    packet = func_00194470(0xa03, sizeof(BtlVoicePacketA03Work));
+    packet = btlPacketAlloc(0xa03, sizeof(BtlVoicePacketA03Work));
     packet->unk_47 &= 0xfe;
     packet->updateFunc = (BtlPacketUpdateFunc)func_001f9ac0;
     work = (BtlVoicePacketA03Work*)packet->workData;

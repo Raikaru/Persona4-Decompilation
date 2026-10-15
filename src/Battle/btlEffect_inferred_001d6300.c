@@ -59,7 +59,7 @@ typedef int (*code)();
 
 
 
-extern void *func_00194470();
+extern void *btlPacketAlloc();
 
 
 typedef struct RwV3d RwV3d;
@@ -187,7 +187,7 @@ u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4)
     u8 *packet;
     u8 *work;
 
-    packet = (u8 *)func_00194470(0x302, 0x28);
+    packet = (u8 *)btlPacketAlloc(0x302, 0x28);
     *(u8 *)(packet + 0x47) &= 0xEF;
     *(void (**)(u8 *))(packet + 0x68) = func_001d6300;
     *(s32 (**)(u8 *))(packet + 0x6C) = func_001d6360;

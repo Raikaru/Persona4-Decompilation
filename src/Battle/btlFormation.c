@@ -23,7 +23,7 @@ typedef struct BtlPacket {
     void* workData;
 } BtlPacket;
 
-extern BtlPacket* func_00194470(u32 type, u32 workSize);
+extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 extern u32 func_001d1cc0(int* param_1);
 extern u32 func_001d1f30(u32 *work);
 extern void func_001d2e00(u32 *work);
@@ -131,7 +131,7 @@ BtlPacket *func_001d1eb0(u32 param_1, u32 param_2, float param_3, u16 param_4)
     u32 *work;
     u32 packet;
 
-    packet = (u32)func_00194470(0xb00, 0x10);
+    packet = (u32)btlPacketAlloc(0xb00, 0x10);
     *(code **)(packet + 0x6c) = (code *)func_001d1cc0;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
@@ -568,7 +568,7 @@ BtlPacket* func_001d2d90(u32 param_1, u32 param_2, u32 param_3)
     u32 *work;
     u32 packet;
 
-    packet = (u32)func_00194470(0xb01, 0xc);
+    packet = (u32)btlPacketAlloc(0xb01, 0xc);
     *(code **)(packet + 0x6c) = (code *)func_001d1f30;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
@@ -666,7 +666,7 @@ BtlPacket* func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
     u32 *work;
     u32 packet;
 
-    packet = (u32)func_00194470(0xb02, 0x10);
+    packet = (u32)btlPacketAlloc(0xb02, 0x10);
     *(code **)(packet + 0x68) = (code *)func_001d2e00;
     *(code **)(packet + 0x6c) = (code *)func_001d2e20;
     *(code **)(packet + 0x70) = (code *)func_001d2fe0;
@@ -788,7 +788,7 @@ BtlPacket* func_001d3530(u32 param_1, u32 param_2, u16 param_3)
     u32 *work;
     u32 packet;
 
-    packet = (u32)func_00194470(0xb03, 0xc);
+    packet = (u32)btlPacketAlloc(0xb03, 0xc);
     *(code **)(packet + 0x6c) = (code *)func_001d3090;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
@@ -846,7 +846,7 @@ BtlPacket *func_001d3700(u16 param_1, u16 param_2)
     u16 *work;
     BtlPacket *packet;
 
-    packet = func_00194470(0xb04, 4);
+    packet = btlPacketAlloc(0xb04, 4);
     packet->updateFunc = (BtlPacketUpdateFunc)func_001d35a0;
     work = (u16 *)packet->workData;
     work[0] = param_1;
@@ -906,7 +906,7 @@ BtlPacket *func_001d3900(u16 param_1)
     u32 *work;
     u32 packet;
 
-    packet = (u32)func_00194470(0xb05, 2);
+    packet = (u32)btlPacketAlloc(0xb05, 2);
     *(code **)(packet + 0x6c) = (code *)func_001d3760;
     work = *(u32 **)(packet + 0x78);
     *(u16 *)(work + 0) = param_1;
@@ -1001,7 +1001,7 @@ u8 *func_001d3b50(u8 *action)
     u8 **work;
     u8 *packet;
 
-    packet = (u8 *)func_00194470(0xb06, 4);
+    packet = (u8 *)btlPacketAlloc(0xb06, 4);
     *(code **)(packet + 0x6c) = (code *)func_001d3950;
     work = *(u8 ***)(packet + 0x78);
     work[0] = action;
@@ -1061,7 +1061,7 @@ BtlPacket *func_001d3d00(u32 param_1)
     u32 *work;
     u32 packet;
 
-    packet = (u32)func_00194470(0xb07, 4);
+    packet = (u32)btlPacketAlloc(0xb07, 4);
     *(code **)(packet + 0x6c) = (code *)func_001d3ba0;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
@@ -1339,7 +1339,7 @@ BtlPacket *func_001d5eb0(u32 param_1, const char *param_2, u16 param_3)
     BtlPacket *packet;
     FormationStringWork *work;
 
-    packet = func_00194470(0x400, strlen(param_2) + sizeof(FormationStringWork));
+    packet = btlPacketAlloc(0x400, strlen(param_2) + sizeof(FormationStringWork));
     packet->flags &= 0xfe;
     packet->initFunc = (BtlPacketInitFunc)func_001d5ca0;
     packet->updateFunc = (BtlPacketUpdateFunc)func_001d5d60;
@@ -1471,7 +1471,7 @@ BtlPacket* func_001d6240(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32
     u32 *work;
     u32 packet;
 
-    packet = (u32)func_00194470(0x301, 0x20);
+    packet = (u32)btlPacketAlloc(0x301, 0x20);
     *(u8 *)(packet + 0x47) = *(u8 *)(packet + 0x47) & 0xef;
     *(code *)(packet + 0x68) = (code)func_001d5f60;
     *(code *)(packet + 0x6c) = (code)func_001d6010;
@@ -1517,7 +1517,7 @@ u8 *func_002027e0(void)
 {
     u8 *task;
 
-    task = (u8 *)func_00194470(0x50d, 0);
+    task = (u8 *)btlPacketAlloc(0x50d, 0);
     *(u32*)(task + 0x6c) = (u32)func_002027b0;
     return task;
 }

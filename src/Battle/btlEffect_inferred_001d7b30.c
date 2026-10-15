@@ -48,7 +48,7 @@ typedef int (*code)();
 
 extern s32 func_00122640(s32 arg0, s32 arg1);
 
-extern void *func_00194470();
+extern void *btlPacketAlloc();
 
 extern s32 func_001d7b30(u16 *arg0);
 
@@ -98,7 +98,7 @@ BtlPacket *func_001d7b60(u16 param_1)
 {
   int iVar1 = 0;
 
-  iVar1 = (int)func_00194470(0x30B, 2);
+  iVar1 = (int)btlPacketAlloc(0x30B, 2);
   *(code *)(iVar1 + 0x6c) = (code)func_001d7b30;
   **(u16 **)(iVar1 + 0x78) = param_1;
   return (BtlPacket *)iVar1;
