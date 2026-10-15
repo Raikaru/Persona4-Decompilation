@@ -1062,7 +1062,7 @@ normal_opening:
             value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64),0x180001);
             if (value != 0) {
               func_001ec1c0((u8 *)&rotation,(u8 *)&position,(u8 *)&groupCenter);
-              btlPacketEnqueue(func_00195730(unit,(u8 *)&position,(u8 *)&rotation,0),0);
+              btlPacketEnqueue(btlUnitCreateOverridePacket(unit,(u8 *)&position,(u8 *)&rotation,0),0);
               btlPacketEnqueue((u8 *)func_0019a0c0((BtlUnit *)unit, 0),0);
             } else {
               offset.x = position.x - groupCenter.x;
@@ -1077,7 +1077,7 @@ normal_opening:
               offset.z = offset.z + groupCenter.z;
               offset.y = position.y;
               func_001ec1c0((u8 *)&rotation,(u8 *)&offset,(u8 *)&position);
-              btlPacketEnqueue(func_00195730(unit,(u8 *)&offset,(u8 *)&rotation,0),0);
+              btlPacketEnqueue(btlUnitCreateOverridePacket(unit,(u8 *)&offset,(u8 *)&rotation,0),0);
               nodeOrPacket = (u8 *)btlUnitCreateMovePacket((BtlUnit *)unit, &position, fGpffff82cc, 8);
               btlPacketEnqueue(nodeOrPacket,0);
               rotatePacket = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, &targetDirection, 0);

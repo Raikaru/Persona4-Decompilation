@@ -2804,7 +2804,7 @@ range_done:
                 destination.vector.z = targetCenter.z + awayDirection.z;
                 destination.vector.y = unit->y;
                 func_001ec1c0((u8 *)rotation, (u8 *)destination.values, (u8 *)&targetCenter);
-                packet = func_00195730((u8 *)unit, (u8 *)destination.values, (u8 *)rotation, NULL);
+                packet = btlUnitCreateOverridePacket((u8 *)unit, (u8 *)destination.values, (u8 *)rotation, NULL);
                 *(s64 *)(packet + 0x60) = action->uid;
                 btlPacketEnqueue(packet, 0);
                 speed = speed * fGpffff8360;

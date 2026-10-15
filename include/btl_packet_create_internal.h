@@ -20,6 +20,6 @@ struct BtlPacket *btlMainCreateUnitTintPacket(struct BtlAction *action, u32 sele
 u8 *func_00202850(void);
 /* Optional payloads contain three position floats, four quaternion floats,
  * and four color bytes, respectively. */
-u8 *func_00195730(u8 *unit, u8 *position, u8 *rotation, u8 *color);
+u8 *btlUnitCreateOverridePacket(u8 *unit, u8 *position, u8 *rotation, u8 *color);
 
 #endif
