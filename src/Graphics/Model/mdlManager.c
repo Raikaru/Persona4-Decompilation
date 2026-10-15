@@ -3622,7 +3622,7 @@ extern void mdlDrawVisibleAtomics(void* a);
 extern void* func_003bfae0_1(void* a);
 extern void (*D_00887300_abs[])(s32, s32);
 /* P4 port probe: opt_propagation off prevents mwcc folding the D_00887300_abs
-   array address into per-call lui/lw (same measured fix as func_00478ec0). */
+   array address into per-call lui/lw (same measured fix as mdlApplyDrawState). */
 #pragma opt_propagation off
 
 /* measured: the D3/7000F branch condition is (f&0x200)!=0 && (f&0x400)==0
@@ -4830,8 +4830,9 @@ extern s64 iGpffffabe8;
    assignment rematerializes per use). */
 #pragma opt_propagation off
 
+/* Applies a model's draw state: blend-track update, colour scale over its atomics, render-state flags from d8, and the optional callbacks at +0x310. */
 // FUN_00478EC0
-void func_00478ec0(void* param_1, MdlFlags78ec0* o)
+void mdlApplyDrawState(void* param_1, MdlFlags78ec0* o)
 {
     struct {
         void* p38;
@@ -4873,17 +4874,18 @@ void func_00478ec0(void* param_1, MdlFlags78ec0* o)
 }
 #pragma opt_propagation on
 
-/* The draw callback's second argument supplies the model to color/setup. */
+/* Draw callback: applies the model's draw state, then the sky render-state pair from +0xE4 and +0xE8. The second argument is the model. */
 // FUN_00479030
-void func_00479030(u8 *arg0, u8 *arg1)
+void mdlApplySkyDrawState(u8 *arg0, u8 *arg1)
 {
-    func_00478ec0(arg0, (struct MdlFlags78ec0*)arg1);
+    mdlApplyDrawState(arg0, (struct MdlFlags78ec0*)arg1);
     RpSkyRenderStateSet(2, *(s32 *)(arg1 + 0xE4));
     RpSkyRenderStateSet(3, *(s32 *)(arg1 + 0xE8));
 }
 
+/* Post-draw callback: clears the global 0x80 draw bit when the model requests it, runs the 0x100000 hook, then calls the model's callback at +0x318. */
 // FUN_00479080
-void func_00479080(void* param_1, void* param_2)
+void mdlResetDrawState(void* param_1, void* param_2)
 {
     u32* p = (u32*)param_2;
     if ((p[0xD8 / 4] & 0x40000) != 0) {
@@ -4908,7 +4910,7 @@ void func_00479080(void* param_1, void* param_2)
 extern u8* func_00460990(void);
 extern void func_00460ac0(void*, void*);
 extern void func_00478a30(u8*, s32);
-extern void func_00479030(u8*, u8*);
+extern void mdlApplySkyDrawState(u8*, u8*);
 extern void mdlEffectListSetColor(u8**, s32*);
 extern void mdlEffectListInvokeEach(s32, u8**);
 extern void func_0047ddd0(u8*, const u8*);
@@ -4947,15 +4949,15 @@ void mdlQueueModelForDraw(void* queue, u8* model)
     renderCommand = func_00460990();
     if (*(void**)(model + 0xe0) != 0)
     {
-        *(void**)(renderCommand + 8) = (void*)func_00478ec0;
+        *(void**)(renderCommand + 8) = (void*)mdlApplyDrawState;
         *(void**)(renderCommand + 0x10) = model;
     }
     else
     {
-        *(void**)(renderCommand + 8) = (void*)func_00479030;
+        *(void**)(renderCommand + 8) = (void*)mdlApplySkyDrawState;
         *(void**)(renderCommand + 0x10) = model;
     }
-    *(void**)(renderCommand + 0x0C) = (void*)func_00479080;
+    *(void**)(renderCommand + 0x0C) = (void*)mdlResetDrawState;
     *(void**)(renderCommand + 0x14) = model;
     flags = *(u32*)(model + 0xd8);
     if ((flags & 0x20) == 0 || ((Model*)model)->color.alpha == 255)

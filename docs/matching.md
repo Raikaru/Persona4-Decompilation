@@ -4455,7 +4455,7 @@ The retail wrappers `00479030` and `0047ddd0` preserve their incoming
 second argument when calling model setup and runtime color application.
 Their former one-argument C calls depended on that register surviving
 incidentally. The promoted source now declares and forwards both arguments:
-the model to `func_00478ec0`, and the requested RGBA bytes to
+the model to `mdlApplyDrawState` (was `func_00478ec0`), and the requested RGBA bytes to
 `func_004b5f80`. Opaque declarations use the existing `MdlFlags78ec0`
 and `RuntimeWork` struct tags rather than introducing alternate layouts.
 
