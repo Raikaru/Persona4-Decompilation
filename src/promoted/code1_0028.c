@@ -88,7 +88,7 @@ extern u8 D_00748340[];
 
 
 
-s32 func_00286430(u8 *arg0);
+s32 evtCheckCondition(u8 *arg0);
 static inline s32 func_0028_sum(u16 arg0, s16 arg1) {
     return (s32)arg0 + arg1;
 }
@@ -337,8 +337,9 @@ func_00285dd0_loop_check:
     }
     return 0;
 }
+// Event task destroy callback: releases the event, passing flag bit 31 to evtDestroy.
 // FUN_00286240
-void func_00286240(u8 *task) {
+void evtTaskDestroy(u8 *task) {
     s32 *p;
 
     p = (s32 *)func_00452560(task);
@@ -348,8 +349,9 @@ void func_00286240(u8 *task) {
         evtDestroy((s32)p, 0);
     }
 }
+// Event start: creates the event task for owner 'arg0' and returns its id; arg1 != 0 sets flag bit 31.
 // FUN_002862A0
-s32 func_002862a0(s32 arg0, s32 arg1) {
+s32 evtStart(s32 arg0, s32 arg1) {
     s32 *p;
     s32 task;
 
@@ -359,14 +361,15 @@ s32 func_002862a0(s32 arg0, s32 arg1) {
     if (arg0 != 0) {
         p[0] |= 0x40000000;
     }
-    task = (s32)func_00451de0((const void *)(D_0063C368), 0, 0, 0, func_00285dd0, func_00286240, (u8 *)(p));
+    task = (s32)func_00451de0((const void *)(D_0063C368), 0, 0, 0, func_00285dd0, evtTaskDestroy, (u8 *)(p));
     if (arg1 != 0) {
         p[0] |= 0x80000000;
     }
     return task;
 }
+// Event task lookup: returns the id of the event task registered under the event name.
 // FUN_00286350
-s32 func_00286350(void) {
+s32 evtFindTask(void) {
     return func_00452380(D_0063C368);
 }
 
@@ -385,8 +388,9 @@ void func_00286380(s32 task)
 s32 func_002863b0(s32 task) {
     return (*(s32 *)((u8 *)func_00452560((void *)task) + 0x770) & 2) != 0;
 }
+// Event id: stores the three id words (+0x78C..+0x794) that label the event.
 // FUN_002863E0
-void func_002863e0(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void evtSetId(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_2;
 
     temp_2 = (s32 *)func_00452560((void *)arg0);
@@ -394,8 +398,9 @@ void func_002863e0(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)((u8 *)temp_2 + 0x790) = arg2;
     *(s32 *)((u8 *)temp_2 + 0x794) = arg3;
 }
+// Event condition: evaluates the block at 'arg0'; kind 0 always passes, kind 1 compares a result slot.
 // FUN_00286430
-s32 func_00286430(u8 *arg0) {
+s32 evtCheckCondition(u8 *arg0) {
     s16 expected;
     u8 *ptr;
     s32 val;
@@ -436,7 +441,7 @@ s32 func_00286430(u8 *arg0) {
         val = datGetFlag(*(s16 *)(arg0 + 8) + a1) == 1;
         return val;
     case 3:
-        val = func_00286350();
+        val = evtFindTask();
         if (val != 0) {
             ptr = (u8 *)func_00452560((void *)val);
             if (ptr != NULL) {
@@ -946,7 +951,7 @@ block_8:
     *arg2 = *(u8 **)(arg0 + 0x6C);
     goto loop_10_test;
 loop_10_body:
-    if (func_00286430(*arg2) == 1) {
+    if (evtCheckCondition(*arg2) == 1) {
         goto done;
     }
     *arg2 = *(u8 **)(*arg2 + 0x50);

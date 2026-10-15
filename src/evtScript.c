@@ -40,7 +40,7 @@ extern u8 *func_00285b80();
 extern s32 scrGetParamInt();
 extern s32 func_0029d020(void);
 extern void *func_00478140(u32, u16, u32);
-extern s32 func_00286350();
+extern s32 evtFindTask();
 extern void func_00279d40(s32 arg0);
 extern u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
                          s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
@@ -170,7 +170,7 @@ s32 func_00298700(void) {
     if (slot >= 5) {
         return 1;
     }
-    kind = func_00286350();
+    kind = evtFindTask();
     if (kind == 0) {
         return 1;
     }

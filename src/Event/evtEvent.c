@@ -2,7 +2,7 @@
 #include "type.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
-extern s32 func_00286350();
+extern s32 evtFindTask();
 
 void func_00452080(s32 arg0);
 extern u32 func_00452560(void *task);
@@ -18,8 +18,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_0044ea90(const void *file, s32 line);
 
 extern void memset(void *dest, s32 value, s32 size);
-extern s32 func_002862a0(s32, s32);
-extern void func_002863e0(u32, s32, s32, s32);
+extern s32 evtStart(s32, s32);
+extern void evtSetId(u32, s32, s32, s32);
 extern void func_00286380(s32 task);
 extern s32 func_002863b0(s32);
 extern void func_0028aaf0(s32, s32 *);
@@ -206,9 +206,9 @@ s32 func_002859e0(s32 arg0, s32 arg1)
     evtMemAccount(0, 0x60);
     memset(temp_16, 0, 0x60);
     temp_17 = (s32)func_00451de0((const void *)(&D_0063C2F8), 0xF, 0, 0, func_002857c0, func_00285980, (u8 *)(temp_16));
-    temp_2 = func_002862a0(0, 0);
+    temp_2 = evtStart(0, 0);
     *(s32 *)(temp_16 + 0xC) = temp_2;
-    func_002863e0(temp_2, arg0, arg1, 0);
+    evtSetId(temp_2, arg0, arg1, 0);
     func_00286380(*(s32 *)(temp_16 + 0xC));
     *(s32 *)(temp_16 + 0) = 0;
     return temp_17;
@@ -222,7 +222,7 @@ void func_00285af0(void) {
 
 // FUN_00285B30
 s32 func_00285b30(void) {
-    s32 h = func_00286350();
+    s32 h = evtFindTask();
 
     if (h == 0) {
         return -1;
