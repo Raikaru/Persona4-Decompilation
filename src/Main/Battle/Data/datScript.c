@@ -32,7 +32,7 @@ s32 datCalcGetHp(u16* unit);
 s32 datCalcMaxHp(u16* unit);
 s32 datCalcGetBattleStat(u16* unit, u32 param);
 s32 func_0023a6b0(u8* unit, s32 param);
-s32 func_0023d740(s16 cmd, s32 param);
+s32 datCalcStatusElement(s16 cmd, s32 param);
 s32 datCalcSkillElement(u8* unit, u16 cmd);
 s32 func_0023e3e0(u16* unit, s32 param);
 s32 func_0023e5b0(u16* unit, s32 param);
@@ -138,7 +138,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         } else {
             unit = D_00881464[0];
         }
-        id = (s16)func_0023d740((s16)D_0088146C[0], D_00881470[0]);
+        id = (s16)datCalcStatusElement((s16)D_0088146C[0], D_00881470[0]);
         K_ASSERT(id < 0x13, 0xE3);
         switch (id) {
         case -1:

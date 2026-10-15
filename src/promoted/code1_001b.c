@@ -637,7 +637,7 @@ void func_001b1d70(void) {
     extern s32 func_001ef8c0(void);
     extern void func_001b11c0(s32 arg0);
     extern s32 func_001b0f20(s32 arg0);
-    extern s32 func_0023d740(s32 arg0, s32 arg1);
+    extern s32 datCalcStatusElement(s32 arg0, s32 arg1);
     extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
     extern u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
     extern void func_001d1680(s32 arg0, s32 arg1);
@@ -752,8 +752,8 @@ void func_001b1d70(void) {
         }
         if (((*(u16 *)(D_0076449C + 0xC70) & 8) != 0) && ((*entry & 0x100) == 0) &&
             ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0)) {
-            r1 = (s16)func_0023d740(-1, 4);
-            r2 = (s16)func_0023d740(-1, 2);
+            r1 = (s16)datCalcStatusElement(-1, 4);
+            r2 = (s16)datCalcStatusElement(-1, 2);
             for (j = *(u8 **)(D_0076449C + 0x180); j != NULL; j = *(u8 **)(j + 0xA6C)) {
                 if (*(u8 **)(j + 0xA64) != NULL) {
                     if ((func_0023a6b0(*(u8 **)(j + 0xA64), r2) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
