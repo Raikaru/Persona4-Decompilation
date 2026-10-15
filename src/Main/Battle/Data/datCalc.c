@@ -95,7 +95,7 @@ extern u8 datCalcGetUnitStat(u8 *arg0, s32 arg1);
 extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
-extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
+extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1);
 extern u16 func_001068b0(s16 arg0);
@@ -3274,12 +3274,13 @@ s32 datCalcSkillElement(u8 *arg0, u16 arg1)
    the fresh 16-bit masks and retail register ordering. The equipment guard
    tests a zero-extended value; percentage products wrap to 32 bits before
    signed division, while cost reduction remains an unsigned shift. */
+// Intent: SP cost of skill arg1 for unit arg0, after equipment reduction and the cost limit; [inferred].
 // FUN_0023D9B0
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
-u32 func_0023d9b0(u8 *arg0, s32 arg1)
+u32 datCalcSkillCost(u8 *arg0, s32 arg1)
 {
     s32 offset;
     u32 result;
@@ -3423,7 +3424,7 @@ s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1)
     if ((s32)((*(s32 *)(arg0 + 0xC) & 8) != 0) != 0) {
         return 4;
     }
-    v = func_0023d9b0(arg0, arg1);
+    v = datCalcSkillCost(arg0, arg1);
     switch (iGpffffb3b8[idx + 3]) {
     case 1:
         if (!(iGpffffb3b8[idx] & 1)) {
@@ -3759,9 +3760,10 @@ static inline s32 DC411HasFixedSkill(u8 *unit, s32 requestedSkill)
  * Cases 1 and 14 share an early result exit; counter and evade causes share
  * one lifetime. measured: 10920 code bytes plus 8 zero alignment bytes.
  * See docs/probe_archive/DC_worker2_20260920_hit_recovery.md. */
-s32 func_0023e6f0(u8 *, u8 *, s32, s32);
+s32 datCalcResolveSkillHit(u8 *, u8 *, s32, s32);
+// Intent: outcome code of skill arg2 from source arg0 to target arg1 (0x200 means reflected, re-resolved against the source); [inferred].
 // FUN_0023E6F0
-s32 func_0023e6f0(arg0, arg1, arg2, arg3)
+s32 datCalcResolveSkillHit(arg0, arg1, arg2, arg3)
 u8 *arg0;
 u8 *arg1;
 u16 arg2;

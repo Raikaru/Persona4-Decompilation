@@ -155,7 +155,7 @@ extern s32 func_001f8380(u8 **arg0);
 extern s32 func_00106600(s16 arg0);
 extern s32 datCalcAddHp(s32 arg0, s32 arg1);
 extern s32 datCalcAddSp(s32 arg0, s32 arg1);
-extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
+extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);
 
 extern s32 func_001f8400(u8 **arg0);
 extern s32 iGpffffb464;
@@ -930,7 +930,7 @@ void func_001f14f0(u8 *arg0)
 {
     extern s32 datCalcSkillAmount(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     /* H011: datCalc.c declares the C89-promoted s32 call interface before its K&R definition. */
-    extern s32 func_0023e6f0(u8 *, u8 *, s32, s32);
+    extern s32 datCalcResolveSkillHit(u8 *, u8 *, s32, s32);
     /* lint: allow H011 -- retail passes (arg0, unit, id); the empty callee ignores all arguments. */
     extern void func_001f9cd0(u8 *, u8 *, s32);
     /* lint: allow H011 -- this call supplies a u16 code; the callee dispatches only its low 16 bits. */
@@ -1107,13 +1107,13 @@ void func_001f14f0(u8 *arg0)
         *(s32 *)(unit + 0xE8) = 0;
         *(u16 *)(unit + 0xEC) = 0;
         *(s16 *)(unit + 0xEE) = -1;
-        res = func_0023e6f0(ctx, uctx, id, flags) & 0xFFFF;
+        res = datCalcResolveSkillHit(ctx, uctx, id, flags) & 0xFFFF;
         if (res == 0x200) {
             u16 reflectedResult;
 
             actor = arg0;
             target = ctx;
-            reflectedResult = func_0023e6f0(ctx, ctx, id, flags2) & 0xFFFF;
+            reflectedResult = datCalcResolveSkillHit(ctx, ctx, id, flags2) & 0xFFFF;
             switch (reflectedResult) {
             case 0x200:
                 reflectedResult = 0x100;
@@ -1691,7 +1691,7 @@ s32 func_001f39d0(u8 **arg0) {
     switch (temp_3) {
     case 2:
         temp_17 = *(u16 *)(temp_4 + 0x6E);
-        temp_2 = func_0023d9b0(*(u8 **)(temp_16 + 0xA64), temp_17);
+        temp_2 = datCalcSkillCost(*(u8 **)(temp_16 + 0xA64), temp_17);
         if (temp_2 != 0) {
             base = iGpffffb3b8;
             off = (s32)((temp_17 & 0xFFFF) * 0x28);

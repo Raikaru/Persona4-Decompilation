@@ -2409,7 +2409,7 @@ void func_00204dc0(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, s32 
 typedef struct { u8 b0, b1, b2, b3; } BattleSkillIconColor;
 extern void ShdSkill_DrawIcon(Vec2f position, f32 scale,
                           BattleSkillIconColor color, u16 skill, s32 texture);
-extern u32 func_0023d9b0(u8 *unit, s32 skill);
+extern u32 datCalcSkillCost(u8 *unit, s32 skill);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern u16 datCalcThresholdKind(u8 *unit, s32 skill);
 
@@ -2474,7 +2474,7 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
     }
     frFontClearFlagBits(0x40);
     if (skill < 0x1B8) {
-        cost = func_0023d9b0(unit, (u16)skill);
+        cost = datCalcSkillCost(unit, (u16)skill);
         if (cost != 0) {
             digitY = 10.0f + y;
             digitX = 262.0f + x;

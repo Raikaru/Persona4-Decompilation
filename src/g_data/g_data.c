@@ -197,7 +197,7 @@ extern void func_0010e9e0(s32 arg0, u32 arg1, u32 arg2, u8* arg3);
 
 extern s32 datCalcSkillEffectFlags(s32 arg0, u8* arg1, u8* arg2, s32 arg3);
 
-extern u32 func_0023d9b0(u8* arg0, s32 arg1);
+extern u32 datCalcSkillCost(u8* arg0, s32 arg1);
 
 extern s16 D_00797B84[];
 
@@ -2435,7 +2435,7 @@ u32 func_0010f600(s16 arg0, s32 arg1)
         K_ASSERT(arg0 < 0xB, 0x234);
         p = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
     }
-    return func_0023d9b0(p, arg1);
+    return datCalcSkillCost(p, arg1);
 }
 
 // FUN_0010F6A0
