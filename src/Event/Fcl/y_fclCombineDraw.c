@@ -3298,8 +3298,9 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
    plain `(u8)f` - the hand-written 2.1474836e9f guard that had been carried from the
    y_CmbCardEff idiom was the thing keeping it apart.  `fclCombineSelectSlotEntry`'s third formal is s8,
    which retail callers load with `lb`; that declaration is now file-scope. */
+// Fcl combine roster selection refresh: for each roster row, refreshes the slot entry, then colours the selected row's sprites (selection flags and the 0x2A3 highlight) or the other rows' sprites, and flags the row's entries when their availability count is 2.
 // FUN_003233D0
-void func_003233d0(u8 *arg0) {
+void fclCombineRefreshRosterSelection(u8 *arg0) {
     typedef union { FclByte4 channels; u32 word; } PackedColor;
     FclByte4 cDC;
     FclByte4 cD8;

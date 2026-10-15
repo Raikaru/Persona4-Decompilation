@@ -95,7 +95,7 @@ extern void fclDrawResetScale(u8 *);
 extern s16 fclSpriteFlagBit(s16, s16);
 extern u8 *fclSpriteEntry(s16);
 extern void fclCombineHandleGridInput(u8 *, s64, u8, u8);
-extern void func_003233d0(u8 *);
+extern void fclCombineRefreshRosterSelection(u8 *);
 extern void fclCombinePartyRow(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
 extern void fclCombineDrawPersonaRow(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
 extern void fclCombineSelectSlotEntry(u8 *, s8, s8, s64, s64);
@@ -3050,7 +3050,7 @@ block_166:
         }
         break;
     case 0x43:                                      /* switch 1 */
-        func_003233d0(arg0);
+        fclCombineRefreshRosterSelection(arg0);
         temp_16_25 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E))));
         temp_18_23 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_8 = (u8 *)(fclSpriteEntry(0x7C));
