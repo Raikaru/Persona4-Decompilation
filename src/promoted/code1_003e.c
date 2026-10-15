@@ -514,8 +514,8 @@ extern s32 func_003e3f80(Fn3f80A arg0, Fn3f80B arg1, Fn3f80A arg2, Fn3f80B arg3)
 #pragma schedule off
 /* FUN_003E4030: matched byte-exact in src/promoted/code1_003e_cw119.c under cw3.0.1b119 */
 extern f32 func_003e4030(f32 *arg0, const f32 *arg1);
-// FUN_003E40B0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e40b0);
+/* FUN_003E40B0: matched byte-exact in src/promoted/code1_003e_cw119.c under cw3.0.1b119 */
+extern f32 func_003e40b0(f32 *arg0, const f32 *arg1);
 
 /* measured: optimization_level 3 is load-bearing for func_003e4180. */
 #pragma optimization_level 3
