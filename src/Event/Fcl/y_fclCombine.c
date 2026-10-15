@@ -44,7 +44,7 @@ extern void *func_0046a770(void *);
 extern u8 D_00641B30[];
 extern void func_0032c0c0(u8 *, s64);
 extern void fclCombineDrawSlotFrames(u8 *, FclVec2, s32, s8);
-extern void func_003297f0(f32, f32, u8 *, s64, s8);
+extern void fclCombineSlideInHeaderSprites(f32, f32, u8 *, s64, s8);
 extern s32 func_0011ba00(u8 *);
 extern char iGpffffa8a4;
 extern u16 D_008C0252[];
@@ -4589,7 +4589,7 @@ void fclCombineMenuPreview(u8 *arg0) {
             ps = fclSpriteEntry(0x2E0);
             pos4 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
             fclSpriteStartPositionAt(0x2E0, *(FclVec2 *)(ps + 0x38), pos4, 1, 4, 0);
-            func_00329310(arg0, 0, 0);
+            fclCombineDrawStageTiles(arg0, 0, 0);
             if (p[0x122] < 0xC) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(0, p[0x122]), 0, 0, 1);
@@ -4613,7 +4613,7 @@ void fclCombineMenuPreview(u8 *arg0) {
             ps = fclSpriteEntry(0x2E0);
             pos6 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
             fclSpriteStartPositionAt(0x2E0, *(FclVec2 *)(ps + 0x38), pos6, 1, 4, 0);
-            func_00329310(arg0, 0, 0);
+            fclCombineDrawStageTiles(arg0, 0, 0);
             if (p[0x122] < 0xC) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(0, p[0x122]), 0, 0, 1);
@@ -4931,7 +4931,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             fclCombineDrawSlotFields(arg0, func_002b2970(156.0f, 87.0f), 0, 1, 0, 1, 1);
             fclCombineDrawSlotFrames(arg0, func_002b2970(472.0f, 112.0f), 0, 1);
-            func_003297f0((f32)0x1A1, 220.0f, arg0, 0, 1);
+            fclCombineSlideInHeaderSprites((f32)0x1A1, 220.0f, arg0, 0, 1);
             p->f1 = 0x94;
             func_0045af60(0, 0, 0, 2);
         }
