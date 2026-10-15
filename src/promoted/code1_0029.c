@@ -159,7 +159,7 @@ done_91530:
 s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     extern void mdlDetachSlotModel(u8 *arg0, s32 arg1);
-    extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
+    extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, u8 *arg2);
     extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
     extern void mdlAttachSlotModelFromPair(void *arg0, u16 arg1, u32 arg2, u16 arg3, s32 arg4, s32 arg5, u32 arg6);
     extern void mdlAttachSlotModelFindOrCreate(void *arg0, u16 arg1, u32 arg2, u16 arg3, u32 arg4);
@@ -185,7 +185,7 @@ s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     if (flag == 1) {
         mdlDetachSlotModel(arg1, arg2 & 0xFFFF);
     }
-    if (func_0047a510(arg1, arg4, work) == 0) {
+    if (mdlCopyIndexedMatrix(arg1, arg4, work) == 0) {
         return 0;
     }
     entry = code29AddOff(arg3 * 2, arg0) + 0x604;

@@ -95,7 +95,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
 {
     extern f32 K_View_GetFov(void *a);
     extern void *RwMatrixMultiply(void *a, void *b, void *c);
-    extern void func_0047a1c0(void *a, void *b, s32 c);
+    extern void mdlApplyModelMatrix(void *a, void *b, s32 c);
     extern void mdlScale(void *a, void *b, s32 c);
     extern void memcpy(void *dst, void *src, u32 size);
     extern s32 func_00457190(void);
@@ -194,7 +194,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
         RwMatrixTranslate(mat, trans, 2);
         RwMatrixMultiply(tmpA, mat, parent);
         *(M64 *)mat = *(M64 *)tmpA;
-        func_0047a1c0(*(u8 **)(obj + 0xC), mat, 0);
+        mdlApplyModelMatrix(*(u8 **)(obj + 0xC), mat, 0);
         mdlScale(*(u8 **)(obj + 0xC), scale, 1);
         {
             u16 idx = *(u16 *)(obj + 8);

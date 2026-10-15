@@ -17,7 +17,7 @@ extern u8 *D_0076449C;
 extern u32 iGpffffb3b8;
 
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern s32 func_0047a6d0();
+extern s32 mdlComputeIndexedAttachMatrix();
 extern void mdlUpdateModelMatrix(u8 *arg0);
 extern void func_0047a320(u8 *arg0);
 extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
@@ -270,7 +270,7 @@ void btlFormationOrientToUnit(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         btlUnitGetSphereWorldCenter(arg1, &frame.value50);
     } else {
         temp_2 = *(u16 *)(temp_16 + 4);
-        if (func_0047a6d0(*(u8 **)(arg1 + 0xA00), temp_2, &frame.value50) == 0) {
+        if (mdlComputeIndexedAttachMatrix(*(u8 **)(arg1 + 0xA00), temp_2, &frame.value50) == 0) {
             frame.value40 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
             frame.value44 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
             frame.value48 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
@@ -315,7 +315,7 @@ void btlFormationApplyModelMatrix(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         }
         mdlUpdateModelMatrix(var_19);
         func_0047a320(var_19);
-        if (func_0047a6d0(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
+        if (mdlComputeIndexedAttachMatrix(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
             frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
             frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
             frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
@@ -360,7 +360,7 @@ void btlFormationApplyModelMatrixAlt(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         }
         mdlUpdateModelMatrix(var_19);
         func_0047a320(var_19);
-        if (func_0047a6d0(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
+        if (mdlComputeIndexedAttachMatrix(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
             frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
             frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
             frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);

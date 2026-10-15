@@ -4268,7 +4268,7 @@ This retains the real eight-byte PS2 userdata layout without writing a
 pointer through an integer array. Existing public signatures remain
 unchanged; recursive frame lookup uses the same callback contract.
 
-`func_0047a510` is likewise MATCH: **440B plus eight zero-tail bytes**.
+`mdlCopyIndexedMatrix` (was `func_0047a510`) is likewise MATCH: **440B plus eight zero-tail bytes**.
 Read IDA at the same path, lines 2960-3036. Its table has a 16-bit count
 and 0x50-byte entries: a 64-byte `RwMatrix`, an ID, a frame ID, and eight
 unknown bytes. The shared frame finder closes its search branch.
@@ -5694,7 +5694,7 @@ Two parallel recoveries remain deliberately unpromoted:
 
 - `VpadTyped_004b5800_body.c`: **324B / 336B**; two executable `lw`/`sll`
   schedule differences and twelve zero-tail bytes. Its paired matrix IDs
-  remain full-width: `func_0047a510` narrows only on one path, while its
+  remain full-width: `mdlCopyIndexedMatrix` (was `func_0047a510`) narrows only on one path, while its
   alternate lookup uses all 32 bits. The live `void(u8 *)` boundary is kept.
 - `InitTyped_00484b30_body.c`: **120B / 128B**; six executable `v0`/`v1`
   coloring differences and eight zero-tail bytes. All five inspected callers

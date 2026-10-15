@@ -41,7 +41,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void chkmemAllocSiteTag(void *msg, s32 id);
 void kAssertFail(const void *file, s32 line);
-extern void func_0047a6d0(s32 arg0, s32 arg1, void *arg2);
+extern void mdlComputeIndexedAttachMatrix(s32 arg0, s32 arg1, void *arg2);
 extern void func_00189ec0();
 extern void MT_Scene_SetResEnabled(s32 arg0, s32 arg1);
 extern void func_003ef3a0(s32 arg0);
@@ -2265,7 +2265,7 @@ s32 func_00257820(s32 arg0, void *arg1) {
             break;
         }
         if (var_4 != 0) {
-            func_0047a6d0(var_4, 2, arg1);
+            mdlComputeIndexedAttachMatrix(var_4, 2, arg1);
             return 1;
         }
     }

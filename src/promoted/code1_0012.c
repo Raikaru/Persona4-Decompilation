@@ -23,8 +23,8 @@ extern void func_0045dfd0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
                           s32 arg3, s32 arg4);
 extern f32 fGpffff8478;
 extern f32 cosf(f32 fparg0);
-extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
-extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
+extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void func_002ab550(void *arg0, void *arg1);
 extern void mdlAdvanceModelFromFlags(void *arg0);
 static inline s32 code1_0012_stride(s32 index, s32 base)
@@ -1836,12 +1836,12 @@ void func_00124970(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
                 var_16 = NULL;
             }
         }
-        if ((var_16 != NULL) && (func_0047a510(var_17, 0x64, sp60) != 0)) {
+        if ((var_16 != NULL) && (mdlCopyIndexedMatrix(var_17, 0x64, sp60) != 0)) {
             spAC[0] = arg1 >> 0x18;
             spAC[1] = arg1 >> 0x10;
             spAC[2] = arg1 >> 8;
             spAC[3] = arg1;
-            func_0047a1c0(var_16, sp60, 0);
+            mdlApplyModelMatrix(var_16, sp60, 0);
             if (arg2 & 1) {
                 *(s32 *)(var_16 + 0xD8) |= 8;
             } else {
@@ -1967,7 +1967,7 @@ void func_00124bb0(s32 arg0,
         *(f32 *)(vec_d + 0x04) = fparg1;
         *(f32 *)(vec_d + 0x08) = fparg2;
         RwMatrixTranslate(matrix, vec_d, 2);
-        func_0047a1c0(var_16, matrix, 0);
+        mdlApplyModelMatrix(var_16, matrix, 0);
         color[0] = arg1 >> 0x18;
         color[1] = arg1 >> 0x10;
         color[2] = arg1 >> 8;
@@ -3693,7 +3693,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             titleTranslation.y = -90.0f;
             titleTranslation.z = 0.0f;
             RwMatrixTranslate(&titleMatrix, &titleTranslation, 1);
-            func_0047a1c0(var_16_2, &titleMatrix, 0);
+            mdlApplyModelMatrix(var_16_2, &titleMatrix, 0);
             var_2_29 = (s32)(taskView->timer - 5);
             if (var_2_29 > 0) {
                 if (var_2_29 > 5) {

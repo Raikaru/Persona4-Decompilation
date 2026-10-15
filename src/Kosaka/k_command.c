@@ -43,7 +43,7 @@ extern void* mdlCloneModelObject(s32 arg0);
 extern void mdlDestroyModelObject(u32 arg0);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern void mdlSetLayerTime(s32 a, s32 b, f32 c);
-extern void func_0047a1c0(s32 a, void* b, s32 c);
+extern void mdlApplyModelMatrix(s32 a, void* b, s32 c);
 extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
 extern void mdlSetLayerWeight(s32 arg0, s32 arg1, f32 arg2);
 extern void* mdlGetMatrix(u32 arg0);
@@ -593,7 +593,7 @@ s32 Cmd_CreateFieldModel(void)
             vec[1] = KDraw_MatrixYawDeg(p2);
             vec[2] = KDraw_MatrixRollDeg(p2);
             MT_Scene_SetResPlacement(flag & 0xFFFF, (u8*)(p2 + 0x30), (u8 *)&vec);
-            func_0047a1c0(v, p2, 0);
+            mdlApplyModelMatrix(v, p2, 0);
             mdlDispatchAnimIfPresent((u8*)v, 0, 0, 8, 1);
         }
         if (tmp == 1)

@@ -10,7 +10,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 D_0063EE50[];
 extern void func_002aabf0(void *arg0, void *arg1);
 extern void func_002ab550(u8 *arg0, s8 *arg1);
-extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void func_00364c50(void);
@@ -177,7 +177,7 @@ void func_002ab4b0(void *arg0, u8 *arg1) {
     temp_18 = *(u8 **)(arg1 + 0x54);
     temp_17 = *(s32 *)(temp_18 + 0xD8);
     *(s32 *)(temp_18 + 0xD8) = *(s32 *)(arg1 + 0x50);
-    func_0047a1c0(temp_18, arg1 + 0x10, 0);
+    mdlApplyModelMatrix(temp_18, arg1 + 0x10, 0);
     func_002ab550(temp_18, sp4C);
     *(s32 *)(temp_18 + 0xD8) = temp_17;
     jtbl_008873EC[0](arg1);
@@ -355,11 +355,11 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
         temp_18 = *(u8 **)(temp_2_2 + 0x54);
         temp_17 = *(s32 *)(temp_18 + 0xD8);
         *(s32 *)(temp_18 + 0xD8) = *(s32 *)(temp_2_2 + 0x50);
-        func_0047a1c0(temp_18, temp_2_2 + 0x10, 0);
+        mdlApplyModelMatrix(temp_18, temp_2_2 + 0x10, 0);
         func_002ab550(temp_18, sp14C);
         *(s32 *)(temp_18 + 0xD8) = temp_17;
         jtbl_008873EC[0](temp_2_2);
-        func_0047a1c0(arg3, spE0, 0);
+        mdlApplyModelMatrix(arg3, spE0, 0);
     }
 }
 

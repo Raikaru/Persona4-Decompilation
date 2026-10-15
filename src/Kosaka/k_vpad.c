@@ -38,7 +38,7 @@ typedef struct RuntimeWork
 } RuntimeWork;
 
 extern s32 func_004b6de0(RuntimeListNode* node);
-extern s32 func_0047a510(void* context, s32 index, RuntimeMatrix* matrix);
+extern s32 mdlCopyIndexedMatrix(void* context, s32 index, RuntimeMatrix* matrix);
 
 /* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
  * Honest C: request = work->requestFlags; offset = i * 8; inlined at both
@@ -173,11 +173,11 @@ void Vpad_RefreshSelection(RuntimeWork* work)
     i = 0;
     while (i < *(s16*)((u8*)(uintptr_t)work->requestFlags + 4))
     {
-        func_0047a510(
+        mdlCopyIndexedMatrix(
             *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
             vpad_pair_index(work, i, 0),
             firstMatrix);
-        func_0047a510(
+        mdlCopyIndexedMatrix(
             *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
             vpad_pair_index(work, i, 1),
             secondMatrix);

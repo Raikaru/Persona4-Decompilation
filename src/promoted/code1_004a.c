@@ -88,7 +88,7 @@ extern f32 D_008872F8[];
  
 extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
-extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
+extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00485870(s32 arg0);
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
@@ -1923,7 +1923,7 @@ void func_004adb50(arg0)
 u8 *arg0;
 {
     extern void func_0048a150(void *arg0, void *arg1);
-    extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+    extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
     extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
     extern void mdlAdvanceModelFromFlags(void *arg0);
@@ -1963,7 +1963,7 @@ u8 *arg0;
     objs = *(s32 **)(arg0 + 0x98);
     if (count < total || total == 0) {
         func_0048a150(frame, arg0 + 0x10);
-        func_0047a1c0(*(void **)(arg0 + 0xA0), frame, 0);
+        mdlApplyModelMatrix(*(void **)(arg0 + 0xA0), frame, 0);
         temp_f0 = *(f32 *)(arg0 + 0x20);
         vec[2] = temp_f0;
         vec[1] = temp_f0;
@@ -2025,7 +2025,7 @@ u8 *arg0;
             goto loop_check;
 loop_body:
 
-                if (func_0047a510(*(u8 **)(arg0 + 0xA0), i, frame) != 0) {
+                if (mdlCopyIndexedMatrix(*(u8 **)(arg0 + 0xA0), i, frame) != 0) {
                     pos[0] = *(f32 *)(frame + 0x30);
                     pos[1] = *(f32 *)(frame + 0x34);
                     pos[2] = *(f32 *)(frame + 0x38);
@@ -2082,7 +2082,7 @@ void func_004ade80(u8 *arg0)
         var_16 = 0;
         goto loop_004ade80_a_check;
 loop_004ade80_a_body:
-        if (func_0047a510(*(u8 **)(arg0 + 0xA0), var_16, frame) != 0) {
+        if (mdlCopyIndexedMatrix(*(u8 **)(arg0 + 0xA0), var_16, frame) != 0) {
             primQuad3D((f32 *)(frame + 0x30), frame + 0x4C, 1, 4.0f);
             primAxisLine3D((f32 *)frame, 1, 30.0f);
         }
