@@ -15,7 +15,7 @@ extern s32 func_00457130(void);
 extern void H_Dbprt_Flush(void);
 extern void func_00460a80(void *arg0, s32 arg1);
 extern void func_00460ac0(void *arg0, void *arg1);
-extern void func_004623a0(s32 arg0);
+extern void sdkOtFlushBuckets(s32 arg0);
 extern void chkmemAllocSiteTag(void *file, s32 line);
 extern void kAssertFail(void *file, s32 line);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
@@ -577,7 +577,7 @@ s32 mainDrawFrameUpdate(u8 *unusedTask) {
         var_16 = 0;
         while (var_16 < 0xD8U) {
             s32 off = var_16 * 0x30;
-            func_004623a0((s32)&D_00793E80 + off);
+            sdkOtFlushBuckets((s32)&D_00793E80 + off);
             var_16 += 1;
         }
     }

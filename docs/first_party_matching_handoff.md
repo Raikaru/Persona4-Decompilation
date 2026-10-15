@@ -2850,7 +2850,7 @@ it.
 ### 7az. b210 always folds the unsigned conversion of a halfword load
 
 Three functions in `src/Graphics/Model/mdlManager.c` - `mdlUpdateHierarchyPose`
-(formerly `func_00471370`), `func_00473b20`, `func_00479100` - each carry a note calling the same
+(formerly `func_00471370`), `mdlAdvanceLayer` (was `func_00473b20`), `func_00479100` - each carry a note calling the same
 six-word difference a floor.  Retail emits the full unsigned recipe on a
 halfword load:
 
@@ -2860,7 +2860,7 @@ halfword load:
     srl  $v1, $v0, 1 ; andi $v0, $v0, 1 ; or $v1, $v1, $v0
     mtc1 $v1, $f0 ; cvt.s.w $f0, $f0 ; add.s $f0, $f0, $f0
 
-**No source spelling reaches it.**  Measured on `func_00473b20`, all
+**No source spelling reaches it.**  Measured on `mdlAdvanceLayer` (was `func_00473b20`), all
 identical at 368 instructions and 78 edits:
 
 - `(f32)(u32)v18` with `u16 v18` - the body at the time
@@ -4378,7 +4378,7 @@ transposed load/shift pair found **30 of them**, smallest residual first:
      56 edits  lwsll= 1  func_001ae3d0  src/promoted/code1_001a.c
      82 edits  lwsll= 1  func_001f3bb0  src/promoted/code1_001f.c
      87 edits  lwsll= 1  func_00109510  src/Main/Battle/Data/datPersona.c
-     87 edits  lwsll= 3  func_00473b20  src/Graphics/Model/mdlManager.c
+     87 edits  lwsll= 3  mdlAdvanceLayer (was func_00473b20)  src/Graphics/Model/mdlManager.c
     132 edits  lwsll= 1  func_0016abc0  src/Kosaka/Field/k_fldFrame.c
     146 edits  lwsll= 1  func_002239a0  src/promoted/btlResultFriendPsLvUp.c
     150 edits  lwsll= 1  func_002e6280  src/Yajima/y_list.c

@@ -6674,7 +6674,7 @@ The live callback definitions now use compatible C function types:
 `mdlBlendTrackSamples` (was `func_0047f040`), `mdlBlendTrackWithAlpha` (was `func_0047f1a0`), `mdlBlendVec4Tracks` (was `func_0047f4d0`) and `mdlBlendTrackColorBytes` (was `func_0047f5b0`) return
 borrowed `void *` results with byte-pointer track/default arguments.
 `mdlBlendVec4Tracks` also uses the dispatcher's interleaved pointer/float parameter
-order. `func_0047f2c0`, `mdlStoreColorBytes` (was `func_0047f710`) and the empty `func_0047f840` accept
+order. `mdlApplyMaterialColorRow` (was `func_0047f2c0`), `mdlStoreColorBytes` (was `func_0047f710`) and the empty `func_0047f840` accept
 opaque result/target pointers. Their value interpretation remains local.
 All seven callbacks remain exact; the three affected units verify at
 **48 MATCH / one ASM**, including the newly recovered dispatcher.
@@ -10457,7 +10457,7 @@ preceding manager matches are unchanged. Direct dispatch selects tags
 `0xF0F00080..83`, and deferred records store that same selected tag.
 No default-channel value or fabricated input is introduced.
 
-The table-release provider `func_004808b0` now explicitly passes the released
+The table-release provider `mdlReleaseU16Ref` (was `func_004808b0`) now explicitly passes the released
 object to the existing deallocator table. The old no-argument call depended
 on an incidental live argument register. The corrected body remains
 **64 / 64 bytes**, with two fully resolved relocations; every other preceding
@@ -12500,7 +12500,7 @@ The existing position and scale getters each write exactly two floats;
 the two-element output buffers cover their actual writes.
 
 The declaration and constructor registration now agree with the
-existing `func_004623a0` invocation:
+existing `sdkOtFlushBuckets` (was `func_004623a0`) invocation:
 `void (u8 *drawData, s32 workAddress, void *callbackToken)`.
 The one-argument registration cast is removed. The ordering-table
 provider passes the node's payload, stored context, and current callback
