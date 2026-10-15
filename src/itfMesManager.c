@@ -97,7 +97,7 @@ void func_0027bbc0(s32 arg0);
 int itfMesCountClearBits(int param_1, u32 param_2);
 u8 *itfMesBuildGlyphRun(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 s32 frFontListTail(int param_1);
-void func_0027bb00(s32 arg0);
+void itfMesWindowSendLayoutLists(s32 arg0);
 s32 itfMesLineCount(u8 *arg0, u8 *arg1);
 void itfMesWindowSetMetrics(int param_1, int param_2);
 void itfMesListEnableVisible(int param_1);
@@ -1701,7 +1701,7 @@ list_test:
         goto list_body;
     found = -1;
 list_done:
-    func_0027bb00(found);
+    itfMesWindowSendLayoutLists(found);
     if ((*(s32 *)arg0 & 0x400000) == 0 &&
         (*(u16 *)D_008817E8_abs & 1U) != 0)
         itfMesListEnableVisible((s32)obj);

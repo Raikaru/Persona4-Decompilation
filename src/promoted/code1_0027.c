@@ -1472,6 +1472,7 @@ s32 func_0027b7c0(s32 arg0)
     }
     return 1;
 }
+// The itfMes op wrappers below stay unnamed: each sends one op number, and op meanings differ across window kinds (see ItfMesWindowOp).
 // FUN_0027B830
 s32 func_0027b830(s32 arg0)
 {
@@ -1562,15 +1563,16 @@ s32 func_0027baa0(s32 arg0)
     }
     return 1;
 }
+// Intent: Sends window op 8, which places the window's body and text lists for list node arg0 [inferred]
 // FUN_0027BB00
-s32 func_0027bb00(s32 arg0)
+s32 itfMesWindowSendLayoutLists(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
     itfMesWindowGetSubTable(arg0);
     temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
-        return temp_2(arg0, 8);
+        return temp_2(arg0, ITF_MES_WINDOW_OP_LAYOUT_LISTS);
     }
     return 1;
 }
