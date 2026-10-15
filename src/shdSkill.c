@@ -18,7 +18,7 @@ static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
 u16 ShdSkill_GetPendingSkill(u8 *arg0);
 void func_0046d730(void *file, s32 line);
 void ShdSkill_RemovePoolEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-s32 func_0023d8e0(u8 *arg0, u16 arg1);
+s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern char D_005E4800[];
 extern char D_005E47F0[];
 u8 *func_00243840(s32 arg0);
@@ -477,7 +477,7 @@ s32 ShdSkill_GetIconId(u16 arg0) {
     if ((arg0 & 0xFFFF) >= 0x1B8) {
         return 0xC2;
     }
-    temp_2 = (s16)func_0023d8e0(0, arg0);
+    temp_2 = (s16)datCalcSkillElement(0, arg0);
     switch (temp_2) {
     case 0:
         return 0xB8;

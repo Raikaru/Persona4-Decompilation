@@ -33,7 +33,7 @@ s32 datCalcMaxHp(u16* unit);
 s32 datCalcGetBattleStat(u16* unit, u32 param);
 s32 func_0023a6b0(u8* unit, s32 param);
 s32 func_0023d740(s16 cmd, s32 param);
-s32 func_0023d8e0(u8* unit, u16 cmd);
+s32 datCalcSkillElement(u8* unit, u16 cmd);
 s32 func_0023e3e0(u16* unit, s32 param);
 s32 func_0023e5b0(u16* unit, s32 param);
 s32 func_00243ce0(u16* unit);
@@ -123,13 +123,13 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
     case 11:
         K_ASSERT(D_00881460[0] != 0, 0xCD);
         result = (f32)(u32)(func_0023a6b0((u8 *)D_00881460[0],
-                     (s16)func_0023d8e0((u8 *)D_00881460[0], D_0088146C[0])) & 0xFFFF) / 100.0f;
+                     (s16)datCalcSkillElement((u8 *)D_00881460[0], D_0088146C[0])) & 0xFFFF) / 100.0f;
         break;
     case 12:
         K_ASSERT(D_00881460[0] != 0, 0xD3);
         K_ASSERT(D_00881464[0] != 0, 0xD4);
         result = (f32)(u32)(func_0023a6b0((u8 *)D_00881464[0],
-                     (s16)func_0023d8e0((u8 *)D_00881460[0], D_0088146C[0])) & 0xFFFF) / 100.0f;
+                     (s16)datCalcSkillElement((u8 *)D_00881460[0], D_0088146C[0])) & 0xFFFF) / 100.0f;
         break;
     case 15:
     case 16:

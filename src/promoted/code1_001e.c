@@ -45,10 +45,10 @@ extern s32 datCalcGetHp();
 extern u16 datCalcMaxSp();
 extern s32 datCalcGetSp();
 
-extern s32 func_0023d8e0(u8 *unit, u16 skill);
+extern s32 datCalcSkillElement(u8 *unit, u16 skill);
 extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 func_0023ddc0(u8 *unit, s32 skill);
-extern s32 func_0023dfe0(u8 *unit);
+extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern u8 *func_001b1510(void);
 extern u8 *func_0029d050();
@@ -1021,7 +1021,7 @@ s32 func_001e8cd0(void) {
 }
 // FUN_001E8D80
 s32 func_001e8d80(void) {
-    scrSetReturnInt((s16) func_0023d8e0(*(u8 **)(*(u8 **)(func_0029d050() + 0x30) + 0xA64), 0U));
+    scrSetReturnInt((s16) datCalcSkillElement(*(u8 **)(*(u8 **)(func_0029d050() + 0x30) + 0xA64), 0U));
     return 1;
 }
 
@@ -1205,18 +1205,18 @@ s32 func_001e9350(void) {
     command = scrGetParamInt(0);
     result = func_001b0cc0((u64)(command << 0x24) >> 0x24);
     entry = *(u8 **)(work + 0x30);
-    element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), 0);
+    element = (s16)datCalcSkillElement(*(u8 **)(entry + 0xA64), 0);
     if (datCalcAilmentChance(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
         scrSetReturnInt((s16)element);
         return 1;
     }
     count = datCalcGetTableLength(*(u8 **)(entry + 0xA64)) & 0xFFFF;
-    base = func_0023e140(*(u8 **)(entry + 0xA64));
+    base = datCalcSkillList(*(u8 **)(entry + 0xA64));
     index = 0;
     while (index < count) {
         skill = *(u16 *)(base + index * 2);
         if (skill != 0 && skill < 0x1B8) {
-            element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), skill);
+            element = (s16)datCalcSkillElement(*(u8 **)(entry + 0xA64), skill);
             if (datCalcAilmentChance(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
                 scrSetReturnInt((s16)element);
                 return 1;
@@ -1384,7 +1384,7 @@ s32 func_001e9950(void) {
     extern s32 scrGetParamInt(s32 arg0);
     extern void scrSetReturnInt(s32 arg0);
     extern s32 datCalcElementBit(s16 arg0);
-    extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
+    extern s32 datCalcSkillElement(u8 *arg0, s32 arg1);
     extern u16 func_001d7f10(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
     extern s32 func_0023df70(s32 arg0);
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
@@ -1436,13 +1436,13 @@ s32 func_001e9950(void) {
     bestCost = 0x3E7;
     bestScore = -1.0f;
     outerLimit = ((datCalcGetTableLength(*(u8 **)(unit + 0xA64)) & 0xFFFF) + 1) & 0xFFFF;
-    table = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+    table = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
     outer = 0;
     outerCount = outerLimit & 0xFFFF;
     goto outer_test;
 outer_body:
     if (outer == 0) {
-        skill = (u16)(func_0023dfe0(*(u8 **)(unit + 0xA64)) & 0xFFFF);
+        skill = (u16)(datCalcDefaultSkillId(*(u8 **)(unit + 0xA64)) & 0xFFFF);
     } else {
         skill = *(u16 *)((u8 *)table + outer * 2 - 2);
         if (skill == 0) {
@@ -1453,7 +1453,7 @@ outer_body:
     if (skillStore >= 0x1B8) {
         goto outer_next;
     }
-    kind = (s16)func_0023d8e0(*(u8 **)(unit + 0xA64), skill);
+    kind = (s16)datCalcSkillElement(*(u8 **)(unit + 0xA64), skill);
     if ((datCalcElementBit(kind) & 0x7E) == 0) {
         goto outer_next;
     }
@@ -2382,7 +2382,7 @@ void func_001ebc00(u8 *action, u8 *command)
     u32 skill;
     u32 available;
 
-    skills = (u16 *)func_0023e140(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
+    skills = (u16 *)datCalcSkillList(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
     count = 0;
     index = 0;
     while ((index & 0xFFFF) < 8) {
@@ -2498,7 +2498,7 @@ void func_001ebc00(u8 *action, u8 *command)
     available = count & 0xFFFF;
     if (available == 0) {
         *(u16 *)(command + 0x34) = 1;
-        *(u16 *)(command + 0x36) = func_0023dfe0(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
+        *(u16 *)(command + 0x36) = datCalcDefaultSkillId(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
     } else {
         *(u16 *)(command + 0x34) = 2;
         *(u16 *)(command + 0x36) = choices[datCalcRandomBelow(available)];

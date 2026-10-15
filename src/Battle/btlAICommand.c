@@ -36,7 +36,7 @@ extern s32 func_00235520(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, 
 extern void datCalcClearField18(u32 arg0);
 extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
-extern s32 func_0023d8e0(u8 *unit, u16 command);
+extern s32 datCalcSkillElement(u8 *unit, u16 command);
 extern s32 datCalcElementBit(s16 index);
 extern s8 datCalcGetBuffStatus(u8 *unit, s32 status);
 extern u32 datCalcGetTableLength(u8 *unit);
@@ -88,7 +88,7 @@ extern s32 func_0023ddc0(u8 *unit, s32 command);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
 extern void func_001ebc00(u8 *a, u8 *b);
-extern s32 func_0023dfe0(u8 *unit);
+extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 func_0023dff0(u8 *arg0);
 extern u32 datCalcGetLevel(u32 arg0);
 extern s32 datCalcIsDead(u32 arg0, u32 arg1);
@@ -221,19 +221,19 @@ s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
     s16 queried;
 
     unit = *(u8 **)(action + 0x30);
-    queried = func_0023d8e0(*(u8 **)(unit + 0xA64), 0);
+    queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), 0);
     if (queried != value)
         goto scan;
     return 1;
 scan:
     count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
-    commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+    commands = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
     index = 0;
     limit = count;
     while (index < limit) {
         entry = &commands[index];
         if (*entry != 0 && *entry < 0x1B8) {
-            queried = func_0023d8e0(*(u8 **)(unit + 0xA64), *entry);
+            queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), *entry);
             if (queried != value)
                 goto next;
             if (btlCommandUsable(action, *entry))
@@ -286,7 +286,7 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
                 return 0;
         } else {
             count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
-            commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+            commands = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
             i = 0;
             limit = count;
             while (i < limit) {
@@ -1396,20 +1396,20 @@ s32 btlAICommandCollectSkillCandidates(u8 *p, u8 *q, s32 arg2, s32 arg3)
 
     n = 0;
     unit0 = *(u8 **)(p + 0x30);
-    cur0 = (s16)func_0023d8e0(*(u8 **)(unit0 + 0xA64), 0);
+    cur0 = (s16)datCalcSkillElement(*(u8 **)(unit0 + 0xA64), 0);
     if (btlAICommandNomalCheck(q, cur0, 1) != 0) {
         buf[0] = 0;
         n++;
     }
     limit = (u16)datCalcGetTableLength(*(u8 **)(unit0 + 0xA64));
-    table = (u16 *)func_0023e140(*(u8 **)(unit0 + 0xA64));
+    table = (u16 *)datCalcSkillList(*(u8 **)(unit0 + 0xA64));
     idx = 0;
     count = limit;
     while (idx < count) {
         e = table + idx;
         v = *e;
         if (v != 0 && v < 0x1B8) {
-            cur = (s16)func_0023d8e0(*(u8 **)(unit0 + 0xA64), v);
+            cur = (s16)datCalcSkillElement(*(u8 **)(unit0 + 0xA64), v);
             flags = datCalcElementBit(cur);
             if (arg3 == 0) {
                 if ((flags & 0x7E) == 0)
@@ -1501,7 +1501,7 @@ s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
     n = 0;
     unit = *(u8 **)(arg0 + 0x30);
     count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
-    commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+    commands = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
     if (datCalcIsDead(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0) != 0) {
         result = 0;
     } else {
@@ -1648,20 +1648,20 @@ s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
 
     n = 0;
     unit = *(u8 **)(arg0 + 0x30);
-    queried = func_0023d8e0(*(u8 **)(unit + 0xA64), 0);
+    queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), 0);
     if (queried == arg2 && btlAICommandNomalCheck(arg1, queried, 1) != 0) {
         table[0] = 0;
         n++;
     }
     count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
-    commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+    commands = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
     j = 0;
     limit = count;
     for (; j < limit; j++) {
         entry = commands + j;
         if (*entry == 0 || *entry >= 0x1B8)
             goto next;
-        queried = func_0023d8e0(*(u8 **)(unit + 0xA64), *entry);
+        queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), *entry);
         if (queried != arg2)
             goto next;
         cmd = *entry;
@@ -1807,7 +1807,7 @@ void btlAICommandSetActionCode(u8 *p, u8 *q, u16 v)
     switch (t & 0xFFFF) {
     case 0x8000:
         *(u16 *)(q + 0x34) = 1;
-        *(u16 *)(q + 0x36) = func_0023dfe0(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64)) & 0xFFFF;
+        *(u16 *)(q + 0x36) = datCalcDefaultSkillId(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64)) & 0xFFFF;
         break;
     case 0x1000:
         *(u16 *)(q + 0x34) = 9;
@@ -5189,7 +5189,7 @@ s32 btlAICommandScriptAverageOppLevel(void) {
 s32 btlAICommandScriptGetCommandRow(void) {
     u8 *p = func_0029d050();
     short r = (short)scrGetParamInt(0);
-    scrSetReturnInt((s16)func_0023d8e0(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64), (u16)r));
+    scrSetReturnInt((s16)datCalcSkillElement(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64), (u16)r));
     return -1;
 }
 

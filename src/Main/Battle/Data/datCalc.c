@@ -96,7 +96,7 @@ extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
 extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
-extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
+extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1);
 extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
@@ -388,7 +388,7 @@ static inline s32 PTDatCalcHasSkill(u8 *unit, s32 requestedSkill)
     s32 limit;
 
     count = datCalcGetTableLength(unit) & 0xFFFF;
-    base = func_0023e140(unit);
+    base = datCalcSkillList(unit);
     index = 0;
     skill = requestedSkill & 0xFFFF;
     limit = count & 0xFFFF;
@@ -1837,7 +1837,7 @@ u8 arg7;
         break;
     }
     if (fixed == 0 && damage > 0 && !(arg6 & 1)) {
-        rawElement = (s16)func_0023d8e0(arg1, arg0);
+        rawElement = (s16)datCalcSkillElement(arg1, arg0);
         elementMask = datCalcElementBit(rawElement);
         offset = ((u32)arg0 % 0x10000U) * 0x28;
         switch (iGpffffb3b8[offset + 2]) {
@@ -2377,7 +2377,7 @@ return_zero_1:
             if (death == 0 && datCalcGetBuffLevel(target, 7) > 0) {
                 multiplier *= 2.0f;
             }
-            element = (s16)func_0023d8e0(source, skillId);
+            element = (s16)datCalcSkillElement(source, skillId);
             switch (element) {
             case 9:
                 if (PTDatCalcHasSkill(source, 0x217)) multiplier *= 1.25f;
@@ -3197,7 +3197,7 @@ s32 func_0023d740(s32 arg0, s32 arg1)
     s32 var_16;
 
     if ((s16)arg0 != -1) {
-        var_16 = (s16)func_0023d8e0(NULL, arg0 & 0xFFFF);
+        var_16 = (s16)datCalcSkillElement(NULL, arg0 & 0xFFFF);
         if (var_16 == 6) {
             return 6;
         }
@@ -3243,8 +3243,9 @@ s32 func_0023d740(s32 arg0, s32 arg1)
     return var_16;
 }
 
+// Intent: element index of skill arg1 on unit arg0: the monster row's byte, or the persona stat, or the skill-table byte for non-unit skills; callers pass it to datCalcElementBit; [inferred].
 // FUN_0023D8E0
-s32 func_0023d8e0(u8 *arg0, u16 arg1)
+s32 datCalcSkillElement(u8 *arg0, u16 arg1)
 {
     s32 v;
 
@@ -3305,7 +3306,7 @@ u32 func_0023d9b0(u8 *arg0, s32 arg1)
         product = (s32)((u32)maximum * *(u16 *)(table + 4));
         result = product / 100 + *(u16 *)(table + 6);
         count = (u16)datCalcGetTableLength(arg0);
-        table = func_0023e140(arg0);
+        table = datCalcSkillList(arg0);
         index = 0;
         limit = count;
         reduction = 0x20B;
@@ -3354,7 +3355,7 @@ u32 func_0023d9b0(u8 *arg0, s32 arg1)
         }
         if (result == 0) break;
         count = (u16)datCalcGetTableLength(arg0);
-        table = func_0023e140(arg0);
+        table = datCalcSkillList(arg0);
         index = 0;
         limit = count;
         reduction = 0x20A;
@@ -3468,8 +3469,9 @@ s32 func_0023df70(s32 arg0)
     return (base[0] & 2) != 0;
 }
 
+// Intent: default skill id for unit arg0. A stub in retail: it always returns 0, so callers use 0 as "no skill"; [inferred].
 // FUN_0023DFE0
-s32 func_0023dfe0(u8 *unit)
+s32 datCalcDefaultSkillId(u8 *unit)
 {
     return 0;
 }
@@ -3492,7 +3494,7 @@ s32 func_0023dff0(u8 *arg0)
     u32 n;
 
     count = datCalcGetTableLength(arg0) & 0xFFFF;
-    table = (u16 *)func_0023e140(arg0);
+    table = (u16 *)datCalcSkillList(arg0);
     selected = 0;
     index = 0;
     while ((index & 0xFFFF) < (s32)((u32)count % 0x10000U) &&
@@ -3530,8 +3532,9 @@ u32 datCalcGetTableLength(u8 *unused)
     return 8;
 }
 
+// Intent: pointer to the 8-entry skill-id list for unit arg0 (persona skills by pc id, or the monster row's slots); [inferred].
 // FUN_0023E140
-u8 *func_0023e140(u8 *arg0)
+u8 *datCalcSkillList(u8 *arg0)
 {
     if (!(*(u16 *)arg0 & 4)) {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
