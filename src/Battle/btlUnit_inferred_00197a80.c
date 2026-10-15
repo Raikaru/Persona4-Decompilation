@@ -77,7 +77,7 @@ extern f32 func_0044b950(f32 x, f32 y);
 extern f32 fGpffff8048;
 extern void func_003dc740(void *dst, const void *src, s32 mode, f32 angle);
 extern u8 D_0060A0E0[];
-extern void func_0019dea0(u8 *arg0);
+extern void btlUnitRequestLookAt(u8 *arg0);
 extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 
@@ -292,7 +292,7 @@ s32 func_00197d70(u8 *arg0)
             }
             *(s32 *)(unit + 0xC4) &= ~2;
             *(u16 *)(unit + 0xC8) &= 0xFFFD;
-            func_0019dea0(unit);
+            btlUnitRequestLookAt(unit);
         } else {
             if ((*(s32 *)(arg0 + 0x10) & 0x20) != 0) {
                 func_00194ff0(unit, NULL, NULL, (f32 *)&output);
