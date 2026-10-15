@@ -3022,10 +3022,11 @@ static inline void fclShowCombineCursorArrows(u8 *t)
 /* measured: opt_lifetimes on keeps the independent nested counters live.
    The unsigned row snapshot retains retail's separate signed re-extension.
    Whole owner: 5484 bytes plus four zero tail bytes; 164 resolved relocations. */
+// Fcl combine grid input: handles the pair-grid pad buttons. 0x1000/0x4000 step the selected row; 0x40 opens the selected row's persona card and recolours the grid, then sets the next state to arg2; 0x80 moves to state 0x28 (arg1 == 0) or 0x3E; 0x20 rebuilds the party rows and sets the next state to arg3.
 // FUN_00321E60
 #pragma push
 #pragma opt_lifetimes on
-void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
+void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     extern u16 D_008C027A[];
     extern u16 D_008C024E[];
     extern u16 D_008C024C[];
