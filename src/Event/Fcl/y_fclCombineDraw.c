@@ -4384,8 +4384,9 @@ static inline void fclCopyPositionStorage(void *out, const void *in)
    measured: complete b210 -O2 proof in
    build/first-party-continue-live/fcl/closure-00329e40/; 2840 executable bytes,
    eight retail alignment zeros, all sibling functions and owned data preserved. */
+// Fcl combine header panel: draws the fixed header panel at (79, 97): a backing frame, the title sprites and two highlight rows whose x offset comes from the cursor byte at work+0x123 (step 0x101). delay and mode are passed through to every draw call.
 // FUN_00329E40
-void func_00329e40(u8 *task, s16 delay, s8 mode) {
+void fclCombineDrawHeaderPanel(u8 *task, s16 delay, s8 mode) {
 
 
     FclVec2 origin;
@@ -4476,10 +4477,11 @@ void func_00329e40(u8 *task, s16 delay, s8 mode) {
 /* measured: saved draw-contract recovery uses scoped opt_propagation off
    with constructor-backed FclVec2 values and explicit x/y snapshots.
    Provenance and current checks: docs/probe_archive/Recovered_FclDraw_0032a960_0032b000.md. */
+// Fcl combine panel border: mode 0 creates the border sprites and fades them in (dark bars at the top and bottom edges, two labels and two scaled corner sprites). Any other mode fades them out from their current alpha.
 // FUN_0032A960
 #pragma push
 #pragma opt_propagation off
-void func_0032a960(u8 *arg0, s8 arg1) {
+void fclCombineDrawPanelBorder(u8 *arg0, s8 arg1) {
     FclByte4 c6C;
     FclByte4 c68;
     FclByte4 c64;
@@ -4587,10 +4589,11 @@ void func_0032a960(u8 *arg0, s8 arg1) {
 /* measured: saved draw-contract recovery retains signed-byte digit values
    and constructor-backed positions under scoped opt_propagation off.
    Provenance and current checks: docs/probe_archive/Recovered_FclDraw_0032a960_0032b000.md. */
+// Fcl combine counter: draws the counter value from func_00110140() as a bar (0x2CF) with two labels, the ones digit (0x2D0) always, the tens digit (0x2D1) from 10 up, and sprite 0x10D when the value is 100. mode 0 creates and fades in; any other mode fades out and repositions.
 // FUN_0032B000
 #pragma push
 #pragma opt_propagation off
-void func_0032b000(u8 *arg0, s8 arg1) {
+void fclCombineDrawCounter(u8 *arg0, s8 arg1) {
     FclByte4 cDC;
     FclVec2 origin;
     FclVec2 spC8;
@@ -4818,7 +4821,7 @@ void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
     spD8 = func_002b2970(119.0f + origin.x, 5.0f + y);
     c12C = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
     func_002b77d0(0x11D, spD8, 0x11D, c12C, 191.0f, 0x56, arg3, 6, 3, 0, func_00331560());
-    func_00329e40(arg0, 0, arg3);
+    fclCombineDrawHeaderPanel(arg0, 0, arg3);
     entry = *(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120);
     row = 0;
     step = (s16)arg1;
@@ -4848,7 +4851,7 @@ void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
     *(f32 *)(fclSpriteEntry(0xB1) + 0x3C) = *(f32 *)(t + 0x124) * (*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120)) + *(f32 *)(fclSpriteEntry(0xAA) + 0x3C);
     *(f32 *)(fclSpriteEntry(0xB5) + 0x3C) = 52.0f + *(f32 *)(fclSpriteEntry(0xB1) + 0x3C);
     fclCombineSlideInHeaderSprites(359, 300.0f, arg0, 1, arg3);
-    func_0032b000(arg0, arg3);
+    fclCombineDrawCounter(arg0, arg3);
 }
 
 /* Measured: this C body is byte-exact under scoped verify.py (obj 956/window
