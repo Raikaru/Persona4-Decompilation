@@ -12,7 +12,7 @@ extern u32 *mdlCloneModelObject(u8 *arg0);
 extern s32 func_0047d110(u32 arg0, u16 arg1, char *arg2);
 extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
 extern s32 func_00454a60(void *arg0, s32 arg1);
-extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
+extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
 extern f32 fGpffff82d4;
 extern u8 D_005F6D00[];
 extern u8 iGpffffa0b0;
@@ -215,7 +215,7 @@ void func_00195d50(u8 *arg0, u8 *arg1)
         out->z = work.firstOut.z + *(f32 *)(arg0 + 0xC);
         return;
     }
-    if (func_0047a6d0(*(void **)(arg0 + 0xA00), 0, arg1) == 0)
+    if (mdlComputeIndexedAttachMatrix(*(void **)(arg0 + 0xA00), 0, arg1) == 0)
     {
         work.secondScaled.x = *(f32 *)(arg0 + 0x80) * *(f32 *)(arg0 + 0x2C);
         work.secondScaled.y = *(f32 *)(arg0 + 0x84) * *(f32 *)(arg0 + 0x2C);
@@ -1194,7 +1194,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             mat.pos.y = 0;
             mat.pos.z = 0;
             mat.flags = 3;
-            func_0047a1c0(*(u8 **)(t17 + 0xA00), &mat, 0);
+            mdlApplyModelMatrix(*(u8 **)(t17 + 0xA00), &mat, 0);
             sp100[0] = sp100[1] = sp100[2] = *(f32 *)(t17 + 0x2C);
             mdlScale(*(u8 **)(t17 + 0xA00), sp100, 2);
             sp100[0] = *(f32 *)(t17 + 4) + *(f32 *)(t17 + 0x10);

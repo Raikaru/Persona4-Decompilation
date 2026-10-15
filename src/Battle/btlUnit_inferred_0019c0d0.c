@@ -228,7 +228,7 @@ void func_0019c0d0(void)
     extern void func_00230170(u8 *arg0);
     extern void SceneDraw_SetResPersona(u16 arg0, u32 arg1);
     extern void func_001b70c0(u8 *arg0);
-    extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+    extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
     extern void *mdlTranslateMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlAdvanceModelFromFlags(void *arg0);
@@ -349,7 +349,7 @@ void func_0019c0d0(void)
                     m.pos[1] = 0.0f;
                     m.pos[2] = 0.0f;
                     m.flags = 3;
-                    func_0047a1c0(*(u8 **)(entry + 0xA00), &m, 0);
+                    mdlApplyModelMatrix(*(u8 **)(entry + 0xA00), &m, 0);
                     vec[0] = vec[1] = vec[2] = *(f32 *)(entry + 0x2C);
                     mdlScale(*(u8 **)(entry + 0xA00), vec, 2);
                     vec[0] = *(f32 *)(entry + 4) + *(f32 *)(entry + 0x10);

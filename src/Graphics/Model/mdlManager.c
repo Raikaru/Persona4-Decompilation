@@ -3165,7 +3165,7 @@ extern u8 *func_004571c0(void);
 extern void mdlUpdateBlendTrack(u8* a, u8* b);
 extern void mdlDrawVisibleAtomics(void* a);
 extern void* mdlGetMatrix(void* a);
-extern s32 func_0047a510(void* a, s32 b, void* c);
+extern s32 mdlCopyIndexedMatrix(void* a, s32 b, void* c);
 extern s32 mdlPrepareSlotModel(u8* model, u16 index);
 extern void func_0047d540(u8** a, u8* b);
 extern void mdlEffectListSetUniformScale(s32* a, f32* b);
@@ -3323,7 +3323,7 @@ void func_00475cd0(MdlDrawState* owner)
                         {
                         void* matrix = mdlGetMatrix(model);
                         s64 index = *frameID;
-                        func_0047a510(owner, index, matrix);
+                        mdlCopyIndexedMatrix(owner, index, matrix);
                     }
                     } else {
                         model->matrix = owner->matrix;
@@ -3498,7 +3498,7 @@ void func_00475cd0(MdlDrawState* owner)
                 {
                         void* matrix = mdlGetMatrix(attached.model);
                         s64 index = *frameID;
-                        func_0047a510(owner, index, matrix);
+                        mdlCopyIndexedMatrix(owner, index, matrix);
                     }
             } else {
                 attached.model->matrix = owner->matrix;
@@ -4681,7 +4681,7 @@ void mdlUpdateModelMatrix(Model* mdl)
 
 extern void mdlAdvanceAnimControl(void* a, void* b);
 extern u8* func_00473b20(u8* a, u8* b, s32 c);
-extern s32 func_0047a510(void* a, s32 b, void* c);
+extern s32 mdlCopyIndexedMatrix(void* a, s32 b, void* c);
 extern void* mdlGetMatrix(void* a);
 extern void mdlEffectListReleaseHandles(u32 *a);
 extern void func_0047de50(u32 a);
@@ -4797,7 +4797,7 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
                         if (*frameId != -1) {
                             void* childMatrix = mdlGetMatrix(*childSlot);
                             s32 childFrame = *frameId;
-                            func_0047a510(mdl, childFrame, childMatrix);
+                            mdlCopyIndexedMatrix(mdl, childFrame, childMatrix);
                         } else {
                             ((Model*)*childSlot)->mat = ((Model*)mdl)->mat;
                         }
@@ -5460,8 +5460,9 @@ void mdlRotateMatrix(void *matrix, const void *axis, f32 angle, s32 combineOp)
                   angle, (RwOpCombineType)combineOp);
 }
 
+/* Applies matrix arg1 to model arg0 through func_003e0e20 with combine mode arg2. */
 // FUN_0047A1C0
-void func_0047a1c0(void *arg0, void *arg1, s32 arg2)
+void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2)
 {
     func_003e0e20(arg0, arg1, arg2);
 }
@@ -5676,8 +5677,9 @@ found:
 
 /* MATCH: 440B/448B, with two zero-tail words. The table helper retains
    its shared return block; RwMatrix assignment emits the retail pair-copy. */
+/* Copies the matrix for index arg1 into arg2 from the matrix table at +0x2C8, or from the user-data frame when there is no table. Returns 1 when a matrix was copied. */
 // FUN_0047A510
-s32 func_0047a510(void* arg0, s32 arg1, void* arg2)
+s32 mdlCopyIndexedMatrix(void* arg0, s32 arg1, void* arg2)
 {
     MdlMatrixTable* list;
     s32 result;
@@ -5702,8 +5704,9 @@ s32 func_0047a510(void* arg0, s32 arg1, void* arg2)
     return result;
 }
 #pragma pop
+/* Computes the attach matrix for index arg1 into arg2: through mdlComputeAttachMatrix when the table at +0x2C8 exists, else from the user-data frame. Returns 0 when that frame is absent. */
 // FUN_0047A6D0
-s32 func_0047a6d0(void* arg0, s32 arg1, void* arg2)
+s32 mdlComputeIndexedAttachMatrix(void* arg0, s32 arg1, void* arg2)
 {
     s32 result;
     u32 lo;

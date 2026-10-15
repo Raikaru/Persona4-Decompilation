@@ -44,7 +44,7 @@ extern u8 *func_003e9700(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void memset(void *dest, s32 value, s32 size);
-extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
+extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
 extern void func_003e0670(void *matrixOut, void *matrixIn);
 extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
 extern void func_004b12e0(s32 arg0, void *arg1);
@@ -243,7 +243,7 @@ void func_0047d540(u8 **arg0, u8 *arg1)
         if (*(u32 *)(node + 8) == 0) {
             break;
         }
-        if (func_0047a510(arg1, *(u16 *)(node + 4), in) == 0) {
+        if (mdlCopyIndexedMatrix(arg1, *(u16 *)(node + 4), in) == 0) {
             u32 *src;
             u32 *dst;
             s32 count;

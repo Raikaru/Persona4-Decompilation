@@ -274,12 +274,12 @@ void btlUiUpdateModelCurve(u8 *arg0)
     extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
     extern u16 btlCameraGetState(void);
     extern void func_0048a150(void *arg0, void *arg1);
-    extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+    extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
     extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
     extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
     extern void mdlAdvanceModelFromFlags(void *arg0);
-    extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
+    extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
     extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
     extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
     extern u8 *iGpffffb474;
@@ -305,7 +305,7 @@ void btlUiUpdateModelCurve(u8 *arg0)
         }
         if (((btlCameraGetState() & 0xFFFF) == 1) && (*(s32 *)temp_17 != 0)) {
             func_0048a150(frame.spE0, arg0 + 0x10);
-            func_0047a1c0(*(u8 **)temp_17, frame.spE0, 0);
+            mdlApplyModelMatrix(*(u8 **)temp_17, frame.spE0, 0);
             temp_f0 = *(f32 *)(arg0 + 0x20) * *(f32 *)(temp_16 + 0x34);
             frame.sp120.z = temp_f0;
             frame.sp120.y = temp_f0;
@@ -317,8 +317,8 @@ void btlUiUpdateModelCurve(u8 *arg0)
             mdlTranslateMatrix((RwMatrix *)*(u8 **)temp_17, (const RwV3d *)&frame.sp120, 2);
             mdlSetLayerWeight(*(u8 **)temp_17, 0, *(f32 *)(temp_16 + 0x30));
             mdlAdvanceModelFromFlags(*(u8 **)temp_17);
-            func_0047a510(*(u8 **)temp_17, *(u16 *)(temp_17 + 4), frame.sp60);
-            func_0047a510(*(u8 **)temp_17, *(u16 *)(temp_17 + 4) + 1, frame.sp90 + 0x10);
+            mdlCopyIndexedMatrix(*(u8 **)temp_17, *(u16 *)(temp_17 + 4), frame.sp60);
+            mdlCopyIndexedMatrix(*(u8 **)temp_17, *(u16 *)(temp_17 + 4) + 1, frame.sp90 + 0x10);
             frame.sp40 = *(Vec3 *)frame.sp90;
             btlCameraLookAtQuat(&frame.sp4C, frame.sp90, frame.spD0, frame.sp70);
             btlMainCurveReset((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.sp40));

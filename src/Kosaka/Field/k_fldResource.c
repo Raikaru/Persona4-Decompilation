@@ -65,7 +65,7 @@ extern RpWorld *func_003cbc10(RpWorld *world, RwCamera *camera);
 extern RpLight *func_003c38b0(RpLight *light, const RwRGBAReal *color);
 extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *transform, RwOpCombineType combine);
 extern s32 mdlPrepareModel(u32 arg0);
-extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern RwMatrix *func_003e9700(RwFrame *frame);
 extern void K_Clump_FreeTextureNameList(void *arg0);
@@ -1648,7 +1648,7 @@ s32 FldResource_TryInstallEntries(u8 *arg0)
     }
     for (j = 0; j < *(u32 *)(arg0 + 0x11C); j++) {
         if (*(u16 *)(arg0 + j * 0x18 + 0x120) == 0 || *(u16 *)(arg0 + j * 0x18 + 0x120) == 2) {
-            func_0047a1c0(*(void **)(arg0 + j * 0x18 + 0x12C), func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)), 0);
+            mdlApplyModelMatrix(*(void **)(arg0 + j * 0x18 + 0x12C), func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)), 0);
             if (*(u16 *)(arg0 + j * 0x18 + 0x122) & 1) {
                 mdlSetLayerWeight(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0.0f);
             } else {
@@ -2349,7 +2349,7 @@ k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *arg1, u32 arg2
             u8 *s1 = (u8 *)src + j * 24;
             s32 *s0 = &dst->entries[j].field_c;
             *s0 = mdlCloneModelObject(*(s32 *)(s1 + 300));
-            func_0047a1c0((void *)*s0, func_003e9700(*(void **)(s1 + 296)), 0);
+            mdlApplyModelMatrix((void *)*s0, func_003e9700(*(void **)(s1 + 296)), 0);
             if (*(u16 *)(s1 + 290) & 2) {
                 *(u16 *)(p_dst + 290) |= 2;
             }

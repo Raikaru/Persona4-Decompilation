@@ -23,12 +23,12 @@ extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void btlUnitSetPos(void *arg0, void *arg1);
 extern void btlUnitSetRot(void *arg0, void *arg1);
 extern void func_0048a150(void *arg0, void *arg1);
-extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern void mdlAdvanceModelFromFlags(void *arg0);
-extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
+extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
 extern void RwMatrixScale(void *arg0, f32 *arg1, s32 arg2);
 extern void RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
 extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
@@ -37,7 +37,7 @@ extern u32 mdlCountIntUserData(u32 arg0);
 extern void btlUnitClearModelState(void *arg0, s32 arg1);
 extern void btlUnitSetModelAnimFrame(void *arg0, s32 arg1);
 extern void btlUnitApplyModelState(void *arg0, s32 arg1);
-extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
+extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
 extern u8 *func_001b7020(void);
 extern u8 *func_001b7030(void);
 extern u8 *func_001b7040(void);
@@ -330,7 +330,7 @@ void func_001fc630(u8 *arg0)
     hasPos = 0;
     if (*model != NULL) {
         func_0048a150(matrix, arg0 + 0x10);
-        func_0047a1c0(*model, matrix, 0);
+        mdlApplyModelMatrix(*model, matrix, 0);
         vec[0] = vec[1] = vec[2] = *(f32 *)(arg0 + 0x20) * param->scale;
         mdlScale(*model, vec, 2);
         vec[0] = ((f32 *)arg0)[0];
@@ -339,7 +339,7 @@ void func_001fc630(u8 *arg0)
         mdlTranslateMatrix((RwMatrix *)*model, (const RwV3d *)vec, 2);
         mdlSetLayerWeight(*model, 0, param->rotate);
         mdlAdvanceModelFromFlags(*model);
-        if (func_0047a6d0(*model, 0, &pos) != 0) {
+        if (mdlComputeIndexedAttachMatrix(*model, 0, &pos) != 0) {
             hasPos = 1;
         }
     }
@@ -1120,7 +1120,7 @@ void func_001ff490(u8 *arg0)
     hasMatrix = 0;
     if (target->model != NULL) {
         func_0048a150(&matrix, arg0 + 0x10);
-        func_0047a1c0(target->model, &matrix, 0);
+        mdlApplyModelMatrix(target->model, &matrix, 0);
         vec[0] = vec[1] = vec[2] = *(f32 *)(arg0 + 0x20) * param->scale;
         mdlScale(target->model, vec, 2);
         vec[0] = ((f32 *)arg0)[0];
@@ -1129,7 +1129,7 @@ void func_001ff490(u8 *arg0)
         mdlTranslateMatrix((RwMatrix *)target->model, (const RwV3d *)vec, 2);
         mdlSetLayerWeight(target->model, 0, param->rotate);
         mdlAdvanceModelFromFlags(target->model);
-        if (func_0047a510(target->model, 0, &matrix) != 0) {
+        if (mdlCopyIndexedMatrix(target->model, 0, &matrix) != 0) {
             hasMatrix = 1;
         }
     }
@@ -1377,7 +1377,7 @@ void btlEplApplyScaleEffect(u8 *arg0) {
         }
         if (*target != NULL) {
             func_0048a150(spE0, arg0 + 0x10);
-            func_0047a1c0(*target, spE0, 0);
+            mdlApplyModelMatrix(*target, spE0, 0);
             scale = *(f32 *)(arg0 + 0x20) * param->scale;
             sp130[2] = scale;
             sp130[1] = scale;
@@ -1389,7 +1389,7 @@ void btlEplApplyScaleEffect(u8 *arg0) {
             mdlTranslateMatrix((RwMatrix *)*target, (const RwV3d *)sp130, 2);
             mdlSetLayerWeight(*target, 0, param->unk08);
             mdlAdvanceModelFromFlags(*target);
-            if (func_0047a510(*target, 0, spE0) != 0) {
+            if (mdlCopyIndexedMatrix(*target, 0, spE0) != 0) {
                 for (i = 0; i < 4; i++) {
                     node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
                     while (node != NULL) {

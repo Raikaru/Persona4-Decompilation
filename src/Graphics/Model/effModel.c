@@ -189,7 +189,7 @@ extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern void mdlSetColor(void *arg0, s32 *arg1);
 extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
 extern void func_0048a150(void *arg0, void *arg1);
-extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void mdlSetAttachedOwner(void *arg0, s32 arg1);
@@ -268,7 +268,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
         mdlSetColor(*(u8 **)(arg1 + 0x94), &spBC);
         temp_f20 = func_0048aff0(arg1 + 0x60, temp_17, temp_16) / 10.0f;
         func_0048a150(sp60, arg1 + 0x10);
-        func_0047a1c0(*(u8 **)(arg1 + 0x94), sp60, 0);
+        mdlApplyModelMatrix(*(u8 **)(arg1 + 0x94), sp60, 0);
         temp_f0 = *(f32 *)(arg1 + 0x20) * temp_f20;
         spA0[2] = temp_f0;
         spA0[1] = temp_f0;

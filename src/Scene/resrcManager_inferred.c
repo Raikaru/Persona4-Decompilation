@@ -714,7 +714,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     extern u32 K_Clump_StateFlagIsSet(const u32 *state);
     extern void mdlQueueModelForDraw(void *queue, u8 *model);
     extern void *mdlGetColor(void *model);
-    extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
+    extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
     extern void func_004b11d0(void *arg0, void *arg1);
     extern void qsort(void *base, size_t count, size_t size,
                       s32 (*compare)(const void *, const void *));
@@ -926,7 +926,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 for (j = 0; j < 2; j++) {
                     u8 *attachmentOwner = *pp;
                     if (*(s32 *)(attachmentOwner + j * 4 + 0x140) != 0) {
-                        if (func_0047a6d0(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
+                        if (mdlComputeIndexedAttachMatrix(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
                             pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(*pp + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
@@ -986,7 +986,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 }
                 for (j = 0; j < 2; j++) {
                     if (*(s32 *)(l3 + j * 4 + 0x140) != 0) {
-                        if (func_0047a6d0(*(void **)(l3 + 0x164), 2, &pos) == 0) {
+                        if (mdlComputeIndexedAttachMatrix(*(void **)(l3 + 0x164), 2, &pos) == 0) {
                             pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(l3 + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
@@ -1021,7 +1021,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                         }
                         for (j = 0; j < 2; j++) {
                             if (*(s32 *)(obj + j * 4 + 0x140) != 0) {
-                                if (func_0047a6d0(*(void **)(obj + 0x164), 2, &pos) == 0) {
+                                if (mdlComputeIndexedAttachMatrix(*(void **)(obj + 0x164), 2, &pos) == 0) {
                                     pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(obj + 0x164)) + 0x30);
                                     pos.y += 175.0f;
                                 }
@@ -1105,7 +1105,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 for (j = 0; j < 2; j++) {
                     u8 *attachmentOwner = *(u8 **)cur;
                     if (*(s32 *)(attachmentOwner + j * 4 + 0x140) != 0) {
-                        if (func_0047a6d0(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
+                        if (mdlComputeIndexedAttachMatrix(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
                             pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(*(u8 **)cur + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
@@ -1127,7 +1127,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 for (j = 0; j < 2; j++) {
                     u8 *attachmentOwner = arrB[k];
                     if (*(s32 *)(attachmentOwner + j * 4 + 0x140) != 0) {
-                        if (func_0047a6d0(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
+                        if (mdlComputeIndexedAttachMatrix(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
                             pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(arrB[k] + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }

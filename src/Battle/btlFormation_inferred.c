@@ -18,7 +18,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
 
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern s32 func_0047a6d0();
+extern s32 mdlComputeIndexedAttachMatrix();
 extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
 extern void func_00485870(s32 arg0);
 extern s32 func_00481450(void);
@@ -208,7 +208,7 @@ void func_001d4eb0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3)
 
     if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
         btlUnitGetSphereWorldCenter(arg1, &frame.value90);
-    } else if (func_0047a6d0(*(u8 **)(arg1 + 0xA00),
+    } else if (mdlComputeIndexedAttachMatrix(*(u8 **)(arg1 + 0xA00),
                              *(u16 *)(temp_16 + 4),
                              &frame.value90) == 0) {
         frame.value70 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
@@ -269,7 +269,7 @@ void func_001d5130(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
 
     extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
     extern f32 func_0044b950(f32 arg0, f32 arg1);
-    extern s32 func_0047a510(u8 *arg0, s32 arg1, f32 *arg2);
+    extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, f32 *arg2);
     extern void func_0048a980(f32 *arg0);
     extern void func_004bcf20(f32 arg0, f32 arg1, f32 arg2);
 
@@ -303,7 +303,7 @@ case0_done:
         flags = *(s32 *)(arg1 + 0x98);
         if ((flags & 2) == 0)
             goto case1_no_flags;
-        if (func_0047a510(*(u8 **)(arg1 + 0xA00),
+        if (mdlCopyIndexedMatrix(*(u8 **)(arg1 + 0xA00),
                           *(u16 *)(entry + 4), frame.input) == 0)
             goto case1_failure;
             frame.output[0] = frame.input[0];
@@ -341,7 +341,7 @@ case1_no_flags:
             lookup = *(s32 *)(lookup_base + lookup_offset);
             if (lookup == 0)
                 break;
-            if (func_0047a510((u8 *)lookup,
+            if (mdlCopyIndexedMatrix((u8 *)lookup,
                               *(u16 *)(entry + 4), frame.input) == 0)
                 goto case8_failure;
             frame.output[0] = frame.input[0];

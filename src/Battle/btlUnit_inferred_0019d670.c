@@ -384,7 +384,7 @@ void btlUnitClearModelState(u8 *arg0, s32 arg1)
 void btlUnitUpdateLookAtTarget(u8 *arg0)
 {
     extern void mdlSetLookAtTargetPoint(void *arg0, void *arg1);
-    extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
+    extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
     extern f32 DAT_007613f8;
     extern u8 *func_0019efe0(s32 arg0);
     P4_95730_Vec3 pos;
@@ -443,7 +443,7 @@ void btlUnitUpdateLookAtTarget(u8 *arg0)
                                 pos.x = rotated.x + *(f32 *)(target + 4);
                                 pos.y = rotated.y + *(f32 *)(target + 8);
                                 pos.z = rotated.z + *(f32 *)(target + 0xC);
-                            } else if (func_0047a6d0(*(u8 **)(target + 0xA00), 0, &pos) == 0) {
+                            } else if (mdlComputeIndexedAttachMatrix(*(u8 **)(target + 0xA00), 0, &pos) == 0) {
                                 scaled2.x = *(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C);
                                 scaled2.y = *(f32 *)(target + 0x84) * *(f32 *)(target + 0x2C);
                                 scaled2.z = *(f32 *)(target + 0x88) * *(f32 *)(target + 0x2C);

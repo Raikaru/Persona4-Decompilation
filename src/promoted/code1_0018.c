@@ -2077,7 +2077,7 @@ extern void FldRc_SetClumpVector(void *, void *);
 extern s32 mdlPrepareModel(unsigned char *);
 extern void mdlAdvanceModelFromFlags(unsigned char *);
 extern s16 mdlGetLayerAnimation(s32, s32);
-extern s32 func_0047a6d0(void *, s32, void *);
+extern s32 mdlComputeIndexedAttachMatrix(void *, s32, void *);
 extern void mdlSetAlphaBlend(unsigned char *);
 extern void mdlClearAlphaBlend(unsigned char *);
 extern void mdlSetLookAtTargetPoint(void *, void *);
@@ -2454,7 +2454,7 @@ s32 func_0018a200(u8 *param_1)
             actorIndex = 0;
           }
         }
-        temp_v4 = func_0047a6d0(*(void **)(puVar1[3] + 0x164),2,&vecA0[0]);
+        temp_v4 = mdlComputeIndexedAttachMatrix(*(void **)(puVar1[3] + 0x164),2,&vecA0[0]);
         if (temp_v4 == 0) {
           temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
           *(FldCopyVec *)vecA0 = *(FldCopyVec *)(temp_v4 + 0x30);
