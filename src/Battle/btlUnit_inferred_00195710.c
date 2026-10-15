@@ -167,7 +167,7 @@ extern u8 D_00794150[];
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlPacketStepSide(s32 arg0);
-extern void func_00195610(u8 *arg0);
+extern void btlUnitHoldPendingOverride(u8 *arg0);
 /* measured: optimization_level 1 with the index and value locals declared
    before the loop reproduces func_00194470 exactly, object 284 bytes against
    the 288-byte window at nd 0; -O2 reorders the initialisation. */
@@ -177,21 +177,21 @@ extern void func_00195610(u8 *arg0);
 /* measured: closes opt_propagation for func_001949d0. */
 /* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 // FUN_00195710
-void func_00195710(u8 *arg0)
+void btlUnitReleasePendingOverride(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
 // FUN_00195730
-u8 *func_00195730(u8 *unit, u8 *position, u8 *rotation, u8 *color)
+u8 *btlUnitCreateOverridePacket(u8 *unit, u8 *position, u8 *rotation, u8 *color)
 {
     u8 *packet;
     u8 *work;
 
     packet = (u8 *)btlPacketAlloc(0x11C, 0x28);
-    *(void (**)(u8 *))(packet + 0x68) = func_00195610;
+    *(void (**)(u8 *))(packet + 0x68) = btlUnitHoldPendingOverride;
     *(void (**)(u8 *))(packet + 0x6C) = func_00195630;
-    *(void (**)(u8 *))(packet + 0x70) = func_00195710;
+    *(void (**)(u8 *))(packet + 0x70) = btlUnitReleasePendingOverride;
     work = *(u8 **)(packet + 0x78);
     *(u8 **)work = unit;
     *(u16 *)(work + 0x24) = 0;

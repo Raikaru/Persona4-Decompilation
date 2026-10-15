@@ -175,7 +175,7 @@ extern void btlPacketStepSide(s32 arg0);
 /* measured: closes opt_propagation for func_001949d0. */
 /* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 // FUN_00195610
-void func_00195610(u8 *arg0)
+void btlUnitHoldPendingOverride(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
