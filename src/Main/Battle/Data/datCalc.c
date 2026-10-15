@@ -4069,10 +4069,11 @@ finish:
 /* The skill is interpreted as u16 inside this C89 definition; its promoted
  * s32 interface preserves the existing callers. measured: 2588/2592 bytes
  * with func_00244f60's real u16 skill parameter; the suffix is zero alignment. */
-s32 func_002411a0(u8 *, u8 *, s32, s32, s32);
+s32 datCalcHitResult(u8 *, u8 *, s32, s32, s32);
+// Intent: skill result for attacker arg0 on target arg1: 4 for a critical, 2 for a roll that lands, 1 otherwise; [inferred].
 // FUN_002411A0
 #pragma opt_common_subs on
-s32 func_002411a0(arg0, arg1, arg2, arg3, arg4)
+s32 datCalcHitResult(arg0, arg1, arg2, arg3, arg4)
 u8 *arg0;
 u8 *arg1;
 u16 arg2;
