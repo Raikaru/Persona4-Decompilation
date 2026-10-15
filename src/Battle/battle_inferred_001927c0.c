@@ -74,7 +74,7 @@ extern s32 func_00192610(u8 *task);
 extern s32 func_001926c0(u8 *task);
 extern s32 btlUpdateDraw2DTask(u8 *task);
 extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
-extern s32 func_0022f520(void);
+extern s32 btlUnitReactToDeath(void);
 extern s32 iGpffffb3b0;
 extern s32 iGpffffb284;
 extern s32 iGpffffb280;
@@ -376,7 +376,7 @@ s32 btlRelease(void)
     func_001f73c0();
     btlCameraResetWorkList();
     func_001f61b0();
-    func_0022cc90();
+    btlFormationClearSlots();
     btlPacketFlushAll();
     itfMesWindowReleaseIfActive(*(s32 *)(iGpffffb3ac + 0xC60));
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x4000) != 0) {
@@ -521,7 +521,7 @@ loop_18_check:
         *(s16 *)(iGpffffb3ac + 0x1C) = 3;
         return 1;
     }
-    if (func_0022f520() != 0) {
+    if (btlUnitReactToDeath() != 0) {
         *(s16 *)(iGpffffb3ac + 0x1C) = 1;
         return 1;
     }

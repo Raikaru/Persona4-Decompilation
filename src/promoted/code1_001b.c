@@ -105,7 +105,7 @@ extern void func_002bb4e0(void);
 
 extern u8 *D_0076449C;
 extern s32 func_0022bd20(void);
-extern void func_0022bd60(void);
+extern void btlEncounterInitGlobals(void);
 extern s32 func_001fadc0(u8 *arg0);
 extern u32 btlCountUnitRecords(void);
 extern BtlPacket *btlTargetCreateTargetPacket(u32 arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
@@ -238,7 +238,7 @@ extern u32 btlCameraAdvanceKeyframes(u8 *arg0, f32 arg1);
 extern f32 fGpffff8430;
 extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
-extern u8 *func_0022cdb0(s32 arg0);
+extern u8 *btlEncounterGetRecord(s32 arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00457120(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);

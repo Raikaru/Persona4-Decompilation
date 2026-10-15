@@ -108,7 +108,7 @@ extern void btlFormationDispatchArgs(void);
 extern void *btlPacketAlloc();
 
 extern s32 func_001d7b30(u16 *arg0);
-extern s32 func_0022ead0(void);
+extern s32 btlUnitRealignCells(void);
 
 typedef struct RwV3d RwV3d;
 struct RwV3d

@@ -88,7 +88,7 @@ void btlActionFinishPresentation(BtlAction *action);
 void btlAICommandPickAiTarget(void *arg0, s32 arg1);
 BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern void func_0022db90(u8 *arg0);
+extern void btlUnitSelectRecordTable(u8 *arg0);
 extern void btlTargetClearWork(void *arg0);
 extern void btlDamageStart(u8 *arg0, u8 *arg1);
 

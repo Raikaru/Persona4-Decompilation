@@ -59,7 +59,7 @@ typedef int (*code)();
 
 
 
-extern s32 func_0022ead0(void);
+extern s32 btlUnitRealignCells(void);
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -201,7 +201,7 @@ s16 func_001d15a0(void)
     u8 *table;
     u8 *entry;
 
-    if (func_0022ead0() == 1) {
+    if (btlUnitRealignCells() == 1) {
         return -1;
     }
     func_001d1310(counts);
@@ -253,7 +253,7 @@ void func_001d1680(s32 applyPositions, s32 unused)
 
     position.y = 0.0f;
     *(s16 *)(iGpffffb3ac + 0xA70) = -1;
-    if (func_0022ead0() == 1) {
+    if (btlUnitRealignCells() == 1) {
         formation = -1;
     } else {
         func_001d1310(counts);

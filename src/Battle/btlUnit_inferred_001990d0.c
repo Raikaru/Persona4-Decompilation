@@ -187,7 +187,7 @@ s64 btlUnitGetMotionId(u8 *arg0, u16 arg1)
     kind = *(u8 *)(arg0 + 0xA2);
     switch (kind) {
     case 1:
-        result = (s16)func_0022cb90(arg0, arg1);
+        result = (s16)btlFormationLookupSlot(arg0, arg1);
         if (result != -1) {
             return result;
         }

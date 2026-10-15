@@ -1942,7 +1942,7 @@ void btlActionReadyUpdate(u8 *arg0)
     extern s32 func_0019fc70(u8 *action);
     extern void func_001f5bd0(s32 state);
     extern s32 func_001f68e0(u8 *action);
-    extern void func_0022dc70(u8 *action);
+    extern void btlUnitApplyPacketFlags(u8 *action);
     s32 loopIndex;
     s32 delayFlag;
     s32 actionIndex;
@@ -2043,7 +2043,7 @@ donecheck:
             } else {
                 (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFF7));
             }
-            func_0022dc70(arg0);
+            btlUnitApplyPacketFlags(arg0);
         }
     }
 }
@@ -2075,7 +2075,7 @@ void btlActionMoveTargetInit(u8 *actionBytes)
     extern s32 func_001f0a50(u8 *actionBytes);
     extern s32 func_001f0bf0(u8 *actionBytes);
     extern s32 func_001f0ff0(u32 action);
-    extern s32 func_0022fb10(void);
+    extern s32 btlEncounterSkipsPresentation(void);
     extern u8 *iGpffffb3bc;
     extern f32 fGpffff8360;
     typedef struct UnitView {
@@ -2252,7 +2252,7 @@ range_done:
                 speed = btlTargetVectorDistance(&unitCenter, &targetCenter);
                 speed = speed - unit->radius * unit->scale;
                 speed = speed - targetUnit->radius * targetUnit->scale;
-                if (canPosition == 0 || func_0022fb10() == 0 || speed < 300.0f || speed - 300.0f < 200.0f) {
+                if (canPosition == 0 || btlEncounterSkipsPresentation() == 0 || speed < 300.0f || speed - 300.0f < 200.0f) {
                     action->flags |= 0x10;
                     proceed = 0;
                 } else {
@@ -3561,12 +3561,12 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
     extern u8 *btlPacketCreateHpRatio(u8 *unit);
     extern void btlPanelSetValueText(u8 *arg0, s32 arg1);
-    extern s32 func_0022d200(u8 *action);
-    extern s32 func_0022d540(u8 *action, u8 *handles);
-    extern s32 func_0022e4f0(u8 *arg0, s32 arg1);
-    extern s32 func_0022eba0(u8 *packet);
+    extern s32 btlActionSelectFormationSlot(u8 *action);
+    extern s32 btlActionHasFormationSlot(u8 *action, u8 *handles);
+    extern s32 btlActionMatchesSkill(u8 *arg0, s32 arg1);
+    extern s32 btlUnitApplyPacketEffects(u8 *packet);
     extern s32 func_0022f8b0(u8 *arg0, s32 arg1);
-    extern s32 func_0022f950(u8 *arg0, u8 *arg1);
+    extern s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1);
     extern s32 btlBossActionBlocked();
     extern s32 btlBossSkillAllowed(u8 *arg0);
     extern u16 datCalcGetHp(s32 unit);
@@ -4099,7 +4099,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             }
             skillU16 = skill;
             isSkill16 = ((s16)datCalcSkillElement(NULL, (u16)skillU16) == 0x10);
-            if ((s32)(func_0022d540(arg0, (u8 *)effectHandles)) == (s32)(0)) {
+            if ((s32)(btlActionHasFormationSlot(arg0, (u8 *)effectHandles)) == (s32)(0)) {
                 btlState3_33 = (u8 *)(iGpffffb3ac);
                 effectHandles[0] = (*(s32 *)((u8 *)btlState3_33 + 0xD30));
                 effectHandles[1] = (*(s32 *)((u8 *)btlState3_33 + 0xD34));
@@ -4113,7 +4113,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     randomFlag = 1;
                 }
             }
-            if (((s32)(func_0022f950(arg0, linkedUnit)) != (s32)(0)) || (*(s32 *)(iGpffffb3ac + 0x10) & 0x40)) {
+            if (((s32)(btlUnitSkillBlocked(arg0, linkedUnit)) != (s32)(0)) || (*(s32 *)(iGpffffb3ac + 0x10) & 0x40)) {
                 randomFlag = 1;
             }
             if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x4000) {
@@ -4419,7 +4419,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             animBlend = 3;
         }
         if ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) == (s32)(1)) {
-            if ((s32)(func_0022e4f0(arg0, skillIndex)) != (s32)(0)) {
+            if ((s32)(btlActionMatchesSkill(arg0, skillIndex)) != (s32)(0)) {
                 animBlend = 2;
                 sp30C = 0;
                 sp2C0 = 1;
@@ -4434,7 +4434,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             }
         }
         if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x100)) {
-            if ((s32)(func_0022fa90(arg0, animMotion)) != (s32)(0)) {
+            if ((s32)(btlUnitSlotIsOpen(arg0, animMotion)) != (s32)(0)) {
                 animPkt45 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, animMotion, 6, animSpeed, animBlend));
                 animPacket = (BtlPacketTiming *)(animPkt45);
                 animPkt45->ownerId = actionId;
@@ -4483,7 +4483,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             btlPacketEnqueue((u8 *)cameraPkt50, 0);
         }
         if ((skillFlag2 == 0) && (noOverride == 0)) {
-            followState = (s32)(func_0022d200(arg0));
+            followState = (s32)(btlActionSelectFormationSlot(arg0));
             if (followState == 0) {
                 followState = *(s32 *)((u8 *)iGpffffb3ac + 0xD40);
             }
@@ -5055,7 +5055,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     btlPacketEnqueue((u8 *)rotatePkt106, 1);
                 }
                 if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-                    pkt107 = (BtlPacketTiming *)(btlPacketAllocZeroed((void *)func_0022eba0, (void *)arg0));
+                    pkt107 = (BtlPacketTiming *)(btlPacketAllocZeroed((void *)btlUnitApplyPacketEffects, (void *)arg0));
                     pkt107->queue = 5;
                     pkt107->startTime = animPacket->endTime;
                     pkt107->delay = hitDelay;

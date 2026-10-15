@@ -108,12 +108,12 @@ extern void func_002bd3c0(void);
 extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
 extern void func_002bd3e0(void);
 extern void func_002bd410(void);
-extern s32 func_0022bad0(u8 *arg0, s16 arg1);
-extern s32 func_0022bc80(s32 arg0);
+extern s32 btlUnitStatusWindowShow(u8 *arg0, s16 arg1);
+extern s32 btlTaskSlotIsLinked(s32 arg0);
 extern s32 func_001fa7a0(s32 *arg0);
 extern s32 func_001fa940(void);
 extern s32 func_001faa00(void);
-extern s32 func_0022bd00(void);
+extern s32 btlTaskSlotIsSet(void);
 extern s32 func_00120ee0(s32 arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern void datCalcClearStatusBlocked(s32 arg0);
@@ -2224,42 +2224,42 @@ void func_001faa60(void) {
 // FUN_001FAAA0
 s32 func_001faaa0(u8 *arg0) {
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-        return func_0022bad0(arg0, 0);
+        return btlUnitStatusWindowShow(arg0, 0);
     }
     return 0;
 }
 // FUN_001FAAF0
 s32 func_001faaf0(void) {
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-        return func_0022bc80(0);
+        return btlTaskSlotIsLinked(0);
     }
     return 0;
 }
 // FUN_001FAB40
 s32 func_001fab40(u8 *arg0) {
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-        return func_0022bad0(arg0, 1);
+        return btlUnitStatusWindowShow(arg0, 1);
     }
     return 0;
 }
 // FUN_001FAB90
 s32 func_001fab90(void) {
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-        return func_0022bc80(1);
+        return btlTaskSlotIsLinked(1);
     }
     return 0;
 }
 // FUN_001FABE0
 s32 func_001fabe0(u8 *arg0) {
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-        return func_0022bad0(arg0, 2);
+        return btlUnitStatusWindowShow(arg0, 2);
     }
     return 0;
 }
 // FUN_001FAC30
 s32 func_001fac30(void) {
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-        return func_0022bc80(2);
+        return btlTaskSlotIsLinked(2);
     }
     return 0;
 }
@@ -2272,7 +2272,7 @@ s32 func_001fac80(u8 *arg0)
     if ((*(s32 *)(base + 0xC) & 0x200000) == 0) {
         goto return_zero;
     }
-    if (func_0022bd00() == 0) {
+    if (btlTaskSlotIsSet() == 0) {
         base = iGpffffb3ac;
         if (*(s32 *)(base + 0xB40) != 0) {
             ((void (*)(void *))(*(void **)(base + 0xB40)))(
@@ -2280,7 +2280,7 @@ s32 func_001fac80(u8 *arg0)
             return 1;
         }
     }
-    return func_0022bad0(arg0, 3);
+    return btlUnitStatusWindowShow(arg0, 3);
 return_zero:
     return 0;
 }
@@ -2293,7 +2293,7 @@ s32 func_001fad10(void)
 
     result = 0;
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-        if (func_0022bd00() == 0) {
+        if (btlTaskSlotIsSet() == 0) {
             base = iGpffffb3ac;
             callback = *(s32 (**)(s32))(base + 0xB44);
             if (callback != NULL) {
@@ -2306,7 +2306,7 @@ s32 func_001fad10(void)
             }
         }
         if (result == 0) {
-            result = func_0022bc80(3);
+            result = btlTaskSlotIsLinked(3);
         }
     }
     return result;
@@ -2314,14 +2314,14 @@ s32 func_001fad10(void)
 // FUN_001FADC0
 s32 func_001fadc0(u8 *arg0) {
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-        return func_0022bad0(arg0, 4);
+        return btlUnitStatusWindowShow(arg0, 4);
     }
     return 0;
 }
 // FUN_001FAE10
 s32 func_001fae10(void) {
     if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-        return func_0022bc80(4);
+        return btlTaskSlotIsLinked(4);
     }
     return 0;
 }

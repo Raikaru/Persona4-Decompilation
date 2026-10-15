@@ -39,7 +39,7 @@ typedef struct BtlCamera {
     BtlAction* action;
 } BtlCamera;
 
-void func_00225740(BtlCamera* camera);
+void btlCameraFrameUnitPair(BtlCamera* camera);
 
 
 
@@ -90,7 +90,7 @@ void func_00225e00(BtlCamera* camera)
     action = camera->action;
     if (((action != NULL) && ((action->unk_1a & 1) != 0)) &&
         (action->unit->genus != 0)) {
-        func_00225740(camera);
+        btlCameraFrameUnitPair(camera);
     }
     return;
 }

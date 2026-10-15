@@ -74,7 +74,7 @@ static inline s32 func_001a_fix_var(s32 value)
 
 void btlActionFinishPresentation(BtlAction *action);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern void func_0022db90(u8 *arg0);
+extern void btlUnitSelectRecordTable(u8 *arg0);
 extern void btlTargetClearWork(void *arg0);
 extern void btlDamageStart(u8 *arg0, u8 *arg1);
 
@@ -159,7 +159,7 @@ void btlActionStartInit(BtlAction *action) {
         }
         otherAction = otherAction->next;
     }
-    func_0022db90((u8 *)action);
+    btlUnitSelectRecordTable((u8 *)action);
     if (action->flags & 0x8000) {
         btlActionSetState(action, 0x21);
         return;

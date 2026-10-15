@@ -80,7 +80,7 @@ extern f32 D_00881418[];
 extern f32 fGpffffb454;
 extern u8 D_00609E40[];
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
-extern u8 *func_0022ced0(s32 arg0);
+extern u8 *btlFormationGetRecord(s32 arg0);
 extern s32 scrFindPrcdIdxByName(s32 arg0, s32 arg1);
 extern s32 btlTargetSpawnActionProc(u8 *arg0);
 extern u8 *iGpffffb428;
@@ -124,7 +124,7 @@ u8 *func_001ebb00(s32 arg0, s32 arg1, u8 *arg2) {
         *(s32 *)(temp_16 + 0xC) = (s32)iGpffffb42c;
         break;
     case 3:
-        *(s32 *)(temp_16 + 0xC) = (s32)func_0022ced0(0);
+        *(s32 *)(temp_16 + 0xC) = (s32)btlFormationGetRecord(0);
         break;
     }
     *(s32 *)(temp_16 + 0x0) = arg0;

@@ -4038,20 +4038,20 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     extern void func_0036e810(s32 arg0);
     extern s32 btlResultSimpleIsDone(s32 arg0);
     extern void btlResultSimpleOnConfirm(s32 arg0);
-    extern s32 func_002230e0(s32 arg0);
-    extern s32 func_00223730(s32 arg0);
-    extern s32 func_00223f40(s32 arg0);
-    extern s32 func_00223240(KwlnTask *task);
-    extern void func_002231e0(KwlnTask *task);
-    extern s32 func_00223890(KwlnTask *task);
-    extern void func_00223830(KwlnTask *task);
-    extern s32 func_00224080(KwlnTask *task);
-    extern void func_00224040(KwlnTask *task);
+    extern s32 btlLogoTitleCreate(s32 arg0);
+    extern s32 btlResultOverlayCreate(s32 arg0);
+    extern s32 btlResultSummaryCreate(s32 arg0);
+    extern s32 btlLogoTitleIsReady(KwlnTask *task);
+    extern void btlLogoTitleAdvance(KwlnTask *task);
+    extern s32 btlResultOverlayIsReady(KwlnTask *task);
+    extern void btlResultOverlayStart(KwlnTask *task);
+    extern s32 btlResultSummaryIsReady(KwlnTask *task);
+    extern void btlResultSummaryStart(KwlnTask *task);
     extern s32 btlShuffleFindTask(void);
-    extern s32 func_00221910(void);
-    extern s32 func_00223270(void);
-    extern s32 func_002238c0(void);
-    extern s32 func_002240b0(void);
+    extern s32 btlLogoTaskExists(void);
+    extern s32 btlLogoTitleExists(void);
+    extern s32 btlResultOverlayExists(void);
+    extern s32 btlResultSummaryExists(void);
     u8 *work;
     s32 flags;
     s32 ready;
@@ -4110,16 +4110,16 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
             flags = *(s32 *)(work + 0x60);
             if ((flags & 2) != 0) {
                 btlXpApplyAwards(work + 0x60, work + 8);
-                *(s32 *)(work + 0x940) = func_002230e0(arg0);
+                *(s32 *)(work + 0x940) = btlLogoTitleCreate(arg0);
                 *(s32 *)(work + 4) = 6;
             } else if ((flags & 8) != 0) {
                 btlXpApplyAwards(work + 0x60, work + 8);
-                *(s32 *)(work + 0x944) = func_00223730(arg0);
+                *(s32 *)(work + 0x944) = btlResultOverlayCreate(arg0);
                 *(s32 *)(work + 4) = 7;
             } else if ((flags & 0x10) != 0) {
                 btlXpApplyAwards(work + 0x60, work + 8);
                 btlXpAddRosterExp(work + 0x60);
-                *(s32 *)(work + 0x948) = func_00223f40(arg0);
+                *(s32 *)(work + 0x948) = btlResultSummaryCreate(arg0);
                 *(s32 *)(work + 4) = 8;
             } else {
                 btlXpApplyAwards(work + 0x60, work + 8);
@@ -4130,16 +4130,16 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
         }
         break;
     case 6:
-        if (func_00223240(*(KwlnTask **)(work + 0x940)) == 0) {
-            func_002231e0(*(KwlnTask **)(work + 0x940));
+        if (btlLogoTitleIsReady(*(KwlnTask **)(work + 0x940)) == 0) {
+            btlLogoTitleAdvance(*(KwlnTask **)(work + 0x940));
             *(s32 *)(work + 0x940) = 0;
             flags = *(s32 *)(work + 0x60);
             if ((flags & 8) != 0) {
-                *(s32 *)(work + 0x944) = func_00223730(arg0);
+                *(s32 *)(work + 0x944) = btlResultOverlayCreate(arg0);
                 *(s32 *)(work + 4) = 7;
             } else if ((flags & 0x10) != 0) {
                 btlXpAddRosterExp(work + 0x60);
-                *(s32 *)(work + 0x948) = func_00223f40(arg0);
+                *(s32 *)(work + 0x948) = btlResultSummaryCreate(arg0);
                 *(s32 *)(work + 4) = 8;
             } else {
                 btlXpAddRosterExp(work + 0x60);
@@ -4149,12 +4149,12 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
         }
         break;
     case 7:
-        if (func_00223890(*(KwlnTask **)(work + 0x944)) == 0) {
-            func_00223830(*(KwlnTask **)(work + 0x944));
+        if (btlResultOverlayIsReady(*(KwlnTask **)(work + 0x944)) == 0) {
+            btlResultOverlayStart(*(KwlnTask **)(work + 0x944));
             *(s32 *)(work + 0x944) = 0;
             flags = *(s32 *)(work + 0x60);
             if ((flags & 0x10) != 0) {
-                *(s32 *)(work + 0x948) = func_00223f40(arg0);
+                *(s32 *)(work + 0x948) = btlResultSummaryCreate(arg0);
                 *(s32 *)(work + 4) = 8;
             } else {
             btlXpAddPartyExp((s32)(work + 0x60));
@@ -4163,18 +4163,18 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
         }
         break;
     case 8:
-        if (func_00224080(*(KwlnTask **)(work + 0x948)) == 0) {
-            func_00224040(*(KwlnTask **)(work + 0x948));
+        if (btlResultSummaryIsReady(*(KwlnTask **)(work + 0x948)) == 0) {
+            btlResultSummaryStart(*(KwlnTask **)(work + 0x948));
             *(s32 *)(work + 0x948) = 0;
             *(s32 *)(work + 4) = 9;
         }
         break;
     case 9:
         if (btlShuffleFindTask() == 0 &&
-            func_00221910() == 0 &&
-            func_00223270() == 0 &&
-            func_002238c0() == 0 &&
-            func_002240b0() == 0) {
+            btlLogoTaskExists() == 0 &&
+            btlLogoTitleExists() == 0 &&
+            btlResultOverlayExists() == 0 &&
+            btlResultSummaryExists() == 0) {
             *(s32 *)(work + 4) = 0;
         }
         break;

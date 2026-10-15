@@ -169,7 +169,7 @@ extern void func_001b08d0(void *arg0);
 extern void btlActionSetUnit(u8 *arg0, u8 *arg1);
 extern u8 *func_001b0930(void);
 extern s32 func_001b0d70(u8 *arg0);
-extern s32 func_0022e630(u8 *arg0);
+extern s32 btlUnitApplyEncounterRoster(u8 *arg0);
 extern s32 func_00243d80(u8 *arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void func_0019f1d0(u8 *arg0);
@@ -713,7 +713,7 @@ u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2)
     default:
         break;
     }
-    func_0022e630(var_18);
+    btlUnitApplyEncounterRoster(var_18);
     return var_18;
 }
 

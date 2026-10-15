@@ -192,7 +192,7 @@ s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
+        result = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
         switch (result) {
         case -1:
             goto compute;
@@ -244,7 +244,7 @@ s16 btlUnitMotionFollowFrames(u8 *arg0, u16 arg1, f32 fparg0)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
+        result = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
         switch (result) {
         case -1:
             goto compute;
@@ -308,7 +308,7 @@ s16 btlUnitMotionModelFrames(u8 *arg0, u16 arg1, f32 fparg0)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
+        result = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
         switch (result) {
         case -1:
             goto compute;
@@ -364,7 +364,7 @@ s16 func_001996d0(u8 *arg0, u16 arg1)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
+        result = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
         switch (result) {
         case -1:
             goto compute;
@@ -533,7 +533,7 @@ classification_done_001999f0:
     switch (type) {
     case 1:
         {
-            value = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
+            value = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
         }
         switch (value) {
         case -1:

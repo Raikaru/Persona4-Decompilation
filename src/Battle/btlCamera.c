@@ -285,7 +285,7 @@ s32 btlCameraStateRecordFlag(u8 *param_1)
 // FUN_001BC660
 void btlCameraSetState(s32 state, BtlAction* action, u32 param_3)
 {
-    extern u8 *func_0022cdb0(s32 arg0);
+    extern u8 *btlEncounterGetRecord(s32 arg0);
     extern void func_001bd300(void);
     extern u8 D_005F74C0[];
     u8 *entry;
@@ -295,7 +295,7 @@ void btlCameraSetState(s32 state, BtlAction* action, u32 param_3)
     s32 n;
     void (*callback)(u8 *);
 
-    if ((entry = func_0022cdb0(state)) == NULL) {
+    if ((entry = btlEncounterGetRecord(state)) == NULL) {
         entry = &D_005F74C0[(u16)state * 0x14];
     }
     key = (u16)state;
