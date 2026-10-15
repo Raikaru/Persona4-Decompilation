@@ -21,9 +21,9 @@ extern s32 D_008815B0[];
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void MT_Scene_SetResMotionSlot(u32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 extern s32 func_0027bf10(s32 arg0);
-extern s32 func_00107930(s64 arg0);
+extern s32 cmmCommunityFindActiveSlotInGroup(s64 arg0);
 extern u8 *func_00246c20(s32 arg0);
-extern s32 func_00108e10(void);
+extern s32 cmmCommunityGetCurrentId(void);
 extern u8 *func_00246830(s32 arg0);
 static inline u32 add_retail_ptr(u32 offset, u32 base) {
     return offset + base;
@@ -55,7 +55,7 @@ extern u8 iGpffffa738;
 extern s32 func_001105b0(s32 arg0);
 extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
 extern s8 D_0063BAB0[];
-extern s32 func_00108e10(void);
+extern s32 cmmCommunityGetCurrentId(void);
 extern void itfMesWindowFree(s32 arg0);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
@@ -409,7 +409,7 @@ s32 func_00270780(s32 arg0, u8 *arg1) {
         var_2 = (temp_3_2 - 1) & 0xFF;
     }
     key = ((var_2 & 0xFF) << 8) | (low & 0xFF);
-    temp_17 = func_00107930((s16)key);
+    temp_17 = cmmCommunityFindActiveSlotInGroup((s16)key);
     if (frFontGetMode() != 0) {
         return 0;
     }
@@ -514,7 +514,7 @@ s32 func_00270a80(s32 arg0, u8 *arg1) {
         return 0;
     }
     if (temp_17 == 0) {
-        var_2_2 = func_00246830(func_00108e10() & 0xFFFF);
+        var_2_2 = func_00246830(cmmCommunityGetCurrentId() & 0xFFFF);
     } else {
         var_2_2 = func_00246830((u16)temp_17);
     }
@@ -571,7 +571,7 @@ s32 func_00270b80(s32 arg0, u8 *arg1)
     if (frFontGetMode() != 0)
         return 0;
     if (first == 0) {
-        first = (u16)func_00108e10();
+        first = (u16)cmmCommunityGetCurrentId();
     }
     func_00108590(first & 0xFFFF, second & 0xFFFF, -1);
     return 0;
@@ -648,7 +648,7 @@ s32 func_00270ca0(s32 arg0, u8 *arg1)
     if (frFontGetMode() != 0)
         return 0;
     if (first == 0) {
-        first = (u16)func_00108e10();
+        first = (u16)cmmCommunityGetCurrentId();
     }
     if (func_001077f0((u16)first) != 0)
         func_00108590((u16)first, (u16)second, third);
@@ -661,7 +661,7 @@ s32 func_00270e30(void) {
     if (frFontGetMode() != 0) {
         return 0;
     }
-    temp_2 = func_00108e10() & 0xFFFF;
+    temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
         func_00107ce0(temp_2 & 0xFFFF);
     }
@@ -675,7 +675,7 @@ s32 func_00270e90(void) {
     if (frFontGetMode() != 0) {
         return 0;
     }
-    temp_2 = func_00108e10() & 0xFFFF;
+    temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
         func_00107dc0(temp_2 & 0xFFFF);
     }
@@ -689,7 +689,7 @@ s32 func_00270ef0(void) {
     if (frFontGetMode() != 0) {
         return 0;
     }
-    temp_2 = func_00108e10() & 0xFFFF;
+    temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
         func_00107f00(temp_2 & 0xFFFF);
     }
@@ -703,7 +703,7 @@ s32 func_00270f50(void) {
     if (frFontGetMode() != 0) {
         return 0;
     }
-    temp_2 = func_00108e10() & 0xFFFF;
+    temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
         func_00107fe0(temp_2 & 0xFFFF);
     }

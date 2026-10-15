@@ -19,7 +19,7 @@ extern s32 func_00107c80(s32 arg0);
 extern s32 func_00107ea0(s32 arg0);
 extern s32 cmmCommunityFindRecord(s32 arg0);
 extern void func_00108b60(s32 arg0, s32 arg1);
-extern s32 func_00108e10(void);
+extern s32 cmmCommunityGetCurrentId(void);
 extern f32 D_005E42D8[];
 extern f32 D_005E42DC[];
 extern f32 D_005E42E0[];
@@ -484,8 +484,9 @@ s32 func_00107890(s32 arg0)
     return 0;
 }
 
+// Community active slot: returns the first active slot id in group arg0 (0 = slots 1-2, 1 = slots 3-4) as tested by func_00247dd0, or 0 when none is active.
 // FUN_00107930
-s32 func_00107930(s32 arg0)
+s32 cmmCommunityFindActiveSlotInGroup(s32 arg0)
 {
     switch (arg0)
     {
@@ -615,8 +616,9 @@ s32 func_00107b70(s32 arg0)
    Branch-shape floor. */
 /* Community-slot scan family; see the note above func_001076e0. nd 38.
    Committed at nd 38. */
+// Community record flag: sets bit 0x4 in the record of community arg0; does nothing when the id has no record.
 // FUN_00107BD0
-void func_00107bd0(s32 arg0) {
+void cmmCommunitySetRecordFlag4(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -994,7 +996,7 @@ u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
     *(Vec3 *)vals.durations = *(Vec3 *)D_005E42E8;
     *(Vec3 *)vals.bytes = *(Vec3 *)D_005E42F8;
     if (!(arg0 & 0xFFFF)) {
-        arg0 = func_00108e10() & 0xFFFF;
+        arg0 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (!(arg0 & 0xFFFF)) {
         kAssertFail(&D_005E42C8[0], 0x21F);
@@ -1246,14 +1248,16 @@ ret:
     cmmCommunitySetFlagBand(arg0, *(u16 *)(r + 6) + 3);
 }
 
+// Community task noop: the first task callback passed to kwlnTaskCreate; does nothing and returns 0.
 // FUN_00108CA0
-s32 func_00108ca0(u8 *unusedTask)
+s32 cmmCommunityTaskNoop(u8 *unusedTask)
 {
     return 0;
 }
 
+// Community set current: replaces the current community task with a new one for id arg0.
 // FUN_00108CF0
-void func_00108cf0(s32 arg0)
+void cmmCommunitySetCurrent(s32 arg0)
 {
     void *temp_2;
 
@@ -1261,11 +1265,12 @@ void func_00108cf0(s32 arg0)
     chkmemAllocSiteTag(D_005E42C8, 0x271);
     temp_2 = D_008873F4[0](1, 0x20, 0x40000);
     *(s16 *)temp_2 = arg0;
-    kwlnTaskCreate((const void *)(D_005E4308), 0xF, 0, 0, func_00108ca0, func_00108cb0, (u8 *)(temp_2));
+    kwlnTaskCreate((const void *)(D_005E4308), 0xF, 0, 0, cmmCommunityTaskNoop, func_00108cb0, (u8 *)(temp_2));
 }
 
+// Community current work: returns the work pointer of the current community record, or 0 when none is set.
 // FUN_00108DC0
-s32 func_00108dc0(void)
+s32 cmmCommunityGetCurrentWork(void)
 {
     s32 ret = kwlnTaskGetTaskByName(D_005E4308);
     if (ret != 0)
@@ -1275,8 +1280,9 @@ s32 func_00108dc0(void)
     return 0;
 }
 
+// Community current id: returns the id of the current community record, or 0 when none is set.
 // FUN_00108E10
-s32 func_00108e10(void)
+s32 cmmCommunityGetCurrentId(void)
 {
     s32 r = kwlnTaskGetTaskByName(D_005E4308);
     if (r != 0)
@@ -1298,8 +1304,9 @@ s32 func_00108e10(void)
     return r;
 }
 
+// Community secondary: returns the u16 at +0x10 of the current record (field meaning not yet recovered), or 0 when no current record is set.
 // FUN_00108E70
-s32 func_00108e70(void)
+s32 cmmCommunityGetCurrentSecondary(void)
 {
     s32 r = kwlnTaskGetTaskByName(D_005E4308);
     if (r != 0)
@@ -1321,14 +1328,16 @@ s32 func_00108e70(void)
     return r;
 }
 
+// Community table head set: stores arg0 in the first u16 of the community record table (D_0079740C).
 // FUN_00108ED0
-void func_00108ed0(u16 arg0)
+void cmmCommunitySetTableHead(u16 arg0)
 {
     D_0079740C[0] = arg0;
 }
 
+// Community table head: returns the first u16 of the community record table (D_0079740C).
 // FUN_00108EE0
-u16 func_00108ee0(void)
+u16 cmmCommunityGetTableHead(void)
 {
     return D_0079740C[0];
 }
@@ -1337,8 +1346,9 @@ u16 func_00108ee0(void)
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
    (loop floor; the descending switch and call loop match otherwise).
    Branch-shape floor. */
+// Community advance form: sets the upgraded form id of the record for arg0 (3->4, 5->6, 0B->0C, 0E->0F, 15->16, 19->1A, 1B->1C), clears flag bands 0-12, and refreshes that record's flags.
 // FUN_00108EF0
-void func_00108ef0(s32 arg0) {
+void cmmCommunityAdvanceForm(s32 arg0) {
     s32 id;
     u8 *r;
     u8 *p;
@@ -1403,20 +1413,23 @@ ret:
 }
 
 
+// Community total add: adds arg0 to the running total (D_00797560).
 // FUN_001090C0
-void func_001090c0(s32 arg0)
+void cmmCommunityAddTotal(s32 arg0)
 {
     D_00797560[0] += arg0;
 }
 
+// Community total: returns the running total (D_00797560).
 // FUN_001090E0
-s32 func_001090e0(void)
+s32 cmmCommunityGetTotal(void)
 {
     return D_00797560[0];
 }
 
+// Community entry value: looks up the current entry's value in the table from func_00246ba0, indexed by func_00104f50 over D_007973F4; asserts the index is positive. The extern passes an argument that this definition ignores.
 // FUN_00109100
-s32 func_00109100(void)
+s32 cmmCommunityGetCurrentEntryValue(void)
 {
     u8 *work;
     s16 id;
