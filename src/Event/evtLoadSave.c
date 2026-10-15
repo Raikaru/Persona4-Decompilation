@@ -16,7 +16,7 @@ typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 extern s32 MT_Scene_GetResManager(void);
 extern u16 func_00145480(u16);
 extern void func_0026bfc0(f32 *, f32, f32, f32, f32, f32 *);
-extern u8 *func_00287060(s32, u8 *, u16, u8 *);
+extern u8 *evtNodeAllocWithRes(s32, u8 *, u16, u8 *);
 extern void func_0028be70(u8 *, s32);
 extern u8 *func_00286780(u8 *, u16, u8 *);
 extern void func_00294610(u8 *, u8 *, s32);
@@ -26,9 +26,9 @@ extern void func_0047aa30(s32, u8 *);
 extern s32 func_002919d0(s32);
 extern void func_00269c20(u16, s32);
 extern void func_0046d730(u8 *, s32);
-extern void func_00286ff0(u8 *, u16, u16 *);
+extern void evtNodeSetRes(u8 *, u16, u16 *);
 extern u8 *mdlGetColor(s32);
-extern u8 *func_00286f00(s32, u8 *);
+extern u8 *evtNodeAlloc(s32, u8 *);
 extern void func_0028d110(u8 *);
 extern void memcpy(u8 *, u8 *, s32);
 extern u8 D_005DC7D0[];
@@ -285,7 +285,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         func_0028be70(arg1, 0);
         temp_3 = *(u8 **)(arg1 + 0x12C);
         if (temp_3 != NULL) {
-            dest = (u8 *)func_00287060(0x21, arg1, *(u16 *)temp_3, NULL);
+            dest = (u8 *)evtNodeAllocWithRes(0x21, arg1, *(u16 *)temp_3, NULL);
             *(s32 *)(dest + 8) = -1;
             *(EventVector *)(dest + 0x38) = *(EventVector *)&stack.vec[2];
             *(EventVector *)(dest + 0x44) = *(EventVector *)&stack.vec[0];
@@ -410,7 +410,7 @@ void func_002951c0(u8 *arg0, u8 *arg1) {
     u8 *q;
 
     for (i = 0; i < 3; i++) {
-        arr[i] = func_00286f00(0x24, arg1);
+        arr[i] = evtNodeAlloc(0x24, arg1);
         *(s32 *)(arr[i] + 8) = -1;
         *(s32 *)(arr[i] + 0x34) = 0;
         *(s32 *)(arr[i] + 4) = i;
@@ -502,7 +502,7 @@ void func_002954f0(u8 *arg0, u8 *arg1) {
     u8 *var_3_2;
     s32 *var_4;
     u8 *var_4_2;
-    temp_17 = (u8 *)(func_00286f00(0x2F, arg1));
+    temp_17 = (u8 *)(evtNodeAlloc(0x2F, arg1));
     for (var_16 = 0; var_16 < *(s32 *)(arg0 + 0xAC); var_16++) {
         temp_5 = (s32)(*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14));
         if (temp_5 == 4) {
@@ -603,12 +603,12 @@ void func_00295740(s32 arg0, u8 *arg1) {
             if (temp_2_3 == NULL) {
                 func_0046d730(D_0063CAB0, 0x9C5);
             }
-            func_00286ff0(arg1, temp_16, temp_2_3);
+            evtNodeSetRes(arg1, temp_16, temp_2_3);
             temp_2_4 = (u8 *)(mdlGetColor(temp_17));
             *(Rgba8 *)(arg1 + 0x50) = *(Rgba8 *)(temp_2_4);
             return;
         }
-        func_00286ff0(arg1, 0U, NULL);
+        evtNodeSetRes(arg1, 0U, NULL);
     }
 }
 
@@ -633,7 +633,7 @@ void func_00295b80(u8 *arg0, u8 *arg1) {
     s32 idx;
 
     for (i = 0; i < 3; i++) {
-        arr[i] = func_00286f00(0x34, arg1);
+        arr[i] = evtNodeAlloc(0x34, arg1);
         *(s32 *)(arr[i] + 8) = -1;
         *(s32 *)(arr[i] + 0x34) = 0;
         *(s32 *)(arr[i] + 4) = i;
@@ -701,7 +701,7 @@ void func_00295910(u8 *arg0, u8 *arg1) {
     u8 *var_3_2;
 
     for (var_20 = 0; var_20 < 8; var_20++) {
-        temp_2 = (u8 *)(func_00286f00(0x30, arg1));
+        temp_2 = (u8 *)(evtNodeAlloc(0x30, arg1));
         *(s32 *)(temp_2 + 4) = var_20;
         for (var_19 = 0; var_19 < *(s32 *)(arg0 + 0xAC); var_19++) {
             temp_2_2 = (s32)(*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14));
@@ -783,7 +783,7 @@ void func_00295db0(u8 *arg0, u8 *arg1) {
     s32 var_3_3;
     s32 temp_2_3;
     for (outer = 0; outer < 3; outer++) {
-        temp_2 = func_00286f00(0xA, arg1);
+        temp_2 = evtNodeAlloc(0xA, arg1);
         *(s32 *)(temp_2 + 4) = outer;
         for (inner = 0; inner < *(s32 *)(arg0 + 0xAC); inner++) {
             type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);

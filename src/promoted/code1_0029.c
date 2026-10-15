@@ -434,9 +434,9 @@ void func_00294280(u8 *arg0)
     extern Resrc *MT_Scene_GetRes(u16 arg0);
     extern Resrc *resrcMngGetListHead(ResrcManager *arg0, u8 arg1);
     extern u32 func_001475c0(u8 *arg0, u8 arg1);
-    extern void *func_00286f00(s32 arg0, s32 arg1);
-    extern void func_00286ff0(s32 arg0, s32 arg1, s32 arg2);
-    extern void *func_00287060(s32 arg0, u8 *arg1, u16 arg2, s32 arg3);
+    extern void *evtNodeAlloc(s32 arg0, s32 arg1);
+    extern void evtNodeSetRes(s32 arg0, s32 arg1, s32 arg2);
+    extern void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3);
     extern void func_0028f530(u8 *arg0);
     extern void func_00440b68(char *fmt, ...);
     extern f64 func_0044dcd8(f32 arg0);
@@ -472,8 +472,8 @@ void func_00294280(u8 *arg0)
     if (temp_2 != 0) {
         temp_2_2 = (u16 *)MT_Scene_GetRes(0x400);
         if (temp_2_2 != NULL) {
-            temp_2_3 = (s32)func_00286f00(1, (s32)arg0);
-            func_00286ff0(temp_2_3, 0x400, (s32)temp_2_2);
+            temp_2_3 = (s32)evtNodeAlloc(1, (s32)arg0);
+            evtNodeSetRes(temp_2_3, 0x400, (s32)temp_2_2);
             *(s32 *)((u8 *)temp_2_3 + 8) = -1;
             value_2 = *(f32 *)((u8 *)temp_2_2 + 4);
             value_1 = *(f32 *)((u8 *)temp_2_2 + 8);
@@ -501,7 +501,7 @@ void func_00294280(u8 *arg0)
             *(u8 *)((u8 *)temp_2_3 + 0x52) = (u8)temp_20;
             *(u8 *)((u8 *)temp_2_3 + 0x53) = (u8)temp_19;
         } else {
-            func_00286ff0((s32)func_00286f00(1, (s32)arg0), 0x400, 0);
+            evtNodeSetRes((s32)evtNodeAlloc(1, (s32)arg0), 0x400, 0);
         }
         temp_20 = func_001475c0((u8 *)temp_2, 3);
         temp_2_2b = (u8 *)resrcMngGetListHead((ResrcManager *)temp_2, 3);
@@ -510,7 +510,7 @@ void func_00294280(u8 *arg0)
         goto loop_6_test;
 loop_6_body:
         func_0028f530(temp_2_2b);
-        temp_2_3 = (s32)func_00287060(
+        temp_2_3 = (s32)evtNodeAllocWithRes(
             1, arg0, *(u16 *)temp_2_2b, (s32)temp_2_2b);
         *(s32 *)((u8 *)temp_2_3 + 8) = -1;
         value_2 = *(f32 *)(temp_2_2b + 4);
@@ -546,10 +546,10 @@ loop_6_test:
         temp_2_3 = 0;
         goto loop_9_test;
 loop_9_body:
-        temp_2_7 = func_00286f00(1, (s32)arg0);
+        temp_2_7 = evtNodeAlloc(1, (s32)arg0);
         temp_4 = temp_2_3 + 0x384;
         temp_4 = (temp_4 & 0x3FF) | 0xC00;
-        func_00286ff0((s32)temp_2_7, temp_4 & 0xFFFF, 0);
+        evtNodeSetRes((s32)temp_2_7, temp_4 & 0xFFFF, 0);
         temp_2_3++;
 loop_9_test:
         if (temp_2_3 < 3)
@@ -595,7 +595,7 @@ loop_9_copy:
 void func_002962f0(u8 *arg0, u8 *arg1)
 {
   extern s32 func_00290e10(s32 *arg0);
-  extern u8 *func_00286f00(s32 arg0, u8 *arg1);
+  extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
   extern u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2);
   typedef struct { s16 x, y, z, w; } Pos4_962f0;
   s32 temp_3;
@@ -614,7 +614,7 @@ void func_002962f0(u8 *arg0, u8 *arg1)
   {
     return;
   }
-  temp_17 = func_00286f00(4, arg1);
+  temp_17 = evtNodeAlloc(4, arg1);
   var_16 = 0;
   goto loop_test;
 loop_body:
@@ -721,7 +721,7 @@ loop_test:
 void func_00296600(u8 *arg0, u8 *arg1)
 {
   extern u8 *func_00286780();
-  extern u8 *func_00286f00(s32 arg0);
+  extern u8 *evtNodeAlloc(s32 arg0);
   s32 temp_16;
   u8 *new_var3;
   u8 *new_var;
@@ -736,7 +736,7 @@ void func_00296600(u8 *arg0, u8 *arg1)
   u8 *temp_2;
   u8 *temp_3;
   u8 *temp_5;
-  temp_19 = func_00286f00(5);
+  temp_19 = evtNodeAlloc(5);
   if ((*((s32 *) ((*((u8 **) (arg0 + 0x80))) + 0x14))) < 6)
   {
     var_17 = *((s32 *) (arg0 + 0xAC));
@@ -787,7 +787,7 @@ void func_00296600(u8 *arg0, u8 *arg1)
 void func_00296720(u8 *arg0, u8 *arg1)
 {
   extern u8 *func_00286780();
-  extern u8 *func_00286f00(s32 arg0);
+  extern u8 *evtNodeAlloc(s32 arg0);
   s32 temp_16;
   u8 *new_var3;
   u8 *new_var;
@@ -805,7 +805,7 @@ void func_00296720(u8 *arg0, u8 *arg1)
   u8 *temp_2;
   u8 *temp_3;
   u8 *temp_5;
-  temp_19 = func_00286f00(0x13);
+  temp_19 = evtNodeAlloc(0x13);
   if ((*((s32 *) ((*((u8 **) (arg0 + 0x80))) + 0x14))) < 6)
   {
     var_17 = *((s32 *) (arg0 + 0xAC));
@@ -880,7 +880,7 @@ s32 func_00296850(u8 *arg0, u8 *arg1)
   extern void func_00296720(u8 *arg0, u8 *arg1);
   extern void func_00287310(u8 *arg0);
   extern void func_0028d020(s32 arg0, s32 arg1);
-  extern u8 *func_00286f00(s32 arg0, u8 *arg1);
+  extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
   extern u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2);
   extern void func_00440b68(char *fmt, ...);
   extern char D_0063CB00[];
@@ -908,7 +908,7 @@ s32 func_00296850(u8 *arg0, u8 *arg1)
   var_18 = 0;
   goto loop18_test;
 loop18_body:
-  func_00286f00(0x18, arg1);
+  evtNodeAlloc(0x18, arg1);
   var_18 += 1;
 loop18_test:
   if (var_18 < *((s32 *)(arg0 + 0x58))) {
@@ -955,7 +955,7 @@ ll_test:
   {
     u8 *resource_31;
     s32 index_31;
-    resource_31 = func_00286f00(0x31, arg1);
+    resource_31 = evtNodeAlloc(0x31, arg1);
     index_31 = 0;
     goto loop31_test;
   loop31_body:
@@ -1016,7 +1016,7 @@ ll_test:
     }
   }
   func_00294be0(arg0, arg1);
-  temp_18 = func_00286f00(0x22, arg1);
+  temp_18 = evtNodeAlloc(0x22, arg1);
   *((s32 *)(temp_18 + 8)) = -1;
   *((s32 *)(temp_18 + 0x34)) = 0;
   var_19 = 0;
@@ -1064,7 +1064,7 @@ loop22_test:
     {
       u8 *resource_25;
       s32 index_25;
-      resource_25 = func_00286f00(0x25, arg1);
+      resource_25 = evtNodeAlloc(0x25, arg1);
       index_25 = 0;
       goto loop25_test;
   loop25_body:
@@ -1119,7 +1119,7 @@ loop22_test:
   {
     u8 *resource_26;
     s32 index_26;
-    resource_26 = func_00286f00(0x26, arg1);
+    resource_26 = evtNodeAlloc(0x26, arg1);
     index_26 = 0;
     goto loop26_test;
   loop26_body:
@@ -1183,7 +1183,7 @@ loop22_test:
   {
     u8 *resource_32;
     s32 index_32;
-    resource_32 = func_00286f00(0x32, arg1);
+    resource_32 = evtNodeAlloc(0x32, arg1);
     index_32 = 0;
     goto loop32_test;
   loop32_body:
@@ -1237,7 +1237,7 @@ loop22_test:
   {
     u8 *resource_33;
     s32 index_33;
-    resource_33 = func_00286f00(0x33, arg1);
+    resource_33 = evtNodeAlloc(0x33, arg1);
     index_33 = 0;
     goto loop33_test;
   loop33_body:
@@ -1292,7 +1292,7 @@ loop22_test:
   {
     u8 *resource_35;
     s32 index_35;
-    resource_35 = func_00286f00(0x35, arg1);
+    resource_35 = evtNodeAlloc(0x35, arg1);
     index_35 = 0;
     goto loop35_test;
   loop35_body:
@@ -1355,7 +1355,7 @@ loop22_test:
   {
     u8 *resource_37;
     s32 index_37;
-    resource_37 = func_00286f00(0x37, arg1);
+    resource_37 = evtNodeAlloc(0x37, arg1);
     index_37 = 0;
     goto loop37_test;
   loop37_body:
@@ -1418,7 +1418,7 @@ loop22_test:
   {
     u8 *resource_38;
     s32 index_38;
-    resource_38 = func_00286f00(0x38, arg1);
+    resource_38 = evtNodeAlloc(0x38, arg1);
     index_38 = 0;
     goto loop38_test;
   loop38_body:
@@ -1481,7 +1481,7 @@ loop22_test:
   {
     u8 *resource_39;
     s32 index_39;
-    resource_39 = func_00286f00(0x39, arg1);
+    resource_39 = evtNodeAlloc(0x39, arg1);
     index_39 = 0;
     goto loop39_test;
   loop39_body:
@@ -1547,7 +1547,7 @@ loop22_test:
   {
     u8 *resource_36;
     s32 index_36;
-    resource_36 = func_00286f00(0x36, arg1);
+    resource_36 = evtNodeAlloc(0x36, arg1);
     index_36 = 0;
     goto loop36_test;
   loop36_body:
@@ -1602,7 +1602,7 @@ loop22_test:
   {
     u8 *resource_06;
     s32 index_06;
-    resource_06 = func_00286f00(6, arg1);
+    resource_06 = evtNodeAlloc(6, arg1);
     index_06 = 0;
     goto loop06_test;
   loop06_body:
@@ -1668,7 +1668,7 @@ loop22_test:
   {
     u8 *resource_07;
     s32 index_07;
-    resource_07 = func_00286f00(7, arg1);
+    resource_07 = evtNodeAlloc(7, arg1);
     index_07 = 0;
     goto loop07_test;
   loop07_body:
@@ -1731,7 +1731,7 @@ loop22_test:
   {
     u8 *resource_1C;
     s32 index_1C;
-    resource_1C = func_00286f00(0x1C, arg1);
+    resource_1C = evtNodeAlloc(0x1C, arg1);
     index_1C = 0;
     goto loop1C_test;
   loop1C_body:

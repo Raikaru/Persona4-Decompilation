@@ -33,7 +33,7 @@ extern void func_00269c20(s32, s32);
 extern u16 *MT_Scene_GetRes(s32);
 extern s32 func_004782b0(u32 arg0);
 extern u8 *mdlGetColor(s32);
-extern void func_00286ff0(u8 *, s32, u16 *);
+extern void evtNodeSetRes(u8 *, s32, u16 *);
 extern s32 func_00285af0();
 extern u8 *func_00285480();
 extern u8 *func_00285b80();
@@ -100,7 +100,7 @@ s32 func_00298370(u8 *unusedTask) {
         if (temp_2 == NULL) {
             func_0046d730(D_0063CF80, 0x3D);
         }
-        func_00286ff0(temp_2, temp_17, (u16 *)temp_18);
+        evtNodeSetRes(temp_2, temp_17, (u16 *)temp_18);
         temp_2_4 = mdlGetColor(*(s32 *)(temp_18 + 0x164));
         *(EvtColor *)(temp_2 + 0x50) = *(EvtColor *)temp_2_4;
         return -1;

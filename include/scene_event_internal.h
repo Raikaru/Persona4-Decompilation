@@ -74,7 +74,7 @@ s32 func_00290e50(u8 *, s32);
 void func_002852a0(s32 arg0, s32 arg1);
 s32 evtSlotTableIdle(void);
 s32 func_00286430(u8 *arg0);
-void func_00286d80(u32 *, u32 *);
+void evtListInsertSorted(u32 *, u32 *);
 s32 func_002853f0(s32 arg0);
 extern void *func_0028b2a0(int arg0, int arg1);
 void func_0028f990(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3);
