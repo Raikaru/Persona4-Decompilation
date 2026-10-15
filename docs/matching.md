@@ -179,10 +179,10 @@ These are source-shape decisions, not invitations to add pragmas:
 
 | Symptom | Technique (see) | Measured anchor |
 | --- | --- | --- |
-| Integer/float arguments land in the wrong registers or order | Independent ABI counters; [Types and the EE ABI](#types-and-the-ee-abi) | `func_0047f4d0`: pointer-first signature puts `$a0` before `$f12` |
+| Integer/float arguments land in the wrong registers or order | Independent ABI counters; [Types and the EE ABI](#types-and-the-ee-abi) | `mdlBlendVec4Tracks` (was `func_0047f4d0`): pointer-first signature puts `$a0` before `$f12` |
 | A known helper leaves extra saves or a final scheduling residual | Static helper/caller cluster; [Types and the EE ABI](#types-and-the-ee-abi) | `sdkChkmem`: reuniting `func_0044e8d0`, `func_0044e920`, `func_0044e9e0`, and `func_0044ee70` removed the last store/move residual |
 | Private helper removes the spill, but argument setup still swaps a load and move | Stage arguments with scoped `opt_propagation off` | `func_00278d50`: private `func_00278c60` plus staged fixup pointer/size gives 76B matching instructions and a 4B zero tail; helper remains 240B MATCH |
-| Call-crossing spills or frame size are too small | Aggregate snapshots; [Types and the EE ABI](#types-and-the-ee-abi) | `func_0047f040`: two `Pair` snapshots produce retail's `0x20` frame (scalar locals produced `0x10`) |
+| Call-crossing spills or frame size are too small | Aggregate snapshots; [Types and the EE ABI](#types-and-the-ee-abi) | `mdlBlendTrackSamples` (was `func_0047f040`): two `Pair` snapshots produce retail's `0x20` frame (scalar locals produced `0x10`) |
 | Saved-register colors are wrong while the body shape is right | Declaration order; [Register allocation and caching](#register-allocation-and-caching) | `frFont func_002739e0`: declaration-order fix, object/window `724/736`, normalized diff `0` |
 | Loop bases or constants rematerialize in the body | `opt_loop_invariants on`; [Loops](#loops) | `func_00161bb0` nd `45 → 0`; `func_0045b430` nd `8 → 0` |
 | Argument setup order before a call differs | [Argument materialisation](#argument-materialisation--measured-rule) | Emission follows source declaration order of the arguments |
@@ -271,7 +271,7 @@ below are the codegen consequences.
   across the call, even when the retail compiler knew the callee's narrower
   clobber set. Restoring the exact helper body beside its caller and marking
   it `static` lets register-use analysis retain untouched `$t`/FPU argument
-  registers. In `func_0047f4d0`, this removed `$s0`/`$f20`/`$f21` saves and
+  registers. In `mdlBlendVec4Tracks` (was `func_0047f4d0`), this removed `$s0`/`$f20`/`$f21` saves and
   shrank the frame from `0x50` to retail's `0x30`; the adjacent pointer-first
   signature rule then ordered `$a0` before `$f12`.
   Do not internalize a helper while another object still references it: move
@@ -362,14 +362,14 @@ below are the codegen consequences.
   that expression. Compute `left` first and load `addend` into a separate local
   afterward; passing the load expression directly lets b210 hoist it and shifts
   otherwise exact conversion code. This produced retail's final
-  `madd.s` operand order in `func_0047f1a0` without inline assembly.
+  `madd.s` operand order in `mdlBlendTrackWithAlpha` (was `func_0047f1a0`) without inline assembly.
   When the result register aliases `left`, the same source order may commute
   during fusion; a second helper spelling `right * left` closed all three
-  `func_0047f5b0` accumulators.
+  `mdlBlendTrackColorBytes` (was `func_0047f5b0`) accumulators.
 - **Snapshot adjacent globals through a matching aggregate to force exact
   call-crossing spills.** Writing a two-float global pair, then assigning
   `local = *(Pair *)&global` gives b210 one aggregate copy to preserve. In
-  `func_0047f040`, two such snapshots produced retail's `0x20` frame and exact
+  `mdlBlendTrackSamples` (was `func_0047f040`), two such snapshots produced retail's `0x20` frame and exact
   `sp+0x10..0x1c` stores/loads; scalar locals stayed in FPU registers and
   incorrectly shrank the frame to `0x10`.
 - **Typed `short`/`char` prototype params defeat sign-extension CSE.** Retail
@@ -1365,7 +1365,7 @@ below are the codegen consequences.
   the call, or re-read the value from its struct field / global afterwards.
   Deleting the local and repeating the memory expression, or recomputing a
   product on both sides of the call, looks redundant in source and is exactly
-  what produces the no-save frame. Measured on `func_0047f4d0`, where every
+  what produces the no-save frame. Measured on `mdlBlendVec4Tracks` (was `func_0047f4d0`), where every
   scalar variant retained `f20`–`f23` (frame 0x40/0x50) against retail's
   smaller frame. Count the saved FPRs before probing anything else. (That
   function's final close also needed the `static` local callee from "Types
@@ -3204,7 +3204,7 @@ accumulator reads, not because the instruction cannot be emitted. Treat
 run against the reopened pool specifically to test this, and every single lane
 reproduced the retail accumulator chain from ordinary C — 4 ops
 (`func_0035bad0`), 6 (`func_0011c780`), 6 (`func_0026bfc0`), 3
-(`func_0047f4d0`), the full `MULA`/`MSUB`/`MADD` sequence (`func_00208870`),
+(`mdlBlendVec4Tracks` (was `func_0047f4d0`)), the full `MULA`/`MSUB`/`MADD` sequence (`func_00208870`),
 `madd.s` (`func_001bb790`), the tail chain (`func_004b7300`), and —
 decisively — **all 25** ops of `func_00480f20`, the densest accumulator
 function in the corpus. Not one lane needed a pragma, an intrinsic or inline
@@ -3671,7 +3671,7 @@ closed them, all measured against b210 `-O2,p`:
   the GP constant in the first operand; splitting the cast into a named local
   and multiplying afterwards (either operand order) gives the local first.
 - **Recompute-vs-CSE spellings.** `*(s16 *)((u32)p + 8)` is not merged with an
-  earlier `*(s16 *)(p + 8)` (`func_0047ed60`: retail re-reads a slot the compare
+  earlier `*(s16 *)(p + 8)` (`mdlTickMotionState` (was `func_0047ed60`): retail re-reads a slot the compare
   already forwarded), exactly as `base + (u32)i * N` is not merged with the s32
   form. Use these when retail repeats a load/address b210 would otherwise CSE.
 - **A statement of its own survives propagation-off, not propagation-on**
@@ -6445,7 +6445,7 @@ functions**. Loadable SHA1 remains
 
 ### Sampled-color return contract and typed residual replay
 
-`func_0047f5b0` now explicitly returns its borrowed **`f32 *` work buffer**.
+`mdlBlendTrackColorBytes` (was `func_0047f5b0`) now explicitly returns its borrowed **`f32 *` work buffer**.
 The color row of `D_00713220` installs it in the sample slot; dispatch at
 `0x0047f958` consumes `$v0` and forwards that address to each apply callback.
 The previous `void` declaration omitted this contract even though its
@@ -6492,7 +6492,7 @@ claiming lower instruction floors:
 
 Other fresh structural probes likewise remain residuals: triangle selection
 `func_0014be50` retains four aggregate-copy scheduling words; typed track
-dispatch `func_0047f850` retains twelve register-allocation words plus one
+dispatch `mdlDispatchTrackRows` (was `func_0047f850`) retains twelve register-allocation words plus one
 zero-tail word; shuffle initialization `func_00375f00` retains seven differing
 emitted words, totaling twenty differing bytes, plus one zero-tail word.
 No approximate body replaces an assembly fallback.
@@ -6657,7 +6657,7 @@ progress snapshots validate. Loadable SHA1 remains
 
 ### Track dispatch and compatible callback contracts
 
-`func_0047f850` now matches in `src/promoted/code1_0047.c`: **412 executable
+`mdlDispatchTrackRows` (was `func_0047f850`) now matches in `src/promoted/code1_0047.c`: **412 executable
 bytes / 416-byte retail window**, with one zero alignment word beyond the
 object body. Direct table indexing under scoped `opt_loop_invariants on`
 closes the twelve saved-register differences; retaining an explicit dispatch
@@ -6671,10 +6671,10 @@ callback mutates that buffer. Zero targets still permit sampling; absent
 apply callbacks or left-track data skip the row.
 
 The live callback definitions now use compatible C function types:
-`func_0047f040`, `func_0047f1a0`, `func_0047f4d0` and `func_0047f5b0` return
+`mdlBlendTrackSamples` (was `func_0047f040`), `mdlBlendTrackWithAlpha` (was `func_0047f1a0`), `mdlBlendVec4Tracks` (was `func_0047f4d0`) and `mdlBlendTrackColorBytes` (was `func_0047f5b0`) return
 borrowed `void *` results with byte-pointer track/default arguments.
-`func_0047f4d0` also uses the dispatcher's interleaved pointer/float parameter
-order. `func_0047f2c0`, `func_0047f710` and the empty `func_0047f840` accept
+`mdlBlendVec4Tracks` also uses the dispatcher's interleaved pointer/float parameter
+order. `func_0047f2c0`, `mdlStoreColorBytes` (was `func_0047f710`) and the empty `func_0047f840` accept
 opaque result/target pointers. Their value interpretation remains local.
 All seven callbacks remain exact; the three affected units verify at
 **48 MATCH / one ASM**, including the newly recovered dispatcher.

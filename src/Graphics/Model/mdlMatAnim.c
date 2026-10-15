@@ -7,7 +7,7 @@ typedef int (*code)();
 extern code DAT_008873ec_abs[];
 extern void func_004808b0(int param_1);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern void func_0047f850(u8 *param_1, u8 *param_2, f32 param_3, f32 param_4, f32 param_5);
+extern void mdlDispatchTrackRows(u8 *param_1, u8 *param_2, f32 param_3, f32 param_4, f32 param_5);
 extern u8 D_00713260[];
 extern u32 D_00713220[];
 
@@ -167,7 +167,7 @@ void func_0047fd10(u8 **arg0, f32 scale1, u8 **arg1, f32 scale2, f32 scale3)
     while (node != NULL) {
         match = func_0047fb50(arg1, (s32 *)*(u8 **)(node + 0x50));
         if (match != NULL) {
-            func_0047f850(node, match, scale1, scale2, scale3);
+            mdlDispatchTrackRows(node, match, scale1, scale2, scale3);
         } else {
             tbl = *(u8 **)(node + 0x50);
             count = *(u16 *)(tbl + 4);
