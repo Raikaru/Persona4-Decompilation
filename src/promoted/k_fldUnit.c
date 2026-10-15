@@ -67,11 +67,11 @@ extern void func_00168780(s32 arg0, f32 arg1);
 extern u32 *func_00478750(u8 *arg0);
 extern f32 func_00168770(s32 arg0);
 extern void func_00478e70(u8 *arg0);
-extern s32 func_00182220(s32 arg0, u8 *arg1, s32 arg2);
+extern s32 FldAI_SpawnPatrol(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 datUnitGroupIsDefeated(s32 arg0);
 extern s32 func_0016fd00(s32 arg0);
-extern s32 func_0017e890(s32 arg0, u8 *arg1, u8 *arg2);
-extern void func_0017e990(s32 arg0);
+extern s32 FldAI_SpawnChaser(s32 arg0, u8 *arg1, u8 *arg2);
+extern void FldAI_ChaserEnable(s32 arg0);
 extern s32 func_0017d070(u8 *arg0);
 extern void func_00168c00(s32 arg0);
 extern f32 RwV3dLength(f32 *arg0);
@@ -665,7 +665,7 @@ void func_00162e10(void)
             FieldUnitRecord *unitForUpdate = fieldUnitSlotAt(&partyIndex);
 
             ((FieldUnitRecord *)(u32)unitForUpdate)->followerTask =
-                func_0017e890(0, (u8 *)unitForUpdate,
+                FldAI_SpawnChaser(0, (u8 *)unitForUpdate,
                              D_007EF9B0 + (partyIndex - 1) * 0x750);
         }
         {
@@ -898,7 +898,7 @@ s32 func_00163c90(s32 arg0)
   sp30[0] = temp_f0;
   mdlScale((Model *)((*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)))), (const RwV3d *)(sp30), 2);
   func_00478e70((u8 *) (*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228))));
-  *((s32 *) (temp_16 + 0x1B0)) = func_00182220(0, temp_16, *((u8 *) (temp_16 + 0x1CA)));
+  *((s32 *) (temp_16 + 0x1B0)) = FldAI_SpawnPatrol(0, temp_16, *((u8 *) (temp_16 + 0x1CA)));
   *((s32 *) (temp_16 + 0x1B8)) = func_00167420((u8 *) 0, temp_16);
   return 1;
 }
@@ -1566,9 +1566,9 @@ void func_00164fa0(s32 arg0)
         if (arg0 != 0) {
             stride = 0x750;
             link = (s32 *)(D_007EFB60 + arg0 * stride);
-            temp_2_2 = func_0017e890(0, temp_18, D_007EF9B0 + ((arg0 - 1) * stride));
+            temp_2_2 = FldAI_SpawnChaser(0, temp_18, D_007EF9B0 + ((arg0 - 1) * stride));
             *link = temp_2_2;
-            func_0017e990(temp_2_2);
+            FldAI_ChaserEnable(temp_2_2);
         }
         if (arg0 == 0) {
             *(s32 *)(D_007EFB64 + temp_17) = func_0017d070(0);
@@ -1685,7 +1685,7 @@ void func_00165380(void)
             sp50[0] = temp_f0;
             mdlScale((Model *)(*(s32 *)(*(u8 **)f54 + 0x228)), (const RwV3d *)(sp50), 2);
             func_00478e70((u8 *)*(s32 *)(*(u8 **)f54 + 0x228));
-            *(s32 *)(slot + 0x1B0) = func_00182220(0, slot, *f1ca);
+            *(s32 *)(slot + 0x1B0) = FldAI_SpawnPatrol(0, slot, *f1ca);
             f1b8 = slot + 0x1B8;
             if (*(s32 *)f1b8 == 0) {
                 *(s32 *)f1b8 = func_00167420((u8 *)0, D_007E8C00 + i * 0x750);
