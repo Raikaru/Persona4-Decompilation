@@ -150,7 +150,7 @@ void memcpy(void* dst, const void* src, u32 size);
 void btlTargetPacketReleasePending(void* arg);
 s32 btlTargetApplyHpSpChange(u8* arg);
 extern u8* iGpffffb3ac;
-extern void func_00106020(s32 arg);
+extern void datAddMoney(s32 arg);
 extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_001f6c40(void* action, s32 flags);
 extern void func_001f56d0(void* action, s32 effect, s32 arg2, s32 arg3, s32 arg4);
@@ -791,7 +791,7 @@ s32 btlTargetApplyHpSpChange(u8* arg0)
     if (*(s32*)(iGpffffb3ac + 0xc) & 0x10) {
         datCalcAddHp(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 8));
         datCalcAddSp(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 0xc));
-        func_00106020(*(s32*)(arg0 + 0x1c));
+        datAddMoney(*(s32*)(arg0 + 0x1c));
     }
     temp_3 = *(s32*)(arg0 + 8);
     if ((temp_3 < 0) || (temp_2 = *(s32*)(arg0 + 0xc), temp_2 < 0)) {

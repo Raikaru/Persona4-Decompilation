@@ -26,7 +26,7 @@ extern void cmmCommunityAddTotal(s32 arg0);
 
 extern s32 cmmCommunityGetTotal(void);
 extern void datResetTotalBtl(void);
-extern void func_00106020(s32 arg0);
+extern void datAddMoney(s32 arg0);
 
 extern s16 func_001060b0(void);
 extern s32 cmmDateTableFindIndex(s32 arg0);
@@ -603,7 +603,7 @@ s32 cmmScriptAddEntryTotal(void)
 
 
 
-// Script total take: returns the running total (D_00797560), resets it through datResetTotalBtl, and runs the total hook func_00106020 with the value.
+// Script total take: returns the running total (D_00797560), resets it through datResetTotalBtl, and runs the total hook datAddMoney with the value.
 // FUN_0024ADB0
 s32 cmmScriptTakeTotal(void)
 {
@@ -612,7 +612,7 @@ s32 cmmScriptTakeTotal(void)
     value = cmmCommunityGetTotal();
     scrSetReturnInt(value);
     datResetTotalBtl();
-    func_00106020(value);
+    datAddMoney(value);
     return 1;
 }
 

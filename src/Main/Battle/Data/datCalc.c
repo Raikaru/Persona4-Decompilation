@@ -52,7 +52,7 @@ extern void datCalcClearBadStatusById(s16 character, u32 mask);
 extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaGetLevel(s32 arg0);
-extern u32 func_00105ed0(void);
+extern u32 datGetMoney(void);
 extern u8 *datUnitGetRecord(s32 arg0);
 extern u8 datCalcGetBattleStat(u8 *arg0, s32 arg1);
 /* Defined below in this file; used before its definition. */
@@ -2189,7 +2189,7 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
         kAssertFail(D_00635938, 0x9F9);
     }
     if (!(*(u16 *)arg1 & 4)) {
-        temp_2 = func_00105ed0();
+        temp_2 = datGetMoney();
         var_f1 = (f32)temp_2;
         var_f21 = var_f1 / 20.0f;
         if ((*(u16 *)arg1 & 4) || (temp_4 = *(u16 *)(arg1 + 2), temp_4 == 1)) {

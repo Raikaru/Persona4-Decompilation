@@ -682,7 +682,7 @@ void func_001113b0(void)
     void func_00105c90(s16, s16);
     void datCalcSetBadStatusById(s16, s16);
     void func_00105dc0(s16, s16, s16);
-    void func_00105fa0(u32);
+    void datSetMoney(u32);
     void datSetPartyId(s32, s16);
     void func_00106100(s16);
     void datSetTimeSlot(u8);
@@ -709,7 +709,7 @@ void func_001113b0(void)
     func_00110e70(0);
     func_00106320(0);
     func_0010d490(iGpffff9bb8, iGpffff9bc0);
-    func_00105fa0(0);
+    datSetMoney(0);
     func_0010fc80();
 
     i = 1;
@@ -824,8 +824,8 @@ void func_00111bc0(void)
     s32 datGetFlag(s32);
     void func_00106390(s32, s32);
     s16 func_00104ea0(s16, s16);
-    u32 func_00105ed0(void);
-    void func_00105fa0(u32);
+    u32 datGetMoney(void);
+    void datSetMoney(u32);
     void func_001051a0(s16, s16, s16);
     u32 func_00110460(void);
     void func_00110470(u32);
@@ -965,7 +965,7 @@ loop3_check:
     if (i < 5) {
         goto loop3;
     }
-    result = (s32)func_00105ed0();
+    result = (s32)datGetMoney();
     func_001113b0();
     i = 0;
     goto loop4_check;
@@ -1019,7 +1019,7 @@ loop7_check:
     if (i < 5) {
         goto loop7;
     }
-    func_00105fa0((u32)result);
+    datSetMoney((u32)result);
     func_00106390(0x800, 1);
     iGpffffb19c = saved;
 }

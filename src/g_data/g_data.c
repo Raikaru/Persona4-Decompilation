@@ -879,7 +879,7 @@ void func_00105e30(s16 arg0, s16 arg1)
 }
 
 // FUN_00105ED0
-u32 func_00105ed0(void)
+u32 datGetMoney(void)
 {
     return D_0079B68C[0];
 }
@@ -917,7 +917,7 @@ s8 func_00105f50(u16 arg0)
 }
 
 // FUN_00105FA0
-void func_00105fa0(u32 arg0)
+void datSetMoney(u32 arg0)
 {
     if (arg0 > 0x98967F)
     {
@@ -935,7 +935,7 @@ void datSetPartyId(s32 idx, s16 pcId)
 
 
 // FUN_00106020
-s32 func_00106020(s32 arg0)
+s32 datAddMoney(s32 arg0)
 {
     s32 value = arg0 + D_0079B68C[0];
 
@@ -2389,7 +2389,7 @@ void func_0010f4c0(void)
 }
 
 // FUN_0010F4F0
-u8 *func_0010f4f0(s32 arg0) {
+u8 *datPersonaGetRosterSlot(s32 arg0) {
     s32 v = (s16)arg0;
 
     if ((v == 0) || (v >= 0xB)) {
@@ -2582,7 +2582,7 @@ void func_0010fc80(void)
 }
 
 // FUN_0010FCB0
-u8* func_0010fcb0(s32 arg0)
+u8* datPersonaCachedRecord(s32 arg0)
 {
     u16 v;
 
@@ -2596,7 +2596,7 @@ u8* func_0010fcb0(s32 arg0)
 }
 
 // FUN_0010FD40
-void func_0010fd40(u8* src)
+void datPersonaCacheRecord(u8* src)
 {
     s32 index;
 
