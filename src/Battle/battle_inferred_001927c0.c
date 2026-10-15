@@ -214,8 +214,8 @@ extern u8 D_00794150[];
 /* Source unit: src/promoted/code1_0019.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 001927c0-001935c0 */
 
-/* measured: opt_propagation off is scoped to func_001927c0. */
-/* measured: func_001927c0 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_propagation off is scoped to btlRenderStateSetup. */
+/* measured: btlRenderStateSetup MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001927C0
 void btlRenderStateSetup(void)
@@ -241,10 +241,10 @@ void btlRenderStateSetup(void)
     func_0048a000();
 }
 
-/* measured: closes opt_propagation around func_001927c0. */
-/* measured: opt_propagation off is scoped to func_001928c0. */
-/* measured: opt_loop_invariants on is scoped to func_001928c0. */
-/* measured: func_001928c0 MATCH -> MISMATCH without this pragma. */
+/* measured: closes opt_propagation around btlRenderStateSetup. */
+/* measured: opt_propagation off is scoped to btlSkyScroll. */
+/* measured: opt_loop_invariants on is scoped to btlSkyScroll. */
+/* measured: btlSkyScroll MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001928C0
 void btlSkyScroll(void)
@@ -307,9 +307,9 @@ void btlSkyScroll(void)
     }
 }
 
-/* measured: closes opt_loop_invariants around func_001928c0. */
-/* measured: closes opt_propagation around func_001928c0. */
-/* measured: func_00192cd0, func_001932f0 MATCH -> MISMATCH without this pragma. */
+/* measured: closes opt_loop_invariants around btlSkyScroll. */
+/* measured: closes opt_propagation around btlSkyScroll. */
+/* measured: btlRelease, func_001932f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_00192AC0
 void btlReleaseTask(u8 *unusedTask) {
