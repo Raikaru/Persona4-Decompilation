@@ -148,7 +148,7 @@ extern void func_0032fbc0(u8 *);
 extern u16 *fclCombineFindMatchPtr(u8 *);
 extern s32 fclCombineRollTier(u8 *);
 extern s32 fclCombineFindMatchIndex(u8 *);
-extern s32 func_00309630(u16);
+extern s32 fclCombinePersonaInRoster(u16);
 extern s32 func_003096d0(u8 *);
 extern s32 datPersonaReplaceSkill(u8 *, s16, u16);
 extern u16 datPersonaCountValidMembers(void);
@@ -7607,7 +7607,7 @@ void func_00304580(u8 *arg0) {
             work->f1 = 0x87U;
             return;
         }
-        if (func_00309630((*(u16 *)((u8 *)(func_001102e0())+(2)))) == 1) {
+        if (fclCombinePersonaInRoster((*(u16 *)((u8 *)(func_001102e0())+(2)))) == 1) {
             func_00310960(arg0, 0x27, 0);
             work->f1 = 0x87U;
             return;
@@ -7924,8 +7924,9 @@ u16 func_003095f0(void)
     return 0xB3;
 }
 
+// Fcl combine roster check: returns 1 when persona id 'arg0' is in the valid party roster, else 0.
 // FUN_00309630
-s32 func_00309630(u16 arg0)
+s32 fclCombinePersonaInRoster(u16 arg0)
 {
     s16 i;
     s32 key;
