@@ -2179,7 +2179,7 @@ u32 func_001df2d0(void)
 
 
 // FUN_001DF310
-s32 func_001df310(void) {
+s32 btlAICommandScriptQueryMyHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2194,7 +2194,7 @@ s32 func_001df310(void) {
 }
 
 // FUN_001DF3C0
-s32 func_001df3c0(void) {
+s32 btlAICommandScriptQueryMyMp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2209,7 +2209,7 @@ s32 func_001df3c0(void) {
 }
 
 // FUN_001DF470
-s32 func_001df470(void) {
+s32 btlAICommandScriptQueryFrHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2224,7 +2224,7 @@ s32 func_001df470(void) {
 }
 
 // FUN_001DF520
-s32 func_001df520(void) {
+s32 btlAICommandScriptQueryEnHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2239,7 +2239,7 @@ s32 func_001df520(void) {
 }
 
 // FUN_001DF5D0
-s32 func_001df5d0(void) {
+s32 btlAICommandScriptQueryEnHpO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2254,7 +2254,7 @@ s32 func_001df5d0(void) {
 }
 
 // FUN_001DF680
-s32 func_001df680(void) {
+s32 btlAICommandScriptQueryMyLvO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2269,7 +2269,7 @@ s32 func_001df680(void) {
 }
 
 // FUN_001DF730
-s32 func_001df730(void) {
+s32 btlAICommandScriptQueryFrLvO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x7000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2284,7 +2284,7 @@ s32 func_001df730(void) {
 }
 
 // FUN_001DF7E0
-s32 func_001df7e0(void) {
+s32 btlAICommandScriptQueryEnLvO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x8000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2299,7 +2299,7 @@ s32 func_001df7e0(void) {
 }
 
 // FUN_001DF890
-s32 func_001df890(void) {
+s32 btlAICommandScriptQueryFrCnt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2314,7 +2314,7 @@ s32 func_001df890(void) {
 }
 
 // FUN_001DF940
-s32 func_001df940(void) {
+s32 btlAICommandScriptQueryEnCnt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2329,7 +2329,7 @@ s32 func_001df940(void) {
 }
 
 // FUN_001DF9F0
-s32 func_001df9f0(void) {
+s32 btlAICommandScriptQueryMyBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2344,7 +2344,7 @@ s32 func_001df9f0(void) {
 }
 
 // FUN_001DFAA0
-s32 func_001dfaa0(void) {
+s32 btlAICommandScriptQueryFrBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2359,7 +2359,7 @@ s32 func_001dfaa0(void) {
 }
 
 // FUN_001DFB50
-s32 func_001dfb50(void) {
+s32 btlAICommandScriptQueryEnBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2374,7 +2374,7 @@ s32 func_001dfb50(void) {
 }
 
 // FUN_001DFC00
-s32 func_001dfc00(void) {
+s32 btlAICommandScriptQueryEnBadAll(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2389,7 +2389,7 @@ s32 func_001dfc00(void) {
 }
 
 // FUN_001DFCB0
-s32 func_001dfcb0(void) {
+s32 btlAICommandScriptQueryFrId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2404,7 +2404,7 @@ s32 func_001dfcb0(void) {
 }
 
 // FUN_001DFD60
-s32 func_001dfd60(void) {
+s32 btlAICommandScriptQueryEnId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2419,7 +2419,7 @@ s32 func_001dfd60(void) {
 }
 
 // FUN_001DFE10
-s32 func_001dfe10(void) {
+s32 btlAICommandScriptQueryFrHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x11000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2434,7 +2434,7 @@ s32 func_001dfe10(void) {
 }
 
 // FUN_001DFEC0
-s32 func_001dfec0(void) {
+s32 btlAICommandScriptQueryEnHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x12000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2467,7 +2467,7 @@ s32 func_001e0010(void) {
 }
 
 // FUN_001E0060
-s32 func_001e0060(void) {
+s32 btlAICommandScriptQueryMyHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2482,7 +2482,7 @@ s32 func_001e0060(void) {
 }
 
 // FUN_001E0110
-s32 func_001e0110(void) {
+s32 btlAICommandScriptQueryMyKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2497,7 +2497,7 @@ s32 func_001e0110(void) {
 }
 
 // FUN_001E01C0
-s32 func_001e01c0(void) {
+s32 btlAICommandScriptQueryMyMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2512,7 +2512,7 @@ s32 func_001e01c0(void) {
 }
 
 // FUN_001E0270
-s32 func_001e0270(void) {
+s32 btlAICommandScriptQueryMyWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2527,7 +2527,7 @@ s32 func_001e0270(void) {
 }
 
 // FUN_001E0320
-s32 func_001e0320(void) {
+s32 btlAICommandScriptQueryFrHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2542,7 +2542,7 @@ s32 func_001e0320(void) {
 }
 
 // FUN_001E03D0
-s32 func_001e03d0(void) {
+s32 btlAICommandScriptQueryEnHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2557,7 +2557,7 @@ s32 func_001e03d0(void) {
 }
 
 // FUN_001E0480
-s32 func_001e0480(void) {
+s32 btlAICommandScriptQueryFrKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2572,7 +2572,7 @@ s32 func_001e0480(void) {
 }
 
 // FUN_001E0530
-s32 func_001e0530(void) {
+s32 btlAICommandScriptQueryEnKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1D000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2587,7 +2587,7 @@ s32 func_001e0530(void) {
 }
 
 // FUN_001E05E0
-s32 func_001e05e0(void) {
+s32 btlAICommandScriptQueryFrMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1E000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2602,7 +2602,7 @@ s32 func_001e05e0(void) {
 }
 
 // FUN_001E0690
-s32 func_001e0690(void) {
+s32 btlAICommandScriptQueryEnMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1F000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2617,7 +2617,7 @@ s32 func_001e0690(void) {
 }
 
 // FUN_001E0740
-s32 func_001e0740(void) {
+s32 btlAICommandScriptQueryFrWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x20000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2632,7 +2632,7 @@ s32 func_001e0740(void) {
 }
 
 // FUN_001E07F0
-s32 func_001e07f0(void) {
+s32 btlAICommandScriptQueryEnWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2647,7 +2647,7 @@ s32 func_001e07f0(void) {
 }
 
 // FUN_001E08A0
-s32 func_001e08a0(void) {
+s32 btlAICommandScriptQueryMyUseAttr(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x22000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2662,7 +2662,7 @@ s32 func_001e08a0(void) {
 }
 
 // FUN_001E0950
-s32 func_001e0950(void) {
+s32 btlAICommandScriptQueryFrUseAttr(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2677,7 +2677,7 @@ s32 func_001e0950(void) {
 }
 
 // FUN_001E0A00
-s32 func_001e0a00(void) {
+s32 btlAICommandScriptQueryEnUseAttr(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2692,7 +2692,7 @@ s32 func_001e0a00(void) {
 }
 
 // FUN_001E0AB0
-s32 func_001e0ab0(void) {
+s32 btlAICommandScriptQueryMyUseSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x25000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2707,7 +2707,7 @@ s32 func_001e0ab0(void) {
 }
 
 // FUN_001E0B60
-s32 func_001e0b60(void) {
+s32 btlAICommandScriptQueryFrUseSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x26000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2722,7 +2722,7 @@ s32 func_001e0b60(void) {
 }
 
 // FUN_001E0C10
-s32 func_001e0c10(void) {
+s32 btlAICommandScriptQueryEnUseSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x27000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2755,7 +2755,7 @@ s32 func_001e0d60(void) {
 }
 
 // FUN_001E0DB0
-s32 func_001e0db0(void) {
+s32 btlAICommandScriptQueryTurn(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2B000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2770,7 +2770,7 @@ s32 func_001e0db0(void) {
 }
 
 // FUN_001E0E60
-s32 func_001e0e60(void) {
+s32 btlAICommandScriptQueryTurnO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2C000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2797,7 +2797,7 @@ s32 func_001e0f60(void) {
 }
 
 // FUN_001E0FB0
-s32 func_001e0fb0(void) {
+s32 btlAICommandScriptQueryFrHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2F000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2812,7 +2812,7 @@ s32 func_001e0fb0(void) {
 }
 
 // FUN_001E1060
-s32 func_001e1060(void) {
+s32 btlAICommandScriptQueryEnHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x30000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2827,7 +2827,7 @@ s32 func_001e1060(void) {
 }
 
 // FUN_001E1110
-s32 func_001e1110(void) {
+s32 btlAICommandScriptQueryFrKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x31000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2842,7 +2842,7 @@ s32 func_001e1110(void) {
 }
 
 // FUN_001E11C0
-s32 func_001e11c0(void) {
+s32 btlAICommandScriptQueryEnKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x32000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2857,7 +2857,7 @@ s32 func_001e11c0(void) {
 }
 
 // FUN_001E1270
-s32 func_001e1270(void) {
+s32 btlAICommandScriptQueryFrMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x33000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2872,7 +2872,7 @@ s32 func_001e1270(void) {
 }
 
 // FUN_001E1320
-s32 func_001e1320(void) {
+s32 btlAICommandScriptQueryEnMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x34000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2887,7 +2887,7 @@ s32 func_001e1320(void) {
 }
 
 // FUN_001E13D0
-s32 func_001e13d0(void) {
+s32 btlAICommandScriptQueryFrWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x35000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
@@ -2902,7 +2902,7 @@ s32 func_001e13d0(void) {
 }
 
 // FUN_001E1480
-s32 func_001e1480(void) {
+s32 btlAICommandScriptQueryEnWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x36000000;
     u8 *p = func_0029d050();
     u32 cmd = (v & 0xFF000000) >> 24;
