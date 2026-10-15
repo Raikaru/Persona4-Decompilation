@@ -1,0 +1,122 @@
+#include "btl_skill_target_internal.h"
+#include "include_asm.h"
+#include "type.h"
+#include "effect_instance_internal.h"
+#include "btl_cond_internal.h"
+#include "datCalc_unit_internal.h"
+typedef struct BtlPacket BtlPacket;
+static inline s32 p4_001d7f10_add(s32 left, s32 right)
+{
+    return left + right;
+}
+
+extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb414;
+extern u8 *D_0076449C;
+extern s32 func_001d6360(u8 *arg0);
+extern void func_001d42e0(s32 arg0);
+extern void func_00485b20(s32 arg0);
+extern void func_004787e0(s32 arg0);
+extern void (*jtbl_008873EC[])(void *);
+extern void func_001d6910(u8 *arg0);
+extern u32 iGpffffb3b8;
+
+extern u8 D_005DC7D0[];
+extern u8 D_00794150[];
+extern char D_005DC824[];
+extern char D_00794AE0[];
+extern char D_00794C00[];
+struct RwV3d;
+extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
+                          f32 *outTop, f32 *outBottom, u32 options);
+extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern u8 D_00609498[];
+extern f32 D_006094B0[];
+extern f32 D_006094D0[];
+extern u8 D_0060A0E0[];
+extern u8 D_0060A0F0[];
+
+
+extern u8 D_008813B0[];
+extern u8 D_00607E50[];
+extern u8 D_00609558[];
+extern u8 iGpffffa4db;
+extern u8 iGpffffa4da;
+extern u8 iGpffffa4d9;
+extern u8 iGpffffa4d8;
+
+typedef int (*code)();
+
+
+
+
+
+
+
+
+
+typedef struct RwV3d RwV3d;
+struct RwV3d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+};
+
+typedef struct RtQuat RtQuat;
+struct RtQuat
+{
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+};
+
+extern f32 D_0060A100[];
+extern f32 fGpffff8030;
+extern f32 fGpffff803c;
+extern f32 fGpffff8110;
+
+/* Source unit: src/promoted/code1_001d.c */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d6910-001d6910 */
+
+/* measured: opt_propagation off probe for func_001d14b0 loop masks. */
+/* measured: close opt_propagation after func_001d14b0 probe. */
+#pragma push
+#pragma pop
+/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
+/* measured: restore optimization_level 2 after func_001d5990. */
+/* measured: opt_propagation off probe for func_001d6360 argument setup and register coloring. */
+#pragma push
+/* measured: restore pragma state after func_001d6360. */
+#pragma pop
+// FUN_001D6910
+void func_001d6910(u8 *arg0)
+{
+    if (*(s32 *)(arg0 + 0x10) != 0) {
+        func_001d42e0(*(s32 *)(arg0 + 0x10));
+        *(s32 *)(arg0 + 0x10) = 0;
+    }
+    if (*(s32 *)(arg0 + 0x14) != 0) {
+        func_00485b20(*(s32 *)(arg0 + 0x14));
+        *(s32 *)(arg0 + 0x14) = 0;
+    }
+    if (*(s32 *)(arg0 + 0x18) != 0) {
+        func_004787e0(*(s32 *)(arg0 + 0x18));
+        *(s32 *)(arg0 + 0x18) = 0;
+    }
+    *(s32 *)(arg0 + 4) = -1;
+    *(u8 *)(arg0 + 8) = 0x14;
+    *(s32 *)(arg0 + 0xC) = 0;
+    *(u16 *)(arg0 + 0) = 0x200;
+    if (*(u8 **)(arg0 + 0x20) != NULL) {
+        *(u8 **)(*(u8 **)(arg0 + 0x20) + 0x1C) = *(u8 **)(arg0 + 0x1C);
+    }
+    if (*(u8 **)(arg0 + 0x1C) != NULL) {
+        *(u8 **)(*(u8 **)(arg0 + 0x1C) + 0x20) = *(u8 **)(arg0 + 0x20);
+    } else {
+        *(u8 **)(iGpffffb3ac + 0x1B8) = *(u8 **)(arg0 + 0x20);
+    }
+    (*jtbl_008873EC)(arg0);
+}
+
