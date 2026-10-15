@@ -3466,7 +3466,7 @@ finds 57 pairs at ratio >= 0.80, of which 26 are new. They are almost all
 FALSE POSITIVES: at that tolerance the score matches a shape FAMILY — the same
 compiler emitting the same idiom over the same struct — not the same source
 function. 16 lanes closed 0. Lanes reported it directly: the `func_001a0f40`
-donor is a 200-byte function against a 448-byte window, the `func_0047ce00`
+donor is a 200-byte function against a 448-byte window, the `mdlAdvanceAuxLoad` (was `func_0047ce00`)
 donor uses a different dispatch (jump table versus chain), and the
 `func_001bfc00` donor relies on P3-only `RtQuat` and extended `BtlUnit`
 fields. The strictness of the size constraint was doing real work; a twin is
