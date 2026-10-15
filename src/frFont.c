@@ -41,7 +41,7 @@ struct KwlnTask;
 extern s32 func_002e17f0(u8 *task);
 extern void frFontTaskDestroy(u8 *task);
 extern void frFontInitManager(int param_1, int param_2);
-extern s8 func_002746e0(void *param_1, int param_2);
+extern s8 frFontRunScript(void *param_1, int param_2);
 extern void frFontSetMode(u32 param_1);
 extern u8 *frFontBuildText(void *data);
 extern u8 *frFontBuildTextFull(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
@@ -2651,6 +2651,7 @@ void frFontSetMode(u32 param_1)
     D_00764594 = param_1;
 }
 
+/* Runs a font command script from its current position until a terminator; a nonzero param_2 runs only that command. Returns 0. */
 /* measured candidate archived at build/WBYList_frFont_746e0_candidate5.c.
    It compiled as MISMATCH at normalized_diff 102 with object 464B/window
    512B; fndiff reported 50 differing words at byte offsets:
@@ -2661,7 +2662,7 @@ void frFontSetMode(u32 param_1)
    variants (nd104), and direct loop/boolean forms. Bare INCLUDE_ASM is
    retained because this candidate remains above the nd<=25 park threshold. */
 // FUN_002746E0
-s8 func_002746e0(void *param_1, int param_2)
+s8 frFontRunScript(void *param_1, int param_2)
 {
     typedef int (*FrFontCommand)();
     typedef struct FrFontCommandGroup {
@@ -2724,8 +2725,9 @@ s8 func_002746e0(void *param_1, int param_2)
     }
     return 0;
 }
+/* Runs one command with the given mode: saves the mode, runs the command through frFontRunScript, then restores it. */
 // FUN_002748E0
-s8 func_002748e0(int param_1, int param_2, int param_3)
+s8 frFontRunCommand(int param_1, int param_2, int param_3)
 {
     struct {
         u8 f00[0x10];
@@ -2747,13 +2749,14 @@ s8 func_002748e0(int param_1, int param_2, int param_3)
     data.f1e = 0x20;
     old = D_00764594;
     D_00764594 = param_2;
-    result = func_002746e0(&data, param_3);
+    result = frFontRunScript(&data, param_3);
     D_00764594 = old;
     return result;
 }
 
+/* Starts the font subsystem: creates the task pool, initialises the manager, and registers the cache maintenance and destroy callbacks. */
 // FUN_00274970
-void func_00274970(void)
+void frFontStartup(void)
 {
     int v;
 

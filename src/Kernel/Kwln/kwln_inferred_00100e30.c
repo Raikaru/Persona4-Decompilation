@@ -88,7 +88,7 @@ extern void func_00246700(void);
 extern void func_0025ff90(void);
 extern void cldDayChangePreloadData(void);
 extern void func_0026d840(void);
-extern void func_00274970(void);
+extern void frFontStartup(void);
 extern void func_00278940(void);
 extern void func_002789a0(void);
 extern void func_0029d950(void);
@@ -294,7 +294,7 @@ void func_00100e60(void)
     func_00246700();
     func_0026d840();
     func_00231330();
-    func_00274970();
+    frFontStartup();
     func_002789a0();
     func_00278940();
     func_002bdf20();

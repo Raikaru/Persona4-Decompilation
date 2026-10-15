@@ -856,7 +856,7 @@ void func_0027a780(u8 *arg0)
     extern s32 func_0027bc20(s32 arg0);
     extern s32 func_0027bc80(s32 arg0);
     extern s32 func_0027bce0(s32 arg0);
-    extern void func_002748e0(s32 arg0, s32 arg1, s32 arg2);
+    extern void frFontRunCommand(s32 arg0, s32 arg1, s32 arg2);
     s32 value;
     u8 *node;
 
@@ -889,7 +889,7 @@ node_done:
                 selected = 0;
             else
                 selected = *(s32 *)((u8 *)add_retail_ptr((u32)(index * 4), (u32)table) + 0x1C);
-            func_002748e0(selected, 1, 0);
+            frFontRunCommand(selected, 1, 0);
             *(s32 *)arg0 = *(s32 *)arg0 & ~0x307;
             *(s32 *)arg0 |= 0x203;
         }
@@ -1016,7 +1016,7 @@ do_action:
 void func_0027ac50(u8 *arg0)
 {
     extern s32 frFontListKeepOrRelease(s32 arg0);
-    extern void func_002748e0(s32 arg0, s32 arg1, s32 arg2);
+    extern void frFontRunCommand(s32 arg0, s32 arg1, s32 arg2);
     extern s32 func_0027a150();
     extern s32 func_0027ae90(u8 *arg0);
     u8 *state;
@@ -1081,7 +1081,7 @@ void func_0027ac50(u8 *arg0)
             i = 0;
             while (i < count) {
                 if (i == index)
-                    func_002748e0(*cursor, 3, 0);
+                    frFontRunCommand(*cursor, 3, 0);
                 i += 1;
                 cursor += 1;
             }
