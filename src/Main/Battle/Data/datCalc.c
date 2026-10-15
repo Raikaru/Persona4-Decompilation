@@ -2581,8 +2581,9 @@ s32 datCalcSureHitResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 a
     return func_00238940(arg0, arg1, arg2, arg5);
 }
 
+// Intent: apply skill arg0 from actor arg1 to target arg2: HP and SP deltas (clamped to the unit's max), status bits into the unit word at +0xC, dead at 0 HP; returns 1 [inferred].
 // FUN_00239F50
-s32 func_00239f50(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
+s32 datCalcApplySkillEffect(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
 {
     s32 temp_17;
     u32 temp_21;

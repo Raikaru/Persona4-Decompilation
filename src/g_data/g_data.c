@@ -2483,7 +2483,7 @@ void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
         K_ASSERT(arg1 < 0xB, 0x234);
         ptr2 = (u8*)D_00796E50 + (arg1 - 2) * 0x88 + 4;
     }
-    func_00239f50(arg2, ptr1, ptr2, arg3);
+    datCalcApplySkillEffect(arg2, ptr1, ptr2, arg3);
 }
 
 // FUN_0010F8C0
