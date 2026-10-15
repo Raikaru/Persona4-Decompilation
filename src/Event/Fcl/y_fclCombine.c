@@ -5885,9 +5885,9 @@ s32 fclCombineApplyDiscount(u16 arg0, s32 arg1)
    are (f32) int conversions (cvt.s.w); the format string is a gp-relative
    s32 (iGpffffa8a0). Stack slots follow declaration order: fv0 first, the
    FclVec2 constructor results, then fv7..fv1, then buf. */
-// Fcl combine menu validate (state 7): checks the fusion rules and ids, then runs the layout transition.
+// Fcl combine menu detail panels (state 7): shows the two detail panels with their counts (0x6E-0x72), follows the sprite anchors each frame (0x73, 0x74), and the d-pad switches panels; cancel (0x20) returns to state 0 at sub-state 0x1A.
 // FUN_00302770
-void fclCombineMenuValidate(u8 *arg0) {
+void fclCombineMenuDetailPanels(u8 *arg0) {
     extern u8 *fclSpriteWork(u8 *arg0);
     extern void func_0032e570(u8 *arg0);
     FclVec2f fv0;
