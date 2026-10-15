@@ -554,8 +554,9 @@ done:
 }
 
 
+// Event task-handle check: nonzero when the current event's +0x768 task handle is set.
 // FUN_0028B650
-s32 func_0028b650(void) {
+s32 evtHasTaskHandle(void) {
     s32 h = func_00285af0();
 
     if (h == 0) {
