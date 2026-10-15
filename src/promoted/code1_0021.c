@@ -151,7 +151,7 @@ void btlDamageDrawPanel(u8 *arg0, u8 *arg1)
 {
     extern s32 btlTargetFindInRange(s32 arg0, u8 *arg1);
     extern f32 btlSelectionEaseCurve(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_00195ea0(BtlUnit *unit, RwV3d *position);
+    extern void btlUnitGetHudAnchor(BtlUnit *unit, RwV3d *position);
     extern void btlTransitionStepStretch(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
     extern void btlTransitionStepExpand(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
     extern void btlTransitionStepPulse(u8 *arg0, u8 *arg1, f32 x, f32 y);
@@ -192,7 +192,7 @@ void btlDamageDrawPanel(u8 *arg0, u8 *arg1)
     }
     if (alive != 0) {
         if (*(u16 *)(transition + 0x14) & 8) {
-            func_00195ea0((BtlUnit *)*(u8 **)transition, (RwV3d *)(transition + 4));
+            btlUnitGetHudAnchor((BtlUnit *)*(u8 **)transition, (RwV3d *)(transition + 4));
         }
         if (btlTargetFindInRange((s32)(transition + 4), (u8 *)pos) != 0) {
             work = *(u8 **)transition + 0xA3C;
@@ -558,7 +558,7 @@ loop_test:
 // FUN_00211BA0
 void btlDamageDrawBadStatus(u8 *arg0, u8 *arg1)
 {
-    extern void func_00195f70(u8 *arg0, f32 *arg1);
+    extern void btlUnitGetStatusMarkerPoint(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
     extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
     extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
@@ -594,7 +594,7 @@ void btlDamageDrawBadStatus(u8 *arg0, u8 *arg1)
                     if (!datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100000)) {
                         continue;
                     }
-                    func_00195f70(unit, world);
+                    btlUnitGetStatusMarkerPoint(unit, world);
                     if (!btlTargetFindInRange(world, screen)) {
                         continue;
                     }

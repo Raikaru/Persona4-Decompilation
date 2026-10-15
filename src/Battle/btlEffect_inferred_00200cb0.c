@@ -642,7 +642,7 @@ s32 btlPacketBuildHitFlags(u8 *work)
     extern u8 *iGpffffb3b8;
     extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
     extern s32 datCalcElementBit(s16 arg0);
-    extern void func_00195ea0(BtlUnit *unit, RwV3d *position);
+    extern void btlUnitGetHudAnchor(BtlUnit *unit, RwV3d *position);
     extern void func_001959d0(BtlUnit *unit, RwV3d *position);
     extern void btlSelectionPushEntry(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4);
 
@@ -724,7 +724,7 @@ s32 btlPacketBuildHitFlags(u8 *work)
     result.value1 = value1;
     result.flags = flags;
     if (*(s32 *)(work + 0x34) != 0) {
-        func_00195ea0((BtlUnit *)*(u8 **)(work + 4), (RwV3d *)position);
+        btlUnitGetHudAnchor((BtlUnit *)*(u8 **)(work + 4), (RwV3d *)position);
     } else {
         func_001959d0((BtlUnit *)*(u8 **)(work + 4), (RwV3d *)position);
     }

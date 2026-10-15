@@ -1721,7 +1721,7 @@ void func_00195aa0(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
 }
 
 // FUN_00195EA0
-void func_00195ea0(BtlUnit* unit, RwV3d* param_2)
+void btlUnitGetHudAnchor(BtlUnit* unit, RwV3d* param_2)
 {
     RwV3d scaled;
     RwV3d transformed;
@@ -1737,7 +1737,7 @@ void func_00195ea0(BtlUnit* unit, RwV3d* param_2)
 }
 
 // FUN_00195F70
-void func_00195f70(BtlUnit* unit, RwV3d* param_2)
+void btlUnitGetStatusMarkerPoint(BtlUnit* unit, RwV3d* param_2)
 {
     RwV3d scaled;
     RwV3d transformed;
@@ -1753,7 +1753,7 @@ void func_00195f70(BtlUnit* unit, RwV3d* param_2)
 }
 
 // FUN_001987A0
-void func_001987a0(BtlUnit* unit)
+void btlUnitSetRandomAnimFrame(BtlUnit* unit)
 {
     s16 animation;
 
