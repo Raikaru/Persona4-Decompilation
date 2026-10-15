@@ -31,10 +31,10 @@ class FieldMovementTests(unittest.TestCase):
         # this assertion separately prevents a fallback from hiding a regression.
         markers = [m for m in verify.scan_markers(OWNER) if m['addr'] == 0x174e10]
         self.assertEqual(len(markers), 1)
-        self.assertEqual(markers[0]['name'], 'func_00174e10')
+        self.assertEqual(markers[0]['name'], 'FldEvent_StepMoveToward')
         self.assertFalse(markers[0]['nonmatching'])
         self.assertFalse(markers[0].get('asm', False))
-        self.assertNotRegex(OWNER.read_text(), r'INCLUDE_ASM\([^;]*\bfunc_00174e10\b')
+        self.assertNotRegex(OWNER.read_text(), r'INCLUDE_ASM\([^;]*\bFldEvent_StepMoveToward\b')
         self.assertTrue(movement_definition(OWNER.read_text()).endswith('}'))
 
     def test_historical_replay_refuses_promoted_source_before_tool_lookup(self):
@@ -52,7 +52,7 @@ class FieldMovementTests(unittest.TestCase):
     def test_guarded_and_promoted_witnesses_agree(self):
         body = movement_definition(OWNER.read_text())
         guarded = '// FUN_00174E10 NONMATCHING\n#ifdef NON_MATCHING\n' + body + (
-            '\n#else\nINCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00174e10);\n#endif\n')
+            '\n#else\nINCLUDE_ASM("asm/nonmatchings/k_fldEvent", FldEvent_StepMoveToward);\n#endif\n')
         promoted = '// FUN_00174E10\n' + body + '\n#pragma pop\n'
         for source in (guarded, promoted):
             self.assertEqual(movement_definition(source), body)
