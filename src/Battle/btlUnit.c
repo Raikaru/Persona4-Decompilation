@@ -1644,7 +1644,7 @@ extern RwV3d D_0060a0d0;
 extern f32 DAT_007613f8;
 
 // FUN_0019E830
-void func_0019e830(u8 *arg0) {
+void btlUnitIncrementPacketCountIfUnit(u8 *arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;
@@ -1653,7 +1653,7 @@ void func_0019e830(u8 *arg0) {
     }
 }
 // FUN_0019E9D0
-void func_0019e9d0(u8 *arg0) {
+void btlUnitDecrementPacketCountIfUnit(u8 *arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;

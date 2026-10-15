@@ -178,9 +178,9 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     func_0019ef30(arg0, arg1);
 }
-extern void func_0019e830(u8 *arg0);
+extern void btlUnitIncrementPacketCountIfUnit(u8 *arg0);
 extern s32 func_0019e850(u8 *arg0);
-extern void func_0019e9d0(u8 *arg0);
+extern void btlUnitDecrementPacketCountIfUnit(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -233,9 +233,9 @@ u8 *func_0019e9f0(u8 *unit, s16 value)
     u8 *work;
 
     packet = (u8 *)func_00194470(0x11A, 8);
-    *(void **)(packet + 0x68) = (void *)func_0019e830;
+    *(void **)(packet + 0x68) = (void *)btlUnitIncrementPacketCountIfUnit;
     *(void **)(packet + 0x6C) = (void *)func_0019e850;
-    *(void **)(packet + 0x70) = (void *)func_0019e9d0;
+    *(void **)(packet + 0x70) = (void *)btlUnitDecrementPacketCountIfUnit;
     work = *(u8 **)(packet + 0x78);
     *(u8 **)work = unit;
     *(s16 *)(work + 4) = value;
