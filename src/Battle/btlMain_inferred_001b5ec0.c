@@ -72,8 +72,8 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
     return left * right;
 }
 extern void *SceneDraw_GetList4Matrix(void);
-extern u8 *func_00149ca0(void);
-extern u8 *func_00149ce0(void);
+extern u8 *resrcMngGetColorValue(void);
+extern u8 *resrcMngGetColorTarget(void);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern void btlUnitSetColor(u8 *arg0, s32 arg1);
@@ -228,7 +228,7 @@ void func_001b6120(void)
 {
     extern u8 *func_004571a0(void);
     extern u8 *func_004571c0(void);
-    extern u8 *func_00149d20(void);
+    extern u8 *resrcMngGetTransform(void);
     extern s32 RtQuatConvertFromMatrix(void *quat, const void *matrix);
     extern void *memcpy(void *dst, const void *src, u32 size);
     extern s32 sprintf(char *dst, const char *fmt, ...);
@@ -307,13 +307,13 @@ void func_001b6120(void)
     cam = (u8 *)func_004571c0();
     base = D_0076449C;
     *(RgbaReal *)(base + 0x280) = *(RgbaReal *)(cam + 0x18);
-    vec = func_00149ca0();
+    vec = resrcMngGetColorValue();
     base = D_0076449C;
     *(RgbaReal *)(base + 0x1BC) = *(RgbaReal *)(vec + 0x0);
-    vec = func_00149ce0();
+    vec = resrcMngGetColorTarget();
     base = D_0076449C;
     *(RgbaReal *)(base + 0x1CC) = *(RgbaReal *)(vec + 0x0);
-    tmp = func_00149d20();
+    tmp = resrcMngGetTransform();
     base = D_0076449C;
     RtQuatConvertFromMatrix(base + 0x1DC, tmp);
     base = D_0076449C;
@@ -888,9 +888,9 @@ u32 func_001b7520(void *arg0)
         return 1;
     }
     if (work->currentFrame == 0) {
-        tmp = (FadeV4 *)func_00149ca0();
+        tmp = (FadeV4 *)resrcMngGetColorValue();
         work->snapA = *tmp;
-        tmp = (FadeV4 *)func_00149ce0();
+        tmp = (FadeV4 *)resrcMngGetColorTarget();
         work->snapB = *tmp;
         work->prodA.x = work->snapA.x * work->colorA.x;
         work->prodA.y = work->snapA.y * work->colorA.y;
@@ -920,16 +920,16 @@ u32 func_001b7520(void *arg0)
         result.y = firstY + secondY;
         result.z = firstZ + secondZ;
         result.w = firstW + secondW;
-        *(FadeV4 *)func_00149ca0() = result;
+        *(FadeV4 *)resrcMngGetColorValue() = result;
         result.x = work->snapB.x * inverse + work->prodB.x * ratio;
         result.y = work->snapB.y * inverse + work->prodB.y * ratio;
         result.z = work->snapB.z * inverse + work->prodB.z * ratio;
         result.w = work->snapB.w * inverse + work->prodB.w * ratio;
-        *(FadeV4 *)func_00149ce0() = result;
+        *(FadeV4 *)resrcMngGetColorTarget() = result;
     } else {
-        tmp = (FadeV4 *)func_00149ca0();
+        tmp = (FadeV4 *)resrcMngGetColorValue();
         *tmp = work->prodA;
-        tmp = (FadeV4 *)func_00149ce0();
+        tmp = (FadeV4 *)resrcMngGetColorTarget();
         *tmp = work->prodB;
         return 1;
     }

@@ -152,13 +152,13 @@ s32 func_00153c00(s32 arg0) {
 s32 func_00153d60(u8 *arg0, s32 arg1)
 {
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
-    extern void func_00149d60(s32 arg0);
-    extern void func_00149db0(s32 arg0);
-    extern void func_00149e00(s32 arg0);
-    extern void func_00149e50(s32 arg0);
-    extern u8 *func_00149ca0(void);
-    extern u8 *func_00149ce0(void);
-    extern u8 *func_00149d20(void);
+    extern void resrcMngSetEnvPrimary(s32 arg0);
+    extern void resrcMngSetEnvSecondary(s32 arg0);
+    extern void resrcMngSetEnvTertiary(s32 arg0);
+    extern void resrcMngSetEnvIntensity(s32 arg0);
+    extern u8 *resrcMngGetColorValue(void);
+    extern u8 *resrcMngGetColorTarget(void);
+    extern u8 *resrcMngGetTransform(void);
     extern void func_001537c0(u8 *arg0, u8 *arg1);
     extern s32 func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, s32 arg2, s32 arg3, s32 arg4);
     extern s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s32 arg6, u8 *arg7);
@@ -219,10 +219,10 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     }
     tmp4 = MT_Scene_GetResListHead(4);
     tmp5 = MT_Scene_GetResListHead(5);
-    func_00149d60(*(u8 *)(data + 8));
-    func_00149db0(*(u8 *)(data + 9));
-    func_00149e00(*(u8 *)(data + 0xA));
-    func_00149e50(*(u8 *)(data + 0xB));
+    resrcMngSetEnvPrimary(*(u8 *)(data + 8));
+    resrcMngSetEnvSecondary(*(u8 *)(data + 9));
+    resrcMngSetEnvTertiary(*(u8 *)(data + 0xA));
+    resrcMngSetEnvIntensity(*(u8 *)(data + 0xB));
     if (*(u8 *)(data + 0xF) == 1) {
         iGpffffba48 = 1;
     } else {
@@ -260,15 +260,15 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
         iGpffffba6c = *(f32 *)(data + 0x14);
     }
     {
-        u8 *dst = func_00149ca0();
+        u8 *dst = resrcMngGetColorValue();
         *(F4 *)dst = *(F4 *)(data + 0x1C);
     }
     {
-        u8 *dst = func_00149ce0();
+        u8 *dst = resrcMngGetColorTarget();
         *(F4 *)dst = *(F4 *)(data + 0x2C);
     }
     {
-        u8 *dst = func_00149d20();
+        u8 *dst = resrcMngGetTransform();
         s32 *src = (s32 *)(data + 0x40);
         s32 count = 8;
         s32 first;

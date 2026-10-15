@@ -18,7 +18,7 @@ typedef struct Model Model;
 typedef struct RwMatrix RwMatrix;
 extern u8 *iGpffff9db0;
 extern u8 D_006355C0[], D_006355E0[], D_00635600[];
-extern u8 *func_00147530(u8 *lists, u16 id);
+extern u8 *resrcMngFindResById(u8 *lists, u16 id);
 extern u16 datCalcMaxHp(DatUnit *unit);
 extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
 extern u32 func_001064f0(s32 counter);
@@ -5058,7 +5058,7 @@ void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
             *(s8 *)(iGpffffb3ac + 0xC12) = -1;
         break;
     case 0x103:
-        resource = func_00147530(*(u8 **)(iGpffff9db0 + 8), 0x2804);
+        resource = resrcMngFindResById(*(u8 **)(iGpffff9db0 + 8), 0x2804);
         if (resource == NULL || *(void **)(resource + 0x144) == NULL)
             break;
         hp = *(u16 *)(*(u8 **)(*(u8 **)(packet + 0x30) + 0xA64) + 8);

@@ -433,7 +433,7 @@ void func_00294280(u8 *arg0)
     extern u32 MT_Scene_GetResManager(void);
     extern Resrc *MT_Scene_GetRes(u16 arg0);
     extern Resrc *resrcMngGetListHead(ResrcManager *arg0, u8 arg1);
-    extern u32 func_001475c0(u8 *arg0, u8 arg1);
+    extern u32 resrcMngGetTotalResInList(u8 *arg0, u8 arg1);
     extern void *evtNodeAlloc(s32 arg0, s32 arg1);
     extern void evtNodeSetRes(s32 arg0, s32 arg1, s32 arg2);
     extern void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3);
@@ -503,7 +503,7 @@ void func_00294280(u8 *arg0)
         } else {
             evtNodeSetRes((s32)evtNodeAlloc(1, (s32)arg0), 0x400, 0);
         }
-        temp_20 = func_001475c0((u8 *)temp_2, 3);
+        temp_20 = resrcMngGetTotalResInList((u8 *)temp_2, 3);
         temp_2_2b = (u8 *)resrcMngGetListHead((ResrcManager *)temp_2, 3);
         func_00440b68(D_0063CAD0, temp_20);
         temp_19 = 0;

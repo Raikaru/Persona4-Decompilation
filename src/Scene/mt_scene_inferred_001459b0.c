@@ -107,7 +107,7 @@ extern f32 fGpffff8110;
 extern void func_00452080(s32 arg0);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern u8 *resrcMngCreateRes(s32 arg0, s32 arg1);
-extern u8 *func_00147530(u8 *arg0, u16 arg1);
+extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
 extern void Vpad_BuildRotatedQuad(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
 extern u8 *func_003e0f80(void);
 extern void memcpy(void *dest, const void *src, s32 size);
@@ -731,7 +731,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
     if (resourceOwner == NULL) {
         resourceRecord = NULL;
     } else {
-        resourceRecord = (ResrcRecord *)func_00147530(resourceOwner, resTypeId);
+        resourceRecord = (ResrcRecord *)resrcMngFindResById(resourceOwner, resTypeId);
     }
     if (resourceRecord != NULL) {
         resourceKind = RESRC_GET_TYPE(resourceRecord->resTypeId);

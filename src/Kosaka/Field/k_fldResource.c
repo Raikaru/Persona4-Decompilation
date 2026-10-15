@@ -80,9 +80,9 @@ extern s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
 extern s32 func_003dc370(void *arg0);
 extern void func_003ef1b0(s32 arg0);
 extern RwBool (*D_00887300[])(RwRenderState state, void *value);
-extern u8 *func_00149ca0(void);
-extern u8 *func_00149ce0(void);
-extern u8 *func_00149d20(void);
+extern u8 *resrcMngGetColorValue(void);
+extern u8 *resrcMngGetColorTarget(void);
+extern u8 *resrcMngGetTransform(void);
 extern RwBool RpSkyRenderStateSet(s32 state, void *payload);
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
@@ -464,8 +464,8 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern f32 KDraw_MatrixRollDeg(u8 *arg0);
     extern s32 func_0014a270(void);
     extern s32 func_0014a200(void);
-    extern void func_00149ea0(void);
-    extern void func_0014a000(s32 arg0, s32 arg1);
+    extern void resrcMngResetRenderSlots(void);
+    extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
     extern s32 func_00153c00(s32 arg0);
     extern s32 func_00153d60(u8 *arg0, s32 arg1);
     extern s32 func_00154b10(void);
@@ -960,11 +960,11 @@ block_123:
                     var_17_4 += 1;
                 }
                 *frameCount = 0U;
-                func_00149ea0();
+                resrcMngResetRenderSlots();
                 {
                     s32 enable = 1;
 
-                    func_0014a000(enable, enable);
+                    resrcMngSetDrawEnabled(enable, enable);
                 }
             }
             *( s32 * )(iGpffff9db0 + 0xDC) = func_00153c00(*( s16 * )(iGpffff9db0 + 0x12));
@@ -1778,11 +1778,11 @@ void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
         dst->w1 = w1;
         dst++;
     } while (n > 0);
-    if (func_00149ca0() != 0) {
-        func_003c38b0((RpLight *)(u32)func_004571a0(), (const RwRGBAReal *)func_00149ca0());
-        func_003c38b0((RpLight *)(u32)func_004571b0(), (const RwRGBAReal *)func_00149ce0());
+    if (resrcMngGetColorValue() != 0) {
+        func_003c38b0((RpLight *)(u32)func_004571a0(), (const RwRGBAReal *)resrcMngGetColorValue());
+        func_003c38b0((RpLight *)(u32)func_004571b0(), (const RwRGBAReal *)resrcMngGetColorTarget());
         func_003e9cb0(*(RwFrame **)((u8 *)(u32)func_004571b0() + 4),
-                      (const RwMatrix *)func_00149d20(), rwCOMBINEREPLACE);
+                      (const RwMatrix *)resrcMngGetTransform(), rwCOMBINEREPLACE);
     }
     *(s8 *)((u8 *)(u32)func_004571b0() + 2) = 3;
     func_004571b0();

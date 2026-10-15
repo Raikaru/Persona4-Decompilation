@@ -219,7 +219,7 @@ extern int mdlHasActiveMode(void *arg0);
 extern void mdlSetLookAtActive(void *arg0);
 extern void func_0019d550(u8 *arg0);
 extern void mdlSetLookAtRequested(void *arg0);
-extern u8 *func_00147530(u8 *arg0, u16 arg1);
+extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
 extern void func_0019d7a0(u8 *arg0, s32 arg1);
 extern void func_0047a810(void *arg0);
 extern void mdlSetAlphaBlend(void *arg0);

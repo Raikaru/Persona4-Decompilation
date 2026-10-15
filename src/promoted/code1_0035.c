@@ -119,7 +119,7 @@ extern s32 func_002bb4e0(void);
 extern s32 func_002bd7b0(const void *arg0);
 extern s32 func_002bd840(s32 arg0);
 extern u8 D_0064A790[];
-extern void func_00149680(s32 arg0);
+extern void resrcMngSetRenderSuppressed(s32 arg0);
 extern s32 func_0015a560(void);
 extern void func_0034c260(s32 arg0);
 extern s32 func_0034bb10(void);
@@ -267,12 +267,12 @@ s32 func_00353f50(s32 arg0)
 // FUN_00353FB0
 void func_00353fb0(void)
 {
-    func_00149680(0);
+    resrcMngSetRenderSuppressed(0);
 }
 // FUN_00353FE0
 void func_00353fe0(void)
 {
-    func_00149680(1);
+    resrcMngSetRenderSuppressed(1);
 }
 // FUN_00354010
 s32 func_00354010(void)
@@ -284,7 +284,7 @@ s32 func_00354030(void)
 {
     func_0045af60(0, 2, 0, 4);
     func_0034c260(0);
-    func_00149680(0);
+    resrcMngSetRenderSuppressed(0);
     return func_0034bb10();
 }
 // FUN_00354080

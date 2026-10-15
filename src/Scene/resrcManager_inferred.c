@@ -104,7 +104,7 @@ extern f32 fGpffff8110;
 
 
 
-extern u8 *func_00147530(u8 *arg0, u16 arg1);
+extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -129,7 +129,7 @@ extern u8 *func_004571b0(void);
 extern u8 *func_004571c0(void);
 extern u8 *func_00457190(void);
 extern void func_003cbe80(void *arg0, void *arg1);
-extern u8 *func_00149ca0(void);
+extern u8 *resrcMngGetColorValue(void);
 extern u8 D_007E8020[];
 extern void *mdlGetMatrix(void *model);
 extern f32 RwV3dLength(f32 *arg0);
@@ -138,8 +138,8 @@ extern u8 *func_003e9700(s32 arg0);
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
 extern s32 func_003cbf30(s32 arg0, void *arg1);
-extern u8 *func_00149ce0(void);
-extern u8 *func_00149d20(void);
+extern u8 *resrcMngGetColorTarget(void);
+extern u8 *resrcMngGetTransform(void);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 D_008872F8[];
@@ -167,7 +167,7 @@ extern void func_004b1250(void *object, f32 *position);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
-extern s32 func_00148280(u8 *task);
+extern s32 resrcMngRenderTask(u8 *task);
 extern void FldShadow_SpawnCasterTask(u8 *arg0);
 
 
@@ -197,7 +197,7 @@ extern void func_00460ac0(void *arg0, u8 *arg1);
 
 
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void func_0014a000(s32 arg0, s32 arg1);
+extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
 extern void func_001538a0(u32 *resource, const f32 *color);
 extern void func_00457140(u8 red, u8 green, u8 blue, u8 alpha);
 extern s8 *func_00457160(void);
@@ -296,7 +296,7 @@ extern f32 D_008872F8[];
 /* measured: schedule-off probe for 46630 branch delay slots. */
 /* measured: closes schedule-off probe for 46630. */
 // FUN_00147530
-u8 *func_00147530(u8 *arg0, u16 arg1) {
+u8 *resrcMngFindResById(u8 *arg0, u16 arg1) {
     s32 temp_3;
     s32 temp_5;
     u8 *var_2;
@@ -322,7 +322,7 @@ u8 *func_00147530(u8 *arg0, u16 arg1) {
 // FUN_001475C0
 /* Ported from P3FES resrcMngGetTotalResInList: P4 uses a 0x16-entry list
    table and the list link remains at offset 0x138. */
-u32 func_001475c0(u8 *resLists, u8 resType)
+u32 resrcMngGetTotalResInList(u8 *resLists, u8 resType)
 {
     u32 total;
     u8 *currRes;
@@ -340,15 +340,15 @@ u32 func_001475c0(u8 *resLists, u8 resType)
 }
 
 // FUN_00147620
-u8 *func_00147620(s32 arg0) {
+u8 *resrcMngGetTableEntry(s32 arg0) {
     return D_005EFAA0 + arg0 * 0x10;
 }
 
 /* measured probe: opt_propagation off for 00147640 float ordering. */
-/* measured: func_00147640 MATCH -> MISMATCH without this pragma. */
+/* measured: resrcMngRenderCameraFog MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_00147640
-void func_00147640(u8 *arg0, u8 *arg1) {
+void resrcMngRenderCameraFog(u8 *arg0, u8 *arg1) {
     f32 temp_f0;
     f32 temp_f1;
     f32 temp_f2;
@@ -399,13 +399,13 @@ void func_00147640(u8 *arg0, u8 *arg1) {
     } while (var_4 > 0);
     temp_16 = (s32)func_00457190();
     func_003cbf30(temp_16, func_004571c0());
-    if (func_00149ca0() != NULL) {
+    if (resrcMngGetColorValue() != NULL) {
         temp_16_2 = func_004571a0();
-        func_003c38b0(temp_16_2, func_00149ca0());
+        func_003c38b0(temp_16_2, resrcMngGetColorValue());
         temp_16_3 = func_004571b0();
-        func_003c38b0(temp_16_3, func_00149ce0());
+        func_003c38b0(temp_16_3, resrcMngGetColorTarget());
         temp_16_4 = func_004571b0();
-        func_003e9cb0(*(s32 *)(temp_16_4 + 4), func_00149d20(), 0);
+        func_003e9cb0(*(s32 *)(temp_16_4 + 4), resrcMngGetTransform(), 0);
     }
     func_003e8120(((u8 *)(u32)func_00457120()));
     if (iGpffffba48 == 1) {
@@ -422,13 +422,13 @@ void func_00147640(u8 *arg0, u8 *arg1) {
 
 /* measured probe: restore opt_propagation after 00147640. */
 // FUN_00147830
-void func_00147830(u8 *arg0, u8 *arg1) {
+void resrcMngRenderCamera(u8 *arg0, u8 *arg1) {
     u8 *temp_16;
 
     func_003e8110(((u8 *)(u32)func_00457120()));
     temp_16 = func_00457190();
     func_003cbe80(temp_16, func_004571c0());
-    if (func_00149ca0() != NULL) {
+    if (resrcMngGetColorValue() != NULL) {
         func_003c38b0(func_004571a0(), arg1);
         func_003c38b0(func_004571b0(), arg1 + 0x10);
         func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x20, 0);
@@ -438,7 +438,7 @@ void func_00147830(u8 *arg0, u8 *arg1) {
 
 /* measured probe: opt_propagation off for 00147910 float and vtable order. */
 // FUN_00147910
-void func_00147910(u8 *arg0, u8 *arg1) {
+void resrcMngRenderCameraFade(u8 *arg0, u8 *arg1) {
     f32 temp_f0;
     f32 temp_f1;
     f32 temp_f2;
@@ -526,7 +526,7 @@ void func_00147910(u8 *arg0, u8 *arg1) {
 
 /* measured probe: restore opt_propagation after 00147910. */
 // FUN_00147AE0
-void func_00147ae0(u8 *arg0, u8 *arg1) {
+void resrcMngRenderCameraPair(u8 *arg0, u8 *arg1) {
     func_003e8110(((u8 *)(u32)func_00457120()));
     func_003c38b0(func_004571a0(), arg1);
     func_003c38b0(func_004571c0(), arg1 + 0x60);
@@ -537,7 +537,7 @@ void func_00147ae0(u8 *arg0, u8 *arg1) {
 }
 
 // FUN_00147BB0
-void func_00147bb0(u8 *arg0, u8 *arg1) {
+void resrcMngRenderAttached(u8 *arg0, u8 *arg1) {
     s32 temp_3;
     u8 *temp_16;
 
@@ -564,7 +564,7 @@ void func_00147bb0(u8 *arg0, u8 *arg1) {
 }
 
 // FUN_00147D80
-void func_00147d80(void) {
+void resrcMngRenderCameraSlots(void) {
     u8 *temp_16;
 
     temp_16 = MT_Scene_GetResListHead(5);
@@ -578,7 +578,7 @@ void func_00147d80(void) {
 }
 
 // FUN_00147E60
-void func_00147e60(u8 *arg0, u8 *arg1) {
+void resrcMngRenderAttachedPair(u8 *arg0, u8 *arg1) {
     func_003e8110(((u8 *)(u32)func_00457120()));
     func_003c38b0(func_004571a0(), arg1 + 0x168);
     func_003c38b0(func_004571c0(), arg1 + 0x178);
@@ -589,7 +589,7 @@ void func_00147e60(u8 *arg0, u8 *arg1) {
 }
 
 // FUN_00147F30
-void func_00147f30(u8 *arg0, u8 *arg1) {
+void resrcMngRenderAttachedAlt(u8 *arg0, u8 *arg1) {
     func_003e8110(((u8 *)(u32)func_00457120()));
     func_003c38b0(func_004571a0(), arg1 + 0x15C);
     func_003c38b0(func_004571c0(), arg1 + 0x16C);
@@ -601,7 +601,7 @@ void func_00147f30(u8 *arg0, u8 *arg1) {
 
 /* measured probe: opt_propagation off preserves 00148000 vector coloring. */
 // FUN_00148000
-s32 func_00148000(const void *left, const void *right) {
+s32 resrcMngCompareDistanceArrA(const void *left, const void *right) {
     u8 *const *arg0 = (u8 *const *)left;
     u8 *const *arg1 = (u8 *const *)right;
     struct Frame {
@@ -643,10 +643,10 @@ s32 func_00148000(const void *left, const void *right) {
     return (s32)(temp_f20 - RwV3dLength(frame.v50));
 }
 
-/* measured: closes opt_propagation off for func_00148000. */
+/* measured: closes opt_propagation off for resrcMngCompareDistanceArrA. */
 /* measured: opt_propagation off preserves 00148140 vector coloring. */
 // FUN_00148140
-s32 func_00148140(const void *left, const void *right) {
+s32 resrcMngCompareDistanceArrB(const void *left, const void *right) {
     u8 *const *arg0 = (u8 *const *)left;
     u8 *const *arg1 = (u8 *const *)right;
     struct Frame {
@@ -688,8 +688,8 @@ s32 func_00148140(const void *left, const void *right) {
     return (s32)(temp_f20 - RwV3dLength(frame.v50));
 }
 
-/* measured: closes opt_propagation off for func_00148140. */
-/* measured: func_00148280, func_0014a000 MATCH -> MISMATCH without this pragma. */
+/* measured: closes opt_propagation off for resrcMngCompareDistanceArrB. */
+/* measured: resrcMngRenderTask, resrcMngSetDrawEnabled MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 /* Recovered render passes preserve callback-time resource reloads and
    complete position-vector copies. The two tail k-loops share
@@ -699,12 +699,12 @@ s32 func_00148140(const void *left, const void *right) {
    `cur = (u8 *)ent`; that copy keeps `ent = &arrB[k]` a declared local, which
    is retail's $s4. See docs/probe_archive/RenderQueue_00148280_worker1_20261005.md. */
 #pragma push
-/* measured: func_00148280 MATCH -> MISMATCH without this pragma. */
+/* measured: resrcMngRenderTask MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-/* measured: func_00148280 MATCH -> MISMATCH without this pragma. */
+/* measured: resrcMngRenderTask MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
 // FUN_00148280
-s32 func_00148280(u8 *unusedTask) {
+s32 resrcMngRenderTask(u8 *unusedTask) {
     /* Retail returns zero at 001495E8, 00148318. */
     extern void FldResource_QueueDrawCallbacks(u8 *arg0, u8 *arg1);
     extern void FldResource_QueueDrawCallbacksPrimary(u8 *arg0, u8 *arg1);
@@ -799,11 +799,11 @@ s32 func_00148280(u8 *unusedTask) {
         l12 = *(u8 **)(l12 + 0x138);
     }
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147640;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFog;
     *(u8 **)(tmp + 0x10) = D_007D2400;
     func_00460ac0(D_00793EE0, tmp);
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147640;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFog;
     *(u8 **)(tmp + 0x10) = D_007D2350;
     if (flag != 0) {
         func_00460ac0(D_00793F10, tmp);
@@ -811,7 +811,7 @@ s32 func_00148280(u8 *unusedTask) {
         func_00460ac0(D_00794300, tmp);
     }
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147640;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFog;
     *(u8 **)(tmp + 0x10) = D_007D22A0;
     if (flag != 0) {
         func_00460ac0(D_00793F40, tmp);
@@ -856,11 +856,11 @@ s32 func_00148280(u8 *unusedTask) {
         l10 = *(u8 **)(l10 + 0x138);
     }
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147830;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCamera;
     *(u8 **)(tmp + 0x10) = D_007D2400;
     func_00460ac0(D_00793EE0, tmp);
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147830;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCamera;
     *(u8 **)(tmp + 0x10) = D_007D2350;
     if (flag != 0) {
         func_00460ac0(D_00793F10, tmp);
@@ -868,7 +868,7 @@ s32 func_00148280(u8 *unusedTask) {
         func_00460ac0(D_00794300, tmp);
     }
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147830;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCamera;
     *(u8 **)(tmp + 0x10) = D_007D22A0;
     if (flag != 0) {
         func_00460ac0(D_00793F40, tmp);
@@ -876,15 +876,15 @@ s32 func_00148280(u8 *unusedTask) {
         func_00460ac0(D_00794360, tmp);
     }
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147910;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
     *(u8 **)(tmp + 0x10) = D_007D21F0;
     func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147910;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
     *(u8 **)(tmp + 0x10) = D_007D2140;
     func_00460ac0(D_007945D0, tmp);
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147910;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
     *(u8 **)(tmp + 0x10) = D_007D1FE0;
     func_00460ac0(D_007945A0, tmp);
     memset(arrA, 0, 0x100);
@@ -898,7 +898,7 @@ s32 func_00148280(u8 *unusedTask) {
         n1 += 1;
     }
     if (*(s32 *)(iGpffff9db0 + 0x14) == 1) {
-        qsort(arrA, n1, 4, func_00148000);
+        qsort(arrA, n1, 4, resrcMngCompareDistanceArrA);
     }
     flag2 = 0;
     for (i = (s32)(n1 - 1); i >= 0; i--) {
@@ -912,7 +912,7 @@ s32 func_00148280(u8 *unusedTask) {
                 s32 j;
 
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147bb0;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderAttached;
                 *(u8 **)(tmp + 0x10) = *pp;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
                 if (func_0014a160() == 1 && (*(u16 *)*pp & 0x3FF) >= 100) {
@@ -945,16 +945,16 @@ s32 func_00148280(u8 *unusedTask) {
                 obj = *(u8 **)(obj + 0x138);
             } else {
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147910;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
                 *(u8 **)(tmp + 0x10) = D_007D2090;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), tmp);
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147bb0;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderAttached;
                 *(u8 **)(tmp + 0x10) = obj;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), tmp);
                 func_00479100((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), *(u8 **)(obj + 0x164));
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147ae0;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
                 *(u8 **)(tmp + 0x10) = D_007D2090;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), tmp);
                 obj = *(u8 **)(obj + 0x138);
@@ -963,7 +963,7 @@ s32 func_00148280(u8 *unusedTask) {
     }
     if (l3 != NULL) {
         tmp = func_00460990();
-        *(void **)(tmp + 8) = (void *)func_00147d80;
+        *(void **)(tmp + 8) = (void *)resrcMngRenderCameraSlots;
         *(u8 **)(tmp + 0x10) = NULL;
         func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
     }
@@ -1009,7 +1009,7 @@ s32 func_00148280(u8 *unusedTask) {
 
                 if ((flags & 0x10000000) && (flags & 2)) {
                     tmp = func_00460990();
-                    *(void **)(tmp + 8) = (void *)func_00147e60;
+                    *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedPair;
                     *(u8 **)(tmp + 0x10) = obj;
                     func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
                     if (*(s32 *)(obj + 0x28) & 0x80000000) {
@@ -1046,13 +1046,13 @@ s32 func_00148280(u8 *unusedTask) {
             }
             if (flags & 0x10000) {
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147f30;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedAlt;
                 *(u8 **)(tmp + 0x10) = l2;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
                 func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l2 + 0x158));
             } else {
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147f30;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedAlt;
                 *(u8 **)(tmp + 0x10) = l2;
                 func_00460ac0(D_007945A0, tmp);
                 func_00479100(D_007945A0, *(u8 **)(l2 + 0x158));
@@ -1068,16 +1068,16 @@ s32 func_00148280(u8 *unusedTask) {
                 obj = *(u8 **)(obj + 0x138);
             } else {
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147910;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
                 *(u8 **)(tmp + 0x10) = D_007D1F30;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), tmp);
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147f30;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedAlt;
                 *(u8 **)(tmp + 0x10) = obj;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), tmp);
                 func_00479100((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), *(u8 **)(obj + 0x158));
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147ae0;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
                 *(u8 **)(tmp + 0x10) = D_007D1F30;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), tmp);
                 obj = *(u8 **)(obj + 0x138);
@@ -1085,11 +1085,11 @@ s32 func_00148280(u8 *unusedTask) {
         }
     }
     if (*(s32 *)(iGpffff9db0 + 0x18) == 1) {
-        qsort(arrB, n2, 4, func_00148140);
+        qsort(arrB, n2, 4, resrcMngCompareDistanceArrB);
     }
     if (n2 != 0) {
         tmp = func_00460990();
-        *(void **)(tmp + 8) = (void *)func_00147d80;
+        *(void **)(tmp + 8) = (void *)resrcMngRenderCameraSlots;
         *(u8 **)(tmp + 0x10) = NULL;
         func_00460ac0(D_007945D0, tmp);
     }
@@ -1120,7 +1120,7 @@ s32 func_00148280(u8 *unusedTask) {
 
             if ((flags & 0x10000000) && (flags & 2) && (flags & 0x80000000)) {
                 tmp = func_00460990();
-                *(void **)(tmp + 8) = (void *)func_00147e60;
+                *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedPair;
                 *(u8 **)(tmp + 0x10) = arrB[k];
                 func_00460ac0(D_007945D0, tmp);
                 func_00479100(D_007945D0, *(u8 **)(arrB[k] + 0x164));
@@ -1138,15 +1138,15 @@ s32 func_00148280(u8 *unusedTask) {
         }
     }
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147ae0;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
     *(u8 **)(tmp + 0x10) = D_007D21F0;
     func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147ae0;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
     *(u8 **)(tmp + 0x10) = D_007D2140;
     func_00460ac0(D_007945D0, tmp);
     tmp = func_00460990();
-    *(void **)(tmp + 8) = (void *)func_00147ae0;
+    *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
     *(u8 **)(tmp + 0x10) = D_007D1FE0;
     func_00460ac0(D_007945A0, tmp);
     return 0;
@@ -1156,21 +1156,21 @@ s32 func_00148280(u8 *unusedTask) {
 /* The incoming parent is forwarded to the task allocator, which attaches
    the new task when it is non-null. The constructor remains 96/96 bytes. */
 // FUN_00149620
-u8 *func_00149620(u8 *ctx) {
+u8 *resrcMngSpawnRenderTask(u8 *ctx) {
     u8 *o;
 
-    o = func_00451fc0((void *)(ctx), (const void *)(D_005EFB10), 0xC7, 0, 0, func_00148280, 0, (u8 *)(NULL));
+    o = func_00451fc0((void *)(ctx), (const void *)(D_005EFB10), 0xC7, 0, 0, resrcMngRenderTask, 0, (u8 *)(NULL));
     FldShadow_SpawnCasterTask(o);
     return o;
 }
 
 // FUN_00149680
-void func_00149680(s32 arg0) {
+void resrcMngSetRenderSuppressed(s32 arg0) {
     D_007642E4 = arg0;
 }
 
 // FUN_00149690
-void func_00149690(s32 arg0) {
+void resrcMngSelectDrawSet(s32 arg0) {
     if (arg0 == 0) {
         iGpffff9dd0 = 0xF;
         return;
@@ -1184,7 +1184,7 @@ void func_00149690(s32 arg0) {
    1504/1504 bytes, all relocations exact, no padding or inline asm.
    See Retained_color_and_sphere_20260922_worker6.md. */
 // FUN_001496C0
-void func_001496c0(void *value) {
+void resrcMngApplyColorFactors(void *value) {
     const u8 *factors;
     u8 *resource;
     u32 fogColor;
@@ -1209,9 +1209,9 @@ void func_001496c0(void *value) {
         resource = *(u8 **)(resource + 0x138);
     }
     if ((*(f32 *)(factors + 0) <= 0.0f && *(f32 *)(factors + 4) <= 0.0f && *(f32 *)(factors + 8) <= 0.0f) || *(f32 *)(factors + 0xC) <= 0.0f) {
-        func_0014a000(0, 1);
+        resrcMngSetDrawEnabled(0, 1);
     } else {
-        func_0014a000(1, 1);
+        resrcMngSetDrawEnabled(1, 1);
     }
     colorBytes = (u8 *)func_00457160();
     color = *(const P4Bytes0014 *)colorBytes;
@@ -1252,7 +1252,7 @@ void func_001496c0(void *value) {
 }
 
 // FUN_00149CA0
-u8 *func_00149ca0(void) {
+u8 *resrcMngGetColorValue(void) {
     u8 *temp_2;
 
     temp_2 = MT_Scene_GetResListHead(0xC);
@@ -1263,7 +1263,7 @@ u8 *func_00149ca0(void) {
 }
 
 // FUN_00149CE0
-u8 *func_00149ce0(void) {
+u8 *resrcMngGetColorTarget(void) {
     u8 *temp_2;
 
     temp_2 = MT_Scene_GetResListHead(0xC);
@@ -1274,7 +1274,7 @@ u8 *func_00149ce0(void) {
 }
 
 // FUN_00149D20
-u8 *func_00149d20(void) {
+u8 *resrcMngGetTransform(void) {
     u8 *temp_2;
 
     temp_2 = MT_Scene_GetResListHead(0xC);
@@ -1285,36 +1285,36 @@ u8 *func_00149d20(void) {
 }
 
 // FUN_00149D60
-void func_00149d60(s32 arg0)
+void resrcMngSetEnvPrimary(s32 arg0)
 {
     MT_Scene_GetResListHead(12);
     func_00153b20(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
 // FUN_00149DB0
-void func_00149db0(s32 arg0)
+void resrcMngSetEnvSecondary(s32 arg0)
 {
     MT_Scene_GetResListHead(12);
     func_00153b60(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
 // FUN_00149E00
-void func_00149e00(s32 arg0)
+void resrcMngSetEnvTertiary(s32 arg0)
 {
     MT_Scene_GetResListHead(12);
     func_00153b90(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
 // FUN_00149E50
-void func_00149e50(s32 arg0)
+void resrcMngSetEnvIntensity(s32 arg0)
 {
     MT_Scene_GetResListHead(12);
     func_00153bd0(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
-/* measured: opt_rebuildconditionals off is scoped to func_00149ea0. */
+/* measured: opt_rebuildconditionals off is scoped to resrcMngResetRenderSlots. */
 // FUN_00149EA0
-void func_00149ea0(void)
+void resrcMngResetRenderSlots(void)
 {
     extern f32 fGpffff8198;
     extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
@@ -1377,13 +1377,13 @@ void func_00149ea0(void)
     RwMatrixRotate(var_16, &stack[0], 2, -45.0f);
 }
 
-/* measured: closes opt_rebuildconditionals for func_00149ea0. */
-/* measured: opt_rebuildconditionals off is scoped to func_0014a000. */
-/* measured: loop-invariant constants probe for func_0014a000. */
-/* measured: func_0014a000 MATCH -> MISMATCH without this pragma. */
+/* measured: closes opt_rebuildconditionals for resrcMngResetRenderSlots. */
+/* measured: opt_rebuildconditionals off is scoped to resrcMngSetDrawEnabled. */
+/* measured: loop-invariant constants probe for resrcMngSetDrawEnabled. */
+/* measured: resrcMngSetDrawEnabled MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_0014A000
-void func_0014a000(s32 arg0, s32 arg1)
+void resrcMngSetDrawEnabled(s32 arg0, s32 arg1)
 {
     u8 *var_16;
     u8 *var_6;

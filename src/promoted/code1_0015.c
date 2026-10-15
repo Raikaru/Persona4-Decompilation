@@ -1615,7 +1615,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     extern s32 func_00146140(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_00146200(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_001462c0(u16 arg0, f32 *arg1, f32 fparg0);
-    extern void func_00149ea0(void);
+    extern void resrcMngResetRenderSlots(void);
     extern void SceneDraw_SetResVisible(u16 arg0, u32 arg1);
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
@@ -1736,7 +1736,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     resourceId = (u16)func_00145c80(arg0,(s32)clonedModel);
     parentUnit = (u8 *)MT_Scene_GetRes(resourceId);
     SceneDraw_SetResVisible((u16)resourceId,1);
-    func_00149ea0();
+    resrcMngResetRenderSlots();
     for (rowIndex = 0; grid = (u8 *)func_00155280(), rowIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5b);
         rowIndex = rowIndex + 1) {
       columnIndex = 0;

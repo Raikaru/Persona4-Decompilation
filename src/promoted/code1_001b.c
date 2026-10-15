@@ -184,8 +184,8 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
     return left * right;
 }
 extern void *SceneDraw_GetList4Matrix(void);
-extern u8 *func_00149ca0(void);
-extern u8 *func_00149ce0(void);
+extern u8 *resrcMngGetColorValue(void);
+extern u8 *resrcMngGetColorTarget(void);
 extern s32 func_001d07e0(u8 *arg0, u8 *arg1);
 extern u8 *func_001d1200(u8 *arg0);
 extern void func_001d10f0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);

@@ -125,7 +125,7 @@ extern void FldResource_QueueFieldResources(s32 arg0, s32 arg1);
 extern s32 FldResource_StepPartLoad(s32 arg0, s32 arg1);
 extern s32 func_0026df80(void);
 extern u8 *resrcMngCreateRes(s32 arg0, s32 arg1);
-extern u8 *func_00147530(u8 *arg0, u16 arg1);
+extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
 extern void Vpad_BuildRotatedQuad(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
 extern u8 *func_003e0f80(void);
 extern void memcpy(void *dest, const void *src, s32 size);
@@ -163,7 +163,7 @@ extern u8 *func_004571b0(void);
 extern u8 *func_004571c0(void);
 extern u8 *func_00457190(void);
 extern void func_003cbe80(void *arg0, void *arg1);
-extern u8 *func_00149ca0(void);
+extern u8 *resrcMngGetColorValue(void);
 extern u8 D_007E8020[];
 extern void *mdlGetMatrix(void *model);
 extern f32 RwV3dLength(f32 *arg0);
@@ -182,8 +182,8 @@ extern void func_0014b1e0(void);
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
 extern s32 func_003cbf30(s32 arg0, void *arg1);
-extern u8 *func_00149ce0(void);
-extern u8 *func_00149d20(void);
+extern u8 *resrcMngGetColorTarget(void);
+extern u8 *resrcMngGetTransform(void);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 D_008872F8[];
@@ -219,7 +219,7 @@ extern void func_004b13d0(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
-extern s32 func_00148280(u8 *task);
+extern s32 resrcMngRenderTask(u8 *task);
 extern void FldShadow_SpawnCasterTask(u8 *arg0);
 
 
@@ -272,7 +272,7 @@ extern s32 func_00453960(void *arg0);
 extern void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void func_0014a000(s32 arg0, s32 arg1);
+extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
 extern void func_001538a0(u32 *resource, const f32 *color);
 extern void func_00457140(u8 red, u8 green, u8 blue, u8 alpha);
 extern s8 *func_00457160(void);
@@ -438,19 +438,19 @@ extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 ar
 
 
 
-/* measured: opt_rebuildconditionals off is scoped to func_00149ea0. */
+/* measured: opt_rebuildconditionals off is scoped to resrcMngResetRenderSlots. */
 #pragma opt_rebuildconditionals off
 
-/* measured: closes opt_rebuildconditionals for func_00149ea0. */
+/* measured: closes opt_rebuildconditionals for resrcMngResetRenderSlots. */
 #pragma opt_rebuildconditionals on
 
-/* measured: opt_rebuildconditionals off is scoped to func_0014a000. */
+/* measured: opt_rebuildconditionals off is scoped to resrcMngSetDrawEnabled. */
 #pragma opt_rebuildconditionals off
 
 #pragma opt_loop_invariants on
-/* measured: closes loop-invariant constants probe for func_0014a000. */
+/* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
 #pragma opt_loop_invariants off
-/* measured: closes opt_rebuildconditionals for func_0014a000. */
+/* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
 #pragma opt_rebuildconditionals on
 
 /* measured: opt_rebuildconditionals off is scoped to func_0014a160. */

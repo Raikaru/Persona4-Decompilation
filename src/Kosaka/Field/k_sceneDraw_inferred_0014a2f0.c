@@ -172,7 +172,7 @@ extern s32 D_007642F0;
 
 
 
-extern void func_0014a000(s32 arg0, s32 arg1);
+extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
 
 
 
@@ -267,9 +267,9 @@ extern f32 D_008872F8[];
 /* measured probe: opt_propagation off for 00147910 float and vtable order. */
 /* measured probe: restore opt_propagation after 00147910. */
 /* measured probe: opt_propagation off preserves 00148000 vector coloring. */
-/* measured: closes opt_propagation off for func_00148000. */
+/* measured: closes opt_propagation off for resrcMngCompareDistanceArrA. */
 /* measured: opt_propagation off preserves 00148140 vector coloring. */
-/* measured: closes opt_propagation off for func_00148140. */
+/* measured: closes opt_propagation off for resrcMngCompareDistanceArrB. */
 /* Recovered render passes preserve callback-time resource reloads and
    complete position-vector copies. The two tail k-loops share
    function-scope `k`/`j` (declared k first) under `opt_lifetimes on`, so
@@ -279,12 +279,12 @@ extern f32 D_008872F8[];
    is retail's $s4. See docs/probe_archive/RenderQueue_00148280_worker1_20261005.md. */
 #pragma push
 #pragma pop
-/* measured: opt_rebuildconditionals off is scoped to func_00149ea0. */
-/* measured: closes opt_rebuildconditionals for func_00149ea0. */
-/* measured: opt_rebuildconditionals off is scoped to func_0014a000. */
-/* measured: loop-invariant constants probe for func_0014a000. */
-/* measured: closes loop-invariant constants probe for func_0014a000. */
-/* measured: closes opt_rebuildconditionals for func_0014a000. */
+/* measured: opt_rebuildconditionals off is scoped to resrcMngResetRenderSlots. */
+/* measured: closes opt_rebuildconditionals for resrcMngResetRenderSlots. */
+/* measured: opt_rebuildconditionals off is scoped to resrcMngSetDrawEnabled. */
+/* measured: loop-invariant constants probe for resrcMngSetDrawEnabled. */
+/* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
+/* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
 /* measured: opt_rebuildconditionals off is scoped to func_0014a160. */
 /* measured: closes opt_rebuildconditionals for func_0014a160. */
 /* measured: opt_rebuildconditionals off is scoped to func_0014a190. */

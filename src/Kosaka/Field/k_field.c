@@ -23,7 +23,7 @@ extern void func_00123ac0(void);
 extern void FldUnit_ClearFlagBlock(void);
 extern void func_002bd410(void);
 extern void func_002bd3e0(void);
-extern void func_00149690(s32);
+extern void resrcMngSelectDrawSet(s32);
 extern void func_00452080(s32);
 extern void FldResource_Destroy(s32);
 extern s32 func_00102980(void);
@@ -88,7 +88,7 @@ extern void FldResource_OpenPrimaryFile(u16, u16);
 extern void func_00162200(s32);
 extern void func_001227d0(void);
 extern void FldUnit_SpawnAtEntry(u16, u16, u16);
-extern void func_00149680(s32);
+extern void resrcMngSetRenderSuppressed(s32);
 extern s32 func_00156640(u8 *, u16, u16, s16, s16, s32, s32, s32);
 extern s32 FldUnit_UpdateTable(void);
 extern s32 func_00452490(s32);
@@ -190,7 +190,7 @@ s32 func_00155360(u8 *task)
         if (work->eventReader == 0) {
             FldUnit_SpawnAtEntry(work->field, work->room, work->entry);
         }
-        func_00149680(1);
+        resrcMngSetRenderSuppressed(1);
         eventMode = work->eventReader != 0;
         work->loadTask = func_00156640(task, work->field, work->room, work->spawn,
             work->direction, eventMode, work->eventId, work->eventMajor);
@@ -199,7 +199,7 @@ s32 func_00155360(u8 *task)
     case 3:
         if (FldUnit_UpdateTable() != 0 && func_00452490(work->loadTask) != 1) {
             if (func_001614d0() == 3) {
-                func_00149690(1);
+                resrcMngSelectDrawSet(1);
             }
             work->state = 4;
         }
@@ -226,7 +226,7 @@ s32 func_00155360(u8 *task)
         if (work->model != 0 && func_004782b0(work->model) == 0) break;
         if (work->eventReader != 0) {
             if (func_001227f0() != 0) {
-                func_00149680(0);
+                resrcMngSetRenderSuppressed(0);
                 func_002aaaa0();
                 work->eventTask = func_002859e0(work->eventId, work->eventMajor, work->eventMinor);
                 work->state = 14;
@@ -248,7 +248,7 @@ s32 func_00155360(u8 *task)
         break;
     case 6:
         if (func_001227f0() != 0) {
-            func_00149680(0);
+            resrcMngSetRenderSuppressed(0);
             iGpffffb210 = 2;
             if (work->eventReader == 0) {
                 if (D_007D3D64[0] != NULL && iGpffffb268 == 0) {
@@ -370,7 +370,7 @@ void func_00155bf0(u8 *arg0)
     func_002bd410();
     func_002bd3e0();
     KFIELD_D_007D2540 = 0;
-    func_00149690(0);
+    resrcMngSelectDrawSet(0);
     temp_4 = *(s32 *)(temp_17 + 0x3C);
     if (temp_4 != 0) {
         func_00452080(temp_4);
@@ -434,7 +434,7 @@ extern u8 D_005EFF48[];
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-extern void func_00149680(s32 arg0);
+extern void resrcMngSetRenderSuppressed(s32 arg0);
 extern s32 func_00293ed0(s32 a, s32 b, s32 c, s32 d);
 extern void func_0029ddb0(s32 arg0);
 extern void FldResource_OpenPrimaryFile(u16 arg0, u16 arg1);
@@ -486,7 +486,7 @@ s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
     }
     handle = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFF48), 0xF, 0, 0, func_00155360, func_00155bf0, (u8 *)(work));
     D_007D2510[0] = handle;
-    func_00149680(0);
+    resrcMngSetRenderSuppressed(0);
     if (*(s32 *)&arg10 > 0) {
         *(s32 *)(work + 0x3C) = func_00293ed0(*(s32 *)&arg10, *(s32 *)&arg11, *(s32 *)&arg12, *(s32 *)&arg13);
         *(s32 *)(work + 0) = 0;
