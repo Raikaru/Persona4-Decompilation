@@ -4780,7 +4780,7 @@ source now holds the accepted body.
 
 `func_0045a570` in `src/sdkSnd.c` closes at **448B/448B**, with all 112
 instruction words matching. The archived seven-argument body omitted the
-slot argument to `func_0045a890`, whose actual definition is `u32 (s32)`,
+slot argument to `hsndSlotIsStarting`, whose actual definition is `u32 (s32)`,
 and discarded the initializer's constant success return.
 
 The accepted signature is `s32 (s32, void *, u32, void *, u32, void *, u32)`.

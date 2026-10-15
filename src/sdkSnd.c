@@ -211,8 +211,8 @@ extern void func_0046d730(void *file, s32 line);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern void mwPlyInitSfdFx(void *);
 
-extern u32 func_0045a890();
-extern void func_00459790(HsndSlotWork *slot);
+extern u32 hsndSlotIsStarting();
+extern void hsndSlotUpdate(HsndSlotWork *slot);
 
 s32 func_004599d0(s32 arg0);
 s32 func_00459ad0(s32 arg0);
@@ -343,7 +343,7 @@ void func_004594c0(void)
     func_0043c0c0(3, 0x80, 0x7F, 0x7F);
     for (i = 0; i < 6; i++)
     {
-        func_00459790(&D_008D3ED0[i]);
+        hsndSlotUpdate(&D_008D3ED0[i]);
     }
     if (D_008D2B90[0].f00 != 0)
     {
@@ -781,7 +781,7 @@ s32 func_0045a3e0(s16 arg0)
 // FUN_0045A570
 s32 func_0045a570(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6)
 {
-    if (func_0045a890(arg0) != 0)
+    if (hsndSlotIsStarting(arg0) != 0)
     {
         D_008D3ED0[(s16)arg0].param2 = 999;
     }
@@ -809,7 +809,7 @@ s32 func_0045a570(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *ar
 // FUN_0045A730
 s32 func_0045a730(s16 arg0, s16 arg1)
 {
-    if (func_0045a890() != 0)
+    if (hsndSlotIsStarting() != 0)
     {
         if (LD16(D_008D3ED2, SLOT_IDX(arg0)) == arg1)
         {

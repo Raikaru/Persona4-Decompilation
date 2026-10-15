@@ -9,7 +9,7 @@ extern void *memset(void *dst, s32 value, s32 size);
 extern u8 D_0063E8E0[];
 extern u8 D_0063E918[];
 extern void func_002a2340(void);
-extern void func_004599a0(s32 arg0, s32 arg1);
+extern void hsndQueueSound(s32 arg0, s32 arg1);
 extern s32 func_0046aea0(u8 *name);
 extern s32 func_0046a750(s32 handle);
 extern s32 func_004522d0(s32 handle);
@@ -37,7 +37,7 @@ s32 func_002a2420(u8 *arg0) {
     case 0:
         func_002a2340();
         *(s32 *)st = 1;
-        func_004599a0(0x14, 0x1E);
+        hsndQueueSound(0x14, 0x1E);
         break;
     case 1:
         *(s32 *)(st + 8) = func_0046aea0(D_0063E900);

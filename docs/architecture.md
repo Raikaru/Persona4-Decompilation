@@ -175,7 +175,7 @@ Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
 | 24 | COMBINE | `func_00103380`, which calls `func_00311260` (`src/Event/Fcl/y_fclCombine.c`) | Polls `Y_FclCombineTitleProc` |
 | 25 | CALENDAR MAIN | `calendarOpenFlagClear` (`src/calendar.c`) | Section 10 |
 | 26 | CALENDAR (RESTART) | `calendarOpenFlagSet` (`src/calendar.c`) | |
-| 27 | START GAME | `func_00124240` (`src/Main/gameSequence.c`) | Task `"gameSequence"` with update `clndSceneUpdate` |
+| 27 | START GAME | `gameSequenceStart` (`src/Main/gameSequence.c`) | Task `"gameSequence"` with update `clndSceneUpdate` |
 | 28 | NAME ENTRY | `func_00103510`, which calls `func_002a2650` (`src/nEntry.c`) | |
 | 29 | MOVIE | `func_00103440`, which calls `func_0046a110` | Also requested by a script command in `src/Script/scrCommonCommand.c` |
 | 30 | MEMORY CARD BOOT CHECK | `func_00102c50`, which calls `func_0012c460` (`src/promoted/code1_0012.c`) | Task `"BootupCheckMemcard"` |

@@ -3239,7 +3239,7 @@ extern s32 datGetFlag();
 extern void func_00106390();
 extern u16 *datPersonaGetRecord(u16 character);
 extern s32 datPersonaAddSkill(u8 *character, u16 skill);
-extern void func_004599a0();
+extern void hsndQueueSound();
 extern void func_00459950();
 extern void func_00459880();
 extern void func_004598e0();
@@ -3306,7 +3306,7 @@ s32 func_0025b240(u8 *arg0) {
             goto tail;
         }
         if (iGpffffa664 != -1) {
-            func_004599a0((s16)iGpffffa664, 10);
+            hsndQueueSound((s16)iGpffffa664, 10);
             func_00459950(-0x3C);
         } else {
             func_00459880();
@@ -3419,9 +3419,9 @@ s32 func_0025b240(u8 *arg0) {
             goto case10tail;
         }
         if (tmp4 == 10) {
-            func_004599a0(0xF, 10);
+            hsndQueueSound(0xF, 10);
         } else {
-            func_004599a0(0xE, 10);
+            hsndQueueSound(0xE, 10);
         }
         /* fallthrough */
     case 10:
@@ -3465,7 +3465,7 @@ s32 func_0025b240(u8 *arg0) {
             func_002badc0(*(s8 *)(ctx + 0x3C), 6);
         } else {
             if (iGpffffa664 != -1) {
-                func_004599a0((s16)iGpffffa664, 10);
+                hsndQueueSound((s16)iGpffffa664, 10);
                 func_00459950(-0xB4);
             } else {
                 func_00459880();

@@ -16,7 +16,7 @@ extern s32 func_0045a570(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, v
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
 extern void H_Cdvd_Destroy(void *arg0);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
-extern s32 func_0045a890(s16 arg0);
+extern s32 hsndSlotIsStarting(s16 arg0);
 extern u32 RpRandom(void);
 extern s32 func_0047df40(u32 type, u16 id);
 
@@ -408,7 +408,7 @@ s32 func_0047e6f0(void **owner)
             *(u16 *)((u8 *)*owner + 0x12) |= 8;
             break;
         }
-        if (func_0045a890(*(s16 *)((u8 *)current + 4)) == 0) {
+        if (hsndSlotIsStarting(*(s16 *)((u8 *)current + 4)) == 0) {
             return 0;
         }
         request = *(void **)((u8 *)*owner + 0x14);

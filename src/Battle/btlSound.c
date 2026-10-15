@@ -70,7 +70,7 @@ extern s32 H_Cdvd_IsFileLoaded(void* handle);
 extern void H_Cdvd_Destroy(void* handle);
 extern u8* func_00455ea0(u8* handle, s32 index, s32* out);
 extern s32 func_0045a570(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
-extern s32 func_0045a890(s32 bank);
+extern s32 hsndSlotIsStarting(s32 bank);
 
 extern u32 strlen(const char* text);
 extern u32 func_001f8190(u16* work);
@@ -230,7 +230,7 @@ u32 func_001f7e30(void* work)
         packet->state = 2;
         break;
     case 2:
-        if (!func_0045a890(2))
+        if (!hsndSlotIsStarting(2))
         {
             return 0;
         }

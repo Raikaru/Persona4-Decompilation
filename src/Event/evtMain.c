@@ -25,7 +25,7 @@ extern u8 D_0063C3E0[];
 s32 func_00298130();
 s32 func_00459880();
 void func_0045a3e0();
-void func_004599a0();
+void hsndQueueSound();
 void func_004598e0();
 void func_0045aac0();
 s32 func_002981f0();
@@ -2276,7 +2276,7 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 func_0045a3e0(*(s16 *)(arg4 + 0x12), 1);
                 break;
             case 1:
-                func_004599a0(*(s16 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x12));
+                hsndQueueSound(*(s16 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x12));
                 break;
             case 2:
                 func_004598e0(0x78, 1);

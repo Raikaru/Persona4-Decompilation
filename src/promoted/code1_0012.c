@@ -3891,7 +3891,7 @@ s32 func_0012aa70(u8 *task)
     extern u8 *func_003e81c0(u8 *camera, f32 farClip);
     extern u8 *func_003e9cb0(u8 *frame, const void *matrix, s32 combine);
     extern u8 *func_003e9c10(u8 *frame, const f32 *translation, s32 combine);
-    extern void func_004599a0(s32 task, s32 arg1);
+    extern u8 hsndQueueSound(s16 id, s16 unused);
     extern void func_0045aac0(s16 task, s32 arg1, s32 arg2);
 
     extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);
@@ -3937,7 +3937,7 @@ s32 func_0012aa70(u8 *task)
     case 3:
         if ((func_0025f110(*(u8 **)(work + 0x3C)) != 0) && (func_001246d0(work) != 0)) {
             *(s32 *)work = 4;
-            func_004599a0(0x13, 0x1E);
+            hsndQueueSound(0x13, 0x1E);
         }
         break;
     case 4:
@@ -4374,7 +4374,7 @@ s32 func_0012c220(u8 *arg0) {
     temp_2 = *(u32 *)(temp_16 + 0);
     switch (temp_2) {
     case 0:
-        if ((func_0045a890(0) != 0) && (func_0045a890(1) != 0)) {
+        if ((hsndSlotIsStarting(0) != 0) && (hsndSlotIsStarting(1) != 0)) {
             *(u32 *)(temp_16 + 0) = 1U;
         }
         goto block_20;
