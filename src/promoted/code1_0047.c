@@ -60,7 +60,7 @@ extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern void H_Cdvd_ReadSync(u8 *arg0);
 extern void K_Clump_FreeTextureNameList(void *arg0);
 extern s32 func_0047b0c0(u8 *arg0);
-extern s32 func_0047c660(u8 *arg0);
+extern s32 mdlPollAuxResources(u8 *arg0);
 extern void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4);
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
@@ -234,7 +234,7 @@ s32 mdlAdvanceAuxLoad(u8 *arg0)
     case 1:
         if (*(u8 *)(obj + 0x3C) == 1) {
 c660_again:
-            if (func_0047c660(arg0) == 0) {
+            if (mdlPollAuxResources(arg0) == 0) {
                 goto ret_label;
             }
             *(u8 *)(obj + 0x3C) = 2;
@@ -254,7 +254,7 @@ L_D8_check:
             goto L_after_c3;
         }
     case 3:
-        if (func_0047c660(arg0) == 0) {
+        if (mdlPollAuxResources(arg0) == 0) {
             goto ret_label;
         }
         *(u8 *)(obj + 0x3C) = 4;
