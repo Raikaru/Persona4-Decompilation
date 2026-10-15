@@ -135,7 +135,7 @@ extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 
-extern s32 func_001fbb50(u8 *arg0);
+extern s32 hFadeTaskUpdate(u8 *arg0);
 
 
 extern void btlTargetAdvanceWorkPtr(u8 **arg0);
@@ -349,7 +349,7 @@ static inline s32 battleMessageBand(s32 value, s32 band)
 #pragma push
 #pragma opt_propagation on
 #pragma opt_common_subs on
-s32 func_001fbb50(u8 *work) {
+s32 hFadeTaskUpdate(u8 *work) {
     void *savedStates[7];
     struct {
         union { s32 word; u8 bytes[4]; } radial;
@@ -486,12 +486,12 @@ s32 func_001fbb50(u8 *work) {
 }
 #pragma pop
 // FUN_001FC1B0
-void func_001fc1b0(s16 arg0) {
+void hFadeTaskStart(s16 arg0) {
     if (kwlnTaskGetTaskByName(&D_006251F0) == 0) {
         iGpffffb468 = 2;
         iGpffffb46e = arg0;
         iGpffffb469 = 0;
-        (s32)kwlnTaskCreate((const void *)(&D_006251F0), 0xC9, 0, 0, func_001fbb50, 0, (u8 *)((void *)&iGpffffb468));
+        (s32)kwlnTaskCreate((const void *)(&D_006251F0), 0xC9, 0, 0, hFadeTaskUpdate, 0, (u8 *)((void *)&iGpffffb468));
     }
 }
 // FUN_001FC270
@@ -500,7 +500,7 @@ s32 func_001fc270(void)
     return 1;
 }
 // FUN_001FC280
-void func_001fc280(void) {
+void hFadeSetCustomWhite(void) {
     iGpffffb469 = 1;
     func_00122520(1, 1);
     H_Fade_SetCustomColor(0xFF, 0xFF, 0xFF);

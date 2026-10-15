@@ -131,7 +131,7 @@ extern u8 *btlBossCreateLoadPakPacket(void);
 extern s32 func_00230790(void);
 extern BtlPacket *func_002305c0(s32 arg0);
 extern void func_002aaa80(void);
-extern void func_001fc280(void);
+extern void hFadeSetCustomWhite(void);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern s32 btlShuffleIsIdle(s32 task);
 extern void func_001eb7f0(void);
@@ -473,7 +473,7 @@ s32 btlMainSceneSetUpdate(void)
     extern s32 func_00230790(void);
     extern s32 func_001ef9a0(void);
     extern void func_002aaa80(void);
-    extern void func_001fc280(void);
+    extern void hFadeSetCustomWhite(void);
     s32 var_2;
     s32 temp_2_3;
     s32 temp_2_4;
@@ -514,7 +514,7 @@ got_var:
     case 0x20B:
     case 0x215:
         func_002aaa80();
-        func_001fc280();
+        hFadeSetCustomWhite();
         break;
     }
     return 5;

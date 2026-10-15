@@ -871,7 +871,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_00457120(void);
     void *memset(void *, s32, size_t);
     void func_00113480(s32, s32, s32, s32);
-    void func_001fc1b0(s16);
+    void hFadeTaskStart(s16);
     s32 func_001fc270(void);
     s32 func_0018df60(s32);
     void func_001056e0(s16, s16);
@@ -1132,7 +1132,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         }
                     }
                     FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
-                    func_001fc1b0(0);
+                    hFadeTaskStart(0);
                     func_0045af60(0, 0xA, 3, 0);
                     func_00113480(3, 0xFF, 3, 0);
                     work->state = 5;
@@ -1177,14 +1177,14 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     }
                 }
                 FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
-                func_001fc1b0(0);
+                hFadeTaskStart(0);
                 func_0045af60(0, 0xA, 3, 0);
                 work->state = 5;
             }
             goto running;
         case 4:
             if (FldRc_GetPositionSlotCount((u8 *)(func_0015c1e0(0)), -1) >= 5) {
-                func_001fc1b0(0);
+                hFadeTaskStart(0);
                 func_0045af60(0, 0xA, 3, 0);
                 work->state = 5;
             }
