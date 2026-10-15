@@ -2831,8 +2831,9 @@ void fclCombineSetupPairGrid(u8 *task, s8 entryMode) {
 /* Native color results preserve the initial copies and in-place recoloring.
    Signed-short grid indices and byte alpha agree with the draw providers.
    Exact code and caller closure: docs/probe_archive/FclDraw_003212e0_continuation_20260921.md. */
+// Fcl combine grid fade advance: sets the cell colours of the pair grid (the mode-1 call swaps the two cell colours), writes next_state into the task's state byte, and draws the row labels with the selected row in the dark colour.
 // FUN_003212E0
-void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
+void fclCombineAdvanceGridFade(u8 *arg0, u8 arg1, s8 arg2) {
     FclByte4 spEC;
     FclByte4 spE8;
     FclByte4 spE4;

@@ -14,10 +14,10 @@ s32 fclCombineApplySlotState(u8 *task, s8 slot, s8 selected, u8 alpha);
 void fclCombineFlashSlot(u8 *task, s8 slot);
 
 /* Advance the combination-grid fade before entering the next state. */
-void func_003212e0(u8 *task, u8 next_state, s8 mode);
+void fclCombineAdvanceGridFade(u8 *task, u8 next_state, s8 mode);
 
 /* Incoming selectors are narrowed at their individual consumers. */
-void func_0031d630(u8 *task, s8 slot, s8 first, s64 second, s64 entry_mode);
+void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 first, s64 second, s64 entry_mode);
 
 /* Combine-screen placements take their screen positions by value (one
    eight-byte register each), not as packed s64 bits. */
