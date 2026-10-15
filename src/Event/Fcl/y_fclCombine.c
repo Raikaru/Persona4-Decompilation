@@ -8427,7 +8427,7 @@ void fclCombineMenuResult(u8 *arg0) {
    addiu base then lwc1 0/4); the flag at p+0x13A is s8; the scroll loop
    declares k before e and keeps lim as s32; the 0xD store is re-read as
    *(s8 *)(p + 0xD) for func_002badc0 (b210 forwards it after the lh). */
-// Fcl combine menu material grid (state 0x09): sets up the six-row ingredient grid and its colours; sub-states 0xC2-0xC4 step through it.
+// Fcl combine menu material grid (state 0x09): scrollable six-row list. 0xC2 builds the rows, 0xC3 polls the pad (0x40 selects a row, 0x20 leaves to sub-state 0x1A, the scroll calls page the list), 0xC4 waits for the dialog.
 // FUN_0030B060
 void fclCombineMenuMaterialGrid(u8 *arg0)
 {
