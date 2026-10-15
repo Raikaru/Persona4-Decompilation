@@ -84,7 +84,7 @@ extern void func_001605a0(void);
 extern void func_001939a0(void);
 extern void func_002312e0(void);
 extern void func_00231330(void);
-extern void func_00246700(void);
+extern void cmmLoadTables(void);
 extern void func_0025ff90(void);
 extern void cldDayChangePreloadData(void);
 extern void func_0026d840(void);
@@ -291,7 +291,7 @@ void func_00100e60(void)
     func_004b3250((s32)&D_007948A0);
     func_004b6c90((s32)&D_00794510, 0xC7);
     func_001939a0();
-    func_00246700();
+    cmmLoadTables();
     func_0026d840();
     func_00231330();
     frFontStartup();

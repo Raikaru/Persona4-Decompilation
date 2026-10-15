@@ -97,7 +97,7 @@ extern void func_001605a0(void);
 extern void func_001939a0(void);
 extern void func_002312e0(void);
 extern void func_00231330(void);
-extern void func_00246700(void);
+extern void cmmLoadTables(void);
 extern void func_0025ff90(void);
 extern void cldDayChangePreloadData(void);
 extern void func_0026d840(void);

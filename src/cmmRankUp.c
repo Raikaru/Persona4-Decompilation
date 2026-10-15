@@ -136,7 +136,7 @@ extern u8 D_00635CA0[];
 extern u8 D_005DC974[];
 extern s64 func_00248760(s32 arg0);
 extern u8 *func_002438b0();
-extern u8 *func_00246d90();
+extern u8 *cmmPersonaRecord();
 extern u8 *datPersonaGetRow(u16 personaId);
 
 /* Old-style: the two callbacks passed here (func_00251e60 takes one s32,
@@ -2737,7 +2737,7 @@ s32 func_00257900(u8 *task) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             temp_17_3 = (s32)(*(s32 *)(context + 8) - 0x96);
             itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             temp_2_18 = (s32)(*(s32 *)(context + 0xC));
             if (temp_2_18 > 0) {
                 *(s32 *)(context + 0xC) = (s32) (temp_2_18 + 1);
@@ -2843,7 +2843,7 @@ s32 func_00257900(u8 *task) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             func_00256460(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
             itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
             func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
             func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 2);
@@ -2859,7 +2859,7 @@ s32 func_00257900(u8 *task) {
             temp_f0_9 = 153.0f * temp_f21_2;
             func_00256460(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_9), (s32)( temp_f0_9), (s32)( temp_f0_9), 1, 0, 0, 1.0f, 1.0f);
             itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             temp_f0_10 = 255.0f * temp_f21_2;
             func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
             func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
@@ -3230,7 +3230,7 @@ extern s64 func_00248760(s32 arg0);
 extern u8 *func_002438b0();
 extern u8 *cmmNameRecord(u32);
 extern u8 *cmmTextRecord();
-extern u8 *func_00246d90();
+extern u8 *cmmPersonaRecord();
 extern u8 *datPersonaGetRow(u16 personaId);
 extern char *strcpy(char *destination, const char *source);
 extern void frFontExCopyString(char *source, char *destination, s32 capacity);
@@ -3454,9 +3454,9 @@ s32 func_0025b240(u8 *arg0) {
             frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
-            frFontExCopyString((char *)func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
+            frFontExCopyString((char *)cmmPersonaRecord((s8)func_00248760(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 2, sp160);
-            strcpy((char *)sp160, (char *)datPersonaGetRow(*(u16 *)(func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
+            strcpy((char *)sp160, (char *)datPersonaGetRow(*(u16 *)(cmmPersonaRecord((s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 3, sp160);
             func_002badc0(*(s8 *)(ctx + 0x3C), 4);
         } else if (tmp4 == 11) {

@@ -22,7 +22,7 @@ extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void MT_Scene_SetResMotionSlot(u32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 extern s32 itfMesWindowProcedureForKind(s32 arg0);
 extern s32 cmmCommunityFindActiveSlotInGroup(s64 arg0);
-extern u8 *func_00246c20(s32 arg0);
+extern u8 *cmmSlotNameRecord(s32 arg0);
 extern s32 cmmCommunityGetCurrentId(void);
 extern u8 *cmmNameRecord(s32 arg0);
 static inline u32 add_retail_ptr(u32 offset, u32 base) {
@@ -414,7 +414,7 @@ s32 func_00270780(s32 arg0, u8 *arg1) {
         return 0;
     }
     frFontUpdateTextWork(arg1);
-    frFontExCopyString(func_00246c20(temp_17 & 0xFFFF), sp30, 0x20);
+    frFontExCopyString(cmmSlotNameRecord(temp_17 & 0xFFFF), sp30, 0x20);
     frFontLayoutText(sp30, arg1);
     return 0;
 }

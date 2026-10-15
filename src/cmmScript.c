@@ -65,7 +65,7 @@ extern s32 H_Cdvd_IsFileLoaded(u8* arg0);
 extern s32 func_00455f70(void* arg0, u32* arg1);
 extern s32 func_0046a750(s32 arg0);
 extern void func_00440b68(void* arg0, void* arg1, u32 arg2);
-extern u8* func_00246cd0(s32 arg0);
+extern u8* cmmItemInfoRecord(s32 arg0);
 extern void func_002483c0(s32 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
 extern void datPersonaCollectSkills(s32 arg0, void* arg1, s32* arg2);
@@ -77,7 +77,7 @@ extern s8 func_002487e0(s32 arg0, s32 arg1);
 extern s32 cmmNameRecord(s32 arg0);
 extern s64 func_00248760(s32 arg0);
 extern s32 func_002438b0(s32 arg0);
-extern s32 func_00246b10(s32 arg0);
+extern s32 cmmLabelRecord(s32 arg0);
 extern s32 func_00107ac0(s32 arg0);
 extern s32 func_00248040(s32 arg0);
 extern s32 func_00110580(s32 arg0, s32* arg1, s32* arg2);
@@ -86,8 +86,8 @@ extern s32 datGetItemNameId(s32 arg0);
 extern s32 cmmDateTableFindRecord(s32 arg0);
 extern s32 cmmDateTableFindSpecialRecord(s32 arg0);
 extern void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00246c90(s32 arg0);
-extern s32 func_00246d50(s32 arg0);
+extern s32 cmmItemDescRecordOrNull(s32 arg0);
+extern s32 cmmItemExtraRecordOrNull(s32 arg0);
 extern u8 datGetTimeSlot(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern s32 datGetFlag(s32 arg0);
@@ -103,7 +103,7 @@ extern u8 D_00635B20[];
 extern u8 D_005DC7D0[];
 extern s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern s32 func_0025ff60(s32 arg0);
-extern u8* func_00246e90(s32 arg0);
+extern u8* cmmFishingEntryRecord(s32 arg0);
 extern s32 cmmDateTableRollValue(s32 arg0);
 extern void cmmDateTableRunEffect(s32 arg0);
 extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -146,7 +146,7 @@ extern s32 D_00635A60[];
 extern s32 D_00635BA8[];
 extern u8* func_00285af0(void);
 extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
-extern s32 func_00246e10(s32 arg0);
+extern s32 cmmMonthProfileRecord(s32 arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
 extern s32 func_00247900(s32 arg0, s32 arg1, s32 arg2);
 
@@ -336,7 +336,7 @@ s32 cmmPersonaDetailShow(void)
     frFontExCopyString(cmmNameRecord(id & 0xFFFF), buf, 0x80);
     itfMesWindowSetString(mesMgr, 1, buf);
     itfMesWindowSetString(mesMgr, 2, func_002438b0((u8)func_00248760(id & 0xFFFF)));
-    frFontExCopyString(func_00246b10((s8)func_00248760(id & 0xFFFF)), buf, 0x80);
+    frFontExCopyString(cmmLabelRecord((s8)func_00248760(id & 0xFFFF)), buf, 0x80);
     itfMesWindowSetString(mesMgr, 3, buf);
     itfMesWindowFormatValue(mesMgr, 4, func_00107ac0(id & 0xFFFF) & 0xFFFF, 0);
     key = func_00247820((s16)id);
@@ -729,22 +729,22 @@ s32 cmmItemInfoShow(void)
     itfMesWindowFormatValue(mesMgr, 7, *(s16*)(rec + 0x1A), 0);
     itfMesWindowFormatValue(mesMgr, 8, *(u32*)(rec + 0xC), 0);
     itfMesWindowFormatValue(mesMgr, 9, *(u32*)(rec + 0x1C), 0);
-    p = (u8*)func_00246c90(*(u16*)(rec + 0x12));
+    p = (u8*)cmmItemDescRecordOrNull(*(u16*)(rec + 0x12));
     if (p != 0) {
         frFontExCopyString(p, buf, 0x80);
         itfMesWindowSetString(mesMgr, 0xA, buf);
     }
-    p = (u8*)func_00246c90(*(u16*)(rec + 0x22));
+    p = (u8*)cmmItemDescRecordOrNull(*(u16*)(rec + 0x22));
     if (p != 0) {
         frFontExCopyString(p, buf, 0x80);
         itfMesWindowSetString(mesMgr, 0xB, buf);
     }
-    p = (u8*)func_00246d50(*(u16*)(rec + 0x10));
+    p = (u8*)cmmItemExtraRecordOrNull(*(u16*)(rec + 0x10));
     if (p != 0) {
         frFontExCopyString(p, buf, 0x80);
         itfMesWindowSetString(mesMgr, 0xC, buf);
     }
-    p = (u8*)func_00246d50(*(u16*)(rec + 0x20));
+    p = (u8*)cmmItemExtraRecordOrNull(*(u16*)(rec + 0x20));
     if (p != 0) {
         frFontExCopyString(p, buf, 0x80);
         itfMesWindowSetString(mesMgr, 0xD, buf);
@@ -816,29 +816,29 @@ s32 cmmRecordInfoShow(void)
     if (mesMgr < 0) {
         kAssertFail(D_006359F0, 0x2DC);
     }
-    q = (u8*)func_00246cd0(id & 0xFFFF) + 0xC;
+    q = (u8*)cmmItemInfoRecord(id & 0xFFFF) + 0xC;
     if (q != 0) {
         frFontExCopyString(q, buf, 0x80);
         itfMesWindowSetString(mesMgr, 0, buf);
     }
-    itfMesWindowFormatValue(mesMgr, 1, *(s32*)(func_00246cd0(id & 0xFFFF) + 4), 0);
-    q = (u8*)func_00246cd0(id & 0xFFFF) + 0x22;
+    itfMesWindowFormatValue(mesMgr, 1, *(s32*)(cmmItemInfoRecord(id & 0xFFFF) + 4), 0);
+    q = (u8*)cmmItemInfoRecord(id & 0xFFFF) + 0x22;
     if (q != 0) {
         frFontExCopyString(q, buf, 0x80);
         itfMesWindowSetString(mesMgr, 2, buf);
     }
-    tblIdx = *(s8*)(func_00246cd0(id & 0xFFFF) + 8);
+    tblIdx = *(s8*)(cmmItemInfoRecord(id & 0xFFFF) + 8);
     if (tblIdx != -1) {
         frFontExCopyString(tbl[tblIdx], buf, 0x80);
         itfMesWindowSetString(mesMgr, 3, buf);
     }
-    itfMesWindowFormatValue(mesMgr, 4, *(s8*)(func_00246cd0(id & 0xFFFF) + 9), 0);
-    tblIdx = *(s8*)(func_00246cd0(id & 0xFFFF) + 0xA);
+    itfMesWindowFormatValue(mesMgr, 4, *(s8*)(cmmItemInfoRecord(id & 0xFFFF) + 9), 0);
+    tblIdx = *(s8*)(cmmItemInfoRecord(id & 0xFFFF) + 0xA);
     if (tblIdx != -1) {
         frFontExCopyString(tbl[tblIdx], buf, 0x80);
         itfMesWindowSetString(mesMgr, 5, buf);
     }
-    itfMesWindowFormatValue(mesMgr, 6, *(s8*)(func_00246cd0(id & 0xFFFF) + 0xB), 0);
+    itfMesWindowFormatValue(mesMgr, 6, *(s8*)(cmmItemInfoRecord(id & 0xFFFF) + 0xB), 0);
     return 1;
 }
 #pragma optimization_level 2
@@ -868,7 +868,7 @@ s32 cmmRecordGetField(void)
     if (id == 0) {
         kAssertFail(D_006359F0, 0x30A);
     }
-    rec = func_00246cd0(id & 0xFFFF);
+    rec = cmmItemInfoRecord(id & 0xFFFF);
     if (rec == 0) {
         kAssertFail(D_006359F0, 0x30C);
     }
@@ -1104,7 +1104,7 @@ s32 cmmWeatherRoll(void)
     isHoliday = 0;
     category = 0;
     func_001104d0(func_001060b0(), &month, &day);
-    profile = (CmmMonthProfile *)func_00246e10((u16)month);
+    profile = (CmmMonthProfile *)cmmMonthProfileRecord((u16)month);
     if ((datGetTimeSlot() & 0xFF) == 5) {
         category = 2;
     }
@@ -1776,7 +1776,7 @@ s32 func_0024f160(u8 *arg0)
         cmmScriptArmEntry(2, 1);
         cmmScriptArmEntry(0, 1);
         id = cmmWeatherRoll();
-        func_00246e90((u16)id);
+        cmmFishingEntryRecord((u16)id);
         *(s16 *)(arg0 + 0xE) = cmmDateTableRollValue(id);
     case 1:
         break;
@@ -1789,7 +1789,7 @@ s32 func_0024f160(u8 *arg0)
         kAssertFail(D_006359F0, 0x41B);
     }
     id = *(s32 *)(rec + 0x20);
-    entry = func_00246e90((u16)id);
+    entry = cmmFishingEntryRecord((u16)id);
     *(s16 *)(arg0 + 0xC) += 1;
     if (*(s16 *)(arg0 + 0xC) >= *(s16 *)(arg0 + 0xE)) {
         *(s16 *)(arg0 + 0xC) = 0;
@@ -1951,7 +1951,7 @@ s32 func_0024f790(u8 *work)
     if (fishingData == 0) {
         kAssertFail(D_006359F0, 0x41B);
     }
-    fishEntry = func_00246e90(*(u16 *)(fishingData + 0x20));
+    fishEntry = cmmFishingEntryRecord(*(u16 *)(fishingData + 0x20));
     if ((*(s16 *)(work + 0xC) % 60) == 0) {
         func_0045aeb0(2, (const char *)D_00635B90);
     }
@@ -2370,7 +2370,7 @@ s32 func_00250940(void)
     row = scrGetParamInt(0);
     field = scrGetParamInt(1);
     func_001104d0(func_001060b0(), &out1, &out2);
-    table = (u8 *)func_00246e10((u16)out1);
+    table = (u8 *)cmmMonthProfileRecord((u16)out1);
     if (table == 0) {
         kAssertFail(D_006359F0, 0x8B8);
     }

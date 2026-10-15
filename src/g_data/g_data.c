@@ -87,7 +87,7 @@ extern s32 D_005DD6DC[];
 
 extern s16 datRankForPoints(s16 arg0, s16 arg1);
 
-extern s32 func_00246a50(s16 arg0, s16 arg1);
+extern s32 cmmRankThreshold(s16 arg0, s16 arg1);
 
 extern void chkmemAllocSiteTag(void* msg, s32 id);
 
@@ -408,7 +408,7 @@ s16 datRankForPoints(s16 arg0, s16 arg1)
 
     while (i < 5)
     {
-        sum = (s16)(sum + func_00246a50(arg0, (s16)(i + 1)));
+        sum = (s16)(sum + cmmRankThreshold(arg0, (s16)(i + 1)));
         if (sum > limit)
         {
             break;
@@ -446,7 +446,7 @@ s16 datCategoryRankProgress(s16 category, f32 scale)
     level = 0;
     while (level < 5)
     {
-        threshold = (s16)func_00246a50(category, (s16)(level + 1));
+        threshold = (s16)cmmRankThreshold(category, (s16)(level + 1));
         if (threshold > (s16)remaining)
         {
             break;
