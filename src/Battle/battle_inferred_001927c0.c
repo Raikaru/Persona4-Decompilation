@@ -69,7 +69,7 @@ extern u8 D_005F65C0[];
 extern void memcpy(void *dst, void *src, s32 size);
 extern s32 func_002011c0(s32 arg0);
 extern s32 datGetFlag(s32 arg0);
-extern void func_001b5f70(s32 arg0);
+extern void btlMainSetPhase(s32 arg0);
 extern s32 func_00192610(u8 *task);
 extern s32 func_001926c0(u8 *task);
 extern s32 btlUpdateDraw2DTask(u8 *task);
@@ -112,7 +112,7 @@ extern void func_001f7260(void);
 extern void func_001f9bf0(void);
 extern void func_001d6a60(void);
 extern void func_001b1850(void);
-extern void func_001b60a0(void);
+extern void btlMainReset(void);
 extern void func_001f6100(void);
 extern s32 itfMesWindowInstall(u8 *arg0);
 
@@ -356,7 +356,7 @@ void func_00192b90(void)
     func_001f9bf0();
     func_001d6a60();
     func_001b1850();
-    func_001b60a0();
+    btlMainReset();
     func_001f6100();
     *(s32 *)(iGpffffb3ac + 0xC) |= 0x1480877C;
 }
@@ -443,13 +443,13 @@ s32 func_00192e90(s32 arg0)
         *(u16 *)(temp_3_2 + 0x26C) = *(u16 *)(temp_3_2 + 0xC90);
         temp_3_3 = iGpffffb3ac;
         *(u16 *)(temp_3_3 + 0x26E) = *(u16 *)(temp_3_3 + 0xC92);
-        func_001b5f70(2);
+        btlMainSetPhase(2);
     } else {
         *(s8 *)(temp_3 + 0xC65) = 1;
         if (datGetFlag(0x1436) == 0) {
-            func_001b5f70(0x12);
+            btlMainSetPhase(0x12);
         } else {
-            func_001b5f70(0x13);
+            btlMainSetPhase(0x13);
         }
     }
     temp_3_4 = iGpffffb3ac;

@@ -154,7 +154,7 @@ s32 btlMainMcUpdate(void)
 }
 
 // FUN_001B5F70
-void func_001b5f70(s32 arg0)
+void btlMainSetPhase(s32 arg0)
 {
     u8 *temp_2;
 
@@ -166,13 +166,13 @@ void func_001b5f70(s32 arg0)
 }
 
 // FUN_001B5FD0
-s32 func_001b5fd0(void)
+s32 btlMainGetPhase(void)
 {
     return *(s32 *)(iGpffffb3ac + 0x2FC);
 }
 
 // FUN_001B5FE0
-void func_001b5fe0(void)
+void btlMainUpdate(void)
 {
     u8 *temp_2;
     s32 temp_3;
@@ -198,7 +198,7 @@ void func_001b5fe0(void)
 }
 
 // FUN_001B60A0
-void func_001b60a0(void)
+void btlMainReset(void)
 {
     u8 *temp_2;
 
