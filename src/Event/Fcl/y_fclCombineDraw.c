@@ -101,7 +101,7 @@ extern void func_002b2e70(s32, s32, s32, s32, s16 *, s16 *);
 extern void func_002b2f90(s32, s32, s32, s32, s16 *, s16 *);
 extern f32 iGpffff8360;
 extern f32 iGpffff8504;
-extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
+extern void fclCombinePartyRow(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
 extern s32 func_00331560(void);
 
 
@@ -1058,8 +1058,9 @@ void fclCombineStepSlotSelection(u8 *arg0, s8 arg1) {
    the frame id is assigned through an s16 argument local ahead of the
    depth, and the fade orders are converted to s16 at each call through
    the local fclSpriteStartAlphaAt prototype. */
+// Fcl combine entry cell: draws entry arg3 (sprite 0xDF+2n, or 0xEF/0xEB/0xED for n 6-8; frame 0x20D+n; label 0xF2+n; count 0xFD+n), moving from arg1 to arg2. When arg3 is the current selection it also draws the highlight sprites (0x1DC, 0xFC, 0x216-0x21B) with alpha fades.
 // FUN_00317900
-void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s8 arg3, s16 arg4, s16 arg5, s16 arg6) {
+void fclCombineDrawEntryCell(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s8 arg3, s16 arg4, s16 arg5, s16 arg6) {
     extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     FclByte4 c23C;
@@ -1189,8 +1190,9 @@ void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s8 arg3, s16 arg4, s16 
 /* Each point is built inside the store that consumes it (func_002b2970 returns
    by value), which gives retail's float saved-register order. See
    docs/probe_archive/FclDraw_00318840_20260925.md. */
+// Fcl combine entry highlight: arg1 is the row index tested against the current selection (t+0xB4), arg2 the entry id (sprites 0xDF+2n, frame 0x20D+n, label 0xF2+n). On the selected row it moves the highlight sprites to the entry and shows them; otherwise it hides the highlight and restores the entry icon, using arg3 as its height and arg4 + 1 as its order.
 // FUN_00318840
-void func_00318840(u8 *arg0, s8 arg1, s8 arg2, s16 arg3, s16 arg4) {
+void fclCombineUpdateEntryHighlight(u8 *arg0, s8 arg1, s8 arg2, s16 arg3, s16 arg4) {
     FclByte4 c11C;
     FclByte4 c118;
     FclByte4 c114;
@@ -1309,9 +1311,10 @@ s32 fclCombineRowsBusy(u8 *arg0) {
    scale global is read once per first-row branch and reused, and y is a
    named copy of the shifted row position (see
    docs/probe_archive/FclDraw_003191c0_20260925.md). */
+// Fcl combine party row: draws party row arg2 at arg1 (icon, label, persona art, arcana, name and level sprites, plus its text blocks); arg6 == 1 transitions the existing sprites, otherwise they are created.
 // FUN_003191C0
-void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg5, s8 arg6, s8 arg7) {
-    /* Slot is s32 here, not the header's s8: func_003191c0 passes an unnarrowed
+void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg5, s8 arg6, s8 arg7) {
+    /* Slot is s32 here, not the header's s8: fclCombinePartyRow passes an unnarrowed
        value. Measured: the s8 prototype regresses this function to nd. */
     extern u8 *fclCombineSlotRecord(u8 *, s32);
     extern u8 datPersonaGetArcana(u16);
@@ -2778,11 +2781,7 @@ void func_00320b80(u8 *task, s8 entryMode) {
         personaId = ((FclCombinePersonaHeader *)yListSlotEntry(0, row))->personaId;
         /* The two entry lookups and the signed-byte count read are deliberate.
            Keep the second (s16)row conversion in the delay expression. */
-        func_003191c0(task, personaRowPosition, (s8)row,
-                      personaId,
-                      ((FclCombinePersonaHeader *)yListSlotEntry(0, row))->level,
-                      (s16)(row * 2), 0,
-                      (listCountByte = *(s8 *)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count));
+        fclCombinePartyRow(task, personaRowPosition, (s8)row, personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, row))->level, (s16)(row * 2), 0, (listCountByte = *(s8 *)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count));
         {
             s16 columnSprite = rowIndex + 0x25E;
             u8 *columnResource = (u8 *)sdkSpriteNewNode(func_00331560(), 0x39);
@@ -3087,8 +3086,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             func_0045af60(0, 1, 0, 3);
             ia = 0;
             while ((s16)ia < (u16)datPersonaRosterCapacity()) {
-                func_003191c0(arg0, func_002b2970(16.0f, 128.0f), (s8)ia, *(u16 *)(yListSlotEntry(0, ia) + 2),
-                              *(u8 *)(yListSlotEntry(0, ia) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
+                fclCombinePartyRow(arg0, func_002b2970(16.0f, 128.0f), (s8)ia, *(u16 *)(yListSlotEntry(0, ia) + 2), *(u8 *)(yListSlotEntry(0, ia) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
                 ++ia;
             }
             func_0031e5b0(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
@@ -3235,8 +3233,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
         func_0031e5b0(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
         jc = 0;
         while ((s16)jc < (u16)datPersonaRosterCapacity()) {
-            func_003191c0(arg0, func_002b2970(16.0f, 128.0f), (s8)jc, *(u16 *)(yListSlotEntry(0, jc) + 2),
-                          *(u8 *)(yListSlotEntry(0, jc) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
+            fclCombinePartyRow(arg0, func_002b2970(16.0f, 128.0f), (s8)jc, *(u16 *)(yListSlotEntry(0, jc) + 2), *(u8 *)(yListSlotEntry(0, jc) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
             m = jc * 23;
             func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)jc), func_002b2970((f32)(m + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
                           func_002b2a60(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
@@ -3435,11 +3432,7 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
     func_0031e5b0(arg0, spD8.position, 0, arg2, 1, 0, 0);
     for (k = 0; k < *(s32 *)(yListSlotWork(1) + 8); k++) {
         spD0.position = func_002b2970(313, 128.0f);
-        func_003191c0(arg0, spD0.position, (s8)k,
-                      *(u16 *)(yListSlotEntry(1, k) + 2),
-                      *(u8 *)(yListSlotEntry(1, k) + 4),
-                      (s16)(k * arg1), arg2,
-                      (count = *(s8 *)(yListSlotWork(1) + 8)));
+        fclCombinePartyRow(arg0, spD0.position, (s8)k, *(u16 *)(yListSlotEntry(1, k) + 2), *(u8 *)(yListSlotEntry(1, k) + 4), (s16)(k * arg1), arg2, (count = *(s8 *)(yListSlotWork(1) + 8)));
     }
     for (k = 0; k < *(s32 *)(yListSlotWork(0) + 8); k++) {
         spC8.position = func_002b2970(16.0f, 128.0f);
@@ -3610,9 +3603,7 @@ void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
     i = 0;
     m = (s16)arg1;
     for (; i < 12; i++) {
-        func_003191c0(arg0, func_002b2970((f32)315, 128.0f), (s8)i, *(u16 *)(yListSlotEntry(0, i) + 2),
-                      *(u8 *)(yListSlotEntry(0, i) + 4), (s16)(i * m), arg2,
-                      (count = *(s8 *)(yListSlotWork(0) + 8)));
+        fclCombinePartyRow(arg0, func_002b2970((f32)315, 128.0f), (s8)i, *(u16 *)(yListSlotEntry(0, i) + 2), *(u8 *)(yListSlotEntry(0, i) + 4), (s16)(i * m), arg2, (count = *(s8 *)(yListSlotWork(0) + 8)));
     }
     func_0031ac10(arg0, func_002b2970(6.0f, 195.0f), 0, 0, *(u16 *)(yListSlotEntry(1, 0) + 2),
                   *(u8 *)(yListSlotEntry(1, 0) + 4), 0, arg2, 0, 0xCC);
@@ -5820,8 +5811,7 @@ void func_0032fbc0(u8 *arg0) {
     i = 0;
     while ((s16)i < (u16)datPersonaRosterCapacity()) {
         spF8 = func_002b2970(16.0f, 128.0f);
-        func_003191c0(arg0, spF8, (s8)i, *(u16 *)(yListSlotEntry(0, i) + 2),
-                      *(u8 *)(yListSlotEntry(0, i) + 4), 0, 1, (s8)*(u8 *)(yListSlotWork(0) + 8));
+        fclCombinePartyRow(arg0, spF8, (s8)i, *(u16 *)(yListSlotEntry(0, i) + 2), *(u8 *)(yListSlotEntry(0, i) + 4), 0, 1, (s8)*(u8 *)(yListSlotWork(0) + 8));
         j = 0;
         p = t + (s16)i * 4;
         while ((s16)j < (u16)datPersonaRosterCapacity()) {

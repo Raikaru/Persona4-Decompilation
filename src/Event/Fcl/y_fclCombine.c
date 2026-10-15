@@ -96,7 +96,7 @@ extern s16 fclSpriteFlagBit(s16, s16);
 extern u8 *fclSpriteEntry(s16);
 extern void func_00321e60(u8 *, s64, u8, u8);
 extern void func_003233d0(u8 *);
-extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
+extern void fclCombinePartyRow(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
 extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
 extern void func_0031c2b0(u8 *, s16, FclVec2f, FclVec2f);
 extern void func_0031cce0(u8 *, s16, FclVec2, FclVec2);
@@ -283,7 +283,7 @@ extern s32 fclCombineClaimSlot(u8 *);
 extern f32 D_00640C50[];
 extern f32 D_00640C58[];
 extern u8 D_00641BB0[];
-extern void func_00317900(u8 *, FclVec2, FclVec2, s8, s16, s16, s16);
+extern void fclCombineDrawEntryCell(u8 *, FclVec2, FclVec2, s8, s16, s16, s16);
 extern u8 D_00640760[];
 extern u8 D_00640790[];
 extern u8 D_0064079C[];
@@ -504,7 +504,7 @@ void fclCombineMenuRoot(u8 *arg0)
     extern void fclCombineStepSlotSelection(u8 *, s8);
     extern void fclCombineBuildRows(u8 *);
     extern void fclCombineMarkRow(s16);
-    extern void func_00318840(u8 *, s8, s8, s16, s16);
+    extern void fclCombineUpdateEntryHighlight(u8 *, s8, s8, s16, s16);
     extern s8 fclCombineMapSlotKind(s8);
     extern void fclCombineSetSlotColors(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
     FclDrawColor color0;
@@ -856,14 +856,14 @@ void fclCombineMenuRoot(u8 *arg0)
             fclCombineMarkRow(((FclCombineRow *)(p + 0xC4))[p[0xB4]].id);
             func_0045af60(0, 0, 0, 0);
             for (n = 0; n < p[0xB5]; n++) {
-                func_00318840(arg0, n, *(s16 *)(p + n * 10 + 0xC8), *(s16 *)(p + n * 10 + 0xCA), *(s16 *)(p + n * 10 + 0xCC));
+                fclCombineUpdateEntryHighlight(arg0, n, *(s16 *)(p + n * 10 + 0xC8), *(s16 *)(p + n * 10 + 0xCA), *(s16 *)(p + n * 10 + 0xCC));
             }
         } else if (buttons & 0x2000) {
             p[0xB4] = func_002b2cb0(p[0xB4], 1, p[0xB5] - 1, 0, 2);
             fclCombineMarkRow(((FclCombineRow *)(p + 0xC4))[p[0xB4]].id);
             func_0045af60(0, 0, 0, 0);
             for (n = 0; n < p[0xB5]; n++) {
-                func_00318840(arg0, n, *(s16 *)(p + n * 10 + 0xC8), *(s16 *)(p + n * 10 + 0xCA), *(s16 *)(p + n * 10 + 0xCC));
+                fclCombineUpdateEntryHighlight(arg0, n, *(s16 *)(p + n * 10 + 0xC8), *(s16 *)(p + n * 10 + 0xCA), *(s16 *)(p + n * 10 + 0xCC));
             }
         } else {
             buttons = D_008C024E[0];
@@ -1073,48 +1073,40 @@ void fclCombineLayoutTransition(u8 *task, s32 transition) {
             for (left6 = 0, transition6 = (s8)transition; left6 < 3; left6++) {
                 slot = (FclCombineLayoutSlot *)D_00640760 + (left6 + 1);
                 if (transition6 == 0) {
-                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 left6, left6 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), left6, left6 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                     *(s16 *)(work + left6 * 10 + 0xCA) = slot->col * 3 + 0x3E;
                     *(s16 *)(work + left6 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 left6, left6 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter), left6, left6 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_006407A8;
             if (transition6 == 0) {
-                func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                             8, 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 8, 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 *(s16 *)(work + 0xFC) = slot->col * 3 + 0x3E;
                 *(s16 *)(work + 0xFE) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
-                func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                             8, 1, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 8, 1, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
             slot = (FclCombineLayoutSlot *)D_0064079C;
             if (transition6 == 0) {
-                func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                             7, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 7, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
                 *(s16 *)(work + 0xF2) = slot->col * 3 + 0x3E;
                 *(s16 *)(work + 0xF4) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
-                func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                             7, 3, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 7, 3, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
             slot = (FclCombineLayoutSlot *)D_00640790;
             if (transition6 == 0) {
-                func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                             6, 0xA, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 6, 0xA, slot->col * 3 + 0x3E, slot->row + 0x57);
                 *(s16 *)(work + 0xE8) = slot->col * 3 + 0x3E;
                 *(s16 *)(work + 0xEA) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
-                func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                             6, 5, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 6, 5, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
         } else if (*(s8 *)(work + 0xB5) == 8) {
             s32 leftTransition8;
@@ -1126,14 +1118,12 @@ void fclCombineLayoutTransition(u8 *task, s32 transition) {
             for (left8 = 0, leftTransition8 = (s8)transition; left8 < 4; left8++) {
                 slot = (FclCombineLayoutSlot *)D_00640760 + left8;
                 if (leftTransition8 == 0) {
-                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 left8, left8 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), left8, left8 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                     *(s16 *)(work + left8 * 10 + 0xCA) = slot->col * 3 + 0x3E;
                     *(s16 *)(work + left8 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 left8, left8 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter), left8, left8 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             /* The left phase has finished; carry its mode into the right
@@ -1141,26 +1131,22 @@ void fclCombineLayoutTransition(u8 *task, s32 transition) {
             for (right8 = 0, rightTransition8 = leftTransition8; right8 < 3; right8++) {
                 slot = (FclCombineLayoutSlot *)D_00640760 + (7 - right8);
                 if (rightTransition8 == 0) {
-                    func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 8 - right8, right8 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 8 - right8, right8 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                     *(s16 *)(work + (7 - right8) * 10 + 0xCA) = slot->col * 3 + 0x3E;
                     *(s16 *)(work + (7 - right8) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 8 - right8, right8 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 8 - right8, right8 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_00640790;
             if (rightTransition8 == 0) {
-                func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                             4, 0xE, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 4, 0xE, slot->col * 3 + 0x3E, slot->row + 0x57);
                 *(s16 *)(work + 0xF2) = slot->col * 3 + 0x3E;
                 *(s16 *)(work + 0xF4) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
-                func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                             4, 7, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 4, 7, slot->col * 3 + 0x3E, slot->row + 0x57);
             }
         }
     } else {
@@ -1171,41 +1157,34 @@ void fclCombineLayoutTransition(u8 *task, s32 transition) {
             for (pair5 = 0, transition5 = (s8)transition; pair5 < 2; pair5++) {
                 slot = (FclCombineLayoutSlot *)D_006407C0 + (pair5 + 2);
                 if (transition5 == 0) {
-                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 pair5, pair5 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), pair5, pair5 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                     *(s16 *)(work + pair5 * 10 + 0xCA) = slot->col * 3 + 0x3E;
                     *(s16 *)(work + pair5 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 pair5, pair5 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter), pair5, pair5 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
                 slot = (FclCombineLayoutSlot *)D_006407C0 + (6 - pair5);
                 if (transition5 == 0) {
-                    func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 8 - pair5, pair5 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 8 - pair5, pair5 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                     *(s16 *)(work + (4 - pair5) * 10 + 0xCA) = slot->col * 3 + 0x3E;
                     *(s16 *)(work + (4 - pair5) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 8 - pair5, pair5 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 8 - pair5, pair5 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_006407F0;
             if (transition5 == 0) {
-                func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                             6, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 6, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
                 *(s16 *)(work + 0xDE) = slot->col * 3 + 0x3E;
                 *(s16 *)(work + 0xE0) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
                 if (RpRandom() % 100 >= 50) {
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 6, 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter), 6, 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                 } else {
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 6, 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 6, 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
         } else if (*(s8 *)(work + 0xB5) == 7) {
@@ -1215,41 +1194,34 @@ void fclCombineLayoutTransition(u8 *task, s32 transition) {
             for (pair7 = 0, transition7 = (s8)transition; pair7 < 3; pair7++) {
                 slot = (FclCombineLayoutSlot *)D_006407C0 + (pair7 + 1);
                 if (transition7 == 0) {
-                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 pair7, pair7 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), pair7, pair7 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                     *(s16 *)(work + pair7 * 10 + 0xCA) = slot->col * 3 + 0x3E;
                     *(s16 *)(work + pair7 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 pair7, pair7 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter), pair7, pair7 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
                 slot = (FclCombineLayoutSlot *)D_006407C0 + (7 - pair7);
                 if (transition7 == 0) {
-                    func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 8 - pair7, pair7 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 8 - pair7, pair7 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                     *(s16 *)(work + (6 - pair7) * 10 + 0xCA) = slot->col * 3 + 0x3E;
                     *(s16 *)(work + (6 - pair7) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 8 - pair7, pair7 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 8 - pair7, pair7 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_006407F0;
             if (transition7 == 0) {
-                func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                             3, 0xC, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 3, 0xC, slot->col * 3 + 0x3E, slot->row + 0x57);
                 *(s16 *)(work + 0xE8) = slot->col * 3 + 0x3E;
                 *(s16 *)(work + 0xEA) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
                 if (RpRandom() % 100 >= 50) {
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 3, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter), 3, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
                 } else {
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 3, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 3, 6, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
         } else if (*(s8 *)(work + 0xB5) == 9) {
@@ -1259,41 +1231,34 @@ void fclCombineLayoutTransition(u8 *task, s32 transition) {
             for (pair9 = 0, transition9 = (s8)transition; pair9 < 4; pair9++) {
                 slot = (FclCombineLayoutSlot *)D_006407C0 + pair9;
                 if (transition9 == 0) {
-                    func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 pair9, pair9 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), pair9, pair9 * 4, slot->col * 3 + 0x3E, slot->row + 0x57);
                     *(s16 *)(work + pair9 * 10 + 0xCA) = slot->col * 3 + 0x3E;
                     *(s16 *)(work + pair9 * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 pair9, pair9 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter), pair9, pair9 * 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
                 slot = (FclCombineLayoutSlot *)D_006407C0 + (8 - pair9);
                 if (transition9 == 0) {
-                    func_00317900(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                                 8 - pair9, pair9 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(700.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 8 - pair9, pair9 * 4 + 2, slot->col * 3 + 0x3E, slot->row + 0x57);
                     *(s16 *)(work + (8 - pair9) * 10 + 0xCA) = slot->col * 3 + 0x3E;
                     *(s16 *)(work + (8 - pair9) * 10 + 0xCC) = slot->row + 0x57;
                 } else {
                     jitter = RpRandom() % 300 - 150;
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 8 - pair9, pair9 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 8 - pair9, pair9 * 2 + 1, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
             slot = (FclCombineLayoutSlot *)D_006407F0;
             if (transition9 == 0) {
-                func_00317900(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y),
-                             4, 0x10, slot->col * 3 + 0x3E, slot->row + 0x57);
+                fclCombineDrawEntryCell(task, func_002b2970(-200.0f, 100.0f + slot->y), func_002b2970(slot->x, slot->y), 4, 0x10, slot->col * 3 + 0x3E, slot->row + 0x57);
                 *(s16 *)(work + 0xF2) = slot->col * 3 + 0x3E;
                 *(s16 *)(work + 0xF4) = slot->row + 0x57;
             } else {
                 jitter = RpRandom() % 300 - 150;
                 if (RpRandom() % 100 >= 50) {
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter),
-                                 4, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(-300.0f, slot->y + jitter), 4, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
                 } else {
-                    func_00317900(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter),
-                                 4, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
+                    fclCombineDrawEntryCell(task, func_002b2970(slot->x, slot->y), func_002b2970(700.0f, slot->y + jitter), 4, 8, slot->col * 3 + 0x3E, slot->row + 0x57);
                 }
             }
         }
@@ -1750,7 +1715,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         if ((s8)fclDrawGetState(temp_18->f148) < 0 || (s8)fclDrawGetState(temp_18->f148) > 5) {
             for (var_16_2 = 0; var_16_2 < (datPersonaRosterCapacity() & 0xFFFF); var_16_2++) {
                 sp228.position = func_002b2970(16.0f, 128.0f);
-                func_003191c0(arg0, sp228.position, (s8)(var_16_2), ((u16 *)yListSlotEntry(0, var_16_2))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_16_2)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
+                fclCombinePartyRow(arg0, sp228.position, (s8)(var_16_2), ((u16 *)yListSlotEntry(0, var_16_2))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_16_2)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
             }
             sp220 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp220, 0, 0, 0, 0, 0);
@@ -1856,7 +1821,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                         slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_2)) + 4);
                         func_0031ac10(arg0, sp218.position, temp_18->f128, var_17_2, temp_16_6, slotByte, 0, 1, 1, 0xCC);
                         sp210.position = func_002b2970(16.0f, 128.0f);
-                        func_003191c0(arg0, sp210.position, (s8)(var_17_2), ((u16 *)yListSlotEntry(0, var_17_2))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_2)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
+                        fclCombinePartyRow(arg0, sp210.position, (s8)(var_17_2), ((u16 *)yListSlotEntry(0, var_17_2))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_2)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                     }
                     sp208 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp208, 0, 1, 0, 0, 0);
@@ -1880,7 +1845,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                         slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_3)) + 4);
                         func_0031ac10(arg0, sp1F8.position, temp_18->f128, var_17_3, temp_16_9, slotByte, 0, 1, 1, 0xCC);
                         sp1F0.position = func_002b2970(16.0f, 128.0f);
-                        func_003191c0(arg0, sp1F0.position, (s8)(var_17_3), ((u16 *)yListSlotEntry(0, var_17_3))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_3)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
+                        fclCombinePartyRow(arg0, sp1F0.position, (s8)(var_17_3), ((u16 *)yListSlotEntry(0, var_17_3))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_3)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                     }
                     sp1E8 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp1E8, 0, 1, 0, 0, 0);
@@ -1969,7 +1934,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                 slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_5)) + 4);
                 func_0031ac10(arg0, sp1B8.position, temp_18->f128, var_17_5, temp_16_15, slotByte, 0, 0, 1, 0xCC);
                 sp1B0.position = func_002b2970(16.0f, 128.0f);
-                func_003191c0(arg0, sp1B0.position, (s8)(var_17_5), ((u16 *)yListSlotEntry(0, var_17_5))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_5)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
+                fclCombinePartyRow(arg0, sp1B0.position, (s8)(var_17_5), ((u16 *)yListSlotEntry(0, var_17_5))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_5)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
             }
             sp1A8 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp1A8, 0, 0, 0, 0, 0);
@@ -2137,7 +2102,7 @@ void fclCombineMenuFusion(u8 *arg0) {
             temp_18->f129 = -1;
             for (var_17_6 = 0; var_17_6 < (datPersonaRosterCapacity() & 0xFFFF); var_17_6++) {
                 sp178.position = func_002b2970(16.0f, 128.0f);
-                func_003191c0(arg0, sp178.position, (s8)(var_17_6), ((u16 *)yListSlotEntry(0, var_17_6))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_6)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
+                fclCombinePartyRow(arg0, sp178.position, (s8)(var_17_6), ((u16 *)yListSlotEntry(0, var_17_6))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_6)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                 sp170.position = func_002b2970((f32)0x149, 128.0f);
                 temp_16_41 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_6))[1];
                 slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_6)) + 4);
@@ -2823,7 +2788,7 @@ block_83:
                 for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                     sp390 = func_002b2970(16.0f, 128.0f);
 
-                    func_003191c0(arg0, sp390, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
+                    fclCombinePartyRow(arg0, sp390, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                 }
                 sp388 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp388, 0, 0, 0, 0, 0);
@@ -2883,7 +2848,7 @@ block_83:
                     for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                         sp360 = func_002b2970(16.0f, 128.0f);
 
-                        func_003191c0(arg0, sp360, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
+                        fclCombinePartyRow(arg0, sp360, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                     }
                     sp358 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp358, 0, 1, 0, 0, 0);
@@ -2961,7 +2926,7 @@ block_83:
                         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                             sp2F8 = func_002b2970(16.0f, 128.0f);
 
-                            func_003191c0(arg0, sp2F8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
+                            fclCombinePartyRow(arg0, sp2F8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                         }
                         sp2F0 = func_002b2970(16.0f, 104.0f);
                         func_0031e5b0(arg0, sp2F0, 0, 1, 0, 0, 0);
@@ -3070,7 +3035,7 @@ block_166:
                 for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                     sp2B8 = func_002b2970(16.0f, 128.0f);
 
-                    func_003191c0(arg0, sp2B8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
+                    fclCombinePartyRow(arg0, sp2B8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                 }
                 sp2B0 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp2B0, 0, 0, 0, 0, 0);
@@ -3122,7 +3087,7 @@ block_166:
                         func_0031ac10(arg0, sp2A8, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
                         sp2A0 = func_002b2970(16.0f, 128.0f);
 
-                        func_003191c0(arg0, sp2A0, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
+                        fclCombinePartyRow(arg0, sp2A0, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                     }
                     sp298 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp298, 0, 1, 0, 0, 0);
@@ -3149,7 +3114,7 @@ block_166:
                                 func_0031ac10(arg0, sp288, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
                                 sp280 = func_002b2970(16.0f, 128.0f);
 
-                                func_003191c0(arg0, sp280, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
+                                fclCombinePartyRow(arg0, sp280, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                             }
                             sp278 = func_002b2970(16.0f, 104.0f);
                             func_0031e5b0(arg0, sp278, 0, 1, 0, 0, 0);
@@ -3260,7 +3225,7 @@ block_215:
 
                     sp248 = func_002b2970(16.0f, 128.0f);
 
-                    func_003191c0(arg0, sp248, (s8)gridRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
+                    fclCombinePartyRow(arg0, sp248, (s8)gridRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                     temp_18_28 = (s8)((s8)((s8)(temp_17->f129)));
                     if ((*((s8 *)((u8 *)((yListSlotWork((u32)temp_18_28 + 1U) + (temp_18_28 * 0xC) + gridRow)) + (0x14)))) > 0) {
                         sp240 = func_002b2970((f32) 0x149, 128.0f);
@@ -3466,7 +3431,7 @@ block_215:
 
                 sp208 = func_002b2970(16.0f, 128.0f);
 
-                func_003191c0(arg0, sp208, (s8)gridRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
+                fclCombinePartyRow(arg0, sp208, (s8)gridRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                 temp_18_39 = (s8)((s8)((s8)(temp_17->f129)));
                 if ((*((s8 *)((u8 *)((yListSlotWork((u32)temp_18_39 + 1U) + (temp_18_39 * 0xC) + gridRow)) + (0x14)))) > 0) {
                     sp200 = func_002b2970((f32) 0x149, 128.0f);
@@ -6980,10 +6945,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 func_0045af60(0, 1, 0, 3);
                 for (var_16_3 = 0; var_16_3 < (datPersonaRosterCapacity() & 0xFFFF); var_16_3++) {
                     sp298 = func_002b2970(16.0f, 128.0f);
-                    func_003191c0(arg0, sp298, (s8)var_16_3,
-                        ((u16 *)yListSlotEntry(0, var_16_3))[1],
-                        *(u8 *)((u8 *)yListSlotEntry(0, var_16_3) + 4),
-                        0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
+                    fclCombinePartyRow(arg0, sp298, (s8)var_16_3, ((u16 *)yListSlotEntry(0, var_16_3))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_16_3) + 4), 0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                 }
                 sp290 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp290, 0, 1, 0, 0, 0);
@@ -7067,10 +7029,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         if ((((s8)(fclDrawGetState((u8 *)work->f148))) < 0) || (((s8)(fclDrawGetState((u8 *)work->f148))) > 5)) {
             for (var_16_4 = 0; var_16_4 < (datPersonaRosterCapacity() & 0xFFFF); var_16_4++) {
                 sp230 = func_002b2970(16.0f, 128.0f);
-                func_003191c0(arg0, sp230, (s8)var_16_4,
-                    ((u16 *)yListSlotEntry(0, var_16_4))[1],
-                    *(u8 *)((u8 *)yListSlotEntry(0, var_16_4) + 4),
-                    0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
+                fclCombinePartyRow(arg0, sp230, (s8)var_16_4, ((u16 *)yListSlotEntry(0, var_16_4))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_16_4) + 4), 0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
             }
             sp228 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp228, 0, 0, 0, 0, 0);
@@ -7222,10 +7181,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     work->f1 = 0x81U;
                     for (var_16_5 = 0; var_16_5 < (datPersonaRosterCapacity() & 0xFFFF); var_16_5++) {
                         sp218 = func_002b2970(16.0f, 128.0f);
-                        func_003191c0(arg0, sp218, (s8)var_16_5,
-                            ((u16 *)yListSlotEntry(0, var_16_5))[1],
-                            *(u8 *)((u8 *)yListSlotEntry(0, var_16_5) + 4),
-                            0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
+                        fclCombinePartyRow(arg0, sp218, (s8)var_16_5, ((u16 *)yListSlotEntry(0, var_16_5))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_16_5) + 4), 0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                     }
                     sp210 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp210, 0, 1, 0, 0, 0);
@@ -7248,10 +7204,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                         slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_6) + 4);
                         func_0031ac10(arg0, sp200, work->f128, var_18_6, temp_16_17, slotByte, 0, 1, 1, 0xCC);
                         sp1F8 = func_002b2970(16.0f, 128.0f);
-                        func_003191c0(arg0, sp1F8, (s8)var_18_6,
-                            ((u16 *)yListSlotEntry(0, var_18_6))[1],
-                            *(u8 *)((u8 *)yListSlotEntry(0, var_18_6) + 4),
-                            0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
+                        fclCombinePartyRow(arg0, sp1F8, (s8)var_18_6, ((u16 *)yListSlotEntry(0, var_18_6))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_18_6) + 4), 0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                     }
                     sp1F0 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp1F0, 0, 1, 0, 0, 0);
@@ -7319,10 +7272,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_8) + 4);
                 func_0031ac10(arg0, sp1C0, work->f128, var_18_8, temp_16_25, slotByte, 0, 0, 1, 0xCC);
                 sp1B8 = func_002b2970(16.0f, 128.0f);
-                func_003191c0(arg0, sp1B8, (s8)var_18_8,
-                    ((u16 *)yListSlotEntry(0, var_18_8))[1],
-                    *(u8 *)((u8 *)yListSlotEntry(0, var_18_8) + 4),
-                    0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
+                fclCombinePartyRow(arg0, sp1B8, (s8)var_18_8, ((u16 *)yListSlotEntry(0, var_18_8))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_18_8) + 4), 0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
             }
             sp1B0 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp1B0, 0, 0, 0, 0, 0);
@@ -7385,10 +7335,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 work->f129 = -1;
                 for (var_18_9 = 0; var_18_9 < (datPersonaRosterCapacity() & 0xFFFF); var_18_9++) {
                     sp1A0 = func_002b2970(16.0f, 128.0f);
-                    func_003191c0(arg0, sp1A0, (s8)var_18_9,
-                        ((u16 *)yListSlotEntry(0, var_18_9))[1],
-                        *(u8 *)((u8 *)yListSlotEntry(0, var_18_9) + 4),
-                        0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
+                    fclCombinePartyRow(arg0, sp1A0, (s8)var_18_9, ((u16 *)yListSlotEntry(0, var_18_9))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_18_9) + 4), 0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
                     sp198 = func_002b2970((f32) 0x149, 128.0f);
                     temp_16_31 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_9))+(2))));
                     slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_9) + 4);
