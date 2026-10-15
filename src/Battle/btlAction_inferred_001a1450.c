@@ -342,7 +342,7 @@ void btlActionCommandInit(s64 *arg0)
     u8 *listUnit;
     u8 *listUnit2;
 
-    extern void func_001958f0(u8 *arg0, f32 *arg1);
+    extern void btlUnitGetGridSphereCenter(u8 *arg0, f32 *arg1);
     extern s32 btlUnitIsMoving(u8 *arg0);
 
     extern void btlPacketEnqueue(u8 *arg0, s32 arg1);
@@ -365,7 +365,7 @@ void btlActionCommandInit(s64 *arg0)
         goto loop_14_test;
 loop_14_body:
         if (datCalcChkBadStatus((s32)*(u8 **)(listUnit + 0xA64), 0x100) != 0) {
-            func_001958f0(
+            btlUnitGetGridSphereCenter(
                 *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
                 (f32 *)&sp30);
         } else {
@@ -3492,7 +3492,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern u8 *func_00194b60(void);
     extern u8 *btlPacketAllocZeroed(void *arg0, void *arg1);
     extern s32 func_00195530(u8 *arg0);
-    extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
+    extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *btlUnitCreateArcMovePacket(s32 unit, s16 skill, s16 delay);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
@@ -4038,7 +4038,7 @@ void btlActionSkillUpdate(u8 *arg0) {
         } else {
             btlState2 = (u8 *)(iGpffffb3ac);
             if (*(s32 *)(btlState2 + 0xC) & 0x200000) {
-                func_001958f0((*( BtlUnit ** )((u8 *)(*(u8 **)(btlState2 + 0x170)) + (0x30))), &targetPosition);
+                btlUnitGetGridSphereCenter((*( BtlUnit ** )((u8 *)(*(u8 **)(btlState2 + 0x170)) + (0x30))), &targetPosition);
                 pkt6 = (BtlPacketTiming *)(btlUnitCreateRotatePacket(*(BtlUnit **)(arg0 + 0x30), &targetPosition, rotateFlags));
                 pkt6->ownerId = actionId;
                 btlPacketEnqueue((u8 *)pkt6, 0);

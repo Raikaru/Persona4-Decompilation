@@ -96,7 +96,7 @@ static inline void cameraApplyVisibility(f32 radius, u8 *camera, u16 mode)
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, radius, mode);
 }
 extern f32 func_00196040(u32, u32, void*, f32*, void*, u32);
-extern void func_001958f0(BtlUnit*, RwV3d*);
+extern void btlUnitGetGridSphereCenter(BtlUnit*, RwV3d*);
 extern f32 tanf(f32 x);
 extern void btlUnitGetSphereWorldCenter(void *unit, void *center);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);
@@ -1165,7 +1165,7 @@ u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
     }
     unit = cam->action->unit;
     if (useAlternate != 0) {
-        func_001958f0(unit, &unitPosition);
+        btlUnitGetGridSphereCenter(unit, &unitPosition);
     } else {
         btlUnitGetSphereWorldCenter(unit, &unitPosition);
     }
@@ -1757,13 +1757,13 @@ void btlCameraFrameClampedDistance(BtlCamera* camera)
         iVar1 = *(int*)(*(int*)(iGpffffb3ac + 0x170) + 0x30);
     }
     distance = func_00196040(3, 1, &scratch.target, &height, 0, 1);
-    func_001958f0((BtlUnit*)iVar1, &scratch.pos);
+    btlUnitGetGridSphereCenter((BtlUnit*)iVar1, &scratch.pos);
     scratch.target.y = 0.0f;
     scratch.pos.y = 0.0f;
     if ((scratch.pos.x == scratch.target.x) &&
         (scratch.pos.z == scratch.target.z))
     {
-        func_001958f0((BtlUnit*)*(int*)(*(int*)(iGpffffb3ac + 0x170) + 0x30),
+        btlUnitGetGridSphereCenter((BtlUnit*)*(int*)(*(int*)(iGpffffb3ac + 0x170) + 0x30),
                       &scratch.pos);
         scratch.pos.y = 0.0f;
     }
@@ -1907,7 +1907,7 @@ void btlAct_NOP(u8 *camera)
             if (frames[0].pos.y < 25.0f) {
                 frames[0].pos.y = 25.0f;
             }
-            func_001958f0((BtlUnit *)unit, &unitCenter);
+            btlUnitGetGridSphereCenter((BtlUnit *)unit, &unitCenter);
             unitCenter.y = *(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C);
             direction.x = unitCenter.x - groupCenter.x;
             direction.y = unitCenter.y - groupCenter.y;
@@ -2244,7 +2244,7 @@ void btlCameraFrameActionFocus(u8* camera)
     unit = *(u8**)(*(u8**)(camera + 0xe0) + 0x30);
     radius = *(f32*)(unit + 0x90) * *(f32*)(unit + 0x2c);
     btlCameraCopyPose((f32*)&frames[0], (f32*)(camera + 0x9c));
-    func_001958f0((BtlUnit*)unit, &center);
+    btlUnitGetGridSphereCenter((BtlUnit*)unit, &center);
 
     delta.x = frames[0].pos.x - center.x;
     delta.y = frames[0].pos.y - center.y;

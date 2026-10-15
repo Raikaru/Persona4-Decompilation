@@ -1333,8 +1333,12 @@ void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst)
     dst->z = rotatedCenter.z + unit->pos.z;
 }
 
-// FUN_001958F0
-void func_001958f0(BtlUnit* unit, RwV3d* dst)
+/* Same rotation and scale as btlUnitGetSphereWorldCenter, but the x/z
+ * position comes from the grid cell fields (unk_94/unk_96, 25 units per
+ * cell, -0x6d6 origin) instead of pos.x/pos.z. The two formulas are
+ * near-duplicates; the battle target/group and camera callers want the grid
+ * position. FUN_001958F0 */
+void btlUnitGetGridSphereCenter(BtlUnit* unit, RwV3d* dst)
 {
     RwV3d scaledCenter;
     RwV3d rotatedCenter;

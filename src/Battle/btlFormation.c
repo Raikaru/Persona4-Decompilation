@@ -168,7 +168,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
     extern void btlUnitGetSphereWorldCenter(struct BtlUnit *, struct RwV3d *);
     extern void func_00195aa0(struct BtlUnit *, struct BtlUnit *, struct RwV3d *);
-    extern void func_001958f0(struct BtlUnit *, struct RwV3d *);
+    extern void btlUnitGetGridSphereCenter(struct BtlUnit *, struct RwV3d *);
     extern f32 func_00196040(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
     extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
     extern s32 func_001f1210(u8 *unit, s16 action, s32 paired);
@@ -514,7 +514,7 @@ u32 btlFormationPlaceUnits(u32 *work)
             for (i = 0; i < *(u16 *)(base + 0x6A); i++) {
                 groupTarget = *(u8 **)(base + (u32)i * 4 + 0x38);
                 if ((*(u16 *)(groupTarget + 0x1A) & 1) != 0) {
-                    func_001958f0((struct BtlUnit *)(*(u8 **)(groupTarget + 0x30)), (struct RwV3d *)((f32 *)&tmpF0));
+                    btlUnitGetGridSphereCenter((struct BtlUnit *)(*(u8 **)(groupTarget + 0x30)), (struct RwV3d *)((f32 *)&tmpF0));
                     diff[0] = centerB.v[0] - tmpF0.v[0];
                     diff[1] = centerB.v[1] - tmpF0.v[1];
                     diff[2] = centerB.v[2] - tmpF0.v[2];

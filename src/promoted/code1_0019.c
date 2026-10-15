@@ -104,7 +104,7 @@ extern void H_Cdvd_Destroy(s32 arg0);
 typedef struct RwV3d RwV3d;
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
-extern void func_001958f0(void *arg0, void *arg1);
+extern void btlUnitGetGridSphereCenter(void *arg0, void *arg1);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 func_0022f7d0(u8 *arg0, f32 *arg1, s32 arg2);
 extern u8 *func_001b1510(void);

@@ -193,7 +193,7 @@ void btlCameraApplyView(void)
             if (callback != NULL) {
                 callback(D_0076449C + 0x24);
             }
-            func_001bbf90(D_0076449C + 0x24);
+            btlCameraUpdateTransition(D_0076449C + 0x24);
             *(s32 *)(D_0076449C + 0xFC) =
                 *(s32 *)(D_0076449C + 0xFC) + 1;
         } else {

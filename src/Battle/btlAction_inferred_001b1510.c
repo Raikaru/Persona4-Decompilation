@@ -786,7 +786,7 @@ s32 btlMainUnitCreateUpdate(void)
     extern void btlShuffleStart(s32 task);
     extern s32 iGpffffb414;
     extern s32 func_001b1540(void);
-    extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
+    extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern void func_001ee250(u8 *arg0, u8 *arg1);
     extern void btlTargetBlendVectors(u8 *rotation, u8 *from, u8 *to);
@@ -861,7 +861,7 @@ s32 btlMainUnitCreateUpdate(void)
          )) {
         action = *(u8 **)(D_0076449C + 0x170);
       }
-      func_001958f0((BtlUnit *)*(void **)(action + 0x30), &groupCenter);
+      btlUnitGetGridSphereCenter((BtlUnit *)*(void **)(action + 0x30), &groupCenter);
       for (group = 0; (s32)(group & 0xffff) < 2; group = (group + 1) & 0xffff) {
         if (((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) || ((group & 0xffff) != 0)) {
           for (nodeOrPacket = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); nodeOrPacket != NULL;
@@ -978,7 +978,7 @@ normal_opening:
                 if (nodeOrPacket == unit) {
                   distance = 500.0f;
                   if (nodeOrPacket != unit) {
-                    func_001958f0((BtlUnit *)nodeOrPacket, &actorCenter);
+                    btlUnitGetGridSphereCenter((BtlUnit *)nodeOrPacket, &actorCenter);
                     offset.x = groupCenter.x - actorCenter.x;
                     offset.y = groupCenter.y - actorCenter.y;
                     offset.z = groupCenter.z - actorCenter.z;
@@ -1006,7 +1006,7 @@ normal_opening:
                   btlUnitSetPos((BtlUnit *)unit, &offset);
                 }
                 else {
-                  func_001958f0((BtlUnit *)nodeOrPacket, &groupCenter);
+                  btlUnitGetGridSphereCenter((BtlUnit *)nodeOrPacket, &groupCenter);
                   groupCenter.y = position.y;
                   offset.x = groupCenter.x - position.x;
                   offset.y = position.y - position.y;

@@ -55,7 +55,7 @@ extern f32 DAT_00761278;
 extern f32 fGpffff8100;
 extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
 extern void btlCameraCopyPose();
-extern void func_001958f0(BtlUnit *unit, RwV3d *out);
+extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *out);
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
 extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
@@ -229,7 +229,7 @@ void btlCameraFrameStatus(u8 *arg0, s32 arg1)
         func_00196040(1, 0, NULL, &frame.max14C, &frame.min148, 1);
         frame.target118[1] = frame.min148 + 0.5f * (frame.max14C - frame.min148);
         var_f20 = (0.75f * var_f20) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
-        func_001958f0((BtlUnit *)(var16), (RwV3d *)(frame.actorE8));
+        btlUnitGetGridSphereCenter((BtlUnit *)(var16), (RwV3d *)(frame.actorE8));
         frame.eye108[0] = frame.actorE8[0];
         frame.eye108[1] = frame.target118[1];
         frame.eye108[2] = frame.actorE8[2];
@@ -431,7 +431,7 @@ void btlCameraFrameSideView(u8 *camera, s32 immediate)
     endpoints[0].pos.z = center.z + direction.z;
     if (*(u16 *)(camera + 0x106) == 0) {
         target = *(u8 **)(next + 0x30);
-        func_001958f0((BtlUnit *)(target), (RwV3d *)((f32 *)&center));
+        btlUnitGetGridSphereCenter((BtlUnit *)(target), (RwV3d *)((f32 *)&center));
         if (!(50.0f <= center.y)) center.y = 50.0f;
         btlTargetBlendVectors((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
         RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)&heading);
