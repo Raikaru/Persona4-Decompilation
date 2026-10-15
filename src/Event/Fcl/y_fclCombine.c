@@ -94,7 +94,7 @@ extern s8 fclDrawGetState(u8 *);
 extern void fclDrawResetScale(u8 *);
 extern s16 fclSpriteFlagBit(s16, s16);
 extern u8 *fclSpriteEntry(s16);
-extern void func_00321e60(u8 *, s64, u8, u8);
+extern void fclCombineHandleGridInput(u8 *, s64, u8, u8);
 extern void func_003233d0(u8 *);
 extern void fclCombinePartyRow(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
 extern void fclCombineDrawPersonaRow(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
@@ -1670,7 +1670,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         break;
     case 0x27:                                      /* switch 1 */
         if ((s8)fclDrawGetState(temp_18->f148) < 0 || (s8)fclDrawGetState(temp_18->f148) > 5) {
-            func_00321e60(arg0, 0, 0x2A, 0x26);
+            fclCombineHandleGridInput(arg0, 0, 0x2A, 0x26);
             return;
         }
         break;
@@ -2737,7 +2737,7 @@ void fclCombineMenuFusionTriple(u8 *arg0) {
         break;
     case 0x3C:                                      /* switch 1 */
         if ((s8)fclDrawGetState((u8 *)temp_17->f148) < 0 || (s8)fclDrawGetState((u8 *)temp_17->f148) > 5) {
-            func_00321e60(arg0, 1, 0x40, 0x3B);
+            fclCombineHandleGridInput(arg0, 1, 0x40, 0x3B);
             return;
         }
         break;
