@@ -120,7 +120,7 @@ extern s32 func_002239a0(u8 *task);
 extern void func_00223ed0();
 extern void func_00223ee0(u8 *task);
 extern s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1);
-extern s32 func_0019fe60(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 btlUnitIsUnavailable(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001cbf80(u8 *arg0);
 extern void func_001cbfe0(int param_1);
 extern s32 func_00243ce0(u8 *arg0);
@@ -1721,7 +1721,7 @@ void func_00225c00(u8 *arg0)
     temp_3 = *(u8 **)(self + 0xE0);
     if (temp_3 != NULL) {
         if (func_00243ce0((u8 *)*(s32 *)(*(u8 **)(temp_3 + 0x30) + 0xA64)) != 0) {
-            if (func_0019fe60(*(u8 **)(self + 0xE0), 0, 0) != 0) {
+            if (btlUnitIsUnavailable(*(u8 **)(self + 0xE0), 0, 0) != 0) {
                 func_002258b0(self, 0.0f, 0.75f);
             } else {
                 func_002250a0(self, 0.0f, 0.75f);
@@ -1764,7 +1764,7 @@ void func_00225d00(u8 *arg0)
         if (temp_4 != temp_3) {
             return;
         }
-        if (func_0019fe60(*(u8 **)(arg0 + 0xE0), 0, 0) != 0) {
+        if (btlUnitIsUnavailable(*(u8 **)(arg0 + 0xE0), 0, 0) != 0) {
             func_002258b0(arg0, 400.0f, fGpffff809c);
             return;
         }

@@ -628,7 +628,7 @@ upper_height_done:
 
 #pragma pop
 // FUN_0019F5F0
-u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2)
+u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2)
 {
     s32 temp_16;
     s32 temp_2;
@@ -916,7 +916,7 @@ result_zero_0019fc70:
 /* measured: func_0019fe60 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0019FE60
-s32 func_0019fe60(u8 *arg0, s32 arg1, s32 arg2)
+s32 btlUnitIsUnavailable(u8 *arg0, s32 arg1, s32 arg2)
 {
     u16 temp_6;
     u8 *temp_2;
