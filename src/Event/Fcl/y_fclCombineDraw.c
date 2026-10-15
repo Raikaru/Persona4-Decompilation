@@ -3031,7 +3031,7 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     extern u16 D_008C024E[];
     extern u16 D_008C024C[];
     extern f32 D_00644150[];
-    extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
+    extern void fclCombineFuseSourceRecords(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
     extern void yListBuildAvailability(s32, s32);
     extern s32 func_0045af60(s16, s16, s16, s16);
     FclByte4 c21C;
@@ -3181,9 +3181,9 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                         sdkSpriteFreeNode(hb1);
                         c = *(s8 *)(t + 0x128);
                         if (*(s8 *)(yListSlotWork(0) + c * 12 + (u32)normalizedRow + 0x14) > 0) {
-                            func_002f9c30((u16 *)yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1),
-                                          yListSlotEntry(0, *(s8 *)(t + 0x128)),
-                                          yListSlotEntry(0, jb1), 0, 0, 0, 0, 2, (s8)(c + 1), (s8)jb1);
+                            fclCombineFuseSourceRecords((u16 *)yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1),
+                                                        yListSlotEntry(0, *(s8 *)(t + 0x128)),
+                                                        yListSlotEntry(0, jb1), 0, 0, 0, 0, 2, (s8)(c + 1), (s8)jb1);
                         }
                     }
                     ++jb1;
