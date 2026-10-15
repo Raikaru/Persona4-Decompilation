@@ -522,6 +522,7 @@ s32 Cmd_PlaceFieldResource(void)
     }
 }
 
+/* P4 flowscript library (build/p4flow/Field.json, index 0x100D): FLD_NPC_MODEL_LOAD(major, minor). The P3 name is kept. */
 // FUN_00177A10
 u32 K_Cmd_CREATE_FLD_MDL()
 {
