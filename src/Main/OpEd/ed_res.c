@@ -21,8 +21,8 @@ extern u8 *func_00455ea0(u8 *resource, s32 index, s32 *size);
 extern void H_Cdvd_Destroy(u8 *ptr);
 extern u8 *func_00454a60(u8 *param, s32 mode);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern void func_00271380(s32 slot, u8 *data);
-extern void func_00271820(s32 slot);
+extern void frFontSlotLoadData(s32 slot, u8 *data);
+extern void frFontSlotFree(s32 slot);
 
 // FUN_0038F620
 void func_0038f620(void)
@@ -60,7 +60,7 @@ void func_0038f680(void)
                 func_0044ea90(D_0064F250, 0x56);
                 copy = (*jtbl_008873E8)(size, 0x40000);
                 memcpy(copy, data, size);
-                func_00271380(6, copy);
+                frFontSlotLoadData(6, copy);
                 break;
             }
         }
@@ -108,7 +108,7 @@ void func_0038f8d0(void)
         func_0046d730(D_0064F250, 0x84);
     }
     brpParamFree((u8 *)(uintptr_t)work[3]);
-    func_00271820(6);
+    frFontSlotFree(6);
 }
 
 // FUN_0038F950

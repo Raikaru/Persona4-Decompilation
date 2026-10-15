@@ -4,7 +4,7 @@
 #include "fr_font_internal.h"
 #include "h_cdvd.h"
 
-extern void func_002716b0(s32 arg0, u8 *arg1, u8 *arg2);
+extern void frFontSlotLoad(s32 arg0, u8 *arg1, u8 *arg2);
 
 typedef int (*code)();
 extern u32 DAT_00881630_abs[];
@@ -39,8 +39,8 @@ extern int func_002e0d60(void);
 extern void func_002bcd20(void);
 struct KwlnTask;
 extern s32 func_002e17f0(u8 *task);
-extern void func_002715c0(u8 *task);
-extern void func_002713b0(int param_1, int param_2);
+extern void frFontTaskDestroy(u8 *task);
+extern void frFontInitManager(int param_1, int param_2);
 extern s8 func_002746e0(void *param_1, int param_2);
 extern void func_002746b0(u32 param_1);
 extern u8 *func_002740b0(void *data);
@@ -157,6 +157,7 @@ extern u32 DAT_00881634_abs[];
 
 
 
+/* Builds the slot grid: columns * rows nodes, each with its screen rectangle and optional aux buffer. */
 /* measured: signed pool globals, preserved propagation boundaries and loop
    invariants reproduce bare-LUI hoisting without hoisting mutable loads.
    The existing 32-byte GslListNode layout gives all 860 executable bytes
@@ -165,7 +166,7 @@ extern u32 DAT_00881634_abs[];
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
-s32 func_00270fb0(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s32 aux_size)
+s32 frFontInitSlotGrid(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s32 aux_size)
 {
     u8 *aux = 0;
     u32 i;
@@ -241,6 +242,7 @@ s32 func_00270fb0(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s32 au
     return 1;
 }
 #pragma pop
+/* Inserts a node after the free-list head and returns the new count. */
 // Ported from P3FES FUN_003b4580 (verified MATCH there). The prior nd11
 // floor was the RETURN TYPE: retail leaves the incremented count live in $v0
 // at the jr, so every void spelling coloured the whole global-load chain
@@ -248,7 +250,7 @@ s32 func_00270fb0(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s32 au
 // caller in this file passes a u8* node, so the param is u8* (not the donor's
 // int). Struct offsets prev=0x18/next=0x1C match the donor's data[6] layout.
 // FUN_00271310
-s32 func_00271310(u8 *param_1)
+s32 frFontFreeListInsert(u8 *param_1)
 {
   GslListNode *node = (GslListNode *)param_1;
   GslListNode *head;
@@ -269,14 +271,16 @@ s32 func_00271310(u8 *param_1)
   return count;
 }
 
+/* Loads font data into slot arg0 with no separate header buffer (see frFontSlotLoad). */
 // FUN_00271380
-void func_00271380(s32 arg0, u8 *arg1)
+void frFontSlotLoadData(s32 arg0, u8 *arg1)
 {
-    func_002716b0(arg0, 0, arg1);
+    frFontSlotLoad(arg0, 0, arg1);
 }
 
 
 
+/* Initialises the font manager: slot grid, scratch tables, and a glyph cache of arg1 entries. */
 /* measured: pointer locals (FrFontSlot4 *slots / s32 *bb0), a named scaled
    offset, and opt_propagation off reproduce the retail loop guards and
    register coloring. The body is an exact 528-byte match. */
@@ -284,7 +288,7 @@ void func_00271380(s32 arg0, u8 *arg1)
 // FUN_002713B0
 #pragma push
 #pragma opt_propagation off
-void func_002713b0(s32 arg0, s32 arg1)
+void frFontInitManager(s32 arg0, s32 arg1)
 {
     FrFontSlot4 *slots;
     s32 *bb0;
@@ -348,7 +352,7 @@ void func_002713b0(s32 arg0, s32 arg1)
         var_2_3 = (var_2_3 - 1) & 0xff;
     }
     DAT_00881778_abs[0] = var_2_3 & 0xff;
-    func_00270fb0(DAT_0088177C_abs[0], 0x10, var_16, 0x20, 0x20, 0x10);
+    frFontInitSlotGrid(DAT_0088177C_abs[0], 0x10, var_16, 0x20, 0x20, 0x10);
     DAT_0088175c_abs[0] = func_0026e010(0x2c, arg1 * 4);
     *(s32 *)DAT_00881760_abs = func_0026e010(0x44, arg1);
     func_00271860();
@@ -366,8 +370,9 @@ void func_002713b0(s32 arg0, s32 arg1)
 #pragma pop
 
 
+/* Task destroy callback: releases the manager's tables, slot grid and glyph cache. */
 // FUN_002715C0
-void func_002715c0(u8 *unusedTask)
+void frFontTaskDestroy(u8 *unusedTask)
 {
     void *(**tab);
 
@@ -388,8 +393,9 @@ void func_002715c0(u8 *unusedTask)
     frFontRasterDestroyCache();
 }
 
+/* Loads one font's header and glyph table into slot arg0; arg1 is the font data (NULL falls back to arg2). */
 // FUN_002716B0
-void func_002716b0(s32 arg0, u8 *arg1, u8 *arg2)
+void frFontSlotLoad(s32 arg0, u8 *arg1, u8 *arg2)
 {
     FrFontSlot4 *slot;
     s32 var_17;
@@ -431,15 +437,16 @@ void func_002716b0(s32 arg0, u8 *arg1, u8 *arg2)
         (u32)(arg1 + (var_17 + (*(u16 *)(slot->f04 + 0xE) * 4)));
 }
 
+/* Frees the block held by slot param_1. */
 // FUN_00271820
-void func_00271820(u32 param_1)
+void frFontSlotFree(u32 param_1)
 {
     DAT_008873ec_abs[0](DAT_00881630_abs[(param_1 & 0xff) * 8]);
 }
 
 
 
-// func_0026e120 and func_00271310 are intentionally left undeclared
+// func_0026e120 and frFontFreeListInsert are intentionally left undeclared
 // (implicit old-style calls, as in the P3 donor FUN_003b0030); a typed
 // prototype would force an int->pointer cast mwcc rejects, and the P3
 // retail form is the implicit call.
@@ -484,7 +491,7 @@ void func_00271860(void)
         temp_2 = func_00454a60(D_0063BC10, 0);
         DAT_008817B0_abs[0] = temp_2;
         H_Cdvd_ReadSync(temp_2);
-        func_002716b0(0, NULL, func_00455f70(D_0063BC10, &sp1C));
+        frFontSlotLoad(0, NULL, func_00455f70(D_0063BC10, &sp1C));
     }
     var_7 = (u8 *)gFrFontManagerData_abs;
     var_6 = (u8 *)DAT_00881650_abs;
@@ -649,7 +656,7 @@ u32 func_00271bd0(int param_1)
                         puVar3[4] = 0;
                     }
 
-                    func_00271310((u8 *)*(u32 *)(iVar2 + 8));
+                    frFontFreeListInsert((u8 *)*(u32 *)(iVar2 + 8));
                     DAT_00881750_abs[0] = DAT_00881750_abs[0] + -1;
                 }
             }
@@ -1893,7 +1900,7 @@ loop32_check:
 // FUN_002738A0
 void func_002738a0(u8 *param_1)
 {
-    func_002716b0(8, param_1, 0);
+    frFontSlotLoad(8, param_1, 0);
 }
 
 
@@ -2712,8 +2719,8 @@ void func_00274970(void)
     func_002baa20();
     v = func_002e0d60();
     *(int *)v = (s32)func_00451de0((const void *)(&D_00763840), 0xC8, 0, 0, func_002e17f0, 0, (u8 *)(0));
-    func_002713b0(0x100, 0x100);
-    func_00451de0((const void *)(&D_00763848), 0, 0, 0, func_00273610, func_002715c0, (u8 *)(0));
+    frFontInitManager(0x100, 0x100);
+    func_00451de0((const void *)(&D_00763848), 0, 0, 0, func_00273610, frFontTaskDestroy, (u8 *)(0));
     func_002bcd20();
 }
 
