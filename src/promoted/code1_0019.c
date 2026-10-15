@@ -1671,52 +1671,8 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4)
 
 
 
-// FUN_0019B530
-void func_0019b530(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
-}
 
-// FUN_0019B550
-u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2)
-{
-    u8 *work;
-    u8 *packet;
 
-    packet = (u8 *)func_00194470(0x10F, 0x10);
-    *(u8 *)(packet + 0x47) &= 0xFE;
-    *(void **)(packet + 0x68) = (void *)func_0019acd0;
-    *(void **)(packet + 0x6C) = (void *)func_0019ae20;
-    *(void **)(packet + 0x70) = (void *)func_0019b530;
-    work = *(u8 **)(packet + 0x78);
-    *(u8 **)work = arg0;
-    *(s16 *)(work + 8) = arg2;
-    if (func_002300f0(arg0, (s16 *)(work + 4), (s16 *)(work + 6)) == 0) {
-        *(s16 *)(work + 4) = *(u8 *)(arg0 + 0xA2) + 1;
-        *(s16 *)(work + 6) = arg1;
-    }
-    return packet;
-}
-// FUN_0019B620
-void func_0019b620(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
-}
-
-// FUN_0019B640
-s32 func_0019b640(u8 *arg0) {
-    u8 *temp;
-
-    temp = *(u8 **)arg0;
-    func_0019d3c0(temp);
-    func_0019d0c0(temp);
-    return 1;
-}
-// FUN_0019B680
-void func_0019b680(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
-}
 
 // FUN_0019B710
 void func_0019b710(u8 *arg0)
@@ -1941,106 +1897,14 @@ void func_0019bbc0(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
-// FUN_0019BC90
-void func_0019bc90(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
-}
 
-// FUN_0019BCE0
-void func_0019bce0(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
-}
 
-// FUN_0019BD60
-void func_0019bd60(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
-}
 
-// FUN_0019BDB0
-void func_0019bdb0(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
-}
 
-// FUN_0019BE30
-void func_0019be30(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
-}
 
-// FUN_0019BE50
-s32 func_0019be50(u8 *arg0) {
-    s32 temp;
 
-    temp = *(s32 *)(*(u8 **)arg0 + 0xA08);
-    if (temp != 0) {
-        func_001d6ee0(temp);
-    }
-    return 1;
-}
-// FUN_0019BE90
-void func_0019be90(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
-}
 
-// FUN_0019BEB0
-u8 *func_0019beb0(u8 *arg0)
-{
-    u8 *packet;
 
-    packet = (u8 *)func_00194470(0x11B, 4);
-    *(void **)(packet + 0x68) = (void *)func_0019be30;
-    *(void **)(packet + 0x6C) = (void *)func_0019be50;
-    *(void **)(packet + 0x70) = (void *)func_0019be90;
-    **(u8 ***)(packet + 0x78) = arg0;
-    return packet;
-}
-
-// FUN_0019BF10
-void func_0019bf10(u8 *arg0) {
-    u8 *temp_4;
-    u8 *temp_5;
-
-    temp_5 = (u8 *)(*(u8 **)(arg0 + 0));
-    *(u16 *)(temp_5 + 0xA0) = (u16) (*(u16 *)(temp_5 + 0xA0) + 1);
-    if (!(*(u16 *)(arg0 + 8) & 0x10)) {
-        temp_4 = (u8 *)(*(u8 **)(temp_5 + 0xA00));
-        if (*(s32 *)(temp_4 + 0x2D0) == 0) {
-            func_0047d170(temp_4);
-        }
-        *(s32 *)(arg0 + 0xC) = 1;
-    }
-}
-
-// FUN_0019BF80
-s32 func_0019bf80(u8 *arg0) {
-    u8 *temp_3;
-    u8 *temp_4;
-
-    temp_3 = *(u8 **)(arg0 + 0);
-    if (*(s32 *)(arg0 + 0xC) == 0) {
-        temp_4 = *(u8 **)(temp_3 + 0xA00);
-        if (*(s32 *)(temp_4 + 0x2D0) == 0) {
-            func_0047d170(temp_4);
-        }
-        *(s32 *)(arg0 + 0xC) = 1;
-        goto block_6;
-    }
-    if (func_0047e6f0((void **)(*(u8 **)(temp_3 + 0xA00) + 0x2D0)) != 0) {
-        return 1;
-    }
-block_6:
-    return 0;
-}
-// FUN_0019C010
-void func_0019c010(u8 *arg0)
-{
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
-}
 
 /* Retail reloads the 1/255 colour scale (0x3B808081, written here as a
  * literal) for every factor; with default optimisation b210 does the same.
@@ -2331,115 +2195,6 @@ void func_0019d0c0(u8 *arg0) {
     *(s32 *)(arg0 + 0x9C) &= ~2;
 }
 
-// FUN_0019D150
-void func_0019d150(void)
-{
-    u8 *temp;
-    u8 *node;
-    u32 i;
-
-    for (i = 0; i < 4; i++) {
-        node = *(u8 **)(iGpffffb3ac + i * 8 + 0x17C);
-        while (node != NULL) {
-            if ((*(s32 *)(node + 0x98) & 2) != 0 &&
-                (*(s32 *)(node + 0x9C) & 2) != 0 &&
-                *(u8 *)(node + 0x33) > 0) {
-                temp = *(u8 **)(node + 0xA00);
-                if ((*(s32 *)(temp + 0xD8) & 0x20) == 0) {
-                    func_00479100(D_00794150, temp);
-                }
-            }
-            node = *(u8 **)(node + 0xA68);
-        }
-    }
-}
-// FUN_0019D210
-u8 *func_0019d210(s32 arg0)
-{
-    f32 var_f1;
-    s32 temp_3_2;
-    s32 temp_4;
-    u32 temp_3;
-    u8 *temp_2;
-    u8 *temp_2_2;
-
-    func_0044ea90(D_005F6D10, 0x3A);
-    temp_2 = (u8 *)D_008873E8[0](0xA70, 0x40000);
-    memset(temp_2, 0, 0xA70);
-    *(u8 *)(temp_2 + 0xA2) = arg0;
-    if (iGpffffa0a8 >= 0x0FFFFFFFU) {
-        iGpffffa0a8 = 1;
-    }
-    temp_3 = iGpffffa0a8;
-    iGpffffa0a8 = temp_3 + 1;
-    *(u32 *)(temp_2 + 0xA8) = temp_3;
-    func_00194dc0(temp_2);
-    *(f32 *)(temp_2 + 0x8C) = 150.0f;
-    *(s32 *)(temp_2 + 0x90) = 0x42480000;
-    *(s32 *)(temp_2 + 0x80) = 0;
-    *(f32 *)(temp_2 + 0x84) = 0.5f * *(f32 *)(temp_2 + 0x8C);
-    *(s32 *)(temp_2 + 0x88) = 0;
-    *(s16 *)(temp_2 + 0xC8) = 0;
-    *(s32 *)(temp_2 + 0xCC) = 0x41D80000;
-    if (*(u8 *)(temp_2 + 0xA2) == 0) {
-        var_f1 = 10.0f;
-    } else {
-        var_f1 = 14.0f;
-    }
-    *(f32 *)(temp_2 + 0x4F4) = 0.5f * var_f1;
-    *(s32 *)(temp_2 + 0x9E0) = 0x3F800000;
-    *(s8 *)(temp_2 + 0x9FC) = -1;
-    *(s32 *)(temp_2 + 0xA04) = func_001d6f20(temp_2);
-    *(s32 *)(temp_2 + 0xA08) = func_001d6ad0();
-    *(s32 *)(temp_2 + 0xA68) = 0;
-    temp_4 = (arg0 & 0xFF) * 8;
-    temp_3_2 = (s32)iGpffffb3ac;
-    temp_2_2 = *(u8 **)((u8 *)p4_entries_001900a0(
-        0x178, (s32 *)temp_3_2) + temp_4);
-    if (temp_2_2 != NULL) {
-        *(u8 **)(temp_2_2 + 0xA68) = temp_2;
-        *(u8 **)(temp_2 + 0xA6C) =
-            *(u8 **)((u8 *)p4_base_add_00194590(
-                temp_4, (s32)iGpffffb3ac) + 0x178);
-    } else {
-        *(u8 **)((u8 *)p4_base_add_00194590(
-            temp_4, temp_3_2) + 0x17C) = temp_2;
-        *(u8 **)(temp_2 + 0xA6C) = NULL;
-    }
-    *(u8 **)((u8 *)p4_base_add_00194590(
-        temp_4, (s32)iGpffffb3ac) + 0x178) = temp_2;
-    return temp_2;
-}
-// FUN_0019D3C0
-void func_0019d3c0(u8 *arg0)
-{
-    u16 temp_4;
-    s32 index;
-    u8 *temp_4_2;
-
-    temp_4 = *(u16 *)(arg0 + 0x9FE);
-    if (temp_4 != 0) {
-        index = ((s32)temp_4 & 0xFFC00) >> 10;
-        MT_Scene_DestroyRes(temp_4);
-        if (*(u8 **)(arg0 + 0xA00) != NULL) {
-            func_0019d990(arg0, 4);
-            func_0019d990(arg0, 1);
-            func_0019d990(arg0, 2);
-            func_0019d990(arg0, 3);
-            mdlSetColor(*(u8 **)(arg0 + 0xA00), (s32 *)&iGpffffa4d8);
-            func_0047a0e0(*(u8 **)(arg0 + 0xA00), 0, 1.0f);
-            if (index == 1 && (*(s32 *)(arg0 + 0x98) & 8) == 0)
-                func_004787e0(*(u8 **)(arg0 + 0xA00));
-        }
-        *(u16 *)(arg0 + 0x9FE) = 0;
-    } else {
-        temp_4_2 = *(u8 **)(arg0 + 0xA00);
-        if (temp_4_2 != NULL)
-            func_004787e0(temp_4_2);
-    }
-    *(u8 **)(arg0 + 0xA00) = NULL;
-    *(s32 *)(arg0 + 0x98) &= ~2;
-}
 // FUN_0019D4E0
 void func_0019d4e0(u8 *arg0)
 {
