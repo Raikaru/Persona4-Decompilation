@@ -899,7 +899,7 @@ s32 func_001768b0(void)
    normalized_diff 4; the sole residual bytes at offset 56 are retail
    `andi $a3,$s1,0xffff` versus candidate `move $a3,$s1`. The file-scope
    Encount_PickEncounter declaration remains (u16, u16, u16, s32) for matching
-   func_00164570. Probed a block-scope fourth-parameter u16 prototype at
+   FldUnit_SpawnEncounter. Probed a block-scope fourth-parameter u16 prototype at
    the function top, after locals, in an inner block, unnamed, and with
    explicit narrowed locals/casts: each moved the mask before the two lhu
    loads (nd 10); mixed third s32/fourth u16 gave nd 6. O1, schedule off,

@@ -2565,7 +2565,7 @@ s32 func_0015a7c0(s32 arg0)
     s32 slot_index;
     u8 *slot;
     u8 *slot_entry;
-    extern s32 func_00164f40();
+    extern s32 FldUnit_GetActiveCount();
 
     threshold_index = 0;
     goto threshold_test;
@@ -2648,7 +2648,7 @@ slot_test:
         goto slot_body;
     }
 
-    D_007E36E4[map_index] = (u8)func_00164f40(slot_index, slot_index < 8);
+    D_007E36E4[map_index] = (u8)FldUnit_GetActiveCount(slot_index, slot_index < 8);
     return 0;
 }
 

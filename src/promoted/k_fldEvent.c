@@ -67,7 +67,7 @@ s32 func_0018bbf0(s32);
 u32 K_FldEvent_IsPosWithinFov(const struct RwMatrix *, const struct RwV3d *, f32);
 void func_0015ab20(s32, s32, s32);
 void func_0046d730(const void *, u32);
-void func_00167560(void);
+void FldUnit_UpdateFieldState(void);
 s32 func_0015f600(void);
 s16 func_00479c30(s32, s32);
 s32 func_0016fe80(s32);
@@ -795,7 +795,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void func_00182310(s32);
     u8 *func_001823c0(void);
     s32 *func_00155280(void);
-    void func_00166c60(u8 *, s32);
+    void FldUnit_SetMode(u8 *, s32);
     s32 func_0014e8c0(u8 *, s32);
     s32 func_0016fd00(s32);
     s32 FldEvent_PartyHasSkill(void);
@@ -809,8 +809,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void func_00145080(void);
     s32 func_00144f60(void);
     void func_00160440(void);
-    void func_001657e0(s32);
-    void func_00165840(s32);
+    void FldUnit_SetPartySlotModel(s32);
+    void FldUnit_SetFieldSlotModel(s32);
     void func_0015a520(s32);
     void func_001238c0(s32);
     s32 func_00452080(struct KwlnTask *);
@@ -821,7 +821,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void func_0016f750(u8 *, u8 *);
     void func_0016ea40(u8 *, u16);
 
-    void func_00164020(u8 *);
+    void FldUnit_ReleaseSlot(u8 *);
     void func_00182390(void);
     u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
     s32 func_0029da90(s32, u8 *, s32);
@@ -838,12 +838,12 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     u8 *func_002ae630(u8 *);
     void func_002b2950(s32);
     s32 func_0018c7e0(void);
-    void func_00164f50(s32);
-    void func_00165380(void);
-    void func_001664a0(void);
+    void FldUnit_UpdateSlots(s32);
+    void FldUnit_UpdateSlotModels(void);
+    void FldUnit_UpdateAllEnemySlots(void);
     s32 func_0016e2e0(s32);
-    s32 func_00166b40(u8 *, s32);
-    u32 func_00166c30(u8 *);
+    s32 FldUnit_SpawnEncounterTask(u8 *, s32);
+    u32 FldUnit_IsSettled(u8 *);
     s32 func_00122640(s32, s32);
     s32 func_00122720(void);
     s32 func_0015a100(void);
@@ -855,12 +855,12 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_0014ef40(void);
     s32 func_0014ef80(void);
     void func_0014eed0(s32, s32);
-    s32 func_00164f40(void);
-    void func_001641d0(void);
-    void func_00165270(void);
-    s32 func_00165300(void);
-    void func_00165b00(void);
-    s32 func_00165be0(void);
+    s32 FldUnit_GetActiveCount(void);
+    void FldUnit_ReleaseAllSlots(void);
+    void FldUnit_StartSlotAnims(void);
+    s32 FldUnit_AllSlotAnimsDone(void);
+    void FldUnit_RequestUnitResource(void);
+    s32 FldUnit_InstallResources(void);
     s32 func_00160000(u8 *);
     u8 *func_001601e0(s32);
     s32 func_001602a0(u8 *, s32);
@@ -876,7 +876,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_0018df60(s32);
     void func_001056e0(s16, s16);
     void func_00105d50(s16, u32);
-    s32 func_00163fc0(void);
+    s32 FldUnit_AllSlotsReady(void);
     FldEventWork *work;
     FldEventVec3 cameraTarget;
     FldEventVec3 playerTarget;
@@ -1005,7 +1005,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                                 cameraTarget.y += 100.0f;
                                 func_0014e740((u8 *)(func_0015c1e0(0)), (f32 *)(&cameraTarget));
                                 func_00182310(1);
-                                func_00166c60((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
+                                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
                                 work->state = 4;
                             }
                         }
@@ -1131,7 +1131,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                             work->battle.roomId = 1;
                         }
                     }
-                    func_00166c60((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
+                    FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
                     func_001fc1b0(0);
                     func_0045af60(0, 0xA, 3, 0);
                     func_00113480(3, 0xFF, 3, 0);
@@ -1176,7 +1176,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         work->battle.roomId = 1;
                     }
                 }
-                func_00166c60((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
+                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
                 func_001fc1b0(0);
                 func_0045af60(0, 0xA, 3, 0);
                 work->state = 5;
@@ -1197,7 +1197,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 work->environmentColor.b = iGpffffba54;
                 work->viewFog = *(f32 *)((u8 *)func_00457120() + 0x88);
                 work->environmentFog = iGpffffba6c;
-                if (func_00163fc0() != 0) {
+                if (FldUnit_AllSlotsReady() != 0) {
                     func_0015a7c0(func_0015a160());
                     if (*(s32 *)((u8 *)func_00155280() + 0x2C) != 0) {
                         func_00452080((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x2C)));
@@ -1229,8 +1229,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         work->fieldEffect = 0;
                     }
                     func_00160440();
-                    func_001657e0(1);
-                    func_00165840(1);
+                    FldUnit_SetPartySlotModel(1);
+                    FldUnit_SetFieldSlotModel(1);
                     if (func_0014a200() == 1 || func_0014a270() == 1) {
                         u32 i = 0;
                         for (i = 0; i < 0x10; i++) {
@@ -1269,17 +1269,17 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     work->targetHasUnits = 1;
                 }
                 func_00182390();
-                func_00164020((u8 *)(work->target));
+                FldUnit_ReleaseSlot((u8 *)(work->target));
                 {
                     FldEventActor *p48 = work->nearby[0];
                     if (p48 != NULL) {
-                        func_00164020((u8 *)(p48));
+                        FldUnit_ReleaseSlot((u8 *)(p48));
                     }
                 }
                 {
                     FldEventActor *p4c = work->nearby[1];
                     if (p4c != NULL) {
-                        func_00164020((u8 *)(p4c));
+                        FldUnit_ReleaseSlot((u8 *)(p4c));
                     }
                 }
                 work->target = NULL;
@@ -1310,12 +1310,12 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     func_0014eed0(v6, func_00156180(*(u8 **)(u8 *)func_00155280()));
                 }
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
-                    work->unitState = func_00164f40();
-                    func_001641d0();
+                    work->unitState = FldUnit_GetActiveCount();
+                    FldUnit_ReleaseAllSlots();
                     func_00452080((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x20)));
                     *(s32 *)((u8 *)func_00155280() + 0x20) = 0;
                 } else {
-                    func_00165270();
+                    FldUnit_StartSlotAnims();
                 }
                 work->state = work->state + 1;
             }
@@ -1362,10 +1362,10 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 work->fieldTask = 0;
                 if (func_001602a0((u8 *)(work->environmentTask), func_00156170(*(u8 **)(u8 *)func_00155280())) != 0) {
                     work->environmentTask = 0;
-                    if (func_00165300() != 0 && func_00144f60() != 0) {
+                    if (FldUnit_AllSlotAnimsDone() != 0 && func_00144f60() != 0) {
                         s32 t = work->modelFile;
                         if (t == 0 || func_004782b0((u8 *)(t)) != 0) {
-                            func_00165b00();
+                            FldUnit_RequestUnitResource();
                             work->state = work->state + 1;
                         }
                     }
@@ -1373,7 +1373,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             }
             goto running;
         case 15:
-            if (func_00165be0() != 0) {
+            if (FldUnit_InstallResources() != 0) {
                 s32 t10;
                 s32 t11;
                 s32 t12;
@@ -1386,10 +1386,10 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     func_0018a000((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x30)), 0);
                 }
                 func_001238c0(1);
-                func_00164f50(1);
-                func_00165380();
-                func_001664a0();
-                func_00166c60((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 0);
+                FldUnit_UpdateSlots(1);
+                FldUnit_UpdateSlotModels();
+                FldUnit_UpdateAllEnemySlots();
+                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 0);
                 t11 = func_0016e2e0(*(s32 *)(u8 *)func_00155280());
                 *(s32 *)((u8 *)func_00155280() + 0x4) = t11;
                 func_0016f750((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x4)), (u8 *)(&work->snapshot));
@@ -1406,7 +1406,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 func_002b2950(1);
                 func_0018c7e0();
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
-                    t13 = func_00166b40((u8 *)(*(s32 *)(u8 *)func_00155280()), work->unitState);
+                    t13 = FldUnit_SpawnEncounterTask((u8 *)(*(s32 *)(u8 *)func_00155280()), work->unitState);
                     *(s32 *)((u8 *)func_00155280() + 0x20) = t13;
                 }
                 func_00457140(work->viewColor.r, work->viewColor.g, work->viewColor.b, 0);
@@ -1437,7 +1437,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             }
             goto running;
         case 16:
-            if (func_00166c30((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20))) != 0) {
+            if (FldUnit_IsSettled((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20))) != 0) {
                 func_00122640(1, 0);
                 work->state = work->state + 1;
             }
@@ -1535,7 +1535,7 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
     if (t > 0) {
         *(s32 *)(h + 0x24) = t - 1;
     }
-    func_00167560();
+    FldUnit_UpdateFieldState();
     if (*(s32 *)(h + 0x154) == 0) {
         *(s32 *)(h + 0x154) = func_0015f600();
     }

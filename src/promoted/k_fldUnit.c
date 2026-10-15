@@ -47,10 +47,10 @@ extern void *memcpy(void *arg0, const void *arg1, u32 arg2);
 extern s32 Encount_GetEntryRateOrOverride(u16 arg0, u16 arg1, u16 arg2);
 extern s32 Encount_GetEntryFlags(u16 arg0, u16 arg1, u16 arg2);
 extern void func_00182310(s32 arg0);
-extern s32 func_00164570(u32 arg0, s32 arg1);
+extern s32 FldUnit_SpawnEncounter(u32 arg0, s32 arg1);
 typedef struct DatUnitEc DatUnitEc;
 extern DatUnitEc *datUnitCreateEncounterGroup(u16 encountId);
-extern u8 *func_00163990(u32 arg0, u8 *arg1, s32 arg2);
+extern u8 *FldUnit_CreateEncounterUnit(u32 arg0, u8 *arg1, s32 arg2);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern u32 RpRandom(void);
@@ -76,7 +76,7 @@ extern s32 func_0017d070(u8 *arg0);
 extern void func_00168c00(s32 arg0);
 extern f32 RwV3dLength(f32 *arg0);
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
-extern u8 *func_00164880(s32 arg0, u32 arg1, f32 arg2);
+extern u8 *FldUnit_FindNearestUnits(s32 arg0, u32 arg1, f32 arg2);
 extern u8 *func_0014cef0(s32 arg0, s32 arg1);
 extern void func_0014c920(void);
 extern s32 func_0014c960(s32 *arg0, s32 *arg1);
@@ -148,16 +148,16 @@ typedef struct {
     f32 z;
 } V3;
 
-s32 func_00163c90(s32 arg0);
-void func_00164020(u8 *arg0);
-void func_00164fa0(s32 arg0);
-void func_00165670(u8 *arg0, s32 arg1);
+s32 FldUnit_SetupSlot(s32 arg0);
+void FldUnit_ReleaseSlot(u8 *arg0);
+void FldUnit_UpdateSlot(s32 arg0);
+void FldUnit_SetSlotModel(u8 *arg0, s32 arg1);
 s32 func_004782b0(u8 *arg0);
 s32 func_00440b68(const char *fmt, ...);
 u8 *func_00454a60(u8 *arg0, s32 arg1);
 s32 func_0014a200(void);
 s32 func_0014a270(void);
-s32 func_001668e0(u8 *arg0);
+s32 FldUnit_SetupEncounter(u8 *arg0);
 void func_0044ea90(u8 *arg0, s32 arg1);
 f32 sinf(f32 arg0);
 u8 *mdlGetColor(s32 arg0);
@@ -171,11 +171,11 @@ void func_004787e0(u8 *arg0);
 void func_00452080(s32 arg0);
 s32 func_00162510(u16 arg0, u16 arg1);
 s32 func_0015a160(void);
-s32 func_001679d0(u8 *arg0);
+s32 FldUnit_UpdatePartyState(u8 *arg0);
 u8 *MT_Scene_GetResListHead(s32 arg0);
 void func_0046d730(void *arg0, s32 arg1);
-void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2);
-u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2);
+void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2);
+u8 *FldUnit_FindNearestSlot(u8 *arg0, u32 *arg1, s32 arg2);
 extern s64 func_001060b0(void);
 extern s32 func_001064f0(s32 arg0);
 extern s32 func_00110d60(s16 arg0);
@@ -194,7 +194,7 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode);
    second unit-base materialization after the allocator call. */
 #pragma opt_common_subs off
 // FUN_00162C30
-s32 func_00162c30(void)
+s32 FldUnit_UpdateTable(void)
 {
     s32 field;
     s32 i;
@@ -246,7 +246,7 @@ s32 func_00162c30(void)
     }
     return 1;
 }
-/* measured: restore common-subexpression elimination after func_00162c30. */
+/* measured: restore common-subexpression elimination after FldUnit_UpdateTable. */
 #pragma opt_common_subs on
 /* Initialize the four occupied party slots that do not yet have scene resources:
  * attach models and placements, apply the leader's calendar/room animation rule,
@@ -294,7 +294,7 @@ typedef struct {
 } FieldUnitGridView;
 
 /* Partial object views recovered from the accesses below and the constructors
- * func_00145540 (scene resource) and func_00163990 (0x750-byte unit).
+ * func_00145540 (scene resource) and FldUnit_CreateEncounterUnit (0x750-byte unit).
  * Unknown bytes describe real, unclassified fields, not extra storage.
  */
 typedef struct FieldUnitPlacement {
@@ -432,7 +432,7 @@ room_done:
 }
 
 // FUN_00162E10
-void func_00162e10(void)
+void FldUnit_UpdateFacing(void)
 {
     /* Word-aligned RenderWare matrix view; retail copies all 64 bytes. */
     typedef struct {
@@ -704,7 +704,7 @@ void func_00162e10(void)
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_00163990
-u8 *func_00163990(u32 encounter, u8 *placement, s32 variant)
+u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
 {
     u8 message[0x100];
     u32 encounterId;
@@ -820,7 +820,7 @@ u8 *func_00163990(u32 encounter, u8 *placement, s32 variant)
 
 /* measured: parked nd 5, object/window 808/816. The control flow, 0x50-byte frame, stack aggregate stores, and 35.0f COP1 call match. Exact fndiff residuals are offsets 0x14, 0x18, 0x1C, 0x20, and 0x24: b210 schedules the D_005F1528 lwc1 before the D_005F1520 ld and colors the ld result $v0 instead of retail $v1. Ruled out assignment/declaration-order swaps, named-local versus direct-store forms, pointer and aggregate S8/S12 forms, comma sequencing, register storage, and pragma wrappers; no prototype or symbol changes. Committed at nd 5. */
 // FUN_00163C90
-s32 func_00163c90(s32 arg0)
+s32 FldUnit_SetupSlot(s32 arg0)
 {
   u8 sp40[12];
   f32 sp30[3];
@@ -899,7 +899,7 @@ s32 func_00163c90(s32 arg0)
   mdlScale((Model *)((*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)))), (const RwV3d *)(sp30), 2);
   func_00478e70((u8 *) (*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228))));
   *((s32 *) (temp_16 + 0x1B0)) = FldAI_SpawnPatrol(0, temp_16, *((u8 *) (temp_16 + 0x1CA)));
-  *((s32 *) (temp_16 + 0x1B8)) = func_00167420((u8 *) 0, temp_16);
+  *((s32 *) (temp_16 + 0x1B8)) = FldUnit_SpawnTintTask((u8 *) 0, temp_16);
   return 1;
 }
 
@@ -914,11 +914,11 @@ s32 func_00163c90(s32 arg0)
 
 
 // FUN_00163FC0
-s32 func_00163fc0(void)
+s32 FldUnit_AllSlotsReady(void)
 {
     s32 i;
     for (i = 0; i < 0xF; i++) {
-        if (func_00163c90(i) == 0) {
+        if (FldUnit_SetupSlot(i) == 0) {
             return 0;
         }
     }
@@ -928,7 +928,7 @@ s32 func_00163fc0(void)
 
 
 // FUN_00164020
-void func_00164020(u8 *arg0)
+void FldUnit_ReleaseSlot(u8 *arg0)
 {
     s32 i;
     s32 t48;
@@ -976,22 +976,22 @@ void func_00164020(u8 *arg0)
 
 
 // FUN_00164170
-void func_00164170(void)
+void FldUnit_ReleaseGroupSlots(void)
 {
     s32 i;
     for (i = 0; i < 4; i++) {
-        func_00164020(D_007EF9B0 + i * 0x750);
+        FldUnit_ReleaseSlot(D_007EF9B0 + i * 0x750);
     }
 }
 
 
 
 // FUN_001641D0
-void func_001641d0(void)
+void FldUnit_ReleaseAllSlots(void)
 {
     s32 i;
     for (i = 0; i < 0xF; i++) {
-        func_00164020(D_007E8C00 + i * 0x750);
+        FldUnit_ReleaseSlot(D_007E8C00 + i * 0x750);
     }
 }
 
@@ -1000,7 +1000,7 @@ void func_001641d0(void)
 /* Keep cache traversal and signed selection lifetimes separate. Script records
    contain fixed 32-byte paths indexed by the 16-bit PC ID. */
 // FUN_00164230
-void func_00164230(u16 fieldId, u16 roomId, u16 entryId)
+void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
 {
     u8 **modelSlot;
 
@@ -1104,7 +1104,7 @@ void func_00164230(u16 fieldId, u16 roomId, u16 entryId)
 
 
 // FUN_00164570
-s32 func_00164570(u32 arg0, s32 arg1)
+s32 FldUnit_SpawnEncounter(u32 arg0, s32 arg1)
 {
     s32 sp6C;
     s32 sp68;
@@ -1127,36 +1127,36 @@ s32 func_00164570(u32 arg0, s32 arg1)
         return 0;
     }
     if (arg1 != 0) {
-        while ((temp_2 = func_00164880(var_17, arg0, (f32)0xBB8)) != NULL) {
+        while ((temp_2 = FldUnit_FindNearestUnits(var_17, arg0, (f32)0xBB8)) != NULL) {
             temp_19 = iGpffff9db0;
             var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
             if ((var_2 & 0xFFFF) == 0xFFFF) {
                 var_2 = 1;
             }
-            func_00163990(var_2, temp_2, 2);
+            FldUnit_CreateEncounterUnit(var_2, temp_2, 2);
             var_17 += 1;
         }
     } else {
-        while ((temp_2 = func_00164880(var_17, arg0, (f32)0x1770)) != NULL) {
+        while ((temp_2 = FldUnit_FindNearestUnits(var_17, arg0, (f32)0x1770)) != NULL) {
             temp_19 = iGpffff9db0;
             var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
             if ((var_2 & 0xFFFF) == 0xFFFF) {
                 var_2 = 1;
             }
-            func_00163990(var_2, temp_2, 1);
+            FldUnit_CreateEncounterUnit(var_2, temp_2, 1);
             var_17 += 1;
         }
         var_f20 = (f32)0xBB8;
         if (func_0014a270() == 1) {
             var_f20 = 100.0f;
         }
-        while ((temp_2 = func_00164880(var_17, arg0, var_f20)) != NULL) {
+        while ((temp_2 = FldUnit_FindNearestUnits(var_17, arg0, var_f20)) != NULL) {
             temp_19 = iGpffff9db0;
             var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
             if ((var_2 & 0xFFFF) == 0xFFFF) {
                 var_2 = 1;
             }
-            func_00163990(var_2, temp_2, 0);
+            FldUnit_CreateEncounterUnit(var_2, temp_2, 0);
             var_17 += 1;
         }
         if ((datGetFlag(0x1410) == 0) && (datGetFlag(0x1411) == 0)) {
@@ -1169,7 +1169,7 @@ s32 func_00164570(u32 arg0, s32 arg1)
                     if ((var_2 & 0xFFFF) == 0xFFFF) {
                         var_2 = 1;
                     }
-                    func_00163990(var_2, temp_16, 0);
+                    FldUnit_CreateEncounterUnit(var_2, temp_16, 0);
                 }
             }
         }
@@ -1275,7 +1275,7 @@ checked_party:
    selection temporary holds the first mode's saved node and the second
    mode's current node in mutually exclusive paths. */
 // FUN_00164880
-u8 *func_00164880(s32 unused, u32 limit, f32 minimumDistance)
+u8 *FldUnit_FindNearestUnits(s32 unused, u32 limit, f32 minimumDistance)
 {
     V3 primaryPosition;
     V3 primaryDelta;
@@ -1312,7 +1312,7 @@ u8 *func_00164880(s32 unused, u32 limit, f32 minimumDistance)
     func_0015a160();
     bestDistance = 1.1754944e-38f;
     if (func_0014a200() == 1) {
-        if (func_00164f40() < (s32)limit) {
+        if (FldUnit_GetActiveCount() < (s32)limit) {
             candidate = MT_Scene_GetResListHead(0xF);
             while (candidate != NULL) {
                 primaryPosition = *(V3 *)(candidate + 0x140);
@@ -1353,7 +1353,7 @@ primary_party_checked:
                     candidate = *(u8 **)(candidate + 0x138);
                     continue;
                 }
-                if (func_00164f40() == 0) {
+                if (FldUnit_GetActiveCount() == 0) {
                     return fldChooseRandomSpawn(&primaryDelta);
                 }
                 if (func_0014cfd0(candidate + 0x140) == 1) {
@@ -1392,7 +1392,7 @@ next_primary_node:
             }
             goto done;
         }
-    } else if (func_0014a270() == 1 && func_00164f40() < (s32)limit) {
+    } else if (func_0014a270() == 1 && FldUnit_GetActiveCount() < (s32)limit) {
         selection = MT_Scene_GetResListHead(0xF);
         goto secondary_node_test;
 secondary_node_body:
@@ -1434,7 +1434,7 @@ secondary_party_checked:
             selection = *(u8 **)(selection + 0x138);
             goto secondary_node_test;
         }
-        if (func_00164f40() == 0) {
+        if (FldUnit_GetActiveCount() == 0) {
             return selection;
         }
         savedSecondaryDistance = bestDistance;
@@ -1478,7 +1478,7 @@ done:
 
 
 // FUN_00164F40
-s32 func_00164f40(void)
+s32 FldUnit_GetActiveCount(void)
 {
     return iGpffffb2e8;
 }
@@ -1486,11 +1486,11 @@ s32 func_00164f40(void)
 
 
 // FUN_00164F50
-void func_00164f50(s32 arg0)
+void FldUnit_UpdateSlots(s32 arg0)
 {
     s32 i = !arg0;
     for (; i < 4; i++) {
-        func_00164fa0(i);
+        FldUnit_UpdateSlot(i);
     }
 }
 
@@ -1502,7 +1502,7 @@ void func_00164f50(s32 arg0)
 #pragma opt_common_subs off
 #pragma opt_propagation off
 // FUN_00164FA0
-void func_00164fa0(s32 arg0)
+void FldUnit_UpdateSlot(s32 arg0)
 {
     f32 sp70[3];
     f32 temp_f0;
@@ -1580,7 +1580,7 @@ void func_00164fa0(s32 arg0)
 
 
 // FUN_00165270
-void func_00165270(void)
+void FldUnit_StartSlotAnims(void)
 {
     s32 i;
     for (i = 0; i < 0xF; i++) {
@@ -1594,7 +1594,7 @@ void func_00165270(void)
 
 
 // FUN_00165300
-s32 func_00165300(void)
+s32 FldUnit_AllSlotAnimsDone(void)
 {
     s32 i;
     for (i = 0; i < 0xF; i++) {
@@ -1611,14 +1611,14 @@ s32 func_00165300(void)
 // FUN_00165380
 /* nd 148 -> 0 (the old "GVN merges the slot address" floor). Each section-local
    `slot = D_007E8C00 + i * 0x750` reassignment (A, B, C, the 0x1CB read, the
-   func_00167420 argument) must rematerialise; `slot += 0x54` must stay an addiu
+   FldUnit_SpawnTintTask argument) must rematerialise; `slot += 0x54` must stay an addiu
    between the two calls (`t2 = t1 & 0xFFFF` first so the andi precedes it); the
    0x1CB read goes through `p = ...` so its recompute precedes the arg-0 load. */
 /* measured: opt_common_subs off rematerialises the slot address per assignment;
    opt_propagation off keeps the pointer bump out of the store offset. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
-void func_00165380(void)
+void FldUnit_UpdateSlotModels(void)
 {
     s32 i;
     u8 *slot;
@@ -1688,7 +1688,7 @@ void func_00165380(void)
             *(s32 *)(slot + 0x1B0) = FldAI_SpawnPatrol(0, slot, *f1ca);
             f1b8 = slot + 0x1B8;
             if (*(s32 *)f1b8 == 0) {
-                *(s32 *)f1b8 = func_00167420((u8 *)0, D_007E8C00 + i * 0x750);
+                *(s32 *)f1b8 = FldUnit_SpawnTintTask((u8 *)0, D_007E8C00 + i * 0x750);
             }
         }
     }
@@ -1700,7 +1700,7 @@ void func_00165380(void)
 
 
 // FUN_00165670
-void func_00165670(u8 *arg0, s32 arg1)
+void FldUnit_SetSlotModel(u8 *arg0, s32 arg1)
 {
     u8 *p = arg0;
     u8 *q;
@@ -1755,22 +1755,22 @@ void func_00165670(u8 *arg0, s32 arg1)
 
 
 // FUN_001657E0
-void func_001657e0(s32 arg0)
+void FldUnit_SetPartySlotModel(s32 arg0)
 {
     s32 i = !arg0;
     for (; i < 4; i++) {
-        func_00165670(D_007EF9B0 + i * 0x750, 0);
+        FldUnit_SetSlotModel(D_007EF9B0 + i * 0x750, 0);
     }
 }
 
 
 
 // FUN_00165840
-void func_00165840(s32 arg0)
+void FldUnit_SetFieldSlotModel(s32 arg0)
 {
     s32 i;
     for (i = 0; i < 0xF; i++) {
-        func_00165670(D_007E8C00 + i * 0x750, arg0);
+        FldUnit_SetSlotModel(D_007E8C00 + i * 0x750, arg0);
     }
 }
 
@@ -1778,7 +1778,7 @@ void func_00165840(s32 arg0)
 
 /* Keep the saved halfword and allocator word in the same assignment chain. */
 // FUN_001658B0
-void func_001658b0(void)
+void FldUnit_RequestSceneResource(void)
 {
     s32 i;
     s32 j;
@@ -1848,7 +1848,7 @@ loop:
 
 
 // FUN_00165B00
-void func_00165b00(void)
+void FldUnit_RequestUnitResource(void)
 {
     s32 i;
     s32 j = 0;
@@ -1876,7 +1876,7 @@ void func_00165b00(void)
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
-s32 func_00165be0(void)
+s32 FldUnit_InstallResources(void)
 {
     u8* instance;
     s32 pair;
@@ -2028,10 +2028,10 @@ s32 func_00165be0(void)
 
 
 
-/* measured: func_00165fb0 is an exact C match (object 796B, window 800B, normalized_diff 0). Retail computes the +4 byte first and keeps it live in $a1 while computing +7 into $v0; reusing the existing temp_4 loop temporary for the +4 assignment reproduces that liveness order and both endpoint stores. */
+/* measured: FldUnit_ApplySlotTint is an exact C match (object 796B, window 800B, normalized_diff 0). Retail computes the +4 byte first and keeps it live in $a1 while computing +7 into $v0; reusing the existing temp_4 loop temporary for the +4 assignment reproduces that liveness order and both endpoint stores. */
 /* The archived nd2 body had the endpoint temporaries reversed; naming/order probes did not move them. This liveness change preserves the 796B object and closes both prior residual words. */
 // FUN_00165FB0
-void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
+void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
 {
     s32 temp_17_2;
     s32 temp_18;
@@ -2106,7 +2106,7 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
 }
 
 // FUN_001662D0
-void func_001662d0(void)
+void FldUnit_UpdateEnemySlot(void)
 {
     u32 sp6C;
     u32 t17;
@@ -2139,7 +2139,7 @@ void func_001662d0(void)
         return;
     }
     i = 0;
-    while ((src = func_00166600(s19, &sp6C, i)) != NULL) {
+    while ((src = FldUnit_FindNearestSlot(s19, &sp6C, i)) != NULL) {
         h0 = *(u16 *)iGpffff9db0;
         h4 = *(u16 *)(iGpffff9db0 + 4);
         p = Encount_FindRecord(h0, h4, t17, 2);
@@ -2170,13 +2170,13 @@ void func_001662d0(void)
             *(u32 *)(d + 4) = w1;
             d += 8;
         } while (k > 0);
-        func_00165fb0(slotp, src, 0x3FE - i);
+        FldUnit_ApplySlotTint(slotp, src, 0x3FE - i);
         i++;
     }
 }
 
 // FUN_001664A0
-void func_001664a0(void)
+void FldUnit_UpdateAllEnemySlots(void)
 {
     s32 i;
     s32 k;
@@ -2214,14 +2214,14 @@ void func_001664a0(void)
                         d += 8;
                     } while (n > 0);
                 }
-                func_00165fb0(D_007E80A0 + (u32)i * 360, node, 0x3FE - j);
+                FldUnit_ApplySlotTint(D_007E80A0 + (u32)i * 360, node, 0x3FE - j);
                 j++;
             }
         }
     }
 }
 // FUN_00166600
-u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2)
+u8 *FldUnit_FindNearestSlot(u8 *arg0, u32 *arg1, s32 arg2)
 {
     V3 pos;
     V3 vec;
@@ -2310,7 +2310,7 @@ u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2)
 
 
 // FUN_001668E0
-s32 func_001668e0(u8 *arg0)
+s32 FldUnit_SetupEncounter(u8 *arg0)
 {
     s32 temp_3;
     s32 var_17_2;
@@ -2343,13 +2343,13 @@ s32 func_001668e0(u8 *arg0)
                 var_17 = 0xF;
             }
         }
-        func_00164570(var_17, 0);
+        FldUnit_SpawnEncounter(var_17, 0);
         *(s32 *)temp_16 += 1;
         break;
     case 1:
         var_17_2 = 0;
         while (var_17_2 < 0xF) {
-            if (func_00163c90(var_17_2) == 0) {
+            if (FldUnit_SetupSlot(var_17_2) == 0) {
                 var_2 = 0;
                 goto out1;
             }
@@ -2364,7 +2364,7 @@ s32 func_001668e0(u8 *arg0)
     case 2:
         var_17_3 = 0;
         while (var_17_3 < 0xF) {
-            if (func_00163c90(var_17_3) == 0) {
+            if (FldUnit_SetupSlot(var_17_3) == 0) {
                 var_2_2 = 0;
                 goto out2;
             }
@@ -2380,7 +2380,7 @@ s32 func_001668e0(u8 *arg0)
     case 3:
         temp_17 = iGpffff9db0;
         temp_2 = Encount_GetEntryFlags(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(func_0015a160() & 0xFFFF));
-        if ((u32)iGpffffb2e8 < temp_2 && func_00164570(temp_2, 1) > 0) {
+        if ((u32)iGpffffb2e8 < temp_2 && FldUnit_SpawnEncounter(temp_2, 1) > 0) {
             *(s32 *)temp_16 = 2;
         }
         break;
@@ -2389,7 +2389,7 @@ s32 func_001668e0(u8 *arg0)
 }
 
 // FUN_00166B10
-void func_00166b10(u8 *arg0)
+void FldUnit_FreeEncounterState(u8 *arg0)
 {
     (*DAT_008873EC)(*(void **)(arg0 + 0x38));
 }
@@ -2399,7 +2399,7 @@ void func_00166b10(u8 *arg0)
 
 
 // FUN_00166B40
-s32 func_00166b40(u8 *arg0, s32 arg1)
+s32 FldUnit_SpawnEncounterTask(u8 *arg0, s32 arg1)
 {
     s32 r;
     s32 task;
@@ -2411,7 +2411,7 @@ s32 func_00166b40(u8 *arg0, s32 arg1)
     if (r == 0) {
         return 0;
     }
-    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1590), 0xF, 0, 0, func_001668e0, func_00166b10, (u8 *)(r));
+    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1590), 0xF, 0, 0, FldUnit_SetupEncounter, FldUnit_FreeEncounterState, (u8 *)(r));
     *(s32 *)(r + 0xC) = arg1;
     return task;
 }
@@ -2419,7 +2419,7 @@ s32 func_00166b40(u8 *arg0, s32 arg1)
 
 
 // FUN_00166C30
-u32 func_00166c30(u8 *arg0)
+u32 FldUnit_IsSettled(u8 *arg0)
 {
     if (arg0 == 0) {
         return 1;
@@ -2431,7 +2431,7 @@ u32 func_00166c30(u8 *arg0)
 
 
 // FUN_00166C60
-void func_00166c60(u8 *arg0, s32 arg1)
+void FldUnit_SetMode(u8 *arg0, s32 arg1)
 {
     if (arg0 != NULL) {
         *(s32 *)(*(u32 *)(arg0 + 0x38) + 4) = arg1;
@@ -2441,7 +2441,7 @@ void func_00166c60(u8 *arg0, s32 arg1)
 
 
 // FUN_00166C80
-s32 func_00166c80(u8 *arg0)
+s32 FldUnit_PulseTintStep(u8 *arg0)
 {
     u8 *p;
     u8 *node;
@@ -2499,14 +2499,14 @@ s32 func_00166c80(u8 *arg0)
 
 
 
-/* measured: same three defects as sibling func_00167120 (see its note): (1)
+/* measured: same three defects as sibling FldUnit_PulseTintBlend (see its note): (1)
    (u8) conversions emit c.ole.s 0x46010036 vs retail 0x46000036 â€” 3 words,
    nLine func_0034c500 floor; (2) temp_f20 (func_0044b7b0 result) spilled to
    the stack instead of $f20 â€” frame 0x40 vs 0x50; (3) the four sp4C-4F byte
    copies interleave lbu/sb. The madd.s (175+70x) and msub.s (37-10x,
    255-200x) fused expressions and the 0x28 store match. */
 // FUN_00166E30
-s32 func_00166e30(u8 *arg0)
+s32 FldUnit_PulseTintPeriod(u8 *arg0)
 {
     u8 sp4C[4];
     u8 sp48[4];
@@ -2607,7 +2607,7 @@ mode_done:
    198+57*f20, mul.s 100*f20, the f20 spill at 0x0, byte copies, node loops,
    func_0047a220 tail) matches. */
 // FUN_00167120
-s32 func_00167120(u8 *arg0)
+s32 FldUnit_PulseTintBlend(u8 *arg0)
 {
     u8 sp4C[4];
     u8 sp48[4];
@@ -2694,7 +2694,7 @@ mode_done:
 
 
 // FUN_001673F0
-void func_001673f0(u8 *arg0)
+void FldUnit_FreeTintState(u8 *arg0)
 {
     (*DAT_008873EC)(*(void **)(arg0 + 0x38));
 }
@@ -2704,7 +2704,7 @@ void func_001673f0(u8 *arg0)
 
 
 // FUN_00167420
-s32 func_00167420(u8 *arg0, u8 *arg1)
+s32 FldUnit_SpawnTintTask(u8 *arg0, u8 *arg1)
 {
     s32 r;
     s32 task;
@@ -2713,7 +2713,7 @@ s32 func_00167420(u8 *arg0, u8 *arg1)
     if (r == 0) {
         return 0;
     }
-    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F15C0), 0xF, 0, 0, D_005F15B0[*(u16 *)(arg1 + 0x1C8)], func_001673f0, (u8 *)(r));
+    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F15C0), 0xF, 0, 0, D_005F15B0[*(u16 *)(arg1 + 0x1C8)], FldUnit_FreeTintState, (u8 *)(r));
     *(u8 **)(r + 4) = arg1;
     *(s32 *)(r + 0xC) = 0x28;
     *(s32 *)(*(u32 *)(arg1 + 0x50) + 0xD8) |= 0x80;
@@ -2724,7 +2724,7 @@ s32 func_00167420(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00167530
-void func_00167530(void)
+void FldUnit_ClearFlagBlock(void)
 {
     memset(D_007E8020, 0, 0x40);
 }
@@ -2740,7 +2740,7 @@ void func_00167530(void)
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
-void func_00167560(void)
+void FldUnit_UpdateFieldState(void)
 {
     s32 playerCellX;
     s32 playerCellZ;
@@ -2855,7 +2855,7 @@ void func_00167560(void)
 #pragma opt_lifetimes on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-s32 func_001679d0(u8 *task)
+s32 FldUnit_UpdatePartyState(u8 *task)
 {
     u8 *entry;
     s32 index;
@@ -2896,7 +2896,7 @@ s32 func_001679d0(u8 *task)
                     /* The kind address survives model teardown; its value selects the path. */
                     retainedField = unit + 0x728;
                     if (kind == 3) {
-                        func_00165670(unit, 0);
+                        FldUnit_SetSlotModel(unit, 0);
                         entry = D_007F16F0 + index * 8;
                         if (*(s32 *)(entry + 4) != 0) {
                             s32 layer;
@@ -2954,7 +2954,7 @@ s32 func_001679d0(u8 *task)
                 }
                 isAttached = attached != 0;
                 if (!isAttached) {
-                    func_00164fa0(selectedIndex);
+                    FldUnit_UpdateSlot(selectedIndex);
                 }
             } else {
                 s32 layer;
@@ -2977,7 +2977,7 @@ s32 func_001679d0(u8 *task)
 
 #pragma pop
 // FUN_00167D60
-void func_00167d60(u8 *arg0)
+void FldUnit_FreePartyState(u8 *arg0)
 {
     (*DAT_008873EC)(*(void **)(arg0 + 0x38));
 }
@@ -2985,7 +2985,7 @@ void func_00167d60(u8 *arg0)
 
 
 // FUN_00167D90
-s32 func_00167d90(u8 *arg0)
+s32 FldUnit_SpawnPartyTask(u8 *arg0)
 {
     s32 r;
     s32 task;
@@ -3012,7 +3012,7 @@ s32 func_00167d90(u8 *arg0)
     if (r == 0) {
         return 0;
     }
-    task = (s32)func_00451fc0((void *)(NULL), (const void *)(D_005F15E0), 0xF, 0, 0, func_001679d0, func_00167d60, (u8 *)(r));
+    task = (s32)func_00451fc0((void *)(NULL), (const void *)(D_005F15E0), 0xF, 0, 0, FldUnit_UpdatePartyState, FldUnit_FreePartyState, (u8 *)(r));
     *(s32 *)(r + 4) = acc & 0xFF;
     *(s32 *)(r + 8) = (acc >> 8) & 0xFF;
     *(s32 *)(r + 0xC) = (acc >> 16) & 0xFF;
