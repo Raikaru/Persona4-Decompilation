@@ -147,7 +147,7 @@ extern s32 D_00635BA8[];
 extern u8* func_00285af0(void);
 extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_00246e10(s32 arg0);
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 extern s32 func_00247900(s32 arg0, s32 arg1, s32 arg2);
 
 extern void chkmemAllocSiteTag(const void* arg0, s32 arg1);
@@ -391,7 +391,7 @@ s32 cmmPersonaInfoLookupShow(void)
     if (entry == 0) {
         entry = func_00108e10() & 0xFFFF;
     }
-    entry = func_00247900(entry & 0xFFFF, func_00104c70(1), param1);
+    entry = func_00247900(entry & 0xFFFF, datCalcGetLevelById(1), param1);
     if (entry != 0) {
         u8 *base = iGpffffb3d4;
         s32 off = entry * 14;

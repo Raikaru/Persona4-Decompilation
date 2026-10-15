@@ -23,7 +23,7 @@ struct BtlResultWork
 };
 
 s16 datGetPartyId(s32 index);
-u32 func_00105610(s16 param);
+u32 datCalcIsDeadById(s16 param);
 s32 datGetFlag(s32 id);
 void func_001f8690(u16 param);
 void func_001f86d0(void);
@@ -40,7 +40,7 @@ void func_002bbd20(s32 param, void* text);
 s32 func_00353f50(s32 param);
 void sprintf(void* dst, void* fmt, s32 value);
 u8* func_00455ea0(u8* param, s32 a, s32* b);
-s32 func_00104c70(s32 param);
+s32 datCalcGetLevelById(s32 param);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern char iGpffffa5C8;
@@ -67,7 +67,7 @@ void func_00221ab0(void)
     for (; i < 4; i++) {
         s16 v = datGetPartyId(i);
 
-        if (v != 0 && func_00105610(v) == 0) {
+        if (v != 0 && datCalcIsDeadById(v) == 0) {
             list[count++] = v;
         }
     }
@@ -149,7 +149,7 @@ s32 func_00221cf0(BtlResultWork* work)
         if ((work->flags & 8) || (D_008C024E[0] & 0x50) ||
             ((D_008C024C[0] & 0x10) && ((work->count = work_p->count + 1) > 4))) {
             func_002baac0((u8 *)((s32)func_00455ea0(*(u8**)(work_p->field3C + 0x934), 0, 0)));
-            sprintf(sp30, &iGpffffa5C8, func_00104c70(1) & 0xFF);
+            sprintf(sp30, &iGpffffa5C8, datCalcGetLevelById(1) & 0xFF);
             func_002bbd20(0, sp30);
             func_002bad10(3);
             work->state40 = 1;

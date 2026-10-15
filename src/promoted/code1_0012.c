@@ -225,10 +225,10 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     extern u32 func_0010d620(s16 unit);
     extern u32 func_0010d6d0(s16 unit);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
-    extern u32 func_00104ce0(s16 unit);
-    extern u16 func_00104dc0(s16 unit);
-    extern u32 func_00104d50(s16 unit);
-    extern u16 func_00104e30(s16 unit);
+    extern u32 datCalcGetHpById(s16 unit);
+    extern u16 datCalcMaxHpById(s16 unit);
+    extern u32 datCalcGetSpById(s16 unit);
+    extern u16 datCalcMaxSpById(s16 unit);
     extern void sdkSpriteDrawOnceTinted(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, u8 red, u8 green, u8 blue, f32 depth, s32 flags);
     extern void sdkSpriteDrawOnce(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, f32 depth, s32 flags);
     extern void func_0045d6e0(void *color, void *rectangle, f32 depth, s32 mode);
@@ -309,7 +309,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
         name = (u8 *)func_0010d6d0(unit);
     }
     frFontExDrawTextWithCharWidth(point.x, point.y, 0.0f, textColor, fontStyle, 1, (const char *)name, 0, -1);
-    hpNumber = func_00104ce0(unit) & 0xFFFF;
+    hpNumber = datCalcGetHpById(unit) & 0xFFFF;
     point.x = 30.0f + origin.x;
     point.y = 27.0f + origin.y;
     func_00120ae0(point, depth, numberColor, hpNumber, panelSprites);
@@ -322,7 +322,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
         sdkSpriteDrawOnceTinted(0, helpSprites, 0x3D, hpMarkerX, hpY, (0xFF - alpha) & 0xFF, 0xFF, 0xA2, 0, depth, 0);
         point.x = 103.0f + origin.x;
         point.y = hpY;
-        maxHpNumber = func_00104dc0(unit) & 0xFFFF;
+        maxHpNumber = datCalcMaxHpById(unit) & 0xFFFF;
         hpMaxColor.b[0] = 0xFB;
         hpMaxColor.b[1] = 0xA2;
         hpMaxColor.b[2] = 0;
@@ -339,8 +339,8 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     hpY = point.y;
     sdkSpriteDrawOnce(0, panelSprites, 0x4B, point.x, hpY, (u8)alpha, depth, 0);
     sdkSpriteDrawOnce(0, panelSprites, 0x4C, point.x, hpY, alpha & 0xFF, depth, 0);
-    currentHp = func_00104ce0(unit) & 0xFFFF;
-    maximumHp = func_00104dc0(unit) & 0xFFFF;
+    currentHp = datCalcGetHpById(unit) & 0xFFFF;
+    maximumHp = datCalcMaxHpById(unit) & 0xFFFF;
     missingHpWidth = (s32)((maximumHp - (currentHp & 0xFFFF)) * 0x58) / maximumHp;
     hpRect[2] = missingHpWidth;
     hpRect[3] = 6;
@@ -349,7 +349,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     emptyColor[2] = emptyColor[1] = emptyColor[0] = 0x2D;
     emptyColor[3] = (u8)opacity;
     func_0045d6e0(emptyColor, hpRect, 0.0f, 1);
-    spNumber = func_00104d50(unit) & 0xFFFF;
+    spNumber = datCalcGetSpById(unit) & 0xFFFF;
     point.x = 30.0f + origin.x;
     point.y = 43.0f + origin.y;
     func_00120ae0(point, depth, numberColor, spNumber, panelSprites);
@@ -362,7 +362,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
         sdkSpriteDrawOnceTinted(0, helpSprites, 0x3D, spMarkerX, spY, (u32)alpha & 0xFFU, 0xFF, 0xA2, 0, depth, 0);
         point.x = 103.0f + origin.x;
         point.y = spY;
-        maxSpNumber = func_00104e30(unit) & 0xFFFF;
+        maxSpNumber = datCalcMaxSpById(unit) & 0xFFFF;
         spMaxColor.b[0] = 0xFB;
         spMaxColor.b[1] = 0xA2;
         spMaxColor.b[2] = 0;
@@ -380,8 +380,8 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     sdkSpriteDrawOnce(0, panelSprites, 0x4B, point.x, spY, (u8)alpha, depth, 0);
     sdkSpriteDrawOnce(0, panelSprites, 0x4D, point.x, spY, alpha & 0xFF, depth, 0);
     {
-        s32 currentSp = func_00104d50(unit) & 0xFFFF;
-        s32 maximumSp = func_00104e30(unit) & 0xFFFF;
+        s32 currentSp = datCalcGetSpById(unit) & 0xFFFF;
+        s32 maximumSp = datCalcMaxSpById(unit) & 0xFFFF;
         s32 missingSpWidth = (s32)((maximumSp - (currentSp & 0xFFFF)) * 0x58) / maximumSp;
         spRect[2] = missingSpWidth;
         spRect[3] = 6;

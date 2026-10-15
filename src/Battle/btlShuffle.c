@@ -42,17 +42,17 @@ extern s32 btlShuffleTaskUpdate(u8 *task);
 
 extern void btlShuffleTaskDestroy(u8 *task);
 
-extern u16 func_00104dc0(s16 character);
+extern u16 datCalcMaxHpById(s16 character);
 
 extern void func_001056e0(s16 character, s16 value);
 
-extern u32 func_00105610(s16 param);
+extern u32 datCalcIsDeadById(s16 param);
 
 extern s32 datGetPartyId();
 
-extern u16 func_00104e30(s16 character);
+extern u16 datCalcMaxSpById(s16 character);
 
-extern u32 func_00104d50(s16 character);
+extern u32 datCalcGetSpById(s16 character);
 
 extern void func_00105730(s16 character, s16 value);
 
@@ -592,7 +592,7 @@ s32 btlShuffleRollIndex(s32 arg0)
     return i + 1;
 }
 
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 D_0064E76F[];
 extern u8 *iGpffffb3d4;
 
@@ -634,7 +634,7 @@ s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2)
     s16 item;
     u32 rate = 0;
 
-    lvl = func_00104c70(1) & 0xFF;
+    lvl = datCalcGetLevelById(1) & 0xFF;
     if (lvl > 0 && (u32)lvl < 10) {
         hi = D_0064E76F[lvl];
         lo = 1;
@@ -982,7 +982,7 @@ s32 btlShufflePickRosterMember(s32 arg0, u8 *arg1)
 
 /* matched: s32 `s` and flag temporaries preserve retail's callee-saved
  * coloring ($s2/$s1) while u16 r and i use $s0/$s3. The explicit s16
- * conversion for the func_00105610 argument and re-conversion of r in the
+ * conversion for the datCalcIsDeadById argument and re-conversion of r in the
  * flagged branch reproduce retail's sign-extension schedule. */
 // FUN_0036FBE0
 s32 btlShuffleIsPartyMember(s32 arg0)
@@ -993,7 +993,7 @@ s32 btlShuffleIsPartyMember(s32 arg0)
     s32 flag = arg0 & 0xFFFF;
 
     if (flag != 0) {
-        func_001056e0(1, (s16)func_00104dc0(1));
+        func_001056e0(1, (s16)datCalcMaxHpById(1));
     } else {
         func_001056e0(1, 1);
     }
@@ -1002,9 +1002,9 @@ s32 btlShuffleIsPartyMember(s32 arg0)
         r = (u16)datGetPartyId(i);
         if (r != 0) {
             s = (s16)r;
-            if (func_00105610(s) == 0) {
+            if (datCalcIsDeadById(s) == 0) {
                 if (flag != 0) {
-                    func_001056e0((s16)r, (s16)func_00104dc0((s16)r));
+                    func_001056e0((s16)r, (s16)datCalcMaxHpById((s16)r));
                 } else {
                     func_001056e0(s, 1);
                 }
@@ -1062,17 +1062,17 @@ s32 btlShuffleCountPartyMembers(s32 arg0)
     u16 r;
 
     if (flag != 0) {
-        func_00105730(1, (s16)func_00104e30(1));
+        func_00105730(1, (s16)datCalcMaxSpById(1));
     } else {
-        func_00105730(1, (s16)((u32)((u16)func_00104d50(1)) >> 1));
+        func_00105730(1, (s16)((u32)((u16)datCalcGetSpById(1)) >> 1));
     }
     for (i = 0; i < 4; i++) {
         r = (u16)datGetPartyId(i);
-        if (r != 0 && func_00105610((s16)r) == 0) {
+        if (r != 0 && datCalcIsDeadById((s16)r) == 0) {
             if (flag != 0) {
-                func_00105730((s16)r, (s16)func_00104e30((s16)r));
+                func_00105730((s16)r, (s16)datCalcMaxSpById((s16)r));
             } else {
-                func_00105730((s16)r, (s16)((u32)((u16)func_00104d50((s16)r)) >> 1));
+                func_00105730((s16)r, (s16)((u32)((u16)datCalcGetSpById((s16)r)) >> 1));
             }
         }
     }

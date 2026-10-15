@@ -875,7 +875,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_001fc270(void);
     s32 func_0018df60(s32);
     void func_001056e0(s16, s16);
-    void func_00105d50(s16, u32);
+    void datCalcClearBadStatusById(s16, u32);
     s32 FldUnit_AllSlotsReady(void);
     FldEventWork *work;
     FldEventVec3 cameraTarget;
@@ -1301,7 +1301,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         if (p != 0 && datUnitGroupIsDefeated((struct DatUnitGenusBase *)(p)) == 1) {
                             s16 *partyId = &((FldEventActor *)(D_007EF9B0 + (s32)i * 0x750))->partyId;
                             func_001056e0(*partyId, 1);
-                            func_00105d50(*partyId, 0x80000);
+                            datCalcClearBadStatusById(*partyId, 0x80000);
                         }
                     }
                 }
@@ -1692,7 +1692,7 @@ void FldEvent_StepGridCell(void)
  * only the backend drops it. func_00175f70 is declared with its float
  * parameter before the matrix pointer: the EE ABI assigns the same registers,
  * and retail materialises $a0, $f12, $a1 in that order. Retail tests bit 0x20
- * of func_00105340's $v0 (andi at 00175C30), so the local declaration returns u32
+ * of datCalcGetBadStatusNoDownById's $v0 (andi at 00175C30), so the local declaration returns u32
  * although the g_data.c definition is void. */
 #pragma push
 #pragma opt_dead_assignments off
@@ -1741,7 +1741,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     MovementMatrix *RwMatrixRotate(MovementMatrix *, const FldEventVec3 *, f32, s32);
     s32 func_00175f70(const u8 *, f32, const MovementMatrix *, f32);
     void FldFrameTask_StartMove(u8 *, f32);
-    u32 func_00105340(s16);
+    u32 datCalcGetBadStatusNoDownById(s16);
     s32 func_001623f0(void);
     s32 func_00170120(s32);
     u8 *h;
@@ -2018,7 +2018,7 @@ smallmove:
         if (c148 == 0x3C) {
             *(s32 *)(h + 0x134) = 1;
         } else if (c148 > 360) {
-            if (!(func_00105340(1) & 0x20) && func_001623f0() == 0) {
+            if (!(datCalcGetBadStatusNoDownById(1) & 0x20) && func_001623f0() == 0) {
                 ret16 = 1;
             }
             *(s32 *)(h + 0x148) = 0x3D;

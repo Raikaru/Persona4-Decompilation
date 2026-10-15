@@ -16,10 +16,10 @@ void func_00363200(u8* arg0, s64 arg1);
 void func_0034f1e0(void);
 void func_0034f460(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5);
-u32 func_00104ce0(s16 arg0);
-u16 func_00104dc0(s16 arg0);
-u32 func_00104d50(s16 arg0);
-u16 func_00104e30(s16 arg0);
+u32 datCalcGetHpById(s16 arg0);
+u16 datCalcMaxHpById(s16 arg0);
+u32 datCalcGetSpById(s16 arg0);
+u16 datCalcMaxSpById(s16 arg0);
 u8* func_00457120(void);
 s16 func_00353b50(s16* dst);
 u8 *sdkSpriteRequestLoad(const char *name);
@@ -209,10 +209,10 @@ void func_00363200(u8* arg0, s64 arg1)
             kAssertFail(D_0064E290, 0x109);
         }
         xy = *(Vec2f*)(panelSlot(off, arg0) + 0x20);
-        hpCur = func_00104ce0(id) & 0xFFFF;
-        hpMax = func_00104dc0(id) & 0xFFFF;
-        spCur = func_00104d50(id) & 0xFFFF;
-        spMax = func_00104e30(id) & 0xFFFF;
+        hpCur = datCalcGetHpById(id) & 0xFFFF;
+        hpMax = datCalcMaxHpById(id) & 0xFFFF;
+        spCur = datCalcGetSpById(id) & 0xFFFF;
+        spMax = datCalcMaxSpById(id) & 0xFFFF;
         y = xy.y;
         func_0034f460(sprA, 0, xy.x, y, 0xFF, 0xFF, 0xFF, 0xFF);
         func_0034f460(sprB, 0, 8.0f + xy.x, 31.0f + y,

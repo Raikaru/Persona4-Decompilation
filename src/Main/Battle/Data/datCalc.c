@@ -43,11 +43,11 @@ extern u8 *datEntryAt(s16 arg0);
 /* Old-style declaration: the retail call site at datCalcIsFlaggedPersonaSkill passes arg0 raw (no 64-bit extension). */
 u16 datCalcUnderlyingSkillId();
 
-extern u16 func_00104dc0(s16 character);
+extern u16 datCalcMaxHpById(s16 character);
 extern void func_001056e0(s16 character, s16 value);
-extern u16 func_00104e30(s16 character);
+extern u16 datCalcMaxSpById(s16 character);
 extern void func_00105730(s16 character, s16 value);
-extern void func_00105d50(s16 character, u32 mask);
+extern void datCalcClearBadStatusById(s16 character, u32 mask);
 
 extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
@@ -5249,7 +5249,7 @@ void datCalcInitializeCharacters(void)
     }
 }
 
-// Intent: seeds the per-character tables for character id arg0 (defaults from func_00104dc0 and func_00104e30, then func_00105d50 reset to -1).
+// Intent: seeds the per-character tables for character id arg0 (defaults from datCalcMaxHpById and datCalcMaxSpById, then datCalcClearBadStatusById reset to -1).
 // FUN_00243F20
 void datCalcInitializeCharacter(u16 characterId)
 {
@@ -5257,11 +5257,11 @@ void datCalcInitializeCharacter(u16 characterId)
     s16 value;
 
     id = (s16)characterId;
-    value = (s16)func_00104dc0(id);
+    value = (s16)datCalcMaxHpById(id);
     func_001056e0(id, value);
-    value = (s16)func_00104e30(id);
+    value = (s16)datCalcMaxSpById(id);
     func_00105730(id, value);
-    func_00105d50(id, -1);
+    datCalcClearBadStatusById(id, -1);
 }
 
 /* measured: full body matches byte-for-byte (nd 0, no fndiff ! rows) but

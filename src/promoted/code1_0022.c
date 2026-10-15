@@ -262,11 +262,11 @@ extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern s32 datPersonaSelectRosterMemberById(s32 personaId);
 extern void btlUnitInitChild(u8 *unit, u16 action);
 extern void func_00106d40(s16 character, s16 slot, s16 value);
-extern u16 func_00104dc0(s16 character);
-extern u16 func_00104e30(s16 character);
+extern u16 datCalcMaxHpById(s16 character);
+extern u16 datCalcMaxSpById(s16 character);
 extern void func_001056e0(s16 character, s16 value);
 extern void func_00105730(s16 character, s16 value);
-extern void func_00105d50(s16 character, u32 mask);
+extern void datCalcClearBadStatusById(s16 character, u32 mask);
 extern s32 func_001b0d70(u8 *target);
 
 extern BtlPacket *func_00202010(u32 unit, u16 effect);
@@ -282,7 +282,7 @@ extern BtlPacket *btlFormationCreateSlotPacket(u16 group, u16 mask);
 extern f32 fGpffff80e4;
 extern f32 btlTargetQuatAngle(void *first, void *second);
 extern s32 func_004b3110(s16 frames);
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 
 // FUN_002218E0
 s32 func_002218e0(KwlnTask *task)
@@ -307,7 +307,7 @@ s32 func_00221970(u8 *arg0)
     s32 temp_3;
     s32 temp_4;
 
-    temp_2 = func_00104c70(1) & 0xFF;
+    temp_2 = datCalcGetLevelById(1) & 0xFF;
     temp_3 = 0;
     if (temp_2 >= 0x1E) {
         if (datGetFlag(0x1202) == 0) {
@@ -5505,9 +5505,9 @@ s32 func_0022e630(u8 *arg0)
             datPersonaAddRosterMember(0xE1);
             datPersonaSelectRosterMemberById(0xE1);
             btlUnitInitChild(unit, 0xE1);
-            func_001056e0(1, (s16)func_00104dc0(1));
-            func_00105730(1, (s16)func_00104e30(1));
-            func_00105d50(1, -1);
+            func_001056e0(1, (s16)datCalcMaxHpById(1));
+            func_00105730(1, (s16)datCalcMaxSpById(1));
+            datCalcClearBadStatusById(1, -1);
             *(u16 *)(arg0 + 0x18) |= 0x40;
             break;
         }

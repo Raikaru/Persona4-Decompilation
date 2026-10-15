@@ -310,7 +310,7 @@ void func_00104c50(void)
 
 /* Return the reader's level; normalize the selector's signed low word at entry. */
 // FUN_00104C70
-s32 func_00104c70(s32 arg0)
+s32 datCalcGetLevelById(s32 arg0)
 {
     s16 unit = (s16)arg0;
 
@@ -327,7 +327,7 @@ s32 func_00104c70(s32 arg0)
 /* Return the unit reader's value explicitly; both 108-byte bodies retain
  * their six relocations and four zero alignment bytes. */
 // FUN_00104CE0
-u32 func_00104ce0(s16 arg0)
+u32 datCalcGetHpById(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -340,7 +340,7 @@ u32 func_00104ce0(s16 arg0)
 }
 
 // FUN_00104D50
-u32 func_00104d50(s16 arg0)
+u32 datCalcGetSpById(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -355,7 +355,7 @@ u32 func_00104d50(s16 arg0)
 /* Character selectors are signed halfwords. Canonical getter/setter
  * declarations preserve both 108-byte wrappers and their caller bodies. */
 // FUN_00104DC0
-u16 func_00104dc0(s16 arg0)
+u16 datCalcMaxHpById(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -368,7 +368,7 @@ u16 func_00104dc0(s16 arg0)
 }
 
 // FUN_00104E30
-u16 func_00104e30(s16 arg0)
+u16 datCalcMaxSpById(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -534,7 +534,7 @@ s32 func_00105330(s32 character)
 
 
 // FUN_00105340
-void func_00105340(s16 arg0)
+void datCalcGetBadStatusNoDownById(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -594,7 +594,7 @@ u8* datUnitGetRecord(s16 arg0)
 }
 
 // FUN_001055A0
-void func_001055a0(s16 arg0)
+void datCalcInitUnitById(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -606,7 +606,7 @@ void func_001055a0(s16 arg0)
     }
 }
 // FUN_00105610
-u32 func_00105610(s16 arg0)
+u32 datCalcIsDeadById(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -826,7 +826,7 @@ void func_00105c90(s16 arg0, s16 arg1)
 
 /* The retail initializer supplies a second halfword; this reset ignores it. */
 // FUN_00105CE0
-void func_00105ce0(s16 arg0, s16 arg1)
+void datCalcSetBadStatusById(s16 arg0, s16 arg1)
 {
     if (arg0 == 1)
     {
@@ -839,7 +839,7 @@ void func_00105ce0(s16 arg0, s16 arg1)
 }
 
 // FUN_00105D50
-void func_00105d50(s16 arg0, u32 mask)
+void datCalcClearBadStatusById(s16 arg0, u32 mask)
 {
     if (arg0 == 1)
     {

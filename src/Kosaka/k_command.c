@@ -33,7 +33,7 @@ extern s32 func_00457120(void);
 extern void* FldEvent_GetNearestEntry(void);
 extern void* FldEvent_GetTriggerEntry(void);
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
-extern s32 func_00104c70(s32 value);
+extern s32 datCalcGetLevelById(s32 value);
 extern void scrSetReturnInt(s32 value);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern void func_0016f130(s32 a, s32 b, s32 c);
@@ -922,7 +922,7 @@ u32 Cmd_LoadTableWord()
 // FUN_00299FD0
 u32 Cmd_LoadTableWordAlt(void)
 {
-    scrSetReturnInt((u8)func_00104c70((s16)scrGetParamInt(0)));
+    scrSetReturnInt((u8)datCalcGetLevelById((s16)scrGetParamInt(0)));
 
     return 1;
 }

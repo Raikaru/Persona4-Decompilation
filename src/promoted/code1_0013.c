@@ -4,8 +4,8 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 
-extern u32 func_00104ce0(s16 arg0);
-extern u32 func_00104d50(s16 arg0);
+extern u32 datCalcGetHpById(s16 arg0);
+extern u32 datCalcGetSpById(s16 arg0);
 extern s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2);
 extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 extern u32 RpRandom(void);
@@ -69,7 +69,7 @@ extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
 extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
 extern void func_0011fd30(u8 *arg0);
 extern void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 extern f32 fGpffff82cc; /* gp -0x7d34 */
 extern void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
 extern void func_002bc860(f32 x, f32 y, f32 depth,
@@ -339,7 +339,7 @@ void func_00130680(u8 *arg0, s32 arg1)
         pos.y = 27.0f + (ty + yoff);
         func_0034f2e0(*(void **)(arg0 + 0x1B94), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
     }
-    n = func_00104c70(id);
+    n = datCalcGetLevelById(id);
     pos.x = 43.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
     ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
     pos.y = 25.0f + (ty + yoff);
@@ -1042,7 +1042,7 @@ void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2)
         pos.y = 27.0f + (ty + yoff);
         func_0034f2e0(*(void **)(arg0 + 0x12C0), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
     }
-    n = (u8)func_00104c70(id);
+    n = (u8)datCalcGetLevelById(id);
     pos.x = 43.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
     ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
     pos.y = 25.0f + (ty + yoff);
@@ -2327,7 +2327,7 @@ s32 func_0013e8e0(u8 *arg0, s32 *arg1) {
 // FUN_0013EA20
 s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void func_00137fb0(u8 *arg0);
-    extern u32 func_00105610(s16 character);
+    extern u32 datCalcIsDeadById(s16 character);
     extern s32 func_00138ad0(u8 *arg0);
     extern s32 func_0013abb0(u8 *arg0);
     extern void func_0013ab30(u8 *arg0);
@@ -2401,7 +2401,7 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0034bb20(0xA);
                 func_0045af60(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
-                if ((s32)(func_00105610(character)) != (s32)(0)) {
+                if ((s32)(datCalcIsDeadById(character)) != (s32)(0)) {
                     func_0045af60(0, 0, 0, 8);
                 } else {
                     func_0013a530(arg2, 3U);

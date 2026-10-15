@@ -42,12 +42,12 @@ s32 func_0045a3e0(s16 arg0, s32 arg1);
 s32 func_00459880(void);
 s32 func_004598e0(s16 arg0);
 
-u32 func_00104ce0(s16 arg0);
+u32 datCalcGetHpById(s16 arg0);
 void scrSetReturnInt(s32 arg0);
 
-u16 func_00104dc0(s16 arg0);
+u16 datCalcMaxHpById(s16 arg0);
 
-u32 func_00104d50(s16 arg0);
+u32 datCalcGetSpById(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern s64 scrGetParamIntS64(s32 arg0);
 extern void func_0045b2e0(s32 arg0);
@@ -60,7 +60,7 @@ extern u8 D_0063CFA0[];
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern s32 datGetFlag(s32 arg0);
 extern void func_001238c0(s32 arg0);
-extern u16 func_00104e30(s16 arg0);
+extern u16 datCalcMaxSpById(s16 arg0);
 extern void func_00105730(s16 arg0, s16 arg1);
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
@@ -2089,7 +2089,7 @@ s32 func_00299c20(void)
 }
 // FUN_00299C60
 s32 func_00299c60(void) {
-    scrSetReturnInt(func_00104ce0(scrGetParamInt(0)) & 0xFFFF);
+    scrSetReturnInt(datCalcGetHpById(scrGetParamInt(0)) & 0xFFFF);
     return 1;
 }
 
@@ -2097,7 +2097,7 @@ s32 func_00299c60(void) {
 
 // FUN_00299CB0
 s32 func_00299cb0(void) {
-    scrSetReturnInt(func_00104dc0((s16)scrGetParamInt(0)) & 0xFFFF);
+    scrSetReturnInt(datCalcMaxHpById((s16)scrGetParamInt(0)) & 0xFFFF);
     return 1;
 }
 
@@ -2117,13 +2117,13 @@ s32 func_00299d00(void)
 
 // FUN_00299D60
 s32 func_00299d60(void) {
-    scrSetReturnInt(func_00104d50(scrGetParamInt(0)) & 0xFFFF);
+    scrSetReturnInt(datCalcGetSpById(scrGetParamInt(0)) & 0xFFFF);
     return 1;
 }
 
 // FUN_00299DB0
 s32 func_00299db0(void) {
-    scrSetReturnInt(func_00104e30((s16)scrGetParamIntS64(0)) & 0xFFFF);
+    scrSetReturnInt(datCalcMaxSpById((s16)scrGetParamIntS64(0)) & 0xFFFF);
     return 1;
 }
 // FUN_00299E00

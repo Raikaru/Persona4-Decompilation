@@ -48,7 +48,7 @@ extern s32 func_0034c210(void);
 extern u32 datGetFlag(s32 arg0);
 extern s32 func_0035fa00(u8 *arg0, s32 arg1, s16 arg2);
 extern void func_0034f8f0(void *arg0);
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
@@ -1386,7 +1386,7 @@ void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     f32 first_x;
     f32 factor;
 
-    value = (u8)func_00104c70(*(s16 *)(arg2 + 4));
+    value = (u8)datCalcGetLevelById(*(s16 *)(arg2 + 4));
     factor = fparg0;
     tex0 = func_0046a770(D_005E5850);
     if (tex0 == 0) {

@@ -686,7 +686,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     s32 RpSkyRenderStateSet(s32, void *);
     void func_00364c50(void);
     void func_00364c70(void);
-    s32 func_00104c70(s32);
+    s32 datCalcGetLevelById(s32);
     u32 func_0010d6d0(s16);
     s32 func_0021e050(u8 *);
     void func_001125d0(u8 *);
@@ -826,7 +826,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
         coordinate = (f32)0x175;
         coordinate += (*(f32 *)(w + 0x174));
         position.v[1] = coordinate;
-        sprintf(numberText, &iGpffffa5b4, func_00104c70(1) & 0xFF);
+        sprintf(numberText, &iGpffffa5b4, datCalcGetLevelById(1) & 0xFF);
         s19 = 0;
         while (numberText[s19] != 0) {
             sidx = numberText[s19];

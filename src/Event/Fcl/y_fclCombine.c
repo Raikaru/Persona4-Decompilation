@@ -59,7 +59,7 @@ extern char iGpffffa8a0;
 
 extern void fclDrawSetSlotMode(u8 *, s32, s8);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
-extern s32 func_00104c70(s32);
+extern s32 datCalcGetLevelById(s32);
 extern void yListSlotCreate(s32, s8);
 extern void fclCombineLayoutDetailSprites(u8 *, s64);
 extern s32 fclCombineRowsBusy(u8 *);
@@ -1967,7 +1967,7 @@ void fclCombineMenuFusion(u8 *arg0) {
             temp_16_21 = (s32)fclDrawGetResource(temp_18->f148);
             func_0011d140((u8 *)temp_16_21, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             temp_16_22 = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)) + 4);
-            if ((func_00104c70(1) & 0xFF) < temp_16_22) {
+            if ((datCalcGetLevelById(1) & 0xFF) < temp_16_22) {
                 temp_16_23 = (s32)fclDrawGetResource(temp_18->f148);
                 func_0011d140((u8 *)temp_16_23, func_002b2a30(0x14, 0x14, 0x14, 0xFF));
             }
@@ -2036,7 +2036,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     temp_16_26 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                     func_0011d140((u8 *)temp_16_26, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
                     temp_16_27 = (u8)((u8)((u8)((*(u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)))+(4))))));
-                    if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_27))) {
+                    if ((s32)((s32)((datCalcGetLevelById(1) & 0xFF))) < (s32)((s32)((s32) temp_16_27))) {
                         temp_16_28 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                         func_0011d140((u8 *)temp_16_28, func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
                     }
@@ -2075,7 +2075,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     temp_16_33 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                     func_0011d140((u8 *)temp_16_33, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
                     temp_16_34 = (u8)((u8)((u8)((*(u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)))+(4))))));
-                    if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_34))) {
+                    if ((s32)((s32)((datCalcGetLevelById(1) & 0xFF))) < (s32)((s32)((s32) temp_16_34))) {
                         temp_16_35 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                         func_0011d140((u8 *)temp_16_35, func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
                     }
@@ -2121,7 +2121,7 @@ void fclCombineMenuFusion(u8 *arg0) {
     case 0x2F:
         temp_16_42 = ((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1];
         temp_17_13 = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)) + 4);
-        if ((func_00104c70(1) & 0xFF) < temp_17_13) {
+        if ((datCalcGetLevelById(1) & 0xFF) < temp_17_13) {
             fclCombinePlayCue(arg0, 0x26, 0);
             temp_18->f1 = 0x31;
         } else if (yListSlotContainsId(0, (s32)(*(s16 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)) + 2))) == 1) {
@@ -2206,7 +2206,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         }
         temp_16_43 = ((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1];
         sp110[*(s32 *)(yListSlotWork(0) + 8)] = temp_16_43;
-        func_002e5ae0(0xD, sp110, (s8)func_00104c70(1));
+        func_002e5ae0(0xD, sp110, (s8)datCalcGetLevelById(1));
         temp_16_44 = *(u32 *)(yListSlotWork(0xD) + 8);
         temp_16_45 = (RpRandom() % temp_16_44) * 0xA;
         temp_19_9 = (s8)(temp_16_45 % *(u32 *)(yListSlotWork(0xD) + 8));
@@ -2236,7 +2236,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         }
         temp_16_49 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, temp_18->f11E))[1];
         spF0[*(s32 *)(yListSlotWork(0) + 8)] = temp_16_49;
-        yListSlotFillByLevel(0xD, spF0, (s8)func_00104c70(1));
+        yListSlotFillByLevel(0xD, spF0, (s8)datCalcGetLevelById(1));
         if (*(s32 *)(yListSlotWork(0xD) + 8) == 0) {
             temp_18->f2F9 = temp_18->f128 + 1;
             temp_18->f2FA = temp_18->f11E;
@@ -2247,13 +2247,13 @@ void fclCombineMenuFusion(u8 *arg0) {
         temp_18->f2F9 = 0xD;
         for (var_17_8 = 0; var_17_8 < *(s32 *)(yListSlotWork(0xD) + 8); var_17_8++) {
             temp_16_50 = *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_17_8)) + 4);
-            if (temp_16_50 >= (func_00104c70(1) & 0xFF)) {
+            if (temp_16_50 >= (datCalcGetLevelById(1) & 0xFF)) {
                 temp_18->f2FA = var_17_8;
                 break;
             }
-            if (var_19_3 > (func_00104c70(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_17_8)) + 4)) {
+            if (var_19_3 > (datCalcGetLevelById(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_17_8)) + 4)) {
                 temp_16_51 = *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_17_8)) + 4);
-                var_19_3 = (func_00104c70(1) & 0xFF) - temp_16_51;
+                var_19_3 = (datCalcGetLevelById(1) & 0xFF) - temp_16_51;
                 temp_18->f2FA = var_17_8;
             }
         }
@@ -3268,7 +3268,7 @@ block_215:
             temp_16_48 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
             func_0011d140((u8 *)temp_16_48,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
             temp_16_49 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
-            if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_49))) {
+            if ((s32)((s32)((datCalcGetLevelById(1) & 0xFF))) < (s32)((s32)((s32) temp_16_49))) {
                 temp_16_50 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                 func_0011d140((u8 *)temp_16_50,  func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
             }
@@ -3355,7 +3355,7 @@ block_215:
                     temp_16_58 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_58,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
                     temp_16_59 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
-                    if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_59))) {
+                    if ((s32)((s32)((datCalcGetLevelById(1) & 0xFF))) < (s32)((s32)((s32) temp_16_59))) {
                         temp_16_60 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                         func_0011d140((u8 *)temp_16_60,  func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
                     }
@@ -3398,7 +3398,7 @@ block_215:
                     temp_16_66 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_66,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
                     temp_16_67 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
-                    if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_67))) {
+                    if ((s32)((s32)((datCalcGetLevelById(1) & 0xFF))) < (s32)((s32)((s32) temp_16_67))) {
                         temp_16_68 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                         func_0011d140((u8 *)temp_16_68,  func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
                     }
@@ -3451,7 +3451,7 @@ block_215:
     case 0x48:                                      /* switch 1 */
         temp_16_77 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (2)))))));
         temp_18_40 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
-        if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_18_40))) {
+        if ((s32)((s32)((datCalcGetLevelById(1) & 0xFF))) < (s32)((s32)((s32) temp_18_40))) {
             fclCombinePlayCue(arg0, 0x26, 0);
             temp_17->f1 = 0x4AU;
             return;
@@ -3543,7 +3543,7 @@ block_215:
         }
         temp_16_78 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (2)))))));
         sp150[(*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))] = temp_16_78;
-        func_002e5ae0(0xD, (u16 *)(sp150), (s8)(func_00104c70(1)));
+        func_002e5ae0(0xD, (u16 *)(sp150), (s8)(datCalcGetLevelById(1)));
         temp_16_79 = (*((u32 *)((u8 *)(yListSlotWork(0xD)) + (8))));
         temp_16_80 = (u32)((u32)((RpRandom() % temp_16_79) * 0xA));
         selectedResult = (s64)((s64)((s8)((temp_16_80 % (u32) (*((u32 *)((u8 *)(yListSlotWork(0xD)) + (8))))))));
@@ -3579,7 +3579,7 @@ block_215:
             }
             temp_16_84 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), temp_17->f11E))) + (2)))))));
             sp130[(*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))] = temp_16_84;
-            yListSlotFillByLevel(0xD, (u16 *)(sp130), (s8)(func_00104c70(1)));
+            yListSlotFillByLevel(0xD, (u16 *)(sp130), (s8)(datCalcGetLevelById(1)));
             if ((*((s32 *)((u8 *)(yListSlotWork(0xD)) + (8)))) == 0) {
                 temp_17->f2F9 = (s8)((s8)((s8) (temp_17->f129 + 1)));
                 temp_17->f2FA = (s8)((s8)((s8) temp_17->f11E));
@@ -3590,12 +3590,12 @@ block_215:
             temp_17->f2F9 = 0xD;
             for (var_18_8 = 0; var_18_8 < *(s32 *)(yListSlotWork(0xD) + 8); var_18_8++) {
                 temp_16_85 = (*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0xD, var_18_8))) + (4))));
-                if ((s32)((s32)((s32) temp_16_85)) >= (s32)((s32)((func_00104c70(1) & 0xFF)))) {
+                if ((s32)((s32)((s32) temp_16_85)) >= (s32)((s32)((datCalcGetLevelById(1) & 0xFF)))) {
                     temp_17->f2FA = (s8) var_18_8;
                     break;
                 } else {
-                    if ((s16)var_19_11 > (s8)((func_00104c70(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_18_8)) + 4))) {
-                        var_19_11 = (s8)((func_00104c70(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_18_8)) + 4));
+                    if ((s16)var_19_11 > (s8)((datCalcGetLevelById(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_18_8)) + 4))) {
+                        var_19_11 = (s8)((datCalcGetLevelById(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_18_8)) + 4));
                         temp_17->f2FA = (s8) var_18_8;
                     }
 
@@ -3900,7 +3900,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         fclDrawSetPlacement(*(u8 **)(p + 0x148), (s32)yListSlotEntry(0, p[0x2FA]), 0, 0);
         func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
         func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-        if (((u8 *)yListSlotEntry(0, p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+        if (((u8 *)yListSlotEntry(0, p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
         }
         p[1] = 0x55;
@@ -4003,7 +4003,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                       (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
         func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-        if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+        if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
         }
         func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
@@ -4072,7 +4072,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
             } else {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                 }
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
@@ -4109,7 +4109,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
             } else {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                 }
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
@@ -4130,7 +4130,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         break;
     case 0x59:
         item = ((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1];
-        if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+        if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
             fclCombinePlayCue(arg0, 0x26, 0);
             p[1] = 0x5B;
             break;
@@ -4420,7 +4420,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                     fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                                   (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                    if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                    if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                         func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                     }
                     func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
@@ -4546,7 +4546,7 @@ void fclCombineMenuPreview(u8 *arg0) {
         if (buttons & 0x40) {
             yListSlotEntry(p[0x2F9], p[0x2FA]);
             func_0045af60(0, 0, 0, 1);
-            if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+            if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                 fclCombinePlayCue(arg0, 0x26, 0);
                 p[1] = 0x6B;
             } else {
@@ -4596,7 +4596,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(0, p[0x122]), 0, 0, 1);
             } else {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                 }
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
@@ -4620,7 +4620,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(0, p[0x122]), 0, 0, 1);
             } else {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                 }
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
