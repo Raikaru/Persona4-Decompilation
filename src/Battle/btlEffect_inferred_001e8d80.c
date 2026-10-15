@@ -106,14 +106,14 @@ extern u8 *iGpffffb42c;
 #pragma pop
 /* AI script command 0x2090 (p4flow AI.json AI_FUNCTION_0090). */
 // FUN_001E8D80
-s32 func_001e8d80(void) {
+s32 btlEffectScriptGetSelfElement(void) {
     scrSetReturnInt((s16) datCalcSkillElement(*(u8 **)(*(u8 **)(func_0029d050() + 0x30) + 0xA64), 0U));
     return 1;
 }
 
 /* AI script command 0x209b (p4flow AI.json AI_FUNCTION_009B). */
 // FUN_001E8DD0
-s32 func_001e8dd0(void) {
+s32 btlEffectScriptPickLowestHpLivingSide0Unit(void) {
     u8 *current;
     u8 *best;
     u32 min;
@@ -145,7 +145,7 @@ s32 func_001e8dd0(void) {
 
 /* AI script command 0x2083 (p4flow AI.json AI_FUNCTION_0083). */
 // FUN_001E8EB0
-s32 func_001e8eb0(void) {
+s32 btlEffectScriptPickLowestHpNormalUnit(void) {
     u32 value;
     u8 *work;
     u8 *selected;
@@ -180,7 +180,7 @@ s32 func_001e8eb0(void) {
 
 /* AI script command 0x2084 (p4flow AI.json AI_FUNCTION_0084). */
 // FUN_001E8FE0
-s32 func_001e8fe0(void) {
+s32 btlEffectScriptPickLowestHpNormalFilteredUnit(void) {
     u32 value;
     u8 *work;
     u8 *selected;
@@ -215,7 +215,7 @@ s32 func_001e8fe0(void) {
 
 /* AI script command 0x2085 (p4flow AI.json AI_FUNCTION_0085). */
 // FUN_001E9110
-s32 func_001e9110(void) {
+s32 btlEffectScriptPickLowestHpNormalAltUnit(void) {
     u32 value;
     u8 *work;
     u8 *selected;
@@ -250,7 +250,7 @@ s32 func_001e9110(void) {
 
 /* AI script command 0x2089 (p4flow AI.json AI_FUNCTION_0089). */
 // FUN_001E9240
-s32 func_001e9240(void) {
+s32 btlEffectScriptPickRandomSide1Unit(void) {
     u8 *selected;
     u8 *data;
     u8 *entry;
@@ -285,7 +285,7 @@ s32 func_001e9240(void) {
 
 /* AI script command 0x208a (p4flow AI.json AI_FUNCTION_008A). */
 // FUN_001E9350
-s32 func_001e9350(void) {
+s32 btlEffectScriptFindAilmentSkillElement(void) {
     u64 command;
     u16 skill;
     u32 index;
@@ -325,7 +325,7 @@ s32 func_001e9350(void) {
 
 /* AI script command 0x208b (p4flow AI.json AI_FUNCTION_008B). */
 // FUN_001E94E0
-s32 func_001e94e0(void) {
+s32 btlEffectScriptPickRandomSide1OtherUnit(void) {
     u8 *selected;
     u8 *data;
     u8 *entry;
@@ -361,7 +361,7 @@ s32 func_001e94e0(void) {
 
 /* AI script command 0x208c (p4flow AI.json AI_FUNCTION_008C). */
 // FUN_001E9600
-s32 func_001e9600(void) {
+s32 btlEffectScriptPickLowestHpSkillEligibleUnit(void) {
     u8 *work;
     u8 *current;
     u8 *best_fallback;
@@ -408,7 +408,7 @@ s32 func_001e9600(void) {
 
 /* AI script command 0x209d (p4flow AI.json AI_FUNCTION_009D). */
 // FUN_001E9770
-s32 func_001e9770(void) {
+s32 btlEffectScriptPickLowestHpInRangeUnit(void) {
     extern s32 scrGetParamInt(s32 arg0);
     extern void scrSetReturnInt(s32 arg0);
     extern s32 datCalcIsDead(s32 arg0, s32 arg1);
@@ -483,7 +483,7 @@ loop_test:
  * after paramA/paramB) reproduces that spill set and slot order. */
 /* AI script command 0x20fa (p4flow AI.json AI_FUNCTION_00FA). */
 // FUN_001E9950
-s32 func_001e9950(void) {
+s32 btlEffectScriptChooseBestSkill(void) {
     extern s32 scrGetParamInt(s32 arg0);
     extern void scrSetReturnInt(s32 arg0);
     extern s32 datCalcElementBit(s16 arg0);
@@ -671,7 +671,7 @@ outer_test:
 
 /* AI script command 0x2100 (p4flow AI.json AI_FUNCTION_0100). */
 // FUN_001E9F20
-s32 func_001e9f20(void) {
+s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
     extern s32 scrGetParamInt(s32 arg0);
     extern s32 datCalcGetHp(s32 arg0);
     extern s32 datCalcIsDead(s32 arg0, s32 arg1);
@@ -712,7 +712,7 @@ s32 func_001e9f20(void) {
 
 /* AI script command 0x2101 (p4flow AI.json AI_FUNCTION_0101). */
 // FUN_001EA050
-s32 func_001ea050(void) {
+s32 btlEffectScriptPickLowestHpBadStatusUnit(void) {
     extern s32 scrGetParamInt(s32 arg0);
     extern s32 datCalcGetHp(s32 arg0);
     extern s32 datCalcIsDead(s32 arg0, s32 arg1);
@@ -753,7 +753,7 @@ s32 func_001ea050(void) {
 
 /* AI script command 0x2102 (p4flow AI.json AI_FUNCTION_0102). */
 // FUN_001EA180
-s32 func_001ea180(void) {
+s32 btlEffectScriptPickRandomSideUnit(void) {
     u8 *sp10[12];
     s32 temp_4;
 
@@ -768,7 +768,7 @@ s32 func_001ea180(void) {
 
 /* AI script command 0x2104 (p4flow AI.json AI_FUNCTION_0104). */
 // FUN_001EA220
-s32 func_001ea220(void) {
+s32 btlEffectScriptSetActionParams(void) {
     u8 *temp_16;
 
     temp_16 = func_0029d050();
