@@ -161,7 +161,7 @@ extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
-extern void func_00479100(void *arg0, void *arg1);
+extern void mdlQueueModelForDraw(void *arg0, void *arg1);
 extern u8 D_00794150[];
 
 /* Source unit: src/promoted/code1_0019.c */
@@ -210,7 +210,7 @@ void func_0019d150(void)
                 *(u8 *)(node + 0x33) > 0) {
                 temp = *(u8 **)(node + 0xA00);
                 if ((*(s32 *)(temp + 0xD8) & 0x20) == 0) {
-                    func_00479100(D_00794150, temp);
+                    mdlQueueModelForDraw(D_00794150, temp);
                 }
             }
             node = *(u8 **)(node + 0xA68);

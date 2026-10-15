@@ -52,7 +52,7 @@ extern void func_004865c0(u8 *arg0, s32 arg1);
 extern void func_00478e70(s32 arg0);
 extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
-extern void func_00479100(s32 arg0, u8 *arg1);
+extern void mdlQueueModelForDraw(s32 arg0, u8 *arg1);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern u8 *func_00460990(void);

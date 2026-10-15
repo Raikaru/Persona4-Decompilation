@@ -316,7 +316,7 @@ extern void btlUnitHideModel();
 extern void btlUnitShowModel(u8 *arg0);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
-extern void func_00479100(void *arg0, void *arg1);
+extern void mdlQueueModelForDraw(void *arg0, void *arg1);
 extern u8 D_00794150[];
 
 

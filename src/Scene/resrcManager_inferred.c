@@ -712,7 +712,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     extern void func_004b1210(void *arg0, void *arg1);
     extern s32 func_00462df0(u8 *arg0);
     extern u32 K_Clump_StateFlagIsSet(const u32 *state);
-    extern void func_00479100(void *queue, u8 *model);
+    extern void mdlQueueModelForDraw(void *queue, u8 *model);
     extern void *mdlGetColor(void *model);
     extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
     extern void func_004b11d0(void *arg0, void *arg1);
@@ -822,34 +822,34 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
         t = *(s32 *)(l10 + 0x28);
         if (t & 2) {
             if (t & 0x02000000) {
-                func_00479100(D_007942D0, *(u8 **)(l10 + 0x144));
+                mdlQueueModelForDraw(D_007942D0, *(u8 **)(l10 + 0x144));
             } else if (t & 0x01000000) {
-                func_00479100(D_007947E0, *(u8 **)(l10 + 0x144));
+                mdlQueueModelForDraw(D_007947E0, *(u8 **)(l10 + 0x144));
             } else if (K_Clump_StateFlagIsSet(*(const u32 **)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
                 if (flag != 0) {
-                    func_00479100(D_00793F10, *(u8 **)(l10 + 0x144));
+                    mdlQueueModelForDraw(D_00793F10, *(u8 **)(l10 + 0x144));
                 } else {
-                    func_00479100(D_00794300, *(u8 **)(l10 + 0x144));
+                    mdlQueueModelForDraw(D_00794300, *(u8 **)(l10 + 0x144));
                 }
                 ex = *(u8 **)(l10 + 0x16C);
                 if (ex != NULL && (*(s32 *)(l10 + 0x28) & 0x20000000)) {
-                    func_00479100(D_00794300, ex);
+                    mdlQueueModelForDraw(D_00794300, ex);
                 }
             } else if (func_00462df0(*(u8 **)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
                 if (flag != 0) {
-                    func_00479100(D_00793F40, *(u8 **)(l10 + 0x144));
+                    mdlQueueModelForDraw(D_00793F40, *(u8 **)(l10 + 0x144));
                 } else {
-                    func_00479100(D_00794360, *(u8 **)(l10 + 0x144));
+                    mdlQueueModelForDraw(D_00794360, *(u8 **)(l10 + 0x144));
                 }
                 ex = *(u8 **)(l10 + 0x16C);
                 if (ex != NULL && (*(s32 *)(l10 + 0x28) & 0x20000000)) {
-                    func_00479100(D_00794360, ex);
+                    mdlQueueModelForDraw(D_00794360, ex);
                 }
             } else {
-                func_00479100(D_00793EE0, *(u8 **)(l10 + 0x144));
+                mdlQueueModelForDraw(D_00793EE0, *(u8 **)(l10 + 0x144));
                 ex = *(u8 **)(l10 + 0x16C);
                 if (ex != NULL && (*(s32 *)(l10 + 0x28) & 0x20000000)) {
-                    func_00479100(D_00793EE0, ex);
+                    mdlQueueModelForDraw(D_00793EE0, ex);
                 }
             }
         }
@@ -916,12 +916,12 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 *(u8 **)(tmp + 0x10) = *pp;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
                 if (func_0014a160() == 1 && (*(u16 *)*pp & 0x3FF) >= 100) {
-                    func_00479100(D_007943F0, *(u8 **)(*pp + 0x164));
+                    mdlQueueModelForDraw(D_007943F0, *(u8 **)(*pp + 0x164));
                 } else {
-                    func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(*pp + 0x164));
+                    mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(*pp + 0x164));
                 }
                 if (*(u8 **)(*pp + 0x228) != NULL && (*(s32 *)(*pp + 0x28) & 0x20000000)) {
-                    func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(*pp + 0x228));
+                    mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(*pp + 0x228));
                 }
                 for (j = 0; j < 2; j++) {
                     u8 *attachmentOwner = *pp;
@@ -952,7 +952,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttached;
                 *(u8 **)(tmp + 0x10) = obj;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), tmp);
-                func_00479100((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), *(u8 **)(obj + 0x164));
+                mdlQueueModelForDraw((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), *(u8 **)(obj + 0x164));
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
                 *(u8 **)(tmp + 0x10) = D_007D2090;
@@ -980,9 +980,9 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
             if ((flags & 0x10000000) && (flags & 2) && !(flags & 0x80000000)) {
                 s32 j;
 
-                func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l3 + 0x164));
+                mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l3 + 0x164));
                 if (*(u8 **)(l3 + 0x22C) != NULL && (*(s32 *)(l3 + 0x28) & 0x20000000)) {
-                    func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l3 + 0x22C));
+                    mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l3 + 0x22C));
                 }
                 for (j = 0; j < 2; j++) {
                     if (*(s32 *)(l3 + j * 4 + 0x140) != 0) {
@@ -1015,9 +1015,9 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                     if (*(s32 *)(obj + 0x28) & 0x80000000) {
                         s32 j;
 
-                        func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(obj + 0x164));
+                        mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(obj + 0x164));
                         if (*(u8 **)(obj + 0x22C) != NULL && (*(s32 *)(obj + 0x28) & 0x20000000)) {
-                            func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(obj + 0x22C));
+                            mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(obj + 0x22C));
                         }
                         for (j = 0; j < 2; j++) {
                             if (*(s32 *)(obj + j * 4 + 0x140) != 0) {
@@ -1049,13 +1049,13 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedAlt;
                 *(u8 **)(tmp + 0x10) = l2;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
-                func_00479100((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l2 + 0x158));
+                mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l2 + 0x158));
             } else {
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedAlt;
                 *(u8 **)(tmp + 0x10) = l2;
                 func_00460ac0(D_007945A0, tmp);
-                func_00479100(D_007945A0, *(u8 **)(l2 + 0x158));
+                mdlQueueModelForDraw(D_007945A0, *(u8 **)(l2 + 0x158));
             }
         }
         l2 = *(u8 **)(l2 + 0x138);
@@ -1075,7 +1075,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedAlt;
                 *(u8 **)(tmp + 0x10) = obj;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), tmp);
-                func_00479100((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), *(u8 **)(obj + 0x158));
+                mdlQueueModelForDraw((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), *(u8 **)(obj + 0x158));
                 tmp = func_00460990();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
                 *(u8 **)(tmp + 0x10) = D_007D1F30;
@@ -1100,7 +1100,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
             ent = &arrB[k];
             flags = *(s32 *)(*ent + 0x28);
             if ((flags & 0x10000000) && (flags & 2) && !(flags & 0x80000000)) {
-                func_00479100(D_007945D0, *(u8 **)(*ent + 0x164));
+                mdlQueueModelForDraw(D_007945D0, *(u8 **)(*ent + 0x164));
                 cur = (u8 *)ent;
                 for (j = 0; j < 2; j++) {
                     u8 *attachmentOwner = *(u8 **)cur;
@@ -1123,7 +1123,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedPair;
                 *(u8 **)(tmp + 0x10) = arrB[k];
                 func_00460ac0(D_007945D0, tmp);
-                func_00479100(D_007945D0, *(u8 **)(arrB[k] + 0x164));
+                mdlQueueModelForDraw(D_007945D0, *(u8 **)(arrB[k] + 0x164));
                 for (j = 0; j < 2; j++) {
                     u8 *attachmentOwner = arrB[k];
                     if (*(s32 *)(attachmentOwner + j * 4 + 0x140) != 0) {

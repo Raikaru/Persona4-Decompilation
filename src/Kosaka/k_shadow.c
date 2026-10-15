@@ -76,7 +76,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
     extern struct RwFrame *func_003e9df0(struct RwFrame *frame);
     extern u8 *func_00460990(void);
     extern void func_00460ac0(u8 *pool, u8 *node);
-    extern void func_00479100(void *pool, u8 *model);
+    extern void mdlQueueModelForDraw(void *pool, u8 *model);
     extern RwRGBA iGpffff9f48;
     extern f32 fGpffff82bc;
     extern u8 D_00794330[];
@@ -219,7 +219,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
                 *(void (**)(u8 *, u8 *))(command + 8) = func_0017a8d0;
                 *(u8 **)(command + 0x10) = ctx;
                 func_00460ac0(D_00794330, command);
-                func_00479100(D_00794330, *(u8 **)(ctx + 0x10));
+                mdlQueueModelForDraw(D_00794330, *(u8 **)(ctx + 0x10));
                 command = func_00460990();
                 *(void (**)(u8 *, u8 *))(command + 8) = func_0017aae0;
                 *(u8 **)(command + 0x10) = ctx;
@@ -829,7 +829,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
     extern void func_00460a80(void *, s32);
     extern void func_00460ac0(void *, void *);
     extern void func_004623a0(void *);
-    extern void func_00479100(void *, void *);
+    extern void mdlQueueModelForDraw(void *, void *);
     extern void FldShadow_SaveFrameSlots(u8 *, u8 *);
     extern void FldShadow_RestoreFrameSlots(u8 *);
     extern void FldShadow_DrawBlobPacket(u8 *, s32, void *);
@@ -875,7 +875,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
                         }
                     }
                     *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) | 4;
-                    func_00479100(state + 4, *(u8 **)(list1 + 0x164));
+                    mdlQueueModelForDraw(state + 4, *(u8 **)(list1 + 0x164));
                     *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) & ~4;
                     if (func_0014a160() == 1 || func_001623f0() == 1) {
                         i = 0;
@@ -901,7 +901,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
                 *(u8 **)(work + 0x10) = list1;
                 func_00460ac0(state + 4, work);
                 if (*(s32 *)(*(u8 **)(*(u8 **)(list3 + 0x230) + 0x38)) > 0) {
-                    func_00479100(state + 4, *(u8 **)(list3 + 0x164));
+                    mdlQueueModelForDraw(state + 4, *(u8 **)(list3 + 0x164));
                 }
                 work = func_00460990();
                 *(void **)(work + 0xC) = (void *)FldShadow_DrawBlobModel;

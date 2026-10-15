@@ -1753,7 +1753,7 @@ void func_004ad030(s32 arg0, u8 *arg1)
     extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
     extern s32 func_00481450(void);
     extern void func_0047aa30(void *arg0, s32 arg1);
-    extern void func_00479100(s32 arg0, void *arg1);
+    extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
     extern f32 D_00761134;
     s32 sp5C;
     s32 sp58;
@@ -1818,7 +1818,7 @@ void func_004ad030(s32 arg0, u8 *arg1)
         }
         func_0047a0e0(*(u8 **)(arg1 + 0xB4), 0, *(f32 *)(arg1 + 8));
         func_0047aa30(*(u8 **)(arg1 + 0xB4), func_00481450());
-        func_00479100(arg0, *(u8 **)(arg1 + 0xB4));
+        mdlQueueModelForDraw(arg0, *(u8 **)(arg1 + 0xB4));
         *(s32 *)(arg1 + 8) = 0;
     }
 }

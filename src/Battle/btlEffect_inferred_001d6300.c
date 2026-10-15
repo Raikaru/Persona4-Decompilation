@@ -26,7 +26,7 @@ extern void func_004865c0(u8 *arg0, s32 arg1);
 extern void func_00478e70(s32 arg0);
 extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
-extern void func_00479100(s32 arg0, u8 *arg1);
+extern void mdlQueueModelForDraw(s32 arg0, u8 *arg1);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern char D_005DC824[];
@@ -269,7 +269,7 @@ void func_001d6680(void)
             if (node->unknown18 != NULL) {
                 arg = color;
                 mdlSetColor(node->unknown18, &arg);
-                func_00479100((s32)D_00794150, node->unknown18);
+                mdlQueueModelForDraw((s32)D_00794150, node->unknown18);
             }
             if (node->unknown14 != NULL) {
                 func_004865c0(node->unknown14, (s32)color);

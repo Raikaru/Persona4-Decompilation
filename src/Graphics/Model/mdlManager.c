@@ -4913,7 +4913,7 @@ extern void func_0047ddd0(u8*, const u8*);
 extern void func_0047dd70(u8*, u8*);
 extern void mdlSetColor(Model*, const RwRGBA*);
 
-void func_00479100(void* queue, u8* model)
+void mdlQueueModelForDraw(void* queue, u8* model)
 {
     u8* command;
     u8* renderCommand;
@@ -5064,7 +5064,7 @@ layers:
                     *(u32*)((u8*)*child + 0xd8) &= ~0x20u;
                 else
                     *(u32*)((u8*)*child + 0xd8) |= 0x20;
-                func_00479100(queue, *child);
+                mdlQueueModelForDraw(queue, *child);
             }
         }
     }
