@@ -97,8 +97,8 @@ u16 datPersonaGetRecordId(u16 arg0)
 }
 
 // FUN_001093A0
-// Intent: byte at +4 of roster slot arg0; fatal when the slot is NULL.
-u8 datPersonaRosterSlotByte4(s32 arg0)
+// Intent: u8 at +4 of roster slot arg0, a ranking key; the largest value among same-type party members wins; fatal when NULL.
+u8 datPersonaRosterSlotRank(s32 arg0)
 {
     u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
@@ -293,8 +293,8 @@ u32 func_00109870(u16 arg0, s32 arg1)
 }
 
 // FUN_00109920
-// Intent: byte at +0x1C plus index (0..4) of a persona record.
-u8 datPersonaRecordStatByte(u8 *arg0, s32 arg1)
+// Intent: u8 at +0x1C plus index 0..4 of a persona record (social-stat bytes; [INFERENCE] from the five-index range and five-byte copy in shdPersona).
+u8 datPersonaGetSocialStat(u8 *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
         func_0046d730(D_005E4318, 0x1DE);
@@ -303,9 +303,9 @@ u8 datPersonaRecordStatByte(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109980
-// Intent: byte at +0x1C plus index (0..4) of the record for persona id arg0.
+// Intent: social-stat byte (index 0..4) of the record for persona id arg0; same layout as datPersonaGetSocialStat.
 /* Preserve the public word transport while interpreting the character as a halfword. */
-s32 datPersonaRecordStatByteById(arg0, arg1)
+s32 datPersonaGetSocialStatById(arg0, arg1)
 u16 arg0;
 s32 arg1;
 {
@@ -585,8 +585,8 @@ u16 *datPersonaGetRecord(u16 arg0)
 }
 
 // FUN_0010A9B0
-// Intent: true when the lead (id 1) record has flag bit 4 set; any other id returns 0.
-s32 datPersonaLeadHasFlag4(s32 arg0)
+// Intent: true when the lead (id 1) record has flag bit 4 set; datCalc scales damage and code1_0021 scales level when it is.
+s32 datPersonaLeadBoosted(s32 arg0)
 {
     u16 *p;
     s32 v = arg0 & 0xFFFF;
@@ -733,7 +733,7 @@ s32 datPersonaRemoveRosterSlot(s32 arg0)
     if ((*(u16 *)((u8 *)D_00797F8C + id * 0x30) & 1) == 0) {
         return 0;
     }
-    selected = datPersonaLeadSlotWord();
+    selected = datPersonaLeadPersonaId();
     for (i = (s16)arg0; (s32)i < 0xB; i++) {
         memcpy((u8 *)D_007973A0 + (s32)i * 0x30 + 0xBEC,
                       (u8 *)D_007973A0 + ((s32)i + 1) * 0x30 + 0xBEC,
@@ -872,8 +872,8 @@ s32 datPersonaSetLeadSlot(s32 arg0)
 }
 
 // FUN_0010B460
-// Intent: u16 word at +2 of the lead slot's flag record.
-u16 datPersonaLeadSlotWord(void)
+// Intent: persona id held in the lead slot's record (+2); callers treat it as the current lead persona.
+u16 datPersonaLeadPersonaId(void)
 {
     s32 v = D_00797F88[0];
     s32 off;

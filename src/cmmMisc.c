@@ -31,7 +31,7 @@ extern s32 func_00107240(s64 idx);
 extern s32 func_00107ac0(s32 idx);
 extern s32 func_00107a00(s32 idx, s32 arg1);
 extern u16 func_00108ee0(void);
-extern s32 datPersonaRosterSlotByte4(s32 idx);
+extern s32 datPersonaRosterSlotRank(s32 idx);
 extern s64 func_00248760(s32 idx);
 extern s32 func_001077f0(u16 idx);
 extern u8 func_00109280(u16 idx);
@@ -549,7 +549,7 @@ s16 func_00247820(s32 arg0) {
     for (i = 0; i < (datPersonaCountValidMembers() & 0xFFFF); i++) {
         v = datPersonaRosterSlotId(i & 0xFFFF) & 0xFFFF;
         if (target == (func_00109280(v) & 0xFF)) {
-            w = datPersonaRosterSlotByte4(i & 0xFFFF) & 0xFF;
+            w = datPersonaRosterSlotRank(i & 0xFFFF) & 0xFF;
             if (largest < w) {
                 largest = w;
                 result = v;

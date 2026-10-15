@@ -47,7 +47,7 @@ extern s32 func_00382ba0(u8 *arg0);
 extern u16 *datPersonaRosterSlot(s16 a);
 extern void func_0010cad0(u8 *dst, u16 id);
 extern s32 datPersonaRosterCapacity(void);
-extern u16 datPersonaLeadSlotWord(void);
+extern u16 datPersonaLeadPersonaId(void);
 extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern u8 *func_00109220(u16 id);
 extern void func_002bbd20(s32 a, void *text);
@@ -147,7 +147,7 @@ s32 func_00380ea0(u8 *arg0)
         func_0010cad0(state + 0x1C, *(u16 *)(arg0 + 0x10));
         *(u8 **)(state + 0x4C) = state + 0x1C;
         cnt = (u16)datPersonaRosterCapacity();
-        cur = (u16)datPersonaLeadSlotWord();
+        cur = (u16)datPersonaLeadPersonaId();
         i = 0;
         j = 1;
         for (; i < cnt; i++) {

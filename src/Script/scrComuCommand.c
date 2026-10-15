@@ -4,7 +4,7 @@
 u16 func_00108ee0();
 void scrSetReturnInt();
 
-u16 datPersonaLeadSlotWord();
+u16 datPersonaLeadPersonaId();
 
 
 
@@ -25,7 +25,7 @@ u32 func_0025CFD0(void)
 {
     u16 uVar1;
 
-    uVar1 = datPersonaLeadSlotWord();
+    uVar1 = datPersonaLeadPersonaId();
     scrSetReturnInt(uVar1);
     return 1;
 }
