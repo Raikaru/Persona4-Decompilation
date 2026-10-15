@@ -166,7 +166,7 @@ void func_004b14f0(u8 *arg0, u8 *arg1);
 void func_004b13f0(u8 *arg0, u8 *arg1);
 void *mdlGetMatrix(void *arg0);
 void MT_Scene_DestroyRes(u16 arg0);
-void func_0047a870(s32 arg0);
+void mdlClearAlphaBlend(s32 arg0);
 void func_004787e0(u8 *arg0);
 void func_00452080(s32 arg0);
 s32 func_00162510(u16 arg0, u16 arg1);
@@ -1727,7 +1727,7 @@ void func_00165670(u8 *arg0, s32 arg1)
         MT_Scene_DestroyRes(*(u16 *)(*(u32 *)(p + 0x54)));
         *(u32 *)(p + 0x54) = 0;
         if (*(u32 *)(p + 0x50) != 0) {
-            func_0047a870(*(u32 *)(p + 0x50));
+            mdlClearAlphaBlend(*(u32 *)(p + 0x50));
             mdlSetColor(*(u32 *)(p + 0x50), D_00763010);
         }
         if (*(u32 *)(p + 0x50) != 0 && arg1 == 1) {

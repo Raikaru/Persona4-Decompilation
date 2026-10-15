@@ -5682,20 +5682,23 @@ void func_0047a810(void* param_1)
     *(u32*)((u8*)param_1 + 0xD8) |= 1;
 }
 
+/* Clears bit 0 of the model flags at +0xD8. Called from the battle look-at reset path (code1_0019 case 1), which then clears the 0x260 state bits. Consumer of bit 0 not yet traced. */
 // FUN_0047A830
-void func_0047a830(void* param_1)
+void mdlClearBattleStateFlag(void* param_1)
 {
     *(u32*)((u8*)param_1 + 0xD8) &= ~1;
 }
 
+/* Sets the alpha-blend flag (0x20) at +0xD8. Scene and field code calls it for translucent models (mt_sceneFunc, k_fldAI). Consumer of the flag not yet traced. */
 // FUN_0047A850
-void func_0047a850(void* param_1)
+void mdlSetAlphaBlend(void* param_1)
 {
     *(u32*)((u8*)param_1 + 0xD8) |= 0x20;
 }
 
+/* Clears the alpha-blend flag (0x20) at +0xD8, the inverse of mdlSetAlphaBlend. Called when a model is fully opaque or a fade completes. */
 // FUN_0047A870
-void func_0047a870(void* param_1)
+void mdlClearAlphaBlend(void* param_1)
 {
     *(u32*)((u8*)param_1 + 0xD8) &= ~0x20;
 }

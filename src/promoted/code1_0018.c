@@ -2078,8 +2078,8 @@ extern s32 func_004782b0(unsigned char *);
 extern void func_00478e70(unsigned char *);
 extern s16 func_00479c30(s32, s32);
 extern s32 func_0047a6d0(void *, s32, void *);
-extern void func_0047a850(unsigned char *);
-extern void func_0047a870(unsigned char *);
+extern void mdlSetAlphaBlend(unsigned char *);
+extern void mdlClearAlphaBlend(unsigned char *);
 extern void mdlSetLookAtTargetPoint(void *, void *);
 extern void func_0047a990(unsigned char *);
 extern void func_0047a9f0(unsigned char *, u16);
@@ -2329,13 +2329,13 @@ s32 func_0018a200(u8 *param_1)
     temp_v13 = func_003e4180(&vec60[0]);
     effectTask = (u8 *)puVar1[4];
     if (effectTask != NULL && func_0014bd90(effectTask) == 1) {
-      func_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
+      mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
       func_00452080((void *)puVar1[4]);
       puVar1[4] = 0;
     }
     if (temp_v13 <= ((float*)puVar1)[0x12] + 55.0f) {
       if (puVar1[4] != 0) {
-        func_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
+        mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
         func_00452080((void *)puVar1[4]);
         puVar1[4] = 0;
       }
@@ -2343,7 +2343,7 @@ s32 func_0018a200(u8 *param_1)
       puVar1[0x13] = 1;
     }
     if ((puVar1[0x13] == 1) && (!(temp_v13 <= *(f32 *)((u32)puVar1 + 0x48) + 55.0f))) {
-      func_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
+      mdlSetAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
       temp_v5 = KMisc_CreateRmdFade((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,10);
       puVar1[4] = temp_v5;
       puVar1[0x13] = 0;
@@ -2535,7 +2535,7 @@ s32 func_0018a200(u8 *param_1)
     break;
   case 2:
     *(unsigned int *)(puVar1[3] + 0x28) = *(unsigned int *)(puVar1[3] + 0x28) | 0x10000000;
-    func_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
+    mdlSetAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
     temp_v5 = KMisc_CreateRmdFade((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,8);
     puVar1[4] = temp_v5;
     *puVar1 = *puVar1 + 1;
@@ -2543,7 +2543,7 @@ s32 func_0018a200(u8 *param_1)
   case 3:
     temp_v4 = func_0014bd90((unsigned char *)puVar1[4]);
     if (temp_v4 != 0) {
-      func_0047a870(*(unsigned char **)(puVar1[3] + 0x164));
+      mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
       func_00452080((void *)puVar1[4]);
       puVar1[4] = 0;
       *(unsigned int *)(puVar1[3] + 0x28) = *(unsigned int *)(puVar1[3] + 0x28) | 0x10000000;

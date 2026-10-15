@@ -340,7 +340,7 @@ void func_00219130(u8 *arg0) {
     void *RwMatrixRotate(void *, const void *, f32, s32);
     void *RwMatrixMultiply(void *, const void *, const void *);
     u8 *mdlGetMatrix(u8 *);
-    void func_0047a850(u8 *);
+    void mdlSetAlphaBlend(u8 *);
     void mdlSetColor(u8 *, const void *);
     void func_00479100(void *, u8 *);
     AnalyzeVec3 position;
@@ -451,7 +451,7 @@ void func_00219130(u8 *arg0) {
             } else {
                 arg0[6] = 0xFF;
             }
-            func_0047a850(*(u8 **)(arg0 + 0xC));
+            mdlSetAlphaBlend(*(u8 **)(arg0 + 0xC));
             color[0] = 0xFF;
             color[1] = 0xFF;
             color[2] = 0xFF;

@@ -90,8 +90,8 @@ s32 func_0017d3c0(u8 *task)
     extern void func_0046d730(const void *, s32);
     extern s16 func_00479c30(s32, s32);
     extern void mdlSetColor(void *, const void *);
-    extern void func_0047a850(void *);
-    extern void func_0047a870(void *);
+    extern void mdlSetAlphaBlend(void *);
+    extern void mdlClearAlphaBlend(void *);
 
     u8 *work;
     u8 *entry;
@@ -211,13 +211,13 @@ discoveryAvailabilityDone:
         cameraDelta.z = focusPosition.z - cameraPosition.z;
         distance = RwV3dLength(&cameraDelta.x);
         if (*(u8 **)(work + 0x6C) != NULL && func_0014bd90(*(u8 **)(work + 0x6C)) == 1) {
-            func_0047a870(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
+            mdlClearAlphaBlend(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
             func_00452080(*(KwlnTask **)(work + 0x6C));
             *(u8 **)(work + 0x6C) = NULL;
         }
         if (distance <= 110.0f + *(f32 *)(work + 0x64)) {
             if (*(u8 **)(work + 0x6C) != NULL) {
-                func_0047a870(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
+                mdlClearAlphaBlend(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
                 func_00452080(*(KwlnTask **)(work + 0x6C));
                 *(u8 **)(work + 0x6C) = NULL;
             }
@@ -225,7 +225,7 @@ discoveryAvailabilityDone:
             *(s32 *)(work + 0x68) = 1;
         }
         if (*(s32 *)(work + 0x68) == 1 && !(distance <= 110.0f + *(f32 *)(work + 0x64))) {
-            func_0047a850(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
+            mdlSetAlphaBlend(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
             *(s32 *)(work + 0x6C) = KMisc_CreateRmdFade((s32)task,
                 *(s32 *)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164), 0, 255, 10);
             *(s32 *)(work + 0x68) = 0;
@@ -1008,8 +1008,8 @@ extern void func_00168de0(u8 *task, const void *axis, f32 angle);
 extern float func_00175db0(void);
 extern int func_00452080(void *);
 extern int func_0045af60(short, short, short, short);
-extern void func_0047a850(unsigned char *);
-extern void func_0047a870(unsigned char *);
+extern void mdlSetAlphaBlend(unsigned char *);
+extern void mdlClearAlphaBlend(unsigned char *);
 extern void func_004b13f0(void *, int *);
 extern void func_004b14f0(void *, int *);
 
@@ -1894,7 +1894,7 @@ else {
               temp_v0 = *(int *)(piVar1[3] + 0x50);
               *(unsigned int *)(temp_v0 + 0xd8) = *(unsigned int *)(temp_v0 + 0xd8) & 0xffffff7f;
             }
-            func_0047a850(*(unsigned char **)(piVar1[3] + 0x50));
+            mdlSetAlphaBlend(*(unsigned char **)(piVar1[3] + 0x50));
             temp_v0 = piVar1[3];
             if (*(unsigned char *)(temp_v0 + 0x1ca) == '\0') {
               temp_v0 = KMisc_CreateRmdFade((int)param_1,*(int *)(temp_v0 + 0x50),0xff,0,10);
@@ -1945,7 +1945,7 @@ else {
           temp_v0 = *(int *)(piVar1[3] + 0x50);
           *(unsigned int *)(temp_v0 + 0xd8) = *(unsigned int *)(temp_v0 + 0xd8) | 0x80;
         }
-        func_0047a870(*(unsigned char **)(piVar1[3] + 0x50));
+        mdlClearAlphaBlend(*(unsigned char **)(piVar1[3] + 0x50));
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffff9;
         func_00452080((void *)piVar1[0x22]);
         piVar1[0x22] = 0;

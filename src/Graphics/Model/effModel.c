@@ -184,7 +184,7 @@ void func_004ac2c0(u32 *param_1)
 
 extern void func_004accc0(u8 *arg0);
 extern char D_007144B8[];
-extern void func_0047a850(void *arg0);
+extern void mdlSetAlphaBlend(void *arg0);
 extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern void mdlSetColor(void *arg0, s32 *arg1);
 extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
@@ -221,7 +221,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
     temp_16 = *(u32 *)(arg1 + 0x8C);
     if ((temp_16 >= temp_17) || (temp_16 == 0)) {
         if (temp_16 == 0x4C9) {
-            func_0047a850(*(u8 **)(arg1 + 0x94));
+            mdlSetAlphaBlend(*(u8 **)(arg1 + 0x94));
         }
         temp_3 = func_0048abd0(arg1 + 0x2C, arg1 + 0x50, temp_17, temp_16);
         spB8 = *(s32 *)(arg1 + 0x28);
