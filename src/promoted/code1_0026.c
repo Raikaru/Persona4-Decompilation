@@ -127,7 +127,7 @@ extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg5, s32 arg6, s32 arg7,
                            s32 arg_sp0);
 extern u32 frFontGetMode(void);
-extern void func_00273cc0(u8 *text, u8 *context);
+extern void frFontLayoutText(u8 *text, u8 *context);
 extern u32 func_001067f0(s16 id);
 extern s64 func_0010d660(s32 arg0);
 extern s64 func_0010d6d0(s32 arg0);
@@ -137,8 +137,8 @@ extern char D_0063BA80[];
 extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0045aeb0(s16 arg0, const char *arg1);
 extern s32 D_008815B0[];
-extern void func_00273f70(u8 *arg0);
-extern void func_002739e0(s32 arg0, u8 *arg1);
+extern void frFontUpdateTextWork(u8 *arg0);
+extern void frFontLayoutSlotText(s32 arg0, u8 *arg1);
 extern u8 iGpffffa734;
 extern f32 RwV3dLength(f32 *arg0);
 extern u8 *func_003e9700(s32 arg0);
@@ -3358,8 +3358,8 @@ s32 func_0026f1e0(s32 arg0, u32 arg1, s32 arg2)
         return 0;
     }
     if (D_008815B0[temp_16 & 0xFFFF] != 0) {
-        func_00273f70(self);
-        func_002739e0(temp_16 & 0xFF, self);
+        frFontUpdateTextWork(self);
+        frFontLayoutSlotText(temp_16 & 0xFF, self);
     }
     return 0;
 }
@@ -3441,10 +3441,10 @@ s32 func_0026f2c0(s32 arg0, u8 *arg1)
             glyph[0] = -0x7D;
             glyph[1] = character_code + 0xC7;
             glyph[2] = 0;
-            func_00273f70(arg1);
-            func_00273cc0((u8 *)glyph, arg1);
-            func_00273f70(arg1);
-            func_002739e0((u8)third, arg1);
+            frFontUpdateTextWork(arg1);
+            frFontLayoutText((u8 *)glyph, arg1);
+            frFontUpdateTextWork(arg1);
+            frFontLayoutSlotText((u8)third, arg1);
             arg1[0xD] = previous_character;
         } else {
             third = *(s32 *)*slot;
@@ -3470,10 +3470,10 @@ s32 func_0026f2c0(s32 arg0, u8 *arg1)
             glyph[0] = -0x7D;
             glyph[1] = func_0026e360(third) + 0xC7;
             glyph[2] = 0;
-            func_00273f70(arg1);
-            func_00273cc0((u8 *)glyph, arg1);
-            func_00273f70(arg1);
-            func_00273cc0((u8 *)func_001067f0((s16)third), arg1);
+            frFontUpdateTextWork(arg1);
+            frFontLayoutText((u8 *)glyph, arg1);
+            frFontUpdateTextWork(arg1);
+            frFontLayoutText((u8 *)func_001067f0((s16)third), arg1);
             arg1[0xD] = previous_character;
         }
     }
@@ -3749,8 +3749,8 @@ s32 func_0026fba0(s32 arg0, u8 *arg1)
         return 0;
     }
     sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d660(1));
-    func_00273f70(arg1);
-    func_00273cc0((u8 *)sp20, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText((u8 *)sp20, arg1);
     return 0;
 }
 // FUN_0026FC20
@@ -3762,8 +3762,8 @@ s32 func_0026fc20(s32 arg0, u8 *arg1)
         return 0;
     }
     sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d6d0(1));
-    func_00273f70(arg1);
-    func_00273cc0((u8 *)sp20, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText((u8 *)sp20, arg1);
     return 0;
 }
 // FUN_0026FCA0
@@ -3775,16 +3775,16 @@ s32 func_0026fca0(s32 arg0, u8 *arg1)
         return 0;
     }
     sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d6d0(1));
-    func_00273f70(arg1);
-    func_00273cc0((u8 *)sp20, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText((u8 *)sp20, arg1);
     sp20[0] = -0x7D;
     sp20[1] = -0xA;
     sp20[2] = 0;
-    func_00273f70(arg1);
-    func_00273cc0((u8 *)sp20, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText((u8 *)sp20, arg1);
     sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d660(1));
-    func_00273f70(arg1);
-    func_00273cc0((u8 *)sp20, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText((u8 *)sp20, arg1);
     return 0;
 }
 // FUN_0026FD90
@@ -3878,11 +3878,11 @@ s32 func_0026fd90(s32 arg0, u8 *arg1)
         glyph[0] = -0x7D;
         glyph[1] = func_0026e360(second) + 0xC7;
         glyph[2] = 0;
-        func_00273f70(arg1);
-        func_00273cc0((u8 *)glyph, arg1);
+        frFontUpdateTextWork(arg1);
+        frFontLayoutText((u8 *)glyph, arg1);
     }
-    func_00273f70(arg1);
-    func_00273cc0((u8 *)func_001067f0((s16)third), arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText((u8 *)func_001067f0((s16)third), arg1);
     arg1[0xD] = previous_character;
     return 0;
 }

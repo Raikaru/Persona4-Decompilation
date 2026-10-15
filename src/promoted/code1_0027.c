@@ -13,8 +13,8 @@ extern void func_0027a400();
 
 extern s32 frFontGetMode(void);
 extern void func_002e0f20(void);
-extern void func_00273f70(u8 *arg0);
-extern void func_00273cc0(u8 *arg0, u8 *arg1);
+extern void frFontUpdateTextWork(u8 *arg0);
+extern void frFontLayoutText(u8 *arg0, u8 *arg1);
 
 extern s32 D_008815B0[];
 
@@ -371,8 +371,8 @@ s32 func_002706f0(u8 *arg0, u8 *arg1)
     if (frFontGetMode() != 0) {
         return 0;
     }
-    func_00273f70(arg1);
-    func_00273cc0(NULL, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText(NULL, arg1);
     return 0;
 }
 
@@ -413,9 +413,9 @@ s32 func_00270780(s32 arg0, u8 *arg1) {
     if (frFontGetMode() != 0) {
         return 0;
     }
-    func_00273f70(arg1);
+    frFontUpdateTextWork(arg1);
     frFontExCopyString(func_00246c20(temp_17 & 0xFFFF), sp30, 0x20);
-    func_00273cc0(sp30, arg1);
+    frFontLayoutText(sp30, arg1);
     return 0;
 }
 /* measured: close opt_propagation off probe for 00270780 family add */
@@ -431,8 +431,8 @@ s32 func_00270870(s32 arg0, u8 *arg1)
         return 0;
     func_001104d0((s16)func_001060b0(), &sp2C, &sp28);
     sprintf(sp20, &iGpffffa738, sp2C);
-    func_00273f70(arg1);
-    func_00273cc0(sp20, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText(sp20, arg1);
     return 0;
 }
 // FUN_00270910
@@ -446,8 +446,8 @@ s32 func_00270910(s32 arg0, u8 *arg1)
         return 0;
     func_001104d0((s16)func_001060b0(), &sp2C, &sp28);
     sprintf(sp20, &iGpffffa738, sp28);
-    func_00273f70(arg1);
-    func_00273cc0(sp20, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText(sp20, arg1);
     return 0;
 }
 // FUN_002709B0
@@ -481,8 +481,8 @@ s32 func_002709b0(s32 arg0, u8 *arg1)
         return 0;
     frFontExCopyString(work.sp40 + func_001105b0((s16)func_001060b0()) * 8,
                   work.sp20, 0x20);
-    func_00273f70(arg1);
-    func_00273cc0(work.sp20, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText(work.sp20, arg1);
     return 0;
 }
 /* measured: opt_propagation off probe for 00270a80 addu order */
@@ -519,8 +519,8 @@ s32 func_00270a80(s32 arg0, u8 *arg1) {
         var_2_2 = func_00246830((u16)temp_17);
     }
     frFontExCopyString(var_2_2, sp30, 0x40);
-    func_00273f70(arg1);
-    func_00273cc0(sp30, arg1);
+    frFontUpdateTextWork(arg1);
+    frFontLayoutText(sp30, arg1);
     return 0;
 }
 /* measured: close opt_propagation off probe for 00270a80 */
