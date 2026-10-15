@@ -59,7 +59,7 @@ extern u16 D_008C024E[];
 extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
-extern f32 func_001ec630(f32 value, f32 *state);
+extern f32 btlTargetSmoothStep(f32 value, f32 *state);
 extern u32 btlCameraSampleKeyframes(u8 *arg0, f32 *arg1, f32 *arg2);
 extern u32 btlCameraAdvanceKeyframes(u8 *arg0, f32 arg1);
 extern f32 fGpffff8430;
@@ -131,7 +131,7 @@ void func_001bbf90(u8 *arg0)
     temp_3 = *(u16 *)arg0;
     if ((temp_3 & 2) != 0) {
         var_f12 =
-            func_001ec630(1.0f, (f32 *)(arg0 + 0x84)) -
+            btlTargetSmoothStep(1.0f, (f32 *)(arg0 + 0x84)) -
             *(f32 *)(arg0 + 0x80);
     } else if ((temp_3 & 4) != 0) {
         temp_f2 = *(f32 *)(arg0 + 0x94);
@@ -151,7 +151,7 @@ void func_001bbf90(u8 *arg0)
         if (*(f32 *)(arg0 + 0x88) >
             (0.5f * *(f32 *)(arg0 + 0x84))) {
             var_f12 =
-                func_001ba790_mul(func_001ec630(1.0f, (f32 *)(arg0 + 0x84)), 2.0f) -
+                func_001ba790_mul(btlTargetSmoothStep(1.0f, (f32 *)(arg0 + 0x84)), 2.0f) -
                 *(f32 *)(arg0 + 0x80);
         } else {
             var_f12 = 0.0f;

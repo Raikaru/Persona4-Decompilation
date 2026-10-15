@@ -237,7 +237,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     extern void btlUnitGetSphereWorldCenter(u8 *a0, f32 *a1);
     extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 func_001ec3d0(f32 *a0, f32 *a1, f32 *a2, f32 *a3);
+    extern f32 btlTargetAngleBetween(f32 *a0, f32 *a1, f32 *a2, f32 *a3);
     extern s32 func_001d8df0(u8 *a0);
     extern u8 *func_001d8bc0(u8 *a0);
     extern u16 D_008C027A[];
@@ -408,7 +408,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             btlUnitGetSphereWorldCenter(ud, POS);
             CURXZ[0] = POS[0];
             CURXZ[1] = POS[2];
-            dist = func_001ec3d0(BASEXZ, CENTERXZ, CURXZ, OUTXZ);
+            dist = btlTargetAngleBetween(BASEXZ, CENTERXZ, CURXZ, OUTXZ);
             DELTA[0] = CURXZ[0] - OUTXZ[0];
             DELTA[1] = CURXZ[1] - OUTXZ[1];
             func_003e41e0(DELTA, DELTA);

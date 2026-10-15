@@ -108,7 +108,7 @@ void btlMainCurveSetPoses(u16* work, f32* first, f32* second, u16 mode);
 void btlCameraCopyPose(f32 *out, f32 *in);
 void btlCameraFrameSlerpTarget(u8 *camera, f32 *out);
 void btlCameraStartEffect(u8* camera, void* data, s32 mode);
-extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
+extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
 extern void func_003dcc70(f32* first, f32* second, void* result);
 extern f32 func_003e41e0(f32* out, f32* in);
 extern f32 fGpffff8104;
@@ -126,7 +126,7 @@ extern f32 fGpffff8094;
 extern f32 D_0076122C;
 extern f32 D_00761278;
 extern RwV3d D_0060A100;
-extern void func_001ec1c0(void* out, void* first, void* second);
+extern void btlTargetBlendVectors(void* out, void* first, void* second);
 typedef struct BtlCameraSlerpResult
 {
     f32 current0;
@@ -610,7 +610,7 @@ void btlCameraFrameActionDegrees(u8 *camera, f32 nearDegrees, f32 farDegrees)
     candidate.y += pointNear.y;
     candidate.z += pointNear.z;
     btlCameraLookAtQuat(&frames[1].rot, &candidate, &pointNear, &D_0060A0E0);
-    angle = func_001ec2b0(&frames[0].rot, &frames[1].rot);
+    angle = btlTargetQuatAngle(&frames[0].rot, &frames[1].rot);
     nearAngle = fGpffff816c * nearDegrees;
     if (!(angle <= nearAngle)) {
         if (!(angle <= fGpffff816c * farDegrees)) {
@@ -629,7 +629,7 @@ void btlCameraFrameActionDegrees(u8 *camera, f32 nearDegrees, f32 farDegrees)
             candidate.y = frames[0].pos.y;
         }
         btlCameraLookAtQuat(&blended, &candidate, &pointNear, &D_0060A0E0);
-        if (func_001ec2b0(&frames[0].rot, &blended) <= nearAngle) {
+        if (btlTargetQuatAngle(&frames[0].rot, &blended) <= nearAngle) {
             frames[1].rot = blended;
         } else {
             ratio = nearAngle / angle;
@@ -693,7 +693,7 @@ void btlCameraFrameActionDegrees(u8 *camera, f32 nearDegrees, f32 farDegrees)
     frames[1].pos.z = pointNear.z + delta.z;
     if (frames[0].pos.y < 100.0f) frames[0].pos.y = 100.0f;
     if (frames[1].pos.y < 100.0f) frames[1].pos.y = 100.0f;
-    angle = func_001ec2b0(&frames[0].rot, &frames[1].rot);
+    angle = btlTargetQuatAngle(&frames[0].rot, &frames[1].rot);
     duration = 1.75f;
     if (!(angle <= 0.0f)) {
         ratio = nearAngle / angle;
@@ -724,7 +724,7 @@ void btlCameraFrameActionTarget(u8* camera)
     extern void btlCameraCopyPose(f32*, f32*);
     extern RwV3d D_0060A100;
     extern void func_00194ff0(u8*, u8*, f32*, f32*);
-    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern void func_003dcc70(f32*, f32*, void*);
     extern f32 tanf(f32);
     extern f32 func_003e41e0(f32*, f32*);
@@ -759,7 +759,7 @@ void btlCameraFrameActionTarget(u8* camera)
     eyeAdj = frames[0].pos;
     eyeAdj.y = height;
     btlCameraLookAtQuat(&frames[1].rot, &eyeAdj, &center, &D_0060A0E0);
-    angle = func_001ec2b0(&frames[0].rot, &frames[1].rot);
+    angle = btlTargetQuatAngle(&frames[0].rot, &frames[1].rot);
     if (angle > fGpffff815c)
     {
         ratio = fGpffff815c / angle;
@@ -1171,7 +1171,7 @@ u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
     }
     scaledRadius = unit->sphereRadius * unit->scale;
     scaledRadius = scaledRadius * 2.5f;
-    func_001ec1c0(&position, &unitPosition, &target);
+    btlTargetBlendVectors(&position, &unitPosition, &target);
     unitPosition.y = 0.0f + unitPosition.y + D_0076122C * (unit->unk_8c * unit->scale);
     RtQuatTransformVectors(&direction, &D_0060A0D0, 1, &position);
     direction.x = direction.x * scaledRadius;
@@ -1193,7 +1193,7 @@ u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
     candidate.z = candidate.z + target.z;
     direction = unitPosition;
     btlCameraLookAtQuat(&frames[1].rot, &direction, &candidate, &D_0060A0E0);
-    if (!(func_001ec2b0(&frames[0].rot, &frames[1].rot) <= fGpffff8094)) {
+    if (!(btlTargetQuatAngle(&frames[0].rot, &frames[1].rot) <= fGpffff8094)) {
         resultCode = 1;
     }
     {
@@ -1414,7 +1414,7 @@ void btlCameraSelectPreset(int param_1)
 
 
 extern f32 fGpffff8118;
-extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
+extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
 extern f32 RwV3dLength(f32 *vector);
 extern RwV3d D_0060A0D0;
 
@@ -1530,7 +1530,7 @@ void btlCameraFrameFreshPose(u8 *camera)
     actor2XZ[0] = pos2.x;
     actor2XZ[1] = pos2.z;
 
-    dist = func_001ec3d0((u8 *)xz.targetXZ, (u8 *)xz.eyeXZ, (u8 *)actor2XZ, NULL);
+    dist = btlTargetAngleBetween((u8 *)xz.targetXZ, (u8 *)xz.eyeXZ, (u8 *)actor2XZ, NULL);
 
     if ((flag & 0xFFFF) == 0) {
         scale2 = scale2 > 100.0f ? scale2 : 100.0f;
@@ -1615,7 +1615,7 @@ void btlCameraFrameSlerpTarget(u8 *camera, f32 *out)
     work.position[1] = work.distance;
     work.position[2] = -value;
     btlCameraLookAtQuat(out + 3, work.position, work.target, &D_0060A0E0);
-    blend = func_001ec2b0((P4Vec4Holder_001EC2B0*)(camera + 0xA8), (P4Vec4Holder_001EC2B0*)(out + 3));
+    blend = btlTargetQuatAngle((P4Vec4Holder_001EC2B0*)(camera + 0xA8), (P4Vec4Holder_001EC2B0*)(out + 3));
     if (blend > fGpffff80d8[1]) {
         blend = fGpffff80d8[1] / blend;
         func_003dcc70((f32 *)(camera + 0xA8), out + 3, &work.result);
@@ -2133,7 +2133,7 @@ void btlAct_CONDITION(u8 *camera)
     btlCameraLookAtQuat(work.targetRotation, &work.currentPosition,
                   work.unitPosition, &D_0060A0E0);
     work.targetPosition = work.currentPosition;
-    blend = func_001ec2b0((P4Vec4Holder_001EC2B0*)(&work.currentRotation), (P4Vec4Holder_001EC2B0*)(work.targetRotation));
+    blend = btlTargetQuatAngle((P4Vec4Holder_001EC2B0*)(&work.currentRotation), (P4Vec4Holder_001EC2B0*)(work.targetRotation));
     if (blend > fGpffff8184)
     {
         blend = fGpffff8184 / blend;
@@ -2214,7 +2214,7 @@ void btlAct_CONDITION(u8 *camera)
 void btlCameraFrameActionFocus(u8* camera)
 {
     extern void btlCameraCopyPose(f32*, f32*);
-    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern void func_003dcc70(f32*, f32*, void*);
     extern f32 tanf(f32);
     extern f32 func_003e41e0(f32*, f32*);
@@ -2274,7 +2274,7 @@ void btlCameraFrameActionFocus(u8* camera)
 
     btlCameraLookAtQuat(&frames[1].rot, &candidate,
                  &pointNear, &D_0060A0E0);
-    angle = func_001ec2b0(&frames[0].rot, &frames[1].rot);
+    angle = btlTargetQuatAngle(&frames[0].rot, &frames[1].rot);
     if (angle > fGpffff80dc)
     {
         ratio = fGpffff80dc / angle;
@@ -2477,7 +2477,7 @@ s32 btlCameraFrameActionStart(u8 *arg0, u8 *arg1)
 {
     extern u8 *func_001b0c80(s32 arg0);
     extern void func_00195aa0(BtlUnit *unit, BtlUnit *target, RwV3d *out);
-    extern void func_001ec1c0(u8 *out, u8 *first, u8 *second);
+    extern void btlTargetBlendVectors(u8 *out, u8 *first, u8 *second);
     extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
     extern void func_001959d0(BtlUnit *unit, RwV3d *out);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
@@ -2559,13 +2559,13 @@ next_entry:
     unit0 = *(u8 **)(*(u8 **)(arg1 + 0) + 0x30);
     if (unit0 != unit1) {
         if ((*(u16 *)(arg1 + 0xE) & 0x20) == 0) {
-            func_001ec1c0((u8 *)&rotationA, (u8 *)(unit0 + 4), (u8 *)(unit1 + 4));
-            func_001ec1c0((u8 *)&rotationB, (u8 *)(*(u8 **)(*(u8 **)(arg1 + 4) + 0x30) + 4), (u8 *)(*(u8 **)(*(u8 **)(arg1 + 0) + 0x30) + 4));
+            btlTargetBlendVectors((u8 *)&rotationA, (u8 *)(unit0 + 4), (u8 *)(unit1 + 4));
+            btlTargetBlendVectors((u8 *)&rotationB, (u8 *)(*(u8 **)(*(u8 **)(arg1 + 4) + 0x30) + 4), (u8 *)(*(u8 **)(*(u8 **)(arg1 + 0) + 0x30) + 4));
         } else {
             func_00195aa0((BtlUnit *)unit0, (BtlUnit *)unit1, &centerA);
             func_00195aa0(*(BtlUnit **)(*(u8 **)(arg1 + 4) + 0x30), *(BtlUnit **)(*(u8 **)(arg1 + 0) + 0x30), &centerB);
-            func_001ec1c0((u8 *)&rotationA, (u8 *)&centerA, (u8 *)&centerB);
-            func_001ec1c0((u8 *)&rotationB, (u8 *)&centerB, (u8 *)&centerA);
+            btlTargetBlendVectors((u8 *)&rotationA, (u8 *)&centerA, (u8 *)&centerB);
+            btlTargetBlendVectors((u8 *)&rotationB, (u8 *)&centerB, (u8 *)&centerA);
         }
     } else {
         rotationA = *(RtQuat *)(unit0 + 0x1C);

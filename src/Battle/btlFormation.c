@@ -25,15 +25,15 @@ typedef struct BtlPacket {
 
 extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 extern u32 func_001d1cc0(int* param_1);
-extern u32 func_001d1f30(u32 *work);
+extern u32 btlFormationPlaceUnits(u32 *work);
 extern void func_001d2e00(u32 *work);
-extern u32 func_001d2e20(u8 *param_1);
+extern u32 btlFormationPlaceFromRaw(u8 *param_1);
 extern void func_001d2fe0(u32 *work);
-extern u32 func_001d3090(u32 *work);
-extern u32 func_001d35a0(u16 *param_1);
-extern u32 func_001d3760(u16 *param_1);
-extern u32 func_001d3950(u8 **param_1);
-extern u32 func_001d3ba0(void);
+extern u32 btlFormationUpdatePose(u32 *work);
+extern u32 btlFormationUpdateMovement(u16 *param_1);
+extern u32 btlFormationUpdateDeadPosition(u16 *param_1);
+extern u32 btlFormationAdvanceSlot(u8 **param_1);
+extern u32 btlFormationApplyDefaultPose(void);
 extern u32 func_001d6ce0(u32 param_1);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern u8 D_00609498[];
@@ -59,14 +59,14 @@ typedef struct BtlFormationState
     u32 value;
 } BtlFormationState;
 
-extern void func_001d3ff0(int state);
+extern void btlFormationSetState(int state);
 extern void (*DAT_008873EC[])(void *);
 
 extern u64 memcpy();
 
 extern u64 func_00485b20(u32 param_1);
 
-extern void func_001d3ea0(int destination, u32 source);
+extern void btlFormationCopyRecord(int destination, u32 source);
 
 typedef struct BtlFormationWork
 {
@@ -101,20 +101,20 @@ typedef u8 bool;
 #define true 1
 #define false 0
 
-u32 func_001d4120(void *formation);
-u32 func_001d4190(void *formation, u32 index);
+u32 btlFormationGetCount(void *formation);
+u32 btlFormationGetEntry(void *formation, u32 index);
 
 extern u32 func_001d6de0(int param_1, u16 *param_2);
-extern void func_001d3e00(u32 param_1);
-extern void func_001d5f60(u32 *param_1);
-extern u32 func_001d6010(u32 *param_1);
+extern void btlFormationSetPlacement(u32 param_1);
+extern void btlFormationRefresh(u32 *param_1);
+extern u32 btlFormationIsReady(u32 *param_1);
 
-extern bool func_001d6170(u32 *param_1);
-extern void func_001d61e0(u32 *param_1);
+extern bool btlFormationHasEntry(u32 *param_1);
+extern void btlFormationRelease(u32 *param_1);
 
 extern u8* DAT_0076449c;
 extern char D_00609570[];
-extern u8 *func_001d41b0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 *btlFormationAllocEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern char D_00609588[];
 extern u8 D_00763388;
 
@@ -126,7 +126,7 @@ u32 func_002027b0(void);
 
 
 // FUN_001D1EB0
-BtlPacket *func_001d1eb0(u32 param_1, u32 param_2, float param_3, u16 param_4)
+BtlPacket *btlFormationCreateMovePacket(u32 param_1, u32 param_2, float param_3, u16 param_4)
 {
     u32 *work;
     u32 packet;
@@ -161,7 +161,7 @@ static inline f32 formationRadius(const u8 *unit)
 #pragma opt_propagation off
 #pragma opt_lifetimes on
 // FUN_001D1F30
-u32 func_001d1f30(u32 *work)
+u32 btlFormationPlaceUnits(u32 *work)
 {
     extern void btlUnitSetPos(struct BtlUnit *, const struct RwV3d *);
     extern void btlUnitSetRot(struct BtlUnit *, const struct RtQuat *);
@@ -174,9 +174,9 @@ u32 func_001d1f30(u32 *work)
     extern s32 func_001f1210(u8 *unit, s16 action, s32 paired);
     extern void func_001951f0(u8 *unit, u8 *target, u8 *partner, s32 category,
                             f32 *position, f32 *rotation, s32 options);
-    extern u16 func_001eb440(struct BtlTarget *);
-    extern void func_001ec1c0(u8 *, u8 *, u8 *);
-    extern f32 func_001ec3d0(u8 *, u8 *, u8 *, u8 *);
+    extern u16 btlTargetGetUnitIndex(struct BtlTarget *);
+    extern void btlTargetBlendVectors(u8 *, u8 *, u8 *);
+    extern f32 btlTargetAngleBetween(u8 *, u8 *, u8 *, u8 *);
     extern struct RwV3d *RtQuatTransformVectors(struct RwV3d *, const struct RwV3d *, s32, const struct RtQuat *);
     extern f32 RwV3dLength(f32 *vector);
     extern f32 RwV2dLength(f32 *vector);
@@ -275,7 +275,7 @@ u32 func_001d1f30(u32 *work)
             if (work[2] == 1 && other != unitB && func_0022fce0((s32)(unitB), (s32)(other)) != 0) {
                 if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
                     btlUnitGetSphereWorldCenter((struct BtlUnit *)(other), (struct RwV3d *)((f32 *)&tmpF0));
-                    func_001ec1c0((u8 *)(quat), (u8 *)((f32 *)&tmpF0), (u8 *)(centerA));
+                    btlTargetBlendVectors((u8 *)(quat), (u8 *)((f32 *)&tmpF0), (u8 *)(centerA));
                     centerX = *(f32 *)(other + 0x80);
                     scale = *(f32 *)(other + 0x2C);
                     dest[0] = centerX * scale;
@@ -288,11 +288,11 @@ u32 func_001d1f30(u32 *work)
                     tmpF0.v[1] = *(f32 *)(other + 8);
                     dest[1] = tmpF0.v[1];
                     btlUnitSetPos((struct BtlUnit *)(other), (const struct RwV3d *)(dest));
-                    func_001ec1c0((u8 *)(quat), (u8 *)(dest), (u8 *)(unitB + 4));
+                    btlTargetBlendVectors((u8 *)(quat), (u8 *)(dest), (u8 *)(unitB + 4));
                     btlUnitSetRot((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
                     centerB = tmpF0;
                 } else {
-                    func_001ec1c0((u8 *)(quat), (u8 *)((f32 *)&centerB), (u8 *)(centerA));
+                    btlTargetBlendVectors((u8 *)(quat), (u8 *)((f32 *)&centerB), (u8 *)(centerA));
                     btlUnitSetRot((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
                 }
                 func_00196ba0(other);
@@ -409,7 +409,7 @@ u32 func_001d1f30(u32 *work)
                     for (i = 0; i < *(u16 *)(base + 0x6A); i++) {
                         actionTarget = *(u8 **)(base + (u32)i * 4 + 0x38);
                         if ((*(u16 *)(actionTarget + 0x1A) & 1) != 0 && actionTarget != base) {
-                            func_001ec1c0((u8 *)(quat), (u8 *)(*(u8 **)(actionTarget + 0x30) + 4), (u8 *)(unitB + 4));
+                            btlTargetBlendVectors((u8 *)(quat), (u8 *)(*(u8 **)(actionTarget + 0x30) + 4), (u8 *)(unitB + 4));
                             btlUnitSetRot((struct BtlUnit *)(*(u8 **)(actionTarget + 0x30)), (const struct RtQuat *)(quat));
                             func_00196ba0(*(u8 **)(actionTarget + 0x30));
                             btlUnitRequestLookAt(*(u8 **)(actionTarget + 0x30));
@@ -434,7 +434,7 @@ u32 func_001d1f30(u32 *work)
                         func_00195aa0((struct BtlUnit *)(nearestNode), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&tmpF0));
                         delta[0] = tmpF0.v[0];
                         delta[1] = tmpF0.v[2];
-                        func_001ec3d0((u8 *)(query), (u8 *)(line), (u8 *)(delta), (u8 *)(projection));
+                        btlTargetAngleBetween((u8 *)(query), (u8 *)(line), (u8 *)(delta), (u8 *)(projection));
                         delta[0] = query[0] - projection[0];
                         delta[1] = query[1] - projection[1];
                         dist2 = RwV2dLength(delta);
@@ -498,7 +498,7 @@ u32 func_001d1f30(u32 *work)
         if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
             break;
         }
-        targetCount = func_001eb440((struct BtlTarget *)(base + 0x38)) & 0xFFFF;
+        targetCount = btlTargetGetUnitIndex((struct BtlTarget *)(base + 0x38)) & 0xFFFF;
         if (targetCount != 1) {
             break;
         }
@@ -525,7 +525,7 @@ u32 func_001d1f30(u32 *work)
                     }
                 }
             }
-            func_001ec1c0((u8 *)(quat), (u8 *)(centerA), (u8 *)((f32 *)&best));
+            btlTargetBlendVectors((u8 *)(quat), (u8 *)(centerA), (u8 *)((f32 *)&best));
             btlUnitSetRot((struct BtlUnit *)(groupUnit), (const struct RtQuat *)(quat));
             func_00196ba0(groupUnit);
             btlUnitRequestLookAt(groupUnit);
@@ -563,13 +563,13 @@ u32 func_001d1f30(u32 *work)
 
 #pragma pop
 // FUN_001D2D90
-BtlPacket* func_001d2d90(u32 param_1, u32 param_2, u32 param_3)
+BtlPacket* btlFormationCreateStepPacket(u32 param_1, u32 param_2, u32 param_3)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb01, 0xc);
-    *(code **)(packet + 0x6c) = (code *)func_001d1f30;
+    *(code **)(packet + 0x6c) = (code *)btlFormationPlaceUnits;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
     work[1] = param_2;
@@ -642,7 +642,7 @@ static inline u32 placeFormation(BtlFormationPlacementWork *work, u8 *node, u8 *
 }
 
 // FUN_001D2E20
-u32 func_001d2e20(u8 *raw)
+u32 btlFormationPlaceFromRaw(u8 *raw)
 {
     BtlFormationPlacementWork *work;
     u8 *node;
@@ -661,14 +661,14 @@ void func_001d2fe0(u32 *work)
     *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) - 1;
 }
 // FUN_001D3000
-BtlPacket* func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
+BtlPacket* btlFormationCreateTurnPacket(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb02, 0x10);
     *(code **)(packet + 0x68) = (code *)func_001d2e00;
-    *(code **)(packet + 0x6c) = (code *)func_001d2e20;
+    *(code **)(packet + 0x6c) = (code *)btlFormationPlaceFromRaw;
     *(code **)(packet + 0x70) = (code *)func_001d2fe0;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
@@ -681,7 +681,7 @@ BtlPacket* func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
 
 
 // FUN_001D3090
-u32 func_001d3090(u32 *work)
+u32 btlFormationUpdatePose(u32 *work)
 {
     typedef struct RtQuat {
         f32 x;
@@ -783,13 +783,13 @@ u32 func_001d3090(u32 *work)
     return 1;
 }
 // FUN_001D3530
-BtlPacket* func_001d3530(u32 param_1, u32 param_2, u16 param_3)
+BtlPacket* btlFormationCreateWaitPacket(u32 param_1, u32 param_2, u16 param_3)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb03, 0xc);
-    *(code **)(packet + 0x6c) = (code *)func_001d3090;
+    *(code **)(packet + 0x6c) = (code *)btlFormationUpdatePose;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
     work[1] = param_2;
@@ -797,7 +797,7 @@ BtlPacket* func_001d3530(u32 param_1, u32 param_2, u16 param_3)
     return (BtlPacket*)packet;
 }
 // FUN_001D35A0
-u32 func_001d35a0(u16 *arg0)
+u32 btlFormationUpdateMovement(u16 *arg0)
 {
     u8 sp80[0x10];
     u8 sp70[0x10];
@@ -841,20 +841,20 @@ u32 func_001d35a0(u16 *arg0)
     return 1;
 }
 // FUN_001D3700
-BtlPacket *func_001d3700(u16 param_1, u16 param_2)
+BtlPacket *btlFormationCreateSlotPacket(u16 param_1, u16 param_2)
 {
     u16 *work;
     BtlPacket *packet;
 
     packet = btlPacketAlloc(0xb04, 4);
-    packet->updateFunc = (BtlPacketUpdateFunc)func_001d35a0;
+    packet->updateFunc = (BtlPacketUpdateFunc)btlFormationUpdateMovement;
     work = (u16 *)packet->workData;
     work[0] = param_1;
     work[1] = param_2;
     return packet;
 }
 // FUN_001D3760
-u32 func_001d3760(u16 *arg0)
+u32 btlFormationUpdateDeadPosition(u16 *arg0)
 {
     f32 sp60[4];
     f32 sp50[4];
@@ -901,13 +901,13 @@ u32 func_001d3760(u16 *arg0)
     return 1;
 }
 // FUN_001D3900
-BtlPacket *func_001d3900(u16 param_1)
+BtlPacket *btlFormationCreateReturnPacket(u16 param_1)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb05, 2);
-    *(code **)(packet + 0x6c) = (code *)func_001d3760;
+    *(code **)(packet + 0x6c) = (code *)btlFormationUpdateDeadPosition;
     work = *(u32 **)(packet + 0x78);
     *(u16 *)(work + 0) = param_1;
     return (BtlPacket *)packet;
@@ -916,7 +916,7 @@ BtlPacket *func_001d3900(u16 param_1)
 #pragma push
 #pragma opt_propagation off
 // FUN_001D3950
-u32 func_001d3950(u8 **param_1)
+u32 btlFormationAdvanceSlot(u8 **param_1)
 {
     typedef union FormationPair {
         u64 whole;
@@ -939,7 +939,7 @@ u32 func_001d3950(u8 **param_1)
         f32 y;
         f32 z;
     } FormationPosition;
-    extern void func_001ec6d0(s16 *arg0, s16 *arg1, f32 *position);
+    extern void btlTargetPositionToCell(s16 *arg0, s16 *arg1, f32 *position);
     extern u8 D_00609430[];
     extern f32 D_00609458[];
     extern f32 D_0060A110[];
@@ -965,7 +965,7 @@ u32 func_001d3950(u8 **param_1)
                     *(FormationPosition *)(D_00609430 +
                                            (index & 0xffff) * 0xc);
             }
-            func_001ec6d0(&current->unk_94,
+            btlTargetPositionToCell(&current->unk_94,
                           &current->unk_96,
                           scratch.position.values);
             scratch.position.values[0] =
@@ -996,19 +996,19 @@ u32 func_001d3950(u8 **param_1)
 /* measured: restore pragma state after func_001d3950. */
 #pragma pop
 // FUN_001D3B50
-u8 *func_001d3b50(u8 *action)
+u8 *btlFormationCreateActionPacket(u8 *action)
 {
     u8 **work;
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0xb06, 4);
-    *(code **)(packet + 0x6c) = (code *)func_001d3950;
+    *(code **)(packet + 0x6c) = (code *)btlFormationAdvanceSlot;
     work = *(u8 ***)(packet + 0x78);
     work[0] = action;
     return packet;
 }
 // FUN_001D3BA0
-u32 func_001d3ba0(void)
+u32 btlFormationApplyDefaultPose(void)
 {
     typedef struct FormationVectors {
         f32 offsets[3];
@@ -1056,19 +1056,19 @@ u32 func_001d3ba0(void)
     return 1;
 }
 // FUN_001D3D00
-BtlPacket *func_001d3d00(u32 param_1)
+BtlPacket *btlFormationCreateEventPacket(u32 param_1)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb07, 4);
-    *(code **)(packet + 0x6c) = (code *)func_001d3ba0;
+    *(code **)(packet + 0x6c) = (code *)btlFormationApplyDefaultPose;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
     return (BtlPacket *)packet;
 }
 // FUN_001D3D50
-s32 func_001d3d50(u32 param_1)
+s32 btlFormationAllocWork(u32 param_1)
 {
     BtlFormationState *state;
 
@@ -1090,18 +1090,18 @@ s32 func_001d3d50(u32 param_1)
     return (s32)state;
 }
 // FUN_001D3E00
-void func_001d3e00(u32 param_1)
+void btlFormationSetPlacement(u32 param_1)
 {
     BtlFormationState *state;
 
     state = (BtlFormationState *)param_1;
     state->counter--;
     if (((state->flags & 8) != 0) && (state->counter == 1)) {
-        func_001d3ff0((int)state);
+        btlFormationSetState((int)state);
     }
     if (state->counter == 0) {
         if ((state->flags & 2) != 0) {
-            func_001d3ff0((int)state);
+            btlFormationSetState((int)state);
         }
         (*DAT_008873EC)(state);
     }
@@ -1110,7 +1110,7 @@ void func_001d3e00(u32 param_1)
 
 
 // FUN_001D3EA0
-void func_001d3ea0(int destination, u32 source)
+void btlFormationCopyRecord(int destination, u32 source)
 {
     u16 outer;
     u16 index;
@@ -1151,7 +1151,7 @@ void func_001d3ea0(int destination, u32 source)
 
 
 // FUN_001D3FF0
-void func_001d3ff0(int state)
+void btlFormationSetState(int state)
 {
     u16 outer;
     u16 index;
@@ -1181,27 +1181,27 @@ void func_001d3ff0(int state)
 
 
 // FUN_001D40D0
-void func_001d40d0(int param_1)
+void btlFormationCopyDefault(int param_1)
 {
     BtlFormationState *state;
 
     state = (BtlFormationState *)param_1;
     state->counter++;
     if (((state->flags & 8) != 0) && (state->counter == 2)) {
-        func_001d3ea0(param_1, state->value);
+        btlFormationCopyRecord(param_1, state->value);
     }
 }
 
 
 
 // FUN_001D4120
-u32 func_001d4120(void* formation)
+u32 btlFormationGetCount(void* formation)
 {
     return (*(u16*)((u8*)formation + 0x630) & 2) != 0;
 }
 
 // FUN_001D4140
-u32 func_001d4140(int param_1, u16 param_2)
+u32 btlFormationGetIndex(int param_1, u16 param_2)
 {
     u32 result;
 
@@ -1222,7 +1222,7 @@ u32 func_001d4140(int param_1, u16 param_2)
 
 
 // FUN_001D4190
-u32 func_001d4190(void* formation, u32 index)
+u32 btlFormationGetEntry(void* formation, u32 index)
 {
     u32 offset;
 
@@ -1231,7 +1231,7 @@ u32 func_001d4190(void* formation, u32 index)
 }
 
 // FUN_001D42E0
-void func_001d42e0(BtlFormationWork *work)
+void btlFormationResetState(BtlFormationWork *work)
 {
     s32 count;
     u16 index;
@@ -1253,7 +1253,7 @@ void func_001d42e0(BtlFormationWork *work)
 
 
 // FUN_001D4380
-float func_001d4380(int param_1)
+float btlFormationGetScale(int param_1)
 {
     float fVar1 = 0;
 
@@ -1271,7 +1271,7 @@ float func_001d4380(int param_1)
 
 
 // FUN_001D43F0
-u32 func_001d43f0(s32 param_1)
+u32 btlFormationGetFlags(s32 param_1)
 {
     u16 flags = 0;
     u32 result = 0;
@@ -1313,7 +1313,7 @@ u32 func_001d43f0(s32 param_1)
 }
 
 // FUN_001D4490
-void func_001d4490(s32 param_1, u32 param_2)
+void btlFormationSetSlot(s32 param_1, u32 param_2)
 {
     *(u32*)(param_1 + 0x634) = param_2;
 }
@@ -1327,7 +1327,7 @@ void func_001d4e90(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
 }
 
 // FUN_001D5EB0
-BtlPacket *func_001d5eb0(u32 param_1, const char *param_2, u16 param_3)
+BtlPacket *btlFormationCreateNamedPacket(u32 param_1, const char *param_2, u16 param_3)
 {
     typedef struct FormationStringWork {
         u32 value;
@@ -1354,12 +1354,12 @@ BtlPacket *func_001d5eb0(u32 param_1, const char *param_2, u16 param_3)
 
 
 // FUN_001D5F60
-void func_001d5f60(u32 *work)
+void btlFormationRefresh(u32 *work)
 {
     s16 mode;
 
     work[6] = 0;
-    func_001d40d0(work[0]);
+    btlFormationCopyDefault(work[0]);
     *(u16 *)(work[1] + 0xa0) = *(u16 *)(work[1] + 0xa0) + 1;
     *(u16 *)(work[2] + 0xa0) = *(u16 *)(work[2] + 0xa0) + 1;
     mode = *(s16 *)((u8 *)work + 0xc);
@@ -1376,7 +1376,7 @@ void func_001d5f60(u32 *work)
 // FUN_001D6010
 /* measured: opt_propagation off preserves func_001d6010's index-before-value argument-load order (MATCH nd0). */
 #pragma opt_propagation off
-u32 func_001d6010(u32 *param_1)
+u32 btlFormationIsReady(u32 *param_1)
 {
     s16 sVar1;
     u16 *puVar2;
@@ -1385,7 +1385,7 @@ u32 func_001d6010(u32 *param_1)
     u32 unaff_s2_lo;
     u32 unaff_s1_lo;
 
-    if (!func_001d4120(*(u8 **)param_1)) {
+    if (!btlFormationGetCount(*(u8 **)param_1)) {
         return 0;
     }
     puVar2 = (u16 *)param_1[4];
@@ -1393,7 +1393,7 @@ u32 func_001d6010(u32 *param_1)
         return 1;
     }
     functionIndex = *(u16 *)(param_1 + 3);
-    iVar3 = func_001d4140(param_1[functionIndex & 0], functionIndex);
+    iVar3 = btlFormationGetIndex(param_1[functionIndex & 0], functionIndex);
     if ((*puVar2 & 0x40) == 0) {
         if ((int)param_1[6] >= iVar3 * 2 - 0xd) {
             *puVar2 = *puVar2 | 0x100;
@@ -1415,7 +1415,7 @@ u32 func_001d6010(u32 *param_1)
                     break;
                 }
                 *(u32 *)(puVar2 + 8) =
-                    (u32)func_001d41b0((u8 *)param_1[0], sVar1 & 0xffff,
+                    (u32)btlFormationAllocEntry((u8 *)param_1[0], sVar1 & 0xffff,
                                        unaff_s2_lo, unaff_s1_lo, flags);
                 *puVar2 = *puVar2 | 0x30;
             }
@@ -1431,18 +1431,18 @@ u32 func_001d6010(u32 *param_1)
 // FUN_001D6170
 /* measured: opt_propagation off probe for 6170 argument loads. */
 #pragma opt_propagation off
-bool func_001d6170(u32 *param_1)
+bool btlFormationHasEntry(u32 *param_1)
 {
     int iVar2;
     u16 index;
     u8 *value;
 
-    if (!func_001d4120(*(u8 **)param_1)) {
+    if (!btlFormationGetCount(*(u8 **)param_1)) {
         return false;
     }
     iVar2 = (index = *(u16 *)(param_1 + 3),
              value = *(u8 **)((u8 *)param_1 + ((u32)index & 0)),
-             func_001d4190(value, index));
+             btlFormationGetEntry(value, index));
     iVar2 <<= 1;
     if (iVar2 < 1) {
         iVar2 = 2;
@@ -1455,10 +1455,10 @@ bool func_001d6170(u32 *param_1)
 
 
 // FUN_001D61E0
-void func_001d61e0(u32 *param_1)
+void btlFormationRelease(u32 *param_1)
 {
     func_001d6de0(param_1[5], (u16 *)param_1[4]);
-    func_001d3e00(*(int *)param_1);
+    btlFormationSetPlacement(*(int *)param_1);
     *(u16 *)(param_1[1] + 0xa0) = *(u16 *)(param_1[1] + 0xa0) + -1;
     *(u16 *)(param_1[2] + 0xa0) = *(u16 *)(param_1[2] + 0xa0) + -1;
 }
@@ -1466,17 +1466,17 @@ void func_001d61e0(u32 *param_1)
 
 
 // FUN_001D6240
-BtlPacket* func_001d6240(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param_5)
+BtlPacket* btlFormationCreatePacket(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param_5)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0x301, 0x20);
     *(u8 *)(packet + 0x47) = *(u8 *)(packet + 0x47) & 0xef;
-    *(code *)(packet + 0x68) = (code)func_001d5f60;
-    *(code *)(packet + 0x6c) = (code)func_001d6010;
-    *(code *)(packet + 0x74) = (code)func_001d6170;
-    *(code *)(packet + 0x70) = (code)func_001d61e0;
+    *(code *)(packet + 0x68) = (code)btlFormationRefresh;
+    *(code *)(packet + 0x6c) = (code)btlFormationIsReady;
+    *(code *)(packet + 0x74) = (code)btlFormationHasEntry;
+    *(code *)(packet + 0x70) = (code)btlFormationRelease;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
     work[1] = param_2;
@@ -1489,7 +1489,7 @@ BtlPacket* func_001d6240(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32
 
 
 // FUN_001D69F0
-void func_001d69f0(u32 value, char *destination)
+void btlFormationFormatName(u32 value, char *destination)
 {
     if ((*(u32*)(DAT_0076449c + 0x14) & 1) != 0)
     {
@@ -1504,7 +1504,7 @@ void func_001d69f0(u32 value, char *destination)
 
 
 // FUN_001D7BB0
-u32 func_001d7bb0(u32* args)
+u32 btlFormationDispatchArgs(u32* args)
 {
     func_001fc2e0(args[0], args[1], args[2]);
     return 1;
@@ -1513,7 +1513,7 @@ u32 func_001d7bb0(u32* args)
 
 
 // FUN_002027E0
-u8 *func_002027e0(void)
+u8 *btlFormationCreateDefaultPacket(void)
 {
     u8 *task;
 

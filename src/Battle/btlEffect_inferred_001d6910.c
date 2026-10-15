@@ -14,7 +14,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern s32 func_001d6360(u8 *arg0);
-extern void func_001d42e0(s32 arg0);
+extern void btlFormationResetState(s32 arg0);
 extern void func_00485b20(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 extern void (*jtbl_008873EC[])(void *);
@@ -94,7 +94,7 @@ extern f32 fGpffff8110;
 void func_001d6910(u8 *arg0)
 {
     if (*(s32 *)(arg0 + 0x10) != 0) {
-        func_001d42e0(*(s32 *)(arg0 + 0x10));
+        btlFormationResetState(*(s32 *)(arg0 + 0x10));
         *(s32 *)(arg0 + 0x10) = 0;
     }
     if (*(s32 *)(arg0 + 0x14) != 0) {

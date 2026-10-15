@@ -10,7 +10,7 @@
 #include "btl_target_state_packet_internal.h"
 #include "btl_action_internal.h"
 typedef struct BtlPacket BtlPacket;
-extern BtlPacket *func_001d5eb0(u32 formation, const char *text, u16 mode);
+extern BtlPacket *btlFormationCreateNamedPacket(u32 formation, const char *text, u16 mode);
 u32 datCalcRandomBelow(u32 bound);
 typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
@@ -30,10 +30,10 @@ typedef struct LargeBattleHitResult {
 } LargeBattleHitResult;
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
-extern BtlPacket *func_001f5f70(u32 action, u16 kind, u32 a, u32 b, u32 c);
+extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
 static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
 {
-    return (u8 *)func_001f5f70((u32)action, kind, a, b, c);
+    return (u8 *)btlTargetCreateTargetPacket((u32)action, kind, a, b, c);
 }
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
 static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)
@@ -57,7 +57,7 @@ static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 }
 extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 cue, s32 unitId, s32 a, s32 b);
 extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
-extern f32 func_001ec250(const RwV3d *, const RwV3d *);
+extern f32 btlTargetVectorDistance(const RwV3d *, const RwV3d *);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *, const RwV3d *, f32, u32);
 extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
@@ -86,10 +86,10 @@ s32 btlUnitIsMoving(u8 *arg0);
 
 void btlActionFinishPresentation(BtlAction *action);
 void btlAICommandPickAiTarget(void *arg0, s32 arg1);
-BtlPacket *func_001d3700(u16 arg0, u16 arg1);
+BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void func_0022db90(u8 *arg0);
-extern void func_001f0a40(void *arg0);
+extern void btlTargetClearWork(void *arg0);
 extern void func_00212070(u8 *arg0, u8 *arg1);
 
 extern u8 *D_0076449C;
@@ -145,19 +145,19 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
 extern void func_001eb410(u8 *arg0);
 extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *target, f32 distance, f32 speed, u32 flags);
-extern BtlPacket *func_001d3530(u32 source, u32 target, u16 mode);
+extern BtlPacket *btlFormationCreateWaitPacket(u32 source, u32 target, u16 mode);
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
 extern s16 func_001f6d60(u8 *arg0);
 extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
-extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *func_00202740(u8 *arg0);
 extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u8 *func_00194b60(void);
-extern BtlPacket *func_001d3900(u16 arg0);
+extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
 extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value);
-extern BtlPacket *func_001d3d00(u32 action);
+extern BtlPacket *btlFormationCreateEventPacket(u32 action);
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 BtlPacket *func_001d7a10(u16 mode);
 u8 *func_00201f20(void);
@@ -191,7 +191,7 @@ extern s32 func_00218390(s32 task);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 u8 *func_001fa320(void);
 u8 *func_001fa450(void);
-u8 *func_002027e0(void);
+u8 *btlFormationCreateDefaultPacket(void);
 extern void func_002183c0(s32 task);
 extern void func_00218160(u8 *task, u8 *unit);
 extern s32 func_00218200(s32 task);
@@ -214,7 +214,7 @@ s32 datPersonaSelectRosterMemberById(s32 arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void datPersonaRemoveSelectedRosterMember(void);
 extern s32 datGetFlag(s32 arg0);
-BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
+BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
 s32 func_001fac80(u8 *arg0);

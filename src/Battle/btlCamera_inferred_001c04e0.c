@@ -130,7 +130,7 @@ void btlCameraFrameActionSide(u8 *camera)
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
     extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
     extern f32 func_003e41e0(f32 *, f32 *);
-    extern f32 func_001ec3d0(u8 *, u8 *, u8 *, u8 *);
+    extern f32 btlTargetAngleBetween(u8 *, u8 *, u8 *, u8 *);
     extern f32 tanf(f32);
     extern void btlCameraCopyPoseSnapshot(f32 *, f32 *);
     extern void btlMainCurveReset(u16 *, f32 *);
@@ -226,7 +226,7 @@ void btlCameraFrameActionSide(u8 *camera)
     rayTo[1] = position.z;
     eyePoint[0] = eyeBase.x;
     eyePoint[1] = eyeZ;
-    result = func_001ec3d0((u8 *)rayFrom, (u8 *)rayTo, (u8 *)eyePoint, (u8 *)output);
+    result = btlTargetAngleBetween((u8 *)rayFrom, (u8 *)rayTo, (u8 *)eyePoint, (u8 *)output);
     distance = 0.0f + result + radiusFactor * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C));
     position.x = output[0];
     position.y = eyeY;

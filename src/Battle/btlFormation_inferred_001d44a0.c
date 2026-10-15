@@ -26,7 +26,7 @@ extern u8 D_00794150[];
 extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];
-extern void func_001d44a0(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
+extern void btlFormationVuTransform(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
 struct RwV3d;
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
@@ -88,7 +88,7 @@ extern f32 fGpffff8110;
 #pragma push
 #pragma pop
 // FUN_001D44A0
-void func_001d44a0(f32 fparg0, f32 fparg1, f32 *arg0, s32 *arg1, u8 *arg2, u8 *arg3)
+void btlFormationVuTransform(f32 fparg0, f32 fparg1, f32 *arg0, s32 *arg1, u8 *arg2, u8 *arg3)
 {
     struct Vec4 {
         f32 value[4];
@@ -210,7 +210,7 @@ void func_001d44a0(f32 fparg0, f32 fparg1, f32 *arg0, s32 *arg1, u8 *arg2, u8 *a
 }
 
 // FUN_001D4780
-void func_001d4780(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void btlFormationTransformOffset(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     struct Frame {
         f32 value50;
         f32 value54;
@@ -244,11 +244,11 @@ void func_001d4780(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
     frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
     frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
-    func_001d44a0(var_f20, temp_f21, &frame.value70, (s32 *)(arg0 + 0x40), temp_s0, (u8 *)arg3);
+    btlFormationVuTransform(var_f20, temp_f21, &frame.value70, (s32 *)(arg0 + 0x40), temp_s0, (u8 *)arg3);
 }
 
 // FUN_001D48B0
-void func_001d48b0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void btlFormationOrientToUnit(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     struct Frame {
         f32 value30;
         f32 value34;
@@ -286,7 +286,7 @@ void func_001d48b0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
 }
 
 // FUN_001D49C0
-void func_001d49c0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void btlFormationApplyModelMatrix(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     struct Frame {
         f32 value50;
         f32 value54;
@@ -331,7 +331,7 @@ void func_001d49c0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
 }
 
 // FUN_001D4B00
-void func_001d4b00(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void btlFormationApplyModelMatrixAlt(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     struct Frame {
         f32 value50;
         f32 value54;
@@ -376,7 +376,7 @@ void func_001d4b00(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
 }
 
 // FUN_001D4C40
-void func_001d4c40(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void btlFormationOffsetTransformA(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     struct Frame {
         s32 zero0;
         s32 zero1;
@@ -402,11 +402,11 @@ void func_001d4c40(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     frame.zero0 = 0;
     frame.zero1 = 0;
     frame.zero2 = 0;
-    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
+    btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
 }
 
 // FUN_001D4CF0
-void func_001d4cf0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void btlFormationOffsetTransformB(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     struct Frame {
         s32 zero0;
         s32 zero1;
@@ -438,11 +438,11 @@ void func_001d4cf0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     frame.zero0 = 0;
     frame.zero1 = 0;
     frame.zero2 = 0;
-    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
+    btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
 }
 
 // FUN_001D4DC0
-void func_001d4dc0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void btlFormationOffsetTransformC(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     struct Frame {
         s32 zero0;
         s32 zero1;
@@ -474,6 +474,6 @@ void func_001d4dc0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     frame.zero0 = 0;
     frame.zero1 = 0;
     frame.zero2 = 0;
-    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
+    btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
 }
 

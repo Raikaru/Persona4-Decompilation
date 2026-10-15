@@ -108,7 +108,7 @@ extern void func_001958f0(void *arg0, void *arg1);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 func_0022f7d0(u8 *arg0, f32 *arg1, s32 arg2);
 extern u8 *func_001b1510(void);
-extern void func_001ec1c0(void *arg0, void *arg1, void *arg2);
+extern void btlTargetBlendVectors(void *arg0, void *arg1, void *arg2);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void func_00195aa0(void *arg0, void *arg1, void *arg2);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
@@ -247,7 +247,7 @@ extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
 extern s32 btlUnitResourceFreePacketUpdate(u8 *arg0);
 extern s32 func_0010d6d0(s16 arg0);
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
-extern float func_001d4380(int arg0);
+extern float btlFormationGetScale(int arg0);
 extern s32 btlUnitArcMovePacketUpdate(u8 *arg0);
 extern s32 func_0010d740(s16 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
@@ -476,7 +476,7 @@ extern s32 func_00193d90(u8 *arg0, s32 arg1);
 
 
 
-extern void func_001eec50(void *work);
+extern void btlTargetResetWork(void *work);
 extern s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius);
 extern s32 func_001ef110(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);

@@ -67,7 +67,7 @@ extern void func_001958f0(void *arg0, void *arg1);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 func_0022f7d0(u8 *arg0, f32 *arg1, s32 arg2);
 extern u8 *func_001b1510(void);
-extern void func_001ec1c0(void *arg0, void *arg1, void *arg2);
+extern void btlTargetBlendVectors(void *arg0, void *arg1, void *arg2);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void func_00195aa0(void *arg0, void *arg1, void *arg2);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
@@ -243,7 +243,7 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
             *(P4_95730_Vec3 *)arg3 = *(P4_95730_Vec3 *)frame.vec;
         }
         if (arg2 != NULL) {
-            func_001ec1c0(arg2, &frame.x, frame.vec);
+            btlTargetBlendVectors(arg2, &frame.x, frame.vec);
         }
     }
 }
@@ -317,7 +317,7 @@ void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5,
         a3 = arg3;
         dist = func_00196bd0(arg0, arg2, a3);
         dist = dist + 50.0f;
-        func_001ec1c0(rot, arg1 + 4, origin);
+        btlTargetBlendVectors(rot, arg1 + 4, origin);
         RtQuatTransformVectors(tmp, &D_0060A100, 1, rot);
         fx = tmp[0] * dist;
         fz = tmp[2] * dist;
@@ -337,7 +337,7 @@ void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5,
             *(P4_95730_Vec3 *)arg4 = *(P4_95730_Vec3 *)pos;
         }
         if (arg5 != NULL) {
-            func_001ec1c0(arg5, pos, origin);
+            btlTargetBlendVectors(arg5, pos, origin);
         }
     }
 }

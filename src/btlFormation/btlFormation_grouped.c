@@ -4,31 +4,31 @@
 #include "type.h"
 
 /* Canonical grouped function declarations. */
-u32 func_001d4120(void* formation);
-u32 func_001d4190(void* formation, u32 index);
+u32 btlFormationGetCount(void* formation);
+u32 btlFormationGetEntry(void* formation, u32 index);
 void func_001d6ee0(void** units);
 void func_001d7100(u8* packet, s16 value);
 void func_001d72c0(void* packet, u32 value);
 u32 func_001d8bc0(void* formation);
 u32 func_001dc680(void* object);
 u32 func_001deeb0(void* object);
-u32 func_001d43f0(s32 param_1);
-void func_001d4490(s32 param_1, u32 param_2);
+u32 btlFormationGetFlags(s32 param_1);
+void btlFormationSetSlot(s32 param_1, u32 param_2);
 s16 func_001d7130(s32 param_1);
 void func_001d8be0(s32 param_1, u64* param_2);
 void func_001d8bf0(s32 param_1, s32 param_2);
 u32 btlCond_MORE(s32 param_1);
 extern void func_001d6880(void* param_1);
-extern void func_001d3e00(u32 param_1);
+extern void btlFormationSetPlacement(u32 param_1);
 extern u8* DAT_0076449c;
 extern void (*jtbl_008873EC[])(void* ptr);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern char D_00609558[];
 extern void chkmemAllocSiteTag(const void* msg, s32 id);
 extern void memset(void* dst, s32 value, u32 size);
-extern void func_001d42e0(u8* arg0);
-extern void func_001d40d0(u8* arg0);
-extern u8* func_001d41b0(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void btlFormationResetState(u8* arg0);
+extern void btlFormationCopyDefault(u8* arg0);
+extern u8* btlFormationAllocEntry(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00485b20(u32 arg0);
 extern void mdlDestroyModelObject(u32 arg0);
 

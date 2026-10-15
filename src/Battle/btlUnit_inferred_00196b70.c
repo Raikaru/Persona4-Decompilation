@@ -168,7 +168,7 @@ extern u8 D_00794150[];
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlPacketStepSide(s32 arg0);
-extern void func_001eec50(void *work);
+extern void btlTargetResetWork(void *work);
 extern s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius);
 extern s32 func_001ef110(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
@@ -267,7 +267,7 @@ u32 func_00196d00(void *workData)
             *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
             /* fallthrough */
         case 1:
-            func_001eec50(unit + 0xEC);
+            btlTargetResetWork(unit + 0xEC);
             *(f32 *)(unit + 0xE8) = *(f32 *)(arg0 + 0x1C);
             *(s32 *)(unit + 0xC4) = *(s32 *)(arg0 + 0x10);
             *(f32 *)(unit + 0xCC) = 2.0f * (13.5f * *(f32 *)(arg0 + 0x20));
@@ -345,7 +345,7 @@ u32 func_00196d00(void *workData)
             *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
             /* fallthrough */
         case 1:
-            func_001eec50(unit + 0xEC);
+            btlTargetResetWork(unit + 0xEC);
             *(f32 *)(unit + 0xE8) = *(f32 *)(arg0 + 0x1C);
             *(s32 *)(unit + 0xC4) = *(s32 *)(arg0 + 0x10);
             *(f32 *)(unit + 0xCC) = 2.0f * (13.5f * *(f32 *)(arg0 + 0x20));
