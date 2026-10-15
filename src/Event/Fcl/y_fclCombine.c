@@ -97,9 +97,9 @@ extern u8 *fclSpriteEntry(s16);
 extern void func_00321e60(u8 *, s64, u8, u8);
 extern void func_003233d0(u8 *);
 extern void fclCombinePartyRow(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
-extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
-extern void func_0031c2b0(u8 *, s16, FclVec2f, FclVec2f);
-extern void func_0031cce0(u8 *, s16, FclVec2, FclVec2);
+extern void fclCombineDrawPersonaRow(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
+extern void fclCombineDrawPersonaCard(u8 *, s16, FclVec2f, FclVec2f);
+extern void fclCombineDrawPersonaCardAlt(u8 *, s16, FclVec2, FclVec2);
 extern void func_00320b80(u8 *, s8);
 extern void func_003218a0(u8 *, s16);
 extern void func_00324410(u8 *, s16, s8);
@@ -1819,7 +1819,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                         sp218.position = func_002b2970((f32)0x149, 128.0f);
                         temp_16_6 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_2))[1];
                         slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_2)) + 4);
-                        func_0031ac10(arg0, sp218.position, temp_18->f128, var_17_2, temp_16_6, slotByte, 0, 1, 1, 0xCC);
+                        fclCombineDrawPersonaRow(arg0, sp218.position, temp_18->f128, var_17_2, temp_16_6, slotByte, 0, 1, 1, 0xCC);
                         sp210.position = func_002b2970(16.0f, 128.0f);
                         fclCombinePartyRow(arg0, sp210.position, (s8)(var_17_2), ((u16 *)yListSlotEntry(0, var_17_2))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_2)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                     }
@@ -1843,7 +1843,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                         sp1F8.position = func_002b2970((f32)0x149, 128.0f);
                         temp_16_9 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_3))[1];
                         slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_3)) + 4);
-                        func_0031ac10(arg0, sp1F8.position, temp_18->f128, var_17_3, temp_16_9, slotByte, 0, 1, 1, 0xCC);
+                        fclCombineDrawPersonaRow(arg0, sp1F8.position, temp_18->f128, var_17_3, temp_16_9, slotByte, 0, 1, 1, 0xCC);
                         sp1F0.position = func_002b2970(16.0f, 128.0f);
                         fclCombinePartyRow(arg0, sp1F0.position, (s8)(var_17_3), ((u16 *)yListSlotEntry(0, var_17_3))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_3)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                     }
@@ -1867,14 +1867,14 @@ void fclCombineMenuFusion(u8 *arg0) {
                 basePos = (FclVec2f *)D_00640C10;
                 sp1D8.position = func_002b2970(basePos->x, basePos->y);
                 sp1D0.position = func_002b2970(-380.0f, basePos->y);
-                func_0031c2b0(arg0, temp_18->f128, sp1D8.position, sp1D0.position);
+                fclCombineDrawPersonaCard(arg0, temp_18->f128, sp1D8.position, sp1D0.position);
                 sp1C8 = func_002b2970((f32)0x149, 104.0f);
                 func_0031fa20(arg0, sp1C8, 0, 1);
                 for (var_17_4 = 0; var_17_4 < (datPersonaRosterCapacity() & 0xFFFF); var_17_4++) {
                     sp1C0.position = func_002b2970((f32)0x149, 128.0f);
                     temp_16_11 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_4))[1];
                     slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_4)) + 4);
-                    func_0031ac10(arg0, sp1C0.position, temp_18->f128, var_17_4, temp_16_11, slotByte, 0, 1, 1, 0xCC);
+                    fclCombineDrawPersonaRow(arg0, sp1C0.position, temp_18->f128, var_17_4, temp_16_11, slotByte, 0, 1, 1, 0xCC);
                 }
                 func_003218a0(arg0, 3);
                 temp_18->f1 = 0x27;
@@ -1932,7 +1932,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                 sp1B8.position = func_002b2970((f32)0x149, 128.0f);
                 temp_16_15 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_5))[1];
                 slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_5)) + 4);
-                func_0031ac10(arg0, sp1B8.position, temp_18->f128, var_17_5, temp_16_15, slotByte, 0, 0, 1, 0xCC);
+                fclCombineDrawPersonaRow(arg0, sp1B8.position, temp_18->f128, var_17_5, temp_16_15, slotByte, 0, 0, 1, 0xCC);
                 sp1B0.position = func_002b2970(16.0f, 128.0f);
                 fclCombinePartyRow(arg0, sp1B0.position, (s8)(var_17_5), ((u16 *)yListSlotEntry(0, var_17_5))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_5)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
             }
@@ -2106,7 +2106,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                 sp170.position = func_002b2970((f32)0x149, 128.0f);
                 temp_16_41 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_6))[1];
                 slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_6)) + 4);
-                func_0031ac10(arg0, sp170.position, temp_18->f128, var_17_6, temp_16_41, slotByte, 0, 0, 1, 0xCC);
+                fclCombineDrawPersonaRow(arg0, sp170.position, temp_18->f128, var_17_6, temp_16_41, slotByte, 0, 0, 1, 0xCC);
             }
             sp168 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp168, 0, 0, 0, 0, 0);
@@ -2881,14 +2881,14 @@ block_83:
                         basePos = (FclVec2f *)D_00640C18;
                         sp338 = func_002b2970(-380.0f, 81.0f);
                         sp330 = func_002b2970(basePos->x, basePos->y);
-                        func_0031cce0(arg0, temp_17->f129, sp338, sp330);
+                        fclCombineDrawPersonaCardAlt(arg0, temp_17->f129, sp338, sp330);
                         for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
                         temp_18_12 = (s16)(gridRow);
                             temp_16_14 = (s8)((s8)((s8)(temp_17->f129)));
                             if ((*((s8 *)((u8 *)((yListSlotWork((u32)temp_16_14 + 1U) + (temp_16_14 * 0xC) + temp_18_12)) + (0x14)))) > 0) {
                                 sp328 = func_002b2970((f32) 0x149, 128.0f);
 
-                                func_0031ac10(arg0, sp328, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_16_14 + 1)), gridRow))) + (4))))), 3, 0, 1, 0xCC);
+                                fclCombineDrawPersonaRow(arg0, sp328, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_16_14 + 1)), gridRow))) + (4))))), 3, 0, 1, 0xCC);
                             }
                             FCL0F00_GRID_ROW(temp_17, gridRow, 1, 1, sp320, sp318, sp3E8, sp3E4);
                             temp_16_17 = (s16)(gridRow);
@@ -2955,7 +2955,7 @@ block_83:
                     basePos = (FclVec2f *)D_00640C10;
                     sp2D0 = func_002b2970(basePos->x, basePos->y);
                     sp2C8 = func_002b2970(-380.0f, basePos->y);
-                    func_0031c2b0(arg0, temp_17->f128, sp2D0, sp2C8);
+                    fclCombineDrawPersonaCard(arg0, temp_17->f128, sp2D0, sp2C8);
                     datPersonaRosterCapacity();
                     for (gridColumn = 0; gridColumn < (datPersonaRosterCapacity() & 0xFFFF); gridColumn++) {
                         var_19_8 = 0;
@@ -3084,7 +3084,7 @@ block_166:
                     for (resultRow = 0; resultRow < (datPersonaRosterCapacity() & 0xFFFF); resultRow++) {
                         sp2A8 = func_002b2970((f32) 0x149, 128.0f);
 
-                        func_0031ac10(arg0, sp2A8, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
+                        fclCombineDrawPersonaRow(arg0, sp2A8, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
                         sp2A0 = func_002b2970(16.0f, 128.0f);
 
                         fclCombinePartyRow(arg0, sp2A0, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
@@ -3111,7 +3111,7 @@ block_166:
                             for (resultRow = 0; resultRow < (datPersonaRosterCapacity() & 0xFFFF); resultRow++) {
                                 sp288 = func_002b2970((f32) 0x149, 128.0f);
 
-                                func_0031ac10(arg0, sp288, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
+                                fclCombineDrawPersonaRow(arg0, sp288, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
                                 sp280 = func_002b2970(16.0f, 128.0f);
 
                                 fclCombinePartyRow(arg0, sp280, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
@@ -3140,13 +3140,13 @@ block_166:
                     basePos = (FclVec2f *)D_00640C18;
                     sp268 = func_002b2970(basePos->x, basePos->y);
                     sp260 = func_002b2970(-380.0f, 81.0f);
-                    func_0031cce0(arg0, temp_17->f129, sp268, sp260);
+                    fclCombineDrawPersonaCardAlt(arg0, temp_17->f129, sp268, sp260);
                     sp258 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp258, 0, 1);
                     for (resultRow = 0; resultRow < (datPersonaRosterCapacity() & 0xFFFF); resultRow++) {
                         sp250 = func_002b2970((f32) 0x149, 128.0f);
 
-                        func_0031ac10(arg0, sp250, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
+                        fclCombineDrawPersonaRow(arg0, sp250, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
                     }
                     func_003218a0(arg0, 3);
                     func_003205f0(arg0, 0x94, 0x95);
@@ -3230,7 +3230,7 @@ block_215:
                     if ((*((s8 *)((u8 *)((yListSlotWork((u32)temp_18_28 + 1U) + (temp_18_28 * 0xC) + gridRow)) + (0x14)))) > 0) {
                         sp240 = func_002b2970((f32) 0x149, 128.0f);
 
-                        func_0031ac10(arg0, sp240, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_18_28 + 1)), gridRow))) + (4))))), 0, 0, 1, 0xCC);
+                        fclCombineDrawPersonaRow(arg0, sp240, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_18_28 + 1)), gridRow))) + (4))))), 0, 0, 1, 0xCC);
                     }
                 }
                 sp238 = func_002b2970(16.0f, 104.0f);
@@ -3436,7 +3436,7 @@ block_215:
                 if ((*((s8 *)((u8 *)((yListSlotWork((u32)temp_18_39 + 1U) + (temp_18_39 * 0xC) + gridRow)) + (0x14)))) > 0) {
                     sp200 = func_002b2970((f32) 0x149, 128.0f);
 
-                    func_0031ac10(arg0, sp200, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_18_39 + 1)), gridRow))) + (4))))), 0, 0, 1, 0xCC);
+                    fclCombineDrawPersonaRow(arg0, sp200, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_18_39 + 1)), gridRow))) + (4))))), 0, 0, 1, 0xCC);
                 }
             }
             sp1F8 = func_002b2970(16.0f, 104.0f);
@@ -4924,7 +4924,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             var_18 = 0;
             var_22 = (s16)var_16_6 + var_19;
             while (var_19 < var_22) {
-                func_0031ac10(arg0, func_002b2970(162.0f, 111.0f), -1, var_18, *(u16 *)((u8 *)yListSlotEntry(0, var_19) + 2), *(u8 *)((u8 *)yListSlotEntry(0, var_19) + 4), 0, 1, 0, 0xCC);
+                fclCombineDrawPersonaRow(arg0, func_002b2970(162.0f, 111.0f), -1, var_18, *(u16 *)((u8 *)yListSlotEntry(0, var_19) + 2), *(u8 *)((u8 *)yListSlotEntry(0, var_19) + 4), 0, 1, 0, 0xCC);
                 var_19++;
                 var_18++;
             }
@@ -6979,12 +6979,12 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     basePos = (FclVec2f *)D_00640C10;
                     sp270 = func_002b2970(-380.0f, basePos->y);
                     sp268 = func_002b2970(basePos->x, basePos->y);
-                    func_0031c2b0(arg0, work->f11E, *(FclVec2f *)&sp270, *(FclVec2f *)&sp268);
+                    fclCombineDrawPersonaCard(arg0, work->f11E, *(FclVec2f *)&sp270, *(FclVec2f *)&sp268);
                     for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
                         sp260 = func_002b2970((f32) 0x149, 128.0f);
                         temp_16_6 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), gridRow))+(2))));
                         slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, gridRow) + 4);
-                        func_0031ac10(arg0, sp260, work->f128, gridRow, temp_16_6, slotByte, 3, 0, 1, 0xCC);
+                        fclCombineDrawPersonaRow(arg0, sp260, work->f128, gridRow, temp_16_6, slotByte, 3, 0, 1, 0xCC);
                         FCL_COMBINE_GRID_ROW(work, gridRow, gridColumn, 1, sp258, sp250, col2F0, col2EC);
                         temp_18_3 = (s16)(gridRow);
                         temp_16_9 = (s16)((temp_18_3 + 0x25E));
@@ -7131,7 +7131,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                         sp220 = func_002b2970((f32) 0x149, 128.0f);
                         temp_16_15 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_5))+(2))));
                         slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_5) + 4);
-                        func_0031ac10(arg0, sp220, work->f128, var_18_5, temp_16_15, slotByte, 3, 1, 1, 0xCC);
+                        fclCombineDrawPersonaRow(arg0, sp220, work->f128, var_18_5, temp_16_15, slotByte, 3, 1, 1, 0xCC);
                     }
                     work->f2F9 = (s8) (work->f128 + 1);
                     work->f2FA = (s8) work->f11E;
@@ -7202,7 +7202,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                         sp200 = func_002b2970((f32) 0x149, 128.0f);
                         temp_16_17 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_6))+(2))));
                         slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_6) + 4);
-                        func_0031ac10(arg0, sp200, work->f128, var_18_6, temp_16_17, slotByte, 0, 1, 1, 0xCC);
+                        fclCombineDrawPersonaRow(arg0, sp200, work->f128, var_18_6, temp_16_17, slotByte, 0, 1, 1, 0xCC);
                         sp1F8 = func_002b2970(16.0f, 128.0f);
                         fclCombinePartyRow(arg0, sp1F8, (s8)var_18_6, ((u16 *)yListSlotEntry(0, var_18_6))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_18_6) + 4), 0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                     }
@@ -7226,14 +7226,14 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     basePos = (FclVec2f *)D_00640C10;
                     sp1E0 = func_002b2970(basePos->x, basePos->y);
                     sp1D8 = func_002b2970(-380.0f, basePos->y);
-                    func_0031c2b0(arg0, work->f128, *(FclVec2f *)&sp1E0, *(FclVec2f *)&sp1D8);
+                    fclCombineDrawPersonaCard(arg0, work->f128, *(FclVec2f *)&sp1E0, *(FclVec2f *)&sp1D8);
                     sp1D0 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp1D0, 0, 1);
                     for (var_18_7 = 0; var_18_7 < (datPersonaRosterCapacity() & 0xFFFF); var_18_7++) {
                         sp1C8 = func_002b2970((f32) 0x149, 128.0f);
                         temp_16_19 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_7))+(2))));
                         slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_7) + 4);
-                        func_0031ac10(arg0, sp1C8, work->f128, var_18_7, temp_16_19, slotByte, 0, 1, 1, 0xCC);
+                        fclCombineDrawPersonaRow(arg0, sp1C8, work->f128, var_18_7, temp_16_19, slotByte, 0, 1, 1, 0xCC);
                     }
                     func_003218a0(arg0, 3);
                     work->f1 = 0x7BU;
@@ -7270,7 +7270,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 sp1C0 = func_002b2970((f32) 0x149, 128.0f);
                 temp_16_25 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_8))+(2))));
                 slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_8) + 4);
-                func_0031ac10(arg0, sp1C0, work->f128, var_18_8, temp_16_25, slotByte, 0, 0, 1, 0xCC);
+                fclCombineDrawPersonaRow(arg0, sp1C0, work->f128, var_18_8, temp_16_25, slotByte, 0, 0, 1, 0xCC);
                 sp1B8 = func_002b2970(16.0f, 128.0f);
                 fclCombinePartyRow(arg0, sp1B8, (s8)var_18_8, ((u16 *)yListSlotEntry(0, var_18_8))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_18_8) + 4), 0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
             }
@@ -7339,7 +7339,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     sp198 = func_002b2970((f32) 0x149, 128.0f);
                     temp_16_31 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_9))+(2))));
                     slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_9) + 4);
-                    func_0031ac10(arg0, sp198, work->f128, var_18_9, temp_16_31, slotByte, 0, 0, 1, 0xCC);
+                    fclCombineDrawPersonaRow(arg0, sp198, work->f128, var_18_9, temp_16_31, slotByte, 0, 0, 1, 0xCC);
                 }
                 sp190 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp190, 0, 0, 0, 0, 0);
