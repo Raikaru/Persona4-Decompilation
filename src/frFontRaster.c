@@ -44,7 +44,7 @@ extern void func_003ec2a0(u32 tex);
 extern u32 func_003ec3d0(u32 tex, s32);
 extern void func_003ec2e0(u32 tex);
 extern u8 *func_00271f50(u8 *param_1, u32 param_2);
-extern s32 func_00271310(u8 *param_1);
+extern s32 frFontFreeListInsert(u8 *param_1);
 
 // Ported from P3FES FUN_003b3d60 (verified MATCH there). Calls use the
 // donor's implicit old-style declarations (FUN_003b3e00_raw/FUN_003b3e60_raw)
@@ -265,7 +265,7 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
                     *(s32 *)(previousRaster + 0) &= ~1;
                     *(s32 *)(previousRaster + 0x10) = 0;
                 }
-                func_00271310(*(u8 **)(previous + 8));
+                frFontFreeListInsert(*(u8 **)(previous + 8));
                 DAT_00881750_abs[0] -= 1;
             }
         }
