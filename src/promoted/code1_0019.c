@@ -277,9 +277,9 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     func_0019ef30(arg0, arg1);
 }
-extern void btlUnitHoldPendingPacketIfUnit(u8 *arg0);
-extern s32 func_0019e850(u8 *arg0);
-extern void btlUnitReleasePendingPacketIfUnit(u8 *arg0);
+extern void btlUnitHoldPendingLookAt(u8 *arg0);
+extern s32 btlUnitLookAtSidePacketUpdate(u8 *arg0);
+extern void btlUnitReleasePendingLookAt(u8 *arg0);
 extern u8 *func_00457120(void);
 extern s32 func_003e8120(u8 *arg0);
 extern void func_003c1bd0(s32 arg0);
@@ -312,8 +312,8 @@ extern void func_0019acd0(u8 *arg0);
 extern s32 func_0019ae20();
 extern void func_001d6ee0(s32 arg0);
 extern void btlUnitReleaseModel(u8 *arg0);
-extern void func_0019d0c0();
-extern void func_0019d040(u8 *arg0);
+extern void btlUnitHideModel();
+extern void btlUnitShowModel(u8 *arg0);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern void func_00479100(void *arg0, void *arg1);
@@ -943,7 +943,7 @@ u32 func_0019b730(void *workData)
             packet->startColor = 0;
         if (packet->flags & 8)
             packet->startColor = 0xFFFFFFFF;
-        func_0019d040((u8 *)unit);
+        btlUnitShowModel((u8 *)unit);
     }
     color = packet->startColor;
     if (counter >= rgbStart) {
@@ -1256,7 +1256,7 @@ loop_7:
     }
 }
 // FUN_0019D040
-void func_0019d040(u8 *arg0) {
+void btlUnitShowModel(u8 *arg0) {
     *(s32 *)(arg0 + 0x9C) &= ~0x1000;
     func_0019d990(arg0, 5);
     if (*(u16 *)(arg0 + 0x9FE) != 0) {
@@ -1270,7 +1270,7 @@ void func_0019d040(u8 *arg0) {
 
 
 // FUN_0019D0C0
-void func_0019d0c0(u8 *arg0) {
+void btlUnitHideModel(u8 *arg0) {
     *(s32 *)(arg0 + 0x9C) |= 0x1000;
     func_0019d990(arg0, 5);
     if (*(u16 *)(arg0 + 0x9FE) != 0) {

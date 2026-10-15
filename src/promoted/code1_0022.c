@@ -60,7 +60,7 @@ extern RtQuat *func_003dc740(RtQuat *out, const RwV3d *axis, f32 angle, s32 mode
 extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
 extern void btlUnitSetColor(BtlUnit *unit, RwRGBA color);
 extern u32 datCalcClearBadStatus(s32 unit, u32 mask);
-extern void func_0019d040(u8 *unit);
+extern void btlUnitShowModel(u8 *unit);
 extern u32 datGetFlag(s32 bit);
 extern void func_001bdeb0();
 
@@ -228,7 +228,7 @@ extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];
 extern u8 *func_0019ef90(s32 arg0, s32 arg1);
-extern void func_0019d0c0(u8 *arg0);
+extern void btlUnitHideModel(u8 *arg0);
 extern void datCalcClearAllBuffs(u8 *arg0);
 extern u8 D_0062D920[];
 extern void btlActionFinishPresentation(s64 *arg0);
@@ -2173,7 +2173,7 @@ void func_00226c40(u8 *camera)
     matchesSubordinate = subordinate != NULL &&
         func_0022f950(*(u8 **)(camera + 0xE0), subordinate) != 0;
     if (matchesSubordinate && *(u16 *)(camera + 0x110) != 1) {
-        func_0019d0c0(subordinate);
+        btlUnitHideModel(subordinate);
         color.red = *(u8 *)(subordinate + 0x30);
         color.green = *(u8 *)(subordinate + 0x31);
         color.blue = *(u8 *)(subordinate + 0x32);
@@ -2438,7 +2438,7 @@ void func_002277e0(u8 *camera)
     matchesSubordinate = subordinate != NULL &&
         func_0022f950(*(u8 **)(camera + 0xE0), subordinate) != 0;
     if (matchesSubordinate && *(u16 *)(camera + 0x110) != 1) {
-        func_0019d0c0(subordinate);
+        btlUnitHideModel(subordinate);
         color.red = *(u8 *)(subordinate + 0x30);
         color.green = *(u8 *)(subordinate + 0x31);
         color.blue = *(u8 *)(subordinate + 0x32);
@@ -3433,7 +3433,7 @@ s32 func_00229c40(u8 *arg0)
         *(u16 *)(arg0 + 0x1A) =
             (u16)(*(u16 *)(arg0 + 0x1A) | 0x400);
         *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) &= ~8;
-        func_0019d0c0(*(u8 **)(arg0 + 0x30));
+        btlUnitHideModel(*(u8 **)(arg0 + 0x30));
         datCalcClearAllBuffs(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
         func_00198dd0(*(u8 **)(arg0 + 0x30), 0);
         func_00198920(*(u8 **)(arg0 + 0x30), 0, 0, 1.0f, 1);
@@ -5679,7 +5679,7 @@ s32 func_0022eba0(u8 *packet)
             *(u16 *)(target + 0x1A) &= ~0x400;
             datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
             func_00198920(other, 0, 0, 1.0f, 1);
-            func_0019d040(other);
+            btlUnitShowModel(other);
             break;
         case 0x16F:
             model = *(void **)(other + 0xA00);
@@ -5694,7 +5694,7 @@ s32 func_0022eba0(u8 *packet)
             *(u16 *)(target + 0x1A) &= ~0x400;
             datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
             func_00198920(other, 0, 0, 1.0f, 1);
-            func_0019d040(other);
+            btlUnitShowModel(other);
             break;
         case 0x170:
             model = *(void **)(other + 0xA00);
@@ -5722,7 +5722,7 @@ s32 func_0022eba0(u8 *packet)
                 func_003dc740(&rotation, (const RwV3d *)D_0060A0E0, 180.0f, 0);
                 btlUnitSetRot((BtlUnit *)other, &rotation);
                 *(u32 *)(other + 0x9C) |= 0x2000;
-                func_0019d040(other);
+                btlUnitShowModel(other);
             }
             break;
         }

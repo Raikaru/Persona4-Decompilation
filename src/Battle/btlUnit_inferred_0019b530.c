@@ -160,7 +160,7 @@ extern s32 func_002300f0();
 extern void func_0019acd0(u8 *arg0);
 extern s32 func_0019ae20();
 extern void btlUnitReleaseModel(u8 *arg0);
-extern void func_0019d0c0();
+extern void btlUnitHideModel();
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
@@ -219,7 +219,7 @@ s32 func_0019b640(u8 *arg0) {
 
     temp = *(u8 **)arg0;
     btlUnitReleaseModel(temp);
-    func_0019d0c0(temp);
+    btlUnitHideModel(temp);
     return 1;
 }
 

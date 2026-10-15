@@ -112,8 +112,8 @@ extern void func_002186c0(u8 *arg0, s32 arg1);
 extern void func_00218700(s32 arg0);
 extern void func_00218730(s32 arg0);
 extern u8 *func_0019bbe0(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
-extern u8 *func_0019bd00(u8 *arg0);
-extern u8 *func_0019bdd0(u8 *arg0);
+extern u8 *btlUnitCreateShowPacket(u8 *arg0);
+extern u8 *btlUnitCreateHidePacket(u8 *arg0);
 extern u16 func_0020ba00(s32 task);
 extern u32 func_001d8df0(s32 formation);
 extern void func_0020bac0(s32 arg0);
@@ -156,7 +156,7 @@ extern u8 *func_00202740(u8 *arg0);
 extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u8 *func_00194b60(void);
 extern BtlPacket *func_001d3900(u16 arg0);
-extern u8 *func_0019e9f0(u8 *unit, s16 value);
+extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value);
 extern BtlPacket *func_001d3d00(u32 action);
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 BtlPacket *func_001d7a10(u16 mode);
@@ -1288,7 +1288,7 @@ void func_001a24b0(u8 *action)
             u8 *packet;
             if (*(u16 *)(iter + 0x1A) & 1) {
                 if (action == iter || !(*(u16 *)(iter + 0x1A) & 8)) {
-                    packet = func_0019bdd0(*(u8 **)(iter + 0x30));
+                    packet = btlUnitCreateHidePacket(*(u8 **)(iter + 0x30));
                 } else {
                     packet = func_0019bbe0(*(u8 **)(iter + 0x30), 0xFFFFFF, 8, 0, 4, 0);
                 }
@@ -1419,7 +1419,7 @@ void func_001a24b0(u8 *action)
         while (iter != NULL) {
             if ((*(u16 *)(iter + 0x1A) & 1) && !(*(u16 *)(iter + 0x1A) & 0x400)) {
                 if (action == iter) {
-                    packet = func_0019bd00(*(u8 **)(iter + 0x30));
+                    packet = btlUnitCreateShowPacket(*(u8 **)(iter + 0x30));
                 } else {
                     packet = func_0019bbe0(*(u8 **)(iter + 0x30), (u32)-1, 0, 0, 3, 0);
                 }
@@ -7579,7 +7579,7 @@ void func_001ae3d0(u8 *action)
     packet = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(packet + 96) = *(s64 *)action;
     func_00194590(packet, 0);
-    packet = func_0019e9f0(0, 3);
+    packet = btlUnitCreateLookAtSidePacket(0, 3);
     *(s64 *)(packet + 96) = *(s64 *)action;
     func_00194590(packet, 1);
     packet = (u8 *)btlUnitCreateLookAtDeactivatePacket(NULL, 3);

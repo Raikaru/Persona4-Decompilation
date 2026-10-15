@@ -109,8 +109,8 @@ extern void func_0022bd60(void);
 extern s32 func_001fadc0(u8 *arg0);
 extern u32 btlCountUnitRecords(void);
 extern BtlPacket *func_001f5f70(u32 arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
-extern void func_0019d040(u8 *arg0);
-extern void func_0019d0c0(u8 *arg0);
+extern void btlUnitShowModel(u8 *arg0);
+extern void btlUnitHideModel(u8 *arg0);
 extern s32 func_001ef9a0(void);
 extern void func_002aaaa0(void);
 extern void btlFadeStart(s32 arg0);
@@ -696,7 +696,7 @@ void func_001b1d70(void) {
                     func_0047d170(tmp);
                 }
                 func_0019d7a0(unit, 4);
-                func_0019d040(unit);
+                btlUnitShowModel(unit);
                 *(s32 *)(*(u8 **)(unit + 0xA00) + 0xD8) |= 0x400;
                 mdlClumpSetEnvMapState(mdlGetClump(*(u8 **)(unit + 0xA00)));
             }
@@ -894,7 +894,7 @@ s32 func_001b2380(void)
       spacingIncrement = 0.0f;
       for (unit = *(u8 **)(D_0076449C + 0x178); unit != NULL;
           unit = *(u8 **)(unit + 0xa6c)) {
-        func_0019d040(unit);
+        btlUnitShowModel(unit);
         value = datCalcIsDead(*(u32 *)(unit + 0xa64),0);
         if (value != 0) {
           datCalcSetBadStatus(*(s32 *)(unit + 0xa64),0x80000);
@@ -1306,9 +1306,9 @@ s32 func_001b36b0(void)
             goto check;
 loop:
             if ((*(s32 *)(var16 + 0x9C) & 8) != 0) {
-                func_0019d040(var16);
+                btlUnitShowModel(var16);
             } else {
-                func_0019d0c0(var16);
+                btlUnitHideModel(var16);
             }
             var16 = *(u8 **)(var16 + 0xA6C);
 check:
@@ -1834,7 +1834,7 @@ void func_001b4880(u8 *arg0) {
     extern s8 *func_00457160(void);
     extern BtlPacket *func_001f99c0(BtlAction *action, u16 voice, s32 option, s32 argument, s32 flags);
     extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const struct RwV3d *target, f32 speed, u32 flags);
-    extern BtlPacket *func_0019bdd0(BtlUnit *unit);
+    extern BtlPacket *btlUnitCreateHidePacket(BtlUnit *unit);
     extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
     extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
     extern u32 datCalcIsDead(s32 arg0, s32 arg1);
@@ -1990,7 +1990,7 @@ void func_001b4880(u8 *arg0) {
         while (node != 0) {
             if ((*(u32 *)(node + 0x9C) & 8) != 0) {
                 if (datCalcIsDead(*(s32 *)(node + 0xA64), 0) != 0) {
-                    u8 *deadPacket = (u8 *)func_0019bdd0((BtlUnit *)node);
+                    u8 *deadPacket = (u8 *)btlUnitCreateHidePacket((BtlUnit *)node);
                     *(u8 *)(deadPacket + 0) = 4;
                     *(s64 *)(deadPacket + 8) = *(s64 *)(dependencyPacket + 0x58);
                     *(s64 *)(deadPacket + 0x60) = *(s64 *)base;
@@ -2029,7 +2029,7 @@ void func_001b4880(u8 *arg0) {
         u8 *singleUnit = *(u8 **)(iGpffffb3ac + 0x17C);
         while (singleUnit != 0) {
             if (((*(u32 *)(singleUnit + 0x9C) & 8) != 0) && (*(u8 **)(base + 0x30) != singleUnit)) {
-                pkt = (u8 *)func_0019bdd0((BtlUnit *)singleUnit);
+                pkt = (u8 *)btlUnitCreateHidePacket((BtlUnit *)singleUnit);
                 *(u16 *)(pkt + 0x48) = work->delay;
                 *(s64 *)(pkt + 0x60) = *(s64 *)base;
                 func_00194590(pkt, 0);

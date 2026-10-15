@@ -155,7 +155,7 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     func_0019ef30(arg0, arg1);
 }
-extern s32 func_0019e850(u8 *arg0);
+extern s32 btlUnitLookAtSidePacketUpdate(u8 *arg0);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -201,7 +201,7 @@ extern u8 D_00794150[];
 /* measured: restore pragma state after func_0019df20. */
 #pragma pop
 // FUN_0019E850
-s32 func_0019e850(u8 *arg0)
+s32 btlUnitLookAtSidePacketUpdate(u8 *arg0)
 {
     u16 temp_3;
     u8 *temp_16;
