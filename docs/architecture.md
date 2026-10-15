@@ -154,31 +154,31 @@ The record layout comes from the `D_005DCC64/68/6C + id * 0x50` indexing in
 `func_001029a0` and `func_00102780`. Nearly every *isRunning* callback is
 "find the task by name". Nearly every *end* callback destroys that task.
 Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
-(`func_00102be0`..`func_001034b0`) and `src/promoted/k_sequence.c`.
+(the `Seq*` callbacks, from `SeqInitDataRead_End` to `SeqMovie_End`) and `src/promoted/k_sequence.c`.
 
 | Id | Retail name | Start callback (owner) | Notes |
 |---|---|---|---|
-| 0 | (none) | `func_00102d10` (sequenceList.c), which calls the empty `func_00103590` | Polls for the `"debug menu"` task, which is stripped from retail |
+| 0 | (none) | `SeqDebugMenu_Start` (sequenceList.c), which calls the empty `func_00103590` | Polls for the `"debug menu"` task, which is stripped from retail |
 | 1 | (none) | `func_00102b90`, which calls `initBootChainStart` (`src/Main/init.c`) | `initDataRead`: loads the init tables |
 | 2–5 | FIELD (EVENT) VIEW, DUNGEON VIEW, DUNGEON EDITOR, LARGE MAP DEBUG | k_sequence.c | Viewer and debug modes |
 | 6 | BATTLE | BATTLE sequence start callback: destroys the field resource archives (`K_Fldrc_DestroyArchives`), which calls `func_00192e90` and `func_00193730` (`src/promoted/code1_0019.c`) | See section 8. |
-| 7 | SCRIPT VIEWER | `func_00102f10`, which calls `func_0029e8d0` (`scrScriptProcess.c`) | |
-| 8 | EVENT | `func_00102fe0`, which calls the stub `func_002853b0` | |
+| 7 | SCRIPT VIEWER | `SeqScriptViewer_Start`, which calls `func_0029e8d0` (`scrScriptProcess.c`) | |
+| 8 | EVENT | `SeqEvent_Start`, which calls the stub `func_002853b0` | |
 | 9 | FIELD | `func_00170220` (`src/promoted/k_sequence.c`), which calls `func_00155e10` (`k_field.c`) | 0x1C-byte packet: field, room, entry, spawn, direction |
 | 10 | TOOL EVENT | `func_00170350` | |
 | 11 | DUNGEON | `func_001704a0`, which calls `func_00159e90` (`src/promoted/code1_0015.c`) | |
 | 12 | LARGE MAP | `func_001707b0` | |
 | 13 | FOOD COURT | `func_001708a0` | |
 | 14–21 | KOSAKA, TOHYAMA (MOVIE), NIIDA, YAJI, NOWATARI, MIWA, IMANISHI (STAFF), SAMPLE | various | Per-programmer test entries. **[inferred]** These match the `src/Kosaka/` and `src/Yajima/` directory names. |
-| 22 | WEAPON STORE | `func_00103200`, which calls `func_002bdb50` (`src/Event/Fcl/y_fclShop.c`) | Polls `Y_FclShopMainProc` |
-| 23 | ITEM STORE | `func_001032c0`, which calls `func_002e7510` | Polls `46ShopSystem` |
-| 24 | COMBINE | `func_00103380`, which calls `func_00311260` (`src/Event/Fcl/y_fclCombine.c`) | Polls `Y_FclCombineTitleProc` |
+| 22 | WEAPON STORE | `SeqWeaponStore_Start`, which calls `func_002bdb50` (`src/Event/Fcl/y_fclShop.c`) | Polls `Y_FclShopMainProc` |
+| 23 | ITEM STORE | `SeqItemStore_Start`, which calls `func_002e7510` | Polls `46ShopSystem` |
+| 24 | COMBINE | `SeqCombine_Start`, which calls `func_00311260` (`src/Event/Fcl/y_fclCombine.c`) | Polls `Y_FclCombineTitleProc` |
 | 25 | CALENDAR MAIN | `calendarOpenFlagClear` (`src/calendar.c`) | Section 10 |
 | 26 | CALENDAR (RESTART) | `calendarOpenFlagSet` (`src/calendar.c`) | |
 | 27 | START GAME | `gameSequenceStart` (`src/Main/gameSequence.c`) | Task `"gameSequence"` with update `clndSceneUpdate` |
 | 28 | NAME ENTRY | `func_00103510`, which calls `func_002a2650` (`src/nEntry.c`) | |
-| 29 | MOVIE | `func_00103440`, which calls `func_0046a110` | Also requested by a script command in `src/Script/scrCommonCommand.c` |
-| 30 | MEMORY CARD BOOT CHECK | `func_00102c50`, which calls `func_0012c460` (`src/promoted/code1_0012.c`) | Task `"BootupCheckMemcard"` |
+| 29 | MOVIE | `SeqMovie_Start`, which calls `func_0046a110` | Also requested by a script command in `src/Script/scrCommonCommand.c` |
+| 30 | MEMORY CARD BOOT CHECK | `SeqMemcardBootCheck_Start`, which calls `func_0012c460` (`src/promoted/code1_0012.c`) | Task `"BootupCheckMemcard"` |
 
 ### Boot chain
 
