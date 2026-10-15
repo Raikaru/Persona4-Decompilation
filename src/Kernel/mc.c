@@ -40,9 +40,9 @@ extern char D_0063EB20[];
 extern char D_0063ED38[];
 extern char D_00763900;
 extern void resrcMngSetRenderSuppressed(s32);
-extern s32 func_002a4570(u8 *);
+extern s32 mcStepState(u8 *);
 extern s32 func_002a4d10(s32);
-extern s32 func_002a73c0(s32, u8 *, u8 *, s32);
+extern s32 mcTableRandomize(s32, u8 *, u8 *, s32);
 extern s32 func_002a5630(s32);
 extern s32 func_002a5f00(s32);
 extern void func_00453670(void *, s32, s32, s32, s32);
@@ -74,12 +74,12 @@ extern f32 iGpffff821c;
 extern f32 iGpffff8030;
 extern s32 func_0043c6a0(u32 arg0);
 extern void func_002a7920(f32, f32, f32, s32, u8 *, s32, s32, f32, u8 *);
-extern void func_002a9f50(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
+extern void mcScreenStep(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
 extern void func_002a6b10(s32, s32, s32, void *);
 extern void func_002a7710(s32, u8 *);
 extern void func_002a6b60(s32, s32, s32, u8 *);
 extern void func_002a6c30(s32, s32, s32, u8 *);
-extern void func_002a6960(s32, s32, s32, s32, f32);
+extern void mcSetSkyRenderState(s32, s32, s32, s32, f32);
 extern void func_002a6e30(s32, s32, s32, u8 *);
 extern s32 D_0063ED80[];
 extern f32 cosf(f32);
@@ -140,7 +140,7 @@ extern void func_0025f6b0(f32, f32, f32, s32, u8, void *, s32, void *, McGlyphCa
 extern s16 D_0063EB30[];
 extern char iGpffffa824;
 extern void func_002a2e10(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-extern void func_002a9100(f32, f32, f32, s32, s32, u8 *, s32, u8 *);
+extern void mcDrawLocationText(f32, f32, f32, s32, s32, u8 *, s32, u8 *);
 extern void func_002a95c0(f32, f32, f32, s32, s32, s32, u8 *, u8 *);
 extern u32 RpRandom(void);
 extern s32 D_0063EDB0[];
@@ -204,7 +204,7 @@ void mcSetState(u8 *arg0, s32 arg1) {
 }
 
 // FUN_002A3070
-s32 func_002a3070(u8 *arg0) {
+s32 mcLoadState(u8 *arg0) {
     s32 v;
     s32 r;
     s32 var_16;
@@ -625,7 +625,7 @@ s32 func_002a34e0(u8 *arg0) {
  * preserves retail's load/load/count/version/pointer argument schedule.
  * Cache only the deallocator slot address, not its callback or work pointer. */
 // FUN_002A3D80
-s32 func_002a3d80(s32 address) {
+s32 mcSaveState(s32 address) {
     u8 *arg0 = (u8 *)address;
     s32 v;
     s32 t;
@@ -895,7 +895,7 @@ s32 func_002a4390(s32 arg0) {
    base; the previous nd-9 body must be reconstructed by hand. Dispatch
    register coloring ($v0 value / $v1 base) remains the known floor. */
 // FUN_002A4570
-s32 func_002a4570(u8 *work) {
+s32 mcStepState(u8 *work) {
     s32 value;
     s32 result;
 
@@ -917,7 +917,7 @@ s32 func_002a4570(u8 *work) {
         value = *(s32 *)(work + 8);
         switch (value) {
         case 0:
-            result = func_002a3070(work);
+            result = mcLoadState(work);
             break;
         case 1:
             result = func_002a32c0(work);
@@ -926,7 +926,7 @@ s32 func_002a4570(u8 *work) {
             result = func_002a34e0(work);
             break;
         case 3:
-            result = func_002a3d80((s32)work);
+            result = mcSaveState((s32)work);
             break;
         default:
             break;
@@ -991,7 +991,7 @@ s32 func_002a4570(u8 *work) {
         value = *(s32 *)(work + 8);
         switch (value) {
         case 0:
-            result = func_002a3070(work);
+            result = mcLoadState(work);
             break;
         case 1:
             result = func_002a32c0(work);
@@ -1000,7 +1000,7 @@ s32 func_002a4570(u8 *work) {
             result = func_002a34e0(work);
             break;
         case 3:
-            result = func_002a3d80((s32)work);
+            result = mcSaveState((s32)work);
             break;
         default:
             break;
@@ -1023,7 +1023,7 @@ s32 func_002a4570(u8 *work) {
         value = *(s32 *)(work + 8);
         switch (value) {
         case 0:
-            result = func_002a3070(work);
+            result = mcLoadState(work);
             break;
         case 1:
             result = func_002a32c0(work);
@@ -1032,7 +1032,7 @@ s32 func_002a4570(u8 *work) {
             result = func_002a34e0(work);
             break;
         case 3:
-            result = func_002a3d80((s32)work);
+            result = mcSaveState((s32)work);
             break;
         default:
             break;
@@ -1062,7 +1062,7 @@ s32 func_002a4570(u8 *work) {
         value = *(s32 *)(work + 8);
         switch (value) {
         case 0:
-            result = func_002a3070(work);
+            result = mcLoadState(work);
             break;
         case 1:
             result = func_002a32c0(work);
@@ -1071,7 +1071,7 @@ s32 func_002a4570(u8 *work) {
             result = func_002a34e0(work);
             break;
         case 3:
-            result = func_002a3d80((s32)work);
+            result = mcSaveState((s32)work);
             break;
         default:
             break;
@@ -1134,7 +1134,7 @@ s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
         *(s16 *)(w + 0) = 6;
         /* fallthrough */
     case 6:
-        if (func_002a4570(w) == 0) {
+        if (mcStepState(w) == 0) {
             break;
         }
         resrcMngSetRenderSuppressed(0);
@@ -1284,14 +1284,14 @@ s32 func_002a4f20(s32 arg0)
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
-            func_002a6960(0, 0, 0x280, 0x1C0, 5.0f);
-            func_002a6960(0, 0, 0x280, 0x2D, 0.0f);
-            func_002a6960(0, 0x195, 0x280, 0x30, 0.0f);
+            mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
+            mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
+            mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
             diff = row - *(s32 *)(p + 0x3B4);
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             func_002a7920(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
-            func_002a9f50(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
+            mcScreenStep(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
         }
         idx++;
     }
@@ -1304,15 +1304,15 @@ s32 func_002a4f20(s32 arg0)
             x2 = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y2 = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             if (slot == base || slot == base + 1) {
-                func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
-                func_002a6960(0, 0x83, 0x280, 0x5E, 10.0f);
-                func_002a9f50(x2, y2, 5.0f, alpha, p + 0x14, slot, 1, p);
+                mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
+                mcSetSkyRenderState(0, 0x83, 0x280, 0x5E, 10.0f);
+                mcScreenStep(x2, y2, 5.0f, alpha, p + 0x14, slot, 1, p);
             }
         }
         idx++;
     }
     if (*(s32 *)(p + 0x3AC) + 1 != 0) {
-        func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
+        mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
         diff = *(s32 *)(p + 0x3B8);
         if (diff > 0) {
             *(s32 *)(p + 0x3B8) = diff - 1;
@@ -1450,14 +1450,14 @@ s32 func_002a5630(s32 arg0)
         while (idx < 7) {
             slot = base + idx - 3;
             if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
-                func_002a6960(0, 0, 0x280, 0x1C0, 5.0f);
-                func_002a6960(0, 0, 0x280, 0x2D, 0.0f);
-                func_002a6960(0, 0x195, 0x280, 0x30, 0.0f);
+                mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
+                mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
+                mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
                 diff = row - *(s32 *)(p + 0x3B4);
                 x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
                 y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
                 func_002a7920(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
-                func_002a9f50(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
+                mcScreenStep(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
             }
             idx++;
         }
@@ -1470,15 +1470,15 @@ s32 func_002a5630(s32 arg0)
                 x2 = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
                 y2 = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
                 if (slot == base || slot == base + 1) {
-                    func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
-                    func_002a6960(0, 0x83, 0x280, 0x5E, 10.0f);
-                    func_002a9f50(x2, y2, 5.0f, alpha, p + 0x14, slot, 1, p);
+                    mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
+                    mcSetSkyRenderState(0, 0x83, 0x280, 0x5E, 10.0f);
+                    mcScreenStep(x2, y2, 5.0f, alpha, p + 0x14, slot, 1, p);
                 }
             }
             idx++;
         }
         if (*(s32 *)(p + 0x3AC) + 1 != 0) {
-            func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
+            mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
             diff = *(s32 *)(p + 0x3B8);
             if (diff > 0) {
                 *(s32 *)(p + 0x3B8) = diff - 1;
@@ -1557,14 +1557,14 @@ s32 func_002a5f00(s32 arg0)
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
-            func_002a6960(0, 0, 0x280, 0x1C0, 5.0f);
-            func_002a6960(0, 0, 0x280, 0x2D, 0.0f);
-            func_002a6960(0, 0x195, 0x280, 0x30, 0.0f);
+            mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
+            mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
+            mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
             diff = mcRowDisplacement(base, *(s32 *)(p + 0x3B4));
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             func_002a7920(x, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
-            func_002a9f50(x, y, 5.0f, 0xFF, p + 0x14, slot, 0, p);
+            mcScreenStep(x, y, 5.0f, 0xFF, p + 0x14, slot, 0, p);
         }
         idx++;
     }
@@ -1577,15 +1577,15 @@ s32 func_002a5f00(s32 arg0)
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             if (slot == base || slot == base + 1) {
-                func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
-                func_002a6960(0, 0x83, 0x280, 0x5E, 10.0f);
-                func_002a9f50(x, y, 5.0f, 0xFF, p + 0x14, slot, 1, p);
+                mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
+                mcSetSkyRenderState(0, 0x83, 0x280, 0x5E, 10.0f);
+                mcScreenStep(x, y, 5.0f, 0xFF, p + 0x14, slot, 1, p);
             }
         }
         idx++;
     }
     if (*(s32 *)(p + 0x3AC) + 1 != 0) {
-        func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
+        mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
         diff = *(s32 *)(p + 0x3B8);
         if (diff > 0) {
             *(s32 *)(p + 0x3B8) = diff - 1;
@@ -1601,7 +1601,7 @@ s32 func_002a5f00(s32 arg0)
 #pragma pop
 
 // FUN_002A6510
-s32 func_002a6510(s32 arg0) {
+s32 mcDrawDispatch(s32 arg0) {
     u8 *work = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     s32 flags = *(u32 *)(work + 4);
 
@@ -1701,7 +1701,7 @@ void func_002a66d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
 }
 
 // FUN_002A6960
-void func_002a6960(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
+void mcSetSkyRenderState(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
     void *setState;
     f32 sp5C;
     f32 sp58;
@@ -1915,7 +1915,7 @@ void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
 }
 
 // FUN_002A7330
-s32 func_002a7330(u8 *arg0) {
+s32 mcTableClear(u8 *arg0) {
     s32 i = 0;
     while (i < 0x14) {
         if (!(*(u32 *)arg0 & 1)) {
@@ -1938,7 +1938,7 @@ static inline const s32 *mcTableAt(s32 index, const s32 *base)
  * Keep table indices separate from their bases and reload the stored step.
  * Reuse the table-copy word for width before converting it to float. */
 // FUN_002A73C0
-s32 func_002a73c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
+s32 mcTableRandomize(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     typedef struct { s32 a, b; } I8;
     s32 sp80[8];
     s32 sp60[8];
@@ -2024,7 +2024,7 @@ s32 func_002a73c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
         idx = *(s32 *)(rec + 4);
         cy = *(f32 *)(rec + 0xC);
         cx = *(f32 *)(rec + 8);
-        nw = (u8 *)func_002a7330(work);
+        nw = (u8 *)mcTableClear(work);
         if (nw != 0) {
             *(s32 *)(nw + 4) = idx;
             *(f32 *)(nw + 8) = cx;
@@ -2045,48 +2045,48 @@ void func_002a7710(s32 arg0, u8 *arg1) {
     if (arg0 != 0) {
         p = work;
         for (i = 0; i < 0x14; i++) {
-            if ((*(u32 *)p & 1) && func_002a73c0((s32)arg1, work, p, arg0) != 0) {
+            if ((*(u32 *)p & 1) && mcTableRandomize((s32)arg1, work, p, arg0) != 0) {
                 memset(p, 0, 0x14);
             }
             p += 0x14;
         }
         if (*(u32 *)(work + 0x190) == 0) {
-            q = (u8 *)func_002a7330(work);
+            q = (u8 *)mcTableClear(work);
             if (q != NULL) {
                 *(s32 *)(q + 4) = 0;
                 *(f32 *)(q + 8) = (f32)0x329;
                 *(s32 *)(q + 0xC) = 0;
                 *(s16 *)(q + 0x12) = 5;
             }
-            q = (u8 *)func_002a7330(work);
+            q = (u8 *)mcTableClear(work);
             if (q != NULL) {
                 *(s32 *)(q + 4) = 1;
                 *(f32 *)(q + 8) = (f32)0x265;
                 *(s32 *)(q + 0xC) = 0;
                 *(s16 *)(q + 0x12) = 0x64;
             }
-            q = (u8 *)func_002a7330(work);
+            q = (u8 *)mcTableClear(work);
             if (q != NULL) {
                 *(s32 *)(q + 4) = 2;
                 *(s32 *)(q + 8) = 0x440E0000;
                 *(s32 *)(q + 0xC) = 0;
                 *(s16 *)(q + 0x12) = 0x96;
             }
-            q = (u8 *)func_002a7330(work);
+            q = (u8 *)mcTableClear(work);
             if (q != NULL) {
                 *(s32 *)(q + 4) = 4;
                 *(s32 *)(q + 8) = 0x43B40000;
                 *(s32 *)(q + 0xC) = 0;
                 *(s16 *)(q + 0x12) = 0x82;
             }
-            q = (u8 *)func_002a7330(work);
+            q = (u8 *)mcTableClear(work);
             if (q != NULL) {
                 *(s32 *)(q + 4) = 6;
                 *(s32 *)(q + 8) = 0x43360000;
                 *(s32 *)(q + 0xC) = 0;
                 *(s16 *)(q + 0x12) = 0x50;
             }
-            q = (u8 *)func_002a7330(work);
+            q = (u8 *)mcTableClear(work);
             if (q != NULL) {
                 *(s32 *)(q + 4) = 7;
                 *(s32 *)(q + 8) = 0x42FC0000;
@@ -2446,7 +2446,7 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 a
 /* measured: #pragma opt_common_subs off preserves retail's saved-register
    allocation and repeated color shift; plain O2 C is 8 bytes short. */
 // FUN_002A9100
-void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
+void mcDrawLocationText(f32 fparg0, f32 fparg1, f32 fparg2,
                    s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     u8 spC0[0x60];
     s16 *var_6;
@@ -2700,7 +2700,7 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     str = (u8 *)mcLocationName(temp_16[0x30], temp_16[0x31]);
     frFontExDrawTextWithCharWidth(fparg0 + 151.0f, ((fparg1 - 2.0f) - 6.0f) + 2.0f, fparg2, colorWord.rgba | arg0, 0, 1, (const char *)str, 0, -1);
     temp_18 = mcColorRgb(&colorWord);
-    func_002a9100(fparg0, fparg1, fparg2, temp_18, arg0, (u8 *)baseSpill, arg2, arg4);
+    mcDrawLocationText(fparg0, fparg1, fparg2, temp_18, arg0, (u8 *)baseSpill, arg2, arg4);
     p = (u8 *)&single;
     n = 4;
     if (p != NULL) {
@@ -2784,7 +2784,7 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
    prologue register rotation (retail's FP store order vs int) dominates.
    Rotation floor persists. */
 // FUN_002A9F50
-void func_002a9f50(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4) {
+void mcScreenStep(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4) {
     s32 temp_17;
     s32 temp_17_2;
     s32 temp_17_3;
@@ -2807,7 +2807,7 @@ void func_002a9f50(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 a
             }
             temp_17 = var_2 >> 8;
             func_0025f3f0(5.0f + (113.0f + fparg0), 10.0f + fparg1, fparg2, temp_17, (u8)arg0, 0x43, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-            func_002a9100(mc_add(fparg0, 107.0f), mc_add(fparg1, 17.0f), fparg2,
+            mcDrawLocationText(mc_add(fparg0, 107.0f), mc_add(fparg1, 17.0f), fparg2,
                           temp_17, arg0, (u8 *)arg1, arg2, arg4);
             return;
         }
