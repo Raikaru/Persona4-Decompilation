@@ -186,9 +186,9 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 extern void *SceneDraw_GetList4Matrix(void);
 extern u8 *resrcMngGetColorValue(void);
 extern u8 *resrcMngGetColorTarget(void);
-extern s32 func_001d07e0(u8 *arg0, u8 *arg1);
-extern u8 *func_001d1200(u8 *arg0);
-extern void func_001d10f0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
+extern s32 btlCameraFrameActionStart(u8 *arg0, u8 *arg1);
+extern u8 *btlCameraGetCurrentEntry(u8 *arg0);
+extern void btlCameraInitWork(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 extern void func_001bdeb0(u8 *arg0);
 extern BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 extern u8 *func_00194b60(void);
@@ -207,7 +207,7 @@ extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 
 extern BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
-extern void func_001bc800(u8 *arg0);
+extern void btlCameraReleaseActionRefs(u8 *arg0);
 extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
 extern void func_001bdd60(void);
 extern u8 *func_00105510(s16 arg0);
@@ -224,9 +224,9 @@ extern s32 datCalcHasSkill(u8 *arg0, s32 arg1);
 extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
 extern void datCalcClearAllBuffs(u8 *arg0);
 extern void btlUnitSetColor(u8 *arg0, s32 arg1);
-extern void func_001bc660(s32 state, BtlAction *action, u32 param_3);
-extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
-extern void func_001bd560(f32 *arg0, f32 *arg1);
+extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
+extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
+extern void btlCameraCopyPose(f32 *arg0, f32 *arg1);
 extern void func_001ba790(f32 *arg0, f32 *arg1, f32 *arg2, f32 arg3);
 extern u32 btlMainCurveAppendKeyframe(u16 *arg0, f32 *arg1, f32 *arg2);
 extern u8 D_0060A0E0[];
@@ -2685,15 +2685,15 @@ s32 func_001bc980(u8 *arg0)
     u8 *temp_3;
     u8 *temp_3_2;
 
-    func_001bc660(1, *(BtlAction **)(arg0 + 0), 1);
+    btlCameraSetState(1, *(BtlAction **)(arg0 + 0), 1);
     if (*(s32 *)(arg0 + 0x40) != 0) {
-        func_001bd560(frame.v50, (f32 *)(D_0076449C + 0xC0));
+        btlCameraCopyPose(frame.v50, (f32 *)(D_0076449C + 0xC0));
     } else {
-        func_001bd780(frame.v5C, arg0 + 4, arg0 + 0x10, D_0060A0E0);
+        btlCameraLookAtQuat(frame.v5C, arg0 + 4, arg0 + 0x10, D_0060A0E0);
         *(struct C980Vec3 *)frame.v50 =
             *(struct C980Vec3 *)(arg0 + 4);
     }
-    func_001bd780(frame.v78, arg0 + 0x1C, arg0 + 0x28, D_0060A0E0);
+    btlCameraLookAtQuat(frame.v78, arg0 + 0x1C, arg0 + 0x28, D_0060A0E0);
     *(struct C980Vec3 *)frame.v6C =
         *(struct C980Vec3 *)(arg0 + 0x1C);
     temp_3 = D_0076449C;
@@ -3111,7 +3111,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     unit = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
     if (closeView == 0)
     {
-        func_001bd560((f32*)&frames[0], (f32*)((u8*)camera + 0x9c));
+        btlCameraCopyPose((f32*)&frames[0], (f32*)((u8*)camera + 0x9c));
         distance = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
         btlUnitGetSphereWorldCenter((BtlUnit *)unit, &sphereCenter);
         RtQuatTransformVectors(&forward, (const RwV3d *)(&D_0060A0F0), 1, (const RtQuat *)(unit + 0x1C));
@@ -3138,7 +3138,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
                 scaled.y = half;
             }
         }
-        func_001bd780(&frames[1].rot, &scaled, &candidate, &D_0060A0E0);
+        btlCameraLookAtQuat(&frames[1].rot, &scaled, &candidate, &D_0060A0E0);
         angle = func_001ec2b0(&frames[0].rot, &frames[1].rot);
         x = (f32)nearScale;
         nearDistance = fGpffff8190 * x;
@@ -3196,7 +3196,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
             scaled.x = candidate.x + forward.x;
             scaled.y = candidate.y + forward.y;
             scaled.z = candidate.z + forward.z;
-            func_001bd780(&frames[1].rot, &scaled, &candidate,
+            btlCameraLookAtQuat(&frames[1].rot, &scaled, &candidate,
                          &D_0060A0E0);
 
         }
@@ -3306,7 +3306,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     frames[0].pos.x = center.x + forward.x;
     frames[0].pos.y = center.y + forward.y;
     frames[0].pos.z = center.z + forward.z;
-    func_001bd780(&frames[0].rot, &frames[0].pos, &center,
+    btlCameraLookAtQuat(&frames[0].rot, &frames[0].pos, &center,
                  &D_0060A0E0);
     distance = half / tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
     forward.x = rotated.x * distance;
@@ -3318,7 +3318,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     frames[1].pos.x = center.x + forward.x;
     frames[1].pos.y = center.y + forward.y;
     frames[1].pos.z = center.z + forward.z;
-    func_001bd780(&frames[1].rot, &frames[1].pos, &center,
+    btlCameraLookAtQuat(&frames[1].rot, &frames[1].pos, &center,
                  &D_0060A0E0);
     func_001b73f0(unit);
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
@@ -3446,7 +3446,7 @@ void func_001bf5e0(u8 *camera)
     action = *(u8 **)(camera + 0xE0);
     unit = *(u8 **)(action + 0x30);
     unit2 = *(u8**)(*(int*)((u8*)action + 0x38) + 0x30);
-    func_001bd560((f32*)&frames[0], (f32*)((u8*)camera + 0x9c));
+    btlCameraCopyPose((f32*)&frames[0], (f32*)((u8*)camera + 0x9c));
     btlUnitGetSphereWorldCenter((BtlUnit *)unit, &center1);
     btlUnitGetSphereWorldCenter((BtlUnit *)unit2, &center2);
     center1.y = 0.0f + center1.y + fGpffff803c * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
@@ -3493,7 +3493,7 @@ void func_001bf5e0(u8 *camera)
     dir.y = secondPos.y - center1.y;
     dir.z = secondPos.z - center1.z;
     RwV3dNormalize(&dir, &dir);
-    func_001bd780(&frames[1].rot, &secondPos, &firstPos, &D_0060A0E0);
+    btlCameraLookAtQuat(&frames[1].rot, &secondPos, &firstPos, &D_0060A0E0);
     angle = func_001ec2b0(&frames[0].rot, &frames[1].rot);
     if (angle > fGpffff8158)
     {
@@ -3547,7 +3547,7 @@ void func_001bf5e0(u8 *camera)
         secondPos.x = firstPos.x + dir.x;
         secondPos.y = firstPos.y + dir.y;
         secondPos.z = firstPos.z + dir.z;
-        func_001bd780(&frames[1].rot, &secondPos, &firstPos, &D_0060A0E0);
+        btlCameraLookAtQuat(&frames[1].rot, &secondPos, &firstPos, &D_0060A0E0);
     }
     if (len2 < 600.0f)
     {
@@ -3596,7 +3596,7 @@ void btlAct_SKILL_RECITE_E(u8 *camera)
     extern f32 RwV3dNormalize(DuelVec3 *, const DuelVec3 *);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, DuelVec3 *);
     extern void *func_003dc740(void *, const void *, f32, s32);
-    extern u32 func_001bc3a0(f32 *, f32 *);
+    extern u32 btlCameraClampOffsetToLimit(f32 *, f32 *);
     extern void btlCameraSetDuration(u8 *, f32);
     extern f32 tanf(f32);
     extern f32 fabsf(f32);
@@ -3634,7 +3634,7 @@ void btlAct_SKILL_RECITE_E(u8 *camera)
     f32 sideLength;
     unit = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
     target = *(u8 **)(*(u8 **)(*(u8 **)(camera + 0xE0) + 0x38) + 0x30);
-    func_001bd560((f32*)&frames[0], (f32*)((u8*)camera + 0x9c));
+    btlCameraCopyPose((f32*)&frames[0], (f32*)((u8*)camera + 0x9c));
     unitPoint.x = *(f32 *)(unit + 0xDC);
     unitPoint.y = *(f32 *)(unit + 0x84) * *(f32 *)(unit + 0x2C);
     unitPoint.z = *(f32 *)(unit + 0xE4);
@@ -3671,7 +3671,7 @@ void btlAct_SKILL_RECITE_E(u8 *camera)
     *(f32*)((u8 *)camera + 0x10c) =
         0.5f * *(f32*)((uintptr_t)unit + 0xe8);
     *(DuelVec3*)((u8*)camera + 0x100) = center;
-    func_001bd780(&frames[1].rot, &eyeAdj, &center, &D_0060A0E0);
+    btlCameraLookAtQuat(&frames[1].rot, &eyeAdj, &center, &D_0060A0E0);
     height = radius;
     height += *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
     height += *(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C);
@@ -3724,7 +3724,7 @@ void btlAct_SKILL_RECITE_E(u8 *camera)
         eyeAdj.x = eyeAdj.x + center.x;
         eyeAdj.y = eyeAdj.y + center.y;
         eyeAdj.z = eyeAdj.z + center.z;
-        func_001bd780(&frames[1].rot, &eyeAdj, &center, &D_0060A0E0);
+        btlCameraLookAtQuat(&frames[1].rot, &eyeAdj, &center, &D_0060A0E0);
     }
     else if (angle < fGpffff804c)
     {
@@ -3772,11 +3772,11 @@ void btlAct_SKILL_RECITE_E(u8 *camera)
         candidate.y = center.y + halfHeight * sideLength / dist;
         candidate.x = selectedCenter.x + direction.z * selectedRadius;
         candidate.z = selectedCenter.z - direction.x * selectedRadius;
-        func_001bd780(&rots[0], &candidate, &center, &D_0060A0E0);
+        btlCameraLookAtQuat(&rots[0], &candidate, &center, &D_0060A0E0);
         angle = func_001ec2b0(&frames[0].rot, &rots[0]);
         candidate.x = selectedCenter.x - direction.z * selectedRadius;
         candidate.z = selectedCenter.z + direction.x * selectedRadius;
-        func_001bd780(&rots[1], &candidate, &center, &D_0060A0E0);
+        btlCameraLookAtQuat(&rots[1], &candidate, &center, &D_0060A0E0);
         ratio = func_001ec2b0(&frames[0].rot, &rots[1]);
         if (angle < ratio)
         {
@@ -3801,8 +3801,8 @@ void btlAct_SKILL_RECITE_E(u8 *camera)
     frames[1].pos.x = center.x + eyeAdj.x;
     frames[1].pos.y = center.y + eyeAdj.y;
     frames[1].pos.z = center.z + eyeAdj.z;
-    func_001bc3a0((f32*)&frames[0], (f32*)&frames[0]);
-    func_001bc3a0((f32*)&frames[1], (f32*)&frames[1]);
+    btlCameraClampOffsetToLimit((f32*)&frames[0], (f32*)&frames[0]);
+    btlCameraClampOffsetToLimit((f32*)&frames[1], (f32*)&frames[1]);
     btlMainCurveSetPoses((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, 2.0f);
     }

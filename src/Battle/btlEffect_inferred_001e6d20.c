@@ -24,7 +24,7 @@ typedef struct P4RouteSlerp_001EF110 {
     f32 angle;
     s32 mode;
 } P4RouteSlerp_001EF110;
-extern void func_001bd780(void *out, const void *first,
+extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *up);
 extern void *D_00609850[];
 extern s64 scrGetParamInt();

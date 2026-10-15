@@ -31,6 +31,6 @@ u8 *func_001d3b50(u8 *action);
 
 /* Camera work predicate: enable bit (bit 0 of +0x0E) read from the camera work;
  * the retail callee reads only its first argument and returns 0 or 1. */
-u32 func_001d10d0(void *camera);
+u32 btlCameraIsEnabled(void *camera);
 
 #endif

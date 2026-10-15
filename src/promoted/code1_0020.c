@@ -182,7 +182,7 @@ extern void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState);
 extern void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend);
 extern void func_002089e0();
 extern void func_00208870(u8 *unused, u8 *arg1, f32 *arg2);
-extern void func_001bc660(s32 state, BtlAction *action, u32 param_3);
+extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
 extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
 extern u8 *func_001b0c80(s32 arg0);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
@@ -270,7 +270,7 @@ void func_00200770(u8 *arg0)
         Vec3 sp120;
     } Frame;
     extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
-    extern u16 func_001bc7f0(void);
+    extern u16 btlCameraGetState(void);
     extern void func_0048a150(void *arg0, void *arg1);
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
@@ -278,7 +278,7 @@ void func_00200770(u8 *arg0)
     extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
     extern void mdlAdvanceModelFromFlags(void *arg0);
     extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
-    extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
+    extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
     extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
     extern u8 *iGpffffb474;
     Frame frame;
@@ -295,13 +295,13 @@ void func_00200770(u8 *arg0)
     if ((temp_3 >= temp_4) || (temp_3 == 0)) {
         if (temp_4 == 0) {
             if (*(u16 *)(temp_16 + 0x38) == 0) {
-                func_001bc660(1, NULL, 1);
+                btlCameraSetState(1, NULL, 1);
                 func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
             } else {
-                func_001bc660(1, NULL, 0);
+                btlCameraSetState(1, NULL, 0);
             }
         }
-        if (((func_001bc7f0() & 0xFFFF) == 1) && (*(s32 *)temp_17 != 0)) {
+        if (((btlCameraGetState() & 0xFFFF) == 1) && (*(s32 *)temp_17 != 0)) {
             func_0048a150(frame.spE0, arg0 + 0x10);
             func_0047a1c0(*(u8 **)temp_17, frame.spE0, 0);
             temp_f0 = *(f32 *)(arg0 + 0x20) * *(f32 *)(temp_16 + 0x34);
@@ -318,7 +318,7 @@ void func_00200770(u8 *arg0)
             func_0047a510(*(u8 **)temp_17, *(u16 *)(temp_17 + 4), frame.sp60);
             func_0047a510(*(u8 **)temp_17, *(u16 *)(temp_17 + 4) + 1, frame.sp90 + 0x10);
             frame.sp40 = *(Vec3 *)frame.sp90;
-            func_001bd780(&frame.sp4C, frame.sp90, frame.spD0, frame.sp70);
+            btlCameraLookAtQuat(&frame.sp4C, frame.sp90, frame.spD0, frame.sp70);
             btlMainCurveReset((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.sp40));
         }
     }
@@ -371,21 +371,21 @@ void func_00200a60(u8 *arg0)
     if (*(s32 *)(arg0 + 0x28) != 0) {
         goto done;
     }
-    func_001bc660(1, NULL, 1);
+    btlCameraSetState(1, NULL, 1);
     func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
     temp_4 = *(s32 *)(temp_16 + 0);
     switch (temp_4) {
     case 0:
-        func_001bc660(0x2C, NULL, 1);
+        btlCameraSetState(0x2C, NULL, 1);
         break;
     case 1:
-        func_001bc660(0x2D, NULL, 1);
+        btlCameraSetState(0x2D, NULL, 1);
         break;
     case 2:
-        func_001bc660(0x2E, (BtlAction *)func_001b0c80(D_00881444_abs[0]), 1);
+        btlCameraSetState(0x2E, (BtlAction *)func_001b0c80(D_00881444_abs[0]), 1);
         break;
     case 3:
-        func_001bc660(6, (BtlAction *)func_001b0c80(D_00881444_abs[0]), 1);
+        btlCameraSetState(6, (BtlAction *)func_001b0c80(D_00881444_abs[0]), 1);
         break;
     }
     if (*(u8 *)(temp_16 + 4) == 0) {

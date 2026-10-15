@@ -24,7 +24,7 @@ typedef struct P4RouteSlerp_001EF110 {
     f32 angle;
     s32 mode;
 } P4RouteSlerp_001EF110;
-extern void func_001bd780(void *out, const void *first,
+extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *up);
 extern f32 RwV3dLength(f32 *vector);
 extern void func_003dcc70(const void *first, const void *second, void *result);
@@ -3561,7 +3561,7 @@ s32 func_001ef110(u8 *route, const f32 *startXZ,
     center[2] = centerXZ[1];
     endpoint[0] = startXZ[0];
     endpoint[2] = startXZ[1];
-    func_001bd780(&startRotation, center, endpoint, D_0060A0E0);
+    btlCameraLookAtQuat(&startRotation, center, endpoint, D_0060A0E0);
     direction[0] = center[0] - endpoint[0];
     direction[1] = center[1] - endpoint[1];
     direction[2] = center[2] - endpoint[2];
@@ -3569,7 +3569,7 @@ s32 func_001ef110(u8 *route, const f32 *startXZ,
 
     endpoint[0] = endXZ[0];
     endpoint[2] = endXZ[1];
-    func_001bd780(&endRotation, center, endpoint, D_0060A0E0);
+    btlCameraLookAtQuat(&endRotation, center, endpoint, D_0060A0E0);
     direction[0] = center[0] - endpoint[0];
     direction[1] = center[1] - endpoint[1];
     direction[2] = center[2] - endpoint[2];

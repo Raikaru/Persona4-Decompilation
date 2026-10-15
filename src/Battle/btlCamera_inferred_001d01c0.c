@@ -71,7 +71,7 @@ struct RtQuat
 };
 
 extern s32 func_001b1540(void);
-extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
+extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
 extern f32 tanf(f32 arg0);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
@@ -140,7 +140,7 @@ void btlAct_PURSUIT(u8 *arg0)
     eye.z = (0.0f + eye.z) + side.x * spread;
     eye.y = (0.0f + firstCenter.y) +
             fGpffff803c * (*(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C));
-    func_001bd780(&poses.firstRotation, &eye, &focus, D_0060A0E0);
+    btlCameraLookAtQuat(&poses.firstRotation, &eye, &focus, D_0060A0E0);
     distance = (2.5f * radius) /
                tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
     direction.x = direction.x * distance;

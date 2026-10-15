@@ -45,7 +45,7 @@ struct RwMatrixTag {
 };
 
 extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
-extern u32 func_001c6f40(u8 *camera, s32 resultCode, s32 useAlternate,
+extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
 extern f32 fGpffff809c;
 extern f32 fGpffff8198;
@@ -67,7 +67,7 @@ extern u8 D_005FA2D0[];
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
+extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
 extern u8 D_0060A0D0[];
 extern u8 D_0060A0E0[];
 extern RwV3d D_0060A0F0;
@@ -132,7 +132,7 @@ void func_001c04e0(u8 *camera)
     extern f32 func_003e41e0(f32 *, f32 *);
     extern f32 func_001ec3d0(u8 *, u8 *, u8 *, u8 *);
     extern f32 tanf(f32);
-    extern void func_001bd5a0(f32 *, f32 *);
+    extern void btlCameraCopyPoseSnapshot(f32 *, f32 *);
     extern void btlMainCurveReset(u16 *, f32 *);
     extern void func_001bcd40(u8 *, u8 *, f32 *, f32, u16);
     extern f32 fGpffff8030;
@@ -218,7 +218,7 @@ void func_001c04e0(u8 *camera)
         eyeZ = eyeBase.z;
         position.z = 0.0f + eyeZ + direction.x * offset;
     }
-    func_001bd780(&frame.rot, &position, &sideDir, D_0060A0E0);
+    btlCameraLookAtQuat(&frame.rot, &position, &sideDir, D_0060A0E0);
     RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frame.rot);
     rayFrom[0] = sideDir.x;
     rayFrom[1] = sideDir.z;
@@ -240,7 +240,7 @@ void func_001c04e0(u8 *camera)
     frame.pos.y = position.y + direction.y;
     frame.pos.z = position.z + direction.z;
     if (frame.pos.y < 25.0f) frame.pos.y = 25.0f;
-    func_001bd5a0((f32 *)(camera + 0x9C), (f32 *)&frame);
+    btlCameraCopyPoseSnapshot((f32 *)(camera + 0x9C), (f32 *)&frame);
     func_001c8e90(camera, &frame, &adjusted);
     btlMainCurveReset((u16 *)camera, (f32 *)&adjusted);
     func_001bcd40(*(u8 **)(camera + 0xE0), camera + 0x9C, (f32 *)(camera + 0x100), 0.5f * (radius2 + (length + radius1)),
