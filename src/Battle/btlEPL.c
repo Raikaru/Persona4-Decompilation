@@ -1367,7 +1367,7 @@ void btlEplApplyScaleEffect(u8 *arg0) {
                         func_00194ff0(node, sp120, sp50, NULL);
                         btlUnitSetPos(node, sp120);
                         btlUnitSetRot(node, sp50);
-                        func_00198dd0((u8 *)node, 0);
+                        btlUnitUpdateStatusMotion((u8 *)node, 0);
                         func_00198920((u8 *)node, node->motion, 0, node->rate, (u16)node->option);
                     }
                     node = node->next;

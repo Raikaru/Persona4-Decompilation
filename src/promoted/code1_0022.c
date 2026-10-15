@@ -3435,7 +3435,7 @@ s32 func_00229c40(u8 *arg0)
         *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) &= ~8;
         btlUnitHideModel(*(u8 **)(arg0 + 0x30));
         datCalcClearAllBuffs(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
-        func_00198dd0(*(u8 **)(arg0 + 0x30), 0);
+        btlUnitUpdateStatusMotion(*(u8 **)(arg0 + 0x30), 0);
         func_00198920(*(u8 **)(arg0 + 0x30), 0, 0, 1.0f, 1);
         *(u8 **)(DAT_0076449c + 0xB98) = &D_0062D920[0];
         temp_4_3 = DAT_0076449c;
@@ -4280,7 +4280,7 @@ loop_test:
         }
         value = (s32)func_001f7650(*(u8 **)(arg0 + 0x30));
         *(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA00) + 0x2DC) = value;
-        func_00198dd0(*(u8 **)(arg0 + 0x30), 6);
+        btlUnitUpdateStatusMotion(*(u8 **)(arg0 + 0x30), 6);
         func_00106390(0x15C0, 0);
         *(s32 *)(DAT_0076449c + 0xBB4) = 0;
         *(s32 *)(DAT_0076449c + 0xBC8) = 0;
@@ -5708,7 +5708,7 @@ s32 func_0022eba0(u8 *packet)
             *(s16 *)(DAT_0076449c + 0xC34) = 3;
             **(u16 **)(unit + 0xA64) |= 0x20;
             datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
-            func_00198dd0(other, 0);
+            btlUnitUpdateStatusMotion(other, 0);
             func_00198920(other, 0, 0, 1.0f, 1);
             *(u8 **)(DAT_0076449c + 0xB98) = D_0062E070;
             target = func_001b0c80((s32)other);

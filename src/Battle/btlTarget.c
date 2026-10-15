@@ -883,7 +883,7 @@ s32 func_001f3010(u8* arg0)
         }
     }
     func_0022d600(*(u8**)(arg0 + 0), temp_19, (s32 *)(arg0 + 8));
-    func_00198dd0(temp_18, 6);
+    btlUnitUpdateStatusMotion(temp_18, 6);
     return 1;
 }
 // FUN_001F36B0
