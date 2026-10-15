@@ -14,7 +14,7 @@ extern void func_0045d6e0(void *, void *, f32, s32);
 extern void func_0025f230(u32 param_1);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void func_002a6650(void *, void *);
-extern void func_002a6680(s32);
+extern void mcQueueDrawJob(s32);
 extern void mcIconWorkFree(void *arg0);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void kAssertFail(const void *file, u32 line);
@@ -41,7 +41,7 @@ extern char D_0063ED38[];
 extern char D_00763900;
 extern void resrcMngSetRenderSuppressed(s32);
 extern s32 mcStepState(u8 *);
-extern s32 func_002a4d10(s32);
+extern s32 mcAnimateTransition(s32);
 extern s32 mcTableRandomize(s32, u8 *, u8 *, s32);
 extern s32 func_002a5630(s32);
 extern s32 func_002a5f00(s32);
@@ -77,7 +77,7 @@ extern void func_002a7920(f32, f32, f32, s32, u8 *, s32, s32, f32, u8 *);
 extern void mcScreenStep(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
 extern void func_002a6b10(s32, s32, s32, void *);
 extern void func_002a7710(s32, u8 *);
-extern void func_002a6b60(s32, s32, s32, u8 *);
+extern void mcDrawGlyph(s32, s32, s32, u8 *);
 extern void func_002a6c30(s32, s32, s32, u8 *);
 extern void mcSetSkyRenderState(s32, s32, s32, s32, f32);
 extern void func_002a6e30(s32, s32, s32, u8 *);
@@ -356,7 +356,7 @@ s32 func_002a32c0(u8 *arg0) {
 
 
 // FUN_002A34E0
-s32 func_002a34e0(u8 *arg0) {
+s32 mcMemcardStep(u8 *arg0) {
     s32 var_17;
     u8 *temp_16;
     s32 v;
@@ -923,7 +923,7 @@ s32 mcStepState(u8 *work) {
             result = func_002a32c0(work);
             break;
         case 2:
-            result = func_002a34e0(work);
+            result = mcMemcardStep(work);
             break;
         case 3:
             result = mcSaveState((s32)work);
@@ -958,7 +958,7 @@ s32 mcStepState(u8 *work) {
             if (*(u32 *)(work + 4) & 2) {
                 *(s16 *)(work + 2) = 7;
                 func_0045af60(0, 0, 0, 1);
-            } else if (func_002a6af0(work) == 1) {
+            } else if (mcCurrentSlotValue(work) == 1) {
                 *(s16 *)(work + 2) = 0xC;
                 func_0045af60(0, 0, 0, 1);
             } else {
@@ -997,7 +997,7 @@ s32 mcStepState(u8 *work) {
             result = func_002a32c0(work);
             break;
         case 2:
-            result = func_002a34e0(work);
+            result = mcMemcardStep(work);
             break;
         case 3:
             result = mcSaveState((s32)work);
@@ -1029,7 +1029,7 @@ s32 mcStepState(u8 *work) {
             result = func_002a32c0(work);
             break;
         case 2:
-            result = func_002a34e0(work);
+            result = mcMemcardStep(work);
             break;
         case 3:
             result = mcSaveState((s32)work);
@@ -1068,7 +1068,7 @@ s32 mcStepState(u8 *work) {
             result = func_002a32c0(work);
             break;
         case 2:
-            result = func_002a34e0(work);
+            result = mcMemcardStep(work);
             break;
         case 3:
             result = mcSaveState((s32)work);
@@ -1149,7 +1149,7 @@ s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
     case 8:
         return -1;
     }
-    func_002a6680(arg0);
+    mcQueueDrawJob(arg0);
     return 0;
 }
 
@@ -1170,7 +1170,7 @@ void mcIconTaskDestroy(u8 *sdkTaskBytes) {
 /* Exact under MWCC b210/O2: three one-field values preserve the two source
    color slots and their shared output slot without synthetic padding. */
 // FUN_002A4D10
-s32 func_002a4d10(s32 task) {
+s32 mcAnimateTransition(s32 task) {
     typedef struct { f32 value; } ColorValue;
     u8 *work;
     s32 frame;
@@ -1254,7 +1254,7 @@ s32 func_002a4f20(s32 arg0)
         ramp = 1.0f;
     }
     alpha = (s32)(255.0f * ramp);
-    func_002a6b60(0, 0, alpha, p);
+    mcDrawGlyph(0, 0, alpha, p);
     func_002a6c30(0, 0, alpha, p);
     wave = sinf((D_00761184 * (f32)*(s32 *)(p + 0x568)) / 30.0f);
     target = (s32)((u32)*(s32 *)(p + 0x3AC) << 16);
@@ -1411,7 +1411,7 @@ s32 func_002a5630(s32 arg0)
         ramp3 = 1.0f;
     }
     fade = (s32)(255.0f * (1.0f - ramp3));
-    func_002a6b60(0, 0, fade, p);
+    mcDrawGlyph(0, 0, fade, p);
     func_002a6c30(0, 0, fade, p);
     frame = *(s32 *)(p + 0x568);
     if (frame < 10) {
@@ -1534,7 +1534,7 @@ s32 func_002a5f00(s32 arg0)
     p = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
     func_002a6b10(0, 0, 255, p);
     func_002a7710(255, p);
-    func_002a6b60(0, 0, 255, p);
+    mcDrawGlyph(0, 0, 255, p);
     func_002a6c30(0, 0, 255, p);
     target = (s32)((u32)*(s32 *)(p + 0x3AC) << 16);
     if (*(s32 *)(p + 0x3B4) != target) {
@@ -1609,7 +1609,7 @@ s32 mcDrawDispatch(s32 arg0) {
         return 0;
     }
     if (flags & 0x400) {
-        if (func_002a4d10(arg0) != 0) {
+        if (mcAnimateTransition(arg0) != 0) {
             *(u32 *)(work + 4) &= ~0x400;
             *(u32 *)(work + 4) |= 0x20000;
         }
@@ -1632,7 +1632,7 @@ s32 mcDrawDispatch(s32 arg0) {
 }
 
 // FUN_002A6680
-void func_002a6680(s32 arg0) {
+void mcQueueDrawJob(s32 arg0) {
     u8 *work = func_00460990();
     *(void **)(work + 8) = func_002a6650;
     *(void **)(work + 0x10) = (void *)arg0;
@@ -1752,7 +1752,7 @@ void mcSetSkyRenderState(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
 }
 
 // FUN_002A6AF0
-s32 func_002a6af0(u8 *arg0) {
+s32 mcCurrentSlotValue(u8 *arg0) {
     s32 idx = *(s32 *)(arg0 + 0x3AC) * 4;
     return *(s32 *)(idx + (s32)arg0 + 0x14);
 }
@@ -1773,7 +1773,7 @@ void func_002a6b10(s32 arg0, s32 arg1, s32 arg2, void *arg3) {
 }
 
 // FUN_002A6B60
-void func_002a6b60(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
+void mcDrawGlyph(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     if (arg2 != 0) {
         if (*(s32 *)(arg3 + 4) & 2) {
             func_0025f3f0((f32)(arg0 + 0x1C0), (f32)(arg1 + 0xC), 0.0f, 0xFFFFFF, arg2 & 0xFF, 0x3D, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
