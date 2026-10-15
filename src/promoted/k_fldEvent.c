@@ -803,7 +803,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     u32 datGetFlag(s32);
     s32 func_0015a160(void);
     s32 func_0015a7c0(s32);
-    void func_00151f80(u8 *);
+    void FldResource_Destroy(u8 *);
     s32 func_0014a200(void);
     s32 func_0014a270(void);
     void func_00145080(void);
@@ -852,9 +852,9 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_00452490(void *);
     void func_00106390(s32, s32);
     s32 func_00192e90(s32);
-    s32 func_0014ef40(void);
-    s32 func_0014ef80(void);
-    void func_0014eed0(s32, s32);
+    s32 FldResource_IsPrimaryFileLoaded(void);
+    s32 FldResource_IsSecondaryFileLoaded(void);
+    void FldResource_OpenPrimaryFile(s32, s32);
     s32 FldUnit_GetActiveCount(void);
     void FldUnit_ReleaseAllSlots(void);
     void FldUnit_StartSlotAnims(void);
@@ -1236,7 +1236,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         for (i = 0; i < 0x10; i++) {
                             s32 v = D_007E8060[i];
                             if (v != 0) {
-                                func_00151f80((u8 *)(v));
+                                FldResource_Destroy((u8 *)(v));
                                 D_007E8060[i] = 0;
                             }
                         }
@@ -1258,7 +1258,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             work->state = work->state + 1;
             goto running;
         case 11:
-            if (func_00452490((void *)(work->battleTask)) != 1 && func_0014ef40() != 0 && func_0014ef80() != 0) {
+            if (func_00452490((void *)(work->battleTask)) != 1 && FldResource_IsPrimaryFileLoaded() != 0 && FldResource_IsSecondaryFileLoaded() != 0) {
                 work->battleTask = 0;
                 work->state = work->state + 1;
             }
@@ -1307,7 +1307,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 }
                 {
                     s32 v6 = func_00156170(*(u8 **)(u8 *)func_00155280());
-                    func_0014eed0(v6, func_00156180(*(u8 **)(u8 *)func_00155280()));
+                    FldResource_OpenPrimaryFile(v6, func_00156180(*(u8 **)(u8 *)func_00155280()));
                 }
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
                     work->unitState = FldUnit_GetActiveCount();
@@ -1321,7 +1321,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             }
             goto running;
         case 13:
-            if (func_0014ef40() != 0) {
+            if (FldResource_IsPrimaryFileLoaded() != 0) {
                 s32 v6;
                 s32 a;
                 s32 b;

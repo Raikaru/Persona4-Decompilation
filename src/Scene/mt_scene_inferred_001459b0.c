@@ -112,7 +112,7 @@ extern void func_0015f720(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 
 extern u8 *func_003e0f80(void);
 extern void memcpy(void *dest, const void *src, s32 size);
 extern void func_00147430();
-extern void func_00151f80(void *arg0);
+extern void FldResource_Destroy(void *arg0);
 extern void func_00268b20(void *arg0);
 extern void func_003bbb60(s32 arg0);
 extern void func_003e0f40(s32 arg0);
@@ -837,7 +837,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
         case RESRC_TYPE_FLD:
             value1A0 = resourceRecord->handle1A0;
             if (value1A0 != 0) {
-                func_00151f80((void *)value1A0);
+                FldResource_Destroy((void *)value1A0);
                 resourceRecord->handle1A0 = 0;
                 func_00440b68(&D_005EF910, resourceRecord);
             }

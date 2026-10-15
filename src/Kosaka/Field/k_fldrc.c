@@ -18,7 +18,7 @@ extern char D_005efcc0[];
 extern char D_005efcd0[];
 extern u32 sprintf();
 extern u32 strcat();
-extern void* func_00150970(char* path);
+extern void* FldResource_Create(char* path);
 extern void func_003c21e0();
 extern void func_003ca270(void *object, void *callback, void *userdata);
 extern s32 func_00452080(void *arg0);
@@ -51,7 +51,7 @@ void* func_00150890(s16 majorId, s16 minorId)
     sprintf(token, (const char*)&gp0xffff9e00 - 0x6200, minorId);
     strcat(path, token);
     strcat(path, (const char*)&gp0xffff9e08 - 0x61f8);
-    return func_00150970(path);
+    return FldResource_Create(path);
 }
 // FUN_0018C680
 void *func_0018c680(void *object, void *data)

@@ -25,7 +25,7 @@ extern void func_002bd410(void);
 extern void func_002bd3e0(void);
 extern void func_00149690(s32);
 extern void func_00452080(s32);
-extern void func_00151f80(s32);
+extern void FldResource_Destroy(s32);
 extern s32 func_00102980(void);
 extern void func_001622d0(void);
 extern void FldUnit_ReleaseGroupSlots(void);
@@ -84,7 +84,7 @@ extern void func_002aaaa0(void);
 extern s32 func_00293fc0(s32);
 extern s32 func_002940a0(s32, s32 *, s32 *, s32 *, s32 *);
 extern void func_0046d730(const void *, s32);
-extern void func_0014eed0(u16, u16);
+extern void FldResource_OpenPrimaryFile(u16, u16);
 extern void func_00162200(s32);
 extern void func_001227d0(void);
 extern void FldUnit_SpawnAtEntry(u16, u16, u16);
@@ -171,7 +171,7 @@ s32 func_00155360(u8 *task)
                 work->room = room;
                 work->spawn = spawn;
                 work->direction = direction;
-                func_0014eed0(work->field, work->room);
+                FldResource_OpenPrimaryFile(work->field, work->room);
                 for (index = 0; index < 4; index++) {
                     func_00162200(index);
                 }
@@ -380,7 +380,7 @@ void func_00155bf0(u8 *arg0)
             temp_20 = (s32 *)KFIELD_D_007E8060 + var_18;
             temp_4_2 = *temp_20;
             if (temp_4_2 != 0) {
-                func_00151f80(temp_4_2);
+                FldResource_Destroy(temp_4_2);
                 *temp_20 = 0;
                 *(s32 *)(iGpffff9db0 + temp_16 + 0x28) = 0;
             }
@@ -437,7 +437,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_00149680(s32 arg0);
 extern s32 func_00293ed0(s32 a, s32 b, s32 c, s32 d);
 extern void func_0029ddb0(s32 arg0);
-extern void func_0014eed0(u16 arg0, u16 arg1);
+extern void FldResource_OpenPrimaryFile(u16 arg0, u16 arg1);
 extern u8 D_007D255A[];
 extern u8 D_007D255B[];
 extern s32 D_007D255C[];
@@ -457,7 +457,7 @@ extern s32 func_00155360(u8 *arg0);
    $s0 and the handle reusing $s1. The camera position constant is copied as
    an s64 + f32 scalar pair (two lui, both loads before both stores, which
    needs opt_propagation off) into a Vec3 local that is then assigned as a
-   12-byte aggregate (three lwc1 then three swc1). func_0014eed0 takes the
+   12-byte aggregate (three lwc1 then three swc1). FldResource_OpenPrimaryFile takes the
    two u16 parameters unmasked. */
 // FUN_00155E10
 /* measured: opt_propagation off keeps the scalar-pair copy's two loads ahead
@@ -504,7 +504,7 @@ s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
         D_007D255A[0] = arg7;
         D_007D255B[0] = *(u8 *)&arg8;
         D_007D255C[0] = *(s32 *)&arg9;
-        func_0014eed0(arg1, arg2);
+        FldResource_OpenPrimaryFile(arg1, arg2);
         *(s32 *)(work + 0) = 1;
     }
     copy_s64 = D_005EFF38[0];

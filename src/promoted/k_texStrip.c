@@ -62,10 +62,10 @@ extern s32 func_00428550(const char *path);
 extern s32 func_00428780(s32 handle, void *out);
 extern s32 strcmp(const char *a, const char *b);
 extern char *strcpy(char *dst, const char *src);
-extern u8 *func_00150970(void *path);
-extern s32 func_00150c80(void *hdr);
-extern void func_00150ce0(void *hdr);
-extern s32 func_001510c0(void *hdr);
+extern u8 *FldResource_Create(void *path);
+extern s32 FldResource_IsFileLoaded(void *hdr);
+extern void FldResource_ParseChunks(void *hdr);
+extern s32 FldResource_PollLoads(void *hdr);
 extern s32 func_004581a0(void *object, const char *name);
 extern s32 func_00426cf0(void *path, s32 a, s32 b);
 extern size_t strlen(const char *buf);
@@ -75,7 +75,7 @@ extern s32 func_00427338(s32 fd, void *buf, s32 n);
 extern s32 func_004275a8(s32 fd, void *buf, s32 n);
 extern void func_00426f80(s32 fd);
 extern void func_00428f08(void *a, s32 b);
-extern void func_00151f80(void *hdr);
+extern void FldResource_Destroy(void *hdr);
 extern void func_00463250(void *a);
 extern char D_005F61D0[];
 extern char D_005F61F8[];
@@ -309,7 +309,7 @@ s32 func_00190c10(u8 *task)
                 if (strcmp(p, &D_00763140) == 0) {
                     strcpy((void *)&work[0x53], D_005F61F8);
                     strcat((void *)&work[0x53], (void *)&work[0x12]);
-                    work[0x93] = (s32)func_00150970((void *)&work[0x53]);
+                    work[0x93] = (s32)FldResource_Create((void *)&work[0x53]);
                     func_00440b68(D_005F6210, &work[0x53]);
                     work[0] = 2;
                 }
@@ -320,15 +320,15 @@ s32 func_00190c10(u8 *task)
         break;
     }
     case 2:
-        if (func_00150c80((void *)work[0x93]) != 0) {
-            func_00150ce0((void *)work[0x93]);
+        if (FldResource_IsFileLoaded((void *)work[0x93]) != 0) {
+            FldResource_ParseChunks((void *)work[0x93]);
             work[0] = 3;
         }
         break;
     case 3: {
         u32 resourceIndex;
         s32 propertyIndex;
-        if (func_001510c0((void *)work[0x93]) != 0) {
+        if (FldResource_PollLoads((void *)work[0x93]) != 0) {
             work[0x95] = 0;
             work[0x296] = 0;
             for (resourceIndex = 0; resourceIndex < ((u32 *)work[0x93])[6]; resourceIndex++) {
@@ -423,7 +423,7 @@ s32 func_00190c10(u8 *task)
                 work[0x397]++;
             }
         } else {
-            func_00151f80((void *)work[0x93]);
+            FldResource_Destroy((void *)work[0x93]);
             hdr = (s32 *)work[0x93];
             hdr = (s32 *)hdr[0x291];
             func_00463250((void *)hdr[0x4A]);
