@@ -101,7 +101,7 @@ typedef struct F8060Frame
 } F8060Frame;
 
 extern s32 func_0014a200(void);
-extern s32 func_0016a960(RwV3d *arg0, RwV3d *arg1, f32 fparg0,
+extern s32 FldFrame_RaycastFieldWorlds(RwV3d *arg0, RwV3d *arg1, f32 fparg0,
                          u16 arg2);
 extern void func_001823d0(s32 arg0, u16 arg1, u16 arg2);
 
@@ -275,7 +275,7 @@ s32 func_00168060(u8 *arg0)
                 stack.sp50.y += 200.0f;
             }
             stack.sp5c.y -= 1000.0f;
-            if (func_0016b540(&stack.sp50, &stack.sp90) == 1) {
+            if (FldFrame_RaycastSelectedWorld(&stack.sp50, &stack.sp90) == 1) {
                 *(f32 *)(work + 0x1C) = -(stack.sp70.y - stack.sp90.y);
             }
         }
@@ -288,7 +288,7 @@ s32 func_00168060(u8 *arg0)
             stack.sp70 = *(RwV3d *)(source + 0x30);
             stack.sp70.y += *(f32 *)(work + 0x24);
             if ((*(u32 *)(work + 4) & 0x10000000) == 0) {
-                func_0016a960(&stack.sp70, &stack.sp80,
+                FldFrame_RaycastFieldWorlds(&stack.sp70, &stack.sp80,
                               *(f32 *)(work + 0x24), *(u16 *)(work + 8));
             }
             func_0047a180((RwMatrix *)*(s32 *)(work + 0x10), &stack.sp80, 2);

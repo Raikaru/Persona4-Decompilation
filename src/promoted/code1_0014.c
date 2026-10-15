@@ -525,7 +525,7 @@ loop_body_0014c540:
             stack.v8c = vec_y;
             stack.v80.y += 100.0f;
             stack.v8c.y += 100.0f;
-            if (func_0016b540(&stack.v80, &stack.hitPoint) == 0) {
+            if (FldFrame_RaycastSelectedWorld(&stack.v80, &stack.hitPoint) == 0) {
                 temp_f0 = RwV3dLength(stack.diffB0);
                 if ((temp_f0 < fparg0) && (temp_f0 < best)) {
                     result = *saved_entry;

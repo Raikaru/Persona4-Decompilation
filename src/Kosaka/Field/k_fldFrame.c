@@ -8,7 +8,7 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef struct RwFrame RwFrame;
 typedef struct RwMatrixTag RwMatrix;
 extern u8* iGpffff9db0;
-// lint: allow H011 -- measured: u16 prototype regresses func_0016a960 (andi on wide id args)
+// lint: allow H011 -- measured: u16 prototype regresses FldFrame_RaycastFieldWorlds (andi on wide id args)
 extern s32 MT_Scene_GetRes(s32 arg0);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern s32 func_0014a160(void);
@@ -17,9 +17,9 @@ extern s32 func_0014a270(void);
 extern s32* func_00155280(void);
 extern s32 func_001687d0(s32 arg0);
 extern s32 func_001687e0(s32 arg0);
-extern s32 func_00169780(void* collisionWorld, f32* origin,
+extern s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin,
                          f32* vector, f32 fraction);
-extern s32 func_0016a110(s32 collisionWorld, f32* origin,
+extern s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32* origin,
                          f32* vector, f32 fraction, s32 fieldId);
 extern RwMatrix* func_003e9700(RwFrame* frame);
 extern s32 func_00457120(void);
@@ -88,7 +88,7 @@ typedef RpCollisionTriangle *(*FldFrameGeometryTriangleCallback)(
 
 extern RpAtomic *func_00394e70(RpAtomic *atomic, RpIntersection *intersection,
     FldFrameGeometryTriangleCallback callback, void *data);
-extern RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
+extern RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 callbackDistance, void *data);
 
 // 44 bytes. Callback state passed through RenderWare field raycasts.
@@ -101,14 +101,14 @@ typedef struct FldFrameRaycast
     f32 nearestFraction;   // 0x24
     void* hitObject;       // 0x28
 } FldFrameRaycast;
-extern RpCollisionTriangle *func_0016b350(RpIntersection *intersection,
+extern RpCollisionTriangle *FldFrame_RaycastTriangle(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 fraction, void *data);
 
 // P3 counterpart fGpffff820c (gp -0x7DF4); P4 retail uses gp -0x7D4C,
 // i.e. absolute 0x007690f0 - 0x7d4c = 0x007613a4.
 extern f32 fGpffff82b4;
-extern void* func_0016b430(void* collisionWorld, void* data);
-extern RpCollisionTriangle *func_0016b770(RpIntersection *intersection,
+extern void* FldFrame_RaycastWorldAtomics(void* collisionWorld, void* data);
+extern RpCollisionTriangle *FldFrame_RaycastTriangleLocal(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 fraction, void *data);
 
 
@@ -116,7 +116,7 @@ extern RpCollisionTriangle *func_0016b770(RpIntersection *intersection,
 
 
 // FUN_00169200
-RwV3d* func_00169200(RwV3d* dst, const RwV3d* point,
+RwV3d* FldFrame_ClosestPointOnSegment(RwV3d* dst, const RwV3d* point,
                      const RwV3d* start, const RwV3d* end)
 {
     RwV3d edge;
@@ -180,7 +180,7 @@ static inline s32 fldFrameFindPlane(u8 *context, const RwV3d *normal)
  * separate failed-comparison and found-index exits. Edge records use the
  * collector base first; interior records retain their scaled-index order. */
 // FUN_00169320
-RpCollisionTriangle *func_00169320(RpIntersection *intersection, RpWorldSector *sector,
+RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWorldSector *sector,
                     RpCollisionTriangle *collision, f32 callbackDistance, void *data)
 {
     /* A sphere center begins the intersection input union. */
@@ -254,7 +254,7 @@ RpCollisionTriangle *func_00169320(RpIntersection *intersection, RpWorldSector *
     {
         for (i = 0; i < 3; i++)
         {
-            func_00169200(&edgePoint, &projected, *(RwV3d**)((u8*)collision + 0x1c + 4 * i), *(RwV3d**)((u8*)collision + 0x1c + 4 * ((i + 1) % 3)));
+            FldFrame_ClosestPointOnSegment(&edgePoint, &projected, *(RwV3d**)((u8*)collision + 0x1c + 4 * i), *(RwV3d**)((u8*)collision + 0x1c + 4 * ((i + 1) % 3)));
             delta.x = point->x - edgePoint.x;
             delta.y = point->y - edgePoint.y;
             delta.z = point->z - edgePoint.z;
@@ -306,7 +306,7 @@ RpCollisionTriangle *func_00169320(RpIntersection *intersection, RpWorldSector *
 #pragma push
 #pragma opt_common_subs on
 #pragma opt_propagation off
-s32 func_00169780(void* collisionWorld, f32* origin, f32* vector, f32 radius)
+s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin, f32* vector, f32 radius)
 {
     typedef struct FldFrameSphereWork
     {
@@ -360,7 +360,7 @@ s32 func_00169780(void* collisionWorld, f32* origin, f32* vector, f32 radius)
     {
         return 0;
     }
-    func_00394d70(collisionWorld, &work.query.intersection, func_00169320, &work.collector);
+    func_00394d70(collisionWorld, &work.query.intersection, FldFrame_SectorSphereHit, &work.collector);
     for (i = 0; i < work.collector.count; i++)
     {
         const u8* distanceEntry;
@@ -468,7 +468,7 @@ static inline s32 fldFrameFindLocalPlane(FldFrameCollisionCollector *collector, 
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 // FUN_00169A30
-RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
+RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 callbackDistance, void *data)
 {
     extern f32 fabsf(f32 value);
@@ -602,7 +602,7 @@ RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
             f32 *fraction;
             u8 *fbase;
             s32 *flag;
-            func_00169200(&edgePoint, &projected, (RwV3d *)vertexPointers[edge], (RwV3d *)vertexPointers[(edge + 1) % 3]);
+            FldFrame_ClosestPointOnSegment(&edgePoint, &projected, (RwV3d *)vertexPointers[edge], (RwV3d *)vertexPointers[(edge + 1) % 3]);
             delta.x = point->x - edgePoint.x;
             delta.y = point->y - edgePoint.y;
             delta.z = point->z - edgePoint.z;
@@ -658,12 +658,12 @@ RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
 }
 #pragma pop
 // FUN_0016A0C0
-void* func_0016a0c0(void* collisionWorld, void* state)
+void* FldFrame_SphereAtomicCallback(void* collisionWorld, void* state)
 {
     FldFrameCollisionCollector *collector = state;
     collector->atomic = collisionWorld;
     func_00394e70(collisionWorld, &collector->intersection,
-                  func_00169a30, collector);
+                  FldFrame_CollectSphereHits, collector);
     return collisionWorld;
 }
 
@@ -678,12 +678,12 @@ void* func_0016a0c0(void* collisionWorld, void* state)
 // FUN_0016A110
 #pragma push
 #pragma opt_loop_invariants on
-s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s32 fieldId)
+s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s32 fieldId)
 {
     extern void *mdlGetClump(void *model);
     extern f32 RwV3dLength(f32 *vec);
     extern u8 D_007E8020[];
-    extern u32 func_0016b480(void *cw, const RwV3d *line, RwV3d *hit);
+    extern u32 FldFrame_RaycastWorld(void *cw, const RwV3d *line, RwV3d *hit);
     typedef struct FldFrameWork6A110
     {
         FldFrameCollisionCollector collector;
@@ -752,19 +752,19 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         return 0;
     }
     work.collector.mode = 1;
-    RpClumpForAllAtomics((void *)collisionWorld, func_0016a0c0, &work.collector);
+    RpClumpForAllAtomics((void *)collisionWorld, FldFrame_SphereAtomicCallback, &work.collector);
     while (list10 != NULL)
     {
         if (((*(s32 *)(list10 + 0x28) & 2) != 0) && (*(s32 *)(list10 + 0x150) == 1))
         {
             void *target = mdlGetClump(*(void **)(list10 + 0x144));
-            RpClumpForAllAtomics(target, func_0016a0c0, &work.collector);
+            RpClumpForAllAtomics(target, FldFrame_SphereAtomicCallback, &work.collector);
             line[1] = *(RwV3d *)origin;
             line[0] = line[1];
             line[0].y += 400.0f;
             line[1].y -= 600.0f;
             target = mdlGetClump(*(void **)(list10 + 0x144));
-            if (func_0016b480(target, line, &hit) == 1)
+            if (FldFrame_RaycastWorld(target, line, &hit) == 1)
             {
                 vector[1] = -((origin[1] - fraction) - hit.y);
             }
@@ -802,7 +802,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
                             if (id != 0)
                             {
                                 void *target = mdlGetClump(id);
-                                RpClumpForAllAtomics(target, func_0016a0c0, &work.collector);
+                                RpClumpForAllAtomics(target, FldFrame_SphereAtomicCallback, &work.collector);
                             }
                         }
                     }
@@ -815,7 +815,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         if (((*(s32 *)(list3 + 0x28) & 2) != 0) && (*(s32 *)(list3 + 0x22c) != 0))
         {
             void *target = mdlGetClump(*(void **)(list3 + 0x22c));
-            RpClumpForAllAtomics(target, func_0016a0c0, &work.collector);
+            RpClumpForAllAtomics(target, FldFrame_SphereAtomicCallback, &work.collector);
         }
         list3 = *(u8 **)(list3 + 0x138);
     }
@@ -829,7 +829,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
                 if (id != 0)
                 {
                     void *target = mdlGetClump(id);
-                    RpClumpForAllAtomics(target, func_0016a0c0, &work.collector);
+                    RpClumpForAllAtomics(target, FldFrame_SphereAtomicCallback, &work.collector);
                 }
             }
         }
@@ -940,7 +940,7 @@ done:
 }
 #pragma pop
 // FUN_0016A960
-s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
+s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fieldId)
 {
     u8* object;
     s32 collisionWorld;
@@ -952,7 +952,7 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
     }
     if ((*(s32*)object & 1) != 0)
     {
-        return func_00169780((void*)(*(s32*)(object + 0xc)), origin, vector, fraction);
+        return FldFrame_SphereSweepWorld((void*)(*(s32*)(object + 0xc)), origin, vector, fraction);
     }
 
     collisionWorld = 0;
@@ -1010,7 +1010,7 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
     {
         collisionWorld = *(s32*)(*(u8**)(iGpffff9db0 + 0x28) + 8);
     }
-    return func_0016a110(collisionWorld, origin, vector, fraction, fieldId);
+    return FldFrame_RaycastFieldObjects(collisionWorld, origin, vector, fraction, fieldId);
 }
 /* 1216/1216 bytes with all relocations resolved. The sphere query shares
  * the callback collector and retains each neighbor coordinate across both
@@ -1022,7 +1022,7 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
-s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
+s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 {
     extern u8* MT_Scene_GetResListHead(s32 arg0);
     extern void* memset(void* dst, s32 value, u32 size);
@@ -1087,7 +1087,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
     if (collisionWorld == 0)
         return 0;
     work.collector.mode = 1;
-    RpClumpForAllAtomics(collisionWorld, func_0016a0c0, ((u8 *)&work.collector));
+    RpClumpForAllAtomics(collisionWorld, FldFrame_SphereAtomicCallback, ((u8 *)&work.collector));
     if (func_0014a200() == 1 || func_0014a270() == 1)
     {
         const u8* dimensions;
@@ -1127,7 +1127,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
                     node = *(u8**)(node + 0x138);
                 }
                 if (target != 0)
-                    RpClumpForAllAtomics(target, func_0016a0c0, ((u8 *)&work.collector));
+                    RpClumpForAllAtomics(target, FldFrame_SphereAtomicCallback, ((u8 *)&work.collector));
             }
         }
         while (list != 0)
@@ -1135,7 +1135,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
             if ((*(s32*)(list + 0x28) & 2) != 0 && *(s32*)(list + 0x150) == 1)
             {
                 RpClumpForAllAtomics(mdlGetClump(*(void**)(list + 0x144)),
-                                     func_0016a0c0, &work.collector);
+                                     FldFrame_SphereAtomicCallback, &work.collector);
             }
             list = *(u8**)(list + 0x138);
         }
@@ -1189,7 +1189,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
-extern s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius,
+extern s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 radius,
                          RwV3d* normal, RwV3d* vector);
 
 typedef struct FldSelectionResource
@@ -1222,7 +1222,7 @@ static inline void fldFrameSelectWorld(FldSelectionResource* selected, void** ds
 }
 
 // FUN_0016B080
-s32 func_0016b080(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
+s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 {
     s32 result;
     void* collisionWorld;
@@ -1257,24 +1257,24 @@ s32 func_0016b080(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
                     break;
                 }
             }
-            result = func_0016abc0(collisionWorld, point, radius, normal, vector);
+            result = FldFrame_CollideWorldSphere(collisionWorld, point, radius, normal, vector);
         }
         else
         {
             FldSelectionResource* selected = *(FldSelectionResource**)(iGpffff9db0 + 0x28);
             void* fallbackWorld;
             fldFrameSelectWorld(selected, &fallbackWorld);
-            result = func_0016abc0(fallbackWorld, point, radius, normal, vector);
+            result = FldFrame_CollideWorldSphere(fallbackWorld, point, radius, normal, vector);
         }
     }
     return result;
 }
 #pragma pop
 
-/* measured: propagation probe for func_0016b260 register scheduling. */
+/* measured: propagation probe for FldFrame_RaycastSector register scheduling. */
 #pragma opt_propagation off
 // FUN_0016B260
-RpCollisionTriangle *func_0016b260(RpIntersection *intersection,
+RpCollisionTriangle *FldFrame_RaycastSector(RpIntersection *intersection,
                     RpWorldSector *sector, RpCollisionTriangle *collision,
                     f32 distance, void *data)
 {
@@ -1329,7 +1329,7 @@ RpCollisionTriangle *func_0016b260(RpIntersection *intersection,
 }
 #pragma opt_propagation on
 // FUN_0016B350
-RpCollisionTriangle *func_0016b350(RpIntersection *intersection,
+RpCollisionTriangle *FldFrame_RaycastTriangle(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 fraction, void *data)
 {
     const RwV3d *line = (const RwV3d *)intersection;
@@ -1363,19 +1363,19 @@ RpCollisionTriangle *func_0016b350(RpIntersection *intersection,
 
 
 // FUN_0016B430
-void* func_0016b430(void* collisionWorld, void* data)
+void* FldFrame_RaycastWorldAtomics(void* collisionWorld, void* data)
 {
     FldFrameRaycast* raycast = data;
     raycast->hitObject = collisionWorld;
     func_00394e70(collisionWorld, (RpIntersection *)&raycast->line[0],
-                  func_0016b350, raycast);
+                  FldFrame_RaycastTriangle, raycast);
     return collisionWorld;
 }
 
 
 
 // FUN_0016B480
-u32 func_0016b480(void* collisionWorld, const RwV3d* line,
+u32 FldFrame_RaycastWorld(void* collisionWorld, const RwV3d* line,
                   RwV3d* hitPointDst)
 {
     typedef struct FldFrameLine
@@ -1403,7 +1403,7 @@ u32 func_0016b480(void* collisionWorld, const RwV3d* line,
     {
         return 0;
     }
-    RpClumpForAllAtomics(collisionWorld, func_0016b430, &raycast);
+    RpClumpForAllAtomics(collisionWorld, FldFrame_RaycastWorldAtomics, &raycast);
     return raycast.didHit;
 }
 
@@ -1414,7 +1414,7 @@ u32 func_0016b480(void* collisionWorld, const RwV3d* line,
    raycast state reproduces all 560 retail bytes and 12 relocations without
    artificial alignment. A hit writes all three destination components. */
 // FUN_0016B540
-u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
+u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst)
 {
     typedef struct FldFrameLine
     {
@@ -1451,7 +1451,7 @@ u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
         }
         else
         {
-            func_00394d70(collisionWorld, (RpIntersection *)&intersection, func_0016b260, &raycast);
+            func_00394d70(collisionWorld, (RpIntersection *)&intersection, FldFrame_RaycastSector, &raycast);
             result = raycast.didHit;
         }
         return result;
@@ -1493,12 +1493,12 @@ u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
         {
             return 0;
         }
-        RpClumpForAllAtomics(collisionWorld, func_0016b430, &raycast);
+        RpClumpForAllAtomics(collisionWorld, FldFrame_RaycastWorldAtomics, &raycast);
         return raycast.didHit;
     }
 }
 // FUN_0016B770
-RpCollisionTriangle *func_0016b770(RpIntersection *intersection,
+RpCollisionTriangle *FldFrame_RaycastTriangleLocal(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 fraction, void *data)
 {
     const RwV3d *line = (const RwV3d *)intersection;
@@ -1532,11 +1532,11 @@ RpCollisionTriangle *func_0016b770(RpIntersection *intersection,
 
 
 // FUN_0016B850
-void* func_0016b850(void* collisionWorld, void* data)
+void* FldFrame_RaycastWorldLocal(void* collisionWorld, void* data)
 {
     FldFrameRaycast* raycast = data;
     raycast->hitObject = collisionWorld;
     func_00394e70(collisionWorld, (RpIntersection *)&raycast->line[0],
-                  func_0016b770, raycast);
+                  FldFrame_RaycastTriangleLocal, raycast);
     return collisionWorld;
 }
