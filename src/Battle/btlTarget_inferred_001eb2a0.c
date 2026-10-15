@@ -96,8 +96,9 @@ extern u8 *iGpffffb42c;
 #pragma push
 /* measured probe: close conditional branch shape */
 #pragma pop
+/* AI command 0x2097 (p4flow AI.json AI_RND). */
 // FUN_001EB2A0
-s32 func_001eb2a0(void) {
+s32 btlAiRandom(void) {
     s32 temp;
 
     temp = scrGetParamIntS32(0);
@@ -107,10 +108,11 @@ s32 func_001eb2a0(void) {
 }
 
 /* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: func_001eb2e0 MATCH -> MISMATCH without this pragma. */
+/* measured: btlAiGetGlobal MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
+/* AI command 0x20AD (p4flow AI.json AI_GET_GLOBAL). */
 // FUN_001EB2E0
-s32 func_001eb2e0(void) {
+s32 btlAiGetGlobal(void) {
     s32 index;
     u8 *slot;
 
@@ -120,14 +122,15 @@ s32 func_001eb2e0(void) {
     return 1;
 }
 
-/* measured: close optimization_level 1 probe for func_001eb2e0. */
+/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
 /* measured: func_001eb3b0 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 /* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: func_001eb320 MATCH -> MISMATCH without this pragma. */
+/* measured: btlAiSetGlobal MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* AI command 0x20AE (p4flow AI.json AI_SET_GLOBAL). */
 // FUN_001EB320
-s32 func_001eb320(void)
+s32 btlAiSetGlobal(void)
 {
     s32 idx;
     s32 value;
@@ -138,7 +141,7 @@ s32 func_001eb320(void)
     return 1;
 }
 
-/* measured: closes opt_propagation probe for func_001eb320. */
+/* measured: closes opt_propagation probe for btlAiSetGlobal. */
 // FUN_001EB370
 s32 func_001eb370(void)
 {
