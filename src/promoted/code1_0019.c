@@ -2433,7 +2433,7 @@ void func_0019d990(u8 *arg0, s32 arg1)
    0x80 load precedes the 0x2C load. */
 void func_0019db40(u8 *arg0)
 {
-    extern void func_0047a8b0(void *arg0, void *arg1);
+    extern void mdlSetLookAtTargetPoint(void *arg0, void *arg1);
     extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
     extern f32 DAT_007613f8;
     extern u8 *func_0019efe0(s32 arg0);
@@ -2479,7 +2479,7 @@ void func_0019db40(u8 *arg0)
             if (*(u16 *)(arg0 + 0xB0) != 0 && !(*(f32 *)(*(u8 **)(arg0 + 0xA00) + 0x108) < 1.0f) && !(func_0047aa00(*(u8 **)(arg0 + 0xA00)) & 0x200)) {
                 switch (*(u16 *)(arg0 + 0xB0)) {
                 case 1:
-                    func_0047a8b0(*(u8 **)(arg0 + 0xA00), arg0 + 0xB8);
+                    mdlSetLookAtTargetPoint(*(u8 **)(arg0 + 0xA00), arg0 + 0xB8);
                     return;
                 case 2:
                     if (*(s32 *)(arg0 + 0xB4) != 0) {
@@ -2503,7 +2503,7 @@ void func_0019db40(u8 *arg0)
                                 pos.z = rotated2.z + *(f32 *)(target + 0xC);
                             }
                             pos.y += *(f32 *)(target + 0x8C) * *(f32 *)(target + 0x2C) * DAT_007613f8;
-                            func_0047a8b0(*(u8 **)(arg0 + 0xA00), &pos);
+                            mdlSetLookAtTargetPoint(*(u8 **)(arg0 + 0xA00), &pos);
                             return;
                         }
                         func_0047a990(*(u8 **)(arg0 + 0xA00));
