@@ -1672,8 +1672,9 @@ typedef struct cmmScriptEntry {
     s32 (*func)(u8*, u8*);    /* 0x14 */
 } cmmScriptEntry;
 
+// Script entry run: calls the callback of each of the three entries whose active flag (bit 0) is set, and clears that flag when the callback returns nonzero.
 // FUN_0024EFA0
-s32 func_0024efa0(u8 *task)
+s32 cmmScriptRunEntries(u8 *task)
 {
     cmmScriptEntry* entries;
     cmmScriptEntry* entry;
@@ -1699,8 +1700,9 @@ s32 func_0024efa0(u8 *task)
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
 
+// Script entries destroy: frees the three-entry work block of the entries task.
 // FUN_0024F040
-void func_0024f040(u8 *task)
+void cmmScriptEntriesDestroy(u8 *task)
 {
     int record;
 
@@ -1708,8 +1710,9 @@ void func_0024f040(u8 *task)
     DAT_008873ec_abs[0](record);
 }
 
+// Script entry arm: sets the active flag on entry arg0 and resets its counters. arg1 == 0 selects flag 4, otherwise flag 2 (the two modes that cmmScriptEntryUpdate reads).
 // FUN_0024F080
-void func_0024f080(s32 arg0, s32 arg1)
+void cmmScriptArmEntry(s32 arg0, s32 arg1)
 {
     cmmScriptEntry* e;
     s32 p;
@@ -1764,8 +1767,8 @@ s32 func_0024f160(u8 *arg0)
         }
         cmmScriptSpawnHandle(3);
         cmmScriptSpawnHandle(1);
-        func_0024f080(2, 1);
-        func_0024f080(0, 1);
+        cmmScriptArmEntry(2, 1);
+        cmmScriptArmEntry(0, 1);
         id = cmmWeatherRoll();
         func_00246e90((u16)id);
         *(s16 *)(arg0 + 0xE) = func_00249960(id);
@@ -1866,7 +1869,7 @@ s32 func_0024f160(u8 *arg0)
         }
     }
     cmmScriptSpawnHandle(2);
-    func_0024f080(0, 0);
+    cmmScriptArmEntry(0, 0);
 
     switch (result) {
     case 0:
@@ -1926,7 +1929,7 @@ s32 func_0024f790(u8 *work)
             cmmScriptTaskDestroyHandle(i);
         }
         cmmScriptSpawnHandle(0);
-        func_0024f080(1, 1);
+        cmmScriptArmEntry(1, 1);
         random = RpRandom();
         randomFloat = (f32)random;
         scaledRandom = 360.0f * (randomFloat / 2147483648.0f);
@@ -2071,17 +2074,18 @@ s32 func_0024f790(u8 *work)
         flags = *(s32 *)work | 8;
         *(s32 *)work = flags;
         *(s32 *)work = flags | 0x80;
-        func_0024f080(1, 0);
+        cmmScriptArmEntry(1, 0);
     } else if (frameCount >= *(s16 *)(fishEntry + 0xC) || *(s32 *)(work + 0x14) < -10) {
         *(s32 *)(work + 4) = 2;
         *(s32 *)work |= 8;
-        func_0024f080(1, 0);
+        cmmScriptArmEntry(1, 0);
     }
 done:
     return 0;
 }
+// Script entry update: state machine for one entry. Waits for the script task's loaded flag, then runs the step routine func_0024f160 (state 5) or func_0024f790 (state 7) until it returns nonzero.
 // FUN_0024FF60
-s32 func_0024ff60(u8 *task)
+s32 cmmScriptEntryUpdate(u8 *task)
 {
     cmmScriptEntry* e;
     s32 loadTask;
@@ -2133,8 +2137,9 @@ s32 func_0024ff60(u8 *task)
     return 0;
 }
 
+// Script entry destroy: frees the entry work block of the entry task.
 // FUN_002500E0
-void func_002500e0(u8 *task)
+void cmmScriptEntryDestroy(u8 *task)
 {
     int record;
 
@@ -2173,7 +2178,7 @@ s32 func_00250120(void)
     *(s32*)(e + 0x14) = (s32)cmmScriptStepWaveSprite;
     *(s32*)(e + 0x2C) = (s32)func_0024c460;
     *(s32*)(e + 0x44) = (s32)func_0024d1f0;
-    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635B38), 0xF, 0, 0, func_0024efa0, func_0024f040, (u8 *)(e));
+    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635B38), 0xF, 0, 0, cmmScriptRunEntries, cmmScriptEntriesDestroy, (u8 *)(e));
     for (i = 0; i < 5; i++) {
         cmmScriptTaskDestroyHandle(i);
     }
@@ -2203,7 +2208,7 @@ s32 func_002502f0(void)
             chkmemAllocSiteTag(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
-            (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
+            (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, cmmScriptEntryUpdate, cmmScriptEntryDestroy, (u8 *)(e));
         }
         handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
@@ -2260,7 +2265,7 @@ s32 func_00250560(void)
             chkmemAllocSiteTag(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
-            (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
+            (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, cmmScriptEntryUpdate, cmmScriptEntryDestroy, (u8 *)(e));
         }
         handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
@@ -2298,7 +2303,7 @@ s32 func_002507c0(void)
     s32 i;
 
     if (func_0029d020() == 0) {
-        func_0024f080(2, 0);
+        cmmScriptArmEntry(2, 0);
         for (i = 0; i < 5; i++) {
             cmmScriptTaskDestroyHandle(i);
         }
