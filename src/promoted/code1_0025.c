@@ -109,46 +109,15 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
     return (u32)(range * unit);
 }
 
-// FUN_0025C310
-void func_0025c310(void) {
-    kwlnTaskGetTaskByName(D_006367C0);
-}
 
 
 
-// FUN_0025C340
-s32 func_0025c340(void) {
-    s32 sp1C;
-    s32 sp18;
-
-    sp1C = 0;
-    sp18 = 0;
-    func_001104d0(func_001060b0(), &sp1C, &sp18);
-    scrSetReturnInt(sp1C);
-    return 1;
-}
 
 
 
-// FUN_0025C390
-s32 func_0025c390(void) {
-    s32 sp1C;
-    s32 sp18;
-
-    sp1C = 0;
-    sp18 = 0;
-    func_001104d0(func_001060b0(), &sp1C, &sp18);
-    scrSetReturnInt(sp18);
-    return 1;
-}
 
 
 
-// FUN_0025C3E0
-s32 func_0025c3e0(void) {
-    scrSetReturnInt(func_00110580(func_001060b0()));
-    return 1;
-}
 
 
 
@@ -157,508 +126,44 @@ s32 func_0025c420(void) {
     scrSetReturnInt(datGetTimeSlot() & 0xFF);
     return 1;
 }
-// FUN_0025C450
-s32 func_0025c450(void) {
-    s16 temp_16;
-
-    temp_16 = func_001060b0();
-    scrSetReturnInt((s32)func_00110960(temp_16, datGetTimeSlot() & 0xFF));
-    return 1;
-}
-
-// Intent: Common script command CHK_DAYS (p4flow Common 0x0037): checks the current date against month and day [inferred]
-// FUN_0025C4B0
-s32 scrCommonChkDays(void) {
-    s32 sp3C;
-    s32 sp38;
-    s32 temp_16;
-    s32 temp_17;
-
-    sp3C = 0;
-    sp38 = 0;
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    func_001104d0(func_001060b0(), &sp3C, &sp38);
-    if ((sp3C == temp_17) && (sp38 == temp_16)) {
-        scrSetReturnInt(1);
-    } else {
-        scrSetReturnInt(0);
-    }
-    return 1;
-}
 
 
 
-// FUN_0025C560
-s32 func_0025c560(void) {
-    s32 temp_18;
-    s32 temp_17;
-    s32 temp_16;
-
-    temp_18 = scrGetParamInt(0);
-    temp_17 = scrGetParamInt(1);
-    temp_16 = scrGetParamInt(2);
-    func_00106300(func_00110600(temp_18, temp_17));
-    func_00106310(temp_16 & 0xFF);
-    func_00106320(1);
-    return 1;
-}
 
 
 
-// FUN_0025C600
-s32 func_0025c600(void) {
-    s32 temp_19;
-    s32 temp_18;
-    s32 temp_17;
-    s32 temp_16;
-
-    temp_19 = scrGetParamInt(0);
-    temp_18 = scrGetParamInt(1);
-    temp_17 = scrGetParamInt(2);
-    temp_16 = scrGetParamInt(3);
-    if (func_001106f0(func_001060b0(), temp_19, temp_18, temp_17, temp_16) == 1) {
-        scrSetReturnInt(1);
-    } else {
-        scrSetReturnInt(0);
-    }
-    return 1;
-}
 
 
 
-// FUN_0025C730
-s32 func_0025c730(void) {
-    s32 temp_16;
-    s32 temp_17;
-
-    temp_16 = scrGetParamInt(0);
-    temp_17 = scrGetParamInt(1);
-    MT_Scene_CheckResSlot(((temp_16 & 0x3FF) | 0xC00) & 0xFFFF, temp_17 & 0xFF);
-    return 1;
-}
 
 
 
-// FUN_0025CDD0
-s32 func_0025cdd0(void) {
-    s32 temp_16;
-
-    temp_16 = scrGetParamInt(0);
-    scrSetReturnInt((s32)datCategoryRankProgress((s16)temp_16, scrGetParamFloat(1)));
-    return 1;
-}
-
-// Intent: Common script command GET_PC_PARAM (p4flow Common 0x0044): returns the player character parameter [inferred]
-// FUN_0025CE40
-s32 scrCommonGetPcParam(void) {
-    scrSetReturnInt((s32)datCategoryRank((s16)scrGetParamInt(0)));
-    return 1;
-}
-
-/* measured: preserving the raw third-call result in s32 before masking the first two arguments reproduces retail's setup order; exact match nd 0 (obj 112B/window 112B). */
-// FUN_0025CE90
-s32 func_0025ce90(void) {
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_18;
-
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    temp_18 = scrGetParamInt(2);
-    datPersonaAddStatById(temp_17 & 0xFFFF, temp_16 & 0xFFFF, (s8)temp_18);
-    return 1;
-}
-
-// FUN_0025CF00
-s32 func_0025cf00(void) {
-    s32 temp_16;
-    s32 temp_17;
-
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    datPersonaAddToBonusStatByPcId(temp_17 & 0xFFFF, temp_16 & 0xFFFF, scrGetParamInt(2));
-    return 1;
-}
-
-// FUN_0025CF70
-s32 func_0025cf70(void) {
-    s32 temp_16;
-    s32 temp_17;
-
-    temp_16 = scrGetParamInt(0);
-    temp_17 = scrGetParamInt(1);
-    scrSetReturnInt(datPersonaGetTotalStatById(temp_16 & 0xFFFF, temp_17 & 0xFFFF) & 0xFF);
-    return 1;
-}
 
 
 
-// Intent: Common script command ADD_PC_MONEY (p4flow Common 0x0050): adds money, clamped to 9,999,999 and at least zero [inferred]
-// FUN_0025D000
-s32 scrCommonAddPcMoney(void) {
-    s32 temp_16;
-    s32 var_4;
-    temp_16 = datGetMoney();
 
-    var_4 = temp_16 + scrGetParamInt(0);
-    if (var_4 <= 0x0098967F) {
-        goto block_1;
-    }
-    var_4 = 0x0098967FU;
-block_1:
-    if (var_4 < 0) {
-        var_4 = 0;
-    }
-    datSetMoney(var_4);
-    scrSetReturnInt(datGetMoney());
-    return 1;
-}
-// Intent: Common script command CALL_NAME_ENTRY (p4flow Common 0x0051): opens the name entry screen (mode 0x1C) [inferred]
-// FUN_0025D090
-s32 scrCommonCallNameEntry(void) {
-    if (func_0029d020() == 0) {
-        func_001029a0(0x1C, 0, 0, 0);
-        goto block_4;
-    }
-    if (func_002a2710() == 0) {
-        return 1;
-    }
-block_4:
-    return 0;
-}
 
-// FUN_0025D150
-s32 func_0025d150(void) {
-    s16 temp_16;
 
-    temp_16 = scrGetParamInt(0);
-    func_00106620(temp_16, scrGetParamInt(1) & 0xFF);
-    return 1;
-}
 
-/* measured probe: opt_propagation off tests d1b0 saved-register colouring. */
+
+
+
 #pragma opt_propagation off
-// Intent: Common script command PARTY_IN (p4flow Common 0x0038): adds a character to a party slot if absent [inferred]
-// FUN_0025D1B0
-s32 scrCommonPartyIn(void) {
-    s32 var_17;
-    s64 temp_16;
-    s32 var_18;
-    s32 var_16;
-
-    var_16 = 0;
-    var_18 = 0;
-    goto loop_4_test;
-loop_4:
-    temp_16 = datGetPartyId(var_18);
-    if ((s32)temp_16 == scrGetParamInt(0)) {
-        var_16 = 1;
-    }
-    var_18 += 1;
-loop_4_test:
-    if (var_18 < 3) {
-        goto loop_4;
-    }
-    if (var_16 != 0) {
-        goto block_4;
-    }
-    var_17 = 0;
-    goto loop_10_test;
-loop_10:
-    if ((s64)datGetPartyId(var_17) == 0) {
-        datSetPartyId(var_17, (s32)(s64)(s16)scrGetParamInt(0));
-        var_16 = 1;
-        goto block_4;
-    }
-    var_17 += 1;
-loop_10_test:
-    if (var_17 < 3) {
-        goto loop_10;
-    }
-block_4:
-    if (var_16 == 0) {
-        datSetPartyId(2, (s32)(s64)(s16)scrGetParamInt(0));
-    }
-    return 1;
-}
-/* measured probe: restore opt_propagation after d1b0. */
 #pragma opt_propagation on
-// Intent: Common script command PARTY_OUT (p4flow Common 0x0039): clears the party slot holding a character [inferred]
-// FUN_0025D2D0
-s32 scrCommonPartyOut(void) {
-    s16 temp_16;
-    s32 var_17;
 
-    var_17 = 0;
-    while (var_17 < 3) {
-        temp_16 = datGetPartyId(var_17);
-        if (temp_16 == scrGetParamInt(0)) {
-            datSetPartyId(var_17, 0);
-        }
-        var_17++;
-    }
-    return 1;
-}
 
-// FUN_0025D350
-s32 func_0025d350(void) {
-    s16 temp_16;
-    s16 temp_5;
 
-    temp_16 = scrGetParamInt(0);
-    temp_5 = scrGetParamInt(1);
-    scrSetReturnInt((s32)func_00106cd0(temp_16, temp_5));
-    return 1;
-}
 
-// FUN_0025D3C0
-s32 func_0025d3c0(void) {
-    s16 a;
-    s16 b;
 
-    a = scrGetParamInt(0);
-    b = scrGetParamInt(1);
-    func_00106d40(a, b, (s16)scrGetParamInt(2));
-    return 1;
-}
 
-// FUN_0025D440
-s32 func_0025d440(void) {
-    s32 temp_2;
-
-    if (func_0029d020() == 0) {
-        mcIconTaskCreate(0, 1);
-        goto block_4;
-    }
-    temp_2 = func_002aa3f0();
-    if (temp_2 != 0) {
-        scrSetReturnInt(temp_2);
-        return 1;
-    }
-block_4:
-    return 0;
-}
-
-// FUN_0025D4B0
-s32 func_0025d4b0(void) {
-    s32 temp_2;
-
-    if (func_0029d020() == 0) {
-        mcIconTaskCreate(0, 0);
-    } else {
-        temp_2 = func_002aa3f0();
-        if (temp_2 != 0) {
-            scrSetReturnInt(temp_2);
-            return 1;
-        }
-    }
-    return 0;
-}
-
-// FUN_0025D520
-s32 func_0025d520(void)
-{
-    return 1;
-}
-
-// FUN_0025D530
-s32 func_0025d530(void)
-{
-    scrSetReturnInt((s16)datGetPartyId(scrGetParamInt(0)));
-    return 1;
-}
 
 /* measured: explicit else placement reproduces retail's out-of-line return-one
    block. Object 120B/window 128B; normalized_diff 0, with the remaining eight
    bytes being retail zero padding. */
 
-// FUN_0025D580
-s32 func_0025d580(void) {
-    u8 sp30[0x30];
-    s16 sp60[18];
-    s16 *var_6;
-    s16 *var_5;
-    u16 temp_18;
-    s16 temp_2;
-    s16 temp_3;
-    s32 temp_2_2;
-    u16 temp_16;
-    s32 var_4;
-    temp_16 = scrGetParamInt(0) & 0xFFFF;
-    var_6 = D_00636A40;
-    var_5 = (s16 *)sp30;
-    var_4 = 9;
-    do {
-        temp_3 = *var_6;
-        temp_2 = *(var_6 + 1);
-        var_6 += 2;
-        var_4 -= 1;
-        *var_5 = temp_3;
-        *(var_5 + 1) = temp_2;
-        var_5 += 2;
-    } while (var_4 > 0);
-    temp_18 = (u16)temp_16;
-    if (temp_18 == 1) {
-        return 1;
-    }
-    temp_2_2 = (s32)datPersonaGetRecord(temp_16);
-    datPersonaLoadRecord(
-        (u8 *)sp60,
-        *(u16 *)((u8 *)sp30 + ((temp_16 & 0xFFFF) * 4) + 2),
-        (u8 *)temp_2_2);
-    memcpy((void *)temp_2_2, sp60, 0x30);
-    return 1;
-}
 
-// FUN_0025D650
-s32 func_0025d650(void) {
-    struct {
-        f32 f0;
-        f32 f1;
-        s32 pad;
-        s16 h0;
-        s16 h1;
-    } local;
-    s32 temp_16;
-    s32 temp_17;
 
-    local.f0 = (f32)scrGetParamInt(0);
-    local.f1 = (f32)scrGetParamInt(1);
-    temp_17 = scrGetParamInt(2);
-    temp_16 = scrGetParamInt(3);
-    if (func_0029d020() == 0) {
-        local.h0 = (s16)temp_17;
-        local.h1 = (s16)temp_16;
-        iGpffffb480 = func_00120e20(0, *(s32 *)&local.h0);
-        goto block_4;
-    }
-    if (func_00120ee0(iGpffffb480) != 0) {
-        func_00120f00(iGpffffb480);
-        func_00120f40(iGpffffb480, *(s64 *)&local.f0);
-        scrSetReturnInt(iGpffffb480);
-        iGpffffb480 = 0;
-        return 1;
-    }
-block_4:
-    return 0;
-}
-// FUN_0025D760
-s32 func_0025d760(void) {
-    s32 temp_16;
 
-    temp_16 = scrGetParamInt(0);
-    if (func_0029d020() == 0) {
-        if (kwlnTaskIsLinked(temp_16) != 0) {
-            func_00120f20(temp_16);
-        }
-    } else {
-        return 1;
-    }
-    return 0;
-}
-
-/* `x > 0xA` here, not the equivalent `x >= 0xB`: b210 compiles `>= K` by
-   materialising the comparison into $v0, and `> K-1` by branching through the
-   assembler temp as retail does (slti $at,$v0,0xB / bnez $at). Identical
-   semantics, different branch form - this was the whole nd-2 residual. Found by
-   permute_ast (MATCH at 113 compiles) and reduced with permute_min; the winner
-   had rewritten the constant as `> (0xB & 0xFFFF) - 1`, which is the same thing.
-   Un-chaining the && and negating the inner test do NOT help - both stay nd 2. */
-// FUN_0025D7E0
-s32 func_0025d7e0(void) {
-    if (func_0029d020() == 0xA) {
-        func_001227d0();
-        goto block_5;
-    }
-    if ((func_0029d020() > 0xA) && (func_001227f0() != 0)) {
-        return 1;
-    }
-block_5:
-    return 0;
-}
-
-// FUN_0025D850
-void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0) {
-    struct {
-        u8 spB0[0x100];
-        f32 sp1B0[0x7C];
-    } local;
-    s32 var_19;
-    f32 *var_18;
-    u8 *var_17;
-    u8 temp_16;
-    u8 temp_21;
-    u8 temp_22;
-    u8 temp_23;
-    f32 temp_f0;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    f32 temp_f24;
-    f32 temp_f24_2;
-    f32 temp_f25;
-    f32 temp_f2;
-    f32 temp_f2_2;
-
-    var_18 = local.sp1B0;
-    var_17 = local.spB0;
-    var_19 = 0;
-    temp_16 = (u8)((u32)arg0 >> 0x18);
-    temp_21 = (u8)((u32)arg0 >> 0x10);
-    temp_22 = (u8)((u32)arg0 >> 8);
-    temp_23 = (u8)arg0;
-    goto loop_test;
-loop_body:
-    temp_f20 = 12.0f * (f32)var_19;
-    temp_f25 = fGpffff8200 * temp_f20;
-    temp_f24 = sinf(temp_f25);
-    temp_f2 = 8.5f * cosf(temp_f25);
-    var_18[0] = p4_0025_mul_add(8.5f, temp_f24, farg0 + temp_f2);
-    var_18[1] = p4_0025_add(
-        p4_0025_mul_add(8.5f, -temp_f24, farg1), temp_f2);
-    temp_f24_2 = fGpffff8200 * (6.0f + temp_f20);
-    temp_f20_2 = sinf(temp_f24_2);
-    temp_f2_2 = 7.0f * cosf(temp_f24_2);
-    var_18[2] = p4_0025_mul_add(7.0f, temp_f20_2, farg0 + temp_f2_2);
-    var_18[3] = p4_0025_add(
-        p4_0025_mul_add(7.0f, -temp_f20_2, farg1), temp_f2_2);
-    var_18 += 4;
-    var_17[0] = temp_16;
-    var_17[1] = temp_21;
-    var_17[2] = temp_22;
-    var_17[3] = temp_23;
-    var_17[4] = temp_16;
-    var_17[5] = temp_21;
-    var_17[6] = temp_22;
-    var_17[7] = temp_23;
-    var_17 += 8;
-    var_19 += 1;
-loop_test:
-    if (var_19 < 0x1E) {
-        goto loop_body;
-    }
-    var_18[0] = local.sp1B0[0];
-    var_18[1] = local.sp1B0[1];
-    var_18[2] = local.sp1B0[2];
-    var_18[3] = local.sp1B0[3];
-    var_17[0] = (u8)((u32)arg0 >> 0x18);
-    var_17[1] = (u8)((u32)arg0 >> 0x10);
-    var_17[2] = (u8)((u32)arg0 >> 8);
-    var_17[3] = (u8)arg0;
-    var_17[4] = (u8)((u32)arg0 >> 0x18);
-    var_17[5] = (u8)((u32)arg0 >> 0x10);
-    var_17[6] = (u8)((u32)arg0 >> 8);
-    var_17[7] = (u8)arg0;
-    func_00364c50();
-    func_0045dfd0(local.spB0, local.sp1B0, farg2, 0x3E, 4, 1);
-    local.spB0[0] = 0xDC;
-    local.spB0[1] = 0xDC;
-    local.spB0[2] = 0xDC;
-    local.spB0[3] = 0xFF;
-    temp_f0 = 180.0f;
-    func_0045ee00((s32)farg0, (s32)farg1, local.spB0, 8, temp_f0, farg2, 1);
-    func_00364c70();
-}
 // FUN_0025E9E0
 void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4) {
     func_0025ea20(farg0, farg1, farg2, arg0, arg1, arg2, arg3, arg4, 0, 0, 0.0f, 1.0f, 1.0f);
