@@ -37,7 +37,7 @@ extern u8 *func_0010fcb0(s32 arg0);
 extern s32 datPersonaFindRosterSlotById(s32 arg0);
 extern u16 *datPersonaFindRosterRecordById(s32 arg0);
 
-extern void func_0010cad0(u8 *dest, u16 id);
+extern void datPersonaInitRecord(u8 *dest, u16 id);
 extern s32 datPersonaRosterCapacity(void);
 extern s32 datPersonaRosterSlotActive(s16 arg0);
 extern u16 *datPersonaRosterSlot(s16 arg0);
@@ -646,7 +646,7 @@ s32 func_002e4090(u8 *arg0) {
     switch (sw) {
     case 0:
         for (i = 1; i < 0xC; i++) {
-            func_0010cad0(p + ((i - 1) * 0x30) + 0x14, (u16)i);
+            datPersonaInitRecord(p + ((i - 1) * 0x30) + 0x14, (u16)i);
             *(s32 *)(p + 8) += 1;
         }
         break;
@@ -697,14 +697,14 @@ s32 func_002e4090(u8 *arg0) {
         break;
     case 7:
         for (i = 1; i < 0xC0; i++) {
-            func_0010cad0(p + ((i - 1) * 0x30) + 0x14, (u16)i);
+            datPersonaInitRecord(p + ((i - 1) * 0x30) + 0x14, (u16)i);
             *(s32 *)(p + 8) += 1;
         }
         break;
     case 8:
         func_0010ffa0();
         for (i = 1; i < 0xC0; i++) {
-            func_0010cad0(p + ((i - 1) * 0x30) + 0x14, (u16)i);
+            datPersonaInitRecord(p + ((i - 1) * 0x30) + 0x14, (u16)i);
             *(s32 *)(p + 8) += 1;
         }
         break;
@@ -1135,7 +1135,7 @@ void func_002e55c0(s8 arg0, s32 arg1, s8 arg2) {
                 q = p + ((index * 3) * 0x10) + 0x14;
                 break;
             }
-            func_0010cad0(q, arg1 & 0xFFFF);
+            datPersonaInitRecord(q, arg1 & 0xFFFF);
         } else if ((s16)datPersonaFindRosterSlotById(arg1) == -1) {
             {
                 u8 *p;
@@ -1161,7 +1161,7 @@ void func_002e55c0(s8 arg0, s32 arg1, s8 arg2) {
                     q = p + ((index * 3) * 0x10) + 0x14;
                     break;
                 }
-                func_0010cad0(q, arg1 & 0xFFFF);
+                datPersonaInitRecord(q, arg1 & 0xFFFF);
             }
             {
                 u8 *p;
@@ -1391,7 +1391,7 @@ initialSearchDone:
             dst2 = q + h * 0x30 + 0x14;
             break;
         }
-        func_0010cad0(dst2, id);
+        datPersonaInitRecord(dst2, id);
         *(s32 *)(p + 8) = *(s32 *)(p + 8) + 1;
     }
     if (level >= 0x3C && *(s32 *)(p + 8) < 3) {
@@ -1493,7 +1493,7 @@ expandedSearchDone:
                 dst2 = q + h * 0x30 + 0x14;
                 break;
             }
-            func_0010cad0(dst2, id);
+            datPersonaInitRecord(dst2, id);
             *(s32 *)(p + 8) = *(s32 *)(p + 8) + 1;
         }
         outer++;
@@ -1582,7 +1582,7 @@ void func_002e6280(s8 list, u16 *exclude, s8 level)
                 yListContains(list, i) == 0 && func_00311e40((u16)i) == 0 &&
                 limit >= iGpffffb3d4[i * 0xE + 3]) {
                 memset(yListEntry(list, *(s32 *)(data + 8)), 0, 0x30);
-                func_0010cad0(yListEntry(list, *(s32 *)(data + 8)), i);
+                datPersonaInitRecord(yListEntry(list, *(s32 *)(data + 8)), i);
                 *(s32 *)(data + 8) += 1;
             }
         }

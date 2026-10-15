@@ -84,7 +84,7 @@ extern u8 *iGpffffb3f0;
 extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3ec;
 extern u16 *datPersonaGetSkills(int persona);
-extern s32 func_0010cd70(u8 *arg0, s16 arg1, u16 arg2);
+extern s32 datPersonaReplaceSkill(u8 *arg0, s16 arg1, u16 arg2);
 
 extern s32 D_0064E7B0[];
 
@@ -869,7 +869,7 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
 /* Choose a random listed persona, collect the skill pairs from the
    iGpffffb3ec table that match one of its skills and whose partner skill it
    lacks (searching forward or backward by arg0), and pass one random pair to
-   func_0010cd70. One counter k serves both directions under scoped
+   datPersonaReplaceSkill. One counter k serves both directions under scoped
    opt_lifetimes, and each chosen field address is formed separately; both
    are needed for retail's register assignment and address forms. See
    docs/probe_archive/BtlShuffle_worker8_20261005.md for the earlier layout
@@ -970,7 +970,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
         field = shuffleCandidateField(r * 4, cand);
         first = *field;
     }
-    func_0010cd70(p, (s16)first, second);
+    datPersonaReplaceSkill(p, (s16)first, second);
     *(u16 *)(arg1 + 4) = *(u16 *)(p + 2);
     *(u16 *)(arg1 + 8) = first;
     *(u16 *)(arg1 + 6) = second;

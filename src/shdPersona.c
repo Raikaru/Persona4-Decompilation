@@ -54,7 +54,7 @@ void ShdSkill_AddActiveSkill(u16, u8 *);
 void func_00115940();
 u32 datPersonaGetExpForLevel(void *persona, u16 level);
 s32 datPersonaGetNextExp();
-s32 func_0010cd70(u8 *, s16, u16);
+s32 datPersonaReplaceSkill(u8 *, s16, u16);
 void ShdSkill_ReplaceActiveSkill(u16, u16, u8 *);
 s32 func_0011dfc0(s32, s32, char *);
 void H_Cdvd_Destroy();
@@ -3525,7 +3525,7 @@ s32 func_0011cc00(u8 *arg0, u16 arg1, u16 arg2)
     if (*(s32 *)b == 0) {
         func_0046d730(D_005E4868, 0xE45);
     }
-    if (func_0010cd70(*(u8 **)b, (s16)arg1, arg2) != -1) {
+    if (datPersonaReplaceSkill(*(u8 **)b, (s16)arg1, arg2) != -1) {
         ShdSkill_ReplaceActiveSkill(arg1, arg2, b + 0x8C);
         return 1;
     }
@@ -4488,7 +4488,7 @@ static inline s32 personaReplaceLevelSkill(SdkTask *parent, u16 previous, u16 re
     if (*(u8 **)data == NULL) {
         func_0046d730(D_005E4868, 0xE45);
     }
-    if (func_0010cd70(*(u8 **)data, (s16)previous, replacement) != -1) {
+    if (datPersonaReplaceSkill(*(u8 **)data, (s16)previous, replacement) != -1) {
         ShdSkill_ReplaceActiveSkill(previous, replacement, data + 0x8C);
         return 1;
     }
@@ -5010,7 +5010,7 @@ s32 func_0011f5a0(u8 *arg0)
                     if (*(u8 **)current == NULL) {
                         func_0046d730(D_005E4868, 0xE45);
                     }
-                    if (func_0010cd70(*(u8 **)current, (s16)previousSkill, pendingSkill) != -1) {
+                    if (datPersonaReplaceSkill(*(u8 **)current, (s16)previousSkill, pendingSkill) != -1) {
                         ShdSkill_ReplaceActiveSkill(previousSkill, pendingSkill, current + 0x8C);
                         ok = 1;
                     } else {

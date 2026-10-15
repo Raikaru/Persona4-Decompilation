@@ -150,7 +150,7 @@ extern s32 func_00308dc0(u8 *);
 extern s32 func_00308e50(u8 *);
 extern s32 func_00309630(u16);
 extern s32 func_003096d0(u8 *);
-extern s32 func_0010cd70(u8 *, s16, u16);
+extern s32 datPersonaReplaceSkill(u8 *, s16, u16);
 extern u16 datPersonaCountValidMembers(void);
 extern u8 *func_001102e0(void);
 extern void func_002ba970(u8 *, s16, FclDrawColor);
@@ -221,7 +221,7 @@ extern s32 datPersonaRemoveRosterMemberById(s32);
 extern s32 datPersonaInsertRosterRecord(u8 *);
 extern s32 datPersonaSelectRosterMemberById(s32);
 extern void datPersonaRemoveSelectedRosterMember(void);
-extern void func_0010cad0(u8 *arg0, u16 arg1);
+extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
 extern s64 func_00312c60(u16 *arg0, u8 *arg1, s64 arg2);
 /* The item id is an s16; the callee sign-extends its own table index. */
 extern s32 func_00313690(s16 arg0);
@@ -3924,7 +3924,7 @@ void func_002f6cf0(u8 *arg0) {
             break;
         }
         id = ((u16 *)func_002e48a0(0, p[0x2FA]))[1];
-        func_0010cad0((u8 *)func_002e48a0(0, p[0x2FA]), id);
+        datPersonaInitRecord((u8 *)func_002e48a0(0, p[0x2FA]), id);
         func_00314450(*(u8 **)(p + 0x148), (s32)func_002e48a0(0, p[0x2FA]), 0, 0);
         func_0011c6e0(func_003147d0(*(u8 **)(p + 0x148)), 1);
         func_0011d140(func_003147d0(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
@@ -4290,7 +4290,7 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
         memcpy(buf, arg1, 0x30);
         break;
     }
-    func_0010cad0((u8 *)arg0, arg0[1]);
+    datPersonaInitRecord((u8 *)arg0, arg0[1]);
     v = (s8)func_00312c60(arg0, (u8 *)buf, (s8)arg7);
     *(func_002e4870(arg8) + arg9 + 0x2E4) = v;
 }
@@ -7681,7 +7681,7 @@ block_274:
         work->f2D8 = func_002b2cb0(work->f2D8, 1, 0x28, 0, 1);
         if (work->f2D8 == 0x14) {
             func_0011cc00(func_003147d0((u8 *)work->f148), temp_16_40->original, temp_16_40->replacement);
-            func_0010cd70((u8 *)func_001102e0(), (s16)temp_16_40->original, temp_16_40->replacement);
+            datPersonaReplaceSkill((u8 *)func_001102e0(), (s16)temp_16_40->original, temp_16_40->replacement);
             func_0045af60(1, 3, 3, 2);
         }
         if (work->f2D8 >= 0x28) {
@@ -7846,14 +7846,14 @@ void func_00308f40(void) {
         }
         if (n3 >= n2 || n3 == 6) {
             p = (u8 *)func_001102e0();
-            func_0010cad0(p, func_003095f0());
+            datPersonaInitRecord(p, func_003095f0());
             func_00110270((u8 *)func_001102e0(), packed);
             func_00106390(0x1307, 1);
             return;
         }
         if (total >= 0x1E) {
             p = (u8 *)func_001102e0();
-            func_0010cad0(p, func_003095f0());
+            datPersonaInitRecord(p, func_003095f0());
             func_00110270((u8 *)func_001102e0(), packed);
             func_00106390(0x1307, 1);
             return;
@@ -9580,7 +9580,7 @@ void func_0030c3c0(u8 *arg0) {
                 originalSkill = *(u16 *)(p + 0x1C);
                 func_0011cc00(personaTask, originalSkill, *(u16 *)(p + 0x24));
             }
-            func_0010cd70(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), *(s16 *)(p + 0x1C), *(u16 *)(p + 0x24));
+            datPersonaReplaceSkill(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), *(s16 *)(p + 0x1C), *(u16 *)(p + 0x24));
             func_0045af60(1, 3, 3, 2);
         }
         if (*(s16 *)(p + 0x2D8) >= 0x28) {

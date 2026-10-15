@@ -20,7 +20,8 @@ u16 datPersonaGetRecordId(u16 arg0);
 u8 datPersonaRosterSlotRank(s32 arg0);
 // Intent: u16 flags word of roster slot arg0; fatal when the slot is NULL.
 u16 datPersonaRosterSlotFlags(s32 arg0);
-s32 func_00109510(u8 *persona, void *arg1, void *arg2);
+// Intent: writes the skill ids (arg1) and levels (arg2, optional) of persona record arg0's level-table entries it has not learned yet; returns the count.
+s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2);
 // Intent: passes skill slot arg1 of persona record arg0 to func_0023a620; fatal on bad id or slot.
 void datPersonaRunSkillSlot(u8 *arg0, s32 arg1);
 // Intent: skill-slot value of persona id arg0 at slot arg1, read through func_0023a620; fatal when out of range.
@@ -109,19 +110,23 @@ u32 datPersonaGetExpForLevel(void *persona, u16 level);
 void datPersonaAddExp(u8 *arg0, s32 arg1);
 // Intent: compacts the 8-slot skill list of persona record arg0 so non-empty skills come first.
 void datPersonaCompactSkills(u8 *arg0);
-void func_0010cad0(u8 *arg0, u16 arg1);
+// Intent: initializes roster record arg0 for persona id arg1 from its table row, at the table level, with fixed skills.
+void datPersonaInitRecord(u8 *arg0, u16 arg1);
 // Intent: stores skill arg1 in the first empty slot of record arg0; returns 1 on success, 0 when full.
 s32 datPersonaAddSkill(u8 *arg0, u16 arg1);
 // Intent: clears skill arg1 from record arg0 and compacts the list; returns 1 when found.
 s32 datPersonaRemoveSkill(u8 *arg0, u32 arg1);
-s32 func_0010cd70(u8 *arg0, s16 arg1, u16 arg2);
+// Intent: replaces skill arg1 in record arg0 with arg2 when present; returns the slot index, or -1 when absent.
+s32 datPersonaReplaceSkill(u8 *arg0, s16 arg1, u16 arg2);
 // Intent: index of skill arg1 in the 8-slot list of record arg0, or -1 when absent.
 s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 // Intent: number of non-empty skill slots in persona record arg0 (8 slots); 8 means full.
 s32 datPersonaCountSkills(u8 *arg0);
 // Intent: skill id in slot arg1 (0..7) of persona record arg0.
 u16 datPersonaGetSkillAt(u8 *arg0, s16 arg1);
-s32 func_0010cfa0(u8 *arg0, u16 arg1, u8 *arg2);
-void func_0010d150(u8 *arg0);
+// Intent: stores source record arg2 (persona id arg1, its skills and stat bonuses) into the 0x30-byte record arg0; returns 1.
+s32 datPersonaLoadRecord(u8 *arg0, u16 arg1, u8 *arg2);
+// Intent: adds the fixed-table skills of a party persona record arg0 (ids 0xC0..0xD7) into its empty skill slots.
+void datPersonaLearnFixedSkills(u8 *arg0);
 
 #endif
