@@ -74,9 +74,9 @@ extern s32 func_001dbba0();
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u8 *func_001d9280();
 extern u8 *func_001d8c00();
-extern u8 *func_001de370();
+extern u8 *btlAICommandPickUnitByHpWeight();
 extern s32 btlAICommandCollectSkillCandidates();
-extern s32 func_001de000();
+extern s32 btlAICommandCollectCommandsOfType();
 extern s32 func_001d9390();
 extern s32 func_001dbb90(void);
 
@@ -105,8 +105,8 @@ extern u32 datCalcRandomBelow(u32 arg0);
 
 
 extern void func_0019ef30(u8 *arg0, u64 arg1);
-extern void func_001de640(u8 *arg0, u8 *arg1, u16 arg2);
-extern s32 func_001de800(u8 *arg0);
+extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
+extern s32 btlAICommandPickTableAction(u8 *arg0);
 extern u8 *func_001dea90(u8 *arg0, u32 arg1);
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
@@ -143,7 +143,7 @@ extern s32 func_001b0c80(s32 arg0);
 extern void func_001fae60(s32 initialize, s32 update, s32 packet);
 extern void func_0022b120(u8 *action);
 extern s32 func_0022b870(u8 *action);
-extern void func_001debb0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+extern void btlAICommandSpawnActionProc(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_00452490(s32 arg0);
 extern u8 *func_00194470(s32 arg0, s32 arg1);
 extern u8 *func_0022ced0(s32 arg0);
@@ -255,7 +255,7 @@ s32 func_001e6ea0(void) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
-                result = func_001de370(work);
+                result = btlAICommandPickUnitByHpWeight(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
@@ -781,7 +781,7 @@ s32 func_001e8090(void) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
-                result = func_001de370(work);
+                result = btlAICommandPickUnitByHpWeight(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
@@ -807,7 +807,7 @@ s32 func_001e8190(void) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
-                result = func_001de370(work);
+                result = btlAICommandPickUnitByHpWeight(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
@@ -833,7 +833,7 @@ s32 func_001e8290(void) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
-                result = func_001de370(work);
+                result = btlAICommandPickUnitByHpWeight(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
@@ -859,7 +859,7 @@ s32 func_001e8390(void) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
             if (flags & 2) {
-                result = func_001de370(work);
+                result = btlAICommandPickUnitByHpWeight(work);
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
@@ -1079,7 +1079,7 @@ s32 func_001e8bb0(void) {
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     temp_18 = scrGetParamInt(2);
-    scrSetReturnInt(func_001de000(temp_19, func_001b0cc0((u64)(temp_17 << 0x24) >> 0x24), (s16)temp_16, temp_18));
+    scrSetReturnInt(btlAICommandCollectCommandsOfType(temp_19, func_001b0cc0((u64)(temp_17 << 0x24) >> 0x24), (s16)temp_16, temp_18));
     return 1;
 }
 // FUN_001E8C60
@@ -1641,9 +1641,9 @@ outer_test:
     }
     if (bestSkill != -1) {
         if (bestSkill == 0) {
-            func_001de640(work, work + 0x38, 0x8000);
+            btlAICommandSetActionCode(work, work + 0x38, 0x8000);
         } else {
-            func_001de640(work, work + 0x38, bestSkill & 0xFFFF);
+            btlAICommandSetActionCode(work, work + 0x38, bestSkill & 0xFFFF);
         }
         if (bestTarget != 0) {
             *(u8 **)(work + 0x38) = func_001b0cc0(bestTarget);
@@ -1770,7 +1770,7 @@ s32 func_001ea2d0(void) {
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     func_0019ef30(*(u8 **)(temp_18 + 0x30), temp_17);
-    func_001de640(temp_18, temp_18 + 0x38, temp_16 & 0xFFFF);
+    btlAICommandSetActionCode(temp_18, temp_18 + 0x38, temp_16 & 0xFFFF);
     return 1;
 }
 // FUN_001EA360
@@ -2247,7 +2247,7 @@ void func_001eb410(u8 *arg0) {
  * consumes its low20 bits; higher bits have no role in table selection. */
 void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status) {
     extern s32 func_00105ed0();
-    extern void func_001de640(u8 *arg0, u8 *arg1, u16 arg2);
+    extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
     extern s32 datCalcRandomBelow(u32 arg0);
     extern void memset(void *arg0, s32 arg1, s32 arg2);
     extern void *D_006098BC[];
@@ -2350,7 +2350,7 @@ eb4a0_sum_test:
             }
         }
     }
-    func_001de640(arg0, arg1, *(u16 *)(entry + 2));
+    btlAICommandSetActionCode(arg0, arg1, *(u16 *)(entry + 2));
     actionWord = *(u32 *)(entry + 4);
     callback = *(s32 (**)(u8 *, s64))((u8 *)D_00609CE0 +
                                       (((actionWord & 0xFF000000) >> 24) * 8));
