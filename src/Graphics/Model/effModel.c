@@ -11,14 +11,14 @@ typedef struct RwV3d RwV3d;
    quadword copy, with no inline asm. */
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
-extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerTime(u8 *arg0, s32 arg1, f32 arg2);
 
 extern void func_004813f0(void);
 extern void func_004abe60(void);
 extern s32 func_00481460(s32 arg0);
 extern void *mdlFindOrCreateModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void kAssertFail(const char *arg0, s32 arg1);
-extern void func_0047a2a0(void *arg0);
+extern void mdlInitIdentityMatrix(void *arg0);
 extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
@@ -48,7 +48,7 @@ void *func_004abd80(void *arg0)
     if (work == 0) {
         kAssertFail(D_007144A8, 0x55);
     }
-    func_0047a2a0(work);
+    mdlInitIdentityMatrix(work);
     if (mdlLayerIsPresent(work, 0) != 0) {
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         mdlSetLayerWeight(work, 0, 1.0f);
@@ -105,7 +105,7 @@ void *func_004abe80(void *arg0) {
                 iGpffffbb90 += 1;
             }
             temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
-            func_0047a2a0(temp_2_4);
+            mdlInitIdentityMatrix(temp_2_4);
             if (mdlLayerIsPresent(temp_2_4, 0) != 0) {
                 mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
                 mdlSetLayerWeight(temp_2_4, 0, temp_f20);
@@ -154,7 +154,7 @@ void func_004ac170(u8 *dst, u8 *src)
     if (work == 0) {
         kAssertFail(D_007144A8, 0xC5);
     }
-    func_0047a2a0(work);
+    mdlInitIdentityMatrix(work);
     if (mdlLayerIsPresent(work, 0) != 0) {
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         mdlSetLayerWeight(work, 0, 1.0f);
@@ -166,7 +166,7 @@ void func_004ac170(u8 *dst, u8 *src)
 
 // FUN_004AC290
 void func_004ac290(u8 *arg0) {
-    func_00479e60(*(u8 **)(arg0 + 0x94), 0, 0.0f);
+    mdlSetLayerTime(*(u8 **)(arg0 + 0x94), 0, 0.0f);
 }
 
 
@@ -192,7 +192,7 @@ extern void func_0048a150(void *arg0, void *arg1);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern void func_0047aa30(void *arg0, s32 arg1);
+extern void mdlSetAttachedOwner(void *arg0, s32 arg1);
 extern s32 func_00481450(void);
 extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
 extern f32 D_00761134;
@@ -286,7 +286,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
             *(s32 *)(temp_4 + 0xD8) = *(s32 *)(temp_4 + 0xD8) & ~0x18;
         }
         mdlSetLayerWeight(*(u8 **)(arg1 + 0x94), 0, *(f32 *)(arg1 + 0x24));
-        func_0047aa30(*(u8 **)(arg1 + 0x94), func_00481450());
+        mdlSetAttachedOwner(*(u8 **)(arg1 + 0x94), func_00481450());
         mdlQueueModelForDraw(arg0, *(u8 **)(arg1 + 0x94));
         *(s32 *)(arg1 + 0x24) = 0;
     }
@@ -367,7 +367,7 @@ void *func_004ac640(void *arg0) {
                 iGpffffbb90 += 1;
             }
             temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
-            func_0047a2a0(temp_2_4);
+            mdlInitIdentityMatrix(temp_2_4);
             if (mdlLayerIsPresent(temp_2_4, 0) != 0) {
                 mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
                 mdlSetLayerWeight(temp_2_4, 0, 1.0f);
@@ -430,7 +430,7 @@ void func_004ac9a0(u8 *dst, u8 *src)
     if (work == 0) {
         kAssertFail(D_007144A8, 0x1DA);
     }
-    func_0047a2a0(work);
+    mdlInitIdentityMatrix(work);
     if (mdlLayerIsPresent(work, 0) != 0) {
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         mdlSetLayerWeight(work, 0, 1.0f);

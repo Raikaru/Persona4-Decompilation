@@ -2723,7 +2723,7 @@ definition and every caller together.
   | shape | when |
   |---|---|
   | `sp60[n++] = v;` | increment happens exactly when the store does (`func_001e7ab0`, `func_001932f0`) |
-  | `for (...; n++) { ... a[n] = v; }` | increment is unconditional, store is conditional (`func_00477ca0`) — a fused `[n++]` here would skip the increment on the false path, and adding `else n++` duplicates the update (+50 words) |
+  | `for (...; n++) { ... a[n] = v; }` | increment is unconditional, store is conditional (`mdlSetupPreparedModel`, was `func_00477ca0`) — a fused `[n++]` here would skip the increment on the false path, and adding `else n++` duplicates the update (+50 words) |
   | `u16` local **and** `u16` return type | the narrow value is returned; a `u16` local with an `s32` return closed neither `func_00209870` nor `func_00209dc0` |
 
   A fourth wrinkle from `func_001658b0`: the rule can apply in both directions
@@ -4402,7 +4402,7 @@ pointer (`00397280-0039728c`, `00397320`). The canonical contract is now
 `u32* func_003971d0(u8*, s32, s32, s32)`, consistent with the recovered
 four-argument implementation. Remove the signed integer declaration and
 the block-local unsigned integer workaround rather than introducing
-another function-pointer cast. The existing `func_00477ca0` retains its
+another function-pointer cast. The existing `mdlSetupPreparedModel` (was `func_00477ca0`) retains its
 468-byte instruction match and twelve zero-tail bytes with this contract.
 
 The shared dispatch table gains its observed reference halfword at `0x0a`
@@ -4891,7 +4891,7 @@ retains **48B/48B, zero differing words**.
 Unsigned byte-count consumers retain unsigned storage and pass its
 corresponding signed type to the extractor. C permits this signed/unsigned
 aliasing. Changing the storage itself to signed perturbed
-`func_001f7e30` and `func_00477fb0`; keeping their unsigned arithmetic
+`func_001f7e30` and `mdlCreateModelObjectFromResource` (was `func_00477fb0`); keeping their unsigned arithmetic
 restored both matches without retaining an incompatible prototype.
 Generated, uncompiled reference listings are intentionally unchanged.
 

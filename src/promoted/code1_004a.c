@@ -71,7 +71,7 @@ extern u8 *func_003e9c10(u8 *arg0, const f32 *translation, s32 combineOp);
 
 extern void func_004a7c00(u8 *arg0, s32 arg1);
 
-extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerTime(u8 *arg0, s32 arg1, f32 arg2);
 
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void memcpy(void *dst, void *src, u32 size);
@@ -110,7 +110,7 @@ extern s32 func_00481e30(s32 arg0);
 extern void func_00481ee0(s32 arg0);
 extern void func_004829c0(s32 arg0);
 extern s32 func_00482a70(s32 arg0);
-extern void func_0047a2a0(void *arg0);
+extern void mdlInitIdentityMatrix(void *arg0);
 extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
@@ -1550,7 +1550,7 @@ void func_004abb60(void)
 // FUN_004ABBB0
 void func_004abbb0(u8 *arg0)
 {
-    func_0047a2a0(arg0);
+    mdlInitIdentityMatrix(arg0);
     if (mdlLayerIsPresent(arg0, 0) != 0) {
         mdlDispatchAnimIfPresent(arg0, 0, 0, 0, 0);
         mdlSetLayerWeight(arg0, 0, 1.0f);
@@ -1576,7 +1576,7 @@ loop_004abc50_check:
         goto loop_004abc50_body;
     }
     temp_2 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, arg0, (u32)arg1, 1);
-    func_0047a2a0(temp_2);
+    mdlInitIdentityMatrix(temp_2);
     if (mdlLayerIsPresent(temp_2, 0) != 0) {
         mdlDispatchAnimIfPresent(temp_2, 0, 0, 0, 0);
         mdlSetLayerWeight(temp_2, 0, 1.0f);
@@ -1595,7 +1595,7 @@ void func_004abd60(void)
 
 // FUN_004ACB50
 void func_004acb50(u8 *arg0) {
-    func_00479e60(*(u8 **)(arg0 + 0xB4), 0, 0.0f);
+    mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0, 0.0f);
 }
 
 // FUN_004ACB80
@@ -1613,14 +1613,14 @@ void func_004acb80(u8 *arg0)
     if (temp_3 >= temp_4 || temp_3 == 0) {
         if (*(u8 *)(arg0 + 0xB8) == 1) {
             if (*(u32 *)(arg0 + 0x74) <= temp_4) {
-                func_00479e60(*(u8 **)(arg0 + 0xB4), 0,
+                mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0,
                               (f32)*(s32 *)(arg0 + 0x70) - 1.0f);
             }
         } else if (*(u8 *)(arg0 + 0x80) != 0 &&
                    *(u32 *)(arg0 + 0x70) <= temp_4) {
             temp_3_2 = *(u32 *)(arg0 + 0x74);
             if (temp_4 < temp_3_2) {
-                func_00479e60(*(u8 **)(arg0 + 0xB4), 0,
+                mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0,
                               (f32)(s32)temp_3_2 - 1.0f);
             }
         }
@@ -1752,7 +1752,7 @@ void func_004ad030(s32 arg0, u8 *arg1)
     extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
     extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
     extern s32 func_00481450(void);
-    extern void func_0047aa30(void *arg0, s32 arg1);
+    extern void mdlSetAttachedOwner(void *arg0, s32 arg1);
     extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
     extern f32 D_00761134;
     s32 sp5C;
@@ -1817,7 +1817,7 @@ void func_004ad030(s32 arg0, u8 *arg1)
             *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) &= ~0x18;
         }
         mdlSetLayerWeight(*(u8 **)(arg1 + 0xB4), 0, *(f32 *)(arg1 + 8));
-        func_0047aa30(*(u8 **)(arg1 + 0xB4), func_00481450());
+        mdlSetAttachedOwner(*(u8 **)(arg1 + 0xB4), func_00481450());
         mdlQueueModelForDraw(arg0, *(u8 **)(arg1 + 0xB4));
         *(s32 *)(arg1 + 8) = 0;
     }
@@ -1841,14 +1841,14 @@ void func_004ad280(u8 *arg0)
     if (temp_2 >= var_3 || temp_2 == 0) {
         if (*(u8 *)(arg0 + 0xB8) == 1) {
             if (*(u32 *)(arg0 + 0x74) <= var_3) {
-                func_00479e60(*(u8 **)(arg0 + 0xB4), 0,
+                mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0,
                               (f32)*(s32 *)(arg0 + 0x70) - 1.0f);
             }
         } else if (*(u8 *)(arg0 + 0x80) != 0 &&
                    *(u32 *)(arg0 + 0x70) <= var_3) {
             temp_2_2 = *(u32 *)(arg0 + 0x74);
             if (var_3 < temp_2_2) {
-                func_00479e60(*(u8 **)(arg0 + 0xB4), 0,
+                mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0,
                               (f32)(s32)temp_2_2 - 1.0f);
             }
         }
@@ -1906,7 +1906,7 @@ loop_004adab0_check:
             goto loop_004adab0_body;
         }
     }
-    func_00479e60((u8 *)*(s32 *)(arg0 + 0xA0), 0, 0.0f);
+    mdlSetLayerTime((u8 *)*(s32 *)(arg0 + 0xA0), 0, 0.0f);
     *(s32 *)(arg0 + 0x2C) = 0;
 }
 // FUN_004ADB50

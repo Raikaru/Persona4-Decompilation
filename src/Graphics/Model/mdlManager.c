@@ -2757,9 +2757,10 @@ static inline void mdlSetupDetach(u32 *object) {
  * Animation and blend use their signed/unsigned short domains. The raw
  * flag word is narrowed at use; the dispatcher shares this typed boundary.
  * Keep the animation and interpolator lifetimes in this declaration order. */
+/* Starts resource animation index on the clump's named frames, blending from the current one over blend ticks. Frames whose clip is missing are detached. */
 // FUN_00475350
-void func_00475350(void *clump, MdlAnimControlView *state,
-                   s16 index, u16 blend, s32 flags)
+void mdlStartAnimation(void *clump, MdlAnimControlView *state,
+                       s16 index, u16 blend, s32 flags)
 {
     MdlAnimResourceView *resource;
     u32 *object;
@@ -4203,8 +4204,9 @@ extern void mdlFreeAuxBlock(void* a);
 /* measured: MATCH (468B instructions plus 12 zero-tail bytes). The u16
    loop counter preserves retail masks; the canonical hierarchy constructor
    prototype preserves load-before-move argument materialization. */
+/* Finishes a model once its resource is ready: named-frame animations, the base layer's hierarchy and animation, per-atomic entries, and effect-list handles. */
 // FUN_00477CA0
-void func_00477ca0(u8* arg0)
+void mdlSetupPreparedModel(u8* arg0)
 {
     extern void mdlEffectListRefreshHandles(u32*);
     extern f32 fGpffff80cc;
@@ -4295,8 +4297,9 @@ void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u
    shape and distinct pair structs reproduce the retail stack layout and
    return path; the previous nd-74/nd-9 layouts are retained here only as
    historical probe context. */
+/* Creates a model object for type and id from resource arg2, using func_00455ea0's pair (or an existing object's pair when func_0047d0e0 matches), and prepares it. */
 // FUN_00477FB0
-void* func_00477fb0(u32 arg0, u16 arg1, void* arg2, u32 arg3)
+void* mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void* arg2, u32 arg3)
 {
     extern u8* func_00455ea0(u8*, s32, s32*);
     extern void func_0047e450(void**, u32, u16, s32, u32);
@@ -4413,7 +4416,7 @@ s32 mdlPrepareModel(u8* param_1)
             return 0;
         }
         mdlFreeAuxBlock(param_1);
-        func_00477ca0(param_1);
+        mdlSetupPreparedModel(param_1);
     } else {
         if (func_0047e6f0((void**)(param_1 + 0x2D0)) == 0) {
             return 0;
@@ -4688,7 +4691,7 @@ extern void mdlEffectListSetUniformScale(s32* a, f32* b);
 extern void func_0047d540(u8** a, u8* b);
 extern void func_0047ed60(void* a);
 extern void mdlSetLayerWeight(u8* a, s32 b, f32 c);
-extern void func_0047aa10(void* a, RwV3d* b);
+extern void mdlCopyScale(void* a, RwV3d* b);
 extern int mdlHasActiveMode(void* a);
 /* Measured: 1080B/window 1088B, MATCH with two zero-padding words.
    Cache predicate inputs only until their immediate call; reload every
@@ -4719,7 +4722,7 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
         mdlSetAttachedModelMatrices((Model*)mdl, &matrix);
         previousLayer = 0;
         if (mdlHasActiveMode(mdl) != 0) {
-            func_0047aa10(mdl, &((Model*)mdl)->scale);
+            mdlCopyScale(mdl, &((Model*)mdl)->scale);
         }
         for (animationLayer = 0; animationLayer < 2; animationLayer++) {
             if (mdlLayerIsPresent(mdl, (u16)animationLayer) != 0) {
@@ -5152,7 +5155,7 @@ static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s16 animation, u16
         }
         if (*(void**)(mdl + 0x234) && (blend = *(u8***)(mdl + 0x238)))
             func_0047fe90(blend, 0.0f, 1.0f);
-        func_00475350(*(void**)(mdl + 0xdc), (MdlAnimControlView*)(mdl + 0x23c), animation, frame, flags);
+        mdlStartAnimation(*(void**)(mdl + 0xdc), (MdlAnimControlView*)(mdl + 0x23c), animation, frame, flags);
     }
     mdlStartLayerAnimation(mdl + 0xec + (u16)layer * 0xa4, animation, frame, flags);
     if (*(void**)(mdl + 0x2d0) && !((narrowFlags = (u16)flags) & 0x40) && baseLayer == 0) {
@@ -5304,8 +5307,9 @@ s32 func_00479dd0(u8* param_1, u16 param_2, s16 param_3)
 #pragma opt_propagation on
 /* measured: probing opt_common_subs off to retain the raw parameter register. */
 #pragma opt_common_subs off
+/* Sets the layer's animation time to frame scaled by the global time factor, through the layer's key interpolator. Layer 0 also updates the animation control time. */
 // FUN_00479E60
-void func_00479e60(void* param_1, s32 param_2, f32 param_3)
+void mdlSetLayerTime(void* param_1, s32 param_2, f32 param_3)
 {
     s32 arg1;
     s32 off;
@@ -5342,10 +5346,11 @@ tail:
         mdlSetAnimControlTime((u8*)param_1 + 0x23C, frame);
     }
 }
-/* measured: closes the scoped opt_common_subs probe for func_00479e60. */
+/* measured: closes the scoped opt_common_subs probe for mdlSetLayerTime. */
 #pragma opt_common_subs on
+/* Returns the layer's current animation time, divided by the global time factor, or 0 when the layer has no animation. */
 // FUN_00479F60
-f32 func_00479f60(void* param_1, s32 param_2)
+f32 mdlGetLayerTime(void* param_1, s32 param_2)
 {
     f32 value;
     s32 off;
@@ -5365,8 +5370,9 @@ f32 func_00479f60(void* param_1, s32 param_2)
     return value / iGpffff8040;
 }
 
+/* Returns the time of key param_3 in the layer's animation, divided by the global time factor, or 0 when the layer has no interpolator. */
 // FUN_0047A000
-f32 func_0047a000(void* param_1, s32 param_2, s64 param_3)
+f32 mdlGetLayerKeyTime(void* param_1, s32 param_2, s64 param_3)
 {
     f32 value;
     u16 mask = (u16)param_2;
@@ -5419,8 +5425,9 @@ void mdlSetLayerWeight(u8 *arg0, s32 arg1, f32 fparg0) {
     }
 }
 
+/* Sets flag 0x80 in the layer record when its handle at +0x120 has data at +4. */
 // FUN_0047A120
-void func_0047a120(void* param_1)
+void mdlSetLayerHandleFlag(void* param_1)
 {
     void* p = *(void**)((u8*)param_1 + 0x120);
     if (p != 0 && *(void**)((u8*)p + 4) != 0) {
@@ -5428,8 +5435,9 @@ void func_0047a120(void* param_1)
     }
 }
 
+/* Clears flag 0x80 under the same condition as mdlSetLayerHandleFlag. */
 // FUN_0047A150
-void func_0047a150(void* param_1)
+void mdlClearLayerHandleFlag(void* param_1)
 {
     void* p = *(void**)((u8*)param_1 + 0x120);
     if (p != 0 && *(void**)((u8*)p + 4) != 0) {
@@ -5481,8 +5489,9 @@ void* mdlGetColor(void* mdl)
     return (u8*)mdl + 0xd0;
 }
 
+/* Applies the colour at +0xD0 to every atomic of the clump through mdlMatColorScaleCallback. */
 // FUN_0047A260
-void func_0047a260(void* param_1)
+void mdlApplyColorToAtomics(void* param_1)
 {
     struct {
         void* ptr;
@@ -5493,8 +5502,9 @@ void func_0047a260(void* param_1)
     s.v = 0;
     RpClumpForAllAtomics(arg0, mdlMatColorScaleCallback, &s);
 }
+/* Sets a 4x4 matrix to identity with zero translation and writes 0x20003 into its flag word at index 3. */
 // FUN_0047A2A0
-void func_0047a2a0(u32* param_1)
+void mdlInitIdentityMatrix(u32* param_1)
 {
     param_1[10] = 0x3f800000;
     param_1[5] = 0x3f800000;
@@ -5857,8 +5867,9 @@ u16 mdlGetLookStateWord(void* param_1)
     return *(u16*)((u8*)param_1 + 0x140);
 }
 
+/* Copies scale into the model record at +0x170. */
 // FUN_0047AA10
-void func_0047aa10(void* param_1, RwV3d* param_2)
+void mdlCopyScale(void* param_1, RwV3d* param_2)
 {
     *(RwV3d*)((u8*)param_1 + 0x170) = *param_2;
 }
@@ -5869,8 +5880,9 @@ void func_0047aa10(void* param_1, RwV3d* param_2)
    redundant self-mask. The matching form is a while loop that derives the body
    index into a separate u32 local (idx = (u16)i) so mwcc keeps the body-top
    andi distinct from the loop-head andi (nd 0, byte-exact). Committed at nd 0. */
+/* Stores param_2 at +0x2FC of the model, and of each attached slot model whose slot flag bit 0 is set. */
 // FUN_0047AA30
-void func_0047aa30(void* param_1, void* param_2) {
+void mdlSetAttachedOwner(void* param_1, void* param_2) {
     s32 i;
     *(void**)((u8*)param_1 + 0x2FC) = param_2;
     i = 0;
@@ -5884,8 +5896,9 @@ void func_0047aa30(void* param_1, void* param_2) {
     }
 }
 
+/* Creates a model for type and id from resource param_5, prepares it, and attaches it to slot param_2; param_6 bit 0 selects the 0x4000 flag. */
 // FUN_0047AAA0
-void func_0047aaa0(void* param_1, u16 param_2, u32 param_3, u16 param_4, void* param_5, u32 param_6)
+void mdlAttachSlotModelFromResource(void* param_1, u16 param_2, u32 param_3, u16 param_4, void* param_5, u32 param_6)
 {
     void* obj;
     s32 off;
@@ -5905,8 +5918,9 @@ void func_0047aaa0(void* param_1, u16 param_2, u32 param_3, u16 param_4, void* p
     *(u8*)((u8*)slot + 0x28C) |= 0x1;
 }
 
+/* Like mdlAttachSlotModelFromResource, but applies the (int, int) pair through mdlSetAuxPair. */
 // FUN_0047AB90
-void func_0047ab90(void* param_1, u16 param_2, u32 param_3, u16 param_4, s32 param_5, s32 param_6, u32 param_7)
+void mdlAttachSlotModelFromPair(void* param_1, u16 param_2, u32 param_3, u16 param_4, s32 param_5, s32 param_6, u32 param_7)
 {
     void* obj;
     s32 off;
@@ -5932,8 +5946,9 @@ void func_0047ab90(void* param_1, u16 param_2, u32 param_3, u16 param_4, s32 par
     *(u8*)((u8*)slot + 0x28C) |= 0x1;
 }
 
+/* Attaches the model for type and id to slot param_2. Uses the existing object (flag 0x2000) or creates one from the id's name, then marks it and the slot. */
 // FUN_0047AC90
-void func_0047ac90(void* param_1, u16 param_2, u32 param_3, u16 param_4, u32 param_5)
+void mdlAttachSlotModelFindOrCreate(void* param_1, u16 param_2, u32 param_3, u16 param_4, u32 param_5)
 {
     void* obj;
     void* result;

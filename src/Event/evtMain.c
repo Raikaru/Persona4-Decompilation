@@ -53,7 +53,7 @@ extern s32 D_008821F4[];
 extern u8 D_0063C580[];
 extern u8 D_0063C540[];
 s32 mdlLayerIsPresent(s32 res, s32 arg1);
-f32 func_00479f60(void *param_1, s32 param_2);
+f32 mdlGetLayerTime(void *param_1, s32 param_2);
 u32 MT_Scene_SetResMotionRecord(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0);
 
 void MT_Scene_SetResActive(void *resource, s32 enabled);
@@ -944,7 +944,7 @@ u8 *arg3;
 
     u8 *func_00287cc0(u32, u8 *, s32, s32);
     s32 mdlLayerIsPresent(void *, s32);
-    f32 func_00479f60(void *, s32);
+    f32 mdlGetLayerTime(void *, s32);
     s32 spB0;
     s32 spA0;
     s32 var_9;
@@ -988,7 +988,7 @@ u8 *arg3;
                     temp_23 = *(s8 *)(temp_2 + 0x22);
                     if (var_3 == 0) {
                         call_idx = (u16)var_17;
-                        func_00479f60((void *)var_18, call_idx);
+                        mdlGetLayerTime((void *)var_18, call_idx);
                     }
                     if (*(u16 *)temp_2 == arg0) {
                         if (temp_23 == 0) {

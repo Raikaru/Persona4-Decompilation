@@ -126,7 +126,7 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
     *(u8 **)(address + offset) = stored;
 }
 
-extern void func_00479e60(void *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerTime(void *arg0, s32 arg1, f32 arg2);
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
     func_00198920(arg0, arg1, arg2, arg3, arg4);
@@ -197,7 +197,7 @@ s32 btlUnitModelFramePacketUpdate(u8 *arg0)
     frame = *(s16 *)(arg0 + 4);
     temp_3 = *(u8 **)arg0;
     if ((*(s32 *)(temp_3 + 0x98) & 2) != 0)
-        func_00479e60(*(u8 **)(temp_3 + 0xA00), 0, (f32)frame);
+        mdlSetLayerTime(*(u8 **)(temp_3 + 0xA00), 0, (f32)frame);
     return 1;
 }
 

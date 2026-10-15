@@ -41,9 +41,9 @@ extern char D_006357B0[];
 extern s32 strlen(const void *arg0);
 extern char D_006357C8[];
 extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
-extern void func_0047aaa0(void *model, u16 slot, u32 type, u16 id,
+extern void mdlAttachSlotModelFromResource(void *model, u16 slot, u32 type, u16 id,
                            void *path, u32 flags);
-extern void func_0047ac90(void *model, u16 slot, u32 type, u16 id,
+extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slot, u32 type, u16 id,
                           u32 flags);
 extern void mdlSetAttachedSlotValue(void *arg0, s32 arg1, s32 arg2);
 extern char D_006357E0[];
@@ -280,23 +280,23 @@ s32 func_00230d30(void *arg0)
         if (mdlFindModelObject(7, id, 0) == 0) {
             sprintf((char *)sp40, D_006357E0,
                           (char *)&iGpffffa5f0, id & 0xFFFF);
-            func_0047aaa0(arg0, 0, 7, id, sp40, 0);
+            mdlAttachSlotModelFromResource(arg0, 0, 7, id, sp40, 0);
         } else {
-            func_0047ac90(arg0, 0, 7, id, 0);
+            mdlAttachSlotModelFindOrCreate(arg0, 0, 7, id, 0);
         }
         temp_18 = (id & 0xFFFF) + 0x3E8;
         if (mdlFindModelObject(7, temp_18 & 0xFFFF, 0) == 0) {
             sprintf((char *)sp40, D_00635800,
                           (char *)&iGpffffa5f0, id & 0xFFFF);
-            func_0047aaa0(arg0, 1, 7, (u16)temp_18, sp40, 0);
+            mdlAttachSlotModelFromResource(arg0, 1, 7, (u16)temp_18, sp40, 0);
         } else {
-            func_0047ac90(arg0, 1, 7, (u16)temp_18, 0);
+            mdlAttachSlotModelFindOrCreate(arg0, 1, 7, (u16)temp_18, 0);
         }
         break;
     case 3:
         return 0;
     default:
-        func_0047ac90(arg0, 0, 7, id, 0);
+        mdlAttachSlotModelFindOrCreate(arg0, 0, 7, id, 0);
         goto block_13;
     }
 block_13:
