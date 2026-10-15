@@ -189,11 +189,11 @@ loop_test:
 }
 
 #pragma push
-/* measured: func_001e7640 MATCH -> MISMATCH without this pragma. */
+/* measured: btlEffectScriptPickRandomHighestOpposingUnit MATCH -> MISMATCH without this pragma. */
 #pragma opt_rebuildconditionals off
 /* AI script command 0x20b7 (p4flow AI.json AI_FUNCTION_00B7). */
 // FUN_001E7640
-s32 func_001e7640(void)
+s32 btlEffectScriptPickRandomHighestOpposingUnit(void)
 {
     extern s32 func_001d7c60(u32, void *, s32, s32, s32);
     extern u8 *func_0029d050(void);
@@ -253,7 +253,7 @@ s32 func_001e7640(void)
 #pragma pop
 /* AI script command 0x20d1 (p4flow AI.json AI_FUNCTION_00D1). */
 // FUN_001E77F0
-s32 func_001e77f0(void) {
+s32 btlEffectScriptPickHighestLevelHpUnit(void) {
     extern s32 datCalcGetLevel();
     u8 *temp_21;
     u32 temp_2;
@@ -299,7 +299,7 @@ loop_test:
 
 /* AI script command 0x20d2 (p4flow AI.json AI_FUNCTION_00D2). */
 // FUN_001E7950
-s32 func_001e7950(void) {
+s32 btlEffectScriptPickRandomNoBadStatusUnit(void) {
     extern s32 datCalcGetBadStatusNoDown();
     u8 *temp_19;
     s32 var_18;
@@ -344,7 +344,7 @@ loop_test:
    normalized_diff 0. */
 /* AI script command 0x20d3 (p4flow AI.json AI_FUNCTION_00D3). */
 // FUN_001E7AB0
-s32 func_001e7ab0(void) {
+s32 btlEffectScriptPickRandomHighestLevelUnit(void) {
     extern s32 btlAICommandSelectCandidates();
     extern void btlAICommandNomalCheckNoGate();
     extern s32 datCalcRandomBelow();
@@ -397,7 +397,7 @@ loop_test:
 
 /* AI script command 0x20da (p4flow AI.json AI_FUNCTION_00DA). */
 // FUN_001E7C20
-s32 func_001e7c20(void) {
+s32 btlEffectScriptCountNoBadStatusUnits(void) {
     extern s32 btlAICommandSelectCandidates();
     extern s32 datCalcGetBadStatusNoDown();
     extern s64 scrGetParamInt();
@@ -518,7 +518,7 @@ s32 btlEffectScriptPickRandomCandidate(void) {
 
 /* AI script command 0x20f1 (p4flow AI.json AI_FUNCTION_00F1). */
 // FUN_001E8090
-s32 func_001e8090(void) {
+s32 btlEffectScriptPickHansyaUnit(void) {
     u8 *work;
     s64 flags;
     u16 count;
@@ -546,7 +546,7 @@ s32 func_001e8090(void) {
 
 /* AI script command 0x20f2 (p4flow AI.json AI_FUNCTION_00F2). */
 // FUN_001E8190
-s32 func_001e8190(void) {
+s32 btlEffectScriptPickKyusyuUnit(void) {
     u8 *work;
     s64 flags;
     u16 count;
@@ -574,7 +574,7 @@ s32 func_001e8190(void) {
 
 /* AI script command 0x20f3 (p4flow AI.json AI_FUNCTION_00F3). */
 // FUN_001E8290
-s32 func_001e8290(void) {
+s32 btlEffectScriptPickMukouUnit(void) {
     u8 *work;
     s64 flags;
     u16 count;
@@ -602,7 +602,7 @@ s32 func_001e8290(void) {
 
 /* AI script command 0x20f4 (p4flow AI.json AI_FUNCTION_00F4). */
 // FUN_001E8390
-s32 func_001e8390(void) {
+s32 btlEffectScriptPickTaiseiUnit(void) {
     u8 *work;
     s64 flags;
     u16 count;
@@ -630,7 +630,7 @@ s32 func_001e8390(void) {
 
 /* AI script command 0x2080 (p4flow AI.json AI_FUNCTION_0080). */
 // FUN_001E8490
-s32 func_001e8490(void) {
+s32 btlEffectScriptPickLowestHpWeakUnit(void) {
     u32 value;
     u8 *work;
     u8 *selected;
@@ -665,7 +665,7 @@ s32 func_001e8490(void) {
 
 /* AI script command 0x2081 (p4flow AI.json AI_FUNCTION_0081). */
 // FUN_001E85C0
-s32 func_001e85c0(void) {
+s32 btlEffectScriptPickLowestHpWeakFilteredUnit(void) {
     u32 value;
     u8 *work;
     u8 *selected;
@@ -700,7 +700,7 @@ s32 func_001e85c0(void) {
 
 /* AI script command 0x2082 (p4flow AI.json AI_FUNCTION_0082). */
 // FUN_001E86F0
-s32 func_001e86f0(void) {
+s32 btlEffectScriptPickLowestHpWeakWideUnit(void) {
     u32 value;
     u8 *work;
     u8 *selected;
@@ -735,7 +735,7 @@ s32 func_001e86f0(void) {
 
 /* AI script command 0x20f5 (p4flow AI.json AI_FUNCTION_00F5). */
 // FUN_001E8820
-s32 func_001e8820(void) {
+s32 btlEffectScriptPickHighestHpWeakUnit(void) {
     u32 value;
     u8 *work;
     u8 *selected;
@@ -770,7 +770,7 @@ s32 func_001e8820(void) {
 
 /* AI script command 0x20f6 (p4flow AI.json AI_FUNCTION_00F6). */
 // FUN_001E8950
-s32 func_001e8950(void) {
+s32 btlEffectScriptPickHighestHpWeakFilteredUnit(void) {
     u32 value;
     u8 *work;
     u8 *selected;
@@ -805,7 +805,7 @@ s32 func_001e8950(void) {
 
 /* AI script command 0x20f7 (p4flow AI.json AI_FUNCTION_00F7). */
 // FUN_001E8A80
-s32 func_001e8a80(void) {
+s32 btlEffectScriptPickHighestHpWeakWideUnit(void) {
     u32 value;
     u8 *work;
     u8 *selected;
