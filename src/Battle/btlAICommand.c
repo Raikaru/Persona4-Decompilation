@@ -3604,7 +3604,7 @@ s32 btlAICommandSideIdQueryAllBadStatus(void) {
 // FUN_001E26C0
 /* measured: retains the branch-rebuild setting required for the byte-exact body. */
 #pragma opt_rebuildconditionals off
-s32 func_001e26c0(void)
+s32 btlAICommandOppSideIdQueryAllBadStatus(void)
 {
     u32 shift;
     u32 v;
@@ -3684,7 +3684,7 @@ s32 btlAICommandOppSideIdQueryHasBuff(void) {
 #pragma opt_rebuildconditionals on
 
 // FUN_001E2910
-s32 func_001e2910(void) {
+s32 btlAICommandSideIdQueryAllHasBuff(void) {
     u32 v;
     u32 m2;
     u32 c02;
