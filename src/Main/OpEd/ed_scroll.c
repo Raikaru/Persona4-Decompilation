@@ -262,7 +262,7 @@ void func_0038e4b0(void)
             for (j = 0; j < (s32)record[0x21]; j++) {
                 u32 *handlePtr = (u32 *)((u8 *)record + j * 8 + 8);
                 frFontSetGlyphColor(*(u32 *)((u8 *)record + j * 8 + 8), packed);
-                func_00273170((void *)*handlePtr, 1, 0);
+                frFontDrawList((void *)*handlePtr, 1, 0);
             }
         }
     }

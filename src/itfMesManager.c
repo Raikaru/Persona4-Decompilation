@@ -106,7 +106,7 @@ void func_00279dd0(u8 *arg0, u8 *arg1);
 extern s32 iGpffffb4b0;
 void func_00279ce0();
 void frFontSetListSlot();
-void func_00273140();
+void frFontDrawListMode();
 u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 void func_00279300(u8 *arg0, s32 arg1);
 void *func_00460990();
@@ -1534,14 +1534,14 @@ s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     func_00279ce0(D_00881808[arg4].unk0 + 0x94);
     obj = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
     frFontSetListSlot(obj, arg1);
-    func_00273140(obj, 1);
+    frFontDrawListMode(obj, 1);
     frFontListKeepOrRelease((s32)obj);
     return 0;
 }
 
 // FUN_00279300
 void func_00279300(u8 *arg0, s32 arg1) {
-    func_00273170((void *)arg1, 1, 0);
+    frFontDrawList((void *)arg1, 1, 0);
     frFontListKeepOrRelease(arg1);
 }
 
@@ -1584,7 +1584,7 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
         r = func_00273650(r, r2, 0);
     }
     frFontSetListSlot(r, arg1);
-    func_00273140(r, 1);
+    frFontDrawListMode(r, 1);
     frFontListKeepOrRelease((s32)r);
     return 0;
 }

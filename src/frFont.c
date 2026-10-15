@@ -17,7 +17,7 @@ extern u8 DAT_00881760_abs[];
 
 extern s16 D_00763810;
 
-extern void func_00273140(void *param_1, u32 param_2);
+extern void frFontDrawListMode(void *param_1, u32 param_2);
 
 extern u32 D_00764598;
 
@@ -1419,6 +1419,7 @@ u8 *frFontReadyNode(u8 *arg0)
     }
     return 0;
 }
+/* Steps a node's intensity by a scaled amount (saturating at 0xFF) and returns the x shift for type-1 nodes. */
 /* measured: retail keeps arg1=$16/arg0=$17/temp_18=$18/var_19=$19/var_20=$20/
    var_21=$21/var_22=$22/arg3=$23; mwcc b210 colors arg3=$16 FIRST and omits
    the arg1+0x10 hoist (nd167). Declaration reorders (4 orders probed), u32
@@ -1431,7 +1432,7 @@ u8 *frFontReadyNode(u8 *arg0)
    draft wrongly shows 2; retail calls with $18 only). Saved-register
    SUPERSEDED: Saved-register rotation floor. */
 // FUN_00272E10
-s32 func_00272e10(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
+s32 frFontStepNodeIntensity(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
 {
     s32 result = 0;
     s32 amount;
@@ -1529,25 +1530,27 @@ s32 func_00272e10(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
     }
     return result;
 }
+/* Draws a list with the default mode. */
 // FUN_00273110
-void func_00273110(s32 arg0)
+void frFontDrawListDefault(s32 arg0)
 {
-    func_00273140((void *)arg0, 0);
+    frFontDrawListMode((void *)arg0, 0);
 }
 
 
 
+/* Draws a list with the given mode and the default third argument. */
 // FUN_00273140
-void func_00273140(void *param_1, u32 param_2)
+void frFontDrawListMode(void *param_1, u32 param_2)
 {
-    func_00273170(param_1, param_2, D_00764598);
+    frFontDrawList(param_1, param_2, D_00764598);
 }
 
 
 
 extern s32 D_0076459C;
 extern void RpSkyRenderStateSet(s32 param_1, s32 param_2);
-extern s32 func_00272e10(u8 *param_1, u8 *param_2, u8 param_3, u8 param_4);
+extern s32 frFontStepNodeIntensity(u8 *param_1, u8 *param_2, u8 param_3, u8 param_4);
 /* Raster dimensions use full unsigned words; the glyph stores their byte
  * source values. Depth precedes the glyph in the shared mixed-ABI contract. */
 extern s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
@@ -1556,6 +1559,7 @@ extern code D_00887300_abs[];
 
 
 
+/* Draws every node of a list: glyph by glyph at the node position, with per-glyph animation. Returns the total advance, or 0 while glyphs are still animating. */
 /* measured: ordinary s32 spacing preserves its signed-byte load across
    callbacks, while named raster inputs and opt_propagation off preserve
    argument load order. Reversed long-lived declaration order closes the
@@ -1563,7 +1567,7 @@ extern code D_00887300_abs[];
    match; the remaining eight retail bytes are alignment padding. */
 // FUN_00273170
 #pragma opt_propagation off
-s32 func_00273170(void *arg0, u32 arg1, u32 arg2)
+s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2)
 {
     u8 *node;
     u8 *glyph;
@@ -1613,7 +1617,7 @@ s32 func_00273170(void *arg0, u32 arg1, u32 arg2)
         while (glyph != 0) {
             if (mode == 0) {
                 style = node[0];
-                offset = func_00272e10(node, glyph, style, node[2]);
+                offset = frFontStepNodeIntensity(node, glyph, style, node[2]);
             } else {
                 offset = 0;
             }

@@ -209,7 +209,7 @@ void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
         frFontMoveListToFloat(p, fparg0 - (f32)sum / 2.0f, fparg1);
         frFontSetGlyphColor(p, arg1 | ~0xFF);
         if (spAC != NULL) {
-            func_00273170(p, 1, 0);
+            frFontDrawList(p, 1, 0);
         }
         frFontListKeepOrRelease(p);
         if (spAC != NULL) {

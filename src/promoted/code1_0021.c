@@ -2553,7 +2553,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     extern void frFontSetGlyphColor(s32 arg0, s32 arg1);
     extern void frFontSetFlagBits(s32 arg0);
     extern void frFontClearFlagBits(s32 arg0);
-    extern s32 func_00273170(void *arg0, u32 arg1, u32 arg2);
+    extern s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2);
     extern s32 func_002738d0(s32 arg0);
     extern void frFontExSetScale(s32 arg0, f32 width);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 mode,
@@ -2851,10 +2851,10 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                 if (animated != 0) {
                     void *renderStates = (void *)D_00887300;
                     (*(BtlShuffleRenderStateSet *)renderStates)(rwRENDERSTATEZTESTENABLE, (void *)1);
-                    func_00273170(*(void **)arg1, 1, 0);
+                    frFontDrawList(*(void **)arg1, 1, 0);
                     (*(BtlShuffleRenderStateSet *)renderStates)(rwRENDERSTATEZTESTENABLE, 0);
                 } else {
-                    func_00273170(*(void **)arg1, 1, 0);
+                    frFontDrawList(*(void **)arg1, 1, 0);
                 }
                 frFontClearFlagBits(0x40);
             }

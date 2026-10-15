@@ -88,7 +88,7 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
             frFontMoveListToFloat(var_18, fparg0, fparg1);
         }
         frFontSetGlyphColor(var_18, arg1);
-        func_00273170(var_18, 1, 0);
+        frFontDrawList(var_18, 1, 0);
         frFontListKeepOrRelease(var_18);
         var_17++;
     }
