@@ -2917,12 +2917,12 @@ s32 func_001e1480(void) {
 }
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1530
 u32 func_001e1530(void)
@@ -2958,8 +2958,8 @@ u32 func_001e1530(void)
 
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1620
 u32 func_001e1620(void)
@@ -2995,8 +2995,8 @@ u32 func_001e1620(void)
 
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1710
 u32 func_001e1710(void)
@@ -3032,9 +3032,9 @@ u32 func_001e1710(void)
 
 
 /* Ported from P3FES btlEffect.c func_002c9ba0 (argument sideMask dispatch,
-   selector tag 0x0b000000, inline shift). func_0035ed20->func_0029cc00,
+   selector tag 0x0b000000, inline shift). func_0035ed20->scrGetParamInt,
    func_0035f160->func_0029d050, func_002c0e30->func_001d9280,
-   func_0035f060->func_0029cf50, gFormationDispatchTable->D_00609850. */
+   func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. */
 // FUN_001E1800
 u32 func_001e1800(void)
 {
@@ -3087,8 +3087,8 @@ s32 func_001e1940(void) {
 }
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E19F0
 u32 func_001e19f0(void)
@@ -3124,8 +3124,8 @@ u32 func_001e19f0(void)
 
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1AE0
 u32 func_001e1ae0(void)
@@ -3161,8 +3161,8 @@ u32 func_001e1ae0(void)
 
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1BD0
 u32 func_001e1bd0(void)
@@ -3198,8 +3198,8 @@ u32 func_001e1bd0(void)
 
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1CC0
 u32 func_001e1cc0(void)
@@ -3235,8 +3235,8 @@ u32 func_001e1cc0(void)
 
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1DB0
 u32 func_001e1db0(void)
@@ -3272,8 +3272,8 @@ u32 func_001e1db0(void)
 
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1EA0
 u32 func_001e1ea0(void)
@@ -3341,8 +3341,8 @@ s32 func_001e2030(void) {
    as FUN_001DB7D0. The rest (9280 arg order, dsll32/dsrl32 24-bit masks, the
    e*3 table call) all compile correctly when f is the only difference. */
 /* Ported from P3FES btlEffect.c func_002ca480 (dispatch handler, 8-alt clone
-   family). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   family). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850; selector tag 0x01000000. */
 #pragma opt_rebuildconditionals off
 // FUN_001E20D0
@@ -3499,8 +3499,8 @@ done:
 
 
 /* Ported from P3FES btlEffect.c func_002ca7b0 (argument sideMask dispatch,
-   selector tag 0x0b000000). func_0035ed20->func_0029cc00, func_0035f160->func_0029d050,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   selector tag 0x0b000000). func_0035ed20->scrGetParamInt, func_0035f160->func_0029d050,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. Pragma for branchy shift set. */
 #pragma opt_rebuildconditionals off
 // FUN_001E2400
@@ -4393,8 +4393,8 @@ s32 func_001e3d30(void) {
 }
 
 /* Ported from P3FES btlEffect.c func_002cbba0 (side-switch dispatch, selector
-   tag 0x19000000). func_0035ed20->func_0029cc00, func_002c0e30->func_001d9280,
-   func_0035f060->func_0029cf50, gFormationDispatchTable->D_00609850. id is u32
+   tag 0x19000000). func_0035ed20->scrGetParamInt, func_002c0e30->func_001d9280,
+   func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. id is u32
    (masked & 0xFFFF) because func_001d9280 takes s32. switch cases ascending 0/1. */
 // FUN_001E3DE0
 u32 func_001e3de0(void)
@@ -4557,8 +4557,8 @@ s32 func_001e4210(void) {
 }
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E42E0
 u32 func_001e42e0(void)
@@ -4601,8 +4601,8 @@ s32 func_001e43d0(void) {
 }
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
-   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
+   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E4430
 u32 func_001e4430(void)
