@@ -313,7 +313,50 @@ s32 *func_003df1a0(s32 *arg0, u8 *arg1, u32 arg2) {
 #pragma schedule off
 
 /* measured: switch with direct returns in ascending case order; 0xd returns 0. */
+// FUN_003DED20
 #pragma schedule on
+s32 func_003ded20(s32 *arg0) {
+    switch (*arg0) {
+    case 1:
+        return 0;
+    case 2:
+        return 0;
+    case 3:
+        return 0;
+    case 5:
+        return 1;
+    case 6:
+        return 1;
+    case 7:
+        return 1;
+    case 8:
+        return 1;
+    case 9:
+        return 1;
+    case 10:
+        return 1;
+    case 11:
+        return 1;
+    case 13:
+        return 0;
+    case 14:
+        return 1;
+    case 15:
+        return 1;
+    case 16:
+        return 1;
+    case 18:
+        return 1;
+    case 19:
+        return 0;
+    case 20:
+        return 1;
+    case 26:
+        return 1;
+    default:
+        return 0;
+    }
+}
 /* measured: closes the schedule bracket. */
 #pragma schedule off
 
