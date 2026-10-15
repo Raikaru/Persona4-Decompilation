@@ -151,7 +151,7 @@ void func_00196ce0(BtlUnitPacketMove* work);
 u32 func_00196d00(void* work);
 void func_001973d0(BtlUnitPacketMove* work);
 void btlUnitHoldPendingPacket(BtlUnitPacketCountRef* work);
-u32 func_001974f0(BtlUnitPacketMoveToUnit* work);
+u32 btlUnitMoveToUnitPacketUpdate(BtlUnitPacketMoveToUnit* work);
 void btlUnitReleasePendingPacket(BtlUnitPacketCountRef* work);
 
 // FUN_00195B60
@@ -596,7 +596,7 @@ u32 func_00196610(u8 *arg0)
     return 0;
 }
 // FUN_001974F0
-u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
+u32 btlUnitMoveToUnitPacketUpdate(BtlUnitPacketMoveToUnit* packet)
 {
     struct Btl974Work
     {
@@ -758,7 +758,7 @@ BtlPacket* btlUnitCreateMoveToUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, f32
     packet = btlPacketAlloc(0x10B, sizeof(BtlUnitPacketMoveToUnit));
 
     packet->initFunc = (BtlPacketFunc)btlUnitHoldPendingPacket;
-    packet->updateFunc = (BtlPacketFunc)func_001974f0;
+    packet->updateFunc = (BtlPacketFunc)btlUnitMoveToUnitPacketUpdate;
     packet->destroyFunc = (BtlPacketFunc)btlUnitReleasePendingPacket;
 
     work = (BtlUnitPacketMoveToUnit*)packet->workData;
@@ -827,7 +827,7 @@ struct BtlUnitPacketAnim
    normalized_diff 0; a named u8 boolean plus zero-guard reproduces retail's
    sltu/bnez tail layout. */
 // FUN_00198050
-s32 func_00198050(u8 *arg0)
+s32 btlUnitRotateTowardUnitPacketUpdate(u8 *arg0)
 {
     struct Btl980Rot {
         f32 x;
@@ -966,9 +966,9 @@ struct BtlUnitPacketLookAt
     u16 flags;
 };
 
-void func_0019df00(BtlUnitPacketCountRef* work);
+void btlUnitHoldPendingLookAtRef(BtlUnitPacketCountRef* work);
 u32 btlUnitSetLookAtRanges(void* work);
-void func_0019e130(BtlUnitPacketCountRef* work);
+void btlUnitReleasePendingLookAtRef(BtlUnitPacketCountRef* work);
 
 // FUN_0019ACD0
 void btlUnitModelLoadPacketInit(u8 *arg0)
@@ -1220,7 +1220,7 @@ s32 btlUnitHidePacketUpdate(u8 *arg0) {
     return 1;
 }
 // FUN_0019E130
-void func_0019e130(BtlUnitPacketCountRef* arg0) {
+void btlUnitReleasePendingLookAtRef(BtlUnitPacketCountRef* arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;
@@ -1236,9 +1236,9 @@ BtlPacket* btlUnitCreateLookAtPacket(BtlUnit* unit, const RwV3d* targetPos, u16 
 
     packet = btlPacketAlloc(0x117, sizeof(BtlUnitPacketLookAt));
 
-    packet->initFunc = (BtlPacketFunc)func_0019df00;
+    packet->initFunc = (BtlPacketFunc)btlUnitHoldPendingLookAtRef;
     packet->updateFunc = btlUnitSetLookAtRanges;
-    packet->destroyFunc = (BtlPacketFunc)func_0019e130;
+    packet->destroyFunc = (BtlPacketFunc)btlUnitReleasePendingLookAtRef;
 
     work = (BtlUnitPacketLookAt*)packet->workData;
 
@@ -1287,7 +1287,7 @@ void btlUnitClearFlags(BtlUnit* unit, u16 flags)
     unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
 }
 // FUN_00195630
-u32 func_00195630(BtlUnitPacketPosRotCol* packet)
+u32 btlUnitOverridePacketUpdate(BtlUnitPacketPosRotCol* packet)
 {
     BtlUnit* unit;
 
@@ -1457,7 +1457,7 @@ void func_0019de70(BtlUnitStateWork* work, u16 value)
 }
 
 // FUN_0019DF00
-void func_0019df00(BtlUnitPacketCountRef* arg0) {
+void btlUnitHoldPendingLookAtRef(BtlUnitPacketCountRef* arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;
@@ -1467,7 +1467,7 @@ void func_0019df00(BtlUnitPacketCountRef* arg0) {
 }
 
 // FUN_0019E1F0
-void func_0019e1f0(BtlUnitPacketTwoUnits* packet)
+void btlUnitHoldPendingLookAtUnits(BtlUnitPacketTwoUnits* packet)
 {
     if (packet->first != NULL)
     {
@@ -1477,7 +1477,7 @@ void func_0019e1f0(BtlUnitPacketTwoUnits* packet)
 }
 
 // FUN_0019E220
-u32 func_0019e220(u8* packet)
+u32 btlUnitLookAtUnitPacketUpdate(u8* packet)
 {
     extern u8* iGpffffb3ac;
     extern void mdlLookAtSetupSetRange(void* model, f32 x, f32 y);
@@ -1615,7 +1615,7 @@ u32 func_0019e220(u8* packet)
     return 1;
 }
 // FUN_0019E520
-void func_0019e520(BtlUnitPacketTwoUnits* packet)
+void btlUnitReleasePendingLookAtUnits(BtlUnitPacketTwoUnits* packet)
 {
     if (packet->first != NULL)
     {

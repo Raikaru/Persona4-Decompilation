@@ -143,7 +143,7 @@ extern s32 btlUnitLoadStep(u8 *task);
 extern s32 btlUnitLoadBlocksFromFile(u8 *arg0, s32 arg1);
 extern void func_0010d480(void);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern void func_00195630(u8 *arg0);
+extern void btlUnitOverridePacketUpdate(u8 *arg0);
 extern u8 *kwlnTaskGetTaskByName(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 

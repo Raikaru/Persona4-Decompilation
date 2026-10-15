@@ -24,7 +24,7 @@ typedef struct RotateTowardUnitWork {
 
 BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 u32 btlUnitHoldPendingPair(void* work);
-u32 func_00198050(void* work);
+u32 btlUnitRotateTowardUnitPacketUpdate(void* work);
 u32 btlUnitReleasePendingPair(void* work);
 typedef struct BtlUnitPacket {
     BtlUnit* unit;
@@ -127,9 +127,9 @@ typedef struct LookAtUnitWork {
     u16 flags;
     u8 padding_0a[2];
 } LookAtUnitWork;
-u32 func_0019e1f0(void* work);
-u32 func_0019e220(void* work);
-u32 func_0019e520(void* work);
+u32 btlUnitHoldPendingLookAtUnits(void* work);
+u32 btlUnitLookAtUnitPacketUpdate(void* work);
+u32 btlUnitReleasePendingLookAtUnits(void* work);
 typedef struct BtlUnitPacketLookAtDeactivate {
     BtlUnit* unit;
     u16 flags;
@@ -159,7 +159,7 @@ BtlPacket* btlUnitCreateRotateTowardUnitPacket(BtlUnit* unit, BtlUnit* targetUni
 
     packet = btlPacketAlloc(0x10e, sizeof(RotateTowardUnitWork));
     packet->initFunc = btlUnitHoldPendingPair;
-    packet->updateFunc = func_00198050;
+    packet->updateFunc = btlUnitRotateTowardUnitPacketUpdate;
     packet->destroyFunc = btlUnitReleasePendingPair;
     work = (RotateTowardUnitWork*)packet->workData;
     work->unit = unit;
@@ -406,9 +406,9 @@ BtlPacket* btlUnitCreateLookAtUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u16
     LookAtUnitWork* work;
 
     packet = btlPacketAlloc(0x118, sizeof(LookAtUnitWork));
-    packet->initFunc = func_0019e1f0;
-    packet->updateFunc = func_0019e220;
-    packet->destroyFunc = func_0019e520;
+    packet->initFunc = btlUnitHoldPendingLookAtUnits;
+    packet->updateFunc = btlUnitLookAtUnitPacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingLookAtUnits;
     work = (LookAtUnitWork*)packet->workData;
     work->unit = unit;
     work->targetUnit = targetUnit;
