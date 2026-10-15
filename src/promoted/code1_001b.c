@@ -38,10 +38,10 @@ extern void func_00144c90(s32 arg0, s32 arg1);
 extern s32 func_003bbb60(u8 *arg0);
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
-extern void *SceneDraw_GetList4Vec0(void);
+extern void *SceneDraw_GetList4FirstColor(void);
 extern s32 func_001b0d70(u8 *arg0);
 extern s32 func_001b0dd0(u8 *arg0);
-extern void *SceneDraw_GetList4Vec1(void);
+extern void *SceneDraw_GetList4SecondColor(void);
 extern void func_001b6990();
 extern void func_00193d30(void);
 extern s32 func_00122640(s32 arg0, s32 arg1);
@@ -182,7 +182,7 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 {
     return left * right;
 }
-extern void *SceneDraw_GetList4Vec2(void);
+extern void *SceneDraw_GetList4Matrix(void);
 extern u8 *func_00149ca0(void);
 extern u8 *func_00149ce0(void);
 extern s32 func_001d07e0(u8 *arg0, u8 *arg1);
@@ -2970,13 +2970,13 @@ void func_001b6120(void)
     *(f32 *)(base + 0x254) = fGpffff81f4 * (f32)iGpffffa4da;
     base = D_0076449C;
     *(f32 *)(base + 0x258) = fGpffff81f4 * (f32)iGpffffa4db;
-    vec = (u8 *)SceneDraw_GetList4Vec0();
+    vec = (u8 *)SceneDraw_GetList4FirstColor();
     base = D_0076449C;
     *(RgbaReal *)(base + 0x1EC) = *(RgbaReal *)(vec + 0x0);
-    vec = (u8 *)SceneDraw_GetList4Vec1();
+    vec = (u8 *)SceneDraw_GetList4SecondColor();
     base = D_0076449C;
     *(RgbaReal *)(base + 0x1FC) = *(RgbaReal *)(vec + 0x0);
-    tmp = (u8 *)SceneDraw_GetList4Vec2();
+    tmp = (u8 *)SceneDraw_GetList4Matrix();
     base = D_0076449C;
     RtQuatConvertFromMatrix(base + 0x20C, tmp);
     base = D_0076449C;
@@ -3159,11 +3159,11 @@ void func_001b6a20(void)
 
     base = D_0076449C;
     if ((*(s32 *)(base + 0xC) & 2) != 0) {
-        dst = (struct P4Vec4 *)SceneDraw_GetList4Vec0();
+        dst = (struct P4Vec4 *)SceneDraw_GetList4FirstColor();
         src = (struct P4Vec4 *)(base + 0x1EC);
         *dst = *src;
         base = D_0076449C;
-        dst = (struct P4Vec4 *)SceneDraw_GetList4Vec1();
+        dst = (struct P4Vec4 *)SceneDraw_GetList4SecondColor();
         src = (struct P4Vec4 *)(base + 0x1FC);
         *dst = *src;
     }
@@ -3294,9 +3294,9 @@ void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2) {
 #pragma opt_propagation off
 void func_001b70c0(u8 *arg0)
 {
-    extern void *SceneDraw_GetScaleA(u16 resTypeId);
-    extern void *SceneDraw_GetOffsetVec(u16 resTypeId);
-    extern void *SceneDraw_GetMatrixB(u16 resTypeId);
+    extern void *SceneDraw_GetLightColorA(u16 resTypeId);
+    extern void *SceneDraw_GetLightTint(u16 resTypeId);
+    extern void *SceneDraw_GetLightMatrixB(u16 resTypeId);
     extern f32 RwV3dNormalize(f32 *dst, const f32 *src);
     extern void *RwMatrixRotate(void *matrix, const void *axis, f32 angle, s32 combine);
     extern u8 D_005F7290[];
@@ -3392,7 +3392,7 @@ void func_001b70c0(u8 *arg0)
             up.y = at.z * right.x - at.x * right.z;
             up.z = at.x * right.y - at.y * right.x;
             light.up = up;
-            dstf = (f32 *)SceneDraw_GetOffsetVec(*(u16 *)(arg0 + 0x9FE));
+            dstf = (f32 *)SceneDraw_GetLightTint(*(u16 *)(arg0 + 0x9FE));
             red = *(f32 *)(arg0 + 0x70);
             green = *(f32 *)(arg0 + 0x74);
             blue = *(f32 *)(arg0 + 0x78);
@@ -3401,14 +3401,14 @@ void func_001b70c0(u8 *arg0)
             dstf[1] = green;
             dstf[2] = blue;
             dstf[3] = alpha;
-            *(Matrix *)SceneDraw_GetMatrixB(*(u16 *)(arg0 + 0x9FE)) = light;
+            *(Matrix *)SceneDraw_GetLightMatrixB(*(u16 *)(arg0 + 0x9FE)) = light;
             break;
         }
         case 2: {
             f32 *dstf;
 
             RwMatrixRotate(&light, D_0060A0D0, -90.0f, 0);
-            dstf = (f32 *)SceneDraw_GetScaleA(*(u16 *)(arg0 + 0x9FE));
+            dstf = (f32 *)SceneDraw_GetLightColorA(*(u16 *)(arg0 + 0x9FE));
             red = *(f32 *)D_005F7290;
             green = *(f32 *)D_005F7294;
             blue = *(f32 *)D_005F7298;
@@ -3417,7 +3417,7 @@ void func_001b70c0(u8 *arg0)
             dstf[1] = green;
             dstf[2] = blue;
             dstf[3] = alpha;
-            dstf = (f32 *)SceneDraw_GetOffsetVec(*(u16 *)(arg0 + 0x9FE));
+            dstf = (f32 *)SceneDraw_GetLightTint(*(u16 *)(arg0 + 0x9FE));
             red = *(f32 *)D_005F72A0;
             green = *(f32 *)D_005F72A4;
             blue = *(f32 *)D_005F72A8;
@@ -3426,7 +3426,7 @@ void func_001b70c0(u8 *arg0)
             dstf[1] = green;
             dstf[2] = blue;
             dstf[3] = alpha;
-            *(Matrix *)SceneDraw_GetMatrixB(*(u16 *)(arg0 + 0x9FE)) = light;
+            *(Matrix *)SceneDraw_GetLightMatrixB(*(u16 *)(arg0 + 0x9FE)) = light;
             break;
         }
         default:
@@ -3723,7 +3723,7 @@ s32 func_001ba590(u8 *arg0)
     matrix.pos.y = 0.0f;
     matrix.pos.z = 0.0f;
     matrix.flags = 3;
-    var_2 = SceneDraw_GetList4Vec2();
+    var_2 = SceneDraw_GetList4Matrix();
     var_6 = (u8 *)&matrix;
     var_5 = 8;
     do {
