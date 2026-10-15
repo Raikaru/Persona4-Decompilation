@@ -108,7 +108,7 @@ extern void func_002b68d0(s16, s16, s8);
 extern s32 func_002bb550(s64);
 extern void func_002bbcf0(s32);
 extern s32 func_002e53b0(s8, s16);
-extern void func_002eb270(u8 *, s32);
+extern void fclCombineLayoutTransition(u8 *, s32);
 extern s8 func_00105f50(u16);
 extern u32 datGetFlag(s32);
 extern void *memset(void *, s32, u32);
@@ -873,7 +873,7 @@ void func_002e90d0(u8 *arg0)
                     if (fclCombineClaimSlot(arg0) == 0) {
                         p[1] = 0x18;
                     }
-                    func_002eb270(arg0, 1);
+                    fclCombineLayoutTransition(arg0, 1);
                     func_00315310(arg0, 0);
                     func_003205f0(arg0, 0x92, 0x96);
                     func_002b6a70(0x1C6, func_002b6150(0x1C6)[0x6E], 0, 0, 0xA, 0);
@@ -885,7 +885,7 @@ void func_002e90d0(u8 *arg0)
                 if (fclCombineClaimSlot(arg0) == 0) {
                     p[1] = 0x18;
                 }
-                func_002eb270(arg0, 1);
+                fclCombineLayoutTransition(arg0, 1);
                 func_0045af60(0, 0, 0, 2);
                 func_00315310(arg0, 0);
                 func_003205f0(arg0, 0x92, 0x96);
@@ -894,7 +894,7 @@ void func_002e90d0(u8 *arg0)
         }
         break;
     case 0x1C:
-        func_002eb270(arg0, 1);
+        fclCombineLayoutTransition(arg0, 1);
         p[0] = ((FclCombineRow *)(p + 0xC4))[p[0xB4]].state0;
         p[1] = ((FclCombineRow *)(p + 0xC4))[p[0xB4]].state1;
         break;
@@ -1053,8 +1053,9 @@ typedef struct {
 /* Layout 8 gives the consecutive left and right/central phases their own
    transition values. The real aggregate-return position temporaries remain
    at every placement. See docs/probe_archive/FclCombine_002eb270_20261004.md. */
+// Fcl combine layout transition: transition 0 slides the layout in; any other value slides it out with jitter.
 // FUN_002EB270
-void func_002eb270(u8 *task, s32 transition) {
+void fclCombineLayoutTransition(u8 *task, s32 transition) {
     extern u8 D_006407F0[];
     FclCombineLayoutSlot *slot;
     u8 *work;
@@ -1376,7 +1377,7 @@ void func_002ecfc0(u8 *arg0) {
     *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0xD8;
     *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 8;
     *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
-    func_002eb270(arg0, 0);
+    fclCombineLayoutTransition(arg0, 0);
     func_003205f0(arg0, 0x96, 0x92);
     *(u8 *)(temp_16 + 1) = 0x1A;
 }
@@ -1692,7 +1693,7 @@ void func_002ed430(u8 *arg0) {
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) == 0
             && (s16)func_002b6970(*(s16 *)(func_002b6150(0x193) + 0x10), 1) == 0) {
             func_003205f0(arg0, 0x96, 0x93);
-            func_002eb270(arg0, 0);
+            fclCombineLayoutTransition(arg0, 0);
             func_00315600(arg0, 0);
             temp_18->f0 = 0;
             temp_18->f1 = 0x1A;
@@ -2733,7 +2734,7 @@ void func_002f0f00(u8 *arg0) {
         }
         if (((s32)((s32)(((s32) (*(s16 *)fclCombineSlotRecord((u8 *)(temp_17->rows[0]), 0) & 4) >> 2))) == (s32)((s32)(0))) && ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) == (s32)((s32)(0)))) {
             func_003205f0(arg0, 0x96, 0x93);
-            func_002eb270(arg0, 0U);
+            fclCombineLayoutTransition(arg0, 0U);
             func_00315600(arg0, 0);
             temp_17->f0 = 0;
             temp_17->f1 = 0x1AU;
@@ -4010,7 +4011,7 @@ void func_002f6cf0(u8 *arg0) {
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x27C) + 0x10), 1) != 0) {
             break;
         }
-        func_002eb270(arg0, 0);
+        fclCombineLayoutTransition(arg0, 0);
         func_00315600(arg0, 0);
         p[1] = 0x1A;
         p[0] = 0;
@@ -4554,7 +4555,7 @@ void func_002f9d90(u8 *arg0) {
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x71) + 0x10), 1) == 0 &&
             (s16)func_002b6970(*(s16 *)(func_002b6150(0x70) + 0x10), 1) == 0) {
-            func_002eb270(arg0, 0);
+            fclCombineLayoutTransition(arg0, 0);
             func_00315600(arg0, 0);
             func_003205f0(arg0, 0x96, 0x98);
             p[1] = 0x1A;
@@ -6062,7 +6063,7 @@ void func_00302770(u8 *arg0) {
                     sp168 = func_002b2970(-640.0f, 72.0f);
                     func_0032c660(arg0, 1, sp170, sp168, 0, 1);
                 }
-                func_002eb270(arg0, 0);
+                fclCombineLayoutTransition(arg0, 0);
                 p[1] = 0x74;
                 func_00316e80(arg0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
                 sp160 = func_002b2970((f32)413, 99.0f);
@@ -7808,7 +7809,7 @@ s32 fclCombineFindMatchIndex(u8 *arg0) {
 /* MATCHED: the four nibbles are s8 locals (retail re-extends each at use)
    extracted in n1, n2, n0, n3 order; the flag walk counter is s32 against a
    (u16) count; total is s16; packed is u16 built n0-first with no nibble
-   masks; the switch is on n0, not n2.  func_003095f0 returns u16 and
+   masks; the switch is on n0, not n2.  fclCombineOtherHeroId returns u16 and
    func_001102c0 takes u16 (no mask / sign-extension at either call site).
    The byte sum reads ((u8 *)&func_001102e0()[0x13])[j] (addu, lbu 0x26)
    and packed is declared before j (register rotation). */
@@ -8519,7 +8520,7 @@ void func_0030b060(u8 *arg0)
                                         func_003147e0(arg0, (s8)k, v3, (s16)(e + 0x179),
                                                       (s16)((5 - k) * 2), 1);
                                     }
-                                    func_002eb270(arg0, 0);
+                                    fclCombineLayoutTransition(arg0, 0);
                                     *p = 0;
                                     *(p + 1) = 0x1A;
                                 }
@@ -9918,7 +9919,7 @@ void func_0030f650(u8 *arg0) {
             *(s16 *)((u8 *)(*(s8 *)(p + 0xB5) * 10) + (u32)p + 0xC6) = 0xD8;
             *(s16 *)((u8 *)(*(s8 *)(p + 0xB5) * 10) + (u32)p + 0xC8) = 8;
             *(s8 *)(p + 0xB5) = *(s8 *)(p + 0xB5) + 1;
-            func_002eb270(arg0, 0);
+            fclCombineLayoutTransition(arg0, 0);
             func_003205f0(arg0, 0x96, 0);
             *p = 0;
             *(p + 1) = 0x1A;
@@ -10095,8 +10096,9 @@ void func_00310a10(u8 *arg0, u16 arg1) {
     func_002bbf60();
 }
 
+// Fcl combine task update: state dispatch registered with the combine task; runs the current state (0-15).
 // FUN_00310BF0
-s32 func_00310bf0(u8 *arg0) {
+s32 fclCombineTaskUpdate(u8 *arg0) {
     s8 *p = *(s8 **)(arg0 + 0x38);
     u8 *q;
     u8 *t2;
@@ -10241,8 +10243,9 @@ s32 func_00310bf0(u8 *arg0) {
     }
     return 0;
 }
+// Fcl combine task destroy: releases the CDVD handle and frees the task work block.
 // FUN_003111D0
-void func_003111d0(u8 *arg0)
+void fclCombineTaskDestroy(u8 *arg0)
 {
     u8 *p;
 
@@ -10276,7 +10279,7 @@ s32 func_00311260(u8 *arg0)
     found = 0;
     func_0044ea90(&D_00641B00[0], 0x2C88);
     p = D_008873F4[0](1, 0x2C, 0x40000);
-    result = (s32)func_00451fc0((void *)((void *)(result)), (const void *)(D_00641BE0), 0xF, 0, 0, func_00310bf0, func_003111d0, (u8 *)(p));
+    result = (s32)func_00451fc0((void *)((void *)(result)), (const void *)(D_00641BE0), 0xF, 0, 0, fclCombineTaskUpdate, fclCombineTaskDestroy, (u8 *)(p));
     p[0] = 8;
     func_00440b68(&iGpffffa8c8, D_00641B00, 0x2C96);
     *(s32 *)(p + 0x10) = func_00454a60(D_00641C00, 0);
