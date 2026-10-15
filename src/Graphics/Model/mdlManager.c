@@ -3857,8 +3857,9 @@ void mdlClumpSetEnvMapState(void* param_1)
     RpClumpForAllAtomics(param_1, mdlMatFXSetEnvMapStateCallback, 0);
 }
 
+/* Atomic callback: sets the +0xC vector of every material entry from the material user-data floats, or from the fallback value when any of the three keys is missing. */
 // FUN_00477510
-void* func_00477510(void* arg0, void* data)
+void* mdlSetAtomicMaterialVector(void* arg0, void* data)
 {
     void* base;
     u32 count;
@@ -4248,7 +4249,7 @@ void mdlSetupPreparedModel(u8* arg0)
         RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), mdlSetAtomicEntryVector, values);
         break;
     default:
-        RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00477510, NULL);
+        RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), mdlSetAtomicMaterialVector, NULL);
         break;
     }
     temp_4_2 = *(u32*)(arg0 + 0x2CC);
@@ -5271,9 +5272,10 @@ s32 mdlLayerHasAnimation(u8* param_1, u32 param_2, s16 param_3)
    helper, (7) D_00922BC0_abs lui/addiu address, (4) opt_propagation off forces
    the lhu-before-signext load order (FLYDraw/FLYCmbcardeff combo). Helper is
    defined at top of file, outside the pragma. */
+/* Returns 1 when layer arg1 has a key at index arg2 whose animation is the empty-clip sentinel D_00922BC0, and 0 otherwise, including when the index is out of range. */
 // FUN_00479DD0
 #pragma opt_propagation off
-s32 func_00479dd0(u8* param_1, u16 param_2, s16 param_3)
+s32 mdlIsLayerKeyEmpty(u8* param_1, u16 param_2, s16 param_3)
 {
     int iVar1;
     int iVar2;

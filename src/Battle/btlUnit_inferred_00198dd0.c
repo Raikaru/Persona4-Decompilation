@@ -197,7 +197,7 @@ void btlUnitUpdateStatusMotion(u8 *arg0, u16 arg1)
     s32 flag;
     s32 r;
     s16 temp;
-    extern s32 func_00479dd0(u8 *a, u32 b, s16 c);
+    extern s32 mdlIsLayerKeyEmpty(u8 *a, u32 b, s16 c);
     extern s32 datCalcChkBadStatus();
 
     var_18 = 0;
@@ -207,7 +207,7 @@ void btlUnitUpdateStatusMotion(u8 *arg0, u16 arg1)
             if (mdlLayerHasAnimation(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
                 flag = 0;
             } else {
-                r = func_00479dd0(*(u8 **)(arg0 + 0xA00), 0, temp);
+                r = mdlIsLayerKeyEmpty(*(u8 **)(arg0 + 0xA00), 0, temp);
                 if (r == 1) {
                     flag = 0;
                 } else {
@@ -239,7 +239,7 @@ void btlUnitUpdateStatusMotion(u8 *arg0, u16 arg1)
             if (mdlLayerHasAnimation(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
                 flag = 0;
             } else {
-                r = func_00479dd0(*(u8 **)(arg0 + 0xA00), 0, temp);
+                r = mdlIsLayerKeyEmpty(*(u8 **)(arg0 + 0xA00), 0, temp);
                 if (r == 1) {
                     flag = 0;
                 } else {
