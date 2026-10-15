@@ -130,7 +130,7 @@ s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 
 BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
-BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
+BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
 s32 func_001fac80(u8 *arg0);
 void func_001fad10(void);
@@ -378,7 +378,7 @@ void btlActionBadDamageUpdate(u8 *action)
                     *(s16 *)(animationPacket + 40) = 769;
                     *(s64 *)(animationPacket + 96) = packetIdentity;
                     btlPacketEnqueue(animationPacket, 0);
-                    soundPacket = (u8 *)func_001f7c20(10, 2, 24);
+                    soundPacket = (u8 *)btlSoundCreateChannelCuePacket(10, 2, 24);
                     *(soundPacket + 0) = 4;
                     *(s64 *)(soundPacket + 8) = *(s64 *)(resultPacket + 88);
                     btlPacketEnqueue(soundPacket, 1);
@@ -432,7 +432,7 @@ void btlActionBadDamageUpdate(u8 *action)
                     *(s16 *)(animationPacket + 40) = 769;
                     *(s64 *)(animationPacket + 96) = packetIdentity;
                     btlPacketEnqueue(animationPacket, 0);
-                    soundPacket = (u8 *)func_001f7c20(10, 2, 24);
+                    soundPacket = (u8 *)btlSoundCreateChannelCuePacket(10, 2, 24);
                     *(soundPacket + 0) = 4;
                     *(s64 *)(soundPacket + 8) = *(s64 *)(resultPacket + 88);
                     btlPacketEnqueue(soundPacket, 1);
@@ -808,7 +808,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     extern BtlPacket *btlCreateTimingPacket(u32 arg0);
     extern BtlPacket *btlMainCreateFadePacket(s32 arg0, s16 arg1);
     extern BtlPacket *btlMainCreateColorFadePacket(s32 arg0);
-    extern BtlPacket *func_001f81f0(u16 arg0, const char *arg1);
+    extern BtlPacket *btlSoundCreateStreamPacket(u16 arg0, const char *arg1);
     extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
     extern u8 D_005F6D38[];
     extern u8 D_005F6D48[];
@@ -876,7 +876,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     btlPacketEnqueue(setupPacket, 1);
     {
         u8 *pk;
-        pk = (u8 *)func_001f7c20(0xE, 4, 4);
+        pk = (u8 *)btlSoundCreateChannelCuePacket(0xE, 4, 4);
         *pk = 5;
         *(s64 *)(pk + 8) = *(s64 *)(setupPacket + 0x58);
         *(s64 *)(pk + 0x60) = *(s64 *)arg0;
@@ -961,13 +961,13 @@ void btlActionRoundupUpdate(u8 *arg0)
         u8 *pk;
         switch (sp100) {
         case 0x100:
-            pk = (u8 *)func_001f81f0(2, (const char *)D_005F6D38);
+            pk = (u8 *)btlSoundCreateStreamPacket(2, (const char *)D_005F6D38);
             break;
         case 0x101:
-            pk = (u8 *)func_001f81f0(2, (const char *)D_005F6D48);
+            pk = (u8 *)btlSoundCreateStreamPacket(2, (const char *)D_005F6D48);
             break;
         default:
-            pk = (u8 *)func_001f81f0(2, (const char *)D_005F6D58);
+            pk = (u8 *)btlSoundCreateStreamPacket(2, (const char *)D_005F6D58);
             break;
         }
         *pk = 5;
@@ -1000,7 +1000,7 @@ void btlActionRoundupUpdate(u8 *arg0)
         btlPacketEnqueue(chain, 2);
         {
             u8 *pk;
-            pk = (u8 *)func_001f7c20(0xA, 0, 4);
+            pk = (u8 *)btlSoundCreateChannelCuePacket(0xA, 0, 4);
             *pk = 0xB;
             *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
             btlPacketEnqueue(pk, 1);

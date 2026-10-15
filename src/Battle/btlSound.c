@@ -37,8 +37,8 @@ extern void func_001f7ad0(void* work);
 extern u32 func_001f7b40(void* work);
 
 
-extern void func_001f7ca0(u16* work);
-extern u32 func_001f7cd0(s16* work);
+extern void btlSoundStopChannel(u16* work);
+extern u32 btlSoundPlayCue(s16* work);
 
 typedef struct BtlSoundPacketSkillSE BtlSoundPacketSkillSE;
 struct BtlSoundPacketSkillSE
@@ -50,9 +50,9 @@ struct BtlSoundPacketSkillSE
     u16 flags;
     u8 _pad0e[2];
 };
-extern void func_001f7d90(void* work);
-extern u32 func_001f7e30(void* work);
-extern u32 func_001f8070(u16* work);
+extern void btlSoundSkillSEInit(void* work);
+extern u32 btlSoundSkillSEUpdate(void* work);
+extern u32 btlSoundRunCueQueue(u16* work);
 
 extern u32 sprintf(void* buffer, const void* format, ...);
 extern char sGpffffa500[5];
@@ -73,16 +73,16 @@ extern s32 func_0045a570(s32 bank, void* file1, u32 size1, void* file2, u32 size
 extern s32 hsndSlotIsStarting(s32 bank);
 
 extern u32 strlen(const char* text);
-extern u32 func_001f8190(u16* work);
+extern u32 btlSoundLoadStream(u16* work);
 extern void strcpy(char* destination, const char* source);
-extern u32 func_001f8280(void* work);
-extern u32 func_001f8300(void* work);
+extern u32 btlSoundClearUnitFlag10(void* work);
+extern u32 btlSoundSetUnitFlag10(void* work);
 extern u32 func_001f9750(void* work);
 
 
 
 // FUN_001F7530
-void func_001f7530(void)
+void btlSoundStopBgmIfEnabled(void)
 {
     if ((iGpffffb3ac->flags & 0x40) != 0)
     {
@@ -93,7 +93,7 @@ void func_001f7530(void)
 
 
 // FUN_001F7570
-void func_001f7570(s16 fadeDuration)
+void btlSoundFadeOutBgm(s16 fadeDuration)
 {
     if ((iGpffffb3ac->flags & 0x40) != 0)
     {
@@ -104,7 +104,7 @@ void func_001f7570(s16 fadeDuration)
 
 
 // FUN_001F7620
-void func_001f7620(s16 channel, s32 fadeFrames)
+void btlSoundFadeChannel(s16 channel, s32 fadeFrames)
 {
     func_0045aac0(channel, 0, (u16)fadeFrames);
 }
@@ -112,7 +112,7 @@ void func_001f7620(s16 channel, s32 fadeFrames)
 
 
 // FUN_001F7C20
-BtlPacket* func_001f7c20(u16 channel, u16 cue, u16 variant)
+BtlPacket* btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant)
 {
     BtlPacket* packet;
     u16* work;
@@ -130,7 +130,7 @@ BtlPacket* func_001f7c20(u16 channel, u16 cue, u16 variant)
 
 
 // FUN_001F7CA0
-void func_001f7ca0(u16* work)
+void btlSoundStopChannel(u16* work)
 {
     func_0045aa90(0, (s16)*work);
 }
@@ -138,7 +138,7 @@ void func_001f7ca0(u16* work)
 
 
 // FUN_001F7CD0
-u32 func_001f7cd0(s16* work)
+u32 btlSoundPlayCue(s16* work)
 {
     u16* values = (u16*)work;
 
@@ -149,14 +149,14 @@ u32 func_001f7cd0(s16* work)
 
 
 // FUN_001F7D10
-BtlPacket* func_001f7d10(u16 channel, u16 cue, u16 variant)
+BtlPacket* btlSoundCreateCuePacket(u16 channel, u16 cue, u16 variant)
 {
     BtlPacket* packet;
     u16* work;
 
     packet = btlPacketAlloc(0x901, 6);
-    packet->initFunc = (BtlPacketFunc)func_001f7ca0;
-    packet->updateFunc = (BtlPacketFunc)func_001f7cd0;
+    packet->initFunc = (BtlPacketFunc)btlSoundStopChannel;
+    packet->updateFunc = (BtlPacketFunc)btlSoundPlayCue;
     work = (u16*)packet->workData;
     work[0] = channel;
     work[1] = cue;
@@ -167,7 +167,7 @@ BtlPacket* func_001f7d10(u16 channel, u16 cue, u16 variant)
 
 
 // FUN_001F7D90
-void func_001f7d90(void* work)
+void btlSoundSkillSEInit(void* work)
 {
     BtlSoundPacketSkillSE* packet;
     char buffer[128];
@@ -190,7 +190,7 @@ void func_001f7d90(void* work)
 }
 
 // FUN_001F7E30
-u32 func_001f7e30(void* work)
+u32 btlSoundSkillSEUpdate(void* work)
 {
     BtlSoundPacketSkillSE* packet = (BtlSoundPacketSkillSE*)work;
     char buffer[128];
@@ -250,8 +250,8 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 
     packet = btlPacketAlloc(0x903, sizeof(BtlSoundPacketSkillSE));
     packet->unk_47 &= ~(1 << 0);
-    packet->initFunc = (BtlPacketFunc)func_001f7d90;
-    packet->updateFunc = func_001f7e30;
+    packet->initFunc = (BtlPacketFunc)btlSoundSkillSEInit;
+    packet->updateFunc = btlSoundSkillSEUpdate;
     work = (BtlSoundPacketSkillSE*)packet->workData;
     work->skillId = skillId;
     work->flags = flags;
@@ -261,7 +261,7 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 
 
 // FUN_001F8070
-u32 func_001f8070(u16* work)
+u32 btlSoundRunCueQueue(u16* work)
 {
     u16 state;
     u16 channel;
@@ -290,12 +290,12 @@ u32 func_001f8070(u16* work)
     return 1;
 }
 // FUN_001F8140
-BtlPacket* func_001f8140(u16 state)
+BtlPacket* btlSoundCreateCueQueuePacket(u16 state)
 {
     BtlPacket* packet;
 
     packet = btlPacketAlloc(0x904, 2);
-    packet->updateFunc = (BtlPacketFunc)func_001f8070;
+    packet->updateFunc = (BtlPacketFunc)btlSoundRunCueQueue;
     *(u16*)packet->workData = state;
     return packet;
 }
@@ -303,7 +303,7 @@ BtlPacket* func_001f8140(u16 state)
 
 
 // FUN_001F8190
-u32 func_001f8190(u16* work)
+u32 btlSoundLoadStream(u16* work)
 {
     char path[512];
 
@@ -315,7 +315,7 @@ u32 func_001f8190(u16* work)
 
 
 // FUN_001F81F0
-BtlPacket* func_001f81f0(u16 channel, const char* streamName)
+BtlPacket* btlSoundCreateStreamPacket(u16 channel, const char* streamName)
 {
     u32 length;
     BtlPacket* packet;
@@ -323,7 +323,7 @@ BtlPacket* func_001f81f0(u16 channel, const char* streamName)
 
     length = strlen(streamName);
     packet = btlPacketAlloc(0x905, length + 8);
-    packet->updateFunc = (BtlPacketFunc)func_001f8190;
+    packet->updateFunc = (BtlPacketFunc)btlSoundLoadStream;
     work = (u8*)packet->workData;
     *(u16*)work = channel;
     *(char**)(work + 4) = (char*)(work + 8);
@@ -334,7 +334,7 @@ BtlPacket* func_001f81f0(u16 channel, const char* streamName)
 
 
 // FUN_001F8280
-u32 func_001f8280(void* work)
+u32 btlSoundClearUnitFlag10(void* work)
 {
     u8* unit;
 
@@ -346,12 +346,12 @@ u32 func_001f8280(void* work)
     return 1;
 }
 // FUN_001F82B0
-BtlPacket* func_001f82b0(struct BtlUnit* unit)
+BtlPacket* btlSoundCreateUnitFlagClearPacket(struct BtlUnit* unit)
 {
     BtlPacket* packet;
 
     packet = btlPacketAlloc(0x909, 4);
-    packet->updateFunc = func_001f8280;
+    packet->updateFunc = btlSoundClearUnitFlag10;
     *(struct BtlUnit**)packet->workData = unit;
     return packet;
 }
@@ -359,7 +359,7 @@ BtlPacket* func_001f82b0(struct BtlUnit* unit)
 
 
 // FUN_001F8300
-u32 func_001f8300(void* work)
+u32 btlSoundSetUnitFlag10(void* work)
 {
     u8* unit;
 
@@ -371,12 +371,12 @@ u32 func_001f8300(void* work)
     return 1;
 }
 // FUN_001F8330
-BtlPacket* func_001f8330(struct BtlUnit* unit)
+BtlPacket* btlSoundCreateUnitFlagSetPacket(struct BtlUnit* unit)
 {
     BtlPacket* packet;
 
     packet = btlPacketAlloc(0x90A, 4);
-    packet->updateFunc = func_001f8300;
+    packet->updateFunc = btlSoundSetUnitFlag10;
     *(struct BtlUnit**)packet->workData = unit;
     return packet;
 }
@@ -384,7 +384,7 @@ BtlPacket* func_001f8330(struct BtlUnit* unit)
 
 
 // FUN_001F97B0
-void func_001f97b0(void)
+void btlSoundCreateWaitPacket(void)
 {
     BtlPacket* packet;
     u32* work;

@@ -110,7 +110,7 @@ s32 datCalcIsStatusBlocked(u16 *arg0);
 s32 func_001f6770(u8 *arg0);
 s32 func_001fac30(void);
 
-BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
+BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
 
 /* Source unit: src/promoted/code1_001a.c */
@@ -257,7 +257,7 @@ void btlActionStartUpdate(s64 *arg0) {
     } ActionView;
     extern u16 datCalcMaxHp(DatUnit *arg0);
     extern u16 datCalcMaxSp(DatUnit *arg0);
-    extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
+    extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     extern void btlActionSetState(s64 *arg0, u16 arg1);
     typedef struct ActionResult {
         s32 hpDelta;
@@ -319,7 +319,7 @@ void btlActionStartUpdate(s64 *arg0) {
                 *(s64 *)(unitPacket + 0x60) = action->uid;
                 btlPacketEnqueue(unitPacket, 1);
                 if ((s16)passiveCue != -1) {
-                    cuePacket = (u8 *)func_001f7c20(0xE, 2, (u16)passiveCue);
+                    cuePacket = (u8 *)btlSoundCreateChannelCuePacket(0xE, 2, (u16)passiveCue);
                     *(s64 *)(cuePacket + 0x60) = action->uid;
                     btlPacketEnqueue(cuePacket, 1);
                 }

@@ -46,7 +46,7 @@ extern s32 func_00106600(s16 id);
 extern void datCalcSetLevel(u8 *arg0, u8 arg1);
 extern s32 btlDamageIsIdle(s32);
 extern void btlPanelSetCountdown(s32, s32);
-extern void func_001f7620(s16 channel, s32 fadeFrames);
+extern void btlSoundFadeChannel(s16 channel, s32 fadeFrames);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern u32 datGetFlag(s32 arg0);
 extern s32 func_00243ce0(u8 *arg0);
@@ -3006,7 +3006,7 @@ void btlMessageReset(s32 task) {
     temp_16 = temp_2 + 0x84C;
     *(s16 *)(temp_16 + 0x28) = -1;
     *(s32 *)(temp_16 + 0x2C) = -1;
-    func_001f7620(1, 0);
+    btlSoundFadeChannel(1, 0);
     *(u16 *)(temp_16 + 0x10) &= 0xFFEF;
 }
 
@@ -3054,7 +3054,7 @@ void btlMessageResetAlt(s32 task) {
     temp_16 = temp_2 + 0x84C;
     *(s16 *)(temp_16 + 0x28) = -1;
     *(s32 *)(temp_16 + 0x2C) = -1;
-    func_001f7620(1, 0);
+    btlSoundFadeChannel(1, 0);
     *(u16 *)(temp_16 + 0x10) &= 0xFFEF;
 }
 

@@ -200,7 +200,7 @@ extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void datPersonaRemoveSelectedRosterMember(void);
 extern s32 datGetFlag(s32 arg0);
 BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
-BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
+BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
 
 /* Source unit: src/promoted/code1_001a.c */
@@ -2619,7 +2619,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     extern s32 func_001f68e0();
     extern void func_001f7830(u8 *unit, s32 hit, s32 paired, s16 *cue, s16 *variant);
     extern void func_001f7910(u8 *unit, u32 hit, s32 paired, s16 *cue, s16 *variant);
-    extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
+    extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     extern u8 *func_001f99c0(u8 *action, u16 voice, s32 option, s32 argument, s32 flags);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern BtlPacket *func_00202010(u32 unit, u16 skill);
@@ -2958,7 +2958,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
             (*(s64 *)((u8 *)(cameraEventPacket) + (0x60))) = actionUid;
             btlPacketEnqueue(cameraEventPacket, 0);
         }
-        cuePacket = (u8 *)(func_001f7c20(0xC, 2, 9));
+        cuePacket = (u8 *)(btlSoundCreateChannelCuePacket(0xC, 2, 9));
         (*(s8 *)((u8 *)(cuePacket) + (0))) = 5;
         (*(s64 *)((u8 *)(cuePacket) + (8))) = animUid;
         if (animDuration > 8) {
@@ -3132,7 +3132,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
                 btlPacketEnqueue((u8 *)hitAnimPacketSaved, 0);
                 hitPacketUid = *(s64 *)((u8 *)hitAnimPacketSaved + 0x58);
                 if ((targetView->effect & 4) && (unitFlag10E == 0)) {
-                    cuePacketB = (u8 *)(func_001f7c20(0xD, 1, 0xF));
+                    cuePacketB = (u8 *)(btlSoundCreateChannelCuePacket(0xD, 1, 0xF));
                     (*(s8 *)((u8 *)(cuePacketB) + (0))) = 5;
                     (*(s64 *)((u8 *)(cuePacketB) + (8))) = animUid;
                     (*(s16 *)((u8 *)(cuePacketB) + (0x48))) = (s16) hitTiming;
@@ -3144,7 +3144,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
                     (*(s64 *)((u8 *)(effectPacketC) + (8))) = animUid;
                     (*(s16 *)((u8 *)(effectPacketC) + (0x48))) = (s16) hitTiming;
                     btlPacketEnqueue(effectPacketC, 1);
-                    cuePacketC = (u8 *)(func_001f7c20(0xD, 2, 0xB));
+                    cuePacketC = (u8 *)(btlSoundCreateChannelCuePacket(0xD, 2, 0xB));
                     (*(s8 *)((u8 *)(cuePacketC) + (0))) = 5;
                     (*(s64 *)((u8 *)(cuePacketC) + (8))) = animUid;
                     (*(s16 *)((u8 *)(cuePacketC) + (0x48))) = (s16) hitTiming;
@@ -3155,14 +3155,14 @@ void btlActionAttackUpdate(s64 *arg0_) {
                     (*(s8 *)((u8 *)(effectPacketD) + (0))) = 5;
                     (*(s64 *)((u8 *)(effectPacketD) + (8))) = hitPacketUid;
                     btlPacketEnqueue(effectPacketD, 1);
-                    cuePacketD = (u8 *)(func_001f7c20(0xC, 2, 0xC));
+                    cuePacketD = (u8 *)(btlSoundCreateChannelCuePacket(0xC, 2, 0xC));
                     (*(s8 *)((u8 *)(cuePacketD) + (0))) = 5;
                     (*(s64 *)((u8 *)(cuePacketD) + (8))) = hitPacketUid;
                     btlPacketEnqueue(cuePacketD, 1);
                 }
                 func_001f7830(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
                 if ((hitCue >= 0) && (hitVariant >= 0)) {
-                    cuePacketE = (u8 *)(func_001f7c20(0xD, hitCue, hitVariant));
+                    cuePacketE = (u8 *)(btlSoundCreateChannelCuePacket(0xD, hitCue, hitVariant));
                     (*(s8 *)((u8 *)(cuePacketE) + (0))) = 5;
                     (*(s64 *)((u8 *)(cuePacketE) + (8))) = animUid;
                     (*(s16 *)((u8 *)(cuePacketE) + (0x48))) = hitTimingBase;
@@ -3181,7 +3181,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
                         (*(s64 *)((u8 *)(effectPacketK) + (0x60))) = actionUid;
                         btlPacketEnqueue(effectPacketK, 2);
                         if (hitIndex == lastHitIndex) {
-                            cuePacketF = (u8 *)(func_001f7c20(0xC, 0, 9));
+                            cuePacketF = (u8 *)(btlSoundCreateChannelCuePacket(0xC, 0, 9));
                             (*(s8 *)((u8 *)(cuePacketF) + (0))) = 5;
                             (*(s64 *)((u8 *)(cuePacketF) + (8))) = animUid;
                             (*(s16 *)((u8 *)(cuePacketF) + (0x48))) = hitTimingBase;
@@ -3203,21 +3203,21 @@ void btlActionAttackUpdate(s64 *arg0_) {
                     if (actionFlagSaved == 0) {
                         func_001f7910(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
                         if ((hitCue >= 0) && (hitVariant >= 0)) {
-                            cuePacketG = (u8 *)(func_001f7c20(0xA, hitCue, hitVariant));
+                            cuePacketG = (u8 *)(btlSoundCreateChannelCuePacket(0xA, hitCue, hitVariant));
                             (*(s8 *)((u8 *)(cuePacketG) + (0))) = 5;
                             (*(s64 *)((u8 *)(cuePacketG) + (8))) = animUid;
                             (*(s16 *)((u8 *)(cuePacketG) + (0x48))) = hitTimingBase;
                             btlPacketEnqueue(cuePacketG, 1);
                         }
                         if ((hitIndex == lastHitIndex) && ((*(s32 *)((u8 *)(targetView) + (0xE0))) == 0) && (hitRow->result.addedStatus & 0x7FFFE)) {
-                            cuePacketH = (u8 *)(func_001f7c20(0xF, 2, 0xF));
+                            cuePacketH = (u8 *)(btlSoundCreateChannelCuePacket(0xF, 2, 0xF));
                             (*(s8 *)((u8 *)(cuePacketH) + (0))) = 5;
                             (*(s64 *)((u8 *)(cuePacketH) + (8))) = animUid;
                             (*(s16 *)((u8 *)(cuePacketH) + (0x48))) = hitTimingBase;
                             btlPacketEnqueue(cuePacketH, 1);
                         }
                     } else {
-                        cuePacketI = (u8 *)(func_001f7c20(0xA, 2, 0x14));
+                        cuePacketI = (u8 *)(btlSoundCreateChannelCuePacket(0xA, 2, 0x14));
                         (*(s8 *)((u8 *)(cuePacketI) + (0))) = 5;
                         (*(s64 *)((u8 *)(cuePacketI) + (8))) = animUid;
                         (*(s16 *)((u8 *)(cuePacketI) + (0x48))) = hitTimingBase;
@@ -3315,7 +3315,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
             /* Retail retains this address and reloads its word at the later branch. */
             addedStatus = &hitRow->result.addedStatus;
             if ((hitRow->result.addedStatus & 0x100000) && ((*(u8 *)((u8 *)(focusTarget->unit) + (0xA2))) == 1)) {
-                cuePacketJ = (u8 *)(func_001f7c20(0xD, 2, 8));
+                cuePacketJ = (u8 *)(btlSoundCreateChannelCuePacket(0xD, 2, 8));
                 (*(s8 *)((u8 *)(cuePacketJ) + (0))) = 5;
                 (*(s64 *)((u8 *)(cuePacketJ) + (8))) = animUid;
                 (*(s16 *)((u8 *)(cuePacketJ) + (0x48))) = hitTimingBase;
@@ -3547,7 +3547,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern u8 * btlTargetCreateHitPacket(u8 *arg0);
     extern s32 btlTargetCreateTargetPacket();
     extern s32 func_001f68e0(u8 *arg0);
-    extern BtlPacket* func_001f7c20(u16 channel, u16 cue, u16 variant);
+    extern BtlPacket* btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     extern BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags);
     extern u8 *func_001f83b0(u32 value);
     extern u8 *func_001f8430(u32 value);
@@ -4143,7 +4143,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 break;
             }
             if (hasCutin != 0) {
-                btlPacketEnqueue((u8 *)func_001f8330((BtlUnit *)act->unit), 0);
+                btlPacketEnqueue((u8 *)btlSoundCreateUnitFlagSetPacket((BtlUnit *)act->unit), 0);
             } else if (isSkill16 != 0) {
                 btlPacketEnqueue((u8 *)(func_001f83b0((u32)act->unit)), 0);
             }
@@ -4192,7 +4192,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 pkt16->startTime = cutinPkt15->endTime;
                 pkt16->ownerId = actionId;
                 btlPacketEnqueue((u8 *)pkt16, 1);
-                soundPkt17 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0xB));
+                soundPkt17 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 0xB));
                 soundPkt17->queue = 5;
                 soundPkt17->startTime = cutinPkt15->endTime;
                 soundPkt17->ownerId = *(s64 *)arg0;
@@ -4248,7 +4248,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             effectPkt24 = (BtlPacketTiming *)(func_001d65d0(effectHandles[0], (*(s32 *)(arg0 + 0x30)), 0, (waitPkt23->endTime), 0x100));
             effectPkt24->ownerId = actionId;
             btlPacketEnqueue((u8 *)effectPkt24, 2);
-            soundPkt25 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 3));
+            soundPkt25 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 3));
             soundPkt25->ownerId = actionId;
             btlPacketEnqueue((u8 *)soundPkt25, 1);
             actUnit5_5 = (u8 *)(act->unit);
@@ -4269,7 +4269,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             animPkt27->ownerId = actionId;
             btlPacketEnqueue((u8 *)animPkt27, 0);
             if (hasCutin != 0) {
-                pkt28 = (BtlPacketTiming *)(func_001f82b0((BtlUnit *)act->unit));
+                pkt28 = (BtlPacketTiming *)(btlSoundCreateUnitFlagClearPacket((BtlUnit *)act->unit));
                 pkt28->queue = 4;
                 pkt28->startTime = animPkt27->endTime;
                 pkt28->ownerId = actionId;
@@ -4288,7 +4288,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             effectPkt30->delay = (s16) recoveryBase;
             effectPkt30->ownerId = actionId;
             btlPacketEnqueue((u8 *)effectPkt30, 2);
-            soundPkt31 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 4));
+            soundPkt31 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 4));
             soundPkt31->queue = 4;
             soundPkt31->startTime = chainTime;
             soundPkt31->delay = (s16)recoveryBase + 2;
@@ -4316,7 +4316,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             colorPkt35->startTime = animPacket->endTime;
             colorPkt35->ownerId = actionId;
             btlPacketEnqueue((u8 *)colorPkt35, 1);
-            soundPkt36 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 5));
+            soundPkt36 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xD, 2, 5));
             soundPkt36->queue = 4;
             soundPkt36->startTime = animPacket->endTime;
             soundPkt36->ownerId = actionId;
@@ -4491,7 +4491,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             effectPkt51->queue = 4;
             effectPkt51->startTime = animPacket->endTime;
             btlPacketEnqueue((u8 *)effectPkt51, 1);
-            soundPkt52 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 7));
+            soundPkt52 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 7));
             soundPkt52->queue = 4;
             soundPkt52->startTime = animPacket->endTime;
             btlPacketEnqueue((u8 *)soundPkt52, 1);
@@ -4505,7 +4505,7 @@ void btlActionSkillUpdate(u8 *arg0) {
         animPkt17->duration = (s16)(btlUnitMotionModelFrames(act->unit, 6, 1.0f));
         animPkt17->ownerId = actionId;
         btlPacketEnqueue((u8 *)animPkt17, 0);
-        soundPkt54 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0x11));
+        soundPkt54 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 0x11));
         soundPkt54->delay = 1;
         soundPkt54->ownerId = actionId;
         btlPacketEnqueue((u8 *)soundPkt54, 1);
@@ -4697,7 +4697,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     btlPacketEnqueue((u8 *)formationPkt6, 2);
     formationEndTime2 = formationPkt6->endTime;
     if (actionFlag4000 == 0) {
-        pkt77 = (BtlPacketTiming *)(func_001f8140(0));
+        pkt77 = (BtlPacketTiming *)(btlSoundCreateCueQueuePacket(0));
         pkt77->queue = 5;
         pkt77->startTime = formationPkt6->endTime;
         btlPacketEnqueue((u8 *)pkt77, 1);
@@ -4768,7 +4768,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 }
                 btlPacketEnqueue((u8 *)formationPkt6, 2);
                 if (actionFlag4000 == 0) {
-                    pkt80 = (BtlPacketTiming *)(func_001f8140(1));
+                    pkt80 = (BtlPacketTiming *)(btlSoundCreateCueQueuePacket(1));
                     pkt80->queue = 5;
                     pkt80->startTime = formationPkt6->endTime;
                     btlPacketEnqueue((u8 *)pkt80, 1);
@@ -4776,13 +4776,13 @@ void btlActionSkillUpdate(u8 *arg0) {
                     skillKindRow = (s16)datCalcSkillElement(NULL, skillKeyCopy);
                     switch (skillKindRow) {                /* switch 2; irregular */
                     case 16:                            /* switch 2 */
-                        soundPkt9 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0x16));
+                        soundPkt9 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x16));
                         break;
                     case 17:                            /* switch 2 */
-                        soundPkt9 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0x19));
+                        soundPkt9 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x19));
                         break;
                     default:                            /* switch 2 */
-                        soundPkt9 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0x15));
+                        soundPkt9 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x15));
                         break;
                     }
                     soundPkt9->queue = 5;
@@ -4811,7 +4811,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     sp4C0->ownerId = actionId;
                     btlPacketEnqueue((u8 *)sp4C0, 2);
                     if (actionFlag4000 == 0) {
-                        pkt83 = (BtlPacketTiming *)(func_001f8140(1));
+                        pkt83 = (BtlPacketTiming *)(btlSoundCreateCueQueuePacket(1));
                         pkt83->queue = 5;
                         pkt83->startTime = sp4C0->endTime;
                         btlPacketEnqueue((u8 *)pkt83, 1);
@@ -4914,7 +4914,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     formationFxPkt->startTime = formationEndTime2;
                 }
                 btlPacketEnqueue((u8 *)formationFxPkt, 1);
-                soundPkt93 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 0xB));
+                soundPkt93 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xD, 2, 0xB));
                 soundPkt93->queue = 5;
                 soundPkt93->startTime = formationFxPkt->endTime;
                 btlPacketEnqueue((u8 *)soundPkt93, 1);
@@ -4929,7 +4929,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     formationFxPkt->startTime = formationEndTime2;
                 }
                 btlPacketEnqueue((u8 *)formationFxPkt, 1);
-                soundPkt94 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0xC));
+                soundPkt94 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0xC));
                 soundPkt94->queue = 5;
                 soundPkt94->startTime = formationFxPkt->endTime;
                 btlPacketEnqueue((u8 *)soundPkt94, 1);
@@ -5139,7 +5139,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     btlPacketEnqueue((u8 *)pkt116, 3);
                 }
                 if ((hitRow->result.addedStatus & 0x100000) && ((s32)((*( u8 * )((u8 *)(*(u8 **)(effectiveAction + 0x30)) + (0xA2)))) == (s32)(1))) {
-                    soundPkt117 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 8));
+                    soundPkt117 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xD, 2, 8));
                     soundPkt117->queue = 5;
                     soundPkt117->startTime = animPacket->endTime;
                     soundPkt117->delay = hitDelay;
@@ -5377,7 +5377,7 @@ reactionPacket:
             formationPkt137->startTime = (s64)((s64) pkt4->endTime);
             formationPkt137->ownerId = actionId;
             btlPacketEnqueue((u8 *)formationPkt137, 2);
-            soundPkt138 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0xA));
+            soundPkt138 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 0xA));
             soundPkt138->queue = 4;
             soundPkt138->startTime = (s64)((s64) pkt4->endTime);
             soundPkt138->ownerId = actionId;
@@ -5713,7 +5713,7 @@ void btlActionSummonUpdate(s64 *arg0)
         *(pkt + 0x10) = 4;
         *(s64 *)(pkt + 0x18) = *(s64 *)(holdPkt + 0x58);
         btlPacketEnqueue(pkt, 2);
-        next = (u8 *)func_001f8140(0);
+        next = (u8 *)btlSoundCreateCueQueuePacket(0);
         *next = 5;
         *(s64 *)(next + 8) = *(s64 *)(pkt + 0x58);
         btlPacketEnqueue(next, 1);
@@ -5732,7 +5732,7 @@ void btlActionSummonUpdate(s64 *arg0)
     btlPacketEnqueue(tailPkt, 1);
     {
         u8 *pkt;
-        pkt = (u8 *)func_001f7c20(10, 2, 7);
+        pkt = (u8 *)btlSoundCreateChannelCuePacket(10, 2, 7);
         *pkt = 4;
         *(s64 *)(pkt + 8) = *(s64 *)(evPkt + 0x58);
         btlPacketEnqueue(pkt, 1);
@@ -5814,7 +5814,7 @@ void btlActionSummonUpdate(s64 *arg0)
             tailPkt = q3;
             {
                 u8 *q4;
-                q4 = (u8 *)func_001f8140(1);
+                q4 = (u8 *)btlSoundCreateCueQueuePacket(1);
                 *q4 = 5;
                 *(s64 *)(q4 + 8) = *(s64 *)(q3 + 0x58);
                 btlPacketEnqueue(q4, 1);
@@ -6552,7 +6552,7 @@ void btlActionEscapeUpdate(s64 *arg0)
     if (action->unit->kind == 0) {
         {
             u8 *pkt;
-            pkt = (u8 *)func_001f7d10(0xF, 2, 0);
+            pkt = (u8 *)btlSoundCreateCuePacket(0xF, 2, 0);
             *pkt = 5;
             *(s64 *)(pkt + 8) = *(s64 *)(first + 0x58);
             *(u16 *)(pkt + 0x48) = 0x1A;
@@ -6580,7 +6580,7 @@ void btlActionEscapeUpdate(s64 *arg0)
     } else {
         {
             u8 *pkt;
-            pkt = (u8 *)func_001f7c20(0xC, 2, 0xF);
+            pkt = (u8 *)btlSoundCreateChannelCuePacket(0xC, 2, 0xF);
             *pkt = 5;
             *(s64 *)(pkt + 8) = *(s64 *)(first + 0x58);
             *(u16 *)(pkt + 0x48) = 0x16;
@@ -6741,7 +6741,7 @@ void btlActionPersonaInit(s64 *arg0)
     *(s16 *)(resultPacket + 0x48) = 0xF;
     *(s64 *)(resultPacket + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(resultPacket, 2);
-    followPacket = (u8 *)func_001f7c20(0xA, 2, 6);
+    followPacket = (u8 *)btlSoundCreateChannelCuePacket(0xA, 2, 6);
     *(s8 *)(followPacket + 0) = 5;
     *(s64 *)(followPacket + 8) = *(s64 *)(resultPacket + 0x58);
     *(s64 *)(followPacket + 0x60) = *(s64 *)arg0;

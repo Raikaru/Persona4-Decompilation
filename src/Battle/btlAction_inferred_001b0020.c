@@ -68,7 +68,7 @@ extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
-extern BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
+extern BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
 extern void btlCameraReleaseActionRefs(u8 *arg0);
@@ -213,7 +213,7 @@ void btlActionDeadInit(u8 *arg0)
             work = (u8 *)btlFormationCreatePacket((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)p, (u32)p, 0, 0);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(work, 2);
-            work = (u8 *)func_001f7c20(0xA, 2, 0xA);
+            work = (u8 *)btlSoundCreateChannelCuePacket(0xA, 2, 0xA);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(work, 1);
         }

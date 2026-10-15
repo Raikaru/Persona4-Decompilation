@@ -90,7 +90,7 @@ extern f32 D_00881414[];
 extern f32 D_00881418[];
 extern f32 fGpffffb454;
 extern BtlPacket *func_002306d0(void);
-extern u8 *func_001f81f0(s32 arg0, void *arg1);
+extern u8 *btlSoundCreateStreamPacket(s32 arg0, void *arg1);
 extern void sprintf(void *arg0, void *arg1, s64 arg2);
 extern u8 D_00609E40[];
 extern u8 *func_0022ced0(s32 arg0);
@@ -345,7 +345,7 @@ s32 func_001eb110(void) {
         break;
     case 1:
         sprintf(&sp20[0], &D_00609E40[0], temp_16);
-        btlPacketEnqueue(func_001f81f0(2, &sp20[0]), 1);
+        btlPacketEnqueue(btlSoundCreateStreamPacket(2, &sp20[0]), 1);
         break;
     }
     return 1;
