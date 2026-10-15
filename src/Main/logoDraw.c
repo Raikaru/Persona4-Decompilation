@@ -34,8 +34,8 @@ extern char D_005E5770[];
 extern char D_005E5790[];
 extern char D_005E57A8[];
 extern char D_00795E60[];
-extern s32 func_0012bbb0(u8 *task);
-extern void func_0012bfb0(u8 *task);
+extern s32 logoTaskUpdate(u8 *task);
+extern void logoTaskDestroy(u8 *task);
 
 
 /* Keep the allocator table base as a u32 local so MWCCPS2 hoists its
@@ -49,9 +49,10 @@ typedef struct {
     s32 task14;
 } LogoWork;
 
+/* Logo task update: loads the logo file, starts its two child tasks, then fades the logo in and out. */
 // FUN_0012BBB0
 
-s32 func_0012bbb0(u8 *sdkTaskBytes)
+s32 logoTaskUpdate(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
     s32 temp_19;
@@ -166,8 +167,9 @@ s32 func_0012bbb0(u8 *sdkTaskBytes)
 
 
 
+/* Destroy callback of the logo task: checks the child tasks, then releases them and the handle. */
 // FUN_0012BFB0
-void func_0012bfb0(u8 *unusedTask)
+void logoTaskDestroy(u8 *unusedTask)
 {
     typedef struct LogoWork LogoWork;
     struct LogoWork
@@ -220,8 +222,9 @@ void func_0012bfb0(u8 *unusedTask)
 
 
 
+/* Starts the logo task with the logo work block. */
 // FUN_0012C110
-s32 func_0012c110(void)
+s32 logoTaskStart(void)
 {
     void *temp_2;
 
@@ -231,6 +234,6 @@ s32 func_0012c110(void)
         return 0;
     }
     *(s32 *)((u8 *)temp_2 + 4) = 0;
-    return (s32)func_00451de0((const void *)(&D_005E57A8), 0xF, 0, 0, func_0012bbb0, func_0012bfb0, (u8 *)(temp_2));
+    return (s32)func_00451de0((const void *)(&D_005E57A8), 0xF, 0, 0, logoTaskUpdate, logoTaskDestroy, (u8 *)(temp_2));
 }
 
