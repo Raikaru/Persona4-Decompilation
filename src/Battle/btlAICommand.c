@@ -5255,7 +5255,7 @@ s32 btlAICommandScriptWouldBeKilled(void) {
 }
 
 // FUN_001E6820
-s32 func_001e6820(void) {
+s32 btlAICommandScriptHasCommandOfType(void) {
     u32 temp_16;
     u32 temp_17;
     u8 *temp_18;
