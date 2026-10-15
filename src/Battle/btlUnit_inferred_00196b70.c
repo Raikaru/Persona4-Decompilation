@@ -167,7 +167,7 @@ extern u8 D_00794150[];
 
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern void func_001949d0(s32 arg0);
+extern void btlPacketStepSide(s32 arg0);
 extern void func_001eec50(void *work);
 extern s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius);
 extern s32 func_001ef110(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);

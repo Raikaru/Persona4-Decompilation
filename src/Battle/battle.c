@@ -8,7 +8,7 @@ static u64 iGpffffa090 = 1;
 
 static u16 iGpffffa098 = 0x100;
 
-extern void func_001949d0(u32 layer);
+extern void btlPacketStepSide(u32 layer);
 extern void func_001b6ab0(void);
 extern void func_001b5fe0(void);
 extern void func_001b0a60(void);
@@ -99,7 +99,7 @@ u16 btlFindFreeCharResId(void)
 s32 func_00192610(u8 *unusedTask)
 {
     if (iGpffffb3ac->flags & 1) {
-        func_001949d0(0);
+        btlPacketStepSide(0);
         func_001b5fe0();
         func_001b0a60();
         func_001b15b0();
@@ -109,7 +109,7 @@ s32 func_00192610(u8 *unusedTask)
         func_001f6190();
         func_001f9be0();
         func_001f72e0();
-        func_001949d0(1);
+        btlPacketStepSide(1);
         func_001eb8d0();
     } else {
         func_00192ae0();
@@ -120,7 +120,7 @@ s32 func_00192610(u8 *unusedTask)
 s32 func_001926c0(u8 *unusedTask)
 {
     if (func_003e8120(func_00457120()) != 0) {
-        func_001949d0(2);
+        btlPacketStepSide(2);
         func_0019cfb0();
         func_0019d150();
         func_001d6680();
@@ -139,7 +139,7 @@ s32 func_001926c0(u8 *unusedTask)
 // FUN_00192790
 s32 btlUpdateDraw2DTask(u8 *task)
 {
-    func_001949d0(3);
+    btlPacketStepSide(3);
     func_001b6ab0();
 
     return 0;

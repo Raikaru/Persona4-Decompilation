@@ -164,7 +164,7 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     func_0019ef30(arg0, arg1);
 }
-extern void func_00194a30(void);
+extern void btlPacketFlushAll(void);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern u8 D_005F6C00[];
@@ -798,7 +798,7 @@ void btlPacketStep(u8 *arg0)
 /* measured: func_001949d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001949D0
-void func_001949d0(s32 arg0)
+void btlPacketStepSide(s32 arg0)
 {
     u8 *btl;
     u8 *temp_16;
@@ -815,7 +815,7 @@ void func_001949d0(s32 arg0)
 
 /* measured: closes opt_propagation for func_001949d0. */
 // FUN_00194A30
-void func_00194a30(void)
+void btlPacketFlushAll(void)
 {
     u8 *entry;
     u8 *next;
