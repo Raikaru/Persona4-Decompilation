@@ -74,7 +74,7 @@ extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
 extern s32 FldFrameTask_Update(u8 *arg0);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern void func_00478e70(s32 arg0);
+extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern s32 iGpffff9f00;
 extern char D_005F11E8[];
 extern char D_005F1200[];
@@ -229,7 +229,7 @@ s32 FldFrameTask_UpdateFollower(u8 *arg0)
         temp_2_3 = (u8 *)mdlGetMatrix(*(s32 *)(temp_16 + 0xC));
         *(RwV3d *)(temp_2_3 + 0x30) =
             *(RwV3d *)(temp_17 + 0x30);
-        func_00478e70(*(s32 *)(temp_16 + 0xC));
+        mdlAdvanceModelFromFlags(*(s32 *)(temp_16 + 0xC));
     }
     return 0;
 }
@@ -297,7 +297,7 @@ s32 FldFrameTask_Update(u8 *arg0)
                 target = mdlGetMatrix(*(s32 *)(work + 0x14));
                 *(RwV3d *)(target + 0x30) =
                     *(RwV3d *)(source + 0x30);
-                func_00478e70(*(s32 *)(work + 0x14));
+                mdlAdvanceModelFromFlags(*(s32 *)(work + 0x14));
             }
         }
 

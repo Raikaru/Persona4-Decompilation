@@ -3152,7 +3152,7 @@ typedef struct MdlDrawState {
 
 extern void RpSkyRenderStateSet(s32 a, s32 b);
 extern void mdlClumpApplyMatColorScale(void* a, u32* b, u16 c);
-extern void func_004789c0(Model* a);
+extern void mdlUpdateModelMatrix(Model* a);
 extern s32 RtQuatConvertFromMatrix(RtQuat* out, const RwMatrix* in);
 extern RwV3d* RtQuatTransformVectors(RwV3d* out, const RwV3d* in, s32 count, const RtQuat* quat);
 extern void func_003dcc70(f32* first, f32* second, void* result);
@@ -3434,7 +3434,7 @@ void func_00475cd0(MdlDrawState* owner)
     }
     }
     mdlDrawVisibleAtomics(owner->clump);
-    func_004789c0((Model*)owner);
+    mdlUpdateModelMatrix((Model*)owner);
     if ((owner->animFlags & 0x10) != 0) {
         mdlInstallHierarchyScaleHook(owner->hierarchy,
                       (u8*)&owner->animFlags);
@@ -3545,7 +3545,7 @@ void func_00475cd0(MdlDrawState* owner)
                     RpSkyRenderStateSet(3, 0x7D7FB);
                 }
                 mdlDrawVisibleAtomics(source);
-                func_004789c0((Model*)attached.model);
+                mdlUpdateModelMatrix((Model*)attached.model);
                 if (needsReset != 0) {
                     func_00397c40(attached.model->hierarchy);
                 }
@@ -4653,8 +4653,9 @@ void mdlDestroyModelObject(u8* param_1)
     }
     DAT_008873ec[0](param_1);
 }
+/* Recomputes the frame matrix from the model's identity matrix and clump root, then updates the owner matrix. */
 // FUN_004789C0
-void func_004789c0(Model* mdl)
+void mdlUpdateModelMatrix(Model* mdl)
 {
     RwMatrix matrix;
     void* frame;
@@ -4688,8 +4689,9 @@ extern int mdlHasActiveMode(void* a);
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
+/* Advances a model by tick: refreshes its frame matrix and attachment state, updates both animation layers, then recurses into child models with the same tick. */
 // FUN_00478A30
-void func_00478a30(u8* mdl, s32 tick)
+void mdlAdvanceModel(u8* mdl, s32 tick)
 {
     RwMatrix matrix;
     void* frame;
@@ -4792,7 +4794,7 @@ void func_00478a30(u8* mdl, s32 tick)
                     {
                         void** updateSlot = (void**)(mdl + child * 0xC + 0x290);
                         mdlSetLayerWeight(*updateSlot, 0, *(f32*)(mdl + 0xF4));
-                        func_00478a30(*updateSlot, tick);
+                        mdlAdvanceModel(*updateSlot, tick);
                     }
                 }
             }
@@ -4801,21 +4803,24 @@ void func_00478a30(u8* mdl, s32 tick)
 }
 #pragma pop
 
+/* Advances a model by its update flags: the tick is set unless bit 0 of d8 is set. */
 // FUN_00478E70
-void func_00478e70(u8 *arg0)
+void mdlAdvanceModelFromFlags(u8 *arg0)
 {
-    func_00478a30(arg0, (*(s32 *)(arg0 + 0xD8) & 1) == 0);
+    mdlAdvanceModel(arg0, (*(s32 *)(arg0 + 0xD8) & 1) == 0);
 }
 
+/* Stores the draw callback at +0x310 and its context at +0x314. mdlApplyDrawState runs it at the end of the draw state. */
 // FUN_00478EA0
-void func_00478ea0(void* param_1, int param_2, int param_3)
+void mdlSetDrawCallback(void* param_1, int param_2, int param_3)
 {
     *(int*)((u8*)param_1 + 0x310) = param_2;
     *(int*)((u8*)param_1 + 0x314) = param_3;
 }
 
+/* Stores the post-draw callback at +0x318 and its context at +0x31C. mdlResetDrawState runs it after the draw. */
 // FUN_00478EB0
-void func_00478eb0(void* param_1, int param_2, int param_3)
+void mdlSetResetCallback(void* param_1, int param_2, int param_3)
 {
     *(int*)((u8*)param_1 + 0x318) = param_2;
     *(int*)((u8*)param_1 + 0x31C) = param_3;
@@ -4909,7 +4914,7 @@ void mdlResetDrawState(void* param_1, void* param_2)
 
 extern u8* func_00460990(void);
 extern void func_00460ac0(void*, void*);
-extern void func_00478a30(u8*, s32);
+extern void mdlAdvanceModel(u8*, s32);
 extern void mdlApplySkyDrawState(u8*, u8*);
 extern void mdlEffectListSetColor(u8**, s32*);
 extern void mdlEffectListInvokeEach(s32, u8**);
@@ -4932,7 +4937,7 @@ void mdlQueueModelForDraw(void* queue, u8* model)
     if ((flags & 0x1000) == 0)
         return;
     if ((flags & 4) == 0)
-        func_00478a30(model, (flags & 1) == 0);
+        mdlAdvanceModel(model, (flags & 1) == 0);
     flags = *(u32*)(model + 0xd8);
     if ((flags & 2) != 0)
         return;

@@ -41,7 +41,7 @@ extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern s32 func_0047a6d0();
-extern void func_004789c0(u8 *arg0);
+extern void mdlUpdateModelMatrix(u8 *arg0);
 extern void func_0047a320(u8 *arg0);
 extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
 extern void func_00485870(s32 arg0);
@@ -49,7 +49,7 @@ extern s32 func_00481450(void);
 extern void func_00481440(s32 arg0);
 extern void mdlSetColor(u8 *arg0, u32 *arg1);
 extern void func_004865c0(u8 *arg0, s32 arg1);
-extern void func_00478e70(s32 arg0);
+extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
 extern void mdlQueueModelForDraw(s32 arg0, u8 *arg1);

@@ -23,7 +23,7 @@ extern void func_00485870(s32 arg0);
 extern void func_00481440(s32 arg0);
 extern void mdlSetColor(u8 *arg0, u32 *arg1);
 extern void func_004865c0(u8 *arg0, s32 arg1);
-extern void func_00478e70(s32 arg0);
+extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
 extern void mdlQueueModelForDraw(s32 arg0, u8 *arg1);
@@ -255,7 +255,7 @@ void func_001d6680(void)
             }
             if ((node->flags & 0x220) == 0x220) {
                 if (node->unknown18 != NULL) {
-                    func_00478e70((s32)node->unknown18);
+                    mdlAdvanceModelFromFlags((s32)node->unknown18);
                 }
                 if (node->unknown14 != NULL) {
                     func_00485630(node->unknown14);

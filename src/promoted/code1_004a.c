@@ -113,7 +113,7 @@ extern s32 func_00482a70(s32 arg0);
 extern void func_0047a2a0(void *arg0);
 extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
-extern void func_00478eb0(void *arg0, void (*arg1)(void), void *arg2);
+extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
 extern void func_004abe60(void);
 extern u8 D_0071401C[];
 extern u8 D_00714014[];
@@ -1556,7 +1556,7 @@ void func_004abbb0(u8 *arg0)
         mdlSetLayerWeight(arg0, 0, 1.0f);
     }
     *(s32 *)(arg0 + 0xD8) &= ~2;
-    func_00478eb0(arg0, func_004abe60, arg0);
+    mdlSetResetCallback(arg0, func_004abe60, arg0);
 }
 /* Measured: scoped propagation preserves constant-first model lookup arguments. */
 #pragma push
@@ -1582,7 +1582,7 @@ loop_004abc50_check:
         mdlSetLayerWeight(temp_2, 0, 1.0f);
     }
     *(s32 *)(temp_2 + 0xD8) &= ~2;
-    func_00478eb0(temp_2, func_004abe60, temp_2);
+    mdlSetResetCallback(temp_2, func_004abe60, temp_2);
     iGpffffbb90 += 1;
     return temp_2;
 }
@@ -1663,7 +1663,7 @@ void func_004accc0(u8 *arg0)
     extern void RwMatrixRotate(void *arg0, void *arg1, f32 fparg0, s32 arg2);
     extern void RwMatrixScale(void *arg0, void *arg1, s32 arg2);
     extern void func_003e4320(void *arg0, void *arg1, void *arg2);
-    extern void func_004789c0(s32 arg0);
+    extern void mdlUpdateModelMatrix(s32 arg0);
     extern void func_0047a320(s32 arg0);
     s32 frame_count;
     u32 frame_index;
@@ -1733,7 +1733,7 @@ void func_004accc0(u8 *arg0)
         scale = *(f32 *)(matrix + 0x38) + frame.transformed.z;
         object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
         *(f32 *)(object + 0x38) = scale;
-        func_004789c0(*(s32 *)(arg0 + 0xB4));
+        mdlUpdateModelMatrix(*(s32 *)(arg0 + 0xB4));
         func_0047a320(*(s32 *)(arg0 + 0xB4));
     }
 }
@@ -1926,7 +1926,7 @@ u8 *arg0;
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
     extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-    extern void func_00478e70(void *arg0);
+    extern void mdlAdvanceModelFromFlags(void *arg0);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
     extern void func_004861f0(void *arg0, f32 *arg1);
@@ -1974,7 +1974,7 @@ u8 *arg0;
         vec[2] = *(f32 *)(arg0 + 8);
         func_0047a180((RwMatrix *)*(void **)(arg0 + 0xA0), (const RwV3d *)vec, 2);
         mdlSetLayerWeight(*(void **)(arg0 + 0xA0), 0, *(f32 *)(arg0 + 0x94));
-        func_00478e70(*(void **)(arg0 + 0xA0));
+        mdlAdvanceModelFromFlags(*(void **)(arg0 + 0xA0));
         if (*(s32 *)(arg0 + 0x9C) != 0) {
             color = func_0048abd0(arg0 + 0x30, arg0 + 0x54, count, total);
             sp13C = *(s32 *)(arg0 + 0x24);

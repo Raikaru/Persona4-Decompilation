@@ -26,7 +26,7 @@ extern f32 cosf(f32 fparg0);
 extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void func_002ab550(void *arg0, void *arg1);
-extern void func_00478e70(void *arg0);
+extern void mdlAdvanceModelFromFlags(void *arg0);
 static inline s32 code1_0012_stride(s32 index, s32 base)
 {
     return index + base;
@@ -1864,7 +1864,7 @@ void func_00124970(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
             }
             func_002ab550(var_16, spAC);
             if (!(arg2 & 0x10000)) {
-                func_00478e70(var_16);
+                mdlAdvanceModelFromFlags(var_16);
             }
         }
     }
@@ -1993,7 +1993,7 @@ void func_00124bb0(s32 arg0,
             *(s32 *)(var_16 + 0xD8) &= ~0x40000;
         }
         if (!(arg3 & 0x10000)) {
-            func_00478e70(var_16);
+            mdlAdvanceModelFromFlags(var_16);
         }
         func_00124970(arg0, arg2, arg3 | 2, arg4);
         func_002ab550(var_16, color);
@@ -2537,7 +2537,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
     extern s32 func_0046d730();
     extern s32 mdlPrepareModel();
-    extern void func_00478e70(u8 *);
+    extern void mdlAdvanceModelFromFlags(u8 *);
     extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
@@ -3709,7 +3709,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_002abb30(titleX + 24.0f * temp_f21_3, titleY - 12.0f * temp_f21_3, 100.0f, 0xFFFFFF, 0xFF, temp_f21_3, 1, var_16_2, 0);
                 func_002abb30(titleX + 9.0f * temp_f21_3, titleY - 5.0f * temp_f21_3, 100.0f, 0xFFC705, 0xFF, temp_f21_3, 1, var_16_2, 0);
                 func_002abb30(titleX, titleY, 100.0f, 0xFFF000, 0xFF, temp_f21_3, 1, var_16_2, 0);
-                func_00478e70(var_16_2);
+                mdlAdvanceModelFromFlags(var_16_2);
                 func_002ab380(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, taskView->sprites, 9, 0);
             }
         }

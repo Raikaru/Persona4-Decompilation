@@ -66,7 +66,7 @@ extern void FldFrameTask_SetFlags(s32 arg0, s32 arg1);
 extern void FldFrameTask_SetHeight(s32 arg0, f32 arg1);
 extern u32 *func_00478750(u8 *arg0);
 extern f32 FldFrameTask_GetHeight(s32 arg0);
-extern void func_00478e70(u8 *arg0);
+extern void mdlAdvanceModelFromFlags(u8 *arg0);
 extern s32 FldAI_SpawnPatrol(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 datUnitGroupIsDefeated(s32 arg0);
 extern s32 func_0016fd00(s32 arg0);
@@ -551,7 +551,7 @@ void FldUnit_UpdateFacing(void)
             markerScaleValue = FldFrameTask_GetHeight((*setupResource)->movementTask);
             markerScale.x = markerScale.y = markerScale.z = markerScaleValue;
             mdlScale((*setupResource)->markerModel, &markerScale, 2);
-            func_00478e70((u8 *)(*setupResource)->markerModel);
+            mdlAdvanceModelFromFlags((u8 *)(*setupResource)->markerModel);
             placement = unitForSetup->placement;
             if (placement == NULL) {
                 FieldUnitGridView *gridRow;
@@ -897,7 +897,7 @@ s32 FldUnit_SetupSlot(s32 arg0)
   sp30[1] = temp_f0;
   sp30[0] = temp_f0;
   mdlScale((Model *)((*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)))), (const RwV3d *)(sp30), 2);
-  func_00478e70((u8 *) (*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228))));
+  mdlAdvanceModelFromFlags((u8 *) (*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228))));
   *((s32 *) (temp_16 + 0x1B0)) = FldAI_SpawnPatrol(0, temp_16, *((u8 *) (temp_16 + 0x1CA)));
   *((s32 *) (temp_16 + 0x1B8)) = FldUnit_SpawnTintTask((u8 *) 0, temp_16);
   return 1;
@@ -1559,7 +1559,7 @@ void FldUnit_UpdateSlot(s32 arg0)
         temp_f0 = FldFrameTask_GetHeight(*((s32 *)(*temp_20_2 + 0x220)));
         sp70[0] = sp70[1] = sp70[2] = temp_f0;
         mdlScale((Model *)(*(u8 **)(*temp_20_2 + 0x228)), (const RwV3d *)(&sp70[0]), 2);
-        func_00478e70(*(u8 **)(*temp_20_2 + 0x228));
+        mdlAdvanceModelFromFlags(*(u8 **)(*temp_20_2 + 0x228));
         if (datUnitGroupIsDefeated(*temp_21) == 0) {
             mdlDispatchAnimIfPresent(*temp_16, 0, (s16)func_0016fd00(*(u16 *)(D_007F00D8 + (arg0 * 0x750))), 0, 1);
         }
@@ -1684,7 +1684,7 @@ void FldUnit_UpdateSlotModels(void)
             sp50[1] = temp_f0;
             sp50[0] = temp_f0;
             mdlScale((Model *)(*(s32 *)(*(u8 **)f54 + 0x228)), (const RwV3d *)(sp50), 2);
-            func_00478e70((u8 *)*(s32 *)(*(u8 **)f54 + 0x228));
+            mdlAdvanceModelFromFlags((u8 *)*(s32 *)(*(u8 **)f54 + 0x228));
             *(s32 *)(slot + 0x1B0) = FldAI_SpawnPatrol(0, slot, *f1ca);
             f1b8 = slot + 0x1B8;
             if (*(s32 *)f1b8 == 0) {
@@ -2014,7 +2014,7 @@ s32 FldUnit_InstallResources(void)
             *(s32*)(instance + 0x22C) = model;
             scale.x = scale.y = scale.z = 30.0f;
             mdlScale((Model *)(*(s32*)(instance + 0x22C)), &scale, 2);
-            func_00478e70(*(u8**)(instance + 0x22C));
+            mdlAdvanceModelFromFlags(*(u8**)(instance + 0x22C));
             func_0047a1a0(*(void**)(instance + 0x164), D_00756510, *(f32*)(node + 0x14C), 2);
             func_0047a180(*(void**)(instance + 0x164), (void*)(node + 0x140), 2);
             *(s32*)(instance + 0x294) = func_0018bb20(*(s32*)(instance + 0x228), (s32)(instance));
@@ -2096,7 +2096,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         func_0047a180((RwMatrix *)*(u8 **)(temp_2 + 0x16C), (const RwV3d *)(arg1 + 0x140), 2);
         temp_4_2 = *(u8 **)(temp_2 + 0x16C);
         *(u8 **)(arg0 + 0x164) = temp_4_2;
-        func_00478e70(temp_4_2);
+        mdlAdvanceModelFromFlags(temp_4_2);
         temp_17_2 = (s32)((600.0f + *(f32 *)(arg1 + 0x140)) / 1200.0f);
         temp_18 = (s32)((600.0f + *(f32 *)(arg1 + 0x148)) / 1200.0f);
         *(u8 **)(temp_2 + 0x140) = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)func_00155280() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));

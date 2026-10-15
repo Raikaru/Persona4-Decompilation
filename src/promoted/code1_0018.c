@@ -2075,7 +2075,7 @@ extern float func_003e4180(float *);
 extern s32 func_00457120(void);
 extern void FldRc_SetClumpVector(void *, void *);
 extern s32 mdlPrepareModel(unsigned char *);
-extern void func_00478e70(unsigned char *);
+extern void mdlAdvanceModelFromFlags(unsigned char *);
 extern s16 mdlGetLayerAnimation(s32, s32);
 extern s32 func_0047a6d0(void *, s32, void *);
 extern void mdlSetAlphaBlend(unsigned char *);
@@ -2367,7 +2367,7 @@ s32 func_0018a200(u8 *param_1)
           puVar8[1] = temp_v0;
           puVar8 = puVar8 + 2;
         } while (0 < temp_v4);
-        func_00478e70(*(unsigned char **)(puVar1[3] + 0x164));
+        mdlAdvanceModelFromFlags(*(unsigned char **)(puVar1[3] + 0x164));
         transformAngles.x = KDraw_MatrixPitchDeg((void *)(puVar1[3] + 0x240));
         transformAngles.y = KDraw_MatrixYawDeg((void *)(puVar1[3] + 0x240));
         transformAngles.z = KDraw_MatrixRollDeg((void *)(puVar1[3] + 0x240));

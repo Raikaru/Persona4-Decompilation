@@ -23,7 +23,7 @@ extern u8 DAT_00922c30_abs[];
 extern u8 *func_00470d10(u8 *arg0, s32 arg1);
 extern void func_004704d0(u8 *arg0);
 
-extern void func_00478a30(u8 *arg0, s32 arg1);
+extern void mdlAdvanceModel(u8 *arg0, s32 arg1);
 
 struct MdlFlags78ec0;
 extern void mdlApplyDrawState(void* context, struct MdlFlags78ec0* model);

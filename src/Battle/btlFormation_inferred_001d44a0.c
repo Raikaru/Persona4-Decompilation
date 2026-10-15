@@ -18,7 +18,7 @@ extern u32 iGpffffb3b8;
 
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern s32 func_0047a6d0();
-extern void func_004789c0(u8 *arg0);
+extern void mdlUpdateModelMatrix(u8 *arg0);
 extern void func_0047a320(u8 *arg0);
 extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
 extern u8 D_005DC7D0[];
@@ -313,7 +313,7 @@ void func_001d49c0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         if (var_19 == NULL) {
             var_19 = temp_2;
         }
-        func_004789c0(var_19);
+        mdlUpdateModelMatrix(var_19);
         func_0047a320(var_19);
         if (func_0047a6d0(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
             frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
@@ -358,7 +358,7 @@ void func_001d4b00(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         if (var_19 == NULL) {
             var_19 = temp_2;
         }
-        func_004789c0(var_19);
+        mdlUpdateModelMatrix(var_19);
         func_0047a320(var_19);
         if (func_0047a6d0(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
             frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);

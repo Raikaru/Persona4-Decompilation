@@ -21,7 +21,7 @@ extern void func_0046d730(const char *arg0, s32 arg1);
 extern void func_0047a2a0(void *arg0);
 extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
-extern void func_00478eb0(void *arg0, void (*arg1)(void), void *arg2);
+extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
 extern void mdlDestroyModelObject(u32 arg0);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -29,7 +29,7 @@ extern char D_007144A8[];
 extern void func_004ac170(u8 *arg0, u8 *arg1);
 extern void func_004ac300(s32 arg0, u8 *arg1);
 extern void func_004ac9a0(u8 *arg0, u8 *arg1);
-extern void func_00478ea0(u8 *arg0, void (*arg1)(u8 *), void *arg2);
+extern void mdlSetDrawCallback(u8 *arg0, void (*arg1)(u8 *), void *arg2);
 extern void func_0047a4d0(void *arg0, s32 arg1);
 extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
@@ -54,7 +54,7 @@ void *func_004abd80(void *arg0)
         mdlSetLayerWeight(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
-    func_00478eb0(work, func_004abe60, work);
+    mdlSetResetCallback(work, func_004abe60, work);
     return work;
 }
 
@@ -111,7 +111,7 @@ void *func_004abe80(void *arg0) {
                 mdlSetLayerWeight(temp_2_4, 0, temp_f20);
             }
             *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
-            func_00478eb0(temp_2_4, func_004abe60, temp_2_4);
+            mdlSetResetCallback(temp_2_4, func_004abe60, temp_2_4);
             iGpffffbb90 += 1;
             *(u8 **)(temp_2 + 0x94) = temp_2_4;
         }
@@ -160,7 +160,7 @@ void func_004ac170(u8 *dst, u8 *src)
         mdlSetLayerWeight(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
-    func_00478eb0(work, func_004abe60, work);
+    mdlSetResetCallback(work, func_004abe60, work);
     *(void **)(dst + 0x94) = work;
 }
 
@@ -373,10 +373,10 @@ void *func_004ac640(void *arg0) {
                 mdlSetLayerWeight(temp_2_4, 0, 1.0f);
             }
             *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
-            func_00478eb0(temp_2_4, func_004abe60, temp_2_4);
+            mdlSetResetCallback(temp_2_4, func_004abe60, temp_2_4);
             iGpffffbb90 += 1;
             *(u8 **)(temp_2 + 0xB4) = temp_2_4;
-            func_00478ea0(temp_2_4, func_004accc0, temp_2);
+            mdlSetDrawCallback(temp_2_4, func_004accc0, temp_2);
             if (*(u8 *)(temp_2 + 0xA0) == 0) {
                 func_0047a4d0(*(u8 **)(temp_2 + 0xB4), 0x20);
             }
@@ -436,9 +436,9 @@ void func_004ac9a0(u8 *dst, u8 *src)
         mdlSetLayerWeight(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
-    func_00478eb0(work, func_004abe60, work);
+    mdlSetResetCallback(work, func_004abe60, work);
     *(void **)(dst + 0xB4) = work;
-    func_00478ea0(work, func_004accc0, dst);
+    mdlSetDrawCallback(work, func_004accc0, dst);
     if (*(u8 *)(dst + 0xA0) == 0) {
         func_0047a4d0(*(void **)(dst + 0xB4), 0x20);
     }
