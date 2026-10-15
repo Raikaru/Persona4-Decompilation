@@ -49,7 +49,7 @@ typedef struct {
     s8 cellTransitionStarted[12];
 } FclCombineGridRowStateView;
 
-/* func_002e48a0(0, row) returns a Persona record: ID at 2, level at 4.
+/* yListSlotEntry(0, row) returns a Persona record: ID at 2, level at 4.
    The list count really is a word; 00320b80 deliberately reads only its
    signed low byte when passing the count to the row renderer. */
 typedef struct {

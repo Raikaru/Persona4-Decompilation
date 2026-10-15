@@ -761,7 +761,7 @@ done:
 void fclCombineMenuDestroy(u8 *arg0)
 {
     s32 datPersonaRosterCapacity(void);
-    s8 func_002e4820(s8 arg0);
+    s8 yListSlotRelease(s8 arg0);
     s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *arg0);
     s16 i;
     s64 j;
@@ -770,7 +770,7 @@ void fclCombineMenuDestroy(u8 *arg0)
     work = *(u8 **)(arg0 + 0x38);
     i = 0;
     while (i < 15) {
-        func_002e4820((s8)i);
+        yListSlotRelease((s8)i);
         i++;
     }
     i = 0;

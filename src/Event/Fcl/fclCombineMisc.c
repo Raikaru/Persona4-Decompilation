@@ -8,8 +8,8 @@ extern s32 datPersonaFindSkillSlot(u8 *, u16);
 extern s32 fclFusePair(u16 *output, u16 first, u16 second);
 extern s32 func_003127e0();
 extern u32 RpRandom();
-extern s16 func_002e54c0(s8 arg0, s16 arg1);
-extern u8 *func_002e48a0(s8 arg0, s16 arg1);
+extern s16 yListSlotIndexOf(s8 arg0, s16 arg1);
+extern u8 *yListSlotEntry(s8 arg0, s16 arg1);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void func_0046d730(void *file, s32 line);
 extern void *memset(void *dst, s32 value, u32 size);
@@ -348,11 +348,11 @@ s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2) {
     j = 0;
     while (j < 4) {
         if (a1 == tbl[j]) {
-            memcpy(arg0, func_002e48a0(0, func_002e54c0(0, (s16)arg2)), 0x30);
+            memcpy(arg0, yListSlotEntry(0, yListSlotIndexOf(0, (s16)arg2)), 0x30);
             return 1;
         }
         if (a2 == tbl[j]) {
-            memcpy(arg0, func_002e48a0(0, func_002e54c0(0, (s16)arg1)), 0x30);
+            memcpy(arg0, yListSlotEntry(0, yListSlotIndexOf(0, (s16)arg1)), 0x30);
             return 1;
         }
         j++;
@@ -405,7 +405,7 @@ typedef struct {
 } FclSkillPickTier;
 
 extern u32 datPersonaCountSkills(void *arg0);
-extern u8 *func_002e6f00(void);
+extern u8 *yListAllocIndexTable(void);
 extern void func_002e6f90(u8 *arg0, s16 arg1);
 extern void func_002e7010(u8 *arg0, s16 arg1);
 extern void func_002e7190(u8 *arg0);
@@ -489,7 +489,7 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
     if (arg0 == NULL) {
         func_0046d730(D_00642F30, 0x3AF);
     }
-    pool = func_002e6f00();
+    pool = yListAllocIndexTable();
     for (i = 0; i < (s8)arg2; i++) {
         j = 0;
         row = arg1 + i * 0x30;

@@ -9,9 +9,9 @@ extern s16 D_006420A0[];
 extern u32 D_00642EF0[];
 extern u32 D_00642F00[];
 extern u16 *datPersonaFindRosterRecordById(s32 arg0);
-extern u8 *func_002e4870(s8 arg0);
-extern void func_002e55c0(s8 arg0, s32 arg1, s8 arg2);
-extern u8 *func_002e48a0();
+extern u8 *yListSlotWork(s8 arg0);
+extern void yListSlotAppend(s8 arg0, s32 arg1, s8 arg2);
+extern u8 *yListSlotEntry();
 static inline s32 func_0031_ne(s32 value, s32 target)
 {
     return value != target;
@@ -318,17 +318,17 @@ void func_00313800(s8 arg0)
     for (; row < 6; row++) {
         entry = *(u8 **)(table - 0x10) + row * 0x20;
         if (*(u16 *)entry != 0 && func_003136b0(*(u16 *)entry) == 1) {
-            func_002e55c0(0, *(s16 *)entry, 0);
+            yListSlotAppend(0, *(s16 *)entry, 0);
             items = entry + 4;
-            func_002e4870(0)[0x14 + selected] = 1;
+            yListSlotWork(0)[0x14 + selected] = 1;
             item = 0;
             column = selected + 1;
             for (; item < arg0; item++) {
                 value = (s16 *)(items + item * 2 + 4);
-                func_002e55c0((s8)column, *value, 1);
-                func_002e4870((s8)column)[0x14 + item] = 0;
+                yListSlotAppend((s8)column, *value, 1);
+                yListSlotWork((s8)column)[0x14 + item] = 0;
                 if (datPersonaFindRosterRecordById(*(u16 *)value) != NULL) {
-                    func_002e4870((s8)column)[0x14 + item] = 1;
+                    yListSlotWork((s8)column)[0x14 + item] = 1;
                 }
             }
             selected++;
@@ -349,7 +349,7 @@ s32 func_003139d0(s8 arg0, s8 arg1)
     limit = arg0;
     goto loop_test;
 loop_body:
-    if (datPersonaFindRosterRecordById(*(u16 *)(func_002e48a0((s8)start, i) + 2)) == 0) {
+    if (datPersonaFindRosterRecordById(*(u16 *)(yListSlotEntry((s8)start, i) + 2)) == 0) {
         result = 0;
         goto done;
     }

@@ -57,12 +57,12 @@ extern void func_00332a80(void);
 extern s32 func_0033cc40(u8 *task);
 void chkmemAllocSiteTag(const void *, u32);
 
-void func_002e29a0(void);
+void yListDestroy(void);
 void H_Cdvd_Destroy(void *);
 void sdkSpriteRelease(void *);
 s32 func_00106a90(s64);
 void *sdkSpriteNewNode(void *, s32, ...);
-void func_002e24a0(s32, s32, s32, s32);
+void yListCreate(s32, s32, s32, s32);
 f32 sdkSpriteScaledWidth(void *);
 f32 sdkSpriteScaledHeight(void *);
 void sdkSpriteFreeNode(void *);
@@ -76,7 +76,7 @@ extern s32 func_00106600(s16 arg0);
 extern void func_002caa10(F2_0033 position, f32 depth, FclDrawColor color, u32 number, s16 glyphBase, void *sprite,
                           s32 style);
 extern void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
-extern s32 func_002e2670(void);
+extern s32 yListCount(void);
 extern u8 *func_0033d310(u8 *arg0);
 extern void func_0033d3d0(u8 *arg0, s32 arg1);
 extern f32 D_0064A2B0[];
@@ -238,8 +238,8 @@ s32 func_00332bb0(u8 *arg0) {
         *(void **)(work + 0x1A4) = func_0033d130(arg0, 0x46, *(s32 *)(work + 0xC));
         *(void **)(work + 0x1A8) = func_0033d130(arg0, 0x40, *(s32 *)(work + 0xC));
         *(void **)(work + 0x1AC) = func_0033d130(arg0, 0x41, *(s32 *)(work + 0xC));
-        if (func_002e2670() > 5) {
-            *(f32 *)(work + 0x420) = 108.0f / (f32)(func_002e2670() - 5);
+        if (yListCount() > 5) {
+            *(f32 *)(work + 0x420) = 108.0f / (f32)(yListCount() - 5);
         }
         *(s8 *)(work + 9) = 0;
         if ((s8)func_00110a60(func_002e78a0(), (u8)func_002e78e0()) == 1) {
@@ -833,7 +833,7 @@ s32 func_00332bb0(u8 *arg0) {
         func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x198), 57.0f);
         *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
-            (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) % 10 + 0x46;
+            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
         func_0033d3d0(*(void **)(work + 0x198), 0x5B);
         *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x198)) + 0x79) = func_002b2a60(0x7E, 0, 8, 0xFF);
         func_0033d320(*(void **)(work + 0x19C), 0, 0);
@@ -841,10 +841,10 @@ s32 func_00332bb0(u8 *arg0) {
         func_0033d3e0(*(void **)(work + 0x19C), func_002b2970(552.0f, 185.0f), func_002b2970(552.0f, 185.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x19C), 57.0f);
         *(u16 *)(func_0033d310(*(void **)(work + 0x19C)) + 0xF8) =
-            (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 + 0x46;
+            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
         func_0033d3d0(*(void **)(work + 0x19C), 0x5B);
         *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x19C)) + 0x79) = func_002b2a60(0x7E, 0, 8, 0xFF);
-        if ((u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 == 0) {
+        if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             func_0033d320(*(void **)(work + 0x19C), 0, 1);
             func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0, 0);
         }
@@ -966,18 +966,18 @@ s32 func_00332bb0(u8 *arg0) {
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         if (func_0033d390(*(void **)(work + 0xCC), 1) == 0) {
             func_002caa10(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
-                          func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))), 0x35, *(void **)(work + 0xC), 0xAB);
+                          func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35, *(void **)(work + 0xC), 0xAB);
             func_0033c490(arg0);
             tbl = (F2_0033 *)D_0064A218;
             *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30) =
                 (f32)(*(s16 *)(work + 4) - *(s16 *)(work + 6)) * *(f32 *)(work + 0x420) + tbl->y + 0.0f;
         }
         *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
-            (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) % 10 + 0x46;
+            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
         func_0033d320(*(void **)(work + 0x19C), 0, 0);
         *(u16 *)(func_0033d310(*(void **)(work + 0x19C)) + 0xF8) =
-            (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 + 0x46;
-        if ((u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 == 0) {
+            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
+        if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             func_0033d320(*(void **)(work + 0x19C), 0, 1);
             func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0, 0);
         }
@@ -999,9 +999,9 @@ s32 func_00332bb0(u8 *arg0) {
                 *(s16 *)(work + 4) = func_002e26a0();
                 *(s16 *)(work + 6) = func_002b2cb0(0, *(s16 *)(work + 4), 4, 0, 1);
             } else {
-                *(s16 *)(work + 4) = func_002b2d00(*(s16 *)(work + 4), 1, 0, (s16)func_002e2670(), 2);
+                *(s16 *)(work + 4) = func_002b2d00(*(s16 *)(work + 4), 1, 0, (s16)yListCount(), 2);
                 *(s16 *)(work + 6) =
-                    func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e2670(), 5, -1);
+                    func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListCount(), 5, -1);
             }
             *(s8 *)(work + 0x425) = 1;
         } else if (D_008C027A[0] & 0x1000) {
@@ -1009,7 +1009,7 @@ s32 func_00332bb0(u8 *arg0) {
                 func_0045af60(0, 0, 0, 0);
             }
             *(s16 *)(work + 4) = func_002b2d00(*(s16 *)(work + 4), 1, 0, 0, 1);
-            *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e2670(), 5, -1);
+            *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListCount(), 5, -1);
             *(s8 *)(work + 0x425) = 1;
         } else if ((D_008C0276[0] & 0x4000) && *(s8 *)(work + 0x425) == 0) {
             func_0045af60(0, 0, 0, 0);
@@ -1020,7 +1020,7 @@ s32 func_00332bb0(u8 *arg0) {
                 *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(), 5, 1);
             } else {
                 *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(),
-                                                   (s16)func_002e2670(), 1);
+                                                   (s16)yListCount(), 1);
             }
             *(s8 *)(work + 0x425) = 1;
         } else if (D_008C027A[0] & 0x4000) {
@@ -1032,7 +1032,7 @@ s32 func_00332bb0(u8 *arg0) {
                 *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(), 5, 1);
             } else {
                 *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(),
-                                                   (s16)func_002e2670(), 1);
+                                                   (s16)yListCount(), 1);
             }
             *(s8 *)(work + 0x425) = 1;
         } else {
@@ -1040,15 +1040,15 @@ s32 func_00332bb0(u8 *arg0) {
                 if (*(s16 *)(work + 4) != func_002e26a0()) {
                     func_0045af60(0, 0, 0, 0);
                 }
-                func_002b2e70(*(s16 *)(work + 4), *(s16 *)(work + 6), func_002e2670(), 5, work + 4, work + 6);
+                func_002b2e70(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
             } else if ((D_008C027A[0] & 4) || (D_008C027A[0] & 0x8000)) {
                 if (*(s16 *)(work + 4) != 0) {
                     func_0045af60(0, 0, 0, 0);
                 }
-                func_002b2f90(*(s16 *)(work + 4), *(s16 *)(work + 6), func_002e2670(), 5, work + 4, work + 6);
+                func_002b2f90(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
             } else if (D_008C024E[0] & 0x40) {
-                if (func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))) <= func_002e7a60() &&
-                    (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) < 0x63) {
+                if (func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))) <= func_002e7a60() &&
+                    (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) < 0x63) {
                     tbl = (F2_0033 *)D_0064A210;
                     func_0033d3e0(*(void **)(work + 0xD0),
                                   func_002b2970(*(f32 *)(func_0033d310(*(void **)(work + 0xD0)) + 0x2C), tbl->y),
@@ -1163,15 +1163,15 @@ s32 func_00332bb0(u8 *arg0) {
                     func_0033d4b0(*(void **)(work + 0x198), 0xFF, 0, 0, 0, 5);
                     func_0033d3c0(*(void **)(work + 0x198), 57.0f);
                     *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
-                        (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) % 10 + 0x46;
+                        (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
                     func_0033d320(*(void **)(work + 0x19C), 0, 0);
                     func_0033d3e0(*(void **)(work + 0x19C), func_002b2970(552.0f, 185.0f), func_002b2970(552.0f, 185.0f), 0,
                                   0, 0);
                     func_0033d4b0(*(void **)(work + 0x19C), 0xFF, 0, 0, 0, 5);
                     func_0033d3c0(*(void **)(work + 0x19C), 57.0f);
                     *(u16 *)(func_0033d310(*(void **)(work + 0x19C)) + 0xF8) =
-                        (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 + 0x46;
-                    if ((u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 == 0) {
+                        (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
+                    if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
                         func_0033d320(*(void **)(work + 0x19C), 0, 1);
                         func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f),
                                       func_002b2970(0x243, 185.0f), 0, 0, 0);
@@ -1329,15 +1329,15 @@ s32 func_00332bb0(u8 *arg0) {
         *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         func_002caa10(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
-                      *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))), 0x35,
+                      *(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
         func_0033c490(arg0);
         *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
-            (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) % 10 + 0x46;
+            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
         func_0033d320(*(void **)(work + 0x19C), 0, 0);
         *(u16 *)(func_0033d310(*(void **)(work + 0x19C)) + 0xF8) =
-            (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 + 0x46;
-        if ((u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 == 0) {
+            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
+        if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             func_0033d320(*(void **)(work + 0x19C), 0, 1);
             func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0, 0);
         }
@@ -1363,13 +1363,13 @@ s32 func_00332bb0(u8 *arg0) {
         func_0033d3c0(*(void **)(work + 0xA0), 53.0f);
         func_0033d3d0(*(void **)(work + 0xA0), 0x61);
         frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
-                      func_001067f0((s16)func_002e2740(*(s16 *)(work + 4))), 0, 0, D_007950B0);
+                      func_001067f0((s16)yListValueAt(*(s16 *)(work + 4))), 0, 0, D_007950B0);
         if (D_008C024E[0] & 0x40) {
             func_0045af60(0, 0, 0, 1);
             *(s8 *)(work + 8) = func_002bab80(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
             sprintf(buf, "%d", *(s8 *)(work + 3));
             func_002bbd80(*(s8 *)(work + 8), 1, buf);
-            sprintf(buf, "%d", *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))));
+            sprintf(buf, "%d", *(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))));
             func_002bbd80(*(s8 *)(work + 8), 2, buf);
             func_002badc0(*(s8 *)(work + 8), 1);
             func_002bafc0(*(s8 *)(work + 8), 0);
@@ -1377,13 +1377,13 @@ s32 func_00332bb0(u8 *arg0) {
             func_002bbf60();
             *(s8 *)(work + 0) = 0xD;
         } else if (D_008C027A[0] & 0x1000) {
-            if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))))) {
+            if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))))) {
                 func_0045af60(0, 0, 0, 0);
             }
             *(s8 *)(work + 3) = func_002b2cb0(*(s8 *)(work + 3), 1,
-                                              (s16)(0x63 - (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4)))), 0, 1);
-            if (*(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))) > func_002e7a60()) {
-                *(s8 *)(work + 3) = func_002e7a60() / func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4)));
+                                              (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
+            if (*(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
+                *(s8 *)(work + 3) = func_002e7a60() / func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
             tbl = (F2_0033 *)D_0064A328;
             func_0033d3e0(*(void **)(work + 0x15C), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y - 7.0f), 1,
@@ -1397,13 +1397,13 @@ s32 func_00332bb0(u8 *arg0) {
             func_0033d3e0(*(void **)(work + 0x160), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, 7.0f + tbl->y), 1,
                           0xA, 0);
         } else if (D_008C027A[0] & 0x2000) {
-            if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))))) {
+            if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))))) {
                 func_0045af60(0, 0, 0, 0);
             }
             *(s8 *)(work + 3) = func_002b2cb0(*(s8 *)(work + 3), 0xA,
-                                              (s16)(0x63 - (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4)))), 0, 1);
-            if (*(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))) > func_002e7a60()) {
-                *(s8 *)(work + 3) = func_002e7a60() / func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4)));
+                                              (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
+            if (*(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
+                *(s8 *)(work + 3) = func_002e7a60() / func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
             tbl = (F2_0033 *)D_0064A328;
             func_0033d3e0(*(void **)(work + 0x15C), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y - 7.0f), 1,
@@ -1447,28 +1447,28 @@ s32 func_00332bb0(u8 *arg0) {
         *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         func_002caa10(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
-                      *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))), 0x35,
+                      *(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
         func_0033c490(arg0);
         frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
-                      func_001067f0((s16)func_002e2740(*(s16 *)(work + 4))), 0, 0, D_00795E60);
+                      func_001067f0((s16)yListValueAt(*(s16 *)(work + 4))), 0, 0, D_00795E60);
         if (func_002bb680(*(s8 *)(work + 8)) != 0) {
             func_002bbcf0(*(s8 *)(work + 8));
             break;
         }
         *(s8 *)(work + 0) = 0xC;
         if (!func_002bb1c0(*(s8 *)(work + 8))) {
-            func_00106620((s16)func_002e2740(*(s16 *)(work + 4)),
-                          (u8)(*(s8 *)(work + 3) + (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4)))));
+            func_00106620((s16)yListValueAt(*(s16 *)(work + 4)),
+                          (u8)(*(s8 *)(work + 3) + (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))));
             func_002e7a80(func_002e7a60() -
-                          *(s8 *)(work + 3) * func_0033cbc0(arg0, (s16)func_002e2740(*(s16 *)(work + 4))));
+                          *(s8 *)(work + 3) * func_0033cbc0(arg0, (s16)yListValueAt(*(s16 *)(work + 4))));
             *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()) + 0.0f;
             *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
-                (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) % 10 + 0x46;
+                (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
             func_0033d320(*(void **)(work + 0x19C), 0, 0);
             *(u16 *)(func_0033d310(*(void **)(work + 0x19C)) + 0xF8) =
-                (u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 + 0x46;
-            if ((u8)func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) / 10 == 0) {
+                (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
+            if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
                 func_0033d320(*(void **)(work + 0x19C), 0, 1);
                 func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0,
                               0);
@@ -1654,7 +1654,7 @@ s32 func_00332bb0(u8 *arg0) {
 void func_0033bdc0(u8 *arg0) {
     u8 *work = *(u8 **)(arg0 + 0x38);
 
-    func_002e29a0();
+    yListDestroy();
     if (*(s32 *)(work + 0x428) != 0) {
         H_Cdvd_Destroy((void *)*(s32 *)(work + 0x428));
     }
@@ -1699,7 +1699,7 @@ u8 *func_0033be40(u8 *arg0) {
     if (func_002e71c0() == 1) {
         *(s8 *)(temp_2 + 0x424) = 1;
     }
-    func_002e24a0(0x10000, 0, 2, 1);
+    yListCreate(0x10000, 0, 2, 1);
     return temp_17;
 }
 /* measured: closes the opt_loop_invariants scope required by func_0033be40. */
@@ -1804,7 +1804,7 @@ static inline void fclShopDrawItemFrame(u8 *p, f32 y, u8 red, u8 green, u8 blue)
 static inline void fclShopDrawItemName(s16 item, f32 y, u8 red, u8 green, u8 blue)
 {
     frFontExDrawTextDeferred(78.0f, y, 62.0f, func_002b2a30(red, green, blue, 0xFF), 0, 1,
-                  func_001067f0((s16)func_002e2740(item)), 0, 0, D_00795E60);
+                  func_001067f0((s16)yListValueAt(item)), 0, 0, D_00795E60);
 }
 
 // FUN_0033C490
@@ -1834,14 +1834,14 @@ void func_0033c490(u8 *arg0)
         func_0025ecd0(44.0f, 77.0f, 62.0f, func_002b2a30(0xFF, 0x26, 0x26, 0x26), 0xFF, 0x24,
                       *(void **)(p + 0xC), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
         color = func_002b2a30(0x26, 0x26, 0x26, 0xFF);
-        value = func_001067f0((s16)func_002e2740(*(s16 *)(p + 4)));
+        value = func_001067f0((s16)yListValueAt(*(s16 *)(p + 4)));
         frFontExDrawTextDeferred(78.0f, 77.0f, 62.0f, color, 0, 1, value, 0, 0, D_00795E60);
         pos1 = func_002b2970(406.0f, 84.0f);
         col1 = func_002b2a60(0x26, 0x26, 0x26, 0xFF);
         func_002caa10(pos1, 62.0f, col1,
-                      func_0033cbc0(arg0, func_002e2740(*(s16 *)(p + 4))), 0x19,
+                      func_0033cbc0(arg0, yListValueAt(*(s16 *)(p + 4))), 0x19,
                       *(void **)(p + 0xC), 0xAB);
-        func_002bc7f0((s16)func_00106b80((s16)func_002e2740(*(s16 *)(p + 4))), -1, 1, 0, 4, 0xAA,
+        func_002bc7f0((s16)func_00106b80((s16)yListValueAt(*(s16 *)(p + 4))), -1, 1, 0, 4, 0xAA,
                       71.0f, 135.0f, 62.0f);
         func_0033d320(*(void **)(p + 0x120), 0, 1);
         func_0033d320(*(void **)(p + 0x124), 0, 1);
@@ -1877,21 +1877,21 @@ void func_0033c490(u8 *arg0)
     row = 0;
     bound = i + 5;
     for (; i < bound; i++, row++) {
-        if (i >= func_002e2670()) {
+        if (i >= yListCount()) {
             continue;
         }
         red = green = blue = 0xFF;
         if (i == *(s16 *)(p + 4)) {
             red = green = blue = 0x26;
         } else {
-            price = func_0033cbc0(arg0, func_002e2740(i));
+            price = func_0033cbc0(arg0, yListValueAt(i));
             if (func_002e7a60() < price) {
                 red = 0x4F;
                 green = blue = 0;
-            } else if ((u8)func_00106600((s16)func_002e2740(i)) == 0x63) {
+            } else if ((u8)func_00106600((s16)yListValueAt(i)) == 0x63) {
                 red = 0x4F;
                 green = blue = 0;
-            } else if ((u8)clndGetMoonPhase(func_002e2740(i)) & 1) {
+            } else if ((u8)clndGetMoonPhase(yListValueAt(i)) & 1) {
                 red = 0x9F;
                 blue = 0x2F;
             }
@@ -1902,7 +1902,7 @@ void func_0033c490(u8 *arg0)
         fclShopDrawItemName(i, (f32)top, red, green, blue);
         pos2 = func_002b2970(406.0f, (f32)(y + 0x54));
         col2 = func_002b2a60(red, green, blue, 0xFF);
-        func_002caa10(pos2, 62.0f, col2, func_0033cbc0(arg0, func_002e2740(i)),
+        func_002caa10(pos2, 62.0f, col2, func_0033cbc0(arg0, yListValueAt(i)),
                       0x19, *(void **)(p + 0xC), 0xAB);
     }
 }

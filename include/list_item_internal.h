@@ -16,8 +16,8 @@ s32 func_002bdff0(s16 item);
 s32 func_002be160(s32 index, s32 required);
 s32 func_002be1b0(s16 item);
 s32 func_002b3230(const void *left, const void *right);
-s32 func_002e2740(s32 row);
-void func_002e2a10(s32 filterA, s32 filterB, s8 kind, s8 order);
-void func_002e3560(u8 *owner, s32 filterA, s32 filterB, s8 kind, s32 order);
+s32 yListValueAt(s32 row);
+void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order);
+void yListRebuildFor(u8 *owner, s32 filterA, s32 filterB, s8 kind, s32 order);
 
 #endif
