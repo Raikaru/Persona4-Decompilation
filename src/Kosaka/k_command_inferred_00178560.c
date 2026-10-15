@@ -39,7 +39,7 @@ typedef struct
     u8 blue;
     u8 alpha;
 } FieldColor_0017;
-extern void func_00174c20();
+extern void FldEvent_StepGridCell();
 extern s32 *func_00155280(void);
 extern s32 func_0015a160(void);
 /* measured: func_00178870 needs this call unprototyped - retail masks $a2 (b)
@@ -74,7 +74,7 @@ extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
 
 
-extern s32 func_00174680(s32 arg0, s32 arg1, s32 arg2);
+extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0014ec50(s32 arg0, s32 arg1);
 extern s32 func_0029d050(void);
 extern void func_0029dfe0(s32 arg0, s32 arg1);
@@ -146,7 +146,7 @@ extern s32 iGpffffba48;
 // FUN_00178560
 s32 func_00178560(void)
 {
-    func_00174c20();
+    FldEvent_StepGridCell();
     return 1;
 }
 
@@ -212,7 +212,7 @@ s32 func_00178790(void)
 
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    temp_2 = func_00174680(*(s32 *)((u8 *)func_00155280() + 8), temp_17 & 0xFFFF,
+    temp_2 = FldEvent_BeginEncounter(*(s32 *)((u8 *)func_00155280() + 8), temp_17 & 0xFFFF,
                            temp_16 & 0xFFFF);
     if (temp_2 & 1) {
         return 0;

@@ -39,7 +39,7 @@ typedef struct
     u8 alpha;
 } FieldColor_0017;
 extern void func_0015a630();
-extern void func_00174c20();
+extern void FldEvent_StepGridCell();
 extern s32 func_0015f660();
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern s32 func_00102980(void);
@@ -117,7 +117,7 @@ extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);
 extern void scrSetReturnInt(s32 arg0);
 extern s32 func_00110fc0(void);
-extern s32 func_00174680(s32 arg0, s32 arg1, s32 arg2);
+extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0018ced0(void);
 extern void func_0018c7e0(void);
 extern s32 func_00159f70(s32 arg0);
