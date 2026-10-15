@@ -12,8 +12,8 @@ extern f32 D_0064F110[];
 extern u8 D_0064F210[];
 extern s32 func_0036e910(void *arg0);
 extern s32 func_0038d660(u8 *arg0);
-extern void func_0038d890(u8 *arg0);
-extern void func_0038daf0(u8 *arg0, s32 arg1);
+extern void btlShuffleEffRelease(u8 *arg0);
+extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
 
 extern s32 func_004b1130();
 extern void func_004b1150(s32 a);
@@ -24,8 +24,8 @@ extern void func_004b13d0(s32 a, f32 b);
 /* The callee's real signature is (f32 *, f32 *, f32); this caller-side prototype keeps the
    float in the second position because mwcc b210 materialises call args in declaration
    order, and retail's bytes (addiu a0 / lwc1 f12 / addiu a1 before the jal) require that. */
-extern void func_003715e0(f32 *arg0, f32 fparg0, f32 *arg1);
-extern void func_00371780(f32 *arg0, f32 *arg1);
+extern void btlShuffleCalcStepPose(f32 *arg0, f32 fparg0, f32 *arg1);
+extern void btlShuffleCalcLookAt(f32 *arg0, f32 *arg1);
 
 /* measured: the operands must travel through this helper's parameters to get
    retail's index-first `addu $v1,$v1,$s0`; rewriting the callsite expression as
@@ -36,7 +36,7 @@ static inline u32 bseSlot(u32 offset, u32 base)
 }
 
 // FUN_0038D6C0
-void func_0038d6c0(u8 *arg0) {
+void btlShuffleEffFree(u8 *arg0) {
     u8 *tbl;
     s32 i;
     u8 *e;
@@ -58,7 +58,7 @@ void func_0038d6c0(u8 *arg0) {
     (*jtbl_008873EC)(tbl);
 }
 // FUN_0038D790
-u8 *func_0038d790(u8 *arg0) {
+u8 *btlShuffleEffSpawn(u8 *arg0) {
     u8 *tbl;
     u8 *ctx;
 
@@ -67,17 +67,17 @@ u8 *func_0038d790(u8 *arg0) {
     if (tbl == NULL) {
         kAssertFail(&D_0064F210[0], 0x104);
     }
-    ctx = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064F0F0[0]), 0x13, 0, 0, func_0038d660, func_0038d6c0, (u8 *)(tbl));
+    ctx = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064F0F0[0]), 0x13, 0, 0, func_0038d660, btlShuffleEffFree, (u8 *)(tbl));
     if (ctx == NULL) {
         kAssertFail(&D_0064F210[0], 0x10E);
     }
     *(s32 *)tbl = (s32)func_0036e910(arg0);
-    func_0038d890(ctx);
+    btlShuffleEffRelease(ctx);
     return ctx;
 }
 
 // FUN_0038D890
-void func_0038d890(u8 *arg0) {
+void btlShuffleEffRelease(u8 *arg0) {
     s32 i;
     u8 *tbl;
     u8 *e;
@@ -98,11 +98,11 @@ void func_0038d890(u8 *arg0) {
             *(u16 *)(tbl + 4) &= ~(1 << i);
         }
     }
-    func_0038daf0(arg0, 8);
+    btlShuffleEffInitTrail(arg0, 8);
 }
 
 // FUN_0038D970
-void func_0038d970(u8 *arg0) {
+void btlShuffleEffEnd(u8 *arg0) {
     s32 i;
     u8 *tbl;
 
@@ -115,7 +115,7 @@ void func_0038d970(u8 *arg0) {
 }
 
 // FUN_0038D9F0
-void func_0038d9f0(u8 *arg0) {
+void btlShuffleEffUpdate(u8 *arg0) {
     s32 i;
     u8 *tbl;
     u8 *e;
@@ -130,8 +130,8 @@ void func_0038d9f0(u8 *arg0) {
             src = &D_0064F110[i * 7];
             sp68[0] = src[0];
             sp68[1] = src[1];
-            func_003715e0(&sp68[0], src[2], &sp58[0]);
-            func_00371780(sp58, sp58);
+            btlShuffleCalcStepPose(&sp68[0], src[2], &sp58[0]);
+            btlShuffleCalcLookAt(sp58, sp58);
             func_004b1250(*(s32 *)(e + 4), sp58);
             func_004b1290(*(s32 *)(e + 4), src[3], src[4], src[5]);
             func_004b13d0(*(s32 *)(e + 4), src[6]);
@@ -140,7 +140,7 @@ void func_0038d9f0(u8 *arg0) {
 }
 
 // FUN_0038DAF0
-void func_0038daf0(u8 *arg0, s32 arg1) {
+void btlShuffleEffInitTrail(u8 *arg0, s32 arg1) {
     u8 *tbl;
     u8 *e;
     s32 *eff;
@@ -200,7 +200,7 @@ void func_0038daf0(u8 *arg0, s32 arg1) {
    tools/reconcile_function_boundaries.py, justified by the callback-table word
    at 0x005DD2A4), so the window is 160B and the body fills it exactly. */
 // FUN_0038DCC0
-void func_0038dcc0(u8 *arg0, s32 arg1)
+void btlShuffleEffSetup(u8 *arg0, s32 arg1)
 {
     u8 *eff;
     s32 *slot;

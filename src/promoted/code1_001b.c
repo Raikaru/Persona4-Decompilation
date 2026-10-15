@@ -26,7 +26,7 @@ extern void (*D_00887300[])();
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_00213b80(u8 *arg0);
 extern s32 func_001ef7e0(u8 *arg0);
-extern s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2);
+extern s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2);
 extern s32 datCalcGetBadStatus(s32 arg0);
 extern void func_002138a0(u8 *arg0);
 extern s32 func_0021d980(s32 arg0, u8 *arg1);
@@ -1483,7 +1483,7 @@ s32 btlMainActionUpdate(void)
                 *(s32 *)((u8 *)iGpffffb3ac + 0xCE4) /= *(u16 *)((u8 *)iGpffffb3ac + 0xC5A);
             }
             if (*(u16 *)((u8 *)iGpffffb3ac + 0x1C) != 3 && func_001ef7e0(pick) != 0 &&
-                func_0036ee60((u8 *)iGpffffb3ac + 0xCEC, *(s32 *)((u8 *)iGpffffb3ac + 0xCE4), hurt) != 0) {
+                btlShuffleSelectMember((u8 *)iGpffffb3ac + 0xCEC, *(s32 *)((u8 *)iGpffffb3ac + 0xCE4), hurt) != 0) {
                 *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 1;
             }
             if (func_0022bd20() != 0) {

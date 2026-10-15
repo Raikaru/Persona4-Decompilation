@@ -26,7 +26,7 @@ extern f32 D_007614E8;
 extern f32 cosf(f32 fparg0);
 extern f32 sinf(f32 fparg0);
 extern f32 D_00761470;
-f32 func_003716d0(f32 fparg0);
+f32 btlShuffleCalcEase(f32 fparg0);
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
 typedef BtlShuffleVec3 ShuffleVec3;
 typedef struct { f32 v[9]; s32 flag; } ShuffleOut;
@@ -40,7 +40,7 @@ typedef struct ShuffleCalcUnit {
     f32 target[3];
     f32 scale;
 } ShuffleCalcUnit;
-f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
 
 /* SOLVED -- this was recorded here as a "Commutative FP-mul scheduling floor"
    and re-confirmed as a floor through wave 14. The nd-2 spelling those notes
@@ -60,7 +60,7 @@ f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
    rounded halving in the scale numerator and `sp30[n] >> 1` in the two
    perspective terms -- retail genuinely uses both halving forms. */
 // FUN_00371260
-void func_00371260(u8 *arg0) {
+void btlShuffleCalcResetPose(u8 *arg0) {
     s32 sp30[8];
     u8 *temp_16;
     f32 scale;
@@ -78,7 +78,7 @@ void func_00371260(u8 *arg0) {
     *(f32 *)(arg0 + 8) = scale;
 }
 // FUN_003713B0
-void func_003713b0(u8 *arg0) {
+void btlShuffleCalcResetTrack(u8 *arg0) {
     s32 sp30[8];
     u8 *temp_16;
     f32 scale;
@@ -96,7 +96,7 @@ void func_003713b0(u8 *arg0) {
     *(f32 *)(arg0 + 8) = scale;
 }
 // FUN_00371500
-void func_00371500(u8 *arg0, f32 fparg0, u8 *arg1) {
+void btlShuffleCalcScaleStep(u8 *arg0, f32 fparg0, u8 *arg1) {
     s32 sp50[8];
     u8 *temp_16;
 
@@ -108,12 +108,12 @@ void func_00371500(u8 *arg0, f32 fparg0, u8 *arg1) {
 }
 
 // FUN_003715E0
-void func_003715e0(u8 *arg0, u8 *arg1, f32 fparg0) {
+void btlShuffleCalcStepPose(u8 *arg0, u8 *arg1, f32 fparg0) {
     f32 temp_f20;
     s32 sp50[8];
     u8 *temp_16;
 
-    temp_f20 = func_003716d0(fparg0);
+    temp_f20 = btlShuffleCalcEase(fparg0);
     temp_16 = func_00457120() + 0x68;
     func_003e8970(&sp50[0], func_003e89c0());
     *(f32 *)(arg1 + 0) = temp_f20 * (*(f32 *)temp_16 * (1.0f + (-(*(f32 *)(arg0 + 0)) / (f32)(sp50[0] >> 1))));
@@ -144,7 +144,7 @@ void func_003715e0(u8 *arg0, u8 *arg1, f32 fparg0) {
    lwc1/mul.s $f0,$f20,$f0; div.s $f0,$f1,$f0` (numerator-first div; 5
    words). $v0/$v1 coalescing + FP-eval-order floor, nd 11. */
 // FUN_003716D0
-f32 func_003716d0(f32 fparg0) {
+f32 btlShuffleCalcEase(f32 fparg0) {
     s32 sp30[8];
     u8 *temp_16;
 
@@ -156,7 +156,7 @@ f32 func_003716d0(f32 fparg0) {
     return (f32)(sp30[0] / 2) / (fparg0 * *(f32 *)temp_16);
 }
 // FUN_00371780
-void func_00371780(u8 *arg0, u8 *arg1) {
+void btlShuffleCalcLookAt(u8 *arg0, u8 *arg1) {
     func_003e42a0(arg0, arg1, func_003e9700(*(s32 *)(func_00457120() + 4)));
 }
 
@@ -165,7 +165,7 @@ void func_00371780(u8 *arg0, u8 *arg1) {
    (retail $s2/$s1/$s0; 3 decl orders probed, nd 29), on top of the recorded
    $v0/$v1 rounding-coalescing floor and two mul.s operand swaps. */
 // FUN_003717E0
-s32 func_003717e0(u8 *arg0, u8 *arg1) {
+s32 btlShuffleCalcUpdateSpeed(u8 *arg0, u8 *arg1) {
     s32 sp40[8];
     u8 *temp_16;
     f32 x;
@@ -189,7 +189,7 @@ s32 func_003717e0(u8 *arg0, u8 *arg1) {
     return 0;
 }
 // FUN_00371990
-void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
+void btlShuffleCalcSetBlend(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
     *(s16 *)(arg0 + 0) = 0;
     *(f32 *)(arg0 + 4) = fparg1;
     *(f32 *)(arg0 + 8) = fparg0;
@@ -211,7 +211,7 @@ void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
    subtraction, multiply, and add sequence; `*(u16 *)arg0 += 1` preserves
    the retail count reload. */
 // FUN_00371A60
-s32 func_00371a60(u8 *arg0, s32 arg1) {
+s32 btlShuffleCalcSelectFrame(u8 *arg0, s32 arg1) {
     f32 half;
     f32 zero;
     f32 temp_f0;
@@ -227,7 +227,7 @@ s32 func_00371a60(u8 *arg0, s32 arg1) {
     }
     *(u16 *)arg0 += 1;
     half = (f32)(u32)*(u16 *)arg0;
-    temp_f0 = func_00373cb0(half + zero, *(f32 *)(arg0 + 8), *(f32 *)(arg0 + 4), arg1);
+    temp_f0 = btlShuffleCalcWave(half + zero, *(f32 *)(arg0 + 8), *(f32 *)(arg0 + 4), arg1);
     temp_f5 = *(f32 *)(arg0 + 0x18);
     diff0 = *(f32 *)(arg0 + 0x24) - temp_f5;
     diff1 = *(f32 *)(arg0 + 0x28) - *(f32 *)(arg0 + 0x1C);
@@ -241,7 +241,7 @@ s32 func_00371a60(u8 *arg0, s32 arg1) {
     return 0;
 }
 // FUN_00371BA0
-void func_00371ba0(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3) {
+void btlShuffleCalcStoreTiming(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3) {
     f32 f0;
     s32 i;
 
@@ -279,7 +279,7 @@ void func_00371ba0(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3) {
    FP-scheduling floor. */
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
 // FUN_00371C70
-s32 func_00371c70(u8 *arg0) {
+s32 btlShuffleCalcTimeFromFrame(u8 *arg0) {
     f32 var_f12;
     f32 var_f1;
     f32 inv;
@@ -294,7 +294,7 @@ s32 func_00371c70(u8 *arg0) {
     }
     *(u16 *)(arg0 + 0) += 1;
     var_f12 = (f32)(u16)*(u16 *)(arg0 + 0);
-    var_f12 = func_00373cb0(var_f12, *(f32 *)(arg0 + 8), *(f32 *)(arg0 + 4), 0);
+    var_f12 = btlShuffleCalcWave(var_f12, *(f32 *)(arg0 + 8), *(f32 *)(arg0 + 4), 0);
     inv = 1.0f - var_f12;
 
     f6 = var_f12 * (*(f32 *)(arg0 + 0x3C) * var_f12);
@@ -317,7 +317,7 @@ s32 func_00371c70(u8 *arg0) {
     return 0;
 }
 // FUN_00371E50
-void func_00371e50(u8 *arg0, u32 arg1, ShuffleVec3 *arg2, ShuffleVec3 *arg3, ShuffleVec3 *arg4, f32 fparg0, f32 fparg1) {
+void btlShuffleCalcSetVectors(u8 *arg0, u32 arg1, ShuffleVec3 *arg2, ShuffleVec3 *arg3, ShuffleVec3 *arg4, f32 fparg0, f32 fparg1) {
     ShuffleVec3 sp30;
     ShuffleVec3 sp20;
     ShuffleVec3 sp10;
@@ -342,7 +342,7 @@ void func_00371e50(u8 *arg0, u32 arg1, ShuffleVec3 *arg2, ShuffleVec3 *arg3, Shu
     *(ShuffleVec3 *)(arg0 + 0x38) = sp10;
 }
 // FUN_00371F40
-void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
+void btlShuffleCalcRotateVector(u8 *arg0, f32 fparg0, u8 *arg1) {
     f32 temp_f20;
     s32 temp_16;
     f32 sp50[3];
@@ -373,7 +373,7 @@ void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
     func_003e0f40(temp_16);
 }
 // FUN_003720C0
-s32 func_003720c0(u8 *arg0) {
+s32 btlShuffleCalcAdvanceTrack(u8 *arg0) {
     f32 var_f1;
     f32 count;
     f32 ratio;
@@ -408,7 +408,7 @@ s32 func_003720c0(u8 *arg0) {
    casts. Difference-first locals reproduce retail's separate interpolation
    subtraction and multiply sequence. */
 // FUN_00372200
-s32 func_00372200(u8 *arg0) {
+s32 btlShuffleCalcFinishTrack(u8 *arg0) {
     f32 t;
     f32 t2;
     f32 d0;
@@ -451,7 +451,7 @@ s32 func_00372200(u8 *arg0) {
     return 0;
 }
 // FUN_003723A0
-void func_003723a0(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, f32 fparg0) {
+void btlShuffleCalcScheduleMove(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, f32 fparg0) {
     *(s16 *)(arg0 + 0) = 0;
     *(f32 *)(arg0 + 4) = arg2;
     *(f32 *)(arg0 + 8) = arg1;
@@ -474,7 +474,7 @@ void func_003723a0(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, f32 fparg0)
 /* measured: func_003724f0 object 440B/window 448B normalized_diff 0; this
    pragma is required (without opt_propagation off, normalized_diff 26). */
 #pragma opt_propagation off
-s32 func_003724f0(ShuffleCalcUnit *unit) {
+s32 btlShuffleCalcUnitStep(ShuffleCalcUnit *unit) {
     u32 value2;
     u16 *count;
     u32 value;
@@ -509,7 +509,7 @@ s32 func_003724f0(ShuffleCalcUnit *unit) {
     }
     temp_f2 = unit->rate;
     temp_f1 = unit->duration;
-    temp_f20 = func_00373cb0(var_f12, temp_f2, temp_f1, 0);
+    temp_f20 = btlShuffleCalcWave(var_f12, temp_f2, temp_f1, 0);
     sp40[0] = unit->start[0] - unit->target[0];
     sp40[1] = unit->start[1] - unit->target[1];
     sp40[2] = unit->start[2] - unit->target[2];
@@ -544,7 +544,7 @@ s32 func_003724f0(ShuffleCalcUnit *unit) {
 /* measured: func_003726b0 object 440B/window 448B normalized_diff 0; this
    pragma is required (without opt_propagation off, normalized_diff 26). */
 #pragma opt_propagation off
-s32 func_003726b0(ShuffleCalcUnit *unit) {
+s32 btlShuffleCalcUnitStepB(ShuffleCalcUnit *unit) {
     u32 value2;
     u16 *count;
     u32 value;
@@ -578,7 +578,7 @@ s32 func_003726b0(ShuffleCalcUnit *unit) {
         var_f12 += var_f12;
     }
     temp_f1 = unit->rate;
-    temp_f20 = func_00373cb0(var_f12, temp_f1, unit->duration, 0);
+    temp_f20 = btlShuffleCalcWave(var_f12, temp_f1, unit->duration, 0);
     sp40[0] = unit->start[0] - unit->target[0];
     sp40[1] = unit->start[1] - unit->target[1];
     sp40[2] = unit->start[2] - unit->target[2];
@@ -602,7 +602,7 @@ s32 func_003726b0(ShuffleCalcUnit *unit) {
    normal propagation before the next function. */
 #pragma opt_propagation on
 // FUN_00372870
-void func_00372870(u8 *arg0, u16 a1, u16 a2, u8 *arg3, ShuffleVec4 *arg4) {
+void btlShuffleCalcSetQuat(u8 *arg0, u16 a1, u16 a2, u8 *arg3, ShuffleVec4 *arg4) {
     *(s16 *)(arg0 + 0) = 0;
     *(s16 *)(arg0 + 2) = a2;
     *(s16 *)(arg0 + 4) = a1;
@@ -620,7 +620,7 @@ void func_00372870(u8 *arg0, u16 a1, u16 a2, u8 *arg3, ShuffleVec4 *arg4) {
 
 /* measured: complete C reconstruction matches the retail 0x2D0-byte window. */
 // FUN_00372960
-s32 func_00372960(u8 *arg0) {
+s32 btlShuffleCalcUpdateArc(u8 *arg0) {
     u32 v3;
     u32 v2;
     u32 value;
@@ -667,7 +667,7 @@ s32 func_00372960(u8 *arg0) {
         var_f14 = (f32)value3;
         var_f14 += var_f14;
     }
-    var_f20 = func_00373cb0(var_f12, var_f13, var_f14, 0);
+    var_f20 = btlShuffleCalcWave(var_f12, var_f13, var_f14, 0);
     func_003dcc70(arg0 + 0x18, arg0 + 0x28, &out);
 
     if (var_f20 <= 0.0f) {
@@ -723,7 +723,7 @@ s32 func_00372960(u8 *arg0) {
 }
 
 // FUN_00372C30
-void func_00372c30(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
+void btlShuffleCalcSetKeyframe(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
     *(s16 *)(arg0 + 0) = 0;
     *(s16 *)(arg0 + 2) = arg2;
     *(s16 *)(arg0 + 4) = arg1;
@@ -745,7 +745,7 @@ void func_00372c30(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
 
 /* measured: complete C reconstruction matches the retail 0x390-byte window. */
 // FUN_00372D60
-s32 func_00372d60(u8 *arg0) {
+s32 btlShuffleCalcUpdateCurve(u8 *arg0) {
     ShuffleOut out;
     f32 B[4];
     f32 A[4];
@@ -793,7 +793,7 @@ s32 func_00372d60(u8 *arg0) {
         var_f14 = (f32)value3;
         var_f14 += var_f14;
     }
-    var_f20 = func_00373cb0(var_f12, var_f13, var_f14, 0);
+    var_f20 = btlShuffleCalcWave(var_f12, var_f13, var_f14, 0);
     if (var_f20 < 0.5f) {
         *(ShuffleVec4 *)B = *(ShuffleVec4 *)(arg0 + 0x18);
         *(ShuffleVec4 *)A = *(ShuffleVec4 *)(arg0 + 0x38);
@@ -844,7 +844,7 @@ s32 func_00372d60(u8 *arg0) {
 }
 
 // FUN_003730F0
-void func_003730f0(u8 *p, u16 a1, u16 a2, const ShuffleVec3 *arg3, f32 fparg0, f32 fparg1) {
+void btlShuffleCalcSetCurveSample(u8 *p, u16 a1, u16 a2, const ShuffleVec3 *arg3, f32 fparg0, f32 fparg1) {
     ShuffleVec3 sp;
 
     sp = *arg3;
@@ -858,7 +858,7 @@ void func_003730f0(u8 *p, u16 a1, u16 a2, const ShuffleVec3 *arg3, f32 fparg0, f
 }
 
 // FUN_00373170
-s32 func_00373170(u8 *arg0) {
+s32 btlShuffleCalcUpdateBounce(u8 *arg0) {
     f32 sp20[4];
     f32 var_f12;
     f32 var_f13;
@@ -900,7 +900,7 @@ s32 func_00373170(u8 *arg0) {
         var_f14 = (f32)value3;
         var_f14 += var_f14;
     }
-    t = func_00373cb0(var_f12, var_f13, var_f14, 0);
+    t = btlShuffleCalcWave(var_f12, var_f13, var_f14, 0);
     func_003dc740(&sp20[0], arg0 + 0x28, 0, 0.0f + *(f32 *)(arg0 + 0x34) + t * (*(f32 *)(arg0 + 0x38) - *(f32 *)(arg0 + 0x34)));
     *(f32 *)(arg0 + 0x14) = *(f32 *)(arg0 + 0x24) * sp20[3] - (*(f32 *)(arg0 + 0x18) * sp20[0] + *(f32 *)(arg0 + 0x1C) * sp20[1] + *(f32 *)(arg0 + 0x20) * sp20[2]);
     *(f32 *)(arg0 + 0x8) = *(f32 *)(arg0 + 0x1C) * sp20[2] - *(f32 *)(arg0 + 0x20) * sp20[1];
@@ -916,7 +916,7 @@ s32 func_00373170(u8 *arg0) {
 }
 
 // FUN_003733D0
-void func_003733d0(u8 *p, s16 a1, s8 a2, s8 a3) {
+void btlShuffleCalcSetFrameRange(u8 *p, s16 a1, s8 a2, s8 a3) {
     *(u16 *)(p + 4) = 0;
     *(u16 *)(p + 6) = a1;
     *(u8 *)(p + 1) = a2;
@@ -930,7 +930,7 @@ void func_003733d0(u8 *p, s16 a1, s8 a2, s8 a3) {
    byte-difference, `(f32)(u32)` for the byte base, and `(u8)` for the
    final float-to-byte narrowing. */
 // FUN_003733F0
-s32 func_003733f0(u8 *arg0) {
+s32 btlShuffleCalcGetFrameRange(u8 *arg0) {
     f32 temp_f2;
     f32 var_f1;
     f32 var_f3;
@@ -957,7 +957,7 @@ s32 func_003733f0(u8 *arg0) {
 }
 
 // FUN_00373590
-void func_00373590(u8 *arg0, s16 arg1, s8 arg2, u8 arg3) {
+void btlShuffleCalcSetFrameFlags(u8 *arg0, s16 arg1, s8 arg2, u8 arg3) {
     if ((arg3 & 0xFF) >= 5) {
         kAssertFail(&D_0064E9C0, 0x350);
     }
@@ -976,7 +976,7 @@ void func_00373590(u8 *arg0, s16 arg1, s8 arg2, u8 arg3) {
    declared ascending so b210 reverses the comparisons to retail's 4,3,2,1,0
    while laying the bodies out 1,2,3,4. */
 // FUN_00373610
-s32 func_00373610(u8 *arg0)
+s32 btlShuffleCalcLoadTable(u8 *arg0)
 {
     s32 bumped;
 
@@ -1021,7 +1021,7 @@ s32 func_00373610(u8 *arg0)
 /* measured: preserving independent switch case bodies matches the retail layout. */
 #pragma opt_propagation off
 // FUN_00373750
-void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
+void btlShuffleCalcFillTable(s32 arg0, s32 arg1, f32 *arg2) {
     f32 f0;
     f32 f1;
     f32 f2;
@@ -1146,7 +1146,7 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
 #pragma opt_propagation on
 
 // FUN_00373C20
-void func_00373c20(u8 *arg0) {
+void btlShuffleCalcNormalizeOffset(u8 *arg0) {
     ShuffleVec3 sp30;
     ShuffleVec3 sp20;
     u8 *temp_2;
@@ -1160,7 +1160,7 @@ void func_00373c20(u8 *arg0) {
 }
 
 // FUN_00373CB0
-f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0) {
+f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0) {
     f32 temp_f20;
 
     if (fparg0 < fparg1) {

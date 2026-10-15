@@ -56,7 +56,7 @@ extern u8 D_006290D0[];
 extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 extern void memcpy(void *dst, void *src, u32 size);
 
-extern s32 func_0036e690(s32 arg0, void *arg1);
+extern s32 btlShuffleTaskCreate(s32 arg0, void *arg1);
 extern s32 func_002215c0(s32 arg0);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
@@ -3970,7 +3970,7 @@ s32 func_0021d4a0(u8 *sdkTaskBytes)
     extern void func_00223830(KwlnTask *task);
     extern s32 func_00224080(KwlnTask *task);
     extern void func_00224040(KwlnTask *task);
-    extern s32 func_0036e8d0(void);
+    extern s32 btlShuffleFindTask(void);
     extern s32 func_00221910(void);
     extern s32 func_00223270(void);
     extern s32 func_002238c0(void);
@@ -4093,7 +4093,7 @@ s32 func_0021d4a0(u8 *sdkTaskBytes)
         }
         break;
     case 9:
-        if (func_0036e8d0() == 0 &&
+        if (btlShuffleFindTask() == 0 &&
             func_00221910() == 0 &&
             func_00223270() == 0 &&
             func_002238c0() == 0 &&
@@ -4134,7 +4134,7 @@ s32 func_0021d980(s32 arg0, u16 *arg1)
     }
     *(s32 *)(work + 4) = 1;
     if ((*(s32 *)(work + 0x60) & 1) != 0) {
-        *(s32 *)(work + 0x938) = func_0036e690(result, work + 0x48);
+        *(s32 *)(work + 0x938) = btlShuffleTaskCreate(result, work + 0x48);
     }
     *(s32 *)(work + 0x93C) = func_002215c0(result);
     return result;

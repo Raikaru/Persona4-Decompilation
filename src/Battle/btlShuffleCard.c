@@ -5,10 +5,10 @@
 
 extern void sflDataSetupQuadPanel(void);
 extern void func_0036c450(void);
-extern void func_0036dba0(u8 *arg0);
+extern void btlShuffleCardUpdateCards(u8 *arg0);
 
 extern void func_003dc740(void *dest, void *src, s32 mode, f32 fparg0);
-extern void func_0036de20(u8 *arg0, void *arg1);
+extern void btlShuffleCardBindPacket(u8 *arg0, void *arg1);
 
 extern void func_0036b5e0(u8 *arg0, f32 *out);
 
@@ -42,42 +42,42 @@ extern char D_0064E5B0[];
 /* Retail float-pool constant at gp - 0x7C44 = 0x007614AC (8.133125f). */
 f32 fGpffff83bc = 8.133125f;
 
-void func_0036da40(u8 *arg0, s32 arg1);
-extern void func_0036daa0(u8 *arg0, s32 arg1, s32 arg2);
-void func_0036db20(u8 *arg0);
-void func_0036db60(u8 *arg0);
-void func_0036dba0(u8 *arg0);
-void func_0036dc60(u8 *unit, f32 *src, f32 scale, f32 *dst);
-void func_0036dd10(u8 *unit, f32 *src, f32 scale);
-void func_0036dda0(u8 *arg0, void *arg1);
-void func_0036ddc0(u8 *arg0, void *arg1);
-void func_0036dde0(u8 *arg0, void *arg1, s32 arg2, f32 fparg0);
-void func_0036de20(u8 *arg0, void *arg1);
-void func_0036de40(u8 *arg0, void *arg1);
-f32 func_0036de70(u8 *arg0);
-f32 func_0036deb0(u8 *arg0);
-u16 func_0036dee0(u8 *arg0);
-void func_0036df30(u8 *arg0);
-void func_0036df90(u8 *arg0, u8 *queue);
-void func_0036e000(u8 *arg0);
+void btlShuffleCardSetupLayout(u8 *arg0, s32 arg1);
+extern void btlShuffleCardSetupFrame(u8 *arg0, s32 arg1, s32 arg2);
+void btlShuffleCardSetupQuad(u8 *arg0);
+void btlShuffleCardReset(u8 *arg0);
+void btlShuffleCardUpdateCards(u8 *arg0);
+void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 scale, f32 *dst);
+void btlShuffleCardApplyScale(u8 *unit, f32 *src, f32 scale);
+void btlShuffleCardAttachSprite(u8 *arg0, void *arg1);
+void btlShuffleCardDetachSprite(u8 *arg0, void *arg1);
+void btlShuffleCardSetTint(u8 *arg0, void *arg1, s32 arg2, f32 fparg0);
+void btlShuffleCardBindPacket(u8 *arg0, void *arg1);
+void btlShuffleCardBindSlot(u8 *arg0, void *arg1);
+f32 btlShuffleCardWidth(u8 *arg0);
+f32 btlShuffleCardHeight(u8 *arg0);
+u16 btlShuffleCardStateFlags(u8 *arg0);
+void btlShuffleCardQueueDraw(u8 *arg0);
+void btlShuffleCardQueueEnqueue(u8 *arg0, u8 *queue);
+void btlShuffleCardUpdateState(u8 *arg0);
 
 // FUN_0036D990
-void func_0036d990(u8 *arg0, u8 *arg1)
+void btlShuffleCardInit(u8 *arg0, u8 *arg1)
 {
     u16 value1;
     u16 value2;
     switch (*(s32 *)arg1) {
     case 0:
-        func_0036da40(arg0, *(u16 *)(arg1 + 4));
+        btlShuffleCardSetupLayout(arg0, *(u16 *)(arg1 + 4));
         break;
     case 1:
-        func_0036daa0(arg0, (value2 = *(u16 *)(arg1 + 6), value1 = *(u16 *)(arg1 + 4), value1), value2);
+        btlShuffleCardSetupFrame(arg0, (value2 = *(u16 *)(arg1 + 6), value1 = *(u16 *)(arg1 + 4), value1), value2);
         break;
     case 2:
-        func_0036db20(arg0);
+        btlShuffleCardSetupQuad(arg0);
         break;
     case 3:
-        func_0036db60(arg0);
+        btlShuffleCardReset(arg0);
         break;
     default:
         kAssertFail(D_0064E5B0, 0x72);
@@ -85,16 +85,16 @@ void func_0036d990(u8 *arg0, u8 *arg1)
     }
 }
 // FUN_0036DA40
-void func_0036da40(u8 *arg0, s32 arg1)
+void btlShuffleCardSetupLayout(u8 *arg0, s32 arg1)
 {
     sflDataSetupLayoutPanel();
     func_0036a820(arg0, arg1);
     func_0036c7e0(arg1);
-    func_0036dba0(arg0);
+    btlShuffleCardUpdateCards(arg0);
 }
 
 // FUN_0036DAA0
-void func_0036daa0(u8 *arg0, s32 arg1, s32 arg2)
+void btlShuffleCardSetupFrame(u8 *arg0, s32 arg1, s32 arg2)
 {
     s32 masked;
 
@@ -102,30 +102,30 @@ void func_0036daa0(u8 *arg0, s32 arg1, s32 arg2)
     masked = arg1 & 0xFFFF;
     func_0036a880(arg0, masked, arg2);
     func_0036c570(masked, arg2);
-    func_0036dba0(arg0);
+    btlShuffleCardUpdateCards(arg0);
 }
 
 
 
 
 // FUN_0036DB20
-void func_0036db20(u8 *arg0)
+void btlShuffleCardSetupQuad(u8 *arg0)
 {
     sflDataSetupQuadPanel();
     func_0036c450();
-    func_0036dba0(arg0);
+    btlShuffleCardUpdateCards(arg0);
 }
 
 // FUN_0036DB60
-void func_0036db60(u8 *arg0)
+void btlShuffleCardReset(u8 *arg0)
 {
     func_00368d30();
     func_0036c900();
-    func_0036dba0(arg0);
+    btlShuffleCardUpdateCards(arg0);
 }
 
 // FUN_0036DBA0
-void func_0036dba0(u8 *arg0)
+void btlShuffleCardUpdateCards(u8 *arg0)
 {
     f32 sp30[3];
     f32 sp20[3];
@@ -135,22 +135,22 @@ void func_0036dba0(u8 *arg0)
     sp30[0] = 10.0f;
     sp30[1] = 10.0f;
     sp30[2] = 10.0f;
-    func_0036ddc0(arg0, sp30);
+    btlShuffleCardDetachSprite(arg0, sp30);
     sp20[0] = 0.0f;
     sp20[1] = 1.0f;
     sp20[2] = 0.0f;
-    func_0036dde0(arg0, sp20, 0, 0.0f);
+    btlShuffleCardSetTint(arg0, sp20, 0, 0.0f);
     sp3C[0] = 0xFF;
     sp3C[1] = 0xFF;
     sp3C[2] = 0xFF;
     sp3C[3] = 0xFF;
-    func_0036de40(arg0, sp3C);
+    btlShuffleCardBindSlot(arg0, sp3C);
     func_0036a8f0(arg0, *(s32 *)((u8 *)func_00457120() + 4));
     *(u16 *)(arg0 + 0xFAC) |= 1;
 }
 
 // FUN_0036DC60
-void func_0036dc60(u8 *unit, f32 *src, f32 scale, f32 *dst)
+void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 scale, f32 *dst)
 {
     if (src == NULL) {
         kAssertFail(D_0064E5B0, 0xD4);
@@ -162,7 +162,7 @@ void func_0036dc60(u8 *unit, f32 *src, f32 scale, f32 *dst)
 }
 
 // FUN_0036DD10
-void func_0036dd10(u8 *unit, f32 *src, f32 scale)
+void btlShuffleCardApplyScale(u8 *unit, f32 *src, f32 scale)
 {
     f32 sp40[4];
 
@@ -170,17 +170,17 @@ void func_0036dd10(u8 *unit, f32 *src, f32 scale)
         kAssertFail(D_0064E5B0, 0xD4);
     }
     func_0036a6b0(unit, src, func_0036a790((const f32 *)unit, scale), sp40);
-    func_0036dda0(unit, sp40);
+    btlShuffleCardAttachSprite(unit, sp40);
 }
 
 // FUN_0036DDA0
-void func_0036dda0(u8 *arg0, void *arg1)
+void btlShuffleCardAttachSprite(u8 *arg0, void *arg1)
 {
     func_0036b5c0(arg0, arg1);
 }
 
 // FUN_0036DDC0
-void func_0036ddc0(u8 *arg0, void *arg1)
+void btlShuffleCardDetachSprite(u8 *arg0, void *arg1)
 {
     func_0036b5a0(arg0, arg1);
 }
@@ -189,22 +189,22 @@ void func_0036ddc0(u8 *arg0, void *arg1)
 
 
 // FUN_0036DDE0
-void func_0036dde0(u8 *arg0, void *arg1, s32 arg2, f32 fparg0)
+void btlShuffleCardSetTint(u8 *arg0, void *arg1, s32 arg2, f32 fparg0)
 {
     f32 sp20[4];
 
     func_003dc740(sp20, arg1, arg2, fparg0);
-    func_0036de20(arg0, sp20);
+    btlShuffleCardBindPacket(arg0, sp20);
 }
 
 // FUN_0036DE20
-void func_0036de20(u8 *arg0, void *arg1)
+void btlShuffleCardBindPacket(u8 *arg0, void *arg1)
 {
     func_0036b600(arg0, arg1);
 }
 
 // FUN_0036DE40
-void func_0036de40(u8 *arg0, void *arg1)
+void btlShuffleCardBindSlot(u8 *arg0, void *arg1)
 {
     func_0036adc0(arg0, arg1);
 }
@@ -213,7 +213,7 @@ void func_0036de40(u8 *arg0, void *arg1)
 
 
 // FUN_0036DE70
-f32 func_0036de70(u8 *arg0)
+f32 btlShuffleCardWidth(u8 *arg0)
 {
     f32 sp10[3];
 
@@ -222,7 +222,7 @@ f32 func_0036de70(u8 *arg0)
 }
 
 // FUN_0036DEB0
-f32 func_0036deb0(u8 *arg0)
+f32 btlShuffleCardHeight(u8 *arg0)
 {
     f32 sp10[3];
 
@@ -231,7 +231,7 @@ f32 func_0036deb0(u8 *arg0)
 }
 
 // FUN_0036DEE0
-u16 func_0036dee0(u8 *arg0)
+u16 btlShuffleCardStateFlags(u8 *arg0)
 {
     if (*(s32 *)(arg0 + 4) != 0) {
         kAssertFail(D_0064E5B0, 0x160);
@@ -240,7 +240,7 @@ u16 func_0036dee0(u8 *arg0)
 }
 
 // FUN_0036DF30
-void func_0036df30(u8 *arg0)
+void btlShuffleCardQueueDraw(u8 *arg0)
 {
     s32 temp;
 
@@ -255,7 +255,7 @@ void func_0036df30(u8 *arg0)
 /* The queue remains a pointer through the wrapper. The packet constructor
  * stores the card itself as an EE address word before queueing the draw. */
 // FUN_0036DF90
-void func_0036df90(u8 *arg0, u8 *queue)
+void btlShuffleCardQueueEnqueue(u8 *arg0, u8 *queue)
 {
     s32 temp;
 
@@ -268,7 +268,7 @@ void func_0036df90(u8 *arg0, u8 *queue)
 }
 
 // FUN_0036E000
-void func_0036e000(u8 *arg0)
+void btlShuffleCardUpdateState(u8 *arg0)
 {
     s32 handle;
     s32 state;
