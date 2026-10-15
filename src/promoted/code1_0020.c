@@ -4362,7 +4362,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
         nameX16 = (s32)widthSpace;
     }
     frFontMoveListTo((s32)(u32)font, nameX16, 0xA60);
-    func_00273170(font, 1, 0);
+    frFontDrawList(font, 1, 0);
     frFontListKeepOrRelease((s32)(u32)font);
     frFontClearFlagBits(0x40);
     renderer->setState(6, 0);

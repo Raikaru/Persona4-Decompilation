@@ -1591,7 +1591,7 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
         }
         frFontMoveListToFloat(var_18, fparg0 - ((f32)var_16 / 2.0f), fparg1);
         frFontSetGlyphColor(var_18, arg1 | ~0xFF);
-        func_00273170(var_18, 1, 0);
+        frFontDrawList(var_18, 1, 0);
         frFontListKeepOrRelease(var_18);
         if (spAC != NULL) {
             frFontListKeepOrRelease(spAC);

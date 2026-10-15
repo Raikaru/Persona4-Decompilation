@@ -1313,8 +1313,8 @@ node_done:
 // FUN_0027B310
 void func_0027b310(u8 *arg0)
 {
-    extern s32 func_00273110(s32 arg0);
-    extern s32 func_00273140(s32 arg0, s32 arg1);
+    extern s32 frFontDrawListDefault(s32 arg0);
+    extern s32 frFontDrawListMode(s32 arg0, s32 arg1);
     extern void func_0027b4c0(void);
     extern s32 func_0027b910(s32 arg0);
     s32 flags;
@@ -1348,7 +1348,7 @@ node_done:
             (u32)(flags & 7) >= 3U &&
             (flags & 0x10000) == 0 &&
             first != 0) {
-            func_00273110(first);
+            frFontDrawListDefault(first);
         }
     }
     {
@@ -1357,7 +1357,7 @@ node_done:
         second = *(s32 *)(arg0 + 0x20);
         if (mask == 0 &&
             (u32)(flags & 7) >= 3U &&
-            func_00273110(second) > 0) {
+            frFontDrawListDefault(second) > 0) {
             s32 current;
 
             current = *(s32 *)arg0;
@@ -1377,7 +1377,7 @@ node_done:
         if ((flags & 0x40000) == 0) {
             mask = flags & 0x38;
             if (mask >= 0x18U &&
-                func_00273140(third, 1) > 0 &&
+                frFontDrawListMode(third, 1) > 0 &&
                 mask == 0x18U) {
                 u8 *state;
                 s32 current;
