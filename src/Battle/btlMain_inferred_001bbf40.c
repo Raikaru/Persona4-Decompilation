@@ -120,7 +120,7 @@ void func_001bbf40(u8 *arg0, f32 fparg0) {
 }
 
 // FUN_001BBF90
-void func_001bbf90(u8 *arg0)
+void btlCameraUpdateTransition(u8 *arg0)
 {
     f32 temp_f2;
     f32 temp_f4;
@@ -168,7 +168,7 @@ void func_001bbf90(u8 *arg0)
 }
 
 // FUN_001BC140
-s32 func_001bc140(u8 *arg0) {
+s32 btlCameraIsActionBlocked(u8 *arg0) {
     u8 *temp_16;
 
     temp_16 = (u8 *)(*(u8 **)(arg0 + 0xE0));
@@ -182,7 +182,7 @@ s32 func_001bc140(u8 *arg0) {
 }
 
 // FUN_001BC1B0
-s32 func_001bc1b0(u8 *arg0)
+s32 btlCameraIsTargetEligible(u8 *arg0)
 {
     u8 *temp_2;
     u8 *temp_3;
@@ -205,7 +205,7 @@ s32 func_001bc1b0(u8 *arg0)
 
 // FUN_001BC240
 /* measured: opt_propagation off probe for bc240 table-address order. */
-s32 func_001bc240(s32 arg0)
+s32 btlCameraIsTargetPrioritized(s32 arg0)
 {
     s32 result;
     u8 *temp;
@@ -249,7 +249,7 @@ done:
 
 /* measured: close opt_propagation probe for bc240. */
 // FUN_001BC330
-s32 func_001bc330(u8 *arg0) {
+s32 btlCameraIsOrbitAction(u8 *arg0) {
     u8 *ptr = *(u8 **)(arg0 + 0xE0);
     if (ptr == NULL) {
         return 0;

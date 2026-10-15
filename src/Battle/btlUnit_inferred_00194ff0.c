@@ -63,7 +63,7 @@ extern u8 D_007F17B0[];
 typedef struct RwV3d RwV3d;
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
-extern void func_001958f0(void *arg0, void *arg1);
+extern void btlUnitGetGridSphereCenter(void *arg0, void *arg1);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 func_0022f7d0(u8 *arg0, f32 *arg1, s32 arg2);
 extern u8 *func_001b1510(void);
@@ -217,7 +217,7 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
             if (datCalcChkBadStatus(*(s32 *)(arg0 + 0xA64), 0x100) == 0) {
                 func_00196040(2, 1, (RwV3d *)frame.vec, NULL, NULL, 1);
             } else {
-                func_001958f0(
+                btlUnitGetGridSphereCenter(
                     *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
                     frame.vec);
             }
@@ -230,9 +230,9 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
                      (*(u8 *)(temp_4 + 0xA2) == 0)) &&
                     ((*(u16 *)(temp_2 + 0x18) & 4) == 0 ||
                      *(u16 *)(temp_2 + 0x16) != 0x1E)) {
-                    func_001958f0(temp_4, frame.vec);
+                    btlUnitGetGridSphereCenter(temp_4, frame.vec);
                 } else {
-                    func_001958f0(
+                    btlUnitGetGridSphereCenter(
                         *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
                         frame.vec);
                 }

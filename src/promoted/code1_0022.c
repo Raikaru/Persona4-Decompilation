@@ -212,7 +212,7 @@ extern u8 D_0062C330[];
 extern s32 func_001b1510(void);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern f32 fGpffff834c;
-extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
+extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
 extern void btlUnitSetPos(u8 *arg0, s32 *arg1);
 extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3e0;
@@ -3202,8 +3202,8 @@ allow_cut:
     }
 
     btlCameraCopyPose((f32 *)&geometry.poses.first, (f32 *)(camera + 0x9C));
-    func_001958f0((BtlUnit *)first, &firstCenter);
-    func_001958f0((BtlUnit *)second, &secondCenter);
+    btlUnitGetGridSphereCenter((BtlUnit *)first, &firstCenter);
+    btlUnitGetGridSphereCenter((BtlUnit *)second, &secondCenter);
     radius = *(f32 *)(first + 0x90) * *(f32 *)(first + 0x2C);
     firstHeight = (0.0f + firstCenter.y) + 0.5f *
         (*(f32 *)(first + 0x8C) * *(f32 *)(first + 0x2C));
@@ -5929,7 +5929,7 @@ s32 func_0022f7d0(u8 *arg0, u8 *arg1) {
                 return 0;
             }
         }
-        func_001958f0((BtlUnit *)(*(u8 **)(*(u8 **)(DAT_0076449c + 0x170) + 0x30)),
+        btlUnitGetGridSphereCenter((BtlUnit *)(*(u8 **)(*(u8 **)(DAT_0076449c + 0x170) + 0x30)),
                       (RwV3d *)arg1);
         return 1;
     case 0x10E:

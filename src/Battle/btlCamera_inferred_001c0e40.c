@@ -55,7 +55,7 @@ extern f32 fGpffff8100;
 extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
 extern f32 RwV3dLength(f32 *arg0);
 extern void btlCameraCopyPose();
-extern void func_001958f0(BtlUnit *unit, RwV3d *out);
+extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *out);
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
 extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
@@ -79,7 +79,7 @@ extern s32 func_001f0ff0(u8 *arg0);
 extern void btlCameraFrameWithFlags(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
-extern s32 func_001bc140(u8 *arg0);
+extern s32 btlCameraIsActionBlocked(u8 *arg0);
 extern s32 btlTargetGetUnitIndex(u8 *arg0);
 extern s32 func_001f1030(u8 *arg0);
 extern s32 func_001f11e0(s16 arg0);
@@ -171,7 +171,7 @@ s32 btlCameraSelectMode(u8 *arg0) {
         if (*(s32 *)(data + 0x38) == (s32)data) {
             return 1;
         }
-        if (func_001bc140(arg0) != 0) {
+        if (btlCameraIsActionBlocked(arg0) != 0) {
             return 2;
         }
         if (func_001f11e0(mode) == 0) {
@@ -217,8 +217,8 @@ s32 btlCameraSelectMode(u8 *arg0) {
 // FUN_001C1040
 void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
 {
-    extern s32 func_001bc240(s32 cameraAddress);
-    extern s32 func_001bc1b0(u8 *camera);
+    extern s32 btlCameraIsTargetPrioritized(s32 cameraAddress);
+    extern s32 btlCameraIsTargetEligible(u8 *camera);
     extern void btlCameraCopyPose(f32 *out, f32 *in);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern f32 func_003e41e0(f32 *out, f32 *in);
@@ -254,7 +254,7 @@ void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
     unit = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
     btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
     groupRadius = func_00196040(3, 1, &groupCenter, &top, 0, 0);
-    if (func_001bc240((s32)camera) != 0 || func_001bc1b0(camera) != 0) {
+    if (btlCameraIsTargetPrioritized((s32)camera) != 0 || btlCameraIsTargetEligible(camera) != 0) {
         resource = *(u8 **)(unit + 0xA0C);
         if (resource != 0) {
             func_0019de70((BtlUnitStateWork *)resource, 0);
@@ -416,7 +416,7 @@ void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
     } transition;
     RwMatrix matrix;
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
-    extern s32 func_001bc330(u8 *camera);
+    extern s32 btlCameraIsOrbitAction(u8 *camera);
     extern f32 func_003e41e0(f32 *camera, f32 *notify);
     extern f32 tanf(f32 camera);
     extern f32 fGpffff80e8;
@@ -438,7 +438,7 @@ void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
     f32 baseY;
     f32 baseZ;
     (void)unused;
-    useOrbit = func_001bc330(camera) != 0;
+    useOrbit = btlCameraIsOrbitAction(camera) != 0;
     work = *(u8 **)(camera + 0xE0);
     if ((*(u16 *)(work + 0x1A) & 0x10) == 0) {
         return;
@@ -646,10 +646,10 @@ void btlCameraEnterRandomFrame(u8 *arg0)
 // FUN_001C21D0
 void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
 {
-    extern s32 func_001bc330(u8 *camera);
-    extern s32 func_001bc240(s32 cameraAddress);
+    extern s32 btlCameraIsOrbitAction(u8 *camera);
+    extern s32 btlCameraIsTargetPrioritized(s32 cameraAddress);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
-    extern s32 func_001bc1b0(u8 *camera);
+    extern s32 btlCameraIsTargetEligible(u8 *camera);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
     extern f32 tanf(f32 angle);
@@ -702,7 +702,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
     resource = *(u8 **)(unit + 0xA0C);
     extentScale = 1.0f;
     resourceMode = func_0022f950(work, resource) != 0;
-    alternateMode = func_001bc330(camera) != 0;
+    alternateMode = btlCameraIsOrbitAction(camera) != 0;
     btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
     btlUnitGetSphereWorldCenter((BtlUnit *)resource, &resourceCenter);
     actorTop = 0.0f + unitCenter.y + 0.5f * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
@@ -727,7 +727,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
             targetTop = 450.0f;
         }
     }
-    forceSide = func_001bc240((s32)camera);
+    forceSide = btlCameraIsTargetPrioritized((s32)camera);
     if ((alternateMode == 0) && (forceSide == 0) && ((*(u16 *)(iGpffffb3e0 + *(u16 *)(resource + 0xA4) * 0x58) & 1) != 0)) {
         if (resourceTop < (f32)0x2EE) {
             unitCenter.y = fGpffff80fc * resourceTop;
@@ -753,7 +753,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
     plane.cameraHorizontal.x = *(f32 *)(camera + 0x9C) - focus.x;
     plane.cameraHorizontal.y = *(f32 *)(camera + 0xA4) - focus.z;
     func_003e41e0((f32 *)&plane.cameraHorizontal, (f32 *)&plane.cameraHorizontal);
-    if ((forceSide != 0) || (((effMiscRand(0) & 1) != 0) && (func_001bc1b0(camera) != 0))) {
+    if ((forceSide != 0) || (((effMiscRand(0) & 1) != 0) && (btlCameraIsTargetEligible(camera) != 0))) {
         f32 sideRadius;
         f32 targetHeightProduct;
         f32 tilt;
@@ -940,10 +940,10 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
 // FUN_001C2EE0
 void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
 {
-    extern s32 func_001bc330(u8 *camera);
-    extern s32 func_001bc240(s32 cameraAddress);
+    extern s32 btlCameraIsOrbitAction(u8 *camera);
+    extern s32 btlCameraIsTargetPrioritized(s32 cameraAddress);
     extern s32 btlCameraStateRecordFlag(u8 *camera);
-    extern s32 func_001bc1b0(u8 *camera);
+    extern s32 btlCameraIsTargetEligible(u8 *camera);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 tanf(f32 angle);
     extern void func_001bbf40(u8 *camera, f32 duration);
@@ -1001,7 +1001,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
 
     actor = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
     target = *(u8 **)(actor + 0xA0C);
-    alternateMode = (func_001bc330(camera) != 0);
+    alternateMode = (btlCameraIsOrbitAction(camera) != 0);
     directTiming = 0;
     btlUnitGetSphereWorldCenter((BtlUnit *)actor, &actorCenter);
     btlUnitGetSphereWorldCenter((BtlUnit *)target, &resourceCenter);
@@ -1041,14 +1041,14 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     bearings.side.x = delta.z;
     bearings.side.y = -delta.x;
     sideDot = bearings.side.x * bearings.camera.x + bearings.side.y * bearings.camera.y;
-    forceSide = func_001bc240((s32)camera);
+    forceSide = btlCameraIsTargetPrioritized((s32)camera);
     specialMode = btlCameraStateRecordFlag(camera);
     if ((alternateMode == 1) || ((*(u16 *)(iGpffffb3e0 + (*(u16 *)(target + 0xA4) * 10 + *(u16 *)(target + 0xA4)) * 8) & 0x20) == 0)) {
         chooseSide = (effMiscRand(0) & 1) != 0;
     } else {
         chooseSide = 0;
     }
-    if ((forceSide != 0) || ((chooseSide == 1) && (func_001bc1b0(camera) != 0) && (specialMode == 0))) {
+    if ((forceSide != 0) || ((chooseSide == 1) && (btlCameraIsTargetEligible(camera) != 0) && (specialMode == 0))) {
         func_0019de70((BtlUnitStateWork *)target, 1);
         *(u8 **)(camera + 0x12C) = target;
         *(u16 *)(camera + 0x130) = 0;
@@ -1323,8 +1323,8 @@ void btlCameraWaitForAnimFrame(u8 *arg0, s32 arg1)
 // FUN_001C3F70
 void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
 {
-    extern s32 func_001bc240(s32 cameraAddress);
-    extern s32 func_001bc1b0(u8 *camera);
+    extern s32 btlCameraIsTargetPrioritized(s32 cameraAddress);
+    extern s32 btlCameraIsTargetEligible(u8 *camera);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern void btlCameraLookAtQuat(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
@@ -1395,7 +1395,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
         sideView = 1;
     } else {
-        sideView = func_001bc240((s32)camera);
+        sideView = btlCameraIsTargetPrioritized((s32)camera);
         if (!((resourceTop - targetTop) < 125.0f)) {
             sideView = 0;
         } else {
@@ -1403,7 +1403,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
             if (sideView == 0) {
                 sideView = (effMiscRand(0) & 1) != 0;
                 if (sideView != 0) {
-                    sideView = (func_001bc1b0(camera) != 0);
+                    sideView = (btlCameraIsTargetEligible(camera) != 0);
                 }
             }
         }
@@ -2106,7 +2106,7 @@ void btlCameraFrameFlagged(u8 *arg0, s32 arg1)
         work = *(u8 **)(arg0 + 0xE0);
         entry = (((u8 **)work) + 14)[i];
         if ((*(u16 *)(entry + 0x1A) & 1) != 0) {
-            func_001958f0((BtlUnit *)(*(u8 **)(entry + 0x30)), &actorPos);
+            btlUnitGetGridSphereCenter((BtlUnit *)(*(u8 **)(entry + 0x30)), &actorPos);
             delta.x = optionCenter.x - actorPos.x;
             delta.y = optionCenter.y - actorPos.y;
             delta.z = optionCenter.z - actorPos.z;
@@ -2119,7 +2119,7 @@ void btlCameraFrameFlagged(u8 *arg0, s32 arg1)
     }
     work = *(u8 **)(arg0 + 0xE0);
     unit = *(u8 **)(work + 0x30);
-    func_001958f0((BtlUnit *)unit, &actorPos);
+    btlUnitGetGridSphereCenter((BtlUnit *)unit, &actorPos);
     delta.x = optionCenter.x - actorPos.x;
     delta.y = optionCenter.y - actorPos.y;
     delta.z = optionCenter.z - actorPos.z;
@@ -2166,7 +2166,7 @@ void btlCameraFrameFlagged(u8 *arg0, s32 arg1)
             farthest.z = farthest.z + actorPos.z;
         }
     } else if (maxLen == 0.0f) {
-        func_001958f0((BtlUnit *)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30)), &farthest);
+        btlUnitGetGridSphereCenter((BtlUnit *)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30)), &farthest);
     }
     farthest.y = groupCenter.y;
     delta.x = farthest.x - groupCenter.x;
