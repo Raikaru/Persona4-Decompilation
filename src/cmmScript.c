@@ -164,8 +164,9 @@ typedef struct { f32 x, y, z, w; } Vec4f;
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
+// Message stream start: selects stream entry 'b' for script id 'a' and copies it into the message state.
 // FUN_0024A200
-s32 func_0024a200(void)
+s32 cmmMsgStreamStart(void)
 {
     s32 a;
     s32 b;
@@ -231,8 +232,9 @@ typedef struct CmmScriptTask
     s32 data;       // 0x24, buffer from func_0046af60, freed on destroy
 } CmmScriptTask;
 
+// Message stream update: sends the next packet every 10 frames and finishes when the stream ends.
 // FUN_0024A2E0
-s32 func_0024a2e0(void)
+s32 cmmMsgStreamUpdate(void)
 {
     cmmMsgState *p;
     s32 x;
@@ -283,8 +285,9 @@ s32 func_0024a2e0(void)
     p->counter += 1;
     return 0;
 }
+// Message stream result: returns the result value stored in the message state.
 // FUN_0024A450
-s32 func_0024a450(void)
+s32 cmmMsgStreamGetResult(void)
 {
     cmmMsgState *p;
 
