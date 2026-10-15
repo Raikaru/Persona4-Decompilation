@@ -21,7 +21,7 @@ extern s32 func_00349340(u8 *task);
 extern void func_00349380(u8 *arg0);
 extern void func_00349440(u8 *arg0, u8 *arg1);
 extern void mdlDestroyModelObject(u8 *arg0);
-extern void func_00104a00(u8 *arg0);
+extern void datFreeBlock(u8 *arg0);
 extern s32 mdlPrepareModel(u8 *arg0);
 extern void *func_00457120(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
@@ -533,7 +533,7 @@ s32 func_00349c50(u8 *arg0)
             {
                 u8 *p2 = *(u8 **)(obj + 0x14);
                 if (p2 != NULL) {
-                    func_00104a00(p2);
+                    datFreeBlock(p2);
                     *(u8 **)(obj + 0x14) = NULL;
                 }
             }
@@ -576,7 +576,7 @@ void func_0034a480(u8 *arg0)
     }
     temp_4_2 = *(u8 **)(temp_16 + 0x14);
     if (temp_4_2 != NULL) {
-        func_00104a00(temp_4_2);
+        datFreeBlock(temp_4_2);
     }
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }

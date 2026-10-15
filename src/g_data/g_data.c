@@ -263,7 +263,7 @@ void* func_00104900(s32 arg0)
 }
 
 // FUN_00104A00
-void func_00104a00(s32 arg0)
+void datFreeBlock(s32 arg0)
 {
     K_ASSERT(arg0 != 0, 0xC2);
     DAT_008873ec_abs[0](arg0);
@@ -479,7 +479,7 @@ void func_001051a0(s16 arg0, s16 arg1, s16 arg2)
 }
 
 // FUN_00105210
-u32 func_00105210(s16 arg0)
+u32 datPersonaGetExpById(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -1511,7 +1511,7 @@ u32 datPersonaGetNextExp(int persona)
 
 
 // FUN_00109440
-u32 func_00109440(PersonaWork* persona)
+u32 datPersonaGetExpToNextLevel(PersonaWork* persona)
 {
     return datPersonaGetExpForLevel(persona, (u16)(persona->level + 1));
 }
@@ -1547,7 +1547,7 @@ void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 
 
 // FUN_0010C6F0
-s32 func_0010c6f0(PersonaWork* persona)
+s32 datPersonaCanLevelUp(PersonaWork* persona)
 {
     if (persona->level >= 99) {
         return 0;
@@ -1574,7 +1574,7 @@ static inline void datCollectValidSkills(u8* skillData, u16* skills,
 }
 
 // FUN_0010D360
-void func_0010d360(u16 personaId, u16* skills, s32* skillCount)
+void datPersonaCollectSkills(u16 personaId, u16* skills, s32* skillCount)
 {
     u8* skillData;
     s32 validSkills;

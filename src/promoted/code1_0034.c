@@ -108,7 +108,7 @@ do { \
 void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
 {
     extern void mdlDestroyModelObject(void *arg0);
-    extern void func_00104a00(void *arg0);
+    extern void datFreeBlock(void *arg0);
     extern u8 *func_00104900(s8 arg0);
     extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
     extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
@@ -141,7 +141,7 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
             *(u8 **)(obj + 0xC) = NULL;
         }
         if (*(u8 **)(obj + 0x14) != NULL) {
-            func_00104a00(*(u8 **)(obj + 0x14));
+            datFreeBlock(*(u8 **)(obj + 0x14));
             *(u8 **)(obj + 0x14) = NULL;
         }
         *(u16 *)(obj + 8) = arg1;

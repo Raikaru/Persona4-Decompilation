@@ -38,7 +38,7 @@ extern f32 fGpffff8378;
 extern u8 *iGpffffb414;
 extern f32 *iGpffffb40c;
 extern u8 *datUnitGetRecord(s16 arg0);
-extern u32 func_00105210(s16 arg0);
+extern u32 datPersonaGetExpById(s16 arg0);
 extern void func_00105990(s16 arg0, u32 value);
 extern u8 func_001059e0(s32 arg0);
 extern s32 func_00106020(s32 arg0);
@@ -88,7 +88,7 @@ extern void func_0021dd60(u8 *task);
 extern u16 *datPersonaRosterSlot(s16 arg0);
 extern u16 datPersonaCountValidMembers(void);
 extern void datPersonaAddExp(u8 *arg0, s32 arg1);
-extern s32 func_0010c6f0(PersonaWork *arg0);
+extern s32 datPersonaCanLevelUp(PersonaWork *arg0);
 extern void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern void btlUiSetScale(void *arg0, f32 arg1, f32 arg2);
@@ -4464,7 +4464,7 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
     if (func_001069d0(func_00106cd0(1, 1)) == 0x86) {
         level += (s32)(0.5f * (f32)base);
     }
-    if (c != (func_001059e0(level + func_00105210(1)) & 0xFF)) {
+    if (c != (func_001059e0(level + datPersonaGetExpById(1)) & 0xFF)) {
         *(u32 *)arg0 |= 2;
     }
     *(s16 *)(arg0 + 0x698) = *(s16 *)(arg1 + 0x10);
@@ -4606,7 +4606,7 @@ void btlXpApplyAwards(u8 *arg0, u8 *arg1)
     s32 temp_21;
     s16 sum;
     temp_17 = (s32)datUnitGetRecord(1);
-    temp_2 = (s32)func_00105210(1);
+    temp_2 = (s32)datPersonaGetExpById(1);
     if ((func_001059e0(temp_2) & 0xFF) < 0x63) {
         temp_16 = temp_2 + *(s32 *)(arg0 + 4);
         func_00105990(1, temp_16);
@@ -4652,7 +4652,7 @@ void btlXpAddRosterExp(u8 *arg0)
         if (value != 0) {
             persona = (u8 *)datPersonaRosterSlot((s16)i);
             datPersonaAddExp(persona, value);
-            if (func_0010c6f0((PersonaWork *)persona) != 0) {
+            if (datPersonaCanLevelUp((PersonaWork *)persona) != 0) {
                 datPersonaApplyLevelUp(persona, arg0 + (i * 0x88) + 0x38);
             }
         }
@@ -4674,7 +4674,7 @@ loop_body:
     if (temp_19 != 0) {
         temp_2 = (s32)datPersonaGetRecord(*(u16 *)((u8 *)arg0 + (var_16 * 2) + 0x69A));
         datPersonaAddExp((u8 *)temp_2, temp_19);
-        if (func_0010c6f0((PersonaWork *)temp_2) != 0) {
+        if (datPersonaCanLevelUp((PersonaWork *)temp_2) != 0) {
             datPersonaApplyLevelUp((u8 *)temp_2,
                           (u8 *)arg0 + (var_16 * 0x88) + 0x6B4);
         }
