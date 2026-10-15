@@ -157,8 +157,8 @@ extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_002300f0();
-extern void func_0019acd0(u8 *arg0);
-extern s32 func_0019ae20();
+extern void btlUnitModelLoadPacketInit(u8 *arg0);
+extern s32 btlUnitModelMotionPacketUpdate();
 extern void btlUnitReleaseModel(u8 *arg0);
 extern void btlUnitHideModel();
 extern u8 iGpffffa088;
@@ -181,22 +181,22 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019B530
-void func_0019b530(u8 *arg0)
+void btlUnitReleasePendingModelLoad(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
 // FUN_0019B550
-u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2)
+u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2)
 {
     u8 *work;
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x10F, 0x10);
     *(u8 *)(packet + 0x47) &= 0xFE;
-    *(void **)(packet + 0x68) = (void *)func_0019acd0;
-    *(void **)(packet + 0x6C) = (void *)func_0019ae20;
-    *(void **)(packet + 0x70) = (void *)func_0019b530;
+    *(void **)(packet + 0x68) = (void *)btlUnitModelLoadPacketInit;
+    *(void **)(packet + 0x6C) = (void *)btlUnitModelMotionPacketUpdate;
+    *(void **)(packet + 0x70) = (void *)btlUnitReleasePendingModelLoad;
     work = *(u8 **)(packet + 0x78);
     *(u8 **)work = arg0;
     *(s16 *)(work + 8) = arg2;
@@ -208,13 +208,13 @@ u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2)
 }
 
 // FUN_0019B620
-void func_0019b620(u8 *arg0)
+void btlUnitHoldPendingModelRelease(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
 // FUN_0019B640
-s32 func_0019b640(u8 *arg0) {
+s32 btlUnitModelReleasePacketUpdate(u8 *arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;
@@ -224,7 +224,7 @@ s32 func_0019b640(u8 *arg0) {
 }
 
 // FUN_0019B680
-void func_0019b680(u8 *arg0)
+void btlUnitReleasePendingModelRelease(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }

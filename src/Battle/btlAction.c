@@ -73,7 +73,7 @@ void func_001a1190(BtlAction* action)
                                      s32 param_4, s32 param_5);
     extern BtlPacket* btlUnitCreateMovePacket(void* unit, const RwV3d* targetPos,
                                                f32 speed, u32 flags);
-    extern BtlPacket* func_0019beb0(void* unit);
+    extern BtlPacket* btlUnitCreateResourceFreePacket(void* unit);
     extern BtlPacket* btlUnitCreateRotateTowardUnitPacket(void* unit,
                                                            void* targetUnit,
                                                            u32 flags);
@@ -131,7 +131,7 @@ void func_001a1190(BtlAction* action)
         {
             BtlPacket* packet;
 
-            packet = func_0019beb0(unit);
+            packet = btlUnitCreateResourceFreePacket(unit);
             *(u8*)packet = 4;
             *(u64*)((u8*)packet + 8) = rootPacket->unk58;
             packet->actionUID = action->uid;

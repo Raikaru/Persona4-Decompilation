@@ -58,13 +58,13 @@ typedef struct BtlUnitPacketEnmDodgeAnim {
 } BtlUnitPacketEnmDodgeAnim;
 u32 btlUnitHoldPendingEnemyDodge(void* work);
 u32 btlUnitEnemyDodgePacketUpdate(void* work);
-u32 func_0019a840(void* work);
-u32 func_0019a8d0(void* work);
-u32 func_0019a8f0(void* work);
-u32 func_0019a960(void* work);
-u32 func_0019a9e0(void* work);
-u32 func_0019aa00(void* work);
-u32 func_0019aa50(void* work);
+u32 btlUnitReleasePendingEnemyDodge(void* work);
+u32 btlUnitHoldPendingMotionSettle(void* work);
+u32 btlUnitMotionSettlePacketUpdate(void* work);
+u32 btlUnitReleasePendingMotionSettle(void* work);
+u32 btlUnitHoldPendingModelFrame(void* work);
+u32 btlUnitModelFramePacketUpdate(void* work);
+u32 btlUnitReleasePendingModelFrame(void* work);
 typedef struct BtlUnitSpeedWork {
     BtlUnit* unit;
     u16 value;
@@ -73,11 +73,11 @@ typedef struct BtlUnitSpeedWork {
     u16 mode;
     u8 padding_0e[2];
 } BtlUnitSpeedWork;
-u32 func_0019aae0(void* work);
-u32 func_0019ac20(void* work);
-u32 func_0019b620(void* work);
-u32 func_0019b640(void* work);
-u32 func_0019b680(void* work);
+u32 btlUnitHoldPendingMotionSpeed(void* work);
+u32 btlUnitReleasePendingMotionSpeed(void* work);
+u32 btlUnitHoldPendingModelRelease(void* work);
+u32 btlUnitModelReleasePacketUpdate(void* work);
+u32 btlUnitReleasePendingModelRelease(void* work);
 typedef struct BtlUnitColorWork {
     BtlUnit* unit;
     u32 startColor;
@@ -238,7 +238,7 @@ BtlPacket* btlUnitCreateEnemyDodgePacket(BtlUnit* unit, s32 unused)
     packet = btlPacketAlloc(0x109, sizeof(BtlUnitPacketEnmDodgeAnim));
     packet->initFunc = btlUnitHoldPendingEnemyDodge;
     packet->updateFunc = btlUnitEnemyDodgePacketUpdate;
-    packet->destroyFunc = func_0019a840;
+    packet->destroyFunc = btlUnitReleasePendingEnemyDodge;
     work = (BtlUnitPacketEnmDodgeAnim*)packet->workData;
     work->unit = unit;
     work->value = 0;
@@ -249,14 +249,14 @@ BtlPacket* btlUnitCreateEnemyDodgePacket(BtlUnit* unit, s32 unused)
 
 
 // FUN_0019A980
-BtlPacket* func_0019a980(BtlUnit* unit)
+BtlPacket* btlUnitCreateMotionSettlePacket(BtlUnit* unit)
 {
     BtlPacket* packet;
 
     packet = btlPacketAlloc(0x105, sizeof(BtlUnit*));
-    packet->initFunc = func_0019a8d0;
-    packet->updateFunc = func_0019a8f0;
-    packet->destroyFunc = func_0019a960;
+    packet->initFunc = btlUnitHoldPendingMotionSettle;
+    packet->updateFunc = btlUnitMotionSettlePacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingMotionSettle;
     *(BtlUnit**)packet->workData = unit;
 
     return packet;
@@ -265,15 +265,15 @@ BtlPacket* func_0019a980(BtlUnit* unit)
 
 
 // FUN_0019AA70
-BtlPacket* func_0019aa70(BtlUnit* unit, s16 value)
+BtlPacket* btlUnitCreateModelFramePacket(BtlUnit* unit, s16 value)
 {
     BtlPacket* packet;
     BtlUnitPacket* work;
 
     packet = btlPacketAlloc(0x102, sizeof(BtlUnitPacket));
-    packet->initFunc = func_0019a9e0;
-    packet->updateFunc = func_0019aa00;
-    packet->destroyFunc = func_0019aa50;
+    packet->initFunc = btlUnitHoldPendingModelFrame;
+    packet->updateFunc = btlUnitModelFramePacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingModelFrame;
     work = (BtlUnitPacket*)packet->workData;
     work->unit = unit;
     work->value = value;
@@ -284,15 +284,15 @@ BtlPacket* func_0019aa70(BtlUnit* unit, s16 value)
 
 
 // FUN_0019AC40
-BtlPacket* func_0019ac40(BtlUnit* unit, u16 value, f32 speed, u16 mode)
+BtlPacket* btlUnitCreateMotionSpeedPacket(BtlUnit* unit, u16 value, f32 speed, u16 mode)
 {
     BtlPacket* packet;
     BtlUnitSpeedWork* work;
 
     packet = btlPacketAlloc(0x103, sizeof(BtlUnitSpeedWork));
-    packet->initFunc = func_0019aae0;
-    packet->updateFunc = func_0019ab00;
-    packet->destroyFunc = func_0019ac20;
+    packet->initFunc = btlUnitHoldPendingMotionSpeed;
+    packet->updateFunc = btlUnitMotionSpeedPacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingMotionSpeed;
     work = (BtlUnitSpeedWork*)packet->workData;
     work->unit = unit;
     work->value = value;
@@ -305,15 +305,15 @@ BtlPacket* func_0019ac40(BtlUnit* unit, u16 value, f32 speed, u16 mode)
 
 
 // FUN_0019B6A0
-BtlPacket* func_0019b6a0(BtlUnit* unit)
+BtlPacket* btlUnitCreateModelReleasePacket(BtlUnit* unit)
 {
     BtlPacket* packet;
 
     packet = btlPacketAlloc(0x110, sizeof(BtlUnit*));
     packet->flags &= ~(1 << 0);
-    packet->initFunc = func_0019b620;
-    packet->updateFunc = func_0019b640;
-    packet->destroyFunc = func_0019b680;
+    packet->initFunc = btlUnitHoldPendingModelRelease;
+    packet->updateFunc = btlUnitModelReleasePacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingModelRelease;
     *(BtlUnit**)packet->workData = unit;
 
     return packet;

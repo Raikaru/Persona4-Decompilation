@@ -101,8 +101,8 @@ extern u8 *func_001ebb00(s32 action, s32 kind, u8 *name);
 extern u8 *func_00194c90(void *callback, void *data);
 extern BtlPacket *func_001d7ab0(u8 *values, u16 duration);
 extern BtlPacket *func_001d7b60(u16 duration);
-extern BtlPacket *func_0019b6a0(BtlUnit *unit);
-extern u8 *func_0019b550(u8 *unit, u16 id, s16 animation);
+extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
+extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 id, s16 animation);
 extern BtlPacket *func_002305c0(s32 id);
 extern BtlPacket *func_00230650(void);
 extern BtlPacket *func_002306d0(void);
@@ -240,7 +240,7 @@ extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, 
 extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
-extern BtlPacket *func_0019a980(BtlUnit *unit);
+extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
 extern BtlPacket *func_001f81f0(u16 channel, const char *streamName);
 extern BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 extern void func_001d3e00(u32 arg0);
@@ -3977,7 +3977,7 @@ void func_0022ae00(u8 *arg0)
     }
     {
         u8 *temp_2_3;
-        temp_2_3 = (u8 *)func_0019a980((BtlUnit *)(*(u8 **)(arg0 + 0x30)));
+        temp_2_3 = (u8 *)btlUnitCreateMotionSettlePacket((BtlUnit *)(*(u8 **)(arg0 + 0x30)));
         *(s16 *)(temp_2_3 + 0x48) = 1;
         *(s64 *)(temp_2_3 + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(temp_2_3, 0);
@@ -4115,7 +4115,7 @@ void func_0022b120(u8 *action)
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 0);
 
-    anchor = (u8 *)func_0019b6a0((BtlUnit *)actor);
+    anchor = (u8 *)btlUnitCreateModelReleasePacket((BtlUnit *)actor);
     anchor[0] = 4;
     *(u64 *)(anchor + 8) = *(u64 *)(wait1 + 0x58);
     anchor[0x10] = 4;
@@ -4141,7 +4141,7 @@ void func_0022b120(u8 *action)
     *(u64 *)(cleanup + 0x60) = *(u64 *)action;
     btlPacketEnqueue(cleanup, 1);
 
-    wait0 = func_0019b550(actor, 0x10E, 0x216);
+    wait0 = btlUnitCreateModelLoadPacket(actor, 0x10E, 0x216);
     wait0[0] = 4;
     *(u64 *)(wait0 + 8) = *(u64 *)(anchor + 0x58);
     *(u16 *)(wait0 + 0x48) = 2;

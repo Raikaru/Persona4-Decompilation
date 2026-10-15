@@ -244,7 +244,7 @@ extern void func_0019ea60(u8 *arg0, s32 arg1);
 
 
 
-extern s32 func_0019be50(u8 *arg0);
+extern s32 btlUnitResourceFreePacketUpdate(u8 *arg0);
 extern s32 func_0010d6d0(s16 arg0);
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern float func_001d4380(int arg0);
@@ -308,8 +308,8 @@ extern s32 func_0047e6f0(void **owner);
 extern void func_0019db40(u8 *arg0);
 extern void func_001fc1b0(s16 arg0);
 extern s32 func_002300f0();
-extern void func_0019acd0(u8 *arg0);
-extern s32 func_0019ae20();
+extern void btlUnitModelLoadPacketInit(u8 *arg0);
+extern s32 btlUnitModelMotionPacketUpdate();
 extern void func_001d6ee0(s32 arg0);
 extern void btlUnitReleaseModel(u8 *arg0);
 extern void btlUnitHideModel();
