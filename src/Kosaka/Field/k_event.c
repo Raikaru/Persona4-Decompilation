@@ -127,7 +127,7 @@ u32 func_0014c240(const RwMatrix* viewerMat,
     // P4 retail lifts both raycast endpoints by 90.0f; P3 used 100.0f.
     line[0].y += 90.0f;
     line[1].y += 90.0f;
-    if (func_0016b540(line, &hitPoint) == 1)
+    if (FldFrame_RaycastSelectedWorld(line, &hitPoint) == 1)
     {
         return 0;
     }
@@ -135,7 +135,7 @@ u32 func_0014c240(const RwMatrix* viewerMat,
     hitPoint = line[0];
     line[0] = line[1];
     line[1] = hitPoint;
-    rayResult = func_0016b540(line, &hitPoint);
+    rayResult = FldFrame_RaycastSelectedWorld(line, &hitPoint);
     result = 1;
     if (rayResult == 1)
     {

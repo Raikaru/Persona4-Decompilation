@@ -11,6 +11,6 @@ typedef struct RwV3d
 } RwV3d;
 
 /* line contains two points; a miss leaves the three-component hit point unchanged. */
-extern u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst);
+extern u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst);
 
 #endif

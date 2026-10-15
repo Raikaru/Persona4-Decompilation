@@ -151,7 +151,7 @@ typedef struct F8060Frame
 } F8060Frame;
 
 extern s32 func_0014a200(void);
-extern s32 func_0016a960(RwV3d *arg0, RwV3d *arg1, f32 fparg0,
+extern s32 FldFrame_RaycastFieldWorlds(RwV3d *arg0, RwV3d *arg1, f32 fparg0,
                          u16 arg2);
 extern void func_001823d0(s32 arg0, u16 arg1, u16 arg2);
 
@@ -1141,7 +1141,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
     extern s32 func_0014a160(void);
     extern s32* func_00155280(void);
-    extern void *func_0016b850(void *collisionWorld, void *ray);
+    extern void *FldFrame_RaycastWorldLocal(void *collisionWorld, void *ray);
     extern void *RpClumpForAllAtomics(void *collisionWorld, void *(*cb)(void *, void *), void *ray);
     extern void *mdlGetClump(void *model);
     extern f32 fGpffff82b4;
@@ -1209,7 +1209,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
                     if (selectedWorld == NULL) {
                         result = 0;
                     } else {
-                        RpClumpForAllAtomics(selectedWorld, func_0016b850, &modelRay);
+                        RpClumpForAllAtomics(selectedWorld, FldFrame_RaycastWorldLocal, &modelRay);
                         result = modelRay.hit;
                     }
                     if (result == 1) {
@@ -1239,7 +1239,7 @@ s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
             if (selectedWorld == NULL) {
                 result = 0;
             } else {
-                RpClumpForAllAtomics(selectedWorld, func_0016b850, &resourceRay);
+                RpClumpForAllAtomics(selectedWorld, FldFrame_RaycastWorldLocal, &resourceRay);
                 result = resourceRay.hit;
             }
             if (result == 1) {
@@ -1262,7 +1262,7 @@ next_cell:
         if (collisionWorld == NULL) {
             result = 0;
         } else {
-            RpClumpForAllAtomics(collisionWorld, func_0016b850, &worldRay);
+            RpClumpForAllAtomics(collisionWorld, FldFrame_RaycastWorldLocal, &worldRay);
             result = worldRay.hit;
         }
         if (result == 1) {
@@ -1281,7 +1281,7 @@ next_cell:
                 if (modelWorld == NULL) {
                     result = 0;
                 } else {
-                    RpClumpForAllAtomics(modelWorld, func_0016b850, &fallbackRay);
+                    RpClumpForAllAtomics(modelWorld, FldFrame_RaycastWorldLocal, &fallbackRay);
                     result = fallbackRay.hit;
                 }
                 if (result == 1) {
@@ -1334,7 +1334,7 @@ extern void KDraw_SetCylinderFlags(u8 *, u32);
 extern void KDraw_SetCylinderCenter(unsigned char *, unsigned char *);
 extern void KDraw_SetCylinderRadius(unsigned char *, float);
 extern void KDraw_SetCylinderHeight(unsigned char *, float);
-extern s32 func_0016b080(const RwV3d *, f32, RwV3d *, RwV3d *);
+extern s32 FldFrame_CollideSphereSelected(const RwV3d *, f32, RwV3d *, RwV3d *);
 extern void func_0016e8e0(u8 *, f32);
 extern float FldEvent_GetMoveStep(void);
 extern float RwV3dLength(float *);
@@ -2115,7 +2115,7 @@ s32 func_0016bdd0(u8 *param_1)
         piVar1[0xad] = 0;
         piVar1[0xae] = 0;
         func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
-        temp_v8_c = func_0016b080((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
+        temp_v8_c = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
         if (temp_v8_c == 1) {
           *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
           {
@@ -2282,7 +2282,7 @@ s32 func_0016bdd0(u8 *param_1)
               temp_v8_c = piVar1[0xb0];
               *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
               func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
-              temp_v8_c = func_0016b080((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
+              temp_v8_c = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
               if (temp_v8_c == 0) {
                 *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
                 pbVar9_s3 = (unsigned char *)func_00457120();
@@ -2341,7 +2341,7 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v8_c = piVar1[0xb0];
           *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
           func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
-          temp_v8_c = func_0016b080((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
+          temp_v8_c = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
           if (temp_v8_c == 0) {
             pbVar9_c = (unsigned char *)func_00457120();
             func_00457630(pbVar9_c,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
