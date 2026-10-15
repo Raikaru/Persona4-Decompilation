@@ -15,7 +15,7 @@ extern void func_0025f230(u32 param_1);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void func_002a6650(void *, void *);
 extern void func_002a6680(s32);
-extern void func_002aa2b0(void *arg0);
+extern void mcIconWorkFree(void *arg0);
 extern void func_0044ea90(const void *file, u32 line);
 extern void func_0046d730(const void *file, u32 line);
 
@@ -148,7 +148,7 @@ extern s32 D_0063EDD0[];
 extern f32 D_00761300;
 
 // FUN_002A2E50
-void func_002a2e50(u8 *arg0, s32 arg1) {
+void mcSetState(u8 *arg0, s32 arg1) {
     s32 v;
     s32 t19;
     u8 *p18;
@@ -910,7 +910,7 @@ s32 func_002a4570(u8 *work) {
         goto return_zero;
     case 2:
         *(s16 *)(work + 2) = 3;
-        func_002a2e50(work, 0);
+        mcSetState(work, 0);
         /* fallthrough */
     case 3:
         result = 0;
@@ -984,7 +984,7 @@ s32 func_002a4570(u8 *work) {
         goto return_zero;
     case 7:
         *(s16 *)(work + 2) = 8;
-        func_002a2e50(work, 1);
+        mcSetState(work, 1);
         /* fallthrough */
     case 8:
         result = 0;
@@ -1016,7 +1016,7 @@ s32 func_002a4570(u8 *work) {
         goto return_zero;
     case 9:
         *(s16 *)(work + 2) = 0xB;
-        func_002a2e50(work, 2);
+        mcSetState(work, 2);
         /* fallthrough */
     case 0xB:
         result = 0;
@@ -1055,7 +1055,7 @@ s32 func_002a4570(u8 *work) {
         goto return_zero;
     case 0xC:
         *(s16 *)(work + 2) = 0xD;
-        func_002a2e50(work, 3);
+        mcSetState(work, 3);
         /* fallthrough */
     case 0xD:
         result = 0;
@@ -1100,7 +1100,7 @@ return_result:
     return result;
 }
 // FUN_002A4B10
-s32 func_002a4b10(u8 *sdkTaskBytes) {
+s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
     s32 arg0 = (s32)sdkTaskBytes;
     u8 *w = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
 
@@ -1155,7 +1155,7 @@ s32 func_002a4b10(u8 *sdkTaskBytes) {
 
 /* The teardown callback receives the task, not its work allocation. */
 // FUN_002A4CB0
-void func_002a4cb0(u8 *sdkTaskBytes) {
+void mcIconTaskDestroy(u8 *sdkTaskBytes) {
     s32 arg0 = (s32)sdkTaskBytes;
     u8 *work = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     s32 p = *(s32 *)(work + 0x3A4);
@@ -1164,7 +1164,7 @@ void func_002a4cb0(u8 *sdkTaskBytes) {
         *(s32 *)(work + 0x3A4) = 0;
     }
     func_0025f230(*(u32 *)(work + 0x398));
-    func_002aa2b0(work);
+    mcIconWorkFree(work);
 }
 
 /* Exact under MWCC b210/O2: three one-field values preserve the two source
@@ -2835,7 +2835,7 @@ void func_002a9f50(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 a
     func_0025f3f0(184.0f + fparg0, 36.0f + fparg1, fparg2, temp_17_3, (u8)arg0, 0x45, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
 }
 // FUN_002AA2B0
-void func_002aa2b0(void *arg0) {
+void mcIconWorkFree(void *arg0) {
     typedef struct { u8 pad[0x3A4]; s32 handle; } Work;
     Work *work = arg0;
     if (work->handle != 0) {
@@ -2846,7 +2846,7 @@ void func_002aa2b0(void *arg0) {
 }
 // FUN_002AA300
 /* The caller retains the task handle returned by registration. */
-s32 func_002aa300(u8 *parent, s32 arg1) {
+s32 mcIconTaskCreate(u8 *parent, s32 arg1) {
     u8 *work;
 
     D_00764634 = 0;
@@ -2862,5 +2862,5 @@ s32 func_002aa300(u8 *parent, s32 arg1) {
     if (arg1 == 1) {
         *(u32 *)(work + 4) |= 2;
     }
-    return (s32)kwlnTaskCreateChild(parent, (const void *)(&D_00763918), 0xF, 0, 0, func_002a4b10, func_002a4cb0, work);
+    return (s32)kwlnTaskCreateChild(parent, (const void *)(&D_00763918), 0xF, 0, 0, mcIconTaskUpdate, mcIconTaskDestroy, work);
 }

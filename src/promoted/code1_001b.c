@@ -35,7 +35,7 @@ extern s32 datCalcGetLevel(s32 arg0);
 extern s32 func_00193260(u8 *arg0);
 extern void memset(void *dst, s32 value, s32 size);
 extern void func_001fc1b0(s16 arg0);
-extern s32 func_002aa300(u8 *parent, s32 mode);
+extern s32 mcIconTaskCreate(u8 *parent, s32 mode);
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern s32 func_003bbb60(u8 *arg0);
 extern s32 iGpffffb3ac;

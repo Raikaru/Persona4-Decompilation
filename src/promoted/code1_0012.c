@@ -97,7 +97,7 @@ extern void func_00111bc0(void);
 extern s32 func_0025e800(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0025e8b0(s32 arg0);
 extern s32 func_0025e8f0(s32 arg0);
-extern s32 func_002aa300(u8 *arg0, s32 arg1);
+extern s32 mcIconTaskCreate(u8 *arg0, s32 arg1);
 extern s32 func_002aa3f0(void);
 extern s32 func_0012dea0(u8 *arg0, s32 arg1);
 extern void func_0046d280(void *node);
@@ -1434,7 +1434,7 @@ s32 clndPromptUpdate(u8 *arg0)
         goto block_20;
     case 4:
         if (func_0025e8f0(*(s32 *)(temp_16 + 4)) == 1) {
-            *(s32 *)(temp_16 + 8) = func_002aa300(arg0, 1);
+            *(s32 *)(temp_16 + 8) = mcIconTaskCreate(arg0, 1);
             *(u32 *)temp_16 = 5;
         }
         goto block_20;
@@ -4111,7 +4111,7 @@ s32 func_0012aa70(u8 *task)
         *(s32 *)(work + 0x8C) = func_001110e0();
         func_001113b0();
         *(s32 *)work = 0xB;
-        *(s32 *)(work + 0x34) = func_002aa300(task, 0);
+        *(s32 *)(work + 0x34) = mcIconTaskCreate(task, 0);
     case 11:
         result = func_002aa3f0();
         switch (result) {
