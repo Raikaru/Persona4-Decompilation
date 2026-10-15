@@ -2432,8 +2432,9 @@ s32 func_0028a8e0(s32 param_1) {
     }
 }
 
+// Event node dispatch: runs handler D_00882204[type] on 'arg2' and, if it accepts, each node in its chain.
 // FUN_0028A970
-s32 func_0028a970(s32 arg0, s32 arg1, u8 *arg2) {
+s32 evtDispatchNode(s32 arg0, s32 arg1, u8 *arg2) {
     u32 n;
     s32 t;
     u8 *node;
@@ -2492,7 +2493,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
         memset(D_008821E0, 0, 0x28);
         *(u32 *)D_00882204 = (u32)D_0063C420;
         D_008821E0[0] = 1;
-        func_0028a970(arg0, (s32)arg1, var_18);
+        evtDispatchNode(arg0, (s32)arg1, var_18);
         var_18 = *(u8 **)(var_18 + 0x90);
     }
     var_18_2 = *(u8 **)(arg1 + 0x4C);
@@ -2500,7 +2501,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
         memset(D_008821E0, 0, 0x28);
         *(u32 *)D_00882204 = (u32)D_0063C420;
         D_008821E0[0] = 2;
-        func_0028a970(arg0, (s32)arg1, var_18_2);
+        evtDispatchNode(arg0, (s32)arg1, var_18_2);
         var_18_2 = *(u8 **)(var_18_2 + 0x90);
     }
     var_20 = *(u8 **)(arg1 + 0x4C);
