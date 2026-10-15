@@ -1213,9 +1213,9 @@ void btlActionEndUpdate(u8 *action)
     s32 func_0019ff60(u8 *action);
     s32 btlCheckBattleEnd(void);
     s32 func_001b0e30(s32 action);
-    s32 func_001b0dd0(u8 *action);
-    void func_001b13c0(u8 *action);
-    void func_001b1450(u8 *action);
+    s32 btlOrderRemoveActionAll(u8 *action);
+    void btlOrderQueueAction(u8 *action);
+    void btlOrderSetCurrentAction(u8 *action);
     void func_001f5a00(s32 advance);
     void datCalcAdvanceSecondaryBuffs(u8 *unit);
     void func_001f2cc0(u8 *action);
@@ -1263,7 +1263,7 @@ void btlActionEndUpdate(u8 *action)
                     if (dead != 0) {
                         *(action + 0x28) = 0;
                         *(action + 0x29) = 0;
-                        func_001b0dd0(action);
+                        btlOrderRemoveActionAll(action);
                     }
                     {
                         u16 unitFlags = *(u16 *)(action + 0x1A);
@@ -1289,9 +1289,9 @@ void btlActionEndUpdate(u8 *action)
                     }
                     datCalcAdvanceSecondaryBuffs(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
                     func_001f5a00(1);
-                    func_001b13c0(action);
+                    btlOrderQueueAction(action);
                 } else {
-                    func_001b1450(action);
+                    btlOrderSetCurrentAction(action);
                     func_001f5a00(0);
                 }
             } else {
@@ -1317,7 +1317,7 @@ void btlActionEndUpdate(u8 *action)
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
                     btlPacketEnqueue(packet, 1);
                 }
-                func_001b13c0(action);
+                btlOrderQueueAction(action);
             }
         } else {
             *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x80;
@@ -1335,7 +1335,7 @@ void btlActionEndUpdate(u8 *action)
                 btlActionSetState((BtlAction *)action, 0x22);
                 return;
             }
-            func_001b0dd0(action);
+            btlOrderRemoveActionAll(action);
             if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 1) {
                 datCalcSetBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x80000);
                 datCalcSetHp(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0);
@@ -1347,7 +1347,7 @@ void btlActionEndUpdate(u8 *action)
             return;
         }
         if ((*(u16 *)(action + 0x18) & 0x20) != 0) {
-            func_001b0dd0(action);
+            btlOrderRemoveActionAll(action);
             if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 1) {
                 datCalcSetBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x80000);
                 datCalcSetHp(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0);

@@ -42,7 +42,7 @@ extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern void *SceneDraw_GetList4FirstColor(void);
 extern s32 func_001b0d70(u8 *arg0);
-extern s32 func_001b0dd0(u8 *arg0);
+extern s32 btlOrderRemoveActionAll(u8 *arg0);
 extern void *SceneDraw_GetList4SecondColor(void);
 extern void func_001b6990();
 extern void func_00193d30(void);

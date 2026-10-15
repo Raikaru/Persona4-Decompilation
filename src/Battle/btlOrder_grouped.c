@@ -50,7 +50,7 @@ static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* act
 /* Same-TU helper knowledge preserves a2/a3/t0 across removal calls.
    Measured: object 84B/window 96B, no instruction differences; 12B zero tail. */
 // FUN_001B0DD0
-s32 func_001b0dd0(u8 *arg0)
+s32 btlOrderRemoveActionAll(u8 *arg0)
 {
     BtlAction **actions;
     s32 result;
@@ -77,7 +77,7 @@ s32 func_001b0dd0(u8 *arg0)
    Measured: 13c0 132B/144B, 1450 188B/192B; only retail zero tails remain. */
 #pragma auto_inline on
 // FUN_001B13C0
-void func_001b13c0(u8 *arg0)
+void btlOrderQueueAction(u8 *arg0)
 {
     u8 *ptr;
     u8 *global;
@@ -98,11 +98,11 @@ done:
     *(u16 *)(global + 0x290) |= 8;
 }
 // FUN_001B1450
-void func_001b1450(u8 *arg0)
+void btlOrderSetCurrentAction(u8 *arg0)
 {
     u8 *global;
     if ((*(u16 *)(arg0 + 0x18) & 4) != 0) {
-        func_001b13c0(arg0);
+        btlOrderQueueAction(arg0);
     } else {
         global = (u8 *)iGpffffb3ac;
         if ((*(s32 *)(global + 0xC) & 8) != 0) {

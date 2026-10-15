@@ -25,7 +25,7 @@ extern void (*D_00887300[])();
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern s32 func_001b0d70(u8 *arg0);
-extern s32 func_001b0dd0(u8 *arg0);
+extern s32 btlOrderRemoveActionAll(u8 *arg0);
 extern u32 datCalcIsDead(s32 arg0, s32 arg1);
 extern void (*jtbl_008873EC[])(void *);
 extern f32 D_00922CA0[];
@@ -197,7 +197,7 @@ void btlActionDeadInit(u8 *arg0)
     s32 flags2;
 
     p = *(u8 **)(arg0 + 0x30);
-    func_001b0dd0(arg0);
+    btlOrderRemoveActionAll(arg0);
     status = *(u8 *)(p + 0xA2);
     switch (status) {
     case 0:
