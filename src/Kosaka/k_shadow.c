@@ -31,10 +31,10 @@ extern f32 sinf(f32 arg0);
 extern f32 cosf(f32 arg0);
 extern f32 iGpffff8304;
 extern FieldRenderStateSetFunction D_00887300[];
-void func_0017a700(u8 *arg0, u8 *arg1);
-void func_0017a8d0(u8 *arg0, u8 *arg1);
-void func_0017aae0(u8 *arg0, u8 *arg1);
-void func_0017abd0(u8 *arg0, u8 *arg1);
+void FldShadow_CmdProjectBounds(u8 *arg0, u8 *arg1);
+void FldShadow_CmdBeginFlip(u8 *arg0, u8 *arg1);
+void FldShadow_CmdEndFlip(u8 *arg0, u8 *arg1);
+void FldShadow_CmdRender(u8 *arg0, u8 *arg1);
 extern void *SceneDraw_GetList4Matrix(void);
 extern f32 iGpffff8214;
 extern f32 iGpffff826c;
@@ -206,7 +206,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
         case 1:
             {
                 u8 *command = func_00460990();
-                *(void (**)(u8 *, u8 *))(command + 8) = func_0017a700;
+                *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdProjectBounds;
                 *(u8 **)(command + 0x10) = ctx;
                 func_00460ac0(D_00794330, command);
             }
@@ -216,12 +216,12 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
         case 4:
             {
                 u8 *command = func_00460990();
-                *(void (**)(u8 *, u8 *))(command + 8) = func_0017a8d0;
+                *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdBeginFlip;
                 *(u8 **)(command + 0x10) = ctx;
                 func_00460ac0(D_00794330, command);
                 mdlQueueModelForDraw(D_00794330, *(u8 **)(ctx + 0x10));
                 command = func_00460990();
-                *(void (**)(u8 *, u8 *))(command + 8) = func_0017aae0;
+                *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdEndFlip;
                 *(u8 **)(command + 0x10) = ctx;
                 func_00460ac0(D_00794330, command);
             }
@@ -233,7 +233,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
                 position = *(RwV3d *)((u8 *)mdlGetMatrix(*(u8 **)(ctx + 0x10)) + 0x30);
                 func_003e9c10(*(u8 **)(*(u8 **)(*(u8 **)(ctx + 0x50) + 4) + 4), &position.x, 0);
                 command = func_00460990();
-                *(void (**)(u8 *, u8 *))(command + 8) = func_0017abd0;
+                *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdRender;
                 *(u8 **)(command + 0x10) = ctx;
                 func_00460ac0(D_00794330, command);
             }

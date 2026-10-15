@@ -403,7 +403,7 @@ join_path:;
 /* measured: opt_propagation off preserves the second-branch descriptor
    pointer materialisation and grouped float-load order; object matches
    the 464-byte retail window. */
-void func_0017a700(u8 *arg0, u8 *arg1)
+void FldShadow_CmdProjectBounds(u8 *arg0, u8 *arg1)
 {
     struct
     {
@@ -470,7 +470,7 @@ void func_0017a700(u8 *arg0, u8 *arg1)
 }
 
 // FUN_0017A8D0
-void func_0017a8d0(u8 *arg0, u8 *arg1)
+void FldShadow_CmdBeginFlip(u8 *arg0, u8 *arg1)
 {
     u8 stack[0x6C];
     f32 temp_f2;
@@ -572,7 +572,7 @@ loop_11_cond:
 }
 
 // FUN_0017AAE0
-void func_0017aae0(u8 *arg0, u8 *arg1)
+void FldShadow_CmdEndFlip(u8 *arg0, u8 *arg1)
 {
     u8 *var_5;
     s32 temp_3;
@@ -616,7 +616,7 @@ loop_4_cond:
 
 // FUN_0017ABD0
 /* measured: opt_propagation off keeps the cached D_00887300 base in $s0. */
-void func_0017abd0(u8 *arg0, u8 *arg1)
+void FldShadow_CmdRender(u8 *arg0, u8 *arg1)
 {
     FieldRenderStateSetFunction *base;
     u8 *temp_4;

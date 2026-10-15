@@ -229,7 +229,7 @@ extern u8 *func_004571c0(void);
    preserved body. */
 
 
-extern void func_0017abd0(u8 *arg0, u8 *arg1);
+extern void FldShadow_CmdRender(u8 *arg0, u8 *arg1);
 // FUN_00170960
 s32 func_00170960(u8 *arg0)
 {
@@ -724,7 +724,7 @@ struct _RxObjSpace3DVertex;
 #pragma opt_propagation off
 #pragma opt_propagation on
 #pragma opt_propagation off
-/* measured: closing opt_propagation bracket for func_0017abd0. */
+/* measured: closing opt_propagation bracket for FldShadow_CmdRender. */
 #pragma opt_propagation on
 typedef struct RwSphere { RwV3d center; f32 radius; } RwSphere;
 struct RpGeometry;
