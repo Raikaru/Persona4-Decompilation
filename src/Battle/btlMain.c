@@ -1994,7 +1994,7 @@ void func_001bb9b0(u8* param_2, f32* param_3, f32 param_1)
     param_3[3] = result.current3 * inverse + result.next3 * blend;
 }
 // FUN_001BBC40
-u32 func_001bbc40(u8* param_1, f32* param_2, f32* param_3)
+u32 btlCameraSampleKeyframes(u8* param_1, f32* param_2, f32* param_3)
 {
     void* curve;
     u16 frame;
@@ -2041,7 +2041,7 @@ has_frame:
 
 
 // FUN_001BBD80
-u32 func_001bbd80(u8* param_2, f32 param_1)
+u32 btlCameraAdvanceKeyframes(u8* param_2, f32 param_1)
 {
     u16 frame;
     u16 counter;
@@ -2091,7 +2091,7 @@ u32 func_001bbd80(u8* param_2, f32 param_1)
 
 
 // FUN_001BBEF0
-void func_001bbef0(u8* work, f32 value)
+void btlCameraSetDuration(u8* work, f32 value)
 {
     *(f32*)(work + 0x84) = (value * 2.0f * 60.0f) / 2.0f;
     *(u32*)(work + 0x94) = 0x3f000000;
