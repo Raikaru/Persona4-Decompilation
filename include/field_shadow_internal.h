@@ -5,13 +5,13 @@
 
 /* These callbacks receive caller-owned shadow accumulation and projection
  * records through the same generic data pointer as the clump iterators. */
-void *func_00179130(void *atomic, void *data);
+void *FldShadow_AccumulateAtomicBounds(void *atomic, void *data);
 void *func_00179f70(void *atomic, void *data);
 
-struct RpCollisionTriangle *func_001791d0(
+struct RpCollisionTriangle *FldShadow_ProjectTriangle(
     struct RpIntersection *intersection, struct RpWorldSector *sector,
     struct RpCollisionTriangle *triangle, f32 distance, void *data);
-struct RpCollisionTriangle *func_00179860(
+struct RpCollisionTriangle *FldShadow_ProjectSkinnedTriangle(
     struct RpIntersection *intersection, struct RpCollisionTriangle *triangle,
     f32 distance, void *data);
 

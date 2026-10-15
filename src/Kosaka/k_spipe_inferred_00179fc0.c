@@ -254,7 +254,7 @@ s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3, f32 farg0
             else
                 v = *(void **)(p + 8);
         }
-        func_00394d70(v, arg3, func_001791d0, arg5);
+        func_00394d70(v, arg3, FldShadow_ProjectTriangle, arg5);
     } else if (arg2 == 1) {
         count = 0;
         ctx.geometry = arg3;

@@ -106,7 +106,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
                 FldShadowBoundsAccum bounds;
 
                 memset(&bounds, 0, sizeof(bounds));
-                RpClumpForAllAtomics(mdlGetClump(*(u8 **)(ctx + 0x10)), func_00179130, &bounds);
+                RpClumpForAllAtomics(mdlGetClump(*(u8 **)(ctx + 0x10)), FldShadow_AccumulateAtomicBounds, &bounds);
                 *(void **)(ctx + 0x14) = bounds.largestAtomic;
                 *(f32 *)(ctx + 0x18) = 90.0f;
                 *(RwV3d *)(ctx + 0x2C) = bounds.center;
