@@ -8750,7 +8750,7 @@ void fclCombineMenuOptionPick(u8 *arg0) {
 }
 
 /* One four-byte ingredient slot of the D_0063FCA0 recipe rows and the
-   D_006406F0 calendar rows read by fclCombineMenuSkillPick. */
+   D_006406F0 calendar rows read by fclCombineMenuResultGrowth. */
 typedef struct {
     s8 kind;
     s8 weight;
@@ -8773,7 +8773,7 @@ static inline s32 fclCombineHasSlotKind(u8 *arg0, s8 kind)
 }
 
 /* The item table lookup of fclCombineStageValue, which retail inlines into
-   fclCombineMenuSkillPick with the kind read before the roll is made. */
+   fclCombineMenuResultGrowth with the kind read before the roll is made. */
 static inline s16 fclCombinePickItem(s8 kind, s8 roll)
 {
     switch (kind) {
@@ -8806,14 +8806,15 @@ static inline u16 fclItemHalf(const s32 *value)
     return *value;
 }
 #pragma pop
-// Fcl combine menu skill pick (state 0x0C): lists the persona's skill slots and applies the pick.
+// Fcl combine menu result growth (state 0x0C): handed off from the fusion result (state 0x0D, via 0xA0). Experience and level-up (0xA0-0xA4), stat boosts on the highest then lowest stat (0xA8-0xAB),
+// skill roll, learn, or replace (0xAC-0xBB), then finish (0xBF-0xC1 -> 0xD2).
 // FUN_0030C3C0
 #pragma push
 /* measured: hoists each slot scan's count and kind out of its loop. */
 #pragma opt_loop_invariants on
 /* measured: keeps the 0xAC slot pointer as its own index-first address. */
 #pragma opt_propagation off
-void fclCombineMenuSkillPick(u8 *arg0) {
+void fclCombineMenuResultGrowth(u8 *arg0) {
     extern s32 datGetFlag(s32);
     extern u32 func_0011f560(u8 *);
     extern void fclDrawSetHandleValue(u8 *, u32);

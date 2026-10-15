@@ -620,7 +620,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     void fclCombineMenuResult(u8 *arg0);
     void fclCombineMenuMaterialGrid(u8 *arg0);
     void fclCombineMenuOptionPick(u8 *arg0);
-    void fclCombineMenuSkillPick(u8 *arg0);
+    void fclCombineMenuResultGrowth(u8 *arg0);
     void fclCombineMenuFinish(u8 *arg0);
     extern u8 D_00794E70[];
     u8 *work;
@@ -736,7 +736,7 @@ case_10:
     fclCombineMenuPriceInfo(arg0);
     goto done;
 case_0c:
-    fclCombineMenuSkillPick(arg0);
+    fclCombineMenuResultGrowth(arg0);
     goto done;
 case_09:
     fclCombineMenuMaterialGrid(arg0);
