@@ -3387,8 +3387,9 @@ u32 func_0023d9b0(u8 *arg0, s32 arg1)
     return result;
 }
 #pragma pop
+// Intent: threshold kind byte of skill arg1 from the skill table (1 = HP, 2 = SP); [inferred].
 // FUN_0023DD90
-u16 func_0023dd90(u8 *arg0, s32 arg1)
+u16 datCalcThresholdKind(u8 *arg0, s32 arg1)
 {
     u8 *base = iGpffffb3b8 + 3;
     return *(u8 *)(base + (arg1 & 0xFFFF) * 0x28);
@@ -3397,8 +3398,9 @@ u16 func_0023dd90(u8 *arg0, s32 arg1)
 
 
 
+// Intent: threshold trigger for skill arg1 on unit arg0: 0 for none, 4 when unit flag 8 is set, 1 when the HP threshold is crossed, 2 for the SP threshold; [inferred].
 // FUN_0023DDC0
-s32 func_0023ddc0(u8 *arg0, s32 arg1)
+s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1)
 {
     s32 var_17;
     s32 idx;

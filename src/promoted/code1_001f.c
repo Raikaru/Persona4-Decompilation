@@ -1017,7 +1017,7 @@ void func_001f14f0(u8 *arg0)
     *(u16 *)(arg0 + 0xEC) = 0;
     *(s16 *)(arg0 + 0xEE) = -1;
     if (!(flags & 1) && func_0023df70(id) == 0) {
-        switch (func_0023ddc0(ctx, id)) {
+        switch (datCalcThresholdTrigger(ctx, id)) {
         case 1:
             *(s32 *)(arg0 + 0xE8) = 1;
             *(u16 *)(arg0 + 0xEC) = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0 ? 0x36 : 0x37;

@@ -69,7 +69,7 @@ extern u8 D_007981CC[];
 extern u8 D_0079BE2C[];
 
 extern s32 datCalcIsSkillAvailable(s32 arg0);
-extern s32 func_0023ddc0(u8* arg0, s32 arg1);
+extern s32 datCalcThresholdTrigger(u8* arg0, s32 arg1);
 
 extern void datPersonaSetRosterMode(s32 arg0);
 
@@ -161,7 +161,7 @@ extern u8 D_00797F8E[];
 
 extern u8* DAT_007644D0;
 
-extern u16 func_0023dd90(u8* arg0, s32 arg1);
+extern u16 datCalcThresholdKind(u8* arg0, s32 arg1);
 
 extern void RwV3dNormalize(f32* a, f32* b);
 
@@ -2418,7 +2418,7 @@ u16 func_0010f560(s16 arg0, s32 arg1)
         K_ASSERT(arg0 < 0xB, 0x234);
         p = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
     }
-    return func_0023dd90(p, arg1);
+    return datCalcThresholdKind(p, arg1);
 }
 
 // FUN_0010F600
@@ -2455,7 +2455,7 @@ s32 func_0010f6a0(s16 arg0, u32 arg1)
     }
     v = *(u16*)(ptr + 2);
     K_ASSERT(v != 0 && v < 0xB, 0xE54);
-    return func_0023ddc0(ptr, arg1);
+    return datCalcThresholdTrigger(ptr, arg1);
 }
 
 // FUN_0010F770

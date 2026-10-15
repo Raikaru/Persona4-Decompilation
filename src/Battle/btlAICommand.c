@@ -84,7 +84,7 @@ extern char D_006095E0[];
 extern void func_0046d730(void *file, s32 line);
 extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
 extern s32 datCalcHasSkill(u8 *unit, s32 command);
-extern s32 func_0023ddc0(u8 *unit, s32 command);
+extern s32 datCalcThresholdTrigger(u8 *unit, s32 command);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
 extern void func_001ebc00(u8 *a, u8 *b);
@@ -127,7 +127,7 @@ static inline s32 btlCommandUsable(u8 *p, u32 arg1) {
             return 0;
         if (datCalcHasSkill(*(u8 **)(p + 0xA64), a) == 0)
             return 0;
-        if (func_0023ddc0(*(u8 **)(p + 0xA64), a) == 0)
+        if (datCalcThresholdTrigger(*(u8 **)(p + 0xA64), a) == 0)
             goto ret1;
         return 0;
     }
@@ -1434,7 +1434,7 @@ s32 btlAICommandCollectSkillCandidates(u8 *p, u8 *q, s32 arg2, s32 arg3)
                     ok = 0;
                     goto have_ok;
                 }
-                if (func_0023ddc0(*(u8 **)(unitP + 0xA64), cmd) != 0) {
+                if (datCalcThresholdTrigger(*(u8 **)(unitP + 0xA64), cmd) != 0) {
                     ok = 0;
                     goto have_ok;
                 }
@@ -5320,7 +5320,7 @@ s32 btlAICommandIdScriptQueryCanUseCommand(void) {
             x = 0;
         else if (datCalcHasSkill(*(u8 **)(q + 0xA64), idx) == 0)
             x = 0;
-        else if (func_0023ddc0(*(u8 **)(q + 0xA64), idx) != 0)
+        else if (datCalcThresholdTrigger(*(u8 **)(q + 0xA64), idx) != 0)
             x = 0;
         else
             goto one;
