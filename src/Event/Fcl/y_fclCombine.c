@@ -4741,7 +4741,8 @@ typedef struct {
     u8 pad2C0[0x60];
 } FclCombineSel;
 
-// Fcl combine menu price info (states 0x0F/0x10): shows the buffed stats and the discount.
+// Fcl combine menu price/purchase screen (entered from state 0x10). With f0 == 0xF it lists candidate personas with a buffed-stat price after discount and buys the selected one: inserts it into the roster and deducts the price.
+// With f0 == 0x10 it runs the same list with a non-purchase apply action and no price or money change.
 // FUN_002FBEA0
 void fclCombineMenuPriceInfo(u8 *arg0) {
 
