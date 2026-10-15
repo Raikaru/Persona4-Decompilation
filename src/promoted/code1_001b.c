@@ -433,18 +433,18 @@ void func_001b1880(void)
     memset(D_0076449C + 0x2CC, 0, 0x30);
 }
 // FUN_001B18C0
-void func_001b18c0(void)
+void btlMainNonInit(void)
 {
 }
 
 // FUN_001B18D0
-s32 func_001b18d0(void)
+s32 btlMainNonUpdate(void)
 {
     return 0;
 }
 
 // FUN_001B18E0
-void func_001b18e0(void) {
+void btlMainInitInit(void) {
     func_001f7620(2, 0);
     func_001f7620(3, 0);
     func_001f7570(0);
@@ -452,7 +452,7 @@ void func_001b18e0(void) {
 }
 
 // FUN_001B1940
-s32 func_001b1940(void) {
+s32 btlMainInitUpdate(void) {
     u8 *b = D_0076449C;
     s32 off = *(u16 *)(b + 0xC6C) << 2;
 
@@ -466,7 +466,7 @@ s32 func_001b1940(void) {
 }
 
 // FUN_001B19A0
-void func_001b19a0(void)
+void btlMainSceneSetInit(void)
 {
     func_001b6990();
 }
@@ -474,7 +474,7 @@ void func_001b19a0(void)
 /* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
 #pragma opt_rebuildconditionals off
 // FUN_001B19C0
-s32 func_001b19c0(void)
+s32 btlMainSceneSetUpdate(void)
 {
     extern s32 func_001b6a00(void);
     extern u32 btlCountUnitRecords(void);
@@ -540,11 +540,11 @@ done:
 /* measured: close opt_rebuildconditionals off for func_001b19c0. */
 #pragma opt_rebuildconditionals on
 // FUN_001B1B20
-void func_001b1b20(void)
+void btlMainContinuousInit(void)
 {
 }
 // FUN_001B1B30
-s32 func_001b1b30(void)
+s32 btlMainContinuousUpdate(void)
 {
     extern u8 *func_001f5f70(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern void func_00212240(u8 *arg0, s32 arg1);
@@ -622,7 +622,7 @@ done:
  * See docs/probe_archive/BattleSetup_001b1d70_20260926_body.c and the
  * corrected model-ID contract survey, Prototype_mismatch_00477c40_00478140_20260926.md. */
 // FUN_001B1D70
-void func_001b1d70(void) {
+void btlMainUnitCreateInit(void) {
     extern s32 iGpffffb414;
     extern u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2);
     extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
@@ -790,7 +790,7 @@ void func_001b1d70(void) {
 #pragma push
 #pragma opt_lifetimes on
 // FUN_001B2380
-s32 func_001b2380(void)
+s32 btlMainUnitCreateUpdate(void)
 {
     extern void func_001f73d0(void);
     extern void func_0021d440(s32 task);
@@ -1188,7 +1188,7 @@ unit_done:
 #pragma push
 #pragma opt_rebuildconditionals off
 // FUN_001B33C0
-void func_001b33c0(void)
+void btlMainUnitLoadInit(void)
 {
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
@@ -1289,7 +1289,7 @@ void func_001b33c0(void)
 }
 #pragma pop
 // FUN_001B36B0
-s32 func_001b36b0(void)
+s32 btlMainUnitLoadUpdate(void)
 {
     s32 temp3;
     u8 *temp4;
@@ -1321,7 +1321,7 @@ check:
     return 0;
 }
 // FUN_001B3790
-void func_001b3790(void)
+void btlMainStartInit(void)
 {
     s32 temp2;
     u8 *var16;
@@ -1362,7 +1362,7 @@ done:
    retail s16/u16/s16 widths reorders the loop call's argument loads; object
    372 bytes in the 384-byte window, normalized_diff 0. */
 // FUN_001B3870
-s32 func_001b3870(void)
+s32 btlMainStartUpdate(void)
 {
     u8 *temp_3;
     u8 *temp_3_2;
@@ -1404,7 +1404,7 @@ done:
     return 0;
 }
 // FUN_001B39F0
-void func_001b39f0(void)
+void btlMainActionInit(void)
 {
 }
 
@@ -1418,7 +1418,7 @@ void func_001b39f0(void)
    0xCE4 is passed straight to the s16 parameter; the declaration order
    pick/unit/alive/total/hurt gives retail's saved-register colouring. */
 // FUN_001B3A00
-s32 func_001b3a00(void)
+s32 btlMainActionUpdate(void)
 {
     extern s32 iGpffffb414;
     extern s32 iGpffffb410;
@@ -1534,7 +1534,7 @@ s32 func_001b3a00(void)
     return 0;
 }
 // FUN_001B3F00
-void func_001b3f00(void) {
+void btlMainRevivalMesInit(void) {
     s64 *p = *(s64 **)(D_0076449C + 0x170);
     u8 *t;
 
@@ -1551,7 +1551,7 @@ void func_001b3f00(void) {
 
 
 // FUN_001B3FB0
-s32 func_001b3fb0(void)
+s32 btlMainRevivalMesUpdate(void)
 {
     func_002bbcc0();
     if (func_002bb600() == 0) {
@@ -1573,7 +1573,7 @@ s32 func_001b3fb0(void)
    packet), not to its own. Short-lived packets use `next` so they never
    take a saved register; locals are declared in retail's $s7..$s0 order. */
 // FUN_001B4060
-void func_001b4060(void)
+void btlMainRevivalInit(void)
 {
     union {
         u8 bytes[0x20];
@@ -1706,7 +1706,7 @@ void func_001b4060(void)
     func_001d3e00(form);
 }
 // FUN_001B4630
-s32 func_001b4630(void)
+s32 btlMainRevivalUpdate(void)
 {
     s64 *temp_16;
     u8 *temp_3;
@@ -1735,13 +1735,13 @@ s32 func_001b4630(void)
     return 0;
 }
 // FUN_001B4760
-void func_001b4760(void)
+void btlMainEnemyDeadInit(void)
 {
     func_001fadc0((u8 *)*(s32 *)(D_0076449C + 0x170));
     *(s32 *)(D_0076449C + 0xC) |= 0x80000;
 }
 // FUN_001B47A0
-s32 func_001b47a0(void)
+s32 btlMainEnemyDeadUpdate(void)
 {
     s32 var2;
     u8 *temp4;
@@ -1823,7 +1823,7 @@ static inline s32 btlCameraBlendAmbient(f32 ambientRed, f32 ambientGreen,
  * The return delay instruction is included; there is no alignment tail.
  * See docs/Battle_camera_sequence_20261005.md for the finite source/native scope. */
 // FUN_001B4880
-void func_001b4880(u8 *arg0) {
+void btlMainWinInit(u8 *arg0) {
     extern void func_001eb7f0(void);
     extern void func_00212240(u8 *arg0, s32 arg1);
     extern void func_001eb3b0(u8 *arg0);
@@ -2043,7 +2043,7 @@ void func_001b4880(u8 *arg0) {
     }
 }
 // FUN_001B5300
-s32 func_001b5300(u8 *arg0)
+s32 btlMainWinUpdate(u8 *arg0)
 {
     u8 *p;
     u16 limit;
@@ -2103,7 +2103,7 @@ return_zero:
     return 0;
 }
 // FUN_001B54E0
-void func_001b54e0(void)
+void btlMainLoseInit(void)
 {
     u8 *p;
     u8 *work;
@@ -2132,7 +2132,7 @@ void func_001b54e0(void)
     }
 }
 // FUN_001B5620
-s32 func_001b5620(u8 *arg0)
+s32 btlMainLoseUpdate(u8 *arg0)
 {
     if ((*(s32 *)(arg0 + 8) == 0x6E) &&
         (datCalcIsDead(*(s32 *)(*(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30) + 0xA64), 0) != 0) &&
@@ -2150,7 +2150,7 @@ s32 func_001b5620(u8 *arg0)
     return 0xE;
 }
 // FUN_001B5710
-void func_001b5710(u8 *arg0)
+void btlMainFadeOutInit(u8 *arg0)
 {
 s32 temp4;
 
@@ -2184,7 +2184,7 @@ done:
     return;
 }
 // FUN_001B57F0
-s32 func_001b57f0(u8 *arg0)
+s32 btlMainFadeOutUpdate(u8 *arg0)
 {
     if (*(u16 *)(iGpffffb3ac + 0x1C) == 2) {
         goto state_two;
@@ -2248,7 +2248,7 @@ return_zero:
  * Preserve full-restoration precedence and signed percentage arithmetic.
  * Reload the battle context, unit list and final task after cleanup callbacks. */
 // FUN_001B5970
-void func_001b5970(void)
+void btlMainEndInit(void)
 {
     s32 temp_16;
     s32 temp_17;
@@ -2321,7 +2321,7 @@ loop_30_check:
     }
 }
 // FUN_001B5D30
-s32 func_001b5d30(void) {
+s32 btlMainEndUpdate(void) {
     u8 *p;
 
     if (*(s32 *)(D_0076449C + 0x174) != 0) {
@@ -2337,11 +2337,11 @@ s32 func_001b5d30(void) {
 }
 
 // FUN_001B5DA0
-void func_001b5da0(void) {
+void btlMainResultInit(void) {
 }
 
 // FUN_001B5DB0
-s32 func_001b5db0(void)
+s32 btlMainResultUpdate(void)
 {
     u8 *temp_3;
 
@@ -2358,7 +2358,7 @@ s32 func_001b5db0(void)
     return 0x11;
 }
 // FUN_001B5E40
-void func_001b5e40(void)
+void btlMainExitInit(void)
 {
     func_00193d30();
 }
