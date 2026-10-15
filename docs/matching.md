@@ -4254,7 +4254,7 @@ functions remain 1,555: this model unit still contains assembly fallbacks.
 ### Frame lookup and matrix copy: preserve real helper return paths
 
 The attachment repair's pointer-valued traversal API also closes
-`func_00475b90`: **312B of exact instructions plus eight zero-tail bytes**.
+`mdlComputeAttachMatrix` (was `func_00475b90`): **312B of exact instructions plus eight zero-tail bytes**.
 Its complete IDA body is at
 `docs/ida_headstart/src/Graphics/Model/mdlManager.c:1778-1809`.
 The cohesive private `mdl_find_frame` helper returns the root immediately
