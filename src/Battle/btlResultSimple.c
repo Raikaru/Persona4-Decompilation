@@ -6,7 +6,7 @@
 
 void func_0021dda0(void);
 extern u16 *kwlnTaskGetWork();
-void func_001437b0(void *arg0, s32 arg1, s32 arg2);
+void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 s32 btlMainGetPhase(void);
 void func_0025cbc0(void *arg0, s32 arg1, s32 arg2);
 s32 func_0025cc70(void);
@@ -358,10 +358,10 @@ s32 func_0021f520(u8 *arg0) {
         for (i = 0; i < 0x14; i++) {
             switch (*(s32 *)((u8 *)D_00629380 + i * 0x18 + 0x14)) {
             case 0:
-                func_001437b0(work + i * 0x30 + 0x40, *(u16 *)(work + 0x3C), 0);
+                radarAnimateValue(work + i * 0x30 + 0x40, *(u16 *)(work + 0x3C), 0);
                 break;
             case 1:
-                func_001437b0(work + i * 0x30 + 0x40, *(u16 *)(work + 0x3C), 1);
+                radarAnimateValue(work + i * 0x30 + 0x40, *(u16 *)(work + 0x3C), 1);
                 break;
             }
         }

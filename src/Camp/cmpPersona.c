@@ -14,7 +14,7 @@ struct CmpHead {
 
 s32 datPersonaRosterSlotActive(s16 arg0);
 s32 func_0034c210(void);
-void func_001437b0(void* arg0, s32 arg1, s32 arg2);
+void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
 void func_0034f5d0(void* arg0);
 u32 RpRandom(void);
 void sdkSpriteFreeNode(void *node);
@@ -220,7 +220,7 @@ s32 func_00135cf0(u8* arg0) {
     for (i = 0; i < 0x1C; i++) {
         p = (u8*)arg0 + i * 0x30;
         v = *(s16*)((u8*)arg0 + 0x20);
-        func_001437b0(p + 0x1054, v, 0);
+        radarAnimateValue(p + 0x1054, v, 0);
         if (*(u8*)(p + 0x106E) != 0) {
             result = 0;
         }
@@ -574,7 +574,7 @@ void func_00136fc0(u8* arg0) {
         *(s32*)(arg0 + 0x1C) &= ~0x1000;
     }
     for (i = 0; i < 0x24; i++) {
-        func_001437b0(arg0 + i * 0x30 + 0x1594, *(s16*)(arg0 + 0x22), 0);
+        radarAnimateValue(arg0 + i * 0x30 + 0x1594, *(s16*)(arg0 + 0x22), 0);
     }
     for (i = 0; i < 0x78; i++) {
         func_0034f5d0(arg0 + i * 0x14 + 0x64);

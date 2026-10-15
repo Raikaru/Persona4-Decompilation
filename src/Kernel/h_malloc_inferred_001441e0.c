@@ -266,27 +266,27 @@ extern u8 D_005EF6A0[];
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
-extern void func_001423c0(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
+extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 
 /* Source unit: src/promoted/code1_0014.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001441e0-00145080 */
 
 #pragma pop
-/* measured: opt_loop_invariants on hoists the shared float conversion constants in func_00141d80. */
-/* measured: restore loop-invariant hoisting after func_00141d80. */
+/* measured: opt_loop_invariants on hoists the shared float conversion constants in radarSetMode. */
+/* measured: restore loop-invariant hoisting after radarSetMode. */
 /* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
-/* measured: restore loop-invariant hoisting after func_00142090. */
+/* measured: restore loop-invariant hoisting after radarLayoutSlots. */
 /* measured: optimization level 1 plus base-before-value declaration order
    keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
 /* measured: closes the scoped optimization-level-1 probe. */
-/* measured: opt_propagation off probe for func_001423c0. */
-/* measured: closes opt_propagation off probe for func_001423c0. */
+/* measured: opt_propagation off probe for radarDrawNumber. */
+/* measured: closes opt_propagation off probe for radarDrawNumber. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off probe for func_00142bf0. */
-/* measured: opt_loop_invariants on probe for func_00142bf0. */
-/* measured: closes opt_loop_invariants on probe for func_00142bf0. */
-/* measured: restores opt_propagation after func_00142bf0 probe. */
+/* measured: opt_propagation off probe for radarDrawSegment. */
+/* measured: opt_loop_invariants on probe for radarDrawSegment. */
+/* measured: closes opt_loop_invariants on probe for radarDrawSegment. */
+/* measured: restores opt_propagation after radarDrawSegment probe. */
 /* Keep each calendar row live across its four date queries. The third
  * query is combined with the day index before the fourth call.
  * measured: 2268 executable bytes and four zero-tail bytes, all exact. */

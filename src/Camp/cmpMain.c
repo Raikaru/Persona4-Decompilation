@@ -36,7 +36,7 @@ s32 func_0013bcf0(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0013caa0(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0013d8b0(u8 *arg0, s32 *arg1, u8 *arg2);
-s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2);
+s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0035e8b0(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0012d630(u8 *arg0);
@@ -51,7 +51,7 @@ void func_00130580(u8 *arg0);
 void func_0013ab30(u8 *arg0);
 void func_00134ab0(u8 *arg0);
 void func_001377e0(u8 *arg0);
-void func_001422b0(u8 *arg0);
+void radarDestroy(u8 *arg0);
 void func_00361a30(u8 *arg0);
 void func_00359720(u8 *arg0);
 
@@ -257,7 +257,7 @@ s32 func_0012c510(u8 *unusedTask) {
         }
         break;
     case 8:
-        r = func_00142f20((u32 *)(p + 4), &sp5C, p + 0x7750);
+        r = radarUpdateState((u32 *)(p + 4), &sp5C, p + 0x7750);
         switch (r) {
         case 0:
             if (sp5C != 0) {
@@ -339,7 +339,7 @@ void func_0012cc50(u8 *arg0) {
         func_001377e0(p + 0x5A8C);
         break;
     case 8:
-        func_001422b0(p + 0x7750);
+        radarDestroy(p + 0x7750);
         break;
     case 10:
         func_00361a30(p + 0x9000);

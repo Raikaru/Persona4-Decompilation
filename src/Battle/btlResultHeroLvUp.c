@@ -47,7 +47,7 @@ extern char iGpffffa5C8;
 void func_003671d0(void* work);
 void func_003672d0(void* work, s16 pcId);
 s32 func_00354a50(u8* param, s32 mode);
-void func_00142d80(s32 param, s32 a, s32 b, s32 c);
+void radarDrawEdge(s32 param, s32 a, s32 b, s32 c);
 void func_00355300(s32 param, s32 mode);
 s32 func_0021de60(void);
 extern u8* kwlnTaskGetWork(u32 param);
@@ -211,7 +211,7 @@ s32 func_00221f40(u8* arg0)
         func_003671d0(&work->field58);
         func_003672d0(&work->field58, 1);
         work->field4C = func_00354a50(arg0, 1);
-        func_00142d80(work->field4C, 2, 1, 0);
+        radarDrawEdge(work->field4C, 2, 1, 0);
         func_00355300(work->field4C, 0);
         work->flags |= 2;
         work->state = 1;
@@ -259,7 +259,7 @@ s32 func_00221f40(u8* arg0)
         case 5:
             if ((work->flags & 4) || (++work->count >= 5)) {
                 work->flags &= 0xFFFD;
-                func_00142d80(work->field4C, 2, 0, 1);
+                radarDrawEdge(work->field4C, 2, 0, 1);
                 return -1;
             }
             break;

@@ -21,7 +21,7 @@ void* func_0046a770(char* arg0);
 s32 sdkSpriteNewNode();
 s32 datGetFlag(s32 arg0);
 void func_00113480(s32 a, s32 b, s32 c, s32 d);
-void func_001437b0(void* arg0, s32 arg1, s32 arg2);
+void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
@@ -348,7 +348,7 @@ void func_0035d000(u8* arg0, u8* arg1) {
     for (i = 0; i < 18; i++) {
         s16 v = *(s16 *)(arg1 + 0x28);
 
-        func_001437b0(arg1 + i * 48 + 0x78, v, 0);
+        radarAnimateValue(arg1 + i * 48 + 0x78, v, 0);
     }
     func_0035ddf0(arg1);
     func_0035d0a0(arg1);

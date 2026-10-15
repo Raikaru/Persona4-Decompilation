@@ -3,7 +3,7 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 
-void func_001437b0(void *arg0, s32 arg1, s32 arg2);
+void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 void func_001344d0(u8 *arg0);
 void func_00131a00(u8 *arg0);
 s16 func_00106cd0(s16 arg0, s16 arg1);
@@ -206,7 +206,7 @@ s32 func_00131910(u8 *arg0) {
     }
     for (i = 0; i < 0x29; i++) {
         p = arg0 + i * 0x30;
-        func_001437b0(p + 0xC80, *(s16 *)(arg0 + 0x20), 0);
+        radarAnimateValue(p + 0xC80, *(s16 *)(arg0 + 0x20), 0);
         if (*(u8 *)(p + 0xC9A) != 0) {
             rv = 0;
         }
@@ -806,7 +806,7 @@ void func_001344d0(u8 *arg0) {
         *(s16 *)(arg0 + 0x24) = v + 1;
     }
     for (i = 0; i < 3; i++) {
-        func_001437b0(arg0 + i * 0x30 + 0x1430, *(s16 *)(arg0 + 0x24), 0);
+        radarAnimateValue(arg0 + i * 0x30 + 0x1430, *(s16 *)(arg0 + 0x24), 0);
     }
 }
 

@@ -127,7 +127,7 @@ typedef struct {
 
 
 extern void func_003ef3a0(void *arg0);
-extern void func_001437b0(u8 *arg0, s32 arg1, s32 arg2);
+extern void radarAnimateValue(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0034f5d0(u8 *arg0);
 extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -1020,7 +1020,7 @@ void func_00122a40(void *unusedNode, void *work)
             }
         }
         for (i = 0; i < 5; i++) {
-            func_001437b0((u8 *)&calendar->records[i], calendar->field_10, 0);
+            radarAnimateValue((u8 *)&calendar->records[i], calendar->field_10, 0);
         }
         startFrame = calendar->records[1].field_28;
         value = calendar->field_10;
@@ -4619,7 +4619,7 @@ s32 func_0012d630(u8 *menu)
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            func_001437b0(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
+            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
             if (*(u8 *)(rowBytes + 0xAE) != 0) {
                 finished = 0;
             }
@@ -4631,7 +4631,7 @@ s32 func_0012d630(u8 *menu)
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            func_001437b0(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
+            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
             if (*(u8 *)(rowBytes + 0xAE) != 0) {
                 finished = 0;
             }
@@ -4647,7 +4647,7 @@ s32 func_0012d630(u8 *menu)
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            func_001437b0(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 2);
+            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 2);
             if (*(u8 *)(rowBytes + 0xAE) != 0) {
                 finished = 0;
             }
@@ -4659,7 +4659,7 @@ s32 func_0012d630(u8 *menu)
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            func_001437b0(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
+            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
             if (*(u8 *)(rowBytes + 0xAE) != 0) {
                 finished = 0;
             }
@@ -5244,7 +5244,7 @@ s32 func_0012e900(u8 *arg0) {
     goto loop_test_0012e900;
 loop_body_0012e900:
     temp_19 = arg0 + (var_17 * 0x30);
-    func_001437b0(temp_19 + 0x12D8, *(s16 *)(arg0 + 0x1C), 0);
+    radarAnimateValue(temp_19 + 0x12D8, *(s16 *)(arg0 + 0x1C), 0);
     if (*(u8 *)(temp_19 + 0x12F2) != 0) {
         var_16 = 0;
     }
@@ -5622,7 +5622,7 @@ void func_0012fdf0(u8 *arg0)
     }
     for (var_16 = 0; var_16 < 0xC; var_16++) {
         temp_2 = arg0 + (var_16 * 0x30);
-        func_001437b0(temp_2 + 0x1878, *(s16 *)(arg0 + 0x1E), 0);
+        radarAnimateValue(temp_2 + 0x1878, *(s16 *)(arg0 + 0x1E), 0);
     }
     for (var_16_2 = 0; var_16_2 < 0x54; var_16_2++) {
         temp_2 = arg0 + (var_16_2 * 0x14);
@@ -5645,7 +5645,7 @@ void func_0012feb0(u8 *arg0)
     }
     for (i = 0; i < 2; i++) {
         p = arg0 + i * 0x30 + 0x1AB8;
-        func_001437b0(p, *(s16 *)(arg0 + 0x20), 0);
+        radarAnimateValue(p, *(s16 *)(arg0 + 0x20), 0);
     }
 }
 /* measured: opt_common_subs on closes the callback-loop probe. */

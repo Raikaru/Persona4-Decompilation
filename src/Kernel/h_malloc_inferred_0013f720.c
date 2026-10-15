@@ -17,9 +17,9 @@ static inline u8 *code13AddOff(s32 offset, u8 *base) {
 static inline f32 code13Add(f32 left, f32 right) {
     return left + right;
 }
-extern void func_001400f0(u8 *arg0);
-extern void func_00141d10(u8 *arg0);
-extern void func_001437b0(void *arg0, s32 arg1, s32 arg2);
+extern void radarDrawFrame(u8 *arg0);
+extern void radarResetEntries(u8 *arg0);
+extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_0010f540(s32 arg0);
 extern void func_0010b3b0(s16 arg0);
 extern s32 func_0010f6a0(s16 arg0, u32 arg1);
@@ -54,7 +54,7 @@ extern u8 *func_00354a50(s32 arg0, u16 arg1);
 extern u8 *func_0046a770(char *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
-extern s32 func_00141d80(u8 *arg0, s32 arg1);
+extern s32 radarSetMode(u8 *arg0, s32 arg1);
 extern u8 D_005E57F0[];
 extern u8 D_005E5810[];
 extern u8 D_005E5830[];
@@ -333,7 +333,7 @@ void func_0013fb50(u8 *arg0) {
         }
     }
     *(u8 **)(arg0 + 0x3C) = func_00354a50(0, 1);
-    func_00141d80(arg0, 0);
+    radarSetMode(arg0, 0);
 }
 
 #pragma pop
@@ -370,10 +370,10 @@ s32 func_0013ffd0(u8 *arg0) {
 loop_body:
     if ((i >= 0x1C) || ((i >= 9) && (i < 0x10))) {
         p = arg0 + i * 0x30;
-        func_001437b0(p + 0x40, *(s16 *)(arg0 + 0x20), 1);
+        radarAnimateValue(p + 0x40, *(s16 *)(arg0 + 0x20), 1);
     } else {
         p = arg0 + i * 0x30;
-        func_001437b0(p + 0x40, *(s16 *)(arg0 + 0x20), 0);
+        radarAnimateValue(p + 0x40, *(s16 *)(arg0 + 0x20), 0);
     }
     if (*(u8 *)(p + 0x5A) != 0) {
         result = 0;
@@ -383,8 +383,8 @@ loop_test:
     if (i < 0x29) {
         goto loop_body;
     }
-    func_00141d10(arg0);
-    func_001400f0(arg0);
+    radarResetEntries(arg0);
+    radarDrawFrame(arg0);
     return result;
 }
 

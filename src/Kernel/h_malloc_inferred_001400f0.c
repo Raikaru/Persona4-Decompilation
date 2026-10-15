@@ -187,9 +187,9 @@ extern s32 D_007642F0;
 extern s32 func_0034c210(void);
 extern void func_0013fb50(u8 *arg0);
 extern s32 func_0013ff80(u8 *arg0);
-extern s32 func_00142340(u8 *arg0);
-extern void func_001422b0(u8 *arg0);
-extern void func_00142230(u8 *arg0);
+extern s32 radarEntriesReady(u8 *arg0);
+extern void radarDestroy(u8 *arg0);
+extern void radarLoadSlotCoords(u8 *arg0);
 extern s32 func_0034bb20(s32 arg0);
 extern void func_0034bd60(s32 arg0);
 extern void func_00353fb0(void);
@@ -202,7 +202,7 @@ extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00453760(void *arg0, s32 arg1);
 extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00453960(void *arg0);
-extern void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
 
 
@@ -244,7 +244,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
  * the corner sprite; b210 does not propagate it into the func_0034f320
  * call, so the label pointer is loaded before the stack argument. */
 #pragma push
-/* measured: func_001400f0 MATCH -> MISMATCH without this pragma. */
+/* measured: radarDrawFrame MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -282,17 +282,17 @@ extern void func_00367210(CampDisplayWords position, f32 depth, s32 alpha, s16 *
 extern s32 func_00104c70(s32 work);
 extern u32 func_0010d6d0(s16 work);
 extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
-extern void func_001423c0(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
-extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
+extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
+extern void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
 
 /* Source unit: src/promoted/code1_0014.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001400f0-001437b0 */
 
 // FUN_001400F0
-void func_001400f0(u8 *work)
+void radarDrawFrame(u8 *work)
 {
-    extern void func_001427c0(Float2_0014 pos, f32 depth, u8 opacity, u8 *state);
-    extern void func_00142bf0(s64 work, s64 arg1, s32 arg2, f32 fparg0, u8 arg3);
+    extern void radarDrawPolygon(Float2_0014 pos, f32 depth, u8 opacity, u8 *state);
+    extern void radarDrawSegment(s64 work, s64 arg1, s32 arg2, f32 fparg0, u8 arg3);
     void *sprite;
     f32 opacity;
     f32 originX;
@@ -406,7 +406,7 @@ void func_001400f0(u8 *work)
             }
             unit = (s16 *)(work + i * 2 + 0x22);
             level = func_00104c70(*unit) & 0xFF;
-            func_001423c0(numberPosition.bits, 0.0f, color.packed, work, level);
+            radarDrawNumber(numberPosition.bits, 0.0f, color.packed, work, level);
             name = (const char *)func_0010d6d0(*unit);
             frFontExDrawText((105.0f + position.xy.x) - 20.0f, position.xy.y, 0.0f,
                           fontColor, fontStyle, 1, name, 8, 0);
@@ -496,7 +496,7 @@ void func_001400f0(u8 *work)
             coordinate = originY + *(f32 *)(e2 + 0x4A4);
             coordinate += r2->y;
             numberPosition.xy.y = coordinate;
-            func_00142bf0(position.bits, numberPosition.bits, i, 0.0f, radarOpacity);
+            radarDrawSegment(position.bits, numberPosition.bits, i, 0.0f, radarOpacity);
         }
         for (i = 0; i < 5; i++) {
             f32 coordinate;
@@ -512,7 +512,7 @@ void func_001400f0(u8 *work)
             position.xy.y = coordinate;
             alpha = (u8)((f32)(u32)e1[0x4AA] * opacity);
             {
-                func_001424b0(position.xy, 0.0f, alpha, work, i);
+                radarDrawText(position.xy, 0.0f, alpha, work, i);
             }
         }
         {
@@ -549,7 +549,7 @@ void func_001400f0(u8 *work)
         RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x44);
         position.xy.x = originX;
         position.xy.y = originY;
-        func_001427c0(position.xy, 0.0f, radarOpacity, work);
+        radarDrawPolygon(position.xy, 0.0f, radarOpacity, work);
         position.xy.x = (f32)0x13B + (originX + *(f32 *)(work + 0x680));
         position.xy.y = (116.0f + (originY + *(f32 *)(work + 0x684)));
         alpha = (u8)((f32)(u32)work[0x68A] * opacity);
@@ -600,7 +600,7 @@ void func_001400f0(u8 *work)
 
 #pragma pop
 // FUN_00141CF0
-s32 func_00141cf0(u8 *arg0, s32 arg1, s32 arg2) {
+s32 radarPushValue(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *temp_3;
 
     temp_3 = p4_00141cf0_add((u32)(arg1 * 2), arg0);
@@ -610,7 +610,7 @@ s32 func_00141cf0(u8 *arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_00141D10
-void func_00141d10(u8 *arg0) {
+void radarResetEntries(u8 *arg0) {
     s32 i;
 
     for (i = 0; i < 0x6C; i++) {
@@ -618,11 +618,11 @@ void func_00141d10(u8 *arg0) {
     }
 }
 
-/* measured: opt_loop_invariants on hoists the shared float conversion constants in func_00141d80. */
-/* measured: func_00141d80 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_loop_invariants on hoists the shared float conversion constants in radarSetMode. */
+/* measured: radarSetMode MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_00141D80
-s32 func_00141d80(u8 *arg0, s32 arg1) {
+s32 radarSetMode(u8 *arg0, s32 arg1) {
     s32 i;
     s32 j;
     u8 *table;
@@ -704,10 +704,10 @@ s32 func_00141d80(u8 *arg0, s32 arg1) {
     return 1;
 }
 
-/* measured: restore loop-invariant hoisting after func_00141d80. */
+/* measured: restore loop-invariant hoisting after radarSetMode. */
 /* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
 // FUN_00142090
-void func_00142090(u8 *arg0)
+void radarLayoutSlots(u8 *arg0)
 {
     s32 i;
     s16 cur;
@@ -734,9 +734,9 @@ void func_00142090(u8 *arg0)
     }
 }
 
-/* measured: restore loop-invariant hoisting after func_00142090. */
+/* measured: restore loop-invariant hoisting after radarLayoutSlots. */
 // FUN_00142130
-void func_00142130(u8 *arg0) {
+void radarResetStateDefault(u8 *arg0) {
     *(f32 *)(arg0 + 0x250) = (f32) 0x28A;
     *(s32 *)(arg0 + 0x258) = 0;
     *(s32 *)(arg0 + 0x1F0) = 0x42C80000;
@@ -759,7 +759,7 @@ void func_00142130(u8 *arg0) {
 }
 
 // FUN_001421B0
-void func_001421b0(u8 *arg0) {
+void radarResetStateMirrored(u8 *arg0) {
     *(s32 *)(arg0 + 0x250) = 0xC3160000;
     *(s32 *)(arg0 + 0x258) = 0;
     *(s32 *)(arg0 + 0x1F0) = 0xC2C80000;
@@ -784,9 +784,9 @@ void func_001421b0(u8 *arg0) {
 // FUN_00142230
 /* measured: optimization level 1 plus base-before-value declaration order
    keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
-/* measured: func_00142230 MATCH -> MISMATCH without this pragma. */
+/* measured: radarLoadSlotCoords MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
-void func_00142230(u8 *arg0) {
+void radarLoadSlotCoords(u8 *arg0) {
     extern u8 iGpffff9cd8[8];
     extern u8 D_005EF5A0[];
     s32 i;
@@ -809,10 +809,10 @@ void func_00142230(u8 *arg0) {
 }
 
 /* measured: closes the scoped optimization-level-1 probe. */
-/* measured: func_001423c0, func_001424b0, func_001427c0, func_00142bf0, func_00142d80, func_00142f20, func_001437b0 MATCH -> MISMATCH without this pragma. */
+/* measured: radarDrawNumber, radarDrawText, radarDrawPolygon, radarDrawSegment, radarDrawEdge, radarUpdateState, radarAnimateValue MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_001422B0
-void func_001422b0(u8 *arg0) {
+void radarDestroy(u8 *arg0) {
     s32 temp_4;
     s32 temp_4_2;
 s32 i;
@@ -837,7 +837,7 @@ s32 i;
 }
 
 // FUN_00142340
-s32 func_00142340(u8 *arg0) {
+s32 radarEntriesReady(u8 *arg0) {
     s32 flag = 1;
     s32 i = 0;
     s32 v = *(s16 *)(arg0 + 0x20);
@@ -851,9 +851,9 @@ s32 func_00142340(u8 *arg0) {
     return flag & func_0034c210();
 }
 
-/* measured: opt_propagation off probe for func_001423c0. */
+/* measured: opt_propagation off probe for radarDrawNumber. */
 // FUN_001423C0
-void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
+void radarDrawNumber(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 {
     u8 *base;
     s32 count;
@@ -874,12 +874,12 @@ void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
     }
 }
 
-/* measured: closes opt_propagation off probe for func_001423c0. */
+/* measured: closes opt_propagation off probe for radarDrawNumber. */
 /* Field portrait circle, type icon and rank label. Unions preserve the packed
    position/color words; keep retail's integer tint scaling. Exact 776/784
    bytes, 16 fully resolved relocations and eight zero alignment bytes. */
 // FUN_001424B0
-void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
+void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 {
     extern f32 fGpffff9ce0;
     extern u8 iGpffff9cd8[8];
@@ -959,9 +959,9 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
    See Radar_001427c0_20260922_worker1.md. */
 // FUN_001427C0
 #pragma push
-/* measured: func_001427c0 MATCH -> MISMATCH without this pragma. */
+/* measured: radarDrawPolygon MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_001427c0(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
+void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 {
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2F4[];
@@ -1037,12 +1037,12 @@ void func_001427c0(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 }
 
 #pragma pop
-/* measured: opt_propagation off probe for func_00142bf0. */
-/* measured: opt_loop_invariants on probe for func_00142bf0. */
-/* measured: func_00142bf0 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_propagation off probe for radarDrawSegment. */
+/* measured: opt_loop_invariants on probe for radarDrawSegment. */
+/* measured: radarDrawSegment MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_00142BF0
-void func_00142bf0(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
+void radarDrawSegment(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
 {
     u8 packet[0x100];
     f32 temp_f20;
@@ -1084,10 +1084,10 @@ void func_00142bf0(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
     func_00364c70();
 }
 
-/* measured: closes opt_loop_invariants on probe for func_00142bf0. */
-/* measured: restores opt_propagation after func_00142bf0 probe. */
+/* measured: closes opt_loop_invariants on probe for radarDrawSegment. */
+/* measured: restores opt_propagation after radarDrawSegment probe. */
 // FUN_00142D80
-void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     Float2_0014 pair;
     Float2_0014 pair2;
     s32 temp_19;
@@ -1127,9 +1127,9 @@ void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_00355370(arg0, NULL);
 }
 
-/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and func_0013d8b0 - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; func_00141cf0 third param is s32 (word `lw`, low 16 stored) and func_00355190 second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
+/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and func_0013d8b0 - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and func_00355190 second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
 // FUN_00142F20
-s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2)
+s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
 {
     u8 query[0x30];
     f32 alpha;
@@ -1152,26 +1152,26 @@ s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         break;
     case 2:
-        if (func_00142340(arg2) != 0) {
-            func_001422b0(arg2);
+        if (radarEntriesReady(arg2) != 0) {
+            radarDestroy(arg2);
             return 1;
         }
         break;
     case 3:
-        if (func_00142340(arg2) != 0) {
-            func_00141d80(arg2, 2);
+        if (radarEntriesReady(arg2) != 0) {
+            radarSetMode(arg2, 2);
             *arg0 = 4;
             func_00353fe0();
-            func_00142d80(*(u8 **)(arg2 + 0x3C), 0, 1, 0);
+            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 0, 1, 0);
         }
         break;
     case 4:
         if (D_008C024E[0] & 0x20) {
-            func_00141d80(arg2, 1);
+            radarSetMode(arg2, 1);
             *arg0 = 2;
             func_00353fb0();
             func_0034bb20(0x17);
-            func_00142d80(*(u8 **)(arg2 + 0x3C), 0, 0, 1);
+            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 0, 0, 1);
             func_0045af60(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
             u8 *base4;
@@ -1179,8 +1179,8 @@ s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2)
             s32 *ldst4;
             s32 n4;
             s32 tmp4;
-            func_00141d80(arg2, 3);
-            func_00142090(arg2);
+            radarSetMode(arg2, 3);
+            radarLayoutSlots(arg2);
             *arg0 = 5;
             func_0034bb20(0x16);
             base4 = arg2 + 0x1878;
@@ -1194,7 +1194,7 @@ s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2)
                 n4--;
                 *ldst4++ = tmp4;
             } while (n4 > 0);
-            func_00142d80(*(u8 **)(arg2 + 0x3C), 1, 0, 0);
+            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 1, 0, 0);
             func_0045af60(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -1203,36 +1203,36 @@ s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2)
             func_00453670(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
             func_004538e0(query, 0x4000, 0x1000, 0, 0);
             if (func_00453960(query) != 0) {
-                func_00141cf0(arg2, 0, *(s32 *)(query + 0x24));
+                radarPushValue(arg2, 0, *(s32 *)(query + 0x24));
                 func_00355190(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
                 func_0045af60(0, 1, 0, 0);
             }
         }
         break;
     case 5:
-        if (func_00142340(arg2) != 0) {
-            func_00141d80(arg2, 4);
+        if (radarEntriesReady(arg2) != 0) {
+            radarSetMode(arg2, 4);
             *arg0 = 6;
-            func_00142d80(*(u8 **)(arg2 + 0x3C), 2, 1, 0);
+            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 1, 0);
         }
         break;
     case 6:
         if (D_008C024E[0] & 0x20) {
-            func_00141d80(arg2, 2);
+            radarSetMode(arg2, 2);
             *arg0 = 3;
             func_0034bd60(0x15);
-            func_00142d80(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
+            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
             func_0045af60(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 9;
         } else if (D_008C024E[0] & 0x80) {
             if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22) == 1) {
-                func_00141d80(arg2, 5);
-                func_00142230(arg2);
+                radarSetMode(arg2, 5);
+                radarLoadSlotCoords(arg2);
                 *arg0 = 7;
                 func_0034bb20(0x18);
-                func_00142d80(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
+                radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
                 func_0045af60(0, 2, 0, 3);
             }
         } else {
@@ -1246,11 +1246,11 @@ s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2)
             func_004538e0(query, 8, 4, 0, 0);
             queryResult = func_00453960(query);
             if (queryResult > 0) {
-                func_00141cf0(arg2, 0, *(s32 *)(query + 0x24));
+                radarPushValue(arg2, 0, *(s32 *)(query + 0x24));
                 if (queryResult == 2) {
-                    func_00142130(arg2);
+                    radarResetStateDefault(arg2);
                 } else if (queryResult == 1) {
-                    func_001421b0(arg2);
+                    radarResetStateMirrored(arg2);
                 }
                 lsrc6 = (s32 *)(arg2 + 0x1878);
                 ldst6 = (s32 *)(arg2 + 0x1894);
@@ -1275,28 +1275,28 @@ s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2)
         break;
     case 7:
         if (*(s16 *)(arg2 + 0x20) == 1) {
-            func_00142d80(*(u8 **)(arg2 + 0x3C), 3, 1, 0);
+            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 1, 0);
         }
-        if (func_00142340(arg2) != 0) {
-            func_00141d80(arg2, 6);
+        if (radarEntriesReady(arg2) != 0) {
+            radarSetMode(arg2, 6);
             *arg0 = 8;
         }
         break;
     case 8:
         if (D_008C024E[0] & 0x80) {
-            func_00141d80(arg2, 3);
+            radarSetMode(arg2, 3);
             *arg0 = 5;
             func_0034bd60(0x16);
-            func_00142d80(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
+            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
             func_0045af60(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 9;
         } else if (D_008C024E[0] & 0x20) {
-            func_00141d80(arg2, 3);
+            radarSetMode(arg2, 3);
             *arg0 = 5;
             func_0034bd60(0x16);
-            func_00142d80(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
+            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
             func_0045af60(0, 2, 0, 4);
         }
         break;
@@ -1320,7 +1320,7 @@ s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2)
 }
 
 // FUN_001437B0
-void func_001437b0(u8 *arg0, s32 arg1, s32 arg2) {
+void radarAnimateValue(u8 *arg0, s32 arg1, s32 arg2) {
     extern f32 D_00761184;
     extern f32 cosf(f32 fparg0);
     extern f32 sinf(f32 fparg0);

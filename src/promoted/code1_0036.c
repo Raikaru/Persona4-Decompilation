@@ -42,7 +42,7 @@ extern void func_0036d8b0(void);
 
 extern void func_0036b750(void);
 extern s32 func_0036bb60(void);
-extern void func_001437b0(u8 *arg0, s16 arg1, s32 arg2);
+extern void radarAnimateValue(u8 *arg0, s16 arg1, s32 arg2);
 
 extern s32 func_0034c210(void);
 extern u32 datGetFlag(s32 arg0);
@@ -258,7 +258,7 @@ void func_00361ca0(u8 *arg0) {
     for (i = 0; i <= 0; i++) {
         record = arg0 + i * 0x30;
         count = *(s16 *)(arg0 + 0x26);
-        func_001437b0(record + 0x5B8, count, 0);
+        radarAnimateValue(record + 0x5B8, count, 0);
     }
   }
 

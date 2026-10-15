@@ -77,7 +77,7 @@ extern void func_00355740(u8 *arg0, s64 arg1);
 extern void func_00355920(u8 *arg0, u8 *arg1);
 extern void func_0035bc10(u8 *arg0, s8 arg1, s32 arg2);
 extern void func_0035c480(s32 arg0, u16 arg1, s32 arg2);
-extern void func_001437b0(void *arg0, s32 arg1, s32 arg2);
+extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 extern void func_00361ae0(u8 *arg0);
 extern void func_00361ca0(u8 *arg0);
 extern void func_0035fd60(u8 *arg0);
@@ -1528,13 +1528,13 @@ loop_body:
         ((index > 0) && (index <= 5)) ||
         ((index >= 0x27) && (index <= 0x28))) {
         slot = arg0 + (index * 0x30);
-        func_001437b0(slot + 0x150, *(s16 *)(arg0 + 0x20), 1);
+        radarAnimateValue(slot + 0x150, *(s16 *)(arg0 + 0x20), 1);
     } else if (index == 0x26) {
         slot = arg0 + (index * 0x30);
-        func_001437b0(slot + 0x150, *(s16 *)(arg0 + 0x20), 2);
+        radarAnimateValue(slot + 0x150, *(s16 *)(arg0 + 0x20), 2);
     } else {
         slot = arg0 + (index * 0x30);
-        func_001437b0(slot + 0x150, *(s16 *)(arg0 + 0x20), 0);
+        radarAnimateValue(slot + 0x150, *(s16 *)(arg0 + 0x20), 0);
     }
     if (*(u8 *)(slot + 0x16A) != 0) {
         result = 0;
@@ -3931,7 +3931,7 @@ s32 func_0035fc90(u8 *arg0)
     goto loop_test;
 loop_body:
     panel = arg0 + index * 0x30;
-    func_001437b0(panel + 0x48, *(s16 *)(arg0 + 0x20), 0);
+    radarAnimateValue(panel + 0x48, *(s16 *)(arg0 + 0x20), 0);
     if (*(u8 *)(panel + 0x62) != 0) {
         allIdle = 0;
     }
