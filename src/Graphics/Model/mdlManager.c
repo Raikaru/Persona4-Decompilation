@@ -492,7 +492,7 @@ struct RpHAnimHierarchy
  * (554 fnalign edits); opt_lifetimes gives the s0/s1 list-walk colours (+9 without). */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-static inline u32 modelOffsetAddress(u32 offset, u32 base)
+static inline u32 modelTableEntryPtr(u32 offset, u32 base)
 {
     return offset + base;
 }
@@ -728,7 +728,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   pfVar8 = (float *)hierarchy->pMatrixArray;
   temp_v11 = temp_v6 + 0x4c;
   temp_v4 = **(int **)(modelState + 0x1a);
-  puVar3 = *(unsigned int **)(modelOffsetAddress((short)modelState[2] * 0x50, temp_v4) + 0x48);
+  puVar3 = *(unsigned int **)(modelTableEntryPtr((short)modelState[2] * 0x50, temp_v4) + 0x48);
   if ((puVar3 != (unsigned int *)0x0) && (*(float *)(modelState + 4) == 0.0f)) {
     return 1;
   }

@@ -7,7 +7,7 @@
 typedef struct {
     f32 c[3];
 } EffAfterVec;
-static inline u8 *effAfterOffsetPtr(u32 offset, u8 *base)
+static inline u8 *effAfterWorkFieldPtr(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -688,7 +688,7 @@ u8 *func_004b8350(u8 *arg0, struct RpMaterial *arg1)
                 uv[1].v = 1.0f;
                 uv[2].u = 0.0f;
                 uv[2].v = 0.5f;
-                p = (AfterTexCoord *)effAfterOffsetPtr(last * sizeof(AfterTexCoord), (u8 *)uv);
+                p = (AfterTexCoord *)effAfterWorkFieldPtr(last * sizeof(AfterTexCoord), (u8 *)uv);
                 p[-3].u = 1.0f;
                 p[-3].v = 0.0f;
                 p[-2].u = 1.0f;
@@ -742,7 +742,7 @@ u8 *func_004b8350(u8 *arg0, struct RpMaterial *arg1)
                 uv[1].v = 1.0f;
                 uv[2].u = 0.0f;
                 uv[2].v = 0.5f;
-                p = (AfterTexCoord *)effAfterOffsetPtr(last * sizeof(AfterTexCoord), (u8 *)uv);
+                p = (AfterTexCoord *)effAfterWorkFieldPtr(last * sizeof(AfterTexCoord), (u8 *)uv);
                 p[-3].u = 1.0f;
                 p[-3].v = 0.0f;
                 p[-2].u = 1.0f;
@@ -856,7 +856,7 @@ void effAfterFreeVectorBuffers(void *arg0) {
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 /* Trail mesh rebuild. Retail adds some table offsets index-first: those sites
-   go through effAfterOffsetPtr (offset + base), the rest stay base-first u8 *
+   go through effAfterWorkFieldPtr (offset + base), the rest stay base-first u8 *
    arithmetic. The midpoint row is formed inside its first copy after the
    source offset, matching retail's evaluation order. */
 #pragma push
@@ -912,8 +912,8 @@ void func_004b8f40(u8 *work, void **pp)
   EffAfterVec ctrl[4];
   
   RpGeometryLock(*pp,0x1a);
-  if (((*(u32 *)effAfterOffsetPtr(4, work) & 1) != 0) || ((~*(u32 *)effAfterOffsetPtr(4, work) & 2) != 0)) {
-    switch (*(s16 *)effAfterOffsetPtr(0x38, work)) {
+  if (((*(u32 *)effAfterWorkFieldPtr(4, work) & 1) != 0) || ((~*(u32 *)effAfterWorkFieldPtr(4, work) & 2) != 0)) {
+    switch (*(s16 *)effAfterWorkFieldPtr(0x38, work)) {
     case 0:
     {
       s32 i;
@@ -959,7 +959,7 @@ void func_004b8f40(u8 *work, void **pp)
       temp_v1 = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
       func_004bc540(work,0,1.0f,pbVar12 + (temp_v1 - 3) * 4);
       func_004bc540(work,1,1.0f,pbVar12 + (temp_v1 - 2) * 4);
-      pbVar2 = effAfterOffsetPtr(temp_v1 * 4, pbVar12);
+      pbVar2 = effAfterWorkFieldPtr(temp_v1 * 4, pbVar12);
       pbVar2[-4] = (u8)((s32)((u32)pbVar2[-0xc] + (u32)pbVar2[-8]) >> 1);
       pbVar2[-3] = (u8)((s32)((u32)pbVar2[-0xb] + (u32)pbVar2[-7]) >> 1);
       pbVar2[-2] = (u8)((s32)((u32)pbVar2[-10] + (u32)pbVar2[-6]) >> 1);
@@ -1033,7 +1033,7 @@ void func_004b8f40(u8 *work, void **pp)
       }
     }
     }
-    *(u32 *)effAfterOffsetPtr(4, work) = *(u32 *)effAfterOffsetPtr(4, work) | 2;
+    *(u32 *)effAfterWorkFieldPtr(4, work) = *(u32 *)effAfterWorkFieldPtr(4, work) | 2;
   }
   if (*(s32 *)(work + 8) < 2) {
     switch (*(s16 *)(work + 0x38)) {
@@ -1209,9 +1209,9 @@ void func_004b8f40(u8 *work, void **pp)
       if (temp_v5 < 0) {
         temp_v5 = temp_v5 + *(s32 *)((work) + 8);
       }
-      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x10, work)) + temp_v5 * 0xc);
+      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + temp_v5 * 0xc);
       *(EffAfterVec *)pfVar17 = *(EffAfterVec *)pfVar16;
-      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x14, work)) + temp_v5 * 0xc);
+      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x14, work)) + temp_v5 * 0xc);
       *(EffAfterVec *)&pfVar17[3] = *(EffAfterVec *)pfVar16;
       pfVar17[6] = *pfVar17 + pfVar17[3];
       pfVar17[7] = pfVar17[1] + pfVar17[4];
@@ -1229,7 +1229,7 @@ void func_004b8f40(u8 *work, void **pp)
         u32 srcOff;
 
         srcOff = temp_v1 * 0xc;
-        *(EffAfterVec *)((row = (f32 *)effAfterOffsetPtr((u32)(temp_v5 * 3) * 4, (u8 *)pfVar17)) - 9) = *(EffAfterVec *)(*(u8 **)(work + 0x10) + srcOff);
+        *(EffAfterVec *)((row = (f32 *)effAfterWorkFieldPtr((u32)(temp_v5 * 3) * 4, (u8 *)pfVar17)) - 9) = *(EffAfterVec *)(*(u8 **)(work + 0x10) + srcOff);
       *(EffAfterVec *)(row - 6) = *(EffAfterVec *)(*(u8 **)(work + 0x14) + srcOff);
       row[-3] = row[-9] + row[-6];
       row[-2] = row[-8] + row[-5];
@@ -1397,7 +1397,7 @@ void func_004b8f40(u8 *work, void **pp)
       if (temp_v1 < 0) {
         temp_v1 = temp_v1 + *(s32 *)((work) + 8);
       }
-      pfVar5 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x10, work)) + temp_v1 * 0xc);
+      pfVar5 = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + temp_v1 * 0xc);
       cur = *(EffAfterVec *)pfVar5;
       v188.c[0] = *pfVar3 - cur.c[0];
       v188.c[1] = pfVar3[1] - cur.c[1];
@@ -1436,7 +1436,7 @@ void func_004b8f40(u8 *work, void **pp)
       if (temp_v1 < 0) {
         temp_v1 = temp_v1 + *(s32 *)((work) + 8);
       }
-      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterOffsetPtr(0x10, work)) + temp_v1 * 0xc);
+      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + temp_v1 * 0xc);
       last = *(EffAfterVec *)pfVar16;
       v188.c[0] = *pfVar3 - last.c[0];
       v188.c[1] = pfVar3[1] - last.c[1];
@@ -1492,7 +1492,7 @@ void func_004b8f40(u8 *work, void **pp)
     }
   }
   func_003c22f0(*pp);
-  *(u16 *)effAfterOffsetPtr(0xc, (u8 *)*pp) = *(u16 *)effAfterOffsetPtr(0xc, (u8 *)*pp) | 1;
+  *(u16 *)effAfterWorkFieldPtr(0xc, (u8 *)*pp) = *(u16 *)effAfterWorkFieldPtr(0xc, (u8 *)*pp) | 1;
   bound.center.c[0] = 0.0f;
   bound.center.c[1] = 0.0f;
   bound.center.c[2] = 0.0f;
@@ -2134,7 +2134,7 @@ f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
     if (i < 0) {
         i += *(s32 *)(arg0 + 8);
     }
-    p = (f32 *)(*(u8 **)(effAfterOffsetPtr(arg2 * 4, arg0) + 0x10) + i * 0xC);
+    p = (f32 *)(*(u8 **)(effAfterWorkFieldPtr(arg2 * 4, arg0) + 0x10) + i * 0xC);
     a = p[0];
     b = p[1];
     c = p[2];
@@ -2146,7 +2146,7 @@ f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
         i += *(s32 *)(arg0 + 8);
     }
     offset = i * 0xC;
-    p = (f32 *)(*(u8 **)(effAfterOffsetPtr(arg2 * 4, arg0) + 0x10) + offset);
+    p = (f32 *)(*(u8 **)(effAfterWorkFieldPtr(arg2 * 4, arg0) + 0x10) + offset);
     t = p[0];
     v[0] -= t;
     t = p[1];
