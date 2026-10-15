@@ -17,7 +17,7 @@ extern s32 func_001077f0(s32 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern s32 func_00107c80(s32 arg0);
 extern s32 func_00107ea0(s32 arg0);
-extern s32 func_001070e0(s32 arg0);
+extern s32 cmmCommunityFindRecord(s32 arg0);
 extern void func_00108b60(s32 arg0, s32 arg1);
 extern s32 func_00108e10(void);
 extern f32 D_005E42D8[];
@@ -39,7 +39,7 @@ extern u8 D_007973A0[];
 extern void *func_002467b0(s32 arg0);
 extern void func_001076e0(s32 arg0);
 extern void func_00106390(s32 a, s32 b);
-extern void func_00106db0(s32 a, s32 b);
+extern void cmmCommunitySetFlagBand(s32 a, s32 b);
 
 extern void func_00108d80(void);
 extern void func_00108cb0(u8 *task);
@@ -50,8 +50,9 @@ extern s32 D_00797560[];
 extern char D_005E42C8[];
 extern char D_005E4308[];
 
+// Community flag band: sets the band-b flag of community arg0 after clearing its related flags. Band 1 and bands 4-12 clear the upper group (0x41F and the band 4-12 flags); bands 2 and 3 clear the paired entries (0x43F and 0x45F); band 0 only sets its own flag.
 // FUN_00106DB0
-void func_00106db0(s32 a, s32 b)
+void cmmCommunitySetFlagBand(s32 a, s32 b)
 {
     s32 id = a & 0xFFFF;
     s32 i;
@@ -119,12 +120,13 @@ static inline void CommunityFlags_Clear(s32 community)
     }
 }
 
+// Community refresh flags: clears the flag bands of community arg0 and rebuilds them from its record: the base band (func_001077f0) and the rank band (rank 10 maps to band 1, others to rank + 3), then bands 2 (func_00107c80) and 3 (func_00107ea0).
 // FUN_00106F40
-void func_00106f40(s32 arg0) {
+void cmmCommunityRefreshFlags(s32 arg0) {
     u8 *record;
     s32 id;
     s32 rank;
-    record = (u8 *)func_001070e0(arg0);
+    record = (u8 *)cmmCommunityFindRecord(arg0);
     id = arg0 & 0xFFFF;
     if (id <= 0) {
         kAssertFail(D_005E42C8, 0x48);
@@ -134,29 +136,31 @@ void func_00106f40(s32 arg0) {
         return;
     }
     if (func_001077f0(arg0) != 0) {
-        func_00106db0(arg0, 0);
+        cmmCommunitySetFlagBand(arg0, 0);
         rank = *(u16 *)(record + 6);
         if (rank == 0xA) {
-            func_00106db0(arg0, 1);
+            cmmCommunitySetFlagBand(arg0, 1);
         } else {
-            func_00106db0(arg0, rank + 3);
+            cmmCommunitySetFlagBand(arg0, rank + 3);
         }
     }
     if (func_00107c80(arg0) != 0) {
-        func_00106db0(arg0, 2);
+        cmmCommunitySetFlagBand(arg0, 2);
     }
     if (func_00107ea0(arg0) != 0) {
-        func_00106db0(arg0, 3);
+        cmmCommunitySetFlagBand(arg0, 3);
     }
 }
+// Community clear table: zeroes the community record table at D_0079740C (0x158 bytes).
 // FUN_001070B0
-void func_001070b0(void)
+void cmmCommunityClearTable(void)
 {
     memset(D_0079740C, 0, 0x158);
 }
 
+// Community find record: returns the community table record for id arg0, or 0 when the id is 0 or absent from the table.
 // FUN_001070E0
-s32 func_001070e0(s32 arg0)
+s32 cmmCommunityFindRecord(s32 arg0)
 {
     s32 id = arg0 & 0xFFFF;
     s32 ptr;
@@ -184,8 +188,9 @@ s32 func_001070e0(s32 arg0)
     return 0;
 }
 
+// Community find by kind: returns the first flagged community id (func_001077f0) whose kind entry (func_002467b0) equals arg0, or 0 when none matches.
 // FUN_00107180
-s32 func_00107180(s16 arg0)
+s32 cmmCommunityFindByKind(s16 arg0)
 {
     s32 i;
     s32 result;
@@ -209,8 +214,9 @@ s32 func_00107180(s16 arg0)
     return result & 0xFFFF;
 }
 
+// Community counterpart: returns the paired community id (3 and 4, 5 and 6, 0B and 0C, 0E and 0F, 15 and 16) and maps 19 to 1A and 1B to 1C. Other ids are returned unchanged.
 // FUN_00107240
-s16 func_00107240(s32 arg0)
+s16 cmmCommunityCounterpart(s32 arg0)
 {
     u32 id = arg0 & 0xFFFF;
 
@@ -312,7 +318,7 @@ void func_00107370(s32 arg0)
 
 /* measured: retail's slot search keeps the found-exit as an inline
    unconditional branch (bne->advance; b found; advance out-of-line), the same
-   shape mwcc b210 emits for `if (cond) return;` in func_001070e0. mwcc merges
+   shape mwcc b210 emits for `if (cond) return;` in cmmCommunityFindRecord. mwcc merges
    `if (cond) goto found;` (any if/else polarity) into a single beqz->found with
    the advance inline. Tried while+break+retest (re-test not folded), goto,
    both if/else orders — all nd 10. Branch-shape floor. */
@@ -348,12 +354,12 @@ ret:
     *(s32 *)r = 0;
     *(s16 *)(r + 4) = arg0;
     *(s16 *)(r + 6) = 1;
-    func_00106db0(arg0, 0);
-    func_00106db0(arg0, 4);
+    cmmCommunitySetFlagBand(arg0, 0);
+    cmmCommunitySetFlagBand(arg0, 4);
 }
 
 /* measured: retail's slot search emits the found-exit as an inline
-   unconditional branch (bne->advance; b found) exactly like func_001070e0's
+   unconditional branch (bne->advance; b found) exactly like cmmCommunityFindRecord's
    `if (cond) return;`, but this is void with shared tail code. mwcc b210 merges
    any single-goto if/else branch into a conditional branch to the target
    (beq->found), and a post-loop NULL retest is only free (reuses the loop slti)
@@ -418,7 +424,7 @@ ret:
 
 /* measured: retail slot search emits found-exit as inline unconditional b
    (bne->advance; b found) which mwcc b210 only produces for return-thens
-   (func_001070e0); goto/break/switch/continue/m2c-goto-loop spellings all
+   (cmmCommunityFindRecord); goto/break/switch/continue/m2c-goto-loop spellings all
    merge to a single conditional branch (best nd 14, m2c verbatim form has
    test-at-top layout). Shared tail after the loop blocks the return idiom.
    Branch-shape floor. */
@@ -469,7 +475,7 @@ s32 func_00107890(s32 arg0)
     id = arg0 & 0xFFFF;
     while (i < 0x1F)
     {
-        if ((id == (s8)func_00248760(i & 0xFFFF)) && (func_001070e0(i & 0xFFFFu) != 0))
+        if ((id == (s8)func_00248760(i & 0xFFFF)) && (cmmCommunityFindRecord(i & 0xFFFFu) != 0))
         {
             return func_00107ac0((u16)i) & 0xFFFF;
         }
@@ -588,7 +594,7 @@ ret:
 // FUN_00107B70
 s32 func_00107b70(s32 arg0)
 {
-    s32 r = func_001070e0(arg0);
+    s32 r = cmmCommunityFindRecord(arg0);
     if (r == 0)
     {
         r = 0;
@@ -674,7 +680,7 @@ ret:
     if (r != NULL) {
         *(s32 *)r |= 1;
         *(s32 *)r &= ~2;
-        func_00106db0(arg0, 2);
+        cmmCommunitySetFlagBand(arg0, 2);
     }
 }
 
@@ -721,7 +727,7 @@ ret:
 // FUN_00107C80
 s32 func_00107c80(s32 arg0)
 {
-    s32 r = func_001070e0(arg0);
+    s32 r = cmmCommunityFindRecord(arg0);
     if (r == 0)
     {
         r = 0;
@@ -740,7 +746,7 @@ s32 func_00107c80(s32 arg0)
 // FUN_00107EA0
 s32 func_00107ea0(s32 arg0)
 {
-    s32 r = func_001070e0(arg0);
+    s32 r = cmmCommunityFindRecord(arg0);
     if (r == 0)
     {
         r = 0;
@@ -790,7 +796,7 @@ ret:
     if (r != NULL) {
         *(s32 *)r |= 2;
         *(s32 *)r &= ~1;
-        func_00106db0(arg0, 3);
+        cmmCommunitySetFlagBand(arg0, 3);
     }
 }
 
@@ -995,7 +1001,7 @@ u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
     }
     {
         s32 *temp_2_2;
-        temp_2_2 = (s32 *)func_001070e0(arg0);
+        temp_2_2 = (s32 *)cmmCommunityFindRecord(arg0);
         if (temp_2_2 == NULL) {
             var_3 = 0;
         } else {
@@ -1021,7 +1027,7 @@ u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
         MT_Scene_CheckResSlot(((arg2 & 0x3FF) | 0xC00) & 0xFFFF,
                       *(u8 *)((u8 *)vals.bytes + temp_16));
     }
-    temp_2 = (s32 *)func_001070e0(arg0);
+    temp_2 = (s32 *)cmmCommunityFindRecord(arg0);
     if (temp_2 == NULL) {
         return 0U;
     }
@@ -1059,7 +1065,7 @@ ret:
     if (r == NULL) {
         return 0;
     }
-    t = func_001070e0(arg0);
+    t = cmmCommunityFindRecord(arg0);
     if (t == 0) {
         t = 0;
     } else {
@@ -1068,7 +1074,7 @@ ret:
     if ((t & 0xFFFF) == 0xA) {
         return 0;
     }
-    t = func_001070e0(arg0);
+    t = cmmCommunityFindRecord(arg0);
     if (t == 0) {
         t = 0;
     } else {
@@ -1088,7 +1094,7 @@ ret:
    (loop floor plus tail noise). Branch-shape floor. */
 /* measured: reconstructed this wave. Slot-search head plus the community
    rank-up predicate. Three levers took it from nd 163 to nd 1: reusing the
-   masked-id local for the func_001070e0 result (retail reuses $s0 for both),
+   masked-id local for the cmmCommunityFindRecord result (retail reuses $s0 for both),
    declaring the slot pointer before the id so the pair lands $s1/$s0 rather
    than $s0/$s1, and #pragma optimization_level 1, which stops b210 folding
    the third guarded load into the level register and restores retail's
@@ -1107,7 +1113,7 @@ ret:
    settled floor after the comparison lever. Committed at nd 1. */
 // FUN_00108950
 /* measured: -O1 is load-bearing for this body - at -O2 mwcc coalesces the
-   third func_001070e0 result straight into the level saved register and
+   third cmmCommunityFindRecord result straight into the level saved register and
    drops retail's andi, costing nd 162. */
 #pragma optimization_level 1
 s32 func_00108950(s32 arg0) {
@@ -1142,11 +1148,11 @@ ret:
     if (r == NULL) {
         return 0;
     }
-    id = func_001070e0(arg0);
+    id = cmmCommunityFindRecord(arg0);
     if (id == 0) {
         ok = 0;
     } else {
-        t = func_001070e0(arg0);
+        t = cmmCommunityFindRecord(arg0);
         if (t == 0) {
             t = 0;
         } else {
@@ -1155,7 +1161,7 @@ ret:
         if ((t & 0xFFFF) == 0xA) {
             ok = 0;
         } else {
-            u = func_001070e0(arg0);
+            u = cmmCommunityFindRecord(arg0);
             if (u == 0) {
                 u = 0;
             } else {
@@ -1173,7 +1179,7 @@ ret:
     if (!ok) {
         goto ret0;
     }
-    t = func_001070e0(arg0);
+    t = cmmCommunityFindRecord(arg0);
     if (t == 0) {
         t = 0;
     } else {
@@ -1181,7 +1187,7 @@ ret:
     }
     func_00108b60(arg0, (t & 0xFFFF) + 1);
     *(s16 *)(r + 8) = 0;
-    t = func_001070e0(arg0);
+    t = cmmCommunityFindRecord(arg0);
     if (t != 0) {
         *(s32 *)t = *(s32 *)t & -5;
     }
@@ -1234,10 +1240,10 @@ ret:
     }
     *(s16 *)(r + 6) = arg1;
     if (*(u16 *)(r + 6) == 0xA) {
-        func_00106db0(arg0, 1);
+        cmmCommunitySetFlagBand(arg0, 1);
         return;
     }
-    func_00106db0(arg0, *(u16 *)(r + 6) + 3);
+    cmmCommunitySetFlagBand(arg0, *(u16 *)(r + 6) + 3);
 }
 
 // FUN_00108CA0
@@ -1393,7 +1399,7 @@ ret:
         func_00106390(id + ((j << 5) + 0x3FF), 0);
         j++;
     }
-    func_00106f40(*(u16 *)(r + 4));
+    cmmCommunityRefreshFlags(*(u16 *)(r + 4));
 }
 
 

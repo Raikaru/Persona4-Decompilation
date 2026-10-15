@@ -693,7 +693,7 @@ void func_001113b0(void)
     void func_001064c0(void);
     void func_001065c0(void);
     void func_00106d40(s16, s16, s16);
-    void func_001070b0(void);
+    void cmmCommunityClearTable(void);
     s32 datPersonaPlaceRosterMember(s32, u16);
     void datPersonaResetRosterMode(s16);
     void func_0010d490(u8 *, u8 *);
@@ -786,7 +786,7 @@ loop_4_check:
     func_0015a630();
     func_0010f390();
     func_0010f4c0();
-    func_001070b0();
+    cmmCommunityClearTable();
 
     i = 0;
     goto loop_5_check;
