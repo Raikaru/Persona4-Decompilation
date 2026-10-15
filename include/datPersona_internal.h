@@ -21,10 +21,18 @@ u16 datPersonaRosterSlotFlags(s32 arg0);
 s32 func_00109510(u8 *persona, void *arg1, void *arg2);
 void func_001097c0(u8 *arg0, s32 arg1);
 u32 func_00109870(u16 arg0, s32 arg1);
-// Intent: u8 at +0x1C plus index 0..4 of a persona record (social-stat bytes; [INFERENCE] from the five-index range and the five-byte copy in shdPersona).
-u8 datPersonaGetSocialStat(u8 *arg0, s32 arg1);
-// Intent: social-stat byte (index 0..4) of the record for persona id arg0; same layout as datPersonaGetSocialStat.
-s32 datPersonaGetSocialStatById(s32 arg0, s32 arg1);
+// Battle stat index for datPersonaGetStat, in in-game order St/Ma/En/Ag/Lu. Index 3 (AGI) is confirmed by turn-order callers in btlOrder_grouped; 0, 1, 2 and 4 are [inferred].
+enum DatPersonaStat {
+    PERSONA_STAT_STR,
+    PERSONA_STAT_MAG,
+    PERSONA_STAT_END,
+    PERSONA_STAT_AGI,
+    PERSONA_STAT_LUC
+};
+// Intent: battle stat (index 0..4, see DatPersonaStat) at +0x1C of a persona record; enemy records read the same index.
+u8 datPersonaGetStat(u8 *arg0, s32 arg1);
+// Intent: battle stat (index 0..4) of the record for persona id arg0; same layout as datPersonaGetStat.
+s32 datPersonaGetStatById(s32 arg0, s32 arg1);
 u8 func_001099f0(u8 *arg0, s32 arg1);
 u8 func_00109ad0(u8 *arg0, s32 arg1);
 u8 func_00109bf0(u16 arg0, s32 arg1);
