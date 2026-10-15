@@ -5110,49 +5110,49 @@ s32 func_001e6050(void) {
 #pragma opt_rebuildconditionals on
 
 // FUN_001E60F0
-s32 func_001e60f0(void) {
+s32 btlAICommandScriptCountOwnHojo(void) {
     u8 *p = func_0029d050();
     scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6160
-s32 func_001e6160(void) {
+s32 btlAICommandScriptCountOwnNotHojo(void) {
     u8 *p = func_0029d050();
     scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 1, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E61D0
-s32 func_001e61d0(void) {
+s32 btlAICommandScriptCountOwnBad(void) {
     u8 *p = func_0029d050();
     scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6240
-s32 func_001e6240(void) {
+s32 btlAICommandScriptCountOppBad(void) {
     u8 *p = func_0029d050();
     scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E62B0
-s32 func_001e62b0(void) {
+s32 btlAICommandScriptCountOppHojo(void) {
     u8 *p = func_0029d050();
     scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6320
-s32 func_001e6320(void) {
+s32 btlAICommandScriptCountOppNotHojo(void) {
     u8 *p = func_0029d050();
     scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6390
-s32 func_001e6390(void) {
+s32 btlAICommandScriptCountOwnHp(void) {
     u8 *p = func_0029d050();
     scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHP, 0) & 0xFFFF);
     return 1;
@@ -5160,7 +5160,7 @@ s32 func_001e6390(void) {
 
 // FUN_001E6400
 s32 func_001e6400(void) {
-    scrSetReturnInt(func_001ef4d0((1 << (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2))) & 0xFFFF, 0x80000) & 0xFFFF);
+    scrSetReturnInt(btlSideAverageLevel((1 << (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2))) & 0xFFFF, 0x80000) & 0xFFFF);
     return -1;
 }
 
@@ -5180,7 +5180,7 @@ s32 func_001e6450(void) {
     done:
         ;
     }
-    scrSetReturnInt(func_001ef4d0((1 << (shift & 0xffff)) & 0xffff, 0x80000) & 0xFFFF);
+    scrSetReturnInt(btlSideAverageLevel((1 << (shift & 0xffff)) & 0xffff, 0x80000) & 0xFFFF);
     return -1;
 }
 #pragma opt_rebuildconditionals on

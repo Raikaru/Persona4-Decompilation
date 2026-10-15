@@ -120,7 +120,7 @@ bool btlCond_FRLV_O(int param_1, u32 param_2)
 {
   u32 uVar1 = 0;
 
-  uVar1 = func_001ef4d0(1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000);
+  uVar1 = btlSideAverageLevel(1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000);
   return param_2 <= (uVar1 & 0xffff);
 }
 
@@ -143,7 +143,7 @@ nonzero:
   shift = 0;
 done:
   genus = shift;
-  uVar1 = func_001ef4d0(1 << genus & 0xffff, 0x80000);
+  uVar1 = btlSideAverageLevel(1 << genus & 0xffff, 0x80000);
   return param_2 <= (uVar1 & 0xffff);
 }
 /* measured: closes opt_rebuildconditionals for FUN_001D9A30. */

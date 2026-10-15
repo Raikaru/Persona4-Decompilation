@@ -3753,7 +3753,7 @@ s32 func_001ef4a0(s32 arg0)
 // FUN_001EF4D0
 /* measured: preserve retail count-result branch shape while probing ef4d0. */
 #pragma opt_common_subs off
-s32 func_001ef4d0(s32 arg0, s32 arg1)
+s32 btlSideAverageLevel(s32 arg0, s32 arg1)
 {
     u8 *current;
     u8 *entry;
