@@ -75,7 +75,7 @@ extern f32 fGpffff80f0;
 extern f32 fGpffff82dc;
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
-extern void func_0019dea0(u8 *arg0);
+extern void btlUnitRequestLookAt(u8 *arg0);
 extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 
@@ -196,7 +196,7 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019DEA0
-void func_0019dea0(u8 *arg0)
+void btlUnitRequestLookAt(u8 *arg0)
 {
     if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
         if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {

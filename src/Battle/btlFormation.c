@@ -45,7 +45,7 @@ extern void btlUnitSetRot(void *arg0, void *arg1);
 extern s32 btlUnitIsMoving(void *arg0);
 extern void func_00196b70(void *arg0);
 extern void func_00196ba0(void *arg0);
-extern void func_0019dea0(void *arg0);
+extern void btlUnitRequestLookAt(void *arg0);
 extern void func_001ee490(void *arg0);
 extern u8 *func_001b1510(void);
 extern void func_001d1680(s32 arg0, s32 arg1);
@@ -296,7 +296,7 @@ u32 func_001d1f30(u32 *work)
                     btlUnitSetRot((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
                 }
                 func_00196ba0(other);
-                func_0019dea0(other);
+                btlUnitRequestLookAt(other);
             }
             if (work[1] == 1) {
                 diff[0] = centerA[0] - centerB.v[0];
@@ -412,7 +412,7 @@ u32 func_001d1f30(u32 *work)
                             func_001ec1c0((u8 *)(quat), (u8 *)(*(u8 **)(actionTarget + 0x30) + 4), (u8 *)(unitB + 4));
                             btlUnitSetRot((struct BtlUnit *)(*(u8 **)(actionTarget + 0x30)), (const struct RtQuat *)(quat));
                             func_00196ba0(*(u8 **)(actionTarget + 0x30));
-                            func_0019dea0(*(u8 **)(actionTarget + 0x30));
+                            btlUnitRequestLookAt(*(u8 **)(actionTarget + 0x30));
                         }
                     }
                 }
@@ -528,7 +528,7 @@ u32 func_001d1f30(u32 *work)
             func_001ec1c0((u8 *)(quat), (u8 *)(centerA), (u8 *)((f32 *)&best));
             btlUnitSetRot((struct BtlUnit *)(groupUnit), (const struct RtQuat *)(quat));
             func_00196ba0(groupUnit);
-            func_0019dea0(groupUnit);
+            btlUnitRequestLookAt(groupUnit);
         }
         for (groupNode = *(u8 **)(iGpffffb3ac + 0x17C); groupNode != NULL; groupNode = *(u8 **)(groupNode + 0xA68)) {
             if ((*(u32 *)(groupNode + 0x9C) & 8) != 0) {
@@ -830,7 +830,7 @@ u32 func_001d35a0(u16 *arg0)
                     if (temp_21 != 0) {
                         btlUnitSetRot(var_20, sp70);
                         func_00196ba0(var_20);
-                        func_0019dea0(var_20);
+                        btlUnitRequestLookAt(var_20);
                     }
                 }
                 var_20 = *(u8 **)(var_20 + 0xa6c);

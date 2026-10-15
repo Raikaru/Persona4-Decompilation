@@ -23,7 +23,7 @@ extern void func_003dc740(void *dst, void *src, f32 angle, s32 mode);
 extern f32 func_0044b950(f32 x, f32 y);
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
-extern void func_0019dea0(void *unit);
+extern void btlUnitRequestLookAt(void *unit);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern void func_0019d040(u8 *arg0);
 extern void func_0019d0c0(u8 *arg0);
@@ -889,7 +889,7 @@ s32 func_00198050(u8 *arg0)
             }
             *(s32 *)(temp_17 + 0xC4) &= ~2;
             *(u16 *)(temp_17 + 0xC8) &= 0xFFFD;
-            func_0019dea0(temp_17);
+            btlUnitRequestLookAt(temp_17);
         }
         else
         {
@@ -1672,7 +1672,7 @@ void func_00195590(BtlUnit* unit, const RwV3d* target)
         unit->rot = rotation;
         unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
     }
-    func_0019dea0(unit);
+    btlUnitRequestLookAt(unit);
 }
 
 // FUN_001959D0
