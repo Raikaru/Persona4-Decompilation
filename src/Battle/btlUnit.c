@@ -1144,7 +1144,7 @@ s32 func_0019ae20(u8 *arg0) {
                 v2_2 = 0;
             } else {
                 speed = 1.0f;
-                s5 = func_001990d0(t17, v2);
+                s5 = btlUnitGetMotionId(t17, v2);
                 f0 = func_0047a000(*(u8 **)(t17 + 0xA00), 0, s5);
                 if (s5 < *(u16 *)(t17 + 0x9E4)) {
                     v2_2 = (s16)(s32)(f0 / (speed * ((f32)(*(BtlMotionRate **)(t17 + 0x9F8))[s5].rate / 100.0f)));
