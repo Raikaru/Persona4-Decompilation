@@ -187,7 +187,7 @@ extern f32 DAT_0076112c;
 
 
 extern s32 iGpffffb444;
-extern s32 func_00232830(s32 arg0, s32 arg1);
+extern s32 datCalcIsStandardUnit(s32 arg0, s32 arg1);
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
@@ -547,7 +547,7 @@ s32 func_00193260(void)
         return 0;
     }
     if ((*(s32 *)(base + 0xC) & 0x800000) != 0) {
-        return func_00232830(
+        return datCalcIsStandardUnit(
             *(s32 *)(*(u8 **)(*(u8 **)(base + 0x170) + 0x30) + 0xA64),
             0x31E);
     }

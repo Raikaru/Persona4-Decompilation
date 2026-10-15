@@ -19,7 +19,7 @@ typedef struct RwMatrix RwMatrix;
 extern u8 *iGpffff9db0;
 extern u8 D_006355C0[], D_006355E0[], D_00635600[];
 extern u8 *func_00147530(u8 *lists, u16 id);
-extern u16 func_00231f80(DatUnit *unit);
+extern u16 datCalcMaxHp(DatUnit *unit);
 extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
 extern u32 func_001064f0(s32 counter);
 extern void func_00106550(s32 counter, u32 value);
@@ -54,7 +54,7 @@ extern char D_007636C8[8];
 extern char D_007636D0[8];
 extern u8 D_0062E070[];
 extern void func_004777d0(void *model, s32 name, u8 alpha);
-extern s32 func_002325a0(DatUnit *unit, s32 hpDelta);
+extern s32 datCalcAddHp(DatUnit *unit, s32 hpDelta);
 extern void func_00233880(u8 *unit, s32 effect);
 extern RtQuat *func_003dc740(RtQuat *out, const RwV3d *axis, f32 angle, s32 mode);
 extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
@@ -197,7 +197,7 @@ extern void func_001bd5a0(f32 *arg0, f32 *arg1);
 extern void func_001bd560(f32 *arg0, f32 *arg1);
 extern void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
-extern u32 func_00231d70(u32 arg0);
+extern u32 datCalcRandomBelow(u32 arg0);
 extern u8 D_0060A0E0[];
 extern s32 func_001ef9a0(void);
 extern u8 D_006348B0[];
@@ -2207,7 +2207,7 @@ void func_00226c40(u8 *camera)
     case 5:
         action = *(u8 **)(camera + 0xE0);
         unit = *(u8 **)(action + 0x30);
-        variant = func_00231d70(2);
+        variant = datCalcRandomBelow(2);
         if (*(u8 *)(unit + 0xA2) != 0) {
             partyIndex = 0;
         } else {
@@ -2252,7 +2252,7 @@ void func_00226c40(u8 *camera)
                           (f32 *)&player.first, (f32 *)&player.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
-            variant = func_00231d70(2);
+            variant = datCalcRandomBelow(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
             func_001bd780(&other.firstRotation, record + 4, record + 0x10, D_0060A0E0);
             other.first = *(RwV3d *)(record + 4);
@@ -2323,7 +2323,7 @@ void func_00227230(u8 *camera)
     case 3:
     case 5:
         if (((u16)targetFlags & 2) != 0) {
-            variant = func_00231d70(2);
+            variant = datCalcRandomBelow(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x5B0;
             func_001bd780(&selected.firstRotation, record + 4, record + 0x10, D_0060A0E0);
             selected.first = *(RwV3d *)(record + 4);
@@ -2354,7 +2354,7 @@ void func_00227230(u8 *camera)
                           (f32 *)&player.first, (f32 *)&player.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
-            variant = func_00231d70(2);
+            variant = datCalcRandomBelow(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
             func_001bd780(&other.firstRotation, record + 4, record + 0x10, D_0060A0E0);
             other.first = *(RwV3d *)(record + 4);
@@ -2478,7 +2478,7 @@ void func_002277e0(u8 *camera)
     case 5:
         action = *(u8 **)(camera + 0xE0);
         unit = *(u8 **)(action + 0x30);
-        variant = func_00231d70(2);
+        variant = datCalcRandomBelow(2);
         if (*(u8 *)(unit + 0xA2) != 0) {
             partyIndex = 0;
         } else {
@@ -2523,7 +2523,7 @@ void func_002277e0(u8 *camera)
                           (f32 *)&player.first, (f32 *)&player.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
-            variant = func_00231d70(2);
+            variant = datCalcRandomBelow(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
             func_001bd780(&other.firstRotation, record + 4, record + 0x10, D_0060A0E0);
             other.first = *(RwV3d *)(record + 4);
@@ -2588,7 +2588,7 @@ void func_00227e40(u8 *camera)
     case 3:
     case 5:
         if (((u16)targetFlags & 2) != 0) {
-            variant = func_00231d70(2);
+            variant = datCalcRandomBelow(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x5B0;
             func_001bd780(&selected.firstRotation, record + 4, record + 0x10, D_0060A0E0);
             selected.first = *(RwV3d *)(record + 4);
@@ -2620,7 +2620,7 @@ void func_00227e40(u8 *camera)
                           (f32 *)&player.first, (f32 *)&player.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
-            variant = func_00231d70(2);
+            variant = datCalcRandomBelow(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
             func_001bd780(&other.firstRotation, record + 4, record + 0x10, D_0060A0E0);
             other.first = *(RwV3d *)(record + 4);
@@ -2664,7 +2664,7 @@ void func_002282d0(u8 *arg0)
     if (func_00243ce0(
             (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA64)) != 0) {
         func_001b73f0(0);
-        index = (u32)(func_00231d70(2) & 0xFFFF);
+        index = (u32)(datCalcRandomBelow(2) & 0xFFFF);
         base = *(u8 **)(DAT_0076449c + 0xB98);
         temp_17 = base + index * 0x34 + 0x548;
         func_001bd780(work.quat1, temp_17 + 4, temp_17 + 0x10,
@@ -2743,7 +2743,7 @@ void func_00228580(void)
     u8 *temp_16;
     u8 *temp_2;
 
-    index = (u32)(func_00231d70(2) & 0xFFFF);
+    index = (u32)(datCalcRandomBelow(2) & 0xFFFF);
     base = *(u8 **)(DAT_0076449c + 0xB98);
     temp_2 = base + index * 0x34;
     temp_16 = temp_2 + 0x64C;
@@ -2779,7 +2779,7 @@ void func_002286c0(void)
     u8 *temp_16;
     u8 *temp_2;
 
-    index = (u32)(func_00231d70(2) & 0xFFFF);
+    index = (u32)(datCalcRandomBelow(2) & 0xFFFF);
     base = *(u8 **)(DAT_0076449c + 0xB98);
     temp_2 = base + index * 0x34;
     temp_16 = temp_2 + 0x5B0;
@@ -2915,7 +2915,7 @@ void func_00228a80(u8 *arg0)
         func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 3);
         return;
     }
-    temp_5 = func_00231d70(2) & 0xFFFF;
+    temp_5 = datCalcRandomBelow(2) & 0xFFFF;
     if (*(u8 *)(temp_17 + 0xA2) != 0) {
         var_2 = 0;
     } else {
@@ -2996,7 +2996,7 @@ void func_00228d50(u8 *arg0)
         return;
     }
     temp_16 = *(u8 **)(*(u8 **)(DAT_0076449c + 0x170) + 0x30);
-    temp_5 = func_00231d70(2) & 0xFFFF;
+    temp_5 = datCalcRandomBelow(2) & 0xFFFF;
     if (*(u8 *)(temp_16 + 0xA2) != 0) {
         var_2 = 0;
     } else {
@@ -3174,7 +3174,7 @@ allow_cut:
     }
     if (*(u8 *)(first + 0xA2) == *(u8 *)(second + 0xA2)) {
         if (*(u8 *)(first + 0xA2) == 0) {
-            variant = func_00231d70(2);
+            variant = datCalcRandomBelow(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
             func_001bd780(&player.firstRotation, record + 4, record + 0x10, D_0060A0E0);
             player.first = *(RwV3d *)(record + 4);
@@ -3186,7 +3186,7 @@ allow_cut:
                           (f32 *)&player.first, (f32 *)&player.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
-            variant = func_00231d70(2);
+            variant = datCalcRandomBelow(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x5B0;
             func_001bd780(&other.firstRotation, record + 4, record + 0x10, D_0060A0E0);
             other.first = *(RwV3d *)(record + 4);
@@ -5062,7 +5062,7 @@ void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
         if (resource == NULL || *(void **)(resource + 0x144) == NULL)
             break;
         hp = *(u16 *)(*(u8 **)(*(u8 **)(packet + 0x30) + 0xA64) + 8);
-        maxHp = func_00231f80(*(DatUnit **)(*(u8 **)(packet + 0x30) + 0xA64));
+        maxHp = datCalcMaxHp(*(DatUnit **)(*(u8 **)(packet + 0x30) + 0xA64));
         scale.x = *(f32 *)(*(u8 **)(packet + 0x30) + 0x2C);
         scale.y = *(f32 *)(*(u8 **)(packet + 0x30) + 0x2C);
         scale.z = *(f32 *)(*(u8 **)(packet + 0x30) + 0x2C);
@@ -5121,7 +5121,7 @@ void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
         packet = func_0019ef90(1, 0x10F);
         if (packet == NULL)
             break;
-        func_002325a0(*(DatUnit **)(packet + 0xA64), *hpDelta);
+        datCalcAddHp(*(DatUnit **)(packet + 0xA64), *hpDelta);
         packet = func_001b0c80((s32)packet);
         /* The paired unit has an active packet; retail deliberately falls through. */
     case 0x10F:
@@ -5677,7 +5677,7 @@ s32 func_0022eba0(u8 *packet)
             **(u16 **)(unit + 0xA64) |= 0x20;
             target = func_001b0c80((s32)other);
             *(u16 *)(target + 0x1A) &= ~0x400;
-            func_002325a0(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
+            datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
             func_00198920(other, 0, 0, 1.0f, 1);
             func_0019d040(other);
             break;
@@ -5692,7 +5692,7 @@ s32 func_0022eba0(u8 *packet)
             **(u16 **)(unit + 0xA64) |= 0x20;
             target = func_001b0c80((s32)other);
             *(u16 *)(target + 0x1A) &= ~0x400;
-            func_002325a0(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
+            datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
             func_00198920(other, 0, 0, 1.0f, 1);
             func_0019d040(other);
             break;
@@ -5707,7 +5707,7 @@ s32 func_0022eba0(u8 *packet)
         case 0x171:
             *(s16 *)(DAT_0076449c + 0xC34) = 3;
             **(u16 **)(unit + 0xA64) |= 0x20;
-            func_002325a0(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
+            datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
             func_00198dd0(other, 0);
             func_00198920(other, 0, 0, 1.0f, 1);
             *(u8 **)(DAT_0076449c + 0xB98) = D_0062E070;
@@ -5763,7 +5763,7 @@ s32 func_0022eba0(u8 *packet)
             func_00106390(0x15C6, 0);
             func_00106390(0x15C7, 0);
             func_00106390(0x15C8, 0);
-            func_00106390(0x15C5 + func_00231d70(4), 1);
+            func_00106390(0x15C5 + datCalcRandomBelow(4), 1);
             func_00106390(0x1435, 1);
         }
         if (datGetFlag(0x1435) != 0)

@@ -31,7 +31,7 @@ extern s32 datCalcGetBadStatus(s32 arg0);
 extern void func_002138a0(u8 *arg0);
 extern s32 func_0021d980(s32 arg0, u8 *arg1);
 extern void func_0021dab0(s32 arg0);
-extern s32 func_00231e20(s32 arg0);
+extern s32 datCalcGetLevel(s32 arg0);
 extern s32 func_00193260(u8 *arg0);
 extern void memset(void *dst, s32 value, s32 size);
 extern void func_001fc1b0(s16 arg0);
@@ -138,7 +138,7 @@ extern void (*D_005F6E20[])(u8 *arg0);
 extern void func_0044ea90(const void *file, s32 line);
 extern void func_001eb380(u8 *arg0);
 extern s64 btlGetUID(void);
-extern u32 func_00231d70(u32 arg0);
+extern u32 datCalcRandomBelow(u32 arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern u32 func_00232c70(u8 *arg0, s32 arg1);
 extern void func_0022fdc0(u8 *arg0);
@@ -216,11 +216,11 @@ extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern void func_002038c0(s32 arg0);
 extern void datCalcSetHp(s32 arg0, u16 arg1);
 extern void datCalcSetSp(s32 arg0, u16 arg1);
-extern u16 func_00231f80(DatUnit *arg0);
-extern u16 func_00232290(DatUnit *arg0);
-extern s32 func_002325a0(DatUnit *arg0, s32 arg1);
-extern s32 func_00232610(DatUnit *arg0, s32 arg1);
-extern s32 func_00232730(u8 *arg0, s32 arg1);
+extern u16 datCalcMaxHp(DatUnit *arg0);
+extern u16 datCalcMaxSp(DatUnit *arg0);
+extern s32 datCalcAddHp(DatUnit *arg0, s32 arg1);
+extern s32 datCalcAddSp(DatUnit *arg0, s32 arg1);
+extern s32 datCalcHasSkill(u8 *arg0, s32 arg1);
 extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
 extern void func_002339d0(u8 *arg0);
 extern void btlUnitSetColor(u8 *arg0, s32 arg1);
@@ -551,7 +551,7 @@ u8 *func_001b0930(void)
     iGpffffa0b8 = temp_3 + 1;
     *(u32 *)(temp_2 + 8) = temp_3;
     *(s32 *)(temp_2 + 0x24) = -1;
-    *(s16 *)(temp_2 + 0x36) = (s16)func_00231d70(0x3C);
+    *(s16 *)(temp_2 + 0x36) = (s16)datCalcRandomBelow(0x3C);
     *(s32 *)(temp_2 + 0x44C) = 0;
     temp_2_2 = *(u8 **)(iGpffffb3ac + 0x174);
     if (temp_2_2 != NULL) {
@@ -1169,10 +1169,10 @@ void func_001b1d70(void) {
             r2 = (s16)func_0023d740(-1, 2);
             for (j = *(u8 **)(D_0076449C + 0x180); j != NULL; j = *(u8 **)(j + 0xA6C)) {
                 if (*(u8 **)(j + 0xA64) != NULL) {
-                    if ((func_0023a6b0(*(u8 **)(j + 0xA64), r2) & 0x27000000) == 0 && (s32)func_00231d70(100) < 0) {
+                    if ((func_0023a6b0(*(u8 **)(j + 0xA64), r2) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
                         datCalcSetBadStatus(*(s32 *)(j + 0xA64), 2);
                     }
-                    if ((func_0023a6b0(*(u8 **)(j + 0xA64), r1) & 0x27000000) == 0 && (s32)func_00231d70(100) < 0) {
+                    if ((func_0023a6b0(*(u8 **)(j + 0xA64), r1) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
                         datCalcSetBadStatus(*(s32 *)(j + 0xA64), 4);
                     }
                 }
@@ -1521,15 +1521,15 @@ unit_done:
         for (unit = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); unit != 0;
             unit = *(u8 **)(unit + 0xa6c)) {
           if (*(u8 **)(unit + 0xa64) != NULL) {
-            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x213);
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x213);
             if (hasSkill != 0) {
               hasSkill213 = 1;
             }
-            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x214);
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x214);
             if (hasSkill != 0) {
               hasSkill214 = 1;
             }
-            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x215);
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x215);
             if (hasSkill != 0) {
               hasSkill215 = 1;
             }
@@ -1538,17 +1538,17 @@ unit_done:
         for (unit = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); unit != 0;
             unit = *(u8 **)(unit + 0xa6c)) {
           if (*(u8 **)(unit + 0xa64) != NULL) {
-            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x202);
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x202);
             if (((hasSkill != 0) || (func_00232950(*(u8 **)(unit + 0xa64),0x53) != 0)
                 ) || (hasSkill214 == 1)) {
               func_00234830(*(u8 **)(unit + 0xa64),5,1);
             }
-            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x203);
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x203);
             if (((hasSkill != 0) || (func_00232950(*(u8 **)(unit + 0xa64),0x54) != 0)
                 ) || (hasSkill213 == 1)) {
               func_00234830(*(u8 **)(unit + 0xa64),0x40,1);
             }
-            hasSkill = func_00232730(*(u8 **)(unit + 0xa64),0x204);
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x204);
             if (((hasSkill != 0) || (func_00232950(*(u8 **)(unit + 0xa64),0x55) != 0)
                 ) || (hasSkill215 == 1)) {
               func_00234830(*(u8 **)(unit + 0xa64),0x110,1);
@@ -1904,7 +1904,7 @@ s32 func_001b3a00(void)
             }
             *(s32 *)((u8 *)iGpffffb3ac + 0xCB8) = func_001ef9a0();
             if (*(s32 *)((u8 *)iGpffffb414 + func_001ef9a0() * 0x18) & 0x2000) {
-                rank = func_00231e20(*(s32 *)(*(u8 **)(*(u8 **)((u8 *)iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
+                rank = datCalcGetLevel(*(s32 *)(*(u8 **)(*(u8 **)((u8 *)iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
                 diff = *(s16 *)((u8 *)iGpffffb3ac + 0xCE0) - rank;
                 if (diff < 0) {
                     diff = 0;
@@ -2046,8 +2046,8 @@ void func_001b4060(void)
     for (unit = *(u8 **)(iGpffffb3ac + 0x178); unit != NULL; unit = *(u8 **)(unit + 0xA6C)) {
         unitAction = func_001b0c80((s32)unit);
         func_001f0a10(result.bytes);
-        maxHp = func_00231f80(*(DatUnit **)(unit + 0xA64));
-        maxSp = func_00232290(*(DatUnit **)(unit + 0xA64));
+        maxHp = datCalcMaxHp(*(DatUnit **)(unit + 0xA64));
+        maxSp = datCalcMaxSp(*(DatUnit **)(unit + 0xA64));
         result.words[0] = maxHp - datCalcGetHp(*(s32 *)(unit + 0xA64));
         result.words[1] = maxSp - datCalcGetSp(*(s32 *)(unit + 0xA64));
         if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0) {
@@ -2685,15 +2685,15 @@ void func_001b5970(void)
 loop_16:
         if ((*(s32 *)(var_18 + 0xA64) != 0) &&
             (datCalcIsDead(*(s32 *)(var_18 + 0xA64), 0) == 0)) {
-            if (func_00232730((u8 *)*(s32 *)(var_18 + 0xA64), 0x224) != 0) {
-                datCalcSetHp(*(s32 *)(var_18 + 0xA64), func_00231f80(*(DatUnit **)(var_18 + 0xA64)));
-                datCalcSetSp(*(s32 *)(var_18 + 0xA64), func_00232290(*(DatUnit **)(var_18 + 0xA64)));
-            } else if (func_00232730((u8 *)*(s32 *)(var_18 + 0xA64), 0x223) != 0) {
-                func_002325a0((DatUnit *)*(s32 *)(var_18 + 0xA64), ((func_00231f80(*(DatUnit **)(var_18 + 0xA64)) & 0xFFFF) * 100) / 1250);
-                func_00232610((DatUnit *)*(s32 *)(var_18 + 0xA64), ((func_00232290(*(DatUnit **)(var_18 + 0xA64)) & 0xFFFF) * 100) / 1250);
+            if (datCalcHasSkill((u8 *)*(s32 *)(var_18 + 0xA64), 0x224) != 0) {
+                datCalcSetHp(*(s32 *)(var_18 + 0xA64), datCalcMaxHp(*(DatUnit **)(var_18 + 0xA64)));
+                datCalcSetSp(*(s32 *)(var_18 + 0xA64), datCalcMaxSp(*(DatUnit **)(var_18 + 0xA64)));
+            } else if (datCalcHasSkill((u8 *)*(s32 *)(var_18 + 0xA64), 0x223) != 0) {
+                datCalcAddHp((DatUnit *)*(s32 *)(var_18 + 0xA64), ((datCalcMaxHp(*(DatUnit **)(var_18 + 0xA64)) & 0xFFFF) * 100) / 1250);
+                datCalcAddSp((DatUnit *)*(s32 *)(var_18 + 0xA64), ((datCalcMaxSp(*(DatUnit **)(var_18 + 0xA64)) & 0xFFFF) * 100) / 1250);
             }
-            if (temp_17 != 0) func_002325a0((DatUnit *)*(s32 *)(var_18 + 0xA64), ((func_00231f80(*(DatUnit **)(var_18 + 0xA64)) & 0xFFFF) * 100) / 2000);
-            if (temp_16 != 0) func_00232610((DatUnit *)*(s32 *)(var_18 + 0xA64), ((func_00232290(*(DatUnit **)(var_18 + 0xA64)) & 0xFFFF) * 100) / 2000);
+            if (temp_17 != 0) datCalcAddHp((DatUnit *)*(s32 *)(var_18 + 0xA64), ((datCalcMaxHp(*(DatUnit **)(var_18 + 0xA64)) & 0xFFFF) * 100) / 2000);
+            if (temp_16 != 0) datCalcAddSp((DatUnit *)*(s32 *)(var_18 + 0xA64), ((datCalcMaxSp(*(DatUnit **)(var_18 + 0xA64)) & 0xFFFF) * 100) / 2000);
         }
         var_18 = *(u8 **)(var_18 + 0xA6C);
 loop_16_check:
@@ -4961,7 +4961,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     }
     nearAngle = 4.0f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C));
     half = 2.5f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C));
-    switch (func_00231d70(3))
+    switch (datCalcRandomBelow(3))
     {
     case 0:
         radius = 30.0f;
@@ -4973,7 +4973,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
         radius = 0.0f;
         break;
     }
-    switch (func_00231d70(3))
+    switch (datCalcRandomBelow(3))
     {
     case 0:
         angle = 15.0f;
@@ -5042,14 +5042,14 @@ void func_001bf3a0(u8 *arg0)
         goto first_random;
     }
 first_random:
-    if (func_00231d70(0x64) <= 0x19) goto first_random_zero;
+    if (datCalcRandomBelow(0x64) <= 0x19) goto first_random_zero;
     var_3 = (u8 *)func_001be990(arg0, 0, 0x23, 0x3C);
     goto first_done;
 first_random_zero:
     var_3 = 0;
 first_done:
     if (var_3 != NULL) goto done;
-    if (func_00231d70(0x64) <= 0x19) goto second_random;
+    if (datCalcRandomBelow(0x64) <= 0x19) goto second_random;
     temp_17 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     temp_16 = *(u16 *)(temp_17 + 0xA4);
     func_001b73f0(temp_17);

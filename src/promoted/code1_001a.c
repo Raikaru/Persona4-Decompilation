@@ -11,7 +11,7 @@
 #include "btl_action_internal.h"
 typedef struct BtlPacket BtlPacket;
 extern BtlPacket *func_001d5eb0(u32 formation, const char *text, u16 mode);
-u32 func_00231d70(u32 bound);
+u32 datCalcRandomBelow(u32 bound);
 typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
 extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
@@ -595,8 +595,8 @@ void func_001a0b00(s64 *arg0) {
         u8 unknown34[0x3E8];
         u32 passiveFlags;
     } ActionView;
-    extern u16 func_00231f80(DatUnit *arg0);
-    extern u16 func_00232290(DatUnit *arg0);
+    extern u16 datCalcMaxHp(DatUnit *arg0);
+    extern u16 datCalcMaxSp(DatUnit *arg0);
     extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
     extern void btlActionSetState(s64 *arg0, u16 arg1);
     typedef struct ActionResult {
@@ -631,8 +631,8 @@ void func_001a0b00(s64 *arg0) {
             result.flags |= 0x80;
         }
         if (action->passiveFlags != 0) {
-            unitHp = (u16)func_00231f80(action->unit->data);
-            func_00232290(action->unit->data);
+            unitHp = (u16)datCalcMaxHp(action->unit->data);
+            datCalcMaxSp(action->unit->data);
             passiveCue = 0x16;
             if (action->passiveFlags & 1) {
                 result.hpDelta += ((u16)unitHp * 0x64) / 5000;
@@ -2303,11 +2303,11 @@ void func_001a43a0(u8 *action)
     *(u16 *)(action + 0x6E) = skill;
     if (targetMode == 0) {
         if (preferredCount > 0) {
-            *(u8 **)(action + 0x38) = targets.preferred[func_00231d70(preferredCount)];
+            *(u8 **)(action + 0x38) = targets.preferred[datCalcRandomBelow(preferredCount)];
         } else if (hasReferenceAction) {
             *(u8 **)(action + 0x38) = referenceAction;
         } else {
-            *(u8 **)(action + 0x38) = targets.other[func_00231d70(otherCount)];
+            *(u8 **)(action + 0x38) = targets.other[datCalcRandomBelow(otherCount)];
         }
         *(u16 *)(action + 0x6A) = 1;
     } else {
@@ -2320,8 +2320,8 @@ void func_001a43a0(u8 *action)
         availableCount = otherCount;
         shuffleLimit = availableCount * 3;
         for (; shuffleIndex < shuffleLimit; shuffleIndex++) {
-            u16 firstIndex = func_00231d70(availableCount);
-            u16 secondIndex = func_00231d70(availableCount);
+            u16 firstIndex = datCalcRandomBelow(availableCount);
+            u16 secondIndex = datCalcRandomBelow(availableCount);
 
             if (firstIndex != secondIndex) {
                 u8 *savedTarget = targets.other[firstIndex];
@@ -2342,7 +2342,7 @@ void func_001a43a0(u8 *action)
             if (availableCount == 2) {
                 otherCount = 1;
             } else {
-                otherCount = func_00231d70(availableCount - 1) + 1;
+                otherCount = datCalcRandomBelow(availableCount - 1) + 1;
             }
         }
         {
@@ -3856,7 +3856,7 @@ void func_001a59a0(s64 *arg0_) {
                         if (*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4) == reactionCueFlag) {
                             goto createReaction;
                         }
-                        reactionCueFlag = func_00231d70(0x64);
+                        reactionCueFlag = datCalcRandomBelow(0x64);
                         if ((u32)reactionCueFlag >= 0x32U) {
                             goto createReaction;
                         }
@@ -4624,7 +4624,7 @@ void func_001a7720(u8 *arg0) {
         if ((isKind3 == 0) && (noOverride == 0)) {
             if ((hasCutinPartner == 0) && (sp2B0 == 0)) {
                 if (side == 0) {
-                    if (!(act->flags & 0x40) && ((((s32)(func_001f0af0(arg0)) != (s32)(0)) && (func_00231d70(0x64U) < 0x14U)) || (*(s32 *)(iGpffffb3ac + 0x10) & 0x1000))) {
+                    if (!(act->flags & 0x40) && ((((s32)(func_001f0af0(arg0)) != (s32)(0)) && (datCalcRandomBelow(0x64U) < 0x14U)) || (*(s32 *)(iGpffffb3ac + 0x10) & 0x1000))) {
                         hasCutin = 1;
                         act->flags = (u16) (act->flags | 0x40);
                         btlState3_43 = (u8 *)(iGpffffb3ac);
@@ -5757,7 +5757,7 @@ void func_001a7720(u8 *arg0) {
     } else if (crossSideHits > 0) {
         if (side == 0) {
             statusTotal = (s32)((u16)func_001ef720(2, 0x80000));
-            if (*(u8 *)(arg0 + 0x28) <= 0 && *(u16 *)(act->unit + 0xA4) != 1 && func_00231d70(0x64U) < 0x32U) {
+            if (*(u8 *)(arg0 + 0x28) <= 0 && *(u16 *)(act->unit + 0xA4) != 1 && datCalcRandomBelow(0x64U) < 0x32U) {
                 if ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) != (s32)(0)) {
                     chanceMiss = 0;
                 } else {
@@ -6727,7 +6727,7 @@ void func_001acbb0(u8 *arg0) {
     void btlActionSetState(u8 *arg0, u16 arg1);
     u8 *func_00202740(u8 *arg0);
     u32 datCalcGetHp(u8 *arg0);
-    u32 func_00231f80(u8 *arg0);
+    u32 datCalcMaxHp(u8 *arg0);
 
     battleUnit = *(u8 **)((u8 *)arg0 + 0x30);
     *(s32 *)(battleUnit + 0x9C) &= ~0x10;
@@ -6787,7 +6787,7 @@ void func_001acbb0(u8 *arg0) {
         }
         if (*(u16 *)(arg0 + 0x3F4) == 0x210) {
             func_001f0a10((u8 *)&damageResult);
-            value = func_00231f80(*(u8 **)(battleUnit + 0xA64)) & 0xFFFF;
+            value = datCalcMaxHp(*(u8 **)(battleUnit + 0xA64)) & 0xFFFF;
             damageResult[0] = value - (datCalcGetHp(*(u8 **)(battleUnit + 0xA64)) & 0xFFFF);
             damagePacket = (u8 *)func_001f36e0((s32)arg0, (s32)arg0,
                                      &damageResult, 1, 1);
@@ -7542,7 +7542,7 @@ void func_001ae3d0(u8 *action)
         }
     }
     if (target == NULL) {
-        target = actionTargetAt((ActionTargetTable *)iGpffffb3ac, (func_00231d70(*(u16 *)(iGpffffb3ac + 3160)) & 0xFFFF));
+        target = actionTargetAt((ActionTargetTable *)iGpffffb3ac, (datCalcRandomBelow(*(u16 *)(iGpffffb3ac + 3160)) & 0xFFFF));
     }
     cutin.mode = 1;
     cutin.unitId = *(u16 *)(*(u8 **)(target + 48) + 164);

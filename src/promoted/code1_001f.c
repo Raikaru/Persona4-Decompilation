@@ -54,8 +54,8 @@ extern s32 func_00243ce0(s32 arg0);
 extern u8 *iGpffffb3c4;
 extern s32 datCalcGetHp(u8 *arg0);
 extern s32 datCalcGetSp(u8 *arg0);
-extern s32 func_00231f80(u8 *arg0);
-extern u16 func_00232290(u8 *arg0);
+extern s32 datCalcMaxHp(u8 *arg0);
+extern u16 datCalcMaxSp(u8 *arg0);
 extern s32 datCalcGetBadStatusNoDown(u8 *arg0);
 extern u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern s32 func_0010f420(s32 arg0, s32 arg1);
@@ -73,7 +73,7 @@ extern void memset(void *destination, s32 value, u32 size);
 
 extern s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2);
 
-extern u32 func_00231d70();
+extern u32 datCalcRandomBelow();
 extern s32 func_00243950(s32 arg0);
 extern s32 func_002439c0(s32 arg0);
 extern u16 func_00243a30(u8 *arg0, s32 *arg1);
@@ -153,8 +153,8 @@ extern void func_001f3b00(void);
 
 extern s32 func_001f8380(u8 **arg0);
 extern s32 func_00106600(s16 arg0);
-extern s32 func_002325a0(s32 arg0, s32 arg1);
-extern s32 func_00232610(s32 arg0, s32 arg1);
+extern s32 datCalcAddHp(s32 arg0, s32 arg1);
+extern s32 datCalcAddSp(s32 arg0, s32 arg1);
 extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
 
 extern s32 func_001f8400(u8 **arg0);
@@ -1530,7 +1530,7 @@ other:
                 u16 n = *(u16 *)(arg0 + 0x6A);
 
                 if (n > 1) {
-                    *(u8 **)(e + 0x90) = ((u8 **)(arg0 + 0x38))[func_00231d70(n)];
+                    *(u8 **)(e + 0x90) = ((u8 **)(arg0 + 0x38))[datCalcRandomBelow(n)];
                 } else {
                     *(u8 **)(e + 0x90) = *(u8 **)(arg0 + 0x38);
                 }
@@ -1591,7 +1591,7 @@ void func_001f2cc0(u8 *arg0)
                     *(u8 **)(temp_16 + 0xA64), &sp3C) & 0xFFFF);
                 if ((sp3C != 1) &&
                     (*(u16 *)(arg0 + 0x80) != 0) &&
-                    ((s32)(func_00231d70(0x64) & 0xFF) <
+                    ((s32)(datCalcRandomBelow(0x64) & 0xFF) <
                      (s32)*(u8 *)(arg0 + 0x82))) {
                     var_16 = *(u16 *)(arg0 + 0x80);
                 }
@@ -1699,10 +1699,10 @@ s32 func_001f39d0(u8 **arg0) {
             temp_4_2 = ptr[3];
             switch (temp_4_2) {
             case 1:
-                func_002325a0(*(s32 *)(temp_16 + 0xA64), -temp_2);
+                datCalcAddHp(*(s32 *)(temp_16 + 0xA64), -temp_2);
                 break;
             case 2:
-                func_00232610(*(s32 *)(temp_16 + 0xA64), -temp_2);
+                datCalcAddSp(*(s32 *)(temp_16 + 0xA64), -temp_2);
                 break;
             }
         }
@@ -1742,7 +1742,7 @@ s32 func_001f3b80(s32 arg0) {
 // FUN_001F3BB0
 s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
-    extern s32 func_00231e20(u8 *arg0);
+    extern s32 datCalcGetLevel(u8 *arg0);
     extern s32 func_00242800(u8 *arg0, s32 arg1);
     typedef struct ResistanceScanNode {
         u8 reserved000[0xA4];
@@ -1778,7 +1778,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     hasSkill = datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(actorId & 0xFFFF), 0x10D) != -1;
 
     averageLevel = func_001ef4d0(2, 0x80000) & 0xFFFF;
-    referenceLevel = func_00231e20(*(u8 **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
+    referenceLevel = datCalcGetLevel(*(u8 **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
     levelAdvantage = (averageLevel - referenceLevel) >= 4;
 
     firstNode = *(ResistanceScanNode **)(iGpffffb3ac + 0x180);
@@ -2230,7 +2230,7 @@ s32 func_001f4810(u8 *arg0, s32 arg1, s32 arg2) {
         return -1;
     }
     if (arg2 == 1) {
-        if ((arg1 & 2) && (func_00231d70(0x64) < 0x1E)) {
+        if ((arg1 & 2) && (datCalcRandomBelow(0x64) < 0x1E)) {
             s32 var_2_2;
             if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
                 var_2_2 = -1;
@@ -2264,7 +2264,7 @@ s32 func_001f4810(u8 *arg0, s32 arg1, s32 arg2) {
             }
             return var_2_2;
         }
-        if ((arg1 & 4) && (func_00231d70(0x64) < 0x1E)) {
+        if ((arg1 & 4) && (datCalcRandomBelow(0x64) < 0x1E)) {
             s32 var_2;
             if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
                 var_2 = -1;
@@ -2631,7 +2631,7 @@ s64 func_001f4e50(u8 *arg0) {
         return -1;
     }
     {
-        u32 selectedOffset = (func_00231d70(choiceCount & 0xFFFF) & 0xFFFF) * 4;
+        u32 selectedOffset = (datCalcRandomBelow(choiceCount & 0xFFFF) & 0xFFFF) * 4;
         /* These are two field addresses within the same selected row. */
         uintptr_t codeAddress = (uintptr_t)((u8 *)choices + selectedOffset);
         s16 actorId;
@@ -2828,7 +2828,7 @@ case2:
     temp_16 = temp_4 + ((s32 *)(temp_4 + 4))[*(u16 *)(temp_3_2 + 0xA60) * 3];
     func_002bd270(temp_16, state_ptr, temp_6);
     func_002bd280(*(u16 *)(iGpffffb3ac + 0xA4C),
-                  func_00231d70(func_002777a0(temp_16)), 0, 0);
+                  datCalcRandomBelow(func_002777a0(temp_16)), 0, 0);
     temp_3_3 = iGpffffb3ac;
     *(s32 *)(temp_3_3 + 0xA58) = *(s32 *)(temp_3_3 + 0xA60);
     temp_3_4 = iGpffffb3ac;
@@ -2939,7 +2939,7 @@ body:
     group1.stat4 = (f32)(u32)func_001ef5f0(1, 4, 0x80000);
     group2.stat4 = (f32)(u32)func_001ef5f0(2, 4, 0x80000);
 
-    random_value = func_00231d70(0xF) + 5;
+    random_value = datCalcRandomBelow(0xF) + 5;
     random_ratio = (f32)random_value;
     random_ratio /= 10.0f;
     ratio = random_ratio * (30.0f * ((group1.stat3 / group2.stat3) * (group1.stat4 / group2.stat4)));
@@ -3092,7 +3092,7 @@ static inline s32 battleMessageBand(s32 value, s32 band)
 // FUN_001F62F0
 s32 func_001f62f0(u8 *arg0)
 {
-    extern s32 func_00231e20(u8 *arg0);
+    extern s32 datCalcGetLevel(u8 *arg0);
     extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
     extern u32 effMiscRand(struct EffRandState *state);
     s32 code;
@@ -3107,7 +3107,7 @@ s32 func_001f62f0(u8 *arg0)
 
     base = datGetFlag(0x38) != 0 ? 0xFA : 0xC8;
     random = func_001ef4d0(2, 0x80000) & 0xFFFF;
-    flags = func_00231e20(
+    flags = datCalcGetLevel(
         *(u8 **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) + 0xA64)) &
         0xFF;
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
@@ -3163,7 +3163,7 @@ s32 func_001f62f0(u8 *arg0)
         }
     }
     if (count > 0) {
-        return values[func_00231d70(count)];
+        return values[datCalcRandomBelow(count)];
     }
     return base + (effMiscRand(NULL) & 1) + offset;
 }
@@ -3235,8 +3235,8 @@ u8 *func_001f6710(s32 arg0) {
 // FUN_001F6770
 s32 func_001f6770(u8 *arg0)
 {
-    extern u32 func_00231d70(s32 arg0);
-    extern s32 func_00232730(u8 *arg0, s32 arg1);
+    extern u32 datCalcRandomBelow(s32 arg0);
+    extern s32 datCalcHasSkill(u8 *arg0, s32 arg1);
     u16 chance;
     u8 *status;
     u32 mask;
@@ -3264,8 +3264,8 @@ s32 func_001f6770(u8 *arg0)
     if (chance == 100) {
         return 1;
     }
-    chance = func_00231d70(100) < chance;
-    if (chance == 0 && func_00232730(status, 0x230) != 0) {
+    chance = datCalcRandomBelow(100) < chance;
+    if (chance == 0 && datCalcHasSkill(status, 0x230) != 0) {
         one = 1;
         i = 0;
         while (i < 0x18U) {
@@ -3310,7 +3310,7 @@ s32 func_001f68e0(u8 *arg0)
 // FUN_001F6930
 s32 func_001f6930(u8 *arg0)
 {
-    extern s32 func_00232730(s32 arg0, s32 arg1);
+    extern s32 datCalcHasSkill(s32 arg0, s32 arg1);
     extern s32 func_00244f60(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
     s32 var_22;
     u32 var_21;
@@ -3381,13 +3381,13 @@ loop_31_body:
             break;
         }
         if ((temp_3 == 1) && (var_19 != 0)) {
-            if (func_00232730(*(s32 *)(temp_17 + 0xA64), 0x22F) != 0) {
+            if (datCalcHasSkill(*(s32 *)(temp_17 + 0xA64), 0x22F) != 0) {
                 var_19 = var_19 >> 1;
                 if (var_19 <= 0) {
                     var_19 = 1;
                 }
             }
-            if (func_00232730(*(s32 *)(temp_17 + 0xA64), 0x230) != 0) {
+            if (datCalcHasSkill(*(s32 *)(temp_17 + 0xA64), 0x230) != 0) {
                 var_19 = 1;
             }
         }
@@ -3398,7 +3398,7 @@ loop_31_body:
         }
         if ((*(u8 *)(arg0 + var_21 + 0x3F6) >= var_19) && (var_19 != 0)) {
             var_22 |= temp_16;
-        } else if ((s32)func_00231d70(0x64) < var_20) {
+        } else if ((s32)datCalcRandomBelow(0x64) < var_20) {
             var_22 |= temp_16;
         }
     }
@@ -3504,7 +3504,7 @@ s16 func_001f6d60(u8 *arg0)
     temp_2 = datCalcGetBadStatusNoDown(temp_17);
     switch (temp_2) {
     case 0x20:
-        temp_4 = func_00231f80(temp_17) & 0xFFFF;
+        temp_4 = datCalcMaxHp(temp_17) & 0xFFFF;
         if ((*(u16 *)temp_17 & 4) == 0) {
             var_16 = -((temp_4 & 0xFFFF) * 0x64) / 1000;
         } else {
@@ -3526,7 +3526,7 @@ s16 func_001f6d60(u8 *arg0)
         }
         break;
     case 0x40:
-        temp_16 = func_00232290(temp_17) & 0xFFFF;
+        temp_16 = datCalcMaxSp(temp_17) & 0xFFFF;
         temp_4_2 = datCalcGetSp(temp_17) & 0xFFFF;
         var_16 = -((temp_16 & 0xFFFF) * 0x64) / 1000;
         if (temp_4_2 < var_16) {
@@ -4227,7 +4227,7 @@ s32 func_001f8920(u8 *arg0)
             var_2 = -1;
         } else {
             temp_16 = (s32)D_00624FC0[*(u16 *)(temp_3 + 0xA4)] + 7;
-            var_2 = temp_16 + func_00231d70(3);
+            var_2 = temp_16 + datCalcRandomBelow(3);
         }
         return var_2;
     }
@@ -4237,27 +4237,27 @@ s32 func_001f8920(u8 *arg0)
     temp_2 = *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
     switch (temp_2) {
     case 0x100:
-        return func_00231d70(3) + 0x417;
+        return datCalcRandomBelow(3) + 0x417;
     case 0x101:
-        return func_00231d70(3) + 0x429;
+        return datCalcRandomBelow(3) + 0x429;
     case 0x102:
-        return func_00231d70(3) + 0x43C;
+        return datCalcRandomBelow(3) + 0x43C;
     case 0x103:
-        return func_00231d70(3) + 0x44F;
+        return datCalcRandomBelow(3) + 0x44F;
     case 0x104:
-        return func_00231d70(3) + 0x462;
+        return datCalcRandomBelow(3) + 0x462;
     case 0x105:
-        return func_00231d70(3) + 0x475;
+        return datCalcRandomBelow(3) + 0x475;
     case 0x106:
-        return func_00231d70(3) + 0x488;
+        return datCalcRandomBelow(3) + 0x488;
     case 0x107:
-        return func_00231d70(3) + 0x49B;
+        return datCalcRandomBelow(3) + 0x49B;
     case 0x108:
-        return func_00231d70(3) + 0x4AE;
+        return datCalcRandomBelow(3) + 0x4AE;
     case 0x109:
-        return func_00231d70(3) + 0x4C3;
+        return datCalcRandomBelow(3) + 0x4C3;
     case 0x112:
-        return func_00231d70(3) + 0x4FC;
+        return datCalcRandomBelow(3) + 0x4FC;
     case 0x10A:
     case 0x10B:
     case 0x10C:
@@ -4284,7 +4284,7 @@ s32 func_001f8b00(u8 *arg0)
         return -1;
     }
     value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x78;
-    return value + func_00231d70(5);
+    return value + datCalcRandomBelow(5);
 }
 // FUN_001F8B90
 s32 func_001f8b90(u8 *arg0)
@@ -4300,7 +4300,7 @@ s32 func_001f8b90(u8 *arg0)
         return -1;
     }
     value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x63;
-    return value + func_00231d70(3);
+    return value + datCalcRandomBelow(3);
 }
 // FUN_001F8C20
 s32 func_001f8c20(u8 *arg0, s32 arg1)
@@ -4317,10 +4317,10 @@ s32 func_001f8c20(u8 *arg0, s32 arg1)
     }
     if (arg1 != 0) {
         value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x6F;
-        return value + func_00231d70(3);
+        return value + datCalcRandomBelow(3);
     }
     value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x72;
-    return value + func_00231d70(3);
+    return value + datCalcRandomBelow(3);
 }
 // FUN_001F8CE0
 s32 func_001f8ce0(u8 *arg0)
@@ -4336,7 +4336,7 @@ s32 func_001f8ce0(u8 *arg0)
         return -1;
     }
     value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x75;
-    return value + func_00231d70(3);
+    return value + datCalcRandomBelow(3);
 }
 // FUN_001F8D70
 s32 func_001f8d70(u8 *arg0, s32 arg1)
@@ -4355,7 +4355,7 @@ s32 func_001f8d70(u8 *arg0, s32 arg1)
         return -1;
     }
     value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x2C;
-    return value + func_00231d70(3);
+    return value + datCalcRandomBelow(3);
 }
 // FUN_001F8E10
 s32 func_001f8e10(u8 *arg0)
@@ -4371,7 +4371,7 @@ s32 func_001f8e10(u8 *arg0)
         return -1;
     }
     value = D_00624FC0[*(u16 *)(work + 0xA4)] + 0x29;
-    return value + func_00231d70(3);
+    return value + datCalcRandomBelow(3);
 }
 /* measured: opt_propagation off preserves func_001f8ea0's loop constants. */
 #pragma opt_propagation off
@@ -4529,7 +4529,7 @@ s32 func_001f90e0(u8 *arg0)
     if (temp_4 == 0) {
         return -1;
     }
-    temp_4_2 = sp60[func_00231d70(temp_4)];
+    temp_4_2 = sp60[datCalcRandomBelow(temp_4)];
     if (temp_4_2 == NULL) {
         return -1;
     }
@@ -4546,7 +4546,7 @@ s32 func_001f90e0(u8 *arg0)
         var_5 += 1;
     }
     temp_16 = var_6 + D_00624FC0[*(u16 *)(temp_4_2 + 0xA4)];
-    return temp_16 + func_00231d70(3, var_5, var_6);
+    return temp_16 + datCalcRandomBelow(3, var_5, var_6);
 }
 /* measured: close opt_propagation after func_001f90e0. */
 #pragma opt_propagation on
@@ -4569,7 +4569,7 @@ s32 func_001f92c0(u8 *arg0)
         return -1;
     }
     value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x51;
-    return value + func_00231d70(3);
+    return value + datCalcRandomBelow(3);
 }
 // FUN_001F93A0
 s32 func_001f93a0(u8 *arg0)
@@ -4594,16 +4594,16 @@ s32 func_001f93a0(u8 *arg0)
     switch (type) {
     case 4:
         value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x54;
-        return value + func_00231d70(3);
+        return value + datCalcRandomBelow(3);
     case 3:
         value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x57;
-        return value + func_00231d70(3);
+        return value + datCalcRandomBelow(3);
     case 2:
         value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x5A;
-        return value + func_00231d70(3);
+        return value + datCalcRandomBelow(3);
     case 1:
         value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x5D;
-        return value + func_00231d70(3);
+        return value + datCalcRandomBelow(3);
     }
     return -1;
 }
@@ -4626,7 +4626,7 @@ s32 func_001f9570(u8 *arg0)
         return -1;
     }
     value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x69;
-    return value + func_00231d70(3);
+    return value + datCalcRandomBelow(3);
 }
 // FUN_001F9650
 s32 func_001f9650(u8 *arg0)
@@ -4644,7 +4644,7 @@ s32 func_001f9650(u8 *arg0)
         return -1;
     }
     value = D_00624FC0[*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)] + 0x66;
-    return value + func_00231d70(3);
+    return value + datCalcRandomBelow(3);
 }
 // FUN_001F9750
 s32 func_001f9750(s32 *arg0) {

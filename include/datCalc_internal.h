@@ -24,8 +24,10 @@ void datCalcInitializeCharacters(void);
 void func_00243f20(u16 characterId);
 /* Returns the fixed skill-table length (8) for a unit's table. */
 u32 datCalcGetTableLength(u8 *unused);
-u16 func_00231f80(DatUnit *unit);
-u16 func_00232290(DatUnit *unit);
+// Intent: maximum HP of unit arg0 from its level and skill/equipment bonuses; capped at 999 unless flag 4.
+u16 datCalcMaxHp(DatUnit *unit);
+// Intent: maximum SP of unit arg0 from its level and SP bonuses; capped at 999 unless flag 4.
+u16 datCalcMaxSp(DatUnit *unit);
 /* Returns 1 when the unit is flagged (flag 4) and its id's table entry has bit 0x80 set. */
 s32 func_00243d80(DatUnit *unit);
 

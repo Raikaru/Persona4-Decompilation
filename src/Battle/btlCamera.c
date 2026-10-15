@@ -64,7 +64,7 @@ void func_001c5b80(void* camera, s32 arg);
 void func_001c1040(void* camera, u32 arg);
 void func_001c9820(u8* camera, f32 suppliedLimit, s32 reverse, s32 preserveSide);
 extern u8 D_005FE1D0[];
-extern u32 func_00231d70(u32 arg0);
+extern u32 datCalcRandomBelow(u32 arg0);
 void FUN_0043f9c8(void* memory, s32 value, u32 size);
 u32 func_001d10d0(void *camera);
 
@@ -2722,7 +2722,7 @@ void func_001d10f0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
     *(u16 *)(arg0 + 0xE) |= 1;
     *(u16 *)(arg0 + 0xE) &= 0xFFFD;
     flags = arg4 & 0xFFFF;
-    if ((flags & 1) && !(arg3[1] & 1) && (func_00231d70(0x64) >= 0x32U)) {
+    if ((flags & 1) && !(arg3[1] & 1) && (datCalcRandomBelow(0x64) >= 0x32U)) {
         *(u16 *)(arg0 + 0xE) |= 2;
     }
     if (flags & 2) {

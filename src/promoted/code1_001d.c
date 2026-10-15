@@ -14,13 +14,13 @@ extern void btlUnitSetRot(void *arg0, void *arg1);
 extern void func_001ec1c0(void *out, void *first, void *second);
 extern void func_001ec6d0(s16 *arg0, s16 *arg1, f32 *position);
 extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
-extern u16 func_00231f80(u8 *arg0);
-extern u16 func_00232290(u8 *arg0);
+extern u16 datCalcMaxHp(u8 *arg0);
+extern u16 datCalcMaxSp(u8 *arg0);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
-extern s32 func_00231e20(u8 *arg0);
+extern s32 datCalcGetLevel(u8 *arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
 extern u16 datCalcGetHp(u8 *arg0);
@@ -71,7 +71,7 @@ extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern void func_0044ea90(u8 *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void memset(u8 *arg0, s32 arg1, s32 arg2);
-extern s8 func_00231d70(s32 arg0);
+extern s8 datCalcRandomBelow(s32 arg0);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -637,7 +637,7 @@ u8 *func_001d41b0(u8 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4)
     *(s32 *)(result + 0x1C) = arg3;
     *(s32 *)(result + 8) = arg4;
     if ((arg1 & 0xFFFF) == 1) {
-        *(s8 *)(result + 0x14) = func_00231d70(0x64);
+        *(s8 *)(result + 0x14) = datCalcRandomBelow(0x64);
     }
     return result;
 }
@@ -2824,7 +2824,7 @@ mode1_select:
             while ((u16)index < *(u16 *)(arg1 + 0x38)) {
                 work = *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30);
                 value = datCalcGetHp(*(u8 **)(work + 0xA64));
-                alternate = func_00231f80(*(u8 **)(work + 0xA64));
+                alternate = datCalcMaxHp(*(u8 **)(work + 0xA64));
                 if (value < best_value1 && value < alternate) {
                     best_value1 = value;
                     best_index1 = (s16)index;
@@ -2873,7 +2873,7 @@ mode2_select:
             while ((u16)index < *(u16 *)(arg1 + 0x38)) {
                 work = *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30);
                 value = datCalcGetSp(*(u8 **)(work + 0xA64));
-                alternate = func_00232290(*(u8 **)(work + 0xA64));
+                alternate = datCalcMaxSp(*(u8 **)(work + 0xA64));
                 if (value < best_value2 && value < alternate) {
                     best_value2 = value;
                     best_index2 = (s16)index;

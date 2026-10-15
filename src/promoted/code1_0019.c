@@ -254,7 +254,7 @@ extern u8 *datPersonaGetRow(u16 arg0);
 extern s32 iGpffffb444;
 extern s32 btlUnitIsMoving(u8 *arg0);
 extern s32 func_0019f8a0(u8 *arg0);
-extern s32 func_00232830(s32 arg0, s32 arg1);
+extern s32 datCalcIsStandardUnit(s32 arg0, s32 arg1);
 extern u8 *btlUnitCreateLookAtPacket(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 datCalcIsLowHp(u8 *arg0);
 extern s32 func_00243e30(s32 arg0);

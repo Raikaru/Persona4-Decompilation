@@ -12,7 +12,7 @@ extern u16 *func_00452560();
 
 extern s32 func_00452380(void *arg0);
 
-extern u32 func_00231d70(u32 max);
+extern u32 datCalcRandomBelow(u32 max);
 
 extern void func_0046d730(const void *file, s32 line);
 
@@ -424,7 +424,7 @@ s32 func_0036e920(u8 arg0)
         x = 0x63;
     }
     q = (x - 1) / 10;
-    r = func_00231d70(0x64);
+    r = datCalcRandomBelow(0x64);
     sum = 0;
     for (i = 0; i < 5; i++) {
         sum += D_0064E610[q * 5 + i];
@@ -460,7 +460,7 @@ s32 func_0036ea00(s32 arg0, u8 arg1)
     if (hi == lo) {
         return hi;
     }
-    result = lo + func_00231d70((u32)(hi - lo + 1));
+    result = lo + datCalcRandomBelow((u32)(hi - lo + 1));
     switch (arg0) {
     case 0:
         break;
@@ -511,7 +511,7 @@ s32 func_0036eb50(s32 arg0, u8 arg1)
         x = 0x63;
     }
     q = (x - 1) / 10;
-    limit = func_00231d70(0x64);
+    limit = datCalcRandomBelow(0x64);
     sum = 0;
     i = 0;
     switch (arg0) {
@@ -578,7 +578,7 @@ s32 func_0036eda0(s32 arg0)
     } else if ((u32)v >= 6) {
         v = 5;
     }
-    r = func_00231d70(0x64);
+    r = datCalcRandomBelow(0x64);
     i = 3;
     tbl = D_0064E5D0 + v * 4;
     for (; i > 0; i--) {
@@ -694,8 +694,8 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     if (cCount > 1) {
         s32 k;
         for (k = 0; k < cCount; k++) {
-            r1 = func_00231d70(cCount);
-            r2 = func_00231d70(cCount);
+            r1 = datCalcRandomBelow(cCount);
+            r2 = datCalcRandomBelow(cCount);
             if (r1 != r2) {
                 tmp = listC[r1];
                 listC[r1] = listC[r2];
@@ -706,8 +706,8 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     if (bCount > 1) {
         s32 k;
         for (k = 0; k < (s32)bCount; k++) {
-            r1 = func_00231d70(nB);
-            r2 = func_00231d70(nB);
+            r1 = datCalcRandomBelow(nB);
+            r2 = datCalcRandomBelow(nB);
             if (r1 != r2) {
                 tmp = listB[r1];
                 listB[r1] = listB[r2];
@@ -718,8 +718,8 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     if (nA > 1) {
         s32 k;
         for (k = 0; k < nA; k++) {
-            r1 = func_00231d70(nA);
-            r2 = func_00231d70(nA);
+            r1 = datCalcRandomBelow(nA);
+            r2 = datCalcRandomBelow(nA);
             if (r1 != r2) {
                 tmp = listA[r1];
                 listA[r1] = listA[r2];
@@ -739,7 +739,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
     aIdx = 0;
     e = 0;
     for (drawIndex = 0; drawIndex < nDraw; drawIndex++) {
-        if (func_00231d70(100) < rate && bIdx < bCount) {
+        if (datCalcRandomBelow(100) < rate && bIdx < bCount) {
             item = listB[bIdx++];
         } else if (cIdx < cCount) {
             s32 index = cIdx;
@@ -759,7 +759,7 @@ s32 func_0036ee60(u8 *arg0, s16 arg1, s32 arg2)
         return 0;
     }
     *(s32 *)(arg0 + 8) = e;
-    if (aIdx == e && func_00231d70(100) >= 20) {
+    if (aIdx == e && datCalcRandomBelow(100) >= 20) {
         return 0;
     }
     return 1;
@@ -915,7 +915,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
     if (n == 0) {
         return 0;
     }
-    p = list[func_00231d70(n)];
+    p = list[datCalcRandomBelow(n)];
     skills = datPersonaGetSkills((int)p);
     nc = 0;
     m = 0;
@@ -962,7 +962,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
     if (nc == 0) {
         return 0;
     }
-    r = func_00231d70(nc);
+    r = datCalcRandomBelow(nc);
     {
         /* Each field address is formed from the chosen entry separately. */
         u16 *field = shuffleCandidateField(2, (u8 *)cand + r * 4);
@@ -1114,13 +1114,13 @@ s32 func_00370020(s32 arg0, u8 *arg1)
         func_0046d730(D_0064E790, 0x5D6);
         break;
     }
-    p = (u8 *)datPersonaRosterSlot((s16)func_00231d70(datPersonaCountValidMembers() & 0xFFFF));
+    p = (u8 *)datPersonaRosterSlot((s16)datCalcRandomBelow(datPersonaCountValidMembers() & 0xFFFF));
     if (p == NULL) {
         func_0046d730(D_0064E790, 0x5DC);
     }
     if ((flag & 0xFFFF) != 0) {
         s32 sum;
-        v = (s16)(func_00231d70(3) + 1);
+        v = (s16)(datCalcRandomBelow(3) + 1);
         t = (s16)(datPersonaGetBuffedStat(p, kind) & 0xFF);
         if (t >= 0x63) {
             return 0;
@@ -1131,7 +1131,7 @@ s32 func_00370020(s32 arg0, u8 *arg1)
         }
         datPersonaAddStat(p, kind, (s8)v);
     } else {
-        v = (s16)(func_00231d70(1) + 1);
+        v = (s16)(datCalcRandomBelow(1) + 1);
         t = (s16)(datPersonaGetStat(p, kind) & 0xFF);
         if (t < 2) {
             return 0;

@@ -1033,7 +1033,7 @@ s32 func_0019ae20(u8 *arg0) {
     extern f32 func_0047a000(void *a, s32 b, s64 c);
     extern u8 *iGpffffb3cc;
     extern void func_00479e60(void *a, s32 b, f32 c);
-    extern u32 func_00231d70(u32 a);
+    extern u32 datCalcRandomBelow(u32 a);
     u8 *t17;
     u8 *t4;
     u8 *made;
@@ -1152,7 +1152,7 @@ s32 func_0019ae20(u8 *arg0) {
                     v2_2 = (s16)(s32)f0;
                 }
             }
-            t16 = func_00231d70((u32)v2_2);
+            t16 = datCalcRandomBelow((u32)v2_2);
             if (*(s32 *)(t17 + 0x98) & 2) {
                 func_00479e60(*(u8 **)(t17 + 0xA00), 0, (f32)t16);
             }
@@ -1641,7 +1641,7 @@ struct BtlUnitPacket00284900
 };
 
 s16 func_00198810(BtlUnit* unit);
-u16 func_00231d70(u32 max);
+u16 datCalcRandomBelow(u32 max);
 void func_00199890(BtlUnit* unit, s32 param_2);
 extern RwV3d D_0060a0d0;
 extern f32 DAT_007613f8;
@@ -1757,7 +1757,7 @@ void func_001987a0(BtlUnit* unit)
 
     animation = (s16)func_00199500(
         (u8 *)unit, (u16)(s32)func_00198810(unit), 1.0f);
-    animation = (s16)func_00231d70(animation);
+    animation = (s16)datCalcRandomBelow(animation);
     func_00199890(unit, animation);
 }
 

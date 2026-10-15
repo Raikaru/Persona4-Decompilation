@@ -98,7 +98,7 @@ extern s32 func_001f0ff0(u8 *arg0);
 extern void func_001c2ee0(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
-extern u32 func_00231d70(u32 arg0);
+extern u32 datCalcRandomBelow(u32 arg0);
 extern s32 func_001bc140(u8 *arg0);
 extern s32 func_001eb440(u8 *arg0);
 extern s32 func_001f1030(u8 *arg0);
@@ -4255,7 +4255,7 @@ void func_001ce7f0(u8 *arg0) {
     u32 masked;
     f32 value;
 
-    random = func_00231d70(0x168);
+    random = datCalcRandomBelow(0x168);
     if (random >= 0) {
         value = (f32)random;
     } else {
@@ -4443,7 +4443,7 @@ void func_001cef20(u8 *arg0) {
     u32 masked;
     f32 value;
 
-    random = func_00231d70(0x168);
+    random = datCalcRandomBelow(0x168);
     if (random >= 0) {
         value = (f32)random;
     } else {
@@ -4507,7 +4507,7 @@ void func_001cf160(u8 *arg0) {
     u32 masked;
     f32 value;
 
-    random = func_00231d70(0x168);
+    random = datCalcRandomBelow(0x168);
     if (random >= 0) {
         value = (f32)random;
     } else {
@@ -4850,7 +4850,7 @@ void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2)
     }
     firstScale = extent * arg1;
     arg1 = extent * arg2;
-    choice = (s32)func_00231d70(2);
+    choice = (s32)datCalcRandomBelow(2);
     switch (choice) {
     case 0:
         arg2 = 30.0f;

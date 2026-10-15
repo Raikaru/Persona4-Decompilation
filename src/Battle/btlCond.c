@@ -16,11 +16,11 @@ static inline s32 p4_001da5f0_xor(s32 left, s32 right)
 }
 
 extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
-extern s32 func_00231e20(u8 *arg0);
+extern s32 datCalcGetLevel(u8 *arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern u16 datCalcGetHp(u8 *arg0);
-extern u16 func_00231f80(u8 *arg0);
-extern u16 func_00232290(u8 *arg0);
+extern u16 datCalcMaxHp(u8 *arg0);
+extern u16 datCalcMaxSp(u8 *arg0);
 extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern u32 datCalcGetTableLength(u8 *arg0);
@@ -35,7 +35,7 @@ s32 btlCond_MYHP(u8 *arg0, s32 arg1)
     u32 uVar1 = 0;
 
     uVar1 = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64) + 8);
-    uVar2 = func_00231f80(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
+    uVar2 = datCalcMaxHp(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
     return (u32)uVar1 * 100 <= (uVar2 & 0xFFFF) * arg1;
 }
 
@@ -46,7 +46,7 @@ s32 func_001d97b0(u8 *arg0, s32 arg1)
     u32 uVar1 = 0;
 
     uVar1 = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64) + 8);
-    uVar2 = func_00231f80(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
+    uVar2 = datCalcMaxHp(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
     return !((u32)uVar1 * 100 < (uVar2 & 0xFFFF) * arg1);
 }
 
@@ -57,7 +57,7 @@ s32 btlCond_MYMP(u8 *arg0, s32 arg1)
     u32 uVar1 = 0;
 
     uVar1 = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64) + 0xA);
-    uVar2 = func_00232290(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
+    uVar2 = datCalcMaxSp(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
     return (u32)uVar1 * 100 <= (uVar2 & 0xFFFF) * arg1;
 }
 
@@ -113,7 +113,7 @@ void btlCond_ENHP_O(u8 *arg0, u32 arg1) {
 // FUN_001D99A0
 s32 btlCond_MYLV_O(u8 *arg0, u32 arg1)
 {
-    return (u32)(func_00231e20(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) & 0xFF) >= arg1;
+    return (u32)(datCalcGetLevel(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) & 0xFF) >= arg1;
 }
 // FUN_001D99E0
 bool btlCond_FRLV_O(int param_1, u32 param_2)
@@ -833,7 +833,7 @@ loop_body:
         if ((temp_18 & (1 << *(u8 *)(temp_17 + 0xA2))) != 0 &&
             datCalcIsDead(*(u8 **)(temp_17 + 0xA64), 0) == 0) {
             var_20 += datCalcGetHp(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
-            var_19 += func_00231f80(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
+            var_19 += datCalcMaxHp(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
         }
     }
     var_21 = *(u8 **)(var_21 + 0x450);
@@ -879,7 +879,7 @@ loop_body:
         if ((temp_18 & (1 << *(u8 *)(temp_17 + 0xA2))) != 0 &&
             datCalcIsDead(*(u8 **)(temp_17 + 0xA64), 0) == 0) {
             var_20 += datCalcGetHp(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
-            var_19 += func_00231f80(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
+            var_19 += datCalcMaxHp(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF;
         }
     }
     var_21 = *(u8 **)(var_21 + 0x450);
