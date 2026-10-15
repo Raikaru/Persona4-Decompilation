@@ -149,7 +149,7 @@ extern int strcmp(const char* s1, const char* s2);
 extern char DAT_007641c8[1];
 
 extern u32 func_003df5d0();
-extern int func_00474970(int param_1, void* param_2);
+extern int mdlAppendUniqueListEntry(int param_1, void* param_2);
 extern void* mdlMatFXSetEnvMapValueCallback(void*, void*);
 extern void* mdlMatFXSetEnvMapStateCallback(void*, void*);
 extern void* func_00479880(void*, void*);
@@ -2334,8 +2334,9 @@ void mdlReleaseBlendTrack(void* param_1)
 /* P4 port probe: removing opt_propagation off regresses 00474970 MATCH nd0 -> MISMATCH nd8 (s0/s1 coloring swap, 10 differing words) - measured. */
 #pragma opt_propagation off
 
+/* Callback for the clump walk in mdlSetupNamedFrameAnims: appends param_1 to the list in param_2 unless it is already present, and returns param_1. */
 // FUN_00474970
-int func_00474970(int param_1, void* param_2)
+int mdlAppendUniqueListEntry(int param_1, void* param_2)
 {
     int* piVar1;
     void* list;
@@ -2513,8 +2514,9 @@ u32 mdlGetFrameNameUserData(void* param_1)
 
 
 
+/* Sets up the named-frame animations of a clump. Collects the clump's frames into a new list stored at param_1+0x18, then for each frame whose name user data begins with the five-character prefix it installs the loop callback and the copy hooks on that frame's animation interpolator. */
 // FUN_00474DF0
-void func_00474df0(u8* param_1, void* param_2)
+void mdlSetupNamedFrameAnims(u8* param_1, void* param_2)
 {
     u32 uVar1;
     u32* puVar2;
@@ -2531,7 +2533,7 @@ void func_00474df0(u8* param_1, void* param_2)
         (*(u32*)(param_1 + 0xc) = 0, *(int*)(*(int*)(param_1 + 0x18) + 8) == 0)) {
         uVar1 = func_003df5d0(4, 0);
 
-        callbackData.callback = (code)func_00474970;
+        callbackData.callback = (code)mdlAppendUniqueListEntry;
         callbackData.value = uVar1;
 
         RpClumpForAllAtomics(param_2, func_00474a10, &callbackData);
@@ -4206,7 +4208,7 @@ void func_00477ca0(u8* arg0)
     entries = (u8 (*)[0xA4])arg0;
     RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00477900, NULL);
     if (*(s32*)(arg0 + 0x254) != 0) {
-        func_00474df0(arg0 + 0x23C, *(void**)(arg0 + 0xDC));
+        mdlSetupNamedFrameAnims(arg0 + 0x23C, *(void**)(arg0 + 0xDC));
     }
     if (func_00479ca0(arg0, 0) != 0) {
         mdlAttachSlotHierarchy(arg0 + 0xEC, *(void**)(arg0 + 0xDC), 1);
@@ -4554,7 +4556,7 @@ void func_00478410(u8* source, u8* destination)
         if (resource != 0) {
             resource->unknown0e++;
             ((MdlAnimControlView*)(destination + 0x23c))->resource = resource;
-            func_00474df0(destination + 0x23c, *(void**)(destination + 0xdc));
+            mdlSetupNamedFrameAnims(destination + 0x23c, *(void**)(destination + 0xdc));
             ((MdlAnimControlView*)(destination + 0x23c))->mode = 1;
         }
     }
