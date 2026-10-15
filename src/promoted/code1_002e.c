@@ -615,7 +615,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     void fclCombineMenuPairStep(u8 *arg0);
     void fclCombineMenuPreview(u8 *arg0);
     void fclCombineMenuPriceInfo(u8 *arg0);
-    void fclCombineMenuValidate(u8 *arg0);
+    void fclCombineMenuDetailPanels(u8 *arg0);
     void fclCombineMenuConfirm(u8 *arg0);
     void fclCombineMenuResult(u8 *arg0);
     void fclCombineMenuMaterialGrid(u8 *arg0);
@@ -725,7 +725,7 @@ case_06:
     fclCombineMenuPreview(arg0);
     goto done;
 case_07:
-    fclCombineMenuValidate(arg0);
+    fclCombineMenuDetailPanels(arg0);
     goto done;
 case_08:
     P4_002E7AC0_DRAW();
