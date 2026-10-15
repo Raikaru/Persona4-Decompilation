@@ -72,9 +72,9 @@ extern void *mdlGetMatrix(s32 a);
 extern void mdlSetBlendWeight(s32 a, f32 b);
 extern void mdlSetLookAtDirection(s32 a, void *b);
 extern void mdlSetTrackScaleRange(s32 a, f32 b, f32 c);
-extern u8 *func_0047a980(s32 a);
-extern void func_0047a990(s32 a);
-extern s32 func_0047a9d0(s32 a);
+extern u8 *mdlGetLookAtSubobject(s32 a);
+extern void mdlSetLookAtRequested(s32 a);
+extern s32 mdlHasActiveMode(s32 a);
 extern f32 func_004bd4a0(void *a, f32 *b);
 
 // FUN_00291B60
@@ -104,7 +104,7 @@ state_large:
     state = (s32)(rec->timer2 - 2.1474836e9f) | 0x80000000;
 state_ready:
     if (state == 0) {
-        if (func_0047a9d0(model) == 0) {
+        if (mdlHasActiveMode(model) == 0) {
             rec->flags |= 1;
         }
         mdlSetTrackScaleRange(model, 30.0f, 0.0f);
@@ -119,7 +119,7 @@ state_ready:
         goto common;
     }
     if (state == 1) {
-        temp_f20 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
         }
@@ -150,7 +150,7 @@ state1_counter:
         goto common;
     }
     if (state == 2) {
-        temp_f20 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
         }
@@ -171,13 +171,13 @@ state2_counter:
             temp_3 = rec->flags;
             if (temp_3 & 1) {
                 rec->flags = temp_3 & ~1;
-                func_0047a990(model);
+                mdlSetLookAtRequested(model);
             }
             return 1;
         }
     }
 common:
-    *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)func_0047a980(model);
+    *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)mdlGetLookAtSubobject(model);
     return 0;
 }
 #pragma pop
@@ -242,7 +242,7 @@ state_large:
     state = (s32)(rec->timer2 - 2.1474836e9f) | 0x80000000;
 state_ready:
     if (state == 0) {
-        if (func_0047a9d0(model) == 0) {
+        if (mdlHasActiveMode(model) == 0) {
             rec->flags |= 1;
         }
         mdlSetTrackScaleRange(model, 0.0f, 15.0f);
@@ -257,7 +257,7 @@ state_ready:
         goto common;
     }
     if (state == 1) {
-        temp_f21 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        temp_f21 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f21 < -1.0f) || !(temp_f21 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
         }
@@ -300,7 +300,7 @@ block_21:
             var_f12_3 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_3);
-        temp_f0_3 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        temp_f0_3 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_3 < -1.0f) || !(temp_f0_3 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
         }
@@ -343,7 +343,7 @@ block_42:
             var_f12_5 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_5);
-        temp_f0_5 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        temp_f0_5 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_5 < -1.0f) || !(temp_f0_5 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
         }
@@ -385,7 +385,7 @@ block_63:
             var_f12_7 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_7);
-        temp_f0_6 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        temp_f0_6 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_6 < -1.0f) || !(temp_f0_6 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
         }
@@ -428,7 +428,7 @@ block_84:
             var_f12_9 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_9);
-        temp_f0_8 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        temp_f0_8 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_8 < -1.0f) || !(temp_f0_8 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
         }
@@ -459,7 +459,7 @@ block_105:
         goto common;
     }
     if (state == 6) {
-        temp_f0_9 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        temp_f0_9 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_9 < -1.0f) || !(temp_f0_9 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
         }
@@ -480,14 +480,14 @@ block_120:
             temp_3 = rec->flags;
             if (temp_3 & 1) {
                 rec->flags = temp_3 & ~1;
-                func_0047a990(model);
+                mdlSetLookAtRequested(model);
             }
             return 1;
         }
         goto common;
     }
 common:
-        *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)func_0047a980(model);
+        *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)mdlGetLookAtSubobject(model);
         return 0;
 }
 #pragma pop
@@ -553,7 +553,7 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
         mdlSetBlendWeight(handle1, var_f12);
         rec->timer2 += 1.0f;
     } else {
-        if (func_0047a9d0(handle1) == 0) {
+        if (mdlHasActiveMode(handle1) == 0) {
             return 1;
         }
         temp_2_3 = (u8 *)mdlGetMatrix(handle1);
@@ -573,7 +573,7 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
         }
         mdlSetBlendWeight(handle1, var_f12_2);
     }
-    temp_2_5 = (u8 *)func_0047a980(handle1);
+    temp_2_5 = (u8 *)mdlGetLookAtSubobject(handle1);
     *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)temp_2_5;
     return 0;
 }
@@ -621,7 +621,7 @@ done:
         return 1;
     }
     rec->timer2 += 1.0f;
-    *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)func_0047a980(handle);
+    *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)mdlGetLookAtSubobject(handle);
     return 0;
 }
 #pragma pop
@@ -672,7 +672,7 @@ void func_002931a0(u8 *unusedTask) {
             handle = func_00291a60(*(u16 *)((u8 **)node)[5]);
             if (handle != 0) {
                 mdlSetBlendWeight(handle, fGpffff8218);
-                func_0047a990(handle);
+                mdlSetLookAtRequested(handle);
             }
             func_002e2240(head, head + 4, node);
             node = next;
@@ -713,7 +713,7 @@ void func_002932b0(s32 arg0) {
                     handle = func_00291a60(*(u16 *)((u8 **)node)[5]);
                     if (handle != 0) {
                         mdlSetBlendWeight(handle, fGpffff8218);
-                        func_0047a990(handle);
+                        mdlSetLookAtRequested(handle);
                     }
                     func_002e2240(head, head + 4, node);
                 }

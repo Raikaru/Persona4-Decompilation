@@ -436,7 +436,7 @@ u32 func_0019e5f0(void* work)
     extern u8* iGpffffb3ac;
     extern void mdlSetBlendWeight(void* arg0, f32 arg1);
     extern void mdlLookAtSetupSetRange(void* arg0, f32 arg1, f32 arg2);
-    extern void func_0047a990(void* arg0);
+    extern void mdlSetLookAtRequested(void* arg0);
     BtlUnitPacketLookAtDeactivate* packet;
     BtlUnit* curr;
 
@@ -453,7 +453,7 @@ u32 func_0019e5f0(void* work)
                 {
                     mdlSetBlendWeight(curr->mdl, 0.25f);
                     mdlLookAtSetupSetRange(curr->mdl, 70.0f, 60.0f);
-                    func_0047a990(curr->mdl);
+                    mdlSetLookAtRequested(curr->mdl);
                     curr->lookAtMode = 0;
                 }
                 curr = curr->prev;
@@ -469,7 +469,7 @@ u32 func_0019e5f0(void* work)
                 {
                     mdlSetBlendWeight(curr->mdl, 0.25f);
                     mdlLookAtSetupSetRange(curr->mdl, 70.0f, 60.0f);
-                    func_0047a990(curr->mdl);
+                    mdlSetLookAtRequested(curr->mdl);
                     curr->lookAtMode = 0;
                 }
                 curr = curr->prev;
@@ -483,7 +483,7 @@ u32 func_0019e5f0(void* work)
         {
             mdlSetBlendWeight(curr->mdl, 0.25f);
             mdlLookAtSetupSetRange(curr->mdl, 70.0f, 60.0f);
-            func_0047a990(curr->mdl);
+            mdlSetLookAtRequested(curr->mdl);
             curr->lookAtMode = 0;
         }
     }

@@ -1145,8 +1145,8 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
     extern void func_002932b0(s32);
     extern void mdlSetBlendWeight(void *, f32);
     extern void mdlSetLookAtDirection(void *, struct RwV3d *);
-    extern void func_0047a990(void *);
-    extern s32 func_0047a9d0(void *);
+    extern void mdlSetLookAtRequested(void *);
+    extern s32 mdlHasActiveMode(void *);
     extern void func_00440b68(char *, ...);
     extern s32 D_008821E0[];
     extern char D_0063C510[];
@@ -1391,9 +1391,9 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                     }
                 } else if (tmp8 == 1) {
                     if (modelData != NULL) {
-                        if (func_0047a9d0(modelData) == 1) {
+                        if (mdlHasActiveMode(modelData) == 1) {
                             mdlSetBlendWeight(modelData, fGpffff8218);
-                            func_0047a990(modelData);
+                            mdlSetLookAtRequested(modelData);
                         }
                         func_002932b0(*(u16 *)(resource + 0xC));
                     }

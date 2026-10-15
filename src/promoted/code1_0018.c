@@ -2081,9 +2081,9 @@ extern s32 func_0047a6d0(void *, s32, void *);
 extern void mdlSetAlphaBlend(unsigned char *);
 extern void mdlClearAlphaBlend(unsigned char *);
 extern void mdlSetLookAtTargetPoint(void *, void *);
-extern void func_0047a990(unsigned char *);
-extern void func_0047a9f0(unsigned char *, u16);
-extern u16 func_0047aa00(unsigned char *);
+extern void mdlSetLookAtRequested(unsigned char *);
+extern void mdlSetLookStateWord(unsigned char *, u16);
+extern u16 mdlGetLookStateWord(unsigned char *);
 
 
 extern unsigned char D_00763074[4];
@@ -2300,20 +2300,20 @@ s32 func_0018a200(u8 *param_1)
             *(FldCopyVec *)vec40 = *(FldCopyVec *)(temp_v4 + 0x30);
             vec40[1] = vec40[1] + 140.0f;
             mdlSetLookAtTargetPoint(*(void **)(puVar1[3] + 0x164), lookTarget);
-            temp_v2 = func_0047aa00(*(unsigned char **)(puVar1[3] + 0x164));
+            temp_v2 = mdlGetLookStateWord(*(unsigned char **)(puVar1[3] + 0x164));
             temp_v2 |= 0x1000;
-            func_0047a9f0(*(unsigned char **)(puVar1[3] + 0x164),temp_v2);
+            mdlSetLookStateWord(*(unsigned char **)(puVar1[3] + 0x164), temp_v2);
           }
           else {
-            func_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
+            mdlSetLookAtRequested(*(unsigned char **)(puVar1[3] + 0x164));
           }
         }
         else {
-          func_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
+          mdlSetLookAtRequested(*(unsigned char **)(puVar1[3] + 0x164));
         }
       }
       else {
-        func_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
+        mdlSetLookAtRequested(*(unsigned char **)(puVar1[3] + 0x164));
       }
     }
     temp_v4 = func_00457120();
@@ -2735,7 +2735,7 @@ s32 func_0018a200(u8 *param_1)
     RwV3dNormalize(turnForward, turnForward);
     turnRight = (RainVector *)vec150;
     RwV3dNormalize(turnRight, turnRight);
-    func_0047a990(*(unsigned char **)(puVar1[3] + 0x164));
+    mdlSetLookAtRequested(*(unsigned char **)(puVar1[3] + 0x164));
     ny = ((float*)puVar1)[0x10];
     nx = ((float*)puVar1)[0xf];
     nz = ((float*)puVar1)[0x11];

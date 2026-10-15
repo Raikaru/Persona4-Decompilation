@@ -130,7 +130,7 @@ extern s32 func_001060c0(void);
 extern s32 func_00110960(s16 arg0, s32 arg1);
 extern s32 D_005F1350[];
 extern void mdlSetColor(void *arg0, void *arg1);
-extern void func_0047a990(void *arg0);
+extern void mdlSetLookAtRequested(void *arg0);
 extern void func_0047aaa0(void *arg0, u16 arg1, u32 arg2, u16 arg3,
                            void *arg4, u32 arg5);
 extern void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2);
@@ -1051,7 +1051,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
             *(u16 *)(D_007F16F2 + slot * 8) = *(u16 *)(*(u8 **)(D_007F16F4 + slot * 8) + 0xD6);
         } else {
             mdlSetColor(obj, &iGpffff9f10);
-            func_0047a990(obj);
+            mdlSetLookAtRequested(obj);
         }
         break;
     }
@@ -1078,7 +1078,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
             *(u16 *)(D_007F16F2 + slot * 8) = *(u16 *)(*(u8 **)(D_007F16F4 + slot * 8) + 0xD6);
         } else {
             mdlSetColor(obj, &iGpffff9f10);
-            func_0047a990(obj);
+            mdlSetLookAtRequested(obj);
         }
         break;
     }
