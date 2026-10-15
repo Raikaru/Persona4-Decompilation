@@ -1076,7 +1076,7 @@ void func_001a2d60(void)
 #pragma push
 /* measured: func_001a2d70 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-void func_001a2d70(u8 *arg0) {
+void btlActionSupportUpdate(u8 *arg0) {
     extern void btlActionSetState(u8 *, u16);
     extern u8 *btlCameraCreateSetStatePacket(u8 *, u16);
 
