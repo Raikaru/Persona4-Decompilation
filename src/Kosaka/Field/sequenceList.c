@@ -120,7 +120,8 @@ void func_00102e10(void)
     func_00452080(handle);
 }
 
-// FUN_00102E70
+// Intent: the BATTLE sequence's start callback (sequence id 6). It destroys the
+// field resource archives before the battle loads. FUN_00102E70
 void K_Fldrc_DestroyArchives(void)
 {
     func_00192e90();
