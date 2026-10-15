@@ -1657,8 +1657,9 @@ void mdlDestroySlotEffects(u8 *arg0)
    IDA preserves a hierarchy snapshot separately from the escaped output slot.
    Typed object fields and pointer-valued traversal data retain the retail
    reloads, frame address lifetime, and argument evaluation order. */
+/* Attaches a clump's frame hierarchy to a slot record: stores the hierarchy at the slot, sets the atomic hierarchy, optionally sets up MatFX (arg2 != 0), and builds two interpolators from the slot's source animation (flag 0x80). */
 // FUN_00473710
-void func_00473710(u8 *arg0, u8 *arg1, s32 arg2)
+void mdlAttachSlotHierarchy(u8 *arg0, u8 *arg1, s32 arg2)
 {
     typedef struct MdlHierarchyView {
         u32 flags;
@@ -4201,7 +4202,7 @@ void func_00477ca0(u8* arg0)
         func_00474df0(arg0 + 0x23C, *(void**)(arg0 + 0xDC));
     }
     if (func_00479ca0(arg0, 0) != 0) {
-        func_00473710(arg0 + 0xEC, *(void**)(arg0 + 0xDC), 1);
+        mdlAttachSlotHierarchy(arg0 + 0xEC, *(void**)(arg0 + 0xDC), 1);
         func_00479940(arg0, 0, 0, 0, 1);
         for (var_17 = (u64)1; (var_17 & 0xFFFF) < 2; var_17++) {
             temp_16 = entries[var_17];
@@ -4502,7 +4503,7 @@ void func_00478410(u8* source, u8* destination)
             destinationBase = destination + layer * 0xa4;
             ((MdlCloneLayerView*)(destinationBase + 0xec))->resource = resource;
             if ((sourceLayer->flags & 2) == 0) {
-                func_00473710(destinationBase + 0xec, *(u8**)(destination + 0xdc), 0);
+                mdlAttachSlotHierarchy(destinationBase + 0xec, *(u8**)(destination + 0xdc), 0);
             } else {
                 ((MdlCloneLayerView*)(destinationBase + 0xec))->flags |= 2;
                 {
