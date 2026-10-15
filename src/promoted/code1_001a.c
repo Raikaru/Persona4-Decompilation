@@ -87,7 +87,7 @@ s32 btlUnitIsMoving(u8 *arg0);
 void btlActionFinishPresentation(BtlAction *action);
 void btlAICommandPickAiTarget(void *arg0, s32 arg1);
 BtlPacket *func_001d3700(u16 arg0, u16 arg1);
-s64 func_00194590(u8 *arg0, u32 arg1);
+s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void func_0022db90(u8 *arg0);
 extern void func_001f0a40(void *arg0);
 extern void func_00212070(u8 *arg0, u8 *arg1);
@@ -370,12 +370,12 @@ void btlActionFinishPresentation(BtlAction *action)
         if (*(u16 *)(battleCtx + 0x18) & 0x20) {
             lookAtDeactivatePacket = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3);
             *(s64 *)(lookAtDeactivatePacket + 0x60) = *(s64 *)action;
-            func_00194590(lookAtDeactivatePacket, 1);
+            btlPacketEnqueue(lookAtDeactivatePacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 2) {
             ambientPacket = (u8 *)func_001d3700(3, 0xFFF);
             *(s64 *)(ambientPacket + 0x60) = *(s64 *)action;
-            func_00194590(ambientPacket, 0);
+            btlPacketEnqueue(ambientPacket, 0);
         }
         battleCtxAlt = D_0076449C;
         if (*(u16 *)(battleCtxAlt + 0x18) & 1) {
@@ -386,7 +386,7 @@ loop_body:
                 datCalcIsDead(*(s32 *)(*(u8 **)(listUnit + 0x30) + 0xA64), 0) == 0) {
                 unitPacket = func_0019a0c0(*(u8 **)(listUnit + 0x30), 0);
                 *(s64 *)(unitPacket + 0x60) = *(s64 *)action;
-                func_00194590(unitPacket, 0);
+                btlPacketEnqueue(unitPacket, 0);
             }
             listUnit = *(u8 **)(listUnit + 0x450);
 loop_test:
@@ -397,22 +397,22 @@ loop_test:
         if (*(u16 *)(D_0076449C + 0x18) & 0x10) {
             effectPacket = (u8 *)btlMainCreateColorSetPacket(0);
             *(s64 *)(effectPacket + 0x60) = *(s64 *)action;
-            func_00194590(effectPacket, 1);
+            btlPacketEnqueue(effectPacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 8) {
             subPacket = (u8 *)func_001d7a10(5);
             *(s64 *)(subPacket + 0x60) = *(s64 *)action;
-            func_00194590(subPacket, 1);
+            btlPacketEnqueue(subPacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 4) {
             cameraPacket = (u8 *)btlCameraCreateSetStatePacket(action, 0x24);
             *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
-            func_00194590(cameraPacket, 0);
+            btlPacketEnqueue(cameraPacket, 0);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 0x40) {
             endPacket = func_00201f20();
             *(s64 *)(endPacket + 0x60) = *(s64 *)action;
-            func_00194590(endPacket, 0);
+            btlPacketEnqueue(endPacket, 0);
         }
         *(u16 *)(D_0076449C + 0x18) = 0;
         battleCtxClear = D_0076449C;
@@ -537,7 +537,7 @@ void btlActionTryBegin(BtlAction *action) {
     if ((s32)action->unk_28 > 0) {
         if (!(*(s32 *)(iGpffffb3ac + 0x10) & 0x20)) {
             func_00212070(*(u8 **)(iGpffffb3ac + 0xDD4), (u8 *)action);
-            func_00194590(func_001f99c0((u8 *)action, 0xE, 0, 0, 0), 1);
+            btlPacketEnqueue(func_001f99c0((u8 *)action, 0xE, 0, 0, 0), 1);
         }
     } else {
         action->flags |= 0x400;
@@ -657,16 +657,16 @@ void func_001a0b00(s64 *arg0) {
             if ((result.hpDelta != 0) || (result.spDelta != 0)) {
                 unitPacket = func_00202740((u8 *)action->unit);
                 *(s64 *)(unitPacket + 0x60) = action->uid;
-                func_00194590(unitPacket, 1);
+                btlPacketEnqueue(unitPacket, 1);
                 if ((s16)passiveCue != -1) {
                     cuePacket = (u8 *)func_001f7c20(0xE, 2, (u16)passiveCue);
                     *(s64 *)(cuePacket + 0x60) = action->uid;
-                    func_00194590(cuePacket, 1);
+                    btlPacketEnqueue(cuePacket, 1);
                 }
             }
             resultPacket = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, &result, 1, 1);
             *(s64 *)(resultPacket + 0x60) = action->uid;
-            func_00194590(resultPacket, 1);
+            btlPacketEnqueue(resultPacket, 1);
             if ((result.hpDelta != 0) || (result.spDelta != 0)) {
                 s32 unit;
                 unit = (s32)(u8 *)action->unit;
@@ -674,13 +674,13 @@ void func_001a0b00(s64 *arg0) {
                 *(s8 *)(statusPacket + 0) = 4;
                 *(s64 *)(statusPacket + 8) = *(s64 *)(resultPacket + 0x58);
                 *(u8 *)(statusPacket + 0x47) &= ~0x20;
-                func_00194590(statusPacket, 3);
+                btlPacketEnqueue(statusPacket, 3);
                 if (result.hpDelta != 0) {
                     statPacket = (u8 *)func_00202590((s32)(u8 *)action->unit, 0, 0);
                     *(s8 *)(statPacket + 0) = 4;
                     *(s64 *)(statPacket + 8) = *(s64 *)(resultPacket + 0x58);
                     *(u8 *)(statPacket + 0x47) &= ~0x20;
-                    func_00194590(statPacket, 3);
+                    btlPacketEnqueue(statPacket, 3);
                 }
             }
         }
@@ -745,7 +745,7 @@ void btlActionSelectMove(BtlAction *action)
         movePacket = (u8 *)btlUnitCreateMovePacket(
             *(BtlUnit **)((u8 *)action + 0x30), &sp30, D_005F6D20[moveId & 0xFFFF], 0);
         *(s64 *)(movePacket + 0x60) = *(s64 *)action;
-        func_00194590(movePacket, 1);
+        btlPacketEnqueue(movePacket, 1);
         return;
     }
     btlActionSetState(action, *(u16 *)((u8 *)action + 0x14));
@@ -776,7 +776,7 @@ void func_001a1450(s64 *arg0)
     extern void func_001958f0(u8 *arg0, f32 *arg1);
     extern s32 btlUnitIsMoving(u8 *arg0);
 
-    extern void func_00194590(u8 *arg0, s32 arg1);
+    extern void btlPacketEnqueue(u8 *arg0, s32 arg1);
     extern void func_00203670(s32 arg0, u8 *arg1);
     extern void func_00213c10(s32 task);
 
@@ -804,7 +804,7 @@ loop_14_body:
         }
         rotatePacket = actionRotatePacketBytes(listUnit, &sp30, 2);
         *(s64 *)(rotatePacket + 0x60) = *arg0;
-        func_00194590(rotatePacket, 0);
+        btlPacketEnqueue(rotatePacket, 0);
         listUnit = *(u8 **)(listUnit + 0xA68);
 loop_14_test:
         if (listUnit != NULL) {
@@ -817,7 +817,7 @@ loop_19_body:
             func_00194ff0(listUnit2, NULL, 0, (f32 *)&sp40);
             rotatePacketB = actionRotatePacketBytes(listUnit2, &sp40, 2);
             *(s64 *)(rotatePacketB + 0x60) = *arg0;
-            func_00194590(rotatePacketB, 0);
+            btlPacketEnqueue(rotatePacketB, 0);
         }
         listUnit2 = *(u8 **)(listUnit2 + 0xA68);
 loop_19_test:
@@ -826,11 +826,11 @@ loop_19_test:
         }
         ambientPacket = (u8 *)func_001d3700(3, 0x8001);
         *(s64 *)(ambientPacket + 0x60) = *arg0;
-        func_00194590(ambientPacket, 0);
+        btlPacketEnqueue(ambientPacket, 0);
         if (*(u8 *)((u8 *)arg0 + 0x28) == 0) {
             targetPacket = actionTargetPacketBytes((u8 *)arg0, 0x1D, 0, 0, 0);
             *(s64 *)(targetPacket + 0x60) = *arg0;
-            func_00194590(targetPacket, 1);
+            btlPacketEnqueue(targetPacket, 1);
         }
     }
     {
@@ -840,20 +840,20 @@ loop_19_test:
         if (battleUnit[0xA2] == 0) {
             lookAtPacket = actionLookAtUnit(NULL, battleUnit, 2);
             *(s64 *)(lookAtPacket + 0x60) = *arg0;
-            func_00194590(lookAtPacket, 1);
+            btlPacketEnqueue(lookAtPacket, 1);
         } else {
             lookAtDeactivatePacket = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 2);
             *(s64 *)(lookAtDeactivatePacket + 0x60) = *arg0;
-            func_00194590(lookAtDeactivatePacket, 1);
+            btlPacketEnqueue(lookAtDeactivatePacket, 1);
         }
     }
-    func_00194590(
+    btlPacketEnqueue(
         (u8 *)btlUnitCreateLookAtDeactivatePacket(
             (BtlUnit *)*(s32 *)(u8 *)func_001a_add_offset(0x30, (s32)arg0), 0),
         1);
     cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x21);
     *(s64 *)(cameraPacket + 0x60) = *arg0;
-    func_00194590(cameraPacket, 0);
+    btlPacketEnqueue(cameraPacket, 0);
     func_001eb3b0((u8 *)arg0 + 0x38);
     actionTypeAfter = *(u16 *)(u8 *)func_001a_add_offset(0x10, (s32)arg0);
     if ((actionTypeAfter != 0x25) && (actionTypeAfter != 6) && (actionTypeAfter != 5)) {
@@ -905,7 +905,7 @@ void func_001a17d0(u8 *arg0)
                         func_00204d90(*(s32 *)(iGpffffb3ac + 0xDD4));
                         w = btlCameraCreateSetStatePacket(arg0, 40);
                         *(s64 *)(w + 0x60) = *(s64 *)arg0;
-                        func_00194590(w, 0);
+                        btlPacketEnqueue(w, 0);
                     }
                     return;
                 }
@@ -919,7 +919,7 @@ void func_001a17d0(u8 *arg0)
             func_00204d50(*(s32 *)(iGpffffb3ac + 0xDD4));
             w = btlCameraCreateSetStatePacket(arg0, 33);
             *(s64 *)(w + 0x60) = *(s64 *)arg0;
-            func_00194590(w, 0);
+            btlPacketEnqueue(w, 0);
         }
     }
     switch (v4 & 0xFFFF) {
@@ -1052,14 +1052,14 @@ after_type_1c80:
         (s64)(s16)unitIndex);
     packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x22);
     *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-    func_00194590(packet, 0);
+    btlPacketEnqueue(packet, 0);
     func_00212010(*(s32 *)(D_0076449C + 0xDD4));
     func_0019faf0(arg0);
     if (lookAtUnit != NULL) {
         packet = actionLookAtUnit(NULL, *(u8 **)(lookAtUnit + 0x30), 1);
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
         packet = (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)*(s32 *)(lookAtUnit + 0x30), 0);
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
     }
 }
 #pragma push
@@ -1132,7 +1132,7 @@ void func_001a1ea0(u8 *action) {
                 func_00213b80((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
                 enterCamera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x28);
                 (*(s64*)(enterCamera + 0x60)) = (s64) (*(s64*)action);
-                func_00194590(enterCamera, 0U);
+                btlPacketEnqueue(enterCamera, 0U);
             }
             return;
         }
@@ -1146,7 +1146,7 @@ void func_001a1ea0(u8 *action) {
         func_00213b50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         exitCamera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x22);
         (*(s64*)(exitCamera + 0x60)) = (s64) (*(s64*)action);
-        func_00194590(exitCamera, 0U);
+        btlPacketEnqueue(exitCamera, 0U);
     }
 select_action:
     selectionMode = selectionState & 0xFFFF;
@@ -1164,19 +1164,19 @@ select_action:
                 actionCursor = *(u8 **)(actionCursor + 0x450);
             }
             btlActionSetState((BtlAction *)action, 9);
-            func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
+            btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
             return;
         }
         selectedAction = (u8 *)func_0020ba90((s32)(*(u8**)(selectionBattle + 0xDD4)));
         if (selectedAction != NULL) {
             selectedUnit = (*(u8**)(selectedAction + 0x30));
             if ((*(u8*)(selectedUnit + 0xA2)) == 1) {
-                func_00194590((u8*)actionLookAtUnit(NULL, selectedUnit, 1), 1U);
-                func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(*(BtlUnit **)(selectedAction + 0x30), 0), 1U);
+                btlPacketEnqueue((u8*)actionLookAtUnit(NULL, selectedUnit, 1), 1U);
+                btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(*(BtlUnit **)(selectedAction + 0x30), 0), 1U);
                 return;
             }
         }
-        func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(0, 3), 1U);
+        btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 3), 1U);
         return;
     case 1:
         targetMode = *(u8 *)(actionSelectionOffset(*(u16 *)(action + 0x6E) * 0x28, iGpffffb3b8) + 8);
@@ -1240,7 +1240,7 @@ select_action:
         } break;
         }
     case 2:
-        func_00194590((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
+        btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
         func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
         func_00204d50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
@@ -1282,7 +1282,7 @@ void func_001a24b0(u8 *action)
 
         openingPacket = (u8 *)func_001d3700(3, 0xFFF);
         *(s64 *)(openingPacket + 0x60) = *(s64 *)action;
-        func_00194590(openingPacket, 0);
+        btlPacketEnqueue(openingPacket, 0);
         iter = *(u8 **)(D_0076449C + 0x174);
         while (iter != NULL) {
             u8 *packet;
@@ -1293,7 +1293,7 @@ void func_001a24b0(u8 *action)
                     packet = func_0019bbe0(*(u8 **)(iter + 0x30), 0xFFFFFF, 8, 0, 4, 0);
                 }
                 *(s64 *)(packet + 0x60) = *(s64 *)action;
-                func_00194590(packet, 0);
+                btlPacketEnqueue(packet, 0);
             }
             iter = *(u8 **)(iter + 0x450);
         }
@@ -1322,7 +1322,7 @@ void func_001a24b0(u8 *action)
         {
             u8 *cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)selected, 1);
             *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
-            func_00194590(cameraPacket, 0);
+            btlPacketEnqueue(cameraPacket, 0);
         }
         func_001f62b0();
         func_001f86d0();
@@ -1424,7 +1424,7 @@ void func_001a24b0(u8 *action)
                     packet = func_0019bbe0(*(u8 **)(iter + 0x30), (u32)-1, 0, 0, 3, 0);
                 }
                 *(s64 *)(packet + 0x60) = *(s64 *)action;
-                func_00194590(packet, 0);
+                btlPacketEnqueue(packet, 0);
             }
             iter = *(u8 **)(iter + 0x450);
         }
@@ -1493,7 +1493,7 @@ void func_001a2c70(u8 *arg0)
     func_001d8be0((s32)(arg0 + 0x98), *(u64 **)(arg0 + 0x38));
     battleUnit = *(u8 **)(arg0 + 0x30);
     if ((battleUnit[0xA2] == 0) && (*(u16 *)(battleUnit + 0xA4) == 1)) {
-        func_00194590(actionTargetPacketBytes(arg0, 1, 0, 0, 0), 1);
+        btlPacketEnqueue(actionTargetPacketBytes(arg0, 1, 0, 0, 0), 1);
     }
     if (*(s32 *)(D_0076449C + 0xC) & 0x04000000) {
         *(u16 *)(arg0 + 0x18) |= 0x4000;
@@ -1660,10 +1660,10 @@ void func_001a2d70(u8 *arg0) {
             btlActionFinishPresentation((BtlAction *)arg0);
             packet = btlCameraCreateSetStatePacket((u8 *)arg0, 10);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-            func_00194590(packet, 0);
+            btlPacketEnqueue(packet, 0);
             packet = actionMessagePacketBytes(*(s32 *)((u8 *)arg0 + 0x30), (s32)state);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-            func_00194590(packet, 3);
+            btlPacketEnqueue(packet, 3);
         } else {
 fallback:
             if (func_001f6770((u8 *)arg0) != 0) {
@@ -1714,14 +1714,14 @@ void func_001a31e0(BtlAction *actionState)
             if (allowRecovery != 0) {
                 cameraPacket = (u8 *)btlCameraCreateSetStatePacket(actionState, 0x31);
                 *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
-                func_00194590(cameraPacket, 0);
+                btlPacketEnqueue(cameraPacket, 0);
                 if (*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) {
                     u8 *packet;
                     func_00194ff0(*(u8 **)(action + 0x30), NULL, NULL, rotation);
                     packet = (u8 *)btlUnitCreateRotatePacket(*(BtlUnit **)(action + 0x30),
                                                             (const RwV3d *)rotation, 2);
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
-                    func_00194590(packet, 0);
+                    btlPacketEnqueue(packet, 0);
                 }
                 {
                     u32 flags = *(u32 *)(iGpffffb3ac + 0xC);
@@ -1741,12 +1741,12 @@ void func_001a31e0(BtlAction *actionState)
                 *(s64 *)(animationPacket + 8) = *(s64 *)(cameraPacket + 0x58);
                 *(u16 *)(animationPacket + 0x48) = animationDelay;
                 *(s64 *)(animationPacket + 0x60) = *(s64 *)action;
-                func_00194590(animationPacket, 0);
+                btlPacketEnqueue(animationPacket, 0);
                 {
                     u8 *packet = (u8 *)btlVoiceCreatePacket(actionState, 3, 0, 0, 0);
                     packet[0] = 4;
                     *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
-                    func_00194590(packet, 1);
+                    btlPacketEnqueue(packet, 1);
                 }
                 func_001f0a10((u8 *)&result);
                 result.words[3] = 0x100001;
@@ -1755,7 +1755,7 @@ void func_001a31e0(BtlAction *actionState)
                     packet[0] = 4;
                     *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
-                    func_00194590(packet, 1);
+                    btlPacketEnqueue(packet, 1);
                 }
                 {
                     u8 *packet = (u8 *)func_0019a980(*(BtlUnit **)(action + 0x30));
@@ -1763,26 +1763,26 @@ void func_001a31e0(BtlAction *actionState)
                     *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
                     *(u16 *)(packet + 0x4A) = animationDuration;
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
-                    func_00194590(packet, 0);
+                    btlPacketEnqueue(packet, 0);
                 }
                 {
                     u8 *packet = (u8 *)func_001f5f70((u32)action, 0x11, 0, 0, 0);
                     packet[0] = 4;
                     *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
-                    func_00194590(packet, 1);
+                    btlPacketEnqueue(packet, 1);
                 }
                 *(s32 *)(action + 0x41C) = 1;
             } else {
                 {
                     u8 *packet = (u8 *)btlCameraCreateSetStatePacket(actionState, 10);
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
-                    func_00194590(packet, 0);
+                    btlPacketEnqueue(packet, 0);
                 }
                 {
                     u8 *packet = (u8 *)func_001f5f70((u32)action, 0x12, 0, 0, 0);
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
-                    func_00194590(packet, 1);
+                    btlPacketEnqueue(packet, 1);
                 }
                 {
                     u8 *unit = *(u8 **)(action + 0x30);
@@ -1795,12 +1795,12 @@ void func_001a31e0(BtlAction *actionState)
                     }
                     packet = (u8 *)func_00202400((s32)unit, message);
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
-                    func_00194590(packet, 3);
+                    btlPacketEnqueue(packet, 3);
                 }
                 *(s32 *)(action + 0x41C) = 0;
             }
-            func_00194590((u8 *)btlUnitCreateLookAtUnitPacket(NULL, *(BtlUnit **)(action + 0x30), 1), 1);
-            func_00194590((u8 *)btlUnitCreateLookAtDeactivatePacket(*(BtlUnit **)(action + 0x30), 0), 1);
+            btlPacketEnqueue((u8 *)btlUnitCreateLookAtUnitPacket(NULL, *(BtlUnit **)(action + 0x30), 1), 1);
+            btlPacketEnqueue((u8 *)btlUnitCreateLookAtDeactivatePacket(*(BtlUnit **)(action + 0x30), 0), 1);
             *(u16 *)(action + 0x18) |= 0x200;
             *(s32 *)(action + 0x420) = 1;
             return;
@@ -1811,20 +1811,20 @@ void func_001a31e0(BtlAction *actionState)
             {
                 u8 *packet = (u8 *)btlCameraCreateSetStatePacket(actionState, 10);
                 *(s64 *)(packet + 0x60) = *(s64 *)action;
-                func_00194590(packet, 0);
+                btlPacketEnqueue(packet, 0);
             }
             func_001f0a10((u8 *)&result);
             result.words[3] = resultFlags;
             {
                 u8 *packet = (u8 *)func_001f36e0((s32)action, (s32)action, &result, 1, 1);
                 *(u16 *)(packet + 0x48) = 0x12;
-                func_00194590(packet, 1);
+                btlPacketEnqueue(packet, 1);
             }
             message = func_001f7140(action);
             if (message > 0) {
                 u8 *packet = (u8 *)func_00202400(*(s32 *)(action + 0x30), message);
                 *(s64 *)(packet + 0x60) = *(s64 *)action;
-                func_00194590(packet, 3);
+                btlPacketEnqueue(packet, 3);
             }
             return;
         }
@@ -1838,19 +1838,19 @@ void func_001a31e0(BtlAction *actionState)
                     {
                         u8 *packet = (u8 *)btlCameraCreateSetStatePacket(actionState, 10);
                         *(s64 *)(packet + 0x60) = *(s64 *)action;
-                        func_00194590(packet, 0);
+                        btlPacketEnqueue(packet, 0);
                     }
                     {
                         u8 *packet = (u8 *)func_00202400(*(s32 *)(action + 0x30), message);
                         *(s64 *)(packet + 0x60) = *(s64 *)action;
-                        func_00194590(packet, 3);
+                        btlPacketEnqueue(packet, 3);
                     }
                 }
                 {
                     u8 *packet = (u8 *)func_001f5f70((u32)action, 0x1E, 0, 0, 0);
                     *(u16 *)(packet + 0x48) = 0x18;
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
-                    func_00194590(packet, 1);
+                    btlPacketEnqueue(packet, 1);
                 }
                 btlActionSetState(actionState, 15);
                 return;
@@ -1957,7 +1957,7 @@ void func_001a3840(register BtlAction *actionState)
             packet = (u8 *)btlVoiceCreatePacket((BtlAction *)action, beforeVoice,
                              *(u16 *)(*(u8 **)(target + 0x30) + 0xA4), 0, 0);
             *(s64 *)(packet + 0x60) = *(s64 *)action;
-            func_00194590(packet, 1);
+            btlPacketEnqueue(packet, 1);
         }
     }
     if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
@@ -1965,16 +1965,16 @@ void func_001a3840(register BtlAction *actionState)
             u8 *packet;
             packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 25);
             *(s64 *)(packet + 0x60) = *(s64 *)action;
-            func_00194590(packet, 0);
+            btlPacketEnqueue(packet, 0);
         }
         movementPacket = (u8 *)btlUnitCreateMoveToUnitPacket(*(BtlUnit **)(action + 0x30),
                         *(BtlUnit **)(target + 0x30), distance, fGpffff811c, 10);
         *(s64 *)(movementPacket + 0x60) = *(s64 *)action;
-        func_00194590(movementPacket, 0);
+        btlPacketEnqueue(movementPacket, 0);
     } else {
         movementPacket = func_00194b60();
         *(s64 *)(movementPacket + 0x60) = *(s64 *)action;
-        func_00194590(movementPacket, 0);
+        btlPacketEnqueue(movementPacket, 0);
     }
     {
         u8 *packet;
@@ -1982,7 +1982,7 @@ void func_001a3840(register BtlAction *actionState)
         packet[0] = 4;
         *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
         *(s64 *)(packet + 0x60) = *(s64 *)action;
-        func_00194590(packet, 3);
+        btlPacketEnqueue(packet, 3);
     }
     {
         u8 *packet;
@@ -1990,7 +1990,7 @@ void func_001a3840(register BtlAction *actionState)
         packet[0] = 4;
         *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
         *(s64 *)(packet + 0x60) = *(s64 *)action;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
     }
     {
         u8 *packet;
@@ -1998,7 +1998,7 @@ void func_001a3840(register BtlAction *actionState)
         packet[0] = 4;
         *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
         *(s64 *)(packet + 0x60) = *(s64 *)action;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
     }
     if ((u16)afterVoice != 0) {
         {
@@ -2008,7 +2008,7 @@ void func_001a3840(register BtlAction *actionState)
             packet[0] = 4;
             *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
             *(s64 *)(packet + 0x60) = *(s64 *)action;
-            func_00194590(packet, 1);
+            btlPacketEnqueue(packet, 1);
         }
     }
     {
@@ -2019,7 +2019,7 @@ void func_001a3840(register BtlAction *actionState)
         *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
         *(s64 *)(packet + 0x60) = *(s64 *)action;
         *(s16 *)(packet + 0x4A) = func_00199500(*(u8 **)(action + 0x30), sourceAnimation, 1.0f);
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
     }
     animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(target + 0x30),
                                                   (s16)targetAnimation, 0, 1.0f, 0);
@@ -2028,7 +2028,7 @@ void func_001a3840(register BtlAction *actionState)
     *(s64 *)(animationPacket + 0x60) = *(s64 *)action;
     delayedFrame = (s16)targetFrame;
     *(s16 *)(animationPacket + 0x48) = targetFrame;
-    func_00194590(animationPacket, 0);
+    btlPacketEnqueue(animationPacket, 0);
     if (selectedEffect.slot != -1) {
         {
             u8 *packet;
@@ -2040,7 +2040,7 @@ void func_001a3840(register BtlAction *actionState)
             *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
             *(s64 *)(packet + 0x60) = *(s64 *)action;
             *(s16 *)(packet + 0x48) = delayedFrame;
-            func_00194590(packet, 2);
+            btlPacketEnqueue(packet, 2);
         }
     }
     func_001f0a10((u8 *)&result);
@@ -2052,7 +2052,7 @@ void func_001a3840(register BtlAction *actionState)
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(s16 *)(packet + 0x48) = delayedFrame;
         *(s64 *)(packet + 0x60) = *(s64 *)action;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
     }
 }
 
@@ -2087,7 +2087,7 @@ loop_body:
     if (func_001a05f0((BtlAction *)iter) != 0) {
         temp = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(iter + 0x30) + 0xA0C));
         *(s64 *)(temp + 0x60) = *(s64 *)iter;
-        func_00194590(temp, 1);
+        btlPacketEnqueue(temp, 1);
     }
     iter = *(u8 **)(iter + 0x450);
 loop_test:
@@ -2111,7 +2111,7 @@ loop_test:
     if (status == 0) {
         temp = func_001fa9c0();
         *(s64 *)(temp + 0x60) = *(s64 *)action;
-        func_00194590(temp, 1);
+        btlPacketEnqueue(temp, 1);
         btlActionSetState(action, 0x20);
         return;
     }
@@ -2140,32 +2140,32 @@ void func_001a3f90(u8 *arg0)
             *(s16 *)(frame + 0) = 2;
             *(u16 *)(frame + 2) =
                 *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
-            func_00194590(func_001fa110(frame), 1);
+            btlPacketEnqueue(func_001fa110(frame), 1);
             btlActionFinishPresentation((BtlAction *)arg0);
-            func_00194590(func_00202850(), 1);
-            func_00194590(func_001fa8f0(), 1);
+            btlPacketEnqueue(func_00202850(), 1);
+            btlPacketEnqueue(func_001fa8f0(), 1);
             func_002182c0(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
-            func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
+            btlPacketEnqueue((u8 *)func_001d3700(3, 0xFFF), 0);
             partner = (void *)func_001b1540();
-            func_00194590(
+            btlPacketEnqueue(
                 btlUnitCreateRotateTowardUnitPacket((u8 *)partner->field_30,
                               *(u8 **)(arg0 + 0x30), 2),
                 0);
-            func_00194590(
+            btlPacketEnqueue(
                 btlUnitCreateRotateTowardUnitPacket(*(u8 **)(arg0 + 0x30),
                               (u8 *)partner->field_30, 2),
                 0);
-            func_00194590(
+            btlPacketEnqueue(
                 (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)partner->field_30, 0),
                 1);
-            func_00194590(
+            btlPacketEnqueue(
                 actionLookAtUnit(*(u8 **)(arg0 + 0x30),
                               (u8 *)partner->field_30, 0),
                 1);
-            func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x30), 0);
+            btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x30), 0);
             waitPacket = func_00194c90((s32)btlActionGetCounter420, (s32)arg0);
-            func_00194590(waitPacket, 1);
-            func_00194590(
+            btlPacketEnqueue(waitPacket, 1);
+            btlPacketEnqueue(
                 func_001d65d0(*(s32 *)(D_0076449C + 0xD90),
                               *(s32 *)(arg0 + 0x30), 0,
                               *(s64 *)(waitPacket + 0x58), 0xC000),
@@ -2179,25 +2179,25 @@ void func_001a3f90(u8 *arg0)
     } else if (*(s32 *)(arg0 + 0x420) == 0) {
         if (func_00218360(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
             if (func_00218390(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
-                func_00194590(func_001f99c0((u8 *)arg0, 8, 0, 0, 0), 1);
+                btlPacketEnqueue(func_001f99c0((u8 *)arg0, 8, 0, 0, 0), 1);
                 effectPacket = func_001fa450();
                 *(s8 *)(effectPacket + 0) = 0xA;
                 *(s16 *)(effectPacket + 8) = 0xC00;
                 *(s64 *)(effectPacket + 0x60) = *(s64 *)arg0;
-                func_00194590(effectPacket, 1);
-                func_00194590(func_002027e0(), 1);
+                btlPacketEnqueue(effectPacket, 1);
+                btlPacketEnqueue(func_002027e0(), 1);
             }
-            func_00194590(func_001faa60(), 1);
+            btlPacketEnqueue(func_001faa60(), 1);
             *(s32 *)(arg0 + 0x420) = 1;
             *(u16 *)(arg0 + 0x424) = 6;
         }
     } else {
         waitFrames = *(u16 *)(arg0 + 0x424);
         if (waitFrames == 0) {
-            func_00194590((u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3), 1);
+            btlPacketEnqueue((u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3), 1);
             if (func_00218390(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
                 targetUnit = func_001b1540();
-                func_00194590(func_001f3870((u8 *)targetUnit, 2), 1);
+                btlPacketEnqueue(func_001f3870((u8 *)targetUnit, 2), 1);
                 *(u16 *)((u8 *)targetUnit + 0x18) |= 0x8000;
                 btlActionSetState((BtlAction *)arg0, 0xE);
             } else {
@@ -2362,14 +2362,14 @@ void func_001a43a0(u8 *action)
     *(u16 *)(action + 0x18) |= 2;
     task = (u8 *)btlVoiceCreatePacket((BtlAction *)action, 9, 0, 0, 0);
     *(u64 *)(task + 0x60) = *(u64 *)action;
-    func_00194590(task, 1);
+    btlPacketEnqueue(task, 1);
     workspace = func_001fa320();
     *(u64 *)(workspace + 0x60) = *(u64 *)action;
-    func_00194590(workspace, 1);
+    btlPacketEnqueue(workspace, 1);
     task = func_002027e0();
     task[0] = 4;
     *(u64 *)(task + 8) = *(u64 *)(workspace + 0x58);
-    func_00194590(task, 1);
+    btlPacketEnqueue(task, 1);
     btlActionSetState((BtlAction *)action, 0xF);
 }
 #pragma pop
@@ -2471,14 +2471,14 @@ donecheck:
                         personaId = 8;
                     }
                     if (((s32)(datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(personaId & 0xFFFF), 0x114)) != (s32)(-1)) || ((battleState = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (battleState->flags & 2))) {
-                        func_00194590(actionTargetPacketBytes(arg0, 8, 0, 0, 3), 1);
-                        func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 8), 0);
+                        btlPacketEnqueue(actionTargetPacketBytes(arg0, 8, 0, 0, 3), 1);
+                        btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 8), 0);
                         actionSetDelayBytes(arg0, 0x1D, 0xC);
                     } else {
                         func_001f5bd0(0);
-                        func_00194590(actionTargetPacketBytes(arg0, 3, 0, 0, 2), 1);
-                        func_00194590(func_001f3870(arg0, 0U), 1);
-                        func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 1), 0);
+                        btlPacketEnqueue(actionTargetPacketBytes(arg0, 3, 0, 0, 2), 1);
+                        btlPacketEnqueue(func_001f3870(arg0, 0U), 1);
+                        btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 1), 0);
                         if ((s32)(func_001f68e0(arg0)) != (s32)(0)) {
                             actionSetDelayBytes(arg0, 0x1B, 0xC);
                         } else {
@@ -2595,13 +2595,13 @@ void func_001a4c80(u8 *actionBytes)
         u8 *packet;
         packet = (u8 *)btlUnitCreateLookAtUnitPacket(NULL, (BtlUnit *)action->unit, 3);
         *(s64 *)(packet + 0x60) = action->uid;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
         packet = (u8 *)btlUnitCreateLookAtDeactivatePacket((BtlUnit *)action->unit, 0);
         *(s64 *)(packet + 0x60) = action->uid;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
     }
     action->flags |= 0x200;
     if ((*(u8 *)(iGpffffb3b8 + skill * 0x28) & 2) != 0) {
@@ -2806,7 +2806,7 @@ range_done:
                 func_001ec1c0((u8 *)rotation, (u8 *)destination.values, (u8 *)&targetCenter);
                 packet = func_00195730((u8 *)unit, (u8 *)destination.values, (u8 *)rotation, NULL);
                 *(s64 *)(packet + 0x60) = action->uid;
-                func_00194590(packet, 0);
+                btlPacketEnqueue(packet, 0);
                 speed = speed * fGpffff8360;
                 proceed = proceed | 8;
             } else {
@@ -2818,16 +2818,16 @@ range_done:
         }
         packet = (u8 *)btlUnitCreateMoveToUnitPacket((BtlUnit *)action->unit, (BtlUnit *)action->target->unit, distance, speed, proceed);
         *(s64 *)(packet + 0x60) = action->uid;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
         if (packet != NULL && inRange == 0) {
             if (reposition == 0) {
                 packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x16);
                 *(s64 *)(packet + 0x60) = action->uid;
-                func_00194590(packet, 0);
+                btlPacketEnqueue(packet, 0);
             } else {
                 packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x17);
                 *(s64 *)(packet + 0x60) = action->uid;
-                func_00194590(packet, 0);
+                btlPacketEnqueue(packet, 0);
             }
         }
         action->flags &= 0xFFEF;
@@ -2934,10 +2934,10 @@ void func_001a5650(s64 *arg0)
             (BtlUnit *)actionUnit, &sp30,
             speed * scale, 0);
         *(s64 *)(movePacket + 0x60) = *arg0;
-        func_00194590(movePacket, 1);
+        btlPacketEnqueue(movePacket, 1);
         cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x18);
         *(s64 *)(cameraPacket + 0x60) = *arg0;
-        func_00194590(cameraPacket, 0);
+        btlPacketEnqueue(cameraPacket, 0);
         return;
     }
     actionKind = *(u16 *)((u8 *)arg0 + 0x6C);
@@ -3117,7 +3117,7 @@ static inline u8 btlUnitKind_001a59a0(u8 *unit)
 void func_001a59a0(s64 *arg0_) {
     u8 *arg0 = (u8 *)arg0_;
     u8 *battleUnit;
-    extern s64 func_00194590(u8 *packet, u32 mode);
+    extern s64 btlPacketEnqueue(u8 *packet, u32 mode);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *func_00197cc0();
     extern u8 *btlUnitCreateRotateTowardUnitPacket();
@@ -3338,17 +3338,17 @@ void func_001a59a0(s64 *arg0_) {
     hasTargetFlags6 = 0;
     counterPending = 0;
     setEffectFlags = 0;
-    func_00194590((u8 *)func_00202010((u32)battleUnit, (*(u16 *)(arg0 + (0x6E)))), 3);
+    btlPacketEnqueue((u8 *)func_00202010((u32)battleUnit, (*(u16 *)(arg0 + (0x6E)))), 3);
     func_001a0290((BtlAction *)arg0, (*(u16 *)(arg0 + (0x6E))), (u8 *)effectIndices);
     if ((*(u16 *)(arg0 + (0x6A))) == 1) {
         rotatePacket = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)(arg0 + (0x30))), (*(u8 **)((u8 *)((*(u8 **)(arg0 + (0x38)))) + (0x30))), 0));
         (*(s64 *)((u8 *)(rotatePacket) + (0x60))) = actionUid;
-        func_00194590(rotatePacket, 0);
+        btlPacketEnqueue(rotatePacket, 0);
     } else {
         func_00196040(func_001eb440((BtlTarget *)(arg0 + 0x38)) & 0xFFFF, 1, &targetPosition, 0, 0, 1);
         rotateToPointPacket = (u8 *)(btlUnitCreateRotatePacket((*(BtlUnit **)(arg0 + (0x30))), &targetPosition, 0));
         (*(s64 *)((u8 *)(rotateToPointPacket) + (0x60))) = actionUid;
-        func_00194590(rotateToPointPacket, 0);
+        btlPacketEnqueue(rotateToPointPacket, 0);
     }
     unitIndex = 0;
     targetCount = (u16)((*(u16 *)(arg0 + (0x6A))));
@@ -3432,7 +3432,7 @@ void func_001a59a0(s64 *arg0_) {
     leadPacketSaved = (u8 *)(leadPacket);
     (*(s16 *)((u8 *)(leadPacket) + (0x48))) = (s16) earlyDelta;
     (*(s64 *)((u8 *)(leadPacket) + (0x60))) = actionUid;
-    func_00194590(leadPacket, 0);
+    btlPacketEnqueue(leadPacket, 0);
     animUid = *(s64 *)(leadPacket + 0x58);
     if (hasCounterUnit == 0) {
         if ((*(u16 *)(arg0 + (0x6A))) == 1) {
@@ -3463,7 +3463,7 @@ void func_001a59a0(s64 *arg0_) {
         (*(s8 *)((u8 *)(cameraPacket) + (0))) = 5;
         (*(s64 *)((u8 *)(cameraPacket) + (8))) = animUid;
         (*(s64 *)((u8 *)(cameraPacket) + (0x60))) = actionUid;
-        func_00194590(cameraPacket, 0);
+        btlPacketEnqueue(cameraPacket, 0);
     }
     if (unitFlag10E != 0) {
         if (actionDuration > 6) {
@@ -3478,7 +3478,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s64 *)((u8 *)(cameraEventPacket) + (8))) = (s64) (*(s64 *)((u8 *)(leadPacketSaved) + (0x58)));
             (*(s16 *)((u8 *)(cameraEventPacket) + (0x48))) = startDelay;
             (*(s64 *)((u8 *)(cameraEventPacket) + (0x60))) = actionUid;
-            func_00194590(cameraEventPacket, 0);
+            btlPacketEnqueue(cameraEventPacket, 0);
         }
         cuePacket = (u8 *)(func_001f7c20(0xC, 2, 9));
         (*(s8 *)((u8 *)(cuePacket) + (0))) = 5;
@@ -3490,19 +3490,19 @@ void func_001a59a0(s64 *arg0_) {
         }
         (*(s16 *)((u8 *)(cuePacket) + (0x48))) = animDelay;
         (*(s64 *)((u8 *)(cuePacket) + (0x60))) = actionUid;
-        func_00194590(cuePacket, 1);
+        btlPacketEnqueue(cuePacket, 1);
         effectPacket = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), battleUnit, battleUnit, 1, 0));
         (*(s8 *)((u8 *)(effectPacket) + (0))) = 5;
         (*(s64 *)((u8 *)(effectPacket) + (8))) = animUid;
         (*(s16 *)((u8 *)(effectPacket) + (0x48))) = (s16) animDuration;
         (*(s64 *)((u8 *)(effectPacket) + (0x60))) = actionUid;
-        func_00194590(effectPacket, 2);
+        btlPacketEnqueue(effectPacket, 2);
         effectPacketB = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD74))), battleUnit, battleUnit, 1, 0));
         (*(s8 *)((u8 *)(effectPacketB) + (0))) = 5;
         (*(s64 *)((u8 *)(effectPacketB) + (8))) = animUid;
         (*(s16 *)((u8 *)(effectPacketB) + (0x48))) = startDelay;
         (*(s64 *)((u8 *)(effectPacketB) + (0x60))) = actionUid;
-        func_00194590(effectPacketB, 2);
+        btlPacketEnqueue(effectPacketB, 2);
         func_001f0a10((u8 *)&result);
         result.addedStatus = 0x100000;
         resultPacket = (u8 *)(func_001f36e0((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
@@ -3511,13 +3511,13 @@ void func_001a59a0(s64 *arg0_) {
         scaledBase = (s16)baseDurationSaved;
         (*(s16 *)((u8 *)(resultPacket) + (0x48))) = (s16) (scaledBase - (scaledBase >> 2));
         (*(s64 *)((u8 *)(resultPacket) + (0x60))) = actionUid;
-        func_00194590(resultPacket, 1);
+        btlPacketEnqueue(resultPacket, 1);
         if ((actionFlagSaved == 0) && ((*(u8 *)((u8 *)((*(u8 **)(arg0 + (0x30)))) + (0xA2))) == 0)) {
             reactionPacket = (u8 *)(func_001f5f70(arg0, 0x19, 0, 0, 0));
             (*(s8 *)((u8 *)(reactionPacket) + (0))) = 4;
             (*(s64 *)((u8 *)(reactionPacket) + (8))) = (s64) (*(s64 *)((u8 *)(resultPacket) + (0x58)));
             (*(s64 *)((u8 *)(reactionPacket) + (0x60))) = actionUid;
-            func_00194590(reactionPacket, 1);
+            btlPacketEnqueue(reactionPacket, 1);
         }
     }
     targetIndex = 0;
@@ -3546,7 +3546,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s16 *)((u8 *)(rotatePacketTarget) + (0x48))) = hitTimingBase;
             (*(u8 *)((u8 *)(rotatePacketTarget) + (0x47))) = (u8) ((*(u8 *)((u8 *)(rotatePacketTarget) + (0x47))) & 0xDF);
             (*(s64 *)((u8 *)(rotatePacketTarget) + (0x60))) = actionUid;
-            func_00194590(rotatePacketTarget, 1);
+            btlPacketEnqueue(rotatePacketTarget, 1);
             if ((*(s32 *)((u8 *)(targetView) + (0xE4))) != 0) {
                 selectedTarget = (ActionTargetView *)arg0;
             } else {
@@ -3558,28 +3558,28 @@ void func_001a59a0(s64 *arg0_) {
             actionPacket = (u8 *)(func_001f99c0((u8 *)focusTarget, 0xD, 0U, 0, 0));
             (*(s16 *)((u8 *)(actionPacket) + (0x48))) = (s16) lateDelta;
             (*(s64 *)((u8 *)(actionPacket) + (0x60))) = actionUid;
-            func_00194590(actionPacket, 1);
+            btlPacketEnqueue(actionPacket, 1);
             rotatePacketFocus = (u8 *)(btlUnitCreateRotateTowardUnitPacket(targetView->unit, battleUnit, 2));
             (*(s16 *)((u8 *)(rotatePacketFocus) + (0x48))) = (s16) lateDelta;
             (*(s64 *)((u8 *)(rotatePacketFocus) + (0x60))) = actionUid;
-            func_00194590(rotatePacketFocus, 0);
+            btlPacketEnqueue(rotatePacketFocus, 0);
             cameraPacketFocus = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0x11));
             (*(s16 *)((u8 *)(cameraPacketFocus) + (0x48))) = (s16) lateDelta;
             (*(s64 *)((u8 *)(cameraPacketFocus) + (0x60))) = actionUid;
             (*(s16 *)((u8 *)(cameraPacketFocus) + (0x4A))) = (s16) timingValueShifted;
-            func_00194590(cameraPacketFocus, 0);
+            btlPacketEnqueue(cameraPacketFocus, 0);
             movePacket = (u8 *)(func_001d3530(focusTarget->unit, targetView->unit, 2));
             (*(s16 *)((u8 *)(movePacket) + (0x48))) = (s16) lateDelta;
             (*(s64 *)((u8 *)(movePacket) + (0x60))) = actionUid;
-            func_00194590(movePacket, 0);
+            btlPacketEnqueue(movePacket, 0);
             animPacketFocus = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)focusTarget->unit, 0x1A, 0, 1.0f, 0));
             (*(s16 *)((u8 *)(animPacketFocus) + (0x48))) = (s16) lateDelta;
             (*(s64 *)((u8 *)(animPacketFocus) + (0x60))) = actionUid;
-            func_00194590(animPacketFocus, 0);
+            btlPacketEnqueue(animPacketFocus, 0);
             animPacketTarget = (u8 *)(btlUnitCreateAnimPacket((BtlUnit *)targetView->unit, 0x1A, 0, 1.0f, 2));
             (*(s16 *)((u8 *)(animPacketTarget) + (0x48))) = (s16) lateDelta;
             (*(s64 *)((u8 *)(animPacketTarget) + (0x60))) = actionUid;
-            func_00194590(animPacketTarget, 0);
+            btlPacketEnqueue(animPacketTarget, 0);
             setEffectFlags = 1;
         }
         if (btlUnitKind_001a59a0(battleUnit) == 0) {
@@ -3601,7 +3601,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s8 *)((u8 *)(nearMovePacket) + (0))) = 5;
             (*(s64 *)((u8 *)(nearMovePacket) + (8))) = animUid;
             (*(s64 *)((u8 *)(nearMovePacket) + (0x60))) = actionUid;
-            func_00194590(nearMovePacket, 0);
+            btlPacketEnqueue(nearMovePacket, 0);
             setEffectFlags = 1;
         }
         hitRowIndex = 0;
@@ -3651,36 +3651,36 @@ void func_001a59a0(s64 *arg0_) {
                     hitTimingBase += 5;
                 }
                 (*(s64 *)((u8 *)(hitAnimPacketSaved) + (0x60))) = actionUid;
-                func_00194590((u8 *)hitAnimPacketSaved, 0);
+                btlPacketEnqueue((u8 *)hitAnimPacketSaved, 0);
                 hitPacketUid = *(s64 *)((u8 *)hitAnimPacketSaved + 0x58);
                 if ((targetView->effect & 4) && (unitFlag10E == 0)) {
                     cuePacketB = (u8 *)(func_001f7c20(0xD, 1, 0xF));
                     (*(s8 *)((u8 *)(cuePacketB) + (0))) = 5;
                     (*(s64 *)((u8 *)(cuePacketB) + (8))) = animUid;
                     (*(s16 *)((u8 *)(cuePacketB) + (0x48))) = (s16) hitTiming;
-                    func_00194590(cuePacketB, 1);
+                    btlPacketEnqueue(cuePacketB, 1);
                 }
                 if ((*(s32 *)((u8 *)(targetView) + (0xE4))) != 0) {
                     effectPacketC = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD28))), battleUnit, targetView->unit, 1, 0));
                     (*(s8 *)((u8 *)(effectPacketC) + (0))) = 5;
                     (*(s64 *)((u8 *)(effectPacketC) + (8))) = animUid;
                     (*(s16 *)((u8 *)(effectPacketC) + (0x48))) = (s16) hitTiming;
-                    func_00194590(effectPacketC, 1);
+                    btlPacketEnqueue(effectPacketC, 1);
                     cuePacketC = (u8 *)(func_001f7c20(0xD, 2, 0xB));
                     (*(s8 *)((u8 *)(cuePacketC) + (0))) = 5;
                     (*(s64 *)((u8 *)(cuePacketC) + (8))) = animUid;
                     (*(s16 *)((u8 *)(cuePacketC) + (0x48))) = (s16) hitTiming;
-                    func_00194590(cuePacketC, 1);
+                    btlPacketEnqueue(cuePacketC, 1);
                 }
                 if (targetView->effect == 0x400) {
                     effectPacketD = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD2C))), battleUnit, focusTarget->unit, 1, 0));
                     (*(s8 *)((u8 *)(effectPacketD) + (0))) = 5;
                     (*(s64 *)((u8 *)(effectPacketD) + (8))) = hitPacketUid;
-                    func_00194590(effectPacketD, 1);
+                    btlPacketEnqueue(effectPacketD, 1);
                     cuePacketD = (u8 *)(func_001f7c20(0xC, 2, 0xC));
                     (*(s8 *)((u8 *)(cuePacketD) + (0))) = 5;
                     (*(s64 *)((u8 *)(cuePacketD) + (8))) = hitPacketUid;
-                    func_00194590(cuePacketD, 1);
+                    btlPacketEnqueue(cuePacketD, 1);
                 }
                 func_001f7830(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
                 if ((hitCue >= 0) && (hitVariant >= 0)) {
@@ -3688,7 +3688,7 @@ void func_001a59a0(s64 *arg0_) {
                     (*(s8 *)((u8 *)(cuePacketE) + (0))) = 5;
                     (*(s64 *)((u8 *)(cuePacketE) + (8))) = animUid;
                     (*(s16 *)((u8 *)(cuePacketE) + (0x48))) = hitTimingBase;
-                    func_00194590(cuePacketE, 1);
+                    btlPacketEnqueue(cuePacketE, 1);
                 }
                 if (isPrimaryHit != 0) {
                     if ((targetView->targetFlags & 6) && (actionFlagSaved == 0)) {
@@ -3701,26 +3701,26 @@ void func_001a59a0(s64 *arg0_) {
                         (*(s64 *)((u8 *)(effectPacketK) + (8))) = animUid;
                         (*(s16 *)((u8 *)(effectPacketK) + (0x48))) = hitTimingBase;
                         (*(s64 *)((u8 *)(effectPacketK) + (0x60))) = actionUid;
-                        func_00194590(effectPacketK, 2);
+                        btlPacketEnqueue(effectPacketK, 2);
                         if (hitIndex == lastHitIndex) {
                             cuePacketF = (u8 *)(func_001f7c20(0xC, 0, 9));
                             (*(s8 *)((u8 *)(cuePacketF) + (0))) = 5;
                             (*(s64 *)((u8 *)(cuePacketF) + (8))) = animUid;
                             (*(s16 *)((u8 *)(cuePacketF) + (0x48))) = hitTimingBase;
-                            func_00194590(cuePacketF, 1);
+                            btlPacketEnqueue(cuePacketF, 1);
                         }
                     }
                     effectPacketE = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[0] * 4))) + (0xD04))), battleUnit, focusTarget->unit, 1, 0));
                     (*(s8 *)((u8 *)(effectPacketE) + (0))) = 5;
                     (*(s64 *)((u8 *)(effectPacketE) + (8))) = animUid;
                     (*(s16 *)((u8 *)(effectPacketE) + (0x48))) = hitTimingBase;
-                    func_00194590(effectPacketE, 2);
+                    btlPacketEnqueue(effectPacketE, 2);
                     if (effectIndices[1] >= 0) {
                         effectPacketF = (u8 *)(func_001d6240((*(s32 *)((u8 *)((iGpffffb3ac + (effectIndices[1] * 4))) + (0xD04))), battleUnit, focusTarget->unit, 1, 0));
                         (*(s8 *)((u8 *)(effectPacketF) + (0))) = 5;
                         (*(s64 *)((u8 *)(effectPacketF) + (8))) = animUid;
                         (*(s16 *)((u8 *)(effectPacketF) + (0x48))) = hitTimingBase;
-                        func_00194590(effectPacketF, 2);
+                        btlPacketEnqueue(effectPacketF, 2);
                     }
                     if (actionFlagSaved == 0) {
                         func_001f7910(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
@@ -3729,27 +3729,27 @@ void func_001a59a0(s64 *arg0_) {
                             (*(s8 *)((u8 *)(cuePacketG) + (0))) = 5;
                             (*(s64 *)((u8 *)(cuePacketG) + (8))) = animUid;
                             (*(s16 *)((u8 *)(cuePacketG) + (0x48))) = hitTimingBase;
-                            func_00194590(cuePacketG, 1);
+                            btlPacketEnqueue(cuePacketG, 1);
                         }
                         if ((hitIndex == lastHitIndex) && ((*(s32 *)((u8 *)(targetView) + (0xE0))) == 0) && (hitRow->result.addedStatus & 0x7FFFE)) {
                             cuePacketH = (u8 *)(func_001f7c20(0xF, 2, 0xF));
                             (*(s8 *)((u8 *)(cuePacketH) + (0))) = 5;
                             (*(s64 *)((u8 *)(cuePacketH) + (8))) = animUid;
                             (*(s16 *)((u8 *)(cuePacketH) + (0x48))) = hitTimingBase;
-                            func_00194590(cuePacketH, 1);
+                            btlPacketEnqueue(cuePacketH, 1);
                         }
                     } else {
                         cuePacketI = (u8 *)(func_001f7c20(0xA, 2, 0x14));
                         (*(s8 *)((u8 *)(cuePacketI) + (0))) = 5;
                         (*(s64 *)((u8 *)(cuePacketI) + (8))) = animUid;
                         (*(s16 *)((u8 *)(cuePacketI) + (0x48))) = hitTimingBase;
-                        func_00194590(cuePacketI, 1);
+                        btlPacketEnqueue(cuePacketI, 1);
                     }
                     effectPacketG = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD24))), battleUnit, focusTarget->unit, 1, 0));
                     (*(s8 *)((u8 *)(effectPacketG) + (0))) = 5;
                     (*(s64 *)((u8 *)(effectPacketG) + (8))) = animUid;
                     (*(s16 *)((u8 *)(effectPacketG) + (0x48))) = hitTimingBase;
-                    func_00194590(effectPacketG, 2);
+                    btlPacketEnqueue(effectPacketG, 2);
                 }
                 if (hitIndex != lastHitIndex) {
                     timingDelta = (func_001999f0(battleUnit, actionKind, timeScale, (hitIndex + 1) & 0xFFFF)) - hitTiming;
@@ -3768,39 +3768,39 @@ void func_001a59a0(s64 *arg0_) {
                     (*(s64 *)((u8 *)(counterAnimPacket) + (8))) = hitPacketUid;
                     (*(s16 *)((u8 *)(counterAnimPacket) + (0x48))) = 1;
                     (*(s64 *)((u8 *)(counterAnimPacket) + (0x60))) = actionUid;
-                    func_00194590(counterAnimPacket, 2);
+                    btlPacketEnqueue(counterAnimPacket, 2);
                     if (shortRangeFlag != 0) {
                         focusUnitC = (u8 *)(focusTarget->unit);
                         effectPacketH = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD84))), focusUnitC, focusUnitC, 1, 0));
                         (*(s8 *)((u8 *)(effectPacketH) + (0))) = 5;
                         (*(s64 *)((u8 *)(effectPacketH) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
                         (*(s64 *)((u8 *)(effectPacketH) + (0x60))) = actionUid;
-                        func_00194590(effectPacketH, 2);
+                        btlPacketEnqueue(effectPacketH, 2);
                         focusUnitD = (u8 *)(focusTarget->unit);
                         effectPacketI = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), focusUnitD, focusUnitD, 1, 0));
                         (*(s8 *)((u8 *)(effectPacketI) + (0))) = 5;
                         (*(s64 *)((u8 *)(effectPacketI) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
                         (*(s16 *)((u8 *)(effectPacketI) + (0x48))) = 0x14;
                         (*(s64 *)((u8 *)(effectPacketI) + (0x60))) = actionUid;
-                        func_00194590(effectPacketI, 2);
+                        btlPacketEnqueue(effectPacketI, 2);
                         focusUnitE = (u8 *)(focusTarget->unit);
                         effectPacketJ = (u8 *)(func_001d6240((*(s32 *)((u8 *)(iGpffffb3ac) + (0xD80))), focusUnitE, focusUnitE, 1, 0));
                         (*(s8 *)((u8 *)(effectPacketJ) + (0))) = 5;
                         (*(s64 *)((u8 *)(effectPacketJ) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
                         (*(s16 *)((u8 *)(effectPacketJ) + (0x48))) = 0x1A;
                         (*(s64 *)((u8 *)(effectPacketJ) + (0x60))) = actionUid;
-                        func_00194590(effectPacketJ, 2);
+                        btlPacketEnqueue(effectPacketJ, 2);
                     } else {
                         hitPacket = (u8 *)(func_00197cc0(focusTarget->unit, (s16) (*(u16 *)(arg0 + (0x6E))), 0));
                         (*(s8 *)((u8 *)(hitPacket) + (0))) = 5;
                         (*(s64 *)((u8 *)(hitPacket) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
                         (*(s64 *)((u8 *)(hitPacket) + (0x60))) = actionUid;
-                        func_00194590(hitPacket, 1);
+                        btlPacketEnqueue(hitPacket, 1);
                         shakePacket = (u8 *)(func_001bccc0(0x14, 0x32, 0, 5));
                         (*(s8 *)((u8 *)(shakePacket) + (0))) = 5;
                         (*(s64 *)((u8 *)(shakePacket) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
                         (*(s64 *)((u8 *)(shakePacket) + (0x60))) = actionUid;
-                        func_00194590(shakePacket, 1);
+                        btlPacketEnqueue(shakePacket, 1);
                     }
                 }
                 hitIndexCounter += 1;
@@ -3812,7 +3812,7 @@ void func_001a59a0(s64 *arg0_) {
             (*(s64 *)((u8 *)(resultPacketB) + (8))) = animUid;
             (*(s16 *)((u8 *)(resultPacketB) + (0x48))) = hitTimingBase;
             (*(s64 *)((u8 *)(resultPacketB) + (0x60))) = actionUid;
-            func_00194590(resultPacketB, 1);
+            btlPacketEnqueue(resultPacketB, 1);
             statusPacket = (u8 *)(func_00201de0((s32)(battleUnit), *(s32 *)&focusTarget->unit, (*(u16 *)(arg0 + (0x6E))), targetView->effect, targetView->targetFlags, 0, 1, hitResultSaved, 0));
             (*(s8 *)((u8 *)(statusPacket) + (0))) = 5;
             (*(s64 *)((u8 *)(statusPacket) + (8))) = animUid;
@@ -3824,7 +3824,7 @@ void func_001a59a0(s64 *arg0_) {
             }
             (*(s16 *)((u8 *)(statusPacket) + (0x4A))) = timingRemaining;
             (*(s64 *)((u8 *)(statusPacket) + (0x60))) = actionUid;
-            func_00194590(statusPacket, 3);
+            btlPacketEnqueue(statusPacket, 3);
             if ((hitRowNumber == 0) && (hitResultSaved->hpDelta != 0)) {
                 statPacket = (u8 *)(func_00202590((s32)(focusTarget->unit), 0, 0));
                 (*(s8 *)((u8 *)(statPacket) + (0))) = 5;
@@ -3832,7 +3832,7 @@ void func_001a59a0(s64 *arg0_) {
                 (*(s16 *)((u8 *)(statPacket) + (0x48))) = hitTimingBase;
                 (*(u8 *)((u8 *)(statPacket) + (0x47))) = (u8) ((*(u8 *)((u8 *)(statPacket) + (0x47))) & 0xDF);
                 (*(s64 *)((u8 *)(statPacket) + (0x60))) = actionUid;
-                func_00194590(statPacket, 3);
+                btlPacketEnqueue(statPacket, 3);
             }
             /* Retail retains this address and reloads its word at the later branch. */
             addedStatus = &hitRow->result.addedStatus;
@@ -3842,7 +3842,7 @@ void func_001a59a0(s64 *arg0_) {
                 (*(s64 *)((u8 *)(cuePacketJ) + (8))) = animUid;
                 (*(s16 *)((u8 *)(cuePacketJ) + (0x48))) = hitTimingBase;
                 (*(s64 *)((u8 *)(cuePacketJ) + (0x60))) = actionUid;
-                func_00194590(cuePacketJ, 1);
+                btlPacketEnqueue(cuePacketJ, 1);
             }
             if ((actionFlagSaved == 0) && ((*(u8 *)((u8 *)(focusTarget->unit) + (0xA2))) == 1)) {
                 if (reactionUnitCount > 0) {
@@ -3890,12 +3890,12 @@ createReaction:
                             (*(s8 *)((u8 *)(reactionPacketB) + (0))) = 4;
                             (*(s64 *)((u8 *)(reactionPacketB) + (8))) = hitPacketUid;
                             (*(s64 *)((u8 *)(reactionPacketB) + (0x60))) = actionUid;
-                            func_00194590(reactionPacketB, 1);
+                            btlPacketEnqueue(reactionPacketB, 1);
                         } else {
                             actionPacketB = (u8 *)(func_001f99c0(arg0, 0x10, reactionUnitCount, 0, 0));
                             (*(s8 *)((u8 *)(actionPacketB) + (0))) = 4;
                             (*(s64 *)((u8 *)(actionPacketB) + (8))) = hitPacketUid;
-                            func_00194590(actionPacketB, 1);
+                            btlPacketEnqueue(actionPacketB, 1);
                         }
                     }
                 } else if (*addedStatus & 0x100000) {
@@ -3903,18 +3903,18 @@ createReaction:
                     (*(s8 *)((u8 *)(reactionPacketC) + (0))) = 5;
                     (*(s64 *)((u8 *)(reactionPacketC) + (8))) = hitPacketUid;
                     (*(s64 *)((u8 *)(reactionPacketC) + (0x60))) = actionUid;
-                    func_00194590(reactionPacketC, 1);
+                    btlPacketEnqueue(reactionPacketC, 1);
                 } else if (reactionUnitCount == 0) {
                     if (func_001f0dd0((s64 *)arg0, 1) != 0) {
                         actionPacketC = (u8 *)(func_001f99c0(arg0, 0xF, 0U, 0, 0));
                         (*(s8 *)((u8 *)(actionPacketC) + (0))) = 5;
                         (*(s64 *)((u8 *)(actionPacketC) + (8))) = hitPacketUid;
-                        func_00194590(actionPacketC, 1);
+                        btlPacketEnqueue(actionPacketC, 1);
                     } else if ((func_001f0f70(arg0) == 1) && (func_001f0b90(arg0) == 0)) {
                         actionPacketD = (u8 *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
                         (*(s8 *)((u8 *)(actionPacketD) + (0))) = 5;
                         (*(s64 *)((u8 *)(actionPacketD) + (8))) = hitPacketUid;
-                        func_00194590(actionPacketD, 1);
+                        btlPacketEnqueue(actionPacketD, 1);
                     }
                 }
             }
@@ -3925,7 +3925,7 @@ createReaction:
         (*(s64 *)((u8 *)(unitStatePacket) + (8))) = animUid;
         (*(s16 *)((u8 *)(unitStatePacket) + (0x48))) = hitTimingBase;
         (*(s64 *)((u8 *)(unitStatePacket) + (0x60))) = actionUid;
-        func_00194590(unitStatePacket, 1);
+        btlPacketEnqueue(unitStatePacket, 1);
         auxEffectIndex = (s16)((*(s16 *)(arg0 + (0xEC))));
         if ((auxEffectIndex != 0) && !((*(u8 *)(arg0 + (0xD8))) & 1)) {
             unitStatePacketB = (u8 *)(func_00202400((*(u8 **)(arg0 + (0x30))), auxEffectIndex));
@@ -3934,7 +3934,7 @@ createReaction:
             (*(s16 *)((u8 *)(unitStatePacketB) + (0x48))) = hitTimingBase;
             (*(u8 *)((u8 *)(unitStatePacketB) + (0x47))) = (u8) ((*(u8 *)((u8 *)(unitStatePacketB) + (0x47))) & 0xDF);
             (*(s64 *)((u8 *)(unitStatePacketB) + (0x60))) = actionUid;
-            func_00194590(unitStatePacketB, 3);
+            btlPacketEnqueue(unitStatePacketB, 3);
         } else {
             auxEffectIndexTarget = (s16)((*(s16 *)((u8 *)(targetView) + (0xEC))));
             if (auxEffectIndexTarget != 0) {
@@ -3944,7 +3944,7 @@ createReaction:
                 (*(s16 *)((u8 *)(unitStatePacketC) + (0x48))) = hitTimingBase;
                 (*(u8 *)((u8 *)(unitStatePacketC) + (0x47))) = (u8) ((*(u8 *)((u8 *)(unitStatePacketC) + (0x47))) & 0xDF);
                 (*(s64 *)((u8 *)(unitStatePacketC) + (0x60))) = actionUid;
-                func_00194590(unitStatePacketC, 3);
+                btlPacketEnqueue(unitStatePacketC, 3);
             }
         }
         targetIndex += 1;
@@ -3954,14 +3954,14 @@ createReaction:
     (*(s64 *)((u8 *)(unitStatePacketD) + (8))) = animUid;
     (*(s16 *)((u8 *)(unitStatePacketD) + (0x48))) = hitTimingBase;
     (*(s64 *)((u8 *)(unitStatePacketD) + (0x60))) = actionUid;
-    func_00194590(unitStatePacketD, 1);
+    btlPacketEnqueue(unitStatePacketD, 1);
     if (!((*(u16 *)(arg0 + (0x18))) & 4)) {
         statePacket = (u8 *)(func_001f3870(arg0, (*(u8 *)(arg0 + (0xDB)))));
         (*(s8 *)((u8 *)(statePacket) + (0))) = 5;
         (*(s64 *)((u8 *)(statePacket) + (8))) = animUid;
         (*(s16 *)((u8 *)(statePacket) + (0x48))) = hitTimingBase;
         (*(s64 *)((u8 *)(statePacket) + (0x60))) = actionUid;
-        func_00194590(statePacket, 1);
+        btlPacketEnqueue(statePacket, 1);
     }
     if (setEffectFlags != 0) {
         battleStatePtrC = (u8 *)(iGpffffb3ac);
@@ -3973,7 +3973,7 @@ createReaction:
     if (cutinUnit != NULL) {
         cutin.mode = 3;
         cutin.unitId = (u16)((*(u16 *)((u8 *)((*(u8 **)((u8 *)(cutinUnit) + (0x30)))) + (0xA4))));
-        func_00194590(func_001fa720(&cutin), 1);
+        btlPacketEnqueue(func_001fa720(&cutin), 1);
     }
     if (func_001f68e0((s64 *)arg0) != 0) {
         btlActionSetState((BtlAction *)arg0, 0x1BU);
@@ -4029,7 +4029,7 @@ static inline u8 *btlHitRow_001a7720(u8 *action, const u16 *index)
 void func_001a7720(u8 *arg0) {
 
     extern s32 btlCreateSetFlagsPacket(u32);
-    extern s64 func_00194590(u8 *arg0, u32 arg1);
+    extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
     extern u8 *func_00194b60(void);
     extern u8 *func_00194c90(void *arg0, void *arg1);
     extern s32 func_00195530(u8 *arg0);
@@ -4570,37 +4570,37 @@ void func_001a7720(u8 *arg0) {
         if (rotateFirst != 0) {
             rotatePkt4 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(act->unit, (*( u8 ** )((u8 *)(act->target) + (0x30))), rotateFlags));
             rotatePkt4->ownerId = actionId;
-            func_00194590((u8 *)rotatePkt4, 0);
+            btlPacketEnqueue((u8 *)rotatePkt4, 0);
         } else if (side == 0) {
             func_00196040((u16)func_001eb440((BtlTarget *)(arg0 + 0x38)), 1, &targetPosition, 0, 0, 1);
             pkt5 = (BtlPacketTiming *)(btlUnitCreateRotatePacket(*(BtlUnit **)(arg0 + 0x30), &targetPosition, rotateFlags));
             pkt5->ownerId = actionId;
-            func_00194590((u8 *)pkt5, 0);
+            btlPacketEnqueue((u8 *)pkt5, 0);
         } else {
             btlState2 = (u8 *)(iGpffffb3ac);
             if (*(s32 *)(btlState2 + 0xC) & 0x200000) {
                 func_001958f0((*( BtlUnit ** )((u8 *)(*(u8 **)(btlState2 + 0x170)) + (0x30))), &targetPosition);
                 pkt6 = (BtlPacketTiming *)(btlUnitCreateRotatePacket(*(BtlUnit **)(arg0 + 0x30), &targetPosition, rotateFlags));
                 pkt6->ownerId = actionId;
-                func_00194590((u8 *)pkt6, 0);
+                btlPacketEnqueue((u8 *)pkt6, 0);
             }
         }
         if (bossCheck != 0) {
             lookAtPkt7 = (u8 *)(actionLookAtUnit(0, act->unit, 3));
             *(s64 *)(lookAtPkt7 + 0x60) = *(s64 *)arg0;
-            func_00194590((u8 *)lookAtPkt7, 1);
+            btlPacketEnqueue((u8 *)lookAtPkt7, 1);
             lookAtPkt8 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(act->unit, 0));
             *(s64 *)(lookAtPkt8 + 0x60) = *(s64 *)arg0;
-            func_00194590((u8 *)lookAtPkt8, 1);
+            btlPacketEnqueue((u8 *)lookAtPkt8, 1);
         } else {
             lookAtPkt9 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
             *(s64 *)(lookAtPkt9 + 0x60) = *(s64 *)arg0;
-            func_00194590((u8 *)lookAtPkt9, 1);
+            btlPacketEnqueue((u8 *)lookAtPkt9, 1);
         }
         act->flags = (u16) (act->flags | 0x200);
         rotatePkt10 = (BtlPacketTiming *)(func_001f3b20(arg0));
         rotatePkt10->ownerId = actionId;
-        func_00194590((u8 *)rotatePkt10, 1);
+        btlPacketEnqueue((u8 *)rotatePkt10, 1);
     }
     skillFlagsOffset = skillIndex * 4;
     if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x100) {
@@ -4613,12 +4613,12 @@ void func_001a7720(u8 *arg0) {
         pkt11 = (BtlPacketTiming *)(func_00202010(*(u32 *)(arg0 + 0x30), (u16) skill));
         pkt11->delay = (s16) hitModeDelay;
         pkt11->ownerId = actionId;
-        func_00194590((u8 *)pkt11, 3);
+        btlPacketEnqueue((u8 *)pkt11, 3);
     } else {
         pkt12 = (BtlPacketTiming *)(func_00202120(*(u32 *)(arg0 + 0x30), act->field70));
         pkt12->delay = (s16) hitModeDelay;
         pkt12->ownerId = actionId;
-        func_00194590((u8 *)pkt12, 3);
+        btlPacketEnqueue((u8 *)pkt12, 3);
     }
     if (altCamera == 1) {
         if ((isKind3 == 0) && (noOverride == 0)) {
@@ -4667,7 +4667,7 @@ void func_001a7720(u8 *arg0) {
                 hasCutin = 0;
                 lookAtPkt13 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
                 *(s64 *)(lookAtPkt13 + 0x60) = *(s64 *)arg0;
-                func_00194590((u8 *)lookAtPkt13, 1);
+                btlPacketEnqueue((u8 *)lookAtPkt13, 1);
                 btlState5 = (u8 *)(iGpffffb3ac);
                 *(s32 *)(btlState5 + 0xC) = (s32) (*(s32 *)(btlState5 + 0xC) | 0x400000);
                 btlState4 = (u8 *)(iGpffffb3ac);
@@ -4684,9 +4684,9 @@ void func_001a7720(u8 *arg0) {
                 break;
             }
             if (hasCutin != 0) {
-                func_00194590((u8 *)func_001f8330((BtlUnit *)act->unit), 0);
+                btlPacketEnqueue((u8 *)func_001f8330((BtlUnit *)act->unit), 0);
             } else if (isSkill16 != 0) {
-                func_00194590((u8 *)(func_001f83b0((u32)act->unit)), 0);
+                btlPacketEnqueue((u8 *)(func_001f83b0((u32)act->unit)), 0);
             }
             if (sp2B0 != 0) {
                 waitPkt2 = (BtlPacketTiming *)(func_00194b60());
@@ -4694,7 +4694,7 @@ void func_001a7720(u8 *arg0) {
                 waitPkt2 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 0xD, (u16)blendFrames, 1.0f, 4));
             }
             waitPkt2->ownerId = actionId;
-            func_00194590((u8 *)waitPkt2, 0);
+            btlPacketEnqueue((u8 *)waitPkt2, 0);
             cutinTime = waitPkt2->endTime;
             if (sp2B0 == 0) {
                 recoveryFrames = func_00199500(act->unit, 0xD, 1.0f);
@@ -4713,7 +4713,7 @@ void func_001a7720(u8 *arg0) {
                 anchorPkt = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, (u16)cameraStateB));
             }
             anchorPkt->ownerId = actionId;
-            func_00194590((u8 *)anchorPkt, 0);
+            btlPacketEnqueue((u8 *)anchorPkt, 0);
             sceneTime = anchorPkt->endTime;
             if (hasCutin != 0) {
                 cutin.mode = 4;
@@ -4722,22 +4722,22 @@ void func_001a7720(u8 *arg0) {
                 cutinPkt14->queue = 4;
                 cutinPkt14->startTime = cutinTime;
                 cutinPkt14->ownerId = actionId;
-                func_00194590((u8 *)cutinPkt14, 1);
+                btlPacketEnqueue((u8 *)cutinPkt14, 1);
                 cutinPkt15 = (BtlPacketTiming *)func_001fa320();
                 cutinPkt15->queue = 4;
                 cutinPkt15->startTime = cutinPkt14->endTime;
                 cutinPkt15->ownerId = actionId;
-                func_00194590((u8 *)cutinPkt15, 1);
+                btlPacketEnqueue((u8 *)cutinPkt15, 1);
                 pkt16 = (BtlPacketTiming *)(func_001f99c0(arg0, 1, *(u16 *)(linkedUnit + 0xA4), 0, 1));
                 pkt16->queue = 5;
                 pkt16->startTime = cutinPkt15->endTime;
                 pkt16->ownerId = actionId;
-                func_00194590((u8 *)pkt16, 1);
+                btlPacketEnqueue((u8 *)pkt16, 1);
                 soundPkt17 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0xB));
                 soundPkt17->queue = 5;
                 soundPkt17->startTime = cutinPkt15->endTime;
                 soundPkt17->ownerId = *(s64 *)arg0;
-                func_00194590((u8 *)soundPkt17, 1);
+                btlPacketEnqueue((u8 *)soundPkt17, 1);
                 cutinTime = cutinPkt15->endTime;
                 cutinEndTime = cutinTime;
                 recoveryFrames = 0;
@@ -4747,7 +4747,7 @@ void func_001a7720(u8 *arg0) {
             formationPkt18->startTime = cutinTime;
             formationPkt18->delay = (s16) (recoveryFrames - (recoveryFrames >> 3));
             formationPkt18->ownerId = actionId;
-            func_00194590((u8 *)formationPkt18, 0);
+            btlPacketEnqueue((u8 *)formationPkt18, 0);
             formationEndTime = formationPkt18->endTime;
             if (rotateFirst != 0) {
                 targetList = (s32 *)(act->target);
@@ -4758,7 +4758,7 @@ void func_001a7720(u8 *arg0) {
             pkt19->queue = 5;
             pkt19->startTime = formationEndTime;
             pkt19->ownerId = actionId;
-            func_00194590((u8 *)pkt19, 0);
+            btlPacketEnqueue((u8 *)pkt19, 0);
             if (sp2B0 == 0) {
                 if (hasCutin != 0) {
                     pkt20 = (BtlPacketTiming *)(func_0019b550((u8 *)linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0x1D));
@@ -4773,25 +4773,25 @@ void func_001a7720(u8 *arg0) {
                     *(s16 *)(linkedMotionPkt + 0x48) = recoveryFrames;
                 }
                 animChainPkt->ownerId = actionId;
-                func_00194590((u8 *)animChainPkt, 1);
+                btlPacketEnqueue((u8 *)animChainPkt, 1);
             } else {
                 waitPkt22 = (u8 *)(func_00194b60());
                 animChainPkt = (BtlPacketTiming *)(waitPkt22);
                 *(s16 *)(waitPkt22 + 0x48) = recoveryFrames;
-                func_00194590((u8 *)animChainPkt, 0);
+                btlPacketEnqueue((u8 *)animChainPkt, 0);
             }
             waitPkt23 = (BtlPacketTiming *)(func_00194b60());
             waitPkt23->queue = 4;
             waitPkt23->startTime = animChainPkt->endTime;
             waitPkt23->delay = 0xC;
             waitPkt23->ownerId = actionId;
-            func_00194590((u8 *)waitPkt23, 1);
+            btlPacketEnqueue((u8 *)waitPkt23, 1);
             effectPkt24 = (BtlPacketTiming *)(func_001d65d0(effectHandles[0], (*(s32 *)(arg0 + 0x30)), 0, (waitPkt23->endTime), 0x100));
             effectPkt24->ownerId = actionId;
-            func_00194590((u8 *)effectPkt24, 2);
+            btlPacketEnqueue((u8 *)effectPkt24, 2);
             soundPkt25 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 3));
             soundPkt25->ownerId = actionId;
-            func_00194590((u8 *)soundPkt25, 1);
+            btlPacketEnqueue((u8 *)soundPkt25, 1);
             actUnit5_5 = (u8 *)(act->unit);
             skillFramesKey = (s16)func_00199d00(*(s32 *)(actUnit5_5 + 0xA0C), actUnit5_5, skill, rotateFirst);
             skillFrames = (s32)(func_001991c0((*( u8 ** )((u8 *)(act->unit) + (0xA0C))), (u16)skillFramesKey, 1.0f));
@@ -4808,19 +4808,19 @@ void func_001a7720(u8 *arg0) {
             animPkt27->queue = 4;
             animPkt27->startTime = chainTime;
             animPkt27->ownerId = actionId;
-            func_00194590((u8 *)animPkt27, 0);
+            btlPacketEnqueue((u8 *)animPkt27, 0);
             if (hasCutin != 0) {
                 pkt28 = (BtlPacketTiming *)(func_001f82b0((BtlUnit *)act->unit));
                 pkt28->queue = 4;
                 pkt28->startTime = animPkt27->endTime;
                 pkt28->ownerId = actionId;
-                func_00194590((u8 *)pkt28, 0);
+                btlPacketEnqueue((u8 *)pkt28, 0);
             } else if (isSkill16 != 0) {
                 pkt29 = (BtlPacketTiming *)(func_001f8430((u32)act->unit));
                 pkt29->queue = 4;
                 pkt29->startTime = animPkt27->endTime;
                 pkt29->ownerId = actionId;
-                func_00194590((u8 *)pkt29, 0);
+                btlPacketEnqueue((u8 *)pkt29, 0);
             }
             recoveryBase = (s32)(func_001991c0(act->unit, 0xFU, 1.0f));
             effectPkt30 = (BtlPacketTiming *)(func_001d65d0(effectHandles[1], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
@@ -4828,40 +4828,40 @@ void func_001a7720(u8 *arg0) {
             effectPkt30->startTime = chainTime;
             effectPkt30->delay = (s16) recoveryBase;
             effectPkt30->ownerId = actionId;
-            func_00194590((u8 *)effectPkt30, 2);
+            btlPacketEnqueue((u8 *)effectPkt30, 2);
             soundPkt31 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 4));
             soundPkt31->queue = 4;
             soundPkt31->startTime = chainTime;
             soundPkt31->delay = (s16)recoveryBase + 2;
             soundPkt31->ownerId = actionId;
-            func_00194590((u8 *)soundPkt31, 1);
+            btlPacketEnqueue((u8 *)soundPkt31, 1);
             effectPkt32 = (BtlPacketTiming *)(func_001d65d0(effectHandles[2], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
             effectPkt32->queue = 4;
             effectPkt32->startTime = chainTime;
             effectPkt32->ownerId = actionId;
-            func_00194590((u8 *)effectPkt32, 2);
+            btlPacketEnqueue((u8 *)effectPkt32, 2);
             colorPkt33 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)act->unit, 0xFF808080, 0, 0xC, 4, 0));
             colorPkt33->queue = 4;
             colorPkt33->startTime = chainTime;
             colorPkt33->ownerId = actionId;
-            func_00194590((u8 *)colorPkt33, 1);
+            btlPacketEnqueue((u8 *)colorPkt33, 1);
             animPkt34 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)linkedUnit, skillFramesKey, 0, 1.0f, 2));
             animPacket = (BtlPacketTiming *)(animPkt34);
             animPkt34->queue = 4;
             animPkt34->startTime = chainTime;
             animPkt34->delay = 0xF;
             animPkt34->ownerId = actionId;
-            func_00194590((u8 *)animPacket, 0);
+            btlPacketEnqueue((u8 *)animPacket, 0);
             colorPkt35 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)linkedUnit, (u32)(func_00195530(linkedUnit)), 8, 0, 3, 1));
             colorPkt35->queue = 4;
             colorPkt35->startTime = animPacket->endTime;
             colorPkt35->ownerId = actionId;
-            func_00194590((u8 *)colorPkt35, 1);
+            btlPacketEnqueue((u8 *)colorPkt35, 1);
             soundPkt36 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 5));
             soundPkt36->queue = 4;
             soundPkt36->startTime = animPacket->endTime;
             soundPkt36->ownerId = actionId;
-            func_00194590((u8 *)soundPkt36, 1);
+            btlPacketEnqueue((u8 *)soundPkt36, 1);
             if ((randomFlag == 1) && (sp2D0 == 0) && !((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
                 if (side == 0) {
                     cameraStateC = 0x19;
@@ -4878,7 +4878,7 @@ void func_001a7720(u8 *arg0) {
                 }
                 cameraPkt37->delay = cameraDelay;
                 cameraPkt37->ownerId = actionId;
-                func_00194590((u8 *)cameraPkt37, 0);
+                btlPacketEnqueue((u8 *)cameraPkt37, 0);
             }
             animEndTime = animPacket->endTime;
         } else if ((isKind3 == 1) || (noOverride == 1)) {
@@ -4887,7 +4887,7 @@ void func_001a7720(u8 *arg0) {
                 randomFlag = 1;
                 lookAtPkt38 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
                 *(s64 *)(lookAtPkt38 + 0x60) = *(s64 *)arg0;
-                func_00194590((u8 *)lookAtPkt38, 1);
+                btlPacketEnqueue((u8 *)lookAtPkt38, 1);
                 btlState6 = (u8 *)(iGpffffb3ac);
                 *(s32 *)(btlState6 + 0xC) = (s32) (*(s32 *)(btlState6 + 0xC) | 0x400000);
                 btlState7_37 = (u8 *)(iGpffffb3ac);
@@ -4896,7 +4896,7 @@ void func_001a7720(u8 *arg0) {
             animPkt39 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 0x16, 6, 1.0f, 0));
             animPacket = (BtlPacketTiming *)(animPkt39);
             animPkt39->ownerId = actionId;
-            func_00194590((u8 *)animPacket, 0);
+            btlPacketEnqueue((u8 *)animPacket, 0);
             sceneTime = animPacket->endTime;
             chainTime = 0;
                     timingFrames = func_001991c0(act->unit, 0x16U, 1.0f) + 6;
@@ -4906,27 +4906,27 @@ void func_001a7720(u8 *arg0) {
                     formationPkt40->queue = 4;
                     formationPkt40->startTime = animPacket->endTime;
                     formationPkt40->ownerId = actionId;
-                    func_00194590((u8 *)formationPkt40, 0);
+                    btlPacketEnqueue((u8 *)formationPkt40, 0);
                 }
                 if (randomFlag == 0) {
                     cameraPkt41 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x19));
                     cameraPkt41->queue = 4;
                     cameraPkt41->startTime = animPacket->endTime;
                     cameraPkt41->ownerId = actionId;
-                    func_00194590((u8 *)cameraPkt41, 0);
+                    btlPacketEnqueue((u8 *)cameraPkt41, 0);
                 } else {
                     cameraPkt42 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1B));
                     cameraPkt42->queue = 4;
                     cameraPkt42->startTime = animPacket->endTime;
                     cameraPkt42->ownerId = actionId;
-                    func_00194590((u8 *)cameraPkt42, 0);
+                    btlPacketEnqueue((u8 *)cameraPkt42, 0);
                 }
             }
             if (noOverride == 0) {
                 effectPkt43 = (BtlPacketTiming *)(func_001d65d0(*(s32 *)(iGpffffb3ac + 0xD88), (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
                 effectPkt43->queue = 4;
                 effectPkt43->startTime = animPacket->endTime;
-                func_00194590((u8 *)effectPkt43, 1);
+                btlPacketEnqueue((u8 *)effectPkt43, 1);
             }
         }
     } else if ((altCamera == 0) && (side == 1)) {
@@ -4936,7 +4936,7 @@ void func_001a7720(u8 *arg0) {
             hasCutin = 0;
             lookAtPkt44 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
             *(s64 *)(lookAtPkt44 + 0x60) = *(s64 *)arg0;
-            func_00194590((u8 *)lookAtPkt44, 1);
+            btlPacketEnqueue((u8 *)lookAtPkt44, 1);
             btlState7_47 = (u8 *)(iGpffffb3ac);
             *(s32 *)(btlState7_47 + 0xC) = (s32) (*(s32 *)(btlState7_47 + 0xC) | 0x400000);
             btlState8_38 = (u8 *)(iGpffffb3ac);
@@ -4979,25 +4979,25 @@ void func_001a7720(u8 *arg0) {
                 animPkt45 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, animMotion, 6, animSpeed, animBlend));
                 animPacket = (BtlPacketTiming *)(animPkt45);
                 animPkt45->ownerId = actionId;
-                func_00194590((u8 *)animPacket, 0);
+                btlPacketEnqueue((u8 *)animPacket, 0);
             } else {
                 waitPkt46 = (BtlPacketTiming *)(func_00194b60());
                 animPacket = (BtlPacketTiming *)(waitPkt46);
                 waitPkt46->ownerId = actionId;
-                func_00194590((u8 *)animPacket, 0);
+                btlPacketEnqueue((u8 *)animPacket, 0);
             }
             if ((actionFlag4000 == 0) && ((s32)(func_0022fd30(arg0, skillIndex)) != (s32)(0))) {
                 cameraPkt47 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x15));
                 cameraPkt47->queue = 4;
                 cameraPkt47->startTime = animPacket->endTime;
                 cameraPkt47->ownerId = actionId;
-                func_00194590((u8 *)cameraPkt47, 0);
+                btlPacketEnqueue((u8 *)cameraPkt47, 0);
             }
         } else {
             waitPkt48 = (BtlPacketTiming *)(func_00194b60());
             animPacket = (BtlPacketTiming *)(waitPkt48);
             waitPkt48->ownerId = actionId;
-            func_00194590((u8 *)animPacket, 0);
+            btlPacketEnqueue((u8 *)animPacket, 0);
         }
         sceneTime = animPacket->endTime;
         chainTime = 0;
@@ -5015,13 +5015,13 @@ void func_001a7720(u8 *arg0) {
                 formationPkt49->delay = formationDelay;
             }
             formationPkt49->ownerId = actionId;
-            func_00194590((u8 *)formationPkt49, 0);
+            btlPacketEnqueue((u8 *)formationPkt49, 0);
             formationEndTime = formationPkt49->endTime;
             cameraPkt50 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
             cameraPkt50->queue = 4;
             cameraPkt50->startTime = formationEndTime;
             cameraPkt50->ownerId = actionId;
-            func_00194590((u8 *)cameraPkt50, 0);
+            btlPacketEnqueue((u8 *)cameraPkt50, 0);
         }
         if ((skillFlag2 == 0) && (noOverride == 0)) {
             followState = (s32)(func_0022d200(arg0));
@@ -5031,34 +5031,34 @@ void func_001a7720(u8 *arg0) {
             effectPkt51 = (BtlPacketTiming *)(func_001d65d0(followState, (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
             effectPkt51->queue = 4;
             effectPkt51->startTime = animPacket->endTime;
-            func_00194590((u8 *)effectPkt51, 1);
+            btlPacketEnqueue((u8 *)effectPkt51, 1);
             soundPkt52 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 7));
             soundPkt52->queue = 4;
             soundPkt52->startTime = animPacket->endTime;
-            func_00194590((u8 *)soundPkt52, 1);
+            btlPacketEnqueue((u8 *)soundPkt52, 1);
         }
     } else if ((altCamera == 0) && (side == 0)) {
         sp2C0 = 1;
         effectPkt53 = (BtlPacketTiming *)(func_001d65d0(*(s32 *)(iGpffffb3ac + 0xDB8), (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
         effectPkt53->ownerId = actionId;
-        func_00194590((u8 *)effectPkt53, 2);
+        btlPacketEnqueue((u8 *)effectPkt53, 2);
         animPkt17 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 6, 0, 1.0f, 2));
         animPkt17->duration = (s16)(func_00199500(act->unit, 6, 1.0f));
         animPkt17->ownerId = actionId;
-        func_00194590((u8 *)animPkt17, 0);
+        btlPacketEnqueue((u8 *)animPkt17, 0);
         soundPkt54 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0x11));
         soundPkt54->delay = 1;
         soundPkt54->ownerId = actionId;
-        func_00194590((u8 *)soundPkt54, 1);
+        btlPacketEnqueue((u8 *)soundPkt54, 1);
         cameraPkt55 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x12));
         cameraPkt55->ownerId = actionId;
-        func_00194590((u8 *)cameraPkt55, 0);
+        btlPacketEnqueue((u8 *)cameraPkt55, 0);
         animPkt56 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 7, 6, 1.0f, 2));
         animPacket = (BtlPacketTiming *)(animPkt56);
         animPkt56->queue = 4;
         animPkt56->startTime = animPkt17->endTime;
         animPkt56->ownerId = actionId;
-        func_00194590((u8 *)animPacket, 0);
+        btlPacketEnqueue((u8 *)animPacket, 0);
         sceneTime = 0;
         chainTime = animPacket->endTime;
         timingFrames = func_001991c0(act->unit, 7U, 1.0f) + 6;
@@ -5069,14 +5069,14 @@ void func_001a7720(u8 *arg0) {
                 formationPkt58->queue = 4;
                 formationPkt58->startTime = chainTime;
                 formationPkt58->ownerId = actionId;
-                func_00194590((u8 *)formationPkt58, 0);
+                btlPacketEnqueue((u8 *)formationPkt58, 0);
             }
         }
         cameraPkt59 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x13));
         cameraPkt59->queue = 4;
         cameraPkt59->startTime = chainTime;
         cameraPkt59->ownerId = actionId;
-        func_00194590((u8 *)cameraPkt59, 0);
+        btlPacketEnqueue((u8 *)cameraPkt59, 0);
         btlState10_410 = (u8 *)(iGpffffb3ac);
         *(s32 *)(btlState10_410 + 0xC) = (s32) (*(s32 *)(btlState10_410 + 0xC) | 0x400000);
         btlState11_311 = (u8 *)(iGpffffb3ac);
@@ -5088,24 +5088,24 @@ void func_001a7720(u8 *arg0) {
     cameraPkt60->queue = 4;
     cameraPkt60->startTime = sceneTime;
     cameraPkt60->ownerId = actionId;
-    func_00194590((u8 *)cameraPkt60, 1);
+    btlPacketEnqueue((u8 *)cameraPkt60, 1);
     cameraKind = (s32)(func_001b7080(skillKey));
     func_001b70a0(skillKey, &cameraFirst, &cameraSecond);
     cameraPkt61 = (BtlPacketTiming *)(btlMainCreateColorWorkPacket(cameraKind, cameraFirst, cameraSecond, 0x10, ((*(u16 *)((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + 2) & 2) ? 1 : 0)));
     cameraPkt61->queue = 4;
     cameraPkt61->startTime = sceneTime;
     cameraPkt61->ownerId = actionId;
-    func_00194590((u8 *)cameraPkt61, 1);
+    btlPacketEnqueue((u8 *)cameraPkt61, 1);
     cameraPkt62 = (BtlPacketTiming *)(btlMainCreateTintPacket(func_001b7090((u16) skill), 0x10));
     cameraPkt62->queue = 4;
     cameraPkt62->startTime = sceneTime;
     cameraPkt62->ownerId = actionId;
-    func_00194590((u8 *)cameraPkt62, 1);
+    btlPacketEnqueue((u8 *)cameraPkt62, 1);
     cameraPkt63 = (BtlPacketTiming *)(btlMainCreateUnitTintPacket((BtlAction *)arg0, (u16) skill, 8));
     cameraPkt63->queue = 4;
     cameraPkt63->startTime = sceneTime;
     cameraPkt63->ownerId = actionId;
-    func_00194590((u8 *)cameraPkt63, 1);
+    btlPacketEnqueue((u8 *)cameraPkt63, 1);
     if (hasFollowAction != 0) {
         followActionPtr = (u8 *)(act->followAction);
         firstTargetEntry = (u8 *)(act->target);
@@ -5116,31 +5116,31 @@ void func_001a7720(u8 *arg0) {
         sp4BC->delay = timingFrames;
         sp4BC->duration = (s16) ((func_00199500((*( u8 ** )((u8 *)((s32 *)(u32)followActionPtr) + (0x30))), 0x1A, 1.0f)) - 1);
         sp4BC->ownerId = actionId;
-        func_00194590((u8 *)sp4BC, 0);
+        btlPacketEnqueue((u8 *)sp4BC, 0);
         cameraPkt66 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1E));
         cameraPkt66->queue = 4;
         cameraPkt66->startTime = chainTime;
         cameraPkt66->delay = timingFrames;
         cameraPkt66->ownerId = actionId;
-        func_00194590((u8 *)cameraPkt66, 0);
+        btlPacketEnqueue((u8 *)cameraPkt66, 0);
         pkt67 = (BtlPacketTiming *)(func_001f99c0((s32 *)(u32)followActionPtr, 0xD, 0U, 0, 0));
         pkt67->queue = 4;
         pkt67->startTime = chainTime;
         pkt67->delay = timingFrames;
         pkt67->ownerId = actionId;
-        func_00194590((u8 *)pkt67, 1);
+        btlPacketEnqueue((u8 *)pkt67, 1);
         animPkt68 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(followActionPtr + 0x30), 0x1A, 0, 1.0f, 0));
         animPkt68->queue = 4;
         animPkt68->startTime = chainTime;
         animPkt68->delay = timingFrames;
         animPkt68->ownerId = actionId;
-        func_00194590((u8 *)animPkt68, 0);
+        btlPacketEnqueue((u8 *)animPkt68, 0);
         animPkt69 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(firstTargetEntry + 0x30), 0x1A, 0, 1.0f, 2));
         animPkt69->queue = 4;
         animPkt69->startTime = chainTime;
         animPkt69->delay = timingFrames;
         animPkt69->ownerId = actionId;
-        func_00194590((u8 *)animPkt69, 0);
+        btlPacketEnqueue((u8 *)animPkt69, 0);
         chainTime = sp4BC->endTime;
         timingFrames = 0;
         cameraPkt70 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1A));
@@ -5148,32 +5148,32 @@ void func_001a7720(u8 *arg0) {
         cameraPkt70->startTime = chainTime;
         cameraPkt70->delay = 0;
         cameraPkt70->ownerId = actionId;
-        func_00194590((u8 *)cameraPkt70, 0);
+        btlPacketEnqueue((u8 *)cameraPkt70, 0);
         formationPkt71 = (BtlPacketTiming *)(func_001d3530((u32)(*(u8 **)(followActionPtr + 0x30)), (u32)(*(u8 **)(firstTargetEntry + 0x30)), 3));
         formationPkt71->queue = 4;
         formationPkt71->startTime = chainTime;
         formationPkt71->delay = 0;
         formationPkt71->ownerId = actionId;
-        func_00194590((u8 *)formationPkt71, 0);
+        btlPacketEnqueue((u8 *)formationPkt71, 0);
         rotatePkt72 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(firstTargetEntry + 0x30), act->unit, 2));
         rotatePkt72->queue = 4;
         rotatePkt72->startTime = chainTime;
         rotatePkt72->delay = 0;
         rotatePkt72->ownerId = actionId;
-        func_00194590((u8 *)rotatePkt72, 1);
+        btlPacketEnqueue((u8 *)rotatePkt72, 1);
         animPkt73 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(firstTargetEntry + 0x30), 0xA, 0, 1.0f, 1));
         animPkt73->queue = 4;
         animPkt73->startTime = chainTime;
         animPkt73->delay = 0;
         animPkt73->ownerId = actionId;
-        func_00194590((u8 *)animPkt73, 0);
+        btlPacketEnqueue((u8 *)animPkt73, 0);
         rotatePkt74 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(followActionPtr + 0x30), act->unit, 2));
         rotatePkt74->queue = 4;
         rotatePkt74->startTime = chainTime;
         rotatePkt74->delay = 0;
         rotatePkt74->flags = (u8) (rotatePkt74->flags & 0xDF);
         rotatePkt74->ownerId = actionId;
-        func_00194590((u8 *)rotatePkt74, 1);
+        btlPacketEnqueue((u8 *)rotatePkt74, 1);
         btlState11_411 = (u8 *)(iGpffffb3ac);
         *(s32 *)(btlState11_411 + 0xC) = (s32) (*(s32 *)(btlState11_411 + 0xC) | 0x400000);
         btlState12 = (u8 *)(iGpffffb3ac);
@@ -5185,7 +5185,7 @@ void func_001a7720(u8 *arg0) {
         waitPkt75->queue = 4;
         waitPkt75->startTime = chainTime;
         waitPkt75->delay = timingFrames;
-        func_00194590((u8 *)waitPkt75, 1);
+        btlPacketEnqueue((u8 *)waitPkt75, 1);
         if (actionFlag4000 == 0) {
             formationNamePkt = (BtlPacketTiming *)(func_001d5eb0(formationHandle, formation, 1));
         } else {
@@ -5196,7 +5196,7 @@ void func_001a7720(u8 *arg0) {
         (*( s8 * )((u8 *)formationNamePkt + (0x20))) = 5;
         *(s64 *)((u8 *)formationNamePkt + 0x28) = waitPkt75->endTime;
         formationNamePkt->ownerId = actionId;
-        func_00194590((u8 *)formationNamePkt, 1);
+        btlPacketEnqueue((u8 *)formationNamePkt, 1);
         if (actionFlag4000 == 0) {
             skillSePkt = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 1));
         } else {
@@ -5204,7 +5204,7 @@ void func_001a7720(u8 *arg0) {
         }
         skillSePkt->queue = 5;
         skillSePkt->startTime = cutinEndTime;
-        func_00194590((u8 *)skillSePkt, 1);
+        btlPacketEnqueue((u8 *)skillSePkt, 1);
     } else {
         if (actionFlag4000 == 0) {
             formationNamePkt = (BtlPacketTiming *)(func_001d5eb0(formationHandle, formation, 0));
@@ -5215,7 +5215,7 @@ void func_001a7720(u8 *arg0) {
         formationNamePkt->startTime = chainTime;
         formationNamePkt->delay = timingFrames;
         formationNamePkt->ownerId = actionId;
-        func_00194590((u8 *)formationNamePkt, 1);
+        btlPacketEnqueue((u8 *)formationNamePkt, 1);
         if (actionFlag4000 == 0) {
             skillSePkt = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 0));
         } else {
@@ -5223,7 +5223,7 @@ void func_001a7720(u8 *arg0) {
         }
         skillSePkt->queue = 4;
         skillSePkt->startTime = formationNamePkt->endTime;
-        func_00194590((u8 *)skillSePkt, 1);
+        btlPacketEnqueue((u8 *)skillSePkt, 1);
     }
     primaryTarget = (act->targetCount == 1) ? ((hasFollowAction != 0) ? (u8 *)(act->followAction) : primaryTarget) : (u8 *)(arg0);
     formationPkt76 = (BtlPacketTiming *)(func_001d6240(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(primaryTarget + 0x30), 0, 0));
@@ -5235,13 +5235,13 @@ void func_001a7720(u8 *arg0) {
     if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80) {
         formationPkt6->ownerId = actionId;
     }
-    func_00194590((u8 *)formationPkt6, 2);
+    btlPacketEnqueue((u8 *)formationPkt6, 2);
     formationEndTime2 = formationPkt6->endTime;
     if (actionFlag4000 == 0) {
         pkt77 = (BtlPacketTiming *)(func_001f8140(0));
         pkt77->queue = 5;
         pkt77->startTime = formationPkt6->endTime;
-        func_00194590((u8 *)pkt77, 1);
+        btlPacketEnqueue((u8 *)pkt77, 1);
     }
     followCameraPkt = 0;
     cameraState = 0x18;
@@ -5286,7 +5286,7 @@ void func_001a7720(u8 *arg0) {
             }
             pkt79 = (BtlPacketTiming *)(func_00202740(targetUnit12));
             pkt79->ownerId = actionId;
-            func_00194590((u8 *)pkt79, 1);
+            btlPacketEnqueue((u8 *)pkt79, 1);
             if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (*(s32 *)(targetAction + 0xE4) != 1)) {
                 formationPkt6 = (BtlPacketTiming *)(func_001d6240(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
                 if ((s32)(followCameraPkt) == (s32)(0)) {
@@ -5307,12 +5307,12 @@ void func_001a7720(u8 *arg0) {
                 if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80) {
                     formationPkt6->ownerId = actionId;
                 }
-                func_00194590((u8 *)formationPkt6, 2);
+                btlPacketEnqueue((u8 *)formationPkt6, 2);
                 if (actionFlag4000 == 0) {
                     pkt80 = (BtlPacketTiming *)(func_001f8140(1));
                     pkt80->queue = 5;
                     pkt80->startTime = formationPkt6->endTime;
-                    func_00194590((u8 *)pkt80, 1);
+                    btlPacketEnqueue((u8 *)pkt80, 1);
                 } else {
                     skillKindRow = (s16)datCalcSkillElement(NULL, skillKeyCopy);
                     switch (skillKindRow) {                /* switch 2; irregular */
@@ -5328,7 +5328,7 @@ void func_001a7720(u8 *arg0) {
                     }
                     soundPkt9->queue = 5;
                     soundPkt9->startTime = formationPkt6->endTime;
-                    func_00194590((u8 *)soundPkt9, 1);
+                    btlPacketEnqueue((u8 *)soundPkt9, 1);
                 }
             } else {
                 formationPkt81 = (BtlPacketTiming *)(func_001d6240(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0xC00));
@@ -5341,7 +5341,7 @@ void func_001a7720(u8 *arg0) {
                 if ((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x80) {
                     formationPkt6->ownerId = actionId;
                 }
-                func_00194590((u8 *)formationPkt6, 2);
+                btlPacketEnqueue((u8 *)formationPkt6, 2);
                 if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (*(s32 *)(targetAction + 0xE4) == 1) && (targetPos == 0)) {
                     sp4C0 = (BtlPacketTiming *)(func_001d6240(formationHandle, *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, hitFlags | 0x1000));
                     sp4C0->queue = 5;
@@ -5350,12 +5350,12 @@ void func_001a7720(u8 *arg0) {
                         sp4C0->delay = 8;
                     }
                     sp4C0->ownerId = actionId;
-                    func_00194590((u8 *)sp4C0, 2);
+                    btlPacketEnqueue((u8 *)sp4C0, 2);
                     if (actionFlag4000 == 0) {
                         pkt83 = (BtlPacketTiming *)(func_001f8140(1));
                         pkt83->queue = 5;
                         pkt83->startTime = sp4C0->endTime;
-                        func_00194590((u8 *)pkt83, 1);
+                        btlPacketEnqueue((u8 *)pkt83, 1);
                     }
                 }
             }
@@ -5365,19 +5365,19 @@ void func_001a7720(u8 *arg0) {
                     lookAtPkt84->queue = 5;
                     lookAtPkt84->startTime = formationPkt6->endTime;
                     lookAtPkt84->ownerId = *(s64 *)arg0;
-                    func_00194590((u8 *)lookAtPkt84, 1);
+                    btlPacketEnqueue((u8 *)lookAtPkt84, 1);
                     if ((s32)(effectiveAction) != (s32)(arg0)) {
                         lookAtPkt85 = (BtlPacketTiming *)(actionLookAtUnit(*(u8 **)(effectiveAction + 0x30), act->unit, 0));
                         lookAtPkt85->queue = 5;
                         lookAtPkt85->startTime = formationPkt6->endTime;
                         lookAtPkt85->ownerId = *(s64 *)arg0;
-                        func_00194590((u8 *)lookAtPkt85, 1);
+                        btlPacketEnqueue((u8 *)lookAtPkt85, 1);
                     } else {
                         pkt86 = (BtlPacketTiming *)(btlUnitCreateLookAtDeactivatePacket(*(u8 **)(effectiveAction + 0x30), 0));
                         pkt86->queue = 5;
                         pkt86->startTime = formationPkt6->endTime;
                         pkt86->ownerId = *(s64 *)arg0;
-                        func_00194590((u8 *)pkt86, 1);
+                        btlPacketEnqueue((u8 *)pkt86, 1);
                     }
                     act->flags = (u16) (act->flags | 0x200);
                 }
@@ -5389,7 +5389,7 @@ void func_001a7720(u8 *arg0) {
                     pkt87->queue = 5;
                     pkt87->startTime = formationPkt6->endTime;
                     pkt87->ownerId = *(s64 *)arg0;
-                    func_00194590((u8 *)pkt87, 1);
+                    btlPacketEnqueue((u8 *)pkt87, 1);
                 }
             }
             if (sp2D0 == 1) {
@@ -5399,7 +5399,7 @@ void func_001a7720(u8 *arg0) {
                         colorPkt88->queue = 5;
                         colorPkt88->startTime = formationPkt6->endTime;
                         colorPkt88->ownerId = actionId;
-                        func_00194590((u8 *)colorPkt88, 0);
+                        btlPacketEnqueue((u8 *)colorPkt88, 0);
                     }
                     if (sp2C0 == 0) {
                         if (sp30C == 0) {
@@ -5411,26 +5411,26 @@ void func_001a7720(u8 *arg0) {
                         pkt10->queue = 5;
                         pkt10->startTime = formationPkt6->endTime;
                         pkt10->ownerId = actionId;
-                        func_00194590((u8 *)pkt10, 0);
+                        btlPacketEnqueue((u8 *)pkt10, 0);
                     }
                     colorPkt89 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)act->unit, -1, 0, 0, 3, 0));
                     colorPkt89->queue = 5;
                     colorPkt89->startTime = formationPkt6->endTime;
                     colorPkt89->ownerId = actionId;
-                    func_00194590((u8 *)colorPkt89, 1);
+                    btlPacketEnqueue((u8 *)colorPkt89, 1);
                 }
                 if ((s32)(effectiveAction) != (s32)(arg0)) {
                     rotatePkt90 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(effectiveAction + 0x30), act->unit, 2));
                     rotatePkt90->queue = 5;
                     rotatePkt90->startTime = formationPkt6->endTime;
                     rotatePkt90->ownerId = actionId;
-                    func_00194590((u8 *)rotatePkt90, 0);
+                    btlPacketEnqueue((u8 *)rotatePkt90, 0);
                 }
                 pkt91 = (BtlPacketTiming *)(func_00201f20());
                 pkt91->queue = 5;
                 pkt91->startTime = formationPkt6->endTime;
                 pkt91->ownerId = actionId;
-                func_00194590((u8 *)pkt91, 0);
+                btlPacketEnqueue((u8 *)pkt91, 0);
                 followCameraPkt = (BtlPacket *)(btlCameraCreateSetStatePacket((BtlAction *)effectiveAction, 0x1C));
                 (*( s8 * )((u8 *)(followCameraPkt) + (0))) = 5;
                 *(s64 *)((u8 *)followCameraPkt + 8) = formationPkt6->endTime;
@@ -5443,7 +5443,7 @@ void func_001a7720(u8 *arg0) {
                     *(s64 *)((u8 *)followCameraPkt + 0x28) = formationPkt6->endTime;
                 }
                 (*( s64 * )((u8 *)(followCameraPkt) + (0x60))) = actionId;
-                func_00194590((u8 *)followCameraPkt, 0);
+                btlPacketEnqueue((u8 *)followCameraPkt, 0);
             }
             if (*(s32 *)(targetAction + 0xE4) != 0) {
                 formationFxPkt = (BtlPacketTiming *)(func_001d6240(*(u32 *)(iGpffffb3ac + 0xD28), *(u32 *)(arg0 + 0x30), *(u32 *)(targetAction + 0x30), 1, 0));
@@ -5454,11 +5454,11 @@ void func_001a7720(u8 *arg0) {
                     formationFxPkt->queue = 5;
                     formationFxPkt->startTime = formationEndTime2;
                 }
-                func_00194590((u8 *)formationFxPkt, 1);
+                btlPacketEnqueue((u8 *)formationFxPkt, 1);
                 soundPkt93 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 0xB));
                 soundPkt93->queue = 5;
                 soundPkt93->startTime = formationFxPkt->endTime;
-                func_00194590((u8 *)soundPkt93, 1);
+                btlPacketEnqueue((u8 *)soundPkt93, 1);
             }
             if (*(u16 *)(targetAction + 0xDC) == 0x400) {
                 formationFxPkt = (BtlPacketTiming *)(func_001d6240(*(u32 *)(iGpffffb3ac + 0xD2C), *(u32 *)(arg0 + 0x30), *(u32 *)(effectiveAction + 0x30), 1, 0));
@@ -5469,11 +5469,11 @@ void func_001a7720(u8 *arg0) {
                     formationFxPkt->queue = 5;
                     formationFxPkt->startTime = formationEndTime2;
                 }
-                func_00194590((u8 *)formationFxPkt, 1);
+                btlPacketEnqueue((u8 *)formationFxPkt, 1);
                 soundPkt94 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0xC));
                 soundPkt94->queue = 5;
                 soundPkt94->startTime = formationFxPkt->endTime;
-                func_00194590((u8 *)soundPkt94, 1);
+                btlPacketEnqueue((u8 *)soundPkt94, 1);
                 hitDelay = 0xA;
             }
             hitIndex = 0;
@@ -5500,7 +5500,7 @@ void func_001a7720(u8 *arg0) {
                     (*( u16 * )((u8 *)animPacket + (0x48))) = (u16) ((s16) (*( u16 * )((u8 *)animPacket + (0x48))) + 8);
                 }
                 animPacket->ownerId = actionId;
-                func_00194590((u8 *)animPacket, 0);
+                btlPacketEnqueue((u8 *)animPacket, 0);
                 if ((hitIndexS32 == (s32)rowHitCount - 1) && (hitRow->result.addedStatus & 0x100000) && (actionFlag4000 == 0) && (sameSideTarget == 1) && (*(s32 *)(targetAction + 0xE0) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(skillKeyCopy)) == (s32)(0))) {
                     motionFramesS32 = (s32) motionFrames;
                     if (motionFramesS32 >= 0x19) {
@@ -5512,7 +5512,7 @@ void func_001a7720(u8 *arg0) {
                     pkt99->queue = 4;
                     pkt99->startTime = animPacket->endTime;
                     pkt99->ownerId = actionId;
-                    func_00194590((u8 *)pkt99, 0);
+                    btlPacketEnqueue((u8 *)pkt99, 0);
                     if (act->targetCount == 1) {
                         skillKindUnit = (s16)datCalcSkillElement((u8 *)(u32)(*( s64 * )((u8 *)(act->unit) + (0xA64))), skillKeyCopy);
                         switch (skillKindUnit) {            /* switch 3; irregular */
@@ -5539,7 +5539,7 @@ void func_001a7720(u8 *arg0) {
                             formationPkt100->queue = 4;
                             formationPkt100->startTime = animPacket->endTime;
                             formationPkt100->ownerId = actionId;
-                            func_00194590((u8 *)formationPkt100, 2);
+                            btlPacketEnqueue((u8 *)formationPkt100, 2);
                         }
                     }
                     if (motionFramesS32 > 0x19) {
@@ -5547,7 +5547,7 @@ void func_001a7720(u8 *arg0) {
                         pkt101->queue = 4;
                         pkt101->startTime = animPacket->endTime;
                         pkt101->ownerId = actionId;
-                        func_00194590((u8 *)pkt101, 0);
+                        btlPacketEnqueue((u8 *)pkt101, 0);
                     }
                     targetUnit3 = (u8 *)(*(u8 **)(effectiveAction + 0x30));
                     sp4B8 = (BtlPacketTiming *)(func_001d6240(*(u32 *)(iGpffffb3ac + 0xD80), (u32)targetUnit3, (u32)targetUnit3, 1, 0));
@@ -5558,7 +5558,7 @@ void func_001a7720(u8 *arg0) {
                     }
                     sp4B8->delay = (s16) motionFramesS32;
                     sp4B8->ownerId = actionId;
-                    func_00194590((u8 *)sp4B8, 2);
+                    btlPacketEnqueue((u8 *)sp4B8, 2);
                     targetUnit103 = (u8 *)(*(u8 **)(effectiveAction + 0x30));
                     targetScale = *(f32 *)(targetUnit103 + 0x2C);
                     areaScale = ((*(f32 *)(targetUnit103 + 0x90) * targetScale * (*(f32 *)(targetUnit103 + 0x8C) * targetScale)) / (f32) 0x2710);
@@ -5575,12 +5575,12 @@ void func_001a7720(u8 *arg0) {
                     pkt104->queue = 5;
                     pkt104->startTime = sp4B8->endTime;
                     pkt104->ownerId = actionId;
-                    func_00194590((u8 *)pkt104, 1);
+                    btlPacketEnqueue((u8 *)pkt104, 1);
                     pkt105 = (BtlPacketTiming *)(func_0019a980((BtlUnit *)(*(u8 **)(effectiveAction + 0x30))));
                     pkt105->queue = 5;
                     pkt105->startTime = animPacket->endTime;
                     pkt105->ownerId = actionId;
-                    func_00194590((u8 *)pkt105, 0);
+                    btlPacketEnqueue((u8 *)pkt105, 0);
                 }
                 if ((sp2D0 == 0) && ((*hitMotion != -1) || ((s32)((*( u8 * )((u8 *)(*(u8 **)(targetAction + 0x30)) + (0xA2)))) != (s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))))) && ((s32)(datCalcChkBadStatus((s32)(*( u8 ** )((u8 *)(*(u8 **)(targetAction + 0x30)) + (0xA64))), 0x180001)) == (s32)(0))) {
                     rotatePkt106 = (BtlPacketTiming *)(btlUnitCreateRotateTowardUnitPacket(*(u8 **)(targetAction + 0x30), act->unit, 2));
@@ -5593,7 +5593,7 @@ void func_001a7720(u8 *arg0) {
                     }
                     rotatePkt106->flags = (u8) (rotatePkt106->flags & 0xDF);
                     rotatePkt106->ownerId = actionId;
-                    func_00194590((u8 *)rotatePkt106, 1);
+                    btlPacketEnqueue((u8 *)rotatePkt106, 1);
                 }
                 if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
                     pkt107 = (BtlPacketTiming *)(func_00194c90((void *)func_0022eba0, (void *)arg0));
@@ -5601,7 +5601,7 @@ void func_001a7720(u8 *arg0) {
                     pkt107->startTime = animPacket->endTime;
                     pkt107->delay = hitDelay;
                     pkt107->ownerId = actionId;
-                    func_00194590((u8 *)pkt107, 1);
+                    btlPacketEnqueue((u8 *)pkt107, 1);
                 }
                 hitResult = (s32 *)&hitRow->result;
                 hitResultPtr = (s32 *)(hitResult);
@@ -5610,20 +5610,20 @@ void func_001a7720(u8 *arg0) {
                 pkt109->startTime = animPacket->endTime;
                 pkt109->delay = hitDelay;
                 pkt109->ownerId = actionId;
-                func_00194590((u8 *)pkt109, 1);
+                btlPacketEnqueue((u8 *)pkt109, 1);
                 pkt110 = (BtlPacketTiming *)(func_001f3950(targetAction));
                 pkt110->queue = 5;
                 pkt110->startTime = animPacket->endTime;
                 pkt110->delay = hitDelay;
                 pkt110->ownerId = actionId;
-                func_00194590((u8 *)pkt110, 1);
+                btlPacketEnqueue((u8 *)pkt110, 1);
                 if (((s32)(targetPos) == (s32)((act->targetCount - 1))) && (hitIndexS32 == (s32)((*(u8 *)(targetAction + 0xD9) - 1)))) {
                     pkt111 = (BtlPacketTiming *)(func_001f3950(arg0));
                     pkt111->queue = 5;
                     pkt111->startTime = animPacket->endTime;
                     pkt111->delay = hitDelay;
                     pkt111->ownerId = actionId;
-                    func_00194590((u8 *)pkt111, 1);
+                    btlPacketEnqueue((u8 *)pkt111, 1);
                 }
                 if ((targetPos == 0) && (hitIndexS32 == 0) && !(act->flags & 4)) {
                     pkt112 = (BtlPacketTiming *)(func_001f3870(arg0, act->stateBits));
@@ -5631,7 +5631,7 @@ void func_001a7720(u8 *arg0) {
                     pkt112->startTime = animPacket->endTime;
                     pkt112->delay = hitDelay;
                     pkt112->ownerId = actionId;
-                    func_00194590((u8 *)pkt112, 1);
+                    btlPacketEnqueue((u8 *)pkt112, 1);
                 }
                 if (hitIndexS32 == (s32)((*(u8 *)(targetAction + 0xD9) - 1))) {
                     if ((act->fieldEC != 0) && !(act->fieldD8 & 1)) {
@@ -5644,7 +5644,7 @@ void func_001a7720(u8 *arg0) {
                         pkt113->startTime = animPacket->endTime;
                         pkt113->flags = (u8) (pkt113->flags & 0xDF);
                         pkt113->ownerId = actionId;
-                        func_00194590((u8 *)pkt113, 3);
+                        btlPacketEnqueue((u8 *)pkt113, 3);
                     } else {
                         if (*(s16 *)(targetAction + 0xEC) != 0) {
                             hitField14 = hitRow->result.field14;
@@ -5656,7 +5656,7 @@ void func_001a7720(u8 *arg0) {
                             pkt114->startTime = animPacket->endTime;
                             pkt114->flags = (u8) (pkt114->flags & 0xDF);
                             pkt114->ownerId = actionId;
-                            func_00194590((u8 *)pkt114, 3);
+                            btlPacketEnqueue((u8 *)pkt114, 3);
                         } else if (hasFollowAction != 0) {
                             targetFieldEC = (s16)(*(s16 *)(effectiveAction + 0xEC));
                             if (targetFieldEC != 0) {
@@ -5665,7 +5665,7 @@ void func_001a7720(u8 *arg0) {
                                 pkt115->startTime = animPacket->endTime;
                                 pkt115->flags = (u8) (pkt115->flags & 0xDF);
                                 pkt115->ownerId = actionId;
-                                func_00194590((u8 *)pkt115, 3);
+                                btlPacketEnqueue((u8 *)pkt115, 3);
                             }
                         }
                     }
@@ -5677,7 +5677,7 @@ void func_001a7720(u8 *arg0) {
                     pkt116->delay = hitDelay;
                     pkt116->flags = (u8) (pkt116->flags & 0xDF);
                     pkt116->ownerId = actionId;
-                    func_00194590((u8 *)pkt116, 3);
+                    btlPacketEnqueue((u8 *)pkt116, 3);
                 }
                 if ((hitRow->result.addedStatus & 0x100000) && ((s32)((*( u8 * )((u8 *)(*(u8 **)(effectiveAction + 0x30)) + (0xA2)))) == (s32)(1))) {
                     soundPkt117 = (BtlPacketTiming *)(func_001f7c20(0xD, 2, 8));
@@ -5685,7 +5685,7 @@ void func_001a7720(u8 *arg0) {
                     soundPkt117->startTime = animPacket->endTime;
                     soundPkt117->delay = hitDelay;
                     soundPkt117->ownerId = actionId;
-                    func_00194590((u8 *)soundPkt117, 1);
+                    btlPacketEnqueue((u8 *)soundPkt117, 1);
                 }
                 if (*(u16 *)((u8 *)hitRow + 0x10E) & 0x20) {
                     sp310 = 1;
@@ -5701,7 +5701,7 @@ void func_001a7720(u8 *arg0) {
                 hitPkt119->delay = hitDelay;
                 hitPkt119->flags = (u8) (hitPkt119->flags & 0xDF);
                 hitPkt119->ownerId = actionId;
-                func_00194590((u8 *)hitPkt119, 3);
+                btlPacketEnqueue((u8 *)hitPkt119, 3);
                 hpTransfer = (s16 *)(hitRowBase + 0x108);
                 if ((*(s16 *)(hitRowBase + 0x108) > 0) || (hitRow->result.spTransfer > 0)) {
                     hitDelayS16 = (s16)(hitDelay + 0x2B);
@@ -5714,26 +5714,26 @@ void func_001a7720(u8 *arg0) {
                     pkt120->startTime = animPacket->endTime;
                     pkt120->delay = hitDelayS16;
                     pkt120->ownerId = actionId;
-                    func_00194590((u8 *)pkt120, 1);
+                    btlPacketEnqueue((u8 *)pkt120, 1);
                     actUnit16 = (u8 *)(act->unit);
                     hitPkt121 = (BtlPacketTiming *)(func_00201de0((s32)(actUnit16), (s32)(actUnit16), -1, 1U, 1U, hitIndex, rowHitCount, &result, 0));
                     hitPkt121->queue = 4;
                     hitPkt121->startTime = animPacket->endTime;
                     hitPkt121->delay = hitDelayS16;
                     hitPkt121->ownerId = actionId;
-                    func_00194590((u8 *)hitPkt121, 3);
+                    btlPacketEnqueue((u8 *)hitPkt121, 3);
                     if (result.hpDelta != 0) {
                         if (hitIndexS32 == 0) {
                             pkt122 = (BtlPacketTiming *)(func_00202740(act->unit));
                             pkt122->ownerId = actionId;
-                            func_00194590((u8 *)pkt122, 1);
+                            btlPacketEnqueue((u8 *)pkt122, 1);
                         }
                         pkt123 = (BtlPacketTiming *)(func_00202590((s32)(act->unit), 0, 0));
                         pkt123->queue = 4;
                         pkt123->startTime = animPacket->endTime;
                         pkt123->delay = hitDelayS16;
                         pkt123->ownerId = actionId;
-                        func_00194590((u8 *)pkt123, 3);
+                        btlPacketEnqueue((u8 *)pkt123, 3);
                     }
                 }
                 hitTimer += 7;
@@ -5753,7 +5753,7 @@ void func_001a7720(u8 *arg0) {
         pkt124->startTime = lateChainTime;
         pkt124->delay = (s16) hitWait;
         pkt124->ownerId = actionId;
-        func_00194590((u8 *)pkt124, 1);
+        btlPacketEnqueue((u8 *)pkt124, 1);
     } else if (crossSideHits > 0) {
         if (side == 0) {
             statusTotal = (s32)((u16)btlSideCountNotBad(2, 0x80000));
@@ -5792,13 +5792,13 @@ reactionPacket:
                 pkt126->startTime = lateChainTime;
                 pkt126->delay = (s16) hitWait;
                 pkt126->ownerId = actionId;
-                func_00194590((u8 *)pkt126, 1);
+                btlPacketEnqueue((u8 *)pkt126, 1);
                         } else {
                 pkt125 = (BtlPacketTiming *)(func_001f99c0(arg0, 0x10, crossSideHits, 0, 0));
                 pkt125->queue = 5;
                 pkt125->startTime = lateChainTime;
                 pkt125->delay = (s16) hitWait;
-                func_00194590((u8 *)pkt125, 1);
+                btlPacketEnqueue((u8 *)pkt125, 1);
             }
         }
     } else if ((statusHits > 0) && (stateBitsCopy = act->stateBits, ((stateBitsCopy & 1) != 0)) && !(stateBitsCopy & 2) && ((s64)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) == (s64)(0))) {
@@ -5807,26 +5807,26 @@ reactionPacket:
         pkt127->startTime = lateChainTime;
         pkt127->delay = (s16) hitWait;
         pkt127->ownerId = actionId;
-        func_00194590((u8 *)pkt127, 1);
+        btlPacketEnqueue((u8 *)pkt127, 1);
     } else if ((rotateFirst != 0) && (side == 0) && (func_001f0c50(arg0) != 0) && (func_001f0d30(arg0) == 0)) {
         pkt128 = (BtlPacketTiming *)(func_001f99c0(act->target, 0x12, 0U, 0, 0));
         pkt128->queue = 5;
         pkt128->startTime = lateChainTime;
         pkt128->delay = (s16) hitWait;
-        func_00194590((u8 *)pkt128, 1);
+        btlPacketEnqueue((u8 *)pkt128, 1);
     } else if (crossSideHits == 0) {
         if ((s32)(func_001f0dd0(arg0, 1)) != (s32)(0)) {
             pkt129 = (BtlPacketTiming *)(func_001f99c0(arg0, 0xF, 0U, 0, 0));
             pkt129->queue = 5;
             pkt129->startTime = lateChainTime;
             pkt129->delay = (s16) hitWait;
-            func_00194590((u8 *)pkt129, 1);
+            btlPacketEnqueue((u8 *)pkt129, 1);
         } else if (((s32)(func_001f0f70(arg0)) == (s32)(1)) && ((s32)(func_001f0b90(arg0)) == (s32)(0)) && (sp2E0 == 0)) {
             pkt130 = (BtlPacketTiming *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
             pkt130->queue = 5;
             pkt130->startTime = lateChainTime;
             pkt130->delay = (s16) hitWait;
-            func_00194590((u8 *)pkt130, 1);
+            btlPacketEnqueue((u8 *)pkt130, 1);
         }
     }
     if (sp2E0 != 0) {
@@ -5836,7 +5836,7 @@ reactionPacket:
             *(s64 *)((u8 *)followCameraPkt + 8) = formationPkt6->endTime;
             (*( s16 * )((u8 *)(followCameraPkt) + (0x48))) = 0x18;
             (*( s64 * )((u8 *)(followCameraPkt) + (0x60))) = actionId;
-            func_00194590((u8 *)followCameraPkt, 0);
+            btlPacketEnqueue((u8 *)followCameraPkt, 0);
         }
         if ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) == (s32)(0)) {
             func_001f0a10((u8 *)&result);
@@ -5850,20 +5850,20 @@ reactionPacket:
                 pkt4->startTime = (s64)((s64) formationPkt6->endTime);
             }
             pkt4->ownerId = actionId;
-            func_00194590((u8 *)pkt4, 1);
+            btlPacketEnqueue((u8 *)pkt4, 1);
             actUnit19 = (u8 *)(act->unit);
             hitPkt132 = (BtlPacketTiming *)(func_00201de0((s32)(actUnit19), (s32)(actUnit19), -1, 0U, 0U, 0U, 1U, &result, 0));
             hitPkt132->queue = 4;
             hitPkt132->startTime = (s64)((s64) pkt4->endTime);
             hitPkt132->flags = (u8) (hitPkt132->flags & 0xDF);
             hitPkt132->ownerId = actionId;
-            func_00194590((u8 *)hitPkt132, 3);
+            btlPacketEnqueue((u8 *)hitPkt132, 3);
             pkt133 = (BtlPacketTiming *)(func_00202590((s32)(act->unit), 0, 0));
             pkt133->queue = 4;
             pkt133->startTime = (s64)((s64) pkt4->endTime);
             pkt133->flags = (u8) (pkt133->flags & 0xDF);
             pkt133->ownerId = actionId;
-            func_00194590((u8 *)pkt133, 3);
+            btlPacketEnqueue((u8 *)pkt133, 3);
         } else {
             func_001f0a10((u8 *)&result);
             result.addedStatus = 0x80000;
@@ -5876,7 +5876,7 @@ reactionPacket:
                 pkt4->startTime = (s64)((s64) formationPkt6->endTime);
             }
             pkt4->ownerId = actionId;
-            func_00194590((u8 *)pkt4, 1);
+            btlPacketEnqueue((u8 *)pkt4, 1);
         }
         if (sp2C0 == 0) {
             if (sp2F0 == 0) {
@@ -5888,14 +5888,14 @@ reactionPacket:
                 animPacket->queue = 4;
                 animPacket->startTime = (s64)((s64) pkt4->endTime);
                 animPacket->ownerId = actionId;
-                func_00194590((u8 *)animPacket, 0);
+                btlPacketEnqueue((u8 *)animPacket, 0);
             } else {
                 pkt134 = (BtlPacketTiming *)(func_0019a980((BtlUnit *)act->unit));
                 animPacket = (BtlPacketTiming *)(pkt134);
                 pkt134->queue = 4;
                 pkt134->startTime = (s64)((s64) pkt4->endTime);
                 pkt134->ownerId = actionId;
-                func_00194590((u8 *)animPacket, 0);
+                btlPacketEnqueue((u8 *)animPacket, 0);
             }
         }
         actUnit20_420 = (u8 *)(act->unit);
@@ -5905,24 +5905,24 @@ reactionPacket:
             waitPkt135->startTime = (s64)((s64) pkt4->endTime);
             waitPkt135->duration = 0x3C;
             waitPkt135->ownerId = actionId;
-            func_00194590((u8 *)waitPkt135, 1);
+            btlPacketEnqueue((u8 *)waitPkt135, 1);
         } else {
             colorPkt136 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)actUnit20_420, 0xFFFFFF, 6, 0, 4, 0));
             colorPkt136->queue = 4;
             colorPkt136->startTime = (s64)((s64) pkt4->endTime);
             colorPkt136->ownerId = actionId;
-            func_00194590((u8 *)colorPkt136, 1);
+            btlPacketEnqueue((u8 *)colorPkt136, 1);
             actUnit5_55 = (u8 *)(act->unit);
             formationPkt137 = (BtlPacketTiming *)(func_001d6240(*(u32 *)(iGpffffb3ac + 0xD48), (u32)actUnit5_55, (u32)actUnit5_55, 0, 0));
             formationPkt137->queue = 4;
             formationPkt137->startTime = (s64)((s64) pkt4->endTime);
             formationPkt137->ownerId = actionId;
-            func_00194590((u8 *)formationPkt137, 2);
+            btlPacketEnqueue((u8 *)formationPkt137, 2);
             soundPkt138 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0xA));
             soundPkt138->queue = 4;
             soundPkt138->startTime = (s64)((s64) pkt4->endTime);
             soundPkt138->ownerId = actionId;
-            func_00194590((u8 *)soundPkt138, 1);
+            btlPacketEnqueue((u8 *)soundPkt138, 1);
             actUnit20_320 = (u8 *)(act->unit);
             *(u32 *)(actUnit20_320 + 0x9C) |= 0x100;
         }
@@ -5947,7 +5947,7 @@ reactionPacket:
                 animPacket->duration = animDuration;
             }
             animPacket->ownerId = actionId;
-            func_00194590((u8 *)animPacket, 0);
+            btlPacketEnqueue((u8 *)animPacket, 0);
         } else {
             pkt139 = (BtlPacketTiming *)(func_0019a980((BtlUnit *)act->unit));
             animPacket = (BtlPacketTiming *)(pkt139);
@@ -5955,7 +5955,7 @@ reactionPacket:
             pkt139->startTime = formationPkt6->endTime;
             pkt139->delay = cameraState;
             pkt139->ownerId = actionId;
-            func_00194590((u8 *)animPacket, 0);
+            btlPacketEnqueue((u8 *)animPacket, 0);
         }
     }
     pkt140 = (BtlPacketTiming *)(btlCreateTimingPacket(0x10));
@@ -5963,7 +5963,7 @@ reactionPacket:
     pkt140->startTime = animPacket->endTime;
     pkt140->flags = (u8) (pkt140->flags & 0xDF);
     pkt140->ownerId = actionId;
-    func_00194590((u8 *)pkt140, 1);
+    btlPacketEnqueue((u8 *)pkt140, 1);
     if (sp310 != 0) {
         cameraMode = 2;
     } else {
@@ -5974,19 +5974,19 @@ reactionPacket:
     pkt141->startTime = animPacket->endTime;
     pkt141->flags = (u8) (pkt141->flags & 0xDF);
     pkt141->ownerId = actionId;
-    func_00194590((u8 *)pkt141, 1);
+    btlPacketEnqueue((u8 *)pkt141, 1);
     pkt142 = (BtlPacketTiming *)(btlMainCreateColorFadePacket(0x10));
     pkt142->queue = 4;
     pkt142->startTime = animPacket->endTime;
     pkt142->flags = (u8) (pkt142->flags & 0xDF);
     pkt142->ownerId = actionId;
-    func_00194590((u8 *)pkt142, 1);
+    btlPacketEnqueue((u8 *)pkt142, 1);
     pkt143 = (BtlPacketTiming *)(btlMainCreateColorSetPacket(8));
     pkt143->queue = 4;
     pkt143->startTime = formationPkt6->endTime;
     pkt143->flags = (u8) (pkt143->flags & 0xDF);
     pkt143->ownerId = actionId;
-    func_00194590((u8 *)pkt143, 0);
+    btlPacketEnqueue((u8 *)pkt143, 0);
     if ((altCamera == 1) && (isKind3 == 0) && (noOverride == 0)) {
         if (randomFlag == 0) {
             if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
@@ -5999,21 +5999,21 @@ reactionPacket:
                 cameraPkt144->queue = 5;
                 cameraPkt144->startTime = formationEndTime;
                 cameraPkt144->ownerId = actionId;
-                func_00194590((u8 *)cameraPkt144, 0);
+                btlPacketEnqueue((u8 *)cameraPkt144, 0);
             }
         } else {
             cameraPkt145 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1D));
             cameraPkt145->queue = 5;
             cameraPkt145->startTime = formationEndTime;
             cameraPkt145->ownerId = actionId;
-            func_00194590((u8 *)cameraPkt145, 0);
+            btlPacketEnqueue((u8 *)cameraPkt145, 0);
         }
         if (sp310 == 0) {
             colorPkt146 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)act->unit, -1, 0, 0xC, 3, 0));
             colorPkt146->queue = 0xB;
             colorPkt146->startTime = formationPkt6->endTime;
             colorPkt146->ownerId = actionId;
-            func_00194590((u8 *)colorPkt146, 1);
+            btlPacketEnqueue((u8 *)colorPkt146, 1);
         }
         colorPkt147 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)linkedUnit, 0xFFFFFF, 8, 0, 4, 0));
         colorPkt147->queue = 0xB;
@@ -6021,12 +6021,12 @@ reactionPacket:
         colorDelay = (rotateFirst != 0 && skillSpecial != 0) ? 7 : 0xF;
         colorPkt147->delay = colorDelay;
         colorPkt147->ownerId = actionId;
-        func_00194590((u8 *)colorPkt147, 1);
+        btlPacketEnqueue((u8 *)colorPkt147, 1);
         effectPkt148 = (BtlPacketTiming *)(func_001d65d0(*(s32 *)(iGpffffb3ac + 0xD70), (s32)linkedUnit, damageFrames, 0, 0x2100));
         effectPkt148->queue = 4;
         effectPkt148->startTime = animEndTime;
         effectPkt148->ownerId = actionId;
-        func_00194590((u8 *)effectPkt148, 2);
+        btlPacketEnqueue((u8 *)effectPkt148, 2);
     }
     if (sp310 == 1) {
         pkt149 = (BtlPacketTiming *)(btlCreateSetFlagsPacket(0x80));
@@ -6034,13 +6034,13 @@ reactionPacket:
         pkt149->startTime = formationPkt6->endTime;
         pkt149->delay = 0xC;
         pkt149->ownerId = actionId;
-        func_00194590((u8 *)pkt149, 1);
+        btlPacketEnqueue((u8 *)pkt149, 1);
         pkt150 = (BtlPacketTiming *)(func_00202850());
         pkt150->queue = 4;
         pkt150->startTime = animPacket->endTime;
         pkt150->flags = (u8) (pkt150->flags & 0xDF);
         pkt150->ownerId = actionId;
-        func_00194590((u8 *)pkt150, 1);
+        btlPacketEnqueue((u8 *)pkt150, 1);
     }
     if (actionFlag4000 == 0) {
         func_001d3e00(formationHandle);
@@ -6050,7 +6050,7 @@ reactionPacket:
 
         cutin.mode = 3;
         cutin.unitId = *(u16 *)(*(u8 **)(partner + 0x30) + 0xA4);
-        func_00194590((u8 *)(func_001fa720((u8 *)&cutin)), 1);
+        btlPacketEnqueue((u8 *)(func_001fa720((u8 *)&cutin)), 1);
     }
     if ((s32)(func_001f68e0(arg0)) != (s32)(0)) {
         btlActionSetState((BtlAction *)arg0, 0x1B);
@@ -6169,30 +6169,30 @@ void func_001abbb0(s64 *arg0)
         u8 *pkt;
         pkt = (u8 *)func_00202010((u32)action->unitRef.pointer, selector);
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 3);
+        btlPacketEnqueue(pkt, 3);
     }
     {
         u8 *pkt;
         pkt = func_001f3b20((u8 *)action);
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     {
         u8 *pkt;
         pkt = func_001f3870((u8 *)action, 0);
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     evPkt = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)action->unitRef.pointer, 8, 6, 1.0f, 0);
     *(s64 *)(evPkt + 0x60) = uid;
-    func_00194590(evPkt, 0);
+    btlPacketEnqueue(evPkt, 0);
     {
         u8 *pkt;
         pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x15);
         *pkt = 4;
         *(s64 *)(pkt + 8) = *(s64 *)(evPkt + 0x58);
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 0);
+        btlPacketEnqueue(pkt, 0);
     }
     evId = *(s64 *)(evPkt + 0x58);
     scaleTmp = func_001991c0((u8 *)action->unitRef.pointer, 8, 1.0f);
@@ -6203,7 +6203,7 @@ void func_001abbb0(s64 *arg0)
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     {
         s32 kind;
@@ -6214,7 +6214,7 @@ void func_001abbb0(s64 *arg0)
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     {
         u8 *pkt;
@@ -6222,7 +6222,7 @@ void func_001abbb0(s64 *arg0)
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     {
         u8 *pkt;
@@ -6230,7 +6230,7 @@ void func_001abbb0(s64 *arg0)
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     func_001d69f0(aux, workBuf);
     seqPkt = (u8 *)func_001d5eb0(handle, workBuf, 0);
@@ -6238,11 +6238,11 @@ void func_001abbb0(s64 *arg0)
     *(s64 *)(seqPkt + 8) = 0;
     *(s16 *)(seqPkt + 0x48) = scaleTmp + 6;
     *(s64 *)(seqPkt + 0x60) = uid;
-    func_00194590(seqPkt, 1);
+    btlPacketEnqueue(seqPkt, 1);
     holdPkt = (u8 *)btlSoundCreateSkillSEPacket(selector, 0);
     *holdPkt = 4;
     *(s64 *)(holdPkt + 8) = *(s64 *)(seqPkt + 0x58);
-    func_00194590(holdPkt, 1);
+    btlPacketEnqueue(holdPkt, 1);
     {
         u8 *pkt;
         u8 *next;
@@ -6251,11 +6251,11 @@ void func_001abbb0(s64 *arg0)
         *(s64 *)(pkt + 8) = *(s64 *)(seqPkt + 0x58);
         *(pkt + 0x10) = 4;
         *(s64 *)(pkt + 0x18) = *(s64 *)(holdPkt + 0x58);
-        func_00194590(pkt, 2);
+        btlPacketEnqueue(pkt, 2);
         next = (u8 *)func_001f8140(0);
         *next = 5;
         *(s64 *)(next + 8) = *(s64 *)(pkt + 0x58);
-        func_00194590(next, 1);
+        btlPacketEnqueue(next, 1);
     }
     seqId = *(s64 *)(seqPkt + 0x58);
     tailPkt = func_00194b60();
@@ -6263,18 +6263,18 @@ void func_001abbb0(s64 *arg0)
     *(s64 *)(tailPkt + 8) = seqId;
     *(s16 *)(tailPkt + 0x48) = 0x18;
     *(s64 *)(tailPkt + 0x60) = uid;
-    func_00194590(tailPkt, 1);
+    btlPacketEnqueue(tailPkt, 1);
     tailPkt = func_001d65d0(*(s32 *)(iGpffffb3ac + 0xD40), action->unitRef.signedAddress, 0, *(s64 *)(tailPkt + 0x58), 0x100);
     *tailPkt = 4;
     *(s64 *)(tailPkt + 8) = *(s64 *)(evPkt + 0x58);
     *(s64 *)(tailPkt + 0x60) = uid;
-    func_00194590(tailPkt, 1);
+    btlPacketEnqueue(tailPkt, 1);
     {
         u8 *pkt;
         pkt = (u8 *)func_001f7c20(10, 2, 7);
         *pkt = 4;
         *(s64 *)(pkt + 8) = *(s64 *)(evPkt + 0x58);
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     firstDone = 0;
     idx = 0;
@@ -6300,7 +6300,7 @@ void func_001abbb0(s64 *arg0)
                 *pkt = 4;
                 *(s64 *)(pkt + 8) = seqId;
                 *(s64 *)(pkt + 0x60) = uid;
-                func_00194590(pkt, 0);
+                btlPacketEnqueue(pkt, 0);
             }
             {
                 u8 *pkt;
@@ -6308,7 +6308,7 @@ void func_001abbb0(s64 *arg0)
                 *pkt = 4;
                 *(s64 *)(pkt + 8) = seqId;
                 *(s64 *)(pkt + 0x60) = uid;
-                func_00194590(pkt, 0);
+                btlPacketEnqueue(pkt, 0);
             }
             if ((*(u16 *)((u32)off + (u32)iGpffffb3bc + 2) & 0x40) == 0) {
                 {
@@ -6317,7 +6317,7 @@ void func_001abbb0(s64 *arg0)
                     *pkt = 4;
                     *(s64 *)(pkt + 8) = seqId;
                     *(s64 *)(pkt + 0x60) = uid;
-                    func_00194590(pkt, 0);
+                    btlPacketEnqueue(pkt, 0);
                 }
                 {
                     u8 *pkt;
@@ -6325,7 +6325,7 @@ void func_001abbb0(s64 *arg0)
                     *pkt = 4;
                     *(s64 *)(pkt + 8) = seqId;
                     *(s64 *)(pkt + 0x60) = uid;
-                    func_00194590(pkt, 0);
+                    btlPacketEnqueue(pkt, 0);
                 }
             }
             firstDone = 1;
@@ -6338,25 +6338,25 @@ void func_001abbb0(s64 *arg0)
             *q1 = 4;
             *(s64 *)(q1 + 8) = seqId;
             *(s64 *)(q1 + 0x60) = uid;
-            func_00194590(q1, 1);
+            btlPacketEnqueue(q1, 1);
             q2 = (u8 *)func_0019c030((BtlUnit *)unit, curId, 0x10);
             *q2 = 4;
             *(s64 *)(q2 + 8) = *(s64 *)(q1 + 0x58);
-            func_00194590(q2, 1);
+            btlPacketEnqueue(q2, 1);
             q3 = (u8 *)func_001d6240(handle, action->unitRef.address, ((UnitReference *)(loopPkt + 0x30))->address, 1, 0x100);
             *q3 = 4;
             *(s64 *)(q3 + 8) = *(s64 *)(q2 + 0x58);
             *(q3 + 0x10) = 4;
             *(s64 *)(q3 + 0x18) = *(s64 *)(holdPkt + 0x58);
             *(s64 *)(q3 + 0x60) = uid;
-            func_00194590(q3, 2);
+            btlPacketEnqueue(q3, 2);
             tailPkt = q3;
             {
                 u8 *q4;
                 q4 = (u8 *)func_001f8140(1);
                 *q4 = 5;
                 *(s64 *)(q4 + 8) = *(s64 *)(q3 + 0x58);
-                func_00194590(q4, 1);
+                btlPacketEnqueue(q4, 1);
             }
             if (((u16)idx == 0) && (action->ids[1] == 0)) {
                 u8 *q5;
@@ -6364,7 +6364,7 @@ void func_001abbb0(s64 *arg0)
                 *q5 = 5;
                 *(s64 *)(q5 + 8) = *(s64 *)(q3 + 0x58);
                 *(s16 *)(q5 + 0x48) = 0x1C;
-                func_00194590(q5, 3);
+                btlPacketEnqueue(q5, 3);
             }
             {
                 u8 *q6;
@@ -6375,7 +6375,7 @@ void func_001abbb0(s64 *arg0)
                 *(s64 *)(q6 + 0x18) = *(s64 *)(q3 + 0x58);
                 *(s16 *)(q6 + 0x48) = 1;
                 *(s64 *)(q6 + 0x60) = uid;
-                func_00194590(q6, 1);
+                btlPacketEnqueue(q6, 1);
             }
             seqId = *(s64 *)(q2 + 0x58);
         }
@@ -6385,7 +6385,7 @@ void func_001abbb0(s64 *arg0)
         pkt = (u8 *)actionTargetPacketBytes((u8 *)action, 9, 0, 0, 0);
         *pkt = 0xB;
         *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     {
         u8 *pkt;
@@ -6394,7 +6394,7 @@ void func_001abbb0(s64 *arg0)
         *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
         *(pkt + 0x47) &= ~0x20;
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     {
         u8 *pkt;
@@ -6403,7 +6403,7 @@ void func_001abbb0(s64 *arg0)
         *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
         *(pkt + 0x47) &= ~0x20;
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     {
         u8 *pkt;
@@ -6412,7 +6412,7 @@ void func_001abbb0(s64 *arg0)
         *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
         *(pkt + 0x47) &= ~0x20;
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     {
         u8 *pkt;
@@ -6421,7 +6421,7 @@ void func_001abbb0(s64 *arg0)
         *(s64 *)(pkt + 8) = *(s64 *)(tailPkt + 0x58);
         *(pkt + 0x47) &= ~0x20;
         *(s64 *)(pkt + 0x60) = uid;
-        func_00194590(pkt, 0);
+        btlPacketEnqueue(pkt, 0);
     }
     func_001d3e00(handle);
     if (func_001f68e0((u8 *)action) != 0) {
@@ -6454,10 +6454,10 @@ void btlActionReset(BtlAction *action) {
     btlActionFinishPresentation(action);
     resetPacket = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(resetPacket + 0x60) = *(s64 *)action;
-    func_00194590(resetPacket, 0);
+    btlPacketEnqueue(resetPacket, 0);
     cameraPacket = (u8 *)btlCameraCreateSetStatePacket(action, 0x2C);
     *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
-    func_00194590(cameraPacket, 0);
+    btlPacketEnqueue(cameraPacket, 0);
     *(u16 *)((u8 *)action + 0x18) |= 2;
 }
 
@@ -6480,7 +6480,7 @@ void func_001ac620(void) {
         if (func_001a05f0((BtlAction *)p) != 0) {
             o = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(p + 0x30) + 0xA0C));
             *(s64 *)(o + 0x60) = *(s64 *)p;
-            func_00194590(o, 1);
+            btlPacketEnqueue(o, 1);
         }
         p = *(u8 **)(p + 0x450);
     }
@@ -6542,13 +6542,13 @@ void func_001ac700(u8 *action) {
         packet = (u8 *)func_00202010(*(s32 *)(action + 0x30),
                                *(u16 *)(action + 0x6E));
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 3);
+        btlPacketEnqueue(packet, 3);
     } else {
         u8 *packet;
         packet = (u8 *)func_00202120(*(s32 *)(action + 0x30),
                                *(u16 *)(action + 0x70));
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 3);
+        btlPacketEnqueue(packet, 3);
     }
     if ((*(u8 **)(action + 0x30))[0xA2] == 0) {
         if (alternateAction == 0) {
@@ -6583,7 +6583,7 @@ void func_001ac700(u8 *action) {
                                  (s16)selection.animation, 6, speed, 0);
     *(s64 *)(animationPacket + 0x60) = packetIdentity;
     *(s16 *)(animationPacket + 0x4A) = (s16)((selection.frames & 0xFFFF) + 6);
-    func_00194590(animationPacket, 0);
+    btlPacketEnqueue(animationPacket, 0);
     {
         u8 *packet;
         packet = func_001d65d0(
@@ -6591,13 +6591,13 @@ void func_001ac700(u8 *action) {
             *(s32 *)(action + 0x30), 0,
             *(s64 *)(animationPacket + 0x58), 0x100);
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 2);
+        btlPacketEnqueue(packet, 2);
     }
     {
         u8 *packet;
         packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, selection.cameraState);
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
     }
     {
         u8 *packet;
@@ -6606,7 +6606,7 @@ void func_001ac700(u8 *action) {
         *(s8 *)(packet + 0) = 4;
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 3);
+        btlPacketEnqueue(packet, 3);
     }
     {
         u8 *packet;
@@ -6614,7 +6614,7 @@ void func_001ac700(u8 *action) {
         *(s8 *)(packet + 0) = 4;
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
@@ -6623,7 +6623,7 @@ void func_001ac700(u8 *action) {
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
@@ -6632,7 +6632,7 @@ void func_001ac700(u8 *action) {
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
@@ -6641,7 +6641,7 @@ void func_001ac700(u8 *action) {
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
     }
     {
         u8 *packet;
@@ -6650,7 +6650,7 @@ void func_001ac700(u8 *action) {
         *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
         *(u8 *)(packet + 0x47) &= ~0x20;
         *(s64 *)(packet + 0x60) = packetIdentity;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
     }
     if (func_001f68e0(action) != 0) {
         btlActionSetState((BtlAction *)action, 0x1B);
@@ -6772,12 +6772,12 @@ void func_001acbb0(u8 *arg0) {
                                  value);
         *(s16 *)(messagePacket + 0x48) = 8;
         *(s64 *)(messagePacket + 0x60) = *(s64 *)arg0;
-        func_00194590(messagePacket, 3);
+        btlPacketEnqueue(messagePacket, 3);
         firstPacketTag = *(s64 *)(messagePacket + 0x58);
         messagePacket = func_00194b60();
         *(s16 *)(messagePacket + 0x48) = 8;
         *(s64 *)(messagePacket + 0x60) = *(s64 *)arg0;
-        func_00194590(messagePacket, 0);
+        btlPacketEnqueue(messagePacket, 0);
         secondPacketTag = *(s64 *)(messagePacket + 0x58);
         if (*(u16 *)(arg0 + 0x3F4) == 0x154) {
             remainingCount = func_00106600(0x340) & 0xFF;
@@ -6794,30 +6794,30 @@ void func_001acbb0(u8 *arg0) {
             *(s8 *)(damagePacket + 0) = 4;
             *(s64 *)(damagePacket + 8) = secondPacketTag;
             *(s64 *)(damagePacket + 0x60) = *(s64 *)arg0;
-            func_00194590(damagePacket, 1);
+            btlPacketEnqueue(damagePacket, 1);
             unitPacket = func_00202740(battleUnit);
             *(s8 *)(unitPacket + 0) = 4;
             *(s64 *)(unitPacket + 8) = secondPacketTag;
             *(s64 *)(unitPacket + 0x60) = *(s64 *)arg0;
-            func_00194590(unitPacket, 1);
+            btlPacketEnqueue(unitPacket, 1);
             statusPacket = func_00201de0((s32)battleUnit, (s32)battleUnit, -1, 0, 0,
                                      0, 1, (u8 *)&damageResult, 0);
             *(s8 *)(statusPacket + 0) = 4;
             *(s64 *)(statusPacket + 8) = secondPacketTag;
             *(s64 *)(statusPacket + 0x60) = *(s64 *)arg0;
-            func_00194590(statusPacket, 3);
+            btlPacketEnqueue(statusPacket, 3);
             statPacket = func_00202590((s32)battleUnit, 0, 0);
             *(s8 *)(statPacket + 0) = 4;
             *(s64 *)(statPacket + 8) = secondPacketTag;
             *(s64 *)(statPacket + 0x60) = *(s64 *)arg0;
-            func_00194590(statPacket, 3);
+            btlPacketEnqueue(statPacket, 3);
         }
         if (flagAdded != 0) {
             removeFlagsPacket = btlCreateRemoveFlagsPacket(0x80000);
             *(s8 *)(removeFlagsPacket + 0) = 4;
             *(s64 *)(removeFlagsPacket + 8) = firstPacketTag;
             *(s64 *)(removeFlagsPacket + 0x60) = *(s64 *)arg0;
-            func_00194590(removeFlagsPacket, 0);
+            btlPacketEnqueue(removeFlagsPacket, 0);
         }
         btlActionSetState(arg0, *(u16 *)(arg0 + 0x430));
     }
@@ -6851,11 +6851,11 @@ void func_001acf50(u8 *arg0) {
         btlActionFinishPresentation();
         packet = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3);
         *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
         if (*(s16 *)(arg0 + 0xEC) != 0) {
             packet = actionMessagePacketBytes(*(s32 *)(arg0 + 0x30), *(s16 *)(arg0 + 0xEC));
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-            func_00194590(packet, 3);
+            btlPacketEnqueue(packet, 3);
         } else {
             battleUnit = *(u8 **)(arg0 + 0x30);
             if ((*(s32 *)(battleUnit + 0x9C) & 0x4000) != 0) {
@@ -6865,23 +6865,23 @@ void func_001acf50(u8 *arg0) {
             }
             packet = func_002022e0((u32)battleUnit, actionKind & 0xFFFF);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-            func_00194590(packet, 3);
+            btlPacketEnqueue(packet, 3);
         }
         packet = func_001f99c0(arg0, 0x16, 0, 0, 0);
         *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
         if ((*(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) & 0x4000) != 0) {
             packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x32);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-            func_00194590(packet, 0);
+            btlPacketEnqueue(packet, 0);
             if ((s16)func_00198810(*(u8 **)(arg0 + 0x30)) != 0x11) {
                 recoveryPacket = actionRecoveryPacketBytes((BtlUnit *)*(u8 **)(arg0 + 0x30));
                 *(s64 *)(recoveryPacket + 0x60) = *(s64 *)arg0;
-                func_00194590(recoveryPacket, 0);
+                btlPacketEnqueue(recoveryPacket, 0);
             } else {
                 recoveryPacket = func_00194b60();
                 *(s64 *)(recoveryPacket + 0x60) = *(s64 *)arg0;
-                func_00194590(recoveryPacket, 0);
+                btlPacketEnqueue(recoveryPacket, 0);
             }
             func_001f0a10((u8 *)&locals.sp30);
             locals.sp4E |= 0x80;
@@ -6889,23 +6889,23 @@ void func_001acf50(u8 *arg0) {
             *(s8 *)(packet + 0) = 4;
             *(s64 *)(packet + 8) = *(s64 *)(recoveryPacket + 0x58);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-            func_00194590(packet, 1);
+            btlPacketEnqueue(packet, 1);
             packet = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)(arg0 + 0x30), 0x18, 6, 1.0f, 1);
             *(s8 *)(packet + 0) = 4;
             *(s64 *)(packet + 8) = *(s64 *)(recoveryPacket + 0x58);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-            func_00194590(packet, 0);
+            btlPacketEnqueue(packet, 0);
         } else {
             packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0xA);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-            func_00194590(packet, 0);
+            btlPacketEnqueue(packet, 0);
         }
         break;
     case 8:
     case 11:
         break;
     }
-    func_00194590(func_001f3870(arg0, 0), 1);
+    btlPacketEnqueue(func_001f3870(arg0, 0), 1);
     if ((func_001f68e0(arg0) != 0) && (*(u16 *)(arg0 + 0x6C) != 8)) {
         btlActionSetState((BtlAction *)arg0, 0x1B);
         return;
@@ -6927,24 +6927,24 @@ void func_001ad280(u8 *arg0)
         *(u8 **)(arg0 + 0x30),
         0);
     *(s64 *)(lookAtPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(lookAtPacket, 1);
+    btlPacketEnqueue(lookAtPacket, 1);
     lookAtPacket = actionLookAtUnit(
         *(u8 **)(arg0 + 0x30),
         *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30),
         0);
     *(s64 *)(lookAtPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(lookAtPacket, 1);
+    btlPacketEnqueue(lookAtPacket, 1);
     *(u16 *)(arg0 + 0x18) |= 0x200;
     resetPacket = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(resetPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(resetPacket, 0);
+    btlPacketEnqueue(resetPacket, 0);
     cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 9);
     *(s64 *)(cameraPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(cameraPacket, 0);
+    btlPacketEnqueue(cameraPacket, 0);
     cutinParams[0] = 5;
     cutinPacket = func_001fa720((u8 *)&cutinParams[0]);
     *(s64 *)(cutinPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(cutinPacket, 1);
+    btlPacketEnqueue(cutinPacket, 1);
     if (func_001eb860() == 1) {
         *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
         func_00212240(*(u8 **)(D_0076449C + 0xDD4), 0);
@@ -6965,7 +6965,7 @@ void func_001ad3e0(u8 *arg0)
     func_00218420(*(s32 *)(D_0076449C + 0xDD4), arg0);
     temp = func_001fa8f0();
     *(s64 *)(temp + 0x60) = *(s64 *)arg0;
-    func_00194590(temp, 1);
+    btlPacketEnqueue(temp, 1);
     *(s32 *)(arg0 + 0x41C) = 1;
 common:
     if (func_002184a0(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
@@ -6987,7 +6987,7 @@ alternate:
 after_state:
     temp = func_001faa60();
     *(s64 *)(temp + 0x60) = *(s64 *)arg0;
-    func_00194590(temp, 1);
+    btlPacketEnqueue(temp, 1);
     func_00218500(*(s32 *)(D_0076449C + 0xDD4));
 done:
     return;
@@ -7053,7 +7053,7 @@ void func_001ad550(s64 *arg0)
     btlActionFinishPresentation((BtlAction *)arg0);
     first = func_002022e0((u32)action->unit, 6);
     *(s64 *)(first + 0x60) = action->uid;
-    func_00194590(first, 3);
+    btlPacketEnqueue(first, 3);
     listed = 0;
     spread = 0;
     count = 0;
@@ -7095,7 +7095,7 @@ void func_001ad550(s64 *arg0)
             u8 *pkt;
             pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)collected[0], 0xA);
             *(s64 *)(pkt + 0x60) = action->uid;
-            func_00194590(pkt, 0);
+            btlPacketEnqueue(pkt, 0);
         }
     }
     if (action->unit->kind == 0) {
@@ -7106,14 +7106,14 @@ void func_001ad550(s64 *arg0)
             *(s64 *)(pkt + 8) = *(s64 *)(first + 0x58);
             *(u16 *)(pkt + 0x48) = 0x1A;
             *(s64 *)(pkt + 0x60) = action->uid;
-            func_00194590(pkt, 1);
+            btlPacketEnqueue(pkt, 1);
         }
         if (action->mode == 0xC) {
             {
                 u8 *pkt;
                 pkt = actionTargetPacketBytes((u8 *)action, 7, 0, 0, 0);
                 *(s64 *)(pkt + 0x60) = action->uid;
-                func_00194590(pkt, 1);
+                btlPacketEnqueue(pkt, 1);
             }
         } else if (spread == 1) {
             {
@@ -7123,7 +7123,7 @@ void func_001ad550(s64 *arg0)
                 *(s64 *)(pkt + 8) = *(s64 *)(first + 0x58);
                 *(u16 *)(pkt + 0x48) = 0x10;
                 *(s64 *)(pkt + 0x60) = action->uid;
-                func_00194590(pkt, 1);
+                btlPacketEnqueue(pkt, 1);
             }
         }
     } else {
@@ -7134,14 +7134,14 @@ void func_001ad550(s64 *arg0)
             *(s64 *)(pkt + 8) = *(s64 *)(first + 0x58);
             *(u16 *)(pkt + 0x48) = 0x16;
             *(s64 *)(pkt + 0x60) = action->uid;
-            func_00194590(pkt, 1);
+            btlPacketEnqueue(pkt, 1);
         }
         {
             u8 *pkt;
             pkt = actionTargetPacketBytes((u8 *)action, 6, 0, 0, 0);
             *(u16 *)(pkt + 0x48) = 0xC;
             *(s64 *)(pkt + 0x60) = action->uid;
-            func_00194590(pkt, 1);
+            btlPacketEnqueue(pkt, 1);
         }
     }
     for (idx = 0; idx < count; idx++) {
@@ -7174,7 +7174,7 @@ void func_001ad550(s64 *arg0)
         *(s64 *)(stepPkt + 8) = *(s64 *)(first + 0x58);
         *(u16 *)(stepPkt + 0x48) = 0x10;
         *(s64 *)(stepPkt + 0x60) = action->uid;
-        func_00194590(stepPkt, 1);
+        btlPacketEnqueue(stepPkt, 1);
         {
             u8 *pkt;
             pkt = func_0019bbe0((u8 *)cur->unit, 0xFFFFFF, 8, 0, 4, 0);
@@ -7182,7 +7182,7 @@ void func_001ad550(s64 *arg0)
             *(s64 *)(pkt + 8) = *(s64 *)(stepPkt + 0x58);
             *(u16 *)(pkt + 0x48) = 0xC;
             *(s64 *)(pkt + 0x60) = action->uid;
-            func_00194590(pkt, 1);
+            btlPacketEnqueue(pkt, 1);
             lastId = *(s64 *)(pkt + 0x58);
         }
     }
@@ -7195,7 +7195,7 @@ void func_001ad550(s64 *arg0)
             *(pkt + 0x10) = 0xA;
             *(u16 *)(pkt + 0x18) = 0x801;
             *(s64 *)(pkt + 0x60) = action->uid;
-            func_00194590(pkt, 1);
+            btlPacketEnqueue(pkt, 1);
         }
         *(u16 *)(iGpffffb3ac + 0x1C) = 3;
     }
@@ -7203,7 +7203,7 @@ void func_001ad550(s64 *arg0)
         u8 *pkt;
         pkt = func_001f3870((u8 *)action, 0);
         *(s64 *)(pkt + 0x60) = action->uid;
-        func_00194590(pkt, 1);
+        btlPacketEnqueue(pkt, 1);
     }
     btlActionSetState((BtlAction *)action, 0x20);
 }
@@ -7249,24 +7249,24 @@ void func_001adb80(s64 *arg0)
         introPacket = (u8 *)func_0019b6a0(
             *(BtlUnit **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA0C));
         *(s64 *)(introPacket + 0x60) = *(s64 *)arg0;
-        func_00194590(introPacket, 1);
+        btlPacketEnqueue(introPacket, 1);
     }
     btlActionFinishPresentation((BtlAction *)arg0);
     actionPacket = func_002022e0(
         *(u32 *)((u8 *)arg0 + 0x30),
         *(u16 *)((u8 *)arg0 + 0x6C));
     *(s64 *)(actionPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(actionPacket, 3);
+    btlPacketEnqueue(actionPacket, 3);
     cameraPacket = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1F);
     *(s64 *)(cameraPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(cameraPacket, 0);
+    btlPacketEnqueue(cameraPacket, 0);
     animPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)*(u8 **)((u8 *)arg0 + 0x30),
                              0x19, 0, 1.0f, 0);
     *(s64 *)(animPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(animPacket, 0);
+    btlPacketEnqueue(animPacket, 0);
     effectPacket = func_001f99c0((u8 *)arg0, 0x15, 0, 0, 0);
     *(s64 *)(effectPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(effectPacket, 1);
+    btlPacketEnqueue(effectPacket, 1);
     if (*(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2) == 0) {
         datPersonaSelectRosterMemberById(*(u16 *)((u8 *)arg0 + 0x74));
         person = *(u16 *)((u8 *)arg0 + 0x74);
@@ -7287,12 +7287,12 @@ void func_001adb80(s64 *arg0)
         0, 0);
     *(s16 *)(resultPacket + 0x48) = 0xF;
     *(s64 *)(resultPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(resultPacket, 2);
+    btlPacketEnqueue(resultPacket, 2);
     followPacket = (u8 *)func_001f7c20(0xA, 2, 6);
     *(s8 *)(followPacket + 0) = 5;
     *(s64 *)(followPacket + 8) = *(s64 *)(resultPacket + 0x58);
     *(s64 *)(followPacket + 0x60) = *(s64 *)arg0;
-    func_00194590(followPacket, 1);
+    btlPacketEnqueue(followPacket, 1);
     *(s32 *)(D_0076449C + 0xC) |= 0x400000;
     *(u16 *)(D_0076449C + 0x18) |= 5;
 }
@@ -7354,32 +7354,32 @@ void func_001adea0(u8 *action)
                 if (delta < 0) {
                     resultPacket = (u8 *)func_001f36e0((s32)action, (s32)action, &result, 1, 1);
                     *(s16 *)(resultPacket + 72) = 12;
-                    func_00194590(resultPacket, 1);
+                    btlPacketEnqueue(resultPacket, 1);
                     healthPacket = func_00202740(unit);
                     *(healthPacket + 0) = 4;
                     *(s64 *)(healthPacket + 8) = *(s64 *)(resultPacket + 88);
-                    func_00194590(healthPacket, 1);
+                    btlPacketEnqueue(healthPacket, 1);
                     displayPacket = func_00201de0((s32)unit, (s32)unit, -1, 0, 0, 0, 1, &result, 0);
                     *(displayPacket + 0) = 4;
                     *(s64 *)(displayPacket + 8) = *(s64 *)(resultPacket + 88);
                     *(displayPacket + 71) = *(displayPacket + 71) & 0xDF;
-                    func_00194590(displayPacket, 3);
+                    btlPacketEnqueue(displayPacket, 3);
                     gaugePacket = func_00202590((s32)unit, 0, 0);
                     *(gaugePacket + 0) = 4;
                     *(s64 *)(gaugePacket + 8) = *(s64 *)(resultPacket + 88);
                     *(gaugePacket + 71) = *(gaugePacket + 71) & 0xDF;
-                    func_00194590(gaugePacket, 3);
+                    btlPacketEnqueue(gaugePacket, 3);
                     animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 48), -2, 0, 1.0f, 0);
                     *(animationPacket + 0) = 4;
                     *(s64 *)(animationPacket + 8) = *(s64 *)(resultPacket + 88);
                     *(animationPacket + 32) = 10;
                     *(s16 *)(animationPacket + 40) = 769;
                     *(s64 *)(animationPacket + 96) = packetIdentity;
-                    func_00194590(animationPacket, 0);
+                    btlPacketEnqueue(animationPacket, 0);
                     soundPacket = (u8 *)func_001f7c20(10, 2, 24);
                     *(soundPacket + 0) = 4;
                     *(s64 *)(soundPacket + 8) = *(s64 *)(resultPacket + 88);
-                    func_00194590(soundPacket, 1);
+                    btlPacketEnqueue(soundPacket, 1);
                 }
                 {
                     u16 actionKind = *(u16 *)(action + 108);
@@ -7408,32 +7408,32 @@ void func_001adea0(u8 *action)
                 if (delta < 0) {
                     resultPacket = (u8 *)func_001f36e0((s32)action, (s32)action, &result, 1, 1);
                     *(s16 *)(resultPacket + 72) = 12;
-                    func_00194590(resultPacket, 1);
+                    btlPacketEnqueue(resultPacket, 1);
                     healthPacket = func_00202740(unit);
                     *(healthPacket + 0) = 4;
                     *(s64 *)(healthPacket + 8) = *(s64 *)(resultPacket + 88);
-                    func_00194590(healthPacket, 1);
+                    btlPacketEnqueue(healthPacket, 1);
                     displayPacket = func_00201de0((s32)unit, (s32)unit, -1, 0, 0, 0, 1, &result, 0);
                     *(displayPacket + 0) = 4;
                     *(s64 *)(displayPacket + 8) = *(s64 *)(resultPacket + 88);
                     *(displayPacket + 71) = *(displayPacket + 71) & 0xDF;
-                    func_00194590(displayPacket, 3);
+                    btlPacketEnqueue(displayPacket, 3);
                     gaugePacket = func_00202590((s32)unit, 1, 0);
                     *(gaugePacket + 0) = 4;
                     *(s64 *)(gaugePacket + 8) = *(s64 *)(resultPacket + 88);
                     *(gaugePacket + 71) = *(gaugePacket + 71) & 0xDF;
-                    func_00194590(gaugePacket, 3);
+                    btlPacketEnqueue(gaugePacket, 3);
                     animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 48), -2, 0, 1.0f, 0);
                     *(animationPacket + 0) = 4;
                     *(s64 *)(animationPacket + 8) = *(s64 *)(resultPacket + 88);
                     *(animationPacket + 32) = 10;
                     *(s16 *)(animationPacket + 40) = 769;
                     *(s64 *)(animationPacket + 96) = packetIdentity;
-                    func_00194590(animationPacket, 0);
+                    btlPacketEnqueue(animationPacket, 0);
                     soundPacket = (u8 *)func_001f7c20(10, 2, 24);
                     *(soundPacket + 0) = 4;
                     *(s64 *)(soundPacket + 8) = *(s64 *)(resultPacket + 88);
-                    func_00194590(soundPacket, 1);
+                    btlPacketEnqueue(soundPacket, 1);
                 }
                 {
                     u16 actionKind = *(u16 *)(action + 108);
@@ -7514,7 +7514,7 @@ void func_001ae3d0(u8 *action)
         if (func_001a05f0((BtlAction *)currentAction) != 0) {
             packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(currentAction + 48) + 2572));
             *(s64 *)(packet + 96) = *(s64 *)currentAction;
-            func_00194590(packet, 1);
+            btlPacketEnqueue(packet, 1);
         }
         currentAction = *(u8 **)(currentAction + 1104);
     }
@@ -7548,7 +7548,7 @@ void func_001ae3d0(u8 *action)
     cutin.unitId = *(u16 *)(*(u8 **)(target + 48) + 164);
     packet = func_001fa720(&cutin);
     *(s64 *)(packet + 96) = *(s64 *)action;
-    func_00194590(packet, 1);
+    btlPacketEnqueue(packet, 1);
     if (*(u8 *)(*(u8 **)(action + 48) + 162) != 0) {
         changeFormation = 0;
     } else if ((*(s16 *)(iGpffffb3ac + 2672) != -1) &&
@@ -7563,37 +7563,37 @@ void func_001ae3d0(u8 *action)
     if (changeFormation != 0) {
         packet = (u8 *)func_001d3900(1);
         *(s64 *)(packet + 96) = *(s64 *)action;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
     }
     packet = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(*(u8 **)(iGpffffb3ac + 368) + 48), 0, 0, 1.0f, 1);
     *(s64 *)(packet + 96) = *(s64 *)action;
-    func_00194590(packet, 0);
+    btlPacketEnqueue(packet, 0);
     targetIndex = 0;
     while ((s32)targetIndex < *(u16 *)(iGpffffb3ac + 3160)) {
         targetAction = *(u8 **)(iGpffffb3ac + ((u32)targetIndex * 4) + 3144);
         packet = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(targetAction + 48), 0, 0, 1.0f, 1);
         *(s64 *)(packet + 96) = *(s64 *)action;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
         targetIndex++;
     }
     packet = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(packet + 96) = *(s64 *)action;
-    func_00194590(packet, 0);
+    btlPacketEnqueue(packet, 0);
     packet = btlUnitCreateLookAtSidePacket(0, 3);
     *(s64 *)(packet + 96) = *(s64 *)action;
-    func_00194590(packet, 1);
+    btlPacketEnqueue(packet, 1);
     packet = (u8 *)btlUnitCreateLookAtDeactivatePacket(NULL, 3);
     *(s64 *)(packet + 96) = *(s64 *)action;
-    func_00194590(packet, 1);
+    btlPacketEnqueue(packet, 1);
     packet = (u8 *)func_001d3d00((u32)action);
     *(s64 *)(packet + 96) = *(s64 *)action;
-    func_00194590(packet, 0);
+    btlPacketEnqueue(packet, 0);
     packet = (u8 *)btlMainCreateColorSetPacket(0);
     *(s64 *)(packet + 96) = *(s64 *)action;
-    func_00194590(packet, 0);
+    btlPacketEnqueue(packet, 0);
     packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 7);
     *(s64 *)(packet + 96) = *(s64 *)action;
-    func_00194590(packet, 0);
+    btlPacketEnqueue(packet, 0);
     flags = *(u32 *)(iGpffffb3ac + 12);
     flags = flags & 0xFFBFFFFF;
     *(u32 *)(iGpffffb3ac + 12) = flags;
@@ -7640,19 +7640,19 @@ void func_001ae800(u8 *arg0)
         }
         *(u16 *)(frame + 8) = *(u16 *)(gp2 + 0xC58);
         packet1 = func_001fa110(frame);
-        func_00194590(packet1, 1);
+        btlPacketEnqueue(packet1, 1);
         packet2 = func_001fa8f0();
         *(s16 *)(packet2 + 0x48) = *(s16 *)(arg0 + 0x42C);
-        func_00194590(packet2, 1);
+        btlPacketEnqueue(packet2, 1);
         packet3 = func_00194c90((s32)btlActionGetCounter428, (s32)arg0);
         *(s16 *)(packet3 + 0x48) = *(s16 *)(arg0 + 0x42C);
-        func_00194590(packet3, 1);
+        btlPacketEnqueue(packet3, 1);
         packet4 = func_001d65d0(
             *(s32 *)(D_0076449C + 0xD8C),
             *(s32 *)(arg0 + 0x30), 0,
             *(s64 *)(packet3 + 0x58), 0x8000);
         *(s16 *)(packet4 + 0x48) = *(s16 *)(arg0 + 0x42C);
-        func_00194590(packet4, 2);
+        btlPacketEnqueue(packet4, 2);
         *(s32 *)(arg0 + 0x424) = 1;
     }
 
@@ -7678,7 +7678,7 @@ void func_001ae800(u8 *arg0)
         if (func_00218230(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
             packet1 = func_001f3870(arg0, 2);
             *(u64 *)(packet1 + 0x60) = *(u64 *)arg0;
-            func_00194590(packet1, 1);
+            btlPacketEnqueue(packet1, 1);
             *(s32 *)(*(u8 **)(D_0076449C + 0x170) + 0x434) =
                 *(s32 *)(arg0 + 0x41C);
             *(s16 *)(*(u8 **)(D_0076449C + 0x170) + 0x16) = 0x1F;
@@ -7688,22 +7688,22 @@ void func_001ae800(u8 *arg0)
                 (*(u8 *)(packet2 + 0x28) != 0)) {
                 *(u16 *)(packet2 + 0x18) |= 0x8000;
             }
-            func_00194590(
+            btlPacketEnqueue(
                 func_001f99c0(*(u8 **)(arg0 + 0x41C), 6, 1, 0, 0), 1);
         } else {
-            func_00194590(
+            btlPacketEnqueue(
                 func_001f99c0(*(u8 **)(arg0 + 0x41C), 6, 0, 0, 0), 1);
             packet1 = func_001fa450();
             *(u64 *)(packet1 + 0x60) = *(u64 *)arg0;
-            func_00194590(packet1, 1);
+            btlPacketEnqueue(packet1, 1);
         }
 
         packet1 = func_001faa60();
         *(u64 *)(packet1 + 0x60) = *(u64 *)arg0;
-        func_00194590(packet1, 1);
+        btlPacketEnqueue(packet1, 1);
         packet2 = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 1);
         *(u64 *)(packet2 + 0x60) = *(u64 *)arg0;
-        func_00194590(packet2, 1);
+        btlPacketEnqueue(packet2, 1);
         *(u16 *)(arg0 + 0x18) &= 0xFFF7;
         if (func_001eb860() == 1) {
             *(s32 *)(D_0076449C + 0xC) |= 0x2000;
@@ -7859,7 +7859,7 @@ void func_001aed50(u8 *arg0)
             u8 *pk;
             pk = func_001f3870(list, 2);
             *(s64 *)(pk + 0x60) = uid;
-            func_00194590(pk, 1);
+            btlPacketEnqueue(pk, 1);
         }
     }
     aux = *(s16 *)(arg0 + 0x6E);
@@ -7874,7 +7874,7 @@ void func_001aed50(u8 *arg0)
         u8 *pk;
         pk = func_001d7bf0(sp1D8[0], sp1D8[1], sp1D8[2]);
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     setupPacket = func_001fa320();
     *setupPacket = 10;
@@ -7882,14 +7882,14 @@ void func_001aed50(u8 *arg0)
     *(setupPacket + 0x10) = 10;
     *(s16 *)(setupPacket + 0x18) = 0xC05;
     *(s64 *)(setupPacket + 0x60) = uid;
-    func_00194590(setupPacket, 1);
+    btlPacketEnqueue(setupPacket, 1);
     {
         u8 *pk;
         pk = (u8 *)func_001f7c20(0xE, 4, 4);
         *pk = 5;
         *(s64 *)(pk + 8) = *(s64 *)(setupPacket + 0x58);
         *(s64 *)(pk + 0x60) = *(s64 *)arg0;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     cur58 = *(s64 *)(setupPacket + 0x58);
     {
@@ -7899,7 +7899,7 @@ void func_001aed50(u8 *arg0)
         *(s64 *)(pk + 8) = *(s64 *)(setupPacket + 0x58);
         *(s16 *)(pk + 0x48) = 0x3C;
         *(s64 *)(pk + 0x60) = *(s64 *)arg0;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     selector = (u16)aux;
     func_001b7060(selector, &outHi, &outLo);
@@ -7910,7 +7910,7 @@ void func_001aed50(u8 *arg0)
         *(s64 *)(pk + 8) = cur58;
         *(s16 *)(pk + 0x48) = 0x3C;
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     colorKind = func_001b7080(selector);
     func_001b70a0(selector, &outHi, &outLo);
@@ -7923,7 +7923,7 @@ void func_001aed50(u8 *arg0)
         *(s64 *)(pk + 8) = cur58;
         *(s16 *)(pk + 0x48) = 0x3C;
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     {
         u8 *pk;
@@ -7933,7 +7933,7 @@ void func_001aed50(u8 *arg0)
         *(s64 *)(pk + 8) = cur58;
         *(s16 *)(pk + 0x48) = 0x3C;
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     {
         u8 *pk;
@@ -7942,7 +7942,7 @@ void func_001aed50(u8 *arg0)
         *(s64 *)(pk + 8) = cur58;
         *(s16 *)(pk + 0x48) = 0x3C;
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     func_001d69f0(aux, workBuf);
     pkt12C = (u8 *)func_001d5eb0(handle, workBuf, 0);
@@ -7950,7 +7950,7 @@ void func_001aed50(u8 *arg0)
     *(s64 *)(pkt12C + 8) = cur58;
     *(s16 *)(pkt12C + 0x48) = 0x3C;
     *(s64 *)(pkt12C + 0x60) = uid;
-    func_00194590(pkt12C, 1);
+    btlPacketEnqueue(pkt12C, 1);
     for (unit17 = *(u8 **)(iGpffffb3ac + 0x178); unit17 != NULL; unit17 = *(u8 **)(unit17 + 0xA6C)) {
         if (datCalcChkBadStatus(*(s32 *)(unit17 + 0xA64), 0x100117) != 0 || datCalcIsDead(*(s32 *)(unit17 + 0xA64), 0) != 0) {
             u8 *pk;
@@ -7958,14 +7958,14 @@ void func_001aed50(u8 *arg0)
             *pk = 4;
             *(s64 *)(pk + 8) = *(s64 *)(pkt12C + 0x58);
             *(s64 *)(pk + 0x60) = uid;
-            func_00194590(pk, 0);
+            btlPacketEnqueue(pk, 0);
         }
     }
     pkt128 = (u8 *)func_001d6240(handle, *(u32 *)(arg0 + 0x30), *(u32 *)(target + 0x30), 0, 0);
     *pkt128 = 4;
     *(s64 *)(pkt128 + 8) = *(s64 *)(pkt12C + 0x58);
     *(s64 *)(pkt128 + 0x60) = uid;
-    func_00194590(pkt128, 2);
+    btlPacketEnqueue(pkt128, 2);
     {
         u8 *pk;
         switch (sp100) {
@@ -7982,7 +7982,7 @@ void func_001aed50(u8 *arg0)
         *pk = 5;
         *(s64 *)(pk + 8) = *(s64 *)(pkt128 + 0x58);
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     sp110 = 0;
     frameInterval = (u16)func_001ef4a0(selector);
@@ -7999,34 +7999,34 @@ void func_001aed50(u8 *arg0)
             u8 *pk;
             pk = func_00202740(*(u8 **)(unit19 + 0x30));
             *(s64 *)(pk + 0x60) = uid;
-            func_00194590(pk, 1);
+            btlPacketEnqueue(pk, 1);
         }
         chain = (u8 *)func_001d6240(handle, *(u32 *)(arg0 + 0x30), *(u32 *)(unit19 + 0x30), 1, formationFlags | 0x1000);
         *chain = 4;
         *(s64 *)(chain + 8) = *(s64 *)(pkt12C + 0x58);
         *(s16 *)(chain + 0x48) = sp110;
         *(s64 *)(chain + 0x60) = uid;
-        func_00194590(chain, 2);
+        btlPacketEnqueue(chain, 2);
         {
             u8 *pk;
             pk = (u8 *)func_001f7c20(0xA, 0, 4);
             *pk = 0xB;
             *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
-            func_00194590(pk, 1);
+            btlPacketEnqueue(pk, 1);
         }
         if (*(s32 *)(unit17 + 0xE4) != 0) {
             u8 *pk;
             pk = (u8 *)func_001d6240(*(u32 *)(iGpffffb3ac + 0xD28), *(u32 *)(arg0 + 0x30), *(u32 *)(unit17 + 0x30), 1, 0);
             *pk = 0xB;
             *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
-            func_00194590(pk, 1);
+            btlPacketEnqueue(pk, 1);
         }
         if (*(u16 *)(unit17 + 0xDC) == 0x400) {
             u8 *pk;
             pk = (u8 *)func_001d6240(*(u32 *)(iGpffffb3ac + 0xD2C), *(u32 *)(arg0 + 0x30), *(u32 *)(unit19 + 0x30), 1, 0);
             *pk = 0xB;
             *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
-            func_00194590(pk, 1);
+            btlPacketEnqueue(pk, 1);
         }
         for (var22 = 0; var22 < *(u8 *)(unit17 + 0xD9); var22++) {
             u16 *flags;
@@ -8035,7 +8035,7 @@ void func_001aed50(u8 *arg0)
             *anim = 0xB;
             *(s64 *)(anim + 8) = *(s64 *)(chain + 0x58);
             *(s64 *)(anim + 0x60) = uid;
-            func_00194590(anim, 0);
+            btlPacketEnqueue(anim, 0);
             {
                 u8 *pk;
                 pk = btlUnitCreateRotateTowardUnitPacket(*(u8 **)(unit17 + 0x30), *(u8 **)(arg0 + 0x30), 2);
@@ -8043,7 +8043,7 @@ void func_001aed50(u8 *arg0)
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(pk + 0x47) &= (u8)~0x20;
                 *(s64 *)(pk + 0x60) = uid;
-                func_00194590(pk, 1);
+                btlPacketEnqueue(pk, 1);
             }
             {
                 u8 *pk;
@@ -8051,7 +8051,7 @@ void func_001aed50(u8 *arg0)
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(s64 *)(pk + 0x60) = uid;
-                func_00194590(pk, 1);
+                btlPacketEnqueue(pk, 1);
             }
             {
                 u8 *pk;
@@ -8059,7 +8059,7 @@ void func_001aed50(u8 *arg0)
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(s64 *)(pk + 0x60) = uid;
-                func_00194590(pk, 1);
+                btlPacketEnqueue(pk, 1);
             }
             if (var23 == *(u16 *)(arg0 + 0x6A) - 1 && var22 == *(u8 *)(unit17 + 0xD9) - 1) {
                 u8 *pk;
@@ -8067,7 +8067,7 @@ void func_001aed50(u8 *arg0)
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(s64 *)(pk + 0x60) = uid;
-                func_00194590(pk, 1);
+                btlPacketEnqueue(pk, 1);
             }
             if (var22 == 0 && *(const s32 *)battleHitPayload(rec) != 0) {
                 u8 *pk;
@@ -8076,7 +8076,7 @@ void func_001aed50(u8 *arg0)
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(pk + 0x47) &= (u8)~0x20;
                 *(s64 *)(pk + 0x60) = uid;
-                func_00194590(pk, 3);
+                btlPacketEnqueue(pk, 3);
             }
             flags = (u16 *)(rec + 0x10E);
             if ((*flags & 1) != 0) {
@@ -8087,19 +8087,19 @@ void func_001aed50(u8 *arg0)
                 *pk = 4;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(s64 *)(pk + 0x60) = uid;
-                func_00194590(pk, 1);
+                btlPacketEnqueue(pk, 1);
                 if ((*flags & 2) != 0) {
                     u8 *pk2;
                     pk2 = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(unit17 + 0x30), 0xB, 0, 1.0f, 0);
                     *pk2 = 4;
                     *(s64 *)(pk2 + 8) = *(s64 *)(anim + 0x58);
                     *(s64 *)(pk2 + 0x60) = uid;
-                    func_00194590(pk2, 0);
+                    btlPacketEnqueue(pk2, 0);
                     pk2 = (u8 *)func_0019a980(*(BtlUnit **)(unit17 + 0x30));
                     *pk2 = 4;
                     *(s64 *)(pk2 + 8) = *(s64 *)(anim + 0x58);
                     *(s64 *)(pk2 + 0x60) = uid;
-                    func_00194590(pk2, 0);
+                    btlPacketEnqueue(pk2, 0);
                 }
             }
             {
@@ -8109,7 +8109,7 @@ void func_001aed50(u8 *arg0)
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(pk + 0x47) &= (u8)~0x20;
                 *(s64 *)(pk + 0x60) = uid;
-                func_00194590(pk, 3);
+                btlPacketEnqueue(pk, 3);
             }
         }
         sp110 += frameInterval;
@@ -8122,7 +8122,7 @@ void func_001aed50(u8 *arg0)
             *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
             *(s16 *)(pk + 0x48) = 6;
             *(s64 *)(pk + 0x60) = uid;
-            func_00194590(pk, 0);
+            btlPacketEnqueue(pk, 0);
         }
     }
     {
@@ -8132,7 +8132,7 @@ void func_001aed50(u8 *arg0)
         *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
         *(pk + 0x47) &= (u8)~0x20;
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     {
         u8 *pk;
@@ -8141,7 +8141,7 @@ void func_001aed50(u8 *arg0)
         *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
         *(pk + 0x47) &= (u8)~0x20;
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     {
         u8 *pk;
@@ -8150,7 +8150,7 @@ void func_001aed50(u8 *arg0)
         *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
         *(pk + 0x47) &= (u8)~0x20;
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     {
         u8 *pk;
@@ -8159,7 +8159,7 @@ void func_001aed50(u8 *arg0)
         *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
         *(pk + 0x47) &= (u8)~0x20;
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 0);
+        btlPacketEnqueue(pk, 0);
     }
     {
         u8 *pk;
@@ -8169,7 +8169,7 @@ void func_001aed50(u8 *arg0)
         *(pk + 0x10) = 4;
         *(s64 *)(pk + 0x18) = *(s64 *)(pkt128 + 0x58);
         *(s64 *)(pk + 0x60) = uid;
-        func_00194590(pk, 1);
+        btlPacketEnqueue(pk, 1);
     }
     func_001d3e00(handle);
     btlActionSetState((BtlAction *)arg0, 0x20);
@@ -8291,7 +8291,7 @@ void func_001afb50(u8 *action)
                     if (resetUnit != 0) {
                         packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(action + 0x30) + 0xA0C));
                         *(s64 *)(packet + 0x60) = *(s64 *)action;
-                        func_00194590(packet, 1);
+                        btlPacketEnqueue(packet, 1);
                     }
                     datCalcAdvanceSecondaryBuffs(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
                     func_001f5a00(1);
@@ -8321,7 +8321,7 @@ void func_001afb50(u8 *action)
                 if (resetUnit != 0) {
                     packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(action + 0x30) + 0xA0C));
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
-                    func_00194590(packet, 1);
+                    btlPacketEnqueue(packet, 1);
                 }
                 func_001b13c0(action);
             }

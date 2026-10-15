@@ -144,7 +144,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
@@ -192,7 +192,7 @@ u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2)
     u8 *work;
     u8 *packet;
 
-    packet = (u8 *)func_00194470(0x10F, 0x10);
+    packet = (u8 *)btlPacketAlloc(0x10F, 0x10);
     *(u8 *)(packet + 0x47) &= 0xFE;
     *(void **)(packet + 0x68) = (void *)func_0019acd0;
     *(void **)(packet + 0x6C) = (void *)func_0019ae20;

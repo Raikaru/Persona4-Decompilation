@@ -51,7 +51,7 @@ typedef struct BtlPacket
     void* workData;            // 0x78
 } BtlPacket;
 
-BtlPacket* func_00194470(u32 id, s32 workDataSize);
+BtlPacket* btlPacketAlloc(u32 id, s32 workDataSize);
 u32 btlCameraUpdateSetStatePacket(void* work);
 
 void func_001bd620(float *param_1,float *param_2,float *param_3,float *param_4);
@@ -406,7 +406,7 @@ BtlPacket* btlCameraCreateSetStatePacket(BtlAction* action, u16 state)
     BtlPacket* packet;
     BtlCameraPacketSetState* work;
 
-    packet = func_00194470(0x200, 8);
+    packet = btlPacketAlloc(0x200, 8);
 
     packet->updateFunc = btlCameraUpdateSetStatePacket;
 

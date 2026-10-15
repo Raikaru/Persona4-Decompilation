@@ -26,7 +26,7 @@ typedef struct BtlPacket {
     void* workData;
 } BtlPacket;
 
-BtlPacket* func_00194470(u32 type, u32 workSize);
+BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 
 extern u32 func_001b7520(void* work);
 extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
@@ -177,7 +177,7 @@ BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3)
     BtlPacket *packet;
     union { u32 value; u8 bytes[4]; } packed;
 
-    packet = func_00194470(0x600, 0x68);
+    packet = btlPacketAlloc(0x600, 0x68);
     packet->updateFunc = func_001b7520;
     color = packet->workData;
     packed.value = param_1;
@@ -288,7 +288,7 @@ BtlPacket* btlCreateTimingPacket(u32 value)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x601, 0x28);
+    packet = btlPacketAlloc(0x601, 0x28);
     packet->updateFunc = btlMainUpdateCameraLerp;
     *(u32*)((u8*)packet->workData + 0x20) = value;
     return packet;
@@ -517,7 +517,7 @@ BtlPacket* btlMainCreateColorWorkPacket(s32 param_1, s32 param_2, s32 param_3, u
     int iVar2;
     union { u32 value; u8 bytes[4]; } packed;
 
-    iVar2 = (int)func_00194470(0x602, 0x6c);
+    iVar2 = (int)btlPacketAlloc(0x602, 0x6c);
     *(code **)(iVar2 + 0x6c) = (code *)btlMainUpdateColorWork;
     pfVar1 = *(float **)(iVar2 + 0x78);
 
@@ -777,7 +777,7 @@ BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
     BtlPacket* packet;
     u8* work;
 
-    packet = func_00194470(0x603, 0x5c);
+    packet = btlPacketAlloc(0x603, 0x5c);
     packet->updateFunc = btlMainUpdateFade;
     work = (u8*)packet->workData;
     *(s32*)(work + 0x50) = arg;
@@ -836,7 +836,7 @@ BtlPacket* btlMainCreateTintPacket(u32 param_1, u32 param_2)
     float *color;
     u32 packed;
     int packet;
-    packet = (int)func_00194470(0x604, 0x28);
+    packet = (int)btlPacketAlloc(0x604, 0x28);
     *(code **)(packet + 0x6c) = (code *)btlMainUpdateTintLerp;
     color = *(float **)(packet + 0x78);
     packed = param_1;
@@ -908,7 +908,7 @@ BtlPacket* btlMainCreateColorFadePacket(s32 arg)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x605, 0x18);
+    packet = btlPacketAlloc(0x605, 0x18);
     packet->updateFunc = btlMainUpdateColorFade;
     *(s32*)((u8*)packet->workData + 0x10) = arg;
     return packet;
@@ -1063,7 +1063,7 @@ BtlPacket* btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u
     BtlPacket* packet;
     u8* work;
 
-    packet = func_00194470(0x606, 0x10);
+    packet = btlPacketAlloc(0x606, 0x10);
     packet->updateFunc = btlMainUpdateUnitTint;
     work = (u8*)packet->workData;
     *(struct BtlAction**)(work + 0) = action;
@@ -1144,7 +1144,7 @@ BtlPacket* btlMainCreateColorSetPacket(s32 arg)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x607, 8);
+    packet = btlPacketAlloc(0x607, 8);
     packet->updateFunc = btlMainUpdateUnitAlphaFade;
     *(s32*)packet->workData = arg;
     return packet;

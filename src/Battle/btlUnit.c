@@ -138,7 +138,7 @@ struct BtlUnitAnimBounds
 u8* func_0019eda0(u8* unit, s32 id);
 
 
-BtlPacket* func_00194470(u32 id, s32 workDataSize);
+BtlPacket* btlPacketAlloc(u32 id, s32 workDataSize);
 RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const void* quat);
 void func_001ec1c0(RwV3d* dst, const RwV3d* from, const RwV3d* to);
@@ -755,7 +755,7 @@ BtlPacket* btlUnitCreateMoveToUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, f32
     BtlPacket* packet;
     BtlUnitPacketMoveToUnit* work;
 
-    packet = func_00194470(0x10B, sizeof(BtlUnitPacketMoveToUnit));
+    packet = btlPacketAlloc(0x10B, sizeof(BtlUnitPacketMoveToUnit));
 
     packet->initFunc = (BtlPacketFunc)func_001974d0;
     packet->updateFunc = (BtlPacketFunc)func_001974f0;
@@ -792,7 +792,7 @@ BtlPacket* btlUnitCreateRotatePacket(BtlUnit* unit, const RwV3d* rot, u32 flags)
     BtlPacket* packet;
     BtlUnitPacketRotate* work;
 
-    packet = func_00194470(0x10D, sizeof(BtlUnitPacketRotate));
+    packet = btlPacketAlloc(0x10D, sizeof(BtlUnitPacketRotate));
 
     packet->initFunc = (BtlPacketFunc)func_00197d50;
     packet->updateFunc = func_00197d70;
@@ -935,7 +935,7 @@ BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, s16 id, u16 blendFrameCount, f
         case -4: return btlUnitCreateEnmDodgeAnimPacket(unit, 6);
     }
 
-    packet = func_00194470(0x100, sizeof(BtlUnitPacketAnim));
+    packet = btlPacketAlloc(0x100, sizeof(BtlUnitPacketAnim));
 
     packet->initFunc = (BtlPacketFunc)func_00199e50;
     packet->updateFunc = func_00199e70;
@@ -1234,7 +1234,7 @@ BtlPacket* btlUnitCreateLookAtPacket(BtlUnit* unit, const RwV3d* targetPos, u16 
     BtlPacket* packet;
     BtlUnitPacketLookAt* work;
 
-    packet = func_00194470(0x117, sizeof(BtlUnitPacketLookAt));
+    packet = btlPacketAlloc(0x117, sizeof(BtlUnitPacketLookAt));
 
     packet->initFunc = (BtlPacketFunc)func_0019df00;
     packet->updateFunc = func_0019df20;
@@ -1379,7 +1379,7 @@ BtlPacket* btlUnitCreateMovePacket(BtlUnit* unit, const RwV3d* targetPos, f32 sp
     BtlPacket* packet;
     BtlUnitPacketMove* work;
 
-    packet = func_00194470(0x10A, sizeof(BtlUnitPacketMove));
+    packet = btlPacketAlloc(0x10A, sizeof(BtlUnitPacketMove));
 
     packet->initFunc = (BtlPacketFunc)func_00196ce0;
     packet->updateFunc = func_00196d00;

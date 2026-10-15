@@ -22,7 +22,7 @@ struct BtlPacket
 extern u32 btlUnitIsMoving(void* unit);
 extern void func_00194ff0(void* unit, void* arg1, void* arg2, RwV3d* rot);
 extern BtlPacket* btlUnitCreateRotatePacket(void* unit, const RwV3d* rot, u32 flags);
-extern void func_00194590(BtlPacket* packet, u32 type);
+extern void btlPacketEnqueue(BtlPacket* packet, u32 type);
 extern void btlActionSetState(BtlAction* action, u16 state);
 
 #define BTL_UIDMAX 0x3FFFFFFFFFFFFFFF
@@ -53,7 +53,7 @@ void btlActionUpdateStateStartHome(BtlAction* action)
 
         packet = btlUnitCreateRotatePacket(action->unit, &rot, 0);
         packet->actionUID = action->uid;
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
 
         btlActionSetState(action, action->state);
     }
@@ -86,14 +86,14 @@ void func_001a1190(BtlAction* action)
 
     rootPacket = func_001d3900(1);
     rootPacket->actionUID = action->uid;
-    func_00194590(rootPacket, 0);
+    btlPacketEnqueue(rootPacket, 0);
 
     if (((u8*)action)[0x28] == 0)
     {
         BtlPacket* packet;
 
         packet = func_001f99c0(action, 19, 0, 0, 0);
-        func_00194590(packet, 1);
+        btlPacketEnqueue(packet, 1);
     }
 
     unit = *(BtlUnit**)(D_0076449C + 0x178);
@@ -108,7 +108,7 @@ void func_001a1190(BtlAction* action)
             *(u8*)packet = 4;
             *(u64*)((u8*)packet + 8) = rootPacket->unk58;
             packet->actionUID = action->uid;
-            func_00194590(packet, 1);
+            btlPacketEnqueue(packet, 1);
         }
 
         unit = unit->nextUnit;
@@ -121,7 +121,7 @@ void func_001a1190(BtlAction* action)
         *(u8*)packet = 4;
         *(u64*)((u8*)packet + 8) = rootPacket->unk58;
         packet->actionUID = action->uid;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
     }
 
     unit = *(BtlUnit**)(D_0076449C + 0x180);
@@ -135,7 +135,7 @@ void func_001a1190(BtlAction* action)
             *(u8*)packet = 4;
             *(u64*)((u8*)packet + 8) = rootPacket->unk58;
             packet->actionUID = action->uid;
-            func_00194590(packet, 0);
+            btlPacketEnqueue(packet, 0);
         }
         else
         {
@@ -146,7 +146,7 @@ void func_001a1190(BtlAction* action)
             *(u8*)packet = 4;
             *(u64*)((u8*)packet + 8) = rootPacket->unk58;
             packet->actionUID = action->uid;
-            func_00194590(packet, 0);
+            btlPacketEnqueue(packet, 0);
         }
 
         unit = unit->nextUnit;
@@ -159,7 +159,7 @@ void func_001a1190(BtlAction* action)
         *(u8*)packet = 4;
         *(u64*)((u8*)packet + 8) = rootPacket->unk58;
         packet->actionUID = action->uid;
-        func_00194590(packet, 0);
+        btlPacketEnqueue(packet, 0);
     }
 }
 // FUN_001A13E0

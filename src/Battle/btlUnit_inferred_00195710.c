@@ -145,7 +145,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
@@ -164,8 +164,8 @@ extern u8 D_00794150[];
 /* Source unit: src/promoted/code1_0019.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00195710-00195730 */
 
-extern u8 *func_00194470(s32 arg0, s32 arg1);
-extern s64 func_00194590(u8 *arg0, u32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void func_001949d0(s32 arg0);
 extern void func_00195610(u8 *arg0);
 /* measured: optimization_level 1 with the index and value locals declared
@@ -188,7 +188,7 @@ u8 *func_00195730(u8 *unit, u8 *position, u8 *rotation, u8 *color)
     u8 *packet;
     u8 *work;
 
-    packet = (u8 *)func_00194470(0x11C, 0x28);
+    packet = (u8 *)btlPacketAlloc(0x11C, 0x28);
     *(void (**)(u8 *))(packet + 0x68) = func_00195610;
     *(void (**)(u8 *))(packet + 0x6C) = func_00195630;
     *(void (**)(u8 *))(packet + 0x70) = func_00195710;

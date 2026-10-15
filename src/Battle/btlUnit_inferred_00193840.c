@@ -147,7 +147,7 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     func_0029db50(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern void func_00194670(u8 *arg0);
+extern void btlPacketStep(u8 *arg0);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
@@ -157,7 +157,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
@@ -592,7 +592,7 @@ s32 func_00193d90(u8 *arg0, s32 arg1)
 /* measured: func_00194470 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 // FUN_00194470
-u8 *func_00194470(s32 arg0, s32 arg1)
+u8 *btlPacketAlloc(s32 arg0, s32 arg1)
 {
     s32 temp_18;
     s32 var_4;
@@ -637,7 +637,7 @@ loop2_check:
 #pragma optimization_level 2
 // FUN_00194590
 /* measured: opt_propagation off is scoped to func_00194590. */
-s64 func_00194590(u8 *arg0, u32 arg1)
+s64 btlPacketEnqueue(u8 *arg0, u32 arg1)
 {
     u32 index;
     u8 *next;
@@ -681,7 +681,7 @@ void func_00194660(void)
  * States fall through only after their conditions complete. Destruction
  * reloads the list flag and links after the callback; counters wrap as u32. */
 // FUN_00194670
-void func_00194670(u8 *arg0)
+void btlPacketStep(u8 *arg0)
 {
     u8 flags;
     u8 index;
@@ -808,7 +808,7 @@ void func_001949d0(s32 arg0)
     var_4 = *(u8 **)((u8 *)packetListOffset((arg0 & 0xFF) * 8, (u32)btl) + 0x19C);
     while (var_4 != NULL) {
         temp_16 = *(u8 **)(var_4 + 0x7C);
-        func_00194670(var_4);
+        btlPacketStep(var_4);
         var_4 = temp_16;
     }
 }

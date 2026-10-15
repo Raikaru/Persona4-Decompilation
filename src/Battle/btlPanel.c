@@ -28,7 +28,7 @@ extern char D_00626780[];
 extern u8 D_00626790[];
 extern u8 D_006267B0[];
 extern u32 D_00626720[];
-extern u8* func_00194470(u32 type, u32 workSize);
+extern u8* btlPacketAlloc(u32 type, u32 workSize);
 void memset(void* dst, s32 value, u32 size);
 void H_Cdvd_ReadSync(u8* ptr);
 s32 func_00481360(s32 param);
@@ -116,7 +116,7 @@ s32 func_00202890(void* panel);
 
 u8* func_00202b60(s32 param)
 {
-    u8* p = func_00194470(0x508, 0x40);
+    u8* p = btlPacketAlloc(0x508, 0x40);
     u8* rec;
 
     p[0x47] &= 0xFE;

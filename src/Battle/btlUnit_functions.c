@@ -22,7 +22,7 @@ typedef struct RotateTowardUnitWork {
     u32 timer;
 } RotateTowardUnitWork;
 
-BtlPacket* func_00194470(u32 type, u32 workSize);
+BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 u32 func_00198020(void* work);
 u32 func_00198050(void* work);
 u32 func_001982d0(void* work);
@@ -157,7 +157,7 @@ BtlPacket* btlUnitCreateRotateTowardUnitPacket(BtlUnit* unit, BtlUnit* targetUni
     BtlPacket* packet;
     RotateTowardUnitWork* work;
 
-    packet = func_00194470(0x10e, sizeof(RotateTowardUnitWork));
+    packet = btlPacketAlloc(0x10e, sizeof(RotateTowardUnitWork));
     packet->initFunc = func_00198020;
     packet->updateFunc = func_00198050;
     packet->destroyFunc = func_001982d0;
@@ -177,7 +177,7 @@ BtlPacket* func_0019a0c0(BtlUnit* unit, u16 value)
     BtlPacket* packet;
     BtlUnitPacket* work;
 
-    packet = func_00194470(0x104, sizeof(BtlUnitPacket));
+    packet = btlPacketAlloc(0x104, sizeof(BtlUnitPacket));
     packet->initFunc = func_0019a010;
     packet->updateFunc = func_0019a030;
     packet->destroyFunc = func_0019a0a0;
@@ -196,7 +196,7 @@ BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 value)
     BtlPacket* packet;
     BtlUnitPacketResNullifiedAnim* work;
 
-    packet = func_00194470(0x107, sizeof(BtlUnitPacketResNullifiedAnim));
+    packet = btlPacketAlloc(0x107, sizeof(BtlUnitPacketResNullifiedAnim));
     packet->initFunc = func_0019a130;
     packet->updateFunc = func_0019a150;
     packet->destroyFunc = func_0019a2c0;
@@ -215,7 +215,7 @@ BtlPacket* func_0019a5e0(BtlUnit* unit, s32 value)
     BtlPacket* packet;
     BtlUnitMotionWork* work;
 
-    packet = func_00194470(0x108, sizeof(BtlUnitMotionWork));
+    packet = btlPacketAlloc(0x108, sizeof(BtlUnitMotionWork));
     packet->initFunc = func_0019a350;
     packet->updateFunc = func_0019a370;
     packet->destroyFunc = func_0019a5c0;
@@ -235,7 +235,7 @@ BtlPacket* btlUnitCreateEnemyDodgePacket(BtlUnit* unit, s32 unused)
     BtlPacket* packet;
     BtlUnitPacketEnmDodgeAnim* work;
 
-    packet = func_00194470(0x109, sizeof(BtlUnitPacketEnmDodgeAnim));
+    packet = btlPacketAlloc(0x109, sizeof(BtlUnitPacketEnmDodgeAnim));
     packet->initFunc = func_0019a660;
     packet->updateFunc = func_0019a680;
     packet->destroyFunc = func_0019a840;
@@ -253,7 +253,7 @@ BtlPacket* func_0019a980(BtlUnit* unit)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x105, sizeof(BtlUnit*));
+    packet = btlPacketAlloc(0x105, sizeof(BtlUnit*));
     packet->initFunc = func_0019a8d0;
     packet->updateFunc = func_0019a8f0;
     packet->destroyFunc = func_0019a960;
@@ -270,7 +270,7 @@ BtlPacket* func_0019aa70(BtlUnit* unit, s16 value)
     BtlPacket* packet;
     BtlUnitPacket* work;
 
-    packet = func_00194470(0x102, sizeof(BtlUnitPacket));
+    packet = btlPacketAlloc(0x102, sizeof(BtlUnitPacket));
     packet->initFunc = func_0019a9e0;
     packet->updateFunc = func_0019aa00;
     packet->destroyFunc = func_0019aa50;
@@ -289,7 +289,7 @@ BtlPacket* func_0019ac40(BtlUnit* unit, u16 value, f32 speed, u16 mode)
     BtlPacket* packet;
     BtlUnitSpeedWork* work;
 
-    packet = func_00194470(0x103, sizeof(BtlUnitSpeedWork));
+    packet = btlPacketAlloc(0x103, sizeof(BtlUnitSpeedWork));
     packet->initFunc = func_0019aae0;
     packet->updateFunc = func_0019ab00;
     packet->destroyFunc = func_0019ac20;
@@ -309,7 +309,7 @@ BtlPacket* func_0019b6a0(BtlUnit* unit)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x110, sizeof(BtlUnit*));
+    packet = btlPacketAlloc(0x110, sizeof(BtlUnit*));
     packet->flags &= ~(1 << 0);
     packet->initFunc = func_0019b620;
     packet->updateFunc = func_0019b640;
@@ -327,7 +327,7 @@ BtlPacket* func_0019bbe0(BtlUnit* unit, u32 targetColor, s16 startFrame, s16 dur
     BtlPacket* packet;
     BtlUnitColorWork* work;
 
-    packet = func_00194470(0x112, sizeof(BtlUnitColorWork));
+    packet = btlPacketAlloc(0x112, sizeof(BtlUnitColorWork));
     packet->initFunc = func_0019b710;
     packet->updateFunc = func_0019b730;
     packet->destroyFunc = func_0019bbc0;
@@ -349,7 +349,7 @@ BtlPacket* btlUnitCreateShowPacket(BtlUnit* unit)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x113, sizeof(BtlUnit*));
+    packet = btlPacketAlloc(0x113, sizeof(BtlUnit*));
     packet->initFunc = btlUnitHoldPendingShow;
     packet->updateFunc = btlUnitShowPacketUpdate;
     packet->destroyFunc = btlUnitReleasePendingShow;
@@ -365,7 +365,7 @@ BtlPacket* btlUnitCreateHidePacket(BtlUnit* unit)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0x114, sizeof(BtlUnit*));
+    packet = btlPacketAlloc(0x114, sizeof(BtlUnit*));
     packet->initFunc = btlUnitHoldPendingHide;
     packet->updateFunc = btlUnitHidePacketUpdate;
     packet->destroyFunc = btlUnitReleasePendingHide;
@@ -382,7 +382,7 @@ BtlPacket* func_0019c030(BtlUnit* unit, u16 id, u16 flags)
     BtlPacket* packet;
     BtlUnitResourceWork* work;
 
-    packet = func_00194470(0x111, sizeof(BtlUnitResourceWork));
+    packet = btlPacketAlloc(0x111, sizeof(BtlUnitResourceWork));
     packet->flags &= ~(1 << 0);
     packet->initFunc = func_0019bf10;
     packet->updateFunc = func_0019bf80;
@@ -405,7 +405,7 @@ BtlPacket* btlUnitCreateLookAtUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u16
     BtlPacket* packet;
     LookAtUnitWork* work;
 
-    packet = func_00194470(0x118, sizeof(LookAtUnitWork));
+    packet = btlPacketAlloc(0x118, sizeof(LookAtUnitWork));
     packet->initFunc = func_0019e1f0;
     packet->updateFunc = func_0019e220;
     packet->destroyFunc = func_0019e520;
@@ -507,7 +507,7 @@ BtlPacket* btlUnitCreateLookAtDeactivatePacket(BtlUnit* unit, u16 flags)
     BtlPacket* packet;
     BtlUnitPacketLookAtDeactivate* work;
 
-    packet = func_00194470(0x119, sizeof(BtlUnitPacketLookAtDeactivate));
+    packet = btlPacketAlloc(0x119, sizeof(BtlUnitPacketLookAtDeactivate));
     packet->initFunc = func_0019e5d0;
     packet->updateFunc = func_0019e5f0;
     packet->destroyFunc = func_0019e7a0;

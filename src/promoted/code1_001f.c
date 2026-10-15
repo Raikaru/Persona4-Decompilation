@@ -144,7 +144,7 @@ extern u16 *datPersonaGetRecord(u16 character);
 extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skill);
 extern s32 func_001f3900(u8 **arg0);
 extern void func_001f3930(void);
-extern u8 *func_00194470(s32 type, s32 workSize);
+extern u8 *btlPacketAlloc(s32 type, s32 workSize);
 
 extern void func_001f39b0(u8 **arg0);
 
@@ -3221,7 +3221,7 @@ u8 *func_001f6710(s32 arg0) {
     u8 *p;
     u8 *q;
 
-    p = (u8 *)func_00194470(0x803, 8);
+    p = (u8 *)btlPacketAlloc(0x803, 8);
     p[0x47] &= 0xFE;
     *(void **)(p + 0x6C) = (void *)func_001f65d0;
     q = *(u8 **)(p + 0x78);
@@ -4037,7 +4037,7 @@ u8 *func_001f83b0(u32 value)
 {
     u8 *packet;
 
-    packet = (u8 *)func_00194470(0x90B, 0x4);
+    packet = (u8 *)btlPacketAlloc(0x90B, 0x4);
     *(void **)(packet + 0x6C) = (void *)func_001f8380;
     *(u32 *)*(u8 **)(packet + 0x78) = value;
     return packet;
@@ -4061,7 +4061,7 @@ u8 *func_001f8430(u32 value)
 {
     u8 *packet;
 
-    packet = (u8 *)func_00194470(0x90C, 0x4);
+    packet = (u8 *)btlPacketAlloc(0x90C, 0x4);
     *(void **)(packet + 0x6C) = (void *)func_001f8400;
     *(u32 *)*(u8 **)(packet + 0x78) = value;
     return packet;
@@ -4837,7 +4837,7 @@ s32 func_001fa660(void)
 u8 *func_001fa720(const void *arg0) {
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00194470(0xC04, 0xA);
+    temp_2 = (u8 *)btlPacketAlloc(0xC04, 0xA);
     temp_2[0x47] &= 0xEE;
     *(void **)(temp_2 + 0x68) = (void *)func_001fa490;
     *(void **)(temp_2 + 0x6C) = (void *)func_001fa660;
@@ -4897,7 +4897,7 @@ block_12:
 void func_001fa8f0(void) {
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00194470(0xC05, 4);
+    temp_2 = (u8 *)btlPacketAlloc(0xC05, 4);
     temp_2[0x47] &= 0xEE;
     *(void **)(temp_2 + 0x6C) = (void *)func_001fa7a0;
     *(s32 **)(*(u8 **)(temp_2 + 0x78)) = NULL;
@@ -4929,7 +4929,7 @@ s32 func_001fa940(void) {
 void func_001fa9c0(void) {
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00194470(0xC06, 0);
+    temp_2 = (u8 *)btlPacketAlloc(0xC06, 0);
     temp_2[0x47] &= 0xEE;
     *(void **)(temp_2 + 0x6C) = (void *)func_001fa940;
 }
@@ -4953,7 +4953,7 @@ s32 func_001faa00(void) {
 void func_001faa60(void) {
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00194470(0xC07, 0);
+    temp_2 = (u8 *)btlPacketAlloc(0xC07, 0);
     temp_2[0x47] &= 0xEE;
     *(void **)(temp_2 + 0x6C) = (void *)func_001faa00;
 }

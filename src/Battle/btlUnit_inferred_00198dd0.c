@@ -146,7 +146,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 iGpffffb444;
 extern s32 datCalcIsLowHp(u8 *arg0);
 extern s32 func_00243e30(s32 arg0);

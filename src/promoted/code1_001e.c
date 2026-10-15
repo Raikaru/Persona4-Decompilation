@@ -81,7 +81,7 @@ extern s32 btlSideSelectUnits();
 extern s32 btlAICommandAlwaysTrue(void);
 
 
-extern void func_00194590(u8 *arg0, s32 arg1);
+extern void btlPacketEnqueue(u8 *arg0, s32 arg1);
 extern u8 *func_001f60c0(void);
 extern u8 *func_001f6030(s32 arg0, s64 arg1);
 extern s32 func_00193b70(s64 arg0, s64 arg1);
@@ -145,7 +145,7 @@ extern void func_0022b120(u8 *action);
 extern s32 func_0022b870(u8 *action);
 extern void btlAICommandSpawnActionProc(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 kwlnTaskIsLinked(s32 arg0);
-extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern u8 *func_0022ced0(s32 arg0);
 extern s32 scrFindPrcdIdxByName(s32 arg0, s32 arg1);
 extern s32 func_001eba20(u8 *arg0);
@@ -1750,8 +1750,8 @@ done:
 s32 func_001ea580(void)
 {
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
-    func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
-    func_00194590(btlCameraCreateSetStatePacket(*(s32 *)(iGpffffb3ac + 0x170), 0x21), 0);
+    btlPacketEnqueue((u8 *)func_001d3700(3, 0xFFF), 0);
+    btlPacketEnqueue(btlCameraCreateSetStatePacket(*(s32 *)(iGpffffb3ac + 0x170), 0x21), 0);
     return 1;
 }
 
@@ -1759,8 +1759,8 @@ s32 func_001ea580(void)
 s32 func_001ea5f0(void)
 {
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
-    func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
-    func_00194590(btlCameraCreateSetStatePacket(*(s32 *)(iGpffffb3ac + 0x170), 0x2C), 0);
+    btlPacketEnqueue((u8 *)func_001d3700(3, 0xFFF), 0);
+    btlPacketEnqueue(btlCameraCreateSetStatePacket(*(s32 *)(iGpffffb3ac + 0x170), 0x2C), 0);
     return 1;
 }
 
@@ -1779,7 +1779,7 @@ s32 func_001ea660(void)
     f32 value;
 
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
-    func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
+    btlPacketEnqueue((u8 *)func_001d3700(3, 0xFFF), 0);
     first.x = scrGetParamFloat(0);
     first.y = scrGetParamFloat(1);
     first.z = scrGetParamFloat(2);
@@ -1789,7 +1789,7 @@ s32 func_001ea660(void)
     value = scrGetParamFloat(6);
     first_copy = first;
     second_copy = second;
-    func_00194590(func_001bcb50(
+    btlPacketEnqueue(func_001bcb50(
         *(s32 *)(iGpffffb3ac + 0x170),
         (f32 *)&first,
         (f32 *)&second,
@@ -1825,8 +1825,8 @@ s32 func_001ea830(void) {
 // FUN_001EA8E0
 s32 func_001ea8e0(void) {
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
-    func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
-    func_00194590(func_001bcb50(
+    btlPacketEnqueue((u8 *)func_001d3700(3, 0xFFF), 0);
+    btlPacketEnqueue(func_001bcb50(
         *(s32 *)(iGpffffb3ac + 0x170),
         &D_00881420[0],
         &D_00881400[0],
@@ -1948,10 +1948,10 @@ selected:
     if (var_17 == NULL)
         var_17 = temp_18;
     temp_2 = (u8 *)func_001d6240((u32)temp_16, (u32)temp_18, (u32)var_17, 0, 0x200);
-    func_00194590(temp_2, 2);
+    btlPacketEnqueue(temp_2, 2);
     *(s64 *)(iGpffffb3ac + 0xBD0) = *(s64 *)(temp_2 + 0x58);
     var_17 = (u8 *)func_001d6240((u32)temp_16, (u32)temp_18, (u32)var_17, 1, 0x200);
-    func_00194590(var_17, 2);
+    btlPacketEnqueue(var_17, 2);
     *(s64 *)(iGpffffb3ac + 0xBD8) = *(s64 *)(var_17 + 0x58);
     func_001d3e00(temp_16);
     return 1;
@@ -2051,7 +2051,7 @@ s32 func_001eb0b0(void) {
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
     o = (u8 *)func_001d3700(3, 0xFFF);
     *(s16 *)(o + 0x48) = 3;
-    func_00194590(o, 0);
+    btlPacketEnqueue(o, 0);
     return 1;
 }
 
@@ -2071,11 +2071,11 @@ s32 func_001eb110(void) {
     case 0:
         temp_2_2 = (u8 *)func_002306d0();
         *(s16 *)(temp_2_2 + 0x48) = 2;
-        func_00194590(temp_2_2, 1);
+        btlPacketEnqueue(temp_2_2, 1);
         break;
     case 1:
         sprintf(&sp20[0], &D_00609E40[0], temp_16);
-        func_00194590(func_001f81f0(2, &sp20[0]), 1);
+        btlPacketEnqueue(func_001f81f0(2, &sp20[0]), 1);
         break;
     }
     return 1;
@@ -2349,7 +2349,7 @@ u8 *func_001ebb00(s32 arg0, s32 arg1, u8 *arg2) {
     u8 *temp_16;
     u8 *temp_2;
 
-    temp_2 = func_00194470(0xD00, 0x10);
+    temp_2 = btlPacketAlloc(0xD00, 0x10);
     *(u8 *)(temp_2 + 0x47) &= 0xEE;
     *(s32 *)(temp_2 + 0x6C) = (s32)func_001eba20;
     temp_16 = *(u8 **)(temp_2 + 0x78);

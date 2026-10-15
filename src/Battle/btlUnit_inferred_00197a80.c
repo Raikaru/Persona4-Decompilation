@@ -147,7 +147,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern float func_001d4380(int arg0);
 extern s32 func_00197a80(u8 *arg0);
 extern s32 iGpffffb444;
@@ -248,7 +248,7 @@ u8 *func_00197cc0(s32 arg0, s16 arg1, s16 arg2)
     u8 *packet;
     u8 *work;
 
-    packet = (u8 *)func_00194470(0x10C, 0x28);
+    packet = (u8 *)btlPacketAlloc(0x10C, 0x28);
     *(void **)(packet + 0x6C) = (void *)func_00197a80;
     work = *(u8 **)(packet + 0x78);
     *(s32 *)work = arg0;

@@ -105,7 +105,7 @@ extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 
 extern void func_001d7bb0(void);
-extern void *func_00194470();
+extern void *btlPacketAlloc();
 
 extern s32 func_001d7b30(u16 *arg0);
 extern s32 func_0022ead0(void);
@@ -1130,7 +1130,7 @@ u8 *func_001d7bf0(u32 param_1, u32 param_2, u32 param_3)
     u32 *work;
     u8 *packet;
 
-    packet = (u8 *)func_00194470(0x309, 0xc);
+    packet = (u8 *)btlPacketAlloc(0x309, 0xc);
     *(code **)(packet + 0x6c) = (code *)func_001d7bb0;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;

@@ -4,7 +4,7 @@
 #include "effect_instance_internal.h"
 extern u8 *iGpffffb3ac;
 extern void func_00485b20();
-extern u8 *func_00194470();
+extern u8 *btlPacketAlloc();
 extern s32 func_001fa370();
 extern void memcpy();
 extern void func_001f9cf0(u8 *arg0);
@@ -130,7 +130,7 @@ s32 func_001f9fa0(void) {
 
 // FUN_001FA110
 u8 *func_001fa110(u8 *arg0) {
-    u8 *p = func_00194470(0xC00, 0xA);
+    u8 *p = btlPacketAlloc(0xC00, 0xA);
 
     *(u8 *)(p + 0x47) &= 0xEE;
     *(void **)(p + 0x68) = (void *)func_001f9cf0;
@@ -184,7 +184,7 @@ s32 func_001fa190(s32 *arg0) {
 
 // FUN_001FA320
 u8 *func_001fa320(void) {
-    u8 *p = func_00194470(0xC01, 4);
+    u8 *p = btlPacketAlloc(0xC01, 4);
 
     *(u8 *)(p + 0x47) &= 0xEE;
     *(void **)(p + 0x6C) = (void *)func_001fa190;
@@ -229,7 +229,7 @@ s32 func_001fa370(void) {
 
 // FUN_001FA450
 void func_001fa450(void) {
-    u8 *p = func_00194470(0xC02, 0);
+    u8 *p = btlPacketAlloc(0xC02, 0);
 
     *(u8 *)(p + 0x47) &= 0xEE;
     *(void **)(p + 0x6C) = (void *)func_001fa370;

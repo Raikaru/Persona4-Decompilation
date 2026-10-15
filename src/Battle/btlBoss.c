@@ -21,7 +21,7 @@ typedef struct BtlPacket {
     BtlPacketFunc updateFunc;
 } BtlPacket;
 
-BtlPacket* func_00194470(u32 type, u32 workSize);
+BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 u32 func_002303e0(void* work);
 u32 func_00230450(void* work);
 extern s32 func_001f0ff0();
@@ -442,7 +442,7 @@ BtlPacket* btlBossCreateLoadPakPacket(void)
 {
     BtlPacket* packet;
 
-    packet = func_00194470(0xe00, 0);
+    packet = btlPacketAlloc(0xe00, 0);
     packet->flags &= ~(1 << 0);
     packet->initFunc = func_002303e0;
     packet->updateFunc = func_00230450;

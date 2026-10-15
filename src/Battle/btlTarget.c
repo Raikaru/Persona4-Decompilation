@@ -32,7 +32,7 @@ extern u8 *func_001f6030(s32 arg0, s64 arg1); /* lint: allow H011 -- raw s64 arg
 
 extern s64 scrGetParamInt(); /* lint: allow H011 -- raw s64 call result feeds s64 temporaries, as in code1_001e */
 extern s32 scrGetParamIntS32(s32 index);
-extern s64 func_00194590(u8 *arg0, u32 arg1);
+extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern u8 *func_0029d050(void); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
 extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
 extern s32 btlAICommandPickTableAction(u8 *arg0); /* lint: allow H011 -- s32 view of the u8 definition, as in code1_001e; the u8 view changes the caller's extension */
@@ -73,10 +73,10 @@ s32 func_001ea9a0(void) {
     temp_16 = scrGetParamInt(1);
     temp_2 = (u8 *)func_001f60c0();
     *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
-    func_00194590(temp_2, 1);
+    btlPacketEnqueue(temp_2, 1);
     temp_2_2 = func_001f6030(0x20, temp_17);
     *(s16 *)(temp_2_2 + 0x48) = (s16)temp_16;
-    func_00194590(temp_2_2, 1);
+    btlPacketEnqueue(temp_2_2, 1);
     return 1;
 }
 
@@ -89,7 +89,7 @@ s32 func_001eaa30(void)
     temp_16 = scrGetParamIntS32(0);
     temp_2 = (u8 *)func_001f60c0();
     *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
-    func_00194590(temp_2, 1);
+    btlPacketEnqueue(temp_2, 1);
     return 1;
 }
 
@@ -145,7 +145,7 @@ typedef struct BtlPacket {
     void* workData;
 } BtlPacket;
 
-BtlPacket* func_00194470(u32 type, u32 workSize);
+BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 void memcpy(void* dst, const void* src, u32 size);
 void func_001f36b0(void* arg);
 s32 func_001f3010(u8* arg);
@@ -902,7 +902,7 @@ BtlPacket* func_001f36e0(s32 param_1, s32 param_2, const void* param_3, u16 para
     BtlPacket* packet;
     u8* work;
 
-    packet = func_00194470(0x700, 0x2c);
+    packet = btlPacketAlloc(0x700, 0x2c);
     packet->initFunc = (BtlPacketFunc)func_001f2fe0;
     packet->updateFunc = (BtlPacketFunc)func_001f3010;
     packet->destroyFunc = (BtlPacketFunc)func_001f36b0;
@@ -970,7 +970,7 @@ u8 *func_001f3870(u8 *action, u8 flags)
     u8 *packet;
     u8 *work;
 
-    packet = (u8 *)func_00194470(0x701, 8);
+    packet = (u8 *)btlPacketAlloc(0x701, 8);
     *(BtlTargetStateHook *)(packet + 0x68) = func_001f37b0;
     *(BtlTargetStateUpdate *)(packet + 0x6C) = func_001f37d0;
     *(BtlTargetStateHook *)(packet + 0x70) = func_001f3850;
@@ -1005,7 +1005,7 @@ u8 *func_001f3950(u8 *arg0)
 {
     u8 *packet;
 
-    packet = (u8 *)func_00194470(0x703, 4);
+    packet = (u8 *)btlPacketAlloc(0x703, 4);
     *(void **)(packet + 0x68) = (void *)func_001f38e0;
     *(void **)(packet + 0x6C) = (void *)func_001f3900;
     *(void **)(packet + 0x70) = (void *)func_001f3930;
@@ -1038,7 +1038,7 @@ u8 *func_001f3b20(u8 *arg0)
 {
     u8 *packet;
 
-    packet = (u8 *)func_00194470(0x702, 4);
+    packet = (u8 *)btlPacketAlloc(0x702, 4);
     *(void **)(packet + 0x68) = (void *)func_001f39b0;
     *(void **)(packet + 0x6C) = (void *)func_001f39d0;
     *(void **)(packet + 0x70) = (void *)func_001f3b00;
@@ -1106,7 +1106,7 @@ BtlPacket* func_001f5f70(u32 param_1, u16 param_2, u32 param_3,
     BtlPacket* packet;
     BtlTargetWork* work;
 
-    packet = func_00194470(0x800, 0x18);
+    packet = btlPacketAlloc(0x800, 0x18);
     packet->updateFunc = func_001f5ed0;
     work = (BtlTargetWork*)packet->workData;
     work->param_00 = param_1;
@@ -1128,7 +1128,7 @@ u32 func_001f6000(BtlTargetSimpleWork* work)
 // FUN_001F60C0
 BtlPacket* func_001f60c0(void)
 {
-    BtlPacket* packet = func_00194470(0x802, 0);
+    BtlPacket* packet = btlPacketAlloc(0x802, 0);
     packet->updateFunc = func_001f6090;
     return packet;
 }
