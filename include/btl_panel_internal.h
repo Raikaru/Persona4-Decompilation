@@ -3,7 +3,8 @@
 
 #include "type.h"
 
-void func_00201650(u8 *work, s32 mode, s32 tile, f32 x, f32 y,
+// Intent: draw a battle sprite with per-channel colour and fade parameters. [inferred]
+void btlUiDrawSpriteFaded(u8 *work, s32 mode, s32 tile, f32 x, f32 y,
                    u8 red, u8 green, u8 blue, u8 alpha);
 f32 func_00201950(u8 *work, s32 mode, s32 tile);
 f32 func_00201990(u8 *work, s32 mode, s32 tile);

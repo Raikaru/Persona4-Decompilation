@@ -86,7 +86,7 @@ extern u32 func_0011c610(u8 *arg0);
 extern void func_0011c630(u8 *arg0);
 extern void func_0011c6e0(u8 *arg0, s32 arg1);
 extern void func_0011caf0(u8 *arg0);
-extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
+extern void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
 extern void func_002119a0(u8 *arg0);
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
@@ -114,9 +114,9 @@ extern u8 D_006265B0[];
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
 
-extern s32 func_00200cf0(u8 *task);
-extern void func_00200f30(u8 *task);
-extern void func_00200fd0(s32 arg0, u8 *arg1);
+extern s32 btlUiTaskInit(u8 *task);
+extern void btlUiTaskDestroy(u8 *task);
+extern void btlUiInitComponents(s32 arg0, u8 *arg1);
 extern s32 func_00201b00(u8 *arg0);
 extern void func_00201db0(void *arg0);
 extern void memcpy(void *dst, const void *src, u32 size);
@@ -134,7 +134,7 @@ extern f32 fGpffff84a4;
 extern f32 fGpffff81a8;
 extern f32 cosf(f32 fparg0);
 extern f32 sinf(f32 fparg0);
-extern s32 func_00200ce0(void);
+extern s32 btlUiIsOverlayReady(void);
 typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
                                     u8 opacity, s32 highlighted, s32 showDetail);
 extern void func_00206dd0(u8 *work, u8 *state, f32 x, f32 y,
@@ -170,7 +170,7 @@ extern s32 func_00457120(void);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
-extern void func_00201820(s32 arg0);
+extern void btlUiSetRenderMode(s32 arg0);
 extern void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
@@ -240,8 +240,9 @@ extern u8 D_006253B0[];
 
 
 
+// Intent: release the UI handle stored at *arg0, then free its block. [inferred]
 // FUN_00200720
-void func_00200720(s32 *arg0) {
+void btlUiReleaseHandle(s32 *arg0) {
     s32 temp_4;
 
     temp_4 = *arg0;
@@ -250,8 +251,9 @@ void func_00200720(s32 *arg0) {
     }
     jtbl_008873EC[0](arg0);
 }
+// Intent: advance the battle model curve and update the model matrix from the curve state. [inferred]
 // FUN_00200770
-void func_00200770(u8 *arg0)
+void btlUiUpdateModelCurve(u8 *arg0)
 {
     typedef struct {
         f32 x;
@@ -323,13 +325,15 @@ void func_00200770(u8 *arg0)
         }
     }
 }
+// Intent: reset the overlay scale field to its default value. [inferred]
 // FUN_00200960
-void func_00200960(void) {
+void btlUiResetOverlayScale(void) {
     *(f32 *)(D_0076449C + 0xDC) = fGpffff8184;
 }
 /* measured: clean-C body is byte-exact in the current TU (object/window 208B, normalized_diff 0). */
+// Intent: set the overlay scale from the progress ratio of the current and total counters. [inferred]
 // FUN_00200980
-void func_00200980(u8 *arg0)
+void btlUiUpdateOverlayScale(u8 *arg0)
 {
     s32 temp_3;
     s32 temp_5;
@@ -356,8 +360,9 @@ void func_00200980(u8 *arg0)
 void func_00200a50(void)
 {
 }
+// Intent: re-apply position and rotation to the living units of both sides. [inferred]
 // FUN_00200A60
-void func_00200a60(u8 *arg0)
+void btlUiRefreshUnitPositions(u8 *arg0)
 {
     u8 sp40[0x10];
     u8 sp30[0x10];
@@ -423,8 +428,9 @@ void func_00200c50(void)
 {
     func_00113500();
 }
+// Intent: set the window rectangle from the four 16-bit fields of the state block. [inferred]
 // FUN_00200C70
-void func_00200c70(u8 *arg0)
+void btlUiSetWindowRect(u8 *arg0)
 {
     u8 *temp_7;
 
@@ -436,17 +442,20 @@ void func_00200c70(u8 *arg0)
                       *(s16 *)(temp_7 + 0xC));
     }
 }
+// Intent: register the overlay-ready callback for the UI object. [inferred]
 // FUN_00200CB0
-void func_00200cb0(void) {
-    func_004b5790((void *)&D_00625240, (void *)func_00200ce0);
+void btlUiRegisterAvailability(void) {
+    func_004b5790((void *)&D_00625240, (void *)btlUiIsOverlayReady);
 }
+// Intent: report whether the overlay work block exists (used as availability callback). [inferred]
 // FUN_00200CE0
-s32 func_00200ce0(void)
+s32 btlUiIsOverlayReady(void)
 {
     return D_0076449C != NULL;
 }
+// Intent: task init callback; clears the per-component state blocks of the battle UI task. [inferred]
 // FUN_00200CF0
-s32 func_00200cf0(u8 *unusedTask)
+s32 btlUiTaskInit(u8 *unusedTask)
 {
     u8 *temp_2;
 
@@ -506,8 +515,9 @@ s32 func_00200cf0(u8 *unusedTask)
     func_00460ac0(D_00795020, temp_2 + 0x9B4);
     return 0;
 }
+// Intent: task destroy callback; releases the sprites and window, then frees the task block. [inferred]
 // FUN_00200F30
-void func_00200f30(u8 *unusedTask)
+void btlUiTaskDestroy(u8 *unusedTask)
 {
     u8 *temp_2;
     s32 temp_4;
@@ -531,8 +541,9 @@ loop_done:
     itfMesWindowReleaseIfActive(*(s32 *)(temp_2 + 0x98));
     jtbl_008873EC[0](temp_2);
 }
+// Intent: wire each battle UI component's init and owner pointers, then install its message window. [inferred]
 // FUN_00200FD0
-void func_00200fd0(s32 arg0, u8 *arg1)
+void btlUiInitComponents(s32 arg0, u8 *arg1)
 {
     u8 *temp_3;
     u8 *temp_3_2;
@@ -586,8 +597,9 @@ void func_00200fd0(s32 arg0, u8 *arg1)
     *(f32 *)(arg1 + 0x20) = 1.0f;
     *(s32 *)(arg1 + 0x98) = itfMesWindowInstall(D_006253B0);
 }
+// Intent: allocate the battle UI task block and create its child task. [inferred]
 // FUN_002011C0
-s32 func_002011c0(s32 arg0)
+s32 btlUiCreateTask(s32 arg0)
 {
     u8 *temp_2_2;
     s32 temp_2;
@@ -595,27 +607,30 @@ s32 func_002011c0(s32 arg0)
     chkmemAllocSiteTag(&D_006265B0, 0x3A);
     temp_2_2 = (u8 *)(*jtbl_008873E8)(0xA20, 0x40000);
     memset(temp_2_2, 0, 0xA20);
-    temp_2 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00626500), 0xF, 0, 0, func_00200cf0, func_00200f30, (u8 *)(temp_2_2));
-    func_00200fd0(temp_2, temp_2_2);
+    temp_2 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00626500), 0xF, 0, 0, btlUiTaskInit, btlUiTaskDestroy, (u8 *)(temp_2_2));
+    btlUiInitComponents(temp_2, temp_2_2);
     return temp_2;
 }
+// Intent: initialise the sprite pair at offset +0x18 of a UI component. [inferred]
 // FUN_00201280
-void func_00201280(u8 *arg0, u8 *arg1) {
+void btlUiInitSpritePair(u8 *arg0, u8 *arg1) {
     func_00213ab0((s32)arg0, arg1);
     func_0021ae60(arg0, arg1 + 0x18);
 }
 
 
 
+// Intent: store two floats as integer origin and clear the following offset words. [inferred]
 // FUN_002012D0
-void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1) {
+void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1) {
     *(s32 *)(arg0 + 4) = (s32)fparg0;
     *(s32 *)(arg0 + 8) = (s32)fparg1;
     *(s32 *)(arg0 + 0xC) = 0;
     *(s32 *)(arg0 + 0x10) = 0;
 }
+// Intent: store four float values as integer rectangle fields. [inferred]
 // FUN_00201300
-void func_00201300(s32 *arg0, f32 fp0, f32 fp1, f32 fp2, f32 fp3) {
+void btlUiSetRect(s32 *arg0, f32 fp0, f32 fp1, f32 fp2, f32 fp3) {
     arg0[1] = (s32)fp0;
     arg0[2] = (s32)fp1;
     arg0[3] = (s32)fp2;
@@ -625,12 +640,13 @@ void func_00201300(s32 *arg0, f32 fp0, f32 fp1, f32 fp2, f32 fp3) {
 /* measured: caching D_00887300 in s0 reproduces retail's one-time
    lui/addiu vtable materialization across these callback calls. */
 #pragma opt_propagation off
+// Intent: set the fixed battle render-state sequence through the D_00887300 table. [inferred]
 // FUN_00201350
-void func_00201350(void)
+void btlUiSetRenderStates(void)
 {
     void (**base)(u32, u32);
 
-    func_00201820(0);
+    btlUiSetRenderMode(0);
     base = D_00887300;
     base[0](7, 2);
     base[0](0xE, 0);
@@ -642,8 +658,9 @@ void func_00201350(void)
 }
 /* measured: close the vtable propagation probe and restore default state. */
 #pragma opt_propagation on
+// Intent: draw the sprite for a table entry at the given screen position and scale. [inferred]
 // FUN_00201410
-void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1)
+void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1)
 {
     u8 *entry;
     u32 offset;
@@ -688,8 +705,9 @@ void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1)
 /* Keep the opacity base ahead of byte promotion, matching retail order. */
 #pragma push
 #pragma opt_propagation off
+// Intent: draw a battle sprite with per-channel colour and fade parameters. [inferred]
 // FUN_00201650
-void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1,
+void btlUiDrawSpriteFaded(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1,
                    u8 arg5, u8 arg6, u8 arg7, u8 arg8) {
     arg0[0x94] = (u8)arg5;
     arg0[0x95] = (u8)arg6;
@@ -698,7 +716,7 @@ void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1,
         s32 maximum = 0xFF;
         arg0[0x7D] = maximum - (arg8 & 0xFF);
     }
-    func_00201410(arg0, arg1, arg2, fparg0, fparg1);
+    btlUiDrawSpriteEntry(arg0, arg1, arg2, fparg0, fparg1);
     arg0[0x94] = 0xFF;
     arg0[0x95] = 0xFF;
     arg0[0x96] = 0xFF;
@@ -706,8 +724,9 @@ void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1,
 }
 #pragma pop
 
+// Intent: add a delta to the tile-offset field of a segment. [inferred]
 // FUN_002016B0
-void func_002016b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void btlUiAdjustTileOffset(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *table;
     u8 *base;
     u32 index;
@@ -724,8 +743,9 @@ void func_002016b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 }
 /* The tile offset is converted from its full signed word for drawing;
  * only the stored halfword truncates it. Shared with cursor segments. */
+// Intent: store the tile offset and its float mirror (see the note above). [inferred]
 // FUN_002016E0
-void func_002016e0(u8 *arg0, s16 arg1, s32 arg2, f32 fparg0)
+void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 fparg0)
 {
     *(s16 *)(arg0 + 0x88) = arg1;
     *(s16 *)(arg0 + 0x8A) = arg2;
@@ -733,8 +753,9 @@ void func_002016e0(u8 *arg0, s16 arg1, s32 arg2, f32 fparg0)
     *(f32 *)(arg0 + 0x24) = (f32)arg1;
     *(f32 *)(arg0 + 0x28) = (f32)arg2;
 }
+// Intent: set the x/y scale fields and their 4096-based fixed-point mirrors. [inferred]
 // FUN_00201720
-void func_00201720(u8 *arg0, f32 fparg0, f32 fparg1)
+void btlUiSetScale(u8 *arg0, f32 fparg0, f32 fparg1)
 {
     if ((fparg0 == 1.0f) && (fparg1 == 1.0f)) {
         *(s16 *)(arg0 + 0x8C) = 0;
@@ -746,8 +767,9 @@ void func_00201720(u8 *arg0, f32 fparg0, f32 fparg1)
     *(f32 *)(arg0 + 0x1C) = fparg0;
     *(f32 *)(arg0 + 0x20) = fparg1;
 }
+// Intent: select a render-state set by mode index. [inferred]
 // FUN_00201820
-void func_00201820(s32 arg0)
+void btlUiSetRenderMode(s32 arg0)
 {
     s32 temp_5;
 
@@ -2202,9 +2224,9 @@ void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
         state = D_00887300;
         state[0](6, 1);
     }
-    func_002012d0(arg0, 36.0f, 19.0f);
+    btlUiSetOrigin(arg0, 36.0f, 19.0f);
     func_002019e0(arg0, 50.0f);
-    func_00201820(2);
+    btlUiSetRenderMode(2);
     y = 0.0f;
     row = 0;
     while (row < 3) {
@@ -2213,14 +2235,14 @@ void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
         while (column < 5) {
             frame = D_00764564 % 4;
             D_00764564++;
-            func_00201650(arg0, 15, frame, x, y, 255, 255, 255, opacity);
+            btlUiDrawSpriteFaded(arg0, 15, frame, x, y, 255, 255, 255, opacity);
             x += 126.0f;
             column++;
         }
         y += 126.0f;
         row++;
     }
-    func_00201820(0);
+    btlUiSetRenderMode(0);
     func_002019e0(arg0, 0.0f);
     {
         void (**state)(u32, u32);
@@ -2478,24 +2500,24 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
         if (cost != 0) {
             digitY = 10.0f + y;
             digitX = 262.0f + x;
-            func_00201650(glyphs, 0xC, (cost % 10) + 9,
+            btlUiDrawSpriteFaded(glyphs, 0xC, (cost % 10) + 9,
                           32.0f + digitX, digitY, tone, tone, tone, opacity);
             radix = 10;
             tens = cost / radix;
             if (tens != 0) {
-                func_00201650(glyphs, 0xC, (tens % radix) + 9,
+                btlUiDrawSpriteFaded(glyphs, 0xC, (tens % radix) + 9,
                               16.0f + digitX, digitY, tone, tone, tone, opacity);
             }
             hundreds = cost / 100;
             if (hundreds != 0) {
-                func_00201650(glyphs, 0xC, (hundreds % 10) + 9,
+                btlUiDrawSpriteFaded(glyphs, 0xC, (hundreds % 10) + 9,
                               digitX, digitY, tone, tone, tone, opacity);
             }
             if ((datCalcThresholdKind(unit, (u16)skill) & 0xFFFF) == 1) {
-                func_00201650(glyphs, 0xC, 0x56, 310.0f + x, 12.0f + y,
+                btlUiDrawSpriteFaded(glyphs, 0xC, 0x56, 310.0f + x, 12.0f + y,
                               tone, tone, tone, opacity);
             } else {
-                func_00201650(glyphs, 0xC, 0x57, 310.0f + x, 12.0f + y,
+                btlUiDrawSpriteFaded(glyphs, 0xC, 0x57, 310.0f + x, 12.0f + y,
                               tone, tone, tone, opacity);
             }
         }
@@ -2570,17 +2592,17 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
                       0, 1, name, 0, -1);
     }
     frFontClearFlagBits(0x40);
-    func_00201650(glyphs, 0xC, 0x47, (374.0f + x) - 97.0f,
+    btlUiDrawSpriteFaded(glyphs, 0xC, 0x47, (374.0f + x) - 97.0f,
                   (157.0f + y) - 145.0f, tone, tone, tone, opacity);
     digit = *(s8 *)(p4_002091f0_add((u32)off, work) + 0x1A8);
     digit_y = (155.0f + y) - 145.0f;
     digit_x = (398.0f + x) - 97.0f;
-    func_00201650(glyphs, 0xC, (digit % 10) + 9, 16.0f + digit_x,
+    btlUiDrawSpriteFaded(glyphs, 0xC, (digit % 10) + 9, 16.0f + digit_x,
                   digit_y, tone, tone, tone, opacity);
     radix = 10;
     tens = digit / radix;
     if (tens != 0) {
-        func_00201650(glyphs, 0xC, (tens % radix) + 9, digit_x, digit_y,
+        btlUiDrawSpriteFaded(glyphs, 0xC, (tens % radix) + 9, digit_x, digit_y,
                       tone, tone, tone, opacity);
     }
     if (show_detail != 0) {
@@ -2622,7 +2644,7 @@ void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
     glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
     persona = datPersonaRosterSlot((s16)slot);
     if (slot == (s16)datPersonaGetLeadSlot()) {
-        func_00201650(glyphs, 13, 0x2B, -11.0f + x, 6.0f + y,
+        btlUiDrawSpriteFaded(glyphs, 13, 0x2B, -11.0f + x, 6.0f + y,
                       0xF3, 0, 0xB, opacity);
         if (highlighted != 0) {
             tone = 0x6E;
@@ -2634,17 +2656,17 @@ void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
     } else {
         tone = 0xFF;
     }
-    func_00201650(glyphs, 13, 0x2A, 33.0f + x, 12.0f + y,
+    btlUiDrawSpriteFaded(glyphs, 13, 0x2A, 33.0f + x, 12.0f + y,
                   tone, tone, tone, opacity);
     level = (u8)datPersonaGetLevel(persona);
     digit_y = 5.0f + y;
     digit_x = 63.0f + x;
-    func_00201650(glyphs, 13, level % 10 + 0x1D, 22.0f + digit_x,
+    btlUiDrawSpriteFaded(glyphs, 13, level % 10 + 0x1D, 22.0f + digit_x,
                   digit_y, tone, tone, tone, opacity);
     radix = 10;
     tens = level / radix;
     if (tens != 0) {
-        func_00201650(glyphs, 13, tens % radix + 0x1D, digit_x,
+        btlUiDrawSpriteFaded(glyphs, 13, tens % radix + 0x1D, digit_x,
                       digit_y, tone, tone, tone, opacity);
     }
     frFontSetFlagBits(0x40);
@@ -2700,9 +2722,9 @@ void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
             0, 1, name, 0, 0);
     }
     frFontClearFlagBits(0x40);
-    func_00201650(glyphs, 9, 0x3C, 155.0f + x,
+    btlUiDrawSpriteFaded(glyphs, 9, 0x3C, 155.0f + x,
                   24.0f + y, tone, tone, tone, opacity);
-    func_00201650(
+    btlUiDrawSpriteFaded(
         glyphs, 9, func_00105f00(*(s16 *)(persona + 0xA4)) + 0x3F,
         178.0f + x, 16.0f + y, tone, tone, tone,
         opacity);
@@ -2726,9 +2748,9 @@ void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
     if (selected != 0) color = 0x1B;
     else color = 0xFF;
     line_y = 8.0f + y;
-    func_00201650(work, 9, 0x3C, 48.0f + x, line_y, color, color, color, opacity);
-    func_00201650(work, 9, 0x3C, 270.0f + x, line_y, color, color, color, opacity);
-    func_00201650(work, 9, (s32)((u32)index + 0x3FU), 71.0f + x, y,
+    btlUiDrawSpriteFaded(work, 9, 0x3C, 48.0f + x, line_y, color, color, color, opacity);
+    btlUiDrawSpriteFaded(work, 9, 0x3C, 270.0f + x, line_y, color, color, color, opacity);
+    btlUiDrawSpriteFaded(work, 9, (s32)((u32)index + 0x3FU), 71.0f + x, y,
                   color, color, color, opacity);
     if (draw_text != 0) {
         frFontSetFlagBits(0x40);
@@ -2829,19 +2851,19 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
         showScroll = 0;
         showPrompt = 0;
     }
-    func_002012d0(glyphs, scaleOrRowY, scaleY);
+    btlUiSetOrigin(glyphs, scaleOrRowY, scaleY);
     func_002019e0(glyphs, 50.0f);
     if (showPrompt != 0) {
-        func_00201650(glyphs, 9, 0x18, 261.0f, 410.0f, 0x21, 0x21, 0x21, 0xFF);
-        func_00201650(glyphs, 9, 0x2A, 261.0f, 410.0f, 0xFF, 0x7F, 0xE9, 0xFF);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x18, 261.0f, 410.0f, 0x21, 0x21, 0x21, 0xFF);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x2A, 261.0f, 410.0f, 0xFF, 0x7F, 0xE9, 0xFF);
         if (selectionState != state + 0x144) {
             if (*(s32 *)(state + 4) & 4) {
-                func_00201410(glyphs, 9, 0x2B, 283.0f, 410.0f);
+                btlUiDrawSpriteEntry(glyphs, 9, 0x2B, 283.0f, 410.0f);
             } else {
-                func_00201410(glyphs, 9, 0x2C, 283.0f, 410.0f);
+                btlUiDrawSpriteEntry(glyphs, 9, 0x2C, 283.0f, 410.0f);
             }
         } else {
-            func_00201410(glyphs, 9, 0x4D, 283.0f, 413.0f);
+            btlUiDrawSpriteEntry(glyphs, 9, 0x4D, 283.0f, 413.0f);
         }
     }
     {
@@ -2856,9 +2878,9 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
     verticalWork = 70.0f * clipProgress;
     upperEdgeY = 129.0f + offsetY + verticalWork;
     horizontalWork = 476.0f + offsetX;
-    func_00201410(glyphs, 9, 0x26, horizontalWork, upperEdgeY);
+    btlUiDrawSpriteEntry(glyphs, 9, 0x26, horizontalWork, upperEdgeY);
     verticalWork = (274.0f + offsetY) - verticalWork;
-    func_00201410(glyphs, 9, 0x26, horizontalWork, verticalWork);
+    btlUiDrawSpriteEntry(glyphs, 9, 0x26, horizontalWork, verticalWork);
     if (!(clipProgress <= 0.0f)) {
         BattleRenderDispatch *clipRenderer;
         clipRenderer = (BattleRenderDispatch *)D_00887300;
@@ -2883,7 +2905,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
         x = (f32)0x1DF;
         translation = offsetX;
         x += translation;
-        func_00201650(glyphs, 9, 0x24, x, 135.0f + offsetY, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x24, x, 135.0f + offsetY, 0x1B, 0x1B, 0x1B, 0xFF);
     }
     renderer->setState(6, 0);
     {
@@ -2901,7 +2923,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
             alpha = (u8)bright;
             y = 113.0f + offsetY;
             x = (410.0f + offsetX) - clamped * 200.0f;
-            func_00201650(glyphs, 9, 0x29, x, y, 0x1B, 0x1B, 0x1B, (u8)alpha);
+            btlUiDrawSpriteFaded(glyphs, 9, 0x29, x, y, 0x1B, 0x1B, 0x1B, (u8)alpha);
         }
     }
     renderer->setState(6, 1);
@@ -2927,7 +2949,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
                 if (sliding != 0) {
                     goto next_iter;
                 }
-                func_00201410(glyphs, 9, 0x27, highlightX, 31.0f * (f32)row + 143.0f + selectedOffsetY);
+                btlUiDrawSpriteEntry(glyphs, 9, 0x27, highlightX, 31.0f * (f32)row + 143.0f + selectedOffsetY);
                 flag = 1;
                 goto do_cb;
             } else {
@@ -2964,9 +2986,9 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
             scaleOrRowY = 31.0f * (f32)(list->selected - list->first);
             selectionX = 97.0f + offsetX;
             selectionY = 145.0f + offsetY + scaleOrRowY;
-            func_00201650(glyphs, 9, 0x25, 489.0f + horizontalWork,
+            btlUiDrawSpriteFaded(glyphs, 9, 0x25, 489.0f + horizontalWork,
                           50.0f + (88.0f + scaleOrRowY + offsetY), 0x28, 0x28, 0x28, 0xF2);
-            func_00201410(glyphs, 9, 0x26, 486.0f + horizontalWork,
+            btlUiDrawSpriteEntry(glyphs, 9, 0x26, 486.0f + horizontalWork,
                           50.0f + (214.0f + scaleOrRowY + offsetY));
             showDetail = 1;
             if (easingWork < 1.0f) {
@@ -2974,7 +2996,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
                     f32 rowY;
                     easingWork = (easingWork - fGpffff809c) / fGpffff8198;
                     rowY = 50.0f + (120.0f + scaleOrRowY + offsetY) - (unitOrScrollX - easingWork) * 25.0f;
-                    func_00201650(glyphs, 9, 0x28, 68.0f, rowY, 0xF3, 0, 0x0B, 0xFF);
+                    btlUiDrawSpriteFaded(glyphs, 9, 0x28, 68.0f, rowY, 0xF3, 0, 0x0B, 0xFF);
                     {
                         u32 alpha;
                         f32 opacity;
@@ -2985,7 +3007,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
                 }
                 showDetail = 0;
             } else {
-                func_00201650(glyphs, 9, 0x28, 68.0f,
+                btlUiDrawSpriteFaded(glyphs, 9, 0x28, 68.0f,
                               50.0f + (120.0f + scaleOrRowY + offsetY), 0xF3, 0, 0x0B, 0xFF);
             }
             {
@@ -3000,7 +3022,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
                 x = (f32)0x1DF;
                 translation = offsetX;
                 x += translation;
-                func_00201410(glyphs, 9, 0x27, x + limitedHighlightX,
+                btlUiDrawSpriteEntry(glyphs, 9, 0x27, x + limitedHighlightX,
                               143.0f + scaleOrRowY + selectedOffsetY);
                 drawSelection(state, list->selected, selectionX, selectionY, 0xFF, 1, showDetail);
             }
@@ -3008,8 +3030,8 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
     }
     if (showScroll != 0) {
         unitOrScrollX = (f32)0x1CD + offsetX;
-        func_00201410(glyphs, 9, 0x2D, unitOrScrollX, 164.0f + offsetY);
-        func_00201410(glyphs, 9, 0x2E, unitOrScrollX, 236.0f + offsetY);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x2D, unitOrScrollX, 164.0f + offsetY);
+        btlUiDrawSpriteEntry(glyphs, 9, 0x2E, unitOrScrollX, 236.0f + offsetY);
         {
             f32 ratio;
             s32 pageSize;
@@ -3021,7 +3043,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
             } else {
                 ratio = 0.0f;
             }
-            func_00201410(glyphs, 9, 0x2F, (f32)0x1CF + offsetX, ratio * 57.0f + 166.0f + offsetY);
+            btlUiDrawSpriteEntry(glyphs, 9, 0x2F, (f32)0x1CF + offsetX, ratio * 57.0f + 166.0f + offsetY);
         }
     }
     renderer->setState(6, 0);
@@ -3050,7 +3072,7 @@ void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
     BattleRenderDispatch *renderer;
 
     glyphs = (u8 *)kwlnTaskGetWork(*(s32 *)(work + 0x5B0));
-    func_002012d0(glyphs, x, y);
+    btlUiSetOrigin(glyphs, x, y);
 
     progress = (f32)(*(s16 *)(work + 0x1A)) / 4.0f;
     if (progress > 1.0f) {
@@ -3082,16 +3104,16 @@ void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
     }
 
     func_002019e0(glyphs, 170.0f);
-    func_00201720(glyphs, 1.0f, scale);
+    btlUiSetScale(glyphs, 1.0f, scale);
     remainingFraction = 1.0f - scale;
     remaining = remainingFraction;
     slideProduct = 18.5f * remaining;
     slideOffset = slideProduct;
     row = (f32)0x14D + slideOffset;
-    func_00201410(glyphs, 9, 0x30, 110.0f, row);
-    func_00201410(glyphs, 9, 0x31, 470.0f, row);
+    btlUiDrawSpriteEntry(glyphs, 9, 0x30, 110.0f, row);
+    btlUiDrawSpriteEntry(glyphs, 9, 0x31, 470.0f, row);
 
-    func_00201720(glyphs, 1.0f, 1.0f);
+    btlUiSetScale(glyphs, 1.0f, 1.0f);
     renderer = (BattleRenderDispatch *)D_00887300;
     renderer->setState(8, 0);
     func_002019e0(glyphs, 150.0f);
@@ -3099,9 +3121,9 @@ void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
     drawSelection(work, *(s16 *)(selection + 4), 127.0f, 338.0f, 0xFF, 0, 0);
     renderer->setState(6, 0);
     func_002019e0(glyphs, 0.0f);
-    func_00201410(glyphs, 9, 0x32, 215.0f, 412.0f);
-    func_00201410(glyphs, 9, 0x33, 193.0f, 412.0f);
-    func_00201410(glyphs, 9, 0x33, (f32)0x19D, 412.0f);
+    btlUiDrawSpriteEntry(glyphs, 9, 0x32, 215.0f, 412.0f);
+    btlUiDrawSpriteEntry(glyphs, 9, 0x33, 193.0f, 412.0f);
+    btlUiDrawSpriteEntry(glyphs, 9, 0x33, (f32)0x19D, 412.0f);
 }
 
 extern s32 func_00106600(s16 id);
@@ -3443,7 +3465,7 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
         offsetY = 28.0f;
     }
     translationX = offsetX;
-    func_002012d0(glyphs, origin[0] + offsetX, origin[1] + offsetY);
+    btlUiSetOrigin(glyphs, origin[0] + offsetX, origin[1] + offsetY);
     renderer = (BattleRenderDispatch *)D_00887300;
     renderer->setState(8, 1);
     renderer->setState(1, 0);
@@ -3535,7 +3557,7 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
                     tone = 0x96;
                 }
                 func_0044b310(func_0044dcd8((f32)*(s16 *)(work + 0x14) / 3.0f));
-                func_00201650(glyphs, 9, command + 8, 52.0f, rowY - completeProgress, tone, tone, tone, drawOpacity);
+                btlUiDrawSpriteFaded(glyphs, 9, command + 8, 52.0f, rowY - completeProgress, tone, tone, tone, drawOpacity);
                 rowY += 15.0f;
             }
             selectedCommand = *(s16 *)(selection + 4);
@@ -3557,8 +3579,8 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
                     c2 = 0x62;
                     c3 = 0x62;
                 }
-                func_00201650(glyphs, 9, selectedCommand, 33.0f, (f32)selectedCommand * 15.0f + 258.0f, c1, c2, c3, 0xFF);
-                func_00201410(glyphs, 9, selectedCommand + 0x10, 196.0f - translationX, ((f32)0x19B - offsetY) - completeProgress);
+                btlUiDrawSpriteFaded(glyphs, 9, selectedCommand, 33.0f, (f32)selectedCommand * 15.0f + 258.0f, c1, c2, c3, 0xFF);
+                btlUiDrawSpriteEntry(glyphs, 9, selectedCommand + 0x10, 196.0f - translationX, ((f32)0x19B - offsetY) - completeProgress);
             }
         } else {
             renderer = (BattleRenderDispatch *)D_00887300;
@@ -3567,10 +3589,10 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
             renderer->setState(6, 0);
         }
         if (circle.progress >= completeProgress && menuFlags == 0 && func_001eb860() != 0) {
-            func_00201650(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-            func_00201410(glyphs, 9, 0x1C, 110.0f, 383.0f);
-            func_00201650(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-            func_00201410(glyphs, 9, 0x19, 129.0f, 383.0f);
+            btlUiDrawSpriteFaded(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+            btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 110.0f, 383.0f);
+            btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+            btlUiDrawSpriteEntry(glyphs, 9, 0x19, 129.0f, 383.0f);
         }
     } else {
         BattleRenderDispatch *modeRenderer;
@@ -3586,40 +3608,40 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
             }
             switch (selectedCommand) {
             case 3:
-                func_002012d0(glyphs, origin[0], origin[1]);
-                func_00201650(glyphs, 9, 0x20, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                btlUiSetOrigin(glyphs, origin[0], origin[1]);
+                btlUiDrawSpriteFaded(glyphs, 9, 0x20, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 renderer = (BattleRenderDispatch *)D_00887300;
                 renderer->setState(6, 1);
                 func_002019e0(glyphs, 120.0f);
-                func_00201650(glyphs, 9, 0x36, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                btlUiDrawSpriteFaded(glyphs, 9, 0x36, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 renderer->setState(6, 0);
                 func_002019e0(glyphs, 0.0f);
-                func_002012d0(glyphs, origin[0] + translationX, origin[1] + offsetY);
+                btlUiSetOrigin(glyphs, origin[0] + translationX, origin[1] + offsetY);
                 showHints = 1;
                 break;
             case 0:
-                func_002012d0(glyphs, origin[0], origin[1]);
-                func_00201650(glyphs, 9, 0x1E, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                btlUiSetOrigin(glyphs, origin[0], origin[1]);
+                btlUiDrawSpriteFaded(glyphs, 9, 0x1E, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 renderer = (BattleRenderDispatch *)D_00887300;
                 renderer->setState(6, 1);
                 func_002019e0(glyphs, 120.0f);
-                func_00201650(glyphs, 9, 0x34, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                btlUiDrawSpriteFaded(glyphs, 9, 0x34, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 renderer->setState(6, 0);
-                func_002012d0(glyphs, origin[0] + translationX, origin[1] + offsetY);
+                btlUiSetOrigin(glyphs, origin[0] + translationX, origin[1] + offsetY);
                 showHints = 1;
                 break;
             default:
                 showHints = 0;
             }
             if (showHints != 0) {
-                func_00201410(glyphs, 9, 0x32, 215.0f - translationX, 412.0f - offsetY);
-                func_00201410(glyphs, 9, 0x33, 193.0f - translationX, 412.0f - offsetY);
-                func_00201410(glyphs, 9, 0x33, 413.0f - translationX, 412.0f - offsetY);
+                btlUiDrawSpriteEntry(glyphs, 9, 0x32, 215.0f - translationX, 412.0f - offsetY);
+                btlUiDrawSpriteEntry(glyphs, 9, 0x33, 193.0f - translationX, 412.0f - offsetY);
+                btlUiDrawSpriteEntry(glyphs, 9, 0x33, 413.0f - translationX, 412.0f - offsetY);
                 if (circle.progress >= completeProgress && menuFlags == 0 && func_001eb860() != 0) {
-                    func_00201650(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                    func_00201410(glyphs, 9, 0x1C, 110.0f, 383.0f);
-                    func_00201650(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                    func_00201410(glyphs, 9, 0x19, 129.0f, 383.0f);
+                    btlUiDrawSpriteFaded(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                    btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 110.0f, 383.0f);
+                    btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                    btlUiDrawSpriteEntry(glyphs, 9, 0x19, 129.0f, 383.0f);
                 }
             }
         }
@@ -3646,7 +3668,7 @@ void func_00208870(u8 *unused, u8 *arg1, f32 *arg2)
     f32 temp_f3;
     f32 temp_f4;
 
-    func_002012d0((u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0)), arg2[0], arg2[1]);
+    btlUiSetOrigin((u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0)), arg2[0], arg2[1]);
     temp_f0 = (f32)*(s16 *)(arg1 + 0xE) / 2.0f;
     if (temp_f0 > 1.0f) {
         temp_f1 = 1.0f;
@@ -3775,18 +3797,18 @@ void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
     s16 temp_2;
 
     temp = (u8 *)kwlnTaskGetWork(*(void **)(state + 0x5B0));
-    func_002012d0(temp, arg2[0], arg2[1]);
+    btlUiSetOrigin(temp, arg2[0], arg2[1]);
     if (*(u16 *)state == 2) {
-        func_00201650(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
-        func_00201650(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteFaded(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
+        btlUiDrawSpriteFaded(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
         func_00206dd0(state, arg0, arg2[0], arg2[1], func_00205170);
     } else {
-        func_00201650(temp, 9, 0x21, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteFaded(temp, 9, 0x21, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
     arg2 = (f32 *)D_00887300;
     ((void (**)(u32, u32))arg2)[0](6, 1);
     func_002019e0(temp, 120.0f);
-    func_00201650(temp, 9, 0x37, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    btlUiDrawSpriteFaded(temp, 9, 0x37, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))arg2)[0](6, 0);
     func_002019e0(temp, 0.0f);
     temp_2 = *(s16 *)(state + 0x1A);
@@ -3794,10 +3816,10 @@ void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
         *(s16 *)(state + 0x1A) = temp_2 + 1;
     }
     if (func_001eb860() != 0) {
-        func_00201650(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00201410(temp, 9, 0x1C, 100.0f, (f32)0x19B);
-        func_00201650(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00201410(temp, 9, 0x19, 119.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
 
@@ -3931,18 +3953,18 @@ void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
     s16 temp_2;
 
     temp = (u8 *)kwlnTaskGetWork(*(void **)(state + 0x5B0));
-    func_002012d0(temp, arg2[0], arg2[1]);
+    btlUiSetOrigin(temp, arg2[0], arg2[1]);
     if (*(u16 *)state == 2) {
-        func_00201650(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
-        func_00201650(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteFaded(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
+        btlUiDrawSpriteFaded(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
         func_00206dd0(state, arg0, arg2[0], arg2[1], func_002055d0);
     } else {
-        func_00201650(temp, 9, 0x23, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteFaded(temp, 9, 0x23, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
     arg2 = (f32 *)D_00887300;
     ((void (**)(u32, u32))arg2)[0](6, 1);
     func_002019e0(temp, 120.0f);
-    func_00201650(temp, 9, 0x39, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    btlUiDrawSpriteFaded(temp, 9, 0x39, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))arg2)[0](6, 0);
     func_002019e0(temp, 0.0f);
     temp_2 = *(s16 *)(state + 0x1A);
@@ -3950,10 +3972,10 @@ void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
         *(s16 *)(state + 0x1A) = temp_2 + 1;
     }
     if (func_001eb860() != 0) {
-        func_00201650(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00201410(temp, 9, 0x1C, 100.0f, (f32)0x19B);
-        func_00201650(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00201410(temp, 9, 0x19, 119.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
 // FUN_00209640
@@ -4085,19 +4107,19 @@ void func_002099c0(u8 *arg0, u8 *arg1, f32 *arg2)
     u8 *temp;
 
     temp = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
-    func_002012d0(temp, arg2[0], arg2[1]);
-    func_00201650(temp, 9, 0x1F, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+    btlUiSetOrigin(temp, arg2[0], arg2[1]);
+    btlUiDrawSpriteFaded(temp, 9, 0x1F, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     arg2 = (f32 *)D_00887300;
     ((void (**)(u32, u32))arg2)[0](6, 1);
     func_002019e0(temp, 120.0f);
-    func_00201650(temp, 9, 0x35, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    btlUiDrawSpriteFaded(temp, 9, 0x35, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))arg2)[0](6, 0);
     func_002019e0(temp, 0.0f);
     if (func_001eb860() != 0) {
-        func_00201650(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00201410(temp, 9, 0x1C, 100.0f, (f32)0x19B);
-        func_00201650(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00201410(temp, 9, 0x19, 119.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
 // FUN_00209BC0
@@ -4266,7 +4288,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     origin = (f32 *)drawState;
     work = (u8 *)(u32)workAddress;
     glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
-    func_002012d0(glyphs, origin[0], origin[1]);
+    btlUiSetOrigin(glyphs, origin[0], origin[1]);
     if (*(u16 *)work != 2) {
         func_00205ff0(work, selection, origin[0], origin[1], func_00205e00);
     }
@@ -4319,7 +4341,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
         remaining = 1.0f - (2.0f * clamped - clamped * clamped);
     }
     rowOffset = 36.0f * remaining;
-    func_00201650(glyphs, 9, 0x4E, 491.0f, 324.0f + rowOffset, 0xFE, 0xFF, 0x22, 0xFF);
+    btlUiDrawSpriteFaded(glyphs, 9, 0x4E, 491.0f, 324.0f + rowOffset, 0xFE, 0xFF, 0x22, 0xFF);
     if (remaining > 0.0f) {
         renderer = (BattleRenderDispatch *)D_00887300;
         renderer->setState(1, 0);
@@ -4344,9 +4366,9 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     renderer = (BattleRenderDispatch *)D_00887300;
     renderer->setState(6, 1);
     func_002019e0(glyphs, 50.0f);
-    func_00201650(glyphs, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+    btlUiDrawSpriteFaded(glyphs, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
     iconFrame = (s16)func_00105f00(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4)) + 0x3F;
-    func_00201650(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
+    btlUiDrawSpriteFaded(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
     frFontSetFlagBits(0x40);
     nameAddress = func_0010d6d0(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4));
     font = (u8 *)(u32)frFontExCreateText(357.0f, 332.0f, 50.0f, -1, 0, 1, (const char *)nameAddress, 0, NULL);
@@ -4385,7 +4407,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
         remainingFraction = 1.0f - eased;
         visibleFraction = 1.0f - remainingFraction;
         alpha = (u8)(255.0f * visibleFraction);
-        func_00201650(glyphs, 9, 0x44, 402.0f - 150.0f * remainingFraction, 308.0f, 0xFE, 0xFF, 0x22, alpha);
+        btlUiDrawSpriteFaded(glyphs, 9, 0x44, 402.0f - 150.0f * remainingFraction, 308.0f, 0xFE, 0xFF, 0x22, alpha);
     }
     {
         s16 frame1c;
@@ -4534,19 +4556,19 @@ void func_0020aa70(u8 *arg0, u8 *arg1, f32 *arg2)
     u8 *temp;
 
     temp = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
-    func_002012d0(temp, arg2[0], arg2[1]);
-    func_00201650(temp, 9, 0x22, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+    btlUiSetOrigin(temp, arg2[0], arg2[1]);
+    btlUiDrawSpriteFaded(temp, 9, 0x22, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     arg2 = (f32 *)D_00887300;
     ((void (**)(u32, u32))arg2)[0](6, 1);
     func_002019e0(temp, 120.0f);
-    func_00201650(temp, 9, 0x38, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    btlUiDrawSpriteFaded(temp, 9, 0x38, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))arg2)[0](6, 0);
     func_002019e0(temp, 0.0f);
     if (func_001eb860() != 0) {
-        func_00201650(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00201410(temp, 9, 0x1C, 100.0f, (f32)0x19B);
-        func_00201650(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00201410(temp, 9, 0x19, 119.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
+        btlUiDrawSpriteFaded(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
 // FUN_0020AC70
@@ -4687,7 +4709,7 @@ void func_0020b1a0(s32 arg0, u8 *arg1)
     if ((*(s32 *)temp_2 & 1) != 0) {
         if (*(u16 *)arg1 != 0) {
             if (*(s16 *)(arg1 + 0x5AC) == -1) {
-                func_00201350();
+                btlUiSetRenderStates();
                 temp_f12 = (f32)*(s16 *)(arg1 + 8) / 19.0f;
                 if (temp_f12 < 1.0f) {
                     temp_f12 = (temp_f12 * 2.0f -
@@ -4740,7 +4762,7 @@ void func_0020b3a0(s32 arg0, u8 *arg1)
     if ((*(s32 *)temp_2 & 1) != 0) {
         if (*(u16 *)arg1 != 0) {
             if (*(s16 *)(arg1 + 0x5AC) == -1) {
-                func_00201350();
+                btlUiSetRenderStates();
                 temp_3 = *(s16 *)(arg1 + 0xA);
                 if (temp_3 < 7) {
                     if (((f32)(6 - temp_3) / 6.0f) < 1.0f) {
@@ -5056,15 +5078,15 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
         f32 sp50[2];
     } Frame;
     extern u32 kwlnTaskGetWork(void *arg0);
-    extern void func_00201350(void);
+    extern void btlUiSetRenderStates(void);
     extern u8 *func_001b1560(void);
     extern void func_00195d50(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
-    extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
-    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
+    extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern void btlUiDrawSpriteFaded(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
                                f32 fparg1, s32 arg5, s32 arg6, s32 arg7,
                                s32 arg8);
-    extern void func_00201820(s32 arg0);
+    extern void btlUiSetRenderMode(s32 arg0);
     extern void func_0020e010(s32 arg0, u8 *arg1, u8 *arg2);
     Frame frame;
     u8 *temp_2;
@@ -5079,7 +5101,7 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
         if ((*(u16 *)arg1 & 1) == 0) {
             temp_4 = *(u16 *)(arg1 + 2);
             if ((temp_4 != 3) && (*(u16 *)(arg1 + 4) <= 0)) {
-                func_00201350();
+                btlUiSetRenderStates();
                 temp_16 = *(u16 *)(*(u8 **)(arg1 + 0x10) + 0x38);
                 var_17 = 0;
                 while (var_17 < (s32)temp_16) {
@@ -5096,15 +5118,15 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
             if (temp_2_2 != NULL) {
                 func_00195d50(*(u8 **)(temp_2_2 + 0x30), frame.sp50);
                 if (btlTargetFindInRange(frame.sp50, frame.sp48) != 0) {
-                    func_002012d0(temp_2, frame.sp48[0] - 46.0f,
+                    btlUiSetOrigin(temp_2, frame.sp48[0] - 46.0f,
                                   frame.sp48[1] - 17.0f);
-                    func_00201820(2);
-                    func_00201650(temp_2, 10, 0x51, 0.0f, 0.0f,
+                    btlUiSetRenderMode(2);
+                    btlUiDrawSpriteFaded(temp_2, 10, 0x51, 0.0f, 0.0f,
                                   0x52, 0xF3, 0, 0xFF);
-                    func_00201650(temp_2, 10, 0x52, 84.0f, 0.0f,
+                    btlUiDrawSpriteFaded(temp_2, 10, 0x52, 84.0f, 0.0f,
                                   0x52, 0xF3, 0, 0xFF);
-                    func_00201820(0);
-                    func_00201650(temp_2, 10, 0x4F, 14.0f, 2.0f,
+                    btlUiSetRenderMode(0);
+                    btlUiDrawSpriteFaded(temp_2, 10, 0x4F, 14.0f, 2.0f,
                                   0x0D, 0x1B, 0, 0xFF);
                 }
             }
@@ -5144,7 +5166,7 @@ void func_0020e010(s32 arg0, u8 *arg1, u8 *arg2)
 {
     extern void func_00195d50(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
-    extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
     extern void func_0020bff0(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
     extern void func_0020c680(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
     extern void func_0020ce60(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
@@ -5185,7 +5207,7 @@ flag_clear:
 flags_done:
     func_00195d50(arg2, (f32 *)work.vector);
     if (btlTargetFindInRange((f32 *)work.vector, (f32 *)work.value) != 0) {
-        func_002012d0(temp_16, 0.0f, 0.0f);
+        btlUiSetOrigin(temp_16, 0.0f, 0.0f);
         temp_4 = *(u16 *)(arg1 + 0);
         switch (temp_4) {
         case 0:
@@ -5321,7 +5343,7 @@ void func_0020e420(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, u32 arg
         channel2 = (u8)c2;
         channel3 = (u8)c3;
         for (; i < count; i++) {
-            func_00201650(arg0, 10, (s8)sp90[i] - 0x19, fparg0, fparg1,
+            btlUiDrawSpriteFaded(arg0, 10, (s8)sp90[i] - 0x19, fparg0, fparg1,
                           channel3, channel2, channel1, channel0);
             fparg0 += 19.0f;
         }
@@ -5431,8 +5453,8 @@ void func_0020ea60(u8 *task, u8 *transition, u8 *panel, u8 *output)
     stretch = 2.0f * first - second;
     if (!(stretch <= 0.0f)) {
         func_002019d0(work, 1.0f, stretch);
-        func_00201650(work, 10, 21, 54.0f, 25.0f, 150, 255, 2, 255);
-        func_00201650(work, 10, 22, 54.0f, 70.0f, 150, 255, 2, 255);
+        btlUiDrawSpriteFaded(work, 10, 21, 54.0f, 25.0f, 150, 255, 2, 255);
+        btlUiDrawSpriteFaded(work, 10, 22, 54.0f, 70.0f, 150, 255, 2, 255);
         func_002019d0(work, 1.0f, 1.0f);
     }
     if (frame < 2) fade = 0.0f;
@@ -5444,8 +5466,8 @@ void func_0020ea60(u8 *task, u8 *transition, u8 *panel, u8 *output)
         y = 20.0f * fade;
         fade = 71.0f + y;
         y = fade - 16.0f;
-        func_00201650(work, 10, 14, 28.0f, y, 150, 255, 2, (u8)alpha);
-        func_00201650(work, 10, 13, 28.0f, y, 35, 55, 0, (u8)alpha);
+        btlUiDrawSpriteFaded(work, 10, 14, 28.0f, y, 150, 255, 2, (u8)alpha);
+        btlUiDrawSpriteFaded(work, 10, 13, 28.0f, y, 35, 55, 0, (u8)alpha);
     }
     if (frame < 2) fade = 0.0f;
     else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
@@ -5490,14 +5512,14 @@ void func_0020ef10(u8 *task, u8 *transition, u8 *panel, u8 *output)
     if (!(expansion <= 0.0f)) {
         alpha = (expansion > 1.0f) ? 255 : (u8)(255.0f * expansion);
         remaining = 1.0f - expansion;
-        func_00201650(work, 10, 18, 61.0f,
+        btlUiDrawSpriteFaded(work, 10, 18, 61.0f,
                       (0.0f + 46.0f - 20.0f * remaining) - 16.0f,
                       244, 255, 14, (u8)alpha);
         offset = 10.0f * remaining;
         remaining = 87.0f + offset;
         y = remaining - 16.0f;
-        func_00201650(work, 10, 19, 37.0f - offset, y, 244, 255, 14, (u8)alpha);
-        func_00201650(work, 10, 20, 84.0f + offset, y, 244, 255, 14, (u8)alpha);
+        btlUiDrawSpriteFaded(work, 10, 19, 37.0f - offset, y, 244, 255, 14, (u8)alpha);
+        btlUiDrawSpriteFaded(work, 10, 20, 84.0f + offset, y, 244, 255, 14, (u8)alpha);
     }
     if (frame < 2) fade = 0.0f;
     else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
@@ -5508,8 +5530,8 @@ void func_0020ef10(u8 *task, u8 *transition, u8 *panel, u8 *output)
         y = 20.0f * fade;
         fade = 73.0f + y;
         y = fade - 16.0f;
-        func_00201650(work, 10, 12, 47.0f, y, 244, 255, 14, (u8)alpha);
-        func_00201650(work, 10, 11, 47.0f, y, 54, 46, 0, (u8)alpha);
+        btlUiDrawSpriteFaded(work, 10, 12, 47.0f, y, 244, 255, 14, (u8)alpha);
+        btlUiDrawSpriteFaded(work, 10, 11, 47.0f, y, 54, 46, 0, (u8)alpha);
     }
     if (frame < 2) fade = 0.0f;
     else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
@@ -5570,10 +5592,10 @@ void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
         var_f1 = 1.0f;
     }
     if (!(var_f1 <= 0.0f)) {
-        func_002016e0(temp_17, 0x1C, 8, -30.0f);
-        func_00201650(temp_17, 0xA, 6, 58.0f, 78.0f,
+        btlUiSetTileOffset(temp_17, 0x1C, 8, -30.0f);
+        btlUiDrawSpriteFaded(temp_17, 0xA, 6, 58.0f, 78.0f,
                       0x15, 0x15, 0x15, 0xFF);
-        func_002016e0(temp_17, 0, 0, 0.0f);
+        btlUiSetTileOffset(temp_17, 0, 0, 0.0f);
     }
 }
 /* measured: close the F4D0 propagation probe. */
@@ -5656,15 +5678,15 @@ void func_0020f730(u8 *work, u8 *state, s32 packedColor, s32 index)
         adjustmentY = adjustmentY / scaleY;
         offsetY = *(f32 *)((u8 *)&offsets[0].y.fromY + rowOffset);
         drawY = scaleY * (drawY * (offsetY + adjustmentY));
-        func_002012d0(work,
+        btlUiSetOrigin(work,
                      (0.0f + (f32)0x117) + fGpffff8210 * corners[flipX][0],
                      (0.0f + 229.0f) + scaleY * corners[flipY][1]);
         blue = ((u8 *)&packedColor)[2];
         green = ((u8 *)&packedColor)[1];
-        func_00201650(work, 10, sprite, drawX, drawY,
+        btlUiDrawSpriteFaded(work, 10, sprite, drawX, drawY,
                       ((u8 *)&packedColor)[0], green, blue, ((u8 *)&packedColor)[3]);
         if (index < *(s16 *)(state + 2)) {
-            func_00201650(work, 10, sprite, drawX, drawY,
+            btlUiDrawSpriteFaded(work, 10, sprite, drawX, drawY,
                           ((u8 *)&packedColor)[0], green, blue, 255);
         }
     }
@@ -5686,7 +5708,7 @@ void func_0020fa70(u8 *work, u8 *state)
     f32 extent;
     extent = *(f32 *)(state + 8);
     if (extent == 0.0f) return;
-    func_00201350();
+    btlUiSetRenderStates();
     if (*(s16 *)(state + 4) & 4) {
         red = 140; green = 170; blue = 255;
         ring.rgba.c0 = 102; ring.rgba.c1 = 130; ring.rgba.c2 = 255;
@@ -5698,7 +5720,7 @@ void func_0020fa70(u8 *work, u8 *state)
     }
     ring.rgba.c3 = 51;
     fill.rgba.c3 = (u8)(255.0f * extent);
-    func_002012d0(work, (f32)279, 229.0f);
+    btlUiSetOrigin(work, (f32)279, 229.0f);
     func_002019d0(work, 1.0f, 1.0f);
     saved.rgba = fill.rgba;
     position.x = (f32)279;
@@ -5713,22 +5735,22 @@ void func_0020fa70(u8 *work, u8 *state)
     transparent.rgba.c1 = saved.rgba.c1;
     transparent.rgba.c2 = saved.rgba.c2;
     transparent.rgba.c3 = 0;
-    func_00201820(2);
+    btlUiSetRenderMode(2);
     func_00365f00(position, 0.0f, fill.bits, transparent.bits, 125.0f, 0.0f, 12, D_00761300, 1.0f, 0);
-    func_00201720(work, extent, 1.0f);
-    func_002016e0(work, 0, 0, 90.0f);
-    func_00201650(work, 10, 45, 20.0f, -57.0f * extent, red, green, blue, 255);
+    btlUiSetScale(work, extent, 1.0f);
+    btlUiSetTileOffset(work, 0, 0, 90.0f);
+    btlUiDrawSpriteFaded(work, 10, 45, 20.0f, -57.0f * extent, red, green, blue, 255);
     if (state[0]) {
-        func_00201720(work, fGpffff8110, 1.5f);
-        func_00201650(work, 10, 45, 30.0f, fGpffff84ac, red, green, blue, state[0]);
+        btlUiSetScale(work, fGpffff8110, 1.5f);
+        btlUiDrawSpriteFaded(work, 10, 45, 30.0f, fGpffff84ac, red, green, blue, state[0]);
     }
-    func_00201720(work, 1.0f, extent);
-    func_002016e0(work, 0, 0, 0.0f);
-    func_00201650(work, 10, 46, 12.0f, -5.0f * extent, red, green, blue, 255);
-    func_00201720(work, D_00761300, extent);
+    btlUiSetScale(work, 1.0f, extent);
+    btlUiSetTileOffset(work, 0, 0, 0.0f);
+    btlUiDrawSpriteFaded(work, 10, 46, 12.0f, -5.0f * extent, red, green, blue, 255);
+    btlUiSetScale(work, D_00761300, extent);
     for (index = 1; index < 12; index++) func_0020f730(work, state, ring.bits, index);
-    func_002016e0(work, 0, 0, 0.0f);
-    func_00201720(work, 1.0f, 1.0f);
+    btlUiSetTileOffset(work, 0, 0, 0.0f);
+    btlUiSetScale(work, 1.0f, 1.0f);
     func_002019d0(work, 1.0f, 1.0f);
 }
 /* Advance the transition frame before its timed drawing phases. The corner
@@ -5783,9 +5805,9 @@ void func_0020ff00(u8 *glyphs, u8 *transition)
         lateBand = 1.0f;
     }
     if (!(lateBand <= 0.0f)) {
-        func_00201820(2);
+        btlUiSetRenderMode(2);
         func_00365ac0(center, 0.0f, 0xFF1432FF, 0.0f, 400.0f * lateBand, 90.0f, 1);
-        func_00201820(0);
+        btlUiSetRenderMode(0);
     }
     if (frame < 0x19) {
         earlyBand = 0.0f;
@@ -5795,9 +5817,9 @@ void func_0020ff00(u8 *glyphs, u8 *transition)
         earlyBand = 1.0f;
     }
     if (!(earlyBand <= 0.0f)) {
-        func_00201820(2);
+        btlUiSetRenderMode(2);
         func_00365ac0(center, 0.0f, 0xFF1432FF, 0.0f, 400.0f * earlyBand, 90.0f, 1);
-        func_00201820(0);
+        btlUiSetRenderMode(0);
     }
     if (frame < 0xA) {
         narrowIntro = 0.0f;
@@ -5858,13 +5880,13 @@ void func_0020ff00(u8 *glyphs, u8 *transition)
     }
     glyphScale = glyphFadeIn - glyphFadeOut;
     if (!(glyphScale <= 0.0f)) {
-        func_00201300((s32 *)glyphs, 239.0f, 161.0f, 128.0f, 127.0f);
+        btlUiSetRect((s32 *)glyphs, 239.0f, 161.0f, 128.0f, 127.0f);
         func_002019d0(glyphs, glyphScale, 1.0f);
-        func_00201650(glyphs, 0xA, 0x33, 0.0f, 0.0f, 0xCC, 0, 0, 0xFF);
+        btlUiDrawSpriteFaded(glyphs, 0xA, 0x33, 0.0f, 0.0f, 0xCC, 0, 0, 0xFF);
         func_002019d0(glyphs, glyphScale, 1.0f);
     }
     renderer->setState(1, 0);
-    func_00201820(2);
+    btlUiSetRenderMode(2);
     if (frame < 0) {
         cornerFadeIn = 0.0f;
     } else if (frame < 0xA) {

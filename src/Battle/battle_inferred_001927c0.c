@@ -67,7 +67,7 @@ extern u8 D_005F65B0[];
 extern u8 D_005F65C0[];
 
 extern void memcpy(void *dst, void *src, s32 size);
-extern s32 func_002011c0(s32 arg0);
+extern s32 btlUiCreateTask(s32 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern void btlMainSetPhase(s32 arg0);
 extern s32 func_00192610(u8 *task);
@@ -433,7 +433,7 @@ s32 btlTaskCreate(s32 arg0)
     temp_2_2 = iGpffffb3ac;
     *(u8 **)(temp_2_2 + 0xE58) = temp_2_2;
     *(s32 *)(iGpffffb3ac + 0xDD4) =
-        func_002011c0(*(s32 *)(iGpffffb3ac + 0xDC8));
+        btlUiCreateTask(*(s32 *)(iGpffffb3ac + 0xDC8));
     temp_3 = iGpffffb3ac;
     temp_16 = *(s32 *)(temp_3 + 0xDC8);
     if (arg0 != 0) {
