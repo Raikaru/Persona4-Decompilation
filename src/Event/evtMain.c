@@ -1898,8 +1898,9 @@ s32 func_002894b0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4) {
         return 1;
     }
 }
+// Event command (label text): formats a label from two counters and a letter onto text slot 0xF.
 // FUN_00289780
-s32 func_00289780(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdLabelText(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     u8 sp30[0x100];
 
     switch (arg0) {
@@ -2079,8 +2080,9 @@ s32 evtCmdScreenColor(int param_1, int param_2, int param_3, int param_4, u16 *p
     }
 }
 
+// Event command (task handle): creates the task at +0x768 when flag 0x10 is set, else clears it.
 // FUN_00289D70
-s32 func_00289d70(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdTaskHandle(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     s32 t;
 
     t = func_00286350();
@@ -2116,8 +2118,9 @@ s32 func_00289d70(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     }
 }
 
+// Event command (camera position): sets the camera x/y from the command operands.
 // FUN_00289EC0
-s32 func_00289ec0(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
+s32 evtCmdCamPos(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
     func_00286350();
     switch (param_1) {
     case 0:
@@ -2295,8 +2298,9 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
 /* measured: nested switch for D_008821E0[0] plus the no-argument
    func_0026d810 call preserves retail's live $a0 value. nd 0, object 320B,
    window 320B. */
+// Event command (range flag): sets or clears flag 0x2 on the node for ids in the range.
 // FUN_0028A560
-s32 func_0028a560(s32 arg0, s32 arg1, s32 *arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdRangeFlag(s32 arg0, s32 arg1, s32 *arg2, s32 arg3, u8 *arg4) {
     u16 temp_3;
     u16 temp_4;
 
