@@ -5,7 +5,7 @@
 extern s32 func_00311b90(u16 *, u16 *, s32, s16 *);
 extern s32 datPersonaAddSkill(u8 *, u16);
 extern s32 datPersonaFindSkillSlot(u8 *, u16);
-extern s32 func_003124a0(u16 *output, u16 first, u16 second);
+extern s32 fclFusePair(u16 *output, u16 first, u16 second);
 extern s32 func_003127e0();
 extern u32 RpRandom();
 extern s16 func_002e54c0(s8 arg0, s16 arg1);
@@ -231,8 +231,9 @@ static inline u8 fclAlternatePairArcana(s32 first, s32 second)
 /* Measured: 828/832 bytes, 26 resolved relocations, four zero tail bytes.
  * Promoted lookup inputs avoid an extra saved register; byte-return helpers
  * preserve retail narrowing. All ten neighboring owner images remain exact. */
+// Fcl fusion: fuses personas 'first' and 'second' into 'output' (1), returns 2 for an excluded pair, 0 when no result.
 // FUN_003124A0
-s32 func_003124a0(u16 *output, u16 first, u16 second)
+s32 fclFusePair(u16 *output, u16 first, u16 second)
 {
     u16 pair[2];
     u16 excluded[12];
@@ -361,7 +362,7 @@ s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2) {
 
 // FUN_00312B60
 s32 func_00312b60(s32 arg0, s32 arg1, s32 arg2) {
-    return func_003124a0((u16 *)arg0, arg1 & 0xFFFF, arg2 & 0xFFFF) & 0xFF;
+    return fclFusePair((u16 *)arg0, arg1 & 0xFFFF, arg2 & 0xFFFF) & 0xFF;
 }
 
 // FUN_00312B90
@@ -369,13 +370,14 @@ s32 func_00312b90(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     return func_003127e0(arg0, arg1, arg2, arg3) & 0xFF;
 }
 
+// Fcl rare chance roll: returns 1 with a 1/64 chance for kind 2 and 1/32 for kind 3, else 0.
 // FUN_00312BC0
 #pragma opt_rebuildconditionals off
 /* measured: without this, mwcc b210 booleanizes `if (v < 0x40) return 1; return 0;`
    into slti $v0 + unconditional branch (return value = condition); retail keeps
    beqz $at -> shared return-0 + addiu $v0,1. Both branch orientations and the
    if/else forms tried (nd 24); with the pragma the switch body matches exactly. */
-s32 func_00312bc0(s8 arg0) {
+s32 fclRollRareChance(s8 arg0) {
     s32 v;
     switch (arg0) {
     case 2:
