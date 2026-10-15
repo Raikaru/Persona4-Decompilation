@@ -1082,7 +1082,7 @@ s32 func_0019ae20(u8 *arg0) {
                 *(u16 *)(t17 + 0x9FE) = func_00145510(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
                 func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
                 *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
-                func_004774e0(mdlGetClump(*(u8 **)(t17 + 0xA00)));
+                mdlClumpSetEnvMapState(mdlGetClump(*(u8 **)(t17 + 0xA00)));
             } break;
             case 1: {
                 *(u16 *)(t17 + 0x9FE) = func_00145510(btlFindFreeCharResId(), *(u8 **)(t17 + 0xA00));

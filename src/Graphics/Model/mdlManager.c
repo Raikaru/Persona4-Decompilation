@@ -150,8 +150,8 @@ extern char DAT_007641c8[1];
 
 extern u32 func_003df5d0();
 extern int func_00474970(int param_1, void* param_2);
-extern void* func_00477350(void*, void*);
-extern void* func_00477430(void*, void*);
+extern void* mdlMatFXSetEnvMapValueCallback(void*, void*);
+extern void* mdlMatFXSetEnvMapStateCallback(void*, void*);
 extern void* func_00479880(void*, void*);
 extern void* func_004776c0(void* param_1, void* param_2);
 extern void* func_00474a10(void* param_1, void* data);
@@ -170,7 +170,7 @@ extern s32 func_00397470(u8* frame);
 extern void RwMatrixMultiply(void* a, void* b, void* c);
 
 extern void func_004585c0(u8* arg0);
-extern void* func_00476e90(void* object, void* data);
+extern void* mdlMatColorScaleCallback(void* object, void* data);
 extern u8 D_00713160[];
 extern s32 func_004581a0(void* object, const char* data);
 extern u8 D_007131D8[];
@@ -3120,7 +3120,7 @@ typedef struct MdlDrawState {
 } MdlDrawState;
 
 extern void RpSkyRenderStateSet(s32 a, s32 b);
-extern void func_00477260(void* a, u32* b, u16 c);
+extern void mdlClumpApplyMatColorScale(void* a, u32* b, u16 c);
 extern void func_004789c0(Model* a);
 extern s32 RtQuatConvertFromMatrix(RtQuat* out, const RwMatrix* in);
 extern RwV3d* RtQuatTransformVectors(RwV3d* out, const RwV3d* in, s32 count, const RtQuat* quat);
@@ -3388,7 +3388,7 @@ void func_00475cd0(MdlDrawState* owner)
     if ((owner->flagsD8 & 0x80000) != 0) {
         func_004746b0(owner->state234, (u8*)&owner->animFlags);
     }
-    func_00477260(owner->clump, (u32*)&color,
+    mdlClumpApplyMatColorScale(owner->clump, (u32*)&color,
                         (u16)(s64)((owner->flags & 8) != 0));
     {
     u8* effect;
@@ -3502,7 +3502,7 @@ void func_00475cd0(MdlDrawState* owner)
                 if ((attached.model->flagsD8 & 0x80000) != 0) {
                     func_004746b0(attached.model->state234, (u8*)&attached.model->animFlags);
                 }
-                func_00477260(source, (u32*)&color,
+                mdlClumpApplyMatColorScale(source, (u32*)&color,
                                     (u16)(s64)((attached.model->flags & 8) != 0));
                 effect = (u8*)owner->e0;
                 if (effect == 0) {
@@ -3699,8 +3699,9 @@ static inline void mdlColorQuantize(RwRGBA* out, const MdlMaterialColorReal* col
     out->alpha = (s32)(bias + maximum * color->alpha);
 }
 
+/* Multiplies each material's per3modelMatColor by the tint; the flag bit in data+4 replaces alpha instead of scaling it. */
 // FUN_00476E90
-void* func_00476e90(void* object, void* data)
+void* mdlMatColorScaleCallback(void* object, void* data)
 {
     MdlMaterialColorGeometry* geometry;
     u32 count;
@@ -3729,8 +3730,9 @@ void* func_00476e90(void* object, void* data)
     return object;
 }
 #pragma pop
+/* Applies the tint to every atomic in the clump via mdlMatColorScaleCallback. */
 // FUN_00477260
-void func_00477260(void* param_1, u32* param_2, u16 param_3)
+void mdlClumpApplyMatColorScale(void* param_1, u32* param_2, u16 param_3)
 {
     struct {
         u32* ptr;
@@ -3739,14 +3741,15 @@ void func_00477260(void* param_1, u32* param_2, u16 param_3)
 
     context.ptr = param_2;
     context.value = param_3;
-    RpClumpForAllAtomics(param_1, func_00476e90, &context);
+    RpClumpForAllAtomics(param_1, mdlMatColorScaleCallback, &context);
     return;
 }
 
 
 
+/* Clump predicate: clears *param_2 and returns NULL when any material has a non-zero per3modelMatColor high byte; otherwise returns the clump. */
 // FUN_004772A0
-u32 func_004772a0(void* param_1, u32* param_2)
+u32 mdlMatColorUncoloredCallback(void* param_1, u32* param_2)
 {
     int iVar1;
     u32 uVar2;
@@ -3771,8 +3774,9 @@ u32 func_004772a0(void* param_1, u32* param_2)
 
 
 
+/* Stores *param_2 as the env-map value on each MatFX material of the atomic. */
 // FUN_00477350
-void* func_00477350(void* param_1, void* param_2)
+void* mdlMatFXSetEnvMapValueCallback(void* param_1, void* param_2)
 {
     void* p = *(void**)((u8*)param_1 + 0x18);
     u32 count = *(u32*)((u8*)p + 0x24);
@@ -3787,14 +3791,16 @@ void* func_00477350(void* param_1, void* param_2)
     return param_1;
 }
 
+/* Clump wrapper that stores the env-map value on each MatFX material. */
 // FUN_00477400
-void func_00477400(void* param_1, int param_2)
+void mdlClumpSetEnvMapValue(void* param_1, int param_2)
 {
-    RpClumpForAllAtomics(param_1, func_00477350, &param_2);
+    RpClumpForAllAtomics(param_1, mdlMatFXSetEnvMapValueCallback, &param_2);
 }
 
+/* Enables the env-map state on each MatFX material of the atomic. */
 // FUN_00477430
-void* func_00477430(void* param_1, void* data)
+void* mdlMatFXSetEnvMapStateCallback(void* param_1, void* data)
 {
     void* p = *(void**)((u8*)param_1 + 0x18);
     u32 count = *(u32*)((u8*)p + 0x24);
@@ -3809,10 +3815,11 @@ void* func_00477430(void* param_1, void* data)
     return param_1;
 }
 
+/* Clump wrapper that applies the env-map state to every atomic. */
 // FUN_004774E0
-void func_004774e0(void* param_1)
+void mdlClumpSetEnvMapState(void* param_1)
 {
-    RpClumpForAllAtomics(param_1, func_00477430, 0);
+    RpClumpForAllAtomics(param_1, mdlMatFXSetEnvMapStateCallback, 0);
 }
 
 // FUN_00477510
@@ -4804,7 +4811,7 @@ void func_00478ec0(void* param_1, MdlFlags78ec0* o)
     dc = o->dc;
     ctx.p38 = (u8*)o + 0xD0;
     ctx.p3C = 0;
-    RpClumpForAllAtomics(dc, func_00476e90, &ctx);
+    RpClumpForAllAtomics(dc, mdlMatColorScaleCallback, &ctx);
     t = (o->d8 & 8) != 0;
     base = D_00887300_abs;
     base[0](6, t);
@@ -4852,7 +4859,7 @@ void func_00479080(void* param_1, void* param_2)
     }
 }
 
-/* Colour tint uses the same RwRGBA <-> real helpers as func_00476e90; the
+/* Colour tint uses the same RwRGBA <-> real helpers as mdlMatColorScaleCallback; the
  * draw-colour forwarder mdlEffectListSetColor takes the colour by pointer. */
 // FUN_00479100
 /* IDA mdlManager.c:2696-2870; retail 00479100-00479870.
@@ -4948,7 +4955,7 @@ void func_00479100(void* queue, u8* model)
         {
             void* clump = ((Model*)model)->clump;
             uncolored = 1;
-            RpClumpForAllAtomics(clump, (KClumpCallback)func_004772a0, &uncolored);
+            RpClumpForAllAtomics(clump, (KClumpCallback)mdlMatColorUncoloredCallback, &uncolored);
             if (uncolored != 0)
                 goto layers;
         }
@@ -5011,7 +5018,7 @@ layers:
             {
                 void* childClump = ((Model*)*child)->clump;
                 childUncolored = 1;
-                RpClumpForAllAtomics(childClump, (KClumpCallback)func_004772a0, &childUncolored);
+                RpClumpForAllAtomics(childClump, (KClumpCallback)mdlMatColorUncoloredCallback, &childUncolored);
                 if (childUncolored == 0)
                     *(u32*)((u8*)*child + 0xd8) &= ~0x20000u;
                 else
@@ -5421,7 +5428,7 @@ void func_0047a260(void* param_1)
     void* arg0 = *(void**)((u8*)param_1 + 0xDC);
     s.ptr = (u8*)param_1 + 0xD0;
     s.v = 0;
-    RpClumpForAllAtomics(arg0, func_00476e90, &s);
+    RpClumpForAllAtomics(arg0, mdlMatColorScaleCallback, &s);
 }
 // FUN_0047A2A0
 void func_0047a2a0(u32* param_1)
