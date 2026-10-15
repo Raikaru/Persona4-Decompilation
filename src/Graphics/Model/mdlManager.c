@@ -2900,8 +2900,9 @@ static inline void mdl_step_anim_object(MdlAnimControlView* state, u32* it)
     func_003d7cf0(*it);
 }
 
+/* Advances an animation control by one tick: decrements the tick count, adds the global step to primaryTime, copies arg1's primaryTime to secondaryTime, and steps each object of the resource (mdl_step_anim_object). */
 // FUN_00475820
-void func_00475820(void* arg0, void* arg1)
+void mdlAdvanceAnimControl(void* arg0, void* arg1)
 {
     MdlAnimControlView* state = (MdlAnimControlView*)arg0;
     u32* it;
@@ -2924,8 +2925,9 @@ typedef struct MdlFrameSearch {
     s32 id;
 } MdlFrameSearch;
 
+/* Recursive frame search by id: when the object's id (func_00397470) matches the search id, it stores the object in the search and stops; otherwise it recurses into the object's children. */
 // FUN_00475B10
-void* func_00475b10(void* object, void* data)
+void* mdlFindFrameById(void* object, void* data)
 {
     MdlFrameSearch* search = (MdlFrameSearch*)data;
     if (search->id == func_00397470(object)) {
@@ -2933,7 +2935,7 @@ void* func_00475b10(void* object, void* data)
         return NULL;
     }
 
-    func_003e9af0(object, func_00475b10, data);
+    func_003e9af0(object, mdlFindFrameById, data);
     return object;
 }
 
@@ -2949,7 +2951,7 @@ static inline u8* mdl_find_frame(u8* frame, s32 id)
         return frame;
     data.id = id;
     data.frame = NULL;
-    func_003e9af0(frame, func_00475b10, &data);
+    func_003e9af0(frame, mdlFindFrameById, &data);
     return data.frame;
 }
 
@@ -4657,7 +4659,7 @@ void func_004789c0(Model* mdl)
 
 
 
-extern void func_00475820(void* a, void* b);
+extern void mdlAdvanceAnimControl(void* a, void* b);
 extern u8* func_00473b20(u8* a, u8* b, s32 c);
 extern s32 func_0047a510(void* a, s32 b, void* c);
 extern void* mdlGetMatrix(void* a);
@@ -4708,7 +4710,7 @@ void func_00478a30(u8* mdl, s32 tick)
             }
         }
         *(u32*)(mdl + 0xD8) |= 0x80000;
-        func_00475820(mdl + 0x23C, mdl + 0xEC);
+        mdlAdvanceAnimControl(mdl + 0x23C, mdl + 0xEC);
         for (switchLayer = 0; switchLayer < 2; switchLayer++) {
             attachments = ((MdlCloneLayerView*)(mdl + switchLayer * 0xA4 + 0xEC))->attachments;
             if (attachments != 0) {

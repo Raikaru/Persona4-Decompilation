@@ -4312,7 +4312,7 @@ The complete IDA bodies in
 `docs/ida_headstart/src/Graphics/Model/mdlManager.c` precede these recoveries:
 `00475820` at lines 1687-1775 and `00479940` at lines 2873-2957.
 
-`func_00475820` now matches **744 instruction bytes plus eight zero-tail
+`mdlAdvanceAnimControl` (was `func_00475820`) now matches **744 instruction bytes plus eight zero-tail
 bytes**. The existing `RtAnimInterpolator` layout replaces offset-only
 callback access. Private primary/object and secondary helpers retain
 separate interpolator lifetimes; the secondary mode-1 path registers a
@@ -12992,7 +12992,7 @@ active [semantic gate](#semantic-and-target-gate) summarizes the rules.
   parameters and forwarding calls keep all three 84B/96B matches; the lookup
   stays 152B/160B `MATCH` with a complete prototype (consumer smoke: 192
   cases across record IDs, upper-bit masking, absent records and flag
-  combinations). The model callback `func_00475b10` keeps its match when it
+  combinations). The model callback `mdlFindFrameById` (was `func_00475b10`) keeps its match when it
   passes the frame to `s32 func_00397470(u8*)` and compares a signed ID,
   instead of calling a false `void* (void)` prototype; the original crashed
   a 32-bit consumer smoke, the repair passes 45 cases.
