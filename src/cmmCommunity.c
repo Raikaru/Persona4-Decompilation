@@ -41,7 +41,7 @@ extern void cmmCommunityReleaseRecord(s32 arg0);
 extern void func_00106390(s32 a, s32 b);
 extern void cmmCommunitySetFlagBand(s32 a, s32 b);
 
-extern void func_00108d80(void);
+extern void datDestroyTaskByName(void);
 extern void func_00108cb0(u8 *task);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u16 D_0079740C[];
@@ -1279,7 +1279,7 @@ void cmmCommunitySetCurrent(s32 arg0)
 {
     void *temp_2;
 
-    func_00108d80();
+    datDestroyTaskByName();
     chkmemAllocSiteTag(D_005E42C8, 0x271);
     temp_2 = D_008873F4[0](1, 0x20, 0x40000);
     *(s16 *)temp_2 = arg0;

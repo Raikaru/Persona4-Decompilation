@@ -725,7 +725,7 @@ void func_00105780(s16 arg0)
 }
 
 // FUN_00105990
-void func_00105990(s16 arg0, u32 arg1)
+void datSetHeroExp(s16 arg0, u32 arg1)
 {
     if (arg0 == 1)
     {
@@ -1430,7 +1430,7 @@ void func_00108cb0(u8 *unusedTask)
 
 
 // FUN_00108D80
-void func_00108d80(void)
+void datDestroyTaskByName(void)
 {
   long handle;
 
@@ -2664,7 +2664,7 @@ u8* datPersonaResolveRecord(u8* arg0)
 
 // FUN_0010FFA0
 extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
-void func_0010ffa0(void) {
+void datPersonaInitAllRecords(void) {
     u8 buf[0x30];
     u8 *base;
     s32 id;
