@@ -166,8 +166,9 @@ s32 func_0025c450(void) {
     return 1;
 }
 
+// Intent: Common script command CHK_DAYS (p4flow Common 0x0037): checks the current date against month and day [inferred]
 // FUN_0025C4B0
-s32 func_0025c4b0(void) {
+s32 scrCommonChkDays(void) {
     s32 sp3C;
     s32 sp38;
     s32 temp_16;
@@ -248,8 +249,9 @@ s32 func_0025cdd0(void) {
     return 1;
 }
 
+// Intent: Common script command GET_PC_PARAM (p4flow Common 0x0044): returns the player character parameter [inferred]
 // FUN_0025CE40
-s32 func_0025ce40(void) {
+s32 scrCommonGetPcParam(void) {
     scrSetReturnInt((s32)func_00104f10((s16)scrGetParamInt(0)));
     return 1;
 }
@@ -292,8 +294,9 @@ s32 func_0025cf70(void) {
 
 
 
+// Intent: Common script command ADD_PC_MONEY (p4flow Common 0x0050): adds money, clamped to 9,999,999 and at least zero [inferred]
 // FUN_0025D000
-s32 func_0025d000(void) {
+s32 scrCommonAddPcMoney(void) {
     s32 temp_16;
     s32 var_4;
     temp_16 = func_00105ed0();
@@ -311,8 +314,9 @@ block_1:
     scrSetReturnInt(func_00105ed0());
     return 1;
 }
+// Intent: Common script command CALL_NAME_ENTRY (p4flow Common 0x0051): opens the name entry screen (mode 0x1C) [inferred]
 // FUN_0025D090
-s32 func_0025d090(void) {
+s32 scrCommonCallNameEntry(void) {
     if (func_0029d020() == 0) {
         func_001029a0(0x1C, 0, 0, 0);
         goto block_4;
@@ -335,8 +339,9 @@ s32 func_0025d150(void) {
 
 /* measured probe: opt_propagation off tests d1b0 saved-register colouring. */
 #pragma opt_propagation off
+// Intent: Common script command PARTY_IN (p4flow Common 0x0038): adds a character to a party slot if absent [inferred]
 // FUN_0025D1B0
-s32 func_0025d1b0(void) {
+s32 scrCommonPartyIn(void) {
     s32 var_17;
     s64 temp_16;
     s32 var_18;
@@ -379,8 +384,9 @@ block_4:
 }
 /* measured probe: restore opt_propagation after d1b0. */
 #pragma opt_propagation on
+// Intent: Common script command PARTY_OUT (p4flow Common 0x0039): clears the party slot holding a character [inferred]
 // FUN_0025D2D0
-s32 func_0025d2d0(void) {
+s32 scrCommonPartyOut(void) {
     s16 temp_16;
     s32 var_17;
 
