@@ -79,7 +79,7 @@ extern u8 D_00638F90[];
 extern char D_00637348[];
 extern void frFontSetStateBits(u32 param_1, int param_2);
 extern void func_00106390(s32 arg0, s32 arg1);
-extern s32 func_00108e10(void);
+extern s32 cmmCommunityGetCurrentId(void);
 extern s32 func_00107ce0(s32 arg0);
 extern s32 func_00107dc0(s32 arg0);
 extern void func_00108290(s32 arg0, s32 arg1);
@@ -1084,14 +1084,14 @@ s32 func_0026f5e0(s32 arg0, u8 *arg1)
         break;
     case 1:
         if (fourth != 0) {
-            func_00107ce0(func_00108e10());
+            func_00107ce0(cmmCommunityGetCurrentId());
         } else {
-            func_00107dc0(func_00108e10());
+            func_00107dc0(cmmCommunityGetCurrentId());
         }
         break;
     case 2:
     case 3:
-        func_00108290(func_00108e10(), fourth & 0xFFFF);
+        func_00108290(cmmCommunityGetCurrentId(), fourth & 0xFFFF);
         break;
     case 6:
     default:

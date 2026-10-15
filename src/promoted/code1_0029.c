@@ -54,7 +54,7 @@ extern void func_0045b2e0(s32 arg0);
 extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern s32 D_0063CB50[];
 extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
-extern s32 func_00108e70(void);
+extern s32 cmmCommunityGetCurrentSecondary(void);
 extern void func_00123a10(void);
 extern u8 D_0063CFA0[];
 extern s32 kwlnTaskGetTaskByName(void *path);
@@ -1898,7 +1898,7 @@ found_98250:
 }
 // FUN_00298340
 s32 func_00298340(void) {
-    scrSetReturnInt(func_00108e70());
+    scrSetReturnInt(cmmCommunityGetCurrentSecondary());
     return 1;
 }
 // FUN_00298D30

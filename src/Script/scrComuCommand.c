@@ -1,7 +1,7 @@
 /* Source unit: src/Script/scrComuCommand_0024a0b0.c */
 #include "type.h"
 
-u16 func_00108ee0();
+u16 cmmCommunityGetTableHead();
 void scrSetReturnInt();
 
 u16 datPersonaLeadPersonaId();
@@ -13,7 +13,7 @@ u32 func_0024A0B0(void)
 {
     u16 uVar1;
 
-    uVar1 = func_00108ee0();
+    uVar1 = cmmCommunityGetTableHead();
     scrSetReturnInt(uVar1);
     return 1;
 }

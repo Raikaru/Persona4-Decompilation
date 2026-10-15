@@ -20,11 +20,11 @@ u16 func_00247270();
 u16 func_002474f0();
 
 extern s32 scrGetParamInt(s32 arg0);
-extern s32 func_00107930(s32 arg0);
-extern s32 func_00109100(s32 arg0);
-extern void func_001090c0(s32 arg0);
+extern s32 cmmCommunityFindActiveSlotInGroup(s32 arg0);
+extern s32 cmmCommunityGetCurrentEntryValue(s32 arg0);
+extern void cmmCommunityAddTotal(s32 arg0);
 
-extern s32 func_001090e0(void);
+extern s32 cmmCommunityGetTotal(void);
 extern void datResetTotalBtl(void);
 extern void func_00106020(s32 arg0);
 
@@ -35,12 +35,12 @@ extern s32 func_002492b0(s32 arg0);
 extern s32 func_00249370(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_002494c0(s32 arg0, s32 arg1);
 
-extern u8* func_00108dc0(void);
-extern s32 func_00108e10(void);
-extern void func_00108ef0(s32 arg0);
-extern void func_00107bd0(s32 arg0);
+extern u8* cmmCommunityGetCurrentWork(void);
+extern s32 cmmCommunityGetCurrentId(void);
+extern void cmmCommunityAdvanceForm(s32 arg0);
+extern void cmmCommunitySetRecordFlag4(s32 arg0);
 extern void func_00108d80(void);
-extern void func_00108cf0(u16 arg0);
+extern void cmmCommunitySetCurrent(u16 arg0);
 extern s16 func_00248d80(s16 arg0);
 extern s32 func_00249670(s32 arg0, s32 arg1);
 extern s16 func_00247820(s16 arg0);
@@ -177,8 +177,8 @@ s32 cmmMsgStreamStart(void)
 
     a = scrGetParamInt(0);
     b = scrGetParamInt(1);
-    func_00108cf0(b);
-    p = func_00108dc0();
+    cmmCommunitySetCurrent(b);
+    p = cmmCommunityGetCurrentWork();
     if (p == 0) {
         kAssertFail(D_006359F0, 0xE7);
     }
@@ -243,7 +243,7 @@ s32 cmmMsgStreamUpdate(void)
     cmmMsgPack pack1;
     cmmMsgPack pack2;
 
-    p = (cmmMsgState *)func_00108dc0();
+    p = (cmmMsgState *)cmmCommunityGetCurrentWork();
     if (p == 0) {
         kAssertFail(D_006359F0, 0x109);
     }
@@ -291,7 +291,7 @@ s32 cmmMsgStreamGetResult(void)
 {
     cmmMsgState *p;
 
-    p = (cmmMsgState *)func_00108dc0();
+    p = (cmmMsgState *)cmmCommunityGetCurrentWork();
     if (p != 0) {
         scrSetReturnInt(p->view.raw.unk0A);
     }
@@ -323,7 +323,7 @@ s32 cmmPersonaDetailShow(void)
 
     id = scrGetParamInt(0);
     if (id == 0) {
-        id = func_00108e10() & 0xFFFF;
+        id = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     mesMgr = func_0029d030();
     if (mesMgr < 0) {
@@ -389,7 +389,7 @@ s32 cmmPersonaInfoLookupShow(void)
         kAssertFail(&D_006359F0, 0x16D);
     }
     if (entry == 0) {
-        entry = func_00108e10() & 0xFFFF;
+        entry = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     entry = func_00247900(entry & 0xFFFF, datCalcGetLevelById(1), param1);
     if (entry != 0) {
@@ -459,9 +459,9 @@ s32 cmmScriptSelectEntry(void)
 
     id = scrGetParamInt(0);
     if (id == 0) {
-        id = func_00108e10() & 0xFFFF;
+        id = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    func_00108ef0(id & 0xFFFF);
+    cmmCommunityAdvanceForm(id & 0xFFFF);
     return 1;
 }
 // FUN_0024AA60
@@ -473,7 +473,7 @@ s32 func_0024aa60(void)
     param0 = scrGetParamInt(0);
     param1 = scrGetParamInt(1);
     if (param1 == 0) {
-        param1 = func_00108e10() & 0xFFFF;
+        param1 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (func_002485e0(param0 & 0xFFFF, param1 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
@@ -492,7 +492,7 @@ s32 cmmScriptSetCurrentEntry(void)
     if (id == 0) {
         func_00108d80();
     } else {
-        func_00108cf0(id & 0xFFFF);
+        cmmCommunitySetCurrent(id & 0xFFFF);
     }
     return 1;
 }
@@ -518,7 +518,7 @@ s32 func_0024ab70(void)
 
     id = scrGetParamInt(0);
     if (id == 0) {
-        id = func_00108e10() & 0xFFFF;
+        id = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     result = func_00247820((s16)id);
     if (result != 0) {
@@ -561,9 +561,9 @@ s32 func_0024ac50(void)
 
     id = scrGetParamInt(0);
     if (id == 0) {
-        id = func_00108e10() & 0xFFFF;
+        id = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    func_00107bd0(id & 0xFFFF);
+    cmmCommunitySetRecordFlag4(id & 0xFFFF);
     return 1;
 }
 // FUN_0024ACA0
@@ -587,17 +587,17 @@ s32 cmmScriptFindSlotInGroup(void)
     if ((param0 != 0) && (param0 != 1)) {
         return 1;
     }
-    scrSetReturnInt(func_00107930(param0));
+    scrSetReturnInt(cmmCommunityFindActiveSlotInGroup(param0));
     return 1;
 }
 
 
 
-// Script entry total: adds the index of the entry in arg 0 to the running total (D_00797560).
+// Script entry total: adds the value of the entry in arg 0 to the running total (D_00797560).
 // FUN_0024AD70
 s32 cmmScriptAddEntryTotal(void)
 {
-    func_001090c0(func_00109100(scrGetParamInt(0) & 0xFFFF));
+    cmmCommunityAddTotal(cmmCommunityGetCurrentEntryValue(scrGetParamInt(0) & 0xFFFF));
     return 1;
 }
 
@@ -609,7 +609,7 @@ s32 cmmScriptTakeTotal(void)
 {
     s32 value;
 
-    value = func_001090e0();
+    value = cmmCommunityGetTotal();
     scrSetReturnInt(value);
     datResetTotalBtl();
     func_00106020(value);
@@ -618,11 +618,11 @@ s32 cmmScriptTakeTotal(void)
 
 
 
-// Script entry index: returns the index of the current entry from func_00109100. The script's argument 0 is passed on, but that callee takes no argument.
+// Script entry lookup: returns the value stored for the current entry through cmmCommunityGetCurrentEntryValue. The script's argument 0 is passed on, but the definition takes no argument.
 // FUN_0024AE00
 s32 cmmScriptGetEntryIndex(void)
 {
-    scrSetReturnInt(func_00109100(scrGetParamInt(0) & 0xFFFF));
+    scrSetReturnInt(cmmCommunityGetCurrentEntryValue(scrGetParamInt(0) & 0xFFFF));
     return 1;
 }
 

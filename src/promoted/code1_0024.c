@@ -16,7 +16,7 @@ extern u8 D_006359B0[];
 extern u8 D_006359C0[];
 extern s32 func_001075d0(s32 arg0);
 extern s32 func_001077f0(s32 arg0);
-extern s32 func_00108e10(void);
+extern s32 cmmCommunityGetCurrentId(void);
 extern s32 func_00107ac0(s32 arg0);
 extern s32 func_00108950(s32 arg0);
 extern s32 scrGetParamInt(s32 arg0);
@@ -36,8 +36,8 @@ extern s32 func_002480e0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00248040(s32 arg0);
 extern s32 func_00110580(s32 arg0);
 extern s32 func_00110d30(s32 arg0);
-extern s32 func_00108ed0(s32 arg0);
-extern s32 func_00108ee0(void);
+extern s32 cmmCommunitySetTableHead(s32 arg0);
+extern s32 cmmCommunityGetTableHead(void);
 extern s32 func_00247f60(s32 arg0);
 
 extern void func_00243ed0(void);
@@ -312,7 +312,7 @@ s32 func_00249b10(void)
 
     temp_16 = scrGetParamInt(0);
     if (temp_16 == 0) {
-        temp_16 = func_00108e10() & 0xFFFF;
+        temp_16 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (func_001077f0(temp_16 & 0xFFFF) == 0) {
         func_001075d0(temp_16 & 0xFFFF);
@@ -328,7 +328,7 @@ s32 func_00249b80(void)
 
     var_2 = scrGetParamInt(0);
     if (var_2 == 0) {
-        var_2 = func_00108e10() & 0xFFFF;
+        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     scrSetReturnInt(func_001077f0(var_2 & 0xFFFF));
     return 1;
@@ -340,7 +340,7 @@ s32 func_00249be0(void)
 
     var_2 = scrGetParamInt(0);
     if (var_2 == 0) {
-        var_2 = func_00108e10() & 0xFFFF;
+        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     scrSetReturnInt(func_00107ac0(var_2 & 0xFFFF) & 0xFFFF);
     return 1;
@@ -352,7 +352,7 @@ s32 func_00249c40(void)
 
     var_2 = scrGetParamInt(0);
     if (var_2 == 0) {
-        var_2 = func_00108e10() & 0xFFFF;
+        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     func_00108950(var_2 & 0xFFFF);
     return 1;
@@ -364,7 +364,7 @@ s32 func_00249c90(void)
 
     var_2 = scrGetParamInt(0);
     if (var_2 == 0) {
-        var_2 = func_00108e10() & 0xFFFF;
+        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (func_001087e0(var_2 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
@@ -382,7 +382,7 @@ s32 func_00249d00(void)
     var_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     if (var_17 == 0) {
-        var_17 = func_00108e10() & 0xFFFF;
+        var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     func_00108290(var_17 & 0xFFFF, temp_16 & 0xFFFF);
     return 1;
@@ -405,7 +405,7 @@ s32 func_00249de0(void)
 
     var_2 = scrGetParamInt(0);
     if (var_2 == 0) {
-        var_2 = func_00108e10() & 0xFFFF;
+        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (func_00107c80(var_2 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
@@ -423,7 +423,7 @@ s32 func_00249e50(void)
     var_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     if (var_17 == 0) {
-        var_17 = func_00108e10() & 0xFFFF;
+        var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (temp_16 != 0) {
         func_00107ce0(var_17 & 0xFFFF);
@@ -439,7 +439,7 @@ s32 func_00249ee0(void)
 
     var_2 = scrGetParamInt(0);
     if (var_2 == 0) {
-        var_2 = func_00108e10() & 0xFFFF;
+        var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (func_00107ea0(var_2 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
@@ -457,7 +457,7 @@ s32 func_00249f50(void)
     var_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     if (var_17 == 0) {
-        var_17 = func_00108e10() & 0xFFFF;
+        var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (temp_16 != 0) {
         func_00107f00(var_17 & 0xFFFF);
@@ -484,9 +484,9 @@ s32 func_0024a060(void)
 
     var_4 = scrGetParamInt(0) & 0xFFFF;
     if (var_4 == 0) {
-        var_4 = func_00108e10() & 0xFFFF;
+        var_4 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    func_00108ed0(var_4);
+    cmmCommunitySetTableHead(var_4);
     return 1;
 }
 // FUN_0024A0E0
@@ -494,7 +494,7 @@ s32 func_0024a0e0(void)
 {
     s32 var_4;
 
-    var_4 = (func_00108ee0() & 0xFFFF) != 0;
+    var_4 = (cmmCommunityGetTableHead() & 0xFFFF) != 0;
     if (var_4 != 0) {
         var_4 = func_00247f60((s16)func_001060b0()) != 0;
     }

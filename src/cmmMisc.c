@@ -30,7 +30,7 @@ extern s32 func_001106f0(s32 a, s32 b, s32 c, s32 d, s32 e);
 extern s32 cmmCommunityCounterpart(s64 idx); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
 extern s32 func_00107ac0(s32 idx);
 extern s32 func_00107a00(s32 idx, s32 arg1);
-extern u16 func_00108ee0(void);
+extern u16 cmmCommunityGetTableHead(void);
 extern s32 datPersonaRosterSlotRank(s32 idx);
 extern s64 func_00248760(s32 idx);
 extern s32 func_001077f0(u16 idx);
@@ -873,7 +873,7 @@ body_15:
             (temp_3 <= (s32)*(u16 *)(var_18 + 6)) &&
             ((func_00107ac0(*(u16 *)(var_18 + 2)) & 0xFFFF) != 0xA) &&
             (func_00107a00(*(u16 *)(var_18 + 2), 3) == 0) &&
-            ((temp_23 = *(u16 *)(var_18 + 2)), (temp_23 != (func_00108ee0() & 0xFFFF)))) {
+            ((temp_23 = *(u16 *)(var_18 + 2)), (temp_23 != (cmmCommunityGetTableHead() & 0xFFFF)))) {
             var_2 = 1;
         } else {
             var_2 = 0;

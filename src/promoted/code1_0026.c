@@ -113,7 +113,7 @@ extern s32 func_00266a40(u32 arg0, s32 arg1);
 extern void func_00266a90(u8 *arg0);
 extern s32 func_00266ae0(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
-extern s32 func_00108e10(void);
+extern s32 cmmCommunityGetCurrentId(void);
 extern s32 func_00107ce0(s32 arg0);
 extern s32 func_00107dc0(s32 arg0);
 extern void func_00108290(s32 arg0, s32 arg1);
