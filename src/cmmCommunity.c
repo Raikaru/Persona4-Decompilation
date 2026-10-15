@@ -1446,7 +1446,7 @@ s32 cmmCommunityGetTotal(void)
     return D_00797560[0];
 }
 
-// Community entry value: looks up the current entry's value in the table from func_00246ba0, indexed by datRankForPoints over D_007973F4; asserts the index is positive. The extern passes an argument that this definition ignores.
+// Community entry value: looks up the current entry's value through cmmEntryValueRecord, indexed by datRankForPoints over D_007973F4; asserts the index is positive. The extern passes an argument that this definition ignores.
 // FUN_00109100
 s32 cmmCommunityGetCurrentEntryValue(void)
 {

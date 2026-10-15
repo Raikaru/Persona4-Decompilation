@@ -163,7 +163,7 @@ u8 *cmmRankNameRecord(s16 arg0) {
 #pragma opt_propagation on
 // Detail record: 20-byte record from chunk 8 (D_008814A0) for detail index arg0.
 // FUN_00246940
-/* MATCHED (wave 14): same recipe as func_00246910 — `#pragma opt_propagation
+/* MATCHED (wave 14): same recipe as cmmRankNameRecord — `#pragma opt_propagation
    off` (measured: nd 9 -> 1, forces the single-use D_008814A0 load into $a1
    before the x20 chain) + hoisted `s32 base` local + cmmMiscAddOff helper
    (fixes the `addu $v0,$v0,$a1` operand order). Final residual is a benign
