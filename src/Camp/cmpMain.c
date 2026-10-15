@@ -368,7 +368,7 @@ void func_0012cc50(u8 *arg0) {
 
 /* measured: typed D_00887300 base local without opt_propagation off folds
    the array address into per-call lui/lw; off keeps retail's single
-   lui/addiu hoist into $16 (same fix as mdlManager func_00476c70). */
+   lui/addiu hoist into $16 (same fix as mdlManager mdlDrawSkyPass). */
 #pragma opt_propagation off
 
 // FUN_0012CD90

@@ -273,7 +273,7 @@ extern u32 *mdlEffectListCopy(u32 **head);
 extern u32 *mdlEffectListWrapShared(u32 **head);
 extern void func_0047ea40();
 extern s32 func_0047ae90(u8* model, u16 index);
-extern void func_00478410(u8* a, u8* b);
+extern void mdlCopyModelState(u8* a, u8* b);
 extern void func_0047b050(void* a, int b);
 
 
@@ -2560,8 +2560,9 @@ void mdlSetupNamedFrameAnims(u8* param_1, void* param_2)
 
 
 
+/* Atomic callback: when the clump's MatFX state is active, sets the atomic's MatFX mode to 2 if any material has MatFX effects and to 1 otherwise (modes 0 and 3 are left alone). When the state is inactive but effects are present, it calls func_00399b10. */
 // FUN_00474F40
-void* func_00474f40(void* arg0, void* data)
+void* mdlSyncAtomicMatFx(void* arg0, void* data)
 {
     void* obj;
     s32 count;
@@ -2603,8 +2604,9 @@ void* func_00474f40(void* arg0, void* data)
     }
     return arg0;
 }
+/* Atomic callback: when the atomic's object is larger than 0x40 units, runs mdlSetupMatFXMaterial on each of its materials. */
 // FUN_00475090
-void* func_00475090(void* param_1, void* data)
+void* mdlSetupMatFXMaterials(void* param_1, void* data)
 {
     int iVar1;
     int iVar2;
@@ -2819,8 +2821,8 @@ void func_00475350(void *clump, MdlAnimControlView *state,
                     } else mdlSetupDetach(object);
                 }
             }
-            RpClumpForAllAtomics(clump, func_00475090, 0);
-            RpClumpForAllAtomics(clump, func_00474f40, 0);
+            RpClumpForAllAtomics(clump, mdlSetupMatFXMaterials, 0);
+            RpClumpForAllAtomics(clump, mdlSyncAtomicMatFx, 0);
         } else {
             s32 *objects = resource->objects;
             for (object = (u32 *)func_003df890(objects); object != (u32 *)func_003df8a0(objects); ++object)
@@ -3631,8 +3633,9 @@ extern void (*D_00887300_abs[])(s32, s32);
    D_00887300 base in $s0) and mirrors the block layout (D3 inline + 7000F
    out-of-line vs retail's 7000F inline + D3 out-of-line). Tried: u8* params
    (94), condition flips. Address-CSE + if-placement floor. */
+/* Sky draw pass: sets the sky render states from the model's flags, runs the sky state table, then draws its atomics or walks its effect list. */
 // FUN_00476C70
-void func_00476c70(MdlFlags78ec0* o)
+void mdlDrawSkyPass(MdlFlags78ec0* o)
 {
     void (**base)(s32, s32);
     void* node;
@@ -3882,8 +3885,9 @@ void* func_00477510(void* arg0, void* data)
     return arg0;
 }
 
+/* Atomic callback: copies the RwV3d at data into the +0xC slot of every entry in the atomic's entry table. */
 // FUN_00477660
-void* func_00477660(void* param_1, void* data)
+void* mdlSetAtomicEntryVector(void* param_1, void* data)
 {
     RwV3d* param_2 = data;
     void* p = *(void**)((u8*)param_1 + 0x18);
@@ -4239,7 +4243,7 @@ void func_00477ca0(u8* arg0)
         values[0] = fGpffff80cc;
         values[2] = 1.0f;
         values[1] = fGpffff809c;
-        RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00477660, values);
+        RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), mdlSetAtomicEntryVector, values);
         break;
     default:
         RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00477510, NULL);
@@ -4426,7 +4430,7 @@ s32 mdlPrepareModel(u8* param_1)
         if (node == 0) {
             return 0;
         }
-        func_00478410(node, param_1);
+        mdlCopyModelState(node, param_1);
         *(s32*)(param_1 + 0xD8) &= ~0x2000;
     }
     *(s32*)(param_1 + 0xD8) |= 0x1000;
@@ -4502,8 +4506,9 @@ static inline MdlCloneAttachmentTable* mdl_clone_attachment_storage(u32 count)
 /* IDA mdlManager.c:2448-2545; 824B instructions plus eight zero-tail bytes.
    Preserve the model-relative layer base, separately sized attachment arrays
    and callback-visible table reloads. Counts originate in unsigned halfwords. */
+/* Copies a model's clump, layer and attachment state from source into destination. The destination takes references on the source's animation resources. */
 // FUN_00478410
-void func_00478410(u8* source, u8* destination)
+void mdlCopyModelState(u8* source, u8* destination)
 {
     u32 layer;
 
@@ -4588,14 +4593,15 @@ void func_00478410(u8* source, u8* destination)
     if (mdlLayerIsPresent(destination, 0) != 0)
         mdlDispatchAnimIfPresent(destination, 0, 0, 0, 1);
 }
+/* Allocates a model object sized like param_1; copies the state into it when the source has the 0x1000 flag, otherwise marks the new object with 0x2000. */
 // FUN_00478750
-u32* func_00478750(u8* param_1)
+u32* mdlCloneModelObject(u8* param_1)
 {
     u32* obj;
 
     obj = mdlAllocModelObject(*(u16*)(param_1 + 0xD4), *(u16*)(param_1 + 0xD6));
     if ((*(s32*)(param_1 + 0xD8) & 0x1000) != 0) {
-        func_00478410(param_1, (u8*)obj);
+        mdlCopyModelState(param_1, (u8*)obj);
         *(s32*)((u8*)obj + 0xD8) |= 0x1000;
     } else {
         *(s32*)((u8*)obj + 0xD8) |= 0x2000;

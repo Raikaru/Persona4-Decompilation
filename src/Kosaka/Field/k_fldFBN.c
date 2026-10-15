@@ -97,7 +97,7 @@ extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern void func_0046d700(const char *file, s32 line, const char *message, ...);
 extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern s32 mdlPrepareModel(u8 *arg0);
-extern u32 *func_00478750(u8 *arg0);
+extern u32 *mdlCloneModelObject(u8 *arg0);
 extern void mdlAdvanceModelFromFlags(u8 *arg0);
 extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern void *mdlGetMatrix(void *arg0);
@@ -362,7 +362,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
         FldFrameTask_SetHeight(*(u8 **)(res + 0x228), *size);
         FldShadow_SetRingParticles(*(u8 **)(res + 0x230), 40.0f);
         scale.z = scale.y = scale.x = *size;
-        *(u32 **)(res + 0x22C) = func_00478750((u8 *)D_00764364);
+        *(u32 **)(res + 0x22C) = mdlCloneModelObject((u8 *)D_00764364);
         /* Retail passes the yaw slot before this iteration writes it. */
         func_0047a1a0(*(u32 **)(res + 0x22C), &axis, angles.y, 2);
         mdlScale(*(u32 **)(res + 0x22C), &scale, 2);

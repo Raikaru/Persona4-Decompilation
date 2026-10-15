@@ -8,7 +8,7 @@ extern u16 btlFindFreeCharResId(void);
 extern void mdlDestroyModelObject(); /* old-style: retail jals with $a1 still holding the compared coordinate */
 extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void *func_00477fb0(u32 arg0, u16 arg1, void *arg2, u32 arg3);
-extern u32 *func_00478750(u8 *arg0);
+extern u32 *mdlCloneModelObject(u8 *arg0);
 extern s32 func_0047d110(u32 arg0, u16 arg1, char *arg2);
 extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
 extern s32 func_00454a60(void *arg0, s32 arg1);
@@ -997,7 +997,7 @@ void btlUnitModelLoadPacketInit(u8 *arg0)
         }
         made = mdlFindModelObject(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
         if (made != 0) {
-            *(u8 **)(p + 0xA00) = (u8 *)func_00478750(made);
+            *(u8 **)(p + 0xA00) = (u8 *)mdlCloneModelObject(made);
             flags = *(s32 *)(p + 0x98) | 2;
             *(s32 *)(p + 0x98) = flags;
             *(s32 *)(p + 0x98) = flags | 1;
@@ -1056,7 +1056,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
     if ((*(s32 *)(t17 + 0x98) & 1) == 0) {
         made = mdlFindModelObject(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
         if (made != 0) {
-            *(u8 **)(t17 + 0xA00) = (u8 *)func_00478750(made);
+            *(u8 **)(t17 + 0xA00) = (u8 *)mdlCloneModelObject(made);
         } else {
             func_0047d110(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)sp80);
             func_00440b68(&iGpffffa0b0, D_005F6D00, 0xDC9);

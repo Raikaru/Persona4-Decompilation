@@ -120,7 +120,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 D_00754D88[];
 extern s32 chkmemGetBytes(void);
 extern s32 func_003c0520(s32 arg0);
-extern s32 func_00478750(s32 arg0);
+extern s32 mdlCloneModelObject(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
 extern void func_004b1250(void *effect, f32 *position);
 extern RwBool RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
@@ -2348,7 +2348,7 @@ k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *arg1, u32 arg2
         if (a3->type == 0 || a3->type == 2) {
             u8 *s1 = (u8 *)src + j * 24;
             s32 *s0 = &dst->entries[j].field_c;
-            *s0 = func_00478750(*(s32 *)(s1 + 300));
+            *s0 = mdlCloneModelObject(*(s32 *)(s1 + 300));
             func_0047a1c0((void *)*s0, func_003e9700(*(void **)(s1 + 296)), 0);
             if (*(u16 *)(s1 + 290) & 2) {
                 *(u16 *)(p_dst + 290) |= 2;
