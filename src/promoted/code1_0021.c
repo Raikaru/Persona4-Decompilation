@@ -2554,7 +2554,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     extern void frFontSetFlagBits(s32 arg0);
     extern void frFontClearFlagBits(s32 arg0);
     extern s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2);
-    extern s32 func_002738d0(s32 arg0);
+    extern s32 frFontNodeWidth(s32 arg0);
     extern void frFontExSetScale(s32 arg0, f32 width);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 mode,
                                s32 font, const char *text, s32 flags, s32 extra);
@@ -2644,7 +2644,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             frFontSetCharWidth(*(s32 *)arg1, -1);
             frFontClearFlagBits(1);
             frFontSetFlagBits(2);
-            half = func_002738d0(*(s32 *)arg1);
+            half = frFontNodeWidth(*(s32 *)arg1);
             if (*(u16 *)(arg1 + 0x10) & 4) {
                 frFontMoveListTo(*(s32 *)arg1, (0xD1 - half / 2) << 4, 0x2A0);
             } else {

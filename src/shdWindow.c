@@ -26,9 +26,9 @@ extern void func_0025e4a0(s32, s32);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern u8 *func_00274570(u32, u32, u32, u32, u32, u32, u32, u32);
-extern s32 func_00273970(u8 *);
+extern s32 frFontCountRuns(u8 *);
 extern u8 *frFontSplitRun(u8 **, s32);
-extern s32 func_002738d0(u8 *);
+extern s32 frFontNodeWidth(u8 *);
 extern void frFontMoveListToFloat(u8 *, f32, f32);
 extern void frFontSetGlyphColor(u8 *, s32);
 extern void frFontListKeepOrRelease(u8 *);
@@ -66,7 +66,7 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
     temp_22 = *(s32 *)((u8 *)&D_00637190 + arg2 * 8);
     var_17 = 0;
     sp9C = func_00274570(0, 0, 2, 0, 0, 0xFF, temp_22, 0);
-    temp_22 = func_00273970(sp9C) * 0x1C;
+    temp_22 = frFontCountRuns(sp9C) * 0x1C;
 
     while (sp9C != NULL) {
         var_18 = frFontSplitRun(&sp9C, 0);
@@ -77,7 +77,7 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
         var_19 = var_18;
         var_20 = 0;
         while (var_19 != NULL) {
-            var_20 += func_002738d0(var_19);
+            var_20 += frFontNodeWidth(var_19);
             var_19 = *(u8 **)(var_19 + 0x24);
         }
         if (arg3 != 0) {
