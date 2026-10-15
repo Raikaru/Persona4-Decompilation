@@ -150,11 +150,11 @@ extern f32 DAT_0076112c;
 extern s32 iGpffffb444;
 extern void func_0047a120(void *arg0);
 extern void func_0047a150(void *arg0);
-extern void func_0019ef30(u8 *arg0, u16 arg1);
+extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
-    func_0019ef30(arg0, arg1);
+    btlUnitInitChild(arg0, arg1);
 }
 extern void (*jtbl_008873EC[])(void *arg0);
 extern u8 D_005F6C00[];
@@ -203,7 +203,7 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4)
 {
     extern f32 iGpffff80d4;
     extern f32 iGpffff812c;
-    extern u8 *func_0019eda0(u8 *arg0, s32 arg1);
+    extern u8 *btlUnitGetRecordPtr(u8 *arg0, s32 arg1);
     s32 a1m;
     u16 v11;
     s32 v12;
@@ -251,7 +251,7 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4)
         }
         mdlDispatchAnimIfPresent(*(u8 **)(arg0 + 0xA00), 0, (s32)(s16)v11, arg2, v12);
         mdlSetLayerWeight(*(u8 **)(arg0 + 0xA00), 0, *(f32 *)(arg0 + 0x9E0));
-        sp = (s16 *)func_0019eda0(arg0, a1m);
+        sp = (s16 *)btlUnitGetRecordPtr(arg0, a1m);
         *(f32 *)(arg0 + 0x80) = (f32)sp[0];
         *(f32 *)(arg0 + 0x84) = (f32)sp[1];
         *(f32 *)(arg0 + 0x88) = (f32)sp[2];

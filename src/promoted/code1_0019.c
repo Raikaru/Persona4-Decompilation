@@ -240,7 +240,7 @@ extern u8 *func_001f7650(u8 *arg0);
 extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
 
 extern u8 *btlUnitCreate(s32 arg0);
-extern void func_0019ea60(u8 *arg0, s32 arg1);
+extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
 
 
 
@@ -270,12 +270,12 @@ extern u8 *func_001b0930(void);
 extern s32 func_001b0d70(u8 *arg0);
 extern s32 func_0022e630(u8 *arg0);
 extern s32 func_00243d80(u8 *arg0);
-extern void func_0019ef30(u8 *arg0, u16 arg1);
+extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void func_0019f1d0(u8 *arg0);
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
-    func_0019ef30(arg0, arg1);
+    btlUnitInitChild(arg0, arg1);
 }
 extern void btlUnitHoldPendingLookAt(u8 *arg0);
 extern s32 btlUnitLookAtSidePacketUpdate(u8 *arg0);
