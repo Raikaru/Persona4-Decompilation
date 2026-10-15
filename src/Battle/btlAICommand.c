@@ -4361,19 +4361,19 @@ s32 btlAICommandScriptQueryEnNomalDw(void) {
 }
 
 // FUN_001E3C40
-s32 func_001e3c40(void) {
+s32 btlAICommandScriptQueryAnalyze(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B74[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
 // FUN_001E3C90
-s32 func_001e3c90(void) {
+s32 btlAICommandScriptQueryDown(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B80[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
 // FUN_001E3CE0
-s32 func_001e3ce0(void) {
+s32 btlAICommandScriptQuerySlip(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B8C[0])(func_0029d050(), 0) != 0);
     return 1;
 }
@@ -4398,7 +4398,7 @@ s32 btlAICommandScriptQueryEnOverlv(void) {
    func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. id is u32
    (masked & 0xFFFF) because func_001d9280 takes s32. switch cases ascending 0/1. */
 // FUN_001E3DE0
-u32 func_001e3de0(void)
+u32 btlAICommandSideSwitchIdQueryMyWeak(void)
 {
     u8 *context;
     u16 side;
