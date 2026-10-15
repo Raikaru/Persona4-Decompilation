@@ -1001,6 +1001,7 @@ void datCalcClearField18(int object)
     *(u32 *)(object + 0x18) = 0;
 }
 
+// Intent: multiplier for stat index arg1 on unit arg0: indices 0-4 read a buff level, 18-19 read a status bit; scaled by the enemy/party table, lead boost and the 0x40000/0x80000 flags; [inferred].
 // FUN_00233BC0
 /* The low-byte status index must be below 24. Retail diagnoses that
  * contract twice; all six executable callers pass constants 0..4.
@@ -1008,7 +1009,7 @@ void datCalcClearField18(int object)
  * avoids caller-side widening before the matching hit and damage routines. */
 #pragma push
 #pragma opt_propagation off
-f32 func_00233bc0(u8 *arg0, s32 arg1, u16 arg2)
+f32 datCalcBuffMultiplier(u8 *arg0, s32 arg1, u16 arg2)
 {
     s32 index;
     u8 active;
@@ -1844,18 +1845,18 @@ u8 arg7;
         switch (iGpffffb3b8[offset + 2]) {
         case 1:
             if (effect != 16) {
-                attack = func_00233bc0(arg1, 0, arg0);
+                attack = datCalcBuffMultiplier(arg1, 0, arg0);
             }
-            defense = func_00233bc0(arg2, 3, arg0);
+            defense = datCalcBuffMultiplier(arg2, 3, arg0);
             if (effect != 16) {
                 *(u32 *)(arg1 + 0x18) |= 0x40000;
             }
             break;
         case 2:
             if (effect != 16) {
-                attack = func_00233bc0(arg1, 1, arg0);
+                attack = datCalcBuffMultiplier(arg1, 1, arg0);
             }
-            defense = func_00233bc0(arg2, 3, arg0);
+            defense = datCalcBuffMultiplier(arg2, 3, arg0);
             if (effect != 16) {
                 *(u32 *)(arg1 + 0x18) |= 0x80000;
             }
@@ -3912,8 +3913,8 @@ s32 arg3;
     case 1:
         return 1;
     }
-    attackRate = func_00233bc0(arg0, 4, arg2);
-    defenseRate = func_00233bc0(arg1, 2, arg2);
+    attackRate = datCalcBuffMultiplier(arg0, 4, arg2);
+    defenseRate = datCalcBuffMultiplier(arg1, 2, arg2);
     evadeMultiplier = 1.0f;
     hitMultiplier = 1.0f;
     equipmentBonus = 0;
