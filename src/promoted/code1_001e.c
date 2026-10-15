@@ -152,7 +152,7 @@ extern s32 func_001eba20(u8 *arg0);
 extern u8 *iGpffffb428;
 extern u16 func_00107ac0(s32 arg0);
 extern void func_00106550(s32 arg0, s32 arg1);
-extern s32 func_00243e30(u16 *arg0);
+extern s32 datCalcIsStatusBlocked(u16 *arg0);
 extern u16 func_00247cb0(s64 arg0);
 extern u8 *iGpffffb42c;
 // FUN_001E6B90
@@ -3868,7 +3868,7 @@ s32 func_001ef9c0(u8 *action)
         *(u16 *)(action + 0x14) == 9) {
         return 0;
     }
-    if (func_00243e30(*(u16 **)(*(u8 **)(action + 0x30) + 0xA64)) != 0) {
+    if (datCalcIsStatusBlocked(*(u16 **)(*(u8 **)(action + 0x30) + 0xA64)) != 0) {
         return 0;
     }
     rank = func_00107ac0(func_00247cb0(
@@ -4036,7 +4036,7 @@ s32 func_001eff50(u8 *arg0)
                 (datCalcChkBadStatus(*(s32 *)(temp_16 + 0xA64),
                                 0x1001FF) == 0) &&
                 (datCalcIsDead(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
-                (func_00243e30(*(u16 **)(temp_16 + 0xA64)) == 0) &&
+                (datCalcIsStatusBlocked(*(u16 **)(temp_16 + 0xA64)) == 0) &&
                 ((func_00107ac0((func_00247cb0(
                                     *(s16 *)(temp_16 + 0xA4)) &
                                   0xFFFF)) &

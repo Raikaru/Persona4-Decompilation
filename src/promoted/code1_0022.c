@@ -275,7 +275,7 @@ extern BtlPacket *btlUnitCreateRotateTowardUnitPacket(BtlUnit *unit, BtlUnit *ta
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation, u32 flags);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPosition, f32 speed, u32 flags);
 extern u32 datCalcIsDead(void *unit, s32 hpDelta);
-extern s32 func_00243e30(u16 *unit);
+extern s32 datCalcIsStatusBlocked(u16 *unit);
 extern s32 func_001ef4a0(s32 action);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern BtlPacket *func_001d3700(u16 group, u16 mask);
@@ -905,7 +905,7 @@ s32 func_002240b0(void)
  * O2: 876/880 bytes, 34 fully resolved relocations, four zero tail bytes.
  */
 extern s32 func_00243d80(u8 *unitData);
-extern s32 func_00243e30(u16 *unitData);
+extern s32 datCalcIsStatusBlocked(u16 *unitData);
 extern void func_001b73f0(u8 *unit);
 extern f32 fGpffff80e8;
 extern u8 D_00634870[];
@@ -984,7 +984,7 @@ void func_002240e0(u8 *camera)
             if (datCalcChkBadStatus(*(s32 *)(enemy + 0xA64), 0x100000) != 0) {
                 hasStatus = 1;
             }
-            if (func_00243e30(*(u16 **)(enemy + 0xA64)) != 0) {
+            if (datCalcIsStatusBlocked(*(u16 **)(enemy + 0xA64)) != 0) {
                 hasPriorityStatus = 1;
             }
         }
@@ -1049,7 +1049,7 @@ void func_00224450(u8 *camera)
         RtQuat secondRotation;
     } poses;
     extern s32 func_00243d80(u8 *unitData);
-    extern s32 func_00243e30(u16 *unitData);
+    extern s32 datCalcIsStatusBlocked(u16 *unitData);
     extern s32 func_001ef9a0(void);
     extern u32 func_001d8df0(s32 targets);
     extern void func_001c8cf0(u8 *camera);
@@ -1109,7 +1109,7 @@ void func_00224450(u8 *camera)
                 if (datCalcChkBadStatus(*(s32 *)(enemy + 0xA64), 0x100000) != 0) {
                     hasStatus = 1;
                 }
-                if (func_00243e30(*(u16 **)(enemy + 0xA64)) != 0) {
+                if (datCalcIsStatusBlocked(*(u16 **)(enemy + 0xA64)) != 0) {
                     hasPriorityStatus = 1;
                 }
             }
@@ -3605,7 +3605,7 @@ void func_00229da0(u8 *action)
         *(u64 *)(packet + 0x60) = *(u64 *)action;
         btlPacketEnqueue(packet, 1);
 
-        if (func_00243e30(*(u16 **)(*(u8 **)(target + 0x30) + 0xA64)) != 0)
+        if (datCalcIsStatusBlocked(*(u16 **)(*(u8 **)(target + 0x30) + 0xA64)) != 0)
             targetParams.halves[15] |= 0x80;
         else
             targetParams.halves[15] &= 0xFF7F;

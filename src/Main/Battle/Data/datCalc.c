@@ -1975,7 +1975,7 @@ u8 arg7;
                 attack *= fGpffff80bc;
             }
         }
-        if (func_00243e30((u16 *)arg2)) {
+        if (datCalcIsStatusBlocked((u16 *)arg2)) {
             defense *= fGpffff82cc;
         }
         targetStatus = *(u32 *)(arg2 + 0xC);
@@ -2276,7 +2276,7 @@ s32 options;
     s32 element;
     u8 active;
     s16 message;
-    extern s32 func_00243e30(u16 *unit);
+    extern s32 datCalcIsStatusBlocked(u16 *unit);
     extern s32 datCalcStatusElement(s32 skill, s32 mask);
 
     if ((skillId & 0xFFFF) >= 0x240) {
@@ -2322,7 +2322,7 @@ return_zero_0:
         default:
             break;
         }
-        if (func_00243e30((u16 *)target)) {
+        if (datCalcIsStatusBlocked((u16 *)target)) {
             return 0;
         }
         kind = iGpffffb3b8[offset + 0x24];
@@ -2788,7 +2788,7 @@ s32 func_0023a620(s32 arg0, u16 arg1)
 /* Base persona resistance and unit-type query. */
 extern u8 *iGpffffb3c8;
 extern u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1);
-extern s32 func_00243e30(u16 *arg0);
+extern s32 datCalcIsStatusBlocked(u16 *arg0);
 
 #pragma push
 #pragma opt_loop_invariants on
@@ -2845,7 +2845,7 @@ s32 func_0023a6b0(u8 *arg0, s32 arg1)
             }
         }
     }
-    if (func_00243e30((u16 *)arg0) != 0) {
+    if (datCalcIsStatusBlocked((u16 *)arg0) != 0) {
         hasFlag = 1;
     }
     switch (temp_16) {
@@ -3808,7 +3808,7 @@ s32 arg3;
     case 8:
         return (targetFlags & 0x1000) ? 1 : 4;
     case 9:
-        if (func_00243e30((u16 *)arg1) != 0) {
+        if (datCalcIsStatusBlocked((u16 *)arg1) != 0) {
             return 0x100;
         }
         break;
@@ -3897,7 +3897,7 @@ s32 arg3;
     if ((u8)((*(u32 *)(arg1 + 0xC) & 0x100000) != 0)) {
         return 1;
     }
-    if (func_00243e30((u16 *)arg1) != 0) {
+    if (datCalcIsStatusBlocked((u16 *)arg1) != 0) {
         return 1;
     }
     if (iGpffffb3b8[offset + 0xE] >= 100) {
@@ -4165,7 +4165,7 @@ s32 arg4;
     if ((res & 0x08000000) != 0) {
         return 4;
     }
-    if (func_00243e30((u16 *)arg1) != 0) {
+    if (datCalcIsStatusBlocked((u16 *)arg1) != 0) {
         return 1;
     }
     base = 0;
@@ -5191,20 +5191,23 @@ s32 func_00243d80(DatUnit *unit)
     return 0;
 }
 
+// Intent: nonzero when the unit word arg0 has the status-blocked bit (0x200) set; a blocked target takes no status from datCalcInflictStatus; [inferred].
 // FUN_00243E30
-s32 func_00243e30(u16 *arg0)
+s32 datCalcIsStatusBlocked(u16 *arg0)
 {
     return (s32)((*arg0 & 0x200) != 0);
 }
 
+// Intent: set the status-blocked bit (0x200) of unit word arg0; [inferred].
 // FUN_00243E50
-void func_00243e50(u16 *arg0)
+void datCalcSetStatusBlocked(u16 *arg0)
 {
     *arg0 |= 0x200;
 }
 
+// Intent: clear the status-blocked bit (0x200) of unit word arg0; [inferred].
 // FUN_00243E70
-void func_00243e70(u16 *arg0)
+void datCalcClearStatusBlocked(u16 *arg0)
 {
     *arg0 &= 0xFDFF;
 }

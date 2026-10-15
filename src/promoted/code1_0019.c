@@ -257,7 +257,7 @@ extern s32 func_0019f8a0(u8 *arg0);
 extern s32 datCalcIsStandardUnit(s32 arg0, s32 arg1);
 extern u8 *btlUnitCreateLookAtPacket(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 datCalcIsLowHp(u8 *arg0);
-extern s32 func_00243e30(s32 arg0);
+extern s32 datCalcIsStatusBlocked(s32 arg0);
 extern void func_0047a120(void *arg0);
 extern void func_0047a150(void *arg0);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
