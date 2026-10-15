@@ -91,7 +91,7 @@ extern s16 datGetPartyId(s32 arg0);
 extern s32 func_00104c70(s32 arg0);
 extern s32 *func_00155280(void);
 extern void SceneDraw_SetResVisible(u16 arg0, s32 arg1);
-extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern s32 func_0018bb20(s32 arg0, s32 arg1);
 
 extern void *memset(void *destination, s32 value, u32 size);
@@ -2015,8 +2015,8 @@ s32 FldUnit_InstallResources(void)
             scale.x = scale.y = scale.z = 30.0f;
             mdlScale((Model *)(*(s32*)(instance + 0x22C)), &scale, 2);
             mdlAdvanceModelFromFlags(*(u8**)(instance + 0x22C));
-            func_0047a1a0(*(void**)(instance + 0x164), D_00756510, *(f32*)(node + 0x14C), 2);
-            func_0047a180(*(void**)(instance + 0x164), (void*)(node + 0x140), 2);
+            mdlRotateMatrix(*(void**)(instance + 0x164), D_00756510, *(f32*)(node + 0x14C), 2);
+            mdlTranslateMatrix(*(void**)(instance + 0x164), (void*)(node + 0x140), 2);
             *(s32*)(instance + 0x294) = func_0018bb20(*(s32*)(instance + 0x228), (s32)(instance));
             node = *(u8**)(node + 0x138);
             *(s32*)modelSlot = 0;
@@ -2057,8 +2057,8 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         func_0047aa30(*(u8 **)(temp_2 + 0x144), D_005DC920);
         temp_21 = temp_17 * 0xC;
         mdlScale((Model *)(*(u8 **)(temp_2 + 0x144)), (const RwV3d *)(D_005F1530 + temp_21), 2);
-        func_0047a1a0(*(u8 **)(temp_2 + 0x144), D_00756510, *(f32 *)(arg1 + 0x14C), 2);
-        func_0047a180((RwMatrix *)*(u8 **)(temp_2 + 0x144), (const RwV3d *)(arg1 + 0x140), 2);
+        mdlRotateMatrix(*(u8 **)(temp_2 + 0x144), D_00756510, *(f32 *)(arg1 + 0x14C), 2);
+        mdlTranslateMatrix((RwMatrix *)*(u8 **)(temp_2 + 0x144), (const RwV3d *)(arg1 + 0x140), 2);
         if (*(s32 *)(arg0 + 8) != 0) {
             mdlDispatchAnimIfPresent(*(u8 **)(temp_2 + 0x144), 0, 2, 0, 0);
         } else if (temp_17 == 1) {
@@ -2091,9 +2091,9 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         }
         temp_2_2 = (u8 *)mdlCloneModelObject((u8 *)(D_00764364));
         *(u8 **)(temp_2 + 0x16C) = temp_2_2;
-        func_0047a1a0(temp_2_2, D_00756510, *(f32 *)(arg1 + 0x14C), 2);
+        mdlRotateMatrix(temp_2_2, D_00756510, *(f32 *)(arg1 + 0x14C), 2);
         mdlScale((Model *)(*(u8 **)(temp_2 + 0x16C)), (const RwV3d *)(D_005F1550 + temp_21), 2);
-        func_0047a180((RwMatrix *)*(u8 **)(temp_2 + 0x16C), (const RwV3d *)(arg1 + 0x140), 2);
+        mdlTranslateMatrix((RwMatrix *)*(u8 **)(temp_2 + 0x16C), (const RwV3d *)(arg1 + 0x140), 2);
         temp_4_2 = *(u8 **)(temp_2 + 0x16C);
         *(u8 **)(arg0 + 0x164) = temp_4_2;
         mdlAdvanceModelFromFlags(temp_4_2);

@@ -266,7 +266,7 @@ void func_001823d0(s32 arg0, u16 mode, u16 id)
     extern s32 func_0016fe80(s32 arg0);
     extern s32 func_0016ffd0(s32 arg0);
     extern u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *posA, const struct RwV3d *posB, f32 maxDist);
-    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
     extern u8 *D_005F08B0[];
     s32 area;
     f32 *pos;
@@ -279,7 +279,7 @@ void func_001823d0(s32 arg0, u16 mode, u16 id)
 
     status = *(u16 *)(arg0 + 0xD4);
     stat = mdlGetLayerAnimation(arg0, 0);
-    time = func_0047a080(arg0, 0);
+    time = mdlGetLayerWeight(arg0, 0);
     if (((s32 *)iGpffff9db0)[0] >= 200) {
         return;
     }

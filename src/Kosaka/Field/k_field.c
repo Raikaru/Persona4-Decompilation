@@ -108,7 +108,7 @@ extern u16 MT_Scene_FindFreeResId(s32);
 extern s32 MT_Scene_CreateModelFldRes(u16, s32);
 extern void SceneDraw_SetResVisible(u16, s32);
 extern void func_0015a350(f32 *);
-extern void func_0047a180(s32, f32 *, s32);
+extern void mdlTranslateMatrix(s32, f32 *, s32);
 extern s32 func_0029da90(s32, u8 *, s32);
 extern s32 func_0014a200(void);
 extern u8 *func_0015a0c0(void);
@@ -239,7 +239,7 @@ s32 func_00155360(u8 *task)
                 modelId = MT_Scene_CreateModelFldRes(MT_Scene_FindFreeResId(10), model);
                 SceneDraw_SetResVisible(modelId, 1);
                 func_0015a350(position);
-                func_0047a180(work->model, position, 2);
+                mdlTranslateMatrix(work->model, position, 2);
                 object = MT_Scene_GetRes(modelId);
                 *(u32 *)(object + 0x28) |= 0x02000000;
             }

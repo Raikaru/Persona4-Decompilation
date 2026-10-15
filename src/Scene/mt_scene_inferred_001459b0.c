@@ -126,7 +126,7 @@ extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
-extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern void func_004b1150(s32 arg0);
@@ -917,11 +917,11 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
-            func_0047a1a0((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
-            func_0047a1a0((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
-            func_0047a180((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
+            mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
         case 2:
             modelHandle = *(s32 *)(resource + 0x158);
@@ -929,11 +929,11 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
-            func_0047a1a0((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
-            func_0047a1a0((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
-            func_0047a180((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
+            mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
         case 3:
             modelHandle = *(s32 *)(resource + 0x164);
@@ -941,11 +941,11 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
-            func_0047a1a0((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
-            func_0047a1a0((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
-            func_0047a180((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
+            mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
         case 6:
             if (*(s32 *)(resource + 0x144) == 0) {
@@ -973,11 +973,11 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
-            func_0047a1a0((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
-            func_0047a1a0((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
+            mdlRotateMatrix((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
             mdlScale((Model *)(u32)modelHandle, &scale, 2);
-            func_0047a180((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
+            mdlTranslateMatrix((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
         }
     }

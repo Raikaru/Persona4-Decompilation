@@ -784,7 +784,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     extern u8 iGpffffba58;
     extern f32 iGpffffba6c;
     void func_00479e60(void *, s32, f32);
-    f32 func_0047a080(s32, s32);
+    f32 mdlGetLayerWeight(s32, s32);
     s32 func_0045af60(s16, s16, s16, s16);
     u8 *func_0014c540(u8 *, f32, f32);
     u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *, const struct RwV3d *, f32);
@@ -833,7 +833,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     u16 MT_Scene_FindFreeResId(s32);
     void SceneDraw_SetResVisible(u16, u32);
     void func_0015a350(struct P4_0015_Vec3 *);
-    struct RwMatrixTag *func_0047a180(struct RwMatrixTag *, const struct RwV3d *, s32);
+    struct RwMatrixTag *mdlTranslateMatrix(struct RwMatrixTag *, const struct RwV3d *, s32);
     s32 FldEvent_SpawnMover(s32, s32, s32);
     u8 *smapCreateSymbols(u8 *);
     void func_002b2950(s32);
@@ -905,7 +905,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             goto running;
         case 1:
             {
-                u32 cur = (u32)func_0047a080((s32)D_007EFA00[0], 0);
+                u32 cur = (u32)mdlGetLayerWeight((s32)D_007EFA00[0], 0);
                 if (work->frameCounter == 3) {
                     func_0045af60(1, 0xC, 1, 2);
                 }
@@ -1426,7 +1426,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         u16 id = MT_Scene_CreateModelFldRes(MT_Scene_FindFreeResId(0xA), tt);
                         SceneDraw_SetResVisible(id, 1);
                         func_0015a350((struct P4_0015_Vec3 *)(&translation));
-                        func_0047a180((struct RwMatrixTag *)(work->modelFile), (const struct RwV3d *)(&translation), 2);
+                        mdlTranslateMatrix((struct RwMatrixTag *)(work->modelFile), (const struct RwV3d *)(&translation), 2);
                         {
                             u8 *r2 = (u8 *)MT_Scene_GetRes(id);
                             *(s32 *)(r2 + 0x28) = *(s32 *)(r2 + 0x28) | 0x02000000;

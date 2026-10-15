@@ -145,7 +145,7 @@ extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
 extern void func_0046d730(const void *arg0, s32 arg1);
-extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern void func_004b1150(s32 arg0);
