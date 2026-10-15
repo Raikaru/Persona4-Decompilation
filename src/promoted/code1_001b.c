@@ -688,7 +688,7 @@ void func_001b1d70(void) {
                 *(u16 *)(unit + 0x9FE) = func_00145510(id, *(void **)(unit + 0xA00));
                 func_0014a460(*(u16 *)(unit + 0x9FE), 1);
                 func_0019d7a0(unit, 1);
-                func_00198dd0(unit, 0);
+                btlUnitUpdateStatusMotion(unit, 0);
                 func_00198920(unit, *(s16 *)(unit + 0x9EC), 0, *(f32 *)(unit + 0x9F0), *(s8 *)(unit + 0x9F4));
                 func_001987a0(unit);
                 tmp = *(u8 **)(unit + 0xA00);
@@ -900,7 +900,7 @@ s32 func_001b2380(void)
           datCalcSetBadStatus(*(s32 *)(unit + 0xa64),0x80000);
           datCalcSetHp(*(u32 *)(unit + 0xa64),0);
           *(u32 *)(unit + 0x9c) |= 1;
-          func_00198dd0(unit,0);
+          btlUnitUpdateStatusMotion(unit,0);
           btlPacketEnqueue((u8 *)func_001f8330((BtlUnit *)unit),1);
           btlPacketEnqueue((u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x13, 0, 1.0f, 2),1);
           btlPacketEnqueue((u8 *)func_0019aa70((BtlUnit *)unit,
@@ -1381,7 +1381,7 @@ s32 func_001b3870(void)
         goto check;
 loop:
         *(u16 *)(var_16 + 0x9D8) &= 0xFFBF;
-        func_00198dd0(var_16, 0);
+        btlUnitUpdateStatusMotion(var_16, 0);
         func_00198920(var_16, *(s16 *)(var_16 + 0x9EC), 8, *(f32 *)(var_16 + 0x9F0), *(s8 *)(var_16 + 0x9F4));
         var_16 = *(u8 **)(var_16 + 0xA68);
 check:
@@ -1505,7 +1505,7 @@ s32 func_001b3a00(void)
                     status = datCalcGetBadStatus(*(s32 *)(member + 0xA64));
                     datCalcClearBadStatus(*(s32 *)(member + 0xA64), 0xFFF7FFFF);
                     if ((status & 0x100000) == 0) {
-                        func_00198dd0(member, 6);
+                        btlUnitUpdateStatusMotion(member, 6);
                     }
                 }
             }

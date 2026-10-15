@@ -187,7 +187,7 @@ extern u8 D_00794150[];
    the compare chain is emitted in reverse label order. */
 // FUN_00198DD0
 #pragma push
-void func_00198dd0(u8 *arg0, u16 arg1)
+void btlUnitUpdateStatusMotion(u8 *arg0, u16 arg1)
 {
     s16 var_18;
     s64 value;
