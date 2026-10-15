@@ -63,13 +63,13 @@ s32 func_0018f470(u8 *arg0)
         *(KwlnTask **)(p + 1) = buf;
         func_00470810(buf, D_005F59F0, 6);
         value = D_00764344;
-        *func_00470bd0(*(KwlnTask **)(p + 1), 2) = value;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 2) = value;
         value = D_00764348;
-        *func_00470bd0(*(KwlnTask **)(p + 1), 3) = value;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 3) = value;
         value = D_0076434C;
-        *func_00470bd0(*(KwlnTask **)(p + 1), 4) = value;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 4) = value;
         value = D_00764350;
-        *func_00470bd0(*(KwlnTask **)(p + 1), 5) = value;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 5) = value;
         func_004703c0(*(u8 **)(p + 1), 4);
         func_004703d0(*(u8 **)(p + 1), 1);
         *(s32 *)p = *(s32 *)p + 1;
@@ -77,12 +77,12 @@ s32 func_0018f470(u8 *arg0)
     }
     case 1:
         if (D_008C024E[0] & 0x40) {
-            D_00764304 = *func_00470bd0(*(KwlnTask **)(p + 1), 1);
-            D_00764344 = *func_00470bd0(*(KwlnTask **)(p + 1), 2);
-            D_00764348 = *func_00470bd0(*(KwlnTask **)(p + 1), 3);
-            D_0076434C = *func_00470bd0(*(KwlnTask **)(p + 1), 4);
-            D_00764350 = *func_00470bd0(*(KwlnTask **)(p + 1), 5);
-            sp[0] = *func_00470bd0(*(KwlnTask **)(p + 1), 0);
+            D_00764304 = *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 1);
+            D_00764344 = *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 2);
+            D_00764348 = *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 3);
+            D_0076434C = *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 4);
+            D_00764350 = *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 5);
+            sp[0] = *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 0);
             sp[1] = 0xFFFF;
             func_001029a0(0xB, sp, 8, 0);
             func_004703d0(*(u8 **)(p + 1), 0);

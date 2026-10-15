@@ -3507,12 +3507,12 @@ s32 func_0018e810(u8 *arg0)
             case 0:
                 *((u8 *)func_00155280() + 0x4A) =
                     *(*(u8 **)(state + 0x1B434) +
-                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
+                      *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
                 *((u8 *)func_00155280() + 0x4B) =
                     *(*(u8 **)(state + 0x1B434) +
-                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
+                      *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 2;
-                v0 = *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 0);
+                v0 = *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 0);
                 func_001582f0(*(s32 *)(state + 4), v0, 0);
                 kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
@@ -3520,12 +3520,12 @@ s32 func_0018e810(u8 *arg0)
             case 1:
                 *((u8 *)func_00155280() + 0x4A) =
                     *(*(u8 **)(state + 0x1B434) +
-                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
+                      *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
                 *((u8 *)func_00155280() + 0x4B) =
                     *(*(u8 **)(state + 0x1B434) +
-                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
+                      *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 0;
-                v0 = *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 1);
+                v0 = *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 1);
                 func_001582f0(*(s32 *)(state + 4), v0, 0);
                 kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
@@ -3533,12 +3533,12 @@ s32 func_0018e810(u8 *arg0)
             case 2:
                 *((u8 *)func_00155280() + 0x4A) =
                     *(*(u8 **)(state + 0x1B434) +
-                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
+                      *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
                 *((u8 *)func_00155280() + 0x4B) =
                     *(*(u8 **)(state + 0x1B434) +
-                      *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
+                      *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 1;
-                v0 = *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 2);
+                v0 = *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 2);
                 func_001582f0(*(s32 *)(state + 4), v0, 0);
                 kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
@@ -3631,33 +3631,33 @@ s32 func_0018efe0(u8 *arg0)
         *(KwlnTask **)(temp_16 + 4) = func_00470250((KwlnTask *)arg0, 0xDC, 0xA0);
         func_00470810(*(KwlnTask **)(temp_16 + 4), D_005F5830, 0xB);
         temp_17 = iGpffffb268 != 0;
-        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 5) = temp_17 ^ 1;
-        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 0) = iGpffffb3a0;
-        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 1) = iGpffffb39c;
-        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 2) = iGpffffb398;
-        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 3) = iGpffffb394;
-        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 4) = iGpffffb390;
-        *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 6) = iGpffffb250;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 5) = temp_17 ^ 1;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 0) = iGpffffb3a0;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 1) = iGpffffb39c;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 2) = iGpffffb398;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 3) = iGpffffb394;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 4) = iGpffffb390;
+        *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 6) = iGpffffb250;
         func_00470430(*(u8 **)(temp_16 + 4), 0x14);
         func_004703c0(*(u8 **)(temp_16 + 4), 4);
         func_004703d0(*(u8 **)(temp_16 + 4), 1);
         *(s32 *)temp_16 += 1;
         break;
     case 1:
-        iGpffffb268 = *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 5) != 1;
-        iGpffffb250 = *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 6);
+        iGpffffb268 = *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 5) != 1;
+        iGpffffb250 = *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 6);
         if (D_008C024E[0] & 0x40) {
-            if (*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 8) == -1) {
+            if (*sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 8) == -1) {
                 *(u16 *)(packet + 0) =
-                    (u16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 0);
+                    (u16)*sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 0);
                 *(u16 *)(packet + 2) =
-                    (u16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 1);
+                    (u16)*sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 1);
                 *(u16 *)(packet + 4) =
-                    (u16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 2);
+                    (u16)*sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 2);
                 *(s16 *)(packet + 6) =
-                    (s16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 3);
+                    (s16)*sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 3);
                 *(s16 *)(packet + 8) =
-                    (s16)*func_00470bd0(*(KwlnTask **)(temp_16 + 4), 4);
+                    (s16)*sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 4);
                 iGpffffb3a0 = *(u16 *)(packet + 0);
                 iGpffffb39c = *(u16 *)(packet + 2);
                 iGpffffb398 = *(u16 *)(packet + 4);
@@ -3668,11 +3668,11 @@ s32 func_0018efe0(u8 *arg0)
                 *(s32 *)temp_16 = 2;
             } else {
                 *(s32 *)(packet + 0xC) =
-                    *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 8);
+                    *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 8);
                 *(s32 *)(packet + 0x10) =
-                    *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 9);
+                    *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 9);
                 *(s32 *)(packet + 0x14) =
-                    *func_00470bd0(*(KwlnTask **)(temp_16 + 4), 0xA);
+                    *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 0xA);
                 func_001029a0(0xA, packet, 0x1C, 0);
                 func_004703d0(*(u8 **)(temp_16 + 4), 0);
                 *(s32 *)temp_16 = 2;
@@ -3823,8 +3823,8 @@ s32 func_0018f950(u8 *arg0)
         break;
     case 2:
         if (D_008C0240[0].trigger & 0x40) {
-            *(s16 *)(work + 0x28) = *func_00470bd0(*(KwlnTask **)(work + 0x1CD10), 0);
-            *(s16 *)(work + 0x2A) = *func_00470bd0(*(KwlnTask **)(work + 0x1CD10), 1);
+            *(s16 *)(work + 0x28) = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1CD10), 0);
+            *(s16 *)(work + 0x2A) = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1CD10), 1);
             kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x1CD10));
             *(u8 **)(work + 0x1CD14) = func_0015c640(*(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
             *(s32 *)(work + 0x1CD10) = func_00470280(arg0, 0x22E, 0x28, 2);

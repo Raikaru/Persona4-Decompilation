@@ -86,7 +86,7 @@ f32 K_View_GetFov(RwCamera* camera)
 
 
 // FUN_00470A90
-void func_00470a90(KwlnTask* task, u32 id, KWindowEntryCallback callback)
+void sdkLboxSetCallback(KwlnTask* task, u32 id, KWindowEntryCallback callback)
 {
     KWindowEntry* entry;
 
@@ -100,7 +100,7 @@ void func_00470a90(KwlnTask* task, u32 id, KWindowEntryCallback callback)
 
 
 // FUN_00470AD0
-void func_00470ad0(KwlnTask* task, u32 id, const char* text)
+void sdkLboxSetText(KwlnTask* task, u32 id, const char* text)
 {
     KWindowEntry* entry;
 
@@ -116,7 +116,7 @@ void func_00470ad0(KwlnTask* task, u32 id, const char* text)
     }
 }
 // FUN_00470B40
-void func_00470b40(KwlnTask* task, u32 id, s32 value, s32 minValue,
+void sdkLboxSetIntRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
                    s32 maxValue, s32 flags)
 {
     KWindowEntry* entry;
@@ -133,7 +133,7 @@ void func_00470b40(KwlnTask* task, u32 id, s32 value, s32 minValue,
     }
 }
 // FUN_00470BD0
-s32* func_00470bd0(KwlnTask* task, u32 id)
+s32* sdkLboxGetValuePtr(KwlnTask* task, u32 id)
 {
     KWindowEntry* entry;
 
