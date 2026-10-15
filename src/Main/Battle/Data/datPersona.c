@@ -5,7 +5,7 @@
 
 extern void func_0046d730(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
-extern s32 func_0023a620(s32 arg0, u16 arg1);
+extern s32 datCalcSkillSlotValue(s32 arg0, u16 arg1);
 extern char D_005E4318[];
 extern s16 D_00797F88[];
 extern s16 D_00797F8C[];
@@ -265,7 +265,7 @@ s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2)
 #pragma pop
 
 
-// Intent: passes skill slot arg1 of persona record arg0 to func_0023a620; fatal on bad id or slot.
+// Intent: passes skill slot arg1 of persona record arg0 to datCalcSkillSlotValue; fatal on bad id or slot.
 // FUN_001097C0
 void datPersonaRunSkillSlot(u8 *arg0, s32 arg1)
 {
@@ -278,10 +278,10 @@ void datPersonaRunSkillSlot(u8 *arg0, s32 arg1)
         func_0046d730(D_005E4318, 0x1B8);
     }
     skillTable = iGpffffb3d8 + (u16)*(u16 *)(arg0 + 2) * 0x20;
-    func_0023a620(0, *(u16 *)(skillTable + (u16)arg1 * 2));
+    datCalcSkillSlotValue(0, *(u16 *)(skillTable + (u16)arg1 * 2));
 }
 
-// Intent: skill-slot value of persona id arg0 at slot arg1, read through func_0023a620; fatal when out of range.
+// Intent: skill-slot value of persona id arg0 at slot arg1, read through datCalcSkillSlotValue; fatal when out of range.
 // FUN_00109870
 u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1)
 {
@@ -294,7 +294,7 @@ u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1)
     if ((arg1 & 0xFFFF) >= 0x10) {
         func_0046d730(D_005E4318, 0x1B8);
     }
-    return (u32)func_0023a620(0, *(u16 *)(iGpffffb3d8 + (u16)*(u16 *)(persona + 2) * 0x20 + (u16)arg1 * 2));
+    return (u32)datCalcSkillSlotValue(0, *(u16 *)(iGpffffb3d8 + (u16)*(u16 *)(persona + 2) * 0x20 + (u16)arg1 * 2));
 }
 
 // Intent: battle stat (index 0..4, see DatPersonaStat in datPersona_internal.h) at +0x1C of a persona record.
