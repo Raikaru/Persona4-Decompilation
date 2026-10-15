@@ -85,7 +85,7 @@ extern s32 func_0018ced0(void);
 extern void func_0018c7e0(void);
 extern s32 func_00159f70(s32 arg0);
 
-extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
+extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
 extern u8 D_007EFA00[];
 extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
