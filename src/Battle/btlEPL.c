@@ -905,7 +905,7 @@ void func_001febd0(void *arg0) {
 
 // FUN_001FEC00
 /* The blend keeps the third colour term unscaled until the final add, as in
-   func_001b7e70 (btlMain.c); retail fuses only that last component. */
+   btlMainUpdateColorWork (btlMain.c); retail fuses only that last component. */
 void func_001fec00(u8 *arg0)
 {
     u32 count;
