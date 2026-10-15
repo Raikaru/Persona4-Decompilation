@@ -90,7 +90,7 @@ extern u16 D_008C024E[];
 extern void sprintf(void *arg0, const char *arg1, ...);
 extern s32 func_00455f70(void *arg0, s32 *arg1);
 extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
-extern s32 func_004782b0(void *arg0);
+extern s32 mdlPrepareModel(void *arg0);
 extern u8 D_005E5560[];
 extern u8 D_005E5570[];
 extern void func_00111bc0(void);
@@ -189,7 +189,7 @@ extern void func_0012b660(u8 *task);
 extern void func_0025f230(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
 extern void func_004598e0(s32 arg0);
-extern void func_004787e0(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s16 func_00353b50(void *arg0);
 extern u8 *sdkSpriteNewNode(u32 sprites, u32 index);
@@ -1752,7 +1752,7 @@ loop_18:
         var_17 = 0;
     }
     if ((*(u8 **)temp_4 != NULL) &&
-        (func_004782b0(*(u8 **)temp_4) == 0)) {
+        (mdlPrepareModel(*(u8 **)temp_4) == 0)) {
         var_17 = 0;
         goto done;
     }
@@ -1818,7 +1818,7 @@ void func_00124970(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
     } else {
         temp_2 = (u8 *)code1_0012_stride(arg0 * 4, (s32)arg3);
         var_17 = temp_2 + 0x44;
-        if (func_004782b0(*(u8 **)var_17) != 0) {
+        if (mdlPrepareModel(*(u8 **)var_17) != 0) {
             var_17 = *(u8 **)var_17;
         } else {
             var_17 = NULL;
@@ -1830,7 +1830,7 @@ void func_00124970(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
         } else {
             temp_2_2 = (u8 *)code1_0012_stride(arg0 * 4, (s32)arg3);
             var_16 = temp_2_2 + 0x64;
-            if (func_004782b0(*(u8 **)var_16) != 0) {
+            if (mdlPrepareModel(*(u8 **)var_16) != 0) {
                 var_16 = *(u8 **)var_16;
             } else {
                 var_16 = NULL;
@@ -1928,7 +1928,7 @@ void func_00124bb0(s32 arg0,
     } else {
         temp_2 = (u8 *)code1_0012_stride(arg0 * 4, (s32)arg4);
         var_16 = temp_2 + 0x44;
-        if (func_004782b0(*(u8 **)var_16) != 0) {
+        if (mdlPrepareModel(*(u8 **)var_16) != 0) {
             var_16 = *(u8 **)var_16;
         } else {
             var_16 = NULL;
@@ -2536,9 +2536,9 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern void func_0045c870(u8 *colors, s32 enabled);
     extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
     extern s32 func_0046d730();
-    extern s32 func_004782b0();
+    extern s32 mdlPrepareModel();
     extern void func_00478e70(u8 *);
-    extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);
+    extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
     extern u8 D_005E5230[];
@@ -3025,7 +3025,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                     var_4 = NULL;
                                 } else {
                                     temp_2_3 = (u32 *)(&temp_20[temp_3_2]);
-                                    if (func_004782b0(M2C_FIELD(temp_2_3, u8 **, 0x44)) != 0) {
+                                    if (mdlPrepareModel(M2C_FIELD(temp_2_3, u8 **, 0x44)) != 0) {
                                         var_4 = (u8 *)(M2C_FIELD(temp_2_3, u8 **, 0x44));
                                     } else {
                                         var_4 = NULL;
@@ -3040,7 +3040,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                     var_4_2 = NULL;
                                 } else {
                                     temp_2_4 = (u32 *)(&temp_20[temp_3_3]);
-                                    if (func_004782b0(M2C_FIELD(temp_2_4, u8 **, 0x44)) != 0) {
+                                    if (mdlPrepareModel(M2C_FIELD(temp_2_4, u8 **, 0x44)) != 0) {
                                         var_4_2 = (u8 *)(M2C_FIELD(temp_2_4, u8 **, 0x44));
                                     } else {
                                         var_4_2 = NULL;
@@ -3115,7 +3115,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                             var_4_7 = NULL;
                         } else {
                             temp_2_11 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)temp_20);
-                            if (func_004782b0(M2C_FIELD(temp_2_11, u8 **, 0x44)) != 0) {
+                            if (mdlPrepareModel(M2C_FIELD(temp_2_11, u8 **, 0x44)) != 0) {
                                 var_4_7 = (u8 *)(M2C_FIELD(temp_2_11, u8 **, 0x44));
                             } else {
                                 var_4_7 = NULL;
@@ -3124,18 +3124,18 @@ void func_001265a0(void *unusedDrawData, void *task) {
                         if (var_4_7 != NULL) {
                             mdlDispatchAnimIfPresent(var_4_7, 0, 2, 0, 1);
                         }
-                        if (func_004782b0(taskView->model0) != 0) {
+                        if (mdlPrepareModel(taskView->model0) != 0) {
                             var_4_8 = (u8 *)(taskView->model0);
                         } else {
                             var_4_8 = NULL;
                         }
-                        func_0047a0e0(var_4_8, 0, fGpffff8110);
+                        mdlSetLayerWeight(var_4_8, 0, fGpffff8110);
                     } else if (temp_17 == 0x3A) {
                         if (*(s32 *)D_005E5230 >= 0xF) {
                             var_4_9 = NULL;
                         } else {
                             temp_2_12 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)temp_20);
-                            if (func_004782b0(M2C_FIELD(temp_2_12, u8 **, 0x44)) != 0) {
+                            if (mdlPrepareModel(M2C_FIELD(temp_2_12, u8 **, 0x44)) != 0) {
                                 var_4_9 = (u8 *)(M2C_FIELD(temp_2_12, u8 **, 0x44));
                             } else {
                                 var_4_9 = NULL;
@@ -3632,7 +3632,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 var_4_16 = NULL;
             } else {
                 temp_2_23 = (u32 *)titleOffsetPtr_001265a0((M2C_BITWISE(s32, temp_f0_7)) * 4, (u8 *)temp_20);
-                if (func_004782b0(M2C_FIELD(temp_2_23, u8 **, 0x44)) != 0) {
+                if (mdlPrepareModel(M2C_FIELD(temp_2_23, u8 **, 0x44)) != 0) {
                     var_4_16 = (u8 *)(M2C_FIELD(temp_2_23, u8 **, 0x44));
                 } else {
                     var_4_16 = NULL;
@@ -3654,7 +3654,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             var_16_2 = NULL;
         } else {
             temp_2_25 = (u32 *)titleOffsetPtr_001265a0((M2C_BITWISE(s32, temp_f0_9)) * 4, (u8 *)temp_20);
-            if (func_004782b0(M2C_FIELD(temp_2_25, u8 **, 0x44)) != 0) {
+            if (mdlPrepareModel(M2C_FIELD(temp_2_25, u8 **, 0x44)) != 0) {
                 var_16_2 = (u8 *)(M2C_FIELD(temp_2_25, u8 **, 0x44));
             } else {
                 var_16_2 = NULL;
@@ -3684,7 +3684,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             if (temp_17_2 >= 0x13U) {
                 func_0046d730(D_005E5548, 0xEB);
             }
-            func_0047a0e0(var_16_2, 0, *(f32 *)(D_005E5254 + temp_17_2 * 0x28));
+            mdlSetLayerWeight(var_16_2, 0, *(f32 *)(D_005E5254 + temp_17_2 * 0x28));
             /* Replace writes the matrix fields and flags before concatenation.
              * Provider padding remains unspecified; do not synthesize values. */
             RwMatrixRotate(&titleMatrix, &titleYawAxis, temp_f23, 0);
@@ -3894,7 +3894,7 @@ s32 func_0012aa70(u8 *task)
     extern u8 hsndQueueSound(s16 id, s16 unused);
     extern void func_0045aac0(s16 task, s32 arg1, s32 arg2);
 
-    extern void func_0047a0e0(u8 *model, s32 layer, f32 speed);
+    extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
     /* The persistent copy destination is a complete 0x5D0-byte buffer. */
     extern struct MenuSavedState { u8 bytes[0x5D0]; } iGpffff9c90 __attribute__((section(".sdata")));
     extern void func_001265a0(void *unusedDrawData, void *task);
@@ -3979,12 +3979,12 @@ s32 func_0012aa70(u8 *task)
         K_View_SetFov(func_00457120(), 50.0f);
         func_003e81c0(func_00457120(), 25600.0f);
         func_003e8180(func_00457120(), 10.0f);
-        if (func_004782b0(*(u8 **)(work + 0x44)) != 0) {
+        if (mdlPrepareModel(*(u8 **)(work + 0x44)) != 0) {
             activeModel = *(u8 **)(work + 0x44);
         } else {
             activeModel = 0;
         }
-        func_0047a0e0(activeModel, 0, fGpffff813c);
+        mdlSetLayerWeight(activeModel, 0, fGpffff813c);
         updateIndex = 1;
         while (updateIndex < 8) {
             animation = D_005E5230 + updateIndex * 0x28;
@@ -3992,7 +3992,7 @@ s32 func_0012aa70(u8 *task)
             if (modelIndex >= 0xF) {
                 activeModel = 0;
             } else {
-                result = func_004782b0(*(u8 **)(work + modelIndex * 4 + 0x44));
+                result = mdlPrepareModel(*(u8 **)(work + modelIndex * 4 + 0x44));
                 if (result != 0) {
                     activeModel = *(u8 **)(work + modelIndex * 4 + 0x44);
                 } else {
@@ -4003,7 +4003,7 @@ s32 func_0012aa70(u8 *task)
                 if ((u32)updateIndex >= 0x13) {
                     func_0046d730(D_005E5548, 0xEB);
                 }
-                func_0047a0e0(activeModel, 0, *(f32 *)(animation + 0x24));
+                mdlSetLayerWeight(activeModel, 0, *(f32 *)(animation + 0x24));
             }
             updateIndex++;
         }
@@ -4015,7 +4015,7 @@ s32 func_0012aa70(u8 *task)
             if (modelIndex >= 0xF) {
                 resetModel = 0;
             } else {
-                result = func_004782b0(*(u8 **)((u8 *)(modelIndex * 4) + (u32)work + 0x44));
+                result = mdlPrepareModel(*(u8 **)((u8 *)(modelIndex * 4) + (u32)work + 0x44));
                 if (result != 0) {
                     resetModel = *(u8 **)((u8 *)(modelIndex * 4) + (u32)work + 0x44);
                 } else {
@@ -4032,7 +4032,7 @@ s32 func_0012aa70(u8 *task)
                 if (modelIndex >= 0xF) {
                     resetModel = 0;
                 } else {
-                    result = func_004782b0(*(u8 **)(work + modelIndex * 4 + 0x44));
+                    result = mdlPrepareModel(*(u8 **)(work + modelIndex * 4 + 0x44));
                     if (result != 0) {
                         resetModel = *(u8 **)(work + modelIndex * 4 + 0x44);
                     } else {
@@ -4193,7 +4193,7 @@ error:
 loop_10_body:
     temp_4 = *(s32 *)(temp_2 + var_17 * 4 + 0x44);
     if (temp_4 != 0) {
-        func_004787e0(temp_4);
+        mdlDestroyModelObject(temp_4);
     }
     var_17 += 1;
 loop_10_test:

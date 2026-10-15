@@ -82,7 +82,7 @@ s32 func_0018bea0();
 void func_0018bc20(s32);
 void func_0018bed0(s32, s32);
 void func_0018bdd0(s32);
-void func_0047a0e0(u8 *, s32, f32);
+void mdlSetLayerWeight(u8 *, s32, f32);
 void func_001560a0(u8 *, u16, u16, u16);
 
 extern u32 D_005F17D0[];
@@ -647,7 +647,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
                     *(u8 **)(h + 0x1C) = *(u8 **)(node + 0x138);
                 }
                 if (node != NULL) {
-                    func_0047a0e0(*(u8 **)(node + 0x144), 0, 1.0f);
+                    mdlSetLayerWeight(*(u8 **)(node + 0x144), 0, 1.0f);
                     mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(h + 0x1C) + 0x144), 0, FLD_EVT_ENTRY(h)->unk1A, 0, 0);
                 }
             } else {
@@ -865,7 +865,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     u8 *func_001601e0(s32);
     s32 func_001602a0(u8 *, s32);
     void *mdlCreateModelObjectFromData(u32, u16, void *, u32);
-    s32 func_004782b0(u8 *);
+    s32 mdlPrepareModel(u8 *);
     void func_00457140(u8, u8, u8, u8);
     s8 *func_00457130(void);
     s32 func_00457120(void);
@@ -1364,7 +1364,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     work->environmentTask = 0;
                     if (FldUnit_AllSlotAnimsDone() != 0 && func_00144f60() != 0) {
                         s32 t = work->modelFile;
-                        if (t == 0 || func_004782b0((u8 *)(t)) != 0) {
+                        if (t == 0 || mdlPrepareModel((u8 *)(t)) != 0) {
                             FldUnit_RequestUnitResource();
                             work->state = work->state + 1;
                         }

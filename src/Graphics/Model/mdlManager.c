@@ -183,9 +183,9 @@ extern void func_0044ea90(const void* file, s32 line);
 extern void* memset(void* destination, int value, size_t count);
 extern void* DAT_008873e8[];
 extern s64 DAT_00723cd8;
-extern void func_004787e0(u8* a0);
+extern void mdlDestroyModelObject(u8* a0);
 extern void func_0048a000(void);
-extern s32 func_004782b0(u8* a);
+extern s32 mdlPrepareModel(u8* a);
 extern void* func_003bfae0(void);
 extern int RwCameraFrustumTestSphere(void* a, void* b);
 extern void* D_008872E0[];
@@ -4248,7 +4248,7 @@ void func_00477ca0(u8* arg0)
         mdlEffectListRefreshHandles((u32*)temp_4_2);
     }
 }
-/* Creates a model object with mdlAllocModelObject, sets flag 0x4000 when param_4 bit 0 is set, applies the data buffer param_3 through func_0047aff0, and runs the readiness step func_004782b0. */
+/* Creates a model object with mdlAllocModelObject, sets flag 0x4000 when param_4 bit 0 is set, applies the data buffer param_3 through func_0047aff0, and runs the readiness step mdlPrepareModel. */
 // FUN_00477E80
 void* mdlCreateModelObjectFromData(u32 type, u16 id, void* param_3, u32 param_4)
 {
@@ -4258,7 +4258,7 @@ void* mdlCreateModelObjectFromData(u32 type, u16 id, void* param_3, u32 param_4)
     }
     func_0047af60(obj);
     func_0047aff0(obj, param_3);
-    func_004782b0(obj);
+    mdlPrepareModel(obj);
     return obj;
 }
 
@@ -4280,7 +4280,7 @@ void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u
         data.size = size;
         func_0047afd0(obj, &data);
     }
-    func_004782b0(obj);
+    mdlPrepareModel(obj);
     return obj;
 }
 
@@ -4321,7 +4321,7 @@ void* func_00477fb0(u32 arg0, u16 arg1, void* arg2, u32 arg3)
         pair0.a = retA;
         pair0.b = retVal;
         func_0047afd0(arg2, &pair0);
-        func_004782b0(arg2);
+        mdlPrepareModel(arg2);
         return arg2;
     }
     retA = (u32)func_00455ea0(arg2, 0, (s32*)&stack9c);
@@ -4334,7 +4334,7 @@ void* func_00477fb0(u32 arg0, u16 arg1, void* arg2, u32 arg3)
     pair1.a = retA;
     pair1.b = retVal;
     func_0047afd0(obj, &pair1);
-    func_004782b0(obj);
+    mdlPrepareModel(obj);
     retB = (u32)func_00455ea0(arg2, 1, (s32*)&stack9c);
     func_0047e450((void**)((u8*)obj + 0x2D0), arg0, arg1, (s32)retB, stack9c);
     result = obj;
@@ -4368,7 +4368,7 @@ void* mdlFindOrCreateModelObject(u32 param_1, u16 param_2, u32 param_3)
         }
         func_0047af60(obj);
         func_0047aff0(obj, buf);
-        func_004782b0(obj);
+        mdlPrepareModel(obj);
         if (func_0047d0e0(param_1, param_2) != 0) {
             func_0047b050(obj, 1);
         }
@@ -4380,15 +4380,16 @@ void* mdlFindOrCreateModelObject(u32 param_1, u16 param_2, u32 param_3)
             *(u32*)((u8*)obj + 0xD8) |= 0x4000;
         }
         *(u32*)((u8*)obj + 0xD8) |= 0x2000;
-        func_004782b0(obj);
+        mdlPrepareModel(obj);
         result = obj;
     }
 done:
     return result;
 }
 
+/* Returns 1 once the model is ready (flag 0x1000 set). Until then it advances the load and clone steps and returns 0 while a step is still pending. */
 // FUN_004782B0
-s32 func_004782b0(u8* param_1)
+s32 mdlPrepareModel(u8* param_1)
 {
     s32 f;
     void* node;
@@ -4600,8 +4601,9 @@ u32* func_00478750(u8* param_1)
     return obj;
 }
 
+/* Releases a model object: unlinks it from its registry bucket, destroys its effects and animation tables, then frees it through the free callback. */
 // FUN_004787E0
-void func_004787e0(u8* param_1)
+void mdlDestroyModelObject(u8* param_1)
 {
     u32 i;
     void* t;
@@ -4676,7 +4678,7 @@ extern void func_0047dd40(u8* a, void* model);
 extern void mdlEffectListSetUniformScale(s32* a, f32* b);
 extern void func_0047d540(u8** a, u8* b);
 extern void func_0047ed60(void* a);
-extern void func_0047a0e0(u8* a, s32 b, f32 c);
+extern void mdlSetLayerWeight(u8* a, s32 b, f32 c);
 extern void func_0047aa10(void* a, RwV3d* b);
 extern int mdlHasActiveMode(void* a);
 /* Measured: 1080B/window 1088B, MATCH with two zero-padding words.
@@ -4789,7 +4791,7 @@ void func_00478a30(u8* mdl, s32 tick)
                     }
                     {
                         void** updateSlot = (void**)(mdl + child * 0xC + 0x290);
-                        func_0047a0e0(*updateSlot, 0, *(f32*)(mdl + 0xF4));
+                        mdlSetLayerWeight(*updateSlot, 0, *(f32*)(mdl + 0xF4));
                         func_00478a30(*updateSlot, tick);
                     }
                 }
@@ -5389,8 +5391,9 @@ f32 func_0047a080(s32 arg0, s32 arg1) {
     return v / iGpffff8040;
 }
 
+/* Sets a layer's weight at +0xF4; layer 0 is mirrored to +0x244. */
 // FUN_0047A0E0
-void func_0047a0e0(u8 *arg0, s32 arg1, f32 fparg0) {
+void mdlSetLayerWeight(u8 *arg0, s32 arg1, f32 fparg0) {
     s32 i = arg1 & 0xFFFF;
     s32 off = i * 0xA4;
 
@@ -5871,7 +5874,7 @@ void func_0047aaa0(void* param_1, u16 param_2, u32 param_3, u16 param_4, void* p
     }
     func_0047af60(obj);
     func_0047aff0(obj, param_5);
-    func_004782b0(obj);
+    mdlPrepareModel(obj);
     off = (s32)(param_2 & 0xFFFF) * 0xC;
     slot = (void*)(off + (s32)param_1);
     *(void**)((u8*)slot + 0x290) = obj;
@@ -5898,7 +5901,7 @@ void func_0047ab90(void* param_1, u16 param_2, u32 param_3, u16 param_4, s32 par
         tmp[1] = param_6;
         func_0047afd0(obj, tmp);
     }
-    func_004782b0(obj);
+    mdlPrepareModel(obj);
     off = (s32)(param_2 & 0xFFFF) * 0xC;
     slot = (void*)(off + (s32)param_1);
     *(void**)((u8*)slot + 0x290) = obj;
@@ -5930,7 +5933,7 @@ void func_0047ac90(void* param_1, u16 param_2, u32 param_3, u16 param_4, u32 par
             *(u32*)((u8*)obj + 0xD8) |= 0x4000;
         }
         *(u32*)((u8*)obj + 0xD8) |= 0x2000;
-        func_004782b0(obj);
+        mdlPrepareModel(obj);
         result = obj;
     }
 done:
@@ -5970,7 +5973,7 @@ void func_0047ae10(u8* param_1, u16 param_2)
     pWpnMdl = (int*)(iVar1 + 0x290);
     if (*pWpnMdl != 0)
     {
-        func_004787e0((u8*)*pWpnMdl);
+        mdlDestroyModelObject((u8*)*pWpnMdl);
         *pWpnMdl = 0;
         iVar2 = iVar2 + (int)(u8*)param_1;
         *(u8*)(iVar2 + 0x28C) = *(u8*)(iVar2 + 0x28C) & 0xfe;
@@ -5988,7 +5991,7 @@ s32 func_0047ae90(u8 *arg0, u16 arg1)
     if (object == NULL) {
         return 1;
     }
-    return func_004782b0(object);
+    return mdlPrepareModel(object);
 }
 
 /* Ported from P3FES mdlManager.c func_003197c0 (verified MATCH there).

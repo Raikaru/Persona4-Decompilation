@@ -26,7 +26,7 @@ extern void func_0048a150(void *arg0, void *arg1);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern void func_00478e70(void *arg0);
 extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
 extern void RwMatrixScale(void *arg0, f32 *arg1, s32 arg2);
@@ -337,7 +337,7 @@ void func_001fc630(u8 *arg0)
         vec[1] = ((f32 *)arg0)[1];
         vec[2] = ((f32 *)arg0)[2];
         func_0047a180((RwMatrix *)*model, (const RwV3d *)vec, 2);
-        func_0047a0e0(*model, 0, param->rotate);
+        mdlSetLayerWeight(*model, 0, param->rotate);
         func_00478e70(*model);
         if (func_0047a6d0(*model, 0, &pos) != 0) {
             hasPos = 1;
@@ -1127,7 +1127,7 @@ void func_001ff490(u8 *arg0)
         vec[1] = ((f32 *)arg0)[1];
         vec[2] = ((f32 *)arg0)[2];
         func_0047a180((RwMatrix *)target->model, (const RwV3d *)vec, 2);
-        func_0047a0e0(target->model, 0, param->rotate);
+        mdlSetLayerWeight(target->model, 0, param->rotate);
         func_00478e70(target->model);
         if (func_0047a510(target->model, 0, &matrix) != 0) {
             hasMatrix = 1;
@@ -1330,7 +1330,7 @@ typedef struct BtlEplScaleParam
 {
     BtlEplSelect select; // 0x00, read by btlEplUnitIsSelected
     u32 total;           // 0x04, compared with the effect count
-    f32 unk08;           // 0x08, passed to func_0047a0e0
+    f32 unk08;           // 0x08, passed to mdlSetLayerWeight
     f32 scale;           // 0x0C, multiplies the arg0 + 0x20 scale
     s32 unk10;           // 0x10, nonzero enables the final unit pass
 } BtlEplScaleParam;
@@ -1387,7 +1387,7 @@ void btlEplApplyScaleEffect(u8 *arg0) {
             sp130[1] = *(f32 *)(arg0 + 4);
             sp130[2] = *(f32 *)(arg0 + 8);
             func_0047a180((RwMatrix *)*target, (const RwV3d *)sp130, 2);
-            func_0047a0e0(*target, 0, param->unk08);
+            mdlSetLayerWeight(*target, 0, param->unk08);
             func_00478e70(*target);
             if (func_0047a510(*target, 0, spE0) != 0) {
                 for (i = 0; i < 4; i++) {

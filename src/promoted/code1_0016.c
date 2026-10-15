@@ -23,7 +23,7 @@ extern u8 D_007F16F0[];
 extern u8 D_007E4320[];
 extern u8 D_007F16F2[];
 extern u8 D_007F16F4[];
-extern void func_004787e0();
+extern void mdlDestroyModelObject();
 extern u8 D_007E8C00[];
 extern void strcpy(void *arg0, const char *arg1);
 extern s32 sprintf(char *buf, const char *fmt, ...);
@@ -749,7 +749,7 @@ loop_test:
         }
         temp_18 = saved_arg0 * 8;
         temp_17 = (s32 *)(D_007F16F4 + temp_18);
-        func_004787e0(*temp_17);
+        mdlDestroyModelObject(*temp_17);
         *temp_17 = 0;
         *(s16 *)(temp_16 + 0) = 0;
         *(s16 *)(D_007F16F2 + temp_18) = 0;
@@ -1044,7 +1044,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
                 for (j = 0; j < 5; j++) {
                     *(u8 *)(*(u8 **)(entry + 4) + j * 0xC + 0x28C) |= 1;
                 }
-                func_004787e0(*(u8 **)(D_007F16F4 + slot * 8));
+                mdlDestroyModelObject(*(u8 **)(D_007F16F4 + slot * 8));
                 *(u8 **)(D_007F16F4 + slot * 8) = NULL;
             }
             *(u8 **)(D_007F16F4 + slot * 8) = obj;
@@ -1071,7 +1071,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
                 for (j = 0; j < 5; j++) {
                     *(u8 *)(*(u8 **)(entry + 4) + j * 0xC + 0x28C) |= 1;
                 }
-                func_004787e0(*(u8 **)(D_007F16F4 + slot * 8));
+                mdlDestroyModelObject(*(u8 **)(D_007F16F4 + slot * 8));
                 *(u8 **)(D_007F16F4 + slot * 8) = NULL;
             }
             *(u8 **)(D_007F16F4 + slot * 8) = obj;

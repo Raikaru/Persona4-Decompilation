@@ -100,7 +100,7 @@ extern u8 *func_003e4320(void *dst, void *src, void *mat);
 extern s32 RwMatrixUpdate(void *arg0);
 extern s32 K_FldFrame_IsPointInTriangle();
 extern s32 func_00479dd0(u32 arg0, u16 arg1, s16 arg2);
-extern void func_0047a0e0(u32 arg0, u16 arg1, f32 arg2);
+extern void mdlSetLayerWeight(u32 arg0, u16 arg1, f32 arg2);
 extern void func_00479e60(u32 arg0, u16 arg1, f32 arg2);
 extern void *mdlGetColor();
 extern void func_004b14f0(void *object, s32 *color);
@@ -630,7 +630,7 @@ u32 MT_Scene_SetResMotion(u16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32
         var_17 |= 1;
     }
     if (func_00479dd0(var_16, arg1, (s16)arg2) == 0) {
-        func_0047a0e0(var_16, arg1, fparg0);
+        mdlSetLayerWeight(var_16, arg1, fparg0);
         mdlDispatchAnimIfPresent((u8*)var_16, (u16)arg1, (s16)arg2, (u16)arg3, var_17 & 0xFFFF);
         if (arg5 > 0) {
             func_00479e60(var_16, arg1, (f32)arg5);

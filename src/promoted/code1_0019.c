@@ -206,9 +206,9 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     func_0029db50(arg0, arg1, arg2, arg3);
 }
 extern void MT_Scene_DestroyRes(u16 arg0);
-extern void func_004787e0(void *arg0);
+extern void mdlDestroyModelObject(void *arg0);
 extern void mdlSetColor(void *arg0, s32 *arg1);
-extern void func_0047a0e0(u8 *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerWeight(u8 *arg0, s32 arg1, f32 arg2);
 extern u8 iGpffffa4d8;
 extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001ee430(u8 *arg0);
@@ -512,15 +512,15 @@ void func_00198380(u8 *arg0) {
         temp_16 = (u8 *)(*(u8 **)(arg0 + 0xA00));
         temp_3 = (u16)(*(u16 *)(arg0 + 0x9D8));
         if (temp_3 & 2) {
-            func_0047a0e0(temp_16, 0, 0.0f);
+            mdlSetLayerWeight(temp_16, 0, 0.0f);
             return;
         }
         if ((temp_3 & 4) && ((s16)func_00199830(arg0) >= *(s16 *)(arg0 + 0x9E6)) && (*(s16 *)(arg0 + 0x9E8) > 0)) {
-            func_0047a0e0(temp_16, 0, 0.0f);
+            mdlSetLayerWeight(temp_16, 0, 0.0f);
             *(s16 *)(arg0 + 0x9E8) = (s16) (*(s16 *)(arg0 + 0x9E8) - 1);
             return;
         }
-        func_0047a0e0(*(u8 **)(arg0 + 0xA00), 0, *(f32 *)(arg0 + 0x9E0));
+        mdlSetLayerWeight(*(u8 **)(arg0 + 0xA00), 0, *(f32 *)(arg0 + 0x9E0));
         if (!(*(u16 *)(arg0 + 0x9D8) & 8)) {
             temp_3_2 = (u16)(*(u16 *)(arg0 + 0xC8));
             if ((temp_3_2 & 1) && !(temp_3_2 & 4)) {
@@ -575,7 +575,7 @@ void func_00198380(u8 *arg0) {
                 temp_19 = (s16)func_00198810(arg0);
                 temp_18 = (s16)func_00199830(arg0);
                 if (temp_18 >= (s16)func_001991c0(arg0, temp_19 & 0xFFFF, 1.0f)) {
-                    func_0047a0e0(temp_16, 0, 0.0f);
+                    mdlSetLayerWeight(temp_16, 0, 0.0f);
                 }
             }
             break;
@@ -671,7 +671,7 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4)
             v11 = 27;
         }
         mdlDispatchAnimIfPresent(*(u8 **)(arg0 + 0xA00), 0, (s32)(s16)v11, arg2, v12);
-        func_0047a0e0(*(u8 **)(arg0 + 0xA00), 0, *(f32 *)(arg0 + 0x9E0));
+        mdlSetLayerWeight(*(u8 **)(arg0 + 0xA00), 0, *(f32 *)(arg0 + 0x9E0));
         sp = (s16 *)func_0019eda0(arg0, a1m);
         *(f32 *)(arg0 + 0x80) = (f32)sp[0];
         *(f32 *)(arg0 + 0x84) = (f32)sp[1];

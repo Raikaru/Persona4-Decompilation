@@ -20,9 +20,9 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 func_00349340(u8 *task);
 extern void func_00349380(u8 *arg0);
 extern void func_00349440(u8 *arg0, u8 *arg1);
-extern void func_004787e0(u8 *arg0);
+extern void mdlDestroyModelObject(u8 *arg0);
 extern void func_00104a00(u8 *arg0);
-extern s32 func_004782b0(u8 *arg0);
+extern s32 mdlPrepareModel(u8 *arg0);
 extern void *func_00457120(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void *func_004571a0(void);
@@ -150,7 +150,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
         *(s64 *)&scale[0] = xy;
         *(f32 *)&scale[8] = z;
     }
-    if ((*(u8 **)(obj + 0xC) != NULL) && (func_004782b0(*(u8 **)(obj + 0xC)) != 0)) {
+    if ((*(u8 **)(obj + 0xC) != NULL) && (mdlPrepareModel(*(u8 **)(obj + 0xC)) != 0)) {
         {
             s64 xy = *(s64 *)&D_0064A658[0];
             f32 z = *(f32 *)&D_0064A660[0];
@@ -342,7 +342,7 @@ void func_00349b90(u8 *arg0, u8 *arg1)
     u8 *temp_4;
 
     temp_4 = *(u8 **)(arg1 + 0xC);
-    if ((temp_4 != NULL) && (func_004782b0(temp_4) != 0)) {
+    if ((temp_4 != NULL) && (mdlPrepareModel(temp_4) != 0)) {
         K_View_SetFov(func_00457120(), *(f32 *)(arg1 + 0x70));
         func_003c38b0(func_004571a0(), arg1 + 0x74);
         func_003c38b0(func_004571b0(), arg1 + 0x84);
@@ -383,7 +383,7 @@ s32 func_00349c50(u8 *arg0)
         *(s8 *)obj = 2;
         break;
     case 2:
-        if (func_004782b0(*(u8 **)(obj + 0xC)) != 0) {
+        if (mdlPrepareModel(*(u8 **)(obj + 0xC)) != 0) {
             if (*(s8 *)(obj + 0x28) == 1) {
                 mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, 0, 0, 1);
             } else {
@@ -527,7 +527,7 @@ s32 func_00349c50(u8 *arg0)
         {
             u8 *p1 = *(u8 **)(obj + 0xC);
             if (p1 != NULL) {
-                func_004787e0(p1);
+                mdlDestroyModelObject(p1);
                 *(u8 **)(obj + 0xC) = NULL;
             }
             {
@@ -572,7 +572,7 @@ void func_0034a480(u8 *arg0)
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_4 = *(u8 **)(temp_16 + 0xC);
     if (temp_4 != NULL) {
-        func_004787e0(temp_4);
+        mdlDestroyModelObject(temp_4);
     }
     temp_4_2 = *(u8 **)(temp_16 + 0x14);
     if (temp_4_2 != NULL) {

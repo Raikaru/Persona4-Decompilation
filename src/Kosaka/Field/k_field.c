@@ -99,7 +99,7 @@ extern s32 func_0014a160(void);
 extern s32 sprintf(char *, const void *, ...);
 extern void *mdlCreateModelObjectFromData(u32, u16, void *, u32);
 extern s32 FldUnit_InstallResources(void);
-extern s32 func_004782b0(s32);
+extern s32 mdlPrepareModel(s32);
 extern s32 func_001227f0(void);
 extern s32 func_002859e0(s32, s32, s32);
 extern void func_0016ea40(s32, u16);
@@ -223,7 +223,7 @@ s32 func_00155360(u8 *task)
         break;
     case 5:
         if (FldUnit_InstallResources() == 0) break;
-        if (work->model != 0 && func_004782b0(work->model) == 0) break;
+        if (work->model != 0 && mdlPrepareModel(work->model) == 0) break;
         if (work->eventReader != 0) {
             if (func_001227f0() != 0) {
                 resrcMngSetRenderSuppressed(0);

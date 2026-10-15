@@ -45,7 +45,7 @@ extern void func_004b1290(s32 a0, f32 f12, f32 f13, f32 f14);
 extern void func_003c9d40(void *arg0);
 extern void func_003c0700(void *arg0);
 extern void func_00462bf0(void *arg0);
-extern void func_004787e0(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
 extern void func_004b1150(s32 arg0);
 extern void func_003bbb60(void *arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -64,9 +64,9 @@ extern s32 func_003cbc60(s32 world, u8 *camera);
 extern RpWorld *func_003cbc10(RpWorld *world, RwCamera *camera);
 extern RpLight *func_003c38b0(RpLight *light, const RwRGBAReal *color);
 extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *transform, RwOpCombineType combine);
-extern s32 func_004782b0(u32 arg0);
+extern s32 mdlPrepareModel(u32 arg0);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
-extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern RwMatrix *func_003e9700(RwFrame *frame);
 extern void K_Clump_FreeTextureNameList(void *arg0);
 extern s32 func_004b1130(s32 a0);
@@ -1637,7 +1637,7 @@ s32 FldResource_TryInstallEntries(u8 *arg0)
             if (*(u32 *)(arg0 + i * 0x18 + 0x12C) == 0) {
                 func_0046d730((const char *)D_005EFC80, 0x6E4);
             }
-            if (func_004782b0(*(u32 *)(arg0 + i * 0x18 + 0x12C)) == 0) {
+            if (mdlPrepareModel(*(u32 *)(arg0 + i * 0x18 + 0x12C)) == 0) {
                 return 0;
             }
         } else if (*(u16 *)(arg0 + i * 0x18 + 0x120) == 1) {
@@ -1650,7 +1650,7 @@ s32 FldResource_TryInstallEntries(u8 *arg0)
         if (*(u16 *)(arg0 + j * 0x18 + 0x120) == 0 || *(u16 *)(arg0 + j * 0x18 + 0x120) == 2) {
             func_0047a1c0(*(void **)(arg0 + j * 0x18 + 0x12C), func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)), 0);
             if (*(u16 *)(arg0 + j * 0x18 + 0x122) & 1) {
-                func_0047a0e0(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0.0f);
+                mdlSetLayerWeight(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0.0f);
             } else {
                 mdlDispatchAnimIfPresent(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0, 8, 1);
             }
@@ -1726,7 +1726,7 @@ void FldResource_Destroy(u8 *arg0)
     for (var_16 = 0; var_16 < *(u32 *)(arg0 + 0x11C); var_16++) {
         temp_4_8 = arg0 + var_16 * 0x18;
         if (*(u16 *)(temp_4_8 + 0x120) == 0 || *(u16 *)(temp_4_8 + 0x120) == 2) {
-            func_004787e0(*(s32 *)(temp_4_8 + 0x12C));
+            mdlDestroyModelObject(*(s32 *)(temp_4_8 + 0x12C));
         } else if (*(u16 *)(temp_4_8 + 0x120) == 1) {
             func_004b1150(*(s32 *)(temp_4_8 + 0x130));
         }

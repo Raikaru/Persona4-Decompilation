@@ -76,7 +76,7 @@ extern void func_003e9390(s32 arg0);
 struct RpGeometry;
 typedef struct RpMaterial *(*MaterialCallback)(struct RpMaterial *, void *);
 extern struct RpGeometry *func_003c21e0(struct RpGeometry *geometry, MaterialCallback callback, void *data);
-extern void func_004787e0(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
 extern void func_003f3eb0(s32 arg0, s32 arg1);
 extern void func_00185370();
 extern s32 func_00183b80(u8 *task);
@@ -2074,7 +2074,7 @@ extern s64 func_00248d80(s64);
 extern float func_003e4180(float *);
 extern s32 func_00457120(void);
 extern void FldRc_SetClumpVector(void *, void *);
-extern s32 func_004782b0(unsigned char *);
+extern s32 mdlPrepareModel(unsigned char *);
 extern void func_00478e70(unsigned char *);
 extern s16 mdlGetLayerAnimation(s32, s32);
 extern s32 func_0047a6d0(void *, s32, void *);
@@ -2351,7 +2351,7 @@ s32 func_0018a200(u8 *param_1)
   }
   switch(*puVar1) {
   case 0:
-    temp_v4 = func_004782b0(*(unsigned char **)(puVar1[3] + 0x164));
+    temp_v4 = mdlPrepareModel(*(unsigned char **)(puVar1[3] + 0x164));
     if (temp_v4 != 0) {
       temp_v5 = puVar1[3];
       if (*(int *)(temp_v5 + 0x234) != 3) {
@@ -3444,7 +3444,7 @@ void func_0018e4d0(u8 *arg0)
     s32 value;
     value = *(s32 *)(*(u8 **)(arg0 + 0x38) + 4);
     if (value != 0) {
-        func_004787e0(value);
+        mdlDestroyModelObject(value);
     }
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }

@@ -152,7 +152,7 @@ s32 FldUnit_SetupSlot(s32 arg0);
 void FldUnit_ReleaseSlot(u8 *arg0);
 void FldUnit_UpdateSlot(s32 arg0);
 void FldUnit_SetSlotModel(u8 *arg0, s32 arg1);
-s32 func_004782b0(u8 *arg0);
+s32 mdlPrepareModel(u8 *arg0);
 s32 func_00440b68(const char *fmt, ...);
 u8 *func_00454a60(u8 *arg0, s32 arg1);
 s32 func_0014a200(void);
@@ -167,7 +167,7 @@ void func_004b13f0(u8 *arg0, u8 *arg1);
 void *mdlGetMatrix(void *arg0);
 void MT_Scene_DestroyRes(u16 arg0);
 void mdlClearAlphaBlend(s32 arg0);
-void func_004787e0(u8 *arg0);
+void mdlDestroyModelObject(u8 *arg0);
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
 s32 func_00162510(u16 arg0, u16 arg1);
 s32 func_0015a160(void);
@@ -209,7 +209,7 @@ s32 FldUnit_UpdateTable(void)
     for (i = 0; i < 4; i++) {
         v4 = ((s32 *)D_007EF9B0) + i * 468;
         if ((v4[18] != 0) && (v4[21] == 0)) {
-            if (func_004782b0((u8 *)(v4[20])) == 0) {
+            if (mdlPrepareModel((u8 *)(v4[20])) == 0) {
                 return 0;
             }
             for (j = 0; j < 5; j++) {
@@ -848,7 +848,7 @@ s32 FldUnit_SetupSlot(s32 arg0)
   {
     return 1;
   }
-  if (func_004782b0((u8 *)(*((s32 *) (temp_16 + 0x50)))) == 0)
+  if (mdlPrepareModel((u8 *)(*((s32 *) (temp_16 + 0x50)))) == 0)
   {
     return 0;
   }
@@ -1038,7 +1038,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
                 }
                 record = D_007F16F0 + i * 8;
                 modelSlot = (u8 **)(record + 12);
-                func_004787e0(*(u8 **)(record + 12));
+                mdlDestroyModelObject(*(u8 **)(record + 12));
                 *modelSlot = NULL;
                 *(u16 *)(record + 8) = 0;
                 *(u16 *)(record + 10) = 0;
@@ -1090,7 +1090,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
                     }
                     record = D_007F16F0 + i * 8;
                     modelSlot = (u8 **)(record + 12);
-                    func_004787e0(*(u8 **)(record + 12));
+                    mdlDestroyModelObject(*(u8 **)(record + 12));
                     *modelSlot = NULL;
                     *(u16 *)(record + 8) = 0;
                     *(u16 *)(record + 10) = 0;
@@ -1599,7 +1599,7 @@ s32 FldUnit_AllSlotAnimsDone(void)
     s32 i;
     for (i = 0; i < 0xF; i++) {
         u8 *p = D_007E8C00 + i * 0x750;
-        if (*(s32 *)(p + 0x48) != 0 && func_004782b0((u8 *)(*(s32 *)(p + 0x50))) == 0) {
+        if (*(s32 *)(p + 0x48) != 0 && mdlPrepareModel((u8 *)(*(s32 *)(p + 0x50))) == 0) {
             return 0;
         }
     }
@@ -1734,7 +1734,7 @@ void FldUnit_SetSlotModel(u8 *arg0, s32 arg1)
             for (i = 0; i < 5; i++) {
                 *(u8 *)(*(u32 *)(p + 0x50) + i * 12 + 0x28C) |= 1;
             }
-            func_004787e0(*(u8 **)(p + 0x50));
+            mdlDestroyModelObject(*(u8 **)(p + 0x50));
             *(u32 *)(p + 0x50) = 0;
         }
         if (*(u32 *)(p + 0x1B0) != 0) {
@@ -1899,7 +1899,7 @@ s32 FldUnit_InstallResources(void)
     for (resourceIndex = 0; resourceIndex < 2; resourceIndex++)
     {
         modelHandle = D_007643C8[resourceIndex];
-        if (modelHandle != 0 && func_004782b0((u8 *)(modelHandle)) == 0)
+        if (modelHandle != 0 && mdlPrepareModel((u8 *)(modelHandle)) == 0)
         {
             return 0;
         }
@@ -2906,7 +2906,7 @@ s32 FldUnit_UpdatePartyState(u8 *task)
                             }
                             entry = D_007F16F0 + index * 8;
                             unit = entry + 4;
-                            func_004787e0((u8 *)(*(s32 *)(entry + 4)));
+                            mdlDestroyModelObject((u8 *)(*(s32 *)(entry + 4)));
                             *(s32 *)unit = 0;
                             *(s16 *)(entry + 0) = 0;
                             *(s16 *)(entry + 2) = 0;
@@ -2941,7 +2941,7 @@ s32 FldUnit_UpdatePartyState(u8 *task)
             retainedField = entry + 0x18;
             unit = D_007EF9B0 + *(s32 *)(entry + 0x18) * 0x750;
             if (*(u16 *)(unit + 0x728) == 3) {
-                if (func_004782b0((u8 *)(*(s32 *)(unit + 0x50))) == 0) {
+                if (mdlPrepareModel((u8 *)(*(s32 *)(unit + 0x50))) == 0) {
                     return 0;
                 }
                 attached = 0;

@@ -16,7 +16,7 @@ extern u8 *D_0076449C;
 extern s32 func_001d6360(u8 *arg0);
 extern void func_001d42e0(s32 arg0);
 extern void func_00485b20(s32 arg0);
-extern void func_004787e0(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_001d6910(u8 *arg0);
 extern u32 iGpffffb3b8;
@@ -102,7 +102,7 @@ void func_001d6910(u8 *arg0)
         *(s32 *)(arg0 + 0x14) = 0;
     }
     if (*(s32 *)(arg0 + 0x18) != 0) {
-        func_004787e0(*(s32 *)(arg0 + 0x18));
+        mdlDestroyModelObject(*(s32 *)(arg0 + 0x18));
         *(s32 *)(arg0 + 0x18) = 0;
     }
     *(s32 *)(arg0 + 4) = -1;

@@ -46,7 +46,7 @@ static inline s32 viewAddReverse(s32 base, s32 offset)
     return offset + base;
 }
 
-extern s32 func_004782b0(u8 *arg0);
+extern s32 mdlPrepareModel(u8 *arg0);
 extern s32 func_0047e6f0(void **owner);
 extern s32 func_0047e0f0(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
 extern void func_0045abd0(s16 arg0, s32 arg1, s16 arg2);

@@ -332,7 +332,7 @@ void func_00219130(u8 *arg0) {
     extern f32 fGpffff8480;
     extern f32 fGpffff8484;
     u8 *func_00478750(u8 *);
-    void func_004787e0(u8 *);
+    void mdlDestroyModelObject(u8 *);
     void func_0047aa30(u8 *, void *);
     void func_00478ea0(u8 *, void (*)(u8 *), u8 *);
     void func_00478eb0(u8 *, void (*)(u8 *), u8 *);
@@ -392,7 +392,7 @@ void func_00219130(u8 *arg0) {
         *(u16 *)(arg0 + 2) = 3;
         break;
     case 2:
-        func_004787e0(*(u8 **)(arg0 + 0xC));
+        mdlDestroyModelObject(*(u8 **)(arg0 + 0xC));
         model = func_00478750(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 8) + 0x30) + 0xA00));
         *(u8 **)(arg0 + 0xC) = model;
         func_0047aa30(model, D_005DC9C8);
@@ -461,7 +461,7 @@ void func_00219130(u8 *arg0) {
         mdlQueueModelForDraw(D_00795020, *(u8 **)(arg0 + 0xC));
         break;
     case 4:
-        func_004787e0(*(u8 **)(arg0 + 0xC));
+        mdlDestroyModelObject(*(u8 **)(arg0 + 0xC));
         *(u8 **)(arg0 + 0xC) = NULL;
         *(u16 *)(arg0 + 0) &= ~1;
         *(u16 *)(arg0 + 2) = 0;

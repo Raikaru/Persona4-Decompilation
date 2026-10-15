@@ -65,7 +65,7 @@ extern void *mdlCreateModelObjectFromMemory(u32 kind, u16 id, void *memory, u32 
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 NpcTable_RequestFixedTable(void);
 extern s32 func_00161510(void);
-extern s32 func_004782b0(u8 *model);
+extern s32 mdlPrepareModel(u8 *model);
 
 extern void *memcpy(void *destination, const void *source, u32 size);
 extern u32 H_Cdvd_Destroy(HCdvd *file);
@@ -123,7 +123,7 @@ typedef char FldDataLoadWorkSizeCheck[sizeof(FldDataLoadWork) == 0xF4 ? 1 : -1];
 
 static inline u8 fldDataModelReady(void)
 {
-    return func_004782b0((u8 *)D_00764364) != 0;
+    return mdlPrepareModel((u8 *)D_00764364) != 0;
 }
 
 // FUN_0015D730

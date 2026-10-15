@@ -10,7 +10,7 @@ extern u8 D_00763098;
 
 extern void func_0044ea90(void *msg, s32 id);
 
-extern void func_004787e0(s32 handle);
+extern void mdlDestroyModelObject(s32 handle);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern s32 *func_00155280(void);
@@ -95,7 +95,7 @@ void func_0018e730(u8 *arg0)
     p = *(u8 **)(arg0 + 0x38);
     v = *(s32 *)(p + 4);
     if (v != 0) {
-        func_004787e0(v);
+        mdlDestroyModelObject(v);
     }
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }

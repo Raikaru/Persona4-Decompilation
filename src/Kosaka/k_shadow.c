@@ -59,7 +59,7 @@ typedef struct FldShadowBoundsAccum {
 // FUN_0017ACC0
 s32 FldShadow_StepCasterSetup(u8 *arg0)
 {
-    extern s32 func_004782b0(u8 *model);
+    extern s32 mdlPrepareModel(u8 *model);
     extern void *mdlGetClump(void *model);
     extern void func_0047a810(void *model);
     extern u8 *func_003c4140(void);
@@ -102,7 +102,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
             *(s32 *)ctx = state + 1;
             break;
         case 1:
-            if (func_004782b0(*(u8 **)(ctx + 0x10)) != 0) {
+            if (mdlPrepareModel(*(u8 **)(ctx + 0x10)) != 0) {
                 FldShadowBoundsAccum bounds;
 
                 memset(&bounds, 0, sizeof(bounds));
@@ -117,14 +117,14 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
             }
             break;
         case 2:
-            if (func_004782b0(*(u8 **)(ctx + 0x10)) != 0) {
+            if (mdlPrepareModel(*(u8 **)(ctx + 0x10)) != 0) {
                 func_0047a810(*(u8 **)(ctx + 0x10));
                 *(s32 *)ctx += 1;
             }
             break;
         case 4:
         case 3:
-            if (func_004782b0(*(u8 **)(ctx + 0x10)) != 0) {
+            if (mdlPrepareModel(*(u8 **)(ctx + 0x10)) != 0) {
                 u8 *geometry;
                 u8 *triangle;
                 s32 triangleIndex;

@@ -116,8 +116,8 @@ extern u8 D_005EF820[];
 extern u8 D_005EF870[];
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern s32 func_004782b0(s32 arg0);
-extern void func_004787e0(s32 arg0);
+extern s32 mdlPrepareModel(s32 arg0);
+extern void mdlDestroyModelObject(s32 arg0);
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
@@ -301,7 +301,7 @@ s32 KMisc_DelayMdlFreeUpdate(u8 *arg0) {
     temp_3 = *(s32 *)p;
     switch (temp_3) {
     case 0:
-        if (func_004782b0(*(s32 *)(p + 8)) != 0) {
+        if (mdlPrepareModel(*(s32 *)(p + 8)) != 0) {
             *(s32 *)p = *(s32 *)p + 1;
         }
         goto done;
@@ -313,7 +313,7 @@ s32 KMisc_DelayMdlFreeUpdate(u8 *arg0) {
         }
         *(s32 *)p = *(s32 *)p + 1;
     case 2:
-        func_004787e0(*(s32 *)(p + 8));
+        mdlDestroyModelObject(*(s32 *)(p + 8));
         return -1;
     default:
     done:

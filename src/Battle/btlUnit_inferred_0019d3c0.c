@@ -135,9 +135,9 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     func_0029db50(arg0, arg1, arg2, arg3);
 }
 extern void MT_Scene_DestroyRes(u16 arg0);
-extern void func_004787e0(void *arg0);
+extern void mdlDestroyModelObject(void *arg0);
 extern void mdlSetColor(void *arg0, s32 *arg1);
-extern void func_0047a0e0(u8 *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerWeight(u8 *arg0, s32 arg1, f32 arg2);
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -214,15 +214,15 @@ void btlUnitReleaseModel(u8 *arg0)
             func_0019d990(arg0, 2);
             func_0019d990(arg0, 3);
             mdlSetColor(*(u8 **)(arg0 + 0xA00), (s32 *)&iGpffffa4d8);
-            func_0047a0e0(*(u8 **)(arg0 + 0xA00), 0, 1.0f);
+            mdlSetLayerWeight(*(u8 **)(arg0 + 0xA00), 0, 1.0f);
             if (index == 1 && (*(s32 *)(arg0 + 0x98) & 8) == 0)
-                func_004787e0(*(u8 **)(arg0 + 0xA00));
+                mdlDestroyModelObject(*(u8 **)(arg0 + 0xA00));
         }
         *(u16 *)(arg0 + 0x9FE) = 0;
     } else {
         temp_4_2 = *(u8 **)(arg0 + 0xA00);
         if (temp_4_2 != NULL)
-            func_004787e0(temp_4_2);
+            mdlDestroyModelObject(temp_4_2);
     }
     *(u8 **)(arg0 + 0xA00) = NULL;
     *(s32 *)(arg0 + 0x98) &= ~2;

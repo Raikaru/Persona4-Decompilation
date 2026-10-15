@@ -46,7 +46,7 @@ extern void func_00189ec0();
 extern void MT_Scene_SetResEnabled(s32 arg0, s32 arg1);
 extern void func_003ef3a0(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
-extern void func_0047a0e0(u8 *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerWeight(u8 *arg0, s32 arg1, f32 arg2);
 extern void *memset(void *destination, s32 value, size_t count);
 
 /* 128-bit object copies (retail lq/sq). */
@@ -1482,7 +1482,7 @@ u8 *func_00255b90(void) {
         *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node1 + 0x164) + 0xF4);
         *(u8 **)(e + 8) = node1;
         count++;
-        func_0047a0e0(*(u8 **)(node1 + 0x164), 0, 0.0f);
+        mdlSetLayerWeight(*(u8 **)(node1 + 0x164), 0, 0.0f);
         MT_Scene_SetResEnabledById(*(u16 *)(node1 + 0), 1);
         node1 = *(u8 **)(node1 + 0x138);
     }
@@ -1494,7 +1494,7 @@ u8 *func_00255b90(void) {
         *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node2 + 0x158) + 0xF4);
         *(u8 **)(e + 8) = node2;
         count++;
-        func_0047a0e0(*(u8 **)(node2 + 0x158), 0, 0.0f);
+        mdlSetLayerWeight(*(u8 **)(node2 + 0x158), 0, 0.0f);
         MT_Scene_SetResEnabledById(*(u16 *)(node1 + 0), 1);
         node2 = *(u8 **)(node2 + 0x138);
     }
@@ -1506,7 +1506,7 @@ u8 *func_00255b90(void) {
         *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node3 + 0x164) + 0xF4);
         *(u8 **)(e + 8) = node3;
         count++;
-        func_0047a0e0(*(u8 **)(node3 + 0x164), 0, 0.0f);
+        mdlSetLayerWeight(*(u8 **)(node3 + 0x164), 0, 0.0f);
         MT_Scene_SetResEnabledById(*(u16 *)(node3 + 0), 1);
         node3 = *(u8 **)(node3 + 0x138);
     }
@@ -1518,7 +1518,7 @@ u8 *func_00255b90(void) {
         *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node4 + 0x144) + 0xF4);
         *(u8 **)(e + 8) = node4;
         count++;
-        func_0047a0e0(*(u8 **)(node4 + 0x144), 0, 0.0f);
+        mdlSetLayerWeight(*(u8 **)(node4 + 0x144), 0, 0.0f);
         MT_Scene_SetResEnabledById(*(u16 *)(node4 + 0), 1);
         node4 = *(u8 **)(node4 + 0x138);
     }
@@ -3644,7 +3644,7 @@ void func_0025c100(u8 *unusedTask) {
         if (*(s32 *)(list + i * 0x10 + 0xC) == 0) {
             MT_Scene_SetResEnabled(*(s32 *)(list + i * 0x10 + 8), 0);
         }
-        func_0047a0e0(*(u8 **)(list + i * 0x10 + 4), 0, *(f32 *)(list + i * 0x10));
+        mdlSetLayerWeight(*(u8 **)(list + i * 0x10 + 4), 0, *(f32 *)(list + i * 0x10));
         i++;
     }
     fp = (void (**)(void *))DAT_008873ec_abs;

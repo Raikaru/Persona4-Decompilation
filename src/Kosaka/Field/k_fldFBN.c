@@ -96,7 +96,7 @@ extern u32 H_Cdvd_IsFileLoaded(HCdvd *arg0);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern void func_0046d700(const char *file, s32 line, const char *message, ...);
 extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
-extern s32 func_004782b0(u8 *arg0);
+extern s32 mdlPrepareModel(u8 *arg0);
 extern u32 *func_00478750(u8 *arg0);
 extern void func_00478e70(u8 *arg0);
 extern void mdlScale(void *arg0, void *arg1, s32 arg2);
@@ -327,7 +327,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
         if (NpcTable_InstallBlockTable((u8 *)FBN_ENTRY(n), iGpffffb2a0[n].field_10) == 0) {
             return 0;
         }
-        if ((FBN_ENTRY(n)->kind == 0) && (func_004782b0((u8 *)iGpffffb2a4[n]) == 0)) {
+        if ((FBN_ENTRY(n)->kind == 0) && (mdlPrepareModel((u8 *)iGpffffb2a4[n]) == 0)) {
             return 0;
         }
     }

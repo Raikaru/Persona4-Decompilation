@@ -31,7 +31,7 @@ extern void MT_Scene_DestroyRes(u32);
 extern void MT_Scene_SetResActiveById(s32, s32);
 // lint: allow H011 -- measured: u16 prototype regresses func_00298370 and func_00298550 (andi on wide id args)
 extern u16 *MT_Scene_GetRes(s32);
-extern s32 func_004782b0(u32 arg0);
+extern s32 mdlPrepareModel(u32 arg0);
 extern u8 *mdlGetColor(s32);
 extern void evtNodeSetRes(u8 *, s32, u16 *);
 extern s32 func_00285af0();
@@ -82,7 +82,7 @@ s32 func_00298370(u8 *unusedTask) {
 
     temp_2 = (u8 *)func_00452560();
     temp_17 = *(s32 *)(temp_2 + 0);
-    if (func_004782b0(temp_17) == 1) {
+    if (mdlPrepareModel(temp_17) == 1) {
         MT_Scene_DestroyRes((u16)((( *(s32 *)(temp_2 + 4) + 0x384) & 0x3FF) | 0xC00));
         temp_17 = (s32)(func_00145780((*(s32 *)(temp_2 + 4) + 0x384) & 0xFFFF, 3, temp_17) & 0xFFFF);
         if (temp_17 == 0) {

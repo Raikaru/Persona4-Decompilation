@@ -20,9 +20,9 @@ extern void *mdlFindOrCreateModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void func_0046d730(const char *arg0, s32 arg1);
 extern void func_0047a2a0(void *arg0);
 extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
-extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern void func_00478eb0(void *arg0, void (*arg1)(void), void *arg2);
-extern void func_004787e0(u32 arg0);
+extern void mdlDestroyModelObject(u32 arg0);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_007144A8[];
@@ -51,7 +51,7 @@ void *func_004abd80(void *arg0)
     func_0047a2a0(work);
     if (mdlLayerIsPresent(work, 0) != 0) {
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
-        func_0047a0e0(work, 0, 1.0f);
+        mdlSetLayerWeight(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
     func_00478eb0(work, func_004abe60, work);
@@ -108,7 +108,7 @@ void *func_004abe80(void *arg0) {
             func_0047a2a0(temp_2_4);
             if (mdlLayerIsPresent(temp_2_4, 0) != 0) {
                 mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
-                func_0047a0e0(temp_2_4, 0, temp_f20);
+                mdlSetLayerWeight(temp_2_4, 0, temp_f20);
             }
             *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
             func_00478eb0(temp_2_4, func_004abe60, temp_2_4);
@@ -123,7 +123,7 @@ void *func_004abe80(void *arg0) {
 void func_004ac0b0(void *arg0)
 {
     if (*(void **)((u8 *)arg0 + 0x94) != 0) {
-        func_004787e0(*(u32 *)((u8 *)arg0 + 0x94));
+        mdlDestroyModelObject(*(u32 *)((u8 *)arg0 + 0x94));
     }
     jtbl_008873EC[0](arg0);
 }
@@ -148,7 +148,7 @@ void func_004ac170(u8 *dst, u8 *src)
         func_0046d730(D_007144A8, 0xBB);
     }
     if (*(void **)(dst + 0x94) != 0) {
-        func_004787e0(*(u32 *)(dst + 0x94));
+        mdlDestroyModelObject(*(u32 *)(dst + 0x94));
     }
     work = mdlFindOrCreateModelObject(*(u16 *)(*(u32 *)(src + 0x94) + 0xD4), *(u16 *)(*(u32 *)(src + 0x94) + 0xD6), 0);
     if (work == 0) {
@@ -157,7 +157,7 @@ void func_004ac170(u8 *dst, u8 *src)
     func_0047a2a0(work);
     if (mdlLayerIsPresent(work, 0) != 0) {
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
-        func_0047a0e0(work, 0, 1.0f);
+        mdlSetLayerWeight(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
     func_00478eb0(work, func_004abe60, work);
@@ -285,7 +285,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
             temp_4 = *(u8 **)(arg1 + 0x94);
             *(s32 *)(temp_4 + 0xD8) = *(s32 *)(temp_4 + 0xD8) & ~0x18;
         }
-        func_0047a0e0(*(u8 **)(arg1 + 0x94), 0, *(f32 *)(arg1 + 0x24));
+        mdlSetLayerWeight(*(u8 **)(arg1 + 0x94), 0, *(f32 *)(arg1 + 0x24));
         func_0047aa30(*(u8 **)(arg1 + 0x94), func_00481450());
         mdlQueueModelForDraw(arg0, *(u8 **)(arg1 + 0x94));
         *(s32 *)(arg1 + 0x24) = 0;
@@ -370,7 +370,7 @@ void *func_004ac640(void *arg0) {
             func_0047a2a0(temp_2_4);
             if (mdlLayerIsPresent(temp_2_4, 0) != 0) {
                 mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
-                func_0047a0e0(temp_2_4, 0, 1.0f);
+                mdlSetLayerWeight(temp_2_4, 0, 1.0f);
             }
             *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
             func_00478eb0(temp_2_4, func_004abe60, temp_2_4);
@@ -399,7 +399,7 @@ void *func_004ac640(void *arg0) {
 void func_004ac8e0(void *arg0)
 {
     if (*(void **)((u8 *)arg0 + 0xB4) != 0) {
-        func_004787e0(*(u32 *)((u8 *)arg0 + 0xB4));
+        mdlDestroyModelObject(*(u32 *)((u8 *)arg0 + 0xB4));
     }
     jtbl_008873EC[0](arg0);
 }
@@ -424,7 +424,7 @@ void func_004ac9a0(u8 *dst, u8 *src)
         func_0046d730(D_007144A8, 0x1D0);
     }
     if (*(void **)(dst + 0xB4) != 0) {
-        func_004787e0(*(u32 *)(dst + 0xB4));
+        mdlDestroyModelObject(*(u32 *)(dst + 0xB4));
     }
     work = mdlFindOrCreateModelObject(*(u16 *)(*(u32 *)(src + 0xB4) + 0xD4), *(u16 *)(*(u32 *)(src + 0xB4) + 0xD6), 0);
     if (work == 0) {
@@ -433,7 +433,7 @@ void func_004ac9a0(u8 *dst, u8 *src)
     func_0047a2a0(work);
     if (mdlLayerIsPresent(work, 0) != 0) {
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
-        func_0047a0e0(work, 0, 1.0f);
+        mdlSetLayerWeight(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
     func_00478eb0(work, func_004abe60, work);
