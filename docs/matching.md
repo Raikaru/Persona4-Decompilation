@@ -4198,7 +4198,7 @@ the archives record the tested contracts and helper hypotheses.
 
 ### IDA model attachment: preserve snapshots and pointer contracts
 
-`func_00473710` is MATCH: 340B of exact instructions plus 12 bytes of
+`mdlAttachSlotHierarchy` (was `func_00473710`) is MATCH: 340B of exact instructions plus 12 bytes of
 retail zero tail. Read the complete IDA body at
 `docs/ida_headstart/src/Graphics/Model/mdlManager.c:1053-1085` alongside
 the retail assembly. Its separate `v7 = v9` snapshot matters: loading the
