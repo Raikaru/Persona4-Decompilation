@@ -90,7 +90,7 @@ extern f32 D_0076144C;
 /* measured: loop-invariant probe for 001A0140 preheader materialization. */
 /* measured: close loop-invariant probe for 001A0140. */
 // FUN_001A0660
-void func_001a0660(void)
+void btlActionStandbyInit(void)
 {
 }
 
