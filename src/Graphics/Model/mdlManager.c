@@ -1715,8 +1715,9 @@ extern s32 func_003d5bc0(void* a, f32 b);
 /* measured: probing opt_loop_invariants on for loop-constant placement. */
 #pragma push
 #pragma opt_loop_invariants on
+/* Rebases each node of a layer's output pose by the layer's reference rotation and input clip: out = out * conj(rotation) * input (normalized quaternions), and out.values += rotation.values - input.values. The consumer of the output pose is not yet traced. */
 // FUN_00473870
-void func_00473870(u8 *arg0)
+void mdlRebaseLayerPose(u8 *arg0)
 {
     typedef struct
     {
@@ -1846,7 +1847,7 @@ void func_00473870(u8 *arg0)
 }
 #pragma pop
 
-extern void func_00473870(u8* a);
+extern void mdlRebaseLayerPose(u8* a);
 extern s32 func_003d5e90(void* a, void* b, void* c, f32 d);
 /* Native b210 O2 MATCH: 1432B/window 1440B; the remaining eight bytes are zero.
    Narrow each animation index after its table guard, including the repeated
@@ -1895,7 +1896,7 @@ u8 *func_00473b20(u8 *arg0, u8 *arg1, s32 arg2)
                         *(f32 *)(arg0 + 0xC) - 1.0f);
                     func_003d5e40(*(u8 **)(*(u8 **)(arg0 + 0x20) + 0x20),
                         *(f32 *)(arg0 + 0xC));
-                    func_00473870(arg0);
+                    mdlRebaseLayerPose(arg0);
                 }
                 func_00397c40(*(void **)(arg0 + 0x20));
             }
@@ -2006,7 +2007,7 @@ finish_time:
                         *(void **)(*(u8 **)(arg1 + 0x20) + 0x20),
                         currentInterpolator, 1.0f);
                 }
-                func_00473870(arg0);
+                mdlRebaseLayerPose(arg0);
                 if (arg2 != 0) {
                     if ((*(u16 *)arg0 & 0x10) != 0) {
                         mdlInstallHierarchyScaleHook(*(void **)(arg0 + 0x20), arg0);
