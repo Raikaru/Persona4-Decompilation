@@ -673,7 +673,7 @@ void func_001113b0(void)
     u8 *q;
     u16 datCalcMaxHpById(s16);
     u16 datCalcMaxSpById(s16);
-    void func_001051a0(s16, s16, s16);
+    void datSetCategoryValueById(s16, s16, s16);
     void datCalcInitUnitById(s16);
     void func_00105690(s16, u8);
     void func_001056e0(s16, s16);
@@ -725,7 +725,7 @@ loop_1:
     j = 0;
     goto loop_2_check;
 loop_2:
-    func_001051a0((s16)i, (s16)j, 0);
+    datSetCategoryValueById((s16)i, (s16)j, 0);
     j++;
 loop_2_check:
     if (j < 5) {
@@ -826,7 +826,7 @@ void func_00111bc0(void)
     s16 func_00104ea0(s16, s16);
     u32 datGetMoney(void);
     void datSetMoney(u32);
-    void func_001051a0(s16, s16, s16);
+    void datSetCategoryValueById(s16, s16, s16);
     u32 func_00110460(void);
     void func_00110470(u32);
     void fclCombineSaveSnapshot(void);
@@ -1013,7 +1013,7 @@ loop6_check:
     i = 0;
     goto loop7_check;
 loop7:
-    func_001051a0(1, (s16)i, ((s16 *)buf)[680 + i]);
+    datSetCategoryValueById(1, (s16)i, ((s16 *)buf)[680 + i]);
     i++;
 loop7_check:
     if (i < 5) {

@@ -85,7 +85,7 @@ extern s32 D_005DD6E0[];
 
 extern s32 D_005DD6DC[];
 
-extern s16 func_00104f50(s16 arg0, s16 arg1);
+extern s16 datRankForPoints(s16 arg0, s16 arg1);
 
 extern s32 func_00246a50(s16 arg0, s16 arg1);
 
@@ -394,13 +394,13 @@ s16 func_00104ea0(s16 arg0, s16 arg1)
 }
 
 // FUN_00104F10
-s16 func_00104f10(s16 arg0)
+s16 datCategoryRank(s16 arg0)
 {
-    return func_00104f50(arg0, D_007973F4[arg0]);
+    return datRankForPoints(arg0, D_007973F4[arg0]);
 }
 
 // FUN_00104F50
-s16 func_00104f50(s16 arg0, s16 arg1)
+s16 datRankForPoints(s16 arg0, s16 arg1)
 {
     s32 sum = 0;
     s32 i = 0;
@@ -432,7 +432,7 @@ s16 func_00104f50(s16 arg0, s16 arg1)
 #pragma push
 #pragma opt_propagation off
 // FUN_00105010
-s16 func_00105010(s16 category, f32 scale)
+s16 datCategoryRankProgress(s16 category, f32 scale)
 {
     s32 remaining;
     s32 threshold;
@@ -466,7 +466,7 @@ s16 func_00105010(s16 category, f32 scale)
 #pragma pop
 
 // FUN_001051A0
-void func_001051a0(s16 arg0, s16 arg1, s16 arg2)
+void datSetCategoryValueById(s16 arg0, s16 arg1, s16 arg2)
 {
     if (arg0 == 1)
     {

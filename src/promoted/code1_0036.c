@@ -22,7 +22,7 @@ typedef union {
     PairF32 f;
 } PairBits;
 typedef struct PersonaWork PersonaWork;
-extern s16 func_00104f10(s16 index);
+extern s16 datCategoryRank(s16 index);
 extern u16 func_00105290(s16 pcId);
 extern s32 func_00105a50(s16 pcId);
 extern u8 *datPersonaGetRow(u16 personaId);
@@ -1174,7 +1174,7 @@ void func_003672d0(void *work, s16 pcId)
         s16 i;
         *(s32 *)(state + 12) = func_00105a50(pcId);
         for (i = 0; i < 5; i++)
-            *(s16 *)(state + i * 2 + 2) = func_00104f10(i);
+            *(s16 *)(state + i * 2 + 2) = datCategoryRank(i);
     } else {
         s32 remaining;
         PersonaWork *other = (PersonaWork *)datPersonaGetRecord((u16)pcId);

@@ -25,9 +25,9 @@ extern void kAssertFail(u8 *arg0, s32 arg1);
 extern s32 func_002badc0(s8 arg0, s32 arg1);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bb420(s8 arg0);
-extern s16 func_00104f10(s16 arg0);
+extern s16 datCategoryRank(s16 arg0);
 extern s16 func_00104ea0(s16 arg0, s16 arg1);
-extern void func_001051a0(s16 arg0, s16 arg1, s16 arg2);
+extern void datSetCategoryValueById(s16 arg0, s16 arg1, s16 arg2);
 extern s32 func_00246980(s16 arg0, s16 arg1);
 extern void frFontExCopyString(char *src, char *dst, s32 maxlen);
 extern void func_002bb550(s8 arg0);
@@ -90,18 +90,18 @@ s32 func_0025c790(u8 *task)
     case 1:
         if (func_002bb680((s8)work->slot) == 0) {
             func_002bb420((s8)work->slot);
-            old_rank = func_00104f10((s16)work->index);
+            old_rank = datCategoryRank((s16)work->index);
             increment = work->value;
             index = work->index;
             if (index >= 5)
                 kAssertFail(D_00636838, 0x90);
-            previous_rank = func_00104f10((s16)index);
+            previous_rank = datCategoryRank((s16)index);
             value = (s32)((u32)increment + (u32)(s32)func_00104ea0(1, (s16)index));
             if (value > 999)
                 value = 999;
-            func_001051a0(1, (s16)index, (s16)value);
-            if (previous_rank != func_00104f10((s16)index)) {
-                new_rank = func_00104f10((s16)work->index);
+            datSetCategoryValueById(1, (s16)index, (s16)value);
+            if (previous_rank != datCategoryRank((s16)index)) {
+                new_rank = datCategoryRank((s16)work->index);
                 func_0045af60(1, 0, 3, 0);
                 strcpy(name, D_00636820[work->index]);
                 func_002bbd80((s8)work->slot, 0, name);

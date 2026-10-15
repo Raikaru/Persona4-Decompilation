@@ -255,7 +255,7 @@ extern void func_00122640(s32, s32);
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
 extern void fieldSceneLoad(s32, s32);
 extern void func_00144e10(s32);
-extern s16 func_00104f10(s16);
+extern s16 datCategoryRank(s16);
 extern s32 func_0033e120(u8 *arg0, s32, s32);
 extern void func_001075d0(s32);
 extern s32 func_00144f60(void);
@@ -8512,7 +8512,7 @@ void fclCombineMenuMaterialGrid(u8 *arg0)
 /* MATCHED: colours are FclDrawColor struct returns copied whole (the
    501 -> 500 copy is a struct copy between the two elements); the flag
    words are read directly (b210 CSEs them where retail does); case 0 tests
-   func_00104f10(1) >= 3 && !flag 0x96F for the 0x70 arm; *(s8 *)te is the
+   datCategoryRank(1) >= 3 && !flag 0x96F for the 0x70 arm; *(s8 *)te is the
    second fclCombineDrawListRow argument. The row loop derives the second byte as
    &D_00882FB0[j * 2] + 1: that second use of j is what makes b210
    re-extend j at the top of the body instead of reusing the test's copy. */
@@ -8641,7 +8641,7 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                     if ((func_002e78a0() & 0xFF) == 3 && (func_002e78e0() & 0xFF) >= 0x14 &&
                         (func_002e78e0() & 0xFF) < 0x20) {
                         func_002badc0((s8)*(p + 0xD), 0x6F);
-                    } else if ((s16)func_00104f10(1) >= 3 && datGetFlag(0x96F) == 0) {
+                    } else if ((s16)datCategoryRank(1) >= 3 && datGetFlag(0x96F) == 0) {
                         func_002badc0((s8)*(p + 0xD), 0x70);
                     } else {
                         func_002badc0((s8)*(p + 0xD), (func_00107ac0(0x14) & 0xFFFF) + 0x64);
@@ -10126,7 +10126,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
                 p[0] = 9;
                 return 0;
             }
-            if (datGetFlag(0x413) == 0 && datGetFlag(0x96F) != 0 && func_00104f10(1) >= 3) {
+            if (datGetFlag(0x413) == 0 && datGetFlag(0x96F) != 0 && datCategoryRank(1) >= 3) {
                 if (*(u32 *)(p + 0x1C) != 0) {
                     *(u32 *)(p + 0x1C) = 0;
                 }

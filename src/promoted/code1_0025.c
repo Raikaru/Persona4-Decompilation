@@ -53,8 +53,8 @@ s32 func_001227f0(void);
 s32 datGetTimeSlot(void);
 s8 func_00110960(s16 arg0, s32 arg1);
 float scrGetParamFloat(s32 arg0);
-s16 func_00105010(s16 arg0, float arg1);
-s16 func_00104f10(s16 arg0);
+s16 datCategoryRankProgress(s16 arg0, float arg1);
+s16 datCategoryRank(s16 arg0);
 s32 datPersonaAddStatById(u16 arg0, s32 arg1, s32 arg2);
 void func_00106620(s16 arg0, s32 arg1);
 s16 datGetPartyId(s32 arg0);
@@ -245,14 +245,14 @@ s32 func_0025cdd0(void) {
     s32 temp_16;
 
     temp_16 = scrGetParamInt(0);
-    scrSetReturnInt((s32)func_00105010((s16)temp_16, scrGetParamFloat(1)));
+    scrSetReturnInt((s32)datCategoryRankProgress((s16)temp_16, scrGetParamFloat(1)));
     return 1;
 }
 
 // Intent: Common script command GET_PC_PARAM (p4flow Common 0x0044): returns the player character parameter [inferred]
 // FUN_0025CE40
 s32 scrCommonGetPcParam(void) {
-    scrSetReturnInt((s32)func_00104f10((s16)scrGetParamInt(0)));
+    scrSetReturnInt((s32)datCategoryRank((s16)scrGetParamInt(0)));
     return 1;
 }
 

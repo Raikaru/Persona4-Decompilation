@@ -32,7 +32,7 @@ extern f32 D_005E4300[];
 extern s32 func_00247c20(s32 arg0);
 extern void *func_00246b80(void);
 extern u8 *func_00246ba0(void);
-extern s32 func_00104f50(s16 arg0, s16 arg1);
+extern s32 datRankForPoints(s16 arg0, s16 arg1);
 extern s16 D_007973F4[];
 extern u32 D_0079B1CC[];
 extern u8 D_007973A0[];
@@ -1427,7 +1427,7 @@ s32 cmmCommunityGetTotal(void)
     return D_00797560[0];
 }
 
-// Community entry value: looks up the current entry's value in the table from func_00246ba0, indexed by func_00104f50 over D_007973F4; asserts the index is positive. The extern passes an argument that this definition ignores.
+// Community entry value: looks up the current entry's value in the table from func_00246ba0, indexed by datRankForPoints over D_007973F4; asserts the index is positive. The extern passes an argument that this definition ignores.
 // FUN_00109100
 s32 cmmCommunityGetCurrentEntryValue(void)
 {
@@ -1437,7 +1437,7 @@ s32 cmmCommunityGetCurrentEntryValue(void)
 
     work = func_00246ba0();
     id = *(s16 *)work;
-    index = (s16)func_00104f50(id, D_007973F4[id]);
+    index = (s16)datRankForPoints(id, D_007973F4[id]);
     if (index <= 0) {
         kAssertFail(D_005E42C8, 0x2F6);
     }
