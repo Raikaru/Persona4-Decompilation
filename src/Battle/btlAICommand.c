@@ -4718,7 +4718,7 @@ s32 func_001e4810(void) {
 }
 
 // FUN_001E4880
-s32 func_001e4880(void) {
+s32 btlAICommandAiUnlessHpMin(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609CE8[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
@@ -4726,7 +4726,7 @@ s32 func_001e4880(void) {
 }
 
 // FUN_001E48F0
-s32 func_001e48f0(void) {
+s32 btlAICommandAiUnlessLvMin(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609CF0[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
@@ -4734,7 +4734,7 @@ s32 func_001e48f0(void) {
 }
 
 // FUN_001E4960
-s32 func_001e4960(void) {
+s32 btlAICommandAiUnlessMpMax(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609CF8[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
@@ -4777,7 +4777,7 @@ s32 btlAICommandCondQueryId(void) {
 }
 
 // FUN_001E4C60
-s32 func_001e4c60(void) {
+s32 btlAICommandAiUnlessMine(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609D18[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
@@ -4785,7 +4785,7 @@ s32 func_001e4c60(void) {
 }
 
 // FUN_001E4CD0
-s32 func_001e4cd0(void) {
+s32 btlAICommandAiUnlessMyAi(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609D20[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
@@ -4865,7 +4865,7 @@ s32 btlAICommandCondQueryNotWeak(void) {
 }
 
 // FUN_001E52C0
-s32 func_001e52c0(void) {
+s32 btlAICommandAiUnlessAppoint(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609D70[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
@@ -4873,7 +4873,7 @@ s32 func_001e52c0(void) {
 }
 
 // FUN_001E5330
-s32 func_001e5330(void) {
+s32 btlAICommandAiUnlessDown(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609D78[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
@@ -4881,7 +4881,7 @@ s32 func_001e5330(void) {
 }
 
 // FUN_001E53A0
-s32 func_001e53a0(void) {
+s32 btlAICommandAiUnlessStand(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609D80[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
@@ -4982,7 +4982,7 @@ s32 btlAICommandCondQueryNotId(void) {
 }
 
 // FUN_001E5AD0
-s32 func_001e5ad0(void) {
+s32 btlAICommandAiUnlessRnd(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609DF0[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
