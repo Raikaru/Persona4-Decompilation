@@ -114,13 +114,13 @@ s64 *func_001b1540(void);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 u32 btlCountUnitRecordsById(u32 arg0);
-u8 *func_001fa110(u8 *arg0);
+u8 *btlCutinCreatePacket(u8 *arg0);
 u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
-u8 *func_00194c90(s32 arg0, s32 arg1);
+u8 *btlPacketAllocZeroed(s32 arg0, s32 arg1);
 u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
-u8 *func_001fa320(void);
-u8 *func_001fa450(void);
+u8 *btlCutinCreateEndPacket(void);
+u8 *btlCutinCreateStartPacket(void);
 extern void btlMessageStartShort(u8 *task, u8 *unit);
 extern s32 btlMessageIsActive(s32 task);
 extern s32 btlMessageGetResult(s32 task);
@@ -633,12 +633,12 @@ void btlActionRoundupMesUpdate(u8 *arg0)
             i++;
         }
         *(u16 *)(frame + 8) = *(u16 *)(gp2 + 0xC58);
-        packet1 = func_001fa110(frame);
+        packet1 = btlCutinCreatePacket(frame);
         btlPacketEnqueue(packet1, 1);
         packet2 = func_001fa8f0();
         *(s16 *)(packet2 + 0x48) = *(s16 *)(arg0 + 0x42C);
         btlPacketEnqueue(packet2, 1);
-        packet3 = func_00194c90((s32)btlActionGetCounter428, (s32)arg0);
+        packet3 = btlPacketAllocZeroed((s32)btlActionGetCounter428, (s32)arg0);
         *(s16 *)(packet3 + 0x48) = *(s16 *)(arg0 + 0x42C);
         btlPacketEnqueue(packet3, 1);
         packet4 = func_001d65d0(
@@ -687,7 +687,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
         } else {
             btlPacketEnqueue(
                 func_001f99c0(*(u8 **)(arg0 + 0x41C), 6, 0, 0, 0), 1);
-            packet1 = func_001fa450();
+            packet1 = btlCutinCreateStartPacket();
             *(u64 *)(packet1 + 0x60) = *(u64 *)arg0;
             btlPacketEnqueue(packet1, 1);
         }
@@ -867,7 +867,7 @@ void btlActionRoundupUpdate(u8 *arg0)
         *(s64 *)(pk + 0x60) = uid;
         btlPacketEnqueue(pk, 1);
     }
-    setupPacket = func_001fa320();
+    setupPacket = btlCutinCreateEndPacket();
     *setupPacket = 10;
     *(s16 *)(setupPacket + 8) = 0xC00;
     *(setupPacket + 0x10) = 10;

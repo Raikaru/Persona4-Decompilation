@@ -5,10 +5,10 @@
 extern u8 *iGpffffb3ac;
 extern void func_00485b20();
 extern u8 *btlPacketAlloc();
-extern s32 func_001fa370();
+extern s32 btlCutinPoll();
 extern void memcpy();
-extern void func_001f9cf0(u8 *arg0);
-extern s32 func_001f9fa0();
+extern void btlCutinLoad(u8 *arg0);
+extern s32 btlCutinLoadStatus();
 extern s32 H_Cdvd_IsFileLoaded();
 extern void H_Cdvd_Destroy();
 extern s32 func_004b1520();
@@ -43,7 +43,7 @@ extern char D_00625160[];
    table element directly for the first format call, then retain the
    table-element address for the loop. */
 // FUN_001F9CF0
-void func_001f9cf0(u8 *arg0) {
+void btlCutinLoad(u8 *arg0) {
     s32 temp_16;
     s32 temp_5;
     s32 var_19;
@@ -92,7 +92,7 @@ void func_001f9cf0(u8 *arg0) {
 
 
 // FUN_001F9FA0
-s32 func_001f9fa0(void) {
+s32 btlCutinLoadStatus(void) {
     s32 var_18;
     s32 var_17;
     s32 temp_16;
@@ -129,18 +129,18 @@ s32 func_001f9fa0(void) {
 }
 
 // FUN_001FA110
-u8 *func_001fa110(u8 *arg0) {
+u8 *btlCutinCreatePacket(u8 *arg0) {
     u8 *p = btlPacketAlloc(0xC00, 0xA);
 
     *(u8 *)(p + 0x47) &= 0xEE;
-    *(void **)(p + 0x68) = (void *)func_001f9cf0;
-    *(void **)(p + 0x6C) = (void *)func_001f9fa0;
+    *(void **)(p + 0x68) = (void *)btlCutinLoad;
+    *(void **)(p + 0x6C) = (void *)btlCutinLoadStatus;
     memcpy(*(s32 **)(p + 0x78), arg0, 0xA);
     return p;
 }
 
 // FUN_001FA190
-s32 func_001fa190(s32 *arg0) {
+s32 btlCutinUpdate(s32 *arg0) {
     u8 *temp_17;
     s32 temp_19;
     s32 temp_4;
@@ -183,17 +183,17 @@ s32 func_001fa190(s32 *arg0) {
 }
 
 // FUN_001FA320
-u8 *func_001fa320(void) {
+u8 *btlCutinCreateEndPacket(void) {
     u8 *p = btlPacketAlloc(0xC01, 4);
 
     *(u8 *)(p + 0x47) &= 0xEE;
-    *(void **)(p + 0x6C) = (void *)func_001fa190;
+    *(void **)(p + 0x6C) = (void *)btlCutinUpdate;
     **(s32 **)(p + 0x78) = 0;
     return p;
 }
 
 // FUN_001FA370
-s32 func_001fa370(void) {
+s32 btlCutinPoll(void) {
     s32 i;
     s32 off;
     u8 *base;
@@ -228,15 +228,15 @@ s32 func_001fa370(void) {
 }
 
 // FUN_001FA450
-void func_001fa450(void) {
+void btlCutinCreateStartPacket(void) {
     u8 *p = btlPacketAlloc(0xC02, 0);
 
     *(u8 *)(p + 0x47) &= 0xEE;
-    *(void **)(p + 0x6C) = (void *)func_001fa370;
+    *(void **)(p + 0x6C) = (void *)btlCutinPoll;
 }
 
 // FUN_001FA490
-void func_001fa490(u8 *arg0) {
+void btlCutinSetupName(u8 *arg0) {
     struct { s16 a; s16 b; } sp12;
     char sp20[0x10C];
     s32 temp_5;

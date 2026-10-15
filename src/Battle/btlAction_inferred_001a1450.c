@@ -175,16 +175,16 @@ s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 u8 *func_001fa9c0(void);
 s32 btlAICommandNomalStatusCheck(u8 *arg0, s64 arg1);
 u32 btlCountUnitRecordsById(u32 arg0);
-u8 *func_001fa110(u8 *arg0);
+u8 *btlCutinCreatePacket(u8 *arg0);
 extern void btlMessageStartLong(u8 *arg0, u8 *arg1);
 u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
-u8 *func_00194c90(s32 arg0, s32 arg1);
+u8 *btlPacketAllocZeroed(s32 arg0, s32 arg1);
 u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
 extern s32 btlMessageIsActiveAlt(s32 task);
 extern s32 btlMessageGetResultAlt(s32 task);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
-u8 *func_001fa320(void);
-u8 *func_001fa450(void);
+u8 *btlCutinCreateEndPacket(void);
+u8 *btlCutinCreateStartPacket(void);
 u8 *btlFormationCreateDefaultPacket(void);
 extern void btlMessageResetAlt(s32 task);
 s16 func_001d15a0(void);
@@ -1691,7 +1691,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
             *(s16 *)(frame + 0) = 2;
             *(u16 *)(frame + 2) =
                 *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
-            btlPacketEnqueue(func_001fa110(frame), 1);
+            btlPacketEnqueue(btlCutinCreatePacket(frame), 1);
             btlActionFinishPresentation((BtlAction *)arg0);
             btlPacketEnqueue(btlPacketCreateEndSequence(), 1);
             btlPacketEnqueue(func_001fa8f0(), 1);
@@ -1714,7 +1714,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
                               (u8 *)partner->field_30, 0),
                 1);
             btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x30), 0);
-            waitPacket = func_00194c90((s32)btlActionGetCounter420, (s32)arg0);
+            waitPacket = btlPacketAllocZeroed((s32)btlActionGetCounter420, (s32)arg0);
             btlPacketEnqueue(waitPacket, 1);
             btlPacketEnqueue(
                 func_001d65d0(*(s32 *)(D_0076449C + 0xD90),
@@ -1731,7 +1731,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
         if (btlMessageIsActiveAlt(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
             if (btlMessageGetResultAlt(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
                 btlPacketEnqueue(func_001f99c0((u8 *)arg0, 8, 0, 0, 0), 1);
-                effectPacket = func_001fa450();
+                effectPacket = btlCutinCreateStartPacket();
                 *(s8 *)(effectPacket + 0) = 0xA;
                 *(s16 *)(effectPacket + 8) = 0xC00;
                 *(s64 *)(effectPacket + 0x60) = *(s64 *)arg0;
@@ -1909,7 +1909,7 @@ void btlActionPursuitUpdate(u8 *action)
     task = (u8 *)btlVoiceCreatePacket((BtlAction *)action, 9, 0, 0, 0);
     *(u64 *)(task + 0x60) = *(u64 *)action;
     btlPacketEnqueue(task, 1);
-    workspace = func_001fa320();
+    workspace = btlCutinCreateEndPacket();
     *(u64 *)(workspace + 0x60) = *(u64 *)action;
     btlPacketEnqueue(workspace, 1);
     task = btlFormationCreateDefaultPacket();
@@ -3490,7 +3490,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern s32 btlCreateSetFlagsPacket(u32);
     extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
     extern u8 *func_00194b60(void);
-    extern u8 *func_00194c90(void *arg0, void *arg1);
+    extern u8 *btlPacketAllocZeroed(void *arg0, void *arg1);
     extern s32 func_00195530(u8 *arg0);
     extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
     extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
@@ -3552,7 +3552,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern u8 *func_001f83b0(u32 value);
     extern u8 *func_001f8430(u32 value);
     extern s32 func_001f99c0();
-    extern u8 *func_001fa110(u8 *data);
+    extern u8 *btlCutinCreatePacket(u8 *data);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern u8 *btlPacketCreateFinishEffect(void);
     extern BtlPacket *func_00202010(u32 param_1, u16 param_2);
@@ -4177,12 +4177,12 @@ void btlActionSkillUpdate(u8 *arg0) {
             if (hasCutin != 0) {
                 cutin.mode = 4;
                 cutin.unitId = (u16)((*( u16 * )((u8 *)(act->unit) + (0xA4))));
-                cutinPkt14 = (BtlPacketTiming *)(func_001fa110((u8 *)&cutin));
+                cutinPkt14 = (BtlPacketTiming *)(btlCutinCreatePacket((u8 *)&cutin));
                 cutinPkt14->queue = 4;
                 cutinPkt14->startTime = cutinTime;
                 cutinPkt14->ownerId = actionId;
                 btlPacketEnqueue((u8 *)cutinPkt14, 1);
-                cutinPkt15 = (BtlPacketTiming *)func_001fa320();
+                cutinPkt15 = (BtlPacketTiming *)btlCutinCreateEndPacket();
                 cutinPkt15->queue = 4;
                 cutinPkt15->startTime = cutinPkt14->endTime;
                 cutinPkt15->ownerId = actionId;
@@ -5055,7 +5055,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     btlPacketEnqueue((u8 *)rotatePkt106, 1);
                 }
                 if (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) {
-                    pkt107 = (BtlPacketTiming *)(func_00194c90((void *)func_0022eba0, (void *)arg0));
+                    pkt107 = (BtlPacketTiming *)(btlPacketAllocZeroed((void *)func_0022eba0, (void *)arg0));
                     pkt107->queue = 5;
                     pkt107->startTime = animPacket->endTime;
                     pkt107->delay = hitDelay;

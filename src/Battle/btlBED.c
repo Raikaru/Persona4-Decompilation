@@ -31,7 +31,7 @@ extern char iGpffffa288;
 extern char D_00609538[];
 
 // FUN_001D5CA0
-void func_001d5ca0(BtlBed* bed)
+void btlBedCopyRecord(BtlBed* bed)
 {
     BtlBedWork* work = bed->work;
 
@@ -49,7 +49,7 @@ void func_001d5ca0(BtlBed* bed)
 }
 
 // FUN_001D5D60
-s32 func_001d5d60(BtlBed* bed)
+s32 btlBedLoad(BtlBed* bed)
 {
     BtlBedWork* work = bed->work;
     s32 sp3C;
