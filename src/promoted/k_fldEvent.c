@@ -851,7 +851,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_0029db50(s32, s32, s32, s32);
     s32 kwlnTaskIsLinked(void *);
     void func_00106390(s32, s32);
-    s32 func_00192e90(s32);
+    s32 btlTaskCreate(s32);
     s32 FldResource_IsPrimaryFileLoaded(void);
     s32 FldResource_IsSecondaryFileLoaded(void);
     void FldResource_OpenPrimaryFile(s32, s32);
@@ -1254,7 +1254,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             work->state = work->state + 1;
             goto running;
         case 10:
-            work->battleTask = func_00192e90((s32)(&work->battle));
+            work->battleTask = btlTaskCreate((s32)(&work->battle));
             work->state = work->state + 1;
             goto running;
         case 11:

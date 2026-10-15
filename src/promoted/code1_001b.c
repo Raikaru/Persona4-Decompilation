@@ -121,7 +121,7 @@ extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_002aa3f0(void);
-extern void func_00192b20(void);
+extern void btlResetEffectSlots(void);
 extern void func_00145080();
 extern s32 func_001ba0e0(struct ColorBlendWork *work);
 extern u8 *btlPacketAlloc(s32 size, s32 align);
@@ -1717,7 +1717,7 @@ s32 btlMainRevivalUpdate(void)
     if (func_00193bf0(*temp_16, (s64)0x3FFFFFFFFFFFFFFF) == 0) {
         func_00106620(0x31E, ((func_00106600(0x31E) & 0xFF) - 1) & 0xFF);
         func_001b1800();
-        if (func_00193060() == 0) {
+        if (btlCheckBattleEnd() == 0) {
             temp_4 = D_0076449C;
             *(s32 *)(temp_4 + 0xC) &= ~0x80;
             if (func_001eb860() == 1) {
