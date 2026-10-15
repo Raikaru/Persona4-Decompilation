@@ -619,7 +619,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     void fclCombineMenuConfirm(u8 *arg0);
     void fclCombineMenuResult(u8 *arg0);
     void fclCombineMenuMaterialGrid(u8 *arg0);
-    void fclCombineMenuItemPick(u8 *arg0);
+    void fclCombineMenuOptionPick(u8 *arg0);
     void fclCombineMenuSkillPick(u8 *arg0);
     void fclCombineMenuFinish(u8 *arg0);
     extern u8 D_00794E70[];
@@ -742,7 +742,7 @@ case_09:
     fclCombineMenuMaterialGrid(arg0);
     goto done;
 case_0a:
-    fclCombineMenuItemPick(arg0);
+    fclCombineMenuOptionPick(arg0);
     goto done;
 case_0d:
     fclCombineMenuResult(arg0);
