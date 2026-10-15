@@ -4389,12 +4389,12 @@ s32 func_0012c220(u8 *arg0) {
         temp_2_2 = *(s32 *)(temp_16 + 8) - 1;
         *(s32 *)(temp_16 + 8) = temp_2_2;
         if (temp_2_2 == 0) {
-            func_00465f20();
+            H_Memcard_Reset();
             *(u32 *)(temp_16 + 0) = 3U;
         }
         goto block_20;
     case 3:
-        temp_2_3 = func_00465f40();
+        temp_2_3 = H_Memcard_CreateSlotsStep();
         *(s32 *)(temp_16 + 4) = temp_2_3;
         if (temp_2_3 != 0) {
             if (temp_2_3 == 0x64) {
