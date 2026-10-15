@@ -1690,7 +1690,7 @@ void func_0027bf30(u8 *unusedTask, u8 *arg1)
         s32 h;
     } CalendarRectangle;
     typedef union { u8 rgba[4]; f32 value; } CalendarColor;
-    extern s32 func_002833b0(s32 arg0);
+    extern s32 msgCalResourceGet(s32 arg0);
     extern f32 sinf(f32 arg0);
     extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
     extern u8 *func_0046a770(char *arg0);
@@ -1735,7 +1735,7 @@ void func_0027bf30(u8 *unusedTask, u8 *arg1)
 
     switch (*(s32 *)(arg1 + 4)) {
     case 4:
-        handle = (u8 *)func_002833b0(0);
+        handle = (u8 *)msgCalResourceGet(0);
         if (handle == NULL) {
             break;
         }
@@ -1796,7 +1796,7 @@ void func_0027bf30(u8 *unusedTask, u8 *arg1)
             t = (f32)(frame - 4) / 6.0f;
             func_00366380(176.0f * (1.0f - t), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f + t, 0.3f - 0.2f * t);
         }
-        font = (u8 *)func_002833b0(1);
+        font = (u8 *)msgCalResourceGet(1);
         {
             u8 *appearCursor;
             s32 appearRemaining;

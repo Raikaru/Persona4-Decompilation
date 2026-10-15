@@ -408,7 +408,7 @@ s32 fclMiscActivateHandle(u8 *param_1, s32 param_2, s32 param_3)
     }
     itfMesWindowSetFlagBits(value, 0x200000);
     itfMesWindowBindRecord(*(s32 *)param_1, param_3, 0);
-    func_002818a0(*(s32 *)param_1, param_2);
+    msgWinStoreSlot(*(s32 *)param_1, param_2);
     *(s8 *)(param_1 + 4) = 1;
     return 0;
 }
