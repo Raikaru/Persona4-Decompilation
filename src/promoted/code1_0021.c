@@ -57,7 +57,7 @@ extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 extern void memcpy(void *dst, void *src, u32 size);
 
 extern s32 btlShuffleTaskCreate(s32 arg0, void *arg1);
-extern s32 func_002215c0(s32 arg0);
+extern s32 btlResultSimpleCreateTask(s32 arg0);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
@@ -4033,11 +4033,11 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     extern s32 func_002218e0(KwlnTask *task);
     extern void func_0036e7e0(s32 arg0);
     extern void btlXpPrepareAwards(u8 *arg0, u8 *arg1);
-    extern s32 func_002216b0(s32 arg0);
+    extern s32 btlResultSimpleSetDoneFlag(s32 arg0);
     extern s32 func_0036e840(s32 arg0);
     extern void func_0036e810(s32 arg0);
-    extern s32 func_00221740(s32 arg0);
-    extern void func_002216e0(s32 arg0);
+    extern s32 btlResultSimpleIsDone(s32 arg0);
+    extern void btlResultSimpleOnConfirm(s32 arg0);
     extern s32 func_002230e0(s32 arg0);
     extern s32 func_00223730(s32 arg0);
     extern s32 func_00223f40(s32 arg0);
@@ -4090,7 +4090,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
             *(s32 *)(work + 4) = 4;
         } else {
             btlXpPrepareAwards(work + 0x60, work + 8);
-            func_002216b0(*(s32 *)(work + 0x93C));
+            btlResultSimpleSetDoneFlag(*(s32 *)(work + 0x93C));
             *(s32 *)(work + 4) = 5;
         }
         break;
@@ -4099,13 +4099,13 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
             func_0036e810(*(s32 *)(work + 0x938));
             *(s32 *)(work + 0x938) = 0;
             btlXpPrepareAwards(work + 0x60, work + 8);
-            func_002216b0(*(s32 *)(work + 0x93C));
+            btlResultSimpleSetDoneFlag(*(s32 *)(work + 0x93C));
             *(s32 *)(work + 4) = 5;
         }
         break;
     case 5:
-        if (func_00221740(*(s32 *)(work + 0x93C)) == 0) {
-            func_002216e0(*(s32 *)(work + 0x93C));
+        if (btlResultSimpleIsDone(*(s32 *)(work + 0x93C)) == 0) {
+            btlResultSimpleOnConfirm(*(s32 *)(work + 0x93C));
             *(s32 *)(work + 0x93C) = 0;
             flags = *(s32 *)(work + 0x60);
             if ((flags & 2) != 0) {
@@ -4215,7 +4215,7 @@ s32 btlShuffleCreate(s32 arg0, u16 *arg1)
     if ((*(s32 *)(work + 0x60) & 1) != 0) {
         *(s32 *)(work + 0x938) = btlShuffleTaskCreate(result, work + 0x48);
     }
-    *(s32 *)(work + 0x93C) = func_002215c0(result);
+    *(s32 *)(work + 0x93C) = btlResultSimpleCreateTask(result);
     return result;
 }
 // Intent: cancel a shuffle task and its children. [inferred]
