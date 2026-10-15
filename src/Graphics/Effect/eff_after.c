@@ -50,7 +50,7 @@ extern void func_0044ea90(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
 extern f32 RwV3dLength(void *a0);
 extern void RwV3dNormalize(f32 *a, f32 *b);
-extern f32 func_004b7300(void *arg0, s32 arg1);
+extern f32 Vpad_GetSegmentLength(void *arg0, s32 arg1);
 extern s32 func_004b7800(const RuntimeWork *work, s32 index);
 extern f32 func_004bc310(u8 *arg0, s32 arg1);
 extern f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2);
@@ -91,7 +91,7 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
 
     total = 0.0f;
     for (totalIndex = 0; totalIndex < *(s32 *)(data + 8) - 1; totalIndex++) {
-        total += func_004b7300(data, totalIndex);
+        total += Vpad_GetSegmentLength(data, totalIndex);
     }
     if (total <= 0.0f) {
         *section = 0;

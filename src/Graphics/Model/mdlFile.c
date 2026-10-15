@@ -6,7 +6,7 @@
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
-extern u64 func_004b5f20();
+extern u64 Vpad_Activate();
 extern u64 func_0047de90_wide(u32 *param_1);
 extern u32 func_004b57a0_u32(u64 param_1, u64 param_2);
 extern u32 K_Clump_MatUsrDataGetInt();
@@ -44,7 +44,7 @@ s32 mdlFileIsTypePac(u32 type, u16 id)
 void func_0047dcc0(int *param_1)
 {
     if (param_1[1] != 0) {
-        func_004b5f20(param_1[1]);
+        Vpad_Activate(param_1[1]);
     }
     *(int*)(*param_1 + 4) = *(int*)(*param_1 + 4) - 1;
     if (*(int*)(*param_1 + 4) == 0) {
@@ -79,7 +79,7 @@ void func_0047de00(int param_1,u64 param_2)
 void func_0047de50(int param_1)
 {
   if (*(int *)(param_1 + 4) != 0) {
-    func_004b5f20(*(int *)(param_1 + 4));
+    Vpad_Activate(*(int *)(param_1 + 4));
     *(u32 *)(param_1 + 4) = 0;
   }
   return;

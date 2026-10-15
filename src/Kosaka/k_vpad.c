@@ -96,7 +96,7 @@ typedef struct RuntimeVpadWork
 } RuntimeVpadWork;
 
 // FUN_0015F720. Build, rotate, and translate a four-vertex field quad.
-void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
+void Vpad_BuildRotatedQuad(RuntimeVec3* vertices, const RuntimeVec3* translation,
                    f32 width, f32 depth, f32 angle)
 {
     RuntimeMatrix* matrix;
@@ -157,7 +157,7 @@ static inline s32 vpad_pair_index(RuntimeWork* work, s32 index, s32 side)
  * The signed pair-index helper preserves each request reload and the retail
  * load/shift order without ABI, volatile, or assembly workarounds. */
 // FUN_004B5800
-void func_004b5800(RuntimeWork* work)
+void Vpad_RefreshSelection(RuntimeWork* work)
 {
     s32 i;
     RuntimeMatrix* firstMatrix;
@@ -195,7 +195,7 @@ void func_004b5800(RuntimeWork* work)
 
 
 // FUN_004B5950
-void func_004b5950(u8* workData)
+void Vpad_UpdateRenderEntries(u8* workData)
 {
     typedef struct RuntimeVpadColor
     {
@@ -330,7 +330,7 @@ void func_004b5950(u8* workData)
     }
 }
 // FUN_004B5C20. Mark an active field runtime node for processing.
-void func_004b5c20(RuntimeWork* work)
+void Vpad_MarkDirty(RuntimeWork* work)
 {
     if (func_004b6de0((RuntimeListNode*)work) != 0)
     {
@@ -342,7 +342,7 @@ void func_004b5c20(RuntimeWork* work)
 
 // FUN_004B5C60
 #pragma opt_propagation off
-void func_004b5c60(RuntimeVpadWork* work)
+void Vpad_DrawEntries(RuntimeVpadWork* work)
 {
     s32 sp5C;
     s32 sp58;
@@ -414,7 +414,7 @@ void func_004b5c60(RuntimeVpadWork* work)
 }
 #pragma opt_propagation on
 // FUN_004B5F20. Activate a field runtime node and its owner.
-void func_004b5f20(RuntimeWork* work)
+void Vpad_Activate(RuntimeWork* work)
 {
     if (func_004b6de0((RuntimeListNode*)work) != 0)
     {
@@ -426,12 +426,12 @@ void func_004b5f20(RuntimeWork* work)
 
 
 // FUN_004B5F70
-void func_004b5f70(void)
+void Vpad_Noop(void)
 {
 }
 
 // FUN_004B5F80. Update the render color and mark it dirty.
-void func_004b5f80(RuntimeWork* work, const u8* color)
+void Vpad_SetColor(RuntimeWork* work, const u8* color)
 {
     typedef struct RuntimeColor
     {
@@ -470,7 +470,7 @@ void func_004b5f80(RuntimeWork* work, const u8* color)
 /* measured: opt_propagation off is required for exact COP1 tail register coloring. */
 #pragma opt_propagation off
 // FUN_004B7300
-f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
+f32 Vpad_GetSegmentLength(const RuntimeDistanceWork* work, s32 index)
 {
     extern f32 RwV3dLength(RuntimeVec3* vector);
     s32 firstIndex;
@@ -508,7 +508,7 @@ f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
 
 
 // FUN_004BCE30. Check whether the field resource contains any entries.
-s32 func_004bce30(void* workData)
+s32 Vpad_HasEntries(void* workData)
 {
     RuntimeWork* work;
 

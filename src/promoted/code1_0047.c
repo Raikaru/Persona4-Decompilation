@@ -14,10 +14,10 @@ extern void (*jtbl_008873EC[])(void *);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffbb28;
 extern void *D_00922BE0[];
-extern void func_004b5800(u8 *arg0);
-extern void func_004b5f70(u8 *arg0);
+extern void Vpad_RefreshSelection(u8 *arg0);
+extern void Vpad_Noop(u8 *arg0);
 struct RuntimeWork;
-extern void func_004b5f80(struct RuntimeWork* work, const u8* color);
+extern void Vpad_SetColor(struct RuntimeWork* work, const u8* color);
 extern u8 D_00922C50[];
 extern u8 DAT_00922c30_abs[];
 
@@ -331,7 +331,7 @@ void func_0047dd40(u8 *arg0, void *model)
 
     effect = *(u8 **)(arg0 + 4);
     if (effect != NULL) {
-        func_004b5800(effect);
+        Vpad_RefreshSelection(effect);
     }
 }
 // FUN_0047DD70
@@ -341,7 +341,7 @@ void func_0047dd70(u8 *arg0, u8 *arg1)
 
     handle = *(s32 *)(arg1 + 4);
     if (handle != 0) {
-        func_004b5c20(handle);
+        Vpad_MarkDirty(handle);
     }
 }
 
@@ -352,7 +352,7 @@ void func_0047dda0(u8 *arg0)
 
     effect = *(u8 **)(arg0 + 4);
     if (effect != NULL) {
-        func_004b5f70(effect);
+        Vpad_Noop(effect);
     }
 }
 /* Retail forwards the requested color in a1 to the runtime color consumer. */
@@ -363,7 +363,7 @@ void func_0047ddd0(u8* attachment, const u8* color)
 
     work = *(struct RuntimeWork**)(attachment + 4);
     if (work != NULL) {
-        func_004b5f80(work, color);
+        Vpad_SetColor(work, color);
     }
 }
 // FUN_0047EA40

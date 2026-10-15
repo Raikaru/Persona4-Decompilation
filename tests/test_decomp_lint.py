@@ -398,7 +398,7 @@ void func_00123456(void) { }
     def test_measured_above_marker_does_not_suppress_h009(self) -> None:
         findings = lint_text(r"""// measured nd 5: the lw/sll pair is load-bearing here.
 // FUN_004B5800
-void func_004b5800(void)
+void Vpad_RefreshSelection(void)
 {
     asm ("lw %0, 4(%1)\n\tsll %2, %3, 3" : : "r"(a), "r"(b), "r"(c), "r"(d));
 }

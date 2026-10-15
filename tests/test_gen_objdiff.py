@@ -223,13 +223,13 @@ class UnitBuildingTests(unittest.TestCase):
         # would be inflated by assembly that is not decompiled C.
         units = gen.build_units([dict(
             file="src/Kosaka/k_vpad.c", addr="004b5800", line=164,
-            status="ASM", name="func_004b5800")])
+            status="ASM", name="Vpad_RefreshSelection")])
         unit = units[0]
         self.assertFalse(unit["metadata"]["complete"])
         self.assertEqual(unit["status"], "ASM")
         matched = gen.build_units([dict(
             file="src/Kosaka/k_vpad.c", addr="004b5c20", line=10,
-            status="MATCH", name="func_004b5c20")])
+            status="MATCH", name="Vpad_MarkDirty")])
         self.assertTrue(matched[0]["metadata"]["complete"])
 
     def test_progress_categories_split_first_and_third_party(self) -> None:

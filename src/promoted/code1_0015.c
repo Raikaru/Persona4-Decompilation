@@ -1620,7 +1620,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
     extern u16 func_0014b510(s32 arg0);
-    extern void func_0015f720(RuntimeVec3 *vertices, const RuntimeVec3 *translation, f32 width, f32 depth, f32 angle);
+    extern void Vpad_BuildRotatedQuad(RuntimeVec3 *vertices, const RuntimeVec3 *translation, f32 width, f32 depth, f32 angle);
     extern void *RwMatrixRotate(void *matrix, const void *axis, f32 angle, s32 combine);
     extern void *func_003e42a0(void *out, const void *in, const void *matrix);
     extern void *func_003e0f80(void);
@@ -1809,7 +1809,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
           }
           volumeUnit = (u8 *)MT_Scene_GetRes((u16)func_00145d60(volumeId, (f32 *)&((FieldSerializedLightRecord *)record)->position, ((FieldSerializedLightRecord *)record)->parameters[0],
                                  ((FieldSerializedLightRecord *)record)->parameters[1], ((FieldSerializedLightRecord *)record)->parameters[2], ((FieldSerializedLightRecord *)record)->color));
-          func_0015f720((RuntimeVec3 *)(volumeUnit + 0x15c),(const RuntimeVec3 *)(volumeUnit + 0x144),*(f32 *)(volumeUnit + 0x150)
+          Vpad_BuildRotatedQuad((RuntimeVec3 *)(volumeUnit + 0x15c),(const RuntimeVec3 *)(volumeUnit + 0x144),*(f32 *)(volumeUnit + 0x150)
                         ,*(f32 *)(volumeUnit + 0x154),*(f32 *)(volumeUnit + 0x158));
           for (cornerIndex = 0; cornerIndex < 4; cornerIndex = cornerIndex + 1) {
             f32 cornerAngle;
