@@ -68,7 +68,7 @@ static inline u8 *code29AddOff(s32 offset, u8 *base) {
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u8 *MT_Scene_GetRes(s32 arg0);
 extern void MT_Scene_DestroyRes(u16 arg0);
-extern void func_0047ae10(u8 *arg0, s32 arg1, u8 *arg2, s32 arg3);
+extern void mdlDetachSlotModel(u8 *arg0, s32 arg1, u8 *arg2, s32 arg3);
 extern u8 func_002a2780(s32 arg0);
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, f32 farg0, s32 arg5, s32 arg6,
@@ -158,12 +158,12 @@ done_91530:
 #pragma opt_propagation off
 s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
-    extern void func_0047ae10(u8 *arg0, s32 arg1);
+    extern void mdlDetachSlotModel(u8 *arg0, s32 arg1);
     extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
     extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
     extern void func_0047ab90(void *arg0, u16 arg1, u32 arg2, u16 arg3, s32 arg4, s32 arg5, u32 arg6);
     extern void func_0047ac90(void *arg0, u16 arg1, u32 arg2, u16 arg3, u32 arg4);
-    extern void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2);
+    extern void mdlSetAttachedSlotValue(u8 *arg0, u16 arg1, s32 arg2);
     s32 flag;
     u32 lookupType;
     u8 *slot;
@@ -183,7 +183,7 @@ s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
         flag = 1;
     }
     if (flag == 1) {
-        func_0047ae10(arg1, arg2 & 0xFFFF);
+        mdlDetachSlotModel(arg1, arg2 & 0xFFFF);
     }
     if (func_0047a510(arg1, arg4, work) == 0) {
         return 0;
@@ -201,7 +201,7 @@ s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     } else {
         func_0047ac90(arg1, (u16)arg2, 5, *(u16 *)entry, 0);
     }
-    func_0047adf0(arg1, (u16)arg2, arg4);
+    mdlSetAttachedSlotValue(arg1, (u16)arg2, arg4);
     return 1;
 }
 /* measured: restore propagation for the rest of the unit. */
@@ -220,7 +220,7 @@ void func_00291790(u8 *arg0, s32 arg1)
             var_7 = 1;
         }
         if (var_7 == 1) {
-            func_0047ae10(arg0, arg1 & 0xFFFF, temp_6, var_7);
+            mdlDetachSlotModel(arg0, arg1 & 0xFFFF, temp_6, var_7);
         }
     }
 }

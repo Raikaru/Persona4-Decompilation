@@ -584,7 +584,7 @@ below are the codegen consequences.
   u8 *p = (u8 *)(off + (s32)base);
   ```
 
-  Verified on `cmpEquip.c` func_001344b0 and `code1_0047.c` func_0047adf0,
+  Verified on `cmpEquip.c` func_001344b0 and `code1_0047.c` `mdlSetAttachedSlotValue` (was `func_0047adf0`),
   both nd 1 -> 0. The plain `(s16 *)base + index` subscript form does *not*
   do it. This is the one commutative-`addu` case that is source-reachable;
   when both operands are already live in fixed registers it stays a floor.

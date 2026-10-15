@@ -39,8 +39,8 @@ extern u8 iGpffff9f2b;
 extern u8 iGpffff9f24;
 extern s32 KMisc_CreateDelayMdlFree(s32 arg0, s32 arg1);
 extern void datUnitFree(s32 arg0);
-extern s32 func_0047ae90(u8 *arg0, u16 arg1);
-extern void func_0047ae10(u8 *arg0, u16 arg1);
+extern s32 mdlPrepareSlotModel(u8 *arg0, u16 arg1);
+extern void mdlDetachSlotModel(u8 *arg0, u16 arg1);
 extern u32 H_Cdvd_IsFileLoaded(HCdvd *arg0);
 extern u32 H_Cdvd_Destroy(HCdvd *arg0);
 extern void *memcpy(void *arg0, const void *arg1, u32 arg2);
@@ -213,7 +213,7 @@ s32 FldUnit_UpdateTable(void)
                 return 0;
             }
             for (j = 0; j < 5; j++) {
-                if (func_0047ae90((u8 *)(v4[20]), j) == 0) {
+                if (mdlPrepareSlotModel((u8 *)(v4[20]), j) == 0) {
                     return 0;
                 }
             }
@@ -2922,7 +2922,7 @@ s32 FldUnit_UpdatePartyState(u8 *task)
                         s32 layer;
 
                         for (layer = 0; layer < 5; layer++) {
-                            func_0047ae10((u8 *)(*(s32 *)(unit + 0x50)), layer & 0xFFFF);
+                            mdlDetachSlotModel((u8 *)(*(s32 *)(unit + 0x50)), layer & 0xFFFF);
                         }
                         func_0047d140((void *)(*(s32 *)(unit + 0x50)));
                     }
@@ -2960,7 +2960,7 @@ s32 FldUnit_UpdatePartyState(u8 *task)
                 s32 layer;
 
                 for (layer = 0; layer < 5; layer++) {
-                    if (func_0047ae90((u8 *)(*(s32 *)(D_007EF9B0 + *(s32 *)(entry + 0x18) * 0x750 +
+                    if (mdlPrepareSlotModel((u8 *)(*(s32 *)(D_007EF9B0 + *(s32 *)(entry + 0x18) * 0x750 +
                                      0x50)), layer & 0xFFFF) == 0) {
                         return 0;
                     }

@@ -45,7 +45,7 @@ extern void func_0047aaa0(void *model, u16 slot, u32 type, u16 id,
                            void *path, u32 flags);
 extern void func_0047ac90(void *model, u16 slot, u32 type, u16 id,
                           u32 flags);
-extern void func_0047adf0(void *arg0, s32 arg1, s32 arg2);
+extern void mdlSetAttachedSlotValue(void *arg0, s32 arg1, s32 arg2);
 extern char D_006357E0[];
 extern char D_00635800[];
 
@@ -268,7 +268,7 @@ s32 func_00230c00(u32 arg0, u16 arg1, char *arg2)
 s32 func_00230d30(void *arg0)
 {
     extern s32 func_00106cd0(s16 arg0, s16 arg1);
-    extern void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2);
+    extern void mdlSetAttachedSlotValue(u8 *arg0, u16 arg1, s32 arg2);
     u16 id;
     u8 sp40[0x100];
     s32 temp_18;
@@ -300,8 +300,8 @@ s32 func_00230d30(void *arg0)
         goto block_13;
     }
 block_13:
-    func_0047adf0((u8 *)arg0, 0, 0x1F4);
-    func_0047adf0((u8 *)arg0, 1, 0x1F5);
+    mdlSetAttachedSlotValue((u8 *)arg0, 0, 0x1F4);
+    mdlSetAttachedSlotValue((u8 *)arg0, 1, 0x1F5);
     return 1;
 }
 #pragma optimization_level 2
