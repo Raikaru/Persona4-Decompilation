@@ -573,14 +573,14 @@ s32 func_00270b80(s32 arg0, u8 *arg1)
     if (first == 0) {
         first = (u16)cmmCommunityGetCurrentId();
     }
-    func_00108590(first & 0xFFFF, second & 0xFFFF, -1);
+    cmmCommunityAddPoints(first & 0xFFFF, second & 0xFFFF, -1);
     return 0;
 }
 // FUN_00270CA0
 s32 func_00270ca0(s32 arg0, u8 *arg1)
 {
     extern s32 cmmCommunityHasRecord(u16 arg0); /* lint: allow H011 -- measured: the u16 prototype reproduces retail's narrowing at this call; s32 gives nd 44 on func_00270ca0 */
-    extern s32 func_00108590(s32 arg0, s32 arg1, s32 arg2);
+    extern s32 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2);
     s32 second;
     s32 first;
     s32 third;
@@ -651,7 +651,7 @@ s32 func_00270ca0(s32 arg0, u8 *arg1)
         first = (u16)cmmCommunityGetCurrentId();
     }
     if (cmmCommunityHasRecord((u16)first) != 0)
-        func_00108590((u16)first, (u16)second, third);
+        cmmCommunityAddPoints((u16)first, (u16)second, third);
     return 0;
 }
 // Intent: Sets the reverse flag on the current community entry unless the font is in a mode that blocks it [inferred]
@@ -664,7 +664,7 @@ s32 cmmCommunitySetReverseCurrent(void) {
     }
     temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
-        func_00107ce0(temp_2 & 0xFFFF);
+        cmmCommunitySetRecordFlag1(temp_2 & 0xFFFF);
     }
     return 0;
 }
@@ -679,7 +679,7 @@ s32 cmmCommunityClearReverseCurrent(void) {
     }
     temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
-        func_00107dc0(temp_2 & 0xFFFF);
+        cmmCommunityClearRecordFlag1(temp_2 & 0xFFFF);
     }
     return 0;
 }
@@ -694,7 +694,7 @@ s32 cmmCommunitySetBrokenCurrent(void) {
     }
     temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
-        func_00107f00(temp_2 & 0xFFFF);
+        cmmCommunitySetRecordFlag2(temp_2 & 0xFFFF);
     }
     return 0;
 }
@@ -709,7 +709,7 @@ s32 cmmCommunityClearBrokenCurrent(void) {
     }
     temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
-        func_00107fe0(temp_2 & 0xFFFF);
+        cmmCommunityClearRecordFlag2(temp_2 & 0xFFFF);
     }
     return 0;
 }

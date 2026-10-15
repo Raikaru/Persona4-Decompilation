@@ -18,18 +18,18 @@ extern void func_00106390(s32 id, s32 flag);
 extern u32 func_001064f0(s32 idx);
 extern s32 func_00106550(s32 id, s32 value);
 extern s32 func_00106600(s16 idx);
-extern s32 func_00107b70(s32 idx);
-extern s32 func_00107c80(s32 idx);
-extern void func_00107ce0(s32 idx);
-extern s32 func_00107ea0(s32 idx);
-extern s32 func_001087e0(s32 idx);
+extern s32 cmmCommunityTestRecordFlag4(s32 idx);
+extern s32 cmmCommunityTestRecordFlag1(s32 idx);
+extern void cmmCommunitySetRecordFlag1(s32 idx);
+extern s32 cmmCommunityTestRecordFlag2(s32 idx);
+extern s32 cmmCommunityCanRankUp(s32 idx);
 extern s32 cmmCommunityFindRecord(s32 idx);
 extern s32 func_00110580(s32 a);
 extern s32 func_00110680(s32 a, s32 b, s32 c);
 extern s32 func_001106f0(s32 a, s32 b, s32 c, s32 d, s32 e);
 extern s32 cmmCommunityCounterpart(s64 idx); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
 extern s32 func_00107ac0(s32 idx);
-extern s32 func_00107a00(s32 idx, s32 arg1);
+extern s32 cmmCommunityTestRecordFlags(s32 idx, s32 arg1);
 extern u16 cmmCommunityGetTableHead(void);
 extern s32 datPersonaRosterSlotRank(s32 idx);
 extern s64 func_00248760(s32 idx);
@@ -398,7 +398,7 @@ s32 func_00247270(void) {
     s32 temp_18;
 
     for (var_19 = 1; var_19 < 0x1F; var_19++) {
-        if (func_001087e0(var_19 & 0xFFFF) != 0) {
+        if (cmmCommunityCanRankUp(var_19 & 0xFFFF) != 0) {
             temp_18 = var_19 & 0xFFFF;
             if (temp_18 == 0) {
                 kAssertFail(D_006359D0, 0x1B3);
@@ -414,7 +414,7 @@ s32 func_00247270(void) {
             } else {
                 var_2 = 0;
             }
-            if ((var_2 != 0) && (func_00107c80(var_19 & 0xFFFF) == 0) && (func_00107ea0(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) == 0)) {
+            if ((var_2 != 0) && (cmmCommunityTestRecordFlag1(var_19 & 0xFFFF) == 0) && (cmmCommunityTestRecordFlag2(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) == 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
                     kAssertFail(D_006359D0, 0x4C);
@@ -429,7 +429,7 @@ s32 func_00247270(void) {
                     if ((u32)temp_18 >= temp_17_2[1]) {
                         kAssertFail(D_006359D0, 0x4C);
                     }
-                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (func_00107b70(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
+                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestRecordFlag4(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
                         return var_19 & 0xFFFF;
                     }
                 }
@@ -459,7 +459,7 @@ s32 func_002474f0(void) {
     s32 temp_18;
 
     for (var_19 = 1; var_19 < 0x1F; var_19++) {
-        if (func_001087e0(var_19 & 0xFFFF) != 0) {
+        if (cmmCommunityCanRankUp(var_19 & 0xFFFF) != 0) {
             temp_18 = var_19 & 0xFFFF;
             if (temp_18 == 0) {
                 kAssertFail(D_006359D0, 0x1B3);
@@ -475,7 +475,7 @@ s32 func_002474f0(void) {
             } else {
                 var_2 = 0;
             }
-            if ((var_2 != 0) && (func_00107c80(var_19 & 0xFFFF) == 0) && (func_00107ea0(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) != 0)) {
+            if ((var_2 != 0) && (cmmCommunityTestRecordFlag1(var_19 & 0xFFFF) == 0) && (cmmCommunityTestRecordFlag2(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) != 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
                     kAssertFail(D_006359D0, 0x4C);
@@ -490,7 +490,7 @@ s32 func_002474f0(void) {
                     if ((u32)temp_18 >= temp_17_2[1]) {
                         kAssertFail(D_006359D0, 0x4C);
                     }
-                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (func_00107b70(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
+                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestRecordFlag4(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
                         return var_19 & 0xFFFF;
                     }
                 }
@@ -875,7 +875,7 @@ body_15:
         if ((temp_3 >= (s32)*(u16 *)(var_18 + 4)) &&
             (temp_3 <= (s32)*(u16 *)(var_18 + 6)) &&
             ((func_00107ac0(*(u16 *)(var_18 + 2)) & 0xFFFF) != 0xA) &&
-            (func_00107a00(*(u16 *)(var_18 + 2), 3) == 0) &&
+            (cmmCommunityTestRecordFlags(*(u16 *)(var_18 + 2), 3) == 0) &&
             ((temp_23 = *(u16 *)(var_18 + 2)), (temp_23 != (cmmCommunityGetTableHead() & 0xFFFF)))) {
             var_2 = 1;
         } else {
@@ -901,8 +901,8 @@ loop_15:
 }
 /* measured (wave 14 retest — nd 73 reproduced exactly; no match): draft-based
    reconstruction `while (var_20 < 0x1F) { if (cmmCommunityHasRecord(var_20&0xFFFF)
-   && func_00107a00(var_20&0xFFFF,3)==0) { temp_2 = cmmCommunityFindRecord(...); ...
-   *0x64 ladder, D_00881480 bounds, +0x12 flags, func_00107ce0 } }` scores
+   && cmmCommunityTestRecordFlags(var_20&0xFFFF,3)==0) { temp_2 = cmmCommunityFindRecord(...); ...
+   *0x64 ladder, D_00881480 bounds, +0x12 flags, cmmCommunitySetRecordFlag1 } }` scores
    nd 73 — mwcc b210 CSEs var_20&0xFFFF into a saved register ($s3) at loop
    top and emits move $a0,$s3 per call, retail re-issues andi per site.
    Mixed `(u16)`/`& 0xFFFF` spellings regress to nd 90 (normalised away).
@@ -921,7 +921,7 @@ void func_00248240(void) {
 
     var_20 = 1;
     while (var_20 < 0x1F) {
-        if ((cmmCommunityHasRecord(var_20 & 0xFFFF) != 0) && (func_00107a00(var_20 & 0xFFFF, 3) == 0)) {
+        if ((cmmCommunityHasRecord(var_20 & 0xFFFF) != 0) && (cmmCommunityTestRecordFlags(var_20 & 0xFFFF, 3) == 0)) {
             temp_2 = (u8 *)cmmCommunityFindRecord(var_20 & 0xFFFF);
             if (temp_2 == NULL) {
                 var_3 = 0;
@@ -952,7 +952,7 @@ block_12:
             var_3 = 0;
 block_13:
             if (var_3 != 0) {
-                func_00107ce0(var_20 & 0xFFFF);
+                cmmCommunitySetRecordFlag1(var_20 & 0xFFFF);
             }
         }
         var_20 += 1;
@@ -962,14 +962,14 @@ block_13:
 #pragma opt_common_subs on
 /* measured (wave 14 retest — nd 119 with a fresh draft-based reconstruction,
    no match): loop of cmmCommunityHasRecord/func_00107ac0==0xA/func_00248a60/
-   func_00107a00 guards, the D_00881494 two-u16 table scan into var_20,
+   cmmCommunityTestRecordFlags guards, the D_00881494 two-u16 table scan into var_20,
    cmmCommunityFindRecord (real signature s32(s32) — the m2c's 2nd arg is a leftover
-   $5 the callee ignores), +0x12 flags and func_00107ce0 — mask-CSE
+   $5 the callee ignores), +0x12 flags and cmmCommunitySetRecordFlag1 — mask-CSE
    dominates (mwcc drills var_21&0xFFFF into a saved register; nd 30+ per the
    earlier note's better spelling). Same family as FUN_00248240/FUN_00248B80.
    func_00248a60 extern added as s32(s32). */
-/* measured: corrected target callees to func_00248a60(s32), func_00107a00(s32,s32),
-   kAssertFail(void *,s32), func_00107ce0(s32), and
+/* measured: corrected target callees to func_00248a60(s32), cmmCommunityTestRecordFlags(s32,s32),
+   kAssertFail(void *,s32), cmmCommunitySetRecordFlag1(s32), and
    cmmCommunityHasRecord(s32); active seed measured 552B vs 544B retail window,
    normalized_diff 109 (oversized reconstruction); archived without further probes. */
 // FUN_002483C0
@@ -1007,7 +1007,7 @@ void func_002483c0(u16 arg0) {
             goto block_15;
         }
         call_idx = (u16)var_20;
-        if (func_00107a00(call_idx, 3) != 0) {
+        if (cmmCommunityTestRecordFlags(call_idx, 3) != 0) {
             goto block_15;
         }
         {
@@ -1064,7 +1064,7 @@ block_12:
 block_13:
             if (var_3 != 0) {
                 call_idx = (u16)var_20;
-                func_00107ce0(call_idx);
+                cmmCommunitySetRecordFlag1(call_idx);
             }
         }
 block_15:
@@ -1096,7 +1096,7 @@ u8 *func_002485e0(s32 arg0, s32 arg1) {
         extern s32 cmmCommunityHasRecord(s32 idx);
         if (cmmCommunityHasRecord(arg1) == 0) {
             var_2 = 3;
-        } else if (func_001087e0(arg1) != 0) {
+        } else if (cmmCommunityCanRankUp(arg1) != 0) {
             if ((func_00107ac0(arg1) & 0xFFFF) == 9) {
                 var_2 = 6;
             } else {

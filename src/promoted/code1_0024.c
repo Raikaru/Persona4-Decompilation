@@ -18,18 +18,18 @@ extern void cmmCommunityAllocRecord(s32 arg0);
 extern s32 cmmCommunityHasRecord(s32 arg0);
 extern s32 cmmCommunityGetCurrentId(void);
 extern s32 func_00107ac0(s32 arg0);
-extern s32 func_00108950(s32 arg0);
+extern s32 cmmCommunityTryRankUp(s32 arg0);
 extern s32 scrGetParamInt(s32 arg0);
 extern void scrSetReturnInt(s32 arg0);
-extern s32 func_001087e0(s32 arg0);
-extern s32 func_00107c80(s32 arg0);
-extern s32 func_00107ce0(s32 arg0);
-extern s32 func_00107dc0(s32 arg0);
-extern s32 func_00107ea0(s32 arg0);
-extern s32 func_00107f00(s32 arg0);
-extern s32 func_00107fe0(s32 arg0);
-extern s32 func_00108290(s32 arg0, s32 arg1);
-extern s32 func_00108590(s32 arg0, s32 arg1, s32 arg2);
+extern s32 cmmCommunityCanRankUp(s32 arg0);
+extern s32 cmmCommunityTestRecordFlag1(s32 arg0);
+extern s32 cmmCommunitySetRecordFlag1(s32 arg0);
+extern s32 cmmCommunityClearRecordFlag1(s32 arg0);
+extern s32 cmmCommunityTestRecordFlag2(s32 arg0);
+extern s32 cmmCommunitySetRecordFlag2(s32 arg0);
+extern s32 cmmCommunityClearRecordFlag2(s32 arg0);
+extern s32 cmmCommunityAddScaledPoints(s32 arg0, s32 arg1);
+extern s32 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2);
 extern s64 func_001060b0(void);
 extern s32 func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_002480e0(s32 arg0, s32 arg1, s32 arg2);
@@ -360,7 +360,7 @@ s32 func_00249c40(void)
     if (var_2 == 0) {
         var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    func_00108950(var_2 & 0xFFFF);
+    cmmCommunityTryRankUp(var_2 & 0xFFFF);
     return 1;
 }
 // Intent: Event command CMM_CHK_LVUP (p4flow Event 0x300E): returns whether the cmm entry can level up [inferred]
@@ -373,7 +373,7 @@ s32 cmmCheckLevelUp(void)
     if (var_2 == 0) {
         var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (func_001087e0(var_2 & 0xFFFF) != 0) {
+    if (cmmCommunityCanRankUp(var_2 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
@@ -391,7 +391,7 @@ s32 func_00249d00(void)
     if (var_17 == 0) {
         var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    func_00108290(var_17 & 0xFFFF, temp_16 & 0xFFFF);
+    cmmCommunityAddScaledPoints(var_17 & 0xFFFF, temp_16 & 0xFFFF);
     return 1;
 }
 // Intent: Event command CMM_ADD_POINT_ID (p4flow Event 0x3031): adds points to the cmm entry [inferred]
@@ -403,7 +403,7 @@ s32 cmmAddPointId(void)
 
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    func_00108590(temp_17 & 0xFFFF, temp_16 & 0xFFFF, scrGetParamInt(2));
+    cmmCommunityAddPoints(temp_17 & 0xFFFF, temp_16 & 0xFFFF, scrGetParamInt(2));
     return 1;
 }
 // FUN_00249DE0
@@ -415,7 +415,7 @@ s32 func_00249de0(void)
     if (var_2 == 0) {
         var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (func_00107c80(var_2 & 0xFFFF) != 0) {
+    if (cmmCommunityTestRecordFlag1(var_2 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
@@ -435,9 +435,9 @@ s32 cmmSetReverse(void)
         var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (temp_16 != 0) {
-        func_00107ce0(var_17 & 0xFFFF);
+        cmmCommunitySetRecordFlag1(var_17 & 0xFFFF);
     } else {
-        func_00107dc0(var_17 & 0xFFFF);
+        cmmCommunityClearRecordFlag1(var_17 & 0xFFFF);
     }
     return 1;
 }
@@ -450,7 +450,7 @@ s32 func_00249ee0(void)
     if (var_2 == 0) {
         var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (func_00107ea0(var_2 & 0xFFFF) != 0) {
+    if (cmmCommunityTestRecordFlag2(var_2 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
@@ -470,9 +470,9 @@ s32 cmmSetBroken(void)
         var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (temp_16 != 0) {
-        func_00107f00(var_17 & 0xFFFF);
+        cmmCommunitySetRecordFlag2(var_17 & 0xFFFF);
     } else {
-        func_00107fe0(var_17 & 0xFFFF);
+        cmmCommunityClearRecordFlag2(var_17 & 0xFFFF);
     }
     return 1;
 }
