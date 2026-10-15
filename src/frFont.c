@@ -1117,8 +1117,9 @@ u8 *frFontCreateTextList(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
     }
     return var19;
 }
+/* Sets the byte at +2 of every node in the list. */
 // FUN_00272730
-void func_00272730(int param_1, u8 param_2)
+void frFontSetListFlag(int param_1, u8 param_2)
 {
     if (param_1 == 0) {
         func_0046d730(D_0063BAE8, 0x69B);
@@ -1128,8 +1129,9 @@ void func_00272730(int param_1, u8 param_2)
     }
 }
 
+/* Sets the node's leading 16-bit id (character code). */
 // FUN_002727A0
-void func_002727a0(u32 param_1, u16 param_2)
+void frFontSetNodeId(u32 param_1, u16 param_2)
 {
     if (param_1 == 0) {
         func_0046d730(D_0063BAE8, 0x6A7);
@@ -1137,8 +1139,9 @@ void func_002727a0(u32 param_1, u16 param_2)
     *(u16 *)param_1 = param_2;
 }
 
+/* Enables the node and marks every node in its chain with 0xFF at +2. */
 // FUN_002727F0
-void func_002727f0(FrFontNode *node)
+void frFontEnableList(FrFontNode *node)
 {
     FrFontNode *iter;
 
@@ -1152,8 +1155,9 @@ void func_002727f0(FrFontNode *node)
     }
 }
 
+/* Sets the byte at +3 of a node and recomputes its width at +0xC. */
 // FUN_00272860
-void func_00272860(int param_1, int param_2)
+void frFontSetCharWidth(int param_1, int param_2)
 {
     if (param_1 == 0) {
         func_0046d730(D_0063BAE8, 0x6C3);
@@ -1162,8 +1166,9 @@ void func_00272860(int param_1, int param_2)
     *(u32 *)(param_1 + 0xc) = func_002738d0(param_1);
 }
 
+/* Sets the slot byte (+0x15) of every glyph in every node of the list. */
 // FUN_002728C0
-void func_002728c0(int param_1, u8 param_2)
+void frFontSetListSlot(int param_1, u8 param_2)
 {
     int iVar1;
 
@@ -1178,8 +1183,9 @@ void func_002728c0(int param_1, u8 param_2)
     }
 }
 
+/* Shifts the whole list so its first node is at (x, y). */
 // FUN_00272950
-void func_00272950(int param_1, int param_2, int param_3)
+void frFontMoveListTo(int param_1, int param_2, int param_3)
 {
     int iVar1;
     int iVar2;
@@ -1199,8 +1205,9 @@ void func_00272950(int param_1, int param_2, int param_3)
     }
 }
 
+/* Shifts the whole list to a float position (x * 16, y * 8). */
 // FUN_00272A10
-void func_00272a10(int param_1, float param_2, float param_3)
+void frFontMoveListToFloat(int param_1, float param_2, float param_3)
 {
     int iVar1;
     int iVar2;
@@ -1220,7 +1227,8 @@ void func_00272a10(int param_1, float param_2, float param_3)
     }
 }
 
-/* measured: func_00272b00/00272b34 (and 00272ba0/00272bd4) are one retail
+/* Sets the aux byte (+0x14) of every glyph in the list. */
+/* measured: frFontSetGlyphAux/00272b34 (and frFontSetGlyphColor/00272bd4) are one retail
    code region split by Ghidra at a branch target: b00's entry beq jumps to
    b34's entry, whose bne branches back into b00's body. Portable C cannot
    reproduce the cross-function branch (standalone compiles give b00 15 words
@@ -1234,9 +1242,9 @@ void func_00272a10(int param_1, float param_2, float param_3)
    could ever fill it. 0x00272B34 has zero jal, zero j and zero pointer references in
    the whole image while this address has 17 jal sites. With the landing point withdrawn
    in reconcile_function_boundaries the window is 80 bytes and the obvious nested-while,
-   the same shape as the already-matching func_00272b50 below, is byte-exact. */
+   the same shape as the already-matching frFontReplaceGlyphAux below, is byte-exact. */
 // FUN_00272B00
-void func_00272b00(int param_1, u8 param_2)
+void frFontSetGlyphAux(int param_1, u8 param_2)
 {
     FrFontGlyph *glyph;
 
@@ -1250,8 +1258,9 @@ void func_00272b00(int param_1, u8 param_2)
     }
 }
 
+/* Replaces the aux byte of every glyph equal to key with value. */
 // FUN_00272B50
-void func_00272b50(int param_1, u8 param_2, u8 param_3)
+void frFontReplaceGlyphAux(int param_1, u8 param_2, u8 param_3)
 {
     int key = param_2;
     FrFontGlyph *glyph;
@@ -1268,15 +1277,16 @@ void func_00272b50(int param_1, u8 param_2, u8 param_3)
     }
 }
 
-/* measured: s32 twin of the func_00272b00/00272b34 split above (stores a
+/* Sets the colour word (+0x10) of every glyph in the list. */
+/* measured: s32 twin of the frFontSetGlyphAux/00272b34 split above (stores a
    u32 at +0x10 instead of a u8 at +0x14); 00272bd4's entry bne branches back
    into 00272ba0's body. Same Ghidra split, same impossibility for portable C
    (see the note above FUN_00272B00). */
-/* The u32 twin of func_00272b00 above (stores at +0x10 instead of a u8 at +0x14).
+/* The u32 twin of frFontSetGlyphAux above (stores at +0x10 instead of a u8 at +0x14).
    Same withdrawn branch-landing entry (0x00272BD4, zero callers; this address has 18
    jal sites), same 80-byte window, same nested-while body. */
 // FUN_00272BA0
-void func_00272ba0(int param_1, u32 param_2)
+void frFontSetGlyphColor(int param_1, u32 param_2)
 {
     FrFontGlyph *glyph;
 
@@ -2468,7 +2478,7 @@ link_node:
 store_node:
                 node = linked;
                 *(FrFontNode **)(context + 0x14) = node;
-                func_00272730((int)node, *(u8 *)(context + 0xF));
+                frFontSetListFlag((int)node, *(u8 *)(context + 0xF));
                 height = *(s16 *)(context + 0x1E);
                 node = *(FrFontNode **)(context + 0x14);
                 if (node == NULL) {

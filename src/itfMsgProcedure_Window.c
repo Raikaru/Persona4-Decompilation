@@ -48,12 +48,12 @@ extern void func_00278170(void *arg0, u32 arg1);
 extern void func_002781e0(void *arg0, u32 arg1);
 extern s32 func_00278fd0(void *arg0);
 extern s32 func_00278fb0(void *arg0);
-extern void func_00272a10(void *arg0, f32 f0, f32 f1);
-extern void func_002728c0(void *arg0, s32 arg1);
-extern void func_00272b00(void *arg0, s32 arg1);
-extern void func_00272b50(void *arg0, s32 a1, s32 a2);
-extern void func_00272730(void *arg0, s32 arg1);
-extern void func_002727a0(void *arg0, s32 arg1);
+extern void frFontMoveListToFloat(void *arg0, f32 f0, f32 f1);
+extern void frFontSetListSlot(void *arg0, s32 arg1);
+extern void frFontSetGlyphAux(void *arg0, s32 arg1);
+extern void frFontReplaceGlyphAux(void *arg0, s32 a1, s32 a2);
+extern void frFontSetListFlag(void *arg0, s32 arg1);
+extern void frFontSetNodeId(void *arg0, s32 arg1);
 extern s32 func_0027b6e0(void *arg0, s32 arg1);
 extern void func_0027b750(void *arg0, s32 a1, s32 a2);
 extern void func_00283490(u8 *arg0, u8 *arg1);
@@ -70,7 +70,7 @@ extern s16 D_00882066[];
 extern f32 iGpffff81d8;
 extern void func_0025ec90(f32, f32, f32, s32, u8, s32, void *, s32, void *);
 extern s32 func_002738d0(void *arg0);
-extern void func_00272ba0(void *arg0, s32 arg1);
+extern void frFontSetGlyphColor(void *arg0, s32 arg1);
 extern void func_0027a490(void *a0, s32 a1, s32 a2, s32 a3);
 extern void func_0027a4b0(void *a0, s32 a1, s32 a2, s32 a3);
 extern void func_002e0dd0(void);
@@ -719,15 +719,15 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         void *t0;
         void *t1;
         if ((t0 = (void *)func_00278fd0((void *)arg0)) != (void *)0) {
-            func_00272a10(t0, 44.0f, 306.0f);
-            func_002728c0(t0, 0);
-            func_00272b00(t0, 0);
-            func_00272ba0(t0, 0x1B1B1BFF);
+            frFontMoveListToFloat(t0, 44.0f, 306.0f);
+            frFontSetListSlot(t0, 0);
+            frFontSetGlyphAux(t0, 0);
+            frFontSetGlyphColor(t0, 0x1B1B1BFF);
         }
         if ((t1 = (void *)func_00278fb0((void *)arg0)) != (void *)0) {
-            func_00272a10(t1, 57.0f, 338.0f);
-            func_002728c0(t1, 0);
-            func_00272b50(t1, 0, 0);
+            frFontMoveListToFloat(t1, 57.0f, 338.0f);
+            frFontSetListSlot(t1, 0);
+            frFontReplaceGlyphAux(t1, 0, 0);
         }
         ret = 1;
         break;
@@ -758,8 +758,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
     case 10: {
         void *t;
         if ((t = (void *)func_00278ff0((void *)arg0)) != (void *)0) {
-            func_002728c0(t, 0);
-            func_00272b00(t, 0);
+            frFontSetListSlot(t, 0);
+            frFontSetGlyphAux(t, 0);
         }
         break;
     }
@@ -802,8 +802,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 D_00882006[0] = 0;
                 func_00278fd0((void *)arg0);
                 if ((tmp = func_00278fb0((void *)arg0)) != 0) {
-                    func_00272ba0((void *)tmp, -128);
-                    func_00272730((void *)tmp, 0);
+                    frFontSetGlyphColor((void *)tmp, -128);
+                    frFontSetListFlag((void *)tmp, 0);
                 }
                 ret = 1;
             }
@@ -850,8 +850,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 func_0025ec90(23.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
                 func_0025ec90(407.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
                 if ((tmp = func_00278ff0((void *)arg0)) != 0) {
-                    func_00272b00((void *)tmp, 0);
-                    func_00272ba0((void *)tmp, -1);
+                    frFontSetGlyphAux((void *)tmp, 0);
+                    frFontSetGlyphColor((void *)tmp, -1);
                     func_0027a490((void *)tmp, a, b, 0);
                     func_0027a4b0((void *)tmp, a, b, 0x1B1B1BFF);
                 }
@@ -867,8 +867,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
         if ((t = (void *)func_00278ff0((void *)arg0)) != (void *)0) {
             func_00277070((s32)arg0);
             func_00279010((s32)arg0);
-            func_00272b00(t, 0);
-            func_00272ba0(t, 0x1B1B1BFF);
+            frFontSetGlyphAux(t, 0);
+            frFontSetGlyphColor(t, 0x1B1B1BFF);
         }
         if (func_0027bec0((s32)arg0) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
@@ -949,8 +949,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 }
                 if ((tmp = func_00278ff0((void *)arg0)) != 0 && D_00882006[0] >= need32 - 5) {
                     f1 = (float)(D_00882006[0] - (need32 - 5)) / 5.0f;
-                    func_00272b00((void *)tmp, 0);
-                    func_00272ba0((void *)tmp, ((int)(255.0f * (1.0f - f1)) & 0xFF) | 0x1B1B1B00);
+                    frFontSetGlyphAux((void *)tmp, 0);
+                    frFontSetGlyphColor((void *)tmp, ((int)(255.0f * (1.0f - f1)) & 0xFF) | 0x1B1B1B00);
                 }
                 if (D_00882006[0] >= need32) {
                     D_00882000[0] &= ~0x10;
@@ -1629,16 +1629,16 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         break;
     case 8:
         if ((pv = (void *)func_00278fd0((void *)arg0)) != (void *)0) {
-            func_00272a10(pv, 400.0f, 145.0f);
-            func_002728c0(pv, 0);
-            func_00272b00(pv, 0);
+            frFontMoveListToFloat(pv, 400.0f, 145.0f);
+            frFontSetListSlot(pv, 0);
+            frFontSetGlyphAux(pv, 0);
         }
         if ((pv2 = (void *)func_00278fb0((void *)arg0)) != (void *)0) {
-            func_00272a10(pv2, 57.0f, 169.0f);
-            func_002728c0(pv2, 0);
-            func_00272b50(pv2, 0, 0);
-            func_00272730(pv2, 0xFF);
-            func_002727a0(pv2, 0xFF);
+            frFontMoveListToFloat(pv2, 57.0f, 169.0f);
+            frFontSetListSlot(pv2, 0);
+            frFontReplaceGlyphAux(pv2, 0, 0);
+            frFontSetListFlag(pv2, 0xFF);
+            frFontSetNodeId(pv2, 0xFF);
             tmp2 = func_00273970((s32)pv2);
             if (tmp2 < 3) {
                 D_0088202C[0] = 0;
@@ -1957,16 +1957,16 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         void *p2;
 
         if ((p1 = (void *)func_00278fd0(arg0)) != NULL) {
-            func_00272a10(p1, 10.0f, 90.0f);
-            func_002728c0(p1, 0);
-            func_00272b00(p1, 2);
+            frFontMoveListToFloat(p1, 10.0f, 90.0f);
+            frFontSetListSlot(p1, 0);
+            frFontSetGlyphAux(p1, 2);
         }
         if ((p2 = (void *)func_00278fb0(arg0)) != NULL) {
-            func_00272a10(p2, 141.0f, 25.0f);
-            func_002728c0(p2, 1);
-            func_00272b50(p2, 0, 0);
-            func_00272730(p2, 0x20);
-            func_002727a0(p2, 0);
+            frFontMoveListToFloat(p2, 141.0f, 25.0f);
+            frFontSetListSlot(p2, 1);
+            frFontReplaceGlyphAux(p2, 0, 0);
+            frFontSetListFlag(p2, 0x20);
+            frFontSetNodeId(p2, 0);
         }
         ret = 1;
         break;
@@ -1988,7 +1988,7 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         void *p;
 
         if ((p = (void *)func_00278ff0(arg0)) != NULL) {
-            func_002728c0(p, 0);
+            frFontSetListSlot(p, 0);
         }
         break;
     }
@@ -2074,14 +2074,14 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         void *pv;
         void *pv2;
         if ((pv = (void *)func_00278fd0(arg0)) != NULL) {
-            func_00272a10(pv, 44.0f, 306.0f);
-            func_002728c0(pv, 0);
-            func_00272b00(pv, 5);
+            frFontMoveListToFloat(pv, 44.0f, 306.0f);
+            frFontSetListSlot(pv, 0);
+            frFontSetGlyphAux(pv, 5);
         }
         if ((pv2 = (void *)func_00278fb0(arg0)) != NULL) {
-            func_00272a10(pv2, 650.0f, 0.0f);
-            func_00272730(pv2, 0xFF);
-            func_002727a0(pv2, 0xFF);
+            frFontMoveListToFloat(pv2, 650.0f, 0.0f);
+            frFontSetListFlag(pv2, 0xFF);
+            frFontSetNodeId(pv2, 0xFF);
         }
         ret = 1;
         break;
@@ -2102,16 +2102,16 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         void *pv;
         void *pv2;
         if ((pv = (void *)func_00278ff0(arg0)) != NULL) {
-            func_002728c0(pv, 0);
-            func_00272b00(pv, 0);
+            frFontSetListSlot(pv, 0);
+            frFontSetGlyphAux(pv, 0);
         }
         if ((pv2 = (void *)func_00278fb0(arg0)) != NULL) {
             func_002738d0(pv2);
-            func_002728c0(pv2, 0);
-            func_00272b00(pv2, 0);
-            func_00272ba0(pv2, 0xFFAE20FF);
-            func_00272730(pv2, 0xFF);
-            func_002727a0(pv2, 0xFF);
+            frFontSetListSlot(pv2, 0);
+            frFontSetGlyphAux(pv2, 0);
+            frFontSetGlyphColor(pv2, 0xFFAE20FF);
+            frFontSetListFlag(pv2, 0xFF);
+            frFontSetNodeId(pv2, 0xFF);
         }
         break;
     }
@@ -2140,11 +2140,11 @@ s32 func_00282250(u8 *arg0, s32 arg1)
             func_00366380((s32)(-5.0f - (1.0f - f) * 500.0f), backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
             if ((pv = (void *)func_00278fb0(arg0)) != NULL) {
                 v738d0 = func_002738d0(pv);
-                func_00272a10(pv, (f * 443.0f - 4.0f) - (float)v738d0, 351.0f);
+                frFontMoveListToFloat(pv, (f * 443.0f - 4.0f) - (float)v738d0, 351.0f);
             }
             if ((pv2 = (void *)func_00278ff0(arg0)) != NULL) {
-                func_00272b00(pv2, 0);
-                func_00272ba0(pv2, -1);
+                frFontSetGlyphAux(pv2, 0);
+                frFontSetGlyphColor(pv2, -1);
                 func_0027a490(pv2, v77070, v79010, 0);
                 func_0027a4b0(pv2, v77070, v79010, 0x1B1B1BFF);
             }
@@ -2176,8 +2176,8 @@ s32 func_00282250(u8 *arg0, s32 arg1)
                 func_0025ec90(23.0f, (float)i2, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
                 func_0025ec90(407.0f, (float)i2, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, (void *)D_00796490);
                 if ((pv = (void *)func_00278ff0(arg0)) != NULL) {
-                    func_00272b00(pv, 0);
-                    func_00272ba0(pv, -1);
+                    frFontSetGlyphAux(pv, 0);
+                    frFontSetGlyphColor(pv, -1);
                     func_0027a490(pv, v77070, v79010, 0);
                     func_0027a4b0(pv, v77070, v79010, 0x1B1B1BFF);
                 }
@@ -2203,7 +2203,7 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         if ((closingSelection = (void *)func_00278ff0(arg0)) != NULL) {
             func_00277070((s32)arg0);
             func_00279010((s32)arg0);
-            func_00272b00(closingSelection, 5);
+            frFontSetGlyphAux(closingSelection, 5);
         }
         if (func_0027bec0((s32)arg0) != 0) {
             tmp = msgWinReady();
@@ -2282,15 +2282,15 @@ s32 func_00282250(u8 *arg0, s32 arg1)
                         float alpha;
                         alpha = (float)(frame - fadeStart) / 5.0f;
                         alpha = 255.0f * (1.0f - alpha);
-                        func_00272ba0(selection, (s32)alpha | 0x1B1B1B00);
+                        frFontSetGlyphColor(selection, (s32)alpha | 0x1B1B1B00);
                     }
                 }
                 if ((pv = (void *)func_00278fb0(arg0)) != NULL && D_00882066[0] < 3) {
-                    func_00272730(pv, 0);
-                    func_002727a0(pv, 0);
+                    frFontSetListFlag(pv, 0);
+                    frFontSetNodeId(pv, 0);
                     f = (float)D_00882066[0] / 2.0f;
-                    func_00272b00(pv, 5);
-                    func_00272ba0(pv, (s32)(255.0f * (1.0f - f)) | 0x1B1B1B00);
+                    frFontSetGlyphAux(pv, 5);
+                    frFontSetGlyphColor(pv, (s32)(255.0f * (1.0f - f)) | 0x1B1B1B00);
                 }
                 if (!((s32)D_00882066[0] < total)) {
                     D_00882060[0] &= ~0x10u;
@@ -2816,16 +2816,16 @@ s32 func_002848c0(void *arg0, s32 arg1)
         break;
     case 8:
         if ((p1 = (void *)func_00278fd0(arg0)) != NULL) {
-            func_00272a10(p1, 400.0f, 170.0f);
-            func_002728c0(p1, 0);
-            func_00272b00(p1, 0);
+            frFontMoveListToFloat(p1, 400.0f, 170.0f);
+            frFontSetListSlot(p1, 0);
+            frFontSetGlyphAux(p1, 0);
         }
         if ((p2 = (void *)func_00278fb0(arg0)) != NULL) {
-            func_00272a10(p2, 202.0f, (f32)281);
-            func_002728c0(p2, 0);
-            func_00272b50(p2, 0, 0);
-            func_00272730(p2, 255);
-            func_002727a0(p2, 255);
+            frFontMoveListToFloat(p2, 202.0f, (f32)281);
+            frFontSetListSlot(p2, 0);
+            frFontReplaceGlyphAux(p2, 0, 0);
+            frFontSetListFlag(p2, 255);
+            frFontSetNodeId(p2, 255);
         }
         ret = 1;
         break;

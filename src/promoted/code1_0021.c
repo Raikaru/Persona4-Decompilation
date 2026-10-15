@@ -2548,9 +2548,9 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     extern void func_00201410(u8 *arg0, s32 font, s32 id, f32 x, f32 y);
     extern void func_00201820(s32 mode);
     extern u8 *frFontCreateTextList(u8 *text, s32 style, s8 mode, s32 arg3, u8 *arg4);
-    extern void func_00272860(s32 arg0, s32 arg1);
-    extern void func_00272950(s32 arg0, s32 arg1, s32 arg2);
-    extern void func_00272ba0(s32 arg0, s32 arg1);
+    extern void frFontSetCharWidth(s32 arg0, s32 arg1);
+    extern void frFontMoveListTo(s32 arg0, s32 arg1, s32 arg2);
+    extern void frFontSetGlyphColor(s32 arg0, s32 arg1);
     extern void func_00272c60(s32 arg0);
     extern void func_00272c80(s32 arg0);
     extern s32 func_00273170(void *arg0, u32 arg1, u32 arg2);
@@ -2641,17 +2641,17 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             iGpffffb4b0 = 120;
             *(s32 *)arg1 = (s32)frFontCreateTextList((u8 *)*(s32 *)(arg1 + 0x24), 1, 0, 0, 0);
             iGpffffb4b0 = 0;
-            func_00272860(*(s32 *)arg1, -1);
+            frFontSetCharWidth(*(s32 *)arg1, -1);
             func_00272c80(1);
             func_00272c60(2);
             half = func_002738d0(*(s32 *)arg1);
             if (*(u16 *)(arg1 + 0x10) & 4) {
-                func_00272950(*(s32 *)arg1, (0xD1 - half / 2) << 4, 0x2A0);
+                frFontMoveListTo(*(s32 *)arg1, (0xD1 - half / 2) << 4, 0x2A0);
             } else {
-                func_00272950(*(s32 *)arg1, (0x130 - half / 2) << 4, 0x2A0);
+                frFontMoveListTo(*(s32 *)arg1, (0x130 - half / 2) << 4, 0x2A0);
             }
             frFontExSetScale(*(s32 *)arg1, 50.0f);
-            func_00272ba0(*(s32 *)arg1, -1);
+            frFontSetGlyphColor(*(s32 *)arg1, -1);
         }
         *(s32 *)(arg1 + 0xC) = half;
         *(s32 *)(arg1 + 8) = 0;

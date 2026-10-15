@@ -922,7 +922,7 @@ node_done:
 // FUN_0027A970
 void func_0027a970(u8 *arg0)
 {
-    extern void func_002727f0(u8 *arg0);
+    extern void frFontEnableList(u8 *arg0);
     extern s32 func_002734b0(u8 *arg0);
     extern void func_002738a0(u8 *arg0);
     extern void func_002746c0(s32 arg0, s32 arg1);
@@ -1002,11 +1002,11 @@ do_action:
                 (*(s32 *)arg0 & 0x1000000) == 0) {
                 iter = *(u8 **)(state + 4);
                 while (iter != NULL) {
-                    func_002727f0(iter);
+                    frFontEnableList(iter);
                     iter = *(u8 **)(iter + 0x24);
                 }
                 if (*(u8 **)(arg0 + 0x14) != NULL)
-                    func_002727f0(*(u8 **)(arg0 + 0x14));
+                    frFontEnableList(*(u8 **)(arg0 + 0x14));
             }
             *(s32 *)arg0 = *(s32 *)arg0 & 0xFEFFFFFF;
         }
