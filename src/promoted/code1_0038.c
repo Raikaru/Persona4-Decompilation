@@ -3253,101 +3253,11 @@ s32 func_0038d660(u8 *arg0) {
     return 0;
 }
 
-// FUN_0038DD60
-void func_0038dd60(void)
-{
-}
 
-// FUN_0038DD70
-void func_0038dd70(void)
-{
-}
 
-// FUN_0038DD80
-void func_0038dd80(void)
-{
-}
 
-// FUN_0038DD90
-void func_0038dd90(u8 *arg0) {
-    s32 i;
 
-    *(s32 *)arg0 = 0;
-    arg0[0x122C] = 0xFF;
-    arg0[0x122D] = 0xFF;
-    arg0[0x122E] = 0xFF;
-    arg0[0x122F] = 0xFF;
-    for (i = 0; i < 0x20; i++) {
-        *(s32 *)(arg0 + i * 0x90 + 4) = 0;
-    }
-    iGpffffb5b0 = arg0;
-}
 
-// FUN_0038EE10
-s32 func_0038ee10(void) {
-    return !datGetFlag(0x1472);
-}
-
-// FUN_0038F400
-extern u8 D_0064F240[];
-extern void *memcpy(void *dst, const void *src, u32 size);
-EffectStateHeader *func_0038f400(const u32 *arg0)
-{
-    u32 size;
-    u32 remainder;
-    EffectStateHeader *result;
-    u32 cursor;
-    u32 string;
-    u32 index;
-    const u8 *lengths;
-
-    size = sizeof(*result);
-    size += arg0[3] * 4;
-    remainder = size & 3;
-    if (remainder != 0) {
-        size += 4 - remainder;
-    }
-    size += arg0[6];
-    remainder = size & 3;
-    if (remainder != 0) {
-        size += 4 - remainder;
-    }
-    size += arg0[2];
-    func_0044ea90(D_0064F240, 0x36);
-    cursor = (u32)jtbl_008873E8[0](size, 0x40000);
-    result = (EffectStateHeader *)cursor;
-    cursor += sizeof(*result);
-    result->entries = cursor;
-    cursor += arg0[3] * 4;
-    remainder = cursor & 3;
-    if (remainder != 0) {
-        cursor += 4 - remainder;
-    }
-    result->strings = cursor;
-    cursor += arg0[6];
-    remainder = cursor & 3;
-    if (remainder != 0) {
-        cursor += 4 - remainder;
-    }
-    result->data = cursor;
-    result->count = (u16)arg0[3];
-    result->id = (u16)arg0[0];
-    memcpy((void *)result->strings,
-                  (const u8 *)arg0 + arg0[5], arg0[6]);
-    memcpy((void *)result->data,
-                  (const u8 *)arg0 + arg0[1], arg0[2]);
-    lengths = (const u8 *)arg0 + arg0[4];
-    string = result->strings;
-    index = 0;
-    while (index < arg0[3]) {
-        size = index * 4;
-        *(u32 *)(result->entries + size) = string;
-        string += *lengths;
-        index += 1;
-        lengths += 1;
-    }
-    return result;
-}
 
 #pragma schedule on
 #pragma no_branch_likely on
