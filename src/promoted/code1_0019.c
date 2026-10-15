@@ -222,13 +222,13 @@ extern void func_0047a990(void *arg0);
 extern u8 *func_00147530(u8 *arg0, u16 arg1);
 extern void func_0019d7a0(u8 *arg0, s32 arg1);
 extern void func_0047a810(void *arg0);
-extern void func_0047a850(void *arg0);
+extern void mdlSetAlphaBlend(void *arg0);
 extern void func_0047a9f0(void *arg0, u16 arg1);
 extern u16 func_0047aa00(void *arg0);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
-extern void func_0047a830(void *arg0);
-extern void func_0047a870(void *arg0);
+extern void mdlClearBattleStateFlag(void *arg0);
+extern void mdlClearAlphaBlend(void *arg0);
 extern void mdlSetBlendWeight(void *arg0, float arg1);
 extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
 extern f32 DAT_0076112c;
@@ -2346,7 +2346,7 @@ void func_0019d7a0(u8 *arg0, s32 arg1)
             }
             break;
         case 2:
-            func_0047a850(*(u8 **)(arg0 + 0xA00));
+            mdlSetAlphaBlend(*(u8 **)(arg0 + 0xA00));
             return;
         case 3:
             func_0047a9f0(*(u8 **)(arg0 + 0xA00),
@@ -2392,12 +2392,12 @@ void func_0019d990(u8 *arg0, s32 arg1)
             }
             break;
         case 1:
-            func_0047a830(*(u8 **)(arg0 + 0xA00));
+            mdlClearBattleStateFlag(*(u8 **)(arg0 + 0xA00));
             temp_4_2 = *(u8 **)(arg0 + 0xA00);
             *(u8 *)(temp_4_2 + 0x260) &= 0xE2;
             return;
         case 2:
-            func_0047a870(*(u8 **)(arg0 + 0xA00));
+            mdlClearAlphaBlend(*(u8 **)(arg0 + 0xA00));
             return;
         case 3:
             mdlSetBlendWeight(*(u8 **)(arg0 + 0xA00), DAT_0076112c);

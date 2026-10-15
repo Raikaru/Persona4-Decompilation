@@ -995,8 +995,8 @@ extern void func_0026c770(f32 *start, f32 *end, f32 *delta);
 extern f32 func_0026cba0(u32 kind, f32 duration, f32 elapsed);
 extern s32 func_0026ba60(u16 *position);
 extern void mdlSetColor(Model *model, const RwRGBA *color);
-extern void func_0047a850(void *model);
-extern void func_0047a870(void *model);
+extern void mdlSetAlphaBlend(void *model);
+extern void mdlClearAlphaBlend(void *model);
 extern void func_004b13f0(void *effect, s32 *color);
 /* The companion forwarding provider requires this same object parameter. */
 
@@ -1384,12 +1384,12 @@ void func_0026a020(u8 *arg0)
             color.alpha = alpha;
             if (color.alpha < 0xFF) {
                 if (resource->alphaBlend != 0) {
-                    func_0047a850(character->model);
+                    mdlSetAlphaBlend(character->model);
                 } else {
-                    func_0047a870(character->model);
+                    mdlClearAlphaBlend(character->model);
                 }
             } else {
-                func_0047a870(character->model);
+                mdlClearAlphaBlend(character->model);
             }
             mdlSetColor((Model *)character->model, &color);
             break;
