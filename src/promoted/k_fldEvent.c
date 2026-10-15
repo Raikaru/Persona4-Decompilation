@@ -73,8 +73,8 @@ s16 mdlGetLayerAnimation(s32, s32);
 s32 func_0016fe80(s32);
 s32 func_0016ffd0(s32);
 s32 func_0016fd00(s32);
-void func_0016e540(s32, s32);
-void func_0016e560(s32, s32);
+void FldFrame_SetStateFlags(s32, s32);
+void FldFrame_ClearStateFlags(s32, s32);
 void func_0017d100(u8 *);
 void func_0017d0f0(s32, s32);
 s32 FldEvent_StepMoveToward(u8 *);
@@ -1553,7 +1553,7 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
                 mdlDispatchAnimIfPresent((u8*)D_007EFA00[0], 0, (s16)func_0016fd00(1), 4, 1);
             }
             if (*(s32 *)((s32)func_00155280() + 4) != 0) {
-                func_0016e540(*(s32 *)((s32)func_00155280() + 4), 2);
+                FldFrame_SetStateFlags(*(s32 *)((s32)func_00155280() + 4), 2);
             }
             *(s32 *)(h + 0x134) = 0;
             *(s32 *)(h + 0x14) = 0;
@@ -1565,7 +1565,7 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
     case 1:
         if (((s32 (*)(u8 *))D_005F17D4[*(s32 *)(h + 0xC) * 2])(arg0) != 1) {
             if (*(s32 *)((s32)func_00155280() + 4) != 0) {
-                func_0016e560(*(s32 *)((s32)func_00155280() + 4), 2);
+                FldFrame_ClearStateFlags(*(s32 *)((s32)func_00155280() + 4), 2);
             }
             *(s32 *)(h + 0xC) = -1;
             *(s32 *)h = 0;
@@ -1725,7 +1725,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     MovementMatrix *func_003e9700(void *);
     f32 KDraw_MatrixYawDeg(const MovementMatrix *);
     f32 KDraw_RoundYawDeg(f32);
-    s32 func_0016e580(u8 *);
+    s32 FldFrame_GetStatus(u8 *);
     u32 datGetFlag(s32);
     void func_0016e8e0(u8 *, f32);
     u8 *func_0016f3b0(u8 *, s32, s32);
@@ -1803,20 +1803,20 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     camera.z = (f32)D_008C025F[0] - 128.0f;
     camera.x = (f32)D_008C025E[0] - 128.0f;
     if (D_008C024C[0] & 8) {
-        if (func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 0 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 6 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
             f20 = -iGpffffb288;
             if (datGetFlag(0x3E) == 1) {
                 f20 *= -1.0f;
             }
         }
-    } else if ((D_008C024C[0] & 4) && (func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 0 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 6 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 7)) {
+    } else if ((D_008C024C[0] & 4) && (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7)) {
         f20 = iGpffffb288;
         if (datGetFlag(0x3E) == 1) {
             f20 *= -1.0f;
         }
     }
     if (D_008C024E[0] & 2) {
-        if (func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 0 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 6 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
             f32 a;
             f32 b;
             f32 rounded;
@@ -1843,7 +1843,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             }
         }
     } else if (D_008C024E[0] & 1) {
-        if (func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 0 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 6 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
             f32 add;
             f21 = 45.0f;
             if (datGetFlag(0x3E) == 1) {
@@ -1860,7 +1860,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             *(u8 **)(h + 0x138) = func_0016f3b0(arg0, 5, (s32)add);
         }
     } else if (camera.x < -48.0f) {
-        if (func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 0 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 6 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
             f32 scale = DAT_00761640 * -iGpffffb288;
             f20 = scale * (camera.x / -128.0f);
             if (datGetFlag(0x3E) == 1) {
@@ -1868,7 +1868,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             }
         }
     } else if (!(camera.x <= 48.0f)) {
-        if (func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 0 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 6 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
             f32 scale = DAT_00761640;
 
             scale *= iGpffffb288;
@@ -1880,7 +1880,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     }
     if (f20 != 0.0f) {
         func_0016e8e0(*(u8 **)((s32)func_00155280() + 4), f20);
-    } else if ((D_008C024E[0] & 0x20) && (func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 0 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 6 || func_0016e580(*(u8 **)((s32)func_00155280() + 4)) == 7)) {
+    } else if ((D_008C024E[0] & 0x20) && (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7)) {
         *(u8 **)(h + 0x138) = func_0016f130(arg0, 5, -1);
     }
     if (move.z < -48.0f) {

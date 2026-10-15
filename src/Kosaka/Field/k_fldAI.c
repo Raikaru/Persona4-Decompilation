@@ -22,7 +22,7 @@ extern s32 iGpffffb25c;
 extern u8 *iGpffffb2c8;
 extern s32 K_FldEvent_IsPosWithinFov(u8 *arg0, u8 *arg1, f32 arg2);
 extern s32 K_FldEvent_ArePosWithinDist(u8 *arg0, u8 *arg1, f32 arg2);
-extern s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst);
+extern s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst);
 extern f32 RwV3dLength(f32 *arg0);
 extern u8 *mdlGetMatrix(u8 *arg0);
 
@@ -642,7 +642,7 @@ s32 FldAI_ChaserCanSeeTarget(u8 *arg0)
     ab[1] = *(FldAIVec3 *)(temp_2_2 + 0x30);
     ab[0].y += 90.0f;
     ab[1].y += 90.0f;
-    if (func_0016b8a0(ab, &out) == 1) {
+    if (FldFrame_RaycastField(ab, &out) == 1) {
         return 0;
     }
     temp_2 = (u8 *)ab;
@@ -650,7 +650,7 @@ s32 FldAI_ChaserCanSeeTarget(u8 *arg0)
     out = ab[0];
     ab[0] = ab[1];
     ab[1] = out;
-    if (func_0016b8a0((const RwV3d *)temp_2, (RwV3d *)temp_2_2) == 1) {
+    if (FldFrame_RaycastField((const RwV3d *)temp_2, (RwV3d *)temp_2_2) == 1) {
         return 0;
     }
     temp_17 = mdlGetMatrix(*(u8 **)(arg0 + 0x50));
@@ -780,7 +780,7 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
             u8 *cellB = ((u8 *)func_00155280()) + (endpointCellZ * 0x100) + (endpointCellX * 0x10);
             if (*(u8 *)(cellB + 0x54) == 1) {
                 axis = 0;
-                if (func_0016b8a0(line, &hit) == 1) {
+                if (FldFrame_RaycastField(line, &hit) == 1) {
                     s32 hitStep = *(s32 *)(work + 0x4C);
                     if (hitStep >= 4) {
                         axis = hitStep & 1;

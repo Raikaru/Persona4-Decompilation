@@ -43,8 +43,8 @@ extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern s32 *func_00155280(void);
 extern void func_0016e590();
-extern void func_0016e9f0(s32 arg0, void *arg1);
-extern void func_0016ea20(s32 arg0, f32 arg1);
+extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
+extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
 extern void func_0016eaa0(s32 arg0, s32 arg1, void *arg2);
 extern u8 *func_0016eaf0(s32 arg0);
@@ -716,8 +716,8 @@ s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
         func_003e9cb0((void *)*(s32 *)(func_00457120() + 4),
                       data + 0x10, 0);
         func_0016e590(func_00155280()[1], *(u16 *)(data + 0x50));
-        func_0016e9f0(func_00155280()[1], data + 0x54);
-        func_0016ea20(func_00155280()[1], *(f32 *)(data + 0x60));
+        FldFrame_SetViewOffset(func_00155280()[1], data + 0x54);
+        FldFrame_SetViewDistance(func_00155280()[1], *(f32 *)(data + 0x60));
         func_0016ea30(func_00155280()[1], *(f32 *)(data + 0x64));
         for (i = 0; i < 0x20; i++) {
             id = *(s8 *)(data + 0x68 + i);

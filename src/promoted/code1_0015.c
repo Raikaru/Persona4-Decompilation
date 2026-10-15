@@ -90,7 +90,7 @@ extern s32 func_00159a60(u8 *arg0);
 extern void func_00159d50(u8 *task);
 extern void func_001587d0(u16 arg0, u32 arg1, u32 arg2);
 extern s32 func_0014a160(void);
-extern void func_0016e540(s32 arg0, s32 arg1);
+extern void FldFrame_SetStateFlags(s32 arg0, s32 arg1);
 extern void func_003642a0(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 /* Forces b210's offset-first addu operand order. */
@@ -113,8 +113,8 @@ extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e0670(void *arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern void func_0016e590(s32 arg0, s32 arg1);
-extern void func_0016e9f0(s32 arg0, void *arg1);
-extern void func_0016ea20(s32 arg0, f32 arg1);
+extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
+extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
 extern void func_0016eaa0(s32 arg0, s8 arg1, void *arg2);
 extern u8 *func_0016eaf0(s32 arg0);
@@ -249,12 +249,12 @@ void func_00155070(void)
         func_003e0670(sp30, *(s32 *)(temp_2 + 0x148));
         func_003e9cb0(*(s32 *)(func_00457120() + 4), sp30, 0);
         func_0016e590(func_00155280()[1], *(s32 *)(temp_2 + 0x140));
-        func_0016e9f0(func_00155280()[1], temp_2 + 0x150);
+        FldFrame_SetViewOffset(func_00155280()[1], temp_2 + 0x150);
         if ((*(f32 *)(temp_2 + 0x15C) == 0.0f) &&
             (func_0014a160() == 1)) {
             *(f32 *)(temp_2 + 0x15C) = 20.0f;
         }
-        func_0016ea20(func_00155280()[1], *(f32 *)(temp_2 + 0x15C));
+        FldFrame_SetViewDistance(func_00155280()[1], *(f32 *)(temp_2 + 0x15C));
         func_0016ea30(func_00155280()[1], *(f32 *)(temp_2 + 0x160));
         var_17 = 0;
         goto loop_test;
@@ -2201,7 +2201,7 @@ void func_00159d50(u8 *arg0)
         jtbl_008873EC[0](temp_4_2);
     }
     if (*(func_00155280() + 1) != 0) {
-        func_0016e540(*(func_00155280() + 1), 1);
+        FldFrame_SetStateFlags(*(func_00155280() + 1), 1);
     }
     temp_4_3 = *(s32 *)(temp_16 + 0x38);
     if (temp_4_3 != 0) {
