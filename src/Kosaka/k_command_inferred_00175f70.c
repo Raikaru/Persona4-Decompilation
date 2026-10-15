@@ -1,0 +1,423 @@
+#include "btl_target_state_packet_internal.h"
+#include "Kosaka/k_command_internal.h"
+#include "mt_scene_internal.h"
+#include "rw_geometry_internal.h"
+#include "field_transition_internal.h"
+#include "model_callbacks_internal.h"
+#include "include_asm.h"
+#include "sdk_task_registration.h"
+#include "type.h"
+#include "field_shadow_internal.h"
+#include "rw_atomic_internal.h"
+#include "Kosaka/k_clump_internal.h"
+struct RpGeometry;
+#include "sdk_snd_internal.h"
+#include "rw/plcore/barenderstate.h"
+typedef struct RwRGBA RwRGBA;
+typedef s32 (*FieldRenderStateSetFunction)(RwRenderState, void *);
+struct Model;
+typedef struct
+{
+    f32 first;
+    s32 pad;
+    f32 second;
+} F2_0017;
+typedef struct
+{
+    u8 pad_00178590[0x144];
+    u8 *field_144;
+} S_00178590;
+typedef struct
+{
+    f32 x;
+    f32 y;
+    f32 z;
+} Vec3_00178590;
+typedef struct
+{
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} FieldColor_0017;
+extern void func_0015a630();
+extern s32 func_0015f660();
+extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
+extern s32 func_00102980(void);
+extern void func_00145080(void);
+extern void func_00260510(void);
+extern void *memset(void *dst, s32 value, s32 size);
+extern s32 func_00110e80(void);
+/* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
+   before the two lhu loads and $a3 (a) after them, which is the default-
+   promotion order of an old-style call with a u16 local for b and an explicit
+   (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
+   loads (nd4). Sole caller in this unit. */
+extern s32 iGpffffb284;
+extern s32 iGpffffb300;
+extern s32 iGpffffb304;
+extern u8 gMtScene[];
+extern u8 *iGpffff9db0;
+extern s32 D_007EF9F8[];
+extern u32 D_007EFA04[];
+extern u8 D_007EF9B0[];
+extern u8 D_005F18C0[];
+extern void *(*D_008873F4[])(size_t, size_t, u32);
+extern u8 D_005F1910[];
+extern u8 D_007F1740[];
+extern u8 D_005F1950[];
+extern u8 D_005F1A60[];
+extern u8 D_005F1A64[];
+extern u16 D_008C024E[];
+void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
+                    s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
+
+extern f32 iGpffff8304;
+extern char D_005E5850[];
+extern f32 iGpffff82fc;
+extern u8 D_00794E70[];
+
+
+extern s32 func_0029d020(void);
+extern s32 func_00110f00(void);
+extern s32 func_00110fc0(void);
+extern s32 func_0018ced0(void);
+extern void func_0018c7e0(void);
+extern s32 func_00159f70(s32 arg0);
+
+extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
+                         f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
+extern u8 D_007EFA00[];
+extern void func_0014def0(u8 *arg0, u8 *arg1,
+                           f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6,
+                           void *arg7, s32 arg8,
+                           f32 arg9, f32 arg10, f32 arg11,
+                           s32 arg12, void *arg13, f32 arg14);
+extern u8 D_005F1970[];
+extern u8 D_005F1974[];
+extern u8 D_005F1978[];
+extern u8 D_005F197C[];
+extern u8 D_005F1AE0[];
+extern u8 D_005F1B00[];
+extern u8 iGpffff9f54;
+extern f32 iGpffff826c;
+extern f32 iGpffff8214;
+extern f32 iGpffff8360;
+extern u32 iGpffffb308;
+extern u32 iGpffff9f4c;
+extern u32 iGpffffb30c;
+extern u32 iGpffff9f50;
+extern s32 D_005F1930[];
+extern s32 D_005F1934[];
+
+extern u8 *D_007643D0;
+extern FieldRenderStateSetFunction D_00887300[];
+extern s32 iGpffffba48;
+
+
+
+
+
+/* measured: ONE real defect, and it is the `slt $at` family. Retail emits
+   `slti $at,$v0,4; bnez $at` where b210 emits `slti $v0,$v0,4; bnez $v0`,
+   reusing the dead call result as the comparison destination. obj 92B vs
+   window 96B, so the reported count also includes one padding word.
+   `#pragma schedule off` and hoisting the call result into a local both leave
+   it unchanged.
+
+   Do NOT record this as a blanket floor. A census of the retail image shows the
+   $at form in 276 first-party functions that ALREADY MATCH, so it is reachable
+   from C -- it appears when the comparison feeds a short-circuit `&&`/`||`
+   chain, or when its source register is still live afterwards (see the matched
+   datCalc func_00231ef0: `if (arg1 > 99 && !(*(u16 *)arg0 & 4))` compiles to
+   `andi $v1; slti $at,$v1,0x64; bnez $at`). What is NOT reachable is this
+   shape: a single bare comparison on a dead call result, where b210 always
+   recycles the source register. 359 of the remaining first-party ASM functions
+   contain an $at comparison, so the distinction is worth knowing before writing
+/* SOLVED by tools/permute.py; this previously carried a `slt $at` floor note
+   and sat under #ifdef NON_MATCHING. The permuter found the shape from the
+   preserved body. */
+
+/* Source unit: src/promoted/code1_0017.c */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 00175f70-00176850 */
+
+typedef struct { Vec3_00178590 right; u32 flags; Vec3_00178590 up; u32 pad1; Vec3_00178590 at; u32 pad2; Vec3_00178590 position; u32 pad3; } FieldMatrix_0017;
+extern f32 fabsf(f32 x);
+// FUN_00175F70
+s32 func_00175f70(const u8 *arg0, const FieldMatrix_0017 *arg1, f32 arg2, f32 arg3)
+{
+    extern f32 fGpffff8558;
+    extern f32 fabsf(f32);
+    s32 state;
+    u8 *work;
+    s32 count;
+    s32 descending;
+    f32 first;
+    f32 second;
+    f32 direct;
+    f32 wrapped;
+    work = *(u8 **)((u8 *)arg0 + 0x38);
+    state = *(s32 *)(work + 0x40);
+    if (state == 1)
+        return 0;
+    first = arg2;
+    second = arg3;
+    *(FieldMatrix_0017 *)work = *arg1;
+    if (!(first <= 360.0f))
+        first -= 360.0f;
+    *(f32 *)(work + 0x4C) = first;
+    if (!(second <= 360.0f))
+        second -= 360.0f;
+    *(f32 *)(work + 0x50) = second;
+    if (first < second) {
+        if (!(first <= fGpffff8558))
+            first = 0.0f;
+        if (!(second <= *(const f32 *)&fGpffff8558))
+            second = 360.0f;
+        if (first < iGpffff8214)
+            first = 0.0f;
+        if (second < *(const f32 *)&iGpffff8214)
+            second = 360.0f;
+        direct = second - first;
+        wrapped = first + (360.0f - second);
+        descending = 0;
+    } else {
+        if (!(first <= fGpffff8558))
+            first = 360.0f;
+        if (!(second <= *(const f32 *)&fGpffff8558))
+            second = 0.0f;
+        if (first < iGpffff8214)
+            first = 360.0f;
+        if (second < *(const f32 *)&iGpffff8214)
+            second = 0.0f;
+        direct = first - second;
+        wrapped = second + (360.0f - first);
+        descending = 1;
+    }
+    if (fabsf(direct) < fabsf(wrapped)) {
+        *(f32 *)(work + 0x54) = direct;
+        if (descending == 1)
+            *(f32 *)(work + 0x54) = *(f32 *)(work + 0x54) * -1.0f;
+    } else {
+        *(f32 *)(work + 0x54) = wrapped;
+        if (descending == 0)
+            *(f32 *)(work + 0x54) = *(f32 *)(work + 0x54) * -1.0f;
+    }
+    if (!(fabsf(*(f32 *)(work + 0x54)) <= 45.0f)) {
+        count = (s32)fabsf(*(f32 *)(work + 0x54)) / 30;
+        if (count <= 0)
+            count = 1;
+        *(s32 *)(work + 0x5C) = count;
+        *(s32 *)(work + 0x58) = 0;
+        *(f32 *)(work + 0x54) =
+            *(f32 *)(work + 0x54) / (f32) *(s32 *)(work + 0x5C);
+        *(s32 *)(work + 0x40) = 1;
+        return 1;
+    }
+    return 0;
+}
+
+// FUN_001761D0
+s32 func_001761d0(u8 *arg0)
+{
+    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x40) == 1;
+}
+
+// FUN_001761F0
+s32 func_001761f0(void)
+{
+    func_00110e80();
+    return 1;
+}
+
+// FUN_00176220
+s32 func_00176220(void)
+{
+    if (func_0029d020() > 3) {
+        scrSetReturnInt(func_00110f00());
+        return 1;
+    }
+    scrSetReturnInt(0);
+    return 0;
+}
+
+// FUN_00176280
+void func_00176280(void)
+{
+    func_0015f660();
+}
+
+// FUN_001762A0
+s32 func_001762a0(void)
+{
+    if (func_0018ced0() == 0) {
+        func_0018c7e0();
+    }
+    return 1;
+}
+
+// FUN_001762E0
+s32 func_001762e0(void)
+{
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_00110fc0();
+    return 1;
+}
+
+// FUN_00176320
+s32 func_00176320(void) {
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_001029a0(0x19, NULL, 0, 0);
+    return 1;
+}
+
+// FUN_00176370
+s32 func_00176370(void) {
+    s32 sp1C;
+
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_00260510();
+    memset(&sp1C, 0, 4);
+    sp1C = scrGetParamInt(0);
+    func_001029a0(0xC, &sp1C, 4, 2);
+    return 1;
+}
+
+// FUN_001763F0
+s32 func_001763f0(void) {
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_00260510();
+    func_001029a0(0xD, NULL, 0, 2);
+    return 1;
+}
+
+// FUN_00176450
+s32 func_00176450(void)
+{
+    s16 sp10[14];
+
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_00260510();
+    memset(sp10, 0, 0x1C);
+    sp10[0] = (s16)scrGetParamInt(0);
+    sp10[1] = (s16)scrGetParamInt(1);
+    sp10[2] = (s16)scrGetParamInt(2);
+    sp10[4] = (s16)scrGetParamInt(3);
+    func_001029a0(9, sp10, 0x1C, 2);
+    return 1;
+}
+
+// FUN_00176500
+s32 func_00176500(void)
+{
+    s16 sp10[14];
+
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_00260510();
+    *(s16 *)(iGpffff9db0 + 0x10) = -1;
+    memset(sp10, 0, 0x1C);
+    sp10[0] = (s16)scrGetParamInt(0);
+    sp10[1] = (s16)scrGetParamInt(1);
+    sp10[2] = (s16)scrGetParamInt(2);
+    sp10[4] = (s16)scrGetParamInt(3);
+    func_001029a0(9, sp10, 0x1C, 2);
+    return 1;
+}
+
+// FUN_001765C0
+s32 func_001765c0(void)
+{
+    s32 sp30[7];
+    s32 temp_17;
+    s32 temp_3;
+    s32 var_16;
+
+
+    var_16 = 0;
+    temp_17 = func_0029d020();
+    if (func_0015f660() == 0) {
+        iGpffffb304 = func_0029d020();
+        return 0;
+    }
+    if ((temp_17 == 0) || ((temp_17 - 1) == iGpffffb304))
+        iGpffffb300 = 0;
+    sp30[3] = scrGetParamInt(0);
+    sp30[4] = scrGetParamInt(1);
+    sp30[5] = scrGetParamInt(2);
+    temp_3 = iGpffffb300;
+    if (temp_3 == 3) {
+        func_001029a0(0xA, sp30, 0x1C, 2);
+    } else if (temp_3 > 0xA) {
+        if (func_00102980() == -1) {
+            iGpffffb300 = 0;
+            var_16 = 1;
+        } else {
+            var_16 = 0;
+        }
+    }
+    iGpffffb300 += 1;
+    return var_16;
+}
+
+// FUN_001766E0
+s32 func_001766e0(void)
+{
+    s32 sp18[2];
+
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_00260510();
+    if (func_00102980() != 0xB) {
+        func_00145080();
+    }
+    sp18[0] = scrGetParamInt(0);
+    sp18[1] = 0xFFFF;
+    func_001029a0(0xB, sp18, 8, 4);
+    return 1;
+}
+
+// FUN_00176770
+s32 func_00176770(void)
+{
+    s32 sp18[2];
+
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    if (func_00102980() != 0xB) {
+        func_00145080();
+    }
+    func_00260510();
+    sp18[0] = scrGetParamInt(0);
+    sp18[1] = scrGetParamInt(1);
+    func_001029a0(0xB, sp18, 8, 4);
+    return 1;
+}
+
+// FUN_00176810
+s32 func_00176810(void)
+{
+    func_00159f70(scrGetParamInt(0));
+    return 1;
+}
+
+// FUN_00176850
+s32 func_00176850(void)
+{
+    func_0015a630();
+    return 1;
+}
+
