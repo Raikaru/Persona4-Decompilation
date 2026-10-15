@@ -149,7 +149,7 @@ extern f32 DAT_0076112c;
 
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern float func_001d4380(int arg0);
-extern s32 func_00197a80(u8 *arg0);
+extern s32 btlUnitArcMovePacketUpdate(u8 *arg0);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
@@ -189,7 +189,7 @@ extern u8 D_00794150[];
 /* measured: func_00197a80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_00197A80
-s32 func_00197a80(u8 *arg0)
+s32 btlUnitArcMovePacketUpdate(u8 *arg0)
 {
     u8 *unit;
     P4_95730_Vec3 transformed;
@@ -243,13 +243,13 @@ s32 func_00197a80(u8 *arg0)
 
 /* measured: restore opt_propagation after func_00197a80 FPR temporary colouring probe. */
 // FUN_00197CC0
-u8 *func_00197cc0(s32 arg0, s16 arg1, s16 arg2)
+u8 *btlUnitCreateArcMovePacket(s32 arg0, s16 arg1, s16 arg2)
 {
     u8 *packet;
     u8 *work;
 
     packet = (u8 *)btlPacketAlloc(0x10C, 0x28);
-    *(void **)(packet + 0x6C) = (void *)func_00197a80;
+    *(void **)(packet + 0x6C) = (void *)btlUnitArcMovePacketUpdate;
     work = *(u8 **)(packet + 0x78);
     *(s32 *)work = arg0;
     *(s16 *)(work + 4) = arg1;
@@ -259,13 +259,13 @@ u8 *func_00197cc0(s32 arg0, s16 arg1, s16 arg2)
 }
 
 // FUN_00197D50
-void func_00197d50(u8 *arg0)
+void btlUnitHoldPendingRotate(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
 // FUN_00197D70
-s32 func_00197d70(u8 *arg0)
+s32 btlUnitRotatePacketUpdate(u8 *arg0)
 {
     u8 *unit;
     P4_95730_Vec4 rotation;
@@ -319,7 +319,7 @@ s32 func_00197d70(u8 *arg0)
 }
 
 // FUN_00197F30
-void func_00197f30(u8 *arg0)
+void btlUnitReleasePendingRotate(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }

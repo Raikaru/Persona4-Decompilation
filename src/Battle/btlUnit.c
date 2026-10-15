@@ -781,9 +781,9 @@ struct BtlUnitPacketRotate
     u32 timer;
 };
 
-void func_00197d50(BtlUnitPacketCountRef* work);
-u32 func_00197d70(void* work);
-void func_00197f30(BtlUnitPacketCountRef* work);
+void btlUnitHoldPendingRotate(BtlUnitPacketCountRef* work);
+u32 btlUnitRotatePacketUpdate(void* work);
+void btlUnitReleasePendingRotate(BtlUnitPacketCountRef* work);
 extern RwV3d D_00881430;
 
 // FUN_00197F50
@@ -794,9 +794,9 @@ BtlPacket* btlUnitCreateRotatePacket(BtlUnit* unit, const RwV3d* rot, u32 flags)
 
     packet = btlPacketAlloc(0x10D, sizeof(BtlUnitPacketRotate));
 
-    packet->initFunc = (BtlPacketFunc)func_00197d50;
-    packet->updateFunc = func_00197d70;
-    packet->destroyFunc = (BtlPacketFunc)func_00197f30;
+    packet->initFunc = (BtlPacketFunc)btlUnitHoldPendingRotate;
+    packet->updateFunc = btlUnitRotatePacketUpdate;
+    packet->destroyFunc = (BtlPacketFunc)btlUnitReleasePendingRotate;
 
     work = (BtlUnitPacketRotate*)packet->workData;
 
