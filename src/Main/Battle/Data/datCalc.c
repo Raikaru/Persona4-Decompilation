@@ -65,7 +65,7 @@ extern u32 func_001069a0(s16 arg0);
 extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern s32 datCalcInflictStatus(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
-extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
+extern s32 datCalcSkillAmount(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 extern u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u32 datGetFlag(s32 arg0);
 extern s32 datPersonaGetStatById(s32 arg0, s32 arg1);
@@ -1632,8 +1632,9 @@ static inline u8 DCDamageSkillKind(u16 skill)
  * Unsigned channel dispatch preserves independent signed call conversions;
  * declaring result values after the work value preserves their lifetimes.
  * See docs/probe_archive/DC_worker2_20260920_damage_recovery.md. */
+// Intent: signed amount of skill arg0 from actor arg1 on target arg2 for channel arg7 (1 HP, 2 SP): healing positive, damage negative, scaled by effect type, attack/defense, element and accessory bonuses; [inferred].
 // FUN_00235520
-s32 func_00235520(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+s32 datCalcSkillAmount(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 u16 arg0;
 u8 *arg1;
 u8 *arg2;
@@ -2591,8 +2592,8 @@ s32 datCalcApplySkillEffect(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
     s32 result;
 
     if (arg1 != NULL && arg2 != NULL) {
-        temp_17 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
-        arg3 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
+        temp_17 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
+        arg3 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
         temp_21 = datCalcStatusEffectResult(arg0, arg1, arg2, 1, 1, 0);
         if ((u16)arg0 >= 0x1B8) {
             func_0046d730(D_00635938, 0xB94);
@@ -2663,8 +2664,8 @@ s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
 
     flags = 0;
     if (arg1 != NULL && arg2 != NULL) {
-        temp_21 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
-        temp_19 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
+        temp_21 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
+        temp_19 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
         temp_22 = datCalcStatusEffectResult(arg0, arg1, arg2, 1, 1, 0);
         if ((u16)arg0 >= 0x1B8) {
             func_0046d730(D_00635938, 0xB94);
@@ -2743,10 +2744,10 @@ s32 func_0023a490(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *arg5, 
 
     if (arg1 != NULL && arg2 != NULL) {
         if (arg4 != NULL) {
-            *arg4 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
+            *arg4 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
         }
         if (arg5 != NULL) {
-            *arg5 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
+            *arg5 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
         }
         if (arg6 != NULL) {
             if ((u16)arg0 >= 0x1B8) {
