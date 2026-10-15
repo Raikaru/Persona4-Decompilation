@@ -23,11 +23,11 @@ extern s32 func_00107c80(s32 idx);
 extern void func_00107ce0(s32 idx);
 extern s32 func_00107ea0(s32 idx);
 extern s32 func_001087e0(s32 idx);
-extern s32 func_001070e0(s32 idx);
+extern s32 cmmCommunityFindRecord(s32 idx);
 extern s32 func_00110580(s32 a);
 extern s32 func_00110680(s32 a, s32 b, s32 c);
 extern s32 func_001106f0(s32 a, s32 b, s32 c, s32 d, s32 e);
-extern s32 func_00107240(s64 idx);
+extern s32 cmmCommunityCounterpart(s64 idx); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
 extern s32 func_00107ac0(s32 idx);
 extern s32 func_00107a00(s32 idx, s32 arg1);
 extern u16 func_00108ee0(void);
@@ -898,7 +898,7 @@ loop_15:
 }
 /* measured (wave 14 retest — nd 73 reproduced exactly; no match): draft-based
    reconstruction `while (var_20 < 0x1F) { if (func_001077f0(var_20&0xFFFF)
-   && func_00107a00(var_20&0xFFFF,3)==0) { temp_2 = func_001070e0(...); ...
+   && func_00107a00(var_20&0xFFFF,3)==0) { temp_2 = cmmCommunityFindRecord(...); ...
    *0x64 ladder, D_00881480 bounds, +0x12 flags, func_00107ce0 } }` scores
    nd 73 — mwcc b210 CSEs var_20&0xFFFF into a saved register ($s3) at loop
    top and emits move $a0,$s3 per call, retail re-issues andi per site.
@@ -919,7 +919,7 @@ void func_00248240(void) {
     var_20 = 1;
     while (var_20 < 0x1F) {
         if ((func_001077f0(var_20 & 0xFFFF) != 0) && (func_00107a00(var_20 & 0xFFFF, 3) == 0)) {
-            temp_2 = (u8 *)func_001070e0(var_20 & 0xFFFF);
+            temp_2 = (u8 *)cmmCommunityFindRecord(var_20 & 0xFFFF);
             if (temp_2 == NULL) {
                 var_3 = 0;
                 goto block_13;
@@ -960,7 +960,7 @@ block_13:
 /* measured (wave 14 retest — nd 119 with a fresh draft-based reconstruction,
    no match): loop of func_001077f0/func_00107ac0==0xA/func_00248a60/
    func_00107a00 guards, the D_00881494 two-u16 table scan into var_20,
-   func_001070e0 (real signature s32(s32) — the m2c's 2nd arg is a leftover
+   cmmCommunityFindRecord (real signature s32(s32) — the m2c's 2nd arg is a leftover
    $5 the callee ignores), +0x12 flags and func_00107ce0 — mask-CSE
    dominates (mwcc drills var_21&0xFFFF into a saved register; nd 30+ per the
    earlier note's better spelling). Same family as FUN_00248240/FUN_00248B80.
@@ -1031,7 +1031,7 @@ void func_002483c0(u16 arg0) {
             temp_17 = 0;
 block_14:
             call_idx = (u16)var_20;
-            temp_2 = (u8 *)func_001070e0(call_idx);
+            temp_2 = (u8 *)cmmCommunityFindRecord(call_idx);
             if (temp_2 == NULL) {
                 var_3 = 0;
                 goto block_13;
@@ -1332,7 +1332,7 @@ s32 func_00248d00(s32 arg0, s32 arg1, s32 arg2) {
 }
 #pragma opt_loop_invariants off
 
-/* measured: widening the declaration of func_00107240 to s64 is correct:
+/* measured: widening the declaration of cmmCommunityCounterpart to s64 is correct:
    the callee truncates internally without sign-extending on entry. This lets
    the caller pass the already-masked key in $s1, reproducing the retail move
    and the complete -0x40 frame/s0-s2 prologue. With propagation disabled,
@@ -1350,7 +1350,7 @@ s64 func_00248d80(s64 arg0)
     key = raw & 0xFFFF;
     if (func_001077f0(key) == 0) {
         raw_low = (s16)raw;
-        key = (s16)func_00107240(key);
+        key = (s16)cmmCommunityCounterpart(key);
         if ((raw_low != key) && (func_001077f0((u16)key) != 0)) {
             return key;
         }

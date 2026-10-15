@@ -1364,7 +1364,7 @@ void func_00356250(u8 *arg0)
     extern char D_005E5810[];
     extern char D_005E5830[];
     extern char D_005E5850[];
-    extern s32 func_00107180(s16 arg0);
+    extern s32 cmmCommunityFindByKind(s16 arg0);
     extern s64 func_00248760(s32 arg0);
     extern u16 func_00107ac0(s32 arg0);
     extern s32 func_00107ea0(s32 arg0);
@@ -1424,7 +1424,7 @@ void func_00356250(u8 *arg0)
     m = 0;
     n = 0;
     while (m < 0x15) {
-        id = func_00107180(m) & 0xFFFF;
+        id = cmmCommunityFindByKind(m) & 0xFFFF;
         if (id > 0) {
             p = arg0 + n * 0xC;
             *(s8 *)(p + 0x38) = func_00248760(id);
