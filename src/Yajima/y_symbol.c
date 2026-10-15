@@ -47,14 +47,14 @@ extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern s32 K_FldEvent_ArePosWithinDist(u8 *arg0, u8 *arg1, f32 arg2);
 extern f32 KDraw_MatrixYawDeg(u8 *arg0);
 extern void *mdlGetMatrix(void *arg0);
-extern s32 func_002ac740(void);
+extern s32 smapGetSpriteHandle(void);
 extern s64 func_002ac3c0(s32 arg0, s32 arg1);
-extern s32 func_002b11c0(RwV3d arg0);
-extern s32 func_002b1210(RwV3d arg0);
-extern f32 func_002b1260(u8 *arg0, f32 arg1);
-extern f32 func_002b1320(u8 *arg0, f32 arg1);
-extern f32 func_002b13e0(f32 arg1, YVec3f *arg0);
-extern f32 func_002b1480(f32 arg1, YVec3f *arg0);
+extern s32 smapWorldToColumn(RwV3d arg0);
+extern s32 smapWorldToRow(RwV3d arg0);
+extern f32 smapPlayerOffsetX(u8 *arg0, f32 arg1);
+extern f32 smapPlayerOffsetZ(u8 *arg0, f32 arg1);
+extern f32 smapPositionOffsetX(f32 arg1, YVec3f *arg0);
+extern f32 smapPositionOffsetZ(f32 arg1, YVec3f *arg0);
 extern s32 func_002b2960(void);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2bd0(f32 *arg0, s64 arg1, f32 arg2, f32 arg3, f32 arg4,
@@ -87,7 +87,7 @@ s32 mapSymbolMarkerCreate(s32 arg0)
     *(u32 *)(work + 0xC) = 0x3F400000;
     *(u32 *)(work + 0x10) = 0;
     work[0x20] = 0;
-    t = sdkSpriteNewNode(func_002ac740(), 0x10);
+    t = sdkSpriteNewNode(smapGetSpriteHandle(), 0x10);
     *(s16 *)(work + 0x14) = (s16)(s32)(sdkSpriteScaledWidth(t) / 2.0f);
     *(s16 *)(work + 0x16) = (s16)(s32)(sdkSpriteScaledHeight(t) / 2.0f);
     sdkSpriteFreeNode(t);
@@ -117,10 +117,10 @@ void mapSymbolMarkerDraw(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
     temp += *(f32 *)(p + 0x10);
     temp *= -1.0f;
     if (*(s8 *)(p + 0x20) == 1) {
-        func_0025ecd0(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2, 0xFF, 0x10, (void *)(u32)func_002ac740(), 1, *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794D20);
+        func_0025ecd0(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794D20);
         return;
     }
-    func_0025ecd0(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2, 0xFF, 0x10, (void *)(u32)func_002ac740(), 1, *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794DE0);
+    func_0025ecd0(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794DE0);
 }
 // FUN_002B3C50
 void mapSymbolMarkerSetHighlight(u8 *arg0, u8 arg1)
@@ -168,40 +168,40 @@ s32 mapSymbolPointUpdate(u8 *arg0)
                           4800.0f) == 1 &&
             (s8)func_002ac3c0(p[0x18], p[0x19]) == 1) {
             dx = (s8)(p[0x18] -
-                      func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
+                      smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
             dy = (s8)(p[0x19] -
-                      func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
+                      smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
             *(f32 *)(base + 0) += 17.0f;
             *(f32 *)(base + 4) += 264.0f;
             keep = *(f32 *)(base + 0) + 18.0f * (f32)dx -
-                   func_002b13e0(18.0f, (YVec3f *)(p + 0xC));
+                   smapPositionOffsetX(18.0f, (YVec3f *)(p + 0xC));
             keep +=
-                func_002b1260(
+                smapPlayerOffsetX(
                     *(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
             keep -= 10.0f;
             *(f32 *)&out = keep;
             keep = *(f32 *)(base + 4) + 18.0f * (f32)dy -
-                   func_002b1480(18.0f, (YVec3f *)(p + 0xC));
+                   smapPositionOffsetZ(18.0f, (YVec3f *)(p + 0xC));
             keep +=
-                func_002b1320(
+                smapPlayerOffsetZ(
                     *(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
             keep -= 10.0f;
             *((f32 *)&out + 1) = keep;
             coord0 = out;
-            func_0025ecd0(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)func_002ac740(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
+            func_0025ecd0(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
         }
     } else if (*(s8 *)p == 1 &&
                (s8)func_002ac3c0(p[0x18], p[0x19]) == 1) {
         keep = 172.0f + 18.0f * (f32)p[0x18] -
-               func_002b13e0(18.0f, (YVec3f *)(p + 0xC));
+               smapPositionOffsetX(18.0f, (YVec3f *)(p + 0xC));
         keep -= 2.0f;
         *(f32 *)&out = keep;
         keep = 9.0f + 18.0f * (f32)p[0x19] -
-               func_002b1480(18.0f, (YVec3f *)(p + 0xC));
+               smapPositionOffsetZ(18.0f, (YVec3f *)(p + 0xC));
         keep -= 2.0f;
         *((f32 *)&out + 1) = keep;
         coord1 = out;
-        func_0025ecd0(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)func_002ac740(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
+        func_0025ecd0(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
     }
     return 0;
 }
@@ -224,8 +224,8 @@ s32 mapSymbolPointCreate(s32 arg0, s32 arg1, Vec3 *arg2)
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F140), 0xF, 0, 0, mapSymbolPointUpdate, mapSymbolPointDestroy, (u8 *)(work));
     *(Vec3 *)(work + 0xC) = v;
     work[1] = arg1;
-    work[0x18] = func_002b11c0(*(RwV3d *)&v);
-    work[0x19] = func_002b1210(*(RwV3d *)&v);
+    work[0x18] = smapWorldToColumn(*(RwV3d *)&v);
+    work[0x19] = smapWorldToRow(*(RwV3d *)&v);
     return ret;
 }
 
@@ -284,8 +284,8 @@ s32 mapSymbolEntityUpdate(u8 *arg0)
         var_3 = 0;
 vtest1:
         if (var_3 == 1) {
-            a = func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
-            b = func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
+            a = smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
+            b = smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
             if (datGetFlag(0x1012) == 0) {
                 if ((s8)func_002ac3c0(a, b) == 1) {
                     var_3 = 1;
@@ -298,22 +298,22 @@ vtest1:
             var_3 = 0;
 vtest2:
             if (var_3 == 1) {
-                dx = (s8)((a & 0xFF) - func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
-                dy = (s8)((b & 0xFF) - func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
+                dx = (s8)((a & 0xFF) - smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
+                dy = (s8)((b & 0xFF) - smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
                 *(f32 *)(base + 0) += 17.0f;
                 *(f32 *)(base + 4) += 264.0f;
                 keep = *(f32 *)(base + 0) + 18.0f * (f32)dx -
-                       func_002b1260(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
-                keep += func_002b1260(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+                       smapPlayerOffsetX(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
+                keep += smapPlayerOffsetX(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
                 keep -= 10.0f;
                 *(f32 *)&out = keep;
                 keep = *(f32 *)(base + 4) + 18.0f * (f32)dy -
-                       func_002b1320(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
-                keep += func_002b1320(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+                       smapPlayerOffsetZ(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
+                keep += smapPlayerOffsetZ(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
                 keep -= 10.0f;
                 *((f32 *)&out + 1) = keep;
                 coord0 = out;
-                func_0025ecd0(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)func_002ac740(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
+                func_0025ecd0(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
             }
         }
     } else if (*p == 1) {
@@ -333,8 +333,8 @@ vtest2:
         var_3 = 0;
 vtest3:
         if (var_3 == 1) {
-            f = func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
-            e = func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
+            f = smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
+            e = smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
             if (datGetFlag(0x1012) == 0) {
                 if ((s8)func_002ac3c0(f, e) == 1) {
                     var_3 = 1;
@@ -347,16 +347,16 @@ vtest3:
             var_3 = 0;
 vtest4:
             if (var_3 == 1) {
-                keep = 172.0f + 18.0f * (f32)func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) -
-                       func_002b1260(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
+                keep = 172.0f + 18.0f * (f32)smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) -
+                       smapPlayerOffsetX(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
                 keep -= 2.0f;
                 *(f32 *)&out = keep;
-                keep = 9.0f + 18.0f * (f32)func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) -
-                       func_002b1320(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
+                keep = 9.0f + 18.0f * (f32)smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) -
+                       smapPlayerOffsetZ(*(u8 **)(*(u8 **)((u8 *)&D_007E8C54 + p[1] * 0x750) + 0x220), 18.0f);
                 keep -= 2.0f;
                 *((f32 *)&out + 1) = keep;
                 coord1 = out;
-                func_0025ecd0(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)func_002ac740(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
+                func_0025ecd0(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
             }
         }
     }
@@ -439,18 +439,18 @@ s32 mapSymbolTargetUpdate(u8 *arg0)
         var_3 = 0;
 vtest1:
         if (var_3 == 1) {
-            dx = (s8)(p[9] - func_002b11c0(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
-            dy = (s8)(p[0xA] - func_002b1210(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
+            dx = (s8)(p[9] - smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
+            dy = (s8)(p[0xA] - smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
             *(f32 *)(base.bytes + 0) += 17.0f;
             *(f32 *)(base.bytes + 4) += 264.0f;
             keep = *(f32 *)(base.bytes + 0) + 18.0f * (f32)dx -
-                   func_002b13e0(18.0f, (YVec3f *)((u8 *)&D_007E80A0 + p[0xB] * 0x168 + 0x150));
-            keep += func_002b1260(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+                   smapPositionOffsetX(18.0f, (YVec3f *)((u8 *)&D_007E80A0 + p[0xB] * 0x168 + 0x150));
+            keep += smapPlayerOffsetX(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
             keep -= 13.0f;
             out.point.x = keep;
             keep = *(f32 *)(base.bytes + 4) + 18.0f * (f32)dy -
-                   func_002b1480(18.0f, (YVec3f *)((u8 *)&D_007E80A0 + p[0xB] * 0x168 + 0x150));
-            keep += func_002b1320(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
+                   smapPositionOffsetZ(18.0f, (YVec3f *)((u8 *)&D_007E80A0 + p[0xB] * 0x168 + 0x150));
+            keep += smapPlayerOffsetZ(*(u8 **)(*(u8 **)(D_007EFA04) + 0x220), 18.0f);
             keep -= 13.0f;
             out.point.y = keep;
             if (!(out.point.x < 1.0f) &&
@@ -461,7 +461,7 @@ vtest1:
                 func_0025ecd0(
                     coord.values[0], coord.values[1], (f32)0xEA65,
                     func_002b2a30(255, 255, 255, 255), 0xFF, 0x12,
-                    (void *)(u32)func_002ac740(), 1, 0, 0, 0.0f, 1.0f, 1.0f,
+                    (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f,
                     D_00794DB0);
             }
         }
@@ -484,7 +484,7 @@ vtest2:
             func_0025ecd0(
                 v.x, v.y, (f32)0xEA65,
                 func_002b2a30(255, 255, 255, 255), 0xFF, 0x12,
-                (void *)(u32)func_002ac740(), 1, 0, 0, 0.0f, 1.0f, 1.0f,
+                (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f,
                 D_00794CF0);
         }
     }
@@ -510,8 +510,8 @@ s32 mapSymbolTargetCreate(s32 arg0, Vec2 arg1, s32 arg2)
     *(Vec2 *)work = arg1;
     work[8] = 0;
     e = (u8 *)&D_007E80A0 + (arg2 & 0xFF) * 0x168 + 0x150;
-    work[9] = func_002b11c0(*(RwV3d *)e);
-    work[0xA] = func_002b1210(*(RwV3d *)e);
+    work[9] = smapWorldToColumn(*(RwV3d *)e);
+    work[0xA] = smapWorldToRow(*(RwV3d *)e);
     work[0xB] = arg2;
     return ret;
 }

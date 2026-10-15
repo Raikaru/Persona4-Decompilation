@@ -50,8 +50,8 @@ extern char D_0063F0B0[];
 extern char D_0063F0D0[];
 extern f32 D_008872F8[];
 extern u8 D_00794D50[];
-extern void func_002b1520(s32, u8 *);
-extern void func_002b2500(void);
+extern void smapDrawPanel(s32, u8 *);
+extern void smapSetRenderStates(void);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 
@@ -64,10 +64,10 @@ extern void sdkSpriteFreeNode(void *node);
 extern void func_0046d730(void *msg, s32 id);
 extern s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern s32 func_004669d0(s32, s32 *, s32);
-extern s32 func_002ac400(u8 *arg0);
-extern s32 func_002b25d0(u8 *arg0);
-extern void func_002b2800(u8 *arg0);
-extern void func_002ac600(u8 *arg0);
+extern s32 smapLoadStep(u8 *arg0);
+extern s32 smapUpdateOverlay(u8 *arg0);
+extern void smapDestroyOverlay(u8 *arg0);
+extern void smapResetVisibility(u8 *arg0);
 extern void FldFrameTask_GetPosition(u8 *arg0, u8 *arg1);
 extern s32 FldFrameTask_GetTileX(u8 *arg0);
 extern s32 FldFrameTask_GetTileZ(u8 *arg0);
@@ -81,7 +81,7 @@ extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2bd0(f32 *, s64, f32, f32, f32, f32);
 extern u8 *func_00155280(void);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern void func_002b0b10(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
+extern void smapDrawQuad(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
 extern u8 D_00794DB0[];
 extern u8 D_00794CF0[];
 extern u8 D_0076465C;   /* gp-relative, -0x4A94 */
@@ -102,19 +102,19 @@ extern u8 D_007E8C00[];
 extern u8 D_00794C30[];
 extern u8 D_00794E10[];
 extern u8 *func_00460990(void);
-extern void func_002b2290(u8 *);
+extern void smapUpdateItems(u8 *);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s32 func_002b6850(u8 *);
 extern void func_002b67a0(u8 *, u32, s8);
 extern s32 mapSymbolEntityCreate(s32, s32);
-extern void func_002ac750(u8, u8);
+extern void smapRevealCell(u8, u8);
 extern void func_002b31a0(u8 *, u8 *, u8 *);
 extern s32 kwlnTaskIsLinked(void *);
-extern void func_002b10a0(u8 *, YVec2f);
+extern void smapSetPosition(u8 *, YVec2f);
 extern void func_002b10e0(u8 *, s8);
-extern void func_002b2240(u8 *);
-extern int func_002B11C0(YVec3f);
-extern int func_002B1210(YVec3f);
+extern void smapClearSelection(u8 *);
+extern int smapWorldToColumn(YVec3f);
+extern int smapWorldToRow(YVec3f);
 /* func_002af3e0 callees */
 extern u8 D_007E80A0[];
 extern s32 D_00764654;
@@ -126,7 +126,7 @@ extern void fclSpriteStartPositionTask(u8 *, YVec2f, YVec2f, u32, u32, s16);
 extern void fclSpriteStartAlphaTask(u8 *, u8, u8, u8, s32, s16);
 extern void fclSpriteActivateTask(u8 *, YVec2f, u32, f32);
 extern f32 sdkSpriteScaledHeight(u8 *);
-extern void func_002b10d0(u8 *, s8);
+extern void smapSetActive(u8 *, s8);
 extern void func_002b10f0(u8 *, s8);
 
 typedef YVec3f RwV3d;
@@ -136,7 +136,7 @@ typedef YVec3f RwV3d;
 
 
 // FUN_002AC400
-s32 func_002ac400(u8 *arg0) {
+s32 smapLoadStep(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
     s32 x;
 
@@ -181,7 +181,7 @@ s32 func_002ac400(u8 *arg0) {
 }
 
 // FUN_002AC600
-void func_002ac600(u8 *arg0) {
+void smapResetVisibility(u8 *arg0) {
     s16 i;
 
     chkmemAllocSiteTag(D_0063EF60, 0x44);
@@ -196,17 +196,17 @@ void func_002ac600(u8 *arg0) {
 }
 
 // FUN_002AC6B0
-void func_002ac6b0(void) {
+void smapCreate(void) {
     u8 *p;
 
     chkmemAllocSiteTag(D_0063EF60, 0xD5);
     p = D_008873F4[0](1, 0xC, 0x40000);
-    D_00764650 = (s32)(s32)kwlnTaskCreate((const void *)(D_0063EFC8), 0xF, 0, 0, func_002ac400, func_002ac600, (u8 *)(p));
+    D_00764650 = (s32)(s32)kwlnTaskCreate((const void *)(D_0063EFC8), 0xF, 0, 0, smapLoadStep, smapResetVisibility, (u8 *)(p));
     *(u8 *)(p + 4) = 0;
 }
 
 // FUN_002AC740
-s32 func_002ac740(void) {
+s32 smapGetSpriteHandle(void) {
     return D_00764644;
 }
 
@@ -387,9 +387,9 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
 }
 
 // FUN_002AC750
-void func_002ac750(u8 arg0, u8 arg1) {
+void smapRevealCell(u8 arg0, u8 arg1) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
-    extern s64 func_002adcf0(u8);
+    extern s64 smapCellKind(u8);
     s32 savedRoomRow3;
     s32 savedRoomColumn3;
     s32 savedRoomRow2;
@@ -500,7 +500,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
     if ((s32) SMAP_GRID_CELL_AT(temp_17, temp_16)->kind < 7) {
         temp_4 = SMAP_GRID_CELL_AT(temp_17, temp_16)->kind;
         if (temp_4 == 2) {
-            if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
+            if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
                 if ((SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal & 0xF) == 1) {
                     temp_20 = (s32)arg0;
                     *(u16 *)((u8 *)D_00764658 + temp_18 * 2) |= ((1 << temp_20) & 0xFFFF);
@@ -557,7 +557,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     currentCellOffset2 = smapPrepareRoomReveal(arg0, arg1, 2, temp_17, temp_16, &savedRoomRow2, &savedRoomColumn2, &columnReference, &workingRow);
                     smapRevealRoomFootprint(arg0, arg1, 2, temp_17, temp_16, currentCellOffset2, savedRoomColumn2, &columnReference, &workingRow);
                 }
-            } else if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
+            } else if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_4_12 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_4_12 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
             }
@@ -638,12 +638,12 @@ void func_002ac750(u8 arg0, u8 arg1) {
         switch (temp_3_6) {                         /* switch 2 */
         case 9:                                     /* switch 2 */
         case 10:                                    /* switch 2 */
-            if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
+            if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
                 temp_4_28 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_4_28 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
                 return;
             }
-            if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
+            if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_3_7 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_3_7 |= (1 << ((s32)arg0)) & 0xFFFF;
                 temp_16_3 = ((s8)(func_002b2d00(((s32)arg0), 1, 0, 0, 1)));
@@ -658,7 +658,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     visibilityRowOffset = sp180 * 2;
                     while ((sp160 = ((s16)(var_17_2))) < 3) {
                         temp_23_4 = func_002b2cb0((((s8)(temp_16_3))), sp160, 0x10, 0, 1) * 0x10;
-                        if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_4)->reveal))) == 2) {
+                        if (((s8)(smapCellKind(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_4)->reveal))) == 2) {
                             *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0((((s8)(temp_16_3))), sp160, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_17_2 = ((s16)((var_17_2 + 1)));
@@ -671,7 +671,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
             break;
         case 11:                                    /* switch 2 */
         case 12:                                    /* switch 2 */
-            if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
+            if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
                 if ((SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal & 0xF) == 1) {
                     temp_4_30 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                     *temp_4_30 |= ((1 << ((s32)arg0)) & 0xFFFF);
@@ -719,7 +719,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     }
                 }
                 smapRevealRoomFootprint(arg0, arg1, 3, temp_17, temp_16, currentCellOffset3, savedRoomColumn3, &columnReference, &workingRow);
-            } else if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
+            } else if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_3_10 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_3_10 |= (1 << ((s32)arg0)) & 0xFFFF;
                 temp_16_6 = ((s8)(func_002b2d00(((s32)arg0), 1, 0, 0, 1)));
@@ -735,7 +735,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     visibilityRowOffset = temp_19_6 * 2;
                     while ((temp_18_8 = ((s16)(var_16_3))) < 3) {
                         temp_23_5 = func_002b2cb0(scanFirstColumn11, temp_18_8, 0x10, 0, 1) * 0x10;
-                        if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_5)->reveal))) == 2) {
+                        if (((s8)(smapCellKind(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_5)->reveal))) == 2) {
                             *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0(scanFirstColumn11, temp_18_8, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_16_3 = ((s16)((var_16_3 + 1)));
@@ -748,18 +748,18 @@ void func_002ac750(u8 arg0, u8 arg1) {
             break;
         case 13:                                    /* switch 2 */
         case 14:                                    /* switch 2 */
-            if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
+            if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 1) {
                 temp_4_37 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_4_37 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
                 return;
             }
-            temp_4_38 = ((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal)));
+            temp_4_38 = ((s8)(smapCellKind(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal)));
             if (temp_4_38 == 3) {
                 temp_4_39 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_4_39 |= (1 << (arg0 & 0xFF)) & 0xFFFF;
                 return;
             }
-            if (((s8)(func_002adcf0(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
+            if (((s8)(smapCellKind(SMAP_GRID_CELL_AT(temp_17, temp_16)->reveal))) == 2) {
                 temp_3_12 = (u16 *)((u8 *)D_00764658 + (temp_18 * 2));
                 *temp_3_12 |= (1 << ((s32)arg0)) & 0xFFFF;
                 temp_16_7 = ((s8)(func_002b2d00(((s32)arg0), 1, 0, 0, 1)));
@@ -775,7 +775,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
                     visibilityRowOffset = temp_19_7 * 2;
                     while ((temp_18_9 = ((s16)(var_16_4))) < 3) {
                         temp_23_6 = func_002b2cb0(scanFirstColumn13, temp_18_9, 0x10, 0, 1) * 0x10;
-                        if (((s8)(func_002adcf0(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_6)->reveal))) == 2) {
+                        if (((s8)(smapCellKind(SMAP_GRID_SCAN_AT(mapRowOffset, temp_23_6)->reveal))) == 2) {
                             *((u16 *)(visibilityRowOffset + (u32)D_00764658)) |= (1 << func_002b2cb0(scanFirstColumn13, temp_18_9, 0x10, 0, 1)) & 0xFFFF;
                         }
                         var_16_4 = ((s16)((var_16_4 + 1)));
@@ -797,7 +797,7 @@ void func_002ac750(u8 arg0, u8 arg1) {
 #undef SMAP_GRID_CELL_AT
 #undef SMAP_GRID_NEIGHBOR_AT
 // FUN_002ADCF0
-s64 func_002adcf0(u8 arg0) {
+s64 smapCellKind(u8 arg0) {
     return (s64)(s8)((arg0 & 0xFF) >> 4);
 }
 
@@ -811,13 +811,13 @@ s64 func_002adcf0(u8 arg0) {
    func_002add60 emits const-first because its 2nd arg is a load.
    Argument-scheduling floor. */
 // FUN_002ADD10
-void func_002add10(s32 arg0, u8 *arg1) {
+void smapSetPrimitiveState(s32 arg0, u8 *arg1) {
     D_00887304[0](0xE, arg1 + 0xB4);
     D_00887300[0](0xE, 0);
 }
 
 // FUN_002ADD60
-void func_002add60(u8 *arg0, u8 *arg1) {
+void smapSetStateValue(u8 *arg0, u8 *arg1) {
     D_00887300[0](0xE, *(s32 *)(arg1 + 0xB4));
 }
 
@@ -832,7 +832,7 @@ void func_002add60(u8 *arg0, u8 *arg1) {
     (*((u8 *)func_00155280() + (row) * 0x100 + (column) * 0x10 + (offset)))
 
 // FUN_002ADD90
-s32 func_002add90(u8 *arg0)
+s32 smapUpdateEntities(u8 *arg0)
 {
     YVec2f scale;
     YVec3f pos;
@@ -852,16 +852,16 @@ s32 func_002add90(u8 *arg0)
     /* The provider always writes all three floats, including the no-model path. */
     pos = *(YVec3f *)(u8 *)&positionSnapshot;
     task = func_00460990();
-    *(void **)(task + 8) = func_002add10;
+    *(void **)(task + 8) = smapSetPrimitiveState;
     *(u8 **)(task + 0x10) = work;
     func_00460ac0(D_00794C30, task);
     task = func_00460990();
-    *(void **)(task + 8) = func_002add60;
+    *(void **)(task + 8) = smapSetStateValue;
     *(u8 **)(task + 0x10) = work;
     func_00460ac0(D_00794E10, task);
     switch ((s8)work[4]) {
     case 0:
-        func_002b2290(arg0);
+        smapUpdateItems(arg0);
         (*(s8 *)(work + 4))++;
         break;
     case 2:
@@ -893,43 +893,43 @@ s32 func_002add90(u8 *arg0)
                 }
             }
         }
-        x = func_002B11C0(pos);
-        y = func_002B1210(pos);
-        func_002ac750(x, y);
+        x = smapWorldToColumn(pos);
+        y = smapWorldToRow(pos);
+        smapRevealCell(x, y);
         if (SMAP_FIELD((u32)y, (s32)x, 0x64) == 1 && (SMAP_FIELD((u32)y, (u32)x, 0x5E) & 8)) {
             if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 8) {
                 if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 0x80) {
-                    func_002ac750((u8)(x + 1), y);
+                    smapRevealCell((u8)(x + 1), y);
                 }
             } else {
-                func_002ac750((u8)(x + 1), y);
+                smapRevealCell((u8)(x + 1), y);
             }
         }
         if (SMAP_FIELD((u32)y, (s32)x, 0x44) == 1 && (SMAP_FIELD((u32)y, (u32)x, 0x5E) & 2)) {
             if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 2) {
                 if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 0x20) {
-                    func_002ac750((u8)(x - 1), y);
+                    smapRevealCell((u8)(x - 1), y);
                 }
             } else {
-                func_002ac750((u8)(x - 1), y);
+                smapRevealCell((u8)(x - 1), y);
             }
         }
         if (SMAP_FIELD((s32)y, (u32)x, -0xAC) == 1 && (SMAP_FIELD((u32)y, (u32)x, 0x5E) & 1)) {
             if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 1) {
                 if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 0x10) {
-                    func_002ac750(x, (u8)(y - 1));
+                    smapRevealCell(x, (u8)(y - 1));
                 }
             } else {
-                func_002ac750(x, (u8)(y - 1));
+                smapRevealCell(x, (u8)(y - 1));
             }
         }
         if (SMAP_FIELD((s32)y, (u32)x, 0x154) == 1 && (SMAP_FIELD((u32)y, (u32)x, 0x5E) & 4)) {
             if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 4) {
                 if (SMAP_FIELD((u32)y, (u32)x, 0x5F) & 0x40) {
-                    func_002ac750(x, (u8)(y + 1));
+                    smapRevealCell(x, (u8)(y + 1));
                 }
             } else {
-                func_002ac750(x, (u8)(y + 1));
+                smapRevealCell(x, (u8)(y + 1));
             }
         }
         func_002b31a0((u8 *)&horizontalOffset, work + 8, (u8 *)&pos);
@@ -949,12 +949,12 @@ s32 func_002add90(u8 *arg0)
                         if (((mask & ((u16 *)D_00764658)[ty]) >> tx) == 1) {
                             func_002b10e0(*tile, 1);
                         }
-                        func_002b10a0(*tile, scale);
+                        smapSetPosition(*tile, scale);
                     }
                 }
             }
         }
-        func_002b2240(arg0);
+        smapClearSelection(arg0);
         break;
     case 3:
         *(s16 *)(work + 0x766) = func_002b2cb0(*(s16 *)(work + 0x766), 1, 5, 0, 1);
@@ -963,7 +963,7 @@ s32 func_002add90(u8 *arg0)
         *(s16 *)(work + 0x764) = func_002b2cb0(*(s16 *)(work + 0x764), 1, 5, 0, 1);
         /* fall through */
     case 4:
-        func_002b2240(arg0);
+        smapClearSelection(arg0);
         break;
     case 7:
         return -1;
@@ -973,7 +973,7 @@ s32 func_002add90(u8 *arg0)
 
 #undef SMAP_FIELD
 // FUN_002AE520
-void func_002ae520(u8 *arg0) {
+void smapFreeSprites(u8 *arg0) {
     u8 *p;
     s16 i;
 
@@ -1009,17 +1009,17 @@ void func_002ae520(u8 *arg0) {
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
 // FUN_002AE630
-u8 *func_002ae630(u8 *arg0)
+u8 *smapCreateSymbols(u8 *arg0)
 {
     extern s8 D_0063EEE0[];
     extern s8 D_0063EF00[];
     extern s8 D_0063EF20[];
     extern s8 D_0063EF40[];
-    extern u8 *func_002b0250(u8 *, u8, u8, u8, u8, u8, u8, u8);
-    extern u8 *func_002b2830(u8 *, YVec2f, f32, f32, u32);
-    extern void func_002B1100(void *, u32, u32);
-    extern f32 func_002b13e0(f32, YVec3f *);
-    extern f32 func_002b1480(f32, YVec3f *);
+    extern u8 *smapBuildTiles(u8 *, u8, u8, u8, u8, u8, u8, u8);
+    extern u8 *smapCreateOverlay(u8 *, YVec2f, f32, f32, u32);
+    extern void smapCellToWorld(void *, u32, u32);
+    extern f32 smapPositionOffsetX(f32, YVec3f *);
+    extern f32 smapPositionOffsetZ(f32, YVec3f *);
     extern s32 mapSymbolMarkerCreate(s32);
     extern s32 mapSymbolPointCreate(s32, s32, YVec3f *);
     extern s32 mapSymbolTargetCreate(s32, YVec2f, s32);
@@ -1050,15 +1050,15 @@ u8 *func_002ae630(u8 *arg0)
     chkmemAllocSiteTag(D_0063EF60, 0x389);
     work = D_008873F4[0](1, 0x768, 0x40000);
     task = kwlnTaskCreateChild(arg0, D_0063EFD8, 0xF, 0, 0,
-                        func_002add90, func_002ae520, work);
+                        smapUpdateEntities, smapFreeSprites, work);
     *(u8 **)work = work;
     *(work + 4) = 0;
     originX = FldFrameTask_GetTileX(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
     originY = FldFrameTask_GetTileZ(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
-    func_002B1100(&origin, (u32)originX, (u32)originY);
+    smapCellToWorld(&origin, (u32)originX, (u32)originY);
     *(YVec3f *)(work + 8) = origin;
-    D_00764660 = (u8)func_002B11C0(*(RwV3d *)(work + 8));
-    D_0076465C = (u8)func_002B1210(*(RwV3d *)(work + 8));
+    D_00764660 = (u8)smapWorldToColumn(*(RwV3d *)(work + 8));
+    D_0076465C = (u8)smapWorldToRow(*(RwV3d *)(work + 8));
     *(work + 0x20) = 0x12;
     for (rowIndex = 0; rowIndex < 0x18; rowIndex++) {
         u8 *taskRow;
@@ -1083,7 +1083,7 @@ u8 *func_002ae630(u8 *arg0)
                         offsetY = orientation[1];
                         tileColumn = columnIndex + (s32)offsetX;
                         *(u8 **)((u32)taskRow + (s32)offsetY * 0x40 + tileColumn * 4 + 0x148) =
-                            func_002b0250(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
+                            smapBuildTiles(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 1, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                         orientation = D_0063EEE0 + (SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59)) * 2;
@@ -1092,7 +1092,7 @@ u8 *func_002ae630(u8 *arg0)
                         offsetY = orientation[9];
                         tileColumn = columnIndex + (s32)offsetX;
                         *(u8 **)((u32)taskRow + (s32)offsetY * 0x40 + tileColumn * 4 + 0x148) =
-                            func_002b0250(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
+                            smapBuildTiles(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 2, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                         break;
@@ -1107,14 +1107,14 @@ u8 *func_002ae630(u8 *arg0)
                         offsetY = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 1);
                         tileColumn = columnIndex + (s32)offsetX;
                         *(u8 **)((u32)taskRow + (s32)offsetY * 0x40 + tileColumn * 4 + 0x148) =
-                            func_002b0250(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
+                            smapBuildTiles(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 1, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                         offsetX = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 8);
                         offsetY = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 9);
                         tileColumn = columnIndex + (s32)offsetX;
                         *(u8 **)((u32)taskRow + (s32)offsetY * 0x40 + tileColumn * 4 + 0x148) =
-                            func_002b0250(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
+                            smapBuildTiles(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 2, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                         break;
@@ -1129,21 +1129,21 @@ u8 *func_002ae630(u8 *arg0)
                         offsetY = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 1);
                         tileColumn = columnIndex + (s32)offsetX;
                         *(u8 **)((u32)taskRow + (s32)offsetY * 0x40 + tileColumn * 4 + 0x148) =
-                            func_002b0250(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
+                            smapBuildTiles(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 1, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                         offsetX = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 8);
                         offsetY = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 9);
                         tileColumn = columnIndex + (s32)offsetX;
                         *(u8 **)((u32)taskRow + (s32)offsetY * 0x40 + tileColumn * 4 + 0x148) =
-                            func_002b0250(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
+                            smapBuildTiles(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 2, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                         offsetX = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 0x10);
                         offsetY = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 0x11);
                         tileColumn = columnIndex + (s32)offsetX;
                         *(u8 **)((u32)taskRow + (s32)offsetY * 0x40 + tileColumn * 4 + 0x148) =
-                            func_002b0250(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
+                            smapBuildTiles(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 3, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                         break;
@@ -1159,19 +1159,19 @@ u8 *func_002ae630(u8 *arg0)
                         offsetY = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 1);
                         tileColumn = columnIndex + (s32)offsetX;
                         *(u8 **)((u32)taskRow + (s32)offsetY * 0x40 + tileColumn * 4 + 0x148) =
-                            func_002b0250(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
+                            smapBuildTiles(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 1, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                         offsetX = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 8);
                         offsetY = SMAP_NEIGHBOR_OFFSET(neighborTable, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59), 9);
                         tileColumn = columnIndex + (s32)offsetX;
                         *(u8 **)((u32)taskRow + (s32)offsetY * 0x40 + tileColumn * 4 + 0x148) =
-                            func_002b0250(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
+                            smapBuildTiles(task, (tileColumn & 0xFF), ((rowIndex + (s32)offsetY) & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 2, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                     } else {
                         *(u8 **)(taskRow + columnIndex * 4 + 0x148) =
-                            func_002b0250(task, (columnIndex & 0xFF), (rowIndex & 0xFF),
+                            smapBuildTiles(task, (columnIndex & 0xFF), (rowIndex & 0xFF),
                                 SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x58), 1, SMAP_SCAN_FIELD(mapRowOffset, columnIndex, 0x59),
                                 (u8)columnIndex, (u8)rowIndex);
                     }
@@ -1181,16 +1181,16 @@ u8 *func_002ae630(u8 *arg0)
     }
     framePosition1 = func_002b2970(17.0f, 150.0f);
     frameColor1.color = func_002b2a60(0x80, 0x80, 0x80, 0);
-    *(u8 **)(work + 0xBC) = func_002b2830(task, framePosition1, 240.0f, 120.0f, frameColor1.packed);
+    *(u8 **)(work + 0xBC) = smapCreateOverlay(task, framePosition1, 240.0f, 120.0f, frameColor1.packed);
     framePosition2 = func_002b2970(148.0f, 249.0f);
     frameColor2.color = func_002b2a60(0x80, 0, 0, 0);
-    *(u8 **)(work + 0xC0) = func_002b2830(task, framePosition2, 150.0f, 231.0f, frameColor2.packed);
+    *(u8 **)(work + 0xC0) = smapCreateOverlay(task, framePosition2, 150.0f, 231.0f, frameColor2.packed);
     framePosition3 = func_002b2970(0.0f, 395.0f);
     frameColor3.color = func_002b2a60(0, 0x80, 0, 0);
-    *(u8 **)(work + 0xC4) = func_002b2830(task, framePosition3, 151.0f, 121.0f, frameColor3.packed);
+    *(u8 **)(work + 0xC4) = smapCreateOverlay(task, framePosition3, 151.0f, 121.0f, frameColor3.packed);
     framePosition4 = func_002b2970(0.0f, 150.0f);
     frameColor4.color = func_002b2a60(0, 0, 0x80, 0);
-    *(u8 **)(work + 0xC8) = func_002b2830(task, framePosition4, 23.0f, 395.0f, frameColor4.packed);
+    *(u8 **)(work + 0xC8) = smapCreateOverlay(task, framePosition4, 23.0f, 395.0f, frameColor4.packed);
     *(s32 *)(work + 0xCC) = mapSymbolMarkerCreate((s32)task);
     for (unitIndex = 0; unitIndex < 0xF; unitIndex++) {
         s32 unitPresent;
@@ -1218,11 +1218,11 @@ u8 *func_002ae630(u8 *arg0)
                 f32 relativeX;
                 f32 relativeY;
                 enemyPosition = (YVec3f *)(entry + 0x150);
-                screenX = (f32)func_002B11C0(*(RwV3d *)enemyPosition) * 18.0f + 172.0f;
-                relativeX = func_002b13e0(18.0f, enemyPosition);
+                screenX = (f32)smapWorldToColumn(*(RwV3d *)enemyPosition) * 18.0f + 172.0f;
+                relativeX = smapPositionOffsetX(18.0f, enemyPosition);
                 foePosition.x = (screenX - relativeX) - 2.0f;
-                screenY = (f32)func_002B1210(*(RwV3d *)enemyPosition) * 18.0f + 9.0f;
-                relativeY = func_002b1480(18.0f, enemyPosition);
+                screenY = (f32)smapWorldToRow(*(RwV3d *)enemyPosition) * 18.0f + 9.0f;
+                relativeY = smapPositionOffsetZ(18.0f, enemyPosition);
                 foePosition.y = (screenY - relativeY) - 2.0f;
                 *(s32 *)(work + enemyIndex * 4 + 0x114) = mapSymbolTargetCreate((s32)task, foePosition, (enemyIndex & 0xFF));
             }
@@ -1253,7 +1253,7 @@ u8 *func_002ae630(u8 *arg0)
 // FUN_002AF3E0
 #pragma push
 #pragma opt_loop_invariants on
-void func_002af3e0(u8 *arg0, s8 arg1)
+void smapRefreshCells(u8 *arg0, s8 arg1)
 {
     u8 *p = *(u8 **)(arg0 + 0x38);
     s16 i;
@@ -1286,7 +1286,7 @@ void func_002af3e0(u8 *arg0, s8 arg1)
         for (y = 0; y < 16; y++) {
             if (kwlnTaskIsLinked(*(u8 **)(p + x * 64 + y * 4 + 0x148)) == 1) {
                 func_002b10f0(*(u8 **)(p + x * 64 + y * 4 + 0x148), arg1);
-                func_002b10d0(*(u8 **)(p + x * 64 + y * 4 + 0x148), 0);
+                smapSetActive(*(u8 **)(p + x * 64 + y * 4 + 0x148), 0);
             }
         }
     }
@@ -1338,7 +1338,7 @@ void func_002af3e0(u8 *arg0, s8 arg1)
                 if (kwlnTaskIsLinked(*slot) == 1) {
                     if ((((u16)(1 << y) & ((u16 *)D_00764658)[z]) >> y) == 1)
                         func_002b10e0(*slot, 1);
-                    func_002b10a0(*slot, func_002b2970(18.0f * z, 18.0f * y));
+                    smapSetPosition(*slot, func_002b2970(18.0f * z, 18.0f * y));
                 }
             }
         }
@@ -1347,7 +1347,7 @@ void func_002af3e0(u8 *arg0, s8 arg1)
 #pragma pop
 
 // FUN_002AFB70
-void func_002afb70(u8 *arg0, s8 arg1) {
+void smapSetPhase(u8 *arg0, s8 arg1) {
     u8 *temp_6;
 
     temp_6 = *(u8 **)(arg0 + 0x38);
@@ -1401,7 +1401,7 @@ typedef char SMapCellStorageSize[(sizeof(SMapCell) == 0x160) ? 1 : -1];
  * 1624/1632 bytes with all 28 relocations resolved and eight zero tail bytes.
  * See docs/probe_archive/Small_map_cell_002afbc0_20260924.md. */
 // FUN_002AFBC0
-s32 func_002afbc0(u8 *arg0) {
+s32 smapDrawCell(u8 *arg0) {
     u8 *task;
     SMapCell *cell;
     s32 color;
@@ -1443,7 +1443,7 @@ s32 func_002afbc0(u8 *arg0) {
                 func_0025ecd0(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
             }
         }
-        func_002b0b10(task, cell->position, cell->width, cell->height, 60008.0f, cell->origin, cell->scale, color, cell->orientation, 0x50);
+        smapDrawQuad(task, cell->position, cell->width, cell->height, 60008.0f, cell->origin, cell->scale, color, cell->orientation, 0x50);
         cell->pendingDraw = 0;
     } else if (cell->mode == 1) {
         if (datGetFlag(0x1416) == 0) {
@@ -1465,13 +1465,13 @@ s32 func_002afbc0(u8 *arg0) {
                 func_0025ecd0(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
             }
         }
-        func_002b0b10(task, cell->position, cell->width, cell->height, 60008.0f, cell->origin, cell->scale, color, cell->orientation, 0x4C);
+        smapDrawQuad(task, cell->position, cell->width, cell->height, 60008.0f, cell->origin, cell->scale, color, cell->orientation, 0x4C);
     }
     return 0;
 }
 
 // FUN_002B0220
-void func_002b0220(u8 *arg0) {
+void smapTaskDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -1487,7 +1487,7 @@ void func_002b0220(u8 *arg0) {
 // FUN_002B0250
 #pragma push
 #pragma opt_loop_invariants on
-u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7) {
+u8 *smapBuildTiles(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7) {
     u8 buf[8];
     u8 *ret;
     u8 *blk;
@@ -1502,7 +1502,7 @@ u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6
     }
     chkmemAllocSiteTag(D_0063EF60, 0x5C4);
     blk = D_008873F4[0](1, 0x160, 0x40000);
-    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063EFD8), 0xF, 0, 0, func_002afbc0, func_002b0220, blk);
+    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063EFD8), 0xF, 0, 0, smapDrawCell, smapTaskDestroy, blk);
     *(u8 **)blk = blk;
     *(blk + 4) = arg3;
     *(blk + 5) = arg4;
@@ -1631,7 +1631,7 @@ u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6
 #pragma pop
 
 // FUN_002B07A0
-void func_002b07a0(u8 *arg0, u8 *arg1) {
+void smapDrawLabel(u8 *arg0, u8 *arg1) {
     u8 *fp;
     u8 buf[0x80];
     u8 v;
@@ -1723,7 +1723,7 @@ extern u8 D_00793E80[];
  * Native b210 -O2: 1412/1424 bytes; all relocations and twelve zero tail bytes.
  * See docs/probe_archive/Map_shape_002b0b10_20260924.md. */
 // FUN_002B0B10
-void func_002b0b10(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, u8 origin, f32 scale, s32 color, s8 orientation, s32 layer) {
+void smapDrawQuad(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, u8 origin, f32 scale, s32 color, s8 orientation, s32 layer) {
     YVec3f corners[4];
     typedef struct SMapRenderDevice {
         f32 gamma;
@@ -1911,7 +1911,7 @@ void func_002b0b10(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, 
     }
     {
         u8 *packet = (u8 *)func_00461390((u8 *)&D_00793E80 + ((s16)layer * 0x30), 4, cell + 0x40, 4);
-        *(void (**)(u8 *, u8 *))(packet + 8) = func_002b07a0;
+        *(void (**)(u8 *, u8 *))(packet + 8) = smapDrawLabel;
         *(u8 **)(packet + 0x10) = cell;
     }
 }
@@ -1919,7 +1919,7 @@ void func_002b0b10(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, 
 
 
 // FUN_002B10A0
-void func_002b10a0(u8 *arg0, YVec2f arg1) {
+void smapSetPosition(u8 *arg0, YVec2f arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     *(YVec2f *)(p + 0x10) = arg1;
@@ -1927,7 +1927,7 @@ void func_002b10a0(u8 *arg0, YVec2f arg1) {
 }
 
 // FUN_002B10D0
-void func_002b10d0(u8 *arg0, s8 arg1) {
+void smapSetActive(u8 *arg0, s8 arg1) {
     *(s8 *)(*(u8 **)(arg0 + 0x38) + 0x15A) = arg1;
 }
 
@@ -1941,7 +1941,7 @@ void func_002b10f0(u8 *arg0, s8 arg1) {
     *(s8 *)(*(u8 **)(arg0 + 0x38) + 0x144) = arg1;
 }
 // FUN_002B1100
-void func_002B1100(void *param_1,u32 param_2,u32 param_3)
+void smapCellToWorld(void *param_1,u32 param_2,u32 param_3)
 
 {
   YVec3f vector;
@@ -1965,7 +1965,7 @@ void func_002B1100(void *param_1,u32 param_2,u32 param_3)
    A missing pair means a callee return was declared too wide; an extra pair
    means it was declared too narrow. */
 // FUN_002B11C0
-int func_002B11C0(RwV3d param_1)
+int smapWorldToColumn(RwV3d param_1)
 
 {
   return (int)((param_1.x + 600.0f) / 1200.0f);
@@ -1978,7 +1978,7 @@ int func_002B11C0(RwV3d param_1)
 
 
 // FUN_002B1210
-int func_002B1210(RwV3d param_1)
+int smapWorldToRow(RwV3d param_1)
 
 {
   return (int)((param_1.z + 600.0f) / 1200.0f);
@@ -1998,7 +1998,7 @@ int func_002B1210(RwV3d param_1)
    reversed decls, buf-indexed read, computed ptr) — all nd 11-38.
    Load-hoist/schedule floor. */
 // FUN_002B1260
-f32 func_002b1260(u8 *arg0, f32 arg1) {
+f32 smapPlayerOffsetX(u8 *arg0, f32 arg1) {
     YVec3f v2;
     u8 buf[0xC];
     f32 t, p, q;
@@ -2023,7 +2023,7 @@ f32 func_002b1260(u8 *arg0, f32 arg1) {
    and named-m variants stay nd 11. Load-hoist/schedule floor, same as
    func_002b1260. */
 // FUN_002B1320
-f32 func_002b1320(u8 *arg0, f32 arg1) {
+f32 smapPlayerOffsetZ(u8 *arg0, f32 arg1) {
     YVec3f v2;
     u8 buf[0xC];
     f32 t, p, q;
@@ -2038,7 +2038,7 @@ f32 func_002b1320(u8 *arg0, f32 arg1) {
     return arg1 / 2.0f - p * q;
 }
 // FUN_002B13E0
-f32 func_002b13e0(f32 arg1, YVec3f *arg0) {
+f32 smapPositionOffsetX(f32 arg1, YVec3f *arg0) {
     YVec3f v1, v2;
     f32 t, p, q;
 
@@ -2051,7 +2051,7 @@ f32 func_002b13e0(f32 arg1, YVec3f *arg0) {
 }
 
 // FUN_002B1480
-f32 func_002b1480(f32 arg1, YVec3f *arg0) {
+f32 smapPositionOffsetZ(f32 arg1, YVec3f *arg0) {
     YVec3f v2, v3, v1;
     f32 t, p, q;
 
@@ -2077,7 +2077,7 @@ f32 func_002b1480(f32 arg1, YVec3f *arg0) {
 // FUN_002B1520
 #pragma push
 #pragma opt_loop_invariants on
-void func_002b1520(s32 arg0, u8 *q) {
+void smapDrawPanel(s32 arg0, u8 *q) {
     u32 base;
     u8 sp[0x10];
     f32 a;
@@ -2240,7 +2240,7 @@ void func_002b1520(s32 arg0, u8 *q) {
 #pragma pop
 
 // FUN_002B2240
-void func_002b2240(u8 *arg0) {
+void smapClearSelection(u8 *arg0) {
     u8 *q = *(u8 **)(arg0 + 0x38);
 
     if (D_0076464C != 0) {
@@ -2264,7 +2264,7 @@ void func_002b2240(u8 *arg0) {
 /* measured: opt_loop_invariants on hoists the loop-3 float constants into
    $a0/$v1 and fixes loop 1 addu operand order (nd 18 -> 0 with it). */
 #pragma opt_loop_invariants on
-void func_002b2290(u8 *arg0)
+void smapUpdateItems(u8 *arg0)
 {
     typedef struct {
         u8 pad0[0x8];
@@ -2326,14 +2326,14 @@ void func_002b2290(u8 *arg0)
         q->e[k]->y = -10.0f;
     }
     memset(q->tail, 0, 0x30);
-    *(void (**)(s32, u8 *))(q->tail + 0x8) = func_002b1520;
+    *(void (**)(s32, u8 *))(q->tail + 0x8) = smapDrawPanel;
     *(SmapWork **)(q->tail + 0x10) = q;
 }
 /* measured: closes the loop-invariant bracket; the file default is off. */
 #pragma opt_loop_invariants off
 
 // FUN_002B2500
-void func_002b2500(void) {
+void smapSetRenderStates(void) {
     u8 *fp = (u8 *)D_00887300;
 
     ((void (**)(s32, s32))fp)[0](6, 1);
@@ -2360,7 +2360,7 @@ void func_002b2500(void) {
 // measured: probe propagation-off load ordering.
 #pragma opt_propagation off
 // FUN_002B25D0
-s32 func_002b25d0(u8 *arg0) {
+s32 smapUpdateOverlay(u8 *arg0) {
     f32 temp_f2;
     f32 temp_f1;
     f32 temp_f0;
@@ -2403,7 +2403,7 @@ s32 func_002b25d0(u8 *arg0) {
     *(f32 *)(temp_16 + 0xE4) =
         *(f32 *)(temp_16 + 8) + *(f32 *)(temp_16 + 0x10);
     temp_2 = func_00461390(D_00794D50, 4, temp_16 + 0x20, 4);
-    *(void (**)(void))(temp_2 + 8) = func_002b2500;
+    *(void (**)(void))(temp_2 + 8) = smapSetRenderStates;
     *(u8 **)(temp_2 + 0x10) = temp_16;
     return 0;
 }
@@ -2411,7 +2411,7 @@ s32 func_002b25d0(u8 *arg0) {
 #pragma pop
 
 // FUN_002B2800
-void func_002b2800(u8 *arg0)
+void smapDestroyOverlay(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
@@ -2420,13 +2420,13 @@ void func_002b2800(u8 *arg0)
    exact, and every sibling body, reference and owned data section preserved.
    Proof: build/cos20814/worker3-ui/rectangle_relocation_proof.json. */
 // FUN_002B2830
-u8 *func_002b2830(u8 *arg0, YVec2f arg1, f32 arg2, f32 arg3, u32 arg4) {
+u8 *smapCreateOverlay(u8 *arg0, YVec2f arg1, f32 arg2, f32 arg3, u32 arg4) {
     u8 *p;
     u8 *task;
 
     chkmemAllocSiteTag(D_0063EF60, 0x97A);
     p = D_008873F4[0](1, 0x120, 0x40000);
-    task = kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063F0F0), 0xF, 0, 0, func_002b25d0, func_002b2800, (u8 *)(p));
+    task = kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063F0F0), 0xF, 0, 0, smapUpdateOverlay, smapDestroyOverlay, (u8 *)(p));
     *(u32 *)p = (u32)p;
     *(YVec2f *)(p + 4) = arg1;
     *(f32 *)(p + 0xC) = arg2;

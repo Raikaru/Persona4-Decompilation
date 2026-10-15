@@ -120,7 +120,7 @@ extern void FldUnit_UpdateAllEnemySlots(void);
 extern void FldUnit_UpdateEnemySlot(void);
 extern s32 FldUnit_SpawnEncounterTask(u8 *, s32);
 extern s32 func_0014a270(void);
-extern s32 func_002ae630(u8 *);
+extern s32 smapCreateSymbols(u8 *);
 extern void func_002b2950(s32);
 extern s32 func_0018ced0(void);
 extern void func_0018c7e0(void);
@@ -278,7 +278,7 @@ s32 func_00155360(u8 *task)
         D_007D2530[0] = FldUnit_SpawnEncounterTask(task, -1);
         if ((func_0014a200() == 1 || func_0014a270() == 1) &&
             (*(s32 *)(iGpffff9db0 + 0) != 0x44 || *(s32 *)(iGpffff9db0 + 4) != 1)) {
-            D_007D2528[0] = func_002ae630(task);
+            D_007D2528[0] = smapCreateSymbols(task);
             func_002b2950(1);
         }
         if (func_0015a160() != 0) {
