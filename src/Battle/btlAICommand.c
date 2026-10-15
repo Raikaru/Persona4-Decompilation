@@ -5208,13 +5208,13 @@ s32 func_001e6570(void) {
 }
 
 // FUN_001E65B0
-s32 func_001e65b0(void) {
+s32 btlAICommandScriptGetSelfHp(void) {
     scrSetReturnInt(datCalcGetHp(*(u32 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA64)) & 0xFFFF);
     return -1;
 }
 
 // FUN_001E65F0
-s32 func_001e65f0(void) {
+s32 btlAICommandIdScriptQueryMyHp(void) {
     u32 a = scrGetParamInt(0);
     u32 b = scrGetParamInt(1);
     u8 *p = func_001b0cc0(a & 0xFFFFFFF);
@@ -5284,7 +5284,7 @@ s32 func_001e68c0(void) {
 
 
 // FUN_001E6930
-s32 func_001e6930(void) {
+s32 btlAICommandIdScriptQueryMyNomal(void) {
     u32 a = scrGetParamInt(0);
     u32 b = scrGetParamInt(1);
     u8 *p = func_001b0cc0(a & 0xFFFFFFF);
