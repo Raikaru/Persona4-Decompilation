@@ -114,7 +114,7 @@ extern u8 D_0064E670[];
 
 extern u8 D_0064E6A0[];
 extern u16 datPersonaCountValidMembers(void);
-extern u8 func_00109920(u8 *arg0, u16 arg1);
+extern u8 datPersonaRecordStatByte(u8 *arg0, u16 arg1);
 extern u8 func_001099f0(u8 *arg0, u16 arg1);
 extern s32 func_0010a780(u8 *arg0, u16 arg1, s8 arg2);
 extern u8 D_00793E80[];
@@ -1132,7 +1132,7 @@ s32 func_00370020(s32 arg0, u8 *arg1)
         func_0010a780(p, kind, (s8)v);
     } else {
         v = (s16)(func_00231d70(1) + 1);
-        t = (s16)(func_00109920(p, kind) & 0xFF);
+        t = (s16)(datPersonaRecordStatByte(p, kind) & 0xFF);
         if (t < 2) {
             return 0;
         }

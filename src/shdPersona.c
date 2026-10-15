@@ -10,7 +10,7 @@
 
 typedef struct KwlnTask KwlnTask;
 
-u16 func_00109360(u16 character);
+u16 datPersonaGetRecordId(u16 character);
 
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
@@ -142,7 +142,7 @@ s32 func_00115890(u8 *arg0, s32 arg1)
 
 
 s8 datPersonaGetLevel(u8 *arg0);
-s8 func_00109920(u8 *arg0, s32 arg1);
+s8 datPersonaRecordStatByte(u8 *arg0, s32 arg1);
 s8 func_001099f0(u8 *arg0, s32 arg1);
 s8 func_00109ad0(u8 *arg0, s32 arg1);
 s32 func_001097c0(u8 *arg0, u16 arg1);
@@ -174,11 +174,11 @@ void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
     *(s32 *)(arg1 + 0x38) = v2;
     switch (arg2) {
     case 0:
-        *(s8 *)(arg1 + 7) = func_00109920(arg0, 0);
-        *(s8 *)(arg1 + 8) = func_00109920(arg0, 1);
-        *(s8 *)(arg1 + 9) = func_00109920(arg0, 2);
-        *(s8 *)(arg1 + 0xA) = func_00109920(arg0, 3);
-        *(s8 *)(arg1 + 0xB) = func_00109920(arg0, 4);
+        *(s8 *)(arg1 + 7) = datPersonaRecordStatByte(arg0, 0);
+        *(s8 *)(arg1 + 8) = datPersonaRecordStatByte(arg0, 1);
+        *(s8 *)(arg1 + 9) = datPersonaRecordStatByte(arg0, 2);
+        *(s8 *)(arg1 + 0xA) = datPersonaRecordStatByte(arg0, 3);
+        *(s8 *)(arg1 + 0xB) = datPersonaRecordStatByte(arg0, 4);
         break;
     case 1:
         *(s8 *)(arg1 + 7) = func_001099f0(arg0, 0);
@@ -3631,7 +3631,7 @@ void func_0011cee0(u8 *arg0)
                 return;
             }
             t17 = *(u16 *)(*(u8 **)(work + 0) + 2);
-            if (t17 == (func_00109360(1) & 0xFFFF)) {
+            if (t17 == (datPersonaGetRecordId(1) & 0xFFFF)) {
                 *(s32 *)(work + 0x528) = 0xB;
                 return;
             }
@@ -4468,7 +4468,7 @@ s32 func_002bb4e0(void);
 s32 func_002bb600(void);
 u32 func_002bb1e0(s32);
 s32 func_002bb140(void);
-u16 func_001092f0(u32);
+u16 datPersonaRecordId(u32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
 /* Level-up messages retain the parent task across skill lookups and read
@@ -4549,7 +4549,7 @@ s32 func_0011e8e0(u8 *arg0)
         if ((isOld != 0) || (D_008C024E[0] & 0x50) || ((D_008C024C[0] & 0x10) && ((++*(u16 *)(work + 4) > 4)))) {
             u16 id2;
             func_002baac0((u8 *)(*(s32 *)(work + 0x24)));
-            func_002bbd20(0, func_00109220(func_001092f0((u32)first)));
+            func_002bbd20(0, func_00109220(datPersonaRecordId((u32)first)));
             id2 = *(s16 *)(*(u8 **)(*(u8 **)(work + 0x1C) + 0x38) + 0xC);
             func_002bbd20(1, (void *)func_0010d6d0(id2));
             func_002bad10(*(s32 *)(work + 0x30));
@@ -4637,7 +4637,7 @@ s32 func_0011e8e0(u8 *arg0)
                 func_0046d730(D_005E4868, 0x139A);
             }
             *(s32 *)(work + 0x14) = 6;
-            func_002bbd20(0, func_00109220(func_001092f0((u32)first)));
+            func_002bbd20(0, func_00109220(datPersonaRecordId((u32)first)));
             func_002bbd20(1, func_00243840(vv));
             func_002bad10(*(s32 *)(work + 0x38));
         } else {
@@ -4734,7 +4734,7 @@ s32 func_0011e8e0(u8 *arg0)
                 *(s32 *)(work + 0x14) = 9;
                 break;
             case 1:
-                func_002bbd20(0, func_00109220(func_001092f0((u32)first)));
+                func_002bbd20(0, func_00109220(datPersonaRecordId((u32)first)));
                 func_002bad10(*(s32 *)(work + 0x50));
                 *(s32 *)(work + 0x14) = 0xB;
                 break;
@@ -4912,7 +4912,7 @@ u32 func_002bb1e0(s32 arg0);
 s32 func_002bb140(void);
 u16 func_0011ccb0(u8 *arg0);
 void ShdSkill_PopPoolEntry(u8 *arg0);
-u16 func_001092f0(u32 arg0);
+u16 datPersonaRecordId(u32 arg0);
 s16 ShdSkill_FindSlot(u8 *, s32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
@@ -5031,7 +5031,7 @@ s32 func_0011f5a0(u8 *arg0)
                         u8 *qb2;
                         *(s32 *)(work + 8) = 6;
                         qb2 = first;
-                        qb2 = func_00109220(func_001092f0((u32)qb2));
+                        qb2 = func_00109220(datPersonaRecordId((u32)qb2));
                         func_002bbd20(0, qb2);
                         func_002bbd20(1, func_00243840(*(u16 *)(work + 4)));
                         func_002bad10(*(s32 *)(work + 0x30));

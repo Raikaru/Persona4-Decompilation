@@ -290,7 +290,7 @@ extern u8 D_0064079C[];
 extern u8 D_006407A8[];
 extern u8 D_006407C0[];
 extern u16 func_001102d0(void);
-extern u16 func_00109470(u16);
+extern u16 datPersonaRosterSlotFlags(u16);
 extern void func_00110270(u8 *, u16);
 extern void func_001102c0(u16);
 extern u8 D_00749350[];
@@ -7823,15 +7823,15 @@ void func_00308f40(void) {
     n3 = (raw >> 12) & 0xF;
     total = 0;
     for (i = 0; i < (u16)datPersonaCountValidMembers(); i++) {
-        if (func_00109470(i) & 4) {
-            if (func_00109470(i) & 0x80) {
+        if (datPersonaRosterSlotFlags(i) & 4) {
+            if (datPersonaRosterSlotFlags(i) & 0x80) {
                 *datPersonaRosterSlot(i) ^= 4;
                 *datPersonaRosterSlot(i) ^= 0x20;
                 *datPersonaRosterSlot(i) ^= 0x40;
                 *datPersonaRosterSlot(i) ^= 0x80;
-            } else if (func_00109470(i) & 0x40) {
+            } else if (datPersonaRosterSlotFlags(i) & 0x40) {
                 *datPersonaRosterSlot(i) |= 0x80;
-            } else if (func_00109470(i) & 0x20) {
+            } else if (datPersonaRosterSlotFlags(i) & 0x20) {
                 *datPersonaRosterSlot(i) |= 0x40;
             } else {
                 *datPersonaRosterSlot(i) |= 0x20;

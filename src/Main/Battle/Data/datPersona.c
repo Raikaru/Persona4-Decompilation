@@ -72,13 +72,15 @@ u8 func_00109280(u16 personaId)
 }
 
 // FUN_001092F0
-u16 func_001092f0(u32 arg0)
+// Intent: u16 id stored at +2 of a persona record.
+u16 datPersonaRecordId(u32 arg0)
 {
     return *(u16 *)(arg0 + 2);
 }
 
 // FUN_00109300
-u16 func_00109300(s32 arg0)
+// Intent: u16 id at +2 of roster slot arg0; fatal when the slot is NULL.
+u16 datPersonaRosterSlotId(s32 arg0)
 {
     u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
@@ -88,13 +90,15 @@ u16 func_00109300(s32 arg0)
 }
 
 // FUN_00109360
-u16 func_00109360(u16 arg0)
+// Intent: u16 id at +2 of the record for persona id arg0.
+u16 datPersonaGetRecordId(u16 arg0)
 {
     return *(u16 *)((u8 *)datPersonaGetRecord(arg0) + 2);
 }
 
 // FUN_001093A0
-u8 func_001093a0(s32 arg0)
+// Intent: byte at +4 of roster slot arg0; fatal when the slot is NULL.
+u8 datPersonaRosterSlotByte4(s32 arg0)
 {
     u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
@@ -104,7 +108,8 @@ u8 func_001093a0(s32 arg0)
 }
 
 // FUN_00109470
-u16 func_00109470(s32 arg0)
+// Intent: u16 flags word of roster slot arg0; fatal when the slot is NULL.
+u16 datPersonaRosterSlotFlags(s32 arg0)
 {
     u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
@@ -288,7 +293,8 @@ u32 func_00109870(u16 arg0, s32 arg1)
 }
 
 // FUN_00109920
-u8 func_00109920(u8 *arg0, s32 arg1)
+// Intent: byte at +0x1C plus index (0..4) of a persona record.
+u8 datPersonaRecordStatByte(u8 *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
         func_0046d730(D_005E4318, 0x1DE);
@@ -297,8 +303,9 @@ u8 func_00109920(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109980
+// Intent: byte at +0x1C plus index (0..4) of the record for persona id arg0.
 /* Preserve the public word transport while interpreting the character as a halfword. */
-s32 func_00109980(arg0, arg1)
+s32 datPersonaRecordStatByteById(arg0, arg1)
 u16 arg0;
 s32 arg1;
 {
