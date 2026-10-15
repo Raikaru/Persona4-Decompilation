@@ -184,7 +184,7 @@ void func_00290bc0(int *param_1)
         uVar4 = func_00278260(iVar2);
         iVar2 = param_1[6];
         if ((iVar2 >= 0) && (iVar2 < 10)) {
-          func_0028d020(iVar2, uVar4);
+          evtResultSet(iVar2, uVar4);
         }
         param_1[7] = (int)uVar4;
         param_1[3] = 5;

@@ -879,7 +879,7 @@ s32 func_00296850(u8 *arg0, u8 *arg1)
   extern void func_00296600(u8 *arg0, u8 *arg1);
   extern void func_00296720(u8 *arg0, u8 *arg1);
   extern void func_00287310(u8 *arg0);
-  extern void func_0028d020(s32 arg0, s32 arg1);
+  extern void evtResultSet(s32 arg0, s32 arg1);
   extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
   extern u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2);
   extern void func_00440b68(char *fmt, ...);
@@ -1813,7 +1813,7 @@ loop22_test:
   var_18 = 0;
   goto loopA_test;
 loopA_body:
-  func_0028d020(var_18, -1);
+  evtResultSet(var_18, -1);
   var_18 += 1;
 loopA_test:
   if (var_18 < 10)
