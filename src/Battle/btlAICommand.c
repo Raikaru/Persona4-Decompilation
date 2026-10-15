@@ -40,7 +40,7 @@ extern s32 datCalcSkillElement(u8 *unit, u16 command);
 extern s32 datCalcElementBit(s16 index);
 extern s8 datCalcGetBuffStatus(u8 *unit, s32 status);
 extern u32 datCalcGetTableLength(u8 *unit);
-extern u32 func_00243920(u32 arg0);
+extern u32 datCalcUnderlyingSkillId(u32 arg0);
 extern u32 *func_001d9280();
 extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
 extern u32 func_0010f420(u32 arg0, u32 arg1);
@@ -2099,7 +2099,7 @@ s32 btlAICommandScriptSetSkillAction(void) {
     if (r >= 0) {
         *(u16 *)(p + 0x6C) = 3;
         *(u16 *)(p + 0x70) = r;
-        *(u16 *)(p + 0x6E) = func_00243920((u16)r);
+        *(u16 *)(p + 0x6E) = datCalcUnderlyingSkillId((u16)r);
     } else {
         btlAICommandSetActionCode(p, p + 0x38, 0x8002);
     }

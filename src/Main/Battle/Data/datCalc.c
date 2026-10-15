@@ -41,7 +41,7 @@ extern u8 *iGpffffb3c0;
 extern u8 *func_00106820(s16 arg0);
 
 /* Old-style declaration: the retail call site at datCalcIsFlaggedPersonaSkill passes arg0 raw (no 64-bit extension). */
-u16 func_00243920();
+u16 datCalcUnderlyingSkillId();
 
 extern u16 func_00104dc0(s16 character);
 extern void func_001056e0(s16 character, s16 value);
@@ -551,7 +551,7 @@ s32 datCalcIsFlaggedPersonaSkill(s32 arg0)
     if ((arg0 & 0xFFFF) <= 0x300 || (arg0 & 0xFFFF) >= 0x400) {
         return 0;
     } else {
-        id16 = func_00243920(arg0) & 0xFFFF;
+        id16 = datCalcUnderlyingSkillId(arg0) & 0xFFFF;
         if (id16 == 0) {
             return 0;
         }
@@ -5050,8 +5050,9 @@ u8 *datCalcGetSlotRecord(s32 arg0)
     return iGpffffb44c + (u8)arg0 * 0x15;
 }
 
+// Intent: underlying skill id for persona-skill id arg0 (the record from func_00106820 at +0x24, read by datCalcIsFlaggedPersonaSkill); [inferred].
 // FUN_00243920
-u16 func_00243920(s64 arg0)
+u16 datCalcUnderlyingSkillId(s64 arg0)
 {
     return *(u16 *)((u8 *)func_00106820((s16)arg0) + 0x24);
 }
@@ -5060,8 +5061,9 @@ u16 func_00243920(s64 arg0)
 /* Ported from P3FES src/Main/Battle/Data/datCalc.c FUN_0030c490 (verified MATCH there). */
 
 
+// Intent: experience reward of the enemy unit arg0 (monster row field +0x1E), added to the battle reward total; [inferred].
 // FUN_00243950
-u16 func_00243950(u8 *arg0)
+u16 datCalcEnemyExp(u8 *arg0)
 {
     if (*(u16 *)(arg0 + 2) >= 0x150) {
         func_0046d730(D_00635938, 0x1515);

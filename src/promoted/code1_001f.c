@@ -74,7 +74,7 @@ extern void memset(void *destination, s32 value, u32 size);
 extern s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2);
 
 extern u32 datCalcRandomBelow();
-extern s32 func_00243950(s32 arg0);
+extern s32 datCalcEnemyExp(s32 arg0);
 extern s32 func_002439c0(s32 arg0);
 extern u16 datCalcPickWeightedSkill(u8 *arg0, s32 *arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
@@ -1583,7 +1583,7 @@ void func_001f2cc0(u8 *arg0)
                 *(u16 *)(arg0 + 0x1A) = (u16)(temp_4 | 0x20);
                 *(s32 *)(D_0076449C + 0xCB0) =
                     *(s32 *)(D_0076449C + 0xCB0) +
-                    func_00243950(*(s32 *)(temp_16 + 0xA64));
+                    datCalcEnemyExp(*(s32 *)(temp_16 + 0xA64));
                 *(s32 *)(D_0076449C + 0xCB4) =
                     *(s32 *)(D_0076449C + 0xCB4) +
                     func_002439c0(*(s32 *)(temp_16 + 0xA64));
