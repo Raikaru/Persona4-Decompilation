@@ -112,7 +112,7 @@ s32 func_001f2f90(u8 *arg0);
 #pragma push
 #pragma pop
 // FUN_001BBF40
-void func_001bbf40(u8 *arg0, f32 fparg0) {
+void btlCameraSetTransitionDuration(u8 *arg0, f32 fparg0) {
     *(f32 *)(arg0 + 0x84) = (f32) ((60.0f * fparg0) / 2.0f);
     *(u16 *)(arg0 + 0) = (u16) (*(u16 *)(arg0 + 0) & 0xFFFD);
     *(u16 *)(arg0 + 0) = (u16) (*(u16 *)(arg0 + 0) & 0xFFFB);
