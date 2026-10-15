@@ -67,12 +67,12 @@ extern void sdkSpriteFreeNode(void *node);
 
 extern s32 func_002b3720(u8 *arg0);
 extern void func_002b3960(u8 *arg0);
-extern s32 func_002b3c70(u8 *arg0);
-extern s32 func_002b4250(u8 *arg0);
-extern s32 func_002b4ad0(u8 *arg0);
+extern s32 mapSymbolPointUpdate(u8 *arg0);
+extern s32 mapSymbolEntityUpdate(u8 *arg0);
+extern s32 mapSymbolTargetUpdate(u8 *arg0);
 
 // FUN_002B3990
-s32 func_002b3990(s32 arg0)
+s32 mapSymbolMarkerCreate(s32 arg0)
 {
     s32 ret;
     u8 *work;
@@ -98,7 +98,7 @@ s32 func_002b3990(s32 arg0)
    verified MATCH after correcting the callee ABI and arithmetic statement
    order. */
 // FUN_002B3AE0
-void func_002b3ae0(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
+void mapSymbolMarkerDraw(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
 {
     f32 fparg0_saved;
     u8 *p;
@@ -123,7 +123,7 @@ void func_002b3ae0(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
     func_0025ecd0(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2, 0xFF, 0x10, (void *)(u32)func_002ac740(), 1, *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794DE0);
 }
 // FUN_002B3C50
-void func_002b3c50(u8 *arg0, u8 arg1)
+void mapSymbolMarkerSetHighlight(u8 *arg0, u8 arg1)
 {
     u8 *p;
 
@@ -132,7 +132,7 @@ void func_002b3c50(u8 *arg0, u8 arg1)
 }
 
 // FUN_002B3C60
-void func_002b3c60(u8 *arg0, u8 arg1)
+void mapSymbolMarkerSetVariant(u8 *arg0, u8 arg1)
 {
     u8 *p;
 
@@ -141,7 +141,7 @@ void func_002b3c60(u8 *arg0, u8 arg1)
 }
 
 // FUN_002B3C70
-s32 func_002b3c70(u8 *arg0)
+s32 mapSymbolPointUpdate(u8 *arg0)
 {
     u8 *p;
     u8 base[8];
@@ -206,13 +206,13 @@ s32 func_002b3c70(u8 *arg0)
     return 0;
 }
 // FUN_002B4110
-void func_002b4110(u8 *arg0)
+void mapSymbolPointDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_002B4140
-s32 func_002b4140(s32 arg0, s32 arg1, Vec3 *arg2)
+s32 mapSymbolPointCreate(s32 arg0, s32 arg1, Vec3 *arg2)
 {
     s32 ret;
     u8 *work;
@@ -221,7 +221,7 @@ s32 func_002b4140(s32 arg0, s32 arg1, Vec3 *arg2)
     v = *arg2;
     chkmemAllocSiteTag(D_0063F120, 0x18D);
     work = D_008873F4[0](1, 0x1C, 0x40000);
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F140), 0xF, 0, 0, func_002b3c70, func_002b4110, (u8 *)(work));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F140), 0xF, 0, 0, mapSymbolPointUpdate, mapSymbolPointDestroy, (u8 *)(work));
     *(Vec3 *)(work + 0xC) = v;
     work[1] = arg1;
     work[0x18] = func_002b11c0(*(RwV3d *)&v);
@@ -230,7 +230,7 @@ s32 func_002b4140(s32 arg0, s32 arg1, Vec3 *arg2)
 }
 
 // FUN_002B4240
-void func_002b4240(u8 *arg0, s8 arg1)
+void mapSymbolPointSetState(u8 *arg0, s8 arg1)
 {
     u8 *p;
 
@@ -239,7 +239,7 @@ void func_002b4240(u8 *arg0, s8 arg1)
 }
 
 // FUN_002B4250
-s32 func_002b4250(u8 *arg0)
+s32 mapSymbolEntityUpdate(u8 *arg0)
 {
     s8 *p;
     u8 base[8];
@@ -363,26 +363,26 @@ vtest4:
     return 0;
 }
 // FUN_002B49E0
-void func_002b49e0(u8 *arg0)
+void mapSymbolEntityDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_002B4A10
-s32 func_002b4a10(s32 arg0, s32 arg1)
+s32 mapSymbolEntityCreate(s32 arg0, s32 arg1)
 {
     u8 *work;
     s32 ret;
 
     chkmemAllocSiteTag(D_0063F120, 0x215);
     work = D_008873F4[0](1, 0xC, 0x40000);
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F150), 0xF, 0, 0, func_002b4250, func_002b49e0, (u8 *)(work));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F150), 0xF, 0, 0, mapSymbolEntityUpdate, mapSymbolEntityDestroy, (u8 *)(work));
     work[1] = arg1;
     return ret;
 }
 
 // FUN_002B4AC0
-void func_002b4ac0(u8 *arg0, s8 arg1)
+void mapSymbolTargetSetState(u8 *arg0, s8 arg1)
 {
     u8 *p;
 
@@ -395,7 +395,7 @@ void func_002b4ac0(u8 *arg0, s8 arg1)
  * snapshots and the providers' float-first argument order.
  * See docs/probe_archive/Map_symbol_002b4ad0_20260924.md. */
 // FUN_002B4AD0
-s32 func_002b4ad0(u8 *arg0)
+s32 mapSymbolTargetUpdate(u8 *arg0)
 {
     u8 *p;
     union { u8 bytes[8]; f32 values[2]; } base;
@@ -492,13 +492,13 @@ end:
     return 0;
 }
 // FUN_002B4FB0
-void func_002b4fb0(u8 *arg0)
+void mapSymbolTargetDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_002B4FE0
-s32 func_002b4fe0(s32 arg0, Vec2 arg1, s32 arg2)
+s32 mapSymbolTargetCreate(s32 arg0, Vec2 arg1, s32 arg2)
 {
     s32 ret;
     u8 *work;
@@ -506,7 +506,7 @@ s32 func_002b4fe0(s32 arg0, Vec2 arg1, s32 arg2)
 
     chkmemAllocSiteTag(D_0063F120, 0x28A);
     work = D_008873F4[0](1, 0xC, 0x40000);
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F160), 0xF, 0, 0, func_002b4ad0, func_002b4fb0, (u8 *)(work));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F160), 0xF, 0, 0, mapSymbolTargetUpdate, mapSymbolTargetDestroy, (u8 *)(work));
     *(Vec2 *)work = arg1;
     work[8] = 0;
     e = (u8 *)&D_007E80A0 + (arg2 & 0xFF) * 0x168 + 0x150;

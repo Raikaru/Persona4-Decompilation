@@ -90,7 +90,7 @@ extern u8 D_00764660;   /* gp-relative, -0x4A90 */
 /* func_002b1520 callees */
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
 extern void sdkSpriteDraw(u8 *, s32);
-extern void func_002b3c60(u8 *, u8);
+extern void mapSymbolMarkerSetVariant(u8 *, u8);
 extern u8 *func_002b2940(u8 *);
 extern s64 iGpffffa840;  /* gp-relative, -0x57C0 */
 extern s64 iGpffffa848;  /* gp-relative, -0x57B8 */
@@ -106,7 +106,7 @@ extern void func_002b2290(u8 *);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s32 func_002b6850(u8 *);
 extern void func_002b67a0(u8 *, u32, s8);
-extern s32 func_002b4a10(s32, s32);
+extern s32 mapSymbolEntityCreate(s32, s32);
 extern void func_002ac750(u8, u8);
 extern void func_002b31a0(u8 *, u8 *, u8 *);
 extern s32 kwlnTaskIsLinked(void *);
@@ -118,10 +118,10 @@ extern int func_002B1210(YVec3f);
 /* func_002af3e0 callees */
 extern u8 D_007E80A0[];
 extern s32 D_00764654;
-extern void func_002b3c50(u8 *);
-extern void func_002b4ac0(u8 *, s8);
+extern void mapSymbolMarkerSetHighlight(u8 *);
+extern void mapSymbolTargetSetState(u8 *, s8);
 extern void func_002b5100(u8 *, s8);
-extern void func_002b4240(u8 *, s8);
+extern void mapSymbolPointSetState(u8 *, s8);
 extern void fclSpriteStartPositionTask(u8 *, YVec2f, YVec2f, u32, u32, s16);
 extern void fclSpriteStartAlphaTask(u8 *, u8, u8, u8, s32, s16);
 extern void fclSpriteActivateTask(u8 *, YVec2f, u32, f32);
@@ -889,7 +889,7 @@ s32 func_002add90(u8 *arg0)
                 u8 **slot = (u8 **)(work + unitIndex * 4 + 0xD8);
 
                 if (*slot == NULL) {
-                    *slot = (u8 *)func_002b4a10((s32)arg0, (s8)unitIndex);
+                    *slot = (u8 *)mapSymbolEntityCreate((s32)arg0, (s8)unitIndex);
                 }
             }
         }
@@ -1020,9 +1020,9 @@ u8 *func_002ae630(u8 *arg0)
     extern void func_002B1100(void *, u32, u32);
     extern f32 func_002b13e0(f32, YVec3f *);
     extern f32 func_002b1480(f32, YVec3f *);
-    extern s32 func_002b3990(s32);
-    extern s32 func_002b4140(s32, s32, YVec3f *);
-    extern s32 func_002b4fe0(s32, YVec2f, s32);
+    extern s32 mapSymbolMarkerCreate(s32);
+    extern s32 mapSymbolPointCreate(s32, s32, YVec3f *);
+    extern s32 mapSymbolTargetCreate(s32, YVec2f, s32);
     extern s32 func_002b6590(s32, s16, s32);
     extern void *mdlGetMatrix(void *);
     extern u8 *MT_Scene_GetResListHead(s32);
@@ -1191,7 +1191,7 @@ u8 *func_002ae630(u8 *arg0)
     framePosition4 = func_002b2970(0.0f, 150.0f);
     frameColor4.color = func_002b2a60(0, 0, 0x80, 0);
     *(u8 **)(work + 0xC8) = func_002b2830(task, framePosition4, 23.0f, 395.0f, frameColor4.packed);
-    *(s32 *)(work + 0xCC) = func_002b3990((s32)task);
+    *(s32 *)(work + 0xCC) = mapSymbolMarkerCreate((s32)task);
     for (unitIndex = 0; unitIndex < 0xF; unitIndex++) {
         s32 unitPresent;
         u8 *entry;
@@ -1201,7 +1201,7 @@ u8 *func_002ae630(u8 *arg0)
             unitPresent = 1;
         }
         if ((u32)(unitPresent != 0) == 1) {
-            *(s32 *)(work + unitIndex * 4 + 0xD8) = func_002b4a10((s32)task, (s8)unitIndex);
+            *(s32 *)(work + unitIndex * 4 + 0xD8) = mapSymbolEntityCreate((s32)task, (s8)unitIndex);
         }
     }
     {
@@ -1224,7 +1224,7 @@ u8 *func_002ae630(u8 *arg0)
                 screenY = (f32)func_002B1210(*(RwV3d *)enemyPosition) * 18.0f + 9.0f;
                 relativeY = func_002b1480(18.0f, enemyPosition);
                 foePosition.y = (screenY - relativeY) - 2.0f;
-                *(s32 *)(work + enemyIndex * 4 + 0x114) = func_002b4fe0((s32)task, foePosition, (enemyIndex & 0xFF));
+                *(s32 *)(work + enemyIndex * 4 + 0x114) = mapSymbolTargetCreate((s32)task, foePosition, (enemyIndex & 0xFF));
             }
         }
         sdkSpriteFreeNode(sprite);
@@ -1237,7 +1237,7 @@ u8 *func_002ae630(u8 *arg0)
     *(s32 *)(work + 0xD0) = 0;
     while (sceneNode != NULL) {
         nodeMatrix = mdlGetMatrix(*(void **)(sceneNode + 0x164));
-        *(s32 *)(work + nodeIndex * 4 + 0xD0) = func_002b4140((s32)task, (s8)nodeIndex, (YVec3f *)(nodeMatrix + 0x30));
+        *(s32 *)(work + nodeIndex * 4 + 0xD0) = mapSymbolPointCreate((s32)task, (s8)nodeIndex, (YVec3f *)(nodeMatrix + 0x30));
         nodeIndex++;
         sceneNode = *(u8 **)(sceneNode + 0x138);
     }
@@ -1261,14 +1261,14 @@ void func_002af3e0(u8 *arg0, s8 arg1)
     s16 y;
     s16 x;
 
-    func_002b3c50(*(u8 **)(p + 0xCC));
+    mapSymbolMarkerSetHighlight(*(u8 **)(p + 0xCC));
     for (i = 0; i < 15; i++) {
         s32 valid = 0;
         u8 *entry = D_007E8C00 + i * 0x750;
         if (*(s32 *)(entry + 0x48) != 0 && *(s32 *)(entry + 0x54) != 0)
             valid = 1;
         if ((u8)(valid != 0) == 1)
-            func_002b4ac0(*(u8 **)(p + i * 4 + 0xD8), arg1);
+            mapSymbolTargetSetState(*(u8 **)(p + i * 4 + 0xD8), arg1);
     }
     for (i = 0; i < 8; i++) {
         if (*(s32 *)(D_007E80A0 + i * 0x168) != 0)
@@ -1277,7 +1277,7 @@ void func_002af3e0(u8 *arg0, s8 arg1)
     for (i = 0; i < 2; i++) {
         u8 *task = *(u8 **)(p + i * 4 + 0xD0);
         if (task != NULL)
-            func_002b4240(task, arg1);
+            mapSymbolPointSetState(task, arg1);
     }
     D_00764654 = 0;
     *(s16 *)(p + 0x764) = 0;
@@ -2204,7 +2204,7 @@ void func_002b1520(s32 arg0, u8 *q) {
         a = func_002b2aa0(0, iGpffff84f4, 1.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
         b = func_002b2aa0(0, 183.0f, 120.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
         c = func_002b2aa0(0, 332.0f, (f32)395, (f32)*(s16 *)(q + 0x764), 10.0f);
-        func_002b3c60(*(u8 **)(q + 0xCC), 0);
+        mapSymbolMarkerSetVariant(*(u8 **)(q + 0xCC), 0);
         break;
     case 6:
         *(f32 *)(sp + 12) = func_002b2aa0(0, 264.0f, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
@@ -2212,7 +2212,7 @@ void func_002b1520(s32 arg0, u8 *q) {
         a = func_002b2aa0(0, 1.0f, iGpffff84f4, (f32)*(s16 *)(q + 0x764), 5.0f);
         b = func_002b2aa0(0, 120.0f, 183.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
         c = func_002b2aa0(0, (f32)395, 332.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
-        func_002b3c60(*(u8 **)(q + 0xCC), 1);
+        mapSymbolMarkerSetVariant(*(u8 **)(q + 0xCC), 1);
         break;
     default:
         break;
