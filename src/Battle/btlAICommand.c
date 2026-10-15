@@ -13,7 +13,7 @@ typedef struct DatUnit DatUnit;
 extern u16 datCalcMaxHp(DatUnit *unit);
 
 
-s32 func_001db360(u8 *formation, s32 index, s32 enabled);
+s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled);
 
 extern u64 func_0010f460();
 
@@ -251,7 +251,7 @@ next:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 // FUN_001DB360
-s32 func_001db360(u8 *formation, s32 index, s32 enabled)
+s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
 {
     u8 *unit;
     s32 flags;
@@ -309,20 +309,20 @@ s32 func_001db360(u8 *formation, s32 index, s32 enabled)
 // FUN_001DB580
 s32 btlCond_MYNOMAL(u8 *formation, s32 index)
 {
-    return func_001db360(formation, index, 1);
+    return btlAICommandNomalCheck(formation, index, 1);
 }
 
 
 
 // FUN_001DB5B0
-s32 func_001db5b0(u8 *formation, s32 index)
+s32 btlAICommandNomalCheckNoGate(u8 *formation, s32 index)
 {
-    return func_001db360(formation, index, 0);
+    return btlAICommandNomalCheck(formation, index, 0);
 }
 
 
 // FUN_001DB5E0
-s32 func_001db5e0(u8 *arg0, s16 arg1) {
+s32 btlAICommandNomalStatusCheck(u8 *arg0, s16 arg1) {
     return !(datCalcAilmentChance(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x7000000);
 }
 
@@ -1397,7 +1397,7 @@ s32 btlAICommandCollectSkillCandidates(u8 *p, u8 *q, s32 arg2, s32 arg3)
     n = 0;
     unit0 = *(u8 **)(p + 0x30);
     cur0 = (s16)func_0023d8e0(*(u8 **)(unit0 + 0xA64), 0);
-    if (func_001db360(q, cur0, 1) != 0) {
+    if (btlAICommandNomalCheck(q, cur0, 1) != 0) {
         buf[0] = 0;
         n++;
     }
@@ -1448,7 +1448,7 @@ s32 btlAICommandCollectSkillCandidates(u8 *p, u8 *q, s32 arg2, s32 arg3)
 have_ok:
             if (ok == 0)
                 goto next;
-            if (func_001db360(q, cur, 1) != 0) {
+            if (btlAICommandNomalCheck(q, cur, 1) != 0) {
                 buf[n] = *e;
                 n++;
             }
@@ -1649,7 +1649,7 @@ s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
     n = 0;
     unit = *(u8 **)(arg0 + 0x30);
     queried = func_0023d8e0(*(u8 **)(unit + 0xA64), 0);
-    if (queried == arg2 && func_001db360(arg1, queried, 1) != 0) {
+    if (queried == arg2 && btlAICommandNomalCheck(arg1, queried, 1) != 0) {
         table[0] = 0;
         n++;
     }
@@ -1668,7 +1668,7 @@ s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         if (btlCommandUsable(arg0, cmd) == 0)
             goto next;
         q = queried;
-        if (func_001db360(arg1, q, 1) == 0)
+        if (btlAICommandNomalCheck(arg1, q, 1) == 0)
             goto next;
         table[n] = *entry;
         n++;

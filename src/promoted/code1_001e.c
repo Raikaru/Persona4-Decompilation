@@ -602,7 +602,7 @@ loop_test:
 // FUN_001E7AB0
 s32 func_001e7ab0(void) {
     extern s32 btlAICommandSelectCandidates();
-    extern void func_001db5b0();
+    extern void btlAICommandNomalCheckNoGate();
     extern s32 datCalcRandomBelow();
     extern s32 datCalcGetLevel();
     extern s64 scrGetParamInt();
@@ -618,7 +618,7 @@ s32 func_001e7ab0(void) {
     u8 *var_2;
 
     temp_20 = func_0029d050();
-    if (btlAICommandSelectCandidates(temp_20, scrGetParamInt(0), 0, 0x2C, 1, &func_001db5b0) == 1) {
+    if (btlAICommandSelectCandidates(temp_20, scrGetParamInt(0), 0, 0x2C, 1, &btlAICommandNomalCheckNoGate) == 1) {
         if (*(u16 *)(temp_20 + 0x6A) == 1) {
             var_2 = *(u8 **)(temp_20 + 0x38);
         } else {
@@ -1479,7 +1479,7 @@ s32 func_001e9950(void) {
     extern s32 func_0023df70(s32 arg0);
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
     extern u16 func_0023dd90(u8 *arg0, s32 arg1);
-    extern s32 func_001db360(u8 *arg0, s32 arg1, s32 arg2);
+    extern s32 btlAICommandNomalCheck(u8 *arg0, s32 arg1, s32 arg2);
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     extern u8 *func_001b0cc0(s32 arg0);
     extern s32 func_001dbf20(u8 *arg0, u32 arg1);
@@ -1572,7 +1572,7 @@ outer_body:
         paramA = (s16)kind;
         for (; (idxA & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxA = (idxA + 1) & 0xFFFF) {
             entryA = tgt.entries[(u16)idxA];
-            if (func_001db360(entryA, paramA, 1) != 0) {
+            if (btlAICommandNomalCheck(entryA, paramA, 1) != 0) {
                 dmg = func_00235520(skill, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
                 hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
                 maxHp = datCalcMaxHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
@@ -1595,7 +1595,7 @@ outer_body:
         paramB = (s16)kind;
         for (; ((s32)idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = ((s32)idxB + 1) & 0xFFFF) {
             entryB = tgt.entries[(idxB & 0xFFFF)];
-            if (func_001db360(entryB, paramB, 1) == 0) {
+            if (btlAICommandNomalCheck(entryB, paramB, 1) == 0) {
                 if ((datCalcAilmentChance(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), kind) & 0x1000000) == 0) {
                     curScore = 0.0f;
                     goto scored;
