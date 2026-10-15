@@ -88,7 +88,7 @@ extern void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void sflDataInitPanel(void);
-extern void func_0036a900(u8 *arg0);
+extern void pscLightInitQuad(u8 *arg0);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern void func_00362630(u8 *arg0);
