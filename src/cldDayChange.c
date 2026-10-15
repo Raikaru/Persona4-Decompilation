@@ -65,7 +65,7 @@ void cldDayChangeStartTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(p + 0xC) = arg1;
     *(s32 *)(p + 0x10) = arg2;
     *(s32 *)(p + 0x18) = arg1;
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_006376C0), 0x10, 0, 0, func_00263460, func_00264d10, (u8 *)(p));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006376C0), 0x10, 0, 0, func_00263460, func_00264d10, (u8 *)(p));
 }
 
 /* Reads the day-change data file into memory synchronously. */
@@ -725,7 +725,7 @@ s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2) {
     *(s32 *)(p + 0) = 0;
     *(s32 *)(p + 0xC) = arg2;
     *(s32 *)(p + 0x1C) = arg1;
-    r = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00638EF0), 0xF, 0, 0, cldDayChangeUpdateState, cldDayChangeTaskDestroy, (u8 *)(p));
+    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00638EF0), 0xF, 0, 0, cldDayChangeUpdateState, cldDayChangeTaskDestroy, (u8 *)(p));
     func_0045a8d0(3, 0);
     func_004598e0(0xA);
     return r;

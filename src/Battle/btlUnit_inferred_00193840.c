@@ -342,7 +342,7 @@ void btlUnitStartLoad(u8 *ctx) {
     iGpffffb430 = 0;
     iGpffffb434 = 0;
     iGpffffb438 = 0;
-    (s32)func_00451fc0((void *)(ctx), (const void *)(D_005F6BF0), 0x10, 0, 0, btlUnitLoadStep, 0, (u8 *)(NULL));
+    (s32)kwlnTaskCreateChild((void *)(ctx), (const void *)(D_005F6BF0), 0x10, 0, 0, btlUnitLoadStep, 0, (u8 *)(NULL));
 }
 
 // FUN_00193AD0

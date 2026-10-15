@@ -2862,5 +2862,5 @@ s32 func_002aa300(u8 *parent, s32 arg1) {
     if (arg1 == 1) {
         *(u32 *)(work + 4) |= 2;
     }
-    return (s32)func_00451fc0(parent, (const void *)(&D_00763918), 0xF, 0, 0, func_002a4b10, func_002a4cb0, work);
+    return (s32)kwlnTaskCreateChild(parent, (const void *)(&D_00763918), 0xF, 0, 0, func_002a4b10, func_002a4cb0, work);
 }

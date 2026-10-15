@@ -357,7 +357,7 @@ s32 func_002be530(u8 *arg0)
     extern void func_002e7a80(s32);
     extern void func_00331fc0(u8 *);
     extern s32 sprintf(char *, const char *, ...);
-    extern s32 func_00452380(void *);
+    extern s32 kwlnTaskGetTaskByName(void *);
     extern u8 func_0045aeb0(s16, const char *);
     extern void func_002dfe00(void *arg0);
     extern s32 func_002dfd00(u16 arg0);
@@ -2570,7 +2570,7 @@ block_368:
         }
         break;
     case 0x35:                                      /* switch 1 */
-        if (func_00452380(D_0063FB10) == 0) {
+        if (kwlnTaskGetTaskByName(D_0063FB10) == 0) {
             for (var_16_23 = 0; var_16_23 < 7; var_16_23++) {
                 func_002e04f0((*(void * *)((u8 *)((work + (var_16_23 * 4))) + 0xD20)), 0, 0);
             }
@@ -2682,7 +2682,7 @@ s32 func_002ca830(s32 arg0) {
 
     func_0044ea90(&D_0063FAC0, 0xC47);
     temp_2 = D_008873F4[0](1, 0x1174, 0x40000);
-    temp_17 = (s32)func_00451fc0((void *)(arg0), (const void *)((char *)&D_0063FB30), 0xF, 0, 0, func_002be530, func_002ca770, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB30), 0xF, 0, 0, func_002be530, func_002ca770, (u8 *)(temp_2));
     *(s8 *)(temp_2 + 0) = 9;
     sp48 = func_002b2970(240.0f, 20.0f);
     *(void **)(temp_2 + 0xC28) = (void *)func_002b5c90(temp_17, sp48);
@@ -7190,7 +7190,7 @@ s32 func_002e0300(s32 arg0, s16 arg1, u32 arg2) {
     void *h;
     func_0044ea90(&D_0063FAC0, 0x1D6A);
     w = D_008873F4[0](1, 0x104, 0x40000);
-    r = (s32)func_00451fc0((void *)(arg0), (const void *)((char *)&D_0063FB70), 0xF, 0, 0, func_002e0100, func_002e02d0, (u8 *)(w));
+    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB70), 0xF, 0, 0, func_002e0100, func_002e02d0, (u8 *)(w));
     w[0] = 0;
     *(s16 *)(w + 0xF8) = arg1;
     *(u32 *)(w + 0xF4) = arg2;

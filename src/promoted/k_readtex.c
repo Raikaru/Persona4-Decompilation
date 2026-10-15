@@ -135,7 +135,7 @@ void func_00190600(void)
     func_0044ea90(D_005F60B8, 0x91);
     mem = D_008873F4[0](1, 0x24, 0x40000);
     if (mem != NULL) {
-        (s32)func_00451de0((const void *)(D_005F6150), 0xF, 0, 0, func_001901d0, func_001905d0, (u8 *)(mem));
+        (s32)kwlnTaskCreate((const void *)(D_005F6150), 0xF, 0, 0, func_001901d0, func_001905d0, (u8 *)(mem));
     }
 }
 

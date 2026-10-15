@@ -8,9 +8,9 @@
 extern void (*jtbl_008873EC[])(void *);
 extern u16 *D_00764658;
 
-s32 func_00452380(void *arg0);
+s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_0063E918[];
-void func_00452080(s32 arg0);
+void kwlnTaskDestroyWithHierarchy(s32 arg0);
 
 extern s32 D_00882F20[];
 extern s32 D_00763918;
@@ -85,7 +85,7 @@ extern void func_002bdea0(void);
 extern s32 func_002e7510(s32 arg0);
 extern void func_00308f40(void);
 extern s32 func_003493b0(u8 *arg0);
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 typedef struct P4_002aa450_Pair {
     s64 bits;
     f32 value;
@@ -893,7 +893,7 @@ void func_002a2310(u8 *arg0) {
 
 // FUN_002A2710
 s32 func_002a2710(void) {
-    return (s32)(func_00452380(D_0063E918) != 0);
+    return (s32)(kwlnTaskGetTaskByName(D_0063E918) != 0);
 }
 
 
@@ -902,8 +902,8 @@ s32 func_002a2710(void) {
 void func_002a2740(void) {
     s32 temp_2;
 
-    if ((temp_2 = func_00452380(D_0063E918)) != 0) {
-        func_00452080(temp_2);
+    if ((temp_2 = kwlnTaskGetTaskByName(D_0063E918)) != 0) {
+        kwlnTaskDestroyWithHierarchy(temp_2);
     }
 }
 
@@ -923,7 +923,7 @@ void func_002a2e10(f32 f0, f32 f1, f32 f2, s32 arg0, u8 arg1, s8 * arg2, s32 arg
 s32 func_002aa3f0(void) {
     s32 r;
 
-    if (func_00452380(&D_00763918) == 0) {
+    if (kwlnTaskGetTaskByName(&D_00763918) == 0) {
         r = (D_00764634 != 0) ? 1 : 2;
     } else {
         r = 0;
@@ -1065,7 +1065,7 @@ void func_002aaa00(u8 *unusedTask)
 // FUN_002AAA10
 void func_002aaa10(void) {
     memset(D_00882F20, 0, 0x10);
-    (s32)func_00451fc0((void *)(NULL), (const void *)(D_0063EE40), 0xF, 0, 0, func_002aa890, func_002aaa00, (u8 *)(NULL));
+    (s32)kwlnTaskCreateChild((void *)(NULL), (const void *)(D_0063EE40), 0xF, 0, 0, func_002aa890, func_002aaa00, (u8 *)(NULL));
 }
 
 // FUN_002AAA80
@@ -1288,7 +1288,7 @@ s32 func_002abf70(u8 *arg0) {
                           (s32)0x808080FF, 0, 2,
                           (void *)D_0063EEB0, 0, 0);
         }
-        if (func_00452490(*(s32 *)(temp_16 + 0x6C8)) == 0) {
+        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x6C8)) == 0) {
             *(s8 *)(temp_16 + 0) = 0;
             func_002bdea0();
             func_00308f40();
@@ -1312,7 +1312,7 @@ void func_002ac2a0(void) {
 
     func_0044ea90(D_0063EEC0, 0x4B9);
     p = D_008873F4[0](1, 0x4D78, 0x40000);
-    (s32)func_00451de0((const void *)(D_0063EED0), 0xF, 0, 0, func_002abf70, func_002ac270, (u8 *)(p));
+    (s32)kwlnTaskCreate((const void *)(D_0063EED0), 0xF, 0, 0, func_002abf70, func_002ac270, (u8 *)(p));
     *(u8 *)(p + 0) = 0;
     *(s32 *)(p + 0x6B4) = 0x3F800000;
     *(s16 *)(p + 0x6B8) = 0x1F;

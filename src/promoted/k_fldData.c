@@ -76,7 +76,7 @@ extern s32 func_0045b170(void *request);
 extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 size, const char *cacheName, s32 resultKind, s32 memoryKind);
 extern u8 *func_004669d0(u8 *request, s32 *ready, s32 *source);
 extern s32 func_0018c580(u8 *arg0);
-extern s32 func_00452490(void *task);
+extern s32 kwlnTaskIsLinked(void *task);
 extern void func_0046d730(const void *msg, s32 id);
 extern s32 D_007E3710[];
 extern s32 D_007E3714[];
@@ -402,7 +402,7 @@ television_texture_test:
     default:
         break;
     case 3:
-        if (func_00452490((void *)(work->mipmapTask)) != 1) {
+        if (kwlnTaskIsLinked((void *)(work->mipmapTask)) != 1) {
             return -1;
         }
         break;
@@ -427,7 +427,7 @@ s32 func_0015e7d0(void)
     if (mem == NULL) {
         return 0;
     }
-    result = (s32)func_00451de0((const void *)(D_005F1050), 0xF, 0, 0, func_0015d730, func_0015e7a0, (u8 *)(mem));
+    result = (s32)kwlnTaskCreate((const void *)(D_005F1050), 0xF, 0, 0, func_0015d730, func_0015e7a0, (u8 *)(mem));
     *(s32 *)(mem + 4) = 0;
     return result;
 }

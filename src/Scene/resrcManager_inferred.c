@@ -1159,7 +1159,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
 u8 *resrcMngSpawnRenderTask(u8 *ctx) {
     u8 *o;
 
-    o = func_00451fc0((void *)(ctx), (const void *)(D_005EFB10), 0xC7, 0, 0, resrcMngRenderTask, 0, (u8 *)(NULL));
+    o = kwlnTaskCreateChild((void *)(ctx), (const void *)(D_005EFB10), 0xC7, 0, 0, resrcMngRenderTask, 0, (u8 *)(NULL));
     FldShadow_SpawnCasterTask(o);
     return o;
 }

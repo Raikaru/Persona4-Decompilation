@@ -1576,7 +1576,7 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 2:
         temp_4 = (s32)(*(s32 *)(arg2 + 0x1594));
-        if ((temp_4 == 0) || (func_00452490(temp_4) == 0)) {
+        if ((temp_4 == 0) || (kwlnTaskIsLinked(temp_4) == 0)) {
             *arg0 = 3;
             func_00134560(arg2, 1);
             func_00353fb0();
@@ -1736,7 +1736,7 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 13:
         temp_4_2 = (s32)(*(s32 *)(arg2 + 0x1594));
-        if ((temp_4_2 == 0) || (func_00452490(temp_4_2) == 0)) {
+        if ((temp_4_2 == 0) || (kwlnTaskIsLinked(temp_4_2) == 0)) {
             if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
                 var_2 = 1;
             } else {

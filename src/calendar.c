@@ -3,7 +3,7 @@
 /* Original translation unit calendar.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "shd_misc_internal.h"
-extern s32 func_00452380();
+extern s32 kwlnTaskGetTaskByName();
 extern u8 D_005E4FE8[];
 extern u8 D_005E4FD8[];
 
@@ -32,7 +32,7 @@ extern void func_00106100(s32 a);
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern void func_00123850(void);
 extern s32 func_00144af0(s32 a);
-extern s32 func_004522d0(s32 a);
+extern s32 kwlnTaskGetState(s32 a);
 extern void func_001062f0(s32 a);
 extern s32 func_00110580(s32 arg0);
 extern s32 func_001105b0(s32 arg0);
@@ -55,9 +55,9 @@ void calendarOpenFlagClear(void)
     func_0044ea90(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
-        handle = (s32)func_00451de0((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));
+        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));
         D_007242B0 = (s32)work;
-        (s32)func_00451fc0((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
+        (s32)kwlnTaskCreateChild((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
     }
 }
 
@@ -65,19 +65,19 @@ void calendarOpenFlagClear(void)
 // FUN_00121280
 s32 calendarIsOpen(void)
 {
-    return (s32)(func_00452380(D_005E4FE8) != 0);
+    return (s32)(kwlnTaskGetTaskByName(D_005E4FE8) != 0);
 }
 
 /* Closes the calendar view task, asserting when it is not open. */
 // FUN_001212B0
 void calendarClose(void)
 {
-    s32 handle = func_00452380(D_005E4FE8);
+    s32 handle = kwlnTaskGetTaskByName(D_005E4FE8);
 
     if (handle == 0) {
         func_0046d730(D_005E4FD8, 0xA8);
     }
-    func_00452080(handle);
+    kwlnTaskDestroyWithHierarchy(handle);
 }
 
 /* Input task update: cancel, confirm, and date/month cursor moves. */
@@ -159,7 +159,7 @@ s32 calendarInputUpdate(u8 *arg0)
         }
         break;
     case 4:
-        if (func_004522d0(*(s32 *)(work + 0xC)) == 3) {
+        if (kwlnTaskGetState(*(s32 *)(work + 0xC)) == 3) {
             *(s32 *)(work + 0) = 1;
         }
         break;
@@ -237,9 +237,9 @@ s32 calendarStart(void)
     if (work == NULL) {
         return 0;
     }
-    handle = (s32)func_00451de0((const void *)(D_005E5038), 0x100, 0, 0, calendarInputUpdate, calendarInputRelease, (u8 *)(work));
+    handle = (s32)kwlnTaskCreate((const void *)(D_005E5038), 0x100, 0, 0, calendarInputUpdate, calendarInputRelease, (u8 *)(work));
     D_007242B4 = (s32)work;
-    (s32)func_00451fc0((void *)(handle), (const void *)(D_005E5050), 0x101, 0, 0, calendarDraw, 0, (u8 *)(NULL));
+    (s32)kwlnTaskCreateChild((void *)(handle), (const void *)(D_005E5050), 0x101, 0, 0, calendarDraw, 0, (u8 *)(NULL));
     return handle;
 }
 
@@ -254,8 +254,8 @@ void calendarOpenFlagSet(void)
     func_0044ea90(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
-        handle = (s32)func_00451de0((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));
+        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));
         D_007242B0 = (s32)work;
-        (s32)func_00451fc0((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
+        (s32)kwlnTaskCreateChild((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
     }
 }

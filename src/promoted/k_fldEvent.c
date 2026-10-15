@@ -56,7 +56,7 @@ void func_002bd3c0(void);
 s32 func_0015a100(void);
 s32 func_0015a130(void);
 s32 func_0029db50(s32, s32, s32, s32);
-s32 func_00452490(void *);
+s32 kwlnTaskIsLinked(void *);
 s32 *func_00162390(void);
 s32 datUnitCreateEncounterGroup(s32);
 s32 FldEvent_FieldToBattle(u8 *);
@@ -236,7 +236,7 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
         h[1]++;
         break;
     case 1:
-        if (func_00452490((void *)(h[4])) != 1) {
+        if (kwlnTaskIsLinked((void *)(h[4])) != 1) {
             r = (s32)func_00155280();
             func_0018e030(*(s32 *)(r + 0x1C), 0);
             func_00182310(0);
@@ -300,7 +300,7 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
             r = (s32)func_00155280();
             func_0018e030(*(s32 *)(r + 0x1C), 1);
         }
-        if (func_00452490((void *)(h[4])) != 1) {
+        if (kwlnTaskIsLinked((void *)(h[4])) != 1) {
             r = (s32)func_00155280();
             func_0018e030(*(s32 *)(r + 0x1C), 0);
             func_00182310(0);
@@ -455,7 +455,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
         }
         goto ret1;
     case 2:
-        if (func_00452490((void *)(*(s32 *)(h + 0x10))) != 1) {
+        if (kwlnTaskIsLinked((void *)(*(s32 *)(h + 0x10))) != 1) {
             v = *(s32 *)(*(u8 **)(h + 0x20) + 0x294);
             if (v != 0 && i == 1) {
                 func_0018bdd0(v);
@@ -673,7 +673,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
     case 2:
         break;
     case 3:
-        if (func_00452490((void *)(*(s32 *)(h + 0x10))) == 1) {
+        if (kwlnTaskIsLinked((void *)(*(s32 *)(h + 0x10))) == 1) {
             break;
         }
         func_0018e030(*(s32 *)((u8 *)(s32)func_00155280() + 0x1C), 0);
@@ -813,7 +813,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void FldUnit_SetFieldSlotModel(s32);
     void func_0015a520(s32);
     void func_001238c0(s32);
-    s32 func_00452080(struct KwlnTask *);
+    s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *);
     void func_0018a000(u8 *, s32);
     void func_002bd410(void);
     void func_002bd3c0(void);
@@ -849,7 +849,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_0015a100(void);
     s32 func_0015a130(void);
     s32 func_0029db50(s32, s32, s32, s32);
-    s32 func_00452490(void *);
+    s32 kwlnTaskIsLinked(void *);
     void func_00106390(s32, s32);
     s32 func_00192e90(s32);
     s32 FldResource_IsPrimaryFileLoaded(void);
@@ -1200,7 +1200,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 if (FldUnit_AllSlotsReady() != 0) {
                     func_0015a7c0(func_0015a160());
                     if (*(s32 *)((u8 *)func_00155280() + 0x2C) != 0) {
-                        func_00452080((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x2C)));
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x2C)));
                         *(s32 *)((u8 *)func_00155280() + 0x2C) = 0;
                     }
                     if (*(s32 *)((u8 *)func_00155280() + 0x30) != 0) {
@@ -1209,7 +1209,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     func_002bd410();
                     func_002bd3c0();
                     if (*(s32 *)((u8 *)func_00155280() + 0x1C) != 0) {
-                        func_00452080((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x1C)));
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x1C)));
                         *(s32 *)((u8 *)func_00155280() + 0x1C) = 0;
                     }
                     func_0015a520(0);
@@ -1217,15 +1217,15 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     if (*(s32 *)((u8 *)func_00155280() + 0x4) != 0) {
                         func_0016f630(&snapshot, (u8 *)*(s32 *)((u8 *)func_00155280() + 0x4));
                         work->snapshot = snapshot;
-                        func_00452080((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x4)));
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x4)));
                         *(s32 *)((u8 *)func_00155280() + 0x4) = 0;
                     }
                     if (*(s32 *)((u8 *)func_00155280() + 0x18) != 0) {
-                        func_00452080((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x18)));
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x18)));
                         *(s32 *)((u8 *)func_00155280() + 0x18) = 0;
                     }
                     if (work->fieldEffect != 0) {
-                        func_00452080((struct KwlnTask *)(work->fieldEffect));
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(work->fieldEffect));
                         work->fieldEffect = 0;
                     }
                     func_00160440();
@@ -1258,7 +1258,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             work->state = work->state + 1;
             goto running;
         case 11:
-            if (func_00452490((void *)(work->battleTask)) != 1 && FldResource_IsPrimaryFileLoaded() != 0 && FldResource_IsSecondaryFileLoaded() != 0) {
+            if (kwlnTaskIsLinked((void *)(work->battleTask)) != 1 && FldResource_IsPrimaryFileLoaded() != 0 && FldResource_IsSecondaryFileLoaded() != 0) {
                 work->battleTask = 0;
                 work->state = work->state + 1;
             }
@@ -1312,7 +1312,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
                     work->unitState = FldUnit_GetActiveCount();
                     FldUnit_ReleaseAllSlots();
-                    func_00452080((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x20)));
+                    kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x20)));
                     *(s32 *)((u8 *)func_00155280() + 0x20) = 0;
                 } else {
                     FldUnit_StartSlotAnims();
@@ -1450,7 +1450,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             }
             goto running;
         case 18:
-            if (func_00452490((void *)(work->scriptTask)) != 1) {
+            if (kwlnTaskIsLinked((void *)(work->scriptTask)) != 1) {
                 if (datGetFlag(0xC25) == 1) {
                     func_00106390(0xC25, 0);
                     work->eventPending = 1;
@@ -1604,7 +1604,7 @@ s32 FldEvent_SpawnTrigger(s32 arg0)
     if (temp_2 == 0) {
         return 0;
     }
-    arg0 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1828), 0xF, 0, 0, FldEvent_TriggerUpdate, FldEvent_TriggerDestroy, (u8 *)(temp_2));
+    arg0 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1828), 0xF, 0, 0, FldEvent_TriggerUpdate, FldEvent_TriggerDestroy, (u8 *)(temp_2));
     func_00182390();
     *(s32 *)(temp_2 + 0xC) = -1;
     temp_18 = temp_2 + 0x18;
@@ -1783,7 +1783,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     f20 = 0.0f;
     {
         s32 t = *(s32 *)(h + 0x138);
-        if (t != 0 && func_00452490((void *)(t)) == 0) {
+        if (t != 0 && kwlnTaskIsLinked((void *)(t)) == 0) {
             *(s32 *)(h + 0x138) = 0;
             *(f32 *)(h + 0x140) = KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4)));
         }
@@ -2096,7 +2096,7 @@ s32 FldEvent_SpawnMover(s32 arg0, s32 arg1, s32 arg2)
     if (temp_2 == 0) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1848), 0xF, 0, 0, FldEvent_MoverUpdate, FldEvent_MoverDestroy, (u8 *)(temp_2));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1848), 0xF, 0, 0, FldEvent_MoverUpdate, FldEvent_MoverDestroy, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0x44) = arg1;
     *(s32 *)(temp_2 + 0x48) = arg2;
     return ret;

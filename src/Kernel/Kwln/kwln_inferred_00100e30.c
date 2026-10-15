@@ -56,7 +56,7 @@ extern void func_0046ab40(void);
 extern void func_0045b7c0(void);
 extern void func_004594c0(void);
 extern void func_00452ce0(void);
-extern s32 func_00451cf0(void);
+extern s32 kwlnTaskRunFrame(void);
 extern void func_00466580(void);
 extern void func_003e5510(s32 arg0);
 extern s32 iGpffffba48;
@@ -100,7 +100,7 @@ extern void func_003f67f0(s32 arg0);
 extern void func_00418b18(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_0044f570(s32 arg0);
-extern void func_00451ca0(s32 arg0);
+extern void kwlnTaskInitPool(s32 arg0);
 extern void func_004544b0(void);
 extern void func_004559b0(void);
 extern s32 func_00457120(void);
@@ -228,7 +228,7 @@ void func_00100e60(void)
 {
     s32 one;
     func_0046d6b0((s32)&func_00111010);
-    func_00451ca0(0x190);
+    kwlnTaskInitPool(0x190);
     func_00460910(0x7D0, 0x64);
     func_004544b0();
     func_004559b0();
@@ -334,7 +334,7 @@ s32 func_00101270(void)
     func_0045b7c0();
     func_004594c0();
     func_00452ce0();
-    if (func_00451cf0() == 0) {
+    if (kwlnTaskRunFrame() == 0) {
         return 0;
     }
     func_00466580();

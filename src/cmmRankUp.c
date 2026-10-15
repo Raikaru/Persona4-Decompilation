@@ -221,7 +221,7 @@ void func_00251f00(s32 arg0, u32 *arg1) {
     if (temp_2 == NULL) {
         func_0046d730(D_00635CF8, 0x2D5);
     }
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_00635D18), 0xF, 0, 0, func_00251e60, func_00251ec0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00635D18), 0xF, 0, 0, func_00251e60, func_00251ec0, (u8 *)(temp_2));
 }
 
 
@@ -3214,8 +3214,8 @@ extern s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderCon
 extern u8 *func_00255b90();
 extern void func_002518d0();
 extern s32 func_00189fa0();
-extern void func_00452080();
-extern s32 func_00452380();
+extern void kwlnTaskDestroyWithHierarchy();
+extern s32 kwlnTaskGetTaskByName();
 extern s32 itfMesWindowInstall();
 extern void itfMesWindowReleaseIfActive();
 extern s32 func_002bb680();
@@ -3377,7 +3377,7 @@ s32 func_0025b240(u8 *arg0) {
         if (*(s32 *)(ctx + 8) < 0x35) {
             goto tail;
         }
-        func_00452080(*(s32 *)(ctx + 0x28));
+        kwlnTaskDestroyWithHierarchy(*(s32 *)(ctx + 0x28));
         if (*(s32 *)(ctx + 0x1C) >= 1 && *(s32 *)(ctx + 0x1C) <= 10) {
             *(s32 *)(ctx + 4) = 7;
         } else {
@@ -3396,9 +3396,9 @@ s32 func_0025b240(u8 *arg0) {
         pv = D_008873F4[0](1, 0x40, 0x40000);
         *(s32 *)((u8 *)pv + 4) = tmp3;
         *(s32 *)((u8 *)pv + 8) = tmp4;
-        *(void **)(ctx + 0x24) = (void *)(s32)func_00451fc0((void *)(argb), (const void *)(D_00635D08), 0xF, 0, 0, func_002519e0, func_00251ce0, (u8 *)(pv));
+        *(void **)(ctx + 0x24) = (void *)(s32)kwlnTaskCreateChild((void *)(argb), (const void *)(D_00635D08), 0xF, 0, 0, func_002519e0, func_00251ce0, (u8 *)(pv));
     case 8:
-        if (func_00452380(D_00635D08) != 0) {
+        if (kwlnTaskGetTaskByName(D_00635D08) != 0) {
             goto tail;
         }
         if (*(s32 *)(ctx + 0x1C) == 0 || *(s32 *)(ctx + 0x1C) == 10) {
@@ -3674,5 +3674,5 @@ void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(p + 0x1C) = arg2;
     *(s32 *)(p + 0x20) = arg3;
     *(s32 *)(p + 0x4) = 0;
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_006367C0), 0xF, 0, 0, func_0025b240, func_0025c100, (u8 *)(p));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006367C0), 0xF, 0, 0, func_0025b240, func_0025c100, (u8 *)(p));
 }

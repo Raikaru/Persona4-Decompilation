@@ -51,7 +51,7 @@ extern u8 D_00796754[];
 extern u8 D_00796758[];
 extern u8 D_0079675C[];
 extern s32 initBootChainStart(void);
-extern s32 func_00452380(void *arg0);
+extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern void func_002a2650(s32 arg0);
 extern s32 func_002a2710(void);
 extern void func_002a2740(void);
@@ -67,7 +67,7 @@ extern void func_0046ab40(void);
 extern void func_0045b7c0(void);
 extern void func_004594c0(void);
 extern void func_00452ce0(void);
-extern s32 func_00451cf0(void);
+extern s32 kwlnTaskRunFrame(void);
 extern void func_00466580(void);
 extern void func_003e5510(s32 arg0);
 extern s32 iGpffffba48;
@@ -113,7 +113,7 @@ extern void func_003f67f0(s32 arg0);
 extern void func_00418b18(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_0044f570(s32 arg0);
-extern void func_00451ca0(s32 arg0);
+extern void kwlnTaskInitPool(s32 arg0);
 extern void func_004544b0(void);
 extern void func_004559b0(void);
 extern s32 func_00457120(void);
@@ -424,7 +424,7 @@ void func_00103980(u8 *arg0) {
 // FUN_001039E0
 void func_001039e0(void) {
     func_0044ea90(D_005DD600, 0xBD);
-    (s32)func_00451de0((const void *)(&iGpffff85d0), 0xF, 0, 0, func_001036d0, func_00103980, (u8 *)(D_008873F4[0](1, 0x210, 0x40000)));
+    (s32)kwlnTaskCreate((const void *)(&iGpffff85d0), 0xF, 0, 0, func_001036d0, func_00103980, (u8 *)(D_008873F4[0](1, 0x210, 0x40000)));
 }
 // FUN_00103A60
 void func_00103a60(void)

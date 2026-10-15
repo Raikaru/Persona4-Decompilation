@@ -14,7 +14,7 @@ extern void func_00104c50(void);
 extern s32 func_00123730(s32);
 extern void func_002aaa80(void);
 extern void func_002aaaa0(void);
-extern s32 func_004522d0(s32);
+extern s32 kwlnTaskGetState(s32);
 extern s32 hsndSlotIsStarting();
 extern void func_001029a0(s32, s32, s32, s32);
 extern void func_001113b0(void);
@@ -86,7 +86,7 @@ s32 initDataReadStart(void)
     if (temp_2 == 0) {
         return 0;
     }
-    var_2 = (s32)func_00451de0((const void *)(D_005E46C0), 0x100, 0, 0, initDataReadStep, initDataReadDestroy, (u8 *)(temp_2));
+    var_2 = (s32)kwlnTaskCreate((const void *)(D_005E46C0), 0x100, 0, 0, initDataReadStep, initDataReadDestroy, (u8 *)(temp_2));
     return var_2 == 0 ? 0 : var_2;
 }
 
@@ -136,7 +136,7 @@ s32 initBootChainStep(u8 *arg0)
         *(s32 *)temp_16 = 2;
         break;
     case 2:
-        if (func_004522d0(*(s32 *)(temp_16 + 8)) == 3) {
+        if (kwlnTaskGetState(*(s32 *)(temp_16 + 8)) == 3) {
             *(s32 *)(temp_16 + 4) += 1;
             *(s32 *)temp_16 = 1;
         }
@@ -167,5 +167,5 @@ s32 initBootChainStart(void)
     if (temp_2 == 0) {
         return 0;
     }
-    return (s32)func_00451de0((const void *)(D_005E46E8), 0x100, 0, 0, initBootChainStep, initBootChainDestroy, (u8 *)(temp_2));
+    return (s32)kwlnTaskCreate((const void *)(D_005E46E8), 0x100, 0, 0, initBootChainStep, initBootChainDestroy, (u8 *)(temp_2));
 }

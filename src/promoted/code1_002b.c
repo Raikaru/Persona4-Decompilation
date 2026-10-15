@@ -95,7 +95,7 @@ extern s32 func_002cb6a0(s32 arg0);
 extern void func_002caa00(s32 arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
-extern s32 func_00452380(void *arg0);
+extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 *func_00457120(void);
 extern s32 func_0014b450(void);
 extern f32 func_0014b4d0(void);
@@ -2254,7 +2254,7 @@ s32 func_002bd8e0(u8 *arg0)
         }
         goto block_26;
     case 7:
-        if (func_00452380(&D_0063F3B0) == 0) {
+        if (kwlnTaskGetTaskByName(&D_0063F3B0) == 0) {
             *(s8 *)(temp_16 + 0) = 5;
         }
         goto block_26;

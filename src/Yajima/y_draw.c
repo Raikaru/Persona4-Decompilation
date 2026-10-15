@@ -103,7 +103,7 @@ s32 func_002b5c90(s32 arg0, f2 p1) {
     s32 i;
     func_0044ea90(&D_0063F178, 0xD4);
     p = D_008873F4[0](1, 0x190, 0x40000);
-    handle = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F188), 0xF, 0, 0, func_002b52a0, func_002b5c60, (u8 *)(p));
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F188), 0xF, 0, 0, func_002b52a0, func_002b5c60, (u8 *)(p));
     *(f2 *)(p + 0x134) = p1;
     *(s16 *)(p + 0x14C) = 0;
     p[0x154] = 0;
@@ -338,7 +338,7 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
     f32 zero;
     func_0044ea90(&D_0063F178, 0x236);
     p = D_008873F4[0](1, 0x100, 0x40000);
-    result = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F1A0), 0xF, 0, 0, func_002b6340, func_002b6560, (u8 *)(p));
+    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1A0), 0xF, 0, 0, func_002b6340, func_002b6560, (u8 *)(p));
     *(s16 *)(p + 4) = arg1;
     *(s32 *)(p + 0) = arg2;
     i = 0;
@@ -814,7 +814,7 @@ u8 *func_002b74f0(s32 arg0, s32 arg1) {
 
     func_0044ea90(&D_0063F178, 0x3F3);
     data = D_008873F4[0](1, 0x31220, 0x40000);
-    iGpffffb574 = (u8 *)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F1B0), 0xF, 0, 0, func_002b6ec0, func_002b74c0, (u8 *)(data));
+    iGpffffb574 = (u8 *)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1B0), 0xF, 0, 0, func_002b6ec0, func_002b74c0, (u8 *)(data));
     *(s32 *)(data + 0) = arg1;
     *(s16 *)(data + 0x30C04) = 0;
     record = 0;
@@ -1172,7 +1172,7 @@ s32 func_002b8150(s32 arg0) {
     u8 *p;
     func_0044ea90(&D_0063F178, 0x4A2);
     p = D_008873F4[0](1, 0x130, 0x40000);
-    handle = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F1D0), 0xF, 0, 0, func_002b7f20, func_002b8120, (u8 *)(p));
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1D0), 0xF, 0, 0, func_002b7f20, func_002b8120, (u8 *)(p));
     p[0x124] = 1;
     p[0x125] = 0;
     return handle;
@@ -1654,7 +1654,7 @@ s32 func_002b9f90(s32 arg0, s16 arg1, s32 arg2) {
     s32 i;
     func_0044ea90(&D_0063F178, 0x693);
     p = D_008873F4[0](1, 0x6610, 0x40000);
-    handle = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F1E0), 0xF, 0, 0, func_002b9e10, func_002b9f60, (u8 *)(p));
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1E0), 0xF, 0, 0, func_002b9e10, func_002b9f60, (u8 *)(p));
     for (i = 0; i < 0x30; i++) {
         *(s16 *)(p + i * 0x220 + 0x104) = 0;
         *(u32 *)(p + i * 0x220 + 0x214) = arg2;

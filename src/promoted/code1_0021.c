@@ -75,7 +75,7 @@ extern void func_00212270(u8 *drawPayload, s32 workAddress, void *callback);
 extern void func_0046b0d0(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern s32 func_00213a80(void);
-extern s32 func_00452380(void *arg0);
+extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_00626C80[];
 extern void func_0021b310();
 extern s32 func_00221940(KwlnTask *task);
@@ -1229,7 +1229,7 @@ void func_002138a0(s32 arg0)
     *(void **)((u8 *)temp_2 + 0x10) = (void *)func_00212270;
     *(f32 **)((u8 *)temp_2 + 0x18) = temp_2;
     *(s32 *)(temp_17 + 0x778) =
-        (s32)func_00451fc0((void *)(arg0), (const void *)(&D_00626C80), 0xF, 0, 0, func_002136f0, func_00213840, (u8 *)(temp_2));
+        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00626C80), 0xF, 0, 0, func_002136f0, func_00213840, (u8 *)(temp_2));
 }
 // FUN_00213990
 void func_00213990(s32 task)
@@ -1267,7 +1267,7 @@ s32 func_00213a50(void)
 // FUN_00213A80
 s32 func_00213a80(void)
 {
-    return func_00452380(&D_00626C80) != 0;
+    return kwlnTaskGetTaskByName(&D_00626C80) != 0;
 }
 // FUN_00213AB0
 void func_00213ab0(s32 arg0, u8 *arg1) {
@@ -4127,7 +4127,7 @@ s32 func_0021d980(s32 arg0, u16 *arg1)
     func_0044ea90(&D_006290D0, 0x3A);
     work = (u8 *)jtbl_008873E8[0](0x94C, 0x40000);
     memset(work, 0, 0x94C);
-    result = (s32)func_00451fc0((void *)(arg0), (const void *)(&D_006290C0), 0xF, 0, 0, func_0021d4a0, func_0021d920, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_006290C0), 0xF, 0, 0, func_0021d4a0, func_0021d920, (u8 *)(work));
     memcpy(work + 8, arg1, 0x58);
     if ((*arg1 & 1) != 0) {
         *(s32 *)(work + 0x60) |= 1;
@@ -4226,11 +4226,11 @@ void func_0021dda0(void)
 {
     u8 *work;
 
-    if (func_00452380(&D_006290E0) == 0) {
+    if (kwlnTaskGetTaskByName(&D_006290E0) == 0) {
         func_0044ea90(&D_006290D0, 0x3A);
         work = (u8 *)jtbl_008873E8[0](0x34, 0x40000);
         memset(work, 0, 0x34);
-        (s32)func_00451de0((const void *)(&D_006290E0), 0x10, 0, 0, func_0021dba0, func_0021dd60, (u8 *)(work));
+        (s32)kwlnTaskCreate((const void *)(&D_006290E0), 0x10, 0, 0, func_0021dba0, func_0021dd60, (u8 *)(work));
         *(void **)(work + 0xC) = (void *)func_0021dc50;
         *(u8 **)(work + 0x14) = work;
     }
@@ -4238,7 +4238,7 @@ void func_0021dda0(void)
 // FUN_0021DE60
 s32 func_0021de60(void)
 {
-    return func_00452380(&D_006290E0) == 0;
+    return kwlnTaskGetTaskByName(&D_006290E0) == 0;
 }
 /* measured: 440/448B, five resolved relocations, no instruction differences;
    the remaining eight bytes are zero alignment. The u32 result retains retail

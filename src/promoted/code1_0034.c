@@ -112,7 +112,7 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
     extern u8 *func_00104900(s8 arg0);
     extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
     extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
-    extern void func_00452080(void *arg0);
+    extern void kwlnTaskDestroyWithHierarchy(void *arg0);
     extern u8 *func_003488d0(void *arg0, void *arg1, s32 arg2);
     extern u8 D_0064A700[];
     extern u8 D_0064A720[];
@@ -155,12 +155,12 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
         iGpffffb5a0 = 0;
         if (*(s8 *)(obj + 0x28) == 0) {
             if (*(u8 **)(obj + 0xEC) != NULL) {
-                func_00452080(*(u8 **)(obj + 0xEC));
+                kwlnTaskDestroyWithHierarchy(*(u8 **)(obj + 0xEC));
                 *(u8 **)(obj + 0xEC) = NULL;
             }
             *(u8 **)(obj + 0xEC) = func_003488d0(arg0, D_0064A700, 0);
             if (*(u8 **)(obj + 0xF0) != NULL) {
-                func_00452080(*(u8 **)(obj + 0xF0));
+                kwlnTaskDestroyWithHierarchy(*(u8 **)(obj + 0xF0));
                 *(u8 **)(obj + 0xF0) = NULL;
             }
             *(u8 **)(obj + 0xF0) = func_003488d0(arg0, D_0064A720, 7);

@@ -397,5 +397,5 @@ void func_00481a20(s32 arg0)
     func_004abb60();
     func_004a77b0();
     func_004b3180(arg0);
-    (s32)func_00451de0((const void *)(D_007132B8), arg0, 0, 0, func_00481980, 0, (u8 *)(0));
+    (s32)kwlnTaskCreate((const void *)(D_007132B8), arg0, 0, 0, func_00481980, 0, (u8 *)(0));
 }

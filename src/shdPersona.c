@@ -22,7 +22,7 @@ void func_0011aaa0();
 void func_0011ba40();
 void func_0011e3c0(s32, s32);
 void func_0011fd10(s32);
-s32 func_00452080(KwlnTask *task);
+s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 void func_0011bc70();
 s32 ShdSkill_MoveCursor(u8 *state, s32 force);
 u16 ShdSkill_GetSlotSkillId(u8 *);
@@ -936,7 +936,7 @@ u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (w == NULL) {
         func_0046d730(D_005E4868, 0x5EE);
     }
-    r = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005E4810), arg1, 0, 0, func_001178a0, func_0011b2d0, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4810), arg1, 0, 0, func_001178a0, func_0011b2d0, (u8 *)(w));
     if (r == NULL) {
         func_0046d730(D_005E4868, 0x5F8);
     }
@@ -3744,7 +3744,7 @@ s32 func_0011d1e0(u8 *arg0)
 
 
 
-s32 func_00452380(void *arg0);
+s32 kwlnTaskGetTaskByName(void *arg0);
 s32 H_Cdvd_IsFileLoaded(s32 arg0);
 s32 func_00454a60(u8 *arg0, s32 arg1);
 s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
@@ -3764,7 +3764,7 @@ s32 func_0011d1f0(u8 *arg0)
     switch (state) {
     case 0:
         if (*(s32 *)(work + 4) != 0) {
-            if (func_00452380(D_005E4E40) != 0) {
+            if (kwlnTaskGetTaskByName(D_005E4E40) != 0) {
                 func_00440b68(D_005E4E60);
             } else {
                 sprintf(work + 0x54, D_005E4E90, *(s32 *)(work + 4));
@@ -3840,7 +3840,7 @@ u8 *func_0011d460(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
     if (w == NULL) {
         return NULL;
     }
-    r = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005E4EB0), arg1, 0, 0, func_0011d1f0, func_0011d3c0, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4EB0), arg1, 0, 0, func_0011d1f0, func_0011d3c0, (u8 *)(w));
     if (r == NULL) {
         return NULL;
     }
@@ -4143,7 +4143,7 @@ s32 func_0011dfc0(s32 arg0, s32 arg1, char *arg2)
     if (buf == NULL) {
         return 0;
     }
-    r = (s32)func_00451de0((const void *)(arg2), 0xF, 0, 0, func_0011ded0, func_0011df90, (u8 *)(buf));
+    r = (s32)kwlnTaskCreate((const void *)(arg2), 0xF, 0, 0, func_0011ded0, func_0011df90, (u8 *)(buf));
     if (r == 0) {
         return 0;
     }
@@ -4172,7 +4172,7 @@ void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
             p4c = *(s32 *)(w + 0x4C);
             func_0044ea90(D_005E4868, 0x11B2);
             r = D_008873F4[0](1, 8, 0x40000);
-            if (r != 0 && (s32)func_00451de0((const void *)(D_005E4E40), 0xF, 0, 0, func_0011ded0, func_0011df90, (u8 *)(r)) != 0) {
+            if (r != 0 && (s32)kwlnTaskCreate((const void *)(D_005E4E40), 0xF, 0, 0, func_0011ded0, func_0011df90, (u8 *)(r)) != 0) {
                 if (p4c != 0) {
                     func_00440b68((s32)D_005E4F10, (s32)(p4c + 0x10));
                 }
@@ -4871,7 +4871,7 @@ u8 *func_0011f410(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
     if (w == NULL) {
         func_0046d730(D_005E4868, 0x1465);
     }
-    r = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005E4F30), 0xF, 0, 0, func_0011e8e0, func_0011f3c0, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F30), 0xF, 0, 0, func_0011e8e0, func_0011f3c0, (u8 *)(w));
     if (r == NULL) {
         func_0046d730(D_005E4868, 0x146F);
     }
@@ -4898,7 +4898,7 @@ u32 func_0011f560(u8 *arg0)
 // FUN_0011F580
 s32 func_0011f580(u8 *task)
 {
-    return func_00452080((KwlnTask *)task);
+    return kwlnTaskDestroyWithHierarchy((KwlnTask *)task);
 }
 
 
@@ -5142,7 +5142,7 @@ u8 *func_0011fbc0(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
     if (w == NULL) {
         func_0046d730(D_005E4868, 0x1552);
     }
-    r = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005E4F50), 0xF, 0, 0, func_0011f5a0, func_0011fb90, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F50), 0xF, 0, 0, func_0011f5a0, func_0011fb90, (u8 *)(w));
     if (r == NULL) {
         func_0046d730(D_005E4868, 0x155C);
     }

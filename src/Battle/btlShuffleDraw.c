@@ -1749,7 +1749,7 @@ s32 func_00377eb0(u8 *arg0, s32 arg1)
     if (work == NULL) {
         func_0046d730(D_0064EA20, 0x76D);
     }
-    task = (u8 *)(s32)func_00451fc0((void *)(parent), (const void *)(D_0064EA60), 0x12, 0, 0, func_00377e10, func_00377e60, work);
+    task = (u8 *)(s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0064EA60), 0x12, 0, 0, func_00377e10, func_00377e60, work);
     if (task == NULL) {
         func_0046d730(D_0064EA20, 0x777);
     }

@@ -1244,7 +1244,7 @@ void itfMesInitManager(void)
         *(s32 *)(entry + 0xC) = 0;
         entry = *(u8 **)(entry + 4);
     }
-    func_00451de0((const void *)(D_0063BF10), 0xF, 0, 0, func_0027b500, func_0027b690, (u8 *)(0));
+    kwlnTaskCreate((const void *)(D_0063BF10), 0xF, 0, 0, func_0027b500, func_0027b690, (u8 *)(0));
     func_00440b68(D_0063BF20, D_0063BE10);
 }
 

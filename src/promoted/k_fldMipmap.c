@@ -163,6 +163,6 @@ s32 func_0018c580(u8 *parent)
     if (mem == NULL) {
         return 0;
     }
-    return (s32)func_00451de0((const void *)(D_005F5420), 0xF, 0, 0, func_0018bfb0, func_0018c550, (u8 *)(mem));
+    return (s32)kwlnTaskCreate((const void *)(D_005F5420), 0xF, 0, 0, func_0018bfb0, func_0018c550, (u8 *)(mem));
 }
 

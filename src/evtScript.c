@@ -24,9 +24,9 @@ extern u8 D_00795E60[];
 
 extern void *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
-extern s32 func_00452080(void *task);
-extern u8 *func_00452380(s8 *name);
-extern s32 func_00452490(void *target);
+extern s32 kwlnTaskDestroyWithHierarchy(void *task);
+extern u8 *kwlnTaskGetTaskByName(s8 *name);
+extern s32 kwlnTaskIsLinked(void *target);
 extern void MT_Scene_DestroyRes(u32);
 extern void MT_Scene_SetResActiveById(s32, s32);
 // lint: allow H011 -- measured: u16 prototype regresses func_00298370 and func_00298550 (andi on wide id args)
@@ -143,9 +143,9 @@ s32 func_00298550(void)
         if (*(s32 *)(work + 0) == 0) {
             func_0046d730(D_0063CF80, 0x52);
         }
-        (s32)func_00451fc0((void *)(0), (const void *)(D_0063CF90), 0xF, 0, 0, func_00298370, func_00298510, (u8 *)(work));
+        (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063CF90), 0xF, 0, 0, func_00298370, func_00298510, (u8 *)(work));
     } else {
-        if (func_00452490(func_00452380((s8 *)D_0063CF90)) != 0) {
+        if (kwlnTaskIsLinked(kwlnTaskGetTaskByName((s8 *)D_0063CF90)) != 0) {
             goto done;
         }
         return 1;
@@ -298,12 +298,12 @@ s32 func_00298c60(void)
     u8 *work;
 
     func_00106390(0x1211, 0);
-    task = (s32)func_00452380((s8 *)D_0063CFA0);
+    task = (s32)kwlnTaskGetTaskByName((s8 *)D_0063CFA0);
     if (task != 0) {
-        func_00452080((void *)task);
+        kwlnTaskDestroyWithHierarchy((void *)task);
     }
     v0 = func_00285af0();
     func_0044ea90(D_0063CF80, 0xF6);
-    (s32)func_00451fc0((void *)(v0), (const void *)(D_0063CFA0), 0xF, 0, 0, func_00298b80, func_00298c10, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
+    (s32)kwlnTaskCreateChild((void *)(v0), (const void *)(D_0063CFA0), 0xF, 0, 0, func_00298b80, func_00298c10, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
     return 1;
 }

@@ -301,7 +301,7 @@ s32 func_004672c0(s32 arg0, u8 *arg1)
     if (mem == NULL) {
         return 0;
     }
-    handle = (s32)func_00451fc0((void *)(NULL), (const void *)(D_007129E0), 0, 2, 2, func_004671c0, func_00467290, (u8 *)(mem));
+    handle = (s32)kwlnTaskCreateChild((void *)(NULL), (const void *)(D_007129E0), 0, 2, 2, func_004671c0, func_00467290, (u8 *)(mem));
     if (handle == 0) {
         return 0;
     }

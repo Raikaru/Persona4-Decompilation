@@ -268,5 +268,5 @@ s32 func_001924d0(void)
     {
         return 0;
     }
-    return (s32)func_00451fc0((void *)(0), (const void *)(D_005F65A0), 0xF, 0, 0, func_001921a0, func_00192480, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F65A0), 0xF, 0, 0, func_001921a0, func_00192480, (u8 *)(mem));
 }

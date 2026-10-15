@@ -28,7 +28,7 @@ extern s32 scrFindPrcdIdxByName(s32 a, void *b);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void func_00440b68(char *fmt, ...);
 extern s32 sprintf(char *buf, char *fmt, ...);
-extern s32 func_00452490(void *task);
+extern s32 kwlnTaskIsLinked(void *task);
 extern u32 func_00452560(void *task);
 extern u8 *func_00454a60(u8 *path, s32 kind);
 extern void H_Cdvd_Destroy(void *handle);
@@ -41,7 +41,7 @@ extern char D_007637A8[6];
 extern s32 D_00764578;
 extern s32 D_00764574;
 typedef struct KwlnTask KwlnTask;
-extern s32 func_00452080(KwlnTask *task);
+extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 
 extern char D_00637348[];
 extern s32 func_00260020(u8 *task);
@@ -192,7 +192,7 @@ s32 func_00260020(u8 *task)
         D_00764574 = (s16)func_001060b0();
         /* fallthrough */
     case 3:
-        if (func_00452490((void *)sched->unk4) == 0)
+        if (kwlnTaskIsLinked((void *)sched->unk4) == 0)
         {
             sched->unk4 = 0;
             sched->state = 4;
@@ -227,9 +227,9 @@ void func_00260450(void)
 {
     u32 *base = D_008814F0;
 
-    if (D_008814F0[1] != 0 && func_00452490((void *)base[1]) != 0)
+    if (D_008814F0[1] != 0 && kwlnTaskIsLinked((void *)base[1]) != 0)
     {
-        func_00452080((KwlnTask *)base[1]);
+        kwlnTaskDestroyWithHierarchy((KwlnTask *)base[1]);
         base[1] = 0;
     }
     memset(base, 0, 0xC);
@@ -244,7 +244,7 @@ void func_00260450(void)
         s32 closeDelay = 0;
         SdkTaskUpdate update = func_00260020;
         SdkTaskDestroy close = func_00260440;
-        func_00451de0((const void *)(name), priority, startDelay, closeDelay, update, close, (u8 *)((s32)base));
+        kwlnTaskCreate((const void *)(name), priority, startDelay, closeDelay, update, close, (u8 *)((s32)base));
     }
 }
 #pragma opt_propagation on

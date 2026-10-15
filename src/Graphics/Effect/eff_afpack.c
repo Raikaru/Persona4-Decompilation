@@ -451,7 +451,7 @@ void func_004b6c90(s32 arg0, s32 arg1)
     H_Cdvd_Destroy((u8*)temp_2);
     D_00764CA0 = NULL;
     D_00764C9C = NULL;
-    D_00764CA4 = (s32)func_00451de0((const void *)(D_007146D0), arg1, 0, 0, func_004b6e40, 0, (u8 *)(NULL));
+    D_00764CA4 = (s32)kwlnTaskCreate((const void *)(D_007146D0), arg1, 0, 0, func_004b6e40, 0, (u8 *)(NULL));
     memset(D_00922DB0, 0, 0x30);
     D_00922DB8[0] = (void*)func_004b6e80;
     D_00922DC0[0] = 0;

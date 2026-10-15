@@ -19,7 +19,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern void func_0044ea90(void *msg, s32 id);
-extern void func_00452080(s32 handle);
+extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 
 
 extern s32 func_002e23b0(u8 *arg0);
@@ -65,7 +65,7 @@ void func_002e24a0(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     }
     func_0044ea90(D_0063FC48, 0x67);
     buf = D_008873F4[0](1, 0x1810, 0x40000);
-    iGpffffb58c = (u8 *)(s32)func_00451de0((const void *)(D_0063FC58), 0xF, 0, 0, func_002e23b0, func_002e2470, (u8 *)(buf));
+    iGpffffb58c = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, func_002e23b0, func_002e2470, (u8 *)(buf));
     *(s32 *)(buf + 4) = arg0;
     *(s32 *)(buf + 8) = arg1;
     *(s8 *)(buf + 1) = arg2;
@@ -79,7 +79,7 @@ void func_002e2590(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
 
     func_0044ea90(D_0063FC48, 0x82);
     buf = D_008873F4[0](1, 0x1810, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063FC58), 0xF, 0, 0, func_002e2410, func_002e2470, (u8 *)(buf));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063FC58), 0xF, 0, 0, func_002e2410, func_002e2470, (u8 *)(buf));
     *(s32 *)(buf + 4) = arg1;
     *(s32 *)(buf + 8) = arg2;
     *(s8 *)(buf + 1) = arg3;
@@ -216,7 +216,7 @@ void func_002e29a0(void) {
     u8 *g = iGpffffb58c;
 
     if (g != NULL) {
-        func_00452080((s32)g);
+        kwlnTaskDestroyWithHierarchy((s32)g);
         iGpffffb58c = NULL;
     }
 }
@@ -737,7 +737,7 @@ void func_002e4610(s32 arg0, s8 arg1) {
     }
     func_0044ea90(D_0063FC48, 0x38F);
     buf = D_008873F4[0](1, 0x3014, 0x40000);
-    *slot = (u8 *)(s32)func_00451de0((const void *)(D_0063FC58), 0xF, 0, 0, func_002e4090, func_002e45e0, (u8 *)(buf));
+    *slot = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, func_002e4090, func_002e45e0, (u8 *)(buf));
     buf[0] = 0;
     *(s32 *)(buf + 4) = arg0;
     *(s32 *)(buf + 8) = 0;
@@ -780,7 +780,7 @@ void func_002e4820(s8 arg0) {
     u8 **p = &D_00882F70[arg0];
 
     if (*p != NULL) {
-        func_00452080((s32)*p);
+        kwlnTaskDestroyWithHierarchy((s32)*p);
         *p = NULL;
     }
 }

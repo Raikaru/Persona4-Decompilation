@@ -104,7 +104,7 @@ extern f32 fGpffff8110;
 
 
 
-extern void func_00452080(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern void resrcMngDestroy(u8 *arg0);
 extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
@@ -112,7 +112,7 @@ extern void NpcTable_ReleaseSceneTable(void);
 extern void NpcTable_ReleaseSecondaryTable(void);
 extern void func_00160180(void);
 extern void func_003e1a70(void);
-extern void func_00451b70(void);
+extern void kwlnTaskDumpAll(void);
 extern void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1);
 extern void FldResource_QueueFieldResources(s32 arg0, s32 arg1);
 extern s32 FldResource_StepPartLoad(s32 arg0, s32 arg1);
@@ -544,7 +544,7 @@ s32 func_00144af0(void)
     if (temp_2 == 0) {
         return 0;
     }
-    return (s32)func_00451de0((const void *)(&D_005EF7B0), 0x100, 0, 0, func_001441e0, func_00144ac0, (u8 *)((void *)(u32)temp_2));
+    return (s32)kwlnTaskCreate((const void *)(&D_005EF7B0), 0x100, 0, 0, func_001441e0, func_00144ac0, (u8 *)((void *)(u32)temp_2));
 }
 
 /* Return zero for a missing path; otherwise retain retail's short-circuited
@@ -737,12 +737,12 @@ void func_00145080(void) {
     temp_17 = *(u8 **)(temp_2 + 8);
     temp_4 = *(u8 **)(temp_2 + 0x1C);
     if (temp_4 != NULL) {
-        func_00452080((s32)temp_4);
+        kwlnTaskDestroyWithHierarchy((s32)temp_4);
         *(u8 **)(iGpffff9db0 + 0x1C) = NULL;
     }
     if (*(u8 **)(iGpffff9db0 + 0x20) != NULL) {
-        func_00451b70();
-        func_00452080(*(s32 *)(iGpffff9db0 + 0x20));
+        kwlnTaskDumpAll();
+        kwlnTaskDestroyWithHierarchy(*(s32 *)(iGpffff9db0 + 0x20));
         *(u8 **)(iGpffff9db0 + 0x20) = NULL;
     }
     var_16 = 0;
@@ -753,7 +753,7 @@ loop_8:
     temp_2 += temp_18;
     temp_4_2 = *(u8 **)(temp_2 + 0x68);
     if (temp_4_2 != NULL) {
-        func_00452080((s32)temp_4_2);
+        kwlnTaskDestroyWithHierarchy((s32)temp_4_2);
         *(s32 *)(iGpffff9db0 + temp_18 + 0x68) = 0;
     }
     var_16++;
@@ -769,7 +769,7 @@ loop_13:
     temp_2 += temp_18;
     temp_4_3 = *(u8 **)(temp_2 + 0x78);
     if (temp_4_3 != NULL) {
-        func_00452080((s32)temp_4_3);
+        kwlnTaskDestroyWithHierarchy((s32)temp_4_3);
         *(s32 *)(iGpffff9db0 + temp_18 + 0x78) = 0;
     }
     var_16_2++;

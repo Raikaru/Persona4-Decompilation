@@ -44,7 +44,7 @@ extern void func_00460ac0(void *, void *);
 extern s16 func_002b2cb0(s32, s32, s32, s32, s32);
 extern void func_00479100(void *, u8 *);
 extern void func_0047aa30(u8 *, void *);
-extern void func_00452080(u8 *);
+extern void kwlnTaskDestroyWithHierarchy(u8 *);
 extern u8 D_00793E80[];
 extern u8 D_005DCA70[];
 extern u8 D_005DCA1C[];
@@ -56,7 +56,7 @@ void func_003493b0(s32 arg0)
 
     func_0044ea90(D_0064A618, 0x555);
     work = D_008873F4[0](1, 0x1A0, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A630), 0xF, 0, 0, func_00349340, func_00349380, (u8 *)(work));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A630), 0xF, 0, 0, func_00349340, func_00349380, (u8 *)(work));
 }
 
 /* Model table entry addressed by (task+0x10)[model id]; 0x20 bytes. Field roles follow the
@@ -540,13 +540,13 @@ s32 func_00349c50(u8 *arg0)
             if (*(s8 *)(obj + 0x28) == 0) {
                 u8 *p3 = *(u8 **)(obj + 0xEC);
                 if (p3 != NULL) {
-                    func_00452080(p3);
+                    kwlnTaskDestroyWithHierarchy(p3);
                     *(u8 **)(obj + 0xEC) = NULL;
                 }
                 {
                     u8 *p4 = *(u8 **)(obj + 0xF0);
                     if (p4 != NULL) {
-                        func_00452080(p4);
+                        kwlnTaskDestroyWithHierarchy(p4);
                         *(u8 **)(obj + 0xF0) = NULL;
                     }
                 }
@@ -652,7 +652,7 @@ s32 func_0034a4f0(s32 arg0, s32 arg1)
     *(f32 *)&sp40[8] = z;
     func_0044ea90(D_0064A618, 0x7A9);
     mem = D_008873F4[0](1, 0x100, 0x40000);
-    handle = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A6D0), 0xF, 0, 0, func_00349c50, func_0034a480, (u8 *)(mem));
+    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A6D0), 0xF, 0, 0, func_00349c50, func_0034a480, (u8 *)(mem));
     *(s8 *)(mem + 0) = 0;
     *(s16 *)(mem + 8) = 0;
     *(s8 *)(mem + 5) = 0;

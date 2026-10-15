@@ -144,7 +144,7 @@ extern void func_001fae60(s32 initialize, s32 update, s32 packet);
 extern void func_0022b120(u8 *action);
 extern s32 func_0022b870(u8 *action);
 extern void btlAICommandSpawnActionProc(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 extern u8 *func_00194470(s32 arg0, s32 arg1);
 extern u8 *func_0022ced0(s32 arg0);
 extern s32 scrFindPrcdIdxByName(s32 arg0, s32 arg1);

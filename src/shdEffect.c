@@ -69,7 +69,7 @@ s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext)
     }
     *(s32 *)(buf + 0xC) = *(s32 *)(arg3 + 0xB8);
     *(void **)(buf + 0x10) = renderContext;
-    return (s32)func_00451fc0((void *)(arg0), (const void *)((u8 *)D_006372A0), 0xF, 0, 0, func_0025f960, func_0025fa30, (u8 *)(buf));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((u8 *)D_006372A0), 0xF, 0, 0, func_0025f960, func_0025fa30, (u8 *)(buf));
 }
 
 // FUN_0025FBB0
@@ -193,6 +193,6 @@ s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3)
     *(s32 *)buf = func_004b1130(arg1);
     *(void **)(buf + 4) = arg3;
     *(s32 *)(buf + 8) = arg2;
-    return (s32)func_00451fc0((void *)(u32)arg0, &D_00763798,
+    return (s32)kwlnTaskCreateChild((void *)(u32)arg0, &D_00763798,
                                0xF, 0, 0, func_0025fd80, func_0025fe00, buf);
 }

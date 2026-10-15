@@ -110,7 +110,7 @@ extern s32 func_002badc0(s8 arg0, s32 arg1);
 extern u8 func_002e78a0(void);
 extern s32 func_002e78e0(void);
 extern s32 func_00110a60(s32 arg0, s32 arg1);
-extern s32 func_00452380(void *arg0);
+extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_0064A3C0[];
 extern f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight);
 extern void func_00122520(s32 arg0, s32 arg1);
@@ -1563,7 +1563,7 @@ s32 func_00332bb0(u8 *arg0) {
         }
         return -1;
     case 16:
-        if (func_00452380(D_0064A3C0) != 0) {
+        if (kwlnTaskGetTaskByName(D_0064A3C0) != 0) {
             break;
         }
         for (j = 0; j < 4; j++) {
@@ -1678,7 +1678,7 @@ u8 *func_0033be40(u8 *arg0) {
 
     func_0044ea90(D_0064A380, 0x958);
     temp_2 = (s8 *)D_008873F4[0](1, 0x42C, 0x40000);
-    temp_17 = func_00451fc0((void *)(arg0), (const void *)(D_0064A3D8), 0xF, 0, 0, func_00332bb0, func_0033bdc0, (u8 *)((u8 *)temp_2));
+    temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3D8), 0xF, 0, 0, func_00332bb0, func_0033bdc0, (u8 *)((u8 *)temp_2));
     *(s8 *)(temp_2 + 0) = 0;
     *(s32 *)(temp_2 + 0xC) = 0;
     *(f32 *)(temp_2 + 0x1E0) = (f32)0x28A;
@@ -2052,7 +2052,7 @@ u8 *func_0033d130(void *arg0, s32 arg1, s32 arg2) {
 
     func_0044ea90(D_0064A380, 0xACA);
     work = D_008873F4[0](1, 0x104, 0x40000);
-    temp_17 = func_00451fc0((void *)(arg0), (const void *)(D_0064A3F0), 0xF, 0, 0, func_0033cc40, func_0033d100, (u8 *)(work));
+    temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3F0), 0xF, 0, 0, func_0033cc40, func_0033d100, (u8 *)(work));
     work[0] = 0;
     *(s16 *)(work + 0xF8) = arg1;
     *(s32 *)(work + 0xF4) = arg2;

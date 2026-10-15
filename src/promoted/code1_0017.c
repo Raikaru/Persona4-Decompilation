@@ -62,7 +62,7 @@ extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
 extern void func_00182310(s32 arg0);
 extern void func_0018e030(s32 arg0, s32 arg1);
 extern s32 func_0029da90(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 extern s32 iGpffffb284;
 extern s32 iGpffffb300;
 extern s32 iGpffffb304;
@@ -125,7 +125,7 @@ extern s32 func_00155290(void);
 extern s32 func_0014ec50(s32 arg0, s32 arg1);
 extern s32 func_0029d050(void);
 extern void func_0029dfe0(s32 arg0, s32 arg1);
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 
 extern s32 scrGetParamInt(s32 arg0);
 extern s64 datGetPartyId(s32 arg0);
@@ -327,7 +327,7 @@ s32 func_00170bc0(u8 *arg0)
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
-        if (func_00452490(*(s32 *)(temp_16 + 0x10)) != 1) {
+        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
             if (*(s32 *)((u8 *)func_00155280() + 0x30) != 0)
                 func_0018a000(*(s32 *)((u8 *)func_00155280() + 0x30), 0);
             if (datGetFlag(0x1401) != 0) {
@@ -389,7 +389,7 @@ s32 func_00170e50(u8 *arg0)
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
-        if (func_00452490(*(s32 *)(temp_16 + 0x10)) == 1)
+        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) == 1)
             break;
         temp_2 = (u8 *)func_00155280();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 0);
@@ -528,7 +528,7 @@ s32 func_00171280(u8 *arg0)
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
-        if (func_00452490(*(s32 *)(temp_16 + 0x10)) != 1) {
+        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
             func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 0);
             func_00182310(0);
             *(s32 *)(temp_16 + 4) += 1;
@@ -589,7 +589,7 @@ s32 func_001714b0(u8 *arg0)
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
-        if (func_00452490(*(s32 *)(temp_16 + 0x10)) != 1) {
+        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
             func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 0);
             func_00182310(0);
             *(s32 *)(temp_16 + 0x10) = 0;
@@ -816,7 +816,7 @@ void func_0017d060(u8 *arg0)
 s32 func_0017d070(u8 *arg0)
 {
     memset(D_007F1740, 0, 0x20);
-    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1950), 0x12, 0, 0, func_0017cd60, func_0017d060, (u8 *)(D_007F1740));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1950), 0x12, 0, 0, func_0017cd60, func_0017d060, (u8 *)(D_007F1740));
 }
 // FUN_0017D0F0
 void func_0017d0f0(u8 *arg0, s32 arg1)

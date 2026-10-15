@@ -17,7 +17,7 @@ typedef struct {
     u8 c3;
 } u4;
 extern void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
-extern void func_00452080(s32 handle);
+extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern u8 *iGpffffb588;
 extern u8 *iGpffffb590;
 extern u8 *func_002e1db0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -411,7 +411,7 @@ s32 func_002e72c0(u8 *arg0)
     s32 func_0015f660(void);
     s32 func_0033be40(u8 *arg0);
     u8 *func_003e9cb0(u8 *arg0, ...);
-    s32 func_00452380(s8 *arg0);
+    s32 kwlnTaskGetTaskByName(s8 *arg0);
     u8 *func_00457120(void);
     void K_View_SetFov(void *arg0, f32 arg1);
     s32 func_0045a3e0(s16 arg0, ...);
@@ -461,7 +461,7 @@ s32 func_002e72c0(u8 *arg0)
         }
         goto block_24;
     case 34:
-        if (func_00452380(D_0063FC68) == 0) {
+        if (kwlnTaskGetTaskByName(D_0063FC68) == 0) {
             func_00145080();
             *(s8 *)work = 0x23;
         }
@@ -488,7 +488,7 @@ s32 func_002e7510(s32 arg0)
 
     func_0044ea90(D_0063FC80, 0x11A);
     work = D_008873F4[0](1, 0x18, 0x40000);
-    result = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, func_002e72c0, func_002e74e0, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, func_002e72c0, func_002e74e0, (u8 *)(work));
     iGpffffb590 = NULL;
     iGpffffb590 = (u8 *)func_002b5c90(result, func_002b2970(0, 0));
     func_002b5db0(iGpffffb590, func_002b2970(0, 0), func_002b29e0(640.0f, 448.0f));
@@ -760,7 +760,7 @@ void func_002e82b0(u8 *arg0)
 {
     s32 datPersonaRosterCapacity(void);
     s8 func_002e4820(s8 arg0);
-    s32 func_00452080(struct KwlnTask *arg0);
+    s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *arg0);
     s16 i;
     s64 j;
     u8 *work;
@@ -775,7 +775,7 @@ void func_002e82b0(u8 *arg0)
     goto loop_7_test;
 loop_7_body:
     if (*(s32 *)(work + ((s16)j * 4) + 0x154) != 0) {
-        func_00452080(*(struct KwlnTask **)(work + ((s16)j * 4) + 0x154));
+        kwlnTaskDestroyWithHierarchy(*(struct KwlnTask **)(work + ((s16)j * 4) + 0x154));
     }
     i++;
 loop_7_test:
@@ -786,15 +786,15 @@ loop_7_test:
     i = 0;
     while (i < 2) {
         if (*(s32 *)(work + (i * 4) + 0x184) != 0) {
-            func_00452080(*(struct KwlnTask **)(work + (i * 4) + 0x184));
+            kwlnTaskDestroyWithHierarchy(*(struct KwlnTask **)(work + (i * 4) + 0x184));
         }
         i++;
     }
     if (*(s32 *)(work + 0x24C) != 0) {
-        func_00452080(*(struct KwlnTask **)(work + 0x24C));
+        kwlnTaskDestroyWithHierarchy(*(struct KwlnTask **)(work + 0x24C));
     }
     if (*(s32 *)(work + 0x250) != 0) {
-        func_00452080(*(struct KwlnTask **)(work + 0x250));
+        kwlnTaskDestroyWithHierarchy(*(struct KwlnTask **)(work + 0x250));
     }
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }

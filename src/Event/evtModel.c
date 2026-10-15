@@ -5,8 +5,8 @@
 #include "type.h"
 #include "scene_event_internal.h"
 
-extern s32 func_00452380();
-extern void func_00452080();
+extern s32 kwlnTaskGetTaskByName();
+extern void kwlnTaskDestroyWithHierarchy();
 extern u8 D_0063C958[];
 
 /* Model event update state machine shared by the func_0029xxxx family:
@@ -683,10 +683,10 @@ void func_002931a0(u8 *unusedTask) {
 
 // FUN_00293270
 void func_00293270(void) {
-    s32 handle = func_00452380(D_0063C958);
+    s32 handle = kwlnTaskGetTaskByName(D_0063C958);
 
     if (handle != 0) {
-        func_00452080(handle);
+        kwlnTaskDestroyWithHierarchy(handle);
     }
 }
 
@@ -700,7 +700,7 @@ void func_002932b0(s32 arg0) {
     u32 outer;
     u32 masked;
 
-    outer = func_00452380(D_0063C958);
+    outer = kwlnTaskGetTaskByName(D_0063C958);
     if (outer != 0) {
         list = (u8 **)func_00452560(outer);
         head = (u8 *)*list;
@@ -738,12 +738,12 @@ void func_002933a0(u16 arg0, s32 arg1, f32 fparg0) {
     u8 *var_6;
     u32 masked;
 
-    var_2 = func_00452380(D_0063C958);
+    var_2 = kwlnTaskGetTaskByName(D_0063C958);
     if (var_2 == 0) {
         temp_2 = (u8 *)func_002e1db0(4, 0, 0, 0);
         temp_10 = *(u8 ***)(temp_2 + 0x24);
         *temp_10 = temp_2;
-        var_2 = (s32)func_00451de0((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
+        var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
     }
     temp_17 = (u8 **)func_00452560(var_2);
     memset(sp, 0, 0x2C);
@@ -787,12 +787,12 @@ void func_00293550(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
     u8 *var_6;
     u32 masked;
 
-    var_2 = func_00452380(D_0063C958);
+    var_2 = kwlnTaskGetTaskByName(D_0063C958);
     if (var_2 == 0) {
         temp_2 = (u8 *)func_002e1db0(4, 0, 0, 0);
         temp_10 = *(u8 ***)(temp_2 + 0x24);
         *temp_10 = temp_2;
-        var_2 = (s32)func_00451de0((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
+        var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
     }
     temp_17 = (u8 **)func_00452560(var_2);
     memset(sp, 0, 0x2C);

@@ -548,7 +548,7 @@ s32 func_003641a0(s32 arg0) {
     if (work == NULL) {
         func_0046d730(D_0064E290, 0x254);
     }
-    r = (s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0064E2E0), 0xC7, 0, 0, func_00363610, func_003640f0, (u8 *)(work));
+    r = (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0064E2E0), 0xC7, 0, 0, func_00363610, func_003640f0, (u8 *)(work));
     if (r == 0) {
         func_0046d730(D_0064E290, 0x25E);
     }

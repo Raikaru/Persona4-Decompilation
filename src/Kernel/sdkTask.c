@@ -35,15 +35,15 @@ extern void* iGpffffb9f8;
 extern KwlnTask* iGpffffba04;
 
 
-void func_00452570(KwlnTask* a0, KwlnTask* a1);
-void func_00452600(KwlnTask* a0);
-s32 func_00452080(KwlnTask* a0);
-void func_00450f20(KwlnTask* a0);
-void func_00451110(KwlnTask* a0);
-s32 func_00451430(KwlnTask* a0);
-void func_004515b0(void);
-void func_00451770(KwlnTask* a0);
-void func_004518e0(KwlnTask* a0);
+void kwlnTaskAddChild(KwlnTask* a0, KwlnTask* a1);
+void kwlnTaskRemoveFromParent(KwlnTask* a0);
+u8 kwlnTaskDestroyWithHierarchy(KwlnTask* a0);
+void kwlnTaskUnlinkFromList(KwlnTask* a0);
+void kwlnTaskLinkToList(KwlnTask* a0);
+s32 kwlnTaskRunUpdate(KwlnTask* a0);
+void kwlnTaskRunList(void);
+void kwlnTaskMoveToDying(KwlnTask* a0);
+void kwlnTaskKillSiblingChain(KwlnTask* a0);
 /* GP-relative current-task pointer at gp -0x45EC (absolute 0x00764B04). */
 extern KwlnTask* iGpffffba14;
 extern void (*jtbl_008873FC[])();
@@ -82,12 +82,11 @@ extern char iGpffffac70;
 
 
 extern KwlnTask* kwlnTaskGetTaskByName(const char* name);
-extern u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task);
 
 
 
 // FUN_00450F20
-void func_00450f20(KwlnTask* task)
+void kwlnTaskUnlinkFromList(KwlnTask* task)
 {
     KwlnTask* prev;
     KwlnTask* next;
@@ -170,7 +169,7 @@ err:
 }
 
 // FUN_00451110
-void func_00451110(KwlnTask* task)
+void kwlnTaskLinkToList(KwlnTask* task)
 {
     s32 state;
     KwlnTask* node;
@@ -315,7 +314,7 @@ err:
  * 0x80 constant are rematerialized inside the init loop (nd 68); with it they
  * hoist to the preheader and the function matches byte-for-byte. */
 #pragma opt_loop_invariants on
-s32 func_00451430(KwlnTask* task)
+s32 kwlnTaskRunUpdate(KwlnTask* task)
 {
     SdkTaskUpdate fn;
     u8* ptr;
@@ -356,8 +355,8 @@ s32 func_00451430(KwlnTask* task)
         }
         if (result == -1 && (task->flags & 0xF) == 2)
         {
-            func_00451770(task);
-            func_004518e0(task->childList);
+            kwlnTaskMoveToDying(task);
+            kwlnTaskKillSiblingChain(task->childList);
             iGpffffba10 = 0;
             return 0;
         }
@@ -370,7 +369,7 @@ s32 func_00451430(KwlnTask* task)
 #pragma opt_loop_invariants off
 
 // FUN_004515B0
-void func_004515b0(void)
+void kwlnTaskRunList(void)
 {
     KwlnTask* node;
 
@@ -378,7 +377,7 @@ void func_004515b0(void)
     while (node != 0)
     {
         iGpffffba14 = node;
-        if (func_00451430(node) != 0)
+        if (kwlnTaskRunUpdate(node) != 0)
         {
             if (node != iGpffffba14)
             {
@@ -418,7 +417,7 @@ void func_004515b0(void)
     }
 }
 // FUN_004516B0
-void func_004516b0(KwlnTask* task)
+void kwlnTaskFinalize(KwlnTask* task)
 {
     KwlnTask* node;
     KwlnTask* next;
@@ -427,21 +426,21 @@ void func_004516b0(KwlnTask* task)
     while (node != 0)
     {
         next = node->next;
-        func_00452080(node);
+        kwlnTaskDestroyWithHierarchy(node);
         node = next;
     }
-    func_00450f20(task);
+    kwlnTaskUnlinkFromList(task);
     if (task->unk34 != 0)
     {
         task->unk34((u8 *)task);
     }
     task->flags &= ~0xF;
-    func_00452600(task);
+    kwlnTaskRemoveFromParent(task);
     func_004526a0(task);
     jtbl_008873FC[0](iGpffffba18, task);
 }
 // FUN_00451770
-void func_00451770(KwlnTask* task)
+void kwlnTaskMoveToDying(KwlnTask* task)
 {
     KwlnTask* node;
     KwlnTask* next;
@@ -471,25 +470,25 @@ err:
     func_0046d730(D_00710568, 0x308);
     return;
 body:
-    func_00450f20(task);
+    kwlnTaskUnlinkFromList(task);
     task->flags = (task->flags & ~0xF) | 3;
-    func_00451110(task);
+    kwlnTaskLinkToList(task);
     if (task->unk2E == 0)
     {
         node = task->childList;
         while (node != 0)
         {
             next = node->next;
-            func_00452080(node);
+            kwlnTaskDestroyWithHierarchy(node);
             node = next;
         }
-        func_00450f20(task);
+        kwlnTaskUnlinkFromList(task);
         if (task->unk34 != 0)
         {
             task->unk34((u8 *)task);
         }
         task->flags &= ~0xF;
-        func_00452600(task);
+        kwlnTaskRemoveFromParent(task);
         func_004526a0(task);
         jtbl_008873FC[0](iGpffffba18, task);
     }
@@ -497,7 +496,7 @@ body:
 }
 
 // FUN_004518E0
-void func_004518e0(KwlnTask* task)
+void kwlnTaskKillSiblingChain(KwlnTask* task)
 {
     KwlnTask* node;
     KwlnTask* child;
@@ -514,8 +513,8 @@ void func_004518e0(KwlnTask* task)
         {
             while (child != 0)
             {
-                func_004518e0(child->childList);
-                func_00451770(child);
+                kwlnTaskKillSiblingChain(child->childList);
+                kwlnTaskMoveToDying(child);
                 child = child->next;
             }
         }
@@ -528,12 +527,12 @@ err:
             break;
         case 1:
         case 2:
-            func_00450f20(node);
+            kwlnTaskUnlinkFromList(node);
             node->flags = (node->flags & ~0xF) | 3;
-            func_00451110(node);
+            kwlnTaskLinkToList(node);
             if (node->unk2E == 0)
             {
-                func_004516b0(node);
+                kwlnTaskFinalize(node);
             }
             break;
         case 3:
@@ -546,7 +545,7 @@ err:
 }
 
 // FUN_00451A10
-void func_00451a10(KwlnTask* task, s32 depth)
+void kwlnTaskDumpNode(KwlnTask* task, s32 depth)
 {
     func_00440b68(D_00710598, D_008BFF70, task, *(u32*)((u8*)task + 0x20));
     if (task->flags & 0x20)
@@ -573,12 +572,12 @@ void func_00451a10(KwlnTask* task, s32 depth)
             D_008BFF70[depth * 4] = 0x7C;
         }
         D_008BFF74[depth * 4] = 0;
-        func_00451a10(task->childList, depth + 1);
+        kwlnTaskDumpNode(task->childList, depth + 1);
         D_008BFF70[depth * 4] = 0;
     }
     if (task->next != 0)
     {
-        func_00451a10(task->next, depth);
+        kwlnTaskDumpNode(task->next, depth);
     }
 }
 
@@ -587,7 +586,7 @@ void func_00451a10(KwlnTask* task, s32 depth)
  * base address are rematerialized inside the fill loop (nd 65); with it they
  * hoist to the preheader and the function matches byte-for-byte. */
 #pragma opt_loop_invariants on
-void func_00451b70(void)
+void kwlnTaskDumpAll(void)
 {
     s32 i;
     KwlnTask* node;
@@ -603,7 +602,7 @@ void func_00451b70(void)
         if (node->parent == 0)
         {
             D_008BFF70[0] = 0;
-            func_00451a10(node, 0);
+            kwlnTaskDumpNode(node, 0);
         }
         node = node->listNext;
     }
@@ -613,7 +612,7 @@ void func_00451b70(void)
         if (node->parent == 0)
         {
             D_008BFF70[0] = 0;
-            func_00451a10(node, 0);
+            kwlnTaskDumpNode(node, 0);
         }
         node = node->listNext;
     }
@@ -623,7 +622,7 @@ void func_00451b70(void)
         if (node->parent == 0)
         {
             D_008BFF70[0] = 0;
-            func_00451a10(node, 0);
+            kwlnTaskDumpNode(node, 0);
         }
         node = node->listNext;
     }
@@ -632,7 +631,7 @@ void func_00451b70(void)
 /* measured: see the annotation above the matching `on` pragma (func_00451b70). */
 #pragma opt_loop_invariants off
 // FUN_00451CA0
-void func_00451ca0(s32 arg0)
+void kwlnTaskInitPool(s32 arg0)
 {
     iGpffffba18 = func_003e1220(0x54, arg0, 4, 1, D_008BFFB0, 0x41001);
 }
@@ -640,7 +639,7 @@ void func_00451ca0(s32 arg0)
 
 
 // FUN_00451CF0
-s32 func_00451cf0(void)
+s32 kwlnTaskRunFrame(void)
 {
     KwlnTask* node1;
     KwlnTask* cur1;
@@ -660,14 +659,14 @@ s32 func_00451cf0(void)
         node1 = node1->listNext;
         if (cur1->unk2C == 0)
         {
-            func_00450f20(cur1);
+            kwlnTaskUnlinkFromList(cur1);
             cur1->flags = (cur1->flags & ~0xF) | 2;
-            func_00451110(cur1);
+            kwlnTaskLinkToList(cur1);
             cur1->unk24 = 0;
             cur1->unk28 = 0;
         }
     }
-    func_004515b0();
+    kwlnTaskRunList();
     node2 = iGpffffb9f8;
     while (node2 != 0)
     {
@@ -680,13 +679,13 @@ s32 func_00451cf0(void)
         node2 = node2->listNext;
         if (cur2->unk2E == 0)
         {
-            func_004516b0(cur2);
+            kwlnTaskFinalize(cur2);
         }
     }
     return 1;
 }
 // FUN_00451DE0
-void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, SdkTaskDestroy a5, u8 *a6)
+void* kwlnTaskCreate(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, SdkTaskDestroy a5, u8 *a6)
 {
     KwlnTask* task;
     s8* dst;
@@ -736,26 +735,26 @@ void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, Sd
     {
         task->unk2E = 2;
     }
-    func_00451110(task);
+    kwlnTaskLinkToList(task);
     if (task->unk2C == 0)
     {
-        func_00450f20(task);
+        kwlnTaskUnlinkFromList(task);
         task->flags = (task->flags & ~0xF) | 2;
-        func_00451110(task);
+        kwlnTaskLinkToList(task);
         task->unk24 = 0;
         task->unk28 = 0;
     }
     return task;
 }
 // FUN_00451FC0
-void* func_00451fc0(void* a0, const void* a1, s32 a2, s32 a3, s32 a4, SdkTaskUpdate a5, SdkTaskDestroy a6, u8 *a7)
+void* kwlnTaskCreateChild(void* a0, const void* a1, s32 a2, s32 a3, s32 a4, SdkTaskUpdate a5, SdkTaskDestroy a6, u8 *a7)
 {
     void* result;
 
-    result = func_00451de0((const void *)(a1), a2, a3, a4, a5, a6, (u8 *)(a7));
+    result = kwlnTaskCreate((const void *)(a1), a2, a3, a4, a5, a6, (u8 *)(a7));
     if (result != 0 && a0 != 0)
     {
-        func_00452570(a0, result);
+        kwlnTaskAddChild(a0, result);
     }
     return result;
 }
@@ -776,7 +775,7 @@ u8 kwlnTaskDestroyWithHierarchyByName(const char* name)
 
 
 // FUN_00452080
-s32 func_00452080(KwlnTask* task)
+u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task)
 {
     KwlnTask* node;
     KwlnTask* child;
@@ -801,12 +800,12 @@ inner_err:
             break;
         case 1:
         case 2:
-            func_00450f20(task);
+            kwlnTaskUnlinkFromList(task);
             task->flags = (task->flags & ~0xF) | 3;
-            func_00451110(task);
+            kwlnTaskLinkToList(task);
             if (task->unk2E == 0)
             {
-                func_004516b0(task);
+                kwlnTaskFinalize(task);
             }
             break;
         case 3:
@@ -819,8 +818,8 @@ inner_err:
         {
             while (task != 0)
             {
-                func_004518e0(task->childList);
-                func_00451770(task);
+                kwlnTaskKillSiblingChain(task->childList);
+                kwlnTaskMoveToDying(task);
                 task = task->next;
             }
         }
@@ -832,16 +831,16 @@ inner_err:
             while (node != 0)
             {
                 child = node->next;
-                func_00452080(node);
+                kwlnTaskDestroyWithHierarchy(node);
                 node = child;
             }
-            func_00450f20(task);
+            kwlnTaskUnlinkFromList(task);
             if (task->unk34 != 0)
             {
                 task->unk34((u8 *)task);
             }
             task->flags &= ~0xF;
-            func_00452600(task);
+            kwlnTaskRemoveFromParent(task);
             func_004526a0(task);
             jtbl_008873FC[0](iGpffffba18, task);
         }
@@ -857,11 +856,11 @@ outer_err:
 }
 
 // FUN_004522D0
-s32 func_004522d0(void* task)
+s32 kwlnTaskGetState(void* task)
 {
     s32 state;
 
-    if (func_00452490(task) == 0)
+    if (kwlnTaskIsLinked(task) == 0)
     {
         return 0;
     }
@@ -884,7 +883,7 @@ s32 func_004522d0(void* task)
  * three list heads are rematerialized inside the dispatch loop; with it they
  * hoist to the preheader and the function matches byte-for-byte. */
 #pragma opt_loop_invariants on
-u8* func_00452380(s8* name)
+KwlnTask* kwlnTaskGetTaskByName(const char* name)
 {
     KwlnTask* node;
     s32 listIdx;
@@ -924,7 +923,7 @@ u8* func_00452380(s8* name)
                 {
                     if (i == 0)
                     {
-                        return (u8*)node;
+                        return node;
                     }
                     i--;
                 }
@@ -942,7 +941,7 @@ u8* func_00452380(s8* name)
  * rematerialized inside the loop (nd 25); with it they hoist to the
  * preheader and the function matches byte-for-byte. */
 #pragma opt_loop_invariants on
-s32 func_00452490(void* target)
+s32 kwlnTaskIsLinked(void* target)
 {
     s32 idx;
     void* node;
@@ -996,14 +995,14 @@ u32 func_00452560(void* task)
 }
 
 // FUN_00452570
-void func_00452570(KwlnTask* parent, KwlnTask* child)
+void kwlnTaskAddChild(KwlnTask* parent, KwlnTask* child)
 {
     KwlnTask* node;
     KwlnTask* next;
 
     if (child->parent != 0)
     {
-        func_00452600(child);
+        kwlnTaskRemoveFromParent(child);
     }
 
     node = parent->childList;
@@ -1023,7 +1022,7 @@ void func_00452570(KwlnTask* parent, KwlnTask* child)
 }
 
 // FUN_00452600
-void func_00452600(KwlnTask* childTask)
+void kwlnTaskRemoveFromParent(KwlnTask* childTask)
 {
     KwlnTask* parentTask;
     KwlnTask* currSibling;

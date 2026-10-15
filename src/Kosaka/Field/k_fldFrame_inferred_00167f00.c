@@ -390,7 +390,7 @@ s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, f32 fparg0)
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_18 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1630), 0xF, 0, 0, FldFrameTask_Update, FldFrameTask_Destroy, (u8 *)(temp_2));
+    temp_18 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1630), 0xF, 0, 0, FldFrameTask_Update, FldFrameTask_Destroy, (u8 *)(temp_2));
     *(s32 *)temp_2 = 1;
     temp_4 = arg1 & 0xFFFF;
     *(s16 *)(temp_2 + 8) = arg1;
@@ -435,7 +435,7 @@ s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, f32 fparg0)
     func_0044ea90(D_005F15F8, 0x83);
     base = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x10, 0x40000);
     if (base != NULL) {
-        (s32)func_00451fc0((void *)(temp_18), (const void *)(D_005F1610), 0x10, 0, 0, FldFrameTask_UpdateFollower, FldFrameTask_DestroyFollower, (u8 *)(base));
+        (s32)kwlnTaskCreateChild((void *)(temp_18), (const void *)(D_005F1610), 0x10, 0, 0, FldFrameTask_UpdateFollower, FldFrameTask_DestroyFollower, (u8 *)(base));
         *(s16 *)(base + 4) = arg1;
     }
     return temp_18;

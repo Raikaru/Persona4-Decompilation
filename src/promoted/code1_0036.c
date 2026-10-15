@@ -60,7 +60,7 @@ extern void func_00457630(void *arg0, void *arg1, void *arg2, s32 arg3);
 extern void func_0011fd30(u8 *arg0);
 extern void func_0011fd50(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern void func_0046d280(void *node);
-extern void func_00452080(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_002bb550(s8 arg0);
 extern f32 iGpffff84a4;
 extern s32 func_0046a770(const void *arg0);
@@ -201,7 +201,7 @@ void func_00361a30(u8 *arg0)
     }
     handle704 = *(s32 *)(arg0 + 0x704);
     if (handle704 != 0) {
-        func_00452080(handle704);
+        kwlnTaskDestroyWithHierarchy(handle704);
         *(s32 *)(arg0 + 0x704) = 0;
     }
     id = *(s8 *)(arg0 + 0x3C);
@@ -604,7 +604,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             if (func_0035c7f0(*(u8 **)(arg2 + 0x704)) != 0) {
                 return 2;
             }
-            func_00452080(*(s32 *)(arg2 + 0x704));
+            kwlnTaskDestroyWithHierarchy(*(s32 *)(arg2 + 0x704));
             *(s32 *)(arg2 + 0x704) = 0;
             *arg0 = 1;
         }

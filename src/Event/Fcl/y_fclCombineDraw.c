@@ -56,7 +56,7 @@ extern u8 *func_00117780(s32, s32, s32, s32, s32);
 extern s32 func_00314010(u8 *task);
 extern void func_003142f0(u8 *arg0);
 extern s32 datGetFlag(s32);
-extern s32 func_00452490(void *);
+extern s32 kwlnTaskIsLinked(void *);
 extern void func_0011d100(u8 *arg0, f32 *arg1);
 extern void func_0011b480(u8 *, s32, u32, s8);
 extern void func_0011bc70(u8 *arg0);
@@ -176,7 +176,7 @@ s32 fclDrawTaskCreate(s32 arg0) {
     func_0044ea90(D_00644D30, 0x16D);
     p = (u8 *)D_008873F4[0](1, 0x14, 0x40000);
     memset(p, 0, 0x14);
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00644D50), 0xF, 0, 0, func_00314010, func_003142f0, (u8 *)(p));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00644D50), 0xF, 0, 0, func_00314010, func_003142f0, (u8 *)(p));
     *(s8 *)p = 7;
     *(s32 *)(p + 4) = (s32)func_00117780(ret, 0xF, 3, 5, 5);
     *(s8 *)(p + 0xD) = 0;
@@ -247,7 +247,7 @@ s32 fclDrawIsActive(u8 *arg0) {
     if (arg0 == 0) {
         return 0;
     }
-    if (func_00452490((void *)arg0) == 0) {
+    if (kwlnTaskIsLinked((void *)arg0) == 0) {
         return 0;
     }
     if (*(u32 *)(arg0 + 0x38) == 0) {
@@ -6201,7 +6201,7 @@ void func_00331390(void) {
     }
     func_0044ea90(D_00644D30, 0x16A4);
     p = D_008873F4[0](1, 0x48, 0x40000);
-    iGpffffb598 = (s32)func_00451de0((const void *)(D_00644E48), 0xF, 0, 0, func_00330f20, func_003312e0, (u8 *)(p));
+    iGpffffb598 = (s32)kwlnTaskCreate((const void *)(D_00644E48), 0xF, 0, 0, func_00330f20, func_003312e0, (u8 *)(p));
     *(s8 *)(p + 0) = 0;
     *(s8 *)(p + 0x45) = 0;
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B2);

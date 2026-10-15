@@ -67,7 +67,7 @@ s32 func_00268990(s32 arg0) {
     v1 = *(u8 ***)(v0 + 0x24);
     *v1 = v0;
     *(u8 ***)(s0 + 8) = v1;
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063B070), 0xF, 0, 0, func_00268870, func_00268920, (u8 *)(s0));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063B070), 0xF, 0, 0, func_00268870, func_00268920, (u8 *)(s0));
     func_0045b2e0(0x40);
     func_00106390(0x1470, 1);
     return ret;

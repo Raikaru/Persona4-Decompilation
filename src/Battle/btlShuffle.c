@@ -10,7 +10,7 @@ extern void func_003757f0(u8 *arg0);
 
 extern u16 *func_00452560();
 
-extern s32 func_00452380(void *arg0);
+extern s32 kwlnTaskGetTaskByName(void *arg0);
 
 extern u32 datCalcRandomBelow(u32 max);
 
@@ -335,7 +335,7 @@ s32 func_0036e690(u8 *arg0, u8 *arg1)
     func_0044ea90(D_0064E7A0, 0x3A);
     work = (u8 *)(*jtbl_008873E8)(0x21ABC, 0x40000);
     memset(work, 0, 0x21ABC);
-    handle = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064E780), 0x12, 0, 0, func_0036e140, func_0036e600, (u8 *)(work));
+    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064E780), 0x12, 0, 0, func_0036e140, func_0036e600, (u8 *)(work));
     tmp = (s32)func_00452560(arg0);
     *(s32 *)(work + 8) = 0;
     *(s32 *)(work + 0x6C) = tmp;
@@ -390,7 +390,7 @@ u32 func_0036e8a0(void)
 // FUN_0036E8D0
 s32 func_0036e8d0(void)
 {
-    return func_00452380(D_0064E780) != 0;
+    return kwlnTaskGetTaskByName(D_0064E780) != 0;
 }
 
 // FUN_0036E900

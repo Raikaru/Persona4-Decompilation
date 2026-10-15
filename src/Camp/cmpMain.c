@@ -456,7 +456,7 @@ s32 func_0012d000(s32 arg0, s16 arg1) {
         return 0;
     }
     *(u16 *)(p + 0xC) = arg1;
-    r = (s32)func_00451fc0((void *)(arg0), (const void *)(&iGpffff9cb8), 0xC7, 0, 0, func_0012c510, func_0012cc50, (u8 *)(p));
+    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9cb8), 0xC7, 0, 0, func_0012c510, func_0012cc50, (u8 *)(p));
     func_0034bb20(0);
     func_0034c260(1);
     memset(p + 0x970C, 0, 0x30);
@@ -553,7 +553,7 @@ s32 func_0012d320(void) {
     if (p == NULL) {
         return 0;
     }
-    r = (s32)func_00451de0((const void *)(D_005E58B0), 0xF, 0, 0, func_0012d190, func_0012d160, (u8 *)(p));
+    r = (s32)kwlnTaskCreate((const void *)(D_005E58B0), 0xF, 0, 0, func_0012d190, func_0012d160, (u8 *)(p));
     *(u16 *)p = 0;
     *(u8 **)(p + 4) = D_005E5830;
     *(u8 **)(p + 8) = D_005E5850;

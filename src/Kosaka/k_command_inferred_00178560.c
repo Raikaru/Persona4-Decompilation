@@ -48,7 +48,7 @@ extern s32 func_0015a160(void);
    (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
    loads (nd4). Sole caller in this unit. */
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 extern s32 iGpffffb284;
 extern s32 iGpffffb300;
 extern s32 iGpffffb304;
@@ -78,7 +78,7 @@ extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0014ec50(s32 arg0, s32 arg1);
 extern s32 func_0029d050(void);
 extern void func_0029dfe0(s32 arg0, s32 arg1);
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 
 extern u8 *func_0029d040(void);
 extern void func_002bd240(s32 arg0);
@@ -196,7 +196,7 @@ s32 Cmd_WaitForFieldEvent(void)
         func_0029dfe0(*(s32 *)(temp_16 + 0x148), func_0014ec50(0, 1));
         return 0;
     }
-    if (func_00452490(temp_2) == 1) {
+    if (kwlnTaskIsLinked(temp_2) == 1) {
         return 0;
     }
     func_0029dfe0(*(s32 *)(temp_16 + 0x148), 0);

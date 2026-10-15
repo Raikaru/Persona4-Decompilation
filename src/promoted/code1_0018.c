@@ -97,7 +97,7 @@ extern s16 iGpffffb398;
 extern s16 iGpffffb39c;
 extern s16 iGpffffb3a0;
 extern s32 iGpffffb3a4;
-extern s32 func_00452080(KwlnTask *handle);
+extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
 extern const KWindowEntryDescriptor D_005F5830[];
 extern const KWindowEntryDescriptor D_005F5730[];
 extern u8 D_007E3720[];
@@ -116,7 +116,7 @@ extern void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                           s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
 extern u16 D_008C024E[];
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 
 void func_0018e780(s32 arg0);
 
@@ -706,7 +706,7 @@ void func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
 
     func_0044ea90(&D_005F1D80, 0x17B);
     temp_2 = D_008873F4[0](1, 0x78, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(&iGpffff9f60), 0xF, 0, 0, func_00182bc0, func_001837f0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9f60), 0xF, 0, 0, func_00182bc0, func_001837f0, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0x28) = arg1;
     *(f32 *)(temp_2 + 0x18) = fparg0;
     *(f32 *)(temp_2 + 0x14) = fparg1;
@@ -1102,7 +1102,7 @@ s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
     }
     func_0044ea90(&D_005F1D80, 0x43A);
     temp_2_2 = D_008873F4[0](1, 0x460, 0x40000);
-    temp_2 = (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_005F1D90), 0xF, 0, 0, func_00183b80, func_00185120, (u8 *)(temp_2_2));
+    temp_2 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F1D90), 0xF, 0, 0, func_00183b80, func_00185120, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0x420) = arg1;
     *(f32 *)(temp_2_2 + 0x414) = fparg1;
     *(f32 *)(temp_2_2 + 0x418) = fparg2;
@@ -1715,7 +1715,7 @@ void func_00186610(u8 *arg0)
 s32 func_00186640(u8 *arg0)
 {
     func_0044ea90(&D_005F1DF8, 0x299);
-    return (s32)func_00451fc0((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, func_00185850, func_00186610, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, func_00185850, func_00186610, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
 }
 // FUN_00189600
 void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
@@ -1932,7 +1932,7 @@ void func_00189ec0(void)
         if (temp_2 == NULL) {
             var_16 = 0;
         } else {
-            var_16 = (s32)func_00451fc0((void *)(temp_16), (const void *)(&D_005F5330), 0xF, 0, 0, func_00189940, func_00189e90, (u8 *)(temp_2));
+            var_16 = (s32)kwlnTaskCreateChild((void *)(temp_16), (const void *)(&D_005F5330), 0xF, 0, 0, func_00189940, func_00189e90, (u8 *)(temp_2));
         }
         *(s32 *)((u8 *)func_00155280() + 0x30) = var_16;
         func_0018a010(-1);
@@ -1943,7 +1943,7 @@ s32 func_00189fa0(void) {
     if (*(s32 *)((u8 *)(func_00155280()) + 0x30) == 0) {
         return 0;
     }
-    func_00452080(*(KwlnTask **)((u8 *)(func_00155280()) + 0x30));
+    kwlnTaskDestroyWithHierarchy(*(KwlnTask **)((u8 *)(func_00155280()) + 0x30));
     *(s32 *)((u8 *)(func_00155280()) + 0x30) = 0;
     return 1;
 }
@@ -2330,13 +2330,13 @@ s32 func_0018a200(u8 *param_1)
     effectTask = (u8 *)puVar1[4];
     if (effectTask != NULL && func_0014bd90(effectTask) == 1) {
       mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
-      func_00452080((void *)puVar1[4]);
+      kwlnTaskDestroyWithHierarchy((void *)puVar1[4]);
       puVar1[4] = 0;
     }
     if (temp_v13 <= ((float*)puVar1)[0x12] + 55.0f) {
       if (puVar1[4] != 0) {
         mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
-        func_00452080((void *)puVar1[4]);
+        kwlnTaskDestroyWithHierarchy((void *)puVar1[4]);
         puVar1[4] = 0;
       }
       func_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
@@ -2544,7 +2544,7 @@ s32 func_0018a200(u8 *param_1)
     temp_v4 = func_0014bd90((unsigned char *)puVar1[4]);
     if (temp_v4 != 0) {
       mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
-      func_00452080((void *)puVar1[4]);
+      kwlnTaskDestroyWithHierarchy((void *)puVar1[4]);
       puVar1[4] = 0;
       *(unsigned int *)(puVar1[3] + 0x28) = *(unsigned int *)(puVar1[3] + 0x28) | 0x10000000;
       *puVar1 = *puVar1 + 1;
@@ -2802,7 +2802,7 @@ s32 func_0018bb20(s32 arg0, s32 arg1)
     temp_2 = D_008873F4[0](1, 0x58, 0x40000);
     if (temp_2 == NULL)
         return 0;
-    temp_17 = (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_005F5350), 0xF, 0, 0, func_0018a200, func_0018bad0, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F5350), 0xF, 0, 0, func_0018a200, func_0018bad0, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0xC) = arg1;
     *(f32 *)(temp_2 + 0x48) = *(f32 *)(((u8 *)(uintptr_t)func_00457120()) + 0x80);
     return temp_17;
@@ -3368,7 +3368,7 @@ s32 func_0018dde0(u8 *arg0)
         }
         break;
     case 2:
-        if (func_00452490(*(s32 *)(work + 0x10)) == 1)
+        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) == 1)
             return 0;
         *(s32 *)(work + 0x10) = 0;
         *(s32 *)(work + 0xC) = D_0076428C;
@@ -3400,7 +3400,7 @@ s32 func_0018df60(s32 arg0)
     temp_2_2 = D_008873F4[0](1, 0x14, 0x40000);
     if (temp_2_2 == NULL)
         return 0;
-    temp_2 = (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_005F54E8), 0xF, 0, 0, func_0018dde0, func_0018df30, (u8 *)(temp_2_2));
+    temp_2 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F54E8), 0xF, 0, 0, func_0018dde0, func_0018df30, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 8) = 0x1E;
     return temp_2;
 }
@@ -3516,7 +3516,7 @@ s32 func_0018e810(u8 *arg0)
                 *(s32 *)(state + 4) = 2;
                 v0 = *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 0);
                 func_001582f0(*(s32 *)(state + 4), v0, 0);
-                func_00452080(*(KwlnTask **)(state + 0x1B438));
+                kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
             case 1:
@@ -3529,7 +3529,7 @@ s32 func_0018e810(u8 *arg0)
                 *(s32 *)(state + 4) = 0;
                 v0 = *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 1);
                 func_001582f0(*(s32 *)(state + 4), v0, 0);
-                func_00452080(*(KwlnTask **)(state + 0x1B438));
+                kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
             case 2:
@@ -3542,7 +3542,7 @@ s32 func_0018e810(u8 *arg0)
                 *(s32 *)(state + 4) = 1;
                 v0 = *func_00470bd0(*(KwlnTask **)(state + 0x1B438), 2);
                 func_001582f0(*(s32 *)(state + 4), v0, 0);
-                func_00452080(*(KwlnTask **)(state + 0x1B438));
+                kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
             }
@@ -3617,7 +3617,7 @@ void func_0018ef20(u8 *arg0)
 void func_0018ef50(s32 arg0)
 {
     func_0044ea90(&D_005F57B0, 0x101);
-    (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_005F57C0), 0xF, 0, 0, func_0018e810, func_0018ef20, (u8 *)(D_008873F4[0](1, 0x1B440, 0x40000)));
+    (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F57C0), 0xF, 0, 0, func_0018e810, func_0018ef20, (u8 *)(D_008873F4[0](1, 0x1B440, 0x40000)));
 }
 #pragma opt_propagation off
 // FUN_0018EFE0
@@ -3827,7 +3827,7 @@ s32 func_0018f950(u8 *arg0)
         if (D_008C0240[0].trigger & 0x40) {
             *(s16 *)(work + 0x28) = *func_00470bd0(*(KwlnTask **)(work + 0x1CD10), 0);
             *(s16 *)(work + 0x2A) = *func_00470bd0(*(KwlnTask **)(work + 0x1CD10), 1);
-            func_00452080(*(KwlnTask **)(work + 0x1CD10));
+            kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x1CD10));
             *(u8 **)(work + 0x1CD14) = func_0015c640(*(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
             *(s32 *)(work + 0x1CD10) = func_00470280(arg0, 0x22E, 0x28, 2);
             sprintf(text, "%d-%d", *(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));

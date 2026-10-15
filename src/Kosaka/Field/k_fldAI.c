@@ -86,7 +86,7 @@ s32 FldAI_ChaserUpdate(u8 *task)
     extern s32 FldAI_ChaserGetState(u8 *);
     extern u32 RpRandom(void);
     extern void *memset(void *, int, size_t);
-    extern s32 func_00452080(KwlnTask *);
+    extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
     extern void func_0046d730(const void *, s32);
     extern s16 func_00479c30(s32, s32);
     extern void mdlSetColor(void *, const void *);
@@ -212,13 +212,13 @@ discoveryAvailabilityDone:
         distance = RwV3dLength(&cameraDelta.x);
         if (*(u8 **)(work + 0x6C) != NULL && func_0014bd90(*(u8 **)(work + 0x6C)) == 1) {
             mdlClearAlphaBlend(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
-            func_00452080(*(KwlnTask **)(work + 0x6C));
+            kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x6C));
             *(u8 **)(work + 0x6C) = NULL;
         }
         if (distance <= 110.0f + *(f32 *)(work + 0x64)) {
             if (*(u8 **)(work + 0x6C) != NULL) {
                 mdlClearAlphaBlend(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
-                func_00452080(*(KwlnTask **)(work + 0x6C));
+                kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x6C));
                 *(u8 **)(work + 0x6C) = NULL;
             }
             mdlSetColor(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164), &iGpffff9f58);
@@ -568,7 +568,7 @@ s32 FldAI_SpawnChaser(s32 arg0, s32 arg1, s32 arg2)
     if (work == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1B28), 0xF, 0, 0, FldAI_ChaserUpdate, FldAI_ChaserDestroy, (u8 *)(work));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1B28), 0xF, 0, 0, FldAI_ChaserUpdate, FldAI_ChaserDestroy, (u8 *)(work));
     *(s32 *)(work + 0x10) = arg1;
     *(s32 *)(work + 0x14) = arg2;
     *(s32 *)(work + 0x1C) = -1;
@@ -1006,7 +1006,7 @@ extern void FldFrameTask_SetPosition(unsigned char *, unsigned char *);
 extern void FldFrameTask_StartMove(unsigned char *, float);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 extern float FldEvent_GetMoveStep(void);
-extern int func_00452080(void *);
+extern int kwlnTaskDestroyWithHierarchy(void *);
 extern int func_0045af60(short, short, short, short);
 extern void mdlSetAlphaBlend(unsigned char *);
 extern void mdlClearAlphaBlend(unsigned char *);
@@ -1372,7 +1372,7 @@ else {
         if (temp_v0 == 0) {
           break;
         }
-        func_00452080((void *)piVar1[0x22]);
+        kwlnTaskDestroyWithHierarchy((void *)piVar1[0x22]);
         piVar1[0x22] = 0;
       }
       if (piVar1[0x23] >= 0) {
@@ -1389,7 +1389,7 @@ else {
     case 5:
       temp_v0 = func_0014bd90((unsigned char *)piVar1[0x22]);
       if (temp_v0 != 0) {
-        func_00452080((void *)piVar1[0x22]);
+        kwlnTaskDestroyWithHierarchy((void *)piVar1[0x22]);
         piVar1[0x22] = 0;
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffd;
         *piVar1 = 1;
@@ -1921,7 +1921,7 @@ else {
     case 0xc:
       temp_v0 = func_0014bd90((unsigned char *)piVar1[0x22]);
       if (temp_v0 != 0) {
-        func_00452080((void *)piVar1[0x22]);
+        kwlnTaskDestroyWithHierarchy((void *)piVar1[0x22]);
         piVar1[0x22] = 0;
         FldFrameTask_SetPosition(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),(u8 *)&((FldAINpc *)piVar1[3])->origin);
         temp_v0 = piVar1[3];
@@ -1947,7 +1947,7 @@ else {
         }
         mdlClearAlphaBlend(*(unsigned char **)(piVar1[3] + 0x50));
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffff9;
-        func_00452080((void *)piVar1[0x22]);
+        kwlnTaskDestroyWithHierarchy((void *)piVar1[0x22]);
         piVar1[0x22] = 0;
         *piVar1 = 1;
       }
@@ -1982,7 +1982,7 @@ s32 FldAI_SpawnPatrol(s32 arg0, s32 arg1, s32 arg2)
     if (work == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1CF0), 0xF, 0, 0, FldAI_PatrolUpdate, FldAI_PatrolDestroy, (u8 *)(work));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1CF0), 0xF, 0, 0, FldAI_PatrolUpdate, FldAI_PatrolDestroy, (u8 *)(work));
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x4) = 1;
     *(s32 *)(work + 0x8) = arg2;

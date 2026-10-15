@@ -109,7 +109,7 @@ extern void func_002b67a0(u8 *, u32, s8);
 extern s32 func_002b4a10(s32, s32);
 extern void func_002ac750(u8, u8);
 extern void func_002b31a0(u8 *, u8 *, u8 *);
-extern s32 func_00452490(void *);
+extern s32 kwlnTaskIsLinked(void *);
 extern void func_002b10a0(u8 *, YVec2f);
 extern void func_002b10e0(u8 *, s8);
 extern void func_002b2240(u8 *);
@@ -201,7 +201,7 @@ void func_002ac6b0(void) {
 
     func_0044ea90(D_0063EF60, 0xD5);
     p = D_008873F4[0](1, 0xC, 0x40000);
-    D_00764650 = (s32)(s32)func_00451de0((const void *)(D_0063EFC8), 0xF, 0, 0, func_002ac400, func_002ac600, (u8 *)(p));
+    D_00764650 = (s32)(s32)kwlnTaskCreate((const void *)(D_0063EFC8), 0xF, 0, 0, func_002ac400, func_002ac600, (u8 *)(p));
     *(u8 *)(p + 4) = 0;
 }
 
@@ -944,7 +944,7 @@ s32 func_002add90(u8 *arg0)
                 if ((tx > 0) && (ty > 0) && (tx < 16) && (ty < 24)) {
                     u8 **tile = (u8 **)(work + ty * 64 + tx * 4 + 0x148);
 
-                    if (func_00452490(*tile) == 1) {
+                    if (kwlnTaskIsLinked(*tile) == 1) {
                         u16 mask = (1 << tx) & 0xFFFF;
                         if (((mask & ((u16 *)D_00764658)[ty]) >> tx) == 1) {
                             func_002b10e0(*tile, 1);
@@ -1049,7 +1049,7 @@ u8 *func_002ae630(u8 *arg0)
 
     func_0044ea90(D_0063EF60, 0x389);
     work = D_008873F4[0](1, 0x768, 0x40000);
-    task = func_00451fc0(arg0, D_0063EFD8, 0xF, 0, 0,
+    task = kwlnTaskCreateChild(arg0, D_0063EFD8, 0xF, 0, 0,
                         func_002add90, func_002ae520, work);
     *(u8 **)work = work;
     *(work + 4) = 0;
@@ -1284,7 +1284,7 @@ void func_002af3e0(u8 *arg0, s8 arg1)
     *(s16 *)(p + 0x766) = 0;
     for (x = 0; x < 24; x++) {
         for (y = 0; y < 16; y++) {
-            if (func_00452490(*(u8 **)(p + x * 64 + y * 4 + 0x148)) == 1) {
+            if (kwlnTaskIsLinked(*(u8 **)(p + x * 64 + y * 4 + 0x148)) == 1) {
                 func_002b10f0(*(u8 **)(p + x * 64 + y * 4 + 0x148), arg1);
                 func_002b10d0(*(u8 **)(p + x * 64 + y * 4 + 0x148), 0);
             }
@@ -1335,7 +1335,7 @@ void func_002af3e0(u8 *arg0, s8 arg1)
         for (z = 0; z < 24; z++) {
             for (y = 0; y < 16; y++) {
                 u8 **slot = (u8 **)(p + z * 64 + y * 4 + 0x148);
-                if (func_00452490(*slot) == 1) {
+                if (kwlnTaskIsLinked(*slot) == 1) {
                     if ((((u16)(1 << y) & ((u16 *)D_00764658)[z]) >> y) == 1)
                         func_002b10e0(*slot, 1);
                     func_002b10a0(*slot, func_002b2970(18.0f * z, 18.0f * y));
@@ -1502,7 +1502,7 @@ u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6
     }
     func_0044ea90(D_0063EF60, 0x5C4);
     blk = D_008873F4[0](1, 0x160, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0063EFD8), 0xF, 0, 0, func_002afbc0, func_002b0220, blk);
+    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063EFD8), 0xF, 0, 0, func_002afbc0, func_002b0220, blk);
     *(u8 **)blk = blk;
     *(blk + 4) = arg3;
     *(blk + 5) = arg4;
@@ -2426,7 +2426,7 @@ u8 *func_002b2830(u8 *arg0, YVec2f arg1, f32 arg2, f32 arg3, u32 arg4) {
 
     func_0044ea90(D_0063EF60, 0x97A);
     p = D_008873F4[0](1, 0x120, 0x40000);
-    task = func_00451fc0((void *)((s32)arg0), (const void *)(D_0063F0F0), 0xF, 0, 0, func_002b25d0, func_002b2800, (u8 *)(p));
+    task = kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063F0F0), 0xF, 0, 0, func_002b25d0, func_002b2800, (u8 *)(p));
     *(u32 *)p = (u32)p;
     *(YVec2f *)(p + 4) = arg1;
     *(f32 *)(p + 0xC) = arg2;

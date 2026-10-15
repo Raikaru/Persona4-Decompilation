@@ -369,7 +369,7 @@ void func_0025e800(s32 arg0, s32 arg1, s32 arg2)
     temp_2 = D_008873F4[0](1, 0x2C, 0x40000);
     *(s32 *)(temp_2 + 8) = arg1;
     *(s32 *)(temp_2 + 0xC) = arg2;
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_00637270), 0xF, 0, 0, func_0025e170, func_0025e7c0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00637270), 0xF, 0, 0, func_0025e170, func_0025e7c0, (u8 *)(temp_2));
 }
 
 // FUN_0025E8B0

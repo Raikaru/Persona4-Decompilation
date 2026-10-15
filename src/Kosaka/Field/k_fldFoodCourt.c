@@ -35,7 +35,7 @@ extern f32 func_0014b4d0(void);
 extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 extern s32 func_0018ced0(void);
 extern void func_0018c7e0(void);
 extern void func_00122640(s32 arg0, s32 arg1);
@@ -125,7 +125,7 @@ s32 func_0018d950(u8 *arg0) {
             goto done;
         }
     case 2:
-        if (func_00452490(*(s32 *)(temp_16 + 0xC)) != 1) {
+        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0xC)) != 1) {
             if (func_0018ced0() == 0) {
                 func_0018c7e0();
             }
@@ -173,6 +173,6 @@ s32 func_0018dd40(u8 *arg0)
     if (mem == NULL) {
         return 0;
     }
-    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F54C8), 0xF, 0, 0, func_0018d950, func_0018dcd0, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F54C8), 0xF, 0, 0, func_0018d950, func_0018dcd0, (u8 *)(mem));
 }
 

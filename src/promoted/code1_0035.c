@@ -14,7 +14,7 @@ extern s32 func_001060b0(void);
 extern s32 func_00110d60(s64 arg0);
 extern s32 func_00353dc0(s64 arg0);
 extern s32 datGetFlag(s32 arg0);
-extern u8 *func_00452380(const void *arg0);
+extern u8 *kwlnTaskGetTaskByName(const void *arg0);
 extern s32 scrGetParamInt(s32 arg0);
 extern u8 D_0064B320[];
 extern void func_00354280(u8 *arg0, s32 arg1, s32 arg2);
@@ -26,7 +26,7 @@ extern void strncpy(void *dst, const void *src, u32 size);
 extern f32 RwV3dNormalize(void *out, const void *in);
 
 extern void func_0046d280(void *node);
-extern void func_00452080(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_002bc060(s32 arg0);
 extern s32 func_002467b0(u16 arg0);
 extern void func_0046d730(const void *module, u32 line);
@@ -425,13 +425,13 @@ s32 func_00354500(void) {
     u8 *task;
     u8 *newTask;
 
-    if ((task = func_00452380(&D_0064B320)) != NULL) {
+    if ((task = kwlnTaskGetTaskByName(&D_0064B320)) != NULL) {
         state = *(s32 *)(*(u8 **)(task + 0x38) + 4);
         if (state == 3) {
             if (state != 3) {
                 func_0046d730(&D_0064B310, 0x3CC);
             }
-            func_00452080((s32)(u32)task);
+            kwlnTaskDestroyWithHierarchy((s32)(u32)task);
             return 1;
         }
         goto block_10;
@@ -442,7 +442,7 @@ s32 func_00354500(void) {
     if (newTask == NULL) {
         func_0046d730(&D_0064B310, 0x3AC);
     }
-    if (func_00451fc0((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(newTask)) == NULL) {
+    if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(newTask)) == NULL) {
         func_0046d730(&D_0064B310, 0x3B5);
     }
     func_00354280(newTask, slot, 0);
@@ -456,13 +456,13 @@ s32 func_00354660(void) {
     u8 *task;
     u8 *work;
 
-    if ((task = func_00452380(&D_0064B320)) != NULL) {
+    if ((task = kwlnTaskGetTaskByName(&D_0064B320)) != NULL) {
         state = *(s32 *)(*(u8 **)(task + 0x38) + 4);
         if (state == 3) {
             if (state != 3) {
                 func_0046d730(&D_0064B310, 0x3CC);
             }
-            func_00452080((s32)(u32)task);
+            kwlnTaskDestroyWithHierarchy((s32)(u32)task);
             return 1;
         }
         goto block_10_2;
@@ -473,7 +473,7 @@ s32 func_00354660(void) {
     if (work == NULL) {
         func_0046d730(&D_0064B310, 0x3AC);
     }
-    if (func_00451fc0((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(work)) == NULL) {
+    if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(work)) == NULL) {
         func_0046d730(&D_0064B310, 0x3B5);
     }
     func_00354280(work, slot, 1);
@@ -501,7 +501,7 @@ s32 func_00354830(u8 *arg0) {
     state = *(s32 *)(arg0 + 0);
     switch (state) {
     case 0:
-        if (func_00452380(&D_0064B360) != NULL) {
+        if (kwlnTaskGetTaskByName(&D_0064B360) != NULL) {
             func_00440b68(&D_0064B380);
         } else {
             func_00440b68(&iGpffffa960, &D_0064B310, 0x433);
@@ -572,7 +572,7 @@ u8 *func_00354a50(s32 arg0, u16 arg1) {
     if (work == NULL) {
         return NULL;
     }
-    task = func_00451fc0((void *)(arg0), (const void *)(&D_0064B3D0), 0xC7, 0, 0, func_00355460, func_003554b0, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064B3D0), 0xC7, 0, 0, func_00355460, func_003554b0, (u8 *)(work));
     if (task == NULL) {
         return NULL;
     }
@@ -951,7 +951,7 @@ s32 func_00355550(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
     if (work == NULL) {
         func_0046d730(&D_0064B310, 0x63E);
     }
-    result = (s32)func_00451de0((const void *)(&D_0064B410), arg6, 0, 0, func_003558a0, func_00356140, (u8 *)(work));
+    result = (s32)kwlnTaskCreate((const void *)(&D_0064B410), arg6, 0, 0, func_003558a0, func_00356140, (u8 *)(work));
     *(s16 *)(work + 0x0) = arg0;
     *(s32 *)(work + 0x4) = arg5;
     *(s16 *)(work + 0xC) = arg2;
@@ -2425,17 +2425,17 @@ loop_test:
     }
     handle1308 = *(s32 *)(arg0 + 0x1308);
     if (handle1308 != 0) {
-        func_00452080(handle1308);
+        kwlnTaskDestroyWithHierarchy(handle1308);
         *(s32 *)(arg0 + 0x1308) = 0;
     }
     handle130C = *(s32 *)(arg0 + 0x130C);
     if (handle130C != 0) {
-        func_00452080(handle130C);
+        kwlnTaskDestroyWithHierarchy(handle130C);
         *(s32 *)(arg0 + 0x130C) = 0;
     }
     handle1310 = *(s32 *)(arg0 + 0x1310);
     if (handle1310 != 0) {
-        func_00452080(handle1310);
+        kwlnTaskDestroyWithHierarchy(handle1310);
         *(s32 *)(arg0 + 0x1310) = 0;
     }
     *(s32 *)(arg0 + 0x1C) = 0;
@@ -2825,7 +2825,7 @@ u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2)
     if (work == NULL) {
         func_0046d730(&D_0064CC98, 0x6EE);
     }
-    task = func_00451fc0((void *)(arg0), (const void *)(&D_0064CCD0), 0xC7, 0, 0, func_0035aec0, func_0035af10, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064CCD0), 0xC7, 0, 0, func_0035aec0, func_0035af10, (u8 *)(work));
     *(s8 *)(work + 0x20) = 0;
     *(s32 *)(work + 0x2C) = 0;
     *(u8 **)(work + 0x140) = D_0064CCB0;
@@ -3309,7 +3309,7 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
     if (work == NULL) {
         func_0046d730(&D_0064CC98, 0x906);
     }
-    task = func_00451fc0((void *)(arg0), (const void *)(&D_0064CD40), 0xC7, 0, 0, func_0035be70, func_0035bec0, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064CD40), 0xC7, 0, 0, func_0035be70, func_0035bec0, (u8 *)(work));
     *(s16 *)(work + 0x20) = 0;
     *(s32 *)(work + 0x2C) = 0;
     *(f32 *)(work + 0x10) = 353.0f;

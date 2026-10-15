@@ -52,7 +52,7 @@ extern void func_0018c7e0();
 extern void func_00122640(s32 a, s32 b);
 extern s32 func_00122720();
 extern void func_00122520(s32 a, s32 b);
-extern s32 func_00452490(u8 *param);
+extern s32 kwlnTaskIsLinked(u8 *param);
 extern u8 *func_0029db50(s32 a, s32 b, s32 c, s32 d);
 extern void func_003e9cb0(s32 param, u8 *src, s32 mode);
 extern void K_View_SetFov(u8 *param, f32 value);
@@ -276,7 +276,7 @@ u8 *func_00186cc0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, u8 *arg2, u8 *arg3
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005F1FB8), 0xF, 0, 0, func_00186ac0, func_00186c90, (u8 *)(temp_2_2));
+    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1FB8), 0xF, 0, 0, func_00186ac0, func_00186c90, (u8 *)(temp_2_2));
     temp_3 = temp_2_2 + 4;
     *(u8 **)(temp_2_2 + 4) = arg1;
     *(f32 *)(temp_2_2 + 0xC) = fparg0;
@@ -483,7 +483,7 @@ s32 func_00186eb0(u8 *arg0)
         if (func_0046a750(*(s32 *)(st + 0x34)) == 0) {
             break;
         }
-        if (func_00452490(*(u8 **)(st + 0x160)) == 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(st + 0x160)) == 1) {
             break;
         }
         H_Cdvd_Destroy(*(u8 **)(st + 0x1C));
@@ -496,7 +496,7 @@ s32 func_00186eb0(u8 *arg0)
             if (mem == NULL) {
                 h = 0;
             } else {
-                h = (s32)func_00451fc0((void *)(arg_save), (const void *)(D_005F1FA8), 15, 0, 0, func_001866d0, func_00186a60, (u8 *)(mem));
+                h = (s32)kwlnTaskCreateChild((void *)(arg_save), (const void *)(D_005F1FA8), 15, 0, 0, func_001866d0, func_00186a60, (u8 *)(mem));
                 *(u8 **)(mem + 8) = st;
             }
             *(s32 *)(st + 0x15C) = h;
@@ -525,7 +525,7 @@ s32 func_00186eb0(u8 *arg0)
         *(s32 *)st = *(s32 *)st + 1;
     /* fallthrough */
     case 5:
-        if (func_00452490(*(u8 **)(st + 0x158)) == 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(st + 0x158)) == 1) {
             break;
         }
         func_00186cc0(arg_save, st + 0x9C, -200.0f, 0.0f, NULL, NULL, 8, 0);
@@ -541,7 +541,7 @@ s32 func_00186eb0(u8 *arg0)
         *(s32 *)st = *(s32 *)st + 1;
     /* fallthrough */
     case 6:
-        if (func_00452490(*(u8 **)(st + 0x158)) == 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(st + 0x158)) == 1) {
             break;
         }
         *(s32 *)st = *(s32 *)st + 1;
@@ -644,7 +644,7 @@ s32 func_00186eb0(u8 *arg0)
         }
         break;
     case 8:
-        if (func_00452490(*(u8 **)(st + 0x158)) == 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(st + 0x158)) == 1) {
             break;
         }
         func_00186cc0(arg_save, st + 0x90, 0.0f, -230.0f, NULL, NULL, 10, 0);
@@ -707,7 +707,7 @@ u8 *func_00187e80(u8 *arg0, s32 arg1, s32 arg2)
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = (u8 *)func_00451fc0((void *)(arg0), (const void *)(&iGpffff9f70), 0xF, 0, 0, func_00186eb0, func_00187da0, (u8 *)(temp_2_2));
+    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9f70), 0xF, 0, 0, func_00186eb0, func_00187da0, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0xC) = arg1;
     *(s32 *)(temp_2_2 + 0x10) = -1;
     *(s32 *)(temp_2_2 + 8) = arg2;
@@ -1086,7 +1086,7 @@ u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2)
     if (temp_2 == NULL) {
         return NULL;
     }
-    temp_18 = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_00188be0, func_00188ef0, (u8 *)(temp_2));
+    temp_18 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_00188be0, func_00188ef0, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     *(u8 **)(temp_2 + 8) = arg2;
     *(s32 *)(temp_2 + 0x58) = -1;
@@ -1218,7 +1218,7 @@ u8 *func_00189550(u8 *arg0)
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_001891d0, func_00189520, (u8 *)(temp_2_2));
+    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_001891d0, func_00189520, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0x30) = -1;
     return temp_2;
 }

@@ -48,7 +48,7 @@ void func_00331fc0(u8 *arg0) {
 
     func_0044ea90(D_0064A018, 0xC8);
     temp_2 = D_008873F4[0](1, 2, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A030), 0xF, 0, 0, func_00331a20, func_00331f90, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A030), 0xF, 0, 0, func_00331a20, func_00331f90, (u8 *)(temp_2));
     *temp_2 = 0;
 }
 /* measured: nd 165 with a full C body (object 592B against a 576B window).
@@ -126,7 +126,7 @@ void func_003322d0(u8 *arg0) {
 
     func_0044ea90(D_0064A018, 0x12D);
     temp_2 = D_008873F4[0](1, 2, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A050), 0xF, 0, 0, func_00332060, func_003322a0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A050), 0xF, 0, 0, func_00332060, func_003322a0, (u8 *)(temp_2));
     *temp_2 = 0;
 }
 
@@ -281,7 +281,7 @@ void func_003329e0(u8 *arg0) {
 
     func_0044ea90(D_0064A018, 0x1EC);
     temp_2 = D_008873F4[0](1, 0x180C, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A000), 0xF, 0, 0, func_00332520, func_003329b0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A000), 0xF, 0, 0, func_00332520, func_003329b0, (u8 *)(temp_2));
     *temp_2 = 0;
     *(temp_2 + 0x1808) = 0;
 }

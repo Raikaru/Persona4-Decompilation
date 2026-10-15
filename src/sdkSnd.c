@@ -174,8 +174,8 @@ extern void func_00440b68(s32 fmt, ...);
 extern s32 sprintf(void *buf, void *fmt, ...);
 extern void strcpy();
 extern void H_Cdvd_Destroy(void *handle);
-extern void func_00452080(s32 handle);
-extern void func_00452570(void *parent, void *child);
+extern void kwlnTaskDestroyWithHierarchy(s32 handle);
+extern void kwlnTaskAddChild(void *parent, void *child);
 extern void H_Cdvd_StreamOpenHandle(void*, const char*);
 extern void func_00456250();
 extern void H_Cdvd_StreamOpenByPath(void*, const char*);
@@ -1156,7 +1156,7 @@ s32 func_0045b170(void *arg0)
 {
     if (*(s32 *)(*(u8 **)((u8 *)arg0 + 0x38)) == 2)
     {
-        func_00452080((s32)arg0);
+        kwlnTaskDestroyWithHierarchy((s32)arg0);
         return 1;
     }
     return 0;
@@ -1178,12 +1178,12 @@ s32 func_0045b1c0(void *arg0, s32 arg1, s32 arg2, void *arg3)
     {
         return 0;
     }
-    h = (s32)func_00451de0((const void *)(&D_00712310[0]), 0, 0, 0, func_0045b030, func_0045b120, (u8 *)(p));
+    h = (s32)kwlnTaskCreate((const void *)(&D_00712310[0]), 0, 0, 0, func_0045b030, func_0045b120, (u8 *)(p));
     if (h == 0)
     {
         return 0;
     }
-    func_00452570(arg0, (void *)h);
+    kwlnTaskAddChild(arg0, (void *)h);
     *(s32 *)(p + 4) = arg1;
     *(s32 *)(p + 0x110) = arg2;
     strcpy((s32)(p + 0x10), (s32)arg3);

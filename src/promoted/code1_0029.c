@@ -28,13 +28,13 @@ extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
 extern u8 D_00882EDE[];
 extern u8 D_00882EFE[];
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 extern void sprintf(char *buf, const char *fmt, s32 value);
 extern void func_0045aeb0(s16 arg0, char *buf);
 extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern char D_0063CB30[];
 extern char D_0063D050[];
-extern void func_00452080(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
 void func_004b1590(s32 arg0, s16 arg1);
@@ -57,7 +57,7 @@ extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern s32 func_00108e70(void);
 extern void func_00123a10(void);
 extern u8 D_0063CFA0[];
-extern s32 func_00452380(void *path);
+extern s32 kwlnTaskGetTaskByName(void *path);
 extern s32 datGetFlag(s32 arg0);
 extern void func_001238c0(s32 arg0);
 extern u16 func_00104e30(s16 arg0);
@@ -354,7 +354,7 @@ void func_00293710(u16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
 extern s32 func_002930e0(u8 *task);
 extern void func_002931a0(u8 *task);
 
-    extern s32 func_00452380(void *arg0);
+    extern s32 kwlnTaskGetTaskByName(void *arg0);
     extern u8 **func_00452560(s32 arg0);
     extern void memcpy(void *arg0, void *arg1, s32 arg2);
     extern void memset(void *arg0, s32 arg1, s32 arg2);
@@ -385,12 +385,12 @@ extern void func_002931a0(u8 *task);
     u8 *list;
     u8 *record;
 
-    result = func_00452380(D_0063C958);
+    result = kwlnTaskGetTaskByName(D_0063C958);
     if (result == 0) {
         work = func_002e1db0(4, 0, 0, 0);
         work_link = *(u8 ***)(work + 0x24);
         *work_link = work;
-        result = (s32)func_00451de0((const void *)(D_0063C958), 15, 0, 0, func_002930e0, func_002931a0, (u8 *)(work_link));
+        result = (s32)kwlnTaskCreate((const void *)(D_0063C958), 15, 0, 0, func_002930e0, func_002931a0, (u8 *)(work_link));
     }
     manager = (u8 *)func_00452560(result);
     memset(&data, 0, 0x2C);
@@ -1905,9 +1905,9 @@ s32 func_00298340(void) {
 s32 func_00298d30(void) {
     s32 temp_2;
 
-    temp_2 = func_00452380(D_0063CFA0);
+    temp_2 = kwlnTaskGetTaskByName(D_0063CFA0);
     if (temp_2 != 0) {
-        func_00452080(temp_2);
+        kwlnTaskDestroyWithHierarchy(temp_2);
     }
     return 1;
 }
@@ -1921,10 +1921,10 @@ s32 func_00299560(void) {
     s32 v;
 
     v = scrGetParamInt(0);
-    if (func_00452490(v) == 0) {
+    if (kwlnTaskIsLinked(v) == 0) {
         return 1;
     }
-    func_00452080(v);
+    kwlnTaskDestroyWithHierarchy(v);
     return 1;
 }
 

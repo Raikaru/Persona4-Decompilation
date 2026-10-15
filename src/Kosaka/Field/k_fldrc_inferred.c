@@ -682,7 +682,7 @@ s32 func_0014e5e0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_17 = (s32)func_00451fc0((void *)(arg0), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2));
     if (arg3 == 0) {
         func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
         *(s32 *)(temp_2 + 4) = (s32)func_00454a60(arg1, 0);
@@ -921,7 +921,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         return 0;
     }
     header = D_005EFC28;
-    result = (s32)func_00451fc0((void *)(arg0), (const void *)(header), 0xF, 0, 0, func_0014e950, func_0014ec20, (u8 *)(temp_2));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(header), 0xF, 0, 0, func_0014e950, func_0014ec20, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     if (arg1 == 0) {
         func_0044ea90(&iGpffff9de0, 0xC2);
@@ -929,7 +929,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         if (temp_2_2 == NULL) {
             arg1 = 0;
         } else {
-            arg1 = (s32)func_00451fc0((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2_2));
+            arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2_2));
             func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
             *(s32 *)(temp_2_2 + 4) = func_00454a60(&D_005EFC40, 0);
             *(s32 *)(temp_2_2 + 8) = 0x53;
@@ -942,7 +942,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         if (temp_2_2 == NULL) {
             arg1 = 0;
         } else {
-            arg1 = (s32)func_00451fc0((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2_2));
+            arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2_2));
             func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
             *(s32 *)(temp_2_2 + 4) = func_00454a60(&D_005EFC40, 0);
             *(s32 *)(temp_2_2 + 8) = 0x32;

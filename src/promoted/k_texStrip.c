@@ -17,7 +17,7 @@ extern void func_003ef5b0(s32 arg0, s32 arg1);
 extern s32 func_00468170(void *arg0, const char *arg1);
 extern s32 func_004680f0(s32 arg0, void *arg1);
 extern void K_Clump_LogCodeCounts(void *arg0);
-extern void func_00452080(s32 handle);
+extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern char D_005F6168[];
 extern char D_005F6178[];
 extern char D_005F6190[];
@@ -512,7 +512,7 @@ s32 func_00191610(void)
     {
         return 0;
     }
-    return (s32)func_00451fc0((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, func_00190c10, func_001915c0, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, func_00190c10, func_001915c0, (u8 *)(mem));
 }
 
 // measured: MATCH (object 420/window 432). The four func_003df3c0 spill slots
@@ -681,7 +681,7 @@ s32 func_00191bc0(void)
     {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, func_00191850, func_00191b70, (u8 *)(mem));
+    ret = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, func_00191850, func_00191b70, (u8 *)(mem));
     *(s32 *)((u8 *)mem + 0xE6C) = 0x28;
     *(s32 *)((u8 *)mem + 0xE70) = 1;
     return ret;
@@ -711,7 +711,7 @@ s32 func_00191c70(u8 *arg0)
             {
                 K_Clump_LogCodeCounts(buf);
             }
-            func_00452080(work[1]);
+            kwlnTaskDestroyWithHierarchy(work[1]);
             work[0] = 0;
         }
         break;
@@ -737,5 +737,5 @@ s32 func_00191d90(void)
     {
         return 0;
     }
-    return (s32)func_00451fc0((void *)(0), (const void *)(D_005F64A8), 0xF, 0, 0, func_00191c70, func_00191d60, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F64A8), 0xF, 0, 0, func_00191c70, func_00191d60, (u8 *)(mem));
 }
