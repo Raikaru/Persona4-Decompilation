@@ -9724,7 +9724,7 @@ void func_0030f4f0(u8 *task, s16 *materials) {
    FclVec2f base; the table rows use the fclCombineBuildRows offset spelling; the
    material switch keeps the 6 -> 5 -> 4 fallthrough labels (jump table);
    i is s8 and declared first, then cls, then p (saved-register order). */
-// Fcl combine menu finish (state 0x0E): runs the finish sequence (sub-states 0xD2-0xD4): waits for the draw, plays the cues, then destroys the task after 720 frames.
+// Fcl combine menu finish (state 0x0E): the post-fusion completion sequence. 0xD2-0xD4 wait for the draw and 720 frames, then tear down the linked task; 0xD5-0xD6 show the completion line; 0xD7 rebuilds the menu sprites and the dialogue queue, then returns to state 0 at sub-state 0x1A.
 // FUN_0030F650
 void fclCombineMenuFinish(u8 *arg0) {
     s8 i;
