@@ -94,7 +94,7 @@ extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
-extern s32 func_001f0ff0(u8 *arg0);
+extern s32 btlActionHasNoTargetClass(u8 *arg0);
 extern void btlCameraFrameWithFlags(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];

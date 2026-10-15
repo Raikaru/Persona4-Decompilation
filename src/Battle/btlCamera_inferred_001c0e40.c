@@ -75,7 +75,7 @@ extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
-extern s32 func_001f0ff0(u8 *arg0);
+extern s32 btlActionHasNoTargetClass(u8 *arg0);
 extern void btlCameraFrameWithFlags(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
@@ -166,7 +166,7 @@ s32 btlCameraSelectMode(u8 *arg0) {
 
     work = *(u8 **)(arg0 + 0xE0);
     mode = *(s16 *)(work + 0x6E);
-    if (func_001f0ff0(work) != 0) {
+    if (btlActionHasNoTargetClass(work) != 0) {
         data = *(u8 **)(arg0 + 0xE0);
         if (*(s32 *)(data + 0x38) == (s32)data) {
             return 1;

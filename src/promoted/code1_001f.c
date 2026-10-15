@@ -197,43 +197,17 @@ extern void func_001f7260(void);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 #pragma optimization_level 1
 // FUN_001F0FF0
-s32 func_001f0ff0(u32 arg0)
+s32 btlActionHasNoTargetClass(u32 arg0)
 {
     s32 index;
     index = *(u16 *)(arg0 + 0x6E);
-    return (func_001d7f10((u8 *)arg0, 0, index, 0) & 0xFFFF) == 0;
+    return (btlSkillClassifyTargets((u8 *)arg0, 0, index, 0) & 0xFFFF) == 0;
 }
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma optimization_level 2
 
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
-typedef struct BtlHit_001f14f0 {
-    s32 damageA;
-    s32 damageB;
-    s32 maskA;
-    s32 maskB;
-    s32 bonus;
-    s32 effect;
-    u16 absoluteA;
-    u16 absoluteB;
-    s8 reaction;
-    u8 pad1D;
-    u16 flags;
-} BtlHit_001f14f0;
-
-static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
-{
-    u16 k;
-
-    for (k = 0; k < n; k++) {
-        if (*(s32 *)(*((u8 **)arg0 + 0xE + k) + 0xE4) != 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on

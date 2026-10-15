@@ -156,7 +156,7 @@ extern f32 fGpffff8178;
 extern f32 fGpffff817c;
 extern void btlCameraSetLimitFrame(u8 *camera, f32 angleLimit, s32 reverseSide, s32 forceActorSide);
 extern void btlCameraFrameActorTarget(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration);
-extern s32 func_0019fc70(u8 *action);
+extern s32 btlActionSkillReachesTargets(u8 *action);
 
 extern u8 D_006296B0[];
 extern u8 D_006296E8[];
@@ -216,7 +216,7 @@ extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
 extern void btlUnitSetPos(u8 *arg0, s32 *arg1);
 extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3e0;
-extern s32 func_001f0ff0(u32 action);
+extern s32 btlActionHasNoTargetClass(u32 action);
 extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
 extern s32 btlBossTargetBlocked(u8 *arg0);
 extern s32 btlBossSkillResultBlocked(u8 *arg0);
@@ -1161,7 +1161,7 @@ void btlCameraSelectSkillPreset(u8 *camera)
     action = *(u8 **)(camera + 0xE0);
     skill = *(u16 *)(action + 0x6E);
     targetGroups = btlEffectCollectGenusMask((s32)(action + 0x98)) & 0xFFFF;
-    classification = func_001d7f10(*(u8 **)(camera + 0xE0), 0, skill, 0) & 0xFFFF;
+    classification = btlSkillClassifyTargets(*(u8 **)(camera + 0xE0), 0, skill, 0) & 0xFFFF;
     btlCameraCopyPose((f32 *)&poses.first, (f32 *)(camera + 0x9C));
     targetMask = targetGroups & 0xFFFF;
     if (targetMask == 2) {
@@ -2350,7 +2350,7 @@ void btlCameraApplyMode(u8 *camera)
     case 4:
         if (((u16)targetFlags & 2) == 0) {
             if (func_00243ce0(*(u8 **)(*(u8 **)(*(u8 **)(camera + 0xE0) + 0x30) + 0xA64)) != 0 &&
-                func_0019fc70(*(u8 **)(camera + 0xE0)) != 0) {
+                btlActionSkillReachesTargets(*(u8 **)(camera + 0xE0)) != 0) {
                 btlCameraFrameTarget(camera, 0.0f, 0.75f);
                 break;
             }
@@ -2958,7 +2958,7 @@ void btlCameraSetRandomPartyPose(u8 *arg0)
 
     temp_17 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     temp_16 = *(u16 *)(temp_17 + 0xA4);
-    if (func_001f0ff0((u32)*(u8 **)(arg0 + 0xE0)) != 0) {
+    if (btlActionHasNoTargetClass((u32)*(u8 **)(arg0 + 0xE0)) != 0) {
         flag_offset = (effMiscRand(0) & 1) * 0xF4;
         index_offset = ((temp_16 & 0xFFFF) - 2) * 0x1E8;
         btlCameraStartEffect(arg0, (u8 *)&D_00633740 + index_offset + flag_offset, 8);
@@ -3013,7 +3013,7 @@ loop_7_done:
 // Intent: Tick the effect list when the unit is active. [inferred]
 // FUN_00228D00
 void btlCameraTickEffectsIfActive(u8 *arg0) {
-    if (func_001f0ff0((u32)*(u8 **)((u8 *)(arg0) + 0xE0)) != 0) {
+    if (btlActionHasNoTargetClass((u32)*(u8 **)((u8 *)(arg0) + 0xE0)) != 0) {
         btlCameraUpdateEffectList(arg0);
     }
 }
@@ -6081,12 +6081,12 @@ s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1) {
     if (*(s32 *)(DAT_0076449c + 0xC) & 0x200000) {
         if (*(u16 *)(iGpffffb3e0 +
                     (*(u16 *)(arg1 + 0xA4) * 0x58)) & 1) {
-            paired = func_001f0ff0((u32)arg0);
+            paired = btlActionHasNoTargetClass((u32)arg0);
             skill = *(s16 *)(arg0 + 0x6E);
             unit = arg1;
             return (func_001f1210(unit, skill, paired) != 0) ^ 1;
         }
-        if ((func_001f0ff0((u32)arg0) == 0) &&
+        if ((btlActionHasNoTargetClass((u32)arg0) == 0) &&
             (*(u16 *)(iGpffffb3e0 +
                      (*(u16 *)(arg1 + 0xA4) * 0x58)) & 0x20)) {
             return 1;

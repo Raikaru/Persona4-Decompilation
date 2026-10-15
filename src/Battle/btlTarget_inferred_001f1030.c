@@ -1,3 +1,4 @@
+#include "btl_hit_result_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -99,24 +100,11 @@ extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
 extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
 extern s32 func_001f0d30(u8 *arg0);
 extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
-extern s32 func_001f0ff0(u32 arg0);
+extern s32 btlActionHasNoTargetClass(u32 arg0);
 extern void func_001f9cd0(void);
 extern s32 func_001fb170(s32 arg0);
 extern s32 func_001fb1f0(u8 *arg0, s32 arg1);
 extern s32 func_001fb360(u8 *arg0, s32 arg1);
-typedef struct BtlHit_001f14f0 {
-    s32 damageA;
-    s32 damageB;
-    s32 maskA;
-    s32 maskB;
-    s32 bonus;
-    s32 effect;
-    u16 absoluteA;
-    u16 absoluteB;
-    s8 reaction;
-    u8 pad1D;
-    u16 flags;
-} BtlHit_001f14f0;
 static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
 {
     u16 k;
@@ -715,11 +703,11 @@ void func_001f14f0(u8 *arg0)
                     u8 *slot;
 
                     *(u16 *)(actor + 0x3F4) = (s16)v;
-                    slot = unit + (u32)j * sizeof(BtlHit_001f14f0);
+                    slot = unit + (u32)j * sizeof(LargeBattleHitResult);
                     *resultFlags |= 0x10;
                     slot[0x10C] = func_001f12b0(actor, vals, res, sub, 0);
                 } else {
-                    u8 *reactionBase = unit + (u32)j * sizeof(BtlHit_001f14f0);
+                    u8 *reactionBase = unit + (u32)j * sizeof(LargeBattleHitResult);
 
                     reactionBase[0x10C] = func_001f12b0(actor, vals, res, sub, 1);
                     *(s32 *)(unit + 0xE0) = 1;
@@ -731,7 +719,7 @@ void func_001f14f0(u8 *arg0)
                 break;
             }
             {
-                u8 *reactionBase = unit + (u32)j * sizeof(BtlHit_001f14f0);
+                u8 *reactionBase = unit + (u32)j * sizeof(LargeBattleHitResult);
 
                 reactionBase[0x10C] = func_001f12b0(actor, vals, res, sub, 0);
             }
@@ -851,7 +839,7 @@ void func_001f14f0(u8 *arg0)
             cnt = first[0xD9];
             for (q = 0; q < cnt; q++) {
                 u8 inputIndex = q;
-                u8 *s = first + inputIndex * sizeof(BtlHit_001f14f0);
+                u8 *s = first + inputIndex * sizeof(LargeBattleHitResult);
                 s32 v = *(s32 *)(s + 0xF0);
                 u16 *copiedFlags;
                 u8 resetIndex;
@@ -862,20 +850,20 @@ void func_001f14f0(u8 *arg0)
                     flagHit = 1;
                 }
                 resetIndex = q;
-                s = first + resetIndex * sizeof(BtlHit_001f14f0);
+                s = first + resetIndex * sizeof(LargeBattleHitResult);
                 func_0043f9c8((u8 *)(u32)s + 0xF0, 0, 0x20);
                 *(s32 *)((u8 *)(u32)s + 0xF0) = v;
                 s[0x10C] = 2;
                 copiedFlags = (u16 *)(s + 0x10E);
                 *copiedFlags |= 0x200;
                 if (*(u8 *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8) + 0x24) == 0xD) {
-                    ((BtlHit_001f14f0 *)(first + 0xF0))[q].maskA |= 0x80000;
-                    ((BtlHit_001f14f0 *)(first + 0xF0))[q].maskB &= ~0x80000;
+                    ((LargeBattleHitResult *)(first + 0xF0))[q].addedStatus |= 0x80000;
+                    ((LargeBattleHitResult *)(first + 0xF0))[q].removedStatus &= ~0x80000;
                     first[0xD9] = q + 1;
                     return;
                 }
                 if (flagHit != 0) {
-                    ((BtlHit_001f14f0 *)(first + 0xF0))[q].maskA |= 0x80000;
+                    ((LargeBattleHitResult *)(first + 0xF0))[q].addedStatus |= 0x80000;
                     *(u16 *)(*(u8 **)(arg0 + 0x88) + 0x3F4) = 0;
                     *copiedFlags |= 0x10;
                     first[0xD9] = q + 1;

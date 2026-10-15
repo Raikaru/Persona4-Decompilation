@@ -24,8 +24,8 @@ typedef struct BtlPacket {
 BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 u32 btlBossLoadPakInit(void* work);
 u32 btlBossLoadPakUpdate(void* work);
-extern s32 func_001f0ff0();
-extern s32 func_0019fc70();
+extern s32 btlActionHasNoTargetClass();
+extern s32 btlActionSkillReachesTargets();
 extern s32 func_001ef9a0();
 extern s32 func_001b1540();
 extern void func_001b0fa0(s32 arg0);
@@ -79,7 +79,7 @@ s32 btlBossTargetBlocked(u8* arg0)
     {
         return 1;
     }
-    if (func_001f0ff0() == 0)
+    if (btlActionHasNoTargetClass() == 0)
     {
         return 1;
     }
@@ -141,7 +141,7 @@ s32 btlBossActionBlocked(u8* arg0)
     {
         return 1;
     }
-    return !((u32)func_0019fc70());
+    return !((u32)btlActionSkillReachesTargets());
 }
 // FUN_0022FDC0
 void btlBossCollectTargets(u8 *arg0)
@@ -240,7 +240,7 @@ s32 btlBossSkillResultBlocked(u8 *arg0)
         goto done;
     }
     value = *(u16 *)(arg0 + 0x6E);
-    temp_3 = (s32)(func_001d7f10(arg0, NULL, value, 0) & 0xFFFF);
+    temp_3 = (s32)(btlSkillClassifyTargets(arg0, NULL, value, 0) & 0xFFFF);
     switch (temp_3)
     {
     case 1:

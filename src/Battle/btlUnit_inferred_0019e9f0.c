@@ -835,7 +835,7 @@ void func_0019fc60(void) {
 /* measured: func_0019fc70 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0019FC70
-s32 func_0019fc70(u8 *arg0)
+s32 btlActionSkillReachesTargets(u8 *arg0)
 {
     u16 temp_18;
     u16 temp_17;
@@ -844,7 +844,7 @@ s32 func_0019fc70(u8 *arg0)
     u8 *temp_4;
 
     temp_18 = *(u16 *)(arg0 + 0x6E);
-    result = (u16)func_001d7f10(arg0, NULL, temp_18, 0);
+    result = (u16)btlSkillClassifyTargets(arg0, NULL, temp_18, 0);
     temp_4 = *(u8 **)(arg0 + 0x30);
     temp_17 = *(u16 *)(*(u8 **)(temp_4 + 0xA64) + 2);
     if (result != 0)

@@ -608,7 +608,7 @@ code arg5;
     } else {
         u16 available;
 
-        available = func_001d7f10((u8 *)arg0, (u8 *)arg0 + 0x98, *(u16 *)((u8 *)arg0 + 0x6E), 0);
+        available = btlSkillClassifyTargets((u8 *)arg0, (u8 *)arg0 + 0x98, *(u16 *)((u8 *)arg0 + 0x6E), 0);
         if (available != 0) {
             u16 eindex;
             u16 ecount;
@@ -754,7 +754,7 @@ s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1) {
     u16 m;
     u16 rnd;
 
-    available = func_001d7f10(arg0, arg0 + 0x98, *(u16 *)(arg0 + 0x6E), 0);
+    available = btlSkillClassifyTargets(arg0, arg0 + 0x98, *(u16 *)(arg0 + 0x6E), 0);
     if (available != 0) {
         i = 0;
         while ((v7 = *(u16 *)(arg0 + 0xD0)), (u16)i < v7) {
@@ -849,7 +849,7 @@ u32 btlCond_HPMIN(u32 param_1)
     u16 available;
 
     unit = param_1;
-    available = func_001d7f10((u8 *)unit, (u8 *)(unit + 0x98), *(u16 *)(unit + 0x6e), 0);
+    available = btlSkillClassifyTargets((u8 *)unit, (u8 *)(unit + 0x98), *(u16 *)(unit + 0x6e), 0);
     if (available != 0) {
         u16 index;
         u16 count;
@@ -904,7 +904,7 @@ u32 btlCond_LVMIN(u32 param_1)
     u16 score;
     u32 idx32;
 
-    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
     if (result != 0) {
         for (copyIndex = 0; copyIndex < *(u16 *)(param_1 + 0xd0); copyIndex++) {
             *(u32 *)(param_1 + copyIndex * 4 + 0x38) = *(u32 *)(param_1 + copyIndex * 4 + 0x98);
@@ -1053,7 +1053,7 @@ u32 btlCond_AI_REV(u32 param_1)
     u16 index;
     u32 address;
 
-    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 1);
+    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 1);
     if (result != 0) {
         for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
             *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
@@ -1086,7 +1086,7 @@ s32 btlCond_APPOINT(u8 *param_1, u32 param_2)
     u16 result;
     u16 index;
 
-    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
     if (result != 0) {
         for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
             *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
@@ -1193,7 +1193,7 @@ u32 btlCond_RND(u32 param_1)
     u16 index;
     u32 address;
 
-    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
     if (result != 0) {
         for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
             *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
@@ -1245,7 +1245,7 @@ u32 btlCond_HPMAX(u32 param_1)
     u32 bestScore;
     u32 count;
 
-    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
     if (result != 0) {
         for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
             *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
@@ -2066,6 +2066,7 @@ u32 btlAICommandTryReleaseProc(int param_1)
 
 
 
+/* AI script command 0x203d (p4flow AI.json AI_FUNCTION_003D). */
 // FUN_001DEF60
 u32 btlAICommandScriptSetDefaultAction(void)
 {
@@ -2079,6 +2080,7 @@ u32 btlAICommandScriptSetDefaultAction(void)
 
 
 
+/* AI script command 0x203e (p4flow AI.json AI_FUNCTION_003E). */
 // FUN_001DEFA0
 s32 btlAICommandScriptSetActionParam(void) {
     u8 *p = func_0029d050();
@@ -2092,6 +2094,7 @@ s32 btlAICommandScriptSetActionParam(void) {
     return 1;
 }
 
+/* AI script command 0x2068 (p4flow AI.json AI_FUNCTION_0068). */
 // FUN_001DF040
 s32 btlAICommandScriptSetSkillAction(void) {
     u8 *p = func_0029d050();
@@ -2106,6 +2109,7 @@ s32 btlAICommandScriptSetSkillAction(void) {
     return 1;
 }
 
+/* AI script command 0x203f (p4flow AI.json AI_FUNCTION_003F). */
 // FUN_001DF0C0
 u32 btlAICommandScriptSetAction8001(void)
 {
@@ -2120,6 +2124,7 @@ u32 btlAICommandScriptSetAction8001(void)
 
 
 
+/* AI script command 0x2040 (p4flow AI.json AI_FUNCTION_0040). */
 // FUN_001DF100
 u32 btlAICommandScriptSetAction8002(void)
 {
@@ -2134,6 +2139,7 @@ u32 btlAICommandScriptSetAction8002(void)
 
 
 
+/* AI script command 0x20d5 (p4flow AI.json AI_FUNCTION_00D5). */
 // FUN_001DF140
 s32 btlAICommandScriptSetActionSubword(void) {
     u8 *p = func_0029d050();
@@ -2142,6 +2148,7 @@ s32 btlAICommandScriptSetActionSubword(void) {
     return 1;
 }
 
+/* AI script command 0x2041 (p4flow AI.json AI_FUNCTION_0041). */
 // FUN_001DF1A0
 s32 btlAICommandScriptSetAiPlan(void) {
     u8 *p = func_0029d050();
@@ -2153,6 +2160,7 @@ s32 btlAICommandScriptSetAiPlan(void) {
     return 1;
 }
 
+/* AI script command 0x2059 (p4flow AI.json AI_FUNCTION_0059). */
 // FUN_001DF230
 s32 btlAICommandScriptSetAiPlanWithArg(void) {
     u8 *p = func_0029d050();
@@ -2165,6 +2173,7 @@ s32 btlAICommandScriptSetAiPlanWithArg(void) {
     return 1;
 }
 
+/* AI script command 0x2048 (p4flow AI.json AI_FUNCTION_0048). */
 // FUN_001DF2D0
 u32 btlAICommandScriptSetAction8007(void)
 {
@@ -2179,6 +2188,7 @@ u32 btlAICommandScriptSetAction8007(void)
 
 
 
+/* AI script command 0x2000 (p4flow AI.json AI_FUNCTION_0000). */
 // FUN_001DF310
 s32 btlAICommandScriptQueryMyHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1000000;
@@ -2194,6 +2204,7 @@ s32 btlAICommandScriptQueryMyHp(void) {
     return 1;
 }
 
+/* AI script command 0x2001 (p4flow AI.json AI_FUNCTION_0001). */
 // FUN_001DF3C0
 s32 btlAICommandScriptQueryMyMp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2000000;
@@ -2209,6 +2220,7 @@ s32 btlAICommandScriptQueryMyMp(void) {
     return 1;
 }
 
+/* AI script command 0x2002 (p4flow AI.json AI_FUNCTION_0002). */
 // FUN_001DF470
 s32 btlAICommandScriptQueryFrHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3000000;
@@ -2224,6 +2236,7 @@ s32 btlAICommandScriptQueryFrHp(void) {
     return 1;
 }
 
+/* AI script command 0x2003 (p4flow AI.json AI_FUNCTION_0003). */
 // FUN_001DF520
 s32 btlAICommandScriptQueryEnHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
@@ -2239,6 +2252,7 @@ s32 btlAICommandScriptQueryEnHp(void) {
     return 1;
 }
 
+/* AI script command 0x2004 (p4flow AI.json AI_FUNCTION_0004). */
 // FUN_001DF5D0
 s32 btlAICommandScriptQueryEnHpO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
@@ -2254,6 +2268,7 @@ s32 btlAICommandScriptQueryEnHpO(void) {
     return 1;
 }
 
+/* AI script command 0x2005 (p4flow AI.json AI_FUNCTION_0005). */
 // FUN_001DF680
 s32 btlAICommandScriptQueryMyLvO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
@@ -2269,6 +2284,7 @@ s32 btlAICommandScriptQueryMyLvO(void) {
     return 1;
 }
 
+/* AI script command 0x2006 (p4flow AI.json AI_FUNCTION_0006). */
 // FUN_001DF730
 s32 btlAICommandScriptQueryFrLvO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x7000000;
@@ -2284,6 +2300,7 @@ s32 btlAICommandScriptQueryFrLvO(void) {
     return 1;
 }
 
+/* AI script command 0x2007 (p4flow AI.json AI_FUNCTION_0007). */
 // FUN_001DF7E0
 s32 btlAICommandScriptQueryEnLvO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x8000000;
@@ -2299,6 +2316,7 @@ s32 btlAICommandScriptQueryEnLvO(void) {
     return 1;
 }
 
+/* AI script command 0x2008 (p4flow AI.json AI_FUNCTION_0008). */
 // FUN_001DF890
 s32 btlAICommandScriptQueryFrCnt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
@@ -2314,6 +2332,7 @@ s32 btlAICommandScriptQueryFrCnt(void) {
     return 1;
 }
 
+/* AI script command 0x2009 (p4flow AI.json AI_FUNCTION_0009). */
 // FUN_001DF940
 s32 btlAICommandScriptQueryEnCnt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
@@ -2329,6 +2348,7 @@ s32 btlAICommandScriptQueryEnCnt(void) {
     return 1;
 }
 
+/* AI script command 0x200a (p4flow AI.json AI_FUNCTION_000A). */
 // FUN_001DF9F0
 s32 btlAICommandScriptQueryMyBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
@@ -2344,6 +2364,7 @@ s32 btlAICommandScriptQueryMyBad(void) {
     return 1;
 }
 
+/* AI script command 0x200b (p4flow AI.json AI_FUNCTION_000B). */
 // FUN_001DFAA0
 s32 btlAICommandScriptQueryFrBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
@@ -2359,6 +2380,7 @@ s32 btlAICommandScriptQueryFrBad(void) {
     return 1;
 }
 
+/* AI script command 0x200c (p4flow AI.json AI_FUNCTION_000C). */
 // FUN_001DFB50
 s32 btlAICommandScriptQueryEnBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
@@ -2374,6 +2396,7 @@ s32 btlAICommandScriptQueryEnBad(void) {
     return 1;
 }
 
+/* AI script command 0x200d (p4flow AI.json AI_FUNCTION_000D). */
 // FUN_001DFC00
 s32 btlAICommandScriptQueryEnBadAll(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
@@ -2389,6 +2412,7 @@ s32 btlAICommandScriptQueryEnBadAll(void) {
     return 1;
 }
 
+/* AI script command 0x200e (p4flow AI.json AI_FUNCTION_000E). */
 // FUN_001DFCB0
 s32 btlAICommandScriptQueryFrId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
@@ -2404,6 +2428,7 @@ s32 btlAICommandScriptQueryFrId(void) {
     return 1;
 }
 
+/* AI script command 0x200f (p4flow AI.json AI_FUNCTION_000F). */
 // FUN_001DFD60
 s32 btlAICommandScriptQueryEnId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
@@ -2419,6 +2444,7 @@ s32 btlAICommandScriptQueryEnId(void) {
     return 1;
 }
 
+/* AI script command 0x2010 (p4flow AI.json AI_FUNCTION_0010). */
 // FUN_001DFE10
 s32 btlAICommandScriptQueryFrHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x11000000;
@@ -2434,6 +2460,7 @@ s32 btlAICommandScriptQueryFrHojo(void) {
     return 1;
 }
 
+/* AI script command 0x2011 (p4flow AI.json AI_FUNCTION_0011). */
 // FUN_001DFEC0
 s32 btlAICommandScriptQueryEnHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x12000000;
@@ -2449,24 +2476,28 @@ s32 btlAICommandScriptQueryEnHojo(void) {
     return 1;
 }
 
+/* AI script command 0x2012 (p4flow AI.json AI_FUNCTION_0012). */
 // FUN_001DFF70
 s32 btlAICommandScriptQueryEscape(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609934[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x2013 (p4flow AI.json AI_FUNCTION_0013). */
 // FUN_001DFFC0
 s32 btlAICommandScriptQuerySummon(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609940[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x2014 (p4flow AI.json AI_FUNCTION_0014). */
 // FUN_001E0010
 s32 btlAICommandScriptQuerySensei(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_0060994C[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x2015 (p4flow AI.json AI_FUNCTION_0015). */
 // FUN_001E0060
 s32 btlAICommandScriptQueryMyHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
@@ -2482,6 +2513,7 @@ s32 btlAICommandScriptQueryMyHansya(void) {
     return 1;
 }
 
+/* AI script command 0x2016 (p4flow AI.json AI_FUNCTION_0016). */
 // FUN_001E0110
 s32 btlAICommandScriptQueryMyKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
@@ -2497,6 +2529,7 @@ s32 btlAICommandScriptQueryMyKyusyu(void) {
     return 1;
 }
 
+/* AI script command 0x2017 (p4flow AI.json AI_FUNCTION_0017). */
 // FUN_001E01C0
 s32 btlAICommandScriptQueryMyMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
@@ -2512,6 +2545,7 @@ s32 btlAICommandScriptQueryMyMukou(void) {
     return 1;
 }
 
+/* AI script command 0x2018 (p4flow AI.json AI_FUNCTION_0018). */
 // FUN_001E0270
 s32 btlAICommandScriptQueryMyWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
@@ -2527,6 +2561,7 @@ s32 btlAICommandScriptQueryMyWeak(void) {
     return 1;
 }
 
+/* AI script command 0x2019 (p4flow AI.json AI_FUNCTION_0019). */
 // FUN_001E0320
 s32 btlAICommandScriptQueryFrHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
@@ -2542,6 +2577,7 @@ s32 btlAICommandScriptQueryFrHansya(void) {
     return 1;
 }
 
+/* AI script command 0x201a (p4flow AI.json AI_FUNCTION_001A). */
 // FUN_001E03D0
 s32 btlAICommandScriptQueryEnHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
@@ -2557,6 +2593,7 @@ s32 btlAICommandScriptQueryEnHansya(void) {
     return 1;
 }
 
+/* AI script command 0x201b (p4flow AI.json AI_FUNCTION_001B). */
 // FUN_001E0480
 s32 btlAICommandScriptQueryFrKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
@@ -2572,6 +2609,7 @@ s32 btlAICommandScriptQueryFrKyusyu(void) {
     return 1;
 }
 
+/* AI script command 0x201c (p4flow AI.json AI_FUNCTION_001C). */
 // FUN_001E0530
 s32 btlAICommandScriptQueryEnKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1D000000;
@@ -2587,6 +2625,7 @@ s32 btlAICommandScriptQueryEnKyusyu(void) {
     return 1;
 }
 
+/* AI script command 0x201d (p4flow AI.json AI_FUNCTION_001D). */
 // FUN_001E05E0
 s32 btlAICommandScriptQueryFrMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1E000000;
@@ -2602,6 +2641,7 @@ s32 btlAICommandScriptQueryFrMukou(void) {
     return 1;
 }
 
+/* AI script command 0x201e (p4flow AI.json AI_FUNCTION_001E). */
 // FUN_001E0690
 s32 btlAICommandScriptQueryEnMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1F000000;
@@ -2617,6 +2657,7 @@ s32 btlAICommandScriptQueryEnMukou(void) {
     return 1;
 }
 
+/* AI script command 0x201f (p4flow AI.json AI_FUNCTION_001F). */
 // FUN_001E0740
 s32 btlAICommandScriptQueryFrWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x20000000;
@@ -2632,6 +2673,7 @@ s32 btlAICommandScriptQueryFrWeak(void) {
     return 1;
 }
 
+/* AI script command 0x2020 (p4flow AI.json AI_FUNCTION_0020). */
 // FUN_001E07F0
 s32 btlAICommandScriptQueryEnWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
@@ -2647,6 +2689,7 @@ s32 btlAICommandScriptQueryEnWeak(void) {
     return 1;
 }
 
+/* AI script command 0x2021 (p4flow AI.json AI_FUNCTION_0021). */
 // FUN_001E08A0
 s32 btlAICommandScriptQueryMyUseAttr(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x22000000;
@@ -2662,6 +2705,7 @@ s32 btlAICommandScriptQueryMyUseAttr(void) {
     return 1;
 }
 
+/* AI script command 0x2022 (p4flow AI.json AI_FUNCTION_0022). */
 // FUN_001E0950
 s32 btlAICommandScriptQueryFrUseAttr(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
@@ -2677,6 +2721,7 @@ s32 btlAICommandScriptQueryFrUseAttr(void) {
     return 1;
 }
 
+/* AI script command 0x2023 (p4flow AI.json AI_FUNCTION_0023). */
 // FUN_001E0A00
 s32 btlAICommandScriptQueryEnUseAttr(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
@@ -2692,6 +2737,7 @@ s32 btlAICommandScriptQueryEnUseAttr(void) {
     return 1;
 }
 
+/* AI script command 0x2024 (p4flow AI.json AI_FUNCTION_0024). */
 // FUN_001E0AB0
 s32 btlAICommandScriptQueryMyUseSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x25000000;
@@ -2707,6 +2753,7 @@ s32 btlAICommandScriptQueryMyUseSkil(void) {
     return 1;
 }
 
+/* AI script command 0x2025 (p4flow AI.json AI_FUNCTION_0025). */
 // FUN_001E0B60
 s32 btlAICommandScriptQueryFrUseSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x26000000;
@@ -2722,6 +2769,7 @@ s32 btlAICommandScriptQueryFrUseSkil(void) {
     return 1;
 }
 
+/* AI script command 0x2026 (p4flow AI.json AI_FUNCTION_0026). */
 // FUN_001E0C10
 s32 btlAICommandScriptQueryEnUseSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x27000000;
@@ -2737,24 +2785,28 @@ s32 btlAICommandScriptQueryEnUseSkil(void) {
     return 1;
 }
 
+/* AI script command 0x2027 (p4flow AI.json AI_FUNCTION_0027). */
 // FUN_001E0CC0
 s32 btlAICommandScriptQueryMyGroup(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A30[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x2028 (p4flow AI.json AI_FUNCTION_0028). */
 // FUN_001E0D10
 s32 btlAICommandScriptQueryFrGroup(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A3C[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x2029 (p4flow AI.json AI_FUNCTION_0029). */
 // FUN_001E0D60
 s32 btlAICommandScriptQueryEnGroup(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A48[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x202a (p4flow AI.json AI_FUNCTION_002A). */
 // FUN_001E0DB0
 s32 btlAICommandScriptQueryTurn(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2B000000;
@@ -2770,6 +2822,7 @@ s32 btlAICommandScriptQueryTurn(void) {
     return 1;
 }
 
+/* AI script command 0x202b (p4flow AI.json AI_FUNCTION_002B). */
 // FUN_001E0E60
 s32 btlAICommandScriptQueryTurnO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2C000000;
@@ -2785,18 +2838,21 @@ s32 btlAICommandScriptQueryTurnO(void) {
     return 1;
 }
 
+/* AI script command 0x2046 (p4flow AI.json AI_FUNCTION_0046). */
 // FUN_001E0F10
 s32 btlAICommandScriptQueryMyHrec(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A6C[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x2047 (p4flow AI.json AI_FUNCTION_0047). */
 // FUN_001E0F60
 s32 btlAICommandScriptQueryMore(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A78[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x2051 (p4flow AI.json AI_FUNCTION_0051). */
 // FUN_001E0FB0
 s32 btlAICommandScriptQueryFrHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2F000000;
@@ -2812,6 +2868,7 @@ s32 btlAICommandScriptQueryFrHansyaSt(void) {
     return 1;
 }
 
+/* AI script command 0x2052 (p4flow AI.json AI_FUNCTION_0052). */
 // FUN_001E1060
 s32 btlAICommandScriptQueryEnHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x30000000;
@@ -2827,6 +2884,7 @@ s32 btlAICommandScriptQueryEnHansyaSt(void) {
     return 1;
 }
 
+/* AI script command 0x2053 (p4flow AI.json AI_FUNCTION_0053). */
 // FUN_001E1110
 s32 btlAICommandScriptQueryFrKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x31000000;
@@ -2842,6 +2900,7 @@ s32 btlAICommandScriptQueryFrKyusyuSt(void) {
     return 1;
 }
 
+/* AI script command 0x2054 (p4flow AI.json AI_FUNCTION_0054). */
 // FUN_001E11C0
 s32 btlAICommandScriptQueryEnKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x32000000;
@@ -2857,6 +2916,7 @@ s32 btlAICommandScriptQueryEnKyusyuSt(void) {
     return 1;
 }
 
+/* AI script command 0x2055 (p4flow AI.json AI_FUNCTION_0055). */
 // FUN_001E1270
 s32 btlAICommandScriptQueryFrMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x33000000;
@@ -2872,6 +2932,7 @@ s32 btlAICommandScriptQueryFrMukouSt(void) {
     return 1;
 }
 
+/* AI script command 0x2056 (p4flow AI.json AI_FUNCTION_0056). */
 // FUN_001E1320
 s32 btlAICommandScriptQueryEnMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x34000000;
@@ -2887,6 +2948,7 @@ s32 btlAICommandScriptQueryEnMukouSt(void) {
     return 1;
 }
 
+/* AI script command 0x2057 (p4flow AI.json AI_FUNCTION_0057). */
 // FUN_001E13D0
 s32 btlAICommandScriptQueryFrWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x35000000;
@@ -2902,6 +2964,7 @@ s32 btlAICommandScriptQueryFrWeakSt(void) {
     return 1;
 }
 
+/* AI script command 0x2058 (p4flow AI.json AI_FUNCTION_0058). */
 // FUN_001E1480
 s32 btlAICommandScriptQueryEnWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x36000000;
@@ -2925,6 +2988,7 @@ s32 btlAICommandScriptQueryEnWeakSt(void) {
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x205a (p4flow AI.json AI_FUNCTION_005A). */
 // FUN_001E1530
 u32 btlAICommandSideIdQueryMyHp(void)
 {
@@ -2962,6 +3026,7 @@ u32 btlAICommandSideIdQueryMyHp(void)
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x205b (p4flow AI.json AI_FUNCTION_005B). */
 // FUN_001E1620
 u32 btlAICommandSideIdQueryMyMp(void)
 {
@@ -2999,6 +3064,7 @@ u32 btlAICommandSideIdQueryMyMp(void)
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x205c (p4flow AI.json AI_FUNCTION_005C). */
 // FUN_001E1710
 u32 btlAICommandSideIdQueryMyLvO(void)
 {
@@ -3036,6 +3102,7 @@ u32 btlAICommandSideIdQueryMyLvO(void)
    selector tag 0x0b000000, inline shift). func_0035ed20->scrGetParamInt,
    func_0035f160->func_0029d050, func_002c0e30->func_001d9280,
    func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. */
+/* AI script command 0x205d (p4flow AI.json AI_FUNCTION_005D). */
 // FUN_001E1800
 u32 btlAICommandSideIdQueryMyBad(void)
 {
@@ -3074,6 +3141,7 @@ u32 btlAICommandSideIdQueryMyBad(void)
     return 1;
 }
 
+/* AI script command 0x205e (p4flow AI.json AI_FUNCTION_005E). */
 // FUN_001E1940
 s32 btlAICommandSideIdQueryHasBuff(void) {
     u8 *p = func_0029d050();
@@ -3091,6 +3159,7 @@ s32 btlAICommandSideIdQueryHasBuff(void) {
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x205f (p4flow AI.json AI_FUNCTION_005F). */
 // FUN_001E19F0
 u32 btlAICommandSideIdQueryMyHansya(void)
 {
@@ -3128,6 +3197,7 @@ u32 btlAICommandSideIdQueryMyHansya(void)
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x2060 (p4flow AI.json AI_FUNCTION_0060). */
 // FUN_001E1AE0
 u32 btlAICommandSideIdQueryMyKyusyu(void)
 {
@@ -3165,6 +3235,7 @@ u32 btlAICommandSideIdQueryMyKyusyu(void)
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x2061 (p4flow AI.json AI_FUNCTION_0061). */
 // FUN_001E1BD0
 u32 btlAICommandSideIdQueryMyMukou(void)
 {
@@ -3202,6 +3273,7 @@ u32 btlAICommandSideIdQueryMyMukou(void)
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x2062 (p4flow AI.json AI_FUNCTION_0062). */
 // FUN_001E1CC0
 u32 btlAICommandSideIdQueryMyWeak(void)
 {
@@ -3239,6 +3311,7 @@ u32 btlAICommandSideIdQueryMyWeak(void)
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x2063 (p4flow AI.json AI_FUNCTION_0063). */
 // FUN_001E1DB0
 u32 btlAICommandSideIdQueryMyUseAttr(void)
 {
@@ -3276,6 +3349,7 @@ u32 btlAICommandSideIdQueryMyUseAttr(void)
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x2064 (p4flow AI.json AI_FUNCTION_0064). */
 // FUN_001E1EA0
 u32 btlAICommandSideIdQueryMyUseSkil(void)
 {
@@ -3309,6 +3383,7 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
 }
 
 
+/* AI script command 0x2065 (p4flow AI.json AI_FUNCTION_0065). */
 // FUN_001E1F90
 s32 btlAICommandSideIdQueryMyGroup(void) {
     u8 *p = func_0029d050();
@@ -3322,6 +3397,7 @@ s32 btlAICommandSideIdQueryMyGroup(void) {
     return 1;
 }
 
+/* AI script command 0x2066 (p4flow AI.json AI_FUNCTION_0066). */
 // FUN_001E2030
 s32 btlAICommandSideIdQueryMyHrec(void) {
     u8 *p = func_0029d050();
@@ -3346,6 +3422,7 @@ s32 btlAICommandSideIdQueryMyHrec(void) {
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850; selector tag 0x01000000. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x209e (p4flow AI.json AI_FUNCTION_009E). */
 // FUN_001E20D0
 u32 btlAICommandOppSideIdQueryMyHp(void)
 {
@@ -3400,6 +3477,7 @@ done:
 /* Ported from P3FES btlEffect.c func_002ca590 (dispatch handler, 8-alt clone
    family, selector tag 0x02000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x209f (p4flow AI.json AI_FUNCTION_009F). */
 // FUN_001E21E0
 u32 btlAICommandOppSideIdQueryMyMp(void)
 {
@@ -3456,6 +3534,7 @@ done:
 /* Ported from P3FES btlEffect.c func_002ca6a0 (dispatch handler, 8-alt clone
    family, selector tag 0x06000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20a0 (p4flow AI.json AI_FUNCTION_00A0). */
 // FUN_001E22F0
 u32 btlAICommandOppSideIdQueryMyLvO(void)
 {
@@ -3504,6 +3583,7 @@ done:
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. Pragma for branchy shift set. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20a1 (p4flow AI.json AI_FUNCTION_00A1). */
 // FUN_001E2400
 u32 btlAICommandOppSideIdQueryMyBad(void)
 {
@@ -3553,6 +3633,7 @@ done:
 
 
 
+/* AI script command 0x210e (p4flow AI.json AI_FUNCTION_010E). */
 // FUN_001E2550
 s32 btlAICommandSideIdQueryAllBadStatus(void) {
     u32 v;
@@ -3601,6 +3682,7 @@ s32 btlAICommandSideIdQueryAllBadStatus(void) {
    and m for the post-call c02 value gives retail's saved-register live
    ranges; #pragma opt_rebuildconditionals off preserves the branchy shift
    sequence and its 392-byte object (retail window 400 bytes). */
+/* AI script command 0x210d (p4flow AI.json AI_FUNCTION_010D). */
 // FUN_001E26C0
 /* measured: retains the branch-rebuild setting required for the byte-exact body. */
 #pragma opt_rebuildconditionals off
@@ -3658,6 +3740,7 @@ done:
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001E2850 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* AI script command 0x20a2 (p4flow AI.json AI_FUNCTION_00A2). */
 // FUN_001E2850
 s32 btlAICommandOppSideIdQueryHasBuff(void) {
     u32 shift;
@@ -3683,6 +3766,7 @@ s32 btlAICommandOppSideIdQueryHasBuff(void) {
 }
 #pragma opt_rebuildconditionals on
 
+/* AI script command 0x2111 (p4flow AI.json AI_FUNCTION_0111). */
 // FUN_001E2910
 s32 btlAICommandSideIdQueryAllHasBuff(void) {
     u32 v;
@@ -3729,6 +3813,7 @@ s32 btlAICommandSideIdQueryAllHasBuff(void) {
 
 /* measured: byte-exact sibling of FUN_001E26C0; reusing c0 for the node
    payload and m for c02 with conditional rebuilds disabled gives nd 0. */
+/* AI script command 0x2110 (p4flow AI.json AI_FUNCTION_0110). */
 // FUN_001E2A80
 #pragma opt_rebuildconditionals off
 s32 btlAICommandOppSideIdQueryAllHasBuff(void)
@@ -3790,6 +3875,7 @@ done:
 /* Ported from P3FES btlEffect.c func_002ca9d0 (dispatch handler, 8-alt clone
    family, selector tag 0x16000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20a3 (p4flow AI.json AI_FUNCTION_00A3). */
 // FUN_001E2C10
 u32 btlAICommandOppSideIdQueryMyHansya(void)
 {
@@ -3846,6 +3932,7 @@ done:
 /* Ported from P3FES btlEffect.c func_002caae0 (dispatch handler, 8-alt clone
    family, selector tag 0x17000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20a4 (p4flow AI.json AI_FUNCTION_00A4). */
 // FUN_001E2D20
 u32 btlAICommandOppSideIdQueryMyKyusyu(void)
 {
@@ -3902,6 +3989,7 @@ done:
 /* Ported from P3FES btlEffect.c func_002cabf0 (dispatch handler, 8-alt clone
    family, selector tag 0x18000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20a5 (p4flow AI.json AI_FUNCTION_00A5). */
 // FUN_001E2E30
 u32 btlAICommandOppSideIdQueryMyMukou(void)
 {
@@ -3958,6 +4046,7 @@ done:
 /* Ported from P3FES btlEffect.c func_002cad00 (dispatch handler, 8-alt clone
    family, selector tag 0x19000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20a6 (p4flow AI.json AI_FUNCTION_00A6). */
 // FUN_001E2F40
 u32 btlAICommandOppSideIdQueryMyWeak(void)
 {
@@ -4014,6 +4103,7 @@ done:
 /* Ported from P3FES btlEffect.c func_002cae10 (dispatch handler, 8-alt clone
    family, selector tag 0x22000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20a7 (p4flow AI.json AI_FUNCTION_00A7). */
 // FUN_001E3050
 u32 btlAICommandOppSideIdQueryMyUseAttr(void)
 {
@@ -4070,6 +4160,7 @@ done:
 /* Ported from P3FES btlEffect.c func_002caf20 (dispatch handler, 8-alt clone
    family, selector tag 0x25000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20a8 (p4flow AI.json AI_FUNCTION_00A8). */
 // FUN_001E3160
 u32 btlAICommandOppSideIdQueryMyUseSkil(void)
 {
@@ -4113,6 +4204,7 @@ done:
 
 
 
+/* AI script command 0x20a9 (p4flow AI.json AI_FUNCTION_00A9). */
 // FUN_001E3270
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUNC_001E3270 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
@@ -4142,6 +4234,7 @@ s32 btlAICommandOppSideIdQueryMyGroup(void) {
 }
 #pragma opt_rebuildconditionals on
 
+/* AI script command 0x20aa (p4flow AI.json AI_FUNCTION_00AA). */
 // FUN_001E3320
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUNC_001E3320 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
@@ -4171,6 +4264,7 @@ s32 btlAICommandOppSideIdQueryMyHrec(void) {
 }
 #pragma opt_rebuildconditionals on
 
+/* AI script command 0x2069 (p4flow AI.json AI_FUNCTION_0069). */
 // FUN_001E33D0
 s32 btlAICommandScriptUnitIsIdOnSide(void) {
     u8 *p = func_0029d050();
@@ -4195,6 +4289,7 @@ s32 btlAICommandScriptUnitIsIdOnSide(void) {
     return 1;
 }
 
+/* AI script command 0x206a (p4flow AI.json AI_FUNCTION_006A). */
 // FUN_001E34B0
 s32 btlAICommandScriptQueryFrAllHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x38000000;
@@ -4210,6 +4305,7 @@ s32 btlAICommandScriptQueryFrAllHp(void) {
     return 1;
 }
 
+/* AI script command 0x206b (p4flow AI.json AI_FUNCTION_006B). */
 // FUN_001E3560
 s32 btlAICommandScriptQueryEnAllHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x39000000;
@@ -4225,6 +4321,7 @@ s32 btlAICommandScriptQueryEnAllHp(void) {
     return 1;
 }
 
+/* AI script command 0x206c (p4flow AI.json AI_FUNCTION_006C). */
 // FUN_001E3610
 s32 btlAICommandScriptQueryMyAbleSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3A000000;
@@ -4240,6 +4337,7 @@ s32 btlAICommandScriptQueryMyAbleSkil(void) {
     return 1;
 }
 
+/* AI script command 0x206d (p4flow AI.json AI_FUNCTION_006D). */
 // FUN_001E36C0
 s32 btlAICommandScriptQueryEnWeakPai(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3B000000;
@@ -4255,6 +4353,7 @@ s32 btlAICommandScriptQueryEnWeakPai(void) {
     return 1;
 }
 
+/* AI script command 0x206e (p4flow AI.json AI_FUNCTION_006E). */
 // FUN_001E3770
 s32 btlAICommandScriptQueryEnWeakStPai(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3C000000;
@@ -4270,6 +4369,7 @@ s32 btlAICommandScriptQueryEnWeakStPai(void) {
     return 1;
 }
 
+/* AI script command 0x206f (p4flow AI.json AI_FUNCTION_006F). */
 // FUN_001E3820
 s32 btlAICommandScriptQueryEnWeakDwPai(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3D000000;
@@ -4285,6 +4385,7 @@ s32 btlAICommandScriptQueryEnWeakDwPai(void) {
     return 1;
 }
 
+/* AI script command 0x2070 (p4flow AI.json AI_FUNCTION_0070). */
 // FUN_001E38D0
 s32 btlAICommandScriptQueryMyAttrSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3E000000;
@@ -4300,6 +4401,7 @@ s32 btlAICommandScriptQueryMyAttrSkil(void) {
     return 1;
 }
 
+/* AI script command 0x2071 (p4flow AI.json AI_FUNCTION_0071). */
 // FUN_001E3980
 s32 btlAICommandScriptQueryMyNomal(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3F000000;
@@ -4315,6 +4417,7 @@ s32 btlAICommandScriptQueryMyNomal(void) {
     return 1;
 }
 
+/* AI script command 0x2072 (p4flow AI.json AI_FUNCTION_0072). */
 // FUN_001E3A30
 s32 btlAICommandScriptQueryEnNomal(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x40000000;
@@ -4330,6 +4433,7 @@ s32 btlAICommandScriptQueryEnNomal(void) {
     return 1;
 }
 
+/* AI script command 0x2073 (p4flow AI.json AI_FUNCTION_0073). */
 // FUN_001E3AE0
 s32 btlAICommandScriptQueryEnNomalSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x41000000;
@@ -4345,6 +4449,7 @@ s32 btlAICommandScriptQueryEnNomalSt(void) {
     return 1;
 }
 
+/* AI script command 0x2074 (p4flow AI.json AI_FUNCTION_0074). */
 // FUN_001E3B90
 s32 btlAICommandScriptQueryEnNomalDw(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x42000000;
@@ -4360,24 +4465,28 @@ s32 btlAICommandScriptQueryEnNomalDw(void) {
     return 1;
 }
 
+/* AI script command 0x2092 (p4flow AI.json AI_FUNCTION_0092). */
 // FUN_001E3C40
 s32 btlAICommandScriptQueryAnalyze(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B74[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x2093 (p4flow AI.json AI_FUNCTION_0093). */
 // FUN_001E3C90
 s32 btlAICommandScriptQueryDown(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B80[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x2094 (p4flow AI.json AI_FUNCTION_0094). */
 // FUN_001E3CE0
 s32 btlAICommandScriptQuerySlip(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B8C[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
+/* AI script command 0x20af (p4flow AI.json AI_FUNCTION_00AF). */
 // FUN_001E3D30
 s32 btlAICommandScriptQueryEnOverlv(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x46000000;
@@ -4397,6 +4506,7 @@ s32 btlAICommandScriptQueryEnOverlv(void) {
    tag 0x19000000). func_0035ed20->scrGetParamInt, func_002c0e30->func_001d9280,
    func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. id is u32
    (masked & 0xFFFF) because func_001d9280 takes s32. switch cases ascending 0/1. */
+/* AI script command 0x20b9 (p4flow AI.json AI_FUNCTION_00B9). */
 // FUN_001E3DE0
 u32 btlAICommandSideSwitchIdQueryMyWeak(void)
 {
@@ -4437,6 +4547,7 @@ u32 btlAICommandSideSwitchIdQueryMyWeak(void)
     return 1;
 }
 
+/* AI script command 0x20ba (p4flow AI.json AI_FUNCTION_00BA). */
 // FUN_001E3F10
 s32 func_001e3f10(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
@@ -4461,6 +4572,7 @@ s32 func_001e3f10(void) {
     return 1;
 }
 
+/* AI script command 0x20d6 (p4flow AI.json AI_FUNCTION_00D6). */
 // FUN_001E3FD0
 s32 func_001e3fd0(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
@@ -4485,6 +4597,7 @@ s32 func_001e3fd0(void) {
     return 1;
 }
 
+/* AI script command 0x20d7 (p4flow AI.json AI_FUNCTION_00D7). */
 // FUN_001E4090
 s32 func_001e4090(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
@@ -4509,6 +4622,7 @@ s32 func_001e4090(void) {
     return 1;
 }
 
+/* AI script command 0x20d8 (p4flow AI.json AI_FUNCTION_00D8). */
 // FUN_001E4150
 s32 func_001e4150(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
@@ -4533,6 +4647,7 @@ s32 func_001e4150(void) {
     return 1;
 }
 
+/* AI script command 0x20c9 (p4flow AI.json AI_FUNCTION_00C9). */
 // FUN_001E4210
 s32 btlAICommandSideSwitchQueryAnalyze(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
@@ -4561,6 +4676,7 @@ s32 btlAICommandSideSwitchQueryAnalyze(void) {
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x20cb (p4flow AI.json AI_FUNCTION_00CB). */
 // FUN_001E42E0
 u32 btlAICommandSideIdQueryMyAbleSkil(void)
 {
@@ -4594,6 +4710,7 @@ u32 btlAICommandSideIdQueryMyAbleSkil(void)
 }
 
 
+/* AI script command 0x20cc (p4flow AI.json AI_FUNCTION_00CC). */
 // FUN_001E43D0
 s32 btlAICommandScriptSelfHasBuff(void) {
     u8 *p = func_0029d050();
@@ -4605,6 +4722,7 @@ s32 btlAICommandScriptSelfHasBuff(void) {
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* AI script command 0x20d4 (p4flow AI.json AI_FUNCTION_00D4). */
 // FUN_001E4430
 u32 btlAICommandSideIdQueryMyAttrSkil(void)
 {
@@ -4638,6 +4756,7 @@ u32 btlAICommandSideIdQueryMyAttrSkil(void)
 }
 
 
+/* AI script command 0x20d9 (p4flow AI.json AI_FUNCTION_00D9). */
 // FUN_001E4520
 s32 btlAICommandScriptIsSelfListed(void) {
     u8 *p = func_0029d050();
@@ -4658,12 +4777,14 @@ s32 btlAICommandScriptIsSelfListed(void) {
     return 1;
 }
 
+/* AI script command 0x20e0 (p4flow AI.json AI_FUNCTION_00E0). */
 // FUN_001E45D0
 s32 btlAICommandScriptAlwaysFalse(void) {
     scrSetReturnInt(0);
     return 1;
 }
 
+/* AI script command 0x20eb (p4flow AI.json AI_FUNCTION_00EB). */
 // FUN_001E4600
 s32 btlAICommandScriptQueryMyTaisei(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x48000000;
@@ -4679,6 +4800,7 @@ s32 btlAICommandScriptQueryMyTaisei(void) {
     return 1;
 }
 
+/* AI script command 0x20ec (p4flow AI.json AI_FUNCTION_00EC). */
 // FUN_001E46B0
 s32 btlAICommandScriptQueryFrTaisei(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x49000000;
@@ -4694,6 +4816,7 @@ s32 btlAICommandScriptQueryFrTaisei(void) {
     return 1;
 }
 
+/* AI script command 0x20ed (p4flow AI.json AI_FUNCTION_00ED). */
 // FUN_001E4760
 s32 btlAICommandScriptQueryEnTaisei(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4A000000;
@@ -4709,6 +4832,7 @@ s32 btlAICommandScriptQueryEnTaisei(void) {
     return 1;
 }
 
+/* AI script command 0x202c (p4flow AI.json AI_FUNCTION_002C). */
 // FUN_001E4810
 s32 btlAICommandScriptRunAi(void) {
     u8 *p = func_0029d050();
@@ -4717,6 +4841,7 @@ s32 btlAICommandScriptRunAi(void) {
     return 1;
 }
 
+/* AI script command 0x202d (p4flow AI.json AI_FUNCTION_002D). */
 // FUN_001E4880
 s32 btlAICommandAiUnlessHpMin(void) {
     u8 *p = func_0029d050();
@@ -4725,6 +4850,7 @@ s32 btlAICommandAiUnlessHpMin(void) {
     return 1;
 }
 
+/* AI script command 0x202e (p4flow AI.json AI_FUNCTION_002E). */
 // FUN_001E48F0
 s32 btlAICommandAiUnlessLvMin(void) {
     u8 *p = func_0029d050();
@@ -4733,6 +4859,7 @@ s32 btlAICommandAiUnlessLvMin(void) {
     return 1;
 }
 
+/* AI script command 0x202f (p4flow AI.json AI_FUNCTION_002F). */
 // FUN_001E4960
 s32 btlAICommandAiUnlessMpMax(void) {
     u8 *p = func_0029d050();
@@ -4741,6 +4868,7 @@ s32 btlAICommandAiUnlessMpMax(void) {
     return 1;
 }
 
+/* AI script command 0x2030 (p4flow AI.json AI_FUNCTION_0030). */
 // FUN_001E49D0
 s32 btlAICommandCondQueryBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
@@ -4750,6 +4878,7 @@ s32 btlAICommandCondQueryBad(void) {
     return 1;
 }
 
+/* AI script command 0x2031 (p4flow AI.json AI_FUNCTION_0031). */
 // FUN_001E4A80
 s32 btlAICommandCondQueryNotBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
@@ -4759,6 +4888,7 @@ s32 btlAICommandCondQueryNotBad(void) {
     return 1;
 }
 
+/* AI script command 0x210c (p4flow AI.json AI_FUNCTION_010C). */
 // FUN_001E4B30
 s32 btlAICommandScriptPickMyIdFromArgs(void) {
     u32 a = scrGetParamInt(0);
@@ -4767,6 +4897,7 @@ s32 btlAICommandScriptPickMyIdFromArgs(void) {
     return 1;
 }
 
+/* AI script command 0x2032 (p4flow AI.json AI_FUNCTION_0032). */
 // FUN_001E4BB0
 s32 btlAICommandCondQueryId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
@@ -4776,6 +4907,7 @@ s32 btlAICommandCondQueryId(void) {
     return 1;
 }
 
+/* AI script command 0x2033 (p4flow AI.json AI_FUNCTION_0033). */
 // FUN_001E4C60
 s32 btlAICommandAiUnlessMine(void) {
     u8 *p = func_0029d050();
@@ -4784,6 +4916,7 @@ s32 btlAICommandAiUnlessMine(void) {
     return 1;
 }
 
+/* AI script command 0x2034 (p4flow AI.json AI_FUNCTION_0034). */
 // FUN_001E4CD0
 s32 btlAICommandAiUnlessMyAi(void) {
     u8 *p = func_0029d050();
@@ -4792,6 +4925,7 @@ s32 btlAICommandAiUnlessMyAi(void) {
     return 1;
 }
 
+/* AI script command 0x2035 (p4flow AI.json AI_FUNCTION_0035). */
 // FUN_001E4D40
 s32 btlAICommandCondQueryHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
@@ -4801,6 +4935,7 @@ s32 btlAICommandCondQueryHansya(void) {
     return 1;
 }
 
+/* AI script command 0x2036 (p4flow AI.json AI_FUNCTION_0036). */
 // FUN_001E4DF0
 s32 btlAICommandCondQueryKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
@@ -4810,6 +4945,7 @@ s32 btlAICommandCondQueryKyusyu(void) {
     return 1;
 }
 
+/* AI script command 0x2037 (p4flow AI.json AI_FUNCTION_0037). */
 // FUN_001E4EA0
 s32 btlAICommandCondQueryMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
@@ -4819,6 +4955,7 @@ s32 btlAICommandCondQueryMukou(void) {
     return 1;
 }
 
+/* AI script command 0x2038 (p4flow AI.json AI_FUNCTION_0038). */
 // FUN_001E4F50
 s32 btlAICommandCondQueryWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
@@ -4828,6 +4965,7 @@ s32 btlAICommandCondQueryWeak(void) {
     return 1;
 }
 
+/* AI script command 0x2039 (p4flow AI.json AI_FUNCTION_0039). */
 // FUN_001E5000
 s32 btlAICommandCondQueryNotHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
@@ -4837,6 +4975,7 @@ s32 btlAICommandCondQueryNotHansya(void) {
     return 1;
 }
 
+/* AI script command 0x203a (p4flow AI.json AI_FUNCTION_003A). */
 // FUN_001E50B0
 s32 btlAICommandCondQueryNotKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
@@ -4846,6 +4985,7 @@ s32 btlAICommandCondQueryNotKyusyu(void) {
     return 1;
 }
 
+/* AI script command 0x203b (p4flow AI.json AI_FUNCTION_003B). */
 // FUN_001E5160
 s32 btlAICommandCondQueryNotMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
@@ -4855,6 +4995,7 @@ s32 btlAICommandCondQueryNotMukou(void) {
     return 1;
 }
 
+/* AI script command 0x203c (p4flow AI.json AI_FUNCTION_003C). */
 // FUN_001E5210
 s32 btlAICommandCondQueryNotWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
@@ -4864,6 +5005,7 @@ s32 btlAICommandCondQueryNotWeak(void) {
     return 1;
 }
 
+/* AI script command 0x2043 (p4flow AI.json AI_FUNCTION_0043). */
 // FUN_001E52C0
 s32 btlAICommandAiUnlessAppoint(void) {
     u8 *p = func_0029d050();
@@ -4872,6 +5014,7 @@ s32 btlAICommandAiUnlessAppoint(void) {
     return 1;
 }
 
+/* AI script command 0x2044 (p4flow AI.json AI_FUNCTION_0044). */
 // FUN_001E5330
 s32 btlAICommandAiUnlessDown(void) {
     u8 *p = func_0029d050();
@@ -4880,6 +5023,7 @@ s32 btlAICommandAiUnlessDown(void) {
     return 1;
 }
 
+/* AI script command 0x2045 (p4flow AI.json AI_FUNCTION_0045). */
 // FUN_001E53A0
 s32 btlAICommandAiUnlessStand(void) {
     u8 *p = func_0029d050();
@@ -4888,6 +5032,7 @@ s32 btlAICommandAiUnlessStand(void) {
     return 1;
 }
 
+/* AI script command 0x2049 (p4flow AI.json AI_FUNCTION_0049). */
 // FUN_001E5410
 s32 btlAICommandCondQueryHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x15000000;
@@ -4897,6 +5042,7 @@ s32 btlAICommandCondQueryHansyaSt(void) {
     return 1;
 }
 
+/* AI script command 0x204a (p4flow AI.json AI_FUNCTION_004A). */
 // FUN_001E54C0
 s32 btlAICommandCondQueryKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
@@ -4906,6 +5052,7 @@ s32 btlAICommandCondQueryKyusyuSt(void) {
     return 1;
 }
 
+/* AI script command 0x204b (p4flow AI.json AI_FUNCTION_004B). */
 // FUN_001E5570
 s32 btlAICommandCondQueryMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
@@ -4915,6 +5062,7 @@ s32 btlAICommandCondQueryMukouSt(void) {
     return 1;
 }
 
+/* AI script command 0x204c (p4flow AI.json AI_FUNCTION_004C). */
 // FUN_001E5620
 s32 btlAICommandCondQueryWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
@@ -4924,6 +5072,7 @@ s32 btlAICommandCondQueryWeakSt(void) {
     return 1;
 }
 
+/* AI script command 0x204d (p4flow AI.json AI_FUNCTION_004D). */
 // FUN_001E56D0
 s32 btlAICommandCondQueryNotHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
@@ -4933,6 +5082,7 @@ s32 btlAICommandCondQueryNotHansyaSt(void) {
     return 1;
 }
 
+/* AI script command 0x204e (p4flow AI.json AI_FUNCTION_004E). */
 // FUN_001E5780
 s32 btlAICommandCondQueryNotKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
@@ -4942,6 +5092,7 @@ s32 btlAICommandCondQueryNotKyusyuSt(void) {
     return 1;
 }
 
+/* AI script command 0x204f (p4flow AI.json AI_FUNCTION_004F). */
 // FUN_001E5830
 s32 btlAICommandCondQueryNotMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
@@ -4951,6 +5102,7 @@ s32 btlAICommandCondQueryNotMukouSt(void) {
     return 1;
 }
 
+/* AI script command 0x2050 (p4flow AI.json AI_FUNCTION_0050). */
 // FUN_001E58E0
 s32 btlAICommandCondQueryNotWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
@@ -4960,6 +5112,7 @@ s32 btlAICommandCondQueryNotWeakSt(void) {
     return 1;
 }
 
+/* AI script command 0x2067 (p4flow AI.json AI_FUNCTION_0067). */
 // FUN_001E5990
 s32 btlAICommandScriptAppointCurrent(void) {
     u8 *p = func_0029d050();
@@ -4972,6 +5125,7 @@ s32 btlAICommandScriptAppointCurrent(void) {
     return 1;
 }
 
+/* AI script command 0x2098 (p4flow AI.json AI_FUNCTION_0098). */
 // FUN_001E5A20
 s32 btlAICommandCondQueryNotId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
@@ -4981,6 +5135,7 @@ s32 btlAICommandCondQueryNotId(void) {
     return 1;
 }
 
+/* AI script command 0x209a (p4flow AI.json AI_FUNCTION_009A). */
 // FUN_001E5AD0
 s32 btlAICommandAiUnlessRnd(void) {
     u8 *p = func_0029d050();
@@ -4989,6 +5144,7 @@ s32 btlAICommandAiUnlessRnd(void) {
     return 1;
 }
 
+/* AI script command 0x20c6 (p4flow AI.json AI_FUNCTION_00C6). */
 // FUN_001E5B40
 s32 btlAICommandCondQueryHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
@@ -4998,6 +5154,7 @@ s32 btlAICommandCondQueryHojo(void) {
     return 1;
 }
 
+/* AI script command 0x20c7 (p4flow AI.json AI_FUNCTION_00C7). */
 // FUN_001E5BF0
 s32 btlAICommandCondQueryNotHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
@@ -5007,6 +5164,7 @@ s32 btlAICommandCondQueryNotHojo(void) {
     return 1;
 }
 
+/* AI script command 0x210f (p4flow AI.json AI_FUNCTION_010F). */
 // FUN_001E5CA0
 s32 btlAICommandScriptPickMyIdFiltered(void) {
     u32 a = scrGetParamInt(0);
@@ -5015,6 +5173,7 @@ s32 btlAICommandScriptPickMyIdFiltered(void) {
     return 1;
 }
 
+/* AI script command 0x2112 (p4flow AI.json AI_FUNCTION_0112). */
 // FUN_001E5D20
 s32 btlAICommandAiUnlessHpMax(void) {
     u8 *p = func_0029d050();
@@ -5023,6 +5182,7 @@ s32 btlAICommandAiUnlessHpMax(void) {
     return 1;
 }
 
+/* AI script command 0x2091 (p4flow AI.json AI_FUNCTION_0091). */
 // FUN_001E5D90
 s32 btlAICommandScriptSetId2ClearBuffs(void) {
     u8 *p = func_0029d050();
@@ -5037,6 +5197,7 @@ s32 btlAICommandScriptSetId2ClearBuffs(void) {
     return 1;
 }
 
+/* AI script command 0x2095 (p4flow AI.json AI_FUNCTION_0095). */
 // FUN_001E5E40
 s32 btlAICommandScriptSetDownFlag(void) {
     u8 *p = func_0029d050();
@@ -5050,6 +5211,7 @@ s32 btlAICommandScriptSetDownFlag(void) {
     return 1;
 }
 
+/* AI script command 0x2096 (p4flow AI.json AI_FUNCTION_0096). */
 // FUN_001E5EC0
 s32 btlAICommandScriptSetSlipFlag(void) {
     u8 *p = func_0029d050();
@@ -5063,6 +5225,7 @@ s32 btlAICommandScriptSetSlipFlag(void) {
     return 1;
 }
 
+/* AI script command 0x20db (p4flow AI.json AI_FUNCTION_00DB). */
 // FUN_001E5F40
 s32 btlAICommandScriptSetCommandOverride(void) {
     u8 *p = func_0029d050();
@@ -5071,6 +5234,7 @@ s32 btlAICommandScriptSetCommandOverride(void) {
     return 1;
 }
 
+/* AI script command 0x2099 (p4flow AI.json AI_FUNCTION_0099). */
 // FUN_001E5F90
 s32 btlAICommandScriptGetSelfId2(void) {
     u32 a = *(u32 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA64);
@@ -5078,6 +5242,7 @@ s32 btlAICommandScriptGetSelfId2(void) {
     return 1;
 }
 
+/* AI script command 0x20ab (p4flow AI.json AI_FUNCTION_00AB). */
 // FUN_001E5FD0
 s32 func_001e5fd0(void) {
     u8 *p = func_0029d050();
@@ -5089,6 +5254,7 @@ s32 func_001e5fd0(void) {
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001E6050 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* AI script command 0x20ac (p4flow AI.json AI_FUNCTION_00AC). */
 // FUN_001E6050
 s32 func_001e6050(void) {
     u32 shift;
@@ -5109,6 +5275,7 @@ s32 func_001e6050(void) {
 }
 #pragma opt_rebuildconditionals on
 
+/* AI script command 0x20b0 (p4flow AI.json AI_FUNCTION_00B0). */
 // FUN_001E60F0
 s32 btlAICommandScriptCountOwnHojo(void) {
     u8 *p = func_0029d050();
@@ -5116,6 +5283,7 @@ s32 btlAICommandScriptCountOwnHojo(void) {
     return 1;
 }
 
+/* AI script command 0x20b1 (p4flow AI.json AI_FUNCTION_00B1). */
 // FUN_001E6160
 s32 btlAICommandScriptCountOwnNotHojo(void) {
     u8 *p = func_0029d050();
@@ -5123,6 +5291,7 @@ s32 btlAICommandScriptCountOwnNotHojo(void) {
     return 1;
 }
 
+/* AI script command 0x20b2 (p4flow AI.json AI_FUNCTION_00B2). */
 // FUN_001E61D0
 s32 btlAICommandScriptCountOwnBad(void) {
     u8 *p = func_0029d050();
@@ -5130,6 +5299,7 @@ s32 btlAICommandScriptCountOwnBad(void) {
     return 1;
 }
 
+/* AI script command 0x20ea (p4flow AI.json AI_FUNCTION_00EA). */
 // FUN_001E6240
 s32 btlAICommandScriptCountOppBad(void) {
     u8 *p = func_0029d050();
@@ -5137,6 +5307,7 @@ s32 btlAICommandScriptCountOppBad(void) {
     return 1;
 }
 
+/* AI script command 0x20b3 (p4flow AI.json AI_FUNCTION_00B3). */
 // FUN_001E62B0
 s32 btlAICommandScriptCountOppHojo(void) {
     u8 *p = func_0029d050();
@@ -5144,6 +5315,7 @@ s32 btlAICommandScriptCountOppHojo(void) {
     return 1;
 }
 
+/* AI script command 0x20b4 (p4flow AI.json AI_FUNCTION_00B4). */
 // FUN_001E6320
 s32 btlAICommandScriptCountOppNotHojo(void) {
     u8 *p = func_0029d050();
@@ -5151,6 +5323,7 @@ s32 btlAICommandScriptCountOppNotHojo(void) {
     return 1;
 }
 
+/* AI script command 0x20cd (p4flow AI.json AI_FUNCTION_00CD). */
 // FUN_001E6390
 s32 btlAICommandScriptCountOwnHp(void) {
     u8 *p = func_0029d050();
@@ -5158,6 +5331,7 @@ s32 btlAICommandScriptCountOwnHp(void) {
     return 1;
 }
 
+/* AI script command 0x20ce (p4flow AI.json AI_FUNCTION_00CE). */
 // FUN_001E6400
 s32 btlAICommandScriptAverageOwnLevel(void) {
     scrSetReturnInt(btlSideAverageLevel((1 << (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2))) & 0xFFFF, 0x80000) & 0xFFFF);
@@ -5167,6 +5341,7 @@ s32 btlAICommandScriptAverageOwnLevel(void) {
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001E6450 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* AI script command 0x20cf (p4flow AI.json AI_FUNCTION_00CF). */
 // FUN_001E6450
 s32 btlAICommandScriptAverageOppLevel(void) {
     u32 shift;
@@ -5185,6 +5360,7 @@ s32 btlAICommandScriptAverageOppLevel(void) {
 }
 #pragma opt_rebuildconditionals on
 
+/* AI script command 0x20d0 (p4flow AI.json AI_FUNCTION_00D0). */
 // FUN_001E64C0
 s32 btlAICommandScriptGetCommandRow(void) {
     u8 *p = func_0029d050();
@@ -5193,6 +5369,7 @@ s32 btlAICommandScriptGetCommandRow(void) {
     return -1;
 }
 
+/* AI script command 0x20e1 (p4flow AI.json AI_FUNCTION_00E1). */
 // FUN_001E6530
 s32 btlAICommandScriptCountOwnAlive(void) {
     func_0029d050();
@@ -5200,6 +5377,7 @@ s32 btlAICommandScriptCountOwnAlive(void) {
     return 1;
 }
 
+/* AI script command 0x20e2 (p4flow AI.json AI_FUNCTION_00E2). */
 // FUN_001E6570
 s32 btlAICommandScriptCountOppAlive(void) {
     func_0029d050();
@@ -5207,12 +5385,14 @@ s32 btlAICommandScriptCountOppAlive(void) {
     return -1;
 }
 
+/* AI script command 0x2113 (p4flow AI.json AI_FUNCTION_0113). */
 // FUN_001E65B0
 s32 btlAICommandScriptGetSelfHp(void) {
     scrSetReturnInt(datCalcGetHp(*(u32 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA64)) & 0xFFFF);
     return -1;
 }
 
+/* AI script command 0x2075 (p4flow AI.json AI_FUNCTION_0075). */
 // FUN_001E65F0
 s32 btlAICommandIdScriptQueryMyHp(void) {
     u32 a = scrGetParamInt(0);
@@ -5230,6 +5410,7 @@ s32 btlAICommandIdScriptQueryMyHp(void) {
     return 1;
 }
 
+/* AI script command 0x2076 (p4flow AI.json AI_FUNCTION_0076). */
 // FUN_001E66C0
 s32 btlAICommandIdScriptQueryHasBuff(void) {
     u32 a = scrGetParamInt(0);
@@ -5239,6 +5420,7 @@ s32 btlAICommandIdScriptQueryHasBuff(void) {
     return 1;
 }
 
+/* AI script command 0x2077 (p4flow AI.json AI_FUNCTION_0077). */
 // FUN_001E6740
 s32 btlAICommandScriptWouldBeKilled(void) {
     u8 *p = func_0029d050();
@@ -5254,6 +5436,7 @@ s32 btlAICommandScriptWouldBeKilled(void) {
     return 1;
 }
 
+/* AI script command 0x2078 (p4flow AI.json AI_FUNCTION_0078). */
 // FUN_001E6820
 s32 btlAICommandScriptHasCommandOfType(void) {
     u32 temp_16;
@@ -5269,6 +5452,7 @@ s32 btlAICommandScriptHasCommandOfType(void) {
 
 
 
+/* AI script command 0x2079 (p4flow AI.json AI_FUNCTION_0079). */
 // FUN_001E68C0
 s32 btlAICommandScriptLookupOnlyFalse(void) {
     u32 temp_16;
@@ -5283,6 +5467,7 @@ s32 btlAICommandScriptLookupOnlyFalse(void) {
 
 
 
+/* AI script command 0x209c (p4flow AI.json AI_FUNCTION_009C). */
 // FUN_001E6930
 s32 btlAICommandIdScriptQueryMyNomal(void) {
     u32 a = scrGetParamInt(0);
@@ -5300,11 +5485,13 @@ s32 btlAICommandIdScriptQueryMyNomal(void) {
     return 1;
 }
 
+/* AI script command 0x20e3 (p4flow AI.json AI_FUNCTION_00E3). */
 // FUN_001E6A00
 s32 btlAICommandIdScriptQueryOnSideZero(void) {
     scrSetReturnInt(*(u8 *)(*(u8 **)(func_001b0cc0(scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA2) == 0);
     return 1;
 }
+/* AI script command 0x20e4 (p4flow AI.json AI_FUNCTION_00E4). */
 // FUN_001E6A50
 s32 btlAICommandIdScriptQueryCanUseCommand(void) {
     s32 r0 = scrGetParamInt(0);

@@ -74,7 +74,7 @@ s32 btlCond_MYHOJO(u8 *arg0, s32 arg1);
 s32 btlCond_MYTAISEI(u8 *arg0, s16 arg1);
 
 /* Group helper in code1_001d.c, called by the btlCond_*GROUP predicates. */
-u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
+u16 btlSkillClassifyTargets(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
 
 /* Callback dispatcher in code1_001d.c. Callers pass the predicate as a (code)
  * or (code *) callback with their own argument order, so it stays unprototyped. */

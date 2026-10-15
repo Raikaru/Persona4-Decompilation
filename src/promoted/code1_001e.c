@@ -179,7 +179,7 @@ s32 func_001e6c60(void) {
     u32 index;
 
     temp_2 = func_0029d050();
-    if ((func_001d7f10(temp_2, 0, *(u16 *)(temp_2 + 0x6E), 0) & 0xFFFF) == 0) {
+    if ((btlSkillClassifyTargets(temp_2, 0, *(u16 *)(temp_2 + 0x6E), 0) & 0xFFFF) == 0) {
         index = scrGetParamIntS32(0);
         *(u8 **)(temp_2 + 0x38) = func_001b0cc0(index & 0xFFFFFFF);
         *(s16 *)(temp_2 + 0x6A) = 1;

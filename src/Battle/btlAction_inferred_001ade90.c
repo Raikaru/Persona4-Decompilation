@@ -717,7 +717,7 @@ void btlActionRoundupInit(u8 *arg0)
     u8 *slot;
 
     func_001eb3b0(arg0 + 0x38);
-    func_001d7f10(arg0, arg0 + 0x98, 0x100, 0);
+    btlSkillClassifyTargets(arg0, arg0 + 0x98, 0x100, 0);
     unitIndex = 0;
     goto loop_2_test;
 loop_2_body:

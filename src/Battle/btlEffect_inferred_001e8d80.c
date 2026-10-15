@@ -488,7 +488,7 @@ s32 btlEffectScriptChooseBestSkill(void) {
     extern void scrSetReturnInt(s32 arg0);
     extern s32 datCalcElementBit(s16 arg0);
     extern s32 datCalcSkillElement(u8 *arg0, s32 arg1);
-    extern u16 func_001d7f10(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
+    extern u16 btlSkillClassifyTargets(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
     extern s32 func_0023df70(s32 arg0);
     extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);
     extern u16 datCalcThresholdKind(u8 *arg0, s32 arg1);
@@ -577,7 +577,7 @@ outer_body:
             goto outer_next;
         }
     }
-    targetKind = func_001d7f10(work, (u8 *)&tgt, skill, 0);
+    targetKind = btlSkillClassifyTargets(work, (u8 *)&tgt, skill, 0);
     innerBest = 0;
     if (targetKind == 0) {
         curScore = 0.0f;

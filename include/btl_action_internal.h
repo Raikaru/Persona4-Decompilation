@@ -3,23 +3,11 @@
 
 #include "type.h"
 #include "btl_unit_internal.h"
+#include "btl_hit_result_internal.h"
 
 /* Typed prefix of the retail BtlAction. Offsets through `unit` agree with the
    P4 battle TUs; later fields are named where code uses them as a role, and
    otherwise kept as unk_XX until evidence appears. */
-/* 0x20-byte hit record. 001f14f0 writes these at action+0xF0 + i*0x20; the
- * controllers in btlAction build the same provider-sized payload. */
-typedef struct LargeBattleHitResult {
-    s32 hpDelta, spDelta;
-    u32 addedStatus, removedStatus;
-    u32 field10;
-    s32 field14;
-    s16 hpTransfer, spTransfer;
-    s8 motion;
-    u8 field1d;
-    u16 flags;
-} LargeBattleHitResult;
-
 /* Target block at BtlAction+0xD8, 0x44 bytes. Offsets are from the action;
  * the rows are the hit records, counted by hitRowCount (u8, 0xD9). The row
  * capacity is 25 (0xF0 + 25*0x20 = 0x410, inside the 0x41C end). */

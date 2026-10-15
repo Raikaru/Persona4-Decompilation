@@ -75,7 +75,7 @@ extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
-extern s32 func_001f0ff0(u8 *arg0);
+extern s32 btlActionHasNoTargetClass(u8 *arg0);
 extern void btlCameraFrameWithFlags(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
@@ -546,7 +546,7 @@ void btlCameraFrameRandomCut(u8 *arg0)
     u8 *target;
 
     value = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA4);
-    if (func_001f0ff0(*(u8 **)(arg0 + 0xE0)) != 0) {
+    if (btlActionHasNoTargetClass(*(u8 **)(arg0 + 0xE0)) != 0) {
         flag_offset = (effMiscRand(0) & 1) * 0xF4;
         index_offset = ((value & 0xFFFF) - 2) * 0x1E8;
         target = (u8 *)&D_005FA2D0 + index_offset;
@@ -562,7 +562,7 @@ void btlCameraFrameAnimWait(u8 *arg0)
 {
     u8 *temp;
 
-    if (func_001f0ff0(*(u8 **)(arg0 + 0xE0)) != 0) {
+    if (btlActionHasNoTargetClass(*(u8 **)(arg0 + 0xE0)) != 0) {
         btlCameraUpdateEffectList(arg0);
         goto done;
     }

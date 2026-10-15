@@ -192,7 +192,7 @@ next:
 }
 
 // FUN_001D7F10
-u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
+u16 btlSkillClassifyTargets(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
 {
     u32 effect;
     s32 offset;

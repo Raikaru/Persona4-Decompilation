@@ -180,7 +180,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern struct RwV3d *RtQuatTransformVectors(struct RwV3d *, const struct RwV3d *, s32, const struct RtQuat *);
     extern f32 RwV3dLength(f32 *vector);
     extern f32 RwV2dLength(f32 *vector);
-    extern s32 func_001f0ff0(u32 action);
+    extern s32 btlActionHasNoTargetClass(u32 action);
     extern s32 func_001f11e0(s16 action);
     extern s32 btlBossUnitsSameGenus(struct BtlUnit *, struct BtlUnit *);
     extern s32 btlBossTargetBlocked(u8 *);
@@ -250,7 +250,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     switch (kind) {
     case 0:
         func_001f11e0((s16)h6E);
-        if (func_001f0ff0((u32)base) == 1) {
+        if (btlActionHasNoTargetClass((u32)base) == 1) {
             unitA = *(u8 **)(base + 0x38);
             if (base == unitA) {
                 return 1;
