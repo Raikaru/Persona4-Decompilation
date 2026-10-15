@@ -204,7 +204,7 @@ void func_00198dd0(u8 *arg0, u16 arg1)
     if (datCalcIsLowHp(*(u8 **)(arg0 + 0xA64)) != 0) {
         if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
             temp = (s16)(func_001990d0(arg0, 0x12) & 0xFFFF);
-            if (func_00479d10(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
+            if (mdlLayerHasAnimation(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
                 flag = 0;
             } else {
                 r = func_00479dd0(*(u8 **)(arg0 + 0xA00), 0, temp);
@@ -236,7 +236,7 @@ void func_00198dd0(u8 *arg0, u16 arg1)
     if ((datCalcIsDead(*(u8 **)(arg0 + 0xA64), 0) != 0) && ((*(s32 *)(arg0 + 0x9C) & 0x20) != 0)) {
         if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
             temp = (s16)(func_001990d0(arg0, 0x13) & 0xFFFF);
-            if (func_00479d10(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
+            if (mdlLayerHasAnimation(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
                 flag = 0;
             } else {
                 r = func_00479dd0(*(u8 **)(arg0 + 0xA00), 0, temp);
