@@ -59,9 +59,9 @@ s32 func_0018f470(u8 *arg0)
     {
         KwlnTask *buf;
 
-        buf = func_00470250((KwlnTask *)arg0, 0xDC, 0xA0);
+        buf = sdkLboxCreate((KwlnTask *)arg0, 0xDC, 0xA0);
         *(KwlnTask **)(p + 1) = buf;
-        func_00470810(buf, D_005F59F0, 6);
+        sdkLboxAddDescriptors(buf, D_005F59F0, 6);
         value = D_00764344;
         *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 2) = value;
         value = D_00764348;
@@ -70,8 +70,8 @@ s32 func_0018f470(u8 *arg0)
         *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 4) = value;
         value = D_00764350;
         *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 5) = value;
-        func_004703c0(*(u8 **)(p + 1), 4);
-        func_004703d0(*(u8 **)(p + 1), 1);
+        sdkLboxSetState(*(u8 **)(p + 1), 4);
+        sdkLboxSetSelection(*(u8 **)(p + 1), 1);
         *(s32 *)p = *(s32 *)p + 1;
         break;
     }
@@ -85,7 +85,7 @@ s32 func_0018f470(u8 *arg0)
             sp[0] = *sdkLboxGetValuePtr(*(KwlnTask **)(p + 1), 0);
             sp[1] = 0xFFFF;
             func_001029a0(0xB, sp, 8, 0);
-            func_004703d0(*(u8 **)(p + 1), 0);
+            sdkLboxSetSelection(*(u8 **)(p + 1), 0);
             *(s32 *)p = 2;
         } else if (D_008C024E[0] & 0x20) {
             *(s32 *)p = 3;
@@ -94,7 +94,7 @@ s32 func_0018f470(u8 *arg0)
     case 2:
         if (func_00102980() == 0) {
             D_00764494 = 0;
-            func_004703d0(*(u8 **)(p + 1), 1);
+            sdkLboxSetSelection(*(u8 **)(p + 1), 1);
             *(s32 *)p = 1;
         }
         break;

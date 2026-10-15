@@ -3493,17 +3493,17 @@ s32 func_0018e810(u8 *arg0)
     state = *(u8 **)(arg0 + 0x38);
     switch (*(s32 *)state) {
     case 0:
-        *(KwlnTask **)(state + 0x1B438) = func_00470250((KwlnTask *)arg0, 0x100, 0x40);
-        func_00470810(*(KwlnTask **)(state + 0x1B438), D_005F5730, 4);
-        func_00470430(*(u8 **)(state + 0x1B438), 0x14);
-        func_004703c0(*(u8 **)(state + 0x1B438), 4);
-        func_004703d0(*(u8 **)(state + 0x1B438), 1);
+        *(KwlnTask **)(state + 0x1B438) = sdkLboxCreate((KwlnTask *)arg0, 0x100, 0x40);
+        sdkLboxAddDescriptors(*(KwlnTask **)(state + 0x1B438), D_005F5730, 4);
+        sdkLboxSetVisibleRows(*(u8 **)(state + 0x1B438), 0x14);
+        sdkLboxSetState(*(u8 **)(state + 0x1B438), 4);
+        sdkLboxSetSelection(*(u8 **)(state + 0x1B438), 1);
         *(u8 **)(state + 0x1B434) = D_007E3720;
         *(s32 *)state += 1;
         break;
     case 1:
         if (D_008C0240[0].trigger & 0x40) {
-            switch (func_00470e20(*(u8 **)(state + 0x1B438))) {
+            switch (sdkLboxGetSelectedId(*(u8 **)(state + 0x1B438))) {
             case 0:
                 *((u8 *)func_00155280() + 0x4A) =
                     *(*(u8 **)(state + 0x1B434) +
@@ -3628,8 +3628,8 @@ s32 func_0018efe0(u8 *arg0)
     temp_16 = *(u8 **)(arg0 + 0x38);
     switch (*(s32 *)temp_16) {
     case 0:
-        *(KwlnTask **)(temp_16 + 4) = func_00470250((KwlnTask *)arg0, 0xDC, 0xA0);
-        func_00470810(*(KwlnTask **)(temp_16 + 4), D_005F5830, 0xB);
+        *(KwlnTask **)(temp_16 + 4) = sdkLboxCreate((KwlnTask *)arg0, 0xDC, 0xA0);
+        sdkLboxAddDescriptors(*(KwlnTask **)(temp_16 + 4), D_005F5830, 0xB);
         temp_17 = iGpffffb268 != 0;
         *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 5) = temp_17 ^ 1;
         *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 0) = iGpffffb3a0;
@@ -3638,9 +3638,9 @@ s32 func_0018efe0(u8 *arg0)
         *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 3) = iGpffffb394;
         *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 4) = iGpffffb390;
         *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 6) = iGpffffb250;
-        func_00470430(*(u8 **)(temp_16 + 4), 0x14);
-        func_004703c0(*(u8 **)(temp_16 + 4), 4);
-        func_004703d0(*(u8 **)(temp_16 + 4), 1);
+        sdkLboxSetVisibleRows(*(u8 **)(temp_16 + 4), 0x14);
+        sdkLboxSetState(*(u8 **)(temp_16 + 4), 4);
+        sdkLboxSetSelection(*(u8 **)(temp_16 + 4), 1);
         *(s32 *)temp_16 += 1;
         break;
     case 1:
@@ -3664,7 +3664,7 @@ s32 func_0018efe0(u8 *arg0)
                 iGpffffb394 = *(s16 *)(packet + 6);
                 iGpffffb390 = *(s16 *)(packet + 8);
                 func_001029a0(9, packet, 0x1C, 0);
-                func_004703d0(*(u8 **)(temp_16 + 4), 0);
+                sdkLboxSetSelection(*(u8 **)(temp_16 + 4), 0);
                 *(s32 *)temp_16 = 2;
             } else {
                 *(s32 *)(packet + 0xC) =
@@ -3674,7 +3674,7 @@ s32 func_0018efe0(u8 *arg0)
                 *(s32 *)(packet + 0x14) =
                     *sdkLboxGetValuePtr(*(KwlnTask **)(temp_16 + 4), 0xA);
                 func_001029a0(0xA, packet, 0x1C, 0);
-                func_004703d0(*(u8 **)(temp_16 + 4), 0);
+                sdkLboxSetSelection(*(u8 **)(temp_16 + 4), 0);
                 *(s32 *)temp_16 = 2;
             }
         } else if (D_008C024E[0] & 0x20) {
@@ -3684,7 +3684,7 @@ s32 func_0018efe0(u8 *arg0)
     case 2:
         if (func_00102980() == 0) {
             iGpffffb3a4 = 0;
-            func_004703d0(*(u8 **)(temp_16 + 4), 1);
+            sdkLboxSetSelection(*(u8 **)(temp_16 + 4), 1);
             *(s32 *)temp_16 = 1;
         }
         break;
@@ -3782,7 +3782,7 @@ extern u16 D_008C0252[];
 extern u16 D_008C0298[];
 extern const KWindowEntryDescriptor D_005F5FD0[];
 extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
-extern s32 func_00470970(u8 *arg0, u8 *arg1);
+extern s32 sdkLboxAddEntry(u8 *arg0, u8 *arg1);
 extern void sprintf(void *dst, const char *fmt, ...);
 extern u8 *func_0015c640(s32 arg0, s32 arg1);
 extern s32 func_0015c6f0(u8 *arg0);
@@ -3816,9 +3816,9 @@ s32 func_0018f950(u8 *arg0)
         *(s32 *)work += 1;
         break;
     case 1:
-        *(KwlnTask **)(work + 0x1CD10) = func_00470250((KwlnTask *)arg0, 0xDC, 0xC8);
-        func_00470810(*(KwlnTask **)(work + 0x1CD10), D_005F5FD0, 2);
-        func_004703d0(*(u8 **)(work + 0x1CD10), 1);
+        *(KwlnTask **)(work + 0x1CD10) = sdkLboxCreate((KwlnTask *)arg0, 0xDC, 0xC8);
+        sdkLboxAddDescriptors(*(KwlnTask **)(work + 0x1CD10), D_005F5FD0, 2);
+        sdkLboxSetSelection(*(u8 **)(work + 0x1CD10), 1);
         *(s32 *)work += 1;
         break;
     case 2:
@@ -3827,11 +3827,11 @@ s32 func_0018f950(u8 *arg0)
             *(s16 *)(work + 0x2A) = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1CD10), 1);
             kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x1CD10));
             *(u8 **)(work + 0x1CD14) = func_0015c640(*(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
-            *(s32 *)(work + 0x1CD10) = func_00470280(arg0, 0x22E, 0x28, 2);
+            *(s32 *)(work + 0x1CD10) = sdkLboxCreateEx(arg0, 0x22E, 0x28, 2);
             sprintf(text, "%d-%d", *(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
-            func_004703c0(*(u8 **)(work + 0x1CD10), 1);
-            func_00470970(*(u8 **)(work + 0x1CD10), text);
-            func_004703d0(*(u8 **)(work + 0x1CD10), 1);
+            sdkLboxSetState(*(u8 **)(work + 0x1CD10), 1);
+            sdkLboxAddEntry(*(u8 **)(work + 0x1CD10), text);
+            sdkLboxSetSelection(*(u8 **)(work + 0x1CD10), 1);
             *(s32 *)work += 1;
         }
         break;

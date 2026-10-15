@@ -9,7 +9,7 @@ extern MdlTypeCallback iGpffffbb30;
 extern MdlNameCallback iGpffffbb34;
 extern MdlSetupCallback iGpffffbb38;
 extern void (*iGpffffbb3c)();
-extern void func_00470d70(u8 *arg0);
+extern void sdkLboxClear(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffbb28;
@@ -20,8 +20,8 @@ extern void Vpad_SetColor(struct RuntimeWork* work, const u8* color);
 extern u8 D_00922C50[];
 extern u8 DAT_00922c30_abs[];
 
-extern u8 *func_00470d10(u8 *arg0, s32 arg1);
-extern void func_004704d0(u8 *arg0);
+extern u8 *sdkLboxFindEntry(u8 *arg0, s32 arg1);
+extern void sdkLboxRecalcLayout(u8 *arg0);
 
 extern void mdlAdvanceModel(u8 *arg0, s32 arg1);
 
@@ -35,7 +35,7 @@ extern void func_00453ce0(u8 *arg0, s32 arg1);
 extern s32 func_00453e10(u8 *arg0);
 extern s32 func_00453d70(u8 *arg0);
 extern s32 func_00453dc0(u8 *arg0);
-/* measured: func_00470e20's final `index*0xA4 + base` add emitted
+/* measured: sdkLboxGetSelectedId's final `index*0xA4 + base` add emitted
  * addu $v0,$s0,$v0 where retail has addu $v0,$v0,$s0; both plain C operand
  * orders compile identically (nd 2). Routing the add through this
  * static inline helper, whose parameter order is the reverse of the
@@ -81,47 +81,47 @@ static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
 
 
 // FUN_00470210
-void func_00470210(u8 *arg0)
+void sdkLboxDestroy(u8 *arg0)
 {
-    func_00470d70(arg0);
+    sdkLboxClear(arg0);
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_00470C10
-void func_00470c10(u8 *arg0, s32 arg1, s32 arg2)
+void sdkLboxSetRefValue(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *node;
 
-    node = func_00470d10(arg0, arg1);
+    node = sdkLboxFindEntry(arg0, arg1);
     if (node != NULL) {
         *(s32 *)(node + 4) = 2;
         *(s32 *)(node + 0x208) = arg2;
         *(s32 *)(node + 0x210) = 0;
         *(s32 *)(node + 0x214) = 1;
-        func_004704d0(arg0);
+        sdkLboxRecalcLayout(arg0);
     }
 }
 
 
 
 // FUN_00470C80
-void func_00470c80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+void sdkLboxSetFloatRange(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     u8 *node;
 
-    node = func_00470d10(arg0, arg1);
+    node = sdkLboxFindEntry(arg0, arg1);
     if (node != NULL) {
         *(s32 *)(node + 4) = 4;
         *(f32 *)(node + 0x20C) = (f32)arg2;
         *(s32 *)(node + 0x210) = arg3;
         *(s32 *)(node + 0x214) = arg4;
-        func_004704d0(arg0);
+        sdkLboxRecalcLayout(arg0);
     }
 }
 
 
 
 // FUN_00470D10
-u8 *func_00470d10(u8 *arg0, s32 key)
+u8 *sdkLboxFindEntry(u8 *arg0, s32 key)
 {
     u8 *node;
 
@@ -146,7 +146,7 @@ compare:
 }
 
 // FUN_00470D70
-void func_00470d70(u8 *arg0)
+void sdkLboxClear(u8 *arg0)
 {
     u8 *work;
     u8 *node;
@@ -171,7 +171,7 @@ void func_00470d70(u8 *arg0)
     *(s32 *)(work + 0x134) = func_00453dc0(work + 0x164);
 }
 // FUN_00470E20
-s32 func_00470e20(u8 *arg0)
+s32 sdkLboxGetSelectedId(u8 *arg0)
 {
     s32 target;
     s32 index;

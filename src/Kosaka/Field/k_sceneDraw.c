@@ -47,12 +47,12 @@ extern Resrc* resrcMngFindResById(ResrcManager* resManager, u16 resTypeId);
 
 
 
-extern u32 func_00470970(KwlnTask* task, const char* name);
+extern u32 sdkLboxAddEntry(KwlnTask* task, const char* name);
 extern void sdkLboxSetText(KwlnTask* task, u32 id, const char* text);
-extern void func_00470c10(KwlnTask* task, u32 id, s32 value);
+extern void sdkLboxSetRefValue(KwlnTask* task, u32 id, s32 value);
 extern void sdkLboxSetIntRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
                           s32 maxValue, s32 flags);
-extern void func_00470c80(KwlnTask* task, u32 id, s32 value, s32 minValue,
+extern void sdkLboxSetFloatRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
                           s32 maxValue);
 extern void sdkLboxSetCallback(KwlnTask* task, u32 id, KWindowEntryCallback callback);
 
@@ -626,15 +626,15 @@ setFlags:
 
 
 // FUN_00470250
-KwlnTask* func_00470250(KwlnTask* parent, u32 width, u32 height)
+KwlnTask* sdkLboxCreate(KwlnTask* parent, u32 width, u32 height)
 {
-    return (KwlnTask*)func_00470280((u8*)parent, width, height, 0);
+    return (KwlnTask*)sdkLboxCreateEx((u8*)parent, width, height, 0);
 }
 
 
 
 // FUN_00470810
-void func_00470810(KwlnTask* task, const KWindowEntryDescriptor* descriptors,
+void sdkLboxAddDescriptors(KwlnTask* task, const KWindowEntryDescriptor* descriptors,
                    u32 count)
 {
     u32 i;
@@ -643,7 +643,7 @@ void func_00470810(KwlnTask* task, const KWindowEntryDescriptor* descriptors,
     i = 0;
     while (i < count)
     {
-        id = func_00470970(task, descriptors->name);
+        id = sdkLboxAddEntry(task, descriptors->name);
         switch (descriptors->type)
         {
             case 0:
@@ -652,7 +652,7 @@ void func_00470810(KwlnTask* task, const KWindowEntryDescriptor* descriptors,
                 sdkLboxSetText(task, id, descriptors->text);
                 break;
             case 2:
-                func_00470c10(task, id, descriptors->value0);
+                sdkLboxSetRefValue(task, id, descriptors->value0);
                 break;
             case 3:
                 sdkLboxSetIntRange(task, id, descriptors->value0,
@@ -660,7 +660,7 @@ void func_00470810(KwlnTask* task, const KWindowEntryDescriptor* descriptors,
                               descriptors->value3);
                 break;
             case 4:
-                func_00470c80(task, id, descriptors->value0,
+                sdkLboxSetFloatRange(task, id, descriptors->value0,
                               descriptors->value1, descriptors->value2);
                 break;
         }

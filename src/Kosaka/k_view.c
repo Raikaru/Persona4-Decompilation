@@ -48,9 +48,9 @@ typedef struct KWindowEntry
     struct KWindowEntry* next;      /* 0x228 */
 } KWindowEntry;
 
-extern KWindowEntry* func_00470d10(KwlnTask* task, s32 id);
+extern KWindowEntry* sdkLboxFindEntry(KwlnTask* task, s32 id);
 extern void strcpy(void* destination, const char* source);
-extern void func_004704d0(KwlnTask* task);
+extern void sdkLboxRecalcLayout(KwlnTask* task);
 
 
 
@@ -90,7 +90,7 @@ void sdkLboxSetCallback(KwlnTask* task, u32 id, KWindowEntryCallback callback)
 {
     KWindowEntry* entry;
 
-    entry = (KWindowEntry*)func_00470d10(task, id);
+    entry = (KWindowEntry*)sdkLboxFindEntry(task, id);
     if (entry != NULL)
     {
         entry->callback = callback;
@@ -104,7 +104,7 @@ void sdkLboxSetText(KwlnTask* task, u32 id, const char* text)
 {
     KWindowEntry* entry;
 
-    entry = (KWindowEntry*)func_00470d10(task, id);
+    entry = (KWindowEntry*)sdkLboxFindEntry(task, id);
     if (entry != NULL)
     {
         entry->type = 1;
@@ -112,7 +112,7 @@ void sdkLboxSetText(KwlnTask* task, u32 id, const char* text)
         {
             strcpy(entry->text, text);
         }
-        func_004704d0(task);
+        sdkLboxRecalcLayout(task);
     }
 }
 // FUN_00470B40
@@ -121,7 +121,7 @@ void sdkLboxSetIntRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
 {
     KWindowEntry* entry;
 
-    entry = (KWindowEntry*)func_00470d10(task, id);
+    entry = (KWindowEntry*)sdkLboxFindEntry(task, id);
     if (entry != NULL)
     {
         entry->type = 3;
@@ -129,7 +129,7 @@ void sdkLboxSetIntRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
         entry->minValue = minValue;
         entry->maxValue = maxValue;
         entry->flags = flags;
-        func_004704d0(task);
+        sdkLboxRecalcLayout(task);
     }
 }
 // FUN_00470BD0
@@ -137,7 +137,7 @@ s32* sdkLboxGetValuePtr(KwlnTask* task, u32 id)
 {
     KWindowEntry* entry;
 
-    entry = (KWindowEntry*)func_00470d10(task, id);
+    entry = (KWindowEntry*)sdkLboxFindEntry(task, id);
     if (entry != NULL)
     {
         goto found;
