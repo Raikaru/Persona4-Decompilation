@@ -44,7 +44,7 @@ extern void *SceneDraw_GetList4FirstColor(void);
 extern s32 func_001b0d70(u8 *arg0);
 extern s32 btlOrderRemoveActionAll(u8 *arg0);
 extern void *SceneDraw_GetList4SecondColor(void);
-extern void func_001b6990();
+extern void btlMainLoadBattleFieldScene();
 extern void func_00193d30(void);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 extern s32 btlFormationAllocWork(s32 arg0);

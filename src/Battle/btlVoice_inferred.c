@@ -101,7 +101,7 @@ extern u8 *DAT_0076449c;
 extern void btlCameraFrameAim(u8 *arg0);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);
-extern void func_00195590(BtlUnit *unit, const RwV3d *target);
+extern void btlUnitFaceTarget(BtlUnit *unit, const RwV3d *target);
 extern s32 btlCameraSelectMode(u8 *camera);
 extern void btlCameraUpdateMode(u8 *camera);
 extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
@@ -611,7 +611,7 @@ void btlCameraTickModeState(u8 *camera)
             target = *(u8 **)(action + 0x38 + (u16)index * 4);
             target = *(u8 **)(target + 0x30);
             if (*(u8 *)(target + 0xA2) == 1) {
-                func_00195590((BtlUnit *)target, (const RwV3d *)(unit + 4));
+                btlUnitFaceTarget((BtlUnit *)target, (const RwV3d *)(unit + 4));
             }
             index = (u16)(index + 1);
         }
@@ -882,7 +882,7 @@ void btlCameraApplyPartyPose(u8 *camera)
             target = *(u8 **)(action + 0x38 + (u16)index * 4);
             target = *(u8 **)(target + 0x30);
             if (*(u8 *)(target + 0xA2) == 1) {
-                func_00195590((BtlUnit *)target, (const RwV3d *)(unit + 4));
+                btlUnitFaceTarget((BtlUnit *)target, (const RwV3d *)(unit + 4));
             }
             index = (u16)(index + 1);
         }
@@ -1608,7 +1608,7 @@ void btlCameraFramePair(u8 *camera)
                 target = *(u8 **)(action + 0x38 + (index & 0xFFFF) * 4);
                 target = *(u8 **)(target + 0x30);
                 if (*(u8 *)(target + 0xA2) == 1) {
-                    func_00195590((BtlUnit *)target, (const RwV3d *)(unit + 4));
+                    btlUnitFaceTarget((BtlUnit *)target, (const RwV3d *)(unit + 4));
                 }
                 index = (u16)(index + 1);
             }

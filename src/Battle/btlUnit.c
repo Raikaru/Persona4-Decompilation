@@ -1667,7 +1667,7 @@ void btlUnitReleasePendingLookAt(u8 *arg0) {
     }
 }
 // FUN_00195590
-void func_00195590(BtlUnit* unit, const RwV3d* target)
+void btlUnitFaceTarget(BtlUnit* unit, const RwV3d* target)
 {
     RtQuat rotation;
 

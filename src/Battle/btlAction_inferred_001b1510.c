@@ -36,7 +36,7 @@ extern s32 func_00193260(u8 *arg0);
 extern void memset(void *dst, s32 value, s32 size);
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
-extern void func_001b6990();
+extern void btlMainLoadBattleFieldScene();
 extern void func_00193d30(void);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 extern s32 btlFormationAllocWork(s32 arg0);
@@ -451,7 +451,7 @@ s32 btlMainInitUpdate(void) {
 // FUN_001B19A0
 void btlMainSceneSetInit(void)
 {
-    func_001b6990();
+    btlMainLoadBattleFieldScene();
 }
 
 /* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
