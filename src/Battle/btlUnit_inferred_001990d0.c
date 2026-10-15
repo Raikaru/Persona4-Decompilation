@@ -176,7 +176,7 @@ extern u8 D_00794150[];
 /* measured: func_001990d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001990D0
-s64 func_001990d0(u8 *arg0, u16 arg1)
+s64 btlUnitGetMotionId(u8 *arg0, u16 arg1)
 {
     u8 kind;
     s32 index;

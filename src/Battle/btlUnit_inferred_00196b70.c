@@ -200,7 +200,7 @@ f32 func_00196bd0(u8 *unit, u8 *target, u16 motion)
     u8 *table;
     s32 temp_4;
 
-    temp_4 = (s16)func_001990d0(unit, motion);
+    temp_4 = (s16)btlUnitGetMotionId(unit, motion);
     if (temp_4 < (s32)*(u16 *)(unit + 0x9E4)) {
         table = *(u8 **)(unit + 0x9F8);
         temp_f20 = *(f32 *)(unit + 0x2C) *

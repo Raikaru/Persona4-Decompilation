@@ -320,7 +320,7 @@ extern void func_00479100(void *arg0, void *arg1);
 extern u8 D_00794150[];
 
 
-extern s64 func_001990d0(u8 *arg0, u16 arg1);
+extern s64 btlUnitGetMotionId(u8 *arg0, u16 arg1);
 extern s16 func_001991c0(u8 *arg0, u16 arg1, f32 fparg0);
 extern void btlPacketStepSide(s32 arg0);
 // FUN_001900A0
@@ -554,7 +554,7 @@ void func_00198380(u8 *arg0) {
                         case 0xE:
                         case 0x12:
                         case 0x18:
-                            temp_4 = (u16)func_001990d0(arg0, temp_16_2 & 0xFFFF);
+                            temp_4 = (u16)btlUnitGetMotionId(arg0, temp_16_2 & 0xFFFF);
                             if ((s32)temp_4 < (s32)(*(u16 *)(arg0 + 0x9E4))) {
                                 var_6 = (u16)(*(u16 *)(p4_add_index_base(temp_4 * 0xA, (u32)*(s32 *)(arg0 + 0x9F8)) + 8));
                             } else {
@@ -636,7 +636,7 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4)
     if ((*(u32 *)(arg0 + 0x98) & 2) != 0) {
         a1m = (u16)arg1;
         *(s16 *)(arg0 + 0x9DA) = arg1;
-        v11 = (u16)func_001990d0(arg0, a1m);
+        v11 = (u16)btlUnitGetMotionId(arg0, a1m);
         if ((u16)v11 < *(u16 *)(arg0 + 0x9E4)) {
             table = *(MotionTableEntry **)(arg0 + 0x9F8);
             *(f32 *)(arg0 + 0x9E0) = arg3 * ((f32)table[v11].ratePercent / 100.0f);
