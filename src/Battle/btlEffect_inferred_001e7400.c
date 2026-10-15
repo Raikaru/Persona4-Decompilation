@@ -191,6 +191,7 @@ loop_test:
 #pragma push
 /* measured: func_001e7640 MATCH -> MISMATCH without this pragma. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20b7 (p4flow AI.json AI_FUNCTION_00B7). */
 // FUN_001E7640
 s32 func_001e7640(void)
 {
@@ -250,6 +251,7 @@ s32 func_001e7640(void)
 }
 
 #pragma pop
+/* AI script command 0x20d1 (p4flow AI.json AI_FUNCTION_00D1). */
 // FUN_001E77F0
 s32 func_001e77f0(void) {
     extern s32 datCalcGetLevel();
@@ -295,6 +297,7 @@ loop_test:
     return -1;
 }
 
+/* AI script command 0x20d2 (p4flow AI.json AI_FUNCTION_00D2). */
 // FUN_001E7950
 s32 func_001e7950(void) {
     extern s32 datCalcGetBadStatusNoDown();
@@ -339,6 +342,7 @@ loop_test:
    sp60[var_17++] produces addiu v0,s1,1 from the unmasked counter,
    avoiding reuse of the masked index. Object 364B/window 368B,
    normalized_diff 0. */
+/* AI script command 0x20d3 (p4flow AI.json AI_FUNCTION_00D3). */
 // FUN_001E7AB0
 s32 func_001e7ab0(void) {
     extern s32 btlAICommandSelectCandidates();
@@ -391,6 +395,7 @@ loop_test:
     return -1;
 }
 
+/* AI script command 0x20da (p4flow AI.json AI_FUNCTION_00DA). */
 // FUN_001E7C20
 s32 func_001e7c20(void) {
     extern s32 btlAICommandSelectCandidates();
@@ -511,6 +516,7 @@ s32 btlEffectScriptPickRandomCandidate(void) {
     return 1;
 }
 
+/* AI script command 0x20f1 (p4flow AI.json AI_FUNCTION_00F1). */
 // FUN_001E8090
 s32 func_001e8090(void) {
     u8 *work;
@@ -538,6 +544,7 @@ s32 func_001e8090(void) {
     return 1;
 }
 
+/* AI script command 0x20f2 (p4flow AI.json AI_FUNCTION_00F2). */
 // FUN_001E8190
 s32 func_001e8190(void) {
     u8 *work;
@@ -565,6 +572,7 @@ s32 func_001e8190(void) {
     return 1;
 }
 
+/* AI script command 0x20f3 (p4flow AI.json AI_FUNCTION_00F3). */
 // FUN_001E8290
 s32 func_001e8290(void) {
     u8 *work;
@@ -592,6 +600,7 @@ s32 func_001e8290(void) {
     return 1;
 }
 
+/* AI script command 0x20f4 (p4flow AI.json AI_FUNCTION_00F4). */
 // FUN_001E8390
 s32 func_001e8390(void) {
     u8 *work;
@@ -619,6 +628,7 @@ s32 func_001e8390(void) {
     return 1;
 }
 
+/* AI script command 0x2080 (p4flow AI.json AI_FUNCTION_0080). */
 // FUN_001E8490
 s32 func_001e8490(void) {
     u32 value;
@@ -653,6 +663,7 @@ s32 func_001e8490(void) {
     return 1;
 }
 
+/* AI script command 0x2081 (p4flow AI.json AI_FUNCTION_0081). */
 // FUN_001E85C0
 s32 func_001e85c0(void) {
     u32 value;
@@ -687,6 +698,7 @@ s32 func_001e85c0(void) {
     return 1;
 }
 
+/* AI script command 0x2082 (p4flow AI.json AI_FUNCTION_0082). */
 // FUN_001E86F0
 s32 func_001e86f0(void) {
     u32 value;
@@ -721,6 +733,7 @@ s32 func_001e86f0(void) {
     return 1;
 }
 
+/* AI script command 0x20f5 (p4flow AI.json AI_FUNCTION_00F5). */
 // FUN_001E8820
 s32 func_001e8820(void) {
     u32 value;
@@ -755,6 +768,7 @@ s32 func_001e8820(void) {
     return 1;
 }
 
+/* AI script command 0x20f6 (p4flow AI.json AI_FUNCTION_00F6). */
 // FUN_001E8950
 s32 func_001e8950(void) {
     u32 value;
@@ -789,6 +803,7 @@ s32 func_001e8950(void) {
     return 1;
 }
 
+/* AI script command 0x20f7 (p4flow AI.json AI_FUNCTION_00F7). */
 // FUN_001E8A80
 s32 func_001e8a80(void) {
     u32 value;

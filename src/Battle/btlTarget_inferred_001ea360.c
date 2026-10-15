@@ -100,6 +100,7 @@ extern u8 *iGpffffb42c;
 extern s32 func_001ef9a0(void);
 #pragma push
 #pragma pop
+/* AI script command 0x2106 (p4flow AI.json AI_FUNCTION_0106). */
 // FUN_001EA360
 s32 func_001ea360(void) {
     u8 *temp;
@@ -109,6 +110,7 @@ s32 func_001ea360(void) {
     return 1;
 }
 
+/* AI script command 0x2107 (p4flow AI.json AI_FUNCTION_0107). */
 // FUN_001EA390
 s32 func_001ea390(void)
 {
@@ -125,6 +127,7 @@ s32 func_001ea390(void)
     return 1;
 }
 
+/* AI script command 0x2103 (p4flow AI.json AI_FUNCTION_0103). */
 // FUN_001EA420
 s32 func_001ea420(void)
 {
@@ -132,12 +135,14 @@ s32 func_001ea420(void)
     return 1;
 }
 
+/* AI script command 0x2108 (p4flow AI.json AI_FUNCTION_0108). */
 // FUN_001EA470
 s32 func_001ea470(void) {
     scrSetReturnInt(*(s16 *)(iGpffffb3ac + 0xC34));
     return 1;
 }
 
+/* AI script command 0x210a (p4flow AI.json AI_FUNCTION_010A). */
 // FUN_001EA4A0
 s32 func_001ea4a0(void) {
     s32 temp_2;
@@ -166,6 +171,7 @@ done:
     return 1;
 }
 
+/* AI script command 0x20bb (p4flow AI.json AI_FUNCTION_00BB). */
 // FUN_001EA580
 s32 func_001ea580(void)
 {
@@ -175,6 +181,7 @@ s32 func_001ea580(void)
     return 1;
 }
 
+/* AI script command 0x20bc (p4flow AI.json AI_FUNCTION_00BC). */
 // FUN_001EA5F0
 s32 func_001ea5f0(void)
 {
@@ -184,6 +191,7 @@ s32 func_001ea5f0(void)
     return 1;
 }
 
+/* AI script command 0x20bd (p4flow AI.json AI_FUNCTION_00BD). */
 // FUN_001EA660
 s32 func_001ea660(void)
 {
@@ -220,6 +228,7 @@ s32 func_001ea660(void)
     return 1;
 }
 
+/* AI script command 0x20be (p4flow AI.json AI_FUNCTION_00BE). */
 // FUN_001EA780
 s32 func_001ea780(void) {
     D_00881420[0] = scrGetParamFloat(0);
@@ -232,6 +241,7 @@ s32 func_001ea780(void) {
     return 1;
 }
 
+/* AI script command 0x20bf (p4flow AI.json AI_FUNCTION_00BF). */
 // FUN_001EA830
 s32 func_001ea830(void) {
     D_00881410[0] = scrGetParamFloat(0);
@@ -244,6 +254,7 @@ s32 func_001ea830(void) {
     return 1;
 }
 
+/* AI script command 0x20c0 (p4flow AI.json AI_FUNCTION_00C0). */
 // FUN_001EA8E0
 s32 func_001ea8e0(void) {
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));

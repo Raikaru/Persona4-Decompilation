@@ -104,6 +104,7 @@ extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);
 #pragma push
 #pragma pop
+/* AI script command 0x20c2 (p4flow AI.json AI_FUNCTION_00C2). */
 // FUN_001EAA80
 s32 func_001eaa80(void) {
     if (func_001eb860() == 1) {
@@ -112,6 +113,7 @@ s32 func_001eaa80(void) {
     return 1;
 }
 
+/* AI script command 0x20c3 (p4flow AI.json AI_FUNCTION_00C3). */
 // FUN_001EAAC0
 s32 func_001eaac0(void)
 {
@@ -125,6 +127,7 @@ s32 func_001eaac0(void)
     return 1;
 }
 
+/* AI script command 0x20c4 (p4flow AI.json AI_FUNCTION_00C4). */
 // FUN_001EAB10
 s32 func_001eab10(void) {
     func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
@@ -134,6 +137,7 @@ s32 func_001eab10(void) {
     return 1;
 }
 
+/* AI script command 0x20c5 (p4flow AI.json AI_FUNCTION_00C5). */
 // FUN_001EAB60
 s32 func_001eab60(void) {
     func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
@@ -143,6 +147,7 @@ s32 func_001eab60(void) {
     return 1;
 }
 
+/* AI script command 0x20c8 (p4flow AI.json AI_FUNCTION_00C8). */
 // FUN_001EABC0
 s32 func_001eabc0(void) {
     u8 *p = func_001b1510();
@@ -171,6 +176,7 @@ s32 func_001eabc0(void) {
 // FUN_001EACA0
 /* measured probe: preserve the retail filter branch chain */
 #pragma push
+/* AI script command 0x20fb (p4flow AI.json AI_FUNCTION_00FB). */
 s32 func_001eaca0(void) {
     extern s32 btlFormationAllocWork(u32 arg0);
     extern void btlFormationCopyRecord(u8 *arg0, u8 *arg1);
@@ -227,6 +233,7 @@ selected:
 
 /* measured probe: close the filter branch chain */
 #pragma pop
+/* AI script command 0x20fc (p4flow AI.json AI_FUNCTION_00FC). */
 // FUN_001EAE30
 s32 func_001eae30(void) {
     s64 mask;
@@ -239,6 +246,7 @@ s32 func_001eae30(void) {
     return hit ^ 1;
 }
 
+/* AI script command 0x20fd (p4flow AI.json AI_FUNCTION_00FD). */
 // FUN_001EAEC0
 s32 func_001eaec0(void)
 {
@@ -273,6 +281,7 @@ s32 func_001eaec0(void)
 #pragma push
 /* measured: func_001eafb0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_rebuildconditionals off
+/* AI script command 0x20fe (p4flow AI.json AI_FUNCTION_00FE). */
 s32 func_001eafb0(void) {
     extern void btlTargetPositionToCell();
     extern void btlUnitSetPos();
@@ -317,6 +326,7 @@ done:
 
 /* measured probe: close conditional branch shape */
 #pragma pop
+/* AI script command 0x20ff (p4flow AI.json AI_FUNCTION_00FF). */
 // FUN_001EB0B0
 s32 func_001eb0b0(void) {
     u8 *o;
@@ -328,6 +338,7 @@ s32 func_001eb0b0(void) {
     return 1;
 }
 
+/* AI script command 0x210b (p4flow AI.json AI_FUNCTION_010B). */
 // FUN_001EB110
 s32 func_001eb110(void) {
     u8 sp20[0x200];
