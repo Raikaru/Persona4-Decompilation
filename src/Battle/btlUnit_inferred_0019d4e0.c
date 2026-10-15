@@ -137,7 +137,7 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 extern u8 iGpffffa4d8;
 extern void func_001d7040(s32 arg0);
 extern void func_001d6c10(s32 arg0);
-extern void func_0019d550(u8 *arg0);
+extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
@@ -196,7 +196,7 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019D4E0
-void func_0019d4e0(u8 *arg0)
+void btlUnitReleaseAllResources(u8 *arg0)
 {
     u8 *node;
     s32 h;
@@ -204,7 +204,7 @@ void func_0019d4e0(u8 *arg0)
     btlUnitReleaseModel(arg0);
     node = *(u8 **)(arg0 + 0xA0C);
     if (node != NULL) {
-        func_0019d550(node);
+        btlUnitUnlinkAndFree(node);
     }
     h = ((s32 *)arg0)[641];
     if (h != 0) {

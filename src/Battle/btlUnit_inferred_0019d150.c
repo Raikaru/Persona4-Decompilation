@@ -196,7 +196,7 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019D150
-void func_0019d150(void)
+void btlUnitQueueAllModelsForDraw(void)
 {
     u8 *temp;
     u8 *node;

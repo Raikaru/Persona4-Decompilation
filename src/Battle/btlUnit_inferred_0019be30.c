@@ -224,7 +224,7 @@ u8 *btlUnitCreateResourceFreePacket(u8 *arg0)
 }
 
 // FUN_0019BF10
-void func_0019bf10(u8 *arg0) {
+void btlUnitResourceLoadPacketInit(u8 *arg0) {
     u8 *temp_4;
     u8 *temp_5;
 
@@ -240,7 +240,7 @@ void func_0019bf10(u8 *arg0) {
 }
 
 // FUN_0019BF80
-s32 func_0019bf80(u8 *arg0) {
+s32 btlUnitResourceLoadPacketUpdate(u8 *arg0) {
     u8 *temp_3;
     u8 *temp_4;
 
@@ -261,7 +261,7 @@ block_6:
 }
 
 // FUN_0019C010
-void func_0019c010(u8 *arg0)
+void btlUnitReleasePendingResourceLoad(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }

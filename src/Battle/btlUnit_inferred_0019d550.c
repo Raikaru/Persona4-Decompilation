@@ -139,7 +139,7 @@ extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001ee430(u8 *arg0);
 extern void func_001d7040(s32 arg0);
 extern void func_001d6c10(s32 arg0);
-extern void func_0019d550(u8 *arg0);
+extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
@@ -199,7 +199,7 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019D550
-void func_0019d550(u8 *arg0)
+void btlUnitUnlinkAndFree(u8 *arg0)
 {
     u8 *temp_17;
     u8 temp_16;
@@ -215,7 +215,7 @@ void func_0019d550(u8 *arg0)
     btlUnitReleaseModel(temp_17);
     temp_4 = *(u8 **)(temp_17 + 0xA0C);
     if (temp_4 != NULL)
-        func_0019d550(temp_4);
+        btlUnitUnlinkAndFree(temp_4);
     temp_4_2 = *(s32 *)(temp_17 + 0xA04);
     if (temp_4_2 != 0) {
         func_001d7040(temp_4_2);
