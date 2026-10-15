@@ -64,7 +64,7 @@ extern void FldFrameTask_SetPosition();
 extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
 extern void FldFrameTask_SetFlags(s32 arg0, s32 arg1);
 extern void FldFrameTask_SetHeight(s32 arg0, f32 arg1);
-extern u32 *func_00478750(u8 *arg0);
+extern u32 *mdlCloneModelObject(u8 *arg0);
 extern f32 FldFrameTask_GetHeight(s32 arg0);
 extern void mdlAdvanceModelFromFlags(u8 *arg0);
 extern s32 FldAI_SpawnPatrol(s32 arg0, u8 *arg1, s32 arg2);
@@ -547,7 +547,7 @@ void FldUnit_UpdateFacing(void)
             f32 markerScaleValue;
             FieldUnitPlacement *placement;
 
-            (*setupResource)->markerModel = (Model *)func_00478750((u8 *)iGpffffb274);
+            (*setupResource)->markerModel = (Model *)mdlCloneModelObject((u8 *)iGpffffb274);
             markerScaleValue = FldFrameTask_GetHeight((*setupResource)->movementTask);
             markerScale.x = markerScale.y = markerScale.z = markerScaleValue;
             mdlScale((*setupResource)->markerModel, &markerScale, 2);
@@ -891,7 +891,7 @@ s32 FldUnit_SetupSlot(s32 arg0)
   SceneDraw_SetResVisibleChecked(*((u16 *) (*((u8 **) (0x54 + temp_16)))), 1);
   FldFrameTask_SetFlags(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 0x40000000);
   FldFrameTask_SetHeight(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 35.0f);
-  *((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)) = (s32)func_00478750((u8 *)(iGpffffb274));
+  *((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)) = (s32)mdlCloneModelObject((u8 *)(iGpffffb274));
   temp_f0 = FldFrameTask_GetHeight(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)));
   sp30[2] = temp_f0;
   sp30[1] = temp_f0;
@@ -1555,7 +1555,7 @@ void FldUnit_UpdateSlot(s32 arg0)
             FldFrameTask_SetHeight(*((s32 *)(*temp_20 + 0x220)), 35.0f);
         }
         temp_20_2 = (u8 **)(D_007EFA04 + (arg0 * 0x750));
-        *(u8 **)(*temp_20_2 + 0x228) = (u8 *)func_00478750((u8 *)(iGpffffb274));
+        *(u8 **)(*temp_20_2 + 0x228) = (u8 *)mdlCloneModelObject((u8 *)(iGpffffb274));
         temp_f0 = FldFrameTask_GetHeight(*((s32 *)(*temp_20_2 + 0x220)));
         sp70[0] = sp70[1] = sp70[2] = temp_f0;
         mdlScale((Model *)(*(u8 **)(*temp_20_2 + 0x228)), (const RwV3d *)(&sp70[0]), 2);
@@ -1678,7 +1678,7 @@ void FldUnit_UpdateSlotModels(void)
             FldFrameTask_SetFlags(*(s32 *)(*(u8 **)f54 + 0x220), 0x40000000);
             FldFrameTask_UpdateTile(*(s32 *)(*(u8 **)f54 + 0x220));
             FldFrameTask_SetHeight(*(s32 *)(*(u8 **)f54 + 0x220), 35.0f);
-            *(s32 *)(*(u8 **)f54 + 0x228) = (s32)func_00478750((u8 *)(iGpffffb274));
+            *(s32 *)(*(u8 **)f54 + 0x228) = (s32)mdlCloneModelObject((u8 *)(iGpffffb274));
             temp_f0 = FldFrameTask_GetHeight(*(s32 *)(*(u8 **)f54 + 0x220));
             sp50[2] = temp_f0;
             sp50[1] = temp_f0;
@@ -2010,7 +2010,7 @@ s32 FldUnit_InstallResources(void)
         }
         {
             s32 model;
-            model = (s32)func_00478750((u8 *)(iGpffffb274));
+            model = (s32)mdlCloneModelObject((u8 *)(iGpffffb274));
             *(s32*)(instance + 0x22C) = model;
             scale.x = scale.y = scale.z = 30.0f;
             mdlScale((Model *)(*(s32*)(instance + 0x22C)), &scale, 2);
@@ -2052,7 +2052,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
 
     if (arg0 != NULL) {
         temp_17 = (s32)(((*(u8 **)(arg0 + 0x160) + 7)[0] & 1) != 0);
-        *(u16 *)(arg0 + 0xC) = (u16)MT_Scene_CreateModelFldRes(arg2 & 0xFFFF, (s32)func_00478750((u8 *)(*(s32 *)(func_0015a320()))));
+        *(u16 *)(arg0 + 0xC) = (u16)MT_Scene_CreateModelFldRes(arg2 & 0xFFFF, (s32)mdlCloneModelObject((u8 *)(*(s32 *)(func_0015a320()))));
         temp_2 = (u8 *)MT_Scene_GetRes(*(u16 *)(arg0 + 0xC));
         func_0047aa30(*(u8 **)(temp_2 + 0x144), D_005DC920);
         temp_21 = temp_17 * 0xC;
@@ -2089,7 +2089,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         } else {
             mdlSetColor((s32)*(u8 **)(temp_2 + 0x144), D_005F1570 + ((func_0015a160() / 20U) * 4));
         }
-        temp_2_2 = (u8 *)func_00478750((u8 *)(D_00764364));
+        temp_2_2 = (u8 *)mdlCloneModelObject((u8 *)(D_00764364));
         *(u8 **)(temp_2 + 0x16C) = temp_2_2;
         func_0047a1a0(temp_2_2, D_00756510, *(f32 *)(arg1 + 0x14C), 2);
         mdlScale((Model *)(*(u8 **)(temp_2 + 0x16C)), (const RwV3d *)(D_005F1550 + temp_21), 2);

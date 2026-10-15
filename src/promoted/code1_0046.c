@@ -121,7 +121,7 @@ extern void func_003c21e0(s32 arg0, s32 (*callback)(u8 *, s32 *), s32 *result);
 extern u8 *func_003bfae0(s32 arg0);
 extern s32 RwCameraFrustumTestSphere(s32 arg0, u8 *arg1);
 extern void mdlClumpSetEnvMapValue(s32 arg0, s32 arg1);
-extern void func_00476c70(u8 *arg0);
+extern void mdlDrawSkyPass(u8 *arg0);
 extern void mdlDrawVisibleAtomics(s32 arg0);
 extern void func_00461560(u8 *arg0);
 extern void func_00461a40(u8 *arg0);
@@ -845,7 +845,7 @@ void func_00462230(u8 *arg0)
     if ((*(s32 *)(work + 0xD8) & 0x400) != 0) {
         mdlClumpSetEnvMapValue(*(s32 *)(work + 0xDC), 1);
     }
-    func_00476c70(work);
+    mdlDrawSkyPass(work);
     if ((*(s32 *)(work + 0xE0) == 0) ||
         ((*(s32 *)(work + 0xD8) & 0x800) != 0)) {
         RpSkyRenderStateSet(2, (void *)(*(s32 *)(work + 0xE4)));

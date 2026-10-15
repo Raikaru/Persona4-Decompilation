@@ -4388,7 +4388,7 @@ functions across 172 eligible C objects.
 ### Model cloning: preserve storage stages and the hierarchy ABI
 
 The complete IDA body at `mdlManager.c:2448-2545` and the retail assembly
-recover `func_00478410`: **824 instruction bytes plus eight zero-tail bytes**.
+recover `mdlCopyModelState` (was `func_00478410`): **824 instruction bytes plus eight zero-tail bytes**.
 The old saved-register-count floor was not intrinsic to the compiler.
 Keeping a destination model base plus its layer stride preserves the
 resource/hierarchy lifetime. The private attachment-storage constructor
@@ -5155,7 +5155,7 @@ The lookup producer already defines
 `void *mdlFindModelObject(u32 type, u32 id, u32 flags)` (was `func_00477c40`). Active consumer
 declarations now use that contract rather than the narrower, integer-returning
 reconstruction. The battle-unit consumer also retains the returned address
-as a pointer and uses the clone producer's `u32 *func_00478750(u8 *)`
+as a pointer and uses the clone producer's `u32 *mdlCloneModelObject(u8 *)` (was `func_00478750`)
 contract. Generated reference drafts are intentionally unchanged.
 
 Four previously matched callers exposed constant/halfword-load scheduling

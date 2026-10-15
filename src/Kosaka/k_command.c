@@ -39,7 +39,7 @@ extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern void func_0016f130(s32 a, s32 b, s32 c);
 extern void func_0016f3b0(s32 a, s32 b, s32 c);
 extern s32 mdlPrepareModel(void* arg0);
-extern void* func_00478750(s32 arg0);
+extern void* mdlCloneModelObject(s32 arg0);
 extern void mdlDestroyModelObject(u32 arg0);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern void func_00479e60(s32 a, s32 b, f32 c);
@@ -677,7 +677,7 @@ s32 Cmd_CreateSceneResource(void)
         u8* p;
         res = (u16)MT_Scene_CreateModelNpcShadowRes(MT_Scene_FindFreeResId(3), (u16)id, type);
         p = MT_Scene_GetRes(res);
-        *(s32*)(p + 0x22C) = (s32)func_00478750(D_00764364);
+        *(s32*)(p + 0x22C) = (s32)mdlCloneModelObject(D_00764364);
         created = 1;
     }
     scrSetReturnInt(res);
