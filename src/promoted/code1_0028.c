@@ -110,8 +110,9 @@ extern void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2);
 
 
 
+// Event memory accounting: adds 'arg1' bytes to counter slot 'arg0' (negative to release).
 // FUN_002852A0
-void func_002852a0(s32 arg0, s32 arg1) {
+void evtMemAccount(s32 arg0, s32 arg1) {
     s32 *temp_4;
     s32 *temp_4_2;
 
@@ -141,8 +142,9 @@ void func_002853c0(void) {
 }
 /* measured: retail hoists the lookup table address before the search loop. */
 #pragma opt_loop_invariants on
+// Event key table: index of 'arg0' in the 58-entry key table, 0 when absent.
 // FUN_002853F0
-s32 func_002853f0(s32 arg0) {
+s32 evtKeyIndex(s32 arg0) {
     s32 i;
 
     if (arg0 >= 0x3A) {
@@ -578,7 +580,7 @@ void func_0028b6b0(u8 *arg0)
         if (table[i] != 0) {
             if (table[i] != 0) {
                 jtbl_008873EC[0]((void *)table[i]);
-                func_002852a0(0xC, 0);
+                evtMemAccount(0xC, 0);
                 *(s32 *)(*(s32 *)(arg0 + 0x7A4) + i * 4) = 0;
             }
         }
@@ -586,7 +588,7 @@ void func_0028b6b0(u8 *arg0)
     }
     tail = *(s32 *)(arg0 + 0x7A0) * 4;
     jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x7A4));
-    func_002852a0(0xC, -tail);
+    evtMemAccount(0xC, -tail);
     *(s32 *)(arg0 + 0x7A4) = 0;
     *(s32 *)(arg0 + 0x7A0) = 0;
 }
@@ -665,7 +667,7 @@ func_0028b7b0_count_valid_done:
         size = count * 4;
         allocator = (u32)D_008873F4;
         array = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, size, 0x40000);
-        func_002852a0(12, size);
+        evtMemAccount(12, size);
         *(u8 **)(arg0 + 0x7A4) = array;
         for (i = 1; i < 0x16; i++) {
             array = MT_Scene_GetResListHead(i);
@@ -706,7 +708,7 @@ func_0028b7b0_copy_valid_done:
                         case 1:
                             func_0044ea90(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x230, 0x40000);
-                            func_002852a0(12, 0x230);
+                            evtMemAccount(12, 0x230);
                             n_one = 0x23;
                             src128_one = (s128 *)array;
                             dst128_one = (s128 *)copy;
@@ -721,7 +723,7 @@ func_0028b7b0_copy_valid_done:
                         case 3:
                             func_0044ea90(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x370, 0x40000);
-                            func_002852a0(12, 0x370);
+                            evtMemAccount(12, 0x370);
                             n_one = 0x37;
                             src128_one = (s128 *)array;
                             dst128_one = (s128 *)copy;
@@ -736,7 +738,7 @@ func_0028b7b0_copy_valid_done:
                         case 5:
                             func_0044ea90(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x200, 0x40000);
-                            func_002852a0(12, 0x200);
+                            evtMemAccount(12, 0x200);
                             n = 0x10;
                             src128 = (s128 *)array;
                             dst128 = (s128 *)copy;
@@ -753,7 +755,7 @@ func_0028b7b0_copy_valid_done:
                         case 6:
                             func_0044ea90(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x148, 0x40000);
-                            func_002852a0(12, 0x148);
+                            evtMemAccount(12, 0x148);
                             n32 = 0x29;
                             src32 = (s32 *)array;
                             dst32 = (s32 *)copy;
@@ -770,7 +772,7 @@ func_0028b7b0_copy_valid_done:
                         case 7:
                             func_0044ea90(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x150, 0x40000);
-                            func_002852a0(12, 0x150);
+                            evtMemAccount(12, 0x150);
                             n32 = 0x2A;
                             src32 = (s32 *)array;
                             dst32 = (s32 *)copy;
@@ -787,7 +789,7 @@ func_0028b7b0_copy_valid_done:
                         case 8:
                             func_0044ea90(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x140, 0x40000);
-                            func_002852a0(12, 0x140);
+                            evtMemAccount(12, 0x140);
                             n32 = 0x28;
                             src32 = (s32 *)array;
                             dst32 = (s32 *)copy;
@@ -804,7 +806,7 @@ func_0028b7b0_copy_valid_done:
                         case 9:
                             func_0044ea90(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x148, 0x40000);
-                            func_002852a0(12, 0x148);
+                            evtMemAccount(12, 0x148);
                             n32 = 0x29;
                             src32 = (s32 *)array;
                             dst32 = (s32 *)copy;
@@ -821,7 +823,7 @@ func_0028b7b0_copy_valid_done:
                         case 10:
                             func_0044ea90(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x170, 0x40000);
-                            func_002852a0(12, 0x170);
+                            evtMemAccount(12, 0x170);
                             n32 = 0x2E;
                             src32 = (s32 *)array;
                             dst32 = (s32 *)copy;
@@ -838,7 +840,7 @@ func_0028b7b0_copy_valid_done:
                         case 12:
                             func_0044ea90(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x1B0, 0x40000);
-                            func_002852a0(12, 0x1B0);
+                            evtMemAccount(12, 0x1B0);
                             n_one = 0x1B;
                             src128_one = (s128 *)array;
                             dst128_one = (s128 *)copy;

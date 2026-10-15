@@ -12,7 +12,7 @@ typedef struct {
 
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
-extern void func_002852a0(s32 arg0, s32 arg1);
+extern void evtMemAccount(s32 arg0, s32 arg1);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void memset(void *dst, s32 value, u32 size);
 extern void sprintf();
@@ -112,7 +112,7 @@ u8 *func_0028fb90(void)
 
     func_0044ea90(D_00748340, 0x52);
     work = D_008873F4[0](1, 0x114, 0x40000);
-    func_002852a0(1, 0x114);
+    evtMemAccount(1, 0x114);
     if (work == NULL) {
         func_0046d730(D_0063C6A0, 0x12D);
         return NULL;
@@ -388,7 +388,7 @@ void func_00290470(s32 *arg0, u32 *arg1)
             func_00290940(arg1);
         }
         jtbl_008873EC[0](arg0);
-        func_002852a0(1, -0x114);
+        evtMemAccount(1, -0x114);
     }
 }
 
@@ -401,7 +401,7 @@ s32 *func_002904f0(s32 **arg0)
     sp30 = *(s2x128 *)&D_0063C700;
     func_0044ea90(D_00748340, 0x52);
     temp = (s32 *)D_008873F4[0](1, 0x20, 0x40000);
-    func_002852a0(4, 0x20);
+    evtMemAccount(4, 0x20);
     memcpy(temp, &sp30, 0x20);
     *arg0 = temp;
     return temp;
@@ -431,7 +431,7 @@ s32 *func_002905a0(s32 **arg0)
     *(f32 *)dst = *(f32 *)src;
     func_0044ea90(D_00748340, 0x52);
     temp = (s32 *)D_008873F4[0](1, 0x54, 0x40000);
-    func_002852a0(5, 0x54);
+    evtMemAccount(5, 0x54);
     memcpy(temp, &sp30[0], 0x54);
     *arg0 = temp;
     return temp;
@@ -446,7 +446,7 @@ s32 *func_00290660(s32 **arg0)
     sp30 = *(s2x128 *)&D_0063C780;
     func_0044ea90(D_00748340, 0x52);
     temp = (s32 *)D_008873F4[0](1, 0x20, 0x40000);
-    func_002852a0(6, 0x20);
+    evtMemAccount(6, 0x20);
     memcpy(temp, &sp30, 0x20);
     *arg0 = temp;
     return temp;

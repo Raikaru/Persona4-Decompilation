@@ -16,7 +16,7 @@ extern s32 *func_002904f0(s32 **arg0);
 extern s32 *func_002905a0(s32 **arg0);
 extern s32 *func_00290660(s32 **arg0);
 extern void func_0044ea90(u8 *file, s32 line);
-extern void func_002852a0(s32 arg0, s32 arg1);
+extern void evtMemAccount(s32 arg0, s32 arg1);
 extern void memset(void *dest, s32 value, s32 size);
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -88,19 +88,19 @@ s32 func_002938c0(u8 *task) {
                 if (temp_2_2 == 0) {
                     *(s32 *)(temp_2 + 0x28) = (s32)func_002904f0((s32 **)(temp_2 + 0x34));
                 }
-                func_002852a0(4, sp12C);
+                evtMemAccount(4, sp12C);
                 temp_2_3 = func_00455f70(spA0, &sp12C);
                 *(s32 *)(temp_2 + 0x38) = temp_2_3;
                 if (temp_2_3 == 0) {
                     *(s32 *)(temp_2 + 0x2C) = (s32)func_002905a0((s32 **)(temp_2 + 0x38));
                 }
-                func_002852a0(5, sp12C);
+                evtMemAccount(5, sp12C);
                 temp_2_4 = func_00455f70(sp60, &sp12C);
                 *(s32 *)(temp_2 + 0x3C) = temp_2_4;
                 if (temp_2_4 == 0) {
                     *(s32 *)(temp_2 + 0x30) = (s32)func_00290660((s32 **)(temp_2 + 0x3C));
                 }
-                func_002852a0(6, sp12C);
+                evtMemAccount(6, sp12C);
                 *(u8 **)temp_2 = (u8 *)7;
             }
             break;
@@ -119,7 +119,7 @@ s32 func_002938c0(u8 *task) {
             if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x1C)) == 1) {
                 *(s32 *)(temp_2 + 0x28) = 0;
                 *(s32 *)(temp_2 + 0x34) = func_00455f70(spE0, &sp12C);
-                func_002852a0(4, sp12C);
+                evtMemAccount(4, sp12C);
                 *(u8 **)temp_2 = (u8 *)2;
             }
             break;
@@ -142,7 +142,7 @@ s32 func_002938c0(u8 *task) {
                 *(u8 **)temp_2 = (u8 *)4;
                 *(s32 *)(temp_2 + 0x2C) = 0;
                 *(s32 *)(temp_2 + 0x38) = func_00455f70(spA0, &sp12C);
-                func_002852a0(5, sp12C);
+                evtMemAccount(5, sp12C);
             }
             break;
         case 4:
@@ -164,7 +164,7 @@ s32 func_002938c0(u8 *task) {
                 *(u8 **)temp_2 = (u8 *)6;
                 *(s32 *)(temp_2 + 0x30) = 0;
                 *(s32 *)(temp_2 + 0x3C) = func_00455f70(sp60, &sp12C);
-                func_002852a0(6, sp12C);
+                evtMemAccount(6, sp12C);
             }
             break;
         case 6:
@@ -200,7 +200,7 @@ void func_00293d30(u8 *task) {
     }
     if (p[0x28 / 4] != 0) {
         jtbl_008873EC[0]((void *)p[0x28 / 4]);
-        func_002852a0(4, 0);
+        evtMemAccount(4, 0);
         p[0x28 / 4] = 0;
         func_00440b68((char *)D_0063C9D0);
     }
@@ -211,7 +211,7 @@ void func_00293d30(u8 *task) {
     }
     if (p[0x2C / 4] != 0) {
         jtbl_008873EC[0]((void *)p[0x2C / 4]);
-        func_002852a0(5, 0);
+        evtMemAccount(5, 0);
         p[0x2C / 4] = 0;
         func_00440b68((char *)D_0063CA20);
     }
@@ -222,12 +222,12 @@ void func_00293d30(u8 *task) {
     }
     if (p[0x30 / 4] != 0) {
         jtbl_008873EC[0]((void *)p[0x30 / 4]);
-        func_002852a0(6, 0);
+        evtMemAccount(6, 0);
         p[0x30 / 4] = 0;
         func_00440b68((char *)D_0063CA70);
     }
     jtbl_008873EC[0](p);
-    func_002852a0(1, -0x40);
+    evtMemAccount(1, -0x40);
 }
 
 // FUN_00293ED0
@@ -236,7 +236,7 @@ s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
     func_0044ea90(D_00748340, 0x52);
     temp_20 = (s32 *)D_008873F4[0](1, 0x40, 0x40000);
-    func_002852a0(1, 0x40);
+    evtMemAccount(1, 0x40);
     memset(temp_20, 0, 0x40);
     temp_20[0xC / 4] = arg0;
     temp_20[0x10 / 4] = arg1;

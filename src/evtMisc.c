@@ -18,7 +18,7 @@ s32 H_Cdvd_IsFileLoaded(s32 arg0);
 void H_Cdvd_Destroy(s32 arg0);
 s32 strcmp(s32 *arg0, s32 arg1);
 s32 strcpy(s32 *arg0, s32 arg1);
-s32 func_002852a0(s32 arg0, s32 arg1);
+s32 evtMemAccount(s32 arg0, s32 arg1);
 void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
 s32 func_00454a60(void *arg0, s32 arg1);
 u8 *func_00455f70(void *arg0, u32 *arg1);
@@ -120,7 +120,7 @@ void func_0028d110(s32 *arg0) {
     }
     func_0044ea90(D_00748340, 0x52);
     temp_16 = (s32 *)D_008873F4[0](1, 0x130, 0x40000);
-    func_002852a0(0xA, 0x130);
+    evtMemAccount(0xA, 0x130);
     arg0[0x10] = (s32)temp_16;
     if (temp_16 == 0) {
         func_0046d730(D_0063C638, 0x1068);
