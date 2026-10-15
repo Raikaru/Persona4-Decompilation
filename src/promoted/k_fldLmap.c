@@ -45,8 +45,8 @@ extern u8 *func_003e0f80();
 extern void fieldSceneLoad(s32 a, s32 b);
 extern void func_00144ed0(s64 param);
 extern s32 func_00144f60();
-extern u8 *func_0014b450();
-extern f32 func_0014b4d0();
+extern u8 *MT_Scene_GetCameraResFirst();
+extern f32 MT_Scene_GetCameraFov();
 extern s32 func_0018ced0();
 extern void func_0018c7e0();
 extern void func_00122640(s32 a, s32 b);
@@ -449,10 +449,10 @@ s32 func_00186eb0(u8 *arg0)
         if (H_Cdvd_IsFileLoaded(*(u8 **)(st + 0x20)) == 0) {
             break;
         }
-        *(FldLmapMatrix *)*(u8 **)(st + 0x18) = *(FldLmapMatrix *)func_0014b450();
+        *(FldLmapMatrix *)*(u8 **)(st + 0x18) = *(FldLmapMatrix *)MT_Scene_GetCameraResFirst();
         {
             u8 *tmp = func_00457120();
-            K_View_SetFov(tmp, func_0014b4d0());
+            K_View_SetFov(tmp, MT_Scene_GetCameraFov());
         }
         {
             u8 *tmp2 = func_00457120();

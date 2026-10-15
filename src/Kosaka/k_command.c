@@ -619,7 +619,7 @@ u32 Cmd_CreateModelResource()
     created = 0;
     if (mdlPrepareModel(model) == true)
     {
-        resourceId = (u16)MT_Scene_CreateModelFldRes(func_0014b510(10), (s32)model);
+        resourceId = (u16)MT_Scene_CreateModelFldRes(MT_Scene_FindFreeResId(10), (s32)model);
         created = 1;
     }
     scrSetReturnInt(resourceId);
@@ -675,7 +675,7 @@ s32 Cmd_CreateSceneResource(void)
     if (mdlPrepareModel((void*)type) == 1)
     {
         u8* p;
-        res = (u16)MT_Scene_CreateModelNpcShadowRes(func_0014b510(3), (u16)id, type);
+        res = (u16)MT_Scene_CreateModelNpcShadowRes(MT_Scene_FindFreeResId(3), (u16)id, type);
         p = MT_Scene_GetRes(res);
         *(s32*)(p + 0x22C) = (s32)func_00478750(D_00764364);
         created = 1;

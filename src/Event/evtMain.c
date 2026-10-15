@@ -57,7 +57,7 @@ f32 func_00479f60(void *param_1, s32 param_2);
 u32 MT_Scene_SetResMotionRecord(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0);
 
 void MT_Scene_SetResActive(void *resource, s32 enabled);
-void func_0014a2f0(s32 arg0);
+void FldState_SetEventViewMode(s32 arg0);
 extern void func_00440b68(char *fmt, ...);
 extern char D_0063C628[];
 extern void (*DAT_008873EC[])(void *);
@@ -2689,7 +2689,7 @@ u8 *func_0028afe0(void) {
         *(u32 *)(p + 0x54) = 1;
     }
     K_View_SetFov(func_00457120(), 35.0f);
-    func_0014a2f0(1);
+    FldState_SetEventViewMode(1);
     func_0028be70(p, 0);
     return p;
 }
@@ -2708,7 +2708,7 @@ void evtDestroy(int param_1, s32 arg1) {
             *(u32 *)(param_1 + 0x77C) = 0;
         }
     }
-    func_0014a2f0(0);
+    FldState_SetEventViewMode(0);
     DAT_008873EC[0]((void *)param_1);
     evtMemAccount(0, -0x7B0);
     evtSlotTableIdle();

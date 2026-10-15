@@ -1619,7 +1619,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     extern void SceneDraw_SetResVisible(u16 arg0, u32 arg1);
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
-    extern u16 func_0014b510(s32 arg0);
+    extern u16 MT_Scene_FindFreeResId(s32 arg0);
     extern void Vpad_BuildRotatedQuad(RuntimeVec3 *vertices, const RuntimeVec3 *translation, f32 width, f32 depth, f32 angle);
     extern void *RwMatrixRotate(void *matrix, const void *axis, f32 angle, s32 combine);
     extern void *func_003e42a0(void *out, const void *in, const void *matrix);
@@ -1759,7 +1759,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
       childType = ((k_fldSubEntry *)(child + 0x120))->type;
       if (childType == 0) {
         u8 *unit;
-        resourceId = MT_Scene_CreateModelFldRes(func_0014b510(10),((k_fldSubEntry *)(child + 0x120))->field_c);
+        resourceId = MT_Scene_CreateModelFldRes(MT_Scene_FindFreeResId(10),((k_fldSubEntry *)(child + 0x120))->field_c);
         unit = (u8 *)MT_Scene_GetRes(resourceId);
         *(u32 *)(unit + 0x140) = (u32)parentUnit;
         if ((((k_fldSubEntry *)(child + 0x120))->flags & 2) != 0) {
@@ -1767,7 +1767,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
         }
       }
       else if (childType == 1) {
-        resourceId = MT_Scene_CreateRes11(func_0014b510(0xb),((k_fldSubEntry *)(child + 0x120))->field_10);
+        resourceId = MT_Scene_CreateRes11(MT_Scene_FindFreeResId(0xb),((k_fldSubEntry *)(child + 0x120))->field_10);
         child = (u8 *)MT_Scene_GetRes(resourceId);
         *(u32 *)(child + 0x140) = (u32)parentUnit;
       }
@@ -1896,7 +1896,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
           {
           }
           }
-          MT_Scene_CreatePointRes15(func_0014b510(0xf),(f32 *)&point_30,angle);
+          MT_Scene_CreatePointRes15(MT_Scene_FindFreeResId(0xf),(f32 *)&point_30,angle);
         }
       }
       for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x20); recordIndex = recordIndex + 1, record = record + 0x14) {
@@ -1926,7 +1926,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
           {
           }
           }
-          MT_Scene_CreatePointRes16(func_0014b510(0x10),(f32 *)&point_40,angle);
+          MT_Scene_CreatePointRes16(MT_Scene_FindFreeResId(0x10),(f32 *)&point_40,angle);
         }
       }
       if (c10000 < *(u32 *)(data + 4)) {
@@ -1957,7 +1957,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
                 angle = angle - f360) {
             }
             }
-            MT_Scene_CreatePointRes17(func_0014b510(0x11),(f32 *)&point_50,angle);
+            MT_Scene_CreatePointRes17(MT_Scene_FindFreeResId(0x11),(f32 *)&point_50,angle);
           }
         }
       }
@@ -1989,7 +1989,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
           {
           }
           }
-          lightUnit = (u8 *)MT_Scene_GetRes((u16)MT_Scene_CreateRes21Light(func_0014b510(0x15), (f32 *)&point_60, ((FieldSerializedLightRecord *)record)->parameters[0],
+          lightUnit = (u8 *)MT_Scene_GetRes((u16)MT_Scene_CreateRes21Light(MT_Scene_FindFreeResId(0x15), (f32 *)&point_60, ((FieldSerializedLightRecord *)record)->parameters[0],
                                  ((FieldSerializedLightRecord *)record)->parameters[1], angle, ((FieldSerializedLightRecord *)record)->color));
           *(u32 *)(lightUnit + 0x18c) = (u32)*(u16 *)(record + 2);
         }
@@ -2025,7 +2025,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
           }
           }
           resourceSlot = &placedResourceIds[recordIndex];
-          *resourceSlot = func_0014b510(0x12);
+          *resourceSlot = MT_Scene_FindFreeResId(0x12);
           MT_Scene_CreatePointRes18(*resourceSlot,(f32 *)&point_78,angle);
         }
       }

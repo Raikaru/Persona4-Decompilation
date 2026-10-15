@@ -396,7 +396,7 @@ void func_0014b1e0(void) {
 }
 
 // FUN_0014B450
-s32 func_0014b450(void) {
+s32 MT_Scene_GetCameraResFirst(void) {
     s32 var_3;
     u8 *temp_2;
 
@@ -409,7 +409,7 @@ s32 func_0014b450(void) {
 }
 
 // FUN_0014B490
-s32 func_0014b490(void) {
+s32 MT_Scene_GetCameraResSecond(void) {
     s32 var_3;
     u8 *temp_2;
 
@@ -422,7 +422,7 @@ s32 func_0014b490(void) {
 }
 
 // FUN_0014B4D0
-f32 func_0014b4d0(void) {
+f32 MT_Scene_GetCameraFov(void) {
     f32 var_f0;
     u8 *temp_2;
 
@@ -435,7 +435,7 @@ f32 func_0014b4d0(void) {
 }
 
 // FUN_0014B510
-u16 func_0014b510(s32 arg0)
+u16 MT_Scene_FindFreeResId(s32 arg0)
 {
     s32 var_17;
     s32 temp_16;
@@ -456,7 +456,7 @@ u16 func_0014b510(s32 arg0)
 }
 
 // FUN_0014B590
-f32 func_0014b590(f32 fparg0) {
+f32 KDraw_RoundYawDeg(f32 fparg0) {
     s32 integer;
     f32 result;
 
