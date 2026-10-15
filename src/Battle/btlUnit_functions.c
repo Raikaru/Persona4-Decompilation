@@ -93,10 +93,10 @@ u32 func_0019b730(void* work);
 u32 func_0019bbc0(void* work);
 u32 btlUnitIncrementPacketCount(void* work);
 u32 func_0019bcb0(void* work);
-u32 func_0019bce0(void* work);
-u32 func_0019bd60(void* work);
+u32 btlUnitDecrementPacketCount(void* work);
+u32 btlUnitIncrementPacketCount114(void* work);
 u32 func_0019bd80(void* work);
-u32 func_0019bdb0(void* work);
+u32 btlUnitDecrementPacketCount114(void* work);
 struct BtlUnit {
     u8 padding_00[0x98];
     u32 flags2;
@@ -352,7 +352,7 @@ BtlPacket* func_0019bd00(BtlUnit* unit)
     packet = func_00194470(0x113, sizeof(BtlUnit*));
     packet->initFunc = btlUnitIncrementPacketCount;
     packet->updateFunc = func_0019bcb0;
-    packet->destroyFunc = func_0019bce0;
+    packet->destroyFunc = btlUnitDecrementPacketCount;
     *(BtlUnit**)packet->workData = unit;
 
     return packet;
@@ -366,9 +366,9 @@ BtlPacket* func_0019bdd0(BtlUnit* unit)
     BtlPacket* packet;
 
     packet = func_00194470(0x114, sizeof(BtlUnit*));
-    packet->initFunc = func_0019bd60;
+    packet->initFunc = btlUnitIncrementPacketCount114;
     packet->updateFunc = func_0019bd80;
-    packet->destroyFunc = func_0019bdb0;
+    packet->destroyFunc = btlUnitDecrementPacketCount114;
     *(BtlUnit**)packet->workData = unit;
 
     return packet;
