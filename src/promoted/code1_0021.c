@@ -2547,7 +2547,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     extern void func_002012d0(u8 *arg0, f32 x, f32 y);
     extern void func_00201410(u8 *arg0, s32 font, s32 id, f32 x, f32 y);
     extern void func_00201820(s32 mode);
-    extern u8 *func_002724d0(u8 *text, s32 style, s8 mode, s32 arg3, u8 *arg4);
+    extern u8 *frFontCreateTextList(u8 *text, s32 style, s8 mode, s32 arg3, u8 *arg4);
     extern void func_00272860(s32 arg0, s32 arg1);
     extern void func_00272950(s32 arg0, s32 arg1, s32 arg2);
     extern void func_00272ba0(s32 arg0, s32 arg1);
@@ -2639,7 +2639,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             func_00272c60(1);
             func_00272c80(2);
             iGpffffb4b0 = 120;
-            *(s32 *)arg1 = (s32)func_002724d0((u8 *)*(s32 *)(arg1 + 0x24), 1, 0, 0, 0);
+            *(s32 *)arg1 = (s32)frFontCreateTextList((u8 *)*(s32 *)(arg1 + 0x24), 1, 0, 0, 0);
             iGpffffb4b0 = 0;
             func_00272860(*(s32 *)arg1, -1);
             func_00272c80(1);

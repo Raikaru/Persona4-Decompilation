@@ -126,7 +126,7 @@ int frFontExCreateText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     s32 width;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
+    font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     width = 0;
     if ((flags & 0xb) != 0) {
@@ -175,7 +175,7 @@ int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     (void)arg8;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
+    font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
@@ -198,7 +198,7 @@ int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, in
     s32 tmp;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
+    font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
         func_0046d730(D_0063BAE8, 0x6C3);
@@ -227,7 +227,7 @@ int frFontExDrawTextOutA(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
 
     D_007645A0 = out;
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
+    font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
         func_0046d730(D_0063BAE8, 0x6C3);
@@ -257,7 +257,7 @@ int frFontExDrawTextOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
 
     D_007645A8 = out;
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
+    font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
         func_0046d730(D_0063BAE8, 0x6C3);
@@ -297,7 +297,7 @@ int frFontExDrawTextDeferred(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     s32 tmp;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
+    font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
@@ -325,7 +325,7 @@ int frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, int color, s8
     s32 tmp;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
+    font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
         func_0046d730(D_0063BAE8, 0x6C3);
@@ -358,7 +358,7 @@ int frFontExDrawTextDeferredOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int
 
     D_007645A8 = out;
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
+    font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
