@@ -74,14 +74,14 @@ extern s32 func_00102980(void);
 extern s32 func_0029d030(void);
 extern s32 func_0010d620(s16 arg0);
 extern s8 func_002487e0(s32 arg0, s32 arg1);
-extern s32 func_00246830(s32 arg0);
+extern s32 cmmNameRecord(s32 arg0);
 extern s64 func_00248760(s32 arg0);
 extern s32 func_002438b0(s32 arg0);
 extern s32 func_00246b10(s32 arg0);
 extern s32 func_00107ac0(s32 arg0);
 extern s32 func_00248040(s32 arg0);
 extern s32 func_00110580(s32 arg0, s32* arg1, s32* arg2);
-extern s32 func_002468a0(s32 arg0);
+extern s32 cmmTextRecord(s32 arg0);
 extern s32 datGetItemNameId(s32 arg0);
 extern s32 cmmDateTableFindRecord(s32 arg0);
 extern s32 cmmDateTableFindSpecialRecord(s32 arg0);
@@ -333,7 +333,7 @@ s32 cmmPersonaDetailShow(void)
     if (key != 0) {
         itfMesWindowSetString(mesMgr, 0, func_0010d620((s16)key));
     }
-    frFontExCopyString(func_00246830(id & 0xFFFF), buf, 0x80);
+    frFontExCopyString(cmmNameRecord(id & 0xFFFF), buf, 0x80);
     itfMesWindowSetString(mesMgr, 1, buf);
     itfMesWindowSetString(mesMgr, 2, func_002438b0((u8)func_00248760(id & 0xFFFF)));
     frFontExCopyString(func_00246b10((s8)func_00248760(id & 0xFFFF)), buf, 0x80);
@@ -356,7 +356,7 @@ s32 cmmPersonaDetailShow(void)
         frFontExCopyString(tbl[func_00110580(idx, dst, src)], buf, 0x80);
         itfMesWindowSetString(mesMgr, 6, buf);
     }
-    frFontExCopyString(func_002468a0(id & 0xFFFF), buf, 0x80);
+    frFontExCopyString(cmmTextRecord(id & 0xFFFF), buf, 0x80);
     itfMesWindowSetString(mesMgr, 7, buf);
     return 1;
 }

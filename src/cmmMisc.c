@@ -105,8 +105,9 @@ void func_00246700(void) {
     }
 }
 
+// Kind record: returns the 100-byte kind record for index arg0 (table D_00881480), asserting the index is in range. Callers test its +4 flags and read its +8 sprite width base.
 // FUN_002467B0
-u8 *func_002467b0(s32 arg0) {
+u8 *cmmKindRecord(s32 arg0) {
     u8 *temp_16 = D_00881480[0];
     s32 off;
 
@@ -117,8 +118,9 @@ u8 *func_002467b0(s32 arg0) {
     return (u8 *)(off + (u32)temp_16 + 8);
 }
 
+// Name record: returns the 64-byte name record for id arg0 (table D_00881484), asserting the id is in range. Callers read it as a display string or record.
 // FUN_00246830
-u8 *func_00246830(u32 arg0) {
+u8 *cmmNameRecord(u32 arg0) {
     u32 temp_16;
     u8 *temp_17;
 
@@ -130,8 +132,9 @@ u8 *func_00246830(u32 arg0) {
     return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
 }
 
+// Text record: returns the 64-byte text record for id arg0 (table D_008814DC), asserting the id is in range. Callers read it as a display string.
 // FUN_002468A0
-u8 *func_002468a0(u32 arg0) {
+u8 *cmmTextRecord(u32 arg0) {
     u32 temp_16;
     u8 *temp_17;
 

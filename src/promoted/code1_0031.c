@@ -3,7 +3,7 @@
 #include "shdPersona_internal.h"
 extern void (*jtbl_008873EC[])(void *);
 extern s8 D_00641E60[];
-extern s32 func_00246830();
+extern s32 cmmNameRecord();
 extern u8 *iGpffffb3d4;
 extern s16 D_006420A0[];
 extern u32 D_00642EF0[];
@@ -43,7 +43,7 @@ static inline s8 findDateEntry(u8 month, u8 day)
 // FUN_00311900
 void func_00311900(s64 arg0)
 {
-    func_00246830(arg0 & 0xFFFF);
+    cmmNameRecord(arg0 & 0xFFFF);
 }
 /* MATCH.  Two levers, both measured on 2026-09-18:
    1. The float-to-unsigned conversion temporary is allocated out of the CSE
