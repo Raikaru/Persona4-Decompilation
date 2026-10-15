@@ -5731,8 +5731,9 @@ void func_0047a900(void* param_1, RwV3d* param_2)
     *(RwV3d*)((u8*)param_1 + 0x17C) = *param_2;
 }
 
+/* Stores the range pair at +0x188/+0x18C. func_00477810 divides by +0x188 and copies +0x18C into the track records. Also sets flag 0x8000 and clears 0x100. Called from evtModel model setup. */
 // FUN_0047A950
-void func_0047a950(void* param_1, float param_2, float param_3)
+void mdlSetTrackScaleRange(void* param_1, float param_2, float param_3)
 {
     *(u16*)((u8*)param_1 + 0x140) |= 0x8000;
     *(u16*)((u8*)param_1 + 0x140) &= 0xFEFF;
