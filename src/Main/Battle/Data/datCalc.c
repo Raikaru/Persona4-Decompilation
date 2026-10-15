@@ -4950,8 +4950,9 @@ tail:
 }
 #pragma opt_loop_invariants off
 
+// Intent: skill value for unit arg0 at slot arg2: a table base plus a random roll within the row's range; [inferred].
 // FUN_00243650
-u8 func_00243650(u8 *arg0, s32 arg1, s32 arg2)
+u8 datCalcRollSkillValue(u8 *arg0, s32 arg1, s32 arg2)
 {
     s32 temp_2;
     s32 temp_3_2;
@@ -5010,8 +5011,9 @@ u8 func_00243650(u8 *arg0, s32 arg1, s32 arg2)
     return (u8)(temp_2 + RpRandom() % temp_17);
 }
 
+// Intent: pointer to the 0x13-byte record for id arg0 (below 0x240) in the id table; [inferred].
 // FUN_00243840
-u8 *func_00243840(s32 arg0)
+u8 *datCalcGetIdRecord(s32 arg0)
 {
     if ((arg0 & 0xFFFF) >= 0x240) {
         func_0046d730(D_00635938, 0x14E4);
