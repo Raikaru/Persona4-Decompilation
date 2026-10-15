@@ -91,7 +91,7 @@ typedef struct BtlUnitColorWork {
 u32 func_0019b710(void* work);
 u32 func_0019b730(void* work);
 u32 func_0019bbc0(void* work);
-u32 func_0019bc90(void* work);
+u32 btlUnitIncrementPacketCount(void* work);
 u32 func_0019bcb0(void* work);
 u32 func_0019bce0(void* work);
 u32 func_0019bd60(void* work);
@@ -350,7 +350,7 @@ BtlPacket* func_0019bd00(BtlUnit* unit)
     BtlPacket* packet;
 
     packet = func_00194470(0x113, sizeof(BtlUnit*));
-    packet->initFunc = func_0019bc90;
+    packet->initFunc = btlUnitIncrementPacketCount;
     packet->updateFunc = func_0019bcb0;
     packet->destroyFunc = func_0019bce0;
     *(BtlUnit**)packet->workData = unit;

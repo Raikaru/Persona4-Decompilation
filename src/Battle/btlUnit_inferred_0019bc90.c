@@ -184,7 +184,7 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019BC90
-void func_0019bc90(u8 *arg0)
+void btlUnitIncrementPacketCount(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
