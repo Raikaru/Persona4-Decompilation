@@ -6245,8 +6245,9 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
 }
 #pragma pop
 
+// Fcl combine id check: gathers the item ids for the combine's stage count and validates them; 1 when they pass.
 // FUN_00303A20
-s32 func_00303a20(u8 *arg0) {
+s32 fclCombineCheckIds(u8 *arg0) {
     s8 *p = *(s8 **)(arg0 + 0x38);
     u16 buf[7];
 
@@ -8138,7 +8139,7 @@ void func_003097e0(u8 *arg0) {
                 p[1] = 0xC8;
                 return;
             }
-            if (func_00303a20(arg0) == 1 && fclCombineHasEntry(arg0, 0xC) == 1) {
+            if (fclCombineCheckIds(arg0) == 1 && fclCombineHasEntry(arg0, 0xC) == 1) {
                 p[1] = 0xCB;
                 *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
                 func_002badc0(*(s8 *)(p + 0xD), 0x2A);
@@ -8162,7 +8163,7 @@ void func_003097e0(u8 *arg0) {
             return;
         }
         func_002bb550(*(s8 *)(p + 0xD));
-        if (func_00303a20(arg0) == 1 && fclCombineHasEntry(arg0, 0xC) == 1) {
+        if (fclCombineCheckIds(arg0) == 1 && fclCombineHasEntry(arg0, 0xC) == 1) {
             p[1] = 0xCB;
             *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
             func_002badc0(*(s8 *)(p + 0xD), 0x2A);
@@ -8222,7 +8223,7 @@ void func_003097e0(u8 *arg0) {
     case 0xCC:
         if (func_00105f50(cls) == 0) {
             p[1] = 0xCF;
-            if (func_00303a20(arg0) == 1) {
+            if (fclCombineCheckIds(arg0) == 1) {
                 if (fclCombineHasEntry(arg0, 7) == 1) {
                     func_00106390(0x59, 1);
                     *(s8 *)p = 0xC;
@@ -8292,7 +8293,7 @@ void func_003097e0(u8 *arg0) {
         if (fclCombineHasEntry(arg0, 8) == 1) {
             v = func_00247770(iGpffffb3d4[cls * 0xE + 2]);
             *(s32 *)(p + 0x10) = func_00311930(v, func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 1);
-            if (func_00303a20(arg0) == 1) {
+            if (fclCombineCheckIds(arg0) == 1) {
                 *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
                 sprintf(spA0, (const char *)&iGpffffa8a4, func_00311900(func_00247770(iGpffffb3d4[cls * 0xE + 2])));
                 frFontExCopyString(spA0, sp80, 0x20);
@@ -8323,7 +8324,7 @@ void func_003097e0(u8 *arg0) {
         }
         func_002bb550(*(s8 *)(p + 0xD));
         p[1] = 0xCF;
-        if (func_00303a20(arg0) == 1) {
+        if (fclCombineCheckIds(arg0) == 1) {
             if (fclCombineHasEntry(arg0, 7) == 1) {
                 func_00106390(0x59, 1);
                 *(s8 *)p = 0xC;
@@ -8893,7 +8894,7 @@ void func_0030c3c0(u8 *arg0) {
                 datPersonaPreviewLevelUp(persona, p + 0x28, experience);
             }
             p[0xB1] = p[0x28];
-        } else if (func_00303a20(arg0) == 1) {
+        } else if (fclCombineCheckIds(arg0) == 1) {
             if (fclCombineHasSlotKind(arg0, 7) == 1) {
                 p[1] = 0xA8;
                 p[0x22] = 0xA8;
@@ -8953,7 +8954,7 @@ void func_0030c3c0(u8 *arg0) {
             func_0045af60(0, 0, 0, 0xA);
         } else {
             p[1] = 0xBF;
-            if (func_00303a20(arg0) == 1) {
+            if (fclCombineCheckIds(arg0) == 1) {
                 if (fclCombineHasSlotKind(arg0, 7) == 1) {
                     p[1] = 0xA8;
                     p[0x22] = 0xA8;
@@ -9039,7 +9040,7 @@ void func_0030c3c0(u8 *arg0) {
         } else {
             func_002bb550(*(s8 *)(p + 0xD));
             p[1] = 0xBF;
-            if (func_00303a20(arg0) == 1) {
+            if (fclCombineCheckIds(arg0) == 1) {
                 if (fclCombineHasSlotKind(arg0, 7) == 1) {
                     p[1] = 0xA8;
                     p[0x22] = 0xA8;
@@ -9198,7 +9199,7 @@ void func_0030c3c0(u8 *arg0) {
         } else {
             func_002bb550(*(s8 *)(p + 0xD));
             p[1] = 0xBF;
-            if (func_00303a20(arg0) == 1) {
+            if (fclCombineCheckIds(arg0) == 1) {
                 if (fclCombineHasSlotKind(arg0, 0xA) == 1) {
                     p[1] = 0xB2;
                     p[0x22] = 0xB2;
