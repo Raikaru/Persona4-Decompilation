@@ -37,7 +37,7 @@ extern u8 iGpffff9f29;
 extern u8 iGpffff9f2a;
 extern u8 iGpffff9f2b;
 extern u8 iGpffff9f24;
-extern s32 func_0014b870(s32 arg0, s32 arg1);
+extern s32 KMisc_CreateDelayMdlFree(s32 arg0, s32 arg1);
 extern void datUnitFree(s32 arg0);
 extern s32 func_0047ae90(u8 *arg0, u16 arg1);
 extern void func_0047ae10(u8 *arg0, u16 arg1);
@@ -946,7 +946,7 @@ void func_00164020(u8 *arg0)
             for (i = 0; i < 5; i++) {
                 *(u8 *)(*(s32 *)(arg0 + 0x50) + i * 0xC + 0x28C) |= 1;
             }
-            func_0014b870(*(s32 *)(arg0 + 0x50), 0);
+            KMisc_CreateDelayMdlFree(*(s32 *)(arg0 + 0x50), 0);
         }
         if (*(s32 *)(arg0 + 0x1B0) != 0) {
             func_00452080(*(s32 *)(arg0 + 0x1B0));

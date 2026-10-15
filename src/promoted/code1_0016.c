@@ -1899,7 +1899,7 @@ extern float fGpffff84e8; /* 0xffff84e8 */
 extern unsigned int uGpffff9f2c; /* 0xffff9f2c */
 
 extern u8 *func_0016e8c0(u8 *);
-extern int func_0014bbe0(int, int, int, int, int);
+extern int KMisc_CreateRmdFade(int, int, int, int, int);
 extern int func_0014bd90(unsigned char *);
 extern void KDraw_SetGroupFlags(u8 *, u32);
 extern void KDraw_SetSphereFlags(u8 *, u32);
@@ -2955,7 +2955,7 @@ s32 func_0016bdd0(u8 *param_1)
         if (piVar1[0xa6] != 1) goto LAB_0016e0c0;
         if (temp_v11_c <= 55.0f + *(float *)((u8 *)(u32)piVar1 + 0x290)) goto LAB_0016e0c0;
         func_0047a850(*(unsigned char **)(piVar1[0xa2] + 0x164));
-        temp_v4_c = func_0014bbe0((int)param_1,*(int *)(piVar1[0xa2] + 0x164),0,0xff,10);
+        temp_v4_c = KMisc_CreateRmdFade((int)param_1,*(int *)(piVar1[0xa2] + 0x164),0,0xff,10);
         piVar1[0xaa] = temp_v4_c;
         piVar1[0xa6] = 0;
         goto LAB_0016e0c0;

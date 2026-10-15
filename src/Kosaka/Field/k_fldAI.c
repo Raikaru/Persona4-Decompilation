@@ -72,7 +72,7 @@ s32 func_0017d3c0(u8 *task)
     extern f32 func_0014c3d0(const struct RwMatrix *, const RwV3d *, f32, f32, f32);
     extern f32 func_00175db0(void);
     extern f32 func_0044b920(f32);
-    extern s32 func_0014bbe0(s32, s32, s32, s32, s32);
+    extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
     extern s32 func_0014bd90(u8 *);
     extern s32 func_001687d0(u8 *);
     extern s32 func_001687e0(u8 *);
@@ -226,7 +226,7 @@ discoveryAvailabilityDone:
         }
         if (*(s32 *)(work + 0x68) == 1 && !(distance <= 110.0f + *(f32 *)(work + 0x64))) {
             func_0047a850(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
-            *(s32 *)(work + 0x6C) = func_0014bbe0((s32)task,
+            *(s32 *)(work + 0x6C) = KMisc_CreateRmdFade((s32)task,
                 *(s32 *)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164), 0, 255, 10);
             *(s32 *)(work + 0x68) = 0;
         }
@@ -993,7 +993,7 @@ extern void *func_003e0f80(void);
 extern struct RwMatrix *func_003e9700(struct RwFrame *);
 extern f32 sinf(f32 angle);
 extern void *mdlGetColor(void *);
-extern int func_0014bbe0(int, int, int, int, int);
+extern int KMisc_CreateRmdFade(int, int, int, int, int);
 extern int func_0014bd90(unsigned char *);
 extern unsigned int func_0014c240(void *, void *, float, float);
 extern s32 KDraw_CreateAxesTask(void *, void *);
@@ -1213,7 +1213,7 @@ availabilityDone:
           *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) | 2;
           temp_v8 = ((float *)piVar1)[0x1f];
           temp_v7 = (unsigned int)temp_v8;
-          temp_v0 = func_0014bbe0((int)param_1,*(int *)(piVar1[3] + 0x50),temp_v7,0,10);
+          temp_v0 = KMisc_CreateRmdFade((int)param_1,*(int *)(piVar1[3] + 0x50),temp_v7,0,10);
           piVar1[0x22] = temp_v0;
           *piVar1 = 4;
         }
@@ -1381,7 +1381,7 @@ else {
       else {
         temp_v8 = ((float *)piVar1)[0x1f];
         temp_v7 = (unsigned int)temp_v8;
-        temp_v0 = func_0014bbe0((int)param_1,*(int *)(piVar1[3] + 0x50),0,temp_v7,10);
+        temp_v0 = KMisc_CreateRmdFade((int)param_1,*(int *)(piVar1[3] + 0x50),0,temp_v7,10);
         piVar1[0x22] = temp_v0;
         *piVar1 = *piVar1 + 1;
       }
@@ -1897,13 +1897,13 @@ else {
             func_0047a850(*(unsigned char **)(piVar1[3] + 0x50));
             temp_v0 = piVar1[3];
             if (*(unsigned char *)(temp_v0 + 0x1ca) == '\0') {
-              temp_v0 = func_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),0xff,0,10);
+              temp_v0 = KMisc_CreateRmdFade((int)param_1,*(int *)(temp_v0 + 0x50),0xff,0,10);
               piVar1[0x22] = temp_v0;
             }
             else if (*(unsigned char *)(temp_v0 + 0x1ca) == '\x01') {
               temp_v8 = ((float *)piVar1)[0x1f];
               temp_v7 = (unsigned int)temp_v8;
-              temp_v0 = func_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),temp_v7,0,10);
+              temp_v0 = KMisc_CreateRmdFade((int)param_1,*(int *)(temp_v0 + 0x50),temp_v7,0,10);
               piVar1[0x22] = temp_v0;
             }
             ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
@@ -1926,13 +1926,13 @@ else {
         func_00168ae0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),(u8 *)&((FldAINpc *)piVar1[3])->origin);
         temp_v0 = piVar1[3];
         if (*(unsigned char *)(temp_v0 + 0x1ca) == '\0') {
-          temp_v0 = func_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),0,0xff,10);
+          temp_v0 = KMisc_CreateRmdFade((int)param_1,*(int *)(temp_v0 + 0x50),0,0xff,10);
           piVar1[0x22] = temp_v0;
         }
         else if (*(unsigned char *)(temp_v0 + 0x1ca) == '\x01') {
           temp_v8 = ((float *)piVar1)[0x1f];
           temp_v7 = (unsigned int)temp_v8;
-          temp_v0 = func_0014bbe0((int)param_1,*(int *)(temp_v0 + 0x50),0,temp_v7,10);
+          temp_v0 = KMisc_CreateRmdFade((int)param_1,*(int *)(temp_v0 + 0x50),0,temp_v7,10);
           piVar1[0x22] = temp_v0;
         }
         *piVar1 = 0xd;

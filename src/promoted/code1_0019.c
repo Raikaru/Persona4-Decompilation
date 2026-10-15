@@ -90,7 +90,7 @@ extern u8 *func_0029d040(void);
 extern void func_00105610(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern void func_00105d50(s16 arg0, s32 arg1);
-extern void func_0014b990(s32 arg0);
+extern void KMisc_CreateScrShutdown(s32 arg0);
 extern void func_00260510(void);
 extern u8 iGpffffa0a0;
 extern u8 D_005F6BE0[];
@@ -759,7 +759,7 @@ s32 func_00193450(void)
             if (datCalcIsDead(func_00105510(1), 0) != 0) {
                 dep = iGpffffb280;
                 func_0029db50(0xF, iGpffffb284, dep, 0);
-                func_0014b990(*(s32 *)(func_0029d040() + 0x148));
+                KMisc_CreateScrShutdown(*(s32 *)(func_0029d040() + 0x148));
                 func_00260510();
                 iGpffffb3b0 = 1;
                 goto block_13;
