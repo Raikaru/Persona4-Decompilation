@@ -227,7 +227,7 @@ extern u8 *func_00202400(s32 arg0, s32 arg1);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];
-extern u8 *func_0019ef90(s32 arg0, s32 arg1);
+extern u8 *btlUnitFindInSideById(s32 arg0, s32 arg1);
 extern void btlUnitHideModel(u8 *arg0);
 extern void datCalcClearAllBuffs(u8 *arg0);
 extern u8 D_0062D920[];
@@ -3365,7 +3365,7 @@ void func_002299b0(u8 *arg0)
         s32 temp_2;
         u8 *temp_2_5;
 
-        temp_2 = (s32)func_0019ef90(1, 0x106);
+        temp_2 = (s32)btlUnitFindInSideById(1, 0x106);
         if (temp_2 == 0) {
             goto after_ef90;
         }
@@ -3420,7 +3420,7 @@ s32 func_00229c40(u8 *arg0)
 
     if (func_00193bf0(*(u64 *)arg0,
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
-        temp_2 = (u8 *)func_0019ef90(1, 0x106);
+        temp_2 = (u8 *)btlUnitFindInSideById(1, 0x106);
         if (temp_2 != NULL) {
             temp_2_2 = (u8 *)func_001b0c80((s32)temp_2);
             *(u16 *)(temp_2_2 + 0x1A) =
@@ -5118,7 +5118,7 @@ void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
             *(s8 *)(iGpffffb3ac + 0xC12) = -1;
         if (*(s16 *)(iGpffffb3ac + 0xC34) == 0 || *hpDelta >= 0)
             break;
-        packet = func_0019ef90(1, 0x10F);
+        packet = btlUnitFindInSideById(1, 0x10F);
         if (packet == NULL)
             break;
         datCalcAddHp(*(DatUnit **)(packet + 0xA64), *hpDelta);
@@ -5662,7 +5662,7 @@ s32 func_0022eba0(u8 *packet)
     case 0x106:
         if (*(u16 *)(packet + 0x6C) != 2)
             break;
-        other = func_0019ef90(1, 0x10F);
+        other = btlUnitFindInSideById(1, 0x10F);
         if (other == 0 || *(u8 **)(other + 0xA00) == 0)
             break;
         switch (*(u16 *)(packet + 0x6E)) {
@@ -5842,7 +5842,7 @@ s32 func_0022f520(void)
     case 0x202: {
         u8 *var_17;
         u8 *temp_16;
-        temp_2_2 = func_0019ef90(1, 0x102);
+        temp_2_2 = btlUnitFindInSideById(1, 0x102);
         if ((temp_2_2 == NULL) ||
             (datCalcIsDead(*(s32 **)(temp_2_2 + 0xA64), 0) != 0)) {
             func_001f0a10((u8 *)&sp30);
@@ -5876,7 +5876,7 @@ loop_0022f520_14_check:
     case 0x203: {
         u8 *temp_17;
         u8 *var_16;
-        temp_2_3 = func_0019ef90(1, 0x103);
+        temp_2_3 = btlUnitFindInSideById(1, 0x103);
         if ((temp_2_3 == NULL) ||
             (datCalcIsDead(*(s32 **)(temp_2_3 + 0xA64), 0) != 0)) {
             func_001f0a10((u8 *)&sp30);

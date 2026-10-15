@@ -138,7 +138,7 @@ extern s32 datCalcGetBattleStat(s32 arg0, s32 arg1);
 extern s32 datCalcGetHp(s32 arg0);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern s32 datGetFlag(s32 arg0);
-extern s32 func_0019ef90(s32 arg0, s32 arg1);
+extern s32 btlUnitFindInSideById(s32 arg0, s32 arg1);
 extern s32 func_001b0c80(s32 arg0);
 extern void func_001fae60(s32 initialize, s32 update, s32 packet);
 extern void func_0022b120(u8 *action);
@@ -1736,7 +1736,7 @@ body:
         goto done;
     if (*(void **)(iGpffffb3ac + 0xB44) == (void *)func_0022b870)
         goto done;
-    temp_2 = func_0019ef90(1, 0x10B);
+    temp_2 = btlUnitFindInSideById(1, 0x10B);
     if (temp_2 == 0)
         goto done;
     temp_2_2 = func_001b0c80(temp_2);
