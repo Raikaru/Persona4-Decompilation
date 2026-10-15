@@ -51,7 +51,7 @@ extern u16 D_008C0252[];
 extern void func_0032a960(u8 *, s8);
 extern void func_002b5e90(u8 *, FclVec2, FclVec2, u32);
 extern void func_002b60f0(u8 *, u8, u8, u32);
-extern void func_00317320(u8 *, s64, f32);
+extern void fclCombineFadeCursorArrow(u8 *, s64, f32);
 extern void func_0034a890(u8 *);
 extern void func_0034a840(u8 *);
 extern u8 *func_0010fcb0(s32);
@@ -61,15 +61,15 @@ extern void fclDrawSetSlotMode(u8 *, s32, s8);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
 extern s32 func_00104c70(s32);
 extern void yListSlotCreate(s32, s8);
-extern void func_00315600(u8 *, s64);
+extern void fclCombineLayoutDetailSprites(u8 *, s64);
 extern s32 fclCombineRowsBusy(u8 *);
 extern u8 *yListSlotWork(s8);
 extern u8 *yListSlotEntry(s8, s16);
 extern void datPersonaPreviewLevelUp(u8 *, u8 *, s32);
 extern s32 func_00313fb0(u8 *);
 extern s32 datPersonaRosterCapacity(void);
-extern void func_00316470(u8 *, s64, s8);
-extern void func_00316e80(u8 *, s64, s64, s64, s64, s64, s64, s64, s8, s8, s8);
+extern void fclCombineLayoutFrame(u8 *, s64, s8);
+extern void fclCombineFadeLabelSprites(u8 *, s64, s64, s64, s64, s64, s64, s64, s8, s8, s8);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern int frFontExDrawTextDeferredOutB(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
 extern u8 *sdkSpriteNewNode(u32, u32);
@@ -500,8 +500,8 @@ void fclCombineMenuRoot(u8 *arg0)
     extern u8 D_00641870[];
     extern s32 datGetFlag(s32);
     extern s32 func_0033e5a0(u8 *);
-    extern void func_00315310(u8 *, s64);
-    extern void func_00317410(u8 *, s8);
+    extern void fclCombineDrawSlotRows(u8 *, s64);
+    extern void fclCombineStepSlotSelection(u8 *, s8);
     extern void fclCombineBuildRows(u8 *);
     extern void fclCombineMarkRow(s16);
     extern void func_00318840(u8 *, s8, s8, s16, s16);
@@ -658,7 +658,7 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         *(s32 *)(p + 0x148) = fclDrawTaskCreate(arg0);
         fclCombineCreateSlotIcons(arg0, 0);
-        func_00315310(arg0, 0);
+        fclCombineDrawSlotRows(arg0, 0);
         pos0 = func_002b2970(-78.0f, -82.0f);
         fclSpriteCreate(0x80, pos0, 220.0f, 0x3F);
         color0 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
@@ -695,9 +695,9 @@ void fclCombineMenuRoot(u8 *arg0)
         pos8 = func_002b2970(vec->x, vec->y);
         fclSpriteCreate(0x85, pos8, 218.0f, 0x40);
         fclSpriteStartAlphaAt(0x85, 0, 0xFF, 0, 0xA, 0);
-        func_00315600(arg0, 0);
+        fclCombineLayoutDetailSprites(arg0, 0);
         func_003205f0(arg0, 0x92, 0);
-        func_00316e80(arg0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0);
+        fclCombineFadeLabelSprites(arg0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0);
         p[0x138] = 0;
         if (datGetFlag(0x1305) != 0 && datGetFlag(0x1308) == 0) {
             p[0x138] |= 2;
@@ -724,11 +724,11 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         buttons = D_008C027A[0];
         if (buttons & 0x1000) {
-            func_00317410(arg0, 1);
+            fclCombineStepSlotSelection(arg0, 1);
             break;
         }
         if (buttons & 0x4000) {
-            func_00317410(arg0, 0);
+            fclCombineStepSlotSelection(arg0, 0);
             break;
         }
         buttons = D_008C024E[0];
@@ -768,10 +768,10 @@ void fclCombineMenuRoot(u8 *arg0)
                 }
                 break;
             case 2:
-                func_00315600(arg0, 1);
+                fclCombineLayoutDetailSprites(arg0, 1);
                 fclCombineCreateSlotIcons(arg0, 1);
                 func_003205f0(arg0, 0, 0x92);
-                func_00316e80(arg0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0);
                 fclSpriteStartAlphaAt(0x81, 0xFF, 0, 0, 6, 0);
                 fclSpriteStartAlphaAt(0x80, 0xFF, 0, 2, 0xA, 0);
                 fclSpriteStartAlphaAt(0x20C, 0xFF, 0, 2, 0xA, 0);
@@ -785,10 +785,10 @@ void fclCombineMenuRoot(u8 *arg0)
                 break;
             }
         } else if (buttons & 0x20) {
-            func_00315600(arg0, 1);
+            fclCombineLayoutDetailSprites(arg0, 1);
             fclCombineCreateSlotIcons(arg0, 1);
             func_003205f0(arg0, 0, 0x92);
-            func_00316e80(arg0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0);
             fclSpriteStartAlphaAt(0x81, 0xFF, 0, 0, 6, 0);
             fclSpriteStartAlphaAt(0x80, 0xFF, 0, 2, 0xA, 0);
             fclSpriteStartAlphaAt(0x20C, 0xFF, 0, 2, 0xA, 0);
@@ -875,7 +875,7 @@ void fclCombineMenuRoot(u8 *arg0)
                         p[1] = 0x18;
                     }
                     fclCombineLayoutTransition(arg0, 1);
-                    func_00315310(arg0, 0);
+                    fclCombineDrawSlotRows(arg0, 0);
                     func_003205f0(arg0, 0x92, 0x96);
                     fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
                 } else {
@@ -888,7 +888,7 @@ void fclCombineMenuRoot(u8 *arg0)
                 }
                 fclCombineLayoutTransition(arg0, 1);
                 func_0045af60(0, 0, 0, 2);
-                func_00315310(arg0, 0);
+                fclCombineDrawSlotRows(arg0, 0);
                 func_003205f0(arg0, 0x92, 0x96);
                 fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
             }
@@ -950,7 +950,7 @@ void fclCombineMenuRoot(u8 *arg0)
                     slotPos0 = *(FclVec2 *)(fclSpriteEntry((j + 4) * 2 + 0x1F4) + 0x38);
                     fclCombineDrawListRow(arg0, j + 4, slotPos0, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
                 }
-                func_00315310(arg0, 3);
+                fclCombineDrawSlotRows(arg0, 3);
                 func_003205f0(arg0, 0x92, 0x96);
                 fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
                 if (fclCombineClaimSlot(arg0) == 0) {
@@ -986,7 +986,7 @@ void fclCombineMenuRoot(u8 *arg0)
                         p[0] = 0xA;
                         ((u8 *)p)[1] = 0xC2;
                     } else {
-                        func_00315310(arg0, 3);
+                        fclCombineDrawSlotRows(arg0, 3);
                         func_003205f0(arg0, 0x92, 0x96);
                         if (fclCombineClaimSlot(arg0) == 0) {
                             p[1] = 0x18;
@@ -995,7 +995,7 @@ void fclCombineMenuRoot(u8 *arg0)
                     break;
                 case 4:
                     if (datGetFlag(0x1305) != 0) {
-                        func_00315310(arg0, 3);
+                        fclCombineDrawSlotRows(arg0, 3);
                         func_003205f0(arg0, 0x92, 0x96);
                         if (fclCombineClaimSlot(arg0) == 0) {
                             p[1] = 0x18;
@@ -1009,7 +1009,7 @@ void fclCombineMenuRoot(u8 *arg0)
                 slotPos1 = *(FclVec2 *)(fclSpriteEntry((j + 4) * 2 + 0x1F4) + 0x38);
                 fclCombineDrawListRow(arg0, j + 4, slotPos1, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
             }
-            func_00315310(arg0, 3);
+            fclCombineDrawSlotRows(arg0, 3);
             fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
             func_003205f0(arg0, 0x92, 0x96);
             if (fclCombineClaimSlot(arg0) == 0) {
@@ -1658,7 +1658,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         yListSlotCreate(0xA, 0xB);
         yListSlotCreate(0xA, 0xC);
         yListSlotCreate(0, 0xD);
-        func_00315600(arg0, 1);
+        fclCombineLayoutDetailSprites(arg0, 1);
         temp_18->f1 = 0x24U;
         return;
     case 0x24:
@@ -1670,8 +1670,8 @@ void fclCombineMenuFusion(u8 *arg0) {
             }
             func_003205f0(arg0, 0x93, 0x96);
             func_00320b80(arg0, 0);
-            func_00316470(arg0, 1, 0);
-            func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineLayoutFrame(arg0, 1, 0);
+            fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             temp_18->f129 = -1;
             temp_18->f1 = 0x25;
         }
@@ -1697,7 +1697,7 @@ void fclCombineMenuFusion(u8 *arg0) {
             && (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x193) + 0x10), 1) == 0) {
             func_003205f0(arg0, 0x96, 0x93);
             fclCombineLayoutTransition(arg0, 0);
-            func_00315600(arg0, 0);
+            fclCombineLayoutDetailSprites(arg0, 0);
             temp_18->f0 = 0;
             temp_18->f1 = 0x1A;
         }
@@ -1754,7 +1754,7 @@ void fclCombineMenuFusion(u8 *arg0) {
             }
             sp220 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp220, 0, 0, 0, 0, 0);
-            func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             func_003218a0(arg0, 0);
             func_002b6140(temp_18->f28C, 0);
             func_002b6140(temp_18->f290, 0);
@@ -1862,8 +1862,8 @@ void fclCombineMenuFusion(u8 *arg0) {
                     func_0031e5b0(arg0, sp208, 0, 1, 0, 0, 0);
                     sp200 = func_002b2970((f32)0x149, 104.0f);
                     func_0031fa20(arg0, sp200, 0, 1);
-                    func_00316470(arg0, 1, 1);
-                    func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineLayoutFrame(arg0, 1, 1);
+                    fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 0.0f);
                     func_002b6140(temp_18->f28C, 1);
                     func_002b6140(temp_18->f290, 1);
@@ -1886,8 +1886,8 @@ void fclCombineMenuFusion(u8 *arg0) {
                     func_0031e5b0(arg0, sp1E8, 0, 1, 0, 0, 0);
                     sp1E0 = func_002b2970((f32)0x149, 104.0f);
                     func_0031fa20(arg0, sp1E0, 0, 1);
-                    func_00316470(arg0, 1, 1);
-                    func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineLayoutFrame(arg0, 1, 1);
+                    fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 60.0f);
                     func_002b6140(temp_18->f28C, 1);
                     func_002b6140(temp_18->f290, 1);
@@ -1975,8 +1975,8 @@ void fclCombineMenuFusion(u8 *arg0) {
             func_0031e5b0(arg0, sp1A8, 0, 0, 0, 0, 0);
             sp1A0 = func_002b2970((f32)0x149, 104.0f);
             func_0031fa20(arg0, sp1A0, 0, 0);
-            func_00316470(arg0, 1, 0);
-            func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineLayoutFrame(arg0, 1, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             func_002b6140(temp_18->f28C, 0);
             func_002b6140(temp_18->f290, 0);
             temp_18->f1 = 0x2A;
@@ -2132,8 +2132,8 @@ void fclCombineMenuFusion(u8 *arg0) {
         temp_16_39 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_38);
         frFontExDrawTextDeferredOutB(111.0f + sp138.x, sp138.y, 43.0f, temp_16_39, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, temp_17_12->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s8)fclDrawGetState(temp_18->f148) == 0xE) {
-            func_00316470(arg0, 1, 0);
-            func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineLayoutFrame(arg0, 1, 0);
+            fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             temp_18->f129 = -1;
             for (var_17_6 = 0; var_17_6 < (datPersonaRosterCapacity() & 0xFFFF); var_17_6++) {
                 sp178.position = func_002b2970(16.0f, 128.0f);
@@ -2649,7 +2649,7 @@ void fclCombineMenuFusionTriple(u8 *arg0) {
         yListSlotCreate(0xA, 0xB);
         yListSlotCreate(0xA, 0xC);
         yListSlotCreate(0, 0xD);
-        func_00315600(arg0, 1);
+        fclCombineLayoutDetailSprites(arg0, 1);
         temp_17->f1 = 0x39U;
         return;
     case 0x39:                                      /* switch 1 */
@@ -2660,8 +2660,8 @@ void fclCombineMenuFusionTriple(u8 *arg0) {
             }
             func_003205f0(arg0, 0x93, 0x96);
             func_00320b80(arg0, 1);
-            func_00316470(arg0, 1, 0);
-            func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineLayoutFrame(arg0, 1, 0);
+            fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             temp_17->f1 = 0x3AU;
             return;
         }
@@ -2739,7 +2739,7 @@ void fclCombineMenuFusionTriple(u8 *arg0) {
         if (((s32)((s32)(((s32) (*(s16 *)fclCombineSlotRecord((u8 *)(temp_17->rows[0]), 0) & 4) >> 2))) == (s32)((s32)(0))) && ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) == (s32)((s32)(0)))) {
             func_003205f0(arg0, 0x96, 0x93);
             fclCombineLayoutTransition(arg0, 0U);
-            func_00315600(arg0, 0);
+            fclCombineLayoutDetailSprites(arg0, 0);
             temp_17->f0 = 0;
             temp_17->f1 = 0x1AU;
             return;
@@ -2827,7 +2827,7 @@ block_83:
                 }
                 sp388 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp388, 0, 0, 0, 0, 0);
-                func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
 
                     FCL0F00_GRID_ROW(temp_17, gridRow, 1, 0, sp380, sp378, sp3F8, sp3F4);
@@ -2887,7 +2887,7 @@ block_83:
                     }
                     sp358 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp358, 0, 1, 0, 0, 0);
-                    func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
                         FCL0F00_GRID_ROW(temp_17, gridRow, 0, 1, sp350, sp378, sp3F0, sp3EC);
                         temp_18_10 = (s16)(gridRow);
@@ -3074,7 +3074,7 @@ block_166:
                 }
                 sp2B0 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp2B0, 0, 0, 0, 0, 0);
-                func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 func_003218a0(arg0, 0);
                 func_002b6140((u8 *)(temp_17->f28C), 0);
                 func_002b6140((u8 *)(temp_17->f290), 0);
@@ -3128,8 +3128,8 @@ block_166:
                     func_0031e5b0(arg0, sp298, 0, 1, 0, 0, 0);
                     sp290 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp290, 0, 1);
-                    func_00316470(arg0, 1, 1);
-                    func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineLayoutFrame(arg0, 1, 1);
+                    fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 60.0f);
                     func_002b6140((u8 *)(temp_17->f28C), 1);
                     func_002b6140((u8 *)(temp_17->f290), 1);
@@ -3155,8 +3155,8 @@ block_166:
                             func_0031e5b0(arg0, sp278, 0, 1, 0, 0, 0);
                             sp270 = func_002b2970((f32) 0x149, 104.0f);
                             func_0031fa20(arg0, sp270, 0, 1);
-                            func_00316470(arg0, 1, 1);
-                            func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                            fclCombineLayoutFrame(arg0, 1, 1);
+                            fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                             fclCombineFadePanelSprite(arg0, 0, 0);
                             func_002b6140((u8 *)(temp_17->f28C), 1);
                             func_002b6140((u8 *)(temp_17->f290), 1);
@@ -3254,8 +3254,8 @@ block_166:
         } else {
 block_215:
             if ((s8)fclDrawGetState((u8 *)temp_17->f148) < 0 || (s8)fclDrawGetState((u8 *)temp_17->f148) > 5) {
-                func_00316470(arg0, 1, 0);
-                func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                fclCombineLayoutFrame(arg0, 1, 0);
+                fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
 
                     sp248 = func_002b2970(16.0f, 128.0f);
@@ -3460,8 +3460,8 @@ block_215:
         temp_16_74 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_73)));
         frFontExDrawTextDeferredOutB(111.0f + sp178.x, sp178.y, 43.0f, temp_16_74, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_37->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(0xE)) {
-            func_00316470(arg0, 1, 0);
-            func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineLayoutFrame(arg0, 1, 0);
+            fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
 
                 sp208 = func_002b2970(16.0f, 128.0f);
@@ -3746,9 +3746,9 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         yListSlotCreate(0xA, 0xA);
         yListSlotCreate(0xA, 0xB);
         yListSlotCreate(0xA, 0xC);
-        func_00315600(arg0, 1);
-        func_00316470(arg0, 0, 0);
-        func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+        fclCombineLayoutDetailSprites(arg0, 1);
+        fclCombineLayoutFrame(arg0, 0, 0);
+        fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
         p[1] = 0x52;
         break;
     case 0x52:
@@ -3894,7 +3894,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 p[0x2FA] = *(s16 *)(p + 0x11E);
                 *(s16 *)(p + 0x11E) = -1;
                 func_00323d00(arg0, 0, 1);
-                func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                 fclCombineFadePanelSprite(arg0, 0, 0.0f);
                 *(s16 *)(p + 0x11E) = p[0x2FA];
                 p[1] = 0x58;
@@ -3909,8 +3909,8 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             *(s16 *)(p + 0x11E) = -1;
             func_00323d00(arg0, 0, 1);
             *(s16 *)(p + 0x11E) = p[0x2FA];
-            func_00316470(arg0, 0, 1);
-            func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+            fclCombineLayoutFrame(arg0, 0, 1);
+            fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
             func_003205f0(arg0, 0x96, 0x98);
             p[1] = 0x56;
         } else if (buttons & 0x80) {
@@ -3918,7 +3918,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             p[0x2FA] = *(s16 *)(p + 0x11E);
             *(s16 *)(p + 0x11E) = -1;
             func_00323d00(arg0, 0, 1);
-            func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
             fclCombineFadePanelSprite(arg0, 0, 60.0f);
             func_002b6140(*(u8 **)(p + 0x28C), 1);
             func_002b6140(*(u8 **)(p + 0x290), 1);
@@ -3971,7 +3971,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         }
         if (fclDrawGetState(*(u8 **)(p + 0x148)) < 0 || fclDrawGetState(*(u8 **)(p + 0x148)) > 5) {
             func_00323d00(arg0, 0, 0);
-            func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             *(s16 *)(p + 0x11E) = p[0x2FA];
             p[1] = 0x53;
             func_002b6140(*(u8 **)(p + 0x28C), 0);
@@ -4017,7 +4017,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             break;
         }
         fclCombineLayoutTransition(arg0, 0);
-        func_00315600(arg0, 0);
+        fclCombineLayoutDetailSprites(arg0, 0);
         p[1] = 0x1A;
         p[0] = 0;
         *(s16 *)(p + 0x11E) = -1;
@@ -4063,7 +4063,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 p[1] = 0x5F;
                 fclDrawSetStateByte(*(u8 **)(p + 0x148), 0xB);
                 func_00325450(arg0, (s8)(p[0x1A] + 1), 1);
-                func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 fclCombineFadePanelSprite(arg0, 1, 0.0f);
                 func_0045af60(0, 0, 0, 2);
             }
@@ -4379,12 +4379,12 @@ void fclCombineMenuPreview(u8 *arg0) {
         p[0x129] = -1;
         p[0x128] = -1;
         *(s16 *)(p + 0x11E) = -1;
-        func_00315600(arg0, 1);
+        fclCombineLayoutDetailSprites(arg0, 1);
         func_00324680(arg0, 2, 0);
         if (p[0x20] == 0) {
-            func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
         } else {
-            func_00316e80(arg0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0);
             ps = fclSpriteEntry(0x8A);
             *(f32 *)(ps + 0x38) += 60.0f;
         }
@@ -4459,7 +4459,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                     func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                     func_00325450(arg0, 8, 0);
                     func_00324680(arg0, 0, 1);
-                    func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 0.0f);
                 } else {
                     func_0045af60(0, 0, 0, 8);
@@ -4467,9 +4467,9 @@ void fclCombineMenuPreview(u8 *arg0) {
             } else if (buttons & 0x80) {
                 func_00324680(arg0, 0, 1);
                 if (p[0x20] == 0) {
-                    func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                 } else {
-                    func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                 }
                 fclCombineFadePanelSprite(arg0, 0, 60.0f);
                 p[1] = 0x66;
@@ -4477,9 +4477,9 @@ void fclCombineMenuPreview(u8 *arg0) {
             } else if (buttons & 0x20) {
                 func_00324680(arg0, 0, 1);
                 if (p[0x20] == 0) {
-                    func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                 } else {
-                    func_00316e80(arg0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                 }
                 p[1] = 0x68;
                 func_0045af60(0, 0, 0, 2);
@@ -4532,9 +4532,9 @@ void fclCombineMenuPreview(u8 *arg0) {
         if (fclDrawGetState(*(u8 **)(p + 0x148)) < 0 || fclDrawGetState(*(u8 **)(p + 0x148)) > 5) {
             func_00324680(arg0, 0, 0);
             if (p[0x20] == 0) {
-                func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             } else {
-                func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 ps = fclSpriteEntry(0x8A);
                 *(f32 *)(ps + 0x38) += 60.0f;
             }
@@ -4562,7 +4562,7 @@ void fclCombineMenuPreview(u8 *arg0) {
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x71) + 0x10), 1) == 0 &&
             (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x70) + 0x10), 1) == 0) {
             fclCombineLayoutTransition(arg0, 0);
-            func_00315600(arg0, 0);
+            fclCombineLayoutDetailSprites(arg0, 0);
             func_003205f0(arg0, 0x96, 0x98);
             p[1] = 0x1A;
             p[0] = 0;
@@ -4603,9 +4603,9 @@ void fclCombineMenuPreview(u8 *arg0) {
                 func_00325450(arg0, 8, 1);
                 func_00324680(arg0, 0, 0);
                 if (p[0x20] == 0) {
-                    func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                    fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 } else {
-                    func_00316e80(arg0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0);
+                    fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0);
                 }
                 fclCombineFadePanelSprite(arg0, 1, 0.0f);
                 p[1] = 0x65;
@@ -4780,7 +4780,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
     state = p->f1;
     switch (state) {
     case 0x8A:
-        func_00315600(arg0, 1);
+        fclCombineLayoutDetailSprites(arg0, 1);
         if (p->f0 == 0x10) {
             yListSlotCreate(6, 0);
         } else if (p->f0 == 0xF) {
@@ -5266,7 +5266,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         func_002bb550(p->fD);
         func_0032f4d0(arg0);
         func_003205f0(arg0, 0x96, 0x118);
-        func_00315600(arg0, 0);
+        fclCombineLayoutDetailSprites(arg0, 0);
         p->f0 = 0;
         p->f1 = 0x1B;
         return;
@@ -5278,7 +5278,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         func_002bb550(p->fD);
         func_0032f4d0(arg0);
         func_003205f0(arg0, 0x96, 0x118);
-        func_00315600(arg0, 0);
+        fclCombineLayoutDetailSprites(arg0, 0);
         p->f0 = 0;
         p->f1 = 0x1B;
         return;
@@ -5320,7 +5320,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x193) + 0x10), 1) == 0) {
             func_0032f4d0(arg0);
             func_003205f0(arg0, 0x96, 0x118);
-            func_00315600(arg0, 0);
+            fclCombineLayoutDetailSprites(arg0, 0);
             p->f0 = 0;
             p->f1 = 0x1B;
             return;
@@ -5640,7 +5640,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 func_002b5e90((u8 *)p->f2B0, func_002b2970(0.0f, 432.0f), func_002b2970(0.0f, 480.0f), 6);
                 func_002b5ef0((u8 *)p->f2B4, func_002b2970(0.0f, 69.0f), func_002b2970(0.0f, 93.0f), func_002b29e0(640.0f, (f32)0x157), func_002b29e0(640.0f, 294.0f), 5);
                 func_002b60f0((u8 *)p->f2B4, 0xE5, 0, 5);
-                func_00317320(arg0, 0, 0.0f);
+                fclCombineFadeCursorArrow(arg0, 0, 0.0f);
                 fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0045af60(0, 0, 0, 5);
             }
@@ -5823,7 +5823,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x193) + 0x10), 1) == 0) {
             func_0032f4d0(arg0);
             func_003205f0(arg0, 0x96, 0x117);
-            func_00315600(arg0, 0);
+            fclCombineLayoutDetailSprites(arg0, 0);
             p->f0 = 0;
             p->f1 = 0x1B;
             return;
@@ -5957,7 +5957,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
         sp250 = func_002b2970(640.0f, 98.0f);
         sp248 = func_002b2970((f32)413, 99.0f);
         func_0033e540(*(u8 **)(p + 0x250), sp250, sp248, 6, 0);
-        func_00316e80(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+        fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
     case 0x70:
         func_00313b50(arg0);
         *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
@@ -5985,7 +5985,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
             func_0032c660(arg0, 1, sp230, sp228, 1, 0);
             func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 1);
             func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 1);
-            func_00315600(arg0, 1);
+            fclCombineLayoutDetailSprites(arg0, 1);
             fclCombineCreateSlotIcons(arg0, 1);
         }
         break;
@@ -6074,11 +6074,11 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
                 }
                 fclCombineLayoutTransition(arg0, 0);
                 p[1] = 0x74;
-                func_00316e80(arg0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
                 sp160 = func_002b2970((f32)413, 99.0f);
                 sp158 = func_002b2970(640.0f, 98.0f);
                 func_0033e540(*(u8 **)(p + 0x250), sp160, sp158, 6, 0);
-                func_00315600(arg0, 0);
+                fclCombineLayoutDetailSprites(arg0, 0);
                 fclCombineCreateSlotIcons(arg0, 0);
             }
         }
@@ -6120,7 +6120,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
             sp130 = func_002b2970(640.0f, 98.0f);
             sp128 = func_002b2970((f32)413, 99.0f);
             func_0033e540(*(u8 **)(p + 0x250), sp130, sp128, 6, 0);
-            func_00316e80(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         break;
     }
@@ -6861,7 +6861,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         }
         break;
     case 0x77:
-        func_00315600(arg0, 1);
+        fclCombineLayoutDetailSprites(arg0, 1);
         if (datGetFlag(0x1306) != 0) {
             fclDrawSetFlag((u8 *)work->f148, 1);
             func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
@@ -6931,8 +6931,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 *(FclDrawColor *)(fclCombineSlotRecord((u8 *)work->f188, var_16) + 0x75) = col2FC;
             }
             func_003205f0(arg0, 0x93, 0x96);
-            func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-            func_00316470(arg0, 1, 0);
+            fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineLayoutFrame(arg0, 1, 0);
             fclDrawSetFlag((u8 *)work->f148, 0);
             yListSlotCreate(5, 0);
             yListSlotCreate(0xA, 1);
@@ -7002,7 +7002,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     fclSpriteStartPositionAt(temp_16_4, (*(FclVec2f *)&sp280), (*(FclVec2f *)&sp278), 0, 3, 0);
                     sdkSpriteFreeNode(temp_21_2);
                 }
-                func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                 func_002b6140((u8 *)(work->f28C), 1);
                 func_002b6140((u8 *)(work->f290), 1);
                 work->f1 = 0x7CU;
@@ -7045,8 +7045,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             } else if (D_008C024E[0] & 0x20) {
                 func_0045af60(0, 0, 0, 2);
                 func_0032fbc0(arg0);
-                func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
-                func_00316470(arg0, 1, 1);
+                fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                fclCombineLayoutFrame(arg0, 1, 1);
                 func_0032f4d0(arg0);
                 work->f1 = 0x7AU;
                 return;
@@ -7075,7 +7075,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             sp228 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp228, 0, 0, 0, 0, 0);
             func_003218a0(arg0, 0);
-            func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             func_002b6140((u8 *)(work->f28C), 1);
             func_002b6140((u8 *)(work->f290), 1);
             work->f1 = 0x7BU;
@@ -7099,7 +7099,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 0
             && (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x193) + 0x10), 1) == 0) {
             func_003205f0(arg0, 0x96, 0x93);
-            func_00315600(arg0, 0);
+            fclCombineLayoutDetailSprites(arg0, 0);
             work->f0 = 0;
             work->f1 = 0x1B;
         }
@@ -7231,8 +7231,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     func_0031e5b0(arg0, sp210, 0, 1, 0, 0, 0);
                     sp208 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp208, 0, 1);
-                    func_00316470(arg0, 1, 1);
-                    func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineLayoutFrame(arg0, 1, 1);
+                    fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 0);
                     func_00325450(arg0, 3, 0);
                     func_002b6140((u8 *)(work->f28C), 1);
@@ -7257,8 +7257,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     func_0031e5b0(arg0, sp1F0, 0, 1, 0, 0, 0);
                     sp1E8 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp1E8, 0, 1);
-                    func_00316470(arg0, 1, 1);
-                    func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
+                    fclCombineLayoutFrame(arg0, 1, 1);
+                    fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     func_002b6140((u8 *)(work->f28C), 1);
                     func_002b6140((u8 *)(work->f290), 1);
                     work->f1 = 0x7FU;
@@ -7328,8 +7328,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             func_0031e5b0(arg0, sp1B0, 0, 0, 0, 0, 0);
             sp1A8 = func_002b2970((f32) 0x149, 104.0f);
             func_0031fa20(arg0, sp1A8, 0, 0);
-            func_00316470(arg0, 1, 0);
-            func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+            fclCombineLayoutFrame(arg0, 1, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             work->f1 = 0x7EU;
             return;
         }
@@ -7380,8 +7380,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 work->f1 = 0x82U;
                 fclDrawSetStateByte((u8 *)work->f148, 0xB);
                 func_00325450(arg0, 3, 1);
-                func_00316470(arg0, 1, 0);
-                func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                fclCombineLayoutFrame(arg0, 1, 0);
+                fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 work->f129 = -1;
                 for (var_18_9 = 0; var_18_9 < (datPersonaRosterCapacity() & 0xFFFF); var_18_9++) {
                     sp1A0 = func_002b2970(16.0f, 128.0f);
@@ -7398,7 +7398,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 func_0031e5b0(arg0, sp190, 0, 0, 0, 0, 0);
                 sp188 = func_002b2970((f32) 0x149, 104.0f);
                 func_0031fa20(arg0, sp188, 0, 0);
-                func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 fclCombineFadePanelSprite(arg0, 1, 0);
                 for (var_4_2 = 0; var_4_2 < 5; var_4_2++) {
                     sp2C8[var_4_2] = 0;
@@ -7602,7 +7602,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         return;
     case 0x84:                                      /* switch 1 */
         if (((s8)(fclDrawGetState((u8 *)work->f148))) == 0xE) {
-            func_00315600(arg0, 0);
+            fclCombineLayoutDetailSprites(arg0, 0);
             func_002b6140((u8 *)(work->f28C), 0);
             func_002b6140((u8 *)(work->f290), 0);
             work->fB6 = 0;
@@ -9883,8 +9883,8 @@ void fclCombineMenuFinish(u8 *arg0) {
             base = (FclVec2f *)D_00640C58;
             w8 = func_002b2970(base->x, base->y);
             fclSpriteCreate(0x85, w8, 218.0f, 0x40);
-            func_00315600(arg0, 0);
-            func_00316e80(arg0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0);
+            fclCombineLayoutDetailSprites(arg0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0);
             base = (FclVec2f *)D_00641660;
             w9 = func_002b2970(base->x, base->y);
             fclSpriteCreate(0x1C6, w9, 242.0f, 0x3D);
