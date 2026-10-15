@@ -6,7 +6,7 @@
 /* Resource and position precede depth; integer order keeps its EE register. */
 void fclSpriteCreate(s16 resource, FclVec2 position, f32 depth, s32 order);
 
-void func_003147e0(u8 *task, s8 slot, FclVec2 position, s16 resource,
+void fclCombineDrawListRow(u8 *task, s8 slot, FclVec2 position, s16 resource,
                    s16 argument, s8 mode);
 
 /* Selection colors return a packed word; opacity is an unsigned byte. */
