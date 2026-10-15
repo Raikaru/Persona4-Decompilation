@@ -8562,9 +8562,9 @@ void fclCombineMenuMaterialGrid(u8 *arg0)
    second func_003147e0 argument. The row loop derives the second byte as
    &D_00882FB0[j * 2] + 1: that second use of j is what makes b210
    re-extend j at the top of the body instead of reusing the test's copy. */
-// Fcl combine menu item pick (state 0x0A): picks the item for the selected slot.
+// Fcl combine menu option pick (state 0x0A): lists the option rows (kinds 0-3 and 0xB), shows the selected kind's message on select (0x40), and returns to state 0 on cancel (0x20).
 // FUN_0030B7B0
-void fclCombineMenuItemPick(u8 *arg0) {
+void fclCombineMenuOptionPick(u8 *arg0) {
     u8 *p;
     u8 kind;
     s16 i;
