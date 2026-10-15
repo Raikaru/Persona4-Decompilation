@@ -15,8 +15,8 @@ extern f32 iGpffffba6c;
 extern void func_0044ea90(const void *file, s32 line);
 
 extern s32 func_00457120(void);
-extern s32 func_0017d3c0(u8 *arg0);
-extern s32 func_0017f490(u8 *arg0);
+extern s32 FldAI_ChaserUpdate(u8 *arg0);
+extern s32 FldAI_PatrolUpdate(u8 *arg0);
 extern u8 *D_007EFA00[];
 extern s32 iGpffffb25c;
 extern u8 *iGpffffb2c8;
@@ -56,7 +56,7 @@ static inline u8 **fldFollowerModelSlot(u8 *entry)
 }
 
 // FUN_0017D3C0
-s32 func_0017d3c0(u8 *task)
+s32 FldAI_ChaserUpdate(u8 *task)
 {
     struct RwFrame;
     struct RwMatrix;
@@ -83,7 +83,7 @@ s32 func_0017d3c0(u8 *task)
     extern void func_00168de0(u8 *, const void *, f32);
     extern s32 func_0016fd00(s32);
     extern s32 func_0016ffd0(s32);
-    extern s32 func_0017e980(u8 *);
+    extern s32 FldAI_ChaserGetState(u8 *);
     extern u32 RpRandom(void);
     extern void *memset(void *, int, size_t);
     extern s32 func_00452080(KwlnTask *);
@@ -261,7 +261,7 @@ discoveryAvailabilityDone:
                     u8 *otherTask = *(u8 **)(*(u8 **)(work + 0x14) + 0x1B0);
                     if (otherTask != NULL) {
                         if (random != 0) {
-                            action = func_0017e980(otherTask);
+                            action = FldAI_ChaserGetState(otherTask);
                             if (action > 0) *(s32 *)(work + 0x48) = -1;
                             else if (action < 0) *(s32 *)(work + 0x48) = 1;
                             else *(s32 *)(work + 0x48) = 0;
@@ -277,7 +277,7 @@ discoveryAvailabilityDone:
                     u8 *otherTask = *(u8 **)(*(u8 **)(work + 0x14) + 0x1B0);
                     if (otherTask != NULL) {
                         if (random != 0) {
-                            action = func_0017e980(otherTask);
+                            action = FldAI_ChaserGetState(otherTask);
                             if (action > 0) *(s32 *)(work + 0x48) = -1;
                             else if (action < 0) *(s32 *)(work + 0x48) = 1;
                             else *(s32 *)(work + 0x48) = 0;
@@ -548,7 +548,7 @@ movementComplete:
 
 #pragma pop
 // FUN_0017E840
-void func_0017e840(u8 *arg0) {
+void FldAI_ChaserDestroy(u8 *arg0) {
     s32 h = *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x50);
 
     if (h != 0) {
@@ -558,7 +558,7 @@ void func_0017e840(u8 *arg0) {
 }
 
 // FUN_0017E890
-s32 func_0017e890(s32 arg0, s32 arg1, s32 arg2)
+s32 FldAI_SpawnChaser(s32 arg0, s32 arg1, s32 arg2)
 {
     s32 ret;
     u8 *work;
@@ -568,7 +568,7 @@ s32 func_0017e890(s32 arg0, s32 arg1, s32 arg2)
     if (work == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1B28), 0xF, 0, 0, func_0017d3c0, func_0017e840, (u8 *)(work));
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1B28), 0xF, 0, 0, FldAI_ChaserUpdate, FldAI_ChaserDestroy, (u8 *)(work));
     *(s32 *)(work + 0x10) = arg1;
     *(s32 *)(work + 0x14) = arg2;
     *(s32 *)(work + 0x1C) = -1;
@@ -577,17 +577,17 @@ s32 func_0017e890(s32 arg0, s32 arg1, s32 arg2)
 }
 
 // FUN_0017E980
-s32 func_0017e980(u8 *arg0) {
+s32 FldAI_ChaserGetState(u8 *arg0) {
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x48);
 }
 
 // FUN_0017E990
-void func_0017e990(u8 *arg0) {
+void FldAI_ChaserEnable(u8 *arg0) {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xC) = 1;
 }
 
 // FUN_0017E9B0
-void func_0017e9b0(u8 *arg0) {
+void FldAI_ChaserDisable(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     func_00479940(*(u8 **)(*(u8 **)(p + 0x10) + 0x50), 0,
@@ -608,7 +608,7 @@ void func_0017e9b0(u8 *arg0) {
    to FldAIVec3 blinds the alignment and gives three lwc1 (nd290); the
    archive's {s64; f32} out type gives scalar order ld/sd/lwc1/swc1 (nd4). */
 // FUN_0017EA10
-s32 func_0017ea10(u8 *arg0)
+s32 FldAI_ChaserCanSeeTarget(u8 *arg0)
 {
     FldAIVec3 d;
     FldAIVec3 out;
@@ -685,7 +685,7 @@ s32 func_0017ea10(u8 *arg0)
  * each single-bound correction, to preserve the retail address lifetimes. */
 #pragma push
 #pragma opt_propagation off
-s32 func_0017ed40(u8 *work)
+s32 FldAI_AdvanceBoundsSample(u8 *work)
 {
     FldAIVec3 hit;
     FldAIVec3 line[2];
@@ -1016,7 +1016,7 @@ extern void func_004b14f0(void *, int *);
 extern unsigned char D_00794420[];
 extern unsigned char D_005F1CC0[];
 // FUN_0017F490
-int func_0017f490(unsigned char *param_1)
+int FldAI_PatrolUpdate(unsigned char *param_1)
 {
   typedef struct { unsigned char r, g, b, a; } FldAIColor;
   float distVec[3];
@@ -1174,7 +1174,7 @@ availabilityDone:
       *piVar1 = *piVar1 + 1;
       break;
     case 1:
-      temp_v3 = func_0017ed40((u8 *)piVar1);
+      temp_v3 = FldAI_AdvanceBoundsSample((u8 *)piVar1);
       if (temp_v3 == 0) {
         temp_v0 = (int)mdlGetMatrix((u8 *)*(unsigned int *)(piVar1[3] + 0x50));
         aiPos = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1329,7 +1329,7 @@ availabilityDone:
 else {
         ((float *)piVar1)[0x1a] = ((float *)piVar1)[0x1b];
       }
-      temp_v0 = func_0017ea10((unsigned char *)piVar1[3]);
+      temp_v0 = FldAI_ChaserCanSeeTarget((unsigned char *)piVar1[3]);
       if (temp_v0 == 1) {
         temp_v0 = (int)mdlGetMatrix((u8 *)*(unsigned int *)(piVar1[3] + 0x50));
         *(FldAIVec3 *)vec70 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1346,7 +1346,7 @@ else {
       if (piVar1[0x23] >= 0) {
         func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510,
                       *(float *)(piVar1[5] + 0x18) * 10.0f * ((float *)piVar1)[0x1d]);
-        temp_v0 = func_0017ea10((unsigned char *)piVar1[3]);
+        temp_v0 = FldAI_ChaserCanSeeTarget((unsigned char *)piVar1[3]);
         if (temp_v0 == 1) {
           temp_v0 = (int)mdlGetMatrix((u8 *)*(unsigned int *)(piVar1[3] + 0x50));
           *(FldAIVec3 *)vec80 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1518,7 +1518,7 @@ else {
           iGpffffb310 = temp_v0;
         }
       }
-      if ((piVar1[0x23] < 1) && (temp_v0 = func_0017ea10((unsigned char *)piVar1[3]), temp_v0 == 0)) {
+      if ((piVar1[0x23] < 1) && (temp_v0 = FldAI_ChaserCanSeeTarget((unsigned char *)piVar1[3]), temp_v0 == 0)) {
         piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
         *piVar1 = 0xb;
         func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
@@ -1649,7 +1649,7 @@ else {
           iGpffffb310 = temp_v0;
         }
       }
-      if ((piVar1[0x23] < 1) && (temp_v0 = func_0017ea10((unsigned char *)piVar1[3]), temp_v0 == 0)) {
+      if ((piVar1[0x23] < 1) && (temp_v0 = FldAI_ChaserCanSeeTarget((unsigned char *)piVar1[3]), temp_v0 == 0)) {
         piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
         *piVar1 = 0xb;
         func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
@@ -1843,7 +1843,7 @@ else {
         }
         func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
       }
-      temp_v0 = func_0017ea10((unsigned char *)piVar1[3]);
+      temp_v0 = FldAI_ChaserCanSeeTarget((unsigned char *)piVar1[3]);
       if (temp_v0 == 1) {
         temp_v0 = (int)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]);
         state11Delta.x = *(float *)((u8 *)(u32)(temp_v0) + 0x30) - *(float *)(piVar1[3] + 0x19c);
@@ -1962,7 +1962,7 @@ else {
 #pragma pop
 
 // FUN_001821D0
-void func_001821d0(u8 *arg0) {
+void FldAI_PatrolDestroy(u8 *arg0) {
     s32 h = *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x10);
 
     if (h != 0) {
@@ -1972,7 +1972,7 @@ void func_001821d0(u8 *arg0) {
 }
 
 // FUN_00182220
-s32 func_00182220(s32 arg0, s32 arg1, s32 arg2)
+s32 FldAI_SpawnPatrol(s32 arg0, s32 arg1, s32 arg2)
 {
     s32 ret;
     u8 *work;
@@ -1982,7 +1982,7 @@ s32 func_00182220(s32 arg0, s32 arg1, s32 arg2)
     if (work == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1CF0), 0xF, 0, 0, func_0017f490, func_001821d0, (u8 *)(work));
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1CF0), 0xF, 0, 0, FldAI_PatrolUpdate, FldAI_PatrolDestroy, (u8 *)(work));
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x4) = 1;
     *(s32 *)(work + 0x8) = arg2;
