@@ -83,7 +83,7 @@ extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_002bdb50(s32 arg0, s8 arg1);
 extern void func_002bdea0(void);
 extern s32 func_002e7510(s32 arg0);
-extern void func_00308f40(void);
+extern void fclCombineApplyPackedResult(void);
 extern s32 func_003493b0(u8 *arg0);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 typedef struct P4_002aa450_Pair {
@@ -1291,7 +1291,7 @@ s32 func_002abf70(u8 *arg0) {
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x6C8)) == 0) {
             *(s8 *)(temp_16 + 0) = 0;
             func_002bdea0();
-            func_00308f40();
+            fclCombineApplyPackedResult();
         }
         break;
     case 6:
