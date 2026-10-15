@@ -94,7 +94,7 @@ extern u8 *iGpffffb42c;
 
 /* AI script command 0x207b (p4flow AI.json AI_FUNCTION_007B). */
 // FUN_001E6D20
-s32 func_001e6d20(void) {
+s32 btlEffectScriptPickUnitByKind(void) {
     s32 first;
     s32 second;
     s32 kind;
@@ -118,7 +118,7 @@ s32 func_001e6d20(void) {
 
 /* AI script command 0x207c (p4flow AI.json AI_FUNCTION_007C). */
 // FUN_001E6DC0
-s32 func_001e6dc0(void) {
+s32 btlEffectScriptPickLowestHpLivingSide1Unit(void) {
     u8 *current;
     u8 *best;
     u32 min;
@@ -150,7 +150,7 @@ s32 func_001e6dc0(void) {
 
 /* AI script command 0x207d (p4flow AI.json AI_FUNCTION_007D). */
 // FUN_001E6EA0
-s32 func_001e6ea0(void) {
+s32 btlEffectScriptPickWeakCandidateUnit(void) {
     u8 *work;
     s64 flags;
     u16 count;
