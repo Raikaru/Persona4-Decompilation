@@ -1643,7 +1643,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         }
         break;
     case 0x25:                                      /* switch 1 */
-        func_003212e0(arg0, 0x27, 0);
+        fclCombineAdvanceGridFade(arg0, 0x27, 0);
         return;
     case 0x26:
         for (var_19 = 0; var_19 < (datPersonaRosterCapacity() & 0xFFFF); var_19++) {
@@ -6925,7 +6925,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         }
         break;
     case 0x79:
-        func_003212e0(arg0, 0x7B, 0);
+        fclCombineAdvanceGridFade(arg0, 0x7B, 0);
         break;
     case 0x7B:                                      /* switch 1 */
         for (var_16_2 = 0; var_16_2 < (datPersonaRosterCapacity() & 0xFFFF); var_16_2++) {
