@@ -7,7 +7,7 @@ extern u16 btlFindFreeCharResId(void);
 
 extern void mdlDestroyModelObject(); /* old-style: retail jals with $a1 still holding the compared coordinate */
 extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
-extern void *func_00477fb0(u32 arg0, u16 arg1, void *arg2, u32 arg3);
+extern void *mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern u32 *mdlCloneModelObject(u8 *arg0);
 extern s32 func_0047d110(u32 arg0, u16 arg1, char *arg2);
 extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
@@ -1030,9 +1030,9 @@ typedef struct { s16 unk0; s16 rate; s16 unk4; s16 unk6; s16 unk8; } BtlMotionRa
    through the offset-first add helper; both tail switches are switches. */
 // FUN_0019AE20
 s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
-    extern f32 func_0047a000(void *a, s32 b, s64 c);
+    extern f32 mdlGetLayerKeyTime(void *a, s32 b, s64 c);
     extern u8 *iGpffffb3cc;
-    extern void func_00479e60(void *a, s32 b, f32 c);
+    extern void mdlSetLayerTime(void *a, s32 b, f32 c);
     extern u32 datCalcRandomBelow(u32 a);
     u8 *t17;
     u8 *t4;
@@ -1067,7 +1067,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
     t4 = *(u8 **)(t17 + 0xA00);
     if (t4 == NULL) {
         if (H_Cdvd_IsFileLoaded(*(s32 *)(arg0 + 0xC)) != 0) {
-            t4 = func_00477fb0(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), *(void **)(arg0 + 0xC), 0);
+            t4 = mdlCreateModelObjectFromResource(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), *(void **)(arg0 + 0xC), 0);
             *(u8 **)(t17 + 0xA00) = t4;
             func_002311a0((void *)t4);
             if (*(u16 *)(arg0 + 4) == 1) {
@@ -1145,7 +1145,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             } else {
                 speed = 1.0f;
                 s5 = btlUnitGetMotionId(t17, v2);
-                f0 = func_0047a000(*(u8 **)(t17 + 0xA00), 0, s5);
+                f0 = mdlGetLayerKeyTime(*(u8 **)(t17 + 0xA00), 0, s5);
                 if (s5 < *(u16 *)(t17 + 0x9E4)) {
                     v2_2 = (s16)(s32)(f0 / (speed * ((f32)(*(BtlMotionRate **)(t17 + 0x9F8))[s5].rate / 100.0f)));
                 } else {
@@ -1154,7 +1154,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             }
             t16 = datCalcRandomBelow((u32)v2_2);
             if (*(s32 *)(t17 + 0x98) & 2) {
-                func_00479e60(*(u8 **)(t17 + 0xA00), 0, (f32)t16);
+                mdlSetLayerTime(*(u8 **)(t17 + 0xA00), 0, (f32)t16);
             }
         }
         if (*(s32 *)(arg0 + 0xC) != 0) {

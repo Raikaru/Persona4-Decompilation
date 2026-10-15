@@ -783,7 +783,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     extern u8 iGpffffba54;
     extern u8 iGpffffba58;
     extern f32 iGpffffba6c;
-    void func_00479e60(void *, s32, f32);
+    void mdlSetLayerTime(void *, s32, f32);
     f32 mdlGetLayerWeight(s32, s32);
     s32 func_0045af60(s16, s16, s16, s16);
     u8 *FldEvent_FindNearestVisibleActor(u8 *, f32, f32);
@@ -898,7 +898,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     u32 blend = work->attack->attackBlend;
                     mdlDispatchAnimIfPresent((u8 *)D_007EFA00[0], 0, animation, blend, 0x20);
                 }
-                func_00479e60((void *)D_007EFA00[0], 0, (f32)work->attack->initialFrame);
+                mdlSetLayerTime((void *)D_007EFA00[0], 0, (f32)work->attack->initialFrame);
                 work->frameCounter = 0;
                 work->state = work->state + 1;
             }

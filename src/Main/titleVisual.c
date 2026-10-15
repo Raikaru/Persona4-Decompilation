@@ -18,7 +18,7 @@ extern void func_00364c70(void);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
 extern void mdlSetColor(void *arg0, void *arg1);
-extern void func_0047a260(void *arg0);
+extern void mdlApplyColorToAtomics(void *arg0);
 extern void mdlUpdateModelMatrix(void *arg0);
 extern void func_0047a320(void *arg0);
 extern void mdlDrawVisibleAtomics(s32 arg0);
@@ -216,7 +216,7 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
         func_00489f80();
     }
     mdlSetColor(arg0, arg1);
-    func_0047a260(arg0);
+    mdlApplyColorToAtomics(arg0);
     mdlUpdateModelMatrix(arg0);
     func_0047a320(arg0);
     mdlDrawVisibleAtomics(*(s32 *)(arg0 + 0xDC));

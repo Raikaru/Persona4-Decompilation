@@ -195,7 +195,7 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
 }
 
 extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-extern void func_00479e60(void *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerTime(void *arg0, s32 arg1, f32 arg2);
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
     func_00198920(arg0, arg1, arg2, arg3, arg4);
@@ -258,8 +258,8 @@ extern s32 datCalcIsStandardUnit(s32 arg0, s32 arg1);
 extern u8 *btlUnitCreateLookAtPacket(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 datCalcIsLowHp(u8 *arg0);
 extern s32 datCalcIsStatusBlocked(s32 arg0);
-extern void func_0047a120(void *arg0);
-extern void func_0047a150(void *arg0);
+extern void mdlSetLayerHandleFlag(void *arg0);
+extern void mdlClearLayerHandleFlag(void *arg0);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern u16 *datPersonaGetRecord(u16 character);
 extern s32 func_0010f4f0(s32 arg0);

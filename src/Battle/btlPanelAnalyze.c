@@ -333,7 +333,7 @@ void func_00219130(u8 *arg0) {
     extern f32 fGpffff8484;
     u8 *mdlCloneModelObject(u8 *);
     void mdlDestroyModelObject(u8 *);
-    void func_0047aa30(u8 *, void *);
+    void mdlSetAttachedOwner(u8 *, void *);
     void mdlSetDrawCallback(u8 *, void (*)(u8 *), u8 *);
     void mdlSetResetCallback(u8 *, void (*)(u8 *), u8 *);
     void *func_003e4320(void *, const void *, const void *);
@@ -366,7 +366,7 @@ void func_00219130(u8 *arg0) {
         unit = *(u8 **)(arg0 + 8);
         model = mdlCloneModelObject(*(u8 **)(*(u8 **)(unit + 0x30) + 0xA00));
         *(u8 **)(arg0 + 0xC) = model;
-        func_0047aa30(model, D_005DC9C8);
+        mdlSetAttachedOwner(model, D_005DC9C8);
         *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) &= ~0x100;
         entry = *(u8 **)(unit + 0x30);
         if (entry[0xA2] == 1) {
@@ -395,7 +395,7 @@ void func_00219130(u8 *arg0) {
         mdlDestroyModelObject(*(u8 **)(arg0 + 0xC));
         model = mdlCloneModelObject(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 8) + 0x30) + 0xA00));
         *(u8 **)(arg0 + 0xC) = model;
-        func_0047aa30(model, D_005DC9C8);
+        mdlSetAttachedOwner(model, D_005DC9C8);
         *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) &= ~0x100;
         mdlSetDrawCallback(*(u8 **)(arg0 + 0xC), func_00218ea0, arg0);
         mdlSetResetCallback(*(u8 **)(arg0 + 0xC), func_00219060, arg0);

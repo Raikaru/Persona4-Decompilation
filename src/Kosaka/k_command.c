@@ -42,7 +42,7 @@ extern s32 mdlPrepareModel(void* arg0);
 extern void* mdlCloneModelObject(s32 arg0);
 extern void mdlDestroyModelObject(u32 arg0);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
-extern void func_00479e60(s32 a, s32 b, f32 c);
+extern void mdlSetLayerTime(s32 a, s32 b, f32 c);
 extern void func_0047a1c0(s32 a, void* b, s32 c);
 extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
 extern void mdlSetLayerWeight(s32 arg0, s32 arg1, f32 arg2);
@@ -229,7 +229,7 @@ s32 Cmd_SetModelFloatParam(void)
         u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
-            func_00479e60(*(s32*)(p + 0x164), 0, f);
+            mdlSetLayerTime(*(s32*)(p + 0x164), 0, f);
         }
         break;
     }
@@ -238,7 +238,7 @@ s32 Cmd_SetModelFloatParam(void)
         u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
-            func_00479e60(*(s32*)(p + 0x164), 0, f);
+            mdlSetLayerTime(*(s32*)(p + 0x164), 0, f);
         }
         break;
     }
@@ -247,7 +247,7 @@ s32 Cmd_SetModelFloatParam(void)
         u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
-            func_00479e60(*(s32*)(p + 0x144), 0, f);
+            mdlSetLayerTime(*(s32*)(p + 0x144), 0, f);
         }
         break;
     }

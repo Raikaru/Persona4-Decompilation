@@ -161,8 +161,8 @@ s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     extern void mdlDetachSlotModel(u8 *arg0, s32 arg1);
     extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
     extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
-    extern void func_0047ab90(void *arg0, u16 arg1, u32 arg2, u16 arg3, s32 arg4, s32 arg5, u32 arg6);
-    extern void func_0047ac90(void *arg0, u16 arg1, u32 arg2, u16 arg3, u32 arg4);
+    extern void mdlAttachSlotModelFromPair(void *arg0, u16 arg1, u32 arg2, u16 arg3, s32 arg4, s32 arg5, u32 arg6);
+    extern void mdlAttachSlotModelFindOrCreate(void *arg0, u16 arg1, u32 arg2, u16 arg3, u32 arg4);
     extern void mdlSetAttachedSlotValue(u8 *arg0, u16 arg1, s32 arg2);
     s32 flag;
     u32 lookupType;
@@ -197,9 +197,9 @@ s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
         idx4 = arg3 * 4;
         weapon = (u16)arg2;
         data = (u8 *)(idx4 + (u32)arg0);
-        func_0047ab90(arg1, weapon, 5, *(u16 *)entry, *(s32 *)(data + 0x5DC), *(s32 *)(data + 0x618), 1);
+        mdlAttachSlotModelFromPair(arg1, weapon, 5, *(u16 *)entry, *(s32 *)(data + 0x5DC), *(s32 *)(data + 0x618), 1);
     } else {
-        func_0047ac90(arg1, (u16)arg2, 5, *(u16 *)entry, 0);
+        mdlAttachSlotModelFindOrCreate(arg1, (u16)arg2, 5, *(u16 *)entry, 0);
     }
     mdlSetAttachedSlotValue(arg1, (u16)arg2, arg4);
     return 1;

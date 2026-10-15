@@ -82,7 +82,7 @@ extern s32 iGpffff9f08;
 extern u8 *iGpffff9db0;
 extern s32 func_001623f0();
 extern s32 D_005F1350[];
-extern void func_0047aaa0(void *arg0, u16 arg1, u32 arg2, u16 arg3,
+extern void mdlAttachSlotModelFromResource(void *arg0, u16 arg1, u32 arg2, u16 arg3,
                            void *arg4, u32 arg5);
 extern u8 iGpffff9f10;
 extern u8 D_005F13A0[];

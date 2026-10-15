@@ -54,7 +54,7 @@ extern u8 *FldUnit_CreateEncounterUnit(u32 arg0, u8 *arg1, s32 arg2);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern u32 RpRandom(void);
-extern void func_0047aa30(u8 *arg0, u8 *arg1);
+extern void mdlSetAttachedOwner(u8 *arg0, u8 *arg1);
 extern s32 FldEvent_AverageEntryValue(void);
 extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
 extern void mdlScale(Model *arg0, const RwV3d *arg1, s32 arg2);
@@ -859,7 +859,7 @@ s32 FldUnit_SetupSlot(s32 arg0)
   }
   *((s32 *) (temp_16 + 0x54)) = (s32) MT_Scene_GetRes(MT_Scene_CreateModelCharShadowRes((arg0 + 0x64) & 0xFFFF, mode, *((u8 **) (temp_16 + 0x50))) & 0xFFFF);
   mdlDispatchAnimIfPresent(*((u8 **) (temp_16 + 0x50)), 0, 0, 0x10, 1);
-  func_0047aa30(*((u8 **) (temp_16 + 0x50)), D_005DC920);
+  mdlSetAttachedOwner(*((u8 **) (temp_16 + 0x50)), D_005DC920);
   temp_2 = (*((s32 *) (temp_16 + 0x1C0))) - FldEvent_AverageEntryValue();
   if (temp_2 < (-3))
   {
@@ -1651,7 +1651,7 @@ void FldUnit_UpdateSlotModels(void)
             t2 = t1 & 0xFFFF;
             slot += 0x54;
             *(s32 *)slot = (s32)MT_Scene_GetRes(t2);
-            func_0047aa30(*(u8 **)f50, D_005DC920);
+            mdlSetAttachedOwner(*(u8 **)f50, D_005DC920);
             if (*f1ca == 1) {
                 p = D_007E8C00 + i * 0x750;
                 FldShadow_SetRingParticles(*(s32 *)(*(u8 **)slot + 0x224), *(f32 *)(D_005F1340 + *(u8 *)(p + 0x1CB) * 4));
@@ -2054,7 +2054,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         temp_17 = (s32)(((*(u8 **)(arg0 + 0x160) + 7)[0] & 1) != 0);
         *(u16 *)(arg0 + 0xC) = (u16)MT_Scene_CreateModelFldRes(arg2 & 0xFFFF, (s32)mdlCloneModelObject((u8 *)(*(s32 *)(func_0015a320()))));
         temp_2 = (u8 *)MT_Scene_GetRes(*(u16 *)(arg0 + 0xC));
-        func_0047aa30(*(u8 **)(temp_2 + 0x144), D_005DC920);
+        mdlSetAttachedOwner(*(u8 **)(temp_2 + 0x144), D_005DC920);
         temp_21 = temp_17 * 0xC;
         mdlScale((Model *)(*(u8 **)(temp_2 + 0x144)), (const RwV3d *)(D_005F1530 + temp_21), 2);
         mdlRotateMatrix(*(u8 **)(temp_2 + 0x144), D_00756510, *(f32 *)(arg1 + 0x14C), 2);

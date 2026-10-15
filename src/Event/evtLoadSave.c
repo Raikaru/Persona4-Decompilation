@@ -22,7 +22,7 @@ extern u8 *func_00286780(u8 *, u16, u8 *);
 extern void func_00294610(u8 *, u8 *, s32);
 extern s32 func_00291980(s32, s32, s32 *, s32 *);
 extern void *mdlCreateModelObjectFromMemory(u32, u16, void *, u32, u32);
-extern void func_0047aa30(s32, u8 *);
+extern void mdlSetAttachedOwner(s32, u8 *);
 extern s32 func_002919d0(s32);
 extern void MT_Scene_SetResActiveById(u16, s32);
 extern void kAssertFail(u8 *, s32);
@@ -588,9 +588,9 @@ void func_00295740(s32 arg0, u8 *arg1) {
         if (temp_2 != 0) {
             temp_17 = (s32)mdlCreateModelObjectFromMemory(5, (u16)sp6C, (void *)temp_2, sp68, 1);
             if (*(s8 *)(arg1 + 0x1F) & 1) {
-                func_0047aa30(temp_17, D_005DC7D0);
+                mdlSetAttachedOwner(temp_17, D_005DC7D0);
             } else {
-                func_0047aa30(temp_17, D_005DC878);
+                mdlSetAttachedOwner(temp_17, D_005DC878);
             }
             temp_16 = (u16)(MT_Scene_CreateModelNpcShadowRes((u16)(func_002919d0(*(s32 *)(arg1 + 4)) & 0xFFFF), 0, temp_17) & 0xFFFF);
             MT_Scene_SetResActiveById(temp_16, 1);

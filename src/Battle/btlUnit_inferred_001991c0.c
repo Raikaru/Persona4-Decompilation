@@ -128,7 +128,7 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
 }
 
 extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-extern void func_00479e60(void *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerTime(void *arg0, s32 arg1, f32 arg2);
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
     func_00198920(arg0, arg1, arg2, arg3, arg4);
@@ -292,7 +292,7 @@ return 0;
 // FUN_00199500
 s16 btlUnitMotionModelFrames(u8 *arg0, u16 arg1, f32 fparg0)
 {
-    extern f32 func_0047a000(s32 arg0, s32 arg1, s64 arg2);
+    extern f32 mdlGetLayerKeyTime(s32 arg0, s32 arg1, s64 arg2);
     u8 *table;
     s32 offset;
     s64 result;
@@ -336,7 +336,7 @@ compute:
 value_done:
     result = p4_sign16_001991c0(value);
 finish:
-    temp_f0 = func_0047a000(*(s32 *)(arg0 + 0xA00), 0, result);
+    temp_f0 = mdlGetLayerKeyTime(*(s32 *)(arg0 + 0xA00), 0, result);
     final_result = (s32)(s16)result;
     if (final_result < *(u16 *)(arg0 + 0x9E4)) {
         entry = (u8 *)p4_base_add_00194590(
@@ -413,7 +413,7 @@ s64 btlUnitModelAnimFrame(u8 *arg0) {
 void btlUnitSetModelAnimFrame(u8 *arg0, s32 arg1)
 {
     if ((*(s32 *)(arg0 + 0x98) & 2) != 0)
-        func_00479e60(*(u8 **)(arg0 + 0xA00), 0, (f32)arg1);
+        mdlSetLayerTime(*(u8 **)(arg0 + 0xA00), 0, (f32)arg1);
 }
 
 /* measured: opt_propagation off is scoped to func_001998e0. */

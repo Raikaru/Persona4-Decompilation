@@ -148,8 +148,8 @@ extern f32 DAT_0076112c;
 
 
 extern s32 iGpffffb444;
-extern void func_0047a120(void *arg0);
-extern void func_0047a150(void *arg0);
+extern void mdlSetLayerHandleFlag(void *arg0);
+extern void mdlClearLayerHandleFlag(void *arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
@@ -239,9 +239,9 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4)
             v12 = (u16)(v12 | 0x100);
         }
         if (arg1 == 19) {
-            func_0047a150(*(u8 **)(arg0 + 0xA00));
+            mdlClearLayerHandleFlag(*(u8 **)(arg0 + 0xA00));
         } else {
-            func_0047a120(*(u8 **)(arg0 + 0xA00));
+            mdlSetLayerHandleFlag(*(u8 **)(arg0 + 0xA00));
         }
         if ((*(u16 *)(arg0 + 0x9D8) & 0x20) != 0) {
             arg2 = 0;
