@@ -2548,8 +2548,9 @@ void fclCombineDrawSlotLabels(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
    correct; object is 48-96B over window. Address-rematerialization + s64/s32
    conversion floor. */
 /* measured: candidate archived at build/EFCL2_003205f0_body.c; object 964/window 896, normalized_diff 621. */
+// Fcl combine slot slide-in: starts the slide-in of the slot sprites for two slot resources, firstResource from the left (x - 200) and secondResource from the right; resource 0x92 also starts the 0x1E6 sprite.
 // FUN_003205F0
-void func_003205f0(u8 *arg0, s16 arg1, s16 arg2) {
+void fclCombineSlideInSlotSprites(u8 *arg0, s16 arg1, s16 arg2) {
     extern void func_002b6140(u8 *, u8);
     f2 spA0;
     f2 sp98;
@@ -2749,7 +2750,7 @@ static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRo
    nonzero entryMode keeps the availability data and reverses that fade.
    Descriptive names below are recovered roles, not original Atlus symbols. */
 // FUN_00320B80
-void func_00320b80(u8 *task, s8 entryMode) {
+void fclCombineSetupPairGrid(u8 *task, s8 entryMode) {
     extern void yListBuildAvailability(s32, s32);
     FclDrawColor columnSpriteColor;
     FclDrawColor columnHeaderStartColor;
@@ -3185,7 +3186,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     ++jb1;
                 }
                 fclCombineDrawSlotLabels(arg0, func_002b2970((f32)0x149, 104.0f), 3, 0);
-                func_003205f0(arg0, 0x94, 0x93);
+                fclCombineSlideInSlotSprites(arg0, 0x94, 0x93);
                 fclSpriteSetFlag(0x1C7, 2, 1);
                 fclCombineFlashSlot(arg0, (s32)*(s8 *)(t + 0x128));
             } else {
@@ -3228,7 +3229,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     }
                     ++jb2;
                 }
-                func_003205f0(arg0, 0x94, 0x93);
+                fclCombineSlideInSlotSprites(arg0, 0x94, 0x93);
                 fclCombineFlashSlot(arg0, (s32)*(s8 *)(t + 0x128));
             }
             *(u8 *)(t + 1) = arg2;
