@@ -41,10 +41,10 @@ extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
 extern void itfMesWindowStepState(u8 *arg0);
-extern void func_0027a970(u8 *arg0);
-extern void func_0027ac50(u8 *arg0);
-extern void func_0027b230(u8 *arg0);
-extern void func_0027b5d0(s32 arg0);
+extern void itfMesWindowAdvanceRow(u8 *arg0);
+extern void itfMesWindowCommitSelection(u8 *arg0);
+extern void itfMesWindowStepTransition(u8 *arg0);
+extern void itfMesWindowQueueCallback(s32 arg0);
 extern s32 func_0027bd40(s32 arg0);
 extern s32 func_0027bda0(s32 arg0);
 extern s32 func_0027be00(s32 arg0);
@@ -856,7 +856,7 @@ void itfMesWindowFreeSlots(s32 arg0) {
     }
 }
 
-// Intent: Advances one list node's window state by calling its op handlers (ops 4, 5, 6, 0xB, 0xC, 0xD) [inferred]
+// Intent: Advances one list node's window state by calling its op handlers (ops 4, 5, 6, 0xA, 0xB, 0xC) [inferred]
 // FUN_0027A780
 void itfMesWindowStepState(u8 *arg0)
 {
@@ -929,8 +929,9 @@ node_done:
         break;
     }
 }
+// Intent: Advances a window's row state: counts frames, runs the row action when ready, copies slots and builds the row [inferred]
 // FUN_0027A970
-void func_0027a970(u8 *arg0)
+void itfMesWindowAdvanceRow(u8 *arg0)
 {
     extern void frFontEnableList(u8 *arg0);
     extern s32 frFontMeasureList(u8 *arg0);
@@ -1022,13 +1023,14 @@ do_action:
         }
     }
 }
+// Intent: Runs the selected entry's command and releases its tag run when the selection commits [inferred]
 // FUN_0027AC50
-void func_0027ac50(u8 *arg0)
+void itfMesWindowCommitSelection(u8 *arg0)
 {
     extern s32 frFontListKeepOrRelease(s32 arg0);
     extern void frFontRunCommand(s32 arg0, s32 arg1, s32 arg2);
     extern s32 itfMesReleaseTagRun();
-    extern s32 func_0027ae90(u8 *arg0);
+    extern s32 itfMesWindowPollSelection(u8 *arg0);
     u8 *state;
     s32 flags;
     s32 index;
@@ -1071,7 +1073,7 @@ void func_0027ac50(u8 *arg0)
         }
         /* fall through */
     case 2:
-        if ((flags & 0x38) == 0x20 && func_0027ae90(arg0) == 1) {
+        if ((flags & 0x38) == 0x20 && itfMesWindowPollSelection(arg0) == 1) {
             s16 call_arg1;
             s16 call_arg2;
             s32 call_arg0;
@@ -1129,14 +1131,15 @@ void func_0027ac50(u8 *arg0)
         break;
     }
 }
+// Intent: Polls a window's selection: handles cursor input and returns 1 when a choice is confirmed [inferred]
 // FUN_0027AE90
-s32 func_0027ae90(u8 *arg0)
+s32 itfMesWindowPollSelection(u8 *arg0)
 {
-    extern void func_0027b100(u8 *arg0, s32 arg1);
+    extern void itfMesWindowMoveSelection(u8 *arg0, s32 arg1);
     extern u16 D_008C0252[];
     extern u16 D_008C0274[];
     extern u16 D_008C027A[];
-    extern s32 func_0027b1c0(u8 *arg0);
+    extern s32 itfMesWindowFindPressedEntry(u8 *arg0);
     u8 *state;
     s32 result;
 
@@ -1158,7 +1161,7 @@ s32 func_0027ae90(u8 *arg0)
         }
     }
     if (result != 0) {
-        func_0027b100(state, result);
+        itfMesWindowMoveSelection(state, result);
         return 0;
     }
     if (D_008C024E[0] & 0x40) {
@@ -1189,7 +1192,7 @@ s32 func_0027ae90(u8 *arg0)
         s32 i;
         s32 count;
 
-        selected = func_0027b1c0(state);
+        selected = itfMesWindowFindPressedEntry(state);
         if (selected >= 0) {
             func_0045af60(0, 0, 0, 2);
             bits = *(u32 *)(state + 8);
@@ -1216,8 +1219,9 @@ s32 func_0027ae90(u8 *arg0)
     }
     return 0;
 }
+// Intent: Moves the window's selection cursor one step (wrapping) in the given direction [inferred]
 // FUN_0027B100
-void func_0027b100(u8 *arg0, s32 arg1) {
+void itfMesWindowMoveSelection(u8 *arg0, s32 arg1) {
     s32 temp_2;
     s32 var_6;
     u32 var_5;
@@ -1256,10 +1260,11 @@ loop_exit:
     *(s16 *)(arg0 + 0x10) = (s16)var_3;
     func_0045af60(0, 0, 0, 0);
 }
+// Intent: Returns the entry value whose bit is set in the pressed-input mask, or -1 [inferred]
 // FUN_0027B1C0
 /* measured: opt_loop_invariants hoists mask/count/const-1 into preheader */
 #pragma opt_loop_invariants on
-s32 func_0027b1c0(s16 *arg0)
+s32 itfMesWindowFindPressedEntry(s16 *arg0)
 {
     s32 i = 0;
     u16 mask;
@@ -1281,8 +1286,9 @@ s32 func_0027b1c0(s16 *arg0)
 /* measured: opt_loop_invariants off */
 #pragma opt_loop_invariants off
 
+// Intent: Advances a window's transition state (waits on ops 0x10, 0x11, 0x12) [inferred]
 // FUN_0027B230
-void func_0027b230(u8 *arg0)
+void itfMesWindowStepTransition(u8 *arg0)
 {
     s16 *state;
     u8 *node;
@@ -1320,12 +1326,13 @@ node_done:
         break;
     }
 }
+// Intent: Updates a window's three lists: draws them and advances the window's list state [inferred]
 // FUN_0027B310
-void func_0027b310(u8 *arg0)
+void itfMesWindowUpdateLists(u8 *arg0)
 {
     extern s32 frFontDrawListDefault(s32 arg0);
     extern s32 frFontDrawListMode(s32 arg0, s32 arg1);
-    extern void func_0027b4c0(void);
+    extern void itfMesWindowMarkRedraw(void);
     extern s32 func_0027b910(s32 arg0);
     s32 flags;
     u32 mask;
@@ -1334,7 +1341,7 @@ void func_0027b310(u8 *arg0)
 
     flags = *(s32 *)arg0;
     D_008817E8[0] &= 0xFFFD;
-    func_0027b4c0();
+    itfMesWindowMarkRedraw();
     node = D_008817EC[0];
     goto node_check;
 node_body:
@@ -1406,8 +1413,9 @@ node_done:
         }
     }
 }
+// Intent: Marks the window for redraw when it is visible and in an active state [inferred]
 // FUN_0027B4C0
-void func_0027b4c0(s32 *arg0)
+void itfMesWindowMarkRedraw(s32 *arg0)
 {
     s32 temp;
 
@@ -1417,8 +1425,9 @@ void func_0027b4c0(s32 *arg0)
     }
 }
 
+// Intent: Per-frame task update: steps each window's state, row, selection and transition, then queues the callback [inferred]
 // FUN_0027B500
-s32 func_0027b500(u8 *sdkTaskBytes)
+s32 itfMesWindowTaskUpdate(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
     u8 *node;
@@ -1429,16 +1438,17 @@ s32 func_0027b500(u8 *sdkTaskBytes)
     {
         temp = *(u8 **)(node + 0xC);
         itfMesWindowStepState(temp);
-        func_0027a970(temp);
-        func_0027ac50(temp);
-        func_0027b230(temp);
+        itfMesWindowAdvanceRow(temp);
+        itfMesWindowCommitSelection(temp);
+        itfMesWindowStepTransition(temp);
         node = *(u8 **)(node + 4);
     }
-    func_0027b5d0(arg0);
+    itfMesWindowQueueCallback(arg0);
     return 0;
 }
+// Intent: Queues the window task's deferred callback with the task argument [inferred]
 // FUN_0027B5D0
-void func_0027b5d0(s32 arg0)
+void itfMesWindowQueueCallback(s32 arg0)
 {
     u8 *temp_2;
 
@@ -1447,8 +1457,9 @@ void func_0027b5d0(s32 arg0)
     *(s32 *)(temp_2 + 0x10) = arg0;
     func_00460ac0(D_007964C0, temp_2);
 }
+// Intent: Frees every window in the window list (task destroy callback) [inferred]
 // FUN_0027B690
-void func_0027b690(u8 *unusedTask)
+void itfMesWindowFreeAll(u8 *unusedTask)
 {
     u8 *temp_16;
     u8 *var_3;

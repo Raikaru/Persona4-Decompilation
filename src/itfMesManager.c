@@ -37,13 +37,13 @@ extern u8 DAT_008817E4_abs[];
 extern u16 D_008817E8_abs[];
 extern u8 *D_008817F4_abs[];
 extern u8 D_008817FC_abs[];
-void func_0027b310(u32 param_1);
+void itfMesWindowUpdateLists(u32 param_1);
 extern char D_0063BE10[];
 void kAssertFail(const char *file, s32 line);
 void func_002850f0();
 
-s32 func_0027b500(u8 *task);
-void func_0027b690(u8 *task);
+s32 itfMesWindowTaskUpdate(u8 *task);
+void itfMesWindowFreeAll(u8 *task);
 extern char D_0063BF10[];
 extern char D_0063BF20[];
 void itfMesWindowFreeSlots();
@@ -1244,7 +1244,7 @@ void itfMesInitManager(void)
         *(s32 *)(entry + 0xC) = 0;
         entry = *(u8 **)(entry + 4);
     }
-    kwlnTaskCreate((const void *)(D_0063BF10), 0xF, 0, 0, func_0027b500, func_0027b690, (u8 *)(0));
+    kwlnTaskCreate((const void *)(D_0063BF10), 0xF, 0, 0, itfMesWindowTaskUpdate, itfMesWindowFreeAll, (u8 *)(0));
     func_00440b68(D_0063BF20, D_0063BE10);
 }
 
@@ -2183,7 +2183,7 @@ u64 itfMesFlushPending(void)
 
     current = *(int*)DAT_008817EC_abs;
     while (current != 0) {
-        func_0027b310(*(u32*)(current + 0xc));
+        itfMesWindowUpdateLists(*(u32*)(current + 0xc));
         current = *(int*)(current + 4);
     }
     count = *(u32*)DAT_008817E4_abs;
