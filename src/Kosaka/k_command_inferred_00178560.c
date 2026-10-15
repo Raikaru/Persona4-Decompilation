@@ -87,7 +87,7 @@ extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void *mdlGetMatrix(void *arg0);
 extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
-extern S_00178590 *func_00174c00(void);
+extern S_00178590 *FldEvent_GetNearestEntry(void);
 extern void RwV3dNormalize(void *arg0, void *arg1);
 extern u8 D_007EFA00[];
 extern void func_0014def0(u8 *arg0, u8 *arg1,
@@ -162,7 +162,7 @@ s32 func_00178590(void) {
     u8 *temp_2_2;
 
     var_17 = 1;
-    temp_2 = func_00174c00();
+    temp_2 = FldEvent_GetNearestEntry();
     if (temp_2 != NULL) {
         temp_2_2 = mdlGetMatrix(temp_2->field_144);
         sp40 = *(Vec3_00178590 *)(temp_2_2 + 0x20);

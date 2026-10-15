@@ -132,7 +132,7 @@ extern s32 func_0029db50(s32, u8 *, s32, s32);
 extern void H_Cdvd_Destroy(u8 *);
 extern void func_001552a0(u16, u16);
 extern s32 func_0018df60(u8 *);
-extern s32 func_00174ad0(u8 *);
+extern s32 FldEvent_SpawnTrigger(u8 *);
 extern void func_00182310(s32);
 extern s32 func_0028b260(void);
 extern void func_001029a0(s32, void *, s32, s32);
@@ -318,7 +318,7 @@ s32 func_00155360(u8 *task)
         }
         func_001552a0(work->field, work->room);
         D_007D252C[0] = func_0018df60(task);
-        D_007D2518[0] = func_00174ad0(task);
+        D_007D2518[0] = FldEvent_SpawnTrigger(task);
         func_00182310(0);
         work->state++;
         /* fallthrough */
