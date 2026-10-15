@@ -4865,8 +4865,9 @@ void fclCombineDrawRosterList(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
    The scoped verifier is exact; whole-TU linked layout remains unverified.
    If tools/build.py reports its first linked-image difference inside the
    y_fclCombineDraw address range, inspect this function first. */
+// Fcl combine roster cursor: moves the roster cursor (t+0x11E) and its in-window row (t+0x120) for the command arg1, then repositions the 0xB1 indicator and the 0xB5 mark. Cases 0, 1, 4 and 5 step by one through the shared cursor helpers; cases 2 and 3 page by 8 rows.
 // FUN_0032C0C0
-void func_0032c0c0(u8 *arg0, s64 arg1) {
+void fclCombineMoveRosterCursor(u8 *arg0, s64 arg1) {
     f32 fdiff;
     f32 facc;
     s16 r;
