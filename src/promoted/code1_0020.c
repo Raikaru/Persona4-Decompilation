@@ -137,7 +137,7 @@ extern f32 sinf(f32 fparg0);
 extern s32 btlUiIsOverlayReady(void);
 typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
                                     u8 opacity, s32 highlighted, s32 showDetail);
-extern void func_00206dd0(u8 *work, u8 *state, f32 x, f32 y,
+extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
 extern void btlPanelDrawSkillEntry(u8 *arg0, s32 arg1, f32 fx, f32 fy, u8 arg2, s32 arg3, s32 arg4);
@@ -176,12 +176,12 @@ extern void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
 extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern u16 datCalcUnderlyingSkillId(s64 arg0);
-extern void func_00207140(u16 *flags, u8 *work);
-extern s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel);
-extern void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState);
+extern void btlSelectionRefreshList(u16 *flags, u8 *work);
+extern s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel);
+extern void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState);
 extern void btlPanelDrawStrip(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend);
-extern void func_002089e0();
-extern void func_00208870(u8 *unused, u8 *arg1, f32 *arg2);
+extern void btlSelectionSaveCursor();
+extern void btlSelectionDrawBar(u8 *unused, u8 *arg1, f32 *arg2);
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
 extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
 extern u8 *func_001b0c80(s32 arg0);
@@ -1738,10 +1738,10 @@ void btlPanelInit(s32 unused, s32 arg1)
     temp_4 = temp_4 & 0xFFFFFFFEU;
     *(s32 *)(temp_2 + 0xA0) = temp_4;
     btlSelectionInit(temp_16 + 0x40, 8, 8,
-                  (void *)func_00207140, (void *)func_00207320,
-                  (void *)func_00207b00, (void *)func_002089e0, temp_16);
+                  (void *)btlSelectionRefreshList, (void *)btlSelectionHandleInput,
+                  (void *)btlSelectionDrawCommands, (void *)btlSelectionSaveCursor, temp_16);
     temp_18 = temp_16 + 0x40;
-    btlSelectionSetOwner(temp_18, (void *)func_00208870);
+    btlSelectionSetOwner(temp_18, (void *)btlSelectionDrawBar);
     memset((s16 *)&sp38, 0, 8);
     sp38.values[0] = 0x1000;
     sp38.values[1] = 0x4000;
@@ -3111,8 +3111,9 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
 /* 868/880 bytes; seventeen resolved relocations and twelve zero alignment
  * bytes. Retain the renderer base separately for each drawing phase and
  * the float values between the easing product and integer pixel origin. */
+// Intent: draw the selection panel's eased slide-in and its selection list. [inferred]
 // FUN_00206DD0
-void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
+void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
                    BattleSelectionDraw drawSelection)
 {
     u8 *glyphs;
@@ -3205,8 +3206,9 @@ typedef struct {
 
 /* 472/480 bytes; eight resolved relocations; eight zero alignment bytes.
  * Store each accepted signed item ID before its second quantity query. */
+// Intent: refresh the selection's skill and item lists from the unit and persona data. [inferred]
 // FUN_00207140
-void func_00207140(u16 *flags, u8 *work)
+void btlSelectionRefreshList(u16 *flags, u8 *work)
 {
     u8 *action;
     u8 *unit;
@@ -3255,8 +3257,9 @@ void func_00207140(u16 *flags, u8 *work)
    See docs/probe_archive/Battle_menu_00207320_20260922.md. */
 #pragma push
 #pragma opt_loop_invariants on
+// Intent: handle selection input and return the next panel state. [inferred]
 // FUN_00207320
-s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
+s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
     extern u32 kwlnTaskGetWork(void *task);
     extern u16 *datPersonaGetRecord(u16 character);
@@ -3268,7 +3271,7 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
     extern void btlSelectionInit(u8 *arg0, s16 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
     extern void btlSelectionSetOwner(u8 *arg0, void *arg1);
     extern void btlUiSelectEffect(s32 arg0, u32 arg1);
-    extern void func_00208a50(u8 *arg0, u8 *arg1);
+    extern void btlSelectionResetState(u8 *arg0, u8 *arg1);
     extern u16 func_00208b00(u8 *arg0, u8 *arg1);
     extern void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2);
     extern void func_00208fd0(u8 *arg0, u8 *arg1, f32 *arg2);
@@ -3347,7 +3350,7 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
             return 1;
         }
         datPersonaGetRecord(*(u16 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA4));
-        btlSelectionInit(work + 0x74, 4, *(s16 *)(work + 0x1A4), func_00208a50,
+        btlSelectionInit(work + 0x74, 4, *(s16 *)(work + 0x1A4), btlSelectionResetState,
                       func_00208b00, func_00208d00, func_002090d0, work);
         panel = work + 0x74;
         *nextPanel = panel;
@@ -3472,8 +3475,9 @@ static inline void battleMenuExtendedStrip(BattleRenderDispatch *renderer,
     (*setState)(6, 0);
 }
 
+// Intent: draw the growing command circles, enabled command rows and mode hints. [inferred]
 // FUN_00207B00
-void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
+void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
     extern s32 func_001f0620(u8 *selection, s64 work);
@@ -3715,8 +3719,9 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
 /* measured: the float argument to func_0045d6e0 is 0.0f - retail only ever clears
    $f12, and that hoisted zero is also the `<= 0.0f` compare operand and the
    accumulator seed of the adda.s/madd.s (the old archive passed temp_f4, nd10). */
+// Intent: draw the selection's progress bar, scaled by the eased progress. [inferred]
 // FUN_00208870
-void func_00208870(u8 *unused, u8 *arg1, f32 *arg2)
+void btlSelectionDrawBar(u8 *unused, u8 *arg1, f32 *arg2)
 {
     s32 values[4];
     Color4 color;
@@ -3749,8 +3754,9 @@ void func_00208870(u8 *unused, u8 *arg1, f32 *arg2)
     values[3] = (s32)(temp_f3 * 22.0f);
     func_0045d6e0((u8 *)&color, (f32 *)values, 0.0f, 0);
 }
+// Intent: save the selected row and page to the cursor record when the flag is set. [inferred]
 // FUN_002089E0
-void func_002089e0(u8 *arg0, u8 *arg1)
+void btlSelectionSaveCursor(u8 *arg0, u8 *arg1)
 {
     s16 *p;
 
@@ -3765,8 +3771,9 @@ void func_002089e0(u8 *arg0, u8 *arg1)
     (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[0] = *(s16 *)(arg0 + 2);
 }
 
+// Intent: reset the selection flags and cursor state to the top of the list. [inferred]
 // FUN_00208A50
-void func_00208a50(u8 *arg0, u8 *arg1)
+void btlSelectionResetState(u8 *arg0, u8 *arg1)
 {
     u8 *p;
 
@@ -3858,7 +3865,7 @@ void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
     if (*(u16 *)state == 2) {
         btlUiDrawSpriteFaded(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
         btlUiDrawSpriteFaded(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00206dd0(state, arg0, arg2[0], arg2[1], btlPanelDrawSkillEntry);
+        btlSelectionDrawSlideIn(state, arg0, arg2[0], arg2[1], btlPanelDrawSkillEntry);
     } else {
         btlUiDrawSpriteFaded(temp, 9, 0x21, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
@@ -4014,7 +4021,7 @@ void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
     if (*(u16 *)state == 2) {
         btlUiDrawSpriteFaded(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
         btlUiDrawSpriteFaded(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00206dd0(state, arg0, arg2[0], arg2[1], btlPanelDrawEntry);
+        btlSelectionDrawSlideIn(state, arg0, arg2[0], arg2[1], btlPanelDrawEntry);
     } else {
         btlUiDrawSpriteFaded(temp, 9, 0x23, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
