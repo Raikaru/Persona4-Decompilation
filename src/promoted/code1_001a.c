@@ -202,7 +202,7 @@ void func_001eb7f0(void);
 s32 func_001ef720(s32 arg0, s32 arg1);
 s32 func_001fabe0(u8 *arg0);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-s32 func_00232d80(u8 *arg0);
+s32 datCalcGetSkillMask(u8 *arg0);
 s64 func_00235320(u8 *arg0);
 s32 func_00243e30(u16 *arg0);
 s32 func_001f6770(u8 *arg0);
@@ -544,7 +544,7 @@ void btlActionTryBegin(BtlAction *action) {
         action->unk_1a &= 0xFFBF;
     }
     if ((action->unk_28 == 0) && (action->unk_29 == 0)) {
-        action->unk_41c = func_00232d80((u8 *)action->unit->datUnit);
+        action->unk_41c = datCalcGetSkillMask((u8 *)action->unit->datUnit);
     } else {
         action->unk_41c = 0;
     }
@@ -1526,7 +1526,7 @@ void func_001a2d70(u8 *arg0) {
     u8 *unit;
     u8 *packet;
 
-    void func_00233880(u8 *arg0, s32 arg1);
+    void datCalcClearModifier(u8 *arg0, s32 arg1);
 
 
     if (func_00193cd0(0x506) == 0) {
@@ -1543,8 +1543,8 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 31;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 0);
-            func_00233880(*(u8 **)(unit + 0xA64), 1);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 0);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 1);
             break;
         case 2:
         case 4:
@@ -1553,8 +1553,8 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 33;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 4);
-            func_00233880(*(u8 **)(unit + 0xA64), 2);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 4);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 2);
             break;
         case 3:
             if (unit[0xA2] == 0) {
@@ -1562,7 +1562,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 35;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 3);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 3);
             break;
         case 5:
             if (unit[0xA2] == 0) {
@@ -1570,7 +1570,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 37;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 5);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 5);
             break;
         case 6:
             if (unit[0xA2] == 0) {
@@ -1578,7 +1578,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 39;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 6);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 6);
             break;
         case 7:
             if (unit[0xA2] == 0) {
@@ -1586,7 +1586,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 41;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 7);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 7);
             break;
         case 8:
             if (unit[0xA2] == 0) {
@@ -1594,7 +1594,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 81;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 8);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 8);
             break;
         case 9:
             if (unit[0xA2] == 0) {
@@ -1602,7 +1602,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 83;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 9);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 9);
             break;
         case 10:
             if (unit[0xA2] == 0) {
@@ -1610,7 +1610,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 85;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 10);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 10);
             break;
         case 11:
             if (unit[0xA2] == 0) {
@@ -1618,7 +1618,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 87;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 11);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 11);
             break;
         case 12:
             if (unit[0xA2] == 0) {
@@ -1626,7 +1626,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 131;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 12);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 12);
             break;
         case 13:
             if (unit[0xA2] == 0) {
@@ -1634,7 +1634,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 133;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 13);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 13);
             break;
         case 14:
             if (unit[0xA2] == 0) {
@@ -1642,7 +1642,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 135;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 14);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 14);
             break;
         case 15:
             if (unit[0xA2] == 0) {
@@ -1650,7 +1650,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 137;
             }
-            func_00233880(*(u8 **)(unit + 0xA64), 15);
+            datCalcClearModifier(*(u8 **)(unit + 0xA64), 15);
             break;
         default:
             state = 0;

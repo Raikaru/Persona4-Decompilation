@@ -222,7 +222,7 @@ extern s32 datCalcAddHp(DatUnit *arg0, s32 arg1);
 extern s32 datCalcAddSp(DatUnit *arg0, s32 arg1);
 extern s32 datCalcHasSkill(u8 *arg0, s32 arg1);
 extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
-extern void func_002339d0(u8 *arg0);
+extern void datCalcClearAllModifiers(u8 *arg0);
 extern void btlUnitSetColor(u8 *arg0, s32 arg1);
 extern void func_001bc660(s32 state, BtlAction *action, u32 param_3);
 extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
@@ -371,7 +371,7 @@ void func_001b0300(u8 *arg0)
     status = *(u8 *)(p + 0xA2);
     switch (status) {
     case 0:
-        func_002339d0(*(u8 **)(p + 0xA64));
+        datCalcClearAllModifiers(*(u8 **)(p + 0xA64));
         return;
     case 1:
         func_001f2cc0(arg0);
@@ -507,7 +507,7 @@ void func_001b05d0(u8 *arg0)
                     *(u16 *)(found + 0xA) &= 0xFFFE;
                 }
                 datCalcClearBadStatus(*(s32 *)(p + 0xA64), 0xFFF7FFFF);
-                func_002339d0(*(u8 **)(p + 0xA64));
+                datCalcClearAllModifiers(*(u8 **)(p + 0xA64));
             }
             break;
         case 1:
@@ -2705,7 +2705,7 @@ loop_16_check:
     goto loop_21_check;
 loop_21:
     temp_4_2 = *(s32 *)(var_16 + 0xA64);
-    if (temp_4_2 != 0) func_002339d0((u8 *)temp_4_2);
+    if (temp_4_2 != 0) datCalcClearAllModifiers((u8 *)temp_4_2);
     var_16 = *(u8 **)(var_16 + 0xA6C);
 loop_21_check:
     if (var_16 != NULL) goto loop_21;
