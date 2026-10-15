@@ -276,13 +276,13 @@ L_after_c3:
     }
 }
 // FUN_0047D050
-void func_0047d050(s32 arg0)
+void mdlResetModelTable(s32 arg0)
 {
     memset(D_00922BE0, 0, 0x30);
     iGpffffbb28 = arg0;
 }
 // FUN_0047D090
-s32 func_0047d090(MdlNameCallback arg0, MdlTypeCallback arg1, MdlNameCallback arg2,
+s32 mdlSetModelCallbacks(MdlNameCallback arg0, MdlTypeCallback arg1, MdlNameCallback arg2,
                  MdlSetupCallback arg3, MdlDataCallback arg4)
 {
     iGpffffbb2c = arg0;
@@ -293,31 +293,31 @@ s32 func_0047d090(MdlNameCallback arg0, MdlTypeCallback arg1, MdlNameCallback ar
     return 1;
 }
 // FUN_0047D0B0
-s32 func_0047d0b0(u32 type, u16 id, char *output)
+s32 mdlGetModelNameForId(u32 type, u16 id, char *output)
 {
     return iGpffffbb2c(type, id, output);
 }
 
 // FUN_0047D0E0
-s32 func_0047d0e0(u32 type, u16 id)
+s32 mdlQueryModelType(u32 type, u16 id)
 {
     return iGpffffbb30(type, id);
 }
 
 // FUN_0047D110
-s32 func_0047d110(u32 type, u16 id, char *output)
+s32 mdlBuildModelPath(u32 type, u16 id, char *output)
 {
     return iGpffffbb34(type, id, output);
 }
 
 // FUN_0047D140
-void func_0047d140(void *model)
+void mdlRunSetupCallback(void *model)
 {
     iGpffffbb38(model);
 }
 
 // FUN_0047D170
-void func_0047d170(void *model)
+void mdlRunDataCallback(void *model)
 {
     iGpffffbb3c(model);
 }
@@ -325,7 +325,7 @@ void func_0047d170(void *model)
 // FUN_0047DD40
 /* All three retail callers pass the owning model in a1 (00476808,
    00476BB0, 00478CC4); this secondary-effect updater does not read it. */
-void func_0047dd40(u8 *arg0, void *model)
+void mdlRefreshSecondaryEffect(u8 *arg0, void *model)
 {
     u8 *effect;
 
@@ -335,7 +335,7 @@ void func_0047dd40(u8 *arg0, void *model)
     }
 }
 // FUN_0047DD70
-void func_0047dd70(u8 *arg0, u8 *arg1)
+void mdlMarkSecondaryDirty(u8 *arg0, u8 *arg1)
 {
     s32 handle;
 
@@ -346,7 +346,7 @@ void func_0047dd70(u8 *arg0, u8 *arg1)
 }
 
 // FUN_0047DDA0
-void func_0047dda0(u8 *arg0)
+void mdlNoopSecondaryEffect(u8 *arg0)
 {
     u8 *effect;
 
@@ -357,7 +357,7 @@ void func_0047dda0(u8 *arg0)
 }
 /* Retail forwards the requested color in a1 to the runtime color consumer. */
 // FUN_0047DDD0
-void func_0047ddd0(u8* attachment, const u8* color)
+void mdlSetAttachmentColor(u8* attachment, const u8* color)
 {
     struct RuntimeWork* work;
 
@@ -367,7 +367,7 @@ void func_0047ddd0(u8* attachment, const u8* color)
     }
 }
 // FUN_0047EA40
-void func_0047ea40(u8 **arg0, u8 **arg1)
+void mdlRetainObject(u8 **arg0, u8 **arg1)
 {
     u8 *object;
 
@@ -378,7 +378,7 @@ void func_0047ea40(u8 **arg0, u8 **arg1)
     }
 }
 // FUN_0047EA70
-void func_0047ea70(u8 *arg0)
+void mdlInitObjectSlots(u8 *arg0)
 {
     *(s32 *)(arg0 + 0) = 0;
     *(s16 *)(arg0 + 8) = -1;

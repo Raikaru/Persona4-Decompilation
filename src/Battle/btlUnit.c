@@ -9,7 +9,7 @@ extern void mdlDestroyModelObject(); /* old-style: retail jals with $a1 still ho
 extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void *mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern u32 *mdlCloneModelObject(u8 *arg0);
-extern s32 func_0047d110(u32 arg0, u16 arg1, char *arg2);
+extern s32 mdlBuildModelPath(u32 arg0, u16 arg1, char *arg2);
 extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
 extern s32 func_00454a60(void *arg0, s32 arg1);
 extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
@@ -1005,7 +1005,7 @@ void btlUnitModelLoadPacketInit(u8 *arg0)
         }
     }
     if (!(*(u16 *)(arg0 + 8) & 0x10)) {
-        func_0047d110(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)&sp30[0]);
+        mdlBuildModelPath(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)&sp30[0]);
         func_00440b68(&iGpffffa0b0, D_005F6D00, 0xD98);
         *(s32 *)(arg0 + 0xC) = func_00454a60(&sp30[0], 0);
         *(s32 *)(p + 0x98) = *(s32 *)(p + 0x98) | 1;
@@ -1058,7 +1058,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
         if (made != 0) {
             *(u8 **)(t17 + 0xA00) = (u8 *)mdlCloneModelObject(made);
         } else {
-            func_0047d110(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)sp80);
+            mdlBuildModelPath(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)sp80);
             func_00440b68(&iGpffffa0b0, D_005F6D00, 0xDC9);
             *(s32 *)(arg0 + 0xC) = func_00454a60(sp80, 0);
             *(s32 *)(t17 + 0x98) |= 1;
@@ -1071,7 +1071,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             *(u8 **)(t17 + 0xA00) = t4;
             func_002311a0((void *)t4);
             if (*(u16 *)(arg0 + 4) == 1) {
-                func_0047d140(*(u8 **)(t17 + 0xA00));
+                mdlRunSetupCallback(*(u8 **)(t17 + 0xA00));
             }
         }
     } else if (mdlPrepareModel(t4) != 0) {

@@ -258,8 +258,8 @@ extern void func_003e9cb0(void* frame, void* matrix, u32 flags);
 extern void mdlSetAttachedModelMatrices(Model* mdl, RwMatrix* matrix);
 extern void mdlDetachSlotModel(u8* mdl, u16 wpnIdx);
 extern void mdlEffectListCallFlagged();
-extern void func_0047dda0();
-extern void func_0047ea70(u8* a);
+extern void mdlNoopSecondaryEffect();
+extern void mdlInitObjectSlots(u8* a);
 extern void mdlSetAttachedSlotValue(u8* a, u16 b, s32 c);
 extern s32 iGpffffbb28;
 extern f32 iGpffff80cc;
@@ -271,7 +271,7 @@ extern void mdlEffectListRefreshHandles();
 extern void* func_003c0520();
 extern u32 *mdlEffectListCopy(u32 **head);
 extern u32 *mdlEffectListWrapShared(u32 **head);
-extern void func_0047ea40();
+extern void mdlRetainObject();
 extern s32 mdlPrepareSlotModel(u8* model, u16 index);
 extern void mdlCopyModelState(u8* a, u8* b);
 extern void mdlSetAuxValue(void* a, int b);
@@ -1523,7 +1523,7 @@ void* mdlResolveLoopAnimation(void* arg0, u8* arg1)
                     mdlEffectListCallFlagged(*(s32*)((u8*)p38 + 0x18), rawIndex);
                 }
                 if (*(s32*)((u8*)p38 + 0x24) != 0) {
-                    func_0047dda0(*(s32*)((u8*)p38 + 0x24));
+                    mdlNoopSecondaryEffect(*(s32*)((u8*)p38 + 0x24));
                 }
             }
             t = *(void**)((u8*)*(void**)(arg1 + 0x20) + 0x20);
@@ -3169,7 +3169,7 @@ extern s32 mdlCopyIndexedMatrix(void* a, s32 b, void* c);
 extern s32 mdlPrepareSlotModel(u8* model, u16 index);
 extern void func_0047d540(u8** a, u8* b);
 extern void mdlEffectListSetUniformScale(s32* a, f32* b);
-extern void func_0047dd40(u8* a, void* model);
+extern void mdlRefreshSecondaryEffect(u8* a, void* model);
 extern void (*D_00887300_abs[])(s32, s32);
 extern void (*D_00887304[])(s32, void*);
 
@@ -3469,7 +3469,7 @@ void func_00475cd0(MdlDrawState* owner)
             }
             effect = *(u8**)(model + 0x24);
             if (effect != 0 && *(u16*)(model + 0x30) == 0) {
-                func_0047dd40(effect, owner);
+                mdlRefreshSecondaryEffect(effect, owner);
             }
             if (*(u16*)(model + 0x30) > 0) {
                 *(u16*)(model + 0x30) -= 1;
@@ -3570,7 +3570,7 @@ void func_00475cd0(MdlDrawState* owner)
                         }
                         source = *(u8**)(layerCursor.table + 0x24);
                         if (source != 0 && *(u16*)(layerCursor.table + 0x30) == 0) {
-                            func_0047dd40(source, attached.model);
+                            mdlRefreshSecondaryEffect(source, attached.model);
                         }
                         if (*(u16*)(layerCursor.table + 0x30) > 0) {
                             *(u16*)(layerCursor.table + 0x30) -= 1;
@@ -4168,7 +4168,7 @@ void* mdlAllocModelObject(u32 type, u16 id)
     *(s8*)(obj + 0x280) = 0x70;
     *(s8*)(obj + 0x281) = 0x70;
     *(s8*)(obj + 0x282) = 0;
-    func_0047ea70(obj + 0x2D0);
+    mdlInitObjectSlots(obj + 0x2D0);
     for (i = 0; i < 5; i++) {
         mdlSetAttachedSlotValue(obj, i & 0xFFFF, -1);
     }
@@ -4299,7 +4299,7 @@ void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u
    shape and distinct pair structs reproduce the retail stack layout and
    return path; the previous nd-74/nd-9 layouts are retained here only as
    historical probe context. */
-/* Creates a model object for type and id from resource arg2, using func_00455ea0's pair (or an existing object's pair when func_0047d0e0 matches), and prepares it. */
+/* Creates a model object for type and id from resource arg2, using func_00455ea0's pair (or an existing object's pair when mdlQueryModelType matches), and prepares it. */
 // FUN_00477FB0
 void* mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void* arg2, u32 arg3)
 {
@@ -4320,7 +4320,7 @@ void* mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void* arg2, u32 arg3)
         u32 b;
     } pair1;
 
-    if (func_0047d0e0(arg0, arg1) == 0) {
+    if (mdlQueryModelType(arg0, arg1) == 0) {
         retA = *(u32*)((u8*)arg2 + 0x110);
         retVal = *(u32*)((u8*)arg2 + 0x118);
         stack9c = retVal;
@@ -4353,7 +4353,7 @@ done:
     return result;
 }
 
-/* Finds the model object for type and id. When none exists, it builds the name for the id (func_0047d110), allocates a new object and sets it up. When one exists, it returns it with flag 0x2000 set. */
+/* Finds the model object for type and id. When none exists, it builds the path for the id (mdlBuildModelPath), allocates a new object and sets it up. When one exists, it returns it with flag 0x2000 set. */
 // FUN_00478140
 void* mdlFindOrCreateModelObject(u32 param_1, u16 param_2, u32 param_3)
 {
@@ -4372,7 +4372,7 @@ void* mdlFindOrCreateModelObject(u32 param_1, u16 param_2, u32 param_3)
         node = *(void**)((u8*)node + 0x308);
     }
     if (node == 0) {
-        func_0047d110(param_1, param_2, (char*)buf);
+        mdlBuildModelPath(param_1, param_2, (char*)buf);
         obj = mdlAllocModelObject(param_1, param_2);
         if ((param_3 & 1) != 0) {
             *(u32*)((u8*)obj + 0xD8) |= 0x4000;
@@ -4380,7 +4380,7 @@ void* mdlFindOrCreateModelObject(u32 param_1, u16 param_2, u32 param_3)
         mdlAllocAuxBlock(obj);
         mdlSetAuxResource(obj, buf);
         mdlPrepareModel(obj);
-        if (func_0047d0e0(param_1, param_2) != 0) {
+        if (mdlQueryModelType(param_1, param_2) != 0) {
             mdlSetAuxValue(obj, 1);
         }
         result = obj;
@@ -4594,7 +4594,7 @@ void mdlCopyModelState(u8* source, u8* destination)
         mdlEffectListRefreshHandles(copy);
     }
     if (*(void**)(source + 0x2d0) != 0)
-        func_0047ea40(destination + 0x2d0, source + 0x2d0);
+        mdlRetainObject(destination + 0x2d0, source + 0x2d0);
     if (mdlLayerIsPresent(destination, 0) != 0)
         mdlDispatchAnimIfPresent(destination, 0, 0, 0, 1);
 }
@@ -4688,7 +4688,7 @@ extern void* mdlGetMatrix(void* a);
 extern void mdlEffectListReleaseHandles(u32 *a);
 extern void func_0047de50(u32 a);
 extern void func_0047de00(u32 a, void* b);
-extern void func_0047dd40(u8* a, void* model);
+extern void mdlRefreshSecondaryEffect(u8* a, void* model);
 extern void mdlEffectListSetUniformScale(s32* a, f32* b);
 extern void func_0047d540(u8** a, u8* b);
 extern void func_0047ed60(void* a);
@@ -4778,7 +4778,7 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
                     }
                     draw = attachments->secondaryDraw;
                     if (draw != 0 && attachments->delay == 0) {
-                        func_0047dd40((u8*)draw, mdl);
+                        mdlRefreshSecondaryEffect((u8*)draw, mdl);
                     }
                     delay = attachments->delay;
                     if (delay > 0) {
@@ -4931,8 +4931,8 @@ extern void mdlAdvanceModel(u8*, s32);
 extern void mdlApplySkyDrawState(u8*, u8*);
 extern void mdlEffectListSetColor(u8**, s32*);
 extern void mdlEffectListInvokeEach(s32, u8**);
-extern void func_0047ddd0(u8*, const u8*);
-extern void func_0047dd70(u8*, u8*);
+extern void mdlSetAttachmentColor(u8*, const u8*);
+extern void mdlMarkSecondaryDirty(u8*, u8*);
 extern void mdlSetColor(Model*, const RwRGBA*);
 
 void mdlQueueModelForDraw(void* queue, u8* model)
@@ -5061,8 +5061,8 @@ layers:
             draw = attachments->secondaryDraw;
             if (draw != 0)
             {
-                func_0047ddd0(draw, (const u8*)&attachments->color);
-                func_0047dd70(attachmentQueue, attachments->secondaryDraw);
+                mdlSetAttachmentColor(draw, (const u8*)&attachments->color);
+                mdlMarkSecondaryDirty(attachmentQueue, attachments->secondaryDraw);
             }
         }
     }
@@ -5963,9 +5963,9 @@ void mdlAttachSlotModelFindOrCreate(void* param_1, u16 param_2, u32 param_3, u16
     void* slot;
 
     if (mdlFindModelObject(param_3, param_4, 0) == (void*)0) {
-        func_0047d110(param_3, param_4, (char*)buf);
+        mdlBuildModelPath(param_3, param_4, (char*)buf);
         obj = mdlCreateModelObjectFromData(param_3, param_4, buf, param_5);
-        if (func_0047d0e0(param_3, param_4) != 0) {
+        if (mdlQueryModelType(param_3, param_4) != 0) {
             mdlSetAuxValue(obj, 1);
         }
         result = obj;

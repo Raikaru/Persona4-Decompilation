@@ -619,7 +619,7 @@ void btlMainUnitCreateInit(void) {
     extern void func_0014a460(u16 arg0, u32 arg1);
     extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
     extern void func_001987a0(u8 *arg0);
-    extern void func_0047d170(void *model);
+    extern void mdlRunDataCallback(void *model);
     extern u8 *mdlGetClump(u8 *arg0);
     extern void mdlClumpSetEnvMapState(u8 *arg0);
     extern s32 func_001ef8c0(void);
@@ -681,7 +681,7 @@ void btlMainUnitCreateInit(void) {
                 func_001987a0(unit);
                 tmp = *(u8 **)(unit + 0xA00);
                 if (*(s32 *)(tmp + 0x2D0) == 0) {
-                    func_0047d170(tmp);
+                    mdlRunDataCallback(tmp);
                 }
                 btlUnitApplyModelState(unit, 4);
                 btlUnitShowModel(unit);

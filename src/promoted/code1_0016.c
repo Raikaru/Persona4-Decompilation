@@ -1033,7 +1033,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
         if (obj == NULL) {
             obj = mdlFindOrCreateModelObject(modelKind, id, 0);
             if (type == 1) {
-                func_0047d140(obj);
+                mdlRunSetupCallback(obj);
             } else {
                 mdlAttachSlotModelFromResource(obj, 0, 9, 0x163, D_005F13A0, 0);
                 mdlSetAttachedSlotValue(obj, 0, 0x1F4);
@@ -1064,7 +1064,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
         entry = D_007F16F0 + slot * 8;
         if (obj == NULL) {
             obj = mdlFindOrCreateModelObject(1, m, 0);
-            func_0047d140(obj);
+            mdlRunSetupCallback(obj);
             if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {
                 s32 j;
 

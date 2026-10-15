@@ -374,7 +374,7 @@ points so far are `mdlGetClump`, `mdlGetClumpFrame`, `mdlGetMatrix`,
 picks the file for a model by type and id, including date-dependent
 variants (`datGetFlag`, `func_001060b0`), and queues it with `func_00454a60`.
 `include/model_callbacks_internal.h` documents the callback set that
-`func_0047d090` registers with the model layer. Field scripts create models
+`mdlSetModelCallbacks` (was `func_0047d090`) registers with the model layer. Field scripts create models
 through `src/Kosaka/k_command.c` `K_Cmd_CREATE_MDL` and
 `K_Cmd_CREATE_FLD_MDL`.
 

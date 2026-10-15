@@ -145,7 +145,7 @@ void func_002311a0(MdlAppObj *obj)
 // FUN_002312E0
 void func_002312e0(void)
 {
-    func_0047d090(func_002308a0, mdlFileIsTypePac, func_00230c00,
+    mdlSetModelCallbacks(func_002308a0, mdlFileIsTypePac, func_00230c00,
                   func_00230d30, func_00230f20);
 }
 

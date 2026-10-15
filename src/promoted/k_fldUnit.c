@@ -2924,7 +2924,7 @@ s32 FldUnit_UpdatePartyState(u8 *task)
                         for (layer = 0; layer < 5; layer++) {
                             mdlDetachSlotModel((u8 *)(*(s32 *)(unit + 0x50)), layer & 0xFFFF);
                         }
-                        func_0047d140((void *)(*(s32 *)(unit + 0x50)));
+                        mdlRunSetupCallback((void *)(*(s32 *)(unit + 0x50)));
                     }
                     selectedCount = *(s32 *)(work + 0x14);
                     *(s32 *)(work + selectedCount * 4 + 0x18) = index;
