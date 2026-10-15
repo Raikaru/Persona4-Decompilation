@@ -1719,7 +1719,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                 fclCombinePartyRow(arg0, sp228.position, (s8)(var_16_2), ((u16 *)yListSlotEntry(0, var_16_2))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_16_2)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
             }
             sp220 = func_002b2970(16.0f, 104.0f);
-            func_0031e5b0(arg0, sp220, 0, 0, 0, 0, 0);
+            fclCombineDrawSlotFields(arg0, sp220, 0, 0, 0, 0, 0);
             fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             func_003218a0(arg0, 0);
             func_002b6140(temp_18->f28C, 0);
@@ -1825,7 +1825,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                         fclCombinePartyRow(arg0, sp210.position, (s8)(var_17_2), ((u16 *)yListSlotEntry(0, var_17_2))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_2)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                     }
                     sp208 = func_002b2970(16.0f, 104.0f);
-                    func_0031e5b0(arg0, sp208, 0, 1, 0, 0, 0);
+                    fclCombineDrawSlotFields(arg0, sp208, 0, 1, 0, 0, 0);
                     sp200 = func_002b2970((f32)0x149, 104.0f);
                     func_0031fa20(arg0, sp200, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
@@ -1849,7 +1849,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                         fclCombinePartyRow(arg0, sp1F0.position, (s8)(var_17_3), ((u16 *)yListSlotEntry(0, var_17_3))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_3)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                     }
                     sp1E8 = func_002b2970(16.0f, 104.0f);
-                    func_0031e5b0(arg0, sp1E8, 0, 1, 0, 0, 0);
+                    fclCombineDrawSlotFields(arg0, sp1E8, 0, 1, 0, 0, 0);
                     sp1E0 = func_002b2970((f32)0x149, 104.0f);
                     func_0031fa20(arg0, sp1E0, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
@@ -1938,7 +1938,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                 fclCombinePartyRow(arg0, sp1B0.position, (s8)(var_17_5), ((u16 *)yListSlotEntry(0, var_17_5))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_5)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
             }
             sp1A8 = func_002b2970(16.0f, 104.0f);
-            func_0031e5b0(arg0, sp1A8, 0, 0, 0, 0, 0);
+            fclCombineDrawSlotFields(arg0, sp1A8, 0, 0, 0, 0, 0);
             sp1A0 = func_002b2970((f32)0x149, 104.0f);
             func_0031fa20(arg0, sp1A0, 0, 0);
             fclCombineLayoutFrame(arg0, 1, 0);
@@ -2110,7 +2110,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                 fclCombineDrawPersonaRow(arg0, sp170.position, temp_18->f128, var_17_6, temp_16_41, slotByte, 0, 0, 1, 0xCC);
             }
             sp168 = func_002b2970(16.0f, 104.0f);
-            func_0031e5b0(arg0, sp168, 0, 0, 0, 0, 0);
+            fclCombineDrawSlotFields(arg0, sp168, 0, 0, 0, 0, 0);
             sp160 = func_002b2970((f32)0x149, 104.0f);
             func_0031fa20(arg0, sp160, 0, 0);
             func_002b6140(temp_18->f28C, 0);
@@ -2792,7 +2792,7 @@ block_83:
                     fclCombinePartyRow(arg0, sp390, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                 }
                 sp388 = func_002b2970(16.0f, 104.0f);
-                func_0031e5b0(arg0, sp388, 0, 0, 0, 0, 0);
+                fclCombineDrawSlotFields(arg0, sp388, 0, 0, 0, 0, 0);
                 fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
 
@@ -2852,7 +2852,7 @@ block_83:
                         fclCombinePartyRow(arg0, sp360, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                     }
                     sp358 = func_002b2970(16.0f, 104.0f);
-                    func_0031e5b0(arg0, sp358, 0, 1, 0, 0, 0);
+                    fclCombineDrawSlotFields(arg0, sp358, 0, 1, 0, 0, 0);
                     fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
                         FCL0F00_GRID_ROW(temp_17, gridRow, 0, 1, sp350, sp378, sp3F0, sp3EC);
@@ -2930,7 +2930,7 @@ block_83:
                             fclCombinePartyRow(arg0, sp2F8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                         }
                         sp2F0 = func_002b2970(16.0f, 104.0f);
-                        func_0031e5b0(arg0, sp2F0, 0, 1, 0, 0, 0);
+                        fclCombineDrawSlotFields(arg0, sp2F0, 0, 1, 0, 0, 0);
                         for (gridColumn = 0; gridColumn < (datPersonaRosterCapacity() & 0xFFFF); gridColumn++) {
                             FCL0F00_GRID_ROW(temp_17, gridColumn, 0, 1, sp2E8, sp378, sp3E0, sp3DC);
                             temp_19_6 = (s16)(gridColumn);
@@ -3039,7 +3039,7 @@ block_166:
                     fclCombinePartyRow(arg0, sp2B8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                 }
                 sp2B0 = func_002b2970(16.0f, 104.0f);
-                func_0031e5b0(arg0, sp2B0, 0, 0, 0, 0, 0);
+                fclCombineDrawSlotFields(arg0, sp2B0, 0, 0, 0, 0, 0);
                 fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 func_003218a0(arg0, 0);
                 func_002b6140((u8 *)(temp_17->f28C), 0);
@@ -3091,7 +3091,7 @@ block_166:
                         fclCombinePartyRow(arg0, sp2A0, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                     }
                     sp298 = func_002b2970(16.0f, 104.0f);
-                    func_0031e5b0(arg0, sp298, 0, 1, 0, 0, 0);
+                    fclCombineDrawSlotFields(arg0, sp298, 0, 1, 0, 0, 0);
                     sp290 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp290, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
@@ -3118,7 +3118,7 @@ block_166:
                                 fclCombinePartyRow(arg0, sp280, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                             }
                             sp278 = func_002b2970(16.0f, 104.0f);
-                            func_0031e5b0(arg0, sp278, 0, 1, 0, 0, 0);
+                            fclCombineDrawSlotFields(arg0, sp278, 0, 1, 0, 0, 0);
                             sp270 = func_002b2970((f32) 0x149, 104.0f);
                             func_0031fa20(arg0, sp270, 0, 1);
                             fclCombineLayoutFrame(arg0, 1, 1);
@@ -3235,7 +3235,7 @@ block_215:
                     }
                 }
                 sp238 = func_002b2970(16.0f, 104.0f);
-                func_0031e5b0(arg0, sp238, 0, 0, 0, 0, 0);
+                fclCombineDrawSlotFields(arg0, sp238, 0, 0, 0, 0, 0);
                 sp230 = func_002b2970((f32) 0x149, 104.0f);
                 func_0031fa20(arg0, sp230, 0, 0);
                 temp_17->f1 = 0x43U;
@@ -3441,7 +3441,7 @@ block_215:
                 }
             }
             sp1F8 = func_002b2970(16.0f, 104.0f);
-            func_0031e5b0(arg0, sp1F8, 0, 0, 0, 0, 0);
+            fclCombineDrawSlotFields(arg0, sp1F8, 0, 0, 0, 0, 0);
             sp1F0 = func_002b2970((f32) 0x149, 104.0f);
             func_0031fa20(arg0, sp1F0, 0, 0);
             temp_17->f1 = 0x43U;
@@ -4929,7 +4929,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 var_19++;
                 var_18++;
             }
-            func_0031e5b0(arg0, func_002b2970(156.0f, 87.0f), 0, 1, 0, 1, 1);
+            fclCombineDrawSlotFields(arg0, func_002b2970(156.0f, 87.0f), 0, 1, 0, 1, 1);
             func_00324f80(arg0, func_002b2970(472.0f, 112.0f), 0, 1);
             func_003297f0((f32)0x1A1, 220.0f, arg0, 0, 1);
             p->f1 = 0x94;
@@ -6949,7 +6949,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     fclCombinePartyRow(arg0, sp298, (s8)var_16_3, ((u16 *)yListSlotEntry(0, var_16_3))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_16_3) + 4), 0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                 }
                 sp290 = func_002b2970(16.0f, 104.0f);
-                func_0031e5b0(arg0, sp290, 0, 1, 0, 0, 0);
+                fclCombineDrawSlotFields(arg0, sp290, 0, 1, 0, 0, 0);
                 for (gridColumn = 0; gridColumn < (datPersonaRosterCapacity() & 0xFFFF); gridColumn++) {
                     sp11C = sdkSpriteNewNode(func_00331560(), 0x77);
                     FCL_COMBINE_GRID_ROW(work, gridColumn, gridRow, 0, sp288, sp250, col2F8, col2F4);
@@ -7033,7 +7033,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 fclCombinePartyRow(arg0, sp230, (s8)var_16_4, ((u16 *)yListSlotEntry(0, var_16_4))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_16_4) + 4), 0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
             }
             sp228 = func_002b2970(16.0f, 104.0f);
-            func_0031e5b0(arg0, sp228, 0, 0, 0, 0, 0);
+            fclCombineDrawSlotFields(arg0, sp228, 0, 0, 0, 0, 0);
             func_003218a0(arg0, 0);
             fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             func_002b6140((u8 *)(work->f28C), 1);
@@ -7185,7 +7185,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                         fclCombinePartyRow(arg0, sp218, (s8)var_16_5, ((u16 *)yListSlotEntry(0, var_16_5))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_16_5) + 4), 0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                     }
                     sp210 = func_002b2970(16.0f, 104.0f);
-                    func_0031e5b0(arg0, sp210, 0, 1, 0, 0, 0);
+                    fclCombineDrawSlotFields(arg0, sp210, 0, 1, 0, 0, 0);
                     sp208 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp208, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
@@ -7208,7 +7208,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                         fclCombinePartyRow(arg0, sp1F8, (s8)var_18_6, ((u16 *)yListSlotEntry(0, var_18_6))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_18_6) + 4), 0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                     }
                     sp1F0 = func_002b2970(16.0f, 104.0f);
-                    func_0031e5b0(arg0, sp1F0, 0, 1, 0, 0, 0);
+                    fclCombineDrawSlotFields(arg0, sp1F0, 0, 1, 0, 0, 0);
                     sp1E8 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp1E8, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
@@ -7276,7 +7276,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 fclCombinePartyRow(arg0, sp1B8, (s8)var_18_8, ((u16 *)yListSlotEntry(0, var_18_8))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_18_8) + 4), 0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
             }
             sp1B0 = func_002b2970(16.0f, 104.0f);
-            func_0031e5b0(arg0, sp1B0, 0, 0, 0, 0, 0);
+            fclCombineDrawSlotFields(arg0, sp1B0, 0, 0, 0, 0, 0);
             sp1A8 = func_002b2970((f32) 0x149, 104.0f);
             func_0031fa20(arg0, sp1A8, 0, 0);
             fclCombineLayoutFrame(arg0, 1, 0);
@@ -7343,7 +7343,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     fclCombineDrawPersonaRow(arg0, sp198, work->f128, var_18_9, temp_16_31, slotByte, 0, 0, 1, 0xCC);
                 }
                 sp190 = func_002b2970(16.0f, 104.0f);
-                func_0031e5b0(arg0, sp190, 0, 0, 0, 0, 0);
+                fclCombineDrawSlotFields(arg0, sp190, 0, 0, 0, 0, 0);
                 sp188 = func_002b2970((f32) 0x149, 104.0f);
                 func_0031fa20(arg0, sp188, 0, 0);
                 fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
