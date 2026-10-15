@@ -14,17 +14,17 @@ u16 datPersonaRecordId(u32 arg0);
 u16 datPersonaRosterSlotId(s32 arg0);
 // Intent: u16 id at +2 of the record for persona id arg0.
 u16 datPersonaGetRecordId(u16 arg0);
-// Intent: byte at +4 of roster slot arg0; fatal when the slot is NULL.
-u8 datPersonaRosterSlotByte4(s32 arg0);
+// Intent: u8 at +4 of roster slot arg0, a ranking key; the largest value among same-type party members wins.
+u8 datPersonaRosterSlotRank(s32 arg0);
 // Intent: u16 flags word of roster slot arg0; fatal when the slot is NULL.
 u16 datPersonaRosterSlotFlags(s32 arg0);
 s32 func_00109510(u8 *persona, void *arg1, void *arg2);
 void func_001097c0(u8 *arg0, s32 arg1);
 u32 func_00109870(u16 arg0, s32 arg1);
-// Intent: byte at +0x1C plus index (0..4) of a persona record.
-u8 datPersonaRecordStatByte(u8 *arg0, s32 arg1);
-// Intent: byte at +0x1C plus index (0..4) of the record for persona id arg0.
-s32 datPersonaRecordStatByteById(s32 arg0, s32 arg1);
+// Intent: u8 at +0x1C plus index 0..4 of a persona record (social-stat bytes; [INFERENCE] from the five-index range and the five-byte copy in shdPersona).
+u8 datPersonaGetSocialStat(u8 *arg0, s32 arg1);
+// Intent: social-stat byte (index 0..4) of the record for persona id arg0; same layout as datPersonaGetSocialStat.
+s32 datPersonaGetSocialStatById(s32 arg0, s32 arg1);
 u8 func_001099f0(u8 *arg0, s32 arg1);
 u8 func_00109ad0(u8 *arg0, s32 arg1);
 u8 func_00109bf0(u16 arg0, s32 arg1);
@@ -35,8 +35,8 @@ s32 func_0010a780(u8 *arg0, s32 arg1, s32 arg2);
 s32 func_0010a840(u16 arg0, s32 arg1, s32 arg2);
 // Intent: maps a persona id to its record; 1 is the selected roster slot, 2..10 index the party array.
 u16 *datPersonaGetRecord(u16 arg0);
-// Intent: true when the lead (id 1) record has flag bit 4 set; any other id returns 0.
-s32 datPersonaLeadHasFlag4(s32 arg0);
+// Intent: true when the lead (id 1) record has flag bit 4 set; datCalc scales damage and code1_0021 scales level when it is.
+s32 datPersonaLeadBoosted(s32 arg0);
 // Intent: index of the active roster slot whose id matches, or -1.
 s32 datPersonaFindRosterSlotById(s32 arg0);
 // Intent: index of the first inactive roster slot, or -1 when the roster is full.
@@ -59,8 +59,8 @@ u8 *datPersonaTryAddRosterMember(u16 personaId);
 s32 datPersonaInsertRosterRecord(u8 *arg0);
 // Intent: selects the active roster slot holding the id as lead; returns 0 when no slot matches.
 s32 datPersonaSelectRosterMemberById(s32 arg0);
-// Intent: u16 word at +2 of the lead slot's flag record.
-u16 datPersonaLeadSlotWord(void);
+// Intent: persona id held in the lead slot's record (+2); callers treat it as the current lead persona.
+u16 datPersonaLeadPersonaId(void);
 // Intent: index of the lead roster slot; fatal when the lead slot is inactive.
 s32 datPersonaGetLeadSlot(void);
 // Intent: roster capacity (6, 8, 10 or 12) selected by the mode flags at D_0079B40C.

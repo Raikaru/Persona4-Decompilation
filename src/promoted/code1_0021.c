@@ -4390,7 +4390,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
         lv = func_0021de90(id, arg1);
         if (entry2[1] == ref) {
             level = lv;
-            if (datPersonaLeadHasFlag4(1) != 0) {
+            if (datPersonaLeadBoosted(1) != 0) {
                 level += (s32)(0.5f * (f32)lv);
             }
             if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {
