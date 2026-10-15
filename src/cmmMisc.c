@@ -18,10 +18,10 @@ extern void func_00106390(s32 id, s32 flag);
 extern u32 func_001064f0(s32 idx);
 extern s32 func_00106550(s32 id, s32 value);
 extern s32 func_00106600(s16 idx);
-extern s32 cmmCommunityTestRecordFlag4(s32 idx);
-extern s32 cmmCommunityTestRecordFlag1(s32 idx);
-extern void cmmCommunitySetRecordFlag1(s32 idx);
-extern s32 cmmCommunityTestRecordFlag2(s32 idx);
+extern s32 cmmCommunityTestMarked(s32 idx);
+extern s32 cmmCommunityTestReversed(s32 idx);
+extern void cmmCommunitySetReversed(s32 idx);
+extern s32 cmmCommunityTestBroken(s32 idx);
 extern s32 cmmCommunityCanRankUp(s32 idx);
 extern s32 cmmCommunityFindRecord(s32 idx);
 extern s32 func_00110580(s32 a);
@@ -414,7 +414,7 @@ s32 func_00247270(void) {
             } else {
                 var_2 = 0;
             }
-            if ((var_2 != 0) && (cmmCommunityTestRecordFlag1(var_19 & 0xFFFF) == 0) && (cmmCommunityTestRecordFlag2(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) == 0)) {
+            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) == 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
                     kAssertFail(D_006359D0, 0x4C);
@@ -429,7 +429,7 @@ s32 func_00247270(void) {
                     if ((u32)temp_18 >= temp_17_2[1]) {
                         kAssertFail(D_006359D0, 0x4C);
                     }
-                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestRecordFlag4(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
+                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestMarked(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
                         return var_19 & 0xFFFF;
                     }
                 }
@@ -475,7 +475,7 @@ s32 func_002474f0(void) {
             } else {
                 var_2 = 0;
             }
-            if ((var_2 != 0) && (cmmCommunityTestRecordFlag1(var_19 & 0xFFFF) == 0) && (cmmCommunityTestRecordFlag2(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) != 0)) {
+            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) != 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
                     kAssertFail(D_006359D0, 0x4C);
@@ -490,7 +490,7 @@ s32 func_002474f0(void) {
                     if ((u32)temp_18 >= temp_17_2[1]) {
                         kAssertFail(D_006359D0, 0x4C);
                     }
-                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestRecordFlag4(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
+                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestMarked(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
                         return var_19 & 0xFFFF;
                     }
                 }
@@ -902,7 +902,7 @@ loop_15:
 /* measured (wave 14 retest — nd 73 reproduced exactly; no match): draft-based
    reconstruction `while (var_20 < 0x1F) { if (cmmCommunityHasRecord(var_20&0xFFFF)
    && cmmCommunityTestRecordFlags(var_20&0xFFFF,3)==0) { temp_2 = cmmCommunityFindRecord(...); ...
-   *0x64 ladder, D_00881480 bounds, +0x12 flags, cmmCommunitySetRecordFlag1 } }` scores
+   *0x64 ladder, D_00881480 bounds, +0x12 flags, cmmCommunitySetReversed } }` scores
    nd 73 — mwcc b210 CSEs var_20&0xFFFF into a saved register ($s3) at loop
    top and emits move $a0,$s3 per call, retail re-issues andi per site.
    Mixed `(u16)`/`& 0xFFFF` spellings regress to nd 90 (normalised away).
@@ -952,7 +952,7 @@ block_12:
             var_3 = 0;
 block_13:
             if (var_3 != 0) {
-                cmmCommunitySetRecordFlag1(var_20 & 0xFFFF);
+                cmmCommunitySetReversed(var_20 & 0xFFFF);
             }
         }
         var_20 += 1;
@@ -964,12 +964,12 @@ block_13:
    no match): loop of cmmCommunityHasRecord/func_00107ac0==0xA/func_00248a60/
    cmmCommunityTestRecordFlags guards, the D_00881494 two-u16 table scan into var_20,
    cmmCommunityFindRecord (real signature s32(s32) — the m2c's 2nd arg is a leftover
-   $5 the callee ignores), +0x12 flags and cmmCommunitySetRecordFlag1 — mask-CSE
+   $5 the callee ignores), +0x12 flags and cmmCommunitySetReversed — mask-CSE
    dominates (mwcc drills var_21&0xFFFF into a saved register; nd 30+ per the
    earlier note's better spelling). Same family as FUN_00248240/FUN_00248B80.
    func_00248a60 extern added as s32(s32). */
 /* measured: corrected target callees to func_00248a60(s32), cmmCommunityTestRecordFlags(s32,s32),
-   kAssertFail(void *,s32), cmmCommunitySetRecordFlag1(s32), and
+   kAssertFail(void *,s32), cmmCommunitySetReversed(s32), and
    cmmCommunityHasRecord(s32); active seed measured 552B vs 544B retail window,
    normalized_diff 109 (oversized reconstruction); archived without further probes. */
 // FUN_002483C0
@@ -1064,7 +1064,7 @@ block_12:
 block_13:
             if (var_3 != 0) {
                 call_idx = (u16)var_20;
-                cmmCommunitySetRecordFlag1(call_idx);
+                cmmCommunitySetReversed(call_idx);
             }
         }
 block_15:

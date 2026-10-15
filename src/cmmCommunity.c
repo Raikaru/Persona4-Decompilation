@@ -4,6 +4,7 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 #include "sdk_snd_internal.h"
+#include "cmm_internal.h"
 
 extern void *memset(void *dest, s32 value, s32 size);
 extern s32 kwlnTaskGetTaskByName(void *path);
@@ -15,8 +16,8 @@ extern s32 func_00247dd0(s32 arg0);
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s32 cmmCommunityHasRecord(s32 arg0);
 extern u16 func_00107ac0(s32 arg0);
-extern s32 cmmCommunityTestRecordFlag1(s32 arg0);
-extern s32 cmmCommunityTestRecordFlag2(s32 arg0);
+extern s32 cmmCommunityTestReversed(s32 arg0);
+extern s32 cmmCommunityTestBroken(s32 arg0);
 extern s32 cmmCommunityFindRecord(s32 arg0);
 extern void cmmCommunitySetRank(s32 arg0, s32 arg1);
 extern s32 cmmCommunityGetCurrentId(void);
@@ -120,7 +121,7 @@ static inline void CommunityFlags_Clear(s32 community)
     }
 }
 
-// Community refresh flags: clears the flag bands of community arg0 and rebuilds them from its record: the base band (cmmCommunityHasRecord) and the rank band (rank 10 maps to band 1, others to rank + 3), then bands 2 (cmmCommunityTestRecordFlag1) and 3 (cmmCommunityTestRecordFlag2).
+// Community refresh flags: clears the flag bands of community arg0 and rebuilds them from its record: the base band (cmmCommunityHasRecord) and the rank band (rank 10 maps to band 1, others to rank + 3), then bands 2 (cmmCommunityTestReversed) and 3 (cmmCommunityTestBroken).
 // FUN_00106F40
 void cmmCommunityRefreshFlags(s32 arg0) {
     u8 *record;
@@ -144,10 +145,10 @@ void cmmCommunityRefreshFlags(s32 arg0) {
             cmmCommunitySetFlagBand(arg0, rank + 3);
         }
     }
-    if (cmmCommunityTestRecordFlag1(arg0) != 0) {
+    if (cmmCommunityTestReversed(arg0) != 0) {
         cmmCommunitySetFlagBand(arg0, 2);
     }
-    if (cmmCommunityTestRecordFlag2(arg0) != 0) {
+    if (cmmCommunityTestBroken(arg0) != 0) {
         cmmCommunitySetFlagBand(arg0, 3);
     }
 }
@@ -597,9 +598,9 @@ ret:
     return *(u16 *)(r + 6);
 }
 
-// Test record flag 4: returns 1 when arg0's record has bit 0x4 set, else 0. Pairs with cmmCommunitySetRecordFlag4.
+// Test marked: returns 1 when arg0's record has the MARKED bit (0x4) set, else 0. The bit's meaning is not evidenced (see include/cmm_internal.h).
 // FUN_00107B70
-s32 cmmCommunityTestRecordFlag4(s32 arg0)
+s32 cmmCommunityTestMarked(s32 arg0)
 {
     s32 r = cmmCommunityFindRecord(arg0);
     if (r == 0)
@@ -608,7 +609,7 @@ s32 cmmCommunityTestRecordFlag4(s32 arg0)
     }
     else
     {
-        r = *(s32 *)r & 4;
+        r = *(s32 *)r & CMM_RECORD_FLAG_MARKED;
     }
     if (r != 0)
     {
@@ -622,9 +623,9 @@ s32 cmmCommunityTestRecordFlag4(s32 arg0)
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
-// Community record flag: sets bit 0x4 in the record of community arg0; does nothing when the id has no record.
+// Set marked: sets the MARKED bit (0x4) in the record of community arg0; does nothing when the id has no record. The bit's meaning is not evidenced (see include/cmm_internal.h).
 // FUN_00107BD0
-void cmmCommunitySetRecordFlag4(s32 arg0) {
+void cmmCommunitySetMarked(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -650,7 +651,7 @@ void cmmCommunitySetRecordFlag4(s32 arg0) {
     r = NULL;
 ret:
     if (r != NULL) {
-        *(s32 *)r |= 4;
+        *(s32 *)r |= CMM_RECORD_FLAG_MARKED;
     }
 }
 
@@ -659,9 +660,9 @@ ret:
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
-// Set record flag 1: sets bit 0x1 and clears bit 0x2 in arg0's record, then refreshes flag band 2. Nothing happens when arg0 has no record.
+// Set reversed: sets the REVERSED bit (0x1), clears BROKEN (0x2), then refreshes flag band 2. Nothing happens when arg0 has no record.
 // FUN_00107CE0
-void cmmCommunitySetRecordFlag1(s32 arg0) {
+void cmmCommunitySetReversed(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -687,8 +688,8 @@ void cmmCommunitySetRecordFlag1(s32 arg0) {
     r = NULL;
 ret:
     if (r != NULL) {
-        *(s32 *)r |= 1;
-        *(s32 *)r &= ~2;
+        *(s32 *)r |= CMM_RECORD_FLAG_REVERSED;
+        *(s32 *)r &= ~CMM_RECORD_FLAG_BROKEN;
         cmmCommunitySetFlagBand(arg0, 2);
     }
 }
@@ -698,9 +699,9 @@ ret:
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
-// Clear record flag 1: clears bit 0x1 in arg0's record and calls func_00106390(id + 0x43F, 0); asserts on a zero id when the record exists.
+// Clear reversed: clears the REVERSED bit (0x1) and calls func_00106390(id + 0x43F, 0); asserts on a zero id when the record exists.
 // FUN_00107DC0
-void cmmCommunityClearRecordFlag1(s32 arg0) {
+void cmmCommunityClearReversed(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -726,7 +727,7 @@ void cmmCommunityClearRecordFlag1(s32 arg0) {
     r = NULL;
 ret:
     if (r != NULL) {
-        *(s32 *)r &= ~1;
+        *(s32 *)r &= ~CMM_RECORD_FLAG_REVERSED;
         if (id <= 0) {
             kAssertFail(D_005E42C8, 0x1E);
         }
@@ -734,9 +735,9 @@ ret:
     }
 }
 
-// Test record flag 1: returns 1 when arg0's record has bit 0x1 set, else 0. RefreshFlags reads it as flag band 2.
+// Test reversed: returns 1 when arg0's record has the REVERSED bit (0x1) set, else 0. RefreshFlags reads it as flag band 2.
 // FUN_00107C80
-s32 cmmCommunityTestRecordFlag1(s32 arg0)
+s32 cmmCommunityTestReversed(s32 arg0)
 {
     s32 r = cmmCommunityFindRecord(arg0);
     if (r == 0)
@@ -745,7 +746,7 @@ s32 cmmCommunityTestRecordFlag1(s32 arg0)
     }
     else
     {
-        r = *(s32 *)r & 1;
+        r = *(s32 *)r & CMM_RECORD_FLAG_REVERSED;
     }
     if (r != 0)
     {
@@ -754,9 +755,9 @@ s32 cmmCommunityTestRecordFlag1(s32 arg0)
     return 0;
 }
 
-// Test record flag 2: returns 1 when arg0's record has bit 0x2 set, else 0. RefreshFlags reads it as flag band 3.
+// Test broken: returns 1 when arg0's record has the BROKEN bit (0x2) set, else 0. RefreshFlags reads it as flag band 3.
 // FUN_00107EA0
-s32 cmmCommunityTestRecordFlag2(s32 arg0)
+s32 cmmCommunityTestBroken(s32 arg0)
 {
     s32 r = cmmCommunityFindRecord(arg0);
     if (r == 0)
@@ -765,7 +766,7 @@ s32 cmmCommunityTestRecordFlag2(s32 arg0)
     }
     else
     {
-        r = *(s32 *)r & 2;
+        r = *(s32 *)r & CMM_RECORD_FLAG_BROKEN;
     }
     if (r != 0)
     {
@@ -779,9 +780,9 @@ s32 cmmCommunityTestRecordFlag2(s32 arg0)
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
-// Set record flag 2: sets bit 0x2 and clears bit 0x1 in arg0's record, then refreshes flag band 3. Nothing happens when arg0 has no record.
+// Set broken: sets the BROKEN bit (0x2), clears REVERSED (0x1), then refreshes flag band 3. Nothing happens when arg0 has no record.
 // FUN_00107F00
-void cmmCommunitySetRecordFlag2(s32 arg0) {
+void cmmCommunitySetBroken(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -807,8 +808,8 @@ void cmmCommunitySetRecordFlag2(s32 arg0) {
     r = NULL;
 ret:
     if (r != NULL) {
-        *(s32 *)r |= 2;
-        *(s32 *)r &= ~1;
+        *(s32 *)r |= CMM_RECORD_FLAG_BROKEN;
+        *(s32 *)r &= ~CMM_RECORD_FLAG_REVERSED;
         cmmCommunitySetFlagBand(arg0, 3);
     }
 }
@@ -818,9 +819,9 @@ ret:
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
-// Clear record flag 2: clears bit 0x2 in arg0's record and calls func_00106390(id + 0x45F, 0); asserts on a zero id when the record exists.
+// Clear broken: clears the BROKEN bit (0x2) and calls func_00106390(id + 0x45F, 0); asserts on a zero id when the record exists.
 // FUN_00107FE0
-void cmmCommunityClearRecordFlag2(s32 arg0) {
+void cmmCommunityClearBroken(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -846,7 +847,7 @@ void cmmCommunityClearRecordFlag2(s32 arg0) {
     r = NULL;
 ret:
     if (r != NULL) {
-        *(s32 *)r &= ~2;
+        *(s32 *)r &= ~CMM_RECORD_FLAG_BROKEN;
         if (id <= 0) {
             kAssertFail(D_005E42C8, 0x1E);
         }
@@ -1208,7 +1209,7 @@ ret:
     *(s16 *)(r + 8) = 0;
     t = cmmCommunityFindRecord(arg0);
     if (t != 0) {
-        *(s32 *)t = *(s32 *)t & -5;
+        *(s32 *)t = *(s32 *)t & ~CMM_RECORD_FLAG_MARKED;
     }
     return 1;
 ret0:

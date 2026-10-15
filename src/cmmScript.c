@@ -38,7 +38,7 @@ extern s32 cmmDateTableApplyColumnDelta(s32 arg0, s32 arg1);
 extern u8* cmmCommunityGetCurrentWork(void);
 extern s32 cmmCommunityGetCurrentId(void);
 extern void cmmCommunityAdvanceForm(s32 arg0);
-extern void cmmCommunitySetRecordFlag4(s32 arg0);
+extern void cmmCommunitySetMarked(s32 arg0);
 extern void datDestroyTaskByName(void);
 extern void cmmCommunitySetCurrent(u16 arg0);
 extern s16 func_00248d80(s16 arg0);
@@ -563,7 +563,7 @@ s32 func_0024ac50(void)
     if (id == 0) {
         id = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    cmmCommunitySetRecordFlag4(id & 0xFFFF);
+    cmmCommunitySetMarked(id & 0xFFFF);
     return 1;
 }
 // FUN_0024ACA0

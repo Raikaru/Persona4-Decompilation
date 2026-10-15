@@ -22,12 +22,12 @@ extern s32 cmmCommunityTryRankUp(s32 arg0);
 extern s32 scrGetParamInt(s32 arg0);
 extern void scrSetReturnInt(s32 arg0);
 extern s32 cmmCommunityCanRankUp(s32 arg0);
-extern s32 cmmCommunityTestRecordFlag1(s32 arg0);
-extern s32 cmmCommunitySetRecordFlag1(s32 arg0);
-extern s32 cmmCommunityClearRecordFlag1(s32 arg0);
-extern s32 cmmCommunityTestRecordFlag2(s32 arg0);
-extern s32 cmmCommunitySetRecordFlag2(s32 arg0);
-extern s32 cmmCommunityClearRecordFlag2(s32 arg0);
+extern s32 cmmCommunityTestReversed(s32 arg0);
+extern s32 cmmCommunitySetReversed(s32 arg0);
+extern s32 cmmCommunityClearReversed(s32 arg0);
+extern s32 cmmCommunityTestBroken(s32 arg0);
+extern s32 cmmCommunitySetBroken(s32 arg0);
+extern s32 cmmCommunityClearBroken(s32 arg0);
 extern s32 cmmCommunityAddScaledPoints(s32 arg0, s32 arg1);
 extern s32 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2);
 extern s64 func_001060b0(void);
@@ -415,7 +415,7 @@ s32 func_00249de0(void)
     if (var_2 == 0) {
         var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (cmmCommunityTestRecordFlag1(var_2 & 0xFFFF) != 0) {
+    if (cmmCommunityTestReversed(var_2 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
@@ -435,9 +435,9 @@ s32 cmmSetReverse(void)
         var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (temp_16 != 0) {
-        cmmCommunitySetRecordFlag1(var_17 & 0xFFFF);
+        cmmCommunitySetReversed(var_17 & 0xFFFF);
     } else {
-        cmmCommunityClearRecordFlag1(var_17 & 0xFFFF);
+        cmmCommunityClearReversed(var_17 & 0xFFFF);
     }
     return 1;
 }
@@ -450,7 +450,7 @@ s32 func_00249ee0(void)
     if (var_2 == 0) {
         var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (cmmCommunityTestRecordFlag2(var_2 & 0xFFFF) != 0) {
+    if (cmmCommunityTestBroken(var_2 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
@@ -470,9 +470,9 @@ s32 cmmSetBroken(void)
         var_17 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
     if (temp_16 != 0) {
-        cmmCommunitySetRecordFlag2(var_17 & 0xFFFF);
+        cmmCommunitySetBroken(var_17 & 0xFFFF);
     } else {
-        cmmCommunityClearRecordFlag2(var_17 & 0xFFFF);
+        cmmCommunityClearBroken(var_17 & 0xFFFF);
     }
     return 1;
 }

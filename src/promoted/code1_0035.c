@@ -1367,8 +1367,8 @@ void func_00356250(u8 *arg0)
     extern s32 cmmCommunityFindByKind(s16 arg0);
     extern s64 func_00248760(s32 arg0);
     extern u16 func_00107ac0(s32 arg0);
-    extern s32 cmmCommunityTestRecordFlag2(s32 arg0);
-    extern s32 cmmCommunityTestRecordFlag1(s32 arg0);
+    extern s32 cmmCommunityTestBroken(s32 arg0);
+    extern s32 cmmCommunityTestReversed(s32 arg0);
     extern u8 *func_0046a770(char *arg0);
     extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
     extern void kAssertFail(const void *arg0, u32 arg1);
@@ -1433,9 +1433,9 @@ void func_00356250(u8 *arg0)
             *kind = func_00107ac0(id);
             if (*kind == 0xA) {
                 *(s32 *)(p + 0x40) = 1;
-            } else if (cmmCommunityTestRecordFlag2(id) != 0) {
+            } else if (cmmCommunityTestBroken(id) != 0) {
                 *(s32 *)(p + 0x40) = 3;
-            } else if (cmmCommunityTestRecordFlag1(id) != 0) {
+            } else if (cmmCommunityTestReversed(id) != 0) {
                 *(s32 *)(p + 0x40) = 2;
             } else {
                 *(s32 *)(p + 0x40) = 0;
