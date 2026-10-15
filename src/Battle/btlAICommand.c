@@ -1,6 +1,7 @@
 /* Source unit: src/Battle/btlEffect_001db100.c */
 #include "btl_skill_target_internal.h"
 #include "datCalc_unit_internal.h"
+#include "datUnit_internal.h"
 #include "type.h"
 #include "include_asm.h"
 #include "btl_cond_internal.h"
@@ -406,7 +407,7 @@ bool btlCond_ANALYZE(int param_1)
 
 // FUN_001DB790
 s32 btlCond_DOWN(u8 *arg0) {
-    return (**(u16 **)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64) & 8) ? 0 : 1;
+    return (**(u16 **)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64) & DAT_UNIT_FLAG_DOWN) ? 0 : 1;
 }
 
 
@@ -2737,19 +2738,19 @@ s32 btlAICommandScriptQueryEnUseSkil(void) {
 }
 
 // FUN_001E0CC0
-s32 func_001e0cc0(void) {
+s32 btlAICommandScriptQueryMyGroup(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A30[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
 // FUN_001E0D10
-s32 func_001e0d10(void) {
+s32 btlAICommandScriptQueryFrGroup(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A3C[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
 // FUN_001E0D60
-s32 func_001e0d60(void) {
+s32 btlAICommandScriptQueryEnGroup(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A48[0])(func_0029d050(), 0) != 0);
     return 1;
 }
@@ -2785,13 +2786,13 @@ s32 btlAICommandScriptQueryTurnO(void) {
 }
 
 // FUN_001E0F10
-s32 func_001e0f10(void) {
+s32 btlAICommandScriptQueryMyHrec(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A6C[0])(func_0029d050(), 0) != 0);
     return 1;
 }
 
 // FUN_001E0F60
-s32 func_001e0f60(void) {
+s32 btlAICommandScriptQueryMore(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A78[0])(func_0029d050(), 0) != 0);
     return 1;
 }

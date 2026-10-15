@@ -7,6 +7,8 @@
    separately by datCalcSetBadStatus). KO is bit 19: datCalcIsDead returns
    1 when bad & 0x80000 (datCalc.c), kills set it and btlTarget.c:837 clears it on revive. */
 #define BTL_STATUS_KO 0x80000
+/* DatUnit.flags bit 0x8: btlCond_DOWN (btlAICommand.c) returns 0 while it is set. */
+#define DAT_UNIT_FLAG_DOWN 0x8
 
 /* One battle unit record (stride 0x30). Shared by datUnit.c and datCalc.c. */
 typedef struct DatUnit
