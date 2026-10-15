@@ -6,7 +6,7 @@
 #include "sdk_snd_internal.h"
 
 extern u32 DAT_007645D8;
-// lint: allow H011 -- measured: u16 prototype regresses func_002891d0 (andi on wide id args)
+// lint: allow H011 -- measured: u16 prototype regresses evtCmdResPlace (andi on wide id args)
 u8 *MT_Scene_GetRes(s32 arg0);
 extern void func_0046d730(void *file, s32 line);
 extern void *func_00457120(void);
