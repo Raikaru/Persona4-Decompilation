@@ -38,7 +38,7 @@ extern u8 *iGpffffb3b8;
 /* gp - 0x4C40 = 0x007690f0 - 0x4c40 = 0x007644b0 */
 extern u8 *iGpffffb3c0;
 
-extern u8 *func_00106820(s16 arg0);
+extern u8 *datEntryAt(s16 arg0);
 
 /* Old-style declaration: the retail call site at datCalcIsFlaggedPersonaSkill passes arg0 raw (no 64-bit extension). */
 u16 datCalcUnderlyingSkillId();
@@ -53,7 +53,7 @@ extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaGetLevel(s32 arg0);
 extern u32 func_00105ed0(void);
-extern u8 *func_00105510(s32 arg0);
+extern u8 *datUnitGetRecord(s32 arg0);
 extern u8 datCalcGetBattleStat(u8 *arg0, s32 arg1);
 /* Defined below in this file; used before its definition. */
 extern u16 func_002439c0(u8 *arg0);
@@ -2210,7 +2210,7 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
         var_f0 = (f32)temp_2_3;
         var_f20 = var_f21 / (var_f0 / var_f20);
     } else {
-        temp_2_4 = func_00105510(1);
+        temp_2_4 = datUnitGetRecord(1);
         if ((*(u16 *)temp_2_4 & 4) || (temp_4_2 = *(u16 *)(temp_2_4 + 2), temp_4_2 == 1)) {
             var_18 = *(u8 *)(temp_2_4 + 6);
         } else {
@@ -5056,11 +5056,11 @@ u8 *datCalcGetSlotRecord(s32 arg0)
     return iGpffffb44c + (u8)arg0 * 0x15;
 }
 
-// Intent: underlying skill id for persona-skill id arg0 (the record from func_00106820 at +0x24, read by datCalcIsFlaggedPersonaSkill); [inferred].
+// Intent: underlying skill id for persona-skill id arg0 (the record from datEntryAt at +0x24, read by datCalcIsFlaggedPersonaSkill); [inferred].
 // FUN_00243920
 u16 datCalcUnderlyingSkillId(s64 arg0)
 {
-    return *(u16 *)((u8 *)func_00106820((s16)arg0) + 0x24);
+    return *(u16 *)((u8 *)datEntryAt((s16)arg0) + 0x24);
 }
 
 

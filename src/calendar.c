@@ -24,7 +24,7 @@ extern s32 func_001211a0(u8 *task);
 extern s32 calendarDraw(u8 *task);
 extern s32 func_001104a0(s32 arg0);
 extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
-extern u8 func_001060c0(void);
+extern u8 datGetTimeSlot(void);
 extern u16 D_008C0276[];
 extern u16 D_008C027A[];
 extern void func_00122520(s32 a, s32 b);
@@ -33,7 +33,7 @@ extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern void func_00123850(void);
 extern s32 func_00144af0(s32 a);
 extern s32 kwlnTaskGetState(s32 a);
-extern void func_001062f0(s32 a);
+extern void datSetTimeSlot(s32 a);
 extern s32 func_00110580(s32 arg0);
 extern s32 func_001105b0(s32 arg0);
 extern s32 func_00110600(s32 arg0, s32 arg1);
@@ -135,16 +135,16 @@ s32 calendarInputUpdate(u8 *arg0)
                 *(s32 *)(work + 8) = v + 1;
             }
         } else if (D_008C027A[0] & 0x4) {
-            if ((func_001060c0() & 0xFF) == 0) {
-                func_001062f0(5);
+            if ((datGetTimeSlot() & 0xFF) == 0) {
+                datSetTimeSlot(5);
             } else {
-                func_001062f0(((func_001060c0() & 0xFF) - 1) & 0xFF);
+                datSetTimeSlot(((datGetTimeSlot() & 0xFF) - 1) & 0xFF);
             }
         } else if (D_008C027A[0] & 0x8) {
-            if ((func_001060c0() & 0xFF) == 5) {
-                func_001062f0(0);
+            if ((datGetTimeSlot() & 0xFF) == 5) {
+                datSetTimeSlot(0);
             } else {
-                func_001062f0(((func_001060c0() & 0xFF) + 1) & 0xFF);
+                datSetTimeSlot(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
             }
         } else if (D_008C027A[0] & 0x1) {
             func_001104d0(*(s32 *)(work + 8), &month, &day);
@@ -208,7 +208,7 @@ s32 calendarDraw(u8 *unusedTask)
     dim[0] = current * 36 + 100; dim[1] = offset + 124; dim[2] = 36; dim[3] = 12;
     func_0045d6e0(color, dim, 0.0f, 1);
     pos.xy.x = 100.0f; pos.xy.y = 100.0f;
-    func_00450dd0(pos, 0.0f, D_005E5028, month, D_005E5010[func_001060c0()]);
+    func_00450dd0(pos, 0.0f, D_005E5028, month, D_005E5010[datGetTimeSlot()]);
     pos.xy.x = 0.0f + 100.0f + 36.0f * (f32)weekday;
     pos.xy.y = 124.0f;
     index = 0;

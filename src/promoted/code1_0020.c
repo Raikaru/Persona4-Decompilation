@@ -44,7 +44,7 @@ extern void btlSelectionSetRepeat(u8 *arg0, s16 *arg1);
 extern void btlPacketIncUnitCounter(u8 *arg0);
 extern s32 btlPacketUpdateHpRatio(u8 *arg0);
 extern void btlPacketDecUnitCounter(u8 *arg0);
-extern u32 func_001067f0(s16 arg0);
+extern u32 datGetItemNameId(s16 arg0);
 extern s32 func_001eb860(void);
 
 typedef struct {
@@ -1059,7 +1059,7 @@ s32 btlPacketStepSpriteFrameLookup(u8 *arg0)
     }
     if (*(u32 *)(arg0 + 8) == 0) {
         func_00216b40(*(s32 *)(D_0076449C + 0xDD4),
-                      func_001067f0(*(s16 *)(arg0 + 4)));
+                      datGetItemNameId(*(s16 *)(arg0 + 4)));
         func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
     }
     temp_2 = *(u32 *)(arg0 + 8) + 1;
@@ -2614,7 +2614,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
     frFontSetFlagBits(0x40);
     masked = opacity & 0xFF;
     fx = 42.0f + x;
-    name = (const char *)func_001067f0(id);
+    name = (const char *)datGetItemNameId(id);
     {
         f32 text_y = (2.0f + y) - 1.0f;
         f32 depth = 50.0f;

@@ -243,7 +243,7 @@ void func_00131a00(u8 *arg0)
     extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
     extern void func_001125d0(u8 *arg0);
-    extern u32 func_00106880(s16 arg0);
+    extern u32 datEntryGetFlags(s16 arg0);
     extern s16 func_00106cd0(s16 arg0, s16 arg1);
     extern u32 func_0010d6d0(s16 arg0);
     extern s32 func_00134da0(s32 arg0);
@@ -442,7 +442,7 @@ void func_00131a00(u8 *arg0)
       scaleY = (f32)*(u16 *)(work + rowCounter * 0x30 + 0xf16);
       switch (rowCounter) {
       case 0:
-        temp_v3 = func_00106880(func_00106cd0(actor.id, 0));
+        temp_v3 = datEntryGetFlags(func_00106cd0(actor.id, 0));
         temp_v4 = func_00134da0(temp_v3);
         rowIcon = (s16)temp_v4;
         break;

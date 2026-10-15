@@ -26,7 +26,7 @@ extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00144f60(void);
 extern s32 func_0015f660(void);
 extern s64 func_001060b0(void);
-extern s32 func_001060c0(void);
+extern s32 datGetTimeSlot(void);
 extern s64 func_00110960(s64 arg0, s32 arg1);
 extern u8 *MT_Scene_GetCameraResSecond(void);
 extern u8 *MT_Scene_GetCameraResFirst(void);
@@ -86,7 +86,7 @@ s32 func_0018d950(u8 *arg0) {
                 return 0;
             }
             temp_17 = (s16)func_001060b0();
-            if ((s8)func_00110960(temp_17, func_001060c0() & 0xFF) == 1) {
+            if ((s8)func_00110960(temp_17, datGetTimeSlot() & 0xFF) == 1) {
                 var_2 = (u8 *)MT_Scene_GetCameraResSecond();
                 var_6 = *(u8 **)(temp_16 + 4);
                 var_5 = 8;

@@ -37,7 +37,7 @@ extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 
 extern s64 scrGetParamInt(s32 arg0);
-extern u8 *func_00105510(s16 arg0);
+extern u8 *datUnitGetRecord(s16 arg0);
 extern void datCalcSetUnitClass(u8 *arg0, s16 arg1);
 extern s32 datCalcUnitClass(u8 *arg0);
 extern void scrSetReturnInt(s32 arg0);
@@ -181,13 +181,13 @@ s32 func_00193630(void) {
 
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    datCalcSetUnitClass(func_00105510((s16)temp_17), (s16)temp_16);
+    datCalcSetUnitClass(datUnitGetRecord((s16)temp_17), (s16)temp_16);
     return 1;
 }
 
 // FUN_001936A0
 s32 func_001936a0(void) {
-    scrSetReturnInt((s16)datCalcUnitClass(func_00105510((s16)scrGetParamInt(0))));
+    scrSetReturnInt((s16)datCalcUnitClass(datUnitGetRecord((s16)scrGetParamInt(0))));
     return 1;
 }
 

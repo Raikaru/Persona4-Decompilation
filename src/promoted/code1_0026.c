@@ -82,7 +82,7 @@ extern s32 kwlnTaskIsLinked();
 extern s32 func_0025ef20(u8 *arg0);
 extern u8 D_00637420[];
 
-extern s32 func_00106880(s16 arg0);
+extern s32 datEntryGetFlags(s16 arg0);
 
 
 
@@ -128,7 +128,7 @@ extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg_sp0);
 extern u32 frFontGetMode(void);
 extern void frFontLayoutText(u8 *text, u8 *context);
-extern u32 func_001067f0(s16 id);
+extern u32 datGetItemNameId(s16 id);
 extern s64 func_0010d660(s32 arg0);
 extern s64 func_0010d6d0(s32 arg0);
 extern s32 sprintf(char *dst, const char *fmt, ...);
@@ -2855,7 +2855,7 @@ s32 func_0026fd90(s32 arg0, u8 *arg1)
         frFontLayoutText((u8 *)glyph, arg1);
     }
     frFontUpdateTextWork(arg1);
-    frFontLayoutText((u8 *)func_001067f0((s16)third), arg1);
+    frFontLayoutText((u8 *)datGetItemNameId((s16)third), arg1);
     arg1[0xD] = previous_character;
     return 0;
 }

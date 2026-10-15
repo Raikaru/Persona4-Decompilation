@@ -52,7 +52,7 @@ extern s32 *func_002bbf70();
 extern s32 func_002bb0e0(void);
 extern void itfMesWindowDrawEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6);
-extern u32 func_00106880(s16 item);
+extern u32 datEntryGetFlags(s16 item);
 extern s32 func_002be1e0(s32 arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void func_00145080(void);
@@ -1814,7 +1814,7 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
  s32 func_002bc0e0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
 {
     extern s32 func_00106600(s16 id);
-    extern u32 func_00106880(s16 arg0);
+    extern u32 datEntryGetFlags(s16 arg0);
     extern s32 itfMesWindowRecordCount(s32 arg0);
     extern s32 itfMesWindowDrawEntry(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     extern s32 itfMesWindowDrawPair(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10);
@@ -1866,14 +1866,14 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
         if (arg5 >= 0x400) {
             temp_index = 5;
         } else {
-            temp_index = (s32)func_00106880((s16)arg5);
+            temp_index = (s32)datEntryGetFlags((s16)arg5);
         }
         temp_item_index = spC0[temp_index];
         arg5 = (s16)func_00106b80((s16)arg5);
         goto block_23;
     case 1:
         temp_index_2 = arg5 & 0xFFFF;
-        temp_item_index = spC0[func_00106880((s16)temp_index_2)];
+        temp_item_index = spC0[datEntryGetFlags((s16)temp_index_2)];
         temp_item = D_0063F2B0[temp_item_index];
         temp_count = (s16)func_00106b80((s16)temp_index_2);
         if ((u32)itfMesWindowRecordCount(temp_item) < (u32)temp_count) {
@@ -1889,7 +1889,7 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
         return 0;
     case 2:
         temp_index_2 = func_00106600((s16)arg5) & 0xFF;
-        temp_item_index = spC0[func_00106880((s16)temp_index_2)];
+        temp_item_index = spC0[datEntryGetFlags((s16)temp_index_2)];
         temp_item = D_0063F2B0[temp_item_index];
         temp_count = (s16)func_00106b80((s16)temp_index_2);
         if ((u32)itfMesWindowRecordCount(temp_item) < (u32)temp_count) {
@@ -2325,7 +2325,7 @@ s32 func_002be160(s32 arg0, s32 arg1) {
 // FUN_002BE1B0
 s32 func_002be1b0(s16 item)
 {
-    return func_002be1e0(func_00106880(item));
+    return func_002be1e0(datEntryGetFlags(item));
 }
 // FUN_002BE1E0
 s32 func_002be1e0(s32 arg0)

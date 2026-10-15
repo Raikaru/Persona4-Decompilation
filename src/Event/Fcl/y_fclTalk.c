@@ -15,7 +15,7 @@ extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s8 func_002bab80(void *);
 extern s32 func_002badc0(s8, s32);
 extern void func_002bbd80(s8, s32, void *);
-extern void *func_001067f0(s16);
+extern void *datGetItemNameId(s16);
 extern void frFontExCopyString(void *, void *, s32);
 extern s32 datGetFlag(s32);
 extern u8 func_002e78a0(void);
@@ -141,12 +141,12 @@ void func_00332370(u8 *arg0, s32 arg1, s32 arg2) {
     t = (s16)((arg2 & 0xFFF00) >> 8);
     if (arg2 == 0) {
         *(work + 1) = func_002bab80(D_00645240);
-        func_002bbd80(*(work + 1), 0, func_001067f0(t));
+        func_002bbd80(*(work + 1), 0, datGetItemNameId(t));
         func_002badc0(*(work + 1), 0x1E);
         return;
     }
     *(work + 1) = func_002bab80(D_00645240);
-    func_002bbd80(*(work + 1), 0, func_001067f0(t));
+    func_002bbd80(*(work + 1), 0, datGetItemNameId(t));
     temp_2 = func_002be1b0((s16)arg1);
     if (temp_2 == 0xE) {
         frFontExCopyString((void *)D_0064A07C[0], sp40, 0x20);

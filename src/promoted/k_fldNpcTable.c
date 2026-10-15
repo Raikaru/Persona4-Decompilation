@@ -30,7 +30,7 @@ extern s32 D_00764388;
 extern s32 D_0076438C;
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern s32 func_001060b0(void);
-extern s32 func_001060c0(void);
+extern s32 datGetTimeSlot(void);
 extern void func_001104d0(s16 year, s32 *month, s32 *day);
 extern s32 datGetFlag(s32 id);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -144,12 +144,12 @@ void *NpcTable_FindActiveEntry(void)
             goto update;
         }
         if (end[0] == sp6C && end[1] == sp68) {
-            if ((func_001060c0() & 0xFF) < end[2]) {
+            if ((datGetTimeSlot() & 0xFF) < end[2]) {
                 goto next;
             }
         }
         if (s3 == sp6C && s2 == sp68) {
-            if ((func_001060c0() & 0xFF) > s1) {
+            if ((datGetTimeSlot() & 0xFF) > s1) {
                 goto next;
             }
         }

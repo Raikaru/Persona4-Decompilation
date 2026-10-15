@@ -184,7 +184,7 @@ extern u8 datPersonaGetArcana(u16);
 extern s32 func_00331660(void);
 extern void func_002bbd80(s8, s32, void *);
 extern s32 func_00110140(void);
-extern void *func_001067f0(s16);
+extern void *datGetItemNameId(s16);
 extern s16 D_00749040[];
 extern s16 D_00749060[];
 extern s16 D_00749080[];
@@ -5851,7 +5851,7 @@ s32 fclCombineClaimSlot(u8 *arg0) {
         if ((datGetFlag((s32)i + 0x1309) == 0) && (func_00110140() >= D_00749100[(s32)i])) {
             *(s8 *)(p + 0x130) = (s8)i;
             *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
-            func_002bbd80(*(s8 *)(p + 0xD), 0, func_001067f0((s16)(*(s8 *)(p + 0x130) + 0x464)));
+            func_002bbd80(*(s8 *)(p + 0xD), 0, datGetItemNameId((s16)(*(s8 *)(p + 0x130) + 0x464)));
             func_002badc0(*(s8 *)(p + 0xD), *(s8 *)(p + 0x130) + 0x17);
             func_00106390((s32)i + 0x1309, 1);
             func_00106620((s16)(i + 0x464), 1);

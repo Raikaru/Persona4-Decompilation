@@ -82,13 +82,13 @@ extern s32 func_00107ac0(s32 arg0);
 extern s32 func_00248040(s32 arg0);
 extern s32 func_00110580(s32 arg0, s32* arg1, s32* arg2);
 extern s32 func_002468a0(s32 arg0);
-extern s32 func_001067f0(s32 arg0);
+extern s32 datGetItemNameId(s32 arg0);
 extern s32 func_002490b0(s32 arg0);
 extern s32 func_00249180(s32 arg0);
 extern void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00246c90(s32 arg0);
 extern s32 func_00246d50(s32 arg0);
-extern u8 func_001060c0(void);
+extern u8 datGetTimeSlot(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern s32 datGetFlag(s32 arg0);
 extern u32 RpRandom(void);
@@ -707,10 +707,10 @@ s32 func_0024b070(void)
     if (mesMgr < 0) {
         kAssertFail(D_006359F0, 0x27D);
     }
-    itfMesWindowSetString(mesMgr, 0, func_001067f0(*(s16*)(rec + 4)));
-    itfMesWindowSetString(mesMgr, 2, func_001067f0(*(s16*)(rec + 8)));
-    itfMesWindowSetString(mesMgr, 4, func_001067f0(*(s16*)(rec + 0x14)));
-    itfMesWindowSetString(mesMgr, 6, func_001067f0(*(s16*)(rec + 0x18)));
+    itfMesWindowSetString(mesMgr, 0, datGetItemNameId(*(s16*)(rec + 4)));
+    itfMesWindowSetString(mesMgr, 2, datGetItemNameId(*(s16*)(rec + 8)));
+    itfMesWindowSetString(mesMgr, 4, datGetItemNameId(*(s16*)(rec + 0x14)));
+    itfMesWindowSetString(mesMgr, 6, datGetItemNameId(*(s16*)(rec + 0x18)));
     itfMesWindowSetNumber(mesMgr, 0xE, *(u16*)(rec + 4));
     itfMesWindowSetNumber(mesMgr, 0xF, *(u16*)(rec + 8));
     itfMesWindowSetNumber(mesMgr, 0x10, *(u16*)(rec + 0x14));
@@ -1090,10 +1090,10 @@ s32 func_0024be40(void)
     category = 0;
     func_001104d0(func_001060b0(), &month, &day);
     profile = (CmmMonthProfile *)func_00246e10((u16)month);
-    if ((func_001060c0() & 0xFF) == 5) {
+    if ((datGetTimeSlot() & 0xFF) == 5) {
         category = 2;
     }
-    if ((s8)func_00110960(func_001060b0(), func_001060c0() & 0xFF) == 1) {
+    if ((s8)func_00110960(func_001060b0(), datGetTimeSlot() & 0xFF) == 1) {
         isHoliday = 1;
     }
     category = category + isHoliday;

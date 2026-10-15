@@ -29,9 +29,9 @@ static inline s32 datPersonaOrFlag(s32 flags, s32 mask)
 }
 
 extern void memcpy(void *dst, void *src, u32 size);
-extern void func_0010fde0(u8 *arg0);
+extern void datPersonaResolveRecord(u8 *arg0);
 
-extern void func_0010fde0(u8 *arg0);
+extern void datPersonaResolveRecord(u8 *arg0);
 
 extern s32 datPersonaSetLeadSlot(); /* old-style: target call preserves s64 argument */
 
@@ -808,7 +808,7 @@ done:
     datPersonaInitRecord(entry, personaId);
     *(u16 *)((u8 *)D_00797F8C + found * 0x30) &= 0xC;
     *(u16 *)((u8 *)D_00797F8C + found * 0x30) |= 1;
-    func_0010fde0(entry);
+    datPersonaResolveRecord(entry);
     return entry;
 }
 
@@ -843,7 +843,7 @@ done:
     memcpy(entry, arg0, 0x30);
     *(u16 *)((u8 *)D_00797F8C + found * 0x30) &= 0xC;
     *(u16 *)((u8 *)D_00797F8C + found * 0x30) |= 1;
-    func_0010fde0(entry);
+    datPersonaResolveRecord(entry);
     return 1;
 }
 
@@ -1097,7 +1097,7 @@ s32 datPersonaPlaceRosterMember(s32 arg0, u16 arg1)
             datPersonaInitRecord(p, arg1);
             *(u16 *)((u8 *)D_00797F8C + emptyOff) &= 0xC;
             *(u16 *)((u8 *)D_00797F8C + emptyOff) |= 1;
-            func_0010fde0(p);
+            datPersonaResolveRecord(p);
         }
         if (p == NULL) {
             kAssertFail(D_005E4318, 0x43A);
