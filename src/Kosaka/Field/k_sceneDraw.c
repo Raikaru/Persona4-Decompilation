@@ -48,13 +48,13 @@ extern Resrc* resrcMngFindResById(ResrcManager* resManager, u16 resTypeId);
 
 
 extern u32 func_00470970(KwlnTask* task, const char* name);
-extern void func_00470ad0(KwlnTask* task, u32 id, const char* text);
+extern void sdkLboxSetText(KwlnTask* task, u32 id, const char* text);
 extern void func_00470c10(KwlnTask* task, u32 id, s32 value);
-extern void func_00470b40(KwlnTask* task, u32 id, s32 value, s32 minValue,
+extern void sdkLboxSetIntRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
                           s32 maxValue, s32 flags);
 extern void func_00470c80(KwlnTask* task, u32 id, s32 value, s32 minValue,
                           s32 maxValue);
-extern void func_00470a90(KwlnTask* task, u32 id, KWindowEntryCallback callback);
+extern void sdkLboxSetCallback(KwlnTask* task, u32 id, KWindowEntryCallback callback);
 
 
 
@@ -649,13 +649,13 @@ void func_00470810(KwlnTask* task, const KWindowEntryDescriptor* descriptors,
             case 0:
                 break;
             case 1:
-                func_00470ad0(task, id, descriptors->text);
+                sdkLboxSetText(task, id, descriptors->text);
                 break;
             case 2:
                 func_00470c10(task, id, descriptors->value0);
                 break;
             case 3:
-                func_00470b40(task, id, descriptors->value0,
+                sdkLboxSetIntRange(task, id, descriptors->value0,
                               descriptors->value1, descriptors->value2,
                               descriptors->value3);
                 break;
@@ -666,7 +666,7 @@ void func_00470810(KwlnTask* task, const KWindowEntryDescriptor* descriptors,
         }
         if (descriptors->callback != NULL)
         {
-            func_00470a90(task, id, descriptors->callback);
+            sdkLboxSetCallback(task, id, descriptors->callback);
         }
         i++;
         descriptors++;
