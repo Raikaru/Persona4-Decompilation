@@ -175,7 +175,7 @@ extern void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
-extern u16 func_00243920(s64 arg0);
+extern u16 datCalcUnderlyingSkillId(s64 arg0);
 extern void func_00207140(u16 *flags, u8 *work);
 extern s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel);
 extern void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState);
@@ -3891,7 +3891,7 @@ u16 func_002091f0(u8 *arg0, u8 *arg1)
         temp_2 = *(s16 *)(p4_002091f0_add((u32)(*(s16 *)(arg0 + 4) * 4), arg1) + 0x1A6);
         *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x70) = temp_2;
         *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6E) =
-            func_00243920(*(u16 *)(*(u8 **)(arg1 + 0x178) + 0x70));
+            datCalcUnderlyingSkillId(*(u16 *)(*(u8 **)(arg1 + 0x178) + 0x70));
         *(s16 *)(arg1 + 0x1A) = 0;
         value = 4;
         break;
