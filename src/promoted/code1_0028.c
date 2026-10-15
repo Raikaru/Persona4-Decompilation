@@ -110,55 +110,8 @@ extern void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2);
 
 
 
-// Event memory accounting: adds 'arg1' bytes to counter slot 'arg0' (negative to release).
-// FUN_002852A0
-void evtMemAccount(s32 arg0, s32 arg1) {
-    s32 *temp_4;
-    s32 *temp_4_2;
-
-    if ((arg0 < 0xD) && (arg0 >= 0)) {
-        switch (arg0) {
-        case 0:
-        case 4:
-        case 5:
-        case 6:
-            temp_4_2 = &D_00882170[arg0];
-            *temp_4_2 += arg1;
-            break;
-        default:
-            temp_4 = &D_00882170[arg0];
-            *temp_4 += arg1;
-            break;
-        }
-    }
-}
-// FUN_002853B0
-s32 func_002853b0(void) {
-    return 0;
-}
-// FUN_002853C0
-void func_002853c0(void) {
-    func_00452380(&iGpffffa790);
-}
-/* measured: retail hoists the lookup table address before the search loop. */
+extern void evtMemAccount(s32 arg0, s32 arg1);
 #pragma opt_loop_invariants on
-// Event key table: index of 'arg0' in the 58-entry key table, 0 when absent.
-// FUN_002853F0
-s32 evtKeyIndex(s32 arg0) {
-    s32 i;
-
-    if (arg0 >= 0x3A) {
-        func_0046d730(D_0063C2B8, 0x1E6);
-    }
-    i = 0;
-    while (i < 0x3A) {
-        if (arg0 == D_0063C1D0[i]) {
-            return i;
-        }
-        i++;
-    }
-    return 0;
-}
 #pragma opt_loop_invariants off
 // FUN_00285CC0
 s32 func_00285cc0(u8 *arg0) {
