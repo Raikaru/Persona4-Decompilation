@@ -33,7 +33,7 @@ extern s32 func_00107a00(s32 idx, s32 arg1);
 extern u16 cmmCommunityGetTableHead(void);
 extern s32 datPersonaRosterSlotRank(s32 idx);
 extern s64 func_00248760(s32 idx);
-extern s32 func_001077f0(u16 idx);
+extern s32 cmmCommunityHasRecord(u16 idx);
 extern u8 datPersonaGetArcana(u16 idx);
 extern s32 datPersonaRosterSlotId(s32 idx);
 extern s32 datPersonaCountValidMembers(void);
@@ -680,7 +680,7 @@ s32 func_00247c20(s16 arg0) {
    in every spelling tried (s32/s16/s64/u32 vars, L-suffix constants, arg-from-
    var). 64-bit-constant-load floor. */
 /* nd 0/288 (object 284B in a 288B window). The existing u16 local and
-   matching u16 parameter declaration for func_001077f0 reproduce every
+   matching u16 parameter declaration for cmmCommunityHasRecord reproduce every
    instruction; changing this function's return type from s32 to u16 removes
    the redundant `andi $v0,$s0,0xffff` at the epilogue, leaving retail's
    `move $v0,$s0`. Guard spelling probes (`n >= 4` versus `n > 3`) were
@@ -699,19 +699,19 @@ u16 func_00247cb0(s64 arg0) {
         break;
     case 3:
         var_16 = 0xB;
-        if (func_001077f0(0xB) == 0) {
+        if (cmmCommunityHasRecord(0xB) == 0) {
             var_16 = 0xC;
         }
         break;
     case 4:
         var_16 = 5;
-        if (func_001077f0(5) == 0) {
+        if (cmmCommunityHasRecord(5) == 0) {
             var_16 = 6;
         }
         break;
     case 5:
         var_16 = 3;
-        if (func_001077f0(3) == 0) {
+        if (cmmCommunityHasRecord(3) == 0) {
             var_16 = 4;
         }
         break;
@@ -720,7 +720,7 @@ u16 func_00247cb0(s64 arg0) {
         break;
     case 7:
         var_16 = 0xE;
-        if (func_001077f0(0xE) == 0) {
+        if (cmmCommunityHasRecord(0xE) == 0) {
             var_16 = 0xF;
         }
         break;
@@ -728,7 +728,7 @@ u16 func_00247cb0(s64 arg0) {
         var_16 = 0x18;
         break;
     }
-    if (func_001077f0(var_16) == 0) {
+    if (cmmCommunityHasRecord(var_16) == 0) {
         var_16 = 0;
     }
     return var_16;
@@ -756,7 +756,7 @@ s32 func_00247dd0(s32 arg0)
         offset = (i & 0xFFFF) * 100;
         if (*(u32 *)(cmmMiscAddOff(offset, (s32)base) + 12) & 4) {
             if (target == (u16)func_002489c0(i & 0xFFFF) &&
-                func_001077f0((u16)i) != 0) {
+                cmmCommunityHasRecord((u16)i) != 0) {
                 return (u16)i;
             }
         }
@@ -900,7 +900,7 @@ loop_15:
     return 0U;
 }
 /* measured (wave 14 retest — nd 73 reproduced exactly; no match): draft-based
-   reconstruction `while (var_20 < 0x1F) { if (func_001077f0(var_20&0xFFFF)
+   reconstruction `while (var_20 < 0x1F) { if (cmmCommunityHasRecord(var_20&0xFFFF)
    && func_00107a00(var_20&0xFFFF,3)==0) { temp_2 = cmmCommunityFindRecord(...); ...
    *0x64 ladder, D_00881480 bounds, +0x12 flags, func_00107ce0 } }` scores
    nd 73 — mwcc b210 CSEs var_20&0xFFFF into a saved register ($s3) at loop
@@ -921,7 +921,7 @@ void func_00248240(void) {
 
     var_20 = 1;
     while (var_20 < 0x1F) {
-        if ((func_001077f0(var_20 & 0xFFFF) != 0) && (func_00107a00(var_20 & 0xFFFF, 3) == 0)) {
+        if ((cmmCommunityHasRecord(var_20 & 0xFFFF) != 0) && (func_00107a00(var_20 & 0xFFFF, 3) == 0)) {
             temp_2 = (u8 *)cmmCommunityFindRecord(var_20 & 0xFFFF);
             if (temp_2 == NULL) {
                 var_3 = 0;
@@ -961,7 +961,7 @@ block_13:
 /* measured: opt_common_subs on restores the file baseline after func_00248240. */
 #pragma opt_common_subs on
 /* measured (wave 14 retest — nd 119 with a fresh draft-based reconstruction,
-   no match): loop of func_001077f0/func_00107ac0==0xA/func_00248a60/
+   no match): loop of cmmCommunityHasRecord/func_00107ac0==0xA/func_00248a60/
    func_00107a00 guards, the D_00881494 two-u16 table scan into var_20,
    cmmCommunityFindRecord (real signature s32(s32) — the m2c's 2nd arg is a leftover
    $5 the callee ignores), +0x12 flags and func_00107ce0 — mask-CSE
@@ -970,7 +970,7 @@ block_13:
    func_00248a60 extern added as s32(s32). */
 /* measured: corrected target callees to func_00248a60(s32), func_00107a00(s32,s32),
    kAssertFail(void *,s32), func_00107ce0(s32), and
-   func_001077f0(s32); active seed measured 552B vs 544B retail window,
+   cmmCommunityHasRecord(s32); active seed measured 552B vs 544B retail window,
    normalized_diff 109 (oversized reconstruction); archived without further probes. */
 // FUN_002483C0
 #pragma push
@@ -995,7 +995,7 @@ void func_002483c0(u16 arg0) {
         if (temp_19 == var_20) {
             goto block_15;
         }
-        if (func_001077f0((u16)var_20) == 0) {
+        if (cmmCommunityHasRecord((u16)var_20) == 0) {
             goto block_15;
         }
         call_idx = (u16)var_20;
@@ -1091,10 +1091,10 @@ u8 *func_002485e0(s32 arg0, s32 arg1) {
     u8 *var_19;
 
     if (!(var_4 & 0xFFFF)) {
-        /* func_001077f0 is narrow at the 00247270-family sites for retail's
+        /* cmmCommunityHasRecord is narrow at the 00247270-family sites for retail's
            andi, but 002485e0 passes arg1 whole as s32, so override it here. */
-        extern s32 func_001077f0(s32 idx);
-        if (func_001077f0(arg1) == 0) {
+        extern s32 cmmCommunityHasRecord(s32 idx);
+        if (cmmCommunityHasRecord(arg1) == 0) {
             var_2 = 3;
         } else if (func_001087e0(arg1) != 0) {
             if ((func_00107ac0(arg1) & 0xFFFF) == 9) {
@@ -1220,8 +1220,8 @@ s32 func_00248a60(s32 arg0) {
     u32 *temp_18_2;
 
     /* Retail reuses raw arg0 for this unprototyped call; keep that a0 value. */
-    extern s32 func_001077f0();
-    if (func_001077f0() == 0) {
+    extern s32 cmmCommunityHasRecord();
+    if (cmmCommunityHasRecord() == 0) {
         return 0;
     }
     temp_18 = (u32 *)D_00881480[0];
@@ -1269,7 +1269,7 @@ s32 func_00248b80(void) {
     var_16 = 0;
     var_18 = 0;
     while (var_18 < 0x1F) {
-        if (func_001077f0(var_18 & 0xFFFF) == 0) {
+        if (cmmCommunityHasRecord(var_18 & 0xFFFF) == 0) {
             var_2 = 0;
         } else {
             temp_19 = (u32 *)D_00881480[0];
@@ -1351,10 +1351,10 @@ s64 func_00248d80(s64 arg0)
 
     raw = arg0;
     key = raw & 0xFFFF;
-    if (func_001077f0(key) == 0) {
+    if (cmmCommunityHasRecord(key) == 0) {
         raw_low = (s16)raw;
         key = (s16)cmmCommunityCounterpart(key);
-        if ((raw_low != key) && (func_001077f0((u16)key) != 0)) {
+        if ((raw_low != key) && (cmmCommunityHasRecord((u16)key) != 0)) {
             return key;
         }
     }

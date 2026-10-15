@@ -579,7 +579,7 @@ s32 func_00270b80(s32 arg0, u8 *arg1)
 // FUN_00270CA0
 s32 func_00270ca0(s32 arg0, u8 *arg1)
 {
-    extern s32 func_001077f0(u16 arg0);
+    extern s32 cmmCommunityHasRecord(u16 arg0); /* lint: allow H011 -- measured: the u16 prototype reproduces retail's narrowing at this call; s32 gives nd 44 on func_00270ca0 */
     extern s32 func_00108590(s32 arg0, s32 arg1, s32 arg2);
     s32 second;
     s32 first;
@@ -650,7 +650,7 @@ s32 func_00270ca0(s32 arg0, u8 *arg1)
     if (first == 0) {
         first = (u16)cmmCommunityGetCurrentId();
     }
-    if (func_001077f0((u16)first) != 0)
+    if (cmmCommunityHasRecord((u16)first) != 0)
         func_00108590((u16)first, (u16)second, third);
     return 0;
 }

@@ -257,7 +257,7 @@ extern void fieldSceneLoad(s32, s32);
 extern void func_00144e10(s32);
 extern s16 datCategoryRank(s16);
 extern s32 func_0033e120(u8 *arg0, s32, s32);
-extern void func_001075d0(s32);
+extern void cmmCommunityAllocRecord(s32);
 extern s32 func_00144f60(void);
 extern u8 *MT_Scene_GetResListHead(s32);
 extern u8 *func_00457120(void);
@@ -10133,7 +10133,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
                 *(u32 *)(p + 0x1C) = func_0033e120(arg0, 0x294, 0xA);
                 func_00106390(0x413, 1);
                 if (!(func_00107ac0(0x14) & 0xFFFF)) {
-                    func_001075d0(0x14);
+                    cmmCommunityAllocRecord(0x14);
                 }
                 p[0] = 0xB;
                 func_0045a3e0(0x14, 1);
