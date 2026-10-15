@@ -383,7 +383,7 @@ void btlUnitInitChild(u8 *arg0, u16 arg1) {
 /* measured: opt_propagation off reproduces ef90's retail address setup order. */
 /* measured: func_0019ef90 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-u8 *func_0019ef90(s32 arg0, s32 arg1)
+u8 *btlUnitFindInSideById(s32 arg0, s32 arg1)
 {
     u8 *base;
     u8 *packet;
@@ -429,7 +429,7 @@ u8 *func_0019efe0(s32 arg0)
 }
 
 // FUN_0019F050
-s32 func_0019f050(u8 *arg0)
+s32 btlUnitGetDataRow(u8 *arg0)
 {
     u16 id;
     u8 type;

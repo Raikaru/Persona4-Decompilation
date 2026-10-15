@@ -2543,7 +2543,7 @@ void func_00216e50(void)
 // FUN_00216E60
 void func_00216e60(u8 *arg0, u8 *arg1)
 {
-    extern s32 func_0019f050(u8 *arg0);
+    extern s32 btlUnitGetDataRow(u8 *arg0);
     extern void func_002012d0(u8 *arg0, f32 x, f32 y);
     extern void func_00201410(u8 *arg0, s32 font, s32 id, f32 x, f32 y);
     extern void func_00201820(s32 mode);
@@ -2620,7 +2620,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
         if (*(u16 *)(arg1 + 0x12) == 1) {
             if (*(s32 *)(arg1 + 0x20) != 0) {
                 itfMesWindowSetString((u8 *)(*(s32 *)(arg1 + 0x18)), 0,
-                              (u8 *)func_0019f050((u8 *)*(s32 *)(arg1 + 0x20)));
+                              (u8 *)btlUnitGetDataRow((u8 *)*(s32 *)(arg1 + 0x20)));
             }
             itfMesWindowSetGlyphStyle(*(s32 *)(arg1 + 0x18), 2, 0, 0xFF, 0xFF);
             itfMesWindowBindRecord(*(s32 *)(arg1 + 0x18), *(s32 *)(arg1 + 0x1C), 0);

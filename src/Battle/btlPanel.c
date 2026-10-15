@@ -17,7 +17,7 @@ extern u8* func_00454a60(u8* param, s32 mode);
 void H_Cdvd_Destroy(u8* ptr);
 s32 H_Cdvd_IsFileLoaded(u8* ptr);
 s32 datGetFlag(s32 id);
-s32 func_0019ef90(s32 a, s32 b);
+s32 btlUnitFindInSideById(s32 a, s32 b);
 s32 sdkSpriteCreateFromName(u32 param);
 s32 func_0046a750(s32 param);
 s32 func_0046a770(u32 param);
@@ -73,7 +73,7 @@ s32 func_00202890(void* param)
             idx = panel->index;
             if (recs->resources[panel->index] == 0) {
                 if (idx < 8) {
-                    if (func_0019ef90(0, (idx + 1) & 0xFFFF) != 0) {
+                    if (btlUnitFindInSideById(0, (idx + 1) & 0xFFFF) != 0) {
                         if (datGetFlag(0x1438) == 0 || idx != 0) {
                             recs->resources[idx] = sdkSpriteCreateFromName(D_00626720[idx]);
                         } else {
