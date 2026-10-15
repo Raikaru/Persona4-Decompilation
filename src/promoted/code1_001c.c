@@ -50,7 +50,7 @@ extern void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_001b73f0(u8 *arg0);
 extern void func_004b3110(s32 arg0);
-extern void func_001bab00(u16 *arg0, f32 *arg1);
+extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
 extern u32 func_001c6f40(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
 extern void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2);
@@ -88,7 +88,7 @@ extern void func_001bd4f0(u8 *arg0);
 extern void func_001bd530(u8 *arg0);
 extern u8 *func_00457120(void);
 extern void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
-extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
+extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 D_005F7CA0[];
@@ -182,7 +182,7 @@ void func_001c04e0(u8 *camera)
     extern f32 func_001ec3d0(u8 *, u8 *, u8 *, u8 *);
     extern f32 tanf(f32);
     extern void func_001bd5a0(f32 *, f32 *);
-    extern void func_001bab00(u16 *, f32 *);
+    extern void btlMainCurveReset(u16 *, f32 *);
     extern void func_001bcd40(u8 *, u8 *, f32 *, f32, u16);
     extern f32 fGpffff8030;
     RwV3d center1;
@@ -291,7 +291,7 @@ void func_001c04e0(u8 *camera)
     if (frame.pos.y < 25.0f) frame.pos.y = 25.0f;
     func_001bd5a0((f32 *)(camera + 0x9C), (f32 *)&frame);
     func_001c8e90(camera, &frame, &adjusted);
-    func_001bab00((u16 *)camera, (f32 *)&adjusted);
+    btlMainCurveReset((u16 *)camera, (f32 *)&adjusted);
     func_001bcd40(*(u8 **)(camera + 0xE0), camera + 0x9C, (f32 *)(camera + 0x100), 0.5f * (radius2 + (length + radius1)),
                   3);
     radius1 = cameraSideRadius(radius1, radius2);
@@ -537,7 +537,7 @@ void func_001c1040(u8 *camera, s32 unused)
     func_001bc3a0((f32 *)&frames[1], (f32 *)&frames[1]);
     if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
     if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
-    func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, 10.0f);
 }
 /* Build the two animation or orbit camera poses around the acting unit.
@@ -702,7 +702,7 @@ void func_001c17a0(u8 *camera, s32 notify, s32 unused)
         frameCount = 0x4B;
     }
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
-    func_001bac20((u16 *)(iGpffffb3ac + 0x24), (f32 *)&transition.frames[0].pos, (f32 *)&transition.frames[1].pos, 1);
+    btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24), (f32 *)&transition.frames[0].pos, (f32 *)&transition.frames[1].pos, 1);
     btlCameraSetDuration(iGpffffb3ac + 0x24, (f32)frameCount / 30.0f);
     if (notify != 0) {
         func_004b3110(8);
@@ -777,7 +777,7 @@ void func_001c1f70(u8 *arg0)
         frame.value70 = frame.valueA4 + *(f32 *)(temp_17 + 8);
         frame.value74 = frame.valueA8 + *(f32 *)(temp_17 + 0xC);
         func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
-        func_001bac20((u16 *)(iGpffffb3ac + 0x24), &frame.value50, &frame.value6C, 1);
+        btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24), &frame.value50, &frame.value6C, 1);
         temp_2 = *temp_16;
         var_f1 = (f32)(u16)temp_2;
         btlCameraSetDuration(iGpffffb3ac + 0x24, var_f1 / 30.0f);
@@ -1070,7 +1070,7 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
         frames[0].rot.quat = frames[1].rot.quat;
     }
     func_001bcd40(*(u8 **)(camera + 0xE0), unit + 4, (f32 *)&frames[0].pos, 50.0f, 3);
-    func_001bac20((u16 *)camera, (f32 *)&frames[0].pos, (f32 *)&frames[1].pos, 1);
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0].pos, (f32 *)&frames[1].pos, 1);
     btlCameraSetDuration(camera, extentScale);
     if (notify != 0) {
         func_004b3110(8);
@@ -1107,7 +1107,7 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
     extern void func_0019de70(BtlUnitStateWork *work, u16 value);
     extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern u32 func_001bc3a0(f32 *camera, f32 *notify);
-    extern void func_001bac20(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
+    extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
     extern void btlCameraSetDuration(u8 *camera, f32 notify);
     extern void func_004b3110(s32 camera);
     f32 top;
@@ -1431,7 +1431,7 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
     }
     func_001bc3a0((f32 *)&frames[0], (f32 *)&frames[0]);
     func_001bc3a0((f32 *)&frames[1], (f32 *)&frames[1]);
-    func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     if (directTiming == 0) {
         btlCameraSetDuration(camera, distance);
     } else {
@@ -1474,7 +1474,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
     extern f32 tanf(f32 angle);
     extern void func_0019de70(BtlUnitStateWork *action, u16 value);
     extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
-    extern void func_001bac20(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
+    extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
     extern void btlCameraSetDuration(u8 *camera, f32 notify);
     extern void func_004b3110(s32 camera);
     extern f32 fGpffff8030;
@@ -1846,7 +1846,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
         frames[0].rot.quat = frames[1].rot.quat;
     }
     func_001bcd40(*(u8 **)(camera + 0xE0), selectedUnit + 4, (f32 *)&frames[0].pos, 50.0f, 3);
-    func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, duration);
     if (notify != 0) {
         func_004b3110(8);
@@ -2171,7 +2171,7 @@ void func_001c5500(u8 *arg0, s32 arg1)
     }
 
     func_001bcd40(*(u8 **)(arg0 + 0xE0), secondaryUnit + 4, (f32 *)&poses.second, 50.0f, command);
-    func_001bac20((u16 *)arg0, (f32 *)&poses.first, (f32 *)&poses.second, 1);
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)&poses.first, (f32 *)&poses.second, 1);
     btlCameraSetDuration(arg0, duration);
 }
 /* Frame the whole group, then place two poses around the farthest unit.  Load-bearing shapes,
@@ -2402,7 +2402,7 @@ void func_001c5b80(u8 *arg0, s32 arg1)
     }
     func_001bc3a0((f32 *)&frames[0], (f32 *)&frames[0]);
     func_001bc3a0((f32 *)&frames[1], (f32 *)&frames[1]);
-    func_001bac20((u16 *)arg0, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(arg0, duration);
 }
 // FUN_001C79E0
@@ -2521,7 +2521,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         frame.outC0[1] = frame.baseF8[1] + frame.dir128[1];
         frame.outC0[2] = frame.baseF8[2] + frame.dir128[2];
         func_001bc3a0(frame.outC0, frame.outC0);
-        func_001bac20((u16 *)saved_arg0, frame.poseA0, frame.outC0, 1);
+        btlMainCurveSetPoses((u16 *)saved_arg0, frame.poseA0, frame.outC0, 1);
         btlCameraSetDuration(saved_arg0, 0.75f);
     } else {
         *(s32 *)(saved_arg0 + 0x148) = 1;
@@ -2582,7 +2582,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         frame.outC0[1] = positionY + var_f24 * var_f22;
         func_001bd780((void *)frame.quatCC, (void *)frame.outC0, (void *)frame.pos138, (void *)D_0060A0E0);
         func_001bcd40(var17, (u8 *)0, (f32 *)0, 0.0f, 1);
-        func_001bab00((u16 *)(saved_arg0), (f32 *)frame.outC0);
+        btlMainCurveReset((u16 *)(saved_arg0), (f32 *)frame.outC0);
     }
 }
 /* Interpolate the group and target orientations using a complete
@@ -2759,10 +2759,10 @@ void func_001c80f0(u8 *camera, s32 immediate)
     if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0xE0);
     if (immediate != 0) {
-        func_001bab00((u16 *)camera, (f32 *)&frames[1]);
+        btlMainCurveReset((u16 *)camera, (f32 *)&frames[1]);
         return;
     }
-    func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, 0.75f);
 }
 // FUN_001C88D0
@@ -3177,7 +3177,7 @@ void func_001c9750(u8 *arg0)
     } work;
 
     func_001c8e90(arg0, &work.first, &work.second);
-    func_001bac20((u16 *)arg0, (f32 *)&work.first, (f32 *)&work.second, 1);
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)&work.first, (f32 *)&work.second, 1);
     btlCameraSetDuration(arg0, fGpffff811c);
 }
 // FUN_001C97B0
@@ -3381,7 +3381,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
     }
     {
         if (forwardDot < 0.0f) {
-            func_001bab00((u16 *)camera, (f32 *)&frames[1]);
+            btlMainCurveReset((u16 *)camera, (f32 *)&frames[1]);
             RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
             direction.x *= 200.0f;
             direction.y *= 200.0f;
@@ -3392,7 +3392,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
             frames[0].rot = frames[1].rot;
             if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
             if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
-            func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+            btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
             btlCameraSetDuration(camera, fGpffff8168);
         } else {
             forwardDot = *(f32 *)(viewUnit + 0x90) * *(f32 *)(viewUnit + 0x2C);
@@ -3430,7 +3430,7 @@ void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
             frames[0].pos.z = eye.z + direction.z;
             if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
             if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
-            func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+            btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
             btlCameraSetDuration(camera, fGpffff8168);
         }
         actorRadius = actorRadius > targetRadius ? actorRadius : targetRadius;
@@ -3450,7 +3450,7 @@ limitedTransition:
         else forwardDot = fGpffff80cc;
         if (!(forwardDot <= 1.25f)) forwardDot = 1.25f;
     }
-    func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, forwardDot);
 }
 // FUN_001CA590
@@ -3610,7 +3610,7 @@ void func_001ca590(u8 *camera, f32 angle, f32 duration)
     frames[1].pos.x = focus.x + viewDirection.x;
     frames[1].pos.y = focus.y + viewDirection.y;
     frames[1].pos.z = focus.z + viewDirection.z;
-    func_001bac20((u16 *)camera, (f32 *)&frames[0].pos, (f32 *)&frames[1].pos, 1);
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0].pos, (f32 *)&frames[1].pos, 1);
     btlCameraSetDuration(camera, duration);
 }
 /* 1052/1056 bytes; 19 resolved relocations; four zero alignment bytes.
@@ -3663,7 +3663,7 @@ void func_001cacd0(u8 *arg0, f32 fparg0, f32 fparg1)
     struct Frame *base;
     extern f32 fGpffff8118;
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
-    extern void func_001bb3d0(void *arg0, void *arg1, void *arg2, void *arg3, void *arg4, u16 arg5);
+    extern void btlMainCurveSetFourPoses(void *arg0, void *arg1, void *arg2, void *arg3, void *arg4, u16 arg5);
     extern void func_001bd560(f32 *arg0, f32 *arg1);
 
     action = *(u8 **)(arg0 + 0xE0);
@@ -3731,7 +3731,7 @@ void func_001cacd0(u8 *arg0, f32 fparg0, f32 fparg1)
         angle = angle + step;
         i++;
     }
-    func_001bb3d0(arg0, &work.frames[0], &work.frames[1], &work.frames[2], &work.frames[3], 1);
+    btlMainCurveSetFourPoses(arg0, &work.frames[0], &work.frames[1], &work.frames[2], &work.frames[3], 1);
     btlCameraSetDuration(arg0, fparg1);
 }
 // FUN_001CB0F0
@@ -3978,7 +3978,7 @@ void func_001cb610(u8 *arg0)
         work.secondPosition.y = 25.0f;
     }
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 3);
-    func_001bac20((u16 *)arg0, (f32 *)&work.firstPosition, (f32 *)&work.secondPosition, 1);
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)&work.firstPosition, (f32 *)&work.secondPosition, 1);
     btlCameraSetDuration(arg0, 2.0f);
 }
 // FUN_001CB960
@@ -4138,7 +4138,7 @@ void func_001cb970(u8 *camera, f32 duration, s32 initialize)
         }
         func_001bcd40(*(u8 **)(camera + 0xE0), otherUnit + 4, (f32 *)&poses[1], 50.0f, mode);
     }
-    func_001bac20((u16 *)camera, (f32 *)&poses[0], (f32 *)&poses[1], 1);
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&poses[0], (f32 *)&poses[1], 1);
     btlCameraSetDuration(camera, duration);
 }
 // FUN_001CBF80
@@ -4184,7 +4184,7 @@ void func_001ce470(u8 *arg0)
         vector = &frame.value2C;
         *(struct Vec3 *)&frame.value2C =
             *(struct Vec3 *)D_00607E10;
-        func_001bac20((u16 *)(iGpffffb3ac + 0x24), &frame.value10, vector, 1);
+        btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24), &frame.value10, vector, 1);
         btlCameraSetDuration(iGpffffb3ac + 0x24, fGpffff819c);
         return;
     }
@@ -4198,7 +4198,7 @@ void func_001ce470(u8 *arg0)
         vector = &frame.value2C;
         *(struct Vec3 *)&frame.value2C =
             *(struct Vec3 *)D_00607E1C;
-        func_001bac20((u16 *)(iGpffffb3ac + 0x24), &frame.value10, vector, 1);
+        btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24), &frame.value10, vector, 1);
         btlCameraSetDuration(iGpffffb3ac + 0x24, fGpffff809c);
     }
 }
@@ -4244,7 +4244,7 @@ void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
         func_001bc3a0(frame.result, frame.result);
     }
-    func_001bab00((u16 *)(arg0), (f32 *)(frame.result));
+    btlMainCurveReset((u16 *)(arg0), (f32 *)(frame.result));
 }
 /* measured probe: optimization_level 1 for 001CE7F0 register coloring. */
 #pragma optimization_level 1
@@ -4340,7 +4340,7 @@ void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
         func_001bc3a0(frame.result, frame.result);
     }
-    func_001bab00((u16 *)(arg0), (f32 *)(frame.result));
+    btlMainCurveReset((u16 *)(arg0), (f32 *)(frame.result));
 }
 // FUN_001CEBA0
 void func_001ceba0(u8 *arg0)
@@ -4431,7 +4431,7 @@ void btlAct_ROUNDUP_MES(u8 *arg0)
     frame.result[2] = *(f32 *)(frame.second + 0x20) + frame.target[2];
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0)
         func_001bc3a0(frame.result, frame.result);
-    func_001bac20((u16 *)arg0, (f32 *)frame.first, frame.result, 1);
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)frame.first, frame.result, 1);
     btlCameraSetDuration(arg0, 1.0f);
 }
 /* measured probe: optimization_level 1 preserves 001CEF20 low-bit OR coloring. */
@@ -4473,7 +4473,7 @@ void func_001cf020(u8 *arg0) {
     P4CameraFrame frame;
 
     func_001c6f40(arg0, 0, 0, NULL, &frame);
-    func_001bab00((u16 *)(arg0), (f32 *)(&frame));
+    btlMainCurveReset((u16 *)(arg0), (f32 *)(&frame));
 }
 // FUN_001CF070
 void func_001cf070(u8 *arg0, u8 *arg1)
@@ -4554,7 +4554,7 @@ void func_001cf1f0(u8 *arg0)
     }
     *(f32 *)(arg0 + 0x100) = *(f32 *)(arg0 + 0x100) + 0.25f;
     func_001bcd40(NULL, NULL, NULL, 0.0f, 4);
-    func_001bab00((u16 *)(arg0), (f32 *)&frame.vec60[0]);
+    btlMainCurveReset((u16 *)(arg0), (f32 *)&frame.vec60[0]);
 }
 // FUN_001CF350
 void func_001cf350(u8 *arg0)
@@ -4679,7 +4679,7 @@ void func_001cf350(u8 *arg0)
     func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
     func_001bc3a0(&frame.sp40, &frame.sp40);
     func_001bc3a0(&frame.sp5C, &frame.sp5C);
-    func_001bac20((u16 *)arg0, &frame.sp40, &frame.sp5C, 1);
+    btlMainCurveSetPoses((u16 *)arg0, &frame.sp40, &frame.sp5C, 1);
     btlCameraSetDuration(arg0, 3.0f);
 }
 // FUN_001CF730
@@ -4801,7 +4801,7 @@ void btlAct_ALL(u8 *arg0)
     frame.sp44 = frame.spE4 + temp_f3;
     frame.sp48 = frame.spE8 + temp_f4;
     func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
-    func_001bac20((u16 *)arg0, &frame.sp40, &frame.sp5C, 1);
+    btlMainCurveSetPoses((u16 *)arg0, &frame.sp40, &frame.sp5C, 1);
     btlCameraSetDuration(arg0, 3.5f);
 }
 // FUN_001CFAD0
@@ -4891,7 +4891,7 @@ void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2)
         work.second[1] = 25.0f;
     }
     func_001b73f0(unit);
-    func_001bac20((u16 *)arg0, work.first, work.second, 1);
+    btlMainCurveSetPoses((u16 *)arg0, work.first, work.second, 1);
     btlCameraSetDuration(arg0, 3.0f);
 }
 // FUN_001CFED0
@@ -4967,6 +4967,6 @@ void btlAct_TARGET_ONLY(u8 *arg0)
         fr.first[8] = limit;
     }
     func_001bd780(fr.second, &fr.first[7], &source, D_0060A0E0);
-    func_001bac20((u16 *)arg0, fr.first, &fr.first[7], 1);
+    btlMainCurveSetPoses((u16 *)arg0, fr.first, &fr.first[7], 1);
     btlCameraSetDuration(arg0, 4.5f);
 }
