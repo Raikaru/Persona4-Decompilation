@@ -740,7 +740,7 @@ extern u8 *func_003e84a0(void);
 extern struct RwFrame *func_003e9320(void);
 extern struct RwFrame *func_003e9df0(struct RwFrame *frame);
 extern void *RwCameraSetProjectionType(void *camera, s32 projection);
-extern void func_001790a0(void *camera);
+extern void FldShadow_DestroyCamera(void *camera);
 extern void *func_003cbc10(s32 world, void *camera);
 extern f32 fabsf(f32 x);
 

@@ -408,7 +408,7 @@ void *FldShadow_CreateCaster(u8 *arg0, u16 arg1, u16 arg2)
             }
         }
 
-        func_001790a0(camera);
+        FldShadow_DestroyCamera(camera);
         camera = NULL;
 
 camera_registered:
