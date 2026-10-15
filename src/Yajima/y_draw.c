@@ -29,10 +29,10 @@ extern void (*jtbl_008873EC[])(void *ptr);
 
 extern u8 *D_0076DB7C;
 
-extern void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
+extern void fclSpriteStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
 
 
-extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5);
+extern void fclSpriteStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5);
 
 
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -59,8 +59,8 @@ extern s32 func_002b89a0(u8 *arg0);
 extern s8 func_002b6820(u8 *arg0, u32 arg1);
 extern s32 func_002b9e10(u8 *arg0);
 extern void func_002b9ab0(u8 *arg0, u8 *arg1);
-extern s32 func_002b6ec0(u8 *arg0);
-extern void func_002b74c0(u8 *arg0);
+extern s32 fclSpritePoolUpdate(u8 *arg0);
+extern void fclSpritePoolDestroy(u8 *arg0);
 extern void func_002b9f60(u8 *arg0);
 
 extern u8 D_0063F178[];
@@ -225,8 +225,9 @@ void func_002b6140(u8 *arg0, u8 arg1) {
     *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x184) = arg1;
 }
 
+// Fcl sprite entry: returns the 0x100-byte record for sprite index arg0 in the draw pool.
 // FUN_002B6150
-u8 *func_002b6150(s16 arg0) {
+u8 *fclSpriteEntry(s16 arg0) {
     return (u8 *)((u32)(*(u8 **)(D_0076DB7C + 0x38)) + (u32)((s32)arg0 << 8) + 4);
 }
 // FUN_002B6180
@@ -418,10 +419,11 @@ s32 func_002b6850(u8 *arg0) {
    (1 << arg1) ^ 0xFFFF (xori) - spelling ~ on the mask emits 32-bit `not`
    instead of retail's 16-bit xori. s32 v holds the loaded s16; p4 = slot + 4
    is the store pointer. arg0/s16, arg1/s16, arg2/s8 sign-exts match retail. */
+// Fcl sprite set flag: sets (mode 0) or clears (mode 1) bit arg1 of the flags of sprite arg0.
 // FUN_002B68D0
-/* measured: open opt_propagation scope for func_002b68d0. */
+/* measured: open opt_propagation scope for fclSpriteSetFlag. */
 #pragma opt_propagation off
-void func_002b68d0(s16 arg0, s16 arg1, s8 arg2) {
+void fclSpriteSetFlag(s16 arg0, s16 arg1, s8 arg2) {
     u8 *p = *(u8 **)(iGpffffb574 + 0x38);
     u8 *slot = p + ((s32)arg0 << 8);
     u8 *p4 = slot + 4;
@@ -433,24 +435,26 @@ void func_002b68d0(s16 arg0, s16 arg1, s8 arg2) {
     }
     *(s16 *)(p4 + 0x10) = (s16)v;
 }
-/* measured: close opt_propagation scope after func_002b68d0. */
+/* measured: close opt_propagation scope after fclSpriteSetFlag. */
 #pragma opt_propagation on
+// Fcl sprite flag bit: returns bit arg1 of arg0 as 0 or 1.
 // FUN_002B6970
-s16 func_002b6970(s16 arg0, s16 arg1) {
+s16 fclSpriteFlagBit(s16 arg0, s16 arg1) {
     return (s16)((arg0 & ((1 << arg1) & 0xFFFF)) >> arg1);
 }
 
+// Fcl sprite start position (task): starts a position transition on the task's sprite block.
 // FUN_002B69B0
-void func_002b69b0(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
-    func_002b8270(*(u8 **)(arg0 + 0x38) + 0x10, p1, p2, arg3, arg4, arg5);
+void fclSpriteStartPositionTask(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
+    fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 0x10, p1, p2, arg3, arg4, arg5);
 }
 
-/* measured: argument-forwarding wrapper that must repeat func_002b8270's full
+/* measured: argument-forwarding wrapper that must repeat fclSpriteStartPosition's full
    parameter list (retail sets only $a0, sign-extends arg0/s16 and arg5/s16 in
    place); residual is the load-sinking wall - retail loads iGpffffb574 then the
    0x38 table base before touching arg0, mwcc sinks the 0x38 load below the shift
    and flips the addu operands (7 differing words reloc-masked, identical with the
-   base hoisted into a local). Same wall as func_002b6af0/002b6b40. */
+   base hoisted into a local). Same wall as fclSpriteStartRevealScaleAt/fclSpriteStartTweenAt. */
 /* measured: re-tested recipe B (global-base hoist) with four spellings - typed
    u8 *base local, two-step u8 *g = iGpffffb574 then base, fully inline
    expression, and an s32 idx local for (s16)arg0 << 8 - all nd 7 reloc-masked,
@@ -458,7 +462,7 @@ void func_002b69b0(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
    then the 0x38 table base BEFORE sign-extending arg0, mwcc b210 sinks the
    0x38 load below the dsll32/dsra32/sll and flips the addu operands (base in
    $v1, index in $v0 vs candidate index/base reversed). Same wall as
-   func_002b68d0/6a70/6af0/6b40/6b90; nothing source-side moves it. */
+   fclSpriteSetFlag, fclSpriteStartAlphaAt, fclSpriteStartRevealScaleAt, fclSpriteStartTweenAt, fclSpriteStartColorAt; nothing source-side moves it. */
 /* measured: re-measured 2026-08-03 with the full-parameter-list forwarding
    body (s16 arg0 + f2 p1/p2 + s16 arg5, inline base deref) - nd 7, same wall:
    candidate emits lw $t2,-0x4A8C($gp) / dsll32/dsra32/sll / lw $v0,0x38($t2)
@@ -468,48 +472,52 @@ void func_002b69b0(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
    The pragma makes b210 load the 0x38 table base immediately after the gp load
    (retail's order) instead of sinking it below the dsll32/dsra32/sll index
    chain. This lever cracks the load-sinking wall for the whole wrapper family
-   (func_002b68d0/6a70/6af0/6b40/6b90/7750/6d60). */
+   fclSpriteSetFlag, fclSpriteStartAlphaAt, fclSpriteStartRevealScaleAt, fclSpriteStartTweenAt, fclSpriteStartColorAt, fclSpriteReset, fclSpriteResetScale). */
+// Fcl sprite start position (index): starts a position transition on sprite arg0.
 // FUN_002B69F0
-/* measured: open opt_propagation scope for func_002b69f0. */
+/* measured: open opt_propagation scope for fclSpriteStartPositionAt. */
 #pragma opt_propagation off
-void func_002b69f0(s16 arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
+void fclSpriteStartPositionAt(s16 arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    func_002b8270(base + ((s32)arg0 << 8) + 0x14, p1, p2, arg3, arg4, arg5);
+    fclSpriteStartPosition(base + ((s32)arg0 << 8) + 0x14, p1, p2, arg3, arg4, arg5);
 }
-/* measured: close opt_propagation scope after func_002b69f0. */
+/* measured: close opt_propagation scope after fclSpriteStartPositionAt. */
 #pragma opt_propagation on
+// Fcl sprite start alpha (task): starts an alpha transition on the task's sprite block.
 // FUN_002B6A40
-void func_002b6a40(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5) {
+void fclSpriteStartAlphaTask(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     s16 ext = (s16)arg5;
-    func_002b82d0(base + 0x10, arg1, arg2, arg3, arg4, ext);
+    fclSpriteStartAlpha(base + 0x10, arg1, arg2, arg3, arg4, ext);
 }
 
 
 
 
-/* measured: argument-forwarding wrapper around func_002b82d0 (full parameter list
+/* measured: argument-forwarding wrapper around fclSpriteStartAlpha (full parameter list
    repeated; retail sets only $a0, sign-extends arg0 and arg5 in place). Residual is
    the load-sinking wall: retail loads iGpffffb574 then the 0x38 table base before
    sign-extending arg0, mwcc sinks the 0x38 load below the shift and flips the addu
-   operands (17 differing words reloc-masked). Same wall as func_002b6af0/002b6b40. */
+   operands (17 differing words reloc-masked). Same wall as fclSpriteStartRevealScaleAt/fclSpriteStartTweenAt. */
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg5 declared
    s32 and passed as (s16)arg5 (the s16 widening emits the retail dsll32/dsra32
    sign-extension; opt_propagation off fixes the load-sinking order). */
+// Fcl sprite start alpha (index): starts an alpha transition on sprite arg0.
 // FUN_002B6A70
-/* measured: open opt_propagation scope for func_002b6a70. */
+/* measured: open opt_propagation scope for fclSpriteStartAlphaAt. */
 #pragma opt_propagation off
-void func_002b6a70(s16 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5) {
+void fclSpriteStartAlphaAt(s16 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    func_002b82d0(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
+    fclSpriteStartAlpha(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
 }
-/* measured: close opt_propagation scope after func_002b6a70. */
+/* measured: close opt_propagation scope after fclSpriteStartAlphaAt. */
 #pragma opt_propagation on
+// Fcl sprite start reveal scale (task): starts a scale reveal on the task's sprite block.
 // FUN_002B6AC0
-void func_002b6ac0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
+void fclSpriteStartRevealScaleTask(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     s16 ext = (s16)arg3;
-    func_002b8300(base + 0x10, fparg0, fparg1, fparg2, fparg3, arg1, arg2, ext);
+    fclSpriteStartRevealScale(base + 0x10, fparg0, fparg1, fparg2, fparg3, arg1, arg2, ext);
 }
 
 /* measured: retail issues both indirections up front (lw gp, then lw 0x38) before touching
@@ -523,36 +531,40 @@ void func_002b6ac0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32
    load. Load-sinking wall, corroborated. */
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg3 declared
    s32 and passed as (s16)arg3 (s16 widening emits the retail sign-extension). */
+// Fcl sprite start reveal scale (index): starts a scale reveal on sprite arg0.
 // FUN_002B6AF0
 #pragma opt_propagation off
-void func_002b6af0(s16 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s16 arg3) {
+void fclSpriteStartRevealScaleAt(s16 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s16 arg3) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    func_002b8300(base + ((s32)arg0 * 256) + 0x14, fparg0, fparg1, fparg2, fparg3, arg1, arg2, (s16)arg3);
+    fclSpriteStartRevealScale(base + ((s32)arg0 * 256) + 0x14, fparg0, fparg1, fparg2, fparg3, arg1, arg2, (s16)arg3);
 }
-/* measured: close opt_propagation scope after func_002b6af0. */
+/* measured: close opt_propagation scope after fclSpriteStartRevealScaleAt. */
 #pragma opt_propagation on
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg3 s32 passed
    as (s16)arg3 (s16 widening = retail's dsll32/dsra32 sign-ext). */
+// Fcl sprite start tween (index): starts a two-float tween on sprite arg0.
 // FUN_002B6B40
 #pragma opt_propagation off
-void func_002b6b40(s16 arg0, u8 arg1, s32 arg2, s32 arg3, f32 fparg0, f32 fparg1) {
+void fclSpriteStartTweenAt(s16 arg0, u8 arg1, s32 arg2, s32 arg3, f32 fparg0, f32 fparg1) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    func_002b8340(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1);
+    fclSpriteStartTween(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1);
 }
-/* measured: close opt_propagation scope after func_002b6b40. */
+/* measured: close opt_propagation scope after fclSpriteStartTweenAt. */
 #pragma opt_propagation on
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg5 s32 passed
    as (s16)arg5 (s16 widening = retail's dsll32/dsra32 sign-ext). */
+// Fcl sprite start color (index): starts a colour fade on sprite arg0.
 // FUN_002B6B90
 #pragma opt_propagation off
-void func_002b6b90(s16 arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
+void fclSpriteStartColorAt(s16 arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    func_002b8370(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
+    fclSpriteStartColor(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
 }
-/* measured: close opt_propagation scope after func_002b6b90. */
+/* measured: close opt_propagation scope after fclSpriteStartColorAt. */
 #pragma opt_propagation on
+// Fcl sprite activate (task): marks the task's sprite active and sets its id, scale and position.
 // FUN_002B6BE0
-void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
+void fclSpriteActivateTask(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     *(s16 *)(base + 0x10) |= 1;
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x14) = fparg0;
@@ -582,8 +594,9 @@ void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
    for the CSE makes it live across the whole function ($s1, frame 0x60,
    worse). Remaining levers: deferred g local scoped to the pair+chain only.
    Same argument-materialization family as the old nd 9 note. */
+// Fcl sprite create: creates the sprite node for sprite arg0 and records its half width and height.
 // FUN_002B6C30
-void func_002b6c30(s16 arg0, f2 p1, f32 fparg0, s32 arg2) {
+void fclSpriteCreate(s16 arg0, f2 p1, f32 fparg0, s32 arg2) {
     u8 *base;
     u8 *base2;
     s32 off;
@@ -605,10 +618,11 @@ void func_002b6c30(s16 arg0, f2 p1, f32 fparg0, s32 arg2) {
     sdkSpriteFreeNode(tmp);
 }
 
+// Fcl sprite reset scale: resets sprite arg0 to unit scale and full opacity.
 // FUN_002B6D60
-/* measured: open opt_propagation scope for func_002b6d60. */
+/* measured: open opt_propagation scope for fclSpriteResetScale. */
 #pragma opt_propagation off
-void func_002b6d60(s16 arg0) {
+void fclSpriteResetScale(s16 arg0) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     u8 *last;
     s32 off = ((s32)arg0) << 8;
@@ -617,7 +631,7 @@ void func_002b6d60(s16 arg0) {
     last = *(u8 **)(iGpffffb574 + 0x38);
     *(u8 *)(last + off + 0x72) = 0xFF;
 }
-/* measured: opt_propagation off is bracketed around func_002b6d60. */
+/* measured: opt_propagation off is bracketed around fclSpriteResetScale. */
 #pragma opt_propagation on
 // FUN_002B6DA0
 void func_002b6da0(void) {
@@ -666,8 +680,9 @@ static inline s16 yDrawAnyBit(s32 flags)
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
+// Fcl sprite pool update: per-frame update of every active sprite record in the pool.
 // FUN_002B6EC0
-s32 func_002b6ec0(u8 *arg0) {
+s32 fclSpritePoolUpdate(u8 *arg0) {
     u32 entryOffset;
     s16 *queue;
     s16 i;
@@ -783,8 +798,9 @@ s32 func_002b6ec0(u8 *arg0) {
 #pragma pop
 #undef YDRAW_BASE
 
+// Fcl sprite pool destroy: frees the pool work block.
 // FUN_002B74C0
-void func_002b74c0(u8 *arg0) {
+void fclSpritePoolDestroy(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
     jtbl_008873EC[0](p);
 }
@@ -796,8 +812,9 @@ void func_002b74c0(u8 *arg0) {
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
 #pragma schedule off
+// Fcl sprite pool create: creates the pool task, initialises its 0x30C records, and returns the pool work block.
 // FUN_002B74F0
-u8 *func_002b74f0(s32 arg0, s32 arg1) {
+u8 *fclSpritePoolCreate(s32 arg0, s32 arg1) {
     u8 *data;
     u8 *entries;
     u8 *entry;
@@ -814,7 +831,7 @@ u8 *func_002b74f0(s32 arg0, s32 arg1) {
 
     chkmemAllocSiteTag(&D_0063F178, 0x3F3);
     data = D_008873F4[0](1, 0x31220, 0x40000);
-    iGpffffb574 = (u8 *)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1B0), 0xF, 0, 0, func_002b6ec0, func_002b74c0, (u8 *)(data));
+    iGpffffb574 = (u8 *)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1B0), 0xF, 0, 0, fclSpritePoolUpdate, fclSpritePoolDestroy, (u8 *)(data));
     *(s32 *)(data + 0) = arg1;
     *(s16 *)(data + 0x30C04) = 0;
     record = 0;
@@ -859,10 +876,11 @@ u8 *func_002b74f0(s32 arg0, s32 arg1) {
 }
 #pragma pop
 
+// Fcl sprite reset: sets sprite arg0's id to arg1 and clears its flags and state.
 // FUN_002B7750
-/* measured: open opt_propagation scope for func_002b7750. */
+/* measured: open opt_propagation scope for fclSpriteReset. */
 #pragma opt_propagation off
-void func_002b7750(s16 arg0, s16 arg1) {
+void fclSpriteReset(s16 arg0, s16 arg1) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     s32 off = ((s32)arg0) << 8;
     *(s16 *)(base + off + 8) = arg1;
@@ -913,7 +931,7 @@ static inline void fclRevealOpacity(u8 *work, const FclDrawColor *color)
 {
     u8 initialAlpha = 0;
     u32 targetAlpha = color->c3;
-    func_002b82d0(work, initialAlpha, targetAlpha, 0, 0, 0);
+    fclSpriteStartAlpha(work, initialAlpha, targetAlpha, 0, 0, 0);
 }
 
 // FUN_002B77D0
@@ -949,11 +967,11 @@ void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16
         animationRows = *(u8 **)(iGpffffb574 + 0x38);
         delay = (s32)arg7;
         duration = (s32)arg6;
-        func_002b82d0(animationRows + off + 0x14, *(animationRows + off + 0x72), 0, 0, 0, (s16)(duration + delay));
-        func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 1.0f, 1.0f, 1.0f, fGpffff8504, 0, (u32)duration, delay);
+        fclSpriteStartAlpha(animationRows + off + 0x14, *(animationRows + off + 0x72), 0, 0, 0, (s16)(duration + delay));
+        fclSpriteStartRevealScale(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 1.0f, 1.0f, 1.0f, fGpffff8504, 0, (u32)duration, delay);
         hideConstructed = func_002b2970(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
         fclCopyTransitionPosition(&hidePosition, &hideConstructed);
-        func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, hidePosition, 0, duration, delay);
+        fclSpriteStartPosition(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, hidePosition, 0, duration, delay);
     } else {
         u8 *tmp;
         u8 *dimensionRows;
@@ -987,10 +1005,10 @@ void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16
         animationRows = *(u8 **)(iGpffffb574 + 0x38);
         delay = (s32)arg7;
         duration = (s32)arg5;
-        func_002b8300(animationRows + off + 0x14, 1.0f, 1.0f, fGpffff8504, 1.0f, 0, (u32)duration, delay);
+        fclSpriteStartRevealScale(animationRows + off + 0x14, 1.0f, 1.0f, fGpffff8504, 1.0f, 0, (u32)duration, delay);
         showConstructed = func_002b2970(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
         fclCopyTransitionPosition(&showPosition, &showConstructed);
-        func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, showPosition, p1, 0, duration, delay);
+        fclSpriteStartPosition(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, showPosition, p1, 0, duration, delay);
     }
     sdkSpriteFreeNode(first);
 }
@@ -1178,8 +1196,9 @@ s32 func_002b8150(s32 arg0) {
     return handle;
 }
 
+// Fcl sprite work: returns the pool work block of the task.
 // FUN_002B81F0
-u8 *func_002b81f0(u8 *arg0) {
+u8 *fclSpriteWork(u8 *arg0) {
     return *(u8 **)(arg0 + 0x38);
 }
 
@@ -1195,8 +1214,9 @@ void func_002b8200(u8 *arg0, f2 p1, u4 arg2, f32 fparg0, f32 fparg1, f32 fparg2)
     *(s16 *)(arg0 + 0x0) |= 1;
 }
 
+// Fcl sprite start position: sets the start and end points, the duration, the delay and the mode of a position transition.
 // FUN_002B8270
-void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
+void fclSpriteStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
     *(f32 *)(arg0 + 0x18) = p1.x;
     *(f32 *)(arg0 + 0x1C) = p1.y;
     *(f32 *)(arg0 + 0x20) = p2.x;
@@ -1210,8 +1230,9 @@ void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
     *(s16 *)(arg0 + 0x0) |= 2;
 }
 
+// Fcl sprite start alpha: sets the alpha levels, the duration and the mode of an alpha transition.
 // FUN_002B82D0
-void func_002b82d0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5) {
+void fclSpriteStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5) {
     arg0[0x5C] = arg1;
     arg0[0x5D] = arg2;
     arg0[0x5E] = arg1;
@@ -1222,8 +1243,9 @@ void func_002b82d0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5) {
     *(s16 *)(arg0 + 0x0) |= 4;
 }
 
+// Fcl sprite start reveal scale: sets the scale endpoints, duration, delay and mode of a reveal.
 // FUN_002B8300
-void func_002b8300(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
+void fclSpriteStartRevealScale(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
     *(f32 *)(arg0 + 0x88) = fparg0;
     *(f32 *)(arg0 + 0x8C) = fparg1;
     *(f32 *)(arg0 + 0x90) = fparg0;
@@ -1237,8 +1259,9 @@ void func_002b8300(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32
     *(s16 *)(arg0 + 0x0) |= 0x10;
 }
 
+// Fcl sprite start tween: sets the two tween values, the duration, the delay and the mode.
 // FUN_002B8340
-void func_002b8340(u8 *arg0, u8 arg1, s32 arg2, s16 arg3, f32 fparg0, f32 fparg1) {
+void fclSpriteStartTween(u8 *arg0, u8 arg1, s32 arg2, s16 arg3, f32 fparg0, f32 fparg1) {
     *(f32 *)(arg0 + 0xB8) = fparg0;
     *(f32 *)(arg0 + 0xBC) = fparg1;
     *(f32 *)(arg0 + 0xC0) = fparg0;
@@ -1249,8 +1272,9 @@ void func_002b8340(u8 *arg0, u8 arg1, s32 arg2, s16 arg3, f32 fparg0, f32 fparg1
     *(s16 *)(arg0 + 0x0) |= 8;
 }
 
+// Fcl sprite start color: sets the start and end colours, the duration and the mode of a colour fade.
 // FUN_002B8370
-void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
+void fclSpriteStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
     arg0[0x6D] = arg1.c0;
     arg0[0x6E] = arg1.c1;
     arg0[0x6F] = arg1.c2;

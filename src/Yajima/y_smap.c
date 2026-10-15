@@ -122,9 +122,9 @@ extern void func_002b3c50(u8 *);
 extern void func_002b4ac0(u8 *, s8);
 extern void func_002b5100(u8 *, s8);
 extern void func_002b4240(u8 *, s8);
-extern void func_002b69b0(u8 *, YVec2f, YVec2f, u32, u32, s16);
-extern void func_002b6a40(u8 *, u8, u8, u8, s32, s16);
-extern void func_002b6be0(u8 *, YVec2f, u32, f32);
+extern void fclSpriteStartPositionTask(u8 *, YVec2f, YVec2f, u32, u32, s16);
+extern void fclSpriteStartAlphaTask(u8 *, u8, u8, u8, s32, s16);
+extern void fclSpriteActivateTask(u8 *, YVec2f, u32, f32);
 extern f32 sdkSpriteScaledHeight(u8 *);
 extern void func_002b10d0(u8 *, s8);
 extern void func_002b10f0(u8 *, s8);
@@ -1297,17 +1297,17 @@ void func_002af3e0(u8 *arg0, s8 arg1)
         {
             YVec2f pos = func_002b2970(15.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 12);
-            func_002b6ac0(*(u8 **)(p + 0x748), 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
-            func_002b69b0(*(u8 **)(p + 0x748), pos,
+            fclSpriteStartRevealScaleTask(*(u8 **)(p + 0x748), 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
+            fclSpriteStartPositionTask(*(u8 **)(p + 0x748), pos,
                 func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, 0);
-            func_002b6a40(*(u8 **)(p + 0x748), 255, 0, 0, 0, 3);
+            fclSpriteStartAlphaTask(*(u8 **)(p + 0x748), 255, 0, 0, 0, 3);
             sdkSpriteFreeNode(resource);
             pos = func_002b2970(104.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 13);
-            func_002b6ac0(*(u8 **)(p + 0x74C), 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
-            func_002b69b0(*(u8 **)(p + 0x74C), pos,
+            fclSpriteStartRevealScaleTask(*(u8 **)(p + 0x74C), 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
+            fclSpriteStartPositionTask(*(u8 **)(p + 0x74C), pos,
                 func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, 0);
-            func_002b6a40(*(u8 **)(p + 0x74C), 255, 0, 0, 0, 3);
+            fclSpriteStartAlphaTask(*(u8 **)(p + 0x74C), 255, 0, 0, 0, 3);
             sdkSpriteFreeNode(resource);
         }
     } else {
@@ -1317,19 +1317,19 @@ void func_002af3e0(u8 *arg0, s8 arg1)
         {
             YVec2f pos = func_002b2970(15.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 12);
-            func_002b6be0(*(u8 **)(p + 0x748), pos, 0x4D, 60008);
-            func_002b6ac0(*(u8 **)(p + 0x748), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
-            func_002b69b0(*(u8 **)(p + 0x748),
+            fclSpriteActivateTask(*(u8 **)(p + 0x748), pos, 0x4D, 60008);
+            fclSpriteStartRevealScaleTask(*(u8 **)(p + 0x748), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
+            fclSpriteStartPositionTask(*(u8 **)(p + 0x748),
                 func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), pos, 0, 5, 0);
-            func_002b6a40(*(u8 **)(p + 0x748), 0, 255, 0, 0, 0);
+            fclSpriteStartAlphaTask(*(u8 **)(p + 0x748), 0, 255, 0, 0, 0);
             sdkSpriteFreeNode(resource);
             pos = func_002b2970(104.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 13);
-            func_002b6be0(*(u8 **)(p + 0x74C), pos, 0x4D, 60008);
-            func_002b6ac0(*(u8 **)(p + 0x74C), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
-            func_002b69b0(*(u8 **)(p + 0x74C),
+            fclSpriteActivateTask(*(u8 **)(p + 0x74C), pos, 0x4D, 60008);
+            fclSpriteStartRevealScaleTask(*(u8 **)(p + 0x74C), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
+            fclSpriteStartPositionTask(*(u8 **)(p + 0x74C),
                 func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), pos, 0, 5, 0);
-            func_002b6a40(*(u8 **)(p + 0x74C), 0, 255, 0, 0, 0);
+            fclSpriteStartAlphaTask(*(u8 **)(p + 0x74C), 0, 255, 0, 0, 0);
             sdkSpriteFreeNode(resource);
         }
         for (z = 0; z < 24; z++) {
