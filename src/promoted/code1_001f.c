@@ -1141,7 +1141,7 @@ void func_001f14f0(u8 *arg0)
         if (func_0023df70(id) != 0) {
             cntA = 1;
             func_0023e1f0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
-            cntB = func_0023e2f0(ctx, sub);
+            cntB = datCalcSkillValueBase(ctx, sub);
         } else {
             cntA = datCalcRollSkillValue(ctx, id, sub);
             cntB = 1;
@@ -3900,7 +3900,7 @@ void func_001f7830(u8 *arg0, s32 arg1, s32 arg2, s16 *arg3, s16 *arg4)
     s32 temp_5;
 
     if (*(u8 *)(arg0 + 0xA2) == 0) {
-        temp_5 = (s32)func_0023e270(*(u8 **)(arg0 + 0xA64)) & 0xFFFF;
+        temp_5 = (s32)datCalcPrimaryPersonaId(*(u8 **)(arg0 + 0xA64)) & 0xFFFF;
         switch (*(u16 *)(arg0 + 0xA4)) {
         case 7:
             if (arg2 != 0) {
@@ -3928,7 +3928,7 @@ void func_001f7910(u8 *arg0, u32 arg1, s32 arg2, s16 *arg3, s16 *arg4)
     u16 temp_4;
 
     if (*(u8 *)(arg0 + 0xA2) == 0) {
-        temp_5 = (s32)func_0023e270(*(u8 **)(arg0 + 0xA64)) & 0xFFFF;
+        temp_5 = (s32)datCalcPrimaryPersonaId(*(u8 **)(arg0 + 0xA64)) & 0xFFFF;
         *arg3 = 0;
         temp_4 = *(u16 *)(arg0 + 0xA4);
         switch (temp_4) {

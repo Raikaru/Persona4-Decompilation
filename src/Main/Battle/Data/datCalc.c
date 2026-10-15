@@ -3558,8 +3558,9 @@ u8 func_0023e1f0(u8 *arg0)
 
 
 
+// Intent: first persona id of unit arg0 (0 for flag-4 units); [inferred].
 // FUN_0023E270
-u16 func_0023e270(u8 *arg0)
+u16 datCalcPrimaryPersonaId(u8 *arg0)
 {
     if (*(u16 *)arg0 & 4) {
         return 0;
@@ -3570,8 +3571,9 @@ u16 func_0023e270(u8 *arg0)
     return (u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF;
 }
 
+// Intent: base skill value for unit arg0 at slot arg1 (flag-4 units from the monster row +0x1A; others from the persona row +0x18 when arg1 has bits 6, else 1); the roll in datCalcRollSkillValue adds to it; [inferred].
 // FUN_0023E2F0
-s32 func_0023e2f0(u8 *arg0, s32 arg1)
+s32 datCalcSkillValueBase(u8 *arg0, s32 arg1)
 {
     u8 *b;
     u16 v;
