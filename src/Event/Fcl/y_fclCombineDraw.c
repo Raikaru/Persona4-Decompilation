@@ -75,8 +75,8 @@ extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 datPersonaRosterCapacity(void);
 extern void fclSpriteStartColorAt(s16, s32, s32, s32, s32, s32);
 extern void fclSpriteStartColor(u8 *, FclByte4, FclByte4, u8, s16, s32);
-extern void func_0032fa30(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
-extern s8 func_0032fb60(s8);
+extern void fclCombineSetSlotColors(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
+extern s8 fclCombineMapSlotKind(s8);
 extern void func_003297f0(f32, f32, u8 *, s64, s8);
 extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
 extern f32 D_006440F0[];
@@ -144,13 +144,13 @@ extern s32 func_0034a630(u8 *);
 extern u8 datPersonaGetArcana(u16);
 extern void func_0011d1d0(u8 *, f32);
 extern s8 func_00331640(void);
-extern void func_00330e50(s32, FclVec2, f32, s32, u8, s32, f32, f32, void *);
+extern void fclCombineDrawResourceAt(s32, FclVec2, f32, s32, u8, s32, f32, f32, void *);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
 extern u8 D_00795E60[];
 
 extern void func_00440b68();
 extern u8 *func_00454a60(u8 *param, s32 mode);
-extern void func_003312e0(u8 *);
+extern void fclCombineCdvdTaskDestroy(u8 *);
 extern char D_00644D70[];
 extern char D_00644D90[];
 extern f32 D_00644880[];
@@ -926,8 +926,9 @@ void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     }
 }
 
+// Fcl combine panel fade: on arg1 == 0 creates the panel sprite 0x1E4 and tweens it in; otherwise fades its alpha from the current value.
 // FUN_00317240
-void func_00317240(u8 *arg0, s64 arg1, f32 fparg0) {
+void fclCombineFadePanelSprite(u8 *arg0, s64 arg1, f32 fparg0) {
     FclVec2 sp18;
     f32 *b;
 
@@ -1248,8 +1249,9 @@ void func_00318840(u8 *arg0, s8 arg1, s8 arg2, s16 arg3, s16 arg4) {
     *(FclDrawColor *)(fclSpriteEntry(icon) + 0x85) = c110;
 }
 
+// Fcl combine mark row: sets the row marker sprite 0x2F2 beside row arg0 (rows 6-8 use fixed slots).
 // FUN_00318F30
-void func_00318f30(s16 arg0) {
+void fclCombineMarkRow(s16 arg0) {
     s16 var;
     u8 *p;
     f32 fv;
@@ -1278,8 +1280,9 @@ void func_00318f30(s16 arg0) {
     *(FclByte4 *)(fclSpriteEntry(0x2F2) + 0x85) = sp4C;
 }
 
+// Fcl combine rows busy: returns 1 while any row sprite or the 0x1DC sprite is still animating.
 // FUN_003190D0
-s32 func_003190d0(u8 *arg0) {
+s32 fclCombineRowsBusy(u8 *arg0) {
     u8 *t;
     s16 i;
 
@@ -2521,7 +2524,7 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
    touching other matched callers); (2) storing the D_00643D70+idx*8 pointer
    into a saved register emits another dsll32/dsra32 pair (retail's addu is
    bare), from the s64 multiply intermediate. Plus the 2970-call arg-order
-   swap (address vs addiu a0) from the func_00320970 note. All bodies are
+   swap (address vs addiu a0) from the fclCombineCreateSlotIcons note. All bodies are
    correct; object is 48-96B over window. Address-rematerialization + s64/s32
    conversion floor. */
 /* measured: candidate archived at build/EFCL2_003205f0_body.c; object 964/window 896, normalized_diff 621. */
@@ -2591,8 +2594,9 @@ void func_003205f0(u8 *arg0, s16 arg1, s16 arg2) {
         }
     }
 }
+// Fcl combine slot icons: creates the four slot icon sprites at their fixed positions.
 // FUN_00320970
-void func_00320970(u8 *arg0, s8 arg1) {
+void fclCombineCreateSlotIcons(u8 *arg0, s8 arg1) {
     FclByte4 sp5C;
     FclByte4 sp58;
     FclByte4 sp54;
@@ -4922,8 +4926,9 @@ static inline u8 *cdfPersona(u8 *draw)
  * eight zero alignment bytes. Ghidra supplies the float constants; IDA
  * supplies the signed selection and two-word position packet. Typed work
  * views and the canonical message-queue pointer preserve argument order. */
+// Fcl combine selected name: draws the selected persona's name and arcana, and loads its model.
 // FUN_0032C480
-void func_0032c480(u8 *arg0)
+void fclCombineDrawSelectedName(u8 *arg0)
 {
     FclVec2 sp38;
     CdfCombineWork *obj;
@@ -4935,7 +4940,7 @@ void func_0032c480(u8 *arg0)
         0, 0, D_00796310, 0x15);
     n = (s16)((datPersonaGetArcana(*(u16 *)(yListSlotEntry(0, obj->selection) + 2)) & 0xFF) + 0x1B);
     sp38 = func_002b2970(54.0f, 103.0f);
-    func_00330e50(n, sp38, 1.0f, 0xFF000000, 0xFF, 1, 1.0f, 1.0f, D_00796310);
+    fclCombineDrawResourceAt(n, sp38, 1.0f, 0xFF000000, 0xFF, 1, 1.0f, 1.0f, D_00796310);
     n = (s16)func_00331640();
     itfMesWindowQueueEntry(54.0f, 138.0f, 1.0f, -1, 1, 0, 1, n,
         *(u16 *)(yListSlotEntry(0, obj->selection) + 2), D_00796370);
@@ -5478,8 +5483,8 @@ void func_0032c660(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosi
         sdkSpriteFreeNode(temp_19);
     }
 }
-/* Each point is built inside its func_00330e50 call (func_002b2970 returns
-   it by value, so func_00330e50 now takes an FclVec2).  The two branches
+/* Each point is built inside its fclCombineDrawResourceAt call (func_002b2970 returns
+   it by value, so fclCombineDrawResourceAt now takes an FclVec2).  The two branches
    keep their own row/count locals, which is what gives them retail's
    different register colouring, and the else branch holds its text x in a
    local (retail $f21) while its loop still spells 153.0f. */
@@ -5535,12 +5540,12 @@ void func_0032e570(u8 *arg0) {
         } else if (*(s8 *)(t + 0x122) == 0) {
             base = D_00643D00 + (s8)func_00110a60(*(s8 *)(t + 0x2D2), *(s8 *)(t + 0x2D3)) * 0x14;
         }
-        func_00330e50(0x1D2, func_002b2970(135.0f, 96.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
+        fclCombineDrawResourceAt(0x1D2, func_002b2970(135.0f, 96.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
         frFontExDrawTextDeferred(153.0f, 86.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D18[0], 0, 0, D_00795E60);
         for (j1 = 0, n1 = 0; j1 < 5; j1++) {
             if (*(s8 *)(t + *(s8 *)(t + 0x2D6) * 5 + j1 + 0x2C4) == 1) {
                 off = n1 * 0x22;
-                func_00330e50(0x1D2, func_002b2970(135.0f, (f32)(off + 0xC3)), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
+                fclCombineDrawResourceAt(0x1D2, func_002b2970(135.0f, (f32)(off + 0xC3)), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
                 e = base + j1 * 4;
                 id = *(s8 *)e;
                 if (id == 0xA) {
@@ -5556,12 +5561,12 @@ void func_0032e570(u8 *arg0) {
             }
         }
         if (n1 == 0) {
-            func_00330e50(0x1D2, func_002b2970(135.0f, 195.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
+            fclCombineDrawResourceAt(0x1D2, func_002b2970(135.0f, 195.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
             frFontExDrawTextDeferred(153.0f, 185.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D1C[0], 0, 0, D_00795E60);
         }
     } else {
         ent = D_006432B0 + v * 0x1C;
-        func_00330e50(0x1D2, func_002b2970(135.0f, 96.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
+        fclCombineDrawResourceAt(0x1D2, func_002b2970(135.0f, 96.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
         if (*(s8 *)(ent + 2) != 0) {
             k = 0;
             x = 153.0f;
@@ -5582,7 +5587,7 @@ void func_0032e570(u8 *arg0) {
         for (j = 0, n = 0; j < 5; j++) {
             if (*(s8 *)(t + *(s8 *)(t + 0x2D6) * 5 + j + 0x2C4) == 1) {
                 off = n * 0x22;
-                func_00330e50(0x1D2, func_002b2970(135.0f, (f32)(off + 0xC3)), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
+                fclCombineDrawResourceAt(0x1D2, func_002b2970(135.0f, (f32)(off + 0xC3)), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
                 e = ent + j * 4;
                 id = *(s8 *)(e + 8);
                 if (id == 0xA) {
@@ -5598,7 +5603,7 @@ void func_0032e570(u8 *arg0) {
             }
         }
         if (n == 0) {
-            func_00330e50(0x1D2, func_002b2970(135.0f, 195.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
+            fclCombineDrawResourceAt(0x1D2, func_002b2970(135.0f, 195.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
             frFontExDrawTextDeferred(x, 185.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D1C[0], 0, 0, D_00795E60);
         }
     }
@@ -5732,11 +5737,11 @@ void func_0032f4d0(u8 *arg0) {
         n = (s16)i;
         func_003147e0(arg0, (s8)(n + 4), tbl[n], *(s16 *)(t + n * 2 + 0xB8), (s16)(n * 2 + 3), 0);
     }
-    r = (s16)func_0032fb60(*(s8 *)(t + 0xB6));
+    r = (s16)fclCombineMapSlotKind(*(s8 *)(t + 0xB6));
     cBC.channels = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
     cB8.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
     cB4.channels = func_002b2a60(0x92, 0xC8, 7, 0xFF);
-    func_0032fa30(arg0, r, cBC.channels, cB8.channels, cB4.channels);
+    fclCombineSetSlotColors(arg0, r, cBC.channels, cB8.channels, cB4.channels);
     if (datGetFlag(0x1306) != 0) {
         cB0 = func_002b2a60(0x29, 0x29, 0x29, 0xFF);
         p1 = fclSpriteEntry(0x201);
@@ -5750,8 +5755,9 @@ void func_0032f4d0(u8 *arg0) {
     }
 }
 
+// Fcl combine slot colours: sets the colours of the slot's two sprite pairs and the marker sprites.
 // FUN_0032FA30
-void func_0032fa30(u8 *arg0, s16 arg1, FclDrawColor arg2, FclDrawColor arg3, FclDrawColor arg4) {
+void fclCombineSetSlotColors(u8 *arg0, s16 arg1, FclDrawColor arg2, FclDrawColor arg3, FclDrawColor arg4) {
     u8 *t;
     u8 *p1;
     u8 *p2;
@@ -5770,8 +5776,9 @@ void func_0032fa30(u8 *arg0, s16 arg1, FclDrawColor arg2, FclDrawColor arg3, Fcl
     p4 = fclSpriteEntry((s16)(arg1 + 0x2FF));
     *(FclByte4 *)(p4 + 0x85) = arg4;
 }
+// Fcl combine map slot kind: maps a slot kind through D_00749530 when flag 0x1306 is set.
 // FUN_0032FB60
-s8 func_0032fb60(s8 arg0) {
+s8 fclCombineMapSlotKind(s8 arg0) {
     if (datGetFlag(0x1306)) {
         arg0 = (s8)(D_00749530[arg0] - 4);
     }
@@ -6088,15 +6095,17 @@ void func_003307b0(u8 *arg0, s64 arg1, s32 arg2) {
         *(FclByte4 *)(p1 + 0x85) = sp68;
     }
 }
+// Fcl combine draw resource: draws one resource sprite at arg1 with the given scale and alpha.
 // FUN_00330E50
-void func_00330e50(s32 arg0, FclVec2 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, void *arg5) {
+void fclCombineDrawResourceAt(s32 arg0, FclVec2 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, void *arg5) {
     FclVec2 *p;
 
     p = &arg1;
     func_0025ecd0(p->x, p->y, fparg0, arg2, arg3, (s16)arg0, (void *)(u32)func_00331560(), arg4, 0, 0, 0.0f, fparg1, fparg2, arg5);
 }
+// Fcl combine CDVD task update: polls the disc load for the task and advances its load state.
 // FUN_00330F20
-s32 func_00330f20(u8 *arg0) {
+s32 fclCombineCdvdTaskUpdate(u8 *arg0) {
     s32 sp3C, sp38, sp34, sp30;
     u8 *t;
 
@@ -6175,8 +6184,9 @@ s32 func_00330f20(u8 *arg0) {
     return 0;
 }
 
+// Fcl combine CDVD task destroy: releases the sprites, the message window, and the CDVD handles.
 // FUN_003312E0
-void func_003312e0(u8 *arg0) {
+void fclCombineCdvdTaskDestroy(u8 *arg0) {
     u8 *t;
 
     t = *(u8 **)(arg0 + 0x38);
@@ -6192,8 +6202,9 @@ void func_003312e0(u8 *arg0) {
     D_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
+// Fcl combine CDVD task create: creates the CDVD loader task with the update and destroy callbacks.
 // FUN_00331390
-void func_00331390(void) {
+void fclCombineCdvdTaskCreate(void) {
     u8 *p;
 
     if (iGpffffb598 != 0) {
@@ -6201,7 +6212,7 @@ void func_00331390(void) {
     }
     chkmemAllocSiteTag(D_00644D30, 0x16A4);
     p = D_008873F4[0](1, 0x48, 0x40000);
-    iGpffffb598 = (s32)kwlnTaskCreate((const void *)(D_00644E48), 0xF, 0, 0, func_00330f20, func_003312e0, (u8 *)(p));
+    iGpffffb598 = (s32)kwlnTaskCreate((const void *)(D_00644E48), 0xF, 0, 0, fclCombineCdvdTaskUpdate, fclCombineCdvdTaskDestroy, (u8 *)(p));
     *(s8 *)(p + 0) = 0;
     *(s8 *)(p + 0x45) = 0;
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B2);
