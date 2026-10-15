@@ -31,7 +31,7 @@ s32 datCalcGetLevel(u16* unit);
 s32 datCalcGetHp(u16* unit);
 s32 datCalcMaxHp(u16* unit);
 s32 datCalcGetBattleStat(u16* unit, u32 param);
-s32 func_0023a6b0(u8* unit, s32 param);
+s32 datCalcStatusResistance(u8* unit, s32 param);
 s32 datCalcStatusElement(s16 cmd, s32 param);
 s32 datCalcSkillElement(u8* unit, u16 cmd);
 s32 func_0023e3e0(u16* unit, s32 param);
@@ -122,13 +122,13 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 11:
         K_ASSERT(D_00881460[0] != 0, 0xCD);
-        result = (f32)(u32)(func_0023a6b0((u8 *)D_00881460[0],
+        result = (f32)(u32)(datCalcStatusResistance((u8 *)D_00881460[0],
                      (s16)datCalcSkillElement((u8 *)D_00881460[0], D_0088146C[0])) & 0xFFFF) / 100.0f;
         break;
     case 12:
         K_ASSERT(D_00881460[0] != 0, 0xD3);
         K_ASSERT(D_00881464[0] != 0, 0xD4);
-        result = (f32)(u32)(func_0023a6b0((u8 *)D_00881464[0],
+        result = (f32)(u32)(datCalcStatusResistance((u8 *)D_00881464[0],
                      (s16)datCalcSkillElement((u8 *)D_00881460[0], D_0088146C[0])) & 0xFFFF) / 100.0f;
         break;
     case 15:
@@ -147,7 +147,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
             raw = 0x64;
             break;
         default:
-            raw = func_0023a6b0((u8 *)unit, id);
+            raw = datCalcStatusResistance((u8 *)unit, id);
             break;
         }
         result = (f32)(u32)(raw & 0xFFFF) / 100.0f;

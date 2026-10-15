@@ -17,7 +17,7 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled);
 
 extern u64 func_0010f460();
 
-extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
+extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
 
 typedef void (*FormationCallback)(void);
 
@@ -475,7 +475,7 @@ s32 btlCond_MYHOJO(u8 *arg0, s32 arg1) {
 
 // FUN_001DB900
 s32 btlCond_MYTAISEI(u8 *arg0, s16 arg1) {
-    return (s32)((func_0023a6b0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x10000000) != 0);
+    return (s32)((datCalcStatusResistance(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x10000000) != 0);
 }
 
 

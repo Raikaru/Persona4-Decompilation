@@ -2550,7 +2550,7 @@ void func_0010fa80(s16 arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, u
         K_ASSERT(arg1 < 0xB, 0x234);
         ptr2 = (u8*)D_00796E50 + (arg1 - 2) * 0x88 + 4;
     }
-    func_0023a490(arg2, ptr1, ptr2, arg3, (s32*)arg4, (s32*)arg5, (s32*)arg6);
+    datCalcSkillOutcome(arg2, ptr1, ptr2, arg3, (s32*)arg4, (s32*)arg5, (s32*)arg6);
 }
 
 // FUN_0010FBD0

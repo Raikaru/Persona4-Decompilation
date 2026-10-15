@@ -62,7 +62,7 @@ extern u16 func_001069d0(s16 arg0);
 extern u16 func_00106a30(s16 arg0);
 extern u32 func_001069a0(s16 arg0);
 
-extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
+extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern s32 datCalcInflictStatus(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern s32 datCalcSkillAmount(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
@@ -2361,7 +2361,7 @@ return_zero_1:
         default:
             break;
         }
-        resistance = func_0023a6b0(target, (s16)datCalcStatusElement((s16)skillId, (s32)statuses));
+        resistance = datCalcStatusResistance(target, (s16)datCalcStatusElement((s16)skillId, (s32)statuses));
         if (resistance & 0x27000000) {
             return 0;
         }
@@ -2739,8 +2739,9 @@ done:
     return flags;
 }
 
+// Intent: fills HP amount (*arg4), SP amount (*arg5) and infliction outcome (*arg6) for skill arg0 from source arg1 to target arg2, and clears their +0x18 fields; returns 0 if either unit is null; [inferred].
 // FUN_0023A490
-s32 func_0023a490(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *arg5, s32 *arg6)
+s32 datCalcSkillOutcome(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *arg5, s32 *arg6)
 {
     s32 var_2;
 
@@ -2772,8 +2773,9 @@ s32 func_0023a490(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *arg5, 
     return 0;
 }
 
+// Intent: skill-slot value from packed table entry arg1 (scaled x5 per byte, with fallback constants when the low half is zero); [inferred].
 // FUN_0023A620
-s32 func_0023a620(s32 arg0, u16 arg1)
+s32 datCalcSkillSlotValue(s32 arg0, u16 arg1)
 {
     s32 temp_3 = arg1 & 0xFFFF;
     s32 var_2 = ((u32)(temp_3 & 0xFF00) << 0x10) | ((temp_3 & 0xFFFF00FF) * 5);
@@ -2795,8 +2797,9 @@ extern s32 datCalcIsStatusBlocked(u16 *arg0);
 
 #pragma push
 #pragma opt_loop_invariants on
+// Intent: resistance and nullify flags of unit arg0 against status element arg1; callers test the 0x08000000 and 0x07000000 groups; [inferred].
 // FUN_0023A6B0
-s32 func_0023a6b0(u8 *arg0, s32 arg1)
+s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
 {
     s32 temp_16;
     s32 found;
@@ -4503,7 +4506,7 @@ s32 datCalcRollSkillChance(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     if (temp_16 >= 0x1B8) {
         func_0046d730(D_00635938, 0x13B6);
     }
-    temp_2 = func_0023a6b0(arg1, 0xC);
+    temp_2 = datCalcStatusResistance(arg1, 0xC);
     if (temp_2 & 0x27000000) {
         return 0;
     }
@@ -4600,7 +4603,7 @@ s32 datCalcAilmentChance(u8 *arg0, s32 arg1)
     if (x & 0xE0000) {
         return 0x64;
     }
-    return func_0023a6b0(arg0, arg1);
+    return datCalcStatusResistance(arg0, arg1);
 }
 
 // FUN_002428F0
