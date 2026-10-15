@@ -160,7 +160,7 @@ extern void func_00460910(s32 arg0, s32 arg1);
 extern void func_00463520(void);
 extern void func_00466680(void);
 extern void func_0046d6b0(s32 arg0);
-extern void func_0047d050(s32 arg0);
+extern void mdlResetModelTable(s32 arg0);
 extern void func_00481440(s32 arg0);
 extern void func_00481a20(s32 arg0);
 extern void func_004b3250(s32 arg0);

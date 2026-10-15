@@ -238,10 +238,10 @@ s32 func_00230c00(u32 arg0, u16 arg1, char *arg2)
     char sp40[0x100];
     s32 var_2;
 
-    if (func_0047d0e0(arg0, arg1) == 0) {
-        return func_0047d0b0(arg0, arg1, arg2);
+    if (mdlQueryModelType(arg0, arg1) == 0) {
+        return mdlGetModelNameForId(arg0, arg1, arg2);
     }
-    func_0047d0b0(arg0, arg1, sp40);
+    mdlGetModelNameForId(arg0, arg1, sp40);
     var_2 = strlen(sp40);
     sp40[var_2 - 3] = 'p';
     sp40[var_2 - 2] = 'a';

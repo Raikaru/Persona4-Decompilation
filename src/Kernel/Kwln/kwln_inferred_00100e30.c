@@ -146,7 +146,7 @@ extern void func_00460910(s32 arg0, s32 arg1);
 extern void func_00463520(void);
 extern void func_00466680(void);
 extern void func_0046d6b0(s32 arg0);
-extern void func_0047d050(s32 arg0);
+extern void mdlResetModelTable(s32 arg0);
 extern void func_00481440(s32 arg0);
 extern void func_00481a20(s32 arg0);
 extern void func_004b3250(s32 arg0);
@@ -280,7 +280,7 @@ void func_00100e60(void)
     func_004cc200((s32)&func_00100dd0, 0);
     func_0045a730(0, 1);
     func_0045a730(1, 2);
-    func_0047d050((s32)&D_005DC878);
+    mdlResetModelTable((s32)&D_005DC878);
     func_002312e0();
     func_0044f570(func_00457120());
     func_003f67e0(1);

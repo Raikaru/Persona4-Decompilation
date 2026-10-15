@@ -9,13 +9,13 @@ typedef s32 (*MdlTypeCallback)(u32 type, u16 id);
 typedef s32 (*MdlSetupCallback)(void *model);
 typedef s32 (*MdlDataCallback)(struct MdlAppObj *model);
 
-s32 func_0047d090(MdlNameCallback nameCallback, MdlTypeCallback typeCallback,
+s32 mdlSetModelCallbacks(MdlNameCallback nameCallback, MdlTypeCallback typeCallback,
                  MdlNameCallback pathCallback, MdlSetupCallback setupCallback,
                  MdlDataCallback dataCallback);
-s32 func_0047d0b0(u32 type, u16 id, char *output);
-s32 func_0047d0e0(u32 type, u16 id);
-s32 func_0047d110(u32 type, u16 id, char *output);
-void func_0047d140(void *model);
+s32 mdlGetModelNameForId(u32 type, u16 id, char *output);
+s32 mdlQueryModelType(u32 type, u16 id);
+s32 mdlBuildModelPath(u32 type, u16 id, char *output);
+void mdlRunSetupCallback(void *model);
 
 /* Actor registration stores a 16-bit resource ID and a 16-bit mode. */
 s32 MT_Scene_CreateModelCharRes(u16 id, void *model);

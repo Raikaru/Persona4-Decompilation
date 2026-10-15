@@ -303,7 +303,7 @@ extern void btlEffectLoadFilesSync(void);
 extern void btlUiRegisterAvailability(void);
 extern void func_001f8480(void);
 extern void btlPanelLoadSync(void);
-extern void func_0047d170(void *model);
+extern void mdlRunDataCallback(void *model);
 extern s32 func_0047e6f0(void **owner);
 extern void btlUnitUpdateLookAtTarget(u8 *arg0);
 extern void hFadeTaskStart(s16 arg0);
