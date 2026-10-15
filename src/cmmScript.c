@@ -451,8 +451,9 @@ s32 cmmPersonaInfoShow(void)
     return 1;
 }
 #pragma optimization_level 2
+// Script entry select: makes the entry in arg 0 the current one; 0 selects the current entry.
 // FUN_0024AA10
-s32 func_0024aa10(void)
+s32 cmmScriptSelectEntry(void)
 {
     s32 id;
 
@@ -481,8 +482,9 @@ s32 func_0024aa60(void)
     }
     return 1;
 }
+// Script set current entry: sets the current entry to arg 0, or clears it when arg 0 is 0.
 // FUN_0024AAF0
-s32 func_0024aaf0(void)
+s32 cmmScriptSetCurrentEntry(void)
 {
     s32 id;
 
@@ -574,8 +576,9 @@ s32 func_0024aca0(void)
 
 
 
+// Script slot in group: for group 0 or 1, returns the first set entry of that group (1 or 2 for group 0, 3 or 4 for group 1), or 0 when none is set. Other groups return 1 with 0 as the result.
 // FUN_0024ACF0
-s32 func_0024acf0(void)
+s32 cmmScriptFindSlotInGroup(void)
 {
     s32 param0;
 
@@ -590,8 +593,9 @@ s32 func_0024acf0(void)
 
 
 
+// Script entry total: adds the index of the entry in arg 0 to the running total (D_00797560).
 // FUN_0024AD70
-s32 func_0024ad70(void)
+s32 cmmScriptAddEntryTotal(void)
 {
     func_001090c0(func_00109100(scrGetParamInt(0) & 0xFFFF));
     return 1;
@@ -599,8 +603,9 @@ s32 func_0024ad70(void)
 
 
 
+// Script total take: returns the running total (D_00797560), resets it through datResetTotalBtl, and runs the total hook func_00106020 with the value.
 // FUN_0024ADB0
-s32 func_0024adb0(void)
+s32 cmmScriptTakeTotal(void)
 {
     s32 value;
 
@@ -613,8 +618,9 @@ s32 func_0024adb0(void)
 
 
 
+// Script entry index: returns the index of the current entry from func_00109100. The script's argument 0 is passed on, but that callee takes no argument.
 // FUN_0024AE00
-s32 func_0024ae00(void)
+s32 cmmScriptGetEntryIndex(void)
 {
     scrSetReturnInt(func_00109100(scrGetParamInt(0) & 0xFFFF));
     return 1;
