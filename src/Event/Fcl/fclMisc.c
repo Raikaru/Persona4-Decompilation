@@ -18,19 +18,19 @@ extern int iGpffffb57c;
 // uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
 extern int *piGpffffb57c;
 extern u32 fclMiscCloseHandle();
-extern void func_002777f0();
+extern void itfMesWindowReleaseIfActive();
 
 /* measured: s8 here regresses fclMiscUpdateHandle (its "< 0" test); s32 is kept. */
-extern s32 func_00276e10(s32); /* lint: allow H011 -- measured: s8 regresses fclMiscUpdateHandle ("< 0" test); retail consumes the full register */
+extern s32 itfMesWindowState(s32); /* lint: allow H011 -- measured: s8 regresses fclMiscUpdateHandle ("< 0" test); retail consumes the full register */
 
 // Donor calls these implicitly (no prototypes), so keep old-style forms.
-extern void func_00276e70();
-extern void func_00277250();
-extern void func_00277ad0();
-extern s32 func_002774d0(u8 *);
-extern s32 func_00278610(s32, s16);
-extern void func_00278170(s32, s32);
-extern s32 func_002778c0(s32, s32, s32);
+extern void itfMesWindowSetState();
+extern void itfMesWindowRelease();
+extern void itfMesWindowClear();
+extern s32 itfMesWindowInstall(u8 *);
+extern s32 itfMesWindowSetStyle(s32, s16);
+extern void itfMesWindowSetFlagBits(s32, s32);
+extern s32 itfMesWindowBindRecord(s32, s32, s32);
 extern u8 *func_002e1db0(s32, int (*)(), int (*)(), int (*)());
 
 extern u8 D_0063F398[];
@@ -69,7 +69,7 @@ void func_0027be90(s32 handle, void *userdata)
 {
     int iVar1;
 
-    iVar1 = func_00277840(handle);
+    iVar1 = itfMesWindowGetSubTable(handle);
     *(void **)(iVar1 + 0x18) = userdata;
 }
 
@@ -213,7 +213,7 @@ s32 func_002bcfb0(u8 *arg0, u8 *arg1) {
 
     temp_3 = *(s32 *)(arg1 + 4);
     if (temp_3 & 4) {
-        if (!(func_00278110(*(s32 *)(arg1 + 0x10)) & 0x3300)) {
+        if (!(itfMesWindowGetFlags(*(s32 *)(arg1 + 0x10)) & 0x3300)) {
             fclMiscReleaseHandle((int *)(arg1 + 0x10));
             if (!(*(s32 *)(arg0 + 0x14) & 1)) {
                 if (arg0 == NULL) {
@@ -372,9 +372,9 @@ s32 fclMiscAcquireHandle(u8 *param_1, u8 *param_2)
     }
     if (*(s32 *)param_1 < 0)
     {
-        value = func_002774d0(param_2);
+        value = itfMesWindowInstall(param_2);
         *(s32 *)param_1 = value;
-        func_00278610(value, 2);
+        itfMesWindowSetStyle(value, 2);
         return 1;
     }
     return 0;
@@ -386,7 +386,7 @@ void fclMiscReleaseHandle(int *param_1)
     fclMiscCloseHandle(param_1);
 
     if (*param_1 >= 0) {
-        func_002777f0(*param_1);
+        itfMesWindowReleaseIfActive(*param_1);
         *param_1 = -1;
         *(u8 *)(param_1 + 1) = 0;
         *(u8 *)((int)param_1 + 5) = 0;
@@ -406,8 +406,8 @@ s32 fclMiscActivateHandle(u8 *param_1, s32 param_2, s32 param_3)
     {
         return 0;
     }
-    func_00278170(value, 0x200000);
-    func_002778c0(*(s32 *)param_1, param_3, 0);
+    itfMesWindowSetFlagBits(value, 0x200000);
+    itfMesWindowBindRecord(*(s32 *)param_1, param_3, 0);
     func_002818a0(*(s32 *)param_1, param_2);
     *(s8 *)(param_1 + 4) = 1;
     return 0;
@@ -449,7 +449,7 @@ void fclMiscUpdateHandle(int *param_1)
     case 0:
         return;
     case 1:
-        if (func_00276e10(state) < 0) {
+        if (itfMesWindowState(state) < 0) {
             *(u8 *)(param_1 + 1) = 2;
         }
         break;
@@ -482,9 +482,9 @@ u32 fclMiscCloseHandle(u32 *param_1)
         result = 0;
     }
     else {
-        func_00276e70(*param_1, 0);
-        func_00277250(*param_1);
-        func_00277ad0(*param_1, 0);
+        itfMesWindowSetState(*param_1, 0);
+        itfMesWindowRelease(*param_1);
+        itfMesWindowClear(*param_1, 0);
         *((u8 *)param_1 + 4) = 0;
         result = 1;
     }

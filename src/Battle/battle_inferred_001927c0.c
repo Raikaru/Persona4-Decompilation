@@ -114,7 +114,7 @@ extern void func_001d6a60(void);
 extern void func_001b1850(void);
 extern void func_001b60a0(void);
 extern void func_001f6100(void);
-extern s32 func_002774d0(u8 *arg0);
+extern s32 itfMesWindowInstall(u8 *arg0);
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern u8 *func_00452380(void *arg0);
@@ -343,7 +343,7 @@ void func_00192b90(void)
     func_0044ea90(D_005F65D0, 0x3A);
     iGpffffb3ac = (u8 *)D_008873E8[0](0xE88, 0x40000);
     memset(iGpffffb3ac, 0, 0xE88);
-    *(s32 *)(iGpffffb3ac + 0xC60) = func_002774d0((u8 *)iGpffffb43c);
+    *(s32 *)(iGpffffb3ac + 0xC60) = itfMesWindowInstall((u8 *)iGpffffb43c);
     for (i = 0x15C0; i <= 0x15FF; i++) {
         func_00106390(i, 0);
     }
@@ -378,7 +378,7 @@ s32 func_00192cd0(void)
     func_001f61b0();
     func_0022cc90();
     func_00194a30();
-    func_002777f0(*(s32 *)(iGpffffb3ac + 0xC60));
+    itfMesWindowReleaseIfActive(*(s32 *)(iGpffffb3ac + 0xC60));
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x4000) != 0) {
         for (i = 0; (u16)i < 4; i = (u16)(i + 1)) {
             base = (s32 *)iGpffffb3ac;

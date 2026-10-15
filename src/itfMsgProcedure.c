@@ -12,7 +12,7 @@ s32 func_0027b6e0(s32 param_1, s32 param_2)
     s32 base;
     s32 addr;
 
-    base = func_00277840(param_1);
+    base = itfMesWindowGetSubTable(param_1);
     if (param_2 >= 4) {
         func_0046d730(D_0063BF60, 0x1F);
     }
@@ -27,7 +27,7 @@ void func_0027b750(s32 param_1, s32 param_2, s32 param_3)
     s32 base;
     s32 addr;
 
-    base = func_00277840(param_1);
+    base = itfMesWindowGetSubTable(param_1);
     if (param_2 >= 4) {
         func_0046d730(D_0063BF60, 0x27);
     }

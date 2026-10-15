@@ -111,7 +111,7 @@ extern void func_00314ef0(u8 *, s8, FclVec2, s16, s16, s8);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern void func_0046b0d0(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
-extern void func_002777f0(s32 arg0);
+extern void itfMesWindowReleaseIfActive(s32 arg0);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern void (*D_008873EC[])(void *);
 extern char D_00644D30[];
@@ -137,7 +137,7 @@ extern s32 iGpffffb598;
 extern s32 iGpffffb440;
 extern u8 D_00796310[];
 extern u8 D_00796370[];
-extern s32 func_00279350(f32, f32, f32, s32, s32, s32, s32, s32, s32, u8 *);
+extern s32 itfMesWindowQueueEntry(f32, f32, f32, s32, s32, s32, s32, s32, s32, u8 *);
 extern int frFontExDrawTextDeferredOutB(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
 extern void func_0034a640(s32, u16, s32);
 extern s32 func_0034a630(u8 *);
@@ -4923,7 +4923,7 @@ void func_0032c480(u8 *arg0)
     sp38 = func_002b2970(54.0f, 103.0f);
     func_00330e50(n, sp38, 1.0f, 0xFF000000, 0xFF, 1, 1.0f, 1.0f, D_00796310);
     n = (s16)func_00331640();
-    func_00279350(54.0f, 138.0f, 1.0f, -1, 1, 0, 1, n,
+    itfMesWindowQueueEntry(54.0f, 138.0f, 1.0f, -1, 1, 0, 1, n,
         *(u16 *)(func_002e48a0(0, obj->selection) + 2), D_00796370);
     func_0034a640((s32)obj->model, *(u16 *)(func_002e48a0(0, obj->selection) + 2), 1);
     *(u8 *)(func_0034a630(obj->model) + 1) = 0;
@@ -6151,7 +6151,7 @@ s32 func_00330f20(u8 *arg0) {
         break;
     case 5:
         if (H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x1C)) != 0 && H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x20)) != 0) {
-            *(s8 *)(t + 0x44) = func_002774d0(func_00455f70(D_00644E30, 0));
+            *(s8 *)(t + 0x44) = itfMesWindowInstall(func_00455f70(D_00644E30, 0));
             *(s8 *)(t + 0) = (s8)(*(s8 *)(t + 0) + 1);
         }
         break;
@@ -6172,7 +6172,7 @@ void func_003312e0(u8 *arg0) {
     func_003ef3a0((u8 *)*(u32 *)(t + 0x28));
     func_003ef3a0((u8 *)*(u32 *)(t + 0x2C));
     func_003ef3a0((u8 *)*(u32 *)(t + 0x30));
-    func_002777f0(*(s8 *)(t + 0x44));
+    itfMesWindowReleaseIfActive(*(s8 *)(t + 0x44));
     H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x1C));
     H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x20));
     D_008873EC[0](*(u8 **)(arg0 + 0x38));

@@ -2,27 +2,27 @@
 #include "include_asm.h"
 #include "type.h"
 #include "scene_event_internal.h"
-extern void func_002777f0();
+extern void itfMesWindowReleaseIfActive();
 extern void memset();
-extern s32 func_002774d0();
-extern void func_00278640(s32 arg0, s32 arg1, s32 arg2);
+extern s32 itfMesWindowInstall();
+extern void itfMesWindowApplyStyle(s32 arg0, s32 arg1, s32 arg2);
 /* Source unit: src/Event/mt_evtMessage_00290a50.c (donor FUN_0039f2a0) */
 
 extern void func_0046d730(u8 *file, s32 line);
 extern u8 D_0063C820[];
-extern s32 func_00278e20(s32 arg0, s32 arg1);
+extern s32 itfMesWindowEntryValue(s32 arg0, s32 arg1);
 
-extern void func_00276e70();
-extern void func_00277250();
-extern void func_00277ad0();
-extern void func_002781e0();
+extern void itfMesWindowSetState();
+extern void itfMesWindowRelease();
+extern void itfMesWindowClear();
+extern void itfMesWindowClearFlagBits();
 extern void func_00276e70_typed(s32, u8);
 extern void func_00277250_typed(s32);
 extern void func_00277ad0_typed(s32, s32);
 extern void func_002781e0_typed(s32, u32);
 /* Source unit: src/Event/mt_evtMessage_00290e10.c (donor FUN_0039f710) */
 
-extern u32 func_00278e90(int param_1);
+extern u32 itfMesWindowRecordCount(int param_1);
 
 /* measured: a named u8 boolean preserves retail's sltu materialisation;
    object 188B matches the 192-byte retail window with zero padding. */
@@ -36,11 +36,11 @@ s32 func_00290880(u8 *arg0, s32 arg1) {
         func_0046d730(D_0063C820, 0x2D);
     }
     *(s32 *)(arg0 + 4) = 0;
-    temp_2 = func_002774d0(arg1);
+    temp_2 = itfMesWindowInstall(arg1);
     if (temp_2 < 0) {
         func_0046d730(D_0063C820, 0x33);
     }
-    func_00278640(temp_2, 0, 0);
+    itfMesWindowApplyStyle(temp_2, 0, 0);
     *(s32 *)(arg0 + 8) = temp_2;
     *(s32 *)arg0 = 1;
     memset(arg0 + 0x20, -1, 0x14);
@@ -60,7 +60,7 @@ void func_00290940(u32 *param_1)
   bVar1 = *piVar1 != 0;
   if (bVar1) {
     func_00290b00(param_1);
-    func_002777f0(piVar1[2]);
+    itfMesWindowReleaseIfActive(piVar1[2]);
     *piVar1 = 0;
     memset(param_1, 0, 0x34);
   }
@@ -100,12 +100,12 @@ void func_00290a50(int *param_1)
   iVar1 = param_1[2];
   if ((u8)(*param_1 != 0)) {
     if (param_1[3] != 0) {
-      func_00276e70(iVar1,0);
-      func_00277250(iVar1);
-      func_00277ad0(iVar1,0);
-      func_002781e0(iVar1,0x800000);
-      func_002781e0(iVar1,0x100000);
-      func_00276e70(iVar1,1);
+      itfMesWindowSetState(iVar1,0);
+      itfMesWindowRelease(iVar1);
+      itfMesWindowClear(iVar1,0);
+      itfMesWindowClearFlagBits(iVar1,0x800000);
+      itfMesWindowClearFlagBits(iVar1,0x100000);
+      itfMesWindowSetState(iVar1,1);
       param_1[3] = 0;
     }
   }
@@ -154,32 +154,32 @@ void func_00290bc0(int *param_1)
     case 1:
       iVar5 = param_1[4];
       if (iVar5 >= 0) {
-        func_00278610(param_1[2], param_1[1]);
-        func_00278170(param_1[2], 0x200000);
-        func_002778c0(param_1[2], param_1[4], 0);
-        func_00277010(param_1[2], -1);
+        itfMesWindowSetStyle(param_1[2], param_1[1]);
+        itfMesWindowSetFlagBits(param_1[2], 0x200000);
+        itfMesWindowBindRecord(param_1[2], param_1[4], 0);
+        itfMesWindowSetAnim(param_1[2], -1);
         param_1[3] = 2;
       } else {
         param_1[3] = 3;
       }
       break;
     case 2:
-      lVar3 = func_00276e10(iVar2);
+      lVar3 = itfMesWindowState(iVar2);
       if (lVar3 < 0) {
         param_1[3] = 3;
       }
       break;
     case 3:
       if (param_1[5] >= 0) {
-        func_00277fd0(iVar2, 0);
-        func_00277be0(iVar2, param_1[5]);
+        itfMesWindowSetCursor(iVar2, 0);
+        itfMesWindowLayout(iVar2, param_1[5]);
         param_1[3] = 4;
       } else {
         param_1[3] = 5;
       }
       break;
     case 4:
-      lVar3 = func_00276fb0(iVar2);
+      lVar3 = itfMesWindowGetAnim(iVar2);
       if (lVar3 < 0) {
         uVar4 = func_00278260(iVar2);
         iVar2 = param_1[6];
@@ -192,12 +192,12 @@ void func_00290bc0(int *param_1)
       break;
     case 5:
       if (bVar0 && (param_1[3] != 0)) {
-        func_00276e70(iVar2, 0);
-        func_00277250(iVar2);
-        func_00277ad0(iVar2, 0);
-        func_002781e0(iVar2, 0x800000);
-        func_002781e0(iVar2, 0x100000);
-        func_00276e70(iVar2, 1);
+        itfMesWindowSetState(iVar2, 0);
+        itfMesWindowRelease(iVar2);
+        itfMesWindowClear(iVar2, 0);
+        itfMesWindowClearFlagBits(iVar2, 0x800000);
+        itfMesWindowClearFlagBits(iVar2, 0x100000);
+        itfMesWindowSetState(iVar2, 1);
         param_1[3] = 0;
       }
       break;
@@ -230,7 +230,7 @@ u32 func_00290e10(int *param_1)
   return 0;
 
 nonzero:
-  return func_00278e90(param_1[2]);
+  return itfMesWindowRecordCount(param_1[2]);
 }
 
 // FUN_00290E50
@@ -239,5 +239,5 @@ s32 func_00290e50(u8 *arg0, s32 arg1)
     if (!(u8)(*(u32 *)arg0 != 0)) {
         func_0046d730(D_0063C820, 0x122);
     }
-    return func_00278e20(*(s32 *)(arg0 + 8), arg1);
+    return itfMesWindowEntryValue(*(s32 *)(arg0 + 8), arg1);
 }

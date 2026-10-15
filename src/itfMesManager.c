@@ -8,19 +8,19 @@
 
 s32 func_0029d030(void);
 s32 scrGetParamInt(s32 index);
-void func_00277f70(s32 mesHandleIdx, u32 param_2);
+void itfMesWindowSetHandle(s32 mesHandleIdx, u32 param_2);
 void func_00440b68();
 extern char D_0063BE20[];
-void func_002782c0(int param_1,int param_2,int param_3,u32 param_4);
-u32 func_002786c0(int param_1,int param_2,int param_3);
-extern void func_00278450(int a, int b, char *c);
+void itfMesWindowFormatValue(int param_1,int param_2,int param_3,u32 param_4);
+u32 itfMesWindowSetParam(int param_1,int param_2,int param_3);
+extern void itfMesWindowSetString(int a, int b, char *c);
 extern int func_002438b0(int arg0);
 extern int func_00243840(int arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
 extern char iGpffffa760;
 extern int iGpffffb444;
 
-extern void func_00278640(s32 arg0, s16 arg1, s32 arg2);
+extern void itfMesWindowApplyStyle(s32 arg0, s16 arg1, s32 arg2);
 
 typedef struct {
     u8 *unk0;
@@ -52,17 +52,17 @@ void func_0046a2d0();
 void *func_0046a430();
 void memset();
 void func_0027a690();
-void func_0027a6c0();
+void itfMesClearSlots();
 void func_0027a6f0(s32 arg0);
 void func_0027b830(s32 arg0);
 void func_002851f0();
 s8 frFontRunCommand(int param_1, int param_2, int param_3);
 u8 *frFontBuildTextSimple(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8);
-u32 func_00279740(int param_1, int param_2);
+u32 itfMesRecordTextAt(int param_1, int param_2);
 void func_0027a340(u8 *arg0, s32 arg1);
-void func_0027a4d0(int param_1, u32 param_2);
-void func_00278450(s32 arg0, s32 arg1, char *arg2);
-void func_002784e0(s32 arg0, s32 arg1, s32 arg2);
+void itfMesListSetAlpha(int param_1, u32 param_2);
+void itfMesWindowSetString(s32 arg0, s32 arg1, char *arg2);
+void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2);
 s32 sprintf(char *buf, const char *fmt, ...);
 s32 func_002438b0(s32 arg0);
 s32 func_00243840(s32 arg0);
@@ -71,8 +71,8 @@ u32 func_001067f0(s16 arg0);
 u8 *datPersonaGetRow(u16 arg0);
 extern char iGpffffa760;
 extern s32 iGpffffb444;
-int func_00278de0(int param_1, int param_2);
-s32 func_0027a520(int param_1);
+int itfMesRecordEntry(int param_1, int param_2);
+s32 itfMesListWidth(int param_1);
 void frFontLoadSystemSlot(u8 *arg0);
 u8 *frFontBuildTextFull(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
 void memcpy(void *arg0, void *arg1, u32 arg2);
@@ -83,8 +83,8 @@ void frFontExSetScale(u8 *arg0, f32 fparg0);
 void *func_00285170(void *arg0);
 extern char D_0063BE60[];
 void func_0027b7c0(s32 arg0);
-void func_00279e90(u8 *arg0, u8 *arg1);
-void func_00279780(u8 *arg0);
+void itfMesWindowSetSelectionText(u8 *arg0, u8 *arg1);
+void itfMesWindowBuildRow(u8 *arg0);
 s32 frFontNodeWidth(u8 *arg0);
 u8 *frFontAppendList(u8 *arg0, u8 *arg1, s32 arg2);
 extern char D_0063BE80[];
@@ -94,51 +94,51 @@ u32 frFontMaskFlags(u32 arg0);
 s32 func_0027b6e0(s32 arg0, s32 arg1);
 void func_0027bb60(s32 arg0);
 void func_0027bbc0(s32 arg0);
-int func_00279fd0(int param_1, u32 param_2);
-u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
+int itfMesCountClearBits(int param_1, u32 param_2);
+u8 *itfMesBuildGlyphRun(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 s32 frFontListTail(int param_1);
 void func_0027bb00(s32 arg0);
-s32 func_0027a2d0(u8 *arg0, u8 *arg1);
-void func_0027a2a0(int param_1, int param_2);
-void func_0027a580(int param_1);
+s32 itfMesLineCount(u8 *arg0, u8 *arg1);
+void itfMesWindowSetMetrics(int param_1, int param_2);
+void itfMesListEnableVisible(int param_1);
 extern u8 D_00881530[];
-void func_00279dd0(u8 *arg0, u8 *arg1);
+void itfMesWindowSetLabel(u8 *arg0, u8 *arg1);
 extern s32 iGpffffb4b0;
-void func_00279ce0();
+void itfMesApplySlotTable();
 void frFontSetListSlot();
 void frFontDrawListMode();
-u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-void func_00279300(u8 *arg0, s32 arg1);
+u8 *itfMesWindowBuildEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+void itfMesWindowDrawCallback(u8 *arg0, s32 arg1);
 void *func_00460990();
 void func_00460ac0();
-u8 *func_00278570(u8 *arg0, u8 *arg1);
-s32 func_002778c0(s32 arg0, s32 arg1, s32 arg2);
-s32 func_00278610(s32 arg0, s16 arg1);
-void func_00277250(s32 arg0);
-void func_00278170(s32 arg0, s32 arg1);
-void func_002781e0(s32 arg0, s32 arg1);
+u8 *itfMesObjectSetRecord(u8 *arg0, u8 *arg1);
+s32 itfMesWindowBindRecord(s32 arg0, s32 arg1, s32 arg2);
+s32 itfMesWindowSetStyle(s32 arg0, s16 arg1);
+void itfMesWindowRelease(s32 arg0);
+void itfMesWindowSetFlagBits(s32 arg0, s32 arg1);
+void itfMesWindowClearFlagBits(s32 arg0, s32 arg1);
 extern s32 DAT_007245C4;
 void func_0027b750(s32 arg0, s32 arg1, s32 arg2);
 void func_0027b8a0(s32 arg0);
-void func_00277ad0(s32 arg0, s32 arg1);
-void func_00277be0(s32 arg0, s32 arg1);
-void func_00277e80(s32 arg0);
+void itfMesWindowClear(s32 arg0, s32 arg1);
+void itfMesWindowLayout(s32 arg0, s32 arg1);
+void itfMesWindowEnd(s32 arg0);
 void scrSetReturnInt(s32 arg0);
-void func_00278a70(s32 arg0);
-void func_00278b80(u8 *arg0);
-s32 func_00278da0(u8 *arg0);
-u8 *func_002776a0(u8 *arg0);
+void itfMesWindowFree(s32 arg0);
+void itfMesObjectFree(u8 *arg0);
+s32 itfMesRecordIsValid(u8 *arg0);
+u8 *itfMesObjectCreate(u8 *arg0);
 extern u8 DAT_008817E0_abs[];
 s32 frFontListKeepOrRelease(s32 arg0);
 void func_0027a630(void *arg0, s32 arg1);
 void func_0027a650(void *arg0, s32 arg1);
 void func_0027baa0(s32 arg0);
-void func_00277b10(u8 *arg0, s32 arg1);
+void itfMesWindowClearObject(u8 *arg0, s32 arg1);
 void frFontMoveListTo(s32 arg0, s32 arg1, s32 arg2);
-void func_00277ec0(u8 *arg0);
-void func_00279a80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-void func_00279c00(u8 *arg0, s32 arg1, s32 arg2);
-void func_00278d50(u8 *arg0);
+void itfMesWindowResetObject(u8 *arg0);
+void itfMesObjectSetString(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+void itfMesObjectSetNumber(u8 *arg0, s32 arg1, s32 arg2);
+void itfMesRecordFixup(u8 *arg0);
 void func_0027a5e0(void *arg0, s16 arg1);
 extern char D_0063BED0[];
 s32 func_00454a60(char *arg0, s32 arg1);
@@ -149,7 +149,7 @@ extern char DAT_00723858;
 
 
 // FUN_00276630
-s32 func_00276630(void)
+s32 itfMesCmdWindowOpen(void)
 {
     s32 index;
     s32 handle;
@@ -169,8 +169,8 @@ s32 func_00276630(void)
     base = object + 0x1C;
     flag = *(s8 *)(object + 0x24);
     if (flag == 0) {
-        func_00278610(index, 0);
-        if (func_002778c0(index, handle, 0) == 0)
+        itfMesWindowSetStyle(index, 0);
+        if (itfMesWindowBindRecord(index, handle, 0) == 0)
             return 1;
     } else if (flag < 0) {
         *(s8 *)(base + 8) = 0;
@@ -180,7 +180,7 @@ s32 func_00276630(void)
 }
 
 // FUN_00276730
-s32 func_00276730(void)
+s32 itfMesCmdWindowClose(void)
 {
     s32 index;
     s32 handle;
@@ -201,13 +201,13 @@ s32 func_00276730(void)
     base = object + 0x1C;
     flag = *(s8 *)(object + 0x24);
     if (flag == 0) {
-        func_00278610(index, 1);
-        func_00278170(index, 0x200000);
-        if (func_002778c0(index, handle, 0) == 0)
+        itfMesWindowSetStyle(index, 1);
+        itfMesWindowSetFlagBits(index, 0x200000);
+        if (itfMesWindowBindRecord(index, handle, 0) == 0)
             return 1;
     } else if (flag < 0) {
         if (flag == -1) {
-            func_00277250(index);
+            itfMesWindowRelease(index);
             *(s8 *)(base + 8) = -2;
             DAT_007245C4 = 0;
         } else if (flag == -2) {
@@ -218,9 +218,9 @@ s32 func_00276730(void)
                 return 1;
             }
         } else if ((*(u32 *)object & 0x300) == 0) {
-            func_00277250(index);
-            func_00278610(index, 0);
-            func_002781e0(index, 0x400000);
+            itfMesWindowRelease(index);
+            itfMesWindowSetStyle(index, 0);
+            itfMesWindowClearFlagBits(index, 0x400000);
             *(s8 *)(base + 8) = 0;
             return 1;
         }
@@ -229,7 +229,7 @@ s32 func_00276730(void)
 }
 
 // FUN_002768E0
-s32 func_002768e0(void)
+s32 itfMesCmdWindowOpenStyled(void)
 {
     s32 index;
     s32 handle;
@@ -251,16 +251,16 @@ s32 func_002768e0(void)
     base = object + 0x1C;
     flag = *(s8 *)(object + 0x24);
     if (flag == 0) {
-        func_00278610(index, 1);
-        func_00278170(index, 0x200000);
-        result = func_002778c0(index, handle, 0);
+        itfMesWindowSetStyle(index, 1);
+        itfMesWindowSetFlagBits(index, 0x200000);
+        result = itfMesWindowBindRecord(index, handle, 0);
         func_0027b750(index, 0, scrGetParamInt(1));
         func_0027b8a0(index);
         if (result == 0)
             return 1;
     } else if (flag < 0) {
         if (flag == -1) {
-            func_00277250(index);
+            itfMesWindowRelease(index);
             *(s8 *)(base + 8) = -2;
             DAT_007245C4 = 0;
         } else if (flag == -2) {
@@ -271,9 +271,9 @@ s32 func_002768e0(void)
                 return 1;
             }
         } else if ((*(u32 *)object & 0x300) == 0) {
-            func_00277250(index);
-            func_00278610(index, 0);
-            func_002781e0(index, 0x400000);
+            itfMesWindowRelease(index);
+            itfMesWindowSetStyle(index, 0);
+            itfMesWindowClearFlagBits(index, 0x400000);
             *(s8 *)(base + 8) = 0;
             return 1;
         }
@@ -282,7 +282,7 @@ s32 func_002768e0(void)
 }
 
 // FUN_00276AC0
-s32 func_00276ac0(void)
+s32 itfMesCmdWindowOpenAt(void)
 {
     s32 index;
     s32 h0;
@@ -306,26 +306,26 @@ s32 func_00276ac0(void)
     base = object + 0x3C;
     f = *(s16 *)(object + 0x48);
     if (f == 0) {
-        func_00278610(index, 3);
-        func_00278170(index, 0x200000);
-        if (func_002778c0(index, h0, 0) == 0)
+        itfMesWindowSetStyle(index, 3);
+        itfMesWindowSetFlagBits(index, 0x200000);
+        if (itfMesWindowBindRecord(index, h0, 0) == 0)
             return 1;
-        func_00277f70(index, h2);
-        func_00277be0(index, h1);
+        itfMesWindowSetHandle(index, h2);
+        itfMesWindowLayout(index, h1);
     } else if (f < 0) {
         *(s16 *)(base + 0xC) = 0;
-        func_00277ad0(index, 0);
+        itfMesWindowClear(index, 0);
         *(s8 *)(object + 0x24) = 0;
         scrSetReturnInt(*(s16 *)(base + 0x10));
-        func_00277e80(index);
-        func_00277250(index);
+        itfMesWindowEnd(index);
+        itfMesWindowRelease(index);
         return 1;
     }
     return 0;
 }
 
 // FUN_00276C60
-s32 func_00276c60(void)
+s32 itfMesCmdWindowOpenHold(void)
 {
     s32 index;
     s32 handle;
@@ -346,13 +346,13 @@ s32 func_00276c60(void)
     base = object + 0x1C;
     flag = *(s8 *)(object + 0x24);
     if (flag == 0) {
-        func_00278610(index, 4);
-        func_00278170(index, 0x200000);
-        if (func_002778c0(index, handle, 0) == 0)
+        itfMesWindowSetStyle(index, 4);
+        itfMesWindowSetFlagBits(index, 0x200000);
+        if (itfMesWindowBindRecord(index, handle, 0) == 0)
             return 1;
     } else if (flag < 0) {
         if (flag == -1) {
-            func_00277250(index);
+            itfMesWindowRelease(index);
             *(s8 *)(base + 8) = -2;
             DAT_007245C4 = 0;
         } else if (flag == -2) {
@@ -363,9 +363,9 @@ s32 func_00276c60(void)
                 return 1;
             }
         } else if ((*(u32 *)object & 0x300) == 0) {
-            func_00277250(index);
-            func_00278610(index, 0);
-            func_002781e0(index, 0x400000);
+            itfMesWindowRelease(index);
+            itfMesWindowSetStyle(index, 0);
+            itfMesWindowClearFlagBits(index, 0x400000);
             *(s8 *)(base + 8) = 0;
             return 1;
         }
@@ -374,7 +374,7 @@ s32 func_00276c60(void)
 }
 
 // FUN_00276E10
-s8 func_00276e10(s32 arg0)
+s8 itfMesWindowState(s32 arg0)
 {
     u8 *object;
 
@@ -385,7 +385,7 @@ s8 func_00276e10(s32 arg0)
 }
 
 // FUN_00276E70
-void func_00276e70(s32 arg0, s8 arg1)
+void itfMesWindowSetState(s32 arg0, s8 arg1)
 {
     u8 *object;
 
@@ -396,7 +396,7 @@ void func_00276e70(s32 arg0, s8 arg1)
 }
 
 // FUN_00276ED0
-s32 func_00276ed0(void)
+s32 itfMesCmdWindowResult(void)
 {
     s32 index;
     s32 h;
@@ -416,18 +416,18 @@ s32 func_00276ed0(void)
     base = object + 0x3C;
     f = *(s16 *)(object + 0x48);
     if (f == 0) {
-        func_00277be0(index, h);
+        itfMesWindowLayout(index, h);
     } else if (f < 0) {
         *(s16 *)(base + 0xC) = 0;
         scrSetReturnInt(*(s16 *)(base + 0x10));
-        func_00277e80(index);
+        itfMesWindowEnd(index);
         return 1;
     }
     return 0;
 }
 
 // FUN_00276FB0
-s16 func_00276fb0(s32 arg0)
+s16 itfMesWindowGetAnim(s32 arg0)
 {
     u8 *object;
 
@@ -438,7 +438,7 @@ s16 func_00276fb0(s32 arg0)
 }
 
 // FUN_00277010
-void func_00277010(s32 arg0, s16 arg1)
+void itfMesWindowSetAnim(s32 arg0, s16 arg1)
 {
     u8 *object;
 
@@ -449,7 +449,7 @@ void func_00277010(s32 arg0, s16 arg1)
 }
 
 // FUN_00277070
-s32 func_00277070(s32 arg0)
+s32 itfMesWindowGetAnimAux(s32 arg0)
 {
     u8 *object;
 
@@ -459,7 +459,7 @@ s32 func_00277070(s32 arg0)
     return *(s16 *)(object + 0x4A);
 }
 // FUN_002770D0
-u32 func_002770d0(void)
+u32 itfMesCmdWindowSetHandle(void)
 {
   int value;
   u32 other;
@@ -469,27 +469,27 @@ u32 func_002770d0(void)
     return 1;
 
   other = scrGetParamInt(0);
-  func_00277f70(value, other);
+  itfMesWindowSetHandle(value, other);
   return 1;
 }
 
 
 
 // FUN_00277130
-s32 func_00277130(void)
+s32 itfMesCmdWindowReset(void)
 {
     s32 index;
 
     index = func_0029d030();
     if (index < 0)
         return 1;
-    func_00278640(index, 0, 0);
-    func_00278170(index, 0x200000);
+    itfMesWindowApplyStyle(index, 0, 0);
+    itfMesWindowSetFlagBits(index, 0x200000);
     return 1;
 }
 
 // FUN_002771A0
-s32 func_002771a0(void)
+s32 itfMesCmdWindowIsIdle(void)
 {
     s32 index;
     u8 *object;
@@ -505,12 +505,12 @@ s32 func_002771a0(void)
 
     flags = *(s32 *)object & 0x300;
     if (flags == 0x100 || flags == 0x200)
-        func_00277250(index);
+        itfMesWindowRelease(index);
     return flags == 0;
 }
 
 // FUN_00277250
-void func_00277250(s32 arg0)
+void itfMesWindowRelease(s32 arg0)
 {
     s32 v;
     s32 w;
@@ -546,12 +546,12 @@ out:
         *(u32 *)obj = w;
         *(u32 *)obj = w | 0x3000;
     }
-    func_00277ad0(arg0, 1);
-    func_00277e80(arg0);
+    itfMesWindowClear(arg0, 1);
+    itfMesWindowEnd(arg0);
     *(u32 *)obj &= 0xFFDFFFFF;
 }
 // FUN_00277370
-u32 func_00277370(void)
+u32 itfMesCmdWindowSetValue(void)
 {
   int lVar1;
   u32 uVar2;
@@ -569,14 +569,14 @@ u32 func_00277370(void)
   uVar2 = scrGetParamInt(0);
   uVar3 = scrGetParamInt(1);
   uVar4 = scrGetParamInt(2);
-  func_002782c0(lVar1,uVar2,uVar3,uVar4);
+  itfMesWindowFormatValue(lVar1,uVar2,uVar3,uVar4);
   return 1;
 }
 
 
 
 // FUN_00277450
-u32 func_00277450(void)
+u32 itfMesCmdWindowSetParam(void)
 {
   s32 lVar1;
   u32 uVar2;
@@ -588,7 +588,7 @@ u32 func_00277450(void)
   }
   uVar2 = scrGetParamInt(0);
   uVar3 = scrGetParamInt(1);
-  func_002786c0(lVar1,uVar2,uVar3);
+  itfMesWindowSetParam(lVar1,uVar2,uVar3);
   return 1;
 }
 
@@ -601,7 +601,7 @@ u32 func_00277450(void)
 #pragma push
 #pragma opt_propagation off
 // FUN_002774D0
-s32 func_002774d0(u8 *arg0)
+s32 itfMesWindowInstall(u8 *arg0)
 {
     s32 sp50[0x4C];
     s32 result;
@@ -611,13 +611,13 @@ s32 func_002774d0(u8 *arg0)
     u8 *manager;
     u8 *obj;
 
-    if (func_00278da0(arg0) != 1)
+    if (itfMesRecordIsValid(arg0) != 1)
         func_0046d730(D_0063BE10, 0x525);
     manager = (u8 *)func_00285170(DAT_008817EC_abs);
     if (manager == NULL)
         func_0046d730(D_0063BE10, 0x529);
     result = *(s32 *)(manager + 8);
-    obj = func_002776a0(arg0);
+    obj = itfMesObjectCreate(arg0);
     if (manager == NULL || obj == NULL)
         func_0046d730(D_0063BE10, 0x4F4);
     i = 0;
@@ -655,17 +655,17 @@ slot_done:
 }
 #pragma pop
 // FUN_002776A0
-u8 *func_002776a0(u8 *arg0)
+u8 *itfMesObjectCreate(u8 *arg0)
 {
     u8 *obj;
 
-    if (func_00278da0(arg0) != 1)
+    if (itfMesRecordIsValid(arg0) != 1)
         func_0046d730(D_0063BE10, 0x55A);
     func_0046a2d0(D_0063BE10, 0x567);
     obj = func_0046a430(0x130);
     memset(obj, 0, 0x130);
     *(s32 *)(obj + 4) = 0;
-    func_00278570(obj, arg0);
+    itfMesObjectSetRecord(obj, arg0);
     *(s32 *)obj = 0;
     *(s32 *)(obj + 0xC) = 0;
     *(s32 *)(obj + 0x10) = 0;
@@ -673,29 +673,29 @@ u8 *func_002776a0(u8 *arg0)
     func_0027a630(obj + 0x14, 1);
     func_0027a650(obj + 0x1C, 1);
     func_0027a690(obj + 0x3C);
-    func_0027a6c0(obj + 0x94);
+    itfMesClearSlots(obj + 0x94);
     return obj;
 }
 
 // FUN_002777A0
-s32 func_002777a0(u8 *arg0)
+s32 itfMesRecordCount(u8 *arg0)
 {
-    if (func_00278da0(arg0) != 1)
+    if (itfMesRecordIsValid(arg0) != 1)
         func_0046d730(D_0063BE10, 0x589);
     return *(s32 *)(arg0 + 0x18);
 }
 
 // FUN_002777F0
-void func_002777f0(s32 arg0)
+void itfMesWindowReleaseIfActive(s32 arg0)
 {
     if (arg0 >= 0) {
         if (*(s32 *)(DAT_008817E0_abs + (arg0 << 5) + 0x28) != 0)
-            func_00278a70(arg0);
+            itfMesWindowFree(arg0);
     }
 }
 
 // FUN_00277840
-s32 func_00277840(s32 arg0)
+s32 itfMesWindowGetSubTable(s32 arg0)
 {
     u8 *object;
 
@@ -708,7 +708,7 @@ s32 func_00277840(s32 arg0)
 }
 
 // FUN_002778C0
-s32 func_002778c0(s32 arg0, s32 arg1, s32 arg2)
+s32 itfMesWindowBindRecord(s32 arg0, s32 arg1, s32 arg2)
 {
     s32 bits;
     s32 m3;
@@ -723,9 +723,9 @@ s32 func_002778c0(s32 arg0, s32 arg1, s32 arg2)
     obj = D_00881808[arg0].unk0;
     if (obj == NULL)
         func_0046d730(D_0063BE10, 0x5DE);
-    r = (u8 *)func_00278de0((s32)obj, arg1);
+    r = (u8 *)itfMesRecordEntry((s32)obj, arg1);
     if (*(s32 *)r == 1) {
-        func_00277be0(arg0, arg1);
+        itfMesWindowLayout(arg0, arg1);
         return 1;
     }
     r2 = *(u8 **)(r + 4);
@@ -735,13 +735,13 @@ s32 func_002778c0(s32 arg0, s32 arg1, s32 arg2)
     *(s16 *)(base + 0x12) = *(s16 *)(r2 + 0x18);
     if (*(s16 *)(r2 + 0x18) == 0)
         return 0;
-    func_00279e90(obj, r2);
-    func_00279ce0(obj + 0x94);
+    itfMesWindowSetSelectionText(obj, r2);
+    itfMesApplySlotTable(obj + 0x94);
     v = *(s32 *)(obj + 8);
     if (v != 0)
         frFontLoadSystemSlot((u8 *)v);
     func_0027b7c0(arg0);
-    func_00279780(obj);
+    itfMesWindowBuildRow(obj);
     bits = *(s32 *)obj;
     m3 = bits & 0x300;
     if ((bits & 0x200000) && (m3 == 0 || m3 == 0x300)) {
@@ -765,14 +765,14 @@ s32 func_002778c0(s32 arg0, s32 arg1, s32 arg2)
 }
 
 // FUN_00277AD0
-void func_00277ad0(s32 arg0, s32 arg1)
+void itfMesWindowClear(s32 arg0, s32 arg1)
 {
     if (arg0 >= 0)
-        func_00277b10(D_00881808[arg0].unk0, arg1);
+        itfMesWindowClearObject(D_00881808[arg0].unk0, arg1);
 }
 
 // FUN_00277B10
-void func_00277b10(u8 *arg0, s32 arg1)
+void itfMesWindowClearObject(u8 *arg0, s32 arg1)
 {
     u8 *base;
     u8 *base2;
@@ -810,7 +810,7 @@ void func_00277b10(u8 *arg0, s32 arg1)
    docs/probe_archive/MessagePrepareRecovery_00277be0_body.c and never
    installed. */
 // FUN_00277BE0
-void func_00277be0(s32 arg0, s32 arg1)
+void itfMesWindowLayout(s32 arg0, s32 arg1)
 {
     u8 *object;
     s32 flags;
@@ -836,7 +836,7 @@ void func_00277be0(s32 arg0, s32 arg1)
     object = D_00881808[arg0].unk0;
     if (object == NULL)
         func_0046d730(D_0063BE10, 0x686);
-    record = (u8 *)func_00278de0((s32)object, arg1);
+    record = (u8 *)itfMesRecordEntry((s32)object, arg1);
     if (*(s32 *)record != 1)
         func_0046d730(D_0063BE10, 0x68A);
     base = object + 0x3C;
@@ -864,20 +864,20 @@ void func_00277be0(s32 arg0, s32 arg1)
     }
     mask = *(u32 *)(base + 8) | new_mask;
     *(u32 *)(base + 8) = mask;
-    visible_count = func_00279fd0(*(s16 *)(data + 0x1A), mask);
+    visible_count = itfMesCountClearBits(*(s16 *)(data + 0x1A), mask);
     func_0027b750(arg0, 0, visible_count);
     func_0027bb60(arg0);
     x = func_0027b6e0(arg0, 0);
     y = func_0027b6e0(arg0, 1);
     spacing = func_0027b6e0(arg0, 2);
-    func_00279ce0(object + 0x94);
+    itfMesApplySlotTable(object + 0x94);
     font = *(s32 *)(object + 8);
     if (font != 0)
         frFontLoadSystemSlot((u8 *)font);
     saved_font = iGpffffb4b0;
     if (saved_font == 0)
         iGpffffb4b0 = 0x7B;
-    *(s32 *)(base + 4) = (s32)func_0027a010(
+    *(s32 *)(base + 4) = (s32)itfMesBuildGlyphRun(
         (u32 *)(data + 0x20),
         *(s16 *)(data + 0x1A),
         *(u32 *)(base + 8),
@@ -896,13 +896,13 @@ void func_00277be0(s32 arg0, s32 arg1)
     *(s32 *)base = arg1;
 }
 // FUN_00277E80
-void func_00277e80(s32 arg0)
+void itfMesWindowEnd(s32 arg0)
 {
-    func_00277ec0(D_00881808[arg0].unk0);
+    itfMesWindowResetObject(D_00881808[arg0].unk0);
 }
 
 // FUN_00277EC0
-void func_00277ec0(u8 *arg0)
+void itfMesWindowResetObject(u8 *arg0)
 {
     u8 *base;
     s32 v;
@@ -926,7 +926,7 @@ void func_00277ec0(u8 *arg0)
 }
 
 // FUN_00277F70
-void func_00277f70(s32 arg0, u32 arg1)
+void itfMesWindowSetHandle(s32 arg0, u32 arg1)
 {
     u8 *object;
 
@@ -937,7 +937,7 @@ void func_00277f70(s32 arg0, u32 arg1)
 }
 
 // FUN_00277FD0
-void func_00277fd0(s32 arg0, s32 arg1)
+void itfMesWindowSetCursor(s32 arg0, s32 arg1)
 {
     u8 *object;
     u8 *base;
@@ -972,7 +972,7 @@ void func_00277fd0(s32 arg0, s32 arg1)
 }
 
 // FUN_00278090
-void func_00278090(s32 arg0, s32 arg1, s32 arg2)
+void itfMesWindowMove(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *object;
 
@@ -983,7 +983,7 @@ void func_00278090(s32 arg0, s32 arg1, s32 arg2)
 }
 
 // FUN_00278110
-s32 func_00278110(s32 arg0)
+s32 itfMesWindowGetFlags(s32 arg0)
 {
     u8 *object;
 
@@ -994,7 +994,7 @@ s32 func_00278110(s32 arg0)
 }
 
 // FUN_00278170
-void func_00278170(s32 arg0, s32 arg1)
+void itfMesWindowSetFlagBits(s32 arg0, s32 arg1)
 {
     u8 *object;
 
@@ -1005,7 +1005,7 @@ void func_00278170(s32 arg0, s32 arg1)
 }
 
 // FUN_002781E0
-void func_002781e0(s32 arg0, s32 arg1)
+void itfMesWindowClearFlagBits(s32 arg0, s32 arg1)
 {
     u8 *object;
 
@@ -1050,56 +1050,56 @@ s16 func_00278260(s32 arg0)
    to an integer materialises the address first. Same lever as the "call-
    argument setup order" floor entry, which this closes. */
 // FUN_002782C0
-void func_002782c0(int param_1, int param_2, int param_3, u32 param_4) {
+void itfMesWindowFormatValue(int param_1, int param_2, int param_3, u32 param_4) {
     char sp30[16];
 
     switch (param_4) {
     case 0:
         sprintf(sp30, &iGpffffa760, param_3);
-        func_00278450(param_1, param_2, sp30);
+        itfMesWindowSetString(param_1, param_2, sp30);
         break;
     case 1:
-        func_002784e0(param_1, param_2, param_3);
+        itfMesWindowSetNumber(param_1, param_2, param_3);
         break;
     case 2:
-        func_00278450(param_1, param_2, (char *)(iGpffffb444 + param_3 * 21));
+        itfMesWindowSetString(param_1, param_2, (char *)(iGpffffb444 + param_3 * 21));
         break;
     case 3:
-        func_00278450(param_1, param_2, (char *)func_002438b0(param_3 & 0xFF));
+        itfMesWindowSetString(param_1, param_2, (char *)func_002438b0(param_3 & 0xFF));
         break;
     case 4:
-        func_00278450(param_1, param_2, (char *)func_0010d620((s16)param_3));
+        itfMesWindowSetString(param_1, param_2, (char *)func_0010d620((s16)param_3));
         break;
     case 5:
-        func_00278450(param_1, param_2, (char *)func_001067f0((s16)param_3));
+        itfMesWindowSetString(param_1, param_2, (char *)func_001067f0((s16)param_3));
         break;
     case 6:
-        func_00278450(param_1, param_2, (char *)func_00243840(param_3 & 0xFFFF));
+        itfMesWindowSetString(param_1, param_2, (char *)func_00243840(param_3 & 0xFFFF));
         break;
     case 7:
-        func_00278450(param_1, param_2, (char *)datPersonaGetRow(param_3 & 0xFFFF));
+        itfMesWindowSetString(param_1, param_2, (char *)datPersonaGetRow(param_3 & 0xFFFF));
         break;
     }
 }
 
 // FUN_00278450
-void func_00278450(s32 arg0, s32 arg1, char *arg2)
+void itfMesWindowSetString(s32 arg0, s32 arg1, char *arg2)
 {
     if (arg0 < 0 || arg0 >= 0x40)
         func_0046d730(D_0063BE10, 0x134);
-    func_00279a80(D_00881808[arg0].unk0, arg1, (s32)arg2, 0);
+    itfMesObjectSetString(D_00881808[arg0].unk0, arg1, (s32)arg2, 0);
 }
 
 // FUN_002784E0
-void func_002784e0(s32 arg0, s32 arg1, s32 arg2)
+void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2)
 {
     if (arg0 < 0 || arg0 >= 0x40)
         func_0046d730(D_0063BE10, 0x134);
-    func_00279c00(D_00881808[arg0].unk0, arg1, arg2);
+    itfMesObjectSetNumber(D_00881808[arg0].unk0, arg1, arg2);
 }
 
 // FUN_00278570
-u8 *func_00278570(u8 *arg0, u8 *arg1)
+u8 *itfMesObjectSetRecord(u8 *arg0, u8 *arg1)
 {
     u8 *old;
     u8 *temp;
@@ -1109,8 +1109,8 @@ u8 *func_00278570(u8 *arg0, u8 *arg1)
         func_0046d730(D_0063BE10, 0x8F4);
     old = *(u8 **)(arg0 + 4);
     *(u8 **)(arg0 + 4) = arg1;
-    func_00278d50(arg1);
-    temp = (u8 *)func_00278e00((int)arg1);
+    itfMesRecordFixup(arg1);
+    temp = (u8 *)itfMesRecordTail((int)arg1);
     if (*(u32 *)(arg1 + 8) == 0x3147534D)
         v = *(s32 *)(temp + 8);
     else
@@ -1120,14 +1120,14 @@ u8 *func_00278570(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00278610
-s32 func_00278610(s32 arg0, s16 arg1)
+s32 itfMesWindowSetStyle(s32 arg0, s16 arg1)
 {
-    func_00278640(arg0, arg1, 0);
+    itfMesWindowApplyStyle(arg0, arg1, 0);
     return 0;
 }
 
 // FUN_00278640
-void func_00278640(s32 arg0, s16 arg1, s32 arg2)
+void itfMesWindowApplyStyle(s32 arg0, s16 arg1, s32 arg2)
 {
     u8 *object;
 
@@ -1140,7 +1140,7 @@ void func_00278640(s32 arg0, s16 arg1, s32 arg2)
 }
 
 // FUN_002786C0
-u32 func_002786c0(int arg0, int arg1, int arg2)
+u32 itfMesWindowSetParam(int arg0, int arg1, int arg2)
 {
     s32 count;
     u8 *slot;
@@ -1183,7 +1183,7 @@ u32 func_002786c0(int arg0, int arg1, int arg2)
    returning func_0027a520's result matched byte-exact (nd 0). mwcc requires
    explicit casts (u8*<->int) at the func_00278de0/00279740 call sites. */
 // FUN_002787D0
-s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 itfMesWindowMeasureText(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *obj;
     u8 *t;
     s32 r;
@@ -1195,7 +1195,7 @@ s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (obj == NULL) {
         func_0046d730(D_0063BE10, 0x9AE);
     }
-    t = (u8 *)func_00278de0((int)obj, arg1);
+    t = (u8 *)itfMesRecordEntry((int)obj, arg1);
     if (*(s32 *)t != 0) {
         func_0046d730(D_0063BE10, 0x9B3);
     }
@@ -1203,12 +1203,12 @@ s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (*(s16 *)(t + 0x18) == 0) {
         return 0;
     }
-    func_00279ce0(obj + 0x94);
+    itfMesApplySlotTable(obj + 0x94);
     r = *(s32 *)(obj + 8);
     if (r != 0) {
         frFontLoadSystemSlot((u8 *)r);
     }
-    r = func_00279740((int)t, arg2);
+    r = itfMesRecordTextAt((int)t, arg2);
     if (r == 0) {
         return 0;
     }
@@ -1218,12 +1218,12 @@ s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
     res = (s32)frFontBuildTextFull(0, 0, 0, arg3 & 0xFF, 0, 0, 0xFF, r, 0);
     iGpffffb4b0 = local;
-    final = func_0027a520(res);
+    final = itfMesListWidth(res);
     frFontListKeepOrRelease(res);
     return final;
 }
 // FUN_00278940
-void func_00278940(void)
+void itfMesLoadData(void)
 {
     func_00440b68(&DAT_00723858, D_0063BE10, 0xA00);
     H_Cdvd_ReadSync(func_00454a60(D_0063BF00, 1));
@@ -1231,7 +1231,7 @@ void func_00278940(void)
 }
 
 // FUN_002789A0
-void func_002789a0(void)
+void itfMesInitManager(void)
 {
     u8 *entry;
 
@@ -1249,7 +1249,7 @@ void func_002789a0(void)
 }
 
 // FUN_00278A70
-void func_00278a70(s32 arg0)
+void itfMesWindowFree(s32 arg0)
 {
     u8 *base;
     u8 *row;
@@ -1272,7 +1272,7 @@ void func_00278a70(s32 arg0)
             v = 0;
         }
         if (v != 0) {
-            func_00278b80((u8 *)v);
+            itfMesObjectFree((u8 *)v);
         }
     }
     func_002851f0(base, DAT_008817EC_abs);
@@ -1280,13 +1280,13 @@ void func_00278a70(s32 arg0)
 }
 
 // FUN_00278B80
-void func_00278b80(u8 *arg0)
+void itfMesObjectFree(u8 *arg0)
 {
     u8 *base;
     s32 v;
 
     if (arg0 != NULL) {
-        func_00277b10(arg0, 1);
+        itfMesWindowClearObject(arg0, 1);
         if (arg0 == NULL)
             func_0046d730(D_0063BE10, 0x6F0);
         base = arg0 + 0x3C;
@@ -1309,7 +1309,7 @@ void func_00278b80(u8 *arg0)
     }
 }
 // FUN_00278C60
-static void func_00278c60(int *param_1, int param_2, u8 *param_3, int param_4)
+static void itfMesApplyRelocs(int *param_1, int param_2, u8 *param_3, int param_4)
 {
   u8 bVar1;
   u8 *pbVar3;
@@ -1361,7 +1361,7 @@ check:
 // FUN_00278D50
 #pragma push
 #pragma opt_propagation off
-void func_00278d50(u8 *arg0)
+void itfMesRecordFixup(u8 *arg0)
 {
     u8 *base;
     u8 *fixups;
@@ -1371,13 +1371,13 @@ void func_00278d50(u8 *arg0)
         base = arg0 + 0x20;
         fixups = arg0 + *(s32 *)(arg0 + 0x10);
         size = *(s32 *)(arg0 + 0x14);
-        func_00278c60((int *)base, (int)base, fixups, size);
+        itfMesApplyRelocs((int *)base, (int)base, fixups, size);
         *(u8 *)(arg0 + 0x1C) = 1;
     }
 }
 #pragma pop
 // FUN_00278DA0
-s32 func_00278da0(u8 *arg0)
+s32 itfMesRecordIsValid(u8 *arg0)
 {
     s32 tag;
     s32 result;
@@ -1396,7 +1396,7 @@ s32 func_00278da0(u8 *arg0)
    for-byte (fndiff 2 = benign tail padding; verify MATCH, decomp_lint clean).
    No volatile remains in this file. */
 // FUN_00278DE0
-int func_00278de0(int param_1,int param_2)
+int itfMesRecordEntry(int param_1,int param_2)
 {
   s32 base;
   s32 index;
@@ -1406,7 +1406,7 @@ int func_00278de0(int param_1,int param_2)
   return index + base + 0x20;
 }
 // FUN_00278E00
-int func_00278e00(int param_1)
+int itfMesRecordTail(int param_1)
 {
   int iVar1;
 
@@ -1417,7 +1417,7 @@ int func_00278e00(int param_1)
 
 
 // FUN_00278E20
-s32 func_00278e20(s32 arg0, s32 arg1)
+s32 itfMesWindowEntryValue(s32 arg0, s32 arg1)
 {
     u8 *object;
     s32 off;
@@ -1430,7 +1430,7 @@ s32 func_00278e20(s32 arg0, s32 arg1)
 }
 
 // FUN_00278E90
-s32 func_00278e90(s32 arg0)
+s32 itfMesWindowRecordCount(s32 arg0)
 {
     u8 *object;
 
@@ -1441,7 +1441,7 @@ s32 func_00278e90(s32 arg0)
 }
 
 // FUN_00278EF0
-void func_00278ef0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg4)
+void itfMesWindowSetGlyphStyle(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg4)
 {
     u8 *object;
     u8 *tmp;
@@ -1460,7 +1460,7 @@ void func_00278ef0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg4)
     *(s8 *)(object + 0x29) = arg3;
 }
 // FUN_00278FB0
-s32 func_00278fb0(s32 arg0)
+s32 itfMesWindowGetTextList(s32 arg0)
 {
     return *(s32 *)(D_00881808[arg0].unk0 + 0x20);
 }
@@ -1468,7 +1468,7 @@ s32 func_00278fb0(s32 arg0)
 
 
 // FUN_00278FD0
-s32 func_00278fd0(s32 arg0)
+s32 itfMesWindowGetBodyList(s32 arg0)
 {
     return *(s32 *)(D_00881808[arg0].unk0 + 0x14);
 }
@@ -1476,7 +1476,7 @@ s32 func_00278fd0(s32 arg0)
 
 
 // FUN_00278FF0
-s32 func_00278ff0(s32 arg0)
+s32 itfMesWindowGetFontList(s32 arg0)
 {
     return *(s32 *)(D_00881808[arg0].unk0 + 0x40);
 }
@@ -1491,7 +1491,7 @@ s32 func_00279010(s32 arg0)
    index evaluation; mixed byte cast/mask forms avoid call-crossing mask reuse.
    The unsigned index shift preserves EE wrapping arithmetic. */
 // FUN_00279030
-u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
+u8 *itfMesWindowBuildEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
 {
     u8 *obj;
     u8 *result;
@@ -1507,7 +1507,7 @@ u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     entry = *(u8 **)(slot + 4);
     if (entry == NULL)
         func_0046d730(D_0063BE10, 0xBE3);
-    result = (u8 *)func_00279740((s32)entry, 0);
+    result = (u8 *)itfMesRecordTextAt((s32)entry, 0);
     if (result == NULL)
         func_0046d730(D_0063BE10, 0xBE6);
     result = frFontBuildTextSimple(
@@ -1527,12 +1527,12 @@ u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     return result;
 }
 // FUN_002791F0
-s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
+s32 itfMesWindowDrawEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
 {
     u8 *obj;
 
-    func_00279ce0(D_00881808[arg4].unk0 + 0x94);
-    obj = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
+    itfMesApplySlotTable(D_00881808[arg4].unk0 + 0x94);
+    obj = itfMesWindowBuildEntry(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
     frFontSetListSlot(obj, arg1);
     frFontDrawListMode(obj, 1);
     frFontListKeepOrRelease((s32)obj);
@@ -1540,29 +1540,29 @@ s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
 }
 
 // FUN_00279300
-void func_00279300(u8 *arg0, s32 arg1) {
+void itfMesWindowDrawCallback(u8 *arg0, s32 arg1) {
     frFontDrawList((void *)arg1, 1, 0);
     frFontListKeepOrRelease(arg1);
 }
 
 // FUN_00279350
-s32 func_00279350(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6)
+s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6)
 {
     u8 *obj;
     u8 *cb;
 
-    func_00279ce0(D_00881808[arg4].unk0 + 0x94);
-    obj = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
+    itfMesApplySlotTable(D_00881808[arg4].unk0 + 0x94);
+    obj = itfMesWindowBuildEntry(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
     frFontSetListSlot(obj, arg1);
     cb = func_00460990();
-    *(void (**)(void))(cb + 8) = (void (*)(void))func_00279300;
+    *(void (**)(void))(cb + 8) = (void (*)(void))itfMesWindowDrawCallback;
     *(u8 **)(cb + 0x10) = obj;
     func_00460ac0(arg6, cb);
     return 0;
 }
 
 // FUN_00279470
-s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7)
+s32 itfMesWindowDrawPair(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7)
 {
     u8 *obj;
     u8 *r;
@@ -1573,13 +1573,13 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
         func_0046d730(D_0063BE10, 0xC32);
     if (arg6 < 0)
         func_0046d730(D_0063BE10, 0xC33);
-    func_00279ce0(obj + 0x94);
-    r = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
+    itfMesApplySlotTable(obj + 0x94);
+    r = itfMesWindowBuildEntry(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
     if (arg7 != 0) {
         if (*(s32 *)(r + 0x24) == 0) {
-            r2 = func_00279030(fparg0, 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
+            r2 = itfMesWindowBuildEntry(fparg0, 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
         } else {
-            r2 = func_00279030(fparg0 + (f32)frFontNodeWidth(r), 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
+            r2 = itfMesWindowBuildEntry(fparg0 + (f32)frFontNodeWidth(r), 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
         }
         r = frFontAppendList(r, r2, 0);
     }
@@ -1591,7 +1591,7 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
 
 /* measured: integer-domain index-first address `(u8 *)(arg1 * 8) + (u32)base` preserves retail's addu operand order; normalized_diff 0, object 172B/176B (trailing word is alignment padding). */
 // FUN_00279690
-s64 func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+s64 itfMesWindowRunEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     u8 *obj;
     u8 *base;
@@ -1602,10 +1602,10 @@ s64 func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         func_0046d730(D_0063BE10, 0xC50);
     base = (u8 *)*(s32 *)(obj + 4);
     address = (u8 *)(arg1 * 8) + (u32)base;
-    return frFontRunCommand(func_00279740(*(s32 *)(address + 0x24), 0), arg2, arg3);
+    return frFontRunCommand(itfMesRecordTextAt(*(s32 *)(address + 0x24), 0), arg2, arg3);
 }
 // FUN_00279740
-u32 func_00279740(int param_1,int param_2)
+u32 itfMesRecordTextAt(int param_1,int param_2)
 {
   u32 uVar1;
   int count = *(short *)(param_1 + 0x18);
@@ -1630,7 +1630,7 @@ u32 func_00279740(int param_1,int param_2)
 #pragma push
 #pragma opt_propagation off
 // FUN_00279780
-void func_00279780(u8 *arg0)
+void itfMesWindowBuildRow(u8 *arg0)
 {
     u8 *base;
     u8 *table;
@@ -1669,7 +1669,7 @@ void func_00279780(u8 *arg0)
         func_0046d730(D_0063BE10, 0xCAA);
     *(u8 **)(base + 4) = obj;
     if (obj != NULL)
-        *(s16 *)(base + 0xE) = func_0027a2d0((u8 *)frFontListTail((s32)obj), obj);
+        *(s16 *)(base + 0xE) = itfMesLineCount((u8 *)frFontListTail((s32)obj), obj);
     flags = frFontMaskFlags(3);
     *(u8 *)(base + 9) = (u8)flags;
     if (*(u8 *)(base + 9) & 2U)
@@ -1687,7 +1687,7 @@ void func_00279780(u8 *arg0)
         *(s32 *)arg0 &= ~0x04000000;
     func_0027a340(obj, *(s32 *)(arg0 + 0xC));
     if (frFontMaskFlags(4) != 0)
-        func_00279dd0(arg0, D_00881530);
+        itfMesWindowSetLabel(arg0, D_00881530);
     node = *(u8 **)DAT_008817EC_abs;
     goto list_test;
 list_body:
@@ -1704,8 +1704,8 @@ list_done:
     func_0027bb00(found);
     if ((*(s32 *)arg0 & 0x400000) == 0 &&
         (*(u16 *)D_008817E8_abs & 1U) != 0)
-        func_0027a580((s32)obj);
-    func_0027a2a0((s32)obj, (s32)base);
+        itfMesListEnableVisible((s32)obj);
+    itfMesWindowSetMetrics((s32)obj, (s32)base);
     if ((*(s32 *)arg0 & 0x300) == 0x200) {
         s32 value;
 
@@ -1721,7 +1721,7 @@ list_done:
 }
 #pragma pop
 // FUN_00279A80
-void func_00279a80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+void itfMesObjectSetString(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     s32 size;
     s32 base;
@@ -1766,7 +1766,7 @@ void func_00279a80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
    nd 51; the DISTINCT-CAST address spelling is the only thing that worked.
    obj 220B vs window 224B (benign tail pad). */
 // FUN_00279C00
-void func_00279c00(u8 *arg0, s32 arg1, s32 arg2) {
+void itfMesObjectSetNumber(u8 *arg0, s32 arg1, s32 arg2) {
     s32 base;
     s32 *slot;
     u8 *v;
@@ -1791,7 +1791,7 @@ void func_00279c00(u8 *arg0, s32 arg1, s32 arg2) {
     *res = arg2;
 }
 // FUN_00279CE0
-void func_00279ce0(int param_1)
+void itfMesApplySlotTable(int param_1)
 {
   int iVar1;
 
@@ -1805,7 +1805,7 @@ void func_00279ce0(int param_1)
 
 
 // FUN_00279D40
-void func_00279d40(s32 arg0)
+void itfMesWindowApplySlots(s32 arg0)
 {
     u8 *entry;
     s32 i;
@@ -1820,7 +1820,7 @@ void func_00279d40(s32 arg0)
 }
 
 // FUN_00279DD0
-void func_00279dd0(u8 *arg0, u8 *arg1)
+void itfMesWindowSetLabel(u8 *arg0, u8 *arg1)
 {
     s32 global;
     u8 *base;
@@ -1847,7 +1847,7 @@ static inline s32 addOff7e90(s32 off, s32 base) { return off + base; }
    parameter without a conflicting local prototype. The second branch's
    explicit u32 cast preserves its load-before-argument-moves order. */
 // FUN_00279E90
-void func_00279e90(u8 *arg0, u8 *arg1)
+void itfMesWindowSetSelectionText(u8 *arg0, u8 *arg1)
 {
     s32 global;
     u8 *base;
@@ -1888,7 +1888,7 @@ void func_00279e90(u8 *arg0, u8 *arg1)
     iGpffffb4b0 = global;
 }
 // FUN_00279FD0
-int func_00279fd0(int param_1,u32 param_2)
+int itfMesCountClearBits(int param_1,u32 param_2)
 {
   int iVar1;
 
@@ -1906,7 +1906,7 @@ int func_00279fd0(int param_1,u32 param_2)
 
 
 // FUN_0027A010
-u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7)
+u8 *itfMesBuildGlyphRun(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7)
 {
     s32 i;
     u8 *result;
@@ -1929,7 +1929,7 @@ u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s
     }
     if (result != NULL) {
         func_0027a340(result, arg5);
-        func_0027a4d0((int)result, 0xFF);
+        itfMesListSetAlpha((int)result, 0xFF);
     }
     return result;
 }
@@ -1952,7 +1952,7 @@ static inline void releaseMessageListNode(u8 **link)
    relocations exact. Local traversal ownership and head-before-tail
    declarations close the saved-register floor; the final word is alignment. */
 // FUN_0027A150
-u8 *func_0027a150(u8 *arg0, s32 arg1, s32 arg2)
+u8 *itfMesReleaseTagRun(u8 *arg0, s32 arg1, s32 arg2)
 {
     s32 remaining;
     s32 tag;
@@ -1993,7 +1993,7 @@ u8 *func_0027a150(u8 *arg0, s32 arg1, s32 arg2)
     return head;
 }
 // FUN_0027A2A0
-void func_0027a2a0(int param_1, int param_2)
+void itfMesWindowSetMetrics(int param_1, int param_2)
 {
     int ptr;
 
@@ -2005,7 +2005,7 @@ void func_0027a2a0(int param_1, int param_2)
 }
 
 // FUN_0027A2D0
-s32 func_0027a2d0(u8 *arg0, u8 *arg1)
+s32 itfMesLineCount(u8 *arg0, u8 *arg1)
 {
     if (*(s16 *)(arg1 + 0x12) <= 0) {
         func_0046d730(D_0063BE10, 0xE9F);
@@ -2032,7 +2032,7 @@ void func_0027a340(u8 *arg0, int arg1)
  * retail asm blob's jal to this address (measured: mwldps2 reports Undefined
  * "func_0027a370" if local).
  * The K&R parameter list below is the donor's form and is load-bearing. */
-int func_0027a370(param_1,param_2,param_3,param_4)
+int itfMesListSetColor(param_1,param_2,param_3,param_4)
 int param_1;
 int param_2;
 int param_3;
@@ -2100,7 +2100,7 @@ done:
 #pragma opt_loop_invariants on
 
 // FUN_0027A4D0
-void func_0027a4d0(int param_1,u32 param_2)
+void itfMesListSetAlpha(int param_1,u32 param_2)
 {
   int iVar1;
 
@@ -2116,7 +2116,7 @@ void func_0027a4d0(int param_1,u32 param_2)
 
 
 // FUN_0027A520
-int func_0027a520(int param_1)
+int itfMesListWidth(int param_1)
 {
   int iVar3;
   int iVar1;
@@ -2147,7 +2147,7 @@ outer_test:
 
 
 // FUN_0027A580
-void func_0027a580(int param_1)
+void itfMesListEnableVisible(int param_1)
 {
   for (; param_1 != 0; param_1 = *(int *)(param_1 + 0x24)) {
     if (*(u8 *)(*(int *)(param_1 + 0x1c) + 0x16) == '\0') {
@@ -2161,7 +2161,7 @@ void func_0027a580(int param_1)
 
 
 // FUN_0027A6C0
-void func_0027a6c0(int param_1)
+void itfMesClearSlots(int param_1)
 {
   int iVar1;
 
@@ -2176,7 +2176,7 @@ void func_0027a6c0(int param_1)
 
 
 // FUN_0027B620
-u64 func_0027b620(void)
+u64 itfMesFlushPending(void)
 {
     int current;
     u32 count;

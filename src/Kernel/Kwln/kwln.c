@@ -3,7 +3,7 @@
 
 extern void func_00452560(void* a0);
 
-extern void func_0027b620(void* a0);
+extern void itfMesFlushPending(void* a0);
 
 extern void func_002a1fa0(void* a0);
 
@@ -24,7 +24,7 @@ void func_002519b0(void* param_1, void* param_2)
 // FUN_0027B5A0
 void func_0027b5a0(void* param_1, void* param_2)
 {
-    func_0027b620(param_2);
+    itfMesFlushPending(param_2);
 }
 
 

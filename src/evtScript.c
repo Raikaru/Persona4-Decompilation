@@ -41,8 +41,8 @@ extern s32 scrGetParamInt();
 extern s32 func_0029d020(void);
 extern void *func_00478140(u32, u16, u32);
 extern s32 evtFindTask();
-extern void func_00279d40(s32 arg0);
-extern u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
+extern void itfMesWindowApplySlots(s32 arg0);
+extern u8 *itfMesWindowBuildEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
                          s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u8 *frFontSplitRun(u8 **arg0, s32 arg1);
 extern s32 frFontNodeWidth(u8 *arg0);
@@ -191,8 +191,8 @@ void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
     u8 *p;
     u8 *spAC;
 
-    func_00279d40(arg5);
-    spAC = (u8 *)func_00279030(fparg0, fparg1, fparg2, (arg0 << 8) | arg1,
+    itfMesWindowApplySlots(arg5);
+    spAC = (u8 *)itfMesWindowBuildEntry(fparg0, fparg1, fparg2, (arg0 << 8) | arg1,
                                arg2, arg3, arg4, arg5, arg6);
     if (spAC != NULL) {
         p = (u8 *)frFontSplitRun(&spAC, arg7);

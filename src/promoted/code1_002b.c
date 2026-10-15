@@ -36,7 +36,7 @@ extern void func_0045a9a0(s32 arg0, s32 arg1);
 
 extern u32 func_00106a90(s16 arg0);
 extern u8 *D_00882F40[];
-extern void func_00278450(s32 handle, s32 variable, char *text);
+extern void itfMesWindowSetString(s32 handle, s32 variable, char *text);
 extern s32 D_0063F2B0[];
 extern u8 D_00793E80[];
 extern u8 D_0063F1F0[];
@@ -50,21 +50,21 @@ extern s8 func_002bacb0(void);
 extern s32 iGpffffb57c;
 extern s32 *func_002bbf70();
 extern s32 func_002bb0e0(void);
-extern void func_002791f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-extern s32 func_00279350(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6);
+extern void itfMesWindowDrawEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6);
 extern u32 func_00106880(s16 item);
 extern s32 func_002be1e0(s32 arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void func_00145080(void);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_00276e70(s32 arg0, s8 arg1);
-extern void func_00277250(s32 arg0);
-extern void func_00277ad0(s32 arg0, s32 arg1);
-extern s32 func_00276e10();
-extern s32 func_00276fb0(s32 arg0);
-extern void func_00277be0(s32 arg0, s32 arg1);
-extern void func_00277fd0(s32 arg0, s32 arg1);
-extern u32 func_002786c0(s32 arg0, s32 arg1, s32 arg2);
+extern void itfMesWindowSetState(s32 arg0, s8 arg1);
+extern void itfMesWindowRelease(s32 arg0);
+extern void itfMesWindowClear(s32 arg0, s32 arg1);
+extern s32 itfMesWindowState();
+extern s32 itfMesWindowGetAnim(s32 arg0);
+extern void itfMesWindowLayout(s32 arg0, s32 arg1);
+extern void itfMesWindowSetCursor(s32 arg0, s32 arg1);
+extern u32 itfMesWindowSetParam(s32 arg0, s32 arg1, s32 arg2);
 extern void func_002bbdd0(s32 arg0);
 extern void func_002bbe90(s64 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
@@ -1322,7 +1322,7 @@ s64 func_002bab80(void *arg0)
     s64 temp_16;
     s32 temp_4;
     s64 var_2;
-    extern s32 func_002774d0(s32 arg0);
+    extern s32 itfMesWindowInstall(s32 arg0);
     extern s32 func_002bbf80(s32 *arg0, s32 arg1);
     extern void func_0044ea90(const void *arg0, s32 arg1);
 
@@ -1350,7 +1350,7 @@ s64 func_002bab80(void *arg0)
         var_2 = -1;
         if (**temp_5 < 0) {
             temp_18 = (s32 **)&D_00882F40[(s8)temp_4];
-            **temp_18 = func_002774d0((s32)arg0);
+            **temp_18 = itfMesWindowInstall((s32)arg0);
             func_002bbf80(*temp_18, 0);
             var_2 = temp_16;
         }
@@ -1385,10 +1385,10 @@ s32 func_002bad10(s32 arg0)
     if (temp_4 < 0) {
         return 0;
     }
-    func_00278610(temp_4, 0);
-    func_00278170(temp_2[0], 0x200000);
-    func_002778c0(temp_2[0], arg0, 0);
-    func_00277010(temp_2[0], -1);
+    itfMesWindowSetStyle(temp_4, 0);
+    itfMesWindowSetFlagBits(temp_2[0], 0x200000);
+    itfMesWindowBindRecord(temp_2[0], arg0, 0);
+    itfMesWindowSetAnim(temp_2[0], -1);
     *(s8 *)((u8 *)temp_2 + 4) = 1;
     return 1;
 }
@@ -1403,10 +1403,10 @@ s32 func_002badc0(s8 arg0, s32 arg1)
     if (temp_4 < 0) {
         return 0;
     }
-    func_00278610(temp_4, 0);
-    func_00278170(*(s32 *)*temp_17, 0x200000);
-    func_002778c0(*(s32 *)*temp_17, arg1, 0);
-    func_00277010(*(s32 *)*temp_17, -1);
+    itfMesWindowSetStyle(temp_4, 0);
+    itfMesWindowSetFlagBits(*(s32 *)*temp_17, 0x200000);
+    itfMesWindowBindRecord(*(s32 *)*temp_17, arg1, 0);
+    itfMesWindowSetAnim(*(s32 *)*temp_17, -1);
     *(s8 *)(*temp_17 + 4) = 1;
     return 1;
 }
@@ -1421,10 +1421,10 @@ s32 func_002bae80(s64 arg0, s32 arg1)
     if (temp_4 < 0) {
         return 0;
     }
-    func_00278610(temp_4, 1);
-    func_00278170(*(s32 *)*temp_17, 0x200000);
-    func_002778c0(*(s32 *)*temp_17, arg1, 0);
-    func_00277010(*(s32 *)*temp_17, -1);
+    itfMesWindowSetStyle(temp_4, 1);
+    itfMesWindowSetFlagBits(*(s32 *)*temp_17, 0x200000);
+    itfMesWindowBindRecord(*(s32 *)*temp_17, arg1, 0);
+    itfMesWindowSetAnim(*(s32 *)*temp_17, -1);
     *(s8 *)(*temp_17 + 4) = 1;
     return 1;
 }
@@ -1490,9 +1490,9 @@ s32 func_002bb420(s64 arg0)
     if (temp_4 < 0) {
         return 0;
     }
-    func_00276e70(temp_4, 0);
-    func_00277250(*(s32 *)*temp_17);
-    func_00277ad0(*(s32 *)*temp_17, 0);
+    itfMesWindowSetState(temp_4, 0);
+    itfMesWindowRelease(*(s32 *)*temp_17);
+    itfMesWindowClear(*(s32 *)*temp_17, 0);
     func_002bbe90(arg0, 1);
     *(s8 *)(*temp_17 + 4) = 0;
     return 1;
@@ -1508,7 +1508,7 @@ s32 func_002bb4e0(void) {
     }
     temp_4 = (s32)(*(s32 *)((u8 *)(temp_2) + 0));
     if (temp_4 >= 0) {
-        func_002777f0(temp_4);
+        itfMesWindowReleaseIfActive(temp_4);
         *(s32 *)((u8 *)(temp_2) + 0) = -1;
         *(s8 *)((u8 *)(temp_2) + 4) = 0;
         *(s8 *)((u8 *)(temp_2) + 5) = 0;
@@ -1531,7 +1531,7 @@ s32 func_002bb550(s64 arg0)
     }
     temp_4 = *(s32 *)(temp_2 + 0);
     if (temp_4 >= 0) {
-        func_002777f0(temp_4);
+        itfMesWindowReleaseIfActive(temp_4);
         *(s32 *)(*temp_16 + 0) = -1;
         *(s8 *)(*temp_16 + 4) = 0;
         *(s8 *)(*temp_16 + 5) = 0;
@@ -1583,7 +1583,7 @@ void func_002bb7c0(s32 arg0)
         case 0:
             return;
         case 1:
-            if (func_00276e10(temp_4, temp_5) < 0) {
+            if (itfMesWindowState(temp_4, temp_5) < 0) {
                 temp_2->status = 2;
                 break;
             }
@@ -1598,10 +1598,10 @@ void func_002bb7c0(s32 arg0)
 
             if (temp_2->next >= 0) {
                 if (iGpffffb578 == 1) {
-                    func_002786c0(temp_4, 6, 1);
+                    itfMesWindowSetParam(temp_4, 6, 1);
                 }
-                func_00277fd0(temp_2->id, temp_2->fieldC);
-                func_00277be0(temp_2->id, temp_2->next);
+                itfMesWindowSetCursor(temp_2->id, temp_2->fieldC);
+                itfMesWindowLayout(temp_2->id, temp_2->next);
                 temp_2->next = -1;
             }
             if (temp_2->flag == 0) {
@@ -1612,7 +1612,7 @@ void func_002bb7c0(s32 arg0)
                     temp_4_2 = temp_2_2[0];
                     if (temp_4_2 < 0) {
                         var_3 = 0;
-                    } else if (func_00276fb0(temp_4_2) < 0) {
+                    } else if (itfMesWindowGetAnim(temp_4_2) < 0) {
                         var_3 = 0;
                     } else {
                         temp_2_3 = func_002bbf70();
@@ -1623,7 +1623,7 @@ void func_002bb7c0(s32 arg0)
                             if (temp_4_2 < 0) {
                                 var_3_2 = -1;
                             } else {
-                                var_3_2 = func_00277070(temp_4_2);
+                                var_3_2 = itfMesWindowGetAnimAux(temp_4_2);
                             }
                         }
                         *((s8 *)temp_2_2 + 0xD) = var_3_2;
@@ -1645,11 +1645,11 @@ void func_002bb7c0(s32 arg0)
             if (temp_2_4 != NULL) {
                 temp_4 = temp_2_4->id;
                 if (temp_4 >= 0) {
-                    func_00276e70(temp_4, 0);
+                    itfMesWindowSetState(temp_4, 0);
                     if (arg0 != 0) {
-                        func_00277250(temp_2_4->id);
+                        itfMesWindowRelease(temp_2_4->id);
                     }
-                    func_00277ad0(temp_2_4->id, 0);
+                    itfMesWindowClear(temp_2_4->id, 0);
                     func_002bbdd0(1);
                     temp_2_4->status = 0;
                 }
@@ -1702,7 +1702,7 @@ void func_002bb9e0(s32 arg0, s32 arg1)
         case 0:
             return;
         case 1:
-            if (func_00276e10(temp_4, temp_5, temp_6) < 0) {
+            if (itfMesWindowState(temp_4, temp_5, temp_6) < 0) {
                 (*temp_17)->status = 2;
                 return;
             }
@@ -1710,13 +1710,13 @@ void func_002bb9e0(s32 arg0, s32 arg1)
         case 2:
             if (temp_6->next >= 0) {
                 if (iGpffffb578 == 1) {
-                    func_002786c0(temp_4, 6, 1);
+                    itfMesWindowSetParam(temp_4, 6, 1);
                 }
                 temp_16 = &((Item **)D_00882F40)[(s8)arg0];
                 temp_2 = *temp_16;
-                func_00277fd0(temp_2->id, temp_2->fieldC);
+                itfMesWindowSetCursor(temp_2->id, temp_2->fieldC);
                 temp_2_2 = *temp_16;
-                func_00277be0(temp_2_2->id, temp_2_2->next);
+                itfMesWindowLayout(temp_2_2->id, temp_2_2->next);
                 (*temp_16)->next = -1;
             }
             temp_4_2 = *temp_17;
@@ -1727,7 +1727,7 @@ void func_002bb9e0(s32 arg0, s32 arg1)
                     temp_4_3 = temp_4_2->id;
                     if (temp_4_3 < 0) {
                         var_3 = 0;
-                    } else if (func_00276fb0(temp_4_3) < 0) {
+                    } else if (itfMesWindowGetAnim(temp_4_3) < 0) {
                         var_3 = 0;
                     } else {
                         temp_3 = *temp_17;
@@ -1738,7 +1738,7 @@ void func_002bb9e0(s32 arg0, s32 arg1)
                             if (temp_4_4 < 0) {
                                 var_4 = -1;
                             } else {
-                                var_4 = func_00277070(temp_4_4);
+                                var_4 = itfMesWindowGetAnimAux(temp_4_4);
                             }
                         }
                         (*temp_17)->result = var_4;
@@ -1756,7 +1756,7 @@ void func_002bb9e0(s32 arg0, s32 arg1)
                         if (temp_4_5 < 0) {
                             var_4_2 = -1;
                         } else {
-                            var_4_2 = func_00277070(temp_4_5);
+                            var_4_2 = itfMesWindowGetAnimAux(temp_4_5);
                         }
                     }
                     (&iGpffffb580)[(s8)temp_18] = var_4_2;
@@ -1766,12 +1766,12 @@ void func_002bb9e0(s32 arg0, s32 arg1)
             break;
         case 3:
             if ((temp_6 != NULL) && (temp_4 = temp_6->id, temp_4 >= 0)) {
-                func_00276e70(temp_4, 0);
+                itfMesWindowSetState(temp_4, 0);
                 if (saved_arg1 != 0) {
-                    func_00277250((*temp_17)->id);
+                    itfMesWindowRelease((*temp_17)->id);
                 }
                 temp_16_2 = &((Item **)D_00882F40)[(s8)arg0];
-                func_00277ad0((*temp_16_2)->id, 0);
+                itfMesWindowClear((*temp_16_2)->id, 0);
                 func_002bbe90(arg0, 1);
                 (*temp_16_2)->status = 0;
             }
@@ -1797,7 +1797,7 @@ void func_002bbd80(s8 arg0, s32 variable, void *text) {
 
     p = D_00882F40[(s8)arg0];
     if (p != NULL) {
-        func_00278450(*(s32 *)p, variable, text);
+        itfMesWindowSetString(*(s32 *)p, variable, text);
     }
 }
 
@@ -1815,9 +1815,9 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
 {
     extern s32 func_00106600(s16 id);
     extern u32 func_00106880(s16 arg0);
-    extern s32 func_00278e90(s32 arg0);
-    extern s32 func_002791f0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
-    extern s32 func_00279470(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10);
+    extern s32 itfMesWindowRecordCount(s32 arg0);
+    extern s32 itfMesWindowDrawEntry(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
+    extern s32 itfMesWindowDrawPair(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10);
     extern s32 D_0063F2F0[];
     extern s32 D_0063F310[];
     extern s32 D_0063F2C0[];
@@ -1876,14 +1876,14 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
         temp_item_index = spC0[func_00106880((s16)temp_index_2)];
         temp_item = D_0063F2B0[temp_item_index];
         temp_count = (s16)func_00106b80((s16)temp_index_2);
-        if ((u32)func_00278e90(temp_item) < (u32)temp_count) {
+        if ((u32)itfMesWindowRecordCount(temp_item) < (u32)temp_count) {
             return 0;
         }
         temp_level = arg5 >> 16;
-        if ((u32)func_00278e90(D_0063F2C0[0]) < (u32)temp_level) {
+        if ((u32)itfMesWindowRecordCount(D_0063F2C0[0]) < (u32)temp_level) {
             return 0;
         }
-        func_00279470(fparg0, fparg1, fparg2,
+        itfMesWindowDrawPair(fparg0, fparg1, fparg2,
                       arg0, arg1, arg2, 1, temp_item, temp_count,
                       D_0063F2C0[0], temp_level);
         return 0;
@@ -1892,14 +1892,14 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
         temp_item_index = spC0[func_00106880((s16)temp_index_2)];
         temp_item = D_0063F2B0[temp_item_index];
         temp_count = (s16)func_00106b80((s16)temp_index_2);
-        if ((u32)func_00278e90(temp_item) < (u32)temp_count) {
+        if ((u32)itfMesWindowRecordCount(temp_item) < (u32)temp_count) {
             return 0;
         }
-        temp_22 = func_00278e90(D_0063F2C0[0]);
+        temp_22 = itfMesWindowRecordCount(D_0063F2C0[0]);
         if (temp_22 < (u32)(func_00106600((s16)arg5) & 0xFF)) {
             return 0;
         }
-        func_00279470(fparg0, fparg1, fparg2,
+        itfMesWindowDrawPair(fparg0, fparg1, fparg2,
                       arg0, arg1, arg2, 1, temp_item, temp_count,
                       D_0063F2C0[0], func_00106600((s16)arg5) & 0xFF);
         return 0;
@@ -1909,10 +1909,10 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
     }
 block_23:
     temp_item = D_0063F2B0[temp_item_index];
-    if ((u32)func_00278e90(temp_item) < (u32)arg5) {
+    if ((u32)itfMesWindowRecordCount(temp_item) < (u32)arg5) {
         return 0;
     }
-    func_002791f0(fparg0, fparg1, fparg2,
+    itfMesWindowDrawEntry(fparg0, fparg1, fparg2,
                   arg0, arg1, arg2, arg3, temp_item, arg5);
     return 0;
 }
@@ -1925,7 +1925,7 @@ block_23:
 void func_002bc4b0(f32 inputDepth, s16 arg0, s32 arg1, s32 arg2,
                     s32 inputArg3, s32 inputArg4, s32 inputArg5)
 {
-    extern s32 func_002791f0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
+    extern s32 itfMesWindowDrawEntry(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     u32 temp_2;
     f32 fparg0;
     s32 arg3;
@@ -1939,32 +1939,32 @@ void func_002bc4b0(f32 inputDepth, s16 arg0, s32 arg1, s32 arg2,
     temp_2 = func_00106850(arg0);
     switch (temp_2) {
     case 0:
-        func_002791f0((f32)arg1, (f32)arg2, fparg0,
+        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[0],
                       (s16)func_00106b80(arg0));
         return;
     case 1:
-        func_002791f0((f32)arg1, (f32)arg2, fparg0,
+        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[1],
                       (s16)func_00106b80(arg0));
         return;
     case 2:
-        func_002791f0((f32)arg1, (f32)arg2, fparg0,
+        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[2],
                       (s16)func_00106b80(arg0));
         return;
     case 3:
-        func_002791f0((f32)arg1, (f32)arg2, fparg0,
+        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[4],
                       (s16)func_00106b80(arg0));
         return;
     case 4:
-        func_002791f0((f32)arg1, (f32)arg2, fparg0,
+        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[5],
                       (s16)func_00106b80(arg0));
         return;
     case 5:
-        func_002791f0((f32)arg1, (f32)arg2, fparg0,
+        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[7],
                       (s16)func_00106b80(arg0));
     default:
@@ -1976,23 +1976,23 @@ void func_002bc4b0(f32 inputDepth, s16 arg0, s32 arg1, s32 arg2,
 void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
                     s32 color, s32 font, s32 mode, s32 table)
 {
-    extern s32 func_002791f0(f32 x, f32 y, f32 depth, s32 color, s32 font,
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 color, s32 font,
                             s32 mode, s32 flags, s32 table, s32 item);
-    func_002791f0(x, y, depth, color, font, mode, 1, D_0063F2B0[(s8)table], item);
+    itfMesWindowDrawEntry(x, y, depth, color, font, mode, 1, D_0063F2B0[(s8)table], item);
 }
 
 // FUN_002BC7F0
 void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 fparg0, f32 fparg1, f32 fparg2) {
-    func_00279350(fparg0, fparg1, fparg2, arg1, arg2, arg3, 1, D_0063F2B0[(s8)arg4], arg0, &D_00793E80[arg5 * 0x30]);
+    itfMesWindowQueueEntry(fparg0, fparg1, fparg2, arg1, arg2, arg3, 1, D_0063F2B0[(s8)arg4], arg0, &D_00793E80[arg5 * 0x30]);
 }
 
 // FUN_002BC860
 void func_002bc860(f32 x, f32 y, f32 depth,
                     s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
-    extern s32 func_002791f0(f32 x, f32 y, f32 depth, s32 arg0, s32 arg1,
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 arg0, s32 arg1,
                             s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-    func_002791f0(x, y, depth, arg0, arg1, arg2, 1, D_0063F2C8[0], arg3);
+    itfMesWindowDrawEntry(x, y, depth, arg0, arg1, arg2, 1, D_0063F2C8[0], arg3);
 }
 // FUN_002BC890
 s32 func_002bc890(u8 *arg0, s32 arg1)
@@ -2186,9 +2186,9 @@ s32 func_002bd7b0(void)
         *(s8 *)(p + 0xD) = 1;
     }
     if (*(s32 *)(p + 0) < 0) {
-        temp_2 = func_002774d0();
+        temp_2 = itfMesWindowInstall();
         *(s32 *)(p + 0) = temp_2;
-        func_00278610(temp_2, 1);
+        itfMesWindowSetStyle(temp_2, 1);
         return 1;
     }
     return 0;
@@ -2202,11 +2202,11 @@ s32 func_002bd840(s32 arg0)
     if (*(s32 *)(p + 0) < 0) {
         return 0;
     }
-    func_00278610(*(s32 *)(p + 0), 1);
-    func_00278170(*(s32 *)(p + 0), 0x200000);
-    func_002778c0(*(s32 *)(p + 0), arg0, 0);
+    itfMesWindowSetStyle(*(s32 *)(p + 0), 1);
+    itfMesWindowSetFlagBits(*(s32 *)(p + 0), 0x200000);
+    itfMesWindowBindRecord(*(s32 *)(p + 0), arg0, 0);
     *(s8 *)(p + 4) = 1;
-    func_00277010(*(s32 *)(p + 0), -1);
+    itfMesWindowSetAnim(*(s32 *)(p + 0), -1);
     return 1;
 }
 // FUN_002BD8E0
