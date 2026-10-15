@@ -63,15 +63,15 @@ extern u16 func_00106a30(s16 arg0);
 extern u32 func_001069a0(s16 arg0);
 
 extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
-extern s32 func_00242800(u8 *arg0, s32 arg1);
+extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern s32 func_00238940(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u32 datGetFlag(s32 arg0);
 extern s32 datPersonaGetStatById(s32 arg0, s32 arg1);
 extern s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2);
-/* func_00241de0 passes a 5th arg (arg4) that func_00241bc0 ignores. */
-extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
+/* datCalcSkillAllowedForMode passes a 5th arg (arg4) that datCalcSkillAppliesToTarget ignores. */
+extern s32 datCalcSkillAppliesToTarget(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 datScriptRunCalc(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
 extern u16 func_00247cb0(s64 arg0);
 extern u16 func_00107ac0(s32 arg0);
@@ -3798,10 +3798,10 @@ s32 arg3;
         }
         break;
     case 12:
-        if (func_00242800(arg1, 6) & 0x08000000) {
+        if (datCalcAilmentChance(arg1, 6) & 0x08000000) {
             return 1;
         }
-        return (func_00242800(arg1, 7) & 0x08000000) ? 1 : 4;
+        return (datCalcAilmentChance(arg1, 7) & 0x08000000) ? 1 : 4;
     case 14:
         if ((u8)(*(u8 *)(arg1 + 0xC) != 0)) {
             result = 1;
@@ -3865,7 +3865,7 @@ s32 arg3;
             *(u32 *)(arg1 + 0x18) |= 0x20000;
             return 0x200;
         }
-        resistance = func_00242800(arg1, rawElement);
+        resistance = datCalcAilmentChance(arg1, rawElement);
         if (resistance & 0x02000000) {
             return 0x200;
         }
@@ -4128,7 +4128,7 @@ s32 arg4;
     if ((bits & 0xE0001) != 0) {
         return 1;
     }
-    res = func_00242800(arg1, lvl);
+    res = datCalcAilmentChance(arg1, lvl);
     if (((bits & 2) == 0) && (((bits & 0x40) == 0) || (iGpffffb3b8[idx * 0x28 + 2] != 1))) {
         if (res & 0x08000000) {
             return 4;
@@ -4236,14 +4236,15 @@ s32 arg4;
    flag1, (s32)(u16)arg2, (s16) v) gave nd 83 (obj 504B vs window 544B,
    frame 0x50 vs 0x60 â€” 4 rst saved vs 5, branch targets shifted); the
    exact hand-adapted body was not recovered. The 5th arg (arg4) is passed
-   by func_00241de0 but unused in the body (prologue never saves it).
+   by datCalcSkillAllowedForMode but unused in the body (prologue never saves it).
    s16-extension-pair floor, corroborated. */
+// Intent: true unless the target's level bit for skill arg2 is in 0xE0001 (null, absorb or reflect); other early exits return false; [inferred].
 // FUN_00241BC0
 #pragma push
 /* measured: opt_propagation off keeps arg2 raw in $s2 and the masked u16 in $s0;
    per-use u16 casts for other masks avoid the 0xffff constant cache. */
 #pragma opt_propagation off
-s32 func_00241bc0(arg0, arg1, arg2, arg3, arg4)
+s32 datCalcSkillAppliesToTarget(arg0, arg1, arg2, arg3, arg4)
 u8 *arg0;
 u8 *arg1;
 s32 arg2;
@@ -4302,15 +4303,16 @@ one:
     return 1;
 }
 #pragma pop
+// Intent: true when datCalcSkillAppliesToTarget holds and the skill's category is 9 or 10, or mode arg4 is 2 or 4; [inferred].
 // FUN_00241DE0
-s32 func_00241de0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 datCalcSkillAllowedForMode(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     u8 *entry;
     u32 offset;
     if (!((arg2 & 0xFFFF) < 0x1B8)) {
         func_0046d730(D_00635938, 0x1333);
     }
-    if (func_00241bc0(arg0, arg1, arg2, arg3, arg4) == 0) {
+    if (datCalcSkillAppliesToTarget(arg0, arg1, arg2, arg3, arg4) == 0) {
         return 0;
     }
     entry = (u8 *)iGpffffb3b8;
@@ -4327,8 +4329,9 @@ s32 func_00241de0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     return 0;
 }
 
+// Intent: rolls a support-skill hit for arg0 on arg1 from a chance set by passive flags 0x71, 0x72 and 0x73 (5, 50, 32 or 0); [inferred].
 // FUN_00241F00
-s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
+s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
 {
     u16 temp_3;
     u8 var_2;
@@ -4442,12 +4445,13 @@ s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     return 0;
 }
 
+// Intent: rolls a skill's success for target arg1 from the skill's chance byte (raised for flagged units and for skill 0x21C); [inferred].
 // FUN_00242360
 /* measured: loop-invariant 0x21C compare constant must be hoisted into
    the preheader (retail addiu $a0,$zero,0x21c before the loop's initial
    branch); mwcc b210 rematerialises it in the body without the pragma. */
 #pragma opt_loop_invariants on
-s32 func_00242360(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 datCalcRollSkillChance(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     f32 temp_f1;
     f32 temp_f1_2;
@@ -4549,12 +4553,13 @@ done:
     }
     return 0;
 }
-/* Closes the measured opt_loop_invariants scope opened for func_00242360 above.
+/* Closes the measured opt_loop_invariants scope opened for datCalcRollSkillChance above.
    It must stay scoped: leaving it on regresses the neighbouring functions. */
 #pragma opt_loop_invariants off
 
+// Intent: chance (0..100) that an ailment of level arg1 lands on unit arg0: 0 for level -1 or bit 0, 100 for bits 0xE0000, else the skill-table result; [inferred].
 // FUN_00242800
-s32 func_00242800(u8 *arg0, s32 arg1)
+s32 datCalcAilmentChance(u8 *arg0, s32 arg1)
 {
     s16 id;
     s32 x;
@@ -5054,8 +5059,9 @@ u16 func_002439c0(u8 *arg0)
 /* Measured: 688/688 bytes and 16 fully resolved relocations.
  * Loop guards mask promoted counters independently of narrowed indexing;
  * the weighted random choice retains its unsigned-halfword boundary. */
+// Intent: picks a skill id for a unit: first a flagged entry at +0x34 (chance from +0x36), else a weighted choice over the four slots (weight +0x24); *arg1 is 1 when the flagged entry was taken; [inferred].
 // FUN_00243A30
-u16 func_00243a30(u8 *arg0, s32 *arg1)
+u16 datCalcPickWeightedSkill(u8 *arg0, s32 *arg1)
 {
     u8 *entry;
     u16 result;
@@ -5204,12 +5210,13 @@ void datCalcInitializeCharacters(void)
     u16 characterId;
 
     for (characterId = 1; characterId < 0xb; characterId++) {
-        func_00243f20(characterId);
+        datCalcInitializeCharacter(characterId);
     }
 }
 
+// Intent: seeds the per-character tables for character id arg0 (defaults from func_00104dc0 and func_00104e30, then func_00105d50 reset to -1).
 // FUN_00243F20
-void func_00243f20(u16 characterId)
+void datCalcInitializeCharacter(u16 characterId)
 {
     s16 id;
     s16 value;
