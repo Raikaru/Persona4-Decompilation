@@ -617,7 +617,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     void fclCombineMenuPriceInfo(u8 *arg0);
     void fclCombineMenuValidate(u8 *arg0);
     void fclCombineMenuConfirm(u8 *arg0);
-    void fclCombineMenuClosing(u8 *arg0);
+    void fclCombineMenuResult(u8 *arg0);
     void fclCombineMenuMaterialGrid(u8 *arg0);
     void fclCombineMenuItemPick(u8 *arg0);
     void fclCombineMenuSkillPick(u8 *arg0);
@@ -745,7 +745,7 @@ case_0a:
     fclCombineMenuItemPick(arg0);
     goto done;
 case_0d:
-    fclCombineMenuClosing(arg0);
+    fclCombineMenuResult(arg0);
     goto done;
 case_0e:
     fclCombineMenuFinish(arg0);
