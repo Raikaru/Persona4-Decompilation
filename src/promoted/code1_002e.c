@@ -611,7 +611,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     
     void fclDrawSetFlag(u8 *arg0, s8 arg1);
     void fclCombineMenuFusion(u8 *arg0);
-    void fclCombineMenuPickTarget(u8 *arg0);
+    void fclCombineMenuFusionTriple(u8 *arg0);
     void fclCombineMenuMaterialPick(u8 *arg0);
     void fclCombineMenuPreview(u8 *arg0);
     void fclCombineMenuPriceInfo(u8 *arg0);
@@ -698,7 +698,7 @@ case_02:
     P4_002E7AC0_DRAW();
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     *(s8 *)(work + 0x1A) = 3;
-    fclCombineMenuPickTarget(arg0);
+    fclCombineMenuFusionTriple(arg0);
     goto done;
 case_03:
     P4_002E7AC0_DRAW();
