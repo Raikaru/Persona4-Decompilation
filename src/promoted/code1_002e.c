@@ -610,7 +610,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     u32 func_0010d6d0(s16 arg0);
     
     void fclDrawSetFlag(u8 *arg0, s8 arg1);
-    void fclCombineMenuPickSource(u8 *arg0);
+    void fclCombineMenuFusion(u8 *arg0);
     void fclCombineMenuPickTarget(u8 *arg0);
     void fclCombineMenuMaterialPick(u8 *arg0);
     void fclCombineMenuPreview(u8 *arg0);
@@ -692,7 +692,7 @@ case_01:
     P4_002E7AC0_DRAW();
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     *(s8 *)(work + 0x1A) = 2;
-    fclCombineMenuPickSource(arg0);
+    fclCombineMenuFusion(arg0);
     goto done;
 case_02:
     P4_002E7AC0_DRAW();
