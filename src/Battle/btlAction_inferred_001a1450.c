@@ -1011,7 +1011,7 @@ void btlActionTryEnterState9(BtlAction *action) {
 }
 
 // FUN_001A2B50
-void func_001a2b50(u8 *arg0)
+void btlActionAdvanceAICommand(u8 *arg0)
 {
     s32 battleFlags;
 
@@ -1038,7 +1038,7 @@ void func_001a2c10(s64 *arg0) {
 }
 
 // FUN_001A2C70
-void func_001a2c70(u8 *arg0)
+void btlActionSetDefaultSkill(u8 *arg0)
 {
     u8 *battleUnit;
 
@@ -1248,7 +1248,7 @@ void func_001a31a0(u8 *arg0)
  * remains a 32-bit word through the low20 selector. Camera and animation
  * packets remain alive until their published UIDs have been consumed. */
 // FUN_001A31E0
-void func_001a31e0(BtlAction *actionState)
+void btlActionRecoverIncapacitated(BtlAction *actionState)
 {
     u8 *action = (u8 *)actionState;
     u32 badStatus;
@@ -1674,7 +1674,7 @@ loop_test:
 }
 
 // FUN_001A3F90
-void func_001a3f90(u8 *arg0)
+void btlActionUpdatePresentation(u8 *arg0)
 {
     u8 frame[0x10];
     struct {
@@ -1782,7 +1782,7 @@ void func_001a4390(void)
 /* measured: func_001a43a0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001A43A0
-void func_001a43a0(u8 *action)
+void btlActionSelectTargets(u8 *action)
 {
     extern s8 datCalcGetBuffStatus(u8 *action, s32 arg1);
     extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 kind, s32 id, s32 flags, s32 mode);
@@ -1934,7 +1934,7 @@ void func_001a47f0(void)
 // FUN_001A4800
 /* Wait for the participating actions before dispatching the selected action
  * type and submitting its target-state and camera packets. */
-void func_001a4800(u8 *arg0)
+void btlActionDispatchSelected(u8 *arg0)
 {
     extern void func_001eb420(u8 *target);
     extern u16 *datPersonaGetRecord(u16 personaId);
@@ -5931,7 +5931,7 @@ void btlActionAssistUpdate(BtlAction *action) {
 }
 
 // FUN_001AC620
-void func_001ac620(void) {
+void btlActionQueueModelRelease(void) {
     u8 *p = *(u8 **)(D_0076449C + 0x174);
     u8 *o;
 
@@ -6120,7 +6120,7 @@ void func_001ac700(u8 *action) {
 }
 
 // FUN_001ACB10
-void func_001acb10(u8 *arg0)
+void btlActionApplySkillStatus(u8 *arg0)
 {
     u16 skillId;
     u8 *unitStatePtr;
@@ -6364,7 +6364,7 @@ void func_001acf50(u8 *arg0) {
 }
 
 // FUN_001AD280
-void func_001ad280(u8 *arg0)
+void btlActionStartLookAtCutin(u8 *arg0)
 {
     s16 cutinParams[8];
     u8 *lookAtPacket;
@@ -6404,7 +6404,7 @@ void func_001ad280(u8 *arg0)
 }
 
 // FUN_001AD3E0
-void func_001ad3e0(u8 *arg0)
+void btlActionWaitPresentation(u8 *arg0)
 {
     u8 *temp;
 
