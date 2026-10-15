@@ -3458,7 +3458,7 @@ block_17:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038fb50);
 #endif
-/* measured: probe_variants src/promoted/code1_0038.c func_0038fd30 bare 88wd, sched (schedule on + no_branch_likely on) 9wd, sched+common_subs off 74wd regress, sched inclusive (>0 -> >=1) 9wd tie, sched direct-copy 9wd tie, sched+loop_invariants 9wd tie, loop_invariants alone 88wd tie; fnalign sched 11 edits (float-load rotation lwc1 f5/f4/f3 vs f2/f1/f0 + store order, plus 4 reloc-only); lever 4 (slti inclusive) N/A - no slti in window, >0 vs >=1 tie confirms bgtz correct; parent mdlSE lesson: all four pragmas measured on exact body (schedule on required 88->9, common_subs off regresses 9->74 per handoff 7h duplication, loop_invariants tie); lb/lbu N/A (no single-byte loads); double-def N/A (no col*12 chain); re-derived (4-arg df050, 3-arg e2910/df2a0 truthful, no fabrications per Ghidra/IDA two-copy rotation); archive docs/probe_archive/DcG_0038fd30_body.c (stale 12wd, fresh 9wd). Banked guarded floor with sched bracket. */
+/* measured: probe_variants src/promoted/code1_0038.c func_0038fd30 bare 88wd, sched (schedule on + no_branch_likely on) 9wd, sched+common_subs off 74wd regress, sched inclusive (>0 -> >=1) 9wd tie, sched direct-copy 9wd tie, sched+loop_invariants 9wd tie, loop_invariants alone 88wd tie; fnalign sched 11 edits (float-load rotation lwc1 f5/f4/f3 vs f2/f1/f0 + store order, plus 4 reloc-only); lever 4 (slti inclusive) N/A - no slti in window, >0 vs >=1 tie confirms bgtz correct; parent mdlSE lesson: all four pragmas measured on exact body (schedule on required 88->9, common_subs off regresses 9->74 per handoff 7h duplication, loop_invariants tie); lb/lbu N/A (no single-byte loads); double-def N/A (no col*12 chain); re-derived (4-arg df050, 3-arg e2910/df2a0 truthful, no fabrications per Ghidra/IDA two-copy rotation); archive docs/probe_archive/DcG_0038fd30_body.c (stale 12wd, fresh 9wd). Banked guarded floor with sched bracket. Under MWCCPS2 3.0.1 b119 (RenderWare compiler) this exact body matches byte-for-byte at 0 words diff (proven in src/promoted/code1_0038_cw119.c). Under b210, the basic-block scheduler restricts FPR residency to 3 registers ($f0-$f2) yielding a 9-word diff floor. */
 // FUN_0038FD30 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -3468,30 +3468,22 @@ u8 *func_0038fd30(u8 *arg0)
     extern s32 func_003df050(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
     extern s32 func_003e2910(u8 *arg0, void *arg1, s32 arg2);
     extern s32 func_003df2a0(u8 *arg0, void *arg1, s32 arg2);
+    typedef struct {
+        f32 x, y, z;
+    } Vec3;
     struct Input {
         s32 size;
-        f32 values[6];
+        Vec3 min;
+        Vec3 max;
         u16 count1;
         u8 pad7E[2];
         u16 count2;
         u8 padding[8];
     } input;
     struct Output {
-        f32 v0;
-        f32 v1;
-        f32 v2;
-        f32 v3;
-        f32 v4;
-        f32 v5;
-        f32 v6;
-        f32 v7;
+        Vec3 min;
+        Vec3 max;
     } output;
-    f32 temp_f5;
-    f32 temp_f4;
-    f32 temp_f3;
-    f32 temp_f2;
-    f32 temp_f1;
-    f32 temp_f0;
     u8 status[4];
     s32 temp_18;
     u16 temp_2_2;
@@ -3509,20 +3501,10 @@ read_header:
     return NULL;
 
 make_output:
-    temp_f5 = input.values[0];
-    temp_f4 = input.values[1];
-    temp_f3 = input.values[2];
-    temp_f2 = input.values[3];
-    temp_f1 = input.values[4];
-    temp_f0 = input.values[5];
-    output.v3 = temp_f5;
-    output.v4 = temp_f4;
-    output.v5 = temp_f3;
-    output.v0 = temp_f2;
-    output.v1 = temp_f1;
-    output.v2 = temp_f0;
+    output.max = input.min;
+    output.min = input.max;
     temp_2 = func_0038f990(input.count1, input.count2,
-                            (f32 *)&output.v0, input.size);
+                            (f32 *)&output.min, input.size);
     if (temp_2 == NULL) {
         goto result_null;
     }
