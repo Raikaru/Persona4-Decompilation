@@ -25,8 +25,8 @@ extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern void btlUnitRequestLookAt(void *unit);
 extern f32 func_003e41e0(f32 *out, f32 *in);
-extern void func_0019d040(u8 *arg0);
-extern void func_0019d0c0(u8 *arg0);
+extern void btlUnitShowModel(u8 *arg0);
+extern void btlUnitHideModel(u8 *arg0);
 extern f32 RwV2dLength(f32 *value);
 extern s32 func_0044dcd8(f32 value);
 extern s32 func_0044b310(s32 value);
@@ -1210,13 +1210,13 @@ s32 func_0019ae20(u8 *arg0) {
     return 0;
 }
 // FUN_0019BCB0
-s32 func_0019bcb0(u8 *arg0) {
-    func_0019d040(*(u8 **)arg0);
+s32 btlUnitShowPacketUpdate(u8 *arg0) {
+    btlUnitShowModel(*(u8 **)arg0);
     return 1;
 }
 // FUN_0019BD80
-s32 func_0019bd80(u8 *arg0) {
-    func_0019d0c0(*(u8 **)arg0);
+s32 btlUnitHidePacketUpdate(u8 *arg0) {
+    btlUnitHideModel(*(u8 **)arg0);
     return 1;
 }
 // FUN_0019E130
@@ -1644,7 +1644,7 @@ extern RwV3d D_0060a0d0;
 extern f32 DAT_007613f8;
 
 // FUN_0019E830
-void btlUnitHoldPendingPacketIfUnit(u8 *arg0) {
+void btlUnitHoldPendingLookAt(u8 *arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;
@@ -1653,7 +1653,7 @@ void btlUnitHoldPendingPacketIfUnit(u8 *arg0) {
     }
 }
 // FUN_0019E9D0
-void btlUnitReleasePendingPacketIfUnit(u8 *arg0) {
+void btlUnitReleasePendingLookAt(u8 *arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;

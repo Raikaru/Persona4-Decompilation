@@ -178,9 +178,9 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     func_0019ef30(arg0, arg1);
 }
-extern void btlUnitHoldPendingPacketIfUnit(u8 *arg0);
-extern s32 func_0019e850(u8 *arg0);
-extern void btlUnitReleasePendingPacketIfUnit(u8 *arg0);
+extern void btlUnitHoldPendingLookAt(u8 *arg0);
+extern s32 btlUnitLookAtSidePacketUpdate(u8 *arg0);
+extern void btlUnitReleasePendingLookAt(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -227,15 +227,15 @@ extern u8 D_00794150[];
 /* measured: restore pragma state after func_0019df20. */
 #pragma pop
 // FUN_0019E9F0
-u8 *func_0019e9f0(u8 *unit, s16 value)
+u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value)
 {
     u8 *packet;
     u8 *work;
 
     packet = (u8 *)func_00194470(0x11A, 8);
-    *(void **)(packet + 0x68) = (void *)btlUnitHoldPendingPacketIfUnit;
-    *(void **)(packet + 0x6C) = (void *)func_0019e850;
-    *(void **)(packet + 0x70) = (void *)btlUnitReleasePendingPacketIfUnit;
+    *(void **)(packet + 0x68) = (void *)btlUnitHoldPendingLookAt;
+    *(void **)(packet + 0x6C) = (void *)btlUnitLookAtSidePacketUpdate;
+    *(void **)(packet + 0x70) = (void *)btlUnitReleasePendingLookAt;
     work = *(u8 **)(packet + 0x78);
     *(u8 **)work = unit;
     *(s16 *)(work + 4) = value;

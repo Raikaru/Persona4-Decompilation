@@ -91,12 +91,12 @@ typedef struct BtlUnitColorWork {
 u32 func_0019b710(void* work);
 u32 func_0019b730(void* work);
 u32 func_0019bbc0(void* work);
-u32 btlUnitHoldPendingPacket(void* work);
-u32 func_0019bcb0(void* work);
-u32 btlUnitReleasePendingPacket(void* work);
-u32 btlUnitHoldPendingPacket114(void* work);
-u32 func_0019bd80(void* work);
-u32 btlUnitReleasePendingPacket114(void* work);
+u32 btlUnitHoldPendingShow(void* work);
+u32 btlUnitShowPacketUpdate(void* work);
+u32 btlUnitReleasePendingShow(void* work);
+u32 btlUnitHoldPendingHide(void* work);
+u32 btlUnitHidePacketUpdate(void* work);
+u32 btlUnitReleasePendingHide(void* work);
 struct BtlUnit {
     u8 padding_00[0x98];
     u32 flags2;
@@ -345,14 +345,14 @@ BtlPacket* func_0019bbe0(BtlUnit* unit, u32 targetColor, s16 startFrame, s16 dur
 
 
 // FUN_0019BD00
-BtlPacket* func_0019bd00(BtlUnit* unit)
+BtlPacket* btlUnitCreateShowPacket(BtlUnit* unit)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x113, sizeof(BtlUnit*));
-    packet->initFunc = btlUnitHoldPendingPacket;
-    packet->updateFunc = func_0019bcb0;
-    packet->destroyFunc = btlUnitReleasePendingPacket;
+    packet->initFunc = btlUnitHoldPendingShow;
+    packet->updateFunc = btlUnitShowPacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingShow;
     *(BtlUnit**)packet->workData = unit;
 
     return packet;
@@ -361,14 +361,14 @@ BtlPacket* func_0019bd00(BtlUnit* unit)
 
 
 // FUN_0019BDD0
-BtlPacket* func_0019bdd0(BtlUnit* unit)
+BtlPacket* btlUnitCreateHidePacket(BtlUnit* unit)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x114, sizeof(BtlUnit*));
-    packet->initFunc = btlUnitHoldPendingPacket114;
-    packet->updateFunc = func_0019bd80;
-    packet->destroyFunc = btlUnitReleasePendingPacket114;
+    packet->initFunc = btlUnitHoldPendingHide;
+    packet->updateFunc = btlUnitHidePacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingHide;
     *(BtlUnit**)packet->workData = unit;
 
     return packet;
