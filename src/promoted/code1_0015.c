@@ -1616,7 +1616,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     extern s32 func_00146200(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_001462c0(u16 arg0, f32 *arg1, f32 fparg0);
     extern void func_00149ea0(void);
-    extern void func_0014a0f0(u16 arg0, u32 arg1);
+    extern void SceneDraw_SetResVisible(u16 arg0, u32 arg1);
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
     extern u16 func_0014b510(s32 arg0);
@@ -1735,7 +1735,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     clonedModel = func_001534a0((k_fldResource *)(s32)*(u32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28), &worldPosition, rotation);
     resourceId = (u16)func_00145c80(arg0,(s32)clonedModel);
     parentUnit = (u8 *)MT_Scene_GetRes(resourceId);
-    func_0014a0f0((u16)resourceId,1);
+    SceneDraw_SetResVisible((u16)resourceId,1);
     func_00149ea0();
     for (rowIndex = 0; grid = (u8 *)func_00155280(), rowIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5b);
         rowIndex = rowIndex + 1) {
@@ -1771,7 +1771,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
         child = (u8 *)MT_Scene_GetRes(resourceId);
         *(u32 *)(child + 0x140) = (u32)parentUnit;
       }
-      func_0014a0f0((u16)resourceId,1);
+      SceneDraw_SetResVisible((u16)resourceId,1);
     }
     clonedModel->count2 = 0;
     if (*(s32 *)(*(s32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28) + 0xa40) != 0) {
@@ -2942,7 +2942,7 @@ body:
 // FUN_0015B3E0
 void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 arg6, s32 *arg7)
 {
-    extern void func_0014a0f0(u16 resTypeId, u32 visible);
+    extern void SceneDraw_SetResVisible(u16 resTypeId, u32 visible);
     s32 depth_low;
     s32 limit_low;
     u8 north_limit;
@@ -2958,7 +2958,7 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
     depth_low = arg5 & 0xFF;
     if (depth_low < limit_low) {
         if (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x54] == 1) {
-            func_0014a0f0(*(u16 *)(((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10)) + 0x56), 1);
+            SceneDraw_SetResVisible(*(u16 *)(((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10)) + 0x56), 1);
             *arg7 += 1;
             exits = (~arg2 & ((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x5E]) & 0xFF;
             if (exits & 1) {

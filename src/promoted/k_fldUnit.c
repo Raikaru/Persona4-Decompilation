@@ -61,7 +61,7 @@ extern void mdlScale(Model *arg0, const RwV3d *arg1, s32 arg2);
 extern void RwMatrixUpdate(u8 *arg0);
 extern void func_00168de0(u8 *task, const void *axis, f32 angle);
 extern void func_00168ae0();
-extern void func_0014b0c0(u16 arg0, u32 arg1);
+extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
 extern void func_00168730(s32 arg0, s32 arg1);
 extern void func_00168780(s32 arg0, f32 arg1);
 extern u32 *func_00478750(u8 *arg0);
@@ -90,7 +90,7 @@ extern u8 datPersonaGetLevelByPcId(u16 arg0);
 extern s16 datGetPartyId(s32 arg0);
 extern s32 func_00104c70(s32 arg0);
 extern s32 *func_00155280(void);
-extern void func_0014a0f0(u16 arg0, s32 arg1);
+extern void SceneDraw_SetResVisible(u16 arg0, s32 arg1);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern s32 func_0018bb20(s32 arg0, s32 arg1);
 
@@ -676,7 +676,7 @@ void func_00162e10(void)
 
             RwMatrixUpdate((u8 *)mdlGetMatrix((void *)*characterModel));
             resourceForUpdate = &((FieldUnitRecord *)(u32)unitForUpdate)->scene;
-            func_0014b0c0(unitForUpdate->scene->resourceId, 1);
+            SceneDraw_SetResVisibleChecked(unitForUpdate->scene->resourceId, 1);
             func_00168730((*resourceForUpdate)->movementTask, 0x40000000);
             sampleIndex = 0;
             initialSampleValue = D_007615DC;
@@ -888,7 +888,7 @@ s32 func_00163c90(s32 arg0)
   RwMatrixUpdate((u8 *)mdlGetMatrix(*((void **)  (temp_16 + 0x50))));
   func_00168de0((u8 *)(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220))), sp40, *((f32 *) ((*((u8 **) (temp_16 + 0x1AC))) + 0x14C)));
   func_00168ae0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), (*((u8 **) (temp_16 + 0x1AC))) + 0x140);
-  func_0014b0c0(*((u16 *) (*((u8 **) (0x54 + temp_16)))), 1);
+  SceneDraw_SetResVisibleChecked(*((u16 *) (*((u8 **) (0x54 + temp_16)))), 1);
   func_00168730(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 0x40000000);
   func_00168780(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 35.0f);
   *((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)) = (s32)func_00478750((u8 *)(iGpffffb274));
@@ -1546,7 +1546,7 @@ void func_00164fa0(s32 arg0)
             var_2 += 8;
         } while (i > 0);
         RwMatrixUpdate((u8 *)mdlGetMatrix(*temp_16));
-        func_0014b0c0(*(u16 *)*temp_20, 1);
+        SceneDraw_SetResVisibleChecked(*(u16 *)*temp_20, 1);
         func_00168730(*((s32 *)(*temp_20 + 0x220)), 0x40000000);
         func_00168c00(*((s32 *)(*temp_20 + 0x220)));
         if (arg0 == 0) {
@@ -1674,7 +1674,7 @@ void func_00165380(void)
             } while (n > 0);
             RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)f50));
             f54 = slot + 0x54;
-            func_0014b0c0(*(u16 *)(*(u8 **)f54), 1);
+            SceneDraw_SetResVisibleChecked(*(u16 *)(*(u8 **)f54), 1);
             func_00168730(*(s32 *)(*(u8 **)f54 + 0x220), 0x40000000);
             func_00168c00(*(s32 *)(*(u8 **)f54 + 0x220));
             func_00168780(*(s32 *)(*(u8 **)f54 + 0x220), 35.0f);
@@ -1986,7 +1986,7 @@ s32 func_00165be0(void)
             continue;
         }
         resourceId = func_00145780((u16)(0x3FF - pair), 3, modelHandle);
-        func_0014b0c0(resourceId, 1);
+        SceneDraw_SetResVisibleChecked(resourceId, 1);
         instance = (u8*)MT_Scene_GetRes(resourceId);
         *(s32*)(instance + 0x234) = 3;
         {
@@ -2100,7 +2100,7 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         temp_17_2 = (s32)((600.0f + *(f32 *)(arg1 + 0x140)) / 1200.0f);
         temp_18 = (s32)((600.0f + *(f32 *)(arg1 + 0x148)) / 1200.0f);
         *(u8 **)(temp_2 + 0x140) = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)func_00155280() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));
-        func_0014a0f0(*(u16 *)(arg0 + 0xC), 1);
+        SceneDraw_SetResVisible(*(u16 *)(arg0 + 0xC), 1);
         iGpffffb2e4 += 1;
     }
 }

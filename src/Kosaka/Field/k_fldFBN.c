@@ -67,8 +67,8 @@ extern u8 func_001060c0(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern u32 datGetFlag(s32 arg0);
 extern s32 func_001453a0(u16 arg0);
-extern void func_0014aa80(u16 arg0);
-extern void func_0014b0c0(u16 arg0, u32 arg1);
+extern void SceneDraw_ResetResource(u16 arg0);
+extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
 extern f32 KDraw_MatrixPitchDeg(u8 *arg0);
 extern f32 KDraw_MatrixYawDeg(u8 *arg0);
 extern f32 KDraw_MatrixRollDeg(u8 *arg0);
@@ -355,8 +355,8 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             mode = rec[0x60];
         }
         rid = func_00145780(*(u16 *)(rec + 8) & 0x3FF, mode, (s32)iGpffffb2a4[i]);
-        func_0014aa80(rid);
-        func_0014b0c0(rid, 1);
+        SceneDraw_ResetResource(rid);
+        SceneDraw_SetResVisibleChecked(rid, 1);
         res = MT_Scene_GetRes(rid);
         size = (f32 *)(rec + 0xC);
         func_00168780(*(u8 **)(res + 0x228), *size);

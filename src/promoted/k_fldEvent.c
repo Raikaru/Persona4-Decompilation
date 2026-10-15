@@ -831,7 +831,7 @@ s32 func_00172e00(u8 *arg0)
     void func_00144ed0(s64);
     s32 func_00145ac0(u16, s32);
     u16 func_0014b510(s32);
-    void func_0014a0f0(u16, u32);
+    void SceneDraw_SetResVisible(u16, u32);
     void func_0015a350(struct P4_0015_Vec3 *);
     struct RwMatrixTag *func_0047a180(struct RwMatrixTag *, const struct RwV3d *, s32);
     s32 func_00175ea0(s32, s32, s32);
@@ -1424,7 +1424,7 @@ s32 func_00172e00(u8 *arg0)
                     s32 tt = work->modelFile;
                     if (tt != 0) {
                         u16 id = func_00145ac0(func_0014b510(0xA), tt);
-                        func_0014a0f0(id, 1);
+                        SceneDraw_SetResVisible(id, 1);
                         func_0015a350((struct P4_0015_Vec3 *)(&translation));
                         func_0047a180((struct RwMatrixTag *)(work->modelFile), (const struct RwV3d *)(&translation), 2);
                         {
