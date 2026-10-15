@@ -88,7 +88,7 @@ s32 FldAI_ChaserUpdate(u8 *task)
     extern void *memset(void *, int, size_t);
     extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
     extern void func_0046d730(const void *, s32);
-    extern s16 func_00479c30(s32, s32);
+    extern s16 mdlGetLayerAnimation(s32, s32);
     extern void mdlSetColor(void *, const void *);
     extern void mdlSetAlphaBlend(void *);
     extern void mdlClearAlphaBlend(void *);
@@ -233,7 +233,7 @@ discoveryAvailabilityDone:
         if (!(FldEvent_GetMoveStep() <= 0.0f))
             *(s32 *)(work + 0xC) = 1;
         if (*(s32 *)(work + 0xC) == 0) {
-            currentAnimation = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
+            currentAnimation = (s16)mdlGetLayerAnimation(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
             desiredAnimation = func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
             if (currentAnimation != desiredAnimation) {
                 desiredAnimation = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
@@ -517,7 +517,7 @@ moveFollower:
             if (speed == 0.0f || active == 1) {
                 if (*(s32 *)(work + 0x60) < 30) *(s32 *)(work + 0x60) += 1;
                 else {
-                    currentAnimation = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
+                    currentAnimation = (s16)mdlGetLayerAnimation(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
                     desiredAnimation = func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
                     if (currentAnimation != desiredAnimation) {
                         desiredAnimation = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
@@ -526,7 +526,7 @@ moveFollower:
                     *(s32 *)(work + 0x60) = 0;
                 }
             } else {
-                currentAnimation = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
+                currentAnimation = (s16)mdlGetLayerAnimation(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
                 desiredAnimation = func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
                 if (currentAnimation != desiredAnimation) {
                     desiredAnimation = (s16)func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));

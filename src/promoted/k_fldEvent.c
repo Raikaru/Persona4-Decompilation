@@ -69,7 +69,7 @@ void func_0015ab20(s32, s32, s32);
 void func_0046d730(const void *, u32);
 void FldUnit_UpdateFieldState(void);
 s32 func_0015f600(void);
-s16 func_00479c30(s32, s32);
+s16 mdlGetLayerAnimation(s32, s32);
 s32 func_0016fe80(s32);
 s32 func_0016ffd0(s32);
 s32 func_0016fd00(s32);
@@ -1548,7 +1548,7 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
             }
         }
         if (*(s32 *)(h + 0xC) > -1) {
-            v = (s16)func_00479c30(D_007EFA00[0], 0);
+            v = (s16)mdlGetLayerAnimation(D_007EFA00[0], 0);
             if (v == func_0016fe80(1) || v == func_0016ffd0(1)) {
                 mdlDispatchAnimIfPresent((u8*)D_007EFA00[0], 0, (s16)func_0016fd00(1), 4, 1);
             }
@@ -2024,11 +2024,11 @@ smallmove:
             *(s32 *)(h + 0x148) = 0x3D;
         }
         if (func_0015a160() != 0) {
-            s16 cur = func_00479c30(*(s32 *)(*(s32 *)(h + 0x18) + 0x164), 0);
+            s16 cur = mdlGetLayerAnimation(*(s32 *)(*(s32 *)(h + 0x18) + 0x164), 0);
             if (cur == func_00170120(1) && *(u8 *)(*(s32 *)(*(s32 *)(h + 0x18) + 0x164) + 0xEE) == 1) {
                 *(s32 *)(h + 0x134) = 1;
             }
-        } else if (func_00479c30(*(s32 *)(*(s32 *)(h + 0x18) + 0x164), 0) < 6) {
+        } else if (mdlGetLayerAnimation(*(s32 *)(*(s32 *)(h + 0x18) + 0x164), 0) < 6) {
         } else if (*(u8 *)(*(s32 *)(*(s32 *)(h + 0x18) + 0x164) + 0xEE) != 1) {
         } else {
             *(s32 *)(h + 0x134) = 1;

@@ -5169,8 +5169,9 @@ s32 mdlDispatchAnimIfPresent(u8* mdl, u32 layer, s16 animation, u16 frame, s32 f
 }
 #pragma pop
 
+/* Returns the layer's animation index from its state record (+0xF0), or -1 when the layer has no animation state. */
 // FUN_00479C30
-s16 func_00479c30(s32 arg0, s32 arg1)
+s16 mdlGetLayerAnimation(s32 arg0, s32 arg1)
 {
     if (mdlLayerIsPresent((u8 *)arg0, arg1) != 0) {
         s32 off = (arg1 & 0xFFFF) * 0xA4;

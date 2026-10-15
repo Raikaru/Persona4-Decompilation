@@ -142,7 +142,7 @@ extern u8 D_005F5320[];
 extern u8 D_005F5330[];
 extern s32 func_00457120(void);
 extern f32 fGpffff8218;
-extern s16 func_00479c30(s32 arg0, s32 arg1);
+extern s16 mdlGetLayerAnimation(s32 arg0, s32 arg1);
 extern u8 *mdlGetMatrix(u32 arg0);
 extern f32 RwV3dNormalize(RainVector *dst, const RainVector *src);
 extern u8 *func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
@@ -278,7 +278,7 @@ void func_001823d0(s32 arg0, u16 mode, u16 id)
     s32 offset;
 
     status = *(u16 *)(arg0 + 0xD4);
-    stat = func_00479c30(arg0, 0);
+    stat = mdlGetLayerAnimation(arg0, 0);
     time = func_0047a080(arg0, 0);
     if (((s32 *)iGpffff9db0)[0] >= 200) {
         return;
@@ -2076,7 +2076,7 @@ extern s32 func_00457120(void);
 extern void FldRc_SetClumpVector(void *, void *);
 extern s32 func_004782b0(unsigned char *);
 extern void func_00478e70(unsigned char *);
-extern s16 func_00479c30(s32, s32);
+extern s16 mdlGetLayerAnimation(s32, s32);
 extern s32 func_0047a6d0(void *, s32, void *);
 extern void mdlSetAlphaBlend(unsigned char *);
 extern void mdlClearAlphaBlend(unsigned char *);
@@ -2566,7 +2566,7 @@ s32 func_0018a200(u8 *param_1)
           if (puVar1[0xb] != 0xffffffff) {
             break;
           }
-          temp_v3 = func_00479c30(*(int *)(puVar1[3] + 0x164),0);
+          temp_v3 = mdlGetLayerAnimation(*(int *)(puVar1[3] + 0x164), 0);
           puVar1[0xb] = (int)temp_v3;
           temp_v5 = puVar1[3];
           updateAnimationKind = ((FldActorObject *)temp_v5)->kind;
@@ -2599,7 +2599,7 @@ s32 func_0018a200(u8 *param_1)
       {
         FldActorWork *pathWork;
         if (((movementMode != 4) || ((float *)puVar1)[6] != 1.0f) &&
-            (temp_v3 = func_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
+            (temp_v3 = mdlGetLayerAnimation(*(int *)(temp_v5 + 0x164), 0), temp_v3 != 1)) {
           mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
         }
         func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
@@ -2653,7 +2653,7 @@ s32 func_0018a200(u8 *param_1)
         if ((int)temp_v11_s3 >= 1) {
           puVar1[10] = temp_v11_s3 - 1;
         } else {
-          if ((temp_v11_s3 == 0) && (temp_v3 = func_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
+          if ((temp_v11_s3 == 0) && (temp_v3 = mdlGetLayerAnimation(*(int *)(temp_v5 + 0x164), 0), temp_v3 != 1)) {
             mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
           }
           if ((int)puVar1[9] > 0) {
@@ -2772,7 +2772,7 @@ s32 func_0018a200(u8 *param_1)
   case 7:
     finalModel = ((FldActorObject *)puVar1[3])->model;
     if (finalModel[0xee] == 1 &&
-       (temp_v3 = func_00479c30((s32)finalModel,0), temp_v3 != 0)) {
+       (temp_v3 = mdlGetLayerAnimation((s32)finalModel, 0), temp_v3 != 0)) {
       mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
     }
   
@@ -2878,8 +2878,7 @@ void func_0018bc20(u8 *arg0)
         guard38 * guard44 <
         fGpffff8218) {
         *(s32 *)(temp_16 + 0x2C) =
-            (s16)func_00479c30(
-                *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164), 0);
+            (s16)mdlGetLayerAnimation(*(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164), 0);
         target = *(void **)(*(u8 **)(temp_16 + 0xC) + 0x164);
         zero = 0;
         mdlDispatchAnimIfPresent(target, zero, 1, 4, 1);
