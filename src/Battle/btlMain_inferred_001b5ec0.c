@@ -31,7 +31,7 @@ extern void *SceneDraw_GetList4FirstColor(void);
 extern void *SceneDraw_GetList4SecondColor(void);
 extern void func_001b6990();
 extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
-extern s32 func_001b7080(s32 arg0);
+extern s32 btlMainSkillColorDefault(s32 arg0);
 extern s32 func_001b7090(s32 arg0);
 extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_00144f60(void);
@@ -628,7 +628,7 @@ void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2) {
 }
 
 // FUN_001B7080
-s32 func_001b7080(s32 arg0)
+s32 btlMainSkillColorDefault(s32 arg0)
 {
     return 0xFF808080;
 }

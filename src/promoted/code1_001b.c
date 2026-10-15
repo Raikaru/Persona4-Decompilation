@@ -66,7 +66,7 @@ extern u8 *btlMainCreateColorFadePacket(s32 arg0);
 extern u16 datCalcGetHp(s32 unit);
 extern u16 datCalcGetSp(s32 unit);
 extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
-extern s32 func_001b7080(s32 arg0);
+extern s32 btlMainSkillColorDefault(s32 arg0);
 extern s32 func_001b7090(s32 arg0);
 extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
 extern void btlFormationSetPlacement(s32 arg0);
