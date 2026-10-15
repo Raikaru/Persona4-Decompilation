@@ -78,7 +78,7 @@ extern void fclSpriteStartColor(u8 *, FclByte4, FclByte4, u8, s16, s32);
 extern void fclCombineSetSlotColors(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
 extern s8 fclCombineMapSlotKind(s8);
 extern void func_003297f0(f32, f32, u8 *, s64, s8);
-extern void func_0031ac10(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
+extern void fclCombineDrawPersonaRow(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
 extern f32 D_006440F0[];
 extern f32 D_006440F8[];
 extern f32 D_00644290[];
@@ -578,7 +578,7 @@ void fclCombineDrawSlotRows(u8 *arg0, s64 arg1) {
     *(FclByte4 *)(p + 0x85) = c6C;
 }
 
-/* Point-by-value construction as in func_0031c2b0.  The row base pointers
+/* Point-by-value construction as in fclCombineDrawPersonaCard.  The row base pointers
    are f32 tables cast to FclVec2 * (a direct FclVec2 extern folds the
    first base into each load), fclSpriteCreate takes an s16 resource here, and
    the then-branch's second table index is its own s16 (retail $s1) while
@@ -1052,7 +1052,7 @@ void fclCombineStepSlotSelection(u8 *arg0, s8 arg1) {
 }
 
 
-/* Point-by-value construction as in func_0031c2b0.  The anchor is declared
+/* Point-by-value construction as in fclCombineDrawPersonaCard.  The anchor is declared
    with its initializer (the constructor's result is copied out of a
    temporary, so the anchor never escapes and its sums stay in registers),
    the frame id is assigned through an s16 argument local ahead of the
@@ -1577,6 +1577,7 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
 /* Resource scale is established only in the branch that uses it.
    The name scale is established independently before the two-row tail.
    The digit pair uses the shared native aggregate/depth contract. */
+// Fcl combine persona row: draws list row `row` at position (art, arcana, labels and level digits). checkAvailability == 1 reads the row's availability from the slot list; availability 2 adds the special-row backdrop and cursor sprites, and in mode 0 also creates the selection cursors (0x1C7, 0x2E8). Mode 1 transitions the existing sprites.
 // FUN_0031AC10
 #pragma push
 /* measured: opt_lifetimes splits the two nonoverlapping transition-scale
@@ -1584,7 +1585,7 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
 #pragma opt_lifetimes on
 /* The name sits two pixels below rowY. The digit pair and special-row
    backdrop retain rowY (retail keeps it unchanged in $f22). */
-void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 persona, s16 level, s16 delay, s8 mode, s8 checkAvailability, u8 alpha) {
+void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 persona, s16 level, s16 delay, s8 mode, s8 checkAvailability, u8 alpha) {
     s16 digitRow;
     FclCombineRowWork *work;
     u8 *resource;
@@ -1759,8 +1760,9 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
    value (hidden result pointer), so each point is built inside the call that
    consumes it.  Building both endpoints within one fclSpriteStartPositionAt call is what
    lets the destination Y be evaluated before the first constructor call. */
+// Fcl combine persona card: draws the summary card for the persona in slot arg1 (backdrop, art, arcana and level digits, two digits when the level is 10 or more), moving from arg2 to arg3.
 // FUN_0031C2B0
-void func_0031c2b0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
+void fclCombineDrawPersonaCard(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
     FclByte4 c16C;
     FclByte4 c168;
     FclByte4 c164;
@@ -1832,9 +1834,10 @@ void func_0031c2b0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
     fclSpriteStartPositionAt(0x74, func_002b2970((f32)0x14D + pos.x, 13.0f + pos.y), func_002b2970((f32)0x14D + arg3.x, 13.0f + arg3.y), 0, 0xA, 0);
 }
 
-/* Same point-by-value construction as func_0031c2b0. */
+/* Same point-by-value construction as fclCombineDrawPersonaCard. */
+// Fcl combine persona card, alternate sprite set: the same card as fclCombineDrawPersonaCard drawn with sprites 0x7D, 0x229, 0x2B1, 0x25D and 0x2B2; arg1 is the slot, arg2 to arg3 the move.
 // FUN_0031CCE0
-void func_0031cce0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
+void fclCombineDrawPersonaCardAlt(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
     FclByte4 c15C;
     FclByte4 c158;
     FclByte4 c154;
@@ -2414,7 +2417,7 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
 }
 #pragma pop
 
-/* Point-by-value construction as in func_0031c2b0.  Reading the first x
+/* Point-by-value construction as in fclCombineDrawPersonaCard.  Reading the first x
    through `*(f32 *)&arg1` makes the homed anchor addressable, so its halves
    are reloaded after each call (retail's sp58/sp5C loads) instead of being
    cached across the blocks.  Each block keeps its own node handle, which
@@ -3135,13 +3138,11 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             func_0045af60(0, 0, 0, 1);
             *(s8 *)(t + 0x128) = *(s16 *)(t + 0x11E);
             v = (FclVec2 *)D_00644150;
-            func_0031c2b0(arg0, *(s16 *)(t + 0x11E), func_002b2970(-380.0f, v->y), func_002b2970(v->x, v->y));
+            fclCombineDrawPersonaCard(arg0, *(s16 *)(t + 0x11E), func_002b2970(-380.0f, v->y), func_002b2970(v->x, v->y));
             if ((s8)arg1 == 0) {
                 jb1 = 0;
                 while ((s16)jb1 < (u16)datPersonaRosterCapacity()) {
-                    func_0031ac10(arg0, func_002b2970((f32)0x149, 128.0f), *(s8 *)(t + 0x128), (s8)jb1,
-                                  *(u16 *)(yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1) + 2),
-                                  *(u8 *)(yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1) + 4), 3, 0, 1, 0xCC);
+                    fclCombineDrawPersonaRow(arg0, func_002b2970((f32)0x149, 128.0f), *(s8 *)(t + 0x128), (s8)jb1, *(u16 *)(yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1) + 2), *(u8 *)(yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1) + 4), 3, 0, 1, 0xCC);
                     mb1 = jb1 * 23;
                     pb1 = fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)jb1);
                     func_002b83e0(pb1, func_002b2970((f32)(mb1 + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
@@ -3436,7 +3437,7 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
     }
     for (k = 0; k < *(s32 *)(yListSlotWork(0) + 8); k++) {
         spC8.position = func_002b2970(16.0f, 128.0f);
-        func_0031ac10(arg0, spC8.position, 0, (s8)k, *(u16 *)(yListSlotEntry(0, k) + 2), *(u8 *)(yListSlotEntry(0, k) + 4), (s16)(k * arg1), arg2, 1, 0xCC);
+        fclCombineDrawPersonaRow(arg0, spC8.position, 0, (s8)k, *(u16 *)(yListSlotEntry(0, k) + 2), *(u8 *)(yListSlotEntry(0, k) + 4), (s16)(k * arg1), arg2, 1, 0xCC);
     }
     {
         s32 hidden;
@@ -3605,8 +3606,7 @@ void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
     for (; i < 12; i++) {
         fclCombinePartyRow(arg0, func_002b2970((f32)315, 128.0f), (s8)i, *(u16 *)(yListSlotEntry(0, i) + 2), *(u8 *)(yListSlotEntry(0, i) + 4), (s16)(i * m), arg2, (count = *(s8 *)(yListSlotWork(0) + 8)));
     }
-    func_0031ac10(arg0, func_002b2970(6.0f, 195.0f), 0, 0, *(u16 *)(yListSlotEntry(1, 0) + 2),
-                  *(u8 *)(yListSlotEntry(1, 0) + 4), 0, arg2, 0, 0xCC);
+    fclCombineDrawPersonaRow(arg0, func_002b2970(6.0f, 195.0f), 0, 0, *(u16 *)(yListSlotEntry(1, 0) + 2), *(u8 *)(yListSlotEntry(1, 0) + 4), 0, arg2, 0, 0xCC);
     if ((s8)arg2 == 0) {
         u8 *p297;
         u8 *p28B;
@@ -4727,7 +4727,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
     spC0 = func_002b2970(162.0f, 111.0);
     ;
     ;
-    func_0031ac10(arg0, spC0, -1, (s8) i, (*((u16 *) (yListSlotEntry(0, i) + 2))) & 0xFFFFu, *((u8 *) (yListSlotEntry(0, i) + 4)), (s16) (((s16) i) * v1), arg3, 0, 0x99);
+    fclCombineDrawPersonaRow(arg0, spC0, -1, (s8) i, (*((u16 *) (yListSlotEntry(0, i) + 2))) & 0xFFFFu, *((u8 *) (yListSlotEntry(0, i) + 4)), (s16) (((s16) i) * v1), arg3, 0, 0x99);
     i++;
   }
 
@@ -4811,9 +4811,7 @@ void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
             /* The label point is returned by value into its named slot while
                the row offset is evaluated ahead of the constructor call. */
 
-            func_0031ac10(arg0, sp110 = func_002b2970(90.0f, 151.0f), -1, row,
-                          *(u16 *)(yListSlotEntry(0, entry) + 2), *(u8 *)(yListSlotEntry(0, entry) + 4),
-                          (s16)(row * step), arg3, 0, 0x99);
+            fclCombineDrawPersonaRow(arg0, sp110 = func_002b2970(90.0f, 151.0f), -1, row, *(u16 *)(yListSlotEntry(0, entry) + 2), *(u8 *)(yListSlotEntry(0, entry) + 4), (s16)(row * step), arg3, 0, 0x99);
         }
         t2 = *(u8 **)(arg0 + 0x38);
         spC8 = func_002b2970(390.0f, 151.0f);
