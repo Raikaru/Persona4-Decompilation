@@ -2928,8 +2928,9 @@ void fclCombineAdvanceGridFade(u8 *arg0, u8 arg1, s8 arg2) {
    only to give their temporaries retail's stack homes (24 words without). */
 #pragma push
 #pragma opt_loop_invariants on
+// Fcl combine grid cell refresh: for each roster row, redraws the row's cells with colours taken from the selected row (0x11E) and the availability counts, and resets the row sprite and its column header at the given order.
 // FUN_003218A0
-void func_003218a0(u8 *arg0, s16 arg1) {
+void fclCombineRefreshGridCells(u8 *arg0, s16 arg1) {
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
     FclDrawColor c16C;

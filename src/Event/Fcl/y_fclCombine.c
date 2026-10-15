@@ -102,7 +102,7 @@ extern void fclCombineSelectSlotEntry(u8 *, s8, s8, s64, s64);
 extern void fclCombineDrawPersonaCard(u8 *, s16, FclVec2f, FclVec2f);
 extern void fclCombineDrawPersonaCardAlt(u8 *, s16, FclVec2, FclVec2);
 extern void fclCombineSetupPairGrid(u8 *, s8);
-extern void func_003218a0(u8 *, s16);
+extern void fclCombineRefreshGridCells(u8 *, s16);
 extern void func_00324410(u8 *, s16, s8);
 extern u32 RpRandom(void);
 extern void fclSpriteSetFlag(s16, s16, s8);
@@ -1721,7 +1721,7 @@ void fclCombineMenuFusion(u8 *arg0) {
             sp220 = func_002b2970(16.0f, 104.0f);
             fclCombineDrawSlotFields(arg0, sp220, 0, 0, 0, 0, 0);
             fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-            func_003218a0(arg0, 0);
+            fclCombineRefreshGridCells(arg0, 0);
             func_002b6140(temp_18->f28C, 0);
             func_002b6140(temp_18->f290, 0);
             temp_18->f1 = 0x27;
@@ -1877,7 +1877,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_4)) + 4);
                     fclCombineDrawPersonaRow(arg0, sp1C0.position, temp_18->f128, var_17_4, temp_16_11, slotByte, 0, 1, 1, 0xCC);
                 }
-                func_003218a0(arg0, 3);
+                fclCombineRefreshGridCells(arg0, 3);
                 temp_18->f1 = 0x27;
             }
         }
@@ -3041,7 +3041,7 @@ block_166:
                 sp2B0 = func_002b2970(16.0f, 104.0f);
                 fclCombineDrawSlotFields(arg0, sp2B0, 0, 0, 0, 0, 0);
                 fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-                func_003218a0(arg0, 0);
+                fclCombineRefreshGridCells(arg0, 0);
                 func_002b6140((u8 *)(temp_17->f28C), 0);
                 func_002b6140((u8 *)(temp_17->f290), 0);
                 temp_17->f1 = 0x40U;
@@ -3149,7 +3149,7 @@ block_166:
 
                         fclCombineDrawPersonaRow(arg0, sp250, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
                     }
-                    func_003218a0(arg0, 3);
+                    fclCombineRefreshGridCells(arg0, 3);
                     fclCombineSlideInSlotSprites(arg0, 0x94, 0x95);
                     temp_17->f1 = 0x40U;
                     return;
@@ -7034,7 +7034,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             }
             sp228 = func_002b2970(16.0f, 104.0f);
             fclCombineDrawSlotFields(arg0, sp228, 0, 0, 0, 0, 0);
-            func_003218a0(arg0, 0);
+            fclCombineRefreshGridCells(arg0, 0);
             fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             func_002b6140((u8 *)(work->f28C), 1);
             func_002b6140((u8 *)(work->f290), 1);
@@ -7236,7 +7236,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                         slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_7) + 4);
                         fclCombineDrawPersonaRow(arg0, sp1C8, work->f128, var_18_7, temp_16_19, slotByte, 0, 1, 1, 0xCC);
                     }
-                    func_003218a0(arg0, 3);
+                    fclCombineRefreshGridCells(arg0, 3);
                     work->f1 = 0x7BU;
                     return;
                 }
