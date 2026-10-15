@@ -57,7 +57,7 @@ extern s32 D_007E8060[];
 extern u8 *iGpffff9db0;
 extern s32 func_0014a200();
 extern s32 func_0014a270(void);
-extern void func_00151f80(s32 arg0);
+extern void FldResource_Destroy(s32 arg0);
 extern s32 func_0014e710();
 extern void func_0046d730();
 extern void memcpy();
@@ -403,7 +403,7 @@ s32 func_001561a0(u8 *task)
     extern s32 func_00248e20(s32 group, s32 entry, s32 condition);
     extern void func_00123aa0(s16 selection);
     extern void func_002aaa80(void);
-    extern s32 func_0014ef40(void);
+    extern s32 FldResource_IsPrimaryFileLoaded(void);
     extern s32 func_0014a230(s32 fieldId, s32 roomId);
     extern u8 *func_001601e0(s32 fieldId);
     extern s32 func_001602a0(u8 *file, s32 fieldId);
@@ -449,7 +449,7 @@ s32 func_001561a0(u8 *task)
     }
     switch (work->state) {
     case 0:
-        if (func_0014ef40() == 0) {
+        if (FldResource_IsPrimaryFileLoaded() == 0) {
             break;
         }
         if (func_0014a230(work->fieldId, work->roomId) == 0) {
@@ -577,7 +577,7 @@ s32 func_00156640(u8 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
     *(s32 *)(base + 4) = arg5;
     *(s32 *)(base + 0x10) = arg6;
     *(s32 *)(base + 0x14) = arg7;
-    func_0014eed0(arg1, arg2);
+    FldResource_OpenPrimaryFile(arg1, arg2);
     return temp_21;
 }
 /* measured: closes the callback work-area base probe. */
@@ -1606,7 +1606,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     extern s32 D_0076432C;
     extern u8 *iGpffff9db0;
     extern s32 *func_00155280(void);
-    extern k_fldResource *func_001534a0(k_fldResource *src, void *arg1, u32 arg2);
+    extern k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *arg1, u32 arg2);
     extern s32 func_00145ac0(u16 arg0, s32 arg1);
     extern s32 func_00145ba0(u16 arg0, s32 arg1);
     extern s32 func_00145c80(u16 arg0, s32 arg1);
@@ -1732,7 +1732,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     templateOffset = templateIndex * 4;
     grid = (u8 *)func_00155280();
     rotation = (u16)((*(u8 *)(grid + cloneRow + cloneColumn + 0x59) + 4) % 4);
-    clonedModel = func_001534a0((k_fldResource *)(s32)*(u32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28), &worldPosition, rotation);
+    clonedModel = FldResource_CloneRotated((k_fldResource *)(s32)*(u32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28), &worldPosition, rotation);
     resourceId = (u16)func_00145c80(arg0,(s32)clonedModel);
     parentUnit = (u8 *)MT_Scene_GetRes(resourceId);
     SceneDraw_SetResVisible((u16)resourceId,1);
@@ -2214,7 +2214,7 @@ loop_14_body:
     temp_19 = (s32 *)((u8 *)D_007E8060 + temp_16_2);
     temp_4_4 = *temp_19;
     if (temp_4_4 != 0) {
-        func_00151f80(temp_4_4);
+        FldResource_Destroy(temp_4_4);
         *temp_19 = 0;
         *(s32 *)(iGpffff9db0 + temp_16_2 + 0x28) = 0;
     }
@@ -2276,7 +2276,7 @@ void func_00159f70(s32 arg0)
             while (index < 0x10) {
                 entry = &D_007E8060[index];
                 if (*entry != 0) {
-                    func_00151f80(*entry);
+                    FldResource_Destroy(*entry);
                     *entry = 0;
                 }
                 index += 1;

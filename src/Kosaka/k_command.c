@@ -51,7 +51,7 @@ extern void mdlScale(s32 arg0, void* arg1, s32 arg2);
 extern f32 KDraw_MatrixPitchDeg(u8* arg0);
 extern f32 KDraw_MatrixYawDeg(u8* arg0);
 extern f32 KDraw_MatrixRollDeg(u8* arg0);
-extern s32 func_00151580(s32 a, s32 b, s32* c);
+extern s32 FldResource_FindFrameForId(s32 a, s32 b, s32* c);
 extern s32 func_003e9700(s32 arg0);
 extern void RwV3dNormalize(f32* a, f32* b);
 /* Layout and return types from the matrix API used by the field command. */
@@ -582,7 +582,7 @@ s32 Cmd_CreateFieldModel(void)
         flag = func_00145ac0(w & 0xFFFF, v) & 0xFFFF;
         while (*(s32*)(D_00762EA0 + 0x24) > 0)
         {
-            p2 = (u8*)func_00151580(*(s32*)(D_00762EA0 + 0x28), w, &tmp);
+            p2 = (u8*)FldResource_FindFrameForId(*(s32*)(D_00762EA0 + 0x28), w, &tmp);
             break;
         }
         if (p2 != 0)

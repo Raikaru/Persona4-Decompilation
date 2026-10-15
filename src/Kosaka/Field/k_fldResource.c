@@ -38,7 +38,7 @@ extern u8 *func_00460f80(u8 *list, s32 arg1);
 extern u8 *func_00461080(u8 *list, s32 arg1);
 extern u8 *func_00461180(u8 *list, s32 arg1);
 extern u8 *func_003e9d50(u8 *arg0);
-extern void func_00152170(u8 *arg0, u8 *arg1);
+extern void FldResource_BeginDrawState(u8 *arg0, u8 *arg1);
 extern s32 func_004581a0(void *object, const char *name);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_004b1290(s32 a0, f32 f12, f32 f13, f32 f14);
@@ -154,7 +154,7 @@ extern s32 iGpffffb208;   /* gp - 0x4DF8 = 0x007642F8 */
 
 
 // FUN_0014EED0
-void func_0014eed0(s32 arg0, s32 arg1)
+void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1)
 {
     char path[0x40];
 
@@ -166,7 +166,7 @@ void func_0014eed0(s32 arg0, s32 arg1)
 }
 
 // FUN_0014EF40
-s32 func_0014ef40(void)
+s32 FldResource_IsPrimaryFileLoaded(void)
 {
     if (iGpffffb200 == 0) {
         return 1;
@@ -175,7 +175,7 @@ s32 func_0014ef40(void)
 }
 
 // FUN_0014EF80
-s32 func_0014ef80(void)
+s32 FldResource_IsSecondaryFileLoaded(void)
 {
     if (iGpffffb204 == 0) {
         return 1;
@@ -209,7 +209,7 @@ extern const FldResourcePreset fldResourcePresets[3];
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 // FUN_0014EFC0
-void func_0014efc0(s32 arg0, s32 arg1)
+void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
 {
     char sp90[0x40];
     char sp50[0x40];
@@ -424,7 +424,7 @@ static inline s32 fldResourceReadyOne_0014f310(u8 *file, s32 one)
 }
 
 // FUN_0014F310
-s32 func_0014f310(s32 arg0, s32 arg1) {
+s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     /* Only the fields read while opening the primary FBN are described. */
     typedef struct FldPartReadWork {
         s32 majorId;                    /* 0x00, narrowed to u16 for the FBN */
@@ -454,11 +454,11 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
         sizeof(FldResourceCameraTransform) == 0x40 ? 1 : -1];
 
     extern void *func_00150890(s16 arg0, s16 arg1);
-    extern s32 func_00150c80(u8 *arg0);
-    extern void func_00150ce0(u8 *arg0);
-    extern s32 func_001510c0(u8 *arg0);
-    extern void func_00151710(u8 *arg0);
-    extern s32 func_00151c80(u8 *arg0);
+    extern s32 FldResource_IsFileLoaded(u8 *arg0);
+    extern void FldResource_ParseChunks(u8 *arg0);
+    extern s32 FldResource_PollLoads(u8 *arg0);
+    extern void FldResource_RequestEntryLoads(u8 *arg0);
+    extern s32 FldResource_TryInstallEntries(u8 *arg0);
     extern f32 KDraw_MatrixPitchDeg(u8 *arg0);
     extern f32 KDraw_MatrixYawDeg(u8 *arg0);
     extern f32 KDraw_MatrixRollDeg(u8 *arg0);
@@ -477,7 +477,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
      * casts its s32 words to memcpy sources of 0x20 and 0x180 bytes. */
     extern s32 func_00146440(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
-    // lint: allow H011 -- measured: u16 prototype regresses func_0014f310 (andi on wide id args)
+    // lint: allow H011 -- measured: u16 prototype regresses FldResource_StepPartLoad (andi on wide id args)
     extern u8 *MT_Scene_GetRes(s32 arg0);
     extern void MT_Scene_DestroyRes(u16 arg0);
     extern s32 func_00145ac0(u16 arg0, s32 arg1);
@@ -700,15 +700,15 @@ loadFieldResource:
             *( s32 * )(iGpffff9db0 + 0x94) = 1;
 waitFieldResource:
             temp_3_3 = (u8 *)(iGpffff9db0);
-            if (func_00150c80((((u8 **)(temp_3_3 + 0x28))[*( s32 * )(temp_3_3 + 0x24)])) == 0) {
+            if (FldResource_IsFileLoaded((((u8 **)(temp_3_3 + 0x28))[*( s32 * )(temp_3_3 + 0x24)])) == 0) {
                 return 0;
             }
             temp_3_4 = (u8 *)(iGpffff9db0);
-            func_00150ce0((u8 *)((((s8 **)(temp_3_4 + 0x28))[*( s32 * )(temp_3_4 + 0x24)])));
+            FldResource_ParseChunks((u8 *)((((s8 **)(temp_3_4 + 0x28))[*( s32 * )(temp_3_4 + 0x24)])));
             *( s32 * )(iGpffff9db0 + 0x94) = 2;
 initializeResources:
             temp_3_5 = (u8 *)(iGpffff9db0);
-            if (func_001510c0((((u8 **)(temp_3_5 + 0x28))[*( s32 * )(temp_3_5 + 0x24)])) == 0) {
+            if (FldResource_PollLoads((((u8 **)(temp_3_5 + 0x28))[*( s32 * )(temp_3_5 + 0x24)])) == 0) {
                 return 0;
             }
             temp_3_6 = (u8 *)(iGpffff9db0);
@@ -725,7 +725,7 @@ initializeResources:
             }
             var_16 = 0;
             while (var_16 < *( s32 * )((temp_3_8 = (u8 *)(iGpffff9db0)) + 0x24)) {
-                func_00151710(*( u8 ** )((temp_3_8 + (var_16 * 4)) + 0x28));
+                FldResource_RequestEntryLoads(*( u8 ** )((temp_3_8 + (var_16 * 4)) + 0x28));
                 var_16 += 1;
             }
             *( s32 * )(temp_3_8 + 0x94) = 3;
@@ -733,7 +733,7 @@ waitResourceInitialization:
             var_17 = 0;
             var_16_2 = 0;
             while (var_16_2 < *( s32 * )((temp_3_9 = (u8 *)(iGpffff9db0)) + 0x24)) {
-                if (func_00151c80(*( u8 ** )((temp_3_9 + (var_16_2 * 4)) + 0x28)) == 0) {
+                if (FldResource_TryInstallEntries(*( u8 ** )((temp_3_9 + (var_16_2 * 4)) + 0x28)) == 0) {
                     var_17 += 1;
                 }
                 var_16_2 += 1;
@@ -1190,7 +1190,7 @@ block_259:
 #pragma opt_loop_invariants on
 
 // FUN_00150970
-u8 *func_00150970(char *arg0)
+u8 *FldResource_Create(char *arg0)
 {
     u32 base;
     u8 *resource;
@@ -1272,7 +1272,7 @@ u8 *func_00150970(char *arg0)
 #pragma pop
 
 // FUN_00150C80
-s32 func_00150c80(u8 *arg0)
+s32 FldResource_IsFileLoaded(u8 *arg0)
 {
     u8 *p;
 
@@ -1290,7 +1290,7 @@ s32 func_00150c80(u8 *arg0)
    The stream descriptors and complete chunk header are real helper storage.
    Keep resource snapshots on their retail side of the asynchronous callbacks. */
 // FUN_00150CE0
-void func_00150ce0(u8 *resource)
+void FldResource_ParseChunks(u8 *resource)
 {
     s32 size;
     s32 memory[2]; /* RwMemory: start, length. */
@@ -1376,7 +1376,7 @@ void func_00150ce0(u8 *resource)
 }
 
 // FUN_001510C0
-s32 func_001510c0(u8 *arg0)
+s32 FldResource_PollLoads(u8 *arg0)
 {
     s32 sp6C;
     s32 sp68;
@@ -1496,7 +1496,7 @@ s32 func_001510c0(u8 *arg0)
 }
 
 // FUN_00151580
-s32 func_00151580(u8 *arg0, s32 arg1, s32 *arg2)
+s32 FldResource_FindFrameForId(u8 *arg0, s32 arg1, s32 *arg2)
 {
     KClumpIntPropertyResult spA8;
     KClumpIntPropertyResult spA0;
@@ -1534,7 +1534,7 @@ out:
 }
 
 // FUN_00151710
-void func_00151710(u8 *arg0)
+void FldResource_RequestEntryLoads(u8 *arg0)
 {
     s32 temp_16;
     u8 *temp_17;
@@ -1627,7 +1627,7 @@ void func_00151710(u8 *arg0)
 }
 
 // FUN_00151C80
-s32 func_00151c80(u8 *arg0)
+s32 FldResource_TryInstallEntries(u8 *arg0)
 {
     u32 i;
     u32 j;
@@ -1684,7 +1684,7 @@ s32 func_00151c80(u8 *arg0)
 }
 
 // FUN_00151F80
-void func_00151f80(u8 *arg0)
+void FldResource_Destroy(u8 *arg0)
 {
     s32 temp_4;
     u32 var_16;
@@ -1744,7 +1744,7 @@ void func_00151f80(u8 *arg0)
  * and one shared by the final render-state sequence. The context is passed
  * in the callback's second argument. Saved Vec4 values are light colors. */
 // FUN_00152170
-void func_00152170(u8 *arg0, u8 *arg1)
+void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
 {
     typedef struct { u32 w0; u32 w1; } CopyPair;
     u8 *gs;
@@ -1839,7 +1839,7 @@ void func_00152170(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00152630
-void func_00152630(u8 *arg0, u8 *arg1)
+void FldResource_EndDrawState(u8 *arg0, u8 *arg1)
 {
     u8 *temp_2;
     u8 *temp_18;
@@ -1890,7 +1890,7 @@ void func_00152630(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00152930
-void func_00152930(u8 *arg0, u8 *arg1)
+void FldResource_QueueDrawCallbacks(u8 *arg0, u8 *arg1)
 {
     u8 *var_2;
     u8 *var_6;
@@ -1913,9 +1913,9 @@ void func_00152930(u8 *arg0, u8 *arg1)
             } else {
                 var_2 = func_00461290(arg0, temp_3);
             }
-            *(void (**)(void))(var_2 + 8) = (void (*)(void))func_00152170;
+            *(void (**)(void))(var_2 + 8) = (void (*)(void))FldResource_BeginDrawState;
             *(u8 **)(var_2 + 0x10) = arg1;
-            *(void (**)(void))(var_2 + 0xC) = (void (*)(void))func_00152630;
+            *(void (**)(void))(var_2 + 0xC) = (void (*)(void))FldResource_EndDrawState;
             *(u8 **)(var_2 + 0x14) = arg1;
         }
     } else {
@@ -1933,9 +1933,9 @@ void func_00152930(u8 *arg0, u8 *arg1)
             }
         }
         if (var_6 != NULL) {
-            *(void (**)(void))(var_6 + 8) = (void (*)(void))func_00152170;
+            *(void (**)(void))(var_6 + 8) = (void (*)(void))FldResource_BeginDrawState;
             *(u8 **)(var_6 + 0x10) = arg1;
-            *(void (**)(void))(var_6 + 0xC) = (void (*)(void))func_00152630;
+            *(void (**)(void))(var_6 + 0xC) = (void (*)(void))FldResource_EndDrawState;
             *(u8 **)(var_6 + 0x14) = arg1;
         }
     }
@@ -1947,11 +1947,11 @@ void func_00152930(u8 *arg0, u8 *arg1)
                 p2 = func_00461180(arg0, *(s32 *)(arg1 + 0x1C + i * 4));
             }
             if (p2 != NULL && i == 0) {
-                *(void (**)(void))(p2 + 8) = (void (*)(void))func_00152170;
+                *(void (**)(void))(p2 + 8) = (void (*)(void))FldResource_BeginDrawState;
                 *(u8 **)(p2 + 0x10) = arg1;
             }
             if (p2 != NULL && i == *(u32 *)(arg1 + 0x18) - 1) {
-                *(void (**)(void))(p2 + 0xC) = (void (*)(void))func_00152630;
+                *(void (**)(void))(p2 + 0xC) = (void (*)(void))FldResource_EndDrawState;
                 *(u8 **)(p2 + 0x14) = arg1;
             }
         }
@@ -1959,7 +1959,7 @@ void func_00152930(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00152BB0
-void func_00152bb0(u8 *arg0, u8 *arg1)
+void FldResource_QueueDrawCallbacksPrimary(u8 *arg0, u8 *arg1)
 {
     u8 *var_6;
     u8 *temp_2;
@@ -1971,9 +1971,9 @@ void func_00152bb0(u8 *arg0, u8 *arg1)
             var_6 = func_00460f80(arg0, *(s32 *)(arg1 + 0xC));
         }
         if (var_6 != NULL) {
-            *(void (**)(void))(var_6 + 8) = (void (*)(void))func_00152170;
+            *(void (**)(void))(var_6 + 8) = (void (*)(void))FldResource_BeginDrawState;
             *(u8 **)(var_6 + 0x10) = arg1;
-            *(void (**)(void))(var_6 + 0xC) = (void (*)(void))func_00152630;
+            *(void (**)(void))(var_6 + 0xC) = (void (*)(void))FldResource_EndDrawState;
             *(u8 **)(var_6 + 0x14) = arg1;
         }
     }
@@ -1982,9 +1982,9 @@ void func_00152bb0(u8 *arg0, u8 *arg1)
             if (*(u8 **)(arg1 + 0x9C + i * 4) != NULL) {
                 temp_2 = func_00460f80(arg0, *(s32 *)(arg1 + 0x9C + i * 4));
                 if (temp_2 != NULL && i == 0) {
-                    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00152170;
+                    *(void (**)(void))(temp_2 + 8) = (void (*)(void))FldResource_BeginDrawState;
                     *(u8 **)(temp_2 + 0x10) = arg1;
-                    *(void (**)(void))(temp_2 + 0xC) = (void (*)(void))func_00152630;
+                    *(void (**)(void))(temp_2 + 0xC) = (void (*)(void))FldResource_EndDrawState;
                     *(u8 **)(temp_2 + 0x14) = arg1;
                 }
             }
@@ -1993,7 +1993,7 @@ void func_00152bb0(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00152CD0
-void func_00152cd0(u8 *arg0, u8 *arg1)
+void FldResource_QueueDrawCallbacksSecondary(u8 *arg0, u8 *arg1)
 {
     u8 *var_6;
     u8 *temp_2;
@@ -2015,9 +2015,9 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
             }
         }
         if (var_6 != NULL) {
-            *(void (**)(void))(var_6 + 8) = (void (*)(void))func_00152170;
+            *(void (**)(void))(var_6 + 8) = (void (*)(void))FldResource_BeginDrawState;
             *(u8 **)(var_6 + 0x10) = arg1;
-            *(void (**)(void))(var_6 + 0xC) = (void (*)(void))func_00152630;
+            *(void (**)(void))(var_6 + 0xC) = (void (*)(void))FldResource_EndDrawState;
             *(u8 **)(var_6 + 0x14) = arg1;
         }
     }
@@ -2026,9 +2026,9 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
             if (*(u8 **)(arg1 + 0x9C + i * 4) != NULL) {
                 temp_2 = func_00461080(arg0, *(s32 *)(arg1 + 0x9C + i * 4));
                 if (temp_2 != NULL && i == 0) {
-                    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00152170;
+                    *(void (**)(void))(temp_2 + 8) = (void (*)(void))FldResource_BeginDrawState;
                     *(u8 **)(temp_2 + 0x10) = arg1;
-                    *(void (**)(void))(temp_2 + 0xC) = (void (*)(void))func_00152630;
+                    *(void (**)(void))(temp_2 + 0xC) = (void (*)(void))FldResource_EndDrawState;
                     *(u8 **)(temp_2 + 0x14) = arg1;
                 }
             }
@@ -2043,7 +2043,7 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
 #pragma push
 #pragma opt_propagation off
 // FUN_00152E50
-void func_00152e50(u8 *arg0, u8 *arg1, f32 fparg0)
+void FldResource_TransformFrames(u8 *arg0, u8 *arg1, f32 fparg0)
 {
     struct {
         Vec3 RWALIGN(trans, 16);
@@ -2190,7 +2190,7 @@ do { \
     (dst).sp48 = copy_f32; \
 } while (0)
 // FUN_00153300
-void func_00153300(s8 *arg0, f32 fparg0)
+void FldResource_AdvanceAnimations(s8 *arg0, f32 fparg0)
 {
     extern void func_003e9d50(s32 a0, void *a1, f32 f12, s32 a3);
     void *ptr;
@@ -2262,7 +2262,7 @@ loop_test_19:
         goto loop_body_19;
     }
 }
-/* measured: restore propagation after func_00153300. */
+/* measured: restore propagation after FldResource_AdvanceAnimations. */
 #pragma pop
 
 typedef struct {
@@ -2292,7 +2292,7 @@ typedef struct {
     Vec3 scale;
 } k_fldResource;
 
-extern void func_00152e50(u8 *arg0, u8 *arg1, f32 arg2);
+extern void FldResource_TransformFrames(u8 *arg0, u8 *arg1, f32 arg2);
 
 /* measured: MWCCPS2 b210 -O2, 792B/window 800B, 17 relocations,
  * eight zero alignment bytes. Ghidra identifies the unsigned angle
@@ -2300,7 +2300,7 @@ extern void func_00152e50(u8 *arg0, u8 *arg1, f32 arg2);
  * The arrays end at the measured count/scale fields, not at the allocation
  * boundary: the original allocation remains 0xAB0 bytes. */
 // FUN_001534A0
-k_fldResource *func_001534a0(k_fldResource *src, void *arg1, u32 arg2)
+k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *arg1, u32 arg2)
 {
     k_fldResource *dst;
     f32 temp_f20;
@@ -2358,7 +2358,7 @@ k_fldResource *func_001534a0(k_fldResource *src, void *arg1, u32 arg2)
         }
     }
     dst->scale = src->scale;
-    func_00153300((s8 *)dst, temp_f20);
-    func_00152e50((u8 *)dst, arg1, temp_f20);
+    FldResource_AdvanceAnimations((s8 *)dst, temp_f20);
+    FldResource_TransformFrames((u8 *)dst, arg1, temp_f20);
     return dst;
 }

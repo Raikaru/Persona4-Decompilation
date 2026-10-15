@@ -706,9 +706,9 @@ s32 func_00148140(const void *left, const void *right) {
 // FUN_00148280
 s32 func_00148280(u8 *unusedTask) {
     /* Retail returns zero at 001495E8, 00148318. */
-    extern void func_00152930(u8 *arg0, u8 *arg1);
-    extern void func_00152bb0(u8 *arg0, u8 *arg1);
-    extern void func_00152cd0(u8 *arg0, u8 *arg1);
+    extern void FldResource_QueueDrawCallbacks(u8 *arg0, u8 *arg1);
+    extern void FldResource_QueueDrawCallbacksPrimary(u8 *arg0, u8 *arg1);
+    extern void FldResource_QueueDrawCallbacksSecondary(u8 *arg0, u8 *arg1);
     extern void func_004b1210(void *arg0, void *arg1);
     extern s32 func_00462df0(u8 *arg0);
     extern u32 func_00462e80(const u32 *state);
@@ -787,13 +787,13 @@ s32 func_00148280(u8 *unusedTask) {
     }
     while (l12 != NULL) {
         if (*(s32 *)(l12 + 0x28) & 2) {
-            func_00152930(D_00793EE0, *(u8 **)(l12 + 0x1A0));
+            FldResource_QueueDrawCallbacks(D_00793EE0, *(u8 **)(l12 + 0x1A0));
             if (flag != 0) {
-                func_00152bb0(D_00793F70, *(u8 **)(l12 + 0x1A0));
-                func_00152cd0(D_00793F70, *(u8 **)(l12 + 0x1A0));
+                FldResource_QueueDrawCallbacksPrimary(D_00793F70, *(u8 **)(l12 + 0x1A0));
+                FldResource_QueueDrawCallbacksSecondary(D_00793F70, *(u8 **)(l12 + 0x1A0));
             } else {
-                func_00152bb0(D_00794390, *(u8 **)(l12 + 0x1A0));
-                func_00152cd0(D_00794390, *(u8 **)(l12 + 0x1A0));
+                FldResource_QueueDrawCallbacksPrimary(D_00794390, *(u8 **)(l12 + 0x1A0));
+                FldResource_QueueDrawCallbacksSecondary(D_00794390, *(u8 **)(l12 + 0x1A0));
             }
         }
         l12 = *(u8 **)(l12 + 0x138);

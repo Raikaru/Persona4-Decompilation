@@ -113,9 +113,9 @@ extern void NpcTable_ReleaseSecondaryTable(void);
 extern void func_00160180(void);
 extern void func_003e1a70(void);
 extern void func_00451b70(void);
-extern void func_0014eed0(s32 arg0, s32 arg1);
-extern void func_0014efc0(s32 arg0, s32 arg1);
-extern s32 func_0014f310(s32 arg0, s32 arg1);
+extern void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1);
+extern void FldResource_QueueFieldResources(s32 arg0, s32 arg1);
+extern s32 FldResource_StepPartLoad(s32 arg0, s32 arg1);
 extern s32 func_0026df80(void);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
@@ -636,7 +636,7 @@ void func_00144e10(s64 arg0) {
             *(s16 *)(iGpffff9db0 + 0x10) = arg0;
             *(s32 *)(iGpffff9db0 + 0x94) = 0x1E;
             temp_2 = iGpffff9db0;
-            func_0014eed0(*(u16 *)temp_2, *(u16 *)(temp_2 + 4));
+            FldResource_OpenPrimaryFile(*(u16 *)temp_2, *(u16 *)(temp_2 + 4));
             return;
         }
         var_4 = MT_Scene_GetResListHead(3);
@@ -665,7 +665,7 @@ void func_00144ed0(s64 arg0) {
             * (s32 *)flags = temp_6 | 4;
             *(s16 *)(iGpffff9db0 + 0x12) = arg0;
             temp_2 = iGpffff9db0;
-            func_0014eed0(*(u16 *)temp_2, *(u16 *)(temp_2 + 4));
+            FldResource_OpenPrimaryFile(*(u16 *)temp_2, *(u16 *)(temp_2 + 4));
             temp_4 = iGpffff9db0;
             if ((*(s32 *)(temp_4 + 0xC) & 2) == 0) {
                 *(s32 *)(temp_4 + 0x94) = 0x28;
@@ -702,14 +702,14 @@ s32 func_00144f60(void)
         return 0;
     case 1:
         temp_2 = iGpffff9db0;
-        func_0014eed0(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
+        FldResource_OpenPrimaryFile(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
         temp_2_2 = iGpffff9db0;
-        func_0014efc0(*(u16 *)(temp_2_2 + 0), *(u16 *)(temp_2_2 + 4));
+        FldResource_QueueFieldResources(*(u16 *)(temp_2_2 + 0), *(u16 *)(temp_2_2 + 4));
         temp_3_3 = iGpffff9db0;
         *(s32 *)(temp_3_3 + 0x90) = *(s32 *)(temp_3_3 + 0x90) + 1;
         return 0;
     default:
-        if (func_0014f310((s32)temp_3_3, (s32)temp_5) == 0) {
+        if (FldResource_StepPartLoad((s32)temp_3_3, (s32)temp_5) == 0) {
             return 0;
         }
         if (*(s32 *)(iGpffff9db0 + 0x1C) == 0) {
