@@ -472,7 +472,7 @@ void btlActionCommandUpdate(u8 *arg0)
                         func_0020bf60(*(s32 *)(iGpffffb3ac + 0xDD4));
                         *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x10000;
                         func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
-                        func_00204d90(*(s32 *)(iGpffffb3ac + 0xDD4));
+                        btlPanelSetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
                         w = btlCameraCreateSetStatePacket(arg0, 40);
                         *(s64 *)(w + 0x60) = *(s64 *)arg0;
                         btlPacketEnqueue(w, 0);
@@ -486,7 +486,7 @@ void btlActionCommandUpdate(u8 *arg0)
             func_0020bf90(*(s32 *)(iGpffffb3ac + 0xDD4));
             *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) & ~0x10000;
             func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
-            func_00204d50(*(s32 *)(iGpffffb3ac + 0xDD4));
+            btlPanelClearFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
             w = btlCameraCreateSetStatePacket(arg0, 33);
             *(s64 *)(w + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(w, 0);
@@ -525,7 +525,7 @@ void btlActionCommandUpdate(u8 *arg0)
                 return;
             } else {
                 func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
-                func_00204d90(*(s32 *)(iGpffffb3ac + 0xDD4));
+                btlPanelSetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
                 btlActionSetState((BtlAction *)arg0, 6);
                 return;
             }
@@ -644,7 +644,7 @@ void btlActionTargetUpdate(u8 *action) {
     extern void btlUiSelectEffect(s32 unit, u32 message);
     extern void btlPanelSetActive(s32 task);
     extern void btlPanelReset(s32 task);
-    extern void func_00204d50(s32 task);
+    extern void btlPanelClearFlag(s32 task);
     extern void func_0020bf60(s32 task);
     extern void func_0020bf90(s32 task);
     extern void func_00212040(s32 task);
@@ -798,7 +798,7 @@ select_action:
         btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
         func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
-        func_00204d50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+        btlPanelClearFlag((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         btlPanelSetActive((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         btlActionSetState((BtlAction *)action, 5);
         /* fallthrough */
