@@ -111,13 +111,13 @@ extern void func_00218730(s32 arg0);
 extern u8 *func_0019bbe0(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern u8 *btlUnitCreateShowPacket(u8 *arg0);
 extern u8 *btlUnitCreateHidePacket(u8 *arg0);
-extern u16 func_0020ba00(s32 task);
+extern u16 btlSelectionGetTargetMark(s32 task);
 extern u32 func_001d8df0(s32 formation);
-extern void func_0020bac0(s32 arg0);
-extern u32 func_0020ba90(s32 task);
-extern u32 func_0020ba60(s32 task);
+extern void btlSelectionResetUnitFlags(s32 arg0);
+extern u32 btlSelectionGetFormationEntryAlt(s32 task);
+extern u32 btlSelectionGetFormationEntry(s32 task);
 extern s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_0020ba30(s32 arg0);
+extern void btlSelectionClearTargetMark(s32 arg0);
 extern void func_00203880(s32 arg0, s32 arg1);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
@@ -130,7 +130,7 @@ void func_001d8be0(s32 formation, u64 *unit);
 
 extern u8 *iGpffffb3b8;
 void func_001d8e50(u8 *arg0, u8 *arg1);
-void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
+void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void func_00212010(s32 task);
 void btlUnitRequestLookAtOthers(u8 *arg0);
 u8 func_0023e1f0(u8 *unitData);
@@ -469,7 +469,7 @@ void btlActionCommandUpdate(u8 *arg0)
             if (func_00203810(*(s32 *)(iGpffffb3ac + 0xDD4)) == 1) {
                 if (btlPanelIsReady(*(s32 *)(iGpffffb3ac + 0xDD4)) == 0) {
                     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x10000) == 0) {
-                        func_0020bf60(*(s32 *)(iGpffffb3ac + 0xDD4));
+                        btlSelectionSetTargetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
                         *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x10000;
                         func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
                         btlPanelSetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
@@ -483,7 +483,7 @@ void btlActionCommandUpdate(u8 *arg0)
         }
     } else {
         if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x10000) != 0) {
-            func_0020bf90(*(s32 *)(iGpffffb3ac + 0xDD4));
+            btlSelectionClearTargetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
             *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) & ~0x10000;
             func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
             btlPanelClearFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
@@ -616,7 +616,7 @@ type12_2_1c80:
 typeother_2_1c80:
     func_001d8e50(arg0, arg0 + 0x98);
 after_type_1c80:
-    func_0020b6d0(
+    btlSelectionMarkTargets(
         *(s32 *)(D_0076449C + 0xDD4),
         arg0,
         arg0 + 0x98,
@@ -645,8 +645,8 @@ void btlActionTargetUpdate(u8 *action) {
     extern void btlPanelSetActive(s32 task);
     extern void btlPanelReset(s32 task);
     extern void btlPanelClearFlag(s32 task);
-    extern void func_0020bf60(s32 task);
-    extern void func_0020bf90(s32 task);
+    extern void btlSelectionSetTargetFlag(s32 task);
+    extern void btlSelectionClearTargetFlag(s32 task);
     extern void func_00212040(s32 task);
     extern void func_00213b50(s32 task);
     extern void func_00213b80(s32 task);
@@ -676,12 +676,12 @@ void btlActionTargetUpdate(u8 *action) {
 
     func_0019fc60();
     btlUnitTickIdleAnims();
-    selectionState = func_0020ba00((s32)(*(u8**)(iGpffffb3ac + 0xDD4))) & 0xFFFF;
+    selectionState = btlSelectionGetTargetMark((s32)(*(u8**)(iGpffffb3ac + 0xDD4))) & 0xFFFF;
     if ((D_008C024C[0] & 8) && !(selectionState & 0xFFFF)) {
         battleFlags = (*(s32*)(iGpffffb3ac + 0xC));
         if (battleFlags & 0x20000) {
             if (!(battleFlags & 0x10000) && ((func_001d8df0((s32)(action + 0x98)) & 0xFFFF) != 1)) {
-                func_0020bf60((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+                btlSelectionSetTargetFlag((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
                 enteredBattle = iGpffffb3ac;
                 (*(s32*)(enteredBattle + 0xC)) = (s32) ((*(s32*)(enteredBattle + 0xC)) | 0x10000);
                 func_00213b80((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
@@ -695,7 +695,7 @@ void btlActionTargetUpdate(u8 *action) {
     }
     battle = iGpffffb3ac;
     if ((*(s32*)(battle + 0xC)) & 0x10000) {
-        func_0020bf90((s32)(*(u8**)(battle + 0xDD4)));
+        btlSelectionClearTargetFlag((s32)(*(u8**)(battle + 0xDD4)));
         exitedBattle = iGpffffb3ac;
         (*(s32*)(exitedBattle + 0xC)) = (s32) ((*(s32*)(exitedBattle + 0xC)) & 0xFFFEFFFF);
         func_00213b50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
@@ -711,7 +711,7 @@ select_action:
         if ((*(s32*)(selectionBattle + 0xC)) & 0x1000) {
             func_00212040((s32)(*(u8**)(selectionBattle + 0xDD4)));
             func_00216ca0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             actionCursor = (*(u8**)(iGpffffb3ac + 0x174));
@@ -722,7 +722,7 @@ select_action:
             btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
             return;
         }
-        selectedAction = (u8 *)func_0020ba90((s32)(*(u8**)(selectionBattle + 0xDD4)));
+        selectedAction = (u8 *)btlSelectionGetFormationEntryAlt((s32)(*(u8**)(selectionBattle + 0xDD4)));
         if (selectedAction != NULL) {
             selectedUnit = (*(u8**)(selectedAction + 0x30));
             if ((*(u8*)(selectedUnit + 0xA2)) == 1) {
@@ -746,7 +746,7 @@ select_action:
             (*(u16*)(action + 0x6A)) = targetCount;
         } break;
         default: {
-            selectedAddress = (s32)func_0020ba60((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            selectedAddress = (s32)btlSelectionGetFormationEntry((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             (*(u8**)(action + 0x38)) = (u8*)selectedAddress;
             (*(u16*)(action + 0x6A)) = 1U;
             func_001d8be0((s32)(action + 0x98), (u64 *)(u32)selectedAddress);
@@ -769,12 +769,12 @@ select_action:
         if (messageId != 0) {
             func_0045af60(0, 0xF, 0, 8);
             btlUiSelectEffect(*(s32 *)(action + 0x30), (u32)messageId);
-            func_0020ba30((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlSelectionClearTargetMark((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             return;
         }
         switch (*(u16 *)(action + 0x6C)) {
         case 4: {
-            func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00203880((s32)(*(u8**)(iGpffffb3ac + 0xDD4)), (s32)(*(u8**)(action + 0x38)));
             btlActionSetState((BtlAction *)action, 5);
             return;
@@ -783,7 +783,7 @@ select_action:
             (*(u16*)(action + 0x18)) = (u16) ((*(u16*)(action + 0x18)) | 2);
             func_00212040((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00216ca0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             clearCursor = (*(u8**)(iGpffffb3ac + 0x174));
@@ -796,7 +796,7 @@ select_action:
         }
     case 2:
         btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
-        func_0020bac0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+        btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
         btlPanelClearFlag((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         btlPanelSetActive((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));

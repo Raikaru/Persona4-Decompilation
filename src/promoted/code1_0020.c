@@ -32,7 +32,7 @@ extern f32 sdkSpriteScaledHeight(u8 *arg0);
 extern s32 btlPacketFinishEffect(void);
 extern s32 btlUiEndSequence(void);
 extern void func_0021afa0(s32 arg0);
-extern void func_0020e3f0();
+extern void btlSelectionFlushEntries();
 
 extern u32 datGetFlag(s32 arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
@@ -201,7 +201,7 @@ extern s32 datCalcIsLowHp(u8 *arg0);
 extern f32 fGpffff8478;
 extern f32 fGpffffb478;
 extern void func_0021b310(u8 *arg0, s32 arg1);
-extern void func_0020bb70(u8 *arg0);
+extern void btlSelectionUpdateTransition(u8 *arg0);
 extern void func_00219130(void *arg0);
 extern void func_0021b1e0(void *arg0);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
@@ -213,12 +213,12 @@ extern u8 D_00795080[];
 
 extern void btlPanelInitWork(u8 *arg0, s32 arg1);
 extern void btlPanelDrawFrame(s32 arg0, u8 *arg1);
-extern void func_0020bb70(u8 *arg0);
+extern void btlSelectionUpdateTransition(u8 *arg0);
 extern void btlPanelDrawBackdropGrid(s32 arg0, u8 *arg1);
 extern void func_0020b5a0(void);
 extern void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1);
-extern void func_0020bb20(u8 *arg0, s32 arg1);
-extern void func_0020bd70(u8 *arg0, u8 *arg1);
+extern void btlSelectionInitTransition(u8 *arg0, s32 arg1);
+extern void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1);
 extern void func_00211950(u8 *arg0, s32 arg1);
 extern void func_00211ad0(u8 *arg0, u8 *arg1);
 extern void func_00211ba0(void);
@@ -498,7 +498,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
     *(s32 *)(temp_2 + 0x650) = 0;
     *(s32 *)(temp_2 + 0x654) = 0;
     func_00460ac0(D_00795020, temp_2 + 0x650);
-    func_0020bb70(temp_2 + 0x710);
+    btlSelectionUpdateTransition(temp_2 + 0x710);
     *(s32 *)(temp_2 + 0x72C) = 0;
     *(s32 *)(temp_2 + 0x730) = 0;
     func_00460ac0(D_00795020, temp_2 + 0x72C);
@@ -559,8 +559,8 @@ void btlUiInitComponents(s32 arg0, u8 *arg1)
     *(u8 **)(arg1 + 0x6C0) = temp_3;
     *(void **)(arg1 + 0x6E8) = (void *)btlPanelDrawSkyFrame;
     *(u8 **)(arg1 + 0x6F0) = temp_3;
-    func_0020bb20(arg1 + 0x710, arg0);
-    *(void **)(arg1 + 0x734) = (void *)func_0020bd70;
+    btlSelectionInitTransition(arg1 + 0x710, arg0);
+    *(void **)(arg1 + 0x734) = (void *)btlSelectionDrawTargetFrame;
     *(u8 **)(arg1 + 0x73C) = arg1 + 0x710;
     func_00211950(arg1 + 0x75C, arg0);
     *(void **)(arg1 + 0x784) = (void *)func_00211ad0;
@@ -887,7 +887,7 @@ s32 btlPacketBuildHitFlags(u8 *work)
     extern s32 datCalcElementBit(s16 arg0);
     extern void func_00195ea0(BtlUnit *unit, RwV3d *position);
     extern void func_001959d0(BtlUnit *unit, RwV3d *position);
-    extern void func_0020e250(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4);
+    extern void btlSelectionPushEntry(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4);
 
     flags = 0;
     input_flags = *(u16 *)(work + 0x2C);
@@ -972,7 +972,7 @@ s32 btlPacketBuildHitFlags(u8 *work)
         func_001959d0((BtlUnit *)*(u8 **)(work + 4), (RwV3d *)position);
     }
 
-    func_0020e250(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(work + 4),
+    btlSelectionPushEntry(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(work + 4),
                   (s32 *)&result, position, *(u16 *)(work + 0x38));
     return 1;
 }
@@ -1009,7 +1009,7 @@ u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 ta
 // FUN_00201EE0
 s32 btlPacketFinishEffect(void)
 {
-    func_0020e3f0(*(s32 *)(D_0076449C + 0xDD4));
+    btlSelectionFlushEntries(*(s32 *)(D_0076449C + 0xDD4));
     func_0021afa0(*(s32 *)(D_0076449C + 0xDD4));
     return 1;
 }
@@ -4933,6 +4933,7 @@ void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
 /* measured: restore opt_propagation after func_0020b5b0. */
 #pragma opt_propagation on
 
+// Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
 // FUN_0020B6D0
 extern u32 func_001d8df0(u8 *arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
@@ -4943,10 +4944,10 @@ extern s32 datCalcElementBit(s16 arg0);
 extern s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern s32 func_001f0950(s32 arg0, s32 arg1);
-extern void func_0020bfc0(u8 *arg0, s16 arg1);
-extern void func_0020bfd0(u8 *arg0);
+extern void btlSelectionSetRowState(u8 *arg0, s16 arg1);
+extern void btlSelectionSetRowIdle(u8 *arg0);
 
-void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
+void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
 {
     extern u32 kwlnTaskGetWork(void *task);
     u16 spD0;
@@ -5038,9 +5039,9 @@ loop_body:
             }
         }
     }
-    func_0020bfc0(*(u8 **)(temp_22 + 0x30) + 0xA48, (s16)var_19);
+    btlSelectionSetRowState(*(u8 **)(temp_22 + 0x30) + 0xA48, (s16)var_19);
     if (spB0 != 0) {
-        func_0020bfd0(*(u8 **)(temp_22 + 0x30) + 0xA48);
+        btlSelectionSetRowIdle(*(u8 **)(temp_22 + 0x30) + 0xA48);
     }
     var_20 += 1;
 loop_condition:
@@ -5050,14 +5051,16 @@ loop_condition:
     *(s16 *)(temp_2_3 + 2) = 0;
 }
 
+// Intent: return the target mark stored in the selection task. [inferred]
 // FUN_0020BA00
-u16 func_0020ba00(s32 task) {
+u16 btlSelectionGetTargetMark(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     return *(u16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x712);
 }
 
+// Intent: clear the target mark stored in the selection task. [inferred]
 // FUN_0020BA30
-void func_0020ba30(s32 task)
+void btlSelectionClearTargetMark(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
     *(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x712) = 0;
@@ -5065,24 +5068,27 @@ void func_0020ba30(s32 task)
 
 /* Both selection accessors return the formation entry read by 001d8bc0.
  * Their action callers consume this address, so the result must be explicit. */
+// Intent: return the formation entry for the selection task's current target. [inferred]
 // FUN_0020BA60
-u32 func_0020ba60(s32 task)
+u32 btlSelectionGetFormationEntry(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
     return func_001d8bc0(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
 }
 
+// Intent: return the formation entry for the selection task's current target (duplicate of btlSelectionGetFormationEntry). [inferred]
 // FUN_0020BA90
-u32 func_0020ba90(s32 task)
+u32 btlSelectionGetFormationEntryAlt(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
     return func_001d8bc0(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
 }
+// Intent: clear the buff flag on every party unit and mark the selection task as ready. [inferred]
 // FUN_0020BAC0
 /* measured: retail keeps the ~0x200 mask live in the loop preheader; plain -O2
    rematerialises it inside the body (nd 41 -> byte-exact with the hoist). */
 #pragma opt_loop_invariants on
-void func_0020bac0(s32 task) {
+void btlSelectionResetUnitFlags(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *w = (u8 *)kwlnTaskGetWork((void *)task) + 0x710;
     s32 mask = ~0x200;
@@ -5098,8 +5104,9 @@ void func_0020bac0(s32 task) {
    baseline for the rest of the file. */
 #pragma opt_loop_invariants off
 
+// Intent: initialise a transition block and record its task. [inferred]
 // FUN_0020BB20
-void func_0020bb20(u8 *arg0, s32 arg1) {
+void btlSelectionInitTransition(u8 *arg0, s32 arg1) {
     memset(arg0, 0, 0x1C);
     *(s32 *)(arg0 + 0x18) = arg1;
     *(s16 *)(arg0 + 2) = 3;
@@ -5113,13 +5120,14 @@ extern void func_001d8010(u8 *arg0, u8 *arg1);
 extern void func_00216ca0(s32 task);
 extern void func_00216d40(s32 task);
 extern void func_00216d70(u8 *task, s32 arg1);
-extern void func_0020bfd0(u8 *arg0);
-extern void func_0020e1d0(u8 *arg0, u8 *arg1);
+extern void btlSelectionSetRowIdle(u8 *arg0);
+extern void btlSelectionSwapRowState(u8 *arg0, u8 *arg1);
 extern u16 D_008C024E[];
 /* 512/512 bytes; seventeen fully resolved relocations.
  * The transition helpers explicitly forward their task to its work getter. */
+// Intent: advance a selection transition and commit the chosen target. [inferred]
 // FUN_0020BB70
-void func_0020bb70(u8 *arg0)
+void btlSelectionUpdateTransition(u8 *arg0)
 {
     u8 *selected;
     if (*(u16 *)(arg0 + 2) == 0) {
@@ -5143,10 +5151,10 @@ void func_0020bb70(u8 *arg0)
                         func_00216d40(*(s32 *)(arg0 + 0x18));
                         func_00216d70(*(u8 **)(arg0 + 0x18), *(s32 *)(selected + 0x30));
                         if (*(u8 **)(arg0 + 0xC) == NULL) {
-                            func_0020bfd0(*(u8 **)(selected + 0x30) + 0xA48);
+                            btlSelectionSetRowIdle(*(u8 **)(selected + 0x30) + 0xA48);
                         } else if (*(u8 **)(arg0 + 0xC) != selected) {
                             func_0045af60(0, 0, 0, 0);
-                            func_0020e1d0(*(u8 **)(*(u8 **)(arg0 + 0xC) + 0x30) + 0xA48, *(u8 **)(selected + 0x30) + 0xA48);
+                            btlSelectionSwapRowState(*(u8 **)(*(u8 **)(arg0 + 0xC) + 0x30) + 0xA48, *(u8 **)(selected + 0x30) + 0xA48);
                         }
                         *(u8 **)(arg0 + 0xC) = selected;
                     }
@@ -5159,8 +5167,9 @@ void func_0020bb70(u8 *arg0)
         }
     }
 }
+// Intent: draw the target frame for each unit in the current selection while the panel is active. [inferred]
 // FUN_0020BD70
-void func_0020bd70(u8 *arg0, u8 *arg1)
+void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1)
 {
     typedef struct {
         u8 pad[8];
@@ -5177,7 +5186,7 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
                                f32 fparg1, s32 arg5, s32 arg6, s32 arg7,
                                s32 arg8);
     extern void btlUiSetRenderMode(s32 arg0);
-    extern void func_0020e010(s32 arg0, u8 *arg1, u8 *arg2);
+    extern void btlSelectionDispatchTargetMode(s32 arg0, u8 *arg1, u8 *arg2);
     Frame frame;
     u8 *temp_2;
     u8 *temp_2_2;
@@ -5198,7 +5207,7 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
                     temp_6 = *(u8 **)(*(u8 **)(*(u8 **)(arg1 + 0x10) +
                                               var_17 * 4) +
                                       0x30);
-                    func_0020e010(*(s32 *)(arg1 + 0x18), temp_6 + 0xA48,
+                    btlSelectionDispatchTargetMode(*(s32 *)(arg1 + 0x18), temp_6 + 0xA48,
                                   temp_6);
                     var_17 += 1;
                 }
@@ -5223,36 +5232,41 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
         }
     }
 }
+// Intent: set the active bit on the selection task's flag word. [inferred]
 // FUN_0020BF60
-void func_0020bf60(s32 task) {
+void btlSelectionSetTargetFlag(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x710) |= 1;
 }
+// Intent: clear the active bit on the selection task's flag word. [inferred]
 // FUN_0020BF90
-void func_0020bf90(s32 task) {
+void btlSelectionClearTargetFlag(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x710) &= 0xFFFE;
 }
+// Intent: set a selection row's state and reset its counter. [inferred]
 // FUN_0020BFC0
-void func_0020bfc0(u8 *arg0, s16 arg1)
+void btlSelectionSetRowState(u8 *arg0, s16 arg1)
 {
     *(s16 *)(arg0 + 0) = arg1;
     *(s16 *)(arg0 + 2) = 0;
 }
+// Intent: reset a selection row's counter and mark it idle. [inferred]
 // FUN_0020BFD0
-void func_0020bfd0(u8 *arg0)
+void btlSelectionSetRowIdle(u8 *arg0)
 {
     *(s16 *)(arg0 + 4) = 0;
     *(s16 *)(arg0 + 2) = 1;
 }
+// Intent: update a unit's target flag and dispatch the target draw for its mode. [inferred]
 // FUN_0020E010
-void func_0020e010(s32 arg0, u8 *arg1, u8 *arg2)
+void btlSelectionDispatchTargetMode(s32 arg0, u8 *arg1, u8 *arg2)
 {
     extern void func_00195d50(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
@@ -5315,8 +5329,9 @@ flags_done:
         }
     }
 }
+// Intent: swap the row state between two selection rows and copy the position. [inferred]
 // FUN_0020E1D0
-void func_0020e1d0(u8 *arg0, u8 *arg1) {
+void btlSelectionSwapRowState(u8 *arg0, u8 *arg1) {
     *(s16 *)(arg0 + 4) = 0;
     *(s16 *)(arg0 + 2) = 3;
     *(u16 *)(arg0 + 0x10) &= 0xFFFE;
@@ -5332,8 +5347,9 @@ void func_0020e1d0(u8 *arg0, u8 *arg1) {
 
 
 
+// Intent: queue a new entry at the head of the selection entry list. [inferred]
 // FUN_0020E250
-void func_0020e250(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4)
+void btlSelectionPushEntry(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4)
 {
     u8 *state;
     u8 **list;
@@ -5385,8 +5401,9 @@ void func_0020e250(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4)
         *(u8 **)list = new_node;
     }
 }
+// Intent: flush the selection entry list. [inferred]
 // FUN_0020E3F0
-void func_0020e3f0() {
+void btlSelectionFlushEntries() {
     func_002119a0((u8 *)kwlnTaskGetWork() + 0x75C);
 }
 
@@ -5398,8 +5415,9 @@ void func_0020e3f0() {
    snapshots preserve the four masks and bare argument moves through the
    canonical byte-color provider declaration. `i = 0` precedes the masks
    so the index inherits the dead flag's $s4. */
+// Intent: draw an integer value as sprite glyphs, optionally right-aligned. [inferred]
 // FUN_0020E420
-void func_0020e420(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, u32 arg3)
+void btlSelectionDrawValue(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, u32 arg3)
 {
     extern s32 iGpffffa580;
     extern void sprintf(void *arg0, const char *arg1, ...);
@@ -5439,8 +5457,9 @@ void func_0020e420(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, u32 arg
         }
     }
 }
+// Intent: map a linear progress value through an optional sine or cosine ease. [inferred]
 // FUN_0020E5C0
-f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+f32 btlSelectionEaseCurve(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     f32 temp_f0;
 
@@ -5470,8 +5489,9 @@ done:
  * The zero-duration ramp follows 0020E5C0 and the adjacent 0020F4D0 spelling;
  * its division is unreachable. Preserve the frame snapshot and flag reload.
  */
+// Intent: step the slide transition frame and draw its panel elements. [inferred]
 // FUN_0020E690
-void func_0020e690(u8 *task, u8 *transition, u8 *panel,
+void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
                    f32 x, f32 y, s32 color, u8 *output)
 {
     Vec2f position;
@@ -5521,8 +5541,9 @@ void func_0020e690(u8 *task, u8 *transition, u8 *panel,
  * Keep the alternating fade/y stages: expression propagation otherwise fuses
  * the slide arithmetic or reverses its floating-point operand order.
  */
+// Intent: step the stretch transition frame and draw its panel elements. [inferred]
 // FUN_0020EA60
-void func_0020ea60(u8 *task, u8 *transition, u8 *panel, u8 *output)
+void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
 {
     u8 *work;
     s32 frame;
@@ -5576,9 +5597,10 @@ void func_0020ea60(u8 *task, u8 *transition, u8 *panel, u8 *output)
         *(s32 *)(output + 8) = 1;
     }
 }
+// Intent: step the expansion transition frame and draw its panel elements. [inferred]
 // FUN_0020EF10
 /* Retail-exact: 1460 bytes, 7 call relocations, 12 zero alignment bytes. */
-void func_0020ef10(u8 *task, u8 *transition, u8 *panel, u8 *output)
+void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
 {
     u8 *work;
     s32 frame;
@@ -5642,8 +5664,9 @@ void func_0020ef10(u8 *task, u8 *transition, u8 *panel, u8 *output)
 }
 /* measured: struct aggregate spelling probe for F4D0. */
 #pragma opt_propagation off
+// Intent: step the pulse transition frame and draw its ring. [inferred]
 // FUN_0020F4D0
-void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
+void btlTransitionStepPulse(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
 {
     extern u32 kwlnTaskGetWork(void *arg0);
     Vec2f sp48;
@@ -5698,8 +5721,9 @@ f32 btlUiSpriteHeight(u8 *arg0, s32 arg1, s32 arg2);
    The caller passes a packed four-byte color. Independent complete coordinate
    array views preserve the row-offset lifetime across the dimension queries.
    See docs/probe_archive/Battle_panel_0020f730_20260922.md. */
+// Intent: draw one indexed panel sprite at its corner with its colour and visible state. [inferred]
 // FUN_0020F730
-void func_0020f730(u8 *work, u8 *state, s32 packedColor, s32 index)
+void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
 {
     f32 corners[2][2] = {
         {-98.0f, -92.0f},
@@ -5781,11 +5805,12 @@ void func_0020f730(u8 *work, u8 *state, s32 packedColor, s32 index)
         }
     }
 }
+// Intent: draw the panel gauge ring and fill for the given extent. [inferred]
 // FUN_0020FA70
 /* Retail-exact: 1156 bytes, 24 relocations, 12 zero alignment bytes. */
-void func_0020fa70(u8 *work, u8 *state)
+void btlPanelDrawGauge(u8 *work, u8 *state)
 {
-    extern void func_0020f730(u8 *work, u8 *state, s32 color, s32 index);
+    extern void btlPanelDrawIndexed(u8 *work, u8 *state, s32 color, s32 index);
     extern f32 D_00761300;
     extern f32 fGpffff8110;
     extern f32 fGpffff84ac;
@@ -5838,15 +5863,16 @@ void func_0020fa70(u8 *work, u8 *state)
     btlUiSetTileOffset(work, 0, 0, 0.0f);
     btlUiDrawSpriteFaded(work, 10, 46, 12.0f, -5.0f * extent, red, green, blue, 255);
     btlUiSetScale(work, D_00761300, extent);
-    for (index = 1; index < 12; index++) func_0020f730(work, state, ring.bits, index);
+    for (index = 1; index < 12; index++) btlPanelDrawIndexed(work, state, ring.bits, index);
     btlUiSetTileOffset(work, 0, 0, 0.0f);
     btlUiSetScale(work, 1.0f, 1.0f);
     btlUiSetFactorXY(work, 1.0f, 1.0f);
 }
 /* Advance the transition frame before its timed drawing phases. The corner
  * opacity is narrowed to one byte before packing the vertex color. */
+// Intent: step the multi-phase transition frame and draw its bands and glyphs. [inferred]
 // FUN_0020FF00
-void func_0020ff00(u8 *glyphs, u8 *transition)
+void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
 {
     extern f32 cosf(f32 fparg0);
     extern f32 sinf(f32 fparg0);
