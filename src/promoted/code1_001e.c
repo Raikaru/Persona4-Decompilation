@@ -75,7 +75,7 @@ extern u32 datCalcRandomBelow(u32 arg0);
 extern u8 *func_001d9280();
 extern u8 *func_001d8c00();
 extern u8 *func_001de370();
-extern s32 func_001dd570();
+extern s32 btlAICommandCollectSkillCandidates();
 extern s32 func_001de000();
 extern s32 func_001d9390();
 extern s32 func_001dbb90(void);
@@ -1106,7 +1106,7 @@ s32 func_001e8cd0(void) {
     temp_16 = scrGetParamInt(0);
     temp_18 = scrGetParamInt(1);
     temp_17 = scrGetParamInt(2);
-    scrSetReturnInt(func_001dd570(temp_19, func_001b0cc0((u64)(temp_16 << 0x24) >> 0x24), temp_18, temp_17));
+    scrSetReturnInt(btlAICommandCollectSkillCandidates(temp_19, func_001b0cc0((u64)(temp_16 << 0x24) >> 0x24), temp_18, temp_17));
     return 1;
 }
 // FUN_001E8D80
@@ -1377,7 +1377,7 @@ s32 func_001e9600(void) {
                 datCalcIsDead(*(s32 *)(entry + 0xA64), 0) == 0) {
                 value = datCalcGetHp(*(s32 *)(entry + 0xA64)) & 0xFFFF;
                 if (value < min_eligible &&
-                    func_001dd570(work, current, 0, 0) >= 0) {
+                    btlAICommandCollectSkillCandidates(work, current, 0, 0) >= 0) {
                     best_eligible = current;
                     min_eligible = value;
                 }
