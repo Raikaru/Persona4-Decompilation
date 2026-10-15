@@ -5700,8 +5700,9 @@ void func_0047a870(void* param_1)
     *(u32*)((u8*)param_1 + 0xD8) &= ~0x20;
 }
 
+/* Sets the 0..1 weight at +0x144. Consumer: evtModel's state code, which sets it from its timer and reads it back (2.0f * value). No reader in mdlManager. */
 // FUN_0047A890
-void func_0047a890(void* param_1, float param_2)
+void mdlSetBlendWeight(void* param_1, float param_2)
 {
     *(float*)((u8*)param_1 + 0x144) = param_2;
 }

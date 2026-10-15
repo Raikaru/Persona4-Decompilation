@@ -229,7 +229,7 @@ extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern void func_0047a830(void *arg0);
 extern void func_0047a870(void *arg0);
-extern void func_0047a890(void *arg0, float arg1);
+extern void mdlSetBlendWeight(void *arg0, float arg1);
 extern void func_0047a8a0(void *arg0, float arg1, float arg2);
 extern f32 DAT_0076112c;
 
@@ -2645,7 +2645,7 @@ void func_0019d990(u8 *arg0, s32 arg1)
             func_0047a870(*(u8 **)(arg0 + 0xA00));
             return;
         case 3:
-            func_0047a890(*(u8 **)(arg0 + 0xA00), DAT_0076112c);
+            mdlSetBlendWeight(*(u8 **)(arg0 + 0xA00), DAT_0076112c);
             func_0047a8a0(*(u8 **)(arg0 + 0xA00), 70.0f, 80.0f);
             func_0047a9b0(*(u8 **)(arg0 + 0xA00));
             func_0047a990(*(u8 **)(arg0 + 0xA00));
@@ -2804,7 +2804,7 @@ s32 func_0019df20(u8 *arg0)
                                    call_angle1, call_angle2);
                 }
                 if ((*(s32 *)(unit + 0x98) & 2) != 0) {
-                    func_0047a890(*(u8 **)(unit + 0xA00), 0.25f);
+                    mdlSetBlendWeight(*(u8 **)(unit + 0xA00), 0.25f);
                 }
                 *(s16 *)(unit + 0xB0) = 1;
                 *(P4_95730_Vec3 *)(unit + 0xB8) =
@@ -2837,7 +2837,7 @@ s32 func_0019df20(u8 *arg0)
                            call_angle1, call_angle2);
         }
         if ((*(s32 *)(unit + 0x98) & 2) != 0) {
-            func_0047a890(*(u8 **)(unit + 0xA00), 0.25f);
+            mdlSetBlendWeight(*(u8 **)(unit + 0xA00), 0.25f);
         }
         *(s16 *)(unit + 0xB0) = 1;
         *(P4_95730_Vec3 *)(unit + 0xB8) =

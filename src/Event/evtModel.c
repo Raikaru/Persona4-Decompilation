@@ -69,7 +69,7 @@ extern f32 func_0044e7d8(s32 a);
 extern u8 **func_00452560();
 extern void func_0046d730(void *file, s32 line);
 extern void *mdlGetMatrix(s32 a);
-extern void func_0047a890(s32 a, f32 b);
+extern void mdlSetBlendWeight(s32 a, f32 b);
 extern void func_0047a900(s32 a, void *b);
 extern void mdlSetTrackScaleRange(s32 a, f32 b, f32 c);
 extern u8 *func_0047a980(s32 a);
@@ -114,7 +114,7 @@ state_ready:
         } else if (var_f12 < 0.0f) {
             var_f12 = 0.0f;
         }
-        func_0047a890(model, var_f12);
+        mdlSetBlendWeight(model, var_f12);
         rec->timer2 += 1.0f;
         goto common;
     }
@@ -144,7 +144,7 @@ state1_counter:
             } else if (var_f12 < 0.0f) {
                 var_f12 = 0.0f;
             }
-            func_0047a890(model, var_f12);
+            mdlSetBlendWeight(model, var_f12);
             rec->timer2 += 1.0f;
         }
         goto common;
@@ -252,7 +252,7 @@ state_ready:
         } else if (var_f12 < 0.0f) {
             var_f12 = 0.0f;
         }
-        func_0047a890(model, var_f12);
+        mdlSetBlendWeight(model, var_f12);
         rec->timer2 += 1.0f;
         goto common;
     }
@@ -282,7 +282,7 @@ block_21:
             } else if (var_f12_2 < 0.0f) {
                 var_f12_2 = 0.0f;
             }
-            func_0047a890(model, var_f12_2);
+            mdlSetBlendWeight(model, var_f12_2);
             rec->timer2 += 1.0f;
         }
         goto common;
@@ -299,7 +299,7 @@ block_21:
         } else if (var_f12_3 < 0.0f) {
             var_f12_3 = 0.0f;
         }
-        func_0047a890(model, var_f12_3);
+        mdlSetBlendWeight(model, var_f12_3);
         temp_f0_3 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_3 < -1.0f) || !(temp_f0_3 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
@@ -325,7 +325,7 @@ block_42:
             } else if (var_f12_4 < 0.0f) {
                 var_f12_4 = 0.0f;
             }
-            func_0047a890(model, var_f12_4);
+            mdlSetBlendWeight(model, var_f12_4);
             rec->timer2 += 1.0f;
         }
         goto common;
@@ -342,7 +342,7 @@ block_42:
         } else if (var_f12_5 < 0.0f) {
             var_f12_5 = 0.0f;
         }
-        func_0047a890(model, var_f12_5);
+        mdlSetBlendWeight(model, var_f12_5);
         temp_f0_5 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_5 < -1.0f) || !(temp_f0_5 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
@@ -368,7 +368,7 @@ block_63:
             } else if (var_f12_6 < 0.0f) {
                 var_f12_6 = 0.0f;
             }
-            func_0047a890(model, var_f12_6);
+            mdlSetBlendWeight(model, var_f12_6);
             rec->timer2 += 1.0f;
         }
         goto common;
@@ -384,7 +384,7 @@ block_63:
         } else if (var_f12_7 < 0.0f) {
             var_f12_7 = 0.0f;
         }
-        func_0047a890(model, var_f12_7);
+        mdlSetBlendWeight(model, var_f12_7);
         temp_f0_6 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_6 < -1.0f) || !(temp_f0_6 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
@@ -410,7 +410,7 @@ block_84:
             } else if (var_f12_8 < 0.0f) {
                 var_f12_8 = 0.0f;
             }
-            func_0047a890(model, var_f12_8);
+            mdlSetBlendWeight(model, var_f12_8);
             rec->timer2 += 1.0f;
         }
         goto common;
@@ -427,7 +427,7 @@ block_84:
         } else if (var_f12_9 < 0.0f) {
             var_f12_9 = 0.0f;
         }
-        func_0047a890(model, var_f12_9);
+        mdlSetBlendWeight(model, var_f12_9);
         temp_f0_8 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
         if ((temp_f0_8 < -1.0f) || !(temp_f0_8 <= 1.0f)) {
             func_0046d730(&D_0063C948, 0x176);
@@ -453,7 +453,7 @@ block_105:
             } else if (var_f12_10 < 0.0f) {
                 var_f12_10 = 0.0f;
             }
-            func_0047a890(model, var_f12_10);
+            mdlSetBlendWeight(model, var_f12_10);
             rec->timer2 += 1.0f;
         }
         goto common;
@@ -550,7 +550,7 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
         } else if (var_f12 < 0.0f) {
             var_f12 = 0.0f;
         }
-        func_0047a890(handle1, var_f12);
+        mdlSetBlendWeight(handle1, var_f12);
         rec->timer2 += 1.0f;
     } else {
         if (func_0047a9d0(handle1) == 0) {
@@ -571,7 +571,7 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
         } else if (var_f12_2 < 0.0f) {
             var_f12_2 = 0.0f;
         }
-        func_0047a890(handle1, var_f12_2);
+        mdlSetBlendWeight(handle1, var_f12_2);
     }
     temp_2_5 = (u8 *)func_0047a980(handle1);
     *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)temp_2_5;
@@ -671,7 +671,7 @@ void func_002931a0(u8 *unusedTask) {
             next = (u8 *)((u8 **)node)[4];
             handle = func_00291a60(*(u16 *)((u8 **)node)[5]);
             if (handle != 0) {
-                func_0047a890(handle, fGpffff8218);
+                mdlSetBlendWeight(handle, fGpffff8218);
                 func_0047a990(handle);
             }
             func_002e2240(head, head + 4, node);
@@ -712,7 +712,7 @@ void func_002932b0(s32 arg0) {
                 if (*(u16 *)((u8 **)node)[5] == masked) {
                     handle = func_00291a60(*(u16 *)((u8 **)node)[5]);
                     if (handle != 0) {
-                        func_0047a890(handle, fGpffff8218);
+                        mdlSetBlendWeight(handle, fGpffff8218);
                         func_0047a990(handle);
                     }
                     func_002e2240(head, head + 4, node);
