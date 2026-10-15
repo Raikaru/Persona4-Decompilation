@@ -61,7 +61,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
 {
     extern s32 mdlPrepareModel(u8 *model);
     extern void *mdlGetClump(void *model);
-    extern void func_0047a810(void *model);
+    extern void mdlSetBattleStateFlag(void *model);
     extern u8 *func_003c4140(void);
     extern struct RpGeometry *func_003c2630(s32 vertices, s32 triangles, u32 format);
     extern const struct RpGeometry *func_003c2130(const struct RpGeometry *geometry,
@@ -118,7 +118,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
             break;
         case 2:
             if (mdlPrepareModel(*(u8 **)(ctx + 0x10)) != 0) {
-                func_0047a810(*(u8 **)(ctx + 0x10));
+                mdlSetBattleStateFlag(*(u8 **)(ctx + 0x10));
                 *(s32 *)ctx += 1;
             }
             break;

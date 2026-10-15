@@ -221,7 +221,7 @@ extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void mdlSetLookAtRequested(void *arg0);
 extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
 extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
-extern void func_0047a810(void *arg0);
+extern void mdlSetBattleStateFlag(void *arg0);
 extern void mdlSetAlphaBlend(void *arg0);
 extern void mdlSetLookStateWord(void *arg0, u16 arg1);
 extern u16 mdlGetLookStateWord(void *arg0);

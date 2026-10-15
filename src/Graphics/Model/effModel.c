@@ -30,7 +30,7 @@ extern void func_004ac170(u8 *arg0, u8 *arg1);
 extern void func_004ac300(s32 arg0, u8 *arg1);
 extern void func_004ac9a0(u8 *arg0, u8 *arg1);
 extern void mdlSetDrawCallback(u8 *arg0, void (*arg1)(u8 *), void *arg2);
-extern void func_0047a4d0(void *arg0, s32 arg1);
+extern void mdlClearAtomicFlags(void *arg0, s32 arg1);
 extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern u16 iGpffffbb90;
@@ -378,7 +378,7 @@ void *func_004ac640(void *arg0) {
             *(u8 **)(temp_2 + 0xB4) = temp_2_4;
             mdlSetDrawCallback(temp_2_4, func_004accc0, temp_2);
             if (*(u8 *)(temp_2 + 0xA0) == 0) {
-                func_0047a4d0(*(u8 **)(temp_2 + 0xB4), 0x20);
+                mdlClearAtomicFlags(*(u8 **)(temp_2 + 0xB4), 0x20);
             }
             if (*(s32 *)(temp_2 + 0xA4) != 0) {
                 temp_4 = *(u8 **)(temp_2 + 0xB4);
@@ -440,7 +440,7 @@ void func_004ac9a0(u8 *dst, u8 *src)
     *(void **)(dst + 0xB4) = work;
     mdlSetDrawCallback(work, func_004accc0, dst);
     if (*(u8 *)(dst + 0xA0) == 0) {
-        func_0047a4d0(*(void **)(dst + 0xB4), 0x20);
+        mdlClearAtomicFlags(*(void **)(dst + 0xB4), 0x20);
     }
     if (*(u32 *)(dst + 0xA4) != 0) {
         *(u32 *)(*(u32 *)(dst + 0xB4) + 0xD8) |= 0x40000;
