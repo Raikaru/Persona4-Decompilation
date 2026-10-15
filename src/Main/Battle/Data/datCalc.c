@@ -69,7 +69,7 @@ extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 a
 extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u32 datGetFlag(s32 arg0);
 extern s32 datPersonaGetStatById(s32 arg0, s32 arg1);
-extern s64 datCalcAddModifier(u8 *arg0, s32 arg1, s64 arg2);
+extern s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2);
 /* func_00241de0 passes a 5th arg (arg4) that func_00241bc0 ignores. */
 extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 datScriptRunCalc(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
@@ -88,8 +88,8 @@ extern u8 *iGpffffb448;
 extern u8 *iGpffffb44c;
 extern u8 *iGpffffb3cc;
 
-extern void datCalcSetModifier(u8 *arg0, u8 arg1, s32 arg2);
-extern void datCalcSetSecondaryModifier(u8 *arg0, u8 arg1, s8 arg2);
+extern void datCalcSetBuffLevel(u8 *arg0, u8 arg1, s32 arg2);
+extern void datCalcSetSecondaryBuffLevel(u8 *arg0, u8 arg1, s8 arg2);
 
 extern u8 datCalcGetUnitStat(u8 *arg0, s32 arg1);
 extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
@@ -97,7 +97,7 @@ extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
 extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
-extern s8 datCalcGetModifier(u8 *arg0, s32 arg1);
+extern s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1);
 extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
 extern u8 func_00106910(s16 arg0);
@@ -720,9 +720,9 @@ s32 datCalcGetSkillMask(u8 *arg0)
 }
 #pragma pop
 
-// Intent: signed 4-bit modifier value at index arg1 (0..23) of unit arg0; [inferred].
+// Intent: signed 4-bit buff level at index arg1 (0..23) of unit arg0; 0..4 follow DatPersonaStat (St/Ma/En/Ag/Lu), read as buff or debuff by func_002340c0; [inferred].
 // FUN_002332A0
-s8 datCalcGetModifier(u8 *arg0, s32 arg1)
+s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1)
 {
     s8 value;
     u8 index;
@@ -745,9 +745,9 @@ s8 datCalcGetModifier(u8 *arg0, s32 arg1)
     return value;
 }
 
-// Intent: stores signed 4-bit value arg2 (-7..7) in the nibble for modifier arg1 (0..23); [inferred].
+// Intent: stores signed 4-bit buff level arg2 (-7..7) for index arg1 (0..23); [inferred].
 // FUN_00233370
-void datCalcSetModifier(u8 *arg0, u8 arg1, s32 arg2)
+void datCalcSetBuffLevel(u8 *arg0, u8 arg1, s32 arg2)
 {
     s32 temp_16;
     s32 temp_4;
@@ -778,9 +778,9 @@ void datCalcSetModifier(u8 *arg0, u8 arg1, s32 arg2)
     }
 }
 
-// Intent: stores signed 4-bit value arg2 in the secondary nibble table for modifier arg1; [inferred].
+// Intent: stores signed 4-bit buff level arg2 in the secondary nibble table for index arg1; [inferred].
 // FUN_00233490
-void datCalcSetSecondaryModifier(u8 *arg0, u8 arg1, s8 arg2)
+void datCalcSetSecondaryBuffLevel(u8 *arg0, u8 arg1, s8 arg2)
 {
     u8 *b;
     u16 idx;
@@ -806,9 +806,9 @@ void datCalcSetSecondaryModifier(u8 *arg0, u8 arg1, s8 arg2)
 /* measured: fully relocated 784B / 784B match, with no tail gap.
    Keep the standalone signed-byte promotion at the getter branch merge:
    it preserves retail scratch-register lifetimes before the signed decode. */
-// Intent: adds signed delta arg2 to modifier arg1, clamped to -1..1, setting its flag bit when nonzero; returns the new value; [inferred].
+// Intent: adds signed delta arg2 to buff level arg1, clamped to -1..1, setting its flag bit when nonzero; returns the new level; [inferred].
 // FUN_00233570
-s64 datCalcAddModifier(u8 *arg0, s32 arg1, s64 arg2)
+s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2)
 {
     s32 index;
     u8 byteIndex;
@@ -895,9 +895,9 @@ s64 datCalcAddModifier(u8 *arg0, s32 arg1, s64 arg2)
     return (s8)result;
 }
 
-// Intent: clears modifier arg1 (0..23) and its flag bit in unit arg0; [inferred].
+// Intent: clears buff level arg1 (0..23) and its flag bit in unit arg0; [inferred].
 // FUN_00233880
-void datCalcClearModifier(u8 *arg0, s32 arg1)
+void datCalcClearBuffLevel(u8 *arg0, s32 arg1)
 {
     s32 temp_16;
     s32 temp_17;
@@ -939,9 +939,9 @@ void datCalcClearModifier(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 0x14) = *(s32 *)(arg0 + 0x14) & ~(1 << temp_18);
 }
 
-// Intent: clears all 24 modifier entries of unit arg0 (flag word and both nibble tables); [inferred].
+// Intent: clears all 24 buff levels of unit arg0 (flag word and both nibble tables); [inferred].
 // FUN_002339D0
-void datCalcClearAllModifiers(u8 *arg0)
+void datCalcClearAllBuffs(u8 *arg0)
 {
     u32 i;
     s32 i8;
@@ -952,8 +952,8 @@ void datCalcClearAllModifiers(u8 *arg0)
             func_0046d730(D_00635938, 0x4A2);
         }
         if (i8 < 0x10) {
-            datCalcSetModifier(arg0, i, 0);
-            datCalcSetSecondaryModifier(arg0, i, 0);
+            datCalcSetBuffLevel(arg0, i, 0);
+            datCalcSetSecondaryBuffLevel(arg0, i, 0);
         }
         *(s32 *)(arg0 + 0x14) &= ~(1 << i8);
     }
@@ -1027,7 +1027,7 @@ f32 func_00233bc0(u8 *arg0, s32 arg1, u16 arg2)
     if (index >= 24) {
         func_0046d730(D_00635938, 1217);
     }
-    status = (s8)(index < 16 ? datCalcGetModifier(arg0, arg1) :
+    status = (s8)(index < 16 ? datCalcGetBuffLevel(arg0, arg1) :
         (s8)(active = (*(u32 *)(arg0 + 20) & (1U << index)) != 0));
     if (status < -1 || status > 1) {
         func_0046d730(D_00635938, 1269);
@@ -1123,34 +1123,34 @@ s32 func_002340c0(u8 *arg0, s32 arg1)
         return 0;
     }
     if (arg1 & 1) {
-        return datCalcGetModifier(arg0, 0) > 0;
+        return datCalcGetBuffLevel(arg0, 0) > 0;
     }
     if (arg1 & 2) {
-        return datCalcGetModifier(arg0, 0) < 0;
+        return datCalcGetBuffLevel(arg0, 0) < 0;
     }
     if (arg1 & 4) {
-        return datCalcGetModifier(arg0, 1) > 0;
+        return datCalcGetBuffLevel(arg0, 1) > 0;
     }
     if (arg1 & 8) {
-        return datCalcGetModifier(arg0, 1) < 0;
+        return datCalcGetBuffLevel(arg0, 1) < 0;
     }
     if (arg1 & 0x10) {
-        return datCalcGetModifier(arg0, 2) > 0;
+        return datCalcGetBuffLevel(arg0, 2) > 0;
     }
     if (arg1 & 0x20) {
-        return datCalcGetModifier(arg0, 2) < 0;
+        return datCalcGetBuffLevel(arg0, 2) < 0;
     }
     if (arg1 & 0x40) {
-        return datCalcGetModifier(arg0, 3) > 0;
+        return datCalcGetBuffLevel(arg0, 3) > 0;
     }
     if (arg1 & 0x80) {
-        return datCalcGetModifier(arg0, 3) < 0;
+        return datCalcGetBuffLevel(arg0, 3) < 0;
     }
     if (arg1 & 0x100) {
-        return datCalcGetModifier(arg0, 4) > 0;
+        return datCalcGetBuffLevel(arg0, 4) > 0;
     }
     if (arg1 & 0x200) {
-        return datCalcGetModifier(arg0, 4) < 0;
+        return datCalcGetBuffLevel(arg0, 4) < 0;
     }
     if (arg1 & 0x400) {
         return (((s64)((*(s32 *)(arg0 + 0x14) & 0x40000) != 0) << 0x38) >> 0x38) != 0;
@@ -1159,10 +1159,10 @@ s32 func_002340c0(u8 *arg0, s32 arg1)
         return (((s64)((*(s32 *)(arg0 + 0x14) & 0x80000) != 0) << 0x38) >> 0x38) != 0;
     }
     if (arg1 & 0x4000) {
-        return datCalcGetModifier(arg0, 5) != 0;
+        return datCalcGetBuffLevel(arg0, 5) != 0;
     }
     if (arg1 & 0x8000) {
-        return datCalcGetModifier(arg0, 6) != 0;
+        return datCalcGetBuffLevel(arg0, 6) != 0;
     }
     if (arg1 == 0x30000) {
         goto case_30000;
@@ -1187,19 +1187,19 @@ case_30000:
     return var_2 != 0;
 rest_30000:
     if (arg1 & 0x40000) {
-        return datCalcGetModifier(arg0, 8) != 0;
+        return datCalcGetBuffLevel(arg0, 8) != 0;
     }
     if (arg1 & 0x80000) {
-        return datCalcGetModifier(arg0, 9) != 0;
+        return datCalcGetBuffLevel(arg0, 9) != 0;
     }
     if (arg1 & 0x100000) {
-        return datCalcGetModifier(arg0, 0xA) != 0;
+        return datCalcGetBuffLevel(arg0, 0xA) != 0;
     }
     if (arg1 & 0x200000) {
-        return datCalcGetModifier(arg0, 0xB) != 0;
+        return datCalcGetBuffLevel(arg0, 0xB) != 0;
     }
     if (arg1 & 0x400000) {
-        return datCalcGetModifier(arg0, 7) != 0;
+        return datCalcGetBuffLevel(arg0, 7) != 0;
     }
     if (arg1 & 0x800000) {
         return (((s64)((*(s32 *)(arg0 + 0x14) & 0x100000) != 0) << 0x38) >> 0x38) != 0;
@@ -1208,23 +1208,23 @@ rest_30000:
         return (((s64)((*(s32 *)(arg0 + 0x14) & 0x800000) != 0) << 0x38) >> 0x38) != 0;
     }
     if (arg1 & 0x08000000) {
-        return datCalcGetModifier(arg0, 0xC) != 0;
+        return datCalcGetBuffLevel(arg0, 0xC) != 0;
     }
     if (arg1 & 0x10000000) {
-        return datCalcGetModifier(arg0, 0xD) != 0;
+        return datCalcGetBuffLevel(arg0, 0xD) != 0;
     }
     if (arg1 & 0x20000000) {
-        return datCalcGetModifier(arg0, 0xE) != 0;
+        return datCalcGetBuffLevel(arg0, 0xE) != 0;
     }
     if (arg1 & 0x40000000) {
-        return datCalcGetModifier(arg0, 0xF) != 0;
+        return datCalcGetBuffLevel(arg0, 0xF) != 0;
     }
     if (arg1 & 0x1000) {
-        if (datCalcGetModifier(arg0, 0) <= 0) {
-            if (datCalcGetModifier(arg0, 1) <= 0) {
-                if (datCalcGetModifier(arg0, 2) <= 0) {
-                    if (datCalcGetModifier(arg0, 3) <= 0) {
-                        if (datCalcGetModifier(arg0, 4) > 0) {
+        if (datCalcGetBuffLevel(arg0, 0) <= 0) {
+            if (datCalcGetBuffLevel(arg0, 1) <= 0) {
+                if (datCalcGetBuffLevel(arg0, 2) <= 0) {
+                    if (datCalcGetBuffLevel(arg0, 3) <= 0) {
+                        if (datCalcGetBuffLevel(arg0, 4) > 0) {
                             goto return_zero_1000;
                         }
                         goto return_one_1000;
@@ -1244,11 +1244,11 @@ return_one_1000:
     return 1;
 check_2000:
     if (arg1 & 0x2000) {
-        if (datCalcGetModifier(arg0, 0) >= 0) {
-            if (datCalcGetModifier(arg0, 1) >= 0) {
-                if (datCalcGetModifier(arg0, 2) >= 0) {
-                    if (datCalcGetModifier(arg0, 3) >= 0) {
-                        if (datCalcGetModifier(arg0, 4) < 0) {
+        if (datCalcGetBuffLevel(arg0, 0) >= 0) {
+            if (datCalcGetBuffLevel(arg0, 1) >= 0) {
+                if (datCalcGetBuffLevel(arg0, 2) >= 0) {
+                    if (datCalcGetBuffLevel(arg0, 3) >= 0) {
+                        if (datCalcGetBuffLevel(arg0, 4) < 0) {
                             goto return_zero_2000;
                         }
                         goto return_one_2000;
@@ -1282,139 +1282,139 @@ void func_00234830(u8 *arg0, s32 arg1, s64 arg2)
 {
     if (arg1 != 0) {
         if (arg1 & 1) {
-            datCalcAddModifier(arg0, 0, arg2);
+            datCalcAddBuffLevel(arg0, 0, arg2);
         }
         if (arg1 & 2) {
-            datCalcAddModifier(arg0, 0, (s64)(s8)-(s8)arg2);
+            datCalcAddBuffLevel(arg0, 0, (s64)(s8)-(s8)arg2);
         }
         if (arg1 & 4) {
-            datCalcAddModifier(arg0, 1, arg2);
+            datCalcAddBuffLevel(arg0, 1, arg2);
         }
         if (arg1 & 8) {
-            datCalcAddModifier(arg0, 1, (s64)(s8)-(s8)arg2);
+            datCalcAddBuffLevel(arg0, 1, (s64)(s8)-(s8)arg2);
         }
         if (arg1 & 0x10) {
-            datCalcAddModifier(arg0, 2, arg2);
+            datCalcAddBuffLevel(arg0, 2, arg2);
         }
         if (arg1 & 0x20) {
-            datCalcAddModifier(arg0, 2, (s64)(s8)-(s8)arg2);
+            datCalcAddBuffLevel(arg0, 2, (s64)(s8)-(s8)arg2);
         }
         if (arg1 & 0x40) {
-            datCalcAddModifier(arg0, 3, arg2);
+            datCalcAddBuffLevel(arg0, 3, arg2);
         }
         if (arg1 & 0x80) {
-            datCalcAddModifier(arg0, 3, (s64)(s8)-(s8)arg2);
+            datCalcAddBuffLevel(arg0, 3, (s64)(s8)-(s8)arg2);
         }
         if (arg1 & 0x100) {
-            datCalcAddModifier(arg0, 4, arg2);
+            datCalcAddBuffLevel(arg0, 4, arg2);
         }
         if (arg1 & 0x200) {
-            datCalcAddModifier(arg0, 4, (s64)(s8)-(s8)arg2);
+            datCalcAddBuffLevel(arg0, 4, (s64)(s8)-(s8)arg2);
         }
         if (arg1 & 0x400) {
-            datCalcAddModifier(arg0, 0x12, arg2);
+            datCalcAddBuffLevel(arg0, 0x12, arg2);
         }
         if (arg1 & 0x800) {
-            datCalcAddModifier(arg0, 0x13, arg2);
+            datCalcAddBuffLevel(arg0, 0x13, arg2);
         }
         if (arg1 & 0x1000) {
-            if ((s8)datCalcGetModifier(arg0, 0) > 0) {
-                datCalcSetModifier(arg0, 0, 0);
-                datCalcSetSecondaryModifier(arg0, 0, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 0) > 0) {
+                datCalcSetBuffLevel(arg0, 0, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 0, 0);
                 *(s32 *)(arg0 + 0x14) &= ~1;
             }
-            if ((s8)datCalcGetModifier(arg0, 1) > 0) {
-                datCalcSetModifier(arg0, 1, 0);
-                datCalcSetSecondaryModifier(arg0, 1, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 1) > 0) {
+                datCalcSetBuffLevel(arg0, 1, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 1, 0);
                 *(s32 *)(arg0 + 0x14) &= ~2;
             }
-            if ((s8)datCalcGetModifier(arg0, 2) > 0) {
-                datCalcSetModifier(arg0, 2, 0);
-                datCalcSetSecondaryModifier(arg0, 2, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 2) > 0) {
+                datCalcSetBuffLevel(arg0, 2, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 2, 0);
                 *(s32 *)(arg0 + 0x14) &= ~4;
             }
-            if ((s8)datCalcGetModifier(arg0, 3) > 0) {
-                datCalcSetModifier(arg0, 3, 0);
-                datCalcSetSecondaryModifier(arg0, 3, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 3) > 0) {
+                datCalcSetBuffLevel(arg0, 3, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 3, 0);
                 *(s32 *)(arg0 + 0x14) &= ~8;
             }
-            if ((s8)datCalcGetModifier(arg0, 4) > 0) {
-                datCalcSetModifier(arg0, 4, 0);
-                datCalcSetSecondaryModifier(arg0, 4, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 4) > 0) {
+                datCalcSetBuffLevel(arg0, 4, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 4, 0);
                 *(s32 *)(arg0 + 0x14) &= ~0x10;
             }
         }
         if (arg1 & 0x2000) {
-            if ((s8)datCalcGetModifier(arg0, 0) < 0) {
-                datCalcSetModifier(arg0, 0, 0);
-                datCalcSetSecondaryModifier(arg0, 0, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 0) < 0) {
+                datCalcSetBuffLevel(arg0, 0, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 0, 0);
                 *(s32 *)(arg0 + 0x14) &= ~1;
             }
-            if ((s8)datCalcGetModifier(arg0, 1) < 0) {
-                datCalcSetModifier(arg0, 1, 0);
-                datCalcSetSecondaryModifier(arg0, 1, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 1) < 0) {
+                datCalcSetBuffLevel(arg0, 1, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 1, 0);
                 *(s32 *)(arg0 + 0x14) &= ~2;
             }
-            if ((s8)datCalcGetModifier(arg0, 2) < 0) {
-                datCalcSetModifier(arg0, 2, 0);
-                datCalcSetSecondaryModifier(arg0, 2, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 2) < 0) {
+                datCalcSetBuffLevel(arg0, 2, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 2, 0);
                 *(s32 *)(arg0 + 0x14) &= ~4;
             }
-            if ((s8)datCalcGetModifier(arg0, 3) < 0) {
-                datCalcSetModifier(arg0, 3, 0);
-                datCalcSetSecondaryModifier(arg0, 3, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 3) < 0) {
+                datCalcSetBuffLevel(arg0, 3, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 3, 0);
                 *(s32 *)(arg0 + 0x14) &= ~8;
             }
-            if ((s8)datCalcGetModifier(arg0, 4) < 0) {
-                datCalcSetModifier(arg0, 4, 0);
-                datCalcSetSecondaryModifier(arg0, 4, 0);
+            if ((s8)datCalcGetBuffLevel(arg0, 4) < 0) {
+                datCalcSetBuffLevel(arg0, 4, 0);
+                datCalcSetSecondaryBuffLevel(arg0, 4, 0);
                 *(s32 *)(arg0 + 0x14) &= ~0x10;
             }
         }
         if (arg1 & 0x4000) {
-            datCalcAddModifier(arg0, 5, arg2);
+            datCalcAddBuffLevel(arg0, 5, arg2);
         }
         if (arg1 & 0x8000) {
-            datCalcAddModifier(arg0, 6, arg2);
+            datCalcAddBuffLevel(arg0, 6, arg2);
         }
         if (arg1 & 0x10000) {
-            datCalcAddModifier(arg0, 0x10, arg2);
+            datCalcAddBuffLevel(arg0, 0x10, arg2);
         }
         if (arg1 & 0x20000) {
-            datCalcAddModifier(arg0, 0x11, arg2);
+            datCalcAddBuffLevel(arg0, 0x11, arg2);
         }
         if (arg1 & 0x40000) {
-            datCalcAddModifier(arg0, 8, arg2);
+            datCalcAddBuffLevel(arg0, 8, arg2);
         }
         if (arg1 & 0x80000) {
-            datCalcAddModifier(arg0, 9, arg2);
+            datCalcAddBuffLevel(arg0, 9, arg2);
         }
         if (arg1 & 0x100000) {
-            datCalcAddModifier(arg0, 0xA, arg2);
+            datCalcAddBuffLevel(arg0, 0xA, arg2);
         }
         if (arg1 & 0x200000) {
-            datCalcAddModifier(arg0, 0xB, arg2);
+            datCalcAddBuffLevel(arg0, 0xB, arg2);
         }
         if (arg1 & 0x400000) {
-            datCalcAddModifier(arg0, 7, arg2);
+            datCalcAddBuffLevel(arg0, 7, arg2);
         }
         if (arg1 & 0x800000) {
-            datCalcAddModifier(arg0, 0x14, arg2);
+            datCalcAddBuffLevel(arg0, 0x14, arg2);
         }
         if (arg1 & 0x04000000) {
-            datCalcAddModifier(arg0, 0x17, arg2);
+            datCalcAddBuffLevel(arg0, 0x17, arg2);
         }
         if (arg1 & 0x08000000) {
-            datCalcAddModifier(arg0, 0xC, arg2);
+            datCalcAddBuffLevel(arg0, 0xC, arg2);
         }
         if (arg1 & 0x10000000) {
-            datCalcAddModifier(arg0, 0xD, arg2);
+            datCalcAddBuffLevel(arg0, 0xD, arg2);
         }
         if (arg1 & 0x20000000) {
-            datCalcAddModifier(arg0, 0xE, arg2);
+            datCalcAddBuffLevel(arg0, 0xE, arg2);
         }
         if (arg1 & 0x40000000) {
-            datCalcAddModifier(arg0, 0xF, arg2);
+            datCalcAddBuffLevel(arg0, 0xF, arg2);
         }
         if (arg1 & 0x01000000) {
             *(s32 *)(arg0 + 0x14) &= 0xFFFEFFFF;
@@ -1441,8 +1441,8 @@ void func_00235020(u8 *arg0)
                     func_0046d730(D_00635938, 0x4A2);
                 }
                 if (i8 < 0x10) {
-                    datCalcSetModifier(arg0, i, 0);
-                    datCalcSetSecondaryModifier(arg0, i, 0);
+                    datCalcSetBuffLevel(arg0, i, 0);
+                    datCalcSetSecondaryBuffLevel(arg0, i, 0);
                 }
                 *(s32 *)(arg0 + 0x14) &= ~(1 << i8);
             }
@@ -1498,7 +1498,7 @@ void func_00235110(u8 *unit)
         if (checked >= 24)
             func_0046d730(D_00635938, 0x4C1);
         if (checked < 16)
-            active = datCalcGetModifier(unit, index % 256U);
+            active = datCalcGetBuffLevel(unit, index % 256U);
         else {
             u8 result = (*(u32 *)(unit + 0x14) & (1U << checked)) != 0;
             active = result;
@@ -1534,7 +1534,7 @@ s64 func_00235320(u8 *unit)
             func_0046d730(D_00635938, 0x4C1);
         if (checked < 16)
             /* Keep the independently narrowed getter argument. */
-            active = datCalcGetModifier(unit, index % 256U);
+            active = datCalcGetBuffLevel(unit, index % 256U);
         else {
             u8 result = (*(u32 *)(unit + 0x14) & (1 << checked)) != 0;
             active = result;
@@ -2368,7 +2368,7 @@ return_zero_1:
         multiplier = multiplier * (percent / 100.0f);
         if (!(options & 1)) {
             death = statuses & 0x80000;
-            if (death == 0 && datCalcGetModifier(target, 7) > 0) {
+            if (death == 0 && datCalcGetBuffLevel(target, 7) > 0) {
                 multiplier *= 2.0f;
             }
             element = (s16)func_0023d8e0(source, skillId);
@@ -2875,10 +2875,10 @@ s32 func_0023a6b0(u8 *arg0, s32 arg1)
         if (found != 0) {
             acc |= 0x4000000;
         }
-        if (datCalcGetModifier(arg0, 8) > 0) {
+        if (datCalcGetBuffLevel(arg0, 8) > 0) {
             b1 = 1;
         }
-        if (datCalcGetModifier(arg0, 0xC) > 0) {
+        if (datCalcGetBuffLevel(arg0, 0xC) > 0) {
             b4 = 1;
         }
         break;
@@ -2899,10 +2899,10 @@ s32 func_0023a6b0(u8 *arg0, s32 arg1)
         if (found != 0) {
             acc |= 0x4000000;
         }
-        if (datCalcGetModifier(arg0, 9) > 0) {
+        if (datCalcGetBuffLevel(arg0, 9) > 0) {
             b1 = 1;
         }
-        if (datCalcGetModifier(arg0, 0xD) > 0) {
+        if (datCalcGetBuffLevel(arg0, 0xD) > 0) {
             b4 = 1;
         }
         break;
@@ -2923,10 +2923,10 @@ s32 func_0023a6b0(u8 *arg0, s32 arg1)
         if (found != 0) {
             acc |= 0x4000000;
         }
-        if (datCalcGetModifier(arg0, 11) > 0) {
+        if (datCalcGetBuffLevel(arg0, 11) > 0) {
             b1 = 1;
         }
-        if (datCalcGetModifier(arg0, 0xE) > 0) {
+        if (datCalcGetBuffLevel(arg0, 0xE) > 0) {
             b4 = 1;
         }
         break;
@@ -2947,10 +2947,10 @@ s32 func_0023a6b0(u8 *arg0, s32 arg1)
         if (found != 0) {
             acc |= 0x4000000;
         }
-        if (datCalcGetModifier(arg0, 10) > 0) {
+        if (datCalcGetBuffLevel(arg0, 10) > 0) {
             b1 = 1;
         }
-        if (datCalcGetModifier(arg0, 0xF) > 0) {
+        if (datCalcGetBuffLevel(arg0, 0xF) > 0) {
             b4 = 1;
         }
         break;
@@ -4181,10 +4181,10 @@ s32 arg4;
                 bonus += 15;
             }
         }
-        if (datCalcGetModifier(arg0, 5) > 0) {
+        if (datCalcGetBuffLevel(arg0, 5) > 0) {
             bonus += 7;
         }
-        if (datCalcGetModifier(arg0, 6) > 0) {
+        if (datCalcGetBuffLevel(arg0, 6) > 0) {
             bonus += 15;
         }
         total = scaled + bonus;
