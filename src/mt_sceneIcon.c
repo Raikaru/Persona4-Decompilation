@@ -32,7 +32,7 @@ extern void H_Cdvd_ReadSync(u8 *handle);
 
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// func_00452560 is intentionally left undeclared (implicit old-style call, as
+// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
@@ -56,7 +56,7 @@ s32 func_0026d890(u8 *arg0)
     u32 idx;
     s32 res;
 
-    w = (u8 *)func_00452560();
+    w = (u8 *)kwlnTaskGetWork();
     switch (*(u32 *)w) {
     case 0:
         idx = *(u32 *)(w + 8);
@@ -98,7 +98,7 @@ void func_0026d9f0(u8 *unusedTask)
 {
     int iVar1;
 
-    iVar1 = func_00452560();
+    iVar1 = kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }
 

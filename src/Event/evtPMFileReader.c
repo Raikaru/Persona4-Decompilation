@@ -4,7 +4,7 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 extern s32 kwlnTaskIsLinked();
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern u8 D_0063C970[];
 extern u8 D_0063C990[];
 extern char iGpffffa7c0;
@@ -65,7 +65,7 @@ s32 func_002938c0(u8 *task) {
     u8 *temp_3;
     s32 ready;
 
-    temp_2 = (u8 *)func_00452560(task);
+    temp_2 = (u8 *)kwlnTaskGetWork(task);
     func_00290710(*(s32 *)(temp_2 + 0x0C), *(s32 *)(temp_2 + 0x10), spE0, spA0, sp60, sp20);
     if (*(s32 *)(temp_2 + 8) != 0) {
         temp_3 = *(u8 **)temp_2;
@@ -188,7 +188,7 @@ void func_00293d30(u8 *task) {
     s32 *p;
     u16 h18;
 
-    p = (s32 *)func_00452560(task);
+    p = (s32 *)kwlnTaskGetWork(task);
     h18 = *(u16 *)(p + 0x18 / 4);
     if ((s32)h18 > 0) {
         func_00106390(h18, 0);
@@ -251,7 +251,7 @@ s32 func_00293fc0(s32 arg0) {
     if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730(D_0063C970, 0x123);
     }
-    if (((s32 *)func_00452560((void *)arg0))[0] == 7) {
+    if (((s32 *)kwlnTaskGetWork((void *)arg0))[0] == 7) {
         return 1;
     }
     return 0;
@@ -262,7 +262,7 @@ u8 *func_00294040(s32 arg0) {
     if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730(D_0063C970, 0x131);
     }
-    return (u8 *)func_00452560((void *)arg0);
+    return (u8 *)kwlnTaskGetWork((void *)arg0);
 }
 
 // FUN_002940A0
@@ -279,16 +279,16 @@ s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730((char *)D_0063C970, 0x123);
     }
-    if (((s32 *)func_00452560((void *)arg0))[0] != 7) {
+    if (((s32 *)kwlnTaskGetWork((void *)arg0))[0] != 7) {
         if (kwlnTaskIsLinked(arg0) == 0) {
             func_0046d730((char *)D_0063C970, 0x123);
         }
-        if (((s32 *)func_00452560((void *)arg0))[0] != 7) {
+        if (((s32 *)kwlnTaskGetWork((void *)arg0))[0] != 7) {
             func_0046d730((char *)D_0063C970, 0x143);
         }
         return 0;
     }
-    temp_2 = (s32 *)func_00452560((void *)arg0);
+    temp_2 = (s32 *)kwlnTaskGetWork((void *)arg0);
     *(u32 *)(base + 0x80) = (u32)temp_2[0x38 / 4];
     if (temp_2[0x38 / 4] != 0) {
         *(u32 *)(base + 0x84) = (u32)(temp_2[0x38 / 4] + 0x20);

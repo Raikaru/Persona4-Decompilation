@@ -5,7 +5,7 @@
 extern s32 evtFindTask();
 
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern void (*jtbl_008873EC[])(void *);
 void evtMemAccount(s32 arg0, s32 arg1);
 
@@ -49,7 +49,7 @@ s32 func_00285480(u8 *arg0)
     if (handle == 0) {
         return 0;
     }
-    return (s32)func_00452560((void *)handle);
+    return (s32)kwlnTaskGetWork((void *)handle);
 }
 
 // FUN_002854E0
@@ -131,13 +131,13 @@ s32 func_002857c0(u8 *task)
     s32 temp_4_3;
     s32 var_2;
 
-    temp_2 = (u8 *)func_00452560(task);
+    temp_2 = (u8 *)kwlnTaskGetWork(task);
     if (temp_2 == NULL) {
         func_0046d730(D_0063C2C8, 0x2E);
     }
     temp_4 = *(s32 *)(temp_2 + 0xC);
     if (temp_4 != 0) {
-        func_00452560((void *)temp_4);
+        kwlnTaskGetWork((void *)temp_4);
     }
     temp_4_2 = *(s32 *)(temp_2 + 0);
     switch (temp_4_2) {
@@ -153,7 +153,7 @@ s32 func_002857c0(u8 *task)
         *(s32 *)(temp_2 + 0) = 4;
         /* fallthrough */
     case 4:
-        temp_2_2 = (u8 *)func_00452560((void *)*(s32 *)(temp_2 + 0xC));
+        temp_2_2 = (u8 *)kwlnTaskGetWork((void *)*(s32 *)(temp_2 + 0xC));
         *(s32 *)(temp_2_2 + 0) &= ~1;
         temp_4_3 = *(s32 *)(temp_2_2 + 0x14);
         if (temp_4_3 != *(s32 *)(temp_2_2 + 0x18)) {
@@ -186,7 +186,7 @@ s32 func_002857c0(u8 *task)
 void func_00285980(u8 *task) {
     s32 *temp_2;
 
-    temp_2 = (s32 *)func_00452560(task);
+    temp_2 = (s32 *)kwlnTaskGetWork(task);
     kwlnTaskDestroyWithHierarchy(*(s32 *)((u8 *)temp_2 + 0xC));
     jtbl_008873EC[0](temp_2);
     evtMemAccount(0, -0x60);
@@ -227,7 +227,7 @@ s32 func_00285b30(void) {
     if (h == 0) {
         return -1;
     }
-    return *(s32 *)((u8 *)func_00452560((void *)h) + 0x14);
+    return *(s32 *)((u8 *)kwlnTaskGetWork((void *)h) + 0x14);
 }
 
 /* Retail's outer-loop count check uses `sltu $at,$s3,$v0; bnez $at`, while

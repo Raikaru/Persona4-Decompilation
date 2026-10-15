@@ -76,7 +76,7 @@ static inline u8 *func_0026f1e0_add(u8 *base, u32 index)
     return base + index;
 }
 
-extern u8 *func_00452560();
+extern u8 *kwlnTaskGetWork();
 extern s32 kwlnTaskIsLinked();
 
 extern s32 func_0025ef20(u8 *arg0);
@@ -162,7 +162,7 @@ void func_00260510(void)
 
     temp_2 = kwlnTaskGetTaskByName(D_00637348);
     if (temp_2 != 0) {
-        temp_2_2 = func_00452560(temp_2);
+        temp_2_2 = kwlnTaskGetWork(temp_2);
         *(s32 *)(temp_2_2 + 8) |= 1;
     }
 }
@@ -1097,7 +1097,7 @@ s32 func_00263460(u8 *sdkTaskBytes)
     s32 temp_2_8;
     u8 *temp_2;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     func_001104d0(*(s32 *)(temp_2 + 0xC), &sp3C, &sp38);
     switch (*(u32 *)temp_2) {
     case 0:
@@ -1378,7 +1378,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     s32 temp_20;
     s64 temp_20_2;
 
-    temp_2 = func_00452560(arg1);
+    temp_2 = kwlnTaskGetWork(arg1);
     temp_3 = *(s32 *)(temp_2 + 0);
     switch (temp_3) {
     case 3:
@@ -1625,7 +1625,7 @@ void func_00264d10(u8 *unusedTask)
     s32 temp_4;
     u8 *temp_2;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     if (kwlnTaskIsLinked((u8 *)*(s32 *)(temp_2 + 0x14)) != 0) {
         kwlnTaskDestroyWithHierarchy(*(s32 *)(temp_2 + 0x14));
     }
@@ -1637,7 +1637,7 @@ void func_00264d10(u8 *unusedTask)
 }
 // FUN_00266A40
 s32 func_00266a40(u32 unk, s32 arg1) {
-    u8 *temp_2 = func_00452560();
+    u8 *temp_2 = kwlnTaskGetWork();
 
     if (*(s32 *)(temp_2 + 0x10) != arg1) {
         *(s32 *)(temp_2 + 4) |= 1;
@@ -1653,7 +1653,7 @@ void func_00266a90(u8 *arg0) {
     u8 *p;
 
     if (kwlnTaskIsLinked(arg0) != 0) {
-        p = func_00452560(arg0);
+        p = kwlnTaskGetWork(arg0);
         *(s32 *)(p + 4) |= 2;
     }
 }
@@ -1665,7 +1665,7 @@ s32 func_00266ae0(s32 arg0)
     s32 temp_4;
 
     if (kwlnTaskIsLinked() != 0) {
-        temp_2 = func_00452560(arg0);
+        temp_2 = kwlnTaskGetWork(arg0);
         temp_4 = *(s32 *)(temp_2 + 4);
         if ((temp_4 & 1) && !(temp_4 & 4)) {
             return 0;
@@ -1693,7 +1693,7 @@ s32 func_00266ba0(u8 *arg0)
     s32 temp;
     s32 state;
 
-    work = func_00452560();
+    work = kwlnTaskGetWork();
     func_001104d0(*(s32 *)(work + 0xC), &sp3C, &sp38);
     state = *(s32 *)(work + 0);
     switch (state) {
@@ -1735,7 +1735,7 @@ void func_00266cc0(s32 arg0, s32 arg1)
     s32 t;
     s32 alpha;
 
-    work = func_00452560(arg1);
+    work = kwlnTaskGetWork(arg1);
     first = *(s32 *)(work + 0xC);
     second = *(s32 *)(work + 0x10);
     if (func_00110d30(func_001060b0()) != 0) {
@@ -1815,7 +1815,7 @@ void func_00267510(u8 *arg0) {
     u8 *p;
     s32 v;
 
-    p = func_00452560();
+    p = kwlnTaskGetWork();
     v = *(s32 *)(p + 4);
     if (v != 0) {
         func_0025f230((void *)v);

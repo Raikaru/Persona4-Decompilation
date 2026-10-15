@@ -5,7 +5,7 @@
 #include "type.h"
 
 void func_0021dda0(void);
-extern u16 *func_00452560();
+extern u16 *kwlnTaskGetWork();
 void func_001437b0(void *arg0, s32 arg1, s32 arg2);
 s32 func_001b5fd0(void);
 void func_0025cbc0(void *arg0, s32 arg1, s32 arg2);
@@ -420,7 +420,7 @@ s32 func_0021f790(u8 *arg0) {
     u32 state;
     s32 v;
 
-    work = (BtlResultWork *)func_00452560();
+    work = (BtlResultWork *)kwlnTaskGetWork();
     work->field08 = 0;
     work->field0C = 0;
     func_00460ac0(&D_00795F20, &work->field08);
@@ -1055,7 +1055,7 @@ void func_002214d0(u8 *unusedTask) {
     s32 i;
     s32 j;
 
-    p = (BtlResultWork *)func_00452560();
+    p = (BtlResultWork *)kwlnTaskGetWork();
     if (p->field4BC != 0) {
         H_Cdvd_Destroy((void *)p->field4BC);
         p->field4BC = 0;
@@ -1086,7 +1086,7 @@ s32 func_002215c0(s32 arg0) {
     buf = (u8 *)(*jtbl_008873E8)(0x578, 0x40000);
     memset(buf, 0, 0x578);
     r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006290F0), 0xF, 0, 0, func_0021f790, func_002214d0, (u8 *)(buf));
-    q = func_00452560(arg0);
+    q = kwlnTaskGetWork(arg0);
     *(s32 *)(buf + 4) = 0;
     *(u16 **)(buf + 0x570) = q;
     memset(buf + 8, 0, 0x30);
@@ -1099,7 +1099,7 @@ s32 func_002215c0(s32 arg0) {
 void func_002216b0(void) {
     u16 *temp_2;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     *temp_2 |= 1;
 }
 
@@ -1107,7 +1107,7 @@ void func_002216b0(void) {
 void func_002216e0(void) {
     u16 *temp_2;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     if (temp_2[0] & 0x80) {
         func_0021dda0();
         *(s32 *)(temp_2 + 2) = 5;
@@ -1121,7 +1121,7 @@ void func_002216e0(void) {
 u16 func_00221740(void) {
     u16 *temp_2;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     return temp_2[0] & 1;
 }
 
@@ -1135,7 +1135,7 @@ void func_00221770(void) {
     s32 i;
     BtlResultWork *work;
 
-    work = (BtlResultWork *)func_00452560();
+    work = (BtlResultWork *)kwlnTaskGetWork();
     {
         u32 r;
         r = (u32)func_00110d60((s16)func_001060b0()) & 1;

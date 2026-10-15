@@ -73,7 +73,7 @@ extern void func_001d3e00(s32 arg0);
 extern void btlUnitSetFlags(u8 *arg0, s32 arg1);
 extern void btlUnitClearFlags(u8 *arg0, s32 arg1);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *arg0);
-extern u32 func_00452560(s32 arg0);
+extern u32 kwlnTaskGetWork(s32 arg0);
 extern s32 func_00459760(s32 arg0);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern void func_00213a10(s32 task);
@@ -2169,7 +2169,7 @@ s32 temp4;
             func_0045a3e0(7, 1);
         }
     }
-    *(s32 *)func_00452560(*(s32 *)(D_0076449C + 0xDD0)) |= 1;
+    *(s32 *)kwlnTaskGetWork(*(s32 *)(D_0076449C + 0xDD0)) |= 1;
     *(s32 *)(arg0 + 0xC) = 0;
     goto done;
 fallback:
@@ -2345,7 +2345,7 @@ s32 func_001b5db0(void)
 {
     u8 *temp_3;
 
-    if (*(s32 *)(func_00452560(*(s32 *)(iGpffffb3ac + 0xDD0)) + 4) != 0) {
+    if (*(s32 *)(kwlnTaskGetWork(*(s32 *)(iGpffffb3ac + 0xDD0)) + 4) != 0) {
         return 0;
     }
     kwlnTaskDestroyWithHierarchy((KwlnTask *)*(s32 *)(iGpffffb3ac + 0xDD0));

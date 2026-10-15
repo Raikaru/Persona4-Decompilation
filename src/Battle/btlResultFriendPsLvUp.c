@@ -4,7 +4,7 @@
 
 void func_0046d730(void *arg0, s32 arg1);
 
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u8 *func_00117780(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4);
@@ -104,7 +104,7 @@ s32 func_002239a0(u8 *sdkTaskBytes)
     s32 sp[11];
     f32 zw[2];
 
-    r = (u8 *)func_00452560(sdkTaskBytes);
+    r = (u8 *)kwlnTaskGetWork(sdkTaskBytes);
     e = *(u8 **)(r + 60);
     *(s32 *)(r + 8) = 0;
     *(s32 *)(r + 12) = 0;

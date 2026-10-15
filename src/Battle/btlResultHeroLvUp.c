@@ -50,7 +50,7 @@ s32 func_00354a50(u8* param, s32 mode);
 void func_00142d80(s32 param, s32 a, s32 b, s32 c);
 void func_00355300(s32 param, s32 mode);
 s32 func_0021de60(void);
-extern u8* func_00452560(u32 param);
+extern u8* kwlnTaskGetWork(u32 param);
 void func_00460ac0(void* param, void* work);
 s32 func_0046a770(u32 param);
 extern u32 D_00795F20[];
@@ -200,7 +200,7 @@ s32 func_00221cf0(BtlResultWork* work)
 // FUN_00221F40
 s32 func_00221f40(u8* arg0)
 {
-    BtlResultWork* work = (BtlResultWork*)func_00452560((u32)arg0);
+    BtlResultWork* work = (BtlResultWork*)kwlnTaskGetWork((u32)arg0);
     s32 i;
 
     work->field0C = 0;

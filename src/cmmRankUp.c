@@ -156,7 +156,7 @@ extern code DAT_008873ec_abs[];
 
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// func_00452560 is intentionally left undeclared (implicit old-style call, as
+// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
@@ -164,12 +164,12 @@ extern code DAT_008873ec_abs[];
 
 // FUN_00251D80
 void func_00251d80(s32 arg0, s32 *arg1) {
-    extern s32 *func_00452560();
+    extern s32 *kwlnTaskGetWork();
     u8 *base;
     s32 i;
     u8 *entry;
 
-    base = (u8 *)func_00452560(arg1);
+    base = (u8 *)kwlnTaskGetWork(arg1);
     entry = base;
     for (i = 0; i < 0x10; i++) {
         if (*(u32 *)entry & 1) {
@@ -192,7 +192,7 @@ s32 func_00251e60(u8 *sdkTaskBytes) {
     s32 arg0 = (s32)sdkTaskBytes;
     u8 *p;
 
-    func_00452560();
+    kwlnTaskGetWork();
     p = func_00460990();
     *(void **)(p + 0x8) = (void *)func_00251d80;
     *(s32 *)(p + 0x10) = arg0;
@@ -205,7 +205,7 @@ void func_00251ec0(u8 *unusedTask)
 {
     int iVar1;
 
-    iVar1 = func_00452560();
+    iVar1 = kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }
 
@@ -236,12 +236,12 @@ void func_00251f00(s32 arg0, u32 *arg1) {
 
 // FUN_00251FC0
 void func_00251fc0(s32 arg0, s32 arg1) {
-    extern u32 *func_00452560();
+    extern u32 *kwlnTaskGetWork();
     u32 *p;
     u32 temp;
     s32 i;
 
-    p = func_00452560();
+    p = kwlnTaskGetWork();
     for (i = 0; i < 0x10; i++) {
         temp = *p;
         if (temp & 1) {
@@ -292,7 +292,7 @@ extern void MT_Scene_SetResEnabledById(s32 arg0, s32 arg1);
 #pragma opt_propagation off
 // FUN_00252050
 void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
-    extern u8 *func_00452560();
+    extern u8 *kwlnTaskGetWork();
     f32 spFloat[3];
     s32 copy2[0x87 * 2];
     s32 copy1[0x1B];
@@ -342,7 +342,7 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
         dstp2 += 4;
     } while (v > 0);
 
-    p = func_00452560(arg0);
+    p = kwlnTaskGetWork(arg0);
     if (arg1 >= 3) {
         func_0046d730(D_00635CF8, 0x329);
     }
@@ -2466,7 +2466,7 @@ s32 func_00257900(u8 *task) {
     RankUpMatrix leavingMatrix;
     RankUpRectangle overlayRectangle;
 
-    context = (u8 *)func_00452560(task);
+    context = (u8 *)kwlnTaskGetWork(task);
     firstTexture = (s32)(func_0035afa0(*(s32 *)(context + 0x2C)));
     secondTexture = (s32)(func_0035afa0(*(s32 *)(context + 0x30)));
     animationMode = (s32)(*(s32 *)(context + 0x1C));
@@ -3117,7 +3117,7 @@ s32 func_00257900(u8 *task) {
 #pragma opt_propagation off
 // FUN_0025B0F0
 void func_0025b0f0(s32 arg0, u8 *arg1) {
-    extern u32 *func_00452560();
+    extern u32 *kwlnTaskGetWork();
     u8 *sp;
     u8 *p;
     s32 i;
@@ -3129,7 +3129,7 @@ void func_0025b0f0(s32 arg0, u8 *arg1) {
     f32 *pfbuf;
     f32 f;
 
-    sp = (u8 *)func_00452560(arg1);
+    sp = (u8 *)kwlnTaskGetWork(arg1);
     p = buf;
     i = 4;
     if (p != NULL) {
@@ -3257,7 +3257,7 @@ typedef struct { s32 values[5]; } RankUpUnlockFlags;
 #pragma opt_propagation off
 static inline s32 rankUpAnimationComplete(u8 *task)
 {
-    u8 *context = (u8 *)func_00452560(task);
+    u8 *context = (u8 *)kwlnTaskGetWork(task);
     s32 complete = 0;
     if (*(s32 *)(context + 0x44) != 0) {
         complete = 1;
@@ -3285,7 +3285,7 @@ s32 func_0025b240(u8 *arg0) {
     void *pv;
     s32 n;
     u8 *argb = arg0;
-    ctx = (u8 *)func_00452560(argb);
+    ctx = (u8 *)kwlnTaskGetWork(argb);
     skill = 0;
     switch (*(s32 *)(ctx + 4)) {
     case 0:
@@ -3634,7 +3634,7 @@ void func_0025c100(u8 *unusedTask) {
     u8 *list;
     s32 i;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)kwlnTaskGetWork();
     if (*(s32 *)p & 1) {
         func_00189ec0();
     }

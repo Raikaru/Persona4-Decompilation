@@ -22,7 +22,7 @@ extern s32 func_00122720(void);
 extern s32 func_0012b890(u8 *task);
 extern void func_0012b940(u8 *task);
 extern void func_0012b9a0(void);
-extern void *func_00452560();
+extern void *kwlnTaskGetWork();
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
@@ -70,7 +70,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
     u32 allocator;
     void *temp_2_7;
 
-    temp_2 = (LogoWork *)func_00452560();
+    temp_2 = (LogoWork *)kwlnTaskGetWork();
     temp_2_2 = temp_2->state;
     switch (temp_2_2) {
     case 0:
@@ -97,7 +97,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         break;
     case 3:
         temp_19 = temp_2->task10;
-        temp_18 = (s32 *)func_00452560(temp_19);
+        temp_18 = (s32 *)kwlnTaskGetWork(temp_19);
         if (kwlnTaskIsLinked(temp_19) == 0) {
             var_2 = 0;
         } else if (*temp_18 == 3) {
@@ -107,7 +107,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         }
         if (var_2 != 0) {
             temp_19_2 = temp_2->task14;
-            temp_18_2 = (s32 *)func_00452560(temp_19_2);
+            temp_18_2 = (s32 *)kwlnTaskGetWork(temp_19_2);
             if (kwlnTaskIsLinked(temp_19_2) == 0) {
                 var_2_2 = 0;
             } else if (*temp_18_2 == 3) {
@@ -189,9 +189,9 @@ void logoTaskDestroy(u8 *unusedTask)
     s32 var_2;
     s32 var_2_2;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     temp_18 = temp_2->task10;
-    temp_17 = func_00452560(temp_18);
+    temp_17 = kwlnTaskGetWork(temp_18);
     if (kwlnTaskIsLinked(temp_18) == 0) {
         var_2 = 0;
     } else if (*temp_17 == 3) {
@@ -203,7 +203,7 @@ void logoTaskDestroy(u8 *unusedTask)
         func_0046d730(&D_005E5730, 0xF8);
     }
     temp_18_2 = temp_2->task14;
-    temp_17_2 = func_00452560(temp_18_2);
+    temp_17_2 = kwlnTaskGetWork(temp_18_2);
     if (kwlnTaskIsLinked(temp_18_2) == 0) {
         var_2_2 = 0;
     } else if (*temp_17_2 == 3) {

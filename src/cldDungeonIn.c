@@ -4,7 +4,7 @@
 #include "type.h"
 #include "rw/std/stddef.h"
 
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00268230(void *unused, void *task);
@@ -25,7 +25,7 @@ void func_00268920(u8 *task);
 
 // FUN_00268920
 void func_00268920(u8 *task) {
-    u8 *s0 = (u8 *)func_00452560(task);
+    u8 *s0 = (u8 *)kwlnTaskGetWork(task);
     func_002e1ef0((void *)**(s32 **)(s0 + 8));
     jtbl_008873EC[0](s0);
     func_0045a8d0(3, 0);
@@ -38,7 +38,7 @@ s32 func_00268870(u8 *arg0)
     u8 *state;
     u8 *obj;
 
-    state = (u8 *)func_00452560(arg0);
+    state = (u8 *)kwlnTaskGetWork(arg0);
     obj = func_00460990();
     *(void **)(obj + 8) = (void *)func_00268230;
     *(u8 **)(obj + 0x10) = arg0;
@@ -150,7 +150,7 @@ void func_00268230(void *unused, void *task)
     u32 kind, mode;
     f32 duration;
 
-    work = (DungeonInWork *)func_00452560(task);
+    work = (DungeonInWork *)kwlnTaskGetWork(task);
     switch (work->state) {
     case 0:
         {

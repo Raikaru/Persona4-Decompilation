@@ -7,7 +7,7 @@ extern code DAT_008873ec_abs[];
 
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// func_00452560 is intentionally left undeclared (implicit old-style call, as
+// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
@@ -16,14 +16,14 @@ void func_0021dd60(u8 *unusedTask)
 {
     int iVar1;
 
-    iVar1 = func_00452560();
+    iVar1 = kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }
 
 
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// func_00452560 is intentionally left undeclared (implicit old-style call, as
+// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
@@ -32,6 +32,6 @@ void func_002230a0(u8 *unusedTask)
 {
     int iVar1;
 
-    iVar1 = func_00452560();
+    iVar1 = kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }

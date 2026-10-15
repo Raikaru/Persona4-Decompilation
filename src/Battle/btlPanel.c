@@ -21,7 +21,7 @@ s32 btlUnitFindInSideById(s32 a, s32 b);
 s32 sdkSpriteCreateFromName(u32 param);
 s32 func_0046a750(s32 param);
 s32 func_0046a770(u32 param);
-extern u8* func_00452560(s32 param);
+extern u8* kwlnTaskGetWork(s32 param);
 extern char iGpffffa578;
 extern s32 iGpffffa570;
 extern char D_00626780[];
@@ -49,7 +49,7 @@ typedef struct {
 s32 func_00202890(void* param)
 {
     BtlPanel* panel = (BtlPanel*)param;
-    BtlPanelResources* recs = (BtlPanelResources*)func_00452560(panel->field34);
+    BtlPanelResources* recs = (BtlPanelResources*)kwlnTaskGetWork(panel->field34);
     s16 done = 0;
     s32 idx;
     u8* rec;

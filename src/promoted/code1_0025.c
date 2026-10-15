@@ -9,7 +9,7 @@ static inline f32 p4_0025_add(f32 left, f32 right) {
     return left + right;
 }
 s32 kwlnTaskGetTaskByName(void *arg0);
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern void func_0025f230(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 D_006367C0[];
@@ -750,7 +750,7 @@ s32 func_0025f960(u8 *task) {
     s32 *p;
     s32 temp_3;
 
-    p = (s32 *)func_00452560(task);
+    p = (s32 *)kwlnTaskGetWork(task);
     if (p[4] != 0) {
         var_17 = func_00481450();
         func_00481440(p[4]);
@@ -777,7 +777,7 @@ void func_0025fa30(u8 *task)
     s32 *temp_2;
     s32 temp_3;
 
-    temp_2 = (s32 *)func_00452560(task);
+    temp_2 = (s32 *)kwlnTaskGetWork(task);
     temp_3 = temp_2[0];
     switch (temp_3) {
     case 0:
@@ -793,6 +793,6 @@ void func_0025fa30(u8 *task)
 s32 func_0025ff60(s32 task)
 {
     s32 *p;
-    p = (s32 *)func_00452560((void *)(u32)task);
+    p = (s32 *)kwlnTaskGetWork((void *)(u32)task);
     return p[0];
 }

@@ -168,7 +168,7 @@ void memcpy(void* dst, void* src, s32 size);
 void func_0046a2d0(char* file, s32 line);
 u8* func_0046a430(s32 size);
 void func_0046a340(void* ptr);
-u32 func_00452560(void* task);
+u32 kwlnTaskGetWork(void* task);
 s32 func_0029cb00(void* arg0, ...);
 s32 func_0029e970(void);
 void func_0029e960(s32 arg0);
@@ -495,7 +495,7 @@ s32 func_0029d870(u8 *task)
 {
     s32 code;
 
-    code = func_0029cb00((void*)func_00452560(task));
+    code = func_0029cb00((void*)kwlnTaskGetWork(task));
     switch (code)
     {
     case 0:  // SCRTRACE_ERROR
@@ -747,7 +747,7 @@ void func_0029dfe0(void* arg0, u8* proc)
 {
     ScrScriptWork* work;
 
-    work = (ScrScriptWork*)func_00452560(arg0);
+    work = (ScrScriptWork*)kwlnTaskGetWork(arg0);
     if (work == NULL)
     {
         func_0046d730(D_0063E3D0, 0x3C5);

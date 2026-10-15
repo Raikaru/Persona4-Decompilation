@@ -6,7 +6,7 @@
 #include "evt_internal.h"
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern void func_004b1250(void *model, f32 *position);
 extern s32 func_0045aeb0(s16 channel, const char *name);
 extern s32 func_0045af60(s16 channel, s16 stream, s16 arg2, s16 arg3);
@@ -895,7 +895,7 @@ s32 func_0024b870(u8 *task)
     s32 loadId;
     s32 state;
 
-    t = (CmmScriptTask *)(s32)func_00452560(task);
+    t = (CmmScriptTask *)(s32)kwlnTaskGetWork(task);
     state = t->state;
     switch (state) {
     case 0:
@@ -934,7 +934,7 @@ void func_0024b990(u8 *task)
     s32 i;
     s32 x;
 
-    t = (CmmScriptTask *)(s32)func_00452560(task);
+    t = (CmmScriptTask *)(s32)kwlnTaskGetWork(task);
     for (i = 0; i < 5; i++) {
         h = *(s32*)((u8*)t + i * 4 + 0xC);
         if (h != 0) {
@@ -962,7 +962,7 @@ void func_0024ba60(s32 arg0)
         func_0046d730(D_006359F0, 0x3B2);
     }
     if (task != 0) {
-        t = (CmmScriptTask *)((int)(s32)func_00452560((void *)(u32)(task)));
+        t = (CmmScriptTask *)((int)(s32)kwlnTaskGetWork((void *)(u32)(task)));
         if (t->handles[arg0] != 0) {
             kwlnTaskDestroyWithHierarchy(t->handles[arg0]);
             t->handles[arg0] = 0;
@@ -1003,11 +1003,11 @@ s32 func_0024bb00(s32 arg0) {
     if (loadTask == 0) {
         func_0046d730(&D_006359F0, 0x392);
     }
-    loaded = (*(u32*)(s32)func_00452560((void *)(u32)((void*)loadTask)) & 1U) != 0;
+    loaded = (*(u32*)(s32)kwlnTaskGetWork((void *)(u32)((void*)loadTask)) & 1U) != 0;
     if (!loaded) {
         func_0046d730(&D_006359F0, 0x3CD);
     }
-    temp_16 = (s32*)(s32)func_00452560((void *)(u32)((void*)task));
+    temp_16 = (s32*)(s32)kwlnTaskGetWork((void *)(u32)((void*)task));
     if (arg0 < 0 || arg0 >= 5) {
         func_0046d730(&D_006359F0, 0x3CF);
     }
@@ -1126,7 +1126,7 @@ s32 func_0024be40(void)
             choiceIndex++;
         }
     }
-    task = (CmmScriptTask *)func_00452560(kwlnTaskGetTaskByName((s8 *)D_00635A78));
+    task = (CmmScriptTask *)kwlnTaskGetWork(kwlnTaskGetTaskByName((s8 *)D_00635A78));
     if (task == 0) {
         func_0046d730(D_006359F0, 1041);
     }
@@ -1152,13 +1152,13 @@ s32 func_0024c0e0(u8 *arg0, u8 *arg1)
     if (loadTask == 0) {
         func_0046d730(D_006359F0, 0x392);
     }
-    temp_2_2 = (*(s32 *)(s32)func_00452560((void *)(u32)(loadTask)) & 1) != 0;
+    temp_2_2 = (*(s32 *)(s32)kwlnTaskGetWork((void *)(u32)(loadTask)) & 1) != 0;
     if (temp_2_2 != 0) {
         goto block_1;
     }
     func_0046d730(D_006359F0, 0x39D);
 block_1:
-    data = *(s32 *)((u8 *)(s32)func_00452560((void *)(u32)(task)) + 0x24);
+    data = *(s32 *)((u8 *)(s32)kwlnTaskGetWork((void *)(u32)(task)) + 0x24);
     flags = *(s32 *)arg1;
     if (flags & 2) {
         temp_2_2 = *(s32 *)(arg1 + 8);
@@ -1234,11 +1234,11 @@ s32 func_0024c460(u8 *arg0, u8 *work)
     if (loadTask == 0) {
         func_0046d730(D_006359F0, 0x392);
     }
-    loaded = (*(u32 *)func_00452560(loadTask) & 1) != 0;
+    loaded = (*(u32 *)kwlnTaskGetWork(loadTask) & 1) != 0;
     if (loaded == 0) {
         func_0046d730(D_006359F0, 0x39D);
     }
-    atlas = *(void **)(func_00452560(task) + 0x24);
+    atlas = *(void **)(kwlnTaskGetWork(task) + 0x24);
     flags = *(s32 *)work;
     if ((flags & 2) != 0) {
         frame = *(s32 *)(work + 8);
@@ -1402,11 +1402,11 @@ static inline void *cmmScoreAtlas(void)
     if (loadTask == NULL) {
         func_0046d730(D_006359F0, 0x392);
     }
-    loaded = (*(u32 *)func_00452560(loadTask) & 1) != 0;
+    loaded = (*(u32 *)kwlnTaskGetWork(loadTask) & 1) != 0;
     if (loaded == 0) {
         func_0046d730(D_006359F0, 0x39D);
     }
-    return *(void **)(func_00452560(task) + 0x24);
+    return *(void **)(kwlnTaskGetWork(task) + 0x24);
 }
 
 static inline s32 cmmScoreClamp(s32 value, s32 first, s32 limit)
@@ -1669,7 +1669,7 @@ s32 func_0024efa0(u8 *task)
     cmmScriptEntry* entry;
     s32 i;
 
-    entries = (cmmScriptEntry*)(s32)func_00452560(task);
+    entries = (cmmScriptEntry*)(s32)kwlnTaskGetWork(task);
     entry = entries;
     i = 0;
     while (i < 3) {
@@ -1694,7 +1694,7 @@ void func_0024f040(u8 *task)
 {
     int record;
 
-    record = (s32)func_00452560(task);
+    record = (s32)kwlnTaskGetWork(task);
     DAT_008873ec_abs[0](record);
 }
 
@@ -1708,7 +1708,7 @@ void func_0024f080(s32 arg0, s32 arg1)
     if (p == 0) {
         func_0046d730(D_006359F0, 0x67E);
     }
-    e = (cmmScriptEntry*)(s32)func_00452560((void *)(u32)(p)) + arg0;
+    e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(p)) + arg0;
     e->flags |= 1;
     e->unk8 = 0;
     e->unk4 = 0;
@@ -1765,7 +1765,7 @@ s32 func_0024f160(u8 *arg0)
         goto done;
     }
 
-    rec = (s32)func_00452560((void *)(u32)((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78))));
+    rec = (s32)kwlnTaskGetWork((void *)(u32)((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78))));
     if (rec == 0) {
         func_0046d730(D_006359F0, 0x41B);
     }
@@ -1803,11 +1803,11 @@ s32 func_0024f160(u8 *arg0)
         if (loadTask == 0) {
             func_0046d730(D_006359F0, 0x392);
         }
-        loaded = (*(s32 *)(s32)func_00452560((void *)(u32)(loadTask)) & 1) != 0;
+        loaded = (*(s32 *)(s32)kwlnTaskGetWork((void *)(u32)(loadTask)) & 1) != 0;
         if (loaded == 0) {
             func_0046d730(D_006359F0, 0x3A6);
         }
-        rec = (s32)func_00452560((void *)(u32)(task));
+        rec = (s32)kwlnTaskGetWork((void *)(u32)(task));
         if (*(s32 *)(rec + 0x18) != 0) {
             resource = func_0025ff60(*(s32 *)(rec + 0x18));
         } else {
@@ -1842,14 +1842,14 @@ s32 func_0024f160(u8 *arg0)
     }
 
     if ((rec = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78))) != 0) {
-        rec = (s32)func_00452560((void *)(u32)(rec));
+        rec = (s32)kwlnTaskGetWork((void *)(u32)(rec));
         if (*(s32 *)(rec + 0x10) != 0) {
             kwlnTaskDestroyWithHierarchy(*(s32 *)(rec + 0x10));
             *(s32 *)(rec + 0x10) = 0;
         }
     }
     if ((rec = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78))) != 0) {
-        rec = (s32)func_00452560((void *)(u32)(rec));
+        rec = (s32)kwlnTaskGetWork((void *)(u32)(rec));
         if (*(s32 *)(rec + 0x18) != 0) {
             kwlnTaskDestroyWithHierarchy(*(s32 *)(rec + 0x18));
             *(s32 *)(rec + 0x18) = 0;
@@ -1928,7 +1928,7 @@ s32 func_0024f790(u8 *work)
         goto done;
     }
 
-    fishingData = (u8 *)func_00452560(kwlnTaskGetTaskByName((s8 *)D_00635A78));
+    fishingData = (u8 *)kwlnTaskGetWork(kwlnTaskGetTaskByName((s8 *)D_00635A78));
     if (fishingData == 0) {
         func_0046d730(D_006359F0, 0x41B);
     }
@@ -1959,7 +1959,7 @@ s32 func_0024f790(u8 *work)
             if (directionTask == 0) {
                 func_0046d730(D_006359F0, 0x696);
             }
-            *(s32 *)(func_00452560(directionTask) + 0x28) = direction;
+            *(s32 *)(kwlnTaskGetWork(directionTask) + 0x28) = direction;
         }
         *(s32 *)work |= 0x10;
         *(s16 *)(work + 0x22) = 0x19;
@@ -1992,7 +1992,7 @@ s32 func_0024f790(u8 *work)
             if (task == 0) {
                 func_0046d730(D_006359F0, 0x6A2);
             }
-            *(s32 *)(func_00452560(task) + 0x18) |= 0x10;
+            *(s32 *)(kwlnTaskGetWork(task) + 0x18) |= 0x10;
             flags = *(s32 *)work & ~0x10;
             *(s32 *)work = flags;
             *(s32 *)work = flags | 0x20;
@@ -2036,11 +2036,11 @@ s32 func_0024f790(u8 *work)
     if (loadTask == 0) {
         func_0046d730(D_006359F0, 0x392);
     }
-    loaded = (*(s32 *)func_00452560(loadTask) & 1) != 0;
+    loaded = (*(s32 *)kwlnTaskGetWork(loadTask) & 1) != 0;
     if (loaded == 0) {
         func_0046d730(D_006359F0, 0x3A6);
     }
-    fishingData = (u8 *)func_00452560(task);
+    fishingData = (u8 *)kwlnTaskGetWork(task);
     if (*(s32 *)(fishingData + 0xC) != 0) {
         model = func_0025ff60(*(s32 *)(fishingData + 0xC));
     } else {
@@ -2077,7 +2077,7 @@ s32 func_0024ff60(u8 *task)
     s32 loadTask;
     s32 st;
 
-    e = (cmmScriptEntry*)(s32)func_00452560(task);
+    e = (cmmScriptEntry*)(s32)kwlnTaskGetWork(task);
     switch (e->unk4) {
     case 0:
         e->unk4 = 1;
@@ -2088,7 +2088,7 @@ s32 func_0024ff60(u8 *task)
         if (loadTask == 0) {
             func_0046d730(D_006359F0, 0x392);
         }
-        st = (((cmmScriptEntry*)(s32)func_00452560((void *)(u32)(loadTask)))->flags & 1) != 0;
+        st = (((cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(loadTask)))->flags & 1) != 0;
         if (st) {
             e->unk4 = 3;
         }
@@ -2128,7 +2128,7 @@ void func_002500e0(u8 *task)
 {
     int record;
 
-    record = (s32)func_00452560(task);
+    record = (s32)kwlnTaskGetWork(task);
     DAT_008873ec_abs[0](record);
 }
 
@@ -2199,14 +2199,14 @@ s32 func_002502f0(void)
         if (handle == 0) {
             func_0046d730(D_006359F0, 0x82A);
         }
-        e = (cmmScriptEntry*)(s32)func_00452560((void *)(u32)(handle));
+        e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
         e->flags |= 1;
     } else {
         handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
             func_0046d730(D_006359F0, 0x83E);
         }
-        e = (cmmScriptEntry*)(s32)func_00452560((void *)(u32)(handle));
+        e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
         st = e->flags;
         if (st & 4) {
             if (st & 0x10) {
@@ -2256,14 +2256,14 @@ s32 func_00250560(void)
         if (handle == 0) {
             func_0046d730(D_006359F0, 0x834);
         }
-        e = (cmmScriptEntry*)(s32)func_00452560((void *)(u32)(handle));
+        e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
         e->flags |= 2;
     } else {
         handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
             func_0046d730(D_006359F0, 0x84E);
         }
-        e = (cmmScriptEntry*)(s32)func_00452560((void *)(u32)(handle));
+        e = (cmmScriptEntry*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
         st = e->flags;
         if (st & 8) {
             if (st & 0x80) {
@@ -2326,7 +2326,7 @@ s32 func_00250870(void)
         d += 2;
     } while (i > 0);
     handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
-    rec = (u8*)(s32)func_00452560((void *)(u32)(handle));
+    rec = (u8*)(s32)kwlnTaskGetWork((void *)(u32)(handle));
     if (rec == 0) {
         func_0046d730(D_006359F0, 0x41B);
     }

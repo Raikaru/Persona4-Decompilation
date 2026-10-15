@@ -68,7 +68,7 @@ u8 *kwlnTaskGetTaskByName(s8 *name);
 
 extern u8 D_006290F0[];
 
-u32 func_00452560(void *task);
+u32 kwlnTaskGetWork(void *task);
 extern u8 D_00629698[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag();
@@ -287,7 +287,7 @@ extern s32 func_00104c70(s32 arg0);
 // FUN_002218E0
 s32 func_002218e0(KwlnTask *task)
 {
-    return (*(u16 *)func_00452560(task) & 4) != 0;
+    return (*(u16 *)kwlnTaskGetWork(task) & 4) != 0;
 }
 // FUN_00221910
 s32 func_00221910(void)
@@ -298,7 +298,7 @@ s32 func_00221910(void)
 // FUN_00221940
 s32 func_00221940(KwlnTask *task)
 {
-    return ((*(u16 *)func_00452560(task) & 0x10) != 0) ^ 1;
+    return ((*(u16 *)kwlnTaskGetWork(task) & 0x10) != 0) ^ 1;
 }
 // FUN_00221970
 s32 func_00221970(u8 *arg0)
@@ -586,7 +586,7 @@ s32 func_002230e0(s32 arg0)
     temp_2 = (u8 *)(*jtbl_008873E8)(0x74, 0x40000);
     memset(temp_2, 0, 0x74);
     temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629640), 0xF, 0, 0, func_00221f40, func_002230a0, (u8 *)(temp_2)));
-    temp_2_2 = (u16 *)(func_00452560((void *)arg0));
+    temp_2_2 = (u16 *)(kwlnTaskGetWork((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
     memset((u8 *)(temp_2) + 0xC, 0, 0x30);
@@ -599,7 +599,7 @@ s32 func_002230e0(s32 arg0)
 void func_002231e0(KwlnTask *task) {
     u16 *temp_2;
 
-    temp_2 = (u16 *)(func_00452560(task));
+    temp_2 = (u16 *)(kwlnTaskGetWork(task));
     *(s32 *)((u8 *)(temp_2) + 8) = 0;
     if (*(u16 *)((u8 *)(temp_2) + 0) & 4) {
         func_0021dda0();
@@ -612,7 +612,7 @@ void func_002231e0(KwlnTask *task) {
 // FUN_00223240
 s32 func_00223240(KwlnTask *task)
 {
-    return *(u16 *)func_00452560(task) & 1;
+    return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
 // FUN_00223270
 s32 func_00223270(void)
@@ -634,7 +634,7 @@ s32 func_002232a0(u8 *sdkTaskBytes)
     s32 messages[11];
     f32 position[2];
 
-    work = (u8 *)func_00452560(task);
+    work = (u8 *)kwlnTaskGetWork(task);
     results = *(u8 **)(work + 0x40);
     *(u32 *)(work + 8) = 0;
     *(u32 *)(work + 0xC) = 0;
@@ -771,7 +771,7 @@ void func_002236c0(u8 *sdkTaskBytes)
     u8 *p;
     s32 h;
 
-    p = (u8 *)func_00452560(task);
+    p = (u8 *)kwlnTaskGetWork(task);
     if (*(u16 *)p & 4) {
         h = *(s32 *)(p + 0x4C);
         if (h != 0) {
@@ -793,7 +793,7 @@ s32 func_00223730(s32 arg0)
     temp_2 = (u8 *)(*jtbl_008873E8)(0x54, 0x40000);
     memset(temp_2, 0, 0x54);
     temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_006296B0), 0xF, 0, 0, func_002232a0, func_002236c0, (u8 *)(temp_2)));
-    temp_2_2 = (u16 *)(func_00452560((void *)arg0));
+    temp_2_2 = (u16 *)(kwlnTaskGetWork((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x40) = (u16 *)(temp_2_2);
     memset((u8 *)(temp_2) + 8, 0, 0x30);
@@ -806,7 +806,7 @@ s32 func_00223730(s32 arg0)
 void func_00223830(KwlnTask *task) {
     u16 *temp_2;
 
-    temp_2 = (u16 *)(func_00452560(task));
+    temp_2 = (u16 *)(kwlnTaskGetWork(task));
     *(s16 *)((u8 *)(temp_2) + 0x48) = 0;
     if (*(u16 *)((u8 *)(temp_2) + 0) & 4) {
         func_0021dda0();
@@ -819,7 +819,7 @@ void func_00223830(KwlnTask *task) {
 // FUN_00223890
 s32 func_00223890(KwlnTask *task)
 {
-    return *(u16 *)func_00452560(task) & 1;
+    return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
 // FUN_002238C0
 s32 func_002238c0(void)
@@ -843,7 +843,7 @@ void func_00223ee0(u8 *sdkTaskBytes)
     u8 *p;
     s32 h;
 
-    p = (u8 *)func_00452560(task);
+    p = (u8 *)kwlnTaskGetWork(task);
     h = *(s32 *)(p + 0x44);
     if (h != 0) {
         func_0011b360((u8 *)h);
@@ -863,7 +863,7 @@ s32 func_00223f40(s32 arg0)
     temp_2 = (u8 *)(*jtbl_008873E8)(0x4C, 0x40000);
     memset(temp_2, 0, 0x4C);
     temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629700), 0xF, 0, 0, func_002239a0, func_00223ee0, (u8 *)(temp_2)));
-    temp_2_2 = (u16 *)(func_00452560((void *)arg0));
+    temp_2_2 = (u16 *)(kwlnTaskGetWork((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
     memset((u8 *)(temp_2) + 8, 0, 0x30);
@@ -877,14 +877,14 @@ void func_00224040(KwlnTask *task)
 {
     u16 *temp_16;
 
-    temp_16 = (u16 *)func_00452560(task);
+    temp_16 = (u16 *)kwlnTaskGetWork(task);
     func_0021dda0();
     *(s32 *)(temp_16 + 2) = 5;
 }
 // FUN_00224080
 s32 func_00224080(KwlnTask *task)
 {
-    return *(u16 *)func_00452560(task) & 1;
+    return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
 // FUN_002240B0
 s32 func_002240b0(void)
@@ -4361,7 +4361,7 @@ changed:
         *(s32 *)(*(u8 **)(iGpffffb3ac + 0xDC8) + 0x20) - 1,
         temp, arg1);
     func_0029dfe0(handle, target);
-    state = (u8 *)func_00452560(handle);
+    state = (u8 *)kwlnTaskGetWork(handle);
     if (*(s32 *)(state + 0x130) >= 0) {
         unit = *(u8 **)(target + 0x30);
         if (*(u8 *)(unit + 0xA2) == 0) {

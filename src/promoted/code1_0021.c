@@ -30,7 +30,7 @@ extern void func_00211650(u8 *arg0, u8 *arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
 
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern f32 cosf(f32 fparg0);
 extern f32 sinf(f32 fparg0);
 extern f32 fGpffff837c;
@@ -182,7 +182,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
 
     task = arg0;
     transition = arg1;
-    panel = (s32 *)func_00452560(*(void **)(task + 4));
+    panel = (s32 *)kwlnTaskGetWork(*(void **)(task + 4));
     if (((*(u16 *)(transition + 0x14) & 2) && (*(s32 *)(transition + 0x10) >= 6)) || (*(s32 *)(transition + 0x10) >= 0x19)) {
         *(u16 *)(transition + 0x14) &= ~1U;
         alive = 0;
@@ -211,7 +211,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                 drew = 1;
             }
             if (*(u16 *)(transition + 0x20) & 8) {
-                icon = (s32 *)func_00452560(*(void **)(task + 4));
+                icon = (s32 *)kwlnTaskGetWork(*(void **)(task + 4));
                 stage = *(s32 *)(transition + 0x10);
                 rate = func_0020e5c0(stage, 0, 4, 0);
                 scale = 0.0f;
@@ -522,7 +522,7 @@ void func_00211ad0(u8 *arg0, u8 *arg1)
     u16 temp_4;
     u8 *var_18;
 
-    temp_2 = (s32 *)func_00452560(*(void **)(arg1 + 4));
+    temp_2 = (s32 *)kwlnTaskGetWork(*(void **)(arg1 + 4));
     if ((*temp_2 & 1) != 0) {
         func_00201350();
         var_18 = *(u8 **)arg1;
@@ -573,7 +573,7 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
     f32 pulse;
     u8 *draw;
 
-    context = (u8 *)func_00452560(*(void **)(arg1 + 4));
+    context = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 4));
     if (*(u32 *)context & 1) {
         if (*(u16 *)(arg1 + 8) & 1) {
             func_00201350();
@@ -591,7 +591,7 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
                         continue;
                     }
                     func_002012d0(context, screen[0] - 86.0f, screen[1] - 86.0f);
-                    draw = (u8 *)func_00452560(*(void **)(arg1 + 4));
+                    draw = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 4));
                     if (++*(u16 *)(unit + 0xA44) >= 25) {
                         *(u16 *)(unit + 0xA44) = 0;
                     }
@@ -627,7 +627,7 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
 // FUN_00211F90
 void func_00211f90(s32 arg0, u8 *arg1) {
     u8 sp30[0x20];
-    u8 *b = (u8 *)func_00452560(*(void **)(arg1 + 4));
+    u8 *b = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 4));
 
     func_00201350();
     if ((*(u16 *)(arg1 + 8) & 0x10) == 0) {
@@ -645,7 +645,7 @@ void func_00212010(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x764) = *(u16 *)(p + 0x764) | 1;
 }
 // FUN_00212040
@@ -653,7 +653,7 @@ void func_00212040(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x764) = *(u16 *)(p + 0x764) & 0xFFFE;
 }
 // FUN_00212070
@@ -662,7 +662,7 @@ void func_00212070(u8 *arg0, u8 *arg1)
     u8 *p;
     u8 *sub;
 
-    p = (u8 *)func_00452560(arg0);
+    p = (u8 *)kwlnTaskGetWork(arg0);
     sub = p + 0x75C;
     *(s16 *)(p + 0x766) = 0;
     if (*(u8 *)(*(u8 **)(arg1 + 0x30) + 0xA2) == 0) {
@@ -677,7 +677,7 @@ void func_00212070(u8 *arg0, u8 *arg1)
 void func_00212100(s32 arg0) {
     u8 *temp_16;
 
-    temp_16 = (u8 *)func_00452560((void *)arg0) + 0x75C;
+    temp_16 = (u8 *)kwlnTaskGetWork((void *)arg0) + 0x75C;
     if (func_00212180(arg0) != 0) {
         func_0045af60(1, 0xE, 2, 2);
         *(s16 *)(temp_16 + 0xE) = 0;
@@ -692,7 +692,7 @@ s32 func_00212180(s32 arg0)
 {
     s32 flag;
 
-    flag = (*(u16 *)((u8 *)func_00452560((void *)arg0) + 0x764) & 8) != 0;
+    flag = (*(u16 *)((u8 *)kwlnTaskGetWork((void *)arg0) + 0x764) & 8) != 0;
     return flag ^ 1;
 }
 // FUN_002121B0
@@ -701,7 +701,7 @@ void func_002121b0(s32 task)
     u8 *work;
     u8 *sub;
 
-    work = (u8 *)func_00452560((void *)task);
+    work = (u8 *)kwlnTaskGetWork((void *)task);
     sub = work + 0x75C;
     *(s16 *)(work + 0x770) = 0;
     *(s16 *)(work + 0x772) = 5;
@@ -714,13 +714,13 @@ void func_00212210(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s16 *)(p + 0x772) = 0;
     *(u16 *)(p + 0x764) = *(u16 *)(p + 0x764) & 0xFFEF;
 }
 // FUN_00212240
 void func_00212240(u8 *arg0, s32 arg1) {
-    *(s32 *)((u8 *)func_00452560(arg0) + 0x76C) = arg1;
+    *(s32 *)((u8 *)kwlnTaskGetWork(arg0) + 0x76C) = arg1;
 }
 
 
@@ -1160,7 +1160,7 @@ s32 func_002136f0(u8 *sdkTaskBytes)
     s32 temp_2_3;
     s32 temp_3;
 
-    temp_2 = (u8 *)func_00452560((void *)task);
+    temp_2 = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(temp_2 + 8) = 0;
     *(s32 *)(temp_2 + 0xC) = 0;
     func_00460ac0(&D_00796340, temp_2 + 8);
@@ -1206,7 +1206,7 @@ void func_00213840(u8 *arg0) {
     u8 *p;
     s32 v;
 
-    p = (u8 *)func_00452560(arg0);
+    p = (u8 *)kwlnTaskGetWork(arg0);
     v = *(s32 *)(p + 4);
     if (v != 0) {
         sdkSpriteRelease((void *)v);
@@ -1220,7 +1220,7 @@ void func_002138a0(s32 arg0)
     f32 *temp_2;
     u8 *temp_17;
 
-    temp_17 = (u8 *)func_00452560((void *)arg0);
+    temp_17 = (u8 *)kwlnTaskGetWork((void *)arg0);
     chkmemAllocSiteTag(&D_00626C30, 0x3A);
     temp_2 = (f32 *)jtbl_008873E8[0](0x48, 0x40000);
     memset(temp_2, 0, 0x48);
@@ -1237,14 +1237,14 @@ void func_00213990(s32 task)
     u8 *p;
     s32 value;
 
-    p = (u8 *)func_00452560(*(s32 **)((u8 *)func_00452560((void *)task) + 0x778));
+    p = (u8 *)kwlnTaskGetWork(*(s32 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x778));
     value = 1;
     *(s32 *)(p + 0x40) = value;
 }
 // FUN_002139D0
 s32 func_002139d0(s32 task)
 {
-    return *(s32 *)((u8 *)func_00452560(*(s32 **)((u8 *)func_00452560((void *)task) + 0x778)) + 0x38) >= 0x24;
+    return *(s32 *)((u8 *)kwlnTaskGetWork(*(s32 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x778)) + 0x38) >= 0x24;
 }
 // FUN_00213A10
 void func_00213a10(s32 task)
@@ -1252,7 +1252,7 @@ void func_00213a10(s32 task)
     u8 *p;
     s32 value;
 
-    p = (u8 *)func_00452560(*(s32 **)((u8 *)func_00452560((void *)task) + 0x778));
+    p = (u8 *)kwlnTaskGetWork(*(s32 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x778));
     value = 1;
     *(s32 *)(p + 0x44) = value;
 }
@@ -1296,7 +1296,7 @@ void func_00213b50(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~1;
 }
 // FUN_00213B80
@@ -1304,7 +1304,7 @@ void func_00213b80(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x1;
 }
 
@@ -1313,7 +1313,7 @@ void func_00213bb0(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~4;
 }
 // FUN_00213BE0
@@ -1321,7 +1321,7 @@ void func_00213be0(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x4;
 }
 
@@ -1330,7 +1330,7 @@ void func_00213c10(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x2;
 }
 
@@ -1339,7 +1339,7 @@ void func_00213c40(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~2;
 }
 // FUN_00213C70
@@ -1347,7 +1347,7 @@ void func_00213c70(u8 *view)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560(view);
+    p = (u8 *)kwlnTaskGetWork(view);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x100;
 }
 
@@ -1356,7 +1356,7 @@ void func_00213ca0(u8 *view)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560(view);
+    p = (u8 *)kwlnTaskGetWork(view);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~0x100;
 }
 // FUN_00213CD0
@@ -2346,7 +2346,7 @@ void func_002167f0(u8 *arg0, u8 *arg1)
     f32 x;
     f32 y;
 
-    work = (s32 *)func_00452560((void *)(*(u8 **)(arg1 + 0xC)));
+    work = (s32 *)kwlnTaskGetWork((void *)(*(u8 **)(arg1 + 0xC)));
     if ((*(s32 *)work & 1) != 0 && (*(s32 *)arg1 & 0x100) != 0) {
         func_00201350();
         selected = (u8 *)func_001b1540();
@@ -2432,7 +2432,7 @@ void func_00216b40(s32 arg0, s32 arg1) {
     u8 *temp_16;
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00452560((void *)arg0);
+    temp_2 = (u8 *)kwlnTaskGetWork((void *)arg0);
     temp_16 = temp_2 + 0x84C;
     *(s16 *)(temp_16 + 0x12) = 0;
     *(s16 *)(temp_16 + 0x14) = 1;
@@ -2448,7 +2448,7 @@ void func_00216bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *temp_16;
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00452560((void *)arg0);
+    temp_2 = (u8 *)kwlnTaskGetWork((void *)arg0);
     temp_16 = temp_2 + 0x84C;
     *(s16 *)(temp_16 + 0x12) = 1;
     *(s16 *)(temp_16 + 0x14) = 1;
@@ -2463,7 +2463,7 @@ void func_00216bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // FUN_00216C40
 void func_00216c40(s32 arg0, s32 arg1) {
-    u8 *b = (u8 *)func_00452560((void *)arg0);
+    u8 *b = (u8 *)kwlnTaskGetWork((void *)arg0);
     u8 *p = b + 0x84C;
 
     *(s32 *)(b + 0x850) = arg1;
@@ -2476,7 +2476,7 @@ void func_00216c40(s32 arg0, s32 arg1) {
 
 // FUN_00216CA0
 void func_00216ca0(s32 task) {
-    u8 *b = (u8 *)func_00452560((void *)task) + 0x84C;
+    u8 *b = (u8 *)kwlnTaskGetWork((void *)task) + 0x84C;
 
     if (*(s32 *)b != 0) {
         frFontListKeepOrRelease(*(s32 *)b);
@@ -2493,7 +2493,7 @@ void func_00216d10(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x85C) = *(u16 *)(p + 0x85C) | 8;
 }
 // FUN_00216D40
@@ -2501,12 +2501,12 @@ void func_00216d40(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x85C) = *(u16 *)(p + 0x85C) | 4;
 }
 // FUN_00216D70
 void func_00216d70(u8 *arg0, s32 arg1) {
-    *(s32 *)((u8 *)func_00452560(arg0) + 0x86C) = arg1;
+    *(s32 *)((u8 *)kwlnTaskGetWork(arg0) + 0x86C) = arg1;
 }
 
 
@@ -2596,7 +2596,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     f32 statusX;
 
     (void)arg0;
-    ctx = (u8 *)func_00452560(*(void **)(arg1 + 0x3C));
+    ctx = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x3C));
     p = (s32 *)ctx;
     if ((*p & 1) == 0) {
         return;
@@ -2662,7 +2662,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     case 2: {
         if ((*(u16 *)(arg1 + 0x10) & 1) == 0 &&
             (*(s32 *)(arg1 + 8))++ >= *(s32 *)(arg1 + 4)) {
-            subctx = (u8 *)func_00452560(*(void **)(arg1 + 0x3C)) + 0x84C;
+            subctx = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x3C)) + 0x84C;
             if (*(s32 *)subctx != 0) {
                 frFontListKeepOrRelease(*(s32 *)subctx);
                 *(s32 *)subctx = 0;
@@ -2929,7 +2929,7 @@ void func_00218160(u8 *arg0, u8 *arg1)
     u8 *sub;
     s32 value;
 
-    p = (u8 *)func_00452560(arg0);
+    p = (u8 *)kwlnTaskGetWork(arg0);
     sub = p + 0x84C;
     *(s16 *)(p + 0x874) = -1;
     *(s32 *)(p + 0x880) = 0;
@@ -2944,19 +2944,19 @@ void func_00218160(u8 *arg0, u8 *arg1)
 // FUN_00218200
 s32 func_00218200(s32 task)
 {
-    return ~(*(s16 *)((u8 *)func_00452560((void *)task) + 0x874)) != 0;
+    return ~(*(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874)) != 0;
 }
 // FUN_00218230
 s32 func_00218230(s32 task)
 {
-    return *(s16 *)((u8 *)func_00452560((void *)task) + 0x874);
+    return *(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874);
 }
 // FUN_00218260
 void func_00218260(s32 task) {
     u8 *temp_16;
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00452560((void *)task);
+    temp_2 = (u8 *)kwlnTaskGetWork((void *)task);
     temp_16 = temp_2 + 0x84C;
     *(s16 *)(temp_16 + 0x28) = -1;
     *(s32 *)(temp_16 + 0x2C) = -1;
@@ -2973,7 +2973,7 @@ void func_002182c0(u8 *arg0, u8 *arg1)
     u8 *sub;
     s32 value;
 
-    p = (u8 *)func_00452560(arg0);
+    p = (u8 *)kwlnTaskGetWork(arg0);
     sub = p + 0x84C;
     *(s16 *)(p + 0x874) = -1;
     *(s32 *)(p + 0x880) = 0;
@@ -2988,19 +2988,19 @@ void func_002182c0(u8 *arg0, u8 *arg1)
 // FUN_00218360
 s32 func_00218360(s32 task)
 {
-    return ~(*(s16 *)((u8 *)func_00452560((void *)task) + 0x874)) != 0;
+    return ~(*(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874)) != 0;
 }
 // FUN_00218390
 s32 func_00218390(s32 task)
 {
-    return *(s16 *)((u8 *)func_00452560((void *)task) + 0x874);
+    return *(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874);
 }
 // FUN_002183C0
 void func_002183c0(s32 task) {
     u8 *temp_16;
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00452560((void *)task);
+    temp_2 = (u8 *)kwlnTaskGetWork((void *)task);
     temp_16 = temp_2 + 0x84C;
     *(s16 *)(temp_16 + 0x28) = -1;
     *(s32 *)(temp_16 + 0x2C) = -1;
@@ -3014,7 +3014,7 @@ void func_00218420(s32 task, u8 *arg1)
     u8 *work;
     u8 *sub;
 
-    work = (u8 *)func_00452560((void *)task);
+    work = (u8 *)kwlnTaskGetWork((void *)task);
     sub = work + 0x84C;
     *(s16 *)(work + 0x874) = -1;
     *(s32 *)(work + 0x880) = 0;
@@ -3029,12 +3029,12 @@ void func_00218420(s32 task, u8 *arg1)
 // FUN_002184A0
 s32 func_002184a0(s32 task)
 {
-    return ~(*(s16 *)((u8 *)func_00452560((void *)task) + 0x874)) != 0;
+    return ~(*(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874)) != 0;
 }
 // FUN_002184D0
 s32 func_002184d0(s32 task)
 {
-    return *(s16 *)((u8 *)func_00452560((void *)task) + 0x874);
+    return *(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874);
 }
 // FUN_00218500
 void func_00218500(s32 task)
@@ -3043,7 +3043,7 @@ void func_00218500(s32 task)
     u8 *sub;
     s32 handle;
 
-    work = (u8 *)func_00452560((void *)task);
+    work = (u8 *)kwlnTaskGetWork((void *)task);
     sub = work + 0x84C;
     *(s16 *)(work + 0x874) = -1;
     handle = *(s32 *)(work + 0x878);
@@ -3059,7 +3059,7 @@ void func_00218560(u8 *arg0, u8 *arg1)
 {
     u8 *sub;
 
-    sub = (u8 *)func_00452560(arg0) + 0x8C0;
+    sub = (u8 *)kwlnTaskGetWork(arg0) + 0x8C0;
     if (datGetFlag(0x38) != 0) {
         *(u16 *)sub |= 4;
     } else {
@@ -3087,14 +3087,14 @@ s32 func_00218690(s32 task)
 {
     s32 flag;
 
-    flag = (*(u16 *)((u8 *)func_00452560((void *)task) + 0x8C0) & 2) != 0;
+    flag = (*(u16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x8C0) & 2) != 0;
     return flag ^ 1;
 }
 // FUN_002186C0
 void func_002186c0(u8 *arg0, s32 arg1) {
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00452560(arg0);
+    temp_2 = (u8 *)kwlnTaskGetWork(arg0);
     *(s32 *)(temp_2 + 0x8C8) = arg1;
     *(s16 *)(temp_2 + 0x8C2) = 2;
 }
@@ -3104,7 +3104,7 @@ void func_00218700(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s16 *)(p + 0x8C2) = 4;
 }
 // FUN_00218730
@@ -3112,7 +3112,7 @@ void func_00218730(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x8C0) = *(u16 *)(p + 0x8C0) | 0x10;
 }
 // FUN_0021A7B0
@@ -3137,7 +3137,7 @@ void func_0021a7b0(u8 *task, u8 *state)
     s32 flags;
     extern void func_002012d0(u8 *task, f32 fparg0, f32 fparg1);
 
-    renderWork = (s32 *)func_00452560(*(void **)(state + 0x10));
+    renderWork = (s32 *)kwlnTaskGetWork(*(void **)(state + 0x10));
     if ((*renderWork & 1) == 0) {
         return;
     }
@@ -3422,7 +3422,7 @@ void func_0021b1f0(s32 arg0, s32 *arg1)
     u32 var_6;
     u8 *temp_5;
 
-    if ((*(s32 *)func_00452560((void *)*arg1) & 1) != 0) {
+    if ((*(s32 *)kwlnTaskGetWork((void *)*arg1) & 1) != 0) {
         var_6 = 0;
         while (var_6 < 2U) {
             var_7 = *(u8 **)(iGpffffb3ac + var_6 * 8 + 0x178);
@@ -3481,7 +3481,7 @@ void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
     s32 value;
     f32 amount;
 
-    context = (u8 *)func_00452560((void *)arg0);
+    context = (u8 *)kwlnTaskGetWork((void *)arg0);
     if (*(s32 *)(arg1 + 4) != 0) {
         value = *(s32 *)arg1;
         *(s32 *)arg1 = value + 1;
@@ -3844,7 +3844,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
     (void)drawPayload;
     (void)callback;
     work = (u8 *)(u32)workAddress;
-    func_00452560(*(void **)(work + 8));
+    kwlnTaskGetWork(*(void **)(work + 8));
     func_00201350();
     if (*(u16 *)work & 1) {
         if (*(u16 *)(work + 2) < 48) {
@@ -3936,7 +3936,7 @@ void func_0021d440(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s16 *)(p + 0x9E6) = 0;
     *(u16 *)(p + 0x9E4) = *(u16 *)(p + 0x9E4) | 1;
 }
@@ -3945,7 +3945,7 @@ s32 func_0021d470(s32 task)
 {
     s32 flag;
 
-    flag = (*(u16 *)((u8 *)func_00452560((void *)task) + 0x9E4) & 1) != 0;
+    flag = (*(u16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x9E4) & 1) != 0;
     return flag ^ 1;
 }
 // FUN_0021D4A0
@@ -3979,7 +3979,7 @@ s32 func_0021d4a0(u8 *sdkTaskBytes)
     s32 flags;
     s32 ready;
 
-    work = (u8 *)func_00452560((void *)arg0);
+    work = (u8 *)kwlnTaskGetWork((void *)arg0);
     switch (*(s32 *)(work + 4)) {
     case 1:
         *(s32 *)(work + 4) = 2;
@@ -4111,7 +4111,7 @@ void func_0021d920(u8 *sdkTaskBytes)
     u8 *p;
     s32 value;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     value = *(s32 *)(p + 0x934);
     if (value != 0) {
         H_Cdvd_Destroy((u8 *)value);
@@ -4144,7 +4144,7 @@ void func_0021dab0(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     if ((*(s32 *)(p + 0x60) & 1) != 0) {
         func_0036e870(*(s32 *)(p + 0x938));
     }
@@ -4154,7 +4154,7 @@ void func_0021dab0(s32 task)
 // FUN_0021DB10
 s32 func_0021db10(s32 task)
 {
-    return (*(s32 *)func_00452560((void *)task) & 2) != 0;
+    return (*(s32 *)kwlnTaskGetWork((void *)task) & 2) != 0;
 }
 // FUN_0021DB40
 s32 func_0021db40(s32 task)
@@ -4162,7 +4162,7 @@ s32 func_0021db40(s32 task)
     u8 *p;
     s32 temp;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     if (*(s32 *)(p + 0x938) != 0) {
         return 0;
     }
@@ -4179,7 +4179,7 @@ s32 func_0021dba0(u8 *sdkTaskBytes)
     u8 *p;
     s32 value;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 4) = 0;
     *(s32 *)(p + 8) = 0;
     func_00460ac0(&D_00796340, p + 4);

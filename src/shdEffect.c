@@ -34,7 +34,7 @@ typedef struct ShdFarg
 
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern void func_004b1210(void *a, void *b);
 extern u32 func_004b1580(s32 a);
 extern void func_004b1150(s32 a);
@@ -156,7 +156,7 @@ s32 func_0025fd80(u8 *task)
 {
     ShdTask *t;
 
-    t = (void *)func_00452560(task);
+    t = (void *)kwlnTaskGetWork(task);
     func_004b1210((void *)(u32)t->unk4, (void *)(u32)t->unk0);
     if (t->unk8 != 0 && (s32)func_004b1580(t->unk0) >= t->unk8)
     {
@@ -170,7 +170,7 @@ void func_0025fe00(u8 *task)
 {
     void *t;
 
-    t = (void *)func_00452560(task);
+    t = (void *)kwlnTaskGetWork(task);
     func_004b1150(*(s32 *)t);
     (*jtbl_008873EC)(t);
 }

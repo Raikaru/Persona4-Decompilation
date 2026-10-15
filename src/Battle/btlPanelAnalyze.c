@@ -499,7 +499,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
     u8 *datCalcSkillList(u8 *);
     u8 *datCalcGetIdRecord(s32);
     s32 func_001f0950(s32, s32);
-    u32 func_00452560(u8 *);
+    u32 kwlnTaskGetWork(u8 *);
     int frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s32, s32, const void *, s32, s32);
     PanelQuad quads[3];
     char text[128];
@@ -518,7 +518,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
     u32 sp;
     u16 *affinity;
     (void)unusedTask;
-    work = (u8 *)func_00452560(*(u8 **)(panel + 0x10));
+    work = (u8 *)kwlnTaskGetWork(*(u8 **)(panel + 0x10));
     if ((*(u32 *)work & 1) == 0) {
         return;
     }
