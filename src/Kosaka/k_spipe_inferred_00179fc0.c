@@ -80,7 +80,7 @@ extern u8 *RwMatrixOptimize(void *arg0, f32 *arg1);
 extern u8 *RwMatrixUpdate(void *arg0);
 extern void mdlUpdateModelMatrix(void *arg0);
 extern void func_0047a320(void *arg0);
-extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
+extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
 extern u8 D_007EFA00[];
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
@@ -185,10 +185,10 @@ enum RwPrimitiveType
 };
 struct _RxObjSpace3DVertex;
 /* Retain the source's existing function-scoped propagation setting. */
-/* measured: func_00179fc0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldShadow_DrawProjection MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_00179FC0
-s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, f32 farg0, f32 farg1, s32 arg4, u8 *arg5) {
+s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3, f32 farg0, f32 farg1, s32 arg4, u8 *arg5) {
     extern struct RwMatrixTag *func_003e0960(struct RwMatrixTag *, const struct RwMatrixTag *);
     extern struct RwMatrixTag *RwMatrixScale(struct RwMatrixTag *, const RwV3d *, enum RwOpCombineType);
     extern struct RwMatrixTag *RwMatrixTranslate(struct RwMatrixTag *, const RwV3d *, enum RwOpCombineType);
@@ -435,7 +435,7 @@ void func_0017a700(u8 *arg0, u8 *arg1)
         *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)(arg1 + 0x10)) + 0x38) - temp_f20;
     if (temp_17 != NULL) {
         if ((*(s32 *)(*(u8 **)(temp_17 + 0x1A0)) & 1) != 0) {
-            func_00179fc0(*(u8 **)(arg1 + 0x44),
+            FldShadow_DrawProjection(*(u8 **)(arg1 + 0x44),
                           *(s32 *)(arg1 + 0x40),
                           0,
                           &sp40,
@@ -455,7 +455,7 @@ void func_0017a700(u8 *arg0, u8 *arg1)
             sp40.values[2] = temp_f0;
             temp_f1 = *(f32 *)(arg1 + 0x18);
             sp40.values[3] = temp_f1;
-            func_00179fc0(*(u8 **)(arg1 + 0x44),
+            FldShadow_DrawProjection(*(u8 **)(arg1 + 0x44),
                           *(s32 *)(arg1 + 0x40),
                           1,
                           temp_3,

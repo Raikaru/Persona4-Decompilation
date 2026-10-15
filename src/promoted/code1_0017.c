@@ -141,7 +141,7 @@ extern u8 *RwMatrixOptimize(void *arg0, f32 *arg1);
 extern u8 *RwMatrixUpdate(void *arg0);
 extern void mdlUpdateModelMatrix(void *arg0);
 extern void func_0047a320(void *arg0);
-extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
+extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
 extern S_00178590 *FldEvent_GetNearestEntry(void);
 extern void RwV3dNormalize(void *arg0, void *arg1);

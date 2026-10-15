@@ -85,7 +85,7 @@ extern void func_002bd240(s32 arg0);
 extern void func_002bd270(s32 arg0);
 extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void *mdlGetMatrix(void *arg0);
-extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
+extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
 extern S_00178590 *FldEvent_GetNearestEntry(void);
 extern void RwV3dNormalize(void *arg0, void *arg1);
