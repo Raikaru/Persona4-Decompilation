@@ -95,7 +95,7 @@ extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
 extern void func_00201300(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void func_002016e0(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
 extern void func_002019d0(u8 *arg0, f32 arg1, f32 arg2);
-extern s32 func_00243e90(u8 *arg0);
+extern s32 datCalcUnitClass(u8 *arg0);
 extern s32 func_001b1540(void);
 extern void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
 extern void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
@@ -2383,7 +2383,7 @@ void func_002167f0(u8 *arg0, u8 *arg1)
                     s32 flags = *(s32 *)(old + 0xA10);
                     flags |= 0xC; *(s32 *)(old + 0xA10) = flags;
                     flags &= ~0x10; *(s32 *)(old + 0xA10) = flags;
-                    if ((s16)func_00243e90(*(u8 **)(old + 0xA64)) == 4) {
+                    if ((s16)datCalcUnitClass(*(u8 **)(old + 0xA64)) == 4) {
                         flags = *(s32 *)(old + 0xA10);
                         flags |= 0x60; *(s32 *)(old + 0xA10) = flags;
                         flags &= ~0x80; *(s32 *)(old + 0xA10) = flags;

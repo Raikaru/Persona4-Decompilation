@@ -92,7 +92,7 @@ extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
 extern void func_00216c40(s32 arg0, s32 arg1);
-extern s32 func_00243e90(u8 *arg0);
+extern s32 datCalcUnitClass(u8 *arg0);
 extern void func_00216b40(s32 arg0, s32 arg1);
 extern void func_00216bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00216d10(s32 task);
@@ -1062,7 +1062,7 @@ s32 func_00202180(u8 *arg0)
 
     if ((*(u16 *)(arg0 + 4) != 7) ||
         ((temp_3 = *(u8 **)arg0, (*(s32 *)(temp_3 + 0x9C) & 0x4000) == 0)) ||
-        ((s16)func_00243e90(*(u8 **)(temp_3 + 0xA64)) != 4)) {
+        ((s16)datCalcUnitClass(*(u8 **)(temp_3 + 0xA64)) != 4)) {
         var_16 = 0;
     } else {
         var_16 = 1;
