@@ -212,7 +212,19 @@ extern void strlen();
 extern void func_00443f18();
 extern void sscanf();
 /* Archived b210 near-miss (P3E3_003e3c20); exact under b119 with schedule on. */
+// FUN_003E3C20
 #pragma schedule on
+u8 *func_003e3c20(u8 *arg0, s32 arg1) {
+    u8 *node = *(u8 **)(arg0 + 0x14);
+    if (node) {
+        do {
+            ((void (*)(s32, s32, s32))(*(s32 *)(node + 0x24)))(
+                arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
+            node = *(u8 **)(node + 0x34);
+        } while (node);
+    }
+    return arg0;
+}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
