@@ -254,7 +254,7 @@ block_11:
 }
 
 // FUN_0019A840
-void func_0019a840(u8 *arg0)
+void btlUnitReleasePendingEnemyDodge(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }

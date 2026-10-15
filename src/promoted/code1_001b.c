@@ -627,7 +627,7 @@ void func_001b1d70(void) {
     extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
     extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
     extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
-    extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
+    extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern void func_0014a460(u16 arg0, u32 arg1);
     extern void func_0019d7a0(u8 *arg0, s32 arg1);
     extern void func_001987a0(u8 *arg0);
@@ -676,7 +676,7 @@ void func_001b1d70(void) {
             w2 = (s32)mdlFindModelObject((u16)(*(u8 *)(unit + 0xA2) + 1), id, 0);
             *(s32 *)(unit + 0xA00) = w2;
             if (w2 == 0) {
-                pkt = func_0019b550(unit, id, 0x36);
+                pkt = btlUnitCreateModelLoadPacket(unit, id, 0x36);
                 *pkt = 4;
                 *(s64 *)(pkt + 8) = v1;
                 btlPacketEnqueue(pkt, 1);
@@ -802,7 +802,7 @@ s32 func_001b2380(void)
     extern void func_001ec1c0(u8 *rotation, u8 *from, u8 *to);
     extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
     extern void btlUnitSetPos(BtlUnit *unit, const RwV3d *position);
-    extern BtlPacket *func_0019aa70(BtlUnit *unit, s16 value);
+    extern BtlPacket *btlUnitCreateModelFramePacket(BtlUnit *unit, s16 value);
     extern BtlPacket *btlUnitCreateMotionRequestPacket(BtlUnit *unit, u16 value);
     extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPos, f32 speed, u32 flags);
     extern BtlPacket *btlUnitCreateRotateTowardUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u32 flags);
@@ -903,7 +903,7 @@ s32 func_001b2380(void)
           btlUnitUpdateStatusMotion(unit,0);
           btlPacketEnqueue((u8 *)func_001f8330((BtlUnit *)unit),1);
           btlPacketEnqueue((u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x13, 0, 1.0f, 2),1);
-          btlPacketEnqueue((u8 *)func_0019aa70((BtlUnit *)unit,
+          btlPacketEnqueue((u8 *)btlUnitCreateModelFramePacket((BtlUnit *)unit,
               func_00199500(unit,0x13,1.0f)),1);
           btlPacketEnqueue((u8 *)func_001f82b0((BtlUnit *)unit),1);
           if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) != 0) {
@@ -1190,7 +1190,7 @@ unit_done:
 // FUN_001B33C0
 void func_001b33c0(void)
 {
-    extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
+    extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
     extern u8 *func_001d7880(void);
     extern u8 *func_00202b60(s32 arg0);
@@ -1226,7 +1226,7 @@ void func_001b33c0(void)
     }
     group_mode = (unit_count < 4) + 1;
     while (unit != NULL) {
-        unit_packet = func_0019b550(unit, *(u16 *)(unit + 0xA4), 0x3E);
+        unit_packet = btlUnitCreateModelLoadPacket(unit, *(u16 *)(unit + 0xA4), 0x3E);
         *(s8 *)(unit_packet + 0) = 4;
         *(s64 *)(unit_packet + 8) = previous_unit_uid;
         btlPacketEnqueue(unit_packet, 1);
@@ -1827,7 +1827,7 @@ void func_001b4880(u8 *arg0) {
     extern void func_001eb7f0(void);
     extern void func_00212240(u8 *arg0, s32 arg1);
     extern void func_001eb3b0(u8 *arg0);
-    extern u8 *func_0019beb0(u8 *arg0);
+    extern u8 *btlUnitCreateResourceFreePacket(u8 *arg0);
     extern u8 *func_00194c90(void *arg0, void *arg1);
     extern u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
     extern struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis, f32 angle, s32 mode);
@@ -1915,7 +1915,7 @@ void func_001b4880(u8 *arg0) {
             if ((*(u16 *)(actionNode + 0x1A) & 1) != 0) {
                 unit = *(u8 **)(actionNode + 0x30);
                 if ((*(u8 *)(unit + 0xA2) == 1) && (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0)) {
-                    pkt = func_0019beb0(*(u8 **)(actionNode + 0x30));
+                    pkt = btlUnitCreateResourceFreePacket(*(u8 **)(actionNode + 0x30));
                     *(s64 *)(pkt + 0x60) = *(s64 *)base;
                     *(u16 *)(pkt + 0x48) = work->delay;
                     btlPacketEnqueue(pkt, 0);

@@ -13,7 +13,7 @@ f32 func_00196bd0(u8 *unit, u8 *target, u16 motion);
 
 u32 btlUnitPlayMotionPacketUpdate(void *work);
 u32 btlUnitMotionRequestPacketUpdate(void *work);
-u32 func_0019ab00(void *work);
+u32 btlUnitMotionSpeedPacketUpdate(void *work);
 
 /* Opening-motion selection and its boss-state predicate consume signed
  * halfword identifiers, not 64-bit action/animation values. */

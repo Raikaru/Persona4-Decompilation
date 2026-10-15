@@ -971,7 +971,7 @@ u32 func_0019df20(void* work);
 void func_0019e130(BtlUnitPacketCountRef* work);
 
 // FUN_0019ACD0
-void func_0019acd0(u8 *arg0)
+void btlUnitModelLoadPacketInit(u8 *arg0)
 {
     u8 sp30[0x80];
     u8 *p;
@@ -1029,7 +1029,7 @@ typedef struct { s16 unk0; s16 rate; s16 unk4; s16 unk6; s16 unk8; } BtlMotionRa
    1.0f, which keeps retail's `mul.s` by one; the character table offset goes
    through the offset-first add helper; both tail switches are switches. */
 // FUN_0019AE20
-s32 func_0019ae20(u8 *arg0) {
+s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
     extern f32 func_0047a000(void *a, s32 b, s64 c);
     extern u8 *iGpffffb3cc;
     extern void func_00479e60(void *a, s32 b, f32 c);

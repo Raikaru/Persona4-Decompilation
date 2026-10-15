@@ -182,7 +182,7 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019A8D0
-void func_0019a8d0(u8 *arg0)
+void btlUnitHoldPendingMotionSettle(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
@@ -190,7 +190,7 @@ void func_0019a8d0(u8 *arg0)
 // FUN_0019A8F0
 /* Ported from P3FES btlUnitUpdate00284c90Packet: the packet's unit
    pointer is at offset 0 and its comparison field is at offset 0x9EC. */
-u32 func_0019a8f0(void *work)
+u32 btlUnitMotionSettlePacketUpdate(void *work)
 {
     u8 *unit;
     s16 current;
@@ -209,7 +209,7 @@ u32 func_0019a8f0(void *work)
 }
 
 // FUN_0019A960
-void func_0019a960(u8 *arg0)
+void btlUnitReleasePendingMotionSettle(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }

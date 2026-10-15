@@ -144,7 +144,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern s32 func_0019be50(u8 *arg0);
+extern s32 btlUnitResourceFreePacketUpdate(u8 *arg0);
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 iGpffffb444;
 
@@ -188,13 +188,13 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019BE30
-void func_0019be30(u8 *arg0)
+void btlUnitHoldPendingResourceFree(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
 // FUN_0019BE50
-s32 func_0019be50(u8 *arg0) {
+s32 btlUnitResourceFreePacketUpdate(u8 *arg0) {
     s32 temp;
 
     temp = *(s32 *)(*(u8 **)arg0 + 0xA08);
@@ -205,20 +205,20 @@ s32 func_0019be50(u8 *arg0) {
 }
 
 // FUN_0019BE90
-void func_0019be90(u8 *arg0)
+void btlUnitReleasePendingResourceFree(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
 // FUN_0019BEB0
-u8 *func_0019beb0(u8 *arg0)
+u8 *btlUnitCreateResourceFreePacket(u8 *arg0)
 {
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x11B, 4);
-    *(void **)(packet + 0x68) = (void *)func_0019be30;
-    *(void **)(packet + 0x6C) = (void *)func_0019be50;
-    *(void **)(packet + 0x70) = (void *)func_0019be90;
+    *(void **)(packet + 0x68) = (void *)btlUnitHoldPendingResourceFree;
+    *(void **)(packet + 0x6C) = (void *)btlUnitResourceFreePacketUpdate;
+    *(void **)(packet + 0x70) = (void *)btlUnitReleasePendingResourceFree;
     **(u8 ***)(packet + 0x78) = arg0;
     return packet;
 }

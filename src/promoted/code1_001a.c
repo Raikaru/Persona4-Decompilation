@@ -45,10 +45,10 @@ static inline u8 *actionRotatePacketBytes(u8 *unit, void *rot, s32 flags)
 {
     return (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, (const RwV3d *)rot, (u32)flags);
 }
-extern BtlPacket *func_0019a980(BtlUnit *unit);
+extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
 static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
 {
-    return (u8 *)func_0019a980(unit);
+    return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
 extern BtlPacket *func_00202400(s32 unit, s32 message);
 static inline void *actionMessagePacketBytes(s32 unit, s32 message)
@@ -122,7 +122,7 @@ extern u32 func_0020ba60(s32 task);
 extern s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0020ba30(s32 arg0);
 extern void func_00203880(s32 arg0, s32 arg1);
-extern BtlPacket *func_0019b6a0(BtlUnit *unit);
+extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 u32 func_001deeb0(void *arg0);
 void btlAICommandSetUnitAction();
@@ -1758,7 +1758,7 @@ void func_001a31e0(BtlAction *actionState)
                     btlPacketEnqueue(packet, 1);
                 }
                 {
-                    u8 *packet = (u8 *)func_0019a980(*(BtlUnit **)(action + 0x30));
+                    u8 *packet = (u8 *)btlUnitCreateMotionSettlePacket(*(BtlUnit **)(action + 0x30));
                     packet[0] = 4;
                     *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
                     *(u16 *)(packet + 0x4A) = animationDuration;
@@ -2085,7 +2085,7 @@ void btlActionEndTurn(BtlAction *action)
     goto loop_test;
 loop_body:
     if (func_001a05f0((BtlAction *)iter) != 0) {
-        temp = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(iter + 0x30) + 0xA0C));
+        temp = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(iter + 0x30) + 0xA0C));
         *(s64 *)(temp + 0x60) = *(s64 *)iter;
         btlPacketEnqueue(temp, 1);
     }
@@ -4038,10 +4038,10 @@ void func_001a7720(u8 *arg0) {
     extern u8 *btlUnitCreateArcMovePacket(s32 unit, s16 skill, s16 delay);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_00198810(u8 *arg0);
-    extern BtlPacket *func_0019a980(BtlUnit *unit);
-    extern BtlPacket *func_0019aa70(BtlUnit *unit, s16 value);
-    extern BtlPacket *func_0019ac40(BtlUnit *unit, u16 value, f32 speed, u16 mode);
-    extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
+    extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
+    extern BtlPacket *btlUnitCreateModelFramePacket(BtlUnit *unit, s16 value);
+    extern BtlPacket *btlUnitCreateMotionSpeedPacket(BtlUnit *unit, u16 value, f32 speed, u16 mode);
+    extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
     extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
@@ -4761,14 +4761,14 @@ void func_001a7720(u8 *arg0) {
             btlPacketEnqueue((u8 *)pkt19, 0);
             if (sp2B0 == 0) {
                 if (hasCutin != 0) {
-                    pkt20 = (BtlPacketTiming *)(func_0019b550((u8 *)linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0x1D));
+                    pkt20 = (BtlPacketTiming *)(btlUnitCreateModelLoadPacket((u8 *)linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0x1D));
                     animChainPkt = (BtlPacketTiming *)((u8 *)pkt20);
                     pkt20->queue = 5;
                     pkt20->startTime = cutinEndTime;
                     (*( s8 * )((u8 *)pkt20 + (0x20))) = 5;
                     (*( s64 * )((u8 *)pkt20 + (0x28))) = formationEndTime;
                 } else {
-                    linkedMotionPkt = (u8 *)(func_0019b550((u8 *)linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0xD));
+                    linkedMotionPkt = (u8 *)(btlUnitCreateModelLoadPacket((u8 *)linkedUnit, *(u16 *)(linkedUnit + 0xA4), 0xD));
                     animChainPkt = (BtlPacketTiming *)(linkedMotionPkt);
                     *(s16 *)(linkedMotionPkt + 0x48) = recoveryFrames;
                 }
@@ -5406,7 +5406,7 @@ void func_001a7720(u8 *arg0) {
                             pkt10 = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
                         } else {
                             /* Retail 001a9e5c/001ab480/001ab668 pass 1.0f in $f12. */
-                            pkt10 = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                            pkt10 = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
                         }
                         pkt10->queue = 5;
                         pkt10->startTime = formationPkt6->endTime;
@@ -5543,7 +5543,7 @@ void func_001a7720(u8 *arg0) {
                         }
                     }
                     if (motionFramesS32 > 0x19) {
-                        pkt101 = (BtlPacketTiming *)(func_0019aa70((BtlUnit *)(*(u8 **)(effectiveAction + 0x30)), (s16)(motionFramesS32 - 0x19)));
+                        pkt101 = (BtlPacketTiming *)(btlUnitCreateModelFramePacket((BtlUnit *)(*(u8 **)(effectiveAction + 0x30)), (s16)(motionFramesS32 - 0x19)));
                         pkt101->queue = 4;
                         pkt101->startTime = animPacket->endTime;
                         pkt101->ownerId = actionId;
@@ -5576,7 +5576,7 @@ void func_001a7720(u8 *arg0) {
                     pkt104->startTime = sp4B8->endTime;
                     pkt104->ownerId = actionId;
                     btlPacketEnqueue((u8 *)pkt104, 1);
-                    pkt105 = (BtlPacketTiming *)(func_0019a980((BtlUnit *)(*(u8 **)(effectiveAction + 0x30))));
+                    pkt105 = (BtlPacketTiming *)(btlUnitCreateMotionSettlePacket((BtlUnit *)(*(u8 **)(effectiveAction + 0x30))));
                     pkt105->queue = 5;
                     pkt105->startTime = animPacket->endTime;
                     pkt105->ownerId = actionId;
@@ -5883,14 +5883,14 @@ reactionPacket:
                 if (sp30C == 0) {
                     animPacket = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
                 } else {
-                    animPacket = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                    animPacket = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
                 }
                 animPacket->queue = 4;
                 animPacket->startTime = (s64)((s64) pkt4->endTime);
                 animPacket->ownerId = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
             } else {
-                pkt134 = (BtlPacketTiming *)(func_0019a980((BtlUnit *)act->unit));
+                pkt134 = (BtlPacketTiming *)(btlUnitCreateMotionSettlePacket((BtlUnit *)act->unit));
                 animPacket = (BtlPacketTiming *)(pkt134);
                 pkt134->queue = 4;
                 pkt134->startTime = (s64)((s64) pkt4->endTime);
@@ -5931,7 +5931,7 @@ reactionPacket:
             if (sp30C == 0) {
                 animPacket = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
             } else {
-                animPacket = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
+                animPacket = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
             }
             animPacket->queue = 0xB;
             animPacket->startTime = formationPkt6->endTime;
@@ -5949,7 +5949,7 @@ reactionPacket:
             animPacket->ownerId = actionId;
             btlPacketEnqueue((u8 *)animPacket, 0);
         } else {
-            pkt139 = (BtlPacketTiming *)(func_0019a980((BtlUnit *)act->unit));
+            pkt139 = (BtlPacketTiming *)(btlUnitCreateMotionSettlePacket((BtlUnit *)act->unit));
             animPacket = (BtlPacketTiming *)(pkt139);
             pkt139->queue = 0xB;
             pkt139->startTime = formationPkt6->endTime;
@@ -6104,7 +6104,7 @@ void func_001abbb0(s64 *arg0)
     extern u8 *func_00194b60(void);
     extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
     extern void func_0019ea60(u8 *arg0, s32 arg1);
-    extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
+    extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern BtlPacket *func_0019c030(BtlUnit *arg0, u16 arg1, u16 arg2);
     extern BtlPacket *btlCreateTimingPacket(u32 arg0);
     extern BtlPacket *btlMainCreateFadePacket(s32 arg0, s16 arg1);
@@ -6334,7 +6334,7 @@ void func_001abbb0(s64 *arg0)
             u8 *q1;
             u8 *q2;
             u8 *q3;
-            q1 = func_0019b550((u8 *)unit, curId, 0x7E);
+            q1 = btlUnitCreateModelLoadPacket((u8 *)unit, curId, 0x7E);
             *q1 = 4;
             *(s64 *)(q1 + 8) = seqId;
             *(s64 *)(q1 + 0x60) = uid;
@@ -6478,7 +6478,7 @@ void func_001ac620(void) {
 
     while (p != NULL) {
         if (func_001a05f0((BtlAction *)p) != 0) {
-            o = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(p + 0x30) + 0xA0C));
+            o = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(p + 0x30) + 0xA0C));
             *(s64 *)(o + 0x60) = *(s64 *)p;
             btlPacketEnqueue(o, 1);
         }
@@ -7246,7 +7246,7 @@ void func_001adb80(s64 *arg0)
         }
     }
     if (needsIntro != 0) {
-        introPacket = (u8 *)func_0019b6a0(
+        introPacket = (u8 *)btlUnitCreateModelReleasePacket(
             *(BtlUnit **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA0C));
         *(s64 *)(introPacket + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(introPacket, 1);
@@ -7512,7 +7512,7 @@ void func_001ae3d0(u8 *action)
     currentAction = *(u8 **)(iGpffffb3ac + 372);
     while (currentAction != NULL) {
         if (func_001a05f0((BtlAction *)currentAction) != 0) {
-            packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(currentAction + 48) + 2572));
+            packet = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(currentAction + 48) + 2572));
             *(s64 *)(packet + 96) = *(s64 *)currentAction;
             btlPacketEnqueue(packet, 1);
         }
@@ -8095,7 +8095,7 @@ void func_001aed50(u8 *arg0)
                     *(s64 *)(pk2 + 8) = *(s64 *)(anim + 0x58);
                     *(s64 *)(pk2 + 0x60) = uid;
                     btlPacketEnqueue(pk2, 0);
-                    pk2 = (u8 *)func_0019a980(*(BtlUnit **)(unit17 + 0x30));
+                    pk2 = (u8 *)btlUnitCreateMotionSettlePacket(*(BtlUnit **)(unit17 + 0x30));
                     *pk2 = 4;
                     *(s64 *)(pk2 + 8) = *(s64 *)(anim + 0x58);
                     *(s64 *)(pk2 + 0x60) = uid;
@@ -8289,7 +8289,7 @@ void func_001afb50(u8 *action)
                         }
                     }
                     if (resetUnit != 0) {
-                        packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(action + 0x30) + 0xA0C));
+                        packet = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(action + 0x30) + 0xA0C));
                         *(s64 *)(packet + 0x60) = *(s64 *)action;
                         btlPacketEnqueue(packet, 1);
                     }
@@ -8319,7 +8319,7 @@ void func_001afb50(u8 *action)
                     }
                 }
                 if (resetUnit != 0) {
-                    packet = (u8 *)func_0019b6a0(*(BtlUnit **)(*(u8 **)(action + 0x30) + 0xA0C));
+                    packet = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(action + 0x30) + 0xA0C));
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
                     btlPacketEnqueue(packet, 1);
                 }

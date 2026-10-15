@@ -187,13 +187,13 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019AAE0
-void func_0019aae0(u8 *arg0)
+void btlUnitHoldPendingMotionSpeed(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
 // FUN_0019AB00
-u32 func_0019ab00(void *workData)
+u32 btlUnitMotionSpeedPacketUpdate(void *workData)
 {
     u8 *arg0 = (u8 *)workData;
     u8 *temp_18;
@@ -224,7 +224,7 @@ u32 func_0019ab00(void *workData)
 }
 
 // FUN_0019AC20
-void func_0019ac20(u8 *arg0)
+void btlUnitReleasePendingMotionSpeed(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }

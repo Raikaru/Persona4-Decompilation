@@ -183,13 +183,13 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019A9E0
-void func_0019a9e0(u8 *arg0)
+void btlUnitHoldPendingModelFrame(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
 // FUN_0019AA00
-s32 func_0019aa00(u8 *arg0)
+s32 btlUnitModelFramePacketUpdate(u8 *arg0)
 {
     s16 frame;
     u8 *temp_3;
@@ -202,7 +202,7 @@ s32 func_0019aa00(u8 *arg0)
 }
 
 // FUN_0019AA50
-void func_0019aa50(u8 *arg0)
+void btlUnitReleasePendingModelFrame(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
