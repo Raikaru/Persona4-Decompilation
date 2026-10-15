@@ -119,7 +119,7 @@ void func_00466e80(u8 *arg0)
     extern s32 func_003bba90(u8 *arg0);
     extern s32 func_003d6350(s32 arg0, s32 arg1);
     extern u8 *func_003e6a90(s32 arg0);
-    extern s32 func_00464100(s32 arg0, s32 arg1);
+    extern s32 tmxUploadStream(s32 arg0, s32 arg1);
     extern s32 func_003eaf60(u8 *arg0);
     extern s32 func_003bb210(s32 arg0);
     extern s32 func_0042ba20(void);
@@ -202,7 +202,7 @@ process:
             break;
         case 9:
             *(s32 *)(*(u8 **)(arg0 + 4) + 0x1B8) =
-                func_00464100(*(s32 *)(work + 0x1C4), 0);
+                tmxUploadStream(*(s32 *)(work + 0x1C4), 0);
             break;
         case 10:
             *(s32 *)(*(u8 **)(arg0 + 4) + 0x1C4) =

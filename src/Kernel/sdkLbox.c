@@ -217,7 +217,7 @@ loop_29_check:
    $s1, b210 does the reverse. Logic, frame, call sequence and the list-walk loop
    all match exactly.
 
-   Unlike func_00470280 above (and sdkWrap func_004672c0, sdkUttmx func_00463d60),
+   Unlike func_00470280 above (and sdkWrap func_004672c0, sdkUttmx tmxLoadFile),
    this mirror is NOT declaration-order drivable: node-first, p-first,
    work-last, and the initialised-declaration idiom this file uses elsewhere
    (`u8 *work = *(u8 **)(arg0 + 0x38);`) all score 18. Retail gives $s0 to the

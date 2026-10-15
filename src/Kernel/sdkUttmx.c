@@ -46,7 +46,7 @@ extern u32 func_003ec3d0(s32 arg0, s32 arg1);
 extern s32 func_003ec590(u16 arg0, u16 arg1, s32 arg2, s32 arg3);
 extern u32 func_003ec6a0(s32 arg0, s32 arg1, s32 arg2);
 extern void func_0046d730(u8 *file, s32 line);
-extern void func_00463ea0(u32 arg0, u32 arg1, u32 arg2);
+extern void tmxDmaCopy(u32 arg0, u32 arg1, u32 arg2);
 
 #pragma push
 /* W318 measured: opt_loop_invariants on changes 00463570 nd67->0,
@@ -55,7 +55,7 @@ extern void func_00463ea0(u32 arg0, u32 arg1, u32 arg2);
 
 
 // FUN_00463570
-static void func_00463570(RwImage* image, const u8* source)
+static void tmxConvertRgba32(RwImage* image, const u8* source)
 {
     u8* dst;
     s32 height;
@@ -104,7 +104,7 @@ static void func_00463570(RwImage* image, const u8* source)
 
 
 // FUN_00463620
-static void func_00463620(RwImage* image, const u8* source)
+static void tmxConvertRgb24(RwImage* image, const u8* source)
 {
     u8* dst;
     s32 x;
@@ -142,7 +142,7 @@ static void func_00463620(RwImage* image, const u8* source)
 
 
 // FUN_004636A0
-static void func_004636a0(RwImage* image, const u8* source)
+static void tmxConvertRgb555(RwImage* image, const u8* source)
 {
     u8* dst;
     s32 width;
@@ -187,7 +187,7 @@ static void func_004636a0(RwImage* image, const u8* source)
 
 // FUN_00463740
 #pragma opt_loop_invariants on
-static void func_00463740(RwImage* image, const u8* source)
+static void tmxUnpackNibbles(RwImage* image, const u8* source)
 {
     u8* dst;
     s32 height;
@@ -226,7 +226,7 @@ static void func_00463740(RwImage* image, const u8* source)
 
 
 // FUN_004637C0
-static void func_004637c0(RwImage* image, const u8* source)
+static void tmxConvertPalette(RwImage* image, const u8* source)
 {
     u8* dst;
     s32 i;
@@ -261,7 +261,7 @@ static void func_004637c0(RwImage* image, const u8* source)
 
 
 // FUN_00463870
-static void func_00463870(RwImage* image, s32 bitDepth)
+static void tmxSwizzlePalette8(RwImage* image, s32 bitDepth)
 {
     u8* pixels = (u8 *)image->palette;
     s32 count;
@@ -305,7 +305,7 @@ static void func_00463870(RwImage* image, s32 bitDepth)
 /* Indexed TMX palettes have four- or eight-bit image depth.
  * Keep the palette byte count live across the private conversion helpers.
  * b210 -O2: 1060 executable bytes and twelve zero alignment bytes. */
-RwImage *func_00463930(u8 *stream)
+RwImage *tmxDecodeStream(u8 *stream)
 {
     RwImage *image;
     s32 depth;
@@ -371,7 +371,7 @@ RwImage *func_00463930(u8 *stream)
         paletteBytes = (paletteBits * (paletteCount * (1 << depth))) >> 3;
         switch (paletteFormat) {
         case 0:
-            func_004637c0(image, source);
+            tmxConvertPalette(image, source);
             break;
         case 2:
         case 10: {
@@ -399,19 +399,19 @@ RwImage *func_00463930(u8 *stream)
             break;
         }
         }
-        func_00463870(image, depth);
+        tmxSwizzlePalette8(image, depth);
         source += paletteBytes;
     }
     switch (stream[0x16]) {
     case 0:
-        func_00463570(image, source);
+        tmxConvertRgba32(image, source);
         break;
     case 1:
-        func_00463620(image, source);
+        tmxConvertRgb24(image, source);
         break;
     case 2:
     case 10:
-        func_004636a0(image, source);
+        tmxConvertRgb555(image, source);
         break;
     case 0x13:
     case 0x1B: {
@@ -436,7 +436,7 @@ RwImage *func_00463930(u8 *stream)
     case 0x14:
     case 0x24:
     case 0x2C:
-        func_00463740(image, source);
+        tmxUnpackNibbles(image, source);
         break;
     }
     return image;
@@ -446,7 +446,7 @@ RwImage *func_00463930(u8 *stream)
 #pragma pop
 
 // FUN_00463D60
-RwImage *func_00463d60(const char *name)
+RwImage *tmxLoadFile(const char *name)
 {
     u8 hdr[0x40];
     RwStream *fh;
@@ -461,7 +461,7 @@ RwImage *func_00463d60(const char *name)
         buf = jtbl_008873E8[0](*(s32 *)(hdr + 4), 0x40000);
         func_003e2910(fh, buf + 0x40, *(s32 *)(hdr + 4) - 0x40);
         memcpy(buf, hdr, 0x40);
-        ret = func_00463930(buf);
+        ret = tmxDecodeStream(buf);
         jtbl_008873EC[0](buf);
         func_003e2e40(fh, NULL);
     }
@@ -470,7 +470,7 @@ RwImage *func_00463d60(const char *name)
 /* Registered as the TMX image-write callback. Retail opens the named
  * stream for reading, discards that result, and returns the input image. */
 // FUN_00463E60
-RwImage *func_00463e60(RwImage *image, const char *name)
+RwImage *tmxImageWriteCallback(RwImage *image, const char *name)
 {
     func_003e2f60(rwSTREAMFILENAME, rwSTREAMREAD, name);
     return image;
@@ -486,7 +486,7 @@ RwImage *func_00463e60(RwImage *image, const char *name)
 // FUN_00463EA0
 #pragma push
 #pragma opt_loop_invariants on
-void func_00463ea0(u32 destination, u32 source, u32 byte_count)
+void tmxDmaCopy(u32 destination, u32 source, u32 byte_count)
 {
     extern void func_00421a60(s32 arg0);
     extern void func_003f4370(void);
@@ -620,7 +620,7 @@ void func_00463ea0(u32 destination, u32 source, u32 byte_count)
    declaration orders; all either retained these rows or worsened coloring.
    Committed at nd 10. */
 // FUN_00464100
-s32 func_00464100(u8 *arg0, s32 arg1)
+s32 tmxUploadStream(u8 *arg0, s32 arg1)
 {
   u8 *data_ptr;
   s32 texel_scale;
@@ -740,7 +740,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     case 24:
       if (arg1 != 0)
     {
-      func_00463ea0(texture_buffer, (u32) source_addr, (((*((u16 *) (arg0 + 0x12))) & 0xFFFFFFFFu) * (*((u16 *) (arg0 + 0x14)))) * 4);
+      tmxDmaCopy(texture_buffer, (u32) source_addr, (((*((u16 *) (arg0 + 0x12))) & 0xFFFFFFFFu) * (*((u16 *) (arg0 + 0x14)))) * 4);
     }
     else
     {
@@ -751,7 +751,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     case 16:
       if (copy_mode)
     {
-      func_00463ea0(texture_buffer, (u32) source_addr, ((*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14)))) * 2);
+      tmxDmaCopy(texture_buffer, (u32) source_addr, ((*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14)))) * 2);
     }
     else
     {
@@ -762,7 +762,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     case 8:
       if (arg1 != 0)
     {
-      func_00463ea0(texture_buffer, (u32) source_addr, (*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14))));
+      tmxDmaCopy(texture_buffer, (u32) source_addr, (*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14))));
     }
     else
     {
@@ -773,7 +773,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     case 4:
       if (arg1 != 0)
     {
-      func_00463ea0(texture_buffer, (u32) source_addr, ((*((u16 *) (arg0 + 0x12))) >> 1) * (*((u16 *) (arg0 + 0x14))));
+      tmxDmaCopy(texture_buffer, (u32) source_addr, ((*((u16 *) (arg0 + 0x12))) >> 1) * (*((u16 *) (arg0 + 0x14))));
     }
     else
     {
@@ -794,7 +794,7 @@ s32 func_00464100(u8 *arg0, s32 arg1)
     if (arg1 != 0)
     {
       palette_handle_ptr = &resource_value;
-      func_00463ea0(*palette_handle_ptr, (u32) data_ptr, texel_scale * 4);
+      tmxDmaCopy(*palette_handle_ptr, (u32) data_ptr, texel_scale * 4);
     }
     else
     {
