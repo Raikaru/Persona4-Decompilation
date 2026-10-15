@@ -63,7 +63,7 @@ typedef struct {
     s32 count;
 } FclCombinePersonaListHeader;
 
-/* func_002b6150 returns four bytes into a 0x100-byte draw-table entry.
+/* fclSpriteEntry returns four bytes into a 0x100-byte draw-table entry.
    The image halfword, current alpha, flag and byte-aligned color below are
    precisely the fields used here, not a replacement provider signature. */
 typedef struct {

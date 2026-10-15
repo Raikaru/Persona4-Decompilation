@@ -15,7 +15,7 @@ void func_002b5e30(u8 *task, FclDrawColor color);
 u8 *func_002b5da0(u8 *task);
 
 /* Integer and floating arguments keep their separate EE register order. */
-void func_002b6af0(s16 resource, f32 scale0, f32 scale1, f32 scale2, f32 scale3,
+void fclSpriteStartRevealScaleAt(s16 resource, f32 scale0, f32 scale1, f32 scale2, f32 scale3,
                    u32 mode, u32 duration, s16 delay);
 /* Positions travel by value; mode and reverse are signed stack bytes
    (retail 002b83e0 loads both with lb). */

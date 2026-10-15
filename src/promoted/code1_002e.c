@@ -16,7 +16,7 @@ typedef struct {
     u8 c2;
     u8 c3;
 } u4;
-extern void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
+extern void fclSpriteStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern u8 *iGpffffb588;
 extern u8 *iGpffffb590;
@@ -93,12 +93,12 @@ s8 func_002e05a0(u8 *arg0) {
 
 // FUN_002E0620
 void func_002e0620(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
-    func_002b8270(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
+    fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
 }
 // FUN_002E0660
 void func_002e0660(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
 {
-    func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
+    fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
 }
 
 
@@ -112,12 +112,12 @@ void func_002e0660(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
    the same object as the ints-first spelling (measured: identical bytes). */
 void func_002e0690(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
 {
-    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
+    fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }
 // FUN_002E06D0
 void func_002e06d0(u8 *arg0, f32 scale0, f32 scale1, f32 scale2, f32 scale3, u32 arg1, u32 arg2, s64 arg3)
 {
-    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, scale0, scale1, scale2, scale3, arg1, arg2, (s16)arg3);
+    fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, scale0, scale1, scale2, scale3, arg1, arg2, (s16)arg3);
 }
 
 
@@ -160,10 +160,10 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
         draw1.x = out1_x;
         draw1.y = out1_y;
         arg3 = (s16)arg3;
-        func_002b8270(*(u8 **)(arg0 + 0x38) + 4, pos, draw1, 0, arg2,
+        fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, pos, draw1, 0, arg2,
                        arg3);
         sdkSpriteFreeNode(handle);
-        func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, 0, 0xFF, 0, arg2, arg3);
+        fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, 0, 0xFF, 0, arg2, arg3);
     } else {
         handle = sdkSpriteNewNode(*(u32 *)(temp + 0xF4), (s16)arg1);
         out2 = func_002b2970(pos.x,
@@ -173,20 +173,20 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
         draw2.x = out2_x;
         draw2.y = out2_y;
         arg3 = (s16)arg3;
-        func_002b8270(*(u8 **)(arg0 + 0x38) + 4, pos, draw2, 0, arg2,
+        fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, pos, draw2, 0, arg2,
                        arg3);
         sdkSpriteFreeNode(handle);
-        func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, 0xFF, 0, 0, 0,
+        fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, 0xFF, 0, 0, 0,
                        (s16)((s32)arg3 + arg2));
     }
     base = *(u8 **)(arg0 + 0x38);
-    func_002b8300(base + 4, 1.0f, 1.0f, fparg0, fparg1, 0, arg2, arg3);
+    fclSpriteStartRevealScale(base + 4, 1.0f, 1.0f, fparg0, fparg1, 0, arg2, arg3);
 }
 #pragma pop
 // FUN_002E0940
 void func_002e0940(u8 *arg0, f32 first, f32 second, u8 mode, s32 duration, s64 delay)
 {
-    func_002b8340(*(u8 **)(arg0 + 0x38) + 4, mode, duration, delay, first, second);
+    fclSpriteStartTween(*(u8 **)(arg0 + 0x38) + 4, mode, duration, delay, first, second);
 }
 
 
@@ -197,8 +197,8 @@ void func_002e0940(u8 *arg0, f32 first, f32 second, u8 mode, s32 duration, s64 d
 // FUN_002E0970
 void func_002e0970(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s64 arg5)
 {
-    extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s16 arg5);
-    func_002b8370(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, arg5);
+    extern void fclSpriteStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s16 arg5);
+    fclSpriteStartColor(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, arg5);
 }
 
 // FUN_002E09B0
@@ -593,8 +593,8 @@ void func_002e7a80(s32 arg0)
 
 #define P4_002E7AC0_DRAW() \
     do { \
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(105) + 0x10), 0) == 1) { \
-            frFontExDrawTextDeferredOutB(*(f32 *)(func_002b6150(105) + 0x38) + 52.0f, 41.0f, 88.0f, \
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(105) + 0x10), 0) == 1) { \
+            frFontExDrawTextDeferredOutB(*(f32 *)(fclSpriteEntry(105) + 0x38) + 52.0f, 41.0f, 88.0f, \
                           func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1, \
                           (const char *)func_0010d6d0(1), 0, 0, D_00794E70, 24); \
         } \
@@ -604,8 +604,8 @@ void func_002e7a80(s32 arg0)
 s32 fclCombineMenuUpdate(u8 *arg0)
 {
     void func_002e90d0(u8 *arg0);
-    u8 *func_002b6150(s16 arg0);
-    s16 func_002b6970(s16 arg0, s16 arg1);
+    u8 *fclSpriteEntry(s16 arg0);
+    s16 fclSpriteFlagBit(s16 arg0, s16 arg1);
     s32 func_002b2a30(u8, u8, u8, u8);
     u32 func_0010d6d0(s16 arg0);
     

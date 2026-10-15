@@ -39,7 +39,7 @@ extern void func_002bdea0(void);
 extern void func_00308f40(void);
 extern void (*D_00887300[])(s32, s32);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_002b8270(u8 *arg0, F2_0033 arg1, F2_0033 arg2,
+extern void fclSpriteStartPosition(u8 *arg0, F2_0033 arg1, F2_0033 arg2,
                            u32 arg3, s32 arg4, s32 arg5);
 
 extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
@@ -436,7 +436,7 @@ void func_0033d3d0(u8 *arg0, s32 arg1)
 void func_0033d3e0(u8 *arg0, F2_0033 p1, F2_0033 p2,
                    u32 arg3, u32 arg4, s16 arg5)
 {
-    func_002b8270(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
+    fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
 }
 // FUN_0033D420
 void func_0033d420(u8 *arg0, F2_0033 p1, F2_0033 p2,
@@ -445,7 +445,7 @@ void func_0033d420(u8 *arg0, F2_0033 p1, F2_0033 p2,
     u8 *p;
 
     p = *(u8 **)(arg0 + 0x38);
-    func_002b8270(p + 4, p1, p2, arg3, arg5, arg6);
+    fclSpriteStartPosition(p + 4, p1, p2, arg3, arg5, arg6);
     *(s8 *)(p + 0x3B) = arg4;
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) |= 0x400;
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) &= (s16)~2;
@@ -453,23 +453,23 @@ void func_0033d420(u8 *arg0, F2_0033 p1, F2_0033 p2,
 // FUN_0033D4B0
 void func_0033d4b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s64 arg5)
 {
-    func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
+    fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
 }
 
 // FUN_0033D4E0
 void func_0033d4e0(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
 {
-    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
+    fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }
 // FUN_0033D520
 void func_0033d520(u8 *arg0, f32 fparg0, f32 fparg1, u8 arg1, s32 arg2, s64 arg3)
 {
-    func_002b8340(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, fparg0, fparg1);
+    fclSpriteStartTween(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, fparg0, fparg1);
 }
 
 // FUN_0033D550
 /* measured: opt_propagation off preserves the per-call field loads and the
-   argument materialisation order for func_002b8300. */
+   argument materialisation order for fclSpriteStartRevealScale. */
 #pragma opt_propagation off
 void func_0033d550(u8 *arg0)
 {
@@ -482,7 +482,7 @@ void func_0033d550(u8 *arg0)
 
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) |= 1;
 
-    func_002b8270(*(u8 **)(arg0 + 0x38) + 4,
+    fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4,
                   *(F2_0033 *)(*(u8 **)(arg0 + 0x38) + 0x2C),
                   *(F2_0033 *)(*(u8 **)(arg0 + 0x38) + 0x1C),
                   0,
@@ -493,19 +493,19 @@ void func_0033d550(u8 *arg0)
     p = *(u8 **)(arg0 + 0x38) + 4;
     b1 = *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x62);
     b2 = *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x60);
-    func_002b82d0(p, b1, b2, 0, h, 0);
+    fclSpriteStartAlpha(p, b1, b2, 0, h, 0);
 
     h = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0xC8);
     p = *(u8 **)(arg0 + 0x38) + 4;
     f0 = *(f32 *)(*(u8 **)(arg0 + 0x38) + 0xC4);
     f1 = *(f32 *)(*(u8 **)(arg0 + 0x38) + 0xBC);
-    func_002b8340(p, 0, h, 0, f0, f1);
+    fclSpriteStartTween(p, 0, h, 0, f0, f1);
 
     f1 = *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x8C);
     f0 = *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x94);
     h = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x88);
     p = *(u8 **)(arg0 + 0x38) + 4;
-    func_002b8300(p, f0, f1, f0, f1, 0, h, 0);
+    fclSpriteStartRevealScale(p, f0, f1, f0, f1, 0, h, 0);
 }
 /* measured: restore opt_propagation for the rest of the translation unit. */
 #pragma opt_propagation on

@@ -77,8 +77,8 @@ extern s32 func_00331560(void);
 extern f32 sdkSpriteScaledWidth(u8 *);
 extern f32 sdkSpriteScaledHeight(u8 *);
 extern void sdkSpriteFreeNode(void *);
-extern void func_002b6a70(s16, u8, u8, u8, s32, s16);
-extern void func_002b69f0(s16, FclVec2f, FclVec2f, u32, u32, s16);
+extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
+extern void fclSpriteStartPositionAt(s16, FclVec2f, FclVec2f, u32, u32, s16);
 extern void fclDrawSetPlacement(u8 *, s32, u8, s32);
 extern void func_0011c6e0(u8 *, s32);
 extern void func_0011d140(u8 *, s32);
@@ -92,8 +92,8 @@ extern void fclDrawSetStateByte(u8 *, s8);
 extern void func_00317240(u8 *, s64, f32);
 extern s8 fclDrawGetState(u8 *);
 extern void fclDrawResetScale(u8 *);
-extern s16 func_002b6970(s16, s16);
-extern u8 *func_002b6150(s16);
+extern s16 fclSpriteFlagBit(s16, s16);
+extern u8 *fclSpriteEntry(s16);
 extern void func_00321e60(u8 *, s64, u8, u8);
 extern void func_003233d0(u8 *);
 extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
@@ -104,7 +104,7 @@ extern void func_00320b80(u8 *, s8);
 extern void func_003218a0(u8 *, s16);
 extern void func_00324410(u8 *, s16, s8);
 extern u32 RpRandom(void);
-extern void func_002b68d0(s16, s16, s8);
+extern void fclSpriteSetFlag(s16, s16, s8);
 extern s32 func_002bb550(s64);
 extern void func_002bbcf0(s32);
 extern s32 func_002e53b0(s8, s16);
@@ -267,8 +267,8 @@ extern void func_003e9cb0(s32, s32, s32);
 extern void func_00331390(void);
 extern s32 func_00331580(void);
 extern s32 func_0034a4f0(s32, s32);
-extern u8 *func_002b74f0(s32, s32);
-extern void func_002b7750(s16, s16);
+extern u8 *fclSpritePoolCreate(s32, s32);
+extern void fclSpriteReset(s16, s16);
 extern s32 func_00331600(void);
 extern u8 D_00641B10[];
 extern s32 fclDrawIsActive(s32);
@@ -338,108 +338,108 @@ s32 fclCombineMenuCreate(u8 *arg0) {
             *(FclDrawColor *)(e + 0x75) = menuColor;
         }
     }
-    *(s32 *)(out + 0x24C) = (s32)func_002b74f0((s32)arg0, func_00331560());
+    *(s32 *)(out + 0x24C) = (s32)fclSpritePoolCreate((s32)arg0, func_00331560());
     {
         s32 descriptorId;
         for (descriptorId = 0; descriptorId < 500; descriptorId++) {
-            func_002b7750((s16)descriptorId, (s16)descriptorId);
+            fclSpriteReset((s16)descriptorId, (s16)descriptorId);
         }
     }
     {
         s32 pairIndex;
         for (pairIndex = 0; pairIndex < 0xC; pairIndex++) {
-            func_002b7750((s16)(pairIndex * 2 + 500), 0x1AC);
-            func_002b7750((s16)(pairIndex * 2 + 501), 0x1AF);
+            fclSpriteReset((s16)(pairIndex * 2 + 500), 0x1AC);
+            fclSpriteReset((s16)(pairIndex * 2 + 501), 0x1AF);
         }
     }
-    func_002b7750(0x20C, 0x80);
+    fclSpriteReset(0x20C, 0x80);
     {
         s32 arrowIndex;
         for (arrowIndex = 0; arrowIndex < 9; arrowIndex++) {
-            func_002b7750((s16)(arrowIndex + 0x20D), 0xDC);
+            fclSpriteReset((s16)(arrowIndex + 0x20D), 0xDC);
         }
     }
     {
         s32 indicatorIndex;
         for (indicatorIndex = 0; indicatorIndex < 3; indicatorIndex++) {
-            func_002b7750((s16)(indicatorIndex + 0x216), 0x86);
-            func_002b7750((s16)(indicatorIndex + 0x219), 0x87);
+            fclSpriteReset((s16)(indicatorIndex + 0x216), 0x86);
+            fclSpriteReset((s16)(indicatorIndex + 0x219), 0x87);
         }
     }
     {
         s32 rowIndex;
         for (rowIndex = 0; rowIndex < 0xC; rowIndex++) {
-            func_002b7750((s16)(rowIndex + 0x21C), 0x193);
-            func_002b7750((s16)(rowIndex + 0x22B), 0x19A);
-            func_002b7750((s16)(rowIndex + 0x238), 0x188);
-            func_002b7750((s16)(rowIndex + 0x244), 0x18C);
-            func_002b7750((s16)(rowIndex + 0x250), 0x1C);
-            func_002b7750((s16)(rowIndex + 0x25E), (s16)(rowIndex + 0x39));
-            func_002b7750((s16)(rowIndex + 0x270), 0x193);
-            func_002b7750((s16)(rowIndex + 0x27D), 0x19B);
-            func_002b7750((s16)(rowIndex + 0x28B), 0x188);
-            func_002b7750((s16)(rowIndex + 0x297), 0x18D);
-            func_002b7750((s16)(rowIndex + 0x2A3), 0x1C);
+            fclSpriteReset((s16)(rowIndex + 0x21C), 0x193);
+            fclSpriteReset((s16)(rowIndex + 0x22B), 0x19A);
+            fclSpriteReset((s16)(rowIndex + 0x238), 0x188);
+            fclSpriteReset((s16)(rowIndex + 0x244), 0x18C);
+            fclSpriteReset((s16)(rowIndex + 0x250), 0x1C);
+            fclSpriteReset((s16)(rowIndex + 0x25E), (s16)(rowIndex + 0x39));
+            fclSpriteReset((s16)(rowIndex + 0x270), 0x193);
+            fclSpriteReset((s16)(rowIndex + 0x27D), 0x19B);
+            fclSpriteReset((s16)(rowIndex + 0x28B), 0x188);
+            fclSpriteReset((s16)(rowIndex + 0x297), 0x18D);
+            fclSpriteReset((s16)(rowIndex + 0x2A3), 0x1C);
         }
     }
-    func_002b7750(0x228, 0x193);
-    func_002b7750(0x229, 0x193);
-    func_002b7750(0x2B1, 0x1A2);
-    func_002b7750(0x25C, 0x1C);
-    func_002b7750(0x25D, 0x1C);
-    func_002b7750(0x27C, 0x193);
-    func_002b7750(0x289, 0x19B);
-    func_002b7750(0x28A, 0x19B);
-    func_002b7750(0x237, 0x73);
-    func_002b7750(0x2AF, 0x73);
-    func_002b7750(0x2B0, 0x73);
-    func_002b7750(0x26A, 0x46);
-    func_002b7750(0x26B, 0x46);
-    func_002b7750(0x26C, 0x46);
-    func_002b7750(0x26D, 0x46);
-    func_002b7750(0x26E, 0x46);
-    func_002b7750(0x26F, 0x46);
-    func_002b7750(0x2B2, 0x54);
-    func_002b7750(0x2B3, 0x54);
+    fclSpriteReset(0x228, 0x193);
+    fclSpriteReset(0x229, 0x193);
+    fclSpriteReset(0x2B1, 0x1A2);
+    fclSpriteReset(0x25C, 0x1C);
+    fclSpriteReset(0x25D, 0x1C);
+    fclSpriteReset(0x27C, 0x193);
+    fclSpriteReset(0x289, 0x19B);
+    fclSpriteReset(0x28A, 0x19B);
+    fclSpriteReset(0x237, 0x73);
+    fclSpriteReset(0x2AF, 0x73);
+    fclSpriteReset(0x2B0, 0x73);
+    fclSpriteReset(0x26A, 0x46);
+    fclSpriteReset(0x26B, 0x46);
+    fclSpriteReset(0x26C, 0x46);
+    fclSpriteReset(0x26D, 0x46);
+    fclSpriteReset(0x26E, 0x46);
+    fclSpriteReset(0x26F, 0x46);
+    fclSpriteReset(0x2B2, 0x54);
+    fclSpriteReset(0x2B3, 0x54);
     {
         s32 ballIndex;
         for (ballIndex = 0; ballIndex < 0xC; ballIndex++) {
             *(s32 *)(out + ballIndex * 4 + 0x21C) = fclCmbBallTaskCreate((s32)arg0);
         }
     }
-    func_002b7750(0x2B4, 0x193);
-    func_002b7750(0x2B5, 0x19A);
-    func_002b7750(0x2B6, 0x51);
-    func_002b7750(0x2B7, 0x52);
-    func_002b7750(0x2B8, 0x53);
-    func_002b7750(0x2B9, 0x73);
-    func_002b7750(0x2BA, 0x73);
+    fclSpriteReset(0x2B4, 0x193);
+    fclSpriteReset(0x2B5, 0x19A);
+    fclSpriteReset(0x2B6, 0x51);
+    fclSpriteReset(0x2B7, 0x52);
+    fclSpriteReset(0x2B8, 0x53);
+    fclSpriteReset(0x2B9, 0x73);
+    fclSpriteReset(0x2BA, 0x73);
     for (k = 0; k < 2; k++) {
-        func_002b7750((s16)(k + 0x2BB), 0xA4);
-        func_002b7750((s16)(k + 0x2BD), 0xA5);
-        func_002b7750((s16)(k + 0x2BF), 0xBC);
-        func_002b7750((s16)(k + 0x2C3), 0x19C);
-        func_002b7750((s16)(k + 0x2C1), 0x14F);
+        fclSpriteReset((s16)(k + 0x2BB), 0xA4);
+        fclSpriteReset((s16)(k + 0x2BD), 0xA5);
+        fclSpriteReset((s16)(k + 0x2BF), 0xBC);
+        fclSpriteReset((s16)(k + 0x2C3), 0x19C);
+        fclSpriteReset((s16)(k + 0x2C1), 0x14F);
     }
     for (k = 0; k < 8; k++) {
-        func_002b7750((s16)(k + 0x2C5), 0x19E);
+        fclSpriteReset((s16)(k + 0x2C5), 0x19E);
     }
-    func_002b7750(0x2CD, 0x9E);
-    func_002b7750(0x2CE, 0xA0);
-    func_002b7750(0x2CF, 0x81);
-    func_002b7750(0x2D0, 0x11E);
-    func_002b7750(0x2D1, 0x11E);
-    func_002b7750(0x2D8, 0x1D6);
-    func_002b7750(0x2D9, 0x1D7);
-    func_002b7750(0x2DA, 0x165);
-    func_002b7750(0x2DB, (s16)((func_002e78a0() % 10) + 9));
-    func_002b7750(0x2DC, (s16)(((u8)func_002e78e0() / 10) + 9));
-    func_002b7750(0x2DD, (s16)(((u8)func_002e78e0() % 10) + 9));
-    func_002b7750(0x22A, 0x193);
-    func_002b7750(0x2DE, 0x126);
-    func_002b7750(0x2DE, 0x125);
+    fclSpriteReset(0x2CD, 0x9E);
+    fclSpriteReset(0x2CE, 0xA0);
+    fclSpriteReset(0x2CF, 0x81);
+    fclSpriteReset(0x2D0, 0x11E);
+    fclSpriteReset(0x2D1, 0x11E);
+    fclSpriteReset(0x2D8, 0x1D6);
+    fclSpriteReset(0x2D9, 0x1D7);
+    fclSpriteReset(0x2DA, 0x165);
+    fclSpriteReset(0x2DB, (s16)((func_002e78a0() % 10) + 9));
+    fclSpriteReset(0x2DC, (s16)(((u8)func_002e78e0() / 10) + 9));
+    fclSpriteReset(0x2DD, (s16)(((u8)func_002e78e0() % 10) + 9));
+    fclSpriteReset(0x22A, 0x193);
+    fclSpriteReset(0x2DE, 0x126);
+    fclSpriteReset(0x2DE, 0x125);
     for (k = 0; k < 0xC; k++) {
-        func_002b7750((s16)(k + 0x2FB), 0x131);
+        fclSpriteReset((s16)(k + 0x2FB), 0x131);
         *(s32 *)(out + k * 4 + 0x258) = func_002b8150(task);
     }
     *(s32 *)(out + 0x28C) = (s32)func_002b5c90(task, func_002b2970(288.0f, 14.0f));
@@ -659,41 +659,41 @@ void func_002e90d0(u8 *arg0)
         func_00320970(arg0, 0);
         func_00315310(arg0, 0);
         pos0 = func_002b2970(-78.0f, -82.0f);
-        func_002b6c30(0x80, pos0, 220.0f, 0x3F);
+        fclSpriteCreate(0x80, pos0, 220.0f, 0x3F);
         color0 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        *(FclDrawColor *)(func_002b6150(0x80) + 0x85) = color0;
-        func_002b6b40(0x80, 0, 0x5A0, 0, 0.0f, -360.0f);
-        func_002b68d0(0x80, 6, 0);
-        func_002b6150(0x80)[0xDB] = 1;
+        *(FclDrawColor *)(fclSpriteEntry(0x80) + 0x85) = color0;
+        fclSpriteStartTweenAt(0x80, 0, 0x5A0, 0, 0.0f, -360.0f);
+        fclSpriteSetFlag(0x80, 6, 0);
+        fclSpriteEntry(0x80)[0xDB] = 1;
         pos1 = func_002b2970(2.0f, -2.0f);
         pos2 = func_002b2970(-78.0f, -82.0f);
-        func_002b69f0(0x80, pos1, pos2, 1, 0xA, 0);
-        func_002b6a70(0x80, 0, 0xFF, 2, 0xA, 0);
+        fclSpriteStartPositionAt(0x80, pos1, pos2, 1, 0xA, 0);
+        fclSpriteStartAlphaAt(0x80, 0, 0xFF, 2, 0xA, 0);
         pos3 = func_002b2970(540.0f, (f32)0x15B);
-        func_002b6c30(0x20C, pos3, 220.0f, 0x3F);
+        fclSpriteCreate(0x20C, pos3, 220.0f, 0x3F);
         color1 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        *(FclDrawColor *)(func_002b6150(0x20C) + 0x85) = color1;
-        func_002b6b40(0x20C, 0, 0x5A0, 0, 0.0f, -360.0f);
-        func_002b68d0(0x20C, 6, 0);
-        func_002b6150(0x20C)[0xDB] = 1;
+        *(FclDrawColor *)(fclSpriteEntry(0x20C) + 0x85) = color1;
+        fclSpriteStartTweenAt(0x20C, 0, 0x5A0, 0, 0.0f, -360.0f);
+        fclSpriteSetFlag(0x20C, 6, 0);
+        fclSpriteEntry(0x20C)[0xDB] = 1;
         pos4 = func_002b2970(460.0f, (f32)0x10B);
         pos5 = func_002b2970(540.0f, (f32)0x15B);
-        func_002b69f0(0x20C, pos4, pos5, 1, 0xA, 0);
-        func_002b6a70(0x20C, 0, 0xFF, 2, 0xA, 0);
+        fclSpriteStartPositionAt(0x20C, pos4, pos5, 1, 0xA, 0);
+        fclSpriteStartAlphaAt(0x20C, 0, 0xFF, 2, 0xA, 0);
         pos6 = func_002b2970(-190.0f, 200.0f);
-        func_002b6c30(0x81, pos6, 215.0f, 0x56);
+        fclSpriteCreate(0x81, pos6, 215.0f, 0x56);
         color2 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        *(FclDrawColor *)(func_002b6150(0x81) + 0x85) = color2;
-        func_002b6a70(0x81, 0, 0xFF, 0, 0xA, 0);
-        *(f32 *)(func_002b6150(0x81) + 0xD0) = 90.0f;
+        *(FclDrawColor *)(fclSpriteEntry(0x81) + 0x85) = color2;
+        fclSpriteStartAlphaAt(0x81, 0, 0xFF, 0, 0xA, 0);
+        *(f32 *)(fclSpriteEntry(0x81) + 0xD0) = 90.0f;
         vec = (FclVec2 *)D_00640C50;
         pos7 = func_002b2970(vec->x, vec->y);
-        func_002b6c30(0x84, pos7, 217.0f, 0x40);
-        func_002b6a70(0x84, 0, 0xFF, 0, 0xA, 0);
+        fclSpriteCreate(0x84, pos7, 217.0f, 0x40);
+        fclSpriteStartAlphaAt(0x84, 0, 0xFF, 0, 0xA, 0);
         vec = (FclVec2 *)D_00640C58;
         pos8 = func_002b2970(vec->x, vec->y);
-        func_002b6c30(0x85, pos8, 218.0f, 0x40);
-        func_002b6a70(0x85, 0, 0xFF, 0, 0xA, 0);
+        fclSpriteCreate(0x85, pos8, 218.0f, 0x40);
+        fclSpriteStartAlphaAt(0x85, 0, 0xFF, 0, 0xA, 0);
         func_00315600(arg0, 0);
         func_003205f0(arg0, 0x92, 0);
         func_00316e80(arg0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0);
@@ -706,16 +706,16 @@ void func_002e90d0(u8 *arg0)
         }
         break;
     case 0x18:
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1F4) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1F4) + 0x10), 1) == 1) {
             break;
         }
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1F6) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1F6) + 0x10), 1) == 1) {
             break;
         }
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1F8) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1F8) + 0x10), 1) == 1) {
             break;
         }
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1FA) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1FA) + 0x10), 1) == 1) {
             break;
         }
         if (func_003190d0(arg0) == 1) {
@@ -758,8 +758,8 @@ void func_002e90d0(u8 *arg0)
                 } else {
                     vec = (FclVec2 *)D_00641660;
                     pos10 = func_002b2970(vec->x, vec->y);
-                    func_002b6c30(0x1C6, pos10, 242.0f, 0x3D);
-                    func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
+                    fclSpriteCreate(0x1C6, pos10, 242.0f, 0x3D);
+                    fclSpriteStartAlphaAt(0x1C6, 0, 0x64, 0, 0xA, 0);
                     p[0xB6] = 0;
                     func_0032f4d0(arg0);
                     func_003205f0(arg0, 0x96, 0x92);
@@ -771,11 +771,11 @@ void func_002e90d0(u8 *arg0)
                 func_00320970(arg0, 1);
                 func_003205f0(arg0, 0, 0x92);
                 func_00316e80(arg0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0);
-                func_002b6a70(0x81, 0xFF, 0, 0, 6, 0);
-                func_002b6a70(0x80, 0xFF, 0, 2, 0xA, 0);
-                func_002b6a70(0x20C, 0xFF, 0, 2, 0xA, 0);
-                func_002b6a70(0x84, 0xFF, 0, 0, 6, 0);
-                func_002b6a70(0x85, 0xFF, 0, 0, 6, 0);
+                fclSpriteStartAlphaAt(0x81, 0xFF, 0, 0, 6, 0);
+                fclSpriteStartAlphaAt(0x80, 0xFF, 0, 2, 0xA, 0);
+                fclSpriteStartAlphaAt(0x20C, 0xFF, 0, 2, 0xA, 0);
+                fclSpriteStartAlphaAt(0x84, 0xFF, 0, 0, 6, 0);
+                fclSpriteStartAlphaAt(0x85, 0xFF, 0, 0, 6, 0);
                 for (n = 0; n < 3; n++) {
                     pos11 = func_002b2970(26.0f, (f32)(n * 34 + 87));
                     func_003147e0(arg0, n, pos11, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
@@ -788,11 +788,11 @@ void func_002e90d0(u8 *arg0)
             func_00320970(arg0, 1);
             func_003205f0(arg0, 0, 0x92);
             func_00316e80(arg0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0);
-            func_002b6a70(0x81, 0xFF, 0, 0, 6, 0);
-            func_002b6a70(0x80, 0xFF, 0, 2, 0xA, 0);
-            func_002b6a70(0x20C, 0xFF, 0, 2, 0xA, 0);
-            func_002b6a70(0x84, 0xFF, 0, 0, 6, 0);
-            func_002b6a70(0x85, 0xFF, 0, 0, 6, 0);
+            fclSpriteStartAlphaAt(0x81, 0xFF, 0, 0, 6, 0);
+            fclSpriteStartAlphaAt(0x80, 0xFF, 0, 2, 0xA, 0);
+            fclSpriteStartAlphaAt(0x20C, 0xFF, 0, 2, 0xA, 0);
+            fclSpriteStartAlphaAt(0x84, 0xFF, 0, 0, 6, 0);
+            fclSpriteStartAlphaAt(0x85, 0xFF, 0, 0, 6, 0);
             for (n = 0; n < 3; n++) {
                 pos12 = func_002b2970(26.0f, (f32)(n * 34 + 87));
                 func_003147e0(arg0, n, pos12, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
@@ -817,18 +817,18 @@ void func_002e90d0(u8 *arg0)
         func_002bb550(p[0xD]);
         vec = (FclVec2 *)D_00641660;
         pos13 = func_002b2970(vec->x, vec->y);
-        func_002b6c30(0x1C6, pos13, 242.0f, 0x3D);
-        func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
+        fclSpriteCreate(0x1C6, pos13, 242.0f, 0x3D);
+        fclSpriteStartAlphaAt(0x1C6, 0, 0x64, 0, 0xA, 0);
         p[0xB6] = 0;
         func_0032f4d0(arg0);
         func_003205f0(arg0, 0x96, 0x92);
         p[1] = 0x1B;
         break;
     case 0x19:
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1F4) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1F4) + 0x10), 1) == 1) {
             break;
         }
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x92) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x92) + 0x10), 1) == 1) {
             break;
         }
         p[0] = 0xB;
@@ -867,7 +867,7 @@ void func_002e90d0(u8 *arg0)
         } else {
             buttons = D_008C024E[0];
             if (buttons & 0x40) {
-                func_002b68d0(0x2F2, 0, 1);
+                fclSpriteSetFlag(0x2F2, 0, 1);
                 func_0045af60(0, 0, 0, 1);
                 if (((FclCombineRow *)(p + 0xC4))[p[0xB4]].id == 8) {
                     if (fclCombineClaimSlot(arg0) == 0) {
@@ -876,12 +876,12 @@ void func_002e90d0(u8 *arg0)
                     fclCombineLayoutTransition(arg0, 1);
                     func_00315310(arg0, 0);
                     func_003205f0(arg0, 0x92, 0x96);
-                    func_002b6a70(0x1C6, func_002b6150(0x1C6)[0x6E], 0, 0, 0xA, 0);
+                    fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
                 } else {
                     p[1] = 0x1C;
                 }
             } else if (buttons & 0x20) {
-                func_002b68d0(0x2F2, 0, 1);
+                fclSpriteSetFlag(0x2F2, 0, 1);
                 if (fclCombineClaimSlot(arg0) == 0) {
                     p[1] = 0x18;
                 }
@@ -889,7 +889,7 @@ void func_002e90d0(u8 *arg0)
                 func_0045af60(0, 0, 0, 2);
                 func_00315310(arg0, 0);
                 func_003205f0(arg0, 0x92, 0x96);
-                func_002b6a70(0x1C6, func_002b6150(0x1C6)[0x6E], 0, 0, 0xA, 0);
+                fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
             }
         }
         break;
@@ -899,7 +899,7 @@ void func_002e90d0(u8 *arg0)
         p[1] = ((FclCombineRow *)(p + 0xC4))[p[0xB4]].state1;
         break;
     case 0x1B:
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150((p[0xB7] + 3) * 2 + 0x1F4) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry((p[0xB7] + 3) * 2 + 0x1F4) + 0x10), 1) == 1) {
             break;
         }
         buttons = D_008C027A[0];
@@ -946,18 +946,18 @@ void func_002e90d0(u8 *arg0)
             func_0045af60(0, 0, 0, 1);
             if (p[0xB6] == p[0xB7] - 1) {
                 for (j = 0; j < p[0xB7]; j++) {
-                    slotPos0 = *(FclVec2 *)(func_002b6150((j + 4) * 2 + 0x1F4) + 0x38);
+                    slotPos0 = *(FclVec2 *)(fclSpriteEntry((j + 4) * 2 + 0x1F4) + 0x38);
                     func_003147e0(arg0, j + 4, slotPos0, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
                 }
                 func_00315310(arg0, 3);
                 func_003205f0(arg0, 0x92, 0x96);
-                func_002b6a70(0x1C6, func_002b6150(0x1C6)[0x6E], 0, 0, 0xA, 0);
+                fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
                 if (fclCombineClaimSlot(arg0) == 0) {
                     p[1] = 0x18;
                 }
             } else {
                 for (j = 0; j < p[0xB7]; j++) {
-                    slotPos2 = *(FclVec2 *)(func_002b6150((j + 4) * 2 + 0x1F4) + 0x38);
+                    slotPos2 = *(FclVec2 *)(fclSpriteEntry((j + 4) * 2 + 0x1F4) + 0x38);
                     func_003147e0(arg0, j + 4, slotPos2, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
                 }
                 switch (p[0xB6]) {
@@ -1005,11 +1005,11 @@ void func_002e90d0(u8 *arg0)
             }
         } else if (buttons & 0x20) {
             for (j = 0; j < p[0xB7]; j++) {
-                slotPos1 = *(FclVec2 *)(func_002b6150((j + 4) * 2 + 0x1F4) + 0x38);
+                slotPos1 = *(FclVec2 *)(fclSpriteEntry((j + 4) * 2 + 0x1F4) + 0x38);
                 func_003147e0(arg0, j + 4, slotPos1, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
             }
             func_00315310(arg0, 3);
-            func_002b6a70(0x1C6, func_002b6150(0x1C6)[0x6E], 0, 0, 0xA, 0);
+            fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
             func_003205f0(arg0, 0x92, 0x96);
             if (fclCombineClaimSlot(arg0) == 0) {
                 p[1] = 0x18;
@@ -1029,13 +1029,13 @@ void func_002e90d0(u8 *arg0)
             func_003147e0(arg0, j + 4, pos14, *(s16 *)(p + off + 0xB8), (s16)off, 0);
         }
         color15 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-        te = func_002b6150((p[0xB6] + 4) * 2 + 0x1F5);
+        te = fclSpriteEntry((p[0xB6] + 4) * 2 + 0x1F5);
         *(FclDrawColor *)(te + 0x85) = color15;
-        *(FclDrawColor *)(func_002b6150((p[0xB6] + 4) * 2 + 0x1F4) + 0x85) = *(FclDrawColor *)(te + 0x85);
+        *(FclDrawColor *)(fclSpriteEntry((p[0xB6] + 4) * 2 + 0x1F4) + 0x85) = *(FclDrawColor *)(te + 0x85);
         color16 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        *(FclDrawColor *)(func_002b6150(((s16 *)(p + 0xB8))[p[0xB6]]) + 0x85) = color16;
+        *(FclDrawColor *)(fclSpriteEntry(((s16 *)(p + 0xB8))[p[0xB6]]) + 0x85) = color16;
         color17 = func_002b2a60(0x92, 0xC8, 7, 0xFF);
-        *(FclDrawColor *)(func_002b6150(p[0xB6] + 0x2FF) + 0x85) = color17;
+        *(FclDrawColor *)(fclSpriteEntry(p[0xB6] + 0x2FF) + 0x85) = color17;
         p[1] = 0x1B;
         break;
     }
@@ -1299,18 +1299,18 @@ void fclCombineLayoutTransition(u8 *task, s32 transition) {
     }
     /* Each resource is looked up again after hiding it in retail. */
     if ((s8)transition == 1) {
-        func_002b6150(0x216)[0x73] = 0;
-        func_002b6150(0x216);
-        func_002b6150(0x217)[0x73] = 0;
-        func_002b6150(0x217);
-        func_002b6150(0x218)[0x73] = 0;
-        func_002b6150(0x218);
-        func_002b6150(0x219)[0x73] = 0;
-        func_002b6150(0x219);
-        func_002b6150(0x21A)[0x73] = 0;
-        func_002b6150(0x21A);
-        func_002b6150(0x21B)[0x73] = 0;
-        func_002b6150(0x21B);
+        fclSpriteEntry(0x216)[0x73] = 0;
+        fclSpriteEntry(0x216);
+        fclSpriteEntry(0x217)[0x73] = 0;
+        fclSpriteEntry(0x217);
+        fclSpriteEntry(0x218)[0x73] = 0;
+        fclSpriteEntry(0x218);
+        fclSpriteEntry(0x219)[0x73] = 0;
+        fclSpriteEntry(0x219);
+        fclSpriteEntry(0x21A)[0x73] = 0;
+        fclSpriteEntry(0x21A);
+        fclSpriteEntry(0x21B)[0x73] = 0;
+        fclSpriteEntry(0x21B);
     }
 }
 
@@ -1330,8 +1330,8 @@ void fclCombineBuildRows(u8 *arg0) {
     temp_16 = *(u8 **)(arg0 + 0x38);
     base = (FclVec2f *)D_00641660;
     sp38 = func_002b2970(base->x, base->y);
-    func_002b6c30(0x1C6, sp38, 242.0f, 0x3D);
-    func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
+    fclSpriteCreate(0x1C6, sp38, 242.0f, 0x3D);
+    fclSpriteStartAlphaAt(0x1C6, 0, 0x64, 0, 0xA, 0);
     *(s8 *)(temp_16 + 0xB4) = 0;
     *(s8 *)(temp_16 + 0xB5) = 0;
     *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 1;
@@ -1387,12 +1387,12 @@ void fclCombineBuildRows(u8 *arg0) {
    No pragmas: retail here is unscheduled like the rest of this unit.
    Built from the m2c oracle from src/generated/code1_002e.c de-noised to this file's idiom - M2C_FIELD expanded to direct
    casts, the gp temporaries resolved to ((s32)iGpffffb440) and ((s32)iGpffffb3d4), the six M2C_ERROR
-   ldr/ldl sites written as struct-by-value `*(FclVec2f *)(ps + 0x38)` with `ps = func_002b6150(0x151/0x2E0)`,
+   ldr/ldl sites written as struct-by-value `*(FclVec2f *)(ps + 0x38)` with `ps = fclSpriteEntry(0x151/0x2E0)`,
    the 11 colour bases with their M2C_UNK companions folded to u8 colXXX[4] (`&sp` -> col, `sp` -> col[0],
    `(s32)sp` -> (*(s32 *)col)), the (s32)(sp)+0x110/0xF0 stores rewritten as sp110[]/spF0[] (u16[16]),
    37 s64 temporaries narrowed to s32 (3963 -> 3659) with four - var_16, var_16_2, var_16_3, var_17_2 - kept s64
    to land 3659 inside the band, the switch-3 labels restored as case 0-2 (retail jtbl, +157 to 3816, still inside),
-   the m2c arg-count hallucinations on func_002b6150/func_0010b5b0/func_003190d0/fclDrawGetState/func_002b6970/
+   the m2c arg-count hallucinations on fclSpriteEntry/func_0010b5b0/func_003190d0/fclDrawGetState/fclSpriteFlagBit/
    func_002bb680/func_00122720 cut back to the retail arg counts, the (f32)(s32) float wrappers collapsed
    (0x437F0000->255.0f, 0x43000000->128.0f, 0x422C0000->43.0f), and D_008C027A/024E to [0]. */
 /* measured 002ed430 (owner, 2026-09-19): fnalign **2865 -> 2856 edits**, count
@@ -1404,7 +1404,7 @@ void fclCombineBuildRows(u8 *arg0) {
    2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
    func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
    func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-/* measured 002ed430 (2026-09-20): deficit_scan first per assignment - retail 3764 vs object 3814 (+50, +1.3% INSIDE) so deficit -50 and every retail-only run is CROSS (227 at 0x002efe74, 103 at 0x002ef934, 98 at 0x002eea48, all > deficit). Opcode delta BOTH directions: retail has more lb +22/bnez +12/addu +12, object has more dsll32 +43/dsra32 +42/mtc1 +16/mov.s +10/lui +7/cvt.s.w +5 - the surplus names double-extends + float conversions, as on func_0026a020 (mul.s/lui/mtc1 vs add.s doubling idiom, -66 there). Fixed: func_00275820 (f32x3->s32x3, 7 calls, each saved mtc1/lui/cvt), func_002b2aa0 (s32,s32->s32,f32 + 0->0.0f at both calls), func_002b68d0 (s32->s16 first), var_16/var_16_2/var_16_3/var_17_2 s64->s16 with (s8)/(s16) loop rewrites, *func_002e4870 u8->s8 (3 sites + 0xD), and 38x (s64)(<<0x30/0x38) to (s16)/(s8) for 0x128+1/00314660/002b6150 narrow params. fnalign **2856 -> 2559 edits** (-297, +31 reloc-only), count **3814 -> 3693** (-121) vs retail 3761 trimmed (-68, -1.8% INSIDE 3648-3874). Remaining retail dsll32 +19/dsra32 +20 vs object addiu +41/move +14 are CROSS (all long runs still > deficit 68), no ABSENT. */
+/* measured 002ed430 (2026-09-20): deficit_scan first per assignment - retail 3764 vs object 3814 (+50, +1.3% INSIDE) so deficit -50 and every retail-only run is CROSS (227 at 0x002efe74, 103 at 0x002ef934, 98 at 0x002eea48, all > deficit). Opcode delta BOTH directions: retail has more lb +22/bnez +12/addu +12, object has more dsll32 +43/dsra32 +42/mtc1 +16/mov.s +10/lui +7/cvt.s.w +5 - the surplus names double-extends + float conversions, as on func_0026a020 (mul.s/lui/mtc1 vs add.s doubling idiom, -66 there). Fixed: func_00275820 (f32x3->s32x3, 7 calls, each saved mtc1/lui/cvt), func_002b2aa0 (s32,s32->s32,f32 + 0->0.0f at both calls), fclSpriteSetFlag (s32->s16 first), var_16/var_16_2/var_16_3/var_17_2 s64->s16 with (s8)/(s16) loop rewrites, *func_002e4870 u8->s8 (3 sites + 0xD), and 38x (s64)(<<0x30/0x38) to (s16)/(s8) for 0x128+1/00314660/fclSpriteEntry narrow params. fnalign **2856 -> 2559 edits** (-297, +31 reloc-only), count **3814 -> 3693** (-121) vs retail 3761 trimmed (-68, -1.8% INSIDE 3648-3874). Remaining retail dsll32 +19/dsra32 +20 vs object addiu +41/move +14 are CROSS (all long runs still > deficit 68), no ABSENT. */
 /* measured: 15048 executable bytes / 15056B retail window, zero differing words.
    Keys: the colour branches of state 0x2A build their 0x270 sprite id as an
    unsigned sum, so it is not CSE'd with the alpha lookup's id and its spill
@@ -1679,8 +1679,8 @@ void func_002ed430(u8 *arg0) {
         return;
     case 0x26:
         for (var_19 = 0; var_19 < (datPersonaRosterCapacity() & 0xFFFF); var_19++) {
-            temp_f20 = (f32)*(s16 *)(func_002b6150(var_19 + 0x21C) + 0x42);
-            temp_7 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)*(s16 *)(func_002b6150(var_19 + 0x21C) + 0x40));
+            temp_f20 = (f32)*(s16 *)(fclSpriteEntry(var_19 + 0x21C) + 0x42);
+            temp_7 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)*(s16 *)(fclSpriteEntry(var_19 + 0x21C) + 0x40));
             if (temp_18->f11E == var_19) {
                 var_17 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
             } else {
@@ -1691,8 +1691,8 @@ void func_002ed430(u8 *arg0) {
                 frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_17, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, var_19))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) == 0
-            && (s16)func_002b6970(*(s16 *)(func_002b6150(0x193) + 0x10), 1) == 0) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 0
+            && (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x193) + 0x10), 1) == 0) {
             func_003205f0(arg0, 0x96, 0x93);
             fclCombineLayoutTransition(arg0, 0);
             func_00315600(arg0, 0);
@@ -1707,7 +1707,7 @@ void func_002ed430(u8 *arg0) {
         }
         break;
     case 0x28:                                      /* switch 1 */
-        if ((s32)((s32)(((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150(0x21C))+(0x10))), 1))))) != (s32)((s32)(1))) {
+        if ((s32)((s32)(((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry(0x21C))+(0x10))), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement(temp_18->f148, (s32)(((u16 *)func_002e48a0(0, temp_18->f11E))), 0, 0);
             func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
             temp_16_2 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
@@ -1739,8 +1739,8 @@ void func_002ed430(u8 *arg0) {
                     }
                     func_0045af60(0, 1, 0, 4);
                     fclDrawSetStateByte(temp_18->f148, 3);
-                    if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1E4) + 0x10), 0) == 1) {
-                        func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0, 0, 0xA, 0);
+                    if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1E4) + 0x10), 0) == 1) {
+                        fclSpriteStartAlphaAt(0x1E4, *(u8 *)(fclSpriteEntry(0x1E4) + 0x6E), 0, 0, 0xA, 0);
                     }
                 }
             }
@@ -1760,9 +1760,9 @@ void func_002ed430(u8 *arg0) {
         }
         break;
     case 0x2A:
-        temp_16_3 = *(u8 *)(func_002b6150(0x7C) + 0x6E);
+        temp_16_3 = *(u8 *)(fclSpriteEntry(0x7C) + 0x6E);
         temp_17_3 = *(FclCombineWork **)(arg0 + 0x38);
-        temp_2_2 = func_002b6150(0x7C);
+        temp_2_2 = fclSpriteEntry(0x7C);
         sp158 = *(FclVec2f *)(temp_2_2 + 0x38);
         temp_16_4 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_3);
         frFontExDrawTextDeferredOutB(111.0f + sp158.x, sp158.y, 43.0f, temp_16_4, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_3->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
@@ -1770,62 +1770,62 @@ void func_002ed430(u8 *arg0) {
             func_0031d630(arg0, var_19_2, temp_18->f128, temp_18->f129, 0);
             if (temp_18->f128 != var_19_2 && *(s8 *)(func_002e4870(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) > 0) {
                 temp_23 = var_19_2 + 0x270;
-                temp_f20_2 = (f32)*(s16 *)(func_002b6150(temp_23) + 0x42);
-                spE0 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20_2, (f32)*(s16 *)(func_002b6150(temp_23) + 0x40));
+                temp_f20_2 = (f32)*(s16 *)(fclSpriteEntry(temp_23) + 0x42);
+                spE0 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20_2, (f32)*(s16 *)(fclSpriteEntry(temp_23) + 0x40));
                 if (var_19_2 == temp_18->f11E) {
                     temp_30 = var_19_2 + 0x27D;
                     /* Unsigned: retail recomputes this id per colour branch instead of
                        reusing temp_23, and the resulting spill sets the 0x260 frame. */
                     spD0 = var_19_2 + 0x270U;
-                    *(u8 *)(func_002b6150(spD0) + 0x6E) = *(u8 *)(func_002b6150(temp_30) + 0x6E) = 0xFF;
+                    *(u8 *)(fclSpriteEntry(spD0) + 0x6E) = *(u8 *)(fclSpriteEntry(temp_30) + 0x6E) = 0xFF;
                     col258 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-                    temp_2_4 = func_002b6150(var_19_2 + 0x297);
+                    temp_2_4 = fclSpriteEntry(var_19_2 + 0x297);
                     *(FclDrawColor *)(temp_2_4 + 0x85) = col258;
-                    temp_2_5 = func_002b6150(var_19_2 + 0x28B);
+                    temp_2_5 = fclSpriteEntry(var_19_2 + 0x28B);
                     *(FclDrawColor *)(temp_2_5 + 0x85) = *(FclDrawColor *)(temp_2_4 + 0x85);
-                    temp_2_6 = func_002b6150(temp_30);
+                    temp_2_6 = fclSpriteEntry(temp_30);
                     *(FclDrawColor *)(temp_2_6 + 0x85) = *(FclDrawColor *)(temp_2_5 + 0x85);
-                    *(FclDrawColor *)(func_002b6150(spD0) + 0x85) = *(FclDrawColor *)(temp_2_6 + 0x85);
+                    *(FclDrawColor *)(fclSpriteEntry(spD0) + 0x85) = *(FclDrawColor *)(temp_2_6 + 0x85);
                     col254 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                    *(FclDrawColor *)(func_002b6150(var_19_2 + 0x2A3) + 0x85) = col254;
+                    *(FclDrawColor *)(fclSpriteEntry(var_19_2 + 0x2A3) + 0x85) = col254;
                     col250 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     func_002ba970((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col250);
                     var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, spE0);
                     if (*(s8 *)(func_002e4870(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) == 2) {
-                        func_002b68d0(0xCF, 0, 1);
-                        func_002b68d0(0xD2, 0, 1);
-                        func_002b68d0(temp_23, 0, 0);
-                        func_002b68d0(temp_30, 0, 0);
+                        fclSpriteSetFlag(0xCF, 0, 1);
+                        fclSpriteSetFlag(0xD2, 0, 1);
+                        fclSpriteSetFlag(temp_23, 0, 0);
+                        fclSpriteSetFlag(temp_30, 0, 0);
                     }
                 } else if (*(s8 *)(func_002e4870(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) == 2) {
                     temp_21_2 = var_19_2 + 0x27D;
                     temp_22 = var_19_2 + 0x270U;
-                    *(u8 *)(func_002b6150(temp_22) + 0x6E) = *(u8 *)(func_002b6150(temp_21_2) + 0x6E) = 0;
+                    *(u8 *)(fclSpriteEntry(temp_22) + 0x6E) = *(u8 *)(fclSpriteEntry(temp_21_2) + 0x6E) = 0;
                     col24C = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
-                    temp_2_9 = func_002b6150(temp_21_2);
+                    temp_2_9 = fclSpriteEntry(temp_21_2);
                     *(FclDrawColor *)(temp_2_9 + 0x85) = col24C;
-                    *(FclDrawColor *)(func_002b6150(temp_22) + 0x85) = *(FclDrawColor *)(temp_2_9 + 0x85);
+                    *(FclDrawColor *)(fclSpriteEntry(temp_22) + 0x85) = *(FclDrawColor *)(temp_2_9 + 0x85);
                     col248 = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
-                    *(FclDrawColor *)(func_002b6150(var_19_2 + 0x2A3) + 0x85) = col248;
+                    *(FclDrawColor *)(fclSpriteEntry(var_19_2 + 0x2A3) + 0x85) = col248;
                     col244 = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
                     func_002ba970((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col244);
                     var_21 = func_002b2a30(0xFF, 0xCC, 0xFA, spE0);
-                    func_002b68d0(0xCF, 0, 0);
-                    func_002b68d0(0xD2, 0, 0);
+                    fclSpriteSetFlag(0xCF, 0, 0);
+                    fclSpriteSetFlag(0xD2, 0, 0);
                 } else {
                     temp_21_3 = var_19_2 + 0x27D;
                     temp_22_2 = var_19_2 + 0x270U;
-                    *(u8 *)(func_002b6150(temp_22_2) + 0x6E) = *(u8 *)(func_002b6150(temp_21_3) + 0x6E) = 0xCC;
+                    *(u8 *)(fclSpriteEntry(temp_22_2) + 0x6E) = *(u8 *)(fclSpriteEntry(temp_21_3) + 0x6E) = 0xCC;
                     col240 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    temp_2_12 = func_002b6150(temp_21_3);
+                    temp_2_12 = fclSpriteEntry(temp_21_3);
                     *(FclDrawColor *)(temp_2_12 + 0x85) = col240;
-                    *(FclDrawColor *)(func_002b6150(temp_22_2) + 0x85) = *(FclDrawColor *)(temp_2_12 + 0x85);
+                    *(FclDrawColor *)(fclSpriteEntry(temp_22_2) + 0x85) = *(FclDrawColor *)(temp_2_12 + 0x85);
                     col23C = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    temp_2_14 = func_002b6150(var_19_2 + 0x297);
+                    temp_2_14 = fclSpriteEntry(var_19_2 + 0x297);
                     *(FclDrawColor *)(temp_2_14 + 0x85) = col23C;
-                    *(FclDrawColor *)(func_002b6150(var_19_2 + 0x28B) + 0x85) = *(FclDrawColor *)(temp_2_14 + 0x85);
+                    *(FclDrawColor *)(fclSpriteEntry(var_19_2 + 0x28B) + 0x85) = *(FclDrawColor *)(temp_2_14 + 0x85);
                     col238 = func_002b2a60(0, 0, 0x66, 0xFF);
-                    *(FclDrawColor *)(func_002b6150(var_19_2 + 0x2A3) + 0x85) = col238;
+                    *(FclDrawColor *)(fclSpriteEntry(var_19_2 + 0x2A3) + 0x85) = col238;
                     col234 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
                     func_002ba970((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col234);
                     var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, spE0);
@@ -1835,7 +1835,7 @@ void func_002ed430(u8 *arg0) {
             }
         }
         if ((s8)fclDrawGetState(temp_18->f148) < 0 || (s8)fclDrawGetState(temp_18->f148) > 5) {
-            if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1C7) + 0x10), 0) == 1) {
+            if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1C7) + 0x10), 0) == 1) {
                 func_00324410(arg0, 0x1C7, 0);
                 func_00324410(arg0, 0x2E8, 1);
             }
@@ -1915,11 +1915,11 @@ void func_002ed430(u8 *arg0) {
         }
         break;
     case 0x2B:
-        temp_2_18 = func_002b6150(0x7C);
+        temp_2_18 = fclSpriteEntry(0x7C);
         sp150 = *(FclVec2f *)(temp_2_18 + 0x38);
         temp_16_12 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
         frFontExDrawTextDeferredOutB(111.0f + sp150.x, sp150.y, 43.0f, temp_16_12, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) != 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) != 1) {
             fclDrawSetPlacement(temp_18->f148, (s32)(((u16 *)func_002e48a0(0, temp_18->f11E))), 0, 0);
             func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
             temp_16_13 = (s32)fclDrawGetResource(temp_18->f148);
@@ -1928,7 +1928,7 @@ void func_002ed430(u8 *arg0) {
         }
         break;
     case 0x2C:
-        temp_2_19 = func_002b6150(0x7C);
+        temp_2_19 = fclSpriteEntry(0x7C);
         sp148 = *(FclVec2f *)(temp_2_19 + 0x38);
         temp_16_14 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
         frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_14, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
@@ -1954,8 +1954,8 @@ void func_002ed430(u8 *arg0) {
                     }
                     func_0045af60(0, 1, 0, 4);
                     fclDrawSetStateByte(temp_18->f148, 3);
-                    if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1E4) + 0x10), 0) == 1) {
-                        func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0, 0, 0xA, 0);
+                    if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1E4) + 0x10), 0) == 1) {
+                        fclSpriteStartAlphaAt(0x1E4, *(u8 *)(fclSpriteEntry(0x1E4) + 0x6E), 0, 0, 0xA, 0);
                     }
                 }
             }
@@ -1981,13 +1981,13 @@ void func_002ed430(u8 *arg0) {
         }
         break;
     case 0x2E:
-        temp_16_17 = *(u8 *)(func_002b6150(0x7C) + 0x6E);
+        temp_16_17 = *(u8 *)(fclSpriteEntry(0x7C) + 0x6E);
         temp_17_8 = *(FclCombineWork **)(arg0 + 0x38);
-        temp_2_20 = func_002b6150(0x7C);
+        temp_2_20 = fclSpriteEntry(0x7C);
         sp140 = *(FclVec2f *)(temp_2_20 + 0x38);
         temp_16_18 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_17);
         frFontExDrawTextDeferredOutB(111.0f + sp140.x, sp140.y, 43.0f, temp_16_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_8->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) != 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) != 1) {
             temp_18->f2F9 = temp_18->f128 + 1;
             temp_18->f2FA = temp_18->f11E;
             temp_16_19 = temp_18->f2FA;
@@ -2046,12 +2046,12 @@ void func_002ed430(u8 *arg0) {
                     func_0045af60(0, 2, 0, 5);
                 }
                 temp_18->f122 = (s8)((s8)(func_002b2cb0(temp_18->f122, 1, 2, 0, 1)));
-                ps = func_002b6150(0x151);
+                ps = fclSpriteEntry(0x151);
                 sp198 = func_002b2970((f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
-                func_002b69f0(0x151, (*(FclVec2f *)(ps + 0x38)), sp198, 1, 4, 0);
-                ps = func_002b6150(0x2E0);
+                fclSpriteStartPositionAt(0x151, (*(FclVec2f *)(ps + 0x38)), sp198, 1, 4, 0);
+                ps = fclSpriteEntry(0x2E0);
                 sp190 = func_002b2970((f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
-                func_002b69f0(0x2E0, (*(FclVec2f *)(ps + 0x38)), sp190, 1, 4, 0);
+                fclSpriteStartPositionAt(0x2E0, (*(FclVec2f *)(ps + 0x38)), sp190, 1, 4, 0);
                 temp_4 = (s8)((s8)((s8)(temp_18->f122)));
                 switch (temp_4) {                   /* switch 2; irregular */
                 case 0:                             /* switch 2 */
@@ -2085,12 +2085,12 @@ void func_002ed430(u8 *arg0) {
                     func_0045af60(0, 2, 0, 5);
                 }
                 temp_18->f122 = (s8)((s8)(func_002b2d00(temp_18->f122, 1, 0, 2, 1)));
-                ps = func_002b6150(0x151);
+                ps = fclSpriteEntry(0x151);
                 sp188 = func_002b2970((f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
-                func_002b69f0(0x151, (*(FclVec2f *)(ps + 0x38)), sp188, 1, 4, 0);
-                ps = func_002b6150(0x2E0);
+                fclSpriteStartPositionAt(0x151, (*(FclVec2f *)(ps + 0x38)), sp188, 1, 4, 0);
+                ps = fclSpriteEntry(0x2E0);
                 sp180 = func_002b2970((f32)((temp_18->f122 * 0x8E) + 0x6A), 16.0f);
-                func_002b69f0(0x2E0, (*(FclVec2f *)(ps + 0x38)), sp180, 1, 4, 0);
+                fclSpriteStartPositionAt(0x2E0, (*(FclVec2f *)(ps + 0x38)), sp180, 1, 4, 0);
                 temp_4_2 = (s8)((s8)((s8)(temp_18->f122)));
                 switch (temp_4_2) {                 /* switch 3; irregular */
                 case 0:                             /* switch 3 */
@@ -2123,9 +2123,9 @@ void func_002ed430(u8 *arg0) {
         }
         break;
     case 0x35:
-        temp_16_38 = *(u8 *)(func_002b6150(0x7C) + 0x6E);
+        temp_16_38 = *(u8 *)(fclSpriteEntry(0x7C) + 0x6E);
         temp_17_12 = *(FclCombineWork **)(arg0 + 0x38);
-        temp_2_22 = func_002b6150(0x7C);
+        temp_2_22 = fclSpriteEntry(0x7C);
         sp138 = *(FclVec2f *)(temp_2_22 + 0x38);
         temp_16_39 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_38);
         frFontExDrawTextDeferredOutB(111.0f + sp138.x, sp138.y, 43.0f, temp_16_39, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_12->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
@@ -2195,7 +2195,7 @@ void func_002ed430(u8 *arg0) {
             fclDrawResetScale(temp_18->f148);
             func_00325450(arg0, 3, 1);
             for (var_16_3 = 0; var_16_3 < 0x30C; var_16_3++) {
-                func_002b68d0(var_16_3, 0, 1);
+                fclSpriteSetFlag(var_16_3, 0, 1);
             }
             temp_18->f1 = 0x32U;
             return;
@@ -2665,8 +2665,8 @@ void func_002f0f00(u8 *arg0) {
         break;
     case 0x3A:                                      /* switch 1 */
         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
-            temp_f20 = (f32)*(s16 *)(func_002b6150(partyRow + 0x21C) + 0x42);
-            temp_7 = (u8)func_002b2aa0(0, 0, 255.0f, temp_f20, (f32)*(s16 *)(func_002b6150(partyRow + 0x21C) + 0x40));
+            temp_f20 = (f32)*(s16 *)(fclSpriteEntry(partyRow + 0x21C) + 0x42);
+            temp_7 = (u8)func_002b2aa0(0, 0, 255.0f, temp_f20, (f32)*(s16 *)(fclSpriteEntry(partyRow + 0x21C) + 0x40));
             if (temp_17->f11E == partyRow) {
                 var_19 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
             } else {
@@ -2688,30 +2688,30 @@ void func_002f0f00(u8 *arg0) {
             temp_f21 = temp_f20_2 * sdkSpriteScaledHeight(temp_2_3) / 2.0f;
             sdkSpriteFreeNode(temp_2_3);
             sp3C0 = func_002b2970(sp3C8.x - temp_f22, sp3C8.y - temp_f21);
-            func_002b6c30(0x7E, sp3C0, 156.0f, 0x56);
-            func_002b6a70(0x7E, 0, 0xFF, 0, 2, 0);
-            *(f32 *)(func_002b6150(0x7E) + 0xAC) = temp_f20_2;
-            *(f32 *)(func_002b6150(0x7E) + 0xA0) = temp_f20_2;
+            fclSpriteCreate(0x7E, sp3C0, 156.0f, 0x56);
+            fclSpriteStartAlphaAt(0x7E, 0, 0xFF, 0, 2, 0);
+            *(f32 *)(fclSpriteEntry(0x7E) + 0xAC) = temp_f20_2;
+            *(f32 *)(fclSpriteEntry(0x7E) + 0xA0) = temp_f20_2;
             switch (datPersonaRosterCapacity() & 0xFFFF) {
             case 12:
                 sp3B0 = func_002b2970(sp3C0.x, sp3C0.y - 20.0f);
-                func_002b69f0(0x7E, sp3C0, *(FclVec2f *)&sp3B0, 1, 8, 0);
+                fclSpriteStartPositionAt(0x7E, sp3C0, *(FclVec2f *)&sp3B0, 1, 8, 0);
                 break;
             case 10:
                 sp3A8 = func_002b2970(sp3C0.x, sp3C0.y - 16.0f);
-                func_002b69f0(0x7E, sp3C0, *(FclVec2f *)&sp3A8, 1, 8, 0);
+                fclSpriteStartPositionAt(0x7E, sp3C0, *(FclVec2f *)&sp3A8, 1, 8, 0);
                 break;
             case 8:
                 sp3A0 = func_002b2970(sp3C0.x, sp3C0.y - 13.0f);
-                func_002b69f0(0x7E, sp3C0, *(FclVec2f *)&sp3A0, 1, 8, 0);
+                fclSpriteStartPositionAt(0x7E, sp3C0, *(FclVec2f *)&sp3A0, 1, 8, 0);
                 break;
             case 6:
                 sp398 = func_002b2970(sp3C0.x, sp3C0.y - 10.0f);
-                func_002b69f0(0x7E, sp3C0, *(FclVec2f *)&sp398, 1, 8, 0);
+                fclSpriteStartPositionAt(0x7E, sp3C0, *(FclVec2f *)&sp398, 1, 8, 0);
                 break;
             }
-            *(s8 *)(func_002b6150(0x7E) + 0x47) = 1;
-            func_002b6af0(0x7E, temp_f20_2, temp_f20_2, temp_f20_2 - iGpffff8218, temp_f20_2, 0, 4, 4);
+            *(s8 *)(fclSpriteEntry(0x7E) + 0x47) = 1;
+            fclSpriteStartRevealScaleAt(0x7E, temp_f20_2, temp_f20_2, temp_f20_2 - iGpffff8218, temp_f20_2, 0, 4, 4);
             if (temp_17->f128 == -1) {
                 temp_17->f11E = 0;
             }
@@ -2721,8 +2721,8 @@ void func_002f0f00(u8 *arg0) {
         break;
     case 0x3B:                                      /* switch 1 */
         for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
-            temp_f20_3 = (f32)*(s16 *)(func_002b6150(gridRow + 0x21C) + 0x42);
-            temp_7_2 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20_3, (f32)*(s16 *)(func_002b6150(gridRow + 0x21C) + 0x40));
+            temp_f20_3 = (f32)*(s16 *)(fclSpriteEntry(gridRow + 0x21C) + 0x42);
+            temp_7_2 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20_3, (f32)*(s16 *)(fclSpriteEntry(gridRow + 0x21C) + 0x40));
             if (temp_17->f11E == gridRow) {
                 var_18 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7_2);
             } else {
@@ -2733,7 +2733,7 @@ void func_002f0f00(u8 *arg0) {
                 frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, gridRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
-        if (((s32)((s32)(((s32) (*(s16 *)fclCombineSlotRecord((u8 *)(temp_17->rows[0]), 0) & 4) >> 2))) == (s32)((s32)(0))) && ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) == (s32)((s32)(0)))) {
+        if (((s32)((s32)(((s32) (*(s16 *)fclCombineSlotRecord((u8 *)(temp_17->rows[0]), 0) & 4) >> 2))) == (s32)((s32)(0))) && ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) == (s32)((s32)(0)))) {
             func_003205f0(arg0, 0x96, 0x93);
             fclCombineLayoutTransition(arg0, 0U);
             func_00315600(arg0, 0);
@@ -2745,8 +2745,8 @@ void func_002f0f00(u8 *arg0) {
     case 0x3D:                                      /* switch 1 */
         var_21 = -1;
         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
-            temp_f20_4 = (f32)*(s16 *)(func_002b6150(partyRow + 0x21C) + 0x42);
-            temp_7_3 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20_4, (f32)*(s16 *)(func_002b6150(partyRow + 0x21C) + 0x40));
+            temp_f20_4 = (f32)*(s16 *)(fclSpriteEntry(partyRow + 0x21C) + 0x42);
+            temp_7_3 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20_4, (f32)*(s16 *)(fclSpriteEntry(partyRow + 0x21C) + 0x40));
             if (temp_17->f11E == partyRow) {
                 var_19_3 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7_3);
             } else {
@@ -2756,7 +2756,7 @@ void func_002f0f00(u8 *arg0) {
                 temp_f20 = (f32)(partyRow * 0x17 + 0x80);
                 frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_19_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, partyRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
-            temp_2_2 = (s16)func_002b6970(*(s16 *)(func_002b6150(partyRow + 0x21C) + 0x10), 1);
+            temp_2_2 = (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(partyRow + 0x21C) + 0x10), 1);
             if (temp_2_2 == 1) {
                 var_21 = 1;
             }
@@ -2773,7 +2773,7 @@ void func_002f0f00(u8 *arg0) {
         }
         break;
     case 0x3E:                                      /* switch 1 */
-        if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
+        if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(0, temp_17->f11E)), 0, 0);
             func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             temp_16_3 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
@@ -2806,8 +2806,8 @@ void func_002f0f00(u8 *arg0) {
                 if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
                     func_0045af60(0, 1, 0, 4);
                     fclDrawSetStateByte((u8 *)(temp_17->f148),  3);
-                    if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x1E4)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
-                        func_002b6a70(0x1E4, (*((u8 *)((u8 *)(func_002b6150(0x1E4)) + (0x6E)))), 0, 0, 0xA, 0);
+                    if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
+                        fclSpriteStartAlphaAt(0x1E4, (*((u8 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x6E)))), 0, 0, 0xA, 0);
                     }
                     goto block_83;
                 }
@@ -2835,12 +2835,12 @@ block_83:
                         labelRow = (s16)gridRow;
                         labelId = (s16)((labelRow + 0x25E));
                         labelNode = sdkSpriteNewNode(func_00331560(), 0x39);
-                        func_002b6a70(labelId, 0U, 0xFF, 0, 3, 0);
-                        func_002b6af0(labelId, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, 0);
+                        fclSpriteStartAlphaAt(labelId, 0U, 0xFF, 0, 3, 0);
+                        fclSpriteStartRevealScaleAt(labelId, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, 0);
                         temp_20_5 = (labelRow * 0x17) + 0x14E;
                         sp370 = func_002b2970((f32) temp_20_5, 110.0f + (sdkSpriteScaledHeight(labelNode) / 2.0f));
                         sp368 = func_002b2970((f32) temp_20_5, 110.0f);
-                        func_002b69f0(labelId, (*(FclVec2f *)&sp370), (*(FclVec2f *)&sp368),  0,  3,  0);
+                        fclSpriteStartPositionAt(labelId, (*(FclVec2f *)&sp370), (*(FclVec2f *)&sp368),  0,  3,  0);
                         sdkSpriteFreeNode(labelNode);
                     }
                 }
@@ -2856,9 +2856,9 @@ block_83:
         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
             func_0031d630(arg0, (s8)(partyRow), temp_17->f128, temp_17->f129, 0);
         }
-        temp_16_8 = (*((u8 *)((u8 *)(func_002b6150(0x7C)) + (0x6E))));
+        temp_16_8 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E))));
         temp_18_8 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_4 = (u8 *)(func_002b6150(0x7C));
+        temp_2_4 = (u8 *)(fclSpriteEntry(0x7C));
         sp1E8 = *(FclVec2f *)(temp_2_4 + 0x38);
         temp_16_9 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_8)));
         frFontExDrawTextDeferredOutB(111.0f + sp1E8.x, sp1E8.y, 43.0f, temp_16_9, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_8->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
@@ -2890,12 +2890,12 @@ block_83:
                         temp_18_10 = (s16)(gridRow);
                         temp_16_13 = (s16)((temp_18_10 + 0x25E));
                         temp_21_4 = sdkSpriteNewNode(func_00331560(), 0x39);
-                        func_002b6a70(temp_16_13, 0xFFU, 0, 0, 3, 0);
-                        func_002b6af0(temp_16_13, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
+                        fclSpriteStartAlphaAt(temp_16_13, 0xFFU, 0, 0, 3, 0);
+                        fclSpriteStartRevealScaleAt(temp_16_13, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         temp_18_11 = (temp_18_10 * 0x17) + 0x14E;
                         sp348 = func_002b2970((f32) temp_18_11, 110.0f);
                         sp340 = func_002b2970((f32) temp_18_11, 110.0f + (sdkSpriteScaledHeight(temp_21_4) / 2.0f));
-                        func_002b69f0(temp_16_13, (*(FclVec2f *)&sp348), (*(FclVec2f *)&sp340),  0,  3,  0);
+                        fclSpriteStartPositionAt(temp_16_13, (*(FclVec2f *)&sp348), (*(FclVec2f *)&sp340),  0,  3,  0);
                         sdkSpriteFreeNode(temp_21_4);
                     }
                     func_00317240(arg0, 0, 60.0f);
@@ -2926,12 +2926,12 @@ block_83:
                             temp_16_17 = (s16)(gridRow);
                             temp_18_15 = (s16)((temp_16_17 + 0x25E));
                             temp_21_8 = sdkSpriteNewNode(func_00331560(), 0x39);
-                            func_002b6a70(temp_18_15, 0xFFU, 0, 0, 3, 0);
-                            func_002b6af0(temp_18_15, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
+                            fclSpriteStartAlphaAt(temp_18_15, 0xFFU, 0, 0, 3, 0);
+                            fclSpriteStartRevealScaleAt(temp_18_15, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                             temp_22_4 = (temp_16_17 * 0x17) + 0x14E;
                             sp310 = func_002b2970((f32) temp_22_4, 110.0f);
                             sp308 = func_002b2970((f32) temp_22_4, 110.0f + (sdkSpriteScaledHeight(temp_21_8) / 2.0f));
-                            func_002b69f0(temp_18_15, (*(FclVec2f *)&sp310), (*(FclVec2f *)&sp308),  0,  3,  0);
+                            fclSpriteStartPositionAt(temp_18_15, (*(FclVec2f *)&sp310), (*(FclVec2f *)&sp308),  0,  3,  0);
                             sdkSpriteFreeNode(temp_21_8);
                             temp_18_16 = (s8)((s8)((s8)(temp_17->f129)));
                             if ((*((s8 *)((u8 *)((func_002e4870((u32)temp_18_16 + 1U) + (temp_18_16 * 0xC) + temp_16_17)) + (0x14)))) > 0) {
@@ -2967,12 +2967,12 @@ block_83:
                             temp_19_6 = (s16)(gridColumn);
                             temp_16_21 = (s16)((((s8)((temp_19_6 + 0x6A))) + 0x1F4));
                             temp_18_20 = sdkSpriteNewNode(func_00331560(), 0x39);
-                            func_002b6a70(temp_16_21, 0xFFU, 0, 0, 3, 0);
-                            func_002b6af0(temp_16_21, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
+                            fclSpriteStartAlphaAt(temp_16_21, 0xFFU, 0, 0, 3, 0);
+                            fclSpriteStartRevealScaleAt(temp_16_21, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                             temp_19_7 = (temp_19_6 * 0x17) + 0x14E;
                             sp2E0 = func_002b2970((f32) temp_19_7, 110.0f);
                             sp2D8 = func_002b2970((f32) temp_19_7, 110.0f + (sdkSpriteScaledHeight(temp_18_20) / 2.0f));
-                            func_002b69f0(temp_16_21, (*(FclVec2f *)&sp2E0), (*(FclVec2f *)&sp2D8),  0,  3,  0);
+                            fclSpriteStartPositionAt(temp_16_21, (*(FclVec2f *)&sp2E0), (*(FclVec2f *)&sp2D8),  0,  3,  0);
                             sdkSpriteFreeNode(temp_18_20);
                         }
                         temp_17->f1 = 0x41U;
@@ -3003,8 +3003,8 @@ block_83:
                             var_19_8 = (s16)((var_19_8 + 1));
                         }
                     }
-                    func_002b6a70(0x7E, 0U, 0xFF, 0, 3, 3);
-                    func_002b68d0(0x7E, 0, 0);
+                    fclSpriteStartAlphaAt(0x7E, 0U, 0xFF, 0, 3, 3);
+                    fclSpriteSetFlag(0x7E, 0, 0);
                     temp_17->f1 = 0x3CU;
                     return;
                 }
@@ -3012,11 +3012,11 @@ block_83:
         }
         break;
     case 0x41:                                      /* switch 1 */
-        temp_2_6 = (u8 *)(func_002b6150(0x7C));
+        temp_2_6 = (u8 *)(fclSpriteEntry(0x7C));
         sp1E0 = *(FclVec2f *)(temp_2_6 + 0x38);
         temp_16_22 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + sp1E0.x, sp1E0.y, 43.0f, temp_16_22, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
+        if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(0, temp_17->f11E)), 0, 0);
             func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             temp_16_23 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
@@ -3026,7 +3026,7 @@ block_83:
         }
         break;
     case 0x42:                                      /* switch 1 */
-        temp_2_7 = (u8 *)(func_002b6150(0x7C));
+        temp_2_7 = (u8 *)(fclSpriteEntry(0x7C));
         sp1D8 = *(FclVec2f *)(temp_2_7 + 0x38);
         temp_16_24 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + sp1D8.x, sp1D8.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
@@ -3053,8 +3053,8 @@ block_83:
                 if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
                     func_0045af60(0, 1, 0, 4);
                     fclDrawSetStateByte((u8 *)(temp_17->f148),  3);
-                    if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x1E4)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
-                        func_002b6a70(0x1E4, (*((u8 *)((u8 *)(func_002b6150(0x1E4)) + (0x6E)))), 0, 0, 0xA, 0);
+                    if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
+                        fclSpriteStartAlphaAt(0x1E4, (*((u8 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x6E)))), 0, 0, 0xA, 0);
                     }
                     goto block_166;
                 }
@@ -3082,20 +3082,20 @@ block_166:
         break;
     case 0x43:                                      /* switch 1 */
         func_003233d0(arg0);
-        temp_16_25 = (*((u8 *)((u8 *)(func_002b6150(0x7C)) + (0x6E))));
+        temp_16_25 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E))));
         temp_18_23 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_8 = (u8 *)(func_002b6150(0x7C));
+        temp_2_8 = (u8 *)(fclSpriteEntry(0x7C));
         sp1D0 = *(FclVec2f *)(temp_2_8 + 0x38);
         temp_16_26 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_25)));
         frFontExDrawTextDeferredOutB(111.0f + sp1D0.x, sp1D0.y, 43.0f, temp_16_26, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_23->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        temp_16_27 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
+        temp_16_27 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
         temp_18_24 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_9 = (u8 *)(func_002b6150(0x7D));
+        temp_2_9 = (u8 *)(fclSpriteEntry(0x7D));
         sp1C8 = *(FclVec2f *)(temp_2_9 + 0x38);
         temp_16_28 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_27)));
         frFontExDrawTextDeferredOutB(111.0f + sp1C8.x, sp1C8.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_24->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s8)fclDrawGetState((u8 *)temp_17->f148) < 0 || (s8)fclDrawGetState((u8 *)temp_17->f148) > 5) {
-            if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x1C7)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
+            if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x1C7)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
                 func_00324410(arg0, 0x1C7, 0);
                 func_00324410(arg0, 0x2E8, 1);
             }
@@ -3189,16 +3189,16 @@ block_166:
         }
         break;
     case 0x44:                                      /* switch 1 */
-        temp_2_12 = (u8 *)(func_002b6150(0x7C));
+        temp_2_12 = (u8 *)(fclSpriteEntry(0x7C));
         sp1C0 = *(FclVec2f *)(temp_2_12 + 0x38);
         temp_16_35 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + sp1C0.x, sp1C0.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_18_25 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_13 = (u8 *)(func_002b6150(0x7D));
+        temp_2_13 = (u8 *)(fclSpriteEntry(0x7D));
         sp1B8 = *(FclVec2f *)(temp_2_13 + 0x38);
         temp_16_36 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + sp1B8.x, sp1B8.y, 43.0f, temp_16_36, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_25->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
+        if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(0, temp_17->f11E)), 0, 0);
             func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             temp_16_37 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
@@ -3208,12 +3208,12 @@ block_166:
         }
         break;
     case 0x45:                                      /* switch 1 */
-        temp_2_14 = (u8 *)(func_002b6150(0x7C));
+        temp_2_14 = (u8 *)(fclSpriteEntry(0x7C));
         sp1B0 = *(FclVec2f *)(temp_2_14 + 0x38);
         temp_16_38 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + sp1B0.x, sp1B0.y, 43.0f, temp_16_38, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_18_26 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_15 = (u8 *)(func_002b6150(0x7D));
+        temp_2_15 = (u8 *)(fclSpriteEntry(0x7D));
         sp1A8 = *(FclVec2f *)(temp_2_15 + 0x38);
         temp_16_39 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + sp1A8.x, sp1A8.y, 43.0f, temp_16_39, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_26->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
@@ -3240,8 +3240,8 @@ block_166:
                 if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
                     func_0045af60(0, 1, 0, 4);
                     fclDrawSetStateByte((u8 *)(temp_17->f148),  3);
-                    if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x1E4)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
-                        func_002b6a70(0x1E4, (*((u8 *)((u8 *)(func_002b6150(0x1E4)) + (0x6E)))), 0, 0, 0xA, 0);
+                    if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
+                        fclSpriteStartAlphaAt(0x1E4, (*((u8 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x6E)))), 0, 0, 0xA, 0);
                     }
                     goto block_215;
                 }
@@ -3275,19 +3275,19 @@ block_215:
         }
         break;
     case 0x47:                                      /* switch 1 */
-        temp_16_42 = (u8)((u8)((u8)((*((u8 *)((u8 *)(func_002b6150(0x7C)) + (0x6E)))))));
+        temp_16_42 = (u8)((u8)((u8)((*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E)))))));
         temp_18_29 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_16 = (u8 *)(func_002b6150(0x7C));
+        temp_2_16 = (u8 *)(fclSpriteEntry(0x7C));
         sp1A0 = *(FclVec2 *)(temp_2_16 + 0x38);
         temp_16_43 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_42)));
         frFontExDrawTextDeferredOutB(111.0f + sp1A0.x, sp1A0.y, 43.0f, temp_16_43, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_29->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        temp_16_44 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
+        temp_16_44 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
         temp_18_30 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_17 = (u8 *)(func_002b6150(0x7D));
+        temp_2_17 = (u8 *)(fclSpriteEntry(0x7D));
         sp198 = *(FclVec2 *)(temp_2_17 + 0x38);
         temp_16_45 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_44)));
         frFontExDrawTextDeferredOutB(111.0f + sp198.x, sp198.y, 43.0f, temp_16_45, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_30->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
+        if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             temp_17->f2F9 = (s8)((s8)((s8) (temp_17->f129 + 1)));
             temp_2_18 = (s16)((s16)((s16)(temp_17->f11E)));
             temp_17->f2FA = (s8) temp_2_18;
@@ -3310,15 +3310,15 @@ block_215:
         }
         break;
     case 0x46:                                      /* switch 1 */
-        temp_16_51 = (u8)((u8)((u8)((*((u8 *)((u8 *)(func_002b6150(0x7C)) + (0x6E)))))));
+        temp_16_51 = (u8)((u8)((u8)((*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E)))))));
         temp_18_32 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_19 = (u8 *)(func_002b6150(0x7C));
+        temp_2_19 = (u8 *)(fclSpriteEntry(0x7C));
         sp190 = *(FclVec2 *)(temp_2_19 + 0x38);
         temp_16_52 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_51)));
         frFontExDrawTextDeferredOutB(111.0f + sp190.x, sp190.y, 43.0f, temp_16_52, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_32->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        temp_16_53 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
+        temp_16_53 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
         temp_18_33 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_20 = (u8 *)(func_002b6150(0x7D));
+        temp_2_20 = (u8 *)(fclSpriteEntry(0x7D));
         sp188 = *(FclVec2 *)(temp_2_20 + 0x38);
         temp_16_54 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_53)));
         frFontExDrawTextDeferredOutB(111.0f + sp188.x, sp188.y, 43.0f, temp_16_54, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_33->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
@@ -3359,12 +3359,12 @@ block_215:
                     func_0045af60(0, 2, 0, 5);
                 }
                 temp_17->f122 = (s8)((s8)(func_002b2cb0(temp_17->f122, 1, 3, 0, 1)));
-                s0 = func_002b6150(0x152);
+                s0 = fclSpriteEntry(0x152);
                 sp228 = func_002b2970((f32)((temp_17->f122 * 0x6B) + 0x6A), 16.0f);
-                func_002b69f0(0x152, (*(FclVec2f *)(s0 + 0x38)), (*(FclVec2f *)&sp228),  1,  4,  0);
-                s0 = func_002b6150(0x2E0);
+                fclSpriteStartPositionAt(0x152, (*(FclVec2f *)(s0 + 0x38)), (*(FclVec2f *)&sp228),  1,  4,  0);
+                s0 = fclSpriteEntry(0x2E0);
                 sp220 = func_002b2970((f32)((temp_17->f122 * 0x6B) + 0x6A), 16.0f);
-                func_002b69f0(0x2E0, (*(FclVec2f *)(s0 + 0x38)), (*(FclVec2f *)&sp220),  1,  4,  0);
+                fclSpriteStartPositionAt(0x2E0, (*(FclVec2f *)(s0 + 0x38)), (*(FclVec2f *)&sp220),  1,  4,  0);
                 temp_4 = (s8)((s8)((s8)(temp_17->f122)));
                 switch (temp_4) {                   /* switch 3; irregular */
                 case 0:                             /* switch 3 */
@@ -3402,12 +3402,12 @@ block_215:
                     func_0045af60(0, 2, 0, 5);
                 }
                 temp_17->f122 = (s8)((s8)(func_002b2d00(temp_17->f122, 1, 0, 3, 1)));
-                s0 = func_002b6150(0x152);
+                s0 = fclSpriteEntry(0x152);
                 sp218 = func_002b2970((f32)((temp_17->f122 * 0x6B) + 0x6A), 16.0f);
-                func_002b69f0(0x152, (*(FclVec2f *)(s0 + 0x38)), (*(FclVec2f *)&sp218),  1,  4,  0);
-                s0 = func_002b6150(0x2E0);
+                fclSpriteStartPositionAt(0x152, (*(FclVec2f *)(s0 + 0x38)), (*(FclVec2f *)&sp218),  1,  4,  0);
+                s0 = fclSpriteEntry(0x2E0);
                 sp210 = func_002b2970((f32)((temp_17->f122 * 0x6B) + 0x6A), 16.0f);
-                func_002b69f0(0x2E0, (*(FclVec2f *)(s0 + 0x38)), (*(FclVec2f *)&sp210),  1,  4,  0);
+                fclSpriteStartPositionAt(0x2E0, (*(FclVec2f *)(s0 + 0x38)), (*(FclVec2f *)&sp210),  1,  4,  0);
                 temp_4_2 = (s8)((s8)((s8)(temp_17->f122)));
                 switch (temp_4_2) {                 /* switch 4; irregular */
                 case 0:                             /* switch 4 */
@@ -3444,15 +3444,15 @@ block_215:
         }
         break;
     case 0x4E:                                      /* switch 1 */
-        temp_16_71 = (u8)((u8)((u8)((*((u8 *)((u8 *)(func_002b6150(0x7C)) + (0x6E)))))));
+        temp_16_71 = (u8)((u8)((u8)((*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E)))))));
         temp_18_36 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_21 = (u8 *)(func_002b6150(0x7C));
+        temp_2_21 = (u8 *)(fclSpriteEntry(0x7C));
         sp180 = *(FclVec2f *)(temp_2_21 + 0x38);
         temp_16_72 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_71)));
         frFontExDrawTextDeferredOutB(111.0f + sp180.x, sp180.y, 43.0f, temp_16_72, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_36->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        temp_16_73 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
+        temp_16_73 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
         temp_18_37 = *(FclCombineCtl **)(arg0 + 0x38);
-        temp_2_22 = (u8 *)(func_002b6150(0x7D));
+        temp_2_22 = (u8 *)(fclSpriteEntry(0x7D));
         sp178 = *(FclVec2f *)(temp_2_22 + 0x38);
         temp_16_74 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_73)));
         frFontExDrawTextDeferredOutB(111.0f + sp178.x, sp178.y, 43.0f, temp_16_74, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_37->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
@@ -3526,7 +3526,7 @@ block_215:
             fclDrawResetScale((u8 *)(temp_17->f148));
             func_00325450(arg0, 4, 1);
             for (var_16_9 = 0; var_16_9 < 0x30C; var_16_9++) {
-                func_002b68d0(var_16_9, 0, 1);
+                fclSpriteSetFlag(var_16_9, 0, 1);
             }
             temp_17->f1 = 0x4BU;
             return;
@@ -3765,11 +3765,11 @@ void func_002f6cf0(u8 *arg0) {
         func_00323d00(arg0, 2, 0);
         base = (FclVec2 *)D_00640E70;
         pos0.position = func_002b2970(base->x, base->y);
-        func_002b6c30(0xC8, pos0.position, 42.0f, 0x5A);
-        func_002b6a70(0xC8, 0xFF, 0, 0, 0xA, 0xA);
+        fclSpriteCreate(0xC8, pos0.position, 42.0f, 0x5A);
+        fclSpriteStartAlphaAt(0xC8, 0xFF, 0, 0, 0xA, 0xA);
         pos1.position = func_002b2970((f32)0x28A + base->x, base->y);
         pos2.position = func_002b2970(base->x - 50.0f, base->y);
-        func_002b69f0(0xC8, pos1.position, pos2.position, 0, 0x14, 0);
+        fclSpriteStartPositionAt(0xC8, pos1.position, pos2.position, 0, 0x14, 0);
         func_003205f0(arg0, 0x98, 0x96);
         *(s16 *)(p + 0x11E) = 0;
         p[1] = 0x53;
@@ -3779,44 +3779,44 @@ void func_002f6cf0(u8 *arg0) {
             rowPos.position = func_002b2970((f32)0x139, 128.0f);
             rowPos.position.y += (f32)(i * 23);
             if (((s8 *)func_002e4870(*(s16 *)(p + 0x11E) + 1))[i + 0x14] == 0) {
-                alpha = (u8)func_002b2aa0(0, 0.0f, 128.0f, *(s16 *)(func_002b6150(i + 0x21C) + 0x42),
-                                          *(s16 *)(func_002b6150(i + 0x21C) + 0x40));
+                alpha = (u8)func_002b2aa0(0, 0.0f, 128.0f, *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x42),
+                                          *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x40));
             } else {
-                alpha = (u8)func_002b2aa0(0, 0.0f, 255.0f, *(s16 *)(func_002b6150(i + 0x21C) + 0x42),
-                                          *(s16 *)(func_002b6150(i + 0x21C) + 0x40));
+                alpha = (u8)func_002b2aa0(0, 0.0f, 255.0f, *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x42),
+                                          *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x40));
             }
             rgba = func_002b2a30(0xCC, 0xFF, 0xFF, alpha);
             frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba, 0, 2,
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
-            *(s16 *)(func_002b6150(i + 0x250) + 4) =
+            *(s16 *)(fclSpriteEntry(i + 0x250) + 4) =
                 (u8)datPersonaGetArcana(((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1]) + 0x1B;
             if (((u8 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[4] == 0) {
                 row = i;
                 color1 = func_002b2a60(0x24, 0x3F, 0x9F, 0xFF);
-                *(FclDrawColor *)(func_002b6150(row + 0x238) + 0x85) = color1;
+                *(FclDrawColor *)(fclSpriteEntry(row + 0x238) + 0x85) = color1;
                 color2 = func_002b2a60(0x24, 0x3F, 0x9F, 0xFF);
-                *(FclDrawColor *)(func_002b6150(row + 0x244) + 0x85) = color2;
+                *(FclDrawColor *)(fclSpriteEntry(row + 0x244) + 0x85) = color2;
                 shade = 0x66;
-                func_002b6150(i + 0x21C)[0x6E] = shade;
-                func_002b6150(row + 0x22B)[0x6E] = shade;
+                fclSpriteEntry(i + 0x21C)[0x6E] = shade;
+                fclSpriteEntry(row + 0x22B)[0x6E] = shade;
                 func_002ba5d0(*(u8 **)(p + 0x2BC), (s8)i, 0, rowPos.position, color3 = func_002b2a60(0xCC, 0xFF, 0xFF, alpha), 46.0f, 0x59);
             } else {
                 row = i;
                 color4 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                *(FclDrawColor *)(func_002b6150(row + 0x238) + 0x85) = color4;
+                *(FclDrawColor *)(fclSpriteEntry(row + 0x238) + 0x85) = color4;
                 color5 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                *(FclDrawColor *)(func_002b6150(row + 0x244) + 0x85) = color5;
+                *(FclDrawColor *)(fclSpriteEntry(row + 0x244) + 0x85) = color5;
                 shade = 0xCC;
-                func_002b6150(i + 0x21C)[0x6E] = shade;
-                func_002b6150(row + 0x22B)[0x6E] = shade;
+                fclSpriteEntry(i + 0x21C)[0x6E] = shade;
+                fclSpriteEntry(row + 0x22B)[0x6E] = shade;
                 func_002ba5d0(*(u8 **)(p + 0x2BC), (s8)i, ((u8 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[4],
                               rowPos.position, color6 = func_002b2a60(shade, 0xFF, 0xFF, alpha), 46.0f, 0x59);
             }
         }
         for (k = 0; k < *(s32 *)(func_002e4870(0) + 8); k++) {
-            alpha2 = (u8)func_002b2aa0(0, 0.0f, 255.0f, *(s16 *)(func_002b6150(k + 0x270) + 0x42),
-                                       *(s16 *)(func_002b6150(k + 0x270) + 0x40));
+            alpha2 = (u8)func_002b2aa0(0, 0.0f, 255.0f, *(s16 *)(fclSpriteEntry(k + 0x270) + 0x42),
+                                       *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
             if (*(s16 *)(p + 0x11E) == k) {
                 color7 = func_002b2a60(0x2D, 0x2D, 0x2D, alpha2);
                 func_002ba970((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color7);
@@ -3824,8 +3824,8 @@ void func_002f6cf0(u8 *arg0) {
                 color8 = func_002b2a60(0xCC, 0xFF, 0xFF, alpha2);
                 func_002ba970((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color8);
             } else {
-                alpha2 = (u8)func_002b2aa0(0, 0.0f, 128.0f, *(s16 *)(func_002b6150(k + 0x270) + 0x42),
-                                           *(s16 *)(func_002b6150(k + 0x270) + 0x40));
+                alpha2 = (u8)func_002b2aa0(0, 0.0f, 128.0f, *(s16 *)(fclSpriteEntry(k + 0x270) + 0x42),
+                                           *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
                 color9 = func_002b2a60(0xCC, 0xFF, 0xFF, alpha2);
                 func_002ba970((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color9);
             }
@@ -3836,40 +3836,40 @@ void func_002f6cf0(u8 *arg0) {
             frFontExDrawTextDeferredOutB(97.0f, (f32)(k * 23 + 0x80), 43.0f, rgba2, 0, 2,
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, k))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
-            func_002b6150(k + 0x270)[0x6E] = func_002b6150(k + 0x27D)[0x6E] = 0x97;
+            fclSpriteEntry(k + 0x270)[0x6E] = fclSpriteEntry(k + 0x27D)[0x6E] = 0x97;
             color10 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            te = func_002b6150(k + 0x27D);
+            te = fclSpriteEntry(k + 0x27D);
             *(FclDrawColor *)(te + 0x85) = color10;
-            *(FclDrawColor *)(func_002b6150(k + 0x270) + 0x85) = *(FclDrawColor *)(te + 0x85);
+            *(FclDrawColor *)(fclSpriteEntry(k + 0x270) + 0x85) = *(FclDrawColor *)(te + 0x85);
             objA = k + 0x297;
             objB = k + 0x28B;
             color11 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            te = func_002b6150(objA);
+            te = fclSpriteEntry(objA);
             *(FclDrawColor *)(te + 0x85) = color11;
-            *(FclDrawColor *)(func_002b6150(objB) + 0x85) = *(FclDrawColor *)(te + 0x85);
+            *(FclDrawColor *)(fclSpriteEntry(objB) + 0x85) = *(FclDrawColor *)(te + 0x85);
             objC = k + 0x2A3;
             color12 = func_002b2a60(0, 0, 0x66, 0xFF);
-            *(FclDrawColor *)(func_002b6150(objC) + 0x85) = color12;
+            *(FclDrawColor *)(fclSpriteEntry(objC) + 0x85) = color12;
             if (*(s16 *)(p + 0x11E) == k) {
-                func_002b6150(k + 0x270)[0x6E] = func_002b6150(k + 0x27D)[0x6E] = 0xFF;
+                fclSpriteEntry(k + 0x270)[0x6E] = fclSpriteEntry(k + 0x27D)[0x6E] = 0xFF;
                 color13 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-                ps = func_002b6150(objA);
+                ps = fclSpriteEntry(objA);
                 *(FclDrawColor *)(ps + 0x85) = color13;
-                te = func_002b6150(objB);
+                te = fclSpriteEntry(objB);
                 *(FclDrawColor *)(te + 0x85) = *(FclDrawColor *)(ps + 0x85);
-                ps = func_002b6150(k + 0x27D);
+                ps = fclSpriteEntry(k + 0x27D);
                 *(FclDrawColor *)(ps + 0x85) = *(FclDrawColor *)(te + 0x85);
-                *(FclDrawColor *)(func_002b6150(k + 0x270) + 0x85) = *(FclDrawColor *)(ps + 0x85);
+                *(FclDrawColor *)(fclSpriteEntry(k + 0x270) + 0x85) = *(FclDrawColor *)(ps + 0x85);
                 color14 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                *(FclDrawColor *)(func_002b6150(objC) + 0x85) = color14;
+                *(FclDrawColor *)(fclSpriteEntry(objC) + 0x85) = color14;
             }
         }
         for (m = 0; m < *(s32 *)(func_002e4870(1) + 8); m++) {
-            if ((s16)func_002b6970(*(s16 *)(func_002b6150(m + 0x21C) + 0x10), 1) == 1) {
+            if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(m + 0x21C) + 0x10), 1) == 1) {
                 return;
             }
         }
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0xC8) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0xC8) + 0x10), 1) == 1) {
             return;
         }
         buttons = D_008C027A[0];
@@ -3922,7 +3922,7 @@ void func_002f6cf0(u8 *arg0) {
         }
         break;
     case 0x54:
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 1) {
             break;
         }
         id = ((u16 *)func_002e48a0(0, p[0x2FA]))[1];
@@ -3959,8 +3959,8 @@ void func_002f6cf0(u8 *arg0) {
                     }
                     func_0045af60(0, 1, 0, 4);
                     fclDrawSetStateByte(*(u8 **)(p + 0x148), 3);
-                    if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1E4) + 0x10), 0) == 1) {
-                        func_002b6a70(0x1E4, func_002b6150(0x1E4)[0x6E], 0, 0, 0xA, 0);
+                    if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1E4) + 0x10), 0) == 1) {
+                        fclSpriteStartAlphaAt(0x1E4, fclSpriteEntry(0x1E4)[0x6E], 0, 0, 0xA, 0);
                     }
                 }
             }
@@ -3977,11 +3977,11 @@ void func_002f6cf0(u8 *arg0) {
     case 0x56:
         for (i = 0; i < *(s32 *)(func_002e4870(1) + 8); i++) {
             if (((s8 *)func_002e4870(*(s16 *)(p + 0x11E) + 1))[i + 0x14] == 0) {
-                alpha3 = (u8)func_002b2aa0(0, 128.0f, 0.0f, *(s16 *)(func_002b6150(i + 0x21C) + 0x42),
-                                           *(s16 *)(func_002b6150(i + 0x21C) + 0x40));
+                alpha3 = (u8)func_002b2aa0(0, 128.0f, 0.0f, *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x42),
+                                           *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x40));
             } else {
-                alpha3 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(func_002b6150(i + 0x21C) + 0x42),
-                                           *(s16 *)(func_002b6150(i + 0x21C) + 0x40));
+                alpha3 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x42),
+                                           *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x40));
             }
             rgba3 = func_002b2a30(0xCC, 0xFF, 0xFF, alpha3);
             frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba3, 0, 2,
@@ -3990,26 +3990,26 @@ void func_002f6cf0(u8 *arg0) {
         }
         for (k = 0; k < *(s32 *)(func_002e4870(0) + 8); k++) {
             if (func_003139d0(p[0x1A], (s8)k) == 1) {
-                alpha3 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(func_002b6150(k + 0x270) + 0x42),
-                                           *(s16 *)(func_002b6150(k + 0x270) + 0x40));
+                alpha3 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(fclSpriteEntry(k + 0x270) + 0x42),
+                                           *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
             } else {
-                alpha3 = (u8)func_002b2aa0(0, 128.0f, 0.0f, *(s16 *)(func_002b6150(k + 0x270) + 0x42),
-                                           *(s16 *)(func_002b6150(k + 0x270) + 0x40));
+                alpha3 = (u8)func_002b2aa0(0, 128.0f, 0.0f, *(s16 *)(fclSpriteEntry(k + 0x270) + 0x42),
+                                           *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
             }
             rgba3 = func_002b2a30(0xCC, 0xFF, 0xFF, alpha3);
             if (*(s16 *)(p + 0x11E) == k) {
-                alpha3 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(func_002b6150(k + 0x270) + 0x42),
-                                           *(s16 *)(func_002b6150(k + 0x270) + 0x40));
+                alpha3 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(fclSpriteEntry(k + 0x270) + 0x42),
+                                           *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
                 rgba3 = func_002b2a30(0x2D, 0x2D, 0x2D, alpha3);
             }
             frFontExDrawTextDeferredOutB(97.0f, (f32)(k * 23 + 0x80), 43.0f, rgba3, 0, 2,
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, k))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
         }
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x2B4) + 0x10), 1) != 0) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x2B4) + 0x10), 1) != 0) {
             break;
         }
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x27C) + 0x10), 1) != 0) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x27C) + 0x10), 1) != 0) {
             break;
         }
         fclCombineLayoutTransition(arg0, 0);
@@ -4019,7 +4019,7 @@ void func_002f6cf0(u8 *arg0) {
         *(s16 *)(p + 0x11E) = -1;
         break;
     case 0x58:
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 1) {
             break;
         }
         p[0x2F9] = 0;
@@ -4091,12 +4091,12 @@ void func_002f6cf0(u8 *arg0) {
                 break;
             }
             stepInt = step;
-            ps = func_002b6150(obj);
+            ps = fclSpriteEntry(obj);
             pos3.position = func_002b2970((f32)(stepInt * p[0x122] + 0x6A), 16.0f);
-            func_002b69f0(obj, *(FclVec2 *)(ps + 0x38), pos3.position, 1, 4, 0);
-            ps = func_002b6150(0x2E0);
+            fclSpriteStartPositionAt(obj, *(FclVec2 *)(ps + 0x38), pos3.position, 1, 4, 0);
+            ps = fclSpriteEntry(0x2E0);
             pos4.position = func_002b2970((f32)(stepInt * p[0x122] + 0x6A), 16.0f);
-            func_002b69f0(0x2E0, *(FclVec2 *)(ps + 0x38), pos4.position, 1, 4, 0);
+            fclSpriteStartPositionAt(0x2E0, *(FclVec2 *)(ps + 0x38), pos4.position, 1, 4, 0);
             if (p[0x122] < p[0x1A]) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
@@ -4128,12 +4128,12 @@ void func_002f6cf0(u8 *arg0) {
                 break;
             }
             stepInt2 = step2;
-            ps = func_002b6150(obj2);
+            ps = fclSpriteEntry(obj2);
             pos5.position = func_002b2970((f32)(stepInt2 * p[0x122] + 0x6A), 16.0f);
-            func_002b69f0(obj2, *(FclVec2 *)(ps + 0x38), pos5.position, 1, 4, 0);
-            ps = func_002b6150(0x2E0);
+            fclSpriteStartPositionAt(obj2, *(FclVec2 *)(ps + 0x38), pos5.position, 1, 4, 0);
+            ps = fclSpriteEntry(0x2E0);
             pos6.position = func_002b2970((f32)(stepInt2 * p[0x122] + 0x6A), 16.0f);
-            func_002b69f0(0x2E0, *(FclVec2 *)(ps + 0x38), pos6.position, 1, 4, 0);
+            fclSpriteStartPositionAt(0x2E0, *(FclVec2 *)(ps + 0x38), pos6.position, 1, 4, 0);
             if (p[0x122] < p[0x1A]) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
@@ -4204,7 +4204,7 @@ void func_002f6cf0(u8 *arg0) {
             fclDrawResetScale(*(u8 **)(p + 0x148));
             func_00325450(arg0, (s8)(p[0x1A] + 1), 1);
             for (i = 0; i < 0x30C; i++) {
-                func_002b68d0(i, 0, 1);
+                fclSpriteSetFlag(i, 0, 1);
             }
             p[1] = 0x5C;
         }
@@ -4380,16 +4380,16 @@ void func_002f9d90(u8 *arg0) {
             func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
         } else {
             func_00316e80(arg0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0);
-            ps = func_002b6150(0x8A);
+            ps = fclSpriteEntry(0x8A);
             *(f32 *)(ps + 0x38) += 60.0f;
         }
         base = (FclVec2 *)D_00640E70;
         pos0 = func_002b2970(base->x, base->y);
-        func_002b6c30(0xC8, pos0, 42.0f, 0x5A);
-        func_002b6a70(0xC8, 0xFF, 0, 0, 0xA, 0xA);
+        fclSpriteCreate(0xC8, pos0, 42.0f, 0x5A);
+        fclSpriteStartAlphaAt(0xC8, 0xFF, 0, 0, 0xA, 0xA);
         pos1 = func_002b2970((f32)0x28A + base->x, base->y);
         pos2 = func_002b2970(base->x - 50.0f, base->y);
-        func_002b69f0(0xC8, pos1, pos2, 0, 0x14, 0);
+        fclSpriteStartPositionAt(0xC8, pos1, pos2, 0, 0x14, 0);
         func_003205f0(arg0, 0x98, 0x96);
         p[1] = 0x65;
         break;
@@ -4402,18 +4402,18 @@ void func_002f9d90(u8 *arg0) {
             if (i < *(s32 *)(func_002e4870(0) + 8)) {
                 if (((u8 *)func_002e48a0(0, i))[4] > 0) {
                     alpha = (u8)func_002b2aa0(0, 0.0f, 255.0f,
-                                          *(s16 *)(func_002b6150(i + 0x21C) + 0x42),
-                                          *(s16 *)(func_002b6150(i + 0x21C) + 0x40));
+                                          *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x42),
+                                          *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x40));
                     shade = 0xCC;
-                    func_002b6150(i + 0x21C)[0x6E] = shade;
-                    func_002b6150(i + 0x22B)[0x6E] = shade;
+                    fclSpriteEntry(i + 0x21C)[0x6E] = shade;
+                    fclSpriteEntry(i + 0x22B)[0x6E] = shade;
                 } else {
                     alpha = (u8)func_002b2aa0(0, 0.0f, 128.0f,
-                                          *(s16 *)(func_002b6150(i + 0x21C) + 0x42),
-                                          *(s16 *)(func_002b6150(i + 0x21C) + 0x40));
+                                          *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x42),
+                                          *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x40));
                     shade = 0x66;
-                    func_002b6150(i + 0x21C)[0x6E] = shade;
-                    func_002b6150(i + 0x22B)[0x6E] = shade;
+                    fclSpriteEntry(i + 0x21C)[0x6E] = shade;
+                    fclSpriteEntry(i + 0x22B)[0x6E] = shade;
                 }
                 color = func_002b2a30(0xCC, 0xFF, 0xFF, alpha);
                 rowColor = func_002b2a60(0xCC, 0xFF, 0xFF, alpha);
@@ -4422,21 +4422,21 @@ void func_002f9d90(u8 *arg0) {
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, i))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
-        alpha3 = (u8)func_002b2aa0(0, 0.0f, 255.0f, *(s16 *)(func_002b6150(0x270) + 0x42),
-                              *(s16 *)(func_002b6150(0x270) + 0x40));
+        alpha3 = (u8)func_002b2aa0(0, 0.0f, 255.0f, *(s16 *)(fclSpriteEntry(0x270) + 0x42),
+                              *(s16 *)(fclSpriteEntry(0x270) + 0x40));
         color0C = func_002b2a60(0x2D, 0x2D, 0x2D, alpha3);
         func_002ba970((u8 *)*(u8 **)(p + 0x2BC), 0xC, *(FclDrawColor *)&color0C);
         frFontExDrawTextDeferredOutB(97.0f, 195.0f, 43.0f, func_002b2a30(0x2D, 0x2D, 0x2D, alpha3), 0, 2,
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
-        func_002b6150(0x270)[0x6E] = func_002b6150(0x27D)[0x6E] = 0xFF;
+        fclSpriteEntry(0x270)[0x6E] = fclSpriteEntry(0x27D)[0x6E] = 0xFF;
         if ((fclDrawGetState(*(u8 **)(p + 0x148)) < 8 || fclDrawGetState(*(u8 **)(p + 0x148)) > 0xD) &&
             (fclDrawGetState(*(u8 **)(p + 0x148)) < 0 || fclDrawGetState(*(u8 **)(p + 0x148)) > 5)) {
             for (i = 0; i < 12; i++) {
-                if ((s16)func_002b6970(*(s16 *)(func_002b6150(i + 0x21C) + 0x10), 1) == 1) {
+                if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(i + 0x21C) + 0x10), 1) == 1) {
                     return;
                 }
             }
-            if ((s16)func_002b6970(*(s16 *)(func_002b6150(0xC8) + 0x10), 1) == 1) {
+            if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0xC8) + 0x10), 1) == 1) {
                 return;
             }
             buttons = D_008C024E[0];
@@ -4482,7 +4482,7 @@ void func_002f9d90(u8 *arg0) {
         }
         break;
     case 0x66:
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) == 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 1) {
             break;
         }
         fclDrawSetPlacement(*(u8 **)(p + 0x148), (s32)func_002e48a0(1, 0), 0, 0);
@@ -4518,8 +4518,8 @@ void func_002f9d90(u8 *arg0) {
                     }
                     func_0045af60(0, 1, 0, 4);
                     fclDrawSetStateByte(*(u8 **)(p + 0x148), 3);
-                    if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1E4) + 0x10), 0) == 1) {
-                        func_002b6a70(0x1E4, func_002b6150(0x1E4)[0x6E], 0, 0, 0xA, 0);
+                    if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1E4) + 0x10), 0) == 1) {
+                        fclSpriteStartAlphaAt(0x1E4, fclSpriteEntry(0x1E4)[0x6E], 0, 0, 0xA, 0);
                     }
                 }
             }
@@ -4530,7 +4530,7 @@ void func_002f9d90(u8 *arg0) {
                 func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             } else {
                 func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-                ps = func_002b6150(0x8A);
+                ps = fclSpriteEntry(0x8A);
                 *(f32 *)(ps + 0x38) += 60.0f;
             }
             p[1] = 0x65;
@@ -4538,8 +4538,8 @@ void func_002f9d90(u8 *arg0) {
         break;
     case 0x68:
         for (j = 0; j < *(s32 *)(func_002e4870(0) + 8); j++) {
-            alpha2 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(func_002b6150(j + 0x21C) + 0x42),
-                                  *(s16 *)(func_002b6150(j + 0x21C) + 0x40));
+            alpha2 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(fclSpriteEntry(j + 0x21C) + 0x42),
+                                  *(s16 *)(fclSpriteEntry(j + 0x21C) + 0x40));
             color2 = func_002b2a30(0xCC, 0xFF, 0xFF, alpha2);
             if (*(s16 *)(p + 0x11E) == j) {
                 color2 = func_002b2a30(0x2D, 0x2D, 0x2D, alpha2);
@@ -4548,14 +4548,14 @@ void func_002f9d90(u8 *arg0) {
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, j))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         }
         alpha4 = (*(s32 *)(func_002e4870(0) + 8) >= 0xC)
-                    ? (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(func_002b6150(0x270) + 0x42),
-                                        *(s16 *)(func_002b6150(0x270) + 0x40))
-                    : (u8)func_002b2aa0(0, 128.0f, 0.0f, *(s16 *)(func_002b6150(0x270) + 0x42),
-                                        *(s16 *)(func_002b6150(0x270) + 0x40));
+                    ? (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(fclSpriteEntry(0x270) + 0x42),
+                                        *(s16 *)(fclSpriteEntry(0x270) + 0x40))
+                    : (u8)func_002b2aa0(0, 128.0f, 0.0f, *(s16 *)(fclSpriteEntry(0x270) + 0x42),
+                                        *(s16 *)(fclSpriteEntry(0x270) + 0x40));
         frFontExDrawTextDeferredOutB(97.0f, 195.0f, 43.0f, func_002b2a30(0xCC, 0xFF, 0xFF, alpha4), 0, 2,
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x71) + 0x10), 1) == 0 &&
-            (s16)func_002b6970(*(s16 *)(func_002b6150(0x70) + 0x10), 1) == 0) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x71) + 0x10), 1) == 0 &&
+            (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x70) + 0x10), 1) == 0) {
             fclCombineLayoutTransition(arg0, 0);
             func_00315600(arg0, 0);
             func_003205f0(arg0, 0x96, 0x98);
@@ -4612,12 +4612,12 @@ void func_002f9d90(u8 *arg0) {
             }
             p[0x122] = func_002b2cb0(p[0x122], 1, 0xC, 0, 1);
             *(s16 *)(p + 0x120) = func_002b2d50(p[0x122], *(s16 *)(p + 0x120), 0xC, 7, 1);
-            ps = func_002b6150(0x155);
+            ps = fclSpriteEntry(0x155);
             pos3 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
-            func_002b69f0(0x155, *(FclVec2 *)(ps + 0x38), pos3, 1, 4, 0);
-            ps = func_002b6150(0x2E0);
+            fclSpriteStartPositionAt(0x155, *(FclVec2 *)(ps + 0x38), pos3, 1, 4, 0);
+            ps = fclSpriteEntry(0x2E0);
             pos4 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
-            func_002b69f0(0x2E0, *(FclVec2 *)(ps + 0x38), pos4, 1, 4, 0);
+            fclSpriteStartPositionAt(0x2E0, *(FclVec2 *)(ps + 0x38), pos4, 1, 4, 0);
             func_00329310(arg0, 0, 0);
             if (p[0x122] < 0xC) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
@@ -4636,12 +4636,12 @@ void func_002f9d90(u8 *arg0) {
             }
             p[0x122] = func_002b2d00(p[0x122], 1, 0, 0, 1);
             *(s16 *)(p + 0x120) = func_002b2d50(p[0x122], *(s16 *)(p + 0x120), 0xC, 7, -1);
-            ps = func_002b6150(0x155);
+            ps = fclSpriteEntry(0x155);
             pos5 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
-            func_002b69f0(0x155, *(FclVec2 *)(ps + 0x38), pos5, 1, 4, 0);
-            ps = func_002b6150(0x2E0);
+            fclSpriteStartPositionAt(0x155, *(FclVec2 *)(ps + 0x38), pos5, 1, 4, 0);
+            ps = fclSpriteEntry(0x2E0);
             pos6 = func_002b2970((f32)(*(s16 *)(p + 0x120) * 61 + 0x6A), 16.0f);
-            func_002b69f0(0x2E0, *(FclVec2 *)(ps + 0x38), pos6, 1, 4, 0);
+            fclSpriteStartPositionAt(0x2E0, *(FclVec2 *)(ps + 0x38), pos6, 1, 4, 0);
             func_00329310(arg0, 0, 0);
             if (p[0x122] < 0xC) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
@@ -4684,7 +4684,7 @@ void func_002f9d90(u8 *arg0) {
             func_00325450(arg0, 8, 1);
             *(s16 *)(p + 0x11E) = p[0x122];
             for (i = 0; i < 0x30C; i++) {
-                func_002b68d0(i, 0, 1);
+                fclSpriteSetFlag(i, 0, 1);
             }
             p[1] = 0x6D;
         }
@@ -4795,7 +4795,7 @@ void func_002fbea0(u8 *arg0) {
             return;
         }
         for (var_19 = 0; var_19 < p->fB7; var_19++) {
-            if ((s16)func_002b6970(*(s16 *)(func_002b6150(var_19 * 2 + 0x1F8) + 0x10), 1) == 1) {
+            if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(var_19 * 2 + 0x1F8) + 0x10), 1) == 1) {
                 return;
             }
         }
@@ -4821,11 +4821,11 @@ void func_002fbea0(u8 *arg0) {
             func_0032b9d0(arg0, 2, var_16_6, 0);
             p->f1 = 0x98;
         }
-        *(u8 *)(func_002b6150(p->f11E + 0x270) + 0x6E) = *(u8 *)(func_002b6150(p->f11E + 0x27D) + 0x6E) = 0xFF;
-        func_002b68d0(0x270, 2, 1);
-        func_002b68d0(0x27D, 2, 1);
-        *(FclDrawColor *)(func_002b6150(p->f11E + 0x270) + 0x85) = *(FclDrawColor *)((func_002b6150(p->f11E + 0x27D)) + 0x85) = *(FclDrawColor *)((func_002b6150(p->f11E + 0x28B)) + 0x85) = *(FclDrawColor *)((func_002b6150(p->f11E + 0x297)) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-        *(FclDrawColor *)(func_002b6150(p->f11E + 0x2A3) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+        *(u8 *)(fclSpriteEntry(p->f11E + 0x270) + 0x6E) = *(u8 *)(fclSpriteEntry(p->f11E + 0x27D) + 0x6E) = 0xFF;
+        fclSpriteSetFlag(0x270, 2, 1);
+        fclSpriteSetFlag(0x27D, 2, 1);
+        *(FclDrawColor *)(fclSpriteEntry(p->f11E + 0x270) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(p->f11E + 0x27D)) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(p->f11E + 0x28B)) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(p->f11E + 0x297)) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+        *(FclDrawColor *)(fclSpriteEntry(p->f11E + 0x2A3) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
         func_002ba970((u8 *)p->f2BC, (s8)(p->f11E + 0xC), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
         return;
     case 0x8D:
@@ -4837,8 +4837,8 @@ void func_002fbea0(u8 *arg0) {
         var_18 = 0;
         var_22 = (s16)var_16_6 + var_19;
         while (var_19 < var_22) {
-            temp_f20 = (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x42));
-            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x40)));
+            temp_f20 = (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x42));
+            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x40)));
             if (p->f11E == var_19) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
                 fc_colW5 = func_002b2a60(0x2D, 0x2D, 0x2D, temp_7);
@@ -4852,25 +4852,25 @@ void func_002fbea0(u8 *arg0) {
                           *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4),
                           func_002b2970(146.0f, 111.0f + 23.0f * (f32)var_18),
                           fc_colW5, 46.0f, 0x59);
-            *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
-            if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {
+            *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
+            if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
-                    *(u8 *)(func_002b6150(((var_18 + 0x270))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x27D))) + 0x6E) = 0xFF;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x27D)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     func_002ba970((u8 *)p->f2BC, drawSlot, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
                 } else {
-                    *(u8 *)(func_002b6150(((var_18 + 0x270))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x27D))) + 0x6E) = 0x80;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x27D)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0x80;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
                     func_002ba970((u8 *)p->f2BC, drawSlot, func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF));
                 }
             }
             var_19++;
             var_18++;
         }
-        if (func_002b6970(*(s16 *)(func_002b6150((((s16)var_16_6 + 0x26F))) + 0x10), 1) == 1) {
+        if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry((((s16)var_16_6 + 0x26F))) + 0x10), 1) == 1) {
             break;
         }
         if ((D_008C0276[0] & 0x1000) && (p->f13A == 0)) {
@@ -4997,8 +4997,8 @@ void func_002fbea0(u8 *arg0) {
         var_18 = 0;
         var_22 = (s16)var_16_6 + var_19;
         while (var_19 < var_22) {
-            temp_f20 = (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x42));
-            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x40)));
+            temp_f20 = (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x42));
+            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x40)));
             if (p->f11E == var_19) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
             } else {
@@ -5037,7 +5037,7 @@ void func_002fbea0(u8 *arg0) {
         func_002bb550(p->fD);
         return;
     case 0x8E:
-        if (func_002b6970(*(s16 *)(func_002b6150(0x270) + 0x10), 1) != 1) {
+        if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x270) + 0x10), 1) != 1) {
             func_002b6140((u8 *)(p->f28C), 1);
             func_002b6140((u8 *)(p->f290), 1);
             fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
@@ -5161,10 +5161,10 @@ void func_002fbea0(u8 *arg0) {
         } else if (D_008C024E[0] & 8) {
             if (p->f122 == 1) {
                 p->f122 = 0;
-                ps = func_002b6150(0x150);
-                func_002b69f0(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
-                ps = func_002b6150(0x2E0);
-                func_002b69f0(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
+                ps = fclSpriteEntry(0x150);
+                fclSpriteStartPositionAt(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
+                ps = fclSpriteEntry(0x2E0);
+                fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
                 fclDrawSetSlot(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
                 func_0045af60(0, 2, 0, 5);
             }
@@ -5172,10 +5172,10 @@ void func_002fbea0(u8 *arg0) {
         } else if (D_008C024E[0] & 4) {
             if (p->f122 == 0) {
                 p->f122 = 1;
-                ps = func_002b6150(0x150);
-                func_002b69f0(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
-                ps = func_002b6150(0x2E0);
-                func_002b69f0(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
+                ps = fclSpriteEntry(0x150);
+                fclSpriteStartPositionAt(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
+                ps = fclSpriteEntry(0x2E0);
+                fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
                 fclDrawSetSlot(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 0);
                 func_0045af60(0, 2, 0, 5);
             }
@@ -5299,8 +5299,8 @@ void func_002fbea0(u8 *arg0) {
         var_18 = 0;
         var_22 = (s16)var_16_6 + var_19;
         while (var_19 < var_22) {
-            temp_f20 = (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x42));
-            temp_7 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x40)));
+            temp_f20 = (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x42));
+            temp_7 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x40)));
             if (p->f11E == var_18) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
             } else {
@@ -5310,7 +5310,7 @@ void func_002fbea0(u8 *arg0) {
             var_19++;
             var_18++;
         }
-        if (func_002b6970(*(s16 *)(func_002b6150(0x193) + 0x10), 1) == 0) {
+        if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x193) + 0x10), 1) == 0) {
             func_0032f4d0(arg0);
             func_003205f0(arg0, 0x96, 0x118);
             func_00315600(arg0, 0);
@@ -5320,7 +5320,7 @@ void func_002fbea0(u8 *arg0) {
         }
         break;
     case 0x98:
-        func_002cacd0(func_002b2970(250.0f + *(f32 *)(func_002b6150(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
+        func_002cacd0(func_002b2970(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
         var_16_6 = *(s16 *)(func_002e4870(0) + 8);
         if (*(s32 *)(func_002e4870(0) + 8) > 8) {
             var_16_6 = 8;
@@ -5329,8 +5329,8 @@ void func_002fbea0(u8 *arg0) {
         var_18 = 0;
         var_22 = (s16)var_16_6 + var_19;
         while (var_19 < var_22) {
-            temp_f20 = (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x42));
-            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x40)));
+            temp_f20 = (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x42));
+            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x40)));
             if (p->f11E == var_19) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
                 fc_colW7 = func_002b2a60(0x2D, 0x2D, 0x2D, temp_7);
@@ -5339,41 +5339,41 @@ void func_002fbea0(u8 *arg0) {
                 fc_colW7 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
             frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
-            if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
-                *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
+            if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
+                *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
             sp1B0 = (s8)(var_18 + 0xC);
             tmpu8 = *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4);
             func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, func_002b2970(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 46.0f, 0x59);
             total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
             func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
-            if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {
+            if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
-                    *(u8 *)(func_002b6150(((var_18 + 0x270))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x27D))) + 0x6E) = 0xFF;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x27D)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     func_002ba970((u8 *)p->f2BC, sp1B0, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
                 } else {
-                    *(u8 *)(func_002b6150(((var_18 + 0x270))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x27D))) + 0x6E) = 0x80;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x27D)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0x80;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
                     func_002ba970((u8 *)p->f2BC, sp1B0, func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF));
                 }
             }
-            if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x21F))) + 0x10), 1) == 0) {
+            if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x21F))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
-                    *(u8 *)(func_002b6150(((var_18 + 0x21F))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x2C5))) + 0x6E) = 0xFF;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x21F)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x2C5)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x21F))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x2C5))) + 0x6E) = 0xFF;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x21F)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2C5)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                 } else {
-                    *(u8 *)(func_002b6150(((var_18 + 0x21F))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x2C5))) + 0x6E) = 0x80;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x21F)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x2C5)))) + 0x85) = func_002b2a60(0, 0, 0x99, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x21F))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x2C5))) + 0x6E) = 0x80;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x21F)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2C5)))) + 0x85) = func_002b2a60(0, 0, 0x99, 0xFF);
                 }
             }
             var_19++;
             var_18++;
         }
-        if (func_002b6970(*(s16 *)(func_002b6150((((s16)var_16_6 + 0x26F))) + 0x10), 1) == 1) {
+        if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry((((s16)var_16_6 + 0x26F))) + 0x10), 1) == 1) {
             return;
         }
         if ((D_008C0276[0] & 0x1000) && (p->f13A == 0)) {
@@ -5414,14 +5414,14 @@ void func_002fbea0(u8 *arg0) {
                     func_002e6c90(0);
                 }
                 p->f123 = 1;
-                rowOrigin = *(FclVec2f *)(func_002b6150(0x2EA) + 0x38);
-                func_002b69f0(0x2EA, rowOrigin, func_002b2970(336.0f, rowOrigin.y), 1, 8, 0);
-                rowOrigin = *(FclVec2f *)(func_002b6150(0x2EB) + 0x38);
-                func_002b69f0(0x2EB, rowOrigin, func_002b2970(556.0f, rowOrigin.y), 1, 8, 0);
-                rowOrigin = *(FclVec2f *)(func_002b6150(0x2E2) + 0x38);
-                func_002b69f0(0x2E2, rowOrigin, func_002b2970(336.0f, rowOrigin.y), 1, 8, 0);
-                rowOrigin = *(FclVec2f *)(func_002b6150(0x2E3) + 0x38);
-                func_002b69f0(0x2E3, rowOrigin, func_002b2970(556.0f, rowOrigin.y), 1, 8, 0);
+                rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2EA) + 0x38);
+                fclSpriteStartPositionAt(0x2EA, rowOrigin, func_002b2970(336.0f, rowOrigin.y), 1, 8, 0);
+                rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2EB) + 0x38);
+                fclSpriteStartPositionAt(0x2EB, rowOrigin, func_002b2970(556.0f, rowOrigin.y), 1, 8, 0);
+                rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2E2) + 0x38);
+                fclSpriteStartPositionAt(0x2E2, rowOrigin, func_002b2970(336.0f, rowOrigin.y), 1, 8, 0);
+                rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2E3) + 0x38);
+                fclSpriteStartPositionAt(0x2E3, rowOrigin, func_002b2970(556.0f, rowOrigin.y), 1, 8, 0);
                 func_0045af60(0, 0, 0, 5);
             }
             goto conv98;
@@ -5431,14 +5431,14 @@ void func_002fbea0(u8 *arg0) {
                     func_002e68b0(0);
                 }
                 p->f123 = 0;
-                rowOrigin = *(FclVec2f *)(func_002b6150(0x2EA) + 0x38);
-                func_002b69f0(0x2EA, rowOrigin, func_002b2970(79.0f, rowOrigin.y), 1, 8, 0);
-                rowOrigin = *(FclVec2f *)(func_002b6150(0x2EB) + 0x38);
-                func_002b69f0(0x2EB, rowOrigin, func_002b2970((f32)0x12B, rowOrigin.y), 1, 8, 0);
-                rowOrigin = *(FclVec2f *)(func_002b6150(0x2E2) + 0x38);
-                func_002b69f0(0x2E2, rowOrigin, func_002b2970(79.0f, rowOrigin.y), 1, 8, 0);
-                rowOrigin = *(FclVec2f *)(func_002b6150(0x2E3) + 0x38);
-                func_002b69f0(0x2E3, rowOrigin, func_002b2970((f32)0x12B, rowOrigin.y), 1, 8, 0);
+                rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2EA) + 0x38);
+                fclSpriteStartPositionAt(0x2EA, rowOrigin, func_002b2970(79.0f, rowOrigin.y), 1, 8, 0);
+                rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2EB) + 0x38);
+                fclSpriteStartPositionAt(0x2EB, rowOrigin, func_002b2970((f32)0x12B, rowOrigin.y), 1, 8, 0);
+                rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2E2) + 0x38);
+                fclSpriteStartPositionAt(0x2E2, rowOrigin, func_002b2970(79.0f, rowOrigin.y), 1, 8, 0);
+                rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2E3) + 0x38);
+                fclSpriteStartPositionAt(0x2E3, rowOrigin, func_002b2970((f32)0x12B, rowOrigin.y), 1, 8, 0);
                 func_0045af60(0, 0, 0, 5);
             }
             goto conv98;
@@ -5529,7 +5529,7 @@ void func_002fbea0(u8 *arg0) {
         p->f1 = 0x9A;
         return;
     case 0x99:
-        if (func_002b6970(*(s16 *)(func_002b6150(0x270) + 0x10), 1) != 1) {
+        if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x270) + 0x10), 1) != 1) {
             fclDrawSetVisible(p->f148, 0);
             fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
             func_0011c6e0(fclDrawGetResource(p->f148), 1);
@@ -5545,11 +5545,11 @@ void func_002fbea0(u8 *arg0) {
         }
         func_002b6140((u8 *)p->f28C, 1);
         func_002b6140((u8 *)p->f290, 1);
-        func_002b68d0(0x84, 0, 1);
-        func_002b68d0(0x85, 0, 1);
-        func_002b68d0(0x1C6, 0, 1);
-        func_002b68d0(0x80, 0, 1);
-        func_002b68d0(0x20C, 0, 1);
+        fclSpriteSetFlag(0x84, 0, 1);
+        fclSpriteSetFlag(0x85, 0, 1);
+        fclSpriteSetFlag(0x1C6, 0, 1);
+        fclSpriteSetFlag(0x80, 0, 1);
+        fclSpriteSetFlag(0x20C, 0, 1);
         if (p->f122 == 1) {
             func_0032c480(arg0);
         } else {
@@ -5623,10 +5623,10 @@ void func_002fbea0(u8 *arg0) {
         } else if (D_008C024E[0] & 8) {
             if (p->f122 == 1) {
                 p->f122 = 0;
-                ps = func_002b6150(0x150);
-                func_002b69f0(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
-                ps = func_002b6150(0x2E0);
-                func_002b69f0(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
+                ps = fclSpriteEntry(0x150);
+                fclSpriteStartPositionAt(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
+                ps = fclSpriteEntry(0x2E0);
+                fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
                 fclDrawSetVisible(p->f148, 0);
                 func_0032a960(arg0, 1);
                 func_002b5e90((u8 *)p->f2AC, func_002b2970(0.0f, 0.0f), func_002b2970(0.0f, -7.0f), 4);
@@ -5641,10 +5641,10 @@ void func_002fbea0(u8 *arg0) {
         } else if (D_008C024E[0] & 4) {
             if (p->f122 == 0) {
                 p->f122 = 1;
-                ps = func_002b6150(0x150);
-                func_002b69f0(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
-                ps = func_002b6150(0x2E0);
-                func_002b69f0(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
+                ps = fclSpriteEntry(0x150);
+                fclSpriteStartPositionAt(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
+                ps = fclSpriteEntry(0x2E0);
+                fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
                 fclDrawSetVisible(p->f148, 1);
                 func_0032a960(arg0, 0);
                 func_0045af60(0, 0, 0, 5);
@@ -5717,13 +5717,13 @@ void func_002fbea0(u8 *arg0) {
                 p->f1 = 0x9B;
                 *(s8 *)(func_0034a630((u8 *)p->f254) + 1) = 1;
                 func_0034a840((u8 *)p->f254);
-                func_002b68d0(0x80, 0, 0);
-                func_002b68d0(0x20C, 0, 0);
+                fclSpriteSetFlag(0x80, 0, 0);
+                fclSpriteSetFlag(0x20C, 0, 0);
                 func_002b6140((u8 *)p->f28C, 0);
                 func_002b6140((u8 *)p->f290, 0);
-                func_002b68d0(0x84, 0, 0);
-                func_002b68d0(0x85, 0, 0);
-                func_002b68d0(0x1C6, 0, 0);
+                fclSpriteSetFlag(0x84, 0, 0);
+                fclSpriteSetFlag(0x85, 0, 0);
+                fclSpriteSetFlag(0x1C6, 0, 0);
             }
             goto conv9A;
         }
@@ -5731,7 +5731,7 @@ void func_002fbea0(u8 *arg0) {
         p->f13A = 0;
         return;
     case 0x9B:
-        func_002cacd0(func_002b2970(250.0f + *(f32 *)(func_002b6150(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
+        func_002cacd0(func_002b2970(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
         var_16_6 = *(s16 *)(func_002e4870(0) + 8);
         if (*(s32 *)(func_002e4870(0) + 8) > 8) {
             var_16_6 = 8;
@@ -5740,8 +5740,8 @@ void func_002fbea0(u8 *arg0) {
         var_18 = 0;
         var_22 = (s16)var_16_6 + var_19;
         while (var_19 < var_22) {
-            temp_f20 = (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x42));
-            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x40)));
+            temp_f20 = (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x42));
+            temp_7 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x40)));
             if (p->f11E == var_19) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
                 fc_colW4 = func_002b2a60(0x2D, 0x2D, 0x2D, temp_7);
@@ -5750,32 +5750,32 @@ void func_002fbea0(u8 *arg0) {
                 fc_colW4 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
             frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
-            if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
-                *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
+            if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
+                *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
             total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
             func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
-            if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {
+            if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
-                    *(u8 *)(func_002b6150(((var_18 + 0x270))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x27D))) + 0x6E) = 0xFF;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x27D)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     func_002ba970((u8 *)p->f2BC, (s8)(var_18 + 0xC), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
                 } else {
-                    *(u8 *)(func_002b6150(((var_18 + 0x270))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x27D))) + 0x6E) = 0x80;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x27D)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0x80;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
                     func_002ba970((u8 *)p->f2BC, (s8)(var_18 + 0xC), func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF));
                 }
             }
-            if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x21F))) + 0x10), 1) == 0) {
+            if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x21F))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
-                    *(u8 *)(func_002b6150(((var_18 + 0x21F))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x2C5))) + 0x6E) = 0xFF;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x21F)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x2C5)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x21F))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x2C5))) + 0x6E) = 0xFF;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x21F)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2C5)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                 } else {
-                    *(u8 *)(func_002b6150(((var_18 + 0x21F))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x2C5))) + 0x6E) = 0x80;
-                    *(FclDrawColor *)((func_002b6150(((var_18 + 0x21F)))) + 0x85) = *(FclDrawColor *)((func_002b6150(((var_18 + 0x2C5)))) + 0x85) = func_002b2a60(0, 0, 0x99, 0xFF);
+                    *(u8 *)(fclSpriteEntry(((var_18 + 0x21F))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x2C5))) + 0x6E) = 0x80;
+                    *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x21F)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2C5)))) + 0x85) = func_002b2a60(0, 0, 0x99, 0xFF);
                 }
             }
             var_19++;
@@ -5793,13 +5793,13 @@ void func_002fbea0(u8 *arg0) {
             var_16_6 = 8;
         }
         caption.firstEntry = p->f11E - p->f120;
-        func_002cacd0(func_002b2970(254.0f + *(f32 *)(func_002b6150(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
+        func_002cacd0(func_002b2970(254.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
         var_19 = caption.firstEntry;
         var_18 = 0;
         var_22 = (s16)var_16_6 + var_19;
         while (var_19 < var_22) {
-            temp_f20 = (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x42));
-            caption.alpha = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x40)));
+            temp_f20 = (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x42));
+            caption.alpha = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x40)));
             if (p->f11E == var_19) {
                 caption.fontColor = func_002b2a30(0x2D, 0x2D, 0x2D, caption.alpha);
                 fc_colW2 = func_002b2a60(0x2D, 0x2D, 0x2D, caption.alpha);
@@ -5813,7 +5813,7 @@ void func_002fbea0(u8 *arg0) {
             var_19++;
             var_18++;
         }
-        if (func_002b6970(*(s16 *)(func_002b6150(0x193) + 0x10), 1) == 0) {
+        if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x193) + 0x10), 1) == 0) {
             func_0032f4d0(arg0);
             func_003205f0(arg0, 0x96, 0x117);
             func_00315600(arg0, 0);
@@ -5874,14 +5874,14 @@ s32 fclCombineApplyDiscount(u16 arg0, s32 arg1)
 /* MATCHED: no pragmas. Retail-order rewrite of the guarded draft: both
    bb680 tests take the busy arm first; the 0xD store is re-read as
    *(s8 *)(p + 0xD) (b210 forwards it); the tracked positions are FclVec2f
-   struct copies in and out of func_002b81f0; func_002b69f0 takes FclVec2f
+   struct copies in and out of fclSpriteWork; fclSpriteStartPositionAt takes FclVec2f
    by value, so *(FclVec2f *)(q + 0x38) gives retail's ldr/ldl; 413 and 321
    are (f32) int conversions (cvt.s.w); the format string is a gp-relative
    s32 (iGpffffa8a0). Stack slots follow declaration order: fv0 first, the
    FclVec2 constructor results, then fv7..fv1, then buf. */
 // FUN_00302770
 void func_00302770(u8 *arg0) {
-    extern u8 *func_002b81f0(u8 *arg0);
+    extern u8 *fclSpriteWork(u8 *arg0);
     extern void func_0032e570(u8 *arg0);
     FclVec2f fv0;
     FclVec2 sp250;
@@ -5990,34 +5990,34 @@ void func_00302770(u8 *arg0) {
         }
     case 0x73:
         func_0032e570(arg0);
-        q = func_002b6150(0x2E3);
+        q = fclSpriteEntry(0x2E3);
         fv0 = *(FclVec2f *)(q + 0x38);
         sp220 = func_002b2970(fv0.x - 50.0f, fv0.y - 50.0f);
-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x258)) = sp220;
-        q = func_002b6150(0x2E2);
+        *(FclVec2f *)fclSpriteWork(*(u8 **)(p + 0x258)) = sp220;
+        q = fclSpriteEntry(0x2E2);
         fv1 = *(FclVec2f *)(q + 0x38);
         sp218 = func_002b2970(fv1.x - 50.0f, fv1.y - 50.0f);
-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x25C)) = sp218;
-        q = func_002b6150(0x2E9);
+        *(FclVec2f *)fclSpriteWork(*(u8 **)(p + 0x25C)) = sp218;
+        q = fclSpriteEntry(0x2E9);
         fv2 = *(FclVec2f *)(q + 0x38);
         sp210 = func_002b2970(fv2.x - 50.0f, fv2.y - 50.0f);
-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x260)) = sp210;
-        q = func_002b6150(0x2EF);
+        *(FclVec2f *)fclSpriteWork(*(u8 **)(p + 0x260)) = sp210;
+        q = fclSpriteEntry(0x2EF);
         fv3 = *(FclVec2f *)(q + 0x38);
         sp208 = func_002b2970(fv3.x - 50.0f, fv3.y - 50.0f);
-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x264)) = sp208;
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1CA) + 0x10), 1) != 1) {
+        *(FclVec2f *)fclSpriteWork(*(u8 **)(p + 0x264)) = sp208;
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1CA) + 0x10), 1) != 1) {
             if (D_008C024E[0] & 8) {
                 if (*(s8 *)(p + 0x122) != 1) {
                     break;
                 }
                 func_0045af60(0, 0, 0, 5);
-                q = func_002b6150(0x150);
+                q = fclSpriteEntry(0x150);
                 sp200 = func_002b2970((f32)321, 16.0f);
-                func_002b69f0(0x150, *(FclVec2f *)(q + 0x38), sp200, 1, 4, 0);
-                q = func_002b6150(0x2E0);
+                fclSpriteStartPositionAt(0x150, *(FclVec2f *)(q + 0x38), sp200, 1, 4, 0);
+                q = fclSpriteEntry(0x2E0);
                 sp1F8 = func_002b2970((f32)321, 16.0f);
-                func_002b69f0(0x2E0, *(FclVec2f *)(q + 0x38), sp1F8, 1, 4, 0);
+                fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(q + 0x38), sp1F8, 1, 4, 0);
                 sp1F0 = func_002b2970(57.0f, 72.0f);
                 sp1E8 = func_002b2970(-346.0f, 72.0f);
                 func_0032c660(arg0, 0, sp1F0, sp1E8, 0, 1);
@@ -6030,12 +6030,12 @@ void func_00302770(u8 *arg0) {
                     break;
                 }
                 func_0045af60(0, 0, 0, 5);
-                q = func_002b6150(0x150);
+                q = fclSpriteEntry(0x150);
                 sp1D0 = func_002b2970(107.0f, 16.0f);
-                func_002b69f0(0x150, *(FclVec2f *)(q + 0x38), sp1D0, 1, 4, 0);
-                q = func_002b6150(0x2E0);
+                fclSpriteStartPositionAt(0x150, *(FclVec2f *)(q + 0x38), sp1D0, 1, 4, 0);
+                q = fclSpriteEntry(0x2E0);
                 sp1C8 = func_002b2970(107.0f, 16.0f);
-                func_002b69f0(0x2E0, *(FclVec2f *)(q + 0x38), sp1C8, 1, 4, 0);
+                fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(q + 0x38), sp1C8, 1, 4, 0);
                 sp1C0 = func_002b2970(57.0f, 72.0f);
                 sp1B8 = func_002b2970(-346.0f, 72.0f);
                 func_0032c660(arg0, 0, sp1C0, sp1B8, 0, 0);
@@ -6054,8 +6054,8 @@ void func_00302770(u8 *arg0) {
                     sp190 = func_002b2970(460.0f, 72.0f);
                     sp188 = func_002b2970(940.0f, 72.0f);
                     func_0032c660(arg0, 1, sp190, sp188, 0, 1);
-                    func_002b68d0(0x2E8, 0, 1);
-                    func_002b68d0(0x2EE, 0, 1);
+                    fclSpriteSetFlag(0x2E8, 0, 1);
+                    fclSpriteSetFlag(0x2EE, 0, 1);
                 } else if (*(s8 *)(p + 0x122) == 0) {
                     sp180 = func_002b2970(57.0f, 72.0f);
                     sp178 = func_002b2970(-640.0f, 72.0f);
@@ -6076,25 +6076,25 @@ void func_00302770(u8 *arg0) {
         }
         break;
     case 0x74:
-        q = func_002b6150(0x2E3);
+        q = fclSpriteEntry(0x2E3);
         fv4 = *(FclVec2f *)(q + 0x38);
         sp150 = func_002b2970(fv4.x - 50.0f, fv4.y - 50.0f);
-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x258)) = sp150;
-        q = func_002b6150(0x2E2);
+        *(FclVec2f *)fclSpriteWork(*(u8 **)(p + 0x258)) = sp150;
+        q = fclSpriteEntry(0x2E2);
         fv5 = *(FclVec2f *)(q + 0x38);
         sp148 = func_002b2970(fv5.x - 50.0f, fv5.y - 50.0f);
-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x25C)) = sp148;
-        q = func_002b6150(0x2E9);
+        *(FclVec2f *)fclSpriteWork(*(u8 **)(p + 0x25C)) = sp148;
+        q = fclSpriteEntry(0x2E9);
         fv6 = *(FclVec2f *)(q + 0x38);
         sp140 = func_002b2970(fv6.x - 50.0f, fv6.y - 50.0f);
-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x260)) = sp140;
-        q = func_002b6150(0x2EF);
+        *(FclVec2f *)fclSpriteWork(*(u8 **)(p + 0x260)) = sp140;
+        q = fclSpriteEntry(0x2EF);
         fv7 = *(FclVec2f *)(q + 0x38);
         sp138 = func_002b2970(fv7.x - 50.0f, fv7.y - 50.0f);
-        *(FclVec2f *)func_002b81f0(*(u8 **)(p + 0x264)) = sp138;
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1CA) + 0x10), 1) != 1) {
+        *(FclVec2f *)fclSpriteWork(*(u8 **)(p + 0x264)) = sp138;
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1CA) + 0x10), 1) != 1) {
             for (i = 0; i < 4; i++) {
-                *(u8 *)(func_002b81f0(*(u8 **)(p + i * 4 + 0x258)) + 0x124) = 1;
+                *(u8 *)(fclSpriteWork(*(u8 **)(p + i * 4 + 0x258)) + 0x124) = 1;
             }
             func_003205f0(arg0, 0x96, 0x1E7);
             func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 0);
@@ -6984,12 +6984,12 @@ void func_00304580(u8 *arg0) {
                     temp_19_2 = (s16)(gridColumn);
                     temp_16_4 = (s16)((temp_19_2 + 0x25E));
                     temp_21_2 = sdkSpriteNewNode(func_00331560(), 0x39);
-                    func_002b6a70(temp_16_4, 0xFFU, 0, 0, 3, 0);
-                    func_002b6af0(temp_16_4, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
+                    fclSpriteStartAlphaAt(temp_16_4, 0xFFU, 0, 0, 3, 0);
+                    fclSpriteStartRevealScaleAt(temp_16_4, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                     temp_19_3 = (temp_19_2 * 0x17) + 0x14E;
                     sp280 = func_002b2970((f32) temp_19_3, 110.0f);
                     sp278 = func_002b2970((f32) temp_19_3, 110.0f + (sdkSpriteScaledHeight(temp_21_2) / 2.0f));
-                    func_002b69f0(temp_16_4, (*(FclVec2f *)&sp280), (*(FclVec2f *)&sp278), 0, 3, 0);
+                    fclSpriteStartPositionAt(temp_16_4, (*(FclVec2f *)&sp280), (*(FclVec2f *)&sp278), 0, 3, 0);
                     sdkSpriteFreeNode(temp_21_2);
                 }
                 func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
@@ -7017,12 +7017,12 @@ void func_00304580(u8 *arg0) {
                         temp_18_3 = (s16)(gridRow);
                         temp_16_9 = (s16)((temp_18_3 + 0x25E));
                         temp_21_6 = sdkSpriteNewNode(func_00331560(), 0x39);
-                        func_002b6a70(temp_16_9, 0xFFU, 0, 0, 3, 0);
-                        func_002b6af0(temp_16_9, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
+                        fclSpriteStartAlphaAt(temp_16_9, 0xFFU, 0, 0, 3, 0);
+                        fclSpriteStartRevealScaleAt(temp_16_9, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         temp_18_4 = (temp_18_3 * 0x17) + 0x14E;
                         sp248 = func_002b2970((f32) temp_18_4, 110.0f);
                         sp240 = func_002b2970((f32) temp_18_4, 110.0f + (sdkSpriteScaledHeight(temp_21_6) / 2.0f));
-                        func_002b69f0(temp_16_9, (*(FclVec2f *)&sp248), (*(FclVec2f *)&sp240), 0, 3, 0);
+                        fclSpriteStartPositionAt(temp_16_9, (*(FclVec2f *)&sp248), (*(FclVec2f *)&sp240), 0, 3, 0);
                         sdkSpriteFreeNode(temp_21_6);
                     }
                     sp238 = func_002b2970((f32) 0x149, 104.0f);
@@ -7044,7 +7044,7 @@ void func_00304580(u8 *arg0) {
         }
         break;
     case 0x7C:                                      /* switch 1 */
-        if (((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150(0x21C))+(0x10))), 1))) != 1) {
+        if (((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry(0x21C))+(0x10))), 1))) != 1) {
             fclDrawSetPlacement((u8 *)work->f148, (s32)func_002e48a0(0, work->f11E), 0, 0);
             temp_16_10 = (s32)(fclDrawGetResource((u8 *)work->f148));
             func_0011d140((u8 *)temp_16_10, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
@@ -7074,8 +7074,8 @@ void func_00304580(u8 *arg0) {
         break;
     case 0x7A:
         for (var_19_3 = 0; var_19_3 < (datPersonaRosterCapacity() & 0xFFFF); var_19_3++) {
-            temp_f20 = (f32)*(s16 *)(func_002b6150(var_19_3 + 0x21C) + 0x42);
-            temp_7 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)*(s16 *)(func_002b6150(var_19_3 + 0x21C) + 0x40));
+            temp_f20 = (f32)*(s16 *)(fclSpriteEntry(var_19_3 + 0x21C) + 0x42);
+            temp_7 = (u8)func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)*(s16 *)(fclSpriteEntry(var_19_3 + 0x21C) + 0x40));
             if (work->f11E == var_19_3) {
                 var_18_3 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
             } else {
@@ -7086,8 +7086,8 @@ void func_00304580(u8 *arg0) {
                 frFontExDrawTextDeferred(113.0f, temp_f20, 43.0f, var_18_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, var_19_3))[1] * 0x11), 0, 0, D_00795E60);
             }
         }
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) == 0
-            && (s16)func_002b6970(*(s16 *)(func_002b6150(0x193) + 0x10), 1) == 0) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 0
+            && (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x193) + 0x10), 1) == 0) {
             func_003205f0(arg0, 0x96, 0x93);
             func_00315600(arg0, 0);
             work->f0 = 0;
@@ -7096,46 +7096,46 @@ void func_00304580(u8 *arg0) {
         break;
     case 0x7E:                                      /* switch 1 */
         work->f129 = -1;
-        temp_16_12 = (u8)((*(u8 *)((u8 *)(func_002b6150(0x7C))+(0x6E))));
+        temp_16_12 = (u8)((*(u8 *)((u8 *)(fclSpriteEntry(0x7C))+(0x6E))));
         temp_18_7 = *(FclCombineMenu **)(arg0 + 0x38);
-        temp_2_4 = (u8 *)(func_002b6150(0x7C));
+        temp_2_4 = (u8 *)(fclSpriteEntry(0x7C));
         sp160 = *(FclVec2f *)(temp_2_4 + 0x38);
         temp_16_13 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_12);
         frFontExDrawTextDeferredOutB(111.0f + sp160.x, sp160.y, 43.0f, temp_16_13, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_7->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_4 = 0; var_19_4 < (datPersonaRosterCapacity() & 0xFFFF); var_19_4++) {
             func_0031d630(arg0, (s8)(var_19_4), work->f128, work->f129, 0);
-            if ((((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150((s16)((var_19_4 + 0x270))))+(0x10))), 1))) == 0) && (work->f128 != var_19_4) && ((*(s8 *)((u8 *)((func_002e4870(0) + (work->f128 * 0xC) + var_19_4))+(0x14))) > 0)) {
+            if ((((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry((s16)((var_19_4 + 0x270))))+(0x10))), 1))) == 0) && (work->f128 != var_19_4) && ((*(s8 *)((u8 *)((func_002e4870(0) + (work->f128 * 0xC) + var_19_4))+(0x14))) > 0)) {
                 if (var_19_4 == work->f11E) {
                     id27D = var_19_4 + 0x27D;
                     id270 = var_19_4 + 0x270U;
-                    *(u8 *)(func_002b6150(id270) + 0x6E) = *(u8 *)(func_002b6150(id27D) + 0x6E) = 0xFF;
+                    *(u8 *)(fclSpriteEntry(id270) + 0x6E) = *(u8 *)(fclSpriteEntry(id27D) + 0x6E) = 0xFF;
                     col2E8 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-                    temp_2_5 = func_002b6150(var_19_4 + 0x297);
+                    temp_2_5 = fclSpriteEntry(var_19_4 + 0x297);
                     *(FclDrawColor *)(temp_2_5 + 0x85) = col2E8;
-                    temp_2_6 = func_002b6150(var_19_4 + 0x28B);
+                    temp_2_6 = fclSpriteEntry(var_19_4 + 0x28B);
                     *(FclDrawColor *)(temp_2_6 + 0x85) = *(FclDrawColor *)(temp_2_5 + 0x85);
-                    temp_2_7 = func_002b6150(id27D);
+                    temp_2_7 = fclSpriteEntry(id27D);
                     *(FclDrawColor *)(temp_2_7 + 0x85) = *(FclDrawColor *)(temp_2_6 + 0x85);
-                    *(FclDrawColor *)(func_002b6150(id270) + 0x85) = *(FclDrawColor *)(temp_2_7 + 0x85);
+                    *(FclDrawColor *)(fclSpriteEntry(id270) + 0x85) = *(FclDrawColor *)(temp_2_7 + 0x85);
                     col2E4 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                    *(FclDrawColor *)(func_002b6150(var_19_4 + 0x2A3) + 0x85) = col2E4;
+                    *(FclDrawColor *)(fclSpriteEntry(var_19_4 + 0x2A3) + 0x85) = col2E4;
                     col2E0 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     func_002ba970(work->f2BC, (s8)(var_19_4 + 0xC), col2E0);
                     var_18_4 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
                 } else {
                     id27D_2 = var_19_4 + 0x27D;
                     id270_2 = var_19_4 + 0x270U;
-                    *(u8 *)(func_002b6150(id270_2) + 0x6E) = *(u8 *)(func_002b6150(id27D_2) + 0x6E) = 0xCC;
+                    *(u8 *)(fclSpriteEntry(id270_2) + 0x6E) = *(u8 *)(fclSpriteEntry(id27D_2) + 0x6E) = 0xCC;
                     col2DC = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    temp_2_10 = func_002b6150(id27D_2);
+                    temp_2_10 = fclSpriteEntry(id27D_2);
                     *(FclDrawColor *)(temp_2_10 + 0x85) = col2DC;
-                    *(FclDrawColor *)(func_002b6150(id270_2) + 0x85) = *(FclDrawColor *)(temp_2_10 + 0x85);
+                    *(FclDrawColor *)(fclSpriteEntry(id270_2) + 0x85) = *(FclDrawColor *)(temp_2_10 + 0x85);
                     col2D8 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                    temp_2_12 = func_002b6150(var_19_4 + 0x297);
+                    temp_2_12 = fclSpriteEntry(var_19_4 + 0x297);
                     *(FclDrawColor *)(temp_2_12 + 0x85) = col2D8;
-                    *(FclDrawColor *)(func_002b6150(var_19_4 + 0x28B) + 0x85) = *(FclDrawColor *)(temp_2_12 + 0x85);
+                    *(FclDrawColor *)(fclSpriteEntry(var_19_4 + 0x28B) + 0x85) = *(FclDrawColor *)(temp_2_12 + 0x85);
                     col2D4 = func_002b2a60(0, 0, 0x66, 0xFF);
-                    *(FclDrawColor *)(func_002b6150(var_19_4 + 0x2A3) + 0x85) = col2D4;
+                    *(FclDrawColor *)(fclSpriteEntry(var_19_4 + 0x2A3) + 0x85) = col2D4;
                     col2D0 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
                     func_002ba970(work->f2BC, (s8)(var_19_4 + 0xC), col2D0);
                     var_18_4 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
@@ -7280,13 +7280,13 @@ void func_00304580(u8 *arg0) {
         }
         break;
     case 0x7F:                                      /* switch 1 */
-        temp_16_20 = (u8)((*(u8 *)((u8 *)(func_002b6150(0x7C))+(0x6E))));
+        temp_16_20 = (u8)((*(u8 *)((u8 *)(fclSpriteEntry(0x7C))+(0x6E))));
         temp_18_11 = *(FclCombineMenu **)(arg0 + 0x38);
-        temp_2_24 = (u8 *)(func_002b6150(0x7C));
+        temp_2_24 = (u8 *)(fclSpriteEntry(0x7C));
         sp158 = *(FclVec2f *)(temp_2_24 + 0x38);
         temp_16_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_20);
         frFontExDrawTextDeferredOutB(111.0f + sp158.x, sp158.y, 43.0f, temp_16_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_11->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        if (((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150(0x270))+(0x10))), 1))) != 1) {
+        if (((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry(0x270))+(0x10))), 1))) != 1) {
             fclDrawSetPlacement((u8 *)work->f148, (s32)func_002e48a0(0, work->f11E), 0, 0);
             temp_16_22 = (s32)(fclDrawGetResource((u8 *)work->f148));
             func_0011d140((u8 *)temp_16_22, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
@@ -7296,9 +7296,9 @@ void func_00304580(u8 *arg0) {
         }
         break;
     case 0x80:                                      /* switch 1 */
-        temp_16_23 = (u8)((*(u8 *)((u8 *)(func_002b6150(0x7C))+(0x6E))));
+        temp_16_23 = (u8)((*(u8 *)((u8 *)(fclSpriteEntry(0x7C))+(0x6E))));
         temp_18_12 = *(FclCombineMenu **)(arg0 + 0x38);
-        temp_2_25 = (u8 *)(func_002b6150(0x7C));
+        temp_2_25 = (u8 *)(fclSpriteEntry(0x7C));
         sp150 = *(FclVec2f *)(temp_2_25 + 0x38);
         temp_16_24 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_23);
         frFontExDrawTextDeferredOutB(111.0f + sp150.x, sp150.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_12->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
@@ -7325,9 +7325,9 @@ void func_00304580(u8 *arg0) {
         }
         break;
     case 0x81:                                      /* switch 1 */
-        temp_16_27 = (u8)((*(u8 *)((u8 *)(func_002b6150(0x7C))+(0x6E))));
+        temp_16_27 = (u8)((*(u8 *)((u8 *)(fclSpriteEntry(0x7C))+(0x6E))));
         temp_18_13 = *(FclCombineMenu **)(arg0 + 0x38);
-        temp_2_26 = (u8 *)(func_002b6150(0x7C));
+        temp_2_26 = (u8 *)(fclSpriteEntry(0x7C));
         sp148 = *(FclVec2f *)(temp_2_26 + 0x38);
         temp_16_28 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_27);
         frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_13->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
@@ -7427,12 +7427,12 @@ void func_00304580(u8 *arg0) {
                         func_0045af60(0, 2, 0, 5);
                     }
                     work->f122 = func_002b2cb0(work->f122, 1, 2, 0, 1);
-                    ps = func_002b6150(0x151);
+                    ps = fclSpriteEntry(0x151);
                     sp180 = func_002b2970((f32) ((work->f122 * 0x8E) + 0x6A), 16.0f);
-                    func_002b69f0(0x151, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp180), 1, 4, 0);
-                    ps = func_002b6150(0x2E0);
+                    fclSpriteStartPositionAt(0x151, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp180), 1, 4, 0);
+                    ps = fclSpriteEntry(0x2E0);
                     sp178 = func_002b2970((f32) ((work->f122 * 0x8E) + 0x6A), 16.0f);
-                    func_002b69f0(0x2E0, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp178), 1, 4, 0);
+                    fclSpriteStartPositionAt(0x2E0, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp178), 1, 4, 0);
                     for (var_4_3 = 0; var_4_3 < 5; var_4_3++) {
                         sp2C0[var_4_3] = 0;
                     }
@@ -7458,12 +7458,12 @@ void func_00304580(u8 *arg0) {
                         func_0045af60(0, 2, 0, 5);
                     }
                     work->f122 = func_002b2d00(work->f122, 1, 0, 2, 1);
-                    ps = func_002b6150(0x151);
+                    ps = fclSpriteEntry(0x151);
                     sp170 = func_002b2970((f32) ((work->f122 * 0x8E) + 0x6A), 16.0f);
-                    func_002b69f0(0x151, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp170), 1, 4, 0);
-                    ps = func_002b6150(0x2E0);
+                    fclSpriteStartPositionAt(0x151, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp170), 1, 4, 0);
+                    ps = fclSpriteEntry(0x2E0);
                     sp168 = func_002b2970((f32) ((work->f122 * 0x8E) + 0x6A), 16.0f);
-                    func_002b69f0(0x2E0, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp168), 1, 4, 0);
+                    fclSpriteStartPositionAt(0x2E0, (*(FclVec2f *)(ps + 0x38)), (*(FclVec2f *)&sp168), 1, 4, 0);
                     for (var_4_4 = 0; var_4_4 < 5; var_4_4++) {
                         sp2B8[var_4_4] = 0;
                     }
@@ -7498,15 +7498,15 @@ void func_00304580(u8 *arg0) {
         }
         break;
     case 0x82:                                      /* switch 1 */
-        temp_16_34 = (u8)((*(u8 *)((u8 *)(func_002b6150(0x7C))+(0x6E))));
+        temp_16_34 = (u8)((*(u8 *)((u8 *)(fclSpriteEntry(0x7C))+(0x6E))));
         temp_18_15 = *(FclCombineMenu **)(arg0 + 0x38);
-        temp_2_36 = (u8 *)(func_002b6150(0x7C));
+        temp_2_36 = (u8 *)(fclSpriteEntry(0x7C));
         sp140 = *(FclVec2f *)(temp_2_36 + 0x38);
         temp_16_35 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_34);
         frFontExDrawTextDeferredOutB(111.0f + sp140.x, sp140.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_15->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_6 = 0; var_19_6 < (datPersonaRosterCapacity() & 0xFFFF); var_19_6++) {
             func_0031d630(arg0, (s8)(var_19_6), work->f128, work->f129, 0);
-            if (((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150((s16)((var_19_6 + 0x270))))+(0x10))), 1))) == 0) {
+            if (((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry((s16)((var_19_6 + 0x270))))+(0x10))), 1))) == 0) {
                 if (var_19_6 == work->f11E) {
                     var_21_2 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFFU);
                 } else {
@@ -7538,14 +7538,14 @@ void func_00304580(u8 *arg0) {
             func_00106390(0x1306, 1);
             fclDrawSetStateByte((u8 *)work->f148, 0xB);
             func_00325450(arg0, 3, 1);
-            func_002b68d0(0x7C, 0, 1);
-            func_002b68d0(0x228, 0, 1);
-            func_002b68d0(0x1A2, 0, 1);
-            func_002b68d0(0x25C, 0, 1);
-            func_002b68d0(0x54, 0, 1);
-            func_002b68d0(0x26A, 0, 1);
-            func_002b68d0(0x26B, 0, 1);
-            func_002b68d0(0x74, 0, 1);
+            fclSpriteSetFlag(0x7C, 0, 1);
+            fclSpriteSetFlag(0x228, 0, 1);
+            fclSpriteSetFlag(0x1A2, 0, 1);
+            fclSpriteSetFlag(0x25C, 0, 1);
+            fclSpriteSetFlag(0x54, 0, 1);
+            fclSpriteSetFlag(0x26A, 0, 1);
+            fclSpriteSetFlag(0x26B, 0, 1);
+            fclSpriteSetFlag(0x74, 0, 1);
             func_00317240(arg0, 1, 0);
             for (var_4_5 = 0; var_4_5 < 5; var_4_5++) {
                 sp2B0[var_4_5] = 0;
@@ -8061,11 +8061,11 @@ void func_003097e0(u8 *arg0) {
         *(s16 *)(p + 0xE) = 0;
         *(s8 *)(p + 0x21) = 0;
         *(s16 *)(p + 0x2D8) = 0;
-        func_002b68d0(0x84, 0, 1);
-        func_002b68d0(0x85, 0, 1);
-        func_002b68d0(0x1C6, 0, 1);
+        fclSpriteSetFlag(0x84, 0, 1);
+        fclSpriteSetFlag(0x85, 0, 1);
+        fclSpriteSetFlag(0x1C6, 0, 1);
         for (i = 0; i < 0x30C; i++) {
-            func_002b68d0(i, 0, 1);
+            fclSpriteSetFlag(i, 0, 1);
         }
         func_00303de0(arg0);
         func_0034a640(*(s32 *)(p + 0x254), cls, 0);
@@ -8447,23 +8447,23 @@ void func_0030b060(u8 *arg0)
         *(s16 *)(p + 0x11E) = 0;
         func_003205f0(arg0, 0x97, 0x96);
         for (i = 0; i < 8; i++) {
-            func_002b68d0((s16)(i + 0x179), 0, 1);
+            fclSpriteSetFlag((s16)(i + 0x179), 0, 1);
         }
         for (j = 0; j < 6; j++) {
             v0 = func_002b2970(26.0f, (f32)(j * 0x22 + 0x57));
             func_003147e0(arg0, (s8)j, v0, (s16)(j + 0x179), (s16)(j * 2 + 2), 0);
         }
         c0 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-        te = func_002b6150((s16)(*(s16 *)(p + 0x11E) * 2 + 500));
+        te = fclSpriteEntry((s16)(*(s16 *)(p + 0x11E) * 2 + 500));
         *(FclDrawColor *)(te + 0x85) = c0;
         c1 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-        te = func_002b6150((s16)(*(s16 *)(p + 0x11E) * 2 + 501));
+        te = fclSpriteEntry((s16)(*(s16 *)(p + 0x11E) * 2 + 501));
         *(FclDrawColor *)(te + 0x85) = c1;
         c2 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        te = func_002b6150((s16)(*(s16 *)(p + 0x11E) + 0x179));
+        te = fclSpriteEntry((s16)(*(s16 *)(p + 0x11E) + 0x179));
         *(FclDrawColor *)(te + 0x85) = c2;
         c3 = func_002b2a60(0x92, 0xC8, 7, 0xFF);
-        te = func_002b6150((s16)(*(s16 *)(p + 0x120) + 0x2FB));
+        te = fclSpriteEntry((s16)(*(s16 *)(p + 0x120) + 0x2FB));
         *(FclDrawColor *)(te + 0x85) = c3;
         base = (FclVec2f *)D_00640D78;
         v1 = func_002b2970(base->x, base->y);
@@ -8472,12 +8472,12 @@ void func_0030b060(u8 *arg0)
         *(p + 1) = 0xC3;
         break;
     case 0xC3:
-        if ((s16)func_002b6970(*(s16 *)(func_002b6150(500) + 0x10), 1) != 1) {
-            if ((s16)func_002b6970(*(s16 *)(func_002b6150(502) + 0x10), 1) != 1) {
-                if ((s16)func_002b6970(*(s16 *)(func_002b6150(504) + 0x10), 1) != 1) {
-                    if ((s16)func_002b6970(*(s16 *)(func_002b6150(506) + 0x10), 1) != 1) {
-                        if ((s16)func_002b6970(*(s16 *)(func_002b6150(508) + 0x10), 1) != 1) {
-                            if ((s16)func_002b6970(*(s16 *)(func_002b6150(510) + 0x10), 1) != 1) {
+        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(500) + 0x10), 1) != 1) {
+            if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(502) + 0x10), 1) != 1) {
+                if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(504) + 0x10), 1) != 1) {
+                    if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(506) + 0x10), 1) != 1) {
+                        if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(508) + 0x10), 1) != 1) {
+                            if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(510) + 0x10), 1) != 1) {
                                 if ((D_008C0276[0] & 0x1000) && (*(s8 *)(p + 0x13A) == 0)) {
                                     func_00330060(arg0, 5);
                                     return;
@@ -8616,31 +8616,31 @@ void func_0030b7b0(u8 *arg0) {
         for (j = 0; j < *(s8 *)(p + 0x139); j++) {
             te = &D_00882FB0[j * 2];
             c0 = func_002b2a60(0, 0, 0x66, 0xFF);
-            p501 = func_002b6150((s16)(*(s8 *)te * 2 + 501));
+            p501 = fclSpriteEntry((s16)(*(s8 *)te * 2 + 501));
             *(FclDrawColor *)(p501 + 0x85) = c0;
-            p500 = func_002b6150((s16)(*(s8 *)te * 2 + 500));
+            p500 = fclSpriteEntry((s16)(*(s8 *)te * 2 + 500));
             *(FclDrawColor *)(p500 + 0x85) = *(FclDrawColor *)(p501 + 0x85);
             row = &D_00882FB0[j * 2] + 1;
             c1 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-            te2 = func_002b6150((s16)(*(s8 *)row + 0x168));
+            te2 = fclSpriteEntry((s16)(*(s8 *)row + 0x168));
             *(FclDrawColor *)(te2 + 0x85) = c1;
             if (*(s8 *)te == 0xB && datGetFlag(0x1308) == 0) {
                 c2 = func_002b2a60(0xFF, 0xCC, 0xFF, 0xFF);
-                te2 = func_002b6150((s16)(*(s8 *)row + 0x168));
+                te2 = fclSpriteEntry((s16)(*(s8 *)row + 0x168));
                 *(FclDrawColor *)(te2 + 0x85) = c2;
             }
         }
         c3 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-        te = func_002b6150(500);
+        te = fclSpriteEntry(500);
         *(FclDrawColor *)(te + 0x85) = c3;
         c4 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-        te = func_002b6150(501);
+        te = fclSpriteEntry(501);
         *(FclDrawColor *)(te + 0x85) = c4;
         c5 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        te = func_002b6150(0x168);
+        te = fclSpriteEntry(0x168);
         *(FclDrawColor *)(te + 0x85) = c5;
         c6 = func_002b2a60(0x92, 0xC8, 7, 0xFF);
-        te = func_002b6150((s16)(*(s8 *)(D_00882FB0 + *(s16 *)(p + 0x11E) * 2) + 0x2FB));
+        te = fclSpriteEntry((s16)(*(s8 *)(D_00882FB0 + *(s16 *)(p + 0x11E) * 2) + 0x2FB));
         *(FclDrawColor *)(te + 0x85) = c6;
         if (*(s8 *)(p + 0x138) > 0) {
             func_0032f060(arg0, 0);
@@ -8648,8 +8648,8 @@ void func_0030b7b0(u8 *arg0) {
         *(p + 1) = 0xC3;
         break;
     case 0xC3:
-        if ((s16)func_002b6970(
-                *(s16 *)(func_002b6150((s16)(*(s8 *)(D_00882FAE + *(s8 *)(p + 0x139) * 2) * 2 + 500)) + 0x10),
+        if ((s16)fclSpriteFlagBit(
+                *(s16 *)(fclSpriteEntry((s16)(*(s8 *)(D_00882FAE + *(s8 *)(p + 0x139) * 2) * 2 + 500)) + 0x10),
                 1) != 1) {
             if ((D_008C0276[0] & 0x1000) && (*(s8 *)(p + 0x13A) == 0)) {
                 func_003307b0(arg0, 5, D_00882FB0);
@@ -9647,9 +9647,9 @@ void func_0030c3c0(u8 *arg0) {
             fclDrawGetState(*(u8 **)(p + 0x148)) != 0xE) {
             fclDrawSetStateByte(*(u8 **)(p + 0x148), 0xB);
             pos.position = func_002b2970(0.0f, 0.0f);
-            func_002b6c30(0x1E8, pos.position, 6.0f, 0xAA);
-            func_002b68d0(0x1E8, 0, 0);
-            func_002b6a70(0x1E8, 0xFF, 0, 0, 0x32, 0xA);
+            fclSpriteCreate(0x1E8, pos.position, 6.0f, 0xAA);
+            fclSpriteSetFlag(0x1E8, 0, 0);
+            fclSpriteStartAlphaAt(0x1E8, 0xFF, 0, 0, 0x32, 0xA);
             p[1] = 0xC1;
         }
         break;
@@ -9703,8 +9703,8 @@ void func_0030f4f0(u8 *task, s16 *materials) {
     datPersonaRemoveSelectedRosterMember();
 }
 #pragma pop
-/* MATCHED: struct colour copies straight into func_002b6150(...) + 0x85;
-   func_00285b30 takes no argument and func_002b6b40 ends in two floats
+/* MATCHED: struct colour copies straight into fclSpriteEntry(...) + 0x85;
+   func_00285b30 takes no argument and fclSpriteStartTweenAt ends in two floats
    (0.0f, -360.0f); the second constructor coordinates for 0x20C are
    (f32)347 / (f32)267 (retail converts them with cvt.s.w). Stored bytes
    are re-read (*(s16 *)(p + 0x2D8), *(s8 *)(p + 0xD)) so b210 forwards
@@ -9826,9 +9826,9 @@ void func_0030f650(u8 *arg0) {
             kwlnTaskDestroyWithHierarchy((KwlnTask *)(u32)*(s32 *)(p + 0x304));
             *(s32 *)(p + 0x304) = 0;
         }
-        func_002b68d0(0x84, 0, 0);
-        func_002b68d0(0x85, 0, 0);
-        func_002b68d0(0x1C6, 0, 0);
+        fclSpriteSetFlag(0x84, 0, 0);
+        fclSpriteSetFlag(0x85, 0, 0);
+        fclSpriteSetFlag(0x1C6, 0, 0);
         if (fclCombineClaimSlot(arg0) == 0) {
             if (*(s32 *)(p + 0x148) != 0) {
                 *(s32 *)(p + 0x148) = 0;
@@ -9836,44 +9836,44 @@ void func_0030f650(u8 *arg0) {
             *(s32 *)(p + 0x148) = fclDrawTaskCreate(arg0);
             func_00320970(arg0, 0);
             w0 = func_002b2970(-78.0f, -82.0f);
-            func_002b6c30(0x80, w0, 220.0f, 0x3F);
+            fclSpriteCreate(0x80, w0, 220.0f, 0x3F);
             c0 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            *(FclDrawColor *)(func_002b6150(0x80) + 0x85) = c0;
-            func_002b6b40(0x80, 0, 0x5A0, 0, 0.0f, -360.0f);
-            func_002b68d0(0x80, 6, 0);
-            *(func_002b6150(0x80) + 0xDB) = 1;
+            *(FclDrawColor *)(fclSpriteEntry(0x80) + 0x85) = c0;
+            fclSpriteStartTweenAt(0x80, 0, 0x5A0, 0, 0.0f, -360.0f);
+            fclSpriteSetFlag(0x80, 6, 0);
+            *(fclSpriteEntry(0x80) + 0xDB) = 1;
             w1 = func_002b2970(2.0f, -2.0f);
             w2 = func_002b2970(-78.0f, -82.0f);
-            func_002b69f0(0x80, w1, w2, 1, 0xA, 0);
-            func_002b6a70(0x80, 0, 0xFF, 2, 0xA, 0);
+            fclSpriteStartPositionAt(0x80, w1, w2, 1, 0xA, 0);
+            fclSpriteStartAlphaAt(0x80, 0, 0xFF, 2, 0xA, 0);
             w3 = func_002b2970(540.0f, (f32)347);
-            func_002b6c30(0x20C, w3, 220.0f, 0x3F);
+            fclSpriteCreate(0x20C, w3, 220.0f, 0x3F);
             c1 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            *(FclDrawColor *)(func_002b6150(0x20C) + 0x85) = c1;
-            func_002b6b40(0x20C, 0, 0x5A0, 0, 0.0f, -360.0f);
-            func_002b68d0(0x20C, 6, 0);
-            *(func_002b6150(0x20C) + 0xDB) = 1;
+            *(FclDrawColor *)(fclSpriteEntry(0x20C) + 0x85) = c1;
+            fclSpriteStartTweenAt(0x20C, 0, 0x5A0, 0, 0.0f, -360.0f);
+            fclSpriteSetFlag(0x20C, 6, 0);
+            *(fclSpriteEntry(0x20C) + 0xDB) = 1;
             w4 = func_002b2970(460.0f, (f32)267);
             w5 = func_002b2970(540.0f, (f32)347);
-            func_002b69f0(0x20C, w4, w5, 1, 0xA, 0);
-            func_002b6a70(0x20C, 0, 0xFF, 2, 0xA, 0);
+            fclSpriteStartPositionAt(0x20C, w4, w5, 1, 0xA, 0);
+            fclSpriteStartAlphaAt(0x20C, 0, 0xFF, 2, 0xA, 0);
             w6 = func_002b2970(-190.0f, 200.0f);
-            func_002b6c30(0x81, w6, 215.0f, 0x56);
+            fclSpriteCreate(0x81, w6, 215.0f, 0x56);
             c2 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            *(FclDrawColor *)(func_002b6150(0x81) + 0x85) = c2;
-            *(f32 *)(func_002b6150(0x81) + 0xD0) = 90.0f;
+            *(FclDrawColor *)(fclSpriteEntry(0x81) + 0x85) = c2;
+            *(f32 *)(fclSpriteEntry(0x81) + 0xD0) = 90.0f;
             base = (FclVec2f *)D_00640C50;
             w7 = func_002b2970(base->x, base->y);
-            func_002b6c30(0x84, w7, 217.0f, 0x40);
+            fclSpriteCreate(0x84, w7, 217.0f, 0x40);
             base = (FclVec2f *)D_00640C58;
             w8 = func_002b2970(base->x, base->y);
-            func_002b6c30(0x85, w8, 218.0f, 0x40);
+            fclSpriteCreate(0x85, w8, 218.0f, 0x40);
             func_00315600(arg0, 0);
             func_00316e80(arg0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0);
             base = (FclVec2f *)D_00641660;
             w9 = func_002b2970(base->x, base->y);
-            func_002b6c30(0x1C6, w9, 242.0f, 0x3D);
-            func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
+            fclSpriteCreate(0x1C6, w9, 242.0f, 0x3D);
+            fclSpriteStartAlphaAt(0x1C6, 0, 0x64, 0, 0xA, 0);
             *(s8 *)(p + 0xB4) = 0;
             *(s8 *)(p + 0xB5) = 0;
             *(s16 *)((u8 *)(*(s8 *)(p + 0xB5) * 10) + (u32)p + 0xC4) = 1;

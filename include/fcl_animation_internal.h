@@ -7,11 +7,11 @@
  * inputs remain words until those stores; task wrappers narrow delays
  * where the retail call boundary does. Floating arguments retain their
  * own EE register order. */
-void func_002b82d0(u8 *work, u8 first, u8 second, u8 mode, s32 duration, s32 delay);
-void func_002b8300(u8 *work, f32 firstX, f32 firstY, f32 secondX, f32 secondY,
+void fclSpriteStartAlpha(u8 *work, u8 first, u8 second, u8 mode, s32 duration, s32 delay);
+void fclSpriteStartRevealScale(u8 *work, f32 firstX, f32 firstY, f32 secondX, f32 secondY,
                    u32 mode, u32 duration, s32 delay);
-void func_002b8340(u8 *work, u8 mode, s32 duration, s16 delay, f32 first, f32 second);
-void func_002b6b40(s16 resource, u8 mode, s32 duration, s32 delay, f32 first, f32 second);
+void fclSpriteStartTween(u8 *work, u8 mode, s32 duration, s16 delay, f32 first, f32 second);
+void fclSpriteStartTweenAt(s16 resource, u8 mode, s32 duration, s32 delay, f32 first, f32 second);
 u8 *func_002e04e0(u8 *task);
 s8 func_002e0570(u8 *task, s32 bit);
 void func_002e0660(u8 *task, u8 first, u8 second, u8 mode, s32 duration, s16 delay);

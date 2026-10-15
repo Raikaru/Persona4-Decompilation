@@ -64,17 +64,17 @@ extern void func_0011c180(u8 *, s32, s32, s8);
 extern void func_0011c2c0(u8 *, s32, s32, s8);
 extern void func_0011bdc0(u8 *arg0);
 extern void func_0011bf10(u8 *arg0);
-extern void func_002b6a70(s16, u8, u8, u8, s32, s16);
-extern u8 *func_002b6150(s16);
-extern s16 func_002b6970(s16, s16);
-extern void func_002b7750(s16, s16);
+extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
+extern u8 *fclSpriteEntry(s16);
+extern s16 fclSpriteFlagBit(s16, s16);
+extern void fclSpriteReset(s16, s16);
 extern u8 *func_002e4870(s8 arg0);
 extern u8 *func_002e48a0(s8 arg0, s16 arg1);
 extern void func_002ba970(u8 *, s16, FclDrawColor);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 datPersonaRosterCapacity(void);
-extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
-extern void func_002b8370(u8 *, FclByte4, FclByte4, u8, s16, s32);
+extern void fclSpriteStartColorAt(s16, s32, s32, s32, s32, s32);
+extern void fclSpriteStartColor(u8 *, FclByte4, FclByte4, u8, s16, s32);
 extern void func_0032fa30(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
 extern s8 func_0032fb60(s8);
 extern void func_003297f0(f32, f32, u8 *, s64, s8);
@@ -85,15 +85,15 @@ extern f32 D_00644290[];
 extern f32 D_00644298[];
 extern f32 D_00644350[];
 
-extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
+extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
 extern u8 *sdkSpriteNewNode(u32, u32);
 extern f32 sdkSpriteScaledHeight(u8 *);
 extern void sdkSpriteFreeNode(void *node);
-extern void func_002b68d0(s16, s16, s8);
+extern void fclSpriteSetFlag(s16, s16, s8);
 extern f32 D_007495C0[];
 extern f32 D_00749600[];
 extern s32 func_00110140(void);
-extern void func_002b6d60(s16);
+extern void fclSpriteResetScale(s16);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s32 func_002b2d00(s32, s32, s32, s32, s8);
 extern s16 func_002b2d50(s16, s16, s16, s16, s16);
@@ -105,7 +105,7 @@ extern void func_003191c0(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
 extern s32 func_00331560(void);
 
 
-extern u8 *func_002b81f0(u8 *);
+extern u8 *fclSpriteWork(u8 *);
 extern f32 sdkSpriteScaledWidth(u8 *);
 extern void func_00314ef0(u8 *, s8, FclVec2, s16, s16, s8);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
@@ -399,33 +399,33 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     }
     two = arg1 * 2;
     id = two + 0x1F4;
-    func_002b7750(id, 0x1AC);
+    fclSpriteReset(id, 0x1AC);
     order = base;
     o2 = order + 2;
     sp120 = func_002b2970(arg2.x, arg2.y);
     c15C = func_002b2a60(0, 0, 0x66, 0xFF);
     func_002b77d0(id, sp120, 0x1AC, c15C, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
     id = two + 0x1F5;
-    func_002b7750(id, 0x1AF);
+    fclSpriteReset(id, 0x1AF);
     sp130 = func_002b2970(258.0f + arg2.x, arg2.y);
     c158 = func_002b2a60(0, 0, 0x66, 0xFF);
     func_002b77d0(id, sp130, 0x1AF, c158, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
     sp138 = func_002b2970(sp130.x - 28.0f, sp130.y);
     id = arg1 + 0x2FB;
-    func_002b7750(id, 0x131);
+    fclSpriteReset(id, 0x131);
     sp130 = func_002b2970(266.0f + arg2.x, arg2.y);
     c154 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
     func_002b77d0(id, sp138, 0x131, c154, 153.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
-    func_002b68d0(id, 0xE, 0);
+    fclSpriteSetFlag(id, 0xE, 0);
     h = sdkSpriteNewNode(func_00331560(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
-    *(FclVec2 *)func_002b81f0(*slot) = sp138;
+    *(FclVec2 *)fclSpriteWork(*slot) = sp138;
     x = sdkSpriteScaledWidth(h);
     spF0 = func_002b29e0(x, sdkSpriteScaledHeight(h));
-    ((FclBoundsPacket *)(func_002b81f0(*slot) + 8))->representation = spF0.representation;
-    *(s32 *)(func_002b81f0(*slot) + 0x120) = order;
-    *(f32 *)(func_002b81f0(*slot) + 0x18) = 152.0f;
-    *(u8 *)(func_002b81f0(*slot) + 0x124) = 0;
+    ((FclBoundsPacket *)(fclSpriteWork(*slot) + 8))->representation = spF0.representation;
+    *(s32 *)(fclSpriteWork(*slot) + 0x120) = order;
+    *(f32 *)(fclSpriteWork(*slot) + 0x18) = 152.0f;
+    *(u8 *)(fclSpriteWork(*slot) + 0x124) = 0;
     sdkSpriteFreeNode(h);
     if (kind == -1) {
         return;
@@ -444,7 +444,7 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
 
         func_002b77d0(0x160, sp110 = func_002b2970(6.0f + arg2.x, 4.0f + arg2.y), 0x160,
                       c14C = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
-        func_002b7750(0x2EB, 0x16F);
+        fclSpriteReset(0x2EB, 0x16F);
         func_002b77d0(0x2EB, sp108 = func_002b2970(100.0f + (6.0f + arg2.x), 4.0f + arg2.y), 0x16F,
                       c148 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
         return;
@@ -485,34 +485,34 @@ void func_00314ef0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     order = arg1 * 5 + 0x66;
     two = arg1 * 2;
     res = two + 0x1F4;
-    func_002b7750(res, 0x1AC);
+    fclSpriteReset(res, 0x1AC);
     o2 = order + 2;
     spF0 = func_002b2970(arg2.x, arg2.y);
     c10C = func_002b2a60(0, 0, 0x66, 0xFF);
     func_002b77d0(res, spF0, 0x1AC, c10C, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
     res = two + 0x1F5;
-    func_002b7750(res, 0x1B3);
+    fclSpriteReset(res, 0x1B3);
     x = 217.0f + arg2.x;
     spE8 = func_002b2970(x, arg2.y);
     c108 = func_002b2a60(0, 0, 0x66, 0xFF);
     func_002b77d0(res, spE8, 0x1B3, c108, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
     spF8 = func_002b2970(x - 28.0f, arg2.y);
     res = arg1 + 0x2FB;
-    func_002b7750(res, 0x131);
+    fclSpriteReset(res, 0x131);
     c104 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
     func_002b77d0(res, spF8, 0x131, c104, 150.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
-    func_002b68d0(res, 0xE, 0);
+    fclSpriteSetFlag(res, 0xE, 0);
     h = sdkSpriteNewNode(func_00331560(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
-    *(FclVec2 *)func_002b81f0(*slot) = spF8;
+    *(FclVec2 *)fclSpriteWork(*slot) = spF8;
     x = sdkSpriteScaledWidth(h);
     spD0 = func_002b29e0(x, sdkSpriteScaledHeight(h));
-    ((FclBoundsPacket *)(func_002b81f0(*slot) + 8))->representation = spD0.representation;
-    *(s32 *)(func_002b81f0(*slot) + 0x120) = order;
-    *(f32 *)(func_002b81f0(*slot) + 0x18) = 149.0f;
-    *(u8 *)(func_002b81f0(*slot) + 0x124) = 0;
+    ((FclBoundsPacket *)(fclSpriteWork(*slot) + 8))->representation = spD0.representation;
+    *(s32 *)(fclSpriteWork(*slot) + 0x120) = order;
+    *(f32 *)(fclSpriteWork(*slot) + 0x18) = 149.0f;
+    *(u8 *)(fclSpriteWork(*slot) + 0x124) = 0;
     sdkSpriteFreeNode(h);
-    func_002b7750(arg3, arg3);
+    fclSpriteReset(arg3, arg3);
     spE0 = func_002b2970(6.0f + arg2.x, 8.0f + arg2.y);
     c100 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
     func_002b77d0(arg3, spE0, arg3, c100, 148.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
@@ -554,29 +554,29 @@ void func_00315310(u8 *arg0, s64 arg1) {
         func_003147e0(arg0, (s8)(s16)i, sp60, *(s16 *)(t + off + 0xB8), (s16)(base + off), 0);
     }
     c7C = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
+    p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
     *(FclByte4 *)(p + 0x85) = c7C;
     c78 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F5));
+    p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F5));
     *(FclByte4 *)(p + 0x85) = c78;
     c74 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-    p = func_002b6150((s16)*(s16 *)(addOff(*(s8 *)(t + 0xB3) * 2, (u32)t) + 0xB8));
+    p = fclSpriteEntry((s16)*(s16 *)(addOff(*(s8 *)(t + 0xB3) * 2, (u32)t) + 0xB8));
     *(FclByte4 *)(p + 0x85) = c74;
     if (*(s8 *)(t + 0xB3) == 1) {
         if (datGetFlag(0x1305) != 0) {
         c70 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        p = func_002b6150(0x2EB);
+        p = fclSpriteEntry(0x2EB);
         *(FclByte4 *)(p + 0x85) = c70;
         }
     }
     c6C = func_002b2a60(0x92, 0xC8, 7, 0xFF);
-    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
+    p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
     *(FclByte4 *)(p + 0x85) = c6C;
 }
 
 /* Point-by-value construction as in func_0031c2b0.  The row base pointers
    are f32 tables cast to FclVec2 * (a direct FclVec2 extern folds the
-   first base into each load), func_002b6c30 takes an s16 resource here, and
+   first base into each load), fclSpriteCreate takes an s16 resource here, and
    the then-branch's second table index is its own s16 (retail $s1) while
    the else-branch reuses the first one ($s0). */
 // FUN_00315600
@@ -609,77 +609,77 @@ void func_00315600(u8 *arg0, s64 arg1) {
     b = (FclVec2 *)D_00643DA8;
     pos = func_002b2970(b->x, b->y);
     if ((s8)arg1 == 0) {
-        func_002b6c30(7, func_002b2970(24.0f + b->x, b->y), 94.0f, 0x41);
+        fclSpriteCreate(7, func_002b2970(24.0f + b->x, b->y), 94.0f, 0x41);
         c1AC = func_002b2a60(0x19, 0x19, 0x19, 0xFF);
-        *(FclByte4 *)(func_002b6150(7) + 0x85) = c1AC;
-        func_002b69f0(7, func_002b2970(300.0f + (24.0f + b->x), b->y), func_002b2970(24.0f + b->x, b->y), 0, 0xA, 0);
+        *(FclByte4 *)(fclSpriteEntry(7) + 0x85) = c1AC;
+        fclSpriteStartPositionAt(7, func_002b2970(300.0f + (24.0f + b->x), b->y), func_002b2970(24.0f + b->x, b->y), 0, 0xA, 0);
     } else {
-        func_002b69f0(7, func_002b2970(24.0f + b->x, b->y), func_002b2970(24.0f + (300.0f + b->x), b->y), 0, 0xA, 0);
+        fclSpriteStartPositionAt(7, func_002b2970(24.0f + b->x, b->y), func_002b2970(24.0f + (300.0f + b->x), b->y), 0, 0xA, 0);
     }
     if ((s8)arg1 == 0) {
-        func_002b6c30((func_002e78a0() & 0xFF) / 10 + 9, func_002b2970(24.0f + (13.0f + pos.x), pos.y), 89.0f, 0x56);
+        fclSpriteCreate((func_002e78a0() & 0xFF) / 10 + 9, func_002b2970(24.0f + (13.0f + pos.x), pos.y), 89.0f, 0x56);
         id = (func_002e78a0() & 0xFF) / 10 + 9;
-        func_002b69f0(id, func_002b2970(300.0f + (24.0f + (13.0f + pos.x)), pos.y), func_002b2970(24.0f + (13.0f + pos.x), pos.y), 0, 0xA, 0);
-        func_002b6c30(0x2DB, func_002b2970(24.0f + (26.0f + pos.x), pos.y), 89.0f, 0x56);
-        func_002b69f0(0x2DB, func_002b2970(300.0f + (24.0f + (26.0f + pos.x)), pos.y), func_002b2970(24.0f + (26.0f + pos.x), pos.y), 0, 0xA, 0);
-        func_002b6c30(0x19, func_002b2970(24.0f + (40.0f + pos.x), pos.y), 89.0f, 0x56);
-        func_002b69f0(0x19, func_002b2970(300.0f + (24.0f + (40.0f + pos.x)), pos.y), func_002b2970(24.0f + (40.0f + pos.x), pos.y), 0, 0xA, 0);
-        func_002b6c30(0x2DC, func_002b2970(24.0f + (50.0f + pos.x), pos.y), 89.0f, 0x56);
-        func_002b69f0(0x2DC, func_002b2970(300.0f + (24.0f + (50.0f + pos.x)), pos.y), func_002b2970(24.0f + (50.0f + pos.x), pos.y), 0, 0xA, 0);
-        func_002b6c30(0x2DD, func_002b2970(24.0f + (63.0f + pos.x), pos.y), 89.0f, 0x56);
-        func_002b69f0(0x2DD, func_002b2970(300.0f + (24.0f + (63.0f + pos.x)), pos.y), func_002b2970(24.0f + (63.0f + pos.x), pos.y), 0, 0xA, 0);
+        fclSpriteStartPositionAt(id, func_002b2970(300.0f + (24.0f + (13.0f + pos.x)), pos.y), func_002b2970(24.0f + (13.0f + pos.x), pos.y), 0, 0xA, 0);
+        fclSpriteCreate(0x2DB, func_002b2970(24.0f + (26.0f + pos.x), pos.y), 89.0f, 0x56);
+        fclSpriteStartPositionAt(0x2DB, func_002b2970(300.0f + (24.0f + (26.0f + pos.x)), pos.y), func_002b2970(24.0f + (26.0f + pos.x), pos.y), 0, 0xA, 0);
+        fclSpriteCreate(0x19, func_002b2970(24.0f + (40.0f + pos.x), pos.y), 89.0f, 0x56);
+        fclSpriteStartPositionAt(0x19, func_002b2970(300.0f + (24.0f + (40.0f + pos.x)), pos.y), func_002b2970(24.0f + (40.0f + pos.x), pos.y), 0, 0xA, 0);
+        fclSpriteCreate(0x2DC, func_002b2970(24.0f + (50.0f + pos.x), pos.y), 89.0f, 0x56);
+        fclSpriteStartPositionAt(0x2DC, func_002b2970(300.0f + (24.0f + (50.0f + pos.x)), pos.y), func_002b2970(24.0f + (50.0f + pos.x), pos.y), 0, 0xA, 0);
+        fclSpriteCreate(0x2DD, func_002b2970(24.0f + (63.0f + pos.x), pos.y), 89.0f, 0x56);
+        fclSpriteStartPositionAt(0x2DD, func_002b2970(300.0f + (24.0f + (63.0f + pos.x)), pos.y), func_002b2970(24.0f + (63.0f + pos.x), pos.y), 0, 0xA, 0);
         v = (FclVec2 *)D_00643D70 + tmp18;
-        func_002b6c30((s16)tmp18, func_002b2970(v->x, v->y), 90.0f, 0x56);
+        fclSpriteCreate((s16)tmp18, func_002b2970(v->x, v->y), 90.0f, 0x56);
         if (tmp18 == 0) {
             c1A8 = func_002b2a60(0xFF, 0xAC, 0x99, 0xFF);
-            *(FclByte4 *)(func_002b6150((s16)tmp18) + 0x85) = c1A8;
+            *(FclByte4 *)(fclSpriteEntry((s16)tmp18) + 0x85) = c1A8;
         }
         if (tmp18 == 6) {
             c1A4 = func_002b2a60(0x99, 0xA4, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150((s16)tmp18) + 0x85) = c1A4;
+            *(FclByte4 *)(fclSpriteEntry((s16)tmp18) + 0x85) = c1A4;
         }
         if (func_00110d30((s16)func_001060b0()) == 1) {
             c1A0 = func_002b2a60(0xFF, 0xAC, 0x99, 0xFF);
-            *(FclByte4 *)(func_002b6150((s16)tmp18) + 0x85) = c1A0;
+            *(FclByte4 *)(fclSpriteEntry((s16)tmp18) + 0x85) = c1A0;
         }
-        func_002b69f0((s16)tmp18, func_002b2970(300.0f + v->x, v->y), func_002b2970(v->x, v->y), 0, 0xA, 0);
+        fclSpriteStartPositionAt((s16)tmp18, func_002b2970(300.0f + v->x, v->y), func_002b2970(v->x, v->y), 0, 0xA, 0);
         v = (FclVec2 *)D_00643E28;
-        func_002b6c30(0x17, func_002b2970(v->x, v->y), 93.0f, 0x56);
+        fclSpriteCreate(0x17, func_002b2970(v->x, v->y), 93.0f, 0x56);
         c19C = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x17) + 0x85) = c19C;
-        func_002b69f0(0x17, func_002b2970(300.0f + v->x, v->y), func_002b2970(v->x, v->y), 0, 0xA, 0);
+        *(FclByte4 *)(fclSpriteEntry(0x17) + 0x85) = c19C;
+        fclSpriteStartPositionAt(0x17, func_002b2970(300.0f + v->x, v->y), func_002b2970(v->x, v->y), 0, 0xA, 0);
         v = (FclVec2 *)D_00643E30;
-        func_002b6c30(0x18, func_002b2970(v->x, v->y), 92.0f, 0x57);
+        fclSpriteCreate(0x18, func_002b2970(v->x, v->y), 92.0f, 0x57);
         c198 = func_002b2a60(0x19, 0x19, 0x19, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x18) + 0x85) = c198;
-        func_002b69f0(0x18, func_002b2970(300.0f + v->x, v->y), func_002b2970(v->x, v->y), 0, 0xA, 0);
+        *(FclByte4 *)(fclSpriteEntry(0x18) + 0x85) = c198;
+        fclSpriteStartPositionAt(0x18, func_002b2970(300.0f + v->x, v->y), func_002b2970(v->x, v->y), 0, 0xA, 0);
         id2 = (s8)func_00110a60(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) + 0x13;
         v = (FclVec2 *)D_00643D70 + id2;
-        func_002b6c30(id2, func_002b2970(v->x, v->y), 91.0f, 0x58);
+        fclSpriteCreate(id2, func_002b2970(v->x, v->y), 91.0f, 0x58);
         c194 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(id2) + 0x85) = c194;
-        func_002b69f0(id2, func_002b2970(300.0f + v->x, v->y), func_002b2970(v->x, v->y), 0, 0xA, 0);
+        *(FclByte4 *)(fclSpriteEntry(id2) + 0x85) = c194;
+        fclSpriteStartPositionAt(id2, func_002b2970(300.0f + v->x, v->y), func_002b2970(v->x, v->y), 0, 0xA, 0);
     } else {
         id = (func_002e78a0() & 0xFF) / 10 + 9;
-        pos = *(FclVec2 *)(func_002b6150(id) + 0x38);
-        func_002b69f0(id, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
-        pos = *(FclVec2 *)(func_002b6150(0x2DB) + 0x38);
-        func_002b69f0(0x2DB, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
-        pos = *(FclVec2 *)(func_002b6150(0x2DC) + 0x38);
-        func_002b69f0(0x2DC, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
-        pos = *(FclVec2 *)(func_002b6150(0x2DD) + 0x38);
-        func_002b69f0(0x2DD, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
-        pos = *(FclVec2 *)(func_002b6150(0x19) + 0x38);
-        func_002b69f0(0x19, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
-        pos = *(FclVec2 *)(func_002b6150((s16)tmp18) + 0x38);
-        func_002b69f0((s16)tmp18, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
-        pos = *(FclVec2 *)(func_002b6150(0x17) + 0x38);
-        func_002b69f0(0x17, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
-        pos = *(FclVec2 *)(func_002b6150(0x18) + 0x38);
-        func_002b69f0(0x18, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
+        pos = *(FclVec2 *)(fclSpriteEntry(id) + 0x38);
+        fclSpriteStartPositionAt(id, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
+        pos = *(FclVec2 *)(fclSpriteEntry(0x2DB) + 0x38);
+        fclSpriteStartPositionAt(0x2DB, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
+        pos = *(FclVec2 *)(fclSpriteEntry(0x2DC) + 0x38);
+        fclSpriteStartPositionAt(0x2DC, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
+        pos = *(FclVec2 *)(fclSpriteEntry(0x2DD) + 0x38);
+        fclSpriteStartPositionAt(0x2DD, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
+        pos = *(FclVec2 *)(fclSpriteEntry(0x19) + 0x38);
+        fclSpriteStartPositionAt(0x19, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
+        pos = *(FclVec2 *)(fclSpriteEntry((s16)tmp18) + 0x38);
+        fclSpriteStartPositionAt((s16)tmp18, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
+        pos = *(FclVec2 *)(fclSpriteEntry(0x17) + 0x38);
+        fclSpriteStartPositionAt(0x17, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
+        pos = *(FclVec2 *)(fclSpriteEntry(0x18) + 0x38);
+        fclSpriteStartPositionAt(0x18, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
         id = (s8)func_00110a60(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) + 0x13;
-        pos = *(FclVec2 *)(func_002b6150(id) + 0x38);
-        func_002b69f0(id, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
+        pos = *(FclVec2 *)(fclSpriteEntry(id) + 0x38);
+        fclSpriteStartPositionAt(id, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
     }
 }
 
@@ -741,123 +741,123 @@ void func_00316470(u8 *arg0, s64 arg1, s8 arg2) {
         sp158 = func_002b2970(b->x, b->y);
         if ((s8)arg2 == 0) {
             sp150 = func_002b2970(b->x, b->y);
-            func_002b6c30(0xC2, sp150, 100.0f, 0x41);
+            fclSpriteCreate(0xC2, sp150, 100.0f, 0x41);
             f20 = 300.0f;
             sp148 = func_002b2970(f20 + b->x, b->y);
             sp140 = func_002b2970(b->x, b->y);
-            func_002b69f0(0xC2, sp148, sp140, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0xC2, sp148, sp140, 0, 0xA, 0);
         } else {
             f20 = 300.0f;
             sp138 = func_002b2970(b->x, b->y);
             sp130 = func_002b2970(300.0f + b->x, b->y);
-            func_002b69f0(0xC2, sp138, sp130, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0xC2, sp138, sp130, 0, 0xA, 0);
         }
         b = (FclVec2 *)D_00644378;
         sp158 = func_002b2970(b->x, b->y);
         if ((s8)arg2 == 0) {
             sp128 = func_002b2970(b->x, b->y);
-            func_002b6c30(0xC1, sp128, 100.0f, 0x41);
+            fclSpriteCreate(0xC1, sp128, 100.0f, 0x41);
             sp120 = func_002b2970(f20 + b->x, b->y);
             sp118 = func_002b2970(b->x, b->y);
-            func_002b69f0(0xC1, sp120, sp118, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0xC1, sp120, sp118, 0, 0xA, 0);
         } else {
             sp110 = func_002b2970(b->x, b->y);
             sp108 = func_002b2970(f20 + b->x, b->y);
-            func_002b69f0(0xC1, sp110, sp108, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0xC1, sp110, sp108, 0, 0xA, 0);
         }
         b = (FclVec2 *)D_00644388;
         sp158 = func_002b2970(b->x, b->y);
         if ((s8)arg2 == 0) {
             sp100 = func_002b2970(b->x, b->y);
-            func_002b6c30(0xC3, sp100, 99.0f, 0x56);
+            fclSpriteCreate(0xC3, sp100, 99.0f, 0x56);
             spF8 = func_002b2970(f20 + b->x, b->y);
             spF0 = func_002b2970(b->x, b->y);
-            func_002b69f0(0xC3, spF8, spF0, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0xC3, spF8, spF0, 0, 0xA, 0);
         } else {
             spE8 = func_002b2970(b->x, b->y);
             spE0 = func_002b2970(f20 + b->x, b->y);
-            func_002b69f0(0xC3, spE8, spE0, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0xC3, spE8, spE0, 0, 0xA, 0);
         }
         b = (FclVec2 *)D_00644390;
         sp158 = func_002b2970(b->x, b->y);
         if ((s8)arg2 == 0) {
             spD8 = func_002b2970(b->x, b->y);
-            func_002b6c30(0xC4, spD8, 99.0f, 0x56);
+            fclSpriteCreate(0xC4, spD8, 99.0f, 0x56);
             spD0 = func_002b2970(f20 + b->x, b->y);
             spC8 = func_002b2970(b->x, b->y);
-            func_002b69f0(0xC4, spD0, spC8, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0xC4, spD0, spC8, 0, 0xA, 0);
         } else {
             spC0 = func_002b2970(b->x, b->y);
             spB8 = func_002b2970(f20 + b->x, b->y);
-            func_002b69f0(0xC4, spC0, spB8, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0xC4, spC0, spB8, 0, 0xA, 0);
         }
     }
     sp158 = func_002b2970((f32)0x167, 29.0f);
     if ((s8)arg2 == 0) {
-        func_002b6c30(0x69, sp158, 98.0f, 0x56);
+        fclSpriteCreate(0x69, sp158, 98.0f, 0x56);
         f20 = 300.0f;
         spB0 = func_002b2970(f20 + sp158.x, sp158.y);
-        func_002b69f0(0x69, spB0, sp158, 0, 0xA, 0);
+        fclSpriteStartPositionAt(0x69, spB0, sp158, 0, 0xA, 0);
         c16C = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        p = func_002b6150(0x69);
+        p = fclSpriteEntry(0x69);
         *(FclByte4 *)(p + 0x85) = c16C;
     } else {
         f20 = 300.0f;
         spA8 = func_002b2970(f20 + sp158.x, sp158.y);
-        func_002b69f0(0x69, sp158, spA8, 0, 0xA, 0);
+        fclSpriteStartPositionAt(0x69, sp158, spA8, 0, 0xA, 0);
     }
     b = (FclVec2 *)D_00644AD8;
     sp158 = func_002b2970(b->x, b->y);
     if ((s8)arg2 == 0) {
         spA0 = func_002b2970(b->x, b->y);
-        func_002b6c30(0x1AD, spA0, 100.0f, 0x41);
+        fclSpriteCreate(0x1AD, spA0, 100.0f, 0x41);
         sp98 = func_002b2970(f20 + b->x, b->y);
         sp90 = func_002b2970(b->x, b->y);
-        func_002b69f0(0x1AD, sp98, sp90, 0, 0xA, 0);
+        fclSpriteStartPositionAt(0x1AD, sp98, sp90, 0, 0xA, 0);
         c168 = func_002b2a60(0x0E, 0x17, 0x49, 0xFF);
-        p = func_002b6150(0x1AD);
+        p = fclSpriteEntry(0x1AD);
         *(FclByte4 *)(p + 0x85) = c168;
-        *(u8 *)(func_002b6150(0x1AD) + 0x6E) = 0x80;
+        *(u8 *)(fclSpriteEntry(0x1AD) + 0x6E) = 0x80;
     } else {
         sp88 = func_002b2970(b->x, b->y);
         sp80 = func_002b2970(f20 + b->x, b->y);
-        func_002b69f0(0x1AD, sp88, sp80, 0, 0xA, 0);
+        fclSpriteStartPositionAt(0x1AD, sp88, sp80, 0, 0xA, 0);
     }
     sp158 = func_002b2970((f32)0x23B, 50.0f);
     if ((s8)arg2 == 0) {
-        func_002b6c30(0x2B3, sp158, 189.0f, 0x56);
+        fclSpriteCreate(0x2B3, sp158, 189.0f, 0x56);
         sp78 = func_002b2970(f20 + sp158.x, sp158.y);
-        func_002b69f0(0x2B3, sp78, sp158, 0, 0xA, 0);
+        fclSpriteStartPositionAt(0x2B3, sp78, sp158, 0, 0xA, 0);
         c164 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        p = func_002b6150(0x2B3);
+        p = fclSpriteEntry(0x2B3);
         *(FclByte4 *)(p + 0x85) = c164;
     } else {
         sp70 = func_002b2970(f20 + sp158.x, sp158.y);
-        func_002b69f0(0x2B3, sp158, sp70, 0, 0xA, 0);
+        fclSpriteStartPositionAt(0x2B3, sp158, sp70, 0, 0xA, 0);
     }
     sp158 = func_002b2970((f32)0x263, 50.0f);
     if ((func_00104c70(1) & 0xFF) < 0xA) {
         sp158 = func_002b2970((f32)0x251, 50.0f);
     }
     if ((s8)arg2 == 0) {
-        func_002b6c30(0x26E, sp158, 46.0f, 0x56);
-        *(s16 *)(func_002b6150(0x26E) + 4) = (s16)((func_00104c70(1) & 0xFF) % 10 + 0x46);
+        fclSpriteCreate(0x26E, sp158, 46.0f, 0x56);
+        *(s16 *)(fclSpriteEntry(0x26E) + 4) = (s16)((func_00104c70(1) & 0xFF) % 10 + 0x46);
         sp68 = func_002b2970(f20 + sp158.x, sp158.y);
-        func_002b69f0(0x26E, sp68, sp158, 0, 0xA, 0);
+        fclSpriteStartPositionAt(0x26E, sp68, sp158, 0, 0xA, 0);
     } else {
         sp60 = func_002b2970(f20 + sp158.x, sp158.y);
-        func_002b69f0(0x26E, sp158, sp60, 0, 0xA, 0);
+        fclSpriteStartPositionAt(0x26E, sp158, sp60, 0, 0xA, 0);
     }
     sp158 = func_002b2970((f32)0x251, 50.0f);
     if ((func_00104c70(1) & 0xFF) / 10 > 0) {
         if ((s8)arg2 == 0) {
-            func_002b6c30(0x26F, sp158, 46.0f, 0x56);
-            *(s16 *)(func_002b6150(0x26F) + 4) = (s16)((func_00104c70(1) & 0xFF) / 10 + 0x46);
+            fclSpriteCreate(0x26F, sp158, 46.0f, 0x56);
+            *(s16 *)(fclSpriteEntry(0x26F) + 4) = (s16)((func_00104c70(1) & 0xFF) / 10 + 0x46);
             sp58 = func_002b2970(f20 + sp158.x, sp158.y);
-            func_002b69f0(0x26F, sp58, sp158, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0x26F, sp58, sp158, 0, 0xA, 0);
         } else {
             sp50 = func_002b2970(f20 + sp158.x, sp158.y);
-            func_002b69f0(0x26F, sp158, sp50, 0, 0xA, 0);
+            fclSpriteStartPositionAt(0x26F, sp158, sp50, 0, 0xA, 0);
         }
     }
 }
@@ -878,51 +878,51 @@ void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         b1 = D_006441C8;
         if ((s8)arg2 == 0) {
             sp88 = func_002b2970(b1[0], b1[1]);
-            func_002b6c30(0x8B, sp88, 103.0f, 0xBC);
-            func_002b6a70(0x8B, 0, 0xFF, 0, 0xA, 0);
+            fclSpriteCreate(0x8B, sp88, 103.0f, 0xBC);
+            fclSpriteStartAlphaAt(0x8B, 0, 0xFF, 0, 0xA, 0);
         } else {
-            func_002b6a70(0x8B, *(u8 *)(func_002b6150(0x8B) + 0x6E), 0, 0, 0xA, 0);
+            fclSpriteStartAlphaAt(0x8B, *(u8 *)(fclSpriteEntry(0x8B) + 0x6E), 0, 0, 0xA, 0);
         }
     }
     if ((s8)arg3 == 1) {
         b2 = D_006441D0;
         if ((s8)arg4 == 0) {
             sp80 = func_002b2970(b2[0], b2[1]);
-            func_002b6c30(0x8C, sp80, 103.0f, 0xBC);
-            func_002b6a70(0x8C, 0, 0xFF, 0, 0xA, 0);
+            fclSpriteCreate(0x8C, sp80, 103.0f, 0xBC);
+            fclSpriteStartAlphaAt(0x8C, 0, 0xFF, 0, 0xA, 0);
         } else {
-            func_002b6a70(0x8C, *(u8 *)(func_002b6150(0x8C) + 0x6E), 0, 0, 0xA, 0);
+            fclSpriteStartAlphaAt(0x8C, *(u8 *)(fclSpriteEntry(0x8C) + 0x6E), 0, 0, 0xA, 0);
         }
     }
     if ((s8)arg5 == 1) {
         b3 = D_006441C0;
         if ((s8)arg6 == 0) {
             sp78 = func_002b2970(b3[0], b3[1]);
-            func_002b6c30(0x8A, sp78, 103.0f, 0xBC);
-            func_002b6a70(0x8A, 0, 0xFF, 0, 0xA, 0);
+            fclSpriteCreate(0x8A, sp78, 103.0f, 0xBC);
+            fclSpriteStartAlphaAt(0x8A, 0, 0xFF, 0, 0xA, 0);
         } else {
-            func_002b6a70(0x8A, *(u8 *)(func_002b6150(0x8A) + 0x6E), 0, 0, 0xA, 0);
+            fclSpriteStartAlphaAt(0x8A, *(u8 *)(fclSpriteEntry(0x8A) + 0x6E), 0, 0, 0xA, 0);
         }
     }
     if ((s8)arg7 == 1) {
         b4 = D_006441E0;
         if (arg8 == 0) {
             sp70 = func_002b2970(b4[0], b4[1]);
-            func_002b6c30(0x8E, sp70, 103.0f, 0xBC);
-            func_002b6a70(0x8E, 0, 0xFF, 0, 0xA, 0);
+            fclSpriteCreate(0x8E, sp70, 103.0f, 0xBC);
+            fclSpriteStartAlphaAt(0x8E, 0, 0xFF, 0, 0xA, 0);
         } else {
-            func_002b6a70(0x8E, *(u8 *)(func_002b6150(0x8E) + 0x6E), 0, 0, 0xA, 0);
+            fclSpriteStartAlphaAt(0x8E, *(u8 *)(fclSpriteEntry(0x8E) + 0x6E), 0, 0, 0xA, 0);
         }
     }
     if (arg9 == 1) {
         b5 = D_006441D8;
         if (arg10 == 0) {
             sp68 = func_002b2970(b5[0], b5[1]);
-            func_002b6c30(0x8D, sp68, 103.0f, 0xBC);
-            func_002b6a70(0x8D, 0, 0xFF, 0, 0xA, 0);
+            fclSpriteCreate(0x8D, sp68, 103.0f, 0xBC);
+            fclSpriteStartAlphaAt(0x8D, 0, 0xFF, 0, 0xA, 0);
             return;
         }
-        func_002b6a70(0x8D, *(u8 *)(func_002b6150(0x8D) + 0x6E), 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x8D, *(u8 *)(fclSpriteEntry(0x8D) + 0x6E), 0, 0, 0xA, 0);
     }
 }
 
@@ -934,12 +934,12 @@ void func_00317240(u8 *arg0, s64 arg1, f32 fparg0) {
     b = D_00644C90;
     if (((s64)(arg1 << 0x38) >> 0x38) == 0) {
         sp18 = func_002b2970(b[0] + fparg0, b[1]);
-        func_002b6c30(0x1E4, sp18, 103.0f, 0xBC);
-        func_002b6a70(0x1E4, 0, 0xFF, 0, 0xA, 0);
-        func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
+        fclSpriteCreate(0x1E4, sp18, 103.0f, 0xBC);
+        fclSpriteStartAlphaAt(0x1E4, 0, 0xFF, 0, 0xA, 0);
+        fclSpriteStartTweenAt(0x1E4, 0, 0, 0, 0.0f, 90.0f);
         return;
     }
-    func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0, 0, 0xA, 0);
+    fclSpriteStartAlphaAt(0x1E4, *(u8 *)(fclSpriteEntry(0x1E4) + 0x6E), 0, 0, 0xA, 0);
 }
 
 // FUN_00317320
@@ -950,12 +950,12 @@ void func_00317320(u8 *arg0, s64 arg1, f32 fparg0) {
     b = D_00644C90;
     if (((s64)(arg1 << 0x38) >> 0x38) == 0) {
         sp18 = func_002b2970(358.0f + fparg0, b[1]);
-        func_002b6c30(0x1E4, sp18, 103.0f, 0xBC);
-        func_002b6a70(0x1E4, 0, 0xFF, 0, 0xA, 0);
-        func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
+        fclSpriteCreate(0x1E4, sp18, 103.0f, 0xBC);
+        fclSpriteStartAlphaAt(0x1E4, 0, 0xFF, 0, 0xA, 0);
+        fclSpriteStartTweenAt(0x1E4, 0, 0, 0, 0.0f, 90.0f);
         return;
     }
-    func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0, 0, 0xA, 0);
+    fclSpriteStartAlphaAt(0x1E4, *(u8 *)(fclSpriteEntry(0x1E4) + 0x6E), 0, 0, 0xA, 0);
 }
 
 // FUN_00317410
@@ -978,28 +978,28 @@ void func_00317410(u8 *arg0, s8 arg1) {
 
     t = *(u8 **)(arg0 + 0x38);
     sp6C = func_002b2a60(0, 0, 0x66, 0xFF);
-    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F5));
+    p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F5));
     *(FclByte4 *)(p + 0x85) = sp6C;
-    q = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
+    q = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
     *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
     sp68 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
     v = *(s8 *)(t + 0xB3) * 2;
-    p = func_002b6150((s16)*(s16 *)(v + (s32)t + 0xB8));
+    p = fclSpriteEntry((s16)*(s16 *)(v + (s32)t + 0xB8));
     *(FclByte4 *)(p + 0x85) = sp68;
     if (*(s8 *)(t + 0xB3) == 1) {
         if (datGetFlag(0x1305) != 0) {
             sp64 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-            p = func_002b6150(0x2EB);
+            p = fclSpriteEntry(0x2EB);
             *(FclByte4 *)(p + 0x85) = sp64;
         }
     }
     if (*(s8 *)(t + 0xB3) == 2) {
         sp60 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        p = func_002b6150(0x175);
+        p = fclSpriteEntry(0x175);
         *(FclByte4 *)(p + 0x85) = sp60;
     }
     sp5C = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
-    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
+    p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
     *(FclByte4 *)(p + 0x85) = sp5C;
     func_0045af60(0, 0, 0, 0);
     switch (arg1) {
@@ -1015,29 +1015,29 @@ void func_00317410(u8 *arg0, s8 arg1) {
         break;
     }
     sp58 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
+    p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
     *(FclByte4 *)(p + 0x85) = sp58;
     sp54 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F5));
+    p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F5));
     *(FclByte4 *)(p + 0x85) = sp54;
     sp50 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
     v = *(s8 *)(t + 0xB3) * 2;
-    p = func_002b6150((s16)*(s16 *)(v + (s32)t + 0xB8));
+    p = fclSpriteEntry((s16)*(s16 *)(v + (s32)t + 0xB8));
     *(FclByte4 *)(p + 0x85) = sp50;
     if (*(s8 *)(t + 0xB3) == 1) {
         if (datGetFlag(0x1305) != 0) {
             sp4C = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-            p = func_002b6150(0x2EB);
+            p = fclSpriteEntry(0x2EB);
             *(FclByte4 *)(p + 0x85) = sp4C;
         }
     }
     if (*(s8 *)(t + 0xB3) == 2) {
         sp48 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        p = func_002b6150(0x175);
+        p = fclSpriteEntry(0x175);
         *(FclByte4 *)(p + 0x85) = sp48;
     }
     sp44 = func_002b2a60(0x92, 0xC8, 7, 0xFF);
-    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
+    p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
     *(FclByte4 *)(p + 0x85) = sp44;
 }
 
@@ -1047,11 +1047,11 @@ void func_00317410(u8 *arg0, s8 arg1) {
    temporary, so the anchor never escapes and its sums stay in registers),
    the frame id is assigned through an s16 argument local ahead of the
    depth, and the fade orders are converted to s16 at each call through
-   the local func_002b6a70 prototype. */
+   the local fclSpriteStartAlphaAt prototype. */
 // FUN_00317900
 void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s8 arg3, s16 arg4, s16 arg5, s16 arg6) {
-    extern void func_002b6a70(s16, u8, u8, u8, s32, s16);
-    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
+    extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
+    extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     FclByte4 c23C;
     FclByte4 c238;
     FclByte4 c234;
@@ -1083,97 +1083,97 @@ void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s8 arg3, s16 arg4, s16 
     }
     order = arg6;
     orderUp = order + 1;
-    func_002b6c30(sprite, func_002b2970(6.0f + pos.x, 4.0f + pos.y), (f32)arg5, orderUp);
+    fclSpriteCreate(sprite, func_002b2970(6.0f + pos.x, 4.0f + pos.y), (f32)arg5, orderUp);
     c23C = func_002b2a60(0x46, 0x6A, 0x82, 0xFF);
-    *(FclByte4 *)(func_002b6150(sprite) + 0x85) = c23C;
-    *(f32 *)(func_002b6150(sprite) + 0xA0) = 1.0f;
-    *(f32 *)(func_002b6150(sprite) + 0xAC) = 1.0f;
-    func_002b69f0(sprite, func_002b2970(6.0f + pos.x, 4.0f + pos.y), func_002b2970(6.0f + arg2.x, 4.0f + arg2.y), 0, 8, arg4);
+    *(FclByte4 *)(fclSpriteEntry(sprite) + 0x85) = c23C;
+    *(f32 *)(fclSpriteEntry(sprite) + 0xA0) = 1.0f;
+    *(f32 *)(fclSpriteEntry(sprite) + 0xAC) = 1.0f;
+    fclSpriteStartPositionAt(sprite, func_002b2970(6.0f + pos.x, 4.0f + pos.y), func_002b2970(6.0f + arg2.x, 4.0f + arg2.y), 0, 8, arg4);
     frameId = frame = arg3 + 0x20D;
     depthUp = arg5 + 1;
-    func_002b6c30(frameId, arg2, (f32)depthUp, order);
-    func_002b6c30(arg3 + 0xF2, func_002b2970(6.0f + arg2.x, 78.0f + arg2.y), (f32)depthUp, orderUp);
+    fclSpriteCreate(frameId, arg2, (f32)depthUp, order);
+    fclSpriteCreate(arg3 + 0xF2, func_002b2970(6.0f + arg2.x, 78.0f + arg2.y), (f32)depthUp, orderUp);
     c238 = func_002b2a60(0x46, 0x6A, 0x82, 0xFF);
-    *(FclByte4 *)(func_002b6150(arg3 + 0xF2) + 0x85) = c238;
-    func_002b6c30(arg3 + 0xFD, func_002b2970(arg2.x - 12.0f, 104.0f + arg2.y), (f32)arg5, order + 2);
+    *(FclByte4 *)(fclSpriteEntry(arg3 + 0xF2) + 0x85) = c238;
+    fclSpriteCreate(arg3 + 0xFD, func_002b2970(arg2.x - 12.0f, 104.0f + arg2.y), (f32)arg5, order + 2);
     c234 = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150(arg3 + 0xFD) + 0x85) = c234;
+    *(FclByte4 *)(fclSpriteEntry(arg3 + 0xFD) + 0x85) = c234;
     if (arg3 == ((s16 *)(work + 0xC8))[*(s8 *)(work + 0xB4) * 5]) {
-        func_002b6c30(sprite, func_002b2970(6.0f + pos.x, 4.0f + pos.y), 59.0f, 0xAB);
+        fclSpriteCreate(sprite, func_002b2970(6.0f + pos.x, 4.0f + pos.y), 59.0f, 0xAB);
         scale = iGpffff8360;
-        *(f32 *)(func_002b6150(sprite) + 0xA0) = scale;
-        *(f32 *)(func_002b6150(sprite) + 0xAC) = scale;
+        *(f32 *)(fclSpriteEntry(sprite) + 0xA0) = scale;
+        *(f32 *)(fclSpriteEntry(sprite) + 0xAC) = scale;
         node = sdkSpriteNewNode(func_00331560(), (s16)sprite);
-        func_002b69f0(sprite, func_002b2970((5.0f + pos.x) - 2.0f * (sdkSpriteScaledWidth(node) / 10.0f), pos.y - 3.0f),
+        fclSpriteStartPositionAt(sprite, func_002b2970((5.0f + pos.x) - 2.0f * (sdkSpriteScaledWidth(node) / 10.0f), pos.y - 3.0f),
                       func_002b2970((5.0f + arg2.x) - 2.0f * (sdkSpriteScaledWidth(node) / 10.0f), arg2.y - 3.0f), 0, 8, arg4);
         sdkSpriteFreeNode(node);
         c230 = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
-        *(FclByte4 *)(func_002b6150(sprite) + 0x85) = c230;
-        func_002b6c30(0x1DC, pos, 60.0f, 0xAA);
-        func_002b69f0(0x1DC, pos, arg2, 0, 8, arg4);
-        func_002b69f0(arg3 + 0xFD, func_002b2970(pos.x - 12.0f, 104.0f + pos.y), func_002b2970(arg2.x - 12.0f, 104.0f + arg2.y), 0, 8, arg4);
-        func_002b68d0(frame, 0, 1);
+        *(FclByte4 *)(fclSpriteEntry(sprite) + 0x85) = c230;
+        fclSpriteCreate(0x1DC, pos, 60.0f, 0xAA);
+        fclSpriteStartPositionAt(0x1DC, pos, arg2, 0, 8, arg4);
+        fclSpriteStartPositionAt(arg3 + 0xFD, func_002b2970(pos.x - 12.0f, 104.0f + pos.y), func_002b2970(arg2.x - 12.0f, 104.0f + arg2.y), 0, 8, arg4);
+        fclSpriteSetFlag(frame, 0, 1);
         if (arg3 < 6) {
-            func_002b6c30(0xFC, func_002b2970(pos.x - 12.0f, 123.0f + pos.y), 59.0f, 0xAC);
-            func_002b69f0(0xFC, func_002b2970(pos.x - 12.0f, 123.0f + pos.y), func_002b2970(arg2.x - 12.0f, 123.0f + arg2.y), 0, 8, arg4);
+            fclSpriteCreate(0xFC, func_002b2970(pos.x - 12.0f, 123.0f + pos.y), 59.0f, 0xAC);
+            fclSpriteStartPositionAt(0xFC, func_002b2970(pos.x - 12.0f, 123.0f + pos.y), func_002b2970(arg2.x - 12.0f, 123.0f + arg2.y), 0, 8, arg4);
             c22C = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
-            *(FclByte4 *)(func_002b6150(0xFC) + 0x85) = c22C;
+            *(FclByte4 *)(fclSpriteEntry(0xFC) + 0x85) = c22C;
         }
-        func_002b68d0(arg3 + 0xF2, 0, 1);
-        func_002b7750(0x216, 0x87);
-        *(s16 *)(func_002b6150(0x216) + 0x10) = 0;
-        func_002b6c30(0x216, func_002b2970(6.0f + pos.x, 62.0f + pos.y), 62.0f, 0xAA);
-        func_002b69f0(0x216, func_002b2970(6.0f + pos.x, 62.0f + pos.y), func_002b2970(6.0f + arg2.x, 62.0f + arg2.y), 0, 8, arg4);
+        fclSpriteSetFlag(arg3 + 0xF2, 0, 1);
+        fclSpriteReset(0x216, 0x87);
+        *(s16 *)(fclSpriteEntry(0x216) + 0x10) = 0;
+        fclSpriteCreate(0x216, func_002b2970(6.0f + pos.x, 62.0f + pos.y), 62.0f, 0xAA);
+        fclSpriteStartPositionAt(0x216, func_002b2970(6.0f + pos.x, 62.0f + pos.y), func_002b2970(6.0f + arg2.x, 62.0f + arg2.y), 0, 8, arg4);
         fadeA = arg4 + 8;
-        func_002b6a70(0x216, 0x40, 0x80, 1, 0x3C, fadeA);
-        *(u8 *)(func_002b6150(0x216) + 0x73) = 1;
-        func_002b68d0(0x216, 0xB, 0);
-        func_002b7750(0x217, 0x87);
-        *(s16 *)(func_002b6150(0x217) + 0x10) = 0;
-        func_002b6c30(0x217, func_002b2970(33.0f + pos.x, 62.0f + pos.y), 62.0f, 0xAA);
-        func_002b69f0(0x217, func_002b2970(33.0f + pos.x, 62.0f + pos.y), func_002b2970(33.0f + arg2.x, 62.0f + arg2.y), 0, 8, arg4);
+        fclSpriteStartAlphaAt(0x216, 0x40, 0x80, 1, 0x3C, fadeA);
+        *(u8 *)(fclSpriteEntry(0x216) + 0x73) = 1;
+        fclSpriteSetFlag(0x216, 0xB, 0);
+        fclSpriteReset(0x217, 0x87);
+        *(s16 *)(fclSpriteEntry(0x217) + 0x10) = 0;
+        fclSpriteCreate(0x217, func_002b2970(33.0f + pos.x, 62.0f + pos.y), 62.0f, 0xAA);
+        fclSpriteStartPositionAt(0x217, func_002b2970(33.0f + pos.x, 62.0f + pos.y), func_002b2970(33.0f + arg2.x, 62.0f + arg2.y), 0, 8, arg4);
         fadeB = arg4 + 0x26;
-        func_002b6a70(0x217, 0x40, 0x80, 1, 0x3C, fadeB);
-        *(u8 *)(func_002b6150(0x217) + 0x73) = 1;
-        func_002b68d0(0x217, 0xB, 0);
-        func_002b7750(0x218, 0x86);
-        *(s16 *)(func_002b6150(0x218) + 0x10) = 0;
-        func_002b6c30(0x218, func_002b2970(20.0f + pos.x, 62.0f + pos.y), 61.0f, 0xAA);
-        func_002b69f0(0x218, func_002b2970(20.0f + pos.x, 62.0f + pos.y), func_002b2970(20.0f + arg2.x, 62.0f + arg2.y), 0, 8, arg4);
+        fclSpriteStartAlphaAt(0x217, 0x40, 0x80, 1, 0x3C, fadeB);
+        *(u8 *)(fclSpriteEntry(0x217) + 0x73) = 1;
+        fclSpriteSetFlag(0x217, 0xB, 0);
+        fclSpriteReset(0x218, 0x86);
+        *(s16 *)(fclSpriteEntry(0x218) + 0x10) = 0;
+        fclSpriteCreate(0x218, func_002b2970(20.0f + pos.x, 62.0f + pos.y), 61.0f, 0xAA);
+        fclSpriteStartPositionAt(0x218, func_002b2970(20.0f + pos.x, 62.0f + pos.y), func_002b2970(20.0f + arg2.x, 62.0f + arg2.y), 0, 8, arg4);
         fadeC = arg4 + 0x17;
-        func_002b6a70(0x218, 0x40, 0x80, 1, 0x3C, fadeC);
-        *(u8 *)(func_002b6150(0x218) + 0x73) = 1;
-        func_002b68d0(0x218, 0xB, 0);
-        func_002b7750(0x219, 0x89);
-        *(s16 *)(func_002b6150(0x219) + 0x10) = 0;
-        func_002b6c30(0x219, func_002b2970(6.0f + pos.x, pos.y - 44.0f), 62.0f, 0xAA);
-        func_002b69f0(0x219, func_002b2970(6.0f + pos.x, pos.y - 44.0f), func_002b2970(6.0f + arg2.x, arg2.y - 44.0f), 0, 8, arg4);
-        func_002b6a70(0x219, 0x80, 0xFF, 1, 0x3C, fadeA);
-        *(u8 *)(func_002b6150(0x219) + 0x73) = 1;
-        func_002b68d0(0x219, 0xB, 0);
-        func_002b7750(0x21A, 0x89);
-        *(s16 *)(func_002b6150(0x21A) + 0x10) = 0;
-        func_002b6c30(0x21A, func_002b2970(33.0f + pos.x, pos.y - 44.0f), 62.0f, 0xAA);
-        func_002b69f0(0x21A, func_002b2970(33.0f + pos.x, pos.y - 44.0f), func_002b2970(33.0f + arg2.x, arg2.y - 44.0f), 0, 8, arg4);
-        func_002b6a70(0x21A, 0x80, 0xFF, 1, 0x3C, fadeB);
-        *(u8 *)(func_002b6150(0x21A) + 0x73) = 1;
-        func_002b68d0(0x21A, 0xB, 0);
-        func_002b7750(0x21B, 0x88);
-        *(s16 *)(func_002b6150(0x21B) + 0x10) = 0;
-        func_002b6c30(0x21B, func_002b2970(20.0f + pos.x, pos.y - 44.0f), 61.0f, 0xAA);
-        func_002b69f0(0x21B, func_002b2970(20.0f + pos.x, pos.y - 44.0f), func_002b2970(20.0f + arg2.x, arg2.y - 44.0f), 0, 8, arg4);
-        func_002b6a70(0x21B, 0x80, 0xFF, 1, 0x3C, fadeC);
-        *(u8 *)(func_002b6150(0x21B) + 0x73) = 1;
-        func_002b68d0(0x21B, 0xB, 0);
+        fclSpriteStartAlphaAt(0x218, 0x40, 0x80, 1, 0x3C, fadeC);
+        *(u8 *)(fclSpriteEntry(0x218) + 0x73) = 1;
+        fclSpriteSetFlag(0x218, 0xB, 0);
+        fclSpriteReset(0x219, 0x89);
+        *(s16 *)(fclSpriteEntry(0x219) + 0x10) = 0;
+        fclSpriteCreate(0x219, func_002b2970(6.0f + pos.x, pos.y - 44.0f), 62.0f, 0xAA);
+        fclSpriteStartPositionAt(0x219, func_002b2970(6.0f + pos.x, pos.y - 44.0f), func_002b2970(6.0f + arg2.x, arg2.y - 44.0f), 0, 8, arg4);
+        fclSpriteStartAlphaAt(0x219, 0x80, 0xFF, 1, 0x3C, fadeA);
+        *(u8 *)(fclSpriteEntry(0x219) + 0x73) = 1;
+        fclSpriteSetFlag(0x219, 0xB, 0);
+        fclSpriteReset(0x21A, 0x89);
+        *(s16 *)(fclSpriteEntry(0x21A) + 0x10) = 0;
+        fclSpriteCreate(0x21A, func_002b2970(33.0f + pos.x, pos.y - 44.0f), 62.0f, 0xAA);
+        fclSpriteStartPositionAt(0x21A, func_002b2970(33.0f + pos.x, pos.y - 44.0f), func_002b2970(33.0f + arg2.x, arg2.y - 44.0f), 0, 8, arg4);
+        fclSpriteStartAlphaAt(0x21A, 0x80, 0xFF, 1, 0x3C, fadeB);
+        *(u8 *)(fclSpriteEntry(0x21A) + 0x73) = 1;
+        fclSpriteSetFlag(0x21A, 0xB, 0);
+        fclSpriteReset(0x21B, 0x88);
+        *(s16 *)(fclSpriteEntry(0x21B) + 0x10) = 0;
+        fclSpriteCreate(0x21B, func_002b2970(20.0f + pos.x, pos.y - 44.0f), 61.0f, 0xAA);
+        fclSpriteStartPositionAt(0x21B, func_002b2970(20.0f + pos.x, pos.y - 44.0f), func_002b2970(20.0f + arg2.x, arg2.y - 44.0f), 0, 8, arg4);
+        fclSpriteStartAlphaAt(0x21B, 0x80, 0xFF, 1, 0x3C, fadeC);
+        *(u8 *)(fclSpriteEntry(0x21B) + 0x73) = 1;
+        fclSpriteSetFlag(0x21B, 0xB, 0);
         return;
     }
-    func_002b69f0(arg3 + 0x20D, pos, arg2, 0, 8, arg4);
-    func_002b69f0(arg3 + 0xF2, func_002b2970(6.0f + pos.x, 78.0f + pos.y), func_002b2970(6.0f + arg2.x, 78.0f + arg2.y), 0, 8, arg4);
+    fclSpriteStartPositionAt(arg3 + 0x20D, pos, arg2, 0, 8, arg4);
+    fclSpriteStartPositionAt(arg3 + 0xF2, func_002b2970(6.0f + pos.x, 78.0f + pos.y), func_002b2970(6.0f + arg2.x, 78.0f + arg2.y), 0, 8, arg4);
     c228 = func_002b2a60(0x42, 0x6E, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150(arg3 + 0xF2) + 0x85) = c228;
-    func_002b68d0(arg3 + 0xFD, 0, 1);
+    *(FclByte4 *)(fclSpriteEntry(arg3 + 0xF2) + 0x85) = c228;
+    fclSpriteSetFlag(arg3 + 0xFD, 0, 1);
     c224 = func_002b2a60(0x42, 0x6E, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150(sprite) + 0x85) = c224;
+    *(FclByte4 *)(fclSpriteEntry(sprite) + 0x85) = c224;
 }
 
 /* Each point is built inside the store that consumes it (func_002b2970 returns
@@ -1194,7 +1194,7 @@ void func_00318840(u8 *arg0, s8 arg1, s8 arg2, s16 arg3, s16 arg4) {
 
     t = *(u8 **)(arg0 + 0x38);
     resource = arg2 + 0x20D;
-    pos = *(FclVec2 *)(func_002b6150(resource) + 0x38);
+    pos = *(FclVec2 *)(fclSpriteEntry(resource) + 0x38);
     icon = arg2 * 2 + 0xDF;
     if (arg2 == 6) {
         icon = 0xEF;
@@ -1204,48 +1204,48 @@ void func_00318840(u8 *arg0, s8 arg1, s8 arg2, s16 arg3, s16 arg4) {
         icon = 0xED;
     }
     if (arg1 == *(s8 *)(t + 0xB4)) {
-        *(FclVec2 *)(func_002b6150(0x1DC) + 0x38) = pos;
-        *(FclVec2 *)(func_002b6150(0x216) + 0x38) = func_002b2970(6.0f + pos.x, 62.0f + pos.y);
-        *(FclVec2 *)(func_002b6150(0x217) + 0x38) = func_002b2970(33.0f + pos.x, 62.0f + pos.y);
-        *(FclVec2 *)(func_002b6150(0x218) + 0x38) = func_002b2970(20.0f + pos.x, 62.0f + pos.y);
-        *(FclVec2 *)(func_002b6150(0x219) + 0x38) = func_002b2970(6.0f + pos.x, pos.y - 44.0f);
-        *(FclVec2 *)(func_002b6150(0x21A) + 0x38) = func_002b2970(33.0f + pos.x, pos.y - 44.0f);
-        *(FclVec2 *)(func_002b6150(0x21B) + 0x38) = func_002b2970(20.0f + pos.x, pos.y - 44.0f);
+        *(FclVec2 *)(fclSpriteEntry(0x1DC) + 0x38) = pos;
+        *(FclVec2 *)(fclSpriteEntry(0x216) + 0x38) = func_002b2970(6.0f + pos.x, 62.0f + pos.y);
+        *(FclVec2 *)(fclSpriteEntry(0x217) + 0x38) = func_002b2970(33.0f + pos.x, 62.0f + pos.y);
+        *(FclVec2 *)(fclSpriteEntry(0x218) + 0x38) = func_002b2970(20.0f + pos.x, 62.0f + pos.y);
+        *(FclVec2 *)(fclSpriteEntry(0x219) + 0x38) = func_002b2970(6.0f + pos.x, pos.y - 44.0f);
+        *(FclVec2 *)(fclSpriteEntry(0x21A) + 0x38) = func_002b2970(33.0f + pos.x, pos.y - 44.0f);
+        *(FclVec2 *)(fclSpriteEntry(0x21B) + 0x38) = func_002b2970(20.0f + pos.x, pos.y - 44.0f);
         scale = iGpffff8360;
-        *(f32 *)(func_002b6150(icon) + 0xA0) = scale;
-        *(f32 *)(func_002b6150(icon) + 0xAC) = scale;
-        *(f32 *)(func_002b6150(icon) + 0x14) = 59.0f;
-        *(s32 *)(func_002b6150(icon) + 0x8) = 0xAB;
+        *(f32 *)(fclSpriteEntry(icon) + 0xA0) = scale;
+        *(f32 *)(fclSpriteEntry(icon) + 0xAC) = scale;
+        *(f32 *)(fclSpriteEntry(icon) + 0x14) = 59.0f;
+        *(s32 *)(fclSpriteEntry(icon) + 0x8) = 0xAB;
         h = sdkSpriteNewNode(func_00331560(), icon);
-        *(FclVec2 *)(func_002b6150(icon) + 0x38) = func_002b2970((5.0f + pos.x) - 2.0f * (sdkSpriteScaledWidth(h) / 10.0f), pos.y - 3.0f);
+        *(FclVec2 *)(fclSpriteEntry(icon) + 0x38) = func_002b2970((5.0f + pos.x) - 2.0f * (sdkSpriteScaledWidth(h) / 10.0f), pos.y - 3.0f);
         sdkSpriteFreeNode(h);
         c11C = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
-        *(FclDrawColor *)(func_002b6150(icon) + 0x85) = c11C;
-        func_002b68d0(arg2 + 0x20D, 0, 1);
-        func_002b68d0(arg2 + 0xF2, 0, 1);
-        func_002b6c30((s16)(arg2 + 0xFD), func_002b2970(pos.x - 12.0f, 104.0f + pos.y), 59.0f, 0xAC);
+        *(FclDrawColor *)(fclSpriteEntry(icon) + 0x85) = c11C;
+        fclSpriteSetFlag(arg2 + 0x20D, 0, 1);
+        fclSpriteSetFlag(arg2 + 0xF2, 0, 1);
+        fclSpriteCreate((s16)(arg2 + 0xFD), func_002b2970(pos.x - 12.0f, 104.0f + pos.y), 59.0f, 0xAC);
         if (arg2 < 6) {
-            func_002b6c30(0xFC, func_002b2970(pos.x - 12.0f, 123.0f + pos.y), 59.0f, 0xAC);
+            fclSpriteCreate(0xFC, func_002b2970(pos.x - 12.0f, 123.0f + pos.y), 59.0f, 0xAC);
             c118 = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
-            *(FclDrawColor *)(func_002b6150(0xFC) + 0x85) = c118;
+            *(FclDrawColor *)(fclSpriteEntry(0xFC) + 0x85) = c118;
             return;
         }
-        func_002b68d0(0xFC, 0, 1);
+        fclSpriteSetFlag(0xFC, 0, 1);
         return;
     }
-    func_002b68d0(arg2 + 0xFD, 0, 1);
-    func_002b68d0(resource, 0, 0);
+    fclSpriteSetFlag(arg2 + 0xFD, 0, 1);
+    fclSpriteSetFlag(resource, 0, 0);
     resource = arg2 + 0xF2;
-    func_002b68d0(resource, 0, 0);
+    fclSpriteSetFlag(resource, 0, 0);
     c114 = func_002b2a60(0x42, 0x6E, 0xFF, 0xFF);
-    *(FclDrawColor *)(func_002b6150(resource) + 0x85) = c114;
-    *(f32 *)(func_002b6150(icon) + 0xA0) = 1.0f;
-    *(f32 *)(func_002b6150(icon) + 0xAC) = 1.0f;
-    *(f32 *)(func_002b6150(icon) + 0x14) = arg3;
-    *(s32 *)(func_002b6150(icon) + 0x8) = arg4 + 1;
-    *(FclVec2 *)(func_002b6150(icon) + 0x38) = func_002b2970(6.0f + pos.x, 4.0f + pos.y);
+    *(FclDrawColor *)(fclSpriteEntry(resource) + 0x85) = c114;
+    *(f32 *)(fclSpriteEntry(icon) + 0xA0) = 1.0f;
+    *(f32 *)(fclSpriteEntry(icon) + 0xAC) = 1.0f;
+    *(f32 *)(fclSpriteEntry(icon) + 0x14) = arg3;
+    *(s32 *)(fclSpriteEntry(icon) + 0x8) = arg4 + 1;
+    *(FclVec2 *)(fclSpriteEntry(icon) + 0x38) = func_002b2970(6.0f + pos.x, 4.0f + pos.y);
     c110 = func_002b2a60(0x42, 0x6E, 0xFF, 0xFF);
-    *(FclDrawColor *)(func_002b6150(icon) + 0x85) = c110;
+    *(FclDrawColor *)(fclSpriteEntry(icon) + 0x85) = c110;
 }
 
 // FUN_00318F30
@@ -1265,17 +1265,17 @@ void func_00318f30(s16 arg0) {
     } else if (arg0 == 8) {
         var = 0xED;
     }
-    func_002b7750(0x2F2, (s16)(var + 1));
-    p = func_002b6150(var);
+    fclSpriteReset(0x2F2, (s16)(var + 1));
+    p = fclSpriteEntry(var);
     sp40 = *(FclVec2 *)(p + 0x38);
     sp38 = func_002b2970(sp40.x - 15.0f, sp40.y - 7.0f);
-    func_002b6c30(0x2F2, sp38, 58.0f, 0xAB);
-    func_002b6a70(0x2F2, 0xFF, 0, 0, 0xF, 0);
+    fclSpriteCreate(0x2F2, sp38, 58.0f, 0xAB);
+    fclSpriteStartAlphaAt(0x2F2, 0xFF, 0, 0, 0xF, 0);
     fv = iGpffff8360;
-    *(f32 *)(func_002b6150(0x2F2) + 0xA0) = fv;
-    *(f32 *)(func_002b6150(0x2F2) + 0xAC) = fv;
+    *(f32 *)(fclSpriteEntry(0x2F2) + 0xA0) = fv;
+    *(f32 *)(fclSpriteEntry(0x2F2) + 0xAC) = fv;
     sp4C = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x2F2) + 0x85) = sp4C;
+    *(FclByte4 *)(fclSpriteEntry(0x2F2) + 0x85) = sp4C;
 }
 
 // FUN_003190D0
@@ -1286,12 +1286,12 @@ s32 func_003190d0(u8 *arg0) {
     t = *(u8 **)(arg0 + 0x38);
     for (i = 0; i < *(s8 *)(t + 0xB5); i++) {
         if (*(s8 *)(t + 0xB4) != i) {
-            if ((s16)func_002b6970(*(s16 *)(func_002b6150((s16)(*(s16 *)(t + i * 10 + 0xC8) + 0x20D)) + 0x10), 1) == 1) {
+            if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry((s16)(*(s16 *)(t + i * 10 + 0xC8) + 0x20D)) + 0x10), 1) == 1) {
                 return 1;
             }
         }
     }
-    return (s16)func_002b6970(*(s16 *)(func_002b6150(0x1DC) + 0x10), 1) == 1;
+    return (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1DC) + 0x10), 1) == 1;
 }
 /* Party row: points are built by value inside the consuming call, the
    scale global is read once per first-row branch and reused, and y is a
@@ -1303,7 +1303,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
        value. Measured: the s8 prototype regresses this function to nd. */
     extern u8 *fclCombineSlotRecord(u8 *, s32);
     extern u8 datPersonaGetArcana(u16);
-    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
+    extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     extern void func_0034b820(u8 *, FclVec2, s16, FclDrawColor, f32);
     extern void func_0034b880(u8 *, u8, u8, u8, s16, s16);
     FclByte4 c29C;
@@ -1361,83 +1361,83 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
     id = (s16)(c + 0x21C);
     hA = sdkSpriteNewNode(func_00331560(), 0x193);
     if ((s8)arg6 == 1) {
-        func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg5 + 3);
+        fclSpriteStartAlphaAt(id, *(u8 *)(fclSpriteEntry(id) + 0x6E), 0, 0, 0, arg5 + 3);
         sc = iGpffff8504;
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(arg1.x, y = arg1.y), func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hA) / 2.0f), 0, 3, arg5);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(arg1.x, y = arg1.y), func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hA) / 2.0f), 0, 3, arg5);
     } else {
         y = arg1.y;
-        func_002b6c30(id, func_002b2970(arg1.x, y), 191.0f, 0x57);
+        fclSpriteCreate(id, func_002b2970(arg1.x, y), 191.0f, 0x57);
         if (special == 1) {
             c298 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c298;
-            func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c298;
+            fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg5);
         } else if (*(s16 *)(t + 0x11E) == c) {
             c294 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c294;
-            func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c294;
+            fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg5);
         } else {
             c290 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c290;
-            func_002b6a70(id, 0, 0x66, 0, 0, arg5);
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c290;
+            fclSpriteStartAlphaAt(id, 0, 0x66, 0, 0, arg5);
         }
         sc = iGpffff8504;
-        func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hA) / 2.0f), func_002b2970(arg1.x, arg1.y), 0, 3, arg5);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hA) / 2.0f), func_002b2970(arg1.x, arg1.y), 0, 3, arg5);
     }
     sdkSpriteFreeNode(hA);
     id = (s16)(c + 0x22B);
     hB = sdkSpriteNewNode(func_00331560(), 0x19A);
     if ((s8)arg6 == 1) {
         if (*(s16 *)(t + 0x11E) == c) {
-            func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
+            fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
         } else {
-            func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg5 + 3);
+            fclSpriteStartAlphaAt(id, *(u8 *)(fclSpriteEntry(id) + 0x6E), 0, 0, 0, arg5 + 3);
         }
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(301 + arg1.x, arg1.y), func_002b2970(301 + arg1.x, arg1.y + sdkSpriteScaledHeight(hB) / 2.0f), 0, 3, arg5);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(301 + arg1.x, arg1.y), func_002b2970(301 + arg1.x, arg1.y + sdkSpriteScaledHeight(hB) / 2.0f), 0, 3, arg5);
     } else {
-        func_002b6c30(id, func_002b2970(301 + arg1.x, y), 192.0f, 0x57);
+        fclSpriteCreate(id, func_002b2970(301 + arg1.x, y), 192.0f, 0x57);
         if (special == 1) {
             c28C = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c28C;
-            func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c28C;
+            fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg5);
         } else if (*(s16 *)(t + 0x11E) == c) {
             c288 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c288;
-            func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c288;
+            fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg5);
         } else {
             c284 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c284;
-            func_002b6a70(id, 0, 0x66, 0, 0, arg5);
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c284;
+            fclSpriteStartAlphaAt(id, 0, 0x66, 0, 0, arg5);
         }
-        func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(301 + arg1.x, arg1.y + sdkSpriteScaledHeight(hB) / 2.0f), func_002b2970(301 + arg1.x, arg1.y), 0, 3, arg5);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(301 + arg1.x, arg1.y + sdkSpriteScaledHeight(hB) / 2.0f), func_002b2970(301 + arg1.x, arg1.y), 0, 3, arg5);
     }
     sdkSpriteFreeNode(hB);
     id = (s16)(c + 0x238);
     hC = sdkSpriteNewNode(func_00331560(), 0x188);
     if ((s8)arg6 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(arg1.x, arg1.y), func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hC) / 2.0f), 0, 3, arg5);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(arg1.x, arg1.y), func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hC) / 2.0f), 0, 3, arg5);
     } else {
-        func_002b6c30(id, func_002b2970(arg1.x, arg1.y), 163.0f, 0x57);
-        func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
-        func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hC) / 2.0f), func_002b2970(arg1.x, arg1.y), 0, 3, arg5);
+        fclSpriteCreate(id, func_002b2970(arg1.x, arg1.y), 163.0f, 0x57);
+        fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg5);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hC) / 2.0f), func_002b2970(arg1.x, arg1.y), 0, 3, arg5);
         if (special == 1) {
             c280 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c280;
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c280;
         } else if (*(s16 *)(t + 0x11E) == c) {
             c27C = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c27C;
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c27C;
         } else {
             c278 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c278;
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c278;
             if (arg7 <= c) {
                 c274 = func_002b2a60(0x24, 0x3F, 0x9F, 0xFF);
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = c274;
+                *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c274;
             }
         }
     }
@@ -1445,26 +1445,26 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
     id = (s16)(c + 0x244);
     hD = sdkSpriteNewNode(func_00331560(), 0x18C);
     if ((s8)arg6 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(55.0f + arg1.x, arg1.y), func_002b2970(55.0f + arg1.x, arg1.y + sdkSpriteScaledHeight(hD) / 2.0f), 0, 3, arg5);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(55.0f + arg1.x, arg1.y), func_002b2970(55.0f + arg1.x, arg1.y + sdkSpriteScaledHeight(hD) / 2.0f), 0, 3, arg5);
     } else {
-        func_002b6c30(id, func_002b2970(55.0f + arg1.x, arg1.y), 163.0f, 0x57);
-        func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
-        func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(55.0f + arg1.x, arg1.y + sdkSpriteScaledHeight(hD) / 2.0f), func_002b2970(55.0f + arg1.x, arg1.y), 0, 3, arg5);
+        fclSpriteCreate(id, func_002b2970(55.0f + arg1.x, arg1.y), 163.0f, 0x57);
+        fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg5);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(55.0f + arg1.x, arg1.y + sdkSpriteScaledHeight(hD) / 2.0f), func_002b2970(55.0f + arg1.x, arg1.y), 0, 3, arg5);
         if (special == 1) {
             c270 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c270;
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c270;
         } else if (*(s16 *)(t + 0x11E) == c) {
             c26C = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c26C;
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c26C;
         } else {
             c268 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c268;
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c268;
             if (arg7 <= c) {
                 c264 = func_002b2a60(0x24, 0x3F, 0x9F, 0xFF);
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = c264;
+                *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c264;
             }
         }
     }
@@ -1487,49 +1487,49 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
     id = (s16)n;
     h2 = sdkSpriteNewNode(func_00331560(), n);
     if ((s8)arg6 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), func_002b2970(4.0f + arg1.x, 5.0f + arg1.y + sdkSpriteScaledHeight(h2) / 2.0f), 0, 3, arg5);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), func_002b2970(4.0f + arg1.x, 5.0f + arg1.y + sdkSpriteScaledHeight(h2) / 2.0f), 0, 3, arg5);
     } else {
-        func_002b6c30(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), 158.0f, 0x59);
+        fclSpriteCreate(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), 158.0f, 0x59);
         if (special == 1) {
             c250 = func_002b2a60(0, 0, 0x66, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c250;
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c250;
         } else if (*(s16 *)(t + 0x11E) == c) {
             c24C = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c24C;
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c24C;
         } else {
             c248 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(id) + 0x85) = c248;
+            *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c248;
         }
-        func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
-        func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y + sdkSpriteScaledHeight(h2) / 2.0f), func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), 0, 3, arg5);
+        fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg5);
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
+        fclSpriteStartPositionAt(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y + sdkSpriteScaledHeight(h2) / 2.0f), func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), 0, 3, arg5);
     }
     sdkSpriteFreeNode(h2);
     if (c < arg7) {
         id = (s16)(c + 0x250);
         h3 = sdkSpriteNewNode(func_00331560(), (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B));
         if ((s8)arg6 == 1) {
-            func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
-            func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-            func_002b69f0(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + sdkSpriteScaledHeight(h3) / 2.0f), 0, 3, arg5);
+            fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
+            fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
+            fclSpriteStartPositionAt(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + sdkSpriteScaledHeight(h3) / 2.0f), 0, 3, arg5);
         } else {
-            func_002b6c30(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), 46.0f, 0x59);
-            *(s16 *)(func_002b6150(id) + 4) = (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B);
+            fclSpriteCreate(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), 46.0f, 0x59);
+            *(s16 *)(fclSpriteEntry(id) + 4) = (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B);
             if (special == 1) {
                 c244 = func_002b2a60(0, 0, 0x66, 0xFF);
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = c244;
+                *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c244;
             } else if (*(s16 *)(t + 0x11E) == c) {
                 c240 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = c240;
+                *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c240;
             } else {
                 c23C = func_002b2a60(0, 0, 0x66, 0xFF);
-                *(FclByte4 *)(func_002b6150(id) + 0x85) = c23C;
+                *(FclByte4 *)(fclSpriteEntry(id) + 0x85) = c23C;
             }
-            func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
-            func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-            func_002b69f0(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + sdkSpriteScaledHeight(h3) / 2.0f), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), 0, 3, arg5);
+            fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg5);
+            fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
+            fclSpriteStartPositionAt(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + sdkSpriteScaledHeight(h3) / 2.0f), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), 0, 3, arg5);
         }
         sdkSpriteFreeNode(h3);
         if (special == 1) {
@@ -1556,7 +1556,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
             *(s8 *)(func_0034b810(*pp) + 0xF00) = 1;
         }
     }
-    func_002b68d0((s16)(c + 0x250), 0, 1);
+    fclSpriteSetFlag((s16)(c + 0x250), 0, 1);
 }
 
 /* Resource scale is established only in the branch that uses it.
@@ -1591,81 +1591,81 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
     if (work->firstSelectedRow != rowIndex && work->secondSelectedRow != rowIndex && (rowAvailability = availability) > 0) {
         if (rowAvailability != 2) {
             sprite = (s16)(rowIndex + 0x270);
-            func_002b7750(sprite, 0x193);
-            func_002b6c30(sprite, func_002b2970(position.x, rowY), 191.0f, 0x57);
+            fclSpriteReset(sprite, 0x193);
+            fclSpriteCreate(sprite, func_002b2970(position.x, rowY), 191.0f, 0x57);
             resource = sdkSpriteNewNode(func_00331560(), 0x193);
             if (mode == 1) {
-                func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
+                fclSpriteStartAlphaAt(sprite, ((FclCombineRowSprite *)fclSpriteEntry(sprite))->alpha, 0, 0, 0, delay + 3);
                 transitionScale = iGpffff8504;
-                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
-                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                func_002b6a70(sprite, 0, alpha, 0, 0, delay);
+                ((FclCombineRowSprite *)fclSpriteEntry(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                fclSpriteStartAlphaAt(sprite, 0, alpha, 0, 0, delay);
                 transitionScale = iGpffff8504;
-                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
             }
             sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x27D);
-            func_002b7750(sprite, 0x19B);
-            func_002b6c30(sprite, func_002b2970(286.0f + position.x, rowY), 192.0f, 0x57);
+            fclSpriteReset(sprite, 0x19B);
+            fclSpriteCreate(sprite, func_002b2970(286.0f + position.x, rowY), 192.0f, 0x57);
             resource = sdkSpriteNewNode(func_00331560(), 0x19B);
             if (mode == 1) {
-                func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
-                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(286.0f + position.x, rowY), func_002b2970(286.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
+                fclSpriteStartAlphaAt(sprite, ((FclCombineRowSprite *)fclSpriteEntry(sprite))->alpha, 0, 0, 0, delay + 3);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(286.0f + position.x, rowY), func_002b2970(286.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
-                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                func_002b6a70(sprite, 0, alpha, 0, 0, delay);
-                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(286.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(286.0f + position.x, rowY), 0, 3, delay);
+                ((FclCombineRowSprite *)fclSpriteEntry(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                fclSpriteStartAlphaAt(sprite, 0, alpha, 0, 0, delay);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(286.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(286.0f + position.x, rowY), 0, 3, delay);
             }
             sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x28B);
-            func_002b6c30(sprite, func_002b2970(position.x, rowY), 163.0f, 0x57);
+            fclSpriteCreate(sprite, func_002b2970(position.x, rowY), 163.0f, 0x57);
             resource = sdkSpriteNewNode(func_00331560(), 0x188);
             if (mode == 1) {
-                func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
-                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
+                fclSpriteStartAlphaAt(sprite, 0xFF, 0, 0, 0, delay + 3);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
-                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
-                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
+                ((FclCombineRowSprite *)fclSpriteEntry(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                fclSpriteStartAlphaAt(sprite, 0, 0xFF, 0, 0, delay);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
             }
             sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x297);
-            func_002b6c30(sprite, func_002b2970(36.0f + position.x, rowY), 163.0f, 0x57);
+            fclSpriteCreate(sprite, func_002b2970(36.0f + position.x, rowY), 163.0f, 0x57);
             resource = sdkSpriteNewNode(func_00331560(), 0x18C);
             if (mode == 1) {
-                func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
-                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(36.0f + position.x, rowY), func_002b2970(36.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
+                fclSpriteStartAlphaAt(sprite, 0xFF, 0, 0, 0, delay + 3);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(36.0f + position.x, rowY), func_002b2970(36.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
-                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
-                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(36.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(36.0f + position.x, rowY), 0, 3, delay);
+                ((FclCombineRowSprite *)fclSpriteEntry(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
+                fclSpriteStartAlphaAt(sprite, 0, 0xFF, 0, 0, delay);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(36.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(36.0f + position.x, rowY), 0, 3, delay);
             }
             sdkSpriteFreeNode(resource);
         }
         sprite = (s16)(rowIndex + 0x2A3);
         resource = sdkSpriteNewNode(func_00331560(), (u16)((datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B));
         if (mode == 1) {
-            func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
+            fclSpriteStartAlphaAt(sprite, 0xFF, 0, 0, 0, delay + 3);
             transitionScale = iGpffff8504;
-            func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-            func_002b69f0(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), func_002b2970(8.0f + position.x, 2.0f + rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
+            fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+            fclSpriteStartPositionAt(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), func_002b2970(8.0f + position.x, 2.0f + rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
         } else {
-            func_002b6c30(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), 46.0f, 0x59);
-            ((FclCombineRowSprite *)func_002b6150(sprite))->image = (datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B;
-            ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0, 0, 0x66, 0xFF);
-            func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
+            fclSpriteCreate(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), 46.0f, 0x59);
+            ((FclCombineRowSprite *)fclSpriteEntry(sprite))->image = (datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B;
+            ((FclCombineRowSprite *)fclSpriteEntry(sprite))->color = func_002b2a60(0, 0, 0x66, 0xFF);
+            fclSpriteStartAlphaAt(sprite, 0, 0xFF, 0, 0, delay);
             transitionScale = iGpffff8504;
-            func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-            func_002b69f0(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(8.0f + position.x, 2.0f + rowY), 0, 3, delay);
+            fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+            fclSpriteStartPositionAt(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(8.0f + position.x, 2.0f + rowY), 0, 3, delay);
         }
         sdkSpriteFreeNode(resource);
         /* The persona lookup is complete; this scalar now carries the digit delay. */
@@ -1675,65 +1675,65 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
                       func_002b2a60(0xCC, 0xFF, 0xFF, 0x80), 3, persona, 46.0f, 0x59, mode);
         if (rowAvailability == 2) {
             sprite = (s16)(rowIndex + 0x270);
-            func_002b7750(sprite, 0x193);
-            func_002b6c30(sprite, func_002b2970(position.x, rowY), 191.0f, 0x57);
+            fclSpriteReset(sprite, 0x193);
+            fclSpriteCreate(sprite, func_002b2970(position.x, rowY), 191.0f, 0x57);
             resource = sdkSpriteNewNode(func_00331560(), 0x193);
             if (mode == 1) {
-                func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
-                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
+                fclSpriteStartAlphaAt(sprite, ((FclCombineRowSprite *)fclSpriteEntry(sprite))->alpha, 0, 0, 0, delay + 3);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
-                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0, 0, 0x99, 0xFF);
-                func_002b6a70(sprite, 0, 0, 0, 0, delay);
-                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
+                ((FclCombineRowSprite *)fclSpriteEntry(sprite))->color = func_002b2a60(0, 0, 0x99, 0xFF);
+                fclSpriteStartAlphaAt(sprite, 0, 0, 0, 0, delay);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
             }
             sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x27D);
-            func_002b7750(sprite, 0x19B);
-            func_002b6c30(sprite, func_002b2970((f32)0x11D + position.x, rowY), 192.0f, 0x57);
+            fclSpriteReset(sprite, 0x19B);
+            fclSpriteCreate(sprite, func_002b2970((f32)0x11D + position.x, rowY), 192.0f, 0x57);
             resource = sdkSpriteNewNode(func_00331560(), 0x19B);
             if (mode == 1) {
-                func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
-                func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970((f32)0x11D + position.x, rowY), func_002b2970((f32)0x11D + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
+                fclSpriteStartAlphaAt(sprite, ((FclCombineRowSprite *)fclSpriteEntry(sprite))->alpha, 0, 0, 0, delay + 3);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970((f32)0x11D + position.x, rowY), func_002b2970((f32)0x11D + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
-                ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0, 0, 0x99, 0xFF);
-                func_002b6a70(sprite, 0, 0, 0, 0, delay);
-                func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970((f32)0x11D + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970((f32)0x11D + position.x, rowY), 0, 3, delay);
+                ((FclCombineRowSprite *)fclSpriteEntry(sprite))->color = func_002b2a60(0, 0, 0x99, 0xFF);
+                fclSpriteStartAlphaAt(sprite, 0, 0, 0, 0, delay);
+                fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
+                fclSpriteStartPositionAt(sprite, func_002b2970((f32)0x11D + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970((f32)0x11D + position.x, rowY), 0, 3, delay);
             }
             sdkSpriteFreeNode(resource);
-            func_002b7750(0xCF, 0xCF);
+            fclSpriteReset(0xCF, 0xCF);
             func_002b77d0(0xCF, func_002b2970(position.x - 10.0f, rowY - 12.0f), 0xCF, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
-            func_002b7750(0xD2, 0xD2);
+            fclSpriteReset(0xD2, 0xD2);
             func_002b77d0(0xD2, func_002b2970(282.0f + position.x, rowY - 12.0f), 0xD2, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
             if (mode == 0) {
                 work->cursorPosition = func_002b2970(position.x - 60.0f, rowY - 8.0f);
-                func_002b6c30(0x1C7, func_002b2970(position.x - 60.0f, rowY - 8.0f), 190.0f, 0x58);
-                ((FclCombineRowSprite *)func_002b6150(0x1C7))->alpha = 0;
+                fclSpriteCreate(0x1C7, func_002b2970(position.x - 60.0f, rowY - 8.0f), 190.0f, 0x58);
+                ((FclCombineRowSprite *)fclSpriteEntry(0x1C7))->alpha = 0;
                 work->firstCursorState = 0;
-                func_002b68d0(0x1C7, 2, 1);
-                ((FclCombineRowSprite *)func_002b6150(0x1C7))->flag73 = 1;
-                func_002b7750(0x2E8, 0x1C7);
-                func_002b6c30(0x2E8, func_002b2970(position.x - 60.0f, rowY - 8.0f), 190.0f, 0x58);
-                ((FclCombineRowSprite *)func_002b6150(0x2E8))->alpha = 0;
+                fclSpriteSetFlag(0x1C7, 2, 1);
+                ((FclCombineRowSprite *)fclSpriteEntry(0x1C7))->flag73 = 1;
+                fclSpriteReset(0x2E8, 0x1C7);
+                fclSpriteCreate(0x2E8, func_002b2970(position.x - 60.0f, rowY - 8.0f), 190.0f, 0x58);
+                ((FclCombineRowSprite *)fclSpriteEntry(0x2E8))->alpha = 0;
                 work->secondCursorState = 0;
-                func_002b68d0(0x2E8, 2, 1);
-                ((FclCombineRowSprite *)func_002b6150(0x2E8))->flag73 = 1;
-                ((FclCombineRowSprite *)func_002b6150((s16)(rowIndex + 0x2A3)))->color = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
+                fclSpriteSetFlag(0x2E8, 2, 1);
+                ((FclCombineRowSprite *)fclSpriteEntry(0x2E8))->flag73 = 1;
+                ((FclCombineRowSprite *)fclSpriteEntry((s16)(rowIndex + 0x2A3)))->color = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
                 func_002ba970(work->digitTask, digitRow, func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF));
                 return;
             }
-            func_002b68d0(0x1C7, 0, 1);
-            func_002b68d0(0x2E8, 0, 1);
+            fclSpriteSetFlag(0x1C7, 0, 1);
+            fclSpriteSetFlag(0x2E8, 0, 1);
         }
     } else {
-        func_002b68d0((s16)(row + 0x270), 0, 1);
-        func_002b68d0((s16)(row + 0x27D), 0, 1);
-        func_002b68d0((s16)(row + 0x28B), 0, 1);
-        func_002b68d0((s16)(row + 0x297), 0, 1);
-        func_002b68d0((s16)(row + 0x2A3), 0, 1);
+        fclSpriteSetFlag((s16)(row + 0x270), 0, 1);
+        fclSpriteSetFlag((s16)(row + 0x27D), 0, 1);
+        fclSpriteSetFlag((s16)(row + 0x28B), 0, 1);
+        fclSpriteSetFlag((s16)(row + 0x297), 0, 1);
+        fclSpriteSetFlag((s16)(row + 0x2A3), 0, 1);
     }
 }
 
@@ -1742,7 +1742,7 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
 
 /* The coordinate pairs are FclVec2 values: func_002b2970 returns its point by
    value (hidden result pointer), so each point is built inside the call that
-   consumes it.  Building both endpoints within one func_002b69f0 call is what
+   consumes it.  Building both endpoints within one fclSpriteStartPositionAt call is what
    lets the destination Y be evaluated before the first constructor call. */
 // FUN_0031C2B0
 void func_0031c2b0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
@@ -1762,59 +1762,59 @@ void func_0031c2b0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
     w = *(s16 *)(func_002e48a0(0, arg1) + 2);
     b = *(u8 *)(func_002e48a0(0, arg1) + 4);
     pos = arg2;
-    alpha = *(u8 *)(func_002b6150(0x7C) + 0x6E);
-    func_002b6c30(0x7C, func_002b2970(pos.x, pos.y - 2.0f), 124.0f, 0x58);
-    func_002b69f0(0x7C, func_002b2970(arg2.x, arg2.y - 2.0f), func_002b2970(arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
+    alpha = *(u8 *)(fclSpriteEntry(0x7C) + 0x6E);
+    fclSpriteCreate(0x7C, func_002b2970(pos.x, pos.y - 2.0f), 124.0f, 0x58);
+    fclSpriteStartPositionAt(0x7C, func_002b2970(arg2.x, arg2.y - 2.0f), func_002b2970(arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
 
-    func_002b6c30(0x228, func_002b2970(36.0f + pos.x, pos.y - 2.0f), 126.0f, 0x58);
+    fclSpriteCreate(0x228, func_002b2970(36.0f + pos.x, pos.y - 2.0f), 126.0f, 0x58);
     c16C = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x228) + 0x85) = c16C;
-    *(u8 *)(func_002b6150(0x228) + 0x6E) = alpha;
-    func_002b69f0(0x228, func_002b2970(36.0f + pos.x, pos.y - 2.0f), func_002b2970(36.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
+    *(FclByte4 *)(fclSpriteEntry(0x228) + 0x85) = c16C;
+    *(u8 *)(fclSpriteEntry(0x228) + 0x6E) = alpha;
+    fclSpriteStartPositionAt(0x228, func_002b2970(36.0f + pos.x, pos.y - 2.0f), func_002b2970(36.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
 
-    func_002b6c30(0x1A2, func_002b2970(94.0f + pos.x, pos.y - 2.0f), 126.0f, 0x58);
+    fclSpriteCreate(0x1A2, func_002b2970(94.0f + pos.x, pos.y - 2.0f), 126.0f, 0x58);
     c168 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x1A2) + 0x85) = c168;
-    *(u8 *)(func_002b6150(0x1A2) + 0x6E) = alpha;
-    func_002b69f0(0x1A2, func_002b2970(94.0f + pos.x, pos.y - 2.0f), func_002b2970(94.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
+    *(FclByte4 *)(fclSpriteEntry(0x1A2) + 0x85) = c168;
+    *(u8 *)(fclSpriteEntry(0x1A2) + 0x6E) = alpha;
+    fclSpriteStartPositionAt(0x1A2, func_002b2970(94.0f + pos.x, pos.y - 2.0f), func_002b2970(94.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
 
-    func_002b6c30(0x25C, func_002b2970(43.0f + pos.x, pos.y), 46.0f, 0x59);
-    *(s16 *)(func_002b6150(0x25C) + 4) = (datPersonaGetArcana((u16)w) & 0xFF) + 0x1B;
+    fclSpriteCreate(0x25C, func_002b2970(43.0f + pos.x, pos.y), 46.0f, 0x59);
+    *(s16 *)(fclSpriteEntry(0x25C) + 4) = (datPersonaGetArcana((u16)w) & 0xFF) + 0x1B;
     c164 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x25C) + 0x85) = c164;
-    *(u8 *)(func_002b6150(0x25C) + 0x6E) = alpha;
-    func_002b69f0(0x25C, func_002b2970(43.0f + pos.x, pos.y), func_002b2970(43.0f + arg3.x, arg3.y), 0, 0xA, 0);
+    *(FclByte4 *)(fclSpriteEntry(0x25C) + 0x85) = c164;
+    *(u8 *)(fclSpriteEntry(0x25C) + 0x6E) = alpha;
+    fclSpriteStartPositionAt(0x25C, func_002b2970(43.0f + pos.x, pos.y), func_002b2970(43.0f + arg3.x, arg3.y), 0, 0xA, 0);
 
-    func_002b6c30(0x54, func_002b2970((f32)0x117 + pos.x, 6.0f + pos.y), 189.0f, 0x56);
+    fclSpriteCreate(0x54, func_002b2970((f32)0x117 + pos.x, 6.0f + pos.y), 189.0f, 0x56);
     c160 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x54) + 0x85) = c160;
-    *(u8 *)(func_002b6150(0x54) + 0x6E) = alpha;
-    func_002b69f0(0x54, func_002b2970((f32)0x115 + pos.x, 6.0f + pos.y), func_002b2970((f32)0x115 + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
+    *(FclByte4 *)(fclSpriteEntry(0x54) + 0x85) = c160;
+    *(u8 *)(fclSpriteEntry(0x54) + 0x6E) = alpha;
+    fclSpriteStartPositionAt(0x54, func_002b2970((f32)0x115 + pos.x, 6.0f + pos.y), func_002b2970((f32)0x115 + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
 
     if (b >= 10) {
-        func_002b6c30(0x26A, func_002b2970(320.0f + pos.x, 6.0f + pos.y), 46.0f, 0x59);
-        *(s16 *)(func_002b6150(0x26A) + 4) = b % 10 + 0x46;
+        fclSpriteCreate(0x26A, func_002b2970(320.0f + pos.x, 6.0f + pos.y), 46.0f, 0x59);
+        *(s16 *)(fclSpriteEntry(0x26A) + 4) = b % 10 + 0x46;
         c15C = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x26A) + 0x85) = c15C;
-        func_002b69f0(0x26A, func_002b2970(320.0f + pos.x, 6.0f + pos.y), func_002b2970(320.0f + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
-        func_002b6c30(0x26B, func_002b2970((f32)0x12D + pos.x, 6.0f + pos.y), 46.0f, 0x59);
-        *(s16 *)(func_002b6150(0x26B) + 4) = b / 10 + 0x46;
+        *(FclByte4 *)(fclSpriteEntry(0x26A) + 0x85) = c15C;
+        fclSpriteStartPositionAt(0x26A, func_002b2970(320.0f + pos.x, 6.0f + pos.y), func_002b2970(320.0f + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
+        fclSpriteCreate(0x26B, func_002b2970((f32)0x12D + pos.x, 6.0f + pos.y), 46.0f, 0x59);
+        *(s16 *)(fclSpriteEntry(0x26B) + 4) = b / 10 + 0x46;
         c158 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x26B) + 0x85) = c158;
-        func_002b69f0(0x26B, func_002b2970((f32)0x12D + pos.x, 6.0f + pos.y), func_002b2970((f32)0x12D + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
+        *(FclByte4 *)(fclSpriteEntry(0x26B) + 0x85) = c158;
+        fclSpriteStartPositionAt(0x26B, func_002b2970((f32)0x12D + pos.x, 6.0f + pos.y), func_002b2970((f32)0x12D + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
     } else {
-        func_002b6c30(0x26A, func_002b2970((f32)0x13D + pos.x, 6.0f + pos.y), 46.0f, 0x59);
-        *(s16 *)(func_002b6150(0x26A) + 4) = b % 10 + 0x46;
+        fclSpriteCreate(0x26A, func_002b2970((f32)0x13D + pos.x, 6.0f + pos.y), 46.0f, 0x59);
+        *(s16 *)(fclSpriteEntry(0x26A) + 4) = b % 10 + 0x46;
         c154 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x26A) + 0x85) = c154;
-        func_002b69f0(0x26A, func_002b2970((f32)0x137 + pos.x, 6.0f + pos.y), func_002b2970((f32)0x137 + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
-        func_002b68d0(0x26B, 0, 1);
+        *(FclByte4 *)(fclSpriteEntry(0x26A) + 0x85) = c154;
+        fclSpriteStartPositionAt(0x26A, func_002b2970((f32)0x137 + pos.x, 6.0f + pos.y), func_002b2970((f32)0x137 + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
+        fclSpriteSetFlag(0x26B, 0, 1);
     }
-    func_002b6c30(0x74, func_002b2970((f32)0x14D + pos.x, 13.0f + pos.y), 188.0f, 0x58);
+    fclSpriteCreate(0x74, func_002b2970((f32)0x14D + pos.x, 13.0f + pos.y), 188.0f, 0x58);
     c150 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x74) + 0x85) = c150;
-    *(u8 *)(func_002b6150(0x74) + 0x6E) = alpha;
-    func_002b69f0(0x74, func_002b2970((f32)0x14D + pos.x, 13.0f + pos.y), func_002b2970((f32)0x14D + arg3.x, 13.0f + arg3.y), 0, 0xA, 0);
+    *(FclByte4 *)(fclSpriteEntry(0x74) + 0x85) = c150;
+    *(u8 *)(fclSpriteEntry(0x74) + 0x6E) = alpha;
+    fclSpriteStartPositionAt(0x74, func_002b2970((f32)0x14D + pos.x, 13.0f + pos.y), func_002b2970((f32)0x14D + arg3.x, 13.0f + arg3.y), 0, 0xA, 0);
 }
 
 /* Same point-by-value construction as func_0031c2b0. */
@@ -1835,53 +1835,53 @@ void func_0031cce0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
     w = *(s16 *)(func_002e48a0(0, arg1) + 2);
     b = *(u8 *)(func_002e48a0(0, arg1) + 4);
     pos = arg2;
-    alpha = *(u8 *)(func_002b6150(0x7C) + 0x6E);
-    func_002b6c30(0x7D, func_002b2970(pos.x, pos.y - 1.0f), 125.0f, 0x58);
-    func_002b69f0(0x7D, func_002b2970(arg2.x, arg2.y - 1.0f), func_002b2970(arg3.x, arg3.y - 1.0f), 0, 0xA, 0);
+    alpha = *(u8 *)(fclSpriteEntry(0x7C) + 0x6E);
+    fclSpriteCreate(0x7D, func_002b2970(pos.x, pos.y - 1.0f), 125.0f, 0x58);
+    fclSpriteStartPositionAt(0x7D, func_002b2970(arg2.x, arg2.y - 1.0f), func_002b2970(arg3.x, arg3.y - 1.0f), 0, 0xA, 0);
 
-    func_002b6c30(0x229, func_002b2970(36.0f + pos.x, pos.y - 2.0f), 126.0f, 0x58);
+    fclSpriteCreate(0x229, func_002b2970(36.0f + pos.x, pos.y - 2.0f), 126.0f, 0x58);
     c15C = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x229) + 0x85) = c15C;
-    *(u8 *)(func_002b6150(0x229) + 0x6E) = alpha;
-    func_002b69f0(0x229, func_002b2970(36.0f + pos.x, pos.y - 2.0f), func_002b2970(36.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
+    *(FclByte4 *)(fclSpriteEntry(0x229) + 0x85) = c15C;
+    *(u8 *)(fclSpriteEntry(0x229) + 0x6E) = alpha;
+    fclSpriteStartPositionAt(0x229, func_002b2970(36.0f + pos.x, pos.y - 2.0f), func_002b2970(36.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
 
-    func_002b6c30(0x2B1, func_002b2970(94.0f + pos.x, pos.y - 2.0f), 126.0f, 0x58);
+    fclSpriteCreate(0x2B1, func_002b2970(94.0f + pos.x, pos.y - 2.0f), 126.0f, 0x58);
     c158 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x2B1) + 0x85) = c158;
-    *(u8 *)(func_002b6150(0x2B1) + 0x6E) = alpha;
-    func_002b69f0(0x2B1, func_002b2970(94.0f + pos.x, pos.y - 2.0f), func_002b2970(94.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
+    *(FclByte4 *)(fclSpriteEntry(0x2B1) + 0x85) = c158;
+    *(u8 *)(fclSpriteEntry(0x2B1) + 0x6E) = alpha;
+    fclSpriteStartPositionAt(0x2B1, func_002b2970(94.0f + pos.x, pos.y - 2.0f), func_002b2970(94.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
 
-    func_002b6c30(0x25D, func_002b2970(43.0f + pos.x, 1.0f + pos.y), 46.0f, 0x59);
-    *(s16 *)(func_002b6150(0x25D) + 4) = (datPersonaGetArcana((u16)w) & 0xFF) + 0x1B;
+    fclSpriteCreate(0x25D, func_002b2970(43.0f + pos.x, 1.0f + pos.y), 46.0f, 0x59);
+    *(s16 *)(fclSpriteEntry(0x25D) + 4) = (datPersonaGetArcana((u16)w) & 0xFF) + 0x1B;
     c154 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x25D) + 0x85) = c154;
-    *(u8 *)(func_002b6150(0x25D) + 0x6E) = alpha;
-    func_002b69f0(0x25D, func_002b2970(43.0f + pos.x, 1.0f + pos.y), func_002b2970(43.0f + arg3.x, 1.0f + arg3.y), 0, 0xA, 0);
+    *(FclByte4 *)(fclSpriteEntry(0x25D) + 0x85) = c154;
+    *(u8 *)(fclSpriteEntry(0x25D) + 0x6E) = alpha;
+    fclSpriteStartPositionAt(0x25D, func_002b2970(43.0f + pos.x, 1.0f + pos.y), func_002b2970(43.0f + arg3.x, 1.0f + arg3.y), 0, 0xA, 0);
 
-    func_002b6c30(0x2B2, func_002b2970((f32)0x117 + pos.x, 6.0f + pos.y), 189.0f, 0x56);
+    fclSpriteCreate(0x2B2, func_002b2970((f32)0x117 + pos.x, 6.0f + pos.y), 189.0f, 0x56);
     c150 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x2B2) + 0x85) = c150;
-    *(u8 *)(func_002b6150(0x2B2) + 0x6E) = alpha;
-    func_002b69f0(0x2B2, func_002b2970((f32)0x115 + pos.x, 6.0f + pos.y), func_002b2970((f32)0x115 + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
+    *(FclByte4 *)(fclSpriteEntry(0x2B2) + 0x85) = c150;
+    *(u8 *)(fclSpriteEntry(0x2B2) + 0x6E) = alpha;
+    fclSpriteStartPositionAt(0x2B2, func_002b2970((f32)0x115 + pos.x, 6.0f + pos.y), func_002b2970((f32)0x115 + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
 
     if (b >= 10) {
-        func_002b6c30(0x26C, func_002b2970(320.0f + pos.x, 6.0f + pos.y), 46.0f, 0x59);
-        *(s16 *)(func_002b6150(0x26C) + 4) = b % 10 + 0x46;
+        fclSpriteCreate(0x26C, func_002b2970(320.0f + pos.x, 6.0f + pos.y), 46.0f, 0x59);
+        *(s16 *)(fclSpriteEntry(0x26C) + 4) = b % 10 + 0x46;
         c14C = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x26C) + 0x85) = c14C;
-        func_002b69f0(0x26C, func_002b2970(320.0f + pos.x, 6.0f + pos.y), func_002b2970(320.0f + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
-        func_002b6c30(0x26D, func_002b2970((f32)0x12D + pos.x, 6.0f + pos.y), 46.0f, 0x59);
-        *(s16 *)(func_002b6150(0x26D) + 4) = b / 10 + 0x46;
+        *(FclByte4 *)(fclSpriteEntry(0x26C) + 0x85) = c14C;
+        fclSpriteStartPositionAt(0x26C, func_002b2970(320.0f + pos.x, 6.0f + pos.y), func_002b2970(320.0f + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
+        fclSpriteCreate(0x26D, func_002b2970((f32)0x12D + pos.x, 6.0f + pos.y), 46.0f, 0x59);
+        *(s16 *)(fclSpriteEntry(0x26D) + 4) = b / 10 + 0x46;
         c148 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x26D) + 0x85) = c148;
-        func_002b69f0(0x26D, func_002b2970((f32)0x12D + pos.x, 6.0f + pos.y), func_002b2970((f32)0x12D + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
+        *(FclByte4 *)(fclSpriteEntry(0x26D) + 0x85) = c148;
+        fclSpriteStartPositionAt(0x26D, func_002b2970((f32)0x12D + pos.x, 6.0f + pos.y), func_002b2970((f32)0x12D + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
     } else {
-        func_002b6c30(0x26C, func_002b2970((f32)0x13D + pos.x, 6.0f + pos.y), 46.0f, 0x59);
-        *(s16 *)(func_002b6150(0x26C) + 4) = b % 10 + 0x46;
+        fclSpriteCreate(0x26C, func_002b2970((f32)0x13D + pos.x, 6.0f + pos.y), 46.0f, 0x59);
+        *(s16 *)(fclSpriteEntry(0x26C) + 4) = b % 10 + 0x46;
         c144 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x26C) + 0x85) = c144;
-        func_002b69f0(0x26C, func_002b2970((f32)0x137 + pos.x, 6.0f + pos.y), func_002b2970((f32)0x137 + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
-        func_002b68d0(0x26D, 0, 1);
+        *(FclByte4 *)(fclSpriteEntry(0x26C) + 0x85) = c144;
+        fclSpriteStartPositionAt(0x26C, func_002b2970((f32)0x137 + pos.x, 6.0f + pos.y), func_002b2970((f32)0x137 + arg3.x, 6.0f + arg3.y), 0, 0xA, 0);
+        fclSpriteSetFlag(0x26D, 0, 1);
     }
 }
 
@@ -1913,7 +1913,7 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
     f32 f;
     t = *(u8 **)(arg0 + 0x38);
     v = (s8)arg1;
-    if ((s16)func_002b6970(*(s16 *)(func_002b6150((s16)(v + 0x21C)) + 0x10), 1) != 0) {
+    if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry((s16)(v + 0x21C)) + 0x10), 1) != 0) {
         return;
     }
     if (*(s16 *)(t + 0x11E) == v) {
@@ -1944,9 +1944,9 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
         if (*(s32 *)(func_002e4870(0) + 8) <= v) {
             s32 overflowSlot = (s8)arg1;
             cD4 = func_002b2a60(0x24, 0x3F, 0x9F, 0xFF);
-            p = func_002b6150((s16)(overflowSlot + 0x244));
+            p = fclSpriteEntry((s16)(overflowSlot + 0x244));
             *(FclByte4 *)(p + 0x85) = cD4;
-            q = func_002b6150((s16)(overflowSlot + 0x238));
+            q = fclSpriteEntry((s16)(overflowSlot + 0x238));
             *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
             *(s8 *)((u8 *)func_0034b810(((u8 **)(t + 0x21C))[overflowSlot]) + 0xF00) = 0;
         }
@@ -1955,22 +1955,22 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
             s32 v22b = slot + 0x22B;
             s32 v21c = slot + 0x21C;
             cD0 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-            p = func_002b6150((s16)v22b);
+            p = fclSpriteEntry((s16)v22b);
             *(FclByte4 *)(p + 0x85) = cD0;
-            q = func_002b6150((s16)v21c);
+            q = fclSpriteEntry((s16)v21c);
             *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
-            *(u8 *)(func_002b6150((s16)v21c) + 0x6E) =
-                *(u8 *)(func_002b6150((s16)v22b) + 0x6E) = 0xFF;
+            *(u8 *)(fclSpriteEntry((s16)v21c) + 0x6E) =
+                *(u8 *)(fclSpriteEntry((s16)v22b) + 0x6E) = 0xFF;
             cCC = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-            p = func_002b6150((s16)(slot + 0x244));
+            p = fclSpriteEntry((s16)(slot + 0x244));
             *(FclByte4 *)(p + 0x85) = cCC;
-            q = func_002b6150((s16)(slot + 0x238));
+            q = fclSpriteEntry((s16)(slot + 0x238));
             *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
             cC8 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
             p = fclCombineSlotRecord(*(u8 **)(t + 0x188), arg1);
             *(FclByte4 *)(p + 0x75) = cC8;
             cC4 = func_002b2a60(0, 0, 0x66, 0xFF);
-            p = func_002b6150((s16)(slot + 0x39));
+            p = fclSpriteEntry((s16)(slot + 0x39));
             *(FclByte4 *)(p + 0x85) = cC4;
             ret = func_002b2a30(0, 0, 0x66, 0xFF);
             cC0.channels = func_002b2a60(0, 0, 0x66, 0xFF);
@@ -2033,23 +2033,23 @@ s32 func_0031ddf0(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
         v16 = (s8)arg1;
         v17 = v16 + 0x22B;
         v18 = v16 + 0x21C;
-        *(u8 *)(func_002b6150((s16)v18) + 0x6E) =
-            *(u8 *)(func_002b6150((s16)v17) + 0x6E) = 0xFF;
+        *(u8 *)(fclSpriteEntry((s16)v18) + 0x6E) =
+            *(u8 *)(fclSpriteEntry((s16)v17) + 0x6E) = 0xFF;
         cBC = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         p = fclCombineSlotRecord(*(u8 **)(t + 0x188), arg1);
         *(FclByte4 *)(p + 0x75) = cBC;
-        q = func_002b6150((s16)(v16 + 0x244));
+        q = fclSpriteEntry((s16)(v16 + 0x244));
         *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x75);
-        p = func_002b6150((s16)(v16 + 0x238));
+        p = fclSpriteEntry((s16)(v16 + 0x238));
         *(FclByte4 *)(p + 0x85) = *(FclByte4 *)(q + 0x85);
-        q = func_002b6150((s16)v17);
+        q = fclSpriteEntry((s16)v17);
         *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
-        p = func_002b6150((s16)v18);
+        p = fclSpriteEntry((s16)v18);
         *(FclByte4 *)(p + 0x85) = *(FclByte4 *)(q + 0x85);
         cB8 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        p = func_002b6150((s16)(v16 + 0x250));
+        p = fclSpriteEntry((s16)(v16 + 0x250));
         *(FclByte4 *)(p + 0x85) = cB8;
-        q = func_002b6150((s16)(v16 + 0x39));
+        q = fclSpriteEntry((s16)(v16 + 0x39));
         *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
         cB4.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
         func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, cB4.channels);
@@ -2062,23 +2062,23 @@ s32 func_0031ddf0(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
         v17 = v16 + 0x22B;
         v18 = v16 + 0x21C;
         cB0 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        p = func_002b6150((s16)v17);
+        p = fclSpriteEntry((s16)v17);
         *(FclByte4 *)(p + 0x85) = cB0;
-        q = func_002b6150((s16)v18);
+        q = fclSpriteEntry((s16)v18);
         *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
-        *(u8 *)(func_002b6150((s16)v18) + 0x6E) =
-            *(u8 *)(func_002b6150((s16)v17) + 0x6E) = 0x66;
+        *(u8 *)(fclSpriteEntry((s16)v18) + 0x6E) =
+            *(u8 *)(fclSpriteEntry((s16)v17) + 0x6E) = 0x66;
         cAC = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        p = func_002b6150((s16)(v16 + 0x244));
+        p = fclSpriteEntry((s16)(v16 + 0x244));
         *(FclByte4 *)(p + 0x85) = cAC;
-        q = func_002b6150((s16)(v16 + 0x238));
+        q = fclSpriteEntry((s16)(v16 + 0x238));
         *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
         cA8 = func_002b2a60(0, 0, 0x99, 0xFF);
         *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg1) + 0x75) = cA8;
         cA4 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150((s16)(v16 + 0x39)) + 0x85) = cA4;
+        *(FclByte4 *)(fclSpriteEntry((s16)(v16 + 0x39)) + 0x85) = cA4;
         cA0 = func_002b2a60(0, 0, 0x66, 0xFF);
-        *(FclByte4 *)(func_002b6150((s16)(v16 + 0x250)) + 0x85) = cA0;
+        *(FclByte4 *)(fclSpriteEntry((s16)(v16 + 0x250)) + 0x85) = cA0;
         c9C.channels = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
         func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, c9C.channels);
         ret = func_002b2a30(0xCC, 0xFF, 0xFF, arg3);
@@ -2104,29 +2104,29 @@ void func_0031e320(u8 *arg0, s8 arg1) {
     work = *(u8 **)(arg0 + 0x38);
     idx = (s8)arg1;
     n1 = (s16)(idx + 0x21C);
-    p1 = func_002b6150(n1);
+    p1 = fclSpriteEntry(n1);
     c7C = func_002b2a60(0xFF, 0xFF, 0x9E, 0xFF);
-    func_002b6b90(n1, *(s32 *)(p1 + 0x85), *(s32 *)&c7C, 1, 6, 0);
-    *(s8 *)(func_002b6150(n1) + 0x91) = 1;
+    fclSpriteStartColorAt(n1, *(s32 *)(p1 + 0x85), *(s32 *)&c7C, 1, 6, 0);
+    *(s8 *)(fclSpriteEntry(n1) + 0x91) = 1;
     n2 = (s16)(idx + 0x22B);
-    p2 = func_002b6150(n2);
+    p2 = fclSpriteEntry(n2);
     c78 = func_002b2a60(0xFF, 0xFF, 0x9E, 0xFF);
-    func_002b6b90(n2, *(s32 *)(p2 + 0x85), *(s32 *)&c78, 1, 6, 0);
-    *(s8 *)(func_002b6150(n2) + 0x91) = 1;
+    fclSpriteStartColorAt(n2, *(s32 *)(p2 + 0x85), *(s32 *)&c78, 1, 6, 0);
+    *(s8 *)(fclSpriteEntry(n2) + 0x91) = 1;
     n3 = (s16)(idx + 0x238);
-    p3 = func_002b6150(n3);
+    p3 = fclSpriteEntry(n3);
     c74 = func_002b2a60(0xFF, 0xFF, 0x9E, 0xFF);
-    func_002b6b90(n3, *(s32 *)(p3 + 0x85), *(s32 *)&c74, 1, 6, 0);
-    *(s8 *)(func_002b6150(n3) + 0x91) = 1;
+    fclSpriteStartColorAt(n3, *(s32 *)(p3 + 0x85), *(s32 *)&c74, 1, 6, 0);
+    *(s8 *)(fclSpriteEntry(n3) + 0x91) = 1;
     n4 = (s16)(idx + 0x244);
-    p4 = func_002b6150(n4);
+    p4 = fclSpriteEntry(n4);
     c70 = func_002b2a60(0xFF, 0xFF, 0x9E, 0xFF);
-    func_002b6b90(n4, *(s32 *)(p4 + 0x85), *(s32 *)&c70, 1, 6, 0);
-    *(s8 *)(func_002b6150(n4) + 0x91) = 1;
+    fclSpriteStartColorAt(n4, *(s32 *)(p4 + 0x85), *(s32 *)&c70, 1, 6, 0);
+    *(s8 *)(fclSpriteEntry(n4) + 0x91) = 1;
     q1 = fclCombineSlotRecord(*(u8 **)(work + 0x188), arg1);
     q2 = fclCombineSlotRecord(*(u8 **)(work + 0x188), arg1);
     c6C = func_002b2a60(0xFF, 0xFF, 0x9E, 0xFF);
-    func_002b8370(q1, *(FclByte4 *)(q2 + 0x75), *(FclByte4 *)&c6C, 1, 6, 0);
+    fclSpriteStartColor(q1, *(FclByte4 *)(q2 + 0x75), *(FclByte4 *)&c6C, 1, 6, 0);
     *(s8 *)(fclCombineSlotRecord(*(u8 **)(work + 0x188), arg1) + 0x81) = 1;
 }
 
@@ -2179,17 +2179,17 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
         pos.x = pos.x + 1.0f;
     }
     h0 = sdkSpriteNewNode(func_00331560(), 0x193);
-    func_002b6c30(id, func_002b2970(pos.x, pos.y), 191.0f, 0x57);
+    fclSpriteCreate(id, func_002b2970(pos.x, pos.y), 191.0f, 0x57);
     c16C = func_002b2a60(0, 0, 0x99, 0xFF);
-    p = func_002b6150(id);
+    p = fclSpriteEntry(id);
     *(FclByte4 *)(p + 0x85) = c16C;
-    func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h0) / 2.0f), func_002b2970(pos.x, pos.y), 0, 3, arg2);
+    fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h0) / 2.0f), func_002b2970(pos.x, pos.y), 0, 3, arg2);
     if ((s8)arg3 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, func_002b2970(pos.x, pos.y), func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h0) / 2.0f), 0, 3, arg2);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartPositionAt(id, func_002b2970(pos.x, pos.y), func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h0) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(h0);
     switch (t6) {
@@ -2234,19 +2234,19 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
     if (t5 == 1) {
         id = 0x28A;
     }
-    func_002b7750(id, idB);
+    fclSpriteReset(id, idB);
     h1 = sdkSpriteNewNode(func_00331560(), idB);
-    func_002b6c30(id, func_002b2970(pos.x, pos.y), 191.0f, 0x57);
+    fclSpriteCreate(id, func_002b2970(pos.x, pos.y), 191.0f, 0x57);
     c168 = func_002b2a60(0, 0, 0x99, 0xFF);
-    p = func_002b6150(id);
+    p = fclSpriteEntry(id);
     *(FclByte4 *)(p + 0x85) = c168;
-    func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h1) / 2.0f), func_002b2970(pos.x, pos.y), 0, 3, arg2);
+    fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h1) / 2.0f), func_002b2970(pos.x, pos.y), 0, 3, arg2);
     if ((s8)arg3 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, func_002b2970(pos.x, pos.y), func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h1) / 2.0f), 0, 3, arg2);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartPositionAt(id, func_002b2970(pos.x, pos.y), func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h1) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(h1);
 
@@ -2267,17 +2267,17 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
         pos.x = pos.x + 3.0f;
     }
     h2 = sdkSpriteNewNode(func_00331560(), 0x51);
-    func_002b6c30(id, pos, 176.0f, 0x59);
+    fclSpriteCreate(id, pos, 176.0f, 0x59);
     c164 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    p = func_002b6150(id);
+    p = fclSpriteEntry(id);
     *(FclByte4 *)(p + 0x85) = c164;
-    func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h2) / 2.0f), pos, 0, 3, arg2);
+    fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h2) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h2) / 2.0f), 0, 3, arg2);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartPositionAt(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h2) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(h2);
 
@@ -2296,17 +2296,17 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
         pos.x = pos.x + 3.0f;
     }
     h3 = sdkSpriteNewNode(func_00331560(), 0x52);
-    func_002b6c30(id, pos, 176.0f, 0x59);
+    fclSpriteCreate(id, pos, 176.0f, 0x59);
     c160 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-    p = func_002b6150(id);
+    p = fclSpriteEntry(id);
     *(FclByte4 *)(p + 0x85) = c160;
-    func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h3) / 2.0f), pos, 0, 3, arg2);
+    fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h3) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h3) / 2.0f), 0, 3, arg2);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartPositionAt(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h3) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(h3);
 
@@ -2326,17 +2326,17 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
         pos.x = pos.x + 3.0f;
     }
     h4 = sdkSpriteNewNode(func_00331560(), 0x53);
-    func_002b6c30(id, pos, 176.0f, 0x59);
+    fclSpriteCreate(id, pos, 176.0f, 0x59);
     c15C = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-    p = func_002b6150(id);
+    p = fclSpriteEntry(id);
     *(FclByte4 *)(p + 0x85) = c15C;
-    func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h4) / 2.0f), pos, 0, 3, arg2);
+    fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h4) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h4) / 2.0f), 0, 3, arg2);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartPositionAt(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h4) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(h4);
 
@@ -2356,17 +2356,17 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
         pos.x = pos.x + 3.0f;
     }
     h5 = sdkSpriteNewNode(func_00331560(), 0x73);
-    func_002b6c30(id, pos, 175.0f, 0x59);
+    fclSpriteCreate(id, pos, 175.0f, 0x59);
     c158 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    p = func_002b6150(id);
+    p = fclSpriteEntry(id);
     *(FclByte4 *)(p + 0x85) = c158;
-    func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), pos, 0, 3, arg2);
+    fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), 0, 3, arg2);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartPositionAt(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), 0, 3, arg2);
     }
 
     id = 0x237;
@@ -2383,17 +2383,17 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
     if (t6 == 1) {
         pos.x = pos.x + 3.0f;
     }
-    func_002b6c30(id, pos, 175.0f, 0x59);
+    fclSpriteCreate(id, pos, 175.0f, 0x59);
     c154 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    p = func_002b6150(id);
+    p = fclSpriteEntry(id);
     *(FclByte4 *)(p + 0x85) = c154;
-    func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), pos, 0, 3, arg2);
+    fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
-        func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
-        func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), 0, 3, arg2);
+        fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
+        fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartPositionAt(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(h5);
 }
@@ -2407,7 +2407,7 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
    offset rows read arg1.y into a local before adding the offset. */
 // FUN_0031FA20
 void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
-    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
+    extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     FclByte4 c13C;
     FclByte4 c138;
     FclByte4 c134;
@@ -2423,87 +2423,87 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
 
     node0 = sdkSpriteNewNode(func_00331560(), 0x193);
     x = arg1.y;
-    func_002b6c30(0x27C, func_002b2970(*(f32 *)&arg1, x), 191.0f, 0x57);
+    fclSpriteCreate(0x27C, func_002b2970(*(f32 *)&arg1, x), 191.0f, 0x57);
     c13C = func_002b2a60(0, 0, 0x99, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x27C) + 0x85) = c13C;
-    func_002b6a70(0x27C, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(0x27C, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x27C, func_002b2970(arg1.x, x + sdkSpriteScaledHeight(node0) / 2.0f), func_002b2970(arg1.x, x), 0, 3, arg2);
+    *(FclByte4 *)(fclSpriteEntry(0x27C) + 0x85) = c13C;
+    fclSpriteStartAlphaAt(0x27C, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(0x27C, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(0x27C, func_002b2970(arg1.x, x + sdkSpriteScaledHeight(node0) / 2.0f), func_002b2970(arg1.x, x), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x27C, 0xFF, 0, 0, 0, arg2 + 3);
-        func_002b6af0(0x27C, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(0x27C, func_002b2970(arg1.x, x), func_002b2970(arg1.x, x + sdkSpriteScaledHeight(node0) / 2.0f), 0, 3, arg2);
+        fclSpriteStartAlphaAt(0x27C, 0xFF, 0, 0, 0, arg2 + 3);
+        fclSpriteStartRevealScaleAt(0x27C, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartPositionAt(0x27C, func_002b2970(arg1.x, x), func_002b2970(arg1.x, x + sdkSpriteScaledHeight(node0) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(node0);
     node1 = sdkSpriteNewNode(func_00331560(), 0x19B);
     y = arg1.y;
     x = (f32)0x11D + arg1.x;
-    func_002b6c30(0x289, func_002b2970(x, y), 191.0f, 0x57);
+    fclSpriteCreate(0x289, func_002b2970(x, y), 191.0f, 0x57);
     c138 = func_002b2a60(0, 0, 0x99, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x289) + 0x85) = c138;
-    func_002b6a70(0x289, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(0x289, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x289, func_002b2970(x, y + sdkSpriteScaledHeight(node1) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
+    *(FclByte4 *)(fclSpriteEntry(0x289) + 0x85) = c138;
+    fclSpriteStartAlphaAt(0x289, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(0x289, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(0x289, func_002b2970(x, y + sdkSpriteScaledHeight(node1) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x289, 0xFF, 0, 0, 0, arg2 + 3);
-        func_002b6af0(0x289, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartAlphaAt(0x289, 0xFF, 0, 0, 0, arg2 + 3);
+        fclSpriteStartRevealScaleAt(0x289, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         x = (f32)0x11D + arg1.x;
-        func_002b69f0(0x289, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node1) / 2.0f), 0, 3, arg2);
+        fclSpriteStartPositionAt(0x289, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node1) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(node1);
     node2 = sdkSpriteNewNode(func_00331560(), 0x72);
     top = arg1.y;
     y = 4.0f + top;
     x = 102.0f + arg1.x;
-    func_002b6c30(0x72, func_002b2970(x, y), 177.0f, 0x59);
+    fclSpriteCreate(0x72, func_002b2970(x, y), 177.0f, 0x59);
     c134 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x72) + 0x85) = c134;
-    func_002b6a70(0x72, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(0x72, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x72, func_002b2970(x, y + sdkSpriteScaledHeight(node2) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
+    *(FclByte4 *)(fclSpriteEntry(0x72) + 0x85) = c134;
+    fclSpriteStartAlphaAt(0x72, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(0x72, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(0x72, func_002b2970(x, y + sdkSpriteScaledHeight(node2) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x72, 0xFF, 0, 0, 0, arg2 + 3);
-        func_002b6af0(0x72, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartAlphaAt(0x72, 0xFF, 0, 0, 0, arg2 + 3);
+        fclSpriteStartRevealScaleAt(0x72, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         top = arg1.y;
         y = 4.0f + top;
         x = 102.0f + arg1.x;
-        func_002b69f0(0x72, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node2) / 2.0f), 0, 3, arg2);
+        fclSpriteStartPositionAt(0x72, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node2) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(node2);
     node3 = sdkSpriteNewNode(func_00331560(), 0x73);
     top = arg1.y;
     y = 9.0f + top;
     x = 55.0f + arg1.x;
-    func_002b6c30(0x2AF, func_002b2970(x, y), 175.0f, 0x59);
+    fclSpriteCreate(0x2AF, func_002b2970(x, y), 175.0f, 0x59);
     c130 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x2AF) + 0x85) = c130;
-    func_002b6a70(0x2AF, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(0x2AF, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x2AF, func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
+    *(FclByte4 *)(fclSpriteEntry(0x2AF) + 0x85) = c130;
+    fclSpriteStartAlphaAt(0x2AF, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(0x2AF, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(0x2AF, func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x2AF, 0xFF, 0, 0, 0, arg2 + 3);
-        func_002b6af0(0x2AF, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartAlphaAt(0x2AF, 0xFF, 0, 0, 0, arg2 + 3);
+        fclSpriteStartRevealScaleAt(0x2AF, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         top = arg1.y;
         y = 9.0f + top;
         x = 55.0f + arg1.x;
-        func_002b69f0(0x2AF, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), 0, 3, arg2);
+        fclSpriteStartPositionAt(0x2AF, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), 0, 3, arg2);
     }
     top = arg1.y;
     y = 9.0f + top;
     x = 208.0f + arg1.x;
-    func_002b6c30(0x2B0, func_002b2970(x, y), 175.0f, 0x59);
+    fclSpriteCreate(0x2B0, func_002b2970(x, y), 175.0f, 0x59);
     c12C = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x2B0) + 0x85) = c12C;
-    func_002b6a70(0x2B0, 0, 0xFF, 0, 0, arg2);
-    func_002b6af0(0x2B0, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x2B0, func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
+    *(FclByte4 *)(fclSpriteEntry(0x2B0) + 0x85) = c12C;
+    fclSpriteStartAlphaAt(0x2B0, 0, 0xFF, 0, 0, arg2);
+    fclSpriteStartRevealScaleAt(0x2B0, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
+    fclSpriteStartPositionAt(0x2B0, func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
-        func_002b6a70(0x2B0, 0xFF, 0, 0, 0, arg2 + 3);
-        func_002b6af0(0x2B0, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
+        fclSpriteStartAlphaAt(0x2B0, 0xFF, 0, 0, 0, arg2 + 3);
+        fclSpriteStartRevealScaleAt(0x2B0, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         top = arg1.y;
         y = 9.0f + top;
         x = 208.0f + arg1.x;
-        func_002b69f0(0x2B0, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), 0, 3, arg2);
+        fclSpriteStartPositionAt(0x2B0, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(node3);
 }
@@ -2555,21 +2555,21 @@ void func_003205f0(u8 *arg0, s16 arg1, s16 arg2) {
     if (idx1 != 0) {
         tbl1 = (f2 *)&D_00643D70[idx1 * 2];
         spA0 = func_002b2970(tbl1->x - 200.0f, tbl1->y);
-        func_002b6c30(arg1, spA0, 54.0f, 0xAC);
+        fclSpriteCreate(arg1, spA0, 54.0f, 0xAC);
         sp98 = func_002b2970(tbl1->x - 200.0f, tbl1->y);
         sp90 = func_002b2970(tbl1->x, tbl1->y);
-        func_002b69f0(arg1, sp98, sp90, 0, 0xA, 0);
-        func_002b6a70(arg1, 0, 0xFF, 0, 0xA, 0);
+        fclSpriteStartPositionAt(arg1, sp98, sp90, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(arg1, 0, 0xFF, 0, 0xA, 0);
         if (idx1 == 0x92) {
             ca = (f2 *)D_00644CA0;
             sp88 = func_002b2970(ca->x, ca->y);
-            func_002b6c30(0x1E6, sp88, 54.0f, 0x65);
+            fclSpriteCreate(0x1E6, sp88, 54.0f, 0x65);
             sp80 = func_002b2970(58.0f, ca->y);
             sp78 = func_002b2970(ca->x, ca->y);
-            func_002b69f0(0x1E6, sp80, sp78, 0, 0xA, 3);
-            func_002b6a70(0x1E6, 0, 0xFF, 0, 0xA, 3);
+            fclSpriteStartPositionAt(0x1E6, sp80, sp78, 0, 0xA, 3);
+            fclSpriteStartAlphaAt(0x1E6, 0, 0xFF, 0, 0xA, 3);
             spAC = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-            temp_2 = func_002b6150(0x1E6);
+            temp_2 = fclSpriteEntry(0x1E6);
             *(FclByte4 *)(temp_2 + 0x85) = spAC;
         }
     }
@@ -2577,17 +2577,17 @@ void func_003205f0(u8 *arg0, s16 arg1, s16 arg2) {
     if (idx2 != 0) {
         tbl2 = (f2 *)&D_00643D70[idx2 * 2];
         sp70 = func_002b2970(tbl2->x, tbl2->y);
-        func_002b6c30(arg2, sp70, 54.0f, 0xAC);
+        fclSpriteCreate(arg2, sp70, 54.0f, 0xAC);
         sp68 = func_002b2970(tbl2->x, tbl2->y);
         sp60 = func_002b2970(200.0f + tbl2->x, tbl2->y);
-        func_002b69f0(arg2, sp68, sp60, 0, 0xA, 0);
-        func_002b6a70(arg2, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartPositionAt(arg2, sp68, sp60, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(arg2, 0xFF, 0, 0, 0xA, 0);
         if (idx2 == 0x92) {
             ca = (f2 *)D_00644CA0;
             sp58 = func_002b2970(ca->x, ca->y);
             sp50 = func_002b2970(122.0f, ca->y);
-            func_002b69f0(0x1E6, sp58, sp50, 0, 6, 2);
-            func_002b6a70(0x1E6, 0xFF, 0, 0, 6, 2);
+            fclSpriteStartPositionAt(0x1E6, sp58, sp50, 0, 6, 2);
+            fclSpriteStartAlphaAt(0x1E6, 0xFF, 0, 0, 6, 2);
         }
     }
 }
@@ -2687,8 +2687,8 @@ static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRo
                 u8 *colorElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
                 initialFadeStartColor = func_002b2a60(0, 0, 0x99, 0xFF);
                 initialFadeEndColor = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                func_002b8370(colorElement, initialFadeStartColor, initialFadeEndColor, 0, 0xA, delay);
-                func_002b82d0(fclCombineSlotRecord(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, delay);
+                fclSpriteStartColor(colorElement, initialFadeStartColor, initialFadeEndColor, 0, 0xA, delay);
+                fclSpriteStartAlpha(fclCombineSlotRecord(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, delay);
             }
             fclClearGridCellTransition(initialRowState, columnIndex);
             column++;
@@ -2710,9 +2710,9 @@ static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRo
                 u8 *colorElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
                 refreshFadeStartColor = func_002b2a60(0x49, 0x72, 0xFF, 0xA5);
                 refreshFadeEndColor = func_002b2a60(0, 0, 0x99, 0xA5);
-                func_002b8370(colorElement, refreshFadeStartColor, refreshFadeEndColor,
+                fclSpriteStartColor(colorElement, refreshFadeStartColor, refreshFadeEndColor,
                               0, 0xA, (s16)column + rowIndex);
-                func_002b82d0(fclCombineSlotRecord(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, 0);
+                fclSpriteStartAlpha(fclCombineSlotRecord(rowTasks->cellListTask, (s8)column), 0, 0xA5, 0, 0xA, 0);
             }
             fclClearGridCellTransition(refreshRowState, columnIndex);
             column++;
@@ -2777,17 +2777,17 @@ void func_00320b80(u8 *task, s8 entryMode) {
             gridOffset = rowIndex * 23;
             columnSpriteX = gridOffset + 0x14E;
             columnSpritePosition = func_002b2970((f32)columnSpriteX, 110.0f);
-            func_002b6c30((s16)(columnSprite), columnSpritePosition, 158.0f, 0x56);
+            fclSpriteCreate((s16)(columnSprite), columnSpritePosition, 158.0f, 0x56);
             columnSpriteColor = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
             {
-                FclCombineRowSprite *sprite = (FclCombineRowSprite *)func_002b6150(columnSprite);
+                FclCombineRowSprite *sprite = (FclCombineRowSprite *)fclSpriteEntry(columnSprite);
                 sprite->color = columnSpriteColor;
             }
-            func_002b6a70(columnSprite, 0, 0xFF, 0, 2, rowIndex);
-            func_002b6af0(columnSprite, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 2, rowIndex);
+            fclSpriteStartAlphaAt(columnSprite, 0, 0xFF, 0, 2, rowIndex);
+            fclSpriteStartRevealScaleAt(columnSprite, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 2, rowIndex);
             columnSlideStart = func_002b2970((f32)columnSpriteX, 110.0f + sdkSpriteScaledHeight(columnResource) / 2.0f);
             columnSlideEnd = func_002b2970((f32)columnSpriteX, 110.0f);
-            func_002b69f0(columnSprite, columnSlideStart, columnSlideEnd, 0, 2, rowIndex);
+            fclSpriteStartPositionAt(columnSprite, columnSlideStart, columnSlideEnd, 0, 2, rowIndex);
             sdkSpriteFreeNode(columnResource);
         }
         {
@@ -2855,11 +2855,11 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
             temp_2 = spB0 + (s32)(s16)j + 0x18C;
             if (*(s8 *)temp_2 == 0) {
                 if (((*(s16 *)fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j) & 0x200) >> 9) == 0) {
-                    func_002b8370(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j), spE8, spEC, 0, 2, 1);
+                    fclSpriteStartColor(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j), spE8, spEC, 0, 2, 1);
                     if (*(s8 *)((u8 *)addOff(temp_22, (u32)func_002e4870(0)) + (s32)(s16)j + 0x14) > 0) {
-                        func_002b8370(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j), spE8, spE4, 0, 2, 1);
+                        fclSpriteStartColor(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j), spE8, spE4, 0, 2, 1);
                         cell2 = fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j);
-                        func_002b82d0(cell2, *(u8 *)(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j) + 0x5E), 0xCC, 0, 2, 1);
+                        fclSpriteStartAlpha(cell2, *(u8 *)(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j) + 0x5E), 0xCC, 0, 2, 1);
                     }
                     *(s8 *)temp_2 = 1;
                 }
@@ -2876,8 +2876,8 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
         {
             s64 renderedRow = (s16)i;
             s32 rowResource = (s32)renderedRow + 0x21C;
-            f20 = (f32)(s32)*(s16 *)((u8 *)func_002b6150((s16)rowResource) + 0x42);
-            f15 = (f32)(s32)*(s16 *)((u8 *)func_002b6150((s16)rowResource) + 0x40);
+            f20 = (f32)(s32)*(s16 *)((u8 *)fclSpriteEntry((s16)rowResource) + 0x42);
+            f15 = (f32)(s32)*(s16 *)((u8 *)fclSpriteEntry((s16)rowResource) + 0x40);
             temp_f0 = func_002b2aa0(0, 0.0f, 255.0f, f20, f15);
             var_3 = (u8)temp_f0;
             temp_7 = var_3 & 0xFF;
@@ -2908,8 +2908,8 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
 #pragma opt_loop_invariants on
 // FUN_003218A0
 void func_003218a0(u8 *arg0, s16 arg1) {
-    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
-    extern void func_002b6a70(s16, u8, u8, u8, s32, s16);
+    extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
+    extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
     FclDrawColor c16C;
     FclDrawColor c168;
     FclDrawColor c164;
@@ -2942,11 +2942,11 @@ void func_003218a0(u8 *arg0, s16 arg1) {
         r = i + 0x25E;
         res = r;
         h = sdkSpriteNewNode(func_00331560(), 0x39);
-        func_002b6a70(res, 0, 0xFF, 0, 0, order + 3);
-        func_002b6af0(res, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg1);
+        fclSpriteStartAlphaAt(res, 0, 0xFF, 0, 0, order + 3);
+        fclSpriteStartRevealScaleAt(res, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg1);
         xx = x + 0x14E;
-        func_002b69f0(r, func_002b2970(xx, 110.0f + sdkSpriteScaledHeight(h) / 2.0f), func_002b2970(xx, 110.0f), 0, 3, arg1);
-        func_002b68d0(res, 0, 0);
+        fclSpriteStartPositionAt(r, func_002b2970(xx, 110.0f + sdkSpriteScaledHeight(h) / 2.0f), func_002b2970(xx, 110.0f), 0, 3, arg1);
+        fclSpriteSetFlag(res, 0, 0);
         sdkSpriteFreeNode(h);
         j = 0;
         p = t + i * 4;
@@ -2989,9 +2989,9 @@ static inline void fclShowCombineCursorArrows(u8 *t)
     FclVec2 *v = (FclVec2 *)D_00644C90;
     f32 dx = 60.0f;
 
-    func_002b6c30(0x1E4, func_002b2970(v->x + dx, v->y), 103.0f, 0xBC);
-    func_002b6a70(0x1E4, 0, 0xFF, 0, 0xA, 0);
-    func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
+    fclSpriteCreate(0x1E4, func_002b2970(v->x + dx, v->y), 103.0f, 0xBC);
+    fclSpriteStartAlphaAt(0x1E4, 0, 0xFF, 0, 0xA, 0);
+    fclSpriteStartTweenAt(0x1E4, 0, 0, 0, 0.0f, 90.0f);
     func_002b6140(*(u8 **)(t + 0x28C), 1);
     func_002b6140(*(u8 **)(t + 0x290), 1);
 }
@@ -3103,10 +3103,10 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     s16 normalizedRow = ja;
                     s16 resource = (s16)((u32)normalizedRow + 0x25E);
                     ha = sdkSpriteNewNode(func_00331560(), 0x39);
-                    func_002b6a70(resource, 0xFF, 0, 0, 3, 0);
-                    func_002b6af0(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
+                    fclSpriteStartAlphaAt(resource, 0xFF, 0, 0, 3, 0);
+                    fclSpriteStartRevealScaleAt(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                     xa = (u32)normalizedRow * 23 + 0x14E;
-                    func_002b69f0(resource, func_002b2970((f32)xa, 110.0f),
+                    fclSpriteStartPositionAt(resource, func_002b2970((f32)xa, 110.0f),
                                   func_002b2970((f32)xa, 110.0f + sdkSpriteScaledHeight(ha) / 2.0f), 0, 3, 0);
                     sdkSpriteFreeNode(ha);
                 }
@@ -3152,10 +3152,10 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                         s16 normalizedRow = jb1;
                         s16 resource = (s16)((u32)normalizedRow + 0x25E);
                         hb1 = sdkSpriteNewNode(func_00331560(), 0x39);
-                        func_002b6a70(resource, 0xFF, 0, 0, 3, 0);
-                        func_002b6af0(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
+                        fclSpriteStartAlphaAt(resource, 0xFF, 0, 0, 3, 0);
+                        fclSpriteStartRevealScaleAt(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         xb1 = (u32)normalizedRow * 23 + 0x14E;
-                        func_002b69f0(resource, func_002b2970((f32)xb1, 110.0f),
+                        fclSpriteStartPositionAt(resource, func_002b2970((f32)xb1, 110.0f),
                                       func_002b2970((f32)xb1, 110.0f + sdkSpriteScaledHeight(hb1) / 2.0f), 0, 3, 0);
                         sdkSpriteFreeNode(hb1);
                         c = *(s8 *)(t + 0x128);
@@ -3169,12 +3169,12 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                 }
                 func_0031fa20(arg0, func_002b2970((f32)0x149, 104.0f), 3, 0);
                 func_003205f0(arg0, 0x94, 0x93);
-                func_002b68d0(0x1C7, 2, 1);
+                fclSpriteSetFlag(0x1C7, 2, 1);
                 func_0031e320(arg0, (s32)*(s8 *)(t + 0x128));
             } else {
                 func_002e4ac0(1, *(s8 *)(t + 0x128));
-                func_002b6a70(0x7E, 0xFF, 0, 0, 6, 0);
-                *(u8 *)(func_002b6150(0x7E) + 0x47) = 0;
+                fclSpriteStartAlphaAt(0x7E, 0xFF, 0, 0, 6, 0);
+                *(u8 *)(fclSpriteEntry(0x7E) + 0x47) = 0;
                 jb2 = 0;
                 while ((s16)jb2 < (u16)datPersonaRosterCapacity()) {
                     s16 cur;
@@ -3243,18 +3243,18 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                 s16 normalizedRow = jc;
                 s16 resource = (s16)((u32)normalizedRow + 0x25E);
                 hc = sdkSpriteNewNode(func_00331560(), 0x39);
-                func_002b6a70(resource, 0xFF, 0, 0, 3, 0);
-                func_002b6af0(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
+                fclSpriteStartAlphaAt(resource, 0xFF, 0, 0, 3, 0);
+                fclSpriteStartRevealScaleAt(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                 xc = (u32)normalizedRow * 23 + 0x14E;
-                func_002b69f0(resource, func_002b2970((f32)xc, 110.0f),
+                fclSpriteStartPositionAt(resource, func_002b2970((f32)xc, 110.0f),
                               func_002b2970((f32)xc, 110.0f + sdkSpriteScaledHeight(hc) / 2.0f), 0, 3, 0);
                 sdkSpriteFreeNode(hc);
             }
             ++jc;
         }
         if ((s8)arg1 == 1) {
-            func_002b6a70(0x7E, 0xFF, 0, 0, 0xA, 0);
-            func_002b68d0(0x7E, 0, 0);
+            fclSpriteStartAlphaAt(0x7E, 0xFF, 0, 0, 0xA, 0);
+            fclSpriteSetFlag(0x7E, 0, 0);
         }
         func_00316470(arg0, 1, 1);
         func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
@@ -3302,63 +3302,63 @@ void func_003233d0(u8 *arg0) {
                 u8 *p297;
                 u8 *p28B;
                 u8 *p27D;
-                *(u8 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x6E) =
-                    *(u8 *)(func_002b6150((s16)((s16)i + 0x27D)) + 0x6E) = 0xFF;
+                *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x6E) =
+                    *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x27D)) + 0x6E) = 0xFF;
                 cDC = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-                p297 = func_002b6150((s16)((s16)i + 0x297));
+                p297 = fclSpriteEntry((s16)((s16)i + 0x297));
                 *(FclByte4 *)(p297 + 0x85) = cDC;
-                p28B = func_002b6150((s16)((s16)i + 0x28B));
+                p28B = fclSpriteEntry((s16)((s16)i + 0x28B));
                 *(FclByte4 *)(p28B + 0x85) = *(FclByte4 *)(p297 + 0x85);
-                p27D = func_002b6150((s16)((s16)i + 0x27D));
+                p27D = fclSpriteEntry((s16)((s16)i + 0x27D));
                 *(FclByte4 *)(p27D + 0x85) = *(FclByte4 *)(p28B + 0x85);
-                p = func_002b6150((s16)((s16)i + 0x270));
+                p = fclSpriteEntry((s16)((s16)i + 0x270));
                 *(FclByte4 *)(p + 0x85) = *(FclByte4 *)(p27D + 0x85);
                 cD8 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                p = func_002b6150((s16)((s16)i + 0x2A3));
+                p = fclSpriteEntry((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cD8;
                 cD4.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                 func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cD4.channels);
                 func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
                 if (*(s8 *)(func_002e4870(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
-                    func_002b68d0(0xCF, 0, 1);
-                    func_002b68d0(0xD2, 0, 1);
-                    func_002b68d0((s16)((s16)i + 0x270), 0, 0);
-                    func_002b68d0((s16)((s16)i + 0x27D), 0, 0);
+                    fclSpriteSetFlag(0xCF, 0, 1);
+                    fclSpriteSetFlag(0xD2, 0, 1);
+                    fclSpriteSetFlag((s16)((s16)i + 0x270), 0, 0);
+                    fclSpriteSetFlag((s16)((s16)i + 0x27D), 0, 0);
                 }
             } else if (*(s8 *)(func_002e4870(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
                 u8 *p27D;
-                *(u8 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x6E) =
-                    *(u8 *)(func_002b6150((s16)((s16)i + 0x27D)) + 0x6E) = 0;
+                *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x6E) =
+                    *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x27D)) + 0x6E) = 0;
                 cD0 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
-                p27D = func_002b6150((s16)((s16)i + 0x27D));
+                p27D = fclSpriteEntry((s16)((s16)i + 0x27D));
                 *(FclByte4 *)(p27D + 0x85) = cD0;
-                p = func_002b6150((s16)((s16)i + 0x270));
+                p = fclSpriteEntry((s16)((s16)i + 0x270));
                 *(FclByte4 *)(p + 0x85) = *(FclByte4 *)(p27D + 0x85);
                 cCC = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
-                p = func_002b6150((s16)((s16)i + 0x2A3));
+                p = fclSpriteEntry((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cCC;
                 cC8.channels = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
                 func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cC8.channels);
                 func_002b2a30(0xFF, 0xCC, 0xFA, 0xFF);
-                func_002b68d0(0xCF, 0, 0);
-                func_002b68d0(0xD2, 0, 0);
+                fclSpriteSetFlag(0xCF, 0, 0);
+                fclSpriteSetFlag(0xD2, 0, 0);
             } else {
                 u8 *p27D;
                 u8 *p297;
-                *(u8 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x6E) =
-                    *(u8 *)(func_002b6150((s16)((s16)i + 0x27D)) + 0x6E) = 0xCC;
+                *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x6E) =
+                    *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x27D)) + 0x6E) = 0xCC;
                 cC4 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                p27D = func_002b6150((s16)((s16)i + 0x27D));
+                p27D = fclSpriteEntry((s16)((s16)i + 0x27D));
                 *(FclByte4 *)(p27D + 0x85) = cC4;
-                p = func_002b6150((s16)((s16)i + 0x270));
+                p = fclSpriteEntry((s16)((s16)i + 0x270));
                 *(FclByte4 *)(p + 0x85) = *(FclByte4 *)(p27D + 0x85);
                 cC0 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-                p297 = func_002b6150((s16)((s16)i + 0x297));
+                p297 = fclSpriteEntry((s16)((s16)i + 0x297));
                 *(FclByte4 *)(p297 + 0x85) = cC0;
-                p = func_002b6150((s16)((s16)i + 0x28B));
+                p = fclSpriteEntry((s16)((s16)i + 0x28B));
                 *(FclByte4 *)(p + 0x85) = *(FclByte4 *)(p297 + 0x85);
                 cBC = func_002b2a60(0, 0, 0x66, 0xFF);
-                p = func_002b6150((s16)((s16)i + 0x2A3));
+                p = fclSpriteEntry((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cBC;
                 cB8.channels = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
                 func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cB8.channels);
@@ -3366,8 +3366,8 @@ void func_003233d0(u8 *arg0) {
             }
             if (*(s8 *)(t + 0x128) != (s16)i && *(s8 *)(t + 0x129) != (s16)i) {
                 if (*(s8 *)(func_002e4870((s8)(*(s8 *)(t + 0x129) + 1)) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) > 0) {
-                    f32 v42 = (f32)*(s16 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x42);
-                    s16 v40 = *(s16 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x40);
+                    f32 v42 = (f32)*(s16 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x42);
+                    s16 v40 = *(s16 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x40);
                     f32 f = func_002b2aa0(0, 0.0f, 255.0f, v42, (f32)v40);
                     u8 alpha;
                     s32 ret;
@@ -3438,53 +3438,53 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
         s16 res;
         p = (FclVec2 *)D_006440F8;
         spC0.position = func_002b2970(p->x, p->y);
-        func_002b6c30(0x71, spC0.position, 138.0f, 0x41);
+        fclSpriteCreate(0x71, spC0.position, 138.0f, 0x41);
         cFC = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-        *(FclDrawColor *)(func_002b6150(0x71) + 0x85) = cFC;
+        *(FclDrawColor *)(fclSpriteEntry(0x71) + 0x85) = cFC;
         hidden = (1 - (s8)arg2) * 0xFF;
         shown = (s8)arg2 * 0xFF;
-        func_002b6a70(0x71, (s32)shown, (s32)hidden, 0, 0, 0);
+        fclSpriteStartAlphaAt(0x71, (s32)shown, (s32)hidden, 0, 0, 0);
         p = (FclVec2 *)D_006440F0;
         spB8.position = func_002b2970(p->x, p->y);
-        func_002b6c30(0x70, spB8.position, 139.0f, 0x41);
+        fclSpriteCreate(0x70, spB8.position, 139.0f, 0x41);
         cF8 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-        *(FclDrawColor *)(func_002b6150(0x70) + 0x85) = cF8;
-        func_002b6a70(0x70, (s32)shown, (s32)hidden, 0, 0, 0);
+        *(FclDrawColor *)(fclSpriteEntry(0x70) + 0x85) = cF8;
+        fclSpriteStartAlphaAt(0x70, (s32)shown, (s32)hidden, 0, 0, 0);
         for (k = 0; k < 2; k++) {
             p = (FclVec2 *)D_00644290;
             res = (s16)(k + 0x2BB);
             spB0.position = func_002b2970(p->x + (f32)(k * 313), p->y);
-            func_002b6c30(res, spB0.position, 140.0f, 0x41);
+            fclSpriteCreate(res, spB0.position, 140.0f, 0x41);
             cF4 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-            *(FclDrawColor *)(func_002b6150(res) + 0x85) = cF4;
-            func_002b6a70(res, (s32)shown, (s32)hidden, 0, 0, 0);
+            *(FclDrawColor *)(fclSpriteEntry(res) + 0x85) = cF4;
+            fclSpriteStartAlphaAt(res, (s32)shown, (s32)hidden, 0, 0, 0);
             p = (FclVec2 *)D_00644298;
             res = (s16)(k + 0x2BD);
             spA8.position = func_002b2970(p->x + (f32)(k * 330), p->y);
-            func_002b6c30(res, spA8.position, 141.0f, 0x41);
+            fclSpriteCreate(res, spA8.position, 141.0f, 0x41);
             cF0 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-            *(FclDrawColor *)(func_002b6150(res) + 0x85) = cF0;
-            func_002b6a70(res, (s32)shown, (s32)hidden, 0, 0, 0);
+            *(FclDrawColor *)(fclSpriteEntry(res) + 0x85) = cF0;
+            fclSpriteStartAlphaAt(res, (s32)shown, (s32)hidden, 0, 0, 0);
             p = (FclVec2 *)D_00644350;
             res = (s16)(k + 0x2BF);
             spA0.position = func_002b2970(p->x + (f32)(k * 14), p->y);
-            func_002b6c30(res, spA0.position, 142.0f, 0x41);
+            fclSpriteCreate(res, spA0.position, 142.0f, 0x41);
             cEC = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-            *(FclDrawColor *)(func_002b6150(res) + 0x85) = cEC;
-            func_002b6a70(res, (s32)shown, (s32)hidden, 0, 0, 0);
+            *(FclDrawColor *)(fclSpriteEntry(res) + 0x85) = cEC;
+            fclSpriteStartAlphaAt(res, (s32)shown, (s32)hidden, 0, 0, 0);
         }
         p = (FclVec2 *)D_00644350;
         sp98.position = func_002b2970(28.0f + p->x, p->y);
-        func_002b6c30(0xBC, sp98.position, 142.0f, 0x41);
+        fclSpriteCreate(0xBC, sp98.position, 142.0f, 0x41);
         cE8 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-        *(FclDrawColor *)(func_002b6150(0xBC) + 0x85) = cE8;
-        func_002b6a70(0xBC, (s32)shown, (s32)hidden, 0, 0, 0);
+        *(FclDrawColor *)(fclSpriteEntry(0xBC) + 0x85) = cE8;
+        fclSpriteStartAlphaAt(0xBC, (s32)shown, (s32)hidden, 0, 0, 0);
     }
 }
 
 /* 00324410 body archived at build/WBFclCombineDraw_00324410_body.c.txt.
    Best complete candidate measured nd 118, object 616/624 after changing only
-   func_002b7750's first parameter to s64 (the retained TU declaration);
+   fclSpriteReset's first parameter to s64 (the retained TU declaration);
    baseline helper declaration scored nd 249, object 612/624. The candidate
    matches the prologue, dispatch, all calls, and tail except for the FPU
    materialization block at offsets 0x11C-0x12C: retail emits
@@ -3514,38 +3514,38 @@ void func_00324410(u8 *arg0, s16 arg1, s8 arg2) {
     f32 y;
     u8 *t;
     s32 v17;
-    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
+    extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
 
     t = *(u8 **)(arg0 + 0x38);
     sp68 = *(FclVec2 *)(t + 0x298);
     v17 = arg2;
     switch (*(s8 *)((u8 *)(v17 + (s32)t) + 0x294)) {
     case 0:
-        if ((s64)func_002b6970(*(s16 *)(func_002b6150(arg1) + 0x10), 2) == 1) { break; }
-        func_002b7750(arg1, 0x1C7);
-        func_002b68d0(arg1, 0, 0);
+        if ((s64)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(arg1) + 0x10), 2) == 1) { break; }
+        fclSpriteReset(arg1, 0x1C7);
+        fclSpriteSetFlag(arg1, 0, 0);
         if (v17 == 0) {
             sp60 = func_002b2970(280.0f + sp68.x, sp68.y);
-            func_002b69f0(arg1, sp68, sp60, 0, 0x32, 0);
+            fclSpriteStartPositionAt(arg1, sp68, sp60, 0, 0x32, 0);
         } else if (v17 == 1) {
             f20 = 20.0f + ((y = sp68.y), y);
             sp58 = func_002b2970(280.0f + sp68.x, f20);
             sp50 = func_002b2970(sp68.x, f20);
-            func_002b69f0(arg1, sp58, sp50, 0, 0x32, 0);
+            fclSpriteStartPositionAt(arg1, sp58, sp50, 0, 0x32, 0);
         }
         {
-            func_002b6af0(arg1, 1.0f, 2.0f, 1.0f, 1.0f, 0, 0, 0);
+            fclSpriteStartRevealScaleAt(arg1, 1.0f, 2.0f, 1.0f, 1.0f, 0, 0, 0);
         }
-        func_002b6a70(arg1, 0, 0xFF, 1, 0x32, 0);
-        *(s8 *)(func_002b6150(arg1) + 0x73) = 1;
+        fclSpriteStartAlphaAt(arg1, 0, 0xFF, 1, 0x32, 0);
+        *(s8 *)(fclSpriteEntry(arg1) + 0x73) = 1;
         *(s8 *)((u8 *)(v17 + (s32)t) + 0x294) = 1;
         break;
     case 1:
-        if ((s64)func_002b6970(*(s16 *)(func_002b6150(arg1) + 0x10), 1) == 1) { break; }
+        if ((s64)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(arg1) + 0x10), 1) == 1) { break; }
         *(s8 *)((u8 *)(v17 + (s32)t) + 0x294) = 0;
         break;
     case 2:
-        func_002b68d0(arg1, 0, 1);
+        fclSpriteSetFlag(arg1, 0, 1);
         break;
     }
 }
@@ -3608,66 +3608,66 @@ void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
         u8 *p28B;
         u8 *p27D;
         c11C = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
-        p297 = func_002b6150(0x297);
+        p297 = fclSpriteEntry(0x297);
         *(FclByte4 *)(p297 + 0x85) = c11C;
-        p28B = func_002b6150(0x28B);
+        p28B = fclSpriteEntry(0x28B);
         *(FclByte4 *)(p28B + 0x85) = *(FclByte4 *)(p297 + 0x85);
-        p27D = func_002b6150(0x27D);
+        p27D = fclSpriteEntry(0x27D);
         *(FclByte4 *)(p27D + 0x85) = *(FclByte4 *)(p28B + 0x85);
-        p = func_002b6150(0x270);
+        p = fclSpriteEntry(0x270);
         *(FclByte4 *)(p + 0x85) = *(FclByte4 *)(p27D + 0x85);
         c118 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        p = func_002b6150(0x2A3);
+        p = fclSpriteEntry(0x2A3);
         *(FclByte4 *)(p + 0x85) = c118;
         c114 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
         func_002ba970(*(u8 **)(t + 0x2BC), (s16)(i + 0xC), c114);
     }
     v = (FclVec2 *)D_006440F8;
-    func_002b6c30(0x71, func_002b2970(v->x, v->y), 138.0f, 0x41);
+    fclSpriteCreate(0x71, func_002b2970(v->x, v->y), 138.0f, 0x41);
     c110 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150(0x71) + 0x85) = c110;
+    *(FclByte4 *)(fclSpriteEntry(0x71) + 0x85) = c110;
     {
         s32 off = (1 - (s8)arg2) * 0xFF;
         s32 on = (s8)arg2 * 0xFF;
-        func_002b6a70(0x71, (s32)on, (s32)off, 0, 0, 0);
+        fclSpriteStartAlphaAt(0x71, (s32)on, (s32)off, 0, 0, 0);
         v = (FclVec2 *)D_006440F0;
-        func_002b6c30(0x70, func_002b2970(v->x, v->y), 139.0f, 0x41);
+        fclSpriteCreate(0x70, func_002b2970(v->x, v->y), 139.0f, 0x41);
         c10C = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x70) + 0x85) = c10C;
-        func_002b6a70(0x70, (s32)on, (s32)off, 0, 0, 0);
+        *(FclByte4 *)(fclSpriteEntry(0x70) + 0x85) = c10C;
+        fclSpriteStartAlphaAt(0x70, (s32)on, (s32)off, 0, 0, 0);
         for (i = 0; i < 2; i++) {
             v = (FclVec2 *)D_00644290;
             a = i + 0x2BB;
-            func_002b6c30(a, func_002b2970(v->x + (f32)(i * 0x139), v->y), 140.0f, 0x41);
+            fclSpriteCreate(a, func_002b2970(v->x + (f32)(i * 0x139), v->y), 140.0f, 0x41);
             c108 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(a) + 0x85) = c108;
-            func_002b6a70(a, (s32)on, (s32)off, 0, 0, 0);
+            *(FclByte4 *)(fclSpriteEntry(a) + 0x85) = c108;
+            fclSpriteStartAlphaAt(a, (s32)on, (s32)off, 0, 0, 0);
             v = (FclVec2 *)D_00644298;
             a = i + 0x2BD;
-            func_002b6c30(a, func_002b2970(v->x + (f32)(i * 0x14A), v->y), 141.0f, 0x41);
+            fclSpriteCreate(a, func_002b2970(v->x + (f32)(i * 0x14A), v->y), 141.0f, 0x41);
             c104 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(a) + 0x85) = c104;
-            func_002b6a70(a, (s32)on, (s32)off, 0, 0, 0);
+            *(FclByte4 *)(fclSpriteEntry(a) + 0x85) = c104;
+            fclSpriteStartAlphaAt(a, (s32)on, (s32)off, 0, 0, 0);
             v = (FclVec2 *)D_00644350;
             a = i + 0x2BF;
-            func_002b6c30(a, func_002b2970(v->x + (f32)(i * 0xE), v->y), 142.0f, 0x41);
+            fclSpriteCreate(a, func_002b2970(v->x + (f32)(i * 0xE), v->y), 142.0f, 0x41);
             c100 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-            *(FclByte4 *)(func_002b6150(a) + 0x85) = c100;
-            func_002b6a70(a, (s32)on, (s32)off, 0, 0, 0);
+            *(FclByte4 *)(fclSpriteEntry(a) + 0x85) = c100;
+            fclSpriteStartAlphaAt(a, (s32)on, (s32)off, 0, 0, 0);
         }
     }
     {
         v = (FclVec2 *)D_00644350;
-        func_002b6c30(0xBC, func_002b2970(28.0f + v->x, v->y), 142.0f, 0x41);
+        fclSpriteCreate(0xBC, func_002b2970(28.0f + v->x, v->y), 142.0f, 0x41);
         cFC = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0xBC) + 0x85) = cFC;
-        func_002b6a70(0xBC, (s8)arg2 * 0xFF, (1 - (s8)arg2) * 0xFF, 0, 0, 0);
+        *(FclByte4 *)(fclSpriteEntry(0xBC) + 0x85) = cFC;
+        fclSpriteStartAlphaAt(0xBC, (s8)arg2 * 0xFF, (1 - (s8)arg2) * 0xFF, 0, 0, 0);
         v = (FclVec2 *)D_006443D8;
-        func_002b6c30(0xCD, func_002b2970(v->x, v->y), 143.0f, 0x41);
-        func_002b6a70(0xCD, (s8)arg2 * 0xFF, (1 - (s8)arg2) * 0xFF, 1, 0xF, 0);
+        fclSpriteCreate(0xCD, func_002b2970(v->x, v->y), 143.0f, 0x41);
+        fclSpriteStartAlphaAt(0xCD, (s8)arg2 * 0xFF, (1 - (s8)arg2) * 0xFF, 1, 0xF, 0);
     }
     cF8 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150(0xCD) + 0x85) = cF8;
+    *(FclByte4 *)(fclSpriteEntry(0xCD) + 0x85) = cF8;
 }
 #pragma pop
 
@@ -3681,58 +3681,58 @@ void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     v17 = (s8)arg2;
     if (v17 == 0) {
         if ((s8)arg3 == 1) {
-            func_002b6a70(0xAA, 0xFF, 0, 0, 6, 0);
+            fclSpriteStartAlphaAt(0xAA, 0xFF, 0, 0, 6, 0);
         } else {
             sp70.position = func_002b2970(arg1.x, arg1.y);
-            func_002b6c30(0xAA, sp70.position, 168.0f, 0x41);
+            fclSpriteCreate(0xAA, sp70.position, 168.0f, 0x41);
             sp8C = func_002b2a60(0, 0, 0x99, 0xFF);
-            *(FclByte4 *)(func_002b6150(0xAA) + 0x85) = sp8C;
-            func_002b6a70(0xAA, 0, 0xFF, 0, 6, 0);
+            *(FclByte4 *)(fclSpriteEntry(0xAA) + 0x85) = sp8C;
+            fclSpriteStartAlphaAt(0xAA, 0, 0xFF, 0, 6, 0);
         }
     } else if (v17 == 1) {
         if ((s8)arg3 == 1) {
-            func_002b6a70(0xA9, 0xFF, 0, 0, 6, 0);
+            fclSpriteStartAlphaAt(0xA9, 0xFF, 0, 0, 6, 0);
         } else {
             sp68.position = func_002b2970(arg1.x, arg1.y);
-            func_002b6c30(0xA9, sp68.position, 168.0f, 0x41);
+            fclSpriteCreate(0xA9, sp68.position, 168.0f, 0x41);
             sp88 = func_002b2a60(0, 0, 0x99, 0xFF);
-            *(FclByte4 *)(func_002b6150(0xA9) + 0x85) = sp88;
-            func_002b6a70(0xA9, 0, 0xFF, 0, 6, 0);
+            *(FclByte4 *)(fclSpriteEntry(0xA9) + 0x85) = sp88;
+            fclSpriteStartAlphaAt(0xA9, 0, 0xFF, 0, 6, 0);
         }
     }
     arg3 = (s8)arg3;
     if (arg3 == 1) {
-        func_002b6a70(0xAD, 0xFF, 0, 0, 6, 0);
+        fclSpriteStartAlphaAt(0xAD, 0xFF, 0, 0, 6, 0);
     } else {
         f20 = arg1.y;
         sp60.position = func_002b2970(arg1.x, 176.0f + f20);
-        func_002b6c30(0xAD, sp60.position, 169.0f, 0x41);
+        fclSpriteCreate(0xAD, sp60.position, 169.0f, 0x41);
         if (v17 == 1) {
             sp58.position = func_002b2970(arg1.x, 194.0f + f20);
-            func_002b6c30(0xAD, sp58.position, 169.0f, 0x41);
+            fclSpriteCreate(0xAD, sp58.position, 169.0f, 0x41);
         }
         sp84 = func_002b2a60(0, 0, 0x99, 0xFF);
-        *(FclByte4 *)(func_002b6150(0xAD) + 0x85) = sp84;
-        func_002b6a70(0xAD, 0, 0xFF, 0, 6, 0);
+        *(FclByte4 *)(fclSpriteEntry(0xAD) + 0x85) = sp84;
+        fclSpriteStartAlphaAt(0xAD, 0, 0xFF, 0, 6, 0);
     }
     if (arg3 == 1) {
-        func_002b6a70(0xB1, 0xFF, 0, 0, 6, 0);
+        fclSpriteStartAlphaAt(0xB1, 0xFF, 0, 0, 6, 0);
     } else {
         sp50.position = func_002b2970(arg1.x, arg1.y);
-        func_002b6c30(0xB1, sp50.position, 166.0f, 0x56);
+        fclSpriteCreate(0xB1, sp50.position, 166.0f, 0x56);
         sp80 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0xB1) + 0x85) = sp80;
-        func_002b6a70(0xB1, 0, 0xFF, 0, 6, 0);
+        *(FclByte4 *)(fclSpriteEntry(0xB1) + 0x85) = sp80;
+        fclSpriteStartAlphaAt(0xB1, 0, 0xFF, 0, 6, 0);
     }
     if (arg3 == 1) {
-        func_002b6a70(0xB5, 0xFF, 0, 0, 6, 0);
+        fclSpriteStartAlphaAt(0xB5, 0xFF, 0, 0, 6, 0);
         return;
     }
     sp48.position = func_002b2970(arg1.x, 52.0f + arg1.y);
-    func_002b6c30(0xB5, sp48.position, 167.0f, 0x56);
+    fclSpriteCreate(0xB5, sp48.position, 167.0f, 0x56);
     sp7C = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    *(FclByte4 *)(func_002b6150(0xB5) + 0x85) = sp7C;
-    func_002b6a70(0xB5, 0, 0xFF, 0, 6, 0);
+    *(FclByte4 *)(fclSpriteEntry(0xB5) + 0x85) = sp7C;
+    fclSpriteStartAlphaAt(0xB5, 0, 0xFF, 0, 6, 0);
 }
 
 /* The cursor arrow at x 358 is func_00317320 with a zero offset. Retail
@@ -3742,12 +3742,12 @@ static inline void fclShowCursorArrow(s8 flag)
     f32 *b = D_00644C90;
 
     if ((s8)flag == 0) {
-        func_002b6c30(0x1E4, func_002b2970(358.0f, b[1]), 103.0f, 0xBC);
-        func_002b6a70(0x1E4, 0, 0xFF, 0, 0xA, 0);
-        func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
+        fclSpriteCreate(0x1E4, func_002b2970(358.0f, b[1]), 103.0f, 0xBC);
+        fclSpriteStartAlphaAt(0x1E4, 0, 0xFF, 0, 0xA, 0);
+        fclSpriteStartTweenAt(0x1E4, 0, 0, 0, 0.0f, 90.0f);
         return;
     }
-    func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0, 0, 0xA, 0);
+    fclSpriteStartAlphaAt(0x1E4, *(u8 *)(fclSpriteEntry(0x1E4) + 0x6E), 0, 0, 0xA, 0);
 }
 
 /* Every colour starts as a declaration initializer (temporary plus copy)
@@ -3796,8 +3796,8 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
     func_002b77d0(0x2C2, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
     switch ((s8)arg1) {
     case 0:
-        func_002b7750(0x2DE, 0x126);
-        func_002b7750(0x2DF, 0x125);
+        fclSpriteReset(0x2DE, 0x126);
+        fclSpriteReset(0x2DF, 0x125);
         pt = func_002b2970(113.0f + pos.x, (13.0f + pos.y));
         func_002b77d0(0x126, pt, 0x126, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         func_002b77d0(0x2DE, pt, 0x126, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
@@ -3808,13 +3808,13 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         func_002b77d0(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
         func_002b77d0(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        func_002b7750(0x2E0, 0x150);
+        fclSpriteReset(0x2E0, 0x150);
         func_002b77d0(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
-        func_002b68d0(0x2E0, 0xD, 0);
+        fclSpriteSetFlag(0x2E0, 0xD, 0);
         break;
     case 1:
-        func_002b7750(0x2DE, 0x128);
-        func_002b7750(0x2DF, 0x127);
+        fclSpriteReset(0x2DE, 0x128);
+        fclSpriteReset(0x2DF, 0x127);
         pt = func_002b2970((171.0f + pos.x), (12.0f + pos.y));
         func_002b77d0(0x128, pt, 0x128, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((171.0f + pos.x), (12.0f + pos.y));
@@ -3827,17 +3827,17 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         func_002b77d0(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
         func_002b77d0(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        func_002b7750(0x2E0, 0x150);
+        fclSpriteReset(0x2E0, 0x150);
         func_002b77d0(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
-        func_002b68d0(0x2E0, 0xD, 0);
+        fclSpriteSetFlag(0x2E0, 0xD, 0);
         break;
     case 2:
         pt = func_002b2970((40.0f + pos.x), (13.0f + pos.y));
         func_002b77d0(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((522 + pos.x), (13.0f + pos.y));
         func_002b77d0(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b7750(0x2DE, 0x1D4);
-        func_002b7750(0x2DF, 0x1D5);
+        fclSpriteReset(0x2DE, 0x1D4);
+        fclSpriteReset(0x2DF, 0x1D5);
         pt = func_002b2970((140.0f + pos.x), (12.0f + pos.y));
         func_002b77d0(0x1D4, pt, 0x1D4, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((140.0f + pos.x), (12.0f + pos.y));
@@ -3853,16 +3853,16 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         }
         pt = func_002b2970((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
         func_002b77d0(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        func_002b7750(0x2E0, 0x150);
+        fclSpriteReset(0x2E0, 0x150);
         func_002b77d0(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
-        func_002b68d0(0x2E0, 0xD, 0);
+        fclSpriteSetFlag(0x2E0, 0xD, 0);
         break;
     case 3:
-        func_002b7750(0x2DE, 0x13F);
-        func_002b7750(0x2DF, 0x140);
-        func_002b7750(0x2E0, 0x151);
-        func_002b7750(0x2E1, 0x14C);
-        func_002b7750(0x2E2, 0x14F);
+        fclSpriteReset(0x2DE, 0x13F);
+        fclSpriteReset(0x2DF, 0x140);
+        fclSpriteReset(0x2E0, 0x151);
+        fclSpriteReset(0x2E1, 0x14C);
+        fclSpriteReset(0x2E2, 0x14F);
         if ((s8)arg2 == 0) {
             func_002b6140(*(u8 **)(t + 0x28C), 1);
             func_002b6140(*(u8 **)(t + 0x290), 1);
@@ -3880,20 +3880,20 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         pt = func_002b2970(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x8E), 4.0f + pos.y);
         func_002b77d0(0x151, pt, 0x151, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b77d0(0x2E0, pt, 0x151, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
-        func_002b68d0(0x2E0, 0xD, 0);
+        fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970(142.0f + (87.0f + pos.x), (2.0f + pos.y));
         func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(284.0f + (87.0f + pos.x), (2.0f + pos.y));
         func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 4:
-        func_002b7750(0x2DE, 0x13F);
-        func_002b7750(0x2DF, 0x140);
-        func_002b7750(0x2E0, 0x152);
-        func_002b7750(0x2E1, 0x14C);
-        func_002b7750(0x2E2, 0x14F);
-        func_002b7750(0x2E3, 0x141);
-        func_002b7750(0x2E4, 0x14F);
+        fclSpriteReset(0x2DE, 0x13F);
+        fclSpriteReset(0x2DF, 0x140);
+        fclSpriteReset(0x2E0, 0x152);
+        fclSpriteReset(0x2E1, 0x14C);
+        fclSpriteReset(0x2E2, 0x14F);
+        fclSpriteReset(0x2E3, 0x141);
+        fclSpriteReset(0x2E4, 0x14F);
         if ((s8)arg2 == 0) {
             func_002b6140(*(u8 **)(t + 0x28C), 1);
             func_002b6140(*(u8 **)(t + 0x290), 1);
@@ -3914,7 +3914,7 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         pt = func_002b2970(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x6B), 4.0f + pos.y);
         func_002b77d0(0x152, pt, 0x152, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b77d0(0x2E0, pt, 0x152, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
-        func_002b68d0(0x2E0, 0xD, 0);
+        fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970(107.0f + (87.0f + pos.x), (2.0f + pos.y));
         func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(214.0f + (87.0f + pos.x), (2.0f + pos.y));
@@ -3923,16 +3923,16 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         func_002b77d0(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 5:
-        func_002b7750(0x2DE, 0x13F);
-        func_002b7750(0x2DF, 0x140);
-        func_002b7750(0x2E0, 0x153);
-        func_002b7750(0x2E1, 0x14C);
-        func_002b7750(0x2E2, 0x14F);
-        func_002b7750(0x2E3, 0x141);
-        func_002b7750(0x2E4, 0x14F);
-        func_002b7750(0x2E5, 0x142);
-        func_002b7750(0x2E6, 0x14F);
-        func_002b7750(0x2E7, 0x14B);
+        fclSpriteReset(0x2DE, 0x13F);
+        fclSpriteReset(0x2DF, 0x140);
+        fclSpriteReset(0x2E0, 0x153);
+        fclSpriteReset(0x2E1, 0x14C);
+        fclSpriteReset(0x2E2, 0x14F);
+        fclSpriteReset(0x2E3, 0x141);
+        fclSpriteReset(0x2E4, 0x14F);
+        fclSpriteReset(0x2E5, 0x142);
+        fclSpriteReset(0x2E6, 0x14F);
+        fclSpriteReset(0x2E7, 0x14B);
         if ((s8)arg2 == 0) {
             func_002b6140(*(u8 **)(t + 0x28C), 1);
             func_002b6140(*(u8 **)(t + 0x290), 1);
@@ -3959,7 +3959,7 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         pt = func_002b2970(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x55), 4.0f + pos.y);
         func_002b77d0(0x153, pt, 0x153, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b77d0(0x2E0, pt, 0x153, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
-        func_002b68d0(0x2E0, 0xD, 0);
+        fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970(85.0f + (87.0f + pos.x), (2.0f + pos.y));
         func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(170.0f + (87.0f + pos.x), (2.0f + pos.y));
@@ -3970,20 +3970,20 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         func_002b77d0(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 6:
-        func_002b7750(0x2DE, 0x13F);
-        func_002b7750(0x2DF, 0x140);
-        func_002b7750(0x2E0, 0x154);
-        func_002b7750(0x2E1, 0x14C);
-        func_002b7750(0x2E2, 0x14F);
-        func_002b7750(0x2E3, 0x141);
-        func_002b7750(0x2E4, 0x14F);
-        func_002b7750(0x2E5, 0x142);
-        func_002b7750(0x2E6, 0x14F);
-        func_002b7750(0x2E7, 0x14B);
-        func_002b7750(0x2E8, 0x143);
-        func_002b7750(0x2E9, 0x14F);
-        func_002b7750(0x2EA, 0x14B);
-        func_002b7750(0x2EB, 0x14B);
+        fclSpriteReset(0x2DE, 0x13F);
+        fclSpriteReset(0x2DF, 0x140);
+        fclSpriteReset(0x2E0, 0x154);
+        fclSpriteReset(0x2E1, 0x14C);
+        fclSpriteReset(0x2E2, 0x14F);
+        fclSpriteReset(0x2E3, 0x141);
+        fclSpriteReset(0x2E4, 0x14F);
+        fclSpriteReset(0x2E5, 0x142);
+        fclSpriteReset(0x2E6, 0x14F);
+        fclSpriteReset(0x2E7, 0x14B);
+        fclSpriteReset(0x2E8, 0x143);
+        fclSpriteReset(0x2E9, 0x14F);
+        fclSpriteReset(0x2EA, 0x14B);
+        fclSpriteReset(0x2EB, 0x14B);
         if ((s8)arg2 == 0) {
             func_002b6140(*(u8 **)(t + 0x28C), 1);
             func_002b6140(*(u8 **)(t + 0x290), 1);
@@ -4016,7 +4016,7 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         pt = func_002b2970((87.0f + pos.x) + (f32)(*(s8 *)(t + 0x122) * 0x47), 4.0f + pos.y);
         func_002b77d0(0x154, pt, 0x154, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b77d0(0x2E0, pt, 0x154, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
-        func_002b68d0(0x2E0, 0xD, 0);
+        fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970((71.0f + (87.0f + pos.x)), (2.0f + pos.y));
         func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((142.0f + (87.0f + pos.x)), (2.0f + pos.y));
@@ -4029,24 +4029,24 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         func_002b77d0(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 7:
-        func_002b7750(0x2DE, 0x13F);
-        func_002b7750(0x2DF, 0x140);
-        func_002b7750(0x2E0, 0x155);
-        func_002b7750(0x2E1, 0x14C);
-        func_002b7750(0x2E2, 0x14F);
-        func_002b7750(0x2E3, 0x141);
-        func_002b7750(0x2E4, 0x14F);
-        func_002b7750(0x2E5, 0x142);
-        func_002b7750(0x2E6, 0x14F);
-        func_002b7750(0x2E7, 0x14B);
-        func_002b7750(0x2E8, 0x143);
-        func_002b7750(0x2E9, 0x14F);
-        func_002b7750(0x2EA, 0x14B);
-        func_002b7750(0x2EB, 0x14B);
-        func_002b7750(0x2EC, 0x144);
-        func_002b7750(0x2ED, 0x14F);
-        func_002b7750(0x2EE, 0x14B);
-        func_002b7750(0x2EF, 0x14B);
+        fclSpriteReset(0x2DE, 0x13F);
+        fclSpriteReset(0x2DF, 0x140);
+        fclSpriteReset(0x2E0, 0x155);
+        fclSpriteReset(0x2E1, 0x14C);
+        fclSpriteReset(0x2E2, 0x14F);
+        fclSpriteReset(0x2E3, 0x141);
+        fclSpriteReset(0x2E4, 0x14F);
+        fclSpriteReset(0x2E5, 0x142);
+        fclSpriteReset(0x2E6, 0x14F);
+        fclSpriteReset(0x2E7, 0x14B);
+        fclSpriteReset(0x2E8, 0x143);
+        fclSpriteReset(0x2E9, 0x14F);
+        fclSpriteReset(0x2EA, 0x14B);
+        fclSpriteReset(0x2EB, 0x14B);
+        fclSpriteReset(0x2EC, 0x144);
+        fclSpriteReset(0x2ED, 0x14F);
+        fclSpriteReset(0x2EE, 0x14B);
+        fclSpriteReset(0x2EF, 0x14B);
         if ((s8)arg2 == 0) {
             func_002b6140(*(u8 **)(t + 0x28C), 1);
             func_002b6140(*(u8 **)(t + 0x290), 1);
@@ -4085,7 +4085,7 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         pt = func_002b2970((87.0f + pos.x) + (f32)(*(s8 *)(t + 0x122) * 0x3D), 4.0f + pos.y);
         func_002b77d0(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b77d0(0x2E0, pt, 0x155, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
-        func_002b68d0(0x2E0, 0xD, 0);
+        fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970((61.0f + (87.0f + pos.x)), (2.0f + pos.y));
         func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((122.0f + (87.0f + pos.x)), (2.0f + pos.y));
@@ -4100,12 +4100,12 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         func_002b77d0(0x2ED, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 8:
-        func_002b7750(0x2DE, 0x14F);
-        func_002b7750(0x2DF, 0x14F);
-        func_002b7750(0x2E0, 0x155);
-        func_002b7750(0x2E1, 0x14F);
-        func_002b7750(0x2E2, 0x14F);
-        func_002b7750(0x2E3, 0x14F);
+        fclSpriteReset(0x2DE, 0x14F);
+        fclSpriteReset(0x2DF, 0x14F);
+        fclSpriteReset(0x2E0, 0x155);
+        fclSpriteReset(0x2E1, 0x14F);
+        fclSpriteReset(0x2E2, 0x14F);
+        fclSpriteReset(0x2E3, 0x14F);
         if ((s8)arg2 == 0) {
             func_002b6140(*(u8 **)(t + 0x28C), 1);
             func_002b6140(*(u8 **)(t + 0x290), 1);
@@ -4116,7 +4116,7 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
         pt = func_002b2970((87.0f + pos.x) + (f32)(*(s16 *)(t + 0x120) * 0x3D), 4.0f + pos.y);
         func_002b77d0(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b77d0(0x2E0, pt, 0x155, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
-        func_002b68d0(0x2E0, 0xD, 0);
+        fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970(61.0f + (87.0f + pos.x), (2.0f + pos.y));
         func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(122.0f + (87.0f + pos.x), (2.0f + pos.y));
@@ -4187,9 +4187,9 @@ void func_00329310(u8 *arg0, s16 arg1, s8 arg2) {
     *(FclVec2 *)origin = constructedOrigin;
     first = (s8)(*(s8 *)(task + 0x122) - *(s16 *)(task + 0x120));
     for (i = 0; i < 14; ++i) {
-        func_002b68d0((s16)(i + 0x13F), 0, 1);
+        fclSpriteSetFlag((s16)(i + 0x13F), 0, 1);
     }
-    func_002b68d0(0x2E4, 0, 1);
+    fclSpriteSetFlag(0x2E4, 0, 1);
     index = first;
     column = 0;
     baseY = 9.0f + origin[1];
@@ -4208,12 +4208,12 @@ void func_00329310(u8 *arg0, s16 arg1, s8 arg2) {
         tableOffset = (s32)savedIndex * 4;
         savedColumn = column;
         position = func_002b2970(baseX + (f32)((s32)savedColumn * 61) + *(f32 *)((u8 *)D_007495C0 + tableOffset), baseY);
-        *(FclVec2 *)(func_002b6150(resource) + 0x38) = position;
+        *(FclVec2 *)(fclSpriteEntry(resource) + 0x38) = position;
         white.channels = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
         func_002b77d0(resource, position, resource, white.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, func_00331560());
         shadow = (s16)((s16)((s32)savedColumn * 3 + 0xF1) + 0x1F4);
-        func_002b68d0(shadow, 0, 1);
-        func_002b7750(shadow, resource);
+        fclSpriteSetFlag(shadow, 0, 1);
+        fclSpriteReset(shadow, resource);
         dark.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
         func_002b77d0(shadow, position, resource, dark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, func_00331560());
         if (savedIndex >= 3 && index != 12) {
@@ -4223,17 +4223,17 @@ void func_00329310(u8 *arg0, s16 arg1, s8 arg2) {
             position = func_002b2970(fclRowAdjustedX(position.x, D_00749600, tableOffset), 15.0f + position.y);
             group = column * 3;
             secondary = (s16)((s16)(group + 0xF2) + 0x1F4);
-            func_002b7750(secondary, 0x14B);
+            fclSpriteReset(secondary, 0x14B);
             secondaryWhite.channels = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
             func_002b77d0(secondary, position, 0x14B, secondaryWhite.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, func_00331560());
             secondaryShadow = (s16)((s16)(group + 0xF3) + 0x1F4);
-            func_002b7750(secondaryShadow, 0x14B);
+            fclSpriteReset(secondaryShadow, 0x14B);
             secondaryDark.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
             func_002b77d0(secondaryShadow, position, 0x14B, secondaryDark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, func_00331560());
         } else {
             s32 group = column * 3;
-            func_002b68d0((s16)((s16)(group + 0xF2) + 0x1F4), 0, 1);
-            func_002b68d0((s16)((s16)(group + 0xF3) + 0x1F4), 0, 1);
+            fclSpriteSetFlag((s16)((s16)(group + 0xF2) + 0x1F4), 0, 1);
+            fclSpriteSetFlag((s16)((s16)(group + 0xF3) + 0x1F4), 0, 1);
         }
         ++index;
         ++column;
@@ -4274,76 +4274,76 @@ void func_003297f0(f32 fparg0, f32 fparg1, u8 *arg0, s64 arg1, s8 arg2) {
     spD0 = func_002b2970(fparg0, bounds[1]);
     t16 = (s8)arg2;
     if (t16 == 0) {
-        func_002b6c30(0x69, spD0, 132.0f, 0x56);
+        fclSpriteCreate(0x69, spD0, 132.0f, 0x56);
         cDC = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        p = func_002b6150(0x69);
+        p = fclSpriteEntry(0x69);
         *(FclByte4 *)(p + 0x85) = cDC;
         spC0 = func_002b2970(spD0.x + fparg1, bounds[1]);
         spB8 = func_002b2970(spD0.x, bounds[1]);
-        func_002b69f0(0x69, spC0, spB8, 0, 8, 0);
+        fclSpriteStartPositionAt(0x69, spC0, spB8, 0, 8, 0);
     } else {
-        p = func_002b6150(0x69);
+        p = fclSpriteEntry(0x69);
         spB0 = func_002b2970(spD0.x + fparg1, bounds[1]);
-        func_002b69f0(0x69, *(FclVec2 *)(p + 0x38), spB0, 0, 8, 0);
+        fclSpriteStartPositionAt(0x69, *(FclVec2 *)(p + 0x38), spB0, 0, 8, 0);
     }
     spC8 = func_002b2970(17.0f + spD0.x, 9.0f + spD0.y);
     if (t16 == 0) {
-        func_002b6c30(0x1AD, spC8, 135.0f, 0x41);
+        fclSpriteCreate(0x1AD, spC8, 135.0f, 0x41);
         cD8 = func_002b2a60(0xE, 0x17, 0x49, 0xFF);
-        q = func_002b6150(0x1AD);
+        q = fclSpriteEntry(0x1AD);
         *(FclByte4 *)(q + 0x85) = cD8;
-        *(u8 *)(func_002b6150(0x1AD) + 0x6E) = 0x80;
+        *(u8 *)(fclSpriteEntry(0x1AD) + 0x6E) = 0x80;
         spA8 = func_002b2970(spC8.x + fparg1, spC8.y);
-        func_002b69f0(0x1AD, spA8, spC8, 0, 8, 0);
+        fclSpriteStartPositionAt(0x1AD, spA8, spC8, 0, 8, 0);
     } else {
-        p = func_002b6150(0x1AD);
+        p = fclSpriteEntry(0x1AD);
         spA0 = func_002b2970(spC8.x + fparg1, spC8.y);
-        func_002b69f0(0x1AD, *(FclVec2 *)(p + 0x38), spA0, 0, 8, 0);
+        fclSpriteStartPositionAt(0x1AD, *(FclVec2 *)(p + 0x38), spA0, 0, 8, 0);
     }
     t4 = (s8)arg1;
     if ((s8)t4 == 0) {
         spC8 = func_002b2970(67.0f + spD0.x, 13.0f + spD0.y);
         if (t16 == 0) {
-            func_002b6c30(0x109, spC8, 134.0f, 0x56);
+            fclSpriteCreate(0x109, spC8, 134.0f, 0x56);
             sp98 = func_002b2970(spC8.x + fparg1, spC8.y);
-            func_002b69f0(0x109, sp98, spC8, 0, 8, 0);
+            fclSpriteStartPositionAt(0x109, sp98, spC8, 0, 8, 0);
         } else {
-            p = func_002b6150(0x109);
+            p = fclSpriteEntry(0x109);
             sp90 = func_002b2970(spC8.x + fparg1, spC8.y);
-            func_002b69f0(0x109, *(FclVec2 *)(p + 0x38), sp90, 0, 8, 0);
+            fclSpriteStartPositionAt(0x109, *(FclVec2 *)(p + 0x38), sp90, 0, 8, 0);
         }
         spC8 = func_002b2970(95.0f + spD0.x, 15.0f + spD0.y);
         if (t16 == 0) {
-            func_002b6c30(0x10A, spC8, 133.0f, 0x56);
+            fclSpriteCreate(0x10A, spC8, 133.0f, 0x56);
             sp88 = func_002b2970(spC8.x + fparg1, spC8.y);
-            func_002b69f0(0x10A, sp88, spC8, 0, 8, 0);
+            fclSpriteStartPositionAt(0x10A, sp88, spC8, 0, 8, 0);
             return;
         }
-        p = func_002b6150(0x10A);
+        p = fclSpriteEntry(0x10A);
         sp80 = func_002b2970(spC8.x + fparg1, spC8.y);
-        func_002b69f0(0x10A, *(FclVec2 *)(p + 0x38), sp80, 0, 8, 0);
+        fclSpriteStartPositionAt(0x10A, *(FclVec2 *)(p + 0x38), sp80, 0, 8, 0);
         return;
     } else if ((s8)t4 == 1) {
         spC8 = func_002b2970(114.0f + spD0.x, 11.0f + spD0.y);
         if (t16 == 0) {
-            func_002b6c30(0x11C, spC8, 134.0f, 0x56);
+            fclSpriteCreate(0x11C, spC8, 134.0f, 0x56);
             sp78 = func_002b2970(spC8.x + fparg1, spC8.y);
-            func_002b69f0(0x11C, sp78, spC8, 0, 8, 0);
+            fclSpriteStartPositionAt(0x11C, sp78, spC8, 0, 8, 0);
         } else {
-            p = func_002b6150(0x11C);
+            p = fclSpriteEntry(0x11C);
             sp70 = func_002b2970(spC8.x + fparg1, spC8.y);
-            func_002b69f0(0x11C, *(FclVec2 *)(p + 0x38), sp70, 0, 8, 0);
+            fclSpriteStartPositionAt(0x11C, *(FclVec2 *)(p + 0x38), sp70, 0, 8, 0);
         }
         spC8 = func_002b2970(50.0f + spD0.x, 16.0f + spD0.y);
         if (t16 == 0) {
-            func_002b6c30(0x11B, spC8, 133.0f, 0x56);
+            fclSpriteCreate(0x11B, spC8, 133.0f, 0x56);
             sp68 = func_002b2970(spC8.x + fparg1, spC8.y);
-            func_002b69f0(0x11B, sp68, spC8, 0, 8, 0);
+            fclSpriteStartPositionAt(0x11B, sp68, spC8, 0, 8, 0);
             return;
         }
-        p = func_002b6150(0x11B);
+        p = fclSpriteEntry(0x11B);
         sp60 = func_002b2970(spC8.x + fparg1, spC8.y);
-        func_002b69f0(0x11B, *(FclVec2 *)(p + 0x38), sp60, 0, 8, 0);
+        fclSpriteStartPositionAt(0x11B, *(FclVec2 *)(p + 0x38), sp60, 0, 8, 0);
         return;
     }
 }
@@ -4399,7 +4399,7 @@ void func_00329e40(u8 *task, s16 delay, s8 mode) {
         func_002b77d0(0x1A3, spD8, 0x1A3, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
         spD0 = func_002b2970(20.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x120, spD0, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
-        func_002b7750(0x2E8, 0x120);
+        fclSpriteReset(0x2E8, 0x120);
         spC8 = func_002b2970(30.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x2E8, spC8, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
         spC0 = func_002b2970(47.0f + origin.x, 2.0f + origin.y);
@@ -4407,49 +4407,49 @@ void func_00329e40(u8 *task, s16 delay, s8 mode) {
         origin = func_002b2970(314.0f, 97.0f);
         spB8 = func_002b2970(214.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x121, spB8, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
-        func_002b7750(0x2E9, 0x121);
+        fclSpriteReset(0x2E9, 0x121);
         spB0 = func_002b2970(224.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x2E9, spB0, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
         spA8 = func_002b2970(97.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x11E, spA8, 0x11E, textColor, 182.0f, 0x56, mode, 6, 3, delay, func_00331560());
         panelColor = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         origin = func_002b2970(79.0f, 97.0f);
-        func_002b7750(0x2EA, 0x193);
+        fclSpriteReset(0x2EA, 0x193);
         spA0 = func_002b2970(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
         func_002b77d0(0x2EA, spA0, 0x193, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
-        func_002b7750(0x2EB, 0x19C);
+        fclSpriteReset(0x2EB, 0x19C);
         sp98 = func_002b2970(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
         func_002b77d0(0x2EB, sp98, 0x19C, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
         origin = func_002b2970(79.0f, 97.0f);
-        func_002b7750(0x2EC, 0x11F);
+        fclSpriteReset(0x2EC, 0x11F);
         sp90 = func_002b2970(47.0f + origin.x, 2.0f + origin.y);
         func_002b77d0(0x2EC, sp90, 0x11F, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
-        func_002b7750(0x2E4, 0x120);
+        fclSpriteReset(0x2E4, 0x120);
         sp88 = func_002b2970(20.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x2E4, sp88, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
-        func_002b7750(0x2E5, 0x120);
+        fclSpriteReset(0x2E5, 0x120);
         sp80 = func_002b2970(30.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x2E5, sp80, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         origin = func_002b2970(314.0f, 97.0f);
-        func_002b7750(0x2E1, 0x11E);
+        fclSpriteReset(0x2E1, 0x11E);
         sp78 = func_002b2970(97.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x2E1, sp78, 0x11E, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
-        func_002b7750(0x2E6, 0x121);
+        fclSpriteReset(0x2E6, 0x121);
         sp70 = func_002b2970(214.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x2E6, sp70, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
-        func_002b7750(0x2E7, 0x121);
+        fclSpriteReset(0x2E7, 0x121);
         sp68 = func_002b2970(224.0f + origin.x, 3.0f + origin.y);
         func_002b77d0(0x2E7, sp68, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         panelColor = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         origin = func_002b2970(79.0f, 97.0f);
-        func_002b7750(0x2E2, 0x193);
+        fclSpriteReset(0x2E2, 0x193);
         sp60 = func_002b2970(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
         func_002b77d0(0x2E2, sp60, 0x193, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
-        func_002b68d0(0x2E2, 0xD, 0);
-        func_002b7750(0x2E3, 0x19C);
+        fclSpriteSetFlag(0x2E2, 0xD, 0);
+        fclSpriteReset(0x2E3, 0x19C);
         sp58 = func_002b2970(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
         func_002b77d0(0x2E3, sp58, 0x19C, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
-        func_002b68d0(0x2E3, 0xD, 0);
+        fclSpriteSetFlag(0x2E3, 0xD, 0);
     }
 }
 /* measured: saved draw-contract recovery uses scoped opt_propagation off
@@ -4480,87 +4480,87 @@ void func_0032a960(u8 *arg0, s8 arg1) {
         origin.y = y;
     }
     if ((s8)arg1 == 0) {
-        func_002b6c30(0x9E, origin, 15.0f, 0xC1);
+        fclSpriteCreate(0x9E, origin, 15.0f, 0xC1);
         c6C = func_002b2a60(0, 0, 0, 0xFF);
-        p = func_002b6150(0x9E);
+        p = fclSpriteEntry(0x9E);
         *(FclByte4 *)(p + 0x85) = c6C;
-        *(s8 *)(func_002b6150(0x9E) + 0x6E) = 0x66;
-        func_002b6a70(0x9E, 0, 0x66, 0, 5, 3);
+        *(s8 *)(fclSpriteEntry(0x9E) + 0x6E) = 0x66;
+        fclSpriteStartAlphaAt(0x9E, 0, 0x66, 0, 5, 3);
     } else {
-        func_002b6a70(0x9E, *(u8 *)(func_002b6150(0x9E) + 0x6E), 0, 0, 0, 0);
+        fclSpriteStartAlphaAt(0x9E, *(u8 *)(fclSpriteEntry(0x9E) + 0x6E), 0, 0, 0, 0);
     }
     sp48 = func_002b2970(origin.x, 293.0f + origin.y);
     if ((s8)arg1 == 0) {
-        func_002b6c30(0xA0, sp48, 16.0f, 0xC1);
+        fclSpriteCreate(0xA0, sp48, 16.0f, 0xC1);
         c68 = func_002b2a60(0, 0, 0, 0xFF);
-        p = func_002b6150(0xA0);
+        p = fclSpriteEntry(0xA0);
         *(FclByte4 *)(p + 0x85) = c68;
-        *(s8 *)(func_002b6150(0xA0) + 0x6E) = 0x66;
-        func_002b6a70(0xA0, 0, 0x66, 0, 5, 3);
+        *(s8 *)(fclSpriteEntry(0xA0) + 0x6E) = 0x66;
+        fclSpriteStartAlphaAt(0xA0, 0, 0x66, 0, 5, 3);
     } else {
-        func_002b6a70(0xA0, *(u8 *)(func_002b6150(0xA0) + 0x6E), 0, 0, 0, 0);
+        fclSpriteStartAlphaAt(0xA0, *(u8 *)(fclSpriteEntry(0xA0) + 0x6E), 0, 0, 0, 0);
     }
     f21 = 23.0f + origin.y;
     sp48 = func_002b2970(15.0f + origin.x, f21);
     if ((s8)arg1 == 0) {
-        func_002b6c30(0x196, sp48, 13.0f, 0xC2);
+        fclSpriteCreate(0x196, sp48, 13.0f, 0xC2);
         c64 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
-        p = func_002b6150(0x196);
+        p = fclSpriteEntry(0x196);
         *(FclByte4 *)(p + 0x85) = c64;
-        func_002b6a70(0x196, 0, 0xFF, 0, 5, 0);
+        fclSpriteStartAlphaAt(0x196, 0, 0xFF, 0, 5, 0);
     } else {
-        func_002b6a70(0x196, *(u8 *)(func_002b6150(0x196) + 0x6E), 0, 0, 0, 0);
+        fclSpriteStartAlphaAt(0x196, *(u8 *)(fclSpriteEntry(0x196) + 0x6E), 0, 0, 0, 0);
     }
     sp48 = func_002b2970(285.0f + origin.x, f21);
     if ((s8)arg1 == 0) {
-        func_002b6c30(0x1A1, sp48, 14.0f, 0xC2);
+        fclSpriteCreate(0x1A1, sp48, 14.0f, 0xC2);
         c60 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
-        p = func_002b6150(0x1A1);
+        p = fclSpriteEntry(0x1A1);
         *(FclByte4 *)(p + 0x85) = c60;
-        func_002b6a70(0x1A1, 0, 0xFF, 0, 5, 0);
+        fclSpriteStartAlphaAt(0x1A1, 0, 0xFF, 0, 5, 0);
     } else {
-        func_002b6a70(0x1A1, *(u8 *)(func_002b6150(0x1A1) + 0x6E), 0, 0, 0, 0);
+        fclSpriteStartAlphaAt(0x1A1, *(u8 *)(fclSpriteEntry(0x1A1) + 0x6E), 0, 0, 0, 0);
     }
-    func_002b7750(0x2E2, 0x9E);
+    fclSpriteReset(0x2E2, 0x9E);
     f22 = 11.0f + origin.x;
     sp48 = func_002b2970(f22, 13.0f + origin.y);
     if ((s8)arg1 == 0) {
-        func_002b6c30(0x2E2, sp48, 14.0f, 0xC1);
-        func_002b6d60(0x2E2);
+        fclSpriteCreate(0x2E2, sp48, 14.0f, 0xC1);
+        fclSpriteResetScale(0x2E2);
         c5C = func_002b2a60(0, 0, 0, 0xFF);
-        p = func_002b6150(0x2E2);
+        p = fclSpriteEntry(0x2E2);
         *(FclByte4 *)(p + 0x85) = c5C;
-        *(s8 *)(func_002b6150(0x2E2) + 0x6E) = 0x66;
+        *(s8 *)(fclSpriteEntry(0x2E2) + 0x6E) = 0x66;
         {
             f32 scale = 1.0f;
-        p = func_002b6150(0x2E2);
+        p = fclSpriteEntry(0x2E2);
         *(f32 *)(p + 0xAC) = scale;
-        p = func_002b6150(0x2E2);
+        p = fclSpriteEntry(0x2E2);
         *(f32 *)(p + 0xA0) = scale;
         }
-        func_002b6a70(0x2E2, 0, 0x66, 0, 5, 3);
+        fclSpriteStartAlphaAt(0x2E2, 0, 0x66, 0, 5, 3);
     } else {
-        func_002b6a70(0x2E2, *(u8 *)(func_002b6150(0x2E2) + 0x6E), 0, 0, 0, 0);
+        fclSpriteStartAlphaAt(0x2E2, *(u8 *)(fclSpriteEntry(0x2E2) + 0x6E), 0, 0, 0, 0);
     }
-    func_002b7750(0x2E3, 0xA0);
+    fclSpriteReset(0x2E3, 0xA0);
     sp48 = func_002b2970(f22, 306.0f + origin.y);
     if ((s8)arg1 == 0) {
-        func_002b6c30(0x2E3, sp48, 14.0f, 0xC1);
+        fclSpriteCreate(0x2E3, sp48, 14.0f, 0xC1);
         c58 = func_002b2a60(0, 0, 0, 0xFF);
-        p = func_002b6150(0x2E3);
+        p = fclSpriteEntry(0x2E3);
         *(FclByte4 *)(p + 0x85) = c58;
-        *(s8 *)(func_002b6150(0x2E3) + 0x6E) = 0x66;
+        *(s8 *)(fclSpriteEntry(0x2E3) + 0x6E) = 0x66;
         {
             f32 scale = 1.0f;
-        p = func_002b6150(0x2E3);
+        p = fclSpriteEntry(0x2E3);
         *(f32 *)(p + 0xAC) = scale;
-        p = func_002b6150(0x2E3);
+        p = fclSpriteEntry(0x2E3);
         *(f32 *)(p + 0xA0) = scale;
         }
-        func_002b6a70(0x2E3, 0, 0x66, 0, 5, 3);
+        fclSpriteStartAlphaAt(0x2E3, 0, 0x66, 0, 5, 3);
         return;
     }
-    func_002b6a70(0x2E3, *(u8 *)(func_002b6150(0x2E3) + 0x6E), 0, 0, 0, 0);
+    fclSpriteStartAlphaAt(0x2E3, *(u8 *)(fclSpriteEntry(0x2E3) + 0x6E), 0, 0, 0, 0);
 }
 #pragma pop
 /* measured: saved draw-contract recovery retains signed-byte digit values
@@ -4602,81 +4602,81 @@ void func_0032b000(u8 *arg0, s8 arg1) {
     t17 = (s8)func_00110140();
     t16 = (s8)arg1;
     if (t16 == 0) {
-        func_002b6c30(0x2CF, origin, 215.0f, 0x56);
+        fclSpriteCreate(0x2CF, origin, 215.0f, 0x56);
         cDC = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-        p = func_002b6150(0x2CF);
+        p = fclSpriteEntry(0x2CF);
         *(FclByte4 *)(p + 0x85) = cDC;
         f21 = origin.y;
         spB8 = func_002b2970(380.0f + origin.x, f21);
         spB0 = func_002b2970(origin.x, f21);
-        func_002b69f0(0x2CF, spB8, spB0, 1, 0xA, 0);
+        fclSpriteStartPositionAt(0x2CF, spB8, spB0, 1, 0xA, 0);
     } else {
         f21 = origin.y;
-        p = func_002b6150(0x2CF);
+        p = fclSpriteEntry(0x2CF);
         spA8 = func_002b2970(380.0f + origin.x, f21);
-        func_002b69f0(0x2CF, *(FclVec2 *)(p + 0x38), spA8, 1, 0xA, 0);
+        fclSpriteStartPositionAt(0x2CF, *(FclVec2 *)(p + 0x38), spA8, 1, 0xA, 0);
     }
     spC8 = func_002b2970(35.0f + origin.x, 11.0f + f21);
     if (t16 == 0) {
-        func_002b6c30(0x119, spC8, 212.0f, 0x57);
-        func_002b6a70(0x119, 0, 0xFF, 0, 0xA, 2);
+        fclSpriteCreate(0x119, spC8, 212.0f, 0x57);
+        fclSpriteStartAlphaAt(0x119, 0, 0xFF, 0, 0xA, 2);
         spA0 = func_002b2970(spC8.x, spC8.y - 20.0f);
-        func_002b69f0(0x119, spA0, spC8, 1, 0xA, 2);
+        fclSpriteStartPositionAt(0x119, spA0, spC8, 1, 0xA, 2);
     } else {
-        func_002b6a70(0x119, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x119, 0xFF, 0, 0, 0xA, 0);
         sp98 = func_002b2970(spC8.x, spC8.y - 20.0f);
-        func_002b69f0(0x119, spC8, sp98, 1, 0xA, 2);
+        fclSpriteStartPositionAt(0x119, spC8, sp98, 1, 0xA, 2);
     }
     spC8 = func_002b2970((f32)0x11D + origin.x, 12.0f + f21);
     if (t16 == 0) {
-        func_002b6c30(0x11A, spC8, 213.0f, 0x57);
-        func_002b6a70(0x11A, 0, 0xFF, 0, 0xA, 2);
+        fclSpriteCreate(0x11A, spC8, 213.0f, 0x57);
+        fclSpriteStartAlphaAt(0x11A, 0, 0xFF, 0, 0xA, 2);
         sp90 = func_002b2970(spC8.x, spC8.y - 20.0f);
-        func_002b69f0(0x11A, sp90, spC8, 1, 0xA, 2);
+        fclSpriteStartPositionAt(0x11A, sp90, spC8, 1, 0xA, 2);
     } else {
-        func_002b6a70(0x11A, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x11A, 0xFF, 0, 0, 0xA, 0);
         sp88 = func_002b2970(spC8.x, spC8.y - 20.0f);
-        func_002b69f0(0x11A, spC8, sp88, 1, 0xA, 2);
+        fclSpriteStartPositionAt(0x11A, spC8, sp88, 1, 0xA, 2);
     }
     f21 = f21 - 3.0f;
     spC8 = func_002b2970(247.0f + origin.x, f21);
     if (t16 == 0) {
-        func_002b6c30(0x2D0, spC8, 211.0f, 0x57);
-        *(s16 *)(func_002b6150(0x2D0) + 0x4) = (s16)(((t17 % 10) + 0x10C));
-        func_002b6a70(0x2D0, 0, 0xFF, 0, 0xA, 2);
+        fclSpriteCreate(0x2D0, spC8, 211.0f, 0x57);
+        *(s16 *)(fclSpriteEntry(0x2D0) + 0x4) = (s16)(((t17 % 10) + 0x10C));
+        fclSpriteStartAlphaAt(0x2D0, 0, 0xFF, 0, 0xA, 2);
         sp80 = func_002b2970(spC8.x, spC8.y - 20.0f);
-        func_002b69f0(0x2D0, sp80, spC8, 1, 0xA, 2);
+        fclSpriteStartPositionAt(0x2D0, sp80, spC8, 1, 0xA, 2);
     } else {
-        func_002b6a70(0x2D0, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x2D0, 0xFF, 0, 0, 0xA, 0);
         sp78 = func_002b2970(spC8.x, spC8.y - 20.0f);
-        func_002b69f0(0x2D0, spC8, sp78, 1, 0xA, 2);
+        fclSpriteStartPositionAt(0x2D0, spC8, sp78, 1, 0xA, 2);
     }
     if (t17 >= 0xA) {
         spC8 = func_002b2970(221.0f + origin.x, f21);
         if (t16 == 0) {
-            func_002b6c30(0x2D1, spC8, 211.0f, 0x57);
-            *(s16 *)(func_002b6150(0x2D1) + 0x4) = (s16)((((s8)(t17 / 10) % 10) + 0x10C));
-            func_002b6a70(0x2D1, 0, 0xFF, 0, 0xA, 2);
+            fclSpriteCreate(0x2D1, spC8, 211.0f, 0x57);
+            *(s16 *)(fclSpriteEntry(0x2D1) + 0x4) = (s16)((((s8)(t17 / 10) % 10) + 0x10C));
+            fclSpriteStartAlphaAt(0x2D1, 0, 0xFF, 0, 0xA, 2);
             sp70 = func_002b2970(spC8.x, spC8.y - 20.0f);
-            func_002b69f0(0x2D1, sp70, spC8, 1, 0xA, 2);
+            fclSpriteStartPositionAt(0x2D1, sp70, spC8, 1, 0xA, 2);
         } else {
-            func_002b6a70(0x2D1, 0xFF, 0, 0, 0xA, 0);
+            fclSpriteStartAlphaAt(0x2D1, 0xFF, 0, 0, 0xA, 0);
             sp68 = func_002b2970(spC8.x, spC8.y - 20.0f);
-            func_002b69f0(0x2D1, spC8, sp68, 1, 0xA, 2);
+            fclSpriteStartPositionAt(0x2D1, spC8, sp68, 1, 0xA, 2);
         }
     }
     if (func_00110140() == 0x64) {
         spC8 = func_002b2970(195.0f + origin.x, f21);
         if (t16 == 0) {
-            func_002b6c30(0x10D, spC8, 211.0f, 0x57);
-            func_002b6a70(0x10D, 0, 0xFF, 0, 0xA, 2);
+            fclSpriteCreate(0x10D, spC8, 211.0f, 0x57);
+            fclSpriteStartAlphaAt(0x10D, 0, 0xFF, 0, 0xA, 2);
             sp60 = func_002b2970(spC8.x, spC8.y - 20.0f);
-            func_002b69f0(0x10D, sp60, spC8, 1, 0xA, 2);
+            fclSpriteStartPositionAt(0x10D, sp60, spC8, 1, 0xA, 2);
             return;
         }
-        func_002b6a70(0x10D, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x10D, 0xFF, 0, 0, 0xA, 0);
         sp58 = func_002b2970(spC8.x, spC8.y - 20.0f);
-        func_002b69f0(0x10D, spC8, sp58, 1, 0xA, 2);
+        fclSpriteStartPositionAt(0x10D, spC8, sp58, 1, 0xA, 2);
     }
 }
 
@@ -4737,11 +4737,11 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
   f21 = (new_var7 = *new_var8) - (*((s16 *) (new_var6 + 0x120)));
   f20 = *new_var10;
   new_var4 = &f20;
-  new_var = func_002b6150(b) + 0x3C;
-  *((f32 *) (func_002b6150(0xB1) + new_var3)) = (f20 = (*((f32 *) new_var)) + ((*new_var4) * f21));
-  new_var11 = *((f32 *) (func_002b6150(0xB1) + 0x3C));
+  new_var = fclSpriteEntry(b) + 0x3C;
+  *((f32 *) (fclSpriteEntry(0xB1) + new_var3)) = (f20 = (*((f32 *) new_var)) + ((*new_var4) * f21));
+  new_var11 = *((f32 *) (fclSpriteEntry(0xB1) + 0x3C));
   new_var5 = 52.0f + new_var11;
-  *((f32 *) (func_002b6150(0xB5) + 0x3C)) = (f20 = new_var5);
+  *((f32 *) (fclSpriteEntry(0xB5) + 0x3C)) = (f20 = new_var5);
 }
 
 /* The mode byte is passed unconverted to every callee, so each callee takes it as s8.
@@ -4826,8 +4826,8 @@ void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
     }
     sp108 = func_002b2970(535, 154.0f);
     func_00324f80(arg0, sp108, 0, arg3);
-    *(f32 *)(func_002b6150(0xB1) + 0x3C) = *(f32 *)(t + 0x124) * (*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120)) + *(f32 *)(func_002b6150(0xAA) + 0x3C);
-    *(f32 *)(func_002b6150(0xB5) + 0x3C) = 52.0f + *(f32 *)(func_002b6150(0xB1) + 0x3C);
+    *(f32 *)(fclSpriteEntry(0xB1) + 0x3C) = *(f32 *)(t + 0x124) * (*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120)) + *(f32 *)(fclSpriteEntry(0xAA) + 0x3C);
+    *(f32 *)(fclSpriteEntry(0xB5) + 0x3C) = 52.0f + *(f32 *)(fclSpriteEntry(0xB1) + 0x3C);
     func_003297f0(359, 300.0f, arg0, 1, arg3);
     func_0032b000(arg0, arg3);
 }
@@ -4894,10 +4894,10 @@ void func_0032c0c0(u8 *arg0, s64 arg1) {
     }
     fdiff = (f32)(*(s16 *)(obj + 0x11E) - *(s16 *)(obj + 0x120));
     facc = *(f32 *)(obj + 0x124);
-    facc = 0.0f + *(f32 *)(func_002b6150(0xAA) + 0x3C) + facc * fdiff;
-    *(f32 *)(func_002b6150(0xB1) + 0x3C) = facc;
-    facc = 52.0f + *(f32 *)(func_002b6150(0xB1) + 0x3C);
-    *(f32 *)(func_002b6150(0xB5) + 0x3C) = facc;
+    facc = 0.0f + *(f32 *)(fclSpriteEntry(0xAA) + 0x3C) + facc * fdiff;
+    *(f32 *)(fclSpriteEntry(0xB1) + 0x3C) = facc;
+    facc = 52.0f + *(f32 *)(fclSpriteEntry(0xB1) + 0x3C);
+    *(f32 *)(fclSpriteEntry(0xB5) + 0x3C) = facc;
 }
 typedef struct {
     u8 reserved00[4];
@@ -5101,186 +5101,186 @@ void func_0032c660(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosi
     if (column == 1) {
         var_19 = 0x2E4;
     }
-    func_002b7750(var_19, 0x1CA);
-    temp_2 = func_002b6150(var_19);
+    fclSpriteReset(var_19, 0x1CA);
+    temp_2 = fclSpriteEntry(var_19);
     sp310 = *(FclVec2 *)(temp_2 + 0x38);
     showing = (s8)mode;
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19) + 0x10) = 0;
-        func_002b6c30((s16)(var_19), origin, 112.0f, (s16)upperOrder + 2);
+        *(s16 *)(fclSpriteEntry(var_19) + 0x10) = 0;
+        fclSpriteCreate((s16)(var_19), origin, 112.0f, (s16)upperOrder + 2);
         sp34C = func_002b2a60(0x38, 0, 0x99, 0xFF);
-        temp_2_2 = func_002b6150(var_19);
+        temp_2_2 = fclSpriteEntry(var_19);
         *(FclDrawColor *)(temp_2_2 + 0x85) = sp34C;
-        func_002b6d60(var_19);
+        fclSpriteResetScale(var_19);
         sp300 = func_002b2970(origin.x + travelDistance, origin.y);
-        func_002b69f0(var_19, sp300, shownPosition, 0U, 0xAU, 0);
+        fclSpriteStartPositionAt(var_19, sp300, shownPosition, 0U, 0xAU, 0);
     } else {
-        func_002b68d0(var_19, 0, 0);
+        fclSpriteSetFlag(var_19, 0, 0);
         if ((s8)useHiddenPosition == 0) {
-            func_002b69f0(var_19, sp310, origin, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19, sp310, origin, 0U, 4U, 0);
         } else {
-            func_002b69f0(var_19, sp310, hiddenPosition, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19, sp310, hiddenPosition, 0U, 4U, 0);
         }
     }
     var_19_2 = 0x1CB;
     if (column == 1) {
         var_19_2 = 0x2E5;
     }
-    func_002b7750(var_19_2, 0x1CB);
-    temp_2_3 = func_002b6150(var_19_2);
+    fclSpriteReset(var_19_2, 0x1CB);
+    temp_2_3 = fclSpriteEntry(var_19_2);
     spE0 = *(FclVec2 *)(temp_2_3 + 0x38);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_2) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_2) + 0x10) = 0;
         sp2F8 = func_002b2970((f32) 0x183 + origin.x, origin.y);
-        func_002b6c30((s16)(var_19_2), sp2F8, 113.0f, (s16)upperOrder + 2);
+        fclSpriteCreate((s16)(var_19_2), sp2F8, 113.0f, (s16)upperOrder + 2);
         sp348 = func_002b2a60(0x38, 0, 0x99, 0xFF);
-        temp_2_4 = func_002b6150(var_19_2);
+        temp_2_4 = fclSpriteEntry(var_19_2);
         *(FclDrawColor *)(temp_2_4 + 0x85) = sp348;
-        func_002b6d60(var_19_2);
+        fclSpriteResetScale(var_19_2);
         sp2F0 = func_002b2970((f32) 0x183 + origin.x + travelDistance, origin.y);
         sp2E8 = func_002b2970((f32) 0x183 + shownPosition.x, shownPosition.y);
-        func_002b69f0(var_19_2, sp2F0, sp2E8, 0U, 0xAU, 0);
+        fclSpriteStartPositionAt(var_19_2, sp2F0, sp2E8, 0U, 0xAU, 0);
     } else {
-        func_002b68d0(var_19_2, 0, 0);
+        fclSpriteSetFlag(var_19_2, 0, 0);
         if ((s8)useHiddenPosition == 0) {
             sp2E0 = func_002b2970((f32) 0x183 + origin.x, origin.y);
-            func_002b69f0(var_19_2, spE0, sp2E0, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_2, spE0, sp2E0, 0U, 4U, 0);
         } else {
             sp2D8 = func_002b2970((f32) 0x183 + hiddenPosition.x, hiddenPosition.y);
-            func_002b69f0(var_19_2, spE0, sp2D8, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_2, spE0, sp2D8, 0U, 4U, 0);
         }
     }
     var_19_3 = 0x1CC;
     if (column == 1) {
         var_19_3 = 0x2E6;
     }
-    func_002b7750(var_19_3, 0x1CC);
-    temp_2_5 = func_002b6150(var_19_3);
+    fclSpriteReset(var_19_3, 0x1CC);
+    temp_2_5 = fclSpriteEntry(var_19_3);
     spE8 = *(FclVec2 *)(temp_2_5 + 0x38);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_3) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_3) + 0x10) = 0;
         sp2D0 = func_002b2970(70.0f + origin.x, 6.0f + origin.y);
-        func_002b6c30((s16)(var_19_3), sp2D0, 108.0f, 0x56);
+        fclSpriteCreate((s16)(var_19_3), sp2D0, 108.0f, 0x56);
         sp344 = func_002b2a60(0x26, 0, 0x66, 0xFF);
-        temp_2_6 = func_002b6150(var_19_3);
+        temp_2_6 = fclSpriteEntry(var_19_3);
         *(FclDrawColor *)(temp_2_6 + 0x85) = sp344;
-        func_002b6d60(var_19_3);
+        fclSpriteResetScale(var_19_3);
         sp2C8 = func_002b2970(70.0f + origin.x + travelDistance, 6.0f + origin.y);
         sp2C0 = func_002b2970(70.0f + shownPosition.x, 6.0f + shownPosition.y);
-        func_002b69f0(var_19_3, sp2C8, sp2C0, 0U, 0xAU, 0);
+        fclSpriteStartPositionAt(var_19_3, sp2C8, sp2C0, 0U, 0xAU, 0);
     } else {
-        func_002b68d0(var_19_3, 0, 0);
+        fclSpriteSetFlag(var_19_3, 0, 0);
         if ((s8)useHiddenPosition == 0) {
             sp2B8 = func_002b2970(70.0f + origin.x, 6.0f + origin.y);
-            func_002b69f0(var_19_3, spE8, sp2B8, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_3, spE8, sp2B8, 0U, 4U, 0);
         } else {
             sp2B0 = func_002b2970(70.0f + hiddenPosition.x, 6.0f + hiddenPosition.y);
-            func_002b69f0(var_19_3, spE8, sp2B0, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_3, spE8, sp2B0, 0U, 4U, 0);
         }
     }
     var_19_4 = 0x1CD;
     if (column == 1) {
         var_19_4 = 0x2E7;
     }
-    func_002b7750(var_19_4, 0x1CD);
-    temp_2_7 = func_002b6150(var_19_4);
+    fclSpriteReset(var_19_4, 0x1CD);
+    temp_2_7 = fclSpriteEntry(var_19_4);
     spF0 = *(FclVec2 *)(temp_2_7 + 0x38);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_4) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_4) + 0x10) = 0;
         sp2A8 = func_002b2970(382.0f + origin.x, 6.0f + origin.y);
-        func_002b6c30((s16)(var_19_4), sp2A8, 109.0f, 0x56);
+        fclSpriteCreate((s16)(var_19_4), sp2A8, 109.0f, 0x56);
         sp340 = func_002b2a60(0x26, 0, 0x66, 0xFF);
-        temp_2_8 = func_002b6150(var_19_4);
+        temp_2_8 = fclSpriteEntry(var_19_4);
         *(FclDrawColor *)(temp_2_8 + 0x85) = sp340;
-        func_002b6d60(var_19_4);
+        fclSpriteResetScale(var_19_4);
         sp2A0 = func_002b2970(382.0f + origin.x + travelDistance, 6.0f + origin.y);
         sp298 = func_002b2970(382.0f + shownPosition.x, 6.0f + shownPosition.y);
-        func_002b69f0(var_19_4, sp2A0, sp298, 0U, 0xAU, 0);
+        fclSpriteStartPositionAt(var_19_4, sp2A0, sp298, 0U, 0xAU, 0);
     } else {
-        func_002b68d0(var_19_4, 0, 0);
+        fclSpriteSetFlag(var_19_4, 0, 0);
         if ((s8)useHiddenPosition == 0) {
             sp290 = func_002b2970(382.0f + origin.x, 6.0f + origin.y);
-            func_002b69f0(var_19_4, spF0, sp290, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_4, spF0, sp290, 0U, 4U, 0);
         } else {
             sp288 = func_002b2970(382.0f + hiddenPosition.x, 6.0f + hiddenPosition.y);
-            func_002b69f0(var_19_4, spF0, sp288, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_4, spF0, sp288, 0U, 4U, 0);
         }
     }
     var_19_5 = 0x1D6;
     if (column == 1) {
         var_19_5 = 0x2E8;
     }
-    func_002b7750(var_19_5, 0x1D6);
-    temp_2_9 = func_002b6150(var_19_5);
+    fclSpriteReset(var_19_5, 0x1D6);
+    temp_2_9 = fclSpriteEntry(var_19_5);
     spF8 = *(FclVec2 *)(temp_2_9 + 0x38);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_5) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_5) + 0x10) = 0;
         sp280 = func_002b2970(8.0f + origin.x, 8.0f + origin.y);
-        func_002b6c30((s16)(var_19_5), sp280, 107.0f, (s16)upperOrder + 4);
+        fclSpriteCreate((s16)(var_19_5), sp280, 107.0f, (s16)upperOrder + 4);
         sp33C = func_002b2a60(0x95, 0x7C, 0xFF, 0xFF);
-        temp_2_10 = func_002b6150(var_19_5);
+        temp_2_10 = fclSpriteEntry(var_19_5);
         *(FclDrawColor *)(temp_2_10 + 0x85) = sp33C;
-        func_002b6d60(var_19_5);
+        fclSpriteResetScale(var_19_5);
         sp278 = func_002b2970(8.0f + origin.x + travelDistance, 6.0f + origin.y);
         sp270 = func_002b2970(8.0f + shownPosition.x, 8.0f + shownPosition.y);
-        func_002b69f0(var_19_5, sp278, sp270, 0U, 0xAU, 0);
+        fclSpriteStartPositionAt(var_19_5, sp278, sp270, 0U, 0xAU, 0);
         if (column == 1) {
-            *(u8 *)(func_002b6150(var_19_5) + 0x6E) = 0;
+            *(u8 *)(fclSpriteEntry(var_19_5) + 0x6E) = 0;
         }
     } else {
-        func_002b68d0(var_19_5, 0, 0);
+        fclSpriteSetFlag(var_19_5, 0, 0);
         if ((s8)useHiddenPosition == 0) {
             sp268 = func_002b2970(8.0f + origin.x, 8.0f + origin.y);
-            func_002b69f0(var_19_5, spF8, sp268, 0U, 4U, 0);
-            func_002b6a70(var_19_5, 0U, 0xFFU, 0, 4, 0);
+            fclSpriteStartPositionAt(var_19_5, spF8, sp268, 0U, 4U, 0);
+            fclSpriteStartAlphaAt(var_19_5, 0U, 0xFFU, 0, 4, 0);
         } else {
             sp260 = func_002b2970(8.0f + hiddenPosition.x, 8.0f + hiddenPosition.y);
-            func_002b69f0(var_19_5, spF8, sp260, 0U, 4U, 0);
-            func_002b6a70(var_19_5, 0xFFU, 0U, 0, 4, 0);
+            fclSpriteStartPositionAt(var_19_5, spF8, sp260, 0U, 4U, 0);
+            fclSpriteStartAlphaAt(var_19_5, 0xFFU, 0U, 0, 4, 0);
         }
     }
     var_19_6 = 0x2E3;
     if (column == 1) {
         var_19_6 = 0x2E9;
     }
-    func_002b7750(var_19_6, 0x80);
-    temp_2_11 = func_002b6150(var_19_6);
+    fclSpriteReset(var_19_6, 0x80);
+    temp_2_11 = fclSpriteEntry(var_19_6);
     sp100 = *(FclVec2 *)(temp_2_11 + 0x38);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_6) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_6) + 0x10) = 0;
         sp258 = func_002b2970((origin.x - 120.0f) + travelDistance, origin.y - 40.0f);
-        func_002b6c30((s16)(var_19_6), sp258, 111.0f, (s16)upperOrder + 3);
+        fclSpriteCreate((s16)(var_19_6), sp258, 111.0f, (s16)upperOrder + 3);
         sp338 = func_002b2a60(0x18, 2, 0x67, 0xFF);
-        temp_2_12 = func_002b6150(var_19_6);
+        temp_2_12 = fclSpriteEntry(var_19_6);
         *(FclDrawColor *)(temp_2_12 + 0x85) = sp338;
         sp250 = func_002b2970((origin.x - 120.0f) + travelDistance, origin.y - 40.0f);
         sp248 = func_002b2970(shownPosition.x - 120.0f, shownPosition.y - 40.0f);
-        func_002b69f0(var_19_6, sp250, sp248, 0U, 0xAU, 0);
-        func_002b6d60(var_19_6);
-        func_002b68d0(var_19_6, 0xE, 0);
+        fclSpriteStartPositionAt(var_19_6, sp250, sp248, 0U, 0xAU, 0);
+        fclSpriteResetScale(var_19_6);
+        fclSpriteSetFlag(var_19_6, 0xE, 0);
     } else {
-        func_002b68d0(var_19_6, 0, 0);
-        func_002b68d0(var_19_6, 0xE, 0);
+        fclSpriteSetFlag(var_19_6, 0, 0);
+        fclSpriteSetFlag(var_19_6, 0xE, 0);
         if ((s8)useHiddenPosition == 0) {
             sp240 = func_002b2970(origin.x - 120.0f, origin.y - 40.0f);
-            func_002b69f0(var_19_6, sp100, sp240, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_6, sp100, sp240, 0U, 4U, 0);
         } else {
             sp238 = func_002b2970(hiddenPosition.x - 120.0f, hiddenPosition.y - 40.0f);
-            func_002b69f0(var_19_6, sp100, sp238, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_6, sp100, sp238, 0U, 4U, 0);
         }
     }
     if (showing == 1) {
         temp_22 = sdkSpriteNewNode(func_00331560(), 0x80U);
         upperClipSlot = (u8 **)(work + 0x258) + (s8)(u32)slot * 2;
         sp230 = func_002b2970(shownPosition.x - 120.0f, shownPosition.y - 40.0f);
-        temp_2_14 = func_002b81f0(*upperClipSlot);
+        temp_2_14 = fclSpriteWork(*upperClipSlot);
         *(FclVec2 *)temp_2_14 = sp230;
         spD0 = func_002b29e0(250.0f, 250.0f);
-        temp_2_15 = func_002b81f0(*upperClipSlot);
+        temp_2_15 = fclSpriteWork(*upperClipSlot);
         ((FclBoundsPacket *)(temp_2_15 + 8))->representation = spD0.representation;
-        *(s32 *)(func_002b81f0(*upperClipSlot) + 0x120) = (s32) (s16)upperOrder;
-        *(f32 *)(func_002b81f0(*upperClipSlot) + 0x18) = 110.0f;
-        *(u8 *)(func_002b81f0(*upperClipSlot) + 0x124) = 0;
+        *(s32 *)(fclSpriteWork(*upperClipSlot) + 0x120) = (s32) (s16)upperOrder;
+        *(f32 *)(fclSpriteWork(*upperClipSlot) + 0x18) = 110.0f;
+        *(u8 *)(fclSpriteWork(*upperClipSlot) + 0x124) = 0;
         sdkSpriteFreeNode(temp_22);
     }
     origin = func_002b2970(origin.x, 99.0f + origin.y);
@@ -5292,189 +5292,189 @@ void func_0032c660(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosi
     if (column == 1) {
         var_19_7 = 0x2EA;
     }
-    func_002b7750(var_19_7, 0x1CE);
+    fclSpriteReset(var_19_7, 0x1CE);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_7) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_7) + 0x10) = 0;
         sp228 = func_002b2970(origin.x + travelDistance, origin.y);
-        func_002b6c30((s16)(var_19_7), sp228, 112.0f, (s16)lowerOrder + 2);
+        fclSpriteCreate((s16)(var_19_7), sp228, 112.0f, (s16)lowerOrder + 2);
         sp334 = func_002b2a60(0, 0, 0x99, 0xFF);
-        temp_2_16 = func_002b6150(var_19_7);
+        temp_2_16 = fclSpriteEntry(var_19_7);
         *(FclDrawColor *)(temp_2_16 + 0x85) = sp334;
         sp220 = func_002b2970(origin.x + travelDistance, origin.y);
         sp218 = func_002b2970(shownPosition.x, 99.0f + shownPosition.y);
-        func_002b69f0(var_19_7, sp220, sp218, 0U, 0xAU, 0);
-        func_002b6d60(var_19_7);
+        fclSpriteStartPositionAt(var_19_7, sp220, sp218, 0U, 0xAU, 0);
+        fclSpriteResetScale(var_19_7);
     } else {
-        func_002b68d0(var_19_7, 0, 0);
-        temp_2_17 = func_002b6150(var_19_7);
+        fclSpriteSetFlag(var_19_7, 0, 0);
+        temp_2_17 = fclSpriteEntry(var_19_7);
         sp108 = *(FclVec2 *)(temp_2_17 + 0x38);
         if ((s8)useHiddenPosition == 0) {
             sp210 = func_002b2970(origin.x, origin.y);
-            func_002b69f0(var_19_7, sp108, sp210, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_7, sp108, sp210, 0U, 4U, 0);
         } else {
             sp208 = func_002b2970(hiddenPosition.x, 99.0f + hiddenPosition.y);
-            func_002b69f0(var_19_7, sp108, sp208, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_7, sp108, sp208, 0U, 4U, 0);
         }
     }
     var_19_8 = 0x1CF;
     if (column == 1) {
         var_19_8 = 0x2EB;
     }
-    func_002b7750(var_19_8, 0x1CF);
+    fclSpriteReset(var_19_8, 0x1CF);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_8) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_8) + 0x10) = 0;
         sp200 = func_002b2970((f32) 0x183 + origin.x + travelDistance, origin.y);
-        func_002b6c30((s16)(var_19_8), sp200, 113.0f, (s16)lowerOrder + 2);
+        fclSpriteCreate((s16)(var_19_8), sp200, 113.0f, (s16)lowerOrder + 2);
         sp330 = func_002b2a60(0, 0, 0x99, 0xFF);
-        temp_2_18 = func_002b6150(var_19_8);
+        temp_2_18 = fclSpriteEntry(var_19_8);
         *(FclDrawColor *)(temp_2_18 + 0x85) = sp330;
         sp1F8 = func_002b2970((f32) 0x183 + origin.x + travelDistance, origin.y);
         sp1F0 = func_002b2970((f32) 0x183 + shownPosition.x, 99.0f + shownPosition.y);
-        func_002b69f0(var_19_8, sp1F8, sp1F0, 0U, 0xAU, 0);
-        func_002b6d60(var_19_8);
+        fclSpriteStartPositionAt(var_19_8, sp1F8, sp1F0, 0U, 0xAU, 0);
+        fclSpriteResetScale(var_19_8);
     } else {
-        func_002b68d0(var_19_8, 0, 0);
-        temp_2_19 = func_002b6150(var_19_8);
+        fclSpriteSetFlag(var_19_8, 0, 0);
+        temp_2_19 = fclSpriteEntry(var_19_8);
         sp110 = *(FclVec2 *)(temp_2_19 + 0x38);
         if ((s8)useHiddenPosition == 0) {
             sp1E8 = func_002b2970((f32) 0x183 + origin.x, origin.y);
-            func_002b69f0(var_19_8, sp110, sp1E8, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_8, sp110, sp1E8, 0U, 4U, 0);
         } else {
             sp1E0 = func_002b2970((f32) 0x183 + hiddenPosition.x, 99.0f + hiddenPosition.y);
-            func_002b69f0(var_19_8, sp110, sp1E0, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_8, sp110, sp1E0, 0U, 4U, 0);
         }
     }
     var_19_9 = 0x1D0;
     if (column == 1) {
         var_19_9 = 0x2EC;
     }
-    func_002b7750(var_19_9, 0x1D0);
+    fclSpriteReset(var_19_9, 0x1D0);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_9) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_9) + 0x10) = 0;
         sp1D8 = func_002b2970(70.0f + origin.x + travelDistance, 6.0f + origin.y);
-        func_002b6c30((s16)(var_19_9), sp1D8, 108.0f, 0x56);
+        fclSpriteCreate((s16)(var_19_9), sp1D8, 108.0f, 0x56);
         sp32C = func_002b2a60(0, 0, 0x66, 0xFF);
-        temp_2_20 = func_002b6150(var_19_9);
+        temp_2_20 = fclSpriteEntry(var_19_9);
         *(FclDrawColor *)(temp_2_20 + 0x85) = sp32C;
         sp1D0 = func_002b2970(70.0f + origin.x + travelDistance, 6.0f + origin.y);
         sp1C8 = func_002b2970(70.0f + shownPosition.x, 99.0f + (6.0f + shownPosition.y));
-        func_002b69f0(var_19_9, sp1D0, sp1C8, 0U, 0xAU, 0);
-        func_002b6d60(var_19_9);
+        fclSpriteStartPositionAt(var_19_9, sp1D0, sp1C8, 0U, 0xAU, 0);
+        fclSpriteResetScale(var_19_9);
     } else {
-        func_002b68d0(var_19_9, 0, 0);
-        temp_2_21 = func_002b6150(var_19_9);
+        fclSpriteSetFlag(var_19_9, 0, 0);
+        temp_2_21 = fclSpriteEntry(var_19_9);
         sp118 = *(FclVec2 *)(temp_2_21 + 0x38);
         if ((s8)useHiddenPosition == 0) {
             sp1C0 = func_002b2970(70.0f + origin.x, 6.0f + origin.y);
-            func_002b69f0(var_19_9, sp118, sp1C0, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_9, sp118, sp1C0, 0U, 4U, 0);
         } else {
             sp1B8 = func_002b2970(70.0f + hiddenPosition.x, 99.0f + (6.0f + hiddenPosition.y));
-            func_002b69f0(var_19_9, sp118, sp1B8, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_9, sp118, sp1B8, 0U, 4U, 0);
         }
     }
     var_19_10 = 0x1D1;
     if (column == 1) {
         var_19_10 = 0x2ED;
     }
-    func_002b7750(var_19_10, 0x1D1);
+    fclSpriteReset(var_19_10, 0x1D1);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_10) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_10) + 0x10) = 0;
         sp1B0 = func_002b2970(382.0f + origin.x + travelDistance, 6.0f + origin.y);
-        func_002b6c30((s16)(var_19_10), sp1B0, 109.0f, 0x56);
+        fclSpriteCreate((s16)(var_19_10), sp1B0, 109.0f, 0x56);
         sp328 = func_002b2a60(0, 0, 0x66, 0xFF);
-        temp_2_22 = func_002b6150(var_19_10);
+        temp_2_22 = fclSpriteEntry(var_19_10);
         *(FclDrawColor *)(temp_2_22 + 0x85) = sp328;
         sp1A8 = func_002b2970(382.0f + origin.x + travelDistance, 6.0f + origin.y);
         sp1A0 = func_002b2970(382.0f + shownPosition.x, 99.0f + (6.0f + shownPosition.y));
-        func_002b69f0(var_19_10, sp1A8, sp1A0, 0U, 0xAU, 0);
-        func_002b6d60(var_19_10);
+        fclSpriteStartPositionAt(var_19_10, sp1A8, sp1A0, 0U, 0xAU, 0);
+        fclSpriteResetScale(var_19_10);
     } else {
-        func_002b68d0(var_19_10, 0, 0);
-        temp_2_23 = func_002b6150(var_19_10);
+        fclSpriteSetFlag(var_19_10, 0, 0);
+        temp_2_23 = fclSpriteEntry(var_19_10);
         sp120 = *(FclVec2 *)(temp_2_23 + 0x38);
         if ((s8)useHiddenPosition == 0) {
             sp198 = func_002b2970(382.0f + origin.x, 6.0f + origin.y);
-            func_002b69f0(var_19_10, sp120, sp198, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_10, sp120, sp198, 0U, 4U, 0);
         } else {
             sp190 = func_002b2970(382.0f + hiddenPosition.x, 99.0f + (6.0f + hiddenPosition.y));
-            func_002b69f0(var_19_10, sp120, sp190, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_10, sp120, sp190, 0U, 4U, 0);
         }
     }
     var_19_11 = 0x1D7;
     if (column == 1) {
         var_19_11 = 0x2EE;
     }
-    func_002b7750(var_19_11, 0x1D7);
+    fclSpriteReset(var_19_11, 0x1D7);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_11) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_11) + 0x10) = 0;
         sp188 = func_002b2970(8.0f + origin.x + travelDistance, 8.0f + origin.y);
-        func_002b6c30((s16)(var_19_11), sp188, 107.0f, (s16)lowerOrder + 4);
+        fclSpriteCreate((s16)(var_19_11), sp188, 107.0f, (s16)lowerOrder + 4);
         sp324 = func_002b2a60(0x95, 0x7C, 0xFF, 0xFF);
-        temp_2_24 = func_002b6150(var_19_11);
+        temp_2_24 = fclSpriteEntry(var_19_11);
         *(FclDrawColor *)(temp_2_24 + 0x85) = sp324;
         sp180 = func_002b2970(8.0f + origin.x + travelDistance, 8.0f + origin.y);
         sp178 = func_002b2970(8.0f + shownPosition.x, 99.0f + (8.0f + shownPosition.y));
-        func_002b69f0(var_19_11, sp180, sp178, 0U, 0xAU, 0);
-        func_002b6d60(var_19_11);
+        fclSpriteStartPositionAt(var_19_11, sp180, sp178, 0U, 0xAU, 0);
+        fclSpriteResetScale(var_19_11);
         if (column == 1) {
-            *(u8 *)(func_002b6150(var_19_11) + 0x6E) = 0;
+            *(u8 *)(fclSpriteEntry(var_19_11) + 0x6E) = 0;
         }
     } else {
-        func_002b68d0(var_19_11, 0, 0);
-        temp_2_25 = func_002b6150(var_19_11);
+        fclSpriteSetFlag(var_19_11, 0, 0);
+        temp_2_25 = fclSpriteEntry(var_19_11);
         sp128 = *(FclVec2 *)(temp_2_25 + 0x38);
         if ((s8)useHiddenPosition == 0) {
             sp170 = func_002b2970(8.0f + origin.x, 8.0f + origin.y);
-            func_002b69f0(var_19_11, sp128, sp170, 0U, 4U, 0);
-            func_002b6a70(var_19_11, 0U, 0xFFU, 0, 4, 0);
+            fclSpriteStartPositionAt(var_19_11, sp128, sp170, 0U, 4U, 0);
+            fclSpriteStartAlphaAt(var_19_11, 0U, 0xFFU, 0, 4, 0);
         } else {
             sp168 = func_002b2970(8.0f + hiddenPosition.x, 99.0f + (8.0f + hiddenPosition.y));
-            func_002b69f0(var_19_11, sp128, sp168, 0U, 4U, 0);
-            func_002b6a70(var_19_11, 0xFFU, 0U, 0, 4, 0);
+            fclSpriteStartPositionAt(var_19_11, sp128, sp168, 0U, 4U, 0);
+            fclSpriteStartAlphaAt(var_19_11, 0xFFU, 0U, 0, 4, 0);
         }
     }
     var_19_12 = 0x2E2;
     if (column == 1) {
         var_19_12 = 0x2EF;
     }
-    func_002b7750(var_19_12, 0x80);
+    fclSpriteReset(var_19_12, 0x80);
     if (showing == 1) {
-        *(s16 *)(func_002b6150(var_19_12) + 0x10) = 0;
+        *(s16 *)(fclSpriteEntry(var_19_12) + 0x10) = 0;
         sp160 = func_002b2970((origin.x - 120.0f) + travelDistance, origin.y - 27.0f);
-        func_002b6c30((s16)(var_19_12), sp160, 111.0f, (s16)lowerOrder + 3);
+        fclSpriteCreate((s16)(var_19_12), sp160, 111.0f, (s16)lowerOrder + 3);
         sp320 = func_002b2a60(0, 0, 0x66, 0xFF);
-        temp_2_26 = func_002b6150(var_19_12);
+        temp_2_26 = fclSpriteEntry(var_19_12);
         *(FclDrawColor *)(temp_2_26 + 0x85) = sp320;
         sp158 = func_002b2970((origin.x - 120.0f) + travelDistance, origin.y - 27.0f);
         sp150 = func_002b2970(shownPosition.x - 120.0f, 99.0f + (shownPosition.y - 27.0f));
-        func_002b69f0(var_19_12, sp158, sp150, 0U, 0xAU, 0);
-        func_002b6d60(var_19_12);
-        func_002b68d0(var_19_12, 0xE, 0);
+        fclSpriteStartPositionAt(var_19_12, sp158, sp150, 0U, 0xAU, 0);
+        fclSpriteResetScale(var_19_12);
+        fclSpriteSetFlag(var_19_12, 0xE, 0);
     } else {
-        func_002b68d0(var_19_12, 0, 0);
-        func_002b68d0(var_19_12, 0xE, 0);
-        temp_2_27 = func_002b6150(var_19_12);
+        fclSpriteSetFlag(var_19_12, 0, 0);
+        fclSpriteSetFlag(var_19_12, 0xE, 0);
+        temp_2_27 = fclSpriteEntry(var_19_12);
         sp130 = *(FclVec2 *)(temp_2_27 + 0x38);
         if ((s8)useHiddenPosition == 0) {
             sp148 = func_002b2970(origin.x - 120.0f, origin.y - 27.0f);
-            func_002b69f0(var_19_12, sp130, sp148, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_12, sp130, sp148, 0U, 4U, 0);
         } else {
             sp140 = func_002b2970(hiddenPosition.x - 120.0f, 99.0f + (hiddenPosition.y - 27.0f));
-            func_002b69f0(var_19_12, sp130, sp140, 0U, 4U, 0);
+            fclSpriteStartPositionAt(var_19_12, sp130, sp140, 0U, 4U, 0);
         }
     }
     if (showing == 1) {
         temp_19 = sdkSpriteNewNode(func_00331560(), 0x80U);
         lowerClipSlot = (u8 **)(work + 0x25C) + (s8)(u32)slot * 2;
         sp138 = func_002b2970(shownPosition.x - 120.0f, 99.0f + (shownPosition.y - 27.0f));
-        temp_2_29 = func_002b81f0(*lowerClipSlot);
+        temp_2_29 = fclSpriteWork(*lowerClipSlot);
         *(FclVec2 *)temp_2_29 = sp138;
         spC0 = func_002b29e0(250.0f, 250.0f);
-        temp_2_30 = func_002b81f0(*lowerClipSlot);
+        temp_2_30 = fclSpriteWork(*lowerClipSlot);
         ((FclBoundsPacket *)(temp_2_30 + 8))->representation = spC0.representation;
-        *(s32 *)(func_002b81f0(*lowerClipSlot) + 0x120) = (s32) (s16)lowerOrder;
-        *(f32 *)(func_002b81f0(*lowerClipSlot) + 0x18) = 110.0f;
-        *(u8 *)(func_002b81f0(*lowerClipSlot) + 0x124) = 0;
+        *(s32 *)(fclSpriteWork(*lowerClipSlot) + 0x120) = (s32) (s16)lowerOrder;
+        *(f32 *)(fclSpriteWork(*lowerClipSlot) + 0x18) = 110.0f;
+        *(u8 *)(fclSpriteWork(*lowerClipSlot) + 0x124) = 0;
         sdkSpriteFreeNode(temp_19);
     }
 }
@@ -5526,8 +5526,8 @@ void func_0032e570(u8 *arg0) {
 
     t = *(u8 **)(arg0 + 0x38);
     *(s8 *)(t + 0x2D6) = *(s8 *)(t + 0x122) ^ 1;
-    alpha = func_002b2aa0(2, 0.0f, 255.0f, (f32)*(s16 *)(func_002b6150(0x2E4) + 0x42),
-                          (f32)*(s16 *)(func_002b6150(0x2E4) + 0x40));
+    alpha = func_002b2aa0(2, 0.0f, 255.0f, (f32)*(s16 *)(fclSpriteEntry(0x2E4) + 0x42),
+                          (f32)*(s16 *)(fclSpriteEntry(0x2E4) + 0x40));
     v = ((s8 *)(t + 0x2D4))[*(s8 *)(t + 0x2D6)];
     if (v == -1) {
         if (*(s8 *)(t + 0x122) == 1) {
@@ -5616,55 +5616,55 @@ void func_0032f060(u8 *arg0, s32 arg1) {
     v16 = (s8)arg1;
     if (v16 == 0) {
         sp50.position = func_002b2970(p[0], p[1]);
-        func_002b6c30(0x162, sp50.position, 147.0f, 0xA1);
+        fclSpriteCreate(0x162, sp50.position, 147.0f, 0xA1);
         sp6C = func_002b2a60(0xFF, 0xCC, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x162) + 0x85) = sp6C;
+        *(FclByte4 *)(fclSpriteEntry(0x162) + 0x85) = sp6C;
         f20 = -15.0f;
-        *(f32 *)(func_002b6150(0x162) + 0xD0) = f20;
-        func_002b6a70(0x162, 0, 0xFF, 0, 0xA, 0);
+        *(f32 *)(fclSpriteEntry(0x162) + 0xD0) = f20;
+        fclSpriteStartAlphaAt(0x162, 0, 0xFF, 0, 0xA, 0);
     } else {
-        func_002b6a70(0x162, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x162, 0xFF, 0, 0, 0xA, 0);
     }
     p = D_00644888;
     if (v16 == 0) {
         sp48.position = func_002b2970(p[0], p[1]);
-        func_002b6c30(0x163, sp48.position, 146.0f, 0xA2);
+        fclSpriteCreate(0x163, sp48.position, 146.0f, 0xA2);
         sp68 = func_002b2a60(0, 0, 0x66, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x163) + 0x85) = sp68;
+        *(FclByte4 *)(fclSpriteEntry(0x163) + 0x85) = sp68;
         f20 = -15.0f;
-        *(f32 *)(func_002b6150(0x163) + 0xD0) = f20;
-        func_002b6a70(0x163, 0, 0xFF, 0, 0xA, 0);
+        *(f32 *)(fclSpriteEntry(0x163) + 0xD0) = f20;
+        fclSpriteStartAlphaAt(0x163, 0, 0xFF, 0, 0xA, 0);
     } else {
-        func_002b6a70(0x163, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x163, 0xFF, 0, 0, 0xA, 0);
     }
     p = D_00644890;
     if (v16 == 0) {
         sp40.position = func_002b2970(p[0], p[1]);
-        func_002b6c30(0x164, sp40.position, 145.0f, 0x59);
+        fclSpriteCreate(0x164, sp40.position, 145.0f, 0x59);
         sp64 = func_002b2a60(0xFF, 0xCC, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x164) + 0x85) = sp64;
-        func_002b6a70(0x164, 0, 0xFF, 0, 0xA, 0);
+        *(FclByte4 *)(fclSpriteEntry(0x164) + 0x85) = sp64;
+        fclSpriteStartAlphaAt(0x164, 0, 0xFF, 0, 0xA, 0);
     } else {
-        func_002b6a70(0x164, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x164, 0xFF, 0, 0, 0xA, 0);
     }
     p = D_00644898;
     if (v16 == 0) {
         sp38.position = func_002b2970(p[0], p[1]);
-        func_002b6c30(0x165, sp38.position, 145.0f, 0x59);
+        fclSpriteCreate(0x165, sp38.position, 145.0f, 0x59);
         sp60 = func_002b2a60(0xFF, 0xCC, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x165) + 0x85) = sp60;
-        func_002b6a70(0x165, 0, 0xFF, 0, 0xA, 0);
+        *(FclByte4 *)(fclSpriteEntry(0x165) + 0x85) = sp60;
+        fclSpriteStartAlphaAt(0x165, 0, 0xFF, 0, 0xA, 0);
     } else {
-        func_002b6a70(0x165, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x165, 0xFF, 0, 0, 0xA, 0);
     }
     if (v16 == 0) {
         sp30.position = func_002b2970(0.0f, 65.0f);
-        func_002b6c30(0x2DA, sp30.position, 145.0f, 0x59);
+        fclSpriteCreate(0x2DA, sp30.position, 145.0f, 0x59);
         sp5C = func_002b2a60(0xFF, 0xCC, 0xFF, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x2DA) + 0x85) = sp5C;
-        func_002b6a70(0x2DA, 0, 0xFF, 0, 0xA, 0);
+        *(FclByte4 *)(fclSpriteEntry(0x2DA) + 0x85) = sp5C;
+        fclSpriteStartAlphaAt(0x2DA, 0, 0xFF, 0, 0xA, 0);
     } else {
-        func_002b6a70(0x2DA, 0xFF, 0, 0, 0xA, 0);
+        fclSpriteStartAlphaAt(0x2DA, 0xFF, 0, 0, 0xA, 0);
     }
 }
 
@@ -5739,14 +5739,14 @@ void func_0032f4d0(u8 *arg0) {
     func_0032fa30(arg0, r, cBC.channels, cB8.channels, cB4.channels);
     if (datGetFlag(0x1306) != 0) {
         cB0 = func_002b2a60(0x29, 0x29, 0x29, 0xFF);
-        p1 = func_002b6150(0x201);
+        p1 = fclSpriteEntry(0x201);
         *(FclByte4 *)(p1 + 0x85) = cB0;
-        p2 = func_002b6150(0x200);
+        p2 = fclSpriteEntry(0x200);
         *(FclByte4 *)(p2 + 0x85) = *(FclByte4 *)(p1 + 0x85);
         cAC = func_002b2a60(0x61, 0x61, 0x61, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x16B) + 0x85) = cAC;
+        *(FclByte4 *)(fclSpriteEntry(0x16B) + 0x85) = cAC;
         cA8 = func_002b2a60(0x4A, 0x4A, 0x4A, 0xFF);
-        *(FclByte4 *)(func_002b6150(0x301) + 0x85) = cA8;
+        *(FclByte4 *)(fclSpriteEntry(0x301) + 0x85) = cA8;
     }
 }
 
@@ -5760,14 +5760,14 @@ void func_0032fa30(u8 *arg0, s16 arg1, FclDrawColor arg2, FclDrawColor arg3, Fcl
     s32 idx;
 
     t = *(u8 **)(arg0 + 0x38);
-    p1 = func_002b6150((s16)((arg1 + 4) * 2 + 0x1F5));
+    p1 = fclSpriteEntry((s16)((arg1 + 4) * 2 + 0x1F5));
     *(FclByte4 *)(p1 + 0x85) = arg2;
-    p2 = func_002b6150((s16)((arg1 + 4) * 2 + 0x1F4));
+    p2 = fclSpriteEntry((s16)((arg1 + 4) * 2 + 0x1F4));
     *(FclByte4 *)(p2 + 0x85) = *(FclByte4 *)(p1 + 0x85);
     idx = arg1 * 2;
-    p3 = func_002b6150(*(s16 *)(idx + (s32)t + 0xB8));
+    p3 = fclSpriteEntry(*(s16 *)(idx + (s32)t + 0xB8));
     *(FclByte4 *)(p3 + 0x85) = arg3;
-    p4 = func_002b6150((s16)(arg1 + 0x2FF));
+    p4 = fclSpriteEntry((s16)(arg1 + 0x2FF));
     *(FclByte4 *)(p4 + 0x85) = arg4;
 }
 // FUN_0032FB60
@@ -5843,15 +5843,15 @@ void func_0032fbc0(u8 *arg0) {
             s16 normalizedRow = i;
             s16 resource = (s16)(normalizedRow + 0x25E);
             h = sdkSpriteNewNode(func_00331560(), 0x39);
-            func_002b6a70(resource, 0xFF, 0, 0, 3, 0);
+            fclSpriteStartAlphaAt(resource, 0xFF, 0, 0, 3, 0);
             {
                 f32 unitScale = 1.0f;
-                func_002b6af0(resource, unitScale, unitScale, unitScale, iGpffff8504, 0, 3, 0);
+                fclSpriteStartRevealScaleAt(resource, unitScale, unitScale, unitScale, iGpffff8504, 0, 3, 0);
             }
             spE8 = func_002b2970((f32)(normalizedRow * 23 + 0x14E), 110.0f);
             spE0 = func_002b2970((f32)(normalizedRow * 23 + 0x14E),
                          110.0f + sdkSpriteScaledHeight(h) / 2.0f);
-            func_002b69f0(resource, spE8, spE0, 0, 3, 0);
+            fclSpriteStartPositionAt(resource, spE8, spE0, 0, 3, 0);
             sdkSpriteFreeNode(h);
         }
         ++i;
@@ -5888,12 +5888,12 @@ void func_00330060(u8 *arg0, s32 arg1) {
     f32 fv2;
     t = *(u8 **)(arg0 + 0x38);
     cAC = func_002b2a60(0, 0, 0x66, 0xFF);
-    p = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F5));
+    p = fclSpriteEntry((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F5));
     *(FclByte4 *)(p + 0x85) = cAC;
-    p1 = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F4));
+    p1 = fclSpriteEntry((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F4));
     *(FclByte4 *)(p1 + 0x85) = *(FclByte4 *)(p + 0x85);
     cA8 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
-    p = func_002b6150((s16)(*(s16 *)(t + 0x120) + 0x2FB));
+    p = fclSpriteEntry((s16)(*(s16 *)(t + 0x120) + 0x2FB));
     *(FclByte4 *)(p + 0x85) = cA8;
     *(u8 *)(t + 0x13A) = 1;
     switch ((s8)arg1) {
@@ -5944,7 +5944,7 @@ void func_00330060(u8 *arg0, s32 arg1) {
         break;
     }
     for (i = 0; i < 9; ++i) {
-        func_002b68d0((s16)(i + 0x179), 0, 1);
+        fclSpriteSetFlag((s16)(i + 0x179), 0, 1);
     }
     diff = (s16)(*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120));
     cur = diff;
@@ -5954,34 +5954,34 @@ void func_00330060(u8 *arg0, s32 arg1) {
         savedColumn = jj;
         bid = (s32)addOff((s16)cur, 0x179);
         position = func_002b2970(32.0f, (f32)(savedColumn * 34 + 0x5B));
-        func_002b6c30((s16)((s16)bid), position, 152.0f, savedColumn * 5 + 0x6A);
-        func_002b68d0((s16)bid, 0, 0);
-        func_002b6d60((s16)bid);
+        fclSpriteCreate((s16)((s16)bid), position, 152.0f, savedColumn * 5 + 0x6A);
+        fclSpriteSetFlag((s16)bid, 0, 0);
+        fclSpriteResetScale((s16)bid);
         cA4 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        p = func_002b6150((s16)bid);
+        p = fclSpriteEntry((s16)bid);
         *(FclByte4 *)(p + 0x85) = cA4;
         ++cur;
         ++jj;
     }
     cA0 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-    p = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F5));
+    p = fclSpriteEntry((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F5));
     *(FclByte4 *)(p + 0x85) = cA0;
-    p1 = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F4));
+    p1 = fclSpriteEntry((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F4));
     *(FclByte4 *)(p1 + 0x85) = *(FclByte4 *)(p + 0x85);
     c9C = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-    p = func_002b6150((s16)addOff(diff + 0x179, *(s16 *)(t + 0x120)));
+    p = fclSpriteEntry((s16)addOff(diff + 0x179, *(s16 *)(t + 0x120)));
     *(FclByte4 *)(p + 0x85) = c9C;
     c98 = func_002b2a60(0x92, 0xC8, 7, 0xFF);
-    p = func_002b6150((s16)(*(s16 *)(t + 0x120) + 0x2FB));
+    p = fclSpriteEntry((s16)(*(s16 *)(t + 0x120) + 0x2FB));
     *(FclByte4 *)(p + 0x85) = c98;
     diff_f = (f32)(*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120));
     base = *(f32 *)(t + 0x124);
-    fv = *(f32 *)(func_002b6150(0xA9) + 0x3C);
+    fv = *(f32 *)(fclSpriteEntry(0xA9) + 0x3C);
     base = base * diff_f + fv;
-    *(f32 *)(func_002b6150(0xB1) + 0x3C) = base;
-    fv2 = *(f32 *)(func_002b6150(0xB1) + 0x3C);
+    *(f32 *)(fclSpriteEntry(0xB1) + 0x3C) = base;
+    fv2 = *(f32 *)(fclSpriteEntry(0xB1) + 0x3C);
     base = 52.0f + fv2;
-    *(f32 *)(func_002b6150(0xB5) + 0x3C) = base;
+    *(f32 *)(fclSpriteEntry(0xB5) + 0x3C) = base;
 }
 /* measured: nd 4 (4 attempts: separate-u8 slots 371, FclByte4 groups 212,
    s64 t17/t16 fix 185, t16 as s32 -> 4). MATCH-QUALITY: everything byte-
@@ -6016,31 +6016,31 @@ void func_003307b0(u8 *arg0, s64 arg1, s32 arg2) {
     u8 *p1, *p2;
 
     sp8C = func_002b2a60(0, 0, 0x66, 0xFF);
-    p1 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F5));
+    p1 = fclSpriteEntry((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F5));
     *(FclByte4 *)(p1 + 0x85) = sp8C;
-    p2 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F4));
+    p2 = fclSpriteEntry((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F4));
     *(FclByte4 *)(p2 + 0x85) = *(FclByte4 *)(p1 + 0x85);
     sp88 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-    p1 = func_002b6150((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
+    p1 = fclSpriteEntry((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
     *(FclByte4 *)(p1 + 0x85) = sp88;
     sp84 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
-    p1 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) + 0x2FB));
+    p1 = fclSpriteEntry((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) + 0x2FB));
     *(FclByte4 *)(p1 + 0x85) = sp84;
     if ((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) == 1) {
         sp80 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        p1 = func_002b6150(0x175);
+        p1 = fclSpriteEntry(0x175);
         *(FclByte4 *)(p1 + 0x85) = sp80;
     }
     temp3 = (s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2);
     if (temp3 == 0xA) {
         if (((s8)obj[0x138] & 1) == 1) {
             sp7C = func_002b2a60(0xFF, 0xCC, 0xFF, 0xFF);
-            p1 = func_002b6150((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
+            p1 = fclSpriteEntry((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
             *(FclByte4 *)(p1 + 0x85) = sp7C;
         }
     } else if ((temp3 == 0xB) && (((s32)((s8)obj[0x138] & 2) >> 1) == 1)) {
         sp78 = func_002b2a60(0xFF, 0xCC, 0xFF, 0xFF);
-        p1 = func_002b6150((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
+        p1 = fclSpriteEntry((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
         *(FclByte4 *)(p1 + 0x85) = sp78;
     }
     obj[0x13A] = 1;
@@ -6072,19 +6072,19 @@ void func_003307b0(u8 *arg0, s64 arg1, s32 arg2) {
         break;
     }
     sp74 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
-    p1 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F5));
+    p1 = fclSpriteEntry((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F5));
     *(FclByte4 *)(p1 + 0x85) = sp74;
-    p2 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F4));
+    p2 = fclSpriteEntry((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F4));
     *(FclByte4 *)(p2 + 0x85) = *(FclByte4 *)(p1 + 0x85);
     sp70 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-    p1 = func_002b6150((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
+    p1 = fclSpriteEntry((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
     *(FclByte4 *)(p1 + 0x85) = sp70;
     sp6C = func_002b2a60(0x92, 0xC8, 7, 0xFF);
-    p1 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) + 0x2FB));
+    p1 = fclSpriteEntry((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) + 0x2FB));
     *(FclByte4 *)(p1 + 0x85) = sp6C;
     if ((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) == 1) {
         sp68 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        p1 = func_002b6150(0x175);
+        p1 = fclSpriteEntry(0x175);
         *(FclByte4 *)(p1 + 0x85) = sp68;
     }
 }
