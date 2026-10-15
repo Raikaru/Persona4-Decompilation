@@ -2926,7 +2926,7 @@ s32 btlAICommandScriptQueryEnWeakSt(void) {
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1530
-u32 func_001e1530(void)
+u32 btlAICommandSideIdQueryMyHp(void)
 {
     u8 *unit;
     u16 id;
@@ -2963,7 +2963,7 @@ u32 func_001e1530(void)
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1620
-u32 func_001e1620(void)
+u32 btlAICommandSideIdQueryMyMp(void)
 {
     u8 *unit;
     u16 id;
@@ -3000,7 +3000,7 @@ u32 func_001e1620(void)
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1710
-u32 func_001e1710(void)
+u32 btlAICommandSideIdQueryMyLvO(void)
 {
     u8 *unit;
     u16 id;
@@ -3037,7 +3037,7 @@ u32 func_001e1710(void)
    func_0035f160->func_0029d050, func_002c0e30->func_001d9280,
    func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. */
 // FUN_001E1800
-u32 func_001e1800(void)
+u32 btlAICommandSideIdQueryMyBad(void)
 {
     u16 id;
     u8 *unit;
@@ -3092,7 +3092,7 @@ s32 func_001e1940(void) {
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E19F0
-u32 func_001e19f0(void)
+u32 btlAICommandSideIdQueryMyHansya(void)
 {
     u8 *unit;
     u16 id;
@@ -3129,7 +3129,7 @@ u32 func_001e19f0(void)
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1AE0
-u32 func_001e1ae0(void)
+u32 btlAICommandSideIdQueryMyKyusyu(void)
 {
     u8 *unit;
     u16 id;
@@ -3166,7 +3166,7 @@ u32 func_001e1ae0(void)
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1BD0
-u32 func_001e1bd0(void)
+u32 btlAICommandSideIdQueryMyMukou(void)
 {
     u8 *unit;
     u16 id;
@@ -3203,7 +3203,7 @@ u32 func_001e1bd0(void)
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1CC0
-u32 func_001e1cc0(void)
+u32 btlAICommandSideIdQueryMyWeak(void)
 {
     u8 *unit;
     u16 id;
@@ -3240,7 +3240,7 @@ u32 func_001e1cc0(void)
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1DB0
-u32 func_001e1db0(void)
+u32 btlAICommandSideIdQueryMyUseAttr(void)
 {
     u8 *unit;
     u16 id;
@@ -3277,7 +3277,7 @@ u32 func_001e1db0(void)
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1EA0
-u32 func_001e1ea0(void)
+u32 btlAICommandSideIdQueryMyUseSkil(void)
 {
     u8 *unit;
     u16 id;
@@ -3347,7 +3347,7 @@ s32 func_001e2030(void) {
    gFormationDispatchTable->D_00609850; selector tag 0x01000000. */
 #pragma opt_rebuildconditionals off
 // FUN_001E20D0
-u32 func_001e20d0(void)
+u32 btlAICommandOppSideIdQueryMyHp(void)
 {
     u8 *unit;
     u16 id;
@@ -3401,7 +3401,7 @@ done:
    family, selector tag 0x02000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
 // FUN_001E21E0
-u32 func_001e21e0(void)
+u32 btlAICommandOppSideIdQueryMyMp(void)
 {
     u8 *unit;
     u16 id;
@@ -3457,7 +3457,7 @@ done:
    family, selector tag 0x06000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
 // FUN_001E22F0
-u32 func_001e22f0(void)
+u32 btlAICommandOppSideIdQueryMyLvO(void)
 {
     u8 *unit;
     u16 id;
@@ -3505,7 +3505,7 @@ done:
    gFormationDispatchTable->D_00609850. Pragma for branchy shift set. */
 #pragma opt_rebuildconditionals off
 // FUN_001E2400
-u32 func_001e2400(void)
+u32 btlAICommandOppSideIdQueryMyBad(void)
 {
     u16 id;
     u8 *unit;
@@ -3791,7 +3791,7 @@ done:
    family, selector tag 0x16000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
 // FUN_001E2C10
-u32 func_001e2c10(void)
+u32 btlAICommandOppSideIdQueryMyHansya(void)
 {
     u8 *unit;
     u16 id;
@@ -3847,7 +3847,7 @@ done:
    family, selector tag 0x17000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
 // FUN_001E2D20
-u32 func_001e2d20(void)
+u32 btlAICommandOppSideIdQueryMyKyusyu(void)
 {
     u8 *unit;
     u16 id;
@@ -3903,7 +3903,7 @@ done:
    family, selector tag 0x18000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
 // FUN_001E2E30
-u32 func_001e2e30(void)
+u32 btlAICommandOppSideIdQueryMyMukou(void)
 {
     u8 *unit;
     u16 id;
@@ -3959,7 +3959,7 @@ done:
    family, selector tag 0x19000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
 // FUN_001E2F40
-u32 func_001e2f40(void)
+u32 btlAICommandOppSideIdQueryMyWeak(void)
 {
     u8 *unit;
     u16 id;
@@ -4015,7 +4015,7 @@ done:
    family, selector tag 0x22000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
 // FUN_001E3050
-u32 func_001e3050(void)
+u32 btlAICommandOppSideIdQueryMyUseAttr(void)
 {
     u8 *unit;
     u16 id;
@@ -4071,7 +4071,7 @@ done:
    family, selector tag 0x25000000). Same mapping as FUN_001E20D0. */
 #pragma opt_rebuildconditionals off
 // FUN_001E3160
-u32 func_001e3160(void)
+u32 btlAICommandOppSideIdQueryMyUseSkil(void)
 {
     u8 *unit;
     u16 id;
