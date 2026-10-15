@@ -4307,7 +4307,7 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
    is its own int local (retail gives them distinct registers and passes them to
    002b2a30 unmasked), the 0x68 roster loop uses its own index, and the state
    range checks are written `> 5` / `> 0xD`. */
-// Fcl combine menu preview (state 6): draws the preview of the selected pair and advances to state 7.
+// Fcl combine menu preview (state 6): browses the roster, previews the selected persona in the draw, then returns to the menu root (sub-state 0x1A) or hands to the result handler (state 0x0D, sub-state 0xC5).
 // FUN_002F9D90
 void fclCombineMenuPreview(u8 *arg0) {
     extern void yListSlotAppend(s8, s32, s8);
