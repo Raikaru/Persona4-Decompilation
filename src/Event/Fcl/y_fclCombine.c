@@ -10265,8 +10265,9 @@ void fclCombineTaskDestroy(u8 *arg0)
    rotates the later loop index/flag pair. Separate first/later locals,
    explicit skip labels for the b5b0 threshold guard, and the <=-equivalent
    `found > b5b0` spelling reproduce the saved-register and slt shapes. */
+// Fcl combine task create: creates the combine task with fclCombineTaskUpdate/Destroy, initialises its state, and runs the unlock and roster setup when flag 0x1463 is set.
 // FUN_00311260
-s32 func_00311260(u8 *arg0)
+s32 fclCombineTaskCreate(u8 *arg0)
 {
     u8 *p;
     s32 i;

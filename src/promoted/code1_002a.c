@@ -1255,7 +1255,7 @@ s32 func_002abf70(u8 *arg0) {
                 break;
             case 2:
                 iGpffffb54c = 0;
-                *(s32 *)(temp_16 + 0x6C8) = func_00311260(arg0);
+                *(s32 *)(temp_16 + 0x6C8) = fclCombineTaskCreate(arg0);
                 break;
             case 3:
                 *(s32 *)(temp_16 + 0x6C8) = func_003493b0(arg0);
@@ -1269,7 +1269,7 @@ s32 func_002abf70(u8 *arg0) {
             switch (*(s32 *)(temp_16 + 0x6C0)) {
             case 2:
                 iGpffffb54c = 1;
-                *(s32 *)(temp_16 + 0x6C8) = func_00311260(arg0);
+                *(s32 *)(temp_16 + 0x6C8) = fclCombineTaskCreate(arg0);
                 break;
             default:
                 break;
