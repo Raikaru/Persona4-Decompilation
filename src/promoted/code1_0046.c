@@ -120,7 +120,7 @@ extern s32 iGpffffaf60;
 extern void func_003c21e0(s32 arg0, s32 (*callback)(u8 *, s32 *), s32 *result);
 extern u8 *func_003bfae0(s32 arg0);
 extern s32 RwCameraFrustumTestSphere(s32 arg0, u8 *arg1);
-extern void func_00477400(s32 arg0, s32 arg1);
+extern void mdlClumpSetEnvMapValue(s32 arg0, s32 arg1);
 extern void func_00476c70(u8 *arg0);
 extern void func_00479910(s32 arg0);
 extern void func_00461560(u8 *arg0);
@@ -843,7 +843,7 @@ void func_00462230(u8 *arg0)
     self = arg0;
     work = *(u8 **)(self + 0x1C);
     if ((*(s32 *)(work + 0xD8) & 0x400) != 0) {
-        func_00477400(*(s32 *)(work + 0xDC), 1);
+        mdlClumpSetEnvMapValue(*(s32 *)(work + 0xDC), 1);
     }
     func_00476c70(work);
     if ((*(s32 *)(work + 0xE0) == 0) ||
@@ -865,7 +865,7 @@ void func_00462230(u8 *arg0)
         func_00461be0(self);
     }
     if ((*(s32 *)(work + 0xD8) & 0x400) != 0) {
-        func_00477400(*(s32 *)(work + 0xDC), 0);
+        mdlClumpSetEnvMapValue(*(s32 *)(work + 0xDC), 0);
     }
 }
 // measured: closes opt_propagation around func_00462230.

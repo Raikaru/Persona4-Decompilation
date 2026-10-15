@@ -1046,7 +1046,7 @@ void func_001b1d70(void) {
     extern void func_001987a0(u8 *arg0);
     extern void func_0047d170(void *model);
     extern u8 *mdlGetClump(u8 *arg0);
-    extern void func_004774e0(u8 *arg0);
+    extern void mdlClumpSetEnvMapState(u8 *arg0);
     extern s32 func_001ef8c0(void);
     extern void func_001b11c0(s32 arg0);
     extern s32 func_001b0f20(s32 arg0);
@@ -1111,7 +1111,7 @@ void func_001b1d70(void) {
                 func_0019d7a0(unit, 4);
                 func_0019d040(unit);
                 *(s32 *)(*(u8 **)(unit + 0xA00) + 0xD8) |= 0x400;
-                func_004774e0(mdlGetClump(*(u8 **)(unit + 0xA00)));
+                mdlClumpSetEnvMapState(mdlGetClump(*(u8 **)(unit + 0xA00)));
             }
             i++;
         }
