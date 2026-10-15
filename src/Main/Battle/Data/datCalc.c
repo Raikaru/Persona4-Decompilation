@@ -3480,13 +3480,14 @@ s32 datCalcDefaultSkillId(u8 *unit)
     return 0;
 }
 
+// Intent: random special-item skill (0xC0-0xC5) from unit arg0's skill list; 0 when the list has none; [inferred].
 // FUN_0023DFF0
 #pragma push
 /* measured: 320B/320B, nd 0. Unsigned remainders preserve distinct masks
    through CSE; hoisting and selected-before-index match retail registers. */
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
-s32 func_0023dff0(u8 *arg0)
+s32 datCalcPickSpecialItem(u8 *arg0)
 {
     u16 choices[16];
     s32 count;

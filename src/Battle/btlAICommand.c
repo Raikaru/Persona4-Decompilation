@@ -89,7 +89,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
 extern void func_001ebc00(u8 *a, u8 *b);
 extern s32 datCalcDefaultSkillId(u8 *unit);
-extern s32 func_0023dff0(u8 *arg0);
+extern s32 datCalcPickSpecialItem(u8 *arg0);
 extern u32 datCalcGetLevel(u32 arg0);
 extern s32 datCalcIsDead(u32 arg0, u32 arg1);
 extern u8 *iGpffffb3d0;
@@ -1792,7 +1792,7 @@ u32 btlAICommandPickUnitByHpWeight(u8 *arg0)
    of retail's test order, i.e. 0x8000, 0x1000, 0x2000, 0x8002, 0x8007, 0x8005,
    0x8006, 0x8001, 0x8008, 0x8009, 0x8004, default. Case 0x2000 falls through
    into case 0x8002 (separate p+0xEC store then shared q+0x34=7 body); case
-   0x8004 falls through into default (v = func_0023dff0(...)&0xFFFF then the
+   0x8004 falls through into default (v = datCalcPickSpecialItem(...)&0xFFFF then the
    shared q+0x34=2/q+0x36=v body, reusing the v parameter in $a2 exactly as
    retail). if/else t = v / v & 0xF000, then switch(t & 0xFFFF). */
 // FUN_001DE640
@@ -1837,7 +1837,7 @@ void btlAICommandSetActionCode(u8 *p, u8 *q, u16 v)
         func_001ebc00(p, q);
         break;
     case 0x8004:
-        v = (u16)(func_0023dff0(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64)) & 0xFFFF);
+        v = (u16)(datCalcPickSpecialItem(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64)) & 0xFFFF);
     default:
         *(u16 *)(q + 0x34) = 2;
         *(u16 *)(q + 0x36) = v;
