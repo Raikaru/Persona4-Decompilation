@@ -238,7 +238,7 @@ extern u8 D_00641880[];
 extern u8 D_0063FCA0[];
 extern u8 D_006406F0[];
 extern s64 func_00110a60(s32 arg0, s32 arg1);
-extern s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2);
+extern s32 fclCombineCheckRules(u8 *arg0, s8 arg1, u16 *arg2);
 extern f32 D_00641660[];
 extern u8 D_006417E0[];
 extern u8 D_00882FAE[];
@@ -6120,10 +6120,11 @@ void func_00302770(u8 *arg0) {
    44-byte switch table at 0x00749300. Independent searches keep their own
    short counters; the nested category search retains separate inner/outer
    lifetimes. The existing loop-invariant pragma hoists the flag constant. */
+// Fcl combine rule check: tests the ids against the combine's three category rules; 1 when they pass or no rule is set.
 // FUN_00303610
 #pragma push
 #pragma opt_loop_invariants on
-s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
+s32 fclCombineCheckRules(u8 *arg0, s8 arg1, u16 *arg2)
 {
     u8 *rule;
     u16 *last;
@@ -6288,7 +6289,7 @@ s32 fclCombineCheckIds(u8 *arg0) {
         buf[6] = *(u16 *)((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]) + 1);
         break;
     }
-    return func_00303610(arg0, p[0x1A], buf);
+    return fclCombineCheckRules(arg0, p[0x1A], buf);
 }
 
 /* measured: 740 executable bytes / 752B retail window, all eight relocations exact.
