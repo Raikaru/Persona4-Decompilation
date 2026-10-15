@@ -71,8 +71,8 @@ extern u8 *datPersonaRosterSlot(s16 arg0);
 extern s32 datPersonaGetLeadSlot(void);
 extern s32 datPersonaGetLevel(u8 *arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
-extern u16 func_00272c60(s16 arg0);
-extern u16 func_00272c80(u16 arg0);
+extern u16 frFontSetFlagBits(s16 arg0);
+extern u16 frFontClearFlagBits(u16 arg0);
 
 extern u32 func_001d8bc0(void *arg0);
 extern void func_0011b360(u8 *arg0);
@@ -2461,7 +2461,7 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
     iconColor.b3 = opacity;
     ShdSkill_DrawIcon(iconPosition, 50.0f, iconColor, (u16)skill,
                   *(s32 *)(glyphs + 0x60));
-    func_00272c60(0x40);
+    frFontSetFlagBits(0x40);
     alpha = opacity & 0xFF;
     textX = 42.0f + x;
     {
@@ -2472,7 +2472,7 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
                       alpha | ((high << 24) | (high << 16) | ((u32)(u8)tone << 8)),
                       0, 1, (const char *)iGpffffb448 + skill * 0x13, 0, -1);
     }
-    func_00272c80(0x40);
+    frFontClearFlagBits(0x40);
     if (skill < 0x1B8) {
         cost = func_0023d9b0(unit, (u16)skill);
         if (cost != 0) {
@@ -2501,10 +2501,10 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
         }
     }
     if (showDetail != 0) {
-        func_00272c60(0x40);
+        frFontSetFlagBits(0x40);
         func_002bc860(10.0f + ((2.0f + textX) - 1.0f), 36.0f + y,
                       0.0f, alpha | ~0xFF, 1, 0, skill);
-        func_00272c80(0x40);
+        frFontClearFlagBits(0x40);
     }
 }
 #pragma pop
@@ -2556,7 +2556,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
     color.bytes.c3 = opacity;
     func_00113280(pos, 50.0f, color.word, id,
                   *(s32 *)(glyphs + 0x5C), *(s32 *)(glyphs + 0x60));
-    func_00272c60(0x40);
+    frFontSetFlagBits(0x40);
     masked = opacity & 0xFF;
     fx = 42.0f + x;
     name = (const char *)func_001067f0(id);
@@ -2569,7 +2569,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
                           ((u32)(u8)tone << 8) | masked,
                       0, 1, name, 0, -1);
     }
-    func_00272c80(0x40);
+    frFontClearFlagBits(0x40);
     func_00201650(glyphs, 0xC, 0x47, (374.0f + x) - 97.0f,
                   (157.0f + y) - 145.0f, tone, tone, tone, opacity);
     digit = *(s8 *)(p4_002091f0_add((u32)off, work) + 0x1A8);
@@ -2584,7 +2584,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
                       tone, tone, tone, opacity);
     }
     if (show_detail != 0) {
-        func_00272c60(0x40);
+        frFontSetFlagBits(0x40);
         {
             s32 labelX;
             s32 labelY;
@@ -2594,7 +2594,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
             item = (s16)id;
             func_002bc4b0(0.0f, item, labelX, labelY, masked | ~0xFF, 1, 0);
         }
-        func_00272c80(0x40);
+        frFontClearFlagBits(0x40);
     }
 }
 #pragma pop
@@ -2647,7 +2647,7 @@ void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
         func_00201650(glyphs, 13, tens % radix + 0x1D, digit_x,
                       digit_y, tone, tone, tone, opacity);
     }
-    func_00272c60(0x40);
+    frFontSetFlagBits(0x40);
     name = (const char *)datPersonaGetRow(*(u16 *)(persona + 2));
     {
         f32 text_x = 151.0f + x;
@@ -2659,7 +2659,7 @@ void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
             (high << 24) | (high << 16) | ((u32)(u8)tone << 8) | (u8)opacity,
             0, 1, name, 0, -1);
     }
-    func_00272c80(0x40);
+    frFontClearFlagBits(0x40);
 }
 #pragma pop
 extern s16 func_00105f00(s16 arg0);
@@ -2687,7 +2687,7 @@ void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
         tone = 0xFF;
     }
     persona = ((u8 **)(work + 0x17C))[slot];
-    func_00272c60(0x40);
+    frFontSetFlagBits(0x40);
     name = (const char *)func_0010d6d0(*(s16 *)(persona + 0xA4));
     {
         f32 text_x = 1.0f + x;
@@ -2699,7 +2699,7 @@ void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
             (high << 24) | (high << 16) | ((u32)(u8)tone << 8) | (u8)opacity,
             0, 1, name, 0, 0);
     }
-    func_00272c80(0x40);
+    frFontClearFlagBits(0x40);
     func_00201650(glyphs, 9, 0x3C, 155.0f + x,
                   24.0f + y, tone, tone, tone, opacity);
     func_00201650(
@@ -2731,11 +2731,11 @@ void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
     func_00201650(work, 9, (s32)((u32)index + 0x3FU), 71.0f + x, y,
                   color, color, color, opacity);
     if (draw_text != 0) {
-        func_00272c60(0x40);
+        frFontSetFlagBits(0x40);
         func_002791f0(10.0f + (2.0f + (42.0f + x) - 1.0f), 36.0f + y, 0.0f,
                       (s32)(0xFFFFFF00U | (u8)opacity), 1, 0, 0,
                       *(s32 *)(work + 0x98), index);
-        func_00272c80(0x40);
+        frFontClearFlagBits(0x40);
     }
 }
 #pragma pop
@@ -4347,7 +4347,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     func_00201650(glyphs, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
     iconFrame = (s16)func_00105f00(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4)) + 0x3F;
     func_00201650(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
-    func_00272c60(0x40);
+    frFontSetFlagBits(0x40);
     nameAddress = func_0010d6d0(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4));
     font = (u8 *)(u32)frFontExCreateText(357.0f, 332.0f, 50.0f, -1, 0, 1, (const char *)nameAddress, 0, NULL);
     nameWidth = func_002738d0((struct FrFontNode *)font);
@@ -4364,7 +4364,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     frFontMoveListTo((s32)(u32)font, nameX16, 0xA60);
     func_00273170(font, 1, 0);
     frFontListKeepOrRelease((s32)(u32)font);
-    func_00272c80(0x40);
+    frFontClearFlagBits(0x40);
     renderer->setState(6, 0);
     func_002019e0(glyphs, 0.0f);
     {

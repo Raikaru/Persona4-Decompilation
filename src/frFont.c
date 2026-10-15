@@ -31,7 +31,7 @@ extern u32 DAT_00881528_abs[];
 extern u32 DAT_0088152C_abs[];
 extern u32 DAT_0088179C_abs[];
 extern u32 frFontListRelease(int param_1);
-extern u32 func_00272cb0(int param_1);
+extern u32 frFontFadeNodes(int param_1);
 extern void *memset(void *dst, s32 value, u32 size);
 extern int func_0045af90(int param_1);
 extern void func_002baa20(void);
@@ -619,7 +619,7 @@ int frFontListKeepOrRelease(int param_1)
     char cVar1;
     int uVar2;
 
-    cVar1 = (char)func_00272cb0(param_1);
+    cVar1 = (char)frFontFadeNodes(param_1);
     if (cVar1 != '\0') {
         uVar2 = param_1;
     } else {
@@ -1300,8 +1300,9 @@ void frFontSetGlyphColor(int param_1, u32 param_2)
     }
 }
 
+/* Returns the last node in the list. */
 // FUN_00272BF0
-int func_00272bf0(int param_1)
+int frFontListTail(int param_1)
 {
     if (param_1 == 0) {
         func_0046d730(D_0063BAE8, 0x77B);
@@ -1311,8 +1312,9 @@ int func_00272bf0(int param_1)
     }
     return param_1;
 }
+/* Sets bits in the global flag word and returns its previous value. */
 // FUN_00272C60
-u16 func_00272c60(s16 param_1)
+u16 frFontSetFlagBits(s16 param_1)
 {
     u16 uVar1;
 
@@ -1323,8 +1325,9 @@ u16 func_00272c60(s16 param_1)
 
 
 
+/* Clears bits in the global flag word and returns its previous value. */
 // FUN_00272C80
-u16 func_00272c80(u16 param_1)
+u16 frFontClearFlagBits(u16 param_1)
 {
     u16 uVar1;
     long mask;
@@ -1336,6 +1339,7 @@ u16 func_00272c80(u16 param_1)
 }
 
 
+/* Fades every node of type 2 that still has a fade level: lowers the level by 8 and raises the node's +8 by 0x10. Returns 1 if any node changed. */
 // Ported from P3FES FUN_003b0ec0 (verified MATCH there). Retail hoists the
 // loop-invariant mask/type constants here; removing opt_loop_invariants
 // measured nd102 at 136B instead of nd1 at 140B (P3 donor annotation).
@@ -1344,7 +1348,7 @@ u16 func_00272c80(u16 param_1)
 #pragma push
 #pragma opt_loop_invariants on
 
-u32 func_00272cb0(int list)
+u32 frFontFadeNodes(int list)
 {
     u32 result = 0;
     u32 mask = ~0xff;
@@ -1383,8 +1387,9 @@ u32 func_00272cb0(int list)
 
 
 
+/* Returns the node if its type and state say it is ready (or 0). */
 // FUN_00272D40
-u8 *func_00272d40(u8 *arg0)
+u8 *frFontReadyNode(u8 *arg0)
 {
     s32 temp;
 
@@ -1422,7 +1427,7 @@ u8 *func_00272d40(u8 *arg0)
    retail branches to the join. Re-tested wave 14 (fresh m2c body, nd170):
    confirms the pervasive rotation - retail saves 8 (frame 0x90,
    arg0=$s1/arg1=$s0/arg3=$s7), mwcc saves 7 (frame 0x80, arg0=$s3/arg1=$s2)
-   from the very first move; also fixed func_00272d40's call to 1 arg (m2c
+   from the very first move; also fixed frFontReadyNode's call to 1 arg (m2c
    draft wrongly shows 2; retail calls with $18 only). Saved-register
    SUPERSEDED: Saved-register rotation floor. */
 // FUN_00272E10
@@ -1468,7 +1473,7 @@ s32 func_00272e10(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
         *(u8 **)(arg0 + 0x1c) == arg1 &&
         *(s32 *)(arg0 + 0x40) == 0) {
         found = 0;
-        if (func_00272d40(temp_18) != 0) {
+        if (frFontReadyNode(temp_18) != 0) {
             found = 1;
             switch (*(s32 *)(temp_18 + 0x30)) {
             case 0xf222:
@@ -1631,7 +1636,7 @@ s32 func_00273170(void *arg0, u32 arg1, u32 arg2)
         }
         if (*(u8 **)(node + 0x28) == 0 && *(s32 *)(node + 0x40) == 0) {
             found = 0;
-            if (func_00272d40(node) != 0) {
+            if (frFontReadyNode(node) != 0) {
                 found = 1;
                 switch (*(s32 *)(node + 0x30)) {
                 case 0xF222:
@@ -1665,7 +1670,7 @@ s32 func_00273170(void *arg0, u32 arg1, u32 arg2)
     return total;
 }
 #pragma opt_propagation on
-/* measured: reconstructed from the matched func_00272d40 case logic. Reusing
+/* measured: reconstructed from the matched frFontReadyNode case logic. Reusing
    arg0 as the walking node and declaring flag before sum gives retail's
    node=$s2/flag=$s1/sum=$s0 prologue. Assigning the result pointer only after
    each case's call, with explicit result_zero/result_check labels, reproduces
