@@ -311,8 +311,8 @@ extern f32 D_008872F8[];
 /* Source unit: src/promoted/code1_0014.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 0014dcd0-0014eec0 */
 
-extern s32 func_0014c780(void);
-extern u8 *func_0014cef0(s32 arg0, s32 arg1);
+extern s32 FldEvent_AverageEntryValue(void);
+extern u8 *FldEvent_GetGridCellEntry(s32 arg0, s32 arg1);
 typedef struct {
     f32 gammaCorrection;
     void *fpSystem;
@@ -354,7 +354,7 @@ extern void H_Fade_SetCustomColor(s32 red, s32 green, s32 blue);
 extern void RwV3dNormalize(f32 *destination, f32 *source);
 extern u8 iGpffff9dd8[8];
 /* measured probe: optimization_level 1 on c780. */
-/* measured: restore optimization_level 2 after func_0014c780. */
+/* measured: restore optimization_level 2 after FldEvent_AverageEntryValue. */
 #pragma push
 /* measured: byte-exact (354/354 instructions, 0 differing words).  The three
    occupancy scans are block-scoped so each `clear` flag lives where retail
@@ -365,7 +365,7 @@ extern u8 iGpffff9dd8[8];
    opt_loop_invariants hoists 600.0f/1200.0f, x+1/y+1 and the table bases. */
 #pragma pop
 /* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
-/* measured: restore opt_loop_invariants off after func_0014cef0. */
+/* measured: restore opt_loop_invariants off after FldEvent_GetGridCellEntry. */
 // FUN_0014DCD0
 void FldRc_SetAxesTargeted(u8 *arg0, s32 arg1)
 {

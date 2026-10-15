@@ -42,7 +42,7 @@ s16 func_00106cd0(s16, s32);
 s32 FldEvent_TriggerUpdate(u8 *);
 s32 func_0014a160(void);
 s32 func_0015a160(void);
-s32 func_0014c850(f32, f32, void *);
+s32 FldEvent_FindFirstRegionActor(f32, f32, void *);
 u8 *func_001823c0(void);
 s32 func_0015c1e0(s32);
 s32 FldRc_RequestPositionSlot(u8 *, f32 *);
@@ -260,7 +260,7 @@ s32 FldEvent_AcquirePointEntry(s32 arg0)
     s32 r;
 
     h = *(s32 **)(arg0 + 0x38);
-    r = func_0014c850(250.0f, 90.0f, D_007EF9B0);
+    r = FldEvent_FindFirstRegionActor(250.0f, 90.0f, D_007EF9B0);
     if (r == 0) {
         goto fail;
     }
@@ -786,7 +786,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void func_00479e60(void *, s32, f32);
     f32 mdlGetLayerWeight(s32, s32);
     s32 func_0045af60(s16, s16, s16, s16);
-    u8 *func_0014c540(u8 *, f32, f32);
+    u8 *FldEvent_FindNearestVisibleActor(u8 *, f32, f32);
     u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *, const struct RwV3d *, f32);
     u32 K_FldEvent_IsPosWithinFov(const struct RwMatrix *, const struct RwV3d *, f32);
     void *mdlGetMatrix(void *);
@@ -915,7 +915,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     u32 lim = attack->hitFrame;
                     u32 cb = cur;
                     if (cb >= lim && cb < (lim + 5)) {
-                        FldEventActor *found = (FldEventActor *) func_0014c540(D_007EF9B0, attack->distance, attack->fov);
+                        FldEventActor *found = (FldEventActor *) FldEvent_FindNearestVisibleActor(D_007EF9B0, attack->distance, attack->fov);
                         work->target = found;
                         if (found != NULL && (found->flags & 2) == 0) {
                             u32 actorIndex;

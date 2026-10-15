@@ -55,7 +55,7 @@ extern s32 sprintf(char *dst, const char *fmt, ...);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern u32 RpRandom(void);
 extern void func_0047aa30(u8 *arg0, u8 *arg1);
-extern s32 func_0014c780(void);
+extern s32 FldEvent_AverageEntryValue(void);
 extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
 extern void mdlScale(Model *arg0, const RwV3d *arg1, s32 arg2);
 extern void RwMatrixUpdate(u8 *arg0);
@@ -77,9 +77,9 @@ extern void FldFrameTask_UpdateTile(s32 arg0);
 extern f32 RwV3dLength(f32 *arg0);
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
 extern u8 *FldUnit_FindNearestUnits(s32 arg0, u32 arg1, f32 arg2);
-extern u8 *func_0014cef0(s32 arg0, s32 arg1);
-extern void func_0014c920(void);
-extern s32 func_0014c960(s32 *arg0, s32 *arg1);
+extern u8 *FldEvent_GetGridCellEntry(s32 arg0, s32 arg1);
+extern void FldEvent_BeginGridScan(void);
+extern s32 FldEvent_NextGridCell(s32 *arg0, s32 *arg1);
 extern s32 datGetFlag(s32 arg0);
 extern s32 MT_Scene_CreateModelFldRes(s32 arg0, s32 arg1);
 extern u8 *func_00162330(void);
@@ -860,7 +860,7 @@ s32 FldUnit_SetupSlot(s32 arg0)
   *((s32 *) (temp_16 + 0x54)) = (s32) MT_Scene_GetRes(MT_Scene_CreateModelCharShadowRes((arg0 + 0x64) & 0xFFFF, mode, *((u8 **) (temp_16 + 0x50))) & 0xFFFF);
   mdlDispatchAnimIfPresent(*((u8 **) (temp_16 + 0x50)), 0, 0, 0x10, 1);
   func_0047aa30(*((u8 **) (temp_16 + 0x50)), D_005DC920);
-  temp_2 = (*((s32 *) (temp_16 + 0x1C0))) - func_0014c780();
+  temp_2 = (*((s32 *) (temp_16 + 0x1C0))) - FldEvent_AverageEntryValue();
   if (temp_2 < (-3))
   {
     *((u8 *) (temp_16 + 0x1CB)) = 0;
@@ -1160,9 +1160,9 @@ s32 FldUnit_SpawnEncounter(u32 arg0, s32 arg1)
             var_17 += 1;
         }
         if ((datGetFlag(0x1410) == 0) && (datGetFlag(0x1411) == 0)) {
-            func_0014c920();
-            while (func_0014c960(&sp6C, &sp68) == 1) {
-                temp_16 = func_0014cef0(sp6C, sp68);
+            FldEvent_BeginGridScan();
+            while (FldEvent_NextGridCell(&sp6C, &sp68) == 1) {
+                temp_16 = FldEvent_GetGridCellEntry(sp6C, sp68);
                 if (temp_16 != NULL) {
                     temp_19 = iGpffff9db0;
                     var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
