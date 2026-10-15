@@ -154,9 +154,9 @@ extern void chkmemAllocSiteTag(const void* arg0, s32 arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0024f160(u8* arg0);
 extern s32 func_0024f790(u8* arg0);
-extern s32 func_0024b870(u8 *task);
-extern void func_0024b990(u8 *task);
-extern s32 func_0024c0e0(u8* arg0, u8* arg1);
+extern s32 cmmScriptLoadStep(u8 *task);
+extern void cmmScriptTaskDestroy(u8 *task);
+extern s32 cmmScriptStepWaveSprite(u8* arg0, u8* arg1);
 extern s32 func_0024c460(u8* arg0, u8* arg1);
 extern s32 func_0024d1f0(u8* arg0, u8* arg1);
 typedef struct { f32 x, y, z, w; } Vec4f;
@@ -220,15 +220,15 @@ typedef struct cmmMsgState
     s32 counter; // 0x1C, frames since the last send
 } cmmMsgState;
 
-/* Script task user data. Offsets are shared by func_0024b870 (state
-   machine), func_0024b990 (destroy) and func_0024ba60 (handle release). */
+/* Script task user data. Offsets are shared by cmmScriptLoadStep (state
+   machine), cmmScriptTaskDestroy (destroy) and cmmScriptTaskDestroyHandle (handle release). */
 typedef struct CmmScriptTask
 {
     u32 flags;      // 0x00, bit 0 set once the file is loaded
     s32 state;      // 0x04
     s32 cdvdHandle; // 0x08, H_Cdvd file handle
     s32 handles[5]; // 0x0C, released with func_00452080
-    s32 weatherChoice; // 0x20, category result written by func_0024be40
+    s32 weatherChoice; // 0x20, category result written by cmmWeatherRoll
     s32 data;       // 0x24, buffer from func_0046af60, freed on destroy
 } CmmScriptTask;
 
@@ -304,10 +304,11 @@ s32 cmmMsgStreamGetResult(void)
    restores the per-site andi, and then the s8 return of func_002487e0
    must be held in an s32 local (an s8/u8 local makes level-1 codegen
    emit a redundant `move` around the dsll32/dsra32 sign-extension). */
+// Script persona detail show: resolves the persona id (0 = current) and fills message slots 0-7 with name, strings, and numbers.
 // FUN_0024A490
 #pragma optimization_level 1
 
-s32 func_0024a490(void)
+s32 cmmPersonaDetailShow(void)
 {
     s32 id;
     s32 mesMgr;
@@ -684,8 +685,9 @@ s32 func_0024afe0(void)
     return 1;
 }
 
+// Script item info show: fills the message window with the item record's names and numbers.
 // FUN_0024B070
-s32 func_0024b070(void)
+s32 cmmItemInfoShow(void)
 {
     s32 rec;
     s32 mesMgr;
@@ -778,10 +780,11 @@ s32 func_0024b430(void)
    level 1 restores the per-site andi/0xD0 frame. Loop temps need decl
    order src, dst, i (first-declared -> $a1 at level 1) and the s8 loads
    need an s32 local (s8 adds a move + dsll32/dsra32 re-extension). */
+// Script record info show: fills the message window slots for the record id with its name, the strings from D_00635A20, and its numbers.
 // FUN_0024B490
 #pragma optimization_level 1
 
-s32 func_0024b490(void)
+s32 cmmRecordInfoShow(void)
 {
     s32 mesMgr;
     s32 id;
@@ -846,8 +849,9 @@ s32 func_0024b6a0(void)
     scrSetReturnInt(func_00249770(param0, param1, param2));
     return 1;
 }
+// Script record field: returns one field of the record for the id (0 and 3 read 32-bit values, 1, 2, 4, and 5 read bytes; anything else asserts).
 // FUN_0024B720
-s32 func_0024b720(void)
+s32 cmmRecordGetField(void)
 {
     s32 id;
     s32 field;
@@ -887,8 +891,9 @@ s32 func_0024b720(void)
     }
     return 1;
 }
+// Script load step: state machine that starts the CDVD file load, waits for it, adopts the sprite blob, and waits for the blob to finish. State 5 is done.
 // FUN_0024B870
-s32 func_0024b870(u8 *task)
+s32 cmmScriptLoadStep(u8 *task)
 {
     CmmScriptTask *t;
     s32 sp2c;
@@ -926,8 +931,9 @@ s32 func_0024b870(u8 *task)
     }
     return 0;
 }
+// Script task destroy: tears down the five slot handles, the loaded blob, and the CDVD handle, then calls the task-destroy hook.
 // FUN_0024B990
-void func_0024b990(u8 *task)
+void cmmScriptTaskDestroy(u8 *task)
 {
     CmmScriptTask *t;
     s32 h;
@@ -951,8 +957,9 @@ void func_0024b990(u8 *task)
     H_Cdvd_Destroy((u8*)t->cdvdHandle);
     DAT_008873ec_abs[0]((u8*)t);
 }
+// Script handle clear: destroys the hierarchy in slot arg0 (0-4) and clears the slot.
 // FUN_0024BA60
-void func_0024ba60(s32 arg0)
+void cmmScriptTaskDestroyHandle(s32 arg0)
 {
     s32 task;
     CmmScriptTask *t;
@@ -969,10 +976,11 @@ void func_0024ba60(s32 arg0)
         }
     }
 }
+// Script handle spawn: replaces the handle in slot arg0 (0-4) with a new sprite for that slot, placed at the stored origin (D_00635A88); slot 3 is raised by 10 units.
 // FUN_0024BB00
 /* measured: O1 probe for global-load scheduling; revert if it does not match. */
 #pragma optimization_level 1
-s32 func_0024bb00(s32 arg0) {
+s32 cmmScriptSpawnHandle(s32 arg0) {
     extern s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask* task);
     extern s32 func_00455f70(s32 arg0, s32* arg1);
     extern s32 func_0025ff60(s32 arg0);
@@ -1048,7 +1056,7 @@ s32 func_0024bb00(s32 arg0) {
     }
     return 0;
 }
-/* measured: restore the translation-unit optimization level after func_0024bb00. */
+/* measured: restore the translation-unit optimization level after cmmScriptSpawnHandle. */
 #pragma optimization_level 2
 /* The month provider advances by 72 bytes: four rows of six signed weather
    weights precede four 12-byte attributes (also read by func_00250940).
@@ -1056,8 +1064,9 @@ s32 func_0024bb00(s32 arg0) {
    keeps `weights` a declared local instead of folding into its address
    temporary, so it takes retail's $s2; `cumulativeWeight` declared before
    `choiceIndex` gives the $s1/$s0 pair. */
+// Script weather roll: picks the day's weather from the month's weighted weather row (a day-of-week-5 slot and a holiday each move the row by one), stores it in the task, and returns the chosen index. Entry 0 counts only while flag 2703 is set.
 // FUN_0024BE40
-s32 func_0024be40(void)
+s32 cmmWeatherRoll(void)
 {
     typedef struct CmmWeatherRow { s8 weight[6]; } CmmWeatherRow;
     typedef struct CmmMonthAttribute {
@@ -1133,8 +1142,9 @@ s32 func_0024be40(void)
     task->weatherChoice = result;
     return result;
 }
+// Script wave sprite step: draws the wave sprite at (512, 418) for the flags in arg1 (2 slides it in, 4 fades it out) and clears the flag after ten frames. Returns 1 when the fade-out finishes.
 // FUN_0024C0E0
-s32 func_0024c0e0(u8 *arg0, u8 *arg1)
+s32 cmmScriptStepWaveSprite(u8 *arg0, u8 *arg1)
 {
     f32 angle;
     f32 wave;
@@ -1750,13 +1760,13 @@ s32 func_0024f160(u8 *arg0)
         *(s32 *)arg0 &= ~0x20;
         *(s32 *)arg0 &= ~0x40;
         for (i = 0; i < 5; i++) {
-            func_0024ba60(i);
+            cmmScriptTaskDestroyHandle(i);
         }
-        func_0024bb00(3);
-        func_0024bb00(1);
+        cmmScriptSpawnHandle(3);
+        cmmScriptSpawnHandle(1);
         func_0024f080(2, 1);
         func_0024f080(0, 1);
-        id = func_0024be40();
+        id = cmmWeatherRoll();
         func_00246e90((u16)id);
         *(s16 *)(arg0 + 0xE) = func_00249960(id);
     case 1:
@@ -1775,7 +1785,7 @@ s32 func_0024f160(u8 *arg0)
     if (*(s16 *)(arg0 + 0xC) >= *(s16 *)(arg0 + 0xE)) {
         *(s16 *)(arg0 + 0xC) = 0;
         *(s16 *)(arg0 + 0xE) = func_00249960(id);
-        func_0024bb00(4);
+        cmmScriptSpawnHandle(4);
         *(s16 *)(arg0 + 0x10) += 1;
         func_00249a60(id);
         state = *(s16 *)(arg0 + 0x10);
@@ -1855,7 +1865,7 @@ s32 func_0024f160(u8 *arg0)
             *(s32 *)(rec + 0x18) = 0;
         }
     }
-    func_0024bb00(2);
+    cmmScriptSpawnHandle(2);
     func_0024f080(0, 0);
 
     switch (result) {
@@ -1913,9 +1923,9 @@ s32 func_0024f790(u8 *work)
         *(s32 *)work &= ~8;
         *(s32 *)work &= ~0x80;
         for (i = 0; i < 5; i++) {
-            func_0024ba60(i);
+            cmmScriptTaskDestroyHandle(i);
         }
-        func_0024bb00(0);
+        cmmScriptSpawnHandle(0);
         func_0024f080(1, 1);
         random = RpRandom();
         randomFloat = (f32)random;
@@ -2150,7 +2160,7 @@ s32 func_00250120(void)
             chkmemAllocSiteTag(D_006359F0, 0x402);
             e = D_008873F4[0](1, 0x28, 0x40000);
             *(s32*)(e + 4) = 0;
-            (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
+            (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, cmmScriptLoadStep, cmmScriptTaskDestroy, (u8 *)(e));
         }
     }
     parent = func_00285af0();
@@ -2160,12 +2170,12 @@ s32 func_00250120(void)
     }
     chkmemAllocSiteTag(D_006359F0, 0x66C);
     e = D_008873F4[0](1, 0x5C, 0x40000);
-    *(s32*)(e + 0x14) = (s32)func_0024c0e0;
+    *(s32*)(e + 0x14) = (s32)cmmScriptStepWaveSprite;
     *(s32*)(e + 0x2C) = (s32)func_0024c460;
     *(s32*)(e + 0x44) = (s32)func_0024d1f0;
     (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635B38), 0xF, 0, 0, func_0024efa0, func_0024f040, (u8 *)(e));
     for (i = 0; i < 5; i++) {
-        func_0024ba60(i);
+        cmmScriptTaskDestroyHandle(i);
     }
     return 1;
 }
@@ -2187,7 +2197,7 @@ s32 func_002502f0(void)
                     chkmemAllocSiteTag(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
-                    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
+                    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, cmmScriptLoadStep, cmmScriptTaskDestroy, (u8 *)(e));
                 }
             }
             chkmemAllocSiteTag(D_006359F0, 0x81D);
@@ -2244,7 +2254,7 @@ s32 func_00250560(void)
                     chkmemAllocSiteTag(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
-                    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
+                    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, cmmScriptLoadStep, cmmScriptTaskDestroy, (u8 *)(e));
                 }
             }
             chkmemAllocSiteTag(D_006359F0, 0x81D);
@@ -2290,7 +2300,7 @@ s32 func_002507c0(void)
     if (func_0029d020() == 0) {
         func_0024f080(2, 0);
         for (i = 0; i < 5; i++) {
-            func_0024ba60(i);
+            cmmScriptTaskDestroyHandle(i);
         }
         goto ret0;
     }
