@@ -16,7 +16,7 @@ struct BtlPacket *func_001f8140(u16 state);
 struct BtlPacket *func_001f82b0(struct BtlUnit *unit);
 struct BtlPacket *func_001f8330(struct BtlUnit *unit);
 /* The selector arrives as a full word and is stored in a halfword work field. */
-struct BtlPacket *func_001b9de0(struct BtlAction *action, u32 selector, u32 duration);
+struct BtlPacket *btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u32 duration);
 u8 *func_00202850(void);
 /* Optional payloads contain three position floats, four quaternion floats,
  * and four color bytes, respectively. */

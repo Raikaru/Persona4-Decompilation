@@ -4072,7 +4072,7 @@ void func_001a7720(u8 *arg0) {
     /* lint: allow H011 -- retail passes these u16 arguments without conversion:
      * this caller saw u16 parameters (the definitions take u32/s32). */
     extern void func_001d69f0(u16 value, char *destination); /* lint: allow H011 -- retail passes the u16 unconverted */
-    extern BtlPacket *func_001b9de0(BtlAction *action, u16 selector, u32 duration); /* lint: allow H011 -- retail passes the u16 unconverted */
+    extern BtlPacket *btlMainCreateUnitTintPacket(BtlAction *action, u16 selector, u32 duration); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern void func_001f0a10(u8 *result);
     extern s32 func_001f0af0(u8 *arg0);
     extern s32 func_001f0b90(u8 *arg0);
@@ -5101,7 +5101,7 @@ void func_001a7720(u8 *arg0) {
     cameraPkt62->startTime = sceneTime;
     cameraPkt62->ownerId = actionId;
     func_00194590((u8 *)cameraPkt62, 1);
-    cameraPkt63 = (BtlPacketTiming *)(func_001b9de0((BtlAction *)arg0, (u16) skill, 8));
+    cameraPkt63 = (BtlPacketTiming *)(btlMainCreateUnitTintPacket((BtlAction *)arg0, (u16) skill, 8));
     cameraPkt63->queue = 4;
     cameraPkt63->startTime = sceneTime;
     cameraPkt63->ownerId = actionId;
@@ -6226,7 +6226,7 @@ void func_001abbb0(s64 *arg0)
     }
     {
         u8 *pkt;
-        pkt = (u8 *)func_001b9de0((BtlAction *)action, aux, 0x10);
+        pkt = (u8 *)btlMainCreateUnitTintPacket((BtlAction *)action, aux, 0x10);
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
         *(s64 *)(pkt + 0x60) = uid;
@@ -7937,7 +7937,7 @@ void func_001aed50(u8 *arg0)
     }
     {
         u8 *pk;
-        pk = (u8 *)func_001b9de0((BtlAction *)arg0, aux, 0x10);
+        pk = (u8 *)btlMainCreateUnitTintPacket((BtlAction *)arg0, aux, 0x10);
         *pk = 5;
         *(s64 *)(pk + 8) = cur58;
         *(s16 *)(pk + 0x48) = 0x3C;

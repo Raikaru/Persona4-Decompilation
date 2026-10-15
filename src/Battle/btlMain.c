@@ -75,7 +75,7 @@ typedef struct BtlMainSlerpResult
     s32 mode;
 } BtlMainSlerpResult;
 u32 btlMainUpdateColorFade(void* work);
-u32 func_001b99f0(void* work);
+u32 btlMainUpdateUnitTint(void* work);
 u32 btlMainUpdateUnitAlphaFade(void* work);
 
 extern u8 *func_003bb4a0(u8 *spline, s32 index, f32 *position);
@@ -928,7 +928,7 @@ extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 extern u8 *iGpffffb3b8;
 extern s32 func_001f0ff0(u32 arg0);
 // FUN_001B99F0
-u32 func_001b99f0(void *work)
+u32 btlMainUpdateUnitTint(void *work)
 {
     u8 *arg0;
     u8 *unit;
@@ -1058,13 +1058,13 @@ u32 func_001b99f0(void *work)
 }
 #pragma pop
 // FUN_001B9DE0
-BtlPacket* func_001b9de0(struct BtlAction *action, u32 selector, u32 duration)
+BtlPacket* btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u32 duration)
 {
     BtlPacket* packet;
     u8* work;
 
     packet = func_00194470(0x606, 0x10);
-    packet->updateFunc = func_001b99f0;
+    packet->updateFunc = btlMainUpdateUnitTint;
     work = (u8*)packet->workData;
     *(struct BtlAction**)(work + 0) = action;
     *(u32*)(work + 4) = duration;
