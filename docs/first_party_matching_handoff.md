@@ -611,7 +611,7 @@ Any order with `table` before `size` gives 0 edits.
   the `c0`/`stride` saved pair (34).
 
 **`004b8f40`, `003768e0`, `003599c0` MATCH.**
-- `004b8f40` (1): the midpoint row is `effAfterOffsetPtr((u32)(i * 3) * 4, base)`
+- `004b8f40` (1): the midpoint row is `effAfterWorkFieldPtr((u32)(i * 3) * 4, base)`
   assigned inside the first `EffAfterVec` copy, after the source offset is
   held in its own local. That puts the source index first, then the row,
   then the source base, which is retail's order.
@@ -793,7 +793,7 @@ the `--loop-weights` mode (mwccps2-debugger `5ea1631`). Reading of
   encloses the block. Then `out >= lim` for the assertion (retail `sltu`
   into `$v0`), `u8 *` table bases for six spline reads (base-first `addu`),
   and the colour-table end pointer through the file's own
-  `effAfterOffsetPtr(offset, base)` (offset-first, as the matched siblings).
+  `effAfterWorkFieldPtr(offset, base)` (offset-first, as the matched siblings).
   Left: one `addu` at `pfVar17 + temp_v5 * 3 - 9` (retail index-first).
   Every spelling of that sum keeps base-first; the helper there flips it but
   evaluates the end pointer before the ring offset (30); a dedicated
