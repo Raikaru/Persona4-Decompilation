@@ -66,7 +66,7 @@ extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern s32 func_00238940(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
-extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
+extern u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u32 datGetFlag(s32 arg0);
 extern s32 datPersonaGetStatById(s32 arg0, s32 arg1);
 extern s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2);
@@ -2451,8 +2451,9 @@ return_zero_1:
     return (s32)statuses;
 }
 #pragma pop
+// Intent: status-effect result for skill arg0 from actor arg1 on target arg2: 0x80000 for the special kind, a hit-formula result for ailment-type skills, else 0; [inferred].
 // FUN_002397D0
-u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
+u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
 {
     s16 temp_17;
     s32 temp_2;
@@ -2589,7 +2590,7 @@ s32 func_00239f50(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
     if (arg1 != NULL && arg2 != NULL) {
         temp_17 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
         arg3 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
-        temp_21 = func_002397d0(arg0, arg1, arg2, 1, 1, 0);
+        temp_21 = datCalcStatusEffectResult(arg0, arg1, arg2, 1, 1, 0);
         if ((u16)arg0 >= 0x1B8) {
             func_0046d730(D_00635938, 0xB94);
         }
@@ -2661,7 +2662,7 @@ s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
     if (arg1 != NULL && arg2 != NULL) {
         temp_21 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
         temp_19 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
-        temp_22 = func_002397d0(arg0, arg1, arg2, 1, 1, 0);
+        temp_22 = datCalcStatusEffectResult(arg0, arg1, arg2, 1, 1, 0);
         if ((u16)arg0 >= 0x1B8) {
             func_0046d730(D_00635938, 0xB94);
         }
