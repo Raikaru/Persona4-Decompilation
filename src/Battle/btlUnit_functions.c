@@ -434,7 +434,7 @@ u32 func_0019e5d0(void *arg0)
 u32 func_0019e5f0(void* work)
 {
     extern u8* iGpffffb3ac;
-    extern void func_0047a890(void* arg0, f32 arg1);
+    extern void mdlSetBlendWeight(void* arg0, f32 arg1);
     extern void func_0047a8a0(void* arg0, f32 arg1, f32 arg2);
     extern void func_0047a990(void* arg0);
     BtlUnitPacketLookAtDeactivate* packet;
@@ -451,7 +451,7 @@ u32 func_0019e5f0(void* work)
             {
                 if ((curr->flags3 & 8) && (curr->flags2 & 2))
                 {
-                    func_0047a890(curr->mdl, 0.25f);
+                    mdlSetBlendWeight(curr->mdl, 0.25f);
                     func_0047a8a0(curr->mdl, 70.0f, 60.0f);
                     func_0047a990(curr->mdl);
                     curr->lookAtMode = 0;
@@ -467,7 +467,7 @@ u32 func_0019e5f0(void* work)
             {
                 if ((curr->flags3 & 8) && (curr->flags2 & 2))
                 {
-                    func_0047a890(curr->mdl, 0.25f);
+                    mdlSetBlendWeight(curr->mdl, 0.25f);
                     func_0047a8a0(curr->mdl, 70.0f, 60.0f);
                     func_0047a990(curr->mdl);
                     curr->lookAtMode = 0;
@@ -481,7 +481,7 @@ u32 func_0019e5f0(void* work)
         curr = packet->unit;
         if (curr->flags2 & 2)
         {
-            func_0047a890(curr->mdl, 0.25f);
+            mdlSetBlendWeight(curr->mdl, 0.25f);
             func_0047a8a0(curr->mdl, 70.0f, 60.0f);
             func_0047a990(curr->mdl);
             curr->lookAtMode = 0;

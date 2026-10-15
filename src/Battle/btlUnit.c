@@ -1481,7 +1481,7 @@ u32 func_0019e220(u8* packet)
 {
     extern u8* iGpffffb3ac;
     extern void func_0047a8a0(void* model, f32 x, f32 y);
-    extern void func_0047a890(void* model, f32 value);
+    extern void mdlSetBlendWeight(void* model, f32 value);
     extern void func_0019d7a0(void* unit, s32 state);
     f32 firstHigh;
     f32 firstLow;
@@ -1529,7 +1529,7 @@ u32 func_0019e220(u8* packet)
                     }
                     if ((*(u32 *)(firstCurrent + 0x98) & 2) != 0)
                     {
-                        func_0047a890(*(void **)(firstCurrent + 0xa00), 0.25f);
+                        mdlSetBlendWeight(*(void **)(firstCurrent + 0xa00), 0.25f);
                     }
                     *(u16 *)(firstCurrent + 0xb0) = 2;
                     *(u32 *)(firstCurrent + 0xb4) =
@@ -1570,7 +1570,7 @@ u32 func_0019e220(u8* packet)
                     }
                     if ((*(u32 *)(secondCurrent + 0x98) & 2) != 0)
                     {
-                        func_0047a890(*(void **)(secondCurrent + 0xa00), 0.25f);
+                        mdlSetBlendWeight(*(void **)(secondCurrent + 0xa00), 0.25f);
                     }
                     *(u16 *)(secondCurrent + 0xb0) = 2;
                     *(u32 *)(secondCurrent + 0xb4) =
@@ -1608,7 +1608,7 @@ u32 func_0019e220(u8* packet)
         }
         if ((*(u32 *)(singleCurrent + 0x98) & 2) != 0)
         {
-            func_0047a890(*(void **)(singleCurrent + 0xa00), 0.25f);
+            mdlSetBlendWeight(*(void **)(singleCurrent + 0xa00), 0.25f);
         }
         *(u16 *)(singleCurrent + 0xb0) = 2;
         *(u32 *)(singleCurrent + 0xb4) =
