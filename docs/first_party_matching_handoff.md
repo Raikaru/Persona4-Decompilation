@@ -2849,8 +2849,8 @@ it.
 
 ### 7az. b210 always folds the unsigned conversion of a halfword load
 
-Three functions in `src/Graphics/Model/mdlManager.c` - `func_00471370`,
-`func_00473b20`, `func_00479100` - each carry a note calling the same
+Three functions in `src/Graphics/Model/mdlManager.c` - `mdlUpdateHierarchyPose`
+(formerly `func_00471370`), `func_00473b20`, `func_00479100` - each carry a note calling the same
 six-word difference a floor.  Retail emits the full unsigned recipe on a
 halfword load:
 

@@ -432,8 +432,9 @@ void* mdlSetAtomicHierarchy(void* param_1, void* hierarchy)
 
 
 
+/* Blends two animation interpolators' keyframe state for one frame, with blend factor param_1. The layer update calls it with 1.0f when a second animation is present. */
 // FUN_00471280
-u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
+u32 mdlBlendAnimInterpolators(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
                   RtAnimInterpolator* param_4, f32 param_1)
 {
     s32 frame;
@@ -509,8 +510,9 @@ static inline u32 modelAnimationFlag(const u32 *flag)
 
 /* measured: the parent matrix is a local assigned just before the node loop; the
  * copy coalesces into param_4, which then spills to a quadword slot as retail. */
+/* Updates the hierarchy pose from the owner's animation flags: quaternion slerp and matrix composition over the nodes. Callers gate it on flags 0x81E0. Not every step has been traced. */
 // FUN_00471370
-s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
+s32 mdlUpdateHierarchyPose(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 
 {
     RwMatrix *parentMatrix;
@@ -1339,9 +1341,10 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 #pragma pop
 
 extern s32 func_00397c40(void* hierarchy);
-extern s32 func_00471370(u8 *a, u8 *b, u8 *c, void *d);
+extern s32 mdlUpdateHierarchyPose(u8 *a, u8 *b, u8 *c, void *d);
+/* Per-node hook installed by mdlInstallHierarchyScaleHook. Scales the node's translation by the stored vector when the node matches the saved pointer, then calls the previous hook. */
 // FUN_00472F30
-void func_00472f30(u8* param_1, int param_2)
+void mdlHierarchyScaleHook(u8* param_1, int param_2)
 {
     if (*(s32*)DAT_00922ba8_abs == param_2) {
         *(float*)(param_2 + 0x18) = *(float*)(param_2 + 0x18) * *(*(float**)DAT_00922bac_abs);
@@ -1358,8 +1361,9 @@ void func_00472f30(u8* param_1, int param_2)
 
 
 
+/* Saves the existing per-node hook at the hierarchy root and installs mdlHierarchyScaleHook, so each node's translation is scaled. Used when animation flag 0x10 is set. */
 // FUN_00473000
-void func_00473000(u8* arg0, u8* arg1)
+void mdlInstallHierarchyScaleHook(u8* arg0, u8* arg1)
 {
     u8* p5;
     u8* obj;
@@ -1371,7 +1375,7 @@ void func_00473000(u8* arg0, u8* arg1)
     obj = *(u8**)(arg0 + 0x20);
     if (obj != 0) {
         *(s32*)DAT_00922ba0_abs = *(s32*)(obj + 0x3C);
-        *(s32*)(obj + 0x3C) = (s32)func_00472f30;
+        *(s32*)(obj + 0x3C) = (s32)mdlHierarchyScaleHook;
         obj2 = *(u8**)(arg0 + 0x20);
         count = *(s32*)(obj2 + 0x24);
         base = (s32)obj2 + 0x4C;
@@ -1387,7 +1391,7 @@ void func_00473000(u8* arg0, u8* arg1)
         *(f32*)D_00922BB0_abs = *(f32*)(p5 + 0x10);
         *(f32*)D_00922BB4_abs = *(f32*)(p5 + 0x14);
         if ((*(u16*)(arg1 + 0x54) & 0x81E0) != 0) {
-            func_00471370(arg0, arg1, arg1 + 0x54, 0);
+            mdlUpdateHierarchyPose(arg0, arg1, arg1 + 0x54, 0);
             *(u16*)(arg1 + 0x54) |= 0x4000;
         } else {
             func_00397c40(arg0);
@@ -1993,16 +1997,16 @@ finish_time:
             if (animation != 0 && animation != (u8 *)D_00922BC0_abs) {
                 if ((*(u16 *)arg0 & 2) != 0 && arg1 != 0) {
                     currentInterpolator = *(void **)(*(u8 **)(arg0 + 0x20) + 0x20);
-                    func_00471280(currentInterpolator,
+                    mdlBlendAnimInterpolators(currentInterpolator,
                         *(void **)(*(u8 **)(arg1 + 0x20) + 0x20),
                         currentInterpolator, 1.0f);
                 }
                 func_00473870(arg0);
                 if (arg2 != 0) {
                     if ((*(u16 *)arg0 & 0x10) != 0) {
-                        func_00473000(*(void **)(arg0 + 0x20), arg0);
+                        mdlInstallHierarchyScaleHook(*(void **)(arg0 + 0x20), arg0);
                     } else if ((*(u16 *)(arg0 + 0x54) & 0x81E0) != 0) {
-                        func_00471370(*(void **)(arg0 + 0x20), arg0, arg0 + 0x54, 0);
+                        mdlUpdateHierarchyPose(*(void **)(arg0 + 0x20), arg0, arg0 + 0x54, 0);
                     } else {
                         func_00397c40(*(void **)(arg0 + 0x20));
                     }
@@ -3263,10 +3267,10 @@ void func_00475cd0(MdlDrawState* owner)
 
     if (color.alpha == 0) {
         if ((owner->animFlags & 0x10) != 0) {
-            func_00473000(owner->hierarchy,
+            mdlInstallHierarchyScaleHook(owner->hierarchy,
                           (u8*)&owner->animFlags);
         } else if ((owner->flags140 & 0x81E0) != 0) {
-            func_00471370(owner->hierarchy,
+            mdlUpdateHierarchyPose(owner->hierarchy,
                           (u8*)&owner->animFlags, (u8*)&owner->flags140, 0);
         } else {
             func_00397c40(owner->hierarchy);
@@ -3378,7 +3382,7 @@ void func_00475cd0(MdlDrawState* owner)
     func_003e9cb0(frame, &matrix1, 0);
     }
     if ((owner->flags140 & 0x4000) != 0) {
-        func_00471370(owner->hierarchy,
+        mdlUpdateHierarchyPose(owner->hierarchy,
                       (u8*)&owner->animFlags, (u8*)&owner->flags140,
                       &identity);
     } else {
@@ -3410,10 +3414,10 @@ void func_00475cd0(MdlDrawState* owner)
     func_00479910(owner->clump);
     func_004789c0((Model*)owner);
     if ((owner->animFlags & 0x10) != 0) {
-        func_00473000(owner->hierarchy,
+        mdlInstallHierarchyScaleHook(owner->hierarchy,
                       (u8*)&owner->animFlags);
     } else if ((owner->flags140 & 0x81E0) != 0) {
-        func_00471370(owner->hierarchy,
+        mdlUpdateHierarchyPose(owner->hierarchy,
                       (u8*)&owner->animFlags, (u8*)&owner->flags140, 0);
     } else {
         func_00397c40(owner->hierarchy);

@@ -90,7 +90,7 @@ Use this loop for every target:
 
 This is the order that closed `func_001f14f0` (478 edits to 0),
 `func_0017f490` (369 to 0), `func_0018a200` (277 to 0), `func_0027f6f0`
-(103 to 0) and `func_00471370` (13 to 0). It is the concrete form of step 1
+(103 to 0) and `mdlUpdateHierarchyPose` (13 to 0). It is the concrete form of step 1
 above. Score with `tools/fnalign.py` after every step, keep only changes
 that do not regress, and commit each improvement with its measured note.
 Work one block or phase at a time; never rewrite the whole function in one
@@ -414,7 +414,7 @@ below are the codegen consequences.
   to the backend and was coalesced back into it. Front-end propagation
   removes a copy made at the top of the function or inside a loop body. A
   function-scope local assigned just before the loop that uses it survives
-  and moves the slot. This closed `mdlManager.c` `func_00471370`
+  and moves the slot. This closed `mdlManager.c` `mdlUpdateHierarchyPose`
   (`parentMatrix = param_4;` before the node loop).
 - **Split a narrow branch result from its widened join role.** If two arms
   return an `s8` and retail extends exactly once at their common join, assign
@@ -1032,7 +1032,7 @@ below are the codegen consequences.
   symbol exactly as fnalign does; the scores are identical to fnalign's.
   Candidates whose surrounding helpers and pragmas differ are grouped
   separately, and a chunk that fails to compile is bisected down to the bad
-  candidates. Measured: 32 copies of `func_00471370` (mdlManager.c) took
+  candidates. Measured: 32 copies of `mdlUpdateHierarchyPose` (mdlManager.c) took
   8.3 s, against 2.6 s for a single fnalign run.
 
   **Lever: at `optimization_level 1`, declaration order picks the saved
