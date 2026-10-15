@@ -177,7 +177,6 @@ extern u8 D_007131D8[];
 extern f32 DAT_00761130;
 extern u8 D_00713138[];
 extern u8 D_007241d0;
-extern void* D_00922BE0[];
 extern void func_00440b68(void* a, void* b, int c);
 extern u8* func_00454a60(u8* a, s32 b);
 extern void func_0044ea90(const void* file, s32 line);
