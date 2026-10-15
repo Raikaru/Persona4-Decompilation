@@ -11,8 +11,8 @@ s64 btlUnitGetMotionId(u8 *unit, u16 motion);
 /* Animation-table and boss-override selectors use their low unsigned halfword. */
 f32 func_00196bd0(u8 *unit, u8 *target, u16 motion);
 
-u32 func_00199e70(void *work);
-u32 func_0019a030(void *work);
+u32 btlUnitPlayMotionPacketUpdate(void *work);
+u32 btlUnitMotionRequestPacketUpdate(void *work);
 u32 func_0019ab00(void *work);
 
 /* Opening-motion selection and its boss-state predicate consume signed

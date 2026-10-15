@@ -182,13 +182,13 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019A660
-void func_0019a660(u8 *arg0)
+void btlUnitHoldPendingEnemyDodge(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
 // FUN_0019A680
-s32 func_0019a680(u8 *arg0)
+s32 btlUnitEnemyDodgePacketUpdate(u8 *arg0)
 {
     P4_95730_Vec3 sp40;
     f32 temp_f0;

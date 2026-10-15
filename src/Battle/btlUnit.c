@@ -917,8 +917,8 @@ s32 func_00198050(u8 *arg0)
 BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 param);
 BtlPacket* func_0019a5e0(BtlUnit* unit, s32 param);
 BtlPacket* btlUnitCreateEnmDodgeAnimPacket(BtlUnit* unit, s32 param);
-void func_00199e50(BtlUnitPacketCountRef* work);
-void func_00199ec0(BtlUnitPacketCountRef* work);
+void btlUnitHoldPendingAnim(BtlUnitPacketCountRef* work);
+void btlUnitReleasePendingAnim(BtlUnitPacketCountRef* work);
 
 // FUN_00199EE0
 BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode)
@@ -937,9 +937,9 @@ BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, s16 id, u16 blendFrameCount, f
 
     packet = btlPacketAlloc(0x100, sizeof(BtlUnitPacketAnim));
 
-    packet->initFunc = (BtlPacketFunc)func_00199e50;
-    packet->updateFunc = func_00199e70;
-    packet->destroyFunc = (BtlPacketFunc)func_00199ec0;
+    packet->initFunc = (BtlPacketFunc)btlUnitHoldPendingAnim;
+    packet->updateFunc = btlUnitPlayMotionPacketUpdate;
+    packet->destroyFunc = (BtlPacketFunc)btlUnitReleasePendingAnim;
 
     work = (BtlUnitPacketAnim*)packet->workData;
     work->unit = unit;

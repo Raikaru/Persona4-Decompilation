@@ -639,13 +639,13 @@ s32 func_00199d00(s32 unused, u8 *arg1, s16 arg2, s32 arg3)
 
 #pragma pop
 // FUN_00199E50
-void func_00199e50(u8 *arg0)
+void btlUnitHoldPendingAnim(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
 // FUN_00199E70
-u32 func_00199e70(void *workData)
+u32 btlUnitPlayMotionPacketUpdate(void *workData)
 {
     u8 *packet = (u8 *)workData;
     s16 motion;
@@ -665,7 +665,7 @@ u32 func_00199e70(void *workData)
 }
 
 // FUN_00199EC0
-void func_00199ec0(u8 *arg0)
+void btlUnitReleasePendingAnim(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }

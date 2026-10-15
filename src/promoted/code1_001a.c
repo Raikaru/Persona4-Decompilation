@@ -142,7 +142,7 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 {
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
 }
-u8 *func_0019a0c0(u8 *arg0, u16 arg1);
+u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
 extern void func_001eb410(u8 *arg0);
 extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *target, f32 distance, f32 speed, u32 flags);
 extern BtlPacket *func_001d3530(u32 source, u32 target, u16 mode);
@@ -384,7 +384,7 @@ void btlActionFinishPresentation(BtlAction *action)
 loop_body:
             if ((*(u16 *)(listUnit + 0x1A) & 1) &&
                 datCalcIsDead(*(s32 *)(*(u8 **)(listUnit + 0x30) + 0xA64), 0) == 0) {
-                unitPacket = func_0019a0c0(*(u8 **)(listUnit + 0x30), 0);
+                unitPacket = btlUnitCreateMotionRequestPacket(*(u8 **)(listUnit + 0x30), 0);
                 *(s64 *)(unitPacket + 0x60) = *(s64 *)action;
                 btlPacketEnqueue(unitPacket, 0);
             }
@@ -5403,7 +5403,7 @@ void func_001a7720(u8 *arg0) {
                     }
                     if (sp2C0 == 0) {
                         if (sp30C == 0) {
-                            pkt10 = (BtlPacketTiming *)(func_0019a0c0(act->unit, windupFrames));
+                            pkt10 = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
                         } else {
                             /* Retail 001a9e5c/001ab480/001ab668 pass 1.0f in $f12. */
                             pkt10 = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
@@ -5881,7 +5881,7 @@ reactionPacket:
         if (sp2C0 == 0) {
             if (sp2F0 == 0) {
                 if (sp30C == 0) {
-                    animPacket = (BtlPacketTiming *)(func_0019a0c0(act->unit, windupFrames));
+                    animPacket = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
                 } else {
                     animPacket = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
                 }
@@ -5929,7 +5929,7 @@ reactionPacket:
     } else if (sp2C0 == 0) {
         if (sp2F0 == 0) {
             if (sp30C == 0) {
-                animPacket = (BtlPacketTiming *)(func_0019a0c0(act->unit, windupFrames));
+                animPacket = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
             } else {
                 animPacket = (BtlPacketTiming *)(func_0019ac40((BtlUnit *)(*( u8 ** )(arg0 + 0x30)), 0, 1.0f, 0));
             }
