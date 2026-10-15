@@ -70,7 +70,7 @@ extern u8 **func_00452560();
 extern void func_0046d730(void *file, s32 line);
 extern void *mdlGetMatrix(s32 a);
 extern void mdlSetBlendWeight(s32 a, f32 b);
-extern void func_0047a900(s32 a, void *b);
+extern void mdlSetLookAtDirection(s32 a, void *b);
 extern void mdlSetTrackScaleRange(s32 a, f32 b, f32 c);
 extern u8 *func_0047a980(s32 a);
 extern void func_0047a990(s32 a);
@@ -543,7 +543,7 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
             *(f32 *)(sp + 0x28) = 1.0f;
         }
         RwV3dNormalize(sp + 0x20, sp + 0x20);
-        func_0047a900(handle1, sp + 0x20);
+        mdlSetLookAtDirection(handle1, sp + 0x20);
         var_f12 = fGpffff8218 * temp_f20;
         if (!(var_f12 <= 1.0f)) {
             var_f12 = 1.0f;
@@ -564,7 +564,7 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
         *(f32 *)(sp + 0x28) = *(f32 *)(sp + 0x08) - *(f32 *)(sp + 0x28);
         *(u32 *)(sp + 0x24) = 0;
         RwV3dNormalize(sp + 0x20, sp + 0x20);
-        func_0047a900(handle1, sp + 0x20);
+        mdlSetLookAtDirection(handle1, sp + 0x20);
         var_f12_2 = fGpffff8218 * temp_f20;
         if (!(var_f12_2 <= 1.0f)) {
             var_f12_2 = 1.0f;

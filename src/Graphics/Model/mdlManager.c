@@ -5715,8 +5715,9 @@ void mdlLookAtSetupSetRange(void* param_1, float param_2, float param_3)
     *(float*)((u8*)param_1 + 0x14C) = param_3;
 }
 
+/* Sets the look target point at +0x17C and selects target mode: sets flag 0x40 and clears 0x20, 0x80 and 0x100. Battle and promoted look-at code pass the unit's look target. Consumer not yet traced. */
 // FUN_0047A8B0
-void func_0047a8b0(void* param_1, RwV3d* param_2)
+void mdlSetLookAtTargetPoint(void* param_1, RwV3d* param_2)
 {
     *(u16*)((u8*)param_1 + 0x140) |= 0x40;
     *(u16*)((u8*)param_1 + 0x140) &= 0xFF5F;
@@ -5724,8 +5725,9 @@ void func_0047a8b0(void* param_1, RwV3d* param_2)
     *(RwV3d*)((u8*)param_1 + 0x17C) = *param_2;
 }
 
+/* Sets the look direction vector at +0x17C from a matrix at-axis and selects direction mode: sets flag 0x20 and clears 0x40, 0x80 and 0x100. Event code passes the at vector. Consumer not yet traced. */
 // FUN_0047A900
-void func_0047a900(void* param_1, RwV3d* param_2)
+void mdlSetLookAtDirection(void* param_1, RwV3d* param_2)
 {
     *(u16*)((u8*)param_1 + 0x140) |= 0x20;
     *(u16*)((u8*)param_1 + 0x140) &= 0xFF3F;

@@ -2080,7 +2080,7 @@ extern s16 func_00479c30(s32, s32);
 extern s32 func_0047a6d0(void *, s32, void *);
 extern void func_0047a850(unsigned char *);
 extern void func_0047a870(unsigned char *);
-extern void func_0047a8b0(void *, void *);
+extern void mdlSetLookAtTargetPoint(void *, void *);
 extern void func_0047a990(unsigned char *);
 extern void func_0047a9f0(unsigned char *, u16);
 extern u16 func_0047aa00(unsigned char *);
@@ -2299,7 +2299,7 @@ s32 func_0018a200(u8 *param_1)
             lookTarget = (RainVector *)vec40;
             *(FldCopyVec *)vec40 = *(FldCopyVec *)(temp_v4 + 0x30);
             vec40[1] = vec40[1] + 140.0f;
-            func_0047a8b0(*(void **)(puVar1[3] + 0x164),lookTarget);
+            mdlSetLookAtTargetPoint(*(void **)(puVar1[3] + 0x164), lookTarget);
             temp_v2 = func_0047aa00(*(unsigned char **)(puVar1[3] + 0x164));
             temp_v2 |= 0x1000;
             func_0047a9f0(*(unsigned char **)(puVar1[3] + 0x164),temp_v2);
