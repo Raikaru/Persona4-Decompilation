@@ -37,7 +37,7 @@ extern u8 D_0063C420[];
 void func_0028f4f0(void);
 void K_View_SetFov(void *arg0, f32 arg1);
 void func_002919e0(void);
-static void func_00286e90(int param_1, int param_2);
+static void evtNodeUnlink(int param_1, int param_2);
 void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2);
 s32 func_0028d390();
 s32 func_0028dc30(s32 parent, s32 type, u8 *parameters);
@@ -331,8 +331,9 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
     return temp_17;
 }
 
+// Event node: unlinks 'node' from its owner list, frees its sub-blocks and the node.
 // FUN_00286C60
-void func_00286c60(u8 *arg0, u8 *arg1) {
+void evtNodeRemoveFree(u8 *arg0, u8 *arg1) {
     u32 t48;
     u32 t40;
 
@@ -367,8 +368,9 @@ void func_00286c60(u8 *arg0, u8 *arg1) {
     func_002852a0(8, -0x54);
 }
 
+// Event list: inserts 'node' into the owner list in ascending key order.
 // FUN_00286D80
-void func_00286d80(u32 *param_1, u32 *param_2) {
+void evtListInsertSorted(u32 *param_1, u32 *param_2) {
     u32 *node = (u32 *)param_2[0x13];
     if (node == 0) {
         param_2[0x13] = (u32)param_1;
@@ -404,8 +406,9 @@ void func_00286d80(u32 *param_1, u32 *param_2) {
     param_2[0x12] += 1;
 }
 
+// Event list: unlinks 'node' from its sibling links (does not free).
 // FUN_00286E90
-static void func_00286e90(int param_1, int param_2) {
+static void evtNodeUnlink(int param_1, int param_2) {
     if (*(u32 *)(param_1 + 0x94) == 0) {
         *(u32 *)(param_2 + 0x4C) = *(u32 *)(param_1 + 0x90);
     } else {
@@ -421,8 +424,9 @@ static void func_00286e90(int param_1, int param_2) {
     *(u32 *)(param_2 + 0x48) -= 1;
 }
 
+// Event node: allocates a 0x98-byte node of 'type' and inserts it into 'parent'.
 // FUN_00286F00
-void *func_00286f00(int param_1, int param_2) {
+void *evtNodeAlloc(int param_1, int param_2) {
     void *r;
     func_0044ea90(D_00748340, 0x52);
     r = D_008873F4[0](1, 0x98, 0x40000);
@@ -440,12 +444,13 @@ void *func_00286f00(int param_1, int param_2) {
         *(s8 *)((u8 *)r + 0x1E) = -1;
         break;
     }
-    func_00286d80((u32 *)r, (u32 *)param_2);
+    evtListInsertSorted((u32 *)r, (u32 *)param_2);
     return r;
 }
 
+// Event node: attaches scene resource 'resId' to 'node' and stores its data offset.
 // FUN_00286FF0
-void func_00286ff0(int param_1, int param_2, int param_3) {
+void evtNodeSetRes(int param_1, int param_2, int param_3) {
     u8 *r;
     if (param_1 != 0) {
         *(u16 *)(param_1 + 0xC) = param_2;
@@ -459,8 +464,9 @@ void func_00286ff0(int param_1, int param_2, int param_3) {
     }
 }
 
+// Event node: evtNodeAlloc followed by an attached scene resource.
 // FUN_00287060
-void *func_00287060(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
+void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
     s32 *r;
     u8 *t;
 
@@ -480,7 +486,7 @@ void *func_00287060(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
             *(s8 *)((u8 *)r + 0x1E) = -1;
             break;
         }
-        func_00286d80((u32 *)r, (u32 *)arg1);
+        evtListInsertSorted((u32 *)r, (u32 *)arg1);
     }
     if ((r != NULL) && (r != NULL)) {
         *(u16 *)((u8 *)r + 0xC) = arg2;
@@ -2605,12 +2611,12 @@ loop_27_body:
     temp_16 = *(s32 **)(arg0 + 0x4C);
     goto loop_25_test;
 loop_25_body:
-    func_00286c60((u8 *)temp_16, child);
+    evtNodeRemoveFree((u8 *)temp_16, child);
 loop_25_test:
     if ((child = *(u8 **)(temp_16 + 0x1A)) != 0) {
         goto loop_25_body;
     }
-    func_00286e90((int)temp_16, (int)arg0);
+    evtNodeUnlink((int)temp_16, (int)arg0);
     jtbl_008873EC[0]((void *)temp_16);
     func_002852a0(7, -0x98);
 loop_27_test:
