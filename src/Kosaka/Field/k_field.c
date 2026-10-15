@@ -20,7 +20,7 @@ extern s32 D_007D2510[];
 #define KFIELD_JTBL_008873EC (*(void (**)(s32))((u8 *)0x00880000 + 0x73EC))
 
 extern void func_00123ac0(void);
-extern void func_00167530(void);
+extern void FldUnit_ClearFlagBlock(void);
 extern void func_002bd410(void);
 extern void func_002bd3e0(void);
 extern void func_00149690(s32);
@@ -28,8 +28,8 @@ extern void func_00452080(s32);
 extern void func_00151f80(s32);
 extern s32 func_00102980(void);
 extern void func_001622d0(void);
-extern void func_00164170(void);
-extern void func_001641d0(void);
+extern void FldUnit_ReleaseGroupSlots(void);
+extern void FldUnit_ReleaseAllSlots(void);
 extern void memset(void *, s32, s32);
 extern void func_00156750(u8 *);
 extern u8 *func_00457120(void);
@@ -87,18 +87,18 @@ extern void func_0046d730(const void *, s32);
 extern void func_0014eed0(u16, u16);
 extern void func_00162200(s32);
 extern void func_001227d0(void);
-extern void func_00164230(u16, u16, u16);
+extern void FldUnit_SpawnAtEntry(u16, u16, u16);
 extern void func_00149680(s32);
 extern s32 func_00156640(u8 *, u16, u16, s16, s16, s32, s32, s32);
-extern s32 func_00162c30(void);
+extern s32 FldUnit_UpdateTable(void);
 extern s32 func_00452490(s32);
 extern s32 func_001614d0(void);
-extern void func_00162e10(void);
-extern void func_001658b0(void);
+extern void FldUnit_UpdateFacing(void);
+extern void FldUnit_RequestSceneResource(void);
 extern s32 func_0014a160(void);
 extern s32 sprintf(char *, const void *, ...);
 extern void *func_00477e80(u32, u16, void *, u32);
-extern s32 func_00165be0(void);
+extern s32 FldUnit_InstallResources(void);
 extern s32 func_004782b0(s32);
 extern s32 func_001227f0(void);
 extern s32 func_002859e0(s32, s32, s32);
@@ -116,16 +116,16 @@ extern u8 *func_0015c590(u8);
 extern s32 func_0015c5f0(u8 *);
 extern s32 func_0015a160(void);
 extern s32 func_0015a6b0(s32);
-extern void func_001664a0(void);
-extern void func_001662d0(void);
-extern s32 func_00166b40(u8 *, s32);
+extern void FldUnit_UpdateAllEnemySlots(void);
+extern void FldUnit_UpdateEnemySlot(void);
+extern s32 FldUnit_SpawnEncounterTask(u8 *, s32);
 extern s32 func_0014a270(void);
 extern s32 func_002ae630(u8 *);
 extern void func_002b2950(s32);
 extern s32 func_0018ced0(void);
 extern void func_0018c7e0(void);
 extern void func_00189ec0(void);
-extern s32 func_00166c30(s32);
+extern s32 FldUnit_IsSettled(s32);
 extern void func_00122640(s32, s32);
 extern s32 func_00122720(void);
 extern s32 func_0029db50(s32, u8 *, s32, s32);
@@ -188,7 +188,7 @@ s32 func_00155360(u8 *task)
         /* fallthrough */
     case 2:
         if (work->eventReader == 0) {
-            func_00164230(work->field, work->room, work->entry);
+            FldUnit_SpawnAtEntry(work->field, work->room, work->entry);
         }
         func_00149680(1);
         eventMode = work->eventReader != 0;
@@ -197,7 +197,7 @@ s32 func_00155360(u8 *task)
         work->state++;
         /* fallthrough */
     case 3:
-        if (func_00162c30() != 0 && func_00452490(work->loadTask) != 1) {
+        if (FldUnit_UpdateTable() != 0 && func_00452490(work->loadTask) != 1) {
             if (func_001614d0() == 3) {
                 func_00149690(1);
             }
@@ -205,9 +205,9 @@ s32 func_00155360(u8 *task)
         }
         break;
     case 4:
-        func_00162e10();
+        FldUnit_UpdateFacing();
         if (work->eventReader == 0) {
-            func_001658b0();
+            FldUnit_RequestSceneResource();
             if (func_0014a160() == 1) {
                 modelField = work->field;
                 if (modelField == 0x2C || modelField == 0x2E || modelField == 0x2F ||
@@ -222,7 +222,7 @@ s32 func_00155360(u8 *task)
         work->state++;
         break;
     case 5:
-        if (func_00165be0() == 0) break;
+        if (FldUnit_InstallResources() == 0) break;
         if (work->model != 0 && func_004782b0(work->model) == 0) break;
         if (work->eventReader != 0) {
             if (func_001227f0() != 0) {
@@ -271,11 +271,11 @@ s32 func_00155360(u8 *task)
         /* fallthrough */
     case 9:
         if (func_0015a6b0(func_0015a160()) != 0) {
-            func_001664a0();
+            FldUnit_UpdateAllEnemySlots();
         } else {
-            func_001662d0();
+            FldUnit_UpdateEnemySlot();
         }
-        D_007D2530[0] = func_00166b40(task, -1);
+        D_007D2530[0] = FldUnit_SpawnEncounterTask(task, -1);
         if ((func_0014a200() == 1 || func_0014a270() == 1) &&
             (*(s32 *)(iGpffff9db0 + 0) != 0x44 || *(s32 *)(iGpffff9db0 + 4) != 1)) {
             D_007D2528[0] = func_002ae630(task);
@@ -291,7 +291,7 @@ s32 func_00155360(u8 *task)
         work->state++;
         /* fallthrough */
     case 10:
-        if (func_00166c30(D_007D2530[0]) == 0) break;
+        if (FldUnit_IsSettled(D_007D2530[0]) == 0) break;
         func_002aaaa0();
         func_00122640(1, 0);
         work->state++;
@@ -366,7 +366,7 @@ void func_00155bf0(u8 *arg0)
     if (iGpffffb20c == 1) {
         func_00123ac0();
     }
-    func_00167530();
+    FldUnit_ClearFlagBlock();
     func_002bd410();
     func_002bd3e0();
     KFIELD_D_007D2540 = 0;
@@ -408,8 +408,8 @@ field_special:
 field_call:
     func_001622d0();
 field_done:
-    func_00164170();
-    func_001641d0();
+    FldUnit_ReleaseGroupSlots();
+    FldUnit_ReleaseAllSlots();
     memset(KFIELD_D_007E80A0, 0, 0xB40);
     iGpffffb2e4 = 0;
     func_00156750(arg0);

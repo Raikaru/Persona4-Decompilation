@@ -105,7 +105,7 @@ extern void func_0013aa90(u8 *arg0);
 extern void *memset(void *arg0, s32 arg1, u32 arg2);
 extern s16 func_00353c10(s16 *arg0);
 extern s16 func_00353b50(s16 *arg0);
-extern s32 func_00167d90(u8 *arg0);
+extern s32 FldUnit_SpawnPartyTask(u8 *arg0);
 extern u8 *func_00354a50(s32 arg0, u16 arg1);
 extern u8 *func_0046a770(char *arg0);
 extern u8 *func_0046d200(u32 arg0, u32 arg1);
@@ -699,7 +699,7 @@ s32 func_00134be0(u8 *arg0) {
             }
         }
     }
-    if (count > 0) *(s32 *)(arg0 + 0x1594) = func_00167d90((u8 *)changes);
+    if (count > 0) *(s32 *)(arg0 + 0x1594) = FldUnit_SpawnPartyTask((u8 *)changes);
     return count > 0;
 }
 #pragma pop
