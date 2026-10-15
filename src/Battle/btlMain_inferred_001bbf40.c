@@ -178,7 +178,7 @@ s32 btlCameraIsActionBlocked(u8 *arg0) {
     if (datCalcChkBadStatus(*(s32 *)((u8 *)(*(u8 **)(temp_16 + 0x30)) + 0xA64), 0x60) != 0) {
         return 1;
     }
-    return (s32)(func_001f0b90(temp_16) != 0);
+    return (s32)(btlActionAnyTargetSpecialHit(temp_16) != 0);
 }
 
 // FUN_001BC1B0

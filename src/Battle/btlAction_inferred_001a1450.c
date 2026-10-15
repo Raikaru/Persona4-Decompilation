@@ -16,19 +16,6 @@ typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
 extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
 
-/* 001f14f0 writes 0x20-byte hit records at action+0xF0. The guarded
-   controllers also construct this same provider-sized result payload. */
-typedef struct LargeBattleHitResult {
-    s32 hpDelta, spDelta;
-    u32 addedStatus, removedStatus;
-    u32 field10;
-    s32 field14;
-    s16 hpTransfer, spTransfer;
-    s8 motion;
-    u8 field1d;
-    u16 flags;
-} LargeBattleHitResult;
-
 /* Existing byte-view callers use these adapters to the provider definitions. */
 extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
 static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
@@ -2072,8 +2059,8 @@ void btlActionMoveTargetInit(u8 *actionBytes)
     extern f32 RwV3dLength(const RwV3d *vector);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *vector);
     extern s32 func_00243d80(u8 *unitData);
-    extern s32 func_001f0a50(u8 *actionBytes);
-    extern s32 func_001f0bf0(u8 *actionBytes);
+    extern s32 btlActionAnyTargetHitRowFlagged(u8 *actionBytes);
+    extern s32 btlActionAnyTargetFlagged(u8 *actionBytes);
     extern s32 func_001f0ff0(u32 action);
     extern s32 btlEncounterSkipsPresentation(void);
     extern u8 *iGpffffb3bc;
@@ -2149,7 +2136,7 @@ void btlActionMoveTargetInit(u8 *actionBytes)
     if ((*(u8 *)(iGpffffb3b8 + skill * 0x28) & 2) != 0) {
         s32 pairedTargets;
         UnitView *predicateUnit;
-        pairedTargets = func_001f0bf0((u8 *)action);
+        pairedTargets = btlActionAnyTargetFlagged((u8 *)action);
         predicateUnit = action->unit;
         do {
             switch (predicateUnit->kind) {
@@ -2222,10 +2209,10 @@ range_ineligible:
                     } else if (pairedTargets != 0) {
                         motion = 5;
                     } else {
-                        motion = (u16)(func_001f0a50((u8 *)action) != 0 ? 0xC : 4);
+                        motion = (u16)(btlActionAnyTargetHitRowFlagged((u8 *)action) != 0 ? 0xC : 4);
                     }
                 } else {
-                    motion = (u16)(func_001f0a50((u8 *)action) != 0 ? 0xC : 4);
+                    motion = (u16)(btlActionAnyTargetHitRowFlagged((u8 *)action) != 0 ? 0xC : 4);
                 }
                 distance = func_00196bd0((u8 *)action->unit, (u8 *)action->target->unit, motion);
             }
@@ -2284,7 +2271,7 @@ range_done:
         case 1:
             {
                 u16 motion;
-                motion = (u16)(func_001f0a50((u8 *)action) != 0 ? 0xC : 4);
+                motion = (u16)(btlActionAnyTargetHitRowFlagged((u8 *)action) != 0 ? 0xC : 4);
                 distance = func_00196bd0((u8 *)action->unit, (u8 *)action->target->unit, motion);
             }
             break;
@@ -2610,7 +2597,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     extern u16 btlTargetGetUnitIndex(BtlTarget *target);
     extern s32 func_001f08c0();
     extern void func_001f0a10(u8 *result);
-    extern s32 func_001f0b90();
+    extern s32 btlActionAnyTargetSpecialHit();
     extern s32 func_001f0dd0();
     extern u32 func_001f0f70(u8 *action);
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
@@ -3388,7 +3375,7 @@ createReaction:
                         (*(s8 *)((u8 *)(actionPacketC) + (0))) = 5;
                         (*(s64 *)((u8 *)(actionPacketC) + (8))) = hitPacketUid;
                         btlPacketEnqueue(actionPacketC, 1);
-                    } else if ((func_001f0f70(arg0) == 1) && (func_001f0b90(arg0) == 0)) {
+                    } else if ((func_001f0f70(arg0) == 1) && (btlActionAnyTargetSpecialHit(arg0) == 0)) {
                         actionPacketD = (u8 *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
                         (*(s8 *)((u8 *)(actionPacketD) + (0))) = 5;
                         (*(s64 *)((u8 *)(actionPacketD) + (8))) = hitPacketUid;
@@ -3533,9 +3520,9 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern void btlFormationFormatName(u16 value, char *destination); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern BtlPacket *btlMainCreateUnitTintPacket(BtlAction *action, u16 selector, u32 duration); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern void func_001f0a10(u8 *result);
-    extern s32 func_001f0af0(u8 *arg0);
-    extern s32 func_001f0b90(u8 *arg0);
-    extern s32 func_001f0c50(u8 *arg0);
+    extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
+    extern s32 btlActionAnyTargetSpecialHit(u8 *arg0);
+    extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
     extern s32 func_001f0d30(u8 *arg0);
     extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
     extern u32 func_001f0f70(u8 *arg0);
@@ -4083,7 +4070,7 @@ void btlActionSkillUpdate(u8 *arg0) {
         if ((isKind3 == 0) && (noOverride == 0)) {
             if ((hasCutinPartner == 0) && (sp2B0 == 0)) {
                 if (side == 0) {
-                    if (!(act->flags & 0x40) && ((((s32)(func_001f0af0(arg0)) != (s32)(0)) && (datCalcRandomBelow(0x64U) < 0x14U)) || (*(s32 *)(iGpffffb3ac + 0x10) & 0x1000))) {
+                    if (!(act->flags & 0x40) && ((((s32)(btlActionAnyTargetHitRowStatus(arg0)) != (s32)(0)) && (datCalcRandomBelow(0x64U) < 0x14U)) || (*(s32 *)(iGpffffb3ac + 0x10) & 0x1000))) {
                         hasCutin = 1;
                         act->flags = (u16) (act->flags | 0x40);
                         btlState3_43 = (u8 *)(iGpffffb3ac);
@@ -4105,7 +4092,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 effectHandles[1] = (*(s32 *)((u8 *)btlState3_33 + 0xD34));
                 effectHandles[2] = (*(s32 *)((u8 *)btlState3_33 + 0xD38));
             }
-            if (((s32)(func_001f11e0(skill)) == (s32)(0)) && ((s32)(func_001f0b90(arg0)) == (s32)(0))) {
+            if (((s32)(func_001f11e0(skill)) == (s32)(0)) && ((s32)(btlActionAnyTargetSpecialHit(arg0)) == (s32)(0))) {
                 targetGroup = (s32)((u16)btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)));
                 if ((side == 0) && (((u16)targetGroup) == 2)) {
                     randomFlag = (s32)((effMiscRand(0) & 1)) != (s32)(0);
@@ -5267,7 +5254,7 @@ reactionPacket:
         pkt127->delay = (s16) hitWait;
         pkt127->ownerId = actionId;
         btlPacketEnqueue((u8 *)pkt127, 1);
-    } else if ((rotateFirst != 0) && (side == 0) && (func_001f0c50(arg0) != 0) && (func_001f0d30(arg0) == 0)) {
+    } else if ((rotateFirst != 0) && (side == 0) && (btlActionSameGenusTargetsHaveDelta(arg0) != 0) && (func_001f0d30(arg0) == 0)) {
         pkt128 = (BtlPacketTiming *)(func_001f99c0(act->target, 0x12, 0U, 0, 0));
         pkt128->queue = 5;
         pkt128->startTime = lateChainTime;
@@ -5280,7 +5267,7 @@ reactionPacket:
             pkt129->startTime = lateChainTime;
             pkt129->delay = (s16) hitWait;
             btlPacketEnqueue((u8 *)pkt129, 1);
-        } else if (((s32)(func_001f0f70(arg0)) == (s32)(1)) && ((s32)(func_001f0b90(arg0)) == (s32)(0)) && (sp2E0 == 0)) {
+        } else if (((s32)(func_001f0f70(arg0)) == (s32)(1)) && ((s32)(btlActionAnyTargetSpecialHit(arg0)) == (s32)(0)) && (sp2E0 == 0)) {
             pkt130 = (BtlPacketTiming *)(func_001f99c0(arg0, 0x11, 0U, 0, 0));
             pkt130->queue = 5;
             pkt130->startTime = lateChainTime;
