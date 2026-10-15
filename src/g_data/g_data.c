@@ -193,7 +193,7 @@ extern u32 func_00110580(s32 arg0);
 
 extern s32 func_00110d30(s32 idx);
 
-extern void func_0010e9e0(s32 arg0, u32 arg1, u32 arg2, u8* arg3);
+extern void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3);
 
 extern s32 datCalcSkillEffectFlags(s32 arg0, u8* arg1, u8* arg2, s32 arg3);
 
@@ -1754,7 +1754,7 @@ typedef char DatSaveSummarySize[(sizeof(DatSaveSummary) == 52) ? 1 : -1];
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 // FUN_0010D7C0
-u8 *func_0010d7c0(s32 version, s32 *outSize, s32 compact)
+u8 *datSaveBuildImage(s32 version, s32 *outSize, s32 compact)
 {
     u8 checksum;
     s32 tag;
@@ -2060,7 +2060,7 @@ void func_0010e710(s32 arg0, u8 *arg1, s32 arg2)
         }
         memcpy(&v2, p + 4, 4);
         p = p + 8;
-        func_0010e9e0(arg0, v1, v2, p);
+        datSaveRestoreSection(arg0, v1, v2, p);
         p = p + v2;
     }
     iGpffffb19c = D_0079B67C[0];
@@ -2073,7 +2073,7 @@ void func_0010e710(s32 arg0, u8 *arg1, s32 arg2)
 }
 
 // FUN_0010E880
-s32 func_0010e880(s32 arg0, u8 *arg1, s32 arg2)
+s32 datSaveVerifyChecksum(s32 arg0, u8 *arg1, s32 arg2)
 {
     u8 byte;
     u32 v1;
@@ -2130,7 +2130,7 @@ s32 func_0010e880(s32 arg0, u8 *arg1, s32 arg2)
 
 /* 2480/2480 bytes; 106 fully resolved relocations. */
 // FUN_0010E9E0
-void func_0010e9e0(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
+void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
 {
     u32 index;
     switch (arg1) {
