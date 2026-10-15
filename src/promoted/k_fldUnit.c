@@ -294,7 +294,7 @@ typedef struct {
 } FieldUnitGridView;
 
 /* Partial object views recovered from the accesses below and the constructors
- * func_00145540 (scene resource) and FldUnit_CreateEncounterUnit (0x750-byte unit).
+ * MT_Scene_CreateModelCharShadowRes (scene resource) and FldUnit_CreateEncounterUnit (0x750-byte unit).
  * Unknown bytes describe real, unclassified fields, not extra storage.
  */
 typedef struct FieldUnitPlacement {
@@ -454,7 +454,7 @@ void FldUnit_UpdateFacing(void)
     extern void FldFrameTask_SetPosition(u8 *task, u8 *position);
     extern void FldShadow_SetRingParticles(u8 *task, f32 radius);
     extern s32 func_0014a160(void);
-    extern s32 func_00145540(u16 index, u16 variant, void *model);
+    extern s32 MT_Scene_CreateModelCharShadowRes(u16 index, u16 variant, void *model);
     extern f32 D_007615DC;
     RwV3d formationOffset;
     RwV3d markerScale;
@@ -491,7 +491,7 @@ void FldUnit_UpdateFacing(void)
             u16 resourceId;
 
             characterModel = &unitForSetup->model;
-            resourceId = func_00145540(partyIndex, resourceVariant, unitForSetup->model);
+            resourceId = MT_Scene_CreateModelCharShadowRes(partyIndex, resourceVariant, unitForSetup->model);
             createdResource = &unitForSetup->scene;
             *createdResource = (FieldUnitSceneResource *)MT_Scene_GetRes(resourceId);
             FldShadow_SetRingParticles((*createdResource)->effectTask, 60.0f);
@@ -857,7 +857,7 @@ s32 FldUnit_SetupSlot(s32 arg0)
   {
     mode = 3;
   }
-  *((s32 *) (temp_16 + 0x54)) = (s32) MT_Scene_GetRes(func_00145540((arg0 + 0x64) & 0xFFFF, mode, *((u8 **) (temp_16 + 0x50))) & 0xFFFF);
+  *((s32 *) (temp_16 + 0x54)) = (s32) MT_Scene_GetRes(MT_Scene_CreateModelCharShadowRes((arg0 + 0x64) & 0xFFFF, mode, *((u8 **) (temp_16 + 0x50))) & 0xFFFF);
   mdlDispatchAnimIfPresent(*((u8 **) (temp_16 + 0x50)), 0, 0, 0x10, 1);
   func_0047aa30(*((u8 **) (temp_16 + 0x50)), D_005DC920);
   temp_2 = (*((s32 *) (temp_16 + 0x1C0))) - func_0014c780();
@@ -1527,7 +1527,7 @@ void FldUnit_UpdateSlot(s32 arg0)
     temp_21 = (s32 *)(D_007EF9F8 + temp_17);
     if (*temp_21 != 0) {
         temp_16 = (u8 **)(D_007EFA00 + temp_17);
-        actorId = func_00145540(arg0 & 0xFFFF, 3, *temp_16) & 0xFFFF;
+        actorId = MT_Scene_CreateModelCharShadowRes(arg0 & 0xFFFF, 3, *temp_16) & 0xFFFF;
         temp_20 = (u8 **)(D_007EFA04 + temp_17);
         temp_2 = (u8 *)MT_Scene_GetRes(actorId);
         *temp_20 = temp_2;
@@ -1647,7 +1647,7 @@ void FldUnit_UpdateSlotModels(void)
             }
             slot = D_007E8C00 + i * 0x750;
             f50 = slot + 0x50;
-            t1 = func_00145540((i + 0x64) & 0xFFFF, mode, *(u8 **)(slot + 0x50));
+            t1 = MT_Scene_CreateModelCharShadowRes((i + 0x64) & 0xFFFF, mode, *(u8 **)(slot + 0x50));
             t2 = t1 & 0xFFFF;
             slot += 0x54;
             *(s32 *)slot = (s32)MT_Scene_GetRes(t2);
@@ -1985,7 +1985,7 @@ s32 FldUnit_InstallResources(void)
         {
             continue;
         }
-        resourceId = func_00145780((u16)(0x3FF - pair), 3, modelHandle);
+        resourceId = MT_Scene_CreateModelNpcShadowRes((u16)(0x3FF - pair), 3, modelHandle);
         SceneDraw_SetResVisibleChecked(resourceId, 1);
         instance = (u8*)MT_Scene_GetRes(resourceId);
         *(s32*)(instance + 0x234) = 3;

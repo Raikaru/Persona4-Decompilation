@@ -266,7 +266,7 @@ extern f32 D_008872F8[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001453a0-00145780 */
 
 // FUN_001453A0
-s32 func_001453a0(u16 arg0)
+s32 MT_Scene_CreateRes08(u16 arg0)
 {
     s32 temp_16;
     s32 temp_3;
@@ -295,7 +295,7 @@ s32 func_001453a0(u16 arg0)
 }
 
 // FUN_00145480
-s32 func_00145480(u16 arg0) {
+s32 MT_Scene_CreateRes07(u16 arg0) {
     s32 temp_16;
     s32 temp_4;
     u8 *temp_2;
@@ -315,12 +315,12 @@ s32 func_00145480(u16 arg0) {
 }
 
 // FUN_00145510
-s32 func_00145510(u16 arg0, void *arg1) {
-    return func_00145540(arg0, 0, arg1);
+s32 MT_Scene_CreateModelCharRes(u16 arg0, void *arg1) {
+    return MT_Scene_CreateModelCharShadowRes(arg0, 0, arg1);
 }
 
 // FUN_00145540
-s32 func_00145540(u16 arg0, u16 arg1, void *arg2) {
+s32 MT_Scene_CreateModelCharShadowRes(u16 arg0, u16 arg1, void *arg2) {
     s8 sp50[0xC];
     s32 temp_16;
     u16 shadowId;
@@ -363,7 +363,7 @@ s32 func_00145540(u16 arg0, u16 arg1, void *arg2) {
 }
 
 // FUN_00145690
-s32 func_00145690(u16 arg0, s32 arg1) {
+s32 MT_Scene_CreateModelUnkRes(u16 arg0, s32 arg1) {
     s8 sp30[0xC];
     s32 temp_17;
     s32 temp_4;
@@ -399,7 +399,7 @@ s32 func_00145690(u16 arg0, s32 arg1) {
 }
 
 // FUN_00145780
-s32 func_00145780(u16 arg0, u16 arg1, s32 arg2) {
+s32 MT_Scene_CreateModelNpcShadowRes(u16 arg0, u16 arg1, s32 arg2) {
     s8 sp[0xC];
     s32 temp_17;
     u16 shadowId;

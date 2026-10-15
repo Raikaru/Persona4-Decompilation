@@ -14,7 +14,7 @@ typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 
 
 extern s32 MT_Scene_GetResManager(void);
-extern u16 func_00145480(u16);
+extern u16 MT_Scene_CreateRes07(u16);
 extern void MT_Scene_OffsetPointByRotation(f32 *, f32, f32, f32, f32, f32 *);
 extern u8 *evtNodeAllocWithRes(s32, u8 *, u16, u8 *);
 extern void func_0028be70(u8 *, s32);
@@ -263,7 +263,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
     if (MT_Scene_GetResManager() != 0) {
         idx = (s32)MT_Scene_GetRes(0x1E58);
         if (idx == 0) {
-            resource_id = func_00145480(0x258) & 0xFFFF;
+            resource_id = MT_Scene_CreateRes07(0x258) & 0xFFFF;
             idx = (s32)MT_Scene_GetRes(resource_id);
         } else {
             resource_id = *(u16 *)idx;
@@ -275,7 +275,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         resource = (u8 *)MT_Scene_GetRes(0x1E59);
         if (resource == NULL) {
-            resource_id = func_00145480(0x259) & 0xFFFF;
+            resource_id = MT_Scene_CreateRes07(0x259) & 0xFFFF;
             MT_Scene_GetRes(resource_id);
         } else {
             resource_id = *(u16 *)resource;
@@ -592,7 +592,7 @@ void func_00295740(s32 arg0, u8 *arg1) {
             } else {
                 func_0047aa30(temp_17, D_005DC878);
             }
-            temp_16 = (u16)(func_00145780((u16)(func_002919d0(*(s32 *)(arg1 + 4)) & 0xFFFF), 0, temp_17) & 0xFFFF);
+            temp_16 = (u16)(MT_Scene_CreateModelNpcShadowRes((u16)(func_002919d0(*(s32 *)(arg1 + 4)) & 0xFFFF), 0, temp_17) & 0xFFFF);
             MT_Scene_SetResActiveById(temp_16, 1);
             temp_2_2 = (s32)(*(s32 *)(arg1 + 4) * 0x1E);
             sp58.x = (f32)temp_2_2;
