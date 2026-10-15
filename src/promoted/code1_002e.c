@@ -280,61 +280,15 @@ s64 func_002e0da0(void)
 {
     return (s64)(func_002e1230() != 0) << 0x30 >> 0x30;
 }
-// FUN_002E1CD0
-s32 func_002e1cd0(void)
-{
-    return 0;
-}
-
-// FUN_002E1CE0
-s32 func_002e1ce0(void)
-{
-    return 0;
-}
-
-// FUN_002E1CF0
-s32 func_002e1cf0(void)
-{
-    return 0;
-}
-
-// FUN_002E23B0
-s32 func_002e23b0(u8 *arg0)
-{
-    u8 *temp16;
-
-    temp16 = *(u8 **)(arg0 + 0x38);
-    if (*(s8 *)temp16 == 0) {
-        return 0;
-    }
-    func_002e2a10(*(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), (s32)*(s8 *)(temp16 + 0xC));
-    *(s8 *)temp16 = 0;
-    return 0;
-}
 
 
 
-// FUN_002E2410
-s32 func_002e2410(u8 *arg0)
-{
-    u8 *temp16;
-
-    temp16 = *(u8 **)(arg0 + 0x38);
-    if (*(s8 *)temp16 == 0) {
-        return 0;
-    }
-    func_002e3560(arg0, *(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), *(s8 *)(temp16 + 0xC));
-    *(s8 *)temp16 = 0;
-    return 0;
-}
 
 
 
-// FUN_002E2470
-void func_002e2470(u8 *arg0)
-{
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
-}
+
+
+
 
 /* measured: retail normalises the (s16) search value once in the loop
    preheader; plain -O2 re-narrows it inside the body (nd 69 at 132 bytes
