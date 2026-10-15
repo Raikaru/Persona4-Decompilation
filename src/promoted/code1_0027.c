@@ -664,7 +664,7 @@ s32 cmmCommunitySetReverseCurrent(void) {
     }
     temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
-        cmmCommunitySetRecordFlag1(temp_2 & 0xFFFF);
+        cmmCommunitySetReversed(temp_2 & 0xFFFF);
     }
     return 0;
 }
@@ -679,7 +679,7 @@ s32 cmmCommunityClearReverseCurrent(void) {
     }
     temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
-        cmmCommunityClearRecordFlag1(temp_2 & 0xFFFF);
+        cmmCommunityClearReversed(temp_2 & 0xFFFF);
     }
     return 0;
 }
@@ -694,7 +694,7 @@ s32 cmmCommunitySetBrokenCurrent(void) {
     }
     temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
-        cmmCommunitySetRecordFlag2(temp_2 & 0xFFFF);
+        cmmCommunitySetBroken(temp_2 & 0xFFFF);
     }
     return 0;
 }
@@ -709,7 +709,7 @@ s32 cmmCommunityClearBrokenCurrent(void) {
     }
     temp_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     if (temp_2 != 0) {
-        cmmCommunityClearRecordFlag2(temp_2 & 0xFFFF);
+        cmmCommunityClearBroken(temp_2 & 0xFFFF);
     }
     return 0;
 }
