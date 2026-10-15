@@ -316,7 +316,7 @@ static inline void fldGridMark(s32 x, s32 y)
     (((cellX) == (x) && (cellY) == (y)) || ((cellX) == (x) + 1 && (cellY) == (y)) ||                      \
      ((cellX) == (x) && (cellY) == (y) + 1) || ((cellX) == (x) + 1 && (cellY) == (y) + 1))
 // FUN_0014C540
-u8 *func_0014c540(u8 *arg0, f32 fparg0, f32 fparg1) {
+u8 *FldEvent_FindNearestVisibleActor(u8 *arg0, f32 fparg0, f32 fparg1) {
     f32 temp_f0;
     f32 temp_f23;
     f32 temp_f23_2;
@@ -391,7 +391,7 @@ loop_test_0014c540:
 
 /* measured probe: optimization_level 1 on c780. */
 // FUN_0014C780
-s32 func_0014c780(void) {
+s32 FldEvent_AverageEntryValue(void) {
     s32 index;
     s32 count;
     s32 sum;
@@ -427,9 +427,9 @@ loop_test_0014c780:
     return sum / count;
 }
 
-/* measured: restore optimization_level 2 after func_0014c780. */
+/* measured: restore optimization_level 2 after FldEvent_AverageEntryValue. */
 // FUN_0014C850
-s32 *func_0014c850(u8 *arg0, f32 fparg0, f32 fparg1) {
+s32 *FldEvent_FindFirstRegionActor(u8 *arg0, f32 fparg0, f32 fparg1) {
     u8 *temp_18;
     u8 *temp_19;
     s32 var_16;
@@ -456,7 +456,7 @@ loop_test_0014c850:
 }
 
 // FUN_0014C920
-void func_0014c920(void) {
+void FldEvent_BeginGridScan(void) {
     iGpffffb1f8 = 0;
     iGpffffb1fc = 0;
     memset(&D_007D24B0, 0, 0x30);
@@ -470,10 +470,10 @@ void func_0014c920(void) {
    base retail uses for the final mark.  The mark's bits are `(u16)(1U << x)`
    so they are not CSE'd with the signed occupancy test's `1 << x`.
    opt_loop_invariants hoists 600.0f/1200.0f, x+1/y+1 and the table bases. */
-/* measured: func_0014c960 MATCH -> MISMATCH without this pragma. */
+/* measured: FldEvent_NextGridCell MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_0014C960
-s32 func_0014c960(s32 *arg0, s32 *arg1)
+s32 FldEvent_NextGridCell(s32 *arg0, s32 *arg1)
 {
     s32 y;
     s32 x;
@@ -583,10 +583,10 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
 
 #pragma pop
 /* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
-/* measured: func_0014cef0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldEvent_GetGridCellEntry MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_0014CEF0
-u8 *func_0014cef0(s32 arg0, s32 arg1) {
+u8 *FldEvent_GetGridCellEntry(s32 arg0, s32 arg1) {
     f32 temp_f0;
     f32 temp_f0_2;
     s32 temp_16;
@@ -614,7 +614,7 @@ loop_test_0014cef0:
     return NULL;
 }
 
-/* measured: restore opt_loop_invariants off after func_0014cef0. */
+/* measured: restore opt_loop_invariants off after FldEvent_GetGridCellEntry. */
 // FUN_0014CFD0
 s32 func_0014cfd0(u8 *arg0)
 {
