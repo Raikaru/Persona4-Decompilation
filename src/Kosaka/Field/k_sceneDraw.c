@@ -59,7 +59,7 @@ extern void func_00470a90(KwlnTask* task, u32 id, KWindowEntryCallback callback)
 
 
 // FUN_0014A0F0
-void func_0014a0f0(u16 resTypeId, u32 visible)
+void SceneDraw_SetResVisible(u16 resTypeId, u32 visible)
 {
     Resrc* res;
 
@@ -80,7 +80,7 @@ void func_0014a0f0(u16 resTypeId, u32 visible)
 
 
 // FUN_0014A300
-void func_0014a300(u16 resTypeId, u32 customLight)
+void SceneDraw_SetCustomLight(u16 resTypeId, u32 customLight)
 {
     Resrc* res;
     u32 type;
@@ -176,7 +176,7 @@ void func_0014a460(u16 resTypeId, u32 directionalOnly)
 
 
 // FUN_0014A5D0
-void* func_0014a5d0(u16 resTypeId)
+void* SceneDraw_GetScaleA(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -200,7 +200,7 @@ void* func_0014a5d0(u16 resTypeId)
     return NULL;
 }
 // FUN_0014A6C0
-void* func_0014a6c0(u16 resTypeId)
+void* SceneDraw_GetScaleB(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -224,7 +224,7 @@ void* func_0014a6c0(u16 resTypeId)
     return NULL;
 }
 // FUN_0014A7B0
-void* func_0014a7b0(u16 resTypeId)
+void* SceneDraw_GetMatrixA(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -251,7 +251,7 @@ void* func_0014a7b0(u16 resTypeId)
 
 
 // FUN_0014A8A0
-void* func_0014a8a0(u16 resTypeId)
+void* SceneDraw_GetOffsetVec(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -275,7 +275,7 @@ void* func_0014a8a0(u16 resTypeId)
     return NULL;
 }
 // FUN_0014A990
-void* func_0014a990(u16 resTypeId)
+void* SceneDraw_GetMatrixB(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -299,7 +299,7 @@ void* func_0014a990(u16 resTypeId)
     return NULL;
 }
 // FUN_0014AA80
-void func_0014aa80(u16 resTypeId)
+void SceneDraw_ResetResource(u16 resTypeId)
 {
     s32 sp[3];
     s32 one;
@@ -310,11 +310,11 @@ void func_0014aa80(u16 resTypeId)
     u8 *temp_16;
     u32 type;
 
-    temp_17 = func_0014a5d0(resTypeId);
-    temp_16 = func_0014a6c0(resTypeId);
-    temp_19 = func_0014a7b0(resTypeId);
-    temp_21 = func_0014a8a0(resTypeId);
-    temp_18 = func_0014a990(resTypeId);
+    temp_17 = SceneDraw_GetScaleA(resTypeId);
+    temp_16 = SceneDraw_GetScaleB(resTypeId);
+    temp_19 = SceneDraw_GetMatrixA(resTypeId);
+    temp_21 = SceneDraw_GetOffsetVec(resTypeId);
+    temp_18 = SceneDraw_GetMatrixB(resTypeId);
     *(s32 *)(temp_17 + 0x0) = 0x3f000000;
     *(s32 *)(temp_17 + 0x4) = 0x3f000000;
     *(s32 *)(temp_17 + 0x8) = 0x3f000000;
@@ -377,7 +377,7 @@ void func_0014aa80(u16 resTypeId)
     }
 }
 // FUN_0014ACD0
-void* func_0014acd0(void)
+void* SceneDraw_GetList4Vec0(void)
 {
     u8* res;
 
@@ -389,7 +389,7 @@ void* func_0014acd0(void)
     return NULL;
 }
 // FUN_0014AD10
-void* func_0014ad10(void)
+void* SceneDraw_GetList4Vec1(void)
 {
     u8* res;
 
@@ -401,7 +401,7 @@ void* func_0014ad10(void)
     return NULL;
 }
 // FUN_0014AD50
-void* func_0014ad50(void)
+void* SceneDraw_GetList4Vec2(void)
 {
     u8* res;
 
@@ -534,7 +534,7 @@ void func_0014ad90(void)
     RwMatrixRotate(var_16, &sp[0], 2, -45.0f);
 }
 // FUN_0014B000
-void* func_0014b000(void)
+void* SceneDraw_GetList5Vec0(void)
 {
     u8* res;
 
@@ -546,7 +546,7 @@ void* func_0014b000(void)
     return NULL;
 }
 // FUN_0014B040
-void* func_0014b040(void)
+void* SceneDraw_GetList5Vec1(void)
 {
     u8* res;
 
@@ -558,7 +558,7 @@ void* func_0014b040(void)
     return NULL;
 }
 // FUN_0014B080
-void* func_0014b080(void)
+void* SceneDraw_GetList5Vec2(void)
 {
     u8* res;
 
@@ -570,7 +570,7 @@ void* func_0014b080(void)
     return NULL;
 }
 // FUN_0014B0C0
-void func_0014b0c0(u16 resTypeId, u32 visible)
+void SceneDraw_SetResVisibleChecked(u16 resTypeId, u32 visible)
 {
     Resrc* res;
 
@@ -598,7 +598,7 @@ setFlags:
 
 
 // FUN_0014B150
-void func_0014b150(u16 resTypeId, u32 persona)
+void SceneDraw_SetResPersona(u16 resTypeId, u32 persona)
 {
     Resrc* res;
 

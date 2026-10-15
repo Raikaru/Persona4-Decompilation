@@ -92,7 +92,7 @@ u32 Cmd_SetSceneResourceParam()
     s32 resourceId;
 
     resourceId = scrGetParamInt(0);
-    func_0014a0f0((u16)resourceId, scrGetParamInt(1));
+    SceneDraw_SetResVisible((u16)resourceId, scrGetParamInt(1));
     return true;
 }
 

@@ -237,7 +237,7 @@ extern f32 DAT_0076112c;
 extern void func_0019d990(u8 *arg0, s32 arg1);
 extern void func_0019d7a0(u8 *arg0, s32 arg1);
 extern u8 *func_001f7650(u8 *arg0);
-extern void func_0014b0c0(u16 arg0, u32 arg1);
+extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
 
 extern u8 *func_0019d210(s32 arg0);
 extern void func_0019ea60(u8 *arg0, s32 arg1);
@@ -3755,7 +3755,7 @@ void func_0019c0d0(void)
 {
     extern u32 func_00196610(u8 *arg0);
     extern void func_00230170(u8 *arg0);
-    extern void func_0014b150(u16 arg0, u32 arg1);
+    extern void SceneDraw_SetResPersona(u16 arg0, u32 arg1);
     extern void func_001b70c0(u8 *arg0);
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
@@ -3790,7 +3790,7 @@ void func_0019c0d0(void)
                     u16 id;
 
                     if ((id = *(u16 *)(entry + 0x9FE)) != 0) {
-                        func_0014b150(id, *(u8 *)(entry + 0xAC) == 1);
+                        SceneDraw_SetResPersona(id, *(u8 *)(entry + 0xAC) == 1);
                     }
                 }
                 break;
@@ -3984,7 +3984,7 @@ void func_0019d040(u8 *arg0) {
     *(s32 *)(arg0 + 0x9C) &= ~0x1000;
     func_0019d990(arg0, 5);
     if (*(u16 *)(arg0 + 0x9FE) != 0) {
-        func_0014b0c0(*(u16 *)(arg0 + 0x9FE), 1);
+        SceneDraw_SetResVisibleChecked(*(u16 *)(arg0 + 0x9FE), 1);
         *(s32 *)(arg0 + 0x9C) &= ~2;
         return;
     }
@@ -3998,7 +3998,7 @@ void func_0019d0c0(u8 *arg0) {
     *(s32 *)(arg0 + 0x9C) |= 0x1000;
     func_0019d990(arg0, 5);
     if (*(u16 *)(arg0 + 0x9FE) != 0) {
-        func_0014b0c0(*(u16 *)(arg0 + 0x9FE), 0);
+        SceneDraw_SetResVisibleChecked(*(u16 *)(arg0 + 0x9FE), 0);
     }
     *(s32 *)(arg0 + 0x9C) &= ~2;
 }

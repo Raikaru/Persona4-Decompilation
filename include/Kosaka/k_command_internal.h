@@ -9,7 +9,7 @@
 
 typedef struct Model Model;
 extern s32 func_00106600(s16 id);
-extern void func_0014a0f0(u16 resourceId, u32 value);
+extern void SceneDraw_SetResVisible(u16 resourceId, u32 value);
 extern u16 func_0014b510(s32 type);
 extern void func_00106550(s32 arg0, s32 arg1);
 extern void* func_00477e80(u32 type, u16 id, void* path, u32 mode);
