@@ -3075,7 +3075,7 @@ u32 btlAICommandSideIdQueryMyBad(void)
 }
 
 // FUN_001E1940
-s32 btlAICommandIdScriptQueryHasBuff(void) {
+s32 btlAICommandSideIdQueryHasBuff(void) {
     u8 *p = func_0029d050();
     u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
@@ -3310,7 +3310,7 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
 
 
 // FUN_001E1F90
-s32 btlAICommandIdScriptQueryMyGroup(void) {
+s32 btlAICommandSideIdQueryMyGroup(void) {
     u8 *p = func_0029d050();
     u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
@@ -3323,7 +3323,7 @@ s32 btlAICommandIdScriptQueryMyGroup(void) {
 }
 
 // FUN_001E2030
-s32 btlAICommandIdScriptQueryMyHrec(void) {
+s32 btlAICommandSideIdQueryMyHrec(void) {
     u8 *p = func_0029d050();
     u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
@@ -3554,7 +3554,7 @@ done:
 
 
 // FUN_001E2550
-s32 func_001e2550(void) {
+s32 btlAICommandSideIdQueryAllBadStatus(void) {
     u32 v;
     u32 m2;
     u32 c02;
@@ -3659,7 +3659,7 @@ done:
 /* Removing this loses FUN_001E2850 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUN_001E2850
-s32 func_001e2850(void) {
+s32 btlAICommandOppSideIdQueryHasBuff(void) {
     u32 shift;
     u32 *r;
     s32 x;
