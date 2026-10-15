@@ -18,6 +18,7 @@ void fclCombineAdvanceGridFade(u8 *task, u8 next_state, s8 mode);
 
 /* Incoming selectors are narrowed at their individual consumers. */
 void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 first, s64 second, s64 entry_mode);
+void fclCombineDrawStageTiles(u8 *task, s16 delay, s8 mode);
 
 /* Combine-screen placements take their screen positions by value (one
    eight-byte register each), not as packed s64 bits. */

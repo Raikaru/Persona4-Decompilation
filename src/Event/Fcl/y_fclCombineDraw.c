@@ -77,7 +77,7 @@ extern void fclSpriteStartColorAt(s16, s32, s32, s32, s32, s32);
 extern void fclSpriteStartColor(u8 *, FclByte4, FclByte4, u8, s16, s32);
 extern void fclCombineSetSlotColors(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
 extern s8 fclCombineMapSlotKind(s8);
-extern void func_003297f0(f32, f32, u8 *, s64, s8);
+extern void fclCombineSlideInHeaderSprites(f32, f32, u8 *, s64, s8);
 extern void fclCombineDrawPersonaRow(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
 extern f32 D_006440F0[];
 extern f32 D_006440F8[];
@@ -4131,7 +4131,7 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 0xC;
             *(s16 *)(t + 0x120) = 6;
         }
-        func_00329310(arg0, 6, arg2);
+        fclCombineDrawStageTiles(arg0, 6, arg2);
         pt = func_002b2970((87.0f + pos.x) + (f32)(*(s16 *)(t + 0x120) * 0x3D), 4.0f + pos.y);
         func_002b77d0(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         func_002b77d0(0x2E0, pt, 0x155, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
@@ -4180,8 +4180,9 @@ static inline f32 fclRowAdjustedX(f32 x, const f32 *table, s32 offset)
 }
 #pragma pop
 
+// Fcl combine stage tiles: draws the seven stage tiles from the window's first index (stage byte t+0x122 minus t+0x120), each with a shadow sprite; tiles from index 3 on also draw a secondary pair. arg2 is the entry mode.
 // FUN_00329310
-void func_00329310(u8 *arg0, s16 arg1, s8 arg2) {
+void fclCombineDrawStageTiles(u8 *arg0, s16 arg1, s8 arg2) {
     typedef union { FclByte4 channels; u32 word; } PackedColor;
     PackedColor white;
     PackedColor dark;
@@ -4264,9 +4265,10 @@ void func_00329310(u8 *arg0, s16 arg1, s8 arg2) {
    retail parameter and position lifetimes. Scoped opt_propagation off
    keeps the shared bounds pointer through its constructor calls.
    Evidence: build/first-party-finish-20260920/fcl-worker5. */
+// Fcl combine header slide-in: slides in the header sprites for a panel (a bar at 0x69, a label at 0x1AD, and the 0x109/0x10A or 0x11C/0x11B pair chosen by arg1) from fparg0/fparg1 offsets. arg2 is the entry mode; mode 0 creates the sprites.
 // FUN_003297F0
 #pragma opt_propagation off
-void func_003297f0(f32 fparg0, f32 fparg1, u8 *arg0, s64 arg1, s8 arg2) {
+void fclCombineSlideInHeaderSprites(f32 fparg0, f32 fparg1, u8 *arg0, s64 arg1, s8 arg2) {
     FclByte4 cDC;
     FclByte4 cD8;
     FclVec2 spD0;
@@ -4748,7 +4750,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 
   new_var3 = 0x3C;
   new_var8 = (s16 *) (obj + 0x11E);
-  func_003297f0(417.0, 220.0f, arg0, 0, arg3);
+  fclCombineSlideInHeaderSprites(417.0, 220.0f, arg0, 0, arg3);
   new_var6 = obj;
   new_var10 = (f32 *) (obj + 0x124);
   spB8 = func_002b2970(472.0f, 112.0f);
@@ -4845,7 +4847,7 @@ void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
     fclCombineDrawSlotFrames(arg0, sp108, 0, arg3);
     *(f32 *)(fclSpriteEntry(0xB1) + 0x3C) = *(f32 *)(t + 0x124) * (*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120)) + *(f32 *)(fclSpriteEntry(0xAA) + 0x3C);
     *(f32 *)(fclSpriteEntry(0xB5) + 0x3C) = 52.0f + *(f32 *)(fclSpriteEntry(0xB1) + 0x3C);
-    func_003297f0(359, 300.0f, arg0, 1, arg3);
+    fclCombineSlideInHeaderSprites(359, 300.0f, arg0, 1, arg3);
     func_0032b000(arg0, arg3);
 }
 
