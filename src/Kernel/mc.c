@@ -29,7 +29,7 @@ extern void func_00440b68(const void *, ...);
 extern void H_Memcard_SetRecordTable(void *);
 extern void func_0025e8b0(s32);
 extern s32 func_0025e800(s32, s32, s32);
-extern u8 *func_0010d7c0(s32, s32 *, s32);
+extern u8 *datSaveBuildImage(s32, s32 *, s32);
 extern void memcpy(void *, void *, s32);
 extern void H_Memcard_BeginLoad(s32, void *, s32);
 extern void H_Memcard_SetSlot(s32);
@@ -120,7 +120,7 @@ extern void H_Memcard_SetSeqMode4(void);
 extern void H_Memcard_BeginSave(s32, s32, s32);
 extern s32 H_Memcard_SaveStep(void);
 extern void func_0010e710(s32, u8 *, s32);
-extern s32 func_0010e880(s32, u8 *, s32);
+extern s32 datSaveVerifyChecksum(s32, u8 *, s32);
 extern u16 D_008C024E[];
 extern s32 func_00110580(s32);
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
@@ -176,7 +176,7 @@ void mcSetState(u8 *arg0, s32 arg1) {
         return;
     case 2:
         t19 = *(s32 *)(arg0 + 0x3AC);
-        p18 = func_0010d7c0(0, &sp6C, 0);
+        p18 = datSaveBuildImage(0, &sp6C, 0);
         p17 = sp6C;
         chkmemAllocSiteTag(&D_007638F8, 0x16D);
         p = D_008873F4[0](1, 0x38008, 0x40000);
@@ -696,11 +696,11 @@ s32 mcSaveState(s32 address) {
         case 100:
             p = *(u8 **)(arg0 + 0x39C);
             sp4C = 0;
-            temporary = func_0010d7c0(0, &sp48, 0);
+            temporary = datSaveBuildImage(0, &sp48, 0);
             ec = D_008873EC;
             (*(void (**)(void *))ec)(temporary);
             memcpy(&sp4C, *(void **)(p + 4), 4);
-            if (func_0010e880(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4) == 0) {
+            if (datSaveVerifyChecksum(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4) == 0) {
                 ok = 0;
             } else {
                 func_0010e710(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4);
