@@ -2368,8 +2368,9 @@ void* func_00474a10(void* param_1, void* data)
 
 
 
+/* Keyframe blend hook: copies the six floats at +0x8..+0x1C from param_2 to param_1. Installed as keyFrameBlendCB and at interpolator +0x40. The body is identical to mdlKeyFrameInterpolateCopy; retail keeps them at separate addresses, so both stay. */
 // FUN_00474A50
-void func_00474a50(void* param_1, void* param_2)
+void mdlKeyFrameBlendCopy(void* param_1, void* param_2)
 {
     *(float*)((u8*)param_1 + 0x8) = *(float*)((u8*)param_2 + 0x8);
     *(float*)((u8*)param_1 + 0xC) = *(float*)((u8*)param_2 + 0xC);
@@ -2379,8 +2380,9 @@ void func_00474a50(void* param_1, void* param_2)
     *(float*)((u8*)param_1 + 0x1C) = *(float*)((u8*)param_2 + 0x1C);
 }
 
+/* Keyframe interpolate hook: copies the six floats at +0x8..+0x1C from param_2 to param_1. Installed as keyFrameInterpolateCB and at interpolator +0x44. The body is identical to mdlKeyFrameBlendCopy. */
 // FUN_00474A90
-void func_00474a90(void* param_1, void* param_2)
+void mdlKeyFrameInterpolateCopy(void* param_1, void* param_2)
 {
     *(float*)((u8*)param_1 + 0x8) = *(float*)((u8*)param_2 + 0x8);
     *(float*)((u8*)param_1 + 0xC) = *(float*)((u8*)param_2 + 0xC);
@@ -2390,11 +2392,13 @@ void func_00474a90(void* param_1, void* param_2)
     *(float*)((u8*)param_1 + 0x1C) = *(float*)((u8*)param_2 + 0x1C);
 }
 
+/* No-op keyframe blend hook (empty body). In this file it is only compared against keyFrameBlendCB (keyframe-hook path near line 2851); the install site is not yet traced. */
 // FUN_00474AD0
-void func_00474ad0(void) {}
+void mdlKeyFrameBlendNoOp(void) {}
 
+/* No-op keyframe interpolate hook (empty body). Compared against keyFrameInterpolateCB beside mdlKeyFrameBlendNoOp; the install site is not yet traced. */
 // FUN_00474AE0
-void func_00474ae0(void) {}
+void mdlKeyFrameInterpolateNoOp(void) {}
 /* Anim-loop callback for RtAnimInterpolatorSetAnimLoopCallBack. When the slot entry at the state's raw index is valid and not already flagged, it sets the interpolator time from its first sub-object (func_003d5e40_typed) and sets the loop-done byte at state+1. */
 // FUN_00474AF0
 void* mdlAnimLoopRewind(void* param_1, u16* param_2)
@@ -2451,8 +2455,8 @@ void* mdlAnimLoopCallback(void* param_1, void* param_2)
          (*(int*)(*piVar1 + rawIndex * 8) != 0) &&
          ((*(u16*)param_2 & 1) != 0))) {
         func_003d5840(param_1, *(void**)param_1);
-        *(void**)((u8*)param_1 + 0x40) = (void*)func_00474a50;
-        *(void**)((u8*)param_1 + 0x44) = (void*)func_00474a90;
+        *(void**)((u8*)param_1 + 0x40) = (void*)mdlKeyFrameBlendCopy;
+        *(void**)((u8*)param_1 + 0x44) = (void*)mdlKeyFrameInterpolateCopy;
         return param_1;
     }
 
@@ -2637,7 +2641,7 @@ void* func_00475090(void* param_1, void* data)
    artifact of the || / if-else-if dispatch spelling. Working spelling:
    switch(func_00399d80(*it)){case 5: case 6:} reproduces retail's
    beq 6/beq 5/b-skip with the body out of line; the cb checks must compare
-   and store *(void**)(obj2+0x40) against (void*)func_00474a50/00474a90
+   and store *(void**)(obj2+0x40) against (void*)mdlKeyFrameBlendCopy/mdlKeyFrameInterpolateCopy
    (u32 casts also work, void* keeps mwcc from adding conversions);
    re-read arg0->0x18 fresh for `list` (retail re-issues the lw). */
 // FUN_00475170
@@ -2659,11 +2663,11 @@ void func_00475170(u8* arg0, f32 fparg0)
             case 6:
                 obj2 = (u8*)func_003d8130(*it, 0);
                 if (obj2 != 0) {
-                    if (*(void**)(obj2 + 0x40) == (void*)func_00474a50 &&
-                        *(void**)(obj2 + 0x44) == (void*)func_00474a90) {
+                    if (*(void**)(obj2 + 0x40) == (void*)mdlKeyFrameBlendCopy &&
+                        *(void**)(obj2 + 0x44) == (void*)mdlKeyFrameInterpolateCopy) {
                         func_003d5e40(obj2, fparg0);
-                        *(void**)(obj2 + 0x40) = (void*)func_00474a50;
-                        *(void**)(obj2 + 0x44) = (void*)func_00474a90;
+                        *(void**)(obj2 + 0x40) = (void*)mdlKeyFrameBlendCopy;
+                        *(void**)(obj2 + 0x44) = (void*)mdlKeyFrameInterpolateCopy;
                     } else {
                         func_003d5e40(obj2, fparg0);
                     }
@@ -2671,11 +2675,11 @@ void func_00475170(u8* arg0, f32 fparg0)
                 if (*(u8*)(arg0 + 2) != 1) {
                     obj2 = (u8*)func_003d8130(*it, 1);
                     if (obj2 != 0) {
-                        if (*(void**)(obj2 + 0x40) == (void*)func_00474a50 &&
-                            *(void**)(obj2 + 0x44) == (void*)func_00474a90) {
+                        if (*(void**)(obj2 + 0x40) == (void*)mdlKeyFrameBlendCopy &&
+                            *(void**)(obj2 + 0x44) == (void*)mdlKeyFrameInterpolateCopy) {
                             func_003d5e40(obj2, fparg0);
-                            *(void**)(obj2 + 0x40) = (void*)func_00474a50;
-                            *(void**)(obj2 + 0x44) = (void*)func_00474a90;
+                            *(void**)(obj2 + 0x40) = (void*)mdlKeyFrameBlendCopy;
+                            *(void**)(obj2 + 0x44) = (void*)mdlKeyFrameInterpolateCopy;
                         } else {
                             func_003d5e40(obj2, fparg0);
                         }
@@ -2803,8 +2807,8 @@ void func_00475350(void *clump, MdlAnimControlView *state,
                         else func_00399bf0(*object, 6);
                         if (special == 1) {
                             RtAnimInterpolatorSetAnimLoopCallBack(interpolator, mdlAnimLoopCallback, state);
-                            interpolator->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)func_00474a50;
-                            interpolator->keyFrameInterpolateCB = (void *)func_00474a90;
+                            interpolator->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)mdlKeyFrameBlendCopy;
+                            interpolator->keyFrameInterpolateCB = (void *)mdlKeyFrameInterpolateCopy;
                         } else {
                             RtAnimInterpolatorSetAnimLoopCallBack(interpolator, mdlAnimLoopRewind, state);
                             interpolator->keyFrameBlendCB = ((MdlAnimSchemeView *)animation->interpInfo)->keyFrameBlendCB;
@@ -2836,16 +2840,16 @@ static inline void mdl_step_secondary(MdlAnimControlView* state, u32* it)
         RtAnimInterpolator* interp;
         interp = (RtAnimInterpolator*)func_003d8130(*it, 1);
         if (interp != NULL) {
-            if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)func_00474a50 &&
-                interp->keyFrameInterpolateCB == (void*)func_00474a90) {
+            if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)mdlKeyFrameBlendCopy &&
+                interp->keyFrameInterpolateCB == (void*)mdlKeyFrameInterpolateCopy) {
                 RtAnimInterpolatorSetAnimLoopCallBack(interp, mdlAnimLoopCallback, state);
                 func_003d5e40((u8*)interp, state->secondaryTime);
-                interp->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)func_00474a50;
-                interp->keyFrameInterpolateCB = (void*)func_00474a90;
+                interp->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)mdlKeyFrameBlendCopy;
+                interp->keyFrameInterpolateCB = (void*)mdlKeyFrameInterpolateCopy;
             } else {
                 RtAnimInterpolatorSetAnimLoopCallBack(interp, mdlAnimLoopRewind, state);
-                if (interp->keyFrameBlendCB != (RtAnimKeyFrameBlendCallBack)func_00474ad0 &&
-                    interp->keyFrameInterpolateCB != (void*)func_00474ae0) {
+                if (interp->keyFrameBlendCB != (RtAnimKeyFrameBlendCallBack)mdlKeyFrameBlendNoOp &&
+                    interp->keyFrameInterpolateCB != (void*)mdlKeyFrameInterpolateNoOp) {
                     func_003d5e40((u8*)interp, state->secondaryTime);
                 }
             }
@@ -2857,8 +2861,8 @@ static inline void mdl_step_secondary(MdlAnimControlView* state, u32* it)
         RtAnimInterpolator* interp;
         interp = (RtAnimInterpolator*)func_003d8130(*it, 1);
         if (interp != NULL) {
-            if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)func_00474a50 &&
-                interp->keyFrameInterpolateCB == (void*)func_00474a90) {
+            if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)mdlKeyFrameBlendCopy &&
+                interp->keyFrameInterpolateCB == (void*)mdlKeyFrameInterpolateCopy) {
                 RtAnimInterpolatorSetAnimLoopCallBack(interp, mdlAnimLoopCallback, state);
             } else {
                 RtAnimInterpolatorSetAnimLoopCallBack(interp, mdlAnimLoopRewind, state);
@@ -2880,11 +2884,11 @@ static inline void mdl_step_anim_object(MdlAnimControlView* state, u32* it)
     }
     interp = (RtAnimInterpolator*)func_003d8130(*it, 0);
     if (interp != NULL) {
-        if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)func_00474a50 &&
-            interp->keyFrameInterpolateCB == (void*)func_00474a90) {
+        if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)mdlKeyFrameBlendCopy &&
+            interp->keyFrameInterpolateCB == (void*)mdlKeyFrameInterpolateCopy) {
             func_003d5e40((u8*)interp, state->primaryTime);
-            interp->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)func_00474a50;
-            interp->keyFrameInterpolateCB = (void*)func_00474a90;
+            interp->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)mdlKeyFrameBlendCopy;
+            interp->keyFrameInterpolateCB = (void*)mdlKeyFrameInterpolateCopy;
         } else {
             func_003d5e40((u8*)interp, state->primaryTime);
         }
