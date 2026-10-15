@@ -141,7 +141,7 @@ extern s32 func_00279350(f32, f32, f32, s32, s32, s32, s32, s32, s32, u8 *);
 extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
 extern void func_0034a640(s32, u16, s32);
 extern s32 func_0034a630(u8 *);
-extern u8 func_00109280(u16);
+extern u8 datPersonaGetArcana(u16);
 extern void func_0011d1d0(u8 *, f32);
 extern s8 func_00331640(void);
 extern void func_00330e50(s32, FclVec2, f32, s32, u8, s32, f32, f32, void *);
@@ -1288,7 +1288,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
     /* Slot is s32 here, not the header's s8: func_003191c0 passes an unnarrowed
        value. Measured: the s8 prototype regresses this function to nd. */
     extern u8 *fclCombineSlotRecord(u8 *, s32);
-    extern u8 func_00109280(u16);
+    extern u8 datPersonaGetArcana(u16);
     extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
     extern void func_0034b820(u8 *, FclVec2, s16, FclDrawColor, f32);
     extern void func_0034b880(u8 *, u8, u8, u8, s16, s16);
@@ -1495,14 +1495,14 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
     func_0046d280(h2);
     if (c < arg7) {
         id = (s16)(c + 0x250);
-        h3 = func_0046d200(func_00331560(), (s16)((func_00109280(arg3) & 0xFF) + 0x1B));
+        h3 = func_0046d200(func_00331560(), (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B));
         if ((s8)arg6 == 1) {
             func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
             func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
             func_002b69f0(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + func_0046b2f0(h3) / 2.0f), 0, 3, arg5);
         } else {
             func_002b6c30(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), 46.0f, 0x59);
-            *(s16 *)(func_002b6150(id) + 4) = (s16)((func_00109280(arg3) & 0xFF) + 0x1B);
+            *(s16 *)(func_002b6150(id) + 4) = (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B);
             if (special == 1) {
                 c244 = func_002b2a60(0, 0, 0x66, 0xFF);
                 *(FclByte4 *)(func_002b6150(id) + 0x85) = c244;
@@ -1638,7 +1638,7 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
             func_0046d280(resource);
         }
         sprite = (s16)(rowIndex + 0x2A3);
-        resource = func_0046d200(func_00331560(), (u16)((func_00109280((u16)persona) & 0xFF) + 0x1B));
+        resource = func_0046d200(func_00331560(), (u16)((datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B));
         if (mode == 1) {
             func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
             transitionScale = iGpffff8504;
@@ -1646,7 +1646,7 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
             func_002b69f0(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), func_002b2970(8.0f + position.x, 2.0f + rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
         } else {
             func_002b6c30(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), 46.0f, 0x59);
-            ((FclCombineRowSprite *)func_002b6150(sprite))->image = (func_00109280((u16)persona) & 0xFF) + 0x1B;
+            ((FclCombineRowSprite *)func_002b6150(sprite))->image = (datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B;
             ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0, 0, 0x66, 0xFF);
             func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
             transitionScale = iGpffff8504;
@@ -1765,7 +1765,7 @@ void func_0031c2b0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
     func_002b69f0(0x1A2, func_002b2970(94.0f + pos.x, pos.y - 2.0f), func_002b2970(94.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
 
     func_002b6c30(0x25C, func_002b2970(43.0f + pos.x, pos.y), 46.0f, 0x59);
-    *(s16 *)(func_002b6150(0x25C) + 4) = (func_00109280((u16)w) & 0xFF) + 0x1B;
+    *(s16 *)(func_002b6150(0x25C) + 4) = (datPersonaGetArcana((u16)w) & 0xFF) + 0x1B;
     c164 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
     *(FclByte4 *)(func_002b6150(0x25C) + 0x85) = c164;
     *(u8 *)(func_002b6150(0x25C) + 0x6E) = alpha;
@@ -1838,7 +1838,7 @@ void func_0031cce0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
     func_002b69f0(0x2B1, func_002b2970(94.0f + pos.x, pos.y - 2.0f), func_002b2970(94.0f + arg3.x, arg3.y - 2.0f), 0, 0xA, 0);
 
     func_002b6c30(0x25D, func_002b2970(43.0f + pos.x, 1.0f + pos.y), 46.0f, 0x59);
-    *(s16 *)(func_002b6150(0x25D) + 4) = (func_00109280((u16)w) & 0xFF) + 0x1B;
+    *(s16 *)(func_002b6150(0x25D) + 4) = (datPersonaGetArcana((u16)w) & 0xFF) + 0x1B;
     c154 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
     *(FclByte4 *)(func_002b6150(0x25D) + 0x85) = c154;
     *(u8 *)(func_002b6150(0x25D) + 0x6E) = alpha;
@@ -4919,7 +4919,7 @@ void func_0032c480(u8 *arg0)
     func_00275820(140.0f, 101.0f, 1.0f, func_002b2a30(0, 0, 0, 0xFF), 0, 2,
         (const char *)((u8 *)iGpffffb440 + *(u16 *)(func_002e48a0(0, obj->selection) + 2) * 0x11),
         0, 0, D_00796310, 0x15);
-    n = (s16)((func_00109280(*(u16 *)(func_002e48a0(0, obj->selection) + 2)) & 0xFF) + 0x1B);
+    n = (s16)((datPersonaGetArcana(*(u16 *)(func_002e48a0(0, obj->selection) + 2)) & 0xFF) + 0x1B);
     sp38 = func_002b2970(54.0f, 103.0f);
     func_00330e50(n, sp38, 1.0f, 0xFF000000, 0xFF, 1, 1.0f, 1.0f, D_00796310);
     n = (s16)func_00331640();

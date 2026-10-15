@@ -48,7 +48,8 @@ extern s32 (*iGpffffb3e8)[98]; /* gp -0x4C18 */
 
 
 // FUN_00109220
-u8 *func_00109220(u16 personaId)
+// Intent: pointer to the static 0x11-byte table row of persona personaId; fatal at id >= 0x100.
+u8 *datPersonaGetRow(u16 personaId)
 {
     if (!(personaId < 0x100)) {
         func_0046d730(D_005E4318, 0x18);
@@ -60,7 +61,8 @@ u8 *func_00109220(u16 personaId)
 /* measured: the u16 parameter is zero-extended separately for the range
    check and for the (u32) row offset, as retail does (two andi). A plain
    int row offset shares one entry mask. */
-u8 func_00109280(u16 personaId)
+// Intent: arcana byte (+2 of the 14-byte persona entry); callers match it against a target arcana.
+u8 datPersonaGetArcana(u16 personaId)
 {
     u8 *table;
 
@@ -156,7 +158,7 @@ s32 func_00109510(u8 *persona, void *arg1, void *arg2)
     {
         func_0046d730(D_005E4318, 0x132);
     }
-    if (func_0010be20(persona) != 0)
+    if (datPersonaUsesFixedGrowth(persona) != 0)
     {
         table = (u8 *)iGpffffb3e4 + (*(u16 *)(persona + 2) - 0xC0) * 0x26E + 4;
         maximum = 0x20;
@@ -216,7 +218,7 @@ s32 func_00109510(u8 *persona, void *arg1, void *arg2)
     }
     table += first * 4;
     skills = persona + 0xC;
-    known = func_0010ceb0(persona);
+    known = datPersonaCountSkills(persona);
     count = 0;
     visit = 0;
     while (visit < span)
@@ -263,7 +265,8 @@ s32 func_00109510(u8 *persona, void *arg1, void *arg2)
 
 
 // FUN_001097C0
-void func_001097c0(u8 *arg0, s32 arg1)
+// Intent: passes skill slot arg1 of persona record arg0 to func_0023a620; fatal on bad id or slot.
+void datPersonaRunSkillSlot(u8 *arg0, s32 arg1)
 {
     u8 *skillTable;
 
@@ -278,7 +281,8 @@ void func_001097c0(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109870
-u32 func_00109870(u16 arg0, s32 arg1)
+// Intent: skill-slot value of persona id arg0 at slot arg1, read through func_0023a620; fatal when out of range.
+u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1)
 {
     u8 *persona;
 
@@ -318,7 +322,8 @@ s32 arg1;
 }
 
 // FUN_001099F0
-u8 func_001099f0(u8 *arg0, s32 arg1)
+// Intent: battle stat arg1 of record arg0 plus two stat modifiers, capped at 99; fatal when arg1 >= 5.
+u8 datPersonaGetBuffedStat(u8 *arg0, s32 arg1)
 {
     s16 a;
     s16 b;
@@ -328,8 +333,8 @@ u8 func_001099f0(u8 *arg0, s32 arg1)
         func_0046d730(D_005E4318, 0x1DE);
     }
     a = (s16)arg0[(u16)arg1 + 0x1C];
-    b = (s8)func_00109d20(arg0, arg1);
-    c = (s8)func_00109dd0(arg0, arg1);
+    b = (s8)datPersonaGetStatBonusA(arg0, arg1);
+    c = (s8)datPersonaGetStatBonusB(arg0, arg1);
     sum = (s16)(a + b + c);
     if (sum >= 0x63) {
         sum = 0x63;
@@ -338,7 +343,8 @@ u8 func_001099f0(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109AD0
-u8 func_00109ad0(u8 *arg0, s32 arg1)
+// Intent: battle stat arg1 of record arg0 plus two modifiers and the equipment bonus, clamped to 0..99.
+u8 datPersonaGetTotalStat(u8 *arg0, s32 arg1)
 {
     s16 a;
     s16 b;
@@ -350,9 +356,9 @@ u8 func_00109ad0(u8 *arg0, s32 arg1)
         func_0046d730(D_005E4318, 0x1DE);
     }
     a = (s16)arg0[(u16)arg1 + 0x1C];
-    b = (s8)func_00109d20(arg0, arg1);
-    c = (s8)func_00109dd0(arg0, arg1);
-    d = (s8)func_00109e30(arg0, arg1);
+    b = (s8)datPersonaGetStatBonusA(arg0, arg1);
+    c = (s8)datPersonaGetStatBonusB(arg0, arg1);
+    d = (s8)datPersonaGetEquipStatBonus(arg0, arg1);
     sum = (s16)(a + b + c + d);
     if (sum > 0x63) {
         sum = 0x63;
@@ -363,7 +369,8 @@ u8 func_00109ad0(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109BF0
-u8 func_00109bf0(u16 arg0, s32 arg1)
+// Intent: battle stat arg1 of the record for persona id arg0, plus modifiers and equipment, clamped to 0..99.
+u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1)
 {
     s16 a;
     s16 b;
@@ -376,9 +383,9 @@ u8 func_00109bf0(u16 arg0, s32 arg1)
         func_0046d730(D_005E4318, 0x1DE);
     }
     a = (s16)p[(u16)arg1 + 0x1C];
-    b = (s8)func_00109d20(p, arg1);
-    c = (s8)func_00109dd0(p, arg1);
-    d = (s8)func_00109e30(p, arg1);
+    b = (s8)datPersonaGetStatBonusA(p, arg1);
+    c = (s8)datPersonaGetStatBonusB(p, arg1);
+    d = (s8)datPersonaGetEquipStatBonus(p, arg1);
     sum = (s16)(a + b + c + d);
     if (sum > 0x63) {
         sum = 0x63;
@@ -389,7 +396,8 @@ u8 func_00109bf0(u16 arg0, s32 arg1)
 }
 
 // FUN_00109D20
-s8 func_00109d20(u8 *arg0, s32 arg1)
+// Intent: signed per-stat bonus byte at +0x21 of a record for stat arg1; summed into the stat totals.
+s8 datPersonaGetStatBonusA(u8 *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
         func_0046d730(D_005E4318, 0x268);
@@ -398,7 +406,8 @@ s8 func_00109d20(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109DD0
-s8 func_00109dd0(u8 *arg0, s32 arg1)
+// Intent: signed per-stat bonus byte at +0x26 of a record for stat arg1; summed into the stat totals.
+s8 datPersonaGetStatBonusB(u8 *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
         func_0046d730(D_005E4318, 0x299);
@@ -415,7 +424,8 @@ extern u8 *iGpffffb1b0;
  * The real equipment-query inputs are unsigned halfwords. Keep each weighted
  * query independent and preserve the signed-byte result for the stat clamp. */
 // FUN_00109E30
-s8 func_00109e30(u8 *arg0, s32 arg1)
+// Intent: equipment bonus for stat arg1 of record arg0, summed from the equipped items of its party slot.
+s8 datPersonaGetEquipStatBonus(u8 *arg0, s32 arg1)
 {
     s16 bonus;
     u16 party;
@@ -426,7 +436,7 @@ s8 func_00109e30(u8 *arg0, s32 arg1)
         func_0046d730(D_005E4318, 0x2CD);
     }
     bonus = 0;
-    if (func_0010be20(arg0) != 0) {
+    if (datPersonaUsesFixedGrowth(arg0) != 0) {
         if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) > 0xD7) {
             func_0046d730(D_005E4318, 0x2D4);
         }
@@ -517,7 +527,8 @@ s8 func_00109e30(u8 *arg0, s32 arg1)
    through a pointer materialized once, is what keeps the s16 extension mwcc
    otherwise elides. Prior local spellings all floored at nd 25-28. */
 // FUN_0010A780
-s32 func_0010a780(u8 *arg0, s32 arg1, s32 arg2)
+// Intent: adds delta arg2 to stat arg1 of record arg0, clamped to 0..99; returns the new value.
+s32 datPersonaAddStat(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *stat;
     s16 naturalStat;
@@ -539,7 +550,8 @@ s32 func_0010a780(u8 *arg0, s32 arg1, s32 arg2)
     return (u8)statTotal;
 }
 // FUN_0010A840
-s32 func_0010a840(u16 arg0, s32 arg1, s32 arg2) {
+// Intent: adds delta arg2 to stat arg1 of the record for persona id arg0, clamped to 0..99.
+s32 datPersonaAddStatById(u16 arg0, s32 arg1, s32 arg2) {
     u8 *base;
     u8 *stat;
     s16 old;
@@ -1005,7 +1017,8 @@ void datPersonaClearRoster(void)
    forms and hoists the D_0079B40C load. Tried ternary/u16/s64 arms and
    assignment forms; nd 104-106. Same daddiu-local floor as datPersonaCountValidMembers. */
 // FUN_0010B7F0
-void func_0010b7f0(void)
+// Intent: removes the selected roster member by compacting the slots after it.
+void datPersonaRemoveSelectedRosterMember(void)
 {
     u8 sp30[0x30];
     s32 selected;
@@ -1056,7 +1069,8 @@ valid_index:
  * Initialization and diagnostics can change the capacity flags: reload them
  * at each subsequent validation, as the retail body does. */
 // FUN_0010B9A0
-s32 func_0010b9a0(s32 arg0, u16 arg1)
+// Intent: places persona arg1 into the first free slot of roster mode arg0 (mode 1 is the selection).
+s32 datPersonaPlaceRosterMember(s32 arg0, u16 arg1)
 {
     s32 v = arg0 & 0xFFFF;
     u8 *p;
@@ -1170,7 +1184,8 @@ pass47E:
 }
 
 // FUN_0010BD90
-void func_0010bd90(s16 arg0)
+// Intent: clears roster mode arg0; mode 1 resets the selection and the roster block, other modes clear one party block.
+void datPersonaResetRosterMode(s16 arg0)
 {
     s32 v = (s32)arg0;
 
@@ -1183,7 +1198,8 @@ void func_0010bd90(s16 arg0)
 }
 
 // FUN_0010BE20
-s32 func_0010be20(u8 *arg0)
+// Intent: true when persona record arg0 is in the fixed party id range 0xC0..0xD7 (fixed growth rows).
+s32 datPersonaUsesFixedGrowth(u8 *arg0)
 {
     u16 v = *(u16 *)(arg0 + 2);
 
@@ -1233,7 +1249,8 @@ static inline s32 DPGrowthFindSkill(u16 skill, u8 *skills, s32 known)
 static inline s32 DPGrowthAddStat(s32 gain, s32 base) { return gain + base; }
 
 // FUN_0010BE60
-void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2)
+// Intent: previews stat, skill and level changes of persona arg0 at level arg2 into arg1 without modifying the persona.
+void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2)
 {
     u16 stat[5];
     s32 pid;
@@ -1301,7 +1318,7 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2)
     level = arg0[4] + 1;
     expsum = *(u32 *)(arg0 + 8) + (u32)arg2;
     pidoff = (pid & 0xFFFF) * 0x46;
-    while (func_0010c750(arg0, level) <= expsum && level <= 99) {
+    while (datPersonaGetExpForLevel(arg0, level) <= expsum && level <= 99) {
         if (!DPGrowthIsParty(arg0)) {
             for (roll = 0; (roll & 0xFFFF) < 3; roll = (roll + 1) & 0xFFFF) {
                 total = 0;
@@ -1394,7 +1411,7 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2)
     }
     entry += first * 4;
     skills = arg0 + 0xC;
-    known = func_0010ceb0(arg0);
+    known = datPersonaCountSkills(arg0);
     added = 0;
     removed = 0;
     collectIndex = 0;
@@ -1437,7 +1454,8 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2)
 }
 #pragma pop
 // FUN_0010C5A0
-void func_0010c5a0(u8 *arg0, u8 *arg1)
+// Intent: applies a level-up delta from arg1 to persona record arg0: level, stat deltas, and newly learned skills.
+void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1)
 {
     s32 i;
     s32 j;
@@ -1455,14 +1473,14 @@ void func_0010c5a0(u8 *arg0, u8 *arg1)
     j = 0;
     while ((u16)j < 0x20) {
         if (*(u16 *)(arg1 + (j & 0xFFFF) * 2 + 0x42) != 0) {
-            func_0010ccc0(arg0, *(u16 *)(arg1 + (j & 0xFFFF) * 2 + 0x42));
+            datPersonaRemoveSkill(arg0, *(u16 *)(arg1 + (j & 0xFFFF) * 2 + 0x42));
         }
         j = (j + 1) & 0xFFFF;
     }
     k = 0;
     while ((u16)k < 0x20) {
         if (*(u16 *)(arg1 + (k & 0xFFFF) * 2 + 0x2) != 0) {
-            func_0010cc20(arg0, *(u16 *)(arg1 + (k & 0xFFFF) * 2 + 0x2));
+            datPersonaAddSkill(arg0, *(u16 *)(arg1 + (k & 0xFFFF) * 2 + 0x2));
         }
         k = (k + 1) & 0xFFFF;
     }
@@ -1471,7 +1489,8 @@ void func_0010c5a0(u8 *arg0, u8 *arg1)
 /* 556/560 bytes; fifteen resolved relocations; four zero alignment bytes.
  * Typed party records and experience curves retain retail address ordering. */
 // FUN_0010C750
-u32 func_0010c750(void *persona, u16 level)
+// Intent: total experience needed to reach level arg1 on persona arg0's growth curve; levels below 2 return 0.
+u32 datPersonaGetExpForLevel(void *persona, u16 level)
 {
     u8 *work = persona;
     u32 partyPersona;
@@ -1522,7 +1541,8 @@ u32 func_0010c750(void *persona, u16 level)
 }
 
 // FUN_0010C980
-void func_0010c980(u8 *arg0, s32 arg1)
+// Intent: adds experience arg1 to persona record arg0 at +8; fatal when negative.
+void datPersonaAddExp(u8 *arg0, s32 arg1)
 {
     if (arg1 < 0) {
         func_0046d730(D_005E4318, 0x689);
@@ -1535,7 +1555,8 @@ void func_0010c980(u8 *arg0, s32 arg1)
    normalized_diff 0, object_size 232/240. */
 // FUN_0010C9E0
 #pragma opt_loop_invariants on
-void func_0010c9e0(u8 *arg0)
+// Intent: compacts the 8-slot skill list of persona record arg0 so non-empty skills come first.
+void datPersonaCompactSkills(u8 *arg0)
 {
     u8 *persona_p;
     s32 skillIdx;
@@ -1602,21 +1623,22 @@ void func_0010cad0(u8 *arg0, u16 arg1)
         *(u16 *)(arg0 + 2) = (u16)arg1;
         *(u8 *)(arg0 + 4) = entry[3];
         *(u8 *)(arg0 + 5) = entry[9];
-        *(s32 *)(arg0 + 8) = func_0010c750(arg0, entry[3]);
+        *(s32 *)(arg0 + 8) = datPersonaGetExpForLevel(arg0, entry[3]);
     }
     *(s32 *)(arg0 + 0x2C) = 0;
     memcpy(arg0 + 0x1C, iGpffffb3d4 + offset + 4, 5);
     memset(arg0 + 0x21, 0, 5);
     memset(arg0 + 0x26, 0, 5);
     memset(arg0 + 0xC, 0, 0x10);
-    func_0010be60(arg0, buf, 0);
-    func_0010c5a0(arg0, buf);
+    datPersonaPreviewLevelUp(arg0, buf, 0);
+    datPersonaApplyLevelUp(arg0, buf);
     func_0010d150(arg0);
 }
 
 #pragma opt_common_subs on
 // FUN_0010CC20
-s32 func_0010cc20(u8 *arg0, u16 arg1)
+// Intent: stores skill arg1 in the first empty slot of record arg0; returns 1 on success, 0 when full.
+s32 datPersonaAddSkill(u8 *arg0, u16 arg1)
 {
     s32 i;
 
@@ -1635,7 +1657,8 @@ s32 func_0010cc20(u8 *arg0, u16 arg1)
 }
 
 // FUN_0010CCC0
-s32 func_0010ccc0(u8 *arg0, u32 arg1)
+// Intent: clears skill arg1 from record arg0 and compacts the list; returns 1 when found.
+s32 datPersonaRemoveSkill(u8 *arg0, u32 arg1)
 {
     s32 i;
     s32 key;
@@ -1650,7 +1673,7 @@ s32 func_0010ccc0(u8 *arg0, u32 arg1)
         v2 = *(u16 *)(arg0 + i * 2 + 0xC);
         if (v2 == key) {
             *(u16 *)(arg0 + i * 2 + 0xC) = 0;
-            func_0010c9e0(arg0);
+            datPersonaCompactSkills(arg0);
             return 1;
         }
         i++;
@@ -1665,7 +1688,7 @@ s32 func_0010cd70(u8 *arg0, s16 arg1, u16 arg2)
         func_0046d730(D_005E4318, 0x6FE);
     }
     {
-        s32 r = func_0010ce10(arg0, (u16)arg1);
+        s32 r = datPersonaFindSkillSlot(arg0, (u16)arg1);
         if (r != -1) {
             s32 off = r * 2;
             *(u16 *)(off + (s32)arg0 + 0xC) = (u16)arg2;
@@ -1675,7 +1698,8 @@ s32 func_0010cd70(u8 *arg0, s16 arg1, u16 arg2)
 }
 
 // FUN_0010CE10
-s32 func_0010ce10(u8 *arg0, u16 arg1)
+// Intent: index of skill arg1 in the 8-slot list of record arg0, or -1 when absent.
+s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1)
 {
     s32 i;
     u32 key;
@@ -1696,7 +1720,8 @@ s32 func_0010ce10(u8 *arg0, u16 arg1)
 }
 
 // FUN_0010CEB0
-s32 func_0010ceb0(u8 *arg0)
+// Intent: number of non-empty skill slots in persona record arg0 (8 slots); 8 means full.
+s32 datPersonaCountSkills(u8 *arg0)
 {
     s32 count = 0;
     s32 i;
@@ -1715,7 +1740,8 @@ s32 func_0010ceb0(u8 *arg0)
 }
 
 // FUN_0010CF40
-u16 func_0010cf40(u8 *arg0, s16 arg1)
+// Intent: skill id in slot arg1 (0..7) of persona record arg0.
+u16 datPersonaGetSkillAt(u8 *arg0, s16 arg1)
 {
     s32 index = arg1;
     s32 off;
@@ -1750,8 +1776,8 @@ s32 func_0010cfa0(u8 *arg0, u16 arg1, u8 *arg2)
     }
     v = *(s32 *)(arg2 + 8);
     func_0010cad0(entry, arg1);
-    func_0010be60(entry, buf, v);
-    func_0010c5a0(entry, buf);
+    datPersonaPreviewLevelUp(entry, buf, v);
+    datPersonaApplyLevelUp(entry, buf);
     if (v < 0) {
         func_0046d730(D_005E4318, 0x689);
     }

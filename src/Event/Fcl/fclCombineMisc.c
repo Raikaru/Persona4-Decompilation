@@ -3,8 +3,8 @@
 #include "include_asm.h"
 #include "type.h"
 extern s32 func_00311b90(u16 *, u16 *, s32, s16 *);
-extern s32 func_0010cc20(u8 *, u16);
-extern s32 func_0010ce10(u8 *, u16);
+extern s32 datPersonaAddSkill(u8 *, u16);
+extern s32 datPersonaFindSkillSlot(u8 *, u16);
 extern s32 func_003124a0(u16 *output, u16 first, u16 second);
 extern s32 func_003127e0();
 extern u32 RpRandom();
@@ -198,8 +198,8 @@ flag_done:
                 func_0010cad0((u8 *)arg0, *entry);
                 for (skillIndex = 0; skillIndex < 4; skillIndex++) {
                     skill = (u16 *)((u8 *)&entry[skillIndex] + 24);
-                    if (*skill != 0 && func_0010ce10((u8 *)arg0, *skill) == -1 &&
-                        func_0010cc20((u8 *)arg0, *skill) == 0) break;
+                    if (*skill != 0 && datPersonaFindSkillSlot((u8 *)arg0, *skill) == -1 &&
+                        datPersonaAddSkill((u8 *)arg0, *skill) == 0) break;
                 }
                 return iGpffffb3d4[arg0[1] * 14 + 2];
             }
@@ -402,7 +402,7 @@ typedef struct {
     s8 picks;
 } FclSkillPickTier;
 
-extern u32 func_0010ceb0(void *arg0);
+extern u32 datPersonaCountSkills(void *arg0);
 extern u8 *func_002e6f00(void);
 extern void func_002e6f90(u8 *arg0, s16 arg1);
 extern void func_002e7010(u8 *arg0, s16 arg1);
@@ -493,13 +493,13 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
         row = arg1 + i * 0x30;
         for (; j < 8; j++) {
             cell = (u16 *)(row + j * 2 + 0xC);
-            if (*cell != 0 && func_0010ce10((u8 *)arg0, *cell) == -1) {
+            if (*cell != 0 && datPersonaFindSkillSlot((u8 *)arg0, *cell) == -1) {
                 func_002e6f90(pool, (s16)*cell);
             }
         }
     }
     remaining = fclSkillPickCount(*(s16 *)(pool + 0x60));
-    freeSlots = 8 - func_0010ceb0(arg0);
+    freeSlots = 8 - datPersonaCountSkills(arg0);
     if (freeSlots == 0) {
         func_00440b68(D_00642F50);
         func_002e7190(pool);
@@ -532,7 +532,7 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
                         break;
                     }
                 }
-                func_0010cc20((u8 *)arg0, ((s16 *)pool)[pick]);
+                datPersonaAddSkill((u8 *)arg0, ((s16 *)pool)[pick]);
                 func_002e7010(pool, ((s16 *)pool)[pick]);
                 remaining--;
                 break;

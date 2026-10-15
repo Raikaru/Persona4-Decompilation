@@ -31,7 +31,7 @@ void func_00115e90(Vec2f, f32, u8, s16 *);
 extern char iGpffff9c0c;
 extern char iGpffff9c08;
 
-u8 *func_00109220(u16 personaId);
+u8 *datPersonaGetRow(u16 personaId);
 u8 *func_0046a770(char *arg0);
 void func_00116190(s64, f32, u8, u8 *, s32 *);
 void func_00116610(s64, f32, u8, u8 *, s32 *);
@@ -49,10 +49,10 @@ extern char D_005E57F0[];
 
 void func_0046d730(void *file, s32 line);
 void memset(void *dst, s32 value, s32 size);
-s32 func_0010cc20(u8 *, u16);
+s32 datPersonaAddSkill(u8 *, u16);
 void ShdSkill_AddActiveSkill(u16, u8 *);
 void func_00115940();
-u32 func_0010c750(void *persona, u16 level);
+u32 datPersonaGetExpForLevel(void *persona, u16 level);
 s32 datPersonaGetNextExp();
 s32 func_0010cd70(u8 *, s16, u16);
 void ShdSkill_ReplaceActiveSkill(u16, u16, u8 *);
@@ -131,7 +131,7 @@ s32 func_00115890(u8 *arg0, s32 arg1)
     if (s17 > 0x63) {
         func_0046d730(D_005E4868, 0x65);
     }
-    s17 = func_0010c750(arg0, (u16)(s17 + 1));
+    s17 = datPersonaGetExpForLevel(arg0, (u16)(s17 + 1));
     r = s17 - datPersonaGetNextExp(arg0);
     if (r < 0) {
         return 0;
@@ -143,9 +143,9 @@ s32 func_00115890(u8 *arg0, s32 arg1)
 
 s8 datPersonaGetLevel(u8 *arg0);
 s8 datPersonaGetStat(u8 *arg0, s32 arg1);
-s8 func_001099f0(u8 *arg0, s32 arg1);
-s8 func_00109ad0(u8 *arg0, s32 arg1);
-s32 func_001097c0(u8 *arg0, u16 arg1);
+s8 datPersonaGetBuffedStat(u8 *arg0, s32 arg1);
+s8 datPersonaGetTotalStat(u8 *arg0, s32 arg1);
+s32 datPersonaRunSkillSlot(u8 *arg0, u16 arg1);
 extern u16 D_007465D0[];
 // FUN_00115940
 void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
@@ -166,7 +166,7 @@ void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
         if ((s32)b4 > 0x63) {
             func_0046d730(D_005E4868, 0x65);
         }
-        v2 = func_0010c750(arg0, (b4 + 1) & 0xFFFF) - datPersonaGetNextExp(arg0);
+        v2 = datPersonaGetExpForLevel(arg0, (b4 + 1) & 0xFFFF) - datPersonaGetNextExp(arg0);
         if (v2 < 0) {
             v2 = 0;
         }
@@ -181,25 +181,25 @@ void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
         *(s8 *)(arg1 + 0xB) = datPersonaGetStat(arg0, 4);
         break;
     case 1:
-        *(s8 *)(arg1 + 7) = func_001099f0(arg0, 0);
-        *(s8 *)(arg1 + 8) = func_001099f0(arg0, 1);
-        *(s8 *)(arg1 + 9) = func_001099f0(arg0, 2);
-        *(s8 *)(arg1 + 0xA) = func_001099f0(arg0, 3);
-        *(s8 *)(arg1 + 0xB) = func_001099f0(arg0, 4);
+        *(s8 *)(arg1 + 7) = datPersonaGetBuffedStat(arg0, 0);
+        *(s8 *)(arg1 + 8) = datPersonaGetBuffedStat(arg0, 1);
+        *(s8 *)(arg1 + 9) = datPersonaGetBuffedStat(arg0, 2);
+        *(s8 *)(arg1 + 0xA) = datPersonaGetBuffedStat(arg0, 3);
+        *(s8 *)(arg1 + 0xB) = datPersonaGetBuffedStat(arg0, 4);
         break;
     case 2:
-        *(s8 *)(arg1 + 7) = func_00109ad0(arg0, 0);
-        *(s8 *)(arg1 + 8) = func_00109ad0(arg0, 1);
-        *(s8 *)(arg1 + 9) = func_00109ad0(arg0, 2);
-        *(s8 *)(arg1 + 0xA) = func_00109ad0(arg0, 3);
-        *(s8 *)(arg1 + 0xB) = func_00109ad0(arg0, 4);
+        *(s8 *)(arg1 + 7) = datPersonaGetTotalStat(arg0, 0);
+        *(s8 *)(arg1 + 8) = datPersonaGetTotalStat(arg0, 1);
+        *(s8 *)(arg1 + 9) = datPersonaGetTotalStat(arg0, 2);
+        *(s8 *)(arg1 + 0xA) = datPersonaGetTotalStat(arg0, 3);
+        *(s8 *)(arg1 + 0xB) = datPersonaGetTotalStat(arg0, 4);
         break;
     default:
         func_0046d730(D_005E4868, 0x96);
         break;
     }
     for (i = 0; i < 7; i++) {
-        *(s32 *)(arg1 + 0x14 + i * 4) = func_001097c0(arg0, D_007465D0[i]);
+        *(s32 *)(arg1 + 0x14 + i * 4) = datPersonaRunSkillSlot(arg0, D_007465D0[i]);
     }
 }
 
@@ -253,7 +253,7 @@ void func_00115cb0(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
 
     color = -0x100;
     color |= (u32)((arg1 & 0xFF) * 0xFF) / 255U;
-    temp_2 = (s32)func_00109220((u16)arg2[5]);
+    temp_2 = (s32)datPersonaGetRow((u16)arg2[5]);
     switch (arg2[1]) {
     case 0:
         var_16 = 6;
@@ -272,7 +272,7 @@ void func_00115cb0(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
 
 
 
-u8 *func_00109220(u16 personaId);
+u8 *datPersonaGetRow(u16 personaId);
 /* measured: func_00115dc0 closes the 208B fp-colour member. Its final
    renderer declaration is interleaved as
    `func_00274ed0(f32,f32,f32,s32,s8,s32,const char*,s32,s32)`, preserving the
@@ -303,7 +303,7 @@ void func_00115dc0(Vec2f arg0, f32 fparg0, u8 arg1, s16 *arg2)
         var_16 = 7;
         break;
     }
-    temp_2 = (s32)func_00109220(*(u16 *)(arg2 + 5));
+    temp_2 = (s32)datPersonaGetRow(*(u16 *)(arg2 + 5));
     func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, var_16, 1, (void *)temp_2, 0, 0);
 }
 
@@ -412,7 +412,7 @@ void func_001162f0(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
 
 
 
-u8 func_00109280(u16 personaId);
+u8 datPersonaGetArcana(u16 personaId);
 f32 func_0046b1f0(s32, s32);
 /* measured: FP/GP colouring residual, nd 99. The family's real signature
    IS (s64 arg0, u8 *arg2, s32 *arg3, f32 fparg0) with the color and its
@@ -470,7 +470,7 @@ void func_001163e0(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     if (id1 == 0) {
         func_0046d730(D_005E4868, 0x1C1);
     }
-    count = (s32)(func_00109280(*(u16 *)(arg2 + 2)) & 0xFF);
+    count = (s32)(datPersonaGetArcana(*(u16 *)(arg2 + 2)) & 0xFF);
     if (count <= 0 || count >= 0x20) {
         func_0046d730(D_005E4868, 0x1E6);
     }
@@ -534,7 +534,7 @@ void func_00116610(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     sp19c[2] = 0x2D;
     sp19c[3] = arg1;
     func_00117310(sp190, fparg0, *(s32 *)sp19c, *(u32 *)(arg2 + 0x38), id1, 1);
-    temp = (s32)func_00109220(*(u16 *)(arg2 + 2));
+    temp = (s32)datPersonaGetRow(*(u16 *)(arg2 + 2));
     sprintf(&sp90[0], (void *)&iGpffff9c0c, temp);
     func_00275020((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, (const char *)sp90, 0, -1);
 }
@@ -1608,7 +1608,7 @@ void func_00119210(u8 *work)
     if (*(s32 *)(work + 0x4C4) == 0) {
         return;
     }
-    communityRank = func_00107890(func_00109280(*(u16 *)(*(u8 **)work + 2)) & 0xFF) & 0xFF;
+    communityRank = func_00107890(datPersonaGetArcana(*(u16 *)(*(u8 **)work + 2)) & 0xFF) & 0xFF;
     alpha = *(work + 0x505);
     {
         if (++*(u16 *)animation >= 0x14) {
@@ -3509,7 +3509,7 @@ s32 func_0011cb70(u8 *arg0, u16 arg1)
     if (*(s32 *)b == 0) {
         func_0046d730(D_005E4868, 0xE21);
     }
-    if (func_0010cc20(*(u8 **)b, arg1) != 0) {
+    if (datPersonaAddSkill(*(u8 **)b, arg1) != 0) {
         ShdSkill_AddActiveSkill(arg1, b + 0x8C);
         return 1;
     }
@@ -4456,8 +4456,8 @@ void func_0011e740(u8 *arg0)
 
 
 
-s32 func_0010a780(u8 *, s32, s32);
-s32 func_0010ceb0(u8 *);
+s32 datPersonaAddStat(u8 *, s32, s32);
+s32 datPersonaCountSkills(u8 *);
 s32 func_0011fcf0(u8 *);
 u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
 u16 ShdSkill_GetPendingSkill(u8 *);
@@ -4523,7 +4523,7 @@ s32 func_0011e8e0(u8 *arg0)
         *(u8 *)(first + 4) = *(u8 *)(first + 4) + *(u8 *)pc;
         i = 0;
         while (i < 5) {
-            func_0010a780(first, i & 0xFFFF, *(s8 *)(pc + i + 0x82));
+            datPersonaAddStat(first, i & 0xFFFF, *(s8 *)(pc + i + 0x82));
             i += 1;
         }
         r = func_00115890(first, 0);
@@ -4549,7 +4549,7 @@ s32 func_0011e8e0(u8 *arg0)
         if ((isOld != 0) || (D_008C024E[0] & 0x50) || ((D_008C024C[0] & 0x10) && ((++*(u16 *)(work + 4) > 4)))) {
             u16 id2;
             func_002baac0((u8 *)(*(s32 *)(work + 0x24)));
-            func_002bbd20(0, func_00109220(datPersonaRecordId((u32)first)));
+            func_002bbd20(0, datPersonaGetRow(datPersonaRecordId((u32)first)));
             id2 = *(s16 *)(*(u8 **)(*(u8 **)(work + 0x1C) + 0x38) + 0xC);
             func_002bbd20(1, (void *)func_0010d6d0(id2));
             func_002bad10(*(s32 *)(work + 0x30));
@@ -4637,7 +4637,7 @@ s32 func_0011e8e0(u8 *arg0)
                 func_0046d730(D_005E4868, 0x139A);
             }
             *(s32 *)(work + 0x14) = 6;
-            func_002bbd20(0, func_00109220(datPersonaRecordId((u32)first)));
+            func_002bbd20(0, datPersonaGetRow(datPersonaRecordId((u32)first)));
             func_002bbd20(1, func_00243840(vv));
             func_002bad10(*(s32 *)(work + 0x38));
         } else {
@@ -4692,7 +4692,7 @@ s32 func_0011e8e0(u8 *arg0)
                 func_002baac0((u8 *)(*(s32 *)(work + 0x28)));
                 func_002bad10(idx);
                 *(s32 *)(work + 0x14) = 0xF;
-            } else if (func_0010ceb0(first) == 8) {
+            } else if (datPersonaCountSkills(first) == 8) {
                 *(s32 *)(work + 0x14) = 7;
                 func_002bb4e0();
                 *(u8 **)(work + 0x18) = func_0011fbc0(0, *(u8 **)(work + 0x1C), *(s32 *)(work + 0x24), work + 0x2C);
@@ -4704,7 +4704,7 @@ s32 func_0011e8e0(u8 *arg0)
                 if (*(u8 **)bb == NULL) {
                     func_0046d730(D_005E4868, 0xE21);
                 }
-                if (func_0010cc20(*(u8 **)bb, vv2) != 0) {
+                if (datPersonaAddSkill(*(u8 **)bb, vv2) != 0) {
                     ShdSkill_AddActiveSkill(vv2, bb + 0x8C);
                 }
                 *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
@@ -4734,7 +4734,7 @@ s32 func_0011e8e0(u8 *arg0)
                 *(s32 *)(work + 0x14) = 9;
                 break;
             case 1:
-                func_002bbd20(0, func_00109220(datPersonaRecordId((u32)first)));
+                func_002bbd20(0, datPersonaGetRow(datPersonaRecordId((u32)first)));
                 func_002bad10(*(s32 *)(work + 0x50));
                 *(s32 *)(work + 0x14) = 0xB;
                 break;
@@ -4826,7 +4826,7 @@ s32 func_0011e8e0(u8 *arg0)
             if (*(u8 **)bb == NULL) {
                 func_0046d730(D_005E4868, 0xE21);
             }
-            if (func_0010cc20(*(u8 **)bb, vv) != 0) {
+            if (datPersonaAddSkill(*(u8 **)bb, vv) != 0) {
                 ShdSkill_AddActiveSkill(vv, bb + 0x8C);
             }
             *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
@@ -5031,7 +5031,7 @@ s32 func_0011f5a0(u8 *arg0)
                         u8 *qb2;
                         *(s32 *)(work + 8) = 6;
                         qb2 = first;
-                        qb2 = func_00109220(datPersonaRecordId((u32)qb2));
+                        qb2 = datPersonaGetRow(datPersonaRecordId((u32)qb2));
                         func_002bbd20(0, qb2);
                         func_002bbd20(1, func_00243840(*(u16 *)(work + 4)));
                         func_002bad10(*(s32 *)(work + 0x30));

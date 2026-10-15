@@ -36,7 +36,7 @@ extern void func_0032c480(u8 *);
 extern s32 func_0034a630(u8 *);
 extern void func_0011d1d0(u8 *, f32);
 extern void func_00314750(u8 *, s8);
-extern u8 func_001099f0(u8 *, s32);
+extern u8 datPersonaGetBuffedStat(u8 *, s32);
 extern s32 func_003026c0(u16, s32);
 extern void func_002e7a80(s32);
 extern void func_002cacd0(FclVec2, f32, FclDrawColor, s32, s16, u32, s32, s32, s32, s32, s32);
@@ -65,7 +65,7 @@ extern void func_00315600(u8 *, s64);
 extern s32 func_003190d0(u8 *);
 extern u8 *func_002e4870(s8);
 extern u8 *func_002e48a0(s8, s16);
-extern void func_0010be60(u8 *, u8 *, s32);
+extern void datPersonaPreviewLevelUp(u8 *, u8 *, s32);
 extern s32 func_00313fb0(u8 *);
 extern s32 datPersonaRosterCapacity(void);
 extern void func_00316470(u8 *, s64, s8);
@@ -114,9 +114,9 @@ extern u32 datGetFlag(s32);
 extern void *memset(void *, s32, u32);
 extern void func_002e5ae0(s8, u16 *, s8);
 extern void func_002e6280(s8, u16 *, s8);
-extern s32 func_0010ce10(u8 *, u16);
-extern s32 func_0010ceb0(u8 *);
-extern s32 func_0010cc20(u8 *, u16);
+extern s32 datPersonaFindSkillSlot(u8 *, u16);
+extern s32 datPersonaCountSkills(u8 *);
+extern s32 datPersonaAddSkill(u8 *, u16);
 extern s32 func_002bb680(s32);
 extern s32 func_00122720(void);
 extern s32 func_00122520(s32, s32);
@@ -180,7 +180,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern u8 D_00641BC8[];
 extern s8 D_007490F8[];
 extern u16 *datPersonaRosterSlot(s16);
-extern u8 func_00109280(u16);
+extern u8 datPersonaGetArcana(u16);
 extern s32 func_00331660(void);
 extern void func_002bbd80(s8, s32, void *);
 extern s32 func_00110140(void);
@@ -193,7 +193,7 @@ extern s16 D_007490C0[];
 extern s16 D_007490E0[];
 extern s8 D_00749100[];
 extern void func_002bbf60(void);
-extern s32 func_0010cf40(void *, s16);
+extern s32 datPersonaGetSkillAt(void *, s16);
 extern u16 *iGpffffb3ec;
 extern u8 *iGpffffb594;
 extern void func_0010fd40(void *);
@@ -220,7 +220,7 @@ extern u16 datPersonaLeadPersonaId(void);
 extern s32 datPersonaRemoveRosterMemberById(s32);
 extern s32 datPersonaInsertRosterRecord(u8 *);
 extern s32 datPersonaSelectRosterMemberById(s32);
-extern void func_0010b7f0(void);
+extern void datPersonaRemoveSelectedRosterMember(void);
 extern void func_0010cad0(u8 *arg0, u16 arg1);
 extern s64 func_00312c60(u16 *arg0, u8 *arg1, s64 arg2);
 /* The item id is an s16; the callee sign-extends its own table index. */
@@ -2244,10 +2244,10 @@ void func_002ed430(u8 *arg0) {
         temp_18->f2FA = temp_18->f11E;
         for (var_17_7 = 0; var_17_7 < 8; var_17_7++) {
             if ((((1 << var_17_7) & 0xFF & *(s8 *)(func_002e4870(temp_18->f2F9) + temp_18->f2FA + 0x2E4)) >> var_17_7) == 1
-                && (s32)func_0010ceb0((u8 *)(((u16 *)func_002e48a0(0xD, temp_19_9)))) < 8) {
+                && (s32)datPersonaCountSkills((u8 *)(((u16 *)func_002e48a0(0xD, temp_19_9)))) < 8) {
                 temp_16_47 = ((u16 *)func_002e48a0(temp_18->f128 + 1, temp_18->f11E))[var_17_7 + 6];
-                if (func_0010ce10((u8 *)((u16 *)func_002e48a0(0xD, temp_19_9)), temp_16_47) == -1) {
-                    func_0010cc20((u8 *)((u16 *)func_002e48a0(0xD, temp_19_9)), temp_16_47);
+                if (datPersonaFindSkillSlot((u8 *)((u16 *)func_002e48a0(0xD, temp_19_9)), temp_16_47) == -1) {
+                    datPersonaAddSkill((u8 *)((u16 *)func_002e48a0(0xD, temp_19_9)), temp_16_47);
                 }
             }
         }
@@ -2291,10 +2291,10 @@ void func_002ed430(u8 *arg0) {
         temp_18->f2F9 = temp_18->f128 + 1;
         for (var_17_9 = 0; var_17_9 < 8; var_17_9++) {
             if ((((1 << var_17_9) & 0xFF & *(s8 *)(func_002e4870(temp_18->f2F9) + temp_18->f11E + 0x2E4)) >> var_17_9) == 1
-                && (s32)func_0010ceb0((u8 *)(((u16 *)func_002e48a0(0xD, temp_19_10)))) < 8) {
+                && (s32)datPersonaCountSkills((u8 *)(((u16 *)func_002e48a0(0xD, temp_19_10)))) < 8) {
                 temp_16_53 = ((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f11E))[var_17_9 + 6];
-                if (func_0010ce10((u8 *)((u16 *)func_002e48a0(0xD, temp_19_10)), temp_16_53) == -1) {
-                    func_0010cc20((u8 *)((u16 *)func_002e48a0(0xD, temp_19_10)), temp_16_53);
+                if (datPersonaFindSkillSlot((u8 *)((u16 *)func_002e48a0(0xD, temp_19_10)), temp_16_53) == -1) {
+                    datPersonaAddSkill((u8 *)((u16 *)func_002e48a0(0xD, temp_19_10)), temp_16_53);
                 }
             }
         }
@@ -3580,10 +3580,10 @@ block_215:
         temp_17->f2FA = (s8)((s8)((s8) temp_17->f11E));
         for (var_18_7 = 0; var_18_7 < 8; var_18_7++) {
 
-            if (((s32)((s32)(((s32) ((1 << var_18_7) & 0xFF & (*((s8 *)((u8 *)((func_002e4870(temp_17->f2F9) + temp_17->f2FA)) + (0x2E4))))) >> var_18_7))) == (s32)((s32)(1))) && ((s32)((s32)(func_0010ceb0((u8 *)(func_002e48a0(0xD, selectedResult))))) < (s32)((s32)(8)))) {
+            if (((s32)((s32)(((s32) ((1 << var_18_7) & 0xFF & (*((s8 *)((u8 *)((func_002e4870(temp_17->f2F9) + temp_17->f2FA)) + (0x2E4))))) >> var_18_7))) == (s32)((s32)(1))) && ((s32)((s32)(datPersonaCountSkills((u8 *)(func_002e48a0(0xD, selectedResult))))) < (s32)((s32)(8)))) {
                 temp_16_82 = (u16)((u16)((u16)((*((u16 *)((u8 *)((((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), temp_17->f11E)) + var_18_7)) + (0xC)))))));
-                if ((s32)((s32)(func_0010ce10((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_82))) == (s32)((s32)(-1))) {
-                    func_0010cc20((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_82);
+                if ((s32)((s32)(datPersonaFindSkillSlot((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_82))) == (s32)((s32)(-1))) {
+                    datPersonaAddSkill((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_82);
                 }
             }
         }
@@ -3635,10 +3635,10 @@ block_215:
         temp_17->f2F9 = (s8)((s8)((s8) (temp_17->f129 + 1)));
         for (var_18_9 = 0; var_18_9 < 8; var_18_9++) {
 
-            if (((s32)((s32)(((s32) ((1 << var_18_9) & 0xFF & (*((s8 *)((u8 *)((func_002e4870(temp_17->f2F9) + temp_17->f11E)) + (0x2E4))))) >> var_18_9))) == (s32)((s32)(1))) && ((s32)((s32)(func_0010ceb0((u8 *)(func_002e48a0(0xD, selectedResult))))) < (s32)((s32)(8)))) {
+            if (((s32)((s32)(((s32) ((1 << var_18_9) & 0xFF & (*((s8 *)((u8 *)((func_002e4870(temp_17->f2F9) + temp_17->f11E)) + (0x2E4))))) >> var_18_9))) == (s32)((s32)(1))) && ((s32)((s32)(datPersonaCountSkills((u8 *)(func_002e48a0(0xD, selectedResult))))) < (s32)((s32)(8)))) {
                 temp_16_88 = (u16)((u16)((u16)((*((u16 *)((u8 *)((((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f11E)) + var_18_9)) + (0xC)))))));
-                if ((s32)((s32)(func_0010ce10((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_88))) == (s32)((s32)(-1))) {
-                    func_0010cc20((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_88);
+                if ((s32)((s32)(datPersonaFindSkillSlot((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_88))) == (s32)((s32)(-1))) {
+                    datPersonaAddSkill((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_88);
                 }
             }
         }
@@ -3788,7 +3788,7 @@ void func_002f6cf0(u8 *arg0) {
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
             *(s16 *)(func_002b6150(i + 0x250) + 4) =
-                (u8)func_00109280(((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1]) + 0x1B;
+                (u8)datPersonaGetArcana(((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1]) + 0x1B;
             if (((u8 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[4] == 0) {
                 row = i;
                 color1 = func_002b2a60(0x24, 0x3F, 0x9F, 0xFF);
@@ -4850,7 +4850,7 @@ void func_002fbea0(u8 *arg0) {
                           *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4),
                           func_002b2970(146.0f, 111.0f + 23.0f * (f32)var_18),
                           fc_colW5, 46.0f, 0x59);
-            *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((func_00109280(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
+            *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(func_002b6150(((var_18 + 0x270))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -5338,12 +5338,12 @@ void func_002fbea0(u8 *arg0) {
             }
             func_00275820(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
-                *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((func_00109280(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
+                *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
             sp1B0 = (s8)(var_18 + 0xC);
             tmpu8 = *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4);
             func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, func_002b2970(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 46.0f, 0x59);
-            total = ((func_001099f0((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((func_001099f0((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
+            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
             func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
@@ -5494,7 +5494,7 @@ void func_002fbea0(u8 *arg0) {
         }
         if (func_002bb1c0(p->fD) == 0) {
             datPersonaInsertRosterRecord((u8 *)func_002e48a0(0, p->f11E));
-            total = ((func_001099f0((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) * ((func_001099f0((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) + 0x7D0;
+            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) + 0x7D0;
             saved = func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2), total);
             func_002e7a80(func_002e7a60() - saved);
             func_002bb550(p->fD);
@@ -5665,7 +5665,7 @@ void func_002fbea0(u8 *arg0) {
                 p->f1 = 0x9D;
                 return;
             }
-            total = ((func_001099f0((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) * ((func_001099f0((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) + 0x7D0;
+            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) + 0x7D0;
             saved = func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2), total);
             if (func_002e7a60() >= saved) {
                 p->fD = func_002bab80((void *)func_00331660());
@@ -5749,9 +5749,9 @@ void func_002fbea0(u8 *arg0) {
             }
             func_00275820(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
-                *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((func_00109280(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
+                *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
-            total = ((func_001099f0((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((func_001099f0((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
+            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
             func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
@@ -5806,7 +5806,7 @@ void func_002fbea0(u8 *arg0) {
                 fc_colW2 = func_002b2a60(0xCC, 0xFF, 0xFF, caption.alpha);
             }
             func_00275820(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, caption.fontColor, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
-            total = ((func_001099f0((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((func_001099f0((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (func_001099f0((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
+            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
             func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             var_19++;
             var_18++;
@@ -5858,7 +5858,7 @@ s32 func_003026c0(u16 arg0, s32 arg1)
 {
     s16 i;
 
-    func_00109280(arg0);
+    datPersonaGetArcana(arg0);
     for (i = 0; i < 4; i++) {
         if (datGetFlag(0x130C - i) != 0) {
             return arg1 - (arg1 / 100) * (0x19 - i * 5);
@@ -6153,7 +6153,7 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
             s16 item;
             for (item = 0; item < count; item++) {
                 want = *(s16 *)(rule + 4);
-                if (want == (func_00109280(arg2[item]) & 0xFF)) {
+                if (want == (datPersonaGetArcana(arg2[item]) & 0xFF)) {
                     found = 1;
                     break;
                 }
@@ -6172,7 +6172,7 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
         }
         case 3:
             want = *(s16 *)(rule + 4);
-            if (want == (func_00109280(*last) & 0xFF)) {
+            if (want == (datPersonaGetArcana(*last) & 0xFF)) {
                 found = 1;
             }
             break;
@@ -6184,10 +6184,10 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
         case 5:
             for (k = 0; k < count; k++) {
                 want = *(s16 *)(rule + 4);
-                if (want == (func_00109280(arg2[k]) & 0xFF)) {
+                if (want == (datPersonaGetArcana(arg2[k]) & 0xFF)) {
                     for (j = 0; j < count; j++) {
                         want = *(s16 *)(rule + 6);
-                        if (want == (func_00109280(arg2[j]) & 0xFF)) {
+                        if (want == (datPersonaGetArcana(arg2[j]) & 0xFF)) {
                             found = 1;
                             break;
                         }
@@ -6527,7 +6527,7 @@ scan:
     do {
         entry = table + (s16)(RpRandom() % (u32)divisor);
         selected = *entry;
-        if (func_0010ce10((u8 *)&recipe, selected) == -1) {
+        if (datPersonaFindSkillSlot((u8 *)&recipe, selected) == -1) {
             retry = 1;
         }
     } while ((s8)retry == 0);
@@ -7950,12 +7950,12 @@ s32 func_003096d0(u8 *task)
     var_19 = 0;
     var_20 = 0;
     while ((s16)var_20 < 4) {
-        temp_16 = func_0010ceb0(func_001102e0());
+        temp_16 = datPersonaCountSkills(func_001102e0());
         temp_18 = (s16)(RpRandom() % temp_16);
     loop_2:
         temp_17 = &iGpffffb3ec[(s16)var_19 * 2];
         temp_16_2 = temp_17[0];
-        if (temp_16_2 == func_0010cf40(func_001102e0(), temp_18)) {
+        if (temp_16_2 == datPersonaGetSkillAt(func_001102e0(), temp_18)) {
             return var_19;
         }
         var_19 = (s16)(var_19 + 1);
@@ -8267,7 +8267,7 @@ void func_003097e0(u8 *arg0) {
         } else {
             *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
             func_002bbd80(*(s8 *)(p + 0xD), 0,
-                          iGpffffb44c + func_00109280(*(u16 *)((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9),
+                          iGpffffb44c + datPersonaGetArcana(*(u16 *)((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9),
                                                                              *(s8 *)(p + 0x2FA)) + 1)) * 0x15);
             sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
             func_002bbd80(*(s8 *)(p + 0xD), 1, spA0);
@@ -8882,7 +8882,7 @@ void func_0030c3c0(u8 *arg0) {
                 s32 experience;
                 persona = func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
                 experience = *(s32 *)(p + 0x10);
-                func_0010be60(persona, p + 0x28, experience);
+                datPersonaPreviewLevelUp(persona, p + 0x28, experience);
             }
             p[0xB1] = p[0x28];
         } else if (func_00303a20(arg0) == 1) {
@@ -8935,7 +8935,7 @@ void func_0030c3c0(u8 *arg0) {
                 s32 experience;
                 persona = func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
                 experience = *(s32 *)(p + 0x14);
-                func_0010be60(persona, p + 0x28, experience);
+                datPersonaPreviewLevelUp(persona, p + 0x28, experience);
             }
             *(s32 *)(p + 0x10) -= *(s32 *)(p + 0x14);
             *(s16 *)(p + 0x1C) = 0;
@@ -9299,13 +9299,13 @@ void func_0030c3c0(u8 *arg0) {
             {
                 u16 selectedSkill;
                 selectedSkill = *(u16 *)(p + 0x1C);
-                if (func_0010ce10(e, selectedSkill) != -1) {
+                if (datPersonaFindSkillSlot(e, selectedSkill) != -1) {
                     p[0xD] = func_002bab80((void *)func_00331660());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
                     func_002bbd80(*(s8 *)(p + 0xD), 0, text);
                     func_002badc0(*(s8 *)(p + 0xD), 0x52);
                     p[1] = 0xB4;
-                } else if ((s32)func_0010ceb0(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
+                } else if ((s32)datPersonaCountSkills(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
                     p[1] = 0xB5;
                     *(u8 **)(p + 0x2A8) = func_0011fbc0((s32)arg0, func_003147d0(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
                 }
@@ -9401,7 +9401,7 @@ void func_0030c3c0(u8 *arg0) {
         }
         *(s16 *)(p + 0x1C) = func_003040d0(arg0, ((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[4], *(s8 *)(p + 0x1F));
         item = *(u16 *)(p + 0x1C);
-        if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
+        if (datPersonaFindSkillSlot((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
             p[0xD] = func_002bab80((void *)func_00331660());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
             func_002bbd80(*(s8 *)(p + 0xD), 1, text);
@@ -9411,7 +9411,7 @@ void func_0030c3c0(u8 *arg0) {
             kind = *(s8 *)(p + 0x1F);
             roll = func_002b2cb0(*(s8 *)(p + 0x1E), 1, 9, 0, 1);
             item = (u16)fclCombinePickItem(kind, roll);
-            if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
+            if (datPersonaFindSkillSlot((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
                 p[0xD] = func_002bab80((void *)func_00331660());
                 sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                 func_002bbd80(*(s8 *)(p + 0xD), 1, text);
@@ -9422,7 +9422,7 @@ void func_0030c3c0(u8 *arg0) {
                 kind = *(s8 *)(p + 0x1F);
                 roll = func_002b2d00(*(s8 *)(p + 0x1E), 1, 0, 9, 1);
                 item = (u16)fclCombinePickItem(kind, roll);
-                if (func_0010ce10((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
+                if (datPersonaFindSkillSlot((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
                     p[0xD] = func_002bab80((void *)func_00331660());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                     func_002bbd80(*(s8 *)(p + 0xD), 1, text);
@@ -9470,7 +9470,7 @@ void func_0030c3c0(u8 *arg0) {
             } else {
                 p[1] = 0xB1;
                 *(s16 *)(p + 0x2D8) = 0;
-                if ((s32)func_0010ceb0(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
+                if ((s32)datPersonaCountSkills(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
                     p[1] = 0xAF;
                     *(u8 **)(p + 0x2A8) = func_0011fbc0((s32)arg0, func_003147d0(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
                 }
@@ -9544,7 +9544,7 @@ void func_0030c3c0(u8 *arg0) {
     case 0xB8:
         p[0xD] = func_002bab80((void *)func_00331660());
         do {
-            count = func_0010ceb0(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
+            count = datPersonaCountSkills(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
             p[0x27] = RpRandom() % count;
         } while ((s16)func_00313690(((s16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]) == 0);
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]));
@@ -9687,7 +9687,7 @@ void func_0030f4f0(u8 *task, s16 *materials) {
         }
         searchIndex++;
     }
-    func_0010b7f0();
+    datPersonaRemoveSelectedRosterMember();
 }
 #pragma pop
 /* MATCHED: struct colour copies straight into func_002b6150(...) + 0x85;
@@ -9947,7 +9947,7 @@ s32 func_00310480(void) {
         case 0:
             p = datPersonaFindRosterRecordById(*(u16 *)(e + 4));
             if (p != 0) {
-                if (func_0010ce10((u8 *)p, (u16)*(u32 *)(e + 8)) == -1) {
+                if (datPersonaFindSkillSlot((u8 *)p, (u16)*(u32 *)(e + 8)) == -1) {
                     return 0;
                 }
                 break;
@@ -10068,7 +10068,7 @@ void func_00310a10(u8 *arg0, u16 arg1) {
     s4 = D_00749480[t[0]] * 100 + t[1];
     s3 = D_00749480[t[2]] * 100 + t[3];
     p[0xD] = func_002bab80((void *)func_00331660());
-    func_002bbd80(p[0xD], 0, iGpffffb44c + (func_00109280(arg1) & 0xFF) * 21);
+    func_002bbd80(p[0xD], 0, iGpffffb44c + (datPersonaGetArcana(arg1) & 0xFF) * 21);
     if (s0 < s4) {
         func_002badc0(p[0xD], 0x2B);
     } else if (s0 >= s3) {

@@ -20,7 +20,7 @@ extern void memset(void *dst, s32 value, u32 size);
 extern s32 datPersonaCountValidMembers(void);
 extern s32 datPersonaRosterCapacity(void);
 extern s32 datPersonaFindRosterRecordById(u16 arg0);
-extern u8 *func_00109220(u16 arg0);
+extern u8 *datPersonaGetRow(u16 arg0);
 extern void func_002bad10(s32 arg0);
 extern void func_002bbd20(s32 arg0, void *arg1);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
@@ -92,7 +92,7 @@ s32 func_00380980(u8 *arg0)
         u16 value2;
     } Result;
     extern s32 func_0036f640(s32 arg0, s32 *arg1);
-    extern u8 *func_00109220(u16 arg0);
+    extern u8 *datPersonaGetRow(u16 arg0);
     extern u8 *func_00243840(s32 arg0);
     extern s32 func_002bad10(s32 arg0);
     extern void func_002bbd20(s32 arg0, void *arg1);
@@ -138,7 +138,7 @@ s32 func_00380980(u8 *arg0)
     if (output.active != 0) {
         flags = (s16 *)(D_0064EC30 + index * 2);
         if ((*flags & 1) != 0) {
-            func_002bbd20(0, func_00109220(output.value0));
+            func_002bbd20(0, datPersonaGetRow(output.value0));
         }
         if ((*flags & 2) != 0) {
             func_002bbd20(1, func_00243840(output.value1));
@@ -149,7 +149,7 @@ s32 func_00380980(u8 *arg0)
             func_002bbd20(2, text);
         }
         if ((*flags & 8) != 0) {
-            func_002bbd20(3, func_00109220(output.value2));
+            func_002bbd20(3, datPersonaGetRow(output.value2));
         }
     } else {
         func_002bad10(channel + 3);
@@ -171,7 +171,7 @@ s32 func_00380980(u8 *arg0)
 // FUN_00380BD0
 s32 func_00380bd0(u8 **arg0)
 {
-    extern u8 func_00109bf0(u16 arg0, s32 arg1);
+    extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
     extern s32 func_00104c70(s32 arg0);
     extern s32 datGetFlag(s32 arg0);
     extern u32 RpRandom(void);
@@ -185,7 +185,7 @@ s32 func_00380bd0(u8 **arg0)
     if (*(s32 *)(*arg0 + 0x1F30C) != 0) {
         return 0;
     }
-    rawLevel = func_00109bf0(1, 4) & 0xFF;
+    rawLevel = datPersonaGetTotalStatById(1, 4) & 0xFF;
     func_00104c70(1);
     if (datGetFlag(0x1426) != 0) {
         threshold = 0x3C;
@@ -219,12 +219,12 @@ s32 func_00380d80(u8 *arg0, s32 arg1)
     }
     if (count1 == count2) {
         memset(arg0 + 0x18, 0, 0x7C);
-        func_002bbd20(0, func_00109220(arg1));
+        func_002bbd20(0, datPersonaGetRow(arg1));
         func_002bad10(3);
         return 7;
     }
     datPersonaAddRosterMember((u16)arg1);
-    func_002bbd20(0, func_00109220(arg1));
+    func_002bbd20(0, datPersonaGetRow(arg1));
     func_002bad10(1);
     return 5;
 }
@@ -1249,8 +1249,8 @@ void func_00387e70(u8 *arg0)
 {
     extern u8 *func_0046a770(char *name);
     extern s32 datPersonaRosterCapacity(void);
-    extern u8 func_00109280(u16 personaId);
-    extern u8 *func_00109220(u16 personaId);
+    extern u8 datPersonaGetArcana(u16 personaId);
+    extern u8 *datPersonaGetRow(u16 personaId);
     extern u8 datPersonaGetLevel(int persona);
     extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                              const char *str, int flags, int charWidth);
@@ -1387,14 +1387,14 @@ void func_00387e70(u8 *arg0)
 
             entry = (s32 *)((u8 *)&state[idx] + 0x4C);
             id = *(u16 *)(*entry + 2);
-            icon = func_00109280(id);
+            icon = datPersonaGetArcana(id);
             if (icon <= 0 || icon >= 0x20) {
                 func_0046d730(D_0064EEB0, 0x588);
             }
             func_0034f460(fonts[0], (u16)((u16)icon - 1) + 0x21, 168.0f, 55.0f + y, r, g, b, alpha);
             func_00275020(269, 55.0f + y - 3.0f, 0.0f,
                           (r << 24) | (g << 16) | (b << 8) | alpha, 0, 1,
-                          (const char *)func_00109220(id), 0, -1);
+                          (const char *)datPersonaGetRow(id), 0, -1);
             value = datPersonaGetLevel(*entry);
             if (value > 99) {
                 value = 99;

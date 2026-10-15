@@ -25,8 +25,8 @@ typedef struct PersonaWork PersonaWork;
 extern s16 func_00104f10(s16 index);
 extern u16 func_00105290(s16 pcId);
 extern s32 func_00105a50(s16 pcId);
-extern u8 *func_00109220(u16 personaId);
-extern u8 func_00109280(u16 personaId);
+extern u8 *datPersonaGetRow(u16 personaId);
+extern u8 datPersonaGetArcana(u16 personaId);
 extern u8 datPersonaGetLevel(s32 persona);
 extern u32 datPersonaGetNextExp(s32 persona);
 extern u32 func_00109440(PersonaWork *persona);
@@ -1167,8 +1167,8 @@ void func_003672d0(void *work, s16 pcId)
     u16 personaId = func_00105290(pcId);
     PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)pcId);
     *(s16 *)state = pcId;
-    *(u8 **)(state + 16) = func_00109220(personaId);
-    *(u8 *)(state + 20) = func_00109280(personaId);
+    *(u8 **)(state + 16) = datPersonaGetRow(personaId);
+    *(u8 *)(state + 20) = datPersonaGetArcana(personaId);
     *(u8 *)(state + 21) = datPersonaGetLevel((s32)persona);
     if (pcId == 1) {
         s16 i;

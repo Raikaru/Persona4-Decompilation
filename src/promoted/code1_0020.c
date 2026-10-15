@@ -70,7 +70,7 @@ extern f32 fGpffff83b0;
 extern u8 *datPersonaRosterSlot(s16 arg0);
 extern s32 datPersonaGetLeadSlot(void);
 extern s32 datPersonaGetLevel(u8 *arg0);
-extern u8 *func_00109220(u16 arg0);
+extern u8 *datPersonaGetRow(u16 arg0);
 extern u16 func_00272c60(s16 arg0);
 extern u16 func_00272c80(u16 arg0);
 
@@ -2648,7 +2648,7 @@ void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
                       digit_y, tone, tone, tone, opacity);
     }
     func_00272c60(0x40);
-    name = (const char *)func_00109220(*(u16 *)(persona + 2));
+    name = (const char *)datPersonaGetRow(*(u16 *)(persona + 2));
     {
         f32 text_x = 151.0f + x;
         f32 text_y = (4.0f + y) - 1.0f;
@@ -3106,7 +3106,7 @@ void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
 
 extern s32 func_00106600(s16 id);
 extern u16 *datPersonaGetRecord(u16 id);
-extern u16 func_0010cf40(u8 *persona, s16 slot);
+extern u16 datPersonaGetSkillAt(u8 *persona, s16 slot);
 extern s32 func_00232aa0(s32 id);
 extern u8 *iGpffffb3b8;
 
@@ -3151,7 +3151,7 @@ void func_00207140(u16 *flags, u8 *work)
     if (unit[0xA2] == 0) {
         persona = (u8 *)datPersonaGetRecord(*(u16 *)(unit + 0xA4));
         for (skillSlot = 0; skillSlot < 8; skillSlot++) {
-            skill = func_0010cf40(persona, (s16)skillSlot);
+            skill = datPersonaGetSkillAt(persona, (s16)skillSlot);
             if (skill != 0 && skill < 0x1B8 && (*(u8 *)(skill * 0x28 + iGpffffb3b8 + 1) & 2)) {
                 *(u16 *)(work + skillCount * 2 + 0x194) = skill;
                 skillCount++;
@@ -4824,7 +4824,7 @@ void func_0020b5b0(s32 arg0, u8 *arg1)
 // FUN_0020B6D0
 extern u32 func_001d8df0(u8 *arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
-extern s32 func_0010ce10(u8 *arg0, u16 arg1);
+extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern s32 func_0023d6e0(s16 arg0);
@@ -4884,7 +4884,7 @@ void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
         } else {
             var_2 = 8;
         }
-        if (func_0010ce10((u8 *)datPersonaGetRecord(var_2 & 0xFFFF), 0x10C) != -1) {
+        if (datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(var_2 & 0xFFFF), 0x10C) != -1) {
             var_23 = 1;
         }
     }

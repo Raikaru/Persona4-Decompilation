@@ -211,7 +211,7 @@ s32 btlActionGetCounter420(BtlAction *action);
 u8 *func_002022e0(u32 arg0, u16 arg1);
 s32 datPersonaSelectRosterMemberById(s32 arg0);
 extern void func_0019ef30(u8 *arg0, u16 arg1);
-extern void func_0010b7f0(void);
+extern void datPersonaRemoveSelectedRosterMember(void);
 extern s32 datGetFlag(s32 arg0);
 BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
@@ -2398,7 +2398,7 @@ void func_001a4800(u8 *arg0)
 {
     extern void func_001eb420(u8 *target);
     extern u16 *datPersonaGetRecord(u16 personaId);
-    extern s32 func_0010ce10(u8 *persona, u16 skillId);
+    extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skillId);
     extern s32 func_0019fc70(u8 *action);
     extern void func_001f5bd0(s32 state);
     extern s32 func_001f68e0(u8 *action);
@@ -2469,7 +2469,7 @@ donecheck:
                     } else {
                         personaId = 8;
                     }
-                    if (((s32)(func_0010ce10((u8 *)datPersonaGetRecord(personaId & 0xFFFF), 0x114)) != (s32)(-1)) || ((battleState = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (battleState->flags & 2))) {
+                    if (((s32)(datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(personaId & 0xFFFF), 0x114)) != (s32)(-1)) || ((battleState = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (battleState->flags & 2))) {
                         func_00194590(actionTargetPacketBytes(arg0, 8, 0, 0, 3), 1);
                         func_00194590((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 8), 0);
                         actionSetDelayBytes(arg0, 0x1D, 0xC);
@@ -7271,7 +7271,7 @@ void func_001adb80(s64 *arg0)
         datPersonaSelectRosterMemberById(*(u16 *)((u8 *)arg0 + 0x74));
         person = *(u16 *)((u8 *)arg0 + 0x74);
         func_0019ef30(*(u8 **)((u8 *)arg0 + 0x30), person);
-        func_0010b7f0();
+        datPersonaRemoveSelectedRosterMember();
         if (datGetFlag(0x3C) != 0) {
             pendingRecord = *(u8 **)((u8 *)arg0 + 0x3F0);
             if (pendingRecord != NULL) {

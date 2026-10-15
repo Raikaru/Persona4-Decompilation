@@ -6,8 +6,10 @@
 /* Persona table, skill table, and stat accessors defined in datPersona.c.
  * func_0010b3b0 is intentionally not declared here: its one caller keeps an
  * old-style declaration so the s64 argument is passed as measured. */
-u8 *func_00109220(u16 personaId);
-u8 func_00109280(u16 personaId);
+// Intent: pointer to the static 0x11-byte table row of persona personaId; fatal at id >= 0x100.
+u8 *datPersonaGetRow(u16 personaId);
+// Intent: arcana byte (+2 of the 14-byte persona entry); callers match it against a target arcana.
+u8 datPersonaGetArcana(u16 personaId);
 // Intent: u16 id stored at +2 of a persona record.
 u16 datPersonaRecordId(u32 arg0);
 // Intent: u16 id at +2 of roster slot arg0; fatal when the slot is NULL.
@@ -19,8 +21,10 @@ u8 datPersonaRosterSlotRank(s32 arg0);
 // Intent: u16 flags word of roster slot arg0; fatal when the slot is NULL.
 u16 datPersonaRosterSlotFlags(s32 arg0);
 s32 func_00109510(u8 *persona, void *arg1, void *arg2);
-void func_001097c0(u8 *arg0, s32 arg1);
-u32 func_00109870(u16 arg0, s32 arg1);
+// Intent: passes skill slot arg1 of persona record arg0 to func_0023a620; fatal on bad id or slot.
+void datPersonaRunSkillSlot(u8 *arg0, s32 arg1);
+// Intent: skill-slot value of persona id arg0 at slot arg1, read through func_0023a620; fatal when out of range.
+u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1);
 // Battle stat index for datPersonaGetStat, in in-game order St/Ma/En/Ag/Lu. Index 3 (AGI) is confirmed by turn-order callers in btlOrder_grouped; 0, 1, 2 and 4 are [inferred].
 enum DatPersonaStat {
     PERSONA_STAT_STR,
@@ -33,14 +37,22 @@ enum DatPersonaStat {
 u8 datPersonaGetStat(u8 *arg0, s32 arg1);
 // Intent: battle stat (index 0..4) of the record for persona id arg0; same layout as datPersonaGetStat.
 s32 datPersonaGetStatById(s32 arg0, s32 arg1);
-u8 func_001099f0(u8 *arg0, s32 arg1);
-u8 func_00109ad0(u8 *arg0, s32 arg1);
-u8 func_00109bf0(u16 arg0, s32 arg1);
-s8 func_00109d20(u8 *arg0, s32 arg1);
-s8 func_00109dd0(u8 *arg0, s32 arg1);
-s8 func_00109e30(u8 *arg0, s32 arg1);
-s32 func_0010a780(u8 *arg0, s32 arg1, s32 arg2);
-s32 func_0010a840(u16 arg0, s32 arg1, s32 arg2);
+// Intent: battle stat arg1 of record arg0 plus two stat modifiers, capped at 99; fatal when arg1 >= 5.
+u8 datPersonaGetBuffedStat(u8 *arg0, s32 arg1);
+// Intent: battle stat arg1 of record arg0 plus two modifiers and the equipment bonus, clamped to 0..99.
+u8 datPersonaGetTotalStat(u8 *arg0, s32 arg1);
+// Intent: battle stat arg1 of the record for persona id arg0, plus modifiers and equipment, clamped to 0..99.
+u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
+// Intent: signed per-stat bonus byte at +0x21 of a record for stat arg1; summed into the stat totals.
+s8 datPersonaGetStatBonusA(u8 *arg0, s32 arg1);
+// Intent: signed per-stat bonus byte at +0x26 of a record for stat arg1; summed into the stat totals.
+s8 datPersonaGetStatBonusB(u8 *arg0, s32 arg1);
+// Intent: equipment bonus for stat arg1 of record arg0, summed from the equipped items of its party slot.
+s8 datPersonaGetEquipStatBonus(u8 *arg0, s32 arg1);
+// Intent: adds delta arg2 to stat arg1 of record arg0, clamped to 0..99; returns the new value.
+s32 datPersonaAddStat(u8 *arg0, s32 arg1, s32 arg2);
+// Intent: adds delta arg2 to stat arg1 of the record for persona id arg0, clamped to 0..99.
+s32 datPersonaAddStatById(u16 arg0, s32 arg1, s32 arg2);
 // Intent: maps a persona id to its record; 1 is the selected roster slot, 2..10 index the party array.
 u16 *datPersonaGetRecord(u16 arg0);
 // Intent: true when the lead (id 1) record has flag bit 4 set; datCalc scales damage and code1_0021 scales level when it is.
@@ -79,22 +91,36 @@ void datPersonaSetRosterMode(s32 arg0);
 u16 datPersonaCountValidMembers(void);
 // Intent: clears the roster flag records.
 void datPersonaClearRoster(void);
-void func_0010b7f0(void);
-s32 func_0010b9a0(s32 arg0, u16 arg1);
-void func_0010bd90(s16 arg0);
-s32 func_0010be20(u8 *arg0);
-void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2);
-void func_0010c5a0(u8 *arg0, u8 *arg1);
-u32 func_0010c750(void *persona, u16 level);
-void func_0010c980(u8 *arg0, s32 arg1);
-void func_0010c9e0(u8 *arg0);
+// Intent: removes the selected roster member by compacting the slots after it.
+void datPersonaRemoveSelectedRosterMember(void);
+// Intent: places persona arg1 into the first free slot of roster mode arg0 (mode 1 is the selection).
+s32 datPersonaPlaceRosterMember(s32 arg0, u16 arg1);
+// Intent: clears roster mode arg0; mode 1 resets the selection and the roster block, other modes clear one party block.
+void datPersonaResetRosterMode(s16 arg0);
+// Intent: true when persona record arg0 is in the fixed party id range 0xC0..0xD7 (fixed growth rows).
+s32 datPersonaUsesFixedGrowth(u8 *arg0);
+// Intent: previews stat, skill and level changes of persona arg0 at level arg2 into arg1 without modifying the persona.
+void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2);
+// Intent: applies a level-up delta from arg1 to persona record arg0: level, stat deltas, and newly learned skills.
+void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1);
+// Intent: total experience needed to reach level arg1 on persona arg0's growth curve; levels below 2 return 0.
+u32 datPersonaGetExpForLevel(void *persona, u16 level);
+// Intent: adds experience arg1 to persona record arg0 at +8; fatal when negative.
+void datPersonaAddExp(u8 *arg0, s32 arg1);
+// Intent: compacts the 8-slot skill list of persona record arg0 so non-empty skills come first.
+void datPersonaCompactSkills(u8 *arg0);
 void func_0010cad0(u8 *arg0, u16 arg1);
-s32 func_0010cc20(u8 *arg0, u16 arg1);
-s32 func_0010ccc0(u8 *arg0, u32 arg1);
+// Intent: stores skill arg1 in the first empty slot of record arg0; returns 1 on success, 0 when full.
+s32 datPersonaAddSkill(u8 *arg0, u16 arg1);
+// Intent: clears skill arg1 from record arg0 and compacts the list; returns 1 when found.
+s32 datPersonaRemoveSkill(u8 *arg0, u32 arg1);
 s32 func_0010cd70(u8 *arg0, s16 arg1, u16 arg2);
-s32 func_0010ce10(u8 *arg0, u16 arg1);
-s32 func_0010ceb0(u8 *arg0);
-u16 func_0010cf40(u8 *arg0, s16 arg1);
+// Intent: index of skill arg1 in the 8-slot list of record arg0, or -1 when absent.
+s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
+// Intent: number of non-empty skill slots in persona record arg0 (8 slots); 8 means full.
+s32 datPersonaCountSkills(u8 *arg0);
+// Intent: skill id in slot arg1 (0..7) of persona record arg0.
+u16 datPersonaGetSkillAt(u8 *arg0, s16 arg1);
 s32 func_0010cfa0(u8 *arg0, u16 arg1, u8 *arg2);
 void func_0010d150(u8 *arg0);
 

@@ -694,8 +694,8 @@ void func_001113b0(void)
     void func_001065c0(void);
     void func_00106d40(s16, s16, s16);
     void func_001070b0(void);
-    s32 func_0010b9a0(s32, u16);
-    void func_0010bd90(s16);
+    s32 datPersonaPlaceRosterMember(s32, u16);
+    void datPersonaResetRosterMode(s16);
     void func_0010d490(u8 *, u8 *);
     void func_0010f390(void);
     void func_0010f4c0(void);
@@ -736,9 +736,9 @@ loop_2_check:
     func_00105dc0((s16)i, 0, -1);
     func_00105dc0((s16)i, 1, -1);
     func_00105dc0((s16)i, 2, -1);
-    func_0010bd90((s16)i);
+    datPersonaResetRosterMode((s16)i);
     q = (u8 *)D_005E4630 + i * 2;
-    func_0010b9a0(i & 0xFFFF, *(u16 *)(q - 2));
+    datPersonaPlaceRosterMember(i & 0xFFFF, *(u16 *)(q - 2));
     func_001056e0((s16)i, (s16)func_00104dc0((s16)i));
     func_00105730((s16)i, (s16)func_00104e30((s16)i));
     i++;

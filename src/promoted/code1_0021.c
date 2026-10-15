@@ -87,9 +87,9 @@ extern void func_0021dc50(s32 arg0, s32 *arg1);
 extern void func_0021dd60(u8 *task);
 extern u16 *datPersonaRosterSlot(s16 arg0);
 extern u16 datPersonaCountValidMembers(void);
-extern void func_0010c980(u8 *arg0, s32 arg1);
+extern void datPersonaAddExp(u8 *arg0, s32 arg1);
 extern s32 func_0010c6f0(PersonaWork *arg0);
-extern void func_0010c5a0(u8 *arg0, u8 *arg1);
+extern void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
 extern void func_00201300(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
@@ -4322,7 +4322,7 @@ extern u32 datPersonaGetNextExp(int persona);
 extern u16 *datPersonaGetSkills(int persona);
 extern u16 func_001069d0(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
-extern u32 func_0010c750(void *persona, u16 level);
+extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 
 /* Prepare XP awards and 0x88-byte growth deltas without applying them.
  * Inventory deltas end at 0x698; four party deltas end at 0x8D4.
@@ -4431,10 +4431,10 @@ void func_0021e110(u8 *arg0, u8 *arg1)
         }
         if (id < 99) {
             v3 = datPersonaGetNextExp((s32)entry2);
-            v4 = (s32)func_0010c750(entry2, (u16)(id + 1));
+            v4 = (s32)datPersonaGetExpForLevel(entry2, (u16)(id + 1));
             if (v4 <= v3 + level) {
                 *(u32 *)arg0 |= 8;
-                func_0010be60((u8 *)entry2, arg0 + i * 0x88 + 0x38, level);
+                datPersonaPreviewLevelUp((u8 *)entry2, arg0 + i * 0x88 + 0x38, level);
             }
             if (level != 0) {
                 *(u32 *)(arg0 + i * 4 + 8) = level;
@@ -4457,10 +4457,10 @@ void func_0021e110(u8 *arg0, u8 *arg1)
             }
             if (v5 < 99) {
                 v3 = datPersonaGetNextExp((s32)entry3);
-                v4 = (s32)func_0010c750(entry3, (u16)(v5 + 1));
+                v4 = (s32)datPersonaGetExpForLevel(entry3, (u16)(v5 + 1));
                 if (v4 <= v3 + level2) {
                     *(u32 *)arg0 |= 0x10;
-                    func_0010be60((u8 *)entry3, arg0 + out * 0x88 + 0x6B4, level2);
+                    datPersonaPreviewLevelUp((u8 *)entry3, arg0 + out * 0x88 + 0x6B4, level2);
                 }
                 *(u32 *)(arg0 + out * 4 + 0x6A4) = level2;
             }
@@ -4481,10 +4481,10 @@ void func_0021e110(u8 *arg0, u8 *arg1)
         }
         if (v5 < 99) {
             v3 = datPersonaGetNextExp((s32)entry3);
-            v4 = (s32)func_0010c750(entry3, (u16)(v5 + 1));
+            v4 = (s32)datPersonaGetExpForLevel(entry3, (u16)(v5 + 1));
             if (v4 <= v3 + level2) {
                 *(u32 *)arg0 |= 0x10;
-                func_0010be60((u8 *)entry3, arg0 + out * 0x88 + 0x6B4, level2);
+                datPersonaPreviewLevelUp((u8 *)entry3, arg0 + out * 0x88 + 0x6B4, level2);
             }
             v6 = out * 4;
             *(u32 *)(v6 + (s32)arg0 + 0x6A4) = level2;
@@ -4560,9 +4560,9 @@ void func_0021eb60(u8 *arg0)
         value = *(s32 *)(arg0 + (i * 4) + 8);
         if (value != 0) {
             persona = (u8 *)datPersonaRosterSlot((s16)i);
-            func_0010c980(persona, value);
+            datPersonaAddExp(persona, value);
             if (func_0010c6f0((PersonaWork *)persona) != 0) {
-                func_0010c5a0(persona, arg0 + (i * 0x88) + 0x38);
+                datPersonaApplyLevelUp(persona, arg0 + (i * 0x88) + 0x38);
             }
         }
         i += 1;
@@ -4581,9 +4581,9 @@ loop_body:
     temp_19 = *(s32 *)((u8 *)arg0 + (var_16 * 4) + 0x6A4);
     if (temp_19 != 0) {
         temp_2 = (s32)datPersonaGetRecord(*(u16 *)((u8 *)arg0 + (var_16 * 2) + 0x69A));
-        func_0010c980((u8 *)temp_2, temp_19);
+        datPersonaAddExp((u8 *)temp_2, temp_19);
         if (func_0010c6f0((PersonaWork *)temp_2) != 0) {
-            func_0010c5a0((u8 *)temp_2,
+            datPersonaApplyLevelUp((u8 *)temp_2,
                           (u8 *)arg0 + (var_16 * 0x88) + 0x6B4);
         }
     }

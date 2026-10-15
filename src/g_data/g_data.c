@@ -230,7 +230,7 @@ typedef struct PersonaWork {
 
 extern u16 *datPersonaGetRecord(u16 pcId);
 
-extern u32 func_0010c750(void *persona, u16 level);
+extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 
 extern u32 datPersonaGetNextExp(int persona);
 
@@ -1513,7 +1513,7 @@ u32 datPersonaGetNextExp(int persona)
 // FUN_00109440
 u32 func_00109440(PersonaWork* persona)
 {
-    return func_0010c750(persona, (u16)(persona->level + 1));
+    return datPersonaGetExpForLevel(persona, (u16)(persona->level + 1));
 }
 
 
@@ -1552,7 +1552,7 @@ s32 func_0010c6f0(PersonaWork* persona)
     if (persona->level >= 99) {
         return 0;
     }
-    return func_0010c750(persona, persona->level + 1) <= persona->nextExp;
+    return datPersonaGetExpForLevel(persona, persona->level + 1) <= persona->nextExp;
 }
 
 
