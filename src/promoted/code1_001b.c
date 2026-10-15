@@ -213,7 +213,7 @@ extern void func_001bdd60(void);
 extern u8 *datUnitGetRecord(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
-extern void func_002038c0(s32 arg0);
+extern void btlPanelReset(s32 arg0);
 extern void datCalcSetHp(s32 arg0, u16 arg1);
 extern void datCalcSetSp(s32 arg0, u16 arg1);
 extern u16 datCalcMaxHp(DatUnit *arg0);

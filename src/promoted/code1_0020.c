@@ -3250,7 +3250,7 @@ void func_00207140(u16 *flags, u8 *work)
     *(u16 *)(work + 0x5A6) = itemCount;
 }
 /* 2008/2016 bytes, with eight zero alignment bytes. The callback receives
-   the same integer work address passed by func_00203420; its local byte view
+   the same integer work address passed by btlListStep; its local byte view
    and unsigned party-count store preserve retail's register and store order.
    See docs/probe_archive/Battle_menu_00207320_20260922.md. */
 #pragma push
@@ -3844,7 +3844,7 @@ u16 func_00208b00(u8 *arg0, u8 *arg1)
     return var_16;
 }
 /* 716/720 bytes; eighteen resolved relocations and four zero alignment bytes.
- * func_002035a0 forwards the signed state word at node+0x28. Convert that
+ * btlListDispatchUpdate forwards the signed state word at node+0x28. Convert that
  * real input to a pointer here; a pointer parameter swaps two entry moves. */
 // FUN_00208D00
 void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
@@ -4000,7 +4000,7 @@ u16 func_002091f0(u8 *arg0, u8 *arg1)
     return value;
 }
 /* 716/720 bytes; eighteen resolved relocations and four zero alignment bytes.
- * func_002035a0 forwards the signed state word at node+0x28. Convert that
+ * btlListDispatchUpdate forwards the signed state word at node+0x28. Convert that
  * input locally; preserve the position and callback-table reloads. */
 // FUN_00209370
 void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
