@@ -123,7 +123,7 @@ extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_002777f0(s32 arg0);
 extern void func_0046b0d0(void *arg0);
 extern s32 datCalcGetHp(s32 arg0);
-extern s32 func_00231f80(s32 arg0);
+extern s32 datCalcMaxHp(s32 arg0);
 extern void func_004abd60(s32 arg0);
 extern void func_004b5790(void *arg0, void *arg1);
 extern u8 D_00625240[];
@@ -1165,7 +1165,7 @@ s32 func_00202480(u8 *arg0)
     switch (*(u8 *)(arg0 + 4)) {
     case 0:
         var_17 = (s16)datCalcGetHp(*(s32 *)(temp_16 + 0xA64));
-        temp_3_2 = (s16)func_00231f80(*(s32 *)(temp_16 + 0xA64));
+        temp_3_2 = (s16)datCalcMaxHp(*(s32 *)(temp_16 + 0xA64));
         temp_2 = *(s16 *)(arg0 + 6);
         if (temp_2 != 0) {
             var_17 = (s16)(var_17 + temp_2);
@@ -1221,7 +1221,7 @@ s32 func_00202640(u8 **arg0)
 
     temp_16 = *arg0;
     var_f20 = (f32)(u32)datCalcGetHp(*(s32 *)(temp_16 + 0xA64));
-    var_f0 = (f32)(u32)func_00231f80(*(s32 *)(temp_16 + 0xA64));
+    var_f0 = (f32)(u32)datCalcMaxHp(*(s32 *)(temp_16 + 0xA64));
     *(f32 *)(temp_16 + 0xA2C) = var_f20 / var_f0;
     *(s32 *)(temp_16 + 0xA28) = (s32)0xBF800000;
     *(s16 *)(temp_16 + 0xA38) = -1;

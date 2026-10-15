@@ -32,7 +32,7 @@ extern void *RtQuatTransformVectors(void *out, const void *in, s32 count, const 
 extern f32 sqrtf(f32 arg0);
 extern u8 *func_001b0cc0();
 extern void *D_00609850[];
-extern s32 func_00231f80();
+extern s32 datCalcMaxHp();
 extern s64 scrGetParamInt();
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
@@ -42,7 +42,7 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
     return (u8 *)((u32)offset + (u32)base);
 }
 extern s32 datCalcGetHp();
-extern u16 func_00232290();
+extern u16 datCalcMaxSp();
 extern s32 datCalcGetSp();
 
 extern s32 func_0023d8e0(u8 *unit, u16 skill);
@@ -71,7 +71,7 @@ extern void btlActionFinishPresentation(s32 arg0);
 extern BtlPacket *func_001d3700(u16 arg0, u16 arg1);
 extern u8 *btlCameraCreateSetStatePacket(s32 arg0, s32 arg1);
 extern s32 func_001dbba0();
-extern u32 func_00231d70(u32 arg0);
+extern u32 datCalcRandomBelow(u32 arg0);
 extern u8 *func_001d9280();
 extern u8 *func_001d8c00();
 extern u8 *func_001de370();
@@ -100,7 +100,7 @@ extern f32 D_00761438;
 
 extern u8 *func_001b1560(void);
 extern void func_001eb410(u8 *arg0);
-extern u32 func_00231d70(u32 arg0);
+extern u32 datCalcRandomBelow(u32 arg0);
 
 
 
@@ -257,7 +257,7 @@ s32 func_001e6ea0(void) {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
-                result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
+                result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
             scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
@@ -277,7 +277,7 @@ s32 func_001e6fa0(void) {
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -295,7 +295,7 @@ s32 func_001e7080(void) {
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -313,7 +313,7 @@ s32 func_001e7160(void) {
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -331,7 +331,7 @@ s32 func_001e7240(void) {
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -353,7 +353,7 @@ s32 func_001e7320(void)
         }
         else
         {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     }
     else
@@ -366,7 +366,7 @@ s32 func_001e7320(void)
 // FUN_001E7400
 s32 func_001e7400(void) {
     extern s32 func_001d9390();
-    extern u32 func_00231d70(u32 arg0);
+    extern u32 datCalcRandomBelow(u32 arg0);
     extern s32 scrGetParamInt(s32 arg0);
     extern void scrSetReturnInt(s32 arg0);
     extern u8 *func_0029d050(void);
@@ -392,7 +392,7 @@ s32 func_001e7400(void) {
             index++;
         }
         if (index == count) {
-            selected = candidates[func_00231d70(count)];
+            selected = candidates[datCalcRandomBelow(count)];
         } else {
             selected = *(s32 *)(formation + 0x170);
         }
@@ -405,8 +405,8 @@ s32 func_001e7400(void) {
 // FUN_001E7510
 s32 func_001e7510(void) {
     extern s32 func_001d9390();
-    extern s32 func_00231d70();
-    extern s32 func_00231e20();
+    extern s32 datCalcRandomBelow();
+    extern s32 datCalcGetLevel();
     extern s64 scrGetParamInt();
     extern void scrSetReturnInt();
     extern u8 *func_0029d050();
@@ -425,7 +425,7 @@ s32 func_001e7510(void) {
         goto loop_test;
 loop_body:
         temp_2 = (u8 *)&sp50[(u16)var_18];
-        if ((func_00231e20(*(s32 *)(*(u8 **)(*(u8 **)temp_2 + 0x30) + 0xA64)) & 0xFF) > 0) {
+        if ((datCalcGetLevel(*(s32 *)(*(u8 **)(*(u8 **)temp_2 + 0x30) + 0xA64)) & 0xFF) > 0) {
             var_19 = *(u8 **)temp_2;
         }
         var_18 = (var_18 + 1) & 0xFFFF;
@@ -433,7 +433,7 @@ loop_test:
         if ((var_18 & 0xFFFF) < temp_17)
             goto loop_body;
         if (var_19 == NULL)
-            var_19 = sp50[func_00231d70(temp_17 & 0xFFFF)];
+            var_19 = sp50[datCalcRandomBelow(temp_17 & 0xFFFF)];
         scrSetReturnInt(*(s32 *)(var_19 + 8) | 0x80000000);
     } else {
         scrSetReturnInt(-1);
@@ -459,8 +459,8 @@ s32 func_001e7640(void)
 {
     extern s32 func_001d7c60(u32, void *, s32, s32, s32);
     extern u8 *func_0029d050(void);
-    extern u32 func_00231d70(u32);
-    extern s32 func_00231e20(u8 *);
+    extern u32 datCalcRandomBelow(u32);
+    extern s32 datCalcGetLevel(u8 *);
     extern s32 datCalcIsDead(s32, s32);
     extern void scrSetReturnInt(s32);
     struct {
@@ -491,7 +491,7 @@ s32 func_001e7640(void)
             ((*(u16 *)(candidate + 0x1A) & 8) != 0) &&
             (*(u8 *)(*(s32 *)(candidate + 0x30) + 0xA2) == desiredValue) &&
             (datCalcIsDead(*(s32 *)(*(s32 *)(candidate + 0x30) + 0xA64), 0) == 0)) {
-            value = (u32)(func_00231e20((u8 *)*(s32 *)(*(s32 *)(candidate + 0x30) + 0xA64)) & 0xFF);
+            value = (u32)(datCalcGetLevel((u8 *)*(s32 *)(*(s32 *)(candidate + 0x30) + 0xA64)) & 0xFF);
             if (value == highest) {
                 selected[selectedCount] = candidate;
                 selectedCount++;
@@ -504,7 +504,7 @@ s32 func_001e7640(void)
         index++;
     }
     if (selectedCount > 0) {
-        value = func_00231d70(selectedCount);
+        value = datCalcRandomBelow(selectedCount);
         scrSetReturnInt(*(s32 *)(selected[value] + 8) | 0x80000000);
     } else {
         scrSetReturnInt(-1);
@@ -514,7 +514,7 @@ s32 func_001e7640(void)
 #pragma pop
 // FUN_001E77F0
 s32 func_001e77f0(void) {
-    extern s32 func_00231e20();
+    extern s32 datCalcGetLevel();
     u8 *temp_21;
     u32 temp_2;
     u8 *temp_20;
@@ -536,7 +536,7 @@ s32 func_001e77f0(void) {
             goto loop_test;
 loop_body:
             temp_20 = *(u8 **)(temp_21 + var_18 * 4 + 0x38);
-            temp_17 = func_00231e20(*(s32 *)(*(u8 **)(temp_20 + 0x30) + 0xA64)) & 0xFF;
+            temp_17 = datCalcGetLevel(*(s32 *)(*(u8 **)(temp_20 + 0x30) + 0xA64)) & 0xFF;
             if (temp_17 >= var_22) {
                 temp_2 = datCalcGetHp(*(s32 *)(*(u8 **)(temp_20 + 0x30) + 0xA64)) & 0xFFFF;
                 if (var_16 < temp_2) {
@@ -585,7 +585,7 @@ loop_test:
         if (temp_4 == 0) {
             scrSetReturnInt(-1);
         } else {
-            scrSetReturnInt(*(s32 *)(sp50[func_00231d70(temp_4)] + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(sp50[datCalcRandomBelow(temp_4)] + 8) | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -603,8 +603,8 @@ loop_test:
 s32 func_001e7ab0(void) {
     extern s32 func_001dbba0();
     extern void func_001db5b0();
-    extern s32 func_00231d70();
-    extern s32 func_00231e20();
+    extern s32 datCalcRandomBelow();
+    extern s32 datCalcGetLevel();
     extern s64 scrGetParamInt();
     extern void scrSetReturnInt();
     extern u8 *func_0029d050();
@@ -628,7 +628,7 @@ s32 func_001e7ab0(void) {
             goto loop_test;
 loop_body:
             temp_16 = *(u8 **)(temp_20 + var_19 * 4 + 0x38);
-            temp_3 = (u32)(func_00231e20(*(s32 *)(*(u8 **)(temp_16 + 0x30) + 0xA64)) & 0xFF);
+            temp_3 = (u32)(datCalcGetLevel(*(s32 *)(*(u8 **)(temp_16 + 0x30) + 0xA64)) & 0xFF);
             if (temp_3 >= var_18) {
                 if (temp_3 == var_18) {
                     sp60[var_17++] = temp_16;
@@ -642,7 +642,7 @@ loop_body:
 loop_test:
             if (var_19 < *(u16 *)(temp_20 + 0x6A))
                 goto loop_body;
-            var_2 = sp60[func_00231d70(var_17 & 0xFFFF)];
+            var_2 = sp60[datCalcRandomBelow(var_17 & 0xFFFF)];
         }
         scrSetReturnInt(*(s32 *)(var_2 + 8) | 0x80000000);
     } else {
@@ -690,7 +690,7 @@ s32 func_001e7d30(void) {
 }
 // FUN_001E7D70
 s32 func_001e7d70(void) {
-    scrSetReturnInt(func_00231f80(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcMaxHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
@@ -734,7 +734,7 @@ s32 func_001e7e70(void)
 
 // FUN_001E7EF0
 s32 func_001e7ef0(void) {
-    scrSetReturnInt(func_00232290(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcMaxSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
@@ -759,7 +759,7 @@ s32 func_001e7fb0(void) {
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);
@@ -783,7 +783,7 @@ s32 func_001e8090(void) {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
-                result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
+                result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
             scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
@@ -809,7 +809,7 @@ s32 func_001e8190(void) {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
-                result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
+                result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
             scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
@@ -835,7 +835,7 @@ s32 func_001e8290(void) {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
-                result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
+                result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
             scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
@@ -861,7 +861,7 @@ s32 func_001e8390(void) {
             if (flags & 2) {
                 result = func_001de370(work);
             } else {
-                result = *(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38);
+                result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
             scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
         }
@@ -1274,7 +1274,7 @@ s32 func_001e9240(void) {
             }
             current = *(u8 **)(current + 0x450);
         }
-        selected = stack[func_00231d70(count & 0xFFFF)];
+        selected = stack[datCalcRandomBelow(count & 0xFFFF)];
     }
     scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     return 1;
@@ -1346,7 +1346,7 @@ s32 func_001e94e0(void) {
             }
             current = *(u8 **)(current + 0x450);
         }
-        selected = stack[func_00231d70(count & 0xFFFF)];
+        selected = stack[datCalcRandomBelow(count & 0xFFFF)];
     }
     scrSetReturnInt(*(s32 *)(selected + 8) | 0x80000000);
     return 1;
@@ -1402,7 +1402,7 @@ s32 func_001e9770(void) {
     extern void scrSetReturnInt(s32 arg0);
     extern s32 datCalcIsDead(s32 arg0, s32 arg1);
     extern s32 datCalcGetHp(s32 arg0);
-    extern s32 func_00231f80(s32 arg0);
+    extern s32 datCalcMaxHp(s32 arg0);
     u32 temp_16;
     u32 temp_2;
     s32 temp_30;
@@ -1439,7 +1439,7 @@ loop_body:
         goto loop_next;
     temp_4 = *(u8 **)(*(u8 **)(var_21 + 0x30) + 0xA64);
     temp_16 = *(u16 *)(temp_4 + 8);
-    temp_2 = (u32)(func_00231f80((s32)temp_4) & 0xFFFF);
+    temp_2 = (u32)(datCalcMaxHp((s32)temp_4) & 0xFFFF);
     if ((u32)temp_16 * 0x64 > temp_2 * (u32)temp_30)
         goto loop_next;
     if ((temp_17 != 0) &&
@@ -1575,7 +1575,7 @@ outer_body:
             if (func_001db360(entryA, paramA, 1) != 0) {
                 dmg = func_00235520(skill, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
                 hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
-                maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
+                maxHp = datCalcMaxHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
                 neg = (s32)(0u - (u32)dmg);
                 if (hp < neg) {
                     cur = (f32)hp / (f32)maxHp;
@@ -1603,7 +1603,7 @@ outer_body:
             } else {
                 dmg = func_00235520(skill, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
                 hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
-                maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
+                maxHp = datCalcMaxHp(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
                 neg = (s32)(0u - (u32)dmg);
                 if (hp < neg) {
                     curScore += (f32)hp / (f32)maxHp;
@@ -1740,7 +1740,7 @@ s32 func_001ea180(void) {
 
     temp_4 = (s32)(func_001d9390(func_0029d050(), 0, 0x80000, 2, 0, &func_001dbb90, &sp10) & 0xFFFF);
     if (temp_4 > 0) {
-        scrSetReturnInt(*(s32 *)(sp10[func_00231d70(temp_4)] + 8) | 0x80000000);
+        scrSetReturnInt(*(s32 *)(sp10[datCalcRandomBelow(temp_4)] + 8) | 0x80000000);
     } else {
         scrSetReturnInt(-1);
     }
@@ -2176,7 +2176,7 @@ s32 func_001eb2a0(void) {
     s32 temp;
 
     temp = scrGetParamIntS32(0);
-    temp = func_00231d70(temp);
+    temp = datCalcRandomBelow(temp);
     scrSetReturnInt(temp);
     return 1;
 }
@@ -2248,7 +2248,7 @@ void func_001eb410(u8 *arg0) {
 void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status) {
     extern s32 func_00105ed0();
     extern void func_001de640(u8 *arg0, u8 *arg1, u16 arg2);
-    extern s32 func_00231d70(u32 arg0);
+    extern s32 datCalcRandomBelow(u32 arg0);
     extern void memset(void *arg0, s32 arg1, s32 arg2);
     extern void *D_006098BC[];
     extern void *D_00609934[];
@@ -2337,7 +2337,7 @@ eb4a0_sum_test:
         if ((index & 0xFFFF) < 5)
             goto eb4a0_sum_body;
         entry = NULL;
-        threshold = (s32)(func_00231d70(sum & 0xFFFF) & 0xFFFF);
+        threshold = (s32)(datCalcRandomBelow(sum & 0xFFFF) & 0xFFFF);
         cumulative = 0;
         for (scanIndex = 0; (scanIndex & 0xFFFF) < 5;
              scanIndex = (scanIndex + 1) & 0xFFFF) {
@@ -2591,7 +2591,7 @@ void func_001ebc00(u8 *action, u8 *command)
         *(u16 *)(command + 0x36) = func_0023dfe0(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
     } else {
         *(u16 *)(command + 0x34) = 2;
-        *(u16 *)(command + 0x36) = choices[func_00231d70(available)];
+        *(u16 *)(command + 0x36) = choices[datCalcRandomBelow(available)];
     }
 }
 #pragma opt_common_subs on
@@ -3774,7 +3774,7 @@ s32 func_001ef4d0(s32 arg0, s32 arg1)
                 if ((arg1 == 0) ||
                     (datCalcChkBadStatus(*(s32 *)(entry + 0xA64), arg1) == 0)) {
                     total = (total +
-                             (func_00231e20(*(s32 *)(entry + 0xA64)) & 0xFF)) &
+                             (datCalcGetLevel(*(s32 *)(entry + 0xA64)) & 0xFF)) &
                             0xFFFF;
                     count = (count + 1) & 0xFFFF;
                 }
@@ -3888,7 +3888,7 @@ s32 func_001ef7e0(void)
         var_3 = *(u32 *)(iGpffffb3ac + 0x20) - 1;
     }
     temp_16 = *(&iGpffffa9b0 + var_3);
-    return (u32)func_00231d70(100) < (u32)temp_16;
+    return (u32)datCalcRandomBelow(100) < (u32)temp_16;
 }
 // FUN_001EF8C0
 s32 func_001ef8c0(void)
@@ -4012,21 +4012,21 @@ check:
     if (count1 != 0) {
         *(s16 *)(action + 0x448) = 1;
         preferred1 = preferred1 != NULL ? preferred1 :
-            status1Targets[func_00231d70(count1)];
+            status1Targets[datCalcRandomBelow(count1)];
         *(u8 **)(action + 0x444) = preferred1;
         return 1;
     }
     if (count100000 != 0) {
         *(s16 *)(action + 0x448) = 1;
         preferred100000 = preferred100000 != NULL ? preferred100000 :
-            status100000Targets[func_00231d70(count100000)];
+            status100000Targets[datCalcRandomBelow(count100000)];
         *(u8 **)(action + 0x444) = preferred100000;
         return 1;
     }
     if (count1e != 0) {
         *(s16 *)(action + 0x448) = 0;
         preferred1e = preferred1e != NULL ? preferred1e :
-            status1eTargets[func_00231d70(count1e)];
+            status1eTargets[datCalcRandomBelow(count1e)];
         *(u8 **)(action + 0x444) = preferred1e;
         return 1;
     }
@@ -4084,7 +4084,7 @@ u8 *func_001efd50(u8 *arg0)
     if (var_18 == 0) {
         return NULL;
     }
-    return (u8 *)candidates[func_00231d70(var_18)];
+    return (u8 *)candidates[datCalcRandomBelow(var_18)];
 }
 // FUN_001EFF50
 s32 func_001eff50(u8 *arg0)
@@ -4135,7 +4135,7 @@ s32 func_001eff50(u8 *arg0)
                     (func_00232950(*(u8 **)(temp_16 + 0xA64), 0x88) &
                      0xFFFF) *
                     10;
-                temp_5 = func_00231d70(0x64);
+                temp_5 = datCalcRandomBelow(0x64);
                 if ((u32)temp_5 > (u32)(temp_16_2 + 0x3C)) {
                 } else {
                     candidates[var_17] = (s32)var_18;
@@ -4148,6 +4148,6 @@ s32 func_001eff50(u8 *arg0)
     if (var_17 == 0) {
         return 0;
     }
-    func_00106550(0x79, func_00231d70(3) + 3);
-    return candidates[func_00231d70(var_17)];
+    func_00106550(0x79, datCalcRandomBelow(3) + 3);
+    return candidates[datCalcRandomBelow(var_17)];
 }

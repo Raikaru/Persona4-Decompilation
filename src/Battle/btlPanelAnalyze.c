@@ -492,9 +492,9 @@ void func_00219790(s32 unusedTask, u8 *panel)
     void func_002012d0(u8 *, f32, f32);
     void func_00201720(u8 *, f32, f32);
     f32 func_00201950(u8 *, s32, s32);
-    s32 func_00231e20(void *);
-    u16 func_00231f80(void *);
-    u16 func_00232290(void *);
+    s32 datCalcGetLevel(void *);
+    u16 datCalcMaxHp(void *);
+    u16 datCalcMaxSp(void *);
     u32 datCalcGetTableLength(u8 *);
     u8 *func_0023e140(u8 *);
     u8 *func_00243840(s32);
@@ -547,7 +547,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
             if ((*(u16 *)panel & 8) == 0) {
                 f32 nx;
                 nx = 60.0f + nameX;
-                sprintf(text, &iGpffffa59c, func_00231e20(*(u8 **)(unit + 0xA64)) & 0xFF);
+                sprintf(text, &iGpffffa59c, datCalcGetLevel(*(u8 **)(unit + 0xA64)) & 0xFF);
                 len = strlen(text);
                 if (len > 2) {
                     func_0046d730(D_00628F80, 0xF4);
@@ -584,12 +584,12 @@ void func_00219790(s32 unusedTask, u8 *panel)
             func_00275020(112.0f + nameX, 136.0f, 0.0f, 0x89FF1FFF, 0, 1, iGpffffb444 + (u32)enemyIndex * 0x15, 0, -1);
             if ((*(u16 *)panel & 8) == 0) {
                 nameX = panelAdd2(15.0f, nameX);
-                hp = func_00231f80(*(u8 **)(unit + 0xA64)) & 0xFFFF;
+                hp = datCalcMaxHp(*(u8 **)(unit + 0xA64)) & 0xFFFF;
                 if (hp > 999U) {
                     hp = 999;
                 }
                 func_00218760(work, hp, nameX, 0, 167.0f);
-                sp = func_00232290(*(u8 **)(unit + 0xA64)) & 0xFFFF;
+                sp = datCalcMaxSp(*(u8 **)(unit + 0xA64)) & 0xFFFF;
                 if (sp > 999U) {
                     sp = 999;
                 }

@@ -156,10 +156,10 @@ extern void func_001f6c40(void* action, s32 flags);
 extern void func_001f56d0(void* action, s32 effect, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00213b10(void* unit);
 extern void func_00213b30(void* unit);
-extern s32 func_00231e20(void* data);
+extern s32 datCalcGetLevel(void* data);
 extern void datCalcSetHp(void* data, s32 value);
-extern void func_002325a0(void* data, s32 value);
-extern void func_00232610(void* data, s32 value);
+extern void datCalcAddHp(void* data, s32 value);
+extern void datCalcAddSp(void* data, s32 value);
 extern void datCalcSetBadStatus(void* data, s32 value);
 extern void datCalcClearBadStatus(void* data, s32 value);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
@@ -789,8 +789,8 @@ s32 func_001f3010(u8* arg0)
         }
     }
     if (*(s32*)(iGpffffb3ac + 0xc) & 0x10) {
-        func_002325a0(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 8));
-        func_00232610(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 0xc));
+        datCalcAddHp(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 8));
+        datCalcAddSp(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 0xc));
         func_00106020(*(s32*)(arg0 + 0x1c));
     }
     temp_3 = *(s32*)(arg0 + 8);
@@ -819,7 +819,7 @@ s32 func_001f3010(u8* arg0)
                 temp_3_3 = iGpffffb3ac;
                 *(u16*)(temp_3_3 + 0xc5c) = *(u16*)(temp_3_3 + 0xc5c) + 1;
             }
-            temp_4 = func_00231e20(*(u8**)(temp_18 + 0xa64)) & 0xff;
+            temp_4 = datCalcGetLevel(*(u8**)(temp_18 + 0xa64)) & 0xff;
             temp_3_4 = iGpffffb3ac;
             *(s32*)(temp_3_4 + 0xce4) = *(s32*)(temp_3_4 + 0xce4) + temp_4;
             temp_2_2 = iGpffffb3ac + 0xce0;

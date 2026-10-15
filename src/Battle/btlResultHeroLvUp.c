@@ -29,7 +29,7 @@ void func_001f8690(u16 param);
 void func_001f86d0(void);
 void func_001f9a50(u16 param, s32 mode);
 void func_001f9a90(void);
-extern u32 func_00231d70(u32 max);
+extern u32 datCalcRandomBelow(u32 max);
 void func_0046d730(const char* file, s32 line);
 extern char D_00629660[];
 s32 func_00221970(u8* work);
@@ -71,8 +71,8 @@ void func_00221ab0(void)
             list[count++] = v;
         }
     }
-    if (count > 0 && func_00231d70(0x64) < 0x32) {
-        s16 pick = list[func_00231d70(count)];
+    if (count > 0 && datCalcRandomBelow(0x64) < 0x32) {
+        s16 pick = list[datCalcRandomBelow(count)];
 
         switch (pick) {
         case 2:
@@ -102,7 +102,7 @@ void func_00221ab0(void)
             break;
         }
         {
-            s16 sound = (s16)(val + 0x80 + func_00231d70(3));
+            s16 sound = (s16)(val + 0x80 + datCalcRandomBelow(3));
 
             func_001f9a90();
             func_001f8690((u16)sound);
@@ -126,7 +126,7 @@ void func_00221ab0(void)
         }
     }
     {
-        s16 sound = (s16)(val + func_00231d70(3));
+        s16 sound = (s16)(val + datCalcRandomBelow(3));
 
         func_001f86d0();
         func_001f9a50((u16)sound, 3);

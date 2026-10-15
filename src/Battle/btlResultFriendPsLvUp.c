@@ -22,7 +22,7 @@ extern void func_00106390(s32 arg0, s32 arg1);
 extern void func_0011b480(u8 *arg0, u16 arg1, u32 arg2, s8 arg3);
 extern u8 *func_00455ea0(u8 *archive, s32 index, s32 *size);
 extern u8 *func_0011f410(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4, s32 *a5);
-extern u32 func_00231d70(u32 max);
+extern u32 datCalcRandomBelow(u32 max);
 extern void func_001f86d0(void);
 extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
@@ -183,12 +183,12 @@ s32 func_002239a0(u8 *sdkTaskBytes)
                 *(u8 **)(r + 72) = func_0011f410(arg0, *(s32 *)(r + 68), base + *(s32 *)(r + 56) * 136 + 0x6B4, a, b, sp);
             }
             if (*(s16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A) == 5) {
-                s16 t = (s16)(func_00231d70(3) + 468);
+                s16 t = (s16)(datCalcRandomBelow(3) + 468);
                 func_001f86d0();
                 func_001f9a50((u16)t, 3);
             } else {
                 s32 stmp = func_002238f0(*(s16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A)) + 125;
-                s16 u = (s16)(stmp + func_00231d70(3));
+                s16 u = (s16)(stmp + datCalcRandomBelow(3));
                 func_001f9a90();
                 func_001f8690((u16)u);
             }

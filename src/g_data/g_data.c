@@ -115,14 +115,14 @@ extern u16 func_00107890(u8 arg0);
 
 extern void memcpy(void* arg0, void* arg1, u32 arg2);
 
-extern s32 func_00231e20(u8* arg0);
+extern s32 datCalcGetLevel(u8* arg0);
 extern u32 datCalcGetHp(void* arg0);
 extern u32 datCalcGetSp(void* arg0);
 struct DatUnit;
-extern u16 func_00231f80(struct DatUnit* unit);
-extern u16 func_00232290(struct DatUnit* unit);
+extern u16 datCalcMaxHp(struct DatUnit* unit);
+extern u16 datCalcMaxSp(struct DatUnit* unit);
 extern void datCalcGetBadStatusNoDown(void* arg0);
-extern void func_00231dc0(void* arg0, s16 arg1);
+extern void datCalcInitUnit(void* arg0, s16 arg1);
 extern void datCalcSetBadStatus(void* arg0);
 extern u32 datCalcClearBadStatus(int unit, u32 badStatus);
 extern u32 datCalcIsDead(int unit, s32 hpDelta);
@@ -316,11 +316,11 @@ s32 func_00104c70(s32 arg0)
 
     if (unit == 1)
     {
-        return func_00231e20(D_007973C4);
+        return datCalcGetLevel(D_007973C4);
     }
     else
     {
-        return func_00231e20((u8*)D_00796E50 + (unit - 2) * 0x88 + 4);
+        return datCalcGetLevel((u8*)D_00796E50 + (unit - 2) * 0x88 + 4);
     }
 }
 
@@ -359,11 +359,11 @@ u16 func_00104dc0(s16 arg0)
 {
     if (arg0 == 1)
     {
-        return func_00231f80((struct DatUnit*)D_007973C4);
+        return datCalcMaxHp((struct DatUnit*)D_007973C4);
     }
     else
     {
-        return func_00231f80((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
+        return datCalcMaxHp((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
     }
 }
 
@@ -372,11 +372,11 @@ u16 func_00104e30(s16 arg0)
 {
     if (arg0 == 1)
     {
-        return func_00232290((struct DatUnit*)D_007973C4);
+        return datCalcMaxSp((struct DatUnit*)D_007973C4);
     }
     else
     {
-        return func_00232290((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
+        return datCalcMaxSp((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
     }
 }
 
@@ -554,11 +554,11 @@ u16 func_001053b0(s16 arg0)
 
     if (arg0 == 1)
     {
-        r = func_00231e20(D_007973C4);
+        r = datCalcGetLevel(D_007973C4);
     }
     else
     {
-        r = func_00231e20((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        r = datCalcGetLevel((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
     }
     return *(u16*)((u8*)D_005DD844 + (r & 0xFF) * 0x2C + (s32)arg0 * 4);
 }
@@ -570,11 +570,11 @@ u16 func_00105460(s16 arg0)
 
     if (arg0 == 1)
     {
-        r = func_00231e20(D_007973C4);
+        r = datCalcGetLevel(D_007973C4);
     }
     else
     {
-        r = func_00231e20((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        r = datCalcGetLevel((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
     }
     return *(u16*)((u8*)D_005DD846 + (r & 0xFF) * 0x2C + (s32)arg0 * 4);
 }
@@ -598,11 +598,11 @@ void func_001055a0(s16 arg0)
 {
     if (arg0 == 1)
     {
-        func_00231dc0(D_007973C4, arg0);
+        datCalcInitUnit(D_007973C4, arg0);
     }
     else
     {
-        func_00231dc0((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4, arg0);
+        datCalcInitUnit((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4, arg0);
     }
 }
 // FUN_00105610
@@ -675,11 +675,11 @@ void func_00105780(s16 arg0)
     v1 = (u16)r;
     if (arg0 == 1)
     {
-        v2 = func_00231f80((struct DatUnit*)D_007973C4);
+        v2 = datCalcMaxHp((struct DatUnit*)D_007973C4);
     }
     else
     {
-        v2 = func_00231f80((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
+        v2 = datCalcMaxHp((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
     }
     if (v2 < v1)
     {
@@ -704,11 +704,11 @@ void func_00105780(s16 arg0)
     v1 = (u16)r;
     if (arg0 == 1)
     {
-        v2 = func_00232290((struct DatUnit*)D_007973C4);
+        v2 = datCalcMaxSp((struct DatUnit*)D_007973C4);
     }
     else
     {
-        v2 = func_00232290((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
+        v2 = datCalcMaxSp((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
     }
     if (v2 < v1)
     {

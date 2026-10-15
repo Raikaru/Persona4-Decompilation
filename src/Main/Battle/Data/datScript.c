@@ -27,9 +27,9 @@ extern u8* DAT_007644E8;    /* level-difference float table (0x18 offset) */
 extern u8* DAT_007644F0;    /* parameter table (s16 entries) */
 extern u8* DAT_007644F4;    /* parameter table (s16 entries) */
 
-s32 func_00231e20(u16* unit);
+s32 datCalcGetLevel(u16* unit);
 s32 datCalcGetHp(u16* unit);
-s32 func_00231f80(u16* unit);
+s32 datCalcMaxHp(u16* unit);
 s32 func_00232c70(u16* unit, u32 param);
 s32 func_0023a6b0(u8* unit, s32 param);
 s32 func_0023d740(s16 cmd, s32 param);
@@ -82,11 +82,11 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
     switch (arg0) {
     case 1:
         K_ASSERT(D_00881460[0] != 0, 0xA5);
-        result = (f32)(u32)func_00231e20(D_00881460[0]);
+        result = (f32)(u32)datCalcGetLevel(D_00881460[0]);
         break;
     case 2:
         K_ASSERT(D_00881464[0] != 0, 0xA9);
-        result = (f32)(u32)func_00231e20(D_00881464[0]);
+        result = (f32)(u32)datCalcGetLevel(D_00881464[0]);
         break;
     case 3:
         K_ASSERT(D_00881460[0] != 0, 0xAD);
@@ -98,11 +98,11 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 5:
         K_ASSERT(D_00881460[0] != 0, 0xB5);
-        result = (f32)(u32)func_00231f80(D_00881460[0]);
+        result = (f32)(u32)datCalcMaxHp(D_00881460[0]);
         break;
     case 6:
         K_ASSERT(D_00881464[0] != 0, 0xB9);
-        result = (f32)(u32)func_00231f80(D_00881464[0]);
+        result = (f32)(u32)datCalcMaxHp(D_00881464[0]);
         break;
     case 7:
         K_ASSERT(D_00881460[0] != 0, 0xBD);
@@ -114,11 +114,11 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 9:
         K_ASSERT(D_00881460[0] != 0, 0xC5);
-        result = (f32)(u32)func_00232290(D_00881460[0]);
+        result = (f32)(u32)datCalcMaxSp(D_00881460[0]);
         break;
     case 10:
         K_ASSERT(D_00881464[0] != 0, 0xC9);
-        result = (f32)(u32)func_00232290(D_00881464[0]);
+        result = (f32)(u32)datCalcMaxSp(D_00881464[0]);
         break;
     case 11:
         K_ASSERT(D_00881460[0] != 0, 0xCD);
@@ -210,8 +210,8 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
     case 23:
         K_ASSERT(D_00881460[0] != 0, 0x139);
         K_ASSERT(D_00881464[0] != 0, 0x13A);
-        lv1 = (s16)(func_00231e20(D_00881460[0]) & 0xFF);
-        lv2 = (s16)(func_00231e20(D_00881464[0]) & 0xFF);
+        lv1 = (s16)(datCalcGetLevel(D_00881460[0]) & 0xFF);
+        lv2 = (s16)(datCalcGetLevel(D_00881464[0]) & 0xFF);
         diff = (s16)(lv1 - lv2);
         if (diff < -0x1F) {
             diff = -0x1F;
@@ -227,8 +227,8 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
     case 24:
         K_ASSERT(D_00881460[0] != 0, 0x160);
         K_ASSERT(D_00881464[0] != 0, 0x161);
-        lv1 = (s16)(func_00231e20(D_00881460[0]) & 0xFF);
-        lv2 = (s16)(func_00231e20(D_00881464[0]) & 0xFF);
+        lv1 = (s16)(datCalcGetLevel(D_00881460[0]) & 0xFF);
+        lv2 = (s16)(datCalcGetLevel(D_00881464[0]) & 0xFF);
         if (lv2 < lv1) {
             step = (s16)((lv1 - lv2) - 1);
         } else {
@@ -283,8 +283,8 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
     case 33:
         K_ASSERT(D_00881460[0] != 0, 0x199);
         K_ASSERT(D_00881464[0] != 0, 0x19A);
-        lv1 = (s16)(func_00231e20(D_00881460[0]) & 0xFF);
-        lv2 = (s16)(func_00231e20(D_00881464[0]) & 0xFF);
+        lv1 = (s16)(datCalcGetLevel(D_00881460[0]) & 0xFF);
+        lv2 = (s16)(datCalcGetLevel(D_00881464[0]) & 0xFF);
         diff = (s16)(lv1 - lv2);
         if (diff < -0x1F) {
             diff = -0x1F;

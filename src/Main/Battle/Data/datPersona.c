@@ -35,7 +35,7 @@ extern void func_0010fde0(u8 *arg0);
 
 extern s32 datPersonaSetLeadSlot(); /* old-style: target call preserves s64 argument */
 
-extern u32 func_00231d70(u32 arg0);
+extern u32 datCalcRandomBelow(u32 arg0);
 
 extern f32 fGpffff8218; /* gp -0x7DF8 */
 extern f32 fGpffff821c; /* gp -0x7DF4 */
@@ -1332,7 +1332,7 @@ void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2)
                     sumIndex = (sumIndex + 1) & 0xFFFF;
                 }
                 if ((total & 0xFFFF) > 0) {
-                    choice = (func_00231d70(total & 0xFFFF) + 1) & 0xFFFF;
+                    choice = (datCalcRandomBelow(total & 0xFFFF) + 1) & 0xFFFF;
                     weight = 0;
                     statScan = 0;
                     table = (u8 *)DPGrowthOffset((u32)pidoff, (u32)iGpffffb3dc);

@@ -43,7 +43,7 @@ extern void func_00105990(s16 arg0, u32 value);
 extern u8 func_001059e0(s32 arg0);
 extern s32 func_00106020(s32 arg0);
 extern s32 func_00106600(s16 id);
-extern void func_00231ef0(u8 *arg0, u8 arg1);
+extern void datCalcSetLevel(u8 *arg0, u8 arg1);
 extern s32 func_00212180(s32);
 extern void func_00216c40(s32, s32);
 extern void func_001f7620(s16 channel, s32 fadeFrames);
@@ -102,7 +102,7 @@ extern void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 extern void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
 extern f32 fGpffff84a0;
 extern void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
-extern s32 func_00231f80(s32 arg0);
+extern s32 datCalcMaxHp(s32 arg0);
 extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
 extern f32 fGpffff8498;
 extern f32 fGpffff8200;
@@ -1629,8 +1629,8 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     extern void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1);
     extern u16 datCalcGetHp(s32 arg0);
     extern u16 datCalcGetSp(s32 arg0);
-    extern u16 func_00231f80(DatUnit *arg0);
-    extern u16 func_00232290(DatUnit *arg0);
+    extern u16 datCalcMaxHp(DatUnit *arg0);
+    extern u16 datCalcMaxSp(DatUnit *arg0);
     extern void *memset(void *dst, s32 value, u32 size);
     extern f32 fGpffff815c;
     extern f32 fGpffff8218;
@@ -1670,8 +1670,8 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     func_00213e20(arg1, (u8 *)&colors);
     hp = datCalcGetHp(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
     sp = datCalcGetSp(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
-    maxHp = func_00231f80(*(DatUnit **)(arg1 + 0xA64)) & 0xFFFF;
-    maxSp = func_00232290(*(DatUnit **)(arg1 + 0xA64)) & 0xFFFF;
+    maxHp = datCalcMaxHp(*(DatUnit **)(arg1 + 0xA64)) & 0xFFFF;
+    maxSp = datCalcMaxSp(*(DatUnit **)(arg1 + 0xA64)) & 0xFFFF;
     tile = *(u16 *)(arg1 + 0xA4);
     if (tile < 9) {
         tile -= 1;
@@ -2935,7 +2935,7 @@ void func_00218160(u8 *arg0, u8 *arg1)
     *(s32 *)(p + 0x880) = 0;
     *(s32 *)(p + 0x878) = *(s32 *)(p + 0x98);
     value = ((*(u16 *)(*(u8 **)(arg1 + 0x30) + 0xA4) - 2) * 3) + 5;
-    *(s32 *)(sub + 0x30) = value + func_00231d70(3);
+    *(s32 *)(sub + 0x30) = value + datCalcRandomBelow(3);
     *(s32 *)(sub + 0x38) = 0;
     *(s16 *)(sub + 0x2A) = 8;
     func_001f62b0();
@@ -2979,7 +2979,7 @@ void func_002182c0(u8 *arg0, u8 *arg1)
     *(s32 *)(p + 0x880) = 0;
     *(s32 *)(p + 0x878) = *(s32 *)(p + 0x98);
     value = ((*(u16 *)(*(u8 **)(arg1 + 0x30) + 0xA4) - 2) * 3) + 0x1A;
-    *(s32 *)(sub + 0x30) = value + func_00231d70(3);
+    *(s32 *)(sub + 0x30) = value + datCalcRandomBelow(3);
     *(s32 *)(sub + 0x38) = 0;
     *(s16 *)(sub + 0x2A) = 8;
     func_001f62b0();
@@ -3355,7 +3355,7 @@ loop_body:
         if (*(s16 *)(p + 0xA38) >= 0 &&
             *(s16 *)(p + 0xA38) < 0xC) {
             value0 = (s16)datCalcGetHp(*(s32 *)(p + 0xA64));
-            value1 = (s16)func_00231f80(*(s32 *)(p + 0xA64));
+            value1 = (s16)datCalcMaxHp(*(s32 *)(p + 0xA64));
             *(s16 *)(work + 0x10) = -1;
             *(f32 *)work = -1.0f;
             *(f32 *)(work + 4) = (f32)value0 / (f32)value1;
@@ -3382,7 +3382,7 @@ f32 func_0021b0a0(u8 *arg0)
 {
     typedef struct DatUnit DatUnit;
     extern s32 datCalcGetHp(DatUnit *arg0);
-    extern s32 func_00231f80(DatUnit *arg0);
+    extern s32 datCalcMaxHp(DatUnit *arg0);
     f32 var_f20;
     f32 var_f0;
     u32 temp_2;
@@ -3391,7 +3391,7 @@ f32 func_0021b0a0(u8 *arg0)
     if (*(s32 *)(arg0 + 0xA64) == 0) {
         return 0.0f;
     }
-    temp_2 = (u32)func_00231f80((DatUnit *)*(s32 *)(arg0 + 0xA64));
+    temp_2 = (u32)datCalcMaxHp((DatUnit *)*(s32 *)(arg0 + 0xA64));
     var_f20 = (f32)temp_2;
     if (var_f20 == 0.0f) {
         return 0.0f;
@@ -4520,7 +4520,7 @@ void func_0021e9a0(u8 *arg0, u8 *arg1)
     if ((func_001059e0(temp_2) & 0xFF) < 0x63) {
         temp_16 = temp_2 + *(s32 *)(arg0 + 4);
         func_00105990(1, temp_16);
-        func_00231ef0((u8 *)temp_17, func_001059e0(temp_16));
+        datCalcSetLevel((u8 *)temp_17, func_001059e0(temp_16));
     }
     var_16 = *(s32 *)(arg1 + 8);
     if (var_16 <= 0) {

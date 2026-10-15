@@ -16,7 +16,7 @@ extern void memset(void *arg0, s32 arg1, s32 arg2);
 
 
 extern u32 func_001053b0(s16 arg0);
-extern s32 func_00232730(u8 *arg0, s32 arg1);
+extern s32 datCalcHasSkill(u8 *arg0, s32 arg1);
 
 extern s32 datScriptTargetLacksFlag4(void);
 extern f32 datScriptCalcFloat(u32 arg0, s32 arg1);
@@ -106,8 +106,9 @@ extern u16 func_00105460(s16 arg0);
 static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base) { return offset + base; }
 
 
+// Intent: uniform random value in 0..arg0-1 (RpRandom modulo); fatal when arg0 is zero.
 // FUN_00231D70
-u32 func_00231d70(u32 arg0)
+u32 datCalcRandomBelow(u32 arg0)
 {
     if (arg0 == 0) {
         func_0046d730(D_00635938, 0x17);
@@ -117,8 +118,9 @@ u32 func_00231d70(u32 arg0)
 
 
 
+// Intent: zeroes the 0x30-byte unit record arg0 and sets its id to arg1, with level 1 and HP/SP 1.
 // FUN_00231DC0
-void func_00231dc0(u8 *arg0, s16 arg1)
+void datCalcInitUnit(u8 *arg0, s16 arg1)
 {
     memset(arg0, 0, 0x30);
     *(s16 *)(arg0 + 2) = arg1;
@@ -133,8 +135,9 @@ void func_00231dc0(u8 *arg0, s16 arg1)
 /* Ported from P3FES src/Main/Battle/Data/datCalc.c FUN_00300410 (verified MATCH there). */
 
 
+// Intent: level of unit arg0: its stored level for flag-4 units or id 1, otherwise its persona record's level; fatal when zero.
 // FUN_00231E20
-s32 func_00231e20(u8 *arg0)
+s32 datCalcGetLevel(u8 *arg0)
 {
     s32 level;
 
@@ -165,8 +168,9 @@ u16 datCalcGetSp(DatUnit *unit)
     return unit->sp;
 }
 
+// Intent: stores level arg1 in unit arg0, clamped to 99 unless flag 4.
 // FUN_00231EF0
-void func_00231ef0(u8 *arg0, u8 arg1)
+void datCalcSetLevel(u8 *arg0, u8 arg1)
 {
     if (arg1 > 99 && !(*(u16 *)arg0 & 4))
     {
@@ -198,11 +202,12 @@ void datCalcSetSp(DatUnit *unit, u16 sp)
    GP-base/index helper, #pragma opt_common_subs off, and
    #pragma opt_propagation off reproduce the retail saved-register lifetimes,
    table-address load order, and the slti $at clamp guard. */
+// Intent: maximum HP of unit arg0 from its level and skill/equipment bonuses; capped at 999 unless flag 4.
 // FUN_00231F80
 /* measured: opt_common_subs/opt_propagation plus PTDatCalcOffsetAdd force retail index-first GP addressing; nested guard preserves slti $at branch form. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
-u16 func_00231f80(DatUnit *unit)
+u16 datCalcMaxHp(DatUnit *unit)
 {
     s32 temp_16;
     s32 var_18;
@@ -225,22 +230,22 @@ u16 func_00231f80(DatUnit *unit)
         var_2 = (u16)func_001053b0((s16)temp_16);
     }
     temp_16 = var_2 & 0xFFFF;
-    if (func_00232730((u8 *)unit, 0x1F0) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x1F0) != 0) {
         var_18 += (temp_16 * 0xA) / 100;
     }
-    if (func_00232730((u8 *)unit, 0x1F1) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x1F1) != 0) {
         var_18 += (temp_16 * 0x14) / 100;
     }
-    if (func_00232730((u8 *)unit, 0x1F2) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x1F2) != 0) {
         var_18 += (temp_16 * 0x1E) / 100;
     }
-    if (func_00232730((u8 *)unit, 0x22D) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x22D) != 0) {
         var_18 += (temp_16 * 0x32) / 100;
     }
-    if (func_00232730((u8 *)unit, 0x20C) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x20C) != 0) {
         var_18 += temp_16;
     }
-    if (func_00232730((u8 *)unit, 0x20D) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x20D) != 0) {
         var_18 -= (temp_16 * 0x32) / 100;
     }
     var_18 += (func_00232950((u8 *)unit, 0x1A) & 0xFFFF) * 0xA;
@@ -265,11 +270,12 @@ u16 func_00231f80(DatUnit *unit)
 /* MATCHED 2026-08-08: func_00232290 is byte-exact (nd 0, object 784B /
    window 784B) using the same raw-s32/index-order/clamp template as
    func_00231f80, with its stat offsets and percentage constants substituted. */
+// Intent: maximum SP of unit arg0 from its level and SP bonuses; capped at 999 unless flag 4.
 // FUN_00232290
 /* measured: sibling of exact 00231f80 template; raw s32 temp, integer GP-base addition, and direct clamp spelling preserve retail. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
-u16 func_00232290(DatUnit *unit)
+u16 datCalcMaxSp(DatUnit *unit)
 {
     s32 temp_16;
     s32 var_18;
@@ -292,22 +298,22 @@ u16 func_00232290(DatUnit *unit)
         var_2 = (u16)func_00105460((s16)temp_16);
     }
     temp_16 = var_2 & 0xFFFF;
-    if (func_00232730((u8 *)unit, 0x1F3) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x1F3) != 0) {
         var_18 += (temp_16 * 0xA) / 100;
     }
-    if (func_00232730((u8 *)unit, 0x1F4) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x1F4) != 0) {
         var_18 += (temp_16 * 0x14) / 100;
     }
-    if (func_00232730((u8 *)unit, 0x1F5) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x1F5) != 0) {
         var_18 += (temp_16 * 0x1E) / 100;
     }
-    if (func_00232730((u8 *)unit, 0x22E) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x22E) != 0) {
         var_18 += (temp_16 * 0x32) / 100;
     }
-    if (func_00232730((u8 *)unit, 0x20C) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x20C) != 0) {
         var_18 -= (temp_16 * 0x32) / 100;
     }
-    if (func_00232730((u8 *)unit, 0x20D) != 0) {
+    if (datCalcHasSkill((u8 *)unit, 0x20D) != 0) {
         var_18 += temp_16;
     }
     var_18 += (func_00232950((u8 *)unit, 0x1F) & 0xFFFF) * 0xA;
@@ -327,8 +333,9 @@ u16 func_00232290(DatUnit *unit)
 #pragma opt_propagation on
 /* measured: close opt_common_subs scope after 00232290. */
 #pragma opt_common_subs on
+// Intent: adds hpDelta arg1 to unit arg0's HP, clamped to 0..max HP; returns the new HP.
 // FUN_002325A0
-s32 func_002325a0(DatUnit* unit, s32 hpDelta)
+s32 datCalcAddHp(DatUnit* unit, s32 hpDelta)
 {
     s32 maxHp;
     s32 newHp;
@@ -337,7 +344,7 @@ s32 func_002325a0(DatUnit* unit, s32 hpDelta)
     if (newHp < 0) {
         newHp = 0;
     }
-    maxHp = func_00231f80(unit) & 0xFFFF;
+    maxHp = datCalcMaxHp(unit) & 0xFFFF;
     if (maxHp < newHp) {
         newHp = maxHp;
     }
@@ -348,8 +355,9 @@ s32 func_002325a0(DatUnit* unit, s32 hpDelta)
 
 /* Ported from P3FES src/Main/Battle/Data/datCalc.c FUN_00300480 (verified MATCH there). */
 
+// Intent: adds spDelta arg1 to unit arg0's SP, clamped to 0..max SP; returns the new SP.
 // FUN_00232610
-s32 func_00232610(DatUnit* unit, s32 spDelta)
+s32 datCalcAddSp(DatUnit* unit, s32 spDelta)
 {
     s32 maxSp;
     s32 newSp;
@@ -358,7 +366,7 @@ s32 func_00232610(DatUnit* unit, s32 spDelta)
     if (newSp < 0) {
         newSp = 0;
     }
-    maxSp = func_00232290(unit) & 0xFFFF;
+    maxSp = datCalcMaxSp(unit) & 0xFFFF;
     if (maxSp < newSp) {
         newSp = maxSp;
     }
@@ -437,14 +445,16 @@ u32 datCalcChkBadStatus(DatUnit *unit, u32 badStatus)
     return (unit->bad & badStatus) != 0;
 }
 
+// Intent: whether unit arg0 has skill arg1; wrapper over PTDatCalcHasSkill.
 // FUN_00232730
-s32 func_00232730(u8 *arg0, s32 arg1)
+s32 datCalcHasSkill(u8 *arg0, s32 arg1)
 {
     return PTDatCalcHasSkill(arg0, arg1);
 }
 
+// Intent: true when unit arg0 lacks flag 4 and its id has a table entry (func_00106600 > 0); [inferred].
 // FUN_00232830
-s32 func_00232830(u16 *arg0, s64 arg1)
+s32 datCalcIsStandardUnit(u16 *arg0, s64 arg1)
 {
     if (*arg0 & 4) {
         return 0;
@@ -1668,7 +1678,7 @@ u8 arg7;
         effect = record[0x11];
         bonus = 0;
         current = *(u16 *)(arg2 + 8);
-        maximum = func_00231f80((DatUnit *)arg2);
+        maximum = datCalcMaxHp((DatUnit *)arg2);
         break;
     case 2:
         record = (u8 *)PTDatCalcOffsetAdd(((u32)arg0 % 0x10000U) * 0x28, (u32)iGpffffb3b8);
@@ -1676,7 +1686,7 @@ u8 arg7;
         effect = record[0x14];
         bonus = 0;
         current = *(u16 *)(arg2 + 10);
-        maximum = func_00232290((DatUnit *)arg2);
+        maximum = datCalcMaxSp((DatUnit *)arg2);
         break;
     default:
         func_0046d730(D_00635938, 0x731);
@@ -2585,7 +2595,7 @@ s32 func_00239f50(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
             if (arg3 < 0) {
                 arg3 = 0;
             }
-            result = func_00232290((DatUnit *)arg2) & 0xFFFF;
+            result = datCalcMaxSp((DatUnit *)arg2) & 0xFFFF;
             if (result < arg3) {
                 arg3 = result;
             }
@@ -2596,7 +2606,7 @@ s32 func_00239f50(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
             if (arg3 < 0) {
                 arg3 = 0;
             }
-            result = func_00231f80((DatUnit *)arg2) & 0xFFFF;
+            result = datCalcMaxHp((DatUnit *)arg2) & 0xFFFF;
             if (result < arg3) {
                 arg3 = result;
             }
@@ -2675,7 +2685,7 @@ check_status:
         if (high == 0) {
             if (temp_19 > 0) {
                 temp_17 = *(u16 *)(arg2 + 0xA);
-                if ((s32)(func_00232290((DatUnit *)arg2) & 0xFFFF) > (s32)temp_17) {
+                if ((s32)(datCalcMaxSp((DatUnit *)arg2) & 0xFFFF) > (s32)temp_17) {
                     goto return_zero_sp;
                 }
                 flags |= 2;
@@ -2686,7 +2696,7 @@ return_zero_sp:
 check_hp:
             if (temp_21 > 0) {
                 temp_17_2 = *(u16 *)(arg2 + 0x8);
-                if ((s32)(func_00231f80((DatUnit *)arg2) & 0xFFFF) > (s32)temp_17_2) {
+                if ((s32)(datCalcMaxHp((DatUnit *)arg2) & 0xFFFF) > (s32)temp_17_2) {
                     goto return_zero_hp;
                 }
                 flags |= 1;
@@ -3265,7 +3275,7 @@ u32 func_0023d9b0(u8 *arg0, s32 arg1)
             }
             return 0;
         }
-        maximum = func_00231f80((DatUnit *)arg0);
+        maximum = datCalcMaxHp((DatUnit *)arg0);
         field_offset = (u16)arg1 * 0x28;
         table = (u8 *)(field_offset + (u32)iGpffffb3b8);
         product = (s32)((u32)maximum * *(u16 *)(table + 4));
@@ -3312,7 +3322,7 @@ u32 func_0023d9b0(u8 *arg0, s32 arg1)
             table = (u8 *)(field_offset + (u32)table);
             result = *(u16 *)(table + 4) + *(u16 *)(table + 6);
         } else {
-            maximum = func_00232290((DatUnit *)arg0);
+            maximum = datCalcMaxSp((DatUnit *)arg0);
             field_offset = (u16)arg1 * 0x28;
             table = (u8 *)(field_offset + (u32)iGpffffb3b8);
             product = (s32)((u32)maximum * *(u16 *)(table + 4));
@@ -4565,7 +4575,7 @@ u32 datCalcIsLowHp(DatUnit *unit)
     u16 hp;
 
     hp = unit->hp;
-    return ((hp * 100) / func_00231f80(unit)) < 26;
+    return ((hp * 100) / datCalcMaxHp(unit)) < 26;
 }
 
 /* measured: fndiff 1 word (reloc-masked), fnalign 2 edits (plus 43 reloc-only), obj 813 instrs / retail 813 instrs (window 3264B, 12B under, 0.4% inside 3% gate). Baseline 172 edits / 750 words at 812/812; all-fresh counters 172->68 edits; loopinv 68->20; head temp_16 reuse 20->14; s16 value 14->3 edits / 558->2 words; tail (u16) mask 2->1 word / 3->2 edits. Free pragmas: loopinv 752, unroll/sched tie 750, commonsubs 578 words but 207 edits (rejected for edits). Subscript P[i] neutral 172; reuse temp_16 alone 246 edits (rejected). Decl swaps tie 172; fresh-first 159. All 8 skill-search loops match (while+goto-done, (u16)var_5 masks, fresh counters per loop, loopinv hoist); 0x231/0x232 early returns, 0x20/0x800/0x400 guards, 6/7 dispatch with 0x340/0x3C-0x38 checks, 0x211/0x221 + 0x212/0x222 with 50% random, 0x210/0x20F tail and 47cb0/107ac0 >=9 all in retail shape. Remaining: single addu $v0,$v1,$v0 vs $v0,$v0,$v1 orientation (commutative, source-invariant across both orders, floor) + lw addend masked as reloc-only. Supersedes prior nd-170 layout floor. */
