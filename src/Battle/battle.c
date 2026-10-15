@@ -10,7 +10,7 @@ static u16 iGpffffa098 = 0x100;
 
 extern void btlPacketStepSide(u32 layer);
 extern void func_001b6ab0(void);
-extern void func_001b5fe0(void);
+extern void btlMainUpdate(void);
 extern void func_001b0a60(void);
 extern void func_001b15b0(void);
 extern void func_001b6a20(void);
@@ -100,7 +100,7 @@ s32 func_00192610(u8 *unusedTask)
 {
     if (iGpffffb3ac->flags & 1) {
         btlPacketStepSide(0);
-        func_001b5fe0();
+        btlMainUpdate();
         func_001b0a60();
         func_001b15b0();
         func_001b6a20();

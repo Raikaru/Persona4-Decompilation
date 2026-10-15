@@ -7,7 +7,7 @@
 void func_0021dda0(void);
 extern u16 *kwlnTaskGetWork();
 void func_001437b0(void *arg0, s32 arg1, s32 arg2);
-s32 func_001b5fd0(void);
+s32 btlMainGetPhase(void);
 void func_0025cbc0(void *arg0, s32 arg1, s32 arg2);
 s32 func_0025cc70(void);
 u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
@@ -377,7 +377,7 @@ s32 func_0021f520(u8 *arg0) {
         if ((v & 0xFFFF) < 4) {
             goto L;
         }
-        if (func_001b5fd0() != 0x10) {
+        if (btlMainGetPhase() != 0x10) {
             goto L;
         }
         *(u32 *)(work + 0x38) = 2;
