@@ -167,8 +167,9 @@ extern f32 D_006441C0[];
 extern f32 D_006441E0[];
 extern f32 D_006441D8[];
 
+// Fcl draw task create: creates the draw task on 'arg0' with a 0x14-byte work block, state 7, and returns it.
 // FUN_00314320
-s32 func_00314320(s32 arg0) {
+s32 fclDrawTaskCreate(s32 arg0) {
     s32 ret;
     u8 *p;
 
@@ -182,8 +183,9 @@ s32 func_00314320(s32 arg0) {
     return ret;
 }
 
+// Fcl draw set state: sets the state byte (0x10, or 0xF with the object released when arg1 is 1).
 // FUN_00314400
-void func_00314400(u8 *arg0, s8 arg1) {
+void fclDrawSetState(u8 *arg0, s8 arg1) {
     u8 *t;
 
     t = *(u8 **)(arg0 + 0x38);
@@ -194,8 +196,9 @@ void func_00314400(u8 *arg0, s8 arg1) {
     }
 }
 
+// Fcl draw placement: stores the value and mode 0 for the object and sets its scale from arg3.
 // FUN_00314450
-void func_00314450(u8 *arg0, s32 arg1, u8 arg2, s32 arg3) {
+void fclDrawSetPlacement(u8 *arg0, s32 arg1, u8 arg2, s32 arg3) {
     f32 sp18[2];
     u32 t = *(u32 *)(arg0 + 0x38);
 
@@ -207,8 +210,9 @@ void func_00314450(u8 *arg0, s32 arg1, u8 arg2, s32 arg3) {
     func_0011d100((u8 *)*(u32 *)((u32)t + 4), sp18);
 }
 
+// Fcl draw placement (ex): as fclDrawSetPlacement with mode 8 and an extra value.
 // FUN_003144D0
-void func_003144d0(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, s32 arg4) {
+void fclDrawSetPlacementEx(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, s32 arg4) {
     f32 sp18[2];
     u32 t = *(u32 *)(arg0 + 0x38);
 
@@ -221,8 +225,9 @@ void func_003144d0(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, s32 arg4) {
     func_0011d100((u8 *)*(u32 *)((u32)t + 4), sp18);
 }
 
+// Fcl draw slot: stores the value and mode, then sets the slot on the object (arg3 picks the variant).
 // FUN_00314560
-void func_00314560(u8 *arg0, s32 arg1, s8 arg2, s8 arg3) {
+void fclDrawSetSlot(u8 *arg0, s32 arg1, s8 arg2, s8 arg3) {
     u8 *t;
 
     t = *(u8 **)(arg0 + 0x38);
@@ -236,8 +241,9 @@ void func_00314560(u8 *arg0, s32 arg1, s8 arg2, s8 arg3) {
     *(s8 *)(t + 0xC) = arg2;
     func_0011c2c0(*(u8 **)(t + 4), 0, *(s32 *)(t + 8), arg2);
 }
+// Fcl draw active: 1 when the task exists, is live and its state is below 6.
 // FUN_003145E0
-s32 func_003145e0(u8 *arg0) {
+s32 fclDrawIsActive(u8 *arg0) {
     if (arg0 == 0) {
         return 0;
     }
@@ -250,18 +256,21 @@ s32 func_003145e0(u8 *arg0) {
     return *(s8 *)(*(u32 *)(arg0 + 0x38)) < 6;
 }
 
+// Fcl draw get state: returns the state byte.
 // FUN_00314660
-s8 func_00314660(u8 *arg0) {
+s8 fclDrawGetState(u8 *arg0) {
     return *(s8 *)(*(u8 **)(arg0 + 0x38));
 }
 
+// Fcl draw set state byte: writes the state byte.
 // FUN_00314670
-void func_00314670(u8 *arg0, s8 arg1) {
+void fclDrawSetStateByte(u8 *arg0, s8 arg1) {
     *(s8 *)(*(u8 **)(arg0 + 0x38)) = arg1;
 }
 
+// Fcl draw reset scale: resets the object's scale to the default.
 // FUN_00314680
-void func_00314680(u8 *arg0) {
+void fclDrawResetScale(u8 *arg0) {
     s64 sp18;
     f32 *p;
     u8 *t;
@@ -270,16 +279,18 @@ void func_00314680(u8 *arg0) {
     func_0011d100((u8 *)*(u32 *)(t + 4),
                   (p = (f32 *)&sp18, (sp18 = iGpffffa900, p)));
 }
+// Fcl draw handle value: sets the value on the object handle.
 // FUN_003146C0
-void func_003146c0(u8 *arg0, u32 value) {
+void fclDrawSetHandleValue(u8 *arg0, u32 value) {
     func_0011b9e0(*(s32 *)(*(u8 **)(arg0 + 0x38) + 4), value);
 }
 
 /* The stored selector is signed-byte state throughout the renderer/persona
    pipeline. Reloading it at the call preserves the retail argument order.
    Measured: 68 bytes in the 80-byte window, with zero instruction differences. */
+// Fcl draw slot mode: stores the value and mode, then sets the slot mode on the object.
 // FUN_003146F0
-void func_003146f0(u8 *arg0, s32 arg1, s8 arg2)
+void fclDrawSetSlotMode(u8 *arg0, s32 arg1, s8 arg2)
 {
     u8 *obj;
 
@@ -305,13 +316,15 @@ void func_003146f0(u8 *arg0, s32 arg1, s8 arg2)
 
 
 
+// Fcl draw set flag: stores the flag byte at +0xD.
 // FUN_00314740
-void func_00314740(u8 *arg0, s8 arg1) {
+void fclDrawSetFlag(u8 *arg0, s8 arg1) {
     *(s8 *)(*(u8 **)(arg0 + 0x38) + 0xD) = arg1;
 }
 
+// Fcl draw visible: shows the object when arg1 is nonzero, hides it otherwise.
 // FUN_00314750
-void func_00314750(u8 *arg0, s8 arg1) {
+void fclDrawSetVisible(u8 *arg0, s8 arg1) {
     u8 *t;
     s64 sp38;
     f32 *p;
@@ -326,8 +339,9 @@ void func_00314750(u8 *arg0, s8 arg1) {
     }
 }
 
+// Fcl draw get resource: returns the object handle.
 // FUN_003147D0
-u8 *func_003147d0(u8 *arg0) {
+u8 *fclDrawGetResource(u8 *arg0) {
     return *(u8 **)(*(u8 **)(arg0 + 0x38) + 4);
 }
 

@@ -608,7 +608,7 @@ s32 func_002e7ac0(u8 *arg0)
     s32 func_002b2a30(u8, u8, u8, u8);
     u32 func_0010d6d0(s16 arg0);
     
-    void func_00314740(u8 *arg0, s8 arg1);
+    void fclDrawSetFlag(u8 *arg0, s8 arg1);
     void func_002ed430(u8 *arg0);
     void func_002f0f00(u8 *arg0);
     void func_002f6cf0(u8 *arg0);
@@ -689,38 +689,38 @@ s32 func_002e7ac0(u8 *arg0)
 
 case_01:
     P4_002E7AC0_DRAW();
-    func_00314740(*(u8 **)(work + 0x148), 0);
+    fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     *(s8 *)(work + 0x1A) = 2;
     func_002ed430(arg0);
     goto done;
 case_02:
     P4_002E7AC0_DRAW();
-    func_00314740(*(u8 **)(work + 0x148), 0);
+    fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     *(s8 *)(work + 0x1A) = 3;
     func_002f0f00(arg0);
     goto done;
 case_03:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 4;
-    func_00314740(*(u8 **)(work + 0x148), 0);
+    fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     func_002f6cf0(arg0);
     goto done;
 case_04:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 5;
-    func_00314740(*(u8 **)(work + 0x148), 0);
+    fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     func_002f6cf0(arg0);
     goto done;
 case_05:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 6;
-    func_00314740(*(u8 **)(work + 0x148), 0);
+    fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     func_002f6cf0(arg0);
     goto done;
 case_06:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 7;
-    func_00314740(*(u8 **)(work + 0x148), 0);
+    fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     func_002f9d90(arg0);
     goto done;
 case_07:
@@ -731,7 +731,7 @@ case_08:
     func_00304580(arg0);
     goto done;
 case_10:
-    func_00314740(*(u8 **)(work + 0x148), 1);
+    fclDrawSetFlag(*(u8 **)(work + 0x148), 1);
     func_002fbea0(arg0);
     goto done;
 case_0c:
