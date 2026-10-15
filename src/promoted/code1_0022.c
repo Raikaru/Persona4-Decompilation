@@ -388,7 +388,7 @@ static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2
 // FUN_00222210
 void func_00222210(u8 *work, u32 alpha)
 {
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void func_00364c50(void);
     extern void func_00364c70(void);
@@ -408,15 +408,15 @@ void func_00222210(u8 *work, u32 alpha)
     s32 i;
 
     if ((*(u16 *)work & 8) == 0) {
-        var_f24 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
-        var_f22 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
-        var_f21 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 7.0f, 17.0f, 1);
-        var_f23 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 13.0f, 25.0f, 1);
+        var_f24 = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
+        var_f22 = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
+        var_f21 = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 7.0f, 17.0f, 1);
+        var_f23 = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 13.0f, 25.0f, 1);
         if (*(u16 *)(work + 0x46) >= 7) {
             if (++*(u16 *)(work + 0x48) >= 0x28) {
                 *(u16 *)(work + 0x48) = 0;
             }
-            var_f20 = func_00373cb0((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
+            var_f20 = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
         }
     } else {
         var_f24 = 0.0f;
@@ -426,7 +426,7 @@ void func_00222210(u8 *work, u32 alpha)
         if (++*(u16 *)(work + 0x48) >= 0x28) {
             *(u16 *)(work + 0x48) = 0;
         }
-        var_f20 = func_00373cb0((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
+        var_f20 = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
     }
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x44);
@@ -509,7 +509,7 @@ void func_00222d20(u8 *drawData, s32 workAddress, void *callback)
     extern s32 func_00355430(u8 *arg0);
     extern void func_00355310(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
     extern void func_003553b0(u8 *arg0, f32 *arg1);
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern void func_00364680(f32 depth, f32 x, f32 y, f32 shadowX, f32 shadowY,
                               f32 width, f32 height, s32 color, s32 texture,
                               s32 shadow, s32 mode);
@@ -532,7 +532,7 @@ void func_00222d20(u8 *drawData, s32 workAddress, void *callback)
             if (++*(u16 *)(work + 0x46) >= 54) {
                 *(u16 *)work |= 8;
             }
-            alpha = (u8)(255.0f * func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 5.0f, 1));
+            alpha = (u8)(255.0f * btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 5.0f, 1));
             if (*(u16 *)(work + 0x46) == 14) {
                 func_0045aeb0(2, (const char *)D_00629680);
             }
@@ -556,7 +556,7 @@ void func_00222d20(u8 *drawData, s32 workAddress, void *callback)
                 f32 drawX;
                 f32 drawY;
                 s32 color;
-                phase = func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 27.0f, 54.0f, 2);
+                phase = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 27.0f, 54.0f, 2);
                 func_00355310(*(u8 **)(work + 0x4C), 0, (u8 *)position, 0);
                 func_003553b0(*(u8 **)(work + 0x4C), scale);
                 drawY = position[1];

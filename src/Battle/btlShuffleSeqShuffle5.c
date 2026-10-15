@@ -36,14 +36,14 @@ typedef struct ShuffleContext {
 extern void kAssertFail(const void *file, u32 line);
 extern u32 RpRandom(void);
 extern s32 func_0037ed90(u8 *ctx, s32 slot);
-extern s32 func_00379150(u8 *ctx, s32 a, s32 b);
+extern s32 btlShuffleSeqCheck(u8 *ctx, s32 a, s32 b);
 extern void func_00389090(u8 *a, s32 b);
-extern s32 func_00378530(s32 a, s32 b);
-extern s32 func_00378a70(u8 *ctx, s32 n);
-extern s32 func_00378930(u8 *ctx, s32 n);
+extern s32 btlShuffleDrawTableLookup(s32 a, s32 b);
+extern s32 btlShuffleSeqPick(u8 *ctx, s32 n);
+extern s32 btlShuffleSeqCountA(u8 *ctx, s32 n);
 extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
-extern s32 func_00379240(u8 *ctx);
-extern s32 func_00379420(u8 *ctx);
+extern s32 btlShuffleSeqLoadRecord(u8 *ctx);
+extern s32 btlShuffleSeqStep(u8 *ctx);
 extern void func_0038d060(u8 *a);
 extern void func_0038d0d0(u8 *a, s32 b);
 extern void func_0038d0a0(u8 *a);
@@ -58,31 +58,31 @@ extern void func_003890f0(u8 *a);
 extern void func_00389020(u8 *a);
 extern void func_0038d280(u8 *a);
 extern void func_00388fb0(u8 *a);
-extern s32 func_0037f430(u8 *ctx);
-extern s32 func_0037f550(u8 *ctx);
-extern void func_00378f90(u8 *ctx, s32 a, s32 b);
-extern void func_00375890(u8 *ctx, s32 a, s32 b);
-extern void func_00379090(u8 *ctx, s32 a, u16 b, s32 c);
-extern void func_00378ec0(u8 *ctx, s32 a);
-extern s32 func_00379c70(u8 *ctx, s32 a);
-extern s32 func_00379d70(u8 *ctx);
-extern s32 func_00379a70(u8 *ctx);
-extern s32 func_00379920(u8 *ctx);
-extern void func_003799d0(u8 *ctx);
-extern void func_003798d0(u8 *ctx, s32 a);
+extern s32 btlShuffleSeq5Check(u8 *ctx);
+extern s32 btlShuffleSeq5Check2(u8 *ctx);
+extern void btlShuffleSeqSetMode(u8 *ctx, s32 a, s32 b);
+extern void btlShuffleDrawPoll(u8 *ctx, s32 a, s32 b);
+extern void btlShuffleSeqUpdateMode(u8 *ctx, s32 a, u16 b, s32 c);
+extern void btlShuffleSeqMoveB(u8 *ctx, s32 a);
+extern s32 btlShuffleSeqCardCount(u8 *ctx, s32 a);
+extern s32 btlShuffleSeqDispatch(u8 *ctx);
+extern s32 btlShuffleSeqStateCheck(u8 *ctx);
+extern s32 btlShuffleSeqFlag(u8 *ctx);
+extern void btlShuffleSeqReset(u8 *ctx);
+extern void btlShuffleSeqClearA(u8 *ctx, s32 a);
 extern s32 datGetFlag(s32 a);
 extern void func_00106390(s32 a, s32 b);
-extern s32 func_003717e0(u8 *a, u8 *b);
-extern void func_0036dc60(u8 *unit, f32 *src, f32 scale, f32 *dst);
-extern void func_00375d50(u8 *ctx, s32 idx, f32 start, f32 end, f32 *from, f32 *to);
-extern void func_00376070(u8 *ctx, s32 idx, u16 start, u16 end, f32 *from, f32 *to, f32 speed);
-extern void func_003760f0(u8 *ctx, s32 a, u16 b, u16 c, f32 *d, f32 *e);
-extern void func_00376290(u8 *ctx, s32 a, s32 b, s32 c, s32 d);
-extern void func_003762e0(u8 *ctx, s32 a, s32 b, s32 c, s32 d);
-extern s32 func_00375910(u8 *a);
-extern s32 func_00375970(u8 *a);
-extern void func_00373750(s32 a, s32 b, f32 *c);
-extern void func_0037ef40(u8 *ctx);
+extern s32 btlShuffleCalcUpdateSpeed(u8 *a, u8 *b);
+extern void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 scale, f32 *dst);
+extern void btlShuffleDrawMoveCard(u8 *ctx, s32 idx, f32 start, f32 end, f32 *from, f32 *to);
+extern void btlShuffleDrawSetRange(u8 *ctx, s32 idx, u16 start, u16 end, f32 *from, f32 *to, f32 speed);
+extern void btlShuffleDrawSetQuat(u8 *ctx, s32 a, u16 b, u16 c, f32 *d, f32 *e);
+extern void btlShuffleDrawSetFrames(u8 *ctx, s32 a, s32 b, s32 c, s32 d);
+extern void btlShuffleDrawSetFrameFlags(u8 *ctx, s32 a, s32 b, s32 c, s32 d);
+extern s32 btlShuffleDrawStateA(u8 *a);
+extern s32 btlShuffleDrawStateB(u8 *a);
+extern void btlShuffleCalcFillTable(s32 a, s32 b, f32 *c);
+extern void btlShuffleSeq5Shuffle(u8 *ctx);
 
 extern u32 D_0064EB40[];
 extern u16 D_008C024E[];
@@ -98,7 +98,7 @@ typedef struct {
    row-product-then-counter preheader order. */
 #pragma opt_loop_invariants on
 // FUN_0037EF40
-void func_0037ef40(u8 *arg0) {
+void btlShuffleSeq5Shuffle(u8 *arg0) {
     ShuffleCardRecord *cards;
     ShuffleCardRecord tmp0;
     ShuffleCardRecord tmp2;
@@ -155,7 +155,7 @@ void func_0037ef40(u8 *arg0) {
 }
 #pragma opt_loop_invariants off
 // FUN_0037F430
-s32 func_0037f430(u8 *arg0)
+s32 btlShuffleSeq5Check(u8 *arg0)
 {
     ShuffleContext *ctx = (ShuffleContext *)arg0;
     ShuffleSub *sub = &ctx->sub;
@@ -169,7 +169,7 @@ s32 func_0037f430(u8 *arg0)
     for (var_19 = 0; var_19 < 3; var_19++) {
         if (sub->flags & ((0x10 << var_19) & 0xFFFF)) {
             temp_2 = func_0037ed90(arg0, var_19);
-            if (func_00379150(arg0, temp_2, temp_17) != 0) {
+            if (btlShuffleSeqCheck(arg0, temp_2, temp_17) != 0) {
                 var_20 = 1;
                 func_00389090(ctx->id_1F294, temp_2);
             }
@@ -183,7 +183,7 @@ s32 func_0037f430(u8 *arg0)
 
 
 // FUN_0037F550
-s32 func_0037f550(u8 *arg0)
+s32 btlShuffleSeq5Check2(u8 *arg0)
 {
     ShuffleContext *ctx = (ShuffleContext *)arg0;
     ShuffleSub *sub = &ctx->sub;
@@ -205,7 +205,7 @@ s32 func_0037f550(u8 *arg0)
         if (sub->flags & ((0x10 << var_19) & 0xFFFF)) {
             temp_18 = func_0037ed90(arg0, var_19);
             temp_22 = func_0037ed90(arg0, 8 - var_19);
-            if ((func_00379150(arg0, temp_18, temp_17) != 0) && (func_00379150(arg0, temp_17, temp_22) != 0)) {
+            if ((btlShuffleSeqCheck(arg0, temp_18, temp_17) != 0) && (btlShuffleSeqCheck(arg0, temp_17, temp_22) != 0)) {
                 var_20 = 1;
                 temp_3 = sub->count_28;
                 sub->count_28 = temp_3 + 1;
@@ -263,7 +263,7 @@ static inline s32 shuffle5MovingRowSize(s32 count)
 
 #pragma opt_lifetimes on
 // FUN_0037F6E0
-s32 func_0037f6e0(u8 *work)
+s32 btlShuffleSeq5Run(u8 *work)
 {
     f32 screen[2];
     f32 origin[3];
@@ -296,11 +296,11 @@ s32 func_0037f6e0(u8 *work)
     } else {
         rowSize = initialCount;
     }
-    total = func_00378530(initialCount, *(s32 *)(work + 0x1F2FC));
+    total = btlShuffleDrawTableLookup(initialCount, *(s32 *)(work + 0x1F2FC));
     speed = *(u16 *)(state + 2);
     switch (*(u32 *)(work + 0x1F2F8)) {
     case 0:
-        if (func_00378a70(work, *(s32 *)(work + 0x1F304)) == 0) {
+        if (btlShuffleSeqPick(work, *(s32 *)(work + 0x1F304)) == 0) {
             break;
         }
         {
@@ -323,14 +323,14 @@ s32 func_0037f6e0(u8 *work)
             }
             rowFlags[1] = 5;
         }
-        if (func_00379240(work) != 0) {
+        if (btlShuffleSeqLoadRecord(work) != 0) {
             *(u32 *)(work + 0x1F2F8) = 1;
         } else {
             *(u32 *)(work + 0x1F2F8) = 2;
         }
         break;
     case 1:
-        if (func_00379420(work) == 0) {
+        if (btlShuffleSeqStep(work) == 0) {
             break;
         }
         *(u32 *)(work + 0x1F2F8) = 2;
@@ -352,20 +352,20 @@ s32 func_0037f6e0(u8 *work)
             *(u16 *)(work + 0x1F2F0) = 0;
             *(u32 *)(work + 0x1F2F8) = 4;
             for (i = 0; i < *(s32 *)(work + 0x1F304); i++) {
-                func_00373750(i, *(s32 *)(work + 0x1F304), screen);
+                btlShuffleCalcFillTable(i, *(s32 *)(work + 0x1F304), screen);
                 screen[1] -= 400.0f;
-                func_0036dc60(work + i * 0xFB0, screen, 84.0f, origin);
-                func_00375d50(work, i, (u16)i, (u16)(i + 8), NULL, origin);
+                btlShuffleCardScaleVec(work + i * 0xFB0, screen, 84.0f, origin);
+                btlShuffleDrawMoveCard(work, i, (u16)i, (u16)(i + 8), NULL, origin);
             }
             func_0045af60(0, 4, 0, 1);
             func_0045af60(1, 0, 5, 4);
         } else if (input & 0x20) {
-            func_003799d0(work);
+            btlShuffleSeqReset(work);
             *(u32 *)(work + 0x1F2F8) = 16;
         }
         break;
     case 4:
-        if (func_00378930(work, *(s32 *)(work + 0x1F304)) == 0) {
+        if (btlShuffleSeqCountA(work, *(s32 *)(work + 0x1F304)) == 0) {
             break;
         }
         origin[0] = 0.0f;
@@ -376,11 +376,11 @@ s32 func_0037f6e0(u8 *work)
         rotation[1] = 1.0f;
         rotation[2] = 0.0f;
         for (j = 0; j < total; j++) {
-            func_00375d50(work, j, 0.0f, 0.0f, origin, origin);
-            func_003760f0(work, j, 0, 0, rotation, rotation);
-            func_00376290(work, j, 0, 0xFF, 0xFF);
+            btlShuffleDrawMoveCard(work, j, 0.0f, 0.0f, origin, origin);
+            btlShuffleDrawSetQuat(work, j, 0, 0, rotation, rotation);
+            btlShuffleDrawSetFrames(work, j, 0, 0xFF, 0xFF);
         }
-        func_0037ef40(work);
+        btlShuffleSeq5Shuffle(work);
         *(u16 *)(work + 0x1F2F4) |= 1;
         *(u32 *)(work + 0x1F2F8) = 5;
         *(u16 *)(work + 0x1F2F0) = 0;
@@ -392,18 +392,18 @@ s32 func_0037f6e0(u8 *work)
                 screen[1] = (0.0f + screen[1]) - 120.0f * (f32)(rowSize + 1 - column % rowSize);
                 index = column + i * rowSize;
                 card = work + index * 0xFB0;
-                func_0036dc60(card, screen, 84.0f, from);
+                btlShuffleCardScaleVec(card, screen, 84.0f, from);
                 screen[1] += 600.0f;
-                func_0036dc60(card, screen, 84.0f, to);
-                func_00376070(work, index, (u16)(i * 7), (u16)((u16)speed * 2 + i * 7), from, to,
+                btlShuffleCardScaleVec(card, screen, 84.0f, to);
+                btlShuffleDrawSetRange(work, index, (u16)(i * 7), (u16)((u16)speed * 2 + i * 7), from, to,
                              5.0f * ((to[1] - from[1]) / (f32)speed));
             }
-            func_003762e0(work, i * rowSize, (u16)(i * 7 + 1), 0, 4);
+            btlShuffleDrawSetFrameFlags(work, i * rowSize, (u16)(i * 7 + 1), 0, 4);
         }
     case 5:
         for (i = 0; i < 3; i++) {
             mask = shuffle5RowMask(i);
-            if ((*(u16 *)state & mask) == 0 && func_00375970(work + i * rowSize * 0xE8 + 0x1D6A0) != 0) {
+            if ((*(u16 *)state & mask) == 0 && btlShuffleDrawStateB(work + i * rowSize * 0xE8 + 0x1D6A0) != 0) {
                 *(u16 *)state |= mask;
                 ++*(s32 *)(state + 8);
             }
@@ -414,7 +414,7 @@ s32 func_0037f6e0(u8 *work)
         break;
     case 6:
         if (datGetFlag(0x1433) == 0) {
-            func_003798d0(work, 3);
+            btlShuffleSeqClearA(work, 3);
             *(u32 *)(work + 0x1F2F8) = 17;
             *(u16 *)(work + 0x1F2F0) = 0;
             *(u16 *)(work + 0x1F2F4) |= 2;
@@ -445,73 +445,73 @@ s32 func_0037f6e0(u8 *work)
                 func_0038d0a0(*(u8 **)(work + 0x1F298));
                 *(u32 *)(work + 0x1F2F8) = 9;
             } else if (*(u16 *)(state + 4) == 2) {
-                func_0037f430(work);
+                btlShuffleSeq5Check(work);
             }
         }
         break;
     case 9:
-        if (func_00378a70(work, total) == 0) {
+        if (btlShuffleSeqPick(work, total) == 0) {
             break;
         }
         func_00389020(*(u8 **)(work + 0x1F294));
         func_0038d280(*(u8 **)(work + 0x1F298));
         func_00388fb0(*(u8 **)(work + 0x1F294));
-        if (func_0037f550(work) != 0) {
+        if (btlShuffleSeq5Check2(work) != 0) {
             for (i = 0; i < total; i++) {
                 if (!shuffle5Contains(state, i)) {
-                    func_00378f90(work, i, 0x14);
+                    btlShuffleSeqSetMode(work, i, 0x14);
                 }
             }
             *(u32 *)(work + 0x1F2F8) = 10;
         } else {
-            func_00379c70(work, -1);
+            btlShuffleSeqCardCount(work, -1);
             *(u32 *)(work + 0x1F2F8) = 14;
         }
         break;
     case 10:
-        if (func_00378a70(work, total) == 0) {
+        if (btlShuffleSeqPick(work, total) == 0) {
             break;
         }
         for (i = 0; i < total; i++) {
             if (!shuffle5Contains(state, i)) {
-                func_00375890(work, i, 0);
+                btlShuffleDrawPoll(work, i, 0);
             }
         }
         *(u32 *)(work + 0x1F2F8) = 11;
     case 11:
-        if (func_00378a70(work, total) == 0) {
+        if (btlShuffleSeqPick(work, total) == 0) {
             break;
         }
         for (i = 0; i < *(s32 *)(state + 0x28); i++) {
-            func_00379090(work, *(s32 *)(state + i * 4 + 0xC), 0xA, 1);
+            btlShuffleSeqUpdateMode(work, *(s32 *)(state + i * 4 + 0xC), 0xA, 1);
         }
         *(u32 *)(work + 0x1F2F8) = 12;
     case 12:
-        if (func_00378a70(work, total) == 0) {
+        if (btlShuffleSeqPick(work, total) == 0) {
             break;
         }
         for (j = 1; j < *(s32 *)(state + 0x28); j++) {
             *(u16 *)(work + *(s32 *)(state + j * 4 + 0xC) * 0xE8 + 0x1D6A0) &= 0xFFFD;
         }
-        func_00378ec0(work, *(s32 *)(state + 0xC));
+        btlShuffleSeqMoveB(work, *(s32 *)(state + 0xC));
         *(u16 *)state |= 0x80;
         func_0045af60(1, 0, 5, 1);
         *(u32 *)(work + 0x1F2F8) = 13;
     case 13:
-        if (func_00375910(work + *(s32 *)(state + 0xC) * 0xE8 + 0x1D6A0) != 0) {
+        if (btlShuffleDrawStateA(work + *(s32 *)(state + 0xC) * 0xE8 + 0x1D6A0) != 0) {
             break;
         }
-        func_00379c70(work, *(s32 *)(state + 0xC));
+        btlShuffleSeqCardCount(work, *(s32 *)(state + 0xC));
         *(u32 *)(work + 0x1F2F8) = 14;
     case 14:
-        if (func_00379d70(work) == 0) {
+        if (btlShuffleSeqDispatch(work) == 0) {
             break;
         }
         *(u32 *)(work + 0x1F2F8) = 15;
     case 15:
         return 1;
     case 16:
-        if (func_00379a70(work) != 0) {
+        if (btlShuffleSeqStateCheck(work) != 0) {
             if (*(s32 *)(work + 0x1F248) != 0) {
                 *(u32 *)(work + 0x1F2F8) = 15;
             } else {
@@ -520,7 +520,7 @@ s32 func_0037f6e0(u8 *work)
         }
         break;
     case 17:
-        if (func_00379920(work) != 0) {
+        if (btlShuffleSeqFlag(work) != 0) {
             if (*(u16 *)(work + 0x1F2F4) & 2) {
                 *(u16 *)(work + 0x1F2F4) &= 0xFFFD;
             }
@@ -541,16 +541,16 @@ s32 func_0037f6e0(u8 *work)
                 speed = *(u16 *)(work + 0x1F1D2);
                 j = shuffle5MovingRowSize(*(s32 *)(work + 0x1F304));
                 card = work + i * 0xE8;
-                if (func_00375910(card + 0x1D6A0) != 0) {
-                    func_003717e0(card + 0x1D6B8, (u8 *)movingScreen);
+                if (btlShuffleDrawStateA(card + 0x1D6A0) != 0) {
+                    btlShuffleCalcUpdateSpeed(card + 0x1D6B8, (u8 *)movingScreen);
                     if (!(movingScreen[1] < 508.0f)) {
                         movingScreen[1] = (0.0f + movingScreen[1]) - 120.0f * (f32)j;
                     }
                     card = work + i * 0xFB0;
-                    func_0036dc60(card, movingScreen, 84.0f, movingFrom);
+                    btlShuffleCardScaleVec(card, movingScreen, 84.0f, movingFrom);
                     movingScreen[1] += 120.0f;
-                    func_0036dc60(card, movingScreen, 84.0f, movingTo);
-                    func_00375d50(work, i, 0.0f, (f32)speed, movingFrom, movingTo);
+                    btlShuffleCardScaleVec(card, movingScreen, 84.0f, movingTo);
+                    btlShuffleDrawMoveCard(work, i, 0.0f, (f32)speed, movingFrom, movingTo);
                 }
             }
         }

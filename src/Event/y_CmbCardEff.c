@@ -29,7 +29,7 @@ void func_0036d940(void *arg0);
 void func_0036d860(u8 *arg0, s32 arg1);
 void func_0036d230(u8 *arg0);
 s32 func_0036d960(void);
-void func_0036da40(u8 *arg0, s32 arg1);
+void btlShuffleCardSetupLayout(u8 *arg0, s32 arg1);
 s32 func_00347c70(u8 *arg0);
 u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1);
 void *cmbCardEffState(u8 *arg0);
@@ -42,8 +42,8 @@ struct RtQuat;
 struct RwV3d;
 struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis,
                            f32 angle, s32 mode);
-void func_0036de20(u8 *arg0, void *arg1);
-void func_0036dd10(u8 *arg0, f32 *arg1, f32 arg2);
+void btlShuffleCardBindPacket(u8 *arg0, void *arg1);
+void btlShuffleCardApplyScale(u8 *arg0, f32 *arg1, f32 arg2);
 s32 func_00285b30(void);
 f32 func_002b2aa0(s64, f32, f32, f32, f32);
 s32 func_002b2cb0(s32, s32, s32, s32, s8);
@@ -148,14 +148,14 @@ s32 cmbCardLoaderStep(u8 *arg0) {
             for (i = 0; i < 0xC; i++) {
                 if (*(u16 *)((u8 *)obj + (s32)i * 2 + 2) == 0)
                     goto next_card;
-                func_0036da40((u8 *)&obj->cards[0][i],
+                btlShuffleCardSetupLayout((u8 *)&obj->cards[0][i],
                               *(u16 *)((u8 *)obj + (s32)i * 2 + 2));
                 {
                     CmbLoaderCard *second;
                     s32 id;
                     second = &obj->cards[1][i];
                     id = *(u16 *)((u8 *)obj + (s32)i * 2 + 2);
-                    func_0036da40((u8 *)second, id);
+                    btlShuffleCardSetupLayout((u8 *)second, id);
                 }
                 obj->loaded += 1;
             next_card:
@@ -243,9 +243,9 @@ s32 cmbCardPathUpdate(u8 *task) {
     s32 func_00343cf0(u8 *);
     void cmbCardClearSlots(u8 *);
     s32 func_00348be0(u8 *);
-    void func_0036de20(u8 *, void *);
-    void func_0036de40(u8 *, void *);
-    void func_0036df90(u8 *, u8 *);
+    void btlShuffleCardBindPacket(u8 *, void *);
+    void btlShuffleCardBindSlot(u8 *, void *);
+    void btlShuffleCardQueueEnqueue(u8 *, u8 *);
     extern CmbVec3f D_0064A4C8;
     extern u8 D_00794E70[];
     extern u8 D_00794EA0[];
@@ -284,11 +284,11 @@ s32 cmbCardPathUpdate(u8 *task) {
             cmbCardSetPosition(task, (s8)setupIndex, initialPosition);
             cmbCardSetAngle(task, (s8)setupIndex, 0.0f);
             *(CmbRGBA *)initialColorBytes.bytes = func_002b2a60(0xFF, 0xFF, 0xFF, 0);
-            func_0036de40(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)setupIndex * 0xFB0 + 0xE398, initialColorBytes.bytes);
+            btlShuffleCardBindSlot(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)setupIndex * 0xFB0 + 0xE398, initialColorBytes.bytes);
             work->cards[setupIndex].scale = 1.0f;
             axis = D_0064A4C8;
             func_003dc740((struct RtQuat *)quaternion, (const struct RwV3d *)&axis, 180.0f, 0);
-            func_0036de20(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)setupIndex * 0xFB0 + 0xE398, quaternion);
+            btlShuffleCardBindPacket(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)setupIndex * 0xFB0 + 0xE398, quaternion);
         }
         work->layout = 0;
         work->phase = work->nextPhase;
@@ -365,16 +365,16 @@ s32 cmbCardPathUpdate(u8 *task) {
             } else {
                 work->cards[cardIndex].flags ^= 4;
             }
-            func_0036de40(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0x2758, &work->cards[cardIndex].color);
+            btlShuffleCardBindSlot(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0x2758, &work->cards[cardIndex].color);
         }
         if (work->cards[cardIndex].color.c3 > 0 && work->hideSecondary == 0) {
-            func_0036df90(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0x2758, D_00794E70);
+            btlShuffleCardQueueEnqueue(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0x2758, D_00794E70);
         }
         if (work->layout == 9 && func_00285b30() < 490 && work->hideSecondary == 0) {
             func_0033fb90(task, (s8)cardIndex, work->cards[cardIndex].position, secondaryScale);
             *(CmbRGBA *)secondaryColorBytes.bytes = func_002b2a60(0xFF, 0xFF, 0xFF, secondaryOpacity);
-            func_0036de40(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, secondaryColorBytes.bytes);
-            func_0036df90(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, D_00794EA0);
+            btlShuffleCardBindSlot(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, secondaryColorBytes.bytes);
+            btlShuffleCardQueueEnqueue(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, D_00794EA0);
         }
     }
     return 0;
@@ -504,8 +504,8 @@ void cmbCardSetAngle(u8 *arg0, s8 arg1, f32 angle) {
         pFB0 = table + (s32)arg1 * 0xFB0;
         arg0_for_dd = pFB0 + 0x2758;
         p84 = obj + (s32)arg1 * 0x84;
-        func_0036dd10(arg0_for_dd, (f32 *)(p84 + 0x20), 90.0f * *(f32 *)(p84 + 0x8C));
-        func_0036de20(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758, &sp.sp30);
+        btlShuffleCardApplyScale(arg0_for_dd, (f32 *)(p84 + 0x20), 90.0f * *(f32 *)(p84 + 0x8C));
+        btlShuffleCardBindPacket(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758, &sp.sp30);
     }
 }
 #pragma pop
@@ -516,7 +516,7 @@ void cmbCardSetAngle(u8 *arg0, s8 arg1, f32 angle) {
 void cmbCardSetPosition(u8 *arg0, s8 arg1, CmbVec2f arg2) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     u32 scaled = (s32)arg1 * 0x84;
-    func_0036dd10((u8 *)(*(u32 *)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758), (f32 *)&arg2, 90.0f * *(f32 *)(scaled + (u32)obj + 0x8C));
+    btlShuffleCardApplyScale((u8 *)(*(u32 *)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758), (f32 *)&arg2, 90.0f * *(f32 *)(scaled + (u32)obj + 0x8C));
 }
 /* measured: MATCHED this wave. The nd-8 candidate had the correct 0xFB0 stride,
    packed two-float argument, and 90.0f scaling, but fndiff showed the final 0xE398
@@ -542,7 +542,7 @@ void func_0033fb90(u8 *arg0, s8 arg1, CmbVec2f arg2, f32 fparg0) {
     ptr = table + scaled;
     tmp = ptr + 0xE398;
     dst = (u32)tmp;
-    func_0036dd10((u8 *)dst, (f32 *)&arg2, 90.0f * fparg0);
+    btlShuffleCardApplyScale((u8 *)dst, (f32 *)&arg2, 90.0f * fparg0);
 }
 /* measured: MATCHED this wave — the old nd-1 "load-sinking + addu-order floor" is broken by
    lever 3 + opt_propagation: the inline helper cmbAddPtrRev carries the index-first addu

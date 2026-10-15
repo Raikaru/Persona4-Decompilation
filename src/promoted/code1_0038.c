@@ -24,7 +24,7 @@ extern u8 *datPersonaGetRow(u16 arg0);
 extern void func_002bad10(s32 arg0);
 extern void func_002bbd20(s32 arg0, void *arg1);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
-extern s32 func_00376590(u8 *arg0, u8 *arg1);
+extern s32 btlShuffleDrawCheck(u8 *arg0, u8 *arg1);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
@@ -91,12 +91,12 @@ s32 func_00380980(u8 *arg0)
         u16 value1;
         u16 value2;
     } Result;
-    extern s32 func_0036f640(s32 arg0, s32 *arg1);
+    extern s32 btlShuffleBuildRoster(s32 arg0, s32 *arg1);
     extern u8 *datPersonaGetRow(u16 arg0);
     extern u8 *datCalcGetIdRecord(s32 arg0);
     extern s32 func_002bad10(s32 arg0);
     extern void func_002bbd20(s32 arg0, void *arg1);
-    extern void func_0038daf0(u8 *arg0, s32 arg1);
+    extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
     extern void sprintf(void *arg0, const void *arg1, s32 arg2);
     extern s32 D_0064EB80[];
     extern s32 D_0064EB84[];
@@ -127,7 +127,7 @@ s32 func_00380980(u8 *arg0)
     index = id - 1;
     channel = index * 4 + 0x15;
     packed = (id << 16) | ((*(s32 *)(state + 0x10) != 0) ? 1 : 0);
-    result = func_0036f640(packed, (s32 *)&output);
+    result = btlShuffleBuildRoster(packed, (s32 *)&output);
     high = ((u32)(result & 0xFFFF0000) >> 16) & 0xFFFF;
     if (high != 0) {
         original = ((u32)(packed & 0xFFFF0000) >> 16) & 0xFFFF;
@@ -158,12 +158,12 @@ s32 func_00380980(u8 *arg0)
     if (*(s32 *)(state + 0x10) != 0) {
         entry = D_0064EB80 + index * 2;
         resource = *(u8 **)(base + 0x1F29C);
-        func_0038daf0(resource, *entry);
+        btlShuffleEffInitTrail(resource, *entry);
         func_002bad10(channel + 1);
     } else {
         entry = D_0064EB84 + index * 2;
         resource = *(u8 **)(base + 0x1F29C);
-        func_0038daf0(resource, *entry);
+        btlShuffleEffInitTrail(resource, *entry);
         func_002bad10(channel + 2);
     }
     return 1;
@@ -258,7 +258,7 @@ void func_00383c40(u8 *arg0)
     case 0:
     case 1:
     case 2:
-        value = func_00376590(base, 0);
+        value = btlShuffleDrawCheck(base, 0);
         break;
     case 3:
         value = *(u16 *)(base + 0x1F1D4);
@@ -269,7 +269,7 @@ void func_00383c40(u8 *arg0)
     }
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
-    func_00377930(base, value, 0, colors, 1);
+    btlShuffleDrawCardSprites(base, value, 0, colors, 1);
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
@@ -311,7 +311,7 @@ void func_00383d70(u8 *arg0)
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
     for (i = 0; i < *(s32 *)(state + 0x14); i++) {
-        func_00377930(base, *(s32 *)(state + i * 4 + 4), 0,
+        btlShuffleDrawCardSprites(base, *(s32 *)(state + i * 4 + 4), 0,
                       colors, 0);
     }
     RpSkyRenderStateSet(3, (void *)0x717FB);
@@ -324,8 +324,8 @@ void func_00383d70(u8 *arg0)
 // FUN_00383F80
 void func_00383f80(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32 t, f32 a, f32 b, s32 mode);
-    extern s32 func_00378530(s32 a, s32 b);
+    extern f32 btlShuffleCalcWave(f32 t, f32 a, f32 b, s32 mode);
+    extern s32 btlShuffleDrawTableLookup(s32 a, s32 b);
     typedef struct {
         f32 x;
         f32 y;
@@ -363,14 +363,14 @@ void func_00383f80(u8 *arg0)
     info = ctx + 0x1F1D0;
     flags = *(u16 *)state;
     if (!(flags & 1)) {
-        scale = func_00373cb0((f32)(u32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
+        scale = btlShuffleCalcWave((f32)(u32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
         alpha = 255.0f * scale;
         if (++*(u16 *)(state + 2) >= 0xA) {
             *(u16 *)state = *(u16 *)state | 1;
             *(u16 *)(state + 2) = 0;
         }
     } else if (flags & 2) {
-        scale = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
+        scale = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
         alpha = 255.0f * scale;
         if (++*(u16 *)(state + 2) >= 0xA) {
             *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFFDF;
@@ -383,7 +383,7 @@ void func_00383f80(u8 *arg0)
     groupIndex = (groupIndex < 3) ? groupIndex : 2;
     groupCount = *(s32 *)(ctx + 0x1F304);
     stride = (groupCount < 6) ? groupCount * 2 : groupCount;
-    count = func_00378530(groupCount, *(s32 *)(ctx + 0x1F2FC));
+    count = btlShuffleDrawTableLookup(groupCount, *(s32 *)(ctx + 0x1F2FC));
     f22 = D_008872F8[0];
     f21 = 1.0f / *(f32 *)(func_00457120() + 0x80);
     colors[0] = 0x5F;
@@ -393,7 +393,7 @@ void func_00383f80(u8 *arg0)
     lo = stride * (groupIndex + 1);
     hi = count;
     for (i = lo; i < hi; i++) {
-        func_00377930(ctx, i, 0, colors, 0);
+        btlShuffleDrawCardSprites(ctx, i, 0, colors, 0);
     }
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
@@ -404,7 +404,7 @@ void func_00383f80(u8 *arg0)
     lo = stride * groupIndex;
     hi = stride * (groupIndex + 1);
     for (j = lo; j < hi; j++) {
-        func_00377930(ctx, j, 0, colors, 0);
+        btlShuffleDrawCardSprites(ctx, j, 0, colors, 0);
     }
     colors[0] = 0xFF;
     colors[1] = 0xC5;
@@ -485,7 +485,7 @@ void func_00383f80(u8 *arg0)
 // FUN_00384CC0
 void func_00384cc0(u8 *work)
 {
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 work);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 work);
     extern f32 fGpffff83c0;
     extern f32 fGpffff83c4;
     extern const Vec2f D_0064ECC0[13];
@@ -518,7 +518,7 @@ void func_00384cc0(u8 *work)
     if ((flags & 1) == 0) {
         lineAlpha = 0;
         progress = (f32)state->frame;
-        iconAlpha = (u8)(255.0f * func_00373cb0(progress, 0.0f, 5.0f, 1));
+        iconAlpha = (u8)(255.0f * btlShuffleCalcWave(progress, 0.0f, 5.0f, 1));
         overlayAlpha = 0;
         nextFrame = ++state->frame;
         if ((nextFrame & 0xFFFF) >= 5) {
@@ -528,10 +528,10 @@ void func_00384cc0(u8 *work)
         }
     } else if (flags & 2) {
         progress = (f32)state->frame;
-        lineAlpha = (u8)(255.0f * func_00373cb0(progress, 0.0f, 3.0f, 1));
+        lineAlpha = (u8)(255.0f * btlShuffleCalcWave(progress, 0.0f, 3.0f, 1));
         iconAlpha = 0xFF;
         progress = (f32)state->frame;
-        overlayAlpha = (u8)(255.0f * (1.0f - func_00373cb0(progress, 5.0f, 10.0f, 1)));
+        overlayAlpha = (u8)(255.0f * (1.0f - btlShuffleCalcWave(progress, 5.0f, 10.0f, 1)));
         nextFrame = ++state->frame;
         if ((nextFrame & 0xFFFF) >= 10) {
             state->flags = state->flags & 0xFFFD;
@@ -539,7 +539,7 @@ void func_00384cc0(u8 *work)
         }
     } else if (flags & 4) {
         progress = (f32)state->frame;
-        lineAlpha = (u8)(255.0f * (1.0f - func_00373cb0(progress, 0.0f, 5.0f, 1)));
+        lineAlpha = (u8)(255.0f * (1.0f - btlShuffleCalcWave(progress, 0.0f, 5.0f, 1)));
         overlayAlpha = lineAlpha;
         iconAlpha = lineAlpha;
         nextFrame = ++state->frame;
@@ -604,7 +604,7 @@ void func_00384cc0(u8 *work)
 // FUN_00385380
 void func_00385380(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern f32 sinf(f32 fparg0);
     u8 alpha;
     u16 *counter = (u16 *)(arg0 + 0x1E);
@@ -619,9 +619,9 @@ void func_00385380(u8 *arg0)
     u16 scaleX;
     u16 scaleY;
 
-    extent = func_00373cb0((f32)*counter, 14.0f, 18.0f, 2);
-    ratio = func_00373cb0((f32)*counter, 5.0f, 6.0f, 1);
-    blend = 0.1f * ratio + (1.3f - 0.4f * func_00373cb0((f32)*counter, 0.0f, 5.0f, 1));
+    extent = btlShuffleCalcWave((f32)*counter, 14.0f, 18.0f, 2);
+    ratio = btlShuffleCalcWave((f32)*counter, 5.0f, 6.0f, 1);
+    blend = 0.1f * ratio + (1.3f - 0.4f * btlShuffleCalcWave((f32)*counter, 0.0f, 5.0f, 1));
     point.x = 318.0f;
     point.y = 231.0f;
     RpSkyRenderStateSet(3, (void *)0x71801);
@@ -630,10 +630,10 @@ void func_00385380(u8 *arg0)
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 
-    ratio = func_00373cb0((f32)*counter, 5.0f, 6.0f, 1);
-    blend = 0.1f * ratio + (1.3f - 0.4f * func_00373cb0((f32)*counter, 2.0f, 5.0f, 1));
+    ratio = btlShuffleCalcWave((f32)*counter, 5.0f, 6.0f, 1);
+    blend = 0.1f * ratio + (1.3f - 0.4f * btlShuffleCalcWave((f32)*counter, 2.0f, 5.0f, 1));
     ratio = blend - extent;
-    alpha = 255.0f * func_00373cb0((f32)*counter, 2.0f, 5.0f, 1);
+    alpha = 255.0f * btlShuffleCalcWave((f32)*counter, 2.0f, 5.0f, 1);
     inv = 1.0f - ratio;
     extent = (190.0f * inv) / 2.0f;
     s = sinf(-0.2617994f);
@@ -656,7 +656,7 @@ void func_00385380(u8 *arg0)
 // FUN_00385970
 void func_00385970(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern u32 RpRandom(void);
@@ -679,11 +679,11 @@ void func_00385970(u8 *arg0)
     state = arg0 + 4;
     spriteResource = *(s32 *)(base + 0x1F2AC);
     if ((*(u16 *)state & 1) == 0) {
-        quadTransition = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 10.0f, 21.0f, 2);
-        cornerTransition = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 19.0f, 21.0f, 2);
+        quadTransition = 1.0f - btlShuffleCalcWave((f32)*(u16 *)(state + 2), 10.0f, 21.0f, 2);
+        cornerTransition = 1.0f - btlShuffleCalcWave((f32)*(u16 *)(state + 2), 19.0f, 21.0f, 2);
         quadExtent = 0.0f;
         trailExpansion = 0.0f;
-        particleOpacity = func_00373cb0((f32)*(u16 *)(state + 2), 21.0f, 25.0f, 1);
+        particleOpacity = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 21.0f, 25.0f, 1);
         {
             u16 next;
             next = ++*(u16 *)(state + 2);
@@ -696,7 +696,7 @@ void func_00385970(u8 *arg0)
     } else if ((*(u16 *)state & 4) != 0) {
         quadTransition = 0.0f;
         cornerTransition = 0.0f;
-        quadExtent = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 2);
+        quadExtent = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 2);
         trailExpansion = 0.0f;
         particleOpacity = 1.0f;
         {
@@ -713,7 +713,7 @@ void func_00385970(u8 *arg0)
         quadTransition = 0.0f;
         cornerTransition = 0.0f;
         quadExtent = 1.0f;
-        trailExpansion = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 5.0f, 0);
+        trailExpansion = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 5.0f, 0);
         particleOpacity = 1.0f;
         {
             u16 next;
@@ -724,11 +724,11 @@ void func_00385970(u8 *arg0)
             }
         }
     } else if ((*(u16 *)state & 2) != 0) {
-        quadTransition = func_00373cb0((f32)*(u16 *)(state + 2), 4.0f, 10.0f, 2);
-        cornerTransition = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 6.0f, 2);
+        quadTransition = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 4.0f, 10.0f, 2);
+        cornerTransition = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 6.0f, 2);
         quadExtent = 0.0f;
         trailExpansion = 0.0f;
-        particleOpacity = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 0.0f, 1);
+        particleOpacity = 1.0f - btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 0.0f, 1);
         {
             u16 next;
             next = ++*(u16 *)(state + 2);
@@ -751,7 +751,7 @@ void func_00385970(u8 *arg0)
             *(u16 *)(state + 6) = *(u16 *)(state + 6) + 1;
         }
     }
-    desaturation = func_00373cb0((f32)*(u16 *)(state + 6), 0.0f, 30.0f, 0);
+    desaturation = btlShuffleCalcWave((f32)*(u16 *)(state + 6), 0.0f, 30.0f, 0);
     if (((*(u16 *)state & 4) != 0) || ((*(u16 *)state & 8) != 0)) {
         f32 grayComponent;
         f32 colorWeight;
@@ -917,7 +917,7 @@ static inline f32 code38ScaleRadius(f32 value, f32 scale)
 // FUN_00386C00
 void func_00386c00(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern f32 sinf(f32 fparg0);
@@ -943,13 +943,13 @@ void func_00386c00(u8 *arg0)
     resource = *(s32 *)(base + 0x1F2AC);
     if ((*(u16 *)state & 1) == 0) {
         f32 overshootWeight;
-        outerRadius = func_00373cb0((f32)*(u16 *)(state + 2), 10.0f, 20.0f, 2);
-        innerRadius = func_00373cb0((f32)*(u16 *)(state + 2), 10.0f, 20.0f, 2);
-        cornerScale = func_00373cb0((f32)*(u16 *)(state + 2), 19.0f, 21.0f, 2);
+        outerRadius = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 10.0f, 20.0f, 2);
+        innerRadius = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 10.0f, 20.0f, 2);
+        cornerScale = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 19.0f, 21.0f, 2);
         overshootWeight = fGpffff83d0;
-        cornerScale = fGpffff812c * func_00373cb0((f32)*(u16 *)(state + 2), 14.0f, 19.0f, 1)
+        cornerScale = fGpffff812c * btlShuffleCalcWave((f32)*(u16 *)(state + 2), 14.0f, 19.0f, 1)
                   - overshootWeight * cornerScale;
-        particleOpacity = func_00373cb0((f32)*(u16 *)(state + 2), 13.0f, 20.0f, 1);
+        particleOpacity = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 13.0f, 20.0f, 1);
         innerAngleScale = innerRadius;
         {
             u16 next;
@@ -964,13 +964,13 @@ void func_00386c00(u8 *arg0)
         f32 t0;
         f32 t1;
         f32 t2;
-        t0 = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 13.0f, 2);
+        t0 = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 13.0f, 2);
         outerRadius = (0.0f + 1.0f) + 3.0f * t0;
-        t1 = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 13.0f, 2);
+        t1 = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 13.0f, 2);
         innerRadius = (0.0f + 1.0f) + 3.0f * t1;
-        t2 = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 2);
+        t2 = btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 2);
         cornerScale = (0.0f + 1.0f) + 2.0f * t2;
-        particleOpacity = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
+        particleOpacity = 1.0f - btlShuffleCalcWave((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
         innerAngleScale = innerRadius;
         {
             u16 next;
@@ -1051,7 +1051,7 @@ void func_003874c0(s32 arg0, u8 *arg1)
     extern void func_00385380(u8 *arg0);
     extern void func_00385970(u8 *arg0);
     extern void func_00386c00(u8 *arg0);
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     u8 *base;
     u8 *entry;
     s32 value;
@@ -1069,14 +1069,14 @@ void func_003874c0(s32 arg0, u8 *arg1)
             value = ++*(u16 *)entry;
             ramp = (f32)(u16)value;
             alphaF = 255.0f *
-                func_00373cb0(ramp, 0.0f, 30.0f, 0);
+                btlShuffleCalcWave(ramp, 0.0f, 30.0f, 0);
             alpha = (u8)alphaF;
             *(u8 *)(entry + 5) = alpha;
         }
         RpSkyRenderStateSet(3, (void *)0x71801);
         RpSkyRenderStateSet(2, (void *)0x48);
         for (i = 0; i < *(s32 *)(base + 0x1F234); i++) {
-            func_00377930(base,
+            btlShuffleDrawCardSprites(base,
                           *(s32 *)(base + (i * 4) + 0x1F214),
                           0, entry + 2, 1);
         }
@@ -1114,7 +1114,7 @@ static inline f32 code38QuarterTurnOffset(s32 index)
 // FUN_00387750
 void func_00387750(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern f32 sinf(f32 fparg0);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
@@ -1141,7 +1141,7 @@ void func_00387750(u8 *arg0)
     *(u16 *)(state + 2) = (*(u16 *)(state + 2) + 1) % 10;
     view.phase = (fGpffff82fc * (f32)*(u16 *)(state + 2)) / 10.0f;
     if ((*(u16 *)(state + 4) & 1) == 0) {
-        blend0 = func_00373cb0((f32)*(u16 *)state, 0.0f, 15.0f, 0);
+        blend0 = btlShuffleCalcWave((f32)*(u16 *)state, 0.0f, 15.0f, 0);
         blend1 = 0.0f;
         {
             if (++*(u16 *)state >= 0xF) {
@@ -1150,8 +1150,8 @@ void func_00387750(u8 *arg0)
             }
         }
     } else if (*(u16 *)(state + 4) & 2) {
-        blend0 = 1.0f - func_00373cb0((f32)*(u16 *)state, 0.0f, 28.0f, 0);
-        blend1 = func_00373cb0((f32)*(u16 *)state, 0.0f, 30.0f, 0);
+        blend0 = 1.0f - btlShuffleCalcWave((f32)*(u16 *)state, 0.0f, 28.0f, 0);
+        blend1 = btlShuffleCalcWave((f32)*(u16 *)state, 0.0f, 30.0f, 0);
         {
             if (++*(u16 *)state >= 0x23) {
                 *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFBFF;
@@ -1166,7 +1166,7 @@ void func_00387750(u8 *arg0)
     colors[1] = 0;
     colors[2] = 0;
     colors[3] = (u8)(255.0f * (fGpffff82cc * blend0 + blend1));
-    func_00377930(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
+    btlShuffleDrawCardSprites(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
     colors[0] = 0xFF;
     colors[1] = 0;
     colors[2] = 0;
@@ -1175,7 +1175,7 @@ void func_00387750(u8 *arg0)
     RpSkyRenderStateSet(3, (void *)0x31801);
     func_0045c870(colors, 0);
     colors[3] = 0xFF;
-    func_00377930(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
+    btlShuffleDrawCardSprites(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
     func_0048a000();
     RpSkyRenderStateSet(3, (void *)0x3F801);
     RpSkyRenderStateSet(2, (void *)0x48);
@@ -1447,7 +1447,7 @@ void func_003889b0(s32 arg0, u8 *arg1)
 {
     extern void func_00387750(u8 *arg0);
     extern void func_00387e70(u8 *arg0);
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern void func_0045c870(void *arg0, s32 arg1);
     u8 colors[4];
     f32 alphaF;
@@ -1469,7 +1469,7 @@ void func_003889b0(s32 arg0, u8 *arg1)
         colors[2] = *(u8 *)(arg1 + 0x44);
         ramp = (f32)(u16)*counter;
         alphaF = 128.0f *
-            (1.0f - func_00373cb0(ramp, 0.0f, 30.0f, 2));
+            (1.0f - btlShuffleCalcWave(ramp, 0.0f, 30.0f, 2));
         colors[3] = (u8)alphaF;
         func_0045c870(colors, 1);
         ticks = ++*counter;
@@ -2239,7 +2239,7 @@ void func_0038a940(u8 **arg0)
     extern f32 D_00761490;
     extern f32 D_007612D0;
     extern f32 DAT_007613f8;
-    extern f32 func_00373cb0(f32, f32, f32, s32);
+    extern f32 btlShuffleCalcWave(f32, f32, f32, s32);
     extern f32 sinf(f32);
     extern void func_0038a480(u8 *);
     u8 *state = (u8 *)arg0 + 0x168;
@@ -2275,7 +2275,7 @@ void func_0038a940(u8 **arg0)
             *(f32 *)(work + 0x0C) = k * neg0C + old0C;
         }
     } else if (flags & 2) {
-        t = func_00373cb0((f32)*(u16 *)work, 0.0f, 5.0f, 2);
+        t = btlShuffleCalcWave((f32)*(u16 *)work, 0.0f, 5.0f, 2);
         *(f32 *)(work + 0x10) = (f32)0x13D;
         *(f32 *)(work + 0x14) = 212.0f + 60.0f * t;
         *(f32 *)(work + 0x18) = D_00761300 + D_00761490 * t;
@@ -2306,7 +2306,7 @@ typedef struct Code38RevealWeight {
 // FUN_0038ACD0
 void func_0038acd0(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern f32 fGpffff83a4;
     extern u8 D_0064F090[];
     Code38RevealWeight factors[5];
@@ -2349,10 +2349,10 @@ void func_0038acd0(u8 *arg0)
         for (i = 0; i < 5; i++) {
             entry = D_0064F090 + i * 0x10;
             elapsed = (f32)(u32)*(u16 *)state;
-            factors[i].value = func_00373cb0(elapsed, (f32)span * *(f32 *)(entry + 8), (f32)span * *(f32 *)(entry + 0xC), 1);
+            factors[i].value = btlShuffleCalcWave(elapsed, (f32)span * *(f32 *)(entry + 8), (f32)span * *(f32 *)(entry + 0xC), 1);
         }
         elapsed = (f32)(u32)*(u16 *)state;
-        tail = func_00373cb0(elapsed, 0.25f * (f32)span, (f32)span, 1);
+        tail = btlShuffleCalcWave(elapsed, 0.25f * (f32)span, (f32)span, 1);
         counter = ++*(u16 *)state;
         if (counter >= span) {
             *(u16 *)(state + 2) |= 1;
@@ -2362,10 +2362,10 @@ void func_0038acd0(u8 *arg0)
         for (i = 0; i < 5; i++) {
             entry = D_0064F090 + i * 0x10;
             elapsed = (f32)(u32)*(u16 *)state;
-            factors[i].value = 1.0f - func_00373cb0(elapsed, (f32)span * *(f32 *)(entry + 8), (f32)span * *(f32 *)(entry + 0xC), 1);
+            factors[i].value = 1.0f - btlShuffleCalcWave(elapsed, (f32)span * *(f32 *)(entry + 8), (f32)span * *(f32 *)(entry + 0xC), 1);
         }
         elapsed = (f32)(u32)*(u16 *)state;
-        tail = 1.0f - func_00373cb0(elapsed, 0.25f * (f32)span, (f32)span, 1);
+        tail = 1.0f - btlShuffleCalcWave(elapsed, 0.25f * (f32)span, (f32)span, 1);
         counter = ++*(u16 *)state;
         if (counter >= span) {
             *(u16 *)(arg0 + 4) &= (u16)0xFFDF;
@@ -2406,7 +2406,7 @@ void func_0038acd0(u8 *arg0)
 // FUN_0038B1C0
 void func_0038b1c0(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2,
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2,
                              s32 arg0);
     extern s32 D_0064EFB0[];
     u8 *base;
@@ -2431,7 +2431,7 @@ void func_0038b1c0(u8 *arg0)
         if (*counter < *(s32 *)(entry + 8)) {
             alpha = 0.0f;
         } else if (*counter < *(s32 *)(entry + 0xC)) {
-            alpha = func_00373cb0(
+            alpha = btlShuffleCalcWave(
                 (f32)*counter,
                 (f32)*(s32 *)(entry + 8),
                 (f32)*(s32 *)(entry + 0xC),
@@ -2555,7 +2555,7 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
 // FUN_0038BAB0
 void func_0038bab0(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32, f32, f32, s32);
+    extern f32 btlShuffleCalcWave(f32, f32, f32, s32);
     extern f32 fGpffff83a8;
     extern f32 fGpffff83ac;
     extern f32 fGpffff83b0;
@@ -2580,8 +2580,8 @@ void func_0038bab0(u8 *arg0)
     state = arg0 + 0x190;
     flags = *(u16 *)(arg0 + 0x194);
     if (!(flags & 1)) {
-        mainFactor = func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 8.0f, 2);
-        trailingFactor = func_00373cb0((f32)(u32)*(u16 *)state, 2.0f, 10.0f, 2);
+        mainFactor = btlShuffleCalcWave((f32)(u32)*(u16 *)state, 0.0f, 8.0f, 2);
+        trailingFactor = btlShuffleCalcWave((f32)(u32)*(u16 *)state, 2.0f, 10.0f, 2);
         if (++*(u16 *)state >= 10) {
             *(u16 *)(state + 4) |= 1;
             *(u16 *)state = 0;
@@ -2589,8 +2589,8 @@ void func_0038bab0(u8 *arg0)
             *(u16 *)(state + 4) |= 0x10;
         }
     } else if (!(flags & 0x20) && (flags & 4)) {
-        mainFactor = 1.0f - func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 5.0f, 2);
-        trailingFactor = 1.0f - func_00373cb0((f32)(u32)*(u16 *)state, 2.0f, 7.0f, 2);
+        mainFactor = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)state, 0.0f, 5.0f, 2);
+        trailingFactor = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)state, 2.0f, 7.0f, 2);
         if (++*(u16 *)state >= 7) {
             *(u16 *)(arg0 + 4) &= 0xFFFE;
         }
@@ -2602,7 +2602,7 @@ void func_0038bab0(u8 *arg0)
     flags = *(u16 *)(state + 4);
     if (flags & 0x10) {
         if (!(flags & 8)) {
-            detailEnter = func_00373cb0((f32)(u32)*(u16 *)(state + 2), 0.0f, 5.0f, 1);
+            detailEnter = btlShuffleCalcWave((f32)(u32)*(u16 *)(state + 2), 0.0f, 5.0f, 1);
             if (++*(u16 *)(state + 2) >= 5) {
                 *(u16 *)(state + 4) |= 8;
                 *(u16 *)(state + 2) = 0;
@@ -2611,7 +2611,7 @@ void func_0038bab0(u8 *arg0)
             detailEnter = 1.0f;
         }
         if (*(u16 *)(state + 4) & 0x20) {
-            detailExit = func_00373cb0((f32)(u32)*(u16 *)(state + 2), 0.0f, 5.0f, 1);
+            detailExit = btlShuffleCalcWave((f32)(u32)*(u16 *)(state + 2), 0.0f, 5.0f, 1);
             if (++*(u16 *)(state + 2) >= 5) {
                 *(u16 *)(state + 4) &= 0xFFDF;
                 *(u16 *)(state + 4) &= 0xFFEF;
@@ -2676,7 +2676,7 @@ void func_0038bab0(u8 *arg0)
 // FUN_0038C100
 void func_0038c100(u8 *arg0)
 {
-    extern f32 func_00373cb0(f32, f32, f32, s32);
+    extern f32 btlShuffleCalcWave(f32, f32, f32, s32);
     u8 *ctx;
     u8 *state;
     u8 *info;
@@ -2703,9 +2703,9 @@ void func_0038c100(u8 *arg0)
     info = ctx + 0x1F1D0;
     flags = *(u16 *)(state + 2);
     if (!(flags & 1)) {
-        scale = func_00373cb0((f32)(u32)*(u16 *)state, 4.0f, 8.0f, 0);
+        scale = btlShuffleCalcWave((f32)(u32)*(u16 *)state, 4.0f, 8.0f, 0);
         scaleY = 1.0f;
-        alpha = (u8)(255.0f * func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 8.0f, 1));
+        alpha = (u8)(255.0f * btlShuffleCalcWave((f32)(u32)*(u16 *)state, 0.0f, 8.0f, 1));
         step = ++*(u16 *)state;
         if (step >= 8) {
             *(u16 *)(state + 2) = *(u16 *)(state + 2) | 1;
@@ -2714,14 +2714,14 @@ void func_0038c100(u8 *arg0)
     } else if (flags & 2) {
         scale = 1.0f;
         scaleY = scale;
-        alpha = (u8)(255.0f * (1.0f - func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 5.0f, 1)));
+        alpha = (u8)(255.0f * (1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)state, 0.0f, 5.0f, 1)));
         step = ++*(u16 *)state;
         if (step >= 5) {
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFD;
         }
     } else if (flags & 4) {
-        first = func_00373cb0((f32)(u32)*(u16 *)state, 4.0f, 8.0f, 0);
-        first = first - func_00373cb0((f32)(u32)*(u16 *)state, 0.0f, 4.0f, 0);
+        first = btlShuffleCalcWave((f32)(u32)*(u16 *)state, 4.0f, 8.0f, 0);
+        first = first - btlShuffleCalcWave((f32)(u32)*(u16 *)state, 0.0f, 4.0f, 0);
         scaleY = 1.0f;
         scale = scaleY + first;
         alpha = (u8)255.0f;
@@ -2754,10 +2754,10 @@ void func_0038c100(u8 *arg0)
 // FUN_0038C770
 void func_0038c770(u8 *arg0)
 {
-    extern void func_00371500(u8 *screen, f32 depth, u8 *point);
-    extern s32 func_003717e0(u8 *point, u8 *screen);
-    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern s32 func_00378530(s32 arg0, s32 arg1);
+    extern void btlShuffleCalcScaleStep(u8 *screen, f32 depth, u8 *point);
+    extern s32 btlShuffleCalcUpdateSpeed(u8 *point, u8 *screen);
+    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern s32 btlShuffleDrawTableLookup(s32 arg0, s32 arg1);
     struct Work {
         BtlShuffleVec3 input;
         f32 pad0;
@@ -2783,14 +2783,14 @@ void func_0038c770(u8 *arg0)
 
         state = arg0 + 0x1A0;
         base = *(u8 **)arg0;
-        count = func_00378530(*(s32 *)(base + 0x1F304),
+        count = btlShuffleDrawTableLookup(*(s32 *)(base + 0x1F304),
                               *(s32 *)(base + 0x1F2FC));
         flags = *(u16 *)(state + 2);
         if ((flags & 1) == 0) {
             value = *(u16 *)state;
             inRamp = (f32)(u16)value;
             inAlpha = 102.0f *
-                func_00373cb0(inRamp, 0.0f, 20.0f, 1);
+                btlShuffleCalcWave(inRamp, 0.0f, 20.0f, 1);
             work.colors[3] = (u8)inAlpha;
             next = ++*(u16 *)state;
             if (next >= 0x14) {
@@ -2801,7 +2801,7 @@ void func_0038c770(u8 *arg0)
             value = *(u16 *)state;
             outRamp = (f32)(u16)value;
             outAlpha = 102.0f *
-                (1.0f - func_00373cb0(outRamp, 0.0f, 20.0f, 1));
+                (1.0f - btlShuffleCalcWave(outRamp, 0.0f, 20.0f, 1));
             work.colors[3] = (u8)outAlpha;
             next = ++*(u16 *)state;
             if (next >= 0x14) {
@@ -2820,10 +2820,10 @@ void func_0038c770(u8 *arg0)
             entry = base + (i * 0xE8) + 0x1D6B8;
             work.input = *(BtlShuffleVec3 *)entry;
         }
-        func_003717e0((u8 *)&work.input, (u8 *)&work.out0);
+        btlShuffleCalcUpdateSpeed((u8 *)&work.input, (u8 *)&work.out0);
         work.out0 += 6.0f;
         work.out1 += 5.0f;
-        func_00371500((u8 *)&work.out0, work.input.z, (u8 *)&work.input);
+        btlShuffleCalcScaleStep((u8 *)&work.out0, work.input.z, (u8 *)&work.input);
         {
             u8 *draw_base;
             s32 draw_index;
@@ -2835,7 +2835,7 @@ void func_0038c770(u8 *arg0)
             draw_input = &work.input;
             draw_colors = work.colors;
             draw_mode = 1;
-            func_00377930(draw_base, draw_index, draw_input, draw_colors, draw_mode);
+            btlShuffleDrawCardSprites(draw_base, draw_index, draw_input, draw_colors, draw_mode);
         }
     }
 }
@@ -3247,8 +3247,8 @@ s32 func_0038d660(u8 *arg0) {
     s32 *work;
 
     work = (s32 *)(*(s32 **)(arg0 + 0x38));
-    func_00374910(*work);
-    func_0038d9f0(arg0);
+    btlShuffleDrawViewReset(*work);
+    btlShuffleEffUpdate(arg0);
     func_0038d330(work);
     return 0;
 }
