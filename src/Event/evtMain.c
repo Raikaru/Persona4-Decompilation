@@ -1623,8 +1623,9 @@ s32 func_00288af0(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *comma
     }
 }
 #pragma pop
+// Event command (resource display): case 2 shows, hides or fades the resource.
 // FUN_00288F20
-s32 func_00288f20(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdResDisplay(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
     s32 v8;
     s32 v6;
     s32 v7;
@@ -1680,8 +1681,9 @@ s32 func_00288f20(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
         return 1;
     }
 }
+// Event command (resource enable): case 2 shows or hides the resource by its flag.
 // FUN_002890B0
-s32 func_002890b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdResEnable(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
     u16 t;
 
     switch (arg0) {
@@ -1720,8 +1722,9 @@ s32 func_002890b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
     }
 }
 
+// Event command (resource placement): case 2 sets placement, motion, slot or material.
 // FUN_002891D0
-s32 func_002891d0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdResPlace(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     SVec3 sp70;
     SVec3 sp60;
     SVec3 sp50;
@@ -1936,8 +1939,9 @@ s32 func_00289780(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
    straight to the epilogue. Tried goto-ret, b-local vs inline expression, and
    4 declaration orders; all nd 8. Register-reuse + branch-target floor. */
 /* measured: retail reuses arg2's dead register for the case-2 slot pointer and keeps the dispatcher result in a separate saved register; mwcc b210 assigns the slot and argument registers differently in the final call sequence. Tried declaration orders and parameter reuse; all closed at nd 8. Committed at nd 8. */
+// Event command (task slot): case 2 replaces the slot at +0x6D0 with a task of kind 0-6.
 // FUN_002898B0
-s32 func_002898b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdTaskSlot(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     s32 result;
     s32 t;
     u8 *slot;
@@ -2007,8 +2011,9 @@ s32 func_002898b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
         return 1;
     }
 }
+// Event command (env slot): case 0 restores the saved env slot; case 2 stores one.
 // FUN_00289B10
-s32 func_00289b10(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdEnvSlot(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     u8 sp60[0x14];
     s32 t;
 
@@ -2047,8 +2052,9 @@ s32 func_00289b10(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     }
 }
 
+// Event command (screen colour): case 2 sets the screen colour and fade value.
 // FUN_00289C90
-s32 func_00289c90(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
+s32 evtCmdScreenColor(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
     func_00286350();
     switch (param_1) {
     case 0:
