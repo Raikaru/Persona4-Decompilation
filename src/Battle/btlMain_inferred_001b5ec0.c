@@ -126,25 +126,25 @@ extern f32 fGpffff8108;
 #pragma push
 #pragma pop
 // FUN_001B5EC0
-void func_001b5ec0(void)
+void btlMainTestInit(void)
 {
 }
 
 // FUN_001B5ED0
-s32 func_001b5ed0(void)
+s32 btlMainTestUpdate(void)
 {
     func_001fc1b0(0);
     return 2;
 }
 
 // FUN_001B5F00
-void func_001b5f00(void)
+void btlMainMcInit(void)
 {
     *(s32 *)(D_0076449C + 0xDCC) = mcIconTaskCreate(0, 0);
 }
 
 // FUN_001B5F30
-s32 func_001b5f30(void)
+s32 btlMainMcUpdate(void)
 {
     if (func_002aa3f0() != 0) {
         func_00192b20();

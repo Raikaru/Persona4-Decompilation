@@ -154,7 +154,7 @@ extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
 
 
 // FUN_001B5E60
-u32 btlMainUpdateStateExit(void* work)
+u32 btlMainExitUpdate(void* work)
 {
     BtlMain* btl;
 
