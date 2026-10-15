@@ -2776,7 +2776,7 @@ mode_valid:
         if (target != 0) {
             index = 0;
             while ((u16)index < *(u16 *)(arg1 + 0x38)) {
-                if (func_002340c0(
+                if (datCalcHasBuffMask(
                         *(u8 **)(*(u8 **)(*(u8 **)(arg1 +
                                                       (u32)(u16)index * 4) +
                                          0x30) +
@@ -2989,7 +2989,7 @@ int func_001d94d0(int param_1, int param_2, int param_3, int param_4, int param_
     s32 effects;
 
     extern s32 func_0023d6e0(s16 arg0);
-    extern s8 func_00233a90(u8 *arg0, s32 arg1);
+    extern s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1);
     extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
     extern s32 func_0010f420(u16 arg0, u16 arg1);
 
@@ -3018,11 +3018,11 @@ loop:
                 status = func_0023d6e0((s16)param_2);
                 if ((status & 0xE0001) == 0) {
                     if ((status & 2) != 0) {
-                        effects = func_00233a90(*(u8 **)(work + 0xA64), 0x10);
+                        effects = datCalcGetBuffStatus(*(u8 **)(work + 0xA64), 0x10);
                         if (effects > 0)
                             goto next;
                     } else if ((status & 0x40) == 0) {
-                        effects = func_00233a90(*(u8 **)(work + 0xA64), 0x11);
+                        effects = datCalcGetBuffStatus(*(u8 **)(work + 0xA64), 0x11);
                         if (effects > 0)
                             goto next;
                     }

@@ -8,7 +8,7 @@
 #include "type.h"
 
 /* Definitions in datCalc.c; both read the battle unit at retail offsets such as 0xA64. */
-s32 func_002340c0(u8 *arg0, s32 arg1);
+s32 datCalcHasBuffMask(u8 *arg0, s32 arg1);
 u8 *func_0023e140(u8 *arg0);
 
 #endif

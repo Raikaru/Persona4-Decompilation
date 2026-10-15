@@ -2738,19 +2738,19 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                     u8 speedBlue;
                     func_002012d0((u8 *)p, 94.0f + statusX, 81.0f);
                     bits = *(u8 **)(*(s32 *)(arg1 + 0x20) + 0xA64);
-                    if (func_002340c0(bits, 0x400) || func_002340c0(bits, 0x800)) {
+                    if (datCalcHasBuffMask(bits, 0x400) || datCalcHasBuffMask(bits, 0x800)) {
                         allAttacks = 1;
                     } else {
                         allAttacks = 0;
                     }
-                    if (func_002340c0(bits, 1) != 0 ||
-                        func_002340c0(bits, 4) != 0) {
+                    if (datCalcHasBuffMask(bits, 1) != 0 ||
+                        datCalcHasBuffMask(bits, 4) != 0) {
                         attackSprite = 0x25;
                         attackRed = 0xFF;
                         attackGreen = 0x65;
                         attackBlue = 0x74;
-                    } else if (func_002340c0(bits, 2) != 0 ||
-                               func_002340c0(bits, 8) != 0) {
+                    } else if (datCalcHasBuffMask(bits, 2) != 0 ||
+                               datCalcHasBuffMask(bits, 8) != 0) {
                         attackSprite = 0x26;
                         attackRed = 0x79;
                         attackGreen = 0xA1;
@@ -2761,12 +2761,12 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                         attackGreen = 0x66;
                         attackBlue = 0x66;
                     }
-                    if (func_002340c0(bits, 0x40) != 0) {
+                    if (datCalcHasBuffMask(bits, 0x40) != 0) {
                         defenseSprite = 0x25;
                         defenseRed = 0xFF;
                         defenseGreen = 0x65;
                         defenseBlue = 0x74;
-                    } else if (func_002340c0(bits, 0x80) != 0) {
+                    } else if (datCalcHasBuffMask(bits, 0x80) != 0) {
                         defenseSprite = 0x26;
                         defenseRed = 0x79;
                         defenseGreen = 0xA1;
@@ -2777,14 +2777,14 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                         defenseGreen = 0x66;
                         defenseBlue = 0x66;
                     }
-                    if (func_002340c0(bits, 0x100) != 0 ||
-                        func_002340c0(bits, 0x10) != 0) {
+                    if (datCalcHasBuffMask(bits, 0x100) != 0 ||
+                        datCalcHasBuffMask(bits, 0x10) != 0) {
                         speedSprite = 0x25;
                         speedRed = 0xFF;
                         speedGreen = 0x65;
                         speedBlue = 0x74;
-                    } else if (func_002340c0(bits, 0x200) != 0 ||
-                               func_002340c0(bits, 0x20) != 0) {
+                    } else if (datCalcHasBuffMask(bits, 0x200) != 0 ||
+                               datCalcHasBuffMask(bits, 0x20) != 0) {
                         speedSprite = 0x26;
                         speedRed = 0x79;
                         speedGreen = 0xA1;

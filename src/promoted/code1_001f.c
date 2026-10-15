@@ -101,7 +101,7 @@ extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern s32 func_00459880(void);
 
 extern void H_Cdvd_Destroy(u8 *arg0);
-extern void func_00235020(s32 arg0);
+extern void datCalcClearFlaggedBuffs(s32 arg0);
 extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
 extern void func_002bd3c0(void);
 
@@ -1666,7 +1666,7 @@ s32 func_001f2f90(u8 *arg0) {
 
 // FUN_001F3900
 s32 func_001f3900(u8 **arg0) {
-    func_00235020(*(s32 *)(*(u8 **)(*arg0 + 0x30) + 0xA64));
+    datCalcClearFlaggedBuffs(*(s32 *)(*(u8 **)(*arg0 + 0x30) + 0xA64));
     return 1;
 }
 // FUN_001F39D0
@@ -2556,19 +2556,19 @@ s64 func_001f4e50(u8 *arg0) {
                         choiceCount = (choiceCount + 1) & 0xFFFF;
                     }
                 }
-                if (func_002340c0((u8 *)(*(s32 *)(unit + 0xA64)), 0xA) != 0) {
+                if (datCalcHasBuffMask((u8 *)(*(s32 *)(unit + 0xA64)), 0xA) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x6F;
                     choice->actor = *(u16 *)(unit + 0xA4);
                     choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
-                if (func_002340c0((u8 *)(*(s32 *)(unit + 0xA64)), 0x80) != 0) {
+                if (datCalcHasBuffMask((u8 *)(*(s32 *)(unit + 0xA64)), 0x80) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x76;
                     choice->actor = *(u16 *)(unit + 0xA4);
                     choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
-                if (func_002340c0((u8 *)(*(s32 *)(unit + 0xA64)), 0x220) != 0) {
+                if (datCalcHasBuffMask((u8 *)(*(s32 *)(unit + 0xA64)), 0x220) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x7D;
                     choice->actor = *(u16 *)(unit + 0xA4);
@@ -5134,7 +5134,7 @@ loop_outer_body:
             var_20 = 0;
             goto loop_inner_test;
 loop_inner_body:
-            if (func_002340c0((u8 *)(
+            if (datCalcHasBuffMask((u8 *)(
                     *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_20 * 4) + 0x38) +
                                       0x30) + 0xA64)),
                     temp_19) != 0) {
@@ -5242,7 +5242,7 @@ loop_outer_body:
             var_18 = 0;
             goto loop_inner_test;
 loop_inner_body:
-            if (func_002340c0((u8 *)(
+            if (datCalcHasBuffMask((u8 *)(
                 *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) + 0x30) + 0xA64)),
                 temp_17) != 0) {
                 var_18 += 1;
@@ -5304,7 +5304,7 @@ loop_body:
         if (!(temp_16 & temp_5)) {
             goto loop_increment;
         }
-        if (func_002340c0((u8 *)(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64)),
+        if (datCalcHasBuffMask((u8 *)(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64)),
                           temp_5) == 0) {
             goto loop_after_call;
         }
