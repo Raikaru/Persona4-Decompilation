@@ -7,6 +7,35 @@
 /* Typed prefix of the retail BtlAction. Offsets through `unit` agree with the
    P4 battle TUs; later fields are named where code uses them as a role, and
    otherwise kept as unk_XX until evidence appears. */
+/* 0x20-byte hit record. 001f14f0 writes these at action+0xF0 + i*0x20; the
+ * controllers in btlAction build the same provider-sized payload. */
+typedef struct LargeBattleHitResult {
+    s32 hpDelta, spDelta;
+    u32 addedStatus, removedStatus;
+    u32 field10;
+    s32 field14;
+    s16 hpTransfer, spTransfer;
+    s8 motion;
+    u8 field1d;
+    u16 flags;
+} LargeBattleHitResult;
+
+/* Target block at BtlAction+0xD8, 0x44 bytes. Offsets are from the action;
+ * the rows are the hit records, counted by hitRowCount (u8, 0xD9). The row
+ * capacity is 25 (0xF0 + 25*0x20 = 0x410, inside the 0x41C end). */
+typedef struct BtlActionTargetBlock
+{
+    u8 unk_d8;
+    u8 hitRowCount;               /* 0xD9 */
+    u8 unk_da[0xDE - 0xDA];
+    u16 targetFlags;              /* 0xDE. Tested with mask 6 */
+    s32 reactionFlag;             /* 0xE0. Nonzero marks a reacting target */
+    s32 specialHitFlag;           /* 0xE4. Nonzero marks a special hit */
+    u8 unk_e8[0xF0 - 0xE8];
+    LargeBattleHitResult hitRows[25]; /* 0xF0 */
+    u8 unk_410[0x41C - 0x410];
+} BtlActionTargetBlock;
+
 typedef struct BtlAction BtlAction;
 struct BtlAction
 {
@@ -36,7 +65,7 @@ struct BtlAction
     u16 unk_d0;              /* 0xD0 */
     u16 unk_d2;              /* 0xD2 */
     u8 unk_d4[0xD8 - 0xD4];  /* 0xD4 */
-    u8 unk_d8[0x41C - 0xD8]; /* 0xD8. Sub-struct passed by address (func_001f0a40) */
+    BtlActionTargetBlock targetBlock; /* 0xD8. Target hit rows; see BtlActionTargetBlock */
     s32 unk_41c;             /* 0x41C */
     s32 unk_420;             /* 0x420 */
     s32 unk_424;             /* 0x424 */

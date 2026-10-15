@@ -13,19 +13,6 @@ typedef struct BtlPacket BtlPacket;
 typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
 
-/* 001f14f0 writes 0x20-byte hit records at action+0xF0. The guarded
-   controllers also construct this same provider-sized result payload. */
-typedef struct LargeBattleHitResult {
-    s32 hpDelta, spDelta;
-    u32 addedStatus, removedStatus;
-    u32 field10;
-    s32 field14;
-    s16 hpTransfer, spTransfer;
-    s8 motion;
-    u8 field1d;
-    u16 flags;
-} LargeBattleHitResult;
-
 /* Existing byte-view callers use these adapters to the provider definitions. */
 extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
 static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)

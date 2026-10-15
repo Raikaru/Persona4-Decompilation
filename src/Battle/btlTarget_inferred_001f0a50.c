@@ -87,7 +87,7 @@ extern u8 D_00624FA0[];
 #pragma push
 #pragma pop
 // FUN_001F0A50
-s32 func_001f0a50(u8 *arg0)
+s32 btlActionAnyTargetHitRowFlagged(u8 *arg0)
 {
     s32 i;
     s32 j;
@@ -125,7 +125,7 @@ outer_test:
 /* measured: func_001f0af0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001F0AF0
-s32 func_001f0af0(u8 *arg0)
+s32 btlActionAnyTargetHitRowStatus(u8 *arg0)
 {
     s32 i;
     s32 j;
@@ -166,7 +166,7 @@ outer_test:
    the counter separately for the index and for the loop bound, and writing
    both as `i & 0xFFFF` lets b210 common-subexpression them into one andi
    (nd 57, one word short). */
-s32 func_001f0b90(u8 *arg0) {
+s32 btlActionAnyTargetSpecialHit(u8 *arg0) {
     s32 i;
     s32 n;
 
@@ -189,7 +189,7 @@ test:
 /* Mask spelling as in func_001f0b90: `(u16)i` for the index and
    `i & 0xFFFF` for the bound, so b210 does not fold retail's two andi
    instructions into one. */
-s32 func_001f0bf0(u8 *arg0) {
+s32 btlActionAnyTargetFlagged(u8 *arg0) {
     s32 i;
     s32 n;
 
@@ -210,7 +210,7 @@ test:
 
 /* measured: loop-invariant probe for func_001f0c50's shared true value. */
 // FUN_001F0C50
-s32 func_001f0c50(u8 *arg0)
+s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0)
 {
     s32 result;
     s32 i;

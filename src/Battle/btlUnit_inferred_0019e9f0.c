@@ -34,7 +34,7 @@ extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
-extern s32 func_001f0a50(u8 *arg0);
+extern s32 btlActionAnyTargetHitRowFlagged(u8 *arg0);
 extern s32 func_001f11e0(s16 arg0);
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
@@ -859,7 +859,7 @@ s32 func_0019fc70(u8 *arg0)
             goto result_one_0019fc70;
         }
 type_one_0019fc70:
-        if (func_001f0a50(arg0) != 0) {
+        if (btlActionAnyTargetHitRowFlagged(arg0) != 0) {
             {
                 u8 *table18;
                 table18 = iGpffffb3cc;

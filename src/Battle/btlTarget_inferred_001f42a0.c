@@ -92,8 +92,8 @@ extern u8 D_00624FA0[];
 /* Source unit: src/promoted/code1_001f.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001f42a0-001f5ed0 */
 
-extern s32 func_001f0af0(u8 *arg0);
-extern s32 func_001f0c50(u8 *arg0);
+extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
+extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
 extern s32 func_001f0d30(u8 *arg0);
 extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
 extern s32 func_001f0ff0(u32 arg0);

@@ -127,7 +127,7 @@ extern s32 func_00243ce0(u8 *arg0);
 extern void btlCameraFrameTarget(u8 *arg0, f32 arg1, f32 arg2);
 extern void btlCameraFrameWrapTargetWalk(u8 *arg0, f32 arg1, f32 arg2);
 extern u16 btlTargetGetUnitIndex(BtlTarget *target);
-extern s32 func_001f0a50(u8 *arg0);
+extern s32 btlActionAnyTargetHitRowFlagged(u8 *arg0);
 extern void btlCameraApplyPosePair(u8 *arg0);
 extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
@@ -1583,7 +1583,7 @@ void btlCameraFrameUnitPair(u8 *arg0)
     temp_4 = btlTargetGetUnitIndex((BtlTarget *)(temp_2 + 0x38));
     if (*(u8 *)(temp_16 + 0xA2) == 0) {
         if ((temp_4 & 0xFFFF & 1) == 0) {
-            if (func_001f0a50(*(u8 **)(base + 0xE0)) == 0) {
+            if (btlActionAnyTargetHitRowFlagged(*(u8 **)(base + 0xE0)) == 0) {
                 btlCameraFrameTarget(base, 0.0f, 1.0f);
             }
         } else {
