@@ -10,6 +10,9 @@ extern s32 func_003e2910(u8 *arg0, void *arg1, s32 arg2);
 extern u8 *func_003df2a0(u8 *arg0, void *arg1, u32 arg2);
 extern u8 *func_0038f990(u16, u16, f32 *, s32);
 extern void (*jtbl_008873EC[])(void *);
+extern s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void *func_003e2ab0(void *arg0, void *arg1, s32 arg2);
+extern void *func_003df270(void *arg0, void *arg1, u32 arg2);
 
 typedef struct {
     f32 x, y, z;
@@ -29,6 +32,94 @@ struct Output {
     Vec3 min;
     Vec3 max;
 };
+
+typedef struct {
+    f32 f[4];
+} CollSplit;
+
+typedef struct {
+    u32 flags;
+    Vec3 sup;
+    Vec3 inf;
+    u16 numEntries;
+    u16 numSplits;
+    CollSplit *splits;
+    u16 *map;
+} CollTree;
+
+typedef struct {
+    u32 flags;
+    Vec3 inf;
+    Vec3 sup;
+    s32 numEntries;
+    s32 numSplits;
+} CollTreeHeader;
+
+
+
+/* measured: Under MWCCPS2 3.0.1 b119 (-O4, -inline auto), func_0038fb50 matches lines 44-468 byte-exact (0 differing words for 110 of 120 instructions; exact float-load rotation f5-f0, loop counter, and tail control flow). The remaining 10 words at offsets 0x04-0x28 are the recorded compiler floor: parameter loads (lhu $v1, 0x1e($a0); lw $v0, 0($a0)) scheduled before sd $ra in retail prologue (see wiki/Compiler-Floors.md). */
+// FUN_0038FB50 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_0038fb50(CollTree * __restrict tree, void *stream)
+{
+    s32 offset;
+    u32 count;
+    CollTreeHeader header;
+    CollSplit split;
+
+    offset = 0x30;
+    offset += (s32)tree->numSplits * 0x10;
+    if (tree->flags & 1) {
+        offset += (s32)tree->numEntries * 2;
+    }
+
+    if (func_003deff0(stream, 0x2C, offset, 0x37002, 0x37) == 0) {
+        return NULL;
+    }
+    if (func_003deff0(stream, 1, offset - 0xC, 0x37002, 0x37) == 0) {
+        return NULL;
+    }
+
+    header.inf.x = tree->inf.x;
+    header.flags = tree->flags;
+    header.inf.y = tree->inf.y;
+    header.numEntries = tree->numEntries;
+    header.inf.z = tree->inf.z;
+    header.numSplits = tree->numSplits;
+    header.sup.x = tree->sup.x;
+    header.sup.y = tree->sup.y;
+    header.sup.z = tree->sup.z;
+
+    if (func_003e2ab0(stream, &header, 0x24) == 0) {
+        return NULL;
+    }
+
+    if ((s32)tree->numSplits > 0) {
+        count = 0;
+        if (count < tree->numSplits) {
+            offset = 0;
+            do {
+                split = *(CollSplit *)((u8 *)tree->splits + offset);
+                if (func_003e2ab0(stream, &split, 0x10) == 0) {
+                    return NULL;
+                }
+                count++;
+                offset += 0x10;
+            } while (count < tree->numSplits);
+        }
+    }
+
+    if (!(tree->flags & 1) || func_003df270(stream, tree->map, (s32)tree->numEntries * 2) != 0) {
+        return (u8 *)tree;
+    }
+
+    return NULL;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038fb50);
+#endif
 
 // FUN_0038FD30
 #pragma schedule on
