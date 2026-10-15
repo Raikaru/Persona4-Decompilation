@@ -159,7 +159,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_0019d3c0(u8 *arg0);
+extern void btlUnitReleaseModel(u8 *arg0);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
@@ -201,7 +201,7 @@ void func_0019d4e0(u8 *arg0)
     u8 *node;
     s32 h;
 
-    func_0019d3c0(arg0);
+    btlUnitReleaseModel(arg0);
     node = *(u8 **)(arg0 + 0xA0C);
     if (node != NULL) {
         func_0019d550(node);

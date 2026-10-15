@@ -161,7 +161,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_0019d3c0(u8 *arg0);
+extern void btlUnitReleaseModel(u8 *arg0);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
@@ -198,7 +198,7 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019D3C0
-void func_0019d3c0(u8 *arg0)
+void btlUnitReleaseModel(u8 *arg0)
 {
     u16 temp_4;
     s32 index;
