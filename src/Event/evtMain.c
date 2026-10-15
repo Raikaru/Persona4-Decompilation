@@ -52,7 +52,7 @@ extern s32 D_008821F0[];
 extern s32 D_008821F4[];
 extern u8 D_0063C580[];
 extern u8 D_0063C540[];
-s32 func_00479ca0(s32 res, s32 arg1);
+s32 mdlLayerIsPresent(s32 res, s32 arg1);
 f32 func_00479f60(void *param_1, s32 param_2);
 u32 MT_Scene_SetResMotionRecord(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0);
 
@@ -943,7 +943,7 @@ u8 *arg3;
 {
 
     u8 *func_00287cc0(u32, u8 *, s32, s32);
-    s32 func_00479ca0(void *, s32);
+    s32 mdlLayerIsPresent(void *, s32);
     f32 func_00479f60(void *, s32);
     s32 spB0;
     s32 spA0;
@@ -971,11 +971,11 @@ u8 *arg3;
     } else if (temp_4 == 3) {
         var_18 = *(s32 *)(arg1 + 0x164);
     }
-    if ((var_18 != 0) && (func_00479ca0((void *)var_18, 0) != 0)) {
+    if ((var_18 != 0) && (mdlLayerIsPresent((void *)var_18, 0) != 0)) {
         var_17 = 0;
         while (var_17 < 4) {
             call_idx = (u16)var_17;
-            if (func_00479ca0((void *)var_18, call_idx) != 0) {
+            if (mdlLayerIsPresent((void *)var_18, call_idx) != 0) {
                 temp_2 = func_00287cc0((u32)arg3, (u8 *)arg2, arg0, var_17);
                 if (temp_2 != NULL) {
                     if (*(s8 *)(temp_2 + 0x16) == 0) {

@@ -4327,7 +4327,7 @@ and the five-child traversal. The matrix copy is a complete `RwMatrix`
 assignment; identity fallback preserves padding and ORs the existing flags.
 The layer remains a raw `u32` until each documented 16-bit use.
 
-The validator `func_00479d10` still matches **188 bytes plus four zero-tail
+The validator `mdlLayerHasAnimation` (was `func_00479d10`) still matches **188 bytes plus four zero-tail
 bytes**. Its explicit prototype accepts `s32` animation, while its C89
 old-style definition declares the promoted parameter as `s16`. This
 performs signed-short conversion inside the callee, where retail does it,

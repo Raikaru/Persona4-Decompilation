@@ -111,7 +111,7 @@ extern void func_00481ee0(s32 arg0);
 extern void func_004829c0(s32 arg0);
 extern s32 func_00482a70(s32 arg0);
 extern void func_0047a2a0(void *arg0);
-extern s32 func_00479ca0(void *arg0, s32 arg1);
+extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern void func_00478eb0(void *arg0, void (*arg1)(void), void *arg2);
 extern void func_004abe60(void);
@@ -1551,7 +1551,7 @@ void func_004abb60(void)
 void func_004abbb0(u8 *arg0)
 {
     func_0047a2a0(arg0);
-    if (func_00479ca0(arg0, 0) != 0) {
+    if (mdlLayerIsPresent(arg0, 0) != 0) {
         mdlDispatchAnimIfPresent(arg0, 0, 0, 0, 0);
         func_0047a0e0(arg0, 0, 1.0f);
     }
@@ -1577,7 +1577,7 @@ loop_004abc50_check:
     }
     temp_2 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, arg0, (u32)arg1, 1);
     func_0047a2a0(temp_2);
-    if (func_00479ca0(temp_2, 0) != 0) {
+    if (mdlLayerIsPresent(temp_2, 0) != 0) {
         mdlDispatchAnimIfPresent(temp_2, 0, 0, 0, 0);
         func_0047a0e0(temp_2, 0, 1.0f);
     }

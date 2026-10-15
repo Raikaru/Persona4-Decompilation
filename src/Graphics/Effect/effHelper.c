@@ -9,7 +9,7 @@ void func_0044ea90(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 void *memset(void *dst, s32 value, s32 size);
 u8 *func_004abc50(u8 *base, s32 size);
-s32 func_00479ca0(s32 res, s32 arg1);
+s32 mdlLayerIsPresent(s32 res, s32 arg1);
 u32 func_0047a7c0(s32 res);
 void func_00485b20(u32 arg);
 void func_004abd60(s32 res);
@@ -84,7 +84,7 @@ void *func_004ad460(void *arg0)
     if (work->res == 0) {
         func_0046d730(D_007144F8, 0x40);
     }
-    if (func_00479ca0(work->res, 0) != 0) {
+    if (mdlLayerIsPresent(work->res, 0) != 0) {
         if (work->data.mode != 0) {
             mdlDispatchAnimIfPresent((u8*)work->res, 0, 0, 0, 0);
         } else {
@@ -162,7 +162,7 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
         func_0046d730(D_007144F8, 0xA9);
     }
     func_004abbb0(work->res);
-    if (func_00479ca0(work->res, 0) != 0) {
+    if (mdlLayerIsPresent(work->res, 0) != 0) {
         if (work->data.mode != 0) {
             mdlDispatchAnimIfPresent((u8*)work->res, 0, 0, 0, 0);
         } else {

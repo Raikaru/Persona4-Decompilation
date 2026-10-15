@@ -265,7 +265,7 @@ extern void func_0047adf0(u8* a, u16 b, s32 c);
 extern s32 iGpffffbb28;
 extern f32 iGpffff80cc;
 extern void* mdlAllocModelObject(u32 type, u16 id);
-extern s32 func_00479ca0(void* a, s32 b);
+extern s32 mdlLayerIsPresent(void* a, s32 b);
 extern u32* func_003971d0(u8*, s32, s32, s32);
 extern void* func_00462ae0(void* object);
 extern void mdlEffectListRefreshHandles();
@@ -4216,7 +4216,7 @@ void func_00477ca0(u8* arg0)
     if (*(s32*)(arg0 + 0x254) != 0) {
         mdlSetupNamedFrameAnims(arg0 + 0x23C, *(void**)(arg0 + 0xDC));
     }
-    if (func_00479ca0(arg0, 0) != 0) {
+    if (mdlLayerIsPresent(arg0, 0) != 0) {
         mdlAttachSlotHierarchy(arg0 + 0xEC, *(void**)(arg0 + 0xDC), 1);
         mdlDispatchAnimIfPresent(arg0, 0, 0, 0, 1);
         for (var_17 = (u64)1; (var_17 & 0xFFFF) < 2; var_17++) {
@@ -4511,7 +4511,7 @@ void func_00478410(u8* source, u8* destination)
         *(void**)(destination + 0xe0) = func_00462ae0(clump);
     }
     for (layer = 0; layer < 2; layer++) {
-        if (func_00479ca0(source, (u16)layer) != 0) {
+        if (mdlLayerIsPresent(source, (u16)layer) != 0) {
             MdlCloneLayerView* sourceLayer =
                 (MdlCloneLayerView*)(source + 0xec + layer * 0xa4);
             MdlDispatchAnimTable* resource = sourceLayer->resource;
@@ -4583,7 +4583,7 @@ void func_00478410(u8* source, u8* destination)
     }
     if (*(void**)(source + 0x2d0) != 0)
         func_0047ea40(destination + 0x2d0, source + 0x2d0);
-    if (func_00479ca0(destination, 0) != 0)
+    if (mdlLayerIsPresent(destination, 0) != 0)
         mdlDispatchAnimIfPresent(destination, 0, 0, 0, 1);
 }
 // FUN_00478750
@@ -4711,7 +4711,7 @@ void func_00478a30(u8* mdl, s32 tick)
             func_0047aa10(mdl, &((Model*)mdl)->scale);
         }
         for (animationLayer = 0; animationLayer < 2; animationLayer++) {
-            if (func_00479ca0(mdl, (u16)animationLayer) != 0) {
+            if (mdlLayerIsPresent(mdl, (u16)animationLayer) != 0) {
                 previousLayer = func_00473b20(mdl + animationLayer * 0xA4 + 0xEC,
                                              previousLayer, tick);
             }
@@ -5160,11 +5160,11 @@ static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s16 animation, u16
     }
 }
 #pragma opt_common_subs on
-/* Dispatches the animation through mdl_dispatch_animation when func_00479d10 reports the layer present, and always returns 1. The presence test is not yet named. */
+/* Dispatches the animation through mdl_dispatch_animation when mdlLayerHasAnimation reports the animation present, and always returns 1. */
 // FUN_00479940
 s32 mdlDispatchAnimIfPresent(u8* mdl, u32 layer, s16 animation, u16 frame, s32 flags)
 {
-    if (func_00479d10(mdl, layer, animation))
+    if (mdlLayerHasAnimation(mdl, layer, animation))
         mdl_dispatch_animation(mdl, layer, animation, frame, flags);
     return 1;
 }
@@ -5173,15 +5173,16 @@ s32 mdlDispatchAnimIfPresent(u8* mdl, u32 layer, s16 animation, u16 frame, s32 f
 // FUN_00479C30
 s16 func_00479c30(s32 arg0, s32 arg1)
 {
-    if (func_00479ca0((u8 *)arg0, arg1) != 0) {
+    if (mdlLayerIsPresent((u8 *)arg0, arg1) != 0) {
         s32 off = (arg1 & 0xFFFF) * 0xA4;
         return *(s16 *)(off + (s32)arg0 + 0xF0);
     }
     return -1;
 }
 
+/* Returns 1 when the layer has animation state. Layer 0 counts either the primary state (+0x120) or the secondary list (+0x234); other layers check their own state record at +0x120. */
 // FUN_00479CA0
-s32 func_00479ca0(void* param_1, s32 param_2)
+s32 mdlLayerIsPresent(void* param_1, s32 param_2)
 {
     u16 mask = (u16)param_2;
     s32 off;
@@ -5207,8 +5208,9 @@ s32 func_00479ca0(void* param_1, s32 param_2)
    addu. The (u16)param_2 second check uses plain ints (no mask local). */
 /* The signed-short animation contract is shared by the model and battle
    callers. Integer comparisons perform the retail sign extension here. */
+/* Returns 1 when the layer's animation table has an entry for the animation. Layer 0 also checks the secondary list at +0x234. */
 // FUN_00479D10
-s32 func_00479d10(u8* param_1, u32 param_2, s16 param_3)
+s32 mdlLayerHasAnimation(u8* param_1, u32 param_2, s16 param_3)
 {
     int result = 0;
     int iVar4;

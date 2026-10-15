@@ -19,7 +19,7 @@ extern s32 func_00481460(s32 arg0);
 extern void *mdlFindOrCreateModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void func_0046d730(const char *arg0, s32 arg1);
 extern void func_0047a2a0(void *arg0);
-extern s32 func_00479ca0(void *arg0, s32 arg1);
+extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern void func_00478eb0(void *arg0, void (*arg1)(void), void *arg2);
 extern void func_004787e0(u32 arg0);
@@ -49,7 +49,7 @@ void *func_004abd80(void *arg0)
         func_0046d730(D_007144A8, 0x55);
     }
     func_0047a2a0(work);
-    if (func_00479ca0(work, 0) != 0) {
+    if (mdlLayerIsPresent(work, 0) != 0) {
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         func_0047a0e0(work, 0, 1.0f);
     }
@@ -106,7 +106,7 @@ void *func_004abe80(void *arg0) {
             }
             temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
             func_0047a2a0(temp_2_4);
-            if (func_00479ca0(temp_2_4, 0) != 0) {
+            if (mdlLayerIsPresent(temp_2_4, 0) != 0) {
                 mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
                 func_0047a0e0(temp_2_4, 0, temp_f20);
             }
@@ -155,7 +155,7 @@ void func_004ac170(u8 *dst, u8 *src)
         func_0046d730(D_007144A8, 0xC5);
     }
     func_0047a2a0(work);
-    if (func_00479ca0(work, 0) != 0) {
+    if (mdlLayerIsPresent(work, 0) != 0) {
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         func_0047a0e0(work, 0, 1.0f);
     }
@@ -368,7 +368,7 @@ void *func_004ac640(void *arg0) {
             }
             temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
             func_0047a2a0(temp_2_4);
-            if (func_00479ca0(temp_2_4, 0) != 0) {
+            if (mdlLayerIsPresent(temp_2_4, 0) != 0) {
                 mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
                 func_0047a0e0(temp_2_4, 0, 1.0f);
             }
@@ -431,7 +431,7 @@ void func_004ac9a0(u8 *dst, u8 *src)
         func_0046d730(D_007144A8, 0x1DA);
     }
     func_0047a2a0(work);
-    if (func_00479ca0(work, 0) != 0) {
+    if (mdlLayerIsPresent(work, 0) != 0) {
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         func_0047a0e0(work, 0, 1.0f);
     }
