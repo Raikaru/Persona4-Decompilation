@@ -11,8 +11,8 @@
 #include "fcl_bounds_packet.h"
 #include "fcl_draw_task.h"
 #include "sdk_task_registration.h"
-extern s32 func_002e7ac0(u8 *task);
-extern void func_002e82b0(u8 *task);
+extern s32 fclCombineMenuUpdate(u8 *task);
+extern void fclCombineMenuDestroy(u8 *task);
 #include "type.h"
 
 typedef struct {
@@ -248,7 +248,7 @@ extern f32 func_00109190(void);
 extern void func_0032f060(u8 *arg0, s32 arg1);
 extern void func_0032f4d0(u8 *arg0);
 extern void func_003307b0(u8 *arg0, s32 arg1, u8 *arg2);
-extern s32 func_002e8410(u8 *arg0);
+extern s32 fclCombineMenuCreate(u8 *arg0);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 extern void func_00122640(s32, s32);
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
@@ -305,7 +305,7 @@ extern u16 fclCombineOtherHeroId(void);
  * tail bytes. See the SDK/Fcl closure evidence for every affected owner.
  */
 // FUN_002E8410
-s32 func_002e8410(u8 *arg0) {
+s32 fclCombineMenuCreate(u8 *arg0) {
     s32 k;
     s32 task;
     u8 *out;
@@ -314,7 +314,7 @@ s32 func_002e8410(u8 *arg0) {
 
     func_0044ea90(D_00641B00, 0x166);
     out = D_008873F4[0](1, 0x314, 0x40000);
-    task = (s32)kwlnTaskCreateChild((void *)((void *)((s32)arg0)), (const void *)(D_00641B10), 0xF, 0, 0, func_002e7ac0, func_002e82b0, (u8 *)(out));
+    task = (s32)kwlnTaskCreateChild((void *)((void *)((s32)arg0)), (const void *)(D_00641B10), 0xF, 0, 0, fclCombineMenuUpdate, fclCombineMenuDestroy, (u8 *)(out));
     *out = 0;
     *(out + 1) = 0x11;
     *(out + 0x144) = 0;
@@ -10110,7 +10110,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         if (*(u32 *)(p + 0x1C) != 0) {
             *(u32 *)(p + 0x1C) = 0;
         }
-        *(u32 *)(p + 0x1C) = func_002e8410(arg0);
+        *(u32 *)(p + 0x1C) = fclCombineMenuCreate(arg0);
         break;
     case 2:
         if (kwlnTaskIsLinked(*(u32 *)(p + 0x1C)) == 0) {

@@ -599,8 +599,9 @@ void func_002e7a80(s32 arg0)
                           (const char *)func_0010d6d0(1), 0, 0, D_00794E70, 24); \
         } \
     } while (0)
+// Fcl combine menu update: runs the menu state machine (draws the text and returns a status).
 // FUN_002E7AC0
-s32 func_002e7ac0(u8 *arg0)
+s32 fclCombineMenuUpdate(u8 *arg0)
 {
     void func_002e90d0(u8 *arg0);
     u8 *func_002b6150(s16 arg0);
@@ -755,8 +756,9 @@ done:
     return 0;
 }
 #undef P4_002E7AC0_DRAW
+// Fcl combine menu destroy: releases the slot entries and the slot draw tasks.
 // FUN_002E82B0
-void func_002e82b0(u8 *arg0)
+void fclCombineMenuDestroy(u8 *arg0)
 {
     s32 datPersonaRosterCapacity(void);
     s8 func_002e4820(s8 arg0);
