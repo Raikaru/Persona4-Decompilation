@@ -26,7 +26,7 @@ extern u32 D_00764594;
 extern s32 D_007645A0;
 extern void func_0046d730(const void *file, u32 line);
 extern char D_0063BAE8[];
-extern void func_00275c00(void);
+extern void frFontRasterEvictExpired(void);
 extern u32 DAT_00881528_abs[];
 extern u32 DAT_0088152C_abs[];
 extern u32 DAT_0088179C_abs[];
@@ -68,7 +68,7 @@ extern u32 DAT_00881524_abs[];
 extern s32 D_007645BC;
 extern s32 D_008815B0[];
 extern s32 func_0026e010();
-extern void func_00275a60();
+extern void frFontRasterCreateCache();
 extern void func_00271860(void);
 
 extern u32 DAT_0088176C_abs[];
@@ -96,7 +96,7 @@ extern s32 func_00454a60(const void *arg0, s32 arg1);
 extern void H_Cdvd_ReadSync(s32 arg0);
 extern u8 *func_00455f70(void *arg0, void *arg1);
 extern void func_0026e170(int param_1);
-extern void func_00275bd0(void);
+extern void frFontRasterDestroyCache(void);
 extern void func_00271a40(void);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern void func_00440b68();
@@ -360,7 +360,7 @@ void func_002713b0(s32 arg0, s32 arg1)
         var_4 += 1;
     }
     D_007645BC = var_16 * 0x10;
-    func_00275a60(arg1);
+    frFontRasterCreateCache(arg1);
 }
 #pragma opt_propagation on
 #pragma pop
@@ -385,7 +385,7 @@ void func_002715c0(u8 *unusedTask)
     tab = (void *(**) )DAT_008873ec_abs;
     ((code)tab[0])(DAT_00881764_abs[0]);
     ((code)tab[0])(DAT_00881768_abs[0]);
-    func_00275bd0();
+    frFontRasterDestroyCache();
 }
 
 // FUN_002716B0
@@ -787,7 +787,7 @@ void func_00271d10(u8 *arg0, s32 arg1)
 }
 // FUN_00271F50
 extern char D_0063BC20[];
-extern u32 func_00276260(u32 param_1, int param_2);
+extern u32 frFontRasterLookup(u32 param_1, int param_2);
 extern u32 frFontFindOrLoadEntry(u32 param_1, u32 param_2, u32 param_3);
 extern u16 func_00273910(u32 param_1);
 extern u16 func_00273940(u32 param_1);
@@ -801,7 +801,7 @@ u8 *func_00271f50(u8 *arg0, u32 arg1)
     u8 *temp_20;
     u8 sp60[0x10];
 
-    if ((var_18 = (u8 *)(u32)func_00276260(arg1, arg0[0x14])) != NULL) {
+    if ((var_18 = (u8 *)(u32)frFontRasterLookup(arg1, arg0[0x14])) != NULL) {
         temp_2 = *(u8 **)(var_18 + 0x10);
         if (temp_2 != NULL) {
             *(u16 *)(temp_2 + 4) += 1;
@@ -1519,7 +1519,7 @@ extern void RpSkyRenderStateSet(s32 param_1, s32 param_2);
 extern s32 func_00272e10(u8 *param_1, u8 *param_2, u8 param_3, u8 param_4);
 /* Raster dimensions use full unsigned words; the glyph stores their byte
  * source values. Depth precedes the glyph in the shared mixed-ABI contract. */
-extern s32 func_00275d80(s32 x, s32 y, f32 depth, u8 *glyph,
+extern s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
                          s32 palette, u32 width, u32 height, u32 color);
 extern code D_00887300_abs[];
 
@@ -1592,7 +1592,7 @@ s32 func_00273170(void *arg0, u32 arg1, u32 arg2)
             width = glyph[0x18];
             height = glyph[0x19];
             scale = *(f32 *)(node + 0x14);
-            func_00275d80(draw_x, draw_y, scale, glyph, palette_index, width, height,
+            frFontRasterDrawGlyph(draw_x, draw_y, scale, glyph, palette_index, width, height,
                          *(u32 *)(glyph + 0x10));
             if (glyph[0x10] != 0) {
                 *(u16 *)(glyph + 2) += 1;
@@ -1713,7 +1713,7 @@ result_check:
 s32 func_00273610(u8 *unusedTask)
 {
     DAT_0088179C_abs[0] = func_00271bd0(DAT_0088179C_abs[0]);
-    func_00275c00();
+    frFontRasterEvictExpired();
     return 0;
 }
 // FUN_00273650

@@ -34,8 +34,8 @@ extern s64 func_002e0da0(s64 arg0, s32 arg1, s64 arg2);
 extern void func_002e0f90(void);
 
 extern u16 D_008817E8[];
-extern u8 *func_00276290();
-extern u8 *func_002762f0();
+extern u8 *frFontRasterFindEntry();
+extern u8 *frFontRasterAllocEntry();
 extern void func_0027b5a0(s32 arg0);
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];

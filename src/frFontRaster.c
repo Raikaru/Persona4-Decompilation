@@ -7,7 +7,7 @@
 typedef int (*code)();
 
 /* Defined below in this file; called at line 347, above its definition. */
-extern void func_00276420(int param_1, u8 *param_2, int param_3);
+extern void frFontRasterUploadGlyph(int param_1, u8 *param_2, int param_3);
 
 extern u8 *D_007645b8;
 #define iGpffffb954 D_007645b8
@@ -56,8 +56,9 @@ extern s32 func_00271310(u8 *param_1);
    temporaries are coloured, which is what puts the bound in $a0 and the
    next-node pointer in $a1 as retail. */
 #pragma opt_loop_invariants on
+/* Creates the glyph cache: count entries, each with a 0x200-byte raster buffer. */
 // FUN_00275A60
-void func_00275a60(s32 count)
+void frFontRasterCreateCache(s32 count)
 {
     s32 i;
     s32 *node;
@@ -96,18 +97,20 @@ void func_00275a60(s32 count)
         }
     }
 }
-/* measured: closes the hoisting scope after func_00275a60. */
+/* measured: closes the hoisting scope after frFontRasterCreateCache. */
 #pragma opt_loop_invariants off
 
+/* Frees the glyph cache. */
 // FUN_00275BD0
-void func_00275bd0(void)
+void frFontRasterDestroyCache(void)
 {
     D_008873ec_abs[0](iGpffffb954);
     iGpffffb954 = (u8 *)0x0;
 }
 
+/* Ages every cache entry and moves the expired ones to the free list (LRU eviction). */
 // FUN_00275C00
-void func_00275c00(void)
+void frFontRasterEvictExpired(void)
 {
     u32 *puVar1;
     u32 *puVar2;
@@ -177,8 +180,9 @@ extern s32 D_00881750;
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
+/* Builds the quad for one glyph at (x, y) with the given palette and colour, and submits it. */
 // FUN_00275D80
-s32 func_00275d80(s32 x, s32 y, f32 depth, u8 *glyph,
+s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
                   s32 palette, u32 width, u32 height, u32 rgba)
 {
     f32 vertices[64];
@@ -309,8 +313,8 @@ s32 func_00275d80(s32 x, s32 y, f32 depth, u8 *glyph,
 // end FUN_00275D80
 
 /* measured: unprototyped forward declarations keep the retail argument setup for frFontFindOrLoadEntry (prototypes gave nd 7). */
-u8 *func_00276290();
-u8 *func_002762f0();
+u8 *frFontRasterFindEntry();
+u8 *frFontRasterAllocEntry();
 
 /* Finds the entry for (arg0, arg2); on a miss, takes a free entry and loads 0x200 bytes from arg1. */
 // FUN_002761F0
@@ -318,17 +322,18 @@ u8 *frFontFindOrLoadEntry(s32 arg0, u8 *arg1, s32 arg2)
 {
     u8 *var_2;
 
-    var_2 = func_00276290(arg0, arg2);
+    var_2 = frFontRasterFindEntry(arg0, arg2);
     if (var_2 == NULL) {
-        var_2 = func_002762f0(arg0, arg1, arg2);
+        var_2 = frFontRasterAllocEntry(arg0, arg1, arg2);
         if (var_2 == NULL)
             var_2 = NULL;
     }
     return var_2;
 }
 
+/* Looks up a cache entry through the donor finder; returns 0 when absent. */
 // FUN_00276260
-u32 func_00276260(u32 param_1, int param_2)
+u32 frFontRasterLookup(u32 param_1, int param_2)
 {
     u32 result;
 
@@ -346,8 +351,9 @@ u32 func_00276260(u32 param_1, int param_2)
 extern u8 *D_007645b8;
 #define iGpffffb954 D_007645b8
 
+/* Finds a cached entry by key and palette, marks it used, and returns it (0 if none). */
 // FUN_00276290
-u8 *func_00276290(u32 param_1, int param_2)
+u8 *frFontRasterFindEntry(u32 param_1, int param_2)
 {
     u32 *entry;
 
@@ -374,8 +380,9 @@ done:
     return (u8 *)entry;
 }
 
+/* Takes a free entry, stores the key and a copy of the raster source, and returns it (0 if none free). */
 // FUN_002762F0
-u8 *func_002762f0(u32 param_1, u8 *param_2, u32 param_3)
+u8 *frFontRasterAllocEntry(u32 param_1, u8 *param_2, u32 param_3)
 {
     u32 *puVar1;
 
@@ -401,7 +408,7 @@ u8 *func_002762f0(u32 param_1, u8 *param_2, u32 param_3)
     if (puVar1 == (u32 *)0x0) {
         return 0;
     }
-    func_00276420((int)puVar1, (u8 *)param_2, param_3);
+    frFontRasterUploadGlyph((int)puVar1, (u8 *)param_2, param_3);
     puVar1[1] = param_1;
     *(u16 *)((int)puVar1 + 10) = 1;
     *puVar1 = *puVar1 | 1;
@@ -410,8 +417,9 @@ u8 *func_002762f0(u32 param_1, u8 *param_2, u32 param_3)
     return (u8 *)puVar1;
 }
 
+/* Unpacks a 4-bit 32x32 glyph source into the entry's texture buffer and copies in palette param_3. */
 // FUN_00276420
-void func_00276420(int param_1, u8 *param_2, int param_3)
+void frFontRasterUploadGlyph(int param_1, u8 *param_2, int param_3)
 {
     short uVar1;
     short uVar2;
