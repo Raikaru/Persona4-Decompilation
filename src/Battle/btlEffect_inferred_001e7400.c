@@ -110,7 +110,7 @@ done:
 }
 /* measured: object 264B vs window 272B, normalized_diff 10; remaining differences are register colouring. Committed at nd 10. */
 // FUN_001E7400
-s32 func_001e7400(void) {
+s32 btlEffectScriptSelectSideUnit(void) {
     extern s32 btlSideSelectUnits();
     extern u32 datCalcRandomBelow(u32 arg0);
     extern s32 scrGetParamInt(s32 arg0);
@@ -150,7 +150,7 @@ s32 func_001e7400(void) {
 }
 
 // FUN_001E7510
-s32 func_001e7510(void) {
+s32 btlEffectScriptSelectHighestLevelUnit(void) {
     extern s32 btlSideSelectUnits();
     extern s32 datCalcRandomBelow();
     extern s32 datCalcGetLevel();
@@ -423,7 +423,7 @@ loop_test:
 }
 
 // FUN_001E7D30
-s32 func_001e7d30(void) {
+s32 btlEffectScriptGetCurrentUnit(void) {
     u8 *temp;
 
     temp = func_0029d050();
@@ -432,19 +432,19 @@ s32 func_001e7d30(void) {
 }
 
 // FUN_001E7D70
-s32 func_001e7d70(void) {
+s32 btlEffectScriptGetMaxHp(void) {
     scrSetReturnInt(datCalcMaxHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E7DD0
-s32 func_001e7dd0(void) {
+s32 btlEffectScriptGetHp(void) {
     scrSetReturnInt(datCalcGetHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E7E30
-s32 func_001e7e30(void) {
+s32 btlEffectScriptGetSlotUnit(void) {
     u8 *temp;
 
     temp = func_001b1560();
@@ -455,7 +455,7 @@ s32 func_001e7e30(void) {
 // FUN_001E7E70
 // measured: the status byte/halfword gates the signed-byte payload; the
 // payload is read only when neither gate is active.
-s32 func_001e7e70(void)
+s32 btlEffectScriptGetStatusByte(void)
 {
     u8 *base;
     u8 *payload;
@@ -473,19 +473,19 @@ s32 func_001e7e70(void)
 }
 
 // FUN_001E7EF0
-s32 func_001e7ef0(void) {
+s32 btlEffectScriptGetMaxSp(void) {
     scrSetReturnInt(datCalcMaxSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E7F50
-s32 func_001e7f50(void) {
+s32 btlEffectScriptGetSp(void) {
     scrSetReturnInt(datCalcGetSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E7FB0
-s32 func_001e7fb0(void) {
+s32 btlEffectScriptPickRandomCandidate(void) {
     u16 count;
     u8 *work;
 
