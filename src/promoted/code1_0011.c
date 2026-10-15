@@ -1073,7 +1073,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     if (*(s32 *)(arg2 + 0xC) != 0) {
         temp19 = arg1 & 0xFF;
         temp_2 = (s32)func_001067f0(*(s16 *)arg2);
-        func_00275020(
+        frFontExDrawTextWithCharWidth(
             arg0.x,
             arg0.y,
             fparg0,
@@ -1107,7 +1107,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
         temp16 = ((arg1 & 0xFF) * 0xFF) / 255U;
         sprintf(buf, &iGpffff9be8,
                       func_00106a90(*(s16 *)arg2));
-        func_00274ed0(
+        frFontExDrawText(
             (f32)(s32)xy.values[0],
             (f32)(s32)xy.values[1],
             fparg0,
@@ -1546,7 +1546,7 @@ void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3)
     temp = func_00243840(*(u16 *)((u8 *)arg2 + 0xA));
     color = -0x100 | (((arg1 & 0xFF) * 0xFF) / 255U);
     index = *(char *)((s32)D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2));
-    func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, index, 1, temp, 0, 0);
+    frFontExDrawText((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, index, 1, temp, 0, 0);
 }
 // FUN_00115830
 void func_00115830(u8 *arg0) {
@@ -1608,7 +1608,7 @@ void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
     temp_17 = *(s16 *)(arg2 + 4);
     if (temp_2 == 0) {
         temp_2 = arg1 & 0xFF;
-        func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, arg4,
+        frFontExDrawText((f32)(s32)arg0.x, (f32)(s32)arg0.y, arg4,
                       temp_2 | -0x100, 0, 4,
                       (const char *)func_0010d620(*(s16 *)arg2), 0, 0);
         return;

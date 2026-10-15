@@ -70,7 +70,7 @@ s32 func_0033d390(void *, s32);
 void func_0033d320(u8 *arg0, s32 arg1, s8 arg2);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
 s32 func_002b2a30(u8, u8, u8, u8);
-extern s32 func_00275520(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, void *arg9);
+extern s32 frFontExDrawTextDeferred(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, void *arg9);
 extern u32 func_001067f0(s16 arg0);
 extern s32 func_00106600(s16 arg0);
 extern void func_002caa10(F2_0033 position, f32 depth, FclDrawColor color, u32 number, s16 glyphBase, void *sprite,
@@ -1362,7 +1362,7 @@ s32 func_00332bb0(u8 *arg0) {
         func_0033d3e0(*(void **)(work + 0xA0), func_002b2970(45.0f, 133.0f), func_002b2970(45.0f, 133.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0xA0), 53.0f);
         func_0033d3d0(*(void **)(work + 0xA0), 0x61);
-        func_00275520(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
+        frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
                       func_001067f0((s16)func_002e2740(*(s16 *)(work + 4))), 0, 0, D_007950B0);
         if (D_008C024E[0] & 0x40) {
             func_0045af60(0, 0, 0, 1);
@@ -1450,7 +1450,7 @@ s32 func_00332bb0(u8 *arg0) {
                       *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
         func_0033c490(arg0);
-        func_00275520(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
+        frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
                       func_001067f0((s16)func_002e2740(*(s16 *)(work + 4))), 0, 0, D_00795E60);
         if (func_002bb680(*(s8 *)(work + 8)) != 0) {
             func_002bbcf0(*(s8 *)(work + 8));
@@ -1803,7 +1803,7 @@ static inline void fclShopDrawItemFrame(u8 *p, f32 y, u8 red, u8 green, u8 blue)
 
 static inline void fclShopDrawItemName(s16 item, f32 y, u8 red, u8 green, u8 blue)
 {
-    func_00275520(78.0f, y, 62.0f, func_002b2a30(red, green, blue, 0xFF), 0, 1,
+    frFontExDrawTextDeferred(78.0f, y, 62.0f, func_002b2a30(red, green, blue, 0xFF), 0, 1,
                   func_001067f0((s16)func_002e2740(item)), 0, 0, D_00795E60);
 }
 
@@ -1835,7 +1835,7 @@ void func_0033c490(u8 *arg0)
                       *(void **)(p + 0xC), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
         color = func_002b2a30(0x26, 0x26, 0x26, 0xFF);
         value = func_001067f0((s16)func_002e2740(*(s16 *)(p + 4)));
-        func_00275520(78.0f, 77.0f, 62.0f, color, 0, 1, value, 0, 0, D_00795E60);
+        frFontExDrawTextDeferred(78.0f, 77.0f, 62.0f, color, 0, 1, value, 0, 0, D_00795E60);
         pos1 = func_002b2970(406.0f, 84.0f);
         col1 = func_002b2a60(0x26, 0x26, 0x26, 0xFF);
         func_002caa10(pos1, 62.0f, col1,

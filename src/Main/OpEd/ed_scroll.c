@@ -7,7 +7,7 @@
 extern void func_00271b70(u32 resource);
 
 extern void func_00272950(u32 resource, s32 x, s32 y);
-extern void func_00274a20(u32 resource, f32 angle);
+extern void frFontExSetScale(u32 resource, f32 angle);
 
 extern void func_00272ba0(u32 resource, u32 color);
 
@@ -387,7 +387,7 @@ void func_0038e810(u32 *work, char *text, s32 align)
                 }
                 {
                     u32 handle = (u32)func_002724d0((u8 *)token, (s8)style, (s8)mode, 0, NULL);
-                    func_00274a20(handle, 0.0f);
+                    frFontExSetScale(handle, 0.0f);
                     *(u32 *)((u8 *)work + count * 8 + 8) = handle;
                     *(f32 *)((u8 *)work + 4 + count * 8) = width;
                     count++;
@@ -441,7 +441,7 @@ void func_0038eae0(u32* work, const f32* pos)
         f32* entry = (f32*)((u8*)work + i * 8 + 4);
         func_00272950(*(u32*)(entry + 1), (s32)((pos[0] + entry[0]) * 16.0f),
                       (s32)(pos[1] * 8.0f));
-        func_00274a20(*(u32*)(entry + 1), 0.0f);
+        frFontExSetScale(*(u32*)(entry + 1), 0.0f);
     }
 }
 

@@ -224,7 +224,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     extern void func_0046d730(const void *file, s32 line);
     extern u32 func_0010d620(s16 unit);
     extern u32 func_0010d6d0(s16 unit);
-    extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
+    extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
     extern u32 func_00104ce0(s16 unit);
     extern u16 func_00104dc0(s16 unit);
     extern u32 func_00104d50(s16 unit);
@@ -308,7 +308,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     } else {
         name = (u8 *)func_0010d6d0(unit);
     }
-    func_00275020(point.x, point.y, 0.0f, textColor, fontStyle, 1, (const char *)name, 0, -1);
+    frFontExDrawTextWithCharWidth(point.x, point.y, 0.0f, textColor, fontStyle, 1, (const char *)name, 0, -1);
     hpNumber = func_00104ce0(unit) & 0xFFFF;
     point.x = 30.0f + origin.x;
     point.y = 27.0f + origin.y;
@@ -5305,7 +5305,7 @@ void func_0012e9d0(u8 *state)
     extern void func_00112300(Vec2f position, f32 depth, u8 alpha, u8 *entry);
     extern void func_00130680(u8 *state, s32 index);
     extern u32 func_00106880(s16 item);
-    extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 font, s32 mode, const char *text, s32 flags,
+    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 font, s32 mode, const char *text, s32 flags,
         s32 unused);
     extern void func_00130ce0(u8 *state, PackedVec2f position, s32 alpha, s16 *entry);
     extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 value, s32 mode);
@@ -5488,7 +5488,7 @@ void func_0012e9d0(u8 *state)
             position.xy.x = 280.0f + (originX + *(f32 *)(state + 0x1318));
             position.xy.y = 20.0f + (originY + *(f32 *)(state + 0x131C));
             fontAlpha = *(u8 *)(state + 0x1322);
-            func_00274ed0(position.xy.x, position.xy.y, 0.0f, (fontAlpha | ~0xFF), 6, 1, (const char *)iGpffff9cc8,
+            frFontExDrawText(position.xy.x, position.xy.y, 0.0f, (fontAlpha | ~0xFF), 6, 1, (const char *)iGpffff9cc8,
                 0, 0);
         } else {
             if (*(u8 *)(state + 0x1AD2) > 0) {

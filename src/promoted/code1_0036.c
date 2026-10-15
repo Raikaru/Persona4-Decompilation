@@ -425,7 +425,7 @@ void func_00361d20(s32 arg0, u8 *arg1)
         color = colorBase;
         color |= finalAlpha & 0xFF;
         str = func_00354490(idx);
-        func_002751a0(fx, fy - 3.0f, 0.0f, color, mode, 1, (const char *)str, 0, 0x77, -1);
+        frFontExDrawTextOutA(fx, fy - 3.0f, 0.0f, color, mode, 1, (const char *)str, 0, 0x77, -1);
     } else {
         drawNode = *(void **)(arg1 + 0x69C);
         func_0034f2e0(drawNode, fx + 2.0f, fy + 1.0f, rgb2r, rgb2g, rgb2b, finalAlpha);
@@ -1308,7 +1308,7 @@ void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
         func_0046d730(D_0064E460, 0x176);
     }
     y = *((f32 *)&arg0 + 1);
-    func_00274ed0((f32)(s32)*(f32 *)&arg0, (f32)(s32)y, 0.0f, color, 6, 1, *(const char **)(arg2 + 0x14), 0, 0);
+    frFontExDrawText((f32)(s32)*(f32 *)&arg0, (f32)(s32)y, 0.0f, color, 6, 1, *(const char **)(arg2 + 0x14), 0, 0);
     value = *(u8 *)(arg2 + 0x18);
     if (value <= 0 || value >= 0x20) {
         func_0046d730(D_0064E460, 0x186);

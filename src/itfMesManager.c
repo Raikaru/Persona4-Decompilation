@@ -79,7 +79,7 @@ void memcpy(void *arg0, void *arg1, u32 arg2);
 s32 strlen(const void *param_1);
 void func_00272b00(u8 *arg0, s32 arg1);
 void func_00272ba0(u8 *arg0, s32 arg1);
-void func_00274a20(u8 *arg0, f32 fparg0);
+void frFontExSetScale(u8 *arg0, f32 fparg0);
 void *func_00285170(void *arg0);
 extern char D_0063BE60[];
 void func_0027b7c0(s32 arg0);
@@ -1523,7 +1523,7 @@ u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     if (arg3 & 1)
         func_00272b00(result, (u32)arg2 & 0xFF);
     func_00272ba0(result, arg0);
-    func_00274a20(result, fparg2);
+    frFontExSetScale(result, fparg2);
     return result;
 }
 // FUN_002791F0

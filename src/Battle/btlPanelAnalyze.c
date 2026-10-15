@@ -500,7 +500,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
     u8 *func_00243840(s32);
     s32 func_001f0950(s32, s32);
     u32 func_00452560(u8 *);
-    int func_00275020(f32, f32, f32, s32, s32, s32, const void *, s32, s32);
+    int frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s32, s32, const void *, s32, s32);
     PanelQuad quads[3];
     char text[128];
     u8 *work;
@@ -581,7 +581,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
                     }
                 }
             }
-            func_00275020(112.0f + nameX, 136.0f, 0.0f, 0x89FF1FFF, 0, 1, iGpffffb444 + (u32)enemyIndex * 0x15, 0, -1);
+            frFontExDrawTextWithCharWidth(112.0f + nameX, 136.0f, 0.0f, 0x89FF1FFF, 0, 1, iGpffffb444 + (u32)enemyIndex * 0x15, 0, -1);
             if ((*(u16 *)panel & 8) == 0) {
                 nameX = panelAdd2(15.0f, nameX);
                 hp = datCalcMaxHp(*(u8 **)(unit + 0xA64)) & 0xFFFF;
@@ -687,7 +687,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
                     func_00201650(work, 12, 0x5A, fx, fy, 0x89, 0xFF, 0x1F, 0xFF);
                     func_00201650(work, 12, 0x5B, 192.0f + fx, fy, 0x89, 0xFF, 0x1F, 0xFF);
                     if (cmds[skillIndex] != 0) {
-                        func_00275020(96.0f + fx, fy - 2.0f, 0.0f, 0x244C00FF, 0, 1, func_00243840(cmds[skillIndex]), 8, -1);
+                        frFontExDrawTextWithCharWidth(96.0f + fx, fy - 2.0f, 0.0f, 0x244C00FF, 0, 1, func_00243840(cmds[skillIndex]), 8, -1);
                     }
                     skillIndex += 1;
                 }

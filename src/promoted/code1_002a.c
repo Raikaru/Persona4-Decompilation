@@ -164,7 +164,7 @@ void func_002a03b0(u8 *arg0) {
     extern s32 func_0029f790(u8 *arg0);
     extern u32 strlen(const void *arg0);
     extern void strncpy(void *arg0, const void *arg1, s32 arg2);
-    extern s32 func_00274ed0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
+    extern s32 frFontExDrawText(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
     f32 pos[2];
     f32 px;
     f32 py;
@@ -393,7 +393,7 @@ void func_002a03b0(u8 *arg0) {
         var_19 = 0;
         while (var_19 < temp_16) {
             strncpy(iGpffffb528, D_00882EF0 + (var_19 * 2), 2);
-            sum += func_00274ed0((f32)var_18_3, 121.0f, 0.0f,
+            sum += frFontExDrawText((f32)var_18_3, 121.0f, 0.0f,
                                  0xCCFFFFFF, 0, 0, iGpffffb528, 0, 0);
             var_18_3 += 0x1C;
             var_19 += 1;
@@ -406,7 +406,7 @@ void func_002a03b0(u8 *arg0) {
         var_19_2 = 0;
         while (var_19_2 < temp_16_2) {
             strncpy(iGpffffb528, D_00882ED0 + (var_19_2 * 2), 2);
-            sum += func_00274ed0((f32)var_18_4, 153.0f, 0.0f,
+            sum += frFontExDrawText((f32)var_18_4, 153.0f, 0.0f,
                                  0xCCFFFFFF, 0, 0, iGpffffb528, 0, 0);
             var_18_4 += 0x1C;
             var_19_2 += 1;
@@ -1233,7 +1233,7 @@ s32 func_002abf70(u8 *arg0) {
         temp_f2 = 1.0f;
         temp_17 = (void *)*(s32 *)(D_0063EEA0 +
                                    (*(s32 *)(temp_16 + 0x6C0) * 4));
-        func_00274ed0(temp_f0, temp_f1, temp_f2,
+        frFontExDrawText(temp_f0, temp_f1, temp_f2,
                       -1, 0, 0, temp_17, 0, 0);
         if (D_008C027A[0] & 0x8000) {
             *(s32 *)(temp_16 + 0x6C0) =
@@ -1284,7 +1284,7 @@ s32 func_002abf70(u8 *arg0) {
             temp_f0 = 20.0f;
             temp_f2 = 1.0f;
             temp_f1 = temp_f0;
-            func_00274ed0(temp_f0, temp_f1, temp_f2,
+            frFontExDrawText(temp_f0, temp_f1, temp_f2,
                           (s32)0x808080FF, 0, 2,
                           (void *)D_0063EEB0, 0, 0);
         }

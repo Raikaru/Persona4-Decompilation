@@ -2555,8 +2555,8 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     extern void func_00272c80(s32 arg0);
     extern s32 func_00273170(void *arg0, u32 arg1, u32 arg2);
     extern s32 func_002738d0(s32 arg0);
-    extern void func_00274a20(s32 arg0, f32 width);
-    extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s8 mode,
+    extern void frFontExSetScale(s32 arg0, f32 width);
+    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 mode,
                                s32 font, const char *text, s32 flags, s32 extra);
     extern void func_002778c0(s32 arg0, s32 arg1, s32 arg2);
     extern void func_00278090(s32 arg0, s32 arg1, s32 arg2);
@@ -2650,7 +2650,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             } else {
                 func_00272950(*(s32 *)arg1, (0x130 - half / 2) << 4, 0x2A0);
             }
-            func_00274a20(*(s32 *)arg1, 50.0f);
+            frFontExSetScale(*(s32 *)arg1, 50.0f);
             func_00272ba0(*(s32 *)arg1, -1);
         }
         *(s32 *)(arg1 + 0xC) = half;
@@ -2896,8 +2896,8 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                           0xFF, 0xFF, 0xFF, 0xFF);
             func_00201650((u8 *)p, 9, 0x54, 328.0f, 371.0f,
                           0xFF, 0xFF, 0xFF, 0xFF);
-            func_00274ed0(244.0f, 359.0f, 0.0f, 0x212121FF, 5, 0, iGpffffa590, 0, 0);
-            func_00274ed0(361.0f, 359.0f, 0.0f, 0x212121FF, 5, 0, iGpffffa594, 0, 0);
+            frFontExDrawText(244.0f, 359.0f, 0.0f, 0x212121FF, 5, 0, iGpffffa590, 0, 0);
+            frFontExDrawText(361.0f, 359.0f, 0.0f, 0x212121FF, 5, 0, iGpffffa594, 0, 0);
         }
         if (fade == 1.0f) {
             if (*(s32 *)(arg1 + 0x38) == 0) {

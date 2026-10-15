@@ -691,7 +691,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     s32 func_0021e050(u8 *);
     void func_001125d0(u8 *);
     void func_00112300(Vec2f, f32, u8, u8 *);
-    int func_00274ed0(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
+    int frFontExDrawText(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
 
     (void)arg0;
     w = arg1;
@@ -838,7 +838,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
         }
         position.v[0] =(157.0f + (*(f32 *)(w + 0x170)));
         position.v[1] =((366.0f + (*(f32 *)(w + 0x174))) - 2.0f);
-        func_00274ed0(position.v[0], position.v[1], 10.0f, (((u8)b18 & 0xFF) | ~0xFF), 5, 1, (const char *)func_0010d6d0(1), 0, 0);
+        frFontExDrawText(position.v[0], position.v[1], 10.0f, (((u8)b18 & 0xFF) | ~0xFF), 5, 1, (const char *)func_0010d6d0(1), 0, 0);
         ((s32 (*)(s32, void *))*(u32 *)vt)(6, (void *)0);
         if (p16->flags & 4) {
             c19 = 0x67;

@@ -2468,7 +2468,7 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
         f32 textY = (2.0f + y) - 1.0f;
         f32 depth = 50.0f;
         u32 high = (u8)tone;
-        func_00275020(textX, textY, depth,
+        frFontExDrawTextWithCharWidth(textX, textY, depth,
                       alpha | ((high << 24) | (high << 16) | ((u32)(u8)tone << 8)),
                       0, 1, (const char *)iGpffffb448 + skill * 0x13, 0, -1);
     }
@@ -2564,7 +2564,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
         f32 text_y = (2.0f + y) - 1.0f;
         f32 depth = 50.0f;
         u32 high = (u8)tone;
-        func_00275020(fx, text_y, depth,
+        frFontExDrawTextWithCharWidth(fx, text_y, depth,
                       (high << 24) | (high << 16) |
                           ((u32)(u8)tone << 8) | masked,
                       0, 1, name, 0, -1);
@@ -2654,7 +2654,7 @@ void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
         f32 text_y = (4.0f + y) - 1.0f;
         f32 depth = 50.0f;
         u32 high = (u8)tone;
-        func_00275020(
+        frFontExDrawTextWithCharWidth(
             text_x, text_y, depth,
             (high << 24) | (high << 16) | ((u32)(u8)tone << 8) | (u8)opacity,
             0, 1, name, 0, -1);
@@ -2694,7 +2694,7 @@ void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
         f32 text_y = (19.0f + y) - 3.0f;
         f32 depth = 50.0f;
         u32 high = (u8)tone;
-        func_00274ed0(
+        frFontExDrawText(
             text_x, text_y, depth,
             (high << 24) | (high << 16) | ((u32)(u8)tone << 8) | (u8)opacity,
             0, 1, name, 0, 0);
@@ -4349,7 +4349,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     func_00201650(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
     func_00272c60(0x40);
     nameAddress = func_0010d6d0(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4));
-    font = (u8 *)(u32)func_00274cd0(357.0f, 332.0f, 50.0f, -1, 0, 1, (const char *)nameAddress, 0, NULL);
+    font = (u8 *)(u32)frFontExCreateText(357.0f, 332.0f, 50.0f, -1, 0, 1, (const char *)nameAddress, 0, NULL);
     nameWidth = func_002738d0((struct FrFontNode *)font);
     {
         f32 center;

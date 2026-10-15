@@ -16,7 +16,7 @@ extern s8 func_002bab80(void *);
 extern s32 func_002badc0(s8, s32);
 extern void func_002bbd80(s8, s32, void *);
 extern void *func_001067f0(s16);
-extern void func_00275980(void *, void *, s32);
+extern void frFontExCopyString(void *, void *, s32);
 extern s32 datGetFlag(s32);
 extern u8 func_002e78a0(void);
 extern s32 func_002e78e0(void);
@@ -149,13 +149,13 @@ void func_00332370(u8 *arg0, s32 arg1, s32 arg2) {
     func_002bbd80(*(work + 1), 0, func_001067f0(t));
     temp_2 = func_002be1b0((s16)arg1);
     if (temp_2 == 0xE) {
-        func_00275980((void *)D_0064A07C[0], sp40, 0x20);
+        frFontExCopyString((void *)D_0064A07C[0], sp40, 0x20);
         func_002bbd80(*(work + 1), 1, sp40);
     } else if (temp_2 == 0xF) {
-        func_00275980((void *)D_0064A080[0], sp40, 0x20);
+        frFontExCopyString((void *)D_0064A080[0], sp40, 0x20);
         func_002bbd80(*(work + 1), 1, sp40);
     } else {
-        func_00275980((void *)D_0064A078[0], sp40, 0x20);
+        frFontExCopyString((void *)D_0064A078[0], sp40, 0x20);
         func_002bbd80(*(work + 1), 1, sp40);
     }
     func_002badc0(*(work + 1), 0x1F);

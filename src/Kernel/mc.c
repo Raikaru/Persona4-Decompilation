@@ -2508,8 +2508,8 @@ void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
         temp_19 = arg0 | arg1;
         temp_f24 = (24.0f + fparg1) - 6.0f;
         temp_f23 = 99.0f + fparg0;
-        func_00275020(
-            5.0f + (temp_f23 + (f32)func_00275020(
+        frFontExDrawTextWithCharWidth(
+            5.0f + (temp_f23 + (f32)frFontExDrawTextWithCharWidth(
                 temp_f23, temp_f24, fparg2, temp_19, 0, 0,
                 (const char *)(temp_17 + 0x1E), 1, -1)),
             temp_f24, fparg2, temp_19, 0, 0, (const char *)(temp_17 + 0xC), 0, -1);
@@ -2698,7 +2698,7 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     }
     func_0025f3f0(fparg0 + 136.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x16, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     str = (u8 *)mcLocationName(temp_16[0x30], temp_16[0x31]);
-    func_00275020(fparg0 + 151.0f, ((fparg1 - 2.0f) - 6.0f) + 2.0f, fparg2, colorWord.rgba | arg0, 0, 1, (const char *)str, 0, -1);
+    frFontExDrawTextWithCharWidth(fparg0 + 151.0f, ((fparg1 - 2.0f) - 6.0f) + 2.0f, fparg2, colorWord.rgba | arg0, 0, 1, (const char *)str, 0, -1);
     temp_18 = mcColorRgb(&colorWord);
     func_002a9100(fparg0, fparg1, fparg2, temp_18, arg0, (u8 *)baseSpill, arg2, arg4);
     p = (u8 *)&single;

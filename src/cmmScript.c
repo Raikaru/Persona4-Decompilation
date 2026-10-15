@@ -136,7 +136,7 @@ extern s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
                          f32 farg3, f32 farg4, f32 farg5, void* arg7);
 extern s32 func_00243840(s32 arg0);
 extern void func_002782c0(s32 arg0, s32 arg1, s32 arg2, u32 arg3);
-extern void func_00275980();
+extern void frFontExCopyString();
 extern void func_00278450();
 extern s32 iGpffffa658;
 extern s32 iGpffffa62c;
@@ -329,10 +329,10 @@ s32 func_0024a490(void)
     if (key != 0) {
         func_00278450(mesMgr, 0, func_0010d620((s16)key));
     }
-    func_00275980(func_00246830(id & 0xFFFF), buf, 0x80);
+    frFontExCopyString(func_00246830(id & 0xFFFF), buf, 0x80);
     func_00278450(mesMgr, 1, buf);
     func_00278450(mesMgr, 2, func_002438b0((u8)func_00248760(id & 0xFFFF)));
-    func_00275980(func_00246b10((s8)func_00248760(id & 0xFFFF)), buf, 0x80);
+    frFontExCopyString(func_00246b10((s8)func_00248760(id & 0xFFFF)), buf, 0x80);
     func_00278450(mesMgr, 3, buf);
     func_002782c0(mesMgr, 4, func_00107ac0(id & 0xFFFF) & 0xFFFF, 0);
     key = func_00247820((s16)id);
@@ -349,10 +349,10 @@ s32 func_0024a490(void)
             i--;
             *dst++ = tmp;
         } while (i > 0);
-        func_00275980(tbl[func_00110580(idx, dst, src)], buf, 0x80);
+        frFontExCopyString(tbl[func_00110580(idx, dst, src)], buf, 0x80);
         func_00278450(mesMgr, 6, buf);
     }
-    func_00275980(func_002468a0(id & 0xFFFF), buf, 0x80);
+    frFontExCopyString(func_002468a0(id & 0xFFFF), buf, 0x80);
     func_00278450(mesMgr, 7, buf);
     return 1;
 }
@@ -718,22 +718,22 @@ s32 func_0024b070(void)
     func_002782c0(mesMgr, 9, *(u32*)(rec + 0x1C), 0);
     p = (u8*)func_00246c90(*(u16*)(rec + 0x12));
     if (p != 0) {
-        func_00275980(p, buf, 0x80);
+        frFontExCopyString(p, buf, 0x80);
         func_00278450(mesMgr, 0xA, buf);
     }
     p = (u8*)func_00246c90(*(u16*)(rec + 0x22));
     if (p != 0) {
-        func_00275980(p, buf, 0x80);
+        frFontExCopyString(p, buf, 0x80);
         func_00278450(mesMgr, 0xB, buf);
     }
     p = (u8*)func_00246d50(*(u16*)(rec + 0x10));
     if (p != 0) {
-        func_00275980(p, buf, 0x80);
+        frFontExCopyString(p, buf, 0x80);
         func_00278450(mesMgr, 0xC, buf);
     }
     p = (u8*)func_00246d50(*(u16*)(rec + 0x20));
     if (p != 0) {
-        func_00275980(p, buf, 0x80);
+        frFontExCopyString(p, buf, 0x80);
         func_00278450(mesMgr, 0xD, buf);
     }
     return 1;
@@ -804,24 +804,24 @@ s32 func_0024b490(void)
     }
     q = (u8*)func_00246cd0(id & 0xFFFF) + 0xC;
     if (q != 0) {
-        func_00275980(q, buf, 0x80);
+        frFontExCopyString(q, buf, 0x80);
         func_00278450(mesMgr, 0, buf);
     }
     func_002782c0(mesMgr, 1, *(s32*)(func_00246cd0(id & 0xFFFF) + 4), 0);
     q = (u8*)func_00246cd0(id & 0xFFFF) + 0x22;
     if (q != 0) {
-        func_00275980(q, buf, 0x80);
+        frFontExCopyString(q, buf, 0x80);
         func_00278450(mesMgr, 2, buf);
     }
     tblIdx = *(s8*)(func_00246cd0(id & 0xFFFF) + 8);
     if (tblIdx != -1) {
-        func_00275980(tbl[tblIdx], buf, 0x80);
+        frFontExCopyString(tbl[tblIdx], buf, 0x80);
         func_00278450(mesMgr, 3, buf);
     }
     func_002782c0(mesMgr, 4, *(s8*)(func_00246cd0(id & 0xFFFF) + 9), 0);
     tblIdx = *(s8*)(func_00246cd0(id & 0xFFFF) + 0xA);
     if (tblIdx != -1) {
-        func_00275980(tbl[tblIdx], buf, 0x80);
+        frFontExCopyString(tbl[tblIdx], buf, 0x80);
         func_00278450(mesMgr, 5, buf);
     }
     func_002782c0(mesMgr, 6, *(s8*)(func_00246cd0(id & 0xFFFF) + 0xB), 0);

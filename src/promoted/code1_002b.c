@@ -115,7 +115,7 @@ extern u8 D_007EFA04[];
 extern void strcpy(void *arg0, ...);
 extern void strcat(void *arg0, void *arg1);
 extern void strncpy(void *arg0, void *arg1, s32 arg2);
-extern void func_00275980(void *arg0, void *arg1, s32 arg2);
+extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00443010(u8 *arg0, u8 *arg1);
 extern s32 func_002b3520(u8 *arg0, s64 arg1);
 extern u8 *D_0063F110[];
@@ -643,14 +643,14 @@ u8 *func_002b32d0(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
                 }
                 size = func_002b3520(arg0, (s8)outer);
                 strncpy(spf0, arg0, size);
-                func_00275980(spf0, spb0, 0x40);
+                frFontExCopyString(spf0, spb0, 0x40);
                 strcat(sp70, spb0);
                 strcat(sp70, dest);
                 strcpy(arg0, arg0 + size + offset);
             } while (func_00443010(arg0, *entry) != 0);
         }
     }
-    func_00275980(arg0, spb0, 0x40);
+    frFontExCopyString(arg0, spb0, 0x40);
     strcat(sp70, spb0);
     strcpy(arg0, sp70);
     return arg0;

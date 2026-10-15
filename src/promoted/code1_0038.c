@@ -1252,7 +1252,7 @@ void func_00387e70(u8 *arg0)
     extern u8 datPersonaGetArcana(u16 personaId);
     extern u8 *datPersonaGetRow(u16 personaId);
     extern u8 datPersonaGetLevel(int persona);
-    extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
+    extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                              const char *str, int flags, int charWidth);
     extern u8 D_005E5810[];
     extern u8 D_005E5850[];
@@ -1392,7 +1392,7 @@ void func_00387e70(u8 *arg0)
                 func_0046d730(D_0064EEB0, 0x588);
             }
             func_0034f460(fonts[0], (u16)((u16)icon - 1) + 0x21, 168.0f, 55.0f + y, r, g, b, alpha);
-            func_00275020(269, 55.0f + y - 3.0f, 0.0f,
+            frFontExDrawTextWithCharWidth(269, 55.0f + y - 3.0f, 0.0f,
                           (r << 24) | (g << 16) | (b << 8) | alpha, 0, 1,
                           (const char *)datPersonaGetRow(id), 0, -1);
             value = datPersonaGetLevel(*entry);

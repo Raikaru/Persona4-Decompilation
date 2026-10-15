@@ -71,7 +71,7 @@ extern s32 datPersonaRosterCapacity(void);
 extern void func_00316470(u8 *, s64, s8);
 extern void func_00316e80(u8 *, s64, s64, s64, s64, s64, s64, s64, s8, s8, s8);
 extern s32 func_002b2a30(u8, u8, u8, u8);
-extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
+extern int frFontExDrawTextDeferredOutB(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
 extern u8 *func_0046d200(u32, u32);
 extern s32 func_00331560(void);
 extern f32 func_0046b260(u8 *);
@@ -141,7 +141,7 @@ extern void func_00310a10(u8 *, u16);
 extern void func_0011b8f0(u8 *, u8 *);
 extern s32 func_0011cc00(u8 *, u16, u16);
 extern u8 *func_00243840(s32);
-extern int func_00275520(f32, f32, f32, int, s8, int, const char *, int, int, void *);
+extern int frFontExDrawTextDeferred(f32, f32, f32, int, s8, int, const char *, int, int, void *);
 extern s32 func_002bb1c0(s8);
 extern void func_002e5000(void);
 extern void func_0032fbc0(u8 *);
@@ -1686,7 +1686,7 @@ void func_002ed430(u8 *arg0) {
             }
             if (var_19 < *(s32 *)(func_002e4870(0) + 8)) {
                 temp_f20 = (f32)(var_19 * 0x17 + 0x80);
-                func_00275820(113.0f, temp_f20, 43.0f, var_17, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, var_19))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_17, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, var_19))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) == 0
@@ -1763,7 +1763,7 @@ void func_002ed430(u8 *arg0) {
         temp_2_2 = func_002b6150(0x7C);
         sp158 = *(FclVec2f *)(temp_2_2 + 0x38);
         temp_16_4 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_3);
-        func_00275820(111.0f + sp158.x, sp158.y, 43.0f, temp_16_4, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_3->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp158.x, sp158.y, 43.0f, temp_16_4, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_3->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         for (var_19_2 = 0; var_19_2 < (datPersonaRosterCapacity() & 0xFFFF); var_19_2++) {
             func_0031d630(arg0, var_19_2, temp_18->f128, temp_18->f129, 0);
             if (temp_18->f128 != var_19_2 && *(s8 *)(func_002e4870(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) > 0) {
@@ -1829,7 +1829,7 @@ void func_002ed430(u8 *arg0) {
                     var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, spE0);
                 }
                 temp_f20_2 = (f32)(var_19_2 * 0x17 + 0x80);
-                func_00275820((f32)0x195, temp_f20_2, 43.0f, var_21, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(temp_18->f128 + 1, var_19_2))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB((f32)0x195, temp_f20_2, 43.0f, var_21, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(temp_18->f128 + 1, var_19_2))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
         if ((s8)func_00314660(temp_18->f148) < 0 || (s8)func_00314660(temp_18->f148) > 5) {
@@ -1916,7 +1916,7 @@ void func_002ed430(u8 *arg0) {
         temp_2_18 = func_002b6150(0x7C);
         sp150 = *(FclVec2f *)(temp_2_18 + 0x38);
         temp_16_12 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
-        func_00275820(111.0f + sp150.x, sp150.y, 43.0f, temp_16_12, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp150.x, sp150.y, 43.0f, temp_16_12, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) != 1) {
             func_00314450(temp_18->f148, (s32)(((u16 *)func_002e48a0(0, temp_18->f11E))), 0, 0);
             func_0011c6e0(func_003147d0(temp_18->f148), 1);
@@ -1929,7 +1929,7 @@ void func_002ed430(u8 *arg0) {
         temp_2_19 = func_002b6150(0x7C);
         sp148 = *(FclVec2f *)(temp_2_19 + 0x38);
         temp_16_14 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
-        func_00275820(111.0f + sp148.x, sp148.y, 43.0f, temp_16_14, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_14, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s8)func_00314660(temp_18->f148) == 5) {
             if (func_0011c610(func_003147d0(temp_18->f148)) == 1) {
                 func_0011caf0(func_003147d0(temp_18->f148));
@@ -1984,7 +1984,7 @@ void func_002ed430(u8 *arg0) {
         temp_2_20 = func_002b6150(0x7C);
         sp140 = *(FclVec2f *)(temp_2_20 + 0x38);
         temp_16_18 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_17);
-        func_00275820(111.0f + sp140.x, sp140.y, 43.0f, temp_16_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_8->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp140.x, sp140.y, 43.0f, temp_16_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_8->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) != 1) {
             temp_18->f2F9 = temp_18->f128 + 1;
             temp_18->f2FA = temp_18->f11E;
@@ -2126,7 +2126,7 @@ void func_002ed430(u8 *arg0) {
         temp_2_22 = func_002b6150(0x7C);
         sp138 = *(FclVec2f *)(temp_2_22 + 0x38);
         temp_16_39 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_38);
-        func_00275820(111.0f + sp138.x, sp138.y, 43.0f, temp_16_39, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_12->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp138.x, sp138.y, 43.0f, temp_16_39, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_12->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s8)func_00314660(temp_18->f148) == 0xE) {
             func_00316470(arg0, 1, 0);
             func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
@@ -2672,7 +2672,7 @@ void func_002f0f00(u8 *arg0) {
             }
             if (partyRow < *(s32 *)(func_002e4870(0) + 8)) {
                 temp_f20 = (f32)(partyRow * 0x17 + 0x80);
-                func_00275820(113.0f, temp_f20, 43.0f, var_19, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_19, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
             }
         }
         if (((*(s16 *)fclCombineSlotRecord(((u8 **)((u8 *)temp_17 + 0x150))[datPersonaRosterCapacity() & 0xFFFF], (datPersonaRosterCapacity() & 0xFFFF) - 1) & 4) >> 2) == 0) {
@@ -2728,7 +2728,7 @@ void func_002f0f00(u8 *arg0) {
             }
             if (gridRow < *(s32 *)(func_002e4870(0) + 8)) {
                 temp_f20 = (f32)(gridRow * 0x17 + 0x80);
-                func_00275820(113.0f, temp_f20, 43.0f, var_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, gridRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, gridRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
         if (((s32)((s32)(((s32) (*(s16 *)fclCombineSlotRecord((u8 *)(temp_17->rows[0]), 0) & 4) >> 2))) == (s32)((s32)(0))) && ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) == (s32)((s32)(0)))) {
@@ -2752,7 +2752,7 @@ void func_002f0f00(u8 *arg0) {
             }
             if (partyRow < *(s32 *)(func_002e4870(0) + 8)) {
                 temp_f20 = (f32)(partyRow * 0x17 + 0x80);
-                func_00275820(113.0f, temp_f20, 43.0f, var_19_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, partyRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_19_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, partyRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
             temp_2_2 = (s16)func_002b6970(*(s16 *)(func_002b6150(partyRow + 0x21C) + 0x10), 1);
             if (temp_2_2 == 1) {
@@ -2859,7 +2859,7 @@ block_83:
         temp_2_4 = (u8 *)(func_002b6150(0x7C));
         sp1E8 = *(FclVec2f *)(temp_2_4 + 0x38);
         temp_16_9 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_8)));
-        func_00275820(111.0f + sp1E8.x, sp1E8.y, 43.0f, temp_16_9, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_8->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1E8.x, sp1E8.y, 43.0f, temp_16_9, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_8->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s8)func_00314660((u8 *)temp_17->f148) < 0 || (s8)func_00314660((u8 *)temp_17->f148) > 5) {
             if (D_008C027A[0] & 0x1000) {
                 temp_17->f11E = (s16)((s16)(func_002b2d00(temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 2)));
@@ -3013,7 +3013,7 @@ block_83:
         temp_2_6 = (u8 *)(func_002b6150(0x7C));
         sp1E0 = *(FclVec2f *)(temp_2_6 + 0x38);
         temp_16_22 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(111.0f + sp1E0.x, sp1E0.y, 43.0f, temp_16_22, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1E0.x, sp1E0.y, 43.0f, temp_16_22, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             func_00314450((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(0, temp_17->f11E)), 0, 0);
             func_0011c6e0(func_003147d0((u8 *)(temp_17->f148)), 1);
@@ -3027,7 +3027,7 @@ block_83:
         temp_2_7 = (u8 *)(func_002b6150(0x7C));
         sp1D8 = *(FclVec2f *)(temp_2_7 + 0x38);
         temp_16_24 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(111.0f + sp1D8.x, sp1D8.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1D8.x, sp1D8.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (func_00314660((u8 *)(temp_17->f148)) == (s32)(5)) {
             if ((s32)((s32)(func_0011c610(func_003147d0((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
                 func_0011caf0(func_003147d0((u8 *)(temp_17->f148)));
@@ -3085,13 +3085,13 @@ block_166:
         temp_2_8 = (u8 *)(func_002b6150(0x7C));
         sp1D0 = *(FclVec2f *)(temp_2_8 + 0x38);
         temp_16_26 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_25)));
-        func_00275820(111.0f + sp1D0.x, sp1D0.y, 43.0f, temp_16_26, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_23->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1D0.x, sp1D0.y, 43.0f, temp_16_26, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_23->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_27 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
         temp_18_24 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_9 = (u8 *)(func_002b6150(0x7D));
         sp1C8 = *(FclVec2f *)(temp_2_9 + 0x38);
         temp_16_28 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_27)));
-        func_00275820(111.0f + sp1C8.x, sp1C8.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_24->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1C8.x, sp1C8.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_24->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s8)func_00314660((u8 *)temp_17->f148) < 0 || (s8)func_00314660((u8 *)temp_17->f148) > 5) {
             if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x1C7)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
                 func_00324410(arg0, 0x1C7, 0);
@@ -3190,12 +3190,12 @@ block_166:
         temp_2_12 = (u8 *)(func_002b6150(0x7C));
         sp1C0 = *(FclVec2f *)(temp_2_12 + 0x38);
         temp_16_35 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(111.0f + sp1C0.x, sp1C0.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1C0.x, sp1C0.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_18_25 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_13 = (u8 *)(func_002b6150(0x7D));
         sp1B8 = *(FclVec2f *)(temp_2_13 + 0x38);
         temp_16_36 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(111.0f + sp1B8.x, sp1B8.y, 43.0f, temp_16_36, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_25->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1B8.x, sp1B8.y, 43.0f, temp_16_36, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_25->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             func_00314450((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(0, temp_17->f11E)), 0, 0);
             func_0011c6e0(func_003147d0((u8 *)(temp_17->f148)), 1);
@@ -3209,12 +3209,12 @@ block_166:
         temp_2_14 = (u8 *)(func_002b6150(0x7C));
         sp1B0 = *(FclVec2f *)(temp_2_14 + 0x38);
         temp_16_38 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(111.0f + sp1B0.x, sp1B0.y, 43.0f, temp_16_38, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1B0.x, sp1B0.y, 43.0f, temp_16_38, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_18_26 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_15 = (u8 *)(func_002b6150(0x7D));
         sp1A8 = *(FclVec2f *)(temp_2_15 + 0x38);
         temp_16_39 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        func_00275820(111.0f + sp1A8.x, sp1A8.y, 43.0f, temp_16_39, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_26->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1A8.x, sp1A8.y, 43.0f, temp_16_39, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_26->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (func_00314660((u8 *)(temp_17->f148)) == (s32)(5)) {
             if ((s32)((s32)(func_0011c610(func_003147d0((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
                 func_0011caf0(func_003147d0((u8 *)(temp_17->f148)));
@@ -3278,13 +3278,13 @@ block_215:
         temp_2_16 = (u8 *)(func_002b6150(0x7C));
         sp1A0 = *(FclVec2 *)(temp_2_16 + 0x38);
         temp_16_43 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_42)));
-        func_00275820(111.0f + sp1A0.x, sp1A0.y, 43.0f, temp_16_43, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_29->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1A0.x, sp1A0.y, 43.0f, temp_16_43, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_29->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_44 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
         temp_18_30 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_17 = (u8 *)(func_002b6150(0x7D));
         sp198 = *(FclVec2 *)(temp_2_17 + 0x38);
         temp_16_45 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_44)));
-        func_00275820(111.0f + sp198.x, sp198.y, 43.0f, temp_16_45, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_30->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp198.x, sp198.y, 43.0f, temp_16_45, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_30->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(func_002b6970((*((s16 *)((u8 *)(func_002b6150(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             temp_17->f2F9 = (s8)((s8)((s8) (temp_17->f129 + 1)));
             temp_2_18 = (s16)((s16)((s16)(temp_17->f11E)));
@@ -3313,13 +3313,13 @@ block_215:
         temp_2_19 = (u8 *)(func_002b6150(0x7C));
         sp190 = *(FclVec2 *)(temp_2_19 + 0x38);
         temp_16_52 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_51)));
-        func_00275820(111.0f + sp190.x, sp190.y, 43.0f, temp_16_52, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_32->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp190.x, sp190.y, 43.0f, temp_16_52, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_32->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_53 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
         temp_18_33 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_20 = (u8 *)(func_002b6150(0x7D));
         sp188 = *(FclVec2 *)(temp_2_20 + 0x38);
         temp_16_54 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_53)));
-        func_00275820(111.0f + sp188.x, sp188.y, 43.0f, temp_16_54, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_33->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp188.x, sp188.y, 43.0f, temp_16_54, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_33->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s8)func_00314660((u8 *)(temp_17->f148))) == (s32)(0xD)) {
             if ((s32)((s32)(func_0011c610(func_003147d0((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
                 func_0011caf0(func_003147d0((u8 *)(temp_17->f148)));
@@ -3447,13 +3447,13 @@ block_215:
         temp_2_21 = (u8 *)(func_002b6150(0x7C));
         sp180 = *(FclVec2f *)(temp_2_21 + 0x38);
         temp_16_72 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_71)));
-        func_00275820(111.0f + sp180.x, sp180.y, 43.0f, temp_16_72, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_36->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp180.x, sp180.y, 43.0f, temp_16_72, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_36->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_73 = (*((u8 *)((u8 *)(func_002b6150(0x7D)) + (0x6E))));
         temp_18_37 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_22 = (u8 *)(func_002b6150(0x7D));
         sp178 = *(FclVec2f *)(temp_2_22 + 0x38);
         temp_16_74 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_73)));
-        func_00275820(111.0f + sp178.x, sp178.y, 43.0f, temp_16_74, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_37->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp178.x, sp178.y, 43.0f, temp_16_74, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_37->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (func_00314660((u8 *)(temp_17->f148)) == (s32)(0xE)) {
             func_00316470(arg0, 1, 0);
             func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
@@ -3784,7 +3784,7 @@ void func_002f6cf0(u8 *arg0) {
                                           *(s16 *)(func_002b6150(i + 0x21C) + 0x40));
             }
             rgba = func_002b2a30(0xCC, 0xFF, 0xFF, alpha);
-            func_00275820((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba, 0, 2,
+            frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba, 0, 2,
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
             *(s16 *)(func_002b6150(i + 0x250) + 4) =
@@ -3831,7 +3831,7 @@ void func_002f6cf0(u8 *arg0) {
             if (*(s16 *)(p + 0x11E) == k) {
                 rgba2 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
             }
-            func_00275820(97.0f, (f32)(k * 23 + 0x80), 43.0f, rgba2, 0, 2,
+            frFontExDrawTextDeferredOutB(97.0f, (f32)(k * 23 + 0x80), 43.0f, rgba2, 0, 2,
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, k))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
             func_002b6150(k + 0x270)[0x6E] = func_002b6150(k + 0x27D)[0x6E] = 0x97;
@@ -3982,7 +3982,7 @@ void func_002f6cf0(u8 *arg0) {
                                            *(s16 *)(func_002b6150(i + 0x21C) + 0x40));
             }
             rgba3 = func_002b2a30(0xCC, 0xFF, 0xFF, alpha3);
-            func_00275820((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba3, 0, 2,
+            frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba3, 0, 2,
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
         }
@@ -4000,7 +4000,7 @@ void func_002f6cf0(u8 *arg0) {
                                            *(s16 *)(func_002b6150(k + 0x270) + 0x40));
                 rgba3 = func_002b2a30(0x2D, 0x2D, 0x2D, alpha3);
             }
-            func_00275820(97.0f, (f32)(k * 23 + 0x80), 43.0f, rgba3, 0, 2,
+            frFontExDrawTextDeferredOutB(97.0f, (f32)(k * 23 + 0x80), 43.0f, rgba3, 0, 2,
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, k))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
         }
@@ -4416,7 +4416,7 @@ void func_002f9d90(u8 *arg0) {
                 color = func_002b2a30(0xCC, 0xFF, 0xFF, alpha);
                 rowColor = func_002b2a60(0xCC, 0xFF, 0xFF, alpha);
                 func_002ba970((u8 *)*(u8 **)(p + 0x2BC), i, *(FclDrawColor *)&rowColor);
-                func_00275820((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, color, 0, 2,
+                frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, color, 0, 2,
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, i))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
@@ -4424,7 +4424,7 @@ void func_002f9d90(u8 *arg0) {
                               *(s16 *)(func_002b6150(0x270) + 0x40));
         color0C = func_002b2a60(0x2D, 0x2D, 0x2D, alpha3);
         func_002ba970((u8 *)*(u8 **)(p + 0x2BC), 0xC, *(FclDrawColor *)&color0C);
-        func_00275820(97.0f, 195.0f, 43.0f, func_002b2a30(0x2D, 0x2D, 0x2D, alpha3), 0, 2,
+        frFontExDrawTextDeferredOutB(97.0f, 195.0f, 43.0f, func_002b2a30(0x2D, 0x2D, 0x2D, alpha3), 0, 2,
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         func_002b6150(0x270)[0x6E] = func_002b6150(0x27D)[0x6E] = 0xFF;
         if ((func_00314660(*(u8 **)(p + 0x148)) < 8 || func_00314660(*(u8 **)(p + 0x148)) > 0xD) &&
@@ -4542,7 +4542,7 @@ void func_002f9d90(u8 *arg0) {
             if (*(s16 *)(p + 0x11E) == j) {
                 color2 = func_002b2a30(0x2D, 0x2D, 0x2D, alpha2);
             }
-            func_00275820((f32)0x19D, (f32)(j * 23 + 0x80), 43.0f, color2, 0, 2,
+            frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(j * 23 + 0x80), 43.0f, color2, 0, 2,
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, j))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         }
         alpha4 = (*(s32 *)(func_002e4870(0) + 8) >= 0xC)
@@ -4550,7 +4550,7 @@ void func_002f9d90(u8 *arg0) {
                                         *(s16 *)(func_002b6150(0x270) + 0x40))
                     : (u8)func_002b2aa0(0, 128.0f, 0.0f, *(s16 *)(func_002b6150(0x270) + 0x42),
                                         *(s16 *)(func_002b6150(0x270) + 0x40));
-        func_00275820(97.0f, 195.0f, 43.0f, func_002b2a30(0xCC, 0xFF, 0xFF, alpha4), 0, 2,
+        frFontExDrawTextDeferredOutB(97.0f, 195.0f, 43.0f, func_002b2a30(0xCC, 0xFF, 0xFF, alpha4), 0, 2,
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x71) + 0x10), 1) == 0 &&
             (s16)func_002b6970(*(s16 *)(func_002b6150(0x70) + 0x10), 1) == 0) {
@@ -4844,7 +4844,7 @@ void func_002fbea0(u8 *arg0) {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
                 fc_colW5 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             drawSlot = (s8)(var_18 + 0xC);
             func_002ba5d0((u8 *)p->f2BC, drawSlot,
                           *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4),
@@ -5002,7 +5002,7 @@ void func_002fbea0(u8 *arg0) {
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             var_19++;
             var_18++;
         }
@@ -5304,7 +5304,7 @@ void func_002fbea0(u8 *arg0) {
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             var_19++;
             var_18++;
         }
@@ -5336,7 +5336,7 @@ void func_002fbea0(u8 *arg0) {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
                 fc_colW7 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
                 *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
@@ -5747,7 +5747,7 @@ void func_002fbea0(u8 *arg0) {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
                 fc_colW4 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            func_00275820(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
                 *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
@@ -5805,7 +5805,7 @@ void func_002fbea0(u8 *arg0) {
                 caption.fontColor = func_002b2a30(0xCC, 0xFF, 0xFF, caption.alpha);
                 fc_colW2 = func_002b2a60(0xCC, 0xFF, 0xFF, caption.alpha);
             }
-            func_00275820(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, caption.fontColor, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, caption.fontColor, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
             func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             var_19++;
@@ -7075,7 +7075,7 @@ void func_00304580(u8 *arg0) {
             }
             if (var_19_3 < *(s32 *)(func_002e4870(0) + 8) - 1) {
                 temp_f20 = (f32)(var_19_3 * 0x17 + 0x80);
-                func_00275520(113.0f, temp_f20, 43.0f, var_18_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, var_19_3))[1] * 0x11), 0, 0, D_00795E60);
+                frFontExDrawTextDeferred(113.0f, temp_f20, 43.0f, var_18_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, var_19_3))[1] * 0x11), 0, 0, D_00795E60);
             }
         }
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x21C) + 0x10), 1) == 0
@@ -7093,7 +7093,7 @@ void func_00304580(u8 *arg0) {
         temp_2_4 = (u8 *)(func_002b6150(0x7C));
         sp160 = *(FclVec2f *)(temp_2_4 + 0x38);
         temp_16_13 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_12);
-        func_00275820(111.0f + sp160.x, sp160.y, 43.0f, temp_16_13, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_7->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp160.x, sp160.y, 43.0f, temp_16_13, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_7->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_4 = 0; var_19_4 < (datPersonaRosterCapacity() & 0xFFFF); var_19_4++) {
             func_0031d630(arg0, (s8)(var_19_4), work->f128, work->f129, 0);
             if ((((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150((s16)((var_19_4 + 0x270))))+(0x10))), 1))) == 0) && (work->f128 != var_19_4) && ((*(s8 *)((u8 *)((func_002e4870(0) + (work->f128 * 0xC) + var_19_4))+(0x14))) > 0)) {
@@ -7133,7 +7133,7 @@ void func_00304580(u8 *arg0) {
                     var_18_4 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
                 }
                 temp_f20 = (f32) ((var_19_4 * 0x17) + 0x80);
-                func_00275520((f32) 0x195, temp_f20, 43.0f, var_18_4, 0, 2, (const char *)(iGpffffb440 + ((*(u16 *)((u8 *)(func_002e48a0((s8)((work->f128 + 1)), var_19_4))+(2))) * 0x11)), 0, 0, D_00795E60);
+                frFontExDrawTextDeferred((f32) 0x195, temp_f20, 43.0f, var_18_4, 0, 2, (const char *)(iGpffffb440 + ((*(u16 *)((u8 *)(func_002e48a0((s8)((work->f128 + 1)), var_19_4))+(2))) * 0x11)), 0, 0, D_00795E60);
             }
         }
         if ((((s8)(func_00314660((u8 *)work->f148))) < 0) || (((s8)(func_00314660((u8 *)work->f148))) > 5)) {
@@ -7277,7 +7277,7 @@ void func_00304580(u8 *arg0) {
         temp_2_24 = (u8 *)(func_002b6150(0x7C));
         sp158 = *(FclVec2f *)(temp_2_24 + 0x38);
         temp_16_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_20);
-        func_00275820(111.0f + sp158.x, sp158.y, 43.0f, temp_16_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_11->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp158.x, sp158.y, 43.0f, temp_16_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_11->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150(0x270))+(0x10))), 1))) != 1) {
             func_00314450((u8 *)work->f148, (s32)func_002e48a0(0, work->f11E), 0, 0);
             temp_16_22 = (s32)(func_003147d0((u8 *)work->f148));
@@ -7293,7 +7293,7 @@ void func_00304580(u8 *arg0) {
         temp_2_25 = (u8 *)(func_002b6150(0x7C));
         sp150 = *(FclVec2f *)(temp_2_25 + 0x38);
         temp_16_24 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_23);
-        func_00275820(111.0f + sp150.x, sp150.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_12->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp150.x, sp150.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_12->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((((s8)(func_00314660((u8 *)work->f148))) < 0) || (((s8)(func_00314660((u8 *)work->f148))) > 5)) {
             for (var_18_8 = 0; var_18_8 < (datPersonaRosterCapacity() & 0xFFFF); var_18_8++) {
                 sp1C0 = func_002b2970((f32) 0x149, 128.0f);
@@ -7322,7 +7322,7 @@ void func_00304580(u8 *arg0) {
         temp_2_26 = (u8 *)(func_002b6150(0x7C));
         sp148 = *(FclVec2f *)(temp_2_26 + 0x38);
         temp_16_28 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_27);
-        func_00275820(111.0f + sp148.x, sp148.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_13->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_13->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_5 = 0; var_19_5 < (datPersonaRosterCapacity() & 0xFFFF); var_19_5++) {
             func_0031d630(arg0, (s8)(var_19_5), work->f128, work->f129, 0);
             if (var_19_5 == work->f11E) {
@@ -7335,7 +7335,7 @@ void func_00304580(u8 *arg0) {
                 temp_18_14 = (s8)(temp_2_27);
                 if ((*(s8 *)((u8 *)((func_002e4870(0) + (temp_18_14 * 0xC) + var_19_5))+(0x14))) > 0) {
                     temp_f20 = (f32) ((var_19_5 * 0x17) + 0x80);
-                    func_00275520((f32) 0x195, temp_f20, 43.0f, var_21, 0, 2, (const char *)(iGpffffb440 + ((*(u16 *)((u8 *)(func_002e48a0((s8)((temp_18_14 + 1)), var_19_5))+(2))) * 0x11)), 0, 0, D_00795E60);
+                    frFontExDrawTextDeferred((f32) 0x195, temp_f20, 43.0f, var_21, 0, 2, (const char *)(iGpffffb440 + ((*(u16 *)((u8 *)(func_002e48a0((s8)((temp_18_14 + 1)), var_19_5))+(2))) * 0x11)), 0, 0, D_00795E60);
                 }
             }
         }
@@ -7495,7 +7495,7 @@ void func_00304580(u8 *arg0) {
         temp_2_36 = (u8 *)(func_002b6150(0x7C));
         sp140 = *(FclVec2f *)(temp_2_36 + 0x38);
         temp_16_35 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_34);
-        func_00275820(111.0f + sp140.x, sp140.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_15->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp140.x, sp140.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_15->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_6 = 0; var_19_6 < (datPersonaRosterCapacity() & 0xFFFF); var_19_6++) {
             func_0031d630(arg0, (s8)(var_19_6), work->f128, work->f129, 0);
             if (((s16)(func_002b6970((*(s16 *)((u8 *)(func_002b6150((s16)((var_19_6 + 0x270))))+(0x10))), 1))) == 0) {
@@ -7509,7 +7509,7 @@ void func_00304580(u8 *arg0) {
                     temp_18_16 = (s8)(temp_2_37);
                     if ((*(s8 *)((u8 *)((func_002e4870(0) + (temp_18_16 * 0xC) + var_19_6))+(0x14))) > 0) {
                         temp_f20 = (f32)(var_19_6 * 0x17 + 0x80);
-                        func_00275520((f32)0x195, temp_f20, 43.0f, var_21_2, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(temp_18_16 + 1, var_19_6))[1] * 0x11), 0, 0, D_00795E60);
+                        frFontExDrawTextDeferred((f32)0x195, temp_f20, 43.0f, var_21_2, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(temp_18_16 + 1, var_19_6))[1] * 0x11), 0, 0, D_00795E60);
                     }
                 }
             }
@@ -8014,7 +8014,7 @@ void func_003097e0(u8 *arg0) {
     extern s8 *func_0033fa20(s32);
     extern s32 func_00348be0(s32);
     extern s32 func_0033dc90(u8 *, s8);
-    extern void func_00275980(void *, void *, s32);
+    extern void frFontExCopyString(void *, void *, s32);
     extern void func_0034a820(s32);
     extern s32 func_00311900(s32);
     extern void func_00314400(u8 *, s8);
@@ -8287,7 +8287,7 @@ void func_003097e0(u8 *arg0) {
             if (func_00303a20(arg0) == 1) {
                 *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
                 sprintf(spA0, (const char *)&iGpffffa8a4, func_00311900(func_00247770(iGpffffb3d4[cls * 0xE + 2])));
-                func_00275980(spA0, sp80, 0x20);
+                frFontExCopyString(spA0, sp80, 0x20);
                 func_002bbd80(*(s8 *)(p + 0xD), 0, sp80);
                 sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
                 func_002bbd80(*(s8 *)(p + 0xD), 1, spA0);
@@ -8794,7 +8794,7 @@ void func_0030c3c0(u8 *arg0) {
     extern u8 *func_0011f410(s32, s32, u8 *, s32, s32, s32 *);
     extern u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
     extern s32 func_0011fcf0(u8 *);
-    extern void func_00275980(void *, void *, s32);
+    extern void frFontExCopyString(void *, void *, s32);
     extern void func_0011cdd0(u8 *, s32);
     extern void func_0011ce30(u8 *);
     extern s32 func_0011cb70(u8 *, u16);
@@ -9124,7 +9124,7 @@ void func_0030c3c0(u8 *arg0) {
             }
             p[0x13D] = best;
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)D_00641B90[best]);
-            func_00275980(text, name, 0x20);
+            frFontExCopyString(text, name, 0x20);
             func_002bbd80(*(s8 *)(p + 0xD), 0, name);
             list[*(s8 *)(p + 0x13D)] = *(s8 *)(p + 0x13C);
             ((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x13D) + 0x1C] += (u8)p[0x13C];
@@ -9167,7 +9167,7 @@ void func_0030c3c0(u8 *arg0) {
                 text[i8] = 0;
             }
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)D_00641B90[*(s8 *)(p + 0x13E)]);
-            func_00275980(text, name, 0x20);
+            frFontExCopyString(text, name, 0x20);
             func_002bbd80(*(s8 *)(p + 0xD), 0, name);
             for (i9 = 0; i9 < 0x20; i9++) {
                 name[i9] = 0;
