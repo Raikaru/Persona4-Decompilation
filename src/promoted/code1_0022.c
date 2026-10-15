@@ -3755,7 +3755,7 @@ static inline u16 btlUnitRosterIndex(u8 *unit)
 // FUN_0022A730
 void func_0022a730(u8 *arg0)
 {
-    extern u8 *func_0019a0c0(u8 *arg0, u16 arg1);
+    extern u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
     extern f32 func_00196040(u32 arg0, u32 arg1, RwV3d *arg2, f32 *arg3, f32 *arg4, u32 arg5);
     extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
     extern u8 D_00635530[];
@@ -3786,7 +3786,7 @@ void func_0022a730(u8 *arg0)
             continue;
         }
         if (datCalcIsDead(*(u8 **)(unit + 0xA64), 0) == 0) {
-            packet = func_0019a0c0(unit, 0);
+            packet = btlUnitCreateMotionRequestPacket(unit, 0);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(packet, 0);
         }

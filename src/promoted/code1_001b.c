@@ -803,7 +803,7 @@ s32 func_001b2380(void)
     extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
     extern void btlUnitSetPos(BtlUnit *unit, const RwV3d *position);
     extern BtlPacket *func_0019aa70(BtlUnit *unit, s16 value);
-    extern BtlPacket *func_0019a0c0(BtlUnit *unit, u16 value);
+    extern BtlPacket *btlUnitCreateMotionRequestPacket(BtlUnit *unit, u16 value);
     extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPos, f32 speed, u32 flags);
     extern BtlPacket *btlUnitCreateRotateTowardUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u32 flags);
     extern void btlFadeStartImmediate(void);
@@ -1063,7 +1063,7 @@ normal_opening:
             if (value != 0) {
               func_001ec1c0((u8 *)&rotation,(u8 *)&position,(u8 *)&groupCenter);
               btlPacketEnqueue(btlUnitCreateOverridePacket(unit,(u8 *)&position,(u8 *)&rotation,0),0);
-              btlPacketEnqueue((u8 *)func_0019a0c0((BtlUnit *)unit, 0),0);
+              btlPacketEnqueue((u8 *)btlUnitCreateMotionRequestPacket((BtlUnit *)unit, 0),0);
             } else {
               offset.x = position.x - groupCenter.x;
               offset.z = position.z - groupCenter.z;

@@ -182,13 +182,13 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019A130
-void func_0019a130(u8 *arg0)
+void btlUnitHoldPendingResNullified(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
 // FUN_0019A150
-s32 func_0019a150(u8 *arg0)
+s32 btlUnitResNullifiedPacketUpdate(u8 *arg0)
 {
     P4_95730_Vec3 sp30;
     f32 var_f1;
@@ -223,7 +223,7 @@ block_3:
 }
 
 // FUN_0019A2C0
-void func_0019a2c0(u8 *arg0)
+void btlUnitReleasePendingResNullified(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }

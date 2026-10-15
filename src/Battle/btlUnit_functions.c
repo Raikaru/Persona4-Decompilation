@@ -31,16 +31,16 @@ typedef struct BtlUnitPacket {
     s16 value;
     u8 padding_06[2];
 } BtlUnitPacket;
-u32 func_0019a010(void* work);
-u32 func_0019a0a0(void* work);
+u32 btlUnitHoldPendingMotionRequest(void* work);
+u32 btlUnitReleasePendingMotionRequest(void* work);
 typedef struct BtlUnitPacketResNullifiedAnim {
     BtlUnit* unit;
     f32 value;
     u32 padding_08;
 } BtlUnitPacketResNullifiedAnim;
-u32 func_0019a130(void* work);
-u32 func_0019a150(void* work);
-u32 func_0019a2c0(void* work);
+u32 btlUnitHoldPendingResNullified(void* work);
+u32 btlUnitResNullifiedPacketUpdate(void* work);
+u32 btlUnitReleasePendingResNullified(void* work);
 typedef struct BtlUnitMotionWork {
     f32 position[3];
     BtlUnit* unit;
@@ -56,8 +56,8 @@ typedef struct BtlUnitPacketEnmDodgeAnim {
     s32 value;
     u8 padding_08[8];
 } BtlUnitPacketEnmDodgeAnim;
-u32 func_0019a660(void* work);
-u32 func_0019a680(void* work);
+u32 btlUnitHoldPendingEnemyDodge(void* work);
+u32 btlUnitEnemyDodgePacketUpdate(void* work);
 u32 func_0019a840(void* work);
 u32 func_0019a8d0(void* work);
 u32 func_0019a8f0(void* work);
@@ -172,15 +172,15 @@ BtlPacket* btlUnitCreateRotateTowardUnitPacket(BtlUnit* unit, BtlUnit* targetUni
 
 
 // FUN_0019A0C0
-BtlPacket* func_0019a0c0(BtlUnit* unit, u16 value)
+BtlPacket* btlUnitCreateMotionRequestPacket(BtlUnit* unit, u16 value)
 {
     BtlPacket* packet;
     BtlUnitPacket* work;
 
     packet = btlPacketAlloc(0x104, sizeof(BtlUnitPacket));
-    packet->initFunc = func_0019a010;
-    packet->updateFunc = func_0019a030;
-    packet->destroyFunc = func_0019a0a0;
+    packet->initFunc = btlUnitHoldPendingMotionRequest;
+    packet->updateFunc = btlUnitMotionRequestPacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingMotionRequest;
     work = (BtlUnitPacket*)packet->workData;
     work->unit = unit;
     work->value = value;
@@ -197,9 +197,9 @@ BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 value)
     BtlUnitPacketResNullifiedAnim* work;
 
     packet = btlPacketAlloc(0x107, sizeof(BtlUnitPacketResNullifiedAnim));
-    packet->initFunc = func_0019a130;
-    packet->updateFunc = func_0019a150;
-    packet->destroyFunc = func_0019a2c0;
+    packet->initFunc = btlUnitHoldPendingResNullified;
+    packet->updateFunc = btlUnitResNullifiedPacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingResNullified;
     work = (BtlUnitPacketResNullifiedAnim*)packet->workData;
     work->unit = unit;
     work->value = value;
@@ -236,8 +236,8 @@ BtlPacket* btlUnitCreateEnemyDodgePacket(BtlUnit* unit, s32 unused)
     BtlUnitPacketEnmDodgeAnim* work;
 
     packet = btlPacketAlloc(0x109, sizeof(BtlUnitPacketEnmDodgeAnim));
-    packet->initFunc = func_0019a660;
-    packet->updateFunc = func_0019a680;
+    packet->initFunc = btlUnitHoldPendingEnemyDodge;
+    packet->updateFunc = btlUnitEnemyDodgePacketUpdate;
     packet->destroyFunc = func_0019a840;
     work = (BtlUnitPacketEnmDodgeAnim*)packet->workData;
     work->unit = unit;
