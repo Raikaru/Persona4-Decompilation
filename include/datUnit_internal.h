@@ -3,6 +3,11 @@
 
 #include "type.h"
 
+/* DatUnit.bad: bits 0-19 are ailments, bits 20-31 the position half (kept
+   separately by datCalcSetBadStatus). KO is bit 19: datCalcIsDead returns
+   1 when bad & 0x80000 (datCalc.c), kills set it and btlTarget.c:837 clears it on revive. */
+#define BTL_STATUS_KO 0x80000
+
 /* One battle unit record (stride 0x30). Shared by datUnit.c and datCalc.c. */
 typedef struct DatUnit
 {
