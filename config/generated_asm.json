@@ -6960,7 +6960,10 @@
     {
       "path": "asm/nonmatchings/code1_0019/func_00192e90.s",
       "sha256": "48a8b434caa540f5e6635e5e189deedaf399fb441b00725ee29595a52524b95b",
-      "recipe": "slice-canonical"
+      "recipe": "slice-canonical",
+      "correction": {
+        "symbol_spellings": [["btlUpdateDraw3DFrontTask", "func_00192790"]]
+      }
     },
     {
       "path": "asm/nonmatchings/code1_0019/func_00193060.s",
