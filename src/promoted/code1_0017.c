@@ -1065,8 +1065,8 @@ s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, f32 farg0, f32 farg1
     extern struct RwMatrixTag *func_003e0960(struct RwMatrixTag *, const struct RwMatrixTag *);
     extern struct RwMatrixTag *RwMatrixScale(struct RwMatrixTag *, const RwV3d *, enum RwOpCombineType);
     extern struct RwMatrixTag *RwMatrixTranslate(struct RwMatrixTag *, const RwV3d *, enum RwOpCombineType);
-    extern s32 func_001687d0(u8 *);
-    extern s32 func_001687e0(u8 *);
+    extern s32 FldFrameTask_GetTileX(u8 *);
+    extern s32 FldFrameTask_GetTileZ(u8 *);
     extern void *func_00410420(struct _RxObjSpace3DVertex *, u32, struct RwMatrixTag *, u32);
     extern s32 func_004106a0(enum RwPrimitiveType);
     extern s32 func_004104d0(void);
@@ -1146,8 +1146,8 @@ alloc_path:
             if (alloc == NULL) {
                 return 0;
             }
-            v1 = func_001687d0(*(u8 **)(alloc + 0x220));
-            v2 = func_001687e0(*(u8 **)(alloc + 0x220));
+            v1 = FldFrameTask_GetTileX(*(u8 **)(alloc + 0x220));
+            v2 = FldFrameTask_GetTileZ(*(u8 **)(alloc + 0x220));
             v2 = v2 * 0x100;
             v1 = v1 * 0x10;
             ids[0] = *(u16 *)((u8 *)func_00155280() + v2 + v1 + 0x56);

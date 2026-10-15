@@ -15,8 +15,8 @@ extern s32 func_0014a160(void);
 extern s32 func_0014a200(void);
 extern s32 func_0014a270(void);
 extern s32* func_00155280(void);
-extern s32 func_001687d0(s32 arg0);
-extern s32 func_001687e0(s32 arg0);
+extern s32 FldFrameTask_GetTileX(s32 arg0);
+extern s32 FldFrameTask_GetTileZ(s32 arg0);
 extern s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin,
                          f32* vector, f32 fraction);
 extern s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32* origin,
@@ -980,15 +980,15 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
             {
                 s32* coordinate;
                 coordinate = (s32*)(field + 0x220);
-                fieldX = func_001687d0(*coordinate);
-                fieldY = func_001687e0(*coordinate);
+                fieldX = FldFrameTask_GetTileX(*coordinate);
+                fieldY = FldFrameTask_GetTileZ(*coordinate);
             }
             else
             {
                 s32* coordinate;
                 coordinate = (s32*)(field + 0x228);
-                fieldX = func_001687d0(*coordinate);
-                fieldY = func_001687e0(*coordinate);
+                fieldX = FldFrameTask_GetTileX(*coordinate);
+                fieldY = FldFrameTask_GetTileZ(*coordinate);
             }
         }
         {

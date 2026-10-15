@@ -2064,10 +2064,10 @@ extern s32 func_0014e710(unsigned char *);
 extern s32 func_0014e740(unsigned char *, float *);
 extern void func_0014e880(unsigned char *, s32, s16);
 extern void func_0014e920(unsigned char *, s32, s32);
-extern void func_001687f0(unsigned char *, unsigned char *);
-extern void func_00168890(unsigned char *, unsigned char *);
-extern void func_00168ae0(unsigned char *, unsigned char *);
-extern void func_00168de0(u8 *task, const void *axis, f32 angle);
+extern void FldFrameTask_GetPosition(unsigned char *, unsigned char *);
+extern void FldFrameTask_SetOrientation(unsigned char *, unsigned char *);
+extern void FldFrameTask_SetPosition(unsigned char *, unsigned char *);
+extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 extern void func_0018bed0(unsigned char *, s32);
 extern s32 func_0018bf50(unsigned char *);
 extern s64 func_00248d80(s64);
@@ -2318,7 +2318,7 @@ s32 func_0018a200(u8 *param_1)
     }
     temp_v4 = func_00457120();
     temp_v6 = *(unsigned int *)(temp_v4 + 4);
-    func_001687f0((unsigned char *)&vec160[0],*(unsigned char **)(puVar1[3] + 0x228));
+    FldFrameTask_GetPosition((unsigned char *)&vec160[0],*(unsigned char **)(puVar1[3] + 0x228));
     *(FldCopyVec *)vec50 = *(FldCopyVec *)vec160;
     vec50[1] = vec50[1] + 180.0f;
     temp_v4 = func_003e9700(temp_v6);
@@ -2528,7 +2528,7 @@ s32 func_0018a200(u8 *param_1)
       ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
       ((RainMatrix *)puVar1[5])->flags |= 0x20003;
       func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, initialHeading);
-      func_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
+      FldFrameTask_SetOrientation(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
     }
     puVar1[0xb] = 0xffffffff;
     *puVar1 = *puVar1 + 1;
@@ -2632,8 +2632,8 @@ s32 func_0018a200(u8 *param_1)
         pathWork = (FldActorWork *)puVar1;
         movingObject = (FldActorObject *)puVar1[3];
         if (movingObject->pathMode != 4 || pathWork->progress < 1.0f) {
-          func_00168890(movingObject->movementTask,(unsigned char *)puVar1[5]);
-          func_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
+          FldFrameTask_SetOrientation(movingObject->movementTask,(unsigned char *)puVar1[5]);
+          FldFrameTask_SetPosition(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
           pathWork->progress = (pathWork->progress + pathWork->step);
         }
         if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
@@ -2657,7 +2657,7 @@ s32 func_0018a200(u8 *param_1)
             func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
           }
           if ((int)puVar1[9] > 0) {
-            func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, 2.0f);
+            FldFrameTask_Rotate(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, 2.0f);
             puVar1[9] = puVar1[9] - 1;
           }
           else {
@@ -2688,8 +2688,8 @@ s32 func_0018a200(u8 *param_1)
             ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
             ((RainMatrix *)puVar1[5])->flags |= 0x20003;
             func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, oscillatorHeading);
-            func_00168890(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
-            func_00168ae0(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
+            FldFrameTask_SetOrientation(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
+            FldFrameTask_SetPosition(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
             {
             FldActorWork *motionWork = (FldActorWork *)puVar1;
             f32 zero;
@@ -2756,7 +2756,7 @@ s32 func_0018a200(u8 *param_1)
       if (sideDot < sideZero) {
         temp_v12 = temp_v12 * -1.0f;
       }
-      func_00168de0(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, temp_v12);
+      FldFrameTask_Rotate(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, temp_v12);
     }
     if (temp_v13 == 1.0f) {
       if (*puVar1 == 5) {

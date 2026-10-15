@@ -106,7 +106,7 @@ extern u8 D_005F1630[];
 extern u8 D_005F1610[];
 extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
-extern s32 func_00168060(u8 *arg0);
+extern s32 FldFrameTask_Update(u8 *arg0);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void func_00478e70(s32 arg0);
 extern s32 iGpffff9f00;
@@ -1567,7 +1567,7 @@ s32 func_0016bdd0(u8 *param_1)
       case 0:
       case 2:
       case 5:
-        func_001687f0((unsigned char *)&stk260[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
+        FldFrameTask_GetPosition((unsigned char *)&stk260[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         sv20 = *(FldCopyVec *)stk260;
         pfVar8_a = (float *)func_0016e8c0(param_1);
         cpv0 = *(FldCopyVec *)(pfVar8_a);
@@ -1652,7 +1652,7 @@ s32 func_0016bdd0(u8 *param_1)
         goto LAB_0016e0c0;
       case 3:
       case 4:
-        func_001687f0((unsigned char *)&stk270[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
+        FldFrameTask_GetPosition((unsigned char *)&stk270[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         sv60 = *(FldCopyVec *)stk270;
         count_b = piVar1[0xd] - 1;
         temp_v11_b = 1.0f / (float)count_b;
@@ -1882,7 +1882,7 @@ s32 func_0016bdd0(u8 *param_1)
         }
         goto LAB_0016e0c0;
       case 6:
-        func_001687f0((unsigned char *)&stk280[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
+        FldFrameTask_GetPosition((unsigned char *)&stk280[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         *(FldTriVec *)&stkF0.x = *(FldTriVec *)&stk280[0];
         pfVar8_c = (float *)func_0016e8c0(param_1);
         sv100 = *(FldCopyVec *)pfVar8_c;
@@ -2145,7 +2145,7 @@ s32 func_0016bdd0(u8 *param_1)
             float targetX, targetY, targetZ;
             float tangentY, tangentX, tangentZ;
             float hitX, hitY, hitZ, projectionZero, projectionScale;
-            func_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
+            FldFrameTask_GetPosition((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
             targetX = (stkF0.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
             targetY = (stkF0.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
             targetZ = (stkF0.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
@@ -2351,7 +2351,7 @@ s32 func_0016bdd0(u8 *param_1)
             *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
           }
         }
-        func_001687f0((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
+        FldFrameTask_GetPosition((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
         stkF0.y = stkF0.y + 180.0f;
         temp_v4_c = (int)func_003e9700((s32)followFrame);
         cpv5 = *(FldCopyVec *)(temp_v4_c + 0x30);
@@ -2386,7 +2386,7 @@ s32 func_0016bdd0(u8 *param_1)
         piVar1[0xa6] = 0;
         goto LAB_0016e0c0;
       case 7:
-        func_001687f0((unsigned char *)&stk290[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
+        FldFrameTask_GetPosition((unsigned char *)&stk290[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         cv0 = *(FldCamVec *)(stk290);
         pfVar8_d = (float *)func_0016e8c0(param_1);
         sv200 = *(FldCopyVec *)pfVar8_d;

@@ -47,8 +47,8 @@ u8 *func_001823c0(void);
 s32 func_0015c1e0(s32);
 s32 func_0014e740(u8 *, f32 *);
 void func_00182310(s32);
-extern void func_00168de0(u8 *task, const void *axis, f32 angle);
-void func_00168890(u8 *, u8 *);
+extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
+void FldFrameTask_SetOrientation(u8 *, u8 *);
 s32 *func_00155280(void);
 void func_0018e030(s32, s32);
 void func_002bd410(void);
@@ -1740,7 +1740,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     s32 func_001761d0(u8 *);
     MovementMatrix *RwMatrixRotate(MovementMatrix *, const FldEventVec3 *, f32, s32);
     s32 func_00175f70(const u8 *, f32, const MovementMatrix *, f32);
-    void func_00168cb0(u8 *, f32);
+    void FldFrameTask_StartMove(u8 *, f32);
     u32 func_00105340(s16);
     s32 func_001623f0(void);
     s32 func_00170120(s32);
@@ -1945,7 +1945,7 @@ bigmove:
         {
             ret16 = func_00175f70(*(u8 **)(h + 0x13C), f20, &mat, f21 + f23);
             if (func_001761d0(*(u8 **)(h + 0x13C)) == 0) {
-                func_00168890(*(u8 **)(*(s32 *)(h + 0x18) + 0x220), (u8 *)&mat);
+                FldFrameTask_SetOrientation(*(u8 **)(*(s32 *)(h + 0x18) + 0x220), (u8 *)&mat);
                 {
                     f32 len = RwV3dLength(&move.x);
                     f32 cl = len;
@@ -1960,7 +1960,7 @@ bigmove:
                         f22 = 128.0f * iGpffffb290 * sinf(t / 128.0f);
                     }
                 }
-                func_00168cb0(*(u8 **)(*(s32 *)(h + 0x18) + 0x220), f22);
+                FldFrameTask_StartMove(*(u8 **)(*(s32 *)(h + 0x18) + 0x220), f22);
             }
         }
         D_007243DC = f22;
@@ -2064,11 +2064,11 @@ s32 FldEvent_MoverUpdate(u8 *arg0)
         break;
     case 1:
         h[0x16]++;
-        func_00168de0((u8 *)(h[0x11]), &vec, *(f32 *)(h + 0x15));
+        FldFrameTask_Rotate((u8 *)(h[0x11]), &vec, *(f32 *)(h + 0x15));
         if (h[0x16] < h[0x17]) {
             goto end;
         }
-        func_00168890((u8 *)h[0x11], (u8 *)h);
+        FldFrameTask_SetOrientation((u8 *)h[0x11], (u8 *)h);
         h[0x10] = 0;
         break;
     }

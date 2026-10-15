@@ -68,9 +68,9 @@ extern s32 func_002ac400(u8 *arg0);
 extern s32 func_002b25d0(u8 *arg0);
 extern void func_002b2800(u8 *arg0);
 extern void func_002ac600(u8 *arg0);
-extern void func_001687f0(u8 *arg0, u8 *arg1);
-extern s32 func_001687d0(u8 *arg0);
-extern s32 func_001687e0(u8 *arg0);
+extern void FldFrameTask_GetPosition(u8 *arg0, u8 *arg1);
+extern s32 FldFrameTask_GetTileX(u8 *arg0);
+extern s32 FldFrameTask_GetTileZ(u8 *arg0);
 
 typedef struct YVec3f { f32 x, y, z; } YVec3f;
 typedef FclVec2 YVec2f;
@@ -848,7 +848,7 @@ s32 func_002add90(u8 *arg0)
     u8 x;
 
     work = *(u8 **)(arg0 + 0x38);
-    func_001687f0((u8 *)&positionSnapshot, *(u8 **)(D_007EFA04[0] + 0x220));
+    FldFrameTask_GetPosition((u8 *)&positionSnapshot, *(u8 **)(D_007EFA04[0] + 0x220));
     /* The provider always writes all three floats, including the no-model path. */
     pos = *(YVec3f *)(u8 *)&positionSnapshot;
     task = func_00460990();
@@ -938,8 +938,8 @@ s32 func_002add90(u8 *arg0)
         scale.y = (s32)(verticalOffset.z / 66.666664f);
         for (tileX = 0; tileX < 13; tileX++) {
             for (tileY = 0; tileY < 13; tileY++) {
-                s16 tx = tileX + (func_001687d0(*(u8 **)(D_007EFA04[0] + 0x220)) - 6);
-                s16 ty = tileY + (func_001687e0(*(u8 **)(D_007EFA04[0] + 0x220)) - 6);
+                s16 tx = tileX + (FldFrameTask_GetTileX(*(u8 **)(D_007EFA04[0] + 0x220)) - 6);
+                s16 ty = tileY + (FldFrameTask_GetTileZ(*(u8 **)(D_007EFA04[0] + 0x220)) - 6);
 
                 if ((tx > 0) && (ty > 0) && (tx < 16) && (ty < 24)) {
                     u8 **tile = (u8 **)(work + ty * 64 + tx * 4 + 0x148);
@@ -1053,8 +1053,8 @@ u8 *func_002ae630(u8 *arg0)
                         func_002add90, func_002ae520, work);
     *(u8 **)work = work;
     *(work + 4) = 0;
-    originX = func_001687d0(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
-    originY = func_001687e0(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
+    originX = FldFrameTask_GetTileX(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
+    originY = FldFrameTask_GetTileZ(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
     func_002B1100(&origin, (u32)originX, (u32)originY);
     *(YVec3f *)(work + 8) = origin;
     D_00764660 = (u8)func_002B11C0(*(RwV3d *)(work + 8));
@@ -2003,9 +2003,9 @@ f32 func_002b1260(u8 *arg0, f32 arg1) {
     u8 buf[0xC];
     f32 t, p, q;
 
-    func_001687f0(buf, arg0);
+    FldFrameTask_GetPosition(buf, arg0);
     v2 = *(YVec3f *)buf;
-    t = (s32)func_001687d0(arg0);
+    t = (s32)FldFrameTask_GetTileX(arg0);
     p = t * 1200.0f;
     p -= 600.0f;
     p = v2.x - p;
@@ -2028,9 +2028,9 @@ f32 func_002b1320(u8 *arg0, f32 arg1) {
     u8 buf[0xC];
     f32 t, p, q;
 
-    func_001687f0(buf, arg0);
+    FldFrameTask_GetPosition(buf, arg0);
     v2 = *(YVec3f *)buf;
-    t = (s32)func_001687e0(arg0);
+    t = (s32)FldFrameTask_GetTileZ(arg0);
     p = t * 1200.0f;
     p -= 600.0f;
     p = v2.z - p;

@@ -65,9 +65,9 @@ extern s32 RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
 extern struct RwMatrixTag *RwMatrixOptimize(struct RwMatrixTag *matrix,
                                       const RwMatrixTolerance *tolerance);
 extern struct RwMatrixTag *RwMatrixUpdate(struct RwMatrixTag *matrix);
-extern s32 func_00168780(s32 arg0, f32 arg1);
-extern f32 func_00168770(s32 arg0);
-extern void func_00168c00(s32 arg0);
+extern s32 FldFrameTask_SetHeight(s32 arg0, f32 arg1);
+extern f32 FldFrameTask_GetHeight(s32 arg0);
+extern void FldFrameTask_UpdateTile(s32 arg0);
 extern void func_0015bae0(void);
 extern void func_0016ec90(s32 arg0);
 extern void FldAI_ChaserDisable(s32 arg0);
@@ -435,7 +435,7 @@ s32 Cmd_PlaceFieldResource(void)
                 RwEngineGetMatrixTolerances(&tolerance);
                 RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x164)), &tolerance);
                 RwMatrixUpdate(mdlGetMatrix(*(s32 *)(resource + 0x164)));
-                func_00168c00(*(s32 *)(resource + 0x220));
+                FldFrameTask_UpdateTile(*(s32 *)(resource + 0x220));
                 func_0015bae0();
                 for (i = 0; i < 3; i++) {
                     hasWork = 0;
@@ -479,7 +479,7 @@ s32 Cmd_PlaceFieldResource(void)
                 RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x164)), &tolerance);
                 RwMatrixUpdate(mdlGetMatrix(*(s32 *)(resource + 0x164)));
                 if (*(s32 *)(resource + 0x22C) != 0) {
-                    uniformScale = func_00168770(*(s32 *)(resource + 0x228));
+                    uniformScale = FldFrameTask_GetHeight(*(s32 *)(resource + 0x228));
                     scale[2] = uniformScale;
                     scale[1] = uniformScale;
                     scale[0] = uniformScale;
@@ -699,7 +699,7 @@ s32 Cmd_SetFieldFloat(void)
         u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
-            func_00168780(*(s32*)(p + 0x220), f);
+            FldFrameTask_SetHeight(*(s32*)(p + 0x220), f);
         }
         break;
     }
@@ -708,7 +708,7 @@ s32 Cmd_SetFieldFloat(void)
         u8* p = MT_Scene_GetRes(v & 0xFFFF);
         if (p != 0)
         {
-            func_00168780(*(s32*)(p + 0x228), f);
+            FldFrameTask_SetHeight(*(s32*)(p + 0x228), f);
             if (*(s32*)(p + 0x22C) != 0)
             {
                 f32 vec[3];

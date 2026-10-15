@@ -59,13 +59,13 @@ extern s32 func_0014c780(void);
 extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
 extern void mdlScale(Model *arg0, const RwV3d *arg1, s32 arg2);
 extern void RwMatrixUpdate(u8 *arg0);
-extern void func_00168de0(u8 *task, const void *axis, f32 angle);
-extern void func_00168ae0();
+extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
+extern void FldFrameTask_SetPosition();
 extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
-extern void func_00168730(s32 arg0, s32 arg1);
-extern void func_00168780(s32 arg0, f32 arg1);
+extern void FldFrameTask_SetFlags(s32 arg0, s32 arg1);
+extern void FldFrameTask_SetHeight(s32 arg0, f32 arg1);
 extern u32 *func_00478750(u8 *arg0);
-extern f32 func_00168770(s32 arg0);
+extern f32 FldFrameTask_GetHeight(s32 arg0);
 extern void func_00478e70(u8 *arg0);
 extern s32 FldAI_SpawnPatrol(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 datUnitGroupIsDefeated(s32 arg0);
@@ -73,7 +73,7 @@ extern s32 func_0016fd00(s32 arg0);
 extern s32 FldAI_SpawnChaser(s32 arg0, u8 *arg1, u8 *arg2);
 extern void FldAI_ChaserEnable(s32 arg0);
 extern s32 func_0017d070(u8 *arg0);
-extern void func_00168c00(s32 arg0);
+extern void FldFrameTask_UpdateTile(s32 arg0);
 extern f32 RwV3dLength(f32 *arg0);
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
 extern u8 *FldUnit_FindNearestUnits(s32 arg0, u32 arg1, f32 arg2);
@@ -448,10 +448,10 @@ void FldUnit_UpdateFacing(void)
     extern u8 *func_003e0f80(void);
     extern void func_003e0f40(u8 *arg0);
     extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
-    extern void func_00168780(u8 *task, f32 radius);
-    extern f32 func_00168770(u8 *task);
-    extern void func_00168730(u8 *task, s32 flags);
-    extern void func_00168ae0(u8 *task, u8 *position);
+    extern void FldFrameTask_SetHeight(u8 *task, f32 radius);
+    extern f32 FldFrameTask_GetHeight(u8 *task);
+    extern void FldFrameTask_SetFlags(u8 *task, s32 flags);
+    extern void FldFrameTask_SetPosition(u8 *task, u8 *position);
     extern void FldShadow_SetRingParticles(u8 *task, f32 radius);
     extern s32 func_0014a160(void);
     extern s32 func_00145540(u16 index, u16 variant, void *model);
@@ -516,7 +516,7 @@ void FldUnit_UpdateFacing(void)
         }
         /* Only the leader applies the calendar/room test to animation flags. */
         if (partyIndex == 0) {
-            func_00168780((*sceneResource)->movementTask, 60.0f);
+            FldFrameTask_SetHeight((*sceneResource)->movementTask, 60.0f);
             if ((*characterModel)->kind != 1) {
                 s32 foundEligibleRoom = fieldUnitCalendarRoomMatch();
 
@@ -537,7 +537,7 @@ void FldUnit_UpdateFacing(void)
                               func_0016fd00(fieldUnitSlotAt(&partyIndex)->characterId), 0, 1);
             }
         } else {
-            func_00168780((*sceneResource)->movementTask, 35.0f);
+            FldFrameTask_SetHeight((*sceneResource)->movementTask, 35.0f);
         }
         /* Scale the marker, then obtain the spawn position and yaw. */
         {
@@ -548,7 +548,7 @@ void FldUnit_UpdateFacing(void)
             FieldUnitPlacement *placement;
 
             (*setupResource)->markerModel = (Model *)func_00478750((u8 *)iGpffffb274);
-            markerScaleValue = func_00168770((*setupResource)->movementTask);
+            markerScaleValue = FldFrameTask_GetHeight((*setupResource)->movementTask);
             markerScale.x = markerScale.y = markerScale.z = markerScaleValue;
             mdlScale((*setupResource)->markerModel, &markerScale, 2);
             func_00478e70((u8 *)(*setupResource)->markerModel);
@@ -565,7 +565,7 @@ void FldUnit_UpdateFacing(void)
                 unitForSetup = fieldUnitSlotAt(&partyIndex);
                 gridRow = (FieldUnitGridView *)((u8 *)func_00155280() +
                     (((FieldUnitGridView *)func_00155280())->spawnRow << 8));
-                func_00168de0((*sceneResource)->movementTask, D_00756510,
+                FldFrameTask_Rotate((*sceneResource)->movementTask, D_00756510,
                     90.0f * (f32)((((FieldUnitGridView *)(u32)gridRow)->cells[
                         ((FieldUnitGridView *)func_00155280())->spawnColumn].direction + 2) % 4));
                 func_00479940((u8 *)*characterModel, 0,
@@ -586,7 +586,7 @@ void FldUnit_UpdateFacing(void)
                 FieldUnitPlacement **placementSlot =
                     &((FieldUnitRecord *)(D_007EF9B0 + partyIndex * 0x750))->placement;
 
-                func_00168de0((*sceneResource)->movementTask, D_00756510, placement->yawDegrees);
+                FldFrameTask_Rotate((*sceneResource)->movementTask, D_00756510, placement->yawDegrees);
                 spawnPosition = (*placementSlot)->position;
             }
         }
@@ -596,7 +596,7 @@ void FldUnit_UpdateFacing(void)
             (*(FieldUnitSceneResource **)D_007EFA04)->model);
         switch (partyIndex) {
         case 0:
-            func_00168ae0((*sceneResource)->movementTask, (u8 *)&spawnPosition);
+            FldFrameTask_SetPosition((*sceneResource)->movementTask, (u8 *)&spawnPosition);
             break;
         case 1: /* 60 right, 60 behind the leader. */
             formationOffset = formationMatrix->right;
@@ -618,7 +618,7 @@ void FldUnit_UpdateFacing(void)
             formationMatrix->position.x += formationOffset.x;
             formationMatrix->position.y += formationOffset.y;
             formationMatrix->position.z += formationOffset.z;
-            func_00168ae0((*sceneResource)->movementTask, (u8 *)&formationMatrix->position);
+            FldFrameTask_SetPosition((*sceneResource)->movementTask, (u8 *)&formationMatrix->position);
             break;
         case 2: /* 60 left, 120 behind the leader. */
             formationOffset = formationMatrix->right;
@@ -643,7 +643,7 @@ void FldUnit_UpdateFacing(void)
             formationMatrix->position.x += formationOffset.x;
             formationMatrix->position.y += formationOffset.y;
             formationMatrix->position.z += formationOffset.z;
-            func_00168ae0((*sceneResource)->movementTask, (u8 *)&formationMatrix->position);
+            FldFrameTask_SetPosition((*sceneResource)->movementTask, (u8 *)&formationMatrix->position);
             break;
         case 3: /* 200 behind the leader. */
             formationOffset = formationMatrix->forward;
@@ -657,7 +657,7 @@ void FldUnit_UpdateFacing(void)
             formationMatrix->position.x += formationOffset.x;
             formationMatrix->position.y += formationOffset.y;
             formationMatrix->position.z += formationOffset.z;
-            func_00168ae0((*sceneResource)->movementTask, (u8 *)&formationMatrix->position);
+            FldFrameTask_SetPosition((*sceneResource)->movementTask, (u8 *)&formationMatrix->position);
             break;
         }
         /* Each follower tracks the preceding party member. */
@@ -677,7 +677,7 @@ void FldUnit_UpdateFacing(void)
             RwMatrixUpdate((u8 *)mdlGetMatrix((void *)*characterModel));
             resourceForUpdate = &((FieldUnitRecord *)(u32)unitForUpdate)->scene;
             SceneDraw_SetResVisibleChecked(unitForUpdate->scene->resourceId, 1);
-            func_00168730((*resourceForUpdate)->movementTask, 0x40000000);
+            FldFrameTask_SetFlags((*resourceForUpdate)->movementTask, 0x40000000);
             sampleIndex = 0;
             initialSampleValue = D_007615DC;
             for (; sampleIndex < 0x40; sampleIndex++) {
@@ -886,13 +886,13 @@ s32 FldUnit_SetupSlot(s32 arg0)
   }
   mdlScale((Model *)(*((void **) (temp_16 + 0x50))), (const RwV3d *)((D_005F12E0 + ((*((u8 *) (temp_16 + 0x1CA))) * 0x30)) + ((*((u8 *) (temp_16 + 0x1CB))) * 0xC)), 2);
   RwMatrixUpdate((u8 *)mdlGetMatrix(*((void **)  (temp_16 + 0x50))));
-  func_00168de0((u8 *)(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220))), sp40, *((f32 *) ((*((u8 **) (temp_16 + 0x1AC))) + 0x14C)));
-  func_00168ae0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), (*((u8 **) (temp_16 + 0x1AC))) + 0x140);
+  FldFrameTask_Rotate((u8 *)(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220))), sp40, *((f32 *) ((*((u8 **) (temp_16 + 0x1AC))) + 0x14C)));
+  FldFrameTask_SetPosition(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), (*((u8 **) (temp_16 + 0x1AC))) + 0x140);
   SceneDraw_SetResVisibleChecked(*((u16 *) (*((u8 **) (0x54 + temp_16)))), 1);
-  func_00168730(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 0x40000000);
-  func_00168780(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 35.0f);
+  FldFrameTask_SetFlags(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 0x40000000);
+  FldFrameTask_SetHeight(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 35.0f);
   *((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)) = (s32)func_00478750((u8 *)(iGpffffb274));
-  temp_f0 = func_00168770(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)));
+  temp_f0 = FldFrameTask_GetHeight(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)));
   sp30[2] = temp_f0;
   sp30[1] = temp_f0;
   sp30[0] = temp_f0;
@@ -1547,16 +1547,16 @@ void FldUnit_UpdateSlot(s32 arg0)
         } while (i > 0);
         RwMatrixUpdate((u8 *)mdlGetMatrix(*temp_16));
         SceneDraw_SetResVisibleChecked(*(u16 *)*temp_20, 1);
-        func_00168730(*((s32 *)(*temp_20 + 0x220)), 0x40000000);
-        func_00168c00(*((s32 *)(*temp_20 + 0x220)));
+        FldFrameTask_SetFlags(*((s32 *)(*temp_20 + 0x220)), 0x40000000);
+        FldFrameTask_UpdateTile(*((s32 *)(*temp_20 + 0x220)));
         if (arg0 == 0) {
-            func_00168780(*((s32 *)(*temp_20 + 0x220)), 60.0f);
+            FldFrameTask_SetHeight(*((s32 *)(*temp_20 + 0x220)), 60.0f);
         } else {
-            func_00168780(*((s32 *)(*temp_20 + 0x220)), 35.0f);
+            FldFrameTask_SetHeight(*((s32 *)(*temp_20 + 0x220)), 35.0f);
         }
         temp_20_2 = (u8 **)(D_007EFA04 + (arg0 * 0x750));
         *(u8 **)(*temp_20_2 + 0x228) = (u8 *)func_00478750((u8 *)(iGpffffb274));
-        temp_f0 = func_00168770(*((s32 *)(*temp_20_2 + 0x220)));
+        temp_f0 = FldFrameTask_GetHeight(*((s32 *)(*temp_20_2 + 0x220)));
         sp70[0] = sp70[1] = sp70[2] = temp_f0;
         mdlScale((Model *)(*(u8 **)(*temp_20_2 + 0x228)), (const RwV3d *)(&sp70[0]), 2);
         func_00478e70(*(u8 **)(*temp_20_2 + 0x228));
@@ -1675,11 +1675,11 @@ void FldUnit_UpdateSlotModels(void)
             RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)f50));
             f54 = slot + 0x54;
             SceneDraw_SetResVisibleChecked(*(u16 *)(*(u8 **)f54), 1);
-            func_00168730(*(s32 *)(*(u8 **)f54 + 0x220), 0x40000000);
-            func_00168c00(*(s32 *)(*(u8 **)f54 + 0x220));
-            func_00168780(*(s32 *)(*(u8 **)f54 + 0x220), 35.0f);
+            FldFrameTask_SetFlags(*(s32 *)(*(u8 **)f54 + 0x220), 0x40000000);
+            FldFrameTask_UpdateTile(*(s32 *)(*(u8 **)f54 + 0x220));
+            FldFrameTask_SetHeight(*(s32 *)(*(u8 **)f54 + 0x220), 35.0f);
             *(s32 *)(*(u8 **)f54 + 0x228) = (s32)func_00478750((u8 *)(iGpffffb274));
-            temp_f0 = func_00168770(*(s32 *)(*(u8 **)f54 + 0x220));
+            temp_f0 = FldFrameTask_GetHeight(*(s32 *)(*(u8 **)f54 + 0x220));
             sp50[2] = temp_f0;
             sp50[1] = temp_f0;
             sp50[0] = temp_f0;
