@@ -29,7 +29,7 @@ extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern void *SceneDraw_GetList4FirstColor(void);
 extern void *SceneDraw_GetList4SecondColor(void);
-extern void func_001b6990();
+extern void btlMainLoadBattleFieldScene();
 extern void btlMainSkillColorPairDefaults(u32 arg0, s32 *arg1, s32 *arg2);
 extern s32 btlMainSkillColorDefault(s32 arg0);
 extern s32 btlMainSkillTintDefault(s32 arg0);
@@ -480,7 +480,7 @@ void func_001b68d0(void)
 /* measured: func_001b6ab0, func_001b73f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_001B6990
-void func_001b6990(void)
+void btlMainLoadBattleFieldScene(void)
 {
     fieldSceneLoad(*(u16 *)(D_0076449C + 0x26C),
                   *(u16 *)(D_0076449C + 0x26E));
