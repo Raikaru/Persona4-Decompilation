@@ -51,7 +51,7 @@ extern s32 func_004782b0(u8 *arg0);
 extern s32 func_0047e6f0(void **owner);
 extern s32 func_0047e0f0(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
 extern void func_0045abd0(s16 arg0, s32 arg1, s16 arg2);
-extern s32 func_0045a890(s16 arg0);
+extern s32 hsndSlotIsStarting(s16 arg0);
 extern s32 func_0045af90(s16 arg0);
 extern s32 func_003e2e40(s32 arg0, s32 *arg1);
 extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
@@ -451,7 +451,7 @@ void func_0047eb20(u8 *arg0, s16 arg1, u16 arg2)
     }
     if (*(u16 *)(*(u8 **)arg0 + 0x10) == 2 &&
         (arg1 == 4 || arg1 == 5) &&
-        func_0045a890(*(s16 *)(*(u8 **)arg0 + 4)) != 0) {
+        hsndSlotIsStarting(*(s16 *)(*(u8 **)arg0 + 4)) != 0) {
         *(s16 *)(arg0 + 0x1C) = *(s32 *)(*(u8 **)arg0 + 4);
         *(s16 *)(arg0 + 0x24) = arg2;
         *(s16 *)(arg0 + 0x20) = 0;

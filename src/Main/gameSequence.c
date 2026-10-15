@@ -15,8 +15,9 @@ extern void func_00123a80(void);
 extern s32 clndSceneUpdate(u8 *task);
 extern void func_00124210(u8 *task);
 
+/* Starts the "gameSequence" task with clndSceneUpdate as its update, then runs the scene start. */
 // FUN_00124240
-void func_00124240(void)
+void gameSequenceStart(void)
 {
     s32 temp_2;
 
@@ -28,14 +29,16 @@ void func_00124240(void)
     }
 }
 
+/* Reports whether the "gameSequence" task is running. */
 // FUN_001242C0
-s32 func_001242c0(void)
+s32 gameSequenceIsRunning(void)
 {
     return (s32)(func_00452380(D_005E51D0) != 0);
 }
 
+/* Stops the "gameSequence" task; the caller must have started it. */
 // FUN_001242F0
-void func_001242f0(void)
+void gameSequenceStop(void)
 {
     s32 temp_2;
 

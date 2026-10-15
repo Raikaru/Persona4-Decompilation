@@ -15,7 +15,7 @@ extern s32 func_00123730(s32);
 extern void func_002aaa80(void);
 extern void func_002aaaa0(void);
 extern s32 func_004522d0(s32);
-extern s32 func_0045a890();
+extern s32 hsndSlotIsStarting();
 extern void func_001029a0(s32, s32, s32, s32);
 extern void func_001113b0(void);
 extern void (*jtbl_008873EC[])(void *);
@@ -120,7 +120,7 @@ s32 initBootChainStep(u8 *arg0)
     temp_3_2 = *(s32 *)temp_16;
     switch (temp_3_2) {
     case 0:
-        if ((func_0045a890(0, var_5, var_6, var_7) != 0) && (func_0045a890(1) != 0)) {
+        if ((hsndSlotIsStarting(0, var_5, var_6, var_7) != 0) && (hsndSlotIsStarting(1) != 0)) {
             *(s32 *)(temp_16 + 4) = 0;
             *(s32 *)temp_16 = 1;
             func_002aaa80();

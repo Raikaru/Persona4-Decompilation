@@ -33,8 +33,9 @@ extern u8 sSlotWork_alt[];
 
 
 
+/* Advances one sound slot: start playback (state 2), then wait for it to finish (state 3). */
 // FUN_00459790
-void func_00459790(HsndSlotWork* slot)
+void hsndSlotUpdate(HsndSlotWork* slot)
 {
     switch (slot->state)
     {
@@ -73,8 +74,9 @@ void func_00459790(HsndSlotWork* slot)
 
 
 
+/* Queues sound id for playback through the sound manager; always reports success. */
 // FUN_004599A0
-u8 func_004599A0(s16 id, s16 unused)
+u8 hsndQueueSound(s16 id, s16 unused)
 {
     func_0045a3e0(id, 1);
     return 1;
@@ -82,8 +84,9 @@ u8 func_004599A0(s16 id, s16 unused)
 
 
 
+/* Reports whether the slot is in the starting state (HSND_CHANNEL_STARTING). */
 // FUN_0045A890
-u32 func_0045a890(s32 slotIndex)
+u32 hsndSlotIsStarting(s32 slotIndex)
 {
     s16 index;
 
