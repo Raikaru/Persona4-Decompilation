@@ -1579,8 +1579,9 @@ s32 btlSelectionReadInput(u8 *arg0)
 }
 
 #pragma pop
+// Intent: start a callback list at the given node and run each node's init callback. [inferred]
 // FUN_00203360
-void func_00203360(u8 *arg0, u8 *arg1) {
+void btlListStart(u8 *arg0, u8 *arg1) {
     u8 *temp_16;
     u8 *var_4;
 
@@ -1599,8 +1600,9 @@ void func_00203360(u8 *arg0, u8 *arg1) {
 
 
 
+// Intent: flush a callback list by running each node's exit callback and clearing the head. [inferred]
 // FUN_002033C0
-void func_002033c0(u8 *arg0) {
+void btlListFlush(u8 *arg0) {
     u8 *temp_16;
     u8 *var_4;
 
@@ -1615,8 +1617,9 @@ void func_002033c0(u8 *arg0) {
 
 
 
+// Intent: advance the callback list according to the node's result code (stay, push, pop). [inferred]
 // FUN_00203420
-s32 func_00203420(u8 *arg0)
+s32 btlListStep(u8 *arg0)
 {
     u8 *sp4C;
     u8 *temp_17;
@@ -1669,8 +1672,9 @@ s32 func_00203420(u8 *arg0)
     }
     return temp_16;
 }
+// Intent: run each list node's update callback with the list owner. [inferred]
 // FUN_002035A0
-void func_002035a0(u8 *arg0) {
+void btlListDispatchUpdate(u8 *arg0) {
     u8 *var_16;
 
     var_16 = *(u8 **)(arg0 + 8);
@@ -1682,8 +1686,9 @@ void func_002035a0(u8 *arg0) {
 
 
 
+// Intent: run each list node's optional callback with the list owner. [inferred]
 // FUN_00203600
-void func_00203600(u8 *arg0) {
+void btlListDispatchNotify(u8 *arg0) {
     u8 *var_16;
 
     var_16 = *(u8 **)(arg0 + 8);
@@ -1699,8 +1704,9 @@ void func_00203600(u8 *arg0) {
 
 
 /* measured: callback materialisation residual remains. Committed at nd 73. */
+// Intent: initialise the battle panel task state and its selection block. [inferred]
 // FUN_00203670
-void func_00203670(s32 unused, s32 arg1)
+void btlPanelInit(s32 unused, s32 arg1)
 {
     struct {
         s16 values[2];
@@ -1741,23 +1747,25 @@ void func_00203670(s32 unused, s32 arg1)
     sp38.values[1] = 0x4000;
     btlSelectionSetRepeat(temp_16 + 0x40, (s16 *)&sp38);
     btlSelectionUpdateWindow(temp_16 + 0x40, 3, 0);
-    func_00203360(temp_16 + 0x2C, temp_16 + 0x40);
+    btlListStart(temp_16 + 0x2C, temp_16 + 0x40);
     *(s32 *)(temp_16 + 0x2C) = 0;
     *(s32 *)(temp_16 + 0x30) = 0;
 }
 /* This and the selection helpers take the caller's task explicitly. Retail
  * forwards that argument to the work getter; an empty C parameter list loses
  * the contract even when the argument register happens to retain the value. */
+// Intent: set the panel task state to active. [inferred]
 // FUN_002037B0
-void func_002037b0(s32 task) {
+void btlPanelSetActive(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s16 *)(p + 0x9C) = 1;
 }
+// Intent: return the panel task state. [inferred]
 // FUN_002037E0
-u16 func_002037e0(void) {
+u16 btlPanelGetState(void) {
     return *(u16 *)((u8 *)kwlnTaskGetWork() + 0x9C);
 }
 /* measured: opt_propagation off probe for 00203810 evaluation order. */
@@ -1777,8 +1785,9 @@ s32 func_00203810(void)
 }
 /* measured: close opt_propagation after func_00203810 probe. */
 #pragma opt_propagation on
+// Intent: report whether the panel task is ready (state below 2). [inferred]
 // FUN_00203850
-s32 func_00203850(void)
+s32 btlPanelIsReady(void)
 {
     return *(s16 *)((u8 *)kwlnTaskGetWork() + 0xAA) < 2;
 }
@@ -1787,19 +1796,21 @@ void func_00203880(s32 unusedTask, s32 unusedAction)
 {
 }
 
+// Intent: set the panel task state to closing. [inferred]
 // FUN_00203890
-void func_00203890(void) {
+void btlPanelSetClosing(void) {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork();
     *(s16 *)(p + 0x9C) = 4;
 }
+// Intent: reset the panel task state, list and sub-task pointers. [inferred]
 // FUN_002038C0
-void func_002038c0(s32 task) {
+void btlPanelReset(s32 task) {
     u8 *b = (u8 *)kwlnTaskGetWork((void *)task) + 0x9C;
 
     *(s32 *)(b + 4) &= ~2;
-    func_002033c0(b + 0x2C);
+    btlListFlush(b + 0x2C);
     if (*(s32 *)(b + 0x5A8) != 0) {
         func_0011b360(*(u8 **)(b + 0x5A8));
         *(s32 *)(b + 0x5A8) = 0;
@@ -4701,7 +4712,7 @@ void func_0020add0(void *arg0)
     }
     *(u16 *)(state + 2) = *(u16 *)state;
     if (*(u16 *)state == 1 && !(*(u32 *)(iGpffffb3ac + 0xC) & 0x10000)) {
-        switch (func_00203420(state + 0x2C) & 0xFFFF) {
+        switch (btlListStep(state + 0x2C) & 0xFFFF) {
         case 4: *(u16 *)state = 2; break;
         case 5: *(u16 *)state = 0; break;
         case 0: break;
@@ -4776,7 +4787,7 @@ void func_0020b1a0(s32 arg0, u8 *arg1)
                     temp_2, temp_f20, temp_f20,
                     *(u8 *)(arg1 + 0x24), *(u8 *)(arg1 + 0x25),
                     *(u8 *)(arg1 + 0x26), 0xFF);
-                func_002035a0(arg1 + 0x2C);
+                btlListDispatchUpdate(arg1 + 0x2C);
             }
         }
     }
@@ -4825,7 +4836,7 @@ void func_0020b3a0(s32 arg0, u8 *arg1)
                         *(s16 *)(arg1 + 0x10) = 0x13;
                     }
                 }
-                func_00203600(arg1 + 0x2C);
+                btlListDispatchNotify(arg1 + 0x2C);
             }
         }
     }
