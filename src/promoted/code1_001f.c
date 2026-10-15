@@ -40,7 +40,7 @@ extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
 extern void func_00122640(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
-extern void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
+extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
@@ -5533,7 +5533,7 @@ s32 func_001fbb50(u8 *work) {
                 (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATETEXTURERASTER, (void *)0);
                 RpSkyRenderStateSet(2, (void *)0x44);
                 RpSkyRenderStateSet(3, (void *)0x31801);
-                func_00204690(0, layerScale, layerScale, D_008872FC_abs[0], colors.radial.word);
+                btlPanelDrawCircle(0, layerScale, layerScale, D_008872FC_abs[0], colors.radial.word);
                 func_0048a000();
                 func_001fb480(1.0f, (u8 *)&D_007635C8, 0x54, 0x31801, (u8 *)1);
                 if ((s32)D_0076455A >= 0x14) {

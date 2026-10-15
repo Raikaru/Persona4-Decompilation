@@ -145,7 +145,7 @@ extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
-extern void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
+extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
 extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 typedef struct {
     u8 c0;
@@ -179,7 +179,7 @@ extern u16 datCalcUnderlyingSkillId(s64 arg0);
 extern void func_00207140(u16 *flags, u8 *work);
 extern s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel);
 extern void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState);
-extern void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend);
+extern void btlPanelDrawStrip(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend);
 extern void func_002089e0();
 extern void func_00208870(u8 *unused, u8 *arg1, f32 *arg2);
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
@@ -1828,8 +1828,9 @@ typedef struct {
     s32 (*draw)(s32 primitive, void *vertices, s32 count);
 } BattlePanelPrimitiveDispatch;
 
+// Intent: draw a 19-point curved panel outline and its fill quad with the given scale and colour. [inferred]
 // FUN_00203930
-void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
+void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
 {
     extern f32 fGpffff8488;
     extern f32 fGpffff848c;
@@ -2144,10 +2145,11 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
  * The initialization loop covers 81 real vertex records; the four geometry
  * phases supply 77 vertices. Keep each quadrant cursor's separate lifetime.
  */
+// Intent: draw an 81-vertex radial disc with the given scale, depth and colour. [inferred]
 // FUN_00204690
 #pragma push
 #pragma opt_loop_invariants on
-void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color)
+void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color)
 {
     f32 vertices[81][16];
     u32 alpha = ((u8 *)&color)[3];
@@ -2219,8 +2221,9 @@ void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color)
 #pragma pop
 /* measured: opt_propagation off probe for callback cache in func_00204a30. */
 #pragma opt_propagation off
+// Intent: set up the sky render state and draw the backdrop disc. [inferred]
 // FUN_00204A30
-void func_00204a30(u8 *arg0, f32 fparg0, f32 fparg1)
+void btlPanelDrawBackdrop(u8 *arg0, f32 fparg0, f32 fparg1)
 {
     void (**base)(u32, u32);
     Work4 work;
@@ -2243,7 +2246,7 @@ void func_00204a30(u8 *arg0, f32 fparg0, f32 fparg1)
     work.colors.c1 = 0xFF;
     work.colors.c2 = 0xFF;
     work.colors.c3 = 0x20;
-    func_00204690(arg0, fparg0, fparg1, 100.0f, *(s32 *)(void *)&work.colors);
+    btlPanelDrawCircle(arg0, fparg0, fparg1, 100.0f, *(s32 *)(void *)&work.colors);
     RpSkyRenderStateSet(3, 0x717FB);
     base[0](8, 0);
 }
@@ -2253,8 +2256,9 @@ void func_00204a30(u8 *arg0, f32 fparg0, f32 fparg1)
  * Forward byte opacity and reload the render-state callback for every call. */
 #pragma push
 #pragma opt_propagation off
+// Intent: draw a 3 by 5 grid of sprite frames with the given opacity. [inferred]
 // FUN_00204B80
-void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
+void btlPanelDrawSpriteGrid(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
 {
     extern u8 D_00764564;
     s16 row;
@@ -2296,8 +2300,9 @@ void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
     }
 }
 #pragma pop
+// Intent: clear the task's flag word and its active bit. [inferred]
 // FUN_00204D50
-void func_00204d50(s32 task)
+void btlPanelClearFlag(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *temp_2;
@@ -2306,8 +2311,9 @@ void func_00204d50(s32 task)
     *(s16 *)(temp_2 + 0xAC) = 0;
     *(s32 *)(temp_2 + 0xA0) &= ~1;
 }
+// Intent: set the active bit of the task's state word. [inferred]
 // FUN_00204D90
-void func_00204d90(void)
+void btlPanelSetFlag(void)
 {
     u8 *p;
 
@@ -2326,10 +2332,11 @@ extern f32 fGpffff836c;
 extern void func_00364c50(void);
 extern void func_00364c70(void);
 
+// Intent: draw a rotated battle-panel strip with an optional transparent extension. [inferred]
 // FUN_00204DC0
 #pragma push
 #pragma opt_propagation off
-void func_00204dc0(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, s32 extend)
+void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, s32 extend)
 {
     f32 vertices[4][16];
     s32 (**draw)(s32, void *, s32);
@@ -3455,7 +3462,7 @@ static inline void battleMenuExtendedStrip(BattleRenderDispatch *renderer,
     void (**setState)(u32, u32);
     setState = &renderer->setState;
     (*setState)(6, 1);
-    func_00204dc0(3, x, y, 110.0f, progress * 90.0f, 1);
+    btlPanelDrawStrip(3, x, y, 110.0f, progress * 90.0f, 1);
     (*setState)(6, 0);
 }
 
@@ -3607,7 +3614,7 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
             selectedCommand = *(s16 *)(selection + 4);
             renderer = (BattleRenderDispatch *)D_00887300;
             renderer->setState(6, 1);
-            func_00204dc0(3, translationX, ((f32)selectedCommand - 3.0f) * 15.0f + offsetY, 110.0f, 0.0f, 0);
+            btlPanelDrawStrip(3, translationX, ((f32)selectedCommand - 3.0f) * 15.0f + offsetY, 110.0f, 0.0f, 0);
             renderer->setState(6, 0);
             if ((u8)opacity == 0xFF) {
                 u8 c1;
@@ -3629,7 +3636,7 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
         } else {
             renderer = (BattleRenderDispatch *)D_00887300;
             renderer->setState(6, 1);
-            func_00204dc0(3, translationX, offsetY, 110.0f, (completeProgress - circle.progress) * 45.0f, 0);
+            btlPanelDrawStrip(3, translationX, offsetY, 110.0f, (completeProgress - circle.progress) * 45.0f, 0);
             renderer->setState(6, 0);
         }
         if (circle.progress >= completeProgress && menuFlags == 0 && func_001eb860() != 0) {
@@ -4741,7 +4748,7 @@ void func_0020add0(void *arg0)
 // FUN_0020B1A0
 void func_0020b1a0(s32 arg0, u8 *arg1)
 {
-    extern void func_00203930(u8 *arg0, f32 fparg0, f32 fparg1,
+    extern void btlPanelDrawOutlineFill(u8 *arg0, f32 fparg0, f32 fparg1,
                               u8 arg1, u8 arg2, u8 arg3, s32 arg4);
     u8 *temp_2;
     s16 temp_3;
@@ -4759,7 +4766,7 @@ void func_0020b1a0(s32 arg0, u8 *arg1)
                     temp_f12 = (temp_f12 * 2.0f -
                                 temp_f12 * temp_f12) *
                                1.5f;
-                    func_00203930(
+                    btlPanelDrawOutlineFill(
                         temp_2, temp_f12, temp_f12,
                         *(u8 *)(arg1 + 0x24), *(u8 *)(arg1 + 0x25),
                         *(u8 *)(arg1 + 0x26), 0x4C);
@@ -4783,7 +4790,7 @@ void func_0020b1a0(s32 arg0, u8 *arg1)
                             1.0f;
                     }
                 }
-                func_00203930(
+                btlPanelDrawOutlineFill(
                     temp_2, temp_f20, temp_f20,
                     *(u8 *)(arg1 + 0x24), *(u8 *)(arg1 + 0x25),
                     *(u8 *)(arg1 + 0x26), 0xFF);
@@ -4795,7 +4802,7 @@ void func_0020b1a0(s32 arg0, u8 *arg1)
 // FUN_0020B3A0
 void func_0020b3a0(s32 arg0, u8 *arg1)
 {
-    extern void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 arg1);
+    extern void btlPanelDrawSpriteGrid(u8 *arg0, f32 farg0, f32 farg1, u8 arg1);
     extern u8 D_00626BE0[];
     u8 *temp_2;
     s16 temp_3;
@@ -4826,11 +4833,11 @@ void func_0020b3a0(s32 arg0, u8 *arg1)
                             1.0f;
                     }
                 }
-                func_00204a30(temp_2, temp_f20, temp_f20);
+                btlPanelDrawBackdrop(temp_2, temp_f20, temp_f20);
                 if (((*(s32 *)(arg1 + 4) & 2) != 0) &&
                     (*(u16 *)arg1 != 2) &&
                     (*(s16 *)(arg1 + 0xA) < 7)) {
-                    func_00204b80(temp_2, 1.0f, 1.0f,
+                    btlPanelDrawSpriteGrid(temp_2, 1.0f, 1.0f,
                                   D_00626BE0[*(s16 *)(arg1 + 0x10)]);
                     if ((u32)(s16)(*(s16 *)(arg1 + 0x10) += 1) >= 0x14) {
                         *(s16 *)(arg1 + 0x10) = 0x13;
