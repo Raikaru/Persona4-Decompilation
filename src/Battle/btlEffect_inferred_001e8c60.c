@@ -86,6 +86,7 @@ extern u8 *iGpffffb42c;
 
 #pragma push
 #pragma pop
+/* AI script command 0x2087 (p4flow AI.json AI_FUNCTION_0087). */
 // FUN_001E8C60
 s32 func_001e8c60(void) {
     u64 temp_16;

@@ -92,6 +92,7 @@ extern u8 *iGpffffb42c;
 /* Source unit: src/promoted/code1_001e.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001e.c; members 001e6d20-001e6ea0 */
 
+/* AI script command 0x207b (p4flow AI.json AI_FUNCTION_007B). */
 // FUN_001E6D20
 s32 func_001e6d20(void) {
     s32 first;
@@ -115,6 +116,7 @@ s32 func_001e6d20(void) {
     return 1;
 }
 
+/* AI script command 0x207c (p4flow AI.json AI_FUNCTION_007C). */
 // FUN_001E6DC0
 s32 func_001e6dc0(void) {
     u8 *current;
@@ -146,6 +148,7 @@ s32 func_001e6dc0(void) {
     return 1;
 }
 
+/* AI script command 0x207d (p4flow AI.json AI_FUNCTION_007D). */
 // FUN_001E6EA0
 s32 func_001e6ea0(void) {
     u8 *work;
