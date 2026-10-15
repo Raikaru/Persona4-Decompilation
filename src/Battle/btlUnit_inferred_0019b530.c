@@ -159,7 +159,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_002300f0();
 extern void func_0019acd0(u8 *arg0);
 extern s32 func_0019ae20();
-extern void func_0019d3c0(u8 *arg0);
+extern void btlUnitReleaseModel(u8 *arg0);
 extern void func_0019d0c0();
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
@@ -218,7 +218,7 @@ s32 func_0019b640(u8 *arg0) {
     u8 *temp;
 
     temp = *(u8 **)arg0;
-    func_0019d3c0(temp);
+    btlUnitReleaseModel(temp);
     func_0019d0c0(temp);
     return 1;
 }

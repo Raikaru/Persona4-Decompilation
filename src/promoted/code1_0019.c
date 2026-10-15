@@ -311,7 +311,7 @@ extern s32 func_002300f0();
 extern void func_0019acd0(u8 *arg0);
 extern s32 func_0019ae20();
 extern void func_001d6ee0(s32 arg0);
-extern void func_0019d3c0(u8 *arg0);
+extern void btlUnitReleaseModel(u8 *arg0);
 extern void func_0019d0c0();
 extern void func_0019d040(u8 *arg0);
 extern u8 iGpffffa088;
