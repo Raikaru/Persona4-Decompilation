@@ -6150,8 +6150,9 @@ static inline void mdlLoaderSetAnimation(void *value, MdlDispatchAnimTable *tabl
     mdlLoaderAnimEntry(table, slot)->animation = value;
 }
 
+/* Reads the aux block's RenderWare chunk stream, dispatching each chunk type to its loader: texture dictionaries, animation, UV dictionaries, effect lists and materials. Data not yet ready is queued as a request. Returns 1 once the stream is consumed. */
 // FUN_0047B0C0
-s32 func_0047b0c0(u8 *model)
+s32 mdlReadAuxChunks(u8 *model)
 {
     typedef struct MdlLoaderMaterial {
         u32 kind;

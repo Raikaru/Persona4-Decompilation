@@ -59,7 +59,7 @@ extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern void H_Cdvd_ReadSync(u8 *arg0);
 extern void K_Clump_FreeTextureNameList(void *arg0);
-extern s32 func_0047b0c0(u8 *arg0);
+extern s32 mdlReadAuxChunks(u8 *arg0);
 extern s32 mdlPollAuxResources(u8 *arg0);
 extern void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4);
 extern f32 fGpffffbb4c;
@@ -240,7 +240,7 @@ c660_again:
             *(u8 *)(obj + 0x3C) = 2;
         }
     case 2:
-        if (func_0047b0c0(arg0) == 0) {
+        if (mdlReadAuxChunks(arg0) == 0) {
             goto L_case2_fail;
         }
         *(u8 *)(obj + 0x3C) = 3;
