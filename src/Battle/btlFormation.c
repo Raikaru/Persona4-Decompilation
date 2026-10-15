@@ -690,7 +690,7 @@ u32 btlFormationUpdatePose(u32 *work)
         f32 w;
     } RtQuat;
 
-    extern void func_00195590(void *arg0, void *arg1);
+    extern void btlUnitFaceTarget(void *arg0, void *arg1);
     extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
     extern void RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rot);
     extern f32 D_0060A0E0[3];
@@ -707,8 +707,8 @@ u32 btlFormationUpdatePose(u32 *work)
     case 0:
         func_00196b70((void *)work[0]);
         func_00196ba0((void *)work[0]);
-        func_00195590((void *)work[0], (u8 *)work[1] + 4);
-        func_00195590((void *)work[1], (u8 *)work[0] + 4);
+        btlUnitFaceTarget((void *)work[0], (u8 *)work[1] + 4);
+        btlUnitFaceTarget((void *)work[1], (u8 *)work[0] + 4);
         diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
         diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
         diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
@@ -725,8 +725,8 @@ u32 btlFormationUpdatePose(u32 *work)
     case 1:
         func_00196b70((void *)work[0]);
         func_00196ba0((void *)work[0]);
-        func_00195590((void *)work[0], (u8 *)work[1] + 4);
-        func_00195590((void *)work[1], (u8 *)work[0] + 4);
+        btlUnitFaceTarget((void *)work[0], (u8 *)work[1] + 4);
+        btlUnitFaceTarget((void *)work[1], (u8 *)work[0] + 4);
         diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
         diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
         diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
@@ -763,8 +763,8 @@ u32 btlFormationUpdatePose(u32 *work)
     case 4:
         func_00196b70((void *)work[0]);
         func_00196ba0((void *)work[0]);
-        func_00195590((void *)work[0], (u8 *)work[1] + 4);
-        func_00195590((void *)work[1], (u8 *)work[0] + 4);
+        btlUnitFaceTarget((void *)work[0], (u8 *)work[1] + 4);
+        btlUnitFaceTarget((void *)work[1], (u8 *)work[0] + 4);
         scale = func_00196bd0((u8 *)work[0], (u8 *)work[1], 7);
         diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
         diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
