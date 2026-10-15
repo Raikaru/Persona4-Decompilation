@@ -39,7 +39,7 @@ extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern void memset(void* dest, s32 value, s32 size);
 extern u8* func_00105510(s16 arg0);
 extern s32 datCalcIsDead(DatUnit* unit, s32 arg1);
-extern void datCalcClearModifier(DatUnit* unit, u8 index);
+extern void datCalcClearBuffLevel(DatUnit* unit, u8 index);
 extern u8* iGpffffb3c4;              /* 0x007644B4 (gp-0x4C3C): enemy data table */
 extern u8* iGpffffb414;              /* 0x00764504 (gp-0x4BEC) */
 
@@ -253,7 +253,7 @@ u32 datUnitInit(DatUnit* unit, u8 genus, u16 id)
         func_0046d730(D_00635928, 0xFE);
         break;
     }
-    for (j = 0; j < 0x18; j++) datCalcClearModifier(unit, (u8)j);
+    for (j = 0; j < 0x18; j++) datCalcClearBuffLevel(unit, (u8)j);
     unit->id = id;
     unit->id2 = id;
     unit->flags |= 0x1;

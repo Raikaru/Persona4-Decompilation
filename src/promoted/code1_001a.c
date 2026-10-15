@@ -1526,7 +1526,7 @@ void func_001a2d70(u8 *arg0) {
     u8 *unit;
     u8 *packet;
 
-    void datCalcClearModifier(u8 *arg0, s32 arg1);
+    void datCalcClearBuffLevel(u8 *arg0, s32 arg1);
 
 
     if (func_00193cd0(0x506) == 0) {
@@ -1543,8 +1543,8 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 31;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 0);
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 1);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 0);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 1);
             break;
         case 2:
         case 4:
@@ -1553,8 +1553,8 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 33;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 4);
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 2);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 4);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 2);
             break;
         case 3:
             if (unit[0xA2] == 0) {
@@ -1562,7 +1562,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 35;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 3);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 3);
             break;
         case 5:
             if (unit[0xA2] == 0) {
@@ -1570,7 +1570,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 37;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 5);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 5);
             break;
         case 6:
             if (unit[0xA2] == 0) {
@@ -1578,7 +1578,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 39;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 6);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 6);
             break;
         case 7:
             if (unit[0xA2] == 0) {
@@ -1586,7 +1586,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 41;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 7);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 7);
             break;
         case 8:
             if (unit[0xA2] == 0) {
@@ -1594,7 +1594,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 81;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 8);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 8);
             break;
         case 9:
             if (unit[0xA2] == 0) {
@@ -1602,7 +1602,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 83;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 9);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 9);
             break;
         case 10:
             if (unit[0xA2] == 0) {
@@ -1610,7 +1610,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 85;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 10);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 10);
             break;
         case 11:
             if (unit[0xA2] == 0) {
@@ -1618,7 +1618,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 87;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 11);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 11);
             break;
         case 12:
             if (unit[0xA2] == 0) {
@@ -1626,7 +1626,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 131;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 12);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 12);
             break;
         case 13:
             if (unit[0xA2] == 0) {
@@ -1634,7 +1634,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 133;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 13);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 13);
             break;
         case 14:
             if (unit[0xA2] == 0) {
@@ -1642,7 +1642,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 135;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 14);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 14);
             break;
         case 15:
             if (unit[0xA2] == 0) {
@@ -1650,7 +1650,7 @@ void func_001a2d70(u8 *arg0) {
             } else {
                 state = 137;
             }
-            datCalcClearModifier(*(u8 **)(unit + 0xA64), 15);
+            datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 15);
             break;
         default:
             state = 0;

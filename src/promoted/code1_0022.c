@@ -55,7 +55,7 @@ extern char D_007636D0[8];
 extern u8 D_0062E070[];
 extern void func_004777d0(void *model, s32 name, u8 alpha);
 extern s32 datCalcAddHp(DatUnit *unit, s32 hpDelta);
-extern void datCalcClearModifier(u8 *unit, s32 effect);
+extern void datCalcClearBuffLevel(u8 *unit, s32 effect);
 extern RtQuat *func_003dc740(RtQuat *out, const RwV3d *axis, f32 angle, s32 mode);
 extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
 extern void btlUnitSetColor(BtlUnit *unit, RwRGBA color);
@@ -229,7 +229,7 @@ extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];
 extern u8 *func_0019ef90(s32 arg0, s32 arg1);
 extern void func_0019d0c0(u8 *arg0);
-extern void datCalcClearAllModifiers(u8 *arg0);
+extern void datCalcClearAllBuffs(u8 *arg0);
 extern u8 D_0062D920[];
 extern void btlActionFinishPresentation(s64 *arg0);
 extern s32 func_001d3d50(u32 param_1);
@@ -3434,7 +3434,7 @@ s32 func_00229c40(u8 *arg0)
             (u16)(*(u16 *)(arg0 + 0x1A) | 0x400);
         *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) &= ~8;
         func_0019d0c0(*(u8 **)(arg0 + 0x30));
-        datCalcClearAllModifiers(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
+        datCalcClearAllBuffs(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
         func_00198dd0(*(u8 **)(arg0 + 0x30), 0);
         func_00198920(*(u8 **)(arg0 + 0x30), 0, 0, 1.0f, 1);
         *(u8 **)(DAT_0076449c + 0xB98) = &D_0062D920[0];
@@ -5778,7 +5778,7 @@ s32 func_0022eba0(u8 *packet)
             if ((*(u16 *)(node + 0x1A) & 1) != 0) {
                 unit = *(u8 **)(node + 0x30);
                 if ((*(u32 *)(unit + 0x9C) & 8) != 0 && *(u8 **)(unit + 0xA64) != 0)
-                    datCalcClearModifier(*(u8 **)(unit + 0xA64), 0x14);
+                    datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 0x14);
             }
             node = *(u8 **)(node + 0x450);
         }
