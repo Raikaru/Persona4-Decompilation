@@ -156,7 +156,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_002300f0();
+extern s32 btlBossRemapSkillPair();
 extern void btlUnitModelLoadPacketInit(u8 *arg0);
 extern s32 btlUnitModelMotionPacketUpdate();
 extern void btlUnitReleaseModel(u8 *arg0);
@@ -200,7 +200,7 @@ u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2)
     work = *(u8 **)(packet + 0x78);
     *(u8 **)work = arg0;
     *(s16 *)(work + 8) = arg2;
-    if (func_002300f0(arg0, (s16 *)(work + 4), (s16 *)(work + 6)) == 0) {
+    if (btlBossRemapSkillPair(arg0, (s16 *)(work + 4), (s16 *)(work + 6)) == 0) {
         *(s16 *)(work + 4) = *(u8 *)(arg0 + 0xA2) + 1;
         *(s16 *)(work + 6) = arg1;
     }

@@ -225,7 +225,7 @@ static inline void colMul_0019(Col4_0019 *dst, const u8 *src)
 void func_0019c0d0(void)
 {
     extern u32 func_00196610(u8 *arg0);
-    extern void func_00230170(u8 *arg0);
+    extern void btlBossCopyPartnerMark(u8 *arg0);
     extern void SceneDraw_SetResPersona(u16 arg0, u32 arg1);
     extern void func_001b70c0(u8 *arg0);
     extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
@@ -254,7 +254,7 @@ void func_0019c0d0(void)
             func_00198380(entry);
             switch (i) {
             case 1:
-                func_00230170(entry);
+                btlBossCopyPartnerMark(entry);
                 break;
             case 2:
                 if ((*(s32 *)(entry + 0x98) & 2) != 0) {

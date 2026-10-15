@@ -12,7 +12,7 @@ extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern u8 *btlPacketAlloc(s32 type, s32 workSize);
 extern void H_Cdvd_Destroy(u8 *ptr);
 extern void func_0045ac90(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00230500(u8 *work);
+extern s32 btlBossLoadEndBgmStep(u8 *work);
 
 extern void func_00231380(s32 *arg0, s32 arg1);
 extern s32 func_001ef9a0(void);
@@ -58,7 +58,7 @@ BtlPacket *func_002305c0(s32 arg0)
     u8 *work;
 
     p = btlPacketAlloc(0xE01, 8);
-    *(void **)(p + 0x6C) = (void *)func_00230500;
+    *(void **)(p + 0x6C) = (void *)btlBossLoadEndBgmStep;
     work = *(u8 **)(p + 0x78);
     *(s32 *)(work + 0) = arg0;
     *(s32 *)(work + 4) = 0;

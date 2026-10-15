@@ -796,7 +796,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     extern u8 *func_001d7bf0(u32 arg0, u32 arg1, u32 arg2);
     extern u8 *btlTargetCreateRecordPacket(u8 *arg0);
     extern s32 func_001ef4a0(s32 arg0);
-    extern void func_00230340(u8 *arg0);
+    extern void btlBossResetPendingCue(u8 *arg0);
     extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
     extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
     extern s32 func_001b7080(s32 arg0);
@@ -979,7 +979,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     frameInterval = (u16)func_001ef4a0(selector);
     for (var23 = 0; var23 < *(u16 *)(arg0 + 0x6A); var23++) {
         unit17 = *(u8 **)(arg0 + (u32)var23 * 4 + 0x38);
-        func_00230340(unit17);
+        btlBossResetPendingCue(unit17);
         formationFlags = btlFormationGetFlags((s32)(unit17 + 0xD8));
         if (*(s32 *)(unit17 + 0xE4) != 0) {
             unit19 = arg0;

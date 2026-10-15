@@ -52,7 +52,7 @@ extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern void func_0022fdc0(u8 *arg0);
+extern void btlBossCollectTargets(u8 *arg0);
 extern u32 iGpffffa0b8;
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern u8 D_005FB400[];
@@ -241,7 +241,7 @@ void btlActionDeadUpdate(u8 *arg0)
             *(s32 *)(p + 0x9C) &= ~1;
             func_001b0d70(arg0);
             if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
-                func_0022fdc0((u8 *)func_001b1540());
+                btlBossCollectTargets((u8 *)func_001b1540());
             }
             btlActionSetState((BtlAction *)arg0, 1);
         }
