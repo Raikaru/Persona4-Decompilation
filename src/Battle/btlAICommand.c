@@ -79,7 +79,7 @@ extern void *D_00609DF0[];
 extern void *D_00609E18[];
 extern void func_001d7c60(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3, u8 *arg4);
 extern s32 btlAICommandCollectSkillCandidates(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-extern s32 func_001dbf20(u8 *arg0, u32 arg1);
+extern s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1);
 extern char D_006095E0[];
 extern void func_0046d730(void *file, s32 line);
 extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
@@ -690,7 +690,7 @@ code arg5;
             if ((f23 & 8) != 0) {
                 return 0;
             }
-            return func_001dbf20((u8 *)arg0, arg1);
+            return btlAICommandPickAiTarget((u8 *)arg0, arg1);
         }
         if ((f23 & 4) == 0) {
             s32 pick;
@@ -732,7 +732,7 @@ typedef struct SortEnt {
     f32 ratio;
 } SortEnt;
 // FUN_001DBF20
-s32 func_001dbf20(u8 *arg0, u32 arg1) {
+s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1) {
     extern u8 D_006095F0[];
     u16 available;
     u16 i;
@@ -1095,7 +1095,7 @@ s32 btlCond_APPOINT(u8 *param_1, u32 param_2)
         return 1;
     }
     if (func_001d8cb0(0, (u8 *)(param_1 + 0x98)) == 0) {
-        return func_001dbf20(param_1, param_2);
+        return btlAICommandPickAiTarget(param_1, param_2);
     }
     *(u32 *)(param_1 + 0x38) = func_001d8bc0((u8 *)(param_1 + 0x98));
     *(u16 *)(param_1 + 0x6a) = 1;
@@ -5024,7 +5024,7 @@ s32 btlAICommandAiUnlessHpMax(void) {
 }
 
 // FUN_001E5D90
-s32 btlAICommandScriptResetBuffLevels(void) {
+s32 btlAICommandScriptSetId2ClearBuffs(void) {
     u8 *p = func_0029d050();
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 q;
@@ -5072,7 +5072,7 @@ s32 btlAICommandScriptSetCommandOverride(void) {
 }
 
 // FUN_001E5F90
-s32 func_001e5f90(void) {
+s32 btlAICommandScriptGetSelfId2(void) {
     u32 a = *(u32 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA64);
     scrSetReturnInt(*(u16 *)(a + 4));
     return 1;
@@ -5159,7 +5159,7 @@ s32 btlAICommandScriptCountOwnHp(void) {
 }
 
 // FUN_001E6400
-s32 func_001e6400(void) {
+s32 btlAICommandScriptAverageOwnLevel(void) {
     scrSetReturnInt(btlSideAverageLevel((1 << (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2))) & 0xFFFF, 0x80000) & 0xFFFF);
     return -1;
 }
@@ -5168,7 +5168,7 @@ s32 func_001e6400(void) {
 /* Removing this loses FUN_001E6450 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUN_001E6450
-s32 func_001e6450(void) {
+s32 btlAICommandScriptAverageOppLevel(void) {
     u32 shift;
     {
         if (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2) != 0)
