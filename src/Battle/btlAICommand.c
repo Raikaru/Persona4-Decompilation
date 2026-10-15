@@ -5016,7 +5016,7 @@ s32 btlAICommandScriptPickMyIdFiltered(void) {
 }
 
 // FUN_001E5D20
-s32 func_001e5d20(void) {
+s32 btlAICommandAiUnlessHpMax(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609E18[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
