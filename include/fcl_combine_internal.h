@@ -10,8 +10,8 @@ void fclCombineDrawListRow(u8 *task, s8 slot, FclVec2 position, s16 resource,
                    s16 argument, s8 mode);
 
 /* Selection colors return a packed word; opacity is an unsigned byte. */
-s32 func_0031ddf0(u8 *task, s8 slot, s8 selected, u8 alpha);
-void func_0031e320(u8 *task, s8 slot);
+s32 fclCombineApplySlotState(u8 *task, s8 slot, s8 selected, u8 alpha);
+void fclCombineFlashSlot(u8 *task, s8 slot);
 
 /* Advance the combination-grid fade before entering the next state. */
 void func_003212e0(u8 *task, u8 next_state, s8 mode);

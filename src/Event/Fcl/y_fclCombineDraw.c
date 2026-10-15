@@ -1908,9 +1908,10 @@ void fclCombineDrawPersonaCardAlt(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3
    snapshot reproduces retail initialization order. The complete code
    is 1980 bytes plus a four-byte zero tail, with 48 resolved relocations.
    Evidence: docs/probe_archive/FclDraw_0031d630_worker4_20260920.md. */
+// Fcl combine slot entry select: refreshes slot entry arg1 (its sprites, roster entry colours and label). When arg1 is the current selection (t+0x11E) it sets the selected colours and, unless arg4 is set, recolours each roster entry; otherwise it dims the entry and highlights it when arg2 or arg3 names this slot. Draws the slot label when the slot is in use.
 // FUN_0031D630
 #pragma opt_propagation off
-void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
+void fclCombineSelectSlotEntry(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
     typedef union { FclByte4 channels; u32 word; } PackedColor;
     FclByte4 cDC;
     FclByte4 cD8;
@@ -1935,7 +1936,7 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
         return;
     }
     if (*(s16 *)(t + 0x11E) == v) {
-        ret = func_0031ddf0(arg0, arg1, 1, 0xFF);
+        ret = fclCombineApplySlotState(arg0, arg1, 1, 0xFF);
         *(s8 *)((u8 *)func_0034b810(((u8 **)(t + 0x21C))[(s32)v]) + 0xF00) = 1;
         if ((s8)arg4 == 0) {
             s16 i = 0;
@@ -1958,7 +1959,7 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
             }
         }
     } else {
-        ret = func_0031ddf0(arg0, arg1, 0, 0xFF);
+        ret = fclCombineApplySlotState(arg0, arg1, 0, 0xFF);
         if (*(s32 *)(yListSlotWork(0) + 8) <= v) {
             s32 overflowSlot = (s8)arg1;
             cD4 = func_002b2a60(0x24, 0x3F, 0x9F, 0xFF);
@@ -2026,8 +2027,9 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
    after each lookup. Paired alpha stores share their assigned byte value.
    MWCC b210 -O2 reproduces the complete 1328-byte window and 31 relocations.
    Evidence: docs/probe_archive/FclDraw_0031ddf0_worker4_20260920.md. */
+// Fcl combine slot state: sets the colours of slot arg1 for the selected state (arg2 == 1, highlight colours) or the idle state, and returns the label colour word with opacity arg3.
 // FUN_0031DDF0
-s32 func_0031ddf0(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
+s32 fclCombineApplySlotState(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
     typedef union { FclByte4 channels; u32 word; } PackedColor;
     FclByte4 cBC;
     FclByte4 cB8;
@@ -2103,8 +2105,9 @@ s32 func_0031ddf0(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
     }
     return ret;
 }
+// Fcl combine slot flash: starts a colour fade to pale yellow on the four sprites of slot arg1 (0x21C, 0x22B, 0x238 and 0x244 plus arg1) and on its record, and marks them with flags 0x91 and 0x81.
 // FUN_0031E320
-void func_0031e320(u8 *arg0, s8 arg1) {
+void fclCombineFlashSlot(u8 *arg0, s8 arg1) {
     s32 idx;
     s16 n1;
     s16 n2;
@@ -3071,7 +3074,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     *(s8 *)(t + 0x129) = -1;
     i = 0;
     while ((s16)i < (u16)datPersonaRosterCapacity()) {
-        func_0031d630(arg0, (s8)i, *(s8 *)(t + 0x128), *(s8 *)(t + 0x129), arg1);
+        fclCombineSelectSlotEntry(arg0, (s8)i, *(s8 *)(t + 0x128), *(s8 *)(t + 0x129), arg1);
         ++i;
     }
     if (D_008C027A[0] & 0x1000) {
@@ -3182,7 +3185,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                 func_0031fa20(arg0, func_002b2970((f32)0x149, 104.0f), 3, 0);
                 func_003205f0(arg0, 0x94, 0x93);
                 fclSpriteSetFlag(0x1C7, 2, 1);
-                func_0031e320(arg0, (s32)*(s8 *)(t + 0x128));
+                fclCombineFlashSlot(arg0, (s32)*(s8 *)(t + 0x128));
             } else {
                 yListBuildAvailability(1, *(s8 *)(t + 0x128));
                 fclSpriteStartAlphaAt(0x7E, 0xFF, 0, 0, 6, 0);
@@ -3224,7 +3227,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     ++jb2;
                 }
                 func_003205f0(arg0, 0x94, 0x93);
-                func_0031e320(arg0, (s32)*(s8 *)(t + 0x128));
+                fclCombineFlashSlot(arg0, (s32)*(s8 *)(t + 0x128));
             }
             *(u8 *)(t + 1) = arg2;
         }
@@ -3287,7 +3290,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
    union representation and cross the call boundary as native FclDrawColor values;
    and the height is converted to f32 before the second lookup, after which the opacity is
    plain `(u8)f` - the hand-written 2.1474836e9f guard that had been carried from the
-   y_CmbCardEff idiom was the thing keeping it apart.  `func_0031d630`'s third formal is s8,
+   y_CmbCardEff idiom was the thing keeping it apart.  `fclCombineSelectSlotEntry`'s third formal is s8,
    which retail callers load with `lb`; that declaration is now file-scope. */
 // FUN_003233D0
 void func_003233d0(u8 *arg0) {
@@ -3307,7 +3310,7 @@ void func_003233d0(u8 *arg0) {
     u8 *p;
     t = *(u8 **)(arg0 + 0x38);
     for (i = 0; (s16)i < (u16)datPersonaRosterCapacity(); ++i) {
-        func_0031d630(arg0, (s8)i, *(s8 *)(t + 0x128), *(s8 *)(t + 0x129), 0);
+        fclCombineSelectSlotEntry(arg0, (s8)i, *(s8 *)(t + 0x128), *(s8 *)(t + 0x129), 0);
         if ((s16)i < *(s32 *)(yListSlotWork(0) + 8)) {
             if ((s16)i == *(s16 *)(t + 0x11E)) {
                 u8 *p297;

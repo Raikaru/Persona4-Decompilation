@@ -98,6 +98,7 @@ extern void func_00321e60(u8 *, s64, u8, u8);
 extern void func_003233d0(u8 *);
 extern void fclCombinePartyRow(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
 extern void fclCombineDrawPersonaRow(u8 *, FclVec2, s8, s8, s32, s16, s16, s8, s8, u8);
+extern void fclCombineSelectSlotEntry(u8 *, s8, s8, s64, s64);
 extern void fclCombineDrawPersonaCard(u8 *, s16, FclVec2f, FclVec2f);
 extern void fclCombineDrawPersonaCardAlt(u8 *, s16, FclVec2, FclVec2);
 extern void func_00320b80(u8 *, s8);
@@ -1734,7 +1735,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         temp_16_4 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_3);
         frFontExDrawTextDeferredOutB(111.0f + sp158.x, sp158.y, 43.0f, temp_16_4, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, temp_17_3->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         for (var_19_2 = 0; var_19_2 < (datPersonaRosterCapacity() & 0xFFFF); var_19_2++) {
-            func_0031d630(arg0, var_19_2, temp_18->f128, temp_18->f129, 0);
+            fclCombineSelectSlotEntry(arg0, var_19_2, temp_18->f128, temp_18->f129, 0);
             if (temp_18->f128 != var_19_2 && *(s8 *)(yListSlotWork(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) > 0) {
                 temp_23 = var_19_2 + 0x270;
                 temp_f20_2 = (f32)*(s16 *)(fclSpriteEntry(temp_23) + 0x42);
@@ -1859,9 +1860,9 @@ void fclCombineMenuFusion(u8 *arg0) {
                     temp_18->f1 = 0x2B;
                 }
             } else if (D_008C024E[0] & 0x20) {
-                func_0031ddf0(arg0, (s8)temp_18->f11E, 0, 0xFF);
+                fclCombineApplySlotState(arg0, (s8)temp_18->f11E, 0, 0xFF);
                 temp_18->f11E = temp_18->f128;
-                func_0031ddf0(arg0, temp_18->f11E, 1, 0xFF);
+                fclCombineApplySlotState(arg0, temp_18->f11E, 1, 0xFF);
                 func_0045af60(0, 0, 0, 2);
                 func_003205f0(arg0, 0x93, 0x94);
                 basePos = (FclVec2f *)D_00640C10;
@@ -2822,7 +2823,7 @@ block_83:
     case 0x40:                                      /* switch 1 */
         temp_17->f129 = -1;
         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
-            func_0031d630(arg0, (s8)(partyRow), temp_17->f128, temp_17->f129, 0);
+            fclCombineSelectSlotEntry(arg0, (s8)(partyRow), temp_17->f128, temp_17->f129, 0);
         }
         temp_16_8 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E))));
         temp_18_8 = *(FclCombineCtl **)(arg0 + 0x38);
@@ -2912,7 +2913,7 @@ block_83:
                         sp300 = func_002b2970((f32) 0x149, 104.0f);
                         func_0031fa20(arg0, sp300, 3, 0);
                         func_003205f0(arg0, 0x95, 0x94);
-                        func_0031e320(arg0, temp_17->f129);
+                        fclCombineFlashSlot(arg0, temp_17->f129);
                         temp_17->f1 = 0x43U;
                         return;
                     }
@@ -2947,9 +2948,9 @@ block_83:
                         return;
                     }
                 } else if (D_008C024E[0] & 0x20) {
-                    func_0031ddf0(arg0, (s8) temp_17->f11E, 0, 0xFF);
+                    fclCombineApplySlotState(arg0, (s8) temp_17->f11E, 0, 0xFF);
                     temp_17->f11E = temp_17->f128;
-                    func_0031ddf0(arg0, (s8)temp_17->f11E, 1, 0xFF);
+                    fclCombineApplySlotState(arg0, (s8)temp_17->f11E, 1, 0xFF);
                     func_0045af60(0, 0, 0, 2);
                     func_003205f0(arg0, 0x93, 0x94);
                     basePos = (FclVec2f *)D_00640C10;
@@ -3133,9 +3134,9 @@ block_166:
                     return;
                 }
                 if (D_008C024E[0] & 0x20) {
-                    func_0031ddf0(arg0, (s8) temp_17->f11E, 0, 0xFF);
+                    fclCombineApplySlotState(arg0, (s8) temp_17->f11E, 0, 0xFF);
                     temp_17->f11E = temp_17->f129;
-                    func_0031ddf0(arg0, (s8)temp_17->f11E, 1, 0xFF);
+                    fclCombineApplySlotState(arg0, (s8)temp_17->f11E, 1, 0xFF);
                     func_0045af60(0, 0, 0, 2);
                     basePos = (FclVec2f *)D_00640C18;
                     sp268 = func_002b2970(basePos->x, basePos->y);
@@ -6928,7 +6929,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         break;
     case 0x7B:                                      /* switch 1 */
         for (var_16_2 = 0; var_16_2 < (datPersonaRosterCapacity() & 0xFFFF); var_16_2++) {
-            func_0031d630(arg0, (s8)(var_16_2), -1, -1, 0);
+            fclCombineSelectSlotEntry(arg0, (s8)(var_16_2), -1, -1, 0);
         }
         if ((((s8)(fclDrawGetState((u8 *)work->f148))) < 0) || (((s8)(fclDrawGetState((u8 *)work->f148))) > 5)) {
             if (D_008C027A[0] & 0x1000) {
@@ -7000,7 +7001,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     sp238 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp238, 3, 0);
                     func_003205f0(arg0, 0x94, 0x93);
-                    func_0031e320(arg0, (s64)work->f128);
+                    fclCombineFlashSlot(arg0, (s64)work->f128);
                     work->f1 = 0x7EU;
                     return;
                 }
@@ -7072,7 +7073,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         temp_16_13 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_12);
         frFontExDrawTextDeferredOutB(111.0f + sp160.x, sp160.y, 43.0f, temp_16_13, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, temp_18_7->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_4 = 0; var_19_4 < (datPersonaRosterCapacity() & 0xFFFF); var_19_4++) {
-            func_0031d630(arg0, (s8)(var_19_4), work->f128, work->f129, 0);
+            fclCombineSelectSlotEntry(arg0, (s8)(var_19_4), work->f128, work->f129, 0);
             if ((((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry((s16)((var_19_4 + 0x270))))+(0x10))), 1))) == 0) && (work->f128 != var_19_4) && ((*(s8 *)((u8 *)((yListSlotWork(0) + (work->f128 * 0xC) + var_19_4))+(0x14))) > 0)) {
                 if (var_19_4 == work->f11E) {
                     id27D = var_19_4 + 0x27D;
@@ -7218,9 +7219,9 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     return;
                 }
                 if (D_008C024E[0] & 0x20) {
-                    func_0031ddf0(arg0, (s8) work->f11E, 0, 0xFF);
+                    fclCombineApplySlotState(arg0, (s8) work->f11E, 0, 0xFF);
                     work->f11E = work->f128;
-                    func_0031ddf0(arg0, work->f11E, 1, 0xFF);
+                    fclCombineApplySlotState(arg0, work->f11E, 1, 0xFF);
                     func_0045af60(0, 0, 0, 2);
                     func_003205f0(arg0, 0x93, 0x94);
                     basePos = (FclVec2f *)D_00640C10;
@@ -7292,7 +7293,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         temp_16_28 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_27);
         frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, temp_18_13->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_5 = 0; var_19_5 < (datPersonaRosterCapacity() & 0xFFFF); var_19_5++) {
-            func_0031d630(arg0, (s8)(var_19_5), work->f128, work->f129, 0);
+            fclCombineSelectSlotEntry(arg0, (s8)(var_19_5), work->f128, work->f129, 0);
             if (var_19_5 == work->f11E) {
                 var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFFU);
             } else {
@@ -7462,7 +7463,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         temp_16_35 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_34);
         frFontExDrawTextDeferredOutB(111.0f + sp140.x, sp140.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, temp_18_15->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_6 = 0; var_19_6 < (datPersonaRosterCapacity() & 0xFFFF); var_19_6++) {
-            func_0031d630(arg0, (s8)(var_19_6), work->f128, work->f129, 0);
+            fclCombineSelectSlotEntry(arg0, (s8)(var_19_6), work->f128, work->f129, 0);
             if (((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry((s16)((var_19_6 + 0x270))))+(0x10))), 1))) == 0) {
                 if (var_19_6 == work->f11E) {
                     var_21_2 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFFU);
