@@ -3492,10 +3492,10 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
     extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
     extern void btlActionFinishPresentation(BtlAction *arg0);
-    extern void func_001b7060(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
+    extern void btlMainSkillColorPairDefaults(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern s32 btlMainSkillColorDefault(u16 skill); /* lint: allow H011 -- retail passes the lhu skill unconverted */
-    extern s32 func_001b7090(s32 arg0);
-    extern void func_001b70a0(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
+    extern s32 btlMainSkillTintDefault(s32 arg0);
+    extern void btlMainSkillColorPairDefaultsAlt(u16 skill, s32 *first, s32 *second); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     extern BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3);
     extern BtlPacket* btlCreateTimingPacket(u32 value);
     extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
@@ -4529,20 +4529,20 @@ void btlActionSkillUpdate(u8 *arg0) {
         *(u16 *)(btlState11_311 + 0x18) = (u16) (*(u16 *)(btlState11_311 + 0x18) | 0xF);
     }
     skillKey = (s16)skill;
-    func_001b7060(skillKey, &cameraFirst, &cameraSecond);
+    btlMainSkillColorPairDefaults(skillKey, &cameraFirst, &cameraSecond);
     cameraPkt60 = (BtlPacketTiming *)(btlMainCreateColorLerpPacket(cameraFirst, cameraSecond, 0x10));
     cameraPkt60->queue = 4;
     cameraPkt60->startTime = sceneTime;
     cameraPkt60->ownerId = actionId;
     btlPacketEnqueue((u8 *)cameraPkt60, 1);
     cameraKind = (s32)(btlMainSkillColorDefault(skillKey));
-    func_001b70a0(skillKey, &cameraFirst, &cameraSecond);
+    btlMainSkillColorPairDefaultsAlt(skillKey, &cameraFirst, &cameraSecond);
     cameraPkt61 = (BtlPacketTiming *)(btlMainCreateColorWorkPacket(cameraKind, cameraFirst, cameraSecond, 0x10, ((*(u16 *)((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + 2) & 2) ? 1 : 0)));
     cameraPkt61->queue = 4;
     cameraPkt61->startTime = sceneTime;
     cameraPkt61->ownerId = actionId;
     btlPacketEnqueue((u8 *)cameraPkt61, 1);
-    cameraPkt62 = (BtlPacketTiming *)(btlMainCreateTintPacket(func_001b7090((u16) skill), 0x10));
+    cameraPkt62 = (BtlPacketTiming *)(btlMainCreateTintPacket(btlMainSkillTintDefault((u16) skill), 0x10));
     cameraPkt62->queue = 4;
     cameraPkt62->startTime = sceneTime;
     cameraPkt62->ownerId = actionId;
@@ -5541,10 +5541,10 @@ void btlActionSummonUpdate(s64 *arg0)
     extern void btlFormationSetPlacement(u32 arg0);
     extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 arg0, u16 arg1);
     extern u8 *btlTargetCreateHitPacket(u8 *arg0);
-    extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
+    extern void btlMainSkillColorPairDefaults(u32 arg0, s32 *arg1, s32 *arg2);
     extern s32 btlMainSkillColorDefault(s32 arg0);
-    extern s32 func_001b7090(s32 arg0);
-    extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
+    extern s32 btlMainSkillTintDefault(s32 arg0);
+    extern void btlMainSkillColorPairDefaultsAlt(u32 arg0, s32 *arg1, s32 *arg2);
     extern BtlPacket *btlMainCreateColorLerpPacket(u32 arg0, u32 arg1, u32 arg2);
     extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
     extern BtlPacket *btlMainCreateTintPacket(u32 arg0, u32 arg1);
@@ -5644,7 +5644,7 @@ void btlActionSummonUpdate(s64 *arg0)
     }
     evId = *(s64 *)(evPkt + 0x58);
     scaleTmp = btlUnitMotionFrames((u8 *)action->unitRef.pointer, 8, 1.0f);
-    func_001b7060(aux, &outHi, &outLo);
+    btlMainSkillColorPairDefaults(aux, &outHi, &outLo);
     {
         u8 *pkt;
         pkt = (u8 *)btlMainCreateColorLerpPacket((u32)outHi, (u32)outLo, 0x10);
@@ -5657,7 +5657,7 @@ void btlActionSummonUpdate(s64 *arg0)
         s32 kind;
         u8 *pkt;
         kind = btlMainSkillColorDefault(aux);
-        func_001b70a0(aux, &outHi, &outLo);
+        btlMainSkillColorPairDefaultsAlt(aux, &outHi, &outLo);
         pkt = (u8 *)btlMainCreateColorWorkPacket(kind, outHi, outLo, 0x10, 0);
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
@@ -5666,7 +5666,7 @@ void btlActionSummonUpdate(s64 *arg0)
     }
     {
         u8 *pkt;
-        pkt = (u8 *)btlMainCreateTintPacket(func_001b7090(aux), 0x10);
+        pkt = (u8 *)btlMainCreateTintPacket(btlMainSkillTintDefault(aux), 0x10);
         *pkt = 4;
         *(s64 *)(pkt + 8) = evId;
         *(s64 *)(pkt + 0x60) = uid;
