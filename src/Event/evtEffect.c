@@ -5,7 +5,7 @@
 
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
-extern void func_002852a0(s32 arg0, s32 arg1);
+extern void evtMemAccount(s32 arg0, s32 arg1);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern void func_00291470(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
@@ -28,7 +28,7 @@ u8 *func_00290f00(void)
 
     func_0044ea90(D_00748340, 0x52);
     work = D_008873F4[0](1, 0x190, 0x40000);
-    func_002852a0(0xB, 0x190);
+    evtMemAccount(0xB, 0x190);
     if (work == 0) {
         func_0046d730(D_0063C830, 0x69);
     }
@@ -52,7 +52,7 @@ void func_00290fa0(u8 *arg0)
         }
         func_00291470(arg0);
         jtbl_008873EC[0](arg0);
-        func_002852a0(0xB, -0x190);
+        evtMemAccount(0xB, -0x190);
     }
 }
 // FUN_00291060

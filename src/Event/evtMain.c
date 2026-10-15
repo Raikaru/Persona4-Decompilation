@@ -126,7 +126,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
     case 10:
         func_0044ea90(D_00748340, 0x52);
         r = D_008873F4[0](1, 0x30, 0x40000);
-        func_002852a0(9, 0x30);
+        evtMemAccount(9, 0x30);
         if (r == NULL) {
             func_0046d730(D_0063C3B0, 0x170);
         }
@@ -138,7 +138,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
     }
     func_0044ea90(D_00748340, 0x52);
     temp_17 = D_008873F4[0](1, 0x54, 0x40000);
-    func_002852a0(8, 0x54);
+    evtMemAccount(8, 0x54);
     if (temp_17 == NULL) {
         func_0046d730(D_0063C3B0, 0x198);
     }
@@ -354,18 +354,18 @@ void evtNodeRemoveFree(u8 *arg0, u8 *arg1) {
     if (t48 != 0) {
         if (*(u32 *)arg0 != 0x12) {
             jtbl_008873EC[0]((void *)t48);
-            func_002852a0(9, 0);
+            evtMemAccount(9, 0);
         }
         *(u32 *)(arg1 + 0x48) = 0;
     }
     t40 = *(u32 *)(arg1 + 0x40);
     if (t40 != 0) {
         jtbl_008873EC[0]((void *)t40);
-        func_002852a0(0xA, -0x130);
+        evtMemAccount(0xA, -0x130);
         *(u32 *)(arg1 + 0x40) = 0;
     }
     jtbl_008873EC[0](arg1);
-    func_002852a0(8, -0x54);
+    evtMemAccount(8, -0x54);
 }
 
 // Event list: inserts 'node' into the owner list in ascending key order.
@@ -379,7 +379,7 @@ void evtListInsertSorted(u32 *param_1, u32 *param_2) {
         param_1[0x25] = 0;
     } else {
         while (node != 0) {
-            if (func_002853f0(param_1[0]) < func_002853f0(node[0])) {
+            if (evtKeyIndex(param_1[0]) < evtKeyIndex(node[0])) {
                 if (node[0x25] == 0) {
                     param_2[0x13] = (u32)param_1;
                     node[0x25] = (u32)param_1;
@@ -430,7 +430,7 @@ void *evtNodeAlloc(int param_1, int param_2) {
     void *r;
     func_0044ea90(D_00748340, 0x52);
     r = D_008873F4[0](1, 0x98, 0x40000);
-    func_002852a0(7, 0x98);
+    evtMemAccount(7, 0x98);
     if (r == 0) {
         return NULL;
     }
@@ -472,7 +472,7 @@ void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
 
     func_0044ea90(D_00748340, 0x52);
     r = D_008873F4[0](1, 0x98, 0x40000);
-    func_002852a0(7, 0x98);
+    evtMemAccount(7, 0x98);
     if (r == NULL) {
         r = NULL;
     } else {
@@ -2618,7 +2618,7 @@ loop_25_test:
     }
     evtNodeUnlink((int)temp_16, (int)arg0);
     jtbl_008873EC[0]((void *)temp_16);
-    func_002852a0(7, -0x98);
+    evtMemAccount(7, -0x98);
 loop_27_test:
     temp_16 = *(s32 **)(arg0 + 0x4C);
     if (temp_16 != NULL) {
@@ -2644,7 +2644,7 @@ u8 *func_0028afe0(void) {
 
     func_0044ea90(D_00748340, 0x52);
     p = D_008873F4[0](1, 0x7B0, 0x40000);
-    func_002852a0(0, 0x7B0);
+    evtMemAccount(0, 0x7B0);
     memset(p, 0, 0x7B0);
     func_0028b230((s32)p);
     src = (u32 *)(p + 0x76C);
@@ -2699,7 +2699,7 @@ void evtDestroy(int param_1, s32 arg1) {
     }
     func_0014a2f0(0);
     DAT_008873EC[0]((void *)param_1);
-    func_002852a0(0, -0x7B0);
+    evtMemAccount(0, -0x7B0);
     evtSlotTableIdle();
     func_00440b68(D_0063C628);
 }
