@@ -44,7 +44,7 @@ extern s32 func_0015f660();
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern s32 func_00102980(void);
 extern void func_00145080(void);
-extern void func_00260510(void);
+extern void sdlSchedulerEnable(void);
 extern void *memset(void *dst, s32 value, s32 size);
 extern s32 func_00110e80(void);
 extern s32 *func_00155280(void);
