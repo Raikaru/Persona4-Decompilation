@@ -33,7 +33,7 @@ extern void *memset(void *dest, s32 value, u32 size);
 extern s32 yListCompareByKeyDesc(const void *arg0, const void *arg1);
 extern s32 yListCompareByWeightedKeyDesc(const void *arg0, const void *arg1);
 #include "rw/std/stdlib.h"
-extern u8 *func_0010fcb0(s32 arg0);
+extern u8 *datPersonaCachedRecord(s32 arg0);
 extern s32 datPersonaFindRosterSlotById(s32 arg0);
 extern u16 *datPersonaFindRosterRecordById(s32 arg0);
 
@@ -661,9 +661,9 @@ s32 yListSlotRefresh(u8 *arg0) {
         break;
     case 2:
         for (i = 0; i < 0x100; i++) {
-            if (func_0010fcb0(i) != 0) {
+            if (datPersonaCachedRecord(i) != 0) {
                 memset(p + (*(s32 *)(p + 8) * 0x30) + 0x14, 0, 0x30);
-                memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0x14, func_0010fcb0(i), 0x30);
+                memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0x14, datPersonaCachedRecord(i), 0x30);
                 *(s32 *)(p + 8) += 1;
             }
         }
@@ -685,7 +685,7 @@ s32 yListSlotRefresh(u8 *arg0) {
             if (datPersonaRosterSlotActive(i) == 1) {
                 memcpy(&current, datPersonaRosterSlot(i), 0x30);
                 if (*(u8 *)(iGpffffb3d4 + current.id * 0xE + 2) < 0x16) {
-                    memcpy(&registered, func_0010fcb0(current.id), 0x30);
+                    memcpy(&registered, datPersonaCachedRecord(current.id), 0x30);
                     if (yListRecordsDiffer((u8 *)&current, (u8 *)&registered) == 1) {
                         memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
                         memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, datPersonaRosterSlot(i), 0x30);
@@ -1760,7 +1760,7 @@ void yListSlotSortWeighted(s8 arg0) {
         dst = p + ((i * 3) * 0x10) + 0x14;
 
         memset(dst, 0, 0x30);
-        memcpy(dst, func_0010fcb0(arr2[i]), 0x30);
+        memcpy(dst, datPersonaCachedRecord(arr2[i]), 0x30);
     }
 }
 /* measured: see the annotation above the matching `on` pragma (func_002e68b0). */
@@ -1917,7 +1917,7 @@ void yListSlotSortByKey(s8 arg0) {
         dst = p + ((i * 3) * 0x10) + 0x14;
 
         memset(dst, 0, 0x30);
-        memcpy(dst, func_0010fcb0(arr2[i]), 0x30);
+        memcpy(dst, datPersonaCachedRecord(arr2[i]), 0x30);
     }
 }
 /* measured: closing the scope restores the file baseline; leaving

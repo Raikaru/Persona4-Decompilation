@@ -113,7 +113,7 @@ extern s32 func_001ef9a0(void);
 /* The action caller forwards the 32-bit unit-status word. This selector
  * consumes its low20 bits; higher bits have no role in table selection. */
 void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status) {
-    extern s32 func_00105ed0();
+    extern s32 datGetMoney();
     extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
     extern s32 datCalcRandomBelow(u32 arg0);
     extern void memset(void *arg0, s32 arg1, s32 arg2);
@@ -163,7 +163,7 @@ void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status) {
             } else {
                 state = 2;
             }
-        } else if (func_00105ed0() != 0) {
+        } else if (datGetMoney() != 0) {
             state = 0;
         } else {
             state = 2;

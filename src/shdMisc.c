@@ -24,7 +24,7 @@ extern s32 (*D_00887310[])(s32, void *, s32);
 extern char D_005E5810[];
 extern char D_0064E2F8[];
 
-u32 func_00105ed0(void);
+u32 datGetMoney(void);
 s32 func_0046a770(char *param);
 void kAssertFail(char *, s32);
 void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3,
@@ -54,7 +54,7 @@ void func_00364320(Vec2f pos, f32 z, s32 color, s32 num)
 
     if (color & 0xFF) {
         if (num <= 0) {
-            num = func_00105ed0();
+            num = datGetMoney();
         }
         func_003645c0(tmp, num);
         if (iGpffffb5a8 == 0) {

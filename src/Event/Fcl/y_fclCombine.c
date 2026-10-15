@@ -54,7 +54,7 @@ extern void func_002b60f0(u8 *, u8, u8, u32);
 extern void fclCombineFadeCursorArrow(u8 *, s64, f32);
 extern void func_0034a890(u8 *);
 extern void func_0034a840(u8 *);
-extern u8 *func_0010fcb0(s32);
+extern u8 *datPersonaCachedRecord(s32);
 extern char iGpffffa8a0;
 
 extern void fclDrawSetSlotMode(u8 *, s32, s8);
@@ -197,7 +197,7 @@ extern void func_002bbf60(void);
 extern s32 datPersonaGetSkillAt(void *, s16);
 extern u16 *iGpffffb3ec;
 extern u8 *iGpffffb594;
-extern void func_0010fd40(void *);
+extern void datPersonaCacheRecord(void *);
 extern void func_00106620(s16, s32);
 extern u8 D_00641BE0[];
 extern u8 D_00641C00[];
@@ -207,7 +207,7 @@ extern s32 func_00454a60(void *arg0, s32 arg1);
 extern void func_0045aac0(s32, s32, s32);
 extern s32 func_00110460(void);
 extern void func_00105690(s32, s32);
-extern void func_00105fa0(s32);
+extern void datSetMoney(s32);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern void fclCombineMoveGridCursor(u8 *arg0, s32);
 extern u16 D_008C0276[];
@@ -4948,10 +4948,10 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (*(u16 *)yListSlotEntry(0, p->f11E) & 4) {
                 *(u16 *)yListSlotEntry(0, p->f11E) = 0;
                 *(u16 *)yListSlotEntry(0, p->f11E) |= 1;
-                func_0010fd40(yListSlotEntry(0, p->f11E));
+                datPersonaCacheRecord(yListSlotEntry(0, p->f11E));
                 *(u16 *)yListSlotEntry(0, p->f11E) = originalFlags;
             } else {
-                func_0010fd40(yListSlotEntry(0, p->f11E));
+                datPersonaCacheRecord(yListSlotEntry(0, p->f11E));
             }
             func_002bb550(p->fD);
             p->fD = func_002bab80((void *)func_00331660());
@@ -4993,10 +4993,10 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 if (*(u16 *)yListSlotEntry(0, var_19) & 4) {
                     *(u16 *)yListSlotEntry(0, var_19) = 0;
                     *(u16 *)yListSlotEntry(0, var_19) |= 1;
-                    func_0010fd40(yListSlotEntry(0, var_19));
+                    datPersonaCacheRecord(yListSlotEntry(0, var_19));
                     *(u16 *)yListSlotEntry(0, var_19) = bitSav;
                 } else {
-                    func_0010fd40(yListSlotEntry(0, var_19));
+                    datPersonaCacheRecord(yListSlotEntry(0, var_19));
                 }
                 var_19++;
             }
@@ -5040,7 +5040,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                     fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 } else {
-                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 }
                 goto conv8F;
@@ -5058,7 +5058,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                     fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 } else {
-                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 }
                 goto conv8F;
@@ -5073,7 +5073,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             } else {
-                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             }
             goto conv8F;
@@ -5088,7 +5088,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                     fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 } else {
-                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 }
                 goto conv8F;
@@ -5106,7 +5106,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                     fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 } else {
-                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 }
                 goto conv8F;
@@ -5121,14 +5121,14 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             } else {
-                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             }
             if (p->f122 == 0) {
                 fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             } else {
-                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             }
             goto conv8F;
@@ -5150,7 +5150,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclSpriteStartPositionAt(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
                 ps = fclSpriteEntry(0x2E0);
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
-                fclDrawSetSlot(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 0);
+                fclDrawSetSlot(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 0);
                 func_0045af60(0, 2, 0, 5);
             }
             goto conv8F;
@@ -5542,7 +5542,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             func_0045af60(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 5);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C027A[0] & 0x1000) {
             if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
@@ -5552,12 +5552,12 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 func_0045af60(0, 2, 0, 5);
             }
             fclCombineMoveRosterCursor(arg0, 1);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C0252[0] & 1) {
             func_0045af60(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 5);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if ((D_008C0276[0] & 0x4000) && (p->f13A == 0)) {
             if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
@@ -5565,7 +5565,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             func_0045af60(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 4);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C027A[0] & 0x4000) {
             if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
@@ -5575,12 +5575,12 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 func_0045af60(0, 2, 0, 5);
             }
             fclCombineMoveRosterCursor(arg0, 0);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C0252[0] & 2) {
             func_0045af60(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 4);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             goto conv9A;
         } else if (D_008C024E[0] & 0x80) {
             if (p->f122 == 1) {
@@ -5608,7 +5608,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 func_002b5ef0((u8 *)p->f2B4, func_002b2970(0.0f, 69.0f), func_002b2970(0.0f, 93.0f), func_002b29e0(640.0f, (f32)0x157), func_002b29e0(640.0f, 294.0f), 5);
                 func_002b60f0((u8 *)p->f2B4, 0xE5, 0, 5);
                 fclCombineFadeCursorArrow(arg0, 0, 0.0f);
-                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0045af60(0, 0, 0, 5);
             }
             goto conv9A;
@@ -9978,9 +9978,9 @@ void fclCombineSaveSnapshot(void)
     memset(iGpffffb594, 0, 0x3000);
     i = 0;
     while (i < 0x100) {
-        if (func_0010fcb0(i) != 0) {
+        if (datPersonaCachedRecord(i) != 0) {
             j = (s16)i;
-            memcpy(iGpffffb594 + (s32)j * 0x30, func_0010fcb0(j), 0x30);
+            memcpy(iGpffffb594 + (s32)j * 0x30, datPersonaCachedRecord(j), 0x30);
         }
         i++;
     }
@@ -10005,7 +10005,7 @@ void fclCombineRestoreSnapshot(void)
     }
     i = 0;
     while (i < 0x100) {
-        func_0010fd40(iGpffffb594 + i * 0x30);
+        datPersonaCacheRecord(iGpffffb594 + i * 0x30);
         i++;
     }
     i = 0;
@@ -10273,7 +10273,7 @@ s32 fclCombineTaskCreate(u8 *arg0)
     }
     if (datGetFlag(0x1463) != 0) {
         func_00105690(1, 0x63);
-        func_00105fa0(0xF4240);
+        datSetMoney(0xF4240);
         func_00106390(0x1202, 1);
         func_00106390(0x1305, 1);
         func_00106390(0x1301, 1);

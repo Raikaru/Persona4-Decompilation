@@ -24,8 +24,8 @@ extern char D_00635C00[];
 extern char D_00635C20[];
 extern char D_00635C40[];
 extern char D_00635C60[];
-extern u32 func_00105ed0(void);
-extern void func_00105fa0(s32 arg0);
+extern u32 datGetMoney(void);
+extern void datSetMoney(s32 arg0);
 extern s32 func_00120e20(s32 arg0, s32 arg1);
 extern s32 func_00120ee0(s32 arg0);
 extern void func_00120f00(s32 arg0);
@@ -299,7 +299,7 @@ s32 func_0025cf70(void) {
 s32 scrCommonAddPcMoney(void) {
     s32 temp_16;
     s32 var_4;
-    temp_16 = func_00105ed0();
+    temp_16 = datGetMoney();
 
     var_4 = temp_16 + scrGetParamInt(0);
     if (var_4 <= 0x0098967F) {
@@ -310,8 +310,8 @@ block_1:
     if (var_4 < 0) {
         var_4 = 0;
     }
-    func_00105fa0(var_4);
-    scrSetReturnInt(func_00105ed0());
+    datSetMoney(var_4);
+    scrSetReturnInt(datGetMoney());
     return 1;
 }
 // Intent: Common script command CALL_NAME_ENTRY (p4flow Common 0x0051): opens the name entry screen (mode 0x1C) [inferred]

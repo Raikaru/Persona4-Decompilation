@@ -163,7 +163,7 @@ extern u8 *btlUnitCreateLookAtPacket(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 datCalcIsLowHp(u8 *arg0);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern u16 *datPersonaGetRecord(u16 character);
-extern s32 func_0010f4f0(s32 arg0);
+extern s32 datPersonaGetRosterSlot(s32 arg0);
 extern void btlActionSetState(u8 *arg0, u32 arg1);
 extern void func_001b08d0(void *arg0);
 extern void btlActionSetUnit(u8 *arg0, u8 *arg1);
@@ -658,7 +658,7 @@ u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2)
         }
         p4_call_0019ef30(*(u16 *)((u8 *)datPersonaGetRecord(arg1) + 2),
                          var_17);
-        *(s32 *)(var_18 + 0x3F0) = func_0010f4f0((s16)arg1);
+        *(s32 *)(var_18 + 0x3F0) = datPersonaGetRosterSlot((s16)arg1);
         *(u16 *)(var_18 + 0x1A) |= 0x10;
         break;
     case 1:

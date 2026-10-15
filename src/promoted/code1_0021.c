@@ -41,7 +41,7 @@ extern u8 *datUnitGetRecord(s16 arg0);
 extern u32 datPersonaGetExpById(s16 arg0);
 extern void func_00105990(s16 arg0, u32 value);
 extern u8 func_001059e0(s32 arg0);
-extern s32 func_00106020(s32 arg0);
+extern s32 datAddMoney(s32 arg0);
 extern s32 func_00106600(s16 id);
 extern void datCalcSetLevel(u8 *arg0, u8 arg1);
 extern s32 btlDamageIsIdle(s32);
@@ -4622,7 +4622,7 @@ void btlXpApplyAwards(u8 *arg0, u8 *arg1)
             var_16 = 1;
         }
     }
-    func_00106020(var_16);
+    datAddMoney(var_16);
     var_17 = 0;
     while (var_17 < *(s32 *)(arg1 + 0x30)) {
         temp_19 = arg1 + var_17 * 4;

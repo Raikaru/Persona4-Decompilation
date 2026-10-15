@@ -21,7 +21,7 @@ extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern u8 *iGpffffb588;
 extern u8 *iGpffffb590;
 extern u8 *func_002e1db0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern u32 func_00105ed0(void);
+extern u32 datGetMoney(void);
 extern s32 func_002e1230();
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern s32 func_0046a770(const void *arg0);
@@ -48,7 +48,7 @@ s16 func_001060b0(void);
 void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
 
 s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-void func_00105fa0(s32 arg0);
+void datSetMoney(s32 arg0);
 extern u8 D_0063F560[];
 
 
@@ -582,13 +582,13 @@ void func_002e7920(s32 *arg0, s32 *arg1)
 // FUN_002E7A60
 u32 func_002e7a60(void)
 {
-    return func_00105ed0();
+    return datGetMoney();
 }
 
 // FUN_002E7A80
 void func_002e7a80(s32 arg0)
 {
-    func_00105fa0(func_002b2cb0(arg0, 0, 0x98967F, 0, 1));
+    datSetMoney(func_002b2cb0(arg0, 0, 0x98967F, 0, 1));
 }
 
 #define P4_002E7AC0_DRAW() \
