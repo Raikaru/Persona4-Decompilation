@@ -800,7 +800,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                         func_00120f20(var_19);
                     }
                     {
-                        s32 createdTask = func_00120e20((s32)func_00286350(), cutinCode.packed);
+                        s32 createdTask = func_00120e20((s32)evtFindTask(), cutinCode.packed);
                         *(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4) = createdTask;
                     }
                     cutinPosition.vector.x = (f32)*(s16 *)(arg2 + 0x1C);
@@ -895,7 +895,7 @@ void func_00287bf0(s32 arg0, u8 *arg1) {
         if (*(s32 *)var_17 == 0x26) {
             var_16 = *(u8 **)(var_17 + 0x68);
             while (var_16 != NULL) {
-                if (func_00286430(var_16) != 0) {
+                if (evtCheckCondition(var_16) != 0) {
                     temp_4 = *(u16 *)var_16;
                     if (((s32)temp_4 <= arg0) && ((temp_4 + *(s16 *)(var_16 + 0x12)) >= arg0)) {
                         *(s32 *)(arg1 + 0x20) = *(s16 *)(var_16 + 0x10);
@@ -923,7 +923,7 @@ u8 *func_00287cc0(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
         if ((s32)*(u16 *)node <= arg2) {
             if (*(s8 *)(node + 0x22) == 0) {
                 s32 t = *(s8 *)(node + 0x14);
-                if ((best < (s32)*(u16 *)node) && (*(s8 *)(node + 0x10) == 2) && (t == arg3) && (func_00286430(node) == 1)) {
+                if ((best < (s32)*(u16 *)node) && (*(s8 *)(node + 0x10) == 2) && (t == arg3) && (evtCheckCondition(node) == 1)) {
                     best = (s32)*(u16 *)node;
                     found = node;
                 }
@@ -1920,7 +1920,7 @@ s32 evtCmdLabelText(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             t41 = *(s16 *)(arg4 + 0x14) + 0x41;
             sprintf(sp30, D_0063C5C0, *(u32 *)(arg2 + 0x78C), *(u32 *)(arg2 + 0x790), t41);
             if (*(u32 *)(arg2 + 0x760) == 0) {
-                *(u32 *)(arg2 + 0x760) = func_0028f770(func_00286350());
+                *(u32 *)(arg2 + 0x760) = func_0028f770(evtFindTask());
             }
             if (*(u32 *)(arg2 + 0x760) == 0) {
                 func_0046d730(D_0063C3B0, 0xCE7);
@@ -1948,7 +1948,7 @@ s32 evtCmdTaskSlot(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     u8 *slot;
     s32 offset;
 
-    t = func_00286350();
+    t = evtFindTask();
     switch (arg0) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2018,7 +2018,7 @@ s32 evtCmdEnvSlot(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     u8 sp60[0x14];
     s32 t;
 
-    t = func_00286350();
+    t = evtFindTask();
     switch (arg0) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2056,7 +2056,7 @@ s32 evtCmdEnvSlot(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
 // Event command (screen colour): case 2 sets the screen colour and fade value.
 // FUN_00289C90
 s32 evtCmdScreenColor(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
-    func_00286350();
+    evtFindTask();
     switch (param_1) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2085,7 +2085,7 @@ s32 evtCmdScreenColor(int param_1, int param_2, int param_3, int param_4, u16 *p
 s32 evtCmdTaskHandle(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     s32 t;
 
-    t = func_00286350();
+    t = evtFindTask();
     switch (arg0) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2121,7 +2121,7 @@ s32 evtCmdTaskHandle(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
 // Event command (camera position): sets the camera x/y from the command operands.
 // FUN_00289EC0
 s32 evtCmdCamPos(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
-    func_00286350();
+    evtFindTask();
     switch (param_1) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2150,7 +2150,7 @@ s32 func_00289fb0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     s8 temp_3;
     u32 t;
 
-    func_00286350();
+    evtFindTask();
     switch (arg0) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2185,7 +2185,7 @@ s32 func_0028a100(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     s8 temp_3;
     u32 t;
 
-    func_00286350();
+    evtFindTask();
     switch (arg0) {
     case 0:
         if (D_008821E0[0] != 2) {
@@ -2221,7 +2221,7 @@ s32 func_0028a100(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
 
 // FUN_0028A2A0
 s32 func_0028a2a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
-    func_00286350();
+    evtFindTask();
     switch (arg0) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2255,7 +2255,7 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     s16 temp_3_2;
     u32 t;
 
-    func_00286350();
+    evtFindTask();
     switch (arg0) {
     case 0:
         if (D_008821E0[0] != 2) {
@@ -2304,7 +2304,7 @@ s32 evtCmdRangeFlag(s32 arg0, s32 arg1, s32 *arg2, s32 arg3, u8 *arg4) {
     u16 temp_3;
     u16 temp_4;
 
-    func_00286350();
+    evtFindTask();
     switch (arg0) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2339,7 +2339,7 @@ s32 evtCmdRangeFlag(s32 arg0, s32 arg1, s32 *arg2, s32 arg3, u8 *arg4) {
 s32 func_0028a6a0(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
     s16 v18;
     s8 t;
-    func_00286350();
+    evtFindTask();
     switch (param_1) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2374,7 +2374,7 @@ s32 func_0028a6a0(int param_1, int param_2, int param_3, int param_4, u16 *param
 
 // FUN_0028A7C0
 s32 func_0028a7c0(s32 param_1) {
-    func_00286350();
+    evtFindTask();
     switch (param_1) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2394,7 +2394,7 @@ s32 func_0028a7c0(s32 param_1) {
 
 // FUN_0028A850
 s32 func_0028a850(s32 param_1) {
-    func_00286350();
+    evtFindTask();
     switch (param_1) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2414,7 +2414,7 @@ s32 func_0028a850(s32 param_1) {
 
 // FUN_0028A8E0
 s32 func_0028a8e0(s32 param_1) {
-    func_00286350();
+    evtFindTask();
     switch (param_1) {
     case 0:
         switch (D_008821E0[0]) {
@@ -2453,7 +2453,7 @@ s32 func_0028a970(s32 arg0, s32 arg1, u8 *arg2) {
         if (D_00882204[0][n](0, arg0, arg1, arg2, 0) != 0) {
             node = *(u8 **)(arg2 + 0x68);
             while (node != NULL) {
-                if (func_00286430(node) != 0) {
+                if (evtCheckCondition(node) != 0) {
                     D_00882204[0][*(u32 *)arg2](2, arg0, arg1, arg2, node);
                 }
                 node = *(u8 **)(node + 0x4C);
@@ -2522,7 +2522,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
             temp_18 = *(s16 *)(var_20 + 0x1C);
             var_19 = *(u8 **)(var_20 + 0x68);
             while (var_19 != NULL) {
-                if (func_00286430(var_19) != 0) {
+                if (evtCheckCondition(var_19) != 0) {
                     if (((s32)*(u16 *)var_19 + temp_18) > arg0) {
                         break;
                     }
@@ -2535,7 +2535,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
                 var_18_3 = *(u8 **)(var_20 + 0x6C);
             }
             while (var_18_3 != NULL) {
-                if (func_00286430(var_18_3) == 1) {
+                if (evtCheckCondition(var_18_3) == 1) {
                     break;
                 }
                 var_18_3 = *(u8 **)(var_18_3 + 0x50);

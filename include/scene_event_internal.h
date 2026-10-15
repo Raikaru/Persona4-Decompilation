@@ -46,7 +46,7 @@ extern s32 D_00882170[];
 /* Event TU prototypes: functions defined in src/Event and the scene-event bucket. */
 void func_00285260(void);
 void func_002871a0();
-s32 func_00286350(void);
+s32 evtFindTask(void);
 void func_0028ad90(u8 *arg0, s32 arg1);
 void evtEnvSlotRestore(int, int);
 void evtCamPosRestore(int);
@@ -73,7 +73,7 @@ void func_002909b0(s32 *, s32, s32, s32, s32);
 s32 func_00290e50(u8 *, s32);
 void evtMemAccount(s32 arg0, s32 arg1);
 s32 evtSlotTableIdle(void);
-s32 func_00286430(u8 *arg0);
+s32 evtCheckCondition(u8 *arg0);
 void evtListInsertSorted(u32 *, u32 *);
 s32 evtKeyIndex(s32 arg0);
 extern void *evtEnvSlot(int arg0, int arg1);
