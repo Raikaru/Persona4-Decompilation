@@ -1444,8 +1444,9 @@ void mdlSetupMatFXMaterial(int param_1)
 
 
 
+/* Per-atomic callback for RpClumpForAllAtomics. When the atomic's hierarchy has more than 0x40 nodes it stores a MatFX plugin handle at +0x6c and sets up each material of the hierarchy. */
 // FUN_00473250
-void* func_00473250(void* param_1, void* data)
+void* mdlSetupAtomicMatFX(void* param_1, void* data)
 {
     int iVar1;
     u32 uVar2;
@@ -1487,8 +1488,9 @@ void* func_00473250(void* param_1, void* data)
 
 
 
+/* Anim-loop callback for RtAnimInterpolatorSetAnimLoopCallBack. Looks up the animation for the slot at arg1's raw index in the layer's dispatch table and returns it, or the placeholder entry. */
 // FUN_00473350
-void* func_00473350(void* arg0, u8* arg1)
+void* mdlResolveLoopAnimation(void* arg0, u8* arg1)
 {
     s16 rawIndex;
     s64 lVar2;
@@ -1539,7 +1541,7 @@ void* func_00473350(void* arg0, u8* arg1)
             t = *(void**)((u8*)*(void**)(arg1 + 0x20) + 0x20);
             func_003d5e40_typed(*(f32*)(arg1 + 0xC), t);
             t = *(void**)((u8*)*(void**)(arg1 + 0x20) + 0x20);
-            RtAnimInterpolatorSetAnimLoopCallBack(t, func_00473350, arg1);
+            RtAnimInterpolatorSetAnimLoopCallBack(t, mdlResolveLoopAnimation, arg1);
         }
     } else if (*(u16*)(arg1 + 0) & 1) {
         *(f32*)(arg1 + 0xC) = 0.0f;
@@ -1547,8 +1549,9 @@ void* func_00473350(void* arg0, u8* arg1)
     return arg0;
 }
 
+/* Initializes a 0xA4-byte slot record: clears it, sets the index fields to -1 and the scale fields to 1.0. */
 // FUN_00473520
-void func_00473520(void* param_1)
+void mdlInitSlotRecord(void* param_1)
 {
     memset(param_1, 0, 0xA4);
     *(u8*)((u8*)param_1 + 2) = 1;
@@ -1580,9 +1583,10 @@ void func_00473520(void* param_1)
    declaring the loop counter i BEFORE obj steers allocation to retail's
    obj=$s0/i=$s1 (pure statement-order, cf FLYList). i*4 kept as a separate
    local named j. */
+/* Destroys the effect list of each slot in the record array at arg0+0x38 (mdlEffectListDestroy for each non-null entry). */
 // FUN_004735B0
 #pragma opt_propagation off
-void func_004735b0(u8 *arg0)
+void mdlDestroySlotEffects(u8 *arg0)
 {
     u32 i;
     u32 *obj;
@@ -1689,7 +1693,7 @@ void func_00473710(u8 *arg0, u8 *arg1, s32 arg2)
     model->hierarchy = selected;
     RpClumpForAllAtomics(arg1, mdlSetAtomicHierarchy, selected);
     if (arg2 != 0)
-        RpClumpForAllAtomics(arg1, func_00473250, *frame);
+        RpClumpForAllAtomics(arg1, mdlSetupAtomicMatFX, *frame);
     func_004633c0(arg1, model->hierarchy);
     model->hierarchy->flags |= 0x3000;
     if (model->source != 0 && model->source->animation != 0) {
@@ -2132,7 +2136,7 @@ void func_004740c0(u8* layer, s16 animation, u16 blendTicks, s32 flags)
                     iGpffff8040 * (f32)*startFrame);
             }
             RtAnimInterpolatorSetAnimLoopCallBack(*(RtAnimInterpolator**)(*(u8**)(layer + 0x20) + 0x20),
-                func_00473350, layer);
+                mdlResolveLoopAnimation, layer);
         }
         *(u16*)(layer + 0x18) = 0;
         *(f32*)(layer + 0x1c) = 1.0f;
@@ -2209,7 +2213,7 @@ extern void func_0047fd10(u8 **a, f32 b, u8 **c, f32 d, f32 e);
 extern void func_0047fe90(u8 **a, f32 b, f32 c);
 extern void func_0047fbf0(u8 **a, f32 b);
 extern f32 func_00480060(u8 **a);
-extern void* func_00473350(void* a, u8* b);
+extern void* mdlResolveLoopAnimation(void* a, u8* b);
 /* measured: u8* params fixed the param_2+0xC address-CSE (nd 106 -> 54) and
    the func_0047fd10 call needs FOUR args (e2, e, *(p2+0x14), 0.0f — the
    a1=$s0 move is deliberate, fixing it removes the shift). Residual
@@ -2276,7 +2280,7 @@ void func_004746b0(u8* arg0, u8* arg1)
             } else {
                 func_0047fbf0(temp_16, *(f32*)(arg1 + 0xC));
                 if (*(f32*)(arg1 + 0xC) > func_00480060(temp_16)) {
-                    func_00473350(NULL, arg1);
+                    mdlResolveLoopAnimation(NULL, arg1);
                 }
             }
         }
@@ -4120,7 +4124,7 @@ void* func_004779b0(u32 type, u16 id)
     *(s32*)(obj + 0x84) = 0x3F800000;
     *(s32*)(obj + 0x88) = 0x3F800000;
     for (i = 0; i < 2; i++) {
-        func_00473520(obj + i * 0xA4 + 0xEC);
+        mdlInitSlotRecord(obj + i * 0xA4 + 0xEC);
     }
     *(s32*)(obj + 0x238) = 0;
     *(s8*)(obj + 0x23E) = 1;
@@ -4583,7 +4587,7 @@ void func_004787e0(u8* param_1)
         func_003c0700(*(void**)(param_1 + 0xDC));
     }
     for (i = 0; i < 2; i++) {
-        func_004735b0(param_1 + i * 0xA4 + 0xEC);
+        mdlDestroySlotEffects(param_1 + i * 0xA4 + 0xEC);
     }
     if (*(void**)(param_1 + 0x234) != 0) {
         func_004745f0(*(void**)(param_1 + 0x234));
