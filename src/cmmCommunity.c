@@ -7,7 +7,7 @@
 
 extern void *memset(void *dest, s32 value, s32 size);
 extern s32 kwlnTaskGetTaskByName(void *path);
-extern u32 func_00452560(s32 task);
+extern u32 kwlnTaskGetWork(s32 task);
 extern void func_0046d730(const void *file, u32 line);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern s64 func_00248760(s32 arg0);
@@ -1264,7 +1264,7 @@ s32 func_00108dc0(void)
     s32 ret = kwlnTaskGetTaskByName(D_005E4308);
     if (ret != 0)
     {
-        return (s32)func_00452560(ret);
+        return (s32)kwlnTaskGetWork(ret);
     }
     return 0;
 }
@@ -1275,7 +1275,7 @@ s32 func_00108e10(void)
     s32 r = kwlnTaskGetTaskByName(D_005E4308);
     if (r != 0)
     {
-        r = (s32)func_00452560(r);
+        r = (s32)kwlnTaskGetWork(r);
     }
     else
     {
@@ -1298,7 +1298,7 @@ s32 func_00108e70(void)
     s32 r = kwlnTaskGetTaskByName(D_005E4308);
     if (r != 0)
     {
-        r = (s32)func_00452560(r);
+        r = (s32)kwlnTaskGetWork(r);
     }
     else
     {

@@ -66,7 +66,7 @@ extern f32 func_0044b920(f32 a);
 extern s32 func_0044dcd8(f32 a);
 extern f32 func_0044e7d8(s32 a);
 
-extern u8 **func_00452560();
+extern u8 **kwlnTaskGetWork();
 extern void func_0046d730(void *file, s32 line);
 extern void *mdlGetMatrix(s32 a);
 extern void mdlSetBlendWeight(s32 a, f32 b);
@@ -635,7 +635,7 @@ s32 func_002930e0(u8 *unusedTask) {
     u8 *entry;
     s32 (*cb)(u8 **, u8 *);
 
-    list = (u8 **)func_00452560();
+    list = (u8 **)kwlnTaskGetWork();
     head = (u8 *)*list;
     node = (u8 *)((u8 **)head)[1];
     while (node != NULL) {
@@ -663,7 +663,7 @@ void func_002931a0(u8 *unusedTask) {
     u8 *next;
     s32 handle;
 
-    list = (u8 **)func_00452560();
+    list = (u8 **)kwlnTaskGetWork();
     head = (u8 *)*list;
     if (head != NULL) {
         node = (u8 *)((u8 **)head)[1];
@@ -702,7 +702,7 @@ void func_002932b0(s32 arg0) {
 
     outer = kwlnTaskGetTaskByName(D_0063C958);
     if (outer != 0) {
-        list = (u8 **)func_00452560(outer);
+        list = (u8 **)kwlnTaskGetWork(outer);
         head = (u8 *)*list;
         if (head != NULL) {
             node = (u8 *)((u8 **)head)[1];
@@ -745,7 +745,7 @@ void func_002933a0(u16 arg0, s32 arg1, f32 fparg0) {
         *temp_10 = temp_2;
         var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
     }
-    temp_17 = (u8 **)func_00452560(var_2);
+    temp_17 = (u8 **)kwlnTaskGetWork(var_2);
     memset(sp, 0, 0x2C);
     *(s16 *)(sp + 0) = arg0;
     *(s32 *)(sp + 4) = arg1;
@@ -794,7 +794,7 @@ void func_00293550(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
         *temp_10 = temp_2;
         var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
     }
-    temp_17 = (u8 **)func_00452560(var_2);
+    temp_17 = (u8 **)kwlnTaskGetWork(var_2);
     memset(sp, 0, 0x2C);
     *(s16 *)(sp + 0) = arg0;
     *(s16 *)(sp + 2) = arg1;

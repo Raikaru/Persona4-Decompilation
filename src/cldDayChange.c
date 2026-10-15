@@ -9,10 +9,10 @@ extern u8 D_006376B0[];
 extern u8 D_006376C0[];
 extern u8 D_006376D0[];
 extern u8 D_00638EF0[];
-extern u8 *func_00452560();
+extern u8 *kwlnTaskGetWork();
 extern u8 *func_00460990();
 extern void func_00460ac0(void *, void *);
-extern u8 *func_00452560();
+extern u8 *kwlnTaskGetWork();
 extern void sdkSpriteRelease(void *);
 void func_0046d730(const void *file, s32 line);
 void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -84,7 +84,7 @@ s32 cldDayChangeUpdateState(u8 *arg0) {
     u32 tmp;
     u8 *s;
 
-    p = (s32 *)func_00452560();
+    p = (s32 *)kwlnTaskGetWork();
     switch (p[0]) {
     case 0:
         p[0] = 1;
@@ -656,7 +656,7 @@ void cldDayChangeDrawFrame(s32 arg0, s32 arg1)
     f32 ratio;
     f32 value;
 
-    p = func_00452560(arg1);
+    p = kwlnTaskGetWork(arg1);
     state = *(s32 *)(p + 0) - 4;
     switch (state) {
     case 0:
@@ -703,7 +703,7 @@ void cldDayChangeTaskDestroy(u8 *arg0) {
     u8 *p;
     s32 v;
 
-    p = func_00452560();
+    p = kwlnTaskGetWork();
     v = *(s32 *)(p + 8);
     if (v != 0) {
         sdkSpriteRelease((void *)v);

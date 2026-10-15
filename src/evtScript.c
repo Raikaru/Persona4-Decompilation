@@ -67,7 +67,7 @@ extern s32 func_00298370(u8 *task);
 extern void func_00298990(s32 arg0, s32 arg1);
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// func_00452560 is intentionally left undeclared (implicit old-style call, as
+// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
@@ -80,7 +80,7 @@ s32 func_00298370(u8 *unusedTask) {
     u8 *temp_2_4;
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00452560();
+    temp_2 = (u8 *)kwlnTaskGetWork();
     temp_17 = *(s32 *)(temp_2 + 0);
     if (mdlPrepareModel(temp_17) == 1) {
         MT_Scene_DestroyRes((u16)((( *(s32 *)(temp_2 + 4) + 0x384) & 0x3FF) | 0xC00));
@@ -94,7 +94,7 @@ s32 func_00298370(u8 *unusedTask) {
         if (temp_2_2 == 0) {
             func_0046d730(D_0063CF80, 0x39);
         }
-        temp_2_4 = (u8 *)func_00285480(func_00452560(temp_2_2));
+        temp_2_4 = (u8 *)func_00285480(kwlnTaskGetWork(temp_2_2));
         temp_2_2 = *(s32 *)(temp_2 + 4);
         temp_2 = (u8 *)func_00285b80(temp_2_4, temp_2_2);
         if (temp_2 == NULL) {
@@ -112,7 +112,7 @@ void func_00298510(u8 *unusedTask)
 {
     int iVar1;
 
-    iVar1 = func_00452560();
+    iVar1 = kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }
 // FUN_00298550
@@ -174,7 +174,7 @@ s32 func_00298700(void) {
     if (kind == 0) {
         return 1;
     }
-    p = (u8 *)func_00452560(kind);
+    p = (u8 *)kwlnTaskGetWork(kind);
     if (func_002909a0((u32 *)(p + 0x678)) == 0) {
         return 1;
     }
@@ -239,8 +239,8 @@ void func_00298990(s32 unused, s32 arg1) {
     s32 var_18;
     u8 *temp_17;
 
-    temp_17 = (u8 *)func_00452560(arg1);
-    temp_19 = *(s32 *)((u8 *)func_00285480(func_00452560(func_00285af0())) + 0x680);
+    temp_17 = (u8 *)kwlnTaskGetWork(arg1);
+    temp_19 = *(s32 *)((u8 *)func_00285480(kwlnTaskGetWork(func_00285af0())) + 0x680);
     var_18 = 0;
     while (var_18 < 0xF) {
         temp_5 = var_18 * 0x28;
@@ -271,7 +271,7 @@ s32 func_00298b80(u8 *sdkTaskBytes)
     u8 *base;
     u8 *p;
 
-    base = (u8 *)func_00452560();
+    base = (u8 *)kwlnTaskGetWork();
     *(s32 *)(base + 4) += 1;
     if (D_008C024E[0] & 0x9FF) {
         func_00106390(0x1211, 1);
@@ -284,7 +284,7 @@ s32 func_00298b80(u8 *sdkTaskBytes)
 }
 // FUN_00298C10
 void func_00298c10(u8 *unusedTask) {
-    u8 *p = (u8 *)func_00452560();
+    u8 *p = (u8 *)kwlnTaskGetWork();
 
     func_00106390(0x1211, 0);
     jtbl_008873EC[0](p);

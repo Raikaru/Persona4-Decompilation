@@ -989,7 +989,7 @@ void kwlnTaskSetValue38(KwlnTask* task, u32 value)
 }
 
 // FUN_00452560
-u32 func_00452560(void* task)
+u32 kwlnTaskGetWork(void* task)
 {
     return *(u32*)((u8*)task + 0x38);
 }

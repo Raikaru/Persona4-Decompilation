@@ -29,7 +29,7 @@ extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void func_00440b68(char *fmt, ...);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern s32 kwlnTaskIsLinked(void *task);
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern u8 *func_00454a60(u8 *path, s32 kind);
 extern void H_Cdvd_Destroy(void *handle);
 extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
@@ -84,7 +84,7 @@ s32 func_00260020(u8 *task)
     s32 ret;
     s32 msg;
 
-    sched = (SdlSched *)func_00452560(task);
+    sched = (SdlSched *)kwlnTaskGetWork(task);
     v1 = 0;
     v2 = 0;
     func_001104d0((s16)func_001060b0(), &v1, &v2);

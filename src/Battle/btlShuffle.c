@@ -8,7 +8,7 @@ extern void func_003753f0(u8 *arg0);
 
 extern void func_003757f0(u8 *arg0);
 
-extern u16 *func_00452560();
+extern u16 *kwlnTaskGetWork();
 
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 
@@ -160,7 +160,7 @@ extern s32 func_00379920(u8 *arg0);
 // FUN_0036E140
 s32 func_0036e140(u8 *unusedTask)
 {
-    u8 *work = (u8 *)func_00452560();
+    u8 *work = (u8 *)kwlnTaskGetWork();
     s32 i;
     u16 flags;
     u16 cnt;
@@ -315,7 +315,7 @@ void func_0036e5c0(u8 *arg0, u16 *arg1)
 // FUN_0036E600
 void func_0036e600(u8 *unusedTask)
 {
-    u8 *work = (u8 *)func_00452560();
+    u8 *work = (u8 *)kwlnTaskGetWork();
 
     if (datGetFlag(0x1430) == 0) {
         func_00106390(0x1430, 1);
@@ -336,7 +336,7 @@ s32 func_0036e690(u8 *arg0, u8 *arg1)
     work = (u8 *)(*jtbl_008873E8)(0x21ABC, 0x40000);
     memset(work, 0, 0x21ABC);
     handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064E780), 0x12, 0, 0, func_0036e140, func_0036e600, (u8 *)(work));
-    tmp = (s32)func_00452560(arg0);
+    tmp = (s32)kwlnTaskGetWork(arg0);
     *(s32 *)(work + 8) = 0;
     *(s32 *)(work + 0x6C) = tmp;
     *(s32 *)(work + 0x14) = (s32)(void *)func_0036e580;
@@ -353,7 +353,7 @@ s32 func_0036e690(u8 *arg0, u8 *arg1)
 // FUN_0036E7E0
 void func_0036e7e0(void)
 {
-    u16 *work = func_00452560();
+    u16 *work = kwlnTaskGetWork();
 
     *work |= 1;
 }
@@ -361,7 +361,7 @@ void func_0036e7e0(void)
 // FUN_0036E810
 void func_0036e810(void)
 {
-    u16 *work = func_00452560();
+    u16 *work = kwlnTaskGetWork();
 
     work[1] = 0;
     *(u32 *)(work + 4) = 5;
@@ -370,13 +370,13 @@ void func_0036e810(void)
 // FUN_0036E840
 u32 func_0036e840(void)
 {
-    return func_00452560()[0] & 1;
+    return kwlnTaskGetWork()[0] & 1;
 }
 
 // FUN_0036E870
 void func_0036e870(void)
 {
-    u16 *work = func_00452560();
+    u16 *work = kwlnTaskGetWork();
 
     *work |= 4;
 }
@@ -384,7 +384,7 @@ void func_0036e870(void)
 // FUN_0036E8A0
 u32 func_0036e8a0(void)
 {
-    return (func_00452560()[0] & 4) != 0;
+    return (kwlnTaskGetWork()[0] & 4) != 0;
 }
 
 // FUN_0036E8D0

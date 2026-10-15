@@ -64,7 +64,7 @@ static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
 }
 
 
-extern u32 func_00452560();
+extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 extern u8 *datPersonaRosterSlot(s16 arg0);
@@ -450,7 +450,7 @@ s32 func_00200cf0(u8 *unusedTask)
 {
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00452560();
+    temp_2 = (u8 *)kwlnTaskGetWork();
     func_0021be70(temp_2 + 0x9E4);
     *(s32 *)(temp_2 + 0x9F0) = 0;
     *(s32 *)(temp_2 + 0x9F4) = 0;
@@ -512,7 +512,7 @@ void func_00200f30(u8 *unusedTask)
     u8 *temp_2;
     s32 temp_4;
     s32 var_16;
-    temp_2 = (u8 *)func_00452560();
+    temp_2 = (u8 *)kwlnTaskGetWork();
     func_002119a0(temp_2 + 0x75C);
     var_16 = 0;
     goto loop_test;
@@ -1656,7 +1656,7 @@ void func_00203670(s32 unused, s32 arg1)
     u8 *temp_2;
     u8 *temp_16;
     u8 *temp_18;
-    temp_2 = (u8 *)func_00452560();
+    temp_2 = (u8 *)kwlnTaskGetWork();
     temp_16 = temp_2 + 0x9C;
     *(s32 *)(temp_2 + 0x214) = arg1;
     *(s16 *)(temp_2 + 0x9C) = 1;
@@ -1695,15 +1695,15 @@ void func_00203670(s32 unused, s32 arg1)
  * the contract even when the argument register happens to retain the value. */
 // FUN_002037B0
 void func_002037b0(s32 task) {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s16 *)(p + 0x9C) = 1;
 }
 // FUN_002037E0
 u16 func_002037e0(void) {
-    return *(u16 *)((u8 *)func_00452560() + 0x9C);
+    return *(u16 *)((u8 *)kwlnTaskGetWork() + 0x9C);
 }
 /* measured: opt_propagation off probe for 00203810 evaluation order. */
 #pragma opt_propagation off
@@ -1714,7 +1714,7 @@ s32 func_00203810(void)
     u8 *base;
     s32 field;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)kwlnTaskGetWork();
     base = p + 0x9C;
     field = *(s32 *)(p + 0xD4);
     base += 0x40;
@@ -1725,7 +1725,7 @@ s32 func_00203810(void)
 // FUN_00203850
 s32 func_00203850(void)
 {
-    return *(s16 *)((u8 *)func_00452560() + 0xAA) < 2;
+    return *(s16 *)((u8 *)kwlnTaskGetWork() + 0xAA) < 2;
 }
 // FUN_00203880
 void func_00203880(s32 unusedTask, s32 unusedAction)
@@ -1736,12 +1736,12 @@ void func_00203880(s32 unusedTask, s32 unusedAction)
 void func_00203890(void) {
     u8 *p;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)kwlnTaskGetWork();
     *(s16 *)(p + 0x9C) = 4;
 }
 // FUN_002038C0
 void func_002038c0(s32 task) {
-    u8 *b = (u8 *)func_00452560((void *)task) + 0x9C;
+    u8 *b = (u8 *)kwlnTaskGetWork((void *)task) + 0x9C;
 
     *(s32 *)(b + 4) &= ~2;
     func_002033c0(b + 0x2C);
@@ -2233,10 +2233,10 @@ void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
 // FUN_00204D50
 void func_00204d50(s32 task)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     u8 *temp_2;
 
-    temp_2 = (u8 *)func_00452560((void *)task);
+    temp_2 = (u8 *)kwlnTaskGetWork((void *)task);
     *(s16 *)(temp_2 + 0xAC) = 0;
     *(s32 *)(temp_2 + 0xA0) &= ~1;
 }
@@ -2245,7 +2245,7 @@ void func_00204d90(void)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)kwlnTaskGetWork();
     *(s32 *)(p + 0xA0) = *(s32 *)(p + 0xA0) | 0x1;
 }
 
@@ -2421,7 +2421,7 @@ extern u16 datCalcThresholdKind(u8 *unit, s32 skill);
 void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     extern void func_002bc860(f32 x, f32 y, f32 z, s32 color,
                               s32 mode, s32 flags, s32 skill);
     u8 *glyphs;
@@ -2439,7 +2439,7 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
     Vec2f iconPosition;
     BattleSkillIconColor iconColor;
 
-    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
     unit = *(u8 **)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64);
     skill = *(s16 *)(p4_002091f0_add((u32)(slot * 2), work) + 0x194);
     if (skill >= 0x1B8 || datCalcThresholdTrigger(unit, (u16)skill) != 0) {
@@ -2519,7 +2519,7 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
 void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 show_detail)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     extern void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1,
                               s16 arg2, s32 arg3, s32 arg4);
     u8 *glyphs;
@@ -2540,7 +2540,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
         s32 word;
     } color;
 
-    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
     off = slot * 4;
     id = *(s16 *)(p4_002091f0_add((u32)off, work) + 0x1A6);
     if (highlighted != 0) {
@@ -2608,7 +2608,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
 void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     u8 *glyphs;
     u8 *persona;
     u8 tone;
@@ -2619,7 +2619,7 @@ void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
     f32 digit_x;
     const char *name;
 
-    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
     persona = datPersonaRosterSlot((s16)slot);
     if (slot == (s16)datPersonaGetLeadSlot()) {
         func_00201650(glyphs, 13, 0x2B, -11.0f + x, 6.0f + y,
@@ -2674,13 +2674,13 @@ extern u32 func_0010d6d0(s16 arg0);
 void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     u8 *glyphs;
     u8 *persona;
     u8 tone;
     const char *name;
 
-    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
     if (highlighted != 0) {
         tone = 0x1B;
     } else {
@@ -2722,7 +2722,7 @@ void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
     u8 color;
     f32 line_y;
 
-    work = (u8 *)func_00452560(*(void **)(panel + 0x5B0));
+    work = (u8 *)kwlnTaskGetWork(*(void **)(panel + 0x5B0));
     if (selected != 0) color = 0x1B;
     else color = 0xFF;
     line_y = 8.0f + y;
@@ -2752,7 +2752,7 @@ typedef struct BattleRenderDispatch {
 // FUN_00205FF0
 void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, BattleSelectionDraw callback)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     extern f32 fGpffff809c;
     extern f32 fGpffff8198;
     BattleSelectionInput *list;
@@ -2795,7 +2795,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
     list = (BattleSelectionInput *)selectionState;
     scaleOrRowY = inputScaleX;
     drawSelection = callback;
-    glyphs = (u8 *)func_00452560(*(void **)(state + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(state + 0x5B0));
     showScroll = 1;
     showPrompt = 1;
     if (*(s32 *)(state + 4) & 4) {
@@ -3049,7 +3049,7 @@ void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
     Color4 color;
     BattleRenderDispatch *renderer;
 
-    glyphs = (u8 *)func_00452560(*(s32 *)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork(*(s32 *)(work + 0x5B0));
     func_002012d0(glyphs, x, y);
 
     progress = (f32)(*(s16 *)(work + 0x1A)) / 4.0f;
@@ -3179,7 +3179,7 @@ void func_00207140(u16 *flags, u8 *work)
 // FUN_00207320
 s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     extern u16 *datPersonaGetRecord(u16 character);
     extern s32 func_001f0620(u8 *arg0, s64 arg1);
     extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -3218,7 +3218,7 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
     s32 partyCount;
 
     work = (u8 *)(u32)workAddress;
-    if (*(s16 *)(func_00452560(*(void **)(work + 0x5B0)) + 0xAA) < 2) {
+    if (*(s16 *)(kwlnTaskGetWork(*(void **)(work + 0x5B0)) + 0xAA) < 2) {
         return 1;
     }
     if (*(s16 *)(work + 0x14) != 0) {
@@ -3396,7 +3396,7 @@ static inline void battleMenuExtendedStrip(BattleRenderDispatch *renderer,
 // FUN_00207B00
 void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     extern s32 func_001f0620(u8 *selection, s64 work);
     extern s32 func_001eb860(void);
     extern f64 func_0044dcd8(f32 value);
@@ -3430,7 +3430,7 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
 
     work = (u8 *)(u32)workAddress;
     origin = (f32 *)drawState;
-    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
     menuFlags = *(u32 *)(iGpffffb3ac + 0xC) & 0x10000;
     if (*(u8 **)(work + 0x38) != work + 0x40 || *(u16 *)work != 1 || menuFlags != 0) {
         rotationProgress = (f32)*(s16 *)(work + 0x12) / 6.0f;
@@ -3646,7 +3646,7 @@ void func_00208870(u8 *unused, u8 *arg1, f32 *arg2)
     f32 temp_f3;
     f32 temp_f4;
 
-    func_002012d0((u8 *)func_00452560(*(void **)(arg1 + 0x5B0)), arg2[0], arg2[1]);
+    func_002012d0((u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0)), arg2[0], arg2[1]);
     temp_f0 = (f32)*(s16 *)(arg1 + 0xE) / 2.0f;
     if (temp_f0 > 1.0f) {
         temp_f1 = 1.0f;
@@ -3774,7 +3774,7 @@ void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
     u8 *temp;
     s16 temp_2;
 
-    temp = (u8 *)func_00452560(*(void **)(state + 0x5B0));
+    temp = (u8 *)kwlnTaskGetWork(*(void **)(state + 0x5B0));
     func_002012d0(temp, arg2[0], arg2[1]);
     if (*(u16 *)state == 2) {
         func_00201650(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
@@ -3930,7 +3930,7 @@ void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
     u8 *temp;
     s16 temp_2;
 
-    temp = (u8 *)func_00452560(*(void **)(state + 0x5B0));
+    temp = (u8 *)kwlnTaskGetWork(*(void **)(state + 0x5B0));
     func_002012d0(temp, arg2[0], arg2[1]);
     if (*(u16 *)state == 2) {
         func_00201650(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
@@ -4084,7 +4084,7 @@ void func_002099c0(u8 *arg0, u8 *arg1, f32 *arg2)
 {
     u8 *temp;
 
-    temp = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
+    temp = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
     func_002012d0(temp, arg2[0], arg2[1]);
     func_00201650(temp, 9, 0x1F, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     arg2 = (f32 *)D_00887300;
@@ -4243,7 +4243,7 @@ struct FrFontNode;
 // FUN_00209FA0
 void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     extern s16 func_00105f00(s16 selection);
     extern u32 func_0010d6d0(s16 selection);
     extern s32 frFontNodeWidth(struct FrFontNode *node);
@@ -4265,7 +4265,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     s32 iconFrame;
     origin = (f32 *)drawState;
     work = (u8 *)(u32)workAddress;
-    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
     func_002012d0(glyphs, origin[0], origin[1]);
     if (*(u16 *)work != 2) {
         func_00205ff0(work, selection, origin[0], origin[1], func_00205e00);
@@ -4533,7 +4533,7 @@ void func_0020aa70(u8 *arg0, u8 *arg1, f32 *arg2)
 {
     u8 *temp;
 
-    temp = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
+    temp = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
     func_002012d0(temp, arg2[0], arg2[1]);
     func_00201650(temp, 9, 0x22, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     arg2 = (f32 *)D_00887300;
@@ -4683,7 +4683,7 @@ void func_0020b1a0(s32 arg0, u8 *arg1)
     f32 temp_f12;
     f32 temp_f20;
 
-    temp_2 = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
+    temp_2 = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
     if ((*(s32 *)temp_2 & 1) != 0) {
         if (*(u16 *)arg1 != 0) {
             if (*(s16 *)(arg1 + 0x5AC) == -1) {
@@ -4736,7 +4736,7 @@ void func_0020b3a0(s32 arg0, u8 *arg1)
     s16 temp_4;
     f32 temp_f20;
 
-    temp_2 = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
+    temp_2 = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
     if ((*(s32 *)temp_2 & 1) != 0) {
         if (*(u16 *)arg1 != 0) {
             if (*(s16 *)(arg1 + 0x5AC) == -1) {
@@ -4798,7 +4798,7 @@ void func_0020b5b0(s32 arg0, u8 *arg1)
     void (**base)(u32, u32);
     u8 work[4];
 
-    temp_2 = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
+    temp_2 = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 0x5B0));
     if (((*(u32 *)temp_2 & 1) != 0) &&
         (*(u16 *)arg1 != 0) &&
         (*(s16 *)(arg1 + 0x5AC) == -1)) {
@@ -4836,7 +4836,7 @@ extern void func_0020bfd0(u8 *arg0);
 
 void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
 {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     u16 spD0;
     u32 spC0;
     u32 spB0;
@@ -4855,7 +4855,7 @@ void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
     u8 *temp_16_2;
     u8 *temp_22;
 
-    temp_2 = (u8 *)func_00452560((void *)arg0);
+    temp_2 = (u8 *)kwlnTaskGetWork((void *)arg0);
     temp_2_3 = temp_2 + 0x710;
     *(s32 *)(temp_2 + 0x718) = (s32)arg1;
     *(s32 *)(temp_2 + 0x71C) = 0;
@@ -4940,15 +4940,15 @@ loop_condition:
 
 // FUN_0020BA00
 u16 func_0020ba00(s32 task) {
-    extern u32 func_00452560(void *task);
-    return *(u16 *)((u8 *)func_00452560((void *)task) + 0x712);
+    extern u32 kwlnTaskGetWork(void *task);
+    return *(u16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x712);
 }
 
 // FUN_0020BA30
 void func_0020ba30(s32 task)
 {
-    extern u32 func_00452560(void *task);
-    *(s16 *)((u8 *)func_00452560((void *)task) + 0x712) = 0;
+    extern u32 kwlnTaskGetWork(void *task);
+    *(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x712) = 0;
 }
 
 /* Both selection accessors return the formation entry read by 001d8bc0.
@@ -4956,23 +4956,23 @@ void func_0020ba30(s32 task)
 // FUN_0020BA60
 u32 func_0020ba60(s32 task)
 {
-    extern u32 func_00452560(void *task);
-    return func_001d8bc0(*(u8 **)((u8 *)func_00452560((void *)task) + 0x720));
+    extern u32 kwlnTaskGetWork(void *task);
+    return func_001d8bc0(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
 }
 
 // FUN_0020BA90
 u32 func_0020ba90(s32 task)
 {
-    extern u32 func_00452560(void *task);
-    return func_001d8bc0(*(u8 **)((u8 *)func_00452560((void *)task) + 0x720));
+    extern u32 kwlnTaskGetWork(void *task);
+    return func_001d8bc0(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
 }
 // FUN_0020BAC0
 /* measured: retail keeps the ~0x200 mask live in the loop preheader; plain -O2
    rematerialises it inside the body (nd 41 -> byte-exact with the hoist). */
 #pragma opt_loop_invariants on
 void func_0020bac0(s32 task) {
-    extern u32 func_00452560(void *task);
-    u8 *w = (u8 *)func_00452560((void *)task) + 0x710;
+    extern u32 kwlnTaskGetWork(void *task);
+    u8 *w = (u8 *)kwlnTaskGetWork((void *)task) + 0x710;
     s32 mask = ~0x200;
     u8 *p = *(u8 **)(D_0076449C + 0x178);
 
@@ -5055,7 +5055,7 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
         f32 sp48[2];
         f32 sp50[2];
     } Frame;
-    extern u32 func_00452560(void *arg0);
+    extern u32 kwlnTaskGetWork(void *arg0);
     extern void func_00201350(void);
     extern u8 *func_001b1560(void);
     extern void func_00195d50(u8 *arg0, f32 *arg1);
@@ -5074,7 +5074,7 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
     s32 temp_16;
     s32 var_17;
 
-    temp_2 = (u8 *)func_00452560(*(u8 **)(arg1 + 0x18));
+    temp_2 = (u8 *)kwlnTaskGetWork(*(u8 **)(arg1 + 0x18));
     if ((*(u32 *)temp_2 & 1) != 0) {
         if ((*(u16 *)arg1 & 1) == 0) {
             temp_4 = *(u16 *)(arg1 + 2);
@@ -5113,18 +5113,18 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
 }
 // FUN_0020BF60
 void func_0020bf60(s32 task) {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x710) |= 1;
 }
 // FUN_0020BF90
 void func_0020bf90(s32 task) {
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x710) &= 0xFFFE;
 }
 // FUN_0020BFC0
@@ -5159,7 +5159,7 @@ void func_0020e010(s32 arg0, u8 *arg1, u8 *arg2)
     u16 temp_3;
     u16 temp_4;
 
-    temp_16 = (u8 *)func_00452560();
+    temp_16 = (u8 *)kwlnTaskGetWork();
     temp_3 = *(u16 *)(arg1 + 2);
     if (temp_3 == 0) {
         if (*(u8 *)(arg2 + 0xA2) == 0) {
@@ -5232,7 +5232,7 @@ void func_0020e250(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4)
     f32 temp_f1;
     f32 temp_f0;
 
-    state = (u8 *)func_00452560(arg0);
+    state = (u8 *)kwlnTaskGetWork(arg0);
     list = (u8 **)(state + 0x75C);
     if (*(s32 *)arg2 != 0 || *(s32 *)(arg2 + 1) != 0 ||
         *(u16 *)((u8 *)arg2 + 8) != 0) {
@@ -5275,7 +5275,7 @@ void func_0020e250(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4)
 }
 // FUN_0020E3F0
 void func_0020e3f0() {
-    func_002119a0((u8 *)func_00452560() + 0x75C);
+    func_002119a0((u8 *)kwlnTaskGetWork() + 0x75C);
 }
 
 /* measured: entry parks are emitted in PARAMETER order, so the floats sit
@@ -5366,7 +5366,7 @@ void func_0020e690(u8 *task, u8 *transition, u8 *panel,
     s32 frame;
     f32 fade;
     f32 slide;
-    func_00452560(*(void **)(task + 4));
+    kwlnTaskGetWork(*(void **)(task + 4));
     frame = *(s32 *)(transition + 0x10);
     if (*(u16 *)(transition + 0x14) & 2) {
         if (frame < 3) fade = 0.0f;
@@ -5420,7 +5420,7 @@ void func_0020ea60(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 stretch;
     f32 fade;
     f32 y;
-    work = (u8 *)func_00452560(*(void **)(task + 4));
+    work = (u8 *)kwlnTaskGetWork(*(void **)(task + 4));
     frame = *(s32 *)(transition + 0x10);
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
@@ -5478,7 +5478,7 @@ void func_0020ef10(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 fade;
     f32 offset;
     f32 y;
-    work = (u8 *)func_00452560(*(void **)(task + 4));
+    work = (u8 *)kwlnTaskGetWork(*(void **)(task + 4));
     frame = *(s32 *)(transition + 0x10);
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
@@ -5533,7 +5533,7 @@ void func_0020ef10(u8 *task, u8 *transition, u8 *panel, u8 *output)
 // FUN_0020F4D0
 void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
 {
-    extern u32 func_00452560(void *arg0);
+    extern u32 kwlnTaskGetWork(void *arg0);
     Vec2f sp48;
     f32 temp_f1;
     f32 var_f1;
@@ -5541,7 +5541,7 @@ void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
     u8 *temp_17;
     s32 temp_16;
 
-    temp_17 = (u8 *)func_00452560(*(void **)(arg0 + 4));
+    temp_17 = (u8 *)kwlnTaskGetWork(*(void **)(arg0 + 4));
     temp_16 = *(s32 *)(arg1 + 0x10);
     if (temp_16 < 0) {
         var_f20 = 0.0f;

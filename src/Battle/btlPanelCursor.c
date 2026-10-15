@@ -5,7 +5,7 @@
 #include "shd_misc_internal.h"
 #include "btl_panel_internal.h"
 
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern void func_002016e0(u8 *work, s16 mode, s32 tile, f32 angle);
 extern void func_00201820(s32 mode);
 extern void func_0021ae80(u8 *work, s32 unused);
@@ -53,7 +53,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 count;
     s32 i;
 
-    work = (u8 *)func_00452560((void *)task);
+    work = (u8 *)kwlnTaskGetWork((void *)task);
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
@@ -174,7 +174,7 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 count;
     s32 i;
 
-    work = (u8 *)func_00452560((void *)task);
+    work = (u8 *)kwlnTaskGetWork((void *)task);
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
@@ -305,7 +305,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 i;
     u32 packed;
 
-    work = (u8 *)func_00452560((void *)task);
+    work = (u8 *)kwlnTaskGetWork((void *)task);
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
@@ -449,7 +449,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 i;
     u16 cnt;
 
-    work = (u8 *)func_00452560((void *)task);
+    work = (u8 *)kwlnTaskGetWork((void *)task);
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:

@@ -8,7 +8,7 @@ extern u8 iGpffffa7a8;
 /* Old-style declaration: the donor source called this without a prototype, and
  * several call sites below pass an argument (a0 is set by the caller), which a
  * (void) prototype would forbid. */
-s32 *func_00452560();
+s32 *kwlnTaskGetWork();
 extern void (*jtbl_008873EC[])(void *);
 
 void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -164,7 +164,7 @@ s32 func_0028d280(u8 *unusedTask) {
     s32 *temp_2;
     s32 temp_3;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     temp_3 = temp_2[0];
     switch (temp_3) {
     case 0:
@@ -184,7 +184,7 @@ void func_0028d310(u8 *unusedTask) {
     s32 *temp_2;
     s32 temp_3;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     temp_3 = temp_2[0];
     switch (temp_3) {
     case 0:
@@ -200,7 +200,7 @@ void func_0028d310(u8 *unusedTask) {
 
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// func_00452560 is intentionally left undeclared (implicit old-style call, as
+// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
@@ -911,7 +911,7 @@ s32 func_0028ee00(u8 *arg0)
     u8 g;
     u8 b;
 
-    work = func_00452560();
+    work = kwlnTaskGetWork();
     work[0]++;
     progress = (f32)work[0] / (f32)work[11];
     if (progress > 1.0f) {
@@ -967,10 +967,10 @@ s32 func_0028ee00(u8 *arg0)
 // FUN_0028F360
 void func_0028f360(u8 *unusedTask)
 {
-    extern s32 *func_00452560(void);
+    extern s32 *kwlnTaskGetWork(void);
     int iVar1;
 
-    iVar1 = (s32)func_00452560();
+    iVar1 = (s32)kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }
 // FUN_0028F3A0
@@ -1027,7 +1027,7 @@ s32 func_0028f540(u8 *arg0) {
     u32 local_3C;
     u8 *s1;
 
-    p = func_00452560();
+    p = kwlnTaskGetWork();
     switch (p[0]) {
     case 0:
         if (p[0x43] != 0) {
@@ -1069,7 +1069,7 @@ s32 func_0028f540(u8 *arg0) {
 void func_0028f6c0(u8 *arg0) {
     s32 *temp_2;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     if (temp_2[0x44] != 0 && kwlnTaskIsLinked(temp_2[0x44]) != 0) {
         kwlnTaskDestroyWithHierarchy(temp_2[0x44]);
     }
@@ -1099,7 +1099,7 @@ s32 func_0028f800(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730(D_0063C638, 0x137E);
     }
-    temp_2 = func_00452560(arg0);
+    temp_2 = kwlnTaskGetWork(arg0);
     if (temp_2[0] == 4) {
         temp_2[2] = arg1;
         temp_2[1] = arg3;
@@ -1119,7 +1119,7 @@ s32 func_0028f8e0(s32 arg0) {
     if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730(D_0063C638, 0x1393);
     }
-    if (func_00452560(arg0)[0] == 4) {
+    if (kwlnTaskGetWork(arg0)[0] == 4) {
         return 1;
     }
     return 0;

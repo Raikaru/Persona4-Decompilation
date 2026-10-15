@@ -112,7 +112,7 @@ typedef struct {
 } B810Obj;
 
 extern s32 kwlnTaskIsLinked();
-extern void *func_00452560();
+extern void *kwlnTaskGetWork();
 extern void kwlnTaskDestroyWithHierarchy();
 
 typedef struct {
@@ -2530,7 +2530,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern s32 func_00401b80(void);
     extern s32 func_0043c6a0(s32);
     extern f32 sinf(f32);
-    extern u32 func_00452560(void *task);
+    extern u32 kwlnTaskGetWork(void *task);
     extern s32 func_00455f70();
     extern s32 func_0045ad50();
     extern void func_0045c870(u8 *colors, s32 enabled);
@@ -2865,7 +2865,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     u8 *var_4_8;
     u8 *var_4_9;
 
-    temp_20 = (u32 *)func_00452560(task);
+    temp_20 = (u32 *)kwlnTaskGetWork(task);
     taskView = (TitleTaskView *)temp_20;
     titleYawAxis = D_005E5628;
     titlePitchAxis = D_005E5638;
@@ -3913,7 +3913,7 @@ s32 func_0012aa70(u8 *task)
     u8 *activeModel;
     u8 *animation;
 
-    work = (u8 *)func_00452560(task);
+    work = (u8 *)kwlnTaskGetWork(task);
     initialRotation.packed = D_005E56F0;
     rotation = initialRotation;
     initialTranslation.vector = D_005E5700[0].vector;
@@ -4172,7 +4172,7 @@ void func_0012b660(u8 *unusedTask)
     s32 temp_4;
     s32 var_17;
 
-    temp_2 = func_00452560();
+    temp_2 = kwlnTaskGetWork();
     temp_3 = *(s32 *)(temp_2 + 0x1C);
     switch (temp_3) {
     case 2:
@@ -4223,7 +4223,7 @@ s32 func_0012b810(s32 arg0)
     if ((arg0 == 0) || (kwlnTaskIsLinked() == 0)) {
         return -1;
     }
-    temp_2 = (B810Obj *)(func_00452560(arg0));
+    temp_2 = (B810Obj *)(kwlnTaskGetWork(arg0));
     if (temp_2->field_18 != 0) {
         kwlnTaskDestroyWithHierarchy(arg0);
     }
@@ -4238,7 +4238,7 @@ s32 func_0012b890(u8 *unusedTask)
     s32 sp2C;
     u8 *temp_2;
     s32 temp_3;
-    temp_2 = (u8 *)func_00452560();
+    temp_2 = (u8 *)kwlnTaskGetWork();
     temp_3 = *(s32 *)(temp_2 + 0);
     switch (temp_3) {
     case 0:
@@ -4262,7 +4262,7 @@ void func_0012b940(u8 *arg0) {
     u8 *p;
     s32 v;
 
-    p = func_00452560();
+    p = kwlnTaskGetWork();
     v = *(s32 *)(p + 8);
     if (v != 0) {
         func_003ef3a0((void *)v);
@@ -4296,7 +4296,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
     f32 *sp8c_ptr;
     s32 *sp70_ptr;
 
-    temp_2 = (u8 *)func_00452560(arg1);
+    temp_2 = (u8 *)kwlnTaskGetWork(arg1);
     temp_3 = *(s32 *)(temp_2 + 0);
     switch (temp_3) {
     case 4:
@@ -4311,7 +4311,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
         stack.sp70 = D_005E5740;
         func_0045d6e0(sp8c_ptr, sp70_ptr, 0.0f, 1);
         temp_17 = *(s32 *)(temp_2 + 0x10);
-        temp_16 = (u8 *)func_00452560(temp_17);
+        temp_16 = (u8 *)kwlnTaskGetWork(temp_17);
         if (kwlnTaskIsLinked(temp_17) == 0) {
             var_2 = 0;
         } else if (*(s32 *)(temp_16 + 0) == 3) {
@@ -4333,7 +4333,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
         stack.sp70 = D_005E5750;
         func_0045d6e0(sp8c_ptr, sp70_ptr, 0.0f, 1);
         temp_17_2 = *(s32 *)(temp_2 + 0x14);
-        temp_16_2 = (u8 *)func_00452560(temp_17_2);
+        temp_16_2 = (u8 *)kwlnTaskGetWork(temp_17_2);
         if (kwlnTaskIsLinked(temp_17_2) == 0) {
             var_2_2 = 0;
         } else if (*(s32 *)(temp_16_2 + 0) == 3) {
@@ -4355,7 +4355,7 @@ s32 func_0012c1a0(s32 arg0)
     if ((arg0 == 0) || (kwlnTaskIsLinked() == 0)) {
         return -1;
     }
-    temp_2 = (C1A0Obj *)(func_00452560(arg0));
+    temp_2 = (C1A0Obj *)(kwlnTaskGetWork(arg0));
     if (temp_2->field_4 != 0) {
         kwlnTaskDestroyWithHierarchy(arg0);
     }

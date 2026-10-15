@@ -40,7 +40,7 @@ extern void func_0025dd30(f32, f32, s32, u8 *);
 
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// func_00452560 is intentionally left undeclared (implicit old-style call, as
+// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
@@ -209,7 +209,7 @@ s32 func_0025e170(u8 *sdkTaskBytes)
     u8 *temp_2;
     u8 *temp_2_3;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)kwlnTaskGetWork();
     temp_3 = *(s32 *)p;
     switch (temp_3) {
     case 0:
@@ -309,7 +309,7 @@ void func_0025e4a0(s32 arg0, s32 arg1)
     f32 frac;
     u32 color;
 
-    p = (u8 *)func_00452560(arg1);
+    p = (u8 *)kwlnTaskGetWork(arg1);
     temp_5 = p + 0x18;
     action = 0;
     flags = *(s32 *)(p + 0x1C);
@@ -357,7 +357,7 @@ void func_0025e7c0(u8 *unusedTask)
 {
     int iVar1;
 
-    iVar1 = func_00452560();
+    iVar1 = kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }
 // FUN_0025E800
@@ -374,7 +374,7 @@ void func_0025e800(s32 arg0, s32 arg1, s32 arg2)
 
 // FUN_0025E8B0
 void func_0025e8b0(void) {
-    u8 *p = (u8 *)func_00452560();
+    u8 *p = (u8 *)kwlnTaskGetWork();
     s32 v = *(s32 *)(p + 0x4);
 
     if (!(v & 4)) {
@@ -390,7 +390,7 @@ s32 func_0025e8f0(void)
     s32 b;
     u16 t;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)kwlnTaskGetWork();
     v17 = 0;
     if (*(s32 *)(p + 4) & 4) {
         v17 = 1;

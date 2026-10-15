@@ -8,7 +8,7 @@ static inline f32 p4_0025_mul_add(f32 left, f32 right, f32 base) {
 static inline f32 p4_0025_add(f32 left, f32 right) {
     return left + right;
 }
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern void func_0025f230(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 D_006367C0[];
@@ -66,7 +66,7 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
     s32 *temp_2;
     u8 *temp_2_3;
 
-    temp_2 = (s32 *)func_00452560(sdkTaskBytes);
+    temp_2 = (s32 *)kwlnTaskGetWork(sdkTaskBytes);
     switch (*temp_2) {
     case 0:
         temp_2[4] = func_0025ef20(D_00635BF0);
@@ -148,7 +148,7 @@ void func_00251ce0(u8 *task)
 {
     void *t;
 
-    t = (s32 *)func_00452560(task);
+    t = (s32 *)kwlnTaskGetWork(task);
     func_0025f230(*(s32 *)((u8 *)t + 0x10));
     (*jtbl_008873EC)(t);
 }

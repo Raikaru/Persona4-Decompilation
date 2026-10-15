@@ -1,7 +1,7 @@
 /* Source unit: src/Kernel/Kwln/kwln_002519b0.c (1 function markers) */
 #include "type.h"
 
-extern void func_00452560(void* a0);
+extern void kwlnTaskGetWork(void* a0);
 
 extern void itfMesFlushPending(void* a0);
 
@@ -16,7 +16,7 @@ extern void func_003694d0(void* a0);
 // FUN_002519B0
 void func_002519b0(void* param_1, void* param_2)
 {
-    func_00452560(param_2);
+    kwlnTaskGetWork(param_2);
 }
 
 

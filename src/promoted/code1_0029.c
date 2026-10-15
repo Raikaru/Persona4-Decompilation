@@ -355,7 +355,7 @@ extern s32 func_002930e0(u8 *task);
 extern void func_002931a0(u8 *task);
 
     extern s32 kwlnTaskGetTaskByName(void *arg0);
-    extern u8 **func_00452560(s32 arg0);
+    extern u8 **kwlnTaskGetWork(s32 arg0);
     extern void memcpy(void *arg0, void *arg1, s32 arg2);
     extern void memset(void *arg0, s32 arg1, s32 arg2);
     extern u8 D_0063C930[];
@@ -392,7 +392,7 @@ extern void func_002931a0(u8 *task);
         *work_link = work;
         result = (s32)kwlnTaskCreate((const void *)(D_0063C958), 15, 0, 0, func_002930e0, func_002931a0, (u8 *)(work_link));
     }
-    manager = (u8 *)func_00452560(result);
+    manager = (u8 *)kwlnTaskGetWork(result);
     memset(&data, 0, 0x2C);
     data.field_0 = arg0;
     data.field_4 = arg1;

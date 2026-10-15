@@ -7,7 +7,7 @@
 #include "h_cdvd.h"
 
 /* The SDK getter requires the callback task and returns a packed address. */
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern void func_0045d6e0(void *, void *, f32, s32);
@@ -1102,7 +1102,7 @@ return_result:
 // FUN_002A4B10
 s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
     s32 arg0 = (s32)sdkTaskBytes;
-    u8 *w = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
+    u8 *w = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
 
     switch (*(s16 *)(w + 0)) {
     case 0:
@@ -1157,7 +1157,7 @@ s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
 // FUN_002A4CB0
 void mcIconTaskDestroy(u8 *sdkTaskBytes) {
     s32 arg0 = (s32)sdkTaskBytes;
-    u8 *work = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
+    u8 *work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
     s32 p = *(s32 *)(work + 0x3A4);
     if (p != 0) {
         H_Cdvd_Destroy((struct HCdvd *)p);
@@ -1182,7 +1182,7 @@ s32 func_002a4d10(s32 task) {
     McRect first;
     McRect second;
 
-    work = (u8 *)func_00452560((void *)task);
+    work = (u8 *)kwlnTaskGetWork((void *)task);
     frame = *(s32 *)(work + 0x568);
     if (frame > 20) frame = 20;
     eased = sinf((D_00761184 * (f32)frame) / 20.0f);
@@ -1244,7 +1244,7 @@ s32 func_002a4f20(s32 arg0)
     f32 fdiff;
     f32 half;
 
-    p = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
+    p = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
     func_002a6b10(0, 0, 255, p);
     func_002a7710(255, p);
     frame = *(s32 *)(p + 0x568);
@@ -1385,7 +1385,7 @@ s32 func_002a5630(s32 arg0)
     f32 fdiff;
     f32 half;
 
-    p = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
+    p = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
     frame = *(s32 *)(p + 0x568);
     if (frame > 10) {
         if (frame < 30) {
@@ -1531,7 +1531,7 @@ s32 func_002a5f00(s32 arg0)
     f32 fdiff;
     f32 half;
 
-    p = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
+    p = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
     func_002a6b10(0, 0, 255, p);
     func_002a7710(255, p);
     func_002a6b60(0, 0, 255, p);
@@ -1602,7 +1602,7 @@ s32 func_002a5f00(s32 arg0)
 
 // FUN_002A6510
 s32 mcDrawDispatch(s32 arg0) {
-    u8 *work = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
+    u8 *work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
     s32 flags = *(u32 *)(work + 4);
 
     if (!(flags & 1)) {

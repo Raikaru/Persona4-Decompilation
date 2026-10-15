@@ -9,7 +9,7 @@
 s32 kwlnTaskGetTaskByName(void *arg0);
 extern s32 D_0063C368[];
 
-extern u32 func_00452560(void *task);
+extern u32 kwlnTaskGetWork(void *task);
 
 void memset(void *arg0, s32 arg1, s32 arg2);
 void func_00285260(void);
@@ -157,7 +157,7 @@ s32 func_00285dd0(u8 *sdkTaskBytes) {
     s32 result;
     char path[64];
 
-    data = (u8 *)func_00452560(sdkTaskBytes);
+    data = (u8 *)kwlnTaskGetWork(sdkTaskBytes);
     switch (*(s32 *)(data + 0x76C)) {
     case 0:
         *(s32 *)(data + 0x76C) = 1;
@@ -295,7 +295,7 @@ func_00285dd0_loop_check:
 void evtTaskDestroy(u8 *task) {
     s32 *p;
 
-    p = (s32 *)func_00452560(task);
+    p = (s32 *)kwlnTaskGetWork(task);
     if (*p & 0x80000000) {
         evtDestroy((s32)p, 1);
     } else {
@@ -333,20 +333,20 @@ void func_00286380(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560((void *)task);
+    p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x770) = *(s32 *)(p + 0x770) | 0x1;
 }
 
 // FUN_002863B0
 s32 func_002863b0(s32 task) {
-    return (*(s32 *)((u8 *)func_00452560((void *)task) + 0x770) & 2) != 0;
+    return (*(s32 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x770) & 2) != 0;
 }
 // Event id: stores the three id words (+0x78C..+0x794) that label the event.
 // FUN_002863E0
 void evtSetId(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_2;
 
-    temp_2 = (s32 *)func_00452560((void *)arg0);
+    temp_2 = (s32 *)kwlnTaskGetWork((void *)arg0);
     *(s32 *)((u8 *)temp_2 + 0x78C) = arg1;
     *(s32 *)((u8 *)temp_2 + 0x790) = arg2;
     *(s32 *)((u8 *)temp_2 + 0x794) = arg3;
@@ -396,7 +396,7 @@ s32 evtCheckCondition(u8 *arg0) {
     case 3:
         val = evtFindTask();
         if (val != 0) {
-            ptr = (u8 *)func_00452560((void *)val);
+            ptr = (u8 *)kwlnTaskGetWork((void *)val);
             if (ptr != NULL) {
                 return func_00290de0(ptr + 0x678) != 0;
             }
@@ -515,7 +515,7 @@ s32 evtHasTaskHandle(void) {
     if (h == 0) {
         return 0;
     }
-    return *(s32 *)(func_00285480((u8 *)func_00452560((void *)h)) + 0x768) != 0;
+    return *(s32 *)(func_00285480((u8 *)kwlnTaskGetWork((void *)h)) + 0x768) != 0;
 }
 
 // Event handle table: frees every handle in the table at +0x7A4 and clears it.
