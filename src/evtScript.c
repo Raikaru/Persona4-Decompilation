@@ -58,7 +58,7 @@ static inline u32 evtSlot(u32 offset, u32 base)
     return offset + base;
 }
 
-extern void func_00271b70(u8 *arg0);
+extern void frFontListKeepOrRelease(u8 *arg0);
 extern f32 sinf(f32 fparg0);
 extern f32 iGpffff8094;
 /* INCLUDE_ASM fallback below; address taken by func_00298550. */
@@ -211,9 +211,9 @@ void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
         if (spAC != NULL) {
             func_00273170(p, 1, 0);
         }
-        func_00271b70(p);
+        frFontListKeepOrRelease(p);
         if (spAC != NULL) {
-            func_00271b70(spAC);
+            frFontListKeepOrRelease(spAC);
         }
     }
 }

@@ -1015,7 +1015,7 @@ do_action:
 // FUN_0027AC50
 void func_0027ac50(u8 *arg0)
 {
-    extern s32 func_00271b70(s32 arg0);
+    extern s32 frFontListKeepOrRelease(s32 arg0);
     extern void func_002748e0(s32 arg0, s32 arg1, s32 arg2);
     extern s32 func_0027a150();
     extern s32 func_0027ae90(u8 *arg0);
@@ -1111,7 +1111,7 @@ void func_0027ac50(u8 *arg0)
     case 3:
         if ((flags & 0xC00) == 0) {
             if (*(s32 *)(state + 4) != 0) {
-                func_00271b70(*(s32 *)(state + 4));
+                frFontListKeepOrRelease(*(s32 *)(state + 4));
                 *(s32 *)(state + 4) = 0;
             }
             *(s16 *)(state + 0xC) = -1;

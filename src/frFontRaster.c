@@ -43,7 +43,7 @@ extern int func_003ec6a0(u32 tex, s32, s32);
 extern void func_003ec2a0(u32 tex);
 extern u32 func_003ec3d0(u32 tex, s32);
 extern void func_003ec2e0(u32 tex);
-extern u8 *func_00271f50(u8 *param_1, u32 param_2);
+extern u8 *frFontAcquireGlyph(u8 *param_1, u32 param_2);
 extern s32 frFontFreeListInsert(u8 *param_1);
 
 // Ported from P3FES FUN_003b3d60 (verified MATCH there). Calls use the
@@ -255,7 +255,7 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
     }
     raster = *(u8 **)(*(u8 **)(glyph + 0x1C) + 0x0C);
     if (*(s16 *)(raster + 8) != palette) {
-        replacement = func_00271f50(glyph, *(u32 *)(raster + 4));
+        replacement = frFontAcquireGlyph(glyph, *(u32 *)(raster + 4));
         *(u16 *)((*(u8 **)(glyph + 0x1C)) + 4) -= 1;
         {
             u8 *previous = *(u8 **)(glyph + 0x1C);

@@ -13,7 +13,7 @@ extern s16 D_00763810;
 extern void func_00272a10(int param_1, float param_2, float param_3);
 extern void func_00272ba0(u32 resource, u32 color);
 extern u32 func_00272cb0(int param_1);
-extern u32 func_00271bd0(int param_1);
+extern u32 frFontListRelease(int param_1);
 extern int func_002738d0(int node);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
@@ -183,7 +183,7 @@ int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     }
     func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
-        func_00271bd0(font);
+        frFontListRelease(font);
     }
     return result;
 }
@@ -211,7 +211,7 @@ int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, in
     }
     func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
-        func_00271bd0(font);
+        frFontListRelease(font);
     }
     return result;
 }
@@ -241,7 +241,7 @@ int frFontExDrawTextOutA(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     D_007645A0 = 0;
     func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
-        func_00271bd0(font);
+        frFontListRelease(font);
     }
     return result;
 }
@@ -271,7 +271,7 @@ int frFontExDrawTextOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     D_007645A8 = 0;
     func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
-        func_00271bd0(font);
+        frFontListRelease(font);
     }
     return result;
 }
@@ -282,7 +282,7 @@ void frFontExFreeText(s32 arg0, int font)
 {
     func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
-        func_00271bd0(font);
+        frFontListRelease(font);
     }
 }
 

@@ -277,7 +277,7 @@ extern u8 *func_002736d0(u8 **arg0, s32 arg1);
 extern s32 func_002738d0(u8 *arg0);
 extern void func_00272a10(u8 *arg0, f32 fparg0, f32 fparg1);
 extern void func_00272ba0(u8 *arg0, s32 arg1);
-extern void func_00271b70(u8 *arg0);
+extern void frFontListKeepOrRelease(u8 *arg0);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 func_00268cb0(u8 *arg0);
 extern void func_00268c20(s32 arg0, s32 arg1);
@@ -1592,9 +1592,9 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
         func_00272a10(var_18, fparg0 - ((f32)var_16 / 2.0f), fparg1);
         func_00272ba0(var_18, arg1 | ~0xFF);
         func_00273170(var_18, 1, 0);
-        func_00271b70(var_18);
+        frFontListKeepOrRelease(var_18);
         if (spAC != NULL) {
-            func_00271b70(spAC);
+            frFontListKeepOrRelease(spAC);
         }
     }
 }
