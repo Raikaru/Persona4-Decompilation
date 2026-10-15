@@ -4742,7 +4742,7 @@ s32 func_001e4960(void) {
 }
 
 // FUN_001E49D0
-s32 func_001e49d0(void) {
+s32 btlAICommandCondQueryBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4751,7 +4751,7 @@ s32 func_001e49d0(void) {
 }
 
 // FUN_001E4A80
-s32 func_001e4a80(void) {
+s32 btlAICommandCondQueryNotBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4768,7 +4768,7 @@ s32 func_001e4b30(void) {
 }
 
 // FUN_001E4BB0
-s32 func_001e4bb0(void) {
+s32 btlAICommandCondQueryId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4793,7 +4793,7 @@ s32 func_001e4cd0(void) {
 }
 
 // FUN_001E4D40
-s32 func_001e4d40(void) {
+s32 btlAICommandCondQueryHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4802,7 +4802,7 @@ s32 func_001e4d40(void) {
 }
 
 // FUN_001E4DF0
-s32 func_001e4df0(void) {
+s32 btlAICommandCondQueryKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4811,7 +4811,7 @@ s32 func_001e4df0(void) {
 }
 
 // FUN_001E4EA0
-s32 func_001e4ea0(void) {
+s32 btlAICommandCondQueryMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4820,7 +4820,7 @@ s32 func_001e4ea0(void) {
 }
 
 // FUN_001E4F50
-s32 func_001e4f50(void) {
+s32 btlAICommandCondQueryWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4829,7 +4829,7 @@ s32 func_001e4f50(void) {
 }
 
 // FUN_001E5000
-s32 func_001e5000(void) {
+s32 btlAICommandCondQueryNotHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4838,7 +4838,7 @@ s32 func_001e5000(void) {
 }
 
 // FUN_001E50B0
-s32 func_001e50b0(void) {
+s32 btlAICommandCondQueryNotKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4847,7 +4847,7 @@ s32 func_001e50b0(void) {
 }
 
 // FUN_001E5160
-s32 func_001e5160(void) {
+s32 btlAICommandCondQueryNotMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4856,7 +4856,7 @@ s32 func_001e5160(void) {
 }
 
 // FUN_001E5210
-s32 func_001e5210(void) {
+s32 btlAICommandCondQueryNotWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4889,7 +4889,7 @@ s32 func_001e53a0(void) {
 }
 
 // FUN_001E5410
-s32 func_001e5410(void) {
+s32 btlAICommandCondQueryHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x15000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4898,7 +4898,7 @@ s32 func_001e5410(void) {
 }
 
 // FUN_001E54C0
-s32 func_001e54c0(void) {
+s32 btlAICommandCondQueryKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4907,7 +4907,7 @@ s32 func_001e54c0(void) {
 }
 
 // FUN_001E5570
-s32 func_001e5570(void) {
+s32 btlAICommandCondQueryMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4916,7 +4916,7 @@ s32 func_001e5570(void) {
 }
 
 // FUN_001E5620
-s32 func_001e5620(void) {
+s32 btlAICommandCondQueryWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4925,7 +4925,7 @@ s32 func_001e5620(void) {
 }
 
 // FUN_001E56D0
-s32 func_001e56d0(void) {
+s32 btlAICommandCondQueryNotHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4934,7 +4934,7 @@ s32 func_001e56d0(void) {
 }
 
 // FUN_001E5780
-s32 func_001e5780(void) {
+s32 btlAICommandCondQueryNotKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4943,7 +4943,7 @@ s32 func_001e5780(void) {
 }
 
 // FUN_001E5830
-s32 func_001e5830(void) {
+s32 btlAICommandCondQueryNotMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4952,7 +4952,7 @@ s32 func_001e5830(void) {
 }
 
 // FUN_001E58E0
-s32 func_001e58e0(void) {
+s32 btlAICommandCondQueryNotWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4973,7 +4973,7 @@ s32 func_001e5990(void) {
 }
 
 // FUN_001E5A20
-s32 func_001e5a20(void) {
+s32 btlAICommandCondQueryNotId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4990,7 +4990,7 @@ s32 func_001e5ad0(void) {
 }
 
 // FUN_001E5B40
-s32 func_001e5b40(void) {
+s32 btlAICommandCondQueryHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
@@ -4999,7 +4999,7 @@ s32 func_001e5b40(void) {
 }
 
 // FUN_001E5BF0
-s32 func_001e5bf0(void) {
+s32 btlAICommandCondQueryNotHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
