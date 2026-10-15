@@ -86,9 +86,9 @@ void *func_004ad460(void *arg0)
     }
     if (func_00479ca0(work->res, 0) != 0) {
         if (work->data.mode != 0) {
-            func_00479940((u8*)work->res, 0, 0, 0, 0);
+            mdlDispatchAnimIfPresent((u8*)work->res, 0, 0, 0, 0);
         } else {
-            func_00479940((u8*)work->res, 0, 0, 0, 1);
+            mdlDispatchAnimIfPresent((u8*)work->res, 0, 0, 0, 1);
         }
     }
     work->count = func_0047a7c0(work->res);
@@ -164,9 +164,9 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
     func_004abbb0(work->res);
     if (func_00479ca0(work->res, 0) != 0) {
         if (work->data.mode != 0) {
-            func_00479940((u8*)work->res, 0, 0, 0, 0);
+            mdlDispatchAnimIfPresent((u8*)work->res, 0, 0, 0, 0);
         } else {
-            func_00479940((u8*)work->res, 0, 0, 0, 1);
+            mdlDispatchAnimIfPresent((u8*)work->res, 0, 0, 0, 1);
         }
     }
     work->count = func_0047a7c0(work->res);

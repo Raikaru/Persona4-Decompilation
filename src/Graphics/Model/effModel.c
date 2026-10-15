@@ -50,7 +50,7 @@ void *func_004abd80(void *arg0)
     }
     func_0047a2a0(work);
     if (func_00479ca0(work, 0) != 0) {
-        func_00479940(work, 0, 0, 0, 0);
+        mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         func_0047a0e0(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
@@ -107,7 +107,7 @@ void *func_004abe80(void *arg0) {
             temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
             func_0047a2a0(temp_2_4);
             if (func_00479ca0(temp_2_4, 0) != 0) {
-                func_00479940(temp_2_4, 0, 0, 0, 0);
+                mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
                 func_0047a0e0(temp_2_4, 0, temp_f20);
             }
             *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
@@ -156,7 +156,7 @@ void func_004ac170(u8 *dst, u8 *src)
     }
     func_0047a2a0(work);
     if (func_00479ca0(work, 0) != 0) {
-        func_00479940(work, 0, 0, 0, 0);
+        mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         func_0047a0e0(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
@@ -369,7 +369,7 @@ void *func_004ac640(void *arg0) {
             temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
             func_0047a2a0(temp_2_4);
             if (func_00479ca0(temp_2_4, 0) != 0) {
-                func_00479940(temp_2_4, 0, 0, 0, 0);
+                mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
                 func_0047a0e0(temp_2_4, 0, 1.0f);
             }
             *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
@@ -432,7 +432,7 @@ void func_004ac9a0(u8 *dst, u8 *src)
     }
     func_0047a2a0(work);
     if (func_00479ca0(work, 0) != 0) {
-        func_00479940(work, 0, 0, 0, 0);
+        mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         func_0047a0e0(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;

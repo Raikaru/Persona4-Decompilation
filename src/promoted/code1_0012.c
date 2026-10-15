@@ -3032,7 +3032,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                     }
                                 }
                                 if (var_4 != NULL) {
-                                    func_00479940(var_4, 0, 1, 0, 1);
+                                    mdlDispatchAnimIfPresent(var_4, 0, 1, 0, 1);
                                 }
                             } else if (temp_2 == 0x1E) {
                                 temp_3_3 = (s32)(M2C_FIELD(temp_21, s32 *, 0));
@@ -3047,7 +3047,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                                     }
                                 }
                                 if (var_4_2 != NULL) {
-                                    func_00479940(var_4_2, 0, 0, 0x1E, 1);
+                                    mdlDispatchAnimIfPresent(var_4_2, 0, 0, 0x1E, 1);
                                 }
                             }
                             if (temp_f21 < 1.0f) {
@@ -3122,7 +3122,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                             }
                         }
                         if (var_4_7 != NULL) {
-                            func_00479940(var_4_7, 0, 2, 0, 1);
+                            mdlDispatchAnimIfPresent(var_4_7, 0, 2, 0, 1);
                         }
                         if (func_004782b0(taskView->model0) != 0) {
                             var_4_8 = (u8 *)(taskView->model0);
@@ -3142,7 +3142,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                             }
                         }
                         if (var_4_9 != NULL) {
-                            func_00479940(var_4_9, 0, 0, 0xF, 1);
+                            mdlDispatchAnimIfPresent(var_4_9, 0, 0, 0xF, 1);
                         }
                     }
                     thirdPalette = D_005E5530;
@@ -3639,7 +3639,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
             }
             if (var_4_16 != NULL) {
-                func_00479940(var_4_16, 0, 2, 0, 1);
+                mdlDispatchAnimIfPresent(var_4_16, 0, 2, 0, 1);
             }
         }
         temp_2_24 = (s32)(taskView->timer);
@@ -4023,7 +4023,7 @@ s32 func_0012aa70(u8 *task)
                 }
             }
             if (resetModel != 0) {
-                func_00479940(resetModel, 0, 0, 0, 1);
+                mdlDispatchAnimIfPresent(resetModel, 0, 0, 0, 1);
             }
             resetIndex = 1;
             while (resetIndex < 8) {
@@ -4040,7 +4040,7 @@ s32 func_0012aa70(u8 *task)
                     }
                 }
                 if (resetModel != 0) {
-                    func_00479940(resetModel, 0, 0, 0, 1);
+                    mdlDispatchAnimIfPresent(resetModel, 0, 0, 0, 1);
                 }
                 resetIndex++;
             }

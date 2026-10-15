@@ -594,7 +594,7 @@ void fieldSceneLoad(s32 arg0, s32 arg1) {
         var_16 = MT_Scene_GetResListHead(0xA);
         goto loop_5_test;
 loop_5_body:
-        func_00479940((u8*)*(s32 *)(var_16 + 0x144), 0, 0, 0, 1);
+        mdlDispatchAnimIfPresent((u8*)*(s32 *)(var_16 + 0x144), 0, 0, 0, 1);
         *(s32 *)(var_16 + 0x28) = *(s32 *)(var_16 + 0x28) | 2;
         var_16 = *(u8 **)(var_16 + 0x138);
 loop_5_test:

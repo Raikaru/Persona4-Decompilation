@@ -648,7 +648,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
                 }
                 if (node != NULL) {
                     func_0047a0e0(*(u8 **)(node + 0x144), 0, 1.0f);
-                    func_00479940(*(u8 **)(*(u8 **)(h + 0x1C) + 0x144), 0, FLD_EVT_ENTRY(h)->unk1A, 0, 0);
+                    mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(h + 0x1C) + 0x144), 0, FLD_EVT_ENTRY(h)->unk1A, 0, 0);
                 }
             } else {
                 *(u8 **)(h + 0x1C) = NULL;
@@ -896,7 +896,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 {
                     s32 animation = work->attack->animation;
                     u32 blend = work->attack->attackBlend;
-                    func_00479940((u8 *)D_007EFA00[0], 0, animation, blend, 0x20);
+                    mdlDispatchAnimIfPresent((u8 *)D_007EFA00[0], 0, animation, blend, 0x20);
                 }
                 func_00479e60((void *)D_007EFA00[0], 0, (f32)work->attack->initialFrame);
                 work->frameCounter = 0;
@@ -1021,7 +1021,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         if (cur >= (u32)attack->endFrame) {
                             s16 animation = func_0016fd00(1);
                             u32 blend = attack->idleBlend;
-                            func_00479940((u8 *)D_007EFA00[0], 0, animation, blend, 1);
+                            mdlDispatchAnimIfPresent((u8 *)D_007EFA00[0], 0, animation, blend, 1);
                             work->motionState = 0;
                             work->state = 0x64;
                         }
@@ -1550,7 +1550,7 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
         if (*(s32 *)(h + 0xC) > -1) {
             v = (s16)func_00479c30(D_007EFA00[0], 0);
             if (v == func_0016fe80(1) || v == func_0016ffd0(1)) {
-                func_00479940((u8*)D_007EFA00[0], 0, (s16)func_0016fd00(1), 4, 1);
+                mdlDispatchAnimIfPresent((u8*)D_007EFA00[0], 0, (s16)func_0016fd00(1), 4, 1);
             }
             if (*(s32 *)((s32)func_00155280() + 4) != 0) {
                 func_0016e540(*(s32 *)((s32)func_00155280() + 4), 2);
@@ -1991,7 +1991,7 @@ bigmove:
                 }
             }
             if (*(s32 *)(h + 0x134) == 0) {
-                func_00479940(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)*(s32 *)(h + 0x144), 6, 1);
+                mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)*(s32 *)(h + 0x144), 6, 1);
                 *(s32 *)(h + 0x134) = 1;
             }
         }
@@ -2011,7 +2011,7 @@ smallmove:
             return 0;
         }
         if (*(s32 *)(h + 0x148) == 0) {
-            func_00479940(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)func_0016fd00(1), 4, 1);
+            mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)func_0016fd00(1), 4, 1);
         }
         c148 = *(s32 *)(h + 0x148) + 1;
         *(s32 *)(h + 0x148) = c148;
@@ -2034,11 +2034,11 @@ smallmove:
             *(s32 *)(h + 0x134) = 1;
         }
         if (*(s32 *)(h + 0x134) == 1) {
-            func_00479940(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)func_0016fd00(1), 8, 1);
+            mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)func_0016fd00(1), 8, 1);
             *(s32 *)(h + 0x134) = 0;
         }
         if (ret16 == 1) {
-            func_00479940(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)func_00170120(1), 8, 0);
+            mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)func_00170120(1), 8, 0);
         }
     }
 moving:

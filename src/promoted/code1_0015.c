@@ -2921,7 +2921,7 @@ body:
                 if (K_Clump_ClumpHasMatUsrData(
                         mdlGetClump(*(s32 *)(entry + 0x144)),
                         D_005F0690) != 0) {
-                    func_00479940((u8*)*(s32 *)(entry + 0x144), 0, 2, 0, 0);
+                    mdlDispatchAnimIfPresent((u8*)*(s32 *)(entry + 0x144), 0, 2, 0, 0);
                 }
                 if (K_Clump_ClumpHasMatUsrData(
                         mdlGetClump(*(s32 *)(entry + 0x144)),

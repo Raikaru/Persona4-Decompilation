@@ -237,7 +237,7 @@ discoveryAvailabilityDone:
             desiredAnimation = func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
             if (currentAnimation != desiredAnimation) {
                 desiredAnimation = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
-                func_00479940(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 0, 1);
+                mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 0, 1);
             }
             break;
         }
@@ -521,7 +521,7 @@ moveFollower:
                     desiredAnimation = func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
                     if (currentAnimation != desiredAnimation) {
                         desiredAnimation = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
-                        func_00479940(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 16, 1);
+                        mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 16, 1);
                     }
                     *(s32 *)(work + 0x60) = 0;
                 }
@@ -530,7 +530,7 @@ moveFollower:
                 desiredAnimation = func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
                 if (currentAnimation != desiredAnimation) {
                     desiredAnimation = (s16)func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
-                    func_00479940(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 8, 1);
+                    mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 8, 1);
                     *(s32 *)(work + 0x60) = 0;
                 }
             }
@@ -590,7 +590,7 @@ void FldAI_ChaserEnable(u8 *arg0) {
 void FldAI_ChaserDisable(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
-    func_00479940(*(u8 **)(*(u8 **)(p + 0x10) + 0x50), 0,
+    mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(p + 0x10) + 0x50), 0,
                   (s16)func_0016fd00(*(u16 *)(*(u8 **)(p + 0x10) + 0x728)), 0, 1);
     *(s32 *)(p + 0xC) = 0;
 }
@@ -1152,7 +1152,7 @@ availabilityDone:
     case 0:
       temp_v0 = (int)func_003e0f80();
       piVar1[4] = temp_v0;
-      func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,0,1);
+      mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,0,0,1);
       piVar1[5] = (u32)iGpffffb2c8 + (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x180 + (unsigned int)*(unsigned short *)(piVar1[3] + 0x1c8) * 0x40;
       temp_v0 = piVar1[3];
       *(FldAIVec3 *)&((float *)piVar1)[9] = *(FldAIVec3 *)(temp_v0 + 0x19c);
@@ -1401,7 +1401,7 @@ else {
       }
       else {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) | 4;
-        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,1,8,1);
+        mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,1,8,1);
         temp_v0 = RpRandom();
         temp_v7 = (unsigned int)temp_v0 % 100;
         temp_v3 = 0;
@@ -1521,7 +1521,7 @@ else {
       if ((piVar1[0x23] < 1) && (temp_v0 = FldAI_ChaserCanSeeTarget((unsigned char *)piVar1[3]), temp_v0 == 0)) {
         piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
         *piVar1 = 0xb;
-        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
       else {
         if (0 < piVar1[0x23]) {
@@ -1538,7 +1538,7 @@ else {
           temp_v8 = RwV3dNormalize(&state7Delta,&state7Delta);
           if (temp_v8 >= *(float *)piVar1[5]) {
             piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
-            func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+            mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
             *piVar1 = 0xb;
           }
         }
@@ -1652,7 +1652,7 @@ else {
       if ((piVar1[0x23] < 1) && (temp_v0 = FldAI_ChaserCanSeeTarget((unsigned char *)piVar1[3]), temp_v0 == 0)) {
         piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
         *piVar1 = 0xb;
-        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
       else {
         if (0 < piVar1[0x23]) {
@@ -1670,7 +1670,7 @@ else {
           if (temp_v8 >= *(float *)piVar1[5]) {
             piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
             *piVar1 = 0xb;
-            func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+            mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
           }
         }
         else if (0 < temp_v0) {
@@ -1722,7 +1722,7 @@ else {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
-        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
       else {
         piVar1[0x25] = piVar1[0x25] - 1;
@@ -1778,7 +1778,7 @@ else {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
-        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
       temp_v11 = state10Delta.x * state10Forward.x + state10Delta.y * state10Forward.y + state10Delta.z * state10Forward.z;
       temp_v9 = 10.0f * *(float *)((u8 *)(u32)piVar1 + 0x68);
@@ -1859,7 +1859,7 @@ else {
           piVar1[0x23] = 0xd2;
           piVar1[0x24] = 0x3c;
           *piVar1 = 7;
-          func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,1,8,1);
+          mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,1,8,1);
           break;
         }
       }
@@ -1908,14 +1908,14 @@ else {
             }
             ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
             *piVar1 = 0xc;
-            func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+            mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
             break;
           }
         }
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
-        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        mdlDispatchAnimIfPresent(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
       break;
     case 0xc:
