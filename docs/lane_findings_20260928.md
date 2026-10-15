@@ -177,7 +177,7 @@ Guarded bodies were left in place; the source notes above each marker carry the 
   STYLE.md).
 - Not reached or blocked: thirteen guarded bodies did not compile at the start of the session
   (`func_001265a0`, `func_00172e00`, `func_0031ac10`, `func_00320b80`, `func_00321e60`,
-  `func_00323d00`, `func_00324680`, `func_00356a10`, `func_0047b0c0` and the four battle bodies
+  `func_00323d00`, `func_00324680`, `func_00356a10`, `mdlReadAuxChunks` (was `func_0047b0c0`) and the four battle bodies
   in `code1_001a.c`). The four battle bodies compile again and are now close or under
   investigation (`func_001ad550` 2 words, `func_001abbb0` 55, `func_001a4c80` and
   `func_001aed50` 163 and 122 fnalign edits); the other nine were not reached. The
