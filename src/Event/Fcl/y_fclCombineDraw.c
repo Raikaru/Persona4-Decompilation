@@ -3415,8 +3415,9 @@ void fclCombineRefreshRosterSelection(u8 *arg0) {
    the later draw blocks. That copy use keeps both locals out of b210's
    copy propagation, so they keep their low declared numbers and retail's
    $s4/$s3 (see docs/matching.md, "Keep a load local alive"). */
+// Fcl combine side panels: draws the slot fields and party rows for both slot lists, then the side-panel sprites (0x70/0x71, 0x2BB-0x2BF, 0xBC). arg2 selects the shown (1) or hidden (0) alpha of the panel sprites.
 // FUN_00323D00
-void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
+void fclCombineDrawSidePanels(u8 *arg0, s32 arg1, s8 arg2) {
     FclByte4 cFC;
     FclByte4 cF8;
     FclByte4 cF4;
@@ -3521,8 +3522,9 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
    612/624. The s16 definition and original helper declarations are therefore
    retained; bare INCLUDE_ASM remains because nd 118 exceeds park threshold. */
 /* measured: candidate archived at build/EFCL2_00324410_body.c; object 616/window 624, normalized_diff 118. */
+// Fcl combine side panel step: advances the slide-in state of panel sprite arg1 for side arg2 (state byte at t+0x294): state 0 starts the slide and reveal, state 1 waits for the sprite flag to clear, state 2 sets the flag.
 // FUN_00324410
-void func_00324410(u8 *arg0, s16 arg1, s8 arg2) {
+void fclCombineStepSidePanel(u8 *arg0, s16 arg1, s8 arg2) {
     FclVec2 sp68;
     FclVec2 sp60;
     FclVec2 sp58;
@@ -3586,8 +3588,9 @@ void func_00324410(u8 *arg0, s16 arg1, s8 arg2) {
    "Keep a load local alive"); together they give retail's $s1/$s2/$s3. */
 #pragma push
 #pragma opt_lifetimes on
+// Fcl combine pair layout: redraws the whole pair-grid layout for mode arg2 (frame, both slot-field sets, both party lists, the side panels and the 0xCD sprite). Mode 0 also recolours the selected row; arg1 is the row stride.
 // FUN_00324680
-void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
+void fclCombineDrawPairLayout(u8 *arg0, s32 arg1, s8 arg2) {
     extern f32 D_006443D8[];
     FclByte4 c11C;
     FclByte4 c118;
