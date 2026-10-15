@@ -23,10 +23,10 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 s32 func_00263460(u8 *task);
 void func_00264d10(u8 *task);
-void func_00266690(s32 arg0, s32 arg1);
-s32 func_00264ec0(u8 *arg0);
-void func_00266890(s32 arg0, u8 *arg1);
-void func_002668f0(u8 *arg0);
+void cldDayChangeDrawFrame(s32 arg0, s32 arg1);
+s32 cldDayChangeUpdateState(u8 *arg0);
+void cldDayChangeAddRenderTask(s32 arg0, u8 *arg1);
+void cldDayChangeTaskDestroy(u8 *arg0);
 void func_00364c50(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                    u8 *arg4, s32 arg5, s32 arg6);
 void func_00364c70(void);
@@ -36,10 +36,10 @@ extern f32 iGpffff84a4;
 extern f32 iGpffff84a4;
 extern f32 cosf(f32 fparg0);
 extern f32 sinf(f32 fparg0);
-void func_00266050(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3);
-void func_00265110(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
+void cldDayChangeDrawMonthOutline(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3);
+void cldDayChangeDrawMarker(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
                    s32 arg4);
-void func_00265f40(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
+void cldDayChangeDrawPolygon(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
                    u8 *arg4, s32 arg5, f32 fparg1, f32 fparg2);
 s32 sprintf(char *buf, const char *fmt, ...);
 u8 *func_00455f70(void *arg0, u32 *arg1);
@@ -50,8 +50,9 @@ extern u8 D_006376F0[];
 void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 
 
+/* Creates the day-change display task with its update and destroy callbacks. */
 // FUN_00264D90
-void func_00264d90(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void cldDayChangeStartTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *p;
 
     if (arg3 == 0) {
@@ -67,15 +68,17 @@ void func_00264d90(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     (s32)func_00451fc0((void *)(arg0), (const void *)(D_006376C0), 0x10, 0, 0, func_00263460, func_00264d10, (u8 *)(p));
 }
 
+/* Reads the day-change data file into memory synchronously. */
 // FUN_00264E70
-void func_00264e70(void)
+void cldDayChangePreloadData(void)
 {
     func_00440b68(&iGpffffa6c8, D_006376B0, 0x464);
     H_Cdvd_ReadSync(func_00454a60(D_006376D0, 1));
 }
 
+/* Day-change state machine: advances the display through states 0 to 10. */
 // FUN_00264EC0
-s32 func_00264ec0(u8 *arg0) {
+s32 cldDayChangeUpdateState(u8 *arg0) {
     s32 *p;
     u8 buf[0x4C];
     u32 tmp;
@@ -154,12 +157,13 @@ s32 func_00264ec0(u8 *arg0) {
         p[0] = 1;
         break;
     }
-    func_00266890((s32)arg0, (u8 *)p[3]);
+    cldDayChangeAddRenderTask((s32)arg0, (u8 *)p[3]);
     return 0;
 }
 
+/* Draws the marker for dial case `arg3` at the point given by arg0 and arg1. */
 // FUN_00265110
-void func_00265110(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
+void cldDayChangeDrawMarker(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
                    s32 arg4) {
     if (arg4 != 0) {
         switch (arg3) {
@@ -243,8 +247,9 @@ typedef struct { f32 x, y; } DayChangePoint;
 
 /* measured: loop-invariant probe for integer-to-float hoisting in 00265f40. */
 #pragma opt_loop_invariants on
+/* Builds vertices and colours from a point array and draws them as a polygon. */
 // FUN_00265F40
-void func_00265f40(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
+void cldDayChangeDrawPolygon(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
                    u8 *arg4, s32 arg5, f32 fparg1, f32 fparg2)
 {
     DayChangePoint vertices[0x100];
@@ -286,8 +291,9 @@ void func_00265f40(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
  * are independently exact. Keep the float third in this function and its
  * drawing helper's coherent declarations and calls.
  * See docs/probe_archive/Day_change_00266050_20260924.md. */
+/* Draws the outline of month `month` at (x, y) with the given depth and opacity. */
 // FUN_00266050
-void func_00266050(s32 x, s32 y, f32 depth, s32 opacity, s32 month)
+void cldDayChangeDrawMonthOutline(s32 x, s32 y, f32 depth, s32 opacity, s32 month)
 {
     extern f32 iGpffff8570;
     DayChangePoint outline1[0x28] = {
@@ -578,43 +584,43 @@ void func_00266050(s32 x, s32 y, f32 depth, s32 opacity, s32 month)
     case 0:
         break;
     case 1:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline1, 0x28, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline1, 0x28, 1.0f, 1.0f);
         break;
     case 2:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline2, 0x3D, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline2, 0x3D, 1.0f, 1.0f);
         break;
     case 3:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline3, 0x58, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline3, 0x58, 1.0f, 1.0f);
         break;
     case 4:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline4, 0x35, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline4, 0x35, 1.0f, 1.0f);
         break;
     case 5:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline5, 0x57, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline5, 0x57, 1.0f, 1.0f);
         break;
     case 6:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline6, 0x6A, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline6, 0x6A, 1.0f, 1.0f);
         break;
     case 7:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline7, 0x19, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline7, 0x19, 1.0f, 1.0f);
         break;
     case 8:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline8, 0x66, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline8, 0x66, 1.0f, 1.0f);
         break;
     case 9:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline9, 0x5D, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline9, 0x5D, 1.0f, 1.0f);
         break;
     case 10:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline10, 0x26, 1.0f, 1.0f);
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline11, 0x41, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline10, 0x26, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline11, 0x41, 1.0f, 1.0f);
         break;
     case 11:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline10, 0x26, 1.0f, 1.0f);
-        func_00265f40(x + 0x88, y, depth, packedColor >> 8, 0xFF, (u8 *)outline10, 0x26, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline10, 0x26, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x + 0x88, y, depth, packedColor >> 8, 0xFF, (u8 *)outline10, 0x26, 1.0f, 1.0f);
         break;
     case 12:
-        func_00265f40(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline10, 0x26, 1.0f, 1.0f);
-        func_00265f40(x + 0x45, y + 6, depth, packedColor >> 8, 0xFF, (u8 *)outline2, 0x3D, iGpffff8570, 1.0f);
+        cldDayChangeDrawPolygon(x, y, depth, packedColor >> 8, 0xFF, (u8 *)outline10, 0x26, 1.0f, 1.0f);
+        cldDayChangeDrawPolygon(x + 0x45, y + 6, depth, packedColor >> 8, 0xFF, (u8 *)outline2, 0x3D, iGpffff8570, 1.0f);
         break;
     default:
         break;
@@ -635,11 +641,12 @@ void func_00266050(s32 x, s32 y, f32 depth, s32 opacity, s32 month)
  * here is iGpffff84a4 (pi/2); the renderer's separate case-12 horizontal
  * scale is iGpffff8570. This callback's native switch table remains at
  * 0x748020, following the renderer's native table at 0x747FE0. */
+/* Per-frame render callback: animates the month outline and its marker. */
 // FUN_00266690
-void func_00266690(s32 arg0, s32 arg1)
+void cldDayChangeDrawFrame(s32 arg0, s32 arg1)
 {
-    extern void func_00266050(s32, s32, f32, s32, s32);
-    extern void func_00265110(s32, s32, f32, s32, u32, s32);
+    extern void cldDayChangeDrawMonthOutline(s32, s32, f32, s32, s32);
+    extern void cldDayChangeDrawMarker(s32, s32, f32, s32, u32, s32);
     extern f32 cosf(f32);
     extern f32 sinf(f32);
     extern f32 iGpffff84a4;
@@ -657,14 +664,14 @@ void func_00266690(s32 arg0, s32 arg1)
         ratio = (f32)*(s32 *)(p + 0x18) / 7.0f;
         alpha = (s32)(255.0f * ratio);
         value = 336.0f + 128.0f * cosf(iGpffff84a4 * ratio);
-        func_00266050((s32)value, 0, 0.0f, alpha, *(s32 *)(p + 0x10));
-        func_00265110(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
+        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, *(s32 *)(p + 0x10));
+        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
                       *(s32 *)(p + 0x1C));
         break;
     case 2:
     case 3:
-        func_00266050(0x150, 0, 0.0f, 0xFF, *(s32 *)(p + 0x10));
-        func_00265110(0x150, 0, 0.0f, 0xFF, *(u32 *)(p + 0x10),
+        cldDayChangeDrawMonthOutline(0x150, 0, 0.0f, 0xFF, *(s32 *)(p + 0x10));
+        cldDayChangeDrawMarker(0x150, 0, 0.0f, 0xFF, *(u32 *)(p + 0x10),
                       *(s32 *)(p + 0x1C));
         break;
     case 4:
@@ -672,25 +679,27 @@ void func_00266690(s32 arg0, s32 arg1)
         ratio = (f32)*(s32 *)(p + 0x18) / 10.0f;
         alpha = (s32)(255.0f * (1.0f - ratio));
         value = 336.0f - 192.0f * sinf(iGpffff84a4 * ratio);
-        func_00266050((s32)value, 0, 0.0f, alpha, *(s32 *)(p + 0x10));
-        func_00265110(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
+        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, *(s32 *)(p + 0x10));
+        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
                       *(s32 *)(p + 0x1C));
         break;
     }
 }
 
+/* Creates a render node for cldDayChangeDrawFrame and adds it to the render list. */
 // FUN_00266890
-void func_00266890(s32 arg0, u8 *arg1) {
+void cldDayChangeAddRenderTask(s32 arg0, u8 *arg1) {
     u8 *p;
 
     p = func_00460990();
-    *(void **)(p + 0x8) = (void *)func_00266690;
+    *(void **)(p + 0x8) = (void *)cldDayChangeDrawFrame;
     *(s32 *)(p + 0x10) = arg0;
     func_00460ac0(arg1, p);
 }
 
+/* Destroy callback of the day-change task: frees its buffer and calls the destroy table. */
 // FUN_002668F0
-void func_002668f0(u8 *arg0) {
+void cldDayChangeTaskDestroy(u8 *arg0) {
     u8 *p;
     s32 v;
 
@@ -702,8 +711,9 @@ void func_002668f0(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
+/* Creates the day-change state-machine task with its destroy callback. */
 // FUN_00266950
-s32 func_00266950(s32 arg0, s32 arg1, s32 arg2) {
+s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2) {
     u8 *p;
     s32 r;
 
@@ -715,7 +725,7 @@ s32 func_00266950(s32 arg0, s32 arg1, s32 arg2) {
     *(s32 *)(p + 0) = 0;
     *(s32 *)(p + 0xC) = arg2;
     *(s32 *)(p + 0x1C) = arg1;
-    r = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00638EF0), 0xF, 0, 0, func_00264ec0, func_002668f0, (u8 *)(p));
+    r = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00638EF0), 0xF, 0, 0, cldDayChangeUpdateState, cldDayChangeTaskDestroy, (u8 *)(p));
     func_0045a8d0(3, 0);
     func_004598e0(0xA);
     return r;

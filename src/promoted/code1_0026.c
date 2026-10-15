@@ -108,7 +108,7 @@ extern s32 func_00452380(void *arg0);
 extern void func_00452080(s32 arg0);
 extern void func_00263cb0(s32 arg0, u8 *arg1);
 extern void func_00274660(u32 param_1, int param_2);
-extern s32 func_00266950(s32 arg0, s32 arg1, s32 arg2);
+extern s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00266a40(u32 arg0, s32 arg1);
 extern void func_00266a90(u8 *arg0);
 extern s32 func_00266ae0(s32 arg0);
@@ -1107,7 +1107,7 @@ s32 func_00263460(u8 *sdkTaskBytes)
         if (func_0025f110((u8 *)*(s32 *)(temp_2 + 4)) != 0) {
             *(u32 *)temp_2 = 2;
             *(s32 *)(temp_2 + 0x14) =
-                func_00266950(arg0, *(s32 *)(temp_2 + 4),
+                cldDayChangeStartStateTask(arg0, *(s32 *)(temp_2 + 4),
                               *(s32 *)(temp_2 + 8));
             if (datGetFlag(0x1471) != 0) {
                 func_00106390(0x1471, 0);

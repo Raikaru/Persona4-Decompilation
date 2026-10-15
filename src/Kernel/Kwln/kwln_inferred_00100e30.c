@@ -86,7 +86,7 @@ extern void func_002312e0(void);
 extern void func_00231330(void);
 extern void func_00246700(void);
 extern void func_0025ff90(void);
-extern void func_00264e70(void);
+extern void cldDayChangePreloadData(void);
 extern void func_0026d840(void);
 extern void func_00274970(void);
 extern void func_00278940(void);
@@ -299,7 +299,7 @@ void func_00100e60(void)
     func_00278940();
     func_002bdf20();
     func_0029d950();
-    func_00264e70();
+    cldDayChangePreloadData();
     func_0025ff90();
     func_00102490();
     func_00102610();
