@@ -12,21 +12,21 @@ typedef struct Resrc {
 } Resrc;
 
 
-// lint: allow H011 -- measured: u16 prototype regresses func_00268e60 (andi on wide id args); retail declared this old-style
+// lint: allow H011 -- measured: u16 prototype regresses MT_Scene_BeginResMoveToward (andi on wide id args); retail declared this old-style
 extern void *MT_Scene_GetRes();
-u32 func_00268ce0(float* first, float* second, float* output, float* third);
+u32 MT_Scene_GetSegmentHeading(float* first, float* second, float* output, float* third);
 
-extern u32 func_00269190(Resrc* param_1, u32 param_2, float param_3, u32 param_4);
-extern u32 func_002694f0(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
+extern u32 MT_Scene_BeginResPathAnim(Resrc* param_1, u32 param_2, float param_3, u32 param_4);
+extern u32 MT_Scene_SetResColorParam(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
 
-extern u32 func_002699d0(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
+extern u32 MT_Scene_SetResMotionRecord(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
                          u32 param_5, u32 param_6, float param_7);
-extern u32 func_00269bd0(void* resource, s32 enabled);
-extern s32 func_0026bc90(u8 *arg0, s32 arg1);
+extern u32 MT_Scene_SetResActive(void* resource, s32 enabled);
+extern s32 MT_Scene_SetResShadowCaster(u8 *arg0, s32 arg1);
 
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 
-extern void func_0026c680(float *param_1);
+extern void MT_Scene_WrapAngles(float *param_1);
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbb90 (verified MATCH
 // there). 006a2f48 -> D_0063b1a0, 006a2f50 -> D_0063b1a8, 004c69f0 ->
@@ -65,16 +65,16 @@ typedef struct RwV3d
 } RwV3d;
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbd40 (verified MATCH
-// there). 003bbc90 -> func_0026c960.
+// there). 003bbc90 -> MT_Scene_EvalCubicBezier.
 
-extern void func_0026c960(float param_1, float *param_2, float *param_3, float *param_4, float *param_5, float *param_6, float *param_7);
+extern void MT_Scene_EvalCubicBezier(float param_1, float *param_2, float *param_3, float *param_4, float *param_5, float *param_6, float *param_7);
 extern f32 RwV3dLength(const RwV3d *vector);
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bc0e0 (verified MATCH
-// there). 007cb0b8 -> D_007614c0, 003bbfd0 -> func_0026cca0.
+// there). 007cb0b8 -> D_007614c0, 003bbfd0 -> MT_Scene_GetCurveSegmentLength.
 
 extern f32 D_007614c0;
-extern float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4, float *param_5, float *param_6, float *param_7);
+extern float MT_Scene_GetCurveSegmentLength(float param_1, float param_2, float *param_3, float *param_4, float *param_5, float *param_6, float *param_7);
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bcc80 (verified MATCH
 // there). 007ce658 -> D_00764580, 003500e0 -> func_004b15d0.
@@ -85,8 +85,8 @@ extern u32 D_00764588;
 extern u32 D_0076458C;
 extern void func_004b15d0(void);
 
-extern void func_0026c740(s32 object);
-extern float func_0026cdb0(char *param_1);
+extern void MT_Scene_WrapObjectAngles(s32 object);
+extern float MT_Scene_GetCurveLength(char *param_1);
 extern s32 func_0026da30(u16 arg0, s32 arg1);
 extern s32 FldShadow_SetCasterFlag(s32 arg0, s32 arg1, s32 arg2);
 extern void memset(void *dst, s32 value, s32 size);
@@ -114,11 +114,11 @@ extern s32 K_View_SetFov(void *arg0, f32 arg1);
 extern u8 *func_00457120(void);
 extern u8 *func_003e0f80(void);
 extern void RwMatrixTranslate(void *dst, void *src, s32 mode);
-extern u32 func_0026d400(float *arg0);
+extern u32 MT_Scene_GetShakeOffset(float *arg0);
 extern void func_003e9df0(void *arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0f40(void *arg0);
-extern void func_0026bfc0(f32 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *arg1);
+extern void MT_Scene_OffsetPointByRotation(f32 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *arg1);
 extern u8 *func_00147620(u32 arg0);
 extern f32 cosf(f32 arg0);
 extern f32 func_0044b938(f32 arg0);
@@ -142,10 +142,10 @@ extern u8 D_0063B160_abs[];
 extern u8 D_0063B170_abs[];
 extern u8 D_0063B180_abs[];
 extern u8 D_0063B190_abs[];
-extern void func_0026c190(float *out, void *resource, f32 scale);
+extern void MT_Scene_GetResAnchor(float *out, void *resource, f32 scale);
 
 // FUN_00268B20
-void func_00268b20(u32 arg0)
+void MT_Scene_SpawnIconTask(u32 arg0)
 {
     u8 *p;
 
@@ -158,7 +158,7 @@ void func_00268b20(u32 arg0)
 }
 
 // FUN_00268BD0
-u32 func_00268bd0(Resrc* resource, s32 enabled)
+u32 MT_Scene_SetResEnabled(Resrc* resource, s32 enabled)
 {
     if (resource == NULL)
     {
@@ -180,7 +180,7 @@ u32 func_00268bd0(Resrc* resource, s32 enabled)
 
 
 // FUN_00268C20
-u32 func_00268c20(u32 resTypeId, s32 enabled)
+u32 MT_Scene_SetResEnabledById(u32 resTypeId, s32 enabled)
 {
     Resrc* res;
 
@@ -211,7 +211,7 @@ u32 func_00268c20(u32 resTypeId, s32 enabled)
 
 
 // FUN_00268CB0
-u8 func_00268cb0(Resrc* resource)
+u8 MT_Scene_IsResEnabled(Resrc* resource)
 {
     if (resource == NULL)
     {
@@ -230,7 +230,7 @@ u8 func_00268cb0(Resrc* resource)
    emits load-store-load-store. Same pattern as the matched P3FES port
    FUN_0026C860. */
 // FUN_00268CE0
-u32 func_00268ce0(float *first, float *second, float *output, float *third)
+u32 MT_Scene_GetSegmentHeading(float *first, float *second, float *output, float *third)
 {
     u32 uVar1;
     float fVar2;
@@ -266,17 +266,17 @@ u32 func_00268ce0(float *first, float *second, float *output, float *third)
 }
 
 // FUN_00268E30
-u32 func_00268e30(float* first, float* second, float* third)
+u32 MT_Scene_GetSegmentHeadingAngle(float* first, float* second, float* third)
 {
     float output[4];
 
-    return func_00268ce0(first, second, output, third);
+    return MT_Scene_GetSegmentHeading(first, second, output, third);
 }
 
 
 
 // FUN_00268E60
-s32 func_00268e60(u32 unk, u8 *arg1, f32 fparg0) {
+s32 MT_Scene_BeginResMoveToward(u32 unk, u8 *arg1, f32 fparg0) {
     s32 temp_4;
     u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
@@ -299,7 +299,7 @@ s32 func_00268e60(u32 unk, u8 *arg1, f32 fparg0) {
 
 
 // FUN_00268F20
-s32 func_00268f20(u32 arg0, SVec3 *arg1, u32 arg2, s8 arg3)
+s32 MT_Scene_BeginResTimedMove(u32 arg0, SVec3 *arg1, u32 arg2, s8 arg3)
 {
     s32 result;
     u8 *p = MT_Scene_GetRes(arg0);
@@ -323,7 +323,7 @@ s32 func_00268f20(u32 arg0, SVec3 *arg1, u32 arg2, s8 arg3)
 }
 
 // FUN_00269000
-s32 func_00269000(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
+s32 MT_Scene_SetResCurveParams(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
                   f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, s32 arg3,
                   s8 arg4) {
     s32 temp_3;
@@ -356,11 +356,11 @@ s32 func_00269000(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
 
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b89f0 (verified MATCH
-// there). 003b5d10 -> func_00145270, 003b88c0 -> func_00269190.
+// there). 003b5d10 -> func_00145270, 003b88c0 -> MT_Scene_BeginResPathAnim.
 
 
 // FUN_002690B0
-s32 func_002690b0(u32 arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
+s32 MT_Scene_SetResCurveParamsById(u32 arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
                   f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, s32 arg3,
                   s8 arg4)
 {
@@ -368,7 +368,7 @@ s32 func_002690b0(u32 arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
     s32 result;
 
     if (p != NULL) {
-        result = func_00269000(p, arg1, arg2, fparg0, fparg1, fparg2, fparg3, fparg4, fparg5, arg3, arg4);
+        result = MT_Scene_SetResCurveParams(p, arg1, arg2, fparg0, fparg1, fparg2, fparg3, fparg4, fparg5, arg3, arg4);
     } else {
         result = 0;
     }
@@ -376,7 +376,7 @@ s32 func_002690b0(u32 arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
 }
 
 // FUN_00269190
-u32 func_00269190(Resrc *param_1, u32 param_2, float param_3, u32 param_4)
+u32 MT_Scene_BeginResPathAnim(Resrc *param_1, u32 param_2, float param_3, u32 param_4)
 {
     u32 uVar1;
     u32 uVar2;
@@ -418,7 +418,7 @@ u32 func_00269190(Resrc *param_1, u32 param_2, float param_3, u32 param_4)
     } while (0 < iVar5);
     {
         float fVar6;
-        fVar6 = func_0026cdb0((char *)*(u32 *)(iVar3 + 0x58));
+        fVar6 = MT_Scene_GetCurveLength((char *)*(u32 *)(iVar3 + 0x58));
         *(float *)(iVar3 + 0x64) = fVar6;
         func_00440b68(D_0063B0D0, func_0044dcd8(fVar6));
     }
@@ -427,7 +427,7 @@ u32 func_00269190(Resrc *param_1, u32 param_2, float param_3, u32 param_4)
 
 
 // FUN_002692D0
-u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
+u32 MT_Scene_BeginResPathAnimById(u32 param_1, u32 param_2, float param_3, u32 param_4)
 {
     u32 lVar1;
     u32 uVar2;
@@ -435,7 +435,7 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
     lVar1 = (u32)MT_Scene_GetRes(param_1);
     if (lVar1 != 0)
     {
-        uVar2 = func_00269190((Resrc*)lVar1, param_2, param_3, param_4);
+        uVar2 = MT_Scene_BeginResPathAnim((Resrc*)lVar1, param_2, param_3, param_4);
     }
     else
     {
@@ -447,7 +447,7 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
 
 
 // FUN_00269340
-s32 func_00269340(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
+s32 MT_Scene_BeginResRotation(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
 {
     SVec3 values;
     u8 *p = MT_Scene_GetRes(arg0);
@@ -455,8 +455,8 @@ s32 func_00269340(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
     if (p == NULL) return 0;
     values = *arg1;
     if (p == NULL) return 0;
-    func_0026c740((s32)p);
-    func_0026c680((float *)&values);
+    MT_Scene_WrapObjectAngles((s32)p);
+    MT_Scene_WrapAngles((float *)&values);
     *(u32 *)(p + 0x28) |= 4;
     *(SVec3 *)(p + 0x68) = *(SVec3 *)(p + 0x10);
     *(SVec3 *)(p + 0x74) = values;
@@ -468,7 +468,7 @@ s32 func_00269340(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
 }
 
 // FUN_00269440
-s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
+s32 MT_Scene_BeginResScale(u32 unk, u8 *arg1, s32 arg2) {
     u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
     if (temp_2 == NULL) {
@@ -487,11 +487,11 @@ s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
 
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b8e10 (verified MATCH
-// there). 003b5d10 -> func_00145270, 003b8ce0 -> func_002694f0.
+// there). 003b5d10 -> func_00145270, 003b8ce0 -> MT_Scene_SetResColorParam.
 
 
 // FUN_002694F0
-u32 func_002694f0(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
+u32 MT_Scene_SetResColorParam(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
 {
     u8 tmp[8];
     u8 bVar;
@@ -534,7 +534,7 @@ u32 func_002694f0(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
 }
 
 // FUN_00269620
-u32 func_00269620(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
+u32 MT_Scene_SetResColorParamById(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
 {
     u32 lVar1;
     u32 uVar2;
@@ -542,7 +542,7 @@ u32 func_00269620(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
     lVar1 = (u32)MT_Scene_GetRes(param_1);
     if (lVar1 != 0)
     {
-        uVar2 = func_002694f0(lVar1, param_2, param_3, param_4);
+        uVar2 = MT_Scene_SetResColorParam(lVar1, param_2, param_3, param_4);
     }
     else
     {
@@ -554,7 +554,7 @@ u32 func_00269620(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
 
 
 // FUN_00269690
-s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
+s32 MT_Scene_BeginResFovChange(u32 unk, f32 fparg0, s32 arg1) {
     u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
     if (temp_2 == NULL) {
@@ -576,12 +576,12 @@ s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
 
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b93c0 (verified MATCH
-// there). 003b5d10 -> func_00145270, 003b8ff0 -> func_00269820,
-// 003b9260 -> func_002699d0.
+// there). 003b5d10 -> func_00145270, 003b8ff0 -> MT_Scene_SetResMotion,
+// 003b9260 -> MT_Scene_SetResMotionRecord.
 
 
 // FUN_00269740
-s32 func_00269740(u32 resourceId)
+s32 MT_Scene_ResetResMotion(u32 resourceId)
 {
     u8 *p = MT_Scene_GetRes(resourceId);
 
@@ -602,7 +602,7 @@ s32 func_00269740(u32 resourceId)
 }
 
 // FUN_00269820
-u32 func_00269820(u16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
+u32 MT_Scene_SetResMotion(u16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
                   float fparg0)
 {
     s32 var_17;
@@ -640,7 +640,7 @@ u32 func_00269820(u16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
     return 1;
 }
 // FUN_002699D0
-u32 func_002699d0(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0)
+u32 MT_Scene_SetResMotionRecord(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0)
 {
     u8 *dst;
 
@@ -669,7 +669,7 @@ u32 func_002699d0(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f
 }
 
 // FUN_00269A90
-void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
+void MT_Scene_SetResMotionSlot(u32 param_1, short param_2, short param_3, short param_4,
                    short param_5)
 {
     u32 uVar1;
@@ -684,7 +684,7 @@ void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
     if (uVar3 == -1) {
         lVar2 = (u32)MT_Scene_GetRes(uVar1);
         if (lVar2 != 0) {
-            func_00269820((u16 *)lVar2, 0, param_2, param_3, 1, 0, 1.0f);
+            MT_Scene_SetResMotion((u16 *)lVar2, 0, param_2, param_3, 1, 0, 1.0f);
         }
         goto end;
     }
@@ -693,12 +693,12 @@ void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
     if (lVar4 == 0) {
         goto second_done;
     }
-    func_00269820((u16 *)lVar4, 0, param_2, param_3, 0, 0, 1.0f);
+    MT_Scene_SetResMotion((u16 *)lVar4, 0, param_2, param_3, 0, 0, 1.0f);
 
 second_done:
     lVar2 = (u32)MT_Scene_GetRes(uVar1);
     if (lVar2 != 0) {
-        func_002699d0((u32 *)lVar2, 0, uVar3, param_5, 1, 0, 1.0f);
+        MT_Scene_SetResMotionRecord((u32 *)lVar2, 0, uVar3, param_5, 1, 0, 1.0f);
     }
 
 end:
@@ -708,7 +708,7 @@ end:
 
 
 // FUN_00269BD0
-u32 func_00269bd0(void* resource, s32 enabled)
+u32 MT_Scene_SetResActive(void* resource, s32 enabled)
 {
     u32 result;
     s32 address;
@@ -737,11 +737,11 @@ u32 func_00269bd0(void* resource, s32 enabled)
 
 
 // FUN_00269C20
-s32 func_00269c20(u32 unk, s32 arg1) {
+s32 MT_Scene_SetResActiveById(u32 unk, s32 arg1) {
     u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
     if (temp_2 != NULL) {
-        return func_00269bd0(temp_2, arg1);
+        return MT_Scene_SetResActive(temp_2, arg1);
     }
     return 0;
 }
@@ -752,7 +752,7 @@ s32 func_00269c20(u32 unk, s32 arg1) {
    absolute-global and early source-pointer load order; direct stores remain exact. */
 #pragma opt_propagation off
 // FUN_00269C70
-void func_00269c70(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 scale)
+void MT_Scene_GetAnglePoint(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 scale)
 {
     f32 transformed[4];
     f32 vector1[4];
@@ -793,7 +793,7 @@ void func_00269c70(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 scale)
 /* measured: opt_propagation off closes nd 5 -> 0 for global-load ordering. */
 #pragma opt_propagation off
 // FUN_00269DB0
-void func_00269db0(float *param_1, float *param_2)
+void MT_Scene_GetDirectionAngles(float *param_1, float *param_2)
 {
     typedef struct SceneMatrixAngles {
         RwV3d right;
@@ -991,9 +991,9 @@ typedef union SceneEffectColor {
 } SceneEffectColor;
 
 extern void func_00146a10(u8 *resource, u8 *position, u8 *rotation, u8 *scale);
-extern void func_0026c770(f32 *start, f32 *end, f32 *delta);
-extern f32 func_0026cba0(u32 kind, f32 duration, f32 elapsed);
-extern s32 func_0026ba60(u16 *position);
+extern void MT_Scene_GetAngleDelta(f32 *start, f32 *end, f32 *delta);
+extern f32 MT_Scene_SampleCurveTable(u32 kind, f32 duration, f32 elapsed);
+extern s32 MT_Scene_GetTerrainAtPoint(u16 *position);
 extern void mdlSetColor(Model *model, const RwRGBA *color);
 extern void mdlSetAlphaBlend(void *model);
 extern void mdlClearAlphaBlend(void *model);
@@ -1053,7 +1053,7 @@ static inline void sceneUpdateQueuedAnimation(SceneUpdateResource *resource,
     s32 flags = animation->flags;
     s32 blend = animation->blend;
     f32 speed = animation->speed;
-    func_00269820(&resource->id, layer, motion, frame, flags, blend, speed);
+    MT_Scene_SetResMotion(&resource->id, layer, motion, frame, flags, blend, speed);
 }
 
 static inline void sceneUpdatePath(SceneUpdateResource *resource,
@@ -1072,7 +1072,7 @@ static inline s32 sceneFootstepBankIndex(s32 sequence, s32 firstSound)
 
 static inline void sceneUpdateFootstep(SceneUpdateResource *resource)
 {
-    s32 terrain = func_0026ba60((u16 *)&resource->position);
+    s32 terrain = MT_Scene_GetTerrainAtPoint((u16 *)&resource->position);
     SceneFootstepUpdate *foot = &resource->footsteps;
     switch (foot->surface) {
     case 0:
@@ -1104,7 +1104,7 @@ static inline void sceneUpdateFootstep(SceneUpdateResource *resource)
    queued animation snapshots and footstep bank indexing reproduce the retail
    body. Full owner/data proof: build/next-wave-20260921/event/release-closure-v3. */
 // FUN_0026A020
-void func_0026a020(u8 *arg0)
+void MT_Scene_UpdateResource(u8 *arg0)
 {
     SceneUpdateResource *resource = (SceneUpdateResource *)arg0;
     s32 frames = 0;
@@ -1143,7 +1143,7 @@ void func_0026a020(u8 *arg0)
         startYaw = resource->yawStart;
         startPitch = resource->pitchStart;
         startDistance = resource->distanceStart;
-        func_00269c70(&startPosition.x, &startCenter.x,
+        MT_Scene_GetAnglePoint(&startPosition.x, &startCenter.x,
                      startYaw, startPitch, startDistance);
         resource->position = startPosition;
         resource->rotation = resource->orbitStart;
@@ -1151,13 +1151,13 @@ void func_0026a020(u8 *arg0)
         endYaw = resource->yawEnd;
         endPitch = resource->pitchEnd;
         endDistance = resource->distanceEnd;
-        func_00269c70(&endPosition.x, &endCenter.x,
+        MT_Scene_GetAnglePoint(&endPosition.x, &endCenter.x,
                      endYaw, endPitch, endDistance);
         sceneUpdateDifference(&direction, &resource->orbitEnd, &resource->orbitStart);
         if (resource->orbitDuration == 0) {
             resource->position = endPosition;
             sceneUpdateDifference(&direction, &endCenter, &endPosition);
-            func_00269db0(&resource->rotation.x, &direction.x);
+            MT_Scene_GetDirectionAngles(&resource->rotation.x, &direction.x);
             resource->flags &= ~0x10;
             resource->flags &= ~0x8000000;
         } else {
@@ -1166,7 +1166,7 @@ void func_0026a020(u8 *arg0)
             case 0: {
                 f32 amount = (f32)resource->orbitElapsed / (f32)resource->orbitDuration;
                 sceneUpdateInterpolate(&center, &startCenter, &endCenter, amount);
-                func_00269c70(&position.x, &center.x,
+                MT_Scene_GetAnglePoint(&position.x, &center.x,
                     sceneUpdateLerp(startYaw, endYaw, amount),
                     sceneUpdateLerp(startPitch, endPitch, amount),
                     sceneUpdateLerp(startDistance, endDistance, amount));
@@ -1175,11 +1175,11 @@ void func_0026a020(u8 *arg0)
                 break;
             }
             case 1: case 2: case 3: case 4: case 5: {
-                f32 amount = func_0026cba0(ease,
+                f32 amount = MT_Scene_SampleCurveTable(ease,
                     (f32)resource->orbitDuration, (f32)resource->orbitElapsed);
                 amount /= (f32)resource->orbitDuration;
                 sceneUpdateInterpolate(&center, &startCenter, &endCenter, amount);
-                func_00269c70(&position.x, &center.x,
+                MT_Scene_GetAnglePoint(&position.x, &center.x,
                     sceneUpdateLerp(startYaw, endYaw, amount),
                     sceneUpdateLerp(startPitch, endPitch, amount),
                     sceneUpdateLerp(startDistance, endDistance, amount));
@@ -1191,7 +1191,7 @@ void func_0026a020(u8 *arg0)
             if (resource->orbitElapsed >= resource->orbitDuration) {
                 resource->position = endPosition;
                 sceneUpdateDifference(&direction, &endCenter, &endPosition);
-                func_00269db0(&resource->rotation.x, &direction.x);
+                MT_Scene_GetDirectionAngles(&resource->rotation.x, &direction.x);
                 resource->flags &= ~0x10;
                 resource->flags &= ~0x8000000;
             } else {
@@ -1246,7 +1246,7 @@ void func_0026a020(u8 *arg0)
                         resource->position.z = delta.z * (f32)resource->moveElapsed.frame + resource->moveStart.z;
                         break;
                     case 1: case 2: case 3: case 4: case 5: {
-                        f32 amount = func_0026cba0(ease,
+                        f32 amount = MT_Scene_SampleCurveTable(ease,
                             (f32)resource->moveDuration.frame, (f32)resource->moveElapsed.frame);
                         resource->position.x = sceneUpdateBlend(resource->moveStart.x, delta.x, amount);
                         resource->position.y = sceneUpdateBlend(resource->moveStart.y, delta.y, amount);
@@ -1297,7 +1297,7 @@ void func_0026a020(u8 *arg0)
                 f32 y;
                 f32 z;
                 f32 duration;
-                func_0026c770(&resource->rotationStart.x, &resource->rotationEnd.x, &delta.x);
+                MT_Scene_GetAngleDelta(&resource->rotationStart.x, &resource->rotationEnd.x, &delta.x);
                 duration = (f32)resource->rotationDuration;
                 x = delta.x / duration;
                 y = delta.y / duration;
@@ -1311,7 +1311,7 @@ void func_0026a020(u8 *arg0)
                     break;
                 }
                 case 1: case 2: case 3: case 4: case 5: {
-                    f32 amount = func_0026cba0(resource->rotationEase,
+                    f32 amount = MT_Scene_SampleCurveTable(resource->rotationEase,
                         (f32)resource->rotationDuration, (f32)resource->rotationElapsed);
                     rotation.x = sceneUpdateBlend(resource->rotationStart.x, x, amount);
                     rotation.y = sceneUpdateBlend(resource->rotationStart.y, y, amount);
@@ -1332,7 +1332,7 @@ void func_0026a020(u8 *arg0)
             }
         }
         if (!(resource->flags & 0x8000000)) {
-            func_0026c680(&resource->rotation.x);
+            MT_Scene_WrapAngles(&resource->rotation.x);
         }
     }
 
@@ -1531,10 +1531,10 @@ void func_0026a020(u8 *arg0)
    but spills to callee-saved $s3 (frame 0x70 vs 0x60). Without sp40p, nd 84
    with frame 0x60. Argument-materialization + load-position scheduling floor. */
 /* measured: opt_propagation off plus block-scoped stack-address and global-load
-   temporaries closes func_0026ba60 (normalized_diff 0). */
+   temporaries closes MT_Scene_GetTerrainAtPoint (normalized_diff 0). */
 #pragma opt_propagation off
 // FUN_0026BA60
-s32 func_0026ba60(u16 *arg0)
+s32 MT_Scene_GetTerrainAtPoint(u16 *arg0)
 {
     typedef struct {
         u64 sp40;
@@ -1606,7 +1606,7 @@ s32 func_0026ba60(u16 *arg0)
 #pragma opt_propagation on
 
 // FUN_0026BC10
-s32 func_0026bc10(u32 arg0, u32 arg1)
+s32 MT_Scene_CheckResSlot(u32 arg0, u32 arg1)
 {
     u8 *p = MT_Scene_GetRes(arg0);
 
@@ -1619,7 +1619,7 @@ done:
 }
 
 // FUN_0026BC90
-s32 func_0026bc90(u8 *arg0, s32 arg1)
+s32 MT_Scene_SetResShadowCaster(u8 *arg0, s32 arg1)
 {
     s32 var_6 = 0;
 
@@ -1644,11 +1644,11 @@ s32 func_0026bc90(u8 *arg0, s32 arg1)
 }
 
 // FUN_0026BD50
-s32 func_0026bd50(u32 unk, s32 arg1) {
+s32 MT_Scene_SetResShadowCasterById(u32 unk, s32 arg1) {
     u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
     if (temp_2 != NULL) {
-        return func_0026bc90(temp_2, arg1);
+        return MT_Scene_SetResShadowCaster(temp_2, arg1);
     }
     return 0;
 }
@@ -1656,7 +1656,7 @@ s32 func_0026bd50(u32 unk, s32 arg1) {
 
 
 // FUN_0026BDA0
-s32 func_0026bda0(u32 arg0, s32 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5)
+s32 MT_Scene_SetResSoundRange(u32 arg0, s32 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5)
 {
     u8 *p = MT_Scene_GetRes(arg0);
 
@@ -1676,7 +1676,7 @@ s32 func_0026bda0(u32 arg0, s32 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5)
 }
 
 // FUN_0026BE60
-s32 func_0026be60(s32 arg0)
+s32 MT_Scene_SetExclusiveRes(s32 arg0)
 {
     u8 *p = MT_Scene_GetRes(arg0);
 
@@ -1696,7 +1696,7 @@ s32 func_0026be60(s32 arg0)
 }
 
 // FUN_0026BF20
-void func_0026bf20(void) {
+void MT_Scene_ClearExclusiveRes(void) {
     u8 *var_3 = MT_Scene_GetResListHead(7);
 
     while (var_3 != NULL) {
@@ -1707,7 +1707,7 @@ void func_0026bf20(void) {
 
 
 // FUN_0026BF70
-void func_0026bf70(u32 arg0)
+void MT_Scene_ClearResState(u32 arg0)
 {
     if (((s32)((u16)arg0 & 0xFFC00) >> 10) == 7) {
         u8 *p = MT_Scene_GetRes(arg0);
@@ -1735,7 +1735,7 @@ void func_0026bf70(u32 arg0)
 #pragma opt_propagation off
 // FUN_0026BFC0
 
-void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *result) {
+void MT_Scene_OffsetPointByRotation(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *result) {
     typedef struct SceneMatrixLocal {
         RwV3d right;
         u32 flags;
@@ -1826,7 +1826,7 @@ void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f
    preserving retail ld/lwc1/sd/swc1 ordering; object 376B fits the 384B window. */
 #pragma opt_propagation off
 // FUN_0026C190
-void func_0026c190(f32 *out, void *resource, f32 scale)
+void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
 {
     typedef struct SceneDirectionLocal {
         u64 xy;
@@ -1882,7 +1882,7 @@ void func_0026c190(f32 *out, void *resource, f32 scale)
             base[2] = base[2] - 15.0f * normalized[2];
         }
     }
-    func_0026bfc0(base, scale, axis[0], axis[1], axis[2], output);
+    MT_Scene_OffsetPointByRotation(base, scale, axis[0], axis[1], axis[2], output);
     *(RwV3d *)out = *(RwV3d *)output;
 }
 #pragma opt_propagation on
@@ -1890,7 +1890,7 @@ void func_0026c190(f32 *out, void *resource, f32 scale)
 /* measured: opt_propagation off closes 15 load-order differences; lverify MATCH. */
 #pragma opt_propagation off
 // FUN_0026C310
-void func_0026c310(u8 *param_1)
+void MT_Scene_UpdateCameraResource(u8 *param_1)
 {
     typedef struct SceneMatrixC310 {
         RwV3d right;
@@ -1959,7 +1959,7 @@ void func_0026c310(u8 *param_1)
         return;
     }
 
-    func_0026c190(locals.outv, param_1, 0.0f);
+    MT_Scene_GetResAnchor(locals.outv, param_1, 0.0f);
     fb = locals.outv[0];
     fc = locals.outv[1];
     fa = locals.outv[2];
@@ -2031,7 +2031,7 @@ void func_0026c310(u8 *param_1)
         RwMatrixTranslate(matrix, locals.outv, 2);
     }
 
-    result = func_0026d400(&locals.scratch[4]);
+    result = MT_Scene_GetShakeOffset(&locals.scratch[4]);
     if (result == 1) {
         locals.scratch[0] = locals.scratch[4];
         locals.scratch[1] = locals.scratch[5];
@@ -2051,7 +2051,7 @@ void func_0026c310(u8 *param_1)
 #pragma opt_loop_invariants on
 
 // FUN_0026C680
-void func_0026c680(float *param_1)
+void MT_Scene_WrapAngles(float *param_1)
 {
     int iVar2;
     float afStack_10 [4];
@@ -2078,20 +2078,20 @@ void func_0026c680(float *param_1)
 
 
 // FUN_0026C740
-void func_0026c740(s32 object)
+void MT_Scene_WrapObjectAngles(s32 object)
 {
-    (func_0026c680)((float*)(object + 0x10));
+    (MT_Scene_WrapAngles)((float*)(object + 0x10));
 }
 
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbaa0 (verified MATCH
-// there). 003bb9b0 -> func_0026c680.
+// there). 003bb9b0 -> MT_Scene_WrapAngles.
 
 /* opt_loop_invariants on: measured off nd 95, object 236/240; on nd 0, object 228/240 (MATCH); retain on. */
 #pragma opt_loop_invariants on
 
 // FUN_0026C770
-void func_0026c770(float *param_1, float *param_2, float *param_3)
+void MT_Scene_GetAngleDelta(float *param_1, float *param_2, float *param_3)
 {
     int iVar1;
     float delta[4];
@@ -2102,7 +2102,7 @@ void func_0026c770(float *param_1, float *param_2, float *param_3)
     delta[0] = param_2[0] - param_1[0];
     delta[1] = param_2[1] - param_1[1];
     delta[2] = param_2[2] - param_1[2];
-    func_0026c680(delta);
+    MT_Scene_WrapAngles(delta);
     adjusted[0] = delta[0];
     adjusted[1] = delta[1];
     adjusted[2] = delta[2];
@@ -2127,7 +2127,7 @@ void func_0026c770(float *param_1, float *param_2, float *param_3)
 
 
 // FUN_0026C860
-void func_0026c860(const float *param_1, float *param_2)
+void MT_Scene_GetDirectionYaw(const float *param_1, float *param_2)
 {
     u32 uVar1;
     float fVar2;
@@ -2166,7 +2166,7 @@ void func_0026c860(const float *param_1, float *param_2)
 
 
 // FUN_0026C960
-void func_0026c960(float t, float *x, float *y, float *z, float *outX,
+void MT_Scene_EvalCubicBezier(float t, float *x, float *y, float *z, float *outX,
                    float *outY, float *outZ)
 {
     float oneMinus = 1.0f - t;
@@ -2210,7 +2210,7 @@ void func_0026c960(float t, float *x, float *y, float *z, float *outX,
 #pragma opt_lifetimes on
 
 // FUN_0026CA10
-void func_0026ca10(char *param_2, float param_1, float *param_3)
+void MT_Scene_SampleCurve(char *param_2, float param_1, float *param_3)
 {
     char cVar1;
     int iVar2;
@@ -2233,7 +2233,7 @@ void func_0026ca10(char *param_2, float param_1, float *param_3)
                 auStack_20[iVar3] = *(float *)(param_2 + iVar2 + 8);
                 auStack_30[iVar3] = *(float *)(param_2 + iVar2 + 0xc);
             }
-            func_0026c960(1.0f, auStack_10, auStack_20, auStack_30, param_3, param_3 + 1, param_3 + 2);
+            MT_Scene_EvalCubicBezier(1.0f, auStack_10, auStack_20, auStack_30, param_3, param_3 + 1, param_3 + 2);
         }
         else {
             fVar5 = 1.0f / (float)(int)cVar1;
@@ -2249,7 +2249,7 @@ void func_0026ca10(char *param_2, float param_1, float *param_3)
             while (param_1 > fVar5) {
                 param_1 = param_1 - fVar5;
             }
-            func_0026c960(param_1 / fVar5, auStack_10, auStack_20, auStack_30, param_3, param_3 + 1, param_3 + 2);
+            MT_Scene_EvalCubicBezier(param_1 / fVar5, auStack_10, auStack_20, auStack_30, param_3, param_3 + 1, param_3 + 2);
         }
     }
     return;
@@ -2259,7 +2259,7 @@ void func_0026ca10(char *param_2, float param_1, float *param_3)
 
 
 // FUN_0026CBA0
-float func_0026cba0(u32 arg0, float param_2, float param_3)
+float MT_Scene_SampleCurveTable(u32 arg0, float param_2, float param_3)
 {
     u8 *p;
     u8 auStack[0x138];
@@ -2287,11 +2287,11 @@ float func_0026cba0(u32 arg0, float param_2, float param_3)
     *(u32 *)(auStack + 0x28) = 0x3F800000;
     *(u32 *)(auStack + 0x2C) = 0x3F800000;
     *(u32 *)(auStack + 0x30) = 0;
-    func_0026ca10((char *)auStack, param_3, (f32 *)(auStack + 0x130));
+    MT_Scene_SampleCurve((char *)auStack, param_3, (f32 *)(auStack + 0x130));
     return *(f32 *)(auStack + 0x134) * param_2;
 }
 // FUN_0026CCA0
-float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4,
+float MT_Scene_GetCurveSegmentLength(float param_1, float param_2, float *param_3, float *param_4,
                     float *param_5, float *param_6, float *param_7)
 {
     RwV3d delta;
@@ -2303,8 +2303,8 @@ float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4
     float second_z;
     float first_len;
 
-    func_0026c960(param_1, param_3, param_4, param_5, &first_x, &first_y, &first_z);
-    func_0026c960(param_2, param_3, param_4, param_5, &second_x, &second_y, &second_z);
+    MT_Scene_EvalCubicBezier(param_1, param_3, param_4, param_5, &first_x, &first_y, &first_z);
+    MT_Scene_EvalCubicBezier(param_2, param_3, param_4, param_5, &second_x, &second_y, &second_z);
     delta.x = second_x - first_x;
     delta.y = second_y - first_y;
     delta.z = second_z - first_z;
@@ -2321,7 +2321,7 @@ float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4
 
 
 // FUN_0026CDB0
-float func_0026cdb0(char *param_1)
+float MT_Scene_GetCurveLength(char *param_1)
 {
     int iVar1;
     int lVar2;
@@ -2357,7 +2357,7 @@ float func_0026cdb0(char *param_1)
             fVar4 = (float)iVar3;
             scale = D_007614c0;
             fVar4 = fVar4 * scale;
-            fVar4 = func_0026cca0(fVar4, (float)(iVar3 + 1) * scale,
+            fVar4 = MT_Scene_GetCurveSegmentLength(fVar4, (float)(iVar3 + 1) * scale,
                                   auStack_30, auStack_40, auStack_50, auStack_10, auStack_20);
             fVar6 = fVar6 + fVar4;
         }
@@ -2368,11 +2368,11 @@ float func_0026cdb0(char *param_1)
 
 
 
-/* measured: removing this pragma takes func_0026d400 nd 0 -> nd 17 (object 60 -> 56, window 64). */
+/* measured: removing this pragma takes MT_Scene_GetShakeOffset nd 0 -> nd 17 (object 60 -> 56, window 64). */
 #pragma optimization_level 1
 
 // FUN_0026D400
-u32 func_0026d400(float* param_1)
+u32 MT_Scene_GetShakeOffset(float* param_1)
 {
     if (*(u16*)&D_00764580 == 0)
     {
@@ -2388,7 +2388,7 @@ u32 func_0026d400(float* param_1)
    relocations resolve exactly, including the 0.01f literal and 0.6f pair.
    Expiry disables first; the following disabled update clears the outputs. */
 // FUN_0026D440
-void func_0026d440(void)
+void MT_Scene_UpdateShake(void)
 {
     extern u32 RpRandom(void);
     extern f32 fabsf(f32);
@@ -2442,7 +2442,7 @@ void func_0026d440(void)
     if (timing > 0) *(s16 *)&D_00764584 = *(s16 *)&D_00764584 - 1;
 }
 // FUN_0026D780
-void func_0026d780(s32 first, s32 second)
+void MT_Scene_StartShake(s32 first, s32 second)
 {
     if (second == 0)
     {
@@ -2465,7 +2465,7 @@ void func_0026d780(s32 first, s32 second)
     }
 }
 // FUN_0026D810
-void func_0026d810(void)
+void MT_Scene_StopShake(void)
 {
     *(u16 *)&D_00764580 = 0;
     func_004b15d0();

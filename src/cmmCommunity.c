@@ -12,7 +12,7 @@ extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern s64 func_00248760(s32 arg0);
 extern s32 func_00247dd0(s32 arg0);
-extern s32 func_0026bc10(u32 resourceId, u32 value);
+extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s32 func_001077f0(s32 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern s32 func_00107c80(s32 arg0);
@@ -1018,7 +1018,7 @@ u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
     temp_16 = var_4 * 4;
     func_0045af60(0, 0, 4, *(u16 *)((u8 *)vals.durations + temp_16));
     if (arg2 != -1) {
-        func_0026bc10(((arg2 & 0x3FF) | 0xC00) & 0xFFFF,
+        MT_Scene_CheckResSlot(((arg2 & 0x3FF) | 0xC00) & 0xFFFF,
                       *(u8 *)((u8 *)vals.bytes + temp_16));
     }
     temp_2 = (s32 *)func_001070e0(arg0);

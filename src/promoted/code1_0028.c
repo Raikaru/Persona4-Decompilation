@@ -13,7 +13,7 @@ extern u32 func_00452560(void *task);
 
 void memset(void *arg0, s32 arg1, s32 arg2);
 void func_00285260(void);
-extern void func_0026be60(s32 arg0);
+extern void MT_Scene_SetExclusiveRes(s32 arg0);
 extern s32 func_00285af0(void);
 extern u8 *func_00285480(u8 *arg0);
 extern void func_004598e0(s16 arg0);
@@ -875,10 +875,10 @@ void func_0028be70(u8 *arg0, s32 arg1)
     if (arg1 < 2) {
         switch (arg1) {
         case 0:
-            func_0026be60(0x1E58);
+            MT_Scene_SetExclusiveRes(0x1E58);
             break;
         case 1:
-            func_0026be60(0x1E59);
+            MT_Scene_SetExclusiveRes(0x1E59);
             break;
         default:
             break;

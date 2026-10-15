@@ -16,7 +16,7 @@ void func_003e81c0(void *, float);
 extern u8 D_0063C3B0[];
 void memset(void *dst, s32 c, s32 n);
 extern s32 D_008821E0[];
-void func_0026bf20(void);
+void MT_Scene_ClearExclusiveRes(void);
 struct KwlnTask;
 s32 func_00452080(struct KwlnTask *handle);
 s32 func_00452490(void *handle);
@@ -41,7 +41,7 @@ static void evtNodeUnlink(int param_1, int param_2);
 void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2);
 s32 func_0028d390();
 s32 func_0028dc30(s32 parent, s32 type, u8 *parameters);
-u32 func_00269620(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
+u32 MT_Scene_SetResColorParamById(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
 void func_004b13d0(s32 arg0, f32 arg1);
 extern u8 D_0063C558[];
 extern u8 D_0063C568[];
@@ -54,16 +54,16 @@ extern u8 D_0063C580[];
 extern u8 D_0063C540[];
 s32 func_00479ca0(s32 res, s32 arg1);
 f32 func_00479f60(void *param_1, s32 param_2);
-u32 func_002699d0(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0);
+u32 MT_Scene_SetResMotionRecord(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0);
 
-void func_00269bd0(void *resource, s32 enabled);
+void MT_Scene_SetResActive(void *resource, s32 enabled);
 void func_0014a2f0(s32 arg0);
 extern void func_00440b68(char *fmt, ...);
 extern char D_0063C628[];
 extern void (*DAT_008873EC[])(void *);
 u32 MT_Scene_GetResManager(void);
 u8 *MT_Scene_GetResListHead(s32 arg0);
-void func_00268c20();
+void MT_Scene_SetResEnabledById();
 void func_00161460(u8, u8, u8);
 void func_00161500(u8);
 extern void func_0044ea90(void *msg, s32 id);
@@ -75,8 +75,8 @@ extern u8 D_0063C5C0[];
 void sprintf();
 s32 func_0028f770(s32 arg0);
 void func_0028f800();
-void func_0026d810(void);
-void func_0026d780(s32 arg0, s32 arg1);
+void MT_Scene_StopShake(void);
+void MT_Scene_StartShake(s32 arg0, s32 arg1);
 extern u32 DAT_00764B38;
 extern u8 DAT_00764B3C;
 extern u8 DAT_00764B40;
@@ -86,7 +86,7 @@ s32 func_00122720(void);
 extern u32 DAT_00713890;
 extern void func_00113480(s16 a, s16 b, s16 c, s16 d);
 void func_00113500(void);
-extern void func_00269c20(u16, int);
+extern void MT_Scene_SetResActiveById(u16, int);
 extern f32 fGpffff815c;
 extern void func_0028d110(s32 *arg0);
 extern s32 DAT_007645DC;
@@ -518,11 +518,11 @@ void func_002871a0(s32 arg0, u8 *arg1, u8 *arg2) {
             if (*(u32 *)node == 1 || *(u32 *)node == 0x30) {
                 if (*(u16 *)(node + 0xC) != 0) {
                     if (*(u32 *)(node + 0x60) == 1) {
-                        func_00268c20(*(u16 *)(node + 0xC), 0);
+                        MT_Scene_SetResEnabledById(*(u16 *)(node + 0xC), 0);
                     } else if (arg0 == 0) {
-                        func_00268c20(*(u16 *)(node + 0xC), 1);
+                        MT_Scene_SetResEnabledById(*(u16 *)(node + 0xC), 1);
                     } else {
-                        func_00268c20(*(u16 *)(node + 0xC), 0);
+                        MT_Scene_SetResEnabledById(*(u16 *)(node + 0xC), 0);
                     }
                 }
             }
@@ -542,9 +542,9 @@ void func_002871a0(s32 arg0, u8 *arg1, u8 *arg2) {
         node3 = MT_Scene_GetResListHead(7);
         while (node3 != NULL) {
             if (i16 != 0 && arg0 == 0) {
-                func_00268c20(*(u16 *)node3, 1);
+                MT_Scene_SetResEnabledById(*(u16 *)node3, 1);
             } else {
-                func_00268c20(*(u16 *)node3, 0);
+                MT_Scene_SetResEnabledById(*(u16 *)node3, 0);
             }
             node3 = *(u8 **)(node3 + 0x138);
         }
@@ -1007,14 +1007,14 @@ u8 *arg3;
                         } else {
                             var_f12 = (f32)temp_2_3 / 100.0f;
                         }
-                        func_00269820((u16 *)arg1, var_17, spB0, spA0, var_22, var_9, var_f12);
+                        MT_Scene_SetResMotion((u16 *)arg1, var_17, spB0, spA0, var_22, var_9, var_f12);
                         if (*(s8 *)(temp_2 + 0x23) == 1) {
                             if (temp_23 == 0) {
                                 call_arg2 = *(s8 *)(temp_2 + 0x24);
                                 call_arg4 = *(s8 *)(temp_2 + 0x25) == 0;
                                 call_arg3 = *(s16 *)(temp_2 + 0x26);
                                 temp_2_4 = *(s16 *)(temp_2 + 0x2A);
-                                func_002699d0((u32 *)arg1, var_17, call_arg2, call_arg3, call_arg4, 0, (temp_2_4 <= 0) ? 1.0f : (f32)temp_2_4 / 100.0f);
+                                MT_Scene_SetResMotionRecord((u32 *)arg1, var_17, call_arg2, call_arg3, call_arg4, 0, (temp_2_4 <= 0) ? 1.0f : (f32)temp_2_4 / 100.0f);
                                 goto block_29;
                             }
                         } else {
@@ -1131,13 +1131,13 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
 {
     extern u8 *MT_Scene_GetRes(s32);
     extern void func_00146a10(u8 *, u8 *, u8 *, u8 *);
-    extern u32 func_00268e30(float *, float *, float *);
-    extern s32 func_00268e60(u32, u8 *, f32);
-    extern s32 func_00269440(u32, u8 *, s32);
-    extern u32 func_00269620(u32, u8, u32, u32);
-    extern s32 func_00269c20(u32, s32);
-    extern s32 func_0026bc10(u32, u32);
-    extern s32 func_0026bd50(u32, s32);
+    extern u32 MT_Scene_GetSegmentHeadingAngle(float *, float *, float *);
+    extern s32 MT_Scene_BeginResMoveToward(u32, u8 *, f32);
+    extern s32 MT_Scene_BeginResScale(u32, u8 *, s32);
+    extern u32 MT_Scene_SetResColorParamById(u32, u8, u32, u32);
+    extern s32 MT_Scene_SetResActiveById(u32, s32);
+    extern s32 MT_Scene_CheckResSlot(u32, u32);
+    extern s32 MT_Scene_SetResShadowCasterById(u32, s32);
     extern void func_0028d1b0(u8 *, u8 *, s32);
     extern s32 func_002915f0(u8 *, u8 *, s32, s32, s32);
     extern void func_00291790(u8 *, s32);
@@ -1201,14 +1201,14 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                     scale.y = 1.0f;
                     scale.z = 1.0f;
                     MT_Scene_SetResAngles(*(u16 *)(resource + 0xC), (u8 *)&scale);
-                    func_00269740(*(u16 *)(resource + 0xC));
-                    func_00269620(*(u16 *)(resource + 0xC), *(u8 *)(resource + 0x53), 0, 0);
+                    MT_Scene_ResetResMotion(*(u16 *)(resource + 0xC));
+                    MT_Scene_SetResColorParamById(*(u16 *)(resource + 0xC), *(u8 *)(resource + 0x53), 0, 0);
                     *(s32 *)(resource + 0x60) = 0;
                     func_00293270();
                     if ((*(s32 *)(resource + 0x54) & 2) != 0) {
-                        func_00269c20(*(u16 *)(resource + 0xC), 1);
+                        MT_Scene_SetResActiveById(*(u16 *)(resource + 0xC), 1);
                     } else {
-                        func_00269c20(*(u16 *)(resource + 0xC), 0);
+                        MT_Scene_SetResActiveById(*(u16 *)(resource + 0xC), 0);
                     }
                 }
             }
@@ -1222,9 +1222,9 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
             switch (*(s8 *)(command + 0x10)) {
             case 0:
                 if (*(s8 *)(command + 0x14) == 0) {
-                    func_00269c20(*(u16 *)(resource + 0xC), 1);
+                    MT_Scene_SetResActiveById(*(u16 *)(resource + 0xC), 1);
                 } else {
-                    func_00269c20(*(u16 *)(resource + 0xC), 0);
+                    MT_Scene_SetResActiveById(*(u16 *)(resource + 0xC), 0);
                 }
                 break;
             case 1:
@@ -1235,7 +1235,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                     target.z = *(f32 *)(command + 0x20);
                     if (*(s8 *)(command + 0x15) == 0) {
                         f32 f = evtCommandParamF32(*(s16 *)(command + 0x16));
-                        if (func_00268e60(*(u16 *)(resource + 0xC), (u8 *)&target, f) == 1) {
+                        if (MT_Scene_BeginResMoveToward(*(u16 *)(resource + 0xC), (u8 *)&target, f) == 1) {
                             *(s32 *)(resource + 0x60) = (*(s8 *)(command + 0x25) != 0);
                             if ((*(s8 *)(command + 0x34) & 1) != 0) {
                                 {
@@ -1243,14 +1243,14 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                                     s16 start = *(s8 *)(command + 0x36);
                                     s16 end = *(s8 *)(command + 0x37);
                                     s16 flags = *(s8 *)(command + 0x34) >> 1;
-                                    func_0026bda0(*(u16 *)(resource + 0xC), 1, sound, start, end, flags);
+                                    MT_Scene_SetResSoundRange(*(u16 *)(resource + 0xC), 1, sound, start, end, flags);
                                 }
                             }
                             if (*(s8 *)(command + 0x26) == 1) {
                                 u8 *res2 = MT_Scene_GetRes(*(u16 *)(resource + 0xC));
-                                if (func_00268e30((float *)(res2 + 4), (f32 *)&target, &heading) == 1) {
+                                if (MT_Scene_GetSegmentHeadingAngle((float *)(res2 + 4), (f32 *)&target, &heading) == 1) {
                                     rotation.y = heading;
-                                    func_00269340(*(u16 *)(resource + 0xC), &rotation, 0xF, 0);
+                                    MT_Scene_BeginResRotation(*(u16 *)(resource + 0xC), &rotation, 0xF, 0);
                                 }
                             }
                         }
@@ -1269,11 +1269,11 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                                 s16 start = *(s8 *)(command + 0x36);
                                 s16 end = *(s8 *)(command + 0x37);
                                 s16 flags = *(s8 *)(command + 0x34) >> 1;
-                                func_0026bda0(*(u16 *)(resource + 0xC), 1, sound, start, end, flags);
+                                MT_Scene_SetResSoundRange(*(u16 *)(resource + 0xC), 1, sound, start, end, flags);
                             }
                         }
                         if (path.count > 0) {
-                            func_002692d0(*(u16 *)(resource + 0xC), (u32)(uintptr_t)(u8 *)&path, f, a);
+                            MT_Scene_BeginResPathAnimById(*(u16 *)(resource + 0xC), (u32)(uintptr_t)(u8 *)&path, f, a);
                             *(s32 *)(resource + 0x60) = b;
                             func_00440b68(D_0063C510);
                         }
@@ -1304,7 +1304,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                     rotation.y = *(f32 *)(command + 0x14);
                     rotation.z = factor;
                     duration = *(s16 *)(command + 0x24);
-                    func_00269340(*(u16 *)(resource + 0xC), &rotation, duration, 0);
+                    MT_Scene_BeginResRotation(*(u16 *)(resource + 0xC), &rotation, duration, 0);
                 }
                 if ((*(s8 *)(command + 0x34) & 1) != 0) {
                     {
@@ -1312,7 +1312,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                         s16 start = *(s8 *)(command + 0x36);
                         s16 end = *(s8 *)(command + 0x37);
                         s16 flags = *(s8 *)(command + 0x34) >> 1;
-                        func_0026bda0(*(u16 *)(resource + 0xC), 2, sound, start, end, flags);
+                        MT_Scene_SetResSoundRange(*(u16 *)(resource + 0xC), 2, sound, start, end, flags);
                     }
                     func_00440b68(D_0063C530);
                 }
@@ -1343,7 +1343,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                 case 0:
                     {
                         u32 commandValue = *(u8 *)(command + 0x14);
-                        func_0026bc10(*(u16 *)(resource + 0xC), commandValue);
+                        MT_Scene_CheckResSlot(*(u16 *)(resource + 0xC), commandValue);
                     }
                     break;
                 case 1:
@@ -1440,21 +1440,21 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                 }
                 {
                     u32 duration = *(s16 *)(command + 0x14);
-                    func_00269620(*(u16 *)(resource + 0xC), *(u8 *)(command + 0x18), duration, v);
+                    MT_Scene_SetResColorParamById(*(u16 *)(resource + 0xC), *(u8 *)(command + 0x18), duration, v);
                 }
                 break;
             }
             case 9:
                 {
                     s32 enabled = *(s8 *)(command + 0x14) == 0;
-                    func_0026bd50(*(u16 *)(resource + 0xC), enabled);
+                    MT_Scene_SetResShadowCasterById(*(u16 *)(resource + 0xC), enabled);
                 }
                 break;
             case 10:
                 {
                     s32 duration = *(s16 *)(command + 0x14);
                     scale.x = scale.y = scale.z = *(f32 *)(command + 0x18);
-                    func_00269440(*(u16 *)(resource + 0xC), (u8 *)&scale, duration);
+                    MT_Scene_BeginResScale(*(u16 *)(resource + 0xC), (u8 *)&scale, duration);
                 }
                 break;
             default:
@@ -1532,10 +1532,10 @@ s32 func_00288af0(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *comma
             return 0;
         }
         if (frame == *(s32 *)(event + 0xC)) {
-            func_0026bf70(0x1E58);
+            MT_Scene_ClearResState(0x1E58);
             MT_Scene_SetResPlacement(resource->id, (u8 *)&resource->position,
                          (u8 *)&resource->angles);
-            func_00269740(resource->id);
+            MT_Scene_ResetResMotion(resource->id);
             camera = MT_Scene_GetRes(0x1E58);
             if (camera != NULL) {
                 *(f32 *)(camera + 0x140) = *(f32 *)(event + 0x750);
@@ -1552,7 +1552,7 @@ s32 func_00288af0(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *comma
             resource->longArc = command->longArc;
             switch (command->motion) {
             case 0:
-                func_0026bf70(0x1E58);
+                MT_Scene_ClearResState(0x1E58);
                 position.x = command->values.direct.position.x;
                 position.y = command->values.direct.position.y;
                 position.z = command->values.direct.position.z;
@@ -1561,21 +1561,21 @@ s32 func_00288af0(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *comma
                 angles.z = command->values.direct.roll;
                 {
                     u32 duration = command->duration;
-                    func_00268f20(resource->id, &position, duration, command->easing);
+                    MT_Scene_BeginResTimedMove(resource->id, &position, duration, command->easing);
                 }
                 {
                     u32 duration = command->duration;
                     u8 easing = (u8)command->easing;
-                    func_00269340(resource->id, &angles, duration, easing);
+                    MT_Scene_BeginResRotation(resource->id, &angles, duration, easing);
                 }
                 {
                     s32 duration = command->duration;
-                    func_00269690(resource->id, command->fieldOfView, duration);
+                    MT_Scene_BeginResFovChange(resource->id, command->fieldOfView, duration);
                 }
                 func_00440b68((char *)D_0063C540, command->duration);
                 break;
             case 1:
-                func_0026bf70(0x1E58);
+                MT_Scene_ClearResState(0x1E58);
                 {
                     f32 fromX = (f32)command->values.curve.fromX;
                     f32 scale = 16.0f;
@@ -1609,11 +1609,11 @@ s32 func_00288af0(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *comma
                     f32 fromDistance = (f32)command->values.curve.fromDistance;
                     f32 toDistance = (f32)command->values.curve.toDistance;
                     s32 duration = command->duration;
-                    func_002690b0(resource->id, (u8 *)&fromPosition, (u8 *)&toPosition,
+                    MT_Scene_SetResCurveParamsById(resource->id, (u8 *)&fromPosition, (u8 *)&toPosition,
                         fromYaw, toYaw, fromPitch, toPitch, fromDistance, toDistance,
                         duration, command->easing);
                 }
-                func_00269690(resource->id, command->fieldOfView, 0);
+                MT_Scene_BeginResFovChange(resource->id, command->fieldOfView, 0);
                 break;
             }
             return 1;
@@ -1653,9 +1653,9 @@ s32 evtCmdResDisplay(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
                 switch (*(s8 *)(arg4 + 0x10)) {
                 case 0:
                     if (*(s8 *)(arg4 + 0x14) == 0) {
-                        func_00269bd0(t, 1);
+                        MT_Scene_SetResActive(t, 1);
                     } else {
-                        func_00269bd0(t, 0);
+                        MT_Scene_SetResActive(t, 0);
                     }
                     break;
                 case 1:
@@ -1671,7 +1671,7 @@ s32 evtCmdResDisplay(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
                     } else {
                         f12 = (f32)*(s16 *)(arg4 + 0x1A) / 100.0f;
                     }
-                    func_00269820((u16 *)t, 0, v6, v7, v8, v9, f12);
+                    MT_Scene_SetResMotion((u16 *)t, 0, v6, v7, v8, v9, f12);
                     break;
                 }
             }
@@ -1706,9 +1706,9 @@ s32 evtCmdResEnable(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
                 switch (*(s8 *)(arg4 + 0x10)) {
                 case 0:
                     if (*(s8 *)(arg4 + 0x14) == 0) {
-                        func_00269c20(t, 1);
+                        MT_Scene_SetResActiveById(t, 1);
                     } else {
-                        func_00269c20(t, 0);
+                        MT_Scene_SetResActiveById(t, 0);
                     }
                     break;
                 default:
@@ -1777,8 +1777,8 @@ s32 evtCmdResPlace(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                         sp40.y = *(f32 *)(arg4 + 0x24);
                         sp40.z = *(f32 *)(arg4 + 0x28);
                         v17 = *(s16 *)(arg4 + 0x12);
-                        func_00268f20(v16, &sp50, v17, 0);
-                        func_00269340(v16, &sp40, v17, 0);
+                        MT_Scene_BeginResTimedMove(v16, &sp50, v17, 0);
+                        MT_Scene_BeginResRotation(v16, &sp40, v17, 0);
                         func_00440b68((char *)D_0063C568);
                     }
                     break;
@@ -1786,7 +1786,7 @@ s32 evtCmdResPlace(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                     func_002913d0(*(u32 *)(arg2 + 0x5D0), v16);
                     break;
                 case 3:
-                    func_00269620(func_00291360(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF, *(u8 *)(arg4 + 0x12), *(s16 *)(arg4 + 0x14), 0);
+                    MT_Scene_SetResColorParamById(func_00291360(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF, *(u8 *)(arg4 + 0x12), *(s16 *)(arg4 + 0x14), 0);
                     break;
                 case 4:
                     p = MT_Scene_GetRes(func_00291360(*(u32 *)(arg2 + 0x5D0), v16));
@@ -2296,7 +2296,7 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
 }
 
 /* measured: nested switch for D_008821E0[0] plus the no-argument
-   func_0026d810 call preserves retail's live $a0 value. nd 0, object 320B,
+   MT_Scene_StopShake call preserves retail's live $a0 value. nd 0, object 320B,
    window 320B. */
 // Event command (range flag): sets or clears flag 0x2 on the node for ids in the range.
 // FUN_0028A560
@@ -2322,11 +2322,11 @@ s32 evtCmdRangeFlag(s32 arg0, s32 arg1, s32 *arg2, s32 arg3, u8 *arg4) {
              (arg1 < (*(u16 *)arg4 + temp_3)))) {
             if ((temp_3 == 0) && (*(s16 *)(arg4 + 0x10) == 0)) {
                 *arg2 &= ~2;
-                func_0026d810();
+                MT_Scene_StopShake();
             } else if (arg1 == *(u16 *)arg4) {
                 *arg2 |= 2;
                 temp_4 = *(u16 *)(arg4 + 2);
-                func_0026d780(temp_4, *(s16 *)(arg4 + 0x10));
+                MT_Scene_StartShake(temp_4, *(s16 *)(arg4 + 0x10));
             }
         }
         return 1;
@@ -2549,7 +2549,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
     func_00287bf0(arg0, arg1);
     temp_4 = *(s32 *)arg1;
     if ((temp_4 & 1) && !(temp_4 & 2)) {
-        func_0026d810();
+        MT_Scene_StopShake();
     }
 }
 
@@ -2585,7 +2585,7 @@ loop_6_test:
     }
     func_002e0dd0();
     func_00113500();
-    func_0026d810();
+    MT_Scene_StopShake();
     sceneLightSlotsReset();
     if ((*(s32 *)(arg0 + 4) != 0) && (func_002909a0((u32 *)(arg0 + 0x678)) != 0)) {
         func_00290b00((u32 *)(arg0 + 0x678));
@@ -2700,7 +2700,7 @@ void evtDestroy(int param_1, s32 arg1) {
     u32 f77c;
     func_0028ad90((u8 *)param_1, arg1);
     evtEnvSlotRestore(param_1, 0);    evtCamPosRestore(param_1);
-    func_0026bf20();
+    MT_Scene_ClearExclusiveRes();
     if ((*(u32 *)param_1 & 0x40000000) == 0) {
         f77c = *(u32 *)(param_1 + 0x77C);
         if (f77c != 0) {

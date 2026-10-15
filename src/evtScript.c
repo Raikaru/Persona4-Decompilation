@@ -28,7 +28,7 @@ extern s32 func_00452080(void *task);
 extern u8 *func_00452380(s8 *name);
 extern s32 func_00452490(void *target);
 extern void MT_Scene_DestroyRes(u32);
-extern void func_00269c20(s32, s32);
+extern void MT_Scene_SetResActiveById(s32, s32);
 // lint: allow H011 -- measured: u16 prototype regresses func_00298370 and func_00298550 (andi on wide id args)
 extern u16 *MT_Scene_GetRes(s32);
 extern s32 func_004782b0(u32 arg0);
@@ -88,7 +88,7 @@ s32 func_00298370(u8 *unusedTask) {
         if (temp_17 == 0) {
             func_0046d730(D_0063CF80, 0x34);
         }
-        func_00269c20(temp_17, 1);
+        MT_Scene_SetResActiveById(temp_17, 1);
         temp_18 = (u8 *)MT_Scene_GetRes(temp_17);
         temp_2_2 = func_00285af0();
         if (temp_2_2 == 0) {
@@ -132,7 +132,7 @@ s32 func_00298550(void)
             p = (u8 *)MT_Scene_GetRes(id);
             if (*(u16 *)(*(s32 *)(p + 0x164) + 0xD4) == 5 &&
                 *(u16 *)(*(s32 *)(p + 0x164) + 0xD6) == v1) {
-                func_00269c20(id, 1);
+                MT_Scene_SetResActiveById(id, 1);
                 return 1;
             }
         }

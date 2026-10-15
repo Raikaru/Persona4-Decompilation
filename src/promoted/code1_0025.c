@@ -43,7 +43,7 @@ void func_00106300(s64 arg0);
 void func_00106310(s32 arg0);
 void func_00106320(s32 arg0);
 s32 func_001106f0(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_0026bc10(u32 resourceId, u32 value);
+extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 
 s32 func_0029d020(void);
@@ -599,7 +599,7 @@ s32 func_0025c730(void) {
 
     temp_16 = scrGetParamInt(0);
     temp_17 = scrGetParamInt(1);
-    func_0026bc10(((temp_16 & 0x3FF) | 0xC00) & 0xFFFF, temp_17 & 0xFF);
+    MT_Scene_CheckResSlot(((temp_16 & 0x3FF) | 0xC00) & 0xFFFF, temp_17 & 0xFF);
     return 1;
 }
 

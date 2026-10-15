@@ -15,7 +15,7 @@ typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 
 extern s32 MT_Scene_GetResManager(void);
 extern u16 func_00145480(u16);
-extern void func_0026bfc0(f32 *, f32, f32, f32, f32, f32 *);
+extern void MT_Scene_OffsetPointByRotation(f32 *, f32, f32, f32, f32, f32 *);
 extern u8 *evtNodeAllocWithRes(s32, u8 *, u16, u8 *);
 extern void func_0028be70(u8 *, s32);
 extern u8 *func_00286780(u8 *, u16, u8 *);
@@ -24,7 +24,7 @@ extern s32 func_00291980(s32, s32, s32 *, s32 *);
 extern void *func_00477f10(u32, u16, void *, u32, u32);
 extern void func_0047aa30(s32, u8 *);
 extern s32 func_002919d0(s32);
-extern void func_00269c20(u16, s32);
+extern void MT_Scene_SetResActiveById(u16, s32);
 extern void func_0046d730(u8 *, s32);
 extern void evtNodeSetRes(u8 *, u16, u16 *);
 extern u8 *mdlGetColor(s32);
@@ -271,7 +271,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[1], (u8 *)&stack.vec[0]);
         *(s32 *)((u8 *)idx + 0x144) = 0;
         *(u8 **)(arg1 + 0x12C) = MT_Scene_GetRes(resource_id);
-        func_0026bfc0(&stack.vec[1].x, 900.0f, 45.0f, 0.0f, 0.0f, &stack.vec[2].x);
+        MT_Scene_OffsetPointByRotation(&stack.vec[1].x, 900.0f, 45.0f, 0.0f, 0.0f, &stack.vec[2].x);
         MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         resource = (u8 *)MT_Scene_GetRes(0x1E59);
         if (resource == NULL) {
@@ -593,7 +593,7 @@ void func_00295740(s32 arg0, u8 *arg1) {
                 func_0047aa30(temp_17, D_005DC878);
             }
             temp_16 = (u16)(func_00145780((u16)(func_002919d0(*(s32 *)(arg1 + 4)) & 0xFFFF), 0, temp_17) & 0xFFFF);
-            func_00269c20(temp_16, 1);
+            MT_Scene_SetResActiveById(temp_16, 1);
             temp_2_2 = (s32)(*(s32 *)(arg1 + 4) * 0x1E);
             sp58.x = (f32)temp_2_2;
             sp58.y = 0;

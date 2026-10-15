@@ -9,7 +9,7 @@ extern int MT_Scene_GetObject();
 extern int MT_Scene_DestroyRes();
 extern u16 func_001459b0(u32, int, u64);
 extern void func_00440b68(...);
-extern void func_00269c20(u16, int);
+extern void MT_Scene_SetResActiveById(u16, int);
 extern char DAT_0063c8a0[];
 extern char DAT_0063c8c0[];
 
@@ -69,7 +69,7 @@ void func_00291220(int param_1, int param_2, int param_3, u64 param_4)
         if (iVar4 != 0) {
             uVar2 = func_001459b0((int)param_2 + 200U & 0xffff, iVar4, param_4);
             func_00440b68(DAT_0063c8a0, uVar2);
-            func_00269c20(uVar2, 1);
+            MT_Scene_SetResActiveById(uVar2, 1);
             *puVar5 = uVar2;
         }
     }

@@ -113,7 +113,7 @@ extern u8 *func_003e0f80(void);
 extern void memcpy(void *dest, const void *src, s32 size);
 extern void func_00147430();
 extern void FldResource_Destroy(void *arg0);
-extern void func_00268b20(void *arg0);
+extern void MT_Scene_SpawnIconTask(void *arg0);
 extern void func_003bbb60(s32 arg0);
 extern void func_003e0f40(s32 arg0);
 extern u8 D_005EF890[];
@@ -810,7 +810,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
         case RESRC_TYPE_06:
             handle144Case6 = resourceRecord->slotHandle[1];
             if (handle144Case6 != NULL) {
-                func_00268b20(handle144Case6);
+                MT_Scene_SpawnIconTask(handle144Case6);
                 resourceRecord->slotHandle[1] = NULL;
                 func_00440b68(&D_005EF8B0, resourceRecord);
             }
