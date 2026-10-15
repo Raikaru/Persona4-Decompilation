@@ -4,6 +4,6 @@
 #include "fcl_row_draw.h"
 
 /* All row-mode consumers test or forward the same signed byte. */
-void func_00325450(u8 *task, s32 layout, s8 mode);
+void fclCombineDrawStageBanner(u8 *task, s32 layout, s8 mode);
 
 #endif

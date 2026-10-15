@@ -13,6 +13,6 @@ void func_002b77d0(s16 resource, FclVec2 position, s16 image,
                    s16 argument, u32 source);
 
 void fclCombineCreateSlotIcons(u8 *task, s8 mode);
-void func_00329310(u8 *task, s16 duration, s8 mode);
+void fclCombineDrawStageTiles(u8 *task, s16 duration, s8 mode);
 
 #endif
