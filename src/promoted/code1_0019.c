@@ -230,7 +230,7 @@ extern u8 D_007940F0[];
 extern void func_0047a830(void *arg0);
 extern void func_0047a870(void *arg0);
 extern void mdlSetBlendWeight(void *arg0, float arg1);
-extern void func_0047a8a0(void *arg0, float arg1, float arg2);
+extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
 extern f32 DAT_0076112c;
 
 
@@ -2646,7 +2646,7 @@ void func_0019d990(u8 *arg0, s32 arg1)
             return;
         case 3:
             mdlSetBlendWeight(*(u8 **)(arg0 + 0xA00), DAT_0076112c);
-            func_0047a8a0(*(u8 **)(arg0 + 0xA00), 70.0f, 80.0f);
+            mdlLookAtSetupSetRange(*(u8 **)(arg0 + 0xA00), 70.0f, 80.0f);
             func_0047a9b0(*(u8 **)(arg0 + 0xA00));
             func_0047a990(*(u8 **)(arg0 + 0xA00));
             temp_4 = func_0047aa00(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
@@ -2770,7 +2770,7 @@ void func_0019dea0(u8 *arg0)
     }
 }
 
-/* measured: opt_propagation off plus named call_angle locals preserve retail's stack reloads before func_0047a8a0. */
+/* measured: opt_propagation off plus named call_angle locals preserve retail's stack reloads before mdlLookAtSetupSetRange. */
 #pragma push
 #pragma opt_propagation off
 // FUN_0019DF20
@@ -2800,8 +2800,7 @@ s32 func_0019df20(u8 *arg0)
                 call_angle1 = angle1;
                 enabled = *(s32 *)(unit + 0x98) & 2;
                 if (enabled != 0) {
-                    func_0047a8a0(*(u8 **)(unit + 0xA00),
-                                   call_angle1, call_angle2);
+                    mdlLookAtSetupSetRange(*(u8 **)(unit + 0xA00), call_angle1, call_angle2);
                 }
                 if ((*(s32 *)(unit + 0x98) & 2) != 0) {
                     mdlSetBlendWeight(*(u8 **)(unit + 0xA00), 0.25f);
@@ -2833,8 +2832,7 @@ s32 func_0019df20(u8 *arg0)
         call_angle1 = angle1;
         enabled = *(s32 *)(unit + 0x98) & 2;
         if (enabled != 0) {
-            func_0047a8a0(*(u8 **)(unit + 0xA00),
-                           call_angle1, call_angle2);
+            mdlLookAtSetupSetRange(*(u8 **)(unit + 0xA00), call_angle1, call_angle2);
         }
         if ((*(s32 *)(unit + 0x98) & 2) != 0) {
             mdlSetBlendWeight(*(u8 **)(unit + 0xA00), 0.25f);

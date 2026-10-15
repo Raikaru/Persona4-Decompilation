@@ -1480,7 +1480,7 @@ void func_0019e1f0(BtlUnitPacketTwoUnits* packet)
 u32 func_0019e220(u8* packet)
 {
     extern u8* iGpffffb3ac;
-    extern void func_0047a8a0(void* model, f32 x, f32 y);
+    extern void mdlLookAtSetupSetRange(void* model, f32 x, f32 y);
     extern void mdlSetBlendWeight(void* model, f32 value);
     extern void func_0019d7a0(void* unit, s32 state);
     f32 firstHigh;
@@ -1523,8 +1523,7 @@ u32 func_0019e220(u8* packet)
                         highArg = firstHigh;
                         if ((*(u32 *)(firstCurrent + 0x98) & 2) != 0)
                         {
-                            func_0047a8a0(*(void **)(firstCurrent + 0xa00),
-                                          highArg, lowArg);
+                            mdlLookAtSetupSetRange(*(void **)(firstCurrent + 0xa00), highArg, lowArg);
                         }
                     }
                     if ((*(u32 *)(firstCurrent + 0x98) & 2) != 0)
@@ -1564,8 +1563,7 @@ u32 func_0019e220(u8* packet)
                         highArg = secondHigh;
                         if ((*(u32 *)(secondCurrent + 0x98) & 2) != 0)
                         {
-                            func_0047a8a0(*(void **)(secondCurrent + 0xa00),
-                                          highArg, lowArg);
+                            mdlLookAtSetupSetRange(*(void **)(secondCurrent + 0xa00), highArg, lowArg);
                         }
                     }
                     if ((*(u32 *)(secondCurrent + 0x98) & 2) != 0)
@@ -1602,8 +1600,7 @@ u32 func_0019e220(u8* packet)
             highArg = singleHigh;
             if ((*(u32 *)(singleCurrent + 0x98) & 2) != 0)
             {
-                func_0047a8a0(*(void **)(singleCurrent + 0xa00),
-                              highArg, lowArg);
+                mdlLookAtSetupSetRange(*(void **)(singleCurrent + 0xa00), highArg, lowArg);
             }
         }
         if ((*(u32 *)(singleCurrent + 0x98) & 2) != 0)
