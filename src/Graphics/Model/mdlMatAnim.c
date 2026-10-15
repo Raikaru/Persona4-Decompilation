@@ -258,18 +258,18 @@ void func_0047ffc0(int *param_1)
 
     for (uVar7 = 0; uVar7 < uVar4; uVar7 = uVar7 + 1) {
       iVar6 = *(int *)(*piVar5 + uVar7 * 4);
-      uVar0 = *(volatile /* Removing this function's qualifier batch loses FUN_0047FFC0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 FUN_00320770. */ u8 *)(iVar8 + 0x40);
-      uVar1 = *(volatile /* Removing this function's qualifier batch loses FUN_0047FFC0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 FUN_00320770. */ u8 *)(iVar8 + 0x41);
-      uVar2 = *(volatile /* Removing this function's qualifier batch loses FUN_0047FFC0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 FUN_00320770. */ u8 *)(iVar8 + 0x42);
-      uVar3 = *(volatile /* Removing this function's qualifier batch loses FUN_0047FFC0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 FUN_00320770. */ u8 *)(iVar8 + 0x43);
+      uVar0 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(iVar8 + 0x40);
+      uVar1 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(iVar8 + 0x41);
+      uVar2 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(iVar8 + 0x42);
+      uVar3 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(iVar8 + 0x43);
       *(u8 *)(iVar6 + 4) = uVar0;
       *(u8 *)(iVar6 + 5) = uVar1;
       *(u8 *)(iVar6 + 6) = uVar2;
       *(u8 *)(iVar6 + 7) = uVar3;
       iVar6 = *(int *)(*piVar5 + uVar7 * 4);
-      fVar9 = *(volatile /* Removing this function's qualifier batch loses FUN_0047FFC0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 FUN_00320770. */ f32 *)(iVar8 + 0x44);
-      fVar10 = *(volatile /* Removing this function's qualifier batch loses FUN_0047FFC0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 FUN_00320770. */ f32 *)(iVar8 + 0x48);
-      fVar11 = *(volatile /* Removing this function's qualifier batch loses FUN_0047FFC0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 FUN_00320770. */ f32 *)(iVar8 + 0x4c);
+      fVar9 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(iVar8 + 0x44);
+      fVar10 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(iVar8 + 0x48);
+      fVar11 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(iVar8 + 0x4c);
       *(f32 *)(iVar6 + 0xc) = fVar9;
       *(f32 *)(iVar6 + 0x10) = fVar10;
       *(f32 *)(iVar6 + 0x14) = fVar11;

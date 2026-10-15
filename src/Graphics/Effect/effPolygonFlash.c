@@ -1042,7 +1042,7 @@ void func_0049bff0(u8 *arg0)
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see FUN_0049B470). */
+   measured, no help (see 0x0049b470). */
 /* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049C1B0
 #pragma opt_loop_invariants on
@@ -1532,7 +1532,7 @@ void func_0049cd10(u8 *arg0)
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see FUN_0049B470). */
+   measured, no help (see 0x0049b470). */
 /* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049CED0
 #pragma opt_loop_invariants on
@@ -2020,7 +2020,7 @@ void func_0049db20(u8 *arg0)
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see FUN_0049B470). */
+   measured, no help (see 0x0049b470). */
 /* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049DCE0
 #pragma opt_loop_invariants on
@@ -2498,7 +2498,7 @@ void func_0049e920(u8 *arg0)
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see FUN_0049B470). */
+   measured, no help (see 0x0049b470). */
 /* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049EAE0
 #pragma opt_loop_invariants on
@@ -2998,7 +2998,7 @@ void func_0049f820(u8 *arg0)
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see FUN_0049B470). */
+   measured, no help (see 0x0049b470). */
 /* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049F9E0
 #pragma opt_loop_invariants on
@@ -3438,7 +3438,7 @@ void func_004a05f0(u8 *arg0)
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see FUN_0049B470). */
+   measured, no help (see 0x0049b470). */
 /* measured: same shape as func_0049b470 above; see that note. */
 // FUN_004A07B0
 #pragma opt_loop_invariants on

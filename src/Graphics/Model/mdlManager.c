@@ -3,7 +3,7 @@
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
 /* Source unit: src/Graphics/Model/mdlManager_004711e0.c */
-/* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_003115a0 (verified MATCH there). */
+/* Ported from P3FES src/Graphics/Model/mdlManager.c 0x003115a0 (verified MATCH there). */
 /* W8 negative census corrected: 004776C0 is complete in C at 264B; its
    272B retail window has two zero words after jr/nop. 00475B90 (304B body
    plus jr/nop and two zero words) and 00473710 (332B body plus jr/nop and
@@ -3982,7 +3982,7 @@ void func_00477810(void *arg0, void *arg1)
 /* measured probe: close invariant pragma. */
 #pragma opt_loop_invariants off
 
-/* Removing this loses FUN_00477900 (MATCH nd0 -> MISMATCH nd51) - measured W161 (ported from P3FES donor; re-probed in P4: nd0 -> nd51). */
+/* Removing this loses 0x00477900 (MATCH nd0 -> MISMATCH nd51) - measured W161 (ported from P3FES donor; re-probed in P4: nd0 -> nd51). */
 #pragma opt_loop_invariants on
 
 // FUN_00477900

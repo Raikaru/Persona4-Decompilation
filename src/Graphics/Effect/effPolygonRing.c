@@ -261,7 +261,7 @@ void func_00498f10(u8 *arg0)
 }
 #pragma pop
 
-/* Ported from P3FES mdlEffect.c FUN_00338360 (twin of func_0049a1a0).
+/* Ported from P3FES mdlEffect.c 0x00338360 (twin of func_0049a1a0).
    The VU0 colour-modulate block is genuine hardware asm (Category B) ported
    as inline asm with the pointer passed via a "r" constraint, not a bare
    addiu block. MATCH. */
@@ -865,7 +865,7 @@ void func_00499e40(u8 *arg0)
 }
 #pragma pop
 
-/* Ported from P3FES mdlEffect.c FUN_00338360 (twin of func_004992a0).
+/* Ported from P3FES mdlEffect.c 0x00338360 (twin of func_004992a0).
    Same VU0 inline-asm + constraint-pointer shape as its twin. MATCH. */
 // FUN_0049A1A0
 void func_0049a1a0(u8 *param_1)

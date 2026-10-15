@@ -178,7 +178,7 @@ void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
     }
     *(s16 *)(*(u8 **)(arg0 + 0x2C) + 0xC) = (s16)arg1;
 }
-/* measured: same volatile-anchored arg1 read as FUN_00492F20; plain reads
+/* measured: same volatile-anchored arg1 read as 0x00492f20; plain reads
    swap the lhu/move order at both call sites (nd 5), local spills (nd 62). */
 // FUN_00493200
 void *func_00493200(void *opaqueSource)
@@ -243,7 +243,7 @@ void func_00493320(u8 *arg0)
     }
     jtbl_008873EC[0](arg0);
 }
-/* measured: same volatile-anchored arg1 read as FUN_00492F20 (see its
+/* measured: same volatile-anchored arg1 read as 0x00492f20 (see its
    note); plain reads swap the lhu/move order at both call sites. */
 // FUN_004933A0
 void *func_004933a0(void *opaqueSource)
@@ -290,7 +290,7 @@ void *func_004933a0(void *opaqueSource)
     return t2;
 }
 
-/* measured: same volatile-anchored arg1 read as FUN_00492F20 (see its
+/* measured: same volatile-anchored arg1 read as 0x00492f20 (see its
    note); plain reads swap the lhu/move order at both call sites. */
 // FUN_00493530
 void *func_00493530(void *opaqueSource)
