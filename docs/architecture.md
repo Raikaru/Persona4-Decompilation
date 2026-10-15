@@ -161,7 +161,7 @@ Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
 | 0 | (none) | `func_00102d10` (sequenceList.c), which calls the empty `func_00103590` | Polls for the `"debug menu"` task, which is stripped from retail |
 | 1 | (none) | `func_00102b90`, which calls `initBootChainStart` (`src/Main/init.c`) | `initDataRead`: loads the init tables |
 | 2–5 | FIELD (EVENT) VIEW, DUNGEON VIEW, DUNGEON EDITOR, LARGE MAP DEBUG | k_sequence.c | Viewer and debug modes |
-| 6 | BATTLE | `K_Fldrc_DestroyArchives`, which calls `func_00192e90` and `func_00193730` (`src/promoted/code1_0019.c`) | See section 8. The start callback's name does not describe what it does. |
+| 6 | BATTLE | BATTLE sequence start callback: destroys the field resource archives (`K_Fldrc_DestroyArchives`), which calls `func_00192e90` and `func_00193730` (`src/promoted/code1_0019.c`) | See section 8. |
 | 7 | SCRIPT VIEWER | `func_00102f10`, which calls `func_0029e8d0` (`scrScriptProcess.c`) | |
 | 8 | EVENT | `func_00102fe0`, which calls the stub `func_002853b0` | |
 | 9 | FIELD | `func_00170220` (`src/promoted/k_sequence.c`), which calls `func_00155e10` (`k_field.c`) | 0x1C-byte packet: field, room, entry, spawn, direction |
