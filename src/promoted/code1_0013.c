@@ -22,9 +22,9 @@ static inline f32 code13Add(f32 left, f32 right) {
     return left + right;
 }
 extern void sdkSpriteFreeNode(void *node);
-extern void func_001400f0(u8 *arg0);
-extern void func_00141d10(u8 *arg0);
-extern void func_001437b0(void *arg0, s32 arg1, s32 arg2);
+extern void radarDrawFrame(u8 *arg0);
+extern void radarResetEntries(u8 *arg0);
+extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 extern void func_00105780(s16 arg0);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0012ff60(u8 *arg0, u32 arg1);
@@ -110,7 +110,7 @@ extern u8 *func_00354a50(s32 arg0, u16 arg1);
 extern u8 *func_0046a770(char *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
-extern s32 func_00141d80(u8 *arg0, s32 arg1);
+extern s32 radarSetMode(u8 *arg0, s32 arg1);
 extern u8 D_005E57F0[];
 extern u8 D_005E5810[];
 extern u8 D_005E5830[];
@@ -1310,7 +1310,7 @@ process:
 }
 #pragma opt_propagation on
 /* Matched.  Same menu-state-machine family as func_0013caa0, func_0013d8b0
-   and func_00142f20: `*arg1 = (var_2 = 1)`, a switch on *arg0 whose arms
+   and radarUpdateState: `*arg1 = (var_2 = 1)`, a switch on *arg0 whose arms
    break to a shared `return 0`, the fade arm returning 2, and a 0x30-byte
    query buffer.  Cases are written in retail layout order
    0,1,2,3,4,7,8,9,10,5,6,11; numeric order costs 82 words.  The s32 third

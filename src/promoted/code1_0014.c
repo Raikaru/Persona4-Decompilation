@@ -254,9 +254,9 @@ extern void func_0014d290(u8 *arg0, u8 *arg1);
 extern s32 func_0034c210(void);
 extern void func_0013fb50(u8 *arg0);
 extern s32 func_0013ff80(u8 *arg0);
-extern s32 func_00142340(u8 *arg0);
-extern void func_001422b0(u8 *arg0);
-extern void func_00142230(u8 *arg0);
+extern s32 radarEntriesReady(u8 *arg0);
+extern void radarDestroy(u8 *arg0);
+extern void radarLoadSlotCoords(u8 *arg0);
 extern s32 func_0034bb20(s32 arg0);
 extern void func_0034bd60(s32 arg0);
 extern void func_00353fb0(void);
@@ -269,7 +269,7 @@ extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00453760(void *arg0, s32 arg1);
 extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00453960(void *arg0);
-extern void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
@@ -369,8 +369,8 @@ extern void func_00367210(CampDisplayWords position, f32 depth, s32 alpha, s16 *
 extern s32 func_00104c70(s32 work);
 extern u32 func_0010d6d0(s16 work);
 extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
-extern void func_001423c0(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
-extern void func_001424b0(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
+extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
+extern void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
 
 
 #pragma pop

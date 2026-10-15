@@ -37,7 +37,7 @@ s32 func_00113520(s32, s32, s32, void *);
 u16 *datPersonaGetRecord(u16);
 u16 *datPersonaGetSkills(s32);
 void func_0010fa80(s32, s32, u16, s32, s32 *, s32, s32);
-void func_001437b0(void *, s32, s32);
+void radarAnimateValue(void *, s32, s32);
 void sdkSpriteFreeNode(void *);
 s32 func_0034c210(void);
 u32 RpRandom(void);
@@ -442,7 +442,7 @@ s32 func_00138b20(u8 *arg0)
     for (i = 0; i < 0x26; i++) {
         p = arg0 + i * 0x30;
         v = *(s16 *)(arg0 + 0x20);
-        func_001437b0(p + 0x584, v, 0);
+        radarAnimateValue(p + 0x584, v, 0);
         if (*(u8 *)(p + 0x59E) != 0) {
             result = 0;
         }
@@ -906,7 +906,7 @@ void func_0013a060(void *arg0)
             }
             *counter = 0;
         }
-        func_001437b0(row + 0xCA4, *counter, 1);
+        radarAnimateValue(row + 0xCA4, *counter, 1);
     }
 }
 /* measured: restore propagation after matching func_0013a060. */
@@ -932,7 +932,7 @@ void func_0013a4a0(void *arg0)
     }
     for (i = 0; i < 2; i++) {
         p = (u8 *)arg0 + i * 0x30 + 0x11E4;
-        func_001437b0(p, *(s16 *)((u8 *)arg0 + 0x22), 0);
+        radarAnimateValue(p, *(s16 *)((u8 *)arg0 + 0x22), 0);
     }
 }
 /* measured: opt_common_subs off is required for the retail base+offset access order. */
