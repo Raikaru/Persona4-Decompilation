@@ -422,6 +422,7 @@ loop_test:
     return -1;
 }
 
+/* AI script command 0x20E5 (p4flow AI.json AI_FUNCTION_00E5). */
 // FUN_001E7D30
 s32 btlEffectScriptGetCurrentUnit(void) {
     u8 *temp;
@@ -431,18 +432,21 @@ s32 btlEffectScriptGetCurrentUnit(void) {
     return 1;
 }
 
+/* AI script command 0x20E6 (p4flow AI.json AI_FUNCTION_00E6). */
 // FUN_001E7D70
 s32 btlEffectScriptGetMaxHp(void) {
     scrSetReturnInt(datCalcMaxHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
+/* AI script command 0x20E7 (p4flow AI.json AI_FUNCTION_00E7). */
 // FUN_001E7DD0
 s32 btlEffectScriptGetHp(void) {
     scrSetReturnInt(datCalcGetHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
+/* AI script command 0x20E8 (p4flow AI.json AI_FUNCTION_00E8). */
 // FUN_001E7E30
 s32 btlEffectScriptGetSlotUnit(void) {
     u8 *temp;
@@ -452,6 +456,7 @@ s32 btlEffectScriptGetSlotUnit(void) {
     return 1;
 }
 
+/* AI script command 0x20E9 (p4flow AI.json AI_FUNCTION_00E9). */
 // FUN_001E7E70
 // measured: the status byte/halfword gates the signed-byte payload; the
 // payload is read only when neither gate is active.
@@ -472,18 +477,21 @@ s32 btlEffectScriptGetStatusByte(void)
     return 1;
 }
 
+/* AI script command 0x20EE (p4flow AI.json AI_FUNCTION_00EE). */
 // FUN_001E7EF0
 s32 btlEffectScriptGetMaxSp(void) {
     scrSetReturnInt(datCalcMaxSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
+/* AI script command 0x20EF (p4flow AI.json AI_FUNCTION_00EF). */
 // FUN_001E7F50
 s32 btlEffectScriptGetSp(void) {
     scrSetReturnInt(datCalcGetSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
+/* AI script command 0x20F0 (p4flow AI.json AI_FUNCTION_00F0). */
 // FUN_001E7FB0
 s32 btlEffectScriptPickRandomCandidate(void) {
     u16 count;
