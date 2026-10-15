@@ -1,0 +1,212 @@
+#include "datCalc_unit_internal.h"
+#include "list_item_internal.h"
+#include "btl_camera_palette_internal.h"
+#include "btl_skill_target_internal.h"
+#include "include_asm.h"
+#include "sdk_task_registration.h"
+#include "type.h"
+#include "effect_instance_internal.h"
+#include "rw/plcore/barenderstate.h"
+#include "btl_skill_internal.h"
+#include "btl_cond_internal.h"
+#include "sdk_snd_internal.h"
+#include "btl_target_state_packet_internal.h"
+#include "g_data_internal.h"
+/* Force the offset operand into the first addu slot. */
+static inline u32 addOffsetFirst(u32 offset, u32 base) {
+    return offset + base;
+}
+
+/* Force the base operand into the first addu slot. */
+static inline u32 addBaseFirst(u32 base, u32 offset) {
+    return base + offset;
+}
+static inline s32 promoteS16(s16 value) {
+    return value;
+}
+static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
+    return offset + base;
+}
+
+extern RwRenderState D_00625210[];
+typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
+extern BattleRenderStateFunction D_00887300[];
+extern BattleRenderStateFunction D_00887304[];
+extern u16 D_0076455C;
+extern u16 D_0076455A;
+extern f32 D_007613E0;
+extern f32 D_007613E4;
+extern f32 D_008872FC_abs[];
+extern u8 *iGpffffb3c4;
+extern u8 *iGpffffb3d0;
+extern u8 *iGpffffb3e0;
+
+extern void (*jtbl_008873EC[])(void *ptr);
+extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
+
+
+
+extern u8 D_0060AB08[];
+extern u8 D_0060AC00[];
+extern u8 D_00618AC0[];
+extern u8 D_0061F000[];
+
+extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb3b8;
+extern u8 *iGpffffb414;
+extern s32 iGpffffb460;
+extern u8 *D_0076449C;
+extern u16 D_00624FC0[];
+extern u16 D_00624FD8[];
+extern u8 D_00624B20[];
+extern u8 D_00624B22[];
+
+
+
+extern u8 iGpffffb468;
+extern u8 iGpffffb469;
+extern s16 iGpffffb46e;
+extern u8 D_006251F0[];
+
+
+
+
+
+
+
+extern s32 iGpffffb464;
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern u8 D_00624F50[];
+extern u8 D_00624F60[];
+extern u8 D_00624F80[];
+extern u8 D_00624FA0[];
+
+/* Source unit: src/promoted/code1_001f.c */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001f3fe0-001f41e0 */
+
+extern s32 func_001f0af0(u8 *arg0);
+extern s32 func_001f0c50(u8 *arg0);
+extern s32 func_001f0d30(u8 *arg0);
+extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
+extern s32 func_001f0ff0(u32 arg0);
+extern s32 func_001f1030(u8 *arg0);
+extern s32 func_001f5ea0(s32 arg0);
+#pragma push
+#pragma pop
+/* measured: invariant mask materialisation needs opt_loop_invariants on to
+   place the retail `lui` in the preheader. */
+/* measured: closes the invariant-hoist bracket for func_001f0af0. */
+/* measured: loop-invariant probe for func_001f0c50's shared true value. */
+/* measured: close opt_loop_invariants after func_001f0c50 probe. */
+/* measured: invariant mask materialisation needs opt_loop_invariants on to
+   place the retail `lui` in the preheader. */
+/* measured: closes the invariant-hoist bracket for func_001f0d30. */
+/* measured: opt_loop_invariants on preserves the nonzero-path constant and loop preheaders for func_001f0dd0. */
+/* measured: close opt_loop_invariants after func_001f0dd0. */
+/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
+/* measured: close optimization_level 1 probe for func_001f0ff0. */
+/* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
+/* measured: close opt_loop_invariants after func_001f1030 probe. */
+#pragma push
+/* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
+#pragma pop
+/* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
+   index arithmetic and the 0x70 field load in a temporary before its saved copy. */
+/* measured: restore propagation for the rest of the unit. */
+// FUN_001F3FE0
+s32 func_001f3fe0(u8 *arg0)
+{
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+        return -1;
+    }
+    return 0xCC;
+}
+
+// FUN_001F4010
+s32 func_001f4010(u8 *arg0)
+{
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+        return -1;
+    }
+    return 0x67;
+}
+
+// FUN_001F4040
+s32 func_001f4040(u8 *arg0) {
+    if (*(u8 *)((u8 *)(*(u8 **)(arg0 + 0x30)) + 0xA2) != 0) {
+        return -1;
+    }
+    if (func_001f5ea0(0) != 0) {
+        return 0xCD;
+    }
+    return 0xCE;
+}
+
+// FUN_001F40A0
+s32 func_001f40a0(void) {
+    s32 temp_3;
+
+    temp_3 = func_001ef720(2, 0x80000) & 0xFFFF;
+    if (temp_3 >= 5) {
+        return -1;
+    }
+    if (temp_3 == 0) {
+        return -1;
+    }
+    return 0x58 - temp_3;
+}
+
+// FUN_001F4100
+s32 func_001f4100(u8 *arg0)
+{
+    u16 temp_2;
+    u8 *temp_3;
+
+    temp_3 = *(u8 **)(arg0 + 0x30);
+    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+        return -1;
+    }
+    temp_2 = *(u16 *)(temp_3 + 0xA4);
+    switch (temp_2) {
+    case 1:
+        return -1;
+    case 2:
+        return 0x15F;
+    case 3:
+        return 0x160;
+    case 4:
+        return 0x161;
+    case 6:
+        return 0x162;
+    case 7:
+        return 0x163;
+    case 8:
+        return 0x164;
+    default:
+        return -1;
+    }
+}
+
+// FUN_001F41B0
+s32 func_001f41b0(u8 *arg0)
+{
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+        return -1;
+    }
+    return 0xCB;
+}
+
+// FUN_001F41E0
+s32 func_001f41e0(void) {
+    s32 temp_3;
+
+    temp_3 = func_001ef720(2, 0x80000) & 0xFFFF;
+    if (temp_3 > 5) {
+        return -1;
+    }
+    if (temp_3 < 2) {
+        return -1;
+    }
+    return 0x5E - temp_3;
+}
+
