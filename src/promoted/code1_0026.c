@@ -9,24 +9,24 @@ extern s32 iGpffffb4bc;
 extern s32 iGpffffa730;
 extern s32 datGetFlag(s32 arg0);
 extern s32 frFontCountRuns(u8 *arg0);
-extern void func_0026d810();
+extern void MT_Scene_StopShake();
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
 extern s32 func_0026db60(u8 *task);
-extern void func_0026c960(f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6);
+extern void MT_Scene_EvalCubicBezier(f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
-extern void func_0026c860(f32 *arg0, f32 *arg1);
+extern void MT_Scene_GetDirectionYaw(f32 *arg0, f32 *arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern void func_0026dc30(u8 *task);
 extern s32 func_0026dee0(u8 *task);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void func_0026dd60(u8 *arg0);
-extern void func_0026d440(void);
-extern void func_0026a020(u8 *arg0);
-extern void func_0026c310(u8 *arg0);
+extern void MT_Scene_UpdateShake(void);
+extern void MT_Scene_UpdateResource(u8 *arg0);
+extern void MT_Scene_UpdateCameraResource(u8 *arg0);
 extern void func_004b11d0(void *arg0, s32 arg1);
 extern char D_005DC824[];
 extern char D_0063B5D8[];
@@ -2339,8 +2339,8 @@ f32 func_0026cef0(s8 *arg0, f32 fparg0, f32 fparg1,
             y[j] = path->pts[idx + j].y;
             z[j] = path->pts[idx + j].z;
         }
-        func_0026c960(fGpffff82d4, x, y, z, &ax0, &ay0, &az0);
-        func_0026c960(1.0f, x, y, z, &ax1, &ay1, &az1);
+        MT_Scene_EvalCubicBezier(fGpffff82d4, x, y, z, &ax0, &ay0, &az0);
+        MT_Scene_EvalCubicBezier(1.0f, x, y, z, &ax1, &ay1, &az1);
         dF.x = ax1 - ax0;
         dF.y = ay1 - ay0;
         dF.z = az1 - az0;
@@ -2353,7 +2353,7 @@ f32 func_0026cef0(s8 *arg0, f32 fparg0, f32 fparg1,
         delta.y = at.y - ay0;
         delta.z = at.z - az0;
         RwV3dNormalize((f32 *)&dir, (f32 *)&delta);
-        func_0026c860((f32 *)&dir, arg2);
+        MT_Scene_GetDirectionYaw((f32 *)&dir, arg2);
         return 1.0f;
     }
     for (seg = 0; seg < path->count; seg++) {
@@ -2367,8 +2367,8 @@ f32 func_0026cef0(s8 *arg0, f32 fparg0, f32 fparg1,
         }
         for (k = 0; k < 20; k++) {
             t = (f32)k * fGpffff83d0;
-            func_0026c960(t, x, y, z, &bx0, &by0, &bz0);
-            func_0026c960((f32)(k + 1) * fGpffff83d0, x, y, z, &bx1, &by1, &bz1);
+            MT_Scene_EvalCubicBezier(t, x, y, z, &bx0, &by0, &bz0);
+            MT_Scene_EvalCubicBezier((f32)(k + 1) * fGpffff83d0, x, y, z, &bx1, &by1, &bz1);
             dL.x = bx1 - bx0;
             dL.y = by1 - by0;
             dL.z = bz1 - bz0;
@@ -2391,8 +2391,8 @@ f32 func_0026cef0(s8 *arg0, f32 fparg0, f32 fparg1,
                 arg1[1] = sy + delta.y * frac;
                 arg1[2] = sz + delta.z * frac;
                 u = t + adv;
-                func_0026c960(u, x, y, z, &cx0, &cy0, &cz0);
-                func_0026c960(u - fGpffff842c, x, y, z, &cx1, &cy1, &cz1);
+                MT_Scene_EvalCubicBezier(u, x, y, z, &cx0, &cy0, &cz0);
+                MT_Scene_EvalCubicBezier(u - fGpffff842c, x, y, z, &cx1, &cy1, &cz1);
                 dB.x = cx1 - cx0;
                 dB.y = cy1 - cy0;
                 dB.z = cz1 - cz0;
@@ -2401,7 +2401,7 @@ f32 func_0026cef0(s8 *arg0, f32 fparg0, f32 fparg1,
                 back.y = cy0 - cy1;
                 back.z = cz0 - cz1;
                 RwV3dNormalize((f32 *)&dir, (f32 *)&back);
-                func_0026c860((f32 *)&dir, arg2);
+                MT_Scene_GetDirectionYaw((f32 *)&dir, arg2);
                 return pos;
             }
             pos += step;
@@ -2422,14 +2422,14 @@ s32 func_0026db60(u8 *unusedTask)
     s32 temp_4;
     s32 temp_3;
     u8 *var_2;
-    func_0026d440();
+    MT_Scene_UpdateShake();
     var_17 = 1;
     goto outer_test;
 outer_body:
     var_16 = MT_Scene_GetResListHead(var_17);
     goto inner_test;
 inner_body:
-    func_0026a020(var_16);
+    MT_Scene_UpdateResource(var_16);
     var_16 = *(u8 **)(var_16 + 0x138);
 inner_test:
     if (var_16 != NULL) {
@@ -2446,7 +2446,7 @@ outer_test:
 second_body:
     temp_4 = *(s32 *)(var_2 + 0x148);
     if (temp_4 == temp_3) {
-        func_0026c310(var_2);
+        MT_Scene_UpdateCameraResource(var_2);
         goto second_exit;
     }
     var_2 = *(u8 **)(var_2 + 0x138);
@@ -2464,7 +2464,7 @@ second_exit:
 // FUN_0026DC30
 void func_0026dc30(u8 *unusedTask)
 {
-    func_0026d810();
+    MT_Scene_StopShake();
 }
 
 /* measured: opt_propagation off probe for func_0026dc50 float load scheduling. */

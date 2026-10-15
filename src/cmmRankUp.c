@@ -43,7 +43,7 @@ void func_0044ea90(void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);
 extern void func_0047a6d0(s32 arg0, s32 arg1, void *arg2);
 extern void func_00189ec0();
-extern void func_00268bd0(s32 arg0, s32 arg1);
+extern void MT_Scene_SetResEnabled(s32 arg0, s32 arg1);
 extern void func_003ef3a0(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
 extern void func_0047a0e0(u8 *arg0, s32 arg1, f32 arg2);
@@ -279,8 +279,8 @@ extern void frFontMoveListToFloat(u8 *arg0, f32 fparg0, f32 fparg1);
 extern void frFontSetGlyphColor(u8 *arg0, s32 arg1);
 extern void frFontListKeepOrRelease(u8 *arg0);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern s32 func_00268cb0(u8 *arg0);
-extern void func_00268c20(s32 arg0, s32 arg1);
+extern s32 MT_Scene_IsResEnabled(u8 *arg0);
+extern void MT_Scene_SetResEnabledById(s32 arg0, s32 arg1);
 
 /* measured: opt_propagation off around func_00252050 batches the D_00635D28/
    2C/30 lwc1 loads before the spFloat stores; plain float temps under the
@@ -1478,48 +1478,48 @@ u8 *func_00255b90(void) {
     while (node1 != NULL) {
         u8 *e = entry + count * 0x10;
         *(u8 **)(e + 4) = *(u8 **)(node1 + 0x164);
-        *(s32 *)(e + 0xC) = func_00268cb0(node1);
+        *(s32 *)(e + 0xC) = MT_Scene_IsResEnabled(node1);
         *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node1 + 0x164) + 0xF4);
         *(u8 **)(e + 8) = node1;
         count++;
         func_0047a0e0(*(u8 **)(node1 + 0x164), 0, 0.0f);
-        func_00268c20(*(u16 *)(node1 + 0), 1);
+        MT_Scene_SetResEnabledById(*(u16 *)(node1 + 0), 1);
         node1 = *(u8 **)(node1 + 0x138);
     }
     node2 = MT_Scene_GetResListHead(2);
     while (node2 != NULL) {
         u8 *e = entry + count * 0x10;
         *(u8 **)(e + 4) = *(u8 **)(node2 + 0x158);
-        *(s32 *)(e + 0xC) = func_00268cb0(node2);
+        *(s32 *)(e + 0xC) = MT_Scene_IsResEnabled(node2);
         *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node2 + 0x158) + 0xF4);
         *(u8 **)(e + 8) = node2;
         count++;
         func_0047a0e0(*(u8 **)(node2 + 0x158), 0, 0.0f);
-        func_00268c20(*(u16 *)(node1 + 0), 1);
+        MT_Scene_SetResEnabledById(*(u16 *)(node1 + 0), 1);
         node2 = *(u8 **)(node2 + 0x138);
     }
     node3 = MT_Scene_GetResListHead(3);
     while (node3 != NULL) {
         u8 *e = entry + count * 0x10;
         *(u8 **)(e + 4) = *(u8 **)(node3 + 0x164);
-        *(s32 *)(e + 0xC) = func_00268cb0(node3);
+        *(s32 *)(e + 0xC) = MT_Scene_IsResEnabled(node3);
         *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node3 + 0x164) + 0xF4);
         *(u8 **)(e + 8) = node3;
         count++;
         func_0047a0e0(*(u8 **)(node3 + 0x164), 0, 0.0f);
-        func_00268c20(*(u16 *)(node3 + 0), 1);
+        MT_Scene_SetResEnabledById(*(u16 *)(node3 + 0), 1);
         node3 = *(u8 **)(node3 + 0x138);
     }
     node4 = MT_Scene_GetResListHead(0xA);
     while (node4 != NULL) {
         u8 *e = entry + count * 0x10;
         *(u8 **)(e + 4) = *(u8 **)(node4 + 0x144);
-        *(s32 *)(e + 0xC) = func_00268cb0(node4);
+        *(s32 *)(e + 0xC) = MT_Scene_IsResEnabled(node4);
         *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node4 + 0x144) + 0xF4);
         *(u8 **)(e + 8) = node4;
         count++;
         func_0047a0e0(*(u8 **)(node4 + 0x144), 0, 0.0f);
-        func_00268c20(*(u16 *)(node4 + 0), 1);
+        MT_Scene_SetResEnabledById(*(u16 *)(node4 + 0), 1);
         node4 = *(u8 **)(node4 + 0x138);
     }
     return entry;
@@ -3642,7 +3642,7 @@ void func_0025c100(u8 *unusedTask) {
     i = 0;
     while (*(s32 *)(list + i * 0x10 + 8) != 0) {
         if (*(s32 *)(list + i * 0x10 + 0xC) == 0) {
-            func_00268bd0(*(s32 *)(list + i * 0x10 + 8), 0);
+            MT_Scene_SetResEnabled(*(s32 *)(list + i * 0x10 + 8), 0);
         }
         func_0047a0e0(*(u8 **)(list + i * 0x10 + 4), 0, *(f32 *)(list + i * 0x10));
         i++;

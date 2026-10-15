@@ -19,7 +19,7 @@ extern void func_00273cc0(u8 *arg0, u8 *arg1);
 extern s32 D_008815B0[];
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern void func_00269a90(u32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
+extern void MT_Scene_SetResMotionSlot(u32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 extern s32 func_0027bf10(s32 arg0);
 extern s32 func_00107930(s64 arg0);
 extern u8 *func_00246c20(s32 arg0);
@@ -28,7 +28,7 @@ extern u8 *func_00246830(s32 arg0);
 static inline u32 add_retail_ptr(u32 offset, u32 base) {
     return offset + base;
 }
-extern s32 func_0026bc10(u32 resourceId, u32 value);
+extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s32 func_00110d60(s32 arg0);
 extern s64 func_002e0da0(s64 arg0, s32 arg1, s64 arg2);
 extern void func_002e0f90(void);
@@ -237,7 +237,7 @@ s32 func_002703d0(s32 arg0, u8 *arg1)
     if (frFontGetMode() != 0) {
         return 0;
     }
-    func_0026bc10(
+    MT_Scene_CheckResSlot(
         (((temp_16 & 0xFFFF) & 0x3FF) | 0xC00) & 0xFFFF,
         temp_4);
     return 0;
@@ -360,7 +360,7 @@ s32 func_002704f0(s32 arg0, u8 *arg1)
                            (low & 0xFF));
     }
 
-    func_00269a90(key_0 & 0xFFFF, key_1, key_2, key_3, key_4);
+    MT_Scene_SetResMotionSlot(key_0 & 0xFFFF, key_1, key_2, key_3, key_4);
     return 0;
 }
 /* measured: closes opt_rebuildconditionals off for 002704f0. */

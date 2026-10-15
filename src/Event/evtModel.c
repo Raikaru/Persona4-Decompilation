@@ -603,21 +603,21 @@ big:
     var_3 = (s32)(rec->timer2 - 2.1474836e9f) | 0x80000000;
 done:
     if (var_3 == 0) {
-        func_00269820(MT_Scene_GetRes(id), 0, 1, 5, 0, 0, 1.0f);
+        MT_Scene_SetResMotion(MT_Scene_GetRes(id), 0, 1, 5, 0, 0, 1.0f);
     } else if (var_3 == 5) {
         sp.x = 0.0f;
         sp.y = rec->posX;
         sp.z = 0.0f;
-        func_00269340(id, &sp, *(u32 *)&rec->target, 0);
+        MT_Scene_BeginResRotation(id, &sp, *(u32 *)&rec->target, 0);
         if (rec->flags & 2) {
             u8 sound = (rec->timer + 1) & 0xFF;
             s16 start = rec->angX;
             s16 end = rec->angY;
             s16 flags = rec->angZ;
-            func_0026bda0(id, 2, sound, start, end, flags);
+            MT_Scene_SetResSoundRange(id, 2, sound, start, end, flags);
         }
     } else if (var_3 == 25) {
-        func_00269820(MT_Scene_GetRes(id), 0, 0, 5, 1, 0, 1.0f);
+        MT_Scene_SetResMotion(MT_Scene_GetRes(id), 0, 0, 5, 1, 0, 1.0f);
         return 1;
     }
     rec->timer2 += 1.0f;

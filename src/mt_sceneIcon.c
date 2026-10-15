@@ -5,7 +5,7 @@
 
 extern s32 func_00455f70(s32 arg0, void *arg1);
 extern s32 func_004b1130(s32 arg0);
-extern void func_00268b20(s32 arg0);
+extern void MT_Scene_SpawnIconTask(s32 arg0);
 extern s32 D_0063B4F0[];
 
 typedef int (*code)();
@@ -78,13 +78,13 @@ s32 func_0026d890(u8 *arg0)
             if (kind == 1) {
                 prev = *(s32 *)(icon + 0x140);
                 if (prev != 0) {
-                    func_00268b20(prev);
+                    MT_Scene_SpawnIconTask(prev);
                 }
                 *(s32 *)(icon + 0x140) = handle;
             } else if (kind == 3) {
                 prev = *(s32 *)(icon + 0x140);
                 if (prev != 0) {
-                    func_00268b20(prev);
+                    MT_Scene_SpawnIconTask(prev);
                 }
                 *(s32 *)(icon + 0x140) = handle;
             }
