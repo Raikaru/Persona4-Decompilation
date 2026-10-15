@@ -204,19 +204,20 @@ extern void func_001016f0(void);
 extern void func_00101820(void);
 extern void func_00101950(void);
 extern void func_00101a80(void);
-extern void func_001014b0(void);
-extern s32 func_00101bb0(u8 *arg0);
-extern s32 func_00102550(u8 *task);
-extern void func_001025e0(u8 *task);
+extern void mainDrawClearCameraAndSky(void);
+extern s32 mainDrawClearOtUpdate(u8 *arg0);
+extern s32 mainDrawFrameUpdate(u8 *task);
+extern void mainDrawFrameDestroy(u8 *task);
 
 
 /* Measured: the local vtable pointer matches retail's single $s0
    D_00887300 materialization only under opt_propagation off. The target is
    MATCH at normalized_diff 0 with object 260B / window 272B. */
+/* Clear-OT callback: clears the camera and sets the sky state when a camera exists; otherwise reports the error. */
 // FUN_001014B0
 /* measured: opening opt_propagation bracket for the matching vtable probe. */
 #pragma opt_propagation off
-void func_001014b0(void) {
+void mainDrawClearCameraAndSky(void) {
     s32 temp_16;
     void (**base)(u32, u32);
 
@@ -358,8 +359,9 @@ void func_00101a80(void) {
 /* measured: func_00101a80 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
 
+/* Clear-OT task update: flushes debug print, clears the camera, resets the ordering table and installs the fixed render-state callbacks. */
 // FUN_00101BB0
-s32 func_00101bb0(u8 *arg0) {
+s32 mainDrawClearOtUpdate(u8 *arg0) {
     u8 *temp_17;
     s32 temp_16;
 
@@ -548,25 +550,27 @@ s32 func_00101bb0(u8 *arg0) {
     return 0;
 }
 
+/* Starts the clear-OT task (priority 0x0A). */
 // FUN_00102490
-void func_00102490(void) {
+void mainDrawStartClearOt(void) {
     u8 *temp_2;
     s32 temp_2_2;
 
     func_0044ea90(&D_005DCAE8, 0x13B);
     temp_2 = D_008873F4[0](1, 0x60, 0x40000);
-    temp_2_2 = (s32)func_00451de0((const void *)(&D_005DCAF8), 0xA, 0, 0, func_00101bb0, 0, (u8 *)(temp_2));
+    temp_2_2 = (s32)func_00451de0((const void *)(&D_005DCAF8), 0xA, 0, 0, mainDrawClearOtUpdate, 0, (u8 *)(temp_2));
     *(void **)(temp_2 + 8) = &D_001013A0;
     *(s32 *)(temp_2 + 0x10) = 0;
-    *(void (**)(void))(temp_2 + 0x38) = func_001014b0;
+    *(void (**)(void))(temp_2 + 0x38) = mainDrawClearCameraAndSky;
     *(s32 *)(temp_2 + 0x40) = 0;
     if (temp_2_2 == 0) {
         func_0046d730(&D_005DCAE8, 0x14F);
     }
 }
 
+/* Frame task update: walks the ordering-table buckets between the camera's begin and end updates. */
 // FUN_00102550
-s32 func_00102550(u8 *unusedTask) {
+s32 mainDrawFrameUpdate(u8 *unusedTask) {
     u32 var_16;
 
     if (func_003e8120(func_00457120()) != 0) {
@@ -581,15 +585,17 @@ s32 func_00102550(u8 *unusedTask) {
     return 0;
 }
 
+/* Destroy callback of the frame task: frees its work block. */
 // FUN_001025E0
-void func_001025e0(u8 *arg0) {
+void mainDrawFrameDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
+/* Starts the mainDraw frame task (priority 0xC8). */
 // FUN_00102610
-void func_00102610(void) {
+void mainDrawStartFrame(void) {
     func_0044ea90(&D_005DCAE8, 0x1FD);
-    if ((s32)func_00451de0((const void *)(&D_005DCB10), 0xC8, 0, 0, func_00102550, func_001025e0, (u8 *)(D_008873F4[0](1, 4, 0x40000))) == 0) {
+    if ((s32)func_00451de0((const void *)(&D_005DCB10), 0xC8, 0, 0, mainDrawFrameUpdate, mainDrawFrameDestroy, (u8 *)(D_008873F4[0](1, 4, 0x40000))) == 0) {
         func_0046d730(&D_005DCAE8, 0x208);
     }
 }

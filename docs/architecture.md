@@ -97,7 +97,7 @@ heap.
    `func_00458fa0` in `sdkSnd.c`), the Sofdec player (`mwPlyInitSfdFx`),
    `func_001939a0` (which calls initialisers in the battle address range),
    the script pools (`func_0029d950`), the two `mainDraw` tasks
-   (`func_00102490`, `func_00102610`), the sequence observer
+   (`mainDrawStartClearOt`, `mainDrawStartFrame`), the sequence observer
    (`func_001028c0`) and the fade task (`func_00122430` in `src/fade.c`).
    It also calls `func_001029a0(0x1E, 0, 0, 0)`, which requests game
    sequence 30.
@@ -345,8 +345,8 @@ PS2 "sky" driver. `wiki/RenderWare.md` explains the split.
 
 Each frame is bracketed by two tasks created in `src/Main/mainDraw.c`:
 
-1. **`"clear ot"`**: `func_00102490`, priority `0x0A`, update
-   `func_00101bb0`. It flushes debug print (`H_Dbprt_Flush`), clears the
+1. **`"clear ot"`**: `mainDrawStartClearOt`, priority `0x0A`, update
+   `mainDrawClearOtUpdate`. It flushes debug print (`H_Dbprt_Flush`), clears the
    camera (`RwCameraClear`), resets the ordering table at `D_00793E80`
    (`func_00460a80`; `0xD8` buckets of `0x30` bytes), and installs fixed
    render-state callbacks (`func_001015c0`..`func_00101a80`) into specific
@@ -356,8 +356,8 @@ Each frame is bracketed by two tasks created in `src/Main/mainDraw.c`:
    node with a callback and an argument. For example, battle registers
    `func_001927c0` and `func_001928c0` into buckets `D_007940C0` and
    `D_00794120` (`src/Battle/battle.c` `func_001926c0`).
-3. **`"mainDraw(drawOt)"`**: `func_00102610`, priority `0xC8`, update
-   `func_00102550`. It brackets the walk with the camera's begin/end-update
+3. **`"mainDraw(drawOt)"`**: `mainDrawStartFrame`, priority `0xC8`, update
+   `mainDrawFrameUpdate`. It brackets the walk with the camera's begin/end-update
    (`func_003e8120` and `func_003e8110` in `src/rw/bacamera.c`, which call
    camera slots `0x18` and `0x1C`). In between it calls `func_004623a0` on
    each of the `0xD8` buckets in order.
