@@ -169,7 +169,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     extern void func_00452080(void *arg0);
     extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
     extern void func_00457170(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
-    extern void func_00458f40(void *arg0, void *arg1);
+    extern void FldRc_SetClumpVector(void *arg0, void *arg1);
     extern void *mdlGetClump(s32 arg0);
     extern char D_005EFEB0[];
     extern s32 iGpffffba48;
@@ -379,12 +379,12 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
             *(CmrVec3 *)(base + 0xA30) = *(CmrVec3 *)(data + 0x1F0);
         }
         while (tmp1 != NULL) {
-            func_00458f40(mdlGetClump(*(s32 *)(tmp1 + 0x164)), data + 0x1F0);
+            FldRc_SetClumpVector(mdlGetClump(*(s32 *)(tmp1 + 0x164)), data + 0x1F0);
             tmp1 = *(u8 **)(tmp1 + 0x138);
         }
         while (tmp3 != NULL) {
             if ((*(u32 *)(tmp3 + 0x28) & 0x10000000) != 0) {
-                func_00458f40(mdlGetClump(*(s32 *)(tmp3 + 0x164)), data + 0x1F0);
+                FldRc_SetClumpVector(mdlGetClump(*(s32 *)(tmp3 + 0x164)), data + 0x1F0);
             }
             tmp3 = *(u8 **)(tmp3 + 0x138);
         }

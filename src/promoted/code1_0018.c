@@ -8,7 +8,7 @@
 #include "type.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
-extern void *func_0018c680(void *object, void *data);
+extern void *FldRc_ReplaceGeometryTextures(void *object, void *data);
 
 typedef struct RwV3d {
     f32 x, y, z;
@@ -2073,7 +2073,7 @@ extern s32 func_0018bf50(unsigned char *);
 extern s64 func_00248d80(s64);
 extern float func_003e4180(float *);
 extern s32 func_00457120(void);
-extern void func_00458f40(void *, void *);
+extern void FldRc_SetClumpVector(void *, void *);
 extern s32 func_004782b0(unsigned char *);
 extern void func_00478e70(unsigned char *);
 extern s16 func_00479c30(s32, s32);
@@ -2382,7 +2382,7 @@ s32 func_0018a200(u8 *param_1)
         if (((initialZero != initialX) || (initialZero != *(float *)(temp_v4 + 0x1f8))) ||
            (initialZero != *(float *)(temp_v4 + 500))) {
           pvVar11 = (void *)func_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
-          func_00458f40(pvVar11,(u8 *)temp_v4 + 0x1f0);
+          FldRc_SetClumpVector(pvVar11,(u8 *)temp_v4 + 0x1f0);
         }
       }
       temp_v5 = func_003e0f80();
@@ -3021,7 +3021,7 @@ s32 func_0018c6c0(u8 *arg0, s32 arg1)
 
     context.found = 0;
     context.texture = (RwTexture *)(uintptr_t)arg1;
-    RpClumpForAllAtomics(arg0, func_0018c680, &context);
+    RpClumpForAllAtomics(arg0, FldRc_ReplaceGeometryTextures, &context);
     return context.found;
 }
 // FUN_0018C700

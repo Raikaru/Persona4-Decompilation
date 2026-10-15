@@ -33,7 +33,7 @@ extern void *RpClumpForAllAtomics(void *object, KClumpCallback callback, void *d
 
 
 // FUN_00150890
-void* func_00150890(s16 majorId, s16 minorId)
+void* FldRc_CreateResource(s16 majorId, s16 minorId)
 {
     char path[40];
     char token[8];
@@ -54,14 +54,14 @@ void* func_00150890(s16 majorId, s16 minorId)
     return FldResource_Create(path);
 }
 // FUN_0018C680
-void *func_0018c680(void *object, void *data)
+void *FldRc_ReplaceGeometryTextures(void *object, void *data)
 {
     u8 *arg0 = object;
     func_003c21e0(*(struct RpGeometry **)(arg0 + 0x18), func_0018c610, data);
     return object;
 }
 // FUN_002E7870
-void func_002e7870(void) {
+void FldRc_ReleaseCachedObject(void) {
     u8 *g = iGpffffb590;
 
     if (g != NULL) {
@@ -71,36 +71,36 @@ void func_002e7870(void) {
 }
 /* Measured callback-wrapper idiom: preserve the object in s0, move userdata to a2, and call the shared iterator with the object field and callback. */
 // FUN_00458C40
-void *func_00458c40(void *object, void *arg1)
+void *FldRc_ScaleGeometryColors(void *object, void *arg1)
 {
     u8 *arg0 = object;
     func_003c21e0(*(s32 *)(arg0 + 0x18), func_004587d0, arg1);
     return object;
 }
 // FUN_00458C80
-void func_00458c80(void *arg0, void *arg1)
+void FldRc_ScaleClumpColors(void *arg0, void *arg1)
 {
-    RpClumpForAllAtomics(arg0, func_00458c40, arg1);
+    RpClumpForAllAtomics(arg0, FldRc_ScaleGeometryColors, arg1);
 }
 // FUN_00458CB0
-void func_00458cb0(void *arg0, void *arg1)
+void FldRc_ScaleObjectColors(void *arg0, void *arg1)
 {
     func_003ca270(arg0, func_004587d0, arg1);
 }
 // FUN_00458F00
-void *func_00458f00(void *object, void *arg1)
+void *FldRc_SetGeometryVector(void *object, void *arg1)
 {
     u8 *arg0 = object;
     func_003c21e0(*(s32 *)(arg0 + 0x18), func_00458ce0, arg1);
     return object;
 }
 // FUN_00458F40
-void func_00458f40(void *arg0, void *arg1)
+void FldRc_SetClumpVector(void *arg0, void *arg1)
 {
-    RpClumpForAllAtomics(arg0, func_00458f00, arg1);
+    RpClumpForAllAtomics(arg0, FldRc_SetGeometryVector, arg1);
 }
 // FUN_00458F70
-void func_00458f70(void *arg0, void *arg1)
+void FldRc_SetObjectVector(void *arg0, void *arg1)
 {
     func_003ca270(arg0, func_00458ce0, arg1);
 }
