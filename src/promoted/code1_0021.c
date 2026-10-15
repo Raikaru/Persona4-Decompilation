@@ -108,7 +108,7 @@ extern f32 fGpffff8498;
 extern f32 fGpffff8200;
 extern s32 func_0021dba0(u8 *task);
 extern void func_00210c70(u8 *arg0, u8 *arg1);
-extern void func_0020ff00(u8 *arg0, u8 *arg1);
+extern void btlTransitionDrawFrame(u8 *arg0, u8 *arg1);
 extern void func_0021e110(u8 *arg0, u8 *arg1);
 extern void func_0021e9a0(u8 *arg0, u8 *arg1);
 extern void func_0021eb60(u8 *arg0);
@@ -149,13 +149,13 @@ typedef struct {
 void func_00210c70(u8 *arg0, u8 *arg1)
 {
     extern s32 btlTargetFindInRange(s32 arg0, u8 *arg1);
-    extern f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern f32 btlSelectionEaseCurve(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_00195ea0(BtlUnit *unit, RwV3d *position);
-    extern void func_0020ea60(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
-    extern void func_0020ef10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
-    extern void func_0020f4d0(u8 *arg0, u8 *arg1, f32 x, f32 y);
-    extern void func_0020e690(u8 *arg0, u8 *arg1, u8 *arg2, f32 x, f32 y, s32 a, u8 *out);
-    extern void func_0020e420(u8 *arg0, f32 x, f32 y, s32 a, s32 b, u32 c);
+    extern void btlTransitionStepStretch(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern void btlTransitionStepExpand(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern void btlTransitionStepPulse(u8 *arg0, u8 *arg1, f32 x, f32 y);
+    extern void btlTransitionStepSlide(u8 *arg0, u8 *arg1, u8 *arg2, f32 x, f32 y, s32 a, u8 *out);
+    extern void btlSelectionDrawValue(u8 *arg0, f32 x, f32 y, s32 a, s32 b, u32 c);
     extern f32 fGpffff8110;
     extern f32 fGpffff827c;
     s32 *panel;
@@ -199,21 +199,21 @@ void func_00210c70(u8 *arg0, u8 *arg1)
             btlUiSetRect(panel, pos[0] - 86.0f, pos[1] - 86.0f, 172.0f, 172.0f);
             drew = 0;
             if (*(u16 *)(transition + 0x20) & 1) {
-                func_0020ea60(task, transition, work, (u8 *)&info);
+                btlTransitionStepStretch(task, transition, work, (u8 *)&info);
                 drew = 1;
             }
             if (*(u16 *)(transition + 0x20) & 2) {
-                func_0020ef10(task, transition, work, (u8 *)&info);
+                btlTransitionStepExpand(task, transition, work, (u8 *)&info);
                 drew = 1;
             }
             if (*(u16 *)(transition + 0x20) & 4) {
-                func_0020f4d0(task, transition, pos[0] - 86.0f, pos[1] - 86.0f);
+                btlTransitionStepPulse(task, transition, pos[0] - 86.0f, pos[1] - 86.0f);
                 drew = 1;
             }
             if (*(u16 *)(transition + 0x20) & 8) {
                 icon = (s32 *)kwlnTaskGetWork(*(void **)(task + 4));
                 stage = *(s32 *)(transition + 0x10);
-                rate = func_0020e5c0(stage, 0, 4, 0);
+                rate = btlSelectionEaseCurve(stage, 0, 4, 0);
                 scale = 0.0f;
                 if (!(rate <= scale)) {
                     scale = fGpffff827c - fGpffff8110 * rate;
@@ -222,7 +222,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                     btlUiDrawSpriteFaded((u8 *)icon, 0xA, 0x10, 86.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
                     btlUiSetFactorXY((u8 *)icon, 1.0f, 1.0f);
                 }
-                rate = func_0020e5c0(stage, 5, 7, 0);
+                rate = btlSelectionEaseCurve(stage, 5, 7, 0);
                 if (!(rate <= 0.0f)) {
                     alpha = 255.0f * rate;
                     fade = ws14_mul(20.0f, ws14_sub(1.0f, rate));
@@ -263,12 +263,12 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                     hpColor = 0xFFD92F00;
                 }
                 if (first != 0) {
-                    func_0020e690(task, transition, work, pos[0] - 86.0f, pos[1] - 86.0f, hpBackground, (u8 *)&info);
+                    btlTransitionStepSlide(task, transition, work, pos[0] - 86.0f, pos[1] - 86.0f, hpBackground, (u8 *)&info);
                     first = 0;
                 }
                 if (info.alpha > 0) {
                     hpColor |= info.alpha;
-                    func_0020e420((u8 *)panel, rowX, shift + (base + info.offset),
+                    btlSelectionDrawValue((u8 *)panel, rowX, shift + (base + info.offset),
                                   hpAmount, numeralMode, hpColor);
                 }
                 if (info.drawGauge != 0) {
@@ -292,11 +292,11 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                     spColor = 0xB7FF3600;
                 }
                 if (first != 0) {
-                    func_0020e690(task, transition, work, pos[0] - 86.0f, pos[1] - 86.0f, spBackground, (u8 *)&info);
+                    btlTransitionStepSlide(task, transition, work, pos[0] - 86.0f, pos[1] - 86.0f, spBackground, (u8 *)&info);
                 }
                 if (info.alpha > 0) {
                     spColor |= info.alpha;
-                    func_0020e420((u8 *)panel, rowX, shift + (base + info.offset),
+                    btlSelectionDrawValue((u8 *)panel, rowX, shift + (base + info.offset),
                                   spAmount, numeralMode, spColor);
                 }
             }
@@ -537,7 +537,7 @@ loop_test:
         temp_4 = *(u16 *)(arg1 + 8);
         if ((temp_4 & 8) != 0) {
             if (*(u16 *)(arg1 + 0xE) < 0x3C) {
-                func_0020ff00((u8 *)temp_2, arg1);
+                btlTransitionDrawFrame((u8 *)temp_2, arg1);
                 return;
             }
             *(u16 *)(arg1 + 8) = temp_4 & 0xFFF7;
@@ -554,8 +554,8 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
     extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
     extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-    extern f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_0020fa70(u8 *arg0, u8 *arg1);
+    extern f32 btlSelectionEaseCurve(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern void btlPanelDrawGauge(u8 *arg0, u8 *arg1);
     extern f32 fGpffff81e0;
     f32 world[3];
     f32 screen[2];
@@ -611,13 +611,13 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
                 frame = *(u16 *)(arg1 + 0xA);
                 fade.flags = flags;
                 {
-                    f32 opacity = func_0020e5c0(frame, 0, 5, 0);
+                    f32 opacity = btlSelectionEaseCurve(frame, 0, 5, 0);
                     fade.alpha = (u8)(255.0f * (1.0f - opacity));
                 }
-                fade.step = (s16)(s32)(12.0f * func_0020e5c0(frame, 1, 12, 0));
-                fade.scale = 1.0f - func_0020e5c0(frame, 20, 30, 0);
+                fade.step = (s16)(s32)(12.0f * btlSelectionEaseCurve(frame, 1, 12, 0));
+                fade.scale = 1.0f - btlSelectionEaseCurve(frame, 20, 30, 0);
                 *(u16 *)(arg1 + 0xA) += 1;
-                func_0020fa70(context, (u8 *)&fade);
+                btlPanelDrawGauge(context, (u8 *)&fade);
             } else {
                 *(u16 *)(arg1 + 8) = flags & 0xFFFD;
             }

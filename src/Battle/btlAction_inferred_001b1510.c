@@ -535,7 +535,7 @@ s32 btlMainContinuousUpdate(void)
 {
     extern u8 *btlTargetCreateTargetPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern void func_00212240(u8 *arg0, s32 arg1);
-    extern void func_0020bf90(s32 arg0);
+    extern void btlSelectionClearTargetFlag(s32 arg0);
     extern void func_00213b50(s32 task);
     extern void func_00213c40(s32 task);
     extern void func_001eb7f0(void);
@@ -574,7 +574,7 @@ first_check:
     func_001b1880();
     work = (u8 *)iGpffffb3ac;
     *(s32 *)(work + 0xC) &= 0xFFFEFFFF;
-    func_0020bf90(*(s32 *)((u8 *)iGpffffb3ac + 0xDD4));
+    btlSelectionClearTargetFlag(*(s32 *)((u8 *)iGpffffb3ac + 0xDD4));
     btlPacketEnqueue(
         (u8 *)btlTargetCreateTargetPacket(*(u8 **)((u8 *)iGpffffb3ac + 0x170),
                             0x1F, 0, 0, 0),
