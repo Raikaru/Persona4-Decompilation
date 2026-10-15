@@ -239,7 +239,7 @@ extern void func_0019d7a0(u8 *arg0, s32 arg1);
 extern u8 *func_001f7650(u8 *arg0);
 extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
 
-extern u8 *func_0019d210(s32 arg0);
+extern u8 *btlUnitCreate(s32 arg0);
 extern void func_0019ea60(u8 *arg0, s32 arg1);
 
 

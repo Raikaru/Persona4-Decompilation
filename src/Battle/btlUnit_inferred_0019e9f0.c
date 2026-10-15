@@ -147,7 +147,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *func_0019d210(s32 arg0);
+extern u8 *btlUnitCreate(s32 arg0);
 extern void func_0019ea60(u8 *arg0, s32 arg1);
 
 
@@ -374,7 +374,7 @@ u8 *func_0019eda0(u8 *arg0, s32 arg1)
 void func_0019ef30(u8 *arg0, u16 arg1) {
     extern void func_0019ea60(u8 *arg0, u16 arg1);
     if (*(u8 **)(arg0 + 0xA0C) == NULL) {
-        *(u8 **)(arg0 + 0xA0C) = func_0019d210(2);
+        *(u8 **)(arg0 + 0xA0C) = btlUnitCreate(2);
     }
     func_0019ea60(*(u8 **)(arg0 + 0xA0C), arg1);
 }
@@ -646,7 +646,7 @@ u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2)
     temp_16 = arg0 & 0xFFFF;
     switch (temp_16) {
     case 0:
-        var_17 = func_0019d210(0);
+        var_17 = btlUnitCreate(0);
         var_18 = func_001b0930();
         btlActionSetUnit(var_18, var_17);
         func_001b0d70(var_18);
@@ -662,7 +662,7 @@ u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2)
         *(u16 *)(var_18 + 0x1A) |= 0x10;
         break;
     case 1:
-        var_17 = func_0019d210(1);
+        var_17 = btlUnitCreate(1);
         var_18 = func_001b0930();
         btlActionSetUnit(var_18, var_17);
         func_001b0d70(var_18);
