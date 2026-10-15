@@ -194,8 +194,9 @@ s32 func_00470e20(u8 *arg0)
 }
 
 
+/* Advances the load state byte at +0x3C of the aux block at +0x30C: waits for the file, reads its tables, runs the material and texture steps, then frees the file. Returns 1 when done, 0 while a step is pending. */
 // FUN_0047CE00
-s32 func_0047ce00(u8 *arg0)
+s32 mdlAdvanceAuxLoad(u8 *arg0)
 {
     s32 ret;
     u8 *obj;

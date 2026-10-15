@@ -4410,7 +4410,7 @@ s32 mdlPrepareModel(u8* param_1)
         return 1;
     }
     if ((f & 0x2000) == 0) {
-        if (func_0047ce00() == 0) {
+        if (mdlAdvanceAuxLoad() == 0) {
             return 0;
         }
         if (func_0047e6f0((void**)(param_1 + 0x2D0)) == 0) {

@@ -5022,7 +5022,7 @@ automates the sweep: it lifts each body from between `#ifdef NON_MATCHING` and
   `func_003bce50`, `func_003b31a0` and `func_003bcc80`, so measure before
   keeping it.
 - **A cast at a call site, not the scheduler, is what moves an argument
-  load.** On `func_0047ce00` the whole two-word residual was that retail
+  load.** On `mdlAdvanceAuxLoad` (was `func_0047ce00`) the whole two-word residual was that retail
   ends the argument block with the trailing stack load — `daddu $a3, $v0`
   (the nested call's result) and only then `lw $t0, 0x4c($sp)` — while this
   build hoisted the `lw` one slot earlier. The out-parameter local was
@@ -5148,14 +5148,14 @@ automates the sweep: it lifts each body from between `#ifdef NON_MATCHING` and
   `lwc1 %lo(...)` in the loop, which is retail's shape and the last words
   of `func_00103f00`.
 - **An integer-arithmetic destination moves `addiu $a0` to the head of an
-  argument block.** `func_0047ce00` passed `arg0 + 0x2D0` and emitted the
+  argument block.** `mdlAdvanceAuxLoad` (was `func_0047ce00`) passed `arg0 + 0x2D0` and emitted the
   two `lhu` and the `lw` first; `(u8 *)((u32)arg0 + 0x2D0)` emits retail's
   `addiu $a0` first (5 -> 2 words). The remaining fifth-argument `lw $t0`
   placement resisted every width and nesting at the time; the call-site cast
   lever above later closed it.
 
 Snapshot, measured 2026-09-16 (several have since matched, e.g.
-`func_0047ce00`, `func_00311930`, `func_001eca10`; regenerate with
+`mdlAdvanceAuxLoad` (was `func_0047ce00`), `func_00311930`, `func_001eca10`; regenerate with
 `tools/floorboard.py` rather than trusting this list): the smallest measured
 floors after this pass were `00375f00` (2), `0047ce00` (2), `func_001a2d70`
 (2), `func_00452870` (4), `001130c0`, `001b11c0`, `00311930`, `0034ddf0` and
