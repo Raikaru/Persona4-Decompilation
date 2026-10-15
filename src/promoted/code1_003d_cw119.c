@@ -286,7 +286,29 @@ s32 func_003dd620(u8 *arg0, u8 *arg1) {
 #pragma schedule off
 
 /* Archived b210 near-miss (K3D5_003df1a0); exact under b119 with schedule on. */
+// FUN_003DF1A0
 #pragma schedule on
+s32 *func_003df1a0(s32 *arg0, u8 *arg1, u32 arg2) {
+    u8 buffer[0x100];
+    u32 chunk;
+
+    if (arg2 != 0) {
+        do {
+            if (arg2 < 0x100) {
+                chunk = arg2;
+            } else {
+                chunk = 0x100;
+            }
+            memcpy(buffer, arg1, chunk);
+            if (func_003e2ab0(arg0, buffer, chunk) == 0) {
+                return NULL;
+            }
+            arg2 -= chunk;
+            arg1 += chunk;
+        } while (arg2 != 0);
+    }
+    return arg0;
+}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
