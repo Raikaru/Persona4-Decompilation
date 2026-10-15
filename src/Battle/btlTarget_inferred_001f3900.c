@@ -90,7 +90,7 @@ extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
 extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
 extern s32 func_001f0d30(u8 *arg0);
 extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
-extern s32 func_001f0ff0(u32 arg0);
+extern s32 btlActionHasNoTargetClass(u32 arg0);
 extern s32 func_001f1030(u8 *arg0);
 #pragma push
 #pragma pop

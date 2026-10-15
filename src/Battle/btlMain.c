@@ -926,7 +926,7 @@ extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
 extern u8 *iGpffffb3b8;
-extern s32 func_001f0ff0(u32 arg0);
+extern s32 btlActionHasNoTargetClass(u32 arg0);
 // FUN_001B99F0
 u32 btlMainUpdateUnitTint(void *work)
 {
@@ -970,7 +970,7 @@ u32 btlMainUpdateUnitTint(void *work)
     {
         return 1;
     }
-    if (func_001f0ff0((u32)unit) != 0)
+    if (btlActionHasNoTargetClass((u32)unit) != 0)
     {
         mask1 = ((1 << *(u8 *)(*(u8 **)(unit + 0x30) + 0xa2)) & 0xFFFF);
         mask2 = 0;

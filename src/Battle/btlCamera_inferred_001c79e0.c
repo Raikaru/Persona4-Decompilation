@@ -664,7 +664,7 @@ void btlCameraReleaseOcclusion(u8 *arg0)
     call_arg0 = temp_16;
     call_arg1 = 0;
     call_arg2 = *(u16 *)(temp_16 + 0x6E);
-    *(s16 *)(arg0 + 0x106) = func_001d7f10(call_arg0, (u8 *)call_arg1, (u16)call_arg2, 0);
+    *(s16 *)(arg0 + 0x106) = btlSkillClassifyTargets(call_arg0, (u8 *)call_arg1, (u16)call_arg2, 0);
     *(s16 *)(arg0 + 0x104) = btlEffectCollectGenusMask(temp_16 + 0x98);
     *(s32 *)(arg0 + 0x100) = 0;
 }

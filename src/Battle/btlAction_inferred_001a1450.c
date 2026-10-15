@@ -581,7 +581,7 @@ void btlActionTargetInit(u8 *arg0)
             }
             break;
         default:
-            func_001d7f10(arg0, arg0 + 0x98, unitIndex & 0xFFFF, 0);
+            btlSkillClassifyTargets(arg0, arg0 + 0x98, unitIndex & 0xFFFF, 0);
             break;
         }
         break;
@@ -1020,7 +1020,7 @@ void btlActionAiUpdate(u8 *arg0)
 // FUN_001A2C10
 void btlActionAutoInit(s64 *arg0) {
     func_001eb3b0((u8 *)arg0 + 0x38);
-    func_001d7f10((u8 *)arg0, (u8 *)arg0 + 0x98, 0, 0);
+    btlSkillClassifyTargets((u8 *)arg0, (u8 *)arg0 + 0x98, 0, 0);
     func_001d8cb0(NULL, arg0 + 0x13);
 }
 
@@ -1795,7 +1795,7 @@ void btlActionPursuitUpdate(u8 *action)
     }
     referenceAction = *(u8 **)(action + 0x90);
     skill = func_001f01a0(action, referenceAction);
-    targetMode = func_001d7f10(action, action + 0x98, skill, 0);
+    targetMode = btlSkillClassifyTargets(action, action + 0x98, skill, 0);
     rawElement = datCalcSkillElement(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), skill);
     hasReferenceAction = 0;
     otherCount = 0;
@@ -1926,7 +1926,7 @@ void btlActionReadyUpdate(u8 *arg0)
     extern void func_001eb420(u8 *target);
     extern u16 *datPersonaGetRecord(u16 personaId);
     extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skillId);
-    extern s32 func_0019fc70(u8 *action);
+    extern s32 btlActionSkillReachesTargets(u8 *action);
     extern void func_001f5bd0(s32 state);
     extern s32 func_001f68e0(u8 *action);
     extern void btlUnitApplyPacketFlags(u8 *action);
@@ -1976,7 +1976,7 @@ donecheck:
                     btlActionSetState((BtlAction *)arg0, 0x20U);
                 } else if ((*( s32*)((u8 *)(arg0) + 0xE8)) == 1) {
                     btlActionSetState((BtlAction *)arg0, 0x17U);
-                } else if ((s32)(func_0019fc70(arg0)) != (s32)(0)) {
+                } else if ((s32)(btlActionSkillReachesTargets(arg0)) != (s32)(0)) {
                     (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFEF));
                     btlActionSetState((BtlAction *)arg0, 0x10U);
                 } else {
@@ -2061,7 +2061,7 @@ void btlActionMoveTargetInit(u8 *actionBytes)
     extern s32 func_00243d80(u8 *unitData);
     extern s32 btlActionAnyTargetHitRowFlagged(u8 *actionBytes);
     extern s32 btlActionAnyTargetFlagged(u8 *actionBytes);
-    extern s32 func_001f0ff0(u32 action);
+    extern s32 btlActionHasNoTargetClass(u32 action);
     extern s32 btlEncounterSkipsPresentation(void);
     extern u8 *iGpffffb3bc;
     extern f32 fGpffff8360;
@@ -2231,7 +2231,7 @@ range_done:
                 s32 openingMotion;
                 targetUnit = action->target->unit;
                 subunit = *(u8 **)((u8 *)unit + 0xA0C);
-                paired = func_001f0ff0((u32)action);
+                paired = btlActionHasNoTargetClass((u32)action);
                 openingMotion = btlUnitOpeningMotionMode((s32)subunit, (u8 *)unit, (s16)skill, paired) & 0xFFFF;
                 canPosition = func_001f1210(subunit, (s16)skill, paired);
                 btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
@@ -3526,7 +3526,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern s32 func_001f0d30(u8 *arg0);
     extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
     extern u32 func_001f0f70(u8 *arg0);
-    extern s32 func_001f0ff0();
+    extern s32 btlActionHasNoTargetClass();
     extern s32 func_001f1030(u8 *arg0);
     extern s32 func_001f2f90(u8 *arg0);
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
@@ -3964,7 +3964,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     skillFlag2 = (s32)(s32)((*(iGpffffb3b8 + skillIndex * 0x28) & 2)) != (s32)(0);
     altCamera = ((act->flags1A & 0x10) != 0) && skillFlag2 == 0;
     isKind3 = (s32)(s32)(act->kind == 3);
-    rotateFirst = (s32)(func_001f0ff0(arg0));
+    rotateFirst = (s32)(btlActionHasNoTargetClass(arg0));
     skillSpecial = (s32)(func_001f11e0(skill));
     hasCutinPartner = (s32)(s32)(act->cutinPartner) != (s32)(0);
     formationFxPkt = 0;
@@ -4347,7 +4347,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             chainTime = 0;
                     timingFrames = btlUnitMotionFrames(act->unit, 0x16U, 1.0f) + 6;
             if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
-                if ((s32)(func_001f0ff0(arg0)) == (s32)(1)) {
+                if ((s32)(btlActionHasNoTargetClass(arg0)) == (s32)(1)) {
                     formationPkt40 = (BtlPacketTiming *)(btlFormationCreateStepPacket(arg0, 0, 1));
                     formationPkt40->queue = 4;
                     formationPkt40->startTime = animPacket->endTime;

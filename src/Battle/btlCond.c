@@ -636,7 +636,7 @@ u32 btlCond_MYGROUP(int param_1)
 {
   u16 result;
 
-  result = func_001d7f10((u8 *)param_1, 0, *(u16 *)(param_1 + 0x7e), 0);
+  result = btlSkillClassifyTargets((u8 *)param_1, 0, *(u16 *)(param_1 + 0x7e), 0);
   switch (result) {
   case 1:
   case 2:

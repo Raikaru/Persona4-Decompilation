@@ -170,7 +170,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     typedef struct { ActionQuat first, second; f32 scalar; s32 flag; } ActionBlend;
     struct BtlTarget;
     extern u16 btlTargetGetUnitIndex(struct BtlTarget *);
-    extern s32 func_001f0ff0(u32);
+    extern s32 btlActionHasNoTargetClass(u32);
     extern void btlTargetBlendVectors(u8 *,u8 *,u8 *);
     extern f32 func_00196040(u32,u32,RwV3d *,f32 *,f32 *,u32);
     extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
@@ -344,7 +344,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
         goto action_done;
     }
 
-    targetAction = func_001f0ff0((u32)*(u8 **)(camera + 0xE0));
+    targetAction = btlActionHasNoTargetClass((u32)*(u8 **)(camera + 0xE0));
     btlUnitGetSphereWorldCenter((BtlUnit *)unit, &candidate);
     candidate.y = 0.0f + candidate.y + fGpffff8128 * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
     if (*(u16 *)(*(u8 **)(camera + 0xE0) + 0x6A) == 1 &&
