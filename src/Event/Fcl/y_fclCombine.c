@@ -6272,9 +6272,10 @@ s32 fclCombineCheckIds(u8 *arg0) {
 /* measured: 740 executable bytes / 752B retail window, all eight relocations exact.
    Five s32 weights and five s8 IDs reproduce the real stack buffers. A named
    compact-store pointer and the s16 value cast preserve retail address lifetimes. */
+// Fcl combine outcome list: appends to the outcome list at p+0x2DA (count at p+0x2DF) from either the current calendar row (selector -1) or the selected entry's five candidates. Candidates with weight 100 are appended directly; the rest are weighted and one is drawn with RpRandom.
 // FUN_00303DE0
 #pragma opt_loop_invariants on
-void func_00303de0(u8 *arg0)
+void fclCombineRollOutcomeList(u8 *arg0)
 {
     s32 weights[5];
     s8 ids[5];
@@ -7991,7 +7992,7 @@ void fclCombineMenuResult(u8 *arg0) {
     extern void func_0034a820(s32);
     extern s32 func_00311900(s32);
     extern void fclDrawSetState(u8 *, s8);
-    extern void func_00303de0(u8 *);
+    extern void fclCombineRollOutcomeList(u8 *);
     extern u8 D_00641B50[];
     u8 *p;
     u16 cls;
@@ -8027,7 +8028,7 @@ void fclCombineMenuResult(u8 *arg0) {
         for (i = 0; i < 0x30C; i++) {
             fclSpriteSetFlag(i, 0, 1);
         }
-        func_00303de0(arg0);
+        fclCombineRollOutcomeList(arg0);
         func_0034a640(*(s32 *)(p + 0x254), cls, 0);
         *(((s8 *)func_0034a630(*(u8 **)(p + 0x254))) + 1) = 0;
         for (k = 0; k < 0xC; k++) {
