@@ -44,8 +44,8 @@ extern void func_0047ae10(u8 *arg0, u16 arg1);
 extern u32 H_Cdvd_IsFileLoaded(HCdvd *arg0);
 extern u32 H_Cdvd_Destroy(HCdvd *arg0);
 extern void *memcpy(void *arg0, const void *arg1, u32 arg2);
-extern s32 Encount_GetEntryRateOrOverride(u16 arg0, u16 arg1, u16 arg2);
-extern s32 Encount_GetEntryFlags(u16 arg0, u16 arg1, u16 arg2);
+extern s32 func_001619b0(u16 arg0, u16 arg1, u16 arg2);
+extern s32 func_00161a70(u16 arg0, u16 arg1, u16 arg2);
 extern void func_00182310(s32 arg0);
 extern s32 func_00164570(u32 arg0, s32 arg1);
 typedef struct DatUnitEc DatUnitEc;
@@ -75,7 +75,7 @@ extern void func_0017e990(s32 arg0);
 extern s32 func_0017d070(u8 *arg0);
 extern void func_00168c00(s32 arg0);
 extern f32 RwV3dLength(f32 *arg0);
-extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
+extern s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level);
 extern u8 *func_00164880(s32 arg0, u32 arg1, f32 arg2);
 extern u8 *func_0014cef0(s32 arg0, s32 arg1);
 extern void func_0014c920(void);
@@ -181,9 +181,9 @@ extern s32 func_001064f0(s32 arg0);
 extern s32 func_00110d60(s16 arg0);
 extern s32 D_007E8BF8[];
 void *memset(void *arg0, s32 arg1, u32 arg2);
-s32 Encount_GetEntryRate(u16 arg0, u16 arg1, u16 arg2);
+s32 func_00161b10(u16 arg0, u16 arg1, u16 arg2);
 s32 func_0015a320(void);
-u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode);
+u8 *func_00161c80(s32 field, s32 room, u16 index, u16 mode);
 
 
 
@@ -1129,7 +1129,7 @@ s32 func_00164570(u32 arg0, s32 arg1)
     if (arg1 != 0) {
         while ((temp_2 = func_00164880(var_17, arg0, (f32)0xBB8)) != NULL) {
             temp_19 = iGpffff9db0;
-            var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
+            var_2 = func_00161630(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
             if ((var_2 & 0xFFFF) == 0xFFFF) {
                 var_2 = 1;
             }
@@ -1139,7 +1139,7 @@ s32 func_00164570(u32 arg0, s32 arg1)
     } else {
         while ((temp_2 = func_00164880(var_17, arg0, (f32)0x1770)) != NULL) {
             temp_19 = iGpffff9db0;
-            var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
+            var_2 = func_00161630(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
             if ((var_2 & 0xFFFF) == 0xFFFF) {
                 var_2 = 1;
             }
@@ -1152,7 +1152,7 @@ s32 func_00164570(u32 arg0, s32 arg1)
         }
         while ((temp_2 = func_00164880(var_17, arg0, var_f20)) != NULL) {
             temp_19 = iGpffff9db0;
-            var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
+            var_2 = func_00161630(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
             if ((var_2 & 0xFFFF) == 0xFFFF) {
                 var_2 = 1;
             }
@@ -1165,7 +1165,7 @@ s32 func_00164570(u32 arg0, s32 arg1)
                 temp_16 = func_0014cef0(sp6C, sp68);
                 if (temp_16 != NULL) {
                     temp_19 = iGpffff9db0;
-                    var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
+                    var_2 = func_00161630(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
                     if ((var_2 & 0xFFFF) == 0xFFFF) {
                         var_2 = 1;
                     }
@@ -2131,7 +2131,7 @@ void func_001662d0(void)
     iGpffffb2e4 = 0;
     h0 = *(u16 *)iGpffff9db0;
     h4 = *(u16 *)(iGpffff9db0 + 4);
-    s19 = (u8 *)Encount_GetEntryRate(h0, h4, t17);
+    s19 = (u8 *)func_00161b10(h0, h4, t17);
     if (s19 == 0) {
         return;
     }
@@ -2142,7 +2142,7 @@ void func_001662d0(void)
     while ((src = func_00166600(s19, &sp6C, i)) != NULL) {
         h0 = *(u16 *)iGpffff9db0;
         h4 = *(u16 *)(iGpffff9db0 + 4);
-        p = Encount_FindRecord(h0, h4, t17, 2);
+        p = func_00161c80(h0, h4, t17, 2);
         if (p == NULL) {
             func_0046d730(D_005F1500, 0xA63);
         }
@@ -2335,7 +2335,7 @@ s32 func_001668e0(u8 *arg0)
         var_17 = *(u32 *)(temp_16 + 0xC);
         if (var_17 == -1U) {
             temp_17 = iGpffff9db0;
-            var_17 = Encount_GetEntryRateOrOverride(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(func_0015a160() & 0xFFFF));
+            var_17 = func_001619b0(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(func_0015a160() & 0xFFFF));
         }
         if (func_0014a270() == 1) {
             var_17 = *(u32 *)(temp_16 + 0xC);
@@ -2379,7 +2379,7 @@ s32 func_001668e0(u8 *arg0)
         break;
     case 3:
         temp_17 = iGpffff9db0;
-        temp_2 = Encount_GetEntryFlags(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(func_0015a160() & 0xFFFF));
+        temp_2 = func_00161a70(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(func_0015a160() & 0xFFFF));
         if ((u32)iGpffffb2e8 < temp_2 && func_00164570(temp_2, 1) > 0) {
             *(s32 *)temp_16 = 2;
         }

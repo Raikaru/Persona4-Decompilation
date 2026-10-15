@@ -57,7 +57,7 @@ extern s32 func_0015a160(void);
    promotion order of an old-style call with a u16 local for b and an explicit
    (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
    loads (nd4). Sole caller in this unit. */
-extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
+extern s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level);
 extern void func_00182310(s32 arg0);
 extern void func_0018e030(s32 arg0, s32 arg1);
 extern s32 func_0029da90(s32 arg0, s32 arg1, s32 arg2);
@@ -1122,7 +1122,7 @@ s32 func_00178790(void)
 /* measured: best plain-C body is 108B in the 112B retail window (112B),
    normalized_diff 4; the sole residual bytes at offset 56 are retail
    `andi $a3,$s1,0xffff` versus candidate `move $a3,$s1`. The file-scope
-   Encount_PickEncounter declaration remains (u16, u16, u16, s32) for matching
+   func_00161630 declaration remains (u16, u16, u16, s32) for matching
    func_00164570. Probed a block-scope fourth-parameter u16 prototype at
    the function top, after locals, in an inner block, unnamed, and with
    explicit narrowed locals/casts: each moved the mask before the two lhu
@@ -1138,7 +1138,7 @@ s32 func_00178870(void)
     u8 *p = iGpffff9db0;
     u16 b = func_0015a160();
 
-    scrSetReturnInt(Encount_PickEncounter(*(u16 *)p, *(u16 *)(p + 4), b, (u16)a) & 0xFFFF);
+    scrSetReturnInt(func_00161630(*(u16 *)p, *(u16 *)(p + 4), b, (u16)a) & 0xFFFF);
     return 1;
 }
 // FUN_001788E0
