@@ -6681,8 +6681,9 @@ extern u8 D_0070B610[];
    Prior probe notes and native receipts are retained in model-manager-after-rebase. */
 #pragma push
 #pragma opt_propagation off
+/* Polls the aux block's pending resources: the primary and secondary texture dictionaries, the request table, the pending clump and the node list. Attaches each one that is ready. When all are ready it copies each layer's keyframe maps. Returns 1 when everything is ready, 0 while any request is pending. */
 // FUN_0047C660
-s32 func_0047c660(u8 *arg0)
+s32 mdlPollAuxResources(u8 *arg0)
 {
     u8 *secondaryResult;
     u8 *primaryResult;
