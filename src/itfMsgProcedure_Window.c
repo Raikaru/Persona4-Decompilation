@@ -40,7 +40,7 @@ extern void msgWinDrawRing(s32 a0, s32 a1, f32 f0, s32 a2, s32 a3, s32 t0, s32 t
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *a0, void *a1);
-extern void func_0027bf30(u8 *arg);
+extern void calDrawScreen(u8 *arg);
 extern void msgWinDrawSprite(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3);
 extern void msgWinSelectionPoll(void);
 extern void msgCalResourcePoll(void);
@@ -215,7 +215,7 @@ s32 msgWinEntryStep(MsgProcWindowEntry *arg)
             kAssertFail(D_0063BFC0, 0xCC);
         }
         tmp = func_00460990();
-        *(void **)(tmp + 8) = (void *)func_0027bf30;
+        *(void **)(tmp + 8) = (void *)calDrawScreen;
         *(MsgProcWindowEntry **)(tmp + 0x10) = arg;
         func_00460ac0(D_00796490, tmp);
         if (arg->field10 < 20) {
