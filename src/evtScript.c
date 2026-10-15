@@ -84,7 +84,7 @@ s32 func_00298370(u8 *unusedTask) {
     temp_17 = *(s32 *)(temp_2 + 0);
     if (mdlPrepareModel(temp_17) == 1) {
         MT_Scene_DestroyRes((u16)((( *(s32 *)(temp_2 + 4) + 0x384) & 0x3FF) | 0xC00));
-        temp_17 = (s32)(func_00145780((*(s32 *)(temp_2 + 4) + 0x384) & 0xFFFF, 3, temp_17) & 0xFFFF);
+        temp_17 = (s32)(MT_Scene_CreateModelNpcShadowRes((*(s32 *)(temp_2 + 4) + 0x384) & 0xFFFF, 3, temp_17) & 0xFFFF);
         if (temp_17 == 0) {
             func_0046d730(D_0063CF80, 0x34);
         }

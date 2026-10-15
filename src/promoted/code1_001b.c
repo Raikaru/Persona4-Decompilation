@@ -685,7 +685,7 @@ void func_001b1d70(void) {
                 f = *(s32 *)(unit + 0x98) | 2;
                 *(s32 *)(unit + 0x98) = f;
                 *(s32 *)(unit + 0x98) = f | 8;
-                *(u16 *)(unit + 0x9FE) = func_00145510(id, *(void **)(unit + 0xA00));
+                *(u16 *)(unit + 0x9FE) = MT_Scene_CreateModelCharRes(id, *(void **)(unit + 0xA00));
                 func_0014a460(*(u16 *)(unit + 0x9FE), 1);
                 btlUnitApplyModelState(unit, 1);
                 btlUnitUpdateStatusMotion(unit, 0);

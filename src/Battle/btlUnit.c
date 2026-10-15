@@ -1079,13 +1079,13 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             t3 = *(u8 *)(t17 + 0xA2);
             switch (t3) {
             case 0: {
-                *(u16 *)(t17 + 0x9FE) = func_00145510(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
+                *(u16 *)(t17 + 0x9FE) = MT_Scene_CreateModelCharRes(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
                 func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
                 *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
                 mdlClumpSetEnvMapState(mdlGetClump(*(u8 **)(t17 + 0xA00)));
             } break;
             case 1: {
-                *(u16 *)(t17 + 0x9FE) = func_00145510(btlFindFreeCharResId(), *(u8 **)(t17 + 0xA00));
+                *(u16 *)(t17 + 0x9FE) = MT_Scene_CreateModelCharRes(btlFindFreeCharResId(), *(u8 **)(t17 + 0xA00));
                 func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
                 t16_flags = *(u16 *)(btlUnitOffsetAdd(*(u16 *)(t17 + 0xA4) * 0xE8, iGpffffb3cc) + 0x18);
                 if (t16_flags & 2) {
@@ -1110,7 +1110,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
                 if (t16_sts & 8) {
                     *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
                 }
-                *(u16 *)(t17 + 0x9FE) = func_00145690(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
+                *(u16 *)(t17 + 0x9FE) = MT_Scene_CreateModelUnkRes(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
             } break;
             }
         }

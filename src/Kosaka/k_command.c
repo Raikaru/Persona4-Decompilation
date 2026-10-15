@@ -675,7 +675,7 @@ s32 Cmd_CreateSceneResource(void)
     if (mdlPrepareModel((void*)type) == 1)
     {
         u8* p;
-        res = (u16)func_00145780(func_0014b510(3), (u16)id, type);
+        res = (u16)MT_Scene_CreateModelNpcShadowRes(func_0014b510(3), (u16)id, type);
         p = MT_Scene_GetRes(res);
         *(s32*)(p + 0x22C) = (s32)func_00478750(D_00764364);
         created = 1;

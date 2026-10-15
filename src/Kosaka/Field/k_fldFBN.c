@@ -66,7 +66,7 @@ extern s16 func_001060b0(void);
 extern u8 func_001060c0(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern u32 datGetFlag(s32 arg0);
-extern s32 func_001453a0(u16 arg0);
+extern s32 MT_Scene_CreateRes08(u16 arg0);
 extern void SceneDraw_ResetResource(u16 arg0);
 extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
 extern f32 KDraw_MatrixPitchDeg(u8 *arg0);
@@ -288,7 +288,7 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
         iGpffffb2a8 = out;
     }
     for (out = 0; out < *(u32 *)(fbn + 0x10); ) {
-        u16 id = func_001453a0(*(u16 *)(p + 0x50) & 0x3FF);
+        u16 id = MT_Scene_CreateRes08(*(u16 *)(p + 0x50) & 0x3FF);
 
         angles.x = KDraw_MatrixPitchDeg(p + 0x10);
         angles.y = KDraw_MatrixYawDeg(p + 0x10);
@@ -354,7 +354,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
         if (*(u32 *)(fbn + 4) > 0x10000) {
             mode = rec[0x60];
         }
-        rid = func_00145780(*(u16 *)(rec + 8) & 0x3FF, mode, (s32)iGpffffb2a4[i]);
+        rid = MT_Scene_CreateModelNpcShadowRes(*(u16 *)(rec + 8) & 0x3FF, mode, (s32)iGpffffb2a4[i]);
         SceneDraw_ResetResource(rid);
         SceneDraw_SetResVisibleChecked(rid, 1);
         res = MT_Scene_GetRes(rid);

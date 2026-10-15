@@ -18,9 +18,9 @@ s32 func_0047d110(u32 type, u16 id, char *output);
 void func_0047d140(void *model);
 
 /* Actor registration stores a 16-bit resource ID and a 16-bit mode. */
-s32 func_00145510(u16 id, void *model);
-s32 func_00145540(u16 id, u16 mode, void *model);
-s32 func_00145780(u16 id, u16 mode, s32 model);
+s32 MT_Scene_CreateModelCharRes(u16 id, void *model);
+s32 MT_Scene_CreateModelCharShadowRes(u16 id, u16 mode, void *model);
+s32 MT_Scene_CreateModelNpcShadowRes(u16 id, u16 mode, s32 model);
 void *FldShadow_CreateCaster(u8 *parent, u16 id, u16 mode);
 
 #endif
