@@ -42,7 +42,7 @@ extern s32 func_00285b30(void);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern s16 func_002b2cb0(s32, s32, s32, s32, s32);
-extern void func_00479100(void *, u8 *);
+extern void mdlQueueModelForDraw(void *, u8 *);
 extern void func_0047aa30(u8 *, void *);
 extern void kwlnTaskDestroyWithHierarchy(u8 *);
 extern u8 D_00793E80[];
@@ -507,7 +507,7 @@ s32 func_00349c50(u8 *arg0)
                 if (cur < 3) {
                     *(s16 *)(obj + 2) = func_002b2cb0(cur, 1, 3, 0, 1);
                 } else {
-                    func_00479100(&D_00793E80[(*(s32 *)(obj + 0xE8)) * 0x30], *(u8 **)(obj + 0xC));
+                    mdlQueueModelForDraw(&D_00793E80[(*(s32 *)(obj + 0xE8)) * 0x30], *(u8 **)(obj + 0xC));
                     if (*(s8 *)(obj + 0x28) == 0) {
                         func_0047aa30(*(u8 **)(obj + 0xC), D_005DCA70);
                     } else {

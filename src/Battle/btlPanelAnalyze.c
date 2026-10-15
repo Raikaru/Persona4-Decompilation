@@ -342,7 +342,7 @@ void func_00219130(u8 *arg0) {
     u8 *mdlGetMatrix(u8 *);
     void mdlSetAlphaBlend(u8 *);
     void mdlSetColor(u8 *, const void *);
-    void func_00479100(void *, u8 *);
+    void mdlQueueModelForDraw(void *, u8 *);
     AnalyzeVec3 position;
     AnalyzeVec3 transformed;
     AnalyzeMatrix rotation;
@@ -458,7 +458,7 @@ void func_00219130(u8 *arg0) {
             color[3] = arg0[6];
             mdlSetColor(*(u8 **)(arg0 + 0xC), color);
         }
-        func_00479100(D_00795020, *(u8 **)(arg0 + 0xC));
+        mdlQueueModelForDraw(D_00795020, *(u8 **)(arg0 + 0xC));
         break;
     case 4:
         func_004787e0(*(u8 **)(arg0 + 0xC));

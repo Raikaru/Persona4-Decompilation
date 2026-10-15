@@ -194,7 +194,7 @@ extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void func_0047aa30(void *arg0, s32 arg1);
 extern s32 func_00481450(void);
-extern void func_00479100(s32 arg0, void *arg1);
+extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
 extern f32 D_00761134;
 
 // FUN_004AC300
@@ -287,7 +287,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
         }
         func_0047a0e0(*(u8 **)(arg1 + 0x94), 0, *(f32 *)(arg1 + 0x24));
         func_0047aa30(*(u8 **)(arg1 + 0x94), func_00481450());
-        func_00479100(arg0, *(u8 **)(arg1 + 0x94));
+        mdlQueueModelForDraw(arg0, *(u8 **)(arg1 + 0x94));
         *(s32 *)(arg1 + 0x24) = 0;
     }
 }
