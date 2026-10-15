@@ -215,16 +215,16 @@ extern void func_001ee430(u8 *arg0);
 extern void func_001d7040(s32 arg0);
 extern void func_001d6c10(s32 arg0);
 extern void func_00194670(u8 *arg0);
-extern int func_0047a9d0(void *arg0);
-extern void func_0047a9b0(void *arg0);
+extern int mdlHasActiveMode(void *arg0);
+extern void mdlSetLookAtActive(void *arg0);
 extern void func_0019d550(u8 *arg0);
-extern void func_0047a990(void *arg0);
+extern void mdlSetLookAtRequested(void *arg0);
 extern u8 *func_00147530(u8 *arg0, u16 arg1);
 extern void func_0019d7a0(u8 *arg0, s32 arg1);
 extern void func_0047a810(void *arg0);
 extern void mdlSetAlphaBlend(void *arg0);
-extern void func_0047a9f0(void *arg0, u16 arg1);
-extern u16 func_0047aa00(void *arg0);
+extern void mdlSetLookStateWord(void *arg0, u16 arg1);
+extern u16 mdlGetLookStateWord(void *arg0);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern void mdlClearBattleStateFlag(void *arg0);
@@ -2349,15 +2349,13 @@ void func_0019d7a0(u8 *arg0, s32 arg1)
             mdlSetAlphaBlend(*(u8 **)(arg0 + 0xA00));
             return;
         case 3:
-            func_0047a9f0(*(u8 **)(arg0 + 0xA00),
-                          (u16)((func_0047aa00(*(u8 **)(arg0 + 0xA00)) &
-                                 0xFFFF) | 0x1000));
-            func_0047a9f0(*(u8 **)(arg0 + 0xA00),
-                          (u16)((func_0047aa00(*(u8 **)(arg0 + 0xA00)) &
-                                 0xFFFF) | 0x2000));
-            temp_4 = func_0047aa00(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
+            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)((mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) &
+                   0xFFFF) | 0x1000));
+            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)((mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) &
+                   0xFFFF) | 0x2000));
+            temp_4 = mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
             temp_4 = temp_4 & -0x801;
-            func_0047a9f0(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
+            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
             return;
         case 4:
             *(s32 *)(*(u8 **)(arg0 + 0xA00) + 0x2DC) =
@@ -2402,14 +2400,14 @@ void func_0019d990(u8 *arg0, s32 arg1)
         case 3:
             mdlSetBlendWeight(*(u8 **)(arg0 + 0xA00), DAT_0076112c);
             mdlLookAtSetupSetRange(*(u8 **)(arg0 + 0xA00), 70.0f, 80.0f);
-            func_0047a9b0(*(u8 **)(arg0 + 0xA00));
-            func_0047a990(*(u8 **)(arg0 + 0xA00));
-            temp_4 = func_0047aa00(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
+            mdlSetLookAtActive(*(u8 **)(arg0 + 0xA00));
+            mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
+            temp_4 = mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
             temp_4 = temp_4 & -0x2001;
-            func_0047a9f0(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
-            temp_4 = func_0047aa00(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
+            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
+            temp_4 = mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
             temp_4 = temp_4 & -0x1001;
-            func_0047a9f0(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
+            mdlSetLookStateWord(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
             *(s16 *)(arg0 + 0xB0) = 0;
             return;
         case 4:
@@ -2459,24 +2457,24 @@ void func_0019db40(u8 *arg0)
         }
         goto case0;
     case11:
-        if (func_0047a9d0(*(u8 **)(arg0 + 0xA00)) != 0) {
-            func_0047a990(*(u8 **)(arg0 + 0xA00));
+        if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {
+            mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
         }
         return;
     def:
-        if (func_0047a9d0(*(u8 **)(arg0 + 0xA00)) != 0) {
-            func_0047a9b0(*(u8 **)(arg0 + 0xA00));
-            func_0047a990(*(u8 **)(arg0 + 0xA00));
+        if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {
+            mdlSetLookAtActive(*(u8 **)(arg0 + 0xA00));
+            mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
         }
         return;
     case0:
             if (*(s32 *)(arg0 + 0xA64) != 0 && datCalcChkBadStatus(*(s32 *)(arg0 + 0xA64), 0x100) != 0) {
-                if (func_0047a9d0(*(u8 **)(arg0 + 0xA00)) != 0) {
-                    func_0047a990(*(u8 **)(arg0 + 0xA00));
+                if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {
+                    mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
                 }
                 return;
             }
-            if (*(u16 *)(arg0 + 0xB0) != 0 && !(*(f32 *)(*(u8 **)(arg0 + 0xA00) + 0x108) < 1.0f) && !(func_0047aa00(*(u8 **)(arg0 + 0xA00)) & 0x200)) {
+            if (*(u16 *)(arg0 + 0xB0) != 0 && !(*(f32 *)(*(u8 **)(arg0 + 0xA00) + 0x108) < 1.0f) && !(mdlGetLookStateWord(*(u8 **)(arg0 + 0xA00)) & 0x200)) {
                 switch (*(u16 *)(arg0 + 0xB0)) {
                 case 1:
                     mdlSetLookAtTargetPoint(*(u8 **)(arg0 + 0xA00), arg0 + 0xB8);
@@ -2506,7 +2504,7 @@ void func_0019db40(u8 *arg0)
                             mdlSetLookAtTargetPoint(*(u8 **)(arg0 + 0xA00), &pos);
                             return;
                         }
-                        func_0047a990(*(u8 **)(arg0 + 0xA00));
+                        mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
                         *(s32 *)(arg0 + 0xB4) = 0;
                     }
                     break;
@@ -2518,9 +2516,9 @@ void func_0019db40(u8 *arg0)
 void func_0019dea0(u8 *arg0)
 {
     if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
-        if (func_0047a9d0(*(u8 **)(arg0 + 0xA00)) != 0) {
-            func_0047a9b0(*(u8 **)(arg0 + 0xA00));
-            func_0047a990(*(u8 **)(arg0 + 0xA00));
+        if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {
+            mdlSetLookAtActive(*(u8 **)(arg0 + 0xA00));
+            mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
         }
     }
 }
@@ -2616,9 +2614,9 @@ s32 func_0019e850(u8 *arg0)
             while (var_16 != NULL) {
                 if (((*(s32 *)(var_16 + 0x9C) & 8) != 0) &&
                     ((*(s32 *)(var_16 + 0x98) & 2) != 0) &&
-                    (func_0047a9d0(*(u8 **)(var_16 + 0xA00)) != 0)) {
-                    func_0047a9b0(*(u8 **)(var_16 + 0xA00));
-                    func_0047a990(*(u8 **)(var_16 + 0xA00));
+                    (mdlHasActiveMode(*(u8 **)(var_16 + 0xA00)) != 0)) {
+                    mdlSetLookAtActive(*(u8 **)(var_16 + 0xA00));
+                    mdlSetLookAtRequested(*(u8 **)(var_16 + 0xA00));
                 }
                 var_16 = *(u8 **)(var_16 + 0xA68);
             }
@@ -2628,9 +2626,9 @@ s32 func_0019e850(u8 *arg0)
             while (var_16_2 != NULL) {
                 if (((*(s32 *)(var_16_2 + 0x9C) & 8) != 0) &&
                     ((*(s32 *)(var_16_2 + 0x98) & 2) != 0) &&
-                    (func_0047a9d0(*(u8 **)(var_16_2 + 0xA00)) != 0)) {
-                    func_0047a9b0(*(u8 **)(var_16_2 + 0xA00));
-                    func_0047a990(*(u8 **)(var_16_2 + 0xA00));
+                    (mdlHasActiveMode(*(u8 **)(var_16_2 + 0xA00)) != 0)) {
+                    mdlSetLookAtActive(*(u8 **)(var_16_2 + 0xA00));
+                    mdlSetLookAtRequested(*(u8 **)(var_16_2 + 0xA00));
                 }
                 var_16_2 = *(u8 **)(var_16_2 + 0xA68);
             }
@@ -2638,9 +2636,9 @@ s32 func_0019e850(u8 *arg0)
     } else {
         temp_16 = *(u8 **)arg0;
         if (((*(s32 *)(temp_16 + 0x98) & 2) != 0) &&
-            (func_0047a9d0(*(u8 **)(temp_16 + 0xA00)) != 0)) {
-            func_0047a9b0(*(u8 **)(temp_16 + 0xA00));
-            func_0047a990(*(u8 **)(temp_16 + 0xA00));
+            (mdlHasActiveMode(*(u8 **)(temp_16 + 0xA00)) != 0)) {
+            mdlSetLookAtActive(*(u8 **)(temp_16 + 0xA00));
+            mdlSetLookAtRequested(*(u8 **)(temp_16 + 0xA00));
         }
     }
     return 1;

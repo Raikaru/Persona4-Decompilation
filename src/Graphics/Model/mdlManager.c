@@ -4642,7 +4642,7 @@ extern void func_0047d540(u8** a, u8* b);
 extern void func_0047ed60(void* a);
 extern void func_0047a0e0(u8* a, s32 b, f32 c);
 extern void func_0047aa10(void* a, RwV3d* b);
-extern int func_0047a9d0(void* a);
+extern int mdlHasActiveMode(void* a);
 /* Measured: 1080B/window 1088B, MATCH with two zero-padding words.
    Cache predicate inputs only until their immediate call; reload every
    callback-visible field afterward. CSE-off retains per-phase matrix
@@ -4670,7 +4670,7 @@ void func_00478a30(u8* mdl, s32 tick)
         func_003e9cb0(frame, &matrix, 0);
         func_0047aee0((Model*)mdl, &matrix);
         previousLayer = 0;
-        if (func_0047a9d0(mdl) != 0) {
+        if (mdlHasActiveMode(mdl) != 0) {
             func_0047aa10(mdl, &((Model*)mdl)->scale);
         }
         for (animationLayer = 0; animationLayer < 2; animationLayer++) {
@@ -5748,38 +5748,44 @@ void mdlSetTrackScaleRange(void* param_1, float param_2, float param_3)
     *(float*)((u8*)param_1 + 0x18C) = param_3;
 }
 
+/* Returns the 16-byte look record at +0x150. evtModel copies it into its transform slot or passes it to func_004bd4a0. Consumer of the record not yet traced. */
 // FUN_0047A980
-void* func_0047a980(void* param_1)
+void* mdlGetLookAtSubobject(void* param_1)
 {
     return (char*)param_1 + 0x150;
 }
 
+/* Sets flag 0x100 in the look state word at +0x140. The mode setters (look target, look direction, track scale) clear it. Battle and evtModel call it after configuring a look. Exact meaning not yet traced. */
 // FUN_0047A990
-void func_0047a990(void* param_1)
+void mdlSetLookAtRequested(void* param_1)
 {
     *(u16*)((u8*)param_1 + 0x140) |= 0x100;
 }
 
+/* Sets flag 0x200 in the look state word at +0x140. Battle look-at activation in code1_0019 case 3 and its state branches call it after the range is set. Exact meaning not yet traced. */
 // FUN_0047A9B0
-void func_0047a9b0(void* param_1)
+void mdlSetLookAtActive(void* param_1)
 {
     *(u16*)((u8*)param_1 + 0x140) |= 0x200;
 }
 
+/* Returns nonzero when a look-target, look-direction, look-requested or track-scale mode bit is set (mask 0x81E0 on the look state word at +0x140). evtModel, evtMain and code1_0019 gate their state machines on it; the draw path in this file does too. */
 // FUN_0047A9D0
-int func_0047a9d0(void* param_1)
+int mdlHasActiveMode(void* param_1)
 {
     return (*(u16*)((u8*)param_1 + 0x140) & 0x81E0) != 0;
 }
 
+/* Stores a whole value into the look state word at +0x140. code1_0018 and code1_0019 case 3 write it during battle look-at transitions. Not all bit meanings are traced. */
 // FUN_0047A9F0
-void func_0047a9f0(void* param_1, u16 param_2)
+void mdlSetLookStateWord(void* param_1, u16 param_2)
 {
     *(u16*)((u8*)param_1 + 0x140) = param_2;
 }
 
+/* Returns the look state word at +0x140. code1_0019 case 3 reads and masks it before rewriting it. */
 // FUN_0047AA00
-u16 func_0047aa00(void* param_1)
+u16 mdlGetLookStateWord(void* param_1)
 {
     return *(u16*)((u8*)param_1 + 0x140);
 }
