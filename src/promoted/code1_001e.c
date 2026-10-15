@@ -155,7 +155,7 @@ extern void func_00106550(s32 arg0, s32 arg1);
 extern s32 datCalcIsStatusBlocked(u16 *arg0);
 extern u16 func_00247cb0(s64 arg0);
 extern u8 *iGpffffb42c;
-extern s32 func_001eb320(void);
+extern s32 btlAiSetGlobal(void);
 // FUN_001E6B90
 s32 func_001e6b90(void) {
     u32 a = scrGetParamIntS32(0);
@@ -381,7 +381,7 @@ s32 func_001ea2d0(void) {
 #pragma optimization_level 1
 #pragma optimization_level 2
 #pragma opt_propagation off
-/* measured: closes opt_propagation probe for func_001eb320. */
+/* measured: closes opt_propagation probe for btlAiSetGlobal. */
 #pragma opt_propagation on
 
 

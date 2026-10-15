@@ -90,8 +90,8 @@ extern u8 *iGpffffb42c;
 /* Source unit: src/promoted/code1_001e.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001e.c; members 001eb4a0-001eb8d0 */
 
-extern s32 func_001eb2e0(void);
-extern s32 func_001eb320(void);
+extern s32 btlAiGetGlobal(void);
+extern s32 btlAiSetGlobal(void);
 extern s32 func_001ef9a0(void);
 #pragma push
 #pragma pop
@@ -104,9 +104,9 @@ extern s32 func_001ef9a0(void);
 /* measured probe: close conditional branch shape */
 #pragma pop
 /* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: close optimization_level 1 probe for func_001eb2e0. */
+/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
 /* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: closes opt_propagation probe for func_001eb320. */
+/* measured: closes opt_propagation probe for btlAiSetGlobal. */
 // FUN_001EB4A0
 /* measured: u16 state selects the narrow daddiu constants at 0x001eb598 and
    0x001eb5c0; the table-entry scan preserves the retail register-width masks. */

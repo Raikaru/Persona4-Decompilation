@@ -82,8 +82,8 @@ extern u8 *iGpffffb42c;
 /* Source unit: src/promoted/code1_001e.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001e.c; members 001ec350-001ec350 */
 
-extern s32 func_001eb2e0(void);
-extern s32 func_001eb320(void);
+extern s32 btlAiGetGlobal(void);
+extern s32 btlAiSetGlobal(void);
 #pragma push
 #pragma pop
 /* measured probe: preserve the retail filter branch chain */
@@ -95,9 +95,9 @@ extern s32 func_001eb320(void);
 /* measured probe: close conditional branch shape */
 #pragma pop
 /* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: close optimization_level 1 probe for func_001eb2e0. */
+/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
 /* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: closes opt_propagation probe for func_001eb320. */
+/* measured: closes opt_propagation probe for btlAiSetGlobal. */
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 // FUN_001EC350
 f32 func_001ec350(f32 *arg0, f32 *arg1)
