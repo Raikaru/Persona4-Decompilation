@@ -103,11 +103,11 @@ extern void K_View_SetFov(void *arg0, f32 arg1);
 extern u8 D_0063F3B0[];
 
 
-extern s32 func_002b11c0(u8 *arg0);
-extern s32 func_002b1210(u8 *arg0);
+extern s32 smapWorldToColumn(u8 *arg0);
+extern s32 smapWorldToRow(u8 *arg0);
 
-extern f32 func_002b1260(s32 arg0, f32 fparg0);
-extern f32 func_002b1320(s32 arg0, f32 fparg0);
+extern f32 smapPlayerOffsetX(s32 arg0, f32 fparg0);
+extern f32 smapPlayerOffsetZ(s32 arg0, f32 fparg0);
 extern void mapSymbolMarkerDraw(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2);
 extern u8 *mdlGetMatrix(u32 arg0);
 extern u32 D_007EFA00[];
@@ -750,17 +750,17 @@ s32 func_002b3720(u8 *arg0)
         out.y = out.y - 10.0f;
         out.y = out.y - 2.0f;
     } else if (*(s8 *)(p + 0x20) == 1) {
-        temp_f20 = ((f32)func_002b11c0(
+        temp_f20 = ((f32)smapWorldToColumn(
                         mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 172.0f;
         out.x = temp_f20 -
-                func_002b1260(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
+                smapPlayerOffsetX(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
                               18.0f);
-        temp_f20 = ((f32)func_002b1210(
+        temp_f20 = ((f32)smapWorldToRow(
                         mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 9.0f;
         out.y = temp_f20 -
-                func_002b1320(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
+                smapPlayerOffsetZ(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
                               18.0f) - 2.0f;
     }
     color = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);

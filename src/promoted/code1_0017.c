@@ -88,8 +88,8 @@ extern u8 D_005F1A60[];
 extern u8 D_005F1A64[];
 extern u16 D_008C024E[];
 extern void func_0018a000(s32 arg0, s32 arg1);
-extern void func_002af3e0(u8 *arg0, s8 arg1);
-extern void func_002afb70(s32 arg0, s32 arg1);
+extern void smapRefreshCells(u8 *arg0, s8 arg1);
+extern void smapSetPhase(s32 arg0, s32 arg1);
 extern s32 func_0012d000(s32 arg0, s32 arg1);
 extern void func_00106390(s32 arg0, s32 arg1);
 s32 FldShadow_CasterStep(u8 *arg0);
@@ -263,7 +263,7 @@ s32 func_001709c0(u8 *arg0)
         temp_2 = (u8 *)func_00155280();
         func_0018a000(*(s32 *)(temp_2 + 0x30), 1);
         temp_2 = (u8 *)func_00155280();
-        func_002af3e0(*(u8 **)(temp_2 + 0x18), 1);
+        smapRefreshCells(*(u8 **)(temp_2 + 0x18), 1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
@@ -274,7 +274,7 @@ s32 func_001709c0(u8 *arg0)
             temp_2 = (u8 *)func_00155280();
             func_0018a000(*(s32 *)(temp_2 + 0x30), 0);
             temp_2 = (u8 *)func_00155280();
-            func_002af3e0(*(u8 **)(temp_2 + 0x18), 0);
+            smapRefreshCells(*(u8 **)(temp_2 + 0x18), 0);
             func_0045af60(0, 0, 0, 4);
             *(s32 *)(temp_16 + 0x10) = 0;
             *(s32 *)(temp_16 + 4) += 1;
@@ -322,7 +322,7 @@ s32 func_00170bc0(u8 *arg0)
         func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 1);
         *(s32 *)(temp_16 + 0x10) = func_0012d000((s32)arg0, 1);
         if (*(s32 *)((u8 *)func_00155280() + 0x18) != 0)
-            func_002afb70(*(s32 *)((u8 *)func_00155280() + 0x18), 1);
+            smapSetPhase(*(s32 *)((u8 *)func_00155280() + 0x18), 1);
         func_00182310(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
@@ -338,7 +338,7 @@ s32 func_00170bc0(u8 *arg0)
                 *(s32 *)(temp_16 + 4) = 3;
             } else {
                 if (*(s32 *)((u8 *)func_00155280() + 0x18) != 0)
-                    func_002afb70(*(s32 *)((u8 *)func_00155280() + 0x18), 0);
+                    smapSetPhase(*(s32 *)((u8 *)func_00155280() + 0x18), 0);
                 func_00182310(0);
                 func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 0);
                 *(s32 *)(temp_16 + 0x10) = 0;

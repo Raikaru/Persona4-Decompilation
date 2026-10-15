@@ -835,7 +835,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void func_0015a350(struct P4_0015_Vec3 *);
     struct RwMatrixTag *func_0047a180(struct RwMatrixTag *, const struct RwV3d *, s32);
     s32 FldEvent_SpawnMover(s32, s32, s32);
-    u8 *func_002ae630(u8 *);
+    u8 *smapCreateSymbols(u8 *);
     void func_002b2950(s32);
     s32 func_0018c7e0(void);
     void FldUnit_UpdateSlots(s32);
@@ -1401,7 +1401,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 work->resource = (u8 *)MT_Scene_GetRes(0x400);
                 res = work->resource;
                 work->fieldEffect = FldEvent_SpawnMover(*(s32 *)((u8 *)func_00155280() + 0x8), *(s32 *)(res + 0x220), *(s32 *)(res + 0x164));
-                t12 = (s32)func_002ae630((u8 *)(*(s32 *)(u8 *)func_00155280()));
+                t12 = (s32)smapCreateSymbols((u8 *)(*(s32 *)(u8 *)func_00155280()));
                 *(s32 *)((u8 *)func_00155280() + 0x18) = t12;
                 func_002b2950(1);
                 func_0018c7e0();
