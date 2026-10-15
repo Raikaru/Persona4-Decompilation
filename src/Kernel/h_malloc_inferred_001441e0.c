@@ -108,8 +108,8 @@ extern void func_00452080(s32 arg0);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern void resrcMngDestroy(u8 *arg0);
 extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
-extern void func_0015cc40(void);
-extern void func_0015cf10(void);
+extern void NpcTable_ReleaseSceneTable(void);
+extern void NpcTable_ReleaseSecondaryTable(void);
 extern void func_00160180(void);
 extern void func_003e1a70(void);
 extern void func_00451b70(void);
@@ -799,8 +799,8 @@ loop_20_test:
         resrcMngDestroy(temp_17);
         *(s32 *)(iGpffff9db0 + 8) = 0;
     }
-    func_0015cc40();
-    func_0015cf10();
+    NpcTable_ReleaseSceneTable();
+    NpcTable_ReleaseSecondaryTable();
     func_00160180();
     *(s32 *)(iGpffff9db0 + 0) = -1;
     *(s32 *)(iGpffff9db0 + 4) = -1;
