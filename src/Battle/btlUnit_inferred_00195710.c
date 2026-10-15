@@ -166,7 +166,7 @@ extern u8 D_00794150[];
 
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern void func_001949d0(s32 arg0);
+extern void btlPacketStepSide(s32 arg0);
 extern void func_00195610(u8 *arg0);
 /* measured: optimization_level 1 with the index and value locals declared
    before the loop reproduces func_00194470 exactly, object 284 bytes against

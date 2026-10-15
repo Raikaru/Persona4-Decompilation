@@ -196,7 +196,7 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 extern u8 *kwlnTaskGetTaskByName(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 func_00192cd0(void);
-extern void func_00194a30(void);
+extern void btlPacketFlushAll(void);
 extern void func_0019d670(void);
 extern void datUnitFree(s32 arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
@@ -377,7 +377,7 @@ s32 func_00192cd0(void)
     func_001bdd30();
     func_001f61b0();
     func_0022cc90();
-    func_00194a30();
+    btlPacketFlushAll();
     itfMesWindowReleaseIfActive(*(s32 *)(iGpffffb3ac + 0xC60));
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x4000) != 0) {
         for (i = 0; (u16)i < 4; i = (u16)(i + 1)) {

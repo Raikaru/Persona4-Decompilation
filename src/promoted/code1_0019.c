@@ -287,7 +287,7 @@ extern s32 func_003e8110(u8 *arg0);
 extern u8 *kwlnTaskGetTaskByName(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 func_00192cd0(void);
-extern void func_00194a30(void);
+extern void btlPacketFlushAll(void);
 extern void func_0019d670(void);
 extern void datUnitFree(s32 arg0);
 extern void func_003ef3a0(s32 arg0);
@@ -322,7 +322,7 @@ extern u8 D_00794150[];
 
 extern s64 func_001990d0(u8 *arg0, u16 arg1);
 extern s16 func_001991c0(u8 *arg0, u16 arg1, f32 fparg0);
-extern void func_001949d0(s32 arg0);
+extern void btlPacketStepSide(s32 arg0);
 // FUN_001900A0
 void func_001900a0(u8 *arg0)
 {
