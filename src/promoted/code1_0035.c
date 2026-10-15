@@ -28,7 +28,7 @@ extern f32 RwV3dNormalize(void *out, const void *in);
 extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_002bc060(s32 arg0);
-extern s32 func_002467b0(u16 arg0);
+extern s32 cmmKindRecord(u16 arg0);
 extern void kAssertFail(const void *module, u32 line);
 extern void sprintf(void *dst, const void *fmt, ...);
 extern u8 D_0064CCF0[];
@@ -1729,7 +1729,7 @@ void func_00356a10(u8 *work) {
     extern void kAssertFail(const void *, u32);
     extern f32 func_0034f720(u8 *, f32, f32, f32);
     extern s32 frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
-    extern u8 *func_00246830(u32);
+    extern u8 *cmmNameRecord(u32);
     extern u8 *func_00246910(s16);
     extern u8 *func_00246940(s16);
     extern void func_002bc0b0(f32, f32, f32, u32, u32, u32, s32, s32);
@@ -2041,7 +2041,7 @@ void func_00356a10(u8 *work) {
         rankColor = titleOpacity & 0xFF;
         nameColor = rankColor | ~0x7EFF;
         nameId = (u16 *)((u8 *)add_offset_first((u32)(selectedIndex * 12), (u32)work) + 0x3A);
-        frFontExDrawTextWithCharWidth(position.x, position.y, 0.0f, nameColor, 0, 1, (const char *)func_00246830(*nameId), 0, -2);
+        frFontExDrawTextWithCharWidth(position.x, position.y, 0.0f, nameColor, 0, 1, (const char *)cmmNameRecord(*nameId), 0, -2);
         rankNames = func_00246910((s16)*nameId);
         position.x = (130.0f + (originX + menu->titleOffset.x));
         position.y = (46.0f + (originY + menu->titleOffset.y));
@@ -2451,7 +2451,7 @@ void func_003597f0(u8 *arg0)
     u8 *entry;
     u8 *valuePtr;
 
-    table = func_002467b0(
+    table = cmmKindRecord(
         *(u16 *)((u8 *)add_offset_first(
             (s32)(*(s16 *)(arg0 + 0x24) + *(s16 *)(arg0 + 0x26)) * 0xC,
             (u32)arg0) + 0x3A));
@@ -2597,7 +2597,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     /* H011: the callee masks its argument with 0xFFFF. */
     /* H011: the u16 parameter is measured; the u32 definition (cmmMisc.c)
        mismatches the name-sprite call. */
-    extern u8 *func_00246830(u16 arg0);
+    extern u8 *cmmNameRecord(u16 arg0);
     extern s32 frFontExDrawTextWithCharWidth(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
     extern f32 sdkSpriteScaledWidth(u8 *arg0);
     extern s32 (*D_00887300[])(s32, s32);
@@ -2764,7 +2764,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
         px = 157.0f + x2;
         scale = y2 + 30.0f * scale;
         nameAlpha = (alpha * 0xFF) / 0xFFU;
-        spr = func_00246830(name);
+        spr = cmmNameRecord(name);
         frFontExDrawTextWithCharWidth(px, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
     x3 = 5.0f + (x0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x4C0));

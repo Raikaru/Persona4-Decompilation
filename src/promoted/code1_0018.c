@@ -2046,7 +2046,7 @@ extern float fGpffff8420; /* 0xffff8420 */
 extern u8 *MT_Scene_GetResListHead(s32);
 extern u32 K_FldEvent_IsPosWithinFov(const RainMatrix *, const RainVector *, f32);
 extern u32 K_FldEvent_ArePosWithinDist(const RainVector *, const RainVector *, f32);
-extern u8 *func_002467b0(s32);
+extern u8 *cmmKindRecord(s32);
 extern u32 RpRandom(void);
 struct RpSpline;
 extern struct RpSpline *func_003bbbe0(s32 count, s32 type, RainVector *points);
@@ -2439,7 +2439,7 @@ s32 func_0018a200(u8 *param_1)
         actorIndex = 1;
         temp_v3 = (short)temp_v5;
         resourceKey = (u16)temp_v3;
-        temp_v4 = (s32)func_002467b0(resourceKey);
+        temp_v4 = (s32)cmmKindRecord(resourceKey);
         if ((*(unsigned int *)(temp_v4 + 4) & 1) != 0) {
           temp_v10 = func_00248d80((s16)resourceKey);
           temp_v3 = (short)temp_v10;

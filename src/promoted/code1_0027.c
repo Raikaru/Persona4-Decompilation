@@ -24,7 +24,7 @@ extern s32 func_0027bf10(s32 arg0);
 extern s32 cmmCommunityFindActiveSlotInGroup(s64 arg0);
 extern u8 *func_00246c20(s32 arg0);
 extern s32 cmmCommunityGetCurrentId(void);
-extern u8 *func_00246830(s32 arg0);
+extern u8 *cmmNameRecord(s32 arg0);
 static inline u32 add_retail_ptr(u32 offset, u32 base) {
     return offset + base;
 }
@@ -514,9 +514,9 @@ s32 func_00270a80(s32 arg0, u8 *arg1) {
         return 0;
     }
     if (temp_17 == 0) {
-        var_2_2 = func_00246830(cmmCommunityGetCurrentId() & 0xFFFF);
+        var_2_2 = cmmNameRecord(cmmCommunityGetCurrentId() & 0xFFFF);
     } else {
-        var_2_2 = func_00246830((u16)temp_17);
+        var_2_2 = cmmNameRecord((u16)temp_17);
     }
     frFontExCopyString(var_2_2, sp30, 0x40);
     frFontUpdateTextWork(arg1);

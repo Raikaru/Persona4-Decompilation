@@ -267,7 +267,7 @@ extern u8 D_00636180[];
 extern u8 *func_00251d30(u8 *arg0);
 extern void *memset(void *dst, s32 value, u32 size);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern u8 *func_002467b0(s32 arg0);
+extern u8 *cmmKindRecord(s32 arg0);
 extern s32 datGetFlag(s32 flag);
 extern s64 func_00248d80(s16 arg0);
 extern void itfMesWindowApplySlots(s32 arg0);
@@ -767,7 +767,7 @@ void func_0045dfd0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
 u8 *func_0046a770(char *a0);
 f32 sdkSpriteEntryWidth(void *a0, s32 a1);
 void func_0025e9e0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, void *a3, s32 a4);
-u8 *func_00246830(u32 a0);
+u8 *cmmNameRecord(u32 a0);
 
 #pragma push
 #pragma opt_loop_invariants on
@@ -932,17 +932,17 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             if (font == NULL) {
                 kAssertFail(D_00635CF8, 0x1E4);
             }
-            width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
+            width = (s32)sdkSpriteEntryWidth(font, ((u8 *)cmmKindRecord(relation & 0xFFFF))[8] + 0x20);
             complement = 1.0f;
             complement -= value;
             offset = (s32)(450.0f * complement);
             func_0025e9e0(
                 (f32)((offset + 299) - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255,
-                ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 0x20, font, 1);
+                ((u8 *)cmmKindRecord((u32)relation & 0xFFFF))[8] + 0x20, font, 1);
             func_0025f3f0(
                 (f32)(offset + 355), 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
             frFontExDrawText((f32)(offset + 392), 403.0f, 0.0f,
-                -1, 0, 1, (const char *)func_00246830((u16)relation), 0, 0);
+                -1, 0, 1, (const char *)cmmNameRecord((u16)relation), 0, 0);
         } else {
             const u8 *source;
             u8 *destination;
@@ -988,13 +988,13 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             if (font == NULL) {
                 kAssertFail(D_00635CF8, 0x1E4);
             }
-            width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
+            width = (s32)sdkSpriteEntryWidth(font, ((u8 *)cmmKindRecord(relation & 0xFFFF))[8] + 0x20);
             func_0025e9e0(
                 (f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255,
-                ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 0x20, font, 1);
+                ((u8 *)cmmKindRecord((u32)relation & 0xFFFF))[8] + 0x20, font, 1);
             func_0025f3f0(
                 355.0f, 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
-            frFontExDrawText(392.0f, 403.0f, 0.0f, -1, 0, 1, (const char *)func_00246830((u16)relation), 0, 0);
+            frFontExDrawText(392.0f, 403.0f, 0.0f, -1, 0, 1, (const char *)cmmNameRecord((u16)relation), 0, 0);
         }
     }
     if (*(s32 *)(work + 4) > 30) {
@@ -1099,7 +1099,7 @@ void func_0045dfd0(void *, void *, f32, s32, s32, s32);
 u8 *func_0046a770(char *);
 f32 sdkSpriteEntryWidth(void *, s32);
 void func_0025e9e0(f32, f32, f32, s32, u8, s32, void *, s32);
-u8 *func_00246830(u32);
+u8 *cmmNameRecord(u32);
 
 /* measured: keep the unit scales local to their shrinking-sprite calls;
    pulloutconstants otherwise retains one across both animation branches. */
@@ -1331,11 +1331,11 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         }
         /* The width query and glyph lookup use signed and unsigned word
            masks respectively; this preserves both retail narrowing points. */
-        width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 32);
-        func_0025e9e0((f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 32, font, 1);
+        width = (s32)sdkSpriteEntryWidth(font, ((u8 *)cmmKindRecord(relation & 0xFFFF))[8] + 32);
+        func_0025e9e0((f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)cmmKindRecord((u32)relation & 0xFFFF))[8] + 32, font, 1);
         func_0025f3f0(355.0f, 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
         frFontExDrawText(392.0f, 403.0f, 0.0f, -1, 0, 1,
-            (const char *)func_00246830((u16)relation), 0, 0);
+            (const char *)cmmNameRecord((u16)relation), 0, 0);
         for (i = 0; i < 10; i++) {
             if (*(s32 *)(context + 8) <= i) {
                 color = 0xDE7201;
@@ -1400,15 +1400,15 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         }
         /* The width query and glyph lookup use signed and unsigned word
            masks respectively; this preserves both retail narrowing points. */
-        width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 32);
+        width = (s32)sdkSpriteEntryWidth(font, ((u8 *)cmmKindRecord(relation & 0xFFFF))[8] + 32);
         origin = 500.0f;
         origin *= value;
         value = origin;
         offset = (s32)value;
-        func_0025e9e0((f32)(offset + 299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 32, font, 1);
+        func_0025e9e0((f32)(offset + 299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)cmmKindRecord((u32)relation & 0xFFFF))[8] + 32, font, 1);
         func_0025f3f0((f32)(offset + 355), 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
         frFontExDrawText((f32)(offset + 392), 403.0f, 0.0f, -1, 0, 1,
-            (const char *)func_00246830((u16)relation), 0, 0);
+            (const char *)cmmNameRecord((u16)relation), 0, 0);
         for (i = 0; i < 10; i++) {
             func_0025f3f0(value + (f32)(i * 23 + 354), 381.0f, 0.0f, *(s32 *)(context + 8) <= i ? 0xDE7201 : 0xFFFFFF, 255, 21, 0, *(u8 **)(context + 0x10), 1);
         }
@@ -1529,7 +1529,7 @@ u8 *func_00255b90(void) {
 
 // FUN_00255ED0
 s32 func_00255ed0(s64 arg0, s32 arg1) {
-    if ((*(s32 *)((u8 *)func_002467b0((u16)arg0) + 4) & 0x10) != 0 &&
+    if ((*(s32 *)((u8 *)cmmKindRecord((u16)arg0) + 4) & 0x10) != 0 &&
         (arg0 != 0x18 || datGetFlag(0x38) != 0)) {
         if ((s16)func_00248d80(arg0) == 3 ||
             (s16)func_00248d80(arg0) == 4) {
@@ -3228,8 +3228,8 @@ extern void func_002bae80();
 extern s32 func_00255ed0();
 extern s64 func_00248760(s32 arg0);
 extern u8 *func_002438b0();
-extern u8 *func_00246830(u32);
-extern u8 *func_002468a0();
+extern u8 *cmmNameRecord(u32);
+extern u8 *cmmTextRecord();
 extern u8 *func_00246d90();
 extern u8 *datPersonaGetRow(u16 personaId);
 extern char *strcpy(char *destination, const char *source);
@@ -3451,7 +3451,7 @@ s32 func_0025b240(u8 *arg0) {
                 func_002badc0(*(s8 *)(ctx + 0x3C), 2);
             }
         } else if (tmp4 == 10) {
-            frFontExCopyString((char *)func_00246830(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
+            frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
             frFontExCopyString((char *)func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
@@ -3475,7 +3475,7 @@ s32 func_0025b240(u8 *arg0) {
             } else {
                 func_0045a8d0(3, 0);
             }
-            frFontExCopyString((char *)func_00246830(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
+            frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
             sprintf(sp160, &cGpffffa688, *(s32 *)(ctx + 0x1C));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, sp160);
@@ -3534,7 +3534,7 @@ s32 func_0025b240(u8 *arg0) {
         if (c >= 2 && c < 7 && datGetFlag(unlockFlags.values[c - 2]) == 0) {
             *(s32 *)ctx |= 0x20;
         }
-        frFontExCopyString((char *)func_002468a0(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
+        frFontExCopyString((char *)cmmTextRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
         func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
         switch (c) {
         case 2:

@@ -36,7 +36,7 @@ extern s32 datRankForPoints(s16 arg0, s16 arg1);
 extern s16 D_007973F4[];
 extern u32 D_0079B1CC[];
 extern u8 D_007973A0[];
-extern void *func_002467b0(s32 arg0);
+extern void *cmmKindRecord(s32 arg0);
 extern void func_001076e0(s32 arg0);
 extern void func_00106390(s32 a, s32 b);
 extern void cmmCommunitySetFlagBand(s32 a, s32 b);
@@ -188,7 +188,7 @@ s32 cmmCommunityFindRecord(s32 arg0)
     return 0;
 }
 
-// Community find by kind: returns the first flagged community id (func_001077f0) whose kind entry (func_002467b0) equals arg0, or 0 when none matches.
+// Community find by kind: returns the first flagged community id (func_001077f0) whose kind record (cmmKindRecord) equals arg0, or 0 when none matches.
 // FUN_00107180
 s32 cmmCommunityFindByKind(s16 arg0)
 {
@@ -202,7 +202,7 @@ s32 cmmCommunityFindByKind(s16 arg0)
     }
     for (i = 1; i < 0x1F; i++)
     {
-        if (arg0 == *(s32 *)func_002467b0(i & 0xFFFF))
+        if (arg0 == *(s32 *)cmmKindRecord(i & 0xFFFF))
         {
             if (func_001077f0((u16)i) != 0)
             {
@@ -873,7 +873,7 @@ f32 func_001080c0(s32 arg0) {
             v = v * *(f32 *)((u8 *)func_00246b80() + 8);
         }
     }
-    if ((*(s32 *)((u8 *)func_002467b0(arg0) + 4) & 0x20) != 0) {
+    if ((*(s32 *)((u8 *)cmmKindRecord(arg0) + 4) & 0x20) != 0) {
         i = 0;
         while (i < 3) {
             off = i * 8;
@@ -947,7 +947,7 @@ ret:
             v = v * *(f32 *)((u8 *)func_00246b80() + 8);
         }
     }
-    if ((*(s32 *)((u8 *)func_002467b0(x) + 4) & 0x20) != 0) {
+    if ((*(s32 *)((u8 *)cmmKindRecord(x) + 4) & 0x20) != 0) {
         x = 0;
         while (x < 3) {
             id = x * 8;
@@ -1084,7 +1084,7 @@ ret:
     }
     id = t & 0xFFFF;
     rank = *(u16 *)(r + 8);
-    if (rank >= *(u16 *)((u8 *)func_002467b0(arg0) + (id & 0xFFFF) * 2 + 0x10)) {
+    if (rank >= *(u16 *)((u8 *)cmmKindRecord(arg0) + (id & 0xFFFF) * 2 + 0x10)) {
         return 1;
     }
     return 0;
@@ -1171,7 +1171,7 @@ ret:
             }
             lv = u & 0xFFFF;
             id = *(u16 *)(id + 8);
-            if (id >= *(u16 *)((u8 *)func_002467b0(arg0) + (lv & 0xFFFF) * 2 + 0x10)) {
+            if (id >= *(u16 *)((u8 *)cmmKindRecord(arg0) + (lv & 0xFFFF) * 2 + 0x10)) {
                 ok = (u8)1;
             } else {
                 ok = 0;
