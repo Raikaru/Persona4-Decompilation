@@ -37,7 +37,11 @@ s32 func_003cb790(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
+// FUN_003CB7E0
 #pragma schedule on
+s32 func_003cb7e0(s32 arg0, s32 arg1, u8 *arg2) {
+    return func_003cebb0(arg0, arg2) ? arg0 : 0;
+}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
