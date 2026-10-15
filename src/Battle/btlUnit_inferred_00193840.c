@@ -85,9 +85,9 @@ extern u8 D_0060A0E0[];
 extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void func_00194660(void);
-extern s32 func_001939e0(u8 *task);
+extern s32 btlUnitLoadStep(u8 *task);
 
-extern s32 func_00193840(u8 *arg0, s32 arg1);
+extern s32 btlUnitLoadBlocksFromFile(u8 *arg0, s32 arg1);
 extern void func_0010d480(void);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 
@@ -252,7 +252,7 @@ typedef struct {
 } PacketList;
 extern s32 func_00193d90(u8 *arg0, s32 arg1);
 // FUN_00193840
-s32 func_00193840(u8 *arg0, s32 arg1)
+s32 btlUnitLoadBlocksFromFile(u8 *arg0, s32 arg1)
 {
     u8 *var_18;
     s32 var_17;
@@ -305,11 +305,11 @@ void func_001939a0(void) {
 }
 
 // FUN_001939E0
-s32 func_001939e0(u8 *unusedTask)
+s32 btlUnitLoadStep(u8 *unusedTask)
 {
     s32 result;
 
-    result = func_00193840((u8 *)D_005F66C0 + iGpffffb438 * 0xA4, 0);
+    result = btlUnitLoadBlocksFromFile((u8 *)D_005F66C0 + iGpffffb438 * 0xA4, 0);
     if (result == 0) {
         goto clear;
     }
@@ -338,11 +338,11 @@ end:
  * a0 to the task constructor as the parent; it is not an uninitialized
  * local left in an incidental register. */
 // FUN_00193A80
-void func_00193a80(u8 *ctx) {
+void btlUnitStartLoad(u8 *ctx) {
     iGpffffb430 = 0;
     iGpffffb434 = 0;
     iGpffffb438 = 0;
-    (s32)func_00451fc0((void *)(ctx), (const void *)(D_005F6BF0), 0x10, 0, 0, func_001939e0, 0, (u8 *)(NULL));
+    (s32)func_00451fc0((void *)(ctx), (const void *)(D_005F6BF0), 0x10, 0, 0, btlUnitLoadStep, 0, (u8 *)(NULL));
 }
 
 // FUN_00193AD0
@@ -414,7 +414,7 @@ u8 *func_00193bf0(u64 uid, u64 mask)
 }
 
 // FUN_00193C70
-u32 func_00193c70(void)
+u32 btlCountUnitRecords(void)
 {
     u32 total;
     u32 i;
@@ -435,7 +435,7 @@ u32 func_00193c70(void)
 }
 
 // FUN_00193CD0
-u32 func_00193cd0(u32 id)
+u32 btlCountUnitRecordsById(u32 id)
 {
     u8 *packet;
     u8 *btl;
