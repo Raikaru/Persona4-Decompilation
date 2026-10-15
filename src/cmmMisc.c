@@ -34,7 +34,7 @@ extern u16 func_00108ee0(void);
 extern s32 datPersonaRosterSlotRank(s32 idx);
 extern s64 func_00248760(s32 idx);
 extern s32 func_001077f0(u16 idx);
-extern u8 func_00109280(u16 idx);
+extern u8 datPersonaGetArcana(u16 idx);
 extern s32 datPersonaRosterSlotId(s32 idx);
 extern s32 datPersonaCountValidMembers(void);
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
@@ -548,7 +548,7 @@ s16 func_00247820(s32 arg0) {
     target = (s8)func_00248760(arg0 & 0xFFFF);
     for (i = 0; i < (datPersonaCountValidMembers() & 0xFFFF); i++) {
         v = datPersonaRosterSlotId(i & 0xFFFF) & 0xFFFF;
-        if (target == (func_00109280(v) & 0xFF)) {
+        if (target == (datPersonaGetArcana(v) & 0xFF)) {
             w = datPersonaRosterSlotRank(i & 0xFFFF) & 0xFF;
             if (largest < w) {
                 largest = w;
@@ -598,7 +598,7 @@ s32 func_00247900(s32 arg0, s32 arg1, s32 arg2) {
     id = 1;
     threshold = arg1 & 0xFF;
     for (; id < 0x100; id++) {
-        if (target == (func_00109280(id & 0xFFFF) & 0xFF)) {
+        if (target == (datPersonaGetArcana(id & 0xFFFF) & 0xFF)) {
             blocked = 1;
             base = (s32)iGpffffb3d4;
             offset = id * 14;
@@ -663,7 +663,7 @@ s32 func_00247c20(s16 arg0) {
     s32 key = (s32)arg0;
 
     while (i < (datPersonaCountValidMembers() & 0xFFFF)) {
-        if (key == (func_00109280(datPersonaRosterSlotId(i & 0xFFFF) & 0xFFFF) & 0xFF)) {
+        if (key == (datPersonaGetArcana(datPersonaRosterSlotId(i & 0xFFFF) & 0xFFFF) & 0xFF)) {
             return 1;
         }
         i++;

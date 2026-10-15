@@ -115,8 +115,8 @@ extern u8 D_0064E670[];
 extern u8 D_0064E6A0[];
 extern u16 datPersonaCountValidMembers(void);
 extern u8 datPersonaGetStat(u8 *arg0, u16 arg1);
-extern u8 func_001099f0(u8 *arg0, u16 arg1);
-extern s32 func_0010a780(u8 *arg0, u16 arg1, s8 arg2);
+extern u8 datPersonaGetBuffedStat(u8 *arg0, u16 arg1);
+extern s32 datPersonaAddStat(u8 *arg0, u16 arg1, s8 arg2);
 extern u8 D_00793E80[];
 
 extern s32 iGpffffa9c0;
@@ -1121,7 +1121,7 @@ s32 func_00370020(s32 arg0, u8 *arg1)
     if ((flag & 0xFFFF) != 0) {
         s32 sum;
         v = (s16)(func_00231d70(3) + 1);
-        t = (s16)(func_001099f0(p, kind) & 0xFF);
+        t = (s16)(datPersonaGetBuffedStat(p, kind) & 0xFF);
         if (t >= 0x63) {
             return 0;
         }
@@ -1129,7 +1129,7 @@ s32 func_00370020(s32 arg0, u8 *arg1)
         if (sum > 0x63) {
             v = 0x63 - t;
         }
-        func_0010a780(p, kind, (s8)v);
+        datPersonaAddStat(p, kind, (s8)v);
     } else {
         v = (s16)(func_00231d70(1) + 1);
         t = (s16)(datPersonaGetStat(p, kind) & 0xFF);
@@ -1139,7 +1139,7 @@ s32 func_00370020(s32 arg0, u8 *arg1)
         if (t <= v) {
             v = t - 1;
         }
-        func_0010a780(p, kind, (s8)(-v));
+        datPersonaAddStat(p, kind, (s8)(-v));
     }
     *(u16 *)(arg1 + 4) = *(u16 *)(p + 2);
     *(u16 *)(arg1 + 8) = (u16)v;

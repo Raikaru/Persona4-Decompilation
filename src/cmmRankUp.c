@@ -137,7 +137,7 @@ extern u8 D_005DC974[];
 extern s64 func_00248760(s32 arg0);
 extern u8 *func_002438b0();
 extern u8 *func_00246d90();
-extern u8 *func_00109220(u16 personaId);
+extern u8 *datPersonaGetRow(u16 personaId);
 
 /* Old-style: the two callbacks passed here (func_00251e60 takes one s32,
  * func_00251ec0 takes none) do not share a signature, and a typed prototype
@@ -2737,7 +2737,7 @@ s32 func_00257900(u8 *task) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             temp_17_3 = (s32)(*(s32 *)(context + 8) - 0x96);
             func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            func_00278450(*(s8 *)(context + 0x3C), 1, func_00109220(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            func_00278450(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             temp_2_18 = (s32)(*(s32 *)(context + 0xC));
             if (temp_2_18 > 0) {
                 *(s32 *)(context + 0xC) = (s32) (temp_2_18 + 1);
@@ -2843,7 +2843,7 @@ s32 func_00257900(u8 *task) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             func_00256460(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
             func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            func_00278450(*(s8 *)(context + 0x3C), 1, func_00109220(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            func_00278450(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
             func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
             func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 2);
@@ -2859,7 +2859,7 @@ s32 func_00257900(u8 *task) {
             temp_f0_9 = 153.0f * temp_f21_2;
             func_00256460(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_9), (s32)( temp_f0_9), (s32)( temp_f0_9), 1, 0, 0, 1.0f, 1.0f);
             func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            func_00278450(*(s8 *)(context + 0x3C), 1, func_00109220(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            func_00278450(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             temp_f0_10 = 255.0f * temp_f21_2;
             func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
             func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
@@ -3231,14 +3231,14 @@ extern u8 *func_002438b0();
 extern u8 *func_00246830(u32);
 extern u8 *func_002468a0();
 extern u8 *func_00246d90();
-extern u8 *func_00109220(u16 personaId);
+extern u8 *datPersonaGetRow(u16 personaId);
 extern char *strcpy(char *destination, const char *source);
 extern void func_00275980(char *source, char *destination, s32 capacity);
 extern void func_002bbd80(s8 handle, s32 variable, void *text);
 extern s32 datGetFlag();
 extern void func_00106390();
 extern u16 *datPersonaGetRecord(u16 character);
-extern s32 func_0010cc20(u8 *character, u16 skill);
+extern s32 datPersonaAddSkill(u8 *character, u16 skill);
 extern void func_004599a0();
 extern void func_00459950();
 extern void func_00459880();
@@ -3456,7 +3456,7 @@ s32 func_0025b240(u8 *arg0) {
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
             func_00275980((char *)func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 2, sp160);
-            strcpy((char *)sp160, (char *)func_00109220(*(u16 *)(func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
+            strcpy((char *)sp160, (char *)datPersonaGetRow(*(u16 *)(func_00246d90((s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 3, sp160);
             func_002badc0(*(s8 *)(ctx + 0x3C), 4);
         } else if (tmp4 == 11) {
@@ -3556,18 +3556,18 @@ s32 func_0025b240(u8 *arg0) {
             skill = 0x113;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1469));
             func_002badc0(*(s8 *)(ctx + 0x3C), 0x12);
-            func_0010cc20((u8 *)datPersonaGetRecord(5), 0x113);
+            datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x113);
             break;
         case 8:
             skill = 0x112;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1456));
             func_002badc0(*(s8 *)(ctx + 0x3C), 0x13);
-            func_0010cc20((u8 *)datPersonaGetRecord(5), 0x112);
+            datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x112);
             break;
         case 9:
             skill = 0x10D;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x13F7));
-            func_0010cc20((u8 *)datPersonaGetRecord(5), 0x10D);
+            datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x10D);
             break;
         }
         if (skill == 0x113) {

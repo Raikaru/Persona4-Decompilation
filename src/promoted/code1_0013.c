@@ -2071,7 +2071,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_001371a0(arg2, 2);
             *arg0 = 3;
             func_0034bd60(0xE);
-            func_0010b7f0();
+            datPersonaRemoveSelectedRosterMember();
             func_0045af60(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
@@ -2139,7 +2139,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0011c630(*(u8 **)(arg2 + 0x1CB4));
                 *arg0 = 9;
             } else if (D_008C024E[0] & 0x10) {
-                func_0010b7f0();
+                datPersonaRemoveSelectedRosterMember();
                 *(s32 *)(arg2 + 0x10) = func_00354030();
                 func_0011b360(*(u8 **)(arg2 + 0x1CB4));
                 func_00117580(*(u8 **)(arg2 + 0x1CB4), 0xB1);
@@ -2163,7 +2163,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 0xD;
             func_0045af60(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
-            func_0010b7f0();
+            datPersonaRemoveSelectedRosterMember();
             *(s32 *)(arg2 + 0x10) = func_00354030();
             func_0011b360(*(u8 **)(arg2 + 0x1CB4));
             func_00117580(*(u8 **)(arg2 + 0x1CB4), 0xB1);

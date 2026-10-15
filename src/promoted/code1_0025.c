@@ -44,7 +44,7 @@ void func_00106310(s32 arg0);
 void func_00106320(s32 arg0);
 s32 func_001106f0(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_0026bc10(u32 resourceId, u32 value);
-u8 func_00109bf0(u16 arg0, s32 arg1);
+u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 
 s32 func_0029d020(void);
 void func_001227d0(void);
@@ -55,7 +55,7 @@ s8 func_00110960(s16 arg0, s32 arg1);
 float scrGetParamFloat(s32 arg0);
 s16 func_00105010(s16 arg0, float arg1);
 s16 func_00104f10(s16 arg0);
-s32 func_0010a840(u16 arg0, s32 arg1, s32 arg2);
+s32 datPersonaAddStatById(u16 arg0, s32 arg1, s32 arg2);
 void func_00106620(s16 arg0, s32 arg1);
 s16 datGetPartyId(s32 arg0);
 void datSetPartyId(s32 arg0, s32 arg1);
@@ -630,7 +630,7 @@ s32 func_0025ce90(void) {
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     temp_18 = scrGetParamInt(2);
-    func_0010a840(temp_17 & 0xFFFF, temp_16 & 0xFFFF, (s8)temp_18);
+    datPersonaAddStatById(temp_17 & 0xFFFF, temp_16 & 0xFFFF, (s8)temp_18);
     return 1;
 }
 
@@ -652,7 +652,7 @@ s32 func_0025cf70(void) {
 
     temp_16 = scrGetParamInt(0);
     temp_17 = scrGetParamInt(1);
-    scrSetReturnInt(func_00109bf0(temp_16 & 0xFFFF, temp_17 & 0xFFFF) & 0xFF);
+    scrSetReturnInt(datPersonaGetTotalStatById(temp_16 & 0xFFFF, temp_17 & 0xFFFF) & 0xFF);
     return 1;
 }
 

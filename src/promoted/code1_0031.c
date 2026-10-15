@@ -17,7 +17,7 @@ static inline s32 func_0031_ne(s32 value, s32 target)
     return value != target;
 }
 
-extern u32 func_0010c750(void *persona, u16 level);
+extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106600(s16 id);
 extern u16 func_00107ac0(u16 arg0);
@@ -501,8 +501,8 @@ s32 func_00313fb0(u8 *arg0)
 {
     s32 temp;
 
-    temp = func_0010c750(arg0, (arg0[4] + 1) & 0xFFFF);
-    return temp - func_0010c750(arg0, arg0[4]);
+    temp = datPersonaGetExpForLevel(arg0, (arg0[4] + 1) & 0xFFFF);
+    return temp - datPersonaGetExpForLevel(arg0, arg0[4]);
 }
  
 /* measured: corrected all six callee declarations from the verified definitions. */

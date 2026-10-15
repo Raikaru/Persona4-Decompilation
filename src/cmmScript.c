@@ -67,7 +67,7 @@ extern s32 func_0046a750(s32 arg0);
 extern void func_00440b68(void* arg0, void* arg1, u32 arg2);
 extern u8* func_00246cd0(s32 arg0);
 extern void func_002483c0(s32 arg0);
-extern u8 *func_00109220(u16 arg0);
+extern u8 *datPersonaGetRow(u16 arg0);
 extern void func_0010d360(s32 arg0, void* arg1, s32* arg2);
 extern void func_001029a0(s32 arg0, void* arg1, s32 arg2, s32 arg3);
 extern s32 func_00102980(void);
@@ -337,7 +337,7 @@ s32 func_0024a490(void)
     func_002782c0(mesMgr, 4, func_00107ac0(id & 0xFFFF) & 0xFFFF, 0);
     key = func_00247820((s16)id);
     if (key != 0) {
-        func_00278450(mesMgr, 5, func_00109220(key & 0xFFFF));
+        func_00278450(mesMgr, 5, datPersonaGetRow(key & 0xFFFF));
     }
     idx = func_00248040(func_001060b0());
     if (idx != 0) {
@@ -391,7 +391,7 @@ s32 func_0024a710(void)
         u8 *base = iGpffffb3d4;
         s32 off = entry * 14;
         func_002782c0(mesMgr, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
-        func_00278450(mesMgr, 1, func_00109220(entry & 0xFFFF));
+        func_00278450(mesMgr, 1, datPersonaGetRow(entry & 0xFFFF));
         for (i = 0; i < 3; i++) {
             func_00278450(mesMgr, i + 2, &iGpffffa62c);
         }
@@ -432,7 +432,7 @@ s32 func_0024a8b0(void)
         u8 *base = iGpffffb3d4;
         s32 off = entry * 14;
         func_002782c0(mesMgr, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
-        func_00278450(mesMgr, 1, func_00109220(entry & 0xFFFF));
+        func_00278450(mesMgr, 1, datPersonaGetRow(entry & 0xFFFF));
         for (i = 0; i < 3; i++) {
             func_00278450(mesMgr, i + 2, &iGpffffa62c);
         }

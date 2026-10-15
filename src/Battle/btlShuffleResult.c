@@ -49,7 +49,7 @@ extern void func_0010cad0(u8 *dst, u16 id);
 extern s32 datPersonaRosterCapacity(void);
 extern u16 datPersonaLeadPersonaId(void);
 extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern u8 *func_00109220(u16 id);
+extern u8 *datPersonaGetRow(u16 id);
 extern void func_002bbd20(s32 a, void *text);
 extern s32 func_002baf40(s32 arg0);
 extern void func_002bb050(u8 param_1);
@@ -185,7 +185,7 @@ s32 func_00380ea0(u8 *arg0)
         if (*(s32 *)(state + 0x14) == 0) {
             if (D_008C024E[0] & 0x40) {
                 u8 *txt;
-                txt = func_00109220(*(u16 *)(((u8 **)(state + 0x4C))[sum] + 2));
+                txt = datPersonaGetRow(*(u16 *)(((u8 **)(state + 0x4C))[sum] + 2));
                 func_002bbd20(0, txt);
                 func_002bad10(4);
                 func_002baf40(5);
@@ -219,7 +219,7 @@ s32 func_00380ea0(u8 *arg0)
             func_0011bc70((u8 *)(*(s32 *)(state + 0x18)));
             {
                 u8 *txt;
-                txt = func_00109220(*(u16 *)(((u8 **)(state + 0x4C))[*(s32 *)(state + 4) + *(s32 *)(state + 8)] + 2));
+                txt = datPersonaGetRow(*(u16 *)(((u8 **)(state + 0x4C))[*(s32 *)(state + 4) + *(s32 *)(state + 8)] + 2));
                 func_002bbd20(0, txt);
                 func_002bad10(4);
                 func_002baf40(5);
@@ -270,7 +270,7 @@ s32 func_00380ea0(u8 *arg0)
             func_0011bc70((u8 *)(*(s32 *)(state + 0x18)));
             {
                 u8 *txt;
-                txt = func_00109220(*(u16 *)(((u8 **)(state + 0x4C))[*(s32 *)(state + 4) + *(s32 *)(state + 8)] + 2));
+                txt = datPersonaGetRow(*(u16 *)(((u8 **)(state + 0x4C))[*(s32 *)(state + 4) + *(s32 *)(state + 8)] + 2));
                 func_002bbd20(0, txt);
                 func_002bad10(4);
                 func_002baf40(5);
@@ -322,7 +322,7 @@ s32 func_00380ea0(u8 *arg0)
                     u8 **slot;
                     u8 *txt;
                     slot = &((u8 **)(state + 0x4C))[sum];
-                    txt = func_00109220(*(u16 *)(*slot + 2));
+                    txt = datPersonaGetRow(*(u16 *)(*slot + 2));
                     func_002bbd20(0, txt);
                     func_002bad10(6);
                     *(s32 *)state = 6;
@@ -576,12 +576,12 @@ static inline s32 shuffleResultPersonaState(u8 *work)
     } else {
         if (capacity == count) {
             memset(work + 0x18, 0, 0x7C);
-            func_002bbd20(0, func_00109220((u16)persona));
+            func_002bbd20(0, datPersonaGetRow((u16)persona));
             func_002bad10(3);
             result = 7;
         } else {
             datPersonaAddRosterMember((u16)persona);
-            func_002bbd20(0, func_00109220((u16)persona));
+            func_002bbd20(0, datPersonaGetRow((u16)persona));
             func_002bad10(1);
             result = 5;
         }
@@ -1016,7 +1016,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
             *(s32 *)(unit + 0x1F2A0) = func_00377eb0(*(u8 **)(unit + 0x1F2A8), (u8)(*(u8 *)(work + 0x12) - 1));
         }
         *(u16 *)(work + 6) = 0;
-        func_002bbd20(0, func_00109220(arg2));
+        func_002bbd20(0, datPersonaGetRow(arg2));
         func_002bad10(0);
         func_0038d2a0(*(u8 **)(unit + 0x1F298));
         *(s32 *)(work + 8) = 0;

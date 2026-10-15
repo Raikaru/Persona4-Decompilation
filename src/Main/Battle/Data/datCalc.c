@@ -92,7 +92,7 @@ extern void func_00233370(u8 *arg0, u8 arg1, s32 arg2);
 extern void func_00233490(u8 *arg0, u8 arg1, s8 arg2);
 
 extern u8 func_00232b40(u8 *arg0, s32 arg1);
-extern u8 func_00109bf0(u16 arg0, s32 arg1);
+extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
 extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
@@ -648,7 +648,7 @@ u8 func_00232c70(u8 *arg0, s32 arg1)
         if (*(u16 *)(arg0 + 2) >= 0xB) {
             func_0046d730(D_00635938, 0x31A);
         }
-        v = (u32)func_00109bf0(*(u16 *)(arg0 + 2), arg1);
+        v = (u32)datPersonaGetTotalStatById(*(u16 *)(arg0 + 2), arg1);
         v &= 0xFF;
     }
     flag = (*(s32 *)(arg0 + 0xC) & 0x80) != 0;
@@ -2753,7 +2753,7 @@ s32 func_0023a620(s32 arg0, u16 arg1)
 }
 /* Base persona resistance and unit-type query. */
 extern u8 *iGpffffb3c8;
-extern u32 func_00109870(u16 arg0, s32 arg1);
+extern u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1);
 extern s32 func_00243e30(u16 *arg0);
 
 #pragma push
@@ -2792,7 +2792,7 @@ s32 func_0023a6b0(u8 *arg0, s32 arg1)
         func_0046d730(D_00635938, 0xCC2);
     }
     if ((*(u16 *)arg0 & 4) == 0) {
-        val = func_00109870(*(u16 *)(arg0 + 2), (u16)arg1);
+        val = datPersonaGetSkillSlot(*(u16 *)(arg0 + 2), (u16)arg1);
     } else {
         if (*(u16 *)(arg0 + 4) >= 0x150) {
             func_0046d730(D_00635938, 0xCCD);
