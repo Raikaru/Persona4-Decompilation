@@ -47,7 +47,7 @@ extern char D_00712938[];
 
 
 // FUN_00464650
-void func_00464650(s32 file, void* buffer, s32 size)
+void H_Memcard_BeginLoad(s32 file, void* buffer, s32 size)
 {
     D_00764BC0 = 0;
     D_00764BBC = 0;
@@ -74,7 +74,7 @@ void H_Memcard_SetSeqMode4(void)
 }
 
 // FUN_00465400
-s32 func_00465400(void)
+s32 H_Memcard_CheckCard(void)
 {
     s32 status;
     s32 cardMode;
@@ -155,7 +155,7 @@ void H_Memcard_SetAbort(void)
 }
 
 // FUN_00465570
-void func_00465570(s32 file, void* buffer, s32 size)
+void H_Memcard_BeginSave(s32 file, void* buffer, s32 size)
 {
     D_00764BC0 = 0;
     D_00764BBC = 0;
@@ -168,7 +168,7 @@ void func_00465570(s32 file, void* buffer, s32 size)
 
 
 // FUN_00465590
-s32 func_00465590(void)
+s32 H_Memcard_SaveStep(void)
 {
     s32 cardMode;
     s32 cardCode;
@@ -304,7 +304,7 @@ done:
     return 0;
 }
 // FUN_004659F0
-void func_004659F0(s32 file)
+void H_Memcard_SetRecordTable(s32 file)
 {
     D_00764BC0 = 0;
     D_00764BA8 = (s32 *)(uintptr_t)file;
@@ -313,7 +313,7 @@ void func_004659F0(s32 file)
     iGpffffbab0 = 0;
 }
 // FUN_00465A10
-s32 func_00465a10(void)
+s32 H_Memcard_LoadStep(void)
 {
     s32 cardMode;
     s32 cardCode;
@@ -454,7 +454,7 @@ done:
     return 0;
 }
 // FUN_00465F20
-void func_00465F20(void)
+void H_Memcard_Reset(void)
 {
     D_00764BC0 = 0;
     D_00764BBC = 0;
@@ -462,7 +462,7 @@ void func_00465F20(void)
 }
 /* measured: plain C reproduces the complete 800-byte state machine except for the final-state result setup order (retail loads iGpffffbaa8 before materializing 100; b210 reverses those two instructions). Object 796B/window 800B, normalized_diff 6. Committed at nd 6. */
 // FUN_00465F40
-s32 func_00465f40(void)
+s32 H_Memcard_CreateSlotsStep(void)
 {
   s32 sp1C;
   s32 sp18;
@@ -585,7 +585,7 @@ s32 func_00465f40(void)
 
 
 // FUN_00466260
-void func_00466260(s32 slot)
+void H_Memcard_SetSlot(s32 slot)
 {
     D_00764BC0 = 0;
     D_00764BBC = 0;

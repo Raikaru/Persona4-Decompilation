@@ -26,13 +26,13 @@ extern s32 func_0025ef20(const void *);
 extern s32 func_0025f110(s32);
 extern s32 func_00454a60(const char *path, s32 flags);
 extern void func_00440b68(const void *, ...);
-extern void func_004659f0(void *);
+extern void H_Memcard_SetRecordTable(void *);
 extern void func_0025e8b0(s32);
 extern s32 func_0025e800(s32, s32, s32);
 extern u8 *func_0010d7c0(s32, s32 *, s32);
 extern void memcpy(void *, void *, s32);
-extern void func_00464650(s32, void *, s32);
-extern void func_00466260(s32);
+extern void H_Memcard_BeginLoad(s32, void *, s32);
+extern void H_Memcard_SetSlot(s32);
 extern char D_0063EB90[];
 extern char D_0063EBB0[];
 extern char D_0063EBD0[];
@@ -109,16 +109,16 @@ extern char D_0063ECB0[];
 extern char D_0063ECD0[];
 extern char D_0063ECF0[];
 extern char D_0063ED20[];
-extern s32 func_00465a10(s32);
+extern s32 H_Memcard_LoadStep(s32);
 extern s32 func_0025e8f0(s32);
 extern void H_Memcard_SetAbort(void);
-extern s32 func_00465400(void);
+extern s32 H_Memcard_CheckCard(void);
 extern s32 func_00466280(s32);
 extern s32 func_004647c0(void);
 extern void H_Memcard_SetSeqMode9(void);
 extern void H_Memcard_SetSeqMode4(void);
-extern void func_00465570(s32, s32, s32);
-extern s32 func_00465590(void);
+extern void H_Memcard_BeginSave(s32, s32, s32);
+extern s32 H_Memcard_SaveStep(void);
 extern void func_0010e710(s32, u8 *, s32);
 extern s32 func_0010e880(s32, u8 *, s32);
 extern u16 D_008C024E[];
@@ -162,7 +162,7 @@ void mcSetState(u8 *arg0, s32 arg1) {
     switch (v) {
     case 0:
         memset(arg0 + 0x14, 0, 0x380);
-        func_004659f0(arg0 + 0x14);
+        H_Memcard_SetRecordTable(arg0 + 0x14);
         if (*(s32 *)(arg0 + 0x394) != 0) {
             func_0025e8b0(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
@@ -171,7 +171,7 @@ void mcSetState(u8 *arg0, s32 arg1) {
         func_00440b68(&D_0063EB90);
         return;
     case 1:
-        func_00466260(*(s32 *)(arg0 + 0x3AC));
+        H_Memcard_SetSlot(*(s32 *)(arg0 + 0x3AC));
         *(s32 *)(arg0 + 0xC) = 0;
         return;
     case 2:
@@ -186,7 +186,7 @@ void mcSetState(u8 *arg0, s32 arg1) {
             *(s32 *)p = p17;
         }
         D_008873EC[0](p18);
-        func_00464650(t19, (void *)*(s32 *)(p + 4), *(s32 *)p);
+        H_Memcard_BeginLoad(t19, (void *)*(s32 *)(p + 4), *(s32 *)p);
         *(s32 *)(arg0 + 0x39C) = (s32)p;
         if (*(s32 *)(arg0 + 0x394) != 0) {
             func_0025e8b0(*(s32 *)(arg0 + 0x394));
@@ -213,7 +213,7 @@ s32 func_002a3070(u8 *arg0) {
     v = *(s32 *)(arg0 + 0xC);
     switch (v) {
     case 0:
-        switch (r = func_00465a10(v)) {
+        switch (r = H_Memcard_LoadStep(v)) {
         case 100:
             if (*(s32 *)(arg0 + 0x394) != 0) {
                 func_0025e8b0(*(s32 *)(arg0 + 0x394));
@@ -254,7 +254,7 @@ s32 func_002a3070(u8 *arg0) {
         if (r != 0) {
             var_16 = 1;
         }
-        r = func_00465400();
+        r = H_Memcard_CheckCard();
         switch (r) {
         case -2:
         case 3:
@@ -496,7 +496,7 @@ s32 func_002a34e0(u8 *arg0) {
             D_008873EC[0](*(void **)(arg0 + 0x39C));
             return 2;
         }
-        t = func_00465400();
+        t = H_Memcard_CheckCard();
         switch (t) {
         case -5:
         case 3:
@@ -538,7 +538,7 @@ s32 func_002a34e0(u8 *arg0) {
         case 2:
             return 2;
         }
-        t = func_00465400();
+        t = H_Memcard_CheckCard();
         switch (t) {
         case -5:
         case 3:
@@ -573,7 +573,7 @@ s32 func_002a34e0(u8 *arg0) {
         if (t != 0) {
             *(s32 *)(arg0 + 0xC) = 0xC;
         }
-        t = func_00465400();
+        t = H_Memcard_CheckCard();
         switch (t) {
         case -2:
         case 3:
@@ -608,7 +608,7 @@ s32 func_002a34e0(u8 *arg0) {
         if (t != 0) {
             return 4;
         }
-        t = func_00465400();
+        t = H_Memcard_CheckCard();
         switch (t) {
         case -2:
         case 3:
@@ -665,7 +665,7 @@ s32 func_002a3d80(s32 address) {
         case 2:
             return 2;
         }
-        t = func_00465400();
+        t = H_Memcard_CheckCard();
         switch (t) {
         case 0:
             break;
@@ -681,11 +681,11 @@ s32 func_002a3d80(s32 address) {
         chkmemAllocSiteTag(&D_007638F8, 0x16D);
         p = D_008873F4[0](1, 0x38008, 0x40000);
         *(u8 **)(p + 4) = p + 8;
-        func_00465570(file, *(s32 *)(p + 4), (s32)p);
+        H_Memcard_BeginSave(file, *(s32 *)(p + 4), (s32)p);
         *(u8 **)(arg0 + 0x39C) = p;
         /* fallthrough */
     case 19:
-        t = func_00465590();
+        t = H_Memcard_SaveStep();
         if (t == 0) {
             break;
         }
@@ -766,7 +766,7 @@ read_failed:
         if (t != 0) {
             *(s32 *)(arg0 + 0xC) = 0xC;
         }
-        t = func_00465400();
+        t = H_Memcard_CheckCard();
         switch (t) {
         case -2:
         case 3:
@@ -791,7 +791,7 @@ read_failed:
         if (t != 0) {
             return 4;
         }
-        t = func_00465400();
+        t = H_Memcard_CheckCard();
         switch (t) {
         case -2:
         case 3:
@@ -816,7 +816,7 @@ read_failed:
         if (t != 0) {
             return 4;
         }
-        t = func_00465400();
+        t = H_Memcard_CheckCard();
         switch (t) {
         case -2:
         case 3:
@@ -969,7 +969,7 @@ s32 func_002a4570(u8 *work) {
             func_0045af60(0, 0, 0, 2);
             goto return_zero;
         }
-        value = func_00465400();
+        value = H_Memcard_CheckCard();
         switch (value) {
         case 100:
         case -1:
