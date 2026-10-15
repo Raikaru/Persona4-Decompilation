@@ -363,14 +363,15 @@ s32 func_0024a490(void)
 /* Closes the measured optimization_level 1 scope opened above; -O2 is the
    baseline everywhere else in this translation unit. */
 #pragma optimization_level 2
+// Persona info lookup and show: resolves the persona entry from the script id, then fills the message slots.
 // FUN_0024A710
 /* measured: -O2 CSEs `entry & 0xFFFF` into a callee-saved copy and sinks
    the iGpffffb3d4 base load past the multiply (nd 287, object 428 of 416);
    level 1 restores the per-site andi and retail's load-first order. Same
-   recipe as FUN_0024A8B0 below, including the integer-domain
+   recipe as cmmPersonaInfoShow below, including the integer-domain
    ((u32)off + (u32)base) add. */
 #pragma optimization_level 1
-s32 func_0024a710(void)
+s32 cmmPersonaInfoLookupShow(void)
 {
     s32 count;
     u16 vals[0xE];
@@ -414,10 +415,11 @@ s32 func_0024a710(void)
    level 1 restores the per-site andi. The base hoist (u8 *base = iGpffffb3d4)
    reproduces retail's load-first-into-$v1 and the integer-domain add
    ((u32)off + (u32)base) reproduces the index-first addu $v0,$v0,$v1. */
+// Persona info show: fills the message slots (name row, stat strings) for the persona entry in arg 0.
 // FUN_0024A8B0
 #pragma optimization_level 1
 
-s32 func_0024a8b0(void)
+s32 cmmPersonaInfoShow(void)
 {
     s32 count;
     u16 vals[0xE];
