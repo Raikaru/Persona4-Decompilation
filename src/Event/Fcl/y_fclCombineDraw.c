@@ -2427,8 +2427,9 @@ void fclCombineDrawSlotFields(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg
    cached across the blocks.  Each block keeps its own node handle, which
    gives retail's $s0/$s1/$s2 = arg2/arg3/handle colouring, and the
    offset rows read arg1.y into a local before adding the offset. */
+// Fcl combine slot labels: creates the five label sprites of one slot at fixed offsets from position (0x27C, 0x289, and the 0x72, 0x2AF and 0x2B0 value labels), each fading in or out (mode 1) and sliding into place at the given delay.
 // FUN_0031FA20
-void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
+void fclCombineDrawSlotLabels(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     FclByte4 c13C;
     FclByte4 c138;
@@ -3183,7 +3184,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     }
                     ++jb1;
                 }
-                func_0031fa20(arg0, func_002b2970((f32)0x149, 104.0f), 3, 0);
+                fclCombineDrawSlotLabels(arg0, func_002b2970((f32)0x149, 104.0f), 3, 0);
                 func_003205f0(arg0, 0x94, 0x93);
                 fclSpriteSetFlag(0x1C7, 2, 1);
                 fclCombineFlashSlot(arg0, (s32)*(s8 *)(t + 0x128));

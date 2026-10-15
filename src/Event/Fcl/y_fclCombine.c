@@ -1827,7 +1827,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     sp208 = func_002b2970(16.0f, 104.0f);
                     fclCombineDrawSlotFields(arg0, sp208, 0, 1, 0, 0, 0);
                     sp200 = func_002b2970((f32)0x149, 104.0f);
-                    func_0031fa20(arg0, sp200, 0, 1);
+                    fclCombineDrawSlotLabels(arg0, sp200, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
                     fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 0.0f);
@@ -1851,7 +1851,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     sp1E8 = func_002b2970(16.0f, 104.0f);
                     fclCombineDrawSlotFields(arg0, sp1E8, 0, 1, 0, 0, 0);
                     sp1E0 = func_002b2970((f32)0x149, 104.0f);
-                    func_0031fa20(arg0, sp1E0, 0, 1);
+                    fclCombineDrawSlotLabels(arg0, sp1E0, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
                     fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 60.0f);
@@ -1870,7 +1870,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                 sp1D0.position = func_002b2970(-380.0f, basePos->y);
                 fclCombineDrawPersonaCard(arg0, temp_18->f128, sp1D8.position, sp1D0.position);
                 sp1C8 = func_002b2970((f32)0x149, 104.0f);
-                func_0031fa20(arg0, sp1C8, 0, 1);
+                fclCombineDrawSlotLabels(arg0, sp1C8, 0, 1);
                 for (var_17_4 = 0; var_17_4 < (datPersonaRosterCapacity() & 0xFFFF); var_17_4++) {
                     sp1C0.position = func_002b2970((f32)0x149, 128.0f);
                     temp_16_11 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_4))[1];
@@ -1940,7 +1940,7 @@ void fclCombineMenuFusion(u8 *arg0) {
             sp1A8 = func_002b2970(16.0f, 104.0f);
             fclCombineDrawSlotFields(arg0, sp1A8, 0, 0, 0, 0, 0);
             sp1A0 = func_002b2970((f32)0x149, 104.0f);
-            func_0031fa20(arg0, sp1A0, 0, 0);
+            fclCombineDrawSlotLabels(arg0, sp1A0, 0, 0);
             fclCombineLayoutFrame(arg0, 1, 0);
             fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             func_002b6140(temp_18->f28C, 0);
@@ -2112,7 +2112,7 @@ void fclCombineMenuFusion(u8 *arg0) {
             sp168 = func_002b2970(16.0f, 104.0f);
             fclCombineDrawSlotFields(arg0, sp168, 0, 0, 0, 0, 0);
             sp160 = func_002b2970((f32)0x149, 104.0f);
-            func_0031fa20(arg0, sp160, 0, 0);
+            fclCombineDrawSlotLabels(arg0, sp160, 0, 0);
             func_002b6140(temp_18->f28C, 0);
             func_002b6140(temp_18->f290, 0);
             temp_18->f1 = 0x2A;
@@ -2911,7 +2911,7 @@ block_83:
                             }
                         }
                         sp300 = func_002b2970((f32) 0x149, 104.0f);
-                        func_0031fa20(arg0, sp300, 3, 0);
+                        fclCombineDrawSlotLabels(arg0, sp300, 3, 0);
                         func_003205f0(arg0, 0x95, 0x94);
                         fclCombineFlashSlot(arg0, temp_17->f129);
                         temp_17->f1 = 0x43U;
@@ -3093,7 +3093,7 @@ block_166:
                     sp298 = func_002b2970(16.0f, 104.0f);
                     fclCombineDrawSlotFields(arg0, sp298, 0, 1, 0, 0, 0);
                     sp290 = func_002b2970((f32) 0x149, 104.0f);
-                    func_0031fa20(arg0, sp290, 0, 1);
+                    fclCombineDrawSlotLabels(arg0, sp290, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
                     fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 60.0f);
@@ -3120,7 +3120,7 @@ block_166:
                             sp278 = func_002b2970(16.0f, 104.0f);
                             fclCombineDrawSlotFields(arg0, sp278, 0, 1, 0, 0, 0);
                             sp270 = func_002b2970((f32) 0x149, 104.0f);
-                            func_0031fa20(arg0, sp270, 0, 1);
+                            fclCombineDrawSlotLabels(arg0, sp270, 0, 1);
                             fclCombineLayoutFrame(arg0, 1, 1);
                             fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                             fclCombineFadePanelSprite(arg0, 0, 0);
@@ -3143,7 +3143,7 @@ block_166:
                     sp260 = func_002b2970(-380.0f, 81.0f);
                     fclCombineDrawPersonaCardAlt(arg0, temp_17->f129, sp268, sp260);
                     sp258 = func_002b2970((f32) 0x149, 104.0f);
-                    func_0031fa20(arg0, sp258, 0, 1);
+                    fclCombineDrawSlotLabels(arg0, sp258, 0, 1);
                     for (resultRow = 0; resultRow < (datPersonaRosterCapacity() & 0xFFFF); resultRow++) {
                         sp250 = func_002b2970((f32) 0x149, 128.0f);
 
@@ -3237,7 +3237,7 @@ block_215:
                 sp238 = func_002b2970(16.0f, 104.0f);
                 fclCombineDrawSlotFields(arg0, sp238, 0, 0, 0, 0, 0);
                 sp230 = func_002b2970((f32) 0x149, 104.0f);
-                func_0031fa20(arg0, sp230, 0, 0);
+                fclCombineDrawSlotLabels(arg0, sp230, 0, 0);
                 temp_17->f1 = 0x43U;
                 return;
             }
@@ -3443,7 +3443,7 @@ block_215:
             sp1F8 = func_002b2970(16.0f, 104.0f);
             fclCombineDrawSlotFields(arg0, sp1F8, 0, 0, 0, 0, 0);
             sp1F0 = func_002b2970((f32) 0x149, 104.0f);
-            func_0031fa20(arg0, sp1F0, 0, 0);
+            fclCombineDrawSlotLabels(arg0, sp1F0, 0, 0);
             temp_17->f1 = 0x43U;
             return;
         }
@@ -6999,7 +6999,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                         sdkSpriteFreeNode(temp_21_6);
                     }
                     sp238 = func_002b2970((f32) 0x149, 104.0f);
-                    func_0031fa20(arg0, sp238, 3, 0);
+                    fclCombineDrawSlotLabels(arg0, sp238, 3, 0);
                     func_003205f0(arg0, 0x94, 0x93);
                     fclCombineFlashSlot(arg0, (s64)work->f128);
                     work->f1 = 0x7EU;
@@ -7187,7 +7187,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     sp210 = func_002b2970(16.0f, 104.0f);
                     fclCombineDrawSlotFields(arg0, sp210, 0, 1, 0, 0, 0);
                     sp208 = func_002b2970((f32) 0x149, 104.0f);
-                    func_0031fa20(arg0, sp208, 0, 1);
+                    fclCombineDrawSlotLabels(arg0, sp208, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
                     fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 0);
@@ -7210,7 +7210,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     sp1F0 = func_002b2970(16.0f, 104.0f);
                     fclCombineDrawSlotFields(arg0, sp1F0, 0, 1, 0, 0, 0);
                     sp1E8 = func_002b2970((f32) 0x149, 104.0f);
-                    func_0031fa20(arg0, sp1E8, 0, 1);
+                    fclCombineDrawSlotLabels(arg0, sp1E8, 0, 1);
                     fclCombineLayoutFrame(arg0, 1, 1);
                     fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     func_002b6140((u8 *)(work->f28C), 1);
@@ -7229,7 +7229,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     sp1D8 = func_002b2970(-380.0f, basePos->y);
                     fclCombineDrawPersonaCard(arg0, work->f128, *(FclVec2f *)&sp1E0, *(FclVec2f *)&sp1D8);
                     sp1D0 = func_002b2970((f32) 0x149, 104.0f);
-                    func_0031fa20(arg0, sp1D0, 0, 1);
+                    fclCombineDrawSlotLabels(arg0, sp1D0, 0, 1);
                     for (var_18_7 = 0; var_18_7 < (datPersonaRosterCapacity() & 0xFFFF); var_18_7++) {
                         sp1C8 = func_002b2970((f32) 0x149, 128.0f);
                         temp_16_19 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_7))+(2))));
@@ -7278,7 +7278,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             sp1B0 = func_002b2970(16.0f, 104.0f);
             fclCombineDrawSlotFields(arg0, sp1B0, 0, 0, 0, 0, 0);
             sp1A8 = func_002b2970((f32) 0x149, 104.0f);
-            func_0031fa20(arg0, sp1A8, 0, 0);
+            fclCombineDrawSlotLabels(arg0, sp1A8, 0, 0);
             fclCombineLayoutFrame(arg0, 1, 0);
             fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             work->f1 = 0x7EU;
@@ -7345,7 +7345,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 sp190 = func_002b2970(16.0f, 104.0f);
                 fclCombineDrawSlotFields(arg0, sp190, 0, 0, 0, 0, 0);
                 sp188 = func_002b2970((f32) 0x149, 104.0f);
-                func_0031fa20(arg0, sp188, 0, 0);
+                fclCombineDrawSlotLabels(arg0, sp188, 0, 0);
                 fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 fclCombineFadePanelSprite(arg0, 1, 0);
                 for (var_4_2 = 0; var_4_2 < 5; var_4_2++) {
