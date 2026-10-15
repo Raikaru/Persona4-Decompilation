@@ -13,7 +13,7 @@ extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern s64 func_00248760(s32 arg0);
 extern s32 func_00247dd0(s32 arg0);
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
-extern s32 func_001077f0(s32 arg0);
+extern s32 cmmCommunityHasRecord(s32 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern s32 func_00107c80(s32 arg0);
 extern s32 func_00107ea0(s32 arg0);
@@ -37,7 +37,7 @@ extern s16 D_007973F4[];
 extern u32 D_0079B1CC[];
 extern u8 D_007973A0[];
 extern void *cmmKindRecord(s32 arg0);
-extern void func_001076e0(s32 arg0);
+extern void cmmCommunityReleaseRecord(s32 arg0);
 extern void func_00106390(s32 a, s32 b);
 extern void cmmCommunitySetFlagBand(s32 a, s32 b);
 
@@ -120,7 +120,7 @@ static inline void CommunityFlags_Clear(s32 community)
     }
 }
 
-// Community refresh flags: clears the flag bands of community arg0 and rebuilds them from its record: the base band (func_001077f0) and the rank band (rank 10 maps to band 1, others to rank + 3), then bands 2 (func_00107c80) and 3 (func_00107ea0).
+// Community refresh flags: clears the flag bands of community arg0 and rebuilds them from its record: the base band (cmmCommunityHasRecord) and the rank band (rank 10 maps to band 1, others to rank + 3), then bands 2 (func_00107c80) and 3 (func_00107ea0).
 // FUN_00106F40
 void cmmCommunityRefreshFlags(s32 arg0) {
     u8 *record;
@@ -135,7 +135,7 @@ void cmmCommunityRefreshFlags(s32 arg0) {
     if (record == NULL) {
         return;
     }
-    if (func_001077f0(arg0) != 0) {
+    if (cmmCommunityHasRecord(arg0) != 0) {
         cmmCommunitySetFlagBand(arg0, 0);
         rank = *(u16 *)(record + 6);
         if (rank == 0xA) {
@@ -188,7 +188,7 @@ s32 cmmCommunityFindRecord(s32 arg0)
     return 0;
 }
 
-// Community find by kind: returns the first flagged community id (func_001077f0) whose kind record (cmmKindRecord) equals arg0, or 0 when none matches.
+// Community find by kind: returns the first flagged community id (cmmCommunityHasRecord) whose kind record (cmmKindRecord) equals arg0, or 0 when none matches.
 // FUN_00107180
 s32 cmmCommunityFindByKind(s16 arg0)
 {
@@ -204,7 +204,7 @@ s32 cmmCommunityFindByKind(s16 arg0)
     {
         if (arg0 == *(s32 *)cmmKindRecord(i & 0xFFFF))
         {
-            if (func_001077f0((u16)i) != 0)
+            if (cmmCommunityHasRecord((u16)i) != 0)
             {
                 result = i;
                 break;
@@ -258,60 +258,60 @@ void func_00107370(s32 arg0)
     switch (id)
     {
     case 3:
-        func_001076e0(4);
+        cmmCommunityReleaseRecord(4);
         break;
     case 4:
-        func_001076e0(3);
+        cmmCommunityReleaseRecord(3);
         break;
     case 5:
-        func_001076e0(6);
+        cmmCommunityReleaseRecord(6);
         break;
     case 6:
-        func_001076e0(5);
+        cmmCommunityReleaseRecord(5);
         break;
     case 0xB:
-        func_001076e0(0xC);
+        cmmCommunityReleaseRecord(0xC);
         break;
     case 0xC:
-        func_001076e0(0xB);
+        cmmCommunityReleaseRecord(0xB);
         break;
     case 0xE:
-        func_001076e0(0xF);
+        cmmCommunityReleaseRecord(0xF);
         break;
     case 0xF:
-        func_001076e0(0xE);
+        cmmCommunityReleaseRecord(0xE);
         break;
     case 0x15:
-        func_001076e0(0x16);
+        cmmCommunityReleaseRecord(0x16);
         break;
     case 0x16:
-        func_001076e0(0x15);
+        cmmCommunityReleaseRecord(0x15);
         break;
     case 0x19:
-        func_001076e0(0x1A);
-        func_001076e0(0x1C);
-        func_001076e0(0x1B);
+        cmmCommunityReleaseRecord(0x1A);
+        cmmCommunityReleaseRecord(0x1C);
+        cmmCommunityReleaseRecord(0x1B);
         break;
     case 0x1A:
-        func_001076e0(0x19);
-        func_001076e0(0x1C);
-        func_001076e0(0x1B);
+        cmmCommunityReleaseRecord(0x19);
+        cmmCommunityReleaseRecord(0x1C);
+        cmmCommunityReleaseRecord(0x1B);
         break;
     case 0x1B:
-        func_001076e0(0x1C);
-        func_001076e0(0x1A);
-        func_001076e0(0x19);
+        cmmCommunityReleaseRecord(0x1C);
+        cmmCommunityReleaseRecord(0x1A);
+        cmmCommunityReleaseRecord(0x19);
         break;
     case 0x1C:
-        func_001076e0(0x1B);
-        func_001076e0(0x1A);
-        func_001076e0(0x19);
+        cmmCommunityReleaseRecord(0x1B);
+        cmmCommunityReleaseRecord(0x1A);
+        cmmCommunityReleaseRecord(0x19);
         break;
     case 0x10:
-        func_001076e0(0x11);
+        cmmCommunityReleaseRecord(0x11);
         break;
     case 0x11:
-        func_001076e0(0x10);
+        cmmCommunityReleaseRecord(0x10);
         break;
     }
 }
@@ -322,13 +322,14 @@ void func_00107370(s32 arg0)
    `if (cond) goto found;` (any if/else polarity) into a single beqz->found with
    the advance inline. Tried while+break+retest (re-test not folded), goto,
    both if/else orders — all nd 10. Branch-shape floor. */
+// Community alloc record: when arg0 has no record, claims the first free slot of the table at D_00797410, sets its id and its +6 field to 1, and sets flag bands 0 and 4. Asserts on a full table or a zero id.
 // FUN_001075D0
-void func_001075d0(s32 arg0) {
+void cmmCommunityAllocRecord(s32 arg0) {
     u8 *r;
     u8 *p;
     s32 i;
 
-    if (func_001077f0(arg0) != 0) {
+    if (cmmCommunityHasRecord(arg0) != 0) {
         return;
     }
     func_00107370(arg0);
@@ -365,7 +366,7 @@ ret:
    (beq->found), and a post-loop NULL retest is only free (reuses the loop slti)
    when kept off the found path via goto; ==/> retest forms regress. Best nd 10
    (goto + >= retest); 4 attempts. Branch-shape + retest floor. */
-/* Community-slot scan family (func_001076e0/1077f0/107a00/107bd0/107ce0/107dc0/
+/* Community-slot scan family (cmmCommunityReleaseRecord/cmmCommunityHasRecord/107a00/107bd0/107ce0/107dc0/
    107f00/107fe0): walk 21 records of stride 16 from D_007973A0[0x70] looking for a
    matching id. All eight sit at nd 38 with the body below, recovered from the m2c
    draft via tools/draft_probe.py. Two m2c defects had to be repaired first: the
@@ -382,8 +383,9 @@ ret:
    An in-loop `return` DOES produce the pair at the exact window size but then
    materialises its own return value where retail falls into the shared block.
    Committed at nd 72. */
+// Community release record: when arg0 has a record, clears it and its 13 flag bands; asserts on a zero id in that case.
 // FUN_001076E0
-void func_001076e0(s32 arg0) {
+void cmmCommunityReleaseRecord(s32 arg0) {
     s32 j;
     s32 id = arg0 & 0xFFFF;
     u8 *r;
@@ -434,10 +436,11 @@ ret:
    (nd 17); goto/break/switch forms merge into a single conditional branch
    (best nd 14 m2c-goto form). The found path must jump to the shared return
    block, which mwcc b210 only does for the merged goto. Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38.
+/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
+// Community has record: returns 1 when a record with id arg0 is in the 21-entry table at D_00797410, else 0. Asserts the id is in range.
 // FUN_001077F0
-s32 func_001077f0(s32 arg0) {
+s32 cmmCommunityHasRecord(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -516,12 +519,12 @@ s32 cmmCommunityFindActiveSlotInGroup(s32 arg0)
     return 0;
 }
 
-/* measured: same slot-search floor as func_001075d0: retail's found-exit is
+/* measured: same slot-search floor as cmmCommunityAllocRecord: retail's found-exit is
    bne->advance; b found, jumping to a shared NULL-retest tail; mwcc b210
    merges the goto spelling into a single beq->found (nd 24) and the
    return-then spelling inlines the found lw/and block into the loop instead
    of the shared retest tail (nd 25). Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38.
+/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
 // FUN_00107A00
 s32 func_00107a00(s32 arg0, s32 arg1) {
@@ -555,10 +558,10 @@ ret:
     return *(s32 *)r & arg1;
 }
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38.
+/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
 // FUN_00107AC0
 u16 func_00107ac0(s32 arg0) {
@@ -611,10 +614,10 @@ s32 func_00107b70(s32 arg0)
     return 0;
 }
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38.
+/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
 // Community record flag: sets bit 0x4 in the record of community arg0; does nothing when the id has no record.
 // FUN_00107BD0
@@ -648,10 +651,10 @@ ret:
     }
 }
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38.
+/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
 // FUN_00107CE0
 void func_00107ce0(s32 arg0) {
@@ -686,10 +689,10 @@ ret:
     }
 }
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38.
+/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
 // FUN_00107DC0
 void func_00107dc0(s32 arg0) {
@@ -764,10 +767,10 @@ s32 func_00107ea0(s32 arg0)
     return 0;
 }
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38.
+/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
 // FUN_00107F00
 void func_00107f00(s32 arg0) {
@@ -802,10 +805,10 @@ ret:
     }
 }
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38.
+/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
 // FUN_00107FE0
 void func_00107fe0(s32 arg0) {
@@ -894,7 +897,7 @@ f32 func_001080c0(s32 arg0) {
 #pragma optimization_level 2
 
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 151
    (loop floor plus tail register-allocation noise). Branch-shape floor. */
 // FUN_00108290
@@ -1091,7 +1094,7 @@ ret:
 }
 
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
    (loop floor plus tail noise). Branch-shape floor. */
 /* measured: reconstructed this wave. Slot-search head plus the community
@@ -1200,7 +1203,7 @@ ret0:
 /* measured: closes the -O1 bracket above at the file's -O2 baseline. */
 #pragma optimization_level 2
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 18
    (tail matched; s16 arg1 variant only differs by mwcc's post-jal
    re-extension, nd 47 with s32 arg1 from assert-block scheduling).
@@ -1342,7 +1345,7 @@ u16 cmmCommunityGetTableHead(void)
     return D_0079740C[0];
 }
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
    (loop floor; the descending switch and call loop match otherwise).
    Branch-shape floor. */

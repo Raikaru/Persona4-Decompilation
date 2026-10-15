@@ -14,8 +14,8 @@ extern s32 kwlnTaskGetTaskByName(void *path);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_006359B0[];
 extern u8 D_006359C0[];
-extern s32 func_001075d0(s32 arg0);
-extern s32 func_001077f0(s32 arg0);
+extern void cmmCommunityAllocRecord(s32 arg0);
+extern s32 cmmCommunityHasRecord(s32 arg0);
 extern s32 cmmCommunityGetCurrentId(void);
 extern s32 func_00107ac0(s32 arg0);
 extern s32 func_00108950(s32 arg0);
@@ -318,8 +318,8 @@ s32 func_00249b10(void)
     if (temp_16 == 0) {
         temp_16 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (func_001077f0(temp_16 & 0xFFFF) == 0) {
-        func_001075d0(temp_16 & 0xFFFF);
+    if (cmmCommunityHasRecord(temp_16 & 0xFFFF) == 0) {
+        cmmCommunityAllocRecord(temp_16 & 0xFFFF);
     }
     return 1;
 }
@@ -335,7 +335,7 @@ s32 cmmExist(void)
     if (var_2 == 0) {
         var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    scrSetReturnInt(func_001077f0(var_2 & 0xFFFF));
+    scrSetReturnInt(cmmCommunityHasRecord(var_2 & 0xFFFF));
     return 1;
 }
 // Intent: Event command CMM_GET_LV (p4flow Event 0x3003): returns the cmm entry level [inferred]
